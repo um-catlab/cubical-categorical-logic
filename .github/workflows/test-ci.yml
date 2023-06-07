@@ -73,7 +73,9 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: awk for line 80 chars wide
-        run: find . -type f -name "*.agda" -print0 | xargs -0 awk 'length($0) > 80 { print FILENAME ":" FNR ": line too long"; exit 1 }'
+        run: |
+          find . -type f -name "*.agda" -print0 | xargs -0 awk 'length($0) > 80 { print FILENAME ":" FNR ": line too long"; exit 1 }'
+
   test:
     runs-on: ubuntu-latest
     steps:

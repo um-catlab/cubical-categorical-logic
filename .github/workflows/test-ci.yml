@@ -161,7 +161,4 @@ jobs:
 
       - name: Test multi-poly-cats
         run: |
-          make test \
-            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
-            EVERYTHINGS='cabal run Everythings'
+          make test

@@ -15,6 +15,50 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+########################################################################
+## CONFIGURATION
+##
+## See SETTINGS for the most important configuration variable: AGDA_BRANCH.
+## It has to be defined as a build step because it is potentially branch
+## dependent.
+##
+## As for the rest:
+##
+## Basically do not touch GHC_VERSION and CABAL_VERSION as long as
+## they aren't a problem in the build. If you have time to waste, it
+## could be worth investigating whether newer versions of ghc produce
+## more efficient Agda executable and could cut down the build time.
+## Just be aware that actions are flaky and small variations are to be
+## expected.
+##
+## The CABAL_INSTALL variable only passes `-O1` optimisations to ghc
+## because github actions cannot currently handle a build using `-O2`.
+## To be experimented with again in the future to see if things have
+## gotten better.
+##
+########################################################################
+
+########################################################################
+## SETTINGS
+##
+## AGDA_BRANCH picks the branch of Agda to use to build the library.
+## It doesn't really track the branch, so you have to drop caches to
+## get a new branch version if it changes. This will be fixed in the
+## next PR.
+########################################################################
+
+env:
+  AGDA_BRANCH: v2.6.3
+  GHC_VERSION: 9.2.5
+  CABAL_VERSION: 3.6.2.0
+  CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
+  CACHE_PATHS: |
+    ~/.cabal/packages
+    ~/.cabal/store
+    ~/.cabal/bin
+
+
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -36,3 +80,104 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install cabal
+        uses: haskell/actions/setup@v2
+        with:
+          ghc-version: ${{ env.GHC_VERSION }}
+          cabal-version: ${{ env.CABAL_VERSION }}
+          cabal-update: true
+
+      # This caching step allows us to save a lot of building time by only
+      # rebuilding Agda, and re-checking unchanged library files if
+      # absolutely necessary i.e. if we change either the version of Agda,
+      # ghc, or cabal that we want to use for the build.
+      - name: Restore external dependencies cache
+        uses: actions/cache/restore@v3
+        id: cache-external-restore
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
+
+      ########################################################################
+      ## INSTALLATION STEPS
+      ########################################################################
+
+      - name: Download and install Agda from github
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
+          cd agda
+          mkdir -p doc
+          touch doc/user-manual.pdf
+          ${{ env.CABAL_INSTALL }}
+          cd ..
+          rm -rf agda
+
+      - name: Download Cubical from github
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        run : |
+          git clone https://github.com/agda/cubical --branch master
+
+      - name: Set up Agda dependencies
+        run : |
+          echo "~/cubical/cubical.agda-lib" >> ~/.agda/libraries
+          echo "~/agda-stdlib/standard-library.agda-lib" >> ~/.agda/libraries
+          echo "~/multi-poly-cats/multi-poly-cats.agda-lib" >> ~/.agda/libraries
+
+      - name: Download and install fix-whitespace
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/agda/fix-whitespace --depth=1
+          cd fix-whitespace
+          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
+          cd ..
+
+      # - name: Save external dependencies cache
+      #   if: steps.cache-external-restore.outputs.cache-hit != 'true'
+      #   uses: actions/cache/save@v3
+      #   id: cache-external-save
+      #   with:
+      #     path: ${{ env.CACHE_PATHS }}
+      #     key: ${{ steps.cache-external-restore.outputs.cache-primary-key }}
+
+      ########################################################################
+      ## CHECKOUT
+      ########################################################################
+
+      # By default github actions do not pull the repo
+      - name: Checkout multi-poly-cats
+        uses: actions/checkout@v3
+
+      ########################################################################
+      ## TESTING
+      ########################################################################
+
+      # - name: Restore library cache
+      #   uses: actions/cache/restore@v3
+      #   id: cache-library-restore
+      #   with:
+      #     path: ./_build
+      #     key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**', 'cubical.agda-lib', 'Everythings.hs') }}
+      #     restore-keys: |
+      #       library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
+
+      - name: Put cabal programs in PATH
+        run: echo "~/.cabal/bin" >> $GITHUB_PATH
+
+      - name: Test multi-poly-cats
+        run: |
+          make test \
+            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
+            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
+            EVERYTHINGS='cabal run Everythings'
+
+      # - name: Save library cache
+      #   if: steps.cache-library-restore.outputs.cache-hit != 'true'
+      #   uses: actions/cache/save@v3
+      #   id: cache-library-save
+      #   with:
+      #     path: ./_build
+      #     key: ${{ steps.cache-library-restore.outputs.cache-primary-key }}

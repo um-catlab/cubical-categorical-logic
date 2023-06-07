@@ -115,6 +115,7 @@ jobs:
       - name: Download Cubical from github
         run : |
           git clone https://github.com/agda/cubical --branch master
+          echo $(pwd)
 
       - name: Set up Agda dependencies
         run : |

@@ -1,4 +1,5 @@
 AGDA = agda
+FIX_WHITESPACE = fix-whitespace
 
 # Finds all .agda files in the current directory and subdirectories
 AGDA_FILES = $(shell find . -name "*.agda")
@@ -8,7 +9,7 @@ AGDAI_FILES = $(AGDA_FILES:.agda=.agdai)
 
 all: $(AGDAI_FILES)
 
-test: $(AGDAI_FILES)
+test: check-whitespace $(AGDAI_FILES)
 	make clean
 
 test-and-report:
@@ -17,6 +18,10 @@ test-and-report:
 		$(AGDA) $$file || failed="$$failed $$file"; \
 	done; \
 	[ -z "$$failed" ] || (echo "Failed to compile:$$failed" && false)
+
+.PHONY: check-whitespace
+check-whitespace:
+	$(FIX_WHITESPACE) --check
 
 %.agdai: %.agda
 	$(AGDA) $<

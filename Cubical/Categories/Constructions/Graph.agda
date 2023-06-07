@@ -16,7 +16,7 @@ private
 open Category hiding (_∘_)
 open Functor
 
--- Examples: 
+-- Examples:
 module Graph {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (P : C o-[ ℓS ]-* D) where
   Element : Type _
   Element = Σ[ c ∈ C .ob ] Σ[ d ∈ D .ob ] (P ⟅ c , d ⟆) .fst

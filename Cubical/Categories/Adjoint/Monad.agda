@@ -41,7 +41,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (L : Functor C D) (
     makeNatTransPathP
       (λ i → F-lUnit i)
       (λ i → funcComp R L)
-      (funExt (λ c → 
+      (funExt (λ c →
         compTrans (μ (MonadFromAdjunction L⊣R)) (funcComp R L ∘ʳ L⊣R .η) .N-ob c
           ≡⟨ refl ⟩
         (funcComp R L) ⟪ L⊣R .η ⟦ c ⟧ ⟫ ⋆⟨ C ⟩ R ⟪ L⊣R .ε ⟦ L ⟅ c ⟆ ⟧ ⟫
@@ -55,7 +55,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (L : Functor C D) (
     makeNatTransPathP
       (λ i → F-assoc i)
       (λ i → funcComp R L)
-      (funExt (λ c → 
+      (funExt (λ c →
         (funcComp R L) ⟪ R ⟪ L⊣R .ε ⟦ L ⟅ c ⟆ ⟧ ⟫ ⟫
           ⋆⟨ C ⟩ R ⟪ L⊣R .ε ⟦ L ⟅ c ⟆ ⟧ ⟫
           ≡⟨ sym (R .F-seq (L ⟪ R ⟪ L⊣R .ε ⟦ L ⟅ c ⟆ ⟧ ⟫ ⟫) (L⊣R .ε ⟦ L ⟅ c ⟆ ⟧)) ⟩

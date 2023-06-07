@@ -40,7 +40,7 @@ module isSetTmProof {ℓ} (Σ : Sig ℓ) (Γ : ℕ) where
   Tm→W : Tm Σ Γ → IW Tm-S Tm-P Tm-inX tt
   Tm→W (var x) = node (inl x) (λ ())
   Tm→W (app f args) = node (inr f) (λ p → Tm→W (args p))
-  
+
   W→Tm : IW Tm-S Tm-P Tm-inX tt → Tm Σ Γ
   W→Tm (node (inl x) subtree) = var x
   W→Tm (node (inr f) subtree) = app f (λ x → W→Tm (subtree x))
@@ -52,6 +52,6 @@ module isSetTmProof {ℓ} (Σ : Sig ℓ) (Γ : ℕ) where
   isSetTm-S : isSet (Tm-S tt)
   isSetTm-S = isSet⊎ isSetFin (Σ .isSetFunSymbol)
 
-  
+
   isSetTm : isSet (Tm Σ Γ)
   isSetTm = isSetRetract Tm→W W→Tm TmRetractOfW (isOfHLevelSuc-IW 1 (λ u → isSetTm-S) tt)

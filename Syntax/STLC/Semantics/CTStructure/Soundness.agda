@@ -70,7 +70,7 @@ module _ {Σ₀ : Sig₀ ℓ}{Σ₁ : Sig₁ Σ₀ ℓ'}
         ≡[ i ]⟨ i₁ f ∘⟨ cat ⟩ subst-sem-comp δ γ i ⟩
       i₁ f ∘⟨ cat ⟩ (subst-sem δ ∘⟨ cat ⟩ subst-sem γ)
         ≡⟨ cat .⋆Assoc _ _ _ ⟩
-      (i₁ f ∘⟨ cat ⟩ subst-sem δ) ∘⟨ cat ⟩ subst-sem γ ∎ 
+      (i₁ f ∘⟨ cat ⟩ subst-sem δ) ∘⟨ cat ⟩ subst-sem γ ∎
     subst-sem-comp {Ξ} {Δ} {Γ} γ δ =
       subst-sem {Γ = Γ} (comp-subst {Γ = Γ} γ δ)
         ≡[ i ]⟨ prod-I _ _ (λ x → term-sem-comp (γ x) δ i) ⟩

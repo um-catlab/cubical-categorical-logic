@@ -200,7 +200,7 @@ nest-var Θ₁ Θ₂ x y = (toℕ x + toℕ y) , reason
       toℕ x + Ctx.len Θ₂ + (Ctx.len Θ₁ ∸ suc (toℕ x)) ∎
 
 -- nest-/ : ∀ {A : Type ℓ} → (Θ₁ Θ₂ : Ctx A) → (x : Var Θ₁) (y : Var Θ₂) →  Θ₂ [ y ] ≡ Θ₁ [ Θ₂ / x ] [ nest-var Θ₁ Θ₂ x y ]
--- nest-/ {ℓ}{A} Θ₁ Θ₂ x y 
+-- nest-/ {ℓ}{A} Θ₁ Θ₂ x y
 
 -- postulate comp-/-/ : ∀ {A : Type ℓ} → (Θ₁ Θ₂ Θ₃ : Ctx A) → (i : Var Θ₁) (j : Var Θ₂) → Θ₁ [ (Θ₂ [ Θ₃ / j ]) / i ] ≡ Θ₁ [ Θ₂ / i ] [ Θ₃ / nest-var Θ₁ Θ₂ i j ]
 -- comp-/-/ Θ₁ Θ₂ Θ₃ x y = λ i → record { len = eq-len i ; elts = funExtDep eq-elts i }

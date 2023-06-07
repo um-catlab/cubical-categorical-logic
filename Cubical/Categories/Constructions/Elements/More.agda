@@ -25,11 +25,11 @@ module _ {ℓ ℓ'} {C : Category ℓ ℓ'} {ℓS} (F : Functor (C ^op) (SET ℓ
   open Contravariant {C = C}
   Elementᴾ : Type (ℓ-max ℓ ℓS)
   Elementᴾ = (∫ᴾ F) .ob
-  
+
   ∫ᴾhomEqSimpl : ∀ {o1 o2} (f g : (∫ᴾ F) [ o1 , o2 ])
                → fst f ≡ fst g → f ≡ g
   ∫ᴾhomEqSimpl f g p = ∫ᴾhomEq {F = F} f g refl refl p
-    
+
   domain : Functor (∫ᴾ F) C
   domain .F-ob (x , ϕ) = x
   domain .F-hom (f , comm) = f

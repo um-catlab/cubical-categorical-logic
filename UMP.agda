@@ -109,7 +109,7 @@ nestProd C J K D K-prods JK-prod .commutes M⟨j⟩ = funExt (λ j →
   ≡⟨ coinduction-natural (K-prods j .universal) ((λ k → JK-prod .element (j , k))) _ ⟩
   K-prods j .universal .coinduction (λ k →
     JK-prod .element (j , k) ∘⟨ C ⟩ JK-prod .universal .coinduction (λ (j , k) → K-prods j .element k ∘⟨ C ⟩ M⟨j⟩ j))
-    
+
   ≡[ i ]⟨ K-prods j .universal .coinduction (λ k → JK-prod .universal .commutes (λ (j , k) → K-prods j .element k ∘⟨ C ⟩ M⟨j⟩ j) i (j , k)) ⟩
   K-prods j .universal .coinduction (λ k → K-prods j .element k ∘⟨ C ⟩ M⟨j⟩ j)
   ≡⟨ sym (η-expansion (K-prods j .universal) (M⟨j⟩ j)) ⟩

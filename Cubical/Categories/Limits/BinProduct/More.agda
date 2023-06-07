@@ -79,7 +79,7 @@ module _ (C : Category ℓ ℓ') where
       a× b = ues b .vertex
 
       π₁ : C [ a× b , a ]
-      π₁ {b} = ues b .element .fst 
+      π₁ {b} = ues b .element .fst
 
       π₂ : C [ a× b , b ]
       π₂ {b} = ues b .element .snd
@@ -94,7 +94,7 @@ module _ (C : Category ℓ ℓ') where
       ×p_ = BinProductWithF .F-hom
 
       ×β₁ : π₁ ∘⟨ C ⟩ (f ,p g) ≡ f
-      ×β₁ = cong fst (ues _ .universal .commutes _) 
+      ×β₁ = cong fst (ues _ .universal .commutes _)
 
       ×β₂ : π₂ ∘⟨ C ⟩ (f ,p g) ≡ g
       ×β₂ = cong snd (ues _ .universal .commutes _)

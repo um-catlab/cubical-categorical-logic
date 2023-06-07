@@ -26,7 +26,7 @@ module _ (Cs : List (Category ℓ ℓ')) where
   FPHom xs ys = {!!}
 
 -- FinProduct : Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) {!!}
--- FinProduct Cs .ob = 
+-- FinProduct Cs .ob =
 -- FinProduct Cs .Hom[_,_] xs ys = {!!} where
 -- FinProduct Cs .id = {!!}
 -- FinProduct Cs ._⋆_ = {!!}

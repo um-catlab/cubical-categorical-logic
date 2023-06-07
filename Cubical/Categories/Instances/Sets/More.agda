@@ -20,4 +20,3 @@ LiftF .F-hom f x = lift (f (x .lower))
 LiftF .F-id = refl
 LiftF .F-seq f g = funExt λ x → refl
 
-

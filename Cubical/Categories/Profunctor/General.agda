@@ -241,7 +241,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
     G ,
     (record {
       PH-ob = λ {d}{c} r → lower ((η .trans .N-ob c .N-ob d) (lift r)) ;
-      PH-natL = λ {d}{d'}{c} f r → 
+      PH-natL = λ {d}{d'}{c} f r →
         lower (((η .trans .N-ob c .N-ob d) ∘f ((bifCompF LiftF R) .Bif-homL f c)) (lift r))
          ≡⟨ ((λ i → lower (((η .trans .N-ob c .N-ob d) ∘f ( (bifCompF LiftF R) .Bif-homL f c ⋆f (bifCompF LiftF R) .Bif-idR (~ i))) (lift r)))) ⟩
         lower (((η .trans .N-ob c .N-ob d) ∘f (((bifCompF LiftF R) .Bif-homL f c) ⋆f (bifCompF LiftF R) .Bif-homR d (C .id))) (lift r))
@@ -251,7 +251,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
         (Functor→Prof*-o C D G ⟪ f ⟫l)
           (lower (η .trans .N-ob c .N-ob d' (lift r))) ∎
        ;
-      PH-natR = λ {c}{d}{d'} r g → 
+      PH-natR = λ {c}{d}{d'} r g →
         lower (η .trans .N-ob d' .N-ob c (lift ((R ⟪ g ⟫r) r)))
           ≡⟨ (λ i → lower (η .trans .N-ob d' .N-ob c (lift ((R .Bif-idL (~ i) ⋆f R ⟪ g ⟫r) r)))) ⟩
         lower
@@ -400,7 +400,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
           lift ((coindx (lower α)) ⋆⟨ D ⟩ (representing-functor ⟪ ψ ⟫))
             ≡⟨ (λ i → lift ((HomBif D) .Bif-homR _ (representing-functor ⟪ ψ ⟫) (((HomBif D) .Bif-idL (~ i)) (coindx (lower α))))) ⟩
           lift (((Bifunctor→Functor (HomBif D)) ⟪ D .id , representing-functor ⟪ ψ ⟫ ⟫) (coindx (lower α))) ∎
-        
+
       )))
     representing-nat-iso .nIso c .inv .N-ob d =
       let εc = ues c .element in
@@ -419,7 +419,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
         lift ((R .Bif-homL ϕ _) (D [ εc ∘ᴾ⟨ R⟅-,c⟆ ⟩ (lower x) ]))
           ≡⟨ (λ i → lift ((R .Bif-idR (~ i)) ((R .Bif-homL ϕ _) (D [ εc ∘ᴾ⟨ R⟅-,c⟆ ⟩ (lower x) ])))) ⟩
         lift (((Bifunctor→Functor R) ⟪ ϕ , C .id ⟫) (D [ εc ∘ᴾ⟨ R⟅-,c⟆ ⟩ (lower x) ])) ∎
-        
+
     representing-nat-iso .nIso c .sec =
       let R⟅-,c⟆ = (pAppR R c) in
       makeNatTransPath (funExt λ d → funExt λ x → (λ i → lift ((η-expansion ((ues c) .universal) (lower x)) (~ i))) )

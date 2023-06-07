@@ -45,7 +45,7 @@ open IsDistributiveLaw
 
 DistributiveLaw : ∀ {C : Category ℓ ℓ'} (D : Comonad C) (T : Monad C) → Type _
 DistributiveLaw D T = Σ _ (IsDistributiveLaw D T)
-  
+
 -- This is the level of generality I need but in general you can have
 -- a monad morphism as well, but using it more specifically has extra
 -- id's in the definition.

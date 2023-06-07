@@ -17,11 +17,11 @@ private
     ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
 
-module _ 
-  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {E : Category ℓE ℓE'} 
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
   {F : Functor C D} {G : Functor D E}
   where
-  
+
   open Category
   open Functor
   open NatTrans
@@ -34,7 +34,7 @@ module _
     F'∘G' : Functor E C
     F'∘G' = Feq .invFunc ∘F  Geq .invFunc
     η-iso : NatIso 𝟙⟨ C ⟩ (F'∘G' ∘F (G ∘F F))
-    η-iso = seqNatIso 
+    η-iso = seqNatIso
       -- proof that 1 and (F' F) are iso
       (Feq .η)
       -- proof that (F' F) and (F' G') (G F) are iso
@@ -65,7 +65,7 @@ module _
           -- proof that F (F' G') and 1 G' are iso
           (seqNatIso
             -- proof that F (F' G') and (F F') G' are iso
-            (CAT⋆Assoc (Geq .invFunc) (Feq .invFunc) F) 
+            (CAT⋆Assoc (Geq .invFunc) (Feq .invFunc) F)
             -- proof that (F F') G' and 1 G' are iso (whisker with G')
             ((Geq .invFunc) ∘ˡi (Feq .ε))
           )
@@ -73,5 +73,5 @@ module _
           (CAT⋆IdR {F = Geq .invFunc})
         )
       )
-      -- proof that G G' and 1 are iso 
+      -- proof that G G' and 1 are iso
       (Geq .ε)

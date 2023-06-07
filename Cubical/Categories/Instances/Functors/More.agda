@@ -48,7 +48,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
       ≡⟨ solveCat! D ⟩
     (F ⟪ f ⟫ ⋆⟨ D ⟩ α .N-ob c') ⋆⟨ D ⟩ (F' ⟪ f' ⟫ ⋆⟨ D ⟩ α' .N-ob c'') ∎
 
-  module _ {Γ : Category ℓΓ ℓΓ'} where 
+  module _ {Γ : Category ℓΓ ℓΓ'} where
     -- The action of currying out the right argument of a Functor (Γ ×C C) D
     λFr : Functor (Γ ×C C) D → Functor Γ (FUNCTOR C D)
     λFr F .F-ob a .F-ob b = F ⟅ a , b ⟆
@@ -172,8 +172,8 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
           ≡⟨ D .⋆IdR (curryF-ESO-morphism-preimage-isIso λF .inv .N-ob γ .N-ob c) ⟩
         D .id ∎
       ))))
-    
-    
+
+
     -- to prove that curryF is an equivalence, we construct the inverse functor, uncurryF
     uncurryF : Functor (FUNCTOR Γ (FUNCTOR C D)) (FUNCTOR (Γ ×C C) D)
     uncurryF .F-ob λF = curryF-ESO-object-preimage λF
@@ -205,7 +205,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
       -- separate definition to sidestep Agda termination issue
       η-trans : NatTrans 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩ (uncurryF ∘F curryF)
       η-trans .N-ob F .N-ob (γ , c) = D .id
-      η-trans .N-ob F .N-hom {(γ₁ , c₁)} {(γ₂ , c₂)} (ϕ₁ , ϕ₂) = 
+      η-trans .N-ob F .N-hom {(γ₁ , c₁)} {(γ₂ , c₂)} (ϕ₁ , ϕ₂) =
         (F .F-hom (ϕ₁ , ϕ₂)) ⋆⟨ D ⟩ D .id
           ≡⟨ (λ i → (F .F-hom ((Γ .⋆IdR ϕ₁) (~ i) , (C .⋆IdL ϕ₂) (~ i)) ⋆⟨ D ⟩ D .id)) ⟩
         (F .F-hom ((ϕ₁ , C .id) ⋆⟨ Γ ×C C ⟩ (Γ .id , ϕ₂))) ⋆⟨ D ⟩ D .id
@@ -214,7 +214,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
           ≡⟨ solveCat! D ⟩
         D .id ⋆⟨ D ⟩ ((uncurryF ∘F curryF) .F-ob F) .F-hom (ϕ₁ , ϕ₂)  ∎
       η-trans .N-hom {F} {G} β = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
-      
+
       η-iso : NatIso 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩ (uncurryF ∘F curryF)
       η-iso .trans = η-trans
 
@@ -229,18 +229,18 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
         D .id ⋆⟨ D ⟩ (F .F-hom (ϕ₁ , ϕ₂))  ∎
       η-iso .nIso F .sec = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
       η-iso .nIso F .ret = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
-      
+
       ε-iso : NatIso (curryF ∘F uncurryF) 𝟙⟨ FUNCTOR Γ (FUNCTOR C D) ⟩
       ε-iso .trans .N-ob λF = curryF-ESO-morphism-preimage λF
       ε-iso .trans .N-hom {λF} {λG} λβ = makeNatTransPath (funExt (λ γ →
         makeNatTransPath (funExt (λ c →
           -- TODO: For some reason this doesn't simplify to just solvecat...
-          (λβ .N-ob γ .N-ob c) ⋆⟨ D ⟩ D .id 
+          (λβ .N-ob γ .N-ob c) ⋆⟨ D ⟩ D .id
             ≡⟨ solveCat! D ⟩
           D .id ⋆⟨ D ⟩ λβ .N-ob γ .N-ob c ∎ ))))
       ε-iso .nIso = (λ λF → curryF-ESO-morphism-preimage-isIso λF)
-      
-      
+
+
     open Cubical.Categories.Equivalence.Base._≃ᶜ_
 
     curryEquivalence : FUNCTOR (Γ ×C C) D ≃ᶜ FUNCTOR Γ (FUNCTOR C D)

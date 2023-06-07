@@ -122,11 +122,11 @@ TypeRepresentation C P = Σ[ A ∈ C .Ty ] PshIso (C .B .cat) (C .Tm A) P
 --       ≡⟨ {!!} ⟩
 --     M ∎
 --     -- tms : (j : Bool) → cat C.B [ Γ ×sole _ , if j then Γ else C.sole _ ]
---     -- tms true = 
+--     -- tms true =
 --   Unary Γ .⋆IdR = {!!}
 --   Unary Γ .⋆Assoc = {!!}
 --   Unary Γ .isSetHom = {!!}
---   -- Unary Γ 
+--   -- Unary Γ
 -- -- Unary C Γ .ob = C .Ty
 -- -- Unary C Γ .Hom[_,_] a b = (C .Tm b ⟅ prod-ob (C .B) (Bool , isFinSetBool) ctx ⟆) .fst
 -- --   where
@@ -155,7 +155,7 @@ STC-NatIso : ∀ {ℓcb ℓcb' ℓct ℓct' ℓdb ℓdb' ℓdt ℓdt'}
        (F G : STC-Functor C D) → Type (ℓ-max (ℓ-max (ℓ-max ℓcb ℓcb') ℓdb) ℓdb')
 STC-NatIso F G = NatIso (F .F-B .func) (G .F-B .func)
 
--- This should be determined by 
+-- This should be determined by
 -- N-Tm : ∀ (A : C .Ty) → (D .Tm (G .F-Ty A) ⟅ sole D (F .F-Ty A) ⟆) .fst
 
 -- record STC-Transformation' {ℓcb ℓcb' ℓct ℓct' ℓdb ℓdb' ℓdt ℓdt'}

@@ -62,7 +62,7 @@ module _ {C : Category ℓ ℓ'} (M : ExtensionSystem C) where
   ALGEBRA .isSetHom {x}{y} = isSetΣ (C .isSetHom) (λ ϕ → isProp→isSet (isPropIsAlgebraHom (x .snd) (y .snd) ϕ))
 
   open Functor
-  
+
   FreeAlgebra : ∀ (a : C .ob) → Algebra
   FreeAlgebra a = T a , free-alg where
     free-alg : AlgebraFor (T a)

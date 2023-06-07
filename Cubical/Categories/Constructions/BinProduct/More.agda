@@ -32,7 +32,7 @@ open Functor
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'} where
 
   BinMorphDecompL : ∀ {x1 x2} {y1 y2} ((f , g) : (C ×C D) [ (x1 , y1) , (x2 , y2) ])
-                      → (F : Functor (C ×C D) E) 
+                      → (F : Functor (C ×C D) E)
                       → (F ⟪ f , g ⟫) ≡ (F ⟪ f , D .id ⟫) ⋆⟨ E ⟩ (F ⟪ C .id , g ⟫)
   BinMorphDecompL (f , g) F =
     (F ⟪ f , g ⟫)
@@ -42,7 +42,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE �
     (F ⟪ f , D .id ⟫) ⋆⟨ E ⟩ (F ⟪ C .id , g ⟫) ∎
 
   BinMorphDecompR : ∀ {x1 x2} {y1 y2} ((f , g) : (C ×C D) [ (x1 , y1) , (x2 , y2) ])
-                      → (F : Functor (C ×C D) E) 
+                      → (F : Functor (C ×C D) E)
                       → (F ⟪ f , g ⟫) ≡ (F ⟪ C .id , g ⟫) ⋆⟨ E ⟩ (F ⟪ f , D .id ⟫)
   BinMorphDecompR (f , g) F =
     (F ⟪ f , g ⟫)

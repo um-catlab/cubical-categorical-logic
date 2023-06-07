@@ -117,12 +117,13 @@ jobs:
           rm -rf agda
 
       - name: Download Cubical from github
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run : |
           git clone https://github.com/agda/cubical --branch master
 
       - name: Set up Agda dependencies
         run : |
+          mkdir ~/.agda
+          touch ~/.agda/libraries
           echo "~/cubical/cubical.agda-lib" >> ~/.agda/libraries
           echo "~/agda-stdlib/standard-library.agda-lib" >> ~/.agda/libraries
           echo "~/multi-poly-cats/multi-poly-cats.agda-lib" >> ~/.agda/libraries
@@ -135,13 +136,13 @@ jobs:
           ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
           cd ..
 
-      # - name: Save external dependencies cache
-      #   if: steps.cache-external-restore.outputs.cache-hit != 'true'
-      #   uses: actions/cache/save@v3
-      #   id: cache-external-save
-      #   with:
-      #     path: ${{ env.CACHE_PATHS }}
-      #     key: ${{ steps.cache-external-restore.outputs.cache-primary-key }}
+      - name: Cache External Dependencies
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-external-save
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ steps.cache-external-restore.outputs.cache-primary-key }}
 
       ########################################################################
       ## CHECKOUT
@@ -155,15 +156,6 @@ jobs:
       ## TESTING
       ########################################################################
 
-      # - name: Restore library cache
-      #   uses: actions/cache/restore@v3
-      #   id: cache-library-restore
-      #   with:
-      #     path: ./_build
-      #     key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Cubical/**', 'cubical.agda-lib', 'Everythings.hs') }}
-      #     restore-keys: |
-      #       library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
-
       - name: Put cabal programs in PATH
         run: echo "~/.cabal/bin" >> $GITHUB_PATH
 
@@ -173,11 +165,3 @@ jobs:
             AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace' \
             EVERYTHINGS='cabal run Everythings'
-
-      # - name: Save library cache
-      #   if: steps.cache-library-restore.outputs.cache-hit != 'true'
-      #   uses: actions/cache/save@v3
-      #   id: cache-library-save
-      #   with:
-      #     path: ./_build
-      #     key: ${{ steps.cache-library-restore.outputs.cache-primary-key }}

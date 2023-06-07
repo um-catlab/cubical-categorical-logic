@@ -121,9 +121,9 @@ jobs:
         run : |
           mkdir ~/.agda
           touch ~/.agda/libraries
-          echo $(GITHUB_WORKSPACE)"/cubical/cubical.agda-lib" >> ~/.agda/libraries
-          echo $(GITHUB_WORKSPACE)"/agda-stdlib/standard-library.agda-lib" >> ~/.agda/libraries
-          echo $(GITHUB_WORKSPACE)"/multi-poly-cats/multi-poly-cats.agda-lib" >> ~/.agda/libraries
+          echo ${GITHUB_WORKSPACE}"/cubical/cubical.agda-lib" >> ~/.agda/libraries
+          echo ${GITHUB_WORKSPACE}"/agda-stdlib/standard-library.agda-lib" >> ~/.agda/libraries
+          echo ${GITHUB_WORKSPACE}"/multi-poly-cats/multi-poly-cats.agda-lib" >> ~/.agda/libraries
 
       - name: Download and install fix-whitespace
         if: steps.cache-external-restore.outputs.cache-hit != 'true'

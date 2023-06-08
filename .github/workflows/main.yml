@@ -7,10 +7,10 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches:
-      - main
+      - test-ci
   pull_request:
     branches:
-      - main
+      - test-ci
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -59,7 +59,6 @@ env:
 
 
 
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -77,7 +76,7 @@ jobs:
         run: |
           find . -type f -name "*.agda" -print0 | xargs -0 awk 'length($0) > 80 { print FILENAME ":" FNR ": line too long"; exit 1 }'
 
-  test:
+  compile-agda:
     runs-on: ubuntu-latest
     steps:
       - name: Install cabal
@@ -105,7 +104,6 @@ jobs:
       - name: Download and install Agda from github
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
-          cd ~
           git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
           echo "AGDA_STDLIB_DIR=$PWD" >> "$GITHUB_ENV"
@@ -118,8 +116,9 @@ jobs:
       - name: Download Agda Standard Library from github
         run : |
           cd ~
-          git clone https://github.com/agda/agda-stdlib.git --branch master
-          echo "AGDA_STDLIB_DIR=$PWD/agda-stdlib" >> "$GITHUB_ENV"
+          git clone https://github.com/agda/cubical --branch master
+https://github.com/agda/agda-stdlib.git
+          echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
 
       - name: Download Cubical from github
         run : |

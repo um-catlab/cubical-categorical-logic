@@ -106,7 +106,6 @@ jobs:
         run: |
           git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
-          echo "AGDA_STDLIB_DIR=$PWD" >> "$GITHUB_ENV"
           mkdir -p doc
           touch doc/user-manual.pdf
           ${{ env.CABAL_INSTALL }}
@@ -116,9 +115,8 @@ jobs:
       - name: Download Agda Standard Library from github
         run : |
           cd ~
-          git clone https://github.com/agda/cubical --branch master
-https://github.com/agda/agda-stdlib.git
-          echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
+          git clone https://github.com/agda/agda-stdlib.git
+          echo "AGDA_STDLIB_DIR=$PWD/agda-stdlib" >> "$GITHUB_ENV"
 
       - name: Download Cubical from github
         run : |

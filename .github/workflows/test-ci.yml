@@ -117,15 +117,15 @@ jobs:
         run : |
           cd ~
           git clone https://github.com/agda/cubical --branch master
-          echo "CUBICAL_DIR=$PWD/CUBICAL" >> "$GITHUB_ENV"
+          echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
 
       - name: Set up Agda dependencies
         run : |
           mkdir ~/.agda
           touch ~/.agda/libraries
-          echo "$CUBICAL_DIR/cubical/cubical.agda-lib" >> ~/.agda/libraries
-          echo "$AGDA_STDLIB_DIR/agda-stdlib/standard-library.agda-lib" >> ~/.agda/libraries
-          echo "$GITHUB_WORKSPACE/multi-poly-cats/multi-poly-cats.agda-lib" >> ~/.agda/libraries
+          echo "$CUBICAL_DIR/cubical.agda-lib" >> ~/.agda/libraries
+          echo "$AGDA_STDLIB_DIR/standard-library.agda-lib" >> ~/.agda/libraries
+          echo "$GITHUB_WORKSPACE/multi-poly-cats.agda-lib" >> ~/.agda/libraries
 
       - name: Download and install fix-whitespace
         if: steps.cache-external-restore.outputs.cache-hit != 'true'

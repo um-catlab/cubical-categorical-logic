@@ -104,9 +104,9 @@ jobs:
       - name: Download and install Agda from github
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
-          cd ~
           git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
+          echo "AGDA_STDLIB_DIR=$PWD" >> "$GITHUB_ENV"
           mkdir -p doc
           touch doc/user-manual.pdf
           ${{ env.CABAL_INSTALL }}
@@ -117,16 +117,15 @@ jobs:
         run : |
           cd ~
           git clone https://github.com/agda/cubical --branch master
-          echo $(pwd)
+          echo "CUBICAL_DIR=$PWD/CUBICAL" >> "$GITHUB_ENV"
 
       - name: Set up Agda dependencies
         run : |
-          cd ~
           mkdir ~/.agda
           touch ~/.agda/libraries
-          echo "~/cubical/cubical.agda-lib" >> ~/.agda/libraries
-          echo "~/agda-stdlib/standard-library.agda-lib" >> ~/.agda/libraries
-          echo "~/multi-poly-cats/multi-poly-cats.agda-lib" >> ~/.agda/libraries
+          echo "$CUBICAL_DIR/cubical/cubical.agda-lib" >> ~/.agda/libraries
+          echo "$AGDA_STDLIB_DIR/agda-stdlib/standard-library.agda-lib" >> ~/.agda/libraries
+          echo "$GITHUB_WORKSPACE/multi-poly-cats/multi-poly-cats.agda-lib" >> ~/.agda/libraries
 
       - name: Download and install fix-whitespace
         if: steps.cache-external-restore.outputs.cache-hit != 'true'

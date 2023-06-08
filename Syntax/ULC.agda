@@ -54,4 +54,6 @@ module isSetTmProof {ℓ} (Σ : Sig ℓ) (Γ : ℕ) where
 
 
   isSetTm : isSet (Tm Σ Γ)
-  isSetTm = isSetRetract Tm→W W→Tm TmRetractOfW (isOfHLevelSuc-IW 1 (λ u → isSetTm-S) tt)
+  isSetTm =
+    isSetRetract Tm→W W→Tm TmRetractOfW
+      (isOfHLevelSuc-IW 1 (λ u → isSetTm-S) tt)

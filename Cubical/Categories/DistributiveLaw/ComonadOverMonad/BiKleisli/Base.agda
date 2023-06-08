@@ -16,7 +16,9 @@ private
   variable
     ℓ ℓ' : Level
 
-module _ {C : Category ℓ ℓ'} (D : Comonad C) (T : Monad C) (law : DistributiveLaw D T) where
+module _ {C : Category ℓ ℓ'}
+         (D : Comonad C)
+         (T : Monad C) (law : DistributiveLaw D T) where
   open NatTrans
   open IsComonad (D .snd)
   open IsMonad (T .snd)
@@ -77,24 +79,45 @@ module _ {C : Category ℓ ℓ'} (D : Comonad C) (T : Monad C) (law : Distributi
     ∙ ⋆IdL _
   BiKleisli .Category.⋆Assoc f g h =
     -- δ ⋆ D (δ ⋆ D f ⋆ l ⋆ T g ⋆ μ) ⋆ l ⋆ T h ⋆ μ
-    (cong₂ _⋆_ (cong₂ _⋆_ (cong₂ _⋆_ refl (D .fst .F-seq _ _ ∙ cong₂ _⋆_ (D .fst .F-seq _ _ ∙ cong₂ _⋆_ (D .fst .F-seq _ _) refl) (D .fst .F-seq _ _))) refl) refl)
+    (cong₂ _⋆_ (cong₂ _⋆_ (cong₂ _⋆_ refl (D .fst .F-seq _ _ ∙
+      cong₂ _⋆_ (D .fst .F-seq _ _ ∙ cong₂ _⋆_ (D .fst .F-seq _ _) refl)
+        (D .fst .F-seq _ _))) refl) refl)
     -- δ ⋆ D δ ⋆ DD f ⋆ D l ⋆ D T g ⋆ D μ ⋆ l ⋆ T h ⋆ μ
-    ∙ cong₂ _⋆_ (cong₂ _⋆_ (sym (⋆Assoc _ _ _) ∙ cong₂ _⋆_ (sym (⋆Assoc _ _ _) ∙ cong₂ _⋆_ (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl assoc-δ) refl) refl) refl) refl
+    ∙ cong₂ _⋆_ (cong₂ _⋆_ (sym (⋆Assoc _ _ _) ∙
+      cong₂ _⋆_ (sym (⋆Assoc _ _ _) ∙ cong₂ _⋆_ (sym (⋆Assoc _ _ _) ∙
+        cong₂ _∘_ refl assoc-δ) refl) refl) refl) refl
     -- δ ⋆ δ ⋆ DD f ⋆ D l ⋆ D T g ⋆ D μ ⋆ l ⋆ T h ⋆ μ
-    ∙ cong₂ _∘_ refl (cong₂ _∘_ refl (cong₂ _∘_ refl (cong₂ _∘_ refl (⋆Assoc _ _ _ ∙ cong₂ _∘_ (sym (δ .N-hom _)) refl))))
+    ∙ cong₂ _∘_ refl (cong₂ _∘_ refl (cong₂ _∘_
+      refl (cong₂ _∘_ refl (⋆Assoc _ _ _ ∙ cong₂ _∘_ (sym (δ .N-hom _)) refl))))
     -- δ ⋆ D f ⋆ δ ⋆ D l ⋆ D T g ⋆ D μ ⋆ l     ⋆ T h ⋆ μ
-    ∙ cong₂ _⋆_ (⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl (⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl μ-law)) refl
+    ∙ cong₂ _⋆_ (⋆Assoc _ _ _ ∙
+        cong₂ _⋆_ refl (⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl μ-law)) refl
     -- δ ⋆ D f ⋆ δ ⋆ D l ⋆ D T g ⋆ l * T l ⋆ μ ⋆ T h ⋆ μ
-    ∙ cong₂ _∘_ refl (cong₂ _⋆_ refl (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl (l .N-hom _))))
+    ∙ cong₂ _∘_ refl (cong₂ _⋆_ refl (sym (⋆Assoc _ _ _) ∙
+      cong₂ _∘_ refl (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl (l .N-hom _))))
     -- δ ⋆ D f ⋆ δ ⋆ D l ⋆ l ⋆ T D g * T l ⋆ μ ⋆ T h ⋆ μ
-    ∙ cong₂ _∘_ refl (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl (⋆Assoc _ _ _ ∙ ⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl (sym (⋆Assoc _ _ _) ∙ sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl ((⋆Assoc _ _ _) ∙ ⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl (sym (⋆Assoc _ _ _) ∙ sym δ-law))))))
+    ∙ cong₂ _∘_ refl (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl (sym (⋆Assoc _ _ _) ∙
+      cong₂ _∘_ refl (⋆Assoc _ _ _ ∙ ⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl
+        (sym (⋆Assoc _ _ _) ∙ sym (⋆Assoc _ _ _) ∙ cong₂ _∘_
+          refl ((⋆Assoc _ _ _) ∙ ⋆Assoc _ _ _ ∙ cong₂ _⋆_
+            refl (sym (⋆Assoc _ _ _) ∙ sym δ-law))))))
     -- δ ⋆ D f ⋆ l ⋆ T δ ⋆ T D g * T l ⋆ μ ⋆ T h ⋆ μ
-    ∙ (⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl (sym (⋆Assoc _ _ _) ∙ cong₂ _∘_ refl (sym (μ .N-hom _))))
+    ∙ (⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl (sym (⋆Assoc _ _ _) ∙
+      cong₂ _∘_ refl (sym (μ .N-hom _))))
     -- δ ⋆ D f ⋆ l ⋆ T δ ⋆ T D g ⋆ T l ⋆ T T h ⋆ μ ⋆ μ
     ∙ cong₂ _⋆_ refl (⋆Assoc _ _ _ ∙ cong₂ _⋆_ refl (λ i → assoc-μ (~ i) ⟦ _ ⟧))
     -- δ ⋆ D f ⋆ l ⋆ T δ ⋆ T D g ⋆ T l ⋆ T T h ⋆ T μ ⋆ μ
       ∙ lem0
     -- δ ⋆ D f ⋆ l ⋆ T (δ ⋆ D g ⋆ l ⋆ T h ⋆ μ) ⋆ μ
       where
-        lem0 : C .Category._⋆_ (C .Category._⋆_ (D .snd .IsComonad.δ .N-ob _) (C .Category._⋆_ k (law .fst .N-ob _ ⋆ F-hom (T .fst) (N-ob (D .snd .IsComonad.δ) _)) ⋆ F-hom (T .fst) k') ⋆ F-hom (T .fst) (N-ob (law .fst) _)) (C .Category._⋆_ (F-hom (T .fst) (F-hom (T .fst) h)) (F-hom (T .fst) (N-ob (T .snd .IsMonad.μ) _) ⋆ T .snd .IsMonad.μ .N-ob _)) ≡ ((δ .N-ob _ ⋆ k) ⋆ N-ob l _) ⋆ F-hom (T .fst) (((δ .N-ob _ ⋆ k') ⋆ N-ob l _) ⋆ F-hom (T .fst) h ⋆ N-ob μ _) ⋆ N-ob μ _
+        lem0 : C .Category._⋆_ (C .Category._⋆_ (D .snd .IsComonad.δ .N-ob _)
+               (C .Category._⋆_ k (law .fst .N-ob _ ⋆ F-hom (T .fst)
+                 (N-ob (D .snd .IsComonad.δ) _)) ⋆ F-hom (T .fst) k') ⋆
+                   F-hom (T .fst) (N-ob (law .fst) _))
+                   (C .Category._⋆_ (F-hom (T .fst) (F-hom (T .fst) h))
+                   (F-hom (T .fst) (N-ob (T .snd .IsMonad.μ) _) ⋆
+                   T .snd .IsMonad.μ .N-ob _)) ≡
+                   ((δ .N-ob _ ⋆ k) ⋆ N-ob l _) ⋆ F-hom (T .fst)
+                     (((δ .N-ob _ ⋆ k') ⋆ N-ob l _) ⋆
+                       F-hom (T .fst) h ⋆ N-ob μ _) ⋆ N-ob μ _
         lem0 {k}{k'} = solveFunctor! C C (T .fst)

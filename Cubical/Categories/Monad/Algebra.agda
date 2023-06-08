@@ -36,30 +36,45 @@ module _ {C : Category ℓ ℓ'} (M : ExtensionSystem C) where
   isAlgebraHom α β ϕ =
     ∀ {c} (f : C [ c , _ ]) → ϕ ∘⟨ C ⟩ α .bindA f ≡ β .bindA (ϕ ∘⟨ C ⟩ f)
 
-  isPropIsAlgebraHom : ∀ {a b} → (α : AlgebraFor a)(β : AlgebraFor b) (ϕ : C [ a , b ]) → isProp (isAlgebraHom α β ϕ)
+  isPropIsAlgebraHom : ∀ {a b} →
+                       (α : AlgebraFor a)(β : AlgebraFor b)
+                       (ϕ : C [ a , b ]) → isProp (isAlgebraHom α β ϕ)
   isPropIsAlgebraHom α β ϕ = isPropImplicitΠ λ _ → isPropΠ λ f → C .isSetHom _ _
 
   Algebra = Σ[ a ∈ C .ob ] AlgebraFor a
 
   AlgebraHom : Algebra → Algebra → Type _
-  AlgebraHom α β = Σ[ ϕ ∈ C [ α .fst , β .fst ] ] isAlgebraHom (α .snd) (β .snd) ϕ
+  AlgebraHom α β =
+    Σ[ ϕ ∈ C [ α .fst , β .fst ] ] isAlgebraHom (α .snd) (β .snd) ϕ
 
   isSetAlgebraHom : ∀ {α β} → isSet (AlgebraHom α β)
-  isSetAlgebraHom {x}{y} = isSetΣ (C .isSetHom) (λ ϕ → isProp→isSet (isPropIsAlgebraHom (x .snd) (y .snd) ϕ))
+  isSetAlgebraHom {x}{y} =
+    isSetΣ (C .isSetHom)
+      (λ ϕ → isProp→isSet (isPropIsAlgebraHom (x .snd) (y .snd) ϕ))
 
   AlgebraHom≡ : ∀ {α β} (ϕ ψ : AlgebraHom α β) → ϕ .fst ≡ ψ .fst → ϕ ≡ ψ
-  AlgebraHom≡ {α}{β} ϕ ψ p = Σ≡Prop (λ ϕ → isPropIsAlgebraHom (α .snd) (β .snd) ϕ) p
+  AlgebraHom≡ {α}{β} ϕ ψ p =
+    Σ≡Prop (λ ϕ → isPropIsAlgebraHom (α .snd) (β .snd) ϕ) p
 
   ALGEBRA : Category _ _
   ALGEBRA .ob = Algebra
   ALGEBRA .Hom[_,_] = AlgebraHom
-  ALGEBRA .id {x} = C .id , λ f → (C .⋆IdR _) ∙ cong (x .snd .bindA) (sym (C .⋆IdR _))
-  ALGEBRA ._⋆_ {z = γ} ϕ ψ = (ϕ .fst ⋆⟨ C ⟩ ψ .fst) , (λ f →
-    sym (C .⋆Assoc _ _ _) ∙ cong₂ (C ._⋆_) (ϕ .snd _) refl ∙ ψ .snd _ ∙ cong (γ .snd .bindA) (C .⋆Assoc _ _ _))
-  ALGEBRA .⋆IdL {x}{y} ϕ = Σ≡Prop (isPropIsAlgebraHom (x .snd) (y .snd)) (C .⋆IdL _)
-  ALGEBRA .⋆IdR {x}{y} ϕ =  Σ≡Prop (isPropIsAlgebraHom (x .snd) (y .snd)) (C .⋆IdR _)
-  ALGEBRA .⋆Assoc {w}{x}{y}{z} f g h = Σ≡Prop (isPropIsAlgebraHom (w .snd) (z .snd)) (C .⋆Assoc _ _ _)
-  ALGEBRA .isSetHom {x}{y} = isSetΣ (C .isSetHom) (λ ϕ → isProp→isSet (isPropIsAlgebraHom (x .snd) (y .snd) ϕ))
+  ALGEBRA .id {x} =
+    C .id , λ f → (C .⋆IdR _) ∙ cong (x .snd .bindA) (sym (C .⋆IdR _))
+  ALGEBRA ._⋆_ {z = γ} ϕ ψ =
+    (ϕ .fst ⋆⟨ C ⟩ ψ .fst) , (λ f →
+    sym (C .⋆Assoc _ _ _) ∙
+      cong₂ (C ._⋆_) (ϕ .snd _) refl ∙ ψ .snd _ ∙
+        cong (γ .snd .bindA) (C .⋆Assoc _ _ _))
+  ALGEBRA .⋆IdL {x}{y} ϕ =
+    Σ≡Prop (isPropIsAlgebraHom (x .snd) (y .snd)) (C .⋆IdL _)
+  ALGEBRA .⋆IdR {x}{y} ϕ =
+    Σ≡Prop (isPropIsAlgebraHom (x .snd) (y .snd)) (C .⋆IdR _)
+  ALGEBRA .⋆Assoc {w}{x}{y}{z} f g h =
+    Σ≡Prop (isPropIsAlgebraHom (w .snd) (z .snd)) (C .⋆Assoc _ _ _)
+  ALGEBRA .isSetHom {x}{y} =
+    isSetΣ (C .isSetHom)
+      (λ ϕ → isProp→isSet (isPropIsAlgebraHom (x .snd) (y .snd) ϕ))
 
   open Functor
 
@@ -70,7 +85,9 @@ module _ {C : Category ℓ ℓ'} (M : ExtensionSystem C) where
     free-alg .bindA-l = bind-l
     free-alg .bindA-comp = bind-comp
 
-  funToFreeHom : ∀ (a b : C .ob) → (Kleisli _ M [ a , b ]) → AlgebraHom (FreeAlgebra a) (FreeAlgebra b)
+  funToFreeHom : ∀ (a b : C .ob) →
+                 (Kleisli _ M [ a , b ]) →
+                 AlgebraHom (FreeAlgebra a) (FreeAlgebra b)
   funToFreeHom a b f .fst = bind f
   funToFreeHom a b f .snd g = bind-comp
 
@@ -86,9 +103,12 @@ module _ {C : Category ℓ ℓ'} (M : ExtensionSystem C) where
   Free : LeftAdjoint ALGEBRA C Underlying
   Free c .vertex = FreeAlgebra c
   Free c .element = η
-  Free c .universal .coinduction {β} f = (β .snd .bindA f) , λ g → β .snd .bindA-comp
+  Free c .universal .coinduction {β} f =
+    (β .snd .bindA f) , λ g → β .snd .bindA-comp
   Free c .universal .commutes {β} f = β .snd .bindA-l
-  Free c .universal .is-uniq {β} ϕ (ψ , ψ-homo) x = AlgebraHom≡ {FreeAlgebra _}{β} ((ψ , ψ-homo)) ((β .snd .bindA ϕ) , λ g → β .snd .bindA-comp)
+  Free c .universal .is-uniq {β} ϕ (ψ , ψ-homo) x =
+    AlgebraHom≡ {FreeAlgebra _}{β} ((ψ , ψ-homo))
+      ((β .snd .bindA ϕ) , λ g → β .snd .bindA-comp)
     ( (sym (C .⋆IdL _) ∙ cong₂ (seq' C) (sym bind-r) refl)
     ∙ ψ-homo η
     ∙ cong (β .snd .bindA) x)

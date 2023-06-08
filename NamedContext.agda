@@ -55,20 +55,23 @@ module _ {A : Type ℓ} where
   el (append Γ₁ Γ₂) (inl x₁) = Γ₁ .el x₁
   el (append Γ₁ Γ₂) (inr x₂) = Γ₂ .el x₂
 
-  append-i₁-el : ∀ Γ₁ Γ₂ (x₁ : Γ₁ .var) → (append Γ₁ Γ₂) .el (inl x₁) ≡ Γ₁ .el x₁
+  append-i₁-el : ∀ Γ₁ Γ₂ (x₁ : Γ₁ .var) →
+                 (append Γ₁ Γ₂) .el (inl x₁) ≡ Γ₁ .el x₁
   append-i₁-el = λ Γ₁ Γ₂ x₁ → refl
 
   module _ (B : A → Type ℓ')  where
     substitution : ∀ (Γ : Ctx A) → Type ℓ'
     substitution Γ = ∀ (x : Γ . var) → B (Γ .el x)
 
-    append-subst : ∀ {Γ₁ Γ₂} → substitution Γ₁ → substitution Γ₂ → substitution (append Γ₁ Γ₂)
+    append-subst : ∀ {Γ₁ Γ₂} → substitution Γ₁ →
+                   substitution Γ₂ → substitution (append Γ₁ Γ₂)
     append-subst γ₁ γ₂ (inl x) = γ₁ x
     append-subst γ₁ γ₂ (inr x) = γ₂ x
 
-    append-subst-inl : {Γ₁ Γ₂ : Ctx A} → (γ₁ : substitution Γ₁) → (γ₂ : substitution Γ₂)
-                     → (x₁ : Var Γ₁)
-                     → (append-subst {Γ₁ = Γ₁}{Γ₂ = Γ₂} γ₁ γ₂ (inl x₁)) ≡ (γ₁ x₁)
+    append-subst-inl : {Γ₁ Γ₂ : Ctx A} → (γ₁ : substitution Γ₁) →
+                       (γ₂ : substitution Γ₂) → (x₁ : Var Γ₁)
+                     → (append-subst {Γ₁ = Γ₁}{Γ₂ = Γ₂} γ₁ γ₂ (inl x₁)) ≡
+                          (γ₁ x₁)
     append-subst-inl γ₁ Γ₂ x₁ = refl
 
 
@@ -77,10 +80,12 @@ module _ {A : Type ℓ} where
   finProd X Γs .isFinSetVar = isFinSetΣ X λ x → _ , (Γs x .isFinSetVar)
   finProd X Γs .el (x , y) = Γs x .el y
 
-  append-inj-el : ∀ (X : FinSet ℓ-zero) (Γs : X .fst → Ctx A) (x : X .fst) (y : Γs x .var)
+  append-inj-el : ∀ (X : FinSet ℓ-zero)
+                  (Γs : X .fst → Ctx A) (x : X .fst) (y : Γs x .var)
                 → finProd X Γs .el (x , y) ≡ Γs x .el y
   append-inj-el X Γs x y = refl
 
   module _ (B : A → Type ℓ') (X : FinSet ℓ-zero) (Γs : X .fst → Ctx A) where
-    finProdSubsts : (∀ (x : X .fst) → substitution B (Γs x)) → substitution B (finProd X Γs)
+    finProdSubsts : (∀ (x : X .fst) →
+                    substitution B (Γs x)) → substitution B (finProd X Γs)
     finProdSubsts γs (x , y) = γs x y

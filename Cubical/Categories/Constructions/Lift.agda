@@ -20,7 +20,8 @@ module _ (C : Category ℓ ℓ') (ℓ'' : Level) where
   LiftHoms ._⋆_ f g = lift (f .lower ⋆⟨ C ⟩ g .lower)
   LiftHoms .⋆IdL f = cong lift (C .⋆IdL (f .lower))
   LiftHoms .⋆IdR f = cong lift (C .⋆IdR (f .lower))
-  LiftHoms .⋆Assoc f g h = cong lift (C .⋆Assoc (f .lower) (g .lower) (h .lower))
+  LiftHoms .⋆Assoc f g h =
+    cong lift (C .⋆Assoc (f .lower) (g .lower) (h .lower))
   LiftHoms .isSetHom = isOfHLevelLift 2 (C .isSetHom)
 
   liftHoms : Functor C LiftHoms

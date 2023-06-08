@@ -71,8 +71,12 @@ _⟅_⟆b : (F : Bifunctor C D E)
 F ⟅ c , d ⟆b = Bif-ob F c d
 
 -- actions on morphisms
-infix 30 _⟪_⟫l -- same infix level as on objects since these will never be used in the same context
-infix 30 _⟪_⟫r -- same infix level as on objects since these will never be used in the same context
+infix 30 _⟪_⟫l
+-- same infix level as on objects since these will
+-- never be used in the same context
+infix 30 _⟪_⟫r
+-- same infix level as on objects since these will
+-- never be used in the same context
 _⟪_⟫l : (F : Bifunctor C D E)
      → ∀ {c c' d}
      → C [ c , c' ]
@@ -155,7 +159,8 @@ bifCompF F G .Bif-idL = cong (F ⟪_⟫) (G .Bif-idL) ∙ F .F-id
 bifCompF F G .Bif-idR = cong (F ⟪_⟫) (G .Bif-idR) ∙ F .F-id
 bifCompF F G .Bif-seqL f f' = cong (F ⟪_⟫) (G .Bif-seqL _ _) ∙ F .F-seq _ _
 bifCompF F G .Bif-seqR g g' = cong (F ⟪_⟫) (G .Bif-seqR _ _) ∙ F .F-seq _ _
-bifCompF F G .Bif-assoc f g = sym (F .F-seq _ _) ∙ cong (F ⟪_⟫) (G .Bif-assoc _ _) ∙ F .F-seq _ _
+bifCompF F G .Bif-assoc f g =
+  sym (F .F-seq _ _) ∙ cong (F ⟪_⟫) (G .Bif-assoc _ _) ∙ F .F-seq _ _
 
 infixr 30 bifCompL
 infixr 30 bifCompR
@@ -192,11 +197,14 @@ UniversalBifunctor {C = C} {D = D} .Bif-assoc f g i =
 Bifunctor→Functor : Bifunctor C D E → Functor (C ×C D) E
 Bifunctor→Functor F .F-ob p = F ⟅ p ⟆b
 Bifunctor→Functor {E = E} F .F-hom (f , g) = F ⟪ f ⟫l ⋆⟨ E ⟩ F ⟪ g ⟫r
-Bifunctor→Functor {E = E} F .F-id = cong₂ (seq' E) (F .Bif-idL) (F .Bif-idR) ∙ E .⋆IdL _
+Bifunctor→Functor {E = E} F .F-id =
+  cong₂ (seq' E) (F .Bif-idL) (F .Bif-idR) ∙ E .⋆IdL _
 Bifunctor→Functor {E = E} F .F-seq (f , g) (f' , g') =
   cong₂ (E ._⋆_) (F .Bif-seqL _ _) (F .Bif-seqR _ _)
   ∙ E .⋆Assoc _ _ _
-  ∙ cong₂ (E ._⋆_) refl (sym (E .⋆Assoc _ _ _) ∙ cong₂ (E ._⋆_) (F .Bif-assoc _ _) refl)
+  ∙ cong₂ (E ._⋆_)
+    refl
+    (sym (E .⋆Assoc _ _ _) ∙ cong₂ (E ._⋆_) (F .Bif-assoc _ _) refl)
   ∙ lem where
   lem : E ._⋆_ (F .Bif-homL f _)
       (E ._⋆_ ((E ⋆ F .Bif-homR _ g) (F .Bif-homL f' _))

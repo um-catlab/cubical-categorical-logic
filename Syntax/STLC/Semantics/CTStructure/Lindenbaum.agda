@@ -28,7 +28,8 @@ module _ {Σ₀ : Sig₀ ℓ}{Σ₁ : Sig₁ Σ₀ ℓ'} where
 
   STTCtx : Category _ _
   STTCtx .ob = Ctx (STy Σ₀)
-  STTCtx .Hom[_,_] Δ Γ = substitution (Term Σ₁ Δ) Γ -- substitution (Term Σ₁ Δ) Γ
+  STTCtx .Hom[_,_] Δ Γ =
+    substitution (Term Σ₁ Δ) Γ -- substitution (Term Σ₁ Δ) Γ
   STTCtx .id {Γ} = id-subst Γ
   STTCtx ._⋆_ {z = Γ} = λ δ γ → comp-subst {Γ = Γ} γ δ -- comp-subst γ δ
   STTCtx .⋆IdL {y = Γ} = comp-subst-IdInp {Γ = Γ}
@@ -44,7 +45,8 @@ module _ {Σ₀ : Sig₀ ℓ}{Σ₁ : Sig₁ Σ₀ ℓ'} where
   Lindenbaum .B .cat = STTCtx
   Lindenbaum .B .finite-products J Γs .vertex = finProd J Γs
   Lindenbaum .B .finite-products J Γs .element j x = ivar (j , x)
-  Lindenbaum .B .finite-products J Γs .universal .coinduction Ms (j , x) = Ms j x
+  Lindenbaum .B .finite-products J Γs .universal .coinduction Ms (j , x) =
+    Ms j x
   Lindenbaum .B .finite-products J Γs .universal .commutes ϕ = refl
   Lindenbaum .B .finite-products J Γs .universal .is-uniq ϕ f commutes =
     funExt (λ (j , x) → λ i → commutes i j x)

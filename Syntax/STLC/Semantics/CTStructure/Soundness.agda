@@ -62,7 +62,8 @@ module _ {Σ₀ : Sig₀ ℓ}{Σ₁ : Sig₁ Σ₀ ℓ'}
     term-sem-comp : ∀ {Δ Γ A} → (M : Term Γ A) → (γ : Subst Δ Γ)
                   → term-sem (M ⟨ γ ⟩) ≡ term-sem M ∘⟨ cat ⟩ subst-sem γ
     subst-sem-comp : ∀ {Ξ Δ Γ} → (γ : Subst Δ Γ) (δ : Subst Ξ Δ)
-                   → subst-sem {Γ = Γ} (comp-subst {Γ = Γ} γ δ) ≡ (subst-sem γ ∘⟨ cat ⟩ subst-sem δ)
+                   → subst-sem {Γ = Γ} (comp-subst {Γ = Γ} γ δ) ≡
+                     (subst-sem γ ∘⟨ cat ⟩ subst-sem δ)
 
     term-sem-comp {Δ} {Γ} {.(Γ .el x)} (ivar x) γ = sym (π∘prod-I _ _ _ _)
     term-sem-comp {Δ} {Γ} {.(Σ₁ .tgt f)} (fun-app f δ) γ =
@@ -74,7 +75,8 @@ module _ {Σ₀ : Sig₀ ℓ}{Σ₁ : Sig₁ Σ₀ ℓ'}
     subst-sem-comp {Ξ} {Δ} {Γ} γ δ =
       subst-sem {Γ = Γ} (comp-subst {Γ = Γ} γ δ)
         ≡[ i ]⟨ prod-I _ _ (λ x → term-sem-comp (γ x) δ i) ⟩
-      prod-I (varFinSet Γ) (λ x → sole (i₀ (Γ .el x))) (λ x → term-sem (γ x) ∘⟨ cat ⟩ subst-sem δ)
+      prod-I (varFinSet Γ) (λ x → sole (i₀ (Γ .el x)))
+        (λ x → term-sem (γ x) ∘⟨ cat ⟩ subst-sem δ)
         ≡⟨ sym (coinduction-natural (finite-products _ _ .universal) _ _) ⟩
       subst-sem γ ∘⟨ cat ⟩ subst-sem δ
       ∎
@@ -82,7 +84,8 @@ module _ {Σ₀ : Sig₀ ℓ}{Σ₁ : Sig₁ Σ₀ ℓ'}
   soundness : CT-Functor (Lindenbaum {Σ₀ = Σ₀}{Σ₁ = Σ₁}) S
   soundness .F-B .func .F-ob = ctx-sem
   soundness .F-B .func .F-hom = subst-sem
-  soundness .F-B .func .F-id {x = Γ} = prod-I⟨π⟩ (varFinSet Γ) (λ x → sole (i₀ (Γ .el x)))
+  soundness .F-B .func .F-id {x = Γ} =
+    prod-I⟨π⟩ (varFinSet Γ) (λ x → sole (i₀ (Γ .el x)))
   soundness .F-B .func .F-seq δ γ = subst-sem-comp γ δ
   soundness .F-B .preserves-fin-products J D =
     nestProd cat (J .fst) (λ j → D j .var) (λ j x → sole (i₀ (D j .el x)))
@@ -91,5 +94,9 @@ module _ {Σ₀ : Sig₀ ℓ}{Σ₁ : Sig₁ Σ₀ ℓ'}
   soundness .F-Ty = i₀
   soundness .F-agree {A} =
     sameUMP→CatIso cat (Πᴾ cat Unit (λ tt → cat [-, sole (i₀ A) ]))
-      (record { vertex = _ ; element = _ ; universal = unaryProd _ (sole (i₀ A)) })
+      (record {
+        vertex = _ ;
+        element = _ ;
+        universal = unaryProd _ (sole (i₀ A))
+      })
       (finite-products (_ , isFinSetUnit) (λ tt → sole (i₀ A)))

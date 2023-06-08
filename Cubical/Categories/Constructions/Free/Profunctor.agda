@@ -33,14 +33,17 @@ open Category
 open Functor
 open NatTrans
 
-module FreeProfunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (R : G .Node → H .Node → Type ℓr) where
+module FreeProfunctor (G : Graph ℓg ℓg')
+                      (H : Graph ℓh ℓh')
+                      (R : G .Node → H .Node → Type ℓr) where
   module FG = FreeCategory G
   module FH = FreeCategory H
 
   data R-type : Type (ℓ-max ℓg ℓh) where
     ↑g : G .Node → R-type
     ↑h : H .Node → R-type
-  data R-generator : R-type → R-type → Type (ℓ-max ℓr (ℓ-max (ℓ-max ℓg ℓg') (ℓ-max ℓh ℓh'))) where
+  data R-generator : R-type → R-type →
+                     Type (ℓ-max ℓr (ℓ-max (ℓ-max ℓg ℓg') (ℓ-max ℓh ℓh'))) where
     ↑g : ∀ {a b} → G .Edge a b → R-generator (↑g a) (↑g b)
     ↑h : ∀ {a b} → H .Edge a b → R-generator (↑h a) (↑h b)
     ↑r : ∀ {a b} → R a b → R-generator (↑g a) (↑h b)
@@ -52,10 +55,12 @@ module FreeProfunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (R : G .Node
   module FRcat = FreeCategory R-graph
 
   G-i : Functor FG.FreeCat FRcat.FreeCat
-  G-i = FG.Semantics.sem _ (record { _$g_ = ↑g ; _<$g>_ = λ x → FRcat.↑ (↑g x) })
+  G-i =
+    FG.Semantics.sem _ (record { _$g_ = ↑g ; _<$g>_ = λ x → FRcat.↑ (↑g x) })
 
   H-i : Functor FH.FreeCat FRcat.FreeCat
-  H-i = FH.Semantics.sem _ (record { _$g_ = ↑h ; _<$g>_ = λ x → FRcat.↑ (↑h x) })
+  H-i =
+    FH.Semantics.sem _ (record { _$g_ = ↑h ; _<$g>_ = λ x → FRcat.↑ (↑h x) })
 
   FR : FG.FreeCat o-[ _ ]-* FH.FreeCat
   FR = HomFunctor FRcat.FreeCat ∘F ((G-i ^opF) ×F H-i)
@@ -63,7 +68,8 @@ module FreeProfunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (R : G .Node
   ηR : ∀ {a b} → R a b → ⟨ FR ⟅ a , b ⟆ ⟩
   ηR r = FRcat.↑ (↑r r)
 
-  module Semantics {𝓒 : Category ℓc ℓc'} {𝓓 : Category ℓd ℓd'} {𝓡 : 𝓒 o-[ ℓr' ]-* 𝓓}
+  module Semantics {𝓒 : Category ℓc ℓc'}
+                   {𝓓 : Category ℓd ℓd'} {𝓡 : 𝓒 o-[ ℓr' ]-* 𝓓}
                    (ıG : Interp G 𝓒)
                    (ıH : Interp H 𝓓)
                    (ıR : ∀ {A B} → R A B → ⟨ 𝓡 ⟅ ıG $g A , ıH $g B ⟆ ⟩)
@@ -74,7 +80,9 @@ module FreeProfunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (R : G .Node
     open ProfHom
     CGR = CoGraph {C = 𝓒} {D = 𝓓} 𝓡
     sem𝓡CoGraph : Functor FRcat.FreeCat CGR
-    sem𝓡CoGraph = FRcat.Semantics.sem CGR (record { _$g_ = sem𝓡-ob ; _<$g>_ = sem𝓡-gen }) where
+    sem𝓡CoGraph =
+      FRcat.Semantics.sem CGR
+        (record { _$g_ = sem𝓡-ob ; _<$g>_ = sem𝓡-gen }) where
       sem𝓡-ob : R-type → CGR .ob
       sem𝓡-ob (↑g x) = inl (sem𝓒 ⟅ x ⟆ )
       sem𝓡-ob (↑h x) = inr (sem𝓓 ⟅ x ⟆ )
@@ -93,7 +101,10 @@ module FreeProfunctor (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (R : G .Node
     sem𝓡 : ProfHom FR sem𝓒 sem𝓓 𝓡
     sem𝓡 .R-hom b c x = ↑p-r 𝓡 (sem𝓡CoGraph ⟪ x ⟫)
     sem𝓡 .R-nat b' b c c' f p g =
-      cong (↑p-r 𝓡) ((λ i → sem𝓡CoGraph .F-seq (p ∘⟨ FRcat.FreeCat ⟩ G-i ⟪ f ⟫) (H-i ⟪ g ⟫) i)
-                    ∙ (λ i → (sem𝓡CoGraph ⟪ H-i ⟪ g ⟫ ⟫) ∘⟨ CGR ⟩ sem𝓡CoGraph .F-seq (G-i ⟪ f ⟫) p i)
-                    ∙ λ i → sem𝓡CG-H i ⟪ g ⟫ ∘⟨ CGR ⟩ sem𝓡CoGraph ⟪ p ⟫ ∘⟨ CGR ⟩ sem𝓡CG-G i ⟪ f ⟫)
+      cong (↑p-r 𝓡) ((λ i → sem𝓡CoGraph .F-seq (p ∘⟨ FRcat.FreeCat ⟩
+                        G-i ⟪ f ⟫) (H-i ⟪ g ⟫) i)
+                    ∙ (λ i → (sem𝓡CoGraph ⟪ H-i ⟪ g ⟫ ⟫) ∘⟨ CGR ⟩
+                         sem𝓡CoGraph .F-seq (G-i ⟪ f ⟫) p i)
+                    ∙ λ i → sem𝓡CG-H i ⟪ g ⟫ ∘⟨ CGR ⟩
+                        sem𝓡CoGraph ⟪ p ⟫ ∘⟨ CGR ⟩ sem𝓡CG-G i ⟪ f ⟫)
       ∙ ↑pH-r 𝓡 .R-nat _ _ _ _ (sem𝓒 ⟪ f ⟫) (sem𝓡CoGraph ⟪ p ⟫) (sem𝓓 ⟪ g ⟫)

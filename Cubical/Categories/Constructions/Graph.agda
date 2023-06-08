@@ -17,7 +17,8 @@ open Category hiding (_∘_)
 open Functor
 
 -- Examples:
-module Graph {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (P : C o-[ ℓS ]-* D) where
+module Graph {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+             (P : C o-[ ℓS ]-* D) where
   Element : Type _
   Element = Σ[ c ∈ C .ob ] Σ[ d ∈ D .ob ] (P ⟅ c , d ⟆) .fst
 
@@ -61,7 +62,10 @@ module Graph {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (P : C o-[ ℓS 
   Graph .⋆IdR ((f , g), comm) =
     Σ≡Prop (λ x → P .F-ob _ .snd _ _) (≡-× (C .⋆IdR f) (D .⋆IdR g))
   Graph .⋆Assoc ((f , g) , comm) ((f' , g') , comm') ((f'' , g'') , comm'') =
-    Σ≡Prop (λ x → P .F-ob _ .snd _ _) (≡-× (C .⋆Assoc f f' f'') (D .⋆Assoc g g' g''))
-  Graph .isSetHom = isSetΣ (isSet× (C .isSetHom) (D .isSetHom)) λ x → isProp→isSet (P .F-ob _ .snd _ _)
+    Σ≡Prop (λ x → P .F-ob _ .snd _ _)
+           (≡-× (C .⋆Assoc f f' f'') (D .⋆Assoc g g' g''))
+  Graph .isSetHom =
+    isSetΣ (isSet× (C .isSetHom) (D .isSetHom)) λ x →
+      isProp→isSet (P .F-ob _ .snd _ _)
 
   -- TODO: isUnivalent if C, D are

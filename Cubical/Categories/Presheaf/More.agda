@@ -19,13 +19,15 @@ private
   variable
     ℓ ℓ' ℓS ℓS' : Level
 
-action : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a b : C .ob} → C [ a , b ] → fst (P ⟅ b ⟆) → fst (P ⟅ a ⟆)
+action : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a b : C .ob} →
+         C [ a , b ] → fst (P ⟅ b ⟆) → fst (P ⟅ a ⟆)
 action C P = P .F-hom
 
 -- Convenient notation for naturality
 syntax action C P f ϕ = C [ ϕ ∘ᴾ⟨ P ⟩ f ]
 
-∘ᴾId : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a : C .ob} → (ϕ : fst (P ⟅ a ⟆))
+∘ᴾId : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a : C .ob}
+     → (ϕ : fst (P ⟅ a ⟆))
      → C [ ϕ ∘ᴾ⟨ P ⟩ C .id ] ≡ ϕ
 ∘ᴾId C P ϕ i = P .F-id i ϕ
 
@@ -37,7 +39,9 @@ syntax action C P f ϕ = C [ ϕ ∘ᴾ⟨ P ⟩ f ]
 ∘ᴾAssoc C P ϕ f g i = P .F-seq f g i ϕ
 
 -- Isomorphism between presheaves of different levels
-PshIso : (C : Category ℓ ℓ') (P : Presheaf C ℓS) (Q : Presheaf C ℓS') → Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS) ℓS')
+PshIso : (C : Category ℓ ℓ')
+         (P : Presheaf C ℓS)
+         (Q : Presheaf C ℓS') → Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS) ℓS')
 PshIso {ℓS = ℓS}{ℓS' = ℓS'} C P Q =
   CatIso (FUNCTOR (C ^op) (SET (ℓ-max ℓS ℓS')))
     (LiftF {ℓ = ℓS}{ℓ' = ℓS'} ∘F P)

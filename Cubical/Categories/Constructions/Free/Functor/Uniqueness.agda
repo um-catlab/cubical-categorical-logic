@@ -1,4 +1,5 @@
--- Free functor between categories generated from two graphs and a homomorphism between them
+-- Free functor between categories generated from two graphs
+-- -- and a homomorphism between them
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Constructions.Free.Functor.Uniqueness where
 
@@ -12,7 +13,8 @@ open import Cubical.Data.Graph.Base
 
 open import Cubical.Data.Graph.Properties
 open import Cubical.Data.Empty
-open import Cubical.Categories.Constructions.Free.General as Free hiding (module Semantics)
+open import Cubical.Categories.Constructions.Free.General as
+  Free hiding (module Semantics)
 open import Cubical.Categories.Constructions.Free.Functor.Base
 open import Cubical.Categories.Constructions.Free.UnderlyingGraph
 
@@ -41,7 +43,8 @@ module _ (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : GraphHom G H) where
     -- F that when composed with the universal interpretation agrees
     -- with some fixed interpretation ıϕ. Then in fact that square is
     -- isomorphic to the one generated from ıϕ
-    module _ (sem𝓒' : Functor (FreeCat G) 𝓒) (sem𝓓' : Functor (FreeH+ϕ G H ϕ) 𝓓)
+    module _ (sem𝓒' : Functor (FreeCat G) 𝓒)
+             (sem𝓓' : Functor (FreeH+ϕ G H ϕ) 𝓓)
              (semϕ' : NatIso (𝓕 ∘F sem𝓒') (sem𝓓' ∘F (Freeϕ G H ϕ)))
              (sem𝓒'-agree : InterpIso G 𝓒 (sem𝓒' ∘Interp (η G)) ıG)
              (sem𝓓'-agree : InterpIso H 𝓓 (sem𝓓' ∘Interp (ηH G H ϕ)) ıH)
@@ -63,13 +66,17 @@ module _ (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : GraphHom G H) where
         α-mor = sem𝓓'-agree .fst .fst
         α-nat-generators = sem𝓓'-agree .fst .snd
 
-        α-nat-id : ∀ {v} → sem𝓓' ⟪ idf ⟫ ⋆⟨ 𝓓 ⟩ α-mor v ≡ α-mor v ⋆⟨ 𝓓 ⟩ 𝓓 .id
-        α-nat-id = (λ i → sem𝓓' .F-id i ⋆⟨ 𝓓 ⟩ α-mor _) ∙ sym (idTrans (Id {C = 𝓓}) .N-hom _)
+        α-nat-id : ∀ {v} → sem𝓓' ⟪ idf ⟫ ⋆⟨ 𝓓 ⟩
+                   α-mor v ≡ α-mor v ⋆⟨ 𝓓 ⟩ 𝓓 .id
+        α-nat-id = (λ i → sem𝓓' .F-id i ⋆⟨ 𝓓 ⟩ α-mor _) ∙
+                   sym (idTrans (Id {C = 𝓓}) .N-hom _)
 
-        α-nat-seq : ∀ {u v w} → (e : FreeH+ϕ G H ϕ [ u , v ]) (e' : FreeH+ϕ G H ϕ [ v , w ])
+        α-nat-seq : ∀ {u v w} → (e : FreeH+ϕ G H ϕ [ u , v ])
+                    (e' : FreeH+ϕ G H ϕ [ v , w ])
                   → sem𝓓' ⟪ e ⟫ ⋆⟨ 𝓓 ⟩ α-mor _ ≡ α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ e ⟫
                   → sem𝓓' ⟪ e' ⟫ ⋆⟨ 𝓓 ⟩ α-mor _ ≡ α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ e' ⟫
-                  → sem𝓓' ⟪ e ⋆f e' ⟫ ⋆⟨ 𝓓 ⟩ α-mor w ≡ α-mor _ ⋆⟨ 𝓓 ⟩ (sem𝓓 ⟪ e ⟫ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ e' ⟫)
+                  → sem𝓓' ⟪ e ⋆f e' ⟫ ⋆⟨ 𝓓 ⟩ α-mor w ≡ α-mor _ ⋆⟨ 𝓓 ⟩
+                          (sem𝓓 ⟪ e ⟫ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ e' ⟫)
         α-nat-seq e e' e-ih e'-ih =
           (λ i → sem𝓓' .F-seq e e' i ⋆⟨ 𝓓 ⟩ α-mor _)
           ∙ 𝓓 .⋆Assoc _ _ _
@@ -85,30 +92,47 @@ module _ (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : GraphHom G H) where
         F⟪⟫-Functor .F-seq = F-seqₑ
 
         F⟪⟫-Freeϕ-agree : NatIso F⟪⟫-Functor (Freeϕ G H ϕ)
-        F⟪⟫-Freeϕ-agree = Free.Semantics.semIIso G ((FreeH+ϕ G H ϕ)) (Freeϕ-homo G H ϕ) F⟪⟫-Functor (idInterpIso _ _)
+        F⟪⟫-Freeϕ-agree =
+          Free.Semantics.semIIso G ((FreeH+ϕ G H ϕ))
+          (Freeϕ-homo G H ϕ) F⟪⟫-Functor (idInterpIso _ _)
 
         natural-on-Freeϕ : NatIso (sem𝓓' ∘F Freeϕ G H ϕ) (sem𝓓 ∘F Freeϕ G H ϕ)
-        natural-on-Freeϕ = uniqueness-principle G (sem𝓓' ∘F Freeϕ G H ϕ) (sem𝓓 ∘F Freeϕ G H ϕ)
+        natural-on-Freeϕ =
+          uniqueness-principle G (sem𝓓' ∘F Freeϕ G H ϕ) (sem𝓓 ∘F Freeϕ G H ϕ)
           ((sem𝓓' ⊙ʳInterp ηϕ G H ϕ)
-          ⋆InterpIso ((sem𝓓'-agree ∘ˡInterp ϕ) ⋆InterpIso symInterpIso (sem𝓓 ⊙ʳInterp ηϕ G H ϕ)))
+          ⋆InterpIso ((sem𝓓'-agree ∘ˡInterp ϕ) ⋆InterpIso
+            symInterpIso (sem𝓓 ⊙ʳInterp ηϕ G H ϕ)))
 
-        α-mor≡NatTransFreeϕ : ∀ {v} → (natural-on-Freeϕ ⊙ˡInterp (η G)) .fst .fst v ≡ α-mor (ϕ $g v)
+        α-mor≡NatTransFreeϕ : ∀ {v} →
+          (natural-on-Freeϕ ⊙ˡInterp (η G)) .fst .fst v ≡ α-mor (ϕ $g v)
         α-mor≡NatTransFreeϕ =
            (natural-on-Freeϕ ⊙ˡInterp (η G)) .fst .fst _
-             ≡[ i ]⟨ uniqueness-principle-restricts G ((sem𝓓' ∘F Freeϕ G H ϕ)) ((sem𝓓 ∘F Freeϕ G H ϕ)) (((sem𝓓' ⊙ʳInterp ηϕ G H ϕ) ⋆InterpIso ((sem𝓓'-agree ∘ˡInterp ϕ) ⋆InterpIso symInterpIso (sem𝓓 ⊙ʳInterp ηϕ G H ϕ)))) i .fst .fst _ ⟩
-           (sem𝓓' ⟪ FreeH+ϕ G H ϕ .id ⟫ ⋆⟨ 𝓓 ⟩ (α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ FreeH+ϕ G H ϕ .id ⟫))
+             ≡[ i ]⟨ uniqueness-principle-restricts G ((sem𝓓' ∘F Freeϕ G H ϕ))
+                     ((sem𝓓 ∘F Freeϕ G H ϕ))
+                     (((sem𝓓' ⊙ʳInterp ηϕ G H ϕ) ⋆InterpIso
+                       ((sem𝓓'-agree ∘ˡInterp ϕ) ⋆InterpIso symInterpIso
+                         (sem𝓓 ⊙ʳInterp ηϕ G H ϕ)))) i .fst .fst _ ⟩
+           (sem𝓓' ⟪ FreeH+ϕ G H ϕ .id ⟫ ⋆⟨ 𝓓 ⟩
+             (α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ FreeH+ϕ G H ϕ .id ⟫))
              ≡[ i ]⟨ sem𝓓' .F-id i ⋆⟨ 𝓓 ⟩ (α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 .F-id i) ⟩
            (𝓓 .id ⋆⟨ 𝓓 ⟩ (α-mor _ ⋆⟨ 𝓓 ⟩ 𝓓 .id))
              ≡⟨ solveCat! 𝓓 ⟩
            α-mor _ ∎
 
         α-nat-F' : ∀ {u v} → (e : FreeCat G [ u , v ])
-                 → sem𝓓' ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫ ⋆⟨ 𝓓 ⟩ α-mor _ ≡ α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫
-        α-nat-F' e = transport (λ i → sem𝓓' ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫ ⋆⟨ 𝓓 ⟩ α-mor≡NatTransFreeϕ i ≡ α-mor≡NatTransFreeϕ i ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫) (natural-on-Freeϕ .trans .N-hom e)
+                 → sem𝓓' ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫ ⋆⟨ 𝓓 ⟩ α-mor _ ≡
+                   α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫
+        α-nat-F' e =
+          transport
+            (λ i → sem𝓓' ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫ ⋆⟨ 𝓓 ⟩
+              α-mor≡NatTransFreeϕ i ≡ α-mor≡NatTransFreeϕ i ⋆⟨ 𝓓 ⟩
+                sem𝓓 ⟪ Freeϕ G H ϕ ⟪ e ⟫ ⟫) (natural-on-Freeϕ .trans .N-hom e)
 
-        -- Argument: α should be natural on everything of the form F ⟪ e ⟫ because ?
+        -- Argument: α should be natural on everything
+        -- of the form F ⟪ e ⟫ because ?
         α-nat-F : ∀ {u v} → (e : FreeCat G [ u , v ])
-                → sem𝓓' ⟪ F⟪ e ⟫ ⟫ ⋆⟨ 𝓓 ⟩ α-mor _ ≡ α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ F⟪ e ⟫ ⟫
+                → sem𝓓' ⟪ F⟪ e ⟫ ⟫ ⋆⟨ 𝓓 ⟩ α-mor _ ≡
+                  α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ F⟪ e ⟫ ⟫
         α-nat-F e =
           sem𝓓' ⟪ F⟪ e ⟫ ⟫ ⋆⟨ 𝓓 ⟩ α-mor _
             ≡[ i ]⟨ sem𝓓' ⟪ F⟪⟫-Freeϕ-agree⟪⟫ i ⟫ ⋆⟨ 𝓓 ⟩ α-mor _ ⟩
@@ -119,7 +143,9 @@ module _ (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : GraphHom G H) where
           α-mor _ ⋆⟨ 𝓓 ⟩ sem𝓓 ⟪ F⟪ e ⟫ ⟫ ∎
           where
             F⟪⟫-Freeϕ-agree⟪⟫ : F⟪ e ⟫ ≡ Freeϕ G H ϕ ⟪ e ⟫
-            F⟪⟫-Freeϕ-agree⟪⟫ = sym (FreeH+ϕ G H ϕ .⋆IdR F⟪ e ⟫) ∙ F⟪⟫-Freeϕ-agree .trans .N-hom _ ∙ FreeH+ϕ G H ϕ .⋆IdL _
+            F⟪⟫-Freeϕ-agree⟪⟫ =
+              sym (FreeH+ϕ G H ϕ .⋆IdR F⟪ e ⟫) ∙
+                F⟪⟫-Freeϕ-agree .trans .N-hom _ ∙ FreeH+ϕ G H ϕ .⋆IdL _
 
         α-nat : ∀ {A B} (e : FreeH+ϕ G H ϕ [ A , B ])
                            → sem𝓓' ⟪ e ⟫ ⋆⟨ 𝓓 ⟩ α-mor B
@@ -130,18 +156,48 @@ module _ (G : Graph ℓg ℓg') (H : Graph ℓh ℓh') (ϕ : GraphHom G H) where
         α-nat (e ⋆f e') = α-nat-seq e e' (α-nat e) (α-nat e')
         α-nat F⟪ x ⟫ = α-nat-F x -- α-nat-F x
         -- 1-paths
-        α-nat (⋆fIdL e i) j = isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-seq idf e α-nat-id (α-nat e)) (α-nat e) (λ i → seq' 𝓓 (sem𝓓' ⟪ ⋆fIdL e i ⟫) (α-mor _)) (λ i → seq' 𝓓 (α-mor _) (sem𝓓 ⟪ ⋆fIdL e i ⟫)) i j
+        α-nat (⋆fIdL e i) j =
+          isSet→SquareP (λ _ _ → 𝓓 .isSetHom)
+          (α-nat-seq idf e α-nat-id (α-nat e))
+          (α-nat e) (λ i → seq' 𝓓 (sem𝓓' ⟪ ⋆fIdL e i ⟫) (α-mor _))
+          (λ i → seq' 𝓓 (α-mor _) (sem𝓓 ⟪ ⋆fIdL e i ⟫)) i j
 
-        α-nat (⋆fIdR e i) j = isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-seq e idf (α-nat e) α-nat-id) (α-nat e) (λ i → seq' 𝓓 (sem𝓓' ⟪ ⋆fIdR e i ⟫) (α-mor _)) (λ i → seq' 𝓓 (α-mor _) (sem𝓓 ⟪ ⋆fIdR e i ⟫)) i j
+        α-nat (⋆fIdR e i) j =
+          isSet→SquareP (λ _ _ → 𝓓 .isSetHom)
+            (α-nat-seq e idf (α-nat e) α-nat-id) (α-nat e)
+            (λ i → seq' 𝓓 (sem𝓓' ⟪ ⋆fIdR e i ⟫) (α-mor _))
+            (λ i → seq' 𝓓 (α-mor _) (sem𝓓 ⟪ ⋆fIdR e i ⟫)) i j
 
-        α-nat (⋆fAssoc e e' e'' i) j = isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-seq (e ⋆f e') e'' (α-nat-seq e e' (α-nat e) (α-nat e')) (α-nat e'')) (α-nat-seq e (e' ⋆f e'') (α-nat e) (α-nat-seq e' e'' (α-nat e') (α-nat e''))) (λ i → seq' 𝓓 (sem𝓓' ⟪ ⋆fAssoc e e' e'' i ⟫) (α-mor _)) (λ i → seq' 𝓓 (α-mor _) (sem𝓓 ⟪ ⋆fAssoc e e' e'' i ⟫)) i j
-        α-nat (F-idₑ i) j = isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-F idₑ) (α-nat-id) (λ i → seq' 𝓓 (sem𝓓' ⟪ F-idₑ i ⟫) (α-mor (ϕ $g _))) (λ i → seq' 𝓓 (α-mor (ϕ $g _)) (sem𝓓 ⟪ F-idₑ i ⟫)) i j
-        α-nat (F-seqₑ e e' i) j = isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-F (e ⋆ₑ e')) (α-nat-seq F⟪ e ⟫ F⟪ e' ⟫ (α-nat-F e) (α-nat-F e')) (λ i → seq' 𝓓 (sem𝓓' ⟪ F-seqₑ e e' i ⟫) (α-mor (ϕ $g _))) (λ i → seq' 𝓓 (α-mor (ϕ $g _)) (sem𝓓 ⟪ F-seqₑ e e' i ⟫)) i j
+        α-nat (⋆fAssoc e e' e'' i) j =
+          isSet→SquareP (λ _ _ → 𝓓 .isSetHom)
+            (α-nat-seq (e ⋆f e') e'' (α-nat-seq e e' (α-nat e)
+              (α-nat e')) (α-nat e''))
+            (α-nat-seq e (e' ⋆f e'') (α-nat e)
+              (α-nat-seq e' e'' (α-nat e') (α-nat e'')))
+            (λ i → seq' 𝓓 (sem𝓓' ⟪ ⋆fAssoc e e' e'' i ⟫) (α-mor _))
+            (λ i → seq' 𝓓 (α-mor _) (sem𝓓 ⟪ ⋆fAssoc e e' e'' i ⟫)) i j
+        α-nat (F-idₑ i) j =
+          isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-F idₑ) (α-nat-id)
+            (λ i → seq' 𝓓 (sem𝓓' ⟪ F-idₑ i ⟫) (α-mor (ϕ $g _)))
+            (λ i → seq' 𝓓 (α-mor (ϕ $g _)) (sem𝓓 ⟪ F-idₑ i ⟫)) i j
+        α-nat (F-seqₑ e e' i) j =
+          isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-F (e ⋆ₑ e'))
+            (α-nat-seq F⟪ e ⟫ F⟪ e' ⟫ (α-nat-F e) (α-nat-F e'))
+            (λ i → seq' 𝓓 (sem𝓓' ⟪ F-seqₑ e e' i ⟫) (α-mor (ϕ $g _)))
+            (λ i → seq' 𝓓 (α-mor (ϕ $g _)) (sem𝓓 ⟪ F-seqₑ e e' i ⟫)) i j
 
-        α-nat (F⟪⟫-ϕ-agree e i) j = isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-F (↑ e)) (α-nat-generators (ϕ <$g> e)) (λ i → seq' 𝓓 (sem𝓓' ⟪ F⟪⟫-ϕ-agree e i ⟫) (α-mor (ϕ $g _))) (λ i → seq' 𝓓 (α-mor (ϕ $g _)) (sem𝓓 ⟪ F⟪⟫-ϕ-agree e i ⟫)) i j
+        α-nat (F⟪⟫-ϕ-agree e i) j =
+          isSet→SquareP (λ _ _ → 𝓓 .isSetHom) (α-nat-F (↑ e))
+            (α-nat-generators (ϕ <$g> e))
+            (λ i → seq' 𝓓 (sem𝓓' ⟪ F⟪⟫-ϕ-agree e i ⟫) (α-mor (ϕ $g _)))
+            (λ i → seq' 𝓓 (α-mor (ϕ $g _)) (sem𝓓 ⟪ F⟪⟫-ϕ-agree e i ⟫)) i j
         -- the 2-path
         α-nat (isSetFExp e e' p q i j) =
-          isSet→SquareP (λ i j → isSet→isGroupoid (𝓓 .isSetHom) (seq' 𝓓 (sem𝓓' ⟪ isSetFExp e e' p q i j ⟫) (α-mor _)) (seq' 𝓓 (α-mor _) (sem𝓓 ⟪ isSetFExp e e' p q i j ⟫))) (λ j → α-nat (p j)) (λ j → α-nat (q j)) (λ _ → α-nat e) (λ _ → α-nat e') i j
+          isSet→SquareP (λ i j → isSet→isGroupoid (𝓓 .isSetHom)
+            (seq' 𝓓 (sem𝓓' ⟪ isSetFExp e e' p q i j ⟫) (α-mor _))
+            (seq' 𝓓 (α-mor _) (sem𝓓 ⟪ isSetFExp e e' p q i j ⟫)))
+            (λ j → α-nat (p j)) (λ j → α-nat (q j)) (λ _ → α-nat e)
+              (λ _ → α-nat e') i j
 
         sem𝓓-trans : NatTrans sem𝓓' sem𝓓
         sem𝓓-trans .N-ob = α-mor

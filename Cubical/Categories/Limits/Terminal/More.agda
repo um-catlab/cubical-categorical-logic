@@ -15,10 +15,12 @@ private
   variable
     ℓ ℓ' ℓc ℓc' ℓd ℓd' : Level
 
-isoToTerminal : ∀ (C : Category ℓ ℓ') (x : Terminal C) y → CatIso C (terminalOb C x) y → isTerminal C y
+isoToTerminal : ∀ (C : Category ℓ ℓ') (x : Terminal C) y →
+                CatIso C (terminalOb C x) y → isTerminal C y
 isoToTerminal C x y x≅y y' .fst = x≅y .fst ∘⟨ C ⟩ terminalArrow C x y'
 isoToTerminal C x y x≅y y' .snd f =
-  sym (⋆InvRMove (invIso x≅y) (sym (terminalArrowUnique C {T = x} (invIso x≅y .fst ∘⟨ C ⟩ f))))
+  sym (⋆InvRMove (invIso x≅y)
+    (sym (terminalArrowUnique C {T = x} (invIso x≅y .fst ∘⟨ C ⟩ f))))
 
 preservesTerminal : ∀ (C : Category ℓc ℓc')(D : Category ℓd ℓd')
                   → Functor C D

@@ -59,22 +59,43 @@ module FreeCategory (G : Graph ℓg ℓg') where
           aoo = (λ c i → agree-on-η i $g c)
 
           aom-t : ∀ {c c'} (e : Exp c c') → Type _
-          aom-t {c}{c'} e = PathP (λ i → 𝓒 [ aoo c i , aoo c' i ]) (F ⟪ e ⟫) (F' ⟪ e ⟫)
+          aom-t {c}{c'} e =
+            PathP (λ i → 𝓒 [ aoo c i , aoo c' i ]) (F ⟪ e ⟫) (F' ⟪ e ⟫)
 
           aom-id : ∀ {c} → aom-t (idₑ {c})
           aom-id = F .F-id ◁ (λ i → 𝓒 .id) ▷ sym (F' .F-id)
 
-          aom-seq : ∀ {c c' c''} (e : Exp c c')(e' : Exp c' c'') → aom-t e → aom-t e' → aom-t (e ⋆ₑ e')
-          aom-seq e e' ihe ihe' = F .F-seq e e' ◁ (λ i → ihe i ⋆⟨ 𝓒 ⟩ ihe' i) ▷ sym (F' .F-seq e e')
+          aom-seq : ∀ {c c' c''} (e : Exp c c')(e' : Exp c' c'') →
+            aom-t e → aom-t e' → aom-t (e ⋆ₑ e')
+          aom-seq e e' ihe ihe' =
+            F .F-seq e e' ◁ (λ i → ihe i ⋆⟨ 𝓒 ⟩ ihe' i) ▷ sym (F' .F-seq e e')
 
           aom : ∀ {c c'} (e : Exp c c') → aom-t e
           aom (↑ x) = λ i → agree-on-η i <$g> x
           aom idₑ = aom-id
           aom (e ⋆ₑ e') = aom-seq e e' (aom e) (aom e')
-          aom (⋆ₑIdL e i) = isSet→SquareP (λ i j → 𝓒 .isSetHom) (aom-seq idₑ e aom-id (aom e)) (aom e) (λ i → F ⟪ ⋆ₑIdL e i ⟫) ((λ i → F' ⟪ ⋆ₑIdL e i ⟫)) i
-          aom (⋆ₑIdR e i) = isSet→SquareP (λ i j → 𝓒 .isSetHom) (aom-seq e idₑ (aom e) aom-id) (aom e) (λ i → F ⟪ ⋆ₑIdR e i ⟫) ((λ i → F' ⟪ ⋆ₑIdR e i ⟫)) i
-          aom (⋆ₑAssoc e e' e'' i) = isSet→SquareP (λ _ _ → 𝓒 .isSetHom) (aom-seq _ _ (aom-seq _ _ (aom e) (aom e')) (aom e'')) (aom-seq _ _ (aom e) (aom-seq _ _ (aom e') (aom e''))) ((λ i → F ⟪ ⋆ₑAssoc e e' e'' i ⟫)) (λ i → F' ⟪ ⋆ₑAssoc e e' e'' i ⟫) i
-          aom (isSetExp e e' x y i j) = isSet→SquareP {A = λ i j → aom-t (isSetExp e e' x y i j)} (λ i j → isOfHLevelPathP 2 (𝓒 .isSetHom) (F ⟪ isSetExp e e' x y i j ⟫) (F' ⟪ isSetExp e e' x y i j ⟫)) (λ j → aom (x j)) (λ j → aom (y j)) (λ i → aom e) (λ i → aom e') i j
+          aom (⋆ₑIdL e i) =
+            isSet→SquareP (λ i j → 𝓒 .isSetHom)
+              (aom-seq idₑ e aom-id (aom e))
+              (aom e) (λ i → F ⟪ ⋆ₑIdL e i ⟫) ((λ i → F' ⟪ ⋆ₑIdL e i ⟫)) i
+          aom (⋆ₑIdR e i) =
+            isSet→SquareP (λ i j → 𝓒 .isSetHom)
+              (aom-seq e idₑ (aom e) aom-id) (aom e)
+              (λ i → F ⟪ ⋆ₑIdR e i ⟫) ((λ i → F' ⟪ ⋆ₑIdR e i ⟫)) i
+          aom (⋆ₑAssoc e e' e'' i) =
+            isSet→SquareP (λ _ _ → 𝓒 .isSetHom)
+              (aom-seq _ _ (aom-seq _ _ (aom e) (aom e')) (aom e''))
+              (aom-seq _ _ (aom e) (aom-seq _ _ (aom e') (aom e'')))
+              ((λ i → F ⟪ ⋆ₑAssoc e e' e'' i ⟫))
+              (λ i → F' ⟪ ⋆ₑAssoc e e' e'' i ⟫) i
+          aom (isSetExp e e' x y i j) =
+            isSet→SquareP
+              {A = λ i j → aom-t (isSetExp e e' x y i j)}
+              (λ i j → isOfHLevelPathP 2 (𝓒 .isSetHom)
+                (F ⟪ isSetExp e e' x y i j ⟫)
+                (F' ⟪ isSetExp e e' x y i j ⟫))
+                (λ j → aom (x j))
+                (λ j → aom (y j)) (λ i → aom e) (λ i → aom e') i j
         induction : F ≡ F'
         induction = Functor≡ aoo aom
 
@@ -84,9 +105,11 @@ module FreeCategory (G : Graph ℓg ℓg') where
       -- inductionIso .inv = induction
       -- inductionIso .rightInv = λ p → refl
       -- inductionIso .leftInv p i = {!induction ?!}
-    -- inductionRefl : ∀ {𝓒 : Category ℓc ℓc'} (F : Functor FreeCat 𝓒) → induction F F refl ≡ refl
+    -- inductionRefl : ∀ {𝓒 : Category ℓc ℓc'} (F : Functor FreeCat 𝓒) →
+      -- induction F F refl ≡ refl
     -- inductionRefl = {!!}
-    module Semantics {ℓc ℓc'} (𝓒 : Category ℓc ℓc') (ı : GraphHom G (Ugr 𝓒)) where
+    module Semantics {ℓc ℓc'} (𝓒 : Category ℓc ℓc')
+           (ı : GraphHom G (Ugr 𝓒)) where
       ⟦_⟧ : ∀ {A B} → Exp A B → 𝓒 [ ı $g A , ı $g B ]
       ⟦ ↑ x ⟧ = ı <$g> x
       ⟦ idₑ ⟧ = 𝓒 .id
@@ -94,7 +117,8 @@ module FreeCategory (G : Graph ℓg ℓg') where
       ⟦ ⋆ₑIdL e i ⟧ = 𝓒 .⋆IdL ⟦ e ⟧ i
       ⟦ ⋆ₑIdR e i ⟧ = 𝓒 .⋆IdR ⟦ e ⟧ i
       ⟦ ⋆ₑAssoc e e' e'' i ⟧ = 𝓒 .⋆Assoc ⟦ e ⟧ ⟦ e' ⟧ ⟦ e'' ⟧ i
-      ⟦ isSetExp e e' p q i j ⟧ = 𝓒 .isSetHom ⟦ e ⟧ ⟦ e' ⟧ (cong ⟦_⟧ p) (cong ⟦_⟧ q) i j
+      ⟦ isSetExp e e' p q i j ⟧ =
+        𝓒 .isSetHom ⟦ e ⟧ ⟦ e' ⟧ (cong ⟦_⟧ p) (cong ⟦_⟧ q) i j
 
       sem : Functor FreeCat 𝓒
       sem .Functor.F-ob v = ı $g v
@@ -112,7 +136,8 @@ module FreeCategory (G : Graph ℓg ℓg') where
       sem-contr .fst = sem , sem-extends-ı
       sem-contr .snd (sem' , sem'-extends-ı) = ΣPathP paths
         where
-          paths : Σ[ p ∈ sem ≡ sem' ] PathP (λ i → Uhom (p i) ∘GrHom η ≡ ı) sem-extends-ı sem'-extends-ı
+          paths : Σ[ p ∈ sem ≡ sem' ] PathP (λ i → Uhom (p i) ∘GrHom η ≡ ı)
+            sem-extends-ı sem'-extends-ı
           paths .fst = sym (sem-uniq sem'-extends-ı)
           paths .snd i j = sem'-extends-ı ((~ i) ∨ j)
 

@@ -30,7 +30,8 @@ module _ (C : Category ℓC ℓC') where
   module _ (bp : BinProducts C) where
     ExpProf : C o-[ ℓC' ]-* (C ^op ×C C)
     ExpProf = Functor→Bifunctor (HomFunctor C ∘F
-      (  (BinProductF C bp ∘F (Fst C (C ×C C ^op) ,F Fst C (C ^op) ∘F Snd C (C ×C C ^op)) ^opF)
+      (  (BinProductF C bp ∘F (Fst C (C ×C C ^op) ,F
+         Fst C (C ^op) ∘F Snd C (C ×C C ^op)) ^opF)
       ,F Snd (C ^op) C ∘F Snd (C ^op) (C ^op ×C C)))
 
     Exponentials : Type _
@@ -59,7 +60,8 @@ module _ (C : Category ℓC ℓC') where
       f ⇒F g = lda (g ∘⟨ C ⟩ (app' π₁ (f ∘⟨ C ⟩ π₂)))
 
       -- private
-        -- The following should ideally follow by refl but both definitions have more ids than expected
+        -- The following should ideally follow by refl but
+        -- both definitions have more ids than expected
         -- bad : ∀ {c c' d d'} (f : C [ c' , c ])(g : C [ d , d' ])
         --     → f ⇒F g ≡ ExponentialF exp ⟪ f , g ⟫
         -- bad f g = {!refl!}

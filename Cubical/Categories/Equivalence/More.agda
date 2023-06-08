@@ -30,7 +30,9 @@ module _
   open isIso
 
   isEquivalenceComp : isEquivalence F → isEquivalence G → isEquivalence (G ∘F F)
-  isEquivalenceComp Feq Geq = record { invFunc = F'∘G' ; η = η-iso ; ε = ε-iso } where
+  isEquivalenceComp Feq Geq = record { invFunc = F'∘G' ;
+                                       η = η-iso ;
+                                       ε = ε-iso } where
     F'∘G' : Functor E C
     F'∘G' = Feq .invFunc ∘F  Geq .invFunc
     η-iso : NatIso 𝟙⟨ C ⟩ (F'∘G' ∘F (G ∘F F))

@@ -30,14 +30,18 @@ base-ty A = A
 module _ {ℓ} where
   open Ctx
 
-  record Sig₁ (Σ₀ : Sig₀ ℓ) (ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
+  record Sig₁
+    (Σ₀ : Sig₀ ℓ)
+    (ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
     field
       fun-symbol : Type ℓ'
       src : fun-symbol → Ctx (Ty Σ₀)
       tgt : fun-symbol → Ty Σ₀
       isSetFunSymbol : isSet (fun-symbol)
   open Sig₁
-  data Tm {Σ₀} (Σ₁ : Sig₁ Σ₀ ℓ') (Γ : Ctx (Ty Σ₀)) : (A : Ty Σ₀) → Type (ℓ-max ℓ ℓ') where
+  data Tm {Σ₀}
+    (Σ₁ : Sig₁ Σ₀ ℓ')
+    (Γ : Ctx (Ty Σ₀)) : (A : Ty Σ₀) → Type (ℓ-max ℓ ℓ') where
     ivar : (x : Var Γ) → Tm Σ₁ Γ (Γ .el x )
     fun-app : (f : Σ₁ .fun-symbol)
             → substitution (Tm Σ₁ Γ) (Σ₁ .src f)
@@ -66,18 +70,26 @@ module _ {ℓ} where
     Tm→W (fun-app f γ) = node (inr (f , refl)) (λ x → Tm→W (γ x))
 
     W→Tm : ∀ {A} → IW Tm-S Tm-P Tm-inX A → Tm Σ₁ Γ A
-    W→Tm (node (inl (x , ty≡A)) subtree) = transport (cong (Tm Σ₁ Γ) ty≡A) (ivar x)
-    W→Tm (node (inr (f , ty≡A)) subtree) = transport (cong (Tm Σ₁ Γ) ty≡A) (fun-app f (λ x → W→Tm (subtree x)))
+    W→Tm (node (inl (x , ty≡A)) subtree) =
+      transport (cong (Tm Σ₁ Γ) ty≡A) (ivar x)
+    W→Tm (node (inr (f , ty≡A)) subtree) =
+      transport (cong (Tm Σ₁ Γ) ty≡A) (fun-app f (λ x → W→Tm (subtree x)))
 
     TmRetractofW : ∀ {A} (M : Tm Σ₁ Γ A) → W→Tm (Tm→W M) ≡ M
-    TmRetractofW (ivar x)       = transportRefl (ivar x)
-    TmRetractofW (fun-app f γ) = transportRefl (fun-app f (λ x → W→Tm (Tm→W (γ x)))) ∙ cong (fun-app f) (funExt (λ x → TmRetractofW (γ x)))
+    TmRetractofW (ivar x) = transportRefl (ivar x)
+    TmRetractofW (fun-app f γ) =
+      transportRefl (fun-app f (λ x → W→Tm (Tm→W (γ x)))) ∙
+      cong (fun-app f) (funExt (λ x → TmRetractofW (γ x)))
 
     isSetTm-S : ∀ A → isSet (Tm-S A)
-    isSetTm-S A = isSet⊎ (isSetΣ (isFinSet→isSet (Γ .isFinSetVar)) λ x → Σ₀ .snd (Γ .el x) A) (isSetΣ (Σ₁ .isSetFunSymbol) (λ x → Σ₀ .snd (Σ₁ .tgt x) A))
+    isSetTm-S A =
+      isSet⊎
+        (isSetΣ (isFinSet→isSet (Γ .isFinSetVar)) λ x → Σ₀ .snd (Γ .el x) A)
+        (isSetΣ (Σ₁ .isSetFunSymbol) (λ x → Σ₀ .snd (Σ₁ .tgt x) A))
 
     isSetTm : ∀ A → isSet (Tm Σ₁ Γ A)
-    isSetTm A = isSetRetract Tm→W W→Tm TmRetractofW (isOfHLevelSuc-IW 1 isSetTm-S A)
+    isSetTm A =
+      isSetRetract Tm→W W→Tm TmRetractofW (isOfHLevelSuc-IW 1 isSetTm-S A)
 
     isSetSubst : ∀ Δ → isSet (STT-subst Σ₁ Γ Δ)
     isSetSubst Δ = isSetΠ λ x → isSetTm (Δ .el x)
@@ -108,7 +120,8 @@ module _ {ℓ} where
               → (δ : STT-subst Σ₁ Ξ Δ)
               → M ⟨ comp-subst {Γ = Γ} γ δ ⟩ ≡ M ⟨ γ ⟩ ⟨ δ ⟩
   subst-Assoc (ivar x) γ δ = refl
-  subst-Assoc (fun-app f γ) δ ξ = λ i → fun-app f (funExt (λ x i → subst-Assoc (γ x) δ ξ i) i)
+  subst-Assoc (fun-app f γ) δ ξ =
+    λ i → fun-app f (funExt (λ x i → subst-Assoc (γ x) δ ξ i) i)
 
   comp-subst-IdInp : ∀ {Σ₀}{Σ₁ : Sig₁ Σ₀ ℓ'}{Δ Γ}
                    → (γ : STT-subst Σ₁ Δ Γ)
@@ -124,5 +137,6 @@ module _ {ℓ} where
                    → (γ : STT-subst Σ₁ Δ Γ)
                    → (δ : STT-subst Σ₁ Ξ Δ)
                    → (ξ : STT-subst Σ₁ Ψ Ξ)
-                   → comp-subst {Γ = Γ} γ (comp-subst {Γ = Δ} δ ξ) ≡ comp-subst {Γ = Γ} (comp-subst {Γ = Γ} γ δ) ξ
+                   → comp-subst {Γ = Γ} γ (comp-subst {Γ = Δ} δ ξ) ≡
+                     comp-subst {Γ = Γ} (comp-subst {Γ = Γ} γ δ) ξ
   comp-subst-Assoc γ δ ξ = funExt (λ x i → subst-Assoc (γ x) δ ξ i)

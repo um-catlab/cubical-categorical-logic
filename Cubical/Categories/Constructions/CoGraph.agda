@@ -27,7 +27,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (P : C o-[ ℓS ]-* 
   CoGraphOb : Type (ℓ-max ℓC ℓD)
   CoGraphOb = C .ob ⊎ D .ob
 
-  data CoGraphHom : CoGraphOb → CoGraphOb → Type (ℓ-max ℓS (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))) where
+  data CoGraphHom : CoGraphOb → CoGraphOb →
+                    Type (ℓ-max ℓS (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))) where
     ↑o : ∀ {A B} → C [ A , B ] → CoGraphHom (inl A) (inl B)
     ↑* : ∀ {A B} → D [ A , B ] → CoGraphHom (inr A) (inr B)
     ↑p : ∀ {A B} → ⟨ P ⟅ A , B ⟆ ⟩ → CoGraphHom (inl A) (inr B)
@@ -60,7 +61,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (P : C o-[ ℓS ]-* 
     absurd-r : ∀ {A B} → CoGraphHom (inr A) (inl B) → ⊥
     absurd-r ()
 
-  CoGraph : Category (ℓ-max ℓC ℓD) (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') ℓS)
+  CoGraph : Category (ℓ-max ℓC ℓD)
+                     (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') ℓS)
   CoGraph .ob = CoGraphOb
   CoGraph .Hom[_,_] = CoGraphHom
   CoGraph .id {inl A} = ↑o (C .id)
@@ -73,17 +75,24 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (P : C o-[ ℓS ]-* 
   CoGraph .⋆IdR (↑p p) = cong ↑p (λ i → (P .F-id i) p)
   CoGraph .⋆IdR (↑* g) = cong ↑* (D .⋆IdR g)
   CoGraph .⋆Assoc (↑o f) (↑o f') (↑o f'') = cong ↑o (C .⋆Assoc _ _ _)
-  CoGraph .⋆Assoc (↑o f) (↑o f') (↑p p) = cong ↑p ((λ i → P .F-hom (f ⋆⟨ C ⟩ f' , D .⋆IdL (D .id) (~ i)) p)
-                                                  ∙ λ i → (P .F-seq (f' , D .id) (f , D .id) i) p)
-  CoGraph .⋆Assoc (↑o f) (↑p p) (↑* g) = cong ↑p ((λ i → (P .F-seq (f , D .id) (C .id , g) (~ i)) p)
-                                                 ∙ (λ i → P .F-hom ((C .⋆IdL f ∙ sym (C .⋆IdR f)) i , (D .⋆IdL g ∙ sym (D .⋆IdR g)) i) p)
-                                                 ∙ λ i → (P .F-seq ((C .id) , g) (f , (D .id)) i ) p)
-  CoGraph .⋆Assoc (↑p p) (↑* h) (↑* h') = cong ↑p ((λ i → (P .F-seq (C .id , h) (C .id , h') (~ i)) p)
-                                                  ∙ λ i → P .F-hom ( C .⋆IdL (C .id) i , h ⋆⟨ D ⟩ h' ) p)
+  CoGraph .⋆Assoc (↑o f) (↑o f') (↑p p) =
+    cong ↑p ((λ i → P .F-hom (f ⋆⟨ C ⟩ f' , D .⋆IdL (D .id) (~ i)) p)
+      ∙ λ i → (P .F-seq (f' , D .id) (f , D .id) i) p)
+  CoGraph .⋆Assoc (↑o f) (↑p p) (↑* g) =
+    cong ↑p ((λ i → (P .F-seq (f , D .id) (C .id , g) (~ i)) p)
+      ∙ (λ i → P .F-hom ((C .⋆IdL f ∙ sym (C .⋆IdR f)) i ,
+                         (D .⋆IdL g ∙ sym (D .⋆IdR g)) i) p)
+      ∙ λ i → (P .F-seq ((C .id) , g) (f , (D .id)) i ) p)
+  CoGraph .⋆Assoc (↑p p) (↑* h) (↑* h') =
+    cong ↑p ((λ i → (P .F-seq (C .id , h) (C .id , h') (~ i)) p)
+      ∙ λ i → P .F-hom ( C .⋆IdL (C .id) i , h ⋆⟨ D ⟩ h' ) p)
   CoGraph .⋆Assoc (↑* h) (↑* h') (↑* h'') = cong ↑* (D .⋆Assoc _ _ _)
-  CoGraph .isSetHom {inl A} {inl A'} = isSetRetract ↑o-r ↑o ↑o-r-retract (C .isSetHom)
-  CoGraph .isSetHom {inl A} {inr B} = isSetRetract ↑p-r ↑p ↑p-r-retract ((P ⟅ _ ⟆ ) .snd)
-  CoGraph .isSetHom {inr B} {inr B'} = isSetRetract ↑*-r ↑* ↑*-r-retract (D .isSetHom)
+  CoGraph .isSetHom {inl A} {inl A'} =
+    isSetRetract ↑o-r ↑o ↑o-r-retract (C .isSetHom)
+  CoGraph .isSetHom {inl A} {inr B} =
+    isSetRetract ↑p-r ↑p ↑p-r-retract ((P ⟅ _ ⟆ ) .snd)
+  CoGraph .isSetHom {inr B} {inr B'} =
+    isSetRetract ↑*-r ↑* ↑*-r-retract (D .isSetHom)
   CoGraph .isSetHom {inr B} {inl A} = λ f → Empty.rec (absurd-r f)
 
   ↑oF : Functor C CoGraph
@@ -101,8 +110,13 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (P : C o-[ ℓS ]-* 
   open ProfHom
   ↑pH : ProfHom P ↑oF ↑*F (HomFunctor CoGraph)
   ↑pH .R-hom b c = ↑p
-  ↑pH .R-nat b' b c c' f p g = cong ↑p ((λ i → (P ⟪ C .⋆IdL f (~ i) , D .⋆IdL g (~ i) ⟫) p) ∙ (λ i → P .F-seq (f , (D .id)) ((C .id) , g) i p))
+  ↑pH .R-nat b' b c c' f p g =
+    cong ↑p ((λ i → (P ⟪ C .⋆IdL f (~ i) , D .⋆IdL g (~ i) ⟫) p) ∙
+      (λ i → P .F-seq (f , (D .id)) ((C .id) , g) i p))
 
-  ↑pH-r : ProfHom (HomFunctor CoGraph ∘F ((↑oF ^opF) ×F ↑*F)) (Id {C = C}) (Id {C = D}) P
+  ↑pH-r : ProfHom (HomFunctor CoGraph ∘F ((↑oF ^opF) ×F ↑*F))
+                  (Id {C = C}) (Id {C = D}) P
   ↑pH-r .R-hom b c = ↑p-r
-  ↑pH-r .R-nat b' b c c' f (↑p p) g = (λ i → P .F-seq (f , (D .id)) ((C .id) , g) (~ i) p) ∙ λ i → P .F-hom (C .⋆IdL f i , D .⋆IdL g i) p
+  ↑pH-r .R-nat b' b c c' f (↑p p) g =
+    (λ i → P .F-seq (f , (D .id)) ((C .id) , g) (~ i) p) ∙
+      λ i → P .F-hom (C .⋆IdL f i , D .⋆IdL g i) p

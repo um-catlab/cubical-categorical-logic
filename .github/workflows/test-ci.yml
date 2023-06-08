@@ -59,6 +59,7 @@ env:
 
 
 
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -104,6 +105,7 @@ jobs:
       - name: Download and install Agda from github
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
+          cd ~
           git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
           echo "AGDA_STDLIB_DIR=$PWD" >> "$GITHUB_ENV"
@@ -112,6 +114,12 @@ jobs:
           ${{ env.CABAL_INSTALL }}
           cd ..
           rm -rf agda
+
+      - name: Download Agda Standard Library from github
+        run : |
+          cd ~
+          git clone https://github.com/agda/agda-stdlib.git --branch master
+          echo "AGDA_STDLIB_DIR=$PWD/agda-stdlib" >> "$GITHUB_ENV"
 
       - name: Download Cubical from github
         run : |

@@ -2,6 +2,9 @@
 module Cubical.Categories.Presheaf.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Lift
@@ -9,6 +12,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Instances.Sets.More
 
@@ -18,25 +22,6 @@ open Functor
 private
   variable
     ℓ ℓ' ℓS ℓS' : Level
-
-action : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a b : C .ob} →
-         C [ a , b ] → fst (P ⟅ b ⟆) → fst (P ⟅ a ⟆)
-action C P = P .F-hom
-
--- Convenient notation for naturality
-syntax action C P f ϕ = C [ ϕ ∘ᴾ⟨ P ⟩ f ]
-
-∘ᴾId : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a : C .ob}
-     → (ϕ : fst (P ⟅ a ⟆))
-     → C [ ϕ ∘ᴾ⟨ P ⟩ C .id ] ≡ ϕ
-∘ᴾId C P ϕ i = P .F-id i ϕ
-
-∘ᴾAssoc : ∀ (C : Category ℓ ℓ') → (P : Presheaf C ℓS) → {a b c : C .ob}
-        → (ϕ : fst (P ⟅ c ⟆))
-        → (f : C [ b , c ])
-        → (g : C [ a , b ])
-        → C [ ϕ ∘ᴾ⟨ P ⟩ (f ∘⟨ C ⟩ g) ] ≡ C [ C [ ϕ ∘ᴾ⟨ P ⟩ f ] ∘ᴾ⟨ P ⟩ g ]
-∘ᴾAssoc C P ϕ f g i = P .F-seq f g i ϕ
 
 -- Isomorphism between presheaves of different levels
 PshIso : (C : Category ℓ ℓ')
@@ -54,3 +39,44 @@ IdPshIso C P = idCatIso
 
 𝓟* : Category ℓ ℓ' → (ℓS : Level) → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓS))
 𝓟* C ℓS = Functor C (SET ℓS)
+
+module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
+  open UniversalElement
+  UniversalElementOn : C .ob → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
+  UniversalElementOn vertex =
+    Σ[ element ∈ (P ⟅ vertex ⟆) .fst ] isUniversal C P vertex element
+
+  UniversalElementToUniversalElementOn :
+    (ue : UniversalElement C P) → UniversalElementOn (ue .vertex)
+  UniversalElementToUniversalElementOn ue .fst = ue .element
+  UniversalElementToUniversalElementOn ue .snd = ue .universal
+
+module UniversalElementNotation {ℓo}{ℓh}
+       {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp} (ue : UniversalElement C P)
+       where
+  open UniversalElement ue
+
+  intro : ∀ {c} → ⟨ P ⟅ c ⟆ ⟩ → C [ c , vertex ]
+  intro p = universal _ .equiv-proof p .fst .fst
+
+  β : ∀ {c} → {p : ⟨ P ⟅ c ⟆ ⟩} → (element ∘ᴾ⟨ C , P ⟩ intro p) ≡ p
+  β {p = p} = universal _ .equiv-proof p .fst .snd
+
+  η : ∀ {c} → {f : C [ c , vertex ]} → f ≡ intro (element ∘ᴾ⟨ C , P ⟩ f)
+  η {f = f} = cong fst (sym (universal _ .equiv-proof (element ∘ᴾ⟨ C , P ⟩ f)
+    .snd (_ , refl)))
+
+  weak-η : C .id ≡ intro element
+  weak-η = η ∙ cong intro (∘ᴾId C P _)
+
+  extensionality : ∀ {c} → {f f' : C [ c , vertex ]}
+                 → (element ∘ᴾ⟨ C , P ⟩ f) ≡ (element ∘ᴾ⟨ C , P ⟩ f')
+                 → f ≡ f'
+  extensionality = isoFunInjective (equivToIso (_ , (universal _))) _ _
+
+  intro-natural : ∀ {c' c} → {p : ⟨ P ⟅ c ⟆ ⟩}{f : C [ c' , c ]}
+                → intro p ∘⟨ C ⟩ f ≡ intro (p ∘ᴾ⟨ C , P ⟩ f)
+  intro-natural = extensionality
+    ( (∘ᴾAssoc C P _ _ _
+    ∙ cong (action C P _) β)
+    ∙ sym β)

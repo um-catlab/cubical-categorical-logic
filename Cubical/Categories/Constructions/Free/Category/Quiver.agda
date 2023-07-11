@@ -2,7 +2,7 @@
 -- This time not using a graph as the presentation of the generators
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Constructions.Free.Category where
+module Cubical.Categories.Constructions.Free.Category.Quiver where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Path

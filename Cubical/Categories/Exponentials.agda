@@ -3,6 +3,7 @@
 module Cubical.Categories.Exponentials where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct.Redundant.Base
 open import Cubical.Categories.Bifunctor.Redundant
@@ -21,8 +22,8 @@ private
     ℓC ℓC' : Level
 
 open Category
-open UnivElt
-open isUniversal
+open UniversalElement
+open isEquiv
 
 module _ (C : Category ℓC ℓC') where
   Exponential : (c d : C .ob) → (∀ (e : C .ob) → BinProduct C c e) → Type _
@@ -34,14 +35,14 @@ module _ (C : Category ℓC ℓC') where
     Exponentials = 2VarRightAdjointL C C C ×Bif
 
     ExponentialF : Exponentials → Functor ((C ^op) ×C C) C
-    ExponentialF exps = ParamUnivElt→ProfRepresentation _ _ _ exps .fst
+    ExponentialF exps = FunctorComprehension _ _ _ exps .fst
 
     module ExpNotation (exp : Exponentials) where
       _⇒_ : C .ob → C .ob → C .ob
       c ⇒ d = exp (c , d) .vertex
 
       lda : ∀ {Γ c d} → C [ Γ × c , d ] → C [ Γ , c ⇒ d ]
-      lda f = exp _ .universal .coinduction f
+      lda f = exp _ .universal _ .equiv-proof f .fst .fst
 
       app : ∀ {c d} → C [ (c ⇒ d) × c , d ]
       app = exp _ .element

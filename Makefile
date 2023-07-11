@@ -2,7 +2,7 @@ AGDA = agda
 FIX_WHITESPACE = fix-whitespace
 
 # Finds all .agda files in the current directory and subdirectories
-AGDA_FILES = $(shell find . -name "*.agda")
+AGDA_FILES = $(shell find Cubical -name "*.agda")
 
 # The targets are the .agdai files corresponding to the .agda files
 AGDAI_FILES = $(AGDA_FILES:.agda=.agdai)

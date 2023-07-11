@@ -7,6 +7,7 @@
 module Cubical.Categories.Monad.ExtensionSystem where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
@@ -22,6 +23,9 @@ open import Cubical.Categories.Monad.Base
 
 open import Cubical.Tactics.CategorySolver.Reflection
 open import Cubical.Tactics.FunctorSolver.Reflection
+
+
+open import Cubical.Foundations.Isomorphism.More
 
 private
   variable
@@ -77,15 +81,15 @@ module _ (C : Category ℓ ℓ') where
 
     open import Cubical.Categories.Adjoint.UniversalElements
     open import Cubical.Categories.Presheaf.Representable
-    open UnivElt
-    open isUniversal
+    open UniversalElement
+    open isEquiv
     F : LeftAdjoint _ _ G
     F c .vertex = c
     F c .element = η
-    F c .universal .coinduction = λ z → z
-    F c .universal .commutes ϕ = bind-l
-    F c .universal .is-uniq ϕ f p = sym bind-l ∙ p
-
+    F c .universal d = isIsoToIsEquiv
+      ( (λ x → x)
+      , (λ b → bind-l)
+      , λ f → bind-l)
     -- TODO: by abstract nonsense construct a monad structure for T
 
   open ExtensionSystemFor

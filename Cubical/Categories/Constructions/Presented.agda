@@ -15,7 +15,7 @@ open import Cubical.HITs.PropositionalTruncation hiding (rec)
 open import Cubical.HITs.SetQuotients as Quotient
   renaming ([_] to [_]q) hiding (rec)
 
-open import Cubical.Categories.Constructions.Free.Category as Free
+open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec; ind)
 private
   variable

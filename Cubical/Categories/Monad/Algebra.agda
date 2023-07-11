@@ -3,6 +3,8 @@
 module Cubical.Categories.Monad.Algebra where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
@@ -13,6 +15,8 @@ open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Monad.ExtensionSystem
 open import Cubical.Categories.Adjoint.UniversalElements
+
+open import Cubical.Foundations.Isomorphism.More
 
 private
   variable
@@ -98,17 +102,15 @@ module _ {C : Category ℓ ℓ'} (M : ExtensionSystem C) where
   Underlying .F-seq f g = refl
 
   open import Cubical.Categories.Presheaf.Representable
-  open UnivElt
-  open isUniversal
+  open UniversalElement
+  open isEquiv
   Free : LeftAdjoint ALGEBRA C Underlying
   Free c .vertex = FreeAlgebra c
   Free c .element = η
-  Free c .universal .coinduction {β} f =
-    (β .snd .bindA f) , λ g → β .snd .bindA-comp
-  Free c .universal .commutes {β} f = β .snd .bindA-l
-  Free c .universal .is-uniq {β} ϕ (ψ , ψ-homo) x =
-    AlgebraHom≡ {FreeAlgebra _}{β} ((ψ , ψ-homo))
-      ((β .snd .bindA ϕ) , λ g → β .snd .bindA-comp)
-    ( (sym (C .⋆IdL _) ∙ cong₂ (seq' C) (sym bind-r) refl)
-    ∙ ψ-homo η
-    ∙ cong (β .snd .bindA) x)
+  Free c .universal β = isIsoToIsEquiv
+    ( (λ f → β .snd .bindA f , λ _ → β .snd .bindA-comp)
+    , (λ f → β .snd .bindA-l)
+    , λ ϕ → AlgebraHom≡ {FreeAlgebra _}{β} _ _
+      ( sym (ϕ .snd η)
+      ∙ cong (comp' C _) bind-r
+      ∙ C .⋆IdL _))

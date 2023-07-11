@@ -461,6 +461,12 @@ HomBif C = mkBifunctorSep Hom where
   Hom .Bif-R-seq f' f'' = funExt λ f → sym (C .⋆Assoc f f' f'')
   Hom .SepBif-RL-commute f g = funExt (λ h → sym (C .⋆Assoc f h g))
 
+BifunctorToParFunctor : Bifunctor C D E → Functor (C ×C D) E
+BifunctorToParFunctor F .F-ob (c , d) = F .Bif-ob c d
+BifunctorToParFunctor F .F-hom (f , g) = F .Bif-hom× f g
+BifunctorToParFunctor F .F-id = F .Bif-×-id
+BifunctorToParFunctor F .F-seq f g = F .Bif-×-seq _ _ _ _
+
 open Separate.Bifunctor
 ForgetPar : Bifunctor C D E → Separate.Bifunctor C D E
 ForgetPar F .Bif-ob = F .Bif-ob

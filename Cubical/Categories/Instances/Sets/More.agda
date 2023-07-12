@@ -4,7 +4,10 @@ module Cubical.Categories.Instances.Sets.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -12,6 +15,8 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
+
+open import Cubical.Foundations.Isomorphism.More
 
 private
   variable
@@ -33,3 +38,12 @@ open Functor
 
 ×Sets : Functor ((SET ℓ) ×C (SET ℓ)) (SET ℓ)
 ×Sets = BifunctorToParFunctor ×SetsBif
+
+module _ {A}{B} (f : CatIso (SET ℓ) A B) a where
+  open isUnivalent
+  univSetβ : transport (cong fst (CatIsoToPath isUnivalentSET f)) a
+             ≡ f .fst a
+  univSetβ = (transportRefl _
+    ∙ transportRefl _
+    ∙ transportRefl _
+    ∙ cong (f .fst) (transportRefl _ ∙ transportRefl _ ))

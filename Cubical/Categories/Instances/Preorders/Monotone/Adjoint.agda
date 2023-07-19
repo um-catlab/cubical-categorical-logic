@@ -9,7 +9,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Relation.Binary.Poset
 open import Cubical.Relation.Binary.Preorder
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation.Base
@@ -41,27 +40,29 @@ module _ {ℓ ℓ' : Level} where
   HasLeftAdj : {X Y : Preorder ℓ ℓ'} → (f : MonFun X Y) → Type ((ℓ-max ℓ ℓ'))
   HasLeftAdj {X} {Y} f = Σ[ L ∈ MonFun Y X ] (L ⊣ f)
 
-  open IsPoset
+  open isPoset
+  open IsPreorder
   open _⊣_
   open Iso
 
   -- when assuming that the relation on X is antisymmetric,
   -- we get that adjoints are unique
   isPropHasLeftAdj : {X Y : Preorder ℓ ℓ'}
-    → (IsPoset (PreorderStr._≤_ (X .snd)))
+    → (isPoset X)
     → (f : MonFun X Y)
     → isProp (HasLeftAdj f)
   isPropHasLeftAdj {X} {Y} po f = λ (l1 , l1⊣f) (l2 , l2⊣f ) →
-    let l1≡l2 = eqMon l1 l2 (funExt (λ y →
-                  po .is-antisym (l1 $ y) (l2 $ y)
+    let Xpo = PreorderStr.isPreorder (X .snd)
+        l1≡l2 = eqMon l1 l2 (funExt (λ y →
+                  (posetAntisym po) (l1 $ y) (l2 $ y)
                   -- l1(y) ≤ l2(y)
                   ( l1⊣f .adjIff .inv
-                    (l2⊣f .adjIff .fun (po .is-refl (l2 $ y))))
+                    (l2⊣f .adjIff .fun (Xpo .is-refl (l2 $ y))))
                   -- l2(y) ≤ l1(y)
                   (l2⊣f .adjIff .inv
-                    (l1⊣f .adjIff .fun (po .is-refl (l1 $ y))))
+                    (l1⊣f .adjIff .fun (Xpo .is-refl (l1 $ y))))
                 ))
-        ≤YProp = IsPreorder.is-prop-valued (PreorderStr.isPreorder (Y .snd))
+        ≤YProp = is-prop-valued (PreorderStr.isPreorder (Y .snd))
     in
     ΣPathP ( l1≡l2  ,
       isProp→PathP (λ i →
@@ -70,11 +71,11 @@ module _ {ℓ ℓ' : Level} where
             record {
               adjIff = λ {y} {x} →
               (Iso≡Set
-                (isProp→isSet (po .is-prop-valued _ _))
+                (isProp→isSet (Xpo .is-prop-valued _ _))
                 (isProp→isSet (≤YProp _ _))
                 (l1⊣f .adjIff) (l2⊣f .adjIff)
                 (λ ly≤x → (≤YProp y (f $ x)) _ _)
-                (λ y≤fx → (po .is-prop-valued ((l1≡l2 i) $ y) x) _ _)
+                (λ y≤fx → (Xpo .is-prop-valued ((l1≡l2 i) $ y) x) _ _)
               j)
             }
       ) _ _
@@ -84,20 +85,21 @@ module _ {ℓ ℓ' : Level} where
 
 
   isPropHasRightAdj : {X Y : Preorder ℓ ℓ'}
-    → (IsPoset (PreorderStr._≤_ (X .snd)))
+    → (isPoset X)
     → (f : MonFun X Y)
     → isProp (HasRightAdj f)
   isPropHasRightAdj {X} {Y} po f = λ (r1 , f⊣r1) (r2 , f⊣r2) →
-    let r1≡r2 = eqMon r1 r2 (funExt (λ y →
-                  po .is-antisym (r1 $ y) (r2 $ y)
+    let Xpo = PreorderStr.isPreorder (X .snd)
+        r1≡r2 = eqMon r1 r2 (funExt (λ y →
+                  (posetAntisym po) (r1 $ y) (r2 $ y)
                   -- r1(y) ≤ r2(y)
                   (f⊣r2 .adjIff .fun
-                    (f⊣r1 .adjIff .inv (po .is-refl (r1 $ y))))
+                    (f⊣r1 .adjIff .inv (Xpo .is-refl (r1 $ y))))
                   -- r2(y) ≤ r1(y)
                   (f⊣r1 .adjIff .fun
-                    (f⊣r2 .adjIff .inv (po .is-refl (r2 $ y))))
+                    (f⊣r2 .adjIff .inv (Xpo .is-refl (r2 $ y))))
                 ))
-        ≤YProp = IsPreorder.is-prop-valued (PreorderStr.isPreorder (Y .snd))
+        ≤YProp = is-prop-valued (PreorderStr.isPreorder (Y .snd))
     in
     ΣPathP ( r1≡r2 ,
       isProp→PathP (λ i →
@@ -107,10 +109,10 @@ module _ {ℓ ℓ' : Level} where
               adjIff = λ {x} {y} →
               (Iso≡Set
                 (isProp→isSet (≤YProp _ _))
-                (isProp→isSet (po .is-prop-valued _ _))
+                (isProp→isSet (Xpo .is-prop-valued _ _))
                 (f⊣r1 .adjIff)
                 (f⊣r2 .adjIff)
-                (λ fx≤y → (po .is-prop-valued x ((r1≡r2 i) $ y)) _ _)
+                (λ fx≤y → (Xpo .is-prop-valued x ((r1≡r2 i) $ y)) _ _)
                 (λ x≤ry → (≤YProp (f $ x) y) _ _)
               j)
             }
@@ -126,7 +128,7 @@ module _ {ℓ ℓ' : Level} where
   open HasBothAdj
 
   isPropHasBothAdj : {X Y : Preorder ℓ ℓ'}
-    → (IsPoset (PreorderStr._≤_ (X .snd)))
+    → (isPoset X)
     → (f : MonFun X Y)
     → isProp (HasBothAdj f)
   isPropHasBothAdj pox f = λ adj1 adj2 →

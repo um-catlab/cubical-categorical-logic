@@ -36,7 +36,7 @@ record IsPreorder {A : Type ℓ} (_≤_ : A → A → Type ℓ') : Type (ℓ-max
   constructor ispreorder
 
   field
-    is-set : isSet A
+    -- is-set : isSet A
     is-prop-valued : isPropValued _≤_
     is-refl : isRefl _≤_
     is-trans : isTrans _≤_
@@ -85,10 +85,13 @@ PreorderEquiv M N = Σ[ e ∈ ⟨ M ⟩ ≃ ⟨ N ⟩ ] IsPreorderEquiv (M .snd)
 isPropIsPreorder : {A : Type ℓ} (_≤_ : A → A → Type ℓ')
                     → isProp (IsPreorder _≤_)
 isPropIsPreorder _≤_ = isOfHLevelRetractFromIso 1 IsPreorderIsoΣ
-  (isPropΣ isPropIsSet
-    λ isSetA → isPropΣ (isPropΠ2 (λ _ _ → isPropIsProp))
-      λ isPropValued≤ -> isProp× (isPropΠ (λ _ -> isPropValued≤ _ _))
-                                 (isPropΠ5 (λ _ _ _ _ _ -> isPropValued≤ _ _)))
+    (isPropΣ
+      (isPropΠ2 (λ _ _ → isPropIsProp))
+      (λ isPropValued≤ -> isProp×
+        (isPropΠ (λ _ -> isPropValued≤ _ _))
+        (isPropΠ5 (λ _ _ _ _ _ -> isPropValued≤ _ _))
+      )
+    )
 
 𝒮ᴰ-Preorder : DUARel (𝒮-Univ ℓ) (PreorderStr ℓ') (ℓ-max ℓ ℓ')
 𝒮ᴰ-Preorder =
@@ -139,3 +142,52 @@ module PreorderReasoning (P' : Preorder ℓ ℓ') where
 
  infixr 0 _≤⟨_⟩_
  infix  1 _◾
+
+record isOrderEquiv (P : Preorder ℓ ℓ') (x y : ⟨ P ⟩) : Type ℓ' where
+  constructor isorderequiv
+  open PreorderStr (snd P)
+  field
+    left  : x ≤ y
+    right : y ≤ x
+
+open isOrderEquiv
+open PreorderStr
+
+isPropIsOrderEquiv : {P : Preorder ℓ ℓ'} {x y : ⟨ P ⟩}
+  → isProp (isOrderEquiv P x y)
+isPropIsOrderEquiv {P = P} {x = x} {y = y} x≥≤y x≥≤y' i .left =
+  ((snd P) .is-prop-valued x y (x≥≤y .left) (x≥≤y' .left)) i
+isPropIsOrderEquiv {P = P} {x = x} {y = y} x≥≤y x≥≤y' i .right =
+  ((snd P) .is-prop-valued y x (x≥≤y .right) (x≥≤y' .right)) i
+
+reflOrderEquiv : {P : Preorder ℓ ℓ'} {x : ⟨ P ⟩} → isOrderEquiv P x x
+reflOrderEquiv {P = P} {x = x} =
+  isorderequiv ((snd P) .is-refl x) ((snd P) .is-refl x)
+
+pathToOrderEquiv : {P : Preorder ℓ ℓ'} {x y : ⟨ P ⟩} (p : x ≡ y)
+  → isOrderEquiv P x y
+pathToOrderEquiv {P = P} p = J (λ y _ → isOrderEquiv P _ y) reflOrderEquiv p
+
+
+-- Univalent Preorders (Posets)
+-- TODO : Fix Names?
+record isPoset (P : Preorder ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+  field
+    unival : (x y : ⟨ P ⟩ ) → isEquiv (pathToOrderEquiv {P = P} {x = x} {y = y})
+
+  univalEquiv : ∀ (x y : ⟨ P ⟩ ) → (x ≡ y) ≃ (isOrderEquiv P x y)
+  univalEquiv x y = pathToOrderEquiv , unival x y
+
+  -- utility to use Poset's Order Theoretic Properties
+  OrderEquivToPath : {x y : ⟨ P ⟩} (p : isOrderEquiv _ x y) → x ≡ y
+  OrderEquivToPath = invEq (univalEquiv _ _)
+
+  posetAntisym : isAntisym ((snd P) ._≤_)
+  posetAntisym x y x≤y y≤x =  OrderEquivToPath (isorderequiv x≤y y≤x)
+
+  isSetPoset : isSet ⟨ P ⟩
+  isSetPoset =
+    isOfHLevelPath'⁻ 1
+    (λ _ _ → isOfHLevelRespectEquiv 1
+      (invEquiv (univalEquiv _ _)) isPropIsOrderEquiv
+    )

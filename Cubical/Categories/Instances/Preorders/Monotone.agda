@@ -116,19 +116,19 @@ module _ {ℓ ℓ' : Level} where
   eqMon {X} {Y} f g p = isoFunInjective isoMonFunMonFun' f g (eqMon' _ _ p)
 
   -- isSet for Sigma
-  isSetSigma : {X Y : Preorder ℓ ℓ'} -> isSet (Sigma X Y)
-  isSetSigma {X} {Y} = isSetΣSndProp
-    (isSet→ (is-set (isPreorder (str Y))))
+  isSetSigma : {X Y : Preorder ℓ ℓ'} → isSet ⟨ Y ⟩ → isSet (Sigma X Y)
+  isSetSigma {X} {Y} issetY = isSetΣSndProp
+    (isSet→ issetY)
     λ f -> isPropIsMon' {X} {Y} f
 
   -- isSet for monotone functions
-  MonFunIsSet : {X Y : Preorder ℓ ℓ'} -> isSet (MonFun X Y)
-  MonFunIsSet {X} {Y} =
+  MonFunIsSet : {X Y : Preorder ℓ ℓ'} → isSet ⟨ Y ⟩ → isSet (MonFun X Y)
+  MonFunIsSet {X} {Y} issetY =
     let composedIso = (compIso isoMonFunMonFun' MonFun'IsoΣ) in
       isSetRetract
         (Iso.fun composedIso) (Iso.inv composedIso) (Iso.leftInv composedIso)
         (isSetΣSndProp
-          (isSet→ (is-set (isPreorder (str Y))))
+          (isSet→ issetY)
           (isPropIsMon' {X} {Y}))
 
 

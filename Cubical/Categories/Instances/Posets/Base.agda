@@ -3,19 +3,16 @@
 module Cubical.Categories.Instances.Posets.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Unit
 open import Cubical.Categories.Category
-open import Cubical.Relation.Binary.Preorder
-open import Cubical.Relation.Binary.Poset
-open import Cubical.Categories.Constructions.FullSubcategory
+open import Cubical.Data.Unit
 
-open import Cubical.Categories.Instances.Preorders.Base
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Poset
+
+open import Cubical.Relation.Binary.Preorder
+
 open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
-
-
-open import Cubical.Categories.Constructions.DisplayedCategory.DisplayedPoset
-open import Cubical.Categories.Constructions.DisplayedCategory.Grothendieck
 
 private
   variable
@@ -23,76 +20,61 @@ private
 
 open Category
 open PreorderStr
+open isPoset
 
 -- Category of Posets
 POSET : (ℓ ℓ' : Level) → Category _ _
-POSET ℓ ℓ' = FullSubcategory
-  (PREORDER ℓ ℓ')
-  λ p → IsPoset (p .snd ._≤_)
-
-
--- Trivial Display where no restrictions are placed on morphisms
-PosetDisplay : DisplayedPoset (PREORDER ℓ ℓ')
-PosetDisplay = record
-  { D-ob = λ p → IsPoset (p .snd ._≤_)
-  ; D-Hom_[_,_] = λ f x y → Unit* {_}
-  ; isPropHomf = isPropUnit*
-  ; D-id = tt*
-  ; _D-⋆_ = λ _ _ → tt*
+POSET ℓ ℓ' = record
+  { ob = Σ[ P ∈ Preorder ℓ ℓ' ] isPoset P
+  ; Hom[_,_] = λ X Y → MonFun (X .fst) (Y .fst)
+  ; id = MonId
+  ; _⋆_ = MonComp
+  ; ⋆IdL = λ f → eqMon f f refl
+  ; ⋆IdR = λ f → eqMon f f refl
+  ; ⋆Assoc = λ f g h → eqMon _ _ refl
+  ; isSetHom = λ {_} {Y} → MonFunIsSet (isSetPoset (Y .snd))
   }
-
--- Same category, defined as a DisplayedPoset
-POSET' : (ℓ ℓ' : Level) → Category _ _
-POSET' ℓ ℓ' = Grothendieck
-  (PREORDER ℓ ℓ')
-  (DisplayedPoset→Cat (PREORDER ℓ ℓ') PosetDisplay)
-
 
 -- Displayed Poset for picking out Posets
 -- and monotone functions with adjoints
-BothAdjDisplay : DisplayedPoset (PREORDER ℓ ℓ')
-BothAdjDisplay = record
-  { D-ob = λ p → IsPoset (p .snd ._≤_)
-  ; D-Hom_[_,_] = λ f x y → HasBothAdj f
-  ; isPropHomf = λ {_} {_} {_} {x} → (isPropHasBothAdj x _)
-  ; D-id = IdHasBothAdj
-  ; _D-⋆_ = CompHasBothAdj
+BothAdjᴰ : {ℓ ℓ' : Level} → Posetᴰ (POSET ℓ ℓ') ℓ-zero _
+BothAdjᴰ = record
+  { ob[_] = λ x → Unit* {ℓ-zero}
+  ; Hom[_][_,_] = λ f x y → HasBothAdj f
+  ; idᴰ = IdHasBothAdj
+  ; _⋆ᴰ_ = CompHasBothAdj
+  ; isPropHomᴰ = λ {x} → isPropHasBothAdj (x .snd) _
   }
 
 -- Category of Posets w/ Both Adjoints
 POSETADJ : (ℓ ℓ' : Level) → Category _ _
-POSETADJ ℓ ℓ' = Grothendieck
-  (PREORDER ℓ ℓ')
-  (DisplayedPoset→Cat (PREORDER ℓ ℓ') BothAdjDisplay)
+POSETADJ ℓ ℓ' = ∫C (Posetᴰ→Catᴰ (BothAdjᴰ {ℓ} {ℓ'}))
+
 
 -- Displayed Poset for picking out Posets
 -- and monotone functions with left adjoints
-LeftAdjDisplay : DisplayedPoset (PREORDER ℓ ℓ')
-LeftAdjDisplay = record
-  { D-ob = λ p → IsPoset (p .snd ._≤_)
-  ; D-Hom_[_,_] = λ f x y → HasLeftAdj f
-  ; isPropHomf = λ {_} {_} {_} {x} → (isPropHasLeftAdj x _)
-  ; D-id = IdHasLeftAdj
-  ; _D-⋆_ = CompHasLeftAdj
+LeftAdjᴰ : {ℓ ℓ' : Level} → Posetᴰ (POSET ℓ ℓ') ℓ-zero _
+LeftAdjᴰ = record
+  { ob[_] = λ x → Unit* {ℓ-zero}
+  ; Hom[_][_,_] = λ f x y → HasLeftAdj f
+  ; idᴰ = IdHasLeftAdj
+  ; _⋆ᴰ_ = CompHasLeftAdj
+  ; isPropHomᴰ = λ {x} → isPropHasLeftAdj (x .snd) _
   }
 
 POSETADJL : (ℓ ℓ' : Level) → Category _ _
-POSETADJL ℓ ℓ' = Grothendieck
-  (PREORDER ℓ ℓ')
-  (DisplayedPoset→Cat (PREORDER ℓ ℓ') LeftAdjDisplay)
+POSETADJL ℓ ℓ' = ∫C (Posetᴰ→Catᴰ (LeftAdjᴰ {ℓ} {ℓ'}))
 
 -- Displayed Poset for picking out Posets
 -- and monotone functions with right adjoints
-RightAdjDisplay : DisplayedPoset (PREORDER ℓ ℓ')
-RightAdjDisplay = record
-  { D-ob = λ p → IsPoset (p .snd ._≤_)
-  ; D-Hom_[_,_] = λ f x y → HasRightAdj f
-  ; isPropHomf = λ {_} {_} {_} {x} → (isPropHasRightAdj x _)
-  ; D-id = IdHasRightAdj
-  ; _D-⋆_ = CompHasRightAdj
+RightAdjᴰ : {ℓ ℓ' : Level} → Posetᴰ (POSET ℓ ℓ') ℓ-zero _
+RightAdjᴰ = record
+  { ob[_] = λ x → Unit* {ℓ-zero}
+  ; Hom[_][_,_] = λ f x y → HasRightAdj f
+  ; idᴰ = IdHasRightAdj
+  ; _⋆ᴰ_ = CompHasRightAdj
+  ; isPropHomᴰ = λ {x} → isPropHasRightAdj (x .snd) _
   }
 
 POSETADJR : (ℓ ℓ' : Level) → Category _ _
-POSETADJR ℓ ℓ' = Grothendieck
-  (PREORDER ℓ ℓ')
-  (DisplayedPoset→Cat (PREORDER ℓ ℓ') RightAdjDisplay)
+POSETADJR ℓ ℓ' = ∫C (Posetᴰ→Catᴰ (RightAdjᴰ {ℓ} {ℓ'}))

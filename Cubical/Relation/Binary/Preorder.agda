@@ -141,30 +141,30 @@ module PreorderReasoning (P' : Preorder ℓ ℓ') where
  infixr 0 _≤⟨_⟩_
  infix  1 _◾
 
-record isOrderEquiv (P : Preorder ℓ ℓ') (x y : ⟨ P ⟩) : Type ℓ' where
-  constructor isorderequiv
+record OrderEquivalent (P : Preorder ℓ ℓ') (x y : ⟨ P ⟩) : Type ℓ' where
+  constructor orderequiv
   open PreorderStr (snd P)
   field
     left  : x ≤ y
     right : y ≤ x
 
-open isOrderEquiv
+open OrderEquivalent
 open PreorderStr
 
-isPropIsOrderEquiv : {P : Preorder ℓ ℓ'} {x y : ⟨ P ⟩}
-  → isProp (isOrderEquiv P x y)
-isPropIsOrderEquiv {P = P} {x = x} {y = y} x≥≤y x≥≤y' i .left =
+isPropOrderEquivalent : {P : Preorder ℓ ℓ'} {x y : ⟨ P ⟩}
+  → isProp (OrderEquivalent P x y)
+isPropOrderEquivalent  {P = P} {x = x} {y = y} x≥≤y x≥≤y' i .left =
   ((snd P) .is-prop-valued x y (x≥≤y .left) (x≥≤y' .left)) i
-isPropIsOrderEquiv {P = P} {x = x} {y = y} x≥≤y x≥≤y' i .right =
+isPropOrderEquivalent  {P = P} {x = x} {y = y} x≥≤y x≥≤y' i .right =
   ((snd P) .is-prop-valued y x (x≥≤y .right) (x≥≤y' .right)) i
 
-reflOrderEquiv : {P : Preorder ℓ ℓ'} {x : ⟨ P ⟩} → isOrderEquiv P x x
+reflOrderEquiv : {P : Preorder ℓ ℓ'} {x : ⟨ P ⟩} → OrderEquivalent P x x
 reflOrderEquiv {P = P} {x = x} =
-  isorderequiv ((snd P) .is-refl x) ((snd P) .is-refl x)
+  orderequiv ((snd P) .is-refl x) ((snd P) .is-refl x)
 
 pathToOrderEquiv : {P : Preorder ℓ ℓ'} {x y : ⟨ P ⟩} (p : x ≡ y)
-  → isOrderEquiv P x y
-pathToOrderEquiv {P = P} p = J (λ y _ → isOrderEquiv P _ y) reflOrderEquiv p
+  → OrderEquivalent P x y
+pathToOrderEquiv {P = P} p = J (λ y _ → OrderEquivalent P _ y) reflOrderEquiv p
 
 
 -- Univalent Preorders (Posets)
@@ -172,19 +172,19 @@ record isUnivalent (P : Preorder ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   field
     univ : (x y : ⟨ P ⟩ ) → isEquiv (pathToOrderEquiv {P = P} {x = x} {y = y})
 
-  univEquiv : ∀ (x y : ⟨ P ⟩ ) → (x ≡ y) ≃ (isOrderEquiv P x y)
+  univEquiv : ∀ (x y : ⟨ P ⟩ ) → (x ≡ y) ≃ (OrderEquivalent P x y)
   univEquiv x y = pathToOrderEquiv , univ x y
 
   -- utility to use Poset's Order Theoretic Properties
-  OrderEquivToPath : {x y : ⟨ P ⟩} (p : isOrderEquiv _ x y) → x ≡ y
+  OrderEquivToPath : {x y : ⟨ P ⟩} (p : OrderEquivalent _ x y) → x ≡ y
   OrderEquivToPath = invEq (univEquiv _ _)
 
   posetAntisym : BinaryRelation.isAntisym ((snd P) ._≤_)
-  posetAntisym x y x≤y y≤x =  OrderEquivToPath (isorderequiv x≤y y≤x)
+  posetAntisym x y x≤y y≤x =  OrderEquivToPath (orderequiv x≤y y≤x)
 
   isSetPoset : isSet ⟨ P ⟩
   isSetPoset =
     isOfHLevelPath'⁻ 1
     (λ _ _ → isOfHLevelRespectEquiv 1
-      (invEquiv (univEquiv _ _)) isPropIsOrderEquiv
+      (invEquiv (univEquiv _ _)) isPropOrderEquivalent
     )

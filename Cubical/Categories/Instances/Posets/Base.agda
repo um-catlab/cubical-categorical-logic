@@ -7,7 +7,7 @@ open import Cubical.Categories.Category hiding (isUnivalent)
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Poset
+open import Cubical.Categories.Displayed.Preorder
 
 open import Cubical.Relation.Binary.Preorder
 
@@ -37,7 +37,7 @@ POSET ℓ ℓ' = record
 
 -- Displayed Poset for picking out Posets
 -- and monotone functions with adjoints
-BothAdjᴰ : {ℓ ℓ' : Level} → Posetᴰ (POSET ℓ ℓ') ℓ-zero _
+BothAdjᴰ : {ℓ ℓ' : Level} → Preorderᴰ (POSET ℓ ℓ') ℓ-zero _
 BothAdjᴰ = record
   { ob[_] = λ x → Unit* {ℓ-zero}
   ; Hom[_][_,_] = λ f x y → HasBothAdj f
@@ -48,12 +48,12 @@ BothAdjᴰ = record
 
 -- Category of Posets w/ Both Adjoints
 POSETADJ : (ℓ ℓ' : Level) → Category _ _
-POSETADJ ℓ ℓ' = ∫C (Posetᴰ→Catᴰ (BothAdjᴰ {ℓ} {ℓ'}))
+POSETADJ ℓ ℓ' = ∫C (Preorderᴰ→Catᴰ (BothAdjᴰ {ℓ} {ℓ'}))
 
 
 -- Displayed Poset for picking out Posets
 -- and monotone functions with left adjoints
-LeftAdjᴰ : {ℓ ℓ' : Level} → Posetᴰ (POSET ℓ ℓ') ℓ-zero _
+LeftAdjᴰ : {ℓ ℓ' : Level} → Preorderᴰ (POSET ℓ ℓ') ℓ-zero _
 LeftAdjᴰ = record
   { ob[_] = λ x → Unit* {ℓ-zero}
   ; Hom[_][_,_] = λ f x y → HasLeftAdj f
@@ -63,11 +63,11 @@ LeftAdjᴰ = record
   }
 
 POSETADJL : (ℓ ℓ' : Level) → Category _ _
-POSETADJL ℓ ℓ' = ∫C (Posetᴰ→Catᴰ (LeftAdjᴰ {ℓ} {ℓ'}))
+POSETADJL ℓ ℓ' = ∫C (Preorderᴰ→Catᴰ (LeftAdjᴰ {ℓ} {ℓ'}))
 
 -- Displayed Poset for picking out Posets
 -- and monotone functions with right adjoints
-RightAdjᴰ : {ℓ ℓ' : Level} → Posetᴰ (POSET ℓ ℓ') ℓ-zero _
+RightAdjᴰ : {ℓ ℓ' : Level} → Preorderᴰ (POSET ℓ ℓ') ℓ-zero _
 RightAdjᴰ = record
   { ob[_] = λ x → Unit* {ℓ-zero}
   ; Hom[_][_,_] = λ f x y → HasRightAdj f
@@ -77,4 +77,4 @@ RightAdjᴰ = record
   }
 
 POSETADJR : (ℓ ℓ' : Level) → Category _ _
-POSETADJR ℓ ℓ' = ∫C (Posetᴰ→Catᴰ (RightAdjᴰ {ℓ} {ℓ'}))
+POSETADJR ℓ ℓ' = ∫C (Preorderᴰ→Catᴰ (RightAdjᴰ {ℓ} {ℓ'}))

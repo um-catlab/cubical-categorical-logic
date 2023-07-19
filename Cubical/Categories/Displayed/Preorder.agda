@@ -1,11 +1,13 @@
 {-# OPTIONS --safe #-}
 
-module Cubical.Categories.Displayed.Poset where
+module Cubical.Categories.Displayed.Preorder where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 
@@ -13,7 +15,7 @@ private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
 
-record Posetᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' :
+record Preorderᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' :
   Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
   open Category C
   field
@@ -24,11 +26,11 @@ record Posetᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' :
       → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f ⋆ g ][ xᴰ , zᴰ ]
     isPropHomᴰ : ∀ {x y} {f : Hom[ x , y ]} {xᴰ yᴰ} → isProp Hom[ f ][ xᴰ , yᴰ ]
 
-module _ {C : Category ℓC ℓC'} (Pᴰ : Posetᴰ C ℓCᴰ ℓCᴰ') where
+module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
   open Category
-  open Posetᴰ
-  Posetᴰ→Catᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
-  Posetᴰ→Catᴰ = record
+  open Preorderᴰ
+  Preorderᴰ→Catᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
+  Preorderᴰ→Catᴰ = record
     { ob[_] = Pᴰ .ob[_]
     ; Hom[_][_,_] = Pᴰ .Hom[_][_,_]
     ; idᴰ = Pᴰ .idᴰ
@@ -41,3 +43,20 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Posetᴰ C ℓCᴰ ℓCᴰ') where
       isProp→PathP ((λ i → Pᴰ .isPropHomᴰ {f = ((C .⋆Assoc _ _ _) i)})) _ _
     ; isSetHomᴰ = isProp→isSet (Pᴰ .isPropHomᴰ)
     }
+
+module _ {C : Category ℓC ℓC'} where
+  open Functor
+
+  Fst : {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} → Functor (∫C Cᴰ) C
+  Fst .F-ob = fst
+  Fst .F-hom = fst
+  Fst .F-id = refl
+  Fst {Cᴰ = Cᴰ} .F-seq =
+    λ f g → cong {x = f ⋆⟨ ∫C Cᴰ ⟩ g} fst refl
+
+  open Preorderᴰ
+
+  Preorderᴰ→FstFaithful : (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ')
+    → isFaithful (Fst {Cᴰ = Preorderᴰ→Catᴰ Pᴰ})
+  Preorderᴰ→FstFaithful Pᴰ x y f g p =
+    ΣPathP (p , isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))

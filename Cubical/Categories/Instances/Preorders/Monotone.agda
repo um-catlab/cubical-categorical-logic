@@ -87,22 +87,6 @@ module _ {ℓ ℓ' : Level} where
   -- Equivalence between MonFun' record and a sigma type
   unquoteDecl MonFun'IsoΣ = declareRecordIsoΣ MonFun'IsoΣ (quote (MonFun'))
 
-  Sigma : (X Y : Preorder ℓ ℓ') -> Type (ℓ-max ℓ ℓ')
-  Sigma X Y =
-     (Σ (X .fst → Y .fst)
-     (λ z → (x y : ⟨ X ⟩) → _≤X_ {X} {Y} x y → _≤Y_ {X} {Y} (z x) (z y)))
-
-  _ : {X Y : Preorder ℓ ℓ'} -> Iso (MonFun' X Y) (Sigma X Y)
-  _ = MonFun'IsoΣ
-
-  MonFun≡Sigma : {X Y : Preorder ℓ ℓ'} -> MonFun' X Y ≡ Sigma X Y
-  MonFun≡Sigma = isoToPath MonFun'IsoΣ
-
-  Sigma≡ : {X Y : Preorder ℓ ℓ'} -> {s1 s2 : Sigma X Y} ->
-    s1 .fst ≡ s2 .fst -> s1 ≡ s2
-  Sigma≡ {X} {Y} = Σ≡Prop (λ f → isPropΠ3
-    (λ x y x≤y -> is-prop-valued (isPreorder (str Y)) (f x) (f y)))
-
   -- Equality of monotone functions is equivalent to equality of the
   -- underlying functions.
   eqMon' : {X Y : Preorder ℓ ℓ'} -> (f g : MonFun' X Y) ->
@@ -115,11 +99,6 @@ module _ {ℓ ℓ' : Level} where
     MonFun.f f ≡ MonFun.f g -> f ≡ g
   eqMon {X} {Y} f g p = isoFunInjective isoMonFunMonFun' f g (eqMon' _ _ p)
 
-  -- isSet for Sigma
-  isSetSigma : {X Y : Preorder ℓ ℓ'} → isSet ⟨ Y ⟩ → isSet (Sigma X Y)
-  isSetSigma {X} {Y} issetY = isSetΣSndProp
-    (isSet→ issetY)
-    λ f -> isPropIsMon' {X} {Y} f
 
   -- isSet for monotone functions
   MonFunIsSet : {X Y : Preorder ℓ ℓ'} → isSet ⟨ Y ⟩ → isSet (MonFun X Y)
@@ -177,23 +156,6 @@ module _ {ℓ ℓ' : Level} where
       MonFun.f f' x'  ◾
       where
         open PreorderReasoning Y
-
-  {-
-  -- Poset of monotone functions between two posets
-  IntHom : Poset ℓ ℓ' -> Poset ℓ ℓ' ->
-    Poset (ℓ-max ℓ ℓ') (ℓ-max ℓ ℓ')
-  IntHom X Y =
-    MonFun X Y ,
-    (posetstr
-      (_≤mon_)
-      (isposet MonFunIsSet ≤mon-prop ≤mon-refl ≤mon-trans ≤mon-antisym))
-
-    -- Notation
-  _==>_ : Poset ℓ ℓ' -> Poset ℓ ℓ' ->
-    Poset (ℓ-max ℓ ℓ') (ℓ-max ℓ ℓ')
-  X ==> Y = IntHom X Y -- IntHom X Y
-  -}
-
 
 
   -- Some basic combinators/utility functions on monotone functions

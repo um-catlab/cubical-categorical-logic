@@ -24,20 +24,7 @@ open import Cubical.Categories.Bifunctor.Redundant
 
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓ ℓ' : Level
-
-open Category
-open Functor
-open NatTrans
-open Quiver
-open Interp
-open Axioms
-open Bifunctor
-open BifunctorParAx
-
-private
-  variable
-    ℓe ℓe' ℓf ℓf' : Level
+    ℓc ℓc' ℓd ℓd' ℓe ℓe' ℓf ℓf' : Level
 
 module _ {C : Category ℓc ℓc'}
          {D : Category ℓd ℓd'}{E : Category ℓe ℓe'}{F : Category ℓf ℓf'} where

@@ -93,6 +93,10 @@ module _ (Q : Quiver ℓg ℓg') where
   Interp : (𝓒 : Category ℓc ℓc') → Type (ℓ-max (ℓ-max (ℓ-max ℓg ℓg') ℓc) ℓc')
   Interp 𝓒 = Interpᴰ (weaken FreeCat 𝓒)
 
+  η : Interp FreeCat
+  η .I-ob = λ c → c
+  η .I-hom = ↑_
+
   rec : {𝓒 : Category ℓc ℓc'} → Interp 𝓒 → Functor FreeCat 𝓒
   rec ı = Iso.fun (SectionToWkIsoFunctor _ _) (elim ı)
 

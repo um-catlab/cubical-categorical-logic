@@ -27,7 +27,7 @@ private
 open Category
 open Functor
 open Quiver
-open Interp
+open Interpᴰ
 open Axioms
 
 module _ (C : Category ℓc ℓc') (D : Category ℓd ℓd') where

@@ -26,7 +26,7 @@ open Category
 open Functor
 open NatTrans
 open Quiver
-open Interp
+open Interpᴰ
 open Axioms
 open Bifunctor
 open BifunctorParAx

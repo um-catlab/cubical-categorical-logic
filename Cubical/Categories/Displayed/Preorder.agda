@@ -10,6 +10,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Base.More
 
 private
   variable
@@ -44,19 +45,8 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
     ; isSetHomᴰ = isProp→isSet (Pᴰ .isPropHomᴰ)
     }
 
-module _ {C : Category ℓC ℓC'} where
   open Functor
 
-  Fst : {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} → Functor (∫C Cᴰ) C
-  Fst .F-ob = fst
-  Fst .F-hom = fst
-  Fst .F-id = refl
-  Fst {Cᴰ = Cᴰ} .F-seq =
-    λ f g → cong {x = f ⋆⟨ ∫C Cᴰ ⟩ g} fst refl
-
-  open Preorderᴰ
-
-  Preorderᴰ→FstFaithful : (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ')
-    → isFaithful (Fst {Cᴰ = Preorderᴰ→Catᴰ Pᴰ})
-  Preorderᴰ→FstFaithful Pᴰ x y f g p =
+  Preorderᴰ→FstFaithful : isFaithful (Fst {Cᴰ = Preorderᴰ→Catᴰ})
+  Preorderᴰ→FstFaithful x y f g p =
     ΣPathP (p , isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))

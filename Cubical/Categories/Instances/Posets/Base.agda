@@ -3,7 +3,7 @@
 module Cubical.Categories.Instances.Posets.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category hiding (isUnivalent)
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Displayed.Base
@@ -20,12 +20,12 @@ private
 
 open Category
 open PreorderStr
-open isPoset
+open isUnivalent
 
 -- Category of Posets
 POSET : (ℓ ℓ' : Level) → Category _ _
 POSET ℓ ℓ' = record
-  { ob = Σ[ P ∈ Preorder ℓ ℓ' ] isPoset P
+  { ob = Σ[ P ∈ Preorder ℓ ℓ' ] isUnivalent P
   ; Hom[_,_] = λ X Y → MonFun (X .fst) (Y .fst)
   ; id = MonId
   ; _⋆_ = MonComp

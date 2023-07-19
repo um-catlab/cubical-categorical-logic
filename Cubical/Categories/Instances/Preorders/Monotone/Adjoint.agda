@@ -40,7 +40,7 @@ module _ {ℓ ℓ' : Level} where
   HasLeftAdj : {X Y : Preorder ℓ ℓ'} → (f : MonFun X Y) → Type ((ℓ-max ℓ ℓ'))
   HasLeftAdj {X} {Y} f = Σ[ L ∈ MonFun Y X ] (L ⊣ f)
 
-  open isPoset
+  open isUnivalent
   open IsPreorder
   open _⊣_
   open Iso
@@ -48,7 +48,7 @@ module _ {ℓ ℓ' : Level} where
   -- when assuming that the relation on X is antisymmetric,
   -- we get that adjoints are unique
   isPropHasLeftAdj : {X Y : Preorder ℓ ℓ'}
-    → (isPoset X)
+    → (isUnivalent X)
     → (f : MonFun X Y)
     → isProp (HasLeftAdj f)
   isPropHasLeftAdj {X} {Y} po f = λ (l1 , l1⊣f) (l2 , l2⊣f ) →
@@ -85,7 +85,7 @@ module _ {ℓ ℓ' : Level} where
 
 
   isPropHasRightAdj : {X Y : Preorder ℓ ℓ'}
-    → (isPoset X)
+    → (isUnivalent X)
     → (f : MonFun X Y)
     → isProp (HasRightAdj f)
   isPropHasRightAdj {X} {Y} po f = λ (r1 , f⊣r1) (r2 , f⊣r2) →
@@ -128,7 +128,7 @@ module _ {ℓ ℓ' : Level} where
   open HasBothAdj
 
   isPropHasBothAdj : {X Y : Preorder ℓ ℓ'}
-    → (isPoset X)
+    → (isUnivalent X)
     → (f : MonFun X Y)
     → isProp (HasBothAdj f)
   isPropHasBothAdj pox f = λ adj1 adj2 →

@@ -17,14 +17,13 @@ open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.StrictEquiv
 
 open import Cubical.Displayed.Base
-open import Cubical.Displayed.Auto
+open import Cubical.Displayed.Auto hiding (univ)
 open import Cubical.Displayed.Record
 open import Cubical.Displayed.Universe
 
 open import Cubical.Relation.Binary.Base
 
 open Iso
-open BinaryRelation
 
 
 private
@@ -34,9 +33,8 @@ private
 record IsPreorder {A : Type ℓ} (_≤_ : A → A → Type ℓ') : Type (ℓ-max ℓ ℓ') where
   no-eta-equality
   constructor ispreorder
-
+  open BinaryRelation
   field
-    -- is-set : isSet A
     is-prop-valued : isPropValued _≤_
     is-refl : isRefl _≤_
     is-trans : isTrans _≤_
@@ -170,24 +168,23 @@ pathToOrderEquiv {P = P} p = J (λ y _ → isOrderEquiv P _ y) reflOrderEquiv p
 
 
 -- Univalent Preorders (Posets)
--- TODO : Fix Names?
-record isPoset (P : Preorder ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
+record isUnivalent (P : Preorder ℓ ℓ') : Type (ℓ-max ℓ ℓ') where
   field
-    unival : (x y : ⟨ P ⟩ ) → isEquiv (pathToOrderEquiv {P = P} {x = x} {y = y})
+    univ : (x y : ⟨ P ⟩ ) → isEquiv (pathToOrderEquiv {P = P} {x = x} {y = y})
 
-  univalEquiv : ∀ (x y : ⟨ P ⟩ ) → (x ≡ y) ≃ (isOrderEquiv P x y)
-  univalEquiv x y = pathToOrderEquiv , unival x y
+  univEquiv : ∀ (x y : ⟨ P ⟩ ) → (x ≡ y) ≃ (isOrderEquiv P x y)
+  univEquiv x y = pathToOrderEquiv , univ x y
 
   -- utility to use Poset's Order Theoretic Properties
   OrderEquivToPath : {x y : ⟨ P ⟩} (p : isOrderEquiv _ x y) → x ≡ y
-  OrderEquivToPath = invEq (univalEquiv _ _)
+  OrderEquivToPath = invEq (univEquiv _ _)
 
-  posetAntisym : isAntisym ((snd P) ._≤_)
+  posetAntisym : BinaryRelation.isAntisym ((snd P) ._≤_)
   posetAntisym x y x≤y y≤x =  OrderEquivToPath (isorderequiv x≤y y≤x)
 
   isSetPoset : isSet ⟨ P ⟩
   isSetPoset =
     isOfHLevelPath'⁻ 1
     (λ _ _ → isOfHLevelRespectEquiv 1
-      (invEquiv (univalEquiv _ _)) isPropIsOrderEquiv
+      (invEquiv (univEquiv _ _)) isPropIsOrderEquiv
     )

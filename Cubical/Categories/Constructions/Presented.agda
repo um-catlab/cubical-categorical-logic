@@ -11,13 +11,18 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base hiding (Id)
 open import Cubical.Categories.NaturalTransformation hiding (_⟦_⟧)
 open import Cubical.Data.Sigma
-open import Cubical.HITs.PropositionalTruncation hiding (rec)
 open import Cubical.HITs.SetQuotients as SetQuotient
-  renaming ([_] to [_]q) hiding (rec)
+  renaming ([_] to [_]q) hiding (rec; elim)
 
 open import Cubical.Categories.Constructions.Quotient as CatQuotient
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
-  hiding (rec)
+  hiding (rec; elim)
+open import Cubical.Categories.Constructions.Quotient.More as CatQuotient
+  hiding (elim)
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Category.More
+open import Cubical.Categories.Displayed.Section
+
 private
   variable
     ℓc ℓc' ℓd ℓd' ℓg ℓg' ℓj : Level
@@ -81,6 +86,44 @@ module _ (Q : Quiver ℓg ℓg') where
                       [ Ax .rhs eq ]q
     ηEq eq = eq/ _ _ (↑ eq)
 
+    module _ (𝓓 : Categoryᴰ PresentedCat ℓc ℓc') where
+      private
+        𝓓' = reindexᴰQuo FQ _≈_ reflₑ ⋆ₑ-cong 𝓓
+        module 𝓓 = Categoryᴰ 𝓓
+
+      open Section
+      elim : (F : Interpᴰ Q 𝓓')
+           → (∀ eq →
+             PathP (λ i → 𝓓.Hom[ ηEq eq i ][
+                                 F .I-ob (Ax .dom eq)
+                               , F .I-ob (Ax .cod eq) ])
+                   (Free.elim Q F .F-hom (Ax .lhs eq))
+                   (Free.elim Q F .F-hom (Ax .rhs eq)))
+           → Section 𝓓
+      elim F F-respects-axioms =
+        CatQuotient.elim FQ _≈_ reflₑ ⋆ₑ-cong 𝓓
+          (Free.elim Q F)
+          (λ _ _ → F-respects-≈) where
+        F-respects-≈ : {x y : FQ .ob} {f g : Hom[ FQ , x ] y}
+          (p : f ≈ g) →
+          PathP
+          (λ i → 𝓓.Hom[ eq/ f g p i ][
+            Free.elim Q F .F-ob x
+          , Free.elim Q F .F-ob y ])
+          (Free.elim Q F .F-hom f)
+          (Free.elim Q F .F-hom g)
+        F-respects-≈ (↑ eq) = F-respects-axioms eq
+        F-respects-≈ {x}{y} (reflₑ f) = base-path-irr 𝓓 {p = refl} refl
+        F-respects-≈ (⋆ₑ-cong e e' p f f' q) =
+          base-path-irr 𝓓
+          (Free.elim Q F .F-seq e f ◁
+          (λ i → F-respects-≈ p i 𝓓.⋆ᴰ F-respects-≈ q i)
+          ▷ (sym (Free.elim Q F .F-seq e' f')))
+        F-respects-≈ (⋆ₑIdL g) = base-path-irr 𝓓 (𝓓.⋆IdLᴰ (elimF Q F g))
+        F-respects-≈ {x}{y} (⋆ₑIdR g) = base-path-irr 𝓓 (𝓓.⋆IdRᴰ (elimF Q F g))
+        F-respects-≈ (⋆ₑAssoc e f g) =
+          base-path-irr 𝓓 (𝓓.⋆Assocᴰ (elimF Q F e) (elimF Q F f) (elimF Q F g))
+
     module _ (𝓒 : Category ℓc ℓc') (ı : Interp Q 𝓒) where
       Frec = Free.rec Q ı
 
@@ -105,32 +148,3 @@ module _ (Q : Quiver ℓg ℓg') where
           SetQuotient.rec (𝓒 .isSetHom) (Frec .F-hom) (λ _ _ → rec-respects-≈)
         rec .F-id = refl
         rec .F-seq = elimProp2 (λ _ _ → 𝓒 .isSetHom _ _) (λ _ _ → refl)
-
--- recNT : {Q : Quiver ℓg ℓg'}{Ax : Axioms Q ℓj} {𝓒 : Category ℓc ℓc'}
---         {F G : Functor (PresentedCat Q Ax) 𝓒}
---         (α : ∀ (a : Q .ob) → 𝓒 [ F ⟅ a ⟆ , G ⟅ a ⟆ ])
---         (p : ∀ (gen : Q .mor) →
---           F ⟪ ηP Q Ax .I-hom gen ⟫ ⋆⟨ 𝓒 ⟩ α (Q .cod gen)
---           ≡ α (Q .dom gen) ⋆⟨ 𝓒 ⟩ G ⟪ ηP Q Ax .I-hom gen ⟫)
---       → NatTrans F G
--- recNT α p .N-ob = α
--- recNT {Q = Q}{𝓒 = 𝓒}{F = F}{G = G} α p .N-hom =
---   elimProp (λ _ → 𝓒 .isSetHom _ _) isNat where
---   isNatTy : ∀ {a b}(e : FQ Q [ a , b ]) → Type _
---   isNatTy e = F ⟪ [ e ]q ⟫ ⋆⟨ 𝓒 ⟩ α _ ≡ α _ ⋆⟨ 𝓒 ⟩ G ⟪ [ e ]q ⟫
-
---   isNat : ∀ {a b} e → isNatTy {a}{b} e
---   isNat = elimExpProp Q {P = isNatTy}
---     (λ e → 𝓒 .isSetHom _ _)
---     p
---     (λ {a} → cong₂ (seq' 𝓒)(F .F-id) refl
---       ∙ 𝓒 .⋆IdL _ ∙ sym (𝓒 .⋆IdR _)
---       ∙ cong₂ (seq' 𝓒) refl (sym (G .F-id)))
---     λ e e' nat-e nat-e' →
---       cong₂ (seq' 𝓒) (F .F-seq [ e ]q [ e' ]q) refl
---       ∙ (𝓒 .⋆Assoc _ _ _
---       ∙ cong₂ (seq' 𝓒) refl nat-e'
---       ∙ sym (𝓒 .⋆Assoc _ _ _)
---       ∙ cong₂ (seq' 𝓒) nat-e refl
---       ∙ 𝓒 .⋆Assoc _ _ _)
---       ∙ cong₂ (seq' 𝓒) refl (sym (G .F-seq [ e ]q [ e' ]q))

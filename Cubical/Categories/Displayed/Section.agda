@@ -22,7 +22,8 @@ open Categoryᴰ
 open Functor
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
-  module D = Categoryᴰ D
+  private
+    module D = Categoryᴰ D
 
   record Section : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) where
     field

@@ -65,7 +65,9 @@ module _ (Q : Quiver ℓg ℓg') where
 
   module _ {𝓓 : Categoryᴰ FreeCat ℓd ℓd'} (ı : Interpᴰ 𝓓) where
     open Section
-    module 𝓓 = Categoryᴰ 𝓓
+
+    private
+      module 𝓓 = Categoryᴰ 𝓓
 
     elimF : ∀ {c c'} (f : FreeCat [ c , c' ]) → 𝓓 [ f ][ ı .I-ob c , ı .I-ob c' ]
     elimF (↑ e) = ı .I-hom e

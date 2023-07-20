@@ -1,14 +1,13 @@
 {-# OPTIONS --safe #-}
-
 module Cubical.Categories.Displayed.Preorder where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
 
@@ -50,3 +49,9 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
   Preorderᴰ→FstFaithful : isFaithful (Fst {Cᴰ = Preorderᴰ→Catᴰ})
   Preorderᴰ→FstFaithful x y f g p =
     ΣPathP (p , isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))
+
+  module Pᴰ = Preorderᴰ Pᴰ
+  record Section  : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) where
+    field
+      F-ob : ∀ c → Pᴰ.ob[ c ]
+      F-hom : ∀ {c c'} (f : C [ c , c' ]) → Pᴰ.Hom[ f ][ F-ob c , F-ob c' ]

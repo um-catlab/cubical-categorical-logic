@@ -15,6 +15,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Preorder
 
+open import Cubical.Reflection.RecordEquiv.More
+
 open BinaryRelation
 
 
@@ -26,10 +28,6 @@ private
 
 module _ {ℓ ℓ' : Level} where
 
-  -- Because of a bug with Cubical Agda's reflection, we need to declare
-  -- a separate version of MonFun where the arguments to the isMon
-  -- constructor are explicit.
-  -- See https://github.com/agda/cubical/issues/995.
   module _ {X Y : Preorder ℓ ℓ'} where
 
     module X = PreorderStr (X .snd)
@@ -37,79 +35,58 @@ module _ {ℓ ℓ' : Level} where
     _≤X_ = X._≤_
     _≤Y_ = Y._≤_
 
-    monotone' : (⟨ X ⟩ -> ⟨ Y ⟩) -> Type (ℓ-max ℓ ℓ')
-    monotone' f = (x y : ⟨ X ⟩) -> x ≤X y → f x ≤Y f y
-
     monotone : (⟨ X ⟩ -> ⟨ Y ⟩) -> Type (ℓ-max ℓ ℓ')
     monotone f = {x y : ⟨ X ⟩} -> x ≤X y → f x ≤Y f y
 
   -- Monotone functions from X to Y
-  -- This definition works with Cubical Agda's reflection.
-  record MonFun' (X Y : Preorder ℓ ℓ') : Type ((ℓ-max ℓ ℓ')) where
-    field
-      f : (X .fst) → (Y .fst)
-      isMon : monotone' {X} {Y} f
+  module _ (X Y : Preorder ℓ ℓ') where
+    record MonFun : Type ((ℓ-max ℓ ℓ')) where
+      field
+        f : (X .fst) → (Y .fst)
+        isMon : monotone {X} {Y} f
 
-  -- This is the definition we want, where the first two arguments to isMon
-  -- are implicit.
-  record MonFun (X Y : Preorder ℓ ℓ') : Type ((ℓ-max ℓ ℓ')) where
-    field
-      f : (X .fst) → (Y .fst)
-      isMon : monotone {X} {Y} f
+    -- Sigma type for easy reflection proofs of prop/isset
+    -- Because of a bug with Cubical Agda's reflection, we need to declare
+    -- an explicit Sigma type construction and declare the type signature
+    -- to be able to get the definition for free
+    -- See https://github.com/agda/cubical/issues/995.
+    Sigma : Type (ℓ-max ℓ ℓ')
+    Sigma = (Σ (X .fst → Y .fst)
+      (λ z → {x y : ⟨ X ⟩} → _≤X_ {X} {Y} x y → _≤Y_ {X} {Y} (z x) (z y)))
+
+    MonFunIsoΣ : Iso (MonFun) (Sigma)
+    unquoteDef MonFunIsoΣ = defineRecordIsoΣ MonFunIsoΣ (quote (MonFun))
 
   open MonFun
   open IsPreorder
   open PreorderStr
 
-  isoMonFunMonFun' : {X Y : Preorder ℓ ℓ'} -> Iso (MonFun X Y) (MonFun' X Y)
-  isoMonFunMonFun' = iso
-    (λ g → record { f = MonFun.f g ; isMon = λ x y x≤y → isMon g x≤y })
-    (λ g → record { f = MonFun'.f g ;
-                    isMon = λ {x} {y} x≤y -> MonFun'.isMon g x y x≤y }
-    )
-    (λ g → refl)
-    (λ g → refl)
 
-
-  isPropIsMon : {X Y : Preorder ℓ ℓ'} -> (f : MonFun X Y) ->
-    isProp (monotone {X} {Y} (MonFun.f f))
+  isPropIsMon : {X Y : Preorder ℓ ℓ'} -> (f : ⟨ X ⟩ →  ⟨ Y ⟩) ->
+    isProp (monotone {X} {Y} f)
   isPropIsMon {X} {Y} f =
     isPropImplicitΠ2 (λ x y ->
       isPropΠ (λ x≤y -> is-prop-valued (isPreorder (str Y))
-        (MonFun.f f x) (MonFun.f f y)))
+        (f x) (f y)))
 
-  isPropIsMon' : {X Y : Preorder ℓ ℓ'} -> (f : ⟨ X ⟩ -> ⟨ Y ⟩) ->
-    isProp (monotone' {X} {Y} f)
-  isPropIsMon' {X} {Y} f =
-    isPropΠ3 (λ x y x≤y -> is-prop-valued (isPreorder (str Y))
-      (f x) (f y))
-
-  -- Equivalence between MonFun' record and a sigma type
-  unquoteDecl MonFun'IsoΣ = declareRecordIsoΣ MonFun'IsoΣ (quote (MonFun'))
 
   -- Equality of monotone functions is equivalent to equality of the
   -- underlying functions.
-  eqMon' : {X Y : Preorder ℓ ℓ'} -> (f g : MonFun' X Y) ->
-    MonFun'.f f ≡ MonFun'.f g -> f ≡ g
-  eqMon' {X} {Y} f g p = isoFunInjective MonFun'IsoΣ f g
-    (Σ≡Prop (λ h → isPropΠ3 (λ y z q →
-      is-prop-valued (isPreorder (str Y)) (h y) (h z))) p)
-
   eqMon : {X Y : Preorder ℓ ℓ'} -> (f g : MonFun X Y) ->
     MonFun.f f ≡ MonFun.f g -> f ≡ g
-  eqMon {X} {Y} f g p = isoFunInjective isoMonFunMonFun' f g (eqMon' _ _ p)
+  eqMon {X} {Y} f g p = isoFunInjective (MonFunIsoΣ X Y) f g
+    (Σ≡Prop (isPropIsMon {X} {Y}) p)
 
 
   -- isSet for monotone functions
   MonFunIsSet : {X Y : Preorder ℓ ℓ'} → isSet ⟨ Y ⟩ → isSet (MonFun X Y)
   MonFunIsSet {X} {Y} issetY =
-    let composedIso = (compIso isoMonFunMonFun' MonFun'IsoΣ) in
-      isSetRetract
-        (Iso.fun composedIso) (Iso.inv composedIso) (Iso.leftInv composedIso)
-        (isSetΣSndProp
-          (isSet→ issetY)
-          (isPropIsMon' {X} {Y}))
-
+    let the-iso = MonFunIsoΣ X Y in
+    isSetRetract
+      (Iso.fun the-iso) (Iso.inv the-iso) (Iso.leftInv the-iso)
+      (isSetΣSndProp
+        (isSet→ issetY)
+        (isPropIsMon {X} {Y}))
 
 
   -- Ordering on monotone functions
@@ -132,14 +109,6 @@ module _ {ℓ ℓ' : Level} where
       (is-trans (isPreorder (str Y)))
         (MonFun.f f x) (MonFun.f g x) (MonFun.f h x)
         (f≤g x) (g≤h x)
-    {-
-    ≤mon-antisym : isAntisym _≤mon_
-    ≤mon-antisym = λ f g f≤g g≤f → eqMon f g
-      (funExt λ x →
-        (is-antisym (isPoset (str Y))) (MonFun.f f x) (MonFun.f g x)
-          (f≤g x) (g≤f x)
-      )
-    -}
 
 
     -- Alternate definition of ordering on monotone functions, where we allow

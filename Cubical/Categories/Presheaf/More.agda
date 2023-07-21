@@ -45,8 +45,27 @@ IdPshIso C P = idCatIso
 𝓟* : Category ℓ ℓ' → (ℓS : Level) → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓS))
 𝓟* C ℓS = Functor C (SET ℓS)
 
+module _ (C : Category ℓ ℓ') (c : C .ob) where
+  open Category
+  open UniversalElement
+
+  selfUnivElt :  UniversalElement C (C [-, c ])
+  selfUnivElt .vertex = c
+  selfUnivElt .element = C .id
+  selfUnivElt .universal A = isoToIsEquiv (iso _ (λ z → z)
+    (C .⋆IdR)
+    (C .⋆IdR))
+
+  selfUnivEltᵒᵖ : UniversalElement (C ^op) (C [ c ,-])
+  selfUnivEltᵒᵖ .vertex = c
+  selfUnivEltᵒᵖ .element = C .id
+  selfUnivEltᵒᵖ .universal _ = isoToIsEquiv (iso _ (λ z → z)
+    (C .⋆IdL)
+    (C .⋆IdL))
+
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   open UniversalElement
+
   UniversalElementOn : C .ob → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   UniversalElementOn vertex =
     Σ[ element ∈ (P ⟅ vertex ⟆) .fst ] isUniversal C P vertex element

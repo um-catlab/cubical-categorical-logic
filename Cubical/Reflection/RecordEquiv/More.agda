@@ -54,3 +54,21 @@ module _ where private
 
   foo-iso : Iso Foo (∀{A} → Baz A)
   unquoteDef foo-iso = defineRecordIsoΣ foo-iso (quote Foo)
+
+module _ where private
+  Bar : ℕ → Type
+  Bar 0 = Unit
+  Bar _ = ℕ
+
+  record Foo {n : ℕ} (b : Bar n) : Type where
+    field
+      foo : {a : ℕ} → Bar a
+      baz : Bar n
+      goo : b ≡ baz
+
+  Sigma : {n : ℕ} (b : Bar n) → Type
+  Sigma {n} b = Σ ({a : ℕ} → Bar a) (λ z → Σ (Bar n) (PathP (λ i → Bar n) b))
+
+  foo-iso : ∀ {x : ℕ} {b : Bar x} → Iso (Foo b) (Sigma b)
+  unquoteDef foo-iso = defineRecordIsoΣ foo-iso (quote Foo)
+

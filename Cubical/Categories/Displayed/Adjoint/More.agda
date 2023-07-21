@@ -28,18 +28,35 @@ open Categoryᴰ
 RightAdjointAtᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                   {F : Functor C D}
                   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-                  (Fᴰ : Functorᴰ F Cᴰ Dᴰ) {d : D .ob} (dᴰ : Categoryᴰ.ob[_] Dᴰ d)
-                  (R⟅d⟆ : UniversalElement C ((D [-, d ]) ∘F (F ^opF)))
+                  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+                  {d : D .ob}
+                  (R⟅d⟆ : RightAdjointAt' C D F d)
+                  (dᴰ : Categoryᴰ.ob[_] Dᴰ d)
                 → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓDᴰ')
-RightAdjointAtᴰ {Cᴰ = Cᴰ}{Dᴰ = Dᴰ} Fᴰ dᴰ R⟅d⟆ =
+RightAdjointAtᴰ {Cᴰ = Cᴰ}{Dᴰ = Dᴰ} Fᴰ R⟅d⟆ dᴰ =
   UniversalElementᴰ Cᴰ ((Dᴰ [-][-, dᴰ ]) ∘Fᴰ (Fᴰ ^opFᴰ)) R⟅d⟆
 
 RightAdjointᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                 {F : Functor C D}
                 {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
                 (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-                (R : ∀ d → UniversalElement C ((D [-, d ]) ∘F (F ^opF)))
+                (R : RightAdjoint' C D F)
               → Type (ℓ-max
                         (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓCᴰ) ℓCᴰ') ℓDᴰ)
                         ℓDᴰ')
-RightAdjointᴰ Fᴰ R = ∀ {d} dᴰ → RightAdjointAtᴰ Fᴰ dᴰ (R d)
+RightAdjointᴰ Fᴰ R = ∀ {d} dᴰ → RightAdjointAtᴰ Fᴰ (R d) dᴰ
+
+-- should this be called vertical instead?
+LocalRightAdjointAtᴰ : {C : Category ℓC ℓC'}
+                     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+                     (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
+                     {c : C .ob}
+                     (cᴰ : Categoryᴰ.ob[_] Dᴰ c)
+                     → Type _
+LocalRightAdjointAtᴰ Fᴰ = RightAdjointAtᴰ Fᴰ (IdRightAdj' _ _)
+
+LocalRightAdjointᴰ : {C : Category ℓC ℓC'}
+                     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+                     (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
+                   → Type _
+LocalRightAdjointᴰ Fᴰ = RightAdjointᴰ Fᴰ (IdRightAdj' _)

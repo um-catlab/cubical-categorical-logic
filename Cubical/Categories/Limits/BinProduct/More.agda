@@ -37,6 +37,9 @@ open Bifunctor
 open isEquiv
 
 module _ (C : Category ℓ ℓ') where
+  BinProduct' = RightAdjointAt' _ _ (Δ C)
+  BinProducts' = RightAdjoint' _ _ (Δ C)
+
   BinProductToRepresentable : ∀ {a b} → BinProduct C a b →
                               RightAdjointAt _ _ (Δ C) (a , b)
   BinProductToRepresentable bp .vertex = bp .binProdOb

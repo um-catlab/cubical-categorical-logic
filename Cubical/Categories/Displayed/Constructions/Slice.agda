@@ -11,7 +11,6 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
-open import Cubical.Categories.Displayed.Category.More
 open import Cubical.Categories.Displayed.Functor
 
 open import Cubical.Tactics.CategorySolver.Reflection

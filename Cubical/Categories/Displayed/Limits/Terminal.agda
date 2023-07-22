@@ -50,9 +50,9 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object
 
-    -- TODO:
-    -- Is this equivalent to the more "obvious" definition that Fiber
-    -- c have a terminal object?
+    -- TODO: Is this equivalent to the more "obvious" definition that
+    -- Fiber c have a terminal object?
+    -- No.
     FibTerminalᴰSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
     FibTerminalᴰSpec = TerminalPresheafᴰ _
 

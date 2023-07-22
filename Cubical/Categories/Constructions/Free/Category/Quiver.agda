@@ -57,7 +57,8 @@ module _ (Q : Quiver ℓg ℓg') where
 
   -- A displayed interpretation
   open Categoryᴰ
-  record Interpᴰ (𝓓 : Categoryᴰ FreeCat ℓd ℓd') : Type ((ℓ-max (ℓ-max ℓg ℓg') (ℓ-max ℓd ℓd'))) where
+  record Interpᴰ (𝓓 : Categoryᴰ FreeCat ℓd ℓd')
+    : Type ((ℓ-max (ℓ-max ℓg ℓg') (ℓ-max ℓd ℓd'))) where
     field
       I-ob : (c : Q .ob) → ob[_] 𝓓 c
       I-hom : ∀ e → 𝓓 [ ↑ e ][ I-ob (Q .dom e) , I-ob (Q .cod e) ]
@@ -69,14 +70,16 @@ module _ (Q : Quiver ℓg ℓg') where
     private
       module 𝓓 = Categoryᴰ 𝓓
 
-    elimF : ∀ {c c'} (f : FreeCat [ c , c' ]) → 𝓓 [ f ][ ı .I-ob c , ı .I-ob c' ]
+    elimF : ∀ {c c'} (f : FreeCat [ c , c' ])
+          → 𝓓 [ f ][ ı .I-ob c , ı .I-ob c' ]
     elimF (↑ e) = ı .I-hom e
     elimF idₑ = 𝓓 .idᴰ
     elimF (f ⋆ₑ g) = elimF f 𝓓.⋆ᴰ elimF g
     elimF (⋆ₑIdL f i) = 𝓓 .⋆IdLᴰ (elimF f) i
     elimF (⋆ₑIdR f i) = 𝓓 .⋆IdRᴰ (elimF f) i
     elimF (⋆ₑAssoc f f₁ f₂ i) = 𝓓 .⋆Assocᴰ (elimF f) (elimF f₁) (elimF f₂) i
-    elimF (isSetExp f g p q i j) = isOfHLevel→isOfHLevelDep 2 (λ x → 𝓓 .isSetHomᴰ)
+    elimF (isSetExp f g p q i j) =
+      isOfHLevel→isOfHLevelDep 2 (λ x → 𝓓 .isSetHomᴰ)
       (elimF f)
       (elimF g)
       (cong elimF p)
@@ -103,10 +106,11 @@ module _ (Q : Quiver ℓg ℓg') where
   rec ı = Iso.fun (SectionToWkIsoFunctor _ _) (elim ı)
 
   module _ {ℓc ℓc'} {𝓒 : Category ℓc ℓc'} (F G : Functor FreeCat 𝓒)
-           (agree-on-gen : Interpᴰ (Preorderᴰ→Catᴰ
-                                   (SecPath (weaken FreeCat 𝓒)
-                                            (Iso.inv (SectionToWkIsoFunctor _ _) F)
-                                            (Iso.inv (SectionToWkIsoFunctor _ _) G))))
+           (agree-on-gen :
+             Interpᴰ (Preorderᴰ→Catᴰ
+                     (SecPath (weaken FreeCat 𝓒)
+                     (Iso.inv (SectionToWkIsoFunctor _ _) F)
+                     (Iso.inv (SectionToWkIsoFunctor _ _) G))))
          where
     FreeCatFunctor≡ : F ≡ G
     FreeCatFunctor≡ = isoInvInjective (SectionToWkIsoFunctor _ _) F G

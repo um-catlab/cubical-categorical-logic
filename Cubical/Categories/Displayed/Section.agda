@@ -37,7 +37,8 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   open Section
   Section≡ : {F G : Section}
            → (h : ∀ c → F .F-ob c ≡ G .F-ob c)
-           → (∀ {c c'} (f : C [ c , c' ]) → PathP (λ i → D [ f ][ h c i , h c' i ]) (F .F-hom f) (G .F-hom f))
+           → (∀ {c c'} (f : C [ c , c' ])
+           → PathP (λ i → D [ f ][ h c i , h c' i ]) (F .F-hom f) (G .F-hom f))
            → F ≡ G
   Section≡ hOb hHom i .F-ob c = hOb c i
   Section≡ hOb hHom i .F-hom f = hHom f i
@@ -47,10 +48,11 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     (G .F-id)
     i
   Section≡ {F = F}{G = G} hOb hHom i .F-seq f g =
-    isProp→PathP (λ j → D .isSetHomᴰ (hHom (f ⋆⟨ C ⟩ g) j) (hHom f j D.⋆ᴰ hHom g j))
-    (F .F-seq f g)
-    (G .F-seq f g)
-    i
+    isProp→PathP
+      (λ j → D .isSetHomᴰ (hHom (f ⋆⟨ C ⟩ g) j) (hHom f j D.⋆ᴰ hHom g j))
+      (F .F-seq f g)
+      (G .F-seq f g)
+      i
 
   SectionToFunctor : Section → Functor C (∫C D)
   SectionToFunctor F .F-ob x = x , F .F-ob x
@@ -88,14 +90,16 @@ open Preorder.Section
 module _ (C : Category ℓC ℓC') (P : Preorderᴰ C ℓD ℓD') where
   open Iso
   open Preorderᴰ
-  PreorderSectionIsoCatSection : Iso (Preorder.Section P) (Section (Preorderᴰ→Catᴰ P))
+  PreorderSectionIsoCatSection
+    : Iso (Preorder.Section P) (Section (Preorderᴰ→Catᴰ P))
   PreorderSectionIsoCatSection .fun F .F-ob = F .F-ob
   PreorderSectionIsoCatSection .fun F .F-hom = F .F-hom
   PreorderSectionIsoCatSection .fun F .F-id = P .isPropHomᴰ _ _
   PreorderSectionIsoCatSection .fun F .F-seq f g = P .isPropHomᴰ _ _
   PreorderSectionIsoCatSection .inv F .F-ob = F .F-ob
   PreorderSectionIsoCatSection .inv F .F-hom = F .F-hom
-  PreorderSectionIsoCatSection .rightInv b = Section≡ _ (λ c → refl) (λ f → refl)
+  PreorderSectionIsoCatSection .rightInv b =
+    Section≡ _ (λ c → refl) (λ f → refl)
   PreorderSectionIsoCatSection .leftInv a = refl
 
 module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where

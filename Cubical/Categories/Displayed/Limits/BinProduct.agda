@@ -21,7 +21,9 @@ open Category
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   module D = Categoryᴰ D
-  BinProductᴰ : ∀ {c12} → BinProduct' C c12 → (D.ob[ c12 .fst ] × D.ob[ c12 .snd ]) → Type _
+  BinProductᴰ : ∀ {c12} → BinProduct' C c12
+              → (D.ob[ c12 .fst ] × D.ob[ c12 .snd ])
+              → Type _
   BinProductᴰ = RightAdjointAtᴰ (ΔCᴰ D)
 
   BinProductsᴰ : BinProducts' C → Type _

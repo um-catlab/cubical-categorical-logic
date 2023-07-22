@@ -41,9 +41,7 @@ RightAdjointᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                 {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
                 (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
                 (R : RightAdjoint' C D F)
-              → Type (ℓ-max
-                        (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓCᴰ) ℓCᴰ') ℓDᴰ)
-                        ℓDᴰ')
+              → Type _
 RightAdjointᴰ Fᴰ R = ∀ {d} dᴰ → RightAdjointAtᴰ Fᴰ (R d) dᴰ
 
 -- should this be called vertical instead?

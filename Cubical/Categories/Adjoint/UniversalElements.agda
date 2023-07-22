@@ -41,9 +41,12 @@ RightAdjointAt→Prime : (C : Category ℓC ℓC')
                  (F : Functor C D)
                  (d : D .ob)
                  → RightAdjointAt C D F d → RightAdjointAt' C D F d
-RightAdjointAt→Prime C D F d x .UniversalElement.vertex = UniversalElement.vertex x
-RightAdjointAt→Prime C D F d x .UniversalElement.element = UniversalElement.element x
-RightAdjointAt→Prime C D F d x .UniversalElement.universal = UniversalElement.universal x
+RightAdjointAt→Prime C D F d x .UniversalElement.vertex =
+  UniversalElement.vertex x
+RightAdjointAt→Prime C D F d x .UniversalElement.element =
+  UniversalElement.element x
+RightAdjointAt→Prime C D F d x .UniversalElement.universal =
+  UniversalElement.universal x
 
 RightAdjoint' : (C : Category ℓC ℓC')
                 (D : Category ℓD ℓD')
@@ -55,7 +58,8 @@ IdRightAdj' : (C : Category ℓC ℓC')
       → RightAdjoint' C C Id
 IdRightAdj' C c .UniversalElement.vertex = c
 IdRightAdj' C c .UniversalElement.element = id C
-IdRightAdj' C c .UniversalElement.universal c' = isoToIsEquiv (iso _ (λ z → z) (C .⋆IdR) (C .⋆IdR))
+IdRightAdj' C c .UniversalElement.universal c' =
+  isoToIsEquiv (iso _ (λ z → z) (C .⋆IdR) (C .⋆IdR))
 
 LeftAdjoint : (C : Category ℓC ℓC')
               (D : Category ℓD ℓD')

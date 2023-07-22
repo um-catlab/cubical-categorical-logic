@@ -48,7 +48,8 @@ terminalToUniversalElement : ∀ {C : Category ℓc ℓc'} (One : Terminal C)
   → UniversalElement C (TerminalPresheaf {C = C})
 terminalToUniversalElement One .vertex = One .fst
 terminalToUniversalElement One .element = tt
-terminalToUniversalElement {C = C} One .universal x = isoToIsEquiv (iso (λ _ → tt)
+terminalToUniversalElement {C = C} One .universal x = isoToIsEquiv (iso
+  (λ _ → tt)
   (λ _ → terminalArrow C One _)
   (λ b i → tt)
   λ a → terminalArrowUnique C {T = One} a)

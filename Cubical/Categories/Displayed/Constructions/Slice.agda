@@ -29,8 +29,8 @@ module _ (C : Category ℓC ℓC') {D : Category ℓD ℓD'} (p : Functor D C) w
   _/C_ : Categoryᴰ C (ℓ-max ℓC' ℓD) (ℓ-max ℓC' ℓD')
   _/C_ .ob[_] x = Σ[ d ∈ D .ob ] (C [ x , p ⟅ d ⟆ ])
   _/C_ .Hom[_][_,_] f xᴰ yᴰ = Σ[ g ∈ D [ xᴰ .fst , yᴰ .fst ] ]
-    p ⟪ g ⟫ ∘⟨ C ⟩ xᴰ .snd ≡ yᴰ .snd ∘⟨ C ⟩ f 
-  _/C_ .idᴰ = (D .id) , solveFunctor! D C p 
+    p ⟪ g ⟫ ∘⟨ C ⟩ xᴰ .snd ≡ yᴰ .snd ∘⟨ C ⟩ f
+  _/C_ .idᴰ = (D .id) , solveFunctor! D C p
   _/C_ ._⋆ᴰ_ fᴰ gᴰ = (fᴰ .fst ⋆⟨ D ⟩ gᴰ .fst) ,
     cong₂ (comp' C) (p .F-seq _ _) refl
     ∙ sym (C .⋆Assoc _ _ _)

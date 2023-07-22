@@ -1,5 +1,6 @@
 {-
-  Definition of an adjoint pair displayed over another adjoint pair
+  The slice category over a functor, viewed as a displayed category
+  over the domain.
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Slice where
@@ -25,8 +26,6 @@ open Categoryᴰ
 open Functor
 
 module _ (C : Category ℓC ℓC') {D : Category ℓD ℓD'} (p : Functor D C) where
-  -- The slice category over a functor, viewed as a displayed category
-  -- over the domain
   _/C_ : Categoryᴰ C (ℓ-max ℓC' ℓD) (ℓ-max ℓC' ℓD')
   _/C_ .ob[_] x = Σ[ d ∈ D .ob ] (C [ x , p ⟅ d ⟆ ])
   _/C_ .Hom[_][_,_] f xᴰ yᴰ = Σ[ g ∈ D [ xᴰ .fst , yᴰ .fst ] ]

@@ -10,6 +10,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Base.More
 
 open import Cubical.Categories.Displayed.Preorder as Preorder hiding (Section)
 
@@ -57,13 +58,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   SectionToFunctor F .F-id = ΣPathP (refl , (F .F-id))
   SectionToFunctor F .F-seq f g = ΣPathP (refl , (F .F-seq f g))
 
-  Fst : Functor (∫C D) C
-  Fst .F-ob = fst
-  Fst .F-hom = fst
-  Fst .F-id = refl
-  Fst .F-seq f g = refl
-
-  SectionIsSection : ∀ (F : Section) → (Fst ∘F SectionToFunctor F) ≡ Id
+  SectionIsSection : ∀ (F : Section) → (Fst {Cᴰ = D} ∘F SectionToFunctor F) ≡ Id
   SectionIsSection F = Functor≡ (λ c → refl) λ f → refl
 
   open Preorderᴰ

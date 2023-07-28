@@ -21,15 +21,15 @@ private
 
 module _ ℓ ℓ' where
   open Categoryᴰ
-  SETS : Categoryᴰ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
-  SETS .ob[_] X = ⟨ X ⟩ → hSet ℓ'
-  SETS .Hom[_][_,_] f P Q = ∀ x → ⟨ P x ⟩ → ⟨ Q (f x) ⟩
-  SETS .idᴰ = λ x z → z
-  SETS ._⋆ᴰ_ {f = f} {g} fᴰ gᴰ x p = gᴰ (f x) (fᴰ x p)
-  SETS .⋆IdLᴰ fᴰ = refl
-  SETS .⋆IdRᴰ fᴰ = refl
-  SETS .⋆Assocᴰ fᴰ gᴰ hᴰ = refl
-  SETS .isSetHomᴰ {yᴰ = Q} = isSetΠ λ x → isSetΠ λ xᴰ → Q _ .snd
+  SETᴰ : Categoryᴰ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+  SETᴰ .ob[_] X = ⟨ X ⟩ → hSet ℓ'
+  SETᴰ .Hom[_][_,_] f P Q = ∀ x → ⟨ P x ⟩ → ⟨ Q (f x) ⟩
+  SETᴰ .idᴰ = λ x z → z
+  SETᴰ ._⋆ᴰ_ {f = f} {g} fᴰ gᴰ x p = gᴰ (f x) (fᴰ x p)
+  SETᴰ .⋆IdLᴰ fᴰ = refl
+  SETᴰ .⋆IdRᴰ fᴰ = refl
+  SETᴰ .⋆Assocᴰ fᴰ gᴰ hᴰ = refl
+  SETᴰ .isSetHomᴰ {yᴰ = Q} = isSetΠ λ x → isSetΠ λ xᴰ → Q _ .snd
 
 open Category
 open Functorᴰ
@@ -37,7 +37,7 @@ open Functorᴰ
 _[-][-,_] : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           → {c : C .ob}
           → Categoryᴰ.ob[_] D c
-          → Functorᴰ (C [-, c ]) (D ^opᴰ) (SETS ℓC' ℓD')
+          → Functorᴰ (C [-, c ]) (D ^opᴰ) (SETᴰ ℓC' ℓD')
 _[-][-,_] {C = C} D {c} d .F-obᴰ d' f =
   (D [ f ][ d' , d ]) , Categoryᴰ.isSetHomᴰ D
 _[-][-,_] {C = C} D {c} d .F-homᴰ fᴰ g gᴰ = Categoryᴰ._⋆ᴰ_ D fᴰ gᴰ
@@ -48,7 +48,7 @@ _[-][-,_] {C = C} D {c} d .F-seqᴰ fᴰ gᴰ i h hᴰ = Categoryᴰ.⋆Assocᴰ
 _[-][_,-] : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           → {c : C .ob}
           → Categoryᴰ.ob[_] D c
-          → Functorᴰ (C [ c ,-]) D (SETS ℓC' ℓD')
+          → Functorᴰ (C [ c ,-]) D (SETᴰ ℓC' ℓD')
 (D [-][ d ,-]) .F-obᴰ d' f = (D [ f ][ d , d' ]) , Categoryᴰ.isSetHomᴰ D
 (D [-][ d ,-]) .F-homᴰ fᴰ g gᴰ = Categoryᴰ._⋆ᴰ_ D gᴰ fᴰ
 (D [-][ d ,-]) .F-idᴰ i f fᴰ = Categoryᴰ.⋆IdRᴰ D fᴰ i

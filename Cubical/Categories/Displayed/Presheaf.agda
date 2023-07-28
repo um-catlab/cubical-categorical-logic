@@ -33,7 +33,7 @@ Presheafᴰ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           → (P : Presheaf C ℓP) → (ℓP' : Level)
           → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-suc ℓP))
                     (ℓ-suc ℓP'))
-Presheafᴰ {ℓP = ℓP} D P ℓP' = Functorᴰ P (D ^opᴰ) (SETS ℓP ℓP')
+Presheafᴰ {ℓP = ℓP} D P ℓP' = Functorᴰ P (D ^opᴰ) (SETᴰ ℓP ℓP')
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ D P ℓP') where

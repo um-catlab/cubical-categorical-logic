@@ -26,17 +26,25 @@ private
 open Category
 open Functor
 
-record Quiver ℓg ℓg' : Type (ℓ-suc (ℓ-max ℓg ℓg')) where
+record QuiverOver (ob : Type ℓg) ℓg' : Type (ℓ-suc (ℓ-max ℓg ℓg')) where
   field
-    ob : Type ℓg
     mor : Type ℓg'
     dom : mor → ob
     cod : mor → ob
 
-open Quiver
+open QuiverOver
+Quiver : ∀ ℓg ℓg' → Type _
+Quiver ℓg ℓg' = Σ[ ob ∈ Type ℓg ] QuiverOver ob ℓg'
+
+CatQuiver : Category ℓc ℓc' → Quiver ℓc (ℓ-max ℓc ℓc')
+CatQuiver 𝓒 .fst = 𝓒 .ob
+CatQuiver 𝓒 .snd .mor = Σ[ A ∈ 𝓒 .ob ] Σ[ B ∈ 𝓒 .ob ] (𝓒 [ A , B ])
+CatQuiver 𝓒 .snd .dom x = x .fst
+CatQuiver 𝓒 .snd .cod x = x .snd .fst
+
 module _ (Q : Quiver ℓg ℓg') where
-  data Exp : Q .ob → Q .ob → Type (ℓ-max ℓg ℓg') where
-    ↑_   : ∀ g → Exp (Q .dom g) (Q .cod g)
+  data Exp : Q .fst → Q .fst → Type (ℓ-max ℓg ℓg') where
+    ↑_   : ∀ g → Exp (Q .snd .dom g) (Q .snd .cod g)
     idₑ  : ∀ {A} → Exp A A
     _⋆ₑ_ : ∀ {A B C} → (e : Exp A B) → (e' : Exp B C) → Exp A C
     ⋆ₑIdL : ∀ {A B} (e : Exp A B) → idₑ ⋆ₑ e ≡ e
@@ -46,7 +54,7 @@ module _ (Q : Quiver ℓg ℓg') where
     isSetExp : ∀ {A B} → isSet (Exp A B)
 
   FreeCat : Category _ _
-  FreeCat .ob = Q .ob
+  FreeCat .ob = Q .fst
   FreeCat .Hom[_,_] = Exp
   FreeCat .id = idₑ
   FreeCat ._⋆_ = _⋆ₑ_
@@ -60,8 +68,8 @@ module _ (Q : Quiver ℓg ℓg') where
   record Interpᴰ (𝓓 : Categoryᴰ FreeCat ℓd ℓd')
     : Type ((ℓ-max (ℓ-max ℓg ℓg') (ℓ-max ℓd ℓd'))) where
     field
-      I-ob : (c : Q .ob) → ob[_] 𝓓 c
-      I-hom : ∀ e → 𝓓 [ ↑ e ][ I-ob (Q .dom e) , I-ob (Q .cod e) ]
+      I-ob : (c : Q .fst) → ob[_] 𝓓 c
+      I-hom : ∀ e → 𝓓 [ ↑ e ][ I-ob (Q .snd .dom e) , I-ob (Q .snd .cod e) ]
   open Interpᴰ
 
   module _ {𝓓 : Categoryᴰ FreeCat ℓd ℓd'} (ı : Interpᴰ 𝓓) where

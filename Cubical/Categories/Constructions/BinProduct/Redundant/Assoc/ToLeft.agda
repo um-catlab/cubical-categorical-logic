@@ -25,7 +25,6 @@ private
 open Category
 open Functor
 open NatTrans
-open Quiver
 open Interpᴰ
 open Axioms
 open Bifunctor

@@ -31,7 +31,6 @@ open Category
 open Functor
 open NatIso hiding (sqRL; sqLL)
 open NatTrans
-open Quiver
 open Interpᴰ
 
 module _ (Q : Quiver ℓg ℓg') where

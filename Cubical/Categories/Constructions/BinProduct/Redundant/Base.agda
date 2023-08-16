@@ -26,7 +26,7 @@ private
 
 open Category
 open Functor
-open Quiver
+open QuiverOver
 open Interpᴰ
 open Axioms
 
@@ -49,14 +49,14 @@ module _ (C : Category ℓc ℓc') (D : Category ℓd ℓd') where
       R×-agree : ∀ {d d'} (c : C .ob) (g : D [ d , d' ]) → ProdAx
 
     Q : Quiver (ℓ-max ℓc ℓd) (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓd ℓd'))
-    Q .ob = C .ob × D .ob
-    Q .mor = ProdGenerator
-    Q .dom (homR c {d = d} g) = c , d
-    Q .cod (homR c {d' = d'} g) = c , d'
-    Q .dom (homL {c = c} f d) = c , d
-    Q .cod (homL {c' = c'} f d) = c' , d
-    Q .dom (hom× {c = c}{d = d} f g) = c , d
-    Q .cod (hom× {c' = c'}{d' = d'} f g) = c' , d'
+    Q .fst = C .ob × D .ob
+    Q .snd .mor = ProdGenerator
+    Q .snd .dom (homR c {d = d} g) = c , d
+    Q .snd .cod (homR c {d' = d'} g) = c , d'
+    Q .snd .dom (homL {c = c} f d) = c , d
+    Q .snd .cod (homL {c' = c'} f d) = c' , d
+    Q .snd .dom (hom× {c = c}{d = d} f g) = c , d
+    Q .snd .cod (hom× {c' = c'}{d' = d'} f g) = c' , d'
 
     Ax : Axioms Q (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓd ℓd'))
     Ax = mkAx Q ProdAx λ

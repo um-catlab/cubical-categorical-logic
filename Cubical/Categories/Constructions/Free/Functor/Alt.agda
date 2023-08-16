@@ -61,6 +61,12 @@ module _ (G : Quiver ℓg ℓg') where
     HCat .⋆Assoc = ⋆ₑAssoc
     HCat .isSetHom = isSetHExp
 
+    F : Functor (FreeCat G) HCat
+    F .F-ob = inl
+    F .F-hom = F⟪_⟫
+    F .F-id = F-idₑ
+    F .F-seq = F-seqₑ
+
     module _ {𝓒 : Category ℓc ℓc'}{𝓓 : Category ℓd ℓd'} {𝓕 : Functor 𝓒 𝓓} where
       module _ (ıG : Interp G 𝓒) where
         recG = FreeCat.rec _ ıG
@@ -96,6 +102,17 @@ module _ (G : Quiver ℓg ℓg') where
           rec .F-hom = recH-hom
           rec .F-id = refl
           rec .F-seq = λ f g → refl
+
+          rec-commutes : rec ∘F F ≡ 𝓕 ∘F recG
+          rec-commutes = Functor≡ (λ c → refl) (λ f → refl)
+
+    -- TODO: an elim version would have
+    -- 𝓒 a cat displayed over (FreeCat G)
+    -- 𝓓 a cat displayed over HCat
+    -- 𝓕 a functor from 𝓒 to F^* 𝓓
+    -- interpretation of G in 𝓒
+    -- interpretation of H in 𝓓
+    -- and get out a section of 𝓓 that makes the diagram commute
 
 -- self interpretation
 module _ {𝓒 : Category ℓc ℓc'} {𝓓 : Category ℓd ℓd'} (𝓕 : Functor 𝓒 𝓓) where

@@ -65,6 +65,7 @@ module _ (Q : Quiver ℓg ℓg') where
 
   -- A displayed interpretation
   open Categoryᴰ
+  -- | TODO: this doesn't really require a Categoryᴰ, more like a Quiverᴰ
   record Interpᴰ (𝓓 : Categoryᴰ FreeCat ℓd ℓd')
     : Type ((ℓ-max (ℓ-max ℓg ℓg') (ℓ-max ℓd ℓd'))) where
     field
@@ -102,6 +103,14 @@ module _ (Q : Quiver ℓg ℓg') where
     elim .F-id = refl
     elim .F-seq f g = refl
 
+  module _ {ℓc ℓc'} {𝓒 : Categoryᴰ FreeCat ℓc ℓc'} (F G : Section 𝓒)
+    (agree-on-gen : Interpᴰ (Preorderᴰ→Catᴰ (SecPath _ F G))) where
+    FreeCatSection≡ : F ≡ G
+    FreeCatSection≡ =
+      SecPathSectionToSectionPath
+        _
+        (Iso.inv (PreorderSectionIsoCatSection _ _) (elim agree-on-gen))
+
   -- Trivially displayed version of Interpᴰ
   Interp : (𝓒 : Category ℓc ℓc') → Type (ℓ-max (ℓ-max (ℓ-max ℓg ℓg') ℓc) ℓc')
   Interp 𝓒 = Interpᴰ (weaken FreeCat 𝓒)
@@ -121,7 +130,7 @@ module _ (Q : Quiver ℓg ℓg') where
                      (Iso.inv (SectionToWkIsoFunctor _ _) G))))
          where
     FreeCatFunctor≡ : F ≡ G
-    FreeCatFunctor≡ = isoInvInjective (SectionToWkIsoFunctor _ _) F G
-      (SecPathSectionToSectionPath (weaken FreeCat 𝓒)
-      (Iso.inv (PreorderSectionIsoCatSection _ _)
-      (elim agree-on-gen)))
+    FreeCatFunctor≡ =
+      isoInvInjective (SectionToWkIsoFunctor _ _) F G
+                      (FreeCatSection≡ _ _ agree-on-gen)
+

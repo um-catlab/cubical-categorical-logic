@@ -34,7 +34,8 @@ open NatTrans
 open Interpᴰ
 
 module _ (Q : Quiver ℓg ℓg') where
-  FQ = FreeCat Q
+  private
+    FQ = FreeCat Q
 
   record Axioms ℓj : Type (ℓ-max (ℓ-max ℓg ℓg') (ℓ-suc ℓj)) where
     field

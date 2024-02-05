@@ -9,6 +9,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 
 private
@@ -61,3 +62,23 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   _^opFᴰ .F-homᴰ = Fᴰ .F-homᴰ
   _^opFᴰ .F-idᴰ = Fᴰ .F-idᴰ
   _^opFᴰ .F-seqᴰ fᴰ gᴰ = Fᴰ .F-seqᴰ gᴰ fᴰ
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
+  where
+
+  private
+    module C = Category C
+    module D = Category D
+
+  open Categoryᴰ Dᴰ
+  open Functor F
+  open Functorᴰ
+
+  -- TODO: better name?
+  reindexΠ : Functorᴰ F (reindex Dᴰ F) Dᴰ
+  reindexΠ .F-obᴰ = λ z → z
+  reindexΠ .F-homᴰ = λ z → z
+  reindexΠ .F-idᴰ = symP (transport-filler _ _)
+  reindexΠ .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)

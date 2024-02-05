@@ -54,6 +54,7 @@ module _ (Q : Quiver ℓg ℓg') where
   mkAx Eq funs .lhs eq = funs eq .snd .snd .fst
   mkAx Eq funs .rhs eq = funs eq .snd .snd .snd
 
+  -- TODO: make this a named module for a better API
   module _ (Ax : Axioms ℓj) where
     data _≈_ : ∀ {A B} → FQ [ A , B ] → FQ [ A , B ] →
                Type (ℓ-max (ℓ-max ℓg ℓg') ℓj) where

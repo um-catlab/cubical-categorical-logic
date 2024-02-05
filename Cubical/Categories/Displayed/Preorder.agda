@@ -13,7 +13,7 @@ open import Cubical.Categories.Displayed.Base.More
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' : Level
 
 record Preorderᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' :
   Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
@@ -25,6 +25,8 @@ record Preorderᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' :
     _⋆ᴰ_ : ∀ {x y z} {f : Hom[ x , y ]} {g : Hom[ y , z ]} {xᴰ yᴰ zᴰ}
       → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f ⋆ g ][ xᴰ , zᴰ ]
     isPropHomᴰ : ∀ {x y} {f : Hom[ x , y ]} {xᴰ yᴰ} → isProp Hom[ f ][ xᴰ , yᴰ ]
+
+
 
 module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
   open Category
@@ -55,3 +57,12 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
     field
       F-ob : ∀ c → Pᴰ.ob[ c ]
       F-hom : ∀ {c c'} (f : C [ c , c' ]) → Pᴰ.Hom[ f ][ F-ob c , F-ob c' ]
+
+  module _ {D : Category ℓD ℓD'} (F : Functor D C) where
+    reindex : Preorderᴰ D ℓCᴰ ℓCᴰ'
+    reindex .ob[_] A = Pᴰ .ob[_] (F ⟅ A ⟆)
+    reindex .Hom[_][_,_] f P Q = Pᴰ .Hom[_][_,_] (F ⟪ f ⟫) P Q
+    reindex .idᴰ {A} {p} = transport (λ i → Pᴰ .Hom[_][_,_] (F .F-id (~ i)) p p) (Pᴰ .idᴰ)
+    reindex ._⋆ᴰ_ {f = f}{g = g}{xᴰ = xᴰ}{zᴰ = zᴰ} fᴰ gᴰ =
+      transport (λ i → Pᴰ .Hom[_][_,_] (F .F-seq f g (~ i)) xᴰ zᴰ) (Pᴰ ._⋆ᴰ_ fᴰ gᴰ)
+    reindex .isPropHomᴰ = Pᴰ .isPropHomᴰ

@@ -63,14 +63,15 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
   Y : Section (weaken Free𝓓 𝓟F𝓓)
   Y = Iso.inv (SectionToWkIsoFunctor _ _) (PseudoYoneda {C = Free𝓓})
 
-  selfFree𝓒 : Section (weaken Free𝓒 Free𝓒)
-  selfFree𝓒 = Iso.inv (SectionToWkIsoFunctor _ _) IdF
+  selfFree𝓒 : Section (weaken Free𝓒 𝓟F𝓓)
+  selfFree𝓒 = FreeCat.elim (CatQuiver 𝓒) ı where
+    ı : Interpᴰ (𝓒 .ob , CatQuiver 𝓒 .snd) _
+    ı .I-ob = (PseudoYoneda {C = Free𝓓} ∘F Self.FreeFunctor) .F-ob
+    ı .I-hom e =
+      (PseudoYoneda {C = Free𝓓} ∘F Self.FreeFunctor) .F-hom (η𝓒 .I-hom e)
 
   Normalize : Section (weaken Free𝓓 𝓟F𝓓)
-  Normalize = Self.elim
-    selfFree𝓒
-    (weakenF ((PseudoYoneda {C = Free𝓓}) ∘F Self.FreeFunctor))
-    ı where
+  Normalize = Self.elim selfFree𝓒 (weakenF IdF) ı where
     ı : HInterpᴰ selfFree𝓒 _
     ı .I-obH A = Y .F-ob (inr A)
     ı .I-homH (inl A , inl B , e) = Y .F-hom (η𝓓 .I-hom (inr (_ , _ , e)))
@@ -106,12 +107,57 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
         → (sem .F-hom e ≡ sem .F-hom e')
   solve e e' p =
     cong (sem .F-hom)
-    -- suffices to show e ≡ e'    
+    -- suffices to show e ≡ e'
     (isFaithfulPseudoYoneda {C = Free𝓓} _ _ e e'
-    -- suffices to show Y e ≡ Y e'    
+    -- suffices to show Y e ≡ Y e'
     (transport (λ i → Path _
                            (Normalize≡Y i .F-hom e)
                            ((Normalize≡Y i .F-hom e')))
                p))
+
+  readBack : ∀ {A B} → 𝓟F𝓓 [ Normalize .F-ob A , Normalize .F-ob B ]
+                     → Free𝓓 [ A , B ]
+  readBack {inl x} {inl x₁} f = f _ (Free𝓓 .id)
+  readBack {inl x} {inr x₁} f = f _ (Free𝓓 .id)
+  readBack {inr x} {inl x₁} f = f _ (Free𝓓 .id)
+  readBack {inr x} {inr x₁} f = f _ (Free𝓓 .id)
+
+  -- TODO: prove this
+  -- normalise : ∀ {A B } → ∀ (e : Free𝓓 [ A , B ]) → singl e
+  -- normalise e = readBack (Normalize .F-hom e) ,
+  --   {!!} ∙ cong readBack (λ i → {!Normalize≡Y (~ i) .F-hom e!})
+
+  -- nf : ∀ {A B} → (e : Free𝓓 [ A , B ])
+  --    → sem .F-hom e ≡ sem .F-hom (normalise e .fst)
+  -- nf e = cong (sem .F-hom) (normalise e .snd)
+
+  private
+    module _ (A A' A'' : 𝓒 .ob) (B B' B'' : 𝓓 .ob)
+             (f : 𝓓 [ B , B' ])
+             (g : 𝓓 [ 𝓕 ⟅ A ⟆ , B ])
+
+
+             (h : 𝓒 [ A' , A ])
+             (k : 𝓒 [ A'' , A' ])
+             where
+      fgen = (ηHCat .I-hom (inr ((inr B) , inr B' , f)))
+      ggen = (ηHCat .I-hom (inr ((inl A) , inr B , g)))
+      hgen = η𝓒 .I-hom (A' , A , h)
+      kgen = η𝓒 .I-hom (A'' , A' , k)
+
+      tst' : 𝓓 .id ≡ 𝓓 .id ⋆⟨ 𝓓 ⟩ 𝓓 .id
+      tst' = solve (Free𝓓 .id) (Free𝓓 .id {x = inr B} ⋆⟨ Free𝓓 ⟩ Free𝓓 .id) refl
+
+      tst2 : g ≡ ((𝓓 .id ⋆⟨ 𝓓 ⟩ g) ⋆⟨ 𝓓 ⟩ 𝓓 .id)
+      tst2 = solve ggen ((Free𝓓 .id ⋆⟨ Free𝓓 ⟩ ggen) ⋆⟨ Free𝓓 ⟩ Free𝓓 .id) refl
+
+      tst : 𝓕 ⟪ 𝓒 .id ⟫ ≡ 𝓓 .id
+      tst = solve (Self.FreeFunctor ⟪ Free𝓒 .id {A} ⟫) (Free𝓓 .id) refl
+
+      tst'' : 𝓕 ⟪ k ⟫ ⋆⟨ 𝓓 ⟩ 𝓕 ⟪ h ⟫ ≡ 𝓕 ⟪ k ⋆⟨ 𝓒 ⟩ h ⟫
+      tst'' = solve
+        (Self.FreeFunctor ⟪ kgen ⟫ ⋆⟨ Free𝓓 ⟩ Self.FreeFunctor ⟪ hgen ⟫)
+        (Self.FreeFunctor ⟪ kgen ⋆⟨ Free𝓒 ⟩ hgen ⟫)
+        refl
 
 solve = Eval.solve

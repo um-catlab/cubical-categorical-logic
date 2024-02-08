@@ -52,7 +52,7 @@ module _ (Q : Quiver ℓg ℓg') where
 
   Interp : (𝓒 : Category ℓc ℓc') → Type (ℓ-max (ℓ-max (ℓ-max ℓg ℓg') ℓc) ℓc')
   Interp 𝓒 = HetQG Q (Cat→Graph 𝓒)
-  
+
   η : Interp FreeCat
   η HetQG.$g x = x
   η HetQG.<$g> e = ↑ e

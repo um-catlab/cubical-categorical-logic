@@ -62,7 +62,10 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
     reindex : Preorderᴰ D ℓCᴰ ℓCᴰ'
     reindex .ob[_] A = Pᴰ .ob[_] (F ⟅ A ⟆)
     reindex .Hom[_][_,_] f P Q = Pᴰ .Hom[_][_,_] (F ⟪ f ⟫) P Q
-    reindex .idᴰ {A} {p} = transport (λ i → Pᴰ .Hom[_][_,_] (F .F-id (~ i)) p p) (Pᴰ .idᴰ)
+    reindex .idᴰ {A} {p} =
+      transport (λ i → Pᴰ .Hom[_][_,_] (F .F-id (~ i)) p p) (Pᴰ .idᴰ)
     reindex ._⋆ᴰ_ {f = f}{g = g}{xᴰ = xᴰ}{zᴰ = zᴰ} fᴰ gᴰ =
-      transport (λ i → Pᴰ .Hom[_][_,_] (F .F-seq f g (~ i)) xᴰ zᴰ) (Pᴰ ._⋆ᴰ_ fᴰ gᴰ)
+      transport
+        (λ i → Pᴰ .Hom[_][_,_] (F .F-seq f g (~ i)) xᴰ zᴰ)
+        (Pᴰ ._⋆ᴰ_ fᴰ gᴰ)
     reindex .isPropHomᴰ = Pᴰ .isPropHomᴰ

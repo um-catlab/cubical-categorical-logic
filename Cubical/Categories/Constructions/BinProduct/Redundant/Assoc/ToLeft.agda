@@ -15,7 +15,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Constructions.BinProduct.Redundant.Base as BP
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec)
-open import Cubical.Categories.Constructions.Presented as Presented hiding (rec)
+open import Cubical.Categories.Constructions.Presented as Presented
 open import Cubical.Categories.Bifunctor.Redundant as Bif
 
 private
@@ -25,7 +25,6 @@ private
 open Category
 open Functor
 open NatTrans
-open Interpᴰ
 open Axioms
 open Bifunctor
 open BifunctorParAx

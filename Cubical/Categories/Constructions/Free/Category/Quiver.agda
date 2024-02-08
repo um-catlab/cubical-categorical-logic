@@ -10,13 +10,15 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Quiver.Base as Quiver
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 
-open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Section as Cat
 open import Cubical.Categories.Displayed.Preorder as Preorder hiding (Section)
 
 private
@@ -25,22 +27,7 @@ private
 
 open Category
 open Functor
-
-record QuiverOver (ob : Type ℓg) ℓg' : Type (ℓ-suc (ℓ-max ℓg ℓg')) where
-  field
-    mor : Type ℓg'
-    dom : mor → ob
-    cod : mor → ob
-
 open QuiverOver
-Quiver : ∀ ℓg ℓg' → Type _
-Quiver ℓg ℓg' = Σ[ ob ∈ Type ℓg ] QuiverOver ob ℓg'
-
-CatQuiver : Category ℓc ℓc' → Quiver ℓc (ℓ-max ℓc ℓc')
-CatQuiver 𝓒 .fst = 𝓒 .ob
-CatQuiver 𝓒 .snd .mor = Σ[ A ∈ 𝓒 .ob ] Σ[ B ∈ 𝓒 .ob ] (𝓒 [ A , B ])
-CatQuiver 𝓒 .snd .dom x = x .fst
-CatQuiver 𝓒 .snd .cod x = x .snd .fst
 
 module _ (Q : Quiver ℓg ℓg') where
   data Exp : Q .fst → Q .fst → Type (ℓ-max ℓg ℓg') where
@@ -63,32 +50,32 @@ module _ (Q : Quiver ℓg ℓg') where
   FreeCat .⋆Assoc = ⋆ₑAssoc
   FreeCat .isSetHom = isSetExp
 
-  -- A displayed interpretation
-  open Categoryᴰ
-  -- | TODO: this doesn't really require a Categoryᴰ, more like a Quiverᴰ
-  record Interpᴰ (𝓓 : Categoryᴰ FreeCat ℓd ℓd')
-    : Type ((ℓ-max (ℓ-max ℓg ℓg') (ℓ-max ℓd ℓd'))) where
-    field
-      I-ob : (c : Q .fst) → ob[_] 𝓓 c
-      I-hom : ∀ e → 𝓓 [ ↑ e ][ I-ob (Q .snd .dom e) , I-ob (Q .snd .cod e) ]
-  open Interpᴰ
+  Interp : (𝓒 : Category ℓc ℓc') → Type (ℓ-max (ℓ-max (ℓ-max ℓg ℓg') ℓc) ℓc')
+  Interp 𝓒 = HetQG Q (Cat→Graph 𝓒)
+  
+  η : Interp FreeCat
+  η HetQG.$g x = x
+  η HetQG.<$g> e = ↑ e
+
+  module _ (𝓓 : Categoryᴰ FreeCat ℓd ℓd') where
+    Interpᴰ : Type _
+    Interpᴰ = Quiver.Section (Quiver.reindex η (Categoryᴰ→Graphᴰ 𝓓))
 
   module _ {𝓓 : Categoryᴰ FreeCat ℓd ℓd'} (ı : Interpᴰ 𝓓) where
-    open Section
-
     private
+      module ı = Quiver.Section ı
       module 𝓓 = Categoryᴰ 𝓓
 
     elimF : ∀ {c c'} (f : FreeCat [ c , c' ])
-          → 𝓓 [ f ][ ı .I-ob c , ı .I-ob c' ]
-    elimF (↑ e) = ı .I-hom e
-    elimF idₑ = 𝓓 .idᴰ
+          → 𝓓 [ f ][ ı.F-ob c , ı.F-ob c' ]
+    elimF (↑ e) = ı.F-hom e
+    elimF idₑ = 𝓓.idᴰ
     elimF (f ⋆ₑ g) = elimF f 𝓓.⋆ᴰ elimF g
-    elimF (⋆ₑIdL f i) = 𝓓 .⋆IdLᴰ (elimF f) i
-    elimF (⋆ₑIdR f i) = 𝓓 .⋆IdRᴰ (elimF f) i
-    elimF (⋆ₑAssoc f f₁ f₂ i) = 𝓓 .⋆Assocᴰ (elimF f) (elimF f₁) (elimF f₂) i
+    elimF (⋆ₑIdL f i) = 𝓓.⋆IdLᴰ (elimF f) i
+    elimF (⋆ₑIdR f i) = 𝓓.⋆IdRᴰ (elimF f) i
+    elimF (⋆ₑAssoc f f₁ f₂ i) = 𝓓.⋆Assocᴰ (elimF f) (elimF f₁) (elimF f₂) i
     elimF (isSetExp f g p q i j) =
-      isOfHLevel→isOfHLevelDep 2 (λ x → 𝓓 .isSetHomᴰ)
+      isOfHLevel→isOfHLevelDep 2 (λ x → 𝓓.isSetHomᴰ)
       (elimF f)
       (elimF g)
       (cong elimF p)
@@ -97,13 +84,14 @@ module _ (Q : Quiver ℓg ℓg') where
       i
       j
 
-    elim : Section 𝓓
-    elim .F-ob = ı .I-ob
+    open Cat.Section
+    elim : Cat.Section 𝓓
+    elim .F-ob = ı.F-ob
     elim .F-hom = elimF
     elim .F-id = refl
     elim .F-seq f g = refl
 
-  module _ {ℓc ℓc'} {𝓒 : Categoryᴰ FreeCat ℓc ℓc'} (F G : Section 𝓒)
+  module _ {ℓc ℓc'} {𝓒 : Categoryᴰ FreeCat ℓc ℓc'} (F G : Cat.Section 𝓒)
     (agree-on-gen : Interpᴰ (Preorderᴰ→Catᴰ (SecPath _ F G))) where
     FreeCatSection≡ : F ≡ G
     FreeCatSection≡ =
@@ -111,16 +99,15 @@ module _ (Q : Quiver ℓg ℓg') where
         _
         (Iso.inv (PreorderSectionIsoCatSection _ _) (elim agree-on-gen))
 
-  -- Trivially displayed version of Interpᴰ
-  Interp : (𝓒 : Category ℓc ℓc') → Type (ℓ-max (ℓ-max (ℓ-max ℓg ℓg') ℓc) ℓc')
-  Interp 𝓒 = Interpᴰ (weaken FreeCat 𝓒)
+  module _ {𝓒 : Category ℓc ℓc'} (ı : Interp 𝓒) where
+    private
+      open HetQG
+      ıᴰ : Interpᴰ (weaken FreeCat 𝓒)
+      ıᴰ .Section.F-ob q  = ı $g q
+      ıᴰ .Section.F-hom e = ı <$g> e
 
-  η : Interp FreeCat
-  η .I-ob = λ c → c
-  η .I-hom = ↑_
-
-  rec : {𝓒 : Category ℓc ℓc'} → Interp 𝓒 → Functor FreeCat 𝓒
-  rec ı = Iso.fun (SectionToWkIsoFunctor _ _) (elim ı)
+    rec : Functor FreeCat 𝓒
+    rec = Iso.fun (SectionToWkIsoFunctor _ _) (elim ıᴰ)
 
   module _ {ℓc ℓc'} {𝓒 : Category ℓc ℓc'} (F G : Functor FreeCat 𝓒)
            (agree-on-gen :
@@ -133,4 +120,3 @@ module _ (Q : Quiver ℓg ℓg') where
     FreeCatFunctor≡ =
       isoInvInjective (SectionToWkIsoFunctor _ _) F G
                       (FreeCatSection≡ _ _ agree-on-gen)
-

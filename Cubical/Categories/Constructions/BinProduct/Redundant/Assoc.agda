@@ -19,7 +19,7 @@ import Cubical.Categories.Constructions.BinProduct.Redundant.Assoc.ToLeft
 open import Cubical.Categories.Constructions.BinProduct.Redundant.Base as BP
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec)
-open import Cubical.Categories.Constructions.Presented as Presented hiding (rec)
+open import Cubical.Categories.Constructions.Presented as Presented
 open import Cubical.Categories.Bifunctor.Redundant
 
 private

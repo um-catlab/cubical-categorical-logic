@@ -132,7 +132,8 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
 module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} where
   open Functorᴰ
 
-  weakenF : {D : Category ℓD ℓD'} {E : Category ℓE ℓE'} {F : Functor B C} → (G : Functor D E)
+  weakenF : {D : Category ℓD ℓD'} {E : Category ℓE ℓE'} {F : Functor B C}
+          → (G : Functor D E)
           → Functorᴰ F (weaken B D) (weaken C E)
   weakenF G .F-obᴰ = G .F-ob
   weakenF G .F-homᴰ = G .F-hom

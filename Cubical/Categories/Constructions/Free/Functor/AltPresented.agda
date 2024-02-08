@@ -98,7 +98,10 @@ module _ (𝓒 : Category ℓc ℓc') where
       private
         ıOb' : ∀ (A : HOb) → 𝓓ᴰ .ob[_] A
         ıOb' = Sum.elim (λ A → 𝓕 .F-obᴰ (s .F-ob A)) ıOb
-      module _ (ıHom : ∀ e → 𝓓ᴰ [ moduloAx .F-hom (ηPre <$g> inr e) ][ ıOb' (H .snd .dom e) , ıOb' (H .snd .cod e) ]) where
+      module _ (ıHom : ∀ e
+             → 𝓓ᴰ [ moduloAx .F-hom (ηPre <$g> inr e) ][
+                    ıOb' (H .snd .dom e)
+                  , ıOb' (H .snd .cod e) ]) where
         elim : Cat.Section 𝓓ᴰ
         elim = PresentH.elim 𝓓ᴰ (FreeCat.elim HQ ıHgen) satisfies-axioms where
           ıHgen : Interpᴰ HQ _

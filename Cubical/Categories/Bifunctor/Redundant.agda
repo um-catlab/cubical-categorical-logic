@@ -467,6 +467,18 @@ BifunctorToParFunctor F .F-hom (f , g) = F .Bif-hom× f g
 BifunctorToParFunctor F .F-id = F .Bif-×-id
 BifunctorToParFunctor F .F-seq f g = F .Bif-×-seq _ _ _ _
 
+CurriedToBifunctor : Functor C (FUNCTOR D E) → Bifunctor C D E
+CurriedToBifunctor F = mkBifunctorSep G where
+  G : BifunctorSep _ _ _
+  G .Bif-ob c d = F ⟅ c ⟆ ⟅ d ⟆
+  G .Bif-homL f d = F ⟪ f ⟫ ⟦ d ⟧
+  G .Bif-homR c g = F ⟅ c ⟆ ⟪ g ⟫
+  G .Bif-L-id {d = d} = (cong (_⟦ d ⟧) (F .F-id))
+  G .Bif-L-seq f f' = (cong (_⟦ _ ⟧) (F .F-seq f f'))
+  G .Bif-R-id = (F ⟅ _ ⟆) .F-id
+  G .Bif-R-seq g g' = (F ⟅ _ ⟆) .F-seq g g'
+  G .SepBif-RL-commute f g = (F ⟪ f ⟫) .N-hom g
+
 open Separate.Bifunctor
 ForgetPar : Bifunctor C D E → Separate.Bifunctor C D E
 ForgetPar F .Bif-ob = F .Bif-ob

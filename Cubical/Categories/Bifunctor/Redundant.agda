@@ -438,8 +438,8 @@ compF {E = E}{E' = E'}{C = C}{D = D} F  G = mkBifunctorParAx B where
   B .Bif-L×-agree f = cong (F ⟪_⟫) (G .Bif-L×-agree f)
   B .Bif-R×-agree g = cong (F ⟪_⟫) (G .Bif-R×-agree g)
 
-infixr 30 compL
-infixr 30 compR
+infixl 30 compL
+infixl 30 compR
 infixr 30 compF
 
 syntax compL F G = F ∘Fl G

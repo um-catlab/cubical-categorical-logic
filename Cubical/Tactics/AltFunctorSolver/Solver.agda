@@ -19,6 +19,7 @@ open import Cubical.Categories.UnderlyingGraph
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section as DisplayedCategory
 open import Cubical.Categories.Displayed.Preorder hiding (Section; reindex)
 open import Cubical.Categories.Displayed.Properties
@@ -102,7 +103,7 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
       ı .Quiver.Section.F-hom e = refl
 
     N≡Y : Section N≡Yᴰ
-    N≡Y = Self.elim agree-on-Free𝓒 (reindexΠ _ _) (λ A → refl) ıHom where
+    N≡Y = Self.elim agree-on-Free𝓒 (forgetReindex _ _) (λ A → refl) ıHom where
       ıHom : ∀ (e : DGen) → _
       ıHom (inl x , inl x₁ , e) = refl
       ıHom (inl x , inr x₁ , e) = refl

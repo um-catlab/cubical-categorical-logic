@@ -105,19 +105,9 @@ module _ (C : Category ℓC ℓC') (P : Preorderᴰ C ℓD ℓD') where
 
 -- | TODO: this should go somewhere else
 module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
-  weaken : Categoryᴰ C ℓD ℓD'
-  weaken .ob[_] x = D .ob
-  weaken .Hom[_][_,_] f d d' = D [ d , d' ]
-  weaken .idᴰ = D .id
-  weaken ._⋆ᴰ_ = D ._⋆_
-  weaken .⋆IdLᴰ = D .⋆IdL
-  weaken .⋆IdRᴰ = D .⋆IdR
-  weaken .⋆Assocᴰ = D .⋆Assoc
-  weaken .isSetHomᴰ = D .isSetHom
-
   open Iso
   -- | TODO: better name
-  SectionToWkIsoFunctor : Iso (Section weaken) (Functor C D)
+  SectionToWkIsoFunctor : Iso (Section (weaken C D)) (Functor C D)
   SectionToWkIsoFunctor .fun F .F-ob = F .F-ob
   SectionToWkIsoFunctor .fun F .F-hom = F .F-hom
   SectionToWkIsoFunctor .fun F .F-id = F .F-id
@@ -128,14 +118,3 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   SectionToWkIsoFunctor .inv F .F-seq = F .F-seq
   SectionToWkIsoFunctor .rightInv b = Functor≡ (λ _ → refl) (λ _ → refl)
   SectionToWkIsoFunctor .leftInv a = refl
-
-module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} where
-  open Functorᴰ
-
-  weakenF : {D : Category ℓD ℓD'} {E : Category ℓE ℓE'} {F : Functor B C}
-          → (G : Functor D E)
-          → Functorᴰ F (weaken B D) (weaken C E)
-  weakenF G .F-obᴰ = G .F-ob
-  weakenF G .F-homᴰ = G .F-hom
-  weakenF G .F-idᴰ = G .F-id
-  weakenF G .F-seqᴰ = G .F-seq

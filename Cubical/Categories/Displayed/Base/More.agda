@@ -16,6 +16,20 @@ private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
+open Categoryᴰ
+
+module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
+  open Category
+  weaken : Categoryᴰ C ℓD ℓD'
+  weaken .ob[_] x = D .ob
+  weaken .Hom[_][_,_] f d d' = D [ d , d' ]
+  weaken .idᴰ = D .id
+  weaken ._⋆ᴰ_ = D ._⋆_
+  weaken .⋆IdLᴰ = D .⋆IdL
+  weaken .⋆IdRᴰ = D .⋆IdR
+  weaken .⋆Assocᴰ = D .⋆Assoc
+  weaken .isSetHomᴰ = D .isSetHom
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   open Functor
 
@@ -30,16 +44,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category
   private
     module Cᴰ = Categoryᴰ Cᴰ
-
-  base-path-irr : ∀ {x y xᴰ yᴰ} {f g : C [ x , y ]}
-                → {fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ]}
-                → {p : f ≡ g}
-                → {gᴰ : Cᴰ.Hom[ g ][ xᴰ , yᴰ ]}
-                → {q : f ≡ g}
-                → fᴰ Cᴰ.≡[ p ] gᴰ
-                → fᴰ Cᴰ.≡[ q ] gᴰ
-  base-path-irr {fᴰ = fᴰ}{p}{gᴰ}{q} = transport λ i →
-    fᴰ Cᴰ.≡[ C .isSetHom _ _ p q i ] gᴰ
 
   open Categoryᴰ
   _^opᴰ : Categoryᴰ (C ^op) ℓCᴰ ℓCᴰ'
@@ -76,9 +80,8 @@ module _
   open Functor F
   open Functorᴰ
 
-  -- TODO: better name?
-  reindexΠ : Functorᴰ F (reindex Dᴰ F) Dᴰ
-  reindexΠ .F-obᴰ = λ z → z
-  reindexΠ .F-homᴰ = λ z → z
-  reindexΠ .F-idᴰ = symP (transport-filler _ _)
-  reindexΠ .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)
+  forgetReindex : Functorᴰ F (reindex Dᴰ F) Dᴰ
+  forgetReindex .F-obᴰ = λ z → z
+  forgetReindex .F-homᴰ = λ z → z
+  forgetReindex .F-idᴰ = symP (transport-filler _ _)
+  forgetReindex .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)

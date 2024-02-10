@@ -4,6 +4,7 @@ module Cubical.Categories.Displayed.Base.More where
 
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
@@ -32,6 +33,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   open Functor
+  open Functorᴰ
 
   Fst :  Functor (∫C Cᴰ) C
   Fst .F-ob = fst
@@ -42,10 +44,13 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
   module _ {D : Category ℓD ℓD'}
            (F : Functor D C)
-           (Fᴰ : Functorᴰ F {!weaken D D!} Cᴰ)
+           (Fᴰ : Functorᴰ F (weaken D D) Cᴰ)
            where
     mk∫Functor : Functor D (∫C Cᴰ)
-    mk∫Functor = {!!}
+    mk∫Functor .F-ob d = F ⟅ d ⟆ , Fᴰ .F-obᴰ d
+    mk∫Functor .F-hom f = (F ⟪ f ⟫) , (Fᴰ .F-homᴰ f)
+    mk∫Functor .F-id = ΣPathP (F .F-id , Fᴰ .F-idᴰ)
+    mk∫Functor .F-seq f g = ΣPathP (F .F-seq f g , Fᴰ .F-seqᴰ f g)
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category

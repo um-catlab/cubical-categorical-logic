@@ -40,6 +40,13 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   Fst .F-seq =
     λ f g → cong {x = f ⋆⟨ ∫C Cᴰ ⟩ g} fst refl
 
+  module _ {D : Category ℓD ℓD'}
+           (F : Functor D C)
+           (Fᴰ : Functorᴰ F {!weaken D D!} Cᴰ)
+           where
+    mk∫Functor : Functor D (∫C Cᴰ)
+    mk∫Functor = {!!}
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category
   private

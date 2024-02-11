@@ -9,6 +9,7 @@ module Cubical.Categories.Displayed.Constructions.Comma where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -17,6 +18,7 @@ open import Cubical.Categories.Constructions.FullSubcategory
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More as Displayed
@@ -37,38 +39,58 @@ open NatTrans
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
          (F : Functor C E) (G : Functor D E) where
 
-  Commaᴰ : Preorderᴰ (C ×C D) ℓE' ℓE'
+  Commaᴰ : Categoryᴰ (C ×C D) ℓE' ℓE'
   Commaᴰ = Graph {C = C} (HomBif E ∘Fl (F ^opF) ∘Fr G)
+
+  hasPropHomsCommaᴰ : hasPropHoms Commaᴰ
+  hasPropHomsCommaᴰ = hasPropHomsGraph _
 
   -- Universal Property: a functor into the comma category is
   -- equivalent to a natural transformation
   Comma : Category _ _
-  Comma = ∫C (Preorderᴰ→Catᴰ Commaᴰ)
+  Comma = ∫C Commaᴰ
 
   π1 : Functor Comma C
-  π1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = Preorderᴰ→Catᴰ Commaᴰ}
+  π1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = Commaᴰ}
 
   π2 : Functor Comma D
-  π2 = BinProduct.Snd C D ∘F Displayed.Fst {Cᴰ = Preorderᴰ→Catᴰ Commaᴰ}
+  π2 = BinProduct.Snd C D ∘F Displayed.Fst {Cᴰ = Commaᴰ}
 
   π⇒ : NatTrans (F ∘F π1) (G ∘F π2)
   π⇒ .N-ob  = snd
   π⇒ .N-hom = snd
 
-  IsoCommaᴰ' : Preorderᴰ Comma ℓE' ℓ-zero
-  IsoCommaᴰ' .ob[_] ((c , d) , f)= isIso E f
-  IsoCommaᴰ' .Hom[_][_,_] _ _ _ = Unit
-  IsoCommaᴰ' .idᴰ = tt
-  IsoCommaᴰ' ._⋆ᴰ_ _ _ = tt
-  IsoCommaᴰ' .isPropHomᴰ = isPropUnit
+  Commaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
+  Commaᴰ₁ = ∫Cᴰs Commaᴰ
 
   IsoCommaᴰ : Categoryᴰ (C ×C D) (ℓ-max ℓE' ℓE') ℓE'
-  IsoCommaᴰ =
-    ∫Cᴰ (Preorderᴰ→Catᴰ Commaᴰ)
-        (Preorderᴰ→Catᴰ IsoCommaᴰ')
+  IsoCommaᴰ = ∫Cᴰ Commaᴰ (Preorderᴰ→Catᴰ IsoCommaᴰ') where
+    IsoCommaᴰ' : Preorderᴰ Comma ℓE' ℓ-zero
+    IsoCommaᴰ' .ob[_] ((c , d) , f)= isIso E f
+    IsoCommaᴰ' .Hom[_][_,_] _ _ _ = Unit
+    IsoCommaᴰ' .idᴰ = tt
+    IsoCommaᴰ' ._⋆ᴰ_ _ _ = tt
+    IsoCommaᴰ' .isPropHomᴰ = isPropUnit
 
   IsoComma : Category _ _
   IsoComma = ∫C IsoCommaᴰ
+
+  IsoCommaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
+  IsoCommaᴰ₁ = ∫Cᴰs IsoCommaᴰ
+
+  -- Characterization of HLevel of Commaᴰ₁ homs
+  hasPropHomsIsoCommaᴰ₁ : isFaithful G → hasPropHoms IsoCommaᴰ₁
+  hasPropHomsIsoCommaᴰ₁ G-faithful f (d , iso) (d' , iso') =
+    isPropRetract {!!} {!!} {!!}
+      (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
+      {!!})
+
+  hasContrHomsIsoCommaᴰ₁ : isFullyFaithful G → hasContrHoms IsoCommaᴰ₁
+  hasContrHomsIsoCommaᴰ₁ Gff f (d , e) (d' , e') =
+    inhProp→isContr
+      {!!}
+      (hasPropHomsIsoCommaᴰ₁ (isFullyFaithful→Faithful Gff) f (d , e) (d' , e'))
+
 
   πⁱ1 : Functor IsoComma C
   πⁱ1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = IsoCommaᴰ}
@@ -96,6 +118,30 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
       (λ {b} _ → α ⟦ b ⟧ )
       λ {_}{_}{f} _ → α .N-hom f
 
+  mkCommaFunctorβ₁ : (π1 _ _ ∘F mkCommaFunctor) ≡ H
+  mkCommaFunctorβ₁ = Functor≡ (λ _ → refl) (λ _ → refl)
+
+  mkCommaFunctorβ₂ : (π2 _ _ ∘F mkCommaFunctor) ≡ K
+  mkCommaFunctorβ₂ = Functor≡ (λ _ → refl) (λ _ → refl)
+
+  private
+    β⇒-boundary₁ : (F ∘F π1 F G) ∘F mkCommaFunctor ≡ F ∘F H
+    β⇒-boundary₁ =
+      sym F-assoc
+      ∙ cong (F ∘F_) mkCommaFunctorβ₁
+    β⇒-boundary₂ : (G ∘F π2 F G) ∘F mkCommaFunctor ≡ G ∘F K
+    β⇒-boundary₂ =
+      sym F-assoc
+      ∙ cong (G ∘F_) mkCommaFunctorβ₂
+
+  -- Morally this hole is refl but it's a PathP so...
+  -- mkCommaFunctorβ⇒ :
+  --   PathP (λ i → NatTrans (β⇒-boundary₁ i) (β⇒-boundary₂ i))
+  --         (π⇒ F G ∘ˡ mkCommaFunctor)
+  --         α
+  -- mkCommaFunctorβ⇒ = makeNatTransPathP _ _
+  --   (funExt (λ x → {!λ i → α ⟦ x ⟧!}))
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
          {F : Functor C E} {G : Functor D E}
          {B : Category ℓB ℓB'}
@@ -114,9 +160,3 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
       (mkP→CᴰFunctorᴰ _ _ _
        (λ x → α .nIso _)
        λ x → _))
-
-  -- | TODO: show that if G is faithful then IsoComma over C hasPropHoms and if fully faithful, hasContrHoms.
-  -- | as in this case a lift of a morphism f : c -> c' from i : F c ≅ G d to i' : F c' ≅ G d'
-  -- | is a morphism g : d -> d' st i o F f = G g o i',
-  -- | equivalently st i o F f o i'^-1 = G g
-  -- | which if G is faithful is a fiber of a

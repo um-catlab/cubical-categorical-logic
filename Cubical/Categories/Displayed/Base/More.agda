@@ -85,6 +85,7 @@ module _
   private
     module Cᴰ = Categoryᴰ Cᴰ
 
+  -- s for "simple" because D is not dependent on C
   ∫Cᴰs : Categoryᴰ C (ℓ-max ℓD ℓCᴰ) (ℓ-max ℓD' ℓCᴰ')
   ∫Cᴰs .ob[_] c = Σ[ d ∈ D .ob ] Cᴰ.ob[ c , d ]
   ∫Cᴰs .Hom[_][_,_] f (d , cᴰ) (d' , cᴰ') =
@@ -172,7 +173,6 @@ module _
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
 
-    -- F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F-ob x ]
   mkFunctorᴰPropHoms : (propHoms : hasPropHoms Dᴰ)
                       → (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
                       → (F-homᴰ : {x y : C .ob} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}

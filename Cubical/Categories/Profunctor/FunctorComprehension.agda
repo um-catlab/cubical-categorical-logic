@@ -55,6 +55,7 @@ module _ (ℓS : Level) {ℓE ℓE' : Level} {E : Category ℓE ℓE'} where
 module _ (D : Category ℓD ℓD') (ℓS : Level) where
   𝓟 = PresheafCategory D ℓS
 
+  -- | TODO: reformulate FullSubcategory as a Categoryᴰ
   𝓟u : Category _ _
   𝓟u = FullSubcategory 𝓟 (UniversalElement D)
 
@@ -82,11 +83,12 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
         ((Pr .snd .trans ⋆⟨ PresheafCategory D _ ⟩ LiftPsh _ _ ⟪ α ⟫) ⋆⟨ PresheafCategory D _ ⟩
         symNatIso (Qr .snd) .trans)
 
-      -- TODO: slide an iso around a square
+      -- TODO: move these proofs to
+      -- Cubical.Categories.Displayed.Constructions.Comma for
+      -- IsoCommaᴰ₁
       RM→RM' : RepresentationMorphism → RepresentationMorphism'
       RM→RM' (f , sq) = f , {!!}
 
-      -- TODO: slide an iso around a square
       RM'→RM : RepresentationMorphism' → RepresentationMorphism
       RM'→RM (f , sq) = f , {!!}
 
@@ -99,12 +101,12 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
         (isFullyFaithfulYO* _ _ _ .equiv-proof _)
 
   open Preorderᴰ
+  -- | TODO: don't do this manually, instead define 𝓟rᴰ as an IsoCommaᴰ₁
+  -- | in Cubical.Categories.Displayed.Constructions.Comma
   𝓟rᴰ : Preorderᴰ 𝓟 _ _
   𝓟rᴰ .ob[_] P = Representation D P
   𝓟rᴰ .Hom[_][_,_] {x = P}{y = Q} = RepresentationMorphism
-  -- EZ
   𝓟rᴰ .idᴰ {P}{Pr} = (D .id) , {!!}
-  -- Just pasting of commutative squares
   𝓟rᴰ ._⋆ᴰ_ (f , fsq) (g , gsq) = (f ⋆⟨ D ⟩ g) , {!!}
   -- it's actually contractible
   𝓟rᴰ .isPropHomᴰ {x}{y}{f}{xᴰ}{yᴰ} = isContr→isProp (isContrRM _ xᴰ yᴰ)
@@ -112,6 +114,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   𝓟r : Category _ _
   𝓟r = ∫C (Preorderᴰ→Catᴰ 𝓟rᴰ)
 
+  -- | TODO: reformulate this as a Functorᴰ over IdF {𝓟}
   coherence : Functor 𝓟u 𝓟r
   coherence .F-ob (P , η) .fst = P
   coherence .F-ob (P , η) .snd = universalElementToRepresentation D P η

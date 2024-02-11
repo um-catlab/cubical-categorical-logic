@@ -33,19 +33,26 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
          where
   open Bifunctor
 
-  Graph : Preorderᴰ (C ×C D) ℓS ℓS
-  Graph .ob[_] (c , d) = ⟨ R ⟅ c , d ⟆b ⟩
-  Graph .Hom[_][_,_] (f , g) r s = (R ⟪ f ⟫l) s ≡ (R ⟪ g ⟫r) r
-  Graph .idᴰ =
-    funExt⁻ (R .Bif-L-id) _
-    ∙ sym (funExt⁻ (R .Bif-R-id) _)
-  Graph ._⋆ᴰ_ {f = f , g}{g = f' , g'} r s =
-    funExt⁻ (R .Bif-L-seq _ _) _
-    ∙ cong (R ⟪ f ⟫l) s
-    ∙ funExt⁻ ((Bif-RL-commute R _ _)) _
-    ∙ cong (R ⟪ g' ⟫r) r
-    ∙ sym ( funExt⁻ (R .Bif-R-seq _ _) _)
-  Graph .isPropHomᴰ {x = c , d}{y = c' , d'} = str (R ⟅ c , d' ⟆b) _ _
+  private
+    Graph' : Preorderᴰ (C ×C D) ℓS ℓS
+    Graph' .ob[_] (c , d) = ⟨ R ⟅ c , d ⟆b ⟩
+    Graph' .Hom[_][_,_] (f , g) r s = (R ⟪ f ⟫l) s ≡ (R ⟪ g ⟫r) r
+    Graph' .idᴰ =
+      funExt⁻ (R .Bif-L-id) _
+      ∙ sym (funExt⁻ (R .Bif-R-id) _)
+    Graph' ._⋆ᴰ_ {f = f , g}{g = f' , g'} r s =
+      funExt⁻ (R .Bif-L-seq _ _) _
+      ∙ cong (R ⟪ f ⟫l) s
+      ∙ funExt⁻ ((Bif-RL-commute R _ _)) _
+      ∙ cong (R ⟪ g' ⟫r) r
+      ∙ sym ( funExt⁻ (R .Bif-R-seq _ _) _)
+    Graph' .isPropHomᴰ {x = c , d}{y = c' , d'} = str (R ⟅ c , d' ⟆b) _ _
+
+  Graph : Categoryᴰ (C ×C D) ℓS ℓS
+  Graph = Preorderᴰ→Catᴰ Graph'
+
+  hasPropHomsGraph : hasPropHoms Graph
+  hasPropHomsGraph = hasPropHomsPreorderᴰ Graph'
 
   -- TODO: show Graph is a two-sided discrete fibration
   -- https://ncatlab.org/nlab/show/profunctor#in_terms_of_twosided_discrete_fibrations

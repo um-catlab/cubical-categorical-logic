@@ -72,23 +72,33 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
     IsoCommaᴰ' ._⋆ᴰ_ _ _ = tt
     IsoCommaᴰ' .isPropHomᴰ = isPropUnit
 
+  -- | TODO: should follow by a general principle for ∫Cᴰ
+  hasPropHomsIsoCommaᴰ : hasPropHoms IsoCommaᴰ
+  hasPropHomsIsoCommaᴰ = {!!}
+
   IsoComma : Category _ _
   IsoComma = ∫C IsoCommaᴰ
 
   IsoCommaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
   IsoCommaᴰ₁ = ∫Cᴰs IsoCommaᴰ
 
+  open isIso
   -- Characterization of HLevel of Commaᴰ₁ homs
   hasPropHomsIsoCommaᴰ₁ : isFaithful G → hasPropHoms IsoCommaᴰ₁
   hasPropHomsIsoCommaᴰ₁ G-faithful f (d , iso) (d' , iso') =
-    isPropRetract {!!} {!!} {!!}
+    isPropRetract
+      -- | TODO: easy proof about sliding an iso around an
+      -- | equation. Probably already proven somewhere
+      (λ (g , sq , _) → g , {!!})
+      (λ (g , sq) → g , {!!})
+      (λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl)
       (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
-      {!!})
+      (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))
 
   hasContrHomsIsoCommaᴰ₁ : isFullyFaithful G → hasContrHoms IsoCommaᴰ₁
   hasContrHomsIsoCommaᴰ₁ Gff f (d , e) (d' , e') =
     inhProp→isContr
-      {!!}
+      ({!!} , {!!})
       (hasPropHomsIsoCommaᴰ₁ (isFullyFaithful→Faithful Gff) f (d , e) (d' , e'))
 
 

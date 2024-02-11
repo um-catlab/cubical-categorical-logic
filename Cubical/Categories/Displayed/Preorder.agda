@@ -9,11 +9,12 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Base.More
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
 record Preorderᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' :
   Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
@@ -26,7 +27,21 @@ record Preorderᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' :
       → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f ⋆ g ][ xᴰ , zᴰ ]
     isPropHomᴰ : ∀ {x y} {f : Hom[ x , y ]} {xᴰ yᴰ} → isProp Hom[ f ][ xᴰ , yᴰ ]
 
-
+module _
+       {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+       (F : Functor C D)
+       (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') (Qᴰ : Preorderᴰ D ℓDᴰ ℓDᴰ')
+       where
+  open Category
+  open Functor
+  private
+    module Pᴰ = Preorderᴰ Pᴰ
+    module Qᴰ = Preorderᴰ Qᴰ
+  record Monotoneᴰ : Type ((ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓDᴰ ℓDᴰ')))) where
+    field
+      F-obᴰ  : {x : C .ob} → Pᴰ.ob[ x ] → Qᴰ.ob[ F .F-ob x ]
+      F-homᴰ : {x y : C .ob} {f : C [ x , y ]} {xᴰ : Pᴰ.ob[ x ]} {yᴰ : Pᴰ.ob[ y ]}
+        → Pᴰ.Hom[ f ][ xᴰ , yᴰ ] → Qᴰ.Hom[ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]
 
 module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
   open Category
@@ -45,6 +60,9 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
       isProp→PathP ((λ i → Pᴰ .isPropHomᴰ {f = ((C .⋆Assoc _ _ _) i)})) _ _
     ; isSetHomᴰ = isProp→isSet (Pᴰ .isPropHomᴰ)
     }
+
+  hasPropHomsPreorderᴰ : hasPropHoms Preorderᴰ→Catᴰ
+  hasPropHomsPreorderᴰ _ _ _ = Pᴰ .isPropHomᴰ
 
   open Functor
 
@@ -69,3 +87,21 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
         (λ i → Pᴰ .Hom[_][_,_] (F .F-seq f g (~ i)) xᴰ zᴰ)
         (Pᴰ ._⋆ᴰ_ fᴰ gᴰ)
     reindex .isPropHomᴰ = Pᴰ .isPropHomᴰ
+
+module _
+       {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+       (F : Functor C D)
+       (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (Qᴰ : Preorderᴰ D ℓDᴰ ℓDᴰ') where
+  open Category
+  open Functor
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Qᴰ = Preorderᴰ Qᴰ
+
+  module _
+       (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Qᴰ.ob[ F .F-ob x ])
+       (F-homᴰ : {x y : C .ob} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+        → Cᴰ.Hom[ f ][ xᴰ , yᴰ ] → Qᴰ.Hom[ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]) where
+
+    mkP→CᴰFunctorᴰ : Functorᴰ F Cᴰ (Preorderᴰ→Catᴰ Qᴰ)
+    mkP→CᴰFunctorᴰ = mkFunctorᴰPropHoms (hasPropHomsPreorderᴰ Qᴰ) F-obᴰ F-homᴰ

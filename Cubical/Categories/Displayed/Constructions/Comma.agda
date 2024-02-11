@@ -88,8 +88,35 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
          (K : Functor B D)
          (α : NatTrans (F ∘F H) (G ∘F K))
          where
+  open Functorᴰ
   mkCommaFunctor : Functor B (Comma F G)
-  mkCommaFunctor .F-ob b = (H ⟅ b ⟆ , K ⟅ b ⟆) , α ⟦ b ⟧
-  mkCommaFunctor .F-hom f = ((H ⟪ f ⟫) , (K ⟪ f ⟫)) , (α .N-hom f)
-  mkCommaFunctor .F-id = Σ≡Prop (λ _ → E .isSetHom _ _) (≡-× (H .F-id) (K .F-id))
-  mkCommaFunctor .F-seq f g = Σ≡Prop (λ _ → E .isSetHom _ _) (≡-× (H .F-seq f g) (K .F-seq f g))
+  mkCommaFunctor = mk∫Functor (H ,F K) αF where
+    αF : Functorᴰ (H ,F K) _ _
+    αF = mkP→CᴰFunctorᴰ _ _ _
+      (λ {b} _ → α ⟦ b ⟧ )
+      λ {_}{_}{f} _ → α .N-hom f
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
+         {F : Functor C E} {G : Functor D E}
+         {B : Category ℓB ℓB'}
+         (H : Functor B C)
+         (K : Functor B D)
+         (α : NatIso (F ∘F H) (G ∘F K))
+         where
+  open NatIso
+
+  mkIsoCommaFunctor : Functor B (IsoComma F G)
+  mkIsoCommaFunctor = mk∫Functor (H ,F K)
+    (mk∫ᴰFunctorᴰ _ _
+      (mkP→CᴰFunctorᴰ _ _ _
+       ((λ {b} _ → α .trans ⟦ b ⟧ ))
+       λ {_}{_}{f} _ → α .trans .N-hom f)
+      (mkP→CᴰFunctorᴰ _ _ _
+       (λ x → α .nIso _)
+       λ x → _))
+
+  -- | TODO: show that if G is faithful then IsoComma over C hasPropHoms and if fully faithful, hasContrHoms.
+  -- | as in this case a lift of a morphism f : c -> c' from i : F c ≅ G d to i' : F c' ≅ G d'
+  -- | is a morphism g : d -> d' st i o F f = G g o i',
+  -- | equivalently st i o F f o i'^-1 = G g
+  -- | which if G is faithful is a fiber of a

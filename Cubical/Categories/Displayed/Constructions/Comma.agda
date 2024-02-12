@@ -26,6 +26,7 @@ open import Cubical.Categories.Displayed.Base.More as Displayed
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Constructions.Graph
+open import Cubical.Categories.Displayed.Constructions.IsomorphismMore
 
 private
   variable
@@ -95,7 +96,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
       -- | TODO: easy proof about sliding an iso around an
       -- | equation. Probably already proven somewhere
       (λ (g , sq , _) → g , ⋆InvLMove iso (sym sq) ∙ sym (E .⋆Assoc _ _ _))
-      (λ (g , sq) → g , {!!} , {!!})
+      (λ (g , sq) → g , {!!}
+        -- sym((cong (λ a → iso .fst ⋆⟨ E ⟩ a ) (sq ∙ E .⋆Assoc _ _ _)))
+        ,
+        {!!})
       (λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl)
       (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
       (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))

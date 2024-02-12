@@ -101,7 +101,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
       ({!!} , {!!})
       (hasPropHomsIsoCommaᴰ₁ (isFullyFaithful→Faithful Gff) f (d , e) (d' , e'))
 
-
   πⁱ1 : Functor IsoComma C
   πⁱ1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = IsoCommaᴰ}
 

@@ -19,6 +19,7 @@ open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Properties
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More as Displayed
@@ -75,6 +76,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   -- Not following from a gneral result about ∫Cᴰ but works
   hasPropHomsIsoCommaᴰ : hasPropHoms IsoCommaᴰ
   hasPropHomsIsoCommaᴰ {c , d}{c' , d'} f cᴰ cᴰ' =
+  -- TODO generalize this as a reasoning principle for ∫Cᴰ
     isPropΣ
       (hasPropHomsCommaᴰ f (cᴰ .fst) (cᴰ' .fst))
       λ x → hasPropHomsPreorderᴰ _ (f , x) (cᴰ .snd) (cᴰ' .snd)
@@ -92,11 +94,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
     isPropRetract
       -- | TODO: easy proof about sliding an iso around an
       -- | equation. Probably already proven somewhere
-      (λ (g , sq , _) → g ,
-        {!!} ∙
-        {!!}
-      )
-      (λ (g , sq) → g , {!!})
+      (λ (g , sq , _) → g , ⋆InvLMove iso (sym sq) ∙ sym (E .⋆Assoc _ _ _))
+      (λ (g , sq) → g , {!!} , {!!})
       (λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl)
       (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
       (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))

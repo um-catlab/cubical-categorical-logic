@@ -72,9 +72,12 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
     IsoCommaᴰ' ._⋆ᴰ_ _ _ = tt
     IsoCommaᴰ' .isPropHomᴰ = isPropUnit
 
-  -- | TODO: should follow by a general principle for ∫Cᴰ
+  -- Not following from a gneral result about ∫Cᴰ but works
   hasPropHomsIsoCommaᴰ : hasPropHoms IsoCommaᴰ
-  hasPropHomsIsoCommaᴰ = {!!}
+  hasPropHomsIsoCommaᴰ {c , d}{c' , d'} f cᴰ cᴰ' =
+    isPropΣ
+      (hasPropHomsCommaᴰ f (cᴰ .fst) (cᴰ' .fst))
+      λ x → hasPropHomsPreorderᴰ _ (f , x) (cᴰ .snd) (cᴰ' .snd)
 
   IsoComma : Category _ _
   IsoComma = ∫C IsoCommaᴰ
@@ -89,7 +92,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
     isPropRetract
       -- | TODO: easy proof about sliding an iso around an
       -- | equation. Probably already proven somewhere
-      (λ (g , sq , _) → g , {!!})
+      (λ (g , sq , _) → g ,
+        {!!} ∙
+        {!!}
+      )
       (λ (g , sq) → g , {!!})
       (λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl)
       (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))

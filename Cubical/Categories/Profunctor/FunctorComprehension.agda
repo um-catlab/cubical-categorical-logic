@@ -121,8 +121,9 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- this follows from the proof in 
   -- Cubical.Categories.Displayed.Constructions.Comma for
   -- IsoCommaᴰ₁
-  -- hasContrHoms𝓟r : hasContrHoms 𝓟r
-  -- hasContrHoms𝓟r = {!!}
+  hasContrHoms𝓟r : hasContrHoms 𝓟r
+  hasContrHoms𝓟r = hasContrHomsIsoCommaᴰ₁ _ _
+    {!!}
 
 -- module _ {D : Category ℓD ℓD'} ℓ ℓ' where
 --   LiftPsh : Functor (PresheafCategory D ℓ) (PresheafCategory D (ℓ-max ℓ ℓ'))

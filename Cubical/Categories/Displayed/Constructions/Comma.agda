@@ -8,6 +8,7 @@
 module Cubical.Categories.Displayed.Constructions.Comma where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Embedding
 open import Cubical.Data.Sigma
@@ -95,15 +96,21 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
     isPropRetract
       (λ (g , sq , _) → g , ⋆InvLMove iso (sym sq) ∙ sym (E .⋆Assoc _ _ _))
       (λ (g , sq) → g , sym (⋆InvLMoveInv iso (sq ∙ E .⋆Assoc _ _ _)), tt)
-      (λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl)
+      ((λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl))
       (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
-      (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))
+       (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))
 
   hasContrHomsIsoCommaᴰ₁ : isFullyFaithful G → hasContrHoms IsoCommaᴰ₁
   hasContrHomsIsoCommaᴰ₁ Gff f (d , e) (d' , e') =
     inhProp→isContr
-      ({!!} , {!!})
-      (hasPropHomsIsoCommaᴰ₁ (isFullyFaithful→Faithful Gff) f (d , e) (d' , e'))
+      (g .fst .fst
+      , sym (⋆InvLMoveInv e (g .fst .snd ∙ E .⋆Assoc _ _ _))
+      , tt)
+      (hasPropHomsIsoCommaᴰ₁ (isFullyFaithful→Faithful {F = G} Gff) f (d , e) (d' , e'))
+      where
+        G⟪g⟫ : E [ G .F-ob d , G .F-ob d' ]
+        G⟪g⟫ = e .snd .inv ⋆⟨ E ⟩ F ⟪ f ⟫ ⋆⟨ E ⟩ e' .fst
+        g = Gff d d' .equiv-proof G⟪g⟫
 
   πⁱ1 : Functor IsoComma C
   πⁱ1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = IsoCommaᴰ}

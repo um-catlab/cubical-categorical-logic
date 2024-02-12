@@ -93,13 +93,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   hasPropHomsIsoCommaᴰ₁ : isFaithful G → hasPropHoms IsoCommaᴰ₁
   hasPropHomsIsoCommaᴰ₁ G-faithful f (d , iso) (d' , iso') =
     isPropRetract
-      -- | TODO: easy proof about sliding an iso around an
-      -- | equation. Probably already proven somewhere
       (λ (g , sq , _) → g , ⋆InvLMove iso (sym sq) ∙ sym (E .⋆Assoc _ _ _))
-      (λ (g , sq) → g , {!!}
-        -- sym((cong (λ a → iso .fst ⋆⟨ E ⟩ a ) (sq ∙ E .⋆Assoc _ _ _)))
-        ,
-        {!!})
+      (λ (g , sq) → g , sym (⋆InvLMoveInv iso (sq ∙ E .⋆Assoc _ _ _)), tt)
       (λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl)
       (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
       (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))

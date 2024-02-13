@@ -147,6 +147,25 @@ record BifunctorSep (C : Category ℓc ℓc')
                → Bif-homR c g ⋆⟨ E ⟩ Bif-homL f d'
                ≡ Bif-homL f d ⋆⟨ E ⟩ Bif-homR c' g
 
+-- A version of bifunctor that only requires the parallel action and
+-- constructs the joint acions using id. This is definitionally
+-- isomorphic to a functor out of the ordinary cartesian product of C
+-- and D.
+record BifunctorPar (C : Category ℓc ℓc')
+                  (D : Category ℓd ℓd')
+                  (E : Category ℓe ℓe')
+       : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  field
+    Bif-ob : C .ob → D .ob → E .ob
+    Bif-hom× : ∀ {c c' d d'} (f : C [ c , c' ])(g : D [ d , d' ])
+             → E [ Bif-ob c d , Bif-ob c' d' ]
+    Bif-×-id : ∀ {c d} → Bif-hom× (C .id {c}) (D .id {d}) ≡ E .id
+    Bif-×-seq : ∀ {c c' c'' d d' d''}
+               (f : C [ c , c' ])(f' : C [ c' , c'' ])
+               (g : D [ d , d' ])(g' : D [ d' , d'' ])
+             → Bif-hom× (f ⋆⟨ C ⟩ f') (g ⋆⟨ D ⟩ g')
+             ≡ Bif-hom× f g ⋆⟨ E ⟩ Bif-hom× f' g'
+
 private
   variable
     C D E : Category ℓ ℓ'
@@ -242,9 +261,24 @@ mkBifunctorParAx {C = C}{D = D}{E = E} F = G where
     ∙ sym (F .Bif-×-seq _ _ _ _)
     ∙ cong₂ (F .Bif-hom×) (C .⋆IdL _) (D .⋆IdR _)
 
+mkBifunctorPar : BifunctorPar C D E → Bifunctor C D E
+mkBifunctorPar {C = C}{D = D}{E = E} F = mkBifunctorParAx G where
+  module F = BifunctorPar F
+  G : BifunctorParAx C D E
+  G .Bif-ob = F.Bif-ob
+  G .Bif-hom× = F.Bif-hom×
+  G .Bif-×-id = F.Bif-×-id
+  G .Bif-×-seq = F.Bif-×-seq
+  G .Bif-homL f d = F.Bif-hom× f (D .id)
+  G .Bif-homR c g = F.Bif-hom× (C .id) g
+  G .Bif-L×-agree f = refl
+  G .Bif-R×-agree g = refl
+
 open Bifunctor
 open BifunctorParAx
+open BifunctorPar
 open BifunctorSepAx
+open BifunctorSep
 -- action on objects
 infix 30 _⟅_⟆b
 _⟅_⟆b : (F : Bifunctor C D E)

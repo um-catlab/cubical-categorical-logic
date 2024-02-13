@@ -32,6 +32,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Profunctor.Relator
 
 private
   variable
@@ -168,4 +169,21 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FunctorComprehension = 𝓟us→D D ℓS ∘F ∫F (coherence D ℓS) ∘F Rup
 
   -- TODO: use πElt to construct a natural element R (F c) c
-  -- counit-elt : NatElt ?
+  module _ where
+    private
+      F = FunctorComprehension
+      BifR = CurriedToBifunctor R
+    open NatElt
+    open UniversalElementNotation
+    counit-elt : NatElt (BifR ∘Fr (F ^opF))
+    counit-elt .N-ob c =
+      πElt BifR .N-ob ((c , (F ⟅ c ⟆)) , ues c .element)
+    counit-elt .N-hom× {x}{y} f =
+      R .F-hom f .N-ob (ues y .vertex) (ues y .element)
+    counit-elt .N-ob-hom×-agree {x} =
+      πElt BifR .N-ob-hom×-agree
+    counit-elt .N-natL f = refl
+    counit-elt .N-natR {x}{y} f =
+      πElt BifR .N-natR ((_ , (F ⟪ f ⟫)) ,
+      sym (ues x .universal (F ⟅ y ⟆)
+        .equiv-proof _ .fst .snd))

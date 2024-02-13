@@ -2,6 +2,7 @@
 
 {- The universal category C ⊗ D with a redundant bifunctor C , D → C ⊗ D -}
 {- Isomorphic (but not definitionally) to the cartesian product -}
+{- Credit to Andreas Nuyts for suggesting this approach -}
 
 module Cubical.Categories.Constructions.BinProduct.Redundant.Base where
 

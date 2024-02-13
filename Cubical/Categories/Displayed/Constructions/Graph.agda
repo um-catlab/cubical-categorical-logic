@@ -11,12 +11,13 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
+open import Cubical.Categories.Displayed.Base.More as Disp
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Preorder
 
@@ -29,7 +30,7 @@ open Preorderᴰ
 open Functor
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-         (R : Bifunctor (C ^op) D (SET ℓS))
+         (R : C o-[ ℓS ]-* D)
          where
   open Bifunctor
 
@@ -53,6 +54,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
 
   hasPropHomsGraph : hasPropHoms Graph
   hasPropHomsGraph = hasPropHomsPreorderᴰ Graph'
+
+  π₁ : Functor (∫C Graph) C
+  π₁ = BP.Fst C D ∘F Disp.Fst {Cᴰ = Graph}
+
+  π₂ : Functor (∫C Graph) D
+  π₂ = BP.Snd C D ∘F Disp.Fst {Cᴰ = Graph}
+
+  πElt : NatElt (R ∘Flr (π₁ ^opF , π₂))
+  πElt .NatElt.N-ob ((c , d) , r) = r
+  -- arbitrary choice alert(!)
+  πElt .NatElt.N-hom× ((f , g) , sq) = R .Bif-homL f _ _
+  πElt .NatElt.N-ob-hom×-agree = funExt⁻ (R .Bif-L-id) _
+  πElt .NatElt.N-natL _ = refl
+  πElt .NatElt.N-natR ((f , g), sq) = sq
 
   -- TODO: show Graph is a two-sided discrete fibration
   -- https://ncatlab.org/nlab/show/profunctor#in_terms_of_twosided_discrete_fibrations

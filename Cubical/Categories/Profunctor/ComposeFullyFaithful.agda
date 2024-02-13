@@ -28,31 +28,42 @@ private
 open Category
 open Functor
 
-module _ {F : Functor C D} {G : Functor D E}
-  (isFullyFaithfulF : isFullyFaithful F)
-  (isFullyFaithfulG : isFullyFaithful G)
-  where
+module _ {F : Functor C D} {G : Functor D E} where
 
-  -- isFullG : isFull G
-  -- isFullG = isFullyFaithful→Full {F = G} isFullyFaithfulG
-
-  -- isFaithfulG : isFaithful G
-  -- isFaithfulG = isFullyFaithful→Faithful {F = G} isFullyFaithfulG
-
-  -- isFullF : isFull F
-  -- isFullF = isFullyFaithful→Full {F = F} isFullyFaithfulF
-
-  -- isFaithfulF : isFaithful F
-  -- isFaithfulF = isFullyFaithful→Faithful {F = F} isFullyFaithfulF
-
-  -- isFullG∘F : isFull (G ∘F F)
-  -- isFullG∘F x y G∘F[f] = {!!}
-
-  -- isFaithfulG∘F : isFaithful (G ∘F F)
-  -- isFaithfulG∘F = {!!}
-
-  isFullyFaithfulG∘F : isFullyFaithful (G ∘F F)
-  isFullyFaithfulG∘F x y =
-    equivIsEquiv
-      (compEquiv (_ , isFullyFaithfulF x y)
+  module _
+    (isFullyFaithfulF : isFullyFaithful F)
+    (isFullyFaithfulG : isFullyFaithful G)
+    where
+    isFullyFaithfulG∘F : isFullyFaithful (G ∘F F)
+    isFullyFaithfulG∘F x y =
+      equivIsEquiv
+        (compEquiv (_ , isFullyFaithfulF x y)
                  (_ , isFullyFaithfulG (F ⟅ x ⟆) (F ⟅ y ⟆)))
+
+  module _
+    (isFullG : isFull G)
+    (isFullF : isFull F)
+    where
+    isFullG∘F : isFull (G ∘F F)
+    isFullG∘F x y G∘F[f] =
+      rec
+        isPropPropTrunc
+        (λ Ff → rec
+          isPropPropTrunc
+          (λ f → ∣ f .fst , cong (G .F-hom) (f .snd) ∙ Ff .snd ∣₁)
+          (isFullF x y (Ff .fst)))
+        (isFullG (F ⟅ x ⟆) (F ⟅ y ⟆) G∘F[f])
+
+  module _
+    (isFaithfulF : isFaithful F)
+    (isFaithfulG : isFaithful G)
+    where
+
+    isFaithfulG∘F : isFaithful (G ∘F F)
+    isFaithfulG∘F x y =
+      isEmbedding→Inj
+        (compEmbedding
+        ((λ v → F-hom G v) ,
+          (injEmbedding (E .isSetHom) (isFaithfulG (F ⟅ x ⟆) (F ⟅ y ⟆) _ _)))
+        ((λ z → F-hom F z) ,
+          (injEmbedding (D .isSetHom) (isFaithfulF x y _ _))) .snd)

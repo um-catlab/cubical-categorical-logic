@@ -23,7 +23,7 @@ open import Cubical.Categories.Bifunctor.Redundant
 
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓe ℓe' ℓ ℓ' : Level
+    ℓb ℓb' ℓc ℓc' ℓd ℓd' ℓe ℓe' ℓ ℓ' : Level
 
 open Category
 open Functor
@@ -96,6 +96,25 @@ module _ (C : Category ℓc ℓc') (D : Category ℓd ℓd') where
       η' .Bif-L×-agree f = ProdCat.ηEq (L×-agree f _)
       η' .Bif-R×-agree g = ProdCat.ηEq (R×-agree _ g)
 
+  ob-× : (c : C .ob) → Functor D _×C_
+  ob-× c .F-ob d = c , d
+  ob-× c .F-hom g = ηBif ⟪ g ⟫r
+  ob-× c .F-id = ηBif .Bif-R-id
+  ob-× c .F-seq g g' = ηBif .Bif-R-seq g g'
+
+  ×-ob : (d : D .ob) → Functor C _×C_
+  ×-ob d .F-ob c = c , d
+  ×-ob d .F-hom f = ηBif ⟪ f ⟫l
+  ×-ob d .F-id = ηBif .Bif-L-id
+  ×-ob d .F-seq f f' = ηBif .Bif-L-seq f f'
+
+  ProdToRedundant : Functor (C BP.×C D) _×C_
+  ProdToRedundant .F-ob (c , d) = c , d
+  ProdToRedundant .F-hom (f , g) = ηBif ⟪ f , g ⟫×
+  ProdToRedundant .F-id = ηBif .Bif-×-id
+  ProdToRedundant .F-seq (f , g) (f' , g') = ηBif .Bif-×-seq f f' g g'
+
+  -- | TODO: Is it possible to define an elimination principle?
   rec : {E : Category ℓ ℓ'}
         → Bifunctor C D E
         → Functor _×C_ E
@@ -109,12 +128,6 @@ module _ (C : Category ℓc ℓc') (D : Category ℓd ℓd') where
       ı <$g> homR c g = G ⟪ g ⟫r
       ı <$g> homL f d = G ⟪ f ⟫l
       ı <$g> hom× f g = G ⟪ f , g ⟫×
-
-  ProdToRedundant : Functor (C BP.×C D) _×C_
-  ProdToRedundant .F-ob (c , d) = c , d
-  ProdToRedundant .F-hom (f , g) = ηBif ⟪ f , g ⟫×
-  ProdToRedundant .F-id = ηBif .Bif-×-id
-  ProdToRedundant .F-seq (f , g) (f' , g') = ηBif .Bif-×-seq f f' g g'
 
   RedundantToProd : Functor _×C_ (C BP.×C D)
   RedundantToProd = rec (mkBifunctorParAx G1) BP.,F rec (mkBifunctorParAx G2) where
@@ -138,18 +151,6 @@ module _ (C : Category ℓc ℓc') (D : Category ℓd ℓd') where
     G2 .Bif-×-seq _ _ _ _ = refl
     G2 .Bif-L×-agree _ = refl
     G2 .Bif-R×-agree _ = refl
-
-  ob-× : (c : C .ob) → Functor D _×C_
-  ob-× c .F-ob d = c , d
-  ob-× c .F-hom g = ηBif ⟪ g ⟫r
-  ob-× c .F-id = ηBif .Bif-R-id
-  ob-× c .F-seq g g' = ηBif .Bif-R-seq g g'
-
-  ×-ob : (d : D .ob) → Functor C _×C_
-  ×-ob d .F-ob c = c , d
-  ×-ob d .F-hom f = ηBif ⟪ f ⟫l
-  ×-ob d .F-id = ηBif .Bif-L-id
-  ×-ob d .F-seq f f' = ηBif .Bif-L-seq f f'
 
 Functor→Bifunctor : {C : Category ℓc ℓc'}
                     {D : Category ℓd ℓd'}{E : Category ℓe ℓe'}
@@ -185,3 +186,14 @@ Functor→Bifunctor G = G ∘Fb ηBif _ _
   G .Bif-×-seq f f' g g' = ηBif C D .Bif-×-seq f' f g' g
   G .Bif-L×-agree f = ηBif C D .Bif-L×-agree f
   G .Bif-R×-agree g = ηBif C D .Bif-R×-agree g
+
+module _ {B : Category ℓb ℓb'}{C : Category ℓc ℓc'}
+         {D : Category ℓd ℓd'}{E : Category ℓe ℓe'}
+         where
+  _,⊗F_ : (F : Functor B D)(G : Functor C E)
+       → Bifunctor B C (D ×C E)
+  F ,⊗F G = ηBif D E ∘Flr (F , G)
+
+  _⊗F_ : (F : Functor B D)(G : Functor C E)
+       → Functor (B ×C C) (D ×C E)
+  F ⊗F G = rec B C (F ,⊗F G)

@@ -475,10 +475,24 @@ compF {E = E}{E' = E'}{C = C}{D = D} F  G = mkBifunctorParAx B where
 infixl 30 compL
 infixl 30 compR
 infixr 30 compF
+infix 30 compLR'
 
 syntax compL F G = F ∘Fl G
 syntax compR F G = F ∘Fr G
 syntax compF F G = F ∘Fb G
+
+-- | This includes an arbitrary choice, the action on objects should
+-- | be definitionally equal to the other order, but the proofs are
+-- | affected.
+compLR : (F : Bifunctor C' D' E) (G : Functor C C')(H : Functor D D')
+       → Bifunctor C D E
+compLR F G H = F ∘Fl G ∘Fr H
+
+compLR' : (F : Bifunctor C' D' E) (GH : Functor C C' × Functor D D')
+        → Bifunctor C D E
+compLR' F GH = compLR F (GH .fst) (GH .snd)
+
+syntax compLR' F GH = F ∘Flr GH
 
 -- For Hom we use the Seperate actions formulation because there is no
 -- "nice" way to do triple composition (at least with this definition

@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Sigma as Ty hiding (_×_) 
+open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
@@ -24,11 +24,14 @@ open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Bifunctor.Redundant as R
 
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Yoneda
 
 private
   variable
     ℓ ℓ' : Level
+
+  _⊗_ = R._×C_
 
 open Iso
 open UniversalElement
@@ -42,38 +45,14 @@ module _ (C : Category ℓ ℓ') where
   BinProduct' = RightAdjointAt' _ _ (Δ C)
   BinProducts' = RightAdjoint' _ _ (Δ C)
 
-  -- -- This definition doesn't give the right behavior for BinProductWithF ⟪_⟫
-  -- BinProductProf' : Profunctor (C R.×C C) C ℓ'
-  -- BinProductProf' = (precomposeF _ (Δ C ^opF) ∘F YO) ∘F R.RedundantToProd C C
+  private
+    -- This definition looks promising at first, but doesn't give the
+    -- right behavior for BinProductWithF ⟪_⟫
+    BadBinProductProf : Profunctor (C R.×C C) C ℓ'
+    BadBinProductProf = (precomposeF _ (Δ C ^opF) ∘F YO) ∘F R.RedundantToProd C C
 
-  BinProductProf : Profunctor (C R.×C C) C ℓ'
-  BinProductProf = R.rec C C (mkBifunctorParAx Bif) where
-    open BifunctorParAx
-    open NatTrans
-    module C = Category C
-    -- | TODO: find how to formulate this compositionally. Maybe some kind of product of presheaves?
-    Bif : BifunctorParAx C C (𝓟 C _)
-    Bif .Bif-ob a b .F-ob Γ = (C [ Γ , a ]) Ty.× (C [ Γ , b ]) , isSet× (C .isSetHom) (C .isSetHom)
-    Bif .Bif-ob a b .F-hom γ (f , g) = (γ C.⋆ f) , (γ C.⋆ g)
-    Bif .Bif-ob a b .F-id = funExt λ _ → ΣPathP (C .⋆IdL _ , C .⋆IdL _)
-    Bif .Bif-ob a b .F-seq δ γ = funExt λ _ → ΣPathP (C.⋆Assoc _ _ _ , C.⋆Assoc _ _ _)
-
-    Bif .Bif-homL f d .N-ob x (f' , g) = (f' C.⋆ f) , g
-    Bif .Bif-homL f d .N-hom γ = funExt λ _ → ΣPathP ((C.⋆Assoc _ _ _) , refl)
-
-    Bif .Bif-homR c g .N-ob _ (f , g') = f , (g' C.⋆ g)
-    Bif .Bif-homR c g .N-hom γ = funExt λ _ → ΣPathP (refl , (C.⋆Assoc _ _ _))
-
-    Bif .Bif-hom× f g .N-ob _ (f' , g') = (f' C.⋆ f) , (g' C.⋆ g)
-    Bif .Bif-hom× f g .N-hom γ = funExt λ _ → ΣPathP ((C.⋆Assoc _ _ _) , (C.⋆Assoc _ _ _))
-
-    Bif .Bif-×-id = makeNatTransPath (funExt (λ c → funExt (λ d → ΣPathP ((C.⋆IdR _) , (C.⋆IdR _)))))
-    Bif .Bif-×-seq f f' g g' =
-      makeNatTransPath (funExt λ c → funExt λ d → ΣPathP (sym (C.⋆Assoc _ _ _) , sym (C.⋆Assoc _ _ _)))
-    Bif .Bif-L×-agree f = makeNatTransPath (funExt λ c → funExt λ d → 
-      ΣPathP (refl , (sym (C.⋆IdR _))))
-    Bif .Bif-R×-agree g = makeNatTransPath (funExt λ c → funExt λ d →
-      ΣPathP (sym (C.⋆IdR _) , refl))
+  BinProductProf : Profunctor (C ⊗ C) C ℓ'
+  BinProductProf = R.rec _ _ (PshProd ∘Flr (YO , YO))
 
   -- Product with a fixed object
   ProdWithAProf : C .ob → Profunctor C C ℓ'
@@ -111,7 +90,7 @@ module _ (C : Category ℓ ℓ') where
   module _ {a} (bp : ∀ b → BinProduct C a b) where
     BinProductWithToRepresentable : UniversalElements (ProdWithAProf a)
     BinProductWithToRepresentable b = BinProductToRepresentable (bp b)
-    
+
     BinProductWithF =
       FunctorComprehension BinProductWithToRepresentable
 

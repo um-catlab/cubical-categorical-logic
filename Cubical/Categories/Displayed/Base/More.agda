@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct hiding (Fst)
+open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd)
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
@@ -37,12 +37,15 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   open Functor
   open Functorᴰ
 
-  Fst :  Functor (∫C Cᴰ) C
+  Fst : Functor (∫C Cᴰ) C
   Fst .F-ob = fst
   Fst .F-hom = fst
   Fst .F-id = refl
   Fst .F-seq =
     λ f g → cong {x = f ⋆⟨ ∫C Cᴰ ⟩ g} fst refl
+
+  -- Snd : Functorᴰ Fst {!weaken!} {!!}
+  -- Snd = {!!}
 
   module _ {D : Category ℓD ℓD'}
            (F : Functor D C)
@@ -63,6 +66,12 @@ module _ {C : Category ℓC ℓC'}
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
+
+  Fstᴰ : Functorᴰ Id (∫Cᴰ Cᴰ Dᴰ) Cᴰ
+  Fstᴰ .F-obᴰ = fst
+  Fstᴰ .F-homᴰ = fst
+  Fstᴰ .F-idᴰ = refl
+  Fstᴰ .F-seqᴰ _ _ = refl
 
   module _ {E : Category ℓE ℓE'} (F : Functor E C)
            {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
@@ -86,16 +95,22 @@ module _
     module Cᴰ = Categoryᴰ Cᴰ
 
   -- s for "simple" because D is not dependent on C
-  ∫Cᴰs : Categoryᴰ C (ℓ-max ℓD ℓCᴰ) (ℓ-max ℓD' ℓCᴰ')
-  ∫Cᴰs .ob[_] c = Σ[ d ∈ D .ob ] Cᴰ.ob[ c , d ]
-  ∫Cᴰs .Hom[_][_,_] f (d , cᴰ) (d' , cᴰ') =
+  ∫Cᴰsr : Categoryᴰ C (ℓ-max ℓD ℓCᴰ) (ℓ-max ℓD' ℓCᴰ')
+  ∫Cᴰsr .ob[_] c = Σ[ d ∈ D .ob ] Cᴰ.ob[ c , d ]
+  ∫Cᴰsr .Hom[_][_,_] f (d , cᴰ) (d' , cᴰ') =
     Σ[ g ∈ D [ d , d' ] ] Cᴰ.Hom[ f , g ][ cᴰ , cᴰ' ]
-  ∫Cᴰs .idᴰ = (D .id) , Cᴰ.idᴰ
-  ∫Cᴰs ._⋆ᴰ_ (f , fᴰ) (g , gᴰ) = (f ⋆⟨ D ⟩ g) , (fᴰ Cᴰ.⋆ᴰ gᴰ)
-  ∫Cᴰs .⋆IdLᴰ (f , fᴰ) = ΣPathP (_ , Cᴰ.⋆IdLᴰ _)
-  ∫Cᴰs .⋆IdRᴰ _ = ΣPathP (_ , Cᴰ.⋆IdRᴰ _)
-  ∫Cᴰs .⋆Assocᴰ _ _ _ = ΣPathP (_ , Cᴰ.⋆Assocᴰ _ _ _)
-  ∫Cᴰs .isSetHomᴰ = isSetΣ (D .isSetHom) (λ _ → Cᴰ .isSetHomᴰ)
+  ∫Cᴰsr .idᴰ = (D .id) , Cᴰ.idᴰ
+  ∫Cᴰsr ._⋆ᴰ_ (f , fᴰ) (g , gᴰ) = (f ⋆⟨ D ⟩ g) , (fᴰ Cᴰ.⋆ᴰ gᴰ)
+  ∫Cᴰsr .⋆IdLᴰ (f , fᴰ) = ΣPathP (_ , Cᴰ.⋆IdLᴰ _)
+  ∫Cᴰsr .⋆IdRᴰ _ = ΣPathP (_ , Cᴰ.⋆IdRᴰ _)
+  ∫Cᴰsr .⋆Assocᴰ _ _ _ = ΣPathP (_ , Cᴰ.⋆Assocᴰ _ _ _)
+  ∫Cᴰsr .isSetHomᴰ = isSetΣ (D .isSetHom) (λ _ → Cᴰ .isSetHomᴰ)
+
+  Fstᴰsr : Functorᴰ Id ∫Cᴰsr (weaken C D)
+  Fstᴰsr .Functorᴰ.F-obᴰ = fst
+  Fstᴰsr .Functorᴰ.F-homᴰ = fst
+  Fstᴰsr .Functorᴰ.F-idᴰ = refl
+  Fstᴰsr .Functorᴰ.F-seqᴰ = λ fᴰ gᴰ → refl
 
   ∫Cᴰsl : Categoryᴰ D (ℓ-max ℓC ℓCᴰ) (ℓ-max ℓC' ℓCᴰ')
   ∫Cᴰsl .ob[_] d = Σ[ c ∈ C .ob ] Cᴰ.ob[ c , d ]
@@ -107,6 +122,12 @@ module _
   ∫Cᴰsl .⋆IdRᴰ _ = ΣPathP (_ , Cᴰ.⋆IdRᴰ _)
   ∫Cᴰsl .⋆Assocᴰ _ _ _ = ΣPathP (_ , Cᴰ.⋆Assocᴰ _ _ _)
   ∫Cᴰsl .isSetHomᴰ = isSetΣ (C .isSetHom) (λ _ → Cᴰ .isSetHomᴰ)
+
+  Fstᴰsl : Functorᴰ Id ∫Cᴰsl (weaken D C)
+  Fstᴰsl .Functorᴰ.F-obᴰ = fst
+  Fstᴰsl .Functorᴰ.F-homᴰ = fst
+  Fstᴰsl .Functorᴰ.F-idᴰ = refl
+  Fstᴰsl .Functorᴰ.F-seqᴰ = λ _ _ → refl
 
   -- TODO: mk∫ᴰsFunctor
 

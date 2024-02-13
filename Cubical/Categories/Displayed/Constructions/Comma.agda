@@ -64,7 +64,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   π⇒ .N-hom = snd
 
   Commaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
-  Commaᴰ₁ = ∫Cᴰs Commaᴰ
+  Commaᴰ₁ = ∫Cᴰsr Commaᴰ
 
   IsoCommaᴰ : Categoryᴰ (C ×C D) (ℓ-max ℓE' ℓE') ℓE'
   IsoCommaᴰ = ∫Cᴰ Commaᴰ (Preorderᴰ→Catᴰ IsoCommaᴰ') where
@@ -87,7 +87,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   IsoComma = ∫C IsoCommaᴰ
 
   IsoCommaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
-  IsoCommaᴰ₁ = ∫Cᴰs IsoCommaᴰ
+  IsoCommaᴰ₁ = ∫Cᴰsr IsoCommaᴰ
 
   open isIso
   -- Characterization of HLevel of Commaᴰ₁ homs

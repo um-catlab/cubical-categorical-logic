@@ -25,6 +25,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Displayed.Preorder
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Base
@@ -41,7 +42,6 @@ open Functor
 open UniversalElement
 open NatIso
 open NatTrans
-
 
 module _ (D : Category ℓD ℓD') (ℓS : Level) where
   𝓟 = PresheafCategory D ℓS
@@ -87,6 +87,15 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
                             (elt .snd .fst)
                             (elt .snd .snd))
 
+  -- | TODO: this should be definable as some kind of functor
+  -- | composition Fst ∘ Fst ∘ Snd, but need to implement those
+  -- | combinators.
+  𝓟us→D : Functor (∫C 𝓟us) D
+  𝓟us→D .F-ob  x = x .snd .fst .fst
+  𝓟us→D .F-hom f = f .snd .fst .fst
+  𝓟us→D .F-id = refl
+  𝓟us→D .F-seq _ _ = refl
+
   hasContrHoms𝓟us : hasContrHoms 𝓟us
   hasContrHoms𝓟us {c' = Q} α ((d , η) , univ) ((d' , η') , univ') =
     (((ue'.intro ((α ⟦ _ ⟧) η)) , ue'.β) , _)
@@ -98,7 +107,12 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
         (record { vertex = d ; element = η ; universal = univ })
       module ue' = UniversalElementNotation
         (record { vertex = d' ; element = η' ; universal = univ' })
-      
+
+
+  coherence : Functorᴰ Id 𝓟up 𝓟us
+  coherence = mkFunctorᴰContrHoms hasContrHoms𝓟us
+    (λ ue → (ue .vertex , (ue .element)) , (ue .universal))
+
   -- Presheaves equipped with a representation viewed as
   -- structure
   --
@@ -121,9 +135,37 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- this follows from the proof in 
   -- Cubical.Categories.Displayed.Constructions.Comma for
   -- IsoCommaᴰ₁
-  hasContrHoms𝓟r : hasContrHoms 𝓟r
-  hasContrHoms𝓟r = hasContrHomsIsoCommaᴰ₁ _ _
-    {!!}
+  -- hasContrHoms𝓟r : hasContrHoms 𝓟r
+  -- hasContrHoms𝓟r = hasContrHomsIsoCommaᴰ₁ _ _
+  --   {!!}
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         (R : Functor C (𝓟 D ℓS)) where
+
+  open NatTrans
+  open NatIso
+  open isIsoC
+  open isEquiv
+
+  UniversalElements : Type _
+  UniversalElements =
+    ∀ (c : C .ob)
+    → UniversalElement D (R ⟅ c ⟆)
+
+Profunctor : (C : Category ℓC ℓC')(D : Category ℓD ℓD') → ∀ ℓS → Type _
+Profunctor C D ℓS = Functor C (𝓟 D ℓS)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+         {R : Profunctor C D ℓS}
+         (ues : UniversalElements R)
+         where
+  private
+    Rup : Functor C (∫C (𝓟up D ℓS))
+    Rup = mk∫Functor R (mkFullSubcategoryᴰFunctorᴰ _ _ _ (λ _ → ues _))
+
+  FunctorComprehension : Functor C D
+  FunctorComprehension = 𝓟us→D D ℓS ∘F ∫F (coherence D ℓS) ∘F Rup
 
 -- module _ {D : Category ℓD ℓD'} ℓ ℓ' where
 --   LiftPsh : Functor (PresheafCategory D ℓ) (PresheafCategory D (ℓ-max ℓ ℓ'))

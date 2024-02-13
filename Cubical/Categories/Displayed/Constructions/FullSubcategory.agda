@@ -32,7 +32,7 @@ open import Cubical.Categories.Yoneda
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓP ℓS ℓR : Level
+    ℓC ℓC' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓS ℓR : Level
 
 open Category
 open Functor
@@ -57,3 +57,11 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
 
   hasContrHomsFullSubcategory : hasContrHoms FullSubcategoryᴰ
   hasContrHomsFullSubcategory _ _ _ = isContrUnit
+
+  module _ {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+           (F : Functor D C)
+           (F-obᴰ : {x : D .ob} →
+             Dᴰ .ob[_] x → ob[ FullSubcategoryᴰ ] (F .F-ob x))
+           where
+    mkFullSubcategoryᴰFunctorᴰ : Functorᴰ F Dᴰ FullSubcategoryᴰ
+    mkFullSubcategoryᴰFunctorᴰ = mkFunctorᴰContrHoms hasContrHomsFullSubcategory F-obᴰ

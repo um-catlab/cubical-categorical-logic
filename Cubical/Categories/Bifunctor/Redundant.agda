@@ -475,7 +475,7 @@ compF {E = E}{E' = E'}{C = C}{D = D} F  G = mkBifunctorParAx B where
 infixl 30 compL
 infixl 30 compR
 infixr 30 compF
-infix 30 compLR'
+infixl 30 compLR'
 
 syntax compL F G = F ∘Fl G
 syntax compR F G = F ∘Fr G
@@ -526,6 +526,13 @@ CurriedToBifunctor F = mkBifunctorSep G where
   G .Bif-R-id = (F ⟅ _ ⟆) .F-id
   G .Bif-R-seq g g' = (F ⟅ _ ⟆) .F-seq g g'
   G .SepBif-RL-commute f g = (F ⟪ f ⟫) .N-hom g
+
+CurryBifunctor : Bifunctor C D E → Functor C (FUNCTOR D E)
+CurryBifunctor F .F-ob c = appL F c
+CurryBifunctor F .F-hom f .N-ob d = appR F d .F-hom f
+CurryBifunctor F .F-hom f .N-hom g = Bif-RL-commute F f g
+CurryBifunctor F .F-id = makeNatTransPath (funExt λ d → F .Bif-L-id)
+CurryBifunctor F .F-seq _ _ = makeNatTransPath (funExt λ d → F .Bif-L-seq _ _)
 
 open Separate.Bifunctor
 ForgetPar : Bifunctor C D E → Separate.Bifunctor C D E

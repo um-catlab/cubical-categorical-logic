@@ -33,6 +33,7 @@ open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Profunctor.Relator
+open import Cubical.Categories.Profunctor.General
 
 private
   variable
@@ -45,7 +46,8 @@ open NatIso
 open NatTrans
 
 module _ (D : Category ℓD ℓD') (ℓS : Level) where
-  𝓟 = PresheafCategory D ℓS
+  private
+    𝓟 = PresheafCategory D ℓS
 
   -- Presheaves that have a universal element viewed as property
   -- (morphisms ignore it).
@@ -61,6 +63,20 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   hasContrHoms𝓟up : hasContrHoms 𝓟up
   hasContrHoms𝓟up = hasContrHomsFullSubcategory _ _
 
+  -- When using a relator the convention is to have the contravariant
+  -- variable to go on the left to match Hom
+  App : D o-[ ℓS ]-* 𝓟
+  App = Profunctor→Relator Id
+
+  𝓟elt : Categoryᴰ 𝓟 _ _
+  𝓟elt = ∫Cᴰsl (Graph App)
+
+  𝓟usᴰ : Categoryᴰ (∫C 𝓟elt) _ _
+  𝓟usᴰ = FullSubcategoryᴰ _
+     (λ elt → isUniversal D (elt .fst)
+                            (elt .snd .fst)
+                            (elt .snd .snd))
+
   -- Presheaves equipped with a universal element as structure
   -- (morphisms preserve it)
   --
@@ -68,7 +84,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- 1. A functor R : C → 𝓟
   -- 2. A functor F : C → D
 
-  -- 3. A natural choice of universal elements for R ⟅ c ⟆ with F c as
+  -- 3. A *natural* choice of elements for R c (F c) with F c as
   --    vertex
   -- 
   -- An object over P is a universal element η
@@ -78,24 +94,19 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- That that "represent" α.
   -- Since η, η' are universal, this type is contractible.
   𝓟us : Categoryᴰ 𝓟 _ _
-  𝓟us = ∫Cᴰ 𝓟elt 𝓟usᴰ  where
-    𝓟elt : Categoryᴰ 𝓟 _ _
-    𝓟elt = ∫Cᴰsl (Graph (Sym (CurriedToBifunctor Id)))
+  𝓟us = ∫Cᴰ 𝓟elt 𝓟usᴰ
 
-    𝓟usᴰ : Categoryᴰ (∫C 𝓟elt) _ _
-    𝓟usᴰ = FullSubcategoryᴰ _
-     (λ elt → isUniversal D (elt .fst)
-                            (elt .snd .fst)
-                            (elt .snd .snd))
+  -- | TODO: this should be definable as some composition of
+  -- | reassociativity and projection but need to implement those
+  -- | functors
+  ForgetUniversal : Functor (∫C 𝓟us) (∫C (Graph App))
+  ForgetUniversal .F-ob x = ((x .snd .fst .fst) , (x .fst)) , (x .snd .fst .snd)
+  ForgetUniversal .F-hom α = ((α .snd .fst .fst) , (α .fst)) , (α .snd .fst .snd)
+  ForgetUniversal .F-id = refl
+  ForgetUniversal .F-seq _ _ = refl
 
-  -- | TODO: this should be definable as some kind of functor
-  -- | composition Fst ∘ Fst ∘ Snd, but need to implement those
-  -- | combinators.
   𝓟us→D : Functor (∫C 𝓟us) D
-  𝓟us→D .F-ob  x = x .snd .fst .fst
-  𝓟us→D .F-hom f = f .snd .fst .fst
-  𝓟us→D .F-id = refl
-  𝓟us→D .F-seq _ _ = refl
+  𝓟us→D = π₁ App ∘F ForgetUniversal
 
   hasContrHoms𝓟us : hasContrHoms 𝓟us
   hasContrHoms𝓟us {c' = Q} α ((d , η) , univ) ((d' , η') , univ') =
@@ -113,6 +124,9 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   coherence : Functorᴰ Id 𝓟up 𝓟us
   coherence = mkFunctorᴰContrHoms hasContrHoms𝓟us
     (λ ue → (ue .vertex , (ue .element)) , (ue .universal))
+
+  -- forgetUniversality : Functor (∫C 𝓟us) 
+  -- forgetUniversality = {!!}
 
   -- Presheaves equipped with a representation viewed as
   -- structure
@@ -142,7 +156,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
-         (R : Functor C (𝓟 D ℓS)) where
+         (R : Profunctor C D ℓS) where
 
   open NatTrans
   open NatIso
@@ -154,36 +168,45 @@ module _ {C : Category ℓC ℓC'}
     ∀ (c : C .ob)
     → UniversalElement D (R ⟅ c ⟆)
 
-Profunctor : (C : Category ℓC ℓC')(D : Category ℓD ℓD') → ∀ ℓS → Type _
-Profunctor C D ℓS = Functor C (𝓟 D ℓS)
-
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-         {R : Profunctor C D ℓS}
-         (ues : UniversalElements R)
+         {P : Profunctor C D ℓS}
+         (ues : UniversalElements P)
          where
   private
-    Rup : Functor C (∫C (𝓟up D ℓS))
-    Rup = mk∫Functor R (mkFullSubcategoryᴰFunctorᴰ _ _ _ (λ _ → ues _))
+    Pup : Functor C (∫C (𝓟up D ℓS))
+    Pup = mk∫Functor P (mkFullSubcategoryᴰFunctorᴰ _ _ _ (λ _ → ues _))
+
+    Pus : Functor C (∫C (𝓟us D ℓS))
+    Pus = ∫F (coherence D ℓS) ∘F Pup
+
+    P-elt : Functor C (∫C (Graph (App D ℓS)))
+    P-elt = ForgetUniversal D ℓS ∘F Pus
+
+    -- We define R (d , c) := P c d
+    R = Profunctor→Relator P
 
   FunctorComprehension : Functor C D
-  FunctorComprehension = 𝓟us→D D ℓS ∘F ∫F (coherence D ℓS) ∘F Rup
+  FunctorComprehension = π₁ (App D ℓS) ∘F P-elt
 
-  -- TODO: use πElt to construct a natural element R (F c) c
-  module _ where
-    private
-      F = FunctorComprehension
-      BifR = CurriedToBifunctor R
-    open NatElt
-    open UniversalElementNotation
-    counit-elt : NatElt (BifR ∘Fr (F ^opF))
-    counit-elt .N-ob c =
-      πElt BifR .N-ob ((c , (F ⟅ c ⟆)) , ues c .element)
-    counit-elt .N-hom× {x}{y} f =
-      R .F-hom f .N-ob (ues y .vertex) (ues y .element)
-    counit-elt .N-ob-hom×-agree {x} =
-      πElt BifR .N-ob-hom×-agree
-    counit-elt .N-natL f = refl
-    counit-elt .N-natR {x}{y} f =
-      πElt BifR .N-natR ((_ , (F ⟪ f ⟫)) ,
-      sym (ues x .universal (F ⟅ y ⟆)
-        .equiv-proof _ .fst .snd))
+  -- The profunctor here is definitionally iso to R(F -, =), as we see below
+  counit-elt' : NatElt ((App D ℓS) ∘Flr ((π₁ (App D ℓS) ^opF) , π₂ (App D ℓS)) ∘Flr ((P-elt ^opF) , P-elt))
+  counit-elt' = whisker (πElt (App D ℓS)) P-elt
+
+  open NatElt
+  -- ∀ c . R (F ⟅ c ⟆) c, naturally
+  counit-elt : NatElt (R ∘Fl (FunctorComprehension ^opF))
+  counit-elt .N-ob = counit-elt' .N-ob
+  counit-elt .N-hom× = counit-elt' .N-hom×
+  counit-elt .N-ob-hom×-agree = counit-elt' .N-ob-hom×-agree
+  counit-elt .N-natL = counit-elt' .N-natL
+  counit-elt .N-natR = counit-elt' .N-natR
+
+  private 
+    -- Test to show that counit-elt matches the original universal element
+
+    -- This demonstrates that the selection of universal elements is
+    -- natural with respect to the functorial action constructed from
+    -- universality
+    test-counit-elt-def : ∀ c → counit-elt .N-ob c ≡ ues c .element
+    test-counit-elt-def c = refl
+

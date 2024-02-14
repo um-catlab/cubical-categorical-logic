@@ -34,20 +34,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
          where
   open Bifunctor
 
-  private
-    Graph' : Preorderᴰ (C ×C D) ℓS ℓS
-    Graph' .ob[_] (c , d) = ⟨ R ⟅ c , d ⟆b ⟩
-    Graph' .Hom[_][_,_] (f , g) r s = (R ⟪ f ⟫l) s ≡ (R ⟪ g ⟫r) r
-    Graph' .idᴰ =
+  Graph' : Preorderᴰ (C ×C D) ℓS ℓS
+  Graph' .ob[_] (c , d) = ⟨ R ⟅ c , d ⟆b ⟩
+  Graph' .Hom[_][_,_] (f , g) r s = (R ⟪ f ⟫l) s ≡ (R ⟪ g ⟫r) r
+  Graph' .idᴰ =
       funExt⁻ (R .Bif-L-id) _
       ∙ sym (funExt⁻ (R .Bif-R-id) _)
-    Graph' ._⋆ᴰ_ {f = f , g}{g = f' , g'} r s =
+  Graph' ._⋆ᴰ_ {f = f , g}{g = f' , g'} r s =
       funExt⁻ (R .Bif-L-seq _ _) _
       ∙ cong (R ⟪ f ⟫l) s
       ∙ funExt⁻ ((Bif-RL-commute R _ _)) _
       ∙ cong (R ⟪ g' ⟫r) r
       ∙ sym ( funExt⁻ (R .Bif-R-seq _ _) _)
-    Graph' .isPropHomᴰ {x = c , d}{y = c' , d'} = str (R ⟅ c , d' ⟆b) _ _
+  Graph' .isPropHomᴰ {x = c , d}{y = c' , d'} = str (R ⟅ c , d' ⟆b) _ _
 
   Graph : Categoryᴰ (C ×C D) ℓS ℓS
   Graph = Preorderᴰ→Catᴰ Graph'
@@ -61,7 +60,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   π₂ : Functor (∫C Graph) D
   π₂ = BP.Snd C D ∘F Disp.Fst {Cᴰ = Graph}
 
-  πElt : NatElt (R ∘Flr (π₁ ^opF , π₂))
+  -- This is the "universal natural element"
+  πElt : NatElt {C = ∫C Graph} (R ∘Flr (π₁ ^opF , π₂))
   πElt .NatElt.N-ob ((c , d) , r) = r
   -- arbitrary choice alert(!)
   πElt .NatElt.N-hom× ((f , g) , sq) = R .Bif-homL f _ _

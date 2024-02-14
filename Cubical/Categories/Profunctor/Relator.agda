@@ -37,6 +37,7 @@ open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Data.Sigma
 
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More
@@ -45,20 +46,18 @@ private
   variable
     ℓC ℓC' ℓD ℓD' ℓS ℓR : Level
 
--- RELATOR*o : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Category _ _
--- RELATOR*o C ℓS D = Bifunctor (D ^op) C (SET ℓS)
-
--- RELATORo* : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Category _ _
--- RELATORo* C ℓS D = Bifunctor (C ^op) D (SET ℓS)
-
--- _*-[_]-o_ : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
--- C *-[ ℓS ]-o D = RELATOR*o C ℓS D .ob
-
 _o-[_]-*_ : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
 C o-[ ℓS ]-* D = Bifunctor (C ^op) D (SET ℓS)
 
 Relatoro* : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
 Relatoro* C ℓS D = C o-[ ℓS ]-* D
+
+module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
+  Profunctor→Relator : Profunctor C D ℓS → D o-[ ℓS ]-* C
+  Profunctor→Relator P = Sym (CurriedToBifunctor P)
+
+  Relator→Profunctor : D o-[ ℓS ]-* C → Profunctor C D ℓS
+  Relator→Profunctor R = CurryBifunctor (Sym R)
 
 module _ {C : Category ℓC ℓC'} (R : C o-[ ℓS ]-* C) where
   module C = Category C
@@ -100,3 +99,18 @@ module _ {C : Category ℓC ℓC'} (R : C o-[ ℓS ]-* C) where
       cong (R.Bif-homR _ _) (N-natR f)
       ∙ sym (funExt⁻ (R.Bif-R-seq _ _) (N-ob _))
       ∙ sym (N-natR _)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+         {R : D o-[ ℓS ]-* D}
+         (α : NatElt R) (F : Functor C D) where
+  private
+    module F = Functor F
+    module α = NatElt α
+  whisker : NatElt (R ∘Flr (F ^opF , F))
+  whisker .NatElt.N-ob c = α.N-ob (F ⟅ c ⟆)
+  whisker .NatElt.N-hom× f = α.N-hom× (F ⟪ f ⟫)
+  whisker .NatElt.N-ob-hom×-agree =
+    cong α.N-hom× F.F-id
+    ∙ α.N-ob-hom×-agree
+  whisker .NatElt.N-natL f = α.N-natL _
+  whisker .NatElt.N-natR f = α.N-natR _

@@ -1,16 +1,17 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 
 module Cubical.Categories.Exponentials where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.BinProduct.Redundant.Base
+open import Cubical.Categories.Constructions.BinProduct.Redundant.Base as Prod
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.FunctorComprehension
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Adjoint.2Var
 open import Cubical.Categories.Presheaf.Representable
@@ -27,25 +28,25 @@ open isEquiv
 
 module _ (C : Category ℓC ℓC') where
   Exponential : (c d : C .ob) → (∀ (e : C .ob) → BinProduct C c e) → Type _
-  Exponential c d c×- = RightAdjointAt C C (BinProductWithF _ c×-) d
+  Exponential c d c×- = RightAdjointAt (BinProductWithF _ c×-) d
 
   module _ (bp : BinProducts C) where
     open Notation C bp
     Exponentials : Type _
-    Exponentials = 2VarRightAdjointL C C C ×Bif
+    Exponentials = RightAdjointL ×Bif
 
     ExponentialF : Exponentials → Functor ((C ^op) ×C C) C
-    ExponentialF exps = FunctorComprehension _ _ _ exps .fst
+    ExponentialF exps = FunctorComprehension {P = RightAdjointLProf ×Bif} exps ∘F Prod.Sym
 
     module ExpNotation (exp : Exponentials) where
       _⇒_ : C .ob → C .ob → C .ob
-      c ⇒ d = exp (c , d) .vertex
-
-      lda : ∀ {Γ c d} → C [ Γ × c , d ] → C [ Γ , c ⇒ d ]
-      lda f = exp _ .universal _ .equiv-proof f .fst .fst
+      c ⇒ d = exp (d , c) .vertex
 
       app : ∀ {c d} → C [ (c ⇒ d) × c , d ]
-      app = exp _ .element
+      app {c}{d} = exp (d , c) .element
+
+      lda : ∀ {Γ c d} → C [ Γ × c , d ] → C [ Γ , c ⇒ d ]
+      lda  f = exp _ .universal _ .equiv-proof f .fst .fst
 
       app' : ∀ {Γ c d} → C [ Γ , c ⇒ d ] → C [ Γ , c ] → C [ Γ , d ]
       app' f x = app ∘⟨ C ⟩ (f ,p x)

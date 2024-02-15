@@ -83,7 +83,7 @@ module _ (C : Category ℓ ℓ') where
     open import Cubical.Categories.Presheaf.Representable
     open UniversalElement
     open isEquiv
-    F : LeftAdjoint _ _ G
+    F : LeftAdjoint G
     F c .vertex = c
     F c .element = η
     F c .universal d = isIsoToIsEquiv

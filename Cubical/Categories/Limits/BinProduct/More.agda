@@ -15,6 +15,7 @@ open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.FunctorComprehension
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Instances.Sets.More

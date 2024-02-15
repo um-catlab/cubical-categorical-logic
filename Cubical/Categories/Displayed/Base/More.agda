@@ -7,7 +7,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd)
+open import Cubical.Categories.Constructions.BinProduct
+  renaming (Fst to FstBP ; Snd to SndBP)
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
@@ -130,6 +131,23 @@ module _
   Fstᴰsl .Functorᴰ.F-seqᴰ = λ _ _ → refl
 
   -- TODO: mk∫ᴰsFunctor
+  --
+  module _
+    {E : Category ℓE ℓE'}
+    (F : Functor E C)
+    {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+    (Fᴰ : Functorᴰ F Eᴰ (weaken C D))
+    (Gᴰ : Functorᴰ (∫F Fᴰ) (Unitᴰ (∫C Eᴰ)) Cᴰ)
+    where
+
+    open Functorᴰ
+
+    mk∫ᴰsrFunctorᴰ : Functorᴰ F Eᴰ ∫Cᴰsr
+    mk∫ᴰsrFunctorᴰ .F-obᴰ xᴰ = (Fᴰ .F-obᴰ xᴰ) , (Gᴰ .F-obᴰ _ )
+    mk∫ᴰsrFunctorᴰ .F-homᴰ fᴰ = Fᴰ .F-homᴰ fᴰ , Gᴰ .F-homᴰ _
+    mk∫ᴰsrFunctorᴰ .F-idᴰ = ΣPathP ((Fᴰ .F-idᴰ) , (Gᴰ .F-idᴰ))
+    mk∫ᴰsrFunctorᴰ .F-seqᴰ fᴰ gᴰ =
+      ΣPathP ((Fᴰ .F-seqᴰ fᴰ gᴰ) , (Gᴰ .F-seqᴰ _ _))
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category

@@ -154,6 +154,62 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- hasContrHoms𝓟r = hasContrHomsIsoCommaᴰ₁ _ _
   --   {!!}
 
+  open Functorᴰ
+  open UniversalElementNotation
+
+  𝓟us→𝓟r : Functorᴰ Id 𝓟us 𝓟r
+  𝓟us→𝓟r =
+    mk∫ᴰsrFunctorᴰ
+      _
+      Id
+      𝓟us→Weaken𝓟D
+      Unitᴰ∫C𝓟us→IsoCommaᴰ
+    where
+    𝓟us→Weaken𝓟D : Functorᴰ Id 𝓟us (weaken 𝓟 D)
+    𝓟us→Weaken𝓟D .F-obᴰ xᴰ = xᴰ .fst .fst
+    𝓟us→Weaken𝓟D .F-homᴰ fᴰ = fᴰ .fst .fst
+    𝓟us→Weaken𝓟D .F-idᴰ = refl
+    𝓟us→Weaken𝓟D .F-seqᴰ _ _ = refl
+
+    Unitᴰ∫C𝓟us→IsoCommaᴰ :
+      Functorᴰ (∫F 𝓟us→Weaken𝓟D) _ _
+    Unitᴰ∫C𝓟us→IsoCommaᴰ =
+      mkFunctorᴰPropHoms
+        (hasPropHomsIsoCommaᴰ _ _)
+        (λ {(P , ((vert , elt) , isUniversal))} _ →
+          let
+          the-univ-elt =
+            record {
+              vertex = vert;
+              element = elt ;
+              universal = isUniversal } in
+          natTrans
+            (λ d x → lift (intro the-univ-elt (lower x)))
+            (λ f → funExt
+              (λ x → cong lift (sym (intro-natural the-univ-elt)))
+            ) ,
+          isiso
+            (natTrans
+              (λ d x → lift (action _ P (lower x) elt))
+              (λ f → funExt
+                λ x → cong lift (∘ᴾAssoc D P elt (x .lower) f))
+            )
+            (makeNatTransPath
+              (funExt (λ d →
+                  funExt (λ f →
+                    sym (cong lift (η the-univ-elt))))
+            ))
+            (makeNatTransPath
+              (funExt (λ d →
+                funExt (λ f →
+                  cong lift (β the-univ-elt)))))
+        )
+        λ {x y f _ _} _ →
+          makeNatTransPath (funExt (λ d → funExt (λ z →
+            cong lift {!!}
+          ))) ,
+          _
+
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
          (R : Profunctor C D ℓS) where

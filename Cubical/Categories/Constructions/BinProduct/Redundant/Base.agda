@@ -20,7 +20,7 @@ import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec)
 open import Cubical.Categories.Constructions.Presented as Presented
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor.Redundant as Bif hiding (Sym)
 
 private
   variable
@@ -187,6 +187,10 @@ Functor→Bifunctor G = G ∘Fb ηBif _ _
   G .Bif-×-seq f f' g g' = ηBif C D .Bif-×-seq f' f g' g
   G .Bif-L×-agree f = ηBif C D .Bif-L×-agree f
   G .Bif-R×-agree g = ηBif C D .Bif-R×-agree g
+
+Sym : {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+    → Functor (C ×C D) (D ×C C)
+Sym {C = C}{D = D} = rec C D (Bif.Sym (ηBif D C))
 
 module _ {B : Category ℓb ℓb'}{C : Category ℓc ℓc'}
          {D : Category ℓd ℓd'}{E : Category ℓe ℓe'}

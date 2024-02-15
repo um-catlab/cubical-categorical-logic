@@ -54,7 +54,7 @@ module _ (C : Category ℓ ℓ') where
     F = (MES.G (C ^op) E) ^opF
 
     open import Cubical.Categories.Adjoint.UniversalElements
-    G : RightAdjoint _ _ F
+    G : RightAdjoint F
     G = MES.F (C ^op) E
 
   pull : {T T' : ExtensionSystem} → ComonadMorphism T T' →

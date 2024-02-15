@@ -104,7 +104,7 @@ module _ {C : Category ℓ ℓ'} (M : ExtensionSystem C) where
   open import Cubical.Categories.Presheaf.Representable
   open UniversalElement
   open isEquiv
-  Free : LeftAdjoint ALGEBRA C Underlying
+  Free : LeftAdjoint Underlying
   Free c .vertex = FreeAlgebra c
   Free c .element = η
   Free c .universal β = isIsoToIsEquiv

@@ -154,20 +154,6 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- hasContrHoms𝓟r = hasContrHomsIsoCommaᴰ₁ _ _
   --   {!!}
 
-module _ {C : Category ℓC ℓC'}
-         {D : Category ℓD ℓD'}
-         (R : Profunctor C D ℓS) where
-
-  open NatTrans
-  open NatIso
-  open isIsoC
-  open isEquiv
-
-  UniversalElements : Type _
-  UniversalElements =
-    ∀ (c : C .ob)
-    → UniversalElement D (R ⟅ c ⟆)
-
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          {P : Profunctor C D ℓS}
          (ues : UniversalElements P)

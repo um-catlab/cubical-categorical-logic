@@ -544,3 +544,17 @@ ForgetPar F .Bif-idR = F .Bif-R-id
 ForgetPar F .Bif-seqL = F .Bif-L-seq
 ForgetPar F .Bif-seqR = F .Bif-R-seq
 ForgetPar F .Bif-assoc f g = sym (Bif-RL-commute F f g)
+
+_^opBif : Bifunctor C D E
+        → Bifunctor (C ^op) (D ^op) (E ^op)
+_^opBif {C = C}{D = D}{E = E} F = mkBifunctorParAx G where
+  module F = Bifunctor F
+  G : BifunctorParAx (C ^op) (D ^op) (E ^op)
+  G .Bif-ob = F.Bif-ob
+  G .Bif-homL = F.Bif-homL
+  G .Bif-homR = F.Bif-homR
+  G .Bif-hom× = F.Bif-hom×
+  G .Bif-×-id = F.Bif-×-id
+  G .Bif-×-seq f f' g g' = F.Bif-×-seq f' f g' g
+  G .Bif-L×-agree = F.Bif-L×-agree
+  G .Bif-R×-agree = F.Bif-R×-agree

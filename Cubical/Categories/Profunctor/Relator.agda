@@ -44,7 +44,7 @@ open import Cubical.Categories.Instances.Functors.More
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓS ℓR : Level
+    ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓS ℓR : Level
 
 _o-[_]-*_ : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
 C o-[ ℓS ]-* D = Bifunctor (C ^op) D (SET ℓS)
@@ -114,3 +114,13 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     ∙ α.N-ob-hom×-agree
   whisker .NatElt.N-natL f = α.N-natL _
   whisker .NatElt.N-natR f = α.N-natR _
+
+Hom : (C : Category ℓC ℓC') → C o-[ ℓC' ]-* C
+Hom = HomBif
+
+NatElt→NatTrans :
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {F : Functor C D}{G : Functor C D}
+  → NatElt (Hom D ∘Flr (F ^opF , G)) → NatTrans F G
+NatElt→NatTrans ε .NatTrans.N-ob = ε .NatElt.N-ob
+NatElt→NatTrans ε .NatTrans.N-hom = NatElt.N-LR-agree ε

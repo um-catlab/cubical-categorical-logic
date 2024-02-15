@@ -46,3 +46,17 @@ open Bifunctor
 -- instead presheaves
 Profunctor : (C : Category ℓC ℓC')(D : Category ℓD ℓD') → ∀ ℓS → Type _
 Profunctor C D ℓS = Functor C (PresheafCategory D ℓS)
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         (R : Profunctor C D ℓS) where
+
+  open NatTrans
+  open NatIso
+  open isIsoC
+  open isEquiv
+
+  UniversalElements : Type _
+  UniversalElements =
+    ∀ (c : C .ob)
+    → UniversalElement D (R ⟅ c ⟆)

@@ -17,6 +17,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Displayed.Constructions.FullSubcategory
+open import Cubical.Categories.Displayed.Constructions.IsomorphismMore
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
@@ -48,6 +49,7 @@ open NatTrans
 module _ (D : Category ℓD ℓD') (ℓS : Level) where
   private
     𝓟 = PresheafCategory D ℓS
+    𝓟' = PresheafCategory D (ℓ-max ℓS ℓD')
 
   -- Presheaves that have a universal element viewed as property
   -- (morphisms ignore it).
@@ -142,10 +144,12 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- f : iso .cod → iso' .cod
   -- That that commute: iso' ∘ Yo f ≡ α ∘ iso
   -- because Yo is fully faithful, this is contractible.
+  private
+    LiftPsh = (postcomposeF (D ^op) (LiftF {ℓS}{ℓD'}))
+    YO* = (postcomposeF (D ^op) (LiftF {ℓD'}{ℓS}) ∘F YO)
+
   𝓟r : Categoryᴰ 𝓟 _ _
-  𝓟r = IsoCommaᴰ₁
-    (postcomposeF (D ^op) (LiftF {ℓS}{ℓD'}))
-    (postcomposeF (D ^op) (LiftF {ℓD'}{ℓS}) ∘F YO)
+  𝓟r = IsoCommaᴰ₁ LiftPsh YO*
 
   -- this follows from the proof in
   -- Cubical.Categories.Displayed.Constructions.Comma for
@@ -155,7 +159,6 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   --   {!!}
 
   open Functorᴰ
-  open UniversalElementNotation
 
   𝓟us→𝓟r : Functorᴰ Id 𝓟us 𝓟r
   𝓟us→𝓟r =
@@ -173,42 +176,24 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
 
     Unitᴰ∫C𝓟us→IsoCommaᴰ :
       Functorᴰ (∫F 𝓟us→Weaken𝓟D) _ _
-    Unitᴰ∫C𝓟us→IsoCommaᴰ =
-      mkFunctorᴰPropHoms
-        (hasPropHomsIsoCommaᴰ _ _)
-        (λ {(P , ((vert , elt) , isUniversal))} _ →
-          let
-          the-univ-elt =
-            record {
-              vertex = vert;
-              element = elt ;
-              universal = isUniversal } in
-          natTrans
-            (λ d x → lift (intro the-univ-elt (lower x)))
-            (λ f → funExt
-              (λ x → cong lift (sym (intro-natural the-univ-elt)))
-            ) ,
-          isiso
-            (natTrans
-              (λ d x → lift (action _ P (lower x) elt))
-              (λ f → funExt
-                λ x → cong lift (∘ᴾAssoc D P elt (x .lower) f))
-            )
-            (makeNatTransPath
-              (funExt (λ d →
-                  funExt (λ f →
-                    sym (cong lift (η the-univ-elt))))
-            ))
-            (makeNatTransPath
-              (funExt (λ d →
-                funExt (λ f →
-                  cong lift (β the-univ-elt)))))
-        )
-        λ {x y f _ _} _ →
-          makeNatTransPath (funExt (λ d → funExt (λ z →
-            cong lift {!!}
-          ))) ,
-          _
+    Unitᴰ∫C𝓟us→IsoCommaᴰ = mkFunctorᴰPropHoms (hasPropHomsIsoCommaᴰ _ _)
+      (λ {(P , ((vert , elt) , isUniversal))} tt →
+        let open UniversalElementNotation (record { vertex = vert ; element = elt ; universal = isUniversal })
+        in NatIso→FUNCTORIso _ _ introNI)
+      λ {(P , ((vertP , eltP) , isUniversalP)) ((Q , ((vertQ , eltQ) , isUniversalQ))) (α , ((f , sq) , tt)) _ _} tt →
+        let module ueP = UniversalElementNotation (record { vertex = vertP ; element = eltP ; universal = isUniversalP })
+            module ueQ = UniversalElementNotation (record { vertex = vertQ ; element = eltQ ; universal = isUniversalQ })
+        in
+        -- The goal is
+        -- α ⋆ ueQ.introNI .trans ≡ ueP.introNI .trans ⋆ Yo* ⟪ f ⟫
+        -- It is easier to prove in the equivalent form
+        -- inv ueP.introNI ⋆ α ≡ Yo* ⟪ f ⟫ ⋆ inv ueQ.introNI
+        sym (⋆InvsFlipSq⁻ {C = 𝓟'} (NatIso→FUNCTORIso _ _ ueP.introNI) {LiftPsh ⟪ α ⟫}{YO* ⟪ f ⟫} (NatIso→FUNCTORIso _ _ ueQ.introNI)
+          (makeNatTransPath (funExt λ d → funExt λ (lift g) → cong lift
+            (funExt⁻ (Q .F-seq _ _) eltQ
+            ∙ cong (Q .F-hom g) sq
+            ∙ sym (funExt⁻ (α .N-hom _) _)))))
+        , tt
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          {P : Profunctor C D ℓS}

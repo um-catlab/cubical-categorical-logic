@@ -14,6 +14,7 @@ open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 
@@ -79,6 +80,16 @@ module UniversalElementNotation {ℓo}{ℓh}
        {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp} (ue : UniversalElement C P)
        where
   open UniversalElement ue
+  open NatTrans
+  open NatIso
+  REPR : Representation C P
+  REPR = universalElementToRepresentation C P ue
+
+  unIntroNT : NatTrans (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ])) (LiftF {ℓ' = ℓh} ∘F P)
+  unIntroNT = REPR .snd .trans
+
+  introNI : NatIso (LiftF {ℓ' = ℓh} ∘F P) (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
+  introNI = symNatIso (REPR .snd)
 
   intro : ∀ {c} → ⟨ P ⟅ c ⟆ ⟩ → C [ c , vertex ]
   intro p = universal _ .equiv-proof p .fst .fst

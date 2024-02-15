@@ -41,3 +41,26 @@ module _ {C : Category ℓC ℓC'} where
     ⋆Assoc _ _ _ ∙
     cong (λ a → h ⋆⟨ C ⟩ a) (f .snd .sec) ∙
     ⋆IdR _
+
+  ⋆InvsFlipSq : {w x y z : ob}
+    (e : CatIso C w x)
+    {g : C [ w , y ]}
+    {h : C [ x , z ]}
+    (f : CatIso C y z)
+    → e .fst ⋆⟨ C ⟩ h ≡ g ⋆⟨ C ⟩ f .fst
+    → h ⋆⟨ C ⟩ f .snd .inv ≡ e .snd .inv ⋆⟨ C ⟩ g
+  ⋆InvsFlipSq e {g} {h} f p =
+    ⋆InvLMove e
+      (sym (⋆Assoc _ _ _)
+      ∙ sym (⋆InvRMove f (sym p)))
+
+  ⋆InvsFlipSq⁻ : {w x y z : ob}
+    (e : CatIso C w x)
+    {g : C [ w , y ]}
+    {h : C [ x , z ]}
+    (f : CatIso C y z)
+    → h ⋆⟨ C ⟩ f .snd .inv ≡ e .snd .inv ⋆⟨ C ⟩ g
+    → e .fst ⋆⟨ C ⟩ h ≡ g ⋆⟨ C ⟩ f .fst
+  ⋆InvsFlipSq⁻ e f p = ⋆InvLMoveInv e
+    ( sym (⋆InvRMoveInv f (sym p))
+    ∙ ⋆Assoc _ _ _)

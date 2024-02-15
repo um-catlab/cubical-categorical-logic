@@ -86,7 +86,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
 
   -- 3. A *natural* choice of elements for R c (F c) with F c as
   --    vertex
-  -- 
+  --
   -- An object over P is a universal element η
   --
   -- Morphisms over nat trans α : P , η → Q , η' are morphisms
@@ -125,7 +125,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   coherence = mkFunctorᴰContrHoms hasContrHoms𝓟us
     (λ ue → (ue .vertex , (ue .element)) , (ue .universal))
 
-  -- forgetUniversality : Functor (∫C 𝓟us) 
+  -- forgetUniversality : Functor (∫C 𝓟us)
   -- forgetUniversality = {!!}
 
   -- Presheaves equipped with a representation viewed as
@@ -135,7 +135,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- 1. A functor R : C → 𝓟
   -- 2. A functor F : C → D
   -- 3. A natural iso LiftF ∘F R ≅ LiftF ∘F Yo ∘F F
-  -- 
+  --
   -- An object over P is an iso P ≅ Yo c
   --
   -- Morphisms over nat trans α : P , iso → Q , iso' are morphisms
@@ -147,7 +147,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
     (postcomposeF (D ^op) (LiftF {ℓS}{ℓD'}))
     (postcomposeF (D ^op) (LiftF {ℓD'}{ℓS}) ∘F YO)
 
-  -- this follows from the proof in 
+  -- this follows from the proof in
   -- Cubical.Categories.Displayed.Constructions.Comma for
   -- IsoCommaᴰ₁
   -- hasContrHoms𝓟r : hasContrHoms 𝓟r
@@ -187,7 +187,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   counit-elt .N-natL = counit-elt' .N-natL
   counit-elt .N-natR = counit-elt' .N-natR
 
-  private 
+  private
     -- Test to show that counit-elt matches the original universal element
 
     -- This demonstrates that the selection of universal elements is
@@ -195,4 +195,3 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     -- universality
     test-counit-elt-def : ∀ c → counit-elt .N-ob c ≡ ues c .element
     test-counit-elt-def c = refl
-

@@ -7,7 +7,7 @@
 -- | whereas the category of presheaves as defined currently in the
 -- | library only gives the "separate" functorial action. In practice,
 -- | relators tend to only come with a separate action anyway (e.g.,
--- | Hom) but in principle 
+-- | Hom) but in principle
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Profunctor.Relator where
 

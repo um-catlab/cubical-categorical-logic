@@ -3,9 +3,6 @@ module Cubical.Categories.Profunctor.FunctorComprehension where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
-open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -15,17 +12,14 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Displayed.Constructions.FullSubcategory
 open import Cubical.Categories.Displayed.Constructions.IsomorphismMore
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More
-open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
@@ -65,8 +59,6 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   hasContrHoms𝓟up : hasContrHoms 𝓟up
   hasContrHoms𝓟up = hasContrHomsFullSubcategory _ _
 
-  -- When using a relator the convention is to have the contravariant
-  -- variable to go on the left to match Hom
   App : D o-[ ℓS ]-* 𝓟
   App = Profunctor→Relator Id
 
@@ -122,13 +114,9 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
       module ue' = UniversalElementNotation
         (record { vertex = d' ; element = η' ; universal = univ' })
 
-
   coherence : Functorᴰ Id 𝓟up 𝓟us
   coherence = mkFunctorᴰContrHoms hasContrHoms𝓟us
     (λ ue → (ue .vertex , (ue .element)) , (ue .universal))
-
-  -- forgetUniversality : Functor (∫C 𝓟us)
-  -- forgetUniversality = {!!}
 
   -- Presheaves equipped with a representation viewed as
   -- structure
@@ -150,13 +138,6 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
 
   𝓟r : Categoryᴰ 𝓟 _ _
   𝓟r = IsoCommaᴰ₁ LiftPsh YO*
-
-  -- this follows from the proof in
-  -- Cubical.Categories.Displayed.Constructions.Comma for
-  -- IsoCommaᴰ₁
-  -- hasContrHoms𝓟r : hasContrHoms 𝓟r
-  -- hasContrHoms𝓟r = hasContrHomsIsoCommaᴰ₁ _ _
-  --   {!!}
 
   open Functorᴰ
 
@@ -236,3 +217,23 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     -- universality
     test-counit-elt-def : ∀ c → counit-elt .N-ob c ≡ ues c .element
     test-counit-elt-def c = refl
+
+    LiftPsh = (postcomposeF (D ^op) (LiftF {ℓS}{ℓD'}))
+    YO* = (postcomposeF (D ^op) (LiftF {ℓD'}{ℓS}) ∘F YO)
+
+    ReAssoc : Functor (∫C (𝓟r D ℓS)) (IsoComma LiftPsh YO*)
+    ReAssoc = Assoc-sr⁻ (IsoCommaᴰ LiftPsh YO*)
+
+    P-iso : Functor C (∫C (IsoCommaᴰ LiftPsh YO*))
+    P-iso =
+      Assoc-sr⁻ (IsoCommaᴰ LiftPsh YO*)
+      ∘F ∫F (𝓟us→𝓟r D ℓS)
+      ∘F Pus
+
+  ProfIso' : NatIso _ _
+  ProfIso' = π≅ LiftPsh YO* ∘ˡⁱ P-iso
+
+  ProfIso : NatIso (LiftPsh ∘F P) (YO* ∘F FunctorComprehension)
+  ProfIso .trans .N-ob = ProfIso' .trans .N-ob
+  ProfIso .trans .N-hom = ProfIso' .trans .N-hom
+  ProfIso .nIso = ProfIso' .nIso

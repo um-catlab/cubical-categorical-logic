@@ -86,3 +86,12 @@ module _ {A : Category ℓA ℓA'}
       (preserveIsosF {F = 𝔽}
         (NatIso→FUNCTORIso A B β)
       )
+
+module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  open NatTrans
+  -- whiskering
+  -- αF
+  _∘ˡⁱ_ : ∀ {G H : Functor C D} (α : NatIso G H) → (F : Functor B C)
+        → NatIso (G ∘F F) (H ∘F F)
+  _∘ˡⁱ_ {G} {H} α F .trans = α .trans ∘ˡ F
+  _∘ˡⁱ_ {G} {H} α F .nIso x = α .nIso (F ⟅ x ⟆)

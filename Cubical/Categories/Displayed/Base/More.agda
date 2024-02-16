@@ -149,6 +149,38 @@ module _
     mk∫ᴰsrFunctorᴰ .F-seqᴰ fᴰ gᴰ =
       ΣPathP ((Fᴰ .F-seqᴰ fᴰ gᴰ) , (Gᴰ .F-seqᴰ _ _))
 
+  Assocᴰsr : Functorᴰ (FstBP C D) Cᴰ ∫Cᴰsr
+  Assocᴰsr = mk∫ᴰsrFunctorᴰ _ Π2 Π3 where
+    open Functorᴰ
+    Π2 : Functorᴰ (FstBP C D) Cᴰ (weaken C D)
+    Π2 .F-obᴰ {x}        _ = x .snd
+    Π2 .F-homᴰ {_}{_}{f} _ = f .snd
+    Π2 .F-idᴰ       = refl
+    Π2 .F-seqᴰ _ _  = refl
+
+    Π3 : Functorᴰ (∫F Π2) (Unitᴰ (∫C Cᴰ)) Cᴰ
+    Π3 .F-obᴰ {x}        _ = x .snd
+    Π3 .F-homᴰ {_}{_}{f} _ = f .snd
+    Π3 .F-idᴰ      = refl
+    Π3 .F-seqᴰ _ _ = refl
+
+  Assoc-sr⁻ : Functor (∫C ∫Cᴰsr) (∫C Cᴰ)
+  Assoc-sr⁻ = mk∫Functor Assc Assc' where
+    open Functor
+    open Functorᴰ
+    -- Might want this at the top level
+    Assc : Functor (∫C ∫Cᴰsr) (C ×C D)
+    Assc .F-ob (c , (d , _)) = c , d
+    Assc .F-hom (f , (g , _)) = f , g
+    Assc .F-id = refl
+    Assc .F-seq _ _ = refl
+
+    Assc' : Functorᴰ Assc _ Cᴰ
+    Assc' .F-obᴰ {x}        _ = x .snd .snd
+    Assc' .F-homᴰ {_}{_}{f} _ = f .snd .snd
+    Assc' .F-idᴰ = refl
+    Assc' .F-seqᴰ _ _ = refl
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category
   private

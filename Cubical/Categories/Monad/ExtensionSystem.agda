@@ -227,7 +227,8 @@ module _ (C : Category ℓ ℓ') where
       lem0 : comp' C (comp' C (M .snd .IsMonad.μ ⟦ _ ⟧) (M .fst ⟪ f ⟫))
         (comp' C (M .snd .IsMonad.μ ⟦ _ ⟧) (M .fst ⟪ g ⟫))
            ≡ M .snd .IsMonad.μ ⟦ _ ⟧ ∘⟨ C ⟩
-             (M .fst ⟪ f ⟫ ∘⟨ C ⟩ M .snd .IsMonad.μ ⟦ _ ⟧) ∘⟨ C ⟩ (M .fst ⟪ g ⟫)
+             (M .fst ⟪ f ⟫ ∘⟨ C ⟩
+               M .snd .IsMonad.μ ⟦ _ ⟧) ∘⟨ C ⟩ (M .fst ⟪ g ⟫)
       lem0 = solveCat! C
 
       lem1 : (C ⋆ (C ⋆ F-hom (M .fst) g)

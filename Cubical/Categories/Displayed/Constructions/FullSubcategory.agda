@@ -64,4 +64,5 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
              Dᴰ .ob[_] x → ob[ FullSubcategoryᴰ ] (F .F-ob x))
            where
     mkFullSubcategoryᴰFunctorᴰ : Functorᴰ F Dᴰ FullSubcategoryᴰ
-    mkFullSubcategoryᴰFunctorᴰ = mkFunctorᴰContrHoms hasContrHomsFullSubcategory F-obᴰ
+    mkFullSubcategoryᴰFunctorᴰ =
+      mkFunctorᴰContrHoms hasContrHomsFullSubcategory F-obᴰ

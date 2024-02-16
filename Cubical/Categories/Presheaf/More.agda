@@ -77,7 +77,8 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   UniversalElementToUniversalElementOn ue .snd = ue .universal
 
 module UniversalElementNotation {ℓo}{ℓh}
-       {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp} (ue : UniversalElement C P)
+       {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
+       (ue : UniversalElement C P)
        where
   open UniversalElement ue
   open NatTrans
@@ -85,7 +86,8 @@ module UniversalElementNotation {ℓo}{ℓh}
   REPR : Representation C P
   REPR = universalElementToRepresentation C P ue
 
-  unIntroNT : NatTrans (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ])) (LiftF {ℓ' = ℓh} ∘F P)
+  unIntroNT : NatTrans (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
+                       (LiftF {ℓ' = ℓh} ∘F P)
   unIntroNT = REPR .snd .trans
 
   introNI : NatIso (LiftF {ℓ' = ℓh} ∘F P) (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
@@ -116,7 +118,8 @@ module UniversalElementNotation {ℓo}{ℓh}
     ∙ cong (action C P _) β)
     ∙ sym β)
 
-module _ {C : Category ℓ ℓ'} (isUnivC : isUnivalent C) (P : Presheaf C ℓS) where
+module _
+  {C : Category ℓ ℓ'} (isUnivC : isUnivalent C) (P : Presheaf C ℓS) where
   open Contravariant
   isPropUniversalElement : isProp (UniversalElement C P)
   isPropUniversalElement = isOfHLevelRetractFromIso 1

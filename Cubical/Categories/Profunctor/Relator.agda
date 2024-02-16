@@ -1,4 +1,5 @@
--- | A Relator contravariant in C and covariant in D is a bifunctor C ^op x D → Set.
+-- | A Relator contravariant in C and covariant in D is
+-- | a bifunctor C ^op x D → Set.
 
 -- | This is equivalent to a functor D → Psh(C), but some concepts are
 -- | more naturally formulated in these terms.
@@ -63,7 +64,8 @@ module _ {C : Category ℓC ℓC'} (R : C o-[ ℓS ]-* C) where
   module C = Category C
   module R = Bifunctor R
   -- Natural Element of a profunctor
-  -- Example: A natural transformation F ⇒ G is a natural element of Hom[ F , G ]
+  -- Example: A natural transformation F ⇒ G is
+  -- a natural element of Hom[ F , G ]
 
   -- Note this is a "redundant" definition, it specifies an action on
   -- objects and an action on morphisms and asks that they agree up to

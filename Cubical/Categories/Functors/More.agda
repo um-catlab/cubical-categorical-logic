@@ -16,7 +16,8 @@ open Functor
 
 ConstantComposeFunctor :
   (C : Category ℓC ℓC') (D : Category ℓD ℓD' ) (c : C .ob)
-  (F : Functor C D) → Constant (D ^op) D (F .F-ob c) ≡ F ∘F Constant (D ^op) C c
+  (F : Functor C D) →
+  Constant (D ^op) D (F .F-ob c) ≡ F ∘F Constant (D ^op) C c
 ConstantComposeFunctor C D c F = Functor≡
   (λ c → ( refl ))
     (λ f → (
@@ -26,7 +27,10 @@ ConstantComposeFunctor C D c F = Functor≡
   ))
 
 -- The data of a functor, parameterized by the action on objects
-record ActionOnMorphisms (C : Category ℓC ℓC') (D : Category ℓD ℓD') (F₀ : C .ob → D .ob) : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD') where
+record ActionOnMorphisms
+  (C : Category ℓC ℓC')
+  (D : Category ℓD ℓD')
+  (F₀ : C .ob → D .ob) : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD') where
   no-eta-equality
 
   open Category
@@ -39,7 +43,8 @@ record ActionOnMorphisms (C : Category ℓC ℓC') (D : Category ℓD ℓD') (F�
 
 open ActionOnMorphisms
 
-ActionOnMorphisms→Functor : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{F₀ : C .ob → D .ob}
+ActionOnMorphisms→Functor :
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{F₀ : C .ob → D .ob}
                           → ActionOnMorphisms C D F₀
                           → Functor C D
 ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-ob = F₀

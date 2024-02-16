@@ -95,18 +95,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   hasPropHomsIsoCommaᴰ₁ G-faithful f (d , iso) (d' , iso') =
     isPropRetract
       (λ (g , sq , _) → g , ⋆InvLMove iso (sym sq) ∙ sym (E .⋆Assoc _ _ _))
-      (λ (g , sq) → g , sym (⋆InvLMoveInv iso (sq ∙ E .⋆Assoc _ _ _)), tt)
+      (λ (g , sq) → g , sym (⋆InvLMove⁻ iso (sq ∙ E .⋆Assoc _ _ _)), tt)
       ((λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl))
-      (isEmbedding→hasPropFibers (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
+      (isEmbedding→hasPropFibers
+        (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
        (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))
 
   hasContrHomsIsoCommaᴰ₁ : isFullyFaithful G → hasContrHoms IsoCommaᴰ₁
   hasContrHomsIsoCommaᴰ₁ Gff f (d , e) (d' , e') =
     inhProp→isContr
       (g .fst .fst
-      , sym (⋆InvLMoveInv e (g .fst .snd ∙ E .⋆Assoc _ _ _))
+      , sym (⋆InvLMove⁻ e (g .fst .snd ∙ E .⋆Assoc _ _ _))
       , tt)
-      (hasPropHomsIsoCommaᴰ₁ (isFullyFaithful→Faithful {F = G} Gff) f (d , e) (d' , e'))
+      (hasPropHomsIsoCommaᴰ₁
+        (isFullyFaithful→Faithful {F = G} Gff) f (d , e) (d' , e'))
       where
         G⟪g⟫ : E [ G .F-ob d , G .F-ob d' ]
         G⟪g⟫ = e .snd .inv ⋆⟨ E ⟩ F ⟪ f ⟫ ⋆⟨ E ⟩ e' .fst

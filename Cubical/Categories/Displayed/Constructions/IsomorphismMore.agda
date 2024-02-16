@@ -19,24 +19,23 @@ module _ {C : Category ℓC ℓC'} where
   open Category C
   open isIso
 
-  -- TODO Better names
-  ⋆InvLMoveInv : {x y z : ob}
+  ⋆InvLMove⁻ : {x y z : ob}
     (f : CatIso C x y)
     {g : Hom[ y , z ]}{h : Hom[ x , z ]}
     → g ≡ f .snd .inv ⋆ h
     → f .fst ⋆ g ≡ h
-  ⋆InvLMoveInv f {g = g} {h = h} p =
+  ⋆InvLMove⁻ f {g = g} {h = h} p =
     cong (λ a → f .fst ⋆⟨ C ⟩ a) p ∙
     sym (⋆Assoc _ _ _) ∙
     cong (λ a → a ⋆⟨ C ⟩ h) (f .snd .ret) ∙
     ⋆IdL _
 
-  ⋆InvRMoveInv : {x y z : ob}
+  ⋆InvRMove⁻ : {x y z : ob}
     (f : CatIso C y z)
     {g : Hom[ x , y ]}{h : Hom[ x , z ]}
     → g ≡ h ⋆ f .snd .inv
     → g ⋆ f .fst ≡ h
-  ⋆InvRMoveInv f {g = g} {h = h} p =
+  ⋆InvRMove⁻ f {g = g} {h = h} p =
     cong (λ a → a ⋆⟨ C ⟩ f .fst) p ∙
     ⋆Assoc _ _ _ ∙
     cong (λ a → h ⋆⟨ C ⟩ a) (f .snd .sec) ∙
@@ -61,6 +60,6 @@ module _ {C : Category ℓC ℓC'} where
     (f : CatIso C y z)
     → h ⋆⟨ C ⟩ f .snd .inv ≡ e .snd .inv ⋆⟨ C ⟩ g
     → e .fst ⋆⟨ C ⟩ h ≡ g ⋆⟨ C ⟩ f .fst
-  ⋆InvsFlipSq⁻ e f p = ⋆InvLMoveInv e
-    ( sym (⋆InvRMoveInv f (sym p))
+  ⋆InvsFlipSq⁻ e f p = ⋆InvLMove⁻ e
+    ( sym (⋆InvRMove⁻ f (sym p))
     ∙ ⋆Assoc _ _ _)

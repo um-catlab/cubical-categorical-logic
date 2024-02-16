@@ -5,7 +5,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function hiding (_∘_)
-open import Cubical.Foundations.GroupoidLaws using (lUnit; rUnit; assoc; cong-∙)
+open import Cubical.Foundations.GroupoidLaws
+  using (lUnit; rUnit; assoc; cong-∙)
 open import Cubical.Foundations.HLevels
 open import Cubical.Functions.Surjection
 open import Cubical.Functions.Embedding

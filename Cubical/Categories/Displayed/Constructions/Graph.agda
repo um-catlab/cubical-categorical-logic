@@ -1,5 +1,6 @@
 {-
-  The graph category of a profunctor viewed as a displayed category over the product.
+  The graph category of a profunctor viewed as a displayed category
+  over the product.
 -}
 
 {-# OPTIONS --safe #-}

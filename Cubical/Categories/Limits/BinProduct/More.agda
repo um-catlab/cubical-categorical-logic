@@ -50,7 +50,8 @@ module _ (C : Category ℓ ℓ') where
     -- This definition looks promising at first, but doesn't give the
     -- right behavior for BinProductWithF ⟪_⟫
     BadBinProductProf : Profunctor (C R.×C C) C ℓ'
-    BadBinProductProf = (precomposeF _ (Δ C ^opF) ∘F YO) ∘F R.RedundantToProd C C
+    BadBinProductProf =
+      (precomposeF _ (Δ C ^opF) ∘F YO) ∘F R.RedundantToProd C C
 
   BinProductProf : Profunctor (C ⊗ C) C ℓ'
   BinProductProf = R.rec _ _ (PshProd ∘Flr (YO , YO))

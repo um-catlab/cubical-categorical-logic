@@ -94,8 +94,10 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- | reassociativity and projection but need to implement those
   -- | functors
   ForgetUniversal : Functor (∫C 𝓟us) (∫C (Graph App))
-  ForgetUniversal .F-ob x = ((x .snd .fst .fst) , (x .fst)) , (x .snd .fst .snd)
-  ForgetUniversal .F-hom α = ((α .snd .fst .fst) , (α .fst)) , (α .snd .fst .snd)
+  ForgetUniversal .F-ob x =
+    ((x .snd .fst .fst) , (x .fst)) , (x .snd .fst .snd)
+  ForgetUniversal .F-hom α =
+    ((α .snd .fst .fst) , (α .fst)) , (α .snd .fst .snd)
   ForgetUniversal .F-id = refl
   ForgetUniversal .F-seq _ _ = refl
 
@@ -159,17 +161,27 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
       Functorᴰ (∫F 𝓟us→Weaken𝓟D) _ _
     Unitᴰ∫C𝓟us→IsoCommaᴰ = mkFunctorᴰPropHoms (hasPropHomsIsoCommaᴰ _ _)
       (λ {(P , ((vert , elt) , isUniversal))} tt →
-        let open UniversalElementNotation (record { vertex = vert ; element = elt ; universal = isUniversal })
+        let open UniversalElementNotation (record { vertex = vert ;
+                                                    element = elt ;
+                                                    universal = isUniversal })
         in NatIso→FUNCTORIso _ _ introNI)
-      λ {(P , ((vertP , eltP) , isUniversalP)) ((Q , ((vertQ , eltQ) , isUniversalQ))) (α , ((f , sq) , tt)) _ _} tt →
-        let module ueP = UniversalElementNotation (record { vertex = vertP ; element = eltP ; universal = isUniversalP })
-            module ueQ = UniversalElementNotation (record { vertex = vertQ ; element = eltQ ; universal = isUniversalQ })
+      λ {(P , ((vertP , eltP) , isUniversalP))
+        ((Q , ((vertQ , eltQ) , isUniversalQ))) (α , ((f , sq) , tt)) _ _} tt →
+        let module ueP = UniversalElementNotation (record {
+                                                    vertex = vertP ;
+                                                    element = eltP ;
+                                                    universal = isUniversalP })
+            module ueQ = UniversalElementNotation (record {
+                                                    vertex = vertQ ;
+                                                    element = eltQ ;
+                                                    universal = isUniversalQ })
         in
         -- The goal is
         -- α ⋆ ueQ.introNI .trans ≡ ueP.introNI .trans ⋆ Yo* ⟪ f ⟫
         -- It is easier to prove in the equivalent form
         -- inv ueP.introNI ⋆ α ≡ Yo* ⟪ f ⟫ ⋆ inv ueQ.introNI
-        sym (⋆InvsFlipSq⁻ {C = 𝓟'} (NatIso→FUNCTORIso _ _ ueP.introNI) {LiftPsh ⟪ α ⟫}{YO* ⟪ f ⟫} (NatIso→FUNCTORIso _ _ ueQ.introNI)
+        sym (⋆InvsFlipSq⁻ {C = 𝓟'} (NatIso→FUNCTORIso _ _ ueP.introNI)
+          {LiftPsh ⟪ α ⟫}{YO* ⟪ f ⟫} (NatIso→FUNCTORIso _ _ ueQ.introNI)
           (makeNatTransPath (funExt λ d → funExt λ (lift g) → cong lift
             (funExt⁻ (Q .F-seq _ _) eltQ
             ∙ cong (Q .F-hom g) sq
@@ -197,7 +209,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FunctorComprehension = π₁ (App D ℓS) ∘F P-elt
 
   -- The profunctor here is definitionally iso to R(F -, =), as we see below
-  counit-elt' : NatElt ((App D ℓS) ∘Flr ((π₁ (App D ℓS) ^opF) , π₂ (App D ℓS)) ∘Flr ((P-elt ^opF) , P-elt))
+  counit-elt' : NatElt ((App D ℓS) ∘Flr ((π₁ (App D ℓS) ^opF) ,
+                        π₂ (App D ℓS)) ∘Flr ((P-elt ^opF) , P-elt))
   counit-elt' = whisker (πElt (App D ℓS)) P-elt
 
   open NatElt

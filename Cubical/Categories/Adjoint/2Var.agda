@@ -47,7 +47,8 @@ module _ {C : Category ℓC ℓC'}
 
   RightAdjointLProf : Profunctor (E ×C (D ^op)) C ℓE'
   RightAdjointLProf =
-    CurryBifunctor (assoc-bif⁻ (Bif.Sym (HomBif E ∘Fl rec (D ^op) (C ^op) (Bif.Sym (F ^opBif)))))
+    CurryBifunctor (assoc-bif⁻ (Bif.Sym
+      (HomBif E ∘Fl rec (D ^op) (C ^op) (Bif.Sym (F ^opBif)))))
 
   RightAdjointL : Type _
   RightAdjointL = UniversalElements RightAdjointLProf

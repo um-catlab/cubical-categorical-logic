@@ -131,27 +131,28 @@ module _ (C : Category ℓc ℓc') (D : Category ℓd ℓd') where
       ı <$g> hom× f g = G ⟪ f , g ⟫×
 
   RedundantToProd : Functor _×C_ (C BP.×C D)
-  RedundantToProd = rec (mkBifunctorParAx G1) BP.,F rec (mkBifunctorParAx G2) where
-    open BifunctorParAx
-    G1 : BifunctorParAx C D C
-    G1 .Bif-ob c d = c
-    G1 .Bif-homL f d = f
-    G1 .Bif-homR c g = C .id
-    G1 .Bif-hom× f g = f
-    G1 .Bif-×-id = refl
-    G1 .Bif-×-seq _ _ _ _ = refl
-    G1 .Bif-L×-agree _ = refl
-    G1 .Bif-R×-agree _ = refl
+  RedundantToProd =
+    rec (mkBifunctorParAx G1) BP.,F rec (mkBifunctorParAx G2) where
+      open BifunctorParAx
+      G1 : BifunctorParAx C D C
+      G1 .Bif-ob c d = c
+      G1 .Bif-homL f d = f
+      G1 .Bif-homR c g = C .id
+      G1 .Bif-hom× f g = f
+      G1 .Bif-×-id = refl
+      G1 .Bif-×-seq _ _ _ _ = refl
+      G1 .Bif-L×-agree _ = refl
+      G1 .Bif-R×-agree _ = refl
 
-    G2 : BifunctorParAx C D D
-    G2 .Bif-ob c d = d
-    G2 .Bif-homL f d = D .id
-    G2 .Bif-homR c g = g
-    G2 .Bif-hom× f g = g
-    G2 .Bif-×-id = refl
-    G2 .Bif-×-seq _ _ _ _ = refl
-    G2 .Bif-L×-agree _ = refl
-    G2 .Bif-R×-agree _ = refl
+      G2 : BifunctorParAx C D D
+      G2 .Bif-ob c d = d
+      G2 .Bif-homL f d = D .id
+      G2 .Bif-homR c g = g
+      G2 .Bif-hom× f g = g
+      G2 .Bif-×-id = refl
+      G2 .Bif-×-seq _ _ _ _ = refl
+      G2 .Bif-L×-agree _ = refl
+      G2 .Bif-R×-agree _ = refl
 
 Functor→Bifunctor : {C : Category ℓc ℓc'}
                     {D : Category ℓd ℓd'}{E : Category ℓe ℓe'}

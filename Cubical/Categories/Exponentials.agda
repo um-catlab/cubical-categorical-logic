@@ -36,7 +36,8 @@ module _ (C : Category ℓC ℓC') where
     Exponentials = RightAdjointL ×Bif
 
     ExponentialF : Exponentials → Functor ((C ^op) ×C C) C
-    ExponentialF exps = FunctorComprehension {P = RightAdjointLProf ×Bif} exps ∘F Prod.Sym
+    ExponentialF exps =
+      FunctorComprehension {P = RightAdjointLProf ×Bif} exps ∘F Prod.Sym
 
     module ExpNotation (exp : Exponentials) where
       _⇒_ : C .ob → C .ob → C .ob
@@ -58,7 +59,8 @@ module _ (C : Category ℓC ℓC') where
         -- Tests that show the exponential bifunctor has the desirable
         -- definitions
         good : ∀ {c c' d d'} (f : C [ c' , c ])(g : C [ d , d' ])
-            → lda (g ∘⟨ C ⟩ (app' π₁ (f ∘⟨ C ⟩ π₂))) ≡ ExponentialBif ⟪ f , g ⟫×
+            → lda
+                (g ∘⟨ C ⟩ (app' π₁ (f ∘⟨ C ⟩ π₂))) ≡ ExponentialBif ⟪ f , g ⟫×
         good f g = refl
 
         good-f : ∀ {c c' d} (f : C [ c' , c ])

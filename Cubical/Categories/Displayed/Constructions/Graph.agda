@@ -71,4 +71,5 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   πElt .NatElt.N-natR ((f , g), sq) = sq
 
   -- TODO: show Graph is a two-sided discrete fibration
-  -- https://ncatlab.org/nlab/show/profunctor#in_terms_of_twosided_discrete_fibrations
+  -- https://ncatlab.org/nlab/show/
+  -- profunctor#in_terms_of_twosided_discrete_fibrations

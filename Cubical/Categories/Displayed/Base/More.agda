@@ -233,15 +233,18 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module Cᴰ = Categoryᴰ Cᴰ
 
   hasContrHoms : Type _
-  hasContrHoms = ∀ {c c' : C .ob}(f : C [ c , c' ])(cᴰ : Cᴰ.ob[ c ])(cᴰ' : Cᴰ.ob[ c' ])
-    → isContr Cᴰ.Hom[ f ][ cᴰ , cᴰ' ]
+  hasContrHoms =
+    ∀ {c c' : C .ob}(f : C [ c , c' ])(cᴰ : Cᴰ.ob[ c ])(cᴰ' : Cᴰ.ob[ c' ])
+      → isContr Cᴰ.Hom[ f ][ cᴰ , cᴰ' ]
 
   hasPropHoms : Type _
-  hasPropHoms = ∀ {c c' : C .ob}(f : C [ c , c' ])(cᴰ : Cᴰ.ob[ c ])(cᴰ' : Cᴰ.ob[ c' ])
-    → isProp Cᴰ.Hom[ f ][ cᴰ , cᴰ' ]
+  hasPropHoms =
+    ∀ {c c' : C .ob}(f : C [ c , c' ])(cᴰ : Cᴰ.ob[ c ])(cᴰ' : Cᴰ.ob[ c' ])
+      → isProp Cᴰ.Hom[ f ][ cᴰ , cᴰ' ]
 
   hasContrHoms→hasPropHoms : hasContrHoms → hasPropHoms
-  hasContrHoms→hasPropHoms contrHoms = λ f cᴰ cᴰ' → isContr→isProp (contrHoms f cᴰ cᴰ')
+  hasContrHoms→hasPropHoms contrHoms =
+    λ f cᴰ cᴰ' → isContr→isProp (contrHoms f cᴰ cᴰ')
 
 module _
        {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -255,15 +258,19 @@ module _
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
 
-  mkFunctorᴰPropHoms : (propHoms : hasPropHoms Dᴰ)
-                      → (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
-                      → (F-homᴰ : {x y : C .ob} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
-                        → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ])
-                      → Functorᴰ F Cᴰ Dᴰ
+  mkFunctorᴰPropHoms :
+    (propHoms : hasPropHoms Dᴰ)
+      → (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
+      → (F-homᴰ : {x y : C .ob}
+        {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+        → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ])
+      → Functorᴰ F Cᴰ Dᴰ
   mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-obᴰ = F-obᴰ
   mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-homᴰ = F-homᴰ
-  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-idᴰ = isProp→PathP (λ i → propHoms _ _ _) _ _
-  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-seqᴰ _ _ = isProp→PathP (λ i → propHoms _ _ _) _ _
+  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-idᴰ =
+    isProp→PathP (λ i → propHoms _ _ _) _ _
+  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-seqᴰ _ _ =
+    isProp→PathP (λ i → propHoms _ _ _) _ _
 
   mkFunctorᴰContrHoms : (contrHoms : hasContrHoms Dᴰ)
                       → (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])

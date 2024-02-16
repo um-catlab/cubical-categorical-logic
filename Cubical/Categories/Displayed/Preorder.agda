@@ -37,10 +37,12 @@ module _
   private
     module Pᴰ = Preorderᴰ Pᴰ
     module Qᴰ = Preorderᴰ Qᴰ
-  record Monotoneᴰ : Type ((ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD')) (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓDᴰ ℓDᴰ')))) where
+  record Monotoneᴰ : Type ((ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+                           (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓDᴰ ℓDᴰ')))) where
     field
       F-obᴰ  : {x : C .ob} → Pᴰ.ob[ x ] → Qᴰ.ob[ F .F-ob x ]
-      F-homᴰ : {x y : C .ob} {f : C [ x , y ]} {xᴰ : Pᴰ.ob[ x ]} {yᴰ : Pᴰ.ob[ y ]}
+      F-homᴰ : {x y : C .ob} {f : C [ x , y ]}
+        {xᴰ : Pᴰ.ob[ x ]} {yᴰ : Pᴰ.ob[ y ]}
         → Pᴰ.Hom[ f ][ xᴰ , yᴰ ] → Qᴰ.Hom[ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]
 
 module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
@@ -68,7 +70,8 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
 
   Preorderᴰ→FstFaithful : isFaithful (Fst {Cᴰ = Preorderᴰ→Catᴰ})
   Preorderᴰ→FstFaithful x y f g p =
-    ΣPathP (p , isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))
+    ΣPathP (p ,
+      isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))
 
   module Pᴰ = Preorderᴰ Pᴰ
   record Section  : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) where
@@ -100,8 +103,10 @@ module _
 
   module _
        (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Qᴰ.ob[ F .F-ob x ])
-       (F-homᴰ : {x y : C .ob} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
-        → Cᴰ.Hom[ f ][ xᴰ , yᴰ ] → Qᴰ.Hom[ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]) where
+       (F-homᴰ : {x y : C .ob} {f : C [ x , y ]}
+       {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+        → Cᴰ.Hom[ f ][ xᴰ , yᴰ ]
+        → Qᴰ.Hom[ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]) where
 
     mkP→CᴰFunctorᴰ : Functorᴰ F Cᴰ (Preorderᴰ→Catᴰ Qᴰ)
     mkP→CᴰFunctorᴰ = mkFunctorᴰPropHoms (hasPropHomsPreorderᴰ Qᴰ) F-obᴰ F-homᴰ

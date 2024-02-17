@@ -61,8 +61,9 @@ module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
   Relator→Profunctor R = CurryBifunctor (Sym R)
 
 module _ {C : Category ℓC ℓC'} (R : C o-[ ℓS ]-* C) where
-  module C = Category C
-  module R = Bifunctor R
+  private
+    module C = Category C
+    module R = Bifunctor R
   -- Natural Element of a profunctor
   -- Example: A natural transformation F ⇒ G is
   -- a natural element of Hom[ F , G ]

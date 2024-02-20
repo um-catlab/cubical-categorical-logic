@@ -1,4 +1,26 @@
 {-# OPTIONS --safe --lossy-unification #-}
+{--
+ -- Functor Comprehension
+ -- ======================
+ -- This module provides a method for constructing functors without
+ -- providing the full functorial structure up front.
+ --
+ -- The idea is that if you wish to define a functor F : C → D, via
+ -- some universal property P. Instead of doing this process entirely
+ -- manually, you can prove the functoriality of the universal property P
+ -- and give for each c ∈ C some object F c ∈ D satisfying the property
+ -- P c.
+ --
+ -- Conveniently, we need only provide an explicit action on objects. The
+ -- functoriality of P induces a unique action on morphisms.
+ --
+ -- Putting all of this together, the action on objects can then
+ -- uniquely be extended functorially to a functor F : C → D.
+ --
+ -- Constructing a functor in this method saves a lot of work in
+ -- repeatedly demonstrating functoriality
+ --
+ --}
 module Cubical.Categories.Profunctor.FunctorComprehension where
 
 open import Cubical.Foundations.Prelude
@@ -13,7 +35,7 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Constructions.FullSubcategory
-open import Cubical.Categories.Displayed.Constructions.IsomorphismMore
+open import Cubical.Categories.Isomorphism.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
@@ -25,6 +47,8 @@ open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
+open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Displayed.Base.DisplayOverProjections
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Profunctor.Relator
@@ -198,6 +222,9 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 
     Pus : Functor C (∫C (𝓟us D ℓS))
     Pus = ∫F (coherence D ℓS) ∘F Pup
+
+    Pr : Functor C (∫C (𝓟r D ℓS))
+    Pr = ∫F (𝓟us→𝓟r D ℓS) ∘F Pus
 
     P-elt : Functor C (∫C (Graph (App D ℓS)))
     P-elt = ForgetUniversal D ℓS ∘F Pus

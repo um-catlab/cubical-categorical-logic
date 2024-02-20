@@ -45,8 +45,13 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   Fst .F-seq =
     λ f g → cong {x = f ⋆⟨ ∫C Cᴰ ⟩ g} fst refl
 
-  -- Snd : Functorᴰ Fst {!weaken!} {!!}
-  -- Snd = {!!}
+  -- TODO : There was a comment here with a Snd stub
+  -- I think this is what you wanted to do?
+  Snd : Functorᴰ Fst (weaken (∫C Cᴰ) C) Cᴰ
+  Snd .F-obᴰ {x} _ = x .snd
+  Snd .F-homᴰ {_}{_}{f} _ = f .snd
+  Snd .F-idᴰ = refl
+  Snd .F-seqᴰ _ _ = refl
 
   module _ {D : Category ℓD ℓD'}
            (F : Functor D C)
@@ -85,101 +90,6 @@ module _ {C : Category ℓC ℓC'}
     mk∫ᴰFunctorᴰ .F-homᴰ fᴰ = (Fᴰ .F-homᴰ fᴰ) , (Gᴰ .F-homᴰ _)
     mk∫ᴰFunctorᴰ .F-idᴰ = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
     mk∫ᴰFunctorᴰ .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ .F-seqᴰ fᴰ gᴰ , Gᴰ .F-seqᴰ _ _)
-
-module _
-  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-  (Cᴰ : Categoryᴰ (C ×C D) ℓCᴰ ℓCᴰ')
-  where
-  open Category
-
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-
-  -- s for "simple" because D is not dependent on C
-  ∫Cᴰsr : Categoryᴰ C (ℓ-max ℓD ℓCᴰ) (ℓ-max ℓD' ℓCᴰ')
-  ∫Cᴰsr .ob[_] c = Σ[ d ∈ D .ob ] Cᴰ.ob[ c , d ]
-  ∫Cᴰsr .Hom[_][_,_] f (d , cᴰ) (d' , cᴰ') =
-    Σ[ g ∈ D [ d , d' ] ] Cᴰ.Hom[ f , g ][ cᴰ , cᴰ' ]
-  ∫Cᴰsr .idᴰ = (D .id) , Cᴰ.idᴰ
-  ∫Cᴰsr ._⋆ᴰ_ (f , fᴰ) (g , gᴰ) = (f ⋆⟨ D ⟩ g) , (fᴰ Cᴰ.⋆ᴰ gᴰ)
-  ∫Cᴰsr .⋆IdLᴰ (f , fᴰ) = ΣPathP (_ , Cᴰ.⋆IdLᴰ _)
-  ∫Cᴰsr .⋆IdRᴰ _ = ΣPathP (_ , Cᴰ.⋆IdRᴰ _)
-  ∫Cᴰsr .⋆Assocᴰ _ _ _ = ΣPathP (_ , Cᴰ.⋆Assocᴰ _ _ _)
-  ∫Cᴰsr .isSetHomᴰ = isSetΣ (D .isSetHom) (λ _ → Cᴰ .isSetHomᴰ)
-
-  Fstᴰsr : Functorᴰ Id ∫Cᴰsr (weaken C D)
-  Fstᴰsr .Functorᴰ.F-obᴰ = fst
-  Fstᴰsr .Functorᴰ.F-homᴰ = fst
-  Fstᴰsr .Functorᴰ.F-idᴰ = refl
-  Fstᴰsr .Functorᴰ.F-seqᴰ = λ fᴰ gᴰ → refl
-
-  ∫Cᴰsl : Categoryᴰ D (ℓ-max ℓC ℓCᴰ) (ℓ-max ℓC' ℓCᴰ')
-  ∫Cᴰsl .ob[_] d = Σ[ c ∈ C .ob ] Cᴰ.ob[ c , d ]
-  ∫Cᴰsl .Hom[_][_,_] g (c , cᴰ) (c' , cᴰ') =
-    Σ[ f ∈ C [ c , c' ] ] Cᴰ.Hom[ f , g ][ cᴰ , cᴰ' ]
-  ∫Cᴰsl .idᴰ = (C .id) , Cᴰ.idᴰ
-  ∫Cᴰsl ._⋆ᴰ_ (f , fᴰ) (g , gᴰ) = (f ⋆⟨ C ⟩ g) , (fᴰ Cᴰ.⋆ᴰ gᴰ)
-  ∫Cᴰsl .⋆IdLᴰ (f , fᴰ) = ΣPathP (_ , Cᴰ.⋆IdLᴰ _)
-  ∫Cᴰsl .⋆IdRᴰ _ = ΣPathP (_ , Cᴰ.⋆IdRᴰ _)
-  ∫Cᴰsl .⋆Assocᴰ _ _ _ = ΣPathP (_ , Cᴰ.⋆Assocᴰ _ _ _)
-  ∫Cᴰsl .isSetHomᴰ = isSetΣ (C .isSetHom) (λ _ → Cᴰ .isSetHomᴰ)
-
-  Fstᴰsl : Functorᴰ Id ∫Cᴰsl (weaken D C)
-  Fstᴰsl .Functorᴰ.F-obᴰ = fst
-  Fstᴰsl .Functorᴰ.F-homᴰ = fst
-  Fstᴰsl .Functorᴰ.F-idᴰ = refl
-  Fstᴰsl .Functorᴰ.F-seqᴰ = λ _ _ → refl
-
-  -- TODO: mk∫ᴰsFunctor
-  --
-  module _
-    {E : Category ℓE ℓE'}
-    (F : Functor E C)
-    {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
-    (Fᴰ : Functorᴰ F Eᴰ (weaken C D))
-    (Gᴰ : Functorᴰ (∫F Fᴰ) (Unitᴰ (∫C Eᴰ)) Cᴰ)
-    where
-
-    open Functorᴰ
-
-    mk∫ᴰsrFunctorᴰ : Functorᴰ F Eᴰ ∫Cᴰsr
-    mk∫ᴰsrFunctorᴰ .F-obᴰ xᴰ = (Fᴰ .F-obᴰ xᴰ) , (Gᴰ .F-obᴰ _ )
-    mk∫ᴰsrFunctorᴰ .F-homᴰ fᴰ = Fᴰ .F-homᴰ fᴰ , Gᴰ .F-homᴰ _
-    mk∫ᴰsrFunctorᴰ .F-idᴰ = ΣPathP ((Fᴰ .F-idᴰ) , (Gᴰ .F-idᴰ))
-    mk∫ᴰsrFunctorᴰ .F-seqᴰ fᴰ gᴰ =
-      ΣPathP ((Fᴰ .F-seqᴰ fᴰ gᴰ) , (Gᴰ .F-seqᴰ _ _))
-
-  Assocᴰsr : Functorᴰ (FstBP C D) Cᴰ ∫Cᴰsr
-  Assocᴰsr = mk∫ᴰsrFunctorᴰ _ Π2 Π3 where
-    open Functorᴰ
-    Π2 : Functorᴰ (FstBP C D) Cᴰ (weaken C D)
-    Π2 .F-obᴰ {x}        _ = x .snd
-    Π2 .F-homᴰ {_}{_}{f} _ = f .snd
-    Π2 .F-idᴰ       = refl
-    Π2 .F-seqᴰ _ _  = refl
-
-    Π3 : Functorᴰ (∫F Π2) (Unitᴰ (∫C Cᴰ)) Cᴰ
-    Π3 .F-obᴰ {x}        _ = x .snd
-    Π3 .F-homᴰ {_}{_}{f} _ = f .snd
-    Π3 .F-idᴰ      = refl
-    Π3 .F-seqᴰ _ _ = refl
-
-  Assoc-sr⁻ : Functor (∫C ∫Cᴰsr) (∫C Cᴰ)
-  Assoc-sr⁻ = mk∫Functor Assc Assc' where
-    open Functor
-    open Functorᴰ
-    -- Might want this at the top level
-    Assc : Functor (∫C ∫Cᴰsr) (C ×C D)
-    Assc .F-ob (c , (d , _)) = c , d
-    Assc .F-hom (f , (g , _)) = f , g
-    Assc .F-id = refl
-    Assc .F-seq _ _ = refl
-
-    Assc' : Functorᴰ Assc _ Cᴰ
-    Assc' .F-obᴰ {x}        _ = x .snd .snd
-    Assc' .F-homᴰ {_}{_}{f} _ = f .snd .snd
-    Assc' .F-idᴰ = refl
-    Assc' .F-seqᴰ _ _ = refl
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category
@@ -227,54 +137,3 @@ module _
   forgetReindex .F-idᴰ = symP (transport-filler _ _)
   forgetReindex .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)
 
-module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  open Category
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-
-  hasContrHoms : Type _
-  hasContrHoms =
-    ∀ {c c' : C .ob}(f : C [ c , c' ])(cᴰ : Cᴰ.ob[ c ])(cᴰ' : Cᴰ.ob[ c' ])
-      → isContr Cᴰ.Hom[ f ][ cᴰ , cᴰ' ]
-
-  hasPropHoms : Type _
-  hasPropHoms =
-    ∀ {c c' : C .ob}(f : C [ c , c' ])(cᴰ : Cᴰ.ob[ c ])(cᴰ' : Cᴰ.ob[ c' ])
-      → isProp Cᴰ.Hom[ f ][ cᴰ , cᴰ' ]
-
-  hasContrHoms→hasPropHoms : hasContrHoms → hasPropHoms
-  hasContrHoms→hasPropHoms contrHoms =
-    λ f cᴰ cᴰ' → isContr→isProp (contrHoms f cᴰ cᴰ')
-
-module _
-       {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-       {F : Functor C D}
-       {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-       {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-       where
-  open Category
-  open Functor
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-    module Dᴰ = Categoryᴰ Dᴰ
-
-  mkFunctorᴰPropHoms :
-    (propHoms : hasPropHoms Dᴰ)
-      → (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
-      → (F-homᴰ : {x y : C .ob}
-        {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
-        → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ])
-      → Functorᴰ F Cᴰ Dᴰ
-  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-obᴰ = F-obᴰ
-  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-homᴰ = F-homᴰ
-  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-idᴰ =
-    isProp→PathP (λ i → propHoms _ _ _) _ _
-  mkFunctorᴰPropHoms propHoms F-obᴰ F-homᴰ .Functorᴰ.F-seqᴰ _ _ =
-    isProp→PathP (λ i → propHoms _ _ _) _ _
-
-  mkFunctorᴰContrHoms : (contrHoms : hasContrHoms Dᴰ)
-                      → (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
-                      → Functorᴰ F Cᴰ Dᴰ
-  mkFunctorᴰContrHoms contrHoms F-obᴰ =
-    mkFunctorᴰPropHoms (hasContrHoms→hasPropHoms Dᴰ contrHoms) F-obᴰ
-    λ _ → contrHoms _ _ _ .fst

@@ -28,6 +28,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
+open import Cubical.Categories.Displayed.Base.HLevel1Homs
 open import Cubical.Categories.Yoneda
 
 private

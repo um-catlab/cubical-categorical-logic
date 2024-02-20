@@ -19,6 +19,7 @@ open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More as Disp
+open import Cubical.Categories.Displayed.Base.HLevel1Homs as Disp
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Preorder
 

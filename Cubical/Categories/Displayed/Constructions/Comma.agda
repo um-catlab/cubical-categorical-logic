@@ -24,10 +24,12 @@ open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More as Displayed
+open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Displayed.Base.DisplayOverProjections
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Constructions.Graph
-open import Cubical.Categories.Displayed.Constructions.IsomorphismMore
+open import Cubical.Categories.Isomorphism.More
 
 private
   variable

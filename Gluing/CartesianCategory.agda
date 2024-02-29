@@ -15,6 +15,8 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties as Disp
 open import Cubical.Categories.Displayed.Instances.Sets
+open import Cubical.Categories.Limits.Cartesian.Functor
+open import Cubical.Data.Sigma.Properties
 
 data OB : Type ℓ-zero where
   A B C : OB
@@ -68,6 +70,8 @@ open Category
 FREECC-Cart : BinProducts |FREECC|
 FREECC-Cart = FREECC .snd .snd
 
+open Notation |FREECC| FREECC-Cart
+
 -- TODO
 data NormalForm {Γ} : ∀{Δ} → |FREECC| [ Γ , Δ ] → Type (ℓ-suc ℓ-zero) where
   nil : NormalForm (|FREECC| .id)
@@ -86,12 +90,33 @@ normalize {Γ} = {!!}
   -- TODO: upgrade to cartesian
   pts : Functor |FREECC| (SET _)
   pts = |FREECC| [ Γ ,-] -- yoneda embedding of |FREECC| op?
+  pts-Cart : CartesianFunctor |FREECC| (SET _)
+  pts-Cart .fst = pts
+  pts-Cart .snd Γ Δ p = λ f g →
+    ((λ x → p .BinProduct.univProp (f x) (g x) .fst .fst) ,
+    funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .fst) ,
+    funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .snd)) ,
+    --λ y → ΣPathP
+    --(funExt (λ x → λ i → p .BinProduct.univProp (f x) (g x) .snd ((y .fst x) ,
+    --(λ j → y .snd .fst j x) ,
+    --λ j → y .snd .snd j x) i .fst) ,
+    --isSet→isSet'
+    --(SET _ .isSetHom {!!} {!!} {!!} {!!} {!!} {!!} {!!})
+    --{!!} {!!} {!!} {!!} {!!} {!!})
+    λ y → λ i → (λ x → p .BinProduct.univProp (f x) (g x) .snd ((y .fst x) ,
+    ((λ j → y .snd .fst j x ) ,
+    λ j → y .snd .snd j x)) i .fst) ,
+    --isSet→isSet' (SET _ .isSetHom) (y .snd .fst ) (funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .fst)) (funExt λ x → congS (λ foo → foo ⋆⟨ |FREECC| ⟩ p .BinProduct.binProdPr₁) (isSet→isSet' (|FREECC| .isSetHom) refl refl {!!} {!!} i)) refl i ,
+    isSet→isSet' (SET _ .isSetHom) ((funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .fst))) (y .snd .fst ) (funExt (λ x → congS (λ foo → seq' |FREECC| foo (p .BinProduct.binProdPr₁)) (isSet→isSet' (|FREECC| .isSetHom) {!!} {!!} {!!} {!!} i))) refl i ,
+    --{!!} ,
+    isSet→isSet' (SET _ .isSetHom) {!!} {!!} {!!} {!!} i
   -- TODO: upgrade to displayed cartesian category
   LogFam : Categoryᴰ |FREECC| _ _
   LogFam = reindex (SETᴰ _ _) pts
+  LogFam-Cart : BinProducts {!!}
+  LogFam-Cart = {!!}
 
 -- our goal
 private
-  open Notation |FREECC| FREECC-Cart
   _ : forget (normalize (Exp.π₁ ∘⟨ |FREECC| ⟩ (↑ₑ f) ,p (↑ₑ g))) ≡ forget (normalize (↑ₑ f))
   _ = refl -- TODO

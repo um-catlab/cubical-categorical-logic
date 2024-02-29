@@ -39,25 +39,25 @@ module _ (Q : ×Quiver) where
     ×η : ∀{Γ Δ Δ'}{t : Exp Γ (Δ × Δ')} → ⟨ t ⋆ₑ π₁ , t ⋆ₑ π₂ ⟩ ≡ t
 
   open Category
-  FreeCC : Category _ _
-  FreeCC .ob = Ob
-  FreeCC .Hom[_,_] = Exp
-  FreeCC .id = idₑ
-  FreeCC ._⋆_ = _⋆ₑ_
-  FreeCC .⋆IdL = ⋆ₑIdL
-  FreeCC .⋆IdR = ⋆ₑIdR
-  FreeCC .⋆Assoc = ⋆ₑAssoc
-  FreeCC .isSetHom = isSetExp
+  |FreeCartesianCategory| : Category _ _
+  |FreeCartesianCategory| .ob = Ob
+  |FreeCartesianCategory| .Hom[_,_] = Exp
+  |FreeCartesianCategory| .id = idₑ
+  |FreeCartesianCategory| ._⋆_ = _⋆ₑ_
+  |FreeCartesianCategory| .⋆IdL = ⋆ₑIdL
+  |FreeCartesianCategory| .⋆IdR = ⋆ₑIdR
+  |FreeCartesianCategory| .⋆Assoc = ⋆ₑAssoc
+  |FreeCartesianCategory| .isSetHom = isSetExp
 
-  FreeCC' : CartesianCategory _ _
-  FreeCC' .fst = FreeCC
-  FreeCC' .snd .fst = ⊤ , λ Γ → !ₑ , λ t → sym (⊤η t)
-  FreeCC' .snd .snd Γ Δ .BinProduct.binProdOb = Γ × Δ
-  FreeCC' .snd .snd Γ Δ .BinProduct.binProdPr₁ = π₁
-  FreeCC' .snd .snd Γ Δ .BinProduct.binProdPr₂ = π₂
+  FreeCartesianCategory : CartesianCategory _ _
+  FreeCartesianCategory .fst = |FreeCartesianCategory|
+  FreeCartesianCategory .snd .fst = ⊤ , λ Γ → !ₑ , λ t → sym (⊤η t)
+  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdOb = Γ × Δ
+  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdPr₁ = π₁
+  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdPr₂ = π₂
   -- this is a bit of a tedious proof I've c/p from the superceded PR draft
   -- I'm not sure anymore why we use isSet', but I'll take it
-  FreeCC' .snd .snd Γ Δ .BinProduct.univProp f g = (⟨ f , g ⟩ , ×β₁ , ×β₂) ,
+  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.univProp f g = (⟨ f , g ⟩ , ×β₁ , ×β₂) ,
     λ (h , p , q) → λ i →
       sym (×η-lemma h p q) i ,
       isSet→isSet' isSetExp ×β₁ p (congS (λ x → x ⋆ₑ π₁) (sym (×η-lemma h p q))) refl i ,

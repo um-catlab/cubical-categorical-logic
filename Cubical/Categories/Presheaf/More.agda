@@ -80,7 +80,7 @@ module UniversalElementNotation {ℓo}{ℓh}
        {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
        (ue : UniversalElement C P)
        where
-  open UniversalElement ue
+  open UniversalElement ue public
   open NatTrans
   open NatIso
   REPR : Representation C P

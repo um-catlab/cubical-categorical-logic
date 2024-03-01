@@ -3,9 +3,12 @@
 module Cubical.Categories.Functors.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor.Compose
 open import Cubical.Categories.Functors.Constant
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Functions.Embedding
@@ -58,6 +61,40 @@ ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-ob = F₀
 ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-hom = F₁ .F-hom
 ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-id = F₁ .F-id
 ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-seq = F₁ .F-seq
+
+module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
+  {G : Functor D E}
+  (isFullyFaithfulG : isFullyFaithful G)
+  where
+
+  private
+    GFF : ∀ {x y} → D [ x , y ] ≃ E [ G ⟅ x ⟆ , G ⟅ y ⟆ ]
+    GFF = _ , (isFullyFaithfulG _ _)
+
+    GFaith : ∀ {x y} → (D [ x , y ]) ↪ (E [ G ⟅ x ⟆ , G ⟅ y ⟆ ])
+    GFaith = _ , isEquiv→isEmbedding (GFF .snd)
+    -- this would be convenient as FF.Reasoning
+    G-hom⁻ : ∀ {x y} → E [ G ⟅ x ⟆ , G ⟅ y ⟆ ] → D [ x , y ]
+    G-hom⁻ = invIsEq (isFullyFaithfulG _ _)
+
+
+  isFullyFaithfulPostcomposeF : isFullyFaithful (postcomposeF C G)
+  isFullyFaithfulPostcomposeF F F' .equiv-proof α =
+    uniqueExists
+      (natTrans (λ x → G-hom⁻ (α ⟦ x ⟧)) λ f →
+        isEmbedding→Inj (GFaith .snd) _ _
+        ( G .F-seq _ _
+        ∙ cong₂ (seq' E) refl (secEq GFF _)
+        ∙ α.N-hom _
+        ∙ sym (cong₂ (seq' E) (secEq GFF _) refl)
+        ∙ sym (G .F-seq _ _)))
+      (makeNatTransPath (funExt λ c → secIsEq (isFullyFaithfulG _ _) (α ⟦ c ⟧)))
+      (λ _ → isSetNatTrans _ _)
+      λ β G∘β≡α → makeNatTransPath (funExt λ c → isEmbedding→Inj (isEquiv→isEmbedding (isFullyFaithfulG _ _)) _ _
+        (secIsEq (isFullyFaithfulG _ _) _ ∙ sym (cong (_⟦ c ⟧) G∘β≡α)))
+
+    where module α = NatTrans α
 
 module _ {F : Functor C D} {G : Functor D E} where
   open Category

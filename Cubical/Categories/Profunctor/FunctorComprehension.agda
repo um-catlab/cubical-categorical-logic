@@ -129,9 +129,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
     Representation' = IsoCommaᴰ₂ YO* LiftPsh
 
     hasContrHomsRepr : hasContrHoms Representation'
-    hasContrHomsRepr =
-      hasContrHomsIsoCommaᴰ₂ YO* LiftPsh isFullyFaithfulYO*
-
+    hasContrHomsRepr = hasContrHomsIsoCommaᴰ₂ YO* LiftPsh isFullyFaithfulYO*
 
   -- Presheaves that have a universal element viewed as property
   -- (morphisms ignore it).
@@ -186,10 +184,14 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- because Yo is fully faithful, this is contractible.
   𝓟rs = ∫C Representation'
 
+  -- Part 1: functoriality comes for free from contractibility
   coherence : Functor 𝓟up 𝓟us
   coherence = ∫F {F = Id} (mkFunctorᴰContrHoms hasContrHomsWUE λ ue →
     ue .vertex , ue .element , ue .universal)
 
+  -- Part 2: this is one direction of the equivalence between
+  -- universal elements and representations, extended to a functor.
+  --
   -- For this definition, we use mkFunctorᴰContrHoms' and
   -- change-contractum to ensure we get the "efficient" definition
   -- out.
@@ -226,8 +228,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     Pus : Functor C (𝓟us D ℓS)
     Pus = coherence D ℓS ∘F Pup
 
-    Pr : Functor C (𝓟rs D ℓS)
-    Pr = unYoneda D ℓS ∘F Pus
+    Prs : Functor C (𝓟rs D ℓS)
+    Prs = unYoneda D ℓS ∘F Pus
 
     P-elt : Functor C (∫C {C = D ×C PresheafCategory D ℓS}
                           (Graph (Profunctor→Relatoro* Id)))
@@ -235,7 +237,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 
     App : D o-[ ℓS ]-* 𝓟
     App = Profunctor→Relatoro* Id
-    -- We define R (d , c) := P c d
+
     R = Profunctor→Relatoro* P
 
   FunctorComprehension : Functor C D
@@ -271,7 +273,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     ReAssoc = Assoc-sl⁻ (IsoCommaᴰ YO* LiftPsh)
 
     P-iso : Functor C (∫C (IsoCommaᴰ YO* LiftPsh))
-    P-iso = Assoc-sl⁻ (IsoCommaᴰ YO* LiftPsh) ∘F Pr
+    P-iso = Assoc-sl⁻ (IsoCommaᴰ YO* LiftPsh) ∘F Prs
 
   ProfIso' : NatIso _ _
   ProfIso' = π≅ YO* LiftPsh ∘ˡⁱ P-iso

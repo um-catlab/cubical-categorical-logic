@@ -2,20 +2,23 @@
 {--
  -- Functor Comprehension
  -- ======================
- -- This module provides a method for constructing functors without
- -- providing the full functorial structure up front.
+ -- This module provides a method for constructing functors by showing
+ -- that they have a universal property.
  --
- -- The idea is that if you wish to define a functor F : C → D, via
- -- some universal property P. Instead of doing this process entirely
- -- manually, you can prove the functoriality of the universal property P
- -- and give for each c ∈ C some object F c ∈ D satisfying the property
- -- P c.
+ -- The idea is that if you wish to define a functor F : C → D via a
+ -- universal property (P c), then the functoriality of F comes for
+ -- free if the universal property P is given functorially, that is if
+ -- P is a functor P : C → Psh D
  --
- -- Conveniently, we need only provide an explicit action on objects. The
- -- functoriality of P induces a unique action on morphisms.
+ -- That is, if you construct for each c a universal element of P c,
+ -- then this can be *uniquely* extended to a functorial action on
+ -- morphisms, and furthermore you get that the universal elements so
+ -- constructed are natural with respect to this functorial action.
+ -- We provide this data in this module in two equivalent forms:
+ -- 1. A "natural element" ∀ c → P c (F c)
+ -- 2. A natural isomorphism (Y ∘ F ≅ P)
  --
- -- Putting all of this together, the action on objects can then
- -- uniquely be extended functorially to a functor F : C → D.
+ -- The fact is essentially a corollary of the Yoneda lemma, but we 
  --
  -- Constructing a functor in this method saves a lot of work in
  -- repeatedly demonstrating functoriality
@@ -28,11 +31,13 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Functors.More
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
@@ -95,10 +100,10 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
     IncoherentElt : Categoryᴰ (D ×C 𝓟) _ _
     IncoherentElt = FullSubcategoryᴰ _ UElt.ob[_]
 
+
     HasUniversalElt : Categoryᴰ 𝓟 _ _
     HasUniversalElt = ∫Cᴰsl IncoherentElt
 
-    WithUniversalElt : Categoryᴰ 𝓟 _ _
     WithUniversalElt = ∫Cᴰsl UElt
 
     hasContrHomsWUE : hasContrHoms WithUniversalElt
@@ -123,163 +128,74 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
     hasContrHomsRepr =
       hasContrHomsIsoCommaᴰ₂ YO* LiftPsh isFullyFaithfulYO*
 
-    -- 𝓟up = ∫Cᴰsr IncoherentElt
-    -- hasContrHomsRepr : hasContrHoms Representation'
-    -- hasContrHomsRepr {P}{Q} α d≅P d'≅Q =
-    --   isContrRetract
-    --     (λ (f , sq⇒⇒)  → f , {!!})
-    --     (λ (f , inFib) → f , {!!})
-    --     (λ _ → Σ≡Prop (λ _ → hasPropHomsY≅ _ _ _) refl)
-    --     (isFullyFaithfulYO* (d≅P .fst) (d'≅Q .fst) .equiv-proof
-    --       (isodP .fst ⋆⟨ 𝓟' ⟩ LiftPsh ⟪ α ⟫ ⋆⟨ 𝓟' ⟩ d'⇐Q) )
-    --   where
-    --     isodP : CatIso 𝓟' (YO* ⟅ d≅P .fst ⟆) (LiftPsh ⟅ P ⟆ )
-    --     isodP = NatIso→FUNCTORIso (D ^op) _ (record { trans = d≅P .snd .fst ; nIso = d≅P .snd .snd })
-    --     module isIsodP = isIsoC (isodP .snd)
-    --     isodQ : CatIso 𝓟' (YO* ⟅ d'≅Q .fst ⟆) (LiftPsh ⟅ Q ⟆ )
-    --     isodQ = NatIso→FUNCTORIso (D ^op) _ (record { trans = d'≅Q .snd .fst ; nIso = d'≅Q .snd .snd })
-    --     d⇒P = d≅P .snd .fst
-    --     d'⇐Q = symNatIso (record { trans = d'≅Q .snd .fst ; nIso = d'≅Q .snd .snd }) .trans
+  
+  -- Presheaves that have a universal element viewed as property
+  -- (morphisms ignore it).
+  --
+  -- A functor C → 𝓟up is equivalent to a functor R : C → 𝓟 and a
+  -- universal element for each R ⟅ c ⟆
+  --
+  -- An object over P is a universal element
+  -- Morphisms over nat trans. are trivial
+  𝓟up = ∫C HasUniversalElt
 
---   -- Presheaves that have a universal element viewed as property
---   -- (morphisms ignore it).
---   --
---   -- A functor C → 𝓟up is equivalent to a functor R : C → 𝓟 and a
---   -- universal element for each R ⟅ c ⟆
---   --
---   -- An object over P is a universal element
---   -- Morphisms over nat trans. are trivial
---   𝓟up : Categoryᴰ 𝓟 (ℓ-max (ℓ-max ℓD ℓD') ℓS) ℓ-zero
---   𝓟up = FullSubcategoryᴰ 𝓟 (UniversalElement D)
+  -- Presheaves equipped with a universal element as structure
+  -- (morphisms preserve it)
+  --
+  -- A functor C → 𝓟us is the data of
+  -- 1. A functor R : C → 𝓟
+  -- 2. A functor F : C → D
 
---   hasContrHoms𝓟up : hasContrHoms 𝓟up
---   hasContrHoms𝓟up = hasContrHomsFullSubcategory _ _
+  -- 3. A *natural* choice of elements for R c (F c) with F c as
+  --    vertex
+  --
+  -- An object over P is a universal element η
+  --
+  -- Morphisms over nat trans α : P , η → Q , η' are morphisms
+  -- f : η .vertex → η' .vertex
+  -- That that "represent" α.
+  -- Since η, η' are universal, this type is contractible
+  𝓟us = ∫C WithUniversalElt
 
---   App : D o-[ ℓS ]-* 𝓟
---   App = Profunctor→Relator Id
+  -- Presheaves equipped with a representation viewed as
+  -- structure
+  --
+  -- A functor C → 𝓟rs is the data of
+  -- 1. A functor R : C → 𝓟
+  -- 2. A functor F : C → D
+  -- 3. A natural iso LiftF ∘F R ≅ LiftF ∘F Yo ∘F F
+  --
+  -- An object over P is an iso P ≅ Yo c
+  --
+  -- Morphisms over nat trans α : P , iso → Q , iso' are morphisms
+  -- f : iso .cod → iso' .cod
+  -- That that commute: iso' ∘ Yo f ≡ α ∘ iso
+  -- because Yo is fully faithful, this is contractible.
+  𝓟rs = ∫C Representation'
 
---   𝓟elt : Categoryᴰ 𝓟 _ _
---   𝓟elt = ∫Cᴰsl (Graph App)
+  coherence : Functor 𝓟up 𝓟us
+  coherence = mk∫Functor' (mkFunctorᴰContrHoms hasContrHomsWUE (λ z → z))
 
---   𝓟usᴰ : Categoryᴰ (∫C 𝓟elt) _ _
---   𝓟usᴰ = FullSubcategoryᴰ _
---      (λ elt → isUniversal D (elt .fst)
---                             (elt .snd .fst)
---                             (elt .snd .snd))
-
---   -- Presheaves equipped with a universal element as structure
---   -- (morphisms preserve it)
---   --
---   -- A functor C → 𝓟us is the data of
---   -- 1. A functor R : C → 𝓟
---   -- 2. A functor F : C → D
-
---   -- 3. A *natural* choice of elements for R c (F c) with F c as
---   --    vertex
---   --
---   -- An object over P is a universal element η
---   --
---   -- Morphisms over nat trans α : P , η → Q , η' are morphisms
---   -- f : η .vertex → η' .vertex
---   -- That that "represent" α.
---   -- Since η, η' are universal, this type is contractible.
---   𝓟us : Categoryᴰ 𝓟 _ _
---   𝓟us = ∫Cᴰ 𝓟elt 𝓟usᴰ
-
---   -- | TODO: this should be definable as some composition of
---   -- | reassociativity and projection but need to implement those
---   -- | functors
---   ForgetUniversal : Functor (∫C 𝓟us) (∫C (Graph App))
---   ForgetUniversal .F-ob x =
---     ((x .snd .fst .fst) , (x .fst)) , (x .snd .fst .snd)
---   ForgetUniversal .F-hom α =
---     ((α .snd .fst .fst) , (α .fst)) , (α .snd .fst .snd)
---   ForgetUniversal .F-id = refl
---   ForgetUniversal .F-seq _ _ = refl
-
---   𝓟us→D : Functor (∫C 𝓟us) D
---   𝓟us→D = π₁ App ∘F ForgetUniversal
-
---   hasContrHoms𝓟us : hasContrHoms 𝓟us
---   hasContrHoms𝓟us {c' = Q} α ((d , η) , univ) ((d' , η') , univ') =
---     (((ue'.intro ((α ⟦ _ ⟧) η)) , ue'.β) , _)
---     , λ ((g , sq) , tt) → Σ≡Prop (λ _ → isPropUnit)
---       (Σ≡Prop (λ _ → (Q ⟅ _ ⟆) .snd _ _)
---       (sym (ue'.η ∙ cong ue'.intro sq)))
---     where
---       module ue  = UniversalElementNotation
---         (record { vertex = d ; element = η ; universal = univ })
---       module ue' = UniversalElementNotation
---         (record { vertex = d' ; element = η' ; universal = univ' })
-
---   coherence : Functorᴰ Id 𝓟up 𝓟us
---   coherence = mkFunctorᴰContrHoms hasContrHoms𝓟us
---     (λ ue → (ue .vertex , (ue .element)) , (ue .universal))
-
---   -- Presheaves equipped with a representation viewed as
---   -- structure
---   --
---   -- A functor C → 𝓟rs is the data of
---   -- 1. A functor R : C → 𝓟
---   -- 2. A functor F : C → D
---   -- 3. A natural iso LiftF ∘F R ≅ LiftF ∘F Yo ∘F F
---   --
---   -- An object over P is an iso P ≅ Yo c
---   --
---   -- Morphisms over nat trans α : P , iso → Q , iso' are morphisms
---   -- f : iso .cod → iso' .cod
---   -- That that commute: iso' ∘ Yo f ≡ α ∘ iso
---   -- because Yo is fully faithful, this is contractible.
-
---   𝓟r : Categoryᴰ 𝓟 _ _
---   𝓟r = IsoCommaᴰ₁ LiftPsh YO*
-
---   open Functorᴰ
-
---   𝓟us→𝓟r : Functorᴰ Id 𝓟us 𝓟r
---   𝓟us→𝓟r =
---     mk∫ᴰsrFunctorᴰ
---       _
---       Id
---       𝓟us→Weaken𝓟D
---       Unitᴰ∫C𝓟us→IsoCommaᴰ
---     where
---     𝓟us→Weaken𝓟D : Functorᴰ Id 𝓟us (weaken 𝓟 D)
---     𝓟us→Weaken𝓟D .F-obᴰ xᴰ = xᴰ .fst .fst
---     𝓟us→Weaken𝓟D .F-homᴰ fᴰ = fᴰ .fst .fst
---     𝓟us→Weaken𝓟D .F-idᴰ = refl
---     𝓟us→Weaken𝓟D .F-seqᴰ _ _ = refl
-
---     Unitᴰ∫C𝓟us→IsoCommaᴰ :
---       Functorᴰ (∫F 𝓟us→Weaken𝓟D) _ _
---     Unitᴰ∫C𝓟us→IsoCommaᴰ = mkFunctorᴰPropHoms (hasPropHomsIsoCommaᴰ _ _)
---       (λ {(P , ((vert , elt) , isUniversal))} tt →
---         let open UniversalElementNotation (record { vertex = vert ;
---                                                     element = elt ;
---                                                     universal = isUniversal })
---         in NatIso→FUNCTORIso _ _ introNI)
---       λ {(P , ((vertP , eltP) , isUniversalP))
---         ((Q , ((vertQ , eltQ) , isUniversalQ))) (α , ((f , sq) , tt)) _ _} tt →
---         let module ueP = UniversalElementNotation (record {
---                                                     vertex = vertP ;
---                                                     element = eltP ;
---                                                     universal = isUniversalP })
---             module ueQ = UniversalElementNotation (record {
---                                                     vertex = vertQ ;
---                                                     element = eltQ ;
---                                                     universal = isUniversalQ })
---         in
---         -- The goal is
---         -- α ⋆ ueQ.introNI .trans ≡ ueP.introNI .trans ⋆ Yo* ⟪ f ⟫
---         -- It is easier to prove in the equivalent form
---         -- inv ueP.introNI ⋆ α ≡ Yo* ⟪ f ⟫ ⋆ inv ueQ.introNI
---         sym (⋆InvsFlipSq⁻ {C = 𝓟'} (NatIso→FUNCTORIso _ _ ueP.introNI)
---           {LiftPsh ⟪ α ⟫}{YO* ⟪ f ⟫} (NatIso→FUNCTORIso _ _ ueQ.introNI)
---           (makeNatTransPath (funExt λ d → funExt λ (lift g) → cong lift
---             (funExt⁻ (Q .F-seq _ _) eltQ
---             ∙ cong (Q .F-hom g) sq
---             ∙ sym (funExt⁻ (α .N-hom _) _)))))
---         , tt
+  -- For this definition, we use mkFunctorᴰContrHoms' and
+  -- change-contractum to ensure we get the "efficient" definition out
+  unYoneda : Functor 𝓟us 𝓟rs
+  unYoneda = mk∫Functor' (mkFunctorᴰContrHoms'
+    (λ {x = P} (d , η , η-isUniv) →
+        let r = universalElementToRepresentation D P (record
+              { vertex = d
+              ; element = η
+              ; universal = η-isUniv }) in
+        d , NatIso→FUNCTORIso (D ^op) _ (r .snd))
+    λ {x = P}{y = Q}{f = α} {xᴰ = c-UE} {yᴰ = d-UE} (f , f-sq , tt) →
+      let (c , ηP , _) = c-UE
+          module d-UE = UniversalElementNotation (record
+            { vertex = d-UE .fst
+            ; element = d-UE .snd .fst
+            ; universal = d-UE .snd .snd
+            }) in
+      change-contractum (hasContrHomsRepr α _ _) (f ,
+        cong d-UE.intro ((cong (α ⟦ c ⟧) (funExt⁻ (P .F-id) ηP)) ∙ sym f-sq)
+        ∙ sym d-UE.η))
 
 -- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --          {P : Profunctor C D ℓS}

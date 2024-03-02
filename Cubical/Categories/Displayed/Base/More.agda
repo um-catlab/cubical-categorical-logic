@@ -64,6 +64,20 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     mk∫Functor .F-seq f g = ΣPathP (F .F-seq f g , Fᴰ .F-seqᴰ _ _)
 
 module _ {C : Category ℓC ℓC'}
+         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+         (Fᴰ : Functorᴰ Id Dᴰ Cᴰ)
+           where
+    mk∫Functor' : Functor (∫C Dᴰ) (∫C Cᴰ)
+    mk∫Functor' = mk∫Functor (Fst {Cᴰ = Dᴰ})  Fᴰ' where
+      module Fᴰ = Functorᴰ Fᴰ
+      Fᴰ' : Functorᴰ Fst (Unitᴰ (∫C Dᴰ)) Cᴰ
+      Fᴰ' .Functorᴰ.F-obᴰ {x = (_ , dᴰ)} tt = Fᴰ.F-obᴰ dᴰ
+      Fᴰ' .Functorᴰ.F-homᴰ {f = (_ , fᴰ)} tt = Fᴰ.F-homᴰ fᴰ
+      Fᴰ' .Functorᴰ.F-idᴰ = Fᴰ.F-idᴰ
+      Fᴰ' .Functorᴰ.F-seqᴰ _ _ = Fᴰ.F-seqᴰ _ _
+
+module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Dᴰ : Categoryᴰ (∫C Cᴰ) ℓDᴰ ℓDᴰ')
   where

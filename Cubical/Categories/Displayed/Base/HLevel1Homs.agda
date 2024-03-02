@@ -73,3 +73,16 @@ module _
   mkFunctorᴰContrHoms contrHoms F-obᴰ =
     mkFunctorᴰPropHoms (hasContrHoms→hasPropHoms Dᴰ contrHoms) F-obᴰ
     λ _ → contrHoms _ _ _ .fst
+
+  -- Alternate version: maybe Dᴰ.Hom[_][_,_] isn't always contractible, but it is in the image of F-obᴰ
+  mkFunctorᴰContrHoms' : (F-obᴰ  : {x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
+                       → (F-homᴰ : {x y : C .ob}
+                         {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+                         → Cᴰ [ f ][ xᴰ , yᴰ ] → isContr (Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]))
+                       → Functorᴰ F Cᴰ Dᴰ
+  mkFunctorᴰContrHoms' F-obᴰ F-homᴰ .Functorᴰ.F-obᴰ = F-obᴰ
+  mkFunctorᴰContrHoms' F-obᴰ F-homᴰ .Functorᴰ.F-homᴰ fᴰ = F-homᴰ fᴰ .fst
+  mkFunctorᴰContrHoms' F-obᴰ F-homᴰ .Functorᴰ.F-idᴰ =
+    symP (toPathP (isProp→PathP (λ i → isContr→isProp (F-homᴰ Cᴰ.idᴰ)) _ _))
+  mkFunctorᴰContrHoms' F-obᴰ F-homᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ =
+    symP (toPathP (isProp→PathP (λ i → isContr→isProp (F-homᴰ (fᴰ Cᴰ.⋆ᴰ gᴰ))) _ _))

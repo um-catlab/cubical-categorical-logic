@@ -91,7 +91,8 @@ module _ {ℓC ℓC' ℓD ℓD' ℓE ℓE'}
         ∙ sym (G .F-seq _ _)))
       (makeNatTransPath (funExt λ c → secIsEq (isFullyFaithfulG _ _) (α ⟦ c ⟧)))
       (λ _ → isSetNatTrans _ _)
-      λ β G∘β≡α → makeNatTransPath (funExt λ c → isEmbedding→Inj (isEquiv→isEmbedding (isFullyFaithfulG _ _)) _ _
+      λ β G∘β≡α → makeNatTransPath (funExt λ c →
+        isEmbedding→Inj (isEquiv→isEmbedding (isFullyFaithfulG _ _)) _ _
         (secIsEq (isFullyFaithfulG _ _) _ ∙ sym (cong (_⟦ c ⟧) G∘β≡α)))
 
     where module α = NatTrans α

@@ -194,4 +194,5 @@ module _
   ∫ᴰslF .Functorᴰ.F-obᴰ {d} (b , bᴰ) = (G ⟅ b ⟆) , (FGᴰ.F-obᴰ bᴰ)
   ∫ᴰslF .Functorᴰ.F-homᴰ {g} (f , fᴰ) = (G ⟪ f ⟫) , (FGᴰ.F-homᴰ fᴰ)
   ∫ᴰslF .Functorᴰ.F-idᴰ = ΣPathP (G.F-id , (≡[]-rectify Cᴰ FGᴰ.F-idᴰ))
-  ∫ᴰslF .Functorᴰ.F-seqᴰ _ _ = ΣPathP ((G.F-seq _ _) , (≡[]-rectify Cᴰ (FGᴰ.F-seqᴰ _ _)))
+  ∫ᴰslF .Functorᴰ.F-seqᴰ _ _ =
+    ΣPathP ((G.F-seq _ _) , (≡[]-rectify Cᴰ (FGᴰ.F-seqᴰ _ _)))

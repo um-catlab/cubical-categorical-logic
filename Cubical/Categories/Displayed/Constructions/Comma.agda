@@ -103,10 +103,12 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
       ICHom = IC₁.Hom[ f ][ c≅d , c'≅d' ]
 
       Hom→Alt : ICHom → AltHom
-      Hom→Alt (g , sq , _) = g , ⋆InvLMove (c≅d .snd) (sym sq) ∙ sym (E .⋆Assoc _ _ _)
+      Hom→Alt (g , sq , _) = g ,
+        ⋆InvLMove (c≅d .snd) (sym sq) ∙ sym (E .⋆Assoc _ _ _)
 
       Alt→Hom : AltHom → ICHom
-      Alt→Hom (g , sq) = g , sym (⋆InvLMove⁻ (c≅d .snd) (sq ∙ E .⋆Assoc _ _ _)), tt
+      Alt→Hom (g , sq) = g ,
+        sym (⋆InvLMove⁻ (c≅d .snd) (sq ∙ E .⋆Assoc _ _ _)), tt
 
       AltHomRetr : (x : ICHom) → Alt→Hom (Hom→Alt x) ≡ x
       AltHomRetr _ = Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl
@@ -120,13 +122,16 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
       AltHomContr G-ff = G-ff _ _ .equiv-proof _
 
       HomProp : isFaithful G → isProp ICHom
-      HomProp G-faithful = isPropRetract Hom→Alt Alt→Hom AltHomRetr (AltHomProp G-faithful)
+      HomProp G-faithful =
+        isPropRetract Hom→Alt Alt→Hom AltHomRetr (AltHomProp G-faithful)
 
       HomContr : isFullyFaithful G → isContr ICHom
-      HomContr G-ff = isContrRetract Hom→Alt Alt→Hom AltHomRetr (AltHomContr G-ff)
+      HomContr G-ff =
+        isContrRetract Hom→Alt Alt→Hom AltHomRetr (AltHomContr G-ff)
 
   hasPropHomsIsoCommaᴰ₁ : isFaithful G → hasPropHoms IsoCommaᴰ₁
-  hasPropHomsIsoCommaᴰ₁ G-faithful f diso diso' = HomProp f diso diso' G-faithful
+  hasPropHomsIsoCommaᴰ₁ G-faithful f diso diso' =
+    HomProp f diso diso' G-faithful
 
   hasContrHomsIsoCommaᴰ₁ : isFullyFaithful G → hasContrHoms IsoCommaᴰ₁
   hasContrHomsIsoCommaᴰ₁ G-ff f diso diso' = HomContr f diso diso' G-ff
@@ -171,7 +176,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
             (E .⋆Assoc _ _ _ ∙ sym (⋆InvLMove (c≅d .snd) (sym sq1))))
             , tt)
           λ sq2 → Σ≡Prop (λ _ → hasPropHomsIsoCommaᴰ F G _ _ _) refl
-    
+
   hasPropHomsIsoCommaᴰ₂ : isFaithful F → hasPropHoms (IsoCommaᴰ₂ F G)
   hasPropHomsIsoCommaᴰ₂ F-faithful f diso diso' =
     isOfHLevelIC2Hom _ _ _ 1 (hasPropHomsIsoCommaᴰ₁ G F F-faithful _ _ _)

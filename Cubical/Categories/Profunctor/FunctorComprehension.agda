@@ -159,15 +159,6 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- Since η, η' are universal, this type is contractible
   𝓟us = ∫C WithUniversalElt
 
-  -- | TODO: this should be definable as some composition of
-  -- | reassociativity and projection but need to implement those
-  -- | functors
-  ForgetUniversal : Functor 𝓟us (∫C Elt)
-  ForgetUniversal .F-ob x = (x .snd .fst , (x .fst)) , (x .snd .snd .fst)
-  ForgetUniversal .F-hom α = (α .snd .fst , (α .fst)) , (α .snd .snd .fst)
-  ForgetUniversal .F-id = refl
-  ForgetUniversal .F-seq _ _ = refl
-
   -- Presheaves equipped with a representation viewed as
   -- structure
   --
@@ -215,6 +206,15 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
       change-contractum (hasContrHomsRepr α _ _) (f ,
         cong d-UE.intro ((cong (α ⟦ c ⟧) (funExt⁻ (P .F-id) ηP)) ∙ sym f-sq)
         ∙ sym d-UE.η))
+
+  -- | TODO: this should be definable as some composition of
+  -- | reassociativity and projection but need to implement those
+  -- | functors
+  ForgetUniversal : Functor 𝓟us (∫C Elt)
+  ForgetUniversal .F-ob x = (x .snd .fst , (x .fst)) , (x .snd .snd .fst)
+  ForgetUniversal .F-hom α = (α .snd .fst , (α .fst)) , (α .snd .snd .fst)
+  ForgetUniversal .F-id = refl
+  ForgetUniversal .F-seq _ _ = refl
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          {P : Profunctor C D ℓS}

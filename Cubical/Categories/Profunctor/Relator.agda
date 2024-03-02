@@ -24,7 +24,7 @@ open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor.Redundant as Bif
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
@@ -58,7 +58,7 @@ Relatoro* C ℓS D = C o-[ ℓS ]-* D
 
 module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
   Profunctor→Relatoro* : Profunctor C D ℓS → D o-[ ℓS ]-* C
-  Profunctor→Relatoro* P = Sym (CurriedToBifunctor P)
+  Profunctor→Relatoro* P = Bif.Sym (CurriedToBifunctor P)
 
   Profunctor→Relator*o : Profunctor C D ℓS → C *-[ ℓS ]-o D
   Profunctor→Relator*o = CurriedToBifunctor
@@ -67,7 +67,7 @@ module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
   Profunctor→Relatoro*^op = CurriedToBifunctor
 
   Relator→Profunctor : D o-[ ℓS ]-* C → Profunctor C D ℓS
-  Relator→Profunctor R = CurryBifunctor (Sym R)
+  Relator→Profunctor R = CurryBifunctor (Bif.Sym R)
 
 module _ {C : Category ℓC ℓC'} (R : C o-[ ℓS ]-* C) where
   private

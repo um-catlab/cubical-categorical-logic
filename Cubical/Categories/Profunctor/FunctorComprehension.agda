@@ -18,7 +18,7 @@
  -- 1. A "natural element" ∀ c → P c (F c)
  -- 2. A natural isomorphism (Y ∘ F ≅ P)
  --
- -- The fact is essentially a corollary of the Yoneda lemma, but we 
+ -- The fact is essentially a corollary of the Yoneda lemma, but we
  --
  -- Constructing a functor in this method saves a lot of work in
  -- repeatedly demonstrating functoriality
@@ -55,7 +55,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
+open import Cubical.Categories.Displayed.Base.More as Disp
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
 open import Cubical.Categories.Displayed.Base.DisplayOverProjections
 open import Cubical.Categories.Yoneda
@@ -97,12 +97,8 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
 
     module UElt = Categoryᴰ UElt
 
-    IncoherentElt : Categoryᴰ (D ×C 𝓟) _ _
-    IncoherentElt = FullSubcategoryᴰ _ UElt.ob[_]
-
-
     HasUniversalElt : Categoryᴰ 𝓟 _ _
-    HasUniversalElt = ∫Cᴰsl IncoherentElt
+    HasUniversalElt = FullSubcategoryᴰ 𝓟 (UniversalElement D)
 
     WithUniversalElt = ∫Cᴰsl UElt
 
@@ -115,10 +111,18 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
         λ f (f◃α , tt) → sym (ueQ.η ∙ cong ueQ.intro f◃α)
       where
         ueP' : UniversalElement _ P
-        ueP' = record { vertex = ueP .fst ; element = ueP .snd .fst ; universal = ueP .snd .snd }
+        ueP' = record
+          { vertex = ueP .fst
+          ; element = ueP .snd .fst
+          ; universal = ueP .snd .snd
+          }
         module ueP = UniversalElementNotation ueP'
         ueQ' : UniversalElement _ Q
-        ueQ' = record { vertex = ueQ .fst ; element = ueQ .snd .fst ; universal = ueQ .snd .snd }
+        ueQ' = record
+          { vertex = ueQ .fst
+          ; element = ueQ .snd .fst
+          ; universal = ueQ .snd .snd
+          }
         module ueQ = UniversalElementNotation ueQ'
 
     Representation' : Categoryᴰ 𝓟 _ _
@@ -128,7 +132,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
     hasContrHomsRepr =
       hasContrHomsIsoCommaᴰ₂ YO* LiftPsh isFullyFaithfulYO*
 
-  
+
   -- Presheaves that have a universal element viewed as property
   -- (morphisms ignore it).
   --
@@ -157,6 +161,15 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- Since η, η' are universal, this type is contractible
   𝓟us = ∫C WithUniversalElt
 
+  -- | TODO: this should be definable as some composition of
+  -- | reassociativity and projection but need to implement those
+  -- | functors
+  ForgetUniversal : Functor 𝓟us (∫C Elt)
+  ForgetUniversal .F-ob x = (x .snd .fst , (x .fst)) , (x .snd .snd .fst)
+  ForgetUniversal .F-hom α = (α .snd .fst , (α .fst)) , (α .snd .snd .fst)
+  ForgetUniversal .F-id = refl
+  ForgetUniversal .F-seq _ _ = refl
+
   -- Presheaves equipped with a representation viewed as
   -- structure
   --
@@ -174,12 +187,16 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   𝓟rs = ∫C Representation'
 
   coherence : Functor 𝓟up 𝓟us
-  coherence = mk∫Functor' (mkFunctorᴰContrHoms hasContrHomsWUE (λ z → z))
+  coherence = ∫F {F = Id} (mkFunctorᴰContrHoms hasContrHomsWUE λ ue →
+    ue .vertex , ue .element , ue .universal)
 
   -- For this definition, we use mkFunctorᴰContrHoms' and
-  -- change-contractum to ensure we get the "efficient" definition out
+  -- change-contractum to ensure we get the "efficient" definition
+  -- out.
+  -- If we apply mkFunctorᴰContrHoms directly with our above proof,
+  -- then the result will be f composed with an identity instead
   unYoneda : Functor 𝓟us 𝓟rs
-  unYoneda = mk∫Functor' (mkFunctorᴰContrHoms'
+  unYoneda = ∫F {F = Id} (mkFunctorᴰContrHoms'
     (λ {x = P} (d , η , η-isUniv) →
         let r = universalElementToRepresentation D P (record
               { vertex = d
@@ -197,68 +214,69 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
         cong d-UE.intro ((cong (α ⟦ c ⟧) (funExt⁻ (P .F-id) ηP)) ∙ sym f-sq)
         ∙ sym d-UE.η))
 
--- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
---          {P : Profunctor C D ℓS}
---          (ues : UniversalElements P)
---          where
---   private
---     Pup : Functor C (∫C (𝓟up D ℓS))
---     Pup = mk∫Functor P (mkFullSubcategoryᴰFunctorᴰ _ _ _ (λ _ → ues _))
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+         {P : Profunctor C D ℓS}
+         (ues : UniversalElements P)
+         where
+  private
+    𝓟 = PresheafCategory D ℓS
+    Pup : Functor C (𝓟up D ℓS)
+    Pup = mk∫Functor P (mkFullSubcategoryᴰFunctorᴰ _ _ P (λ _ → ues _))
 
---     Pus : Functor C (∫C (𝓟us D ℓS))
---     Pus = ∫F (coherence D ℓS) ∘F Pup
+    Pus : Functor C (𝓟us D ℓS)
+    Pus = coherence D ℓS ∘F Pup
 
---     Pr : Functor C (∫C (𝓟r D ℓS))
---     Pr = ∫F (𝓟us→𝓟r D ℓS) ∘F Pus
+    Pr : Functor C (𝓟rs D ℓS)
+    Pr = unYoneda D ℓS ∘F Pus
 
---     P-elt : Functor C (∫C (Graph (App D ℓS)))
---     P-elt = ForgetUniversal D ℓS ∘F Pus
+    P-elt : Functor C (∫C {C = D ×C PresheafCategory D ℓS}
+                          (Graph (Profunctor→Relatoro* Id)))
+    P-elt = ForgetUniversal D ℓS ∘F Pus
 
---     -- We define R (d , c) := P c d
---     R = Profunctor→Relator P
+    App : D o-[ ℓS ]-* 𝓟
+    App = Profunctor→Relatoro* Id
+    -- We define R (d , c) := P c d
+    R = Profunctor→Relatoro* P
 
---   FunctorComprehension : Functor C D
---   FunctorComprehension = π₁ (App D ℓS) ∘F P-elt
+  FunctorComprehension : Functor C D
+  FunctorComprehension = π₁ App ∘F P-elt
 
---   -- The profunctor here is definitionally iso to R(F -, =), as we see below
---   counit-elt' : NatElt ((App D ℓS) ∘Flr ((π₁ (App D ℓS) ^opF) ,
---                         π₂ (App D ℓS)) ∘Flr ((P-elt ^opF) , P-elt))
---   counit-elt' = whisker (πElt (App D ℓS)) P-elt
+  -- The profunctor here is definitionally iso to R(F -, =), as we see below
+  counit-elt' : NatElt (App ∘Flr ((π₁ App ^opF) ,
+                        π₂ App) ∘Flr ((P-elt ^opF) , P-elt))
+  counit-elt' = whisker (πElt App) P-elt
 
---   open NatElt
---   -- ∀ c . R (F ⟅ c ⟆) c, naturally
---   counit-elt : NatElt (R ∘Fl (FunctorComprehension ^opF))
---   counit-elt .N-ob = counit-elt' .N-ob
---   counit-elt .N-hom× = counit-elt' .N-hom×
---   counit-elt .N-ob-hom×-agree = counit-elt' .N-ob-hom×-agree
---   counit-elt .N-natL = counit-elt' .N-natL
---   counit-elt .N-natR = counit-elt' .N-natR
+  open NatElt
+  -- ∀ c . R (F ⟅ c ⟆) c, naturally
+  counit-elt : NatElt (R ∘Fl (FunctorComprehension ^opF))
+  counit-elt .N-ob = counit-elt' .N-ob
+  counit-elt .N-hom× = counit-elt' .N-hom×
+  counit-elt .N-ob-hom×-agree = counit-elt' .N-ob-hom×-agree
+  counit-elt .N-natL = counit-elt' .N-natL
+  counit-elt .N-natR = counit-elt' .N-natR
 
---   private
---     -- Test to show that counit-elt matches the original universal element
+  private
+    -- Test to show that counit-elt matches the original universal element
 
---     -- This demonstrates that the selection of universal elements is
---     -- natural with respect to the functorial action constructed from
---     -- universality
---     test-counit-elt-def : ∀ c → counit-elt .N-ob c ≡ ues c .element
---     test-counit-elt-def c = refl
+    -- This demonstrates that the selection of universal elements is
+    -- natural with respect to the functorial action constructed from
+    -- universality
+    test-counit-elt-def : ∀ c → counit-elt .N-ob c ≡ ues c .element
+    test-counit-elt-def c = refl
 
---     LiftPsh = (postcomposeF (D ^op) (LiftF {ℓS}{ℓD'}))
---     YO* = (postcomposeF (D ^op) (LiftF {ℓD'}{ℓS}) ∘F YO)
+    LiftPsh = (postcomposeF (D ^op) (LiftF {ℓS}{ℓD'}))
+    YO* = (postcomposeF (D ^op) (LiftF {ℓD'}{ℓS}) ∘F YO)
 
---     ReAssoc : Functor (∫C (𝓟r D ℓS)) (IsoComma LiftPsh YO*)
---     ReAssoc = Assoc-sr⁻ (IsoCommaᴰ LiftPsh YO*)
+    ReAssoc : Functor (𝓟rs D ℓS) (IsoComma YO* LiftPsh)
+    ReAssoc = Assoc-sl⁻ (IsoCommaᴰ YO* LiftPsh)
 
---     P-iso : Functor C (∫C (IsoCommaᴰ LiftPsh YO*))
---     P-iso =
---       Assoc-sr⁻ (IsoCommaᴰ LiftPsh YO*)
---       ∘F ∫F (𝓟us→𝓟r D ℓS)
---       ∘F Pus
+    P-iso : Functor C (∫C (IsoCommaᴰ YO* LiftPsh))
+    P-iso = Assoc-sl⁻ (IsoCommaᴰ YO* LiftPsh) ∘F Pr
 
---   ProfIso' : NatIso _ _
---   ProfIso' = π≅ LiftPsh YO* ∘ˡⁱ P-iso
+  ProfIso' : NatIso _ _
+  ProfIso' = π≅ YO* LiftPsh ∘ˡⁱ P-iso
 
---   ProfIso : NatIso (LiftPsh ∘F P) (YO* ∘F FunctorComprehension)
---   ProfIso .trans .N-ob = ProfIso' .trans .N-ob
---   ProfIso .trans .N-hom = ProfIso' .trans .N-hom
---   ProfIso .nIso = ProfIso' .nIso
+  ProfIso : NatIso (YO* ∘F FunctorComprehension) (LiftPsh ∘F P)
+  ProfIso .trans .N-ob = ProfIso' .trans .N-ob
+  ProfIso .trans .N-hom = ProfIso' .trans .N-hom
+  ProfIso .nIso = ProfIso' .nIso

@@ -54,25 +54,6 @@ module _
   Fstᴰsr .Functorᴰ.F-idᴰ = refl
   Fstᴰsr .Functorᴰ.F-seqᴰ = λ fᴰ gᴰ → refl
 
-  -- s for "simple" because C is not dependent on D
-  -- l for "left" because C is on the left of the product
-  ∫Cᴰsl : Categoryᴰ D (ℓ-max ℓC ℓCᴰ) (ℓ-max ℓC' ℓCᴰ')
-  ∫Cᴰsl .ob[_] d = Σ[ c ∈ C .ob ] Cᴰ.ob[ c , d ]
-  ∫Cᴰsl .Hom[_][_,_] g (c , cᴰ) (c' , cᴰ') =
-    Σ[ f ∈ C [ c , c' ] ] Cᴰ.Hom[ f , g ][ cᴰ , cᴰ' ]
-  ∫Cᴰsl .idᴰ = (C .id) , Cᴰ.idᴰ
-  ∫Cᴰsl ._⋆ᴰ_ (f , fᴰ) (g , gᴰ) = (f ⋆⟨ C ⟩ g) , (fᴰ Cᴰ.⋆ᴰ gᴰ)
-  ∫Cᴰsl .⋆IdLᴰ (f , fᴰ) = ΣPathP (_ , Cᴰ.⋆IdLᴰ _)
-  ∫Cᴰsl .⋆IdRᴰ _ = ΣPathP (_ , Cᴰ.⋆IdRᴰ _)
-  ∫Cᴰsl .⋆Assocᴰ _ _ _ = ΣPathP (_ , Cᴰ.⋆Assocᴰ _ _ _)
-  ∫Cᴰsl .isSetHomᴰ = isSetΣ (C .isSetHom) (λ _ → Cᴰ .isSetHomᴰ)
-
-  Fstᴰsl : Functorᴰ Id ∫Cᴰsl (weaken D C)
-  Fstᴰsl .Functorᴰ.F-obᴰ = fst
-  Fstᴰsl .Functorᴰ.F-homᴰ = fst
-  Fstᴰsl .Functorᴰ.F-idᴰ = refl
-  Fstᴰsl .Functorᴰ.F-seqᴰ = λ _ _ → refl
-
   module _
     {E : Category ℓE ℓE'}
     (F : Functor E C)
@@ -130,3 +111,43 @@ module _
     Assc' .F-homᴰ {_}{_}{f} _ = f .snd .snd
     Assc' .F-idᴰ = refl
     Assc' .F-seqᴰ _ _ = refl
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Cᴰ : Categoryᴰ (C ×C D) ℓCᴰ ℓCᴰ')
+  where
+  open Category
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+
+  private
+    -- can't use reindex bc transport hell
+    Cᴰ' : Categoryᴰ (D ×C C) _ _
+    ob[ Cᴰ' ] (d , c) = Cᴰ.ob[ c , d ]
+    Cᴰ' .Hom[_][_,_] (g , f) cᴰ cᴰ' = Cᴰ.Hom[ f , g ][ cᴰ , cᴰ' ]
+    Cᴰ' .idᴰ = Cᴰ.idᴰ
+    Cᴰ' ._⋆ᴰ_ = Cᴰ._⋆ᴰ_
+    Cᴰ' .⋆IdLᴰ = Cᴰ.⋆IdLᴰ
+    Cᴰ' .⋆IdRᴰ = Cᴰ.⋆IdRᴰ
+    Cᴰ' .⋆Assocᴰ = Cᴰ.⋆Assocᴰ
+    Cᴰ' .isSetHomᴰ = Cᴰ.isSetHomᴰ
+
+  -- s for "simple" because C is not dependent on D
+  -- l for "left" because C is on the left of the product
+  ∫Cᴰsl : Categoryᴰ D (ℓ-max ℓC ℓCᴰ) (ℓ-max ℓC' ℓCᴰ')
+  ∫Cᴰsl = ∫Cᴰsr {D = C} Cᴰ'
+
+  Fstᴰsl : Functorᴰ Id ∫Cᴰsl (weaken D C)
+  Fstᴰsl = Fstᴰsr Cᴰ'
+
+  module _
+    {E : Category ℓE ℓE'}
+    (F : Functor E D)
+    {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+    (Fᴰ : Functorᴰ F Eᴰ (weaken D C))
+    (Gᴰ : Functorᴰ (∫F Fᴰ) (Unitᴰ (∫C Eᴰ)) Cᴰ')
+    where
+
+    mk∫ᴰslFunctorᴰ : Functorᴰ F Eᴰ ∫Cᴰsl
+    mk∫ᴰslFunctorᴰ = mk∫ᴰsrFunctorᴰ Cᴰ' F Fᴰ Gᴰ

@@ -50,12 +50,21 @@ private
 _o-[_]-*_ : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
 C o-[ ℓS ]-* D = Bifunctor (C ^op) D (SET ℓS)
 
+_*-[_]-o_ : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
+C *-[ ℓS ]-o D = Bifunctor C (D ^op) (SET ℓS)
+
 Relatoro* : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
 Relatoro* C ℓS D = C o-[ ℓS ]-* D
 
 module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
-  Profunctor→Relator : Profunctor C D ℓS → D o-[ ℓS ]-* C
-  Profunctor→Relator P = Sym (CurriedToBifunctor P)
+  Profunctor→Relatoro* : Profunctor C D ℓS → D o-[ ℓS ]-* C
+  Profunctor→Relatoro* P = Sym (CurriedToBifunctor P)
+
+  Profunctor→Relator*o : Profunctor C D ℓS → C *-[ ℓS ]-o D
+  Profunctor→Relator*o = CurriedToBifunctor
+
+  Profunctor→Relatoro*^op : Profunctor C D ℓS → (C ^op) o-[ ℓS ]-* (D ^op)
+  Profunctor→Relatoro*^op = CurriedToBifunctor
 
   Relator→Profunctor : D o-[ ℓS ]-* C → Profunctor C D ℓS
   Relator→Profunctor R = CurryBifunctor (Sym R)

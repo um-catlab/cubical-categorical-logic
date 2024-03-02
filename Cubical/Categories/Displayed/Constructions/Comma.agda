@@ -16,6 +16,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.FullSubcategory
+open import Cubical.Categories.Displayed.Constructions.FullSubcategory
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Functor.Base
@@ -69,13 +70,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   Commaᴰ₁ = ∫Cᴰsr Commaᴰ
 
   IsoCommaᴰ : Categoryᴰ (C ×C D) (ℓ-max ℓE' ℓE') ℓE'
-  IsoCommaᴰ = ∫Cᴰ Commaᴰ (Preorderᴰ→Catᴰ IsoCommaᴰ') where
-    IsoCommaᴰ' : Preorderᴰ Comma ℓE' ℓ-zero
-    IsoCommaᴰ' .ob[_] ((c , d) , f)= isIso E f
-    IsoCommaᴰ' .Hom[_][_,_] _ _ _ = Unit
-    IsoCommaᴰ' .idᴰ = tt
-    IsoCommaᴰ' ._⋆ᴰ_ _ _ = tt
-    IsoCommaᴰ' .isPropHomᴰ = isPropUnit
+  IsoCommaᴰ = ∫Cᴰ Commaᴰ (FullSubcategoryᴰ _ (λ (_ , f) → isIso E f))
 
   -- Not following from a gneral result about ∫Cᴰ but works
   hasPropHomsIsoCommaᴰ : hasPropHoms IsoCommaᴰ
@@ -83,38 +78,58 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   -- TODO generalize this as a reasoning principle for ∫Cᴰ
     isPropΣ
       (hasPropHomsCommaᴰ f (cᴰ .fst) (cᴰ' .fst))
-      λ x → hasPropHomsPreorderᴰ _ (f , x) (cᴰ .snd) (cᴰ' .snd)
+      λ x → hasPropHomsFullSubcategory _ _ (f , x) (cᴰ .snd) (cᴰ' .snd)
 
   IsoComma : Category _ _
   IsoComma = ∫C IsoCommaᴰ
 
-  IsoCommaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
+  IsoCommaᴰ₁ : Categoryᴰ C _ _
   IsoCommaᴰ₁ = ∫Cᴰsr IsoCommaᴰ
+
+  IsoCommaᴰ₂ : Categoryᴰ D _ _
+  IsoCommaᴰ₂ = ∫Cᴰsl IsoCommaᴰ
 
   open isIso
   -- Characterization of HLevel of Commaᴰ₁ homs
+  private
+    module IC₁ = Categoryᴰ IsoCommaᴰ₁
+    module _ {c c'}(f : C [ c , c' ])
+             (c≅d : IC₁.ob[ c ])
+             (c'≅d' : IC₁.ob[ c' ]) where
+      AltHom : Type _
+      AltHom = fiber (G .F-hom)
+        (c≅d .snd .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ c'≅d' .snd .fst)
+
+      ICHom = IC₁.Hom[ f ][ c≅d , c'≅d' ]
+
+      Hom→Alt : ICHom → AltHom
+      Hom→Alt (g , sq , _) = g , ⋆InvLMove (c≅d .snd) (sym sq) ∙ sym (E .⋆Assoc _ _ _)
+
+      Alt→Hom : AltHom → ICHom
+      Alt→Hom (g , sq) = g , sym (⋆InvLMove⁻ (c≅d .snd) (sq ∙ E .⋆Assoc _ _ _)), tt
+
+      AltHomRetr : (x : ICHom) → Alt→Hom (Hom→Alt x) ≡ x
+      AltHomRetr _ = Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl
+
+      AltHomProp : isFaithful G → isProp AltHom
+      AltHomProp G-faithful = isEmbedding→hasPropFibers
+        (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful _ _ _ _))
+        _
+
+      AltHomContr : isFullyFaithful G → isContr AltHom
+      AltHomContr G-ff = G-ff _ _ .equiv-proof _
+
+      HomProp : isFaithful G → isProp ICHom
+      HomProp G-faithful = isPropRetract Hom→Alt Alt→Hom AltHomRetr (AltHomProp G-faithful)
+
+      HomContr : isFullyFaithful G → isContr ICHom
+      HomContr G-ff = isContrRetract Hom→Alt Alt→Hom AltHomRetr (AltHomContr G-ff)
+
   hasPropHomsIsoCommaᴰ₁ : isFaithful G → hasPropHoms IsoCommaᴰ₁
-  hasPropHomsIsoCommaᴰ₁ G-faithful f (d , iso) (d' , iso') =
-    isPropRetract
-      (λ (g , sq , _) → g , ⋆InvLMove iso (sym sq) ∙ sym (E .⋆Assoc _ _ _))
-      (λ (g , sq) → g , sym (⋆InvLMove⁻ iso (sq ∙ E .⋆Assoc _ _ _)), tt)
-      ((λ (g , sq , _) → Σ≡Prop (λ g' → hasPropHomsIsoCommaᴰ _ _ _) refl))
-      (isEmbedding→hasPropFibers
-        (injEmbedding (E .isSetHom) (λ {g} {g'} → G-faithful d d' g g'))
-       (iso .snd .inv ⋆⟨ E ⟩ F .F-hom f ⋆⟨ E ⟩ iso' .fst))
+  hasPropHomsIsoCommaᴰ₁ G-faithful f diso diso' = HomProp f diso diso' G-faithful
 
   hasContrHomsIsoCommaᴰ₁ : isFullyFaithful G → hasContrHoms IsoCommaᴰ₁
-  hasContrHomsIsoCommaᴰ₁ Gff f (d , e) (d' , e') =
-    inhProp→isContr
-      (g .fst .fst
-      , sym (⋆InvLMove⁻ e (g .fst .snd ∙ E .⋆Assoc _ _ _))
-      , tt)
-      (hasPropHomsIsoCommaᴰ₁
-        (isFullyFaithful→Faithful {F = G} Gff) f (d , e) (d' , e'))
-      where
-        G⟪g⟫ : E [ G .F-ob d , G .F-ob d' ]
-        G⟪g⟫ = e .snd .inv ⋆⟨ E ⟩ F ⟪ f ⟫ ⋆⟨ E ⟩ e' .fst
-        g = Gff d d' .equiv-proof G⟪g⟫
+  hasContrHomsIsoCommaᴰ₁ G-ff f diso diso' = HomContr f diso diso' G-ff
 
   πⁱ1 : Functor IsoComma C
   πⁱ1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = IsoCommaᴰ}
@@ -126,6 +141,44 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   π≅ .NatIso.trans .N-ob (_ , f , _) = f
   π≅ .NatIso.trans .N-hom (_ , sq , _) = sq
   π≅ .NatIso.nIso (_ , _ , isIso) = isIso
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
+         (F : Functor C E) (G : Functor D E) where
+
+  private
+    module IC₂ = Categoryᴰ (IsoCommaᴰ₂ F G)
+    module IC₁ = Categoryᴰ (IsoCommaᴰ₁ G F)
+    module _ {d d'}(g : D [ d , d' ])
+             (d≅c   : IC₂.ob[ d ])
+             (d'≅c' : IC₂.ob[ d' ]) where
+      c≅d : IC₁.ob[ d ]
+      c≅d = (d≅c .fst) , (invIso (d≅c .snd))
+      c'≅d' : IC₁.ob[ d' ]
+      c'≅d' = (d'≅c' .fst) , (invIso (d'≅c' .snd))
+      IC2Hom = IC₂.Hom[ g ][ d≅c , d'≅c' ]
+      IC1Hom = IC₁.Hom[ g ][ c≅d , c'≅d' ]
+
+      isOfHLevelIC2Hom : ∀ n → isOfHLevel n IC1Hom → isOfHLevel n IC2Hom
+      isOfHLevelIC2Hom n =
+        isOfHLevelRetract n
+          -- this proof would be better if it was an iff directly
+          (λ (f , sq2 , tt) → f ,
+          sym (⋆InvRMove (d'≅c' .snd)
+            (E .⋆Assoc _ _ _ ∙ sym (⋆InvLMove (d≅c .snd) (sym sq2))))
+          , tt)
+          (λ (f , sq1 , tt) → f ,
+            sym (⋆InvRMove (c'≅d' .snd)
+            (E .⋆Assoc _ _ _ ∙ sym (⋆InvLMove (c≅d .snd) (sym sq1))))
+            , tt)
+          λ sq2 → Σ≡Prop (λ _ → hasPropHomsIsoCommaᴰ F G _ _ _) refl
+    
+  hasPropHomsIsoCommaᴰ₂ : isFaithful F → hasPropHoms (IsoCommaᴰ₂ F G)
+  hasPropHomsIsoCommaᴰ₂ F-faithful f diso diso' =
+    isOfHLevelIC2Hom _ _ _ 1 (hasPropHomsIsoCommaᴰ₁ G F F-faithful _ _ _)
+
+  hasContrHomsIsoCommaᴰ₂ : isFullyFaithful F → hasContrHoms (IsoCommaᴰ₂ F G)
+  hasContrHomsIsoCommaᴰ₂ F-ff f diso diso' =
+    isOfHLevelIC2Hom _ _ _ 0 (hasContrHomsIsoCommaᴰ₁ G F F-ff _ _ _)
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
          {F : Functor C E} {G : Functor D E}

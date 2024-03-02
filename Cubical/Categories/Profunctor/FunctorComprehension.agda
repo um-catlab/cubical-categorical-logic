@@ -73,26 +73,24 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   private
     𝓟 = PresheafCategory D ℓS
     𝓟' = PresheafCategory D (ℓ-max ℓS ℓD')
+
+    -- This should probably be in Yoneda.agda
     LiftPsh = (postcomposeF (D ^op) (LiftF {ℓS}{ℓD'}))
     YO* = (postcomposeF (D ^op) (LiftF {ℓD'}{ℓS}) ∘F YO)
+
     isFullyFaithfulYO* : isFullyFaithful YO*
     isFullyFaithfulYO* = isFullyFaithfulG∘F
       {G = postcomposeF (D ^op) (LiftF {ℓD'}{ℓS})}
       isFullyFaithfulYO
       (isFullyFaithfulPostcomposeF isFullyFaithfulLiftF)
+
     Elt : Categoryᴰ (D ×C 𝓟) _ _
-    Elt = Graph (Profunctor→Relator Id)
+    Elt = Graph (Profunctor→Relatoro* Id)
 
     UElt : Categoryᴰ (D ×C 𝓟) _ _
     UElt = ∫Cᴰ Elt (FullSubcategoryᴰ _ λ ((d , p), e) → isUniversal D p d e)
 
     module UElt = Categoryᴰ UElt
-
-    Y⇒  : Categoryᴰ (D ×C 𝓟) _ _
-    Y⇒  = Graph (HomBif 𝓟' ∘Flr ((YO* ^opF) , LiftPsh))
-
-    Y≅  : Categoryᴰ (D ×C 𝓟) _ _
-    Y≅  = ∫Cᴰ Y⇒ (FullSubcategoryᴰ _ λ ((d , p), α) → isNatIso α)
 
     IncoherentElt : Categoryᴰ (D ×C 𝓟) _ _
     IncoherentElt = FullSubcategoryᴰ _ UElt.ob[_]
@@ -108,7 +106,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
       uniqueExists
         (ueQ.intro ((α ⟦ _ ⟧) ueP.element))
         (ueQ.β , tt)
-        (λ _ → {!!})
+        (λ _ → isProp× (Q .F-ob _ .snd _ _) isPropUnit)
         λ f (f◃α , tt) → sym (ueQ.η ∙ cong ueQ.intro f◃α)
       where
         ueP' : UniversalElement _ P
@@ -119,19 +117,29 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
         module ueQ = UniversalElementNotation ueQ'
 
     Representation' : Categoryᴰ 𝓟 _ _
-    Representation' = ∫Cᴰsl Y≅
+    Representation' = IsoCommaᴰ₂ YO* LiftPsh
 
     hasContrHomsRepr : hasContrHoms Representation'
-    hasContrHomsRepr {P}{Q} α d≅P d'≅Q =
-      -- This is equivalent to the type of 
-      isContrRetract
-        {!!}
-        {!!}
-        {!!}
-        (isFullyFaithfulYO* (d≅P .fst) (d'≅Q .fst) .equiv-proof
-          (d⇒P ⋆⟨ 𝓟' ⟩ LiftPsh ⟪ α ⟫ ⋆⟨ 𝓟' ⟩ d'⇐Q) )
-      where d⇒P = d≅P .snd .fst
-            d'⇐Q = symNatIso (record { trans = d'≅Q .snd .fst ; nIso = d'≅Q .snd .snd }) .trans
+    hasContrHomsRepr =
+      hasContrHomsIsoCommaᴰ₂ YO* LiftPsh isFullyFaithfulYO*
+
+    -- 𝓟up = ∫Cᴰsr IncoherentElt
+    -- hasContrHomsRepr : hasContrHoms Representation'
+    -- hasContrHomsRepr {P}{Q} α d≅P d'≅Q =
+    --   isContrRetract
+    --     (λ (f , sq⇒⇒)  → f , {!!})
+    --     (λ (f , inFib) → f , {!!})
+    --     (λ _ → Σ≡Prop (λ _ → hasPropHomsY≅ _ _ _) refl)
+    --     (isFullyFaithfulYO* (d≅P .fst) (d'≅Q .fst) .equiv-proof
+    --       (isodP .fst ⋆⟨ 𝓟' ⟩ LiftPsh ⟪ α ⟫ ⋆⟨ 𝓟' ⟩ d'⇐Q) )
+    --   where
+    --     isodP : CatIso 𝓟' (YO* ⟅ d≅P .fst ⟆) (LiftPsh ⟅ P ⟆ )
+    --     isodP = NatIso→FUNCTORIso (D ^op) _ (record { trans = d≅P .snd .fst ; nIso = d≅P .snd .snd })
+    --     module isIsodP = isIsoC (isodP .snd)
+    --     isodQ : CatIso 𝓟' (YO* ⟅ d'≅Q .fst ⟆) (LiftPsh ⟅ Q ⟆ )
+    --     isodQ = NatIso→FUNCTORIso (D ^op) _ (record { trans = d'≅Q .snd .fst ; nIso = d'≅Q .snd .snd })
+    --     d⇒P = d≅P .snd .fst
+    --     d'⇐Q = symNatIso (record { trans = d'≅Q .snd .fst ; nIso = d'≅Q .snd .snd }) .trans
 
 --   -- Presheaves that have a universal element viewed as property
 --   -- (morphisms ignore it).

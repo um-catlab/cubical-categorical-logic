@@ -59,6 +59,9 @@ module _ (C : Category ℓC ℓC') (P : Category.ob C → Type ℓP) where
   hasContrHomsFullSubcategory : hasContrHoms FullSubcategoryᴰ
   hasContrHomsFullSubcategory _ _ _ = isContrUnit
 
+  hasPropHomsFullSubcategory : hasPropHoms FullSubcategoryᴰ
+  hasPropHomsFullSubcategory _ _ _ = isPropUnit
+
   module _ {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
            (F : Functor D C)
            (F-obᴰ : {x : D .ob} →

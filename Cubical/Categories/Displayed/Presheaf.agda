@@ -16,7 +16,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
-open import Cubical.Categories.Displayed.Instances.Sets
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 
 private

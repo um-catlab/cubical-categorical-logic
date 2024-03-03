@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Displayed.Instances.Sets where
+module Cubical.Categories.Displayed.Instances.Sets.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

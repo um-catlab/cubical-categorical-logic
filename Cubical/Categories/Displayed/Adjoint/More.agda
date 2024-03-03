@@ -12,7 +12,7 @@ open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Instances.Sets
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Presheaf.Representable

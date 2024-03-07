@@ -92,24 +92,11 @@ normalize {Γ} = {!!}
   pts = |FREECC| [ Γ ,-] -- yoneda embedding of |FREECC| op?
   pts-Cart : CartesianFunctor |FREECC| (SET _)
   pts-Cart .fst = pts
-  pts-Cart .snd Γ Δ p = λ f g →
-    ((λ x → p .BinProduct.univProp (f x) (g x) .fst .fst) ,
-    funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .fst) ,
-    funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .snd)) ,
-    --λ y → ΣPathP
-    --(funExt (λ x → λ i → p .BinProduct.univProp (f x) (g x) .snd ((y .fst x) ,
-    --(λ j → y .snd .fst j x) ,
-    --λ j → y .snd .snd j x) i .fst) ,
-    --isSet→isSet'
-    --(SET _ .isSetHom {!!} {!!} {!!} {!!} {!!} {!!} {!!})
-    --{!!} {!!} {!!} {!!} {!!} {!!})
-    λ y → λ i → (λ x → p .BinProduct.univProp (f x) (g x) .snd ((y .fst x) ,
-    ((λ j → y .snd .fst j x ) ,
-    λ j → y .snd .snd j x)) i .fst) ,
-    --isSet→isSet' (SET _ .isSetHom) (y .snd .fst ) (funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .fst)) (funExt λ x → congS (λ foo → foo ⋆⟨ |FREECC| ⟩ p .BinProduct.binProdPr₁) (isSet→isSet' (|FREECC| .isSetHom) refl refl {!!} {!!} i)) refl i ,
-    isSet→isSet' (SET _ .isSetHom) ((funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .fst))) (y .snd .fst ) (funExt (λ x → congS (λ foo → seq' |FREECC| foo (p .BinProduct.binProdPr₁)) (isSet→isSet' (|FREECC| .isSetHom) {!!} {!!} {!!} {!!} i))) refl i ,
-    --{!!} ,
-    isSet→isSet' (SET _ .isSetHom) {!!} {!!} {!!} {!!} i
+  -- this is 100% not the right way of doing this
+  pts-Cart .snd Γ Δ p = λ f g → uniqueExists (λ x → p .BinProduct.univProp (f x) (g x) .fst .fst)
+    (funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .fst) , funExt (λ x → p .BinProduct.univProp (f x) (g x) .fst .snd .snd))
+    (λ a' → λ x y → ΣPathP ((SET _ .isSetHom (λ x → (a' x) ⋆ₑ p .BinProduct.binProdPr₁) f (x .fst) (y .fst)) , SET _ .isSetHom ((λ x → (a' x) ⋆ₑ p .BinProduct.binProdPr₂)) g (x .snd) (y .snd)))
+    λ a' → λ x → funExt λ x₁ i → p .BinProduct.univProp (f x₁) (g x₁) .snd ((a' x₁) , congS (λ f₁ → f₁ x₁) (x .fst)  , congS (λ g₁ → g₁ x₁) (x .snd)) i .fst
   -- TODO: upgrade to displayed cartesian category
   LogFam : Categoryᴰ |FREECC| _ _
   LogFam = reindex (SETᴰ _ _) pts

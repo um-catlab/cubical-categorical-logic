@@ -17,6 +17,7 @@ open import Cubical.Categories.Displayed.Properties as Disp
 open import Cubical.Categories.Displayed.Instances.Sets
 open import Cubical.Categories.Limits.Cartesian.Functor
 open import Cubical.Data.Sigma.Properties
+open import Cubical.Categories.Displayed.Limits.Cartesian
 
 data OB : Type ℓ-zero where
   A B C : OB
@@ -43,7 +44,7 @@ isSetMOR = Discrete→isSet
   (λ { f → refl ; g → refl })
   discreteℕ)
 
-interleaved mutual -- not actually mutually recursive
+interleaved mutual -- not actually mutually recursive, just to interleave
   DOM COD : MOR → ProdExpr OB
 
   DOM f = ↑ A
@@ -87,7 +88,6 @@ forget n = f -- TODO
 normalize : ∀{Γ Δ} → (t : |FREECC| [ Γ , Δ ]) → NormalForm t
 normalize {Γ} = {!!}
   where
-  -- TODO: upgrade to cartesian
   pts : Functor |FREECC| (SET _)
   pts = |FREECC| [ Γ ,-] -- yoneda embedding of |FREECC| op?
   pts-Cart : CartesianFunctor |FREECC| (SET _)

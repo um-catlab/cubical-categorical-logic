@@ -15,6 +15,7 @@ open import Cubical.Data.Quiver.Base as Quiver
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
+open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.UnderlyingGraph hiding (Interp)

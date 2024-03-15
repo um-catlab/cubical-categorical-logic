@@ -12,6 +12,7 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Terminal
@@ -21,18 +22,6 @@ private
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
 open Categoryᴰ
-
-module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
-  open Category
-  weaken : Categoryᴰ C ℓD ℓD'
-  weaken .ob[_] x = D .ob
-  weaken .Hom[_][_,_] f d d' = D [ d , d' ]
-  weaken .idᴰ = D .id
-  weaken ._⋆ᴰ_ = D ._⋆_
-  weaken .⋆IdLᴰ = D .⋆IdL
-  weaken .⋆IdRᴰ = D .⋆IdR
-  weaken .⋆Assocᴰ = D .⋆Assoc
-  weaken .isSetHomᴰ = D .isSetHom
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   open Functor

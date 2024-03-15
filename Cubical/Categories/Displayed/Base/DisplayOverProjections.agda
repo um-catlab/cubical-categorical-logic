@@ -14,6 +14,7 @@ open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
+open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Terminal
@@ -124,7 +125,7 @@ module _
     module Cᴰ = Categoryᴰ Cᴰ
 
   private
-    -- can't use reindex bc transport hell
+    -- TODO: port to reindex'
     Cᴰ' : Categoryᴰ (D ×C C) _ _
     ob[ Cᴰ' ] (d , c) = Cᴰ.ob[ c , d ]
     Cᴰ' .Hom[_][_,_] (g , f) cᴰ cᴰ' = Cᴰ.Hom[ f , g ][ cᴰ , cᴰ' ]

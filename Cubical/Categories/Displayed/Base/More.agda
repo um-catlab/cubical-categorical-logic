@@ -34,9 +34,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   Fst .F-seq =
     λ f g → cong {x = f ⋆⟨ ∫C Cᴰ ⟩ g} fst refl
 
-  -- TODO : There was a comment here with a Snd stub
-  -- I think this is what you wanted to do?
-  Snd : Functorᴰ Fst (weaken (∫C Cᴰ) C) Cᴰ
+  Snd : Functorᴰ Fst (Unitᴰ (∫C Cᴰ)) Cᴰ
   Snd .F-obᴰ {x} _ = x .snd
   Snd .F-homᴰ {_}{_}{f} _ = f .snd
   Snd .F-idᴰ = refl

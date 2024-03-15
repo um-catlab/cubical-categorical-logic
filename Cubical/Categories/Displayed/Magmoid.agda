@@ -8,11 +8,13 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
 -- Displayed categories with hom-sets
 record Magmoidᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ'
@@ -68,3 +70,27 @@ module _ {C : Category ℓC ℓC'}
         (R.≡[]-rectify (λ i → ⋆ᴰ' .snd i (⋆ᴰ' .snd i fᴰ gᴰ) hᴰ))
         (R.≡[]-rectify (λ i → ⋆ᴰ' .snd i fᴰ (⋆ᴰ' .snd i gᴰ hᴰ)))
         (Cᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ)
+
+    module _ {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+             {F : Functor D C}
+             (Fᴰ : Functorᴰ F Dᴰ Cᴰ)
+             where
+      open Functorᴰ
+      open Functor
+      private
+        module Dᴰ = Categoryᴰ Dᴰ
+        module RID = Categoryᴰ redefine-id⋆
+      redefine-id⋆F : Functorᴰ F Dᴰ redefine-id⋆
+      redefine-id⋆F .F-obᴰ  = Fᴰ .F-obᴰ
+      redefine-id⋆F .F-homᴰ = Fᴰ .F-homᴰ
+      redefine-id⋆F .F-idᴰ {x}{xᴰ}  =
+        subst (λ idᴰ → (Fᴰ .F-homᴰ (Dᴰ .Categoryᴰ.idᴰ)) RID.≡[ F .F-id ] idᴰ)
+          (λ i → idᴰ' .snd i)
+          (Fᴰ .F-idᴰ)
+      redefine-id⋆F .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
+        subst (λ _⋆ᴰ_ →
+              Fᴰ .F-homᴰ (fᴰ Dᴰ.⋆ᴰ gᴰ)
+              RID.≡[ F .F-seq f g ]
+              Fᴰ .F-homᴰ fᴰ ⋆ᴰ Fᴰ .F-homᴰ gᴰ)
+          (λ i → ⋆ᴰ' .snd i)
+          (Fᴰ .F-seqᴰ fᴰ gᴰ)

@@ -1,9 +1,9 @@
 {-# OPTIONS --safe #-}
---
 module Cubical.Categories.Displayed.Base.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+import      Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
@@ -12,6 +12,7 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex
 open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
@@ -55,16 +56,38 @@ module _ {C : Category ℓC ℓC'}
   (Dᴰ : Categoryᴰ (∫C Cᴰ) ℓDᴰ ℓDᴰ')
   where
 
+  open Functor
   open Functorᴰ
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
+    ∫∫Cᴰ = ∫C {C = C} (∫Cᴰ Cᴰ Dᴰ)
 
+  -- (c : C) × D c → C
   Fstᴰ : Functorᴰ Id (∫Cᴰ Cᴰ Dᴰ) Cᴰ
   Fstᴰ .F-obᴰ = fst
   Fstᴰ .F-homᴰ = fst
   Fstᴰ .F-idᴰ = refl
   Fstᴰ .F-seqᴰ _ _ = refl
+
+  Fstᴰ*Dᴰ : Categoryᴰ (∫C Cᴰ) _ _
+  Fstᴰ*Dᴰ = reindex' Cᴰ (Fst {Cᴰ = Cᴰ}) Eq.refl λ _ _ → Eq.refl
+
+  -- (p : (c : C) × D c) → D (fst p)
+  Sndᴰ : Functorᴰ (∫F {F = Id}{Cᴰ = ∫Cᴰ Cᴰ Dᴰ}{Dᴰ = Cᴰ} Fstᴰ)
+                  (Unitᴰ (∫C {C = C} (∫Cᴰ Cᴰ Dᴰ)))
+                  Dᴰ
+  Sndᴰ .F-obᴰ {x} _ = x .snd .snd
+  Sndᴰ .F-homᴰ {_}{_}{f} _ = f .snd .snd
+  Sndᴰ .F-idᴰ = refl
+  Sndᴰ .F-seqᴰ _ _ = refl
+
+  -- Γ . Σ A B → Γ . A . B
+  Assocᴰ : Functor (∫C (∫Cᴰ Cᴰ Dᴰ)) (∫C Dᴰ)
+  Assocᴰ .F-ob x = (x .fst , x .snd .fst) , x .snd .snd
+  Assocᴰ .F-hom f = (f .fst , f .snd .fst) , (f .snd .snd)
+  Assocᴰ .F-id = refl
+  Assocᴰ .F-seq _ _ = refl
 
   module _ {E : Category ℓE ℓE'} (F : Functor E C)
            {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
@@ -77,6 +100,18 @@ module _ {C : Category ℓC ℓC'}
     mk∫ᴰFunctorᴰ .F-homᴰ fᴰ = (Fᴰ .F-homᴰ fᴰ) , (Gᴰ .F-homᴰ _)
     mk∫ᴰFunctorᴰ .F-idᴰ = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
     mk∫ᴰFunctorᴰ .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ .F-seqᴰ fᴰ gᴰ , Gᴰ .F-seqᴰ _ _)
+
+  -- TODO: finish this
+  -- module _ {E : Category ℓE ℓE'}
+  --          {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  --          {F : Functor (∫C {C = ∫C {C = C} Cᴰ} Fstᴰ*Dᴰ) E}
+  --          (Fᴰ : Functorᴰ F (Unitᴰ _) Eᴰ)
+  --          where
+  --   -- Γ , c : C , d : D ⊢ M : E[(c , d)]
+  --   ------------------------------------------
+  --   -- Γ , p : Σ C D ⊢ let (c, d) = p in M : E[p]
+  --   elim : Functorᴰ ({!!} ∘F Assocᴰ) (Unitᴰ ∫∫Cᴰ) Eᴰ
+  --   elim = {!!}
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Category

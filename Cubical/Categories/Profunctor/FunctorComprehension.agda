@@ -58,7 +58,7 @@ open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More as Disp
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
-open import Cubical.Categories.Displayed.Base.DisplayOverProjections
+open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Profunctor.Relator

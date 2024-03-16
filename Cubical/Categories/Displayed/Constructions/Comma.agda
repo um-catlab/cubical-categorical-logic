@@ -26,7 +26,8 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More as Displayed
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
-open import Cubical.Categories.Displayed.Base.DisplayOverProjections
+open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
+open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Constructions.Graph

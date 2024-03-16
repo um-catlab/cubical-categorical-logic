@@ -42,6 +42,13 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
   weaken .⋆Assocᴰ = D .⋆Assoc
   weaken .isSetHomᴰ = D .isSetHom
 
+  open Functor
+  weakenΠ : Functor (∫C weaken) D
+  weakenΠ .F-ob = snd
+  weakenΠ .F-hom = snd
+  weakenΠ .F-id = refl
+  weakenΠ .F-seq _ _ = refl
+
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
          {E : Category ℓE ℓE'}
@@ -57,6 +64,7 @@ module _ {C : Category ℓC ℓC'}
   intro .F-homᴰ {f = f} _ = FD .F-hom f
   intro .F-idᴰ = FD .F-id
   intro .F-seqᴰ _ _ = FD .F-seq _ _
+
 module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} where
   open Functor
   open Functorᴰ

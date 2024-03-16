@@ -22,7 +22,6 @@ open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
-open import Cubical.Categories.Displayed.Base.DisplayOverProjections
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Constructions.Graph

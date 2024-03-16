@@ -26,7 +26,6 @@ open import Cubical.Categories.Displayed.Properties as Disp
 open import Cubical.Categories.Displayed.Base.More as Disp
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Base.DisplayOverProjections
 open import Cubical.Categories.Displayed.Instances.Hom
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 open import Cubical.Categories.Displayed.Base.HLevel1Homs

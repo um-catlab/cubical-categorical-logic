@@ -29,6 +29,25 @@ private
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
+  where
+
+  private
+    module C = Category C
+    module D = Category D
+
+  open Categoryᴰ Dᴰ
+  open Functor F
+  open Functorᴰ
+
+  forgetReindex : Functorᴰ F (reindex Dᴰ F) Dᴰ
+  forgetReindex .F-obᴰ = λ z → z
+  forgetReindex .F-homᴰ = λ z → z
+  forgetReindex .F-idᴰ = symP (transport-filler _ _)
+  forgetReindex .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D}
   {B : Category ℓB ℓB'} {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
@@ -87,7 +106,7 @@ module _
 open Category
 open Functor
 
-module _
+module EqReindex
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
   (F : Functor C D)
@@ -134,16 +153,13 @@ module _
    -- Cubical.Categories.Constructions.Quotient.More for an example
    -- reindexRefl! Cᴰ F = reindex' Cᴰ F Eq.refl (λ _ _ → Eq.refl)
 
-  -- TODO
-  -- π-reindex : Functorᴰ F reindex' Dᴰ
-
   -- TODO: Reindex' needs to be a module to make this easier to use
   module _ {B : Category ℓB ℓB'} {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
            (G : Functor B C)
            (FGᴰ : Functorᴰ (F ∘F G) Bᴰ Dᴰ)
          where
-    reindex-intro' : Functorᴰ G Bᴰ reindex'
-    reindex-intro' = redefine-id⋆F (reindex Dᴰ F) singId singSeq (intro G FGᴰ)
+    intro' : Functorᴰ G Bᴰ reindex'
+    intro' = redefine-id⋆F (reindex Dᴰ F) singId singSeq (intro G FGᴰ)
 
   open Functorᴰ
   -- There's probably an easier way if we use sing'
@@ -166,19 +182,3 @@ module _
        (F-seq' fᴰ gᴰ) (fᴰ Dᴰ.⋆ᴰ gᴰ))
       (λ i → singSeq .snd i)
       (symP (R.reind-filler (sym (F .F-seq f g)) _))
-
-module _
-  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
-  {F-id'  : {x : C .ob} → D .id {x = F .F-ob x} Eq.≡ F .F-hom (C .id)}
-  {F-seq' : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ])
-          → (F .F-hom f) ⋆⟨ D ⟩ (F .F-hom g) Eq.≡ F .F-hom (f ⋆⟨ C ⟩ g)}
-  {B : Category ℓB ℓB'} {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
-  (G : Functor B C)
-  (FGᴰ : Functorᴰ (F ∘F G) Bᴰ Dᴰ)
-  where
-
-  open Functorᴰ
-  intro' : Functorᴰ G Bᴰ (reindex' Dᴰ F F-id' F-seq')
-  intro' = reindex-intro' Dᴰ F F-id' F-seq' G FGᴰ

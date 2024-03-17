@@ -22,7 +22,6 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Instances.Terminal hiding (intro)
 
 private
   variable

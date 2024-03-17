@@ -40,7 +40,7 @@ module _ {C : Category ℓC ℓC'}
   Assocᴰ .F-hom f   = (f .fst , f .snd .fst) , f .snd .snd
   Assocᴰ .F-id      = refl
   Assocᴰ .F-seq _ _ = refl
-   
+
   Assocᴰ⁻ : Functor (∫C Dᴰ) ∫∫Cᴰ
   Assocᴰ⁻ .F-ob  x   = x .fst .fst , x .fst .snd , x .snd
   Assocᴰ⁻ .F-hom f   = f .fst .fst , f .fst .snd , f .snd

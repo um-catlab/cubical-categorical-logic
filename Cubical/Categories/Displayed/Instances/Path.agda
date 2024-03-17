@@ -3,8 +3,8 @@
 
   If C is univalent, this is equivalent to the IsoComma category.
 
-  Universal property: a displayed functor into this is a proof that
-  two functors are equal.
+  Universal property: a section of the Path bundle is a path between
+  functors
 
 -}
 {-# OPTIONS --safe #-}
@@ -34,15 +34,15 @@ private
     ℓC ℓC' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓS ℓR : Level
 
 module _  (C : Category ℓC ℓC') where
-  module C = Category C
   private
-      PathC' : Preorderᴰ (C ×C C) _ _
-      PathC' .Preorderᴰ.ob[_] (c , d) = c ≡ d
-      PathC' .Preorderᴰ.Hom[_][_,_] (f , g) c≡c' d≡d' =
-        PathP (λ i → C.Hom[ c≡c' i , d≡d' i ]) f g
-      PathC' .Preorderᴰ.idᴰ = λ i → C.id
-      PathC' .Preorderᴰ._⋆ᴰ_ f≡f' g≡g' = λ i → f≡f' i ⋆⟨ C ⟩ g≡g' i
-      PathC' .Preorderᴰ.isPropHomᴰ = isOfHLevelPathP' 1 C.isSetHom _ _
+    module C = Category C
+    PathC' : Preorderᴰ (C ×C C) _ _
+    PathC' .Preorderᴰ.ob[_] (c , d) = c ≡ d
+    PathC' .Preorderᴰ.Hom[_][_,_] (f , g) c≡c' d≡d' =
+      PathP (λ i → C.Hom[ c≡c' i , d≡d' i ]) f g
+    PathC' .Preorderᴰ.idᴰ = λ i → C.id
+    PathC' .Preorderᴰ._⋆ᴰ_ f≡f' g≡g' = λ i → f≡f' i ⋆⟨ C ⟩ g≡g' i
+    PathC' .Preorderᴰ.isPropHomᴰ = isOfHLevelPathP' 1 C.isSetHom _ _
 
   PathC : Categoryᴰ (C ×C C) ℓC ℓC'
   PathC = Preorderᴰ→Catᴰ PathC'

@@ -63,7 +63,7 @@ module _
   mkSectionPropHoms propHoms F-obᴰ F-homᴰ .Section.F-seqᴰ _ _ =
     isProp→PathP (λ i → propHoms _ _ _) _ _
 
-  mkSectionContrHoms : 
+  mkSectionContrHoms :
     (contrHoms : hasContrHoms Dᴰ)
       → (F-obᴰ  : (x : C .ob) → Dᴰ.ob[ F .F-ob x ])
       → Section F Dᴰ

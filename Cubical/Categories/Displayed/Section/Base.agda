@@ -54,6 +54,22 @@ module _ {C : Category ℓC ℓC'}
             → (f : D.Hom[ d , d' ])(g : D.Hom[ d' , d'' ])
             → F-homᴰ (f D.⋆ g) Cᴰ.≡[ F .F-seq f g ] F-homᴰ f Cᴰ.⋆ᴰ F-homᴰ g
 
+module _ {C : Category ℓC ℓC'}
+         (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+         where
+  GlobalSection : Type _
+  GlobalSection = Section Id Cᴰ
+
+-- Reindexing a section. Makes
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         where
+  reindS : ∀ {F G}(H : Path (Functor D C) F G) → Section F Cᴰ → Section G Cᴰ
+  reindS H = subst (λ F → Section F Cᴰ) H
+
+  -- TODO: reindS' analogous to reindF' using Eq.singl etc
+
 module _ {B : Category ℓB ℓB'}
          {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
@@ -100,3 +116,20 @@ module _ {B : Category ℓB ℓB'}
     (λ i → Fᴰ .F-homᴰ (Gᴰ .F-seqᴰ f g i))
     (Fᴰ .F-seqᴰ (Gᴰ .F-homᴰ f) (Gᴰ .F-homᴰ g)))
 
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {F : Functor C D}
+         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+       where
+  open Functor
+  open Functorᴰ
+  open Section
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+    module Cᴰ = Categoryᴰ Cᴰ
+    module R = HomᴰReasoning Dᴰ
+  -- TODO: replace this use of reindS with reindS' once that's implemented
+  compFunctorᴰGlobalSection : Functorᴰ F Cᴰ Dᴰ → GlobalSection Cᴰ → Section F Dᴰ
+  compFunctorᴰGlobalSection Fᴰ Gᴰ = reindS (Functor≡ (λ _ → refl) λ _ → refl)
+    (compFunctorᴰSection Fᴰ Gᴰ)

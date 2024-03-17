@@ -19,7 +19,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Instances.Terminal hiding (intro)
+open import Cubical.Categories.Displayed.Section.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Magmoid
 
@@ -45,6 +45,9 @@ module _
   forgetReindex .F-homᴰ = λ z → z
   forgetReindex .F-idᴰ = symP (transport-filler _ _)
   forgetReindex .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)
+
+  GlobalSection→Section : GlobalSection (reindex Dᴰ F) → Section F Dᴰ
+  GlobalSection→Section Fᴰ = compFunctorᴰGlobalSection forgetReindex Fᴰ
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

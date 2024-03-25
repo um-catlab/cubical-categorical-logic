@@ -20,9 +20,6 @@ private
   variable
     ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' : Level
 
--- TODO: move to Equality.Base or something
-
-
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -47,7 +44,6 @@ module _
       (Eq.ap (λ G-ob → ∀ {x}{y} → C [ x , y ] → D [ G-ob x , G-ob y ])
              (GF-ob .snd))
       (F .F-hom)
-  -- Pro tip: always use this
   module _ (Fᴰ : Functorᴰ F Cᴰ Dᴰ) where
     open Functor
     reindF'-ob : (GF-ob : GF-ob-ty) → ∀ {x} → Cᴰ.ob[ x ] → Dᴰ.ob[ GF-ob .fst x ]
@@ -79,6 +75,7 @@ module _
       R.≡[]-rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
 
   open Functor
+  -- This is preferable to reindF if the equalities are Refl.
   reindF' : (G : Functor C D)
             (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)
             (GF-hom≡FF-hom :

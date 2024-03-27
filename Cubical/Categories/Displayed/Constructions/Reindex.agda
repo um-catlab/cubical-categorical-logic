@@ -46,8 +46,8 @@ module _
   forgetReindex .F-idᴰ = symP (transport-filler _ _)
   forgetReindex .F-seqᴰ fᴰ gᴰ = symP (transport-filler _ _)
 
-  GlobalSectionReind→Section : GlobalSection (reindex Dᴰ F) → Section F Dᴰ
-  GlobalSectionReind→Section Fᴰ = compFunctorᴰGlobalSection forgetReindex Fᴰ
+  GlobalSectionReindex→Section : GlobalSection (reindex Dᴰ F) → Section F Dᴰ
+  GlobalSectionReindex→Section Fᴰ = compFunctorᴰGlobalSection forgetReindex Fᴰ
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

@@ -119,7 +119,7 @@ module _ (Q : Quiver ℓg ℓg') where
       ıᴰ' ._<$g>ᴰ_ = ıᴰ <$g>ᴰ_
 
     elim' : Section F Cᴰ
-    elim' = GlobalSection→Section Cᴰ F (elim F*Cᴰ ıᴰ')
+    elim' = GlobalSectionReindex→Section Cᴰ F (elim F*Cᴰ ıᴰ')
 
   -- Elimination principle implies the recursion principle, which
   -- allows for non-dependent functors to be defined

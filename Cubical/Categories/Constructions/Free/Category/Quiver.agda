@@ -27,7 +27,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 
 open import Cubical.Categories.Displayed.Section.Base as Cat
-open import Cubical.Categories.Displayed.Preorder as Preorder hiding (Section)
+open import Cubical.Categories.Displayed.Preorder as Preorder
 
 private
   variable

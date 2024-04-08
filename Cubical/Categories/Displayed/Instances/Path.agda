@@ -26,7 +26,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Instances.Terminal
-open import Cubical.Categories.Displayed.Preorder hiding (Section; reindex)
+open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Properties
 
 private

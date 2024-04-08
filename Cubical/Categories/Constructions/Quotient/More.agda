@@ -17,7 +17,7 @@ open import Cubical.Categories.Constructions.Quotient
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
 
 private
   variable
@@ -41,12 +41,13 @@ module _ (C : Category ℓ ℓ') where
     module _ (Dᴰ : Categoryᴰ C/~ ℓD ℓD') where
       private
         module Dᴰ = Categoryᴰ Dᴰ
-
       module ReindexQuo = EqReindex Dᴰ QF Eq.refl (λ _ _ → Eq.refl)
 
       open Section
-      -- TODO: should elim construct a global section or a local section?
-      elim : (F : GlobalSection ReindexQuo.reindex')
+
+      -- TODO: should elim be the name for the global section or the local
+      -- section?
+      elim : (F : GlobalSection ReindexQuo.reindex)
            → (∀ {x y} → (f g : Hom[ x , y ]) → (p : f ~ g) →
              PathP (λ i → Dᴰ.Hom[ eq/ f g p i ][ F .F-obᴰ x , F .F-obᴰ y ])
                    (F .F-homᴰ f)
@@ -60,11 +61,11 @@ module _ (C : Category ℓ ℓ') where
       elim F F-resp-∼ .F-seqᴰ =
         elimProp2 (λ [f] [g] → Dᴰ.isSetHomᴰ _ _) (F .F-seqᴰ)
 
-    -- TODO: elim' that constructs a local section
-    -- module _ {D : Category ℓD ℓD'}
-    --          (F : Functor C/~ D)
-    --          (Dᴰ : Categoryᴰ D ℓD ℓD')
-    --          where
-    --   elim' : (Fᴰ : Section (F ∘F QF) Dᴰ)
-    --         → Section F Dᴰ
-    --   elim' Fᴰ = GlobalSection→Section Dᴰ F (elim (reindex Dᴰ F) {!ReindexQuo.intro'!} {!!})      
+    -- -- TODO: elim' that constructs a local section
+    -- -- module _ {D : Category ℓD ℓD'}
+    -- --          (F : Functor C/~ D)
+    -- --          (Dᴰ : Categoryᴰ D ℓD ℓD')
+    -- --          where
+    -- --   elim' : (Fᴰ : Section (F ∘F QF) Dᴰ)
+    -- --         → Section F Dᴰ
+    -- --   elim' Fᴰ = GlobalSection→Section Dᴰ F (elim (reindex Dᴰ F) {!ReindexQuo.intro'!} {!!})      

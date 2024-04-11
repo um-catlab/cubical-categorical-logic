@@ -23,6 +23,7 @@ open import Cubical.Data.Quiver.Base
 
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Constructions.Presented as Presented
+open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
 open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
 open import Cubical.Categories.Displayed.Instances.Path as PathC
@@ -146,17 +147,25 @@ module _ (𝓒 : Category ℓc ℓc') where
         rec = Weaken.intro⁻ {F = Id}
           (elim (Weaken.intro FreeFunctor 𝓕) ıOb ıHom)
 
-    -- module _ {𝓔 : Category ℓe ℓe'}
-    --          (F G : Functor HCat 𝓔)
-    --          -- (agree-on-𝓒 : Section )
-    --          (agree-on-objects : ∀ (A : H .fst) → F-ob F (inr A) ≡ F-ob G (inr A))
-    --          -- (agree-on-morphisms :
-    --          --   ∀ e →
-    --          --   PathP ())
-    --        where
-    --   extensionalityF : F ≡ G
-    --   extensionalityF = PathC.PathReflection
-    --     (elimLocal {!!} agree-on-objects {!!})
+    module _ {𝓔 : Category ℓe ℓe'}
+             (F G : Functor HCat 𝓔)
+             (agree-on-𝓒 : Section ((F ,F G) ∘F FreeFunctor) (PathC 𝓔))
+             (agree-on-objects : ∀ (A : H .fst) → F-ob F (inr A) ≡ F-ob G (inr A))
+           where
+      private
+          ıOb' : ∀ (A : HOb) → F ⟅ A ⟆ ≡ G ⟅ A ⟆
+          ıOb' = Sum.elim (agree-on-𝓒 .F-obᴰ) agree-on-objects
+      module _ (agree-on-morphisms : ∀ e →
+                 PathP ((λ i → 𝓔 [ ıOb' (H .snd .dom e) i
+                                 , ıOb' (H .snd .cod e) i ]))
+                   (F ⟪ moduloAx .F-hom (ηPre <$g> inr e) ⟫)
+                   (G ⟪ moduloAx .F-hom (ηPre <$g> inr e) ⟫))
+        where
+        extensionalityF : F ≡ G
+        extensionalityF = PathC.PathReflection
+          (elimLocal agree-on-𝓒 agree-on-objects agree-on-morphisms)
+
+    -- todo: extensionality for (local) sections
 
 module CoUnit {C : Category ℓc ℓc'} {D : Category ℓd ℓd'} (F : Functor C D)
   where

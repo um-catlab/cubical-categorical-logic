@@ -60,9 +60,9 @@ module _ {C : Category ℓC ℓC'}
          {F1 F2 : Functor D C}
          where
   -- "Equality/Path Reflection Rule"
-  SectionPathC→Path :
+  PathReflection :
     ∀ (Fᴰ : Section (F1 ,F F2) (PathC C)) → F1 ≡ F2
-  SectionPathC→Path Fᴰ = Functor≡ Fᴰ.F-obᴰ Fᴰ.F-homᴰ
+  PathReflection Fᴰ = Functor≡ Fᴰ.F-obᴰ Fᴰ.F-homᴰ
     where module Fᴰ = Section Fᴰ
 
 -- TODO: there should also be a "J"-style elimination principle.

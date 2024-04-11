@@ -10,6 +10,7 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.BinProduct
 
 private
@@ -38,8 +39,22 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
 
 -- Product within a fiber
 -- TODO: replace this with ∫ᴰ ?
--- Product of total categories
--- todo: replace with the next construction & reindexing?
+
+-- TODO: is there an easy way to reduce this code duplication?
+module _ {C : Category ℓC ℓC'}
+  {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}
+  {E : Category ℓE ℓE'}
+  (F : Functor E C)
+  (Fᴰ₀ : Section F Dᴰ₀)
+  (Fᴰ₁ : Section F Dᴰ₁)
+  where
+
+  open Section
+  introS : Section F (Dᴰ₀ ×ᴰ Dᴰ₁)
+  introS .F-obᴰ d =  Fᴰ₀ .F-obᴰ d , Fᴰ₁ .F-obᴰ d
+  introS .F-homᴰ fᴰ = Fᴰ₀ .F-homᴰ fᴰ , Fᴰ₁ .F-homᴰ fᴰ
+  introS .F-idᴰ = ΣPathP (Fᴰ₀ .F-idᴰ , Fᴰ₁ .F-idᴰ)
+  introS .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ₀ .F-seqᴰ fᴰ gᴰ , Fᴰ₁ .F-seqᴰ fᴰ gᴰ)
 
 module _ {C : Category ℓC ℓC'}
   {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}
@@ -56,8 +71,8 @@ module _ {C : Category ℓC ℓC'}
     module Dᴰ× = Categoryᴰ (Dᴰ₀ ×ᴰ Dᴰ₁)
 
   open Functorᴰ
-  intro : Functorᴰ F Eᴰ (Dᴰ₀ ×ᴰ Dᴰ₁)
-  intro .F-obᴰ x = Fᴰ₀ .F-obᴰ x , Fᴰ₁ .F-obᴰ x
-  intro .F-homᴰ fᴰ =  Fᴰ₀ .F-homᴰ fᴰ , Fᴰ₁ .F-homᴰ fᴰ
-  intro .F-idᴰ = ΣPathP (Fᴰ₀ .F-idᴰ , Fᴰ₁ .F-idᴰ)
-  intro .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ₀ .F-seqᴰ fᴰ gᴰ , Fᴰ₁ .F-seqᴰ fᴰ gᴰ)
+  introF : Functorᴰ F Eᴰ (Dᴰ₀ ×ᴰ Dᴰ₁)
+  introF .F-obᴰ x = Fᴰ₀ .F-obᴰ x , Fᴰ₁ .F-obᴰ x
+  introF .F-homᴰ fᴰ =  Fᴰ₀ .F-homᴰ fᴰ , Fᴰ₁ .F-homᴰ fᴰ
+  introF .F-idᴰ = ΣPathP (Fᴰ₀ .F-idᴰ , Fᴰ₁ .F-idᴰ)
+  introF .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ₀ .F-seqᴰ fᴰ gᴰ , Fᴰ₁ .F-seqᴰ fᴰ gᴰ)

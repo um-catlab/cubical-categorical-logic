@@ -73,6 +73,8 @@ intro⁻ : {C : Category ℓC ℓC'}
 intro⁻ {C = C}{D = D}{F = F} Fᴰ =
   weakenΠ C D ∘F TC.intro F Fᴰ
 
+-- TODO: intro/intro⁻ is an Iso
+
 module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} where
   open Functor
   open Functorᴰ

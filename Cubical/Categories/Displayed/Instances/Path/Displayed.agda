@@ -3,8 +3,9 @@
 
   If C is univalent, this is equivalent to the IsoComma category.
 
-  Universal property: a section of the Path bundle is a path between
-  functors
+  (Right) Universal property: a section of the Path bundle is a path
+  between section
+
 
 -}
 {-# OPTIONS --safe #-}
@@ -16,19 +17,20 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Constructions.TotalCategory as TotalCategory
 open import Cubical.Categories.Profunctor.Relator as Relator hiding (Hom)
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Instances.Terminal
-open import Cubical.Categories.Displayed.Preorder hiding (Section; reindex)
+open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Properties
 
 private
@@ -62,6 +64,15 @@ module _  {C : Category ℓC ℓC'}
   Refl .F-idᴰ = refl
   Refl .F-seqᴰ _ _ = refl
 
--- TODO: "Path Reflection Rule" that constructs a Path between
--- sections from a section of PathCᴰ
-
+  module _ {D : Category ℓD ℓD'}
+           {F : Functor D C}
+           (M N : Section F Cᴰ)
+           where
+   -- TODO: do we need any of the alternate formulations?
+   PathReflection :
+     Section (TotalCategory.intro F (introS F M N)) PathCᴰ
+     → M ≡ N
+   PathReflection M≡N i .F-obᴰ d = M≡N .F-obᴰ d i
+   PathReflection M≡N i .F-homᴰ f = M≡N .F-homᴰ f i
+   PathReflection M≡N i .F-idᴰ j = M≡N .F-idᴰ j i
+   PathReflection M≡N i .F-seqᴰ f g j = M≡N .F-seqᴰ f g j i

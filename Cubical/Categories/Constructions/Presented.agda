@@ -16,6 +16,7 @@ open import Cubical.HITs.SetQuotients as SetQuotient
   renaming ([_] to [_]q) hiding (rec; elim)
 
 open import Cubical.Categories.Constructions.Quotient as CatQuotient
+open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec; elim)
 open import Cubical.Categories.Constructions.Quotient.More as CatQuotient
@@ -109,16 +110,15 @@ module _ (𝓒 : Category ℓc ℓc') where
           (λ i → F-respects-≈ p i 𝓓.⋆ᴰ F-respects-≈ q i)
           ▷ (sym (F .F-seqᴰ e' f')))
 
-    -- module _ (𝓓 : Category ℓd ℓd') (F : Functor 𝓒 𝓓)
-    --   (F-satisfies-axioms : ∀ eq →
-    --     F ⟪ Ax .lhs eq ⟫ ≡ F ⟪ Ax .rhs eq ⟫) where
-    --     rec : Functor PresentedCat 𝓓
-    --     rec = Iso.fun (SectionToWkIsoFunctor _ _)
-    --       (elim (weaken _ 𝓓) F' F-satisfies-axioms) where
-    --       -- There's probably a general principle but η expansion is
-    --       -- easier
-    --       F' : Section _
-    --       F' .Section.F-obᴰ = F .F-ob
-    --       F' .Section.F-homᴰ = F .F-hom
-    --       F' .Section.F-idᴰ = F .F-id
-    --       F' .Section.F-seqᴰ = F .F-seq
+    module _ (𝓓 : Category ℓd ℓd') (F : Functor 𝓒 𝓓)
+        (F-satisfies-axioms : ∀ eq → F ⟪ Ax .lhs eq ⟫ ≡ F ⟪ Ax .rhs eq ⟫)
+        where
+      rec : Functor PresentedCat 𝓓
+      rec = Weaken.intro⁻ (elim _ F' F-satisfies-axioms) where
+        -- There's probably a general principle but η expansion is
+        -- easier
+        F' : GlobalSection _
+        F' .Section.F-obᴰ = F .F-ob
+        F' .Section.F-homᴰ = F .F-hom
+        F' .Section.F-idᴰ = F .F-id
+        F' .Section.F-seqᴰ = F .F-seq

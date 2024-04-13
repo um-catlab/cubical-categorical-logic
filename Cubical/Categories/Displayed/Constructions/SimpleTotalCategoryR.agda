@@ -28,7 +28,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
-  hiding (intro)
+  hiding (introS; introF)
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
   hiding (intro)
 open import Cubical.Categories.Displayed.Properties
@@ -38,7 +38,7 @@ open import Cubical.Categories.Displayed.Instances.Terminal hiding (intro)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
 open import Cubical.Categories.Displayed.Constructions.TotalCategory as TotalCatᴰ
-  hiding (intro)
+  hiding (introS)
 
 private
   variable
@@ -77,8 +77,8 @@ module _
 
     open Functorᴰ
 
-    intro : Section F ∫Cᴰsr
-    intro = TotalCatᴰ.intro {C = C}{Cᴰ = weaken C D} Cᴰ F Fᴰ Gᴰ
+    introS : Section F ∫Cᴰsr
+    introS = TotalCatᴰ.introS {C = C}{Cᴰ = weaken C D} Cᴰ F Fᴰ Gᴰ
 
   -- ∀ c , d . Cᴰ (c , d) → Σ[ d' ] Cᴰ (c , d')
   -- This can be defined more generally for ∫Cᴰ

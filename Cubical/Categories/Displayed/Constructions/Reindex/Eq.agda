@@ -16,9 +16,12 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.TotalCategory hiding (intro)
-open import Cubical.Categories.Constructions.TotalCategory as TotalCat hiding (intro)
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  hiding (introS)
+open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+  hiding (intro)
 open import Cubical.Categories.Displayed.Properties as Reindex hiding (reindex)
+import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
@@ -82,6 +85,7 @@ module EqReindex
     module C = Category C
     module D = Category D
     module Dᴰ = Categoryᴰ Dᴰ
+    F*Dᴰ = Reindex.reindex Dᴰ F
 
     singId : singl {A = {x : C .ob} {p : Dᴰ .Categoryᴰ.ob[_] (F .F-ob x)} →
        Dᴰ .Categoryᴰ.Hom[_][_,_] {F .F-ob x} {F .F-ob x}
@@ -106,39 +110,40 @@ module EqReindex
   -- This definition is preferable to reindex when F-id' and F-seq'
   -- are given by Eq.refl.
   reindex : Categoryᴰ C ℓDᴰ ℓDᴰ'
-  reindex = redefine-id⋆ (Reindex.reindex Dᴰ F) singId singSeq
+  reindex = redefine-id⋆ F*Dᴰ singId singSeq
+
+  open Functorᴰ
+  -- There's probably an easier way to do this using sing'
+  forgetReindex : Functorᴰ F reindex Dᴰ
+  forgetReindex .F-obᴰ = λ z → z
+  forgetReindex .F-homᴰ = λ z → z
+  forgetReindex .F-idᴰ {x}{xᴰ} =
+    subst (λ F-id' → PathP (λ i → Dᴰ.Hom[ F .F-id i ][ xᴰ , xᴰ ])
+      F-id'
+      Dᴰ.idᴰ)
+      (λ i → singId .snd i)
+      (symP (R.reind-filler (sym (F .F-id)) _))
+  forgetReindex .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
+    subst
+      {A = ∀ {x y z} {f : C .Hom[_,_] x y} {g : C .Hom[_,_] y z}{xᴰ}{yᴰ}{zᴰ}
+       → Dᴰ.Hom[ F .F-hom f ][ xᴰ , yᴰ ]
+       → Dᴰ.Hom[ F .F-hom g ][ yᴰ , zᴰ ]
+       → Dᴰ.Hom[ F .F-hom (f C.⋆ g)][ xᴰ , zᴰ ]}
+      (λ F-seq' →  PathP (λ i → Dᴰ.Hom[ F .F-seq f g i ][ xᴰ , zᴰ ])
+       (F-seq' fᴰ gᴰ) (fᴰ Dᴰ.⋆ᴰ gᴰ))
+      (λ i → singSeq .snd i)
+      (symP (R.reind-filler (sym (F .F-seq f g)) _))
 
    -- TODO: it would be really nice to have a macro reindexRefl! that
    -- worked like the following: See
    -- Cubical.Categories.Constructions.Quotient.More for an example
    -- reindexRefl! Cᴰ F = reindex' Cᴰ F Eq.refl (λ _ _ → Eq.refl)
 
-  -- module _ {B : Category ℓB ℓB'} {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
-  --          (G : Functor B C)
-  --          (FGᴰ : Functorᴰ (F ∘F G) Bᴰ Dᴰ)
-  --        where
-  --   introEq : Functorᴰ G Bᴰ reindexEq
-  --   introEq = redefine-id⋆F (reindex Dᴰ F) singId singSeq (intro G FGᴰ)
+  module _ {B : Category ℓB ℓB'}
+           (G : Functor B C)
+           (FGᴰ : Section (F ∘F G) Dᴰ)
+           where
+    introS : Section G reindex
+    introS = redefine-id⋆S F*Dᴰ singId singSeq (Reindex.introS _ FGᴰ)
 
-  
---   open Functorᴰ
---   -- There's probably an easier way if we use sing'
---   forgetReindex' : Functorᴰ F reindex' Dᴰ
---   forgetReindex' .F-obᴰ xᴰ = xᴰ
---   forgetReindex' .F-homᴰ fᴰ = fᴰ
---   forgetReindex' .F-idᴰ {x}{xᴰ} =
---     subst (λ F-id' → PathP (λ i → Dᴰ.Hom[ F .F-id i ][ xᴰ , xᴰ ])
---       F-id'
---       Dᴰ.idᴰ)
---       (λ i → singId .snd i)
---       (symP (R.reind-filler (sym (F .F-id)) _))
---   forgetReindex' .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
---     subst
---       {A = ∀ {x y z} {f : C .Hom[_,_] x y} {g : C .Hom[_,_] y z}{xᴰ}{yᴰ}{zᴰ}
---        → Dᴰ.Hom[ F .F-hom f ][ xᴰ , yᴰ ]
---        → Dᴰ.Hom[ F .F-hom g ][ yᴰ , zᴰ ]
---        → Dᴰ.Hom[ F .F-hom (f C.⋆ g)][ xᴰ , zᴰ ]}
---       (λ F-seq' →  PathP (λ i → Dᴰ.Hom[ F .F-seq f g i ][ xᴰ , zᴰ ])
---        (F-seq' fᴰ gᴰ) (fᴰ Dᴰ.⋆ᴰ gᴰ))
---       (λ i → singSeq .snd i)
---       (symP (R.reind-filler (sym (F .F-seq f g)) _))
+  open Functorᴰ

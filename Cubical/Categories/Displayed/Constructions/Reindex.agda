@@ -68,8 +68,10 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.TotalCategory hiding (intro)
-open import Cubical.Categories.Constructions.TotalCategory as TotalCat hiding (intro)
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  hiding (introS)
+open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+  hiding (intro)
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base

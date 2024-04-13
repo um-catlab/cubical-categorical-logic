@@ -58,8 +58,8 @@ module _ {C : Category ℓC ℓC'}
            (Fᴰ : Section F Cᴰ)
            (Gᴰ : Section (TotalCat.intro F Fᴰ) Dᴰ)
            where
-    intro : Section F (∫Cᴰ Cᴰ Dᴰ)
-    intro .F-obᴰ  d   = Fᴰ .F-obᴰ d , Gᴰ .F-obᴰ d
-    intro .F-homᴰ f   = Fᴰ .F-homᴰ f , Gᴰ .F-homᴰ f
-    intro .F-idᴰ      = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
-    intro .F-seqᴰ f g = ΣPathP (Fᴰ .F-seqᴰ f g , Gᴰ .F-seqᴰ f g)
+    introS : Section F (∫Cᴰ Cᴰ Dᴰ)
+    introS .F-obᴰ  d   = Fᴰ .F-obᴰ d , Gᴰ .F-obᴰ d
+    introS .F-homᴰ f   = Fᴰ .F-homᴰ f , Gᴰ .F-homᴰ f
+    introS .F-idᴰ      = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
+    introS .F-seqᴰ f g = ΣPathP (Fᴰ .F-seqᴰ f g , Gᴰ .F-seqᴰ f g)

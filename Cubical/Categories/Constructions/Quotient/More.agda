@@ -68,4 +68,4 @@ module _ (C : Category ℓ ℓ') where
     -- --          where
     -- --   elim' : (Fᴰ : Section (F ∘F QF) Dᴰ)
     -- --         → Section F Dᴰ
-    -- --   elim' Fᴰ = GlobalSection→Section Dᴰ F (elim (reindex Dᴰ F) {!ReindexQuo.intro'!} {!!})      
+    -- --   elim' Fᴰ = GlobalSection→Section Dᴰ F (elim (reindex Dᴰ F) {!ReindexQuo.intro'!} {!!})

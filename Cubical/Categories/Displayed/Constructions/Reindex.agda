@@ -69,7 +69,7 @@ open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  hiding (introS)
+  hiding (introS; introF)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
 open import Cubical.Categories.Displayed.Properties

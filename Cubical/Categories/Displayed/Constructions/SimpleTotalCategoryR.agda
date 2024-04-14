@@ -30,7 +30,7 @@ open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
   hiding (introS; introF)
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
-  hiding (intro)
+  hiding (introS; introF)
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More

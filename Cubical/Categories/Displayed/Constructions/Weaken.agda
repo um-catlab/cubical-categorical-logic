@@ -58,22 +58,39 @@ module _ {C : Category ℓC ℓC'}
   open Category
   open Functor
   open Section
-  intro : Section F (weaken C D)
-  intro .F-obᴰ x = G .F-ob x
-  intro .F-homᴰ f = G .F-hom f
-  intro .F-idᴰ = G .F-id
-  intro .F-seqᴰ _ _ = G .F-seq _ _
+  introS : Section F (weaken C D)
+  introS .F-obᴰ x = G .F-ob x
+  introS .F-homᴰ f = G .F-hom f
+  introS .F-idᴰ = G .F-id
+  introS .F-seqᴰ _ _ = G .F-seq _ _
 
-intro⁻ : {C : Category ℓC ℓC'}
+-- TODO: introF
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {E : Category ℓE ℓE'}
+         {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+         (F : Functor E C)
+         (G : Functor E D)
+         where
+  open Category
+  open Functor
+  open Functorᴰ
+  introF : Functorᴰ F Eᴰ (weaken C D)
+  introF .F-obᴰ {x} _ = G .F-ob x
+  introF .F-homᴰ {x} {y} {f} {xᴰ} {yᴰ} _ = G .F-hom f
+  introF .F-idᴰ = G .F-id
+  introF .F-seqᴰ _ _ = G .F-seq _ _
+
+introS⁻ : {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
          {E : Category ℓE ℓE'}
          {F : Functor E C}
        → Section F (weaken C D)
        → Functor E D
-intro⁻ {C = C}{D = D}{F = F} Fᴰ =
+introS⁻ {C = C}{D = D}{F = F} Fᴰ =
   weakenΠ C D ∘F TC.intro F Fᴰ
 
--- TODO: intro/intro⁻ is an Iso
+-- TODO: introS/introS⁻ is an Iso
 
 module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} where
   open Functor

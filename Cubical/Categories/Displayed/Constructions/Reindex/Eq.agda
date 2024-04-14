@@ -17,7 +17,7 @@ open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  hiding (introS)
+  hiding (introS; introF)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
 open import Cubical.Categories.Displayed.Properties as Reindex hiding (reindex)
@@ -147,3 +147,10 @@ module EqReindex
     introS = redefine-id⋆S F*Dᴰ singId singSeq (Reindex.introS _ FGᴰ)
 
   open Functorᴰ
+
+  module _ {B : Category ℓB ℓB'}{Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
+           (G : Functor B C)
+           (FGᴰ : Functorᴰ (F ∘F G) Bᴰ Dᴰ)
+           where
+    introF : Functorᴰ G Bᴰ reindex
+    introF = redefine-id⋆F F*Dᴰ singId singSeq (Reindex.introF _ FGᴰ)

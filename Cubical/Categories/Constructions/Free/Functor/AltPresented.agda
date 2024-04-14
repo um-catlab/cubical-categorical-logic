@@ -144,8 +144,8 @@ module _ (𝓒 : Category ℓc ℓc') where
       module _ (ıHom : ∀ e → 𝓔 [ ıOb' (H .snd .dom e) , ıOb' (H .snd .cod e) ])
                where
         rec : Functor HCat 𝓔
-        rec = Weaken.intro⁻ {F = Id}
-          (elim (Weaken.intro FreeFunctor 𝓕) ıOb ıHom)
+        rec = Weaken.introS⁻ {F = Id}
+          (elim (Weaken.introS FreeFunctor 𝓕) ıOb ıHom)
 
     module _ {𝓔 : Category ℓe ℓe'}
              (F G : Functor HCat 𝓔)

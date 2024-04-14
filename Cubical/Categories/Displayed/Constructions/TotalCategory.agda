@@ -63,3 +63,13 @@ module _ {C : Category ℓC ℓC'}
     introS .F-homᴰ f   = Fᴰ .F-homᴰ f , Gᴰ .F-homᴰ f
     introS .F-idᴰ      = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
     introS .F-seqᴰ f g = ΣPathP (Fᴰ .F-seqᴰ f g , Gᴰ .F-seqᴰ f g)
+
+  module _ {E : Category ℓE ℓE'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'} (F : Functor E C)
+           (Fᴰ : Functorᴰ F Eᴰ Cᴰ)
+           (Gᴰ : Section (∫F Fᴰ) Dᴰ)
+           where
+    introF : Functorᴰ F Eᴰ (∫Cᴰ Cᴰ Dᴰ)
+    introF .F-obᴰ  d   = Fᴰ .F-obᴰ d , Gᴰ .F-obᴰ _
+    introF .F-homᴰ f   = Fᴰ .F-homᴰ f , Gᴰ .F-homᴰ _
+    introF .F-idᴰ      = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
+    introF .F-seqᴰ f g = ΣPathP (Fᴰ .F-seqᴰ f g , Gᴰ .F-seqᴰ _ _)

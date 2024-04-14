@@ -80,10 +80,14 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
   Normalize : Functor Free𝓓 𝓟F𝓓
   Normalize = Self.rec selfFree𝓒 (λ A → Y.F-ob (inr A)) ı where
     ı : ∀ (e : DGen) → _
-    ı (inl x , inl x₁ , e) = Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
-    ı (inl x , inr x₁ , e) = Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
-    ı (inr x , inl x₁ , e) = Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
-    ı (inr x , inr x₁ , e) = Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
+    ı (inl x , inl x₁ , e) =
+      Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
+    ı (inl x , inr x₁ , e) =
+      Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
+    ı (inr x , inl x₁ , e) =
+      Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
+    ı (inr x , inr x₁ , e) =
+      Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
   module Normalize = Functor Normalize
 
   -- Normalization is equivalent to Yoneda because they agree on generators

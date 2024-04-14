@@ -112,4 +112,6 @@ module _ {Q : Quiver ℓq ℓq'}{G : Graph ℓg ℓg'}
     field
       _$gᴰ_ : ∀ (u : Q .fst) → Gᴰ.Node[ ϕ $g u ]
       _<$g>ᴰ_ : ∀ (e : Q .snd .mor)
-              → Gᴰ.Edge[ ϕ <$g> e ][ _$gᴰ_ (Q .snd .dom e) , _$gᴰ_ (Q .snd .cod e) ]
+              → Gᴰ.Edge[ ϕ <$g> e
+                ][ _$gᴰ_ (Q .snd .dom e)
+                 , _$gᴰ_ (Q .snd .cod e) ]

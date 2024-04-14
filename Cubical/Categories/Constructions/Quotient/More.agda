@@ -60,12 +60,3 @@ module _ (C : Category ℓ ℓ') where
       elim F F-resp-∼ .F-idᴰ = F .F-idᴰ
       elim F F-resp-∼ .F-seqᴰ =
         elimProp2 (λ [f] [g] → Dᴰ.isSetHomᴰ _ _) (F .F-seqᴰ)
-
-    -- -- TODO: elim' that constructs a local section
-    -- -- module _ {D : Category ℓD ℓD'}
-    -- --          (F : Functor C/~ D)
-    -- --          (Dᴰ : Categoryᴰ D ℓD ℓD')
-    -- --          where
-    -- --   elim' : (Fᴰ : Section (F ∘F QF) Dᴰ)
-    -- --         → Section F Dᴰ
-    -- --   elim' Fᴰ = GlobalSection→Section Dᴰ F (elim (reindex Dᴰ F) {!ReindexQuo.intro'!} {!!})

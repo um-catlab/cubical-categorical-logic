@@ -48,7 +48,8 @@ module _
 
   private
     module Cᴰ = Categoryᴰ Cᴰ
-    module Sym*Cᴰ = EqReindex Cᴰ (BP.Sym {C = C}{D = D}) Eq.refl (λ _ _ → Eq.refl)
+    module Sym*Cᴰ = EqReindex Cᴰ (BP.Sym {C = C}{D = D})
+      Eq.refl (λ _ _ → Eq.refl)
 
   -- s for "simple" because D is not dependent on C
   -- l for "right" because D is on the left side of the product

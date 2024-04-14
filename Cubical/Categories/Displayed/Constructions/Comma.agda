@@ -27,8 +27,10 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Constructions.TotalCategory as TotalCat hiding (intro)
-open import Cubical.Categories.Displayed.Constructions.TotalCategory as TotalCatᴰ hiding (introS)
+open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+  hiding (intro)
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  as TotalCatᴰ hiding (introS)
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Displayed.Functor
@@ -240,5 +242,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   mkIsoCommaFunctor : Functor B (IsoComma F G)
   mkIsoCommaFunctor = TotalCat.intro (H ,F K)
     (TotalCatᴰ.introS _ _
-      (mkSectionPropHoms (hasPropHomsCommaᴰ _ _) (α .trans ⟦_⟧) (α .trans .N-hom))
+      (mkSectionPropHoms (hasPropHomsCommaᴰ _ _)
+        (α .trans ⟦_⟧)
+        (α .trans .N-hom))
       (mkSectionContrHoms (hasContrHomsFullSubcategory _ _) (α .nIso)))

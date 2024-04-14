@@ -15,7 +15,8 @@ open import Cubical.Data.Unit
 import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
-open import Cubical.Categories.Displayed.Constructions.TotalCategory as TotalCatᴰ
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  as TotalCatᴰ
 open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.BinProduct.More as BP
 open import Cubical.Categories.Functor.Base
@@ -58,7 +59,8 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   Δ/C = TotalCatᴰ.introF _ _ (Wk.introF Id Id)
     (BPᴰ.introS _
       (Slice.introS _ (reindS' (Eq.refl , Eq.refl) TotalCat.Snd))
-      (reindS' (Eq.refl , Eq.refl) (compSectionFunctor ID (TotalCat.Fst {Cᴰ = Cᴰ}))))
+      (reindS' (Eq.refl , Eq.refl)
+        (compSectionFunctor ID (TotalCat.Fst {Cᴰ = Cᴰ}))))
 
   private
     open Functorᴰ

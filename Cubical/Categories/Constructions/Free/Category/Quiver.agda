@@ -131,7 +131,7 @@ module _ (Q : Quiver ℓg ℓg') where
       ıᴰ .HetSection._<$g>ᴰ_ = ı .HetQG._<$g>_
 
     rec : Functor FreeCat C
-    rec = Wk.intro⁻ (elim (weaken FreeCat C) ıᴰ)
+    rec = Wk.introS⁻ (elim (weaken FreeCat C) ıᴰ)
 
   -- Elimination principle also implies the uniqueness principle,
   -- i.e., η law for sections/functors out of the free category

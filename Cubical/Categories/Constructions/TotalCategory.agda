@@ -110,4 +110,3 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     Section→Functorᴰ .F-idᴰ = R.≡[]-rectify (Fᴰ .F-idᴰ)
     Section→Functorᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
       R.≡[]-rectify (Fᴰ .F-seqᴰ (f , fᴰ) (g , gᴰ))
-

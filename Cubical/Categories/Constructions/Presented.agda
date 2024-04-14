@@ -114,7 +114,7 @@ module _ (𝓒 : Category ℓc ℓc') where
         (F-satisfies-axioms : ∀ eq → F ⟪ Ax .lhs eq ⟫ ≡ F ⟪ Ax .rhs eq ⟫)
         where
       rec : Functor PresentedCat 𝓓
-      rec = Weaken.intro⁻ (elim _ F' F-satisfies-axioms) where
+      rec = Weaken.introS⁻ (elim _ F' F-satisfies-axioms) where
         -- There's probably a general principle but η expansion is
         -- easier
         F' : GlobalSection _

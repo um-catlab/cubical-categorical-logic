@@ -37,8 +37,8 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Terminal hiding (intro)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
-open import Cubical.Categories.Displayed.Constructions.TotalCategory as TotalCatᴰ
-  hiding (introS)
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  as TotalCatᴰ hiding (introS)
 
 private
   variable

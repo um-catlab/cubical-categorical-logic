@@ -150,7 +150,8 @@ module _ (𝓒 : Category ℓc ℓc') where
     module _ {𝓔 : Category ℓe ℓe'}
              (F G : Functor HCat 𝓔)
              (agree-on-𝓒 : Section ((F ,F G) ∘F FreeFunctor) (PathC 𝓔))
-             (agree-on-objects : ∀ (A : H .fst) → F-ob F (inr A) ≡ F-ob G (inr A))
+             (agree-on-objects : ∀ (A : H .fst)
+               → F-ob F (inr A) ≡ F-ob G (inr A))
            where
       private
           ıOb' : ∀ (A : HOb) → F ⟅ A ⟆ ≡ G ⟅ A ⟆

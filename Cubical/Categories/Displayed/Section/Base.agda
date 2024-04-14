@@ -179,7 +179,9 @@ module _ {C : Category ℓC ℓC'}
       Gᴰ-obᴰ (_ , Eq.refl) = Fᴰ .F-obᴰ
 
       Gᴰ-homᴰ : (G : FunctorSingl F) → ∀ {d d'} (f : D [ d , d' ])
-              → Cᴰ.Hom[ G .snd .fst f ][ Gᴰ-obᴰ (G .fst) d , Gᴰ-obᴰ (G .fst) d' ]
+              → Cᴰ.Hom[ G .snd .fst f
+                     ][ Gᴰ-obᴰ (G .fst) d
+                      , Gᴰ-obᴰ (G .fst) d' ]
       Gᴰ-homᴰ ((_ , Eq.refl), (_ , Eq.refl)) = Fᴰ .F-homᴰ
 
       Gᴰ-idᴰ : (G : FunctorSingl F)
@@ -192,8 +194,10 @@ module _ {C : Category ℓC ℓC'}
                        → G .snd .fst (f ⋆⟨ D ⟩ g)
                        ≡ G .snd .fst f ⋆⟨ C ⟩ G .snd .fst g)
               → ∀ {d d' d'' : D .ob} (f : D [ d , d' ]) (g : D [ d' , d'' ])
-              → Gᴰ-homᴰ G (f ⋆⟨ D ⟩ g) Cᴰ.≡[ G-seq f g ] (Gᴰ-homᴰ G f Cᴰ.⋆ᴰ Gᴰ-homᴰ G g)
-      Gᴰ-seqᴰ ((_ , Eq.refl), (_ , Eq.refl)) G-seq f g = R.≡[]-rectify (Fᴰ .F-seqᴰ f g)
+              → Gᴰ-homᴰ G (f ⋆⟨ D ⟩ g)
+                Cᴰ.≡[ G-seq f g ] (Gᴰ-homᴰ G f Cᴰ.⋆ᴰ Gᴰ-homᴰ G g)
+      Gᴰ-seqᴰ ((_ , Eq.refl), (_ , Eq.refl)) G-seq f g =
+        R.≡[]-rectify (Fᴰ .F-seqᴰ f g)
 {-
 
    Composition of a Section and a Functor

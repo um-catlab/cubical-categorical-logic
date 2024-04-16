@@ -39,8 +39,15 @@ isFibrationSet : isFibration (SETᴰ ℓ ℓ')
 isFibrationSet dᴰ = CartesianOver→CartesianLift (SETᴰ _ _)
   (AllCartesianOversSETᴰ _ _)
 
---hasFiberedTerminalSet : hasFiberedTerminal (SET ℓ ℓ')
---hasFiberedTerminalSet = ?
+open import Cubical.Categories.Displayed.Fibration.More
+open import Cubical.Data.Unit.Base
+open import Cubical.Data.Unit.Properties
+
+hasFiberedTerminalSet : hasFibTerminal (SETᴰ ℓ ℓ')
+hasFiberedTerminalSet dᴰ = record {
+  vertexᴰ = λ x → Unit* , isSetUnit* ;
+  elementᴰ = {!!} ;
+  universalᴰ = {!!} }
 
 --hasFiberedProductsSet : hasFiberedProducts (SET ℓ ℓ')
 --hasFiberedProductsSet = ?

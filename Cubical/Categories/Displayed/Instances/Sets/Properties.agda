@@ -38,3 +38,9 @@ AllCartesianOversSETᴰ {c = A} {A'} B' f .isCartesian {A''} B'' g gfᴰ =
 isFibrationSet : isFibration (SETᴰ ℓ ℓ')
 isFibrationSet dᴰ = CartesianOver→CartesianLift (SETᴰ _ _)
   (AllCartesianOversSETᴰ _ _)
+
+--hasFiberedTerminalSet : hasFiberedTerminal (SET ℓ ℓ')
+--hasFiberedTerminalSet = ?
+
+--hasFiberedProductsSet : hasFiberedProducts (SET ℓ ℓ')
+--hasFiberedProductsSet = ?

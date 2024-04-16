@@ -134,3 +134,58 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
                    → gᴰ Cᴰ.⋆ᴰ π' Cᴰ.≡[ cong (seq' C g) f'≡f ] (gᴰ Cᴰ.⋆ᴰ the-π)
         gᴰ⋆π'≡gᴰ⋆π gᴰ =
           R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
+  module _ {c c' : C .ob}(c'ᴰ : Cᴰ.ob[ c' ])(f : C [ c , c' ]) where
+    -- convenience?
+    -- c/p the above cartesian condition
+    isCartesianOver : Σ[ f*c'ᴰ ∈ Cᴰ.ob[ c ] ] (Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) → Type _
+    isCartesianOver (f*c'ᴰ , fᴰ) = ∀ {c'' : C .ob}(c''ᴰ : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
+                      (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ c''ᴰ , c'ᴰ ])
+                    → ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ c''ᴰ , f*c'ᴰ ] ] (gᴰ Cᴰ.⋆ᴰ fᴰ ≡ gfᴰ)
+
+    open CartesianOver
+
+    isCartesianOver→CartesianOver : {f*c'ᴰ : Cᴰ.ob[ c ]}{fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]} →
+      isCartesianOver ( f*c'ᴰ , fᴰ ) → CartesianOver c'ᴰ f
+    isCartesianOver→CartesianOver {f*c'ᴰ = f*c'ᴰ} _ .f*cᴰ' = f*c'ᴰ
+    isCartesianOver→CartesianOver {fᴰ = fᴰ} _ .π = fᴰ
+    isCartesianOver→CartesianOver eu .isCartesian = eu
+
+    CartesianOver→isCartesianOver : CartesianOver c'ᴰ f → Σ[ f*c'ᴰ ∈ (Cᴰ.ob[ c ]) ]
+      Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ] ] isCartesianOver (f*c'ᴰ , fᴰ)
+    CartesianOver→isCartesianOver co = (co .f*cᴰ' , (co .π , co .isCartesian))
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} where
+  module _ {isFibCᴰ : isFibration Cᴰ} {isFibDᴰ : isFibration Dᴰ} where
+    open import Cubical.Categories.Functor
+    open import Cubical.Categories.Displayed.Functor
+    module _ {F : Functor C D} {Fᴰ : Functorᴰ F Cᴰ Dᴰ} where
+      -- preserves cartesian morphisms
+    --∀ {c : C .ob}{c' : C .ob}
+    --(cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
+    --→ CartesianOver cᴰ' f
+      --PreservesCartesian : Type _
+      --PreservesCartesian =
+      open import Cubical.Categories.Displayed.Functor
+      open Functorᴰ
+      module Cᴰ = Categoryᴰ Cᴰ
+      -- whether a 1-cell preserves morphisms
+      isFibration' : Type _
+      isFibration' =
+        ∀ {c c' : C .ob} (c'ᴰ : Cᴰ.ob[ c' ]) (f : C [ c , c' ]) →
+        (f*c'ᴰ : Cᴰ.ob[ c ])(fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) →
+          isCartesianOver Cᴰ c'ᴰ f ( f*c'ᴰ , fᴰ ) → isCartesianOver Dᴰ (Fᴰ .F-obᴰ c'ᴰ) (F ⟪ f ⟫) (Fᴰ .F-obᴰ f*c'ᴰ , Fᴰ .F-homᴰ fᴰ)
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{fib : isFibration Cᴰ} where
+-- 1-cell of fibrations
+  open import Cubical.Categories.Displayed.Instances.Terminal
+  TerminalFib : Categoryᴰ C _ _
+  TerminalFib = Unitᴰ C
+  open import Cubical.Data.Unit
+  isFibTerminal : isFibration TerminalFib
+  isFibTerminal dᴰ = CartesianOver→CartesianLift TerminalFib
+    (record { f*cᴰ' = _ ; π = _ ; isCartesian = λ _ _ _ → uniqueExists _ (isPropUnit _ _) (λ _ _ _ → isSetUnit _ _ _ _) λ _ _ → isPropUnit _ _ })
+
+    -- Jacobs 1.8.8
+    -- Hermida 1.4.1
+    --hasFibTerminal : Type _
+    --hasFibTerminal = LocalRightAdjointᴰ {!!}

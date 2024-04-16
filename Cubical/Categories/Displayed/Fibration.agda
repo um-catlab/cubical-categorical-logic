@@ -48,6 +48,25 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       isCartesian : ∀ {c'' : C .ob}(cᴰ'' : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
                     (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ cᴰ'' , cᴰ' ])
                   → ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ] ] (gᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ)
+  module _ {c c' : C .ob}(c'ᴰ : Cᴰ.ob[ c' ])(f : C [ c , c' ]) where
+    -- convenience?
+    -- c/p the above cartesian condition
+    isCartesianOver : Σ[ f*c'ᴰ ∈ Cᴰ.ob[ c ] ] (Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) → Type _
+    isCartesianOver (f*c'ᴰ , fᴰ) = ∀ {c'' : C .ob}(c''ᴰ : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
+                      (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ c''ᴰ , c'ᴰ ])
+                    → ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ c''ᴰ , f*c'ᴰ ] ] (gᴰ Cᴰ.⋆ᴰ fᴰ ≡ gfᴰ)
+
+    open CartesianOver
+
+    isCartesianOver→CartesianOver : {f*c'ᴰ : Cᴰ.ob[ c ]}{fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]} →
+      isCartesianOver ( f*c'ᴰ , fᴰ ) → CartesianOver c'ᴰ f
+    isCartesianOver→CartesianOver {f*c'ᴰ = f*c'ᴰ} _ .f*cᴰ' = f*c'ᴰ
+    isCartesianOver→CartesianOver {fᴰ = fᴰ} _ .π = fᴰ
+    isCartesianOver→CartesianOver eu .isCartesian = eu
+
+    CartesianOver→isCartesianOver : CartesianOver c'ᴰ f → Σ[ f*c'ᴰ ∈ (Cᴰ.ob[ c ]) ]
+      Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ] ] isCartesianOver (f*c'ᴰ , fᴰ)
+    CartesianOver→isCartesianOver co = (co .f*cᴰ' , (co .π , co .isCartesian))
 
   AllCartesianOvers : Type _
   AllCartesianOvers =
@@ -134,25 +153,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
                    → gᴰ Cᴰ.⋆ᴰ π' Cᴰ.≡[ cong (seq' C g) f'≡f ] (gᴰ Cᴰ.⋆ᴰ the-π)
         gᴰ⋆π'≡gᴰ⋆π gᴰ =
           R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
-  module _ {c c' : C .ob}(c'ᴰ : Cᴰ.ob[ c' ])(f : C [ c , c' ]) where
-    -- convenience?
-    -- c/p the above cartesian condition
-    isCartesianOver : Σ[ f*c'ᴰ ∈ Cᴰ.ob[ c ] ] (Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) → Type _
-    isCartesianOver (f*c'ᴰ , fᴰ) = ∀ {c'' : C .ob}(c''ᴰ : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
-                      (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ c''ᴰ , c'ᴰ ])
-                    → ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ c''ᴰ , f*c'ᴰ ] ] (gᴰ Cᴰ.⋆ᴰ fᴰ ≡ gfᴰ)
-
-    open CartesianOver
-
-    isCartesianOver→CartesianOver : {f*c'ᴰ : Cᴰ.ob[ c ]}{fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]} →
-      isCartesianOver ( f*c'ᴰ , fᴰ ) → CartesianOver c'ᴰ f
-    isCartesianOver→CartesianOver {f*c'ᴰ = f*c'ᴰ} _ .f*cᴰ' = f*c'ᴰ
-    isCartesianOver→CartesianOver {fᴰ = fᴰ} _ .π = fᴰ
-    isCartesianOver→CartesianOver eu .isCartesian = eu
-
-    CartesianOver→isCartesianOver : CartesianOver c'ᴰ f → Σ[ f*c'ᴰ ∈ (Cᴰ.ob[ c ]) ]
-      Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ] ] isCartesianOver (f*c'ᴰ , fᴰ)
-    CartesianOver→isCartesianOver co = (co .f*cᴰ' , (co .π , co .isCartesian))
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} where

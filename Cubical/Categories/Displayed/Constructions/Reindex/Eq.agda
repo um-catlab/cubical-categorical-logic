@@ -153,4 +153,5 @@ module EqReindex
            (FGᴰ : Functorᴰ (F ∘F G) Bᴰ Dᴰ)
            where
     introF : Functorᴰ G Bᴰ reindex
-    introF = redefine-id⋆F F*Dᴰ singId singSeq (Reindex.introF _ FGᴰ)
+    introF = TotalCat.recᴰ _ _ (introS _
+      (reindS' (Eq.refl , Eq.refl) (TotalCat.elim FGᴰ)))

@@ -2,23 +2,10 @@
 module Cubical.Categories.Displayed.Base.More where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-import      Cubical.Data.Equality as Eq
-open import Cubical.Data.Sigma
-
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
-  renaming (Fst to FstBP ; Snd to SndBP)
 open import Cubical.Categories.Functor
-
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex
-open import Cubical.Categories.Displayed.Constructions.Weaken
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
-import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Instances.Terminal
 
 private
   variable

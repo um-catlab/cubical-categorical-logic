@@ -135,14 +135,6 @@ module _
   (G : Functor B C)
   (FGᴰ : Functorᴰ (F ∘F G) Bᴰ Dᴰ)
   where
-  open Functorᴰ
-  private module R = HomᴰReasoning Dᴰ
-
-  -- TODO: consider defining this using the previous
-  -- Section→Functorᴰ G (reindex Dᴰ F) (intro _ {!TotalCat.elim ?!})
   introF : Functorᴰ G Bᴰ (reindex Dᴰ F)
-  introF .F-obᴰ = FGᴰ .F-obᴰ
-  introF .F-homᴰ = FGᴰ .F-homᴰ
-  introF .F-idᴰ = R.≡[]-rectify (R.≡[]∙ _ _ (FGᴰ .F-idᴰ) (R.reind-filler _ _))
-  introF .F-seqᴰ fᴰ gᴰ =
-    R.≡[]-rectify (R.≡[]∙ _ _ (FGᴰ .F-seqᴰ fᴰ gᴰ) (R.reind-filler _ _))
+  introF = TotalCat.recᴰ _ _ (introS _
+    (reindS' (Eq.refl , Eq.refl) (TotalCat.elim FGᴰ)))

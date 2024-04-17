@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
@@ -69,7 +70,5 @@ module _ {C : Category ℓC ℓC'}
            (Gᴰ : Section (∫F Fᴰ) Dᴰ)
            where
     introF : Functorᴰ F Eᴰ (∫Cᴰ Cᴰ Dᴰ)
-    introF .F-obᴰ  d   = Fᴰ .F-obᴰ d , Gᴰ .F-obᴰ _
-    introF .F-homᴰ f   = Fᴰ .F-homᴰ f , Gᴰ .F-homᴰ _
-    introF .F-idᴰ      = ΣPathP (Fᴰ .F-idᴰ , Gᴰ .F-idᴰ)
-    introF .F-seqᴰ f g = ΣPathP (Fᴰ .F-seqᴰ f g , Gᴰ .F-seqᴰ _ _)
+    introF = TotalCat.recᴰ _ _ (introS _ (elim Fᴰ)
+      (reindS' (Eq.refl , Eq.refl) Gᴰ))

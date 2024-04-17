@@ -233,7 +233,20 @@ module _ {B : Category ℓB ℓB'}
     (cong (Fᴰ .F-homᴰ) (G .F-seq f g))
     (Fᴰ .F-seqᴰ (G .F-hom f) (G .F-hom g)))
 
+module _ {D : Category ℓD ℓD'}
+         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+       where
+  open Functor
+  open Section
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+    module R = HomᴰReasoning Dᴰ
 
+  compGSectionFunctor : {C : Category ℓC ℓC'}
+    → GlobalSection Dᴰ
+    → (G : Functor C D)
+    → Section G Dᴰ
+  compGSectionFunctor s G = reindS' (Eq.refl , Eq.refl) (compSectionFunctor s G)
 {-
 
   Composition of a Section and a Functorᴰ

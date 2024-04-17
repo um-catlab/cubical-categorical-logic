@@ -23,7 +23,7 @@ open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Instances.Terminal hiding (intro)
+open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
 open import Cubical.Categories.Displayed.Section.Base

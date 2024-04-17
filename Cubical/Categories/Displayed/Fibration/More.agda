@@ -20,7 +20,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   module _ {isFibCᴰ : isFibration Cᴰ} {isFibDᴰ : isFibration Dᴰ} where
     open import Cubical.Categories.Functor
     open import Cubical.Categories.Displayed.Functor
-    module _ {F : Functor C D} {Fᴰ : Functorᴰ F Cᴰ Dᴰ} where
+    module _ {F : Functor C D} (Fᴰ : Functorᴰ F Cᴰ Dᴰ) where
       open import Cubical.Categories.Displayed.Functor
       open Functorᴰ
       module Cᴰ = Categoryᴰ Cᴰ
@@ -31,7 +31,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
         (f*c'ᴰ : Cᴰ.ob[ c ])(fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) →
           isCartesianOver Cᴰ c'ᴰ f ( f*c'ᴰ , fᴰ ) → isCartesianOver Dᴰ (Fᴰ .F-obᴰ c'ᴰ) (F ⟪ f ⟫) (Fᴰ .F-obᴰ f*c'ᴰ , Fᴰ .F-homᴰ fᴰ)
 
-module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'){fib : isFibration Cᴰ} where
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}(fib : isFibration Cᴰ) where
 -- 1-cell of fibrations
   open import Cubical.Categories.Displayed.Instances.Terminal
   TerminalFib : Categoryᴰ C _ _
@@ -48,6 +48,10 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'){fib : 
   TerminalFib! .Functorᴰ.F-homᴰ = λ _ → tt
   TerminalFib! .Functorᴰ.F-idᴰ = refl
   TerminalFib! .Functorᴰ.F-seqᴰ = λ _ _ → refl
+  x : isFibration' {isFibCᴰ = fib} {isFibDᴰ = isFibTerminal} TerminalFib!
+  x c'ᴰ f f*c'ᴰ fᴰ isCartOver c''ᴰ g gfᴰ =
+    uniqueExists tt (isPropUnit tt tt) (λ _ p q → isSetUnit tt tt p q) λ _ _ → isPropUnit tt tt
+-- TODO: hasFibTerminal should be interms of isFibration'
   --isFibration'
   -- Jacobs 1.8.8
   -- Hermida 1.4.1

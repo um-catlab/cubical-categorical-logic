@@ -43,11 +43,15 @@ open import Cubical.Categories.Displayed.Fibration.More
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Unit.Properties
 
-hasFiberedTerminalSet : hasFibTerminal (SETᴰ ℓ ℓ')
-hasFiberedTerminalSet dᴰ = record {
-  vertexᴰ = λ x → Unit* , isSetUnit* ;
-  elementᴰ = {!!} ;
-  universalᴰ = {!!} }
+hasFiberedTerminalSet : hasFibTerminal isFibrationSet
+hasFiberedTerminalSet dᴰ .vertexᴰ _ = Unit* , isSetUnit*
+hasFiberedTerminalSet dᴰ .elementᴰ = tt
+hasFiberedTerminalSet dᴰ .universalᴰ .equiv-proof unit =
+  ((λ _ _ → tt*) , (isPropUnit tt tt)) ,
+    (λ y → isPropΣ (isPropΠ2 λ _ _ _ _ → isPropUnit* tt* tt*)
+      (λ _ p q → isSetUnit tt tt p q)
+      ((λ _ _ → tt*) , isPropUnit tt tt)
+      y)
 
 --hasFiberedProductsSet : hasFiberedProducts (SET ℓ ℓ')
 --hasFiberedProductsSet = ?

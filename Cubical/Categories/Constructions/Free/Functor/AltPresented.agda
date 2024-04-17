@@ -42,8 +42,6 @@ open Section
 open QuiverOver
 open HetQG
 open Axioms
--- open Interpᴰ
-
 
 module _ (𝓒 : Category ℓc ℓc') where
   HQuiver : ∀ ℓh ℓh' → Type _

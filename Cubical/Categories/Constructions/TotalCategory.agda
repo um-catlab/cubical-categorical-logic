@@ -103,10 +103,32 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     private
       module Dᴰ = Categoryᴰ Dᴰ
       module R = HomᴰReasoning Dᴰ
-    -- this is basically "uncurry"
-    Section→Functorᴰ : Functorᴰ F Cᴰ Dᴰ
-    Section→Functorᴰ .F-obᴰ {x} xᴰ = Fᴰ .F-obᴰ (x , xᴰ)
-    Section→Functorᴰ .F-homᴰ {f = f} fᴰ = Fᴰ .F-homᴰ (f , fᴰ)
-    Section→Functorᴰ .F-idᴰ = R.≡[]-rectify (Fᴰ .F-idᴰ)
-    Section→Functorᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
+    -- this is a recursion principle for an *arbitrary* displayed
+    -- category Cᴰ.
+
+    -- this is a dependent uncurry
+    recᴰ : Functorᴰ F Cᴰ Dᴰ
+    recᴰ .F-obᴰ {x} xᴰ = Fᴰ .F-obᴰ (x , xᴰ)
+    recᴰ .F-homᴰ {f = f} fᴰ = Fᴰ .F-homᴰ (f , fᴰ)
+    recᴰ .F-idᴰ = R.≡[]-rectify (Fᴰ .F-idᴰ)
+    recᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
       R.≡[]-rectify (Fᴰ .F-seqᴰ (f , fᴰ) (g , gᴰ))
+
+
+-- Total functor of a displayed functor
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {F : Functor C D} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
+         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+         (Fᴰ : Functorᴰ F Cᴰ Dᴰ) where
+  open Functor
+  private
+    module Fᴰ = Functorᴰ Fᴰ
+
+  -- this should be the real definition of ∫F but it's different
+  -- upstream.
+  ∫F' : Functor (∫C Cᴰ) (∫C Dᴰ)
+  ∫F' = intro (F ∘F Fst {Cᴰ = Cᴰ}) (elim Fᴰ)

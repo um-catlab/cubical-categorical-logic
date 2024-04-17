@@ -80,7 +80,7 @@ module _ (Q : Quiver ℓg ℓg') where
     open HetSection
     open Section
     private module Cᴰ = Categoryᴰ Cᴰ
-    -- Transport hell, whoops
+
     elim-F-homᴰ : ∀ {d d'} → (f : FreeCat .Hom[_,_] d d') →
       Cᴰ.Hom[ f ][ ıᴰ $gᴰ d , (ıᴰ $gᴰ d') ]
     elim-F-homᴰ (↑ g) = ıᴰ <$g>ᴰ g

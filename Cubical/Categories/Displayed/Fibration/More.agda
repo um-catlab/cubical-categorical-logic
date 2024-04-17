@@ -26,9 +26,9 @@ module _ {C : Category ℓC ℓC'} where
   1/C = Unitᴰ C
 
   isFib1/C : isFibration 1/C
-  isFib1/C dᴰ = CartesianOver→CartesianLift 1/C ue
+  isFib1/C _ = CartesianOver→CartesianLift 1/C ue
     where
-    ue : CartesianOver 1/C tt (dᴰ .snd .snd)
+    ue : CartesianOver 1/C tt _
     ue .f*cᴰ' = tt
     ue .π = tt
     ue .isCartesian _ _ _ = uniqueExists _ (isPropUnit _ _) (λ _ _ _ → isSetUnit _ _ _ _) λ _ _ → isPropUnit _ _

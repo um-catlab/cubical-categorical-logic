@@ -73,6 +73,23 @@ module _ (C : Category ℓ ℓ') where
     Σ≡Prop (λ _ → isSet× (isSetHom C) (isSetHom C) _ _)
       (cong fst (bp .univProp f1 f2 .snd ((y .fst) , PathPΣ (y .snd))))
 
+  -- TODO: general principle?
+  RepresentableToBinProduct' : ∀ {a b}
+    → UniversalElement C (BinProductProf ⟅ a , b ⟆)
+    → BinProduct' (a , b)
+  RepresentableToBinProduct' ue .vertex = ue .vertex
+  RepresentableToBinProduct' ue .element = ue .element
+  RepresentableToBinProduct' ue .universal = ue .universal
+
+  BinProductToBinProduct' : ∀ {a b}
+    → BinProduct C a b
+    → BinProduct' (a , b)
+  BinProductToBinProduct' bp =
+    RepresentableToBinProduct' (BinProductToRepresentable bp)
+
+  BinProductsToBinProducts' : BinProducts C → BinProducts'
+  BinProductsToBinProducts' bps _ = BinProductToBinProduct' (bps _ _)
+
   module _ (bp : BinProducts C) where
     BinProductsToUnivElts : UniversalElements BinProductProf
     BinProductsToUnivElts c = BinProductToRepresentable (bp (c .fst) (c .snd))

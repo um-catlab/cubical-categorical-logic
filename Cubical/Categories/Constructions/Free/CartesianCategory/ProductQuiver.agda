@@ -1,24 +1,29 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver where
+module Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
+  where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-module _ (ob : Type ℓ-zero) where
-  data ProdExpr : Type (ℓ-suc ℓ-zero) where
+private
+  variable
+    ℓ ℓ' : Level
+
+module _ (ob : Type ℓ) where
+  data ProdExpr : Type ℓ where
     ↑_ : ob → ProdExpr
     _×_ : ProdExpr → ProdExpr → ProdExpr
     ⊤ : ProdExpr
-  record ProductQuiver : Type (ℓ-suc ℓ-zero) where
+  record ProductQuiver : Type (ℓ-suc ℓ) where
     field
-      mor : Type ℓ-zero
+      mor : Type ℓ
       dom : mor → ProdExpr
       cod : mor → ProdExpr
 
-×Quiver : Type (ℓ-suc ℓ-zero)
-×Quiver = Σ[ ob ∈ Type ℓ-zero ] ProductQuiver ob
+×Quiver : ∀ ℓ → Type (ℓ-suc ℓ)
+×Quiver ℓ = Σ[ ob ∈ Type ℓ ] ProductQuiver ob
 
-module ×Quiver-Nice (Q : ×Quiver) where
+module ×Quiver-Nice (Q : ×Quiver ℓ) where
   open ProductQuiver
   Ob = ProdExpr (Q .fst)
   Dom = Q .snd .dom

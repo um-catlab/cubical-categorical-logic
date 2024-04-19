@@ -8,6 +8,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Fibration
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Adjoint.More
 
 private
   variable
@@ -42,3 +43,15 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       base : Functor C D
       over : Functorᴰ base (p .fst) (q .fst)
       preserves-cartesian : isFibered over
+
+  --VerticalFiberedFunctor =
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  (p : Fibration C ℓCᴰ ℓCᴰ')(q : Fibration D ℓDᴰ ℓDᴰ')
+  (L : FiberedFunctor p q) where
+
+  open FiberedFunctor
+
+  -- Writing something random to push
+  --VerticalFiberedRightAdjoint : Type _
+  --VerticalFiberedRightAdjoint = Σ[ R ∈ LocalRightAdjointᴰ (L .over) ] isFibered R

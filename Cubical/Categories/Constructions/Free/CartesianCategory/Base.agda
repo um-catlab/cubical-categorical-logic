@@ -6,7 +6,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma hiding (_×_)
 
-open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
+open import
+  Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.BinProduct
@@ -26,9 +27,6 @@ private
 
 module _ (Q : ×Quiver ℓQ) where
   open ProductQuiver
-  -- NOTE: I tried to make Ob opaque, but it doesn't make sense to since
-  -- - You need to know the implementation to know when you can pair morphisms (equal dom)
-  -- - Yes, this means Ob normalizes out when we don't always want it to, but opaque won't solve that issue
   open ×Quiver-Nice Q
   data Exp : Ob → Ob → Type ℓQ where
     -- Category
@@ -72,8 +70,6 @@ module _ (Q : ×Quiver ℓQ) where
   FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdOb = Γ × Δ
   FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdPr₁ = π₁
   FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdPr₂ = π₂
-  -- this is a bit of a tedious proof I've c/p from the superceded PR draft
-  -- I'm not sure anymore why we use isSet', but I'll take it
   FreeCartesianCategory .snd .snd Γ Δ .BinProduct.univProp f g = uniqueExists
     ⟨ f , g ⟩
     (×β₁ , ×β₂)

@@ -16,7 +16,8 @@ module _ (C : Category ℓC ℓC')(D : Category ℓD ℓD') where
     open BinProduct
     PreservesProducts : Functor C D → Type _
     PreservesProducts F = ∀ Γ Δ → (p : BinProduct C Γ Δ) →
-      isBinProduct {_} {_} D {F ⟅ Γ ⟆} {F ⟅ Δ ⟆} {F ⟅ p .binProdOb ⟆} (F ⟪ p .binProdPr₁ ⟫) (F ⟪ p .binProdPr₂ ⟫)
+      isBinProduct {_} {_} D {F ⟅ Γ ⟆} {F ⟅ Δ ⟆} {F ⟅ p .binProdOb ⟆}
+        (F ⟪ p .binProdPr₁ ⟫) (F ⟪ p .binProdPr₂ ⟫)
     --PreservesTerminal : Functor C D → Type _
     --PreservesTerminal F = Terminal (F ⟅ C .terminal ⟆)
     CartesianFunctor : Type _

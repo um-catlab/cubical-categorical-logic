@@ -91,3 +91,19 @@ module BinProductᴰNotation
 
     ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) D.⋆ᴰ π₂ᴰ) D.≡[ ×β₂ ] f₂ᴰ
     ×β₂ᴰ = symP (toPathP (sym (cong snd (,pᴰ-contr .fst .snd))))
+
+  module _ {f : C [ c , c₁ BP.× c₂ ]}
+           {fᴰ : D.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
+           where
+    private
+      ,pᴰ-contr = bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof
+        (R.reind (sym ×β₁) (fᴰ D.⋆ᴰ π₁ᴰ) , R.reind (sym ×β₂) (fᴰ D.⋆ᴰ π₂ᴰ)) .snd
+        ((R.reind (×η {f = f}) fᴰ) , ΣPathP
+        ( R.≡[]-rectify (R.≡[]∙ _ _
+          (R.≡[]⋆ _ _ (R.reind-filler-sym (sym ×η) fᴰ) (refl {x = π₁ᴰ}))
+          (R.reind-filler (sym ×β₁) _))
+        , R.≡[]-rectify (R.≡[]∙ _ _
+          (R.≡[]⋆ _ _ (R.reind-filler-sym (sym ×η) fᴰ) (refl {x = π₂ᴰ}))
+          (R.reind-filler (sym ×β₂) _))))
+    ×ηᴰ : fᴰ D.≡[ ×η ] ((fᴰ D.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ D.⋆ᴰ π₂ᴰ))
+    ×ηᴰ = toPathP (sym (cong fst ,pᴰ-contr))

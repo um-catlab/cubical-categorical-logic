@@ -2,7 +2,9 @@
 module Cubical.Categories.Constructions.Free.CartesianCategory.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Category.Base
@@ -51,7 +53,7 @@ module _ (Q : ×Quiver ℓQ) where
     ⟨_,_⟩ : ∀{Γ Δ Δ'} → Exp Γ Δ → Exp Γ Δ' → Exp Γ (Δ × Δ')
     ×β₁ : ∀{Γ Δ Δ'}{t : Exp Γ Δ}{t' : Exp Γ Δ'} → ⟨ t , t' ⟩ ⋆ₑ π₁ ≡ t
     ×β₂ : ∀{Γ Δ Δ'}{t : Exp Γ Δ}{t' : Exp Γ Δ'} → ⟨ t , t' ⟩ ⋆ₑ π₂ ≡ t'
-    ×η : ∀{Γ Δ Δ'}{t : Exp Γ (Δ × Δ')} → ⟨ t ⋆ₑ π₁ , t ⋆ₑ π₂ ⟩ ≡ t
+    ×η : ∀{Γ Δ Δ'}{t : Exp Γ (Δ × Δ')} → t ≡ ⟨ t ⋆ₑ π₁ , t ⋆ₑ π₂ ⟩
 
   open Category
   |FreeCartesianCategory| : Category _ _
@@ -72,15 +74,11 @@ module _ (Q : ×Quiver ℓQ) where
   FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdPr₂ = π₂
   -- this is a bit of a tedious proof I've c/p from the superceded PR draft
   -- I'm not sure anymore why we use isSet', but I'll take it
-  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.univProp f g = (⟨ f , g ⟩ , ×β₁ , ×β₂) ,
-    λ (h , p , q) → λ i →
-      sym (×η-lemma h p q) i ,
-      isSet→isSet' isSetExp ×β₁ p (congS (λ x → x ⋆ₑ π₁) (sym (×η-lemma h p q))) refl i ,
-      isSet→isSet' isSetExp ×β₂ q (congS (λ x → x ⋆ₑ π₂) (sym (×η-lemma h p q))) refl i
-    where
-    -- this direction has more `sym` s, but I like it more
-    ×η-lemma : ∀{Γ Δ Δ'}{f g}(h : Exp Γ (Δ × Δ')) → h ⋆ₑ π₁ ≡ f → h ⋆ₑ π₂ ≡ g → h ≡ ⟨ f , g ⟩
-    ×η-lemma h p q = (sym ×η) ∙ cong₂ (λ x y → ⟨ x , y ⟩) p q
+  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.univProp f g = uniqueExists
+    ⟨ f , g ⟩
+    (×β₁ , ×β₂)
+    (λ _ → isProp× (isSetExp _ _) (isSetExp _ _))
+    λ ⟨f,g⟩' (comm₁ , comm₂) → cong₂ ⟨_,_⟩ (sym comm₁) (sym comm₂) ∙ sym ×η
 
   module _
     (CCᴰ : CartesianCategoryᴰ FreeCartesianCategory ℓCᴰ ℓCᴰ')
@@ -133,7 +131,9 @@ module _ (Q : ×Quiver ℓQ) where
             ×β₁ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂} i
           elim-F-hom (×β₂ {t = f₁}{t' = f₂} i) =
             ×β₂ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂} i
-          elim-F-hom (×η i) = {!!}
+          -- TODO: Why do we need this rectify too?
+          elim-F-hom (×η {t = f} i) =
+            R.≡[]-rectify {p' = ×η {t = f}} (×ηᴰ {fᴰ = elim-F-hom f}) i
 
         elim : Section Cᴰ
         elim .F-ob = elim-F-ob

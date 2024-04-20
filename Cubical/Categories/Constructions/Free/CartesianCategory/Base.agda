@@ -14,6 +14,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf
 
@@ -89,19 +90,20 @@ module _ (Q : ×Quiver ℓQ) where
       module Cᴰ = Categoryᴰ Cᴰ
       termᴰ = CCᴰ .snd .fst
       bpᴰ = CCᴰ .snd .snd
+      open TerminalᴰNotation _ termᴰ
+      open BinProductᴰNotation bpᴰ
     open UniversalElementᴰ
     module _ (ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]) where
       private
         elim-F-ob : ∀ c → Cᴰ.ob[ c ]
         elim-F-ob (↑ o)     = ı-ob o
-        elim-F-ob ⊤         = termᴰ .vertexᴰ
-        elim-F-ob (c₁ × c₂) = bpᴰ (elim-F-ob c₁ , elim-F-ob c₂) .vertexᴰ
+        elim-F-ob ⊤         = 𝟙ᴰ
+        elim-F-ob (c₁ × c₂) = elim-F-ob c₁ ×ᴰ elim-F-ob c₂
 
       module _ (ı-hom : ∀ e →
         Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob (Q .snd .dom e) , elim-F-ob (Q .snd .cod e) ])
         where
         open Section
-        open TerminalᴰNotation _ termᴰ
         private
           module R = HomᴰReasoning Cᴰ
 
@@ -121,12 +123,16 @@ module _ (Q : ×Quiver ℓQ) where
             (isSetExp f g p q)
             i j
           elim-F-hom !ₑ = !tᴰ _
-          elim-F-hom (⊤η f i) = R.≡[]-rectify {p' = ⊤η f} (𝟙ηᴰ (elim-F-hom f)) i
-          elim-F-hom π₁ = {!!}
-          elim-F-hom π₂ = {!!}
-          elim-F-hom ⟨ f , f₁ ⟩ = {!!}
-          elim-F-hom (×β₁ i) = {!!}
-          elim-F-hom (×β₂ i) = {!!}
+          -- TODO: Why does this need rectify?
+          elim-F-hom (⊤η f i) =
+            R.≡[]-rectify {p' = ⊤η f} (𝟙ηᴰ (elim-F-hom f)) i
+          elim-F-hom π₁ = π₁ᴰ
+          elim-F-hom π₂ = π₂ᴰ
+          elim-F-hom ⟨ f₁ , f₂ ⟩ = elim-F-hom f₁ ,pᴰ elim-F-hom f₂
+          elim-F-hom (×β₁ {t = f₁}{t' = f₂} i) =
+            ×β₁ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂} i
+          elim-F-hom (×β₂ {t = f₁}{t' = f₂} i) =
+            ×β₂ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂} i
           elim-F-hom (×η i) = {!!}
 
         elim : Section Cᴰ

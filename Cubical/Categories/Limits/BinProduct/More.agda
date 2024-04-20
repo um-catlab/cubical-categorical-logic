@@ -81,6 +81,21 @@ module _ (C : Category ℓ ℓ') where
   RepresentableToBinProduct' ue .element = ue .element
   RepresentableToBinProduct' ue .universal = ue .universal
 
+  BinProduct'ToBinProduct : ∀ {a b}
+    → BinProduct' (a , b)
+    → BinProduct C a b
+  BinProduct'ToBinProduct bp' .binProdOb = bp' .vertex
+  BinProduct'ToBinProduct bp' .binProdPr₁ = bp' .element .fst
+  BinProduct'ToBinProduct bp' .binProdPr₂ = bp' .element .snd
+  BinProduct'ToBinProduct bp' .univProp {z} f₁ f₂ = uniqueExists
+    (⟨f₁,f₂⟩-contr .fst .fst)
+    (cong fst (⟨f₁,f₂⟩-contr .fst .snd) , cong snd (⟨f₁,f₂⟩-contr .fst .snd))
+    (λ _ → isProp× (C .isSetHom _ _) (C .isSetHom _ _))
+    λ ⟨f₁,f₂⟩' commutes → cong fst (⟨f₁,f₂⟩-contr .snd (⟨f₁,f₂⟩'
+      , (ΣPathP commutes)))
+    where
+      ⟨f₁,f₂⟩-contr = bp' .universal z .equiv-proof (f₁ , f₂)
+
   BinProductToBinProduct' : ∀ {a b}
     → BinProduct C a b
     → BinProduct' (a , b)
@@ -89,6 +104,9 @@ module _ (C : Category ℓ ℓ') where
 
   BinProductsToBinProducts' : BinProducts C → BinProducts'
   BinProductsToBinProducts' bps _ = BinProductToBinProduct' (bps _ _)
+
+  BinProducts'ToBinProducts : BinProducts' → BinProducts C
+  BinProducts'ToBinProducts bps a b = BinProduct'ToBinProduct (bps (a , b))
 
   module _ (bp : BinProducts C) where
     BinProductsToUnivElts : UniversalElements BinProductProf
@@ -104,7 +122,6 @@ module _ (C : Category ℓ ℓ') where
     variable
       a b c d : C .ob
       f g h : C [ a , b ]
-
 
   module _ {a} (bp : ∀ b → BinProduct C a b) where
     BinProductWithToRepresentable : UniversalElements (ProdWithAProf a)
@@ -221,3 +238,6 @@ module _ (C : Category ℓ ℓ') where
       module PWN = ProdsWithNotation (bp Γ)
       ×pF-with-agrees : ×Bif ⟪ C .id , f ⟫× ≡ PWN.×pF ⟪ f ⟫
       ×pF-with-agrees = sym (×Bif .Bif-R×-agree _)
+
+  module BinProducts'Notation (bp : BinProducts') =
+    Notation (BinProducts'ToBinProducts bp)

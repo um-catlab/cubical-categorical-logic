@@ -13,6 +13,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Limits.Terminal
@@ -46,6 +47,24 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
   Terminalᴰ : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
   Terminalᴰ term = UniversalElementᴰ _ TerminalᴰSpec term
+
+  module TerminalᴰNotation {term' : Terminal' C} (termᴰ : Terminalᴰ term') where
+    open UniversalElement
+    open UniversalElementᴰ
+    open Terminal'Notation term'
+    private module R = HomᴰReasoning D
+
+    𝟙ᴰ : D.ob[ 𝟙 ]
+    𝟙ᴰ = termᴰ .vertexᴰ
+
+    !tᴰ : ∀ {c} (d : D.ob[ c ]) → D.Hom[ !t ][ d , 𝟙ᴰ ]
+    !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+
+    𝟙ηᴰ : ∀ {c} {d : D.ob[ c ]} {f} (fᴰ : D.Hom[ f ][ d , 𝟙ᴰ ])
+        → fᴰ D.≡[ 𝟙η f ] !tᴰ d
+    𝟙ηᴰ {c} {d} {f} fᴰ = R.≡[]-rectify (toPathP (sym fᴰ-commutes))
+      where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
+            fᴰ-commutes = cong fst (contr!tᴰ .snd (reind D (𝟙η _) fᴰ , refl))
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object

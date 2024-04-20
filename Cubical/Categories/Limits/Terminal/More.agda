@@ -54,6 +54,13 @@ terminalToUniversalElement {C = C} One .universal x = isoToIsEquiv (iso
   (λ b i → tt)
   λ a → terminalArrowUnique C {T = One} a)
 
+Terminal'ToTerminal : ∀ {C : Category ℓc ℓc'} → Terminal' C → Terminal C
+Terminal'ToTerminal term' .fst = term' .vertex
+Terminal'ToTerminal term' .snd c =
+  contr!t .fst .fst
+  , (λ !t' → cong fst (contr!t .snd (!t' , refl)) )
+  where contr!t = term' .universal c .equiv-proof tt
+
 module TerminalNotation (C : Category ℓ ℓ') (term : Terminal C) where
   𝟙 = term .fst
 
@@ -65,3 +72,6 @@ module TerminalNotation (C : Category ℓ ℓ') (term : Terminal C) where
 
   𝟙η' : ∀ {a} → {f g : C [ a , 𝟙 ]} → f ≡ g
   𝟙η' = 𝟙η _ ∙ sym (𝟙η _)
+
+module Terminal'Notation {ℓ}{ℓ'} {C : Category ℓ ℓ'} (term' : Terminal' C)
+  = TerminalNotation C (Terminal'ToTerminal term')

@@ -2,6 +2,7 @@
 module Cubical.Categories.Constructions.Free.CartesianCategory.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Category.Base
@@ -9,20 +10,33 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
 
-module _ (Q : ×Quiver) where
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.Limits.Cartesian
+open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Presheaf
+
+private
+  variable
+    ℓQ ℓCᴰ ℓCᴰ' : Level
+
+module _ (Q : ×Quiver ℓQ) where
   open ProductQuiver
   -- NOTE: I tried to make Ob opaque, but it doesn't make sense to since
   -- - You need to know the implementation to know when you can pair morphisms (equal dom)
   -- - Yes, this means Ob normalizes out when we don't always want it to, but opaque won't solve that issue
   open ×Quiver-Nice Q
-  data Exp : Ob → Ob → Type (ℓ-suc ℓ-zero) where
+  data Exp : Ob → Ob → Type ℓQ where
     -- Category
     ↑ₑ_ : ∀ t → Exp (Dom t) (Cod t)
     idₑ : ∀{Γ} → Exp Γ Γ
     _⋆ₑ_ : ∀{Γ Γ' Γ''}(δ : Exp Γ Γ') → (δ' : Exp Γ' Γ'') →  Exp Γ Γ''
     ⋆ₑIdL : ∀{Γ Δ}(δ : Exp Γ Δ) → idₑ ⋆ₑ δ ≡ δ
     ⋆ₑIdR : ∀{Γ Δ}(δ : Exp Γ Δ) → δ ⋆ₑ idₑ ≡ δ
-    ⋆ₑAssoc : ∀{Γ Γ' Γ'' Γ'''}(δ : Exp Γ Γ')(δ' : Exp Γ' Γ'')(δ'' : Exp Γ'' Γ''') → (δ ⋆ₑ δ') ⋆ₑ δ'' ≡ δ ⋆ₑ (δ' ⋆ₑ δ'')
+    ⋆ₑAssoc : ∀{Γ Γ' Γ'' Γ'''}
+      (δ : Exp Γ Γ')(δ' : Exp Γ' Γ'')(δ'' : Exp Γ'' Γ''')
+      → (δ ⋆ₑ δ') ⋆ₑ δ'' ≡ δ ⋆ₑ (δ' ⋆ₑ δ'')
     isSetExp : ∀{Γ Γ'} → isSet (Exp Γ Γ')
     -- CartesianCategory
     -- I'd like to directly stipulate `!ₑ : ∀ Γ → isContr (Exp Γ ⊤)`
@@ -66,3 +80,57 @@ module _ (Q : ×Quiver) where
     -- this direction has more `sym` s, but I like it more
     ×η-lemma : ∀{Γ Δ Δ'}{f g}(h : Exp Γ (Δ × Δ')) → h ⋆ₑ π₁ ≡ f → h ⋆ₑ π₂ ≡ g → h ≡ ⟨ f , g ⟩
     ×η-lemma h p q = (sym ×η) ∙ cong₂ (λ x y → ⟨ x , y ⟩) p q
+
+  module _
+    (CCᴰ : CartesianCategoryᴰ FreeCartesianCategory ℓCᴰ ℓCᴰ')
+    where
+    private
+      Cᴰ = CCᴰ .fst
+      module Cᴰ = Categoryᴰ Cᴰ
+      termᴰ = CCᴰ .snd .fst
+      bpᴰ = CCᴰ .snd .snd
+    open UniversalElementᴰ
+    module _ (ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]) where
+      private
+        elim-F-ob : ∀ c → Cᴰ.ob[ c ]
+        elim-F-ob (↑ o)     = ı-ob o
+        elim-F-ob ⊤         = termᴰ .vertexᴰ
+        elim-F-ob (c₁ × c₂) = bpᴰ (elim-F-ob c₁ , elim-F-ob c₂) .vertexᴰ
+
+      module _ (ı-hom : ∀ e →
+        Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob (Q .snd .dom e) , elim-F-ob (Q .snd .cod e) ])
+        where
+        open Section
+        open TerminalᴰNotation _ termᴰ
+        private
+          module R = HomᴰReasoning Cᴰ
+
+          elim-F-hom : ∀ {c c'} (f : |FreeCartesianCategory| [ c , c' ]) →
+            Cᴰ [ f ][ elim-F-ob c , elim-F-ob c' ]
+          elim-F-hom (↑ₑ t) = ı-hom t
+          elim-F-hom idₑ = Cᴰ.idᴰ
+          elim-F-hom (f ⋆ₑ g) = elim-F-hom f Cᴰ.⋆ᴰ elim-F-hom g
+          elim-F-hom (⋆ₑIdL f i) = Cᴰ.⋆IdLᴰ (elim-F-hom f) i
+          elim-F-hom (⋆ₑIdR f i) = Cᴰ.⋆IdRᴰ (elim-F-hom f) i
+          elim-F-hom (⋆ₑAssoc f g h i) =
+            Cᴰ.⋆Assocᴰ (elim-F-hom f) (elim-F-hom g) (elim-F-hom h) i
+          elim-F-hom (isSetExp f g p q i j) =
+            isOfHLevel→isOfHLevelDep 2 (λ _ → Cᴰ.isSetHomᴰ)
+            (elim-F-hom f) (elim-F-hom g)
+            (cong elim-F-hom p) (cong elim-F-hom q)
+            (isSetExp f g p q)
+            i j
+          elim-F-hom !ₑ = !tᴰ _
+          elim-F-hom (⊤η f i) = R.≡[]-rectify {p' = ⊤η f} (𝟙ηᴰ (elim-F-hom f)) i
+          elim-F-hom π₁ = {!!}
+          elim-F-hom π₂ = {!!}
+          elim-F-hom ⟨ f , f₁ ⟩ = {!!}
+          elim-F-hom (×β₁ i) = {!!}
+          elim-F-hom (×β₂ i) = {!!}
+          elim-F-hom (×η i) = {!!}
+
+        elim : Section Cᴰ
+        elim .F-ob = elim-F-ob
+        elim .F-hom = elim-F-hom
+        elim .F-id = refl
+        elim .F-seq _ _ = refl

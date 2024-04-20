@@ -67,7 +67,7 @@ module BinProductᴰNotation
 
   π₂ᴰ : D.Hom[ π₂ ][ d₁ ×ᴰ d₂ , d₂ ]
   π₂ᴰ {d₁ = d₁ }{d₂ = d₂} = bpᴰ (d₁ , d₂) .elementᴰ .snd
-         
+
   _,pᴰ_ : {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
          → D.Hom[ f₁ ][ d , d₁ ] → D.Hom[ f₂ ][ d , d₂ ]
          → D.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]
@@ -85,7 +85,7 @@ module BinProductᴰNotation
     private
       ,pᴰ-contr = bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof
         (R.reind (sym ×β₁) f₁ᴰ , R.reind (sym ×β₂) f₂ᴰ)
-    
+
     ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) D.⋆ᴰ π₁ᴰ) D.≡[ ×β₁ ] f₁ᴰ
     ×β₁ᴰ = symP (toPathP (sym (cong fst (,pᴰ-contr .fst .snd))))
 

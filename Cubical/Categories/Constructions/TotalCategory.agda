@@ -44,15 +44,15 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
           Cᴰ
         ↗ |
        /  |
-   Fᴰ /   |
+   s  /   |
      /    |
     /     ↓
    E ---→ C
-      F
+       F
 -}
 --
 -- is equivalent to a functor
---    intro F Fᴰ
+--    intro F s
 -- E ------------→ ∫ C Cᴰ
 --
     intro : Functor D (∫C Cᴰ)
@@ -72,9 +72,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 -- Cᴰ -----→ Dᴰ
 -- |         |
 -- |         |
--- ↓   F     ↓
+-- ↓         ↓
 -- C ------→ D
---
+--     F
 --
 -- is equivalent to a section
 {-
@@ -84,7 +84,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
    elim Fᴰ /   |
           /    |
          /     ↓
-   ∫ C Cᴰ ---→ D
+   ∫ Cᴰ  ----→ D
         F ∘F Fst
 -}
     open Functorᴰ

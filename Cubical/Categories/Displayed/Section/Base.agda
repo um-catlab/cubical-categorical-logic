@@ -1,51 +1,51 @@
 {-
    Local Sections of a displayed category.
 
-          A
+          Cᴰ
         ↗ |
        /  |
-    M /   |
+    s /   |
      /    |
     /     ↓
-   Δ ---→ Γ
-       γ
+   D ---→ C
+       F
 
    Every Section can be implemented as a Functorᴰ out of Unitᴰ (see
    Displayed.Instances.Terminal):
 
-       M
-   Δ ----→ A
-   |       |
-   |       |
-   |       |
-   |       |
-   |       ↓
-   Δ ----→ Γ
-       γ
+       Fᴰ
+   D ----→ Cᴰ
+   ∥       |
+   ∥       |
+   ∥       |
+   ∥       |
+   ∥       ↓
+   D ----→ C
+       F
 
    And vice-versa any Functorᴰ
 
-       M
-   B ----→ A
-   |       |
-   |       |
-   |       |
-   |       |
-   ↓       ↓
-   Δ ----→ Γ
-       γ
+       Fᴰ
+   Dᴰ ----→ Cᴰ
+   |        |
+   |        |
+   |        |
+   |        |
+   ↓        ↓
+   D -----→ C
+       F
 
    Can be implemented as a Section (see
    Displayed.Constructions.TotalCategory)
 
-            A
+            Cᴰ
           ↗ |
          /  |
-      M /   |
+      s /   |
        /    |
       /     ↓
-   Δ.B ---→ Γ
-         γ
+   ∫Dᴰ ---→ C
+        F 
 
    Both options are sometimes more ergonomic. One of the main
    cosmetic differences is
@@ -122,13 +122,13 @@ module _ {C : Category ℓC ℓC'}
 {-
    A Global Section is a local section over the identity functor.
 
-          A
+          Cᴰ
         ↗ |
        /  |
-    M /   |
+    s /   |
      /    |
     /     ↓
-   Γ ==== Γ
+   C ==== C
 
 
    So global sections are by definition local sections
@@ -202,14 +202,14 @@ module _ {C : Category ℓC ℓC'}
 
    Composition of a Section and a Functor
 
-                 A
+                 Cᴰ
                ↗ |
               /  |
-           M /   |
+           s /   |
             /    |
            /     ↓
-   Δ' ---→ Δ ---→ Γ
-              γ
+   E ---→ D ---→ C
+              F
 
 -}
 module _ {B : Category ℓB ℓB'}
@@ -251,15 +251,15 @@ module _ {D : Category ℓD ℓD'}
 
   Composition of a Section and a Functorᴰ
 
-             Fᴰ
-          A ---→ A'
-        ↗ |      |
-       /  |      |
-    M /   |      |
-     /    |      |
-    /     ↓      ↓
-   Δ ---→ Γ ---→ Γ'
-       γ     F
+              Fᴰ'
+          Cᴰ ---→ Cᴰ'
+        ↗ |       |
+       /  |       |
+    s /   |       |
+     /    |       |
+    /     ↓       ↓
+   D ---→ C ----→ C'
+       F     F'
 
 -}
 module _ {B : Category ℓB ℓB'}

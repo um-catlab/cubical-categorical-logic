@@ -49,10 +49,6 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
   Δᴰ .F-idᴰ = refl
   Δᴰ .F-seqᴰ fᴰ gᴰ = refl
 
--- Product within a fiber
--- TODO: replace this with ∫ᴰ ?
-
--- TODO: is there an easy way to reduce this code duplication?
 module _ {C : Category ℓC ℓC'}
   {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}
   {E : Category ℓE ℓE'}

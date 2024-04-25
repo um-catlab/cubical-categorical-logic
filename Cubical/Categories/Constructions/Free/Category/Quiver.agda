@@ -104,8 +104,8 @@ module _ (Q : Quiver ℓg ℓg') where
     elim .F-seqᴰ _ _ = refl
 
   -- The elimination principle for global sections implies an
-  -- elimination principle for local sections, but generally this uses
-  -- reindex
+  -- elimination principle for local sections, this requires reindex
+  -- so caveat utilitor
   module _ {C : Category ℓC ℓC'}
            (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
            (F : Functor FreeCat C)
@@ -118,8 +118,8 @@ module _ (Q : Quiver ℓg ℓg') where
       ıᴰ' ._$gᴰ_ = ıᴰ $gᴰ_
       ıᴰ' ._<$g>ᴰ_ = ıᴰ <$g>ᴰ_
 
-    elim' : Section F Cᴰ
-    elim' = GlobalSectionReindex→Section Cᴰ F (elim F*Cᴰ ıᴰ')
+    elimLocal : Section F Cᴰ
+    elimLocal = GlobalSectionReindex→Section Cᴰ F (elim F*Cᴰ ıᴰ')
 
   -- Elimination principle implies the recursion principle, which
   -- allows for non-dependent functors to be defined

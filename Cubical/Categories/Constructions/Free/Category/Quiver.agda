@@ -144,6 +144,6 @@ module _ (Q : Quiver ℓg ℓg') where
       Interpᴰ (compGrHomHetQG (Functor→GraphHom (F BP.,F G)) η) (PathC C))
     where
     FreeCatFunctor≡ : F ≡ G
-    FreeCatFunctor≡ = PathReflection (elim' (PathC C) _ agree-on-gen)
+    FreeCatFunctor≡ = PathReflection (elimLocal (PathC C) _ agree-on-gen)
 
   -- TODO: add analogous principle for Sections using PathCᴰ

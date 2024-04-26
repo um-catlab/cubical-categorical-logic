@@ -28,7 +28,7 @@ open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
 open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
 open import Cubical.Categories.Displayed.Instances.Path as PathC
 open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
-  hiding (rec; elim)
+  hiding (rec; elim; elimLocal)
 
 private
   variable

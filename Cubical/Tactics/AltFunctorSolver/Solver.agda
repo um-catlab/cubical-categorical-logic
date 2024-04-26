@@ -94,7 +94,7 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
   N≡Y : Normalize ≡ Y
   N≡Y = Self.extensionalityF _ _ agree-on-Free𝓒 (λ A → refl) ıHom where
     agree-on-Free𝓒 : Section _ _
-    agree-on-Free𝓒 = FreeCat.elim' _ _ _ ı where
+    agree-on-Free𝓒 = FreeCat.elimLocal _ _ _ ı where
       ı : Interpᴰ _ _ _
       ı $gᴰ u = refl
       ı <$g>ᴰ e = refl

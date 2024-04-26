@@ -45,7 +45,7 @@
        /    |
       /     ↓
    ∫Dᴰ ---→ C
-        F 
+        F
 
    Both options are sometimes more ergonomic. One of the main
    cosmetic differences is

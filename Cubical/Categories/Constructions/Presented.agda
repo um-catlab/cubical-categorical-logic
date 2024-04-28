@@ -16,6 +16,7 @@ open import Cubical.HITs.SetQuotients as SetQuotient
   renaming ([_] to [_]q) hiding (rec; elim)
 
 open import Cubical.Categories.Constructions.Quotient as CatQuotient
+open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec; elim)
 open import Cubical.Categories.Constructions.Quotient.More as CatQuotient
@@ -24,7 +25,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Section.Base
 
 private
   variable
@@ -77,19 +78,19 @@ module _ (𝓒 : Category ℓc ℓc') where
 
     module _ (𝓓 : Categoryᴰ PresentedCat ℓd ℓd') where
       private
-        𝓓' = reindexᴰQuo 𝓒 _≈_ reflₑ ⋆ₑ-cong 𝓓
+        𝓓' = CatQuotient.ReindexQuo.reindex 𝓒 _≈_ reflₑ ⋆ₑ-cong 𝓓
         module 𝓓 = Categoryᴰ 𝓓
         module R = HomᴰReasoning 𝓓
 
       open Section
-      elim : (F : Section 𝓓')
+      elim : (F : GlobalSection 𝓓')
            → (∀ eq →
              PathP (λ i → 𝓓.Hom[ ηEq eq i ][
-                                 F .F-ob (Ax .dom eq)
-                               , F .F-ob (Ax .cod eq) ])
-                   (F .F-hom (Ax .lhs eq))
-                   (F .F-hom (Ax .rhs eq)))
-           → Section 𝓓
+                                 F .F-obᴰ (Ax .dom eq)
+                               , F .F-obᴰ (Ax .cod eq) ])
+                   (F .F-homᴰ (Ax .lhs eq))
+                   (F .F-homᴰ (Ax .rhs eq)))
+           → GlobalSection 𝓓
       elim F F-respects-axioms =
         CatQuotient.elim 𝓒 _≈_ reflₑ ⋆ₑ-cong 𝓓 F
           (λ _ _ → F-respects-≈) where
@@ -97,28 +98,27 @@ module _ (𝓒 : Category ℓc ℓc') where
           (p : f ≈ g) →
           PathP
           (λ i → 𝓓.Hom[ eq/ f g p i ][
-            F .F-ob x
-          , F .F-ob y ])
-          (F .F-hom f)
-          (F .F-hom g)
+            F .F-obᴰ x
+          , F .F-obᴰ y ])
+          (F .F-homᴰ f)
+          (F .F-homᴰ g)
         F-respects-≈ (↑ eq) = F-respects-axioms eq
         F-respects-≈ {x}{y} (reflₑ f) = R.≡[]-rectify {p = refl} refl
         F-respects-≈ (⋆ₑ-cong e e' p f f' q) =
           R.≡[]-rectify
-          (F .F-seq e f ◁
+          (F .F-seqᴰ e f ◁
           (λ i → F-respects-≈ p i 𝓓.⋆ᴰ F-respects-≈ q i)
-          ▷ (sym (F .F-seq e' f')))
+          ▷ (sym (F .F-seqᴰ e' f')))
 
     module _ (𝓓 : Category ℓd ℓd') (F : Functor 𝓒 𝓓)
-      (F-satisfies-axioms : ∀ eq →
-        F ⟪ Ax .lhs eq ⟫ ≡ F ⟪ Ax .rhs eq ⟫) where
-        rec : Functor PresentedCat 𝓓
-        rec = Iso.fun (SectionToWkIsoFunctor _ _)
-          (elim (weaken _ 𝓓) F' F-satisfies-axioms) where
-          -- There's probably a general principle but η expansion is
-          -- easier
-          F' : Section _
-          F' .Section.F-ob = F .F-ob
-          F' .Section.F-hom = F .F-hom
-          F' .Section.F-id = F .F-id
-          F' .Section.F-seq = F .F-seq
+        (F-satisfies-axioms : ∀ eq → F ⟪ Ax .lhs eq ⟫ ≡ F ⟪ Ax .rhs eq ⟫)
+        where
+      rec : Functor PresentedCat 𝓓
+      rec = Weaken.introS⁻ (elim _ F' F-satisfies-axioms) where
+        -- There's probably a general principle but η expansion is
+        -- easier
+        F' : GlobalSection _
+        F' .Section.F-obᴰ = F .F-ob
+        F' .Section.F-homᴰ = F .F-hom
+        F' .Section.F-idᴰ = F .F-id
+        F' .Section.F-seqᴰ = F .F-seq

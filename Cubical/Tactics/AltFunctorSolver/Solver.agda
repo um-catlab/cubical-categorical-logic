@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sum as Sum
-open import Cubical.Data.Quiver.Base as Quiver hiding (Section; reindex)
+open import Cubical.Data.Quiver.Base as Quiver
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Power
@@ -19,10 +19,11 @@ open import Cubical.Categories.UnderlyingGraph
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
-open import Cubical.Categories.Displayed.Constructions.Weaken
+open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
+open import Cubical.Categories.Displayed.Instances.Path.Displayed
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Section as DisplayedCategory
-open import Cubical.Categories.Displayed.Preorder hiding (Section; reindex)
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
 open import Cubical.Categories.Constructions.Free.Functor.AltPresented
@@ -33,6 +34,7 @@ private
 open Category
 open Functor
 -- open Section
+open HetSection
 
 module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : Functor 𝓒 𝓓) where
   module Self = CoUnit 𝓕
@@ -43,42 +45,40 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
   Free𝓓 = Self.HCat
   η𝓓 = Self.ηPre
   Free𝓕 = Self.FreeFunctor
+  𝓒Q = Cat→Quiver 𝓒
 
-  sem𝓒 : Section (weaken Free𝓒 𝓒)
-  sem𝓒 = FreeCat.elim (Cat→Quiver 𝓒) ı where
-    ı : Interpᴰ (𝓒 .ob , Cat→Quiver 𝓒 .snd) (weaken Free𝓒 𝓒)
-    ı .Quiver.Section.F-ob = λ q → q
-    ı .Quiver.Section.F-hom e = e .snd .snd
+  sem𝓒 : Functor Free𝓒 𝓒
+  sem𝓒 = FreeCat.rec 𝓒Q ı where
+    ı : FreeCat.Interp _ 𝓒
+    ı $g u = u
+    ı <$g> e = e .snd .snd
 
-  sem𝓓 : Section (weaken Free𝓓 𝓓)
-  sem𝓓 = Self.elim sem𝓒 (weakenF 𝓕) (λ A → A) ıHom where
+  sem𝓓 : Functor Free𝓓 𝓓
+  sem𝓓 = Self.rec (𝓕 ∘F sem𝓒) (λ A → A) ıHom where
     ıHom : ∀ (e : DGen) → _
     ıHom (inl x , inl x₁ , e) = e
     ıHom (inl x , inr x₁ , e) = e
     ıHom (inr x , inl x₁ , e) = e
     ıHom (inr x , inr x₁ , e) = e
 
-  module sem𝓓 = Section sem𝓓
+  module sem𝓓 = Functor sem𝓓
 
-  -- Normalization is by interpretation into the presheaf category
+--   -- Normalization is by interpretation into the presheaf category
   𝓟F𝓓 = PowerCategory (Free𝓓 .ob) (SET (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓd) ℓd'))
-  Y : Section (weaken Free𝓓 𝓟F𝓓)
-  Y = Iso.inv (SectionToWkIsoFunctor _ _) (PseudoYoneda {C = Free𝓓})
+  Y : Functor Free𝓓 𝓟F𝓓
+  Y = PseudoYoneda {C = Free𝓓}
 
-  module Y = Section Y
+  module Y = Functor Y
   open HetQG
 
-  selfFree𝓒 : Section (weaken Free𝓒 𝓟F𝓓)
-  selfFree𝓒 = FreeCat.elim (Cat→Quiver 𝓒) ı where
-    ı : Interpᴰ (Cat→Quiver 𝓒) _
-    ı .Quiver.Section.F-ob =
-      (PseudoYoneda {C = Free𝓓} ∘F Self.FreeFunctor) .F-ob
-    ı .Quiver.Section.F-hom e =
-      (PseudoYoneda {C = Free𝓓} ∘F Self.FreeFunctor) .F-hom (η𝓒 <$g> e)
+  selfFree𝓒 : Functor Free𝓒 𝓟F𝓓
+  selfFree𝓒 = FreeCat.rec 𝓒Q ı where
+    ı : FreeCat.Interp 𝓒Q 𝓟F𝓓
+    ı ._$g_ = (Y ∘F Self.FreeFunctor) .F-ob
+    ı <$g> e = (Y ∘F Self.FreeFunctor) .F-hom (η𝓒 <$g> e)
 
-  Normalize : Section (weaken Free𝓓 𝓟F𝓓)
-  Normalize =
-    Self.elim selfFree𝓒 (weakenF IdF) (λ A → Y.F-ob (inr A)) ı where
+  Normalize : Functor Free𝓓 𝓟F𝓓
+  Normalize = Self.rec selfFree𝓒 (λ A → Y.F-ob (inr A)) ı where
     ı : ∀ (e : DGen) → _
     ı (inl x , inl x₁ , e) =
       Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
@@ -88,58 +88,51 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
       Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
     ı (inr x , inr x₁ , e) =
       Y.F-hom (Self.moduloAx ⟪ η𝓓 <$g> (inr (_ , _ , e)) ⟫)
+  module Normalize = Functor Normalize
 
-  module Normalize = Section Normalize
   -- Normalization is equivalent to Yoneda because they agree on generators
-  Normalize≡Y : Normalize ≡ Y
-  Normalize≡Y = SecPathSectionToSectionPath
-                (weaken Free𝓓 𝓟F𝓓)
-                (Iso.inv (PreorderSectionIsoCatSection _ _) N≡Y) where
-    N≡Yᴰ = (Preorderᴰ→Catᴰ (SecPath (weaken Free𝓓 𝓟F𝓓) Normalize Y))
+  N≡Y : Normalize ≡ Y
+  N≡Y = Self.extensionalityF _ _ agree-on-Free𝓒 (λ A → refl) ıHom where
+    agree-on-Free𝓒 : Section _ _
+    agree-on-Free𝓒 = FreeCat.elimLocal _ _ _ ı where
+      ı : Interpᴰ _ _ _
+      ı $gᴰ u = refl
+      ı <$g>ᴰ e = refl
 
-    agree-on-Free𝓒 : Section (reindex N≡Yᴰ Self.FreeFunctor)
-    agree-on-Free𝓒 = FreeCat.elim (Cat→Quiver 𝓒) ı where
-      ı : Interpᴰ (Cat→Quiver 𝓒) _
-      ı .Quiver.Section.F-ob q = refl
-      ı .Quiver.Section.F-hom e = refl
-
-    N≡Y : Section N≡Yᴰ
-    N≡Y = Self.elim agree-on-Free𝓒 (forgetReindex _ _) (λ A → refl) ıHom where
-      ıHom : ∀ (e : DGen) → _
-      ıHom (inl x , inl x₁ , e) = refl
-      ıHom (inl x , inr x₁ , e) = refl
-      ıHom (inr x , inl x₁ , e) = refl
-      ıHom (inr x , inr x₁ , e) = refl
+    ıHom : ∀ (e : DGen) → _
+    ıHom (inl x , inl x₁ , e) = refl
+    ıHom (inl x , inr x₁ , e) = refl
+    ıHom (inr x , inl x₁ , e) = refl
+    ıHom (inr x , inr x₁ , e) = refl
 
   solve : ∀ {A B}
         → (e e' : Free𝓓 [ A , B ])
         → (Normalize.F-hom e ≡ Normalize.F-hom e')
         → (sem𝓓.F-hom e ≡ sem𝓓.F-hom e')
   solve e e' p =
-    cong (sem𝓓.F-hom)
+    cong sem𝓓.F-hom
     -- suffices to show e ≡ e'
     (isFaithfulPseudoYoneda {C = Free𝓓} _ _ e e'
     -- suffices to show Y e ≡ Y e'
-    (transport (λ i → Path _
-                           (Normalize≡Y i .Section.F-hom e)
-                           ((Normalize≡Y i .Section.F-hom e')))
-               p))
+    (transport (λ i → Path _ (N≡Y i .F-hom e) (N≡Y i .F-hom e'))
+      p))
 
-  readBack : ∀ {A B} → 𝓟F𝓓 [ Normalize.F-ob A , Normalize.F-ob B ]
-                     → Free𝓓 [ A , B ]
-  readBack {inl x} {inl x₁} f = f _ (Free𝓓 .id)
-  readBack {inl x} {inr x₁} f = f _ (Free𝓓 .id)
-  readBack {inr x} {inl x₁} f = f _ (Free𝓓 .id)
-  readBack {inr x} {inr x₁} f = f _ (Free𝓓 .id)
+-- -- Do we need any of this??
+--   readBack : ∀ {A B} → 𝓟F𝓓 [ Normalize.F-ob A , Normalize.F-ob B ]
+--                      → Free𝓓 [ A , B ]
+--   readBack {inl x} {inl x₁} f = f _ (Free𝓓 .id)
+--   readBack {inl x} {inr x₁} f = f _ (Free𝓓 .id)
+--   readBack {inr x} {inl x₁} f = f _ (Free𝓓 .id)
+--   readBack {inr x} {inr x₁} f = f _ (Free𝓓 .id)
 
-  -- TODO: prove this
-  -- normalise : ∀ {A B } → ∀ (e : Free𝓓 [ A , B ]) → singl e
-  -- normalise e = readBack (Normalize .F-hom e) ,
-  --   {!!} ∙ cong readBack (λ i → {!Normalize≡Y (~ i) .F-hom e!})
+--   -- TODO: prove this
+--   -- normalise : ∀ {A B } → ∀ (e : Free𝓓 [ A , B ]) → singl e
+--   -- normalise e = readBack (Normalize .F-hom e) ,
+--   --   {!!} ∙ cong readBack (λ i → {!Normalize≡Y (~ i) .F-hom e!})
 
-  -- nf : ∀ {A B} → (e : Free𝓓 [ A , B ])
-  --    → sem .F-hom e ≡ sem .F-hom (normalise e .fst)
-  -- nf e = cong (sem .F-hom) (normalise e .snd)
+--   -- nf : ∀ {A B} → (e : Free𝓓 [ A , B ])
+--   --    → sem .F-hom e ≡ sem .F-hom (normalise e .fst)
+--   -- nf e = cong (sem .F-hom) (normalise e .snd)
 
   private
     module _ (A A' A'' : 𝓒 .ob) (B B' B'' : 𝓓 .ob)

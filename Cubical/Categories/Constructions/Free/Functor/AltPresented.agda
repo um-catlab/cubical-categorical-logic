@@ -21,26 +21,27 @@ open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Data.Quiver.Base
 
-open import Cubical.Categories.Displayed.Section as Cat
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Constructions.Presented as Presented
+open import Cubical.Categories.Constructions.BinProduct as BinProduct
+open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
+open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
+open import Cubical.Categories.Displayed.Instances.Path as PathC
 open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
-  hiding (rec; elim)
-open import Cubical.Categories.Displayed.Preorder as PO
+  hiding (rec; elim; elimLocal)
 
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓg ℓg' ℓh ℓh' ℓj ℓ ℓcᴰ ℓcᴰ' ℓdᴰ ℓdᴰ' : Level
+    ℓc ℓc' ℓd ℓd' ℓg ℓg' ℓh ℓh' ℓj ℓ ℓcᴰ ℓcᴰ' ℓdᴰ ℓdᴰ' ℓe ℓe' : Level
 
 open Category
 open Categoryᴰ
 open Functor
 open Functorᴰ
-open Cat.Section
+open Section
 open QuiverOver
 open HetQG
 open Axioms
--- open Interpᴰ
-
 
 module _ (𝓒 : Category ℓc ℓc') where
   HQuiver : ∀ ℓh ℓh' → Type _
@@ -87,37 +88,83 @@ module _ (𝓒 : Category ℓc ℓc') where
     FreeFunctor .F-id = ηHEq (inl _)
     FreeFunctor .F-seq f g = ηHEq (inr (_ , _ , _ , f , g))
 
-    -- A version of elim that avoids reindex in the definition of
-    -- s.
-    module _ {𝓒ᴰ : Categoryᴰ 𝓒 ℓcᴰ ℓcᴰ'}
-             {𝓓ᴰ : Categoryᴰ HCat ℓdᴰ ℓdᴰ'}
-             (s : Cat.Section 𝓒ᴰ)
-             (𝓕 : Functorᴰ FreeFunctor 𝓒ᴰ 𝓓ᴰ)
+    module _ {𝓓ᴰ : Categoryᴰ HCat ℓdᴰ ℓdᴰ'}
+             (s : Section FreeFunctor 𝓓ᴰ)
              (ıOb : ∀ (A : H .fst) → 𝓓ᴰ .ob[_] (inr A))
              where
       private
         ıOb' : ∀ (A : HOb) → 𝓓ᴰ .ob[_] A
-        ıOb' = Sum.elim (λ A → 𝓕 .F-obᴰ (s .F-ob A)) ıOb
+        ıOb' = Sum.elim (s .F-obᴰ) ıOb
       module _ (ıHom : ∀ e
              → 𝓓ᴰ [ moduloAx .F-hom (ηPre <$g> inr e) ][
                     ıOb' (H .snd .dom e)
                   , ıOb' (H .snd .cod e) ]) where
-        elim : Cat.Section 𝓓ᴰ
-        elim = PresentH.elim 𝓓ᴰ (FreeCat.elim HQ ıHgen) satisfies-axioms where
-          ıHgen : Interpᴰ HQ _
-          ıHgen .Section.F-ob = ıOb'
-          ıHgen .Section.F-hom (inl (_ , _ , e)) = 𝓕 .F-homᴰ (s .F-hom e)
-          ıHgen .Section.F-hom (inr f) = ıHom f
+        open Section
+        open HetSection
+        elim : GlobalSection 𝓓ᴰ
+        elim = PresentH.elim 𝓓ᴰ (FreeCat.elim HQ _ ıHgen) satisfies-axioms
+          where
+          ıHgen : Interpᴰ HQ _ _
+          ıHgen ._$gᴰ_ = ıOb'
+          ıHgen <$g>ᴰ inl (_ , _ , e) = s .F-homᴰ e
+          ıHgen <$g>ᴰ inr f = ıHom f
 
           satisfies-axioms : ∀ (eq : FunctorAxioms .equation) → _
           -- F⟪ id A ⟫ ≡ id (F ⟅ A ⟆)
-          satisfies-axioms (inl A) =
-            cong (𝓕 .F-homᴰ) (s .F-id)
-            ◁ 𝓕 .F-idᴰ
+          satisfies-axioms (inl A) = s .F-idᴰ
           -- F⟪ f ⋆ g ⟫ ≡ F⟪ f ⟫ ⋆ F⟪ g ⟫
-          satisfies-axioms (inr (_ , _ , _ , f , g)) =
-            cong (𝓕 .F-homᴰ) (s .F-seq _ _)
-            ◁ 𝓕 .F-seqᴰ _ _
+          satisfies-axioms (inr (_ , _ , _ , f , g)) = s .F-seqᴰ _ _
+
+    -- elimination principle for Local Sections
+    module _ {𝓔 : Category ℓe ℓe'}
+             {𝓕 : Functor HCat 𝓔}
+             {𝓓ᴰ : Categoryᴰ 𝓔 ℓdᴰ ℓdᴰ'}
+             (s : Section (𝓕 ∘F FreeFunctor) 𝓓ᴰ)
+             (ıOb : (A : H .fst) → 𝓓ᴰ .ob[_] (𝓕 .F-ob (inr A)))
+           where
+      private
+        ıOb' : ∀ (A : HOb) → 𝓓ᴰ .ob[_] (𝓕 .F-ob A)
+        ıOb' = Sum.elim (s .F-obᴰ) ıOb
+      module _ (ıHom : ∀ e
+             → 𝓓ᴰ [ 𝓕 .F-hom (moduloAx .F-hom (ηPre <$g> inr e)) ][
+                    ıOb' (H .snd .dom e)
+                  , ıOb' (H .snd .cod e) ]) where
+        elimLocal : Section 𝓕 𝓓ᴰ
+        elimLocal = GlobalSectionReindex→Section _ _
+          (elim (Reindex.introS _ s) ıOb ıHom)
+    module _ {𝓔 : Category ℓe ℓe'}
+             (𝓕 : Functor 𝓒 𝓔)
+             (ıOb : H .fst → 𝓔 .ob)
+           where
+      private
+        ıOb' : ∀ (A : HOb) → 𝓔 .ob
+        ıOb' = Sum.elim (𝓕 .F-ob) ıOb
+      module _ (ıHom : ∀ e → 𝓔 [ ıOb' (H .snd .dom e) , ıOb' (H .snd .cod e) ])
+               where
+        rec : Functor HCat 𝓔
+        rec = Weaken.introS⁻ {F = Id}
+          (elim (Weaken.introS FreeFunctor 𝓕) ıOb ıHom)
+
+    module _ {𝓔 : Category ℓe ℓe'}
+             (F G : Functor HCat 𝓔)
+             (agree-on-𝓒 : Section ((F ,F G) ∘F FreeFunctor) (PathC 𝓔))
+             (agree-on-objects : ∀ (A : H .fst)
+               → F-ob F (inr A) ≡ F-ob G (inr A))
+           where
+      private
+          ıOb' : ∀ (A : HOb) → F ⟅ A ⟆ ≡ G ⟅ A ⟆
+          ıOb' = Sum.elim (agree-on-𝓒 .F-obᴰ) agree-on-objects
+      module _ (agree-on-morphisms : ∀ e →
+                 PathP ((λ i → 𝓔 [ ıOb' (H .snd .dom e) i
+                                 , ıOb' (H .snd .cod e) i ]))
+                   (F ⟪ moduloAx .F-hom (ηPre <$g> inr e) ⟫)
+                   (G ⟪ moduloAx .F-hom (ηPre <$g> inr e) ⟫))
+        where
+        extensionalityF : F ≡ G
+        extensionalityF = PathC.PathReflection
+          (elimLocal agree-on-𝓒 agree-on-objects agree-on-morphisms)
+
+    -- todo: extensionality for (local) sections
 
 module CoUnit {C : Category ℓc ℓc'} {D : Category ℓd ℓd'} (F : Functor C D)
   where

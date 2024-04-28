@@ -24,8 +24,13 @@ open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More as Displayed
+open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+  hiding (intro)
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  as TotalCatᴰ hiding (introS)
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Displayed.Functor
@@ -58,10 +63,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   Comma = ∫C Commaᴰ
 
   π1 : Functor Comma C
-  π1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = Commaᴰ}
+  π1 = BinProduct.Fst C D ∘F TotalCat.Fst {Cᴰ = Commaᴰ}
 
   π2 : Functor Comma D
-  π2 = BinProduct.Snd C D ∘F Displayed.Fst {Cᴰ = Commaᴰ}
+  π2 = BinProduct.Snd C D ∘F TotalCat.Fst {Cᴰ = Commaᴰ}
 
   π⇒ : NatTrans (F ∘F π1) (G ∘F π2)
   π⇒ .N-ob  = snd
@@ -138,10 +143,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   hasContrHomsIsoCommaᴰ₁ G-ff f diso diso' = HomContr f diso diso' G-ff
 
   πⁱ1 : Functor IsoComma C
-  πⁱ1 = BinProduct.Fst C D ∘F Displayed.Fst {Cᴰ = IsoCommaᴰ}
+  πⁱ1 = BinProduct.Fst C D ∘F TotalCat.Fst {Cᴰ = IsoCommaᴰ}
 
   πⁱ2 : Functor IsoComma D
-  πⁱ2 = BinProduct.Snd C D ∘F Displayed.Fst {Cᴰ = IsoCommaᴰ}
+  πⁱ2 = BinProduct.Snd C D ∘F TotalCat.Fst {Cᴰ = IsoCommaᴰ}
 
   π≅ : NatIso (F ∘F πⁱ1) (G ∘F πⁱ2)
   π≅ .NatIso.trans .N-ob (_ , f , _) = f
@@ -194,35 +199,35 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
          (α : NatTrans (F ∘F H) (G ∘F K))
          where
   open Functorᴰ
-  mkCommaFunctor : Functor B (Comma F G)
-  mkCommaFunctor = mk∫Functor (H ,F K) αF where
-    αF : Functorᴰ (H ,F K) _ _
-    αF = mkP→CᴰFunctorᴰ _ _ _
-      (λ {b} _ → α ⟦ b ⟧ )
-      λ {_}{_}{f} _ → α .N-hom f
+  intro : Functor B (Comma F G)
+  intro = TotalCat.intro (H ,F K) αF where
+    αF : Section _ _
+    αF = mkSectionPropHoms (hasPropHomsCommaᴰ _ _)
+      (α ⟦_⟧)
+      (α .N-hom)
 
-  mkCommaFunctorβ₁ : (π1 _ _ ∘F mkCommaFunctor) ≡ H
-  mkCommaFunctorβ₁ = Functor≡ (λ _ → refl) (λ _ → refl)
+  introβ₁ : (π1 _ _ ∘F intro) ≡ H
+  introβ₁ = Functor≡ (λ _ → refl) (λ _ → refl)
 
-  mkCommaFunctorβ₂ : (π2 _ _ ∘F mkCommaFunctor) ≡ K
-  mkCommaFunctorβ₂ = Functor≡ (λ _ → refl) (λ _ → refl)
+  introβ₂ : (π2 _ _ ∘F intro) ≡ K
+  introβ₂ = Functor≡ (λ _ → refl) (λ _ → refl)
 
   private
-    β⇒-boundary₁ : (F ∘F π1 F G) ∘F mkCommaFunctor ≡ F ∘F H
+    β⇒-boundary₁ : (F ∘F π1 F G) ∘F intro ≡ F ∘F H
     β⇒-boundary₁ =
       sym F-assoc
-      ∙ cong (F ∘F_) mkCommaFunctorβ₁
-    β⇒-boundary₂ : (G ∘F π2 F G) ∘F mkCommaFunctor ≡ G ∘F K
+      ∙ cong (F ∘F_) introβ₁
+    β⇒-boundary₂ : (G ∘F π2 F G) ∘F intro ≡ G ∘F K
     β⇒-boundary₂ =
       sym F-assoc
-      ∙ cong (G ∘F_) mkCommaFunctorβ₂
+      ∙ cong (G ∘F_) introβ₂
 
   -- Morally this hole is refl but it's a PathP so...
-  -- mkCommaFunctorβ⇒ :
+  -- introβ⇒ :
   --   PathP (λ i → NatTrans (β⇒-boundary₁ i) (β⇒-boundary₂ i))
-  --         (π⇒ F G ∘ˡ mkCommaFunctor)
+  --         (π⇒ F G ∘ˡ intro)
   --         α
-  -- mkCommaFunctorβ⇒ = makeNatTransPathP _ _
+  -- introβ⇒ = makeNatTransPathP _ _
   --   (funExt (λ x → {!λ i → α ⟦ x ⟧!}))
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
@@ -235,11 +240,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   open NatIso
 
   mkIsoCommaFunctor : Functor B (IsoComma F G)
-  mkIsoCommaFunctor = mk∫Functor (H ,F K)
-    (mk∫ᴰFunctorᴰ _ _
-      (mkP→CᴰFunctorᴰ _ _ _
-       ((λ {b} _ → α .trans ⟦ b ⟧ ))
-       λ {_}{_}{f} _ → α .trans .N-hom f)
-      (mkP→CᴰFunctorᴰ _ _ _
-       (λ x → α .nIso _)
-       λ x → _))
+  mkIsoCommaFunctor = TotalCat.intro (H ,F K)
+    (TotalCatᴰ.introS _ _
+      (mkSectionPropHoms (hasPropHomsCommaᴰ _ _)
+        (α .trans ⟦_⟧)
+        (α .trans .N-hom))
+      (mkSectionContrHoms (hasContrHomsFullSubcategory _ _) (α .nIso)))

@@ -159,7 +159,7 @@ jobs:
           touch ~/.agda/libraries
           echo "$CUBICAL_DIR/cubical.agda-lib" >> ~/.agda/libraries
           echo "$AGDA_STDLIB_DIR/standard-library.agda-lib" >> ~/.agda/libraries
-          echo "$GITHUB_WORKSPACE/multi-poly-cats.agda-lib" >> ~/.agda/libraries
+          echo "$GITHUB_WORKSPACE/cubical-categorical-logic.agda-lib" >> ~/.agda/libraries
 
       - name: Download and install fix-whitespace
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
@@ -183,7 +183,7 @@ jobs:
       ########################################################################
 
       # By default github actions do not pull the repo
-      - name: Checkout multi-poly-cats
+      - name: Checkout cubical-categorical-logic
         uses: actions/checkout@v3
 
       ########################################################################
@@ -201,7 +201,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-agdai-
 
-      - name: Test multi-poly-cats
+      - name: Test cubical-categorical-logic
         run: |
           make test \
             AGDA='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \

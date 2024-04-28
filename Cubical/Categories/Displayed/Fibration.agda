@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Fibration where
 
 open import Cubical.Foundations.Prelude

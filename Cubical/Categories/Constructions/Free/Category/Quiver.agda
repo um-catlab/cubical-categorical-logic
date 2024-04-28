@@ -11,21 +11,28 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Quiver.Base as Quiver
+open import Cubical.Data.Graph.Base as Graph
+open import Cubical.Data.Graph.Displayed as Graph hiding (Section)
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More
-open import Cubical.Categories.Displayed.Constructions.Weaken
+open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Instances.Path
+open import Cubical.Categories.Displayed.Properties as Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 
-open import Cubical.Categories.Displayed.Section as Cat
-open import Cubical.Categories.Displayed.Preorder as Preorder hiding (Section)
+open import Cubical.Categories.Displayed.Section.Base as Cat
+open import Cubical.Categories.Displayed.Preorder as Preorder
 
 private
   variable
     ℓc ℓc' ℓd ℓd' ℓg ℓg' ℓh ℓh' ℓj ℓ : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
 
 open Category
 open Functor
@@ -59,66 +66,84 @@ module _ (Q : Quiver ℓg ℓg') where
   η HetQG.$g x = x
   η HetQG.<$g> e = ↑ e
 
-  module _ (𝓓 : Categoryᴰ FreeCat ℓd ℓd') where
+  module _ {C : Category ℓC ℓC'}
+           (ı : Interp C)
+           (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     Interpᴰ : Type _
-    Interpᴰ = Quiver.Section (Quiver.reindex η (Categoryᴰ→Graphᴰ 𝓓))
+    Interpᴰ = HetSection ı (Categoryᴰ→Graphᴰ Cᴰ)
 
-  module _ {𝓓 : Categoryᴰ FreeCat ℓd ℓd'} (ı : Interpᴰ 𝓓) where
-    private
-      module ı = Quiver.Section ı
-      module 𝓓 = Categoryᴰ 𝓓
+  -- the eliminator constructs a *global* section. Use reindexing if
+  -- you want a local section
+  module _ (Cᴰ : Categoryᴰ FreeCat ℓCᴰ ℓCᴰ')
+           (ıᴰ : Interpᴰ η Cᴰ)
+           where
+    open HetSection
+    open Section
+    private module Cᴰ = Categoryᴰ Cᴰ
 
-    elimF : ∀ {c c'} (f : FreeCat [ c , c' ])
-          → 𝓓 [ f ][ ı.F-ob c , ı.F-ob c' ]
-    elimF (↑ e) = ı.F-hom e
-    elimF idₑ = 𝓓.idᴰ
-    elimF (f ⋆ₑ g) = elimF f 𝓓.⋆ᴰ elimF g
-    elimF (⋆ₑIdL f i) = 𝓓.⋆IdLᴰ (elimF f) i
-    elimF (⋆ₑIdR f i) = 𝓓.⋆IdRᴰ (elimF f) i
-    elimF (⋆ₑAssoc f f₁ f₂ i) = 𝓓.⋆Assocᴰ (elimF f) (elimF f₁) (elimF f₂) i
-    elimF (isSetExp f g p q i j) =
-      isOfHLevel→isOfHLevelDep 2 (λ x → 𝓓.isSetHomᴰ)
-      (elimF f)
-      (elimF g)
-      (cong elimF p)
-      (cong elimF q)
+    elim-F-homᴰ : ∀ {d d'} → (f : FreeCat .Hom[_,_] d d') →
+      Cᴰ.Hom[ f ][ ıᴰ $gᴰ d , (ıᴰ $gᴰ d') ]
+    elim-F-homᴰ (↑ g) = ıᴰ <$g>ᴰ g
+    elim-F-homᴰ idₑ = Cᴰ.idᴰ
+    elim-F-homᴰ (f ⋆ₑ g) = elim-F-homᴰ f Cᴰ.⋆ᴰ elim-F-homᴰ g
+    elim-F-homᴰ (⋆ₑIdL f i) = Cᴰ.⋆IdLᴰ (elim-F-homᴰ f) i
+    elim-F-homᴰ (⋆ₑIdR f i) = Cᴰ.⋆IdRᴰ (elim-F-homᴰ f) i
+    elim-F-homᴰ (⋆ₑAssoc f f₁ f₂ i) =
+      Cᴰ.⋆Assocᴰ (elim-F-homᴰ f) (elim-F-homᴰ f₁) (elim-F-homᴰ f₂) i
+    elim-F-homᴰ (isSetExp f g p q i j) = isOfHLevel→isOfHLevelDep 2
+      (λ x → Cᴰ.isSetHomᴰ)
+      (elim-F-homᴰ f) (elim-F-homᴰ g)
+      (cong elim-F-homᴰ p) (cong elim-F-homᴰ q)
       (isSetExp f g p q)
-      i
-      j
+      i j
 
-    open Cat.Section
-    elim : Cat.Section 𝓓
-    elim .F-ob = ı.F-ob
-    elim .F-hom = elimF
-    elim .F-id = refl
-    elim .F-seq f g = refl
+    elim : GlobalSection Cᴰ
+    elim .F-obᴰ = ıᴰ $gᴰ_
+    elim .F-homᴰ = elim-F-homᴰ
+    elim .F-idᴰ = refl
+    elim .F-seqᴰ _ _ = refl
 
-  module _ {ℓc ℓc'} {𝓒 : Categoryᴰ FreeCat ℓc ℓc'} (F G : Cat.Section 𝓒)
-    (agree-on-gen : Interpᴰ (Preorderᴰ→Catᴰ (SecPath _ F G))) where
-    FreeCatSection≡ : F ≡ G
-    FreeCatSection≡ =
-      SecPathSectionToSectionPath
-        _
-        (Iso.inv (PreorderSectionIsoCatSection _ _) (elim agree-on-gen))
-
-  module _ {𝓒 : Category ℓc ℓc'} (ı : Interp 𝓒) where
+  -- The elimination principle for global sections implies an
+  -- elimination principle for local sections, this requires reindex
+  -- so caveat utilitor
+  module _ {C : Category ℓC ℓC'}
+           (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+           (F : Functor FreeCat C)
+           (ıᴰ : Interpᴰ (compGrHomHetQG (Functor→GraphHom F) η) Cᴰ)
+           where
     private
-      open HetQG
-      ıᴰ : Interpᴰ (weaken FreeCat 𝓒)
-      ıᴰ .Section.F-ob q  = ı $g q
-      ıᴰ .Section.F-hom e = ı <$g> e
+      open HetSection
+      F*Cᴰ = Reindex.reindex Cᴰ F
+      ıᴰ' : Interpᴰ η F*Cᴰ
+      ıᴰ' ._$gᴰ_ = ıᴰ $gᴰ_
+      ıᴰ' ._<$g>ᴰ_ = ıᴰ <$g>ᴰ_
 
-    rec : Functor FreeCat 𝓒
-    rec = Iso.fun (SectionToWkIsoFunctor _ _) (elim ıᴰ)
+    elimLocal : Section F Cᴰ
+    elimLocal = GlobalSectionReindex→Section Cᴰ F (elim F*Cᴰ ıᴰ')
 
-  module _ {ℓc ℓc'} {𝓒 : Category ℓc ℓc'} (F G : Functor FreeCat 𝓒)
-           (agree-on-gen :
-             Interpᴰ (Preorderᴰ→Catᴰ
-                     (SecPath (weaken FreeCat 𝓒)
-                     (Iso.inv (SectionToWkIsoFunctor _ _) F)
-                     (Iso.inv (SectionToWkIsoFunctor _ _) G))))
-         where
+  -- Elimination principle implies the recursion principle, which
+  -- allows for non-dependent functors to be defined
+  module _ {C : Category ℓC ℓC'} (ı : Interp C) where
+    open HetQG
+    private
+      ıᴰ : Interpᴰ η (weaken FreeCat C)
+      ıᴰ .HetSection._$gᴰ_ = ı .HetQG._$g_
+      ıᴰ .HetSection._<$g>ᴰ_ = ı .HetQG._<$g>_
+
+    rec : Functor FreeCat C
+    rec = Wk.introS⁻ (elim (weaken FreeCat C) ıᴰ)
+
+  -- Elimination principle also implies the uniqueness principle,
+  -- i.e., η law for sections/functors out of the free category
+  -- this version is for functors
+  module _
+    {C : Category ℓC ℓC'}
+    (F G : Functor FreeCat C)
+    (agree-on-gen :
+      -- todo: some notation would simplify this considerably
+      Interpᴰ (compGrHomHetQG (Functor→GraphHom (F BP.,F G)) η) (PathC C))
+    where
     FreeCatFunctor≡ : F ≡ G
-    FreeCatFunctor≡ =
-      isoInvInjective (SectionToWkIsoFunctor _ _) F G
-                      (FreeCatSection≡ _ _ agree-on-gen)
+    FreeCatFunctor≡ = PathReflection (elimLocal (PathC C) _ agree-on-gen)
+
+  -- TODO: add analogous principle for Sections using PathCᴰ

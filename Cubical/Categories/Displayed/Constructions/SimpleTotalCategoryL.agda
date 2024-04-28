@@ -16,17 +16,20 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
-  hiding (intro)
+  hiding (introS)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Eq as ReindexEq
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
-  hiding (intro)
+  hiding (introS; introF)
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Instances.Terminal hiding (intro)
-open import Cubical.Categories.Displayed.Base.More as TotalCat
+open import Cubical.Categories.Displayed.Instances.Terminal
+open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+  hiding (intro)
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
   as STotalCatR
-  hiding (intro)
+  hiding (introS)
 
 private
   variable
@@ -45,37 +48,33 @@ module _
 
   private
     module Cᴰ = Categoryᴰ Cᴰ
-    Sym*Cᴰ = (reindex' Cᴰ (BP.Sym {C = C}{D = D}) Eq.refl λ _ _ → Eq.refl)
+    module Sym*Cᴰ = EqReindex Cᴰ (BP.Sym {C = C}{D = D})
+      Eq.refl (λ _ _ → Eq.refl)
 
   -- s for "simple" because D is not dependent on C
   -- l for "right" because D is on the left side of the product
   ∫Cᴰsl : Categoryᴰ C _ _
-  ∫Cᴰsl = ∫Cᴰsr {C = C} {D = D} Sym*Cᴰ
+  ∫Cᴰsl = ∫Cᴰsr {C = C} {D = D} Sym*Cᴰ.reindex
 
   Fstᴰsl : Functorᴰ Id ∫Cᴰsl (weaken C D)
-  Fstᴰsl = Fstᴰsr Sym*Cᴰ
+  Fstᴰsl = Fstᴰsr Sym*Cᴰ.reindex
 
   module _
     {E : Category ℓE ℓE'}
     (F : Functor E C)
-    {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
-    (Fᴰ : Functorᴰ F Eᴰ (weaken C D))
-    (Gᴰ : Functorᴰ (Sym {C = C}{D = D} ∘F ∫F Fᴰ) (Unitᴰ (∫C Eᴰ)) Cᴰ)
+    (Fᴰ : Section F (weaken C D))
+    (Gᴰ : Section (Sym {C = C}{D = D} ∘F TotalCat.intro F Fᴰ) Cᴰ)
     where
-    open Functorᴰ
 
-    intro : Functorᴰ F Eᴰ ∫Cᴰsl
-    intro = STotalCatR.intro Sym*Cᴰ F Fᴰ
-      (reindex-intro' Cᴰ (BP.Sym {C = C}{D = D}) Eq.refl (λ _ _ → Eq.refl)
-        (∫F {F = F} Fᴰ)
-        Gᴰ)
+    open Section
+
+    introS : Section F ∫Cᴰsl
+    introS = STotalCatR.introS Sym*Cᴰ.reindex F Fᴰ
+      (Sym*Cᴰ.introS _ Gᴰ)
 
   open Functor
   Assoc-sl⁻ : Functor (∫C ∫Cᴰsl) (∫C Cᴰ)
-  Assoc-sl⁻ = ∫F {C = C ×C D}{D = D ×C C}{F = BP.Sym {C = C}{D = D}}
-              (forgetReindex' Cᴰ (BP.Sym {C = C}{D = D})
-                Eq.refl λ _ _ → Eq.refl)
-            ∘F Assoc-sl⁻'
+  Assoc-sl⁻ = ∫F Sym*Cᴰ.forgetReindex ∘F Assoc-sl⁻'
     where
-    Assoc-sl⁻' : Functor (∫C ∫Cᴰsl) (∫C Sym*Cᴰ)
-    Assoc-sl⁻' = Assoc-sr⁻ {C = C}{D = D} Sym*Cᴰ
+    Assoc-sl⁻' : Functor (∫C ∫Cᴰsl) (∫C Sym*Cᴰ.reindex)
+    Assoc-sl⁻' = Assoc {C = C}{D = D} Sym*Cᴰ.reindex

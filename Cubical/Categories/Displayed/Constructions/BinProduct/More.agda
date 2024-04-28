@@ -1,3 +1,10 @@
+{-
+    Binary Product of displayed categories over the same base.
+
+    TODO: this can be defined as an instance of TotalCategoryᴰ using
+    weakening. Should it?
+
+-}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.BinProduct.More where
 
@@ -10,7 +17,13 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.BinProduct
+open import Cubical.Categories.Constructions.TotalCategory
+  as TotalCat
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  as TotalCatᴰ hiding (introS; introF)
+open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 
 private
   variable
@@ -36,10 +49,20 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
   Δᴰ .F-idᴰ = refl
   Δᴰ .F-seqᴰ fᴰ gᴰ = refl
 
--- Product within a fiber
--- TODO: replace this with ∫ᴰ ?
--- Product of total categories
--- todo: replace with the next construction & reindexing?
+module _ {C : Category ℓC ℓC'}
+  {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}
+  {E : Category ℓE ℓE'}
+  (F : Functor E C)
+  (Fᴰ₀ : Section F Dᴰ₀)
+  (Fᴰ₁ : Section F Dᴰ₁)
+  where
+
+  open Section
+  introS : Section F (Dᴰ₀ ×ᴰ Dᴰ₁)
+  introS .F-obᴰ d =  Fᴰ₀ .F-obᴰ d , Fᴰ₁ .F-obᴰ d
+  introS .F-homᴰ fᴰ = Fᴰ₀ .F-homᴰ fᴰ , Fᴰ₁ .F-homᴰ fᴰ
+  introS .F-idᴰ = ΣPathP (Fᴰ₀ .F-idᴰ , Fᴰ₁ .F-idᴰ)
+  introS .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ₀ .F-seqᴰ fᴰ gᴰ , Fᴰ₁ .F-seqᴰ fᴰ gᴰ)
 
 module _ {C : Category ℓC ℓC'}
   {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}
@@ -49,15 +72,23 @@ module _ {C : Category ℓC ℓC'}
   (Fᴰ₁ : Functorᴰ F Eᴰ Dᴰ₁)
   where
 
-  open Categoryᴰ
-  private
-    module Dᴰ₀ = Categoryᴰ Dᴰ₀
-    module Dᴰ₁ = Categoryᴰ Dᴰ₁
-    module Dᴰ× = Categoryᴰ (Dᴰ₀ ×ᴰ Dᴰ₁)
+  introF : Functorᴰ F Eᴰ (Dᴰ₀ ×ᴰ Dᴰ₁)
+  introF = TotalCat.recᴰ F _
+    (introS _ (TotalCat.elim Fᴰ₀) (TotalCat.elim Fᴰ₁))
 
-  open Functorᴰ
-  intro : Functorᴰ F Eᴰ (Dᴰ₀ ×ᴰ Dᴰ₁)
-  intro .F-obᴰ x = Fᴰ₀ .F-obᴰ x , Fᴰ₁ .F-obᴰ x
-  intro .F-homᴰ fᴰ =  Fᴰ₀ .F-homᴰ fᴰ , Fᴰ₁ .F-homᴰ fᴰ
-  intro .F-idᴰ = ΣPathP (Fᴰ₀ .F-idᴰ , Fᴰ₁ .F-idᴰ)
-  intro .F-seqᴰ fᴰ gᴰ = ΣPathP (Fᴰ₀ .F-seqᴰ fᴰ gᴰ , Fᴰ₁ .F-seqᴰ fᴰ gᴰ)
+private
+  -- In principle we can also define introS in terms of introF in
+  -- terms of Functorᴰs as follows:
+  module _ {C : Category ℓC ℓC'}
+    {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}
+    {E : Category ℓE ℓE'}
+    (F : Functor E C)
+    (Fᴰ₀ : Section F Dᴰ₀)
+    (Fᴰ₁ : Section F Dᴰ₁)
+    where
+
+    open Section
+    introS' : Section F (Dᴰ₀ ×ᴰ Dᴰ₁)
+    introS' = compFunctorᴰGlobalSection
+      (introF F (Unitᴰ.recᴰ Fᴰ₀) (Unitᴰ.recᴰ Fᴰ₁))
+      ttS

@@ -1,4 +1,4 @@
-name: multi-poly-cats
+name: cubical-categorical-logic
 include: .
 depend: cubical
 flags: --cubical --postfix-projections

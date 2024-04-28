@@ -59,6 +59,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Base.More as Disp
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
+open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Profunctor.Relator
@@ -224,7 +225,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   private
     𝓟 = PresheafCategory D ℓS
     Pup : Functor C (𝓟up D ℓS)
-    Pup = mk∫Functor P (mkFullSubcategoryᴰFunctorᴰ _ _ P (λ _ → ues _))
+    Pup = TotalCat.intro P
+      (mkSectionContrHoms (hasContrHomsFullSubcategory _ _) ues)
 
     Pus : Functor C (𝓟us D ℓS)
     Pus = coherence D ℓS ∘F Pup

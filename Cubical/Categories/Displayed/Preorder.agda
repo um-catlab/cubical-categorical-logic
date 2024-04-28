@@ -10,8 +10,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Constructions.TotalCategory
 
 private
   variable
@@ -74,23 +74,23 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : Preorderᴰ C ℓCᴰ ℓCᴰ') where
     ΣPathP (p ,
       isProp→PathP (λ i → Pᴰ .isPropHomᴰ {f = p i}) (f .snd) (g .snd))
 
-  module Pᴰ = Preorderᴰ Pᴰ
-  record Section  : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) where
-    field
-      F-ob : ∀ c → Pᴰ.ob[ c ]
-      F-hom : ∀ {c c'} (f : C [ c , c' ]) → Pᴰ.Hom[ f ][ F-ob c , F-ob c' ]
+  -- module Pᴰ = Preorderᴰ Pᴰ
+  -- record Section  : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) where
+  --   field
+  --     F-ob : ∀ c → Pᴰ.ob[ c ]
+  --     F-hom : ∀ {c c'} (f : C [ c , c' ]) → Pᴰ.Hom[ f ][ F-ob c , F-ob c' ]
 
-  module _ {D : Category ℓD ℓD'} (F : Functor D C) where
-    reindex : Preorderᴰ D ℓCᴰ ℓCᴰ'
-    reindex .ob[_] A = Pᴰ .ob[_] (F ⟅ A ⟆)
-    reindex .Hom[_][_,_] f P Q = Pᴰ .Hom[_][_,_] (F ⟪ f ⟫) P Q
-    reindex .idᴰ {A} {p} =
-      transport (λ i → Pᴰ .Hom[_][_,_] (F .F-id (~ i)) p p) (Pᴰ .idᴰ)
-    reindex ._⋆ᴰ_ {f = f}{g = g}{xᴰ = xᴰ}{zᴰ = zᴰ} fᴰ gᴰ =
-      transport
-        (λ i → Pᴰ .Hom[_][_,_] (F .F-seq f g (~ i)) xᴰ zᴰ)
-        (Pᴰ ._⋆ᴰ_ fᴰ gᴰ)
-    reindex .isPropHomᴰ = Pᴰ .isPropHomᴰ
+  -- module _ {D : Category ℓD ℓD'} (F : Functor D C) where
+  --   reindex : Preorderᴰ D ℓCᴰ ℓCᴰ'
+  --   reindex .ob[_] A = Pᴰ .ob[_] (F ⟅ A ⟆)
+  --   reindex .Hom[_][_,_] f P Q = Pᴰ .Hom[_][_,_] (F ⟪ f ⟫) P Q
+  --   reindex .idᴰ {A} {p} =
+  --     transport (λ i → Pᴰ .Hom[_][_,_] (F .F-id (~ i)) p p) (Pᴰ .idᴰ)
+  --   reindex ._⋆ᴰ_ {f = f}{g = g}{xᴰ = xᴰ}{zᴰ = zᴰ} fᴰ gᴰ =
+  --     transport
+  --       (λ i → Pᴰ .Hom[_][_,_] (F .F-seq f g (~ i)) xᴰ zᴰ)
+  --       (Pᴰ ._⋆ᴰ_ fᴰ gᴰ)
+  --   reindex .isPropHomᴰ = Pᴰ .isPropHomᴰ
 
 module _
        {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

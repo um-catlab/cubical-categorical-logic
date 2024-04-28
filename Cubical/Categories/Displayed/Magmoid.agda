@@ -1,5 +1,9 @@
 {-
   A Magmoidᴰ is a Categoryᴰ without the equations
+
+  TODO: most of the stuff in this file doesn't actually have anything
+  to do with Magmoids
+
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Magmoid where
@@ -10,6 +14,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Functor
 
 private
@@ -71,6 +76,33 @@ module _ {C : Category ℓC ℓC'}
         (R.≡[]-rectify (λ i → ⋆ᴰ' .snd i fᴰ (⋆ᴰ' .snd i gᴰ hᴰ)))
         (Cᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ)
 
+    private
+      module RID = Categoryᴰ redefine-id⋆
+
+    module _ {D : Category ℓD ℓD'}
+             {F : Functor D C}
+             (s : Section F Cᴰ)
+             where
+      open Section
+      open Functor
+      private
+        module D = Category D
+
+      redefine-id⋆S : Section F redefine-id⋆
+      redefine-id⋆S .F-obᴰ = s .F-obᴰ
+      redefine-id⋆S .F-homᴰ = s .F-homᴰ
+      redefine-id⋆S .F-idᴰ =
+        subst (λ idᴰ → (s .F-homᴰ D.id) RID.≡[ F .F-id ] idᴰ)
+          (λ i → idᴰ' .snd i)
+          (s .F-idᴰ)
+      redefine-id⋆S .F-seqᴰ f g =
+        subst (λ _⋆ᴰ_ →
+              s .F-homᴰ (f D.⋆ g)
+              RID.≡[ F .F-seq f g ]
+              s .F-homᴰ f ⋆ᴰ s .F-homᴰ g)
+          (λ i → ⋆ᴰ' .snd i)
+          (s .F-seqᴰ f g)
+
     module _ {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
              {F : Functor D C}
              (Fᴰ : Functorᴰ F Dᴰ Cᴰ)
@@ -79,7 +111,6 @@ module _ {C : Category ℓC ℓC'}
       open Functor
       private
         module Dᴰ = Categoryᴰ Dᴰ
-        module RID = Categoryᴰ redefine-id⋆
       redefine-id⋆F : Functorᴰ F Dᴰ redefine-id⋆
       redefine-id⋆F .F-obᴰ  = Fᴰ .F-obᴰ
       redefine-id⋆F .F-homᴰ = Fᴰ .F-homᴰ

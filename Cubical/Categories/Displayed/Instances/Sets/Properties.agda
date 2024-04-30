@@ -43,15 +43,28 @@ open import Cubical.Categories.Displayed.Fibration.More
 open import Cubical.Data.Unit.Base
 open import Cubical.Data.Unit.Properties
 
-hasFiberedTerminalSet : hasFibTerminal isFibrationSet
+-- TODO: huhhhhhhhhhhhhhhhhhhhhh
+-- This is definitionally equivalent to LocalRightAdjointᴰ ????
+hasFiberedTerminalSet : hasFibTerminal (SETᴰ ℓ ℓ' , isFibrationSet)
 hasFiberedTerminalSet dᴰ .vertexᴰ _ = Unit* , isSetUnit*
 hasFiberedTerminalSet dᴰ .elementᴰ = tt
 hasFiberedTerminalSet dᴰ .universalᴰ .equiv-proof unit =
-  ((λ _ _ → tt*) , (isPropUnit tt tt)) ,
-    (λ y → isPropΣ (isPropΠ2 λ _ _ _ _ → isPropUnit* tt* tt*)
-      (λ _ p q → isSetUnit tt tt p q)
-      ((λ _ _ → tt*) , isPropUnit tt tt)
-      y)
+  uniqueExists (λ _ _ → tt*) (isPropUnit tt tt) (λ _ p q → isSetUnit tt tt p q) λ _ _ → funExt λ _ → funExt λ _ → refl
+
+-- TODO: I don't understand why I can't put `refl` here
+foobar : ∀ dᴰ → hasFibTerminal (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ ≡ hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ
+foobar dᴰ = {!!}
+
+hasFiberedTerminalSet' : hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet)
+hasFiberedTerminalSet' dᴰ .vertexᴰ _ = Unit* , isSetUnit*
+hasFiberedTerminalSet' dᴰ .elementᴰ = tt
+hasFiberedTerminalSet' dᴰ .universalᴰ .equiv-proof unit =
+  uniqueExists (λ _ _ → tt*) (isPropUnit tt tt) (λ _ p q → isSetUnit tt tt p q) λ _ _ → funExt λ _ → funExt λ _ → refl
+
+--= total (SETᴰ ℓ ℓ' , isFibrationSet)
+
+setHasTerm = Terminal' (SET ℓ ℓ')
+setHasTerm = ?
 
 --hasFiberedProductsSet : hasFiberedProducts (SET ℓ ℓ')
 --hasFiberedProductsSet = ?

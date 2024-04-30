@@ -23,6 +23,7 @@ open Category
 open FiberedFunctor
 
 -- terminal fibration over C, ie the identity fibration
+-- NOTE: this was intended to carry through the "standard" definition of fibered terminal objects, but we're not using it any more
 module _ {C : Category ℓC ℓC'} where
   open CartesianOver
 
@@ -51,10 +52,30 @@ module _ {C : Category ℓC ℓC'} where
     !/C .preserves-cartesian _ _ _ _ _ _ _ _ =
         uniqueExists tt (isPropUnit tt tt) (λ _ p q → isSetUnit tt tt p q) λ _ _ → isPropUnit tt tt
 
+-- NOTE: DEPRECATED
 -- fibered terminal objects
--- TODO: show this gives terminal object in each fiber of the displayed category, directly
 module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where
   -- Jacobs 1.8.8
   -- Hermida 1.4.1
+  -- TODO: no way that's definitionally equivalent to the next thing
+  hasFibTerminal' : Type _
+  hasFibTerminal' = LocalRightAdjointᴰ (!/C p .over)
+  --hasFibTerminal = LocalRightAdjointᴰ (!/C p .over)
+
+-- Below are some "repackaged" definitions that make sense for any displayed category, but
+-- are at least traditionally used for fibrations
+module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where
+  open import Cubical.Categories.Displayed.Limits.Terminal
+  open import Cubical.Categories.Limits.Terminal.More
   hasFibTerminal : Type _
-  hasFibTerminal = LocalRightAdjointᴰ (!/C p .over)
+  hasFibTerminal = (c : C .ob) → FibTerminalᴰ (p .fst) c
+  module _ (term : Terminal' C) where
+    open import Cubical.Categories.Displayed.Presheaf
+    open import Cubical.Categories.Presheaf.Representable
+    open UniversalElementᴰ
+    open UniversalElement
+    total : hasFibTerminal → Terminalᴰ (p .fst) term
+    total f .vertexᴰ = (f (term .vertex)) .vertexᴰ
+    total f .elementᴰ = {!!}
+    total f .universalᴰ = {!!}
+  --hasFibProducts

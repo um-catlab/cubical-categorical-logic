@@ -54,10 +54,10 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     -- Fiber c have a terminal object?
     -- No.
     FibTerminalᴰSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
-    FibTerminalᴰSpec = TerminalPresheafᴰ _
+    FibTerminalᴰSpec = TerminalPresheafᴰ (C [-, c ])
 
     -- This says that for every morphism f : c' → c in C and
-    -- d ∈ D.ob[ c' ] there is a unique lift to fᴰ : D [ f ][ d' , 1c ]
+    -- d' ∈ D.ob[ c' ] there is a unique lift to fᴰ : D [ f ][ d' , 1c ]
     -- In program logic terms this is the "trivial postcondition"
     FibTerminalᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
     FibTerminalᴰ = UniversalElementᴰ D FibTerminalᴰSpec (selfUnivElt C c)

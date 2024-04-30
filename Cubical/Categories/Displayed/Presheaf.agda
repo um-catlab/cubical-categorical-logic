@@ -49,4 +49,4 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
       elementᴰ : ⟨ Pᴰ .F-obᴰ vertexᴰ element ⟩
       universalᴰ : ∀ {x xᴰ}{f : C [ x , vertex ]}
                  → isEquiv λ (fᴰ : Hom[ f ][ xᴰ , vertexᴰ ]) →
-                     Pᴰ .F-homᴰ fᴰ _ elementᴰ
+                     Pᴰ .F-homᴰ fᴰ element elementᴰ

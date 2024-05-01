@@ -83,9 +83,9 @@ module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where
     total fibue .elementᴰ = tt
     total fibue .universalᴰ  {x = x} {xᴰ = xᴰ} {f = f} .equiv-proof y =
       uniqueExists exists refl
-      (λ _ p' q' →
-        TerminalᴰSpec (p .fst) .Functorᴰ.F-obᴰ xᴰ
-        (TerminalPresheaf .Functor.F-hom f (element term)) .snd tt tt p' q')
+      (λ _ p' q' → {!!})
+        --TerminalᴰSpec (p .fst) .Functorᴰ.F-obᴰ xᴰ
+        --(TerminalPresheaf .Functor.F-hom f (element term)) .snd tt tt p' q')
         λ fᴰ' _ → exists' fᴰ'
       where
       exists : pp.Hom[ f ][ xᴰ , (fibue (term .vertex) .vertexᴰ) ]

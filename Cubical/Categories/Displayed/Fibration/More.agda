@@ -72,10 +72,26 @@ module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where
   module _ (term : Terminal' C) where
     open import Cubical.Categories.Displayed.Presheaf
     open import Cubical.Categories.Presheaf.Representable
+    open import Cubical.Foundations.Equiv
+    open import Cubical.Categories.Displayed.Limits.Terminal
+    open FibTerminalᴰNotation (p .fst)
     open UniversalElementᴰ
     open UniversalElement
+    module pp = Categoryᴰ (p .fst)
     total : hasFibTerminal → Terminalᴰ (p .fst) term
-    total f .vertexᴰ = (f (term .vertex)) .vertexᴰ
-    total f .elementᴰ = {!!}
-    total f .universalᴰ = {!!}
+    total fibue .vertexᴰ = 1ᴰ (term .vertex) (fibue (term .vertex))
+    total fibue .elementᴰ = tt
+    total fibue .universalᴰ  {x = x} {xᴰ = xᴰ} {f = f} .equiv-proof y =
+      uniqueExists exists refl
+      (λ _ p' q' →
+        TerminalᴰSpec (p .fst) .Functorᴰ.F-obᴰ xᴰ
+        (TerminalPresheaf .Functor.F-hom f (element term)) .snd tt tt p' q')
+        λ fᴰ' _ → exists' fᴰ'
+      where
+      exists : pp.Hom[ f ][ xᴰ , (fibue (term .vertex) .vertexᴰ) ]
+      exists = !tᴰ (term .vertex) (fibue (term .vertex)) f xᴰ
+      exists' : ∀ y₁ →
+                  !tᴰ-unique (term .vertex) (fibue (term .vertex)) f xᴰ .fst
+                  ≡ y₁
+      exists' = !tᴰ-unique (term .vertex) (fibue (term .vertex)) f xᴰ .snd
   --hasFibProducts

@@ -48,7 +48,7 @@ open import Cubical.Data.Unit.Properties
 hasFiberedTerminalSet : hasFibTerminal (SETᴰ ℓ ℓ' , isFibrationSet)
 hasFiberedTerminalSet dᴰ .vertexᴰ _ = Unit* , isSetUnit*
 hasFiberedTerminalSet dᴰ .elementᴰ = tt
-hasFiberedTerminalSet dᴰ .universalᴰ .equiv-proof unit =
+hasFiberedTerminalSet dᴰ .universalᴰ .equiv-proof _ =
   uniqueExists (λ _ _ → tt*) (isPropUnit tt tt) (λ _ p q → isSetUnit tt tt p q) λ _ _ → funExt λ _ → funExt λ _ → refl
 
 -- TODO: I don't understand why I can't put `refl` here
@@ -58,11 +58,13 @@ foobar dᴰ = {!!}
 hasFiberedTerminalSet' : hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet)
 hasFiberedTerminalSet' dᴰ .vertexᴰ _ = Unit* , isSetUnit*
 hasFiberedTerminalSet' dᴰ .elementᴰ = tt
-hasFiberedTerminalSet' dᴰ .universalᴰ .equiv-proof unit =
+hasFiberedTerminalSet' dᴰ .universalᴰ .equiv-proof _ =
   uniqueExists (λ _ _ → tt*) (isPropUnit tt tt) (λ _ p q → isSetUnit tt tt p q) λ _ _ → funExt λ _ → funExt λ _ → refl
 
 --= total (SETᴰ ℓ ℓ' , isFibrationSet)
 
+-- I'm sure this is already somewhere, but whatever,
+-- let's just rewrite a short version
 setHasTerm = Terminal' (SET ℓ ℓ')
 setHasTerm = ?
 

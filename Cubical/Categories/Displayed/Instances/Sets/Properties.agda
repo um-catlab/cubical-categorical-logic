@@ -51,9 +51,9 @@ hasFiberedTerminalSet dᴰ .elementᴰ = tt
 hasFiberedTerminalSet dᴰ .universalᴰ .equiv-proof _ =
   uniqueExists (λ _ _ → tt*) (isPropUnit tt tt) (λ _ p q → isSetUnit tt tt p q) λ _ _ → funExt λ _ → funExt λ _ → refl
 
--- TODO: I don't understand why I can't put `refl` here
-foobar : ∀ dᴰ → hasFibTerminal (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ ≡ hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ
-foobar dᴰ = {!!}
+---- TODO: I don't understand why I can't put `refl` here
+--foobar : ∀ dᴰ → hasFibTerminal (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ ≡ hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ
+--foobar dᴰ = {!!}
 
 hasFiberedTerminalSet' : hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet)
 hasFiberedTerminalSet' dᴰ .vertexᴰ _ = Unit* , isSetUnit*
@@ -65,8 +65,20 @@ hasFiberedTerminalSet' dᴰ .universalᴰ .equiv-proof _ =
 
 -- I'm sure this is already somewhere, but whatever,
 -- let's just rewrite a short version
-setHasTerm = Terminal' (SET ℓ ℓ')
-setHasTerm = ?
+open import Cubical.Categories.Limits.Terminal.More
+open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Data.Sigma.Properties
+open UniversalElement
+setHasTerm : Terminal' (SET ℓ)
+setHasTerm .vertex = Unit* , isSetUnit*
+setHasTerm .element = tt
+setHasTerm .universal X .equiv-proof y = uniqueExists (λ _ → tt*) (isPropUnit tt tt)
+  (λ _ p' q' → isSetUnit tt tt p' q') λ _ _ → funExt λ _ → isPropUnit* tt* tt*
+
+open import Cubical.Categories.Displayed.Limits.Terminal
+
+foobar : Terminalᴰ (SETᴰ ℓ-zero ℓ-zero) setHasTerm
+foobar = total (SETᴰ ℓ-zero ℓ-zero , isFibrationSet) setHasTerm hasFiberedTerminalSet
 
 --hasFiberedProductsSet : hasFiberedProducts (SET ℓ ℓ')
 --hasFiberedProductsSet = ?

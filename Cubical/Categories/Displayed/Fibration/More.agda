@@ -64,6 +64,7 @@ module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where
 
 -- Below are some "repackaged" definitions that make sense for any displayed category, but
 -- are at least traditionally used for fibrations
+-- TODO: none of this explicitly has to do with fibrations
 module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where
   open import Cubical.Categories.Displayed.Limits.Terminal
   open import Cubical.Categories.Limits.Terminal.More

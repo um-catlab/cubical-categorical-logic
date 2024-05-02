@@ -44,6 +44,11 @@ TerminalPresheaf = Constant _ _ (Unit , isSetUnit)
 Terminal' :  ∀ (C : Category ℓc ℓc') → Type (ℓ-max ℓc ℓc')
 Terminal' C = UniversalElement C (TerminalPresheaf {C = C})
 
+module _ {C : Category ℓc ℓc'} (term' : Terminal' C) where
+  !t' : ∀ a → isContr (C [ a , term' .vertex ])
+  !t' a .fst = invIsEq (term' .universal a) tt
+  !t' a .snd f = congS (λ x → x .fst) ((term' .universal a) .equiv-proof tt .snd (f , refl))
+
 terminalToUniversalElement : ∀ {C : Category ℓc ℓc'} (One : Terminal C)
   → UniversalElement C (TerminalPresheaf {C = C})
 terminalToUniversalElement One .vertex = One .fst

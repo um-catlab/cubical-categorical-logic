@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Cubical.Categories.Displayed.Instances.Sets.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -55,7 +55,7 @@ hasFiberedTerminalSet dᴰ .universalᴰ .equiv-proof _ =
 --foobar : ∀ dᴰ → hasFibTerminal (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ ≡ hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet) dᴰ
 --foobar dᴰ = {!!}
 
-hasFiberedTerminalSet' : hasFibTerminal' (SETᴰ ℓ ℓ' , isFibrationSet)
+hasFiberedTerminalSet' : hasFibTerminal' (SETᴰ ℓ ℓ')
 hasFiberedTerminalSet' dᴰ .vertexᴰ _ = Unit* , isSetUnit*
 hasFiberedTerminalSet' dᴰ .elementᴰ = tt
 hasFiberedTerminalSet' dᴰ .universalᴰ .equiv-proof _ =
@@ -77,8 +77,8 @@ setHasTerm .universal X .equiv-proof y = uniqueExists (λ _ → tt*) (isPropUnit
 
 open import Cubical.Categories.Displayed.Limits.Terminal
 
-foobar : Terminalᴰ (SETᴰ ℓ-zero ℓ-zero) setHasTerm
-foobar = total (SETᴰ ℓ-zero ℓ-zero , isFibrationSet) setHasTerm hasFiberedTerminalSet
+SETᴰHasTermᴰ : ∀{ℓ ℓ'} → Terminalᴰ (SETᴰ ℓ ℓ') setHasTerm
+SETᴰHasTermᴰ {ℓ} {ℓ'} = FibTerm→Termᴰ (SETᴰ ℓ ℓ') setHasTerm hasFiberedTerminalSet'
 
 --hasFiberedProductsSet : hasFiberedProducts (SET ℓ ℓ')
 --hasFiberedProductsSet = ?

@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Cubical.Categories.Displayed.Fibration.Base where
 
 open import Cubical.Foundations.Prelude
@@ -18,6 +18,14 @@ private
 Fibration : (C : Category ℓC ℓC') (ℓᴰ ℓᴰ' : Level) →
   Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓᴰ ℓᴰ')))
 Fibration C ℓᴰ ℓᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓᴰ ℓᴰ' ] isFibration Cᴰ
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  open CartesianOver
+  -- TODO:
+  isFibration→AllCartesianOvers : isFibration Cᴰ → AllCartesianOvers Cᴰ
+  isFibration→AllCartesianOvers isfib cᴰ' f .f*cᴰ' = {!isfib !}
+  isFibration→AllCartesianOvers isfib cᴰ' f .π = {!!}
+  isFibration→AllCartesianOvers isfib cᴰ' f .isCartesian = {!!}
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (p : Fibration C ℓCᴰ ℓCᴰ')(q : Fibration D ℓDᴰ ℓDᴰ') where

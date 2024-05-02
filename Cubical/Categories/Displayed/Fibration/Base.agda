@@ -21,11 +21,9 @@ Fibration C ℓᴰ ℓᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓᴰ ℓᴰ' ] isFibra
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open CartesianOver
-  -- TODO:
   isFibration→AllCartesianOvers : isFibration Cᴰ → AllCartesianOvers Cᴰ
-  isFibration→AllCartesianOvers isfib cᴰ' f .f*cᴰ' = {!isfib !}
-  isFibration→AllCartesianOvers isfib cᴰ' f .π = {!!}
-  isFibration→AllCartesianOvers isfib cᴰ' f .isCartesian = {!!}
+  isFibration→AllCartesianOvers isfib cᴰ' f =
+    CartesianLift→CartesianOver Cᴰ (isfib (_ , cᴰ' , f))
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (p : Fibration C ℓCᴰ ℓCᴰ')(q : Fibration D ℓDᴰ ℓDᴰ') where

@@ -47,6 +47,15 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   Terminalᴰ : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
   Terminalᴰ term = UniversalElementᴰ _ TerminalᴰSpec term
 
+  module _ {term' : Terminal' C} (termᴰ : Terminalᴰ term') where
+    open UniversalElementᴰ
+    abc : {c : C .ob} (cᴰ : D.ob[ c ]) → isContr (D.Hom[ (!t' term' c) .fst ][ cᴰ , termᴰ .vertexᴰ ])
+    abc cᴰ .fst = invIsEq (termᴰ .universalᴰ) (termᴰ .elementᴰ)
+    abc cᴰ .snd fᴰ =
+      -- TODO: I've done this proof so many times just now
+      -- where were all the other times? There's gotta be a lemma for this?
+      congS (λ x → x .fst) (termᴰ .universalᴰ .equiv-proof tt .snd (fᴰ , refl))
+
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object
 

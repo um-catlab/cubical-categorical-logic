@@ -96,28 +96,42 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     module _ (isfib : isFibration Cᴰ) where
 
+      open import Cubical.Categories.Displayed.Reasoning Cᴰ
       open CartesianOver
       module C = Category C
 
-      aco : AllCartesianOvers Cᴰ
-      aco = isFibration→AllCartesianOvers Cᴰ isfib
+      c-o : AllCartesianOvers Cᴰ
+      c-o = isFibration→AllCartesianOvers Cᴰ isfib
 
       -- moreover, if Cᴰ is a fibration, it's an iff
       -- TODO: this is easy on paper but...
       -- need to finish isFibration→AllCartesianOvers first
       Termᴰ→FibTerm : Terminalᴰ Cᴰ term → hasFibTerminal'
-      Termᴰ→FibTerm termᴰ c .vertexᴰ = !! .f*cᴰ' -- the pullback of Tᴰ over !
+      Termᴰ→FibTerm termᴰ c .vertexᴰ = !cᴰ .f*cᴰ' -- the pullback of Tᴰ over !
         where
-        !! : CartesianOver Cᴰ (termᴰ .vertexᴰ) (!t' term c .fst)
-        !! = aco (termᴰ .vertexᴰ) (!t' term c .fst)
+        !cᴰ : CartesianOver Cᴰ (termᴰ .vertexᴰ) (!t' term c .fst)
+        !cᴰ = c-o (termᴰ .vertexᴰ) (!t' term c .fst)
       Termᴰ→FibTerm termᴰ c .elementᴰ = tt -- identity?
       Termᴰ→FibTerm termᴰ c .universalᴰ {x = x} {xᴰ = xᴰ} {f = f} .equiv-proof fᴰ =
-        uniqueExists ((!! .isCartesian xᴰ f (!!! .π)) .fst .fst) {!!} {!!} {!!}
+        uniqueExists (ccc .fst .fst) refl
+        (λ _ p q → isSetUnit tt tt p q)
+        λ fᴰ x  → congS (λ x → x .fst) (ccc .snd (fᴰ , eqq fᴰ))
         where
-        !! : CartesianOver Cᴰ (termᴰ .vertexᴰ) (!t' term c .fst)
-        !! = aco (termᴰ .vertexᴰ) (!t' term c .fst)
-        !!! : CartesianOver Cᴰ (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))
-        !!! = {!aco (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))!}
+        --abc Cᴰ termᴰ ? .snd ?
+        !cᴰ : CartesianOver Cᴰ (termᴰ .vertexᴰ) (!t' term c .fst)
+        !cᴰ = c-o (termᴰ .vertexᴰ) (!t' term c .fst)
+        eqq : ∀ fᴰ →
+          fᴰ Cᴰ.⋆ᴰ (!cᴰ .π) ≡
+          reind (!t' term x .snd (f C.⋆ !t' term c .fst))
+          (abc Cᴰ termᴰ xᴰ .fst)
+        --eqq fᴰ = fᴰ Cᴰ.⋆ᴰ (!cᴰ .π) ≡⟨ reind-filler {!!t' term x .snd ?!} (fᴰ Cᴰ.⋆ᴰ (!cᴰ .π)) ⟩ {!!} ≡⟨ {!!} ⟩ {!!}
+        eqq fᴰ = sym (≡←≡[] (symP {!!}))
+        !ᴰ = termᴰ
+        f⋆!cᴰ : CartesianOver Cᴰ (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))
+        f⋆!cᴰ = {!c-o (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))!}
+        ccc : ∃![ gᴰ ∈ Cᴰ.Hom[ f ][ xᴰ , !cᴰ .f*cᴰ' ] ] gᴰ Cᴰ.⋆ᴰ !cᴰ .π ≡
+          reind (!t' term x .snd (f C.⋆ (!t' term c .fst))) (abc Cᴰ termᴰ xᴰ .fst)
+        ccc = (!cᴰ .isCartesian xᴰ f (f⋆!cᴰ .π))
 
 module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where
   -- Jacobs 1.8.8

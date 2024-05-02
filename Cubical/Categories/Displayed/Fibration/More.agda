@@ -125,7 +125,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           reind (!t' term x .snd (f C.⋆ !t' term c .fst))
           (abc Cᴰ termᴰ xᴰ .fst)
         --eqq fᴰ = fᴰ Cᴰ.⋆ᴰ (!cᴰ .π) ≡⟨ reind-filler {!!t' term x .snd ?!} (fᴰ Cᴰ.⋆ᴰ (!cᴰ .π)) ⟩ {!!} ≡⟨ {!!} ⟩ {!!}
-        eqq fᴰ = sym (≡←≡[] (symP {!!}))
+        eqq fᴰ = sym (≡→≡[] (symP {!!}))
         !ᴰ = termᴰ
         f⋆!cᴰ : CartesianOver Cᴰ (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))
         f⋆!cᴰ = {!c-o (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))!}

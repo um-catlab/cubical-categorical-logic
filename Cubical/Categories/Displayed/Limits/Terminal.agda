@@ -54,6 +54,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     !t'ᴰ cᴰ .fst = invIsEq (termᴰ .universalᴰ) (termᴰ .elementᴰ)
     -- TODO: I've done this proof so many times just now
     -- where were all the other times? There's gotta be a lemma for this?
+    -- NOTE: same as Displayed/Limits/Terminal.agda:92
     !t'ᴰ cᴰ .snd fᴰ =
       congS (λ x → x .fst) (termᴰ .universalᴰ .equiv-proof tt .snd (fᴰ , refl))
     !ᴰ : {c : C .ob} (cᴰ : D.ob[ c ]) →
@@ -90,7 +91,6 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
       !tᴰ f d' = invIsEq (fibTermᴰ .universalᴰ) tt
 
       !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) → isContr (D [ f ][ d' , 1ᴰ ])
-      !tᴰ-unique f d' = !tᴰ f d' ,
-        (λ fᴰ' →
-          cong (λ p → p .fst)
-          (fibTermᴰ .universalᴰ .equiv-proof tt .snd (fᴰ' , refl)))
+      !tᴰ-unique f d' .fst = !tᴰ f d'
+      !tᴰ-unique f d' .snd fᴰ' =
+        cong (λ p → p .fst) (fibTermᴰ .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))

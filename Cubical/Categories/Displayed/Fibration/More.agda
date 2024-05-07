@@ -78,21 +78,15 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     FibTerm→Termᴰ : hasFibTerminal' → Terminalᴰ Cᴰ term
     FibTerm→Termᴰ fibterm .vertexᴰ = 1ᴰ (term .vertex) (fibterm (term .vertex))
     FibTerm→Termᴰ fibterm .elementᴰ = tt
-    FibTerm→Termᴰ fibterm .universalᴰ  {xᴰ = xᴰ} {f = f} .equiv-proof y =
-      uniqueExists !ᴰ refl
+    FibTerm→Termᴰ fibterm .universalᴰ  {xᴰ = xᴰ} {f = f} .equiv-proof _ =
+      uniqueExists (!tᴰ (term .vertex) 𝟙ᴰ f xᴰ) refl
       (λ _ p q →
         TerminalᴰSpec Cᴰ .Functorᴰ.F-obᴰ xᴰ
         (TerminalPresheaf {C = C} .Functor.F-hom f (term .element)) .snd tt tt p q)
-        λ fᴰ' _ → !ᴰ-unique fᴰ'
+        λ fᴰ' _ → !tᴰ-unique (term .vertex) 𝟙ᴰ f xᴰ .snd fᴰ'
       where
       𝟙ᴰ : FibTerminalᴰ Cᴰ (term .vertex)
       𝟙ᴰ = (fibterm (term .vertex))
-      !ᴰ : Cᴰ.Hom[ f ][ xᴰ , 𝟙ᴰ .vertexᴰ ]
-      !ᴰ = !tᴰ (term .vertex) 𝟙ᴰ f xᴰ
-      !ᴰ-unique : ∀ gᴰ →
-                  !tᴰ-unique (term .vertex) 𝟙ᴰ f xᴰ .fst
-                  ≡ gᴰ
-      !ᴰ-unique = !tᴰ-unique (term .vertex) 𝟙ᴰ f xᴰ .snd
 
     module _ (isfib : isFibration Cᴰ) where
 
@@ -122,14 +116,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         eqq : ∀ fᴰ →
           fᴰ Cᴰ.⋆ᴰ (!cᴰ .π) ≡
           reind (!t' term x .snd (f C.⋆ !t' term c .fst))
-          (abc Cᴰ termᴰ xᴰ .fst)
+          (!t'ᴰ Cᴰ termᴰ xᴰ .fst)
         --eqq fᴰ = fᴰ Cᴰ.⋆ᴰ (!cᴰ .π) ≡⟨ reind-filler {!!t' term x .snd ?!} (fᴰ Cᴰ.⋆ᴰ (!cᴰ .π)) ⟩ {!!} ≡⟨ {!!} ⟩ {!!}
         eqq fᴰ = sym (≡→≡[] (symP {!!}))
-        !ᴰ = termᴰ
         f⋆!cᴰ : CartesianOver Cᴰ (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))
         f⋆!cᴰ = {!c-o (termᴰ .vertexᴰ) (f C.⋆ (!t' term c .fst))!}
         ccc : ∃![ gᴰ ∈ Cᴰ.Hom[ f ][ xᴰ , !cᴰ .f*cᴰ' ] ] gᴰ Cᴰ.⋆ᴰ !cᴰ .π ≡
-          reind (!t' term x .snd (f C.⋆ (!t' term c .fst))) (abc Cᴰ termᴰ xᴰ .fst)
+          reind (!t' term x .snd (f C.⋆ (!t' term c .fst))) (!t'ᴰ Cᴰ termᴰ xᴰ .fst)
         ccc = (!cᴰ .isCartesian xᴰ f (f⋆!cᴰ .π))
 
 module _ {C : Category ℓC ℓC'} (p : Fibration C ℓCᴰ ℓCᴰ') where

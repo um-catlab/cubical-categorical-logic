@@ -49,12 +49,22 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
   module _ {term' : Terminal' C} (termᴰ : Terminalᴰ term') where
     open UniversalElementᴰ
-    abc : {c : C .ob} (cᴰ : D.ob[ c ]) → isContr (D.Hom[ (!t' term' c) .fst ][ cᴰ , termᴰ .vertexᴰ ])
-    abc cᴰ .fst = invIsEq (termᴰ .universalᴰ) (termᴰ .elementᴰ)
-    abc cᴰ .snd fᴰ =
-      -- TODO: I've done this proof so many times just now
-      -- where were all the other times? There's gotta be a lemma for this?
+    open UniversalElement
+    !t'ᴰ : ∀ {c} cᴰ → isContr (D.Hom[ !t' term' c .fst ][ cᴰ , termᴰ .vertexᴰ ])
+    !t'ᴰ cᴰ .fst = invIsEq (termᴰ .universalᴰ) (termᴰ .elementᴰ)
+    -- TODO: I've done this proof so many times just now
+    -- where were all the other times? There's gotta be a lemma for this?
+    !t'ᴰ cᴰ .snd fᴰ =
       congS (λ x → x .fst) (termᴰ .universalᴰ .equiv-proof tt .snd (fᴰ , refl))
+    !ᴰ : {c : C .ob} (cᴰ : D.ob[ c ]) →
+      ∃![ f ∈ (C [ c , term' .vertex ]) ] D.Hom[ f ][ cᴰ , termᴰ .vertexᴰ ]
+    !ᴰ {c = c} cᴰ = uniqueExists
+      (!t' term' c .fst)
+      (!t'ᴰ cᴰ .fst)
+      (λ f fᴰ fᴰ' → isContr→isProp
+        (subst (λ x → isContr (D.Hom[ x ][ cᴰ , termᴰ .vertexᴰ ]))
+        (!t' term' c .snd f) (!t'ᴰ cᴰ)) fᴰ fᴰ')
+      λ f fᴰ → (!t' term' c .snd f)
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object

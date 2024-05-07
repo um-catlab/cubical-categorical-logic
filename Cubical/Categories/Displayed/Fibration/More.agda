@@ -105,7 +105,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
       -- moreover, if Cᴰ is a fibration, it's an iff
       -- TODO: this is easy on paper but...
-      -- need to finish isFibration→AllCartesianOvers first
       Termᴰ→FibTerm : Terminalᴰ Cᴰ term → hasFibTerminal'
       Termᴰ→FibTerm termᴰ c .vertexᴰ = !cᴰ .f*cᴰ' -- the pullback of Tᴰ over !
         where

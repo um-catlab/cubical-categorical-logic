@@ -89,6 +89,13 @@ _⟪_⟫r : (F : Bifunctor C D E)
      → E [(F ⟅ c , d ⟆b) , (F ⟅ c , d' ⟆b)]
 F ⟪ f ⟫r = Bif-homR F _ f
 
+_⟪_,_⟫lr : (F : Bifunctor C D E)
+     → ∀ {c c' d d'}
+     → C [ c , c' ]
+     → D [ d , d' ]
+     → E [(F ⟅ c , d ⟆b) , (F ⟅ c' , d' ⟆b)]
+_⟪_,_⟫lr {E = E} F f g = F ⟪ f ⟫l ⋆⟨ E ⟩ F ⟪ g ⟫r
+
 Fst : Bifunctor C D C
 Fst .Bif-ob = λ z _ → z
 Fst .Bif-homL = λ z d → z

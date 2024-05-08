@@ -33,6 +33,9 @@ private
   variable
     ℓC ℓC' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓS ℓR : Level
 
+open Section
+open Functor
+
 module _  (C : Category ℓC ℓC') where
   private
     module C = Category C
@@ -50,7 +53,6 @@ module _  (C : Category ℓC ℓC') where
   hasPropHomsPathC : hasPropHoms PathC
   hasPropHomsPathC = hasPropHomsPreorderᴰ PathC'
 
-  open Section
   -- The universal functor into PathC
   Refl : Section (Δ C) PathC
   Refl = mkSectionPropHoms hasPropHomsPathC (λ _ → refl) λ _ → refl
@@ -64,5 +66,13 @@ module _ {C : Category ℓC ℓC'}
     ∀ (Fᴰ : Section (F1 ,F F2) (PathC C)) → F1 ≡ F2
   PathReflection Fᴰ = Functor≡ Fᴰ.F-obᴰ Fᴰ.F-homᴰ
     where module Fᴰ = Section Fᴰ
+
+  -- Could also implement this using J and Refl, not sure which is
+  -- preferable
+  PathReflection⁻ :
+    F1 ≡ F2 → Section (F1 ,F F2) (PathC C)
+  PathReflection⁻ P = mkSectionPropHoms (hasPropHomsPathC C)
+    (λ x i → P i .F-ob x)
+    λ f i → P i .F-hom f
 
 -- TODO: there should also be a "J"-style elimination principle.

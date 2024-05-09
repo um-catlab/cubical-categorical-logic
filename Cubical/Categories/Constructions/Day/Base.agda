@@ -35,11 +35,15 @@ module Cubical.Categories.Constructions.Day.Base where
             isSet× (isSet× isSetHomC (snd ( F ⟅ c₁⁻ ⟆ ))) (snd ( G ⟅ c₂⁻ ⟆ ))
         diagram c .Bif-homL (f₁ , f₂) _ = map-× (map-× (λ x → x) (F ⟪ f₁ ⟫)) (G ⟪ f₂ ⟫)
         diagram c .Bif-homR _ (f₁ , f₂) = map-× (map-× (λ m → m ⋆⟨ C ⟩ (f₁ ⊗ₕ f₂)) λ x → x ) λ x → x
-        diagram c .Bif-idL = funExt λ {((_ , Fc), Gc) → ≡-× (≡-× refl (funExt⁻ (F .F-id) Fc)) ((funExt⁻ (G .F-id) Gc))}
-        diagram c .Bif-idR = funExt λ {((f , _), _) → ≡-× (≡-×  {!  !} refl )refl }
-        diagram c .Bif-seqL f f' = {!   !}
-        diagram c .Bif-seqR = {!   !}
-        diagram c .Bif-assoc = {!   !}
+        diagram c .Bif-idL = 
+            funExt λ {((_ , Fc), Gc) → ≡-× (≡-× refl (funExt⁻ (F .F-id) Fc)) ((funExt⁻ (G .F-id) Gc))}
+        diagram c .Bif-idR = 
+            funExt λ {((f , _), _) → ≡-× (≡-×  {!  !} refl )refl }
+        diagram c .Bif-seqL {d = (d₁ , d₂)} (f₁ , f₂) (g₁ , g₂) = 
+            funExt λ{((c→d₁d₂ , Fc₁fst) , Gc₁snd) → ≡-× (≡-× refl (funExt⁻ (F-seq F f₁ g₁) Fc₁fst)) ((funExt⁻ (F-seq G f₂ g₂) Gc₁snd))}
+        diagram c .Bif-seqR {d = (d₁ , d₂)} (f₁ , f₂) (g₁ , g₂) = 
+            funExt λ{((c→d₁d₂ , Fc₁fst) , Gc₁snd) → ≡-× (≡-× {!   !} refl) refl}
+        diagram c .Bif-assoc (f₁ , f₂) (g₁ , g₂) = refl
 
         open import Cubical.Categories.Constructions.Coend.Base
 
@@ -51,19 +55,48 @@ module Cubical.Categories.Constructions.Day.Base where
         open Cowedge
         open Functor
 
-        day : {i a b : obᶜ} → ((C)[ i , (a ⊗ b) ]) → ( fst ( F ⟅ a ⟆ ))→  ( fst ( G ⟅ b ⟆ )) → fst( Day i .cowedge .nadir) 
-        day h x y = inc ((_ , _) , (h , x) , y)
+        day : {z x y : obᶜ} → ((C)[ z , (x ⊗ y) ]) → ( fst ( F ⟅ x ⟆ ))→  ( fst ( G ⟅ y ⟆ )) → fst( Day z .cowedge .nadir) 
+        day {x = x}{y} f Fx Gy = inc ((x , y) , (f , Fx) , Gy)
+
+        day-ap : {i a b : obᶜ} {h h' : (C)[ i , (a ⊗ b) ]} {x x' : fst ( F ⟅ a ⟆) } {y y' :  fst (G ⟅ b ⟆) }
+            → h ≡ h' → x ≡ x' → y ≡ y' → day h x y ≡ day h' x' y'
+        day-ap {a = a} {b} p q r i =  inc ((a , b) , (p i , q i) , r i) 
+
+        day-apₘ : ∀ {i a b} {h h' : (C)[ i , (a ⊗ b)]} {x y} → h ≡ h' → day h x y ≡ day h' x y
+        day-apₘ p = day-ap p refl refl
 
         Day-cowedge : ∀ {x} {y} → (C)[ y ,  x ] → Cowedge (diagram x)
         Day-cowedge {_} {y} _ .nadir = Day y .cowedge .nadir
         Day-cowedge f .ψ (a , b) ((g , Fa) , Gb) = day (f ⋆ᶜ g) Fa Gb
-        Day-cowedge f .extranatural = {!   !}
+        Day-cowedge f .extranatural (f₁ , f₂) = {!   !}
 
         factor' : ∀ {i} (W : Cowedge (diagram i)) → fst(Day i . cowedge .nadir) → fst (W .nadir)
         factor' W = Day _ .factor W 
     
         _⊗ᴰ_ : Presheaf (MC .StrictMonCategory.C) (ℓ-max ℓC ℓC')
         _⊗ᴰ_ .F-ob x = Day x .cowedge .nadir
-        _⊗ᴰ_ .F-hom {y}{x} f nad = factor' (Day-cowedge f) nad
-        _⊗ᴰ_ .F-id = {!   !}
-        _⊗ᴰ_ .F-seq = {!   !}
+        _⊗ᴰ_ .F-hom {y}{x} f = factor' (Day-cowedge f)
+        _⊗ᴰ_ .F-id = funExt λ{x → {!  !} }
+        _⊗ᴰ_ .F-seq f g = funExt λ nad → {!   !} 
+
+        PshC = PresheafCategory C (ℓ-max ℓC ℓC')
+
+        Day-Functor : Functor (PshC ×C PshC) PshC 
+        Day-Functor .F-ob (F , G)= {! _⊗ᴰ_  !}
+        Day-Functor .F-hom = {!   !}
+        Day-Functor .F-id = {!   !}
+        Day-Functor .F-seq = {!   !}
+
+        open MonoidalStr
+        PshMon : MonoidalStr PshC 
+        PshMon .tenstr = record { ─⊗─ = Day-Functor ; unit = {!   !} }
+        PshMon .α = {!   !}
+        PshMon .η = {!   !}
+        PshMon .ρ = {!   !}
+        PshMon .pentagon = {!   !}
+        PshMon .triangle = {!   !}
+
+        open MonoidalCategory
+        Day-Monoidal : MonoidalCategory {!   !} {!   !}
+        Day-Monoidal .C = PshC
+        Day-Monoidal .monstr = PshMon

@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 -- following 1 Lab
 -- https://1lab.dev/Cat.Diagram.Coend.Sets.html
 

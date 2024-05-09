@@ -79,11 +79,18 @@ module Cubical.Categories.Constructions.Day.Base where
         _⊗ᴰ_ .F-id = funExt λ{x → {!  !} }
         _⊗ᴰ_ .F-seq f g = funExt λ nad → {!   !} 
 
+    module _ (MC : StrictMonCategory ℓC ℓC') where 
+        open StrictMonCategory MC 
+        open Category C renaming (ob to obᶜ ; _⋆_ to _⋆ᶜ_ ; id to idᶜ ; ⋆IdL to ⋆IdLᶜ ; ⋆IdR to ⋆IdRᶜ ;  isSetHom to isSetHomC )
+    
+        open import Cubical.Categories.Constructions.BinProduct
+        open Functor
+
         PshC = PresheafCategory C (ℓ-max ℓC ℓC')
 
         Day-Functor : Functor (PshC ×C PshC) PshC 
-        Day-Functor .F-ob (F , G)= {! _⊗ᴰ_  !}
-        Day-Functor .F-hom = {!   !}
+        Day-Functor .F-ob (F , G)= _⊗ᴰ_ {MC = MC} F G
+        Day-Functor .F-hom {(x₁ , x₂)}{(y₁ , y₂)}(f₁ , f₂) = {!   !}
         Day-Functor .F-id = {!   !}
         Day-Functor .F-seq = {!   !}
 
@@ -96,7 +103,5 @@ module Cubical.Categories.Constructions.Day.Base where
         PshMon .pentagon = {!   !}
         PshMon .triangle = {!   !}
 
-        open MonoidalCategory
-        Day-Monoidal : MonoidalCategory {!   !} {!   !}
-        Day-Monoidal .C = PshC
-        Day-Monoidal .monstr = PshMon
+        Day-Monoidal : MonoidalCategory (ℓ-suc (ℓ-max ℓC ℓC')) (ℓ-max ℓC ℓC')
+        Day-Monoidal = record { C = PshC ; monstr = PshMon }

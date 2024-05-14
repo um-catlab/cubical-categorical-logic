@@ -163,6 +163,7 @@ module _ (Ob : Type ℓg) where
             open Interpᴰ'
             open import Cubical.Foundations.HLevels
             open UniversalElementᴰ
+            open import Cubical.Categories.Displayed.Reasoning
 
             -- copied from Quiver.agda
             elim-F-homᴰ' : ∀ {d d'} → (f : FPC.Hom[ d , d' ]) →
@@ -184,9 +185,7 @@ module _ (Ob : Type ℓg) where
                 transport
                 (cong (λ x → Cᴰ.Hom[ !ₑ ][ ıᴰ .interp-vᴰ' .fst d , x ]) (sym (transportRefl (term'ᴰ .vertexᴰ)) ∙ sym (ıᴰ .interp-vᴰ' .snd) ))
                 (!t'ᴰ Cᴰ term'ᴰ (ıᴰ .interp-vᴰ' .fst d) .fst)
-            elim-F-homᴰ' {d = d} (isProp!ₑ f g i) = {!!t'ᴰ Cᴰ term'ᴰ (ıᴰ .interp-vᴰ' .fst d) .snd ? i!} --cong (λ x → elim-F-homᴰ' x) (isProp!ₑ f g) i
-
-            open import Cubical.Categories.Displayed.Reasoning
+            elim-F-homᴰ' {d = d} (isProp!ₑ f g i) = ≡[]-rectify Cᴰ {!!t'ᴰ Cᴰ term'ᴰ (ıᴰ .interp-vᴰ' .fst d) .snd ?!} i --cong (λ x → elim-F-homᴰ' x) (isProp!ₑ f g) i
 
             elim' : GlobalSection Cᴰ
             elim' .F-obᴰ v = ıᴰ .interp-vᴰ' .fst v

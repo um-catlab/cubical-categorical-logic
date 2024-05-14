@@ -182,9 +182,9 @@ module _ (Ob : Type ℓg) where
                 i j
             elim-F-homᴰ' {d = d} !ₑ =
                 transport
-                (cong (λ x → Cᴰ.Hom[ !ₑ ][ ıᴰ .interp-vᴰ' .fst d , x ]) (sym (transportRefl {!ıᴰ .interp-vᴰ' .fst (inr tt)!}) ∙ sym (ıᴰ .interp-vᴰ' .snd) ))
+                (cong (λ x → Cᴰ.Hom[ !ₑ ][ ıᴰ .interp-vᴰ' .fst d , x ]) (sym (transportRefl (term'ᴰ .vertexᴰ)) ∙ sym (ıᴰ .interp-vᴰ' .snd) ))
                 (!t'ᴰ Cᴰ term'ᴰ (ıᴰ .interp-vᴰ' .fst d) .fst)
-            elim-F-homᴰ' (isProp!ₑ f g i) = {!!}
+            elim-F-homᴰ' {d = d} (isProp!ₑ f g i) = {!!t'ᴰ Cᴰ term'ᴰ (ıᴰ .interp-vᴰ' .fst d) .snd ? i!} --cong (λ x → elim-F-homᴰ' x) (isProp!ₑ f g) i
 
             open import Cubical.Categories.Displayed.Reasoning
 

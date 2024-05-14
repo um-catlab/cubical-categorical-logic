@@ -1,3 +1,4 @@
+
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Limits.BinProduct where
 
@@ -35,3 +36,31 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
   FibBinProductsᴰ : Type _
   FibBinProductsᴰ = LocalRightAdjointᴰ (Δᴰ D)
+
+--module _ {C : Category ℓC ℓC'} (prod : BinProducts' C) (Cᴰ : Categoryᴰ C ℓD ℓD') where
+--  open import Cubical.Categories.Limits.BinProduct.More
+--  open import Cubical.Categories.Displayed.BinProduct
+--  module PAIR = Categoryᴰ (Cᴰ ×Cᴰ Cᴰ)
+--  module Cᴰ = Categoryᴰ Cᴰ
+--  open import Cubical.Categories.Displayed.Presheaf
+--  open UniversalElementᴰ
+--  open import Cubical.Categories.Presheaf
+--  open UniversalElement
+--  foobar : BinProducts' C → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+--  foobar = BinProductsᴰ Cᴰ
+--  baz : foobar prod
+--  baz = goal
+--    where
+--    goal : ∀ {d = d} (dᴰ : PAIR.ob[ d ]) → RightAdjointAtᴰ (ΔCᴰ Cᴰ) (prod d) dᴰ
+--    goal {d = d} dᴰ .vertexᴰ = abc
+--      where
+--      abc : Cᴰ.ob[ (prod d) .vertex ]
+--      abc = {!!}
+--    goal {d = d} dᴰ .elementᴰ = def
+--      where
+--      def : {!!}
+--      def = {!!}
+--    goal {d = d} dᴰ .universalᴰ = ghi
+--      where
+--      ghi : {!!}
+--      ghi = {!!}

@@ -22,7 +22,3 @@ module _ (C : Category ℓC ℓC')(D : Category ℓD ℓD') where
     --PreservesTerminal F = Terminal (F ⟅ C .terminal ⟆)
     CartesianFunctor : Type _
     CartesianFunctor = Σ[ F ∈ Functor C D ] PreservesProducts F
-
---CartesianFunctor : CartesianCategory ℓC ℓC' → CartesianCategory ℓD ℓD' → Type _
---CartesianFunctor CC DD =
---  Σ[ F ∈ Functor (CC .fst) (DD .fst) ] PreservesProducts (CC .fst) (DD .fst) F

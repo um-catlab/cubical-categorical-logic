@@ -23,14 +23,18 @@ private
   variable
     ℓj ℓj' ℓc ℓc' : Level
 
+ΔF : {C : Category ℓc ℓc'}{J : Category ℓj ℓj'}
+   → Functor C (FUNCTOR J C)
+ΔF = λFR Bif.Fst
+
 limit : {C : Category ℓc ℓc'}{J : Category ℓj ℓj'}
         (D : Functor J C)
       → Type _
-limit {C = C}{J = J} = RightAdjointAt (λFR Bif.Fst)
+limit {C = C}{J = J} = RightAdjointAt ΔF
 
 limitsOfShape : (C : Category ℓc ℓc') (J : Category ℓj ℓj')
               → Type _
-limitsOfShape C J = RightAdjoint {C = C} {D = (FUNCTOR J C)} (λFR Bif.Fst)
+limitsOfShape C J = RightAdjoint {C = C} {D = (FUNCTOR J C)} ΔF
 
 -- TODO: All functors preserve cones
 --       Functors with left adjoints preserve limiting cones

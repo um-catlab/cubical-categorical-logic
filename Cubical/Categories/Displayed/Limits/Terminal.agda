@@ -13,6 +13,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Limits.Terminal
@@ -47,25 +48,23 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   Terminalᴰ : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
   Terminalᴰ term = UniversalElementᴰ _ TerminalᴰSpec term
 
-  module _ {term' : Terminal' C} (termᴰ : Terminalᴰ term') where
-    open UniversalElementᴰ
+  module TerminalᴰNotation {term' : Terminal' C} (termᴰ : Terminalᴰ term') where
     open UniversalElement
-    !t'ᴰ : ∀ {c} cᴰ → isContr (D.Hom[ !t' term' c .fst ][ cᴰ , termᴰ .vertexᴰ ])
-    !t'ᴰ cᴰ .fst = invIsEq (termᴰ .universalᴰ) (termᴰ .elementᴰ)
-    -- TODO: I've done this proof so many times just now
-    -- where were all the other times? There's gotta be a lemma for this?
-    -- NOTE: same as Displayed/Limits/Terminal.agda:92
-    !t'ᴰ cᴰ .snd fᴰ =
-      congS (λ x → x .fst) (termᴰ .universalᴰ .equiv-proof tt .snd (fᴰ , refl))
-    !ᴰ : {c : C .ob} (cᴰ : D.ob[ c ]) →
-      ∃![ f ∈ (C [ c , term' .vertex ]) ] D.Hom[ f ][ cᴰ , termᴰ .vertexᴰ ]
-    !ᴰ {c = c} cᴰ = uniqueExists
-      (!t' term' c .fst)
-      (!t'ᴰ cᴰ .fst)
-      (λ f fᴰ fᴰ' → isContr→isProp
-        (subst (λ x → isContr (D.Hom[ x ][ cᴰ , termᴰ .vertexᴰ ]))
-        (!t' term' c .snd f) (!t'ᴰ cᴰ)) fᴰ fᴰ')
-      λ f fᴰ → (!t' term' c .snd f)
+    open UniversalElementᴰ
+    open Terminal'Notation term'
+    private module R = HomᴰReasoning D
+
+    𝟙ᴰ : D.ob[ 𝟙 ]
+    𝟙ᴰ = termᴰ .vertexᴰ
+
+    !tᴰ : ∀ {c} (d : D.ob[ c ]) → D.Hom[ !t ][ d , 𝟙ᴰ ]
+    !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+
+    𝟙ηᴰ : ∀ {c} {d : D.ob[ c ]} {f} (fᴰ : D.Hom[ f ][ d , 𝟙ᴰ ])
+        → fᴰ D.≡[ 𝟙η f ] !tᴰ d
+    𝟙ηᴰ {c} {d} {f} fᴰ = R.≡[]-rectify (toPathP (sym fᴰ-commutes))
+      where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
+            fᴰ-commutes = cong fst (contr!tᴰ .snd (reind D (𝟙η _) fᴰ , refl))
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object
@@ -74,7 +73,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     -- Fiber c have a terminal object?
     -- No.
     FibTerminalᴰSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
-    FibTerminalᴰSpec = TerminalPresheafᴰ (C [-, c ])
+    FibTerminalᴰSpec = TerminalPresheafᴰ _
 
     -- This says that for every morphism f : c' → c in C and
     -- d' ∈ D.ob[ c' ] there is a unique lift to fᴰ : D [ f ][ d' , 1c ]
@@ -89,8 +88,3 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) → D [ f ][ d' , 1ᴰ ]
       !tᴰ f d' = invIsEq (fibTermᴰ .universalᴰ) tt
-
-      !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) → isContr (D [ f ][ d' , 1ᴰ ])
-      !tᴰ-unique f d' .fst = !tᴰ f d'
-      !tᴰ-unique f d' .snd fᴰ' =
-        cong (λ p → p .fst) (fibTermᴰ .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))

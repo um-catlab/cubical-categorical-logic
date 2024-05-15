@@ -44,13 +44,8 @@ TerminalPresheaf = Constant _ _ (Unit , isSetUnit)
 Terminal' :  ∀ (C : Category ℓc ℓc') → Type (ℓ-max ℓc ℓc')
 Terminal' C = UniversalElement C (TerminalPresheaf {C = C})
 
-module _ {C : Category ℓc ℓc'} (term' : Terminal' C) where
-  !t' : ∀ a → isContr (C [ a , term' .vertex ])
-  !t' a .fst = invIsEq (term' .universal a) tt
-  !t' a .snd f = congS (λ x → x .fst) ((term' .universal a) .equiv-proof tt .snd (f , refl))
-
 terminalToUniversalElement : ∀ {C : Category ℓc ℓc'} (One : Terminal C)
-  → UniversalElement C (TerminalPresheaf {C = C})
+  → Terminal' C
 terminalToUniversalElement One .vertex = One .fst
 terminalToUniversalElement One .element = tt
 terminalToUniversalElement {C = C} One .universal x = isoToIsEquiv (iso
@@ -58,6 +53,13 @@ terminalToUniversalElement {C = C} One .universal x = isoToIsEquiv (iso
   (λ _ → terminalArrow C One _)
   (λ b i → tt)
   λ a → terminalArrowUnique C {T = One} a)
+
+Terminal'ToTerminal : ∀ {C : Category ℓc ℓc'} → Terminal' C → Terminal C
+Terminal'ToTerminal term' .fst = term' .vertex
+Terminal'ToTerminal term' .snd c =
+  contr!t .fst .fst
+  , (λ !t' → cong fst (contr!t .snd (!t' , refl)) )
+  where contr!t = term' .universal c .equiv-proof tt
 
 module TerminalNotation (C : Category ℓ ℓ') (term : Terminal C) where
   𝟙 = term .fst
@@ -70,3 +72,6 @@ module TerminalNotation (C : Category ℓ ℓ') (term : Terminal C) where
 
   𝟙η' : ∀ {a} → {f g : C [ a , 𝟙 ]} → f ≡ g
   𝟙η' = 𝟙η _ ∙ sym (𝟙η _)
+
+module Terminal'Notation {ℓ}{ℓ'} {C : Category ℓ ℓ'} (term' : Terminal' C)
+  = TerminalNotation C (Terminal'ToTerminal term')

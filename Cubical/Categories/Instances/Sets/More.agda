@@ -47,7 +47,3 @@ module _ {A}{B} (f : CatIso (SET ℓ) A B) a where
     ∙ transportRefl _
     ∙ transportRefl _
     ∙ cong (f .fst) (transportRefl _ ∙ transportRefl _ ))
-
-isFullyFaithfulLiftF : ∀ {ℓ ℓ'} → isFullyFaithful (LiftF {ℓ}{ℓ'})
-isFullyFaithfulLiftF x y =
-  isoToIsEquiv (iso _ (λ f x → f (lift x) .lower) (λ b → refl) λ _ → refl)

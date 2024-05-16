@@ -94,7 +94,8 @@ module _ (Ob : Type ℓg) where
                     Cᴰ.Hom[ ↑ e ][ ϕ* (Q .dom e) , ϕ* (Q .cod e) ]) where
 
                     -- extend it to all morphisms
-                    -- (copied from Cubical.Categories.Constructions.Free.Category.Quiver)
+                    -- (copied from
+                    -- Cubical.Categories.Constructions.Free.Category.Quiver)
                     elim-F-homᴰ : ∀ {d d'} → (f : FC.Hom[ d , d' ]) →
                         Cᴰ.Hom[ f ][ ϕ* d , ϕ* d' ]
                     elim-F-homᴰ (↑ g) = ψ g
@@ -102,9 +103,10 @@ module _ (Ob : Type ℓg) where
                     elim-F-homᴰ (f ⋆ₑ g) = elim-F-homᴰ f Cᴰ.⋆ᴰ elim-F-homᴰ g
                     elim-F-homᴰ (⋆ₑIdL f i) = Cᴰ.⋆IdLᴰ (elim-F-homᴰ f) i
                     elim-F-homᴰ (⋆ₑIdR f i) = Cᴰ.⋆IdRᴰ (elim-F-homᴰ f) i
-                    elim-F-homᴰ (⋆ₑAssoc f g h i) =
-                        Cᴰ.⋆Assocᴰ (elim-F-homᴰ f) (elim-F-homᴰ g) (elim-F-homᴰ h) i
-                    elim-F-homᴰ (isSetExp f g p q i j) = isOfHLevel→isOfHLevelDep 2
+                    elim-F-homᴰ (⋆ₑAssoc f g h i) = Cᴰ.⋆Assocᴰ
+                        (elim-F-homᴰ f) (elim-F-homᴰ g) (elim-F-homᴰ h) i
+                    elim-F-homᴰ (isSetExp f g p q i j) =
+                        isOfHLevel→isOfHLevelDep 2
                         ((λ x → Cᴰ.isSetHomᴰ))
                         ((elim-F-homᴰ f)) ((elim-F-homᴰ g))
                         ((cong elim-F-homᴰ p)) ((cong elim-F-homᴰ q))

@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install cabal
-        uses: haskell/actions/setup@v2
+        uses: haskell-actions/setup@v2
         with:
           ghc-version: ${{ env.GHC_VERSION }}
           cabal-version: ${{ env.CABAL_VERSION }}

@@ -90,7 +90,8 @@ module _ (Ob : Type ℓg) where
                 ϕ* = Sum.elim (λ a → ϕ a) (λ b → term'ᴰ .vertexᴰ)
 
                 -- and given an interpretation of atomic morphisms
-                module _ (ψ : (e : Q .mor) → Cᴰ.Hom[ ↑ e ][ ϕ* (Q .dom e) , ϕ* (Q .cod e) ]) where
+                module _ (ψ : (e : Q .mor) →
+                    Cᴰ.Hom[ ↑ e ][ ϕ* (Q .dom e) , ϕ* (Q .cod e) ]) where
 
                     -- extend it to all morphisms
                     -- (copied from Cubical.Categories.Constructions.Free.Category.Quiver)

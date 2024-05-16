@@ -1,8 +1,6 @@
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Isomorphism.More where
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Isomorphism

@@ -19,13 +19,11 @@ open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Adjoint.More
 
-
 private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
 open Category
-
 
 module _ {C : Category ℓC ℓC'} where
   open CartesianOver
@@ -65,9 +63,9 @@ module _ {C : Category ℓC ℓC'} where
     -- Hermida 3.3.6
     -- In Jacobs too
 
-    --
-    hasFibTerminal : Type _
-    hasFibTerminal = VerticalRightAdjointᴰ (!ₚ .over)
+    -- possible alternative definition
+    VerticalTerminalsᴰ' : Type _
+    VerticalTerminalsᴰ' = VerticalRightAdjointᴰ (!ₚ .over)
 
 -- This makes sense for any displayed category, but is traditionally used for fibrations
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

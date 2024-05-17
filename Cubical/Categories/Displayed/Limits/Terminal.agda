@@ -45,7 +45,8 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   LiftedTerminalᴰSpec : Presheafᴰ D (TerminalPresheaf {C = C}) ℓ-zero
   LiftedTerminalᴰSpec = TerminalPresheafᴰ _
 
-  LiftedTerminalᴰ : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+  LiftedTerminalᴰ : (term : Terminal' C) →
+    Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
   LiftedTerminalᴰ term = UniversalElementᴰ _ LiftedTerminalᴰSpec term
 
   module LiftedTerminalᴰNotation {term' : Terminal' C} (termᴰ : LiftedTerminalᴰ term') where

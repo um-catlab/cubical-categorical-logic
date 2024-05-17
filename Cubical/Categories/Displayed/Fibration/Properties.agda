@@ -67,7 +67,8 @@ module _ {C : Category ℓC ℓC'} where
     VerticalTerminalsᴰ' : Type _
     VerticalTerminalsᴰ' = VerticalRightAdjointᴰ (!ₚ .over)
 
--- This makes sense for any displayed category, but is traditionally used for fibrations
+-- This makes sense for any displayed category,
+-- but is traditionally used for fibrations
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   VerticalTerminalsᴰ : Type _

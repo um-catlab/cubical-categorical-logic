@@ -32,10 +32,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     Δ = Δ/C C Cᴰ
   -- The "high tech" formulation
   CartesianLift : ∀ {c : C .ob} → C/Cᴰ.ob[ c ] → Type _
-  CartesianLift = LocalRightAdjointAtᴰ Δ
+  CartesianLift = VerticalRightAdjointAtᴰ Δ
 
   isFibration : Type _
-  isFibration = LocalRightAdjointᴰ Δ
+  isFibration = VerticalRightAdjointᴰ Δ
 
   private
     module R = HomᴰReasoning Cᴰ

@@ -151,6 +151,8 @@ jobs:
         run : |
           cd ~
           git clone https://github.com/agda/cubical --branch master
+          cd cubical
+          git checkout 59c59c00107993c0a7e88307cbc097b4bb7980c6
           echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
 
       - name: Set up Agda dependencies

@@ -42,13 +42,13 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
   -- Terminal object over a terminal object
   -- TODO: refactor using Constant Functorᴰ eventually
-  TerminalᴰSpec : Presheafᴰ D (TerminalPresheaf {C = C}) ℓ-zero
-  TerminalᴰSpec = TerminalPresheafᴰ _
+  LiftedTerminalSpec : Presheafᴰ D (TerminalPresheaf {C = C}) ℓ-zero
+  LiftedTerminalSpec = TerminalPresheafᴰ _
 
-  Terminalᴰ : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-  Terminalᴰ term = UniversalElementᴰ _ TerminalᴰSpec term
+  LiftedTerminal : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+  LiftedTerminal term = UniversalElementᴰ _ LiftedTerminalSpec term
 
-  module TerminalᴰNotation {term' : Terminal' C} (termᴰ : Terminalᴰ term') where
+  module LiftedTerminalNotation {term' : Terminal' C} (termᴰ : LiftedTerminal term') where
     open UniversalElement
     open UniversalElementᴰ
     open Terminal'Notation term'
@@ -72,19 +72,19 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     -- TODO: Is this equivalent to the more "obvious" definition that
     -- Fiber c have a terminal object?
     -- No.
-    FibTerminalᴰSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
-    FibTerminalᴰSpec = TerminalPresheafᴰ _
+    VerticalTerminalSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
+    VerticalTerminalSpec = TerminalPresheafᴰ _
 
     -- This says that for every morphism f : c' → c in C and
     -- d ∈ D.ob[ c' ] there is a unique lift to fᴰ : D [ f ][ d' , 1c ]
     -- In program logic terms this is the "trivial postcondition"
-    FibTerminalᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-    FibTerminalᴰ = UniversalElementᴰ D FibTerminalᴰSpec (selfUnivElt C c)
+    VerticalTerminal : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+    VerticalTerminal = UniversalElementᴰ D VerticalTerminalSpec (selfUnivElt C c)
 
-    module FibTerminalᴰNotation (fibTermᴰ : FibTerminalᴰ) where
+    module VerticalTerminalNotation (vt : VerticalTerminal) where
       open UniversalElementᴰ
       1ᴰ : D.ob[ c ]
-      1ᴰ = fibTermᴰ .vertexᴰ
+      1ᴰ = vt .vertexᴰ
 
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) → D [ f ][ d' , 1ᴰ ]
-      !tᴰ f d' = invIsEq (fibTermᴰ .universalᴰ) tt
+      !tᴰ f d' = invIsEq (vt .universalᴰ) tt

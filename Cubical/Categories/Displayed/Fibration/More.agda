@@ -84,7 +84,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       (λ _ p q →
         TerminalᴰSpec Cᴰ .Functorᴰ.F-obᴰ xᴰ
         (TerminalPresheaf {C = C} .Functor.F-hom f (term .element)) .snd tt tt p q)
-        λ fᴰ' _ → !tᴰ-unique (term .vertex) 𝟙ᴰ f xᴰ .snd fᴰ'
+        λ fᴰ' _ → {!!} --!tᴰ-unique (term .vertex) 𝟙ᴰ f xᴰ .snd fᴰ'
       where
       𝟙ᴰ : FibTerminalᴰ Cᴰ (term .vertex)
       𝟙ᴰ = (fibterm (term .vertex))

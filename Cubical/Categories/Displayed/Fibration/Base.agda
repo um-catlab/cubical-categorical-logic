@@ -19,12 +19,6 @@ Fibration : (C : Category ℓC ℓC') (ℓᴰ ℓᴰ' : Level) →
   Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓᴰ ℓᴰ')))
 Fibration C ℓᴰ ℓᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓᴰ ℓᴰ' ] isFibration Cᴰ
 
-module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  open CartesianOver
-  isFibration→AllCartesianOvers : isFibration Cᴰ → AllCartesianOvers Cᴰ
-  isFibration→AllCartesianOvers isfib cᴰ' f =
-    CartesianLift→CartesianOver Cᴰ (isfib (_ , cᴰ' , f))
-
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (p : Fibration C ℓCᴰ ℓCᴰ')(q : Fibration D ℓDᴰ ℓDᴰ') where
   module _ {F : Functor C D} (Fᴰ : Functorᴰ F (p .fst) (q .fst)) where

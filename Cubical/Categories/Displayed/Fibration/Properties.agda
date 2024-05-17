@@ -90,7 +90,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       uniqueExists (!tᴰ (term .vertex) 1ᴰ/1 f xᴰ) refl
       (λ _ p q →
         LiftedTerminalᴰSpec Cᴰ .Functorᴰ.F-obᴰ xᴰ
-        (TerminalPresheaf {C = C} .Functor.F-hom f (term .element)) .snd tt tt p q)
+        (TerminalPresheaf {C = C} .Functor.F-hom f (term .element))
+          .snd tt tt p q)
         λ fᴰ' _ → !tᴰ-unique (term .vertex) 1ᴰ/1 f xᴰ .snd fᴰ'
 
     -- convenience

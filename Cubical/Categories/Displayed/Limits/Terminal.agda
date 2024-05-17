@@ -49,7 +49,9 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
   LiftedTerminalᴰ term = UniversalElementᴰ _ LiftedTerminalᴰSpec term
 
-  module LiftedTerminalᴰNotation {term' : Terminal' C} (termᴰ : LiftedTerminalᴰ term') where
+  module LiftedTerminalᴰNotation {term' : Terminal' C}
+    (termᴰ : LiftedTerminalᴰ term') where
+
     open UniversalElement
     open UniversalElementᴰ
     open Terminal'Notation term'

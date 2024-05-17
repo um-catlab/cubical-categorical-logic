@@ -13,7 +13,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Fibration
+open import Cubical.Categories.Displayed.Fibration.Base
 
 private
   variable

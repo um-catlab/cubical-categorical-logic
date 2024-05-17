@@ -48,7 +48,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   LiftedTerminalᴰ : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
   LiftedTerminalᴰ term = UniversalElementᴰ _ LiftedTerminalᴰSpec term
 
-  module LiftedTerminalNotation {term' : Terminal' C} (termᴰ : LiftedTerminalᴰ term') where
+  module LiftedTerminalᴰNotation {term' : Terminal' C} (termᴰ : LiftedTerminalᴰ term') where
     open UniversalElement
     open UniversalElementᴰ
     open Terminal'Notation term'
@@ -81,7 +81,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     VerticalTerminalAtᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
     VerticalTerminalAtᴰ = UniversalElementᴰ D VerticalTerminalᴰSpec (selfUnivElt C c)
 
-    module VerticalTerminalNotation (vt : VerticalTerminalAtᴰ) where
+    module VerticalTerminalAtᴰNotation (vt : VerticalTerminalAtᴰ) where
       open UniversalElementᴰ
       1ᴰ : D.ob[ c ]
       1ᴰ = vt .vertexᴰ

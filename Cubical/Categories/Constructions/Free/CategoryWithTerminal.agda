@@ -71,13 +71,13 @@ module _ (Ob : Type ℓg) where
     FreeCatw/Terminal' = (FC , FCTerminal')
 
     module _ (Cᴰ : Categoryᴰ (FreeCatw/Terminal' .fst) ℓCᴰ ℓCᴰ')
-      (term'ᴰ : Terminalᴰ Cᴰ (FreeCatw/Terminal' .snd)) where
+      (term'ᴰ : LiftedTerminalᴰ Cᴰ (FreeCatw/Terminal' .snd)) where
 
       open import Cubical.Foundations.HLevels
       open import Cubical.Categories.Displayed.Reasoning
       open Section
       open UniversalElementᴰ
-      open TerminalᴰNotation Cᴰ term'ᴰ
+      open LiftedTerminalᴰNotation Cᴰ term'ᴰ
 
       private
         module FC = Category (FreeCatw/Terminal' .fst)

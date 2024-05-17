@@ -28,8 +28,8 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   BinProductsᴰ : BinProducts' C → Type _
   BinProductsᴰ = RightAdjointᴰ (ΔCᴰ D)
 
-  FibBinProductsAtᴰ : ∀ {c} → (D.ob[ c ] × D.ob[ c ]) → Type _
-  FibBinProductsAtᴰ = LocalRightAdjointAtᴰ (Δᴰ D)
+  VerticalBinProductsAtᴰ : ∀ {c} → (D.ob[ c ] × D.ob[ c ]) → Type _
+  VerticalBinProductsAtᴰ = VerticalRightAdjointAtᴰ (Δᴰ D)
 
-  FibBinProductsᴰ : Type _
-  FibBinProductsᴰ = LocalRightAdjointᴰ (Δᴰ D)
+  VerticalBinProductsᴰ : Type _
+  VerticalBinProductsᴰ = VerticalRightAdjointᴰ (Δᴰ D)

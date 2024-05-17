@@ -75,7 +75,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   module _ (term : Terminal' C) where
 
-    open VerticalTerminalNotation Cᴰ
+    open VerticalTerminalAtᴰNotation Cᴰ
     open UniversalElementᴰ
     open UniversalElement
     private module Cᴰ = Categoryᴰ Cᴰ

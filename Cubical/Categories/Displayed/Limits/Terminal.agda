@@ -88,3 +88,9 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) → D [ f ][ d' , 1ᴰ ]
       !tᴰ f d' = invIsEq (vt .universalᴰ) tt
+
+      !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) →
+        isContr (D [ f ][ d' , 1ᴰ ])
+      !tᴰ-unique f d' .fst = !tᴰ f d'
+      !tᴰ-unique f d' .snd fᴰ' =
+        cong (λ p → p .fst) (vt .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))

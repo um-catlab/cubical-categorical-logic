@@ -9,7 +9,6 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Fibration
-open import Cubical.Categories.Displayed.Fibration.Base
 
 open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Data.Unit
@@ -31,63 +30,6 @@ open FiberedFunctor
 
 module _ {C : Category ℓC ℓC'} where
   open CartesianOver
-
-  1/C = Unitᴰ C
-
-  isFib1/C : isFibration 1/C
-  isFib1/C _ = CartesianOver→CartesianLift 1/C ue
-    where
-    ue : CartesianOver 1/C tt _
-    ue .f*cᴰ' = tt
-    ue .π = tt
-    ue .isCartesian _ _ _ =
-      uniqueExists _ (isPropUnit _ _) (λ _ _ _ → isSetUnit _ _ _ _)
-      λ _ _ → isPropUnit _ _
-
-  -- terminal fibration over C, ie the identity fibration
-  TerminalFib : Fibration C _ _
-  TerminalFib = (1/C , isFib1/C)
-
-  module _ (p : Fibration C ℓCᴰ ℓCᴰ') where
-    open Functorᴰ
-
-    !/C : FiberedFunctor p TerminalFib
-    !/C .base = Id
-    !/C .over .F-obᴰ _ = tt
-    !/C .over .F-homᴰ _ = tt
-    !/C .over .F-idᴰ = refl
-    !/C .over .F-seqᴰ _ _ = refl
-    !/C .preserves-cartesian _ _ _ _ _ _ _ _ =
-        uniqueExists tt (isPropUnit tt tt)
-        (λ _ p q → isSetUnit tt tt p q) λ _ _ → isPropUnit tt tt
-
--- This makes sense for any displayed category, but is traditionally used for fibrations
-module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-
-  -- fibered terminal objects, in terms of UniversalElementᴰ
-  hasFibTerminal' : Type _
-  hasFibTerminal' = (c : C .ob) → FibTerminalᴰ Cᴰ c
-
-  module _ (term : Terminal' C) where
-
-    open FibTerminalᴰNotation Cᴰ
-    open UniversalElementᴰ
-    open UniversalElement
-    module Cᴰ = Categoryᴰ Cᴰ
-
-    -- if the base has [structure], and Cᴰ has fibered [structure], then Cᴰ has displayed [structure]
-    FibTerm→Termᴰ : hasFibTerminal' → Terminalᴰ Cᴰ term
-    FibTerm→Termᴰ fibterm .vertexᴰ = 1ᴰ (term .vertex) (fibterm (term .vertex))
-    FibTerm→Termᴰ fibterm .elementᴰ = tt
-    FibTerm→Termᴰ fibterm .universalᴰ  {xᴰ = xᴰ} {f = f} .equiv-proof _ =
-      uniqueExists (!tᴰ (term .vertex) 𝟙ᴰ f xᴰ) refl
-      (λ _ p q →
-        TerminalᴰSpec Cᴰ .Functorᴰ.F-obᴰ xᴰ
-        (TerminalPresheaf {C = C} .Functor.F-hom f (term .element)) .snd tt tt p q)
-        λ fᴰ' _ → {!!} --!tᴰ-unique (term .vertex) 𝟙ᴰ f xᴰ .snd fᴰ'
-      where
-      𝟙ᴰ : FibTerminalᴰ Cᴰ (term .vertex)
-      𝟙ᴰ = (fibterm (term .vertex))
 
 module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'}
   (F : Functor B C)

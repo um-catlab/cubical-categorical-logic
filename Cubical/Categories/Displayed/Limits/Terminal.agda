@@ -82,7 +82,8 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     -- d ∈ D.ob[ c' ] there is a unique lift to fᴰ : D [ f ][ d' , 1c ]
     -- In program logic terms this is the "trivial postcondition"
     VerticalTerminalAtᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-    VerticalTerminalAtᴰ = UniversalElementᴰ D VerticalTerminalᴰSpec (selfUnivElt C c)
+    VerticalTerminalAtᴰ =
+      UniversalElementᴰ D VerticalTerminalᴰSpec (selfUnivElt C c)
 
     module VerticalTerminalAtᴰNotation (vt : VerticalTerminalAtᴰ) where
       open UniversalElementᴰ

@@ -64,7 +64,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     open CartesianOver
 
-    isCartesianOver→CartesianOver : {f*c'ᴰ : Cᴰ.ob[ c ]}{fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]} →
+    isCartesianOver→CartesianOver :
+      {f*c'ᴰ : Cᴰ.ob[ c ]}{fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]} →
       isCartesianOver fᴰ → CartesianOver c'ᴰ f
     isCartesianOver→CartesianOver {f*c'ᴰ = f*c'ᴰ} _ .f*cᴰ' = f*c'ᴰ
     isCartesianOver→CartesianOver {fᴰ = fᴰ} _ .π = fᴰ

@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Displayed.Constructions.TotalCategory where
+module Cubical.Categories.Displayed.Constructions.TotalCategory.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -16,6 +16,9 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Constructions.TotalCategory
   as TotalCat
   hiding (intro)
+open import Cubical.Categories.Constructions.TotalCategory.More
+  as TotalCat
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
 
 private
   variable
@@ -34,7 +37,6 @@ module _ {C : Category ℓC ℓC'}
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
     ∫∫Cᴰ = ∫C {C = C} (∫Cᴰ Cᴰ Dᴰ)
-    -- module R = HomᴰReasoning (∫Cᴰ Cᴰ Dᴰ)
 
   Assocᴰ : Functor ∫∫Cᴰ (∫C Dᴰ)
   Assocᴰ .F-ob  x   = (x .fst , x .snd .fst) , x .snd .snd
@@ -48,16 +50,10 @@ module _ {C : Category ℓC ℓC'}
   Assocᴰ⁻ .F-id      = refl
   Assocᴰ⁻ .F-seq _ _ = refl
 
-  Fstᴰ : Functorᴰ Id (∫Cᴰ Cᴰ Dᴰ) Cᴰ
-  Fstᴰ .F-obᴰ = fst
-  Fstᴰ .F-homᴰ = fst
-  Fstᴰ .F-idᴰ = refl
-  Fstᴰ .F-seqᴰ _ _ = refl
-
   -- Functor into the displayed total category
   module _ {E : Category ℓE ℓE'} (F : Functor E C)
            (Fᴰ : Section F Cᴰ)
-           (Gᴰ : Section (TotalCat.intro F Fᴰ) Dᴰ)
+           (Gᴰ : Section (TotalCat.intro' F Fᴰ) Dᴰ)
            where
     introS : Section F (∫Cᴰ Cᴰ Dᴰ)
     introS .F-obᴰ  d   = Fᴰ .F-obᴰ d , Gᴰ .F-obᴰ d

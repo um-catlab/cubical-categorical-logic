@@ -152,7 +152,7 @@ jobs:
           cd ~
           git clone https://github.com/agda/cubical --branch master
           cd cubical
-          git checkout 59c59c00107993c0a7e88307cbc097b4bb7980c6
+          git checkout 2ae84643c74750b49865e44c05b508cb2117c740
           cd ..
           echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
 

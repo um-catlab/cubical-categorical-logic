@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting #-}
+--{-# OPTIONS --rewriting #-}
 
 module Multicategory.Planar where
 

@@ -20,13 +20,13 @@ open import Cubical.Categories.Profunctor.Relator as Relator hiding (Hom)
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
-open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Instances.Terminal
-open import Cubical.Categories.Displayed.Preorder
+open import Cubical.Categories.Displayed.Constructions.StructureOver
 open import Cubical.Categories.Displayed.Properties
 
 private
@@ -39,23 +39,24 @@ open Functor
 module _  (C : Category ℓC ℓC') where
   private
     module C = Category C
-    PathC' : Preorderᴰ (C ×C C) _ _
-    PathC' .Preorderᴰ.ob[_] (c , d) = c ≡ d
-    PathC' .Preorderᴰ.Hom[_][_,_] (f , g) c≡c' d≡d' =
+    open StructureOver
+    PathC' : StructureOver (C ×C C) _ _
+    PathC' .ob[_] (c , d) = c ≡ d
+    PathC' .Hom[_][_,_] (f , g) c≡c' d≡d' =
       PathP (λ i → C.Hom[ c≡c' i , d≡d' i ]) f g
-    PathC' .Preorderᴰ.idᴰ = λ i → C.id
-    PathC' .Preorderᴰ._⋆ᴰ_ f≡f' g≡g' = λ i → f≡f' i ⋆⟨ C ⟩ g≡g' i
-    PathC' .Preorderᴰ.isPropHomᴰ = isOfHLevelPathP' 1 C.isSetHom _ _
+    PathC' .idᴰ = λ i → C.id
+    PathC' ._⋆ᴰ_ f≡f' g≡g' = λ i → f≡f' i ⋆⟨ C ⟩ g≡g' i
+    PathC' .isPropHomᴰ = isOfHLevelPathP' 1 C.isSetHom _ _
 
   PathC : Categoryᴰ (C ×C C) ℓC ℓC'
-  PathC = Preorderᴰ→Catᴰ PathC'
+  PathC = StructureOver→Catᴰ PathC'
 
   hasPropHomsPathC : hasPropHoms PathC
-  hasPropHomsPathC = hasPropHomsPreorderᴰ PathC'
+  hasPropHomsPathC = hasPropHomsStructureOver PathC'
 
   -- The universal functor into PathC
   Refl : Section (Δ C) PathC
-  Refl = mkSectionPropHoms hasPropHomsPathC (λ _ → refl) λ _ → refl
+  Refl = mkPropHomsSection hasPropHomsPathC (λ _ → refl) λ _ → refl
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
@@ -71,7 +72,7 @@ module _ {C : Category ℓC ℓC'}
   -- preferable
   PathReflection⁻ :
     F1 ≡ F2 → Section (F1 ,F F2) (PathC C)
-  PathReflection⁻ P = mkSectionPropHoms (hasPropHomsPathC C)
+  PathReflection⁻ P = mkPropHomsSection (hasPropHomsPathC C)
     (λ x i → P i .F-ob x)
     λ f i → P i .F-hom f
 

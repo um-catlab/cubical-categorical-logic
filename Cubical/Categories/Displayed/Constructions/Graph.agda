@@ -19,16 +19,16 @@ open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
-open import Cubical.Categories.Displayed.Base.HLevel1Homs as Disp
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Preorder
+open import Cubical.Categories.Displayed.Constructions.StructureOver
 
 private
   variable
     ℓC ℓC' ℓD ℓD' ℓS : Level
 
 open Category
-open Preorderᴰ
+open StructureOver
 open Functor
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -36,7 +36,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
          where
   open Bifunctor
 
-  Graph' : Preorderᴰ (C ×C D) ℓS ℓS
+  Graph' : StructureOver (C ×C D) ℓS ℓS
   Graph' .ob[_] (c , d) = ⟨ R ⟅ c , d ⟆b ⟩
   Graph' .Hom[_][_,_] (f , g) r s = (R ⟪ f ⟫l) s ≡ (R ⟪ g ⟫r) r
   Graph' .idᴰ =
@@ -51,10 +51,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   Graph' .isPropHomᴰ {x = c , d}{y = c' , d'} = str (R ⟅ c , d' ⟆b) _ _
 
   Graph : Categoryᴰ (C ×C D) ℓS ℓS
-  Graph = Preorderᴰ→Catᴰ Graph'
+  Graph = StructureOver→Catᴰ Graph'
 
   hasPropHomsGraph : hasPropHoms Graph
-  hasPropHomsGraph = hasPropHomsPreorderᴰ Graph'
+  hasPropHomsGraph = hasPropHomsStructureOver Graph'
 
   π₁ : Functor (∫C Graph) C
   π₁ = BP.Fst C D ∘F TotalCat.Fst {Cᴰ = Graph}

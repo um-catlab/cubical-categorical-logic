@@ -10,7 +10,6 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Adjoint
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Instances.Sets

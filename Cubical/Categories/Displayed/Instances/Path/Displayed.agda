@@ -18,19 +18,19 @@ open import Cubical.Data.Unit
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.TotalCategory as TotalCategory
+open import Cubical.Categories.Constructions.TotalCategory.More as TotalCategory
 open import Cubical.Categories.Profunctor.Relator as Relator hiding (Hom)
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
-open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Instances.Terminal
-open import Cubical.Categories.Displayed.Preorder
+open import Cubical.Categories.Displayed.Constructions.StructureOver
 open import Cubical.Categories.Displayed.Properties
 
 private
@@ -42,8 +42,8 @@ module _  {C : Category ℓC ℓC'}
           where
   private
     module Cᴰ = Categoryᴰ Cᴰ
-    open Preorderᴰ
-    PathCᴰ' : Preorderᴰ (∫C {C = C} (Cᴰ ×ᴰ Cᴰ)) _ _
+    open StructureOver
+    PathCᴰ' : StructureOver (∫C {C = C} (Cᴰ ×ᴰ Cᴰ)) _ _
     PathCᴰ' .ob[_] (c , cᴰ , cᴰ') = cᴰ ≡ cᴰ'
     PathCᴰ' .Hom[_][_,_] (f , fᴰ , fᴰ') p q =
       PathP (λ i → Cᴰ.Hom[ f ][ p i , q i ]) fᴰ fᴰ'
@@ -52,10 +52,10 @@ module _  {C : Category ℓC ℓC'}
     PathCᴰ' .isPropHomᴰ = isOfHLevelPathP' 1 Cᴰ.isSetHomᴰ _ _
   open Categoryᴰ
   PathCᴰ : Categoryᴰ (∫C {C = C} (Cᴰ ×ᴰ Cᴰ)) _ _
-  PathCᴰ = Preorderᴰ→Catᴰ PathCᴰ'
+  PathCᴰ = StructureOver→Catᴰ PathCᴰ'
 
   hashPropHomsPathCᴰ : hasPropHoms PathCᴰ
-  hashPropHomsPathCᴰ = hasPropHomsPreorderᴰ PathCᴰ'
+  hashPropHomsPathCᴰ = hasPropHomsStructureOver PathCᴰ'
 
   open Section
   Refl : Section (∫F {C = C} (Δᴰ Cᴰ)) PathCᴰ
@@ -70,7 +70,7 @@ module _  {C : Category ℓC ℓC'}
            where
    -- TODO: do we need any of the alternate formulations?
    PathReflection :
-     Section (TotalCategory.intro F (introS F M N)) PathCᴰ
+     Section (TotalCategory.intro' F (introS F M N)) PathCᴰ
      → M ≡ N
    PathReflection M≡N i .F-obᴰ d = M≡N .F-obᴰ d i
    PathReflection M≡N i .F-homᴰ f = M≡N .F-homᴰ f i

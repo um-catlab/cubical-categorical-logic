@@ -10,6 +10,7 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 -- open import Cubical.Categories.Displayed.Instances.Terminal
@@ -37,6 +38,11 @@ module _ {C : Category ℓC ℓC'}
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
     ∫∫Cᴰ = ∫C {C = C} (∫Cᴰ Cᴰ Dᴰ)
+
+  hasPropHoms∫Cᴰ : hasPropHoms Cᴰ → hasPropHoms Dᴰ → hasPropHoms (∫Cᴰ Cᴰ Dᴰ)
+  hasPropHoms∫Cᴰ ph-Cᴰ ph-Dᴰ f cᴰ cᴰ' = isPropΣ
+    (ph-Cᴰ f (cᴰ .fst) (cᴰ' .fst))
+    (λ fᴰ → ph-Dᴰ (f , fᴰ) (cᴰ .snd) (cᴰ' .snd))
 
   Assocᴰ : Functor ∫∫Cᴰ (∫C Dᴰ)
   Assocᴰ .F-ob  x   = (x .fst , x .snd .fst) , x .snd .snd
@@ -68,3 +74,4 @@ module _ {C : Category ℓC ℓC'}
     introF : Functorᴰ F Eᴰ (∫Cᴰ Cᴰ Dᴰ)
     introF = TotalCat.recᴰ _ _ (introS _ (elim Fᴰ)
       (reindS' (Eq.refl , Eq.refl) Gᴰ))
+

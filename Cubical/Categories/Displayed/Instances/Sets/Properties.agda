@@ -12,7 +12,6 @@ open import Cubical.Data.Sigma.Properties
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration
 open import Cubical.Categories.Displayed.Instances.Sets.Base

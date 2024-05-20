@@ -31,7 +31,7 @@ check-whitespace:
 # sed: we're using Basic Regular Expression (BRE) syntax
 # sort: LC_ALL=C for a deterministic order
 Everything.agda:
-	$(FIND_AGDA_FILES) ! -path './$@' | sed -e 's#/#.#g' -e 's/^\.\+//' -e 's/.agda$$//' -e 's/^/import /' | LC_ALL=C sort > $@
+	$(FIND_AGDA_FILES) ! -path './$@' | sed -e 's#/#.#g' -e 's/^\.*//' -e 's/.agda$$//' -e 's/^/import /' | LC_ALL=C sort > $@
 
 .PHONY: clean
 clean:

@@ -8,8 +8,11 @@ AGDA_FILES = $(shell $(FIND_AGDA_FILES))
 # The targets are the .agdai files corresponding to the .agda files
 AGDAI_FILES = $(AGDA_FILES:.agda=.agdai)
 
+.PHONY: all
+all: test check-line-lengths
+
 .PHONY: test
-test: Everything.agda check-whitespace check-line-lengths
+test: Everything.agda check-whitespace
 	$(AGDA) $<
 
 .PHONY: test-and-report

@@ -46,6 +46,53 @@ module _ (C : Category ℓ ℓ') where
   BinProduct' = RightAdjointAt' _ _ (Δ C)
   BinProducts' = RightAdjoint' _ _ (Δ C)
 
+  module BinProduct'Notation {c c' : C .ob} (prod : BinProduct' (c , c')) where
+    c×c' : C .ob
+    c×c' = prod .vertex
+    π₁ : C [ c×c' , c ]
+    π₁ = prod .element .fst
+    π₂ : C [ c×c' , c' ]
+    π₂ = prod .element .snd
+    ⟨_,_⟩ : ∀{z} → C [ z , c ] → C [ z , c' ] → C [ z , c×c' ]
+    ⟨_,_⟩ {z} f g = invIsEq (prod .universal z) (f , g)
+    β : ∀{z f g} → (⟨ f , g ⟩ ⋆⟨ C ⟩ π₁ , ⟨ f , g ⟩ ⋆⟨ C ⟩ π₂) ≡ (f , g)
+    β {z} {f} {g} = secIsEq (prod .universal z) (f , g)
+    η : ∀{z}{h : C [ z , (prod .vertex) ]} →
+      ⟨ h ⋆⟨ C ⟩ π₁ , h ⋆⟨ C ⟩ π₂ ⟩ ≡ h
+    η {z} {h} = retIsEq (prod .universal z) h
+
+  module BinProducts'Notation (prods : BinProducts') where
+    private module B = BinProduct'Notation
+    _×_ : (x y : C .ob) → C .ob
+    x × y = B.c×c' (prods (x , y))
+    π₁ : ∀{x y} → C [ x × y , x ]
+    π₁ {x} {y} = B.π₁ (prods (x , y))
+    π₂ : ∀{x y} → C [ x × y , y ]
+    π₂ {x} {y} = B.π₂ (prods (x , y))
+    ⟨_,_⟩ : ∀{z x y} → C [ z , x ] → C [ z , y ] → C [ z , x × y ]
+    ⟨_,_⟩ {z} {x} {y} f g = B.⟨_,_⟩ (prods (x , y)) f g
+    β : ∀{z x y f g} → (⟨ f , g ⟩ ⋆⟨ C ⟩ π₁ , ⟨ f , g ⟩ ⋆⟨ C ⟩ π₂) ≡ (f , g)
+    β {z} {x} {y} {f} {g} = secIsEq (prods (x , y) .universal z) (f , g)
+    η : ∀{z x y}{h : C [ z , (prods (x , y) .vertex) ]} →
+      ⟨ h ⋆⟨ C ⟩ π₁ , h ⋆⟨ C ⟩ π₂ ⟩ ≡ h
+    η {z} {x} {y} {h} = retIsEq (prods (x , y) .universal z) h
+
+  module _ (prods : BinProducts') where
+    open BinProducts'Notation prods
+    BinProducts'→BinProducts : BinProducts C
+    BinProducts'→BinProducts x y .binProdOb = prods (x , y) .vertex
+    BinProducts'→BinProducts x y .binProdPr₁ = π₁
+    BinProducts'→BinProducts x y .binProdPr₂ = π₂
+    BinProducts'→BinProducts x y .univProp {z = z} f g =
+      uniqueExists ⟨ f , g ⟩
+      (congS fst β , congS snd β)
+      (λ _ _ _ → ≡-× (C .isSetHom _ _ _ _) (C .isSetHom _ _ _ _))
+      λ h p → (sym η ∙
+        congS (λ (x , y) → ⟨ x , y ⟩) β ∙
+        congS (λ x → ⟨ x , _ ⟩) (sym (p .fst)) ∙
+        congS (λ x → ⟨ _ , x ⟩) (sym (p .snd))) ∙
+        η
+
   private
     -- This definition looks promising at first, but doesn't give the
     -- right behavior for BinProductWithF ⟪_⟫

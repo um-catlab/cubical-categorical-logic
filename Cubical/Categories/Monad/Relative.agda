@@ -153,7 +153,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     --       commutes )
     --     where
     --       ps : N-ob-Type ((ΔF ^opF) ⟅ E.T _ ⟆) F
-    --       ps = ((λ s → Fᴰ .F-obᴰ {x = s} _ .bindA ((J ⟪ Lim.element ⟦ s ⟧ ⟫r) j)))
+    --       ps =
+    --       ((λ s → Fᴰ .F-obᴰ {x = s} _ .bindA ((J ⟪ Lim.element ⟦ s ⟧ ⟫r) j)))
     --       opaque
     --         commutes : N-hom-Type ((ΔF ^opF) ⟅ E.T _ ⟆) F ps
     --         commutes = λ f →

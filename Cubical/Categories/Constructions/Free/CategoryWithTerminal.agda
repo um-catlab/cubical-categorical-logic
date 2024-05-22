@@ -1,12 +1,15 @@
+{-# OPTIONS --safe #-}
 -- Free category with a terminal object, over a Quiver
 module Cubical.Categories.Constructions.Free.CategoryWithTerminal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Data.Quiver.Base
-open import Cubical.Data.Sum.Base as Sum hiding (elim)
+open import Cubical.Data.Sum.Base as Sum hiding (elim; rec)
 open import Cubical.Data.Unit
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Presheaf
@@ -15,10 +18,16 @@ open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Reasoning
 
 private
   variable
-    ℓg ℓg' ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
+    ℓg ℓg' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+
+open Section
+open Functor
+open UniversalElementᴰ
 
 CategoryWithTerminal' : (ℓC ℓC' : Level) → Type _
 CategoryWithTerminal' ℓC ℓC' = Σ[ C ∈ Category ℓC ℓC' ] Terminal' C
@@ -73,10 +82,6 @@ module _ (Ob : Type ℓg) where
     module _ (Cᴰ : Categoryᴰ (FreeCatw/Terminal' .fst) ℓCᴰ ℓCᴰ')
       (term'ᴰ : LiftedTerminalᴰ Cᴰ (FreeCatw/Terminal' .snd)) where
 
-      open import Cubical.Foundations.HLevels
-      open import Cubical.Categories.Displayed.Reasoning
-      open Section
-      open UniversalElementᴰ
       open LiftedTerminalᴰNotation Cᴰ term'ᴰ
 
       private
@@ -86,8 +91,9 @@ module _ (Ob : Type ℓg) where
       -- given an interpretation of atomic objects
       module _ (ϕ : (v : Ob) → Cᴰ.ob[ inl v ]) where
         -- extend it to all objects
-        ϕ* : (v : Ob') → Cᴰ.ob[ v ]
-        ϕ* = Sum.elim (λ a → ϕ a) (λ b → term'ᴰ .vertexᴰ)
+        private
+          ϕ* : (v : Ob') → Cᴰ.ob[ v ]
+          ϕ* = Sum.elim (λ a → ϕ a) (λ b → term'ᴰ .vertexᴰ)
 
         -- and given an interpretation of atomic morphisms
         module _ (ψ : (e : Q .mor) →
@@ -126,3 +132,31 @@ module _ (Ob : Type ℓg) where
           elim .F-homᴰ = elim-F-homᴰ
           elim .F-idᴰ = refl
           elim .F-seqᴰ _ _ = refl
+
+    -- module _
+    --   {D : Category ℓD ℓD'}
+    --   {term' : Terminal' D}
+    --   (F : Functor FC D)
+    --   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+    --   (term'ᴰ : Terminalᴰ Dᴰ term')
+    --   where
+    --   private
+    --     module Dᴰ = Categoryᴰ Dᴰ
+    --   open Terminal'Notation term'
+    --   module _ (ϕ : ∀ o → Dᴰ.ob[ F ⟅ o ⟆ ]) where
+    --     private
+    --       ϕ* : ∀ (o' : Ob') → Dᴰ.ob[ F .F-ob o' ]
+    --       ϕ* = {!!}
+
+    module _ (D : Category ℓD ℓD')
+             (term' : Terminal' D)
+             (ϕ : Ob → D .ob)
+             where
+      private
+        open Terminal'Notation term'
+        ϕ* : Ob' → D .ob
+        ϕ* = Sum.elim (λ a → ϕ a) λ _ → 𝟙
+
+      module _ (ψ : ∀ e → D [ ϕ* (Q .dom e) , ϕ* (Q .cod e) ]) where
+        rec : Functor FC D
+        rec = Wk.introS⁻ (elim (weaken FC D) (termWeaken _ term') ϕ ψ)

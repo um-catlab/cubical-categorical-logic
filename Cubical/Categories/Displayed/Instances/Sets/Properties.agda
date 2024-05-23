@@ -8,14 +8,19 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.Properties
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration.Base
+open import Cubical.Categories.Displayed.Fibration.Properties
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Limits.Terminal
+
 
 private
   variable
@@ -37,3 +42,16 @@ AllCartesianOversSETᴰ {c = A} {A'} B' f .isCartesian {A''} B'' g gfᴰ =
 isFibrationSet : isFibration (SETᴰ ℓ ℓ')
 isFibrationSet dᴰ = CartesianOver→CartesianLift (SETᴰ _ _)
   (AllCartesianOversSETᴰ _ _)
+
+VerticalTerminalsᴰSETᴰ : VerticalTerminalsᴰ (SETᴰ ℓ ℓ')
+VerticalTerminalsᴰSETᴰ dᴰ .vertexᴰ _ = Unit* , isSetUnit*
+VerticalTerminalsᴰSETᴰ dᴰ .elementᴰ = tt
+VerticalTerminalsᴰSETᴰ dᴰ .universalᴰ .equiv-proof _ = uniqueExists
+  (λ _ _ → tt*)
+  (isPropUnit tt tt)
+  (λ _ p q → isSetUnit tt tt p q)
+  (λ _ _ → funExt λ _ → funExt λ _ → refl)
+
+LiftedTerminalᴰSETᴰ : ∀{ℓ ℓ'} → LiftedTerminalᴰ (SETᴰ ℓ ℓ') terminal'SET
+LiftedTerminalᴰSETᴰ {ℓ} {ℓ'} =
+  AllVertical→LiftedTermᴰ (SETᴰ ℓ ℓ') terminal'SET VerticalTerminalsᴰSETᴰ

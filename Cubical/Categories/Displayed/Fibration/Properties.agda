@@ -98,6 +98,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     AllVertical→Vertical/𝟙 : VerticalTerminalsᴰ → Verticalᴰ/𝟙
     AllVertical→Vertical/𝟙 vt = vt (term .vertex)
 
+    -- convenience
+    AllVertical→LiftedTermᴰ : VerticalTerminalsᴰ → LiftedTerminalᴰ Cᴰ term
+    AllVertical→LiftedTermᴰ vt =
+      Verticalᴰ/𝟙→LiftedTermᴰ (AllVertical→Vertical/𝟙 vt)
+
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')

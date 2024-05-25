@@ -15,7 +15,7 @@ module Cubical.Categories.Constructions.Coend.Base where
         variable
             ℓC ℓC' ℓD ℓD' : Level
 
-    module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}(F : Bifunctor (C ^op) C D)where
+    module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}(F : Bifunctor (C ^op) C D) where
 
         module C = Category C
         module D = Category D
@@ -36,6 +36,8 @@ module Cubical.Categories.Constructions.Coend.Base where
                 extranatural : {c c' : C.ob}(f : C [ c , c' ]) →
                     (F ⟪ C.id , f ⟫lr D.⋆  ψ c') ≡ ( F ⟪ f ,  C.id ⟫lr D.⋆ ψ c)
 
+        -- TODO : Can probably define a Presheaf structure for Cowedge
+        -- and then this should be isomorphic to a universal element of that presheaf.
         record Coend : Set ((ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓD ℓD'))))  where
             open Cowedge
             field

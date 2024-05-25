@@ -13,6 +13,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Limits.Terminal
@@ -41,11 +42,32 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
 
   -- Terminal object over a terminal object
   -- TODO: refactor using Constant Functorᴰ eventually
-  TerminalᴰSpec : Presheafᴰ D (TerminalPresheaf {C = C}) ℓ-zero
-  TerminalᴰSpec = TerminalPresheafᴰ _
+  LiftedTerminalᴰSpec : Presheafᴰ D (TerminalPresheaf {C = C}) ℓ-zero
+  LiftedTerminalᴰSpec = TerminalPresheafᴰ _
 
-  Terminalᴰ : (term : Terminal' C) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-  Terminalᴰ term = UniversalElementᴰ _ TerminalᴰSpec term
+  LiftedTerminalᴰ : (term : Terminal' C) →
+    Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+  LiftedTerminalᴰ term = UniversalElementᴰ _ LiftedTerminalᴰSpec term
+
+  module LiftedTerminalᴰNotation {term' : Terminal' C}
+    (termᴰ : LiftedTerminalᴰ term') where
+
+    open UniversalElement
+    open UniversalElementᴰ
+    open Terminal'Notation term'
+    private module R = HomᴰReasoning D
+
+    𝟙ᴰ : D.ob[ 𝟙 ]
+    𝟙ᴰ = termᴰ .vertexᴰ
+
+    !tᴰ : ∀ {c} (d : D.ob[ c ]) → D.Hom[ !t ][ d , 𝟙ᴰ ]
+    !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+
+    𝟙ηᴰ : ∀ {c} {d : D.ob[ c ]} {f} (fᴰ : D.Hom[ f ][ d , 𝟙ᴰ ])
+        → fᴰ D.≡[ 𝟙η f ] !tᴰ d
+    𝟙ηᴰ {c} {d} {f} fᴰ = R.≡[]-rectify (toPathP (sym fᴰ-commutes))
+      where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
+            fᴰ-commutes = cong fst (contr!tᴰ .snd (reind D (𝟙η _) fᴰ , refl))
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object
@@ -53,19 +75,26 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
     -- TODO: Is this equivalent to the more "obvious" definition that
     -- Fiber c have a terminal object?
     -- No.
-    FibTerminalᴰSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
-    FibTerminalᴰSpec = TerminalPresheafᴰ _
+    VerticalTerminalᴰSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
+    VerticalTerminalᴰSpec = TerminalPresheafᴰ _
 
     -- This says that for every morphism f : c' → c in C and
     -- d ∈ D.ob[ c' ] there is a unique lift to fᴰ : D [ f ][ d' , 1c ]
     -- In program logic terms this is the "trivial postcondition"
-    FibTerminalᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-    FibTerminalᴰ = UniversalElementᴰ D FibTerminalᴰSpec (selfUnivElt C c)
+    VerticalTerminalAtᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+    VerticalTerminalAtᴰ =
+      UniversalElementᴰ D VerticalTerminalᴰSpec (selfUnivElt C c)
 
-    module FibTerminalᴰNotation (fibTermᴰ : FibTerminalᴰ) where
+    module VerticalTerminalAtᴰNotation (vt : VerticalTerminalAtᴰ) where
       open UniversalElementᴰ
       1ᴰ : D.ob[ c ]
-      1ᴰ = fibTermᴰ .vertexᴰ
+      1ᴰ = vt .vertexᴰ
 
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) → D [ f ][ d' , 1ᴰ ]
-      !tᴰ f d' = invIsEq (fibTermᴰ .universalᴰ) tt
+      !tᴰ f d' = invIsEq (vt .universalᴰ) tt
+
+      !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) →
+        isContr (D [ f ][ d' , 1ᴰ ])
+      !tᴰ-unique f d' .fst = !tᴰ f d'
+      !tᴰ-unique f d' .snd fᴰ' =
+        cong (λ p → p .fst) (vt .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))

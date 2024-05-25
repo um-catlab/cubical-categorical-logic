@@ -15,8 +15,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.FullSubcategory
-open import Cubical.Categories.Displayed.Constructions.FullSubcategory
+open import Cubical.Categories.Displayed.Constructions.PropertyOver
+  hiding (intro)
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Functor.Base
@@ -24,17 +24,19 @@ open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
-open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.HLevels.More
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
+open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  as TotalCatᴰ hiding (introS)
+  as TotalCatᴰ hiding (intro)
+open import Cubical.Categories.Displayed.Constructions.TotalCategory.More
+  as TotalCatᴰ
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Isomorphism.More
 
@@ -44,7 +46,6 @@ private
 
 open Category
 open Categoryᴰ
-open Preorderᴰ
 open Functor
 open NatTrans
 
@@ -75,16 +76,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   Commaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
   Commaᴰ₁ = ∫Cᴰsr Commaᴰ
 
-  IsoCommaᴰ : Categoryᴰ (C ×C D) (ℓ-max ℓE' ℓE') ℓE'
-  IsoCommaᴰ = ∫Cᴰ Commaᴰ (FullSubcategoryᴰ _ (λ (_ , f) → isIso E f))
+  private
+    IsoCommaᴰ' : Categoryᴰ (∫C Commaᴰ) _ _
+    IsoCommaᴰ' = (PropertyOver _ (λ (_ , f) → isIso E f))
 
-  -- Not following from a gneral result about ∫Cᴰ but works
+    hasPropHomsIsoCommaᴰ' : hasPropHoms IsoCommaᴰ'
+    hasPropHomsIsoCommaᴰ' =
+      hasContrHoms→hasPropHoms IsoCommaᴰ' (hasContrHomsPropertyOver _ _)
+
+  IsoCommaᴰ : Categoryᴰ (C ×C D) (ℓ-max ℓE' ℓE') ℓE'
+  IsoCommaᴰ = ∫Cᴰ Commaᴰ IsoCommaᴰ'
+
   hasPropHomsIsoCommaᴰ : hasPropHoms IsoCommaᴰ
-  hasPropHomsIsoCommaᴰ {c , d}{c' , d'} f cᴰ cᴰ' =
-  -- TODO generalize this as a reasoning principle for ∫Cᴰ
-    isPropΣ
-      (hasPropHomsCommaᴰ f (cᴰ .fst) (cᴰ' .fst))
-      λ x → hasPropHomsFullSubcategory _ _ (f , x) (cᴰ .snd) (cᴰ' .snd)
+  hasPropHomsIsoCommaᴰ =
+    hasPropHoms∫Cᴰ IsoCommaᴰ' hasPropHomsCommaᴰ hasPropHomsIsoCommaᴰ'
 
   IsoComma : Category _ _
   IsoComma = ∫C IsoCommaᴰ
@@ -200,9 +205,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
          where
   open Functorᴰ
   intro : Functor B (Comma F G)
-  intro = TotalCat.intro (H ,F K) αF where
+  intro = TotalCat.intro' (H ,F K) αF where
     αF : Section _ _
-    αF = mkSectionPropHoms (hasPropHomsCommaᴰ _ _)
+    αF = mkPropHomsSection (hasPropHomsCommaᴰ _ _)
       (α ⟦_⟧)
       (α .N-hom)
 
@@ -240,9 +245,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   open NatIso
 
   mkIsoCommaFunctor : Functor B (IsoComma F G)
-  mkIsoCommaFunctor = TotalCat.intro (H ,F K)
+  mkIsoCommaFunctor = TotalCat.intro' (H ,F K)
     (TotalCatᴰ.introS _ _
-      (mkSectionPropHoms (hasPropHomsCommaᴰ _ _)
+      (mkPropHomsSection (hasPropHomsCommaᴰ _ _)
         (α .trans ⟦_⟧)
         (α .trans .N-hom))
-      (mkSectionContrHoms (hasContrHomsFullSubcategory _ _) (α .nIso)))
+      (mkContrHomsSection (hasContrHomsPropertyOver _ _) (α .nIso)))

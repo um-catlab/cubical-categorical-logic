@@ -22,7 +22,6 @@ open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
 open import Cubical.Categories.Constructions.Quotient.More as CatQuotient
   hiding (elim)
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Section.Base

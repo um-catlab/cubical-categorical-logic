@@ -26,6 +26,7 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
+open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
   as STotalCatR
@@ -63,7 +64,7 @@ module _
     {E : Category ℓE ℓE'}
     (F : Functor E C)
     (Fᴰ : Section F (weaken C D))
-    (Gᴰ : Section (Sym {C = C}{D = D} ∘F TotalCat.intro F Fᴰ) Cᴰ)
+    (Gᴰ : Section (Sym {C = C}{D = D} ∘F TotalCat.intro' F Fᴰ) Cᴰ)
     where
 
     open Section

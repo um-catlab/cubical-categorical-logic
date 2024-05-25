@@ -10,7 +10,6 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Adjoint
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Instances.Sets
@@ -44,17 +43,16 @@ RightAdjointᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
               → Type _
 RightAdjointᴰ Fᴰ R = ∀ {d} dᴰ → RightAdjointAtᴰ Fᴰ (R d) dᴰ
 
--- should this be called vertical instead?
-LocalRightAdjointAtᴰ : {C : Category ℓC ℓC'}
+VerticalRightAdjointAtᴰ : {C : Category ℓC ℓC'}
                      {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
                      (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
                      {c : C .ob}
                      (cᴰ : Categoryᴰ.ob[_] Dᴰ c)
                      → Type _
-LocalRightAdjointAtᴰ Fᴰ = RightAdjointAtᴰ Fᴰ (IdRightAdj' _ _)
+VerticalRightAdjointAtᴰ Fᴰ = RightAdjointAtᴰ Fᴰ (IdRightAdj' _ _)
 
-LocalRightAdjointᴰ : {C : Category ℓC ℓC'}
+VerticalRightAdjointᴰ : {C : Category ℓC ℓC'}
                      {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
                      (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
                    → Type _
-LocalRightAdjointᴰ Fᴰ = RightAdjointᴰ Fᴰ (IdRightAdj' _)
+VerticalRightAdjointᴰ Fᴰ = RightAdjointᴰ Fᴰ (IdRightAdj' _)

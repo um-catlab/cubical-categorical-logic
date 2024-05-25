@@ -18,12 +18,10 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.UnderlyingGraph
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
 open import Cubical.Categories.Displayed.Instances.Path.Displayed
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Preorder
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
 open import Cubical.Categories.Constructions.Free.Functor.AltPresented
@@ -33,7 +31,6 @@ private
     ℓc ℓc' ℓd ℓd' ℓb ℓb' : Level
 open Category
 open Functor
--- open Section
 open HetSection
 
 module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : Functor 𝓒 𝓓) where
@@ -63,7 +60,7 @@ module Eval (𝓒 : Category ℓc ℓc') (𝓓 : Category ℓd ℓd')  (𝓕 : F
 
   module sem𝓓 = Functor sem𝓓
 
---   -- Normalization is by interpretation into the presheaf category
+  -- Normalization is by interpretation into the presheaf category
   𝓟F𝓓 = PowerCategory (Free𝓓 .ob) (SET (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓd) ℓd'))
   Y : Functor Free𝓓 𝓟F𝓓
   Y = PseudoYoneda {C = Free𝓓}

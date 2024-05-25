@@ -6,8 +6,6 @@ module Cubical.Data.Sigma.More where
 
 open import Cubical.Data.Sigma.Base
 
-open import Cubical.Core.Everything
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism

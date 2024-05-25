@@ -23,6 +23,7 @@ open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Constructions.TotalCategory as TC
   hiding (intro)
+open import Cubical.Categories.Constructions.TotalCategory.More as TC
 
 private
   variable
@@ -64,7 +65,6 @@ module _ {C : Category ℓC ℓC'}
   introS .F-idᴰ = G .F-id
   introS .F-seqᴰ _ _ = G .F-seq _ _
 
--- TODO: introF
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
          {E : Category ℓE ℓE'}
@@ -88,7 +88,7 @@ introS⁻ : {C : Category ℓC ℓC'}
        → Section F (weaken C D)
        → Functor E D
 introS⁻ {C = C}{D = D}{F = F} Fᴰ =
-  weakenΠ C D ∘F TC.intro F Fᴰ
+  weakenΠ C D ∘F TC.intro' F Fᴰ
 
 -- TODO: introS/introS⁻ is an Iso
 

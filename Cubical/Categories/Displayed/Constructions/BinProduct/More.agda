@@ -21,9 +21,11 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Constructions.TotalCategory
   as TotalCat
+open import Cubical.Categories.Constructions.TotalCategory.More
+  as TotalCat
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  as TotalCatᴰ hiding (introS; introF)
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
+open import Cubical.Categories.Displayed.Instances.Terminal.More as Unitᴰ
 
 private
   variable

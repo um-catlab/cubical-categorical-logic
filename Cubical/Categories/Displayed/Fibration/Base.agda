@@ -1,18 +1,20 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Displayed.Fibration where
+module Cubical.Categories.Displayed.Fibration.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Adjoint.UniversalElements
+open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Slice
 open import Cubical.Categories.Displayed.Presheaf
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.Functor
 
 open import Cubical.Tactics.CategorySolver.Reflection
 
@@ -29,10 +31,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     Δ = Δ/C C Cᴰ
   -- The "high tech" formulation
   CartesianLift : ∀ {c : C .ob} → C/Cᴰ.ob[ c ] → Type _
-  CartesianLift = LocalRightAdjointAtᴰ Δ
+  CartesianLift = VerticalRightAdjointAtᴰ Δ
 
   isFibration : Type _
-  isFibration = LocalRightAdjointᴰ Δ
+  isFibration = VerticalRightAdjointᴰ Δ
 
   private
     module R = HomᴰReasoning Cᴰ
@@ -48,6 +50,25 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       isCartesian : ∀ {c'' : C .ob}(cᴰ'' : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
                     (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ cᴰ'' , cᴰ' ])
                   → ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ] ] (gᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ)
+
+  module _ {c c' : C .ob}(c'ᴰ : Cᴰ.ob[ c' ])(f : C [ c , c' ]) where
+    -- type of witnesses that fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ] is cartesian,
+    -- for convenience
+    isCartesianOver : ∀{f*c'ᴰ : Cᴰ.ob[ c ]} →
+      (fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) → Type _
+    isCartesianOver {f*c'ᴰ = f*c'ᴰ} fᴰ =
+      ∀ {c'' : C .ob}(c''ᴰ : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
+      (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ c''ᴰ , c'ᴰ ]) →
+      ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ c''ᴰ , f*c'ᴰ ] ] (gᴰ Cᴰ.⋆ᴰ fᴰ ≡ gfᴰ)
+
+    open CartesianOver
+
+    isCartesianOver→CartesianOver :
+      {f*c'ᴰ : Cᴰ.ob[ c ]}{fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]} →
+      isCartesianOver fᴰ → CartesianOver c'ᴰ f
+    isCartesianOver→CartesianOver {f*c'ᴰ = f*c'ᴰ} _ .f*cᴰ' = f*c'ᴰ
+    isCartesianOver→CartesianOver {fᴰ = fᴰ} _ .π = fᴰ
+    isCartesianOver→CartesianOver !gᴰ .isCartesian = !gᴰ
 
   AllCartesianOvers : Type _
   AllCartesianOvers =
@@ -134,3 +155,31 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
                    → gᴰ Cᴰ.⋆ᴰ π' Cᴰ.≡[ cong (seq' C g) f'≡f ] (gᴰ Cᴰ.⋆ᴰ the-π)
         gᴰ⋆π'≡gᴰ⋆π gᴰ =
           R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
+
+-- package together a fibration and its cleavage, with an explicit base
+ClovenFibration : (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
+ClovenFibration C ℓCᴰ ℓCᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ] isFibration Cᴰ
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  (p : ClovenFibration C ℓCᴰ ℓCᴰ')(q : ClovenFibration D ℓDᴰ ℓDᴰ') where
+  module _ {F : Functor C D} (Fᴰ : Functorᴰ F (p .fst) (q .fst)) where
+    open Category
+    open Functorᴰ
+    private
+      module Cᴰ = Categoryᴰ (p .fst)
+
+    -- whether a 1-cell preserves cartesian morphisms
+    isFibered : Type _
+    isFibered =
+      ∀ {c c' : C .ob} (c'ᴰ : Cᴰ.ob[ c' ]) (f : C [ c , c' ]) →
+      (f*c'ᴰ : Cᴰ.ob[ c ])(fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) →
+        isCartesianOver (p .fst) c'ᴰ f fᴰ →
+        isCartesianOver (q .fst) (Fᴰ .F-obᴰ c'ᴰ) (F ⟪ f ⟫) (Fᴰ .F-homᴰ fᴰ)
+
+  record FiberedFunctor
+      : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+      (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓDᴰ ℓDᴰ'))) where
+    field
+      base : Functor C D
+      over : Functorᴰ base (p .fst) (q .fst)
+      preserves-cartesian : isFibered over

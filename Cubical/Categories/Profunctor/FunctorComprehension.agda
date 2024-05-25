@@ -41,7 +41,7 @@ open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.Displayed.Constructions.FullSubcategory
+open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Isomorphism.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
@@ -56,10 +56,13 @@ open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More as Disp
-open import Cubical.Categories.Displayed.Base.HLevel1Homs
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
+open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  as TotalCatᴰ
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Profunctor.Relator
@@ -95,12 +98,12 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
     Elt = Graph (Profunctor→Relatoro* Id)
 
     UElt : Categoryᴰ (D ×C 𝓟) _ _
-    UElt = ∫Cᴰ Elt (FullSubcategoryᴰ _ λ ((d , p), e) → isUniversal D p d e)
+    UElt = ∫Cᴰ Elt (PropertyOver _ λ ((d , p), e) → isUniversal D p d e)
 
     module UElt = Categoryᴰ UElt
 
     HasUniversalElt : Categoryᴰ 𝓟 _ _
-    HasUniversalElt = FullSubcategoryᴰ 𝓟 (UniversalElement D)
+    HasUniversalElt = PropertyOver 𝓟 (UniversalElement D)
 
     WithUniversalElt = ∫Cᴰsl UElt
 
@@ -179,7 +182,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
 
   -- Part 1: functoriality comes for free from contractibility
   coherence : Functor 𝓟up 𝓟us
-  coherence = ∫F {F = Id} (mkFunctorᴰContrHoms hasContrHomsWUE λ ue →
+  coherence = ∫F {F = Id} (mkContrHomsFunctor hasContrHomsWUE λ ue →
     ue .vertex , ue .element , ue .universal)
 
   -- Part 2: this is one direction of the equivalence between
@@ -191,7 +194,7 @@ module _ (D : Category ℓD ℓD') (ℓS : Level) where
   -- If we apply mkFunctorᴰContrHoms directly with our above proof,
   -- then the result will be f composed with an identity instead
   unYoneda : Functor 𝓟us 𝓟rs
-  unYoneda = ∫F {F = Id} (mkFunctorᴰContrHoms'
+  unYoneda = ∫F {F = Id} (mkContrHomsFunctor'
     (λ {x = P} (d , η , η-isUniv) →
         let r = universalElementToRepresentation D P (record
               { vertex = d
@@ -225,8 +228,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   private
     𝓟 = PresheafCategory D ℓS
     Pup : Functor C (𝓟up D ℓS)
-    Pup = TotalCat.intro P
-      (mkSectionContrHoms (hasContrHomsFullSubcategory _ _) ues)
+    Pup = TotalCat.intro' P
+      (mkContrHomsSection (hasContrHomsPropertyOver _ _) ues)
 
     Pus : Functor C (𝓟us D ℓS)
     Pus = coherence D ℓS ∘F Pup

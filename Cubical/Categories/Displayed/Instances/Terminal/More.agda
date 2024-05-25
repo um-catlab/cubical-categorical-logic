@@ -1,5 +1,5 @@
 {-# OPTIONS --safe #-}
-module Cubical.Categories.Displayed.Instances.Terminal where
+module Cubical.Categories.Displayed.Instances.Terminal.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -9,10 +9,11 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Terminal
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Base.HLevel1Homs
-open import Cubical.Categories.Displayed.Constructions.FullSubcategory as FS
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Constructions.PropertyOver as PO
 
 private
   variable
@@ -22,13 +23,10 @@ open Category
 open Categoryᴰ
 open Section
 open Functorᴰ
--- Terminal category over a base category
-Unitᴰ : (C : Category ℓC ℓC') → Categoryᴰ C ℓ-zero ℓ-zero
-Unitᴰ C = FullSubcategoryᴰ C (λ _ → Unit)
 
 module _ {C : Category ℓC ℓC'} where
   hasContrHomsUnitᴰ : hasContrHoms (Unitᴰ C)
-  hasContrHomsUnitᴰ = hasContrHomsFullSubcategory C _
+  hasContrHomsUnitᴰ = hasContrHomsPropertyOver C _
 
   ttS : GlobalSection (Unitᴰ C)
   ttS .F-obᴰ  = λ _ → tt
@@ -47,6 +45,3 @@ module _ {C : Category ℓC ℓC'}
   recᴰ s .F-idᴰ      = s .F-idᴰ
   recᴰ s .F-seqᴰ _ _ = s .F-seqᴰ _ _
 
--- Terminal category over the terminal category
-UnitCᴰ : Categoryᴰ (TerminalCategory {ℓ-zero}) ℓ-zero ℓ-zero
-UnitCᴰ = Unitᴰ TerminalCategory

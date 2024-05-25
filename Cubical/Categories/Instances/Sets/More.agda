@@ -9,14 +9,18 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Presheaf
 
 open import Cubical.Foundations.Isomorphism.More
+
 
 private
   variable
@@ -48,6 +52,12 @@ module _ {A}{B} (f : CatIso (SET ℓ) A B) a where
     ∙ transportRefl _
     ∙ cong (f .fst) (transportRefl _ ∙ transportRefl _ ))
 
-isFullyFaithfulLiftF : ∀ {ℓ ℓ'} → isFullyFaithful (LiftF {ℓ}{ℓ'})
-isFullyFaithfulLiftF x y =
-  isoToIsEquiv (iso _ (λ f x → f (lift x) .lower) (λ b → refl) λ _ → refl)
+open UniversalElement
+terminal'SET : Terminal' (SET ℓ)
+terminal'SET .vertex = Unit* , isSetUnit*
+terminal'SET .element = tt
+terminal'SET .universal X .equiv-proof y = uniqueExists
+  (λ _ → tt*)
+  (isPropUnit tt tt)
+  (λ _ p' q' → isSetUnit tt tt p' q')
+  (λ _ _ → funExt λ _ → isPropUnit* tt* tt*)

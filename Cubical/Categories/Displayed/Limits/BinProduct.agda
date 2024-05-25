@@ -8,7 +8,6 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Slice
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
@@ -29,8 +28,8 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
   BinProductsᴰ : BinProducts' C → Type _
   BinProductsᴰ = RightAdjointᴰ (ΔCᴰ D)
 
-  FibBinProductsAtᴰ : ∀ {c} → (D.ob[ c ] × D.ob[ c ]) → Type _
-  FibBinProductsAtᴰ = LocalRightAdjointAtᴰ (Δᴰ D)
+  VerticalBinProductsAtᴰ : ∀ {c} → (D.ob[ c ] × D.ob[ c ]) → Type _
+  VerticalBinProductsAtᴰ = VerticalRightAdjointAtᴰ (Δᴰ D)
 
-  FibBinProductsᴰ : Type _
-  FibBinProductsᴰ = LocalRightAdjointᴰ (Δᴰ D)
+  VerticalBinProductsᴰ : Type _
+  VerticalBinProductsᴰ = VerticalRightAdjointᴰ (Δᴰ D)

@@ -11,7 +11,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Base.More
 open import Cubical.Categories.Displayed.Functor
 
 private

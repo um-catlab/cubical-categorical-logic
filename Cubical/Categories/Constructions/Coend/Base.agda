@@ -17,13 +17,13 @@ module Cubical.Categories.Constructions.Coend.Base where
 
     module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}(F : Bifunctor (C ^op) C D)where
 
-        open Category C renaming (ob to obᶜ ; _⋆_ to _⋆ᶜ_ ; id to idᶜ)
-        open Category D renaming (ob to obᵈ ; _⋆_ to _⋆ᵈ_ ; id to idᵈ)
+        module C = Category C 
+        module D = Category D
 
         record Cowedge : Set (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓD ℓD'))) where 
             field 
-                nadir : obᵈ
-                ψ : (c : obᶜ) → D [ F ⟅ c , c ⟆b , nadir ]
+                nadir : D.ob
+                ψ : (c : C.ob) → D [ F ⟅ c , c ⟆b , nadir ]
                 {- 
                     for all morphisms f : c ⇒ c' in category C,
 
@@ -33,17 +33,17 @@ module Cubical.Categories.Constructions.Coend.Base where
                      ↓                          ↓ 
                     F₀(c,c)---ψ(c)-----------> nadir
                 -}
-                extranatural : {c c' : obᶜ}(f : C [ c , c' ]) → 
-                    (F ⟪ idᶜ , f ⟫lr ⋆ᵈ  ψ c') ≡ ( F ⟪ f ,  idᶜ ⟫lr ⋆ᵈ ψ c)
+                extranatural : {c c' : C.ob}(f : C [ c , c' ]) → 
+                    (F ⟪ C.id , f ⟫lr D.⋆  ψ c') ≡ ( F ⟪ f ,  C.id ⟫lr D.⋆ ψ c)
                 
         record Coend : Set ((ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓD ℓD'))))  where 
             open Cowedge
             field 
                 cowedge : Cowedge
                 factor : (W : Cowedge ) → D [ cowedge .nadir , W .nadir ]
-                commutes : (W : Cowedge )(c : obᶜ) → (cowedge .ψ c ⋆ᵈ factor W) ≡ W .ψ c
+                commutes : (W : Cowedge )(c : C.ob) → (cowedge .ψ c D.⋆ factor W) ≡ W .ψ c
                 unique : (W : Cowedge )(factor' : D [ cowedge .nadir , W .nadir ]) → 
-                            (∀(c : obᶜ) → (cowedge .ψ c ⋆ᵈ factor') ≡ W .ψ c) → 
+                            (∀(c : C.ob) → (cowedge .ψ c D.⋆ factor') ≡ W .ψ c) → 
                             factor' ≡ factor W
 
     module _ {C : Category ℓC ℓC'}(F : Bifunctor (C ^op) C (SET (ℓ-max ℓC ℓC')) ) where

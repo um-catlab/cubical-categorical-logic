@@ -77,6 +77,9 @@ infix 30 _⟪_⟫l
 infix 30 _⟪_⟫r
 -- same infix level as on objects since these will
 -- never be used in the same context
+infix 30 _⟪_,_⟫lr
+-- same infix level as on objects since these will
+-- never be used in the same context
 _⟪_⟫l : (F : Bifunctor C D E)
      → ∀ {c c' d}
      → C [ c , c' ]

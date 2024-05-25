@@ -15,7 +15,9 @@ module Cubical.Categories.Constructions.Coend.Base where
         variable
             ℓC ℓC' ℓD ℓD' : Level
 
-    module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}(F : Bifunctor (C ^op) C D) where
+    module _ {C : Category ℓC ℓC'}
+             {D : Category ℓD ℓD'}
+             (F : Bifunctor (C ^op) C D) where
 
         module C = Category C
         module D = Category D
@@ -36,19 +38,23 @@ module Cubical.Categories.Constructions.Coend.Base where
                 extranatural : {c c' : C.ob}(f : C [ c , c' ]) →
                     (F ⟪ C.id , f ⟫lr D.⋆  ψ c') ≡ ( F ⟪ f ,  C.id ⟫lr D.⋆ ψ c)
 
-        -- TODO : Can probably define a Presheaf structure for Cowedge
-        -- and then this should be isomorphic to a universal element of that presheaf.
+        -- TODO : Can probably define a Presheaf structure for Cowedge and then
+        -- this should be isomorphic to a universal element of that presheaf.
         record Coend : Set ((ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓD ℓD'))))  where
             open Cowedge
             field
                 cowedge : Cowedge
                 factor : (W : Cowedge ) → D [ cowedge .nadir , W .nadir ]
-                commutes : (W : Cowedge )(c : C.ob) → (cowedge .ψ c D.⋆ factor W) ≡ W .ψ c
-                unique : (W : Cowedge )(factor' : D [ cowedge .nadir , W .nadir ]) →
-                            (∀(c : C.ob) → (cowedge .ψ c D.⋆ factor') ≡ W .ψ c) →
-                            factor' ≡ factor W
+                commutes : (W : Cowedge )
+                           (c : C.ob) →
+                           (cowedge .ψ c D.⋆ factor W) ≡ W .ψ c
+                unique : (W : Cowedge )
+                         (factor' : D [ cowedge .nadir , W .nadir ]) →
+                         (∀(c : C.ob) → (cowedge .ψ c D.⋆ factor') ≡ W .ψ c) →
+                         factor' ≡ factor W
 
-    module _ {C : Category ℓC ℓC'}(F : Bifunctor (C ^op) C (SET (ℓ-max ℓC ℓC')) ) where
+    module _ {C : Category ℓC ℓC'}
+             (F : Bifunctor (C ^op) C (SET (ℓ-max ℓC ℓC')) ) where
         open import Cubical.HITs.SetCoequalizer
         open Category
 
@@ -57,12 +63,16 @@ module Cubical.Categories.Constructions.Coend.Base where
             open Cowedge
             open Coend
 
-            lmap : Σ[ X ∈ ob C ] Σ[ Y ∈ ob C ] Σ[ f ∈ (C)[ Y , X ] ] fst( F ⟅ X , Y ⟆b )
-                → Σ[ X ∈ ob C ] fst ( F ⟅ X , X ⟆b)
+            lmap : Σ[ X ∈ ob C ]
+                   Σ[ Y ∈ ob C ]
+                   Σ[ f ∈ (C)[ Y , X ] ] fst( F ⟅ X , Y ⟆b )
+                →  Σ[ X ∈ ob C ] fst ( F ⟅ X , X ⟆b)
             lmap (X , Y , f , Fxy ) = X , ( F ⟪ id C {X} , f ⟫lr ) Fxy
 
-            rmap : Σ[ X ∈ ob C ] Σ[ Y ∈ ob C ] Σ[ f ∈ (C)[ Y , X ] ] fst( F ⟅ X , Y ⟆b )
-                → Σ[ X ∈ ob C ] fst ( F ⟅ X , X ⟆b)
+            rmap : Σ[ X ∈ ob C ]
+                   Σ[ Y ∈ ob C ]
+                   Σ[ f ∈ (C)[ Y , X ] ] fst( F ⟅ X , Y ⟆b )
+                →  Σ[ X ∈ ob C ] fst ( F ⟅ X , X ⟆b)
             rmap (X , Y , f , Fxy ) = Y , ( F ⟪ f , id C {Y}  ⟫lr ) Fxy
 
             {-
@@ -83,7 +93,9 @@ module Cubical.Categories.Constructions.Coend.Base where
             univ .extranatural {Y} {X} f = funExt λ Fxy → coeq (X , Y , f , Fxy)
 
             open UniversalProperty using (inducedHom ; uniqueness)
-            factoring : (W : Cowedge F) → SetCoequalizer lmap rmap → fst (W .nadir)
+            factoring : (W : Cowedge F) →
+                        SetCoequalizer lmap rmap →
+                        fst (W .nadir)
             factoring W =
                 inducedHom
                     (W .nadir .snd)
@@ -95,7 +107,8 @@ module Cubical.Categories.Constructions.Coend.Base where
             coend .factor = factoring
             coend .commutes W c = refl
             coend .unique W factor' commutes' =
-                -- uniqueness here follows from uniqueness of maps out of the coequalizer
+                -- uniqueness here follows from
+                -- uniqueness of maps out of the coequalizer
                 uniqueness
                     lmap
                     rmap

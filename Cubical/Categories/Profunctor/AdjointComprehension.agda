@@ -86,7 +86,6 @@ module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
   (F : Functor C D)
-  -- (G : Functor (C ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
   ℓS
   where
 
@@ -94,6 +93,11 @@ module _
 
   open Ran ℓS F
 
+  -- Define the right Kan-extension of preseheaves along F
+  -- via FunctorComprehension
+  --
+  -- This still requires the Presheaf.KanExtension definitions of
+  -- RanOb, RanHom, η, ε, and Δ₂
   Ran' :
     Functor
       (FUNCTOR (C ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
@@ -114,47 +118,19 @@ module _
           (FUNCTOR (C ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
           (action (FUNCTOR (D ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
           (LProf F* ⟅ P ⟆) x (the-ues P .element)) y)
-        (makeNatTransPath (funExt (λ d →
-          funExt (λ x →
-            cong (λ a → mapL a d (η .N-ob A .N-ob d x)) (sym (z .snd)) ∙
-            
-            cong (λ a → a (η .N-ob A .N-ob d x))
-            ((mapL∘
-              (ε .N-ob P)
-              (precomposeF (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)) (F ^opF)
-                .F-hom (z .fst)))
-              d) ∙
-            {!cong (λ a → a .N-ob ?) (Δ₂ P)!}
-            ))))
-            -- end≡
-            --   P
-            --   λ c g →
-            --     cong (λ a → a .N-ob c (A .F-hom g x)) (sym (z .snd)) ∙
-            --     -- {!!}
-            --     -- {!z .f!}
-            --     -- ∙
-            --     -- cong (λ a → a (z .fst .N-ob d x .Ran.End.fun c g)) (sym (P .F-id))  ∙
-            --     -- sym (z .fst .N-ob d x .Ran.End.coh (C .id) g) ∙
-            --     {!!}
-            --     -- cong (z .fst .N-ob d x .Ran.End.fun c) (cong (λ a → a ⋆⟨ D ⟩ g) (F .F-id) ∙
-            --     -- D .⋆IdL g)
-            --     ))))
---       -- {!!}
---       ΣPathP (
--- -- Goal: seqTrans (η .N-ob A) (RanHom y) ≡ fst z
---       makeNatTransPath (funExt (λ d → funExt (λ x →
---         -- cong (λ a → (η .N-ob A .N-ob d) ∘F (mapL a d))(z .snd) ∙
---         -- sym (cong (λ a → mapL a d (η .N-ob A .N-ob d x)) (z .snd)) ∙
---         -- {!!} ∙
---         -- cong (λ a → a (z .fst .N-ob d x)) (mapLId P d)
---         -- cong (λ a → mapL a d {!!}) {!!} ∙
---         {!!} ∙
---         cong (λ a → a .N-ob d (z .fst .N-ob d x)) (Δ₂ P)
---         )))
---         ,
---       -- (cong (λ a → seqTrans (η .N-ob A) (RanHom a))
---       -- (sym (z .snd)) ∙
---       -- makeNatTransPath
---       --   (funExt (λ d → funExt (λ x →
---       --     {!!})))) ,
---       {!!})
+        (cong (λ a → seqTrans (η .N-ob A) (RanHom a)) (sym (z .snd) ) ∙
+        cong (λ a → seqTrans (η .N-ob A) a) (makeNatTransPath (funExt (mapL∘ _ _))) ∙
+        sym ((FUNCTOR (D ^op) (SET _)) .⋆Assoc _ _ _) ∙
+        cong (λ a → seqTrans a (RanHom (ε .N-ob P))) (sym (η .N-hom (z .fst))) ∙
+        (FUNCTOR (D ^op) (SET _)) .⋆Assoc _ _ _ ∙
+        cong (λ a → seqTrans (z .fst) a) (Δ₂ P) ∙
+        (FUNCTOR (D ^op) (SET _)) .⋆IdR (z .fst))
+
+  _ : ∀ P → Ran ⟅ P ⟆ ≡ Ran' ⟅ P ⟆
+  _ = λ P → refl
+
+  -- The action on morphisms is not definitionally equal but could be
+  -- proved path-equal with a similar path to above
+  -- i.e. reassociate the seqTrans and use (Δ₂ P)
+  -- _ : ∀ {P}{Q}(f : FUNCTOR (C ^op) (SET _) [ P , Q ]) → Ran ⟪ f ⟫ ≡ Ran' ⟪ f ⟫
+  -- _ = λ f → {!!}

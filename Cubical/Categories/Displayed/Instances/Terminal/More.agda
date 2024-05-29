@@ -45,3 +45,12 @@ module _ {C : Category ℓC ℓC'}
   recᴰ s .F-idᴰ      = s .F-idᴰ
   recᴰ s .F-seqᴰ _ _ = s .F-seqᴰ _ _
 
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         (F : Functor C D) where
+  introF : Functorᴰ F Cᴰ (Unitᴰ D)
+  introF .F-obᴰ = λ _ → tt
+  introF .F-homᴰ = λ _ → tt
+  introF .F-idᴰ = refl
+  introF .F-seqᴰ _ _ = refl

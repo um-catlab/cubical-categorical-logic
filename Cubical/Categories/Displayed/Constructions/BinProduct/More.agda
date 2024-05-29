@@ -26,6 +26,7 @@ open import Cubical.Categories.Constructions.TotalCategory.More
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 open import Cubical.Categories.Displayed.Instances.Terminal.More as Unitᴰ
+  hiding (introF)
 
 private
   variable

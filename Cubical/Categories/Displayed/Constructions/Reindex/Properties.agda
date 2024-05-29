@@ -8,12 +8,16 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Presheaf
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
+open import Cubical.Categories.Displayed.Limits.Terminal
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
+open import Cubical.Categories.Displayed.Presheaf
 
 private
   variable
@@ -21,8 +25,10 @@ private
 
 open Category
 open Functor
+open UniversalElement
+open UniversalElementᴰ
+open CartesianOver
 
-{- -}
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
@@ -40,7 +46,6 @@ module _
     {c : C .ob}{c' : C .ob}
     {dᴰ' : Dᴰ.ob[ F ⟅ c' ⟆ ]}{f : C [ c , c' ]}
     where
-    open CartesianOver
     reflectsCartesianOvers
       : CartesianOver Dᴰ dᴰ' (F ⟪ f ⟫)
       → CartesianOver F*Dᴰ dᴰ' f
@@ -72,3 +77,30 @@ module _
             (R.reind-filler (sym (F .F-seq _ _)) _)
             gᴰ-commutes)
             (R.reind-filler (F .F-seq g f) gfᴰ)))))
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {F : Functor C D}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  where
+
+  reindReflectsVerticalTerminal :
+    ∀ c → VerticalTerminalAt Dᴰ (F ⟅ c ⟆)
+    → VerticalTerminalAt (reindex Dᴰ F) c
+  reindReflectsVerticalTerminal c 𝟙ᴰ .vertexᴰ = 𝟙ᴰ .vertexᴰ
+  reindReflectsVerticalTerminal c 𝟙ᴰ .elementᴰ = 𝟙ᴰ .elementᴰ
+  reindReflectsVerticalTerminal c 𝟙ᴰ .universalᴰ = 𝟙ᴰ .universalᴰ
+
+  VerticalTerminalsReindex :
+    VerticalTerminals Dᴰ
+    → VerticalTerminals (reindex Dᴰ F)
+  VerticalTerminalsReindex vta c =
+    reindReflectsVerticalTerminal c (vta (F ⟅ c ⟆))
+
+  module _ {termC : Terminal' C} where
+    open Terminal'Notation termC
+    LiftedTerminalReindex :
+      VerticalTerminalAt Dᴰ (F ⟅ 𝟙 ⟆)
+      → LiftedTerminal (reindex Dᴰ F) termC
+    LiftedTerminalReindex 𝟙ᴰ =
+      Vertical/𝟙→LiftedTerm _
+        (reindReflectsVerticalTerminal (termC .vertex) 𝟙ᴰ)

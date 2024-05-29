@@ -43,15 +43,15 @@ isFibrationSet : isFibration (SETᴰ ℓ ℓ')
 isFibrationSet dᴰ = CartesianOver→CartesianLift (SETᴰ _ _)
   (AllCartesianOversSETᴰ _ _)
 
-VerticalTerminalsᴰSETᴰ : VerticalTerminalsᴰ (SETᴰ ℓ ℓ')
-VerticalTerminalsᴰSETᴰ dᴰ .vertexᴰ _ = Unit* , isSetUnit*
-VerticalTerminalsᴰSETᴰ dᴰ .elementᴰ = tt
-VerticalTerminalsᴰSETᴰ dᴰ .universalᴰ .equiv-proof _ = uniqueExists
+VerticalTerminalsSETᴰ : VerticalTerminals (SETᴰ ℓ ℓ')
+VerticalTerminalsSETᴰ dᴰ .vertexᴰ _ = Unit* , isSetUnit*
+VerticalTerminalsSETᴰ dᴰ .elementᴰ = tt
+VerticalTerminalsSETᴰ dᴰ .universalᴰ .equiv-proof _ = uniqueExists
   (λ _ _ → tt*)
   (isPropUnit tt tt)
   (λ _ p q → isSetUnit tt tt p q)
   (λ _ _ → funExt λ _ → funExt λ _ → refl)
 
-LiftedTerminalᴰSETᴰ : ∀{ℓ ℓ'} → LiftedTerminalᴰ (SETᴰ ℓ ℓ') terminal'SET
-LiftedTerminalᴰSETᴰ {ℓ} {ℓ'} =
-  AllVertical→LiftedTermᴰ (SETᴰ ℓ ℓ') terminal'SET VerticalTerminalsᴰSETᴰ
+LiftedTerminalSETᴰ : ∀{ℓ ℓ'} → LiftedTerminal (SETᴰ ℓ ℓ') terminal'SET
+LiftedTerminalSETᴰ {ℓ} {ℓ'} =
+  Vertical/𝟙→LiftedTerm _ (VerticalTerminalsSETᴰ _)

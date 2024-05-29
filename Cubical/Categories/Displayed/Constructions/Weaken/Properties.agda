@@ -31,7 +31,7 @@ open UniversalElement
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
          (termC : Terminal' C) (termD : Terminal' D)
          where
-  termWeaken : LiftedTerminalᴰ (weaken C D) termC
+  termWeaken : LiftedTerminal (weaken C D) termC
   termWeaken .vertexᴰ = termD .vertex
   termWeaken .elementᴰ = termD .element
   termWeaken .universalᴰ = termD .universal _

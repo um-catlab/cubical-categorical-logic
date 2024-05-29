@@ -13,12 +13,15 @@ open import Cubical.Data.Sum.Base as Sum hiding (elim; rec)
 open import Cubical.Data.Unit
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Constructions.Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Reasoning
 
 private
@@ -46,8 +49,6 @@ module _ (Ob : Type ℓg) where
     open QuiverOver
     open UniversalElement
 
-    -- copied from Categories.Constructions.Free.Category.Quiver
-    -- and suitably modified
     data Exp : Ob' → Ob' → Type (ℓ-max ℓg ℓg') where
       ↑_   : ∀ g → Exp (Q .dom g) (Q .cod g)
       idₑ  : ∀ {A} → Exp A A
@@ -80,9 +81,9 @@ module _ (Ob : Type ℓg) where
     FreeCatw/Terminal' = (FC , FCTerminal')
 
     module _ (Cᴰ : Categoryᴰ (FreeCatw/Terminal' .fst) ℓCᴰ ℓCᴰ')
-      (term'ᴰ : LiftedTerminalᴰ Cᴰ (FreeCatw/Terminal' .snd)) where
+      (term'ᴰ : LiftedTerminal Cᴰ (FreeCatw/Terminal' .snd)) where
 
-      open LiftedTerminalᴰNotation Cᴰ term'ᴰ
+      open LiftedTerminalNotation Cᴰ term'ᴰ
 
       private
         module FC = Category (FreeCatw/Terminal' .fst)
@@ -99,9 +100,6 @@ module _ (Ob : Type ℓg) where
         module _ (ψ : (e : Q .mor) →
           Cᴰ.Hom[ ↑ e ][ ϕ* (Q .dom e) , ϕ* (Q .cod e) ]) where
 
-          -- extend it to all morphisms
-          -- (copied from
-          -- Cubical.Categories.Constructions.Free.Category.Quiver)
           elim-F-homᴰ : ∀ {d d'} → (f : FC.Hom[ d , d' ]) →
             Cᴰ.Hom[ f ][ ϕ* d , ϕ* d' ]
           elim-F-homᴰ (↑ g) = ψ g
@@ -133,20 +131,23 @@ module _ (Ob : Type ℓg) where
           elim .F-idᴰ = refl
           elim .F-seqᴰ _ _ = refl
 
-    -- module _
-    --   {D : Category ℓD ℓD'}
-    --   {term' : Terminal' D}
-    --   (F : Functor FC D)
-    --   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
-    --   (term'ᴰ : Terminalᴰ Dᴰ term')
-    --   where
-    --   private
-    --     module Dᴰ = Categoryᴰ Dᴰ
-    --   open Terminal'Notation term'
-    --   module _ (ϕ : ∀ o → Dᴰ.ob[ F ⟅ o ⟆ ]) where
-    --     private
-    --       ϕ* : ∀ (o' : Ob') → Dᴰ.ob[ F .F-ob o' ]
-    --       ϕ* = {!!}
+    module _
+      {D : Category ℓD ℓD'}
+      (F : Functor FC D)
+      (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+      (term'ᴰ : VerticalTerminalAt Dᴰ (F ⟅ inr _ ⟆))
+      where
+      private
+        module Dᴰ = Categoryᴰ Dᴰ
+        open VerticalTerminalAtNotation _ _ term'ᴰ
+      module _ (ϕ : ∀ o → Dᴰ.ob[ F ⟅ inl o ⟆ ]) where
+        private
+          ϕ* : ∀ v → Dᴰ.ob[ F ⟅ v ⟆ ]
+          ϕ* = Sum.elim ϕ λ _ → 1ᴰ
+        module _ (ψ : ∀ e → Dᴰ.Hom[ F ⟪ ↑ e ⟫ ][ ϕ* _ , ϕ* _ ]) where
+          elimLocal : Section F Dᴰ
+          elimLocal = GlobalSectionReindex→Section _ _
+            (elim _ (LiftedTerminalReindex term'ᴰ) ϕ ψ)
 
     module _ (D : Category ℓD ℓD')
              (term' : Terminal' D)

@@ -2,6 +2,7 @@
 # originally written by Steven Schaefer <stschaef>
 
 error=0
+# Bash 4 or 5 to run this
 shopt -s globstar nullglob
 
 VENV_DIR="env"

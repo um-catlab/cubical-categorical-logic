@@ -36,6 +36,7 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Properties as Disp
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Functors.Constant
@@ -48,6 +49,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More
 
 open Category
+open Section
 -- t : ⊤ -> b
 -- f : ⊤ -> b
 -- d : ⊤ → ⊤
@@ -121,14 +123,28 @@ boolToExp = if_then [t] else [f]
   n : FQ [ 𝟙 , [b] ] → Bool
   n exp = (sem ⟪ exp ⟫) _
 
--- Goal:
--- 1. show [t] ≠ [f]
--- 2. show ∀ e : ⊤ → b . e ≡ [t] + e ≡ [f]
+canonicity : ∀ e → (e ≡ [t]) ⊎ (e ≡ [f])
+canonicity = λ exp → fixup exp (Canonicalize .F-homᴰ exp _ _) where
+  pts = FQ [ 𝟙 ,-]
 
--- canonicity : isEquiv boolToExp
--- canonicity = record { equiv-proof = λ exp → uniqueExists {!!} {!!} {!!} {!!} } where
---   pts : Functor FQ (SET ℓ-zero)
---   pts = FQ [ 𝟙 ,-]
+  Canonicalize : Section pts (SETᴰ _ _)
+  Canonicalize = elimLocal _ _ _ _
+    (VerticalTerminalsSETᴰ _)
+    (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
+       ; b exp →
+         ((exp ≡ [t]) ⊎ (exp ≡ [f]))
+         , isSet⊎ (isProp→isSet (isSetHom FQ _ _))
+                  (isProp→isSet (isSetHom FQ _ _))
+       })
+    λ { f → λ ⟨⟩ _ → inr (cong₂ (seq' FQ) 𝟙η' refl ∙ FQ .⋆IdL _)
+      ; t → λ ⟨⟩ _ → inl (cong₂ (seq' FQ) 𝟙η' refl ∙ FQ .⋆IdL _)
+      ; d → λ x _ → tt* }
 
---   Canonicalize : Section pts (SETᴰ _ _)
---   Canonicalize = {!Free.elimLocal!}
+  fixup : ∀ e
+        → ((FQ .id ⋆⟨ FQ ⟩ e) ≡ [t]) ⊎ ((FQ .id ⋆⟨ FQ ⟩ e) ≡ [f])
+        → (e ≡ [t]) ⊎ (e ≡ [f])
+  fixup _ =
+    Sum.elim (λ hyp → inl (sym (FQ .⋆IdL _) ∙ hyp))
+             (λ hyp → inr (sym (FQ .⋆IdL _) ∙ hyp))
+
+-- even better would be to show isEquiv boolToExp

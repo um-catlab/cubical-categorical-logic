@@ -95,9 +95,26 @@ module _
 
   the-ues : UniversalElements (LProf F*)
   the-ues P .vertex = RanOb P
-  the-ues P .element = ε .N-ob P
-  the-ues P .universal A .equiv-proof y .fst .fst =
-    seqTrans (η .N-ob A) (RanHom y)
+  the-ues P .element .N-ob c x =
+    x .Ran.End.fun c (D .id)
+  the-ues P .element .N-hom {c}{c'} g =
+    funExt λ x →
+    cong
+      (x .End.fun c')
+      (D .⋆IdL _ ∙ sym (D .⋆IdR _)) ∙ x .End.coh g (D .id)
+  the-ues P .universal A .equiv-proof y .fst .fst .N-ob d x .Ran.End.fun c g =
+    y .N-ob c (action D A g x)
+  the-ues P .universal A .equiv-proof y .fst .fst .N-ob d x
+    .Ran.End.coh {c}{c'} f g =
+    cong (λ a → y .N-ob c a) (cong (λ a → a x) (A .F-seq _ _)) ∙
+    cong (λ a → a (action D A g x)) (y .N-hom f)
+  the-ues P .universal A .equiv-proof y .fst .fst .N-hom {d}{d'} f =
+    funExt (λ x →
+      end≡
+        P
+        (λ c g →
+          cong (λ a → y .N-ob c a) (cong (λ a → a x) (sym (A .F-seq _ _))))
+    )
   the-ues P .universal A .equiv-proof y .fst .snd =
     makeNatTransPath (funExt (λ c → funExt (λ x →
       cong (λ a → y .N-ob c a) (cong (λ a → a x) (A .F-id)))))
@@ -107,19 +124,25 @@ module _
         (FUNCTOR (C ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
         (action (FUNCTOR (D ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
         (LProf F* ⟅ P ⟆) x (the-ues P .element)) y)
-      (cong (λ a → seqTrans (η .N-ob A) (RanHom a)) (sym (z .snd) ) ∙
-      cong (λ a → seqTrans (η .N-ob A) a) (makeNatTransPath (funExt (mapL∘ _ _))) ∙
-      sym ((FUNCTOR (D ^op) (SET _)) .⋆Assoc _ _ _) ∙
-      cong (λ a → seqTrans a (RanHom (ε .N-ob P))) (sym (η .N-hom (z .fst))) ∙
-      (FUNCTOR (D ^op) (SET _)) .⋆Assoc _ _ _ ∙
-      cong (λ a → seqTrans (z .fst) a) (Δ₂ P) ∙
-      (FUNCTOR (D ^op) (SET _)) .⋆IdR (z .fst))
+      (makeNatTransPath (funExt (λ d → funExt (λ x →
+        end≡
+          P
+          (λ c g →
+            cong (λ a → a .N-ob c (action D A g x)) (sym (z .snd)) ∙
+            cong (λ a → a x .End.fun c (D .id)) (z .fst .N-hom g) ∙
+            cong (λ a → z .fst .N-ob d x .Ran.End.fun c a)
+              (cong (λ a → a ⋆⟨ D ⟩ g) (sym (F .F-id))) ∙
+            z .fst .N-ob d x .End.coh (C .id) g ∙
+            (sym (z .fst .N-ob d x .Ran.End.coh (C .id) g)) ∙
+            cong (λ a → z .fst .N-ob d x .Ran.End.fun c a)
+              (cong (λ a → a ⋆⟨ D ⟩ g) (F .F-id) ∙ D .⋆IdL g))
+      ))))
 
   -- Define the right Kan-extension of preseheaves along F
   -- via FunctorComprehension
   --
-  -- This still requires the Presheaf.KanExtension definitions of
-  -- RanOb, RanHom, η, ε, and Δ₂
+  -- As written, this still requires the Presheaf.KanExtension definitions of
+  -- RanOb, RanHom, η, ε, and Δ₂. Which doesn't cut out that much work
   Ran' :
     Functor
       (FUNCTOR (C ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
@@ -135,5 +158,7 @@ module _
   -- The action on morphisms is not definitionally equal but could be
   -- proved path-equal with a similar path to above
   -- i.e. reassociate the seqTrans and use (Δ₂ P)
-  -- _ : ∀ {P}{Q}(f : FUNCTOR (C ^op) (SET _) [ P , Q ]) → Ran ⟪ f ⟫ ≡ Ran' ⟪ f ⟫
-  -- _ = λ f → {!!}
+  -- test : ∀ {P}{Q}(f : FUNCTOR (C ^op) (SET _) [ P , Q ]) → Ran ⟪ f ⟫ ≡ Ran' ⟪ f ⟫
+  -- test {P}{Q} f =
+  --   makeNatTransPath (funExt (λ x → funExt (λ x →
+  --     end≡ Q (λ c g → {!refl!}))))

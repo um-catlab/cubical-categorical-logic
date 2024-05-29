@@ -2,8 +2,6 @@
 # originally written by Steven Schaefer <stschaef>
 
 error=0
-# Bash 4 or 5 to run this
-shopt -s globstar nullglob
 
 VENV_DIR="env"
 
@@ -28,7 +26,7 @@ pip3 install wcwidth || { echo "Failed to install wcwidth."; exit 3; }
 
 echo "Package 'wcwidth' has been successfully installed in the virtual environment."
 
-for file in **/*.agda; do
+while IFS= read -r -d '' file; do
   python3 -c '
 import sys
 from wcwidth import wcswidth
@@ -43,5 +41,5 @@ except Exception as e:
     print(f"Error processing {filename}: {e}")
     sys.exit(1)
   ' "${file}" || error=1
-done
+done  < <(find . -name '*.agda' -print0)
 exit ${error}

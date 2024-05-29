@@ -38,7 +38,7 @@ open import Cubical.Categories.Profunctor.FunctorComprehension
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓS ℓR : Level
+    ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓS ℓR : Level
 
 open Category
 open Functor
@@ -142,7 +142,7 @@ module _
   -- via FunctorComprehension
   --
   -- As written, this still requires the Presheaf.KanExtension definitions of
-  -- RanOb, RanHom, η, ε, and Δ₂. Which doesn't cut out that much work
+  -- RanOb
   Ran' :
     Functor
       (FUNCTOR (C ^op) (SET (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD') ℓS)))
@@ -155,10 +155,61 @@ module _
   F*⊣Ran' : F* ⊣ Ran'
   F*⊣Ran' = L⊣R F* the-ues
 
-  -- The action on morphisms is not definitionally equal but could be
-  -- proved path-equal with a similar path to above
-  -- i.e. reassociate the seqTrans and use (Δ₂ P)
-  -- test : ∀ {P}{Q}(f : FUNCTOR (C ^op) (SET _) [ P , Q ]) → Ran ⟪ f ⟫ ≡ Ran' ⟪ f ⟫
-  -- test {P}{Q} f =
-  --   makeNatTransPath (funExt (λ x → funExt (λ x →
-  --     end≡ Q (λ c g → {!refl!}))))
+  test : ∀ {P}{Q}(f : FUNCTOR (C ^op) (SET _) [ P , Q ]) →
+    Ran ⟪ f ⟫ ≡ Ran' ⟪ f ⟫
+  test {P}{Q} f =
+    makeNatTransPath (funExt (λ x → funExt (λ x →
+      end≡ Q
+        (λ c g →
+          cong
+            (λ a → f .N-ob c (x .End.fun c a))
+            (sym (D .⋆IdL g))))))
+
+
+  {--
+  --          P
+  -- C^op -----------> SET
+  --  |              __/
+  --  | F ^op    ___/
+  --  V    _____/ Ran' P
+  -- D^op /
+  --
+  -- M : D^op → SET and μ : MF → X
+  -- then ∃! δ : M → Ran' X such that
+  --
+  --       δF
+  -- MF -----> RF
+  --   \_       |
+  --     \      |
+  --  μ   \_    | ε
+  --        \   |
+  --         \  v
+  --            P
+  --}
+
+  module _
+    {E : Category ℓE ℓE'}
+    (P : Functor (C ^op) (SET _))
+    (M : Functor (D ^op) (SET _))
+    (μ : (FUNCTOR (C ^op) (SET _)) [ M ∘F (F ^opF) , P ] )
+    where
+
+    ε' :
+      (FUNCTOR (C ^op) (SET _))
+        [ Ran' .F-ob P ∘F (F ^opF) , P ]
+    ε' = the-ues P .element
+
+    δ : (FUNCTOR (D ^op) (SET  _))
+      [ M , Ran' .F-ob P ]
+    δ = the-ues P .universal M .equiv-proof μ .fst .fst
+
+    δ' : (FUNCTOR (C ^op) (SET  _))
+      [ M ∘F (F ^opF) , Ran' .F-ob P ∘F (F ^opF) ]
+    δ' = δ ∘ˡ (F ^opF)
+
+    ε∘δ : NatTrans (M ∘F (F ^opF)) P
+    ε∘δ = seqTrans δ' ε'
+
+    _ : ε∘δ ≡ μ
+    _ = makeNatTransPath (funExt (λ c → funExt (λ x →
+      cong (μ .N-ob c) (cong (λ a → a x) (M .F-id)))))

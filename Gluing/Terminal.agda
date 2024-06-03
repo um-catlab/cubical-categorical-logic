@@ -123,28 +123,46 @@ boolToExp = if_then [t] else [f]
   n : FQ [ 𝟙 , [b] ] → Bool
   n exp = (sem ⟪ exp ⟫) _
 
-canonicity : ∀ e → (e ≡ [t]) ⊎ (e ≡ [f])
-canonicity = λ exp → fixup exp (Canonicalize .F-homᴰ exp _ _) where
+CanonicalForm : FQ [ 𝟙 , [b] ] → Type _
+CanonicalForm = λ e → ([t] ≡ e) ⊎ ([f] ≡ e)
+
+isSetCanonicalForm : ∀ {e} → isSet (CanonicalForm e)
+isSetCanonicalForm =
+  isSet⊎ (isProp→isSet (isSetHom FQ _ _)) (isProp→isSet (isSetHom FQ _ _))
+
+canonicity : ∀ e → CanonicalForm e
+canonicity = λ exp → fixup (Canonicalize .F-homᴰ exp _ _)
+  where
   pts = FQ [ 𝟙 ,-]
 
   Canonicalize : Section pts (SETᴰ _ _)
   Canonicalize = elimLocal _ _ _ _
     (VerticalTerminalsSETᴰ _)
     (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
-       ; b exp →
-         ((exp ≡ [t]) ⊎ (exp ≡ [f]))
-         , isSet⊎ (isProp→isSet (isSetHom FQ _ _))
-                  (isProp→isSet (isSetHom FQ _ _))
+       ; b exp → CanonicalForm exp , isSetCanonicalForm
        })
-    λ { f → λ ⟨⟩ _ → inr (cong₂ (seq' FQ) 𝟙η' refl ∙ FQ .⋆IdL _)
-      ; t → λ ⟨⟩ _ → inl (cong₂ (seq' FQ) 𝟙η' refl ∙ FQ .⋆IdL _)
+    λ { f → λ ⟨⟩ _ → inr (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙η' refl)
+      ; t → λ ⟨⟩ _ → inl (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙η' refl)
       ; d → λ x _ → tt* }
 
-  fixup : ∀ e
-        → ((FQ .id ⋆⟨ FQ ⟩ e) ≡ [t]) ⊎ ((FQ .id ⋆⟨ FQ ⟩ e) ≡ [f])
-        → (e ≡ [t]) ⊎ (e ≡ [f])
-  fixup _ =
-    Sum.elim (λ hyp → inl (sym (FQ .⋆IdL _) ∙ hyp))
-             (λ hyp → inr (sym (FQ .⋆IdL _) ∙ hyp))
+  fixup : ∀ {e}
+        → ([t] ≡ (FQ .id ⋆⟨ FQ ⟩ e)) ⊎ ([f] ≡ (FQ .id ⋆⟨ FQ ⟩ e))
+        → CanonicalForm e
+  fixup =
+    Sum.elim (λ p → inl (p ∙ FQ .⋆IdL _))
+             (λ p → inr (p ∙ FQ .⋆IdL _))
 
--- even better would be to show isEquiv boolToExp
+canonicalFormUniq : ∀ e → isContr (CanonicalForm e)
+canonicalFormUniq exp = canonicity exp , Sum.elim canonical[t] canonical[f]
+  where
+  canonical[t] : ∀ {exp} p → canonicity exp ≡ inl p
+  canonical[t] p =
+    J (λ exp p → canonicity exp ≡ inl p)
+      (cong inl (FQ .isSetHom _ _ _ _))
+      p
+
+  canonical[f] : ∀ {exp} p → canonicity exp ≡ inr p
+  canonical[f] p =
+    J (λ exp p → canonicity exp ≡ inr p)
+      (cong inr (FQ .isSetHom _ _ _ _))
+      p

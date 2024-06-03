@@ -32,12 +32,13 @@ module _
     struct .isPropHomᴰ = Pprop _
 
 module examples where
+  open import Cubical.Categories.Constructions.TotalCategory
+
   module _
     (C : Category ℓC ℓC')
     where
 
     open import Cubical.Categories.Isomorphism
-    open import Cubical.Categories.Constructions.TotalCategory
 
     open Category C
 
@@ -57,3 +58,56 @@ module examples where
 
     morCore→isIso : ∀ {x y} (f : Core [ x , y ]) → isIso C (f .fst)
     morCore→isIso f = f .snd
+
+  module _ where
+    open import Cubical.Data.Nat hiding (isEven ; isOdd)
+    open import Cubical.Data.Bool
+    open import Cubical.Data.Empty
+
+    -- Natural numbers monoid as a one object monoid
+    NatCat : Category ℓ-zero ℓ-zero
+    NatCat .ob = Unit
+    NatCat .Hom[_,_] _ _ = ℕ
+    NatCat .id = 0
+    NatCat ._⋆_ a b = a + b
+    NatCat .⋆IdL _ = refl
+    NatCat .⋆IdR _ = +-zero _
+    NatCat .⋆Assoc f g h = sym (+-assoc f g h)
+    NatCat .isSetHom = isSetℕ
+
+    isEven : ℕ → Type
+    isEven zero = Unit
+    isEven (suc zero) = ⊥
+    isEven (suc (suc x)) = isEven x
+
+    isPropIsEven : (n : ℕ) → isProp (isEven n)
+    isPropIsEven zero = isPropUnit
+    isPropIsEven (suc zero) = isProp⊥
+    isPropIsEven (suc (suc n)) = isPropIsEven n
+
+    even-closed-under-+ :
+      {x y z : Unit} (f : NatCat [ x , y ])
+      (g : NatCat [ y , z ]) →
+      isEven f → isEven g → isEven (f + g)
+    even-closed-under-+ zero zero isEvenf isEveng = _
+    even-closed-under-+ zero (suc (suc g)) isEvenf isEveng = isEveng
+    even-closed-under-+ (suc (suc f)) zero isEvenf isEveng =
+      transport (sym (cong isEven (+-zero f))) isEvenf
+    even-closed-under-+ (suc (suc f)) (suc (suc g)) isEvenf isEveng =
+      even-closed-under-+ f (suc (suc g)) isEvenf isEveng
+
+    Evensᴰ : Categoryᴰ NatCat ℓ-zero ℓ-zero
+    Evensᴰ =
+      HomPropertyOver
+        NatCat
+        isEven
+        isPropIsEven
+        _
+        even-closed-under-+
+
+    -- The submonoid of even natural numbers
+    Evens : Category ℓ-zero ℓ-zero
+    Evens = ∫C Evensᴰ
+
+    morEvens→Evenℕ : ∀ {a}{b} → Evens [ a , b ] → Σ[ n ∈ ℕ ] isEven n
+    morEvens→Evenℕ f = f

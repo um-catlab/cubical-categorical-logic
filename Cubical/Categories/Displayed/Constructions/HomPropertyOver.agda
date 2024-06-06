@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+
 module Cubical.Categories.Displayed.Constructions.HomPropertyOver where
 
 open import Cubical.Foundations.Prelude
@@ -48,7 +50,7 @@ module examples where
     Coreᴰ =
       HomPropertyOver
       C (isIso C) isPropIsIso (idCatIso .snd)
-      λ f g isIsof isIsog → compIso (g , isIsog) (f , isIsof) .snd 
+      λ f g isIsof isIsog → compIso (g , isIsog) (f , isIsof) .snd
 
     Core : Category ℓC ℓC'
     Core = ∫C Coreᴰ

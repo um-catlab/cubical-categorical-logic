@@ -14,27 +14,33 @@ private
   variable
     ℓC ℓC' ℓP : Level
 
-open Category
+record HomPropertyOver (C : Category ℓC ℓC') ℓP :
+  Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-suc ℓP)) where
+  open Category C
+  field
+    P : ∀ {x y} → Hom[ x , y ] → Type ℓP
+    P-prop : ∀ {x y} (f : Hom[ x , y ]) → isProp (P f)
+    P-id : ∀ {x} → P (id {x})
+    P-comp : ∀ {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ])
+      → P f → P g → P (f ⋆ g)
 
-module _
-  (C : Category ℓC ℓC') (P : ∀ {x y} → C [ x , y ] → Type ℓP)
-  (Pprop : ∀ {x y} (f : C [ x , y ]) → isProp (P f))
-  (Pid : ∀ {x} → P (id C {x}))
-  (Pcomp : ∀ {x y z} (f : C [ x , y ]) (g : C [ y , z ]) → P f → P g → P (_⋆_ C f g))
-  where
-
-  HomPropertyOver : Categoryᴰ C ℓ-zero ℓP
-  HomPropertyOver = StructureOver→Catᴰ struct where
+module _ {C : Category ℓC ℓC'} (Pᴰ : HomPropertyOver C ℓP) where
+  open Category C
+  open HomPropertyOver Pᴰ
+  HomPropertyOver→Catᴰ : Categoryᴰ C ℓ-zero ℓP
+  HomPropertyOver→Catᴰ = StructureOver→Catᴰ struct where
     open StructureOver
     struct : StructureOver C ℓ-zero ℓP
     struct .ob[_] _ = Unit
     struct .Hom[_][_,_] f _ _ = P f
-    struct .idᴰ = Pid
-    struct ._⋆ᴰ_ = Pcomp _ _
-    struct .isPropHomᴰ = Pprop _
+    struct .idᴰ = P-id
+    struct ._⋆ᴰ_ = P-comp _ _
+    struct .isPropHomᴰ = P-prop _
 
 module examples where
   open import Cubical.Categories.Constructions.TotalCategory
+
+  open Category
 
   module _
     (C : Category ℓC ℓC')
@@ -47,10 +53,13 @@ module examples where
     -- Given as an example of a wide subcategory on nlab:
     -- https://ncatlab.org/nlab/show/core+groupoid
     Coreᴰ : Categoryᴰ C ℓ-zero ℓC'
-    Coreᴰ =
-      HomPropertyOver
-      C (isIso C) isPropIsIso (idCatIso .snd)
-      λ f g isIsof isIsog → compIso (g , isIsog) (f , isIsof) .snd
+    Coreᴰ = HomPropertyOver→Catᴰ struct where
+      open HomPropertyOver
+      struct : HomPropertyOver C ℓC'
+      struct .P = isIso C
+      struct .P-prop = isPropIsIso
+      struct .P-id = idCatIso .snd
+      struct .P-comp f g isIsof isIsog = compIso (g , isIsog) (f , isIsof) .snd
 
     Core : Category ℓC ℓC'
     Core = ∫C Coreᴰ
@@ -99,13 +108,13 @@ module examples where
       even-closed-under-+ f (suc (suc g)) isEvenf isEveng
 
     Evensᴰ : Categoryᴰ NatCat ℓ-zero ℓ-zero
-    Evensᴰ =
-      HomPropertyOver
-        NatCat
-        isEven
-        isPropIsEven
-        _
-        even-closed-under-+
+    Evensᴰ = HomPropertyOver→Catᴰ struct where
+      open HomPropertyOver
+      struct : HomPropertyOver NatCat ℓ-zero
+      struct .P = isEven
+      struct .P-prop = isPropIsEven
+      struct .P-id = _
+      struct .P-comp = even-closed-under-+
 
     -- The submonoid of even natural numbers
     Evens : Category ℓ-zero ℓ-zero

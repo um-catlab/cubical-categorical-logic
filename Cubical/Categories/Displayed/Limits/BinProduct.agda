@@ -47,7 +47,8 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
     vert-cᴰ×cᴰ' = vbp .vertexᴰ
 
     -- shorthand for terminal vertical cone
-    vert-π₁₂ : Cᴰ.Hom[ C .id ][ vert-cᴰ×cᴰ' , cᴰ ] × Cᴰ.Hom[ C .id ][ vert-cᴰ×cᴰ' , cᴰ' ]
+    vert-π₁₂ :
+      Cᴰ.Hom[ C .id ][ vert-cᴰ×cᴰ' , cᴰ ] × Cᴰ.Hom[ C .id ][ vert-cᴰ×cᴰ' , cᴰ' ]
     vert-π₁₂ = vbp .elementᴰ
     vert-π₁ = vert-π₁₂ .fst
     vert-π₂ = vert-π₁₂ .snd

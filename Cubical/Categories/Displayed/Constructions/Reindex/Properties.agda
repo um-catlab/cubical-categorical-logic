@@ -15,6 +15,7 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.BinProduct
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
@@ -104,3 +105,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     LiftedTerminalReindex 𝟙ᴰ =
       Vertical/𝟙→LiftedTerm _
         (reindReflectsVerticalTerminal (termC .vertex) 𝟙ᴰ)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {F : Functor C D}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} where
+  reindReflectsVerticalBinProd :
+    ∀ c → VerticalBinProductsAt Dᴰ ({!!} , {!!}) →
+    VerticalBinProductsAt (reindex Dᴰ F) ({!!} , {!!})
+  reindReflectsVerticalBinProd = {!!}

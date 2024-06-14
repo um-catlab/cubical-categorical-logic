@@ -66,12 +66,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
    field
      T : C .ob → D .ob
      η : ⟨ J ⟅ a , T a ⟆b ⟩
-     --
      bind : ⟨ J ⟅ a , T b ⟆b ⟩ → D [ T a , T b ]
      -- x <- η(x); M = x. M
      bind-r : bind (η {a = a}) ≡ D .id
      -- x <- M; η(x)
-     -- | TODO: we desperately need relator notation here
      bind-l : {r : ⟨ J ⟅ a , T b ⟆b ⟩} → (J ⟪ bind r ⟫r) η ≡ r
      -- bind-comp : bind f ∘⟨ C ⟩ bind g ≡ bind (bind f ∘⟨ C ⟩ g)
      bind-comp : {r : ⟨ J ⟅ a , T a' ⟆b ⟩}{s : ⟨ J ⟅ a' , T b ⟆b ⟩}

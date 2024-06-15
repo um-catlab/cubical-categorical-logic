@@ -43,6 +43,7 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
   module VerticalBinProductsAtNotation {cᴰ cᴰ' : Cᴰ.ob[ c ]}
     (vbp : VerticalBinProductsAt Cᴰ (cᴰ , cᴰ')) where
 
+    -- TODO: how to make this less sucky?
     vert-cᴰ×cᴰ' : Cᴰ.ob[ c ]
     vert-cᴰ×cᴰ' = vbp .vertexᴰ
 

@@ -131,11 +131,11 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
               bbb₁ [ _ ]∙[ _ ]
               ccc₁ [ _ ]∙[ refl ]
               pbfᴰ .fst .snd))
-            ((≡[]-rectify (aaa₂ [ _ ]∙[ _ ]
+            (≡[]-rectify (aaa₂ [ _ ]∙[ _ ]
               symP (Cᴰ.⋆Assocᴰ _ _ _) [ _ ]∙[ _ ]
               bbb₂ [ _ ]∙[ _ ]
               ccc₂ [ _ ]∙[ refl ]
-              pbgᴰ .fst .snd))))
+              pbgᴰ .fst .snd)))
           (λ _ → isSet× Cᴰ.isSetHomᴰ Cᴰ.isSetHomᴰ _ _)
           λ hᴰ' p' → goal hᴰ' p' ∙ vert-η hᴰ'
           where
@@ -188,19 +188,19 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
             ((pbfᴰ .fst .fst) Cᴰ.⋆ᴰ Cᴰ.idᴰ , (pbgᴰ .fst .fst) Cᴰ.⋆ᴰ Cᴰ.idᴰ)
           β = vert-β' (pbfᴰ .fst .fst) (pbgᴰ .fst .fst)
 
-          aaa₁ : (hᴰ Cᴰ.⋆ᴰ π₁ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ vert-π₁⋆π₁*)
+          aaa₁ : hᴰ Cᴰ.⋆ᴰ π₁ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ vert-π₁⋆π₁*
           aaa₁ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (symP cohere₁)
 
-          aaa₂ : (hᴰ Cᴰ.⋆ᴰ π₂ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ vert-π₂⋆π₂*)
+          aaa₂ : hᴰ Cᴰ.⋆ᴰ π₂ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ vert-π₂⋆π₂*
           aaa₂ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (symP cohere₂)
 
           bbb₁ : (hᴰ Cᴰ.⋆ᴰ vert-π₁) Cᴰ.⋆ᴰ Bᴰ.π₁* ≡
-            ((pbfᴰ .fst .fst) Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ Bᴰ.π₁*
-          bbb₁ = congS (λ x → (x .fst) Cᴰ.⋆ᴰ Bᴰ.π₁*) β
+            (pbfᴰ .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ Bᴰ.π₁*
+          bbb₁ = congS (λ x → x .fst Cᴰ.⋆ᴰ Bᴰ.π₁*) β
 
           bbb₂ : (hᴰ Cᴰ.⋆ᴰ vert-π₂) Cᴰ.⋆ᴰ Bᴰ.π₂* ≡
-            ((pbgᴰ .fst .fst) Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ Bᴰ.π₂*
-          bbb₂ = congS (λ x → (x .snd) Cᴰ.⋆ᴰ Bᴰ.π₂*) β
+            (pbgᴰ .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ Bᴰ.π₂*
+          bbb₂ = congS (λ x → x .snd Cᴰ.⋆ᴰ Bᴰ.π₂*) β
 
           ccc₁ : ((pbfᴰ .fst .fst) Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ Bᴰ.π₁* Cᴰ.≡[ _ ]
             (pbfᴰ .fst .fst) Cᴰ.⋆ᴰ Bᴰ.π₁*

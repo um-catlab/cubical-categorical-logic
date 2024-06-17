@@ -93,30 +93,11 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
         vert-π₂⋆π₂* : Cᴰ.Hom[ C .id ⋆⟨ C ⟩ B.π₂ ][ ϕ[π₁x]∧ψ[π₂x] , ψ ]
         vert-π₂⋆π₂* = vert-π₂ Cᴰ.⋆ᴰ Bᴰ.π₂*
 
-        rectify' : ∀{x y h}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]} →
-          Cᴰ.Hom[ C .id ⋆⟨ C ⟩ h ][ xᴰ , yᴰ ] → Cᴰ.Hom[ h ][ xᴰ , yᴰ ]
-        rectify' {h = h} {xᴰ = xᴰ} {yᴰ = yᴰ} =
-          transport (congS (λ x → Cᴰ.Hom[ x ][ xᴰ , yᴰ ]) (C .⋆IdL h))
-
-        rectify'' : ∀{x y h}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]} →
-          Cᴰ.Hom[ h ⋆⟨ C ⟩ C .id ][ xᴰ , yᴰ ] → Cᴰ.Hom[ h ][ xᴰ , yᴰ ]
-        rectify'' {h = h} {xᴰ = xᴰ} {yᴰ = yᴰ} =
-          transport (congS (λ x → Cᴰ.Hom[ x ][ xᴰ , yᴰ ]) (C .⋆IdR h))
-
         π₁ᴰ : Cᴰ.Hom[ B.π₁ ][ ϕ[π₁x]∧ψ[π₂x] , ϕ ]
-        π₁ᴰ = rectify' vert-π₁⋆π₁*
-
-        cohere₁ : vert-π₁⋆π₁* Cᴰ.≡[ C .⋆IdL _ ] π₁ᴰ
-        cohere₁ = toPathP refl
-
-        --cohere'₁ : ∀{hᴰ} →  hᴰ Cᴰ.≡[ C .⋆IdR _ ] rectify'' hᴰ
-        --cohere'₁ = toPathP refl
+        π₁ᴰ = reind (C .⋆IdL _) vert-π₁⋆π₁*
 
         π₂ᴰ : Cᴰ.Hom[ B.π₂ ][ ϕ[π₁x]∧ψ[π₂x] , ψ ]
-        π₂ᴰ = rectify' vert-π₂⋆π₂*
-
-        cohere₂ : vert-π₂⋆π₂* Cᴰ.≡[ C .⋆IdL _ ] π₂ᴰ
-        cohere₂ = toPathP refl
+        π₂ᴰ = reind (C .⋆IdL _) vert-π₂⋆π₂*
 
       VerticalBinProdsAt→LiftedBinProduct : LiftedBinProduct Cᴰ prod (ϕ , ψ)
       VerticalBinProdsAt→LiftedBinProduct .vertexᴰ = ϕ[π₁x]∧ψ[π₂x]
@@ -154,31 +135,31 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
             where
             one'' : (hᴰ' Cᴰ.⋆ᴰ vert-π₁) Cᴰ.⋆ᴰ Bᴰ.π₁* Cᴰ.≡[ _ ] fᴰ
             one'' = Cᴰ.⋆Assocᴰ _ _ _ [ _ ]∙[ _ ]
-              (congP (λ _ x → hᴰ' Cᴰ.⋆ᴰ x) cohere₁) [ _ ]∙[ _ ]
+              (congP (λ _ x → hᴰ' Cᴰ.⋆ᴰ x) (reind-filler _ _)) [ _ ]∙[ _ ]
               (congP (λ _ x → x .fst) p')
-            one''' : rectify'' (hᴰ' Cᴰ.⋆ᴰ vert-π₁) Cᴰ.⋆ᴰ Bᴰ.π₁* ≡ fᴰ
+            one''' : reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ vert-π₁) Cᴰ.⋆ᴰ Bᴰ.π₁* ≡ fᴰ
             one''' = ≡[]-rectify (congP (λ _ x → x Cᴰ.⋆ᴰ Bᴰ.π₁*)
-              (symP (toPathP refl {- TODO: replace -})) [ _ ]∙[ _ ] one'')
-            one'''' : pbfᴰ .fst ≡ (rectify'' (hᴰ' Cᴰ.⋆ᴰ vert-π₁) , one''')
-            one'''' = pbfᴰ .snd (rectify'' (hᴰ' Cᴰ.⋆ᴰ vert-π₁) , one''')
+              (reind-filler-sym _ _) [ _ ]∙[ _ ] one'')
+            one'''' : pbfᴰ .fst ≡ (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ vert-π₁) , one''')
+            one'''' = pbfᴰ .snd (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ vert-π₁) , one''')
             one' : pbfᴰ .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ vert-π₁
-            one' = (congP (λ _ x → x .fst) one'''') [ _ ]∙[ _ ]
-              symP (toPathP refl) {- TODO: replace -}
+            one' = (congP (λ _ → fst) one'''') [ _ ]∙[ _ ]
+              reind-filler-sym _ _
             one : pbfᴰ .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ vert-π₁
             one = ≡[]-rectify (Cᴰ.⋆IdRᴰ (pbfᴰ .fst .fst) [ _ ]∙[ _ ] one')
 
             two'' : (hᴰ' Cᴰ.⋆ᴰ vert-π₂) Cᴰ.⋆ᴰ Bᴰ.π₂* Cᴰ.≡[ _ ] gᴰ
             two'' = Cᴰ.⋆Assocᴰ _ _ _ [ _ ]∙[ _ ]
-              (congP (λ _ x → hᴰ' Cᴰ.⋆ᴰ x) cohere₂) [ _ ]∙[ _ ]
-              (congP (λ _ x → x .snd) p')
-            two''' : rectify'' (hᴰ' Cᴰ.⋆ᴰ vert-π₂) Cᴰ.⋆ᴰ Bᴰ.π₂* ≡ gᴰ
+              (congP (λ _ x → hᴰ' Cᴰ.⋆ᴰ x) (reind-filler _ _)) [ _ ]∙[ _ ]
+              (congP (λ _ → snd) p')
+            two''' : reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ vert-π₂) Cᴰ.⋆ᴰ Bᴰ.π₂* ≡ gᴰ
             two''' = ≡[]-rectify (congP (λ _ x → x Cᴰ.⋆ᴰ Bᴰ.π₂*)
-              (symP (toPathP refl {- TODO: replace -})) [ _ ]∙[ _ ] two'')
-            two'''' : pbgᴰ .fst ≡ (rectify'' (hᴰ' Cᴰ.⋆ᴰ vert-π₂) , two''')
-            two'''' = pbgᴰ .snd (rectify'' (hᴰ' Cᴰ.⋆ᴰ vert-π₂) , two''')
+              (reind-filler-sym _ _) [ _ ]∙[ _ ] two'')
+            two'''' : pbgᴰ .fst ≡ (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ vert-π₂) , two''')
+            two'''' = pbgᴰ .snd (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ vert-π₂) , two''')
             two' : pbgᴰ .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ vert-π₂
             two' = (congP (λ _ x → x .fst) two'''') [ _ ]∙[ _ ]
-              symP (toPathP refl) {- TODO: replace -}
+              reind-filler-sym _ _
             two : pbgᴰ .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ vert-π₂
             two = ≡[]-rectify (Cᴰ.⋆IdRᴰ (pbgᴰ .fst .fst) [ _ ]∙[ _ ] two')
 
@@ -189,10 +170,10 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
           β = vert-β' (pbfᴰ .fst .fst) (pbgᴰ .fst .fst)
 
           aaa₁ : hᴰ Cᴰ.⋆ᴰ π₁ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ vert-π₁⋆π₁*
-          aaa₁ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (symP cohere₁)
+          aaa₁ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (reind-filler-sym _ _)
 
           aaa₂ : hᴰ Cᴰ.⋆ᴰ π₂ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ vert-π₂⋆π₂*
-          aaa₂ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (symP cohere₂)
+          aaa₂ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (reind-filler-sym _ _)
 
           bbb₁ : (hᴰ Cᴰ.⋆ᴰ vert-π₁) Cᴰ.⋆ᴰ Bᴰ.π₁* ≡
             (pbfᴰ .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ Bᴰ.π₁*

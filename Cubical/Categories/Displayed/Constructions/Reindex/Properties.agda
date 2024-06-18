@@ -22,7 +22,6 @@ open import Cubical.Categories.Displayed.Limits.BinProduct
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Fibration.BinProduct
 
 private
   variable

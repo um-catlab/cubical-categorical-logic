@@ -11,6 +11,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.Terminal.More
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 
@@ -21,6 +22,7 @@ open import Cubical.Categories.Displayed.Limits.BinProduct
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Fibration.BinProduct
 
 private
   variable
@@ -111,37 +113,34 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} where
-  open import Cubical.Categories.Displayed.BinProduct
-  open import Cubical.Categories.Displayed.Instances.Sets.Base
-  open import Cubical.Categories.Displayed.Functor
-  open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-  open import Cubical.Categories.Adjoint.UniversalElements
-  open import Cubical.Categories.Instances.Sets
-  open Functorᴰ
-  open HomᴰReasoning Dᴰ -- do all the equation reasoning in the "reference space" Dᴰ
+  -- do all the equational reasoning in the "reference space" Dᴰ
+  open HomᴰReasoning Dᴰ
   private
     module Dᴰ = Categoryᴰ Dᴰ
     module Rᴰ = Categoryᴰ (reindex Dᴰ F)
-  module _ {c : C .ob} (Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ])
+  module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
     (vbp : VerticalBinProductsAt Dᴰ (Fcᴰ , Fcᴰ')) where
     private
-      module V = VerticalBinProductsAtNotation vbp
-      reind-π₁₂ : Dᴰ.Hom[ F ⟪ C .id ⟫ ][ V.vert-cᴰ×cᴰ' , Fcᴰ ] ×
-        Dᴰ.Hom[ F ⟪ C .id ⟫ ][ V.vert-cᴰ×cᴰ' , Fcᴰ' ]
-      reind-π₁₂ .fst = reind (sym (F .F-id)) V.vert-π₁
-      reind-π₁₂ .snd = reind (sym (F .F-id)) V.vert-π₂
+      module Fcᴰ∧Fcᴰ' = VerticalBinProductsAtNotation vbp
+      reind-π₁ : Dᴰ.Hom[ F ⟪ C .id ⟫ ][ Fcᴰ∧Fcᴰ'.vert , Fcᴰ ]
+      reind-π₁ = reind (sym (F .F-id)) Fcᴰ∧Fcᴰ'.π₁
 
-    reindReflectsVerticalBinProd : VerticalBinProductsAt (reindex Dᴰ F) (Fcᴰ , Fcᴰ')
-    reindReflectsVerticalBinProd .vertexᴰ = V.vert-cᴰ×cᴰ'
-    reindReflectsVerticalBinProd .elementᴰ = reind-π₁₂
-    reindReflectsVerticalBinProd .universalᴰ {x = x} {xᴰ = xᴰ} {f = f} .equiv-proof =
-      λ cone → goal cone
+      reind-π₂ : Dᴰ.Hom[ F ⟪ C .id ⟫ ][ Fcᴰ∧Fcᴰ'.vert , Fcᴰ' ]
+      reind-π₂ = reind (sym (F .F-id)) Fcᴰ∧Fcᴰ'.π₂
+
+    reindReflectsVerticalBinProd :
+      VerticalBinProductsAt (reindex Dᴰ F) (Fcᴰ , Fcᴰ')
+    reindReflectsVerticalBinProd .vertexᴰ = Fcᴰ∧Fcᴰ'.vert
+    reindReflectsVerticalBinProd .elementᴰ = reind-π₁ , reind-π₂
+    reindReflectsVerticalBinProd .universalᴰ
+      {x = x} {xᴰ = xᴰ} {f = f} .equiv-proof = λ cone → goal cone
       where
       goal : (cone : Dᴰ.Hom[ F ⟪ f ⋆⟨ C ⟩ C .id ⟫ ][ xᴰ , Fcᴰ ] ×
               Dᴰ.Hom[ F ⟪ f ⋆⟨ C ⟩ C .id ⟫ ][ xᴰ , Fcᴰ' ]) → _
       goal cone = uniqueExists l reind-l-β
         (λ _ _ _ → isSet× Dᴰ.isSetHomᴰ Dᴰ.isSetHomᴰ _ _ _ _)
-        (λ a' x₁ → congS fst (vbp .universalᴰ .equiv-proof reind-cone .snd (a' , subgoal a' x₁)))
+        (λ a' x₁ → congS fst
+          (vbp .universalᴰ .equiv-proof reind-cone .snd (a' , subgoal a' x₁)))
         where
         p : F ⟪ f ⋆⟨ C ⟩ C .id ⟫ ≡ F ⟪ f ⟫ ⋆⟨ D ⟩ D .id
         p = F .F-seq _ _ ∙ congS (λ x₁ → F ⟪ f ⟫ ⋆⟨ D ⟩ x₁) (F .F-id)
@@ -150,12 +149,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         reind-cone .fst = reind p (cone .fst)
         reind-cone .snd = reind p (cone .snd)
         l : Dᴰ.Hom[ F ⟪ f ⟫ ][ xᴰ , vbp .vertexᴰ ]
-        l = V.vert-pair (reind-cone .fst) (reind-cone .snd)
-        l-β : (l Dᴰ.⋆ᴰ V.vert-π₁ , l Dᴰ.⋆ᴰ V.vert-π₂) ≡ reind-cone
+        l = Fcᴰ∧Fcᴰ'.⟨ reind-cone .fst , reind-cone .snd ⟩
+        l-β : (l Dᴰ.⋆ᴰ Fcᴰ∧Fcᴰ'.π₁ , l Dᴰ.⋆ᴰ Fcᴰ∧Fcᴰ'.π₂) ≡ reind-cone
         l-β = vbp .universalᴰ .equiv-proof reind-cone .fst .snd
-        reind-l-β : (l Rᴰ.⋆ᴰ reind-π₁₂ .fst ,
-                l Rᴰ.⋆ᴰ reind-π₁₂ .snd)
-                ≡ cone
+        reind-l-β : (l Rᴰ.⋆ᴰ reind-π₁ , l Rᴰ.⋆ᴰ reind-π₂) ≡ cone
         reind-l-β = ≡-×
           (≡[]-rectify (reind-filler-sym _ _ [ _ ]∙[ _ ]
             congP (λ _ x → l Dᴰ.⋆ᴰ x) (reind-filler-sym _ _) [ _ ]∙[ _ ]
@@ -165,15 +162,72 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
             congP (λ _ x → l Dᴰ.⋆ᴰ x) (reind-filler-sym _ _) [ _ ]∙[ _ ]
             congS snd l-β [ _ ]∙[ _ ]
             reind-filler-sym _ _))
-        subgoal : (a' : Dᴰ.Hom[ F ⟪ f ⟫ ][ xᴰ , V.vert-cᴰ×cᴰ' ]) →
-          (x₁ : (a' Rᴰ.⋆ᴰ reind-π₁₂ .fst , a' Rᴰ.⋆ᴰ reind-π₁₂ .snd) ≡ cone) →
-          (a' Dᴰ.⋆ᴰ V.vert-π₁ , a' Dᴰ.⋆ᴰ V.vert-π₂) ≡ reind-cone
-        subgoal a' x₁ = ≡-×
-          (≡[]-rectify (congP (λ _ x → a' Dᴰ.⋆ᴰ x) (reind-filler _ _) [ _ ]∙[ _ ]
+        subgoal : (l' : Dᴰ.Hom[ F ⟪ f ⟫ ][ xᴰ , Fcᴰ∧Fcᴰ'.vert ]) →
+          (x₁ : (l' Rᴰ.⋆ᴰ reind-π₁ , l' Rᴰ.⋆ᴰ reind-π₂) ≡ cone) →
+          (l' Dᴰ.⋆ᴰ Fcᴰ∧Fcᴰ'.π₁ , l' Dᴰ.⋆ᴰ Fcᴰ∧Fcᴰ'.π₂) ≡ reind-cone
+        subgoal l' x₁ = ≡-×
+          (≡[]-rectify
+            (congP (λ _ x → l' Dᴰ.⋆ᴰ x) (reind-filler _ _) [ _ ]∙[ _ ]
             reind-filler _ _ [ _ ]∙[ _ ]
             congS fst x₁ [ _ ]∙[ _ ]
             reind-filler _ _))
-          (≡[]-rectify (congP (λ _ x → a' Dᴰ.⋆ᴰ x) (reind-filler _ _) [ _ ]∙[ _ ]
+          (≡[]-rectify
+            (congP (λ _ x → l' Dᴰ.⋆ᴰ x) (reind-filler _ _) [ _ ]∙[ _ ]
             reind-filler _ _ [ _ ]∙[ _ ]
             congS snd x₁ [ _ ]∙[ _ ]
             reind-filler _ _))
+
+  VerticalBinProdsReindex : VerticalBinProducts Dᴰ →
+    VerticalBinProducts (reindex Dᴰ F)
+  VerticalBinProdsReindex vps Fcᴰ×Fcᴰ' =
+    reindReflectsVerticalBinProd (vps Fcᴰ×Fcᴰ')
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {F : Functor C D}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  where
+  private module Dᴰ = Categoryᴰ Dᴰ
+  module _ {c c' : C .ob} (prod : BinProduct' C (c , c')) where
+    private module c×c' = BinProduct'Notation prod
+    module _
+      {Fcᴰ : Dᴰ.ob[ F ⟅ c ⟆ ]}
+      {Fc'ᴰ : Dᴰ.ob[ F ⟅ c' ⟆ ]}
+      (lift-π₁ : CartesianOver Dᴰ Fcᴰ (F ⟪ c×c'.π₁ ⟫))
+      (lift-π₂ : CartesianOver Dᴰ Fc'ᴰ (F ⟪ c×c'.π₂ ⟫))
+      (vbp : VerticalBinProductsAt Dᴰ (lift-π₁ .f*cᴰ' , lift-π₂ .f*cᴰ'))
+      where
+      LiftedBinProdReindex : LiftedBinProduct (reindex Dᴰ F) prod (Fcᴰ , Fc'ᴰ)
+      LiftedBinProdReindex = VerticalBinProdsAt→LiftedBinProduct
+        prod (reindex Dᴰ F)
+        (reflectsCartesianOvers Dᴰ F lift-π₁)
+        (reflectsCartesianOvers Dᴰ F lift-π₂)
+        (reindReflectsVerticalBinProd vbp)
+
+    module _ (Fcᴰ : Dᴰ.ob[ F ⟅ c ⟆ ]) (fib : isFibration Dᴰ) where
+      isFib→F⟪π₁⟫* : CartesianOver Dᴰ Fcᴰ (F ⟪ c×c'.π₁ ⟫)
+      isFib→F⟪π₁⟫* = CartesianLift→CartesianOver Dᴰ (fib _)
+    module _ (Fc'ᴰ : Dᴰ.ob[ F ⟅ c' ⟆ ]) (fib : isFibration Dᴰ) where
+      isFib→F⟪π₂⟫* : CartesianOver Dᴰ Fc'ᴰ (F ⟪ c×c'.π₂ ⟫)
+      isFib→F⟪π₂⟫* = CartesianLift→CartesianOver Dᴰ (fib _)
+
+    module _
+      {Fcᴰ : Dᴰ.ob[ F ⟅ c ⟆ ]}
+      {Fc'ᴰ : Dᴰ.ob[ F ⟅ c' ⟆ ]}
+      (lift-π₁ : CartesianOver Dᴰ Fcᴰ (F ⟪ c×c'.π₁ ⟫))
+      (lift-π₂ : CartesianOver Dᴰ Fc'ᴰ (F ⟪ c×c'.π₂ ⟫))
+      (vbps : VerticalBinProducts Dᴰ)
+      where
+      VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] :
+        VerticalBinProductsAt Dᴰ (lift-π₁ .f*cᴰ' , lift-π₂ .f*cᴰ')
+      VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] = vbps _
+
+  module _ (prods : BinProducts' C)
+    (fib : isFibration Dᴰ)(vbps : VerticalBinProducts Dᴰ) where
+    LiftedBinProdsReindex : LiftedBinProducts (reindex Dᴰ F) prods
+    LiftedBinProdsReindex (Fcᴰ , Fc'ᴰ) = LiftedBinProdReindex (prods _)
+      (isFib→F⟪π₁⟫* (prods _) Fcᴰ fib)
+      (isFib→F⟪π₂⟫* (prods _) Fc'ᴰ fib)
+      (VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] (prods _)
+        (isFib→F⟪π₁⟫* (prods _) Fcᴰ fib)
+        (isFib→F⟪π₂⟫* (prods _) Fc'ᴰ fib)
+        vbps)

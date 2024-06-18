@@ -39,55 +39,43 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
 
 module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private module Cᴰ = Categoryᴰ Cᴰ
-  -- meant to be used as `module B = open VerticalBinProductsAtNotation vbp`
+  -- meant to be used as `module cᴰ∧cᴰ' = VerticalBinProductsAtNotation vbp`
   module VerticalBinProductsAtNotation {cᴰ cᴰ' : Cᴰ.ob[ c ]}
     (vbp : VerticalBinProductsAt Cᴰ (cᴰ , cᴰ')) where
 
-    -- TODO: how to make this less sucky?
-    vert-cᴰ×cᴰ' : Cᴰ.ob[ c ]
-    vert-cᴰ×cᴰ' = vbp .vertexᴰ
+    vert : Cᴰ.ob[ c ]
+    vert = vbp .vertexᴰ
 
     -- shorthand for terminal vertical cone
-    vert-π₁₂ :
-      Cᴰ.Hom[ C .id ][ vert-cᴰ×cᴰ' , cᴰ ] × Cᴰ.Hom[ C .id ][ vert-cᴰ×cᴰ' , cᴰ' ]
-    vert-π₁₂ = vbp .elementᴰ
-    vert-π₁ = vert-π₁₂ .fst
-    vert-π₂ = vert-π₁₂ .snd
+    π₁₂ :
+      Cᴰ.Hom[ C .id ][ vert , cᴰ ] × Cᴰ.Hom[ C .id ][ vert , cᴰ' ]
+    π₁₂ = vbp .elementᴰ
+    π₁ = π₁₂ .fst
+    π₂ = π₁₂ .snd
 
     module _ {x : C .ob}{xᴰ : Cᴰ.ob[ x ]}{f : C [ x , c ]} where
-      vert-pair : Cᴰ.Hom[ f ⋆⟨ C ⟩ C .id ][ xᴰ , cᴰ ] →
+      ⟨_,_⟩ : Cᴰ.Hom[ f ⋆⟨ C ⟩ C .id ][ xᴰ , cᴰ ] →
         Cᴰ.Hom[ f ⋆⟨ C ⟩ C .id ][ xᴰ , cᴰ' ] →
-        Cᴰ.Hom[ f ][ xᴰ , vert-cᴰ×cᴰ' ]
-      vert-pair fᴰ fᴰ' = invIsEq (vbp .universalᴰ) (fᴰ , fᴰ')
+        Cᴰ.Hom[ f ][ xᴰ , vert ]
+      ⟨ fᴰ , fᴰ' ⟩ = invIsEq (vbp .universalᴰ) (fᴰ , fᴰ')
 
-      vert-pair' : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
+      ⟨_,_⟩' : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
         Cᴰ.Hom[ f ][ xᴰ , cᴰ' ] →
-        Cᴰ.Hom[ f ][ xᴰ , vert-cᴰ×cᴰ' ]
-      vert-pair' fᴰ fᴰ' = vert-pair (fᴰ Cᴰ.⋆ᴰ Cᴰ.idᴰ) (fᴰ' Cᴰ.⋆ᴰ Cᴰ.idᴰ)
+        Cᴰ.Hom[ f ][ xᴰ , vert ]
+      ⟨ fᴰ , fᴰ' ⟩' = ⟨ fᴰ Cᴰ.⋆ᴰ Cᴰ.idᴰ , fᴰ' Cᴰ.⋆ᴰ Cᴰ.idᴰ ⟩
 
-      vert-β : (fᴰ : Cᴰ.Hom[ f ⋆⟨ C ⟩ C .id ][ xᴰ , cᴰ ]) →
+      β : (fᴰ : Cᴰ.Hom[ f ⋆⟨ C ⟩ C .id ][ xᴰ , cᴰ ]) →
         (fᴰ' : Cᴰ.Hom[ f ⋆⟨ C ⟩ C .id ][ xᴰ , cᴰ' ]) →
-        (vert-pair fᴰ fᴰ' Cᴰ.⋆ᴰ vert-π₁ , vert-pair fᴰ fᴰ' Cᴰ.⋆ᴰ vert-π₂) ≡
+        (⟨ fᴰ , fᴰ' ⟩ Cᴰ.⋆ᴰ π₁ , ⟨ fᴰ , fᴰ' ⟩ Cᴰ.⋆ᴰ π₂) ≡
         (fᴰ , fᴰ')
-      vert-β fᴰ fᴰ' = secIsEq (vbp .universalᴰ) (fᴰ , fᴰ')
+      β fᴰ fᴰ' = secIsEq (vbp .universalᴰ) (fᴰ , fᴰ')
 
-      vert-β' : (fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]) →
+      β' : (fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]) →
         (fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]) →
-        (vert-pair' fᴰ fᴰ' Cᴰ.⋆ᴰ vert-π₁ , vert-pair' fᴰ fᴰ' Cᴰ.⋆ᴰ vert-π₂) ≡
+        (⟨ fᴰ , fᴰ' ⟩' Cᴰ.⋆ᴰ π₁ , ⟨ fᴰ , fᴰ' ⟩' Cᴰ.⋆ᴰ π₂) ≡
         (fᴰ Cᴰ.⋆ᴰ Cᴰ.idᴰ , fᴰ' Cᴰ.⋆ᴰ Cᴰ.idᴰ)
-      vert-β' fᴰ fᴰ' = vert-β (fᴰ Cᴰ.⋆ᴰ Cᴰ.idᴰ)  (fᴰ' Cᴰ.⋆ᴰ Cᴰ.idᴰ)
+      β' fᴰ fᴰ' = β (fᴰ Cᴰ.⋆ᴰ Cᴰ.idᴰ) (fᴰ' Cᴰ.⋆ᴰ Cᴰ.idᴰ)
 
-      vert-η : (fᴰ'' : Cᴰ.Hom[ f ][ xᴰ , vert-cᴰ×cᴰ' ]) →
-         vert-pair (fᴰ'' Cᴰ.⋆ᴰ vert-π₁) (fᴰ'' Cᴰ.⋆ᴰ vert-π₂) ≡ fᴰ''
-      vert-η fᴰ'' = retIsEq (vbp .universalᴰ) fᴰ''
-
----- meant to be used as `module B = open VerticalBinProductsNotation vbps`
---module VerticalBinProductsNotation
---  {C  : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---  (vbps : VerticalBinProducts Cᴰ) where
---  private module Cᴰ = Categoryᴰ Cᴰ
---  module _ (c : C .ob)(cᴰ cᴰ' : Cᴰ.ob[ c ]) where
---    open VerticalBinProductsAtNotation (vbps (cᴰ , cᴰ')) public
---
---  vert-× = vert-cᴰ×cᴰ'
---  syntax vert-× c cᴰ c'ᴰ = cᴰ ×[ c ] c'ᴰ
+      η : (fᴰ'' : Cᴰ.Hom[ f ][ xᴰ , vert ]) →
+         ⟨ fᴰ'' Cᴰ.⋆ᴰ π₁ , fᴰ'' Cᴰ.⋆ᴰ π₂ ⟩ ≡ fᴰ''
+      η fᴰ'' = retIsEq (vbp .universalᴰ) fᴰ''

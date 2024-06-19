@@ -45,7 +45,7 @@ Terminal' :  ∀ (C : Category ℓc ℓc') → Type (ℓ-max ℓc ℓc')
 Terminal' C = UniversalElement C (TerminalPresheaf {C = C})
 
 terminalToUniversalElement : ∀ {C : Category ℓc ℓc'} (One : Terminal C)
-  → UniversalElement C (TerminalPresheaf {C = C})
+  → Terminal' C
 terminalToUniversalElement One .vertex = One .fst
 terminalToUniversalElement One .element = tt
 terminalToUniversalElement {C = C} One .universal x = isoToIsEquiv (iso

@@ -73,6 +73,41 @@ module _ (C : Category ℓ ℓ') where
     Σ≡Prop (λ _ → isSet× (isSetHom C) (isSetHom C) _ _)
       (cong fst (bp .univProp f1 f2 .snd ((y .fst) , PathPΣ (y .snd))))
 
+  -- TODO: general principle?
+  RepresentableToBinProduct' : ∀ {a b}
+    → UniversalElement C (BinProductProf ⟅ a , b ⟆)
+    → BinProduct' (a , b)
+  RepresentableToBinProduct' ue .vertex = ue .vertex
+  RepresentableToBinProduct' ue .element = ue .element
+  RepresentableToBinProduct' ue .universal = ue .universal
+
+  BinProduct'ToBinProduct : ∀ {a b}
+    → BinProduct' (a , b)
+    → BinProduct C a b
+  BinProduct'ToBinProduct bp' .binProdOb = bp' .vertex
+  BinProduct'ToBinProduct bp' .binProdPr₁ = bp' .element .fst
+  BinProduct'ToBinProduct bp' .binProdPr₂ = bp' .element .snd
+  BinProduct'ToBinProduct bp' .univProp {z} f₁ f₂ = uniqueExists
+    (⟨f₁,f₂⟩-contr .fst .fst)
+    (cong fst (⟨f₁,f₂⟩-contr .fst .snd) , cong snd (⟨f₁,f₂⟩-contr .fst .snd))
+    (λ _ → isProp× (C .isSetHom _ _) (C .isSetHom _ _))
+    λ ⟨f₁,f₂⟩' commutes → cong fst (⟨f₁,f₂⟩-contr .snd (⟨f₁,f₂⟩'
+      , (ΣPathP commutes)))
+    where
+      ⟨f₁,f₂⟩-contr = bp' .universal z .equiv-proof (f₁ , f₂)
+
+  BinProductToBinProduct' : ∀ {a b}
+    → BinProduct C a b
+    → BinProduct' (a , b)
+  BinProductToBinProduct' bp =
+    RepresentableToBinProduct' (BinProductToRepresentable bp)
+
+  BinProductsToBinProducts' : BinProducts C → BinProducts'
+  BinProductsToBinProducts' bps _ = BinProductToBinProduct' (bps _ _)
+
+  BinProducts'ToBinProducts : BinProducts' → BinProducts C
+  BinProducts'ToBinProducts bps a b = BinProduct'ToBinProduct (bps (a , b))
+
   module _ (bp : BinProducts C) where
     BinProductsToUnivElts : UniversalElements BinProductProf
     BinProductsToUnivElts c = BinProductToRepresentable (bp (c .fst) (c .snd))
@@ -205,6 +240,12 @@ module _ (C : Category ℓ ℓ') where
       ×pF-with-agrees : ×Bif ⟪ C .id , f ⟫× ≡ PWN.×pF ⟪ f ⟫
       ×pF-with-agrees = sym (×Bif .Bif-R×-agree _)
 
+  module BinProducts'Notation (bp : BinProducts') =
+    Notation (BinProducts'ToBinProducts bp)
+
+-- TODO: define Notation in terms of BinProduct c c',
+-- and `module BinProduct'Notation (bp : BinProduct' C (c , c')) =
+--    Notation BinProduct'ToBinProduct bp`?
 module _ {C : Category ℓ ℓ'} where
   -- meant to be used as `module c×c' = Binproduct'Notation prod`
   module BinProduct'Notation {c c' : C .ob}
@@ -222,35 +263,3 @@ module _ {C : Category ℓ ℓ'} where
     η : ∀{z}{h : C [ z , (prod .vertex) ]} →
       ⟨ h ⋆⟨ C ⟩ π₁ , h ⋆⟨ C ⟩ π₂ ⟩ ≡ h
     η {z} {h} = retIsEq (prod .universal z) h
-
-  module BinProducts'Notation (prods : BinProducts' C) where
-    private module c×c' = BinProduct'Notation
-    _×_ : (x y : C .ob) → C .ob
-    x × y = c×c'.vert (prods (x , y))
-    π₁ : ∀{x y} → C [ x × y , x ]
-    π₁ {x} {y} = c×c'.π₁ (prods (x , y))
-    π₂ : ∀{x y} → C [ x × y , y ]
-    π₂ {x} {y} = c×c'.π₂ (prods (x , y))
-    ⟨_,_⟩ : ∀{z x y} → C [ z , x ] → C [ z , y ] → C [ z , x × y ]
-    ⟨_,_⟩ {z} {x} {y} f g = c×c'.⟨_,_⟩ (prods (x , y)) f g
-    β : ∀{z x y f g} → (⟨ f , g ⟩ ⋆⟨ C ⟩ π₁ , ⟨ f , g ⟩ ⋆⟨ C ⟩ π₂) ≡ (f , g)
-    β {z} {x} {y} {f} {g} = secIsEq (prods (x , y) .universal z) (f , g)
-    η : ∀{z x y}{h : C [ z , (prods (x , y) .vertex) ]} →
-      ⟨ h ⋆⟨ C ⟩ π₁ , h ⋆⟨ C ⟩ π₂ ⟩ ≡ h
-    η {z} {x} {y} {h} = retIsEq (prods (x , y) .universal z) h
-
-  module _ (prods : BinProducts' C) where
-    open BinProducts'Notation prods
-    BinProducts'→BinProducts : BinProducts C
-    BinProducts'→BinProducts x y .binProdOb = prods (x , y) .vertex
-    BinProducts'→BinProducts x y .binProdPr₁ = π₁
-    BinProducts'→BinProducts x y .binProdPr₂ = π₂
-    BinProducts'→BinProducts x y .univProp {z = z} f g =
-      uniqueExists ⟨ f , g ⟩
-      (congS fst β , congS snd β)
-      (λ _ _ _ → ≡-× (C .isSetHom _ _ _ _) (C .isSetHom _ _ _ _))
-      λ _ p → (sym η ∙
-        congS (λ (x , y) → ⟨ x , y ⟩) β ∙
-        congS (λ x → ⟨ x , _ ⟩) (sym (p .fst)) ∙
-        congS (λ x → ⟨ _ , x ⟩) (sym (p .snd))) ∙
-        η

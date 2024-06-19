@@ -15,7 +15,7 @@ open import Cubical.Categories.Displayed.Constructions.Slice
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Fibration.Base
-import Cubical.Categories.Displayed.Reasoning
+import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
   variable
@@ -39,6 +39,73 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
 
   VerticalBinProducts : Type _
   VerticalBinProducts = VerticalRightAdjointᴰ (Δᴰ Cᴰ)
+
+module LiftedBinProductsNotation
+         {C : Category ℓC ℓC'}
+         {Cᴰ : Categoryᴰ C ℓD ℓD'}
+         {bp' : BinProducts' C}
+         (bpᴰ : LiftedBinProducts Cᴰ bp')
+       where
+
+  private
+    module BP = BinProducts'Notation _ bp'
+    module Cᴰ = Categoryᴰ Cᴰ
+    module R = HomᴰReasoning Cᴰ
+  open BP
+  open UniversalElementᴰ
+
+  private
+    variable
+      c c' c₁ c₂ : C .ob
+      d d' d₁ d₂ : Cᴰ.ob[ c ]
+
+  _×ᴰ_ : Cᴰ.ob[ c₁ ] → Cᴰ.ob[ c₂ ] → Cᴰ.ob[ c₁ BP.× c₂ ]
+  d₁ ×ᴰ d₂ = bpᴰ (d₁ , d₂) .vertexᴰ
+
+  π₁ᴰ : Cᴰ.Hom[ π₁ ][ d₁ ×ᴰ d₂ , d₁ ]
+  π₁ᴰ {d₁ = d₁ }{d₂ = d₂} = bpᴰ (d₁ , d₂) .elementᴰ .fst
+
+  π₂ᴰ : Cᴰ.Hom[ π₂ ][ d₁ ×ᴰ d₂ , d₂ ]
+  π₂ᴰ {d₁ = d₁ }{d₂ = d₂} = bpᴰ (d₁ , d₂) .elementᴰ .snd
+
+  _,pᴰ_ : {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
+         → Cᴰ.Hom[ f₁ ][ d , d₁ ] → Cᴰ.Hom[ f₂ ][ d , d₂ ]
+         → Cᴰ.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]
+  _,pᴰ_ {d₁ = d₁}{d₂ = d₂} f₁ᴰ f₂ᴰ =
+    bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof
+      (R.reind (sym ×β₁) f₁ᴰ , R.reind (sym ×β₂) f₂ᴰ)
+      .fst .fst
+
+  module _ {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
+           {f₁ᴰ : Cᴰ.Hom[ f₁ ][ d , d₁ ]}
+           {f₂ᴰ : Cᴰ.Hom[ f₂ ][ d , d₂ ]}
+         where
+
+    private
+      ,pᴰ-contr = bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof
+        (R.reind (sym ×β₁) f₁ᴰ , R.reind (sym ×β₂) f₂ᴰ)
+
+    ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
+    ×β₁ᴰ = symP (toPathP (sym (cong fst (,pᴰ-contr .fst .snd))))
+
+    ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) Cᴰ.≡[ ×β₂ ] f₂ᴰ
+    ×β₂ᴰ = symP (toPathP (sym (cong snd (,pᴰ-contr .fst .snd))))
+
+  module _ {f : C [ c , c₁ BP.× c₂ ]}
+           {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
+           where
+    private
+      ,pᴰ-contr = bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof
+        (R.reind (sym ×β₁) (fᴰ Cᴰ.⋆ᴰ π₁ᴰ) , R.reind (sym ×β₂) (fᴰ Cᴰ.⋆ᴰ π₂ᴰ)) .snd
+        ((R.reind (×η {f = f}) fᴰ) , ΣPathP
+        ( R.≡[]-rectify (R.≡[]∙ _ _
+          (R.≡[]⋆ _ _ (R.reind-filler-sym (sym ×η) fᴰ) (refl {x = π₁ᴰ}))
+          (R.reind-filler (sym ×β₁) _))
+        , R.≡[]-rectify (R.≡[]∙ _ _
+          (R.≡[]⋆ _ _ (R.reind-filler-sym (sym ×η) fᴰ) (refl {x = π₂ᴰ}))
+          (R.reind-filler (sym ×β₂) _))))
+    ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
+    ×ηᴰ = toPathP (sym (cong fst ,pᴰ-contr))
 
 module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private module Cᴰ = Categoryᴰ Cᴰ
@@ -88,7 +155,7 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
 
   open CartesianOver
   open UniversalElementᴰ
-  open Cubical.Categories.Displayed.Reasoning Cᴰ
+  open HomᴰReasoning Cᴰ
 
   private
     module Cᴰ = Categoryᴰ Cᴰ

@@ -220,13 +220,33 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         VerticalBinProductsAt Dᴰ (lift-π₁ .f*cᴰ' , lift-π₂ .f*cᴰ')
       VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] = vbps _
 
+  module _
+    (prods : BinProducts' C) where
+    private module B = BinProducts'Notation _ prods
+    module _
+      (lift-π₁₂ : {c c' : C .ob}
+        (Fcᴰ : Dᴰ.ob[ F ⟅ c ⟆ ])(Fc'ᴰ : Dᴰ.ob[ F ⟅ c' ⟆ ]) →
+        CartesianOver Dᴰ Fcᴰ (F ⟪ B.π₁ {a = c} {b = c'} ⟫) ×
+        CartesianOver Dᴰ Fc'ᴰ (F ⟪ B.π₂ {a = c} {b = c'} ⟫))
+      (vbp : {c c' : C .ob} (Fcᴰ : Dᴰ.ob[ F ⟅ c ⟆ ])(Fc'ᴰ : Dᴰ.ob[ F ⟅ c' ⟆ ]) →
+        VerticalBinProductsAt Dᴰ (lift-π₁₂ Fcᴰ Fc'ᴰ .fst .f*cᴰ' ,
+          lift-π₁₂ Fcᴰ Fc'ᴰ .snd .f*cᴰ'))
+      where
+      LiftedBinProdsReindex : LiftedBinProducts (reindex Dᴰ F) prods
+      LiftedBinProdsReindex (Fcᴰ , Fc'ᴰ) = LiftedBinProdReindex (prods _)
+        (lift-π₁₂ Fcᴰ Fc'ᴰ .fst)
+        (lift-π₁₂ Fcᴰ Fc'ᴰ .snd)
+        (vbp Fcᴰ Fc'ᴰ)
+
   module _ (prods : BinProducts' C)
-    (fib : isFibration Dᴰ)(vbps : VerticalBinProducts Dᴰ) where
-    LiftedBinProdsReindex : LiftedBinProducts (reindex Dᴰ F) prods
-    LiftedBinProdsReindex (Fcᴰ , Fc'ᴰ) = LiftedBinProdReindex (prods _)
-      (isFib→F⟪π₁⟫* (prods _) Fcᴰ fib)
-      (isFib→F⟪π₂⟫* (prods _) Fc'ᴰ fib)
-      (VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] (prods _)
+    (fib : isFibration Dᴰ)
+    (vbps : VerticalBinProducts Dᴰ) where
+    LiftedBinProdsReindex' : LiftedBinProducts (reindex Dᴰ F) prods
+    LiftedBinProdsReindex' = LiftedBinProdsReindex prods
+      (λ Fcᴰ Fc'ᴰ →
+        isFib→F⟪π₁⟫* (prods _) Fcᴰ fib , isFib→F⟪π₂⟫* (prods _) Fc'ᴰ fib)
+      (λ Fcᴰ Fc'ᴰ → VerticalBinProds→ϕ[π₁x]∧ψ[π₂x]
+        (prods _)
         (isFib→F⟪π₁⟫* (prods _) Fcᴰ fib)
         (isFib→F⟪π₂⟫* (prods _) Fc'ᴰ fib)
         vbps)

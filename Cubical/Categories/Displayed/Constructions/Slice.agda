@@ -26,7 +26,7 @@ open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.BinProduct.More as BP
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Displayed.Base as Disp
-open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Constructions.Reindex.Eq as Reindex
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ

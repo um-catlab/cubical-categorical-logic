@@ -12,7 +12,7 @@ import      Cubical.Data.Equality.More as Eq
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Constructions.Weaken
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private

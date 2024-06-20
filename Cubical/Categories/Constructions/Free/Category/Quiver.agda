@@ -17,7 +17,7 @@ open import Cubical.Data.Graph.Displayed as Graph hiding (Section)
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Instances.Path
 open import Cubical.Categories.Displayed.Properties as Reindex
 open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex

@@ -54,7 +54,7 @@ open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
-open import Cubical.Categories.Displayed.Constructions.Weaken
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.HLevels.More

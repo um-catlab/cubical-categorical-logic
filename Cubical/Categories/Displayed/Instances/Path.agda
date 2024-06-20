@@ -24,7 +24,6 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Displayed.Constructions.StructureOver
 open import Cubical.Categories.Displayed.Properties

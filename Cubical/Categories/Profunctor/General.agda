@@ -29,7 +29,6 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More
 
 private

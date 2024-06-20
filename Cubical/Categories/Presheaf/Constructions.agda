@@ -12,7 +12,6 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Bifunctor.Redundant
 
 private

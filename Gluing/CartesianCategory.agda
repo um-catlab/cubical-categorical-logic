@@ -1,5 +1,5 @@
-{-# OPTIONS --allow-unsolved-metas #-}
---{-# OPTIONS --safe #-}
+{-# OPTIONS --safe #-}
+{-# OPTIONS --lossy-unification #-}
 module Gluing.CartesianCategory where
 
 open import Cubical.Foundations.Prelude
@@ -7,7 +7,7 @@ open import Cubical.Relation.Nullary hiding (⟪_⟫)
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Bool
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum as Sum
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
@@ -24,6 +24,8 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+
+open import Cubical.Tactics.CategorySolver.Reflection
 
 open Category
 open Section
@@ -102,7 +104,7 @@ module _ where
     n : FREECC .fst [ 𝟙 , [ans] ] → Bool
     n e = (sem ⟪ e ⟫) _
 
-  CanonicalForm : FREECC .fst [ 𝟙 , [ans] ] → Type _
+  CanonicalForm : FREECC .fst [ 𝟙 , [ans] ] → Type ℓ-zero
   CanonicalForm e = ([t] ≡ e) ⊎ ([f] ≡ e)
 
   isSetCanonicalForm : ∀ {e} → isSet (CanonicalForm e)
@@ -111,15 +113,22 @@ module _ where
     (isProp→isSet (FREECC .fst .isSetHom [f] e))
 
   canonicity : ∀ e → CanonicalForm e
-  canonicity e = {!!}
+  canonicity e = fixup (Canonicalize .F-homᴰ e _ _)
     where
     pts = FREECC .fst [ 𝟙 ,-]
     Canonicalize : Section pts (SETᴰ _ _)
     Canonicalize = elimLocal _
       (VerticalTerminalsSETᴰ (pts ⟅ ⊤ ⟆))
-      (λ Fcᴰ Fc'ᴰ → isFib→F⟪π₁⟫* (BinProducts'SET _) Fcᴰ isFibrationSet ,
-        isFib→F⟪π₂⟫* (BinProducts'SET _) Fc'ᴰ isFibrationSet)
-      (λ Fcᴰ Fc'ᴰ → {!!})
+      (λ Fcᴰ Fc'ᴰ → isFib→F⟪π₁⟫* (BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _)) Fcᴰ isFibrationSet ,
+        isFib→F⟪π₂⟫* (BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _)) Fc'ᴰ isFibrationSet)
+      (λ Fcᴰ Fc'ᴰ → VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] {F = pts} ((BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _)))
+        (isFib→F⟪π₁⟫* ((BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _))) Fcᴰ isFibrationSet)
+        (isFib→F⟪π₂⟫* ((BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _))) Fc'ᴰ isFibrationSet)
+        VerticalBinProdsSETᴰ)
       (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm})
       λ { t global-ans → λ ⟨⟩ → inl (sym (FREECC .fst .⋆IdL _) ∙ congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η')
         ; f global-ans → λ ⟨⟩ → inr (sym (FREECC .fst .⋆IdL _) ∙ congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η') }
+    fixup : ∀{e'} →
+      ([t] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') ⊎ ([f] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') →
+      CanonicalForm e'
+    fixup {e'} = Sum.elim (λ p → inl (p ∙ FREECC .fst .⋆IdL e')) (λ p → inr (p ∙ FREECC .fst .⋆IdL e'))

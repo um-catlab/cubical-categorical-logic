@@ -1,5 +1,4 @@
---{-# OPTIONS --safe #-}
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Instances.Sets.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -66,9 +65,8 @@ module _ {ℓSETᴰ ℓSETᴰ' : Level} where
   VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .elementᴰ = (λ _ → fst) , (λ _ → snd)
   VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .universalᴰ {x = Y} {xᴰ = Yᴰ} {f = h} .equiv-proof (f , g) =
     uniqueExists (λ y yᴰ → f y yᴰ , g y yᴰ) refl
-    (λ h → isSet×
-      (SETᴰ ℓSETᴰ ℓSETᴰ' .isSetHomᴰ {yᴰ = Xᴰ})
-      (SETᴰ ℓSETᴰ ℓSETᴰ' .isSetHomᴰ {yᴰ = Xᴰ'})
-      _
-      (f , g))
-    λ h p → {!!}
+    (λ _ → isSet×
+      (SETᴰ ℓSETᴰ ℓSETᴰ' .isSetHomᴰ {x = Y} {y = X} {xᴰ = Yᴰ} {yᴰ = Xᴰ})
+      (SETᴰ ℓSETᴰ ℓSETᴰ' .isSetHomᴰ {x = Y} {y = X} {xᴰ = Yᴰ} {yᴰ = Xᴰ'})
+      _ _)
+    λ _ p i y yᴰ → (sym p) i .fst y yᴰ , (sym p) i .snd y yᴰ

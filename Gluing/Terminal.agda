@@ -39,6 +39,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
+open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Functors.HomFunctor

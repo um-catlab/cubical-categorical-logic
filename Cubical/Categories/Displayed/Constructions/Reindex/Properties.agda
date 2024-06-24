@@ -186,7 +186,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   where
   private module Dᴰ = Categoryᴰ Dᴰ
-  module _ {c c' : C .ob} (prod : BinProduct' C (c , c')) where
+  module _ {c c' : C .ob} (prod : BinProduct' _ (c , c')) where
     private module c×c' = BinProduct'Notation prod
     module _
       {Fcᴰ : Dᴰ.ob[ F ⟅ c ⟆ ]}
@@ -222,7 +222,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 
   module _
     (prods : BinProducts' C) where
-    private module B = BinProducts'Notation _ prods
+    private module B = BinProducts'Notation prods
     module _
       (lift-π₁₂ : {c c' : C .ob}
         (Fcᴰ : Dᴰ.ob[ F ⟅ c ⟆ ])(Fc'ᴰ : Dᴰ.ob[ F ⟅ c' ⟆ ]) →

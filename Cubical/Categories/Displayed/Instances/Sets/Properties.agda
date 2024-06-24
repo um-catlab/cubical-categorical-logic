@@ -63,7 +63,8 @@ module _ {ℓSETᴰ ℓSETᴰ' : Level} where
   VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .vertexᴰ x =
     ⟨ Xᴰ x ⟩ × ⟨ Xᴰ' x ⟩ , isSet× (Xᴰ x .snd) (Xᴰ' x .snd)
   VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .elementᴰ = (λ _ → fst) , (λ _ → snd)
-  VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .universalᴰ {x = Y} {xᴰ = Yᴰ} {f = h} .equiv-proof (f , g) =
+  VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .universalᴰ {x = Y} {xᴰ = Yᴰ} {f = h}
+    .equiv-proof (f , g) =
     uniqueExists (λ y yᴰ → f y yᴰ , g y yᴰ) refl
     (λ _ → isSet×
       (SETᴰ ℓSETᴰ ℓSETᴰ' .isSetHomᴰ {x = Y} {y = X} {xᴰ = Yᴰ} {yᴰ = Xᴰ})

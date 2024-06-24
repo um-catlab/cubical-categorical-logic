@@ -12,7 +12,8 @@ open import Cubical.Data.Sum as Sum
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Base as Law
-open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
+open import
+    Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More

@@ -123,7 +123,6 @@ module _ (C : Category ℓ ℓ') where
       a b c d : C .ob
       f g h : C [ a , b ]
 
-
   module _ {a} (bp : ∀ b → BinProduct C a b) where
     BinProductWithToRepresentable : UniversalElements (ProdWithAProf a)
     BinProductWithToRepresentable b = BinProductToRepresentable (bp b)
@@ -175,25 +174,63 @@ module _ (C : Category ℓ ℓ') where
       ×-extensionality : π₁ ∘⟨ C ⟩ f ≡
                          π₁ ∘⟨ C ⟩ g → π₂ ∘⟨ C ⟩ f ≡ π₂ ∘⟨ C ⟩ g → f ≡ g
       ×-extensionality p1 p2 = extensionality (ues _) (ΣPathP (p1 , p2))
+
+  module NotationAt {a b : C .ob} (bp : BinProduct C a b) where
+    private
+      ue = BinProductToRepresentable bp
+    open UniversalElementNotation {C = C}
+
+    vert : C .ob
+    vert = bp .binProdOb
+
+    π₁ : C [ vert , a ]
+    π₁ = bp .binProdPr₁
+
+    π₂ : C [ vert , b ]
+    π₂ = bp .binProdPr₂
+
+    _,p_ : C [ c , a ] → C [ c , b ] → C [ c , vert ]
+    f ,p g = bp .univProp f g .fst .fst
+
+    ×β₁ : π₁ ∘⟨ C ⟩ (f ,p g) ≡ f
+    ×β₁ {f = f}{g = g} = cong fst (β ue)
+
+    ×β₂ : π₂ ∘⟨ C ⟩ (f ,p g) ≡ g
+    ×β₂ {f = f}{g = g} = cong snd (β ue)
+
+    ×η : f ≡ ((π₁ ∘⟨ C ⟩ f) ,p (π₂ ∘⟨ C ⟩ f))
+    ×η {f = f} = η ue
+
+    ×η' : C .id {vert} ≡ (π₁ ,p π₂)
+    ×η' = weak-η ue
+
+    ,p-natural : ( f ,p g ) ∘⟨ C ⟩ h ≡ ((f ∘⟨ C ⟩ h) ,p (g ∘⟨ C ⟩ h))
+    ,p-natural {f = f}{g = g}{h = h} = intro-natural ue
+
+    -- this has the benefit of always applying
+    ×-extensionality : π₁ ∘⟨ C ⟩ f ≡ π₁ ∘⟨ C ⟩ g
+                     → π₂ ∘⟨ C ⟩ f ≡ π₂ ∘⟨ C ⟩ g
+                     → f ≡ g
+    ×-extensionality p1 p2 = extensionality ue (ΣPathP (p1 , p2))
+
   module Notation (bp : BinProducts C) where
     private
       ues = BinProductsToUnivElts bp
-    open UniversalElementNotation {C = C}
 
-    _×_ : C .ob → C .ob → C .ob
-    a × b = bp a b .binProdOb
+    module _ (a b : C .ob) where
+      open NotationAt (bp a b)
+      _×_ = vert
 
-    -- TODO: π₁, π₂ are natural transformations as well,
-    -- which should follow by general fact that universal elements are natural
-
-    π₁ : C [ a × b , a ]
-    π₁ {a}{b} = bp a b .binProdPr₁
-
-    π₂ : C [ a × b , b ]
-    π₂ {a}{b} = bp a b .binProdPr₂
-
-    _,p_ : C [ c , a ] → C [ c , b ] → C [ c , a × b ]
-    f ,p g = bp _ _ . univProp f g .fst .fst
+    module _ {a b : C .ob} where
+      -- TODO: π₁, π₂ are natural transformations as well,
+      -- which should follow by general fact that universal elements are natural
+      open NotationAt (bp a b) using
+        ( π₁ ; π₂
+        ; _,p_
+        ; ×β₁ ; ×β₂
+        ; ×η ; ×η'
+        ; ,p-natural
+        ; ×-extensionality) public
 
     ×pF = BinProductF bp
 
@@ -214,52 +251,14 @@ module _ (C : Category ℓ ℓ') where
       _ : (π₁ ,p (g ∘⟨ C ⟩ π₂)) ≡ (Bif-homR ×Bif c g)
       _ = refl
 
-    ×β₁ : π₁ ∘⟨ C ⟩ (f ,p g) ≡ f
-    ×β₁ {f = f}{g = g} = cong fst (β (ues _))
-
-    ×β₂ : π₂ ∘⟨ C ⟩ (f ,p g) ≡ g
-    ×β₂ {f = f}{g = g} = cong snd (β (ues _))
-
-    ×η : f ≡ ((π₁ ∘⟨ C ⟩ f) ,p (π₂ ∘⟨ C ⟩ f))
-    ×η {f = f} = η (ues _)
-
-    ×η' : C .id {a × b} ≡ (π₁ ,p π₂)
-    ×η' = weak-η (ues _)
-
-    ,p-natural : ( f ,p g ) ∘⟨ C ⟩ h ≡ ((f ∘⟨ C ⟩ h) ,p (g ∘⟨ C ⟩ h))
-    ,p-natural {f = f}{g = g}{h = h} = intro-natural (ues _)
-
-    -- this has the benefit of always applying
-    ×-extensionality : π₁ ∘⟨ C ⟩ f ≡ π₁ ∘⟨ C ⟩ g
-                     → π₂ ∘⟨ C ⟩ f ≡ π₂ ∘⟨ C ⟩ g
-                     → f ≡ g
-    ×-extensionality p1 p2 = extensionality (ues _) (ΣPathP (p1 , p2))
-
     module _ (Γ : C .ob) where
       module PWN = ProdsWithNotation (bp Γ)
       ×pF-with-agrees : ×Bif ⟪ C .id , f ⟫× ≡ PWN.×pF ⟪ f ⟫
       ×pF-with-agrees = sym (×Bif .Bif-R×-agree _)
 
-  module BinProducts'Notation (bp : BinProducts') =
-    Notation (BinProducts'ToBinProducts bp)
-
--- TODO: define Notation in terms of BinProduct c c',
--- and `module BinProduct'Notation (bp : BinProduct' C (c , c')) =
---    Notation BinProduct'ToBinProduct bp`?
 module _ {C : Category ℓ ℓ'} where
-  -- meant to be used as `module c×c' = Binproduct'Notation prod`
-  module BinProduct'Notation {c c' : C .ob}
-    (prod : BinProduct' C (c , c')) where
-    vert : C .ob
-    vert = prod .vertex
-    π₁ : C [ vert , c ]
-    π₁ = prod .element .fst
-    π₂ : C [ vert , c' ]
-    π₂ = prod .element .snd
-    ⟨_,_⟩ : ∀{z} → C [ z , c ] → C [ z , c' ] → C [ z , vert ]
-    ⟨_,_⟩ {z} f g = invIsEq (prod .universal z) (f , g)
-    β : ∀{z f g} → (⟨ f , g ⟩ ⋆⟨ C ⟩ π₁ , ⟨ f , g ⟩ ⋆⟨ C ⟩ π₂) ≡ (f , g)
-    β {z} {f} {g} = secIsEq (prod .universal z) (f , g)
-    η : ∀{z}{h : C [ z , (prod .vertex) ]} →
-      ⟨ h ⋆⟨ C ⟩ π₁ , h ⋆⟨ C ⟩ π₂ ⟩ ≡ h
-    η {z} {h} = retIsEq (prod .universal z) h
+  module BinProduct'Notation {c c' : C .ob} (bp : BinProduct' C (c , c')) =
+    NotationAt C (BinProduct'ToBinProduct C bp)
+
+  module BinProducts'Notation (bp : BinProducts' C) =
+    Notation C (BinProducts'ToBinProducts C bp)

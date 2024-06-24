@@ -38,7 +38,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     termWeaken .elementᴰ = termD .element
     termWeaken .universalᴰ = termD .universal _
   module _ (prodC : BinProducts' C)(prodD : BinProducts' D) where
-    private module B = BinProducts'Notation _ prodD
+    private module B = BinProducts'Notation prodD
     binprodWeaken : LiftedBinProducts (weaken C D) prodC
     binprodWeaken _ .vertexᴰ = prodD _ .vertex
     binprodWeaken _ .elementᴰ = prodD _ .element

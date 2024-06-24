@@ -48,7 +48,7 @@ module LiftedBinProductsNotation
        where
 
   private
-    module BP = BinProducts'Notation _ bp'
+    module BP = BinProducts'Notation bp'
     module Cᴰ = Categoryᴰ Cᴰ
     module R = HomᴰReasoning Cᴰ
   open BP

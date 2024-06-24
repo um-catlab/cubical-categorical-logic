@@ -7,7 +7,7 @@
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Monad.Relative.Properties where
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding (J)
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
@@ -49,9 +49,11 @@ private
     ℓC ℓC' ℓD ℓD' ℓS : Level
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-         {J : C o-[ ℓS ]-* D}
-         (E : ExtensionSystem J)
+         (P : Profunctor D C ℓS)
+         (E : ExtensionSystem (Profunctor→Relatoro* P))
          where
+  private
+    J = Profunctor→Relatoro* P
   Algᴰ = AlgebraOver J E
   ALGEBRA-liftsLimits : ∀ ℓS ℓS' → liftsLimits (ALGEBRAᴰ J E) ℓS ℓS'
   ALGEBRA-liftsLimits _ _ S limitOfS {D = F} Fᴰ = record

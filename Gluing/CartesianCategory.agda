@@ -79,8 +79,8 @@ module _ where
   FREECC : CartesianCategory _ _
   FREECC = FreeCartesianCategory QUIVER
 
-  open Terminal'Notation
-    (terminalToUniversalElement {C = FREECC .fst} (FREECC .snd .fst))
+  open CartesianCategoryNotation FREECC
+  open Terminal'Notation CCTerminal'
 
   [ans] : FREECC .fst .ob
   [ans] = ↑ ans
@@ -120,16 +120,21 @@ module _ where
     Canonicalize : Section pts (SETᴰ _ _)
     Canonicalize = elimLocal _
       (VerticalTerminalsSETᴰ (pts ⟅ ⊤ ⟆))
-      (λ Fcᴰ Fc'ᴰ → isFib→F⟪π₁⟫* (BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _)) Fcᴰ isFibrationSet ,
-        isFib→F⟪π₂⟫* (BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _)) Fc'ᴰ isFibrationSet)
-      (λ Fcᴰ Fc'ᴰ → VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] {F = pts} ((BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _)))
-        (isFib→F⟪π₁⟫* ((BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _))) Fcᴰ isFibrationSet)
-        (isFib→F⟪π₂⟫* ((BinProductsToBinProducts' _ (FREECC .snd .snd) (_ , _))) Fc'ᴰ isFibrationSet)
+      (λ _ _ → isFib→F⟪π₁⟫* (CCBinProducts' (_ , _)) _ isFibrationSet ,
+        isFib→F⟪π₂⟫* (CCBinProducts' (_ , _)) _ isFibrationSet)
+      (λ _ _ → VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] {F = pts} (CCBinProducts' (_ , _))
+        (isFib→F⟪π₁⟫* (CCBinProducts' (_ , _)) _ isFibrationSet)
+        (isFib→F⟪π₂⟫* (CCBinProducts' (_ , _)) _ isFibrationSet)
         VerticalBinProdsSETᴰ)
       (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm})
-      λ { t global-ans → λ ⟨⟩ → inl (sym (FREECC .fst .⋆IdL _) ∙ congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η')
-        ; f global-ans → λ ⟨⟩ → inr (sym (FREECC .fst .⋆IdL _) ∙ congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η') }
+      λ { t global-ans → λ ⟨⟩ → inl (sym (FREECC .fst .⋆IdL _) ∙
+          congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η')
+        ; f global-ans → λ ⟨⟩ → inr (sym (FREECC .fst .⋆IdL _) ∙
+          congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η') }
     fixup : ∀{e'} →
-      ([t] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') ⊎ ([f] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') →
+      ([t] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') ⊎
+      ([f] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') →
       CanonicalForm e'
-    fixup {e'} = Sum.elim (λ p → inl (p ∙ FREECC .fst .⋆IdL e')) (λ p → inr (p ∙ FREECC .fst .⋆IdL e'))
+    fixup {e'} = Sum.elim
+      (λ p → inl (p ∙ FREECC .fst .⋆IdL e'))
+      (λ p → inr (p ∙ FREECC .fst .⋆IdL e'))

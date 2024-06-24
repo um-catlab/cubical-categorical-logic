@@ -35,3 +35,9 @@ module CartesianCategoryNotation (CC : CartesianCategory ℓ ℓ') where
   unitor-l .snd .isIso.sec = ×β₂
   unitor-l .snd .isIso.ret =
     ,p-natural ∙ cong₂ _,p_ 𝟙η' (⋆IdR _ ∙ sym (⋆IdL _)) ∙ sym ×η
+
+  CCTerminal' : Terminal' C
+  CCTerminal' = terminalToUniversalElement (CC .snd .fst)
+
+  CCBinProducts' : BinProducts' C
+  CCBinProducts' = BinProductsToBinProducts' _ (CC .snd .snd)

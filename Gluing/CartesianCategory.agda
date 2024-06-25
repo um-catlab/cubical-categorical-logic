@@ -47,26 +47,23 @@ module _ where
   isSetOB = Discrete→isSet discreteOB
 
   data MOR : Type ℓ-zero where
-    t f : MOR
+    t,f : MOR
 
   discreteMOR : Discrete MOR
   discreteMOR = sectionDiscrete {A = ℕ}
-    (λ { zero → t ; (suc _) → f })
-    (λ { t → 0 ; f → 1 })
-    (λ { t → refl ; f → refl })
+    (λ _ → t,f)
+    (λ _ → 0)
+    (λ { t,f → refl })
     discreteℕ
 
   isSetMOR : isSet MOR
   isSetMOR = Discrete→isSet discreteMOR
 
-  interleaved mutual -- not actually mutually recursive, just to interleave
+  interleaved mutual
     dom cod : MOR → ProdExpr OB
 
-    dom t = ⊤
-    cod t = ↑ ans
-
-    dom f = ⊤
-    cod f = ↑ ans
+    dom t,f = ⊤
+    cod t,f = (↑ ans) × (↑ ans)
 
   QUIVER : ×Quiver _
   QUIVER .fst = OB
@@ -86,11 +83,8 @@ module _ where
   [ans] = ↑ ans
 
   [t] [f] : FREECC .fst [ 𝟙 , [ans] ]
-  [t] = ↑ₑ t
-  [f] = ↑ₑ f
-
-  boolToExp : Bool → FREECC .fst [ 𝟙 , [ans] ]
-  boolToExp = if_then [t] else [f]
+  [t] = (↑ₑ (t,f)) ⋆ₑ π₁
+  [f] = (↑ₑ (t,f)) ⋆ₑ π₂
 
   [t]≠[f] : ¬ ([t] ≡ [f])
   [t]≠[f] p = true≢false (cong n p)
@@ -101,9 +95,9 @@ module _ where
         Terminal'ToTerminal terminal'SET ,
         BinProducts'ToBinProducts _ BinProducts'SET)
       (λ { ans → Bool , isSetBool})
-      λ { t → λ _ → true ; f → λ _ → false}
+      λ { t,f → λ (lift tt) → true , false }
     n : FREECC .fst [ 𝟙 , [ans] ] → Bool
-    n e = (sem ⟪ e ⟫) _
+    n e = (sem ⟪ e ⟫) tt*
 
   CanonicalForm : FREECC .fst [ 𝟙 , [ans] ] → Type ℓ-zero
   CanonicalForm e = ([t] ≡ e) ⊎ ([f] ≡ e)
@@ -127,10 +121,13 @@ module _ where
         (isFib→F⟪π₂⟫* (CCBinProducts' (_ , _)) _ isFibrationSet)
         VerticalBinProdsSETᴰ)
       (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm})
-      λ { t global-ans → λ ⟨⟩ → inl (sym (FREECC .fst .⋆IdL _) ∙
-          congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η')
-        ; f global-ans → λ ⟨⟩ → inr (sym (FREECC .fst .⋆IdL _) ∙
-          congS (λ x → x ⋆⟨ FREECC .fst ⟩ _) 𝟙η') }
+      λ { t,f ⟨⟩ (lift tt) →
+         (inl (sym (FREECC .fst .⋆IdL _)
+               ∙ cong₂ (seq' (FREECC .fst)) 𝟙η' refl
+               ∙ sym (FREECC .fst .⋆Assoc _ _ _)))
+        , inr (sym (FREECC .fst .⋆IdL _)
+               ∙ cong₂ (seq' (FREECC .fst)) 𝟙η' refl
+               ∙ sym (FREECC .fst .⋆Assoc _ _ _)) }
     fixup : ∀{e'} →
       ([t] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') ⊎
       ([f] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') →

@@ -15,8 +15,10 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.AsRepresentable
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Terminal
+open import Cubical.Categories.Displayed.Instances.Terminal.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Adjoint.More
 -- TODO: fix this naming to be Functors
@@ -51,7 +53,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   ΔFᴰ .F-idᴰ = makeNatTransPathᴰ _ _ _ refl
   ΔFᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ refl
 
-  limitᴰ : {F : Functor J C} → RightAdjointAt ΔF F → Functorᴰ F Jᴰ Cᴰ → Type _
+  limitᴰ : {F : Functor J C} → limit F → Functorᴰ F Jᴰ Cᴰ → Type _
   limitᴰ = RightAdjointAtᴰ ΔFᴰ
 
 limitsᴰOfShape :
@@ -62,18 +64,43 @@ limitsᴰOfShape :
   → Type _
 limitsᴰOfShape lims Cᴰ Jᴰ = RightAdjointᴰ (ΔFᴰ {Cᴰ = Cᴰ}{Jᴰ = Jᴰ}) lims
 
-liftsLimitsᴰOfShape :
+liftedLimit :
   {C : Category ℓC ℓC'}
   {J : Category ℓJ ℓJ'}
-  → limitsOfShape C J
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  → {cⱼ : Functor J C}
+  → limit cⱼ
+  → (cᴰⱼ : Section cⱼ Cᴰ)
+  → Type _
+liftedLimit lim⟨cⱼ⟩ cᴰⱼ = limitᴰ lim⟨cⱼ⟩ (recᴰ cᴰⱼ)
+
+-- A displayed category Cᴰ lifts a limit lim⟨cⱼ⟩ when every lift of cⱼ
+-- has a limᴰ
+liftsLimit :
+  {C : Category ℓC ℓC'}
+  {J : Category ℓJ ℓJ'}
+  → {cⱼ : Functor J C}
+  → (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  → limit cⱼ
+  → Type _
+liftsLimit {cⱼ = cⱼ} Cᴰ lim =
+  ∀ (cᴰⱼ : Section cⱼ Cᴰ) → liftedLimit lim cᴰⱼ
+
+liftsLimitsOfShape :
+  {C : Category ℓC ℓC'}
+  → Category ℓJ ℓJ'
   → Categoryᴰ C ℓCᴰ ℓCᴰ'
   → Type _
-liftsLimitsᴰOfShape lims Cᴰ = limitsᴰOfShape lims Cᴰ (Unitᴰ _)
+liftsLimitsOfShape {C = C} J Cᴰ =
+  ∀ (cⱼ : Functor J _)
+    (lim⟨cⱼ⟩ : limit cⱼ)
+  → liftsLimit Cᴰ lim⟨cⱼ⟩
 
-liftsLimits : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+liftsLimitsOfSize : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   → ∀ (ℓJ ℓJ' : Level) → Type _
-liftsLimits {C = C} Cᴰ ℓJ ℓJ' =
+liftsLimitsOfSize {C = C} Cᴰ ℓJ ℓJ' =
   ∀ (J : Category ℓJ ℓJ')
-  → (limitOfJ : ∀ (D : Functor J C) → limit D)
-  → ∀ {D : Functor J C} (Dᴰ : Functorᴰ D (Unitᴰ _) Cᴰ)
-  → limitᴰ (limitOfJ D) Dᴰ
+  → liftsLimitsOfShape J Cᴰ
+
+liftsLimits : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') → Typeω
+liftsLimits Cᴰ = ∀ ℓJ ℓJ' → liftsLimitsOfSize Cᴰ ℓJ ℓJ'

@@ -52,21 +52,21 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     open Functor
     open NatTrans
     open UniversalElement
-    pushCone : ∀ (c_j : Functor J C)
-      → PshHom F (CONE C J ⟅ c_j ⟆) (CONE D J ⟅ F ∘F c_j ⟆)
-    pushCone c_j .N-ob c' (lift α) .lower .N-ob = (F ∘ʳ α) .N-ob
-    pushCone c_j .N-ob c' (lift α) .lower .N-hom f =
+    pushCone : ∀ (cⱼ : Functor J C)
+      → PshHom F (CONE C J ⟅ cⱼ ⟆) (CONE D J ⟅ F ∘F cⱼ ⟆)
+    pushCone cⱼ .N-ob c' (lift α) .lower .N-ob = (F ∘ʳ α) .N-ob
+    pushCone cⱼ .N-ob c' (lift α) .lower .N-hom f =
       cong₂ (seq' D) (sym (F .F-id)) refl
       ∙ (F ∘ʳ α) .N-hom f
-    pushCone c_j .N-hom f = funExt (λ (lift α) →
+    pushCone cⱼ .N-hom f = funExt (λ (lift α) →
       cong lift (makeNatTransPath (funExt (λ j → F .F-seq _ _))))
 
-    preservesLimit : ∀ {c_j : Functor J C}
-      → (lim : UniversalElement C (CONE C J ⟅ c_j ⟆))
+    preservesLimit : ∀ {cⱼ : Functor J C}
+      → (lim : UniversalElement C (CONE C J ⟅ cⱼ ⟆))
       → Type _
-    preservesLimit {c_j} lim = isUniversal D (CONE D J ⟅ F ∘F c_j ⟆)
-          (F ⟅ lim .vertex ⟆)
-          ((pushCone c_j ⟦ lim .vertex ⟧) (lift (lim .element)) .lower)
+    preservesLimit {cⱼ} =
+      preservesRepresentation F (CONE C J ⟅ cⱼ ⟆) (CONE D J ⟅ F ∘F cⱼ ⟆)
+        (pushCone cⱼ)
 
     -- todo: preservesLimitsOfShape, preservesLimits
 

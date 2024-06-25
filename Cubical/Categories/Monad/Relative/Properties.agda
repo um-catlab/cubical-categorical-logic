@@ -30,6 +30,7 @@ open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.FunctorComprehension
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Limits.Limits
@@ -54,37 +55,50 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          where
   private
     J = Profunctor→Relatoro* P
-  Algᴰ = AlgebraOver J E
-  ALGEBRA-liftsLimits : ∀ ℓS ℓS' → liftsLimits (ALGEBRAᴰ J E) ℓS ℓS'
-  ALGEBRA-liftsLimits _ _ S limitOfS {D = F} Fᴰ = record
-    { vertexᴰ    = LimAlg
-    ; elementᴰ   = {!!}
-    ; universalᴰ = {!!}
-    } where
-    module J = Bifunctor J
-    module D = Category D
-    module E = ExtensionSystem E
-    module Lim = UniversalElementNotation (limitOfS F)
-    open AlgebraOver
-    open Functorᴰ
-    open NatTrans
-    LimAlg : Algᴰ Lim.vertex
-    LimAlg .bindA j = Lim.intro (natTrans
-      (((λ s → Fᴰ .F-obᴰ {x = s} _ .bindA ((J ⟪ Lim.element ⟦ s ⟧ ⟫r) j))) )
-      λ f →
-              D.⋆IdL _
-              ∙ cong (Fᴰ .F-obᴰ _ .bindA)
-                ( cong₂ (J.Bif-homR _)
-                        (sym (D.⋆IdL _) ∙ Lim.element .N-hom f)
-                        refl
-                ∙ funExt⁻ (J.Bif-R-seq _ _) _)
-              ∙ sym (Fᴰ .F-homᴰ {f = f} _ _)
-      )
-    -- Whoops! Need that J preserves limits in the rhs
-    -- ⟨ (π_s ∘ r)^t ⟩_s o η
-    -- = ⟨ (π_s o r)^t o η ⟩_s
-    -- = ⟨ π_s o r ⟩_s
-    -- = r
+    Algᴰ = AlgebraOver J E
+    ALGᴰ = ALGEBRAᴰ J E
 
-    LimAlg .bindA-l = {!!}
-    LimAlg .bindA-comp = {!!}
+  -- ALGEBRAS lift any limit that the profunctor P preserves
+  ALGEBRA-liftsLimits : ∀ {ℓS ℓS'}{S : Category ℓS ℓS'}
+    {ds : Functor S D}
+    → {lim⟨ds⟩ : limit ds}
+    → preservesLimit P lim⟨ds⟩
+    → liftsLimit ALGᴰ lim⟨ds⟩
+  ALGEBRA-liftsLimits P⟨lim⟨ds⟩⟩≡lim⟨P⟅ds⟆⟩ alg⟨ds⟩ = record
+    { vertexᴰ = {!!}
+    ; elementᴰ = {!!}
+    ; universalᴰ = {!!}
+    }
+  -- ALGEBRA-liftsLimits : ∀ ℓS ℓS' → liftsLimits (ALGEBRAᴰ J E) ℓS ℓS'
+  -- ALGEBRA-liftsLimits _ _ S limitOfS {D = F} Fᴰ = record
+  --   { vertexᴰ    = LimAlg
+  --   ; elementᴰ   = {!!}
+  --   ; universalᴰ = {!!}
+  --   } where
+  --   module J = Bifunctor J
+  --   module D = Category D
+  --   module E = ExtensionSystem E
+  --   module Lim = UniversalElementNotation (limitOfS F)
+  --   open AlgebraOver
+  --   open Functorᴰ
+  --   open NatTrans
+  --   LimAlg : Algᴰ Lim.vertex
+  --   LimAlg .bindA j = Lim.intro (natTrans
+  --     (((λ s → Fᴰ .F-obᴰ {x = s} _ .bindA ((J ⟪ Lim.element ⟦ s ⟧ ⟫r) j))) )
+  --     λ f →
+  --             D.⋆IdL _
+  --             ∙ cong (Fᴰ .F-obᴰ _ .bindA)
+  --               ( cong₂ (J.Bif-homR _)
+  --                       (sym (D.⋆IdL _) ∙ Lim.element .N-hom f)
+  --                       refl
+  --               ∙ funExt⁻ (J.Bif-R-seq _ _) _)
+  --             ∙ sym (Fᴰ .F-homᴰ {f = f} _ _)
+  --     )
+  --   -- Whoops! Need that J preserves limits in the rhs
+  --   -- ⟨ (π_s ∘ r)^t ⟩_s o η
+  --   -- = ⟨ (π_s o r)^t o η ⟩_s
+  --   -- = ⟨ π_s o r ⟩_s
+  --   -- = r
+
+  --   LimAlg .bindA-l = {!!}
+  --   LimAlg .bindA-comp = {!!}

@@ -17,7 +17,6 @@ open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration.Base
-open import Cubical.Categories.Displayed.Fibration.Properties
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Limits.Terminal

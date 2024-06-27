@@ -12,30 +12,29 @@ open import Cubical.Categories.Displayed.Constructions.StructureOver
 
 private
   variable
-    ℓC ℓC' ℓP : Level
+    ℓC ℓC' ℓH : Level
 
-record HomPropertyOver (C : Category ℓC ℓC') ℓP :
-  Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-suc ℓP)) where
+record HomPropertyOver (C : Category ℓC ℓC') ℓH :
+  Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-suc ℓH)) where
   open Category C
   field
-    P : ∀ {x y} → Hom[ x , y ] → Type ℓP
-    P-prop : ∀ {x y} (f : Hom[ x , y ]) → isProp (P f)
-    P-id : ∀ {x} → P (id {x})
-    P-comp : ∀ {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ])
-      → P f → P g → P (f ⋆ g)
+    Hom[_][-,-] : ∀ {x y} → Hom[ x , y ] → Type ℓH
+    isPropHomᴰ : ∀ {x y} (f : Hom[ x , y ]) → isProp Hom[ f ][-,-]
+    idᴰ : ∀ {x} → Hom[ id {x} ][-,-]
+    _⋆ᴰ_ : ∀ {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ])
+      → Hom[ f ][-,-] → Hom[ g ][-,-] → Hom[ f ⋆ g ][-,-]
 
-module _ {C : Category ℓC ℓC'} (Pᴰ : HomPropertyOver C ℓP) where
+module _ {C : Category ℓC ℓC'} (Pᴰ : HomPropertyOver C ℓH) where
   open Category C
   open HomPropertyOver Pᴰ
-  HomPropertyOver→Catᴰ : Categoryᴰ C ℓ-zero ℓP
+  HomPropertyOver→Catᴰ : Categoryᴰ C ℓ-zero ℓH
   HomPropertyOver→Catᴰ = StructureOver→Catᴰ struct where
-    open StructureOver
-    struct : StructureOver C ℓ-zero ℓP
-    struct .ob[_] _ = Unit
-    struct .Hom[_][_,_] f _ _ = P f
-    struct .idᴰ = P-id
-    struct ._⋆ᴰ_ = P-comp _ _
-    struct .isPropHomᴰ = P-prop _
+    struct : StructureOver C ℓ-zero ℓH
+    struct .StructureOver.ob[_] _ = Unit
+    struct .StructureOver.Hom[_][_,_] f _ _ = Hom[ f ][-,-]
+    struct .StructureOver.idᴰ = idᴰ
+    struct .StructureOver._⋆ᴰ_ = _ ⋆ᴰ _
+    struct .StructureOver.isPropHomᴰ = isPropHomᴰ _
 
 module examples where
   open import Cubical.Categories.Constructions.TotalCategory
@@ -56,10 +55,10 @@ module examples where
     Coreᴰ = HomPropertyOver→Catᴰ struct where
       open HomPropertyOver
       struct : HomPropertyOver C ℓC'
-      struct .P = isIso C
-      struct .P-prop = isPropIsIso
-      struct .P-id = idCatIso .snd
-      struct .P-comp f g isIsof isIsog = compIso (g , isIsog) (f , isIsof) .snd
+      struct .Hom[_][-,-] = isIso C
+      struct .isPropHomᴰ = isPropIsIso
+      struct .idᴰ = idCatIso .snd
+      struct ._⋆ᴰ_ f g isIsof isIsog = compIso (g , isIsog) (f , isIsof) .snd
 
     Core : Category ℓC ℓC'
     Core = ∫C Coreᴰ
@@ -111,10 +110,10 @@ module examples where
     Evensᴰ = HomPropertyOver→Catᴰ struct where
       open HomPropertyOver
       struct : HomPropertyOver NatCat ℓ-zero
-      struct .P = isEven
-      struct .P-prop = isPropIsEven
-      struct .P-id = _
-      struct .P-comp = even-closed-under-+
+      struct .Hom[_][-,-] = isEven
+      struct .isPropHomᴰ = isPropIsEven
+      struct .idᴰ = _
+      struct ._⋆ᴰ_ = even-closed-under-+
 
     -- The submonoid of even natural numbers
     Evens : Category ℓ-zero ℓ-zero

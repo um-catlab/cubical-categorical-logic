@@ -59,11 +59,10 @@ module _ where
   isSetMOR : isSet MOR
   isSetMOR = Discrete→isSet discreteMOR
 
-  interleaved mutual
-    dom cod : MOR → ProdExpr OB
+  dom cod : MOR → ProdExpr OB
 
-    dom t,f = ⊤
-    cod t,f = (↑ ans) × (↑ ans)
+  dom t,f = ⊤
+  cod t,f = (↑ ans) × (↑ ans)
 
   QUIVER : ×Quiver _
   QUIVER .fst = OB

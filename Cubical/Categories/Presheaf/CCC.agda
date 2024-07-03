@@ -44,7 +44,7 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
     -- Use universal Bin Products of Set 
 
     module test (A B Z : hSet ℓS) where 
-        _ = {! Bs A B .univProp  !}
+
 
     -- use definitions from Cubical.Categories.Limits.Terminal.More ?
     ⊤𝓟 : Terminal 𝓟 
@@ -63,14 +63,6 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
             ((natTrans (λ x z → f .N-ob x z , g .N-ob x z) (λ h  → funExt λ z → ≡-× (funExt⁻ (f .N-hom h) z) (funExt⁻ (g .N-hom h) z) ))) 
             ((makeNatTransPath refl) , (makeNatTransPath refl)) 
             (λ a → isProp× (isSetNatTrans _ _) (isSetNatTrans _ _))
-            λ Z→A×B (prf₁ , prf₂) → makeNatTransPath (funExt λ x → funExt λ x₁ → {! Bs _ _ .universal  !})
-            -- binary products in Set are unique
-        {-(natTrans (λ x z → f .N-ob x z , g .N-ob x z) (λ h  → funExt λ z → ≡-× (funExt⁻ (f .N-hom h) z) (funExt⁻ (g .N-hom h) z) ) , 
-                            (makeNatTransPath refl) , (makeNatTransPath refl)) , 
-                            λ{(Z→A×B , snd₁) → {! ΣPathP ? ?  !}} -}
-
-    {- 
-        ∀ {z : ob} (f₁ : Hom[ z , x ]) (f₂ : Hom[ z , y ]) →
-        ∃![ f ∈ Hom[ z , x×y ] ] (f ⋆ π₁ ≡ f₁) × (f ⋆ π₂ ≡ f₂)
-    -}
+            λ Z→A×B (prf₁ , prf₂) → makeNatTransPath λ i x x₁ → sym (prf₁) i .N-ob x x₁ , sym (prf₂) i .N-ob x x₁
+            
   

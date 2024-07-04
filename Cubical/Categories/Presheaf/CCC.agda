@@ -22,6 +22,8 @@ open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Limits.CartesianClosed.Base
+
 private
     variable
         ℓ ℓ' ℓS : Level
@@ -35,16 +37,6 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
     open BinProduct
     open NatTrans
     open UniversalElement
-    Bs' : BinProducts' (SET ℓS)
-    Bs' = BinProducts'SET {ℓS}
-
-    Bs : BinProducts (SET ℓS)
-    Bs = BinProducts'ToBinProducts (SET ℓS) Bs'
-
-    -- Use universal Bin Products of Set 
-
-    module test (A B Z : hSet ℓS) where 
-
 
     -- use definitions from Cubical.Categories.Limits.Terminal.More ?
     ⊤𝓟 : Terminal 𝓟 
@@ -52,8 +44,6 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
         λ _ → natTrans (λ _ _  → tt*) (λ _  → refl) , 
              λ _  → makeNatTransPath (funExt λ _ →  funExt λ _  → isPropUnit* _ _)
         
-        --LiftF ∘F (TerminalPresheaf {C = C}) , {!  !}
-
     ×𝓟 : BinProducts 𝓟
     ×𝓟 A B .binProdOb = PshProd ⟅ A , B ⟆b
     ×𝓟 A B .binProdPr₁ = natTrans (λ _ (a , _) → a) λ _ → funExt λ{_ → refl}
@@ -63,6 +53,14 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
             ((natTrans (λ x z → f .N-ob x z , g .N-ob x z) (λ h  → funExt λ z → ≡-× (funExt⁻ (f .N-hom h) z) (funExt⁻ (g .N-hom h) z) ))) 
             ((makeNatTransPath refl) , (makeNatTransPath refl)) 
             (λ a → isProp× (isSetNatTrans _ _) (isSetNatTrans _ _))
-            λ Z→A×B (prf₁ , prf₂) → makeNatTransPath λ i x x₁ → sym (prf₁) i .N-ob x x₁ , sym (prf₂) i .N-ob x x₁
-            
+            λ _ (prf₁ , prf₂) → makeNatTransPath λ i x x₁ → sym (prf₁) i .N-ob x x₁ , sym (prf₂) i .N-ob x x₁
+    
+    ⇒𝓟 : Exponentials 𝓟 ×𝓟
+    ⇒𝓟 (A , B) .vertex = {!   !}
+    ⇒𝓟 (A , B) .element = {!   !}
+    ⇒𝓟 (A , B) .universal = {!   !}
+    
+    𝓟-CCC : CartesianClosedCategory _ _ 
+    𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , ⇒𝓟 )
+
   

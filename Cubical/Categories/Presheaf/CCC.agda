@@ -23,6 +23,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Limits.CartesianClosed.Base
+open import Cubical.Categories.Yoneda.More
+open import Cubical.Foundations.Equiv
 
 private
     variable
@@ -55,33 +57,6 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
             ((makeNatTransPath refl) , (makeNatTransPath refl)) 
             (λ a → isProp× (isSetNatTrans _ _) (isSetNatTrans _ _))
             λ _ (prf₁ , prf₂) → makeNatTransPath λ i x x₁ → sym (prf₁) i .N-ob x x₁ , sym (prf₂) i .N-ob x x₁
-    
-{-
-  isUniversal : (vertex : C .ob) (element : (P ⟅ vertex ⟆) .fst)
-              → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
-  isUniversal vertex element =
-    ∀ A → isEquiv λ (f : C [ A , vertex ]) → element ∘ᴾ⟨ C , P ⟩ f
-
-  isPropIsUniversal : ∀ vertex element → isProp (isUniversal vertex element)
-  isPropIsUniversal vertex element = isPropΠ (λ _ → isPropIsEquiv _)
-
-  record UniversalElement : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp) where
-    field
-      vertex : C .ob
-      element : (P ⟅ vertex ⟆) .fst
-      universal : isUniversal vertex element 
--}
-    open import Cubical.Categories.Yoneda.More
-    --C [-, ? ] : Functor C^op SET ℓ'
-    -- LiftF : Functor (SET ℓ) (SET (ℓ-max ℓ ℓ'))
-    -- LiftF  ∘F (C [-, c ])
-    --  LiftF {ℓ'}{ℓm} ∘F (YONEDA .F-ob c )
-    L : Functor (C ^op) (SET ℓ') → Functor (C ^op) (SET ℓm)
-    L F = LiftF {ℓ'}{ℓm} ∘F F
-
-
-    open import Cubical.Categories.Bifunctor.Redundant
-    open Bifunctor
 
     {- something like this could work for the proofs of F-id and F-seq below
     .. but manually unpacking is much simpler
@@ -91,6 +66,10 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
             ∙ (𝓟 .⋆IdL M)
 
     -}
+    L : Functor (C ^op) (SET ℓ') → Functor (C ^op) (SET ℓm)
+    L F = LiftF {ℓ'}{ℓm} ∘F F
+
+    open Bifunctor
 
     ExpOb : ob 𝓟 → ob 𝓟 → ob 𝓟 
     ExpOb A B .F-ob c = (𝓟 [ PshProd ⟅ L (YONEDA {C = C}.F-ob c) , A ⟆b , B ]) , 𝓟 .isSetHom  
@@ -109,24 +88,32 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
                     funExt λ{ _ → 
                         cong (M .N-ob Z) (≡-× (cong lift (sym (C .⋆Assoc _ _ _ ))) refl)})
 
-{-     
-    open import Cubical.Foundations.Equiv
-
-    
-        type checking time explodes
     ⇒𝓟 : Exponentials 𝓟 ×𝓟
     ⇒𝓟 (A , B) .vertex = ExpOb B A
-    ⇒𝓟 (A , B) .element = natTrans (λ{c (nt , Bc) → nt .N-ob c ((lift (C .id)) , Bc)}) {!   !}
-    ⇒𝓟 (A , B) .universal C .equiv-proof f = 
+    ⇒𝓟 (A , B) .element = 
+        natTrans 
+            (λ{x (B→A , B) → B→A .N-ob x (lift (C .id) , B)}) 
+            (λ f → funExt λ{(B→A , B) → 
+                    cong₂ (B→A .N-ob) refl (≡-× (cong lift ((C .⋆IdL f) ∙(sym (C .⋆IdR f)))) refl) 
+                    ∙ funExt⁻ (B→A .N-hom f) (lift (C .id) , B)})
+    ⇒𝓟 (A , B) .universal Z .equiv-proof f = 
         uniqueExists 
-        (natTrans (λ x Cx → natTrans (λ{y (y→x , By) → f .N-ob y (C .F-hom (y→x .lower) Cx , By)}) {!   !}) {!   !}) 
-        (makeNatTransPath (funExt λ x → funExt λ{ (Cx , Bx) → congS (f .N-ob x) ? }))
-        {!   !} 
-        {!   !}
-    -}
-    
-    𝓟-CCC : CartesianClosedCategory _ _ 
-    𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , {!   !} )--⇒𝓟 )
+            (natTrans 
+                (λ x Zx → 
+                    natTrans (λ{y (y→x , By) → f .N-ob y (Z .F-hom (y→x .lower) Zx , By)}) 
+                    λ {y}{z} g → funExt λ {(y→x , By) → {!   !}}) 
+                {!   !}) 
+            (makeNatTransPath (funExt λ x → funExt λ{(p , q) → cong (λ y → f .N-ob x ( y , q)) (funExt⁻ (Z .F-id) p) })) 
+            (λ a' x y  → 𝓟 .isSetHom _ _  x y) 
+            λ Z→A^B prf  → 
+                makeNatTransPath 
+                (funExt λ x → 
+                    funExt λ Zx → 
+                        makeNatTransPath (
+                            funExt λ y → 
+                                funExt λ{(y→x , By) → {!   !}}))
 
-  
+    𝓟-CCC : CartesianClosedCategory _ _ 
+    𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , ⇒𝓟 )
+
    

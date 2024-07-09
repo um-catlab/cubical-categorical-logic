@@ -30,7 +30,8 @@ private
     
 module _ {C : Category ℓ ℓ'} {ℓS : Level} where
     private
-        𝓟 = PresheafCategory C ℓS
+        ℓm = ℓ-max ℓ' (ℓ-max ℓ ℓS)
+        𝓟 = PresheafCategory C ℓm
 
     open Category
     open Functor
@@ -55,10 +56,44 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
             (λ a → isProp× (isSetNatTrans _ _) (isSetNatTrans _ _))
             λ _ (prf₁ , prf₂) → makeNatTransPath λ i x x₁ → sym (prf₁) i .N-ob x x₁ , sym (prf₂) i .N-ob x x₁
     
+{-
+  isUniversal : (vertex : C .ob) (element : (P ⟅ vertex ⟆) .fst)
+              → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
+  isUniversal vertex element =
+    ∀ A → isEquiv λ (f : C [ A , vertex ]) → element ∘ᴾ⟨ C , P ⟩ f
+
+  isPropIsUniversal : ∀ vertex element → isProp (isUniversal vertex element)
+  isPropIsUniversal vertex element = isPropΠ (λ _ → isPropIsEquiv _)
+
+  record UniversalElement : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp) where
+    field
+      vertex : C .ob
+      element : (P ⟅ vertex ⟆) .fst
+      universal : isUniversal vertex element 
+-}
+    open import Cubical.Categories.Yoneda.More
+    --C [-, ? ] : Functor C^op SET ℓ'
+    -- LiftF : Functor (SET ℓ) (SET (ℓ-max ℓ ℓ'))
+    -- LiftF  ∘F (C [-, c ])
+    --  LiftF {ℓ'}{ℓm} ∘F (YONEDA .F-ob c )
+    ExpOb : ob 𝓟 → ob 𝓟 → ob 𝓟 
+    ExpOb A B .F-ob c = NatTrans (PshProd ⟅ LiftF {ℓ'}{ℓm} ∘F (C [-, c ]) , A ⟆b) B , {!   !}
+    ExpOb A B .F-hom {X}{Y} Y→X M = natTrans η {!   !} where 
+        η : N-ob-Type (PshProd ⟅ LiftF ∘F (C [-, Y ]) , A ⟆b) B
+        η c (c→Y , Ac) = M .N-ob c {! YONEDA {C = C} .F-hom   !}
+    ExpOb A B .F-id = {!   !}
+    ExpOb A B .F-seq = {!   !}
+    open import Cubical.Foundations.Equiv
+
     ⇒𝓟 : Exponentials 𝓟 ×𝓟
-    ⇒𝓟 (A , B) .vertex = {!   !}
-    ⇒𝓟 (A , B) .element = {!   !}
-    ⇒𝓟 (A , B) .universal = {!   !}
+    ⇒𝓟 (A , B) .vertex = ExpOb B A
+    ⇒𝓟 (A , B) .element = natTrans (λ{c (fst₁ , snd₁) → fst₁ .N-ob c ((lift (C .id)) , snd₁)}) {!   !}
+    ⇒𝓟 (A , B) .universal Z .equiv-proof f = 
+        uniqueExists 
+        (natTrans (λ c Zc → natTrans (λ{c' (fst₁ , snd₁) → {! f .N-ob c Zc  !}}) {!   !}) {!   !}) 
+        {!   !} 
+        {!   !} 
+        {!   !}
     
     𝓟-CCC : CartesianClosedCategory _ _ 
     𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , ⇒𝓟 )

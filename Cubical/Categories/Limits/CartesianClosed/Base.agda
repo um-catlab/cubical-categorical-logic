@@ -13,7 +13,6 @@ open import Cubical.Categories.Category
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Data.Unit
 open import Cubical.Categories.NaturalTransformation

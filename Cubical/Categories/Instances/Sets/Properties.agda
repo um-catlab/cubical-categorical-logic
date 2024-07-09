@@ -11,6 +11,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 
@@ -48,3 +49,10 @@ module _ {ℓSET : Level} where
     uniqueExists (λ z y → f (z , y)) refl 
       (λ a' x y → SET ℓSET .isSetHom {(Z .fst × Y .fst) , isSet× (Z .snd) (Y .snd)}{X} _ _ x y)
       (λ Z→Y→X p → funExt λ z → funExt λ y → funExt⁻ (sym p)  (z , y) )
+
+module _ {ℓSET : Level} where
+  SET'CCC : CartesianClosedCategory (ℓ-suc ℓSET) ℓSET 
+  SET'CCC = SET ℓSET , 
+          (Terminal'ToTerminal terminal'SET) , 
+          (BinProducts'ToBinProducts  (SET ℓSET)  BinProducts'SET) , 
+          Exponentials'SET

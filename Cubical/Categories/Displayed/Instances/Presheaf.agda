@@ -11,6 +11,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Constructions.Elements
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
@@ -22,6 +23,7 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
   open Category
   open Functor
   open Categoryᴰ
+
   module _ (P : Presheaf C ℓSET) where
     -- Displayed Sets
     Presheafᴰ-ob : Type _
@@ -32,7 +34,10 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
         (ϕ : ⟨ P ⟅ Δ ⟆ ⟩) →
         ⟨ Pᴰ-ob Δ ϕ ⟩ →
         ⟨ Pᴰ-ob Γ (ϕ ∘ᴾ⟨ C , P ⟩ f) ⟩
+
+    Presheafᴰ : Type _
     Presheafᴰ = Σ[ Pᴰ-ob ∈ Presheafᴰ-ob ] Presheafᴰ-hom Pᴰ-ob
+
     -- TODO: use implicit args instead of private modules
     -- This is so gross...
     module PresheafᴰNotation (Pᴰ : Presheafᴰ) where
@@ -44,6 +49,31 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
         ⟨ ⟅ Γ , ϕ ∘ᴾ⟨ C , P ⟩ f ⟆ ⟩
       actionᴰ = Pᴰ .snd
       syntax actionᴰ f ϕ ϕᴰ = ϕᴰ ∘ᴾ⟨ ϕ ⟩ f
+
+    module _ where
+      open Contravariant
+      Presheafᴰ' : Type _
+      Presheafᴰ' = Presheaf (∫ᴾ P) ℓSETᴰ
+
+    module _ (Pᴰ : Presheafᴰ) where
+      private module Pᴰ = PresheafᴰNotation Pᴰ
+      open Contravariant
+      open import Cubical.Foundations.Transport
+      Presheafᴰ→Presheafᴰ' : Presheafᴰ → Presheafᴰ'
+      Presheafᴰ→Presheafᴰ' Pᴰ .F-ob (Γ , ϕ) = Pᴰ.⟅ Γ , ϕ ⟆
+      Presheafᴰ→Presheafᴰ' Pᴰ .F-hom {x = (Δ , ϕ')} {y = (Γ , ϕ)} (f , p) ϕᴰ =
+        subst (λ x → ⟨ Pᴰ.⟅ Γ , x ⟆ ⟩) p (ϕᴰ Pᴰ.∘ᴾ⟨ ϕ' ⟩ f)
+        --subst (λ x → ⟨ Pᴰ.⟅ Δ , x ⟆ ⟩) p (ϕᴰ Pᴰ.∘ᴾ⟨ ϕ ⟩ f)
+      Presheafᴰ→Presheafᴰ' Pᴰ .F-id {x = (Γ , ϕ)} = funExt (λ ϕᴰ → {!(∫ᴾ P) .id {x = Γ , ϕ} .snd!})
+        --funExt (λ ϕᴰ → {!!} ) --(isSet-subst (Pᴰ.⟅ Γ , ϕ ⟆ .snd) {!(∫ᴾ P) .id {x = (Γ , ϕ)} .snd!} {!!}) ∙ {!!}) --substRefl {B = λ x → ⟨ Pᴰ.⟅ Γ , x ⟆ ⟩} ϕᴰ)
+        -- funExt λ ϕᴰ →
+        --isSet-subst {!!} {!!} {!!}
+      Presheafᴰ→Presheafᴰ' Pᴰ .F-seq = {!!}
+
+    Presheafᴰ'→Presheafᴰ : Presheafᴰ' → Presheafᴰ
+    Presheafᴰ'→Presheafᴰ Pᴰ' .fst Γ ϕ = Pᴰ' ⟅ Γ , ϕ ⟆
+    Presheafᴰ'→Presheafᴰ Pᴰ' .snd f ϕ = Pᴰ' ⟪ f , refl ⟫
+
   -- Displayed Natural Transformation-- of presheaves specifically
   -- (left Categoryᴰ is trivial, compared to general NatTransᴰ)
   module _ {P Q : Presheaf C ℓSET}(α : NatTrans P Q)
@@ -79,8 +109,18 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
       module Pᴰ = PresheafᴰNotation P Pᴰ
       triv : refl ≡ PresheafCategory C ℓSET .id {x = P} .NatTrans.N-hom f
       triv = compPathRefl ∙ congS (λ x → refl ∙ x) compPathRefl
-  PRESHEAFᴰ ._⋆ᴰ_ = {!!}
+  PRESHEAFᴰ ._⋆ᴰ_ αᴰ βᴰ = {!!}
   PRESHEAFᴰ .⋆IdLᴰ = {!!}
   PRESHEAFᴰ .⋆IdRᴰ = {!!}
   PRESHEAFᴰ .⋆Assocᴰ = {!!}
   PRESHEAFᴰ .isSetHomᴰ = {!!}
+
+  PRESHEAFᴰ' : Categoryᴰ (PresheafCategory C ℓSET) _ _
+  PRESHEAFᴰ' .ob[_] = Presheafᴰ'
+  PRESHEAFᴰ' .Hom[_][_,_] = {!!}
+  PRESHEAFᴰ' .idᴰ = {!!}
+  PRESHEAFᴰ' ._⋆ᴰ_ = {!!}
+  PRESHEAFᴰ' .⋆IdLᴰ = {!!}
+  PRESHEAFᴰ' .⋆IdRᴰ = {!!}
+  PRESHEAFᴰ' .⋆Assocᴰ = {!!}
+  PRESHEAFᴰ' .isSetHomᴰ = {!!}

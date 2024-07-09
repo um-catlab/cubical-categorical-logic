@@ -24,6 +24,7 @@ open import Cubical.Categories.Limits.Cartesian.Base
 private
   variable ℓQ ℓQ' ℓC ℓC' : Level
 
+open Category
 open Functor
 
 Quiver→×Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×Quiver ℓ ℓ'
@@ -80,29 +81,13 @@ module _ (Q : Quiver ℓQ ℓQ') where
   ⊆-Faithful : isFaithful ⊆
   ⊆-Faithful = isFaithful-GF→isFaithful-F ⊆ extension comp-Faithful
 
+  NormalForm : (A : FREE-1,× .fst .ob) → (B : FREE-1,× .fst .ob) → Type {!!}
+  NormalForm (↑ x) B = {!!}
+  NormalForm (x × y) B = {!!}
+  NormalForm ⊤ B = {!!}
+
   ⊆-Full : isFull ⊆
   ⊆-Full = {!!}
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
   ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful
-
-  ----------------------------------------
-  -- graveyard
-  ----------------------------------------
-  --
-  --module _ {C : Category ℓC ℓC'}{ℓ : Level} where
-  --  terminal-presheaf : Presheaf C ℓ
-  --  terminal-presheaf .F-ob _ = Unit* , isSetUnit*
-  --  terminal-presheaf .F-hom _ = λ x → x
-  --  terminal-presheaf .F-id = refl
-  --  terminal-presheaf .F-seq _ _ = refl
-  --
-  --bleh : Functor (FREE-1,× .fst) (PresheafCategory FREE _)
-  --bleh .F-ob (↑ A) = YO ⟅ A ⟆
-  --bleh .F-ob (Γ × Δ) = terminal-presheaf
-  --bleh .F-ob ⊤ = terminal-presheaf
-  --bleh .F-hom {↑ x} {↑ y} (↑ₑ f) = YO ⟪ ↑ f ⟫
-  --bleh .F-hom {↑ x} {↑ y} f = {!!}
-  --bleh .F-hom {x} {y} f = {!!}
-  --bleh .F-id = {!!}
-  --bleh .F-seq = {!!}

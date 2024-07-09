@@ -31,7 +31,7 @@ private
 module _ {C : Category ℓ ℓ'} {ℓS : Level} where
     private
         ℓm = ℓ-max ℓ' (ℓ-max ℓ ℓS)
-        𝓟 = PresheafCategory C ℓm
+        𝓟 = PresheafCategory C (ℓm)
 
     open Category
     open Functor
@@ -76,26 +76,57 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
     -- LiftF : Functor (SET ℓ) (SET (ℓ-max ℓ ℓ'))
     -- LiftF  ∘F (C [-, c ])
     --  LiftF {ℓ'}{ℓm} ∘F (YONEDA .F-ob c )
+    L : Functor (C ^op) (SET ℓ') → Functor (C ^op) (SET ℓm)
+    L F = LiftF {ℓ'}{ℓm} ∘F F
+
+
+    open import Cubical.Categories.Bifunctor.Redundant
+    open Bifunctor
+
+    {- something like this could work for the proofs of F-id and F-seq below
+    .. but manually unpacking is much simpler
+        funExt λ M → 
+            cong₂ seqTrans (cong₂ (PshProd .Bif-hom×) {!   !} refl 
+            ∙ PshProd .Bif-×-id) {M}{M} refl 
+            ∙ (𝓟 .⋆IdL M)
+
+    -}
+
     ExpOb : ob 𝓟 → ob 𝓟 → ob 𝓟 
-    ExpOb A B .F-ob c = NatTrans (PshProd ⟅ LiftF {ℓ'}{ℓm} ∘F (C [-, c ]) , A ⟆b) B , {!   !}
-    ExpOb A B .F-hom {X}{Y} Y→X M = natTrans η {!   !} where 
-        η : N-ob-Type (PshProd ⟅ LiftF ∘F (C [-, Y ]) , A ⟆b) B
-        η c (c→Y , Ac) = M .N-ob c {! YONEDA {C = C} .F-hom   !}
-    ExpOb A B .F-id = {!   !}
-    ExpOb A B .F-seq = {!   !}
+    ExpOb A B .F-ob c = (𝓟 [ PshProd ⟅ L (YONEDA {C = C}.F-ob c) , A ⟆b , B ]) , 𝓟 .isSetHom  
+    ExpOb A B .F-hom {X}{Y} Y→X M = 
+        (PshProd .Bif-hom× ((LiftF {ℓ'}{ℓm}) ∘ʳ (YONEDA {C = C} .F-hom Y→X)) (𝓟 .id)) ⋆⟨ 𝓟 ⟩ M 
+    ExpOb A B .F-id =        
+        funExt λ M → 
+            makeNatTransPath (
+                funExt λ Z → 
+                    funExt λ{ _ → 
+                        cong (M .N-ob Z) (≡-× (cong lift (C .⋆IdR _)) refl)})
+    ExpOb A B .F-seq f g = 
+        funExt λ M → 
+            makeNatTransPath (
+                funExt λ Z → 
+                    funExt λ{ _ → 
+                        cong (M .N-ob Z) (≡-× (cong lift (sym (C .⋆Assoc _ _ _ ))) refl)})
+
+{-     
     open import Cubical.Foundations.Equiv
 
+    
+        type checking time explodes
     ⇒𝓟 : Exponentials 𝓟 ×𝓟
     ⇒𝓟 (A , B) .vertex = ExpOb B A
-    ⇒𝓟 (A , B) .element = natTrans (λ{c (fst₁ , snd₁) → fst₁ .N-ob c ((lift (C .id)) , snd₁)}) {!   !}
-    ⇒𝓟 (A , B) .universal Z .equiv-proof f = 
+    ⇒𝓟 (A , B) .element = natTrans (λ{c (nt , Bc) → nt .N-ob c ((lift (C .id)) , Bc)}) {!   !}
+    ⇒𝓟 (A , B) .universal C .equiv-proof f = 
         uniqueExists 
-        (natTrans (λ c Zc → natTrans (λ{c' (fst₁ , snd₁) → {! f .N-ob c Zc  !}}) {!   !}) {!   !}) 
-        {!   !} 
+        (natTrans (λ x Cx → natTrans (λ{y (y→x , By) → f .N-ob y (C .F-hom (y→x .lower) Cx , By)}) {!   !}) {!   !}) 
+        (makeNatTransPath (funExt λ x → funExt λ{ (Cx , Bx) → congS (f .N-ob x) ? }))
         {!   !} 
         {!   !}
+    -}
     
     𝓟-CCC : CartesianClosedCategory _ _ 
-    𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , ⇒𝓟 )
+    𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , {!   !} )--⇒𝓟 )
 
   
+   

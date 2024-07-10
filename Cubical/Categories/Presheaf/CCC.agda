@@ -90,28 +90,46 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
 
     ⇒𝓟 : Exponentials 𝓟 ×𝓟
     ⇒𝓟 (A , B) .vertex = ExpOb B A
-    ⇒𝓟 (A , B) .element = 
-        natTrans 
-            (λ{x (B→A , B) → B→A .N-ob x (lift (C .id) , B)}) 
-            (λ f → funExt λ{(B→A , B) → 
+    -- goal : 𝓟 [ A^B × B , A]
+    ⇒𝓟 (A , B) .element =
+        natTrans
+            (λ{x (B→A , Bx) → B→A .N-ob x (lift (C .id) , Bx)}) 
+            (λ f → funExt λ{(B→A , Bx) → 
                     cong₂ (B→A .N-ob) refl (≡-× (cong lift ((C .⋆IdL f) ∙(sym (C .⋆IdR f)))) refl) 
-                    ∙ funExt⁻ (B→A .N-hom f) (lift (C .id) , B)})
-    ⇒𝓟 (A , B) .universal Z .equiv-proof f = 
-        uniqueExists 
-            (natTrans 
-                (λ x Zx → 
-                    natTrans (λ{y (y→x , By) → f .N-ob y (Z .F-hom (y→x .lower) Zx , By)}) 
-                    λ {y}{z} g → funExt λ {(y→x , By) → {!   !}}) 
-                {!   !}) 
-            (makeNatTransPath (funExt λ x → funExt λ{(p , q) → cong (λ y → f .N-ob x ( y , q)) (funExt⁻ (Z .F-id) p) })) 
-            (λ a' x y  → 𝓟 .isSetHom _ _  x y) 
-            λ Z→A^B prf  → 
-                makeNatTransPath 
-                (funExt λ x → 
-                    funExt λ Zx → 
+                    ∙ funExt⁻ (B→A .N-hom f) (lift (C .id) , Bx)}) 
+    ⇒𝓟 (A , B) .universal Z .equiv-proof Z×B→A = 
+        uniqueExists
+            -- goal : Z→A^B given Z×B→A
+            (natTrans (λ x Zx → natTrans (λ{y (y→x , By) → Z×B→A .N-ob y (Z .F-hom (y→x .lower) Zx , By)}) 
+                λ{y}{z}z→y → funExt λ{ (y→x , By) → 
+                    cong (λ foo → Z×B→A .N-ob z (foo , B .F-hom z→y By )) (funExt⁻ (Z .F-seq _ _ ) Zx) 
+                    ∙ funExt⁻ (Z×B→A .N-hom z→y) (Z .F-hom (y→x .lower) Zx , By)  }) 
+                λ{x}{y}f → funExt λ Zx → makeNatTransPath (funExt λ z → funExt λ{(y→z , Bz)→ 
+                    cong (λ foo → Z×B→A .N-ob z (foo , Bz)) (funExt⁻ (sym (Z .F-seq f (y→z .lower))) Zx)})) 
+            -- goal : (λ x (Zx , Bx) → Z×B→A .N-ob x (Z .F-hom (C .id) Zx , Bx)) ≡ Z×B→A .N-ob
+            -- follows from Z-id
+            (makeNatTransPath (funExt λ x → funExt λ{(Zx , Bx) → cong (λ arg → Z×B→A .N-ob x (arg , Bx)) (funExt⁻ (Z .F-id) Zx) })) 
+            ((λ a' x y  → 𝓟 .isSetHom _ _  x y))
+            -- given Z→A^B 
+            -- and 
+            -- M : Z×B→A^B×B using Z→A^B via (λ x (Zx , Bx) → Z→A^B .N-ob x Zx , Bx)
+            -- N : A^B×B→A   using eval  via (λ x (B→A , Bx) → B→A .N-ob x (lift (C .id) , Bx) })   
+            -- prf : M ⋆⟨ 𝓟 ⟩ N ≡ Z×B→A
+            -- show what we gave above Z→A^B from Z×B→A is equal to the given Z→A^B
+            -- show (natTrans (λ x Zx → natTrans (λ{y (y→x , By) → Z×B→A .N-ob y (Z .F-hom (y→x .lower) Zx , By)}) ≡ Z→A^B
+            λ Z→A^B prf → 
+                makeNatTransPath (
+                    funExt λ x → funExt λ Zx → 
                         makeNatTransPath (
-                            funExt λ y → 
-                                funExt λ{(y→x , By) → {!   !}}))
+                            funExt λ y → funExt λ{ (y→x , By) → {!   !}}))
+                            -- termination issues?
+                               -- (λ i → (sym prf) i .N-ob y (Z .F-hom (y→x .lower) Zx , By)) 
+                               -- ∙ {!   !}})) 
+            {-
+                Z×B→A .N-ob y (Z .F-hom (y→x .lower) Zx , By) 
+                    ≡
+                Z→A^B .N-ob x Zx .N-ob y (y→x , By) 
+            -}
 
     𝓟-CCC : CartesianClosedCategory _ _ 
     𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , ⇒𝓟 )

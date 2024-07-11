@@ -55,4 +55,4 @@ module _ {ℓSET : Level} where
   SET'CCC = SET ℓSET , 
           (Terminal'ToTerminal terminal'SET) , 
           (BinProducts'ToBinProducts  (SET ℓSET)  BinProducts'SET) , 
-          Exponentials'SET  
+          Exponentials'SET   

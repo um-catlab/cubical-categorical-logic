@@ -90,10 +90,10 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
         uniqueExists 
             ((natTrans (λ x Zx → natTrans (λ{y (y→x , By) → Z×B→A .N-ob y (Z .F-hom (y→x .lower) Zx , By)}) 
                 λ{y}{z}z→y → funExt λ{ (y→x , By) → 
-                    cong (λ foo → Z×B→A .N-ob z (foo , B .F-hom z→y By )) (funExt⁻ (Z .F-seq _ _ ) Zx) 
+                    cong (λ h → Z×B→A .N-ob z (h , B .F-hom z→y By )) (funExt⁻ (Z .F-seq _ _ ) Zx) 
                     ∙ funExt⁻ (Z×B→A .N-hom z→y) (Z .F-hom (y→x .lower) Zx , By)  }) 
                 λ{x}{y}f → funExt λ Zx → makeNatTransPath (funExt λ z → funExt λ{(y→z , Bz)→ 
-                    cong (λ foo → Z×B→A .N-ob z (foo , Bz)) (funExt⁻ (sym (Z .F-seq f (y→z .lower))) Zx)}))) 
+                    cong (λ h → Z×B→A .N-ob z (h , Bz)) (funExt⁻ (sym (Z .F-seq f (y→z .lower))) Zx)}))) 
             ((makeNatTransPath (funExt λ x → funExt λ{(Zx , Bx) → cong (λ arg → Z×B→A .N-ob x (arg , Bx)) (funExt⁻ (Z .F-id) Zx) })))
             ((λ a' x y  → 𝓟 .isSetHom _ _  x y))
             λ Z→A^B prf → 
@@ -102,8 +102,8 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
                         makeNatTransPath (
                             funExt λ y → funExt λ {(y→x , By) → 
                                 (λ i → (sym prf) i .N-ob y (Z .F-hom (y→x .lower) Zx , By)) 
-                                ∙ cong (λ foo → foo .N-ob y (lift (C .id) , By)) (funExt⁻ (Z→A^B .N-hom (y→x .lower)) Zx ) 
-                                ∙ cong (λ foo → Z→A^B .N-ob x Zx .N-ob y foo) (≡-×  (cong lift (C .⋆IdL _)) refl)}))
+                                ∙ cong (λ h → h .N-ob y (lift (C .id) , By)) (funExt⁻ (Z→A^B .N-hom (y→x .lower)) Zx ) 
+                                ∙ cong (λ h → Z→A^B .N-ob x Zx .N-ob y h) (≡-×  (cong lift (C .⋆IdL _)) refl)}))
 
     𝓟-CCC : CartesianClosedCategory _ _ 
     𝓟-CCC = 𝓟 , ⊤𝓟 , (×𝓟 , ⇒𝓟 )

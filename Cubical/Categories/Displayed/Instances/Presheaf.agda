@@ -151,7 +151,9 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
         (congS _^opF (∫ᴾ⇒∘ α β) ∙ ∘F^opF _ _) ∙ F-assoc))))
   PRESHEAFᴰ' .⋆IdLᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ = makeNatTransPathP refl
     (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdL _))
-    (funExt (λ (Γ , ϕ) → {!!}))
+    (funExt (λ (Γ , ϕ) → funExt λ ϕᴰ → {!αᴰ .N-ob (Γ , ϕ) ϕᴰ!}))
   PRESHEAFᴰ' .⋆IdRᴰ = {!!}
-  PRESHEAFᴰ' .⋆Assocᴰ = {!!}
-  PRESHEAFᴰ' .isSetHomᴰ = {!!}
+  PRESHEAFᴰ' .⋆Assocᴰ {wᴰ = Sᴰ} αᴰ βᴰ γᴰ = makeNatTransPathP refl
+    (congS (λ x → Sᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆Assoc _ _ _))
+    (funExt (λ (Γ , ϕ) → funExt (λ ϕᴰ → {!!})))
+  PRESHEAFᴰ' .isSetHomᴰ = isSetNatTrans

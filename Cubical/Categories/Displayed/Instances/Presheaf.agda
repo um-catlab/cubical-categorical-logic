@@ -17,15 +17,20 @@ open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
 
+open Category
+open Functor
+open Categoryᴰ
+open Contravariant
+open NatTrans
+
 private
-  variable ℓC ℓC' ℓSET : Level
+  variable ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓSET : Level
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}(F : Functor C D)(G : Functor D E) where
+  ∘F^opF : (G ∘F F) ^opF ≡ (G ^opF) ∘F (F ^opF)
+  ∘F^opF = Functor≡ (λ _ → refl) (λ _ → refl)
 
 module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
-  open Category
-  open Functor
-  open Categoryᴰ
-  open Contravariant
-  open NatTrans
 
   module _ (P : Presheaf C ℓSET) where
     ---- Displayed Sets
@@ -115,8 +120,8 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
   idTransᴰ' {P} {Pᴰ} .N-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) = funExt (λ ϕᴰ →
     congS (λ x → Pᴰ .F-hom (f , x) ϕᴰ) ((P ⟅ Δ ⟆) .snd _ _ _ _))
   module _ {P Q R : Presheaf C ℓSET}(α : P ⇒ Q)(β : Q ⇒ R) where
-    uhoh : ∫ᴾ⇒ (seqTrans α β) ≡ ∫ᴾ⇒ β ∘F ∫ᴾ⇒ α
-    uhoh = Functor≡ (λ _ → refl) (λ _ → ΣPathP (refl , (R ⟅ _ ⟆) .snd _ _ _ _))
+    ∫ᴾ⇒∘ : ∫ᴾ⇒ (seqTrans α β) ≡ ∫ᴾ⇒ β ∘F ∫ᴾ⇒ α
+    ∫ᴾ⇒∘ = Functor≡ (λ _ → refl) (λ _ → ΣPathP (refl , (R ⟅ _ ⟆) .snd _ _ _ _))
   --PRESHEAFᴰ : Categoryᴰ (PresheafCategory C ℓSET) _ _
   --PRESHEAFᴰ .ob[_] P = Presheafᴰ P
   --PRESHEAFᴰ .Hom[_][_,_] α Pᴰ Qᴰ = NatTransᴰ α Pᴰ Qᴰ
@@ -140,17 +145,13 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
   PRESHEAFᴰ' .ob[_] = Presheafᴰ'
   PRESHEAFᴰ' .Hom[_][_,_] = NatTransᴰ'
   PRESHEAFᴰ' .idᴰ = idTransᴰ'
---Goal: NatTrans (funcComp Qᴰ (∫ᴾ⇒ α ^opF))
---      (funcComp Rᴰ (∫ᴾ⇒ (seqTrans α β) ^opF))
---Have: NatTrans (funcComp Qᴰ (∫ᴾ⇒ α ^opF))
---      (funcComp (funcComp Rᴰ (∫ᴾ⇒ β ^opF)) (∫ᴾ⇒ α ^opF))
---      Rᴰ ∘F (∫ᴾ⇒ (seqTrans α β) ^opF) ≡ (Rᴰ ∘F (∫ᴾ⇒ β ^opF)) ∘F (∫ᴾ⇒ α ^opF)
---      βᴰ ∘ˡ (∫ᴾ⇒ α ^opF
-  PRESHEAFᴰ' ._⋆ᴰ_  {x = P} {y = Q} {z = R} {f = α} {g = β} {xᴰ = Pᴰ} {yᴰ = Qᴰ} {zᴰ = Rᴰ} αᴰ βᴰ =
-    seqTrans αᴰ (seqTrans (βᴰ ∘ˡ (∫ᴾ⇒ α ^opF)) (pathToNatTrans (Functor≡
-      (λ _ → refl)
-      (λ (f , p) → {!!} {- congS (λ x → x .F-hom (f , p)) (F-assoc {F = (∫ᴾ⇒ α) ^opF} {G = (∫ᴾ⇒ β) ^opF} {H = {!Rᴰ!}} ) -}))))
-  PRESHEAFᴰ' .⋆IdLᴰ = {!!}
+  PRESHEAFᴰ' ._⋆ᴰ_  {f = α} {g = β} {xᴰ = Pᴰ} {yᴰ = Qᴰ} {zᴰ = Rᴰ} αᴰ βᴰ =
+    seqTrans αᴰ (seqTrans (βᴰ ∘ˡ (∫ᴾ⇒ α ^opF)) (pathToNatTrans
+      (sym (congS (λ x → Rᴰ ∘F x)
+        (congS _^opF (∫ᴾ⇒∘ α β) ∙ ∘F^opF _ _) ∙ F-assoc))))
+  PRESHEAFᴰ' .⋆IdLᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ = makeNatTransPathP refl
+    (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdL _))
+    (funExt (λ (Γ , ϕ) → {!!}))
   PRESHEAFᴰ' .⋆IdRᴰ = {!!}
   PRESHEAFᴰ' .⋆Assocᴰ = {!!}
   PRESHEAFᴰ' .isSetHomᴰ = {!!}

@@ -1,8 +1,6 @@
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Profunctor.General where
 
-open import Cubical.Reflection.RecordEquiv
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism

@@ -3,8 +3,12 @@ module Cubical.Categories.Profunctor.Homomorphism.Unary where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
+open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Relator
 
 private
@@ -30,3 +34,16 @@ module _ {C : Category ℓC ℓC'}
   isIsoH : ∀ {R : C o-[ ℓR ]-* D} {S : C o-[ ℓS ]-* D}
         → Homomorphism R S → Type _
   isIsoH h = ∀ {c d} → isEquiv (h .hom {c}{d})
+
+  -- HomomorphismIsoParHomo : ∀ {R S} → Iso (Homomorphism R S) {!!}
+  -- HomomorphismIsoParHomo = {!!}
+
+  -- private
+  --   HomomorphismΣ : (R : C o-[ ℓR ]-* D) (S : C o-[ ℓS ]-* D) → Type _
+  --   HomomorphismΣ R S =
+  --     Σ[ hom ∈ (∀ {c d} → R [ c , d ]R → S [ c , d ]R) ]
+  --     (∀ {c' c d} (f : C [ c , c' ]) (r : R [ c' , d ]R) → hom (f ⋆l⟨ R ⟩ r ) ≡ f ⋆l⟨ S ⟩ hom r)
+  --     × (∀ {c d d'} (r : R [ c , d ]R) (h : D [ d , d' ]) → hom (r ⋆r⟨ R ⟩ h) ≡ hom r ⋆r⟨ S ⟩ h)
+
+  --   HomomorphismIsoΣ : ∀ {R S} → Iso (Homomorphism R S) (HomomorphismΣ R S)
+  --   HomomorphismIsoΣ = {!!}

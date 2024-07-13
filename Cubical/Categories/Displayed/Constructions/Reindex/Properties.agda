@@ -250,3 +250,36 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         (isFib→F⟪π₁⟫* (prods _) Fcᴰ fib)
         (isFib→F⟪π₂⟫* (prods _) Fc'ᴰ fib)
         vbps)
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
+  where
+
+  private
+    module R = HomᴰReasoning Dᴰ
+    module C = Category C
+    module D = Category D
+    module Dᴰ = Categoryᴰ Dᴰ
+
+  open Categoryᴰ
+  open Functor F
+
+  reindex' : Categoryᴰ C ℓDᴰ (ℓ-max ℓD' ℓDᴰ')
+  reindex' .ob[_] x = Dᴰ.ob[ F ⟅ x ⟆ ]
+  reindex' .Hom[_][_,_] f xᴰ yᴰ =
+    Σ[ Ff ∈ singl (F ⟪ f ⟫) ] Dᴰ.Hom[ Ff .fst ][ xᴰ , yᴰ ]
+  reindex' .idᴰ = (_
+    , F .F-id)
+    , Dᴰ.idᴰ
+  reindex' ._⋆ᴰ_ fᴰ gᴰ = (_
+    , (F .F-seq _ _  ∙ cong₂ D._⋆_ (fᴰ .fst .snd) (gᴰ .fst .snd)))
+    , (fᴰ .snd Dᴰ.⋆ᴰ gᴰ .snd)
+  reindex' .⋆IdLᴰ fᴰ = ΣPathP ((ΣPathP (_
+    , {!isSet→PathP!})) -- filler
+    , Dᴰ .⋆IdLᴰ (fᴰ .snd))
+  reindex' .⋆IdRᴰ = {!!}
+  reindex' .⋆Assocᴰ = {!!}
+  reindex' .isSetHomᴰ = isSetΣ (isSetΣSndProp D.isSetHom (λ _ → D.isSetHom _ _))
+    λ _ → Dᴰ.isSetHomᴰ
+

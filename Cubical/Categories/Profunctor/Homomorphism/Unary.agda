@@ -8,7 +8,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.General hiding (profSeqL'; profSeqR')
 open import Cubical.Categories.Profunctor.Relator
 
 private

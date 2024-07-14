@@ -38,7 +38,7 @@ open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.General hiding (profSeqR'; profSeqL')
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More

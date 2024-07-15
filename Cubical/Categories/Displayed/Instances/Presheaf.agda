@@ -25,7 +25,7 @@ open Contravariant
 open NatTrans
 
 private
-  variable ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓSET : Level
+  variable ℓA ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓSET : Level
 
 module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
   module _ (P : Presheaf C ℓSET) where
@@ -80,25 +80,6 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
     -- "test"
     _ : seqTransᴰ .N-ob ≡ λ (Γ , ϕ) → βᴰ ⟦ Γ , (α ⟦ Γ ⟧) ϕ ⟧ ∘S αᴰ ⟦ Γ , ϕ ⟧
     _ = refl
-  module _ {P}{Q}{α}{Pᴰ : Presheafᴰ P}{Qᴰ : Presheafᴰ Q} (αᴰ : NatTransᴰ α Pᴰ Qᴰ)
-    (Γ : C .ob)(ϕ : ⟨ P ⟅ Γ ⟆ ⟩)(ϕᴰ : ⟨ Pᴰ ⟅ Γ , ϕ ⟆ ⟩) where
-    _ : seqTrans α (idTrans Q) ≡ α
-    _ = PresheafCategory C ℓSET .⋆IdR α
-    p : ⟨ Qᴰ ⟅ Γ , (α ⟦ Γ ⟧) ϕ ⟆ ⟩ ≡ ⟨ Qᴰ ⟅ Γ , (α ⟦ Γ ⟧) ϕ ⟆ ⟩
-    p = congS (λ x → ⟨ (Qᴰ ∘F (∫ᴾ⇒ x ^opF)) ⟅ Γ , ϕ ⟆ ⟩) (PresheafCategory C ℓSET .⋆IdR α)
-    -- huhhhhhhh
-    -- TODO
-    q : p ≡ refl
-    q = refl
-
-    goal' : (seqTransᴰ αᴰ idTransᴰ) .N-ob (Γ , ϕ) ϕᴰ ≡ αᴰ .N-ob (Γ , ϕ) ϕᴰ
-    goal' = {!!}
-    goal : PathP (λ i → p i)
-        ((seqTransᴰ αᴰ idTransᴰ ⟦ Γ , ϕ ⟧) ϕᴰ)
-        ((αᴰ ⟦ Γ , ϕ ⟧) ϕᴰ)
-    -- TODO: clean this up
-    goal = toPathP (congS (λ x → transport x ((seqTransᴰ αᴰ idTransᴰ ⟦ Γ , ϕ ⟧) ϕᴰ)) q ∙
-      transportRefl _ ∙ goal')
 
   PRESHEAFᴰ : Categoryᴰ (PresheafCategory C ℓSET) _ _
   PRESHEAFᴰ .ob[_] = Presheafᴰ
@@ -108,33 +89,12 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
   PRESHEAFᴰ .⋆IdLᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ =
     makeNatTransPathP refl
     (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdL _))
-    (funExt (λ (Γ , ϕ) → funExt λ ϕᴰ → {!!}))
---Have: F-ob Qᴰ (Γ , α .N-ob Γ ϕ) .fst
---Have: F-ob Qᴰ (Γ , N-ob α Γ ϕ) .fst
+    refl
   PRESHEAFᴰ .⋆IdRᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ =
     makeNatTransPathP refl
     (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdR _))
-    (funExt (λ (Γ , ϕ) → funExt (λ ϕᴰ → goal αᴰ Γ ϕ ϕᴰ)))
+    refl
   PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Sᴰ} αᴰ βᴰ γᴰ = makeNatTransPathP refl
     (congS (λ x → Sᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆Assoc _ _ _))
-    (funExt (λ (Γ , ϕ) → funExt (λ ϕᴰ → {!!})))
+    refl
   PRESHEAFᴰ .isSetHomᴰ = isSetNatTrans
-
-  --PRESHEAFᴰ : Categoryᴰ (PresheafCategory C ℓSET) _ _
-  --PRESHEAFᴰ .ob[_] P = Presheafᴰ P
-  --PRESHEAFᴰ .Hom[_][_,_] α Pᴰ Qᴰ = NatTransᴰ α Pᴰ Qᴰ
-  --PRESHEAFᴰ .idᴰ {x = P} {p = Pᴰ} .fst Γ ϕ ϕᴰ = ϕᴰ
-  --PRESHEAFᴰ .idᴰ {x = P} {p = Pᴰ} .snd {Γ = Γ} {Δ = Δ} f ϕ ϕᴰ =
-  --  subst (λ x →
-  --    PathP (λ i → ⟨ Pᴰ.⟅ _ , x i ϕ ⟆ ⟩)
-  --    (Pᴰ.actionᴰ f _ ϕᴰ) (Pᴰ.actionᴰ f _ ϕᴰ))
-  --  triv refl
-  --  where
-  --    module Pᴰ = PresheafᴰNotation P Pᴰ
-  --    triv : refl ≡ PresheafCategory C ℓSET .id {x = P} .NatTrans.N-hom f
-  --    triv = compPathRefl ∙ congS (λ x → refl ∙ x) compPathRefl
-  --PRESHEAFᴰ ._⋆ᴰ_ αᴰ βᴰ = {!!}
-  --PRESHEAFᴰ .⋆IdLᴰ = {!!}
-  --PRESHEAFᴰ .⋆IdRᴰ = {!!}
-  --PRESHEAFᴰ .⋆Assocᴰ = {!!}
-  --PRESHEAFᴰ .isSetHomᴰ = {!!}

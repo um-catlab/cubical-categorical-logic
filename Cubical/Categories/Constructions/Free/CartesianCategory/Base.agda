@@ -219,6 +219,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         ϕ* (Q.Cod e)
       ])
       where
+      -- TODO: rec preserves finite products
       rec : Functor |FreeCartesianCategory| (CC .fst)
       rec = introS⁻ (elim
         ((weaken |FreeCartesianCategory| (CC .fst)) ,

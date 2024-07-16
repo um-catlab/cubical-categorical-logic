@@ -21,6 +21,9 @@ open import
   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Limits.Cartesian.Base
 
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.Instances.Presheaf
+
 private
   variable ℓQ ℓQ' ℓC ℓC' : Level
 
@@ -49,10 +52,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
 
   -- TODO: wts ⊆* is fully faithful
 
-  -- TODO: I think Eric Bond has these?
-  -- I don't really want to bang these out when
-  -- 1) someone else has already done it
-  -- 2) it should follow from more general reasons (all limits)
+  -- TODO: eric bond has these
   postulate
     presheafTerminal : (C : Category ℓC ℓC')(ℓ : Level) → Terminal (PresheafCategory C ℓ)
     presheafBinProducts : (C : Category ℓC ℓC')(ℓ : Level) → BinProducts (PresheafCategory C ℓ)
@@ -85,6 +85,14 @@ module _ (Q : Quiver ℓQ ℓQ') where
   NormalForm (↑ x) B = {!!}
   NormalForm (x × y) B = {!!}
   NormalForm ⊤ B = {!!}
+
+  -- this has the same data as extension, but the usage is completely different
+  -- and we actually need this definition on products and terminal
+  nerve : Functor (FREE-1,× .fst) (PresheafCategory FREE _)
+  nerve = extension
+
+  foo : Section nerve (PRESHEAFᴰ FREE _ {!!})
+  foo = FCC.elimLocal {!Quiver→×Quiver Q!} {!!} {!!} {!!} {!!} {!!}
 
   ⊆-Full : isFull ⊆
   ⊆-Full = {!!}

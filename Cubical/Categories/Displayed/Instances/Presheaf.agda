@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+--{-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Instances.Presheaf where
 
@@ -7,16 +7,22 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.BinProduct
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
+open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Presheaf using (UniversalElementᴰ)
 
 open Category
 open Functor
@@ -26,6 +32,10 @@ open NatTrans
 
 private
   variable ℓA ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓSET : Level
+
+postulate
+  presheafTerminal : (C : Category ℓC ℓC')(ℓ : Level) → Terminal (PresheafCategory C ℓ)
+  presheafBinProducts : (C : Category ℓC ℓC')(ℓ : Level) → BinProducts (PresheafCategory C ℓ)
 
 module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
   module _ (P : Presheaf C ℓSET) where
@@ -98,3 +108,11 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
     (congS (λ x → Sᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆Assoc _ _ _))
     refl
   PRESHEAFᴰ .isSetHomᴰ = isSetNatTrans
+
+  open UniversalElementᴰ
+
+  PRESHEAFᴰ-VerticalTerminals : VerticalTerminals PRESHEAFᴰ
+  PRESHEAFᴰ-VerticalTerminals P .vertexᴰ = presheafTerminal (∫ᴾ P) ℓSETᴰ .fst
+  PRESHEAFᴰ-VerticalTerminals P .elementᴰ = tt
+  PRESHEAFᴰ-VerticalTerminals P .universalᴰ {x = Q} {xᴰ = Qᴰ} {f = α} .equiv-proof _ =
+    uniqueExists {!!} {!!} {!!} {!!}

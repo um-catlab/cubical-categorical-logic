@@ -1,4 +1,4 @@
---{-# OPTIONS --safe #-}
+{-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Instances.Presheaf where
 
@@ -18,10 +18,12 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct
+open import Cubical.Categories.Presheaf.CCC
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Presheaf using (UniversalElementᴰ)
 
 open Category
@@ -32,10 +34,6 @@ open NatTrans
 
 private
   variable ℓA ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓSET : Level
-
-postulate
-  presheafTerminal : (C : Category ℓC ℓC')(ℓ : Level) → Terminal (PresheafCategory C ℓ)
-  presheafBinProducts : (C : Category ℓC ℓC')(ℓ : Level) → BinProducts (PresheafCategory C ℓ)
 
 module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
   module _ (P : Presheaf C ℓSET) where
@@ -109,10 +107,40 @@ module _ (C : Category ℓC ℓC') ℓSET ℓSETᴰ where
     refl
   PRESHEAFᴰ .isSetHomᴰ = isSetNatTrans
 
+module _ (C : Category ℓC ℓC') {ℓS : Level} where
   open UniversalElementᴰ
 
-  PRESHEAFᴰ-VerticalTerminals : VerticalTerminals PRESHEAFᴰ
-  PRESHEAFᴰ-VerticalTerminals P .vertexᴰ = presheafTerminal (∫ᴾ P) ℓSETᴰ .fst
+  -- TODO: why ℓS but ℓ-zero?
+  PRESHEAFᴰ-VerticalTerminals : VerticalTerminals (PRESHEAFᴰ C ℓ-zero _)
+  PRESHEAFᴰ-VerticalTerminals P .vertexᴰ = ⊤𝓟 {ℓS = ℓS} .fst
   PRESHEAFᴰ-VerticalTerminals P .elementᴰ = tt
-  PRESHEAFᴰ-VerticalTerminals P .universalᴰ {x = Q} {xᴰ = Qᴰ} {f = α} .equiv-proof _ =
-    uniqueExists {!!} {!!} {!!} {!!}
+  PRESHEAFᴰ-VerticalTerminals P .universalᴰ .equiv-proof _ =
+    uniqueExists (natTrans (λ _ _ → tt*) (λ _ → funExt (λ _ → refl)))
+    (isPropUnit _ _)
+    (λ _ → isSetUnit _ _)
+    (λ _ _ → makeNatTransPath (funExt (λ _ → funExt (λ _ → isPropUnit* _ _))))
+
+  -- TODO: this is basically ×𝓟, but with some extra coherences thrown in
+  -- Is there a way to reuse more code?
+  PRESHEAFᴰ-VerticalPoducts : VerticalBinProducts (PRESHEAFᴰ C ℓ-zero _)
+  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .vertexᴰ = ×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdOb
+  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .fst = seqTrans (×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _)
+  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .snd = seqTrans (×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _)
+  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .universalᴰ {x = Q} {xᴰ = Qᴰ} {f = α} .equiv-proof (id∘αᴰ , id∘αᴰ') =
+    uniqueExists
+    foo
+    (≡-× (makeNatTransPath refl) (makeNatTransPath refl))
+    (λ a' → isSet× isSetNatTrans isSetNatTrans (seqTrans foo {!!} , {!seqTrans foo ?!}) (id∘αᴰ , id∘αᴰ'))
+    (λ a' x → {!!})
+    where
+    -- type inferred
+    --foo : NatTrans Qᴰ
+    --        (PRESHEAFᴰ-VerticalPoducts (Pᴰ , Pᴰ') .vertexᴰ ∘F
+    --         (∫ᴾ⇒ _ _ {!!} α ^opF))
+    foo : {!!}
+    foo = natTrans (λ (Γ , ϕ) ϕᴰ → (id∘αᴰ ⟦ Γ , ϕ ⟧) ϕᴰ , (id∘αᴰ' ⟦ Γ , ϕ ⟧) ϕᴰ)
+      λ {x = Γ,ϕ}{y = Δ,ψ} (f , p) → funExt (λ ϕᴰ →
+        ≡-× (funExt⁻ (id∘αᴰ .N-hom (f , p)) ϕᴰ ∙
+          λ i → (Pᴰ ⟪ (∫ᴾ⇒ _ _ (ℓ-max (ℓ-max ℓC ℓC') ℓS) (PresheafCategory _ _ .⋆IdR α i) ⟪ f , p ⟫) ⟫) ((id∘αᴰ ⟦ Γ,ϕ ⟧) ϕᴰ))
+        (funExt⁻ (id∘αᴰ' .N-hom (f , p)) ϕᴰ ∙
+          λ i → (Pᴰ' ⟪ (∫ᴾ⇒ _ _ (ℓ-max (ℓ-max ℓC ℓC') ℓS) (PresheafCategory _ _ .⋆IdR α i) ⟪ f , p ⟫) ⟫) ((id∘αᴰ' ⟦ Γ,ϕ ⟧) ϕᴰ)))

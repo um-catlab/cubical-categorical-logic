@@ -122,25 +122,74 @@ module _ (C : Category ℓC ℓC') {ℓS : Level} where
 
   -- TODO: this is basically ×𝓟, but with some extra coherences thrown in
   -- Is there a way to reuse more code?
+  -- But trying to use ×𝓟 naively is giving me path issues
+  module _ (P : Presheaf C ℓ-zero) (Pᴰ Pᴰ' : Presheafᴰ C ℓ-zero _ P) where
+    prod : Presheafᴰ C ℓ-zero _ P
+    prod = ×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdOb
+    π₁ : NatTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) (idTrans P) prod Pᴰ
+    π₁ = natTrans (λ _ → fst) (λ (f , p) → funExt (λ x₁ → congS (λ x → (Pᴰ ⟪ x ⟫) (x₁ .fst)) (ΣPathP (refl , (P ⟅ _ ⟆) .snd _ _ _ _))))
+    --_ : π₁ .N-hom ≡ seqTrans (×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _) .N-hom
+    --_ = {!!}
+    π₂ : NatTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) (idTrans P) prod Pᴰ'
+    π₂ = natTrans (λ _ → snd) (λ (f , p) → funExt (λ x₁ → congS (λ x → (Pᴰ' ⟪ x ⟫) (x₁ .snd)) (ΣPathP (refl , (P ⟅ _ ⟆) .snd _ _ _ _))))
+
+  PRESHEAFᴰ-VerticalPoducts' : VerticalBinProducts (PRESHEAFᴰ C ℓ-zero _)
+  PRESHEAFᴰ-VerticalPoducts' {d = P} (Pᴰ , Pᴰ') .vertexᴰ = prod P Pᴰ Pᴰ'
+  PRESHEAFᴰ-VerticalPoducts' {d = P} (Pᴰ , Pᴰ') .elementᴰ .fst = seqTrans (×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _)
+  PRESHEAFᴰ-VerticalPoducts' {d = P} (Pᴰ , Pᴰ') .elementᴰ .snd = seqTrans (×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _)
+  PRESHEAFᴰ-VerticalPoducts' {d = P} (Pᴰ , Pᴰ') .universalᴰ {x = Q} {xᴰ = Qᴰ} {f = α} .equiv-proof (id∘αᴰ , id∘αᴰ') =
+    uniqueExists
+    {!!}
+    {!!}
+    {!!}
+    {!!}
+
   PRESHEAFᴰ-VerticalPoducts : VerticalBinProducts (PRESHEAFᴰ C ℓ-zero _)
-  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .vertexᴰ = ×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdOb
-  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .fst = seqTrans (×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _)
-  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .snd = seqTrans (×𝓟 {ℓS = ℓS} Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _)
+  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .vertexᴰ = prod P Pᴰ Pᴰ'
+  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .fst = π₁ P Pᴰ Pᴰ'
+  PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .snd = π₂ P Pᴰ Pᴰ'
   PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .universalᴰ {x = Q} {xᴰ = Qᴰ} {f = α} .equiv-proof (id∘αᴰ , id∘αᴰ') =
     uniqueExists
     foo
-    (≡-× (makeNatTransPath refl) (makeNatTransPath refl))
-    (λ a' → isSet× isSetNatTrans isSetNatTrans (seqTrans foo {!!} , {!seqTrans foo ?!}) (id∘αᴰ , id∘αᴰ'))
-    (λ a' x → {!!})
+    bar
+    (λ a' → isSet× isSetNatTrans isSetNatTrans
+      (seqTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) a' (PRESHEAFᴰ-VerticalPoducts (Pᴰ , Pᴰ') .elementᴰ .fst) ,
+      seqTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) a' (PRESHEAFᴰ-VerticalPoducts (Pᴰ , Pᴰ') .elementᴰ .snd))
+      (id∘αᴰ , id∘αᴰ'))
+    λ a' p → makeNatTransPath (funExt (λ x → funExt (λ x₁ → ≡-× (funExt⁻ (funExt⁻ (sym (congS (N-ob ∘S fst) p)) x) x₁) ((funExt⁻ (funExt⁻ (sym (congS (N-ob ∘S snd) p)) x) x₁)))))
     where
-    -- type inferred
-    --foo : NatTrans Qᴰ
-    --        (PRESHEAFᴰ-VerticalPoducts (Pᴰ , Pᴰ') .vertexᴰ ∘F
-    --         (∫ᴾ⇒ _ _ {!!} α ^opF))
-    foo : {!!}
-    foo = natTrans (λ (Γ , ϕ) ϕᴰ → (id∘αᴰ ⟦ Γ , ϕ ⟧) ϕᴰ , (id∘αᴰ' ⟦ Γ , ϕ ⟧) ϕᴰ)
+    foo : NatTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) α Qᴰ (PRESHEAFᴰ-VerticalPoducts (Pᴰ , Pᴰ') .vertexᴰ)
+    foo = natTrans
+      (λ (Γ , ϕ) ϕᴰ → (id∘αᴰ ⟦ Γ , ϕ ⟧) ϕᴰ , (id∘αᴰ' ⟦ Γ , ϕ ⟧) ϕᴰ)
       λ {x = Γ,ϕ}{y = Δ,ψ} (f , p) → funExt (λ ϕᴰ →
-        ≡-× (funExt⁻ (id∘αᴰ .N-hom (f , p)) ϕᴰ ∙
-          λ i → (Pᴰ ⟪ (∫ᴾ⇒ _ _ (ℓ-max (ℓ-max ℓC ℓC') ℓS) (PresheafCategory _ _ .⋆IdR α i) ⟪ f , p ⟫) ⟫) ((id∘αᴰ ⟦ Γ,ϕ ⟧) ϕᴰ))
-        (funExt⁻ (id∘αᴰ' .N-hom (f , p)) ϕᴰ ∙
-          λ i → (Pᴰ' ⟪ (∫ᴾ⇒ _ _ (ℓ-max (ℓ-max ℓC ℓC') ℓS) (PresheafCategory _ _ .⋆IdR α i) ⟪ f , p ⟫) ⟫) ((id∘αᴰ' ⟦ Γ,ϕ ⟧) ϕᴰ)))
+        ≡-×
+        (funExt⁻ (id∘αᴰ .N-hom (f , p)) ϕᴰ ∙ congS (λ x → (Pᴰ ⟪ x ⟫) ((id∘αᴰ ⟦ Γ,ϕ ⟧) ϕᴰ)) (ΣPathP (refl , ((P ⟅ _ ⟆) .snd _ _ _ _))))
+        (funExt⁻ (id∘αᴰ' .N-hom (f , p)) ϕᴰ ∙ congS (λ x → (Pᴰ' ⟪ x ⟫) ((id∘αᴰ' ⟦ Γ,ϕ ⟧) ϕᴰ)) (ΣPathP (refl , ((P ⟅ _ ⟆) .snd _ _ _ _)))))
+    bar : (seqTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) foo (PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .fst) ,
+      seqTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) foo (PRESHEAFᴰ-VerticalPoducts {d = P} (Pᴰ , Pᴰ') .elementᴰ .snd))
+      ≡
+      (id∘αᴰ , id∘αᴰ')
+    bar = ≡-× (makeNatTransPath refl) (makeNatTransPath refl)
+--Goal: NatTrans
+--      (funcComp (Cubical.Categories.Presheaf.Constructions.Bob Pᴰ Pᴰ')
+--       (∫ᴾ⇒ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) α ^opF))
+--      (funcComp Pᴰ
+--       (∫ᴾ⇒ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) (seqTrans α (idTrans P))
+--        ^opF))
+    --π₁ = natTrans (λ _ → fst) λ (f , p) → funExt (λ x → λ i → {!!})
+    --coh : NatTrans
+    --      (funcComp ((PRESHEAFᴰ-VerticalPoducts (Pᴰ , Pᴰ') .vertexᴰ))
+    --       (∫ᴾ⇒ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) α ^opF))
+    --      (funcComp Pᴰ
+    --       (∫ᴾ⇒ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) (seqTrans α (idTrans P))
+    --        ^opF))
+    --coh = {!!}
+
+    --⟨id∘αᴰ,id∘αᴰ'⟩ : NatTransᴰ C ℓ-zero (ℓ-max (ℓ-max ℓC ℓC') ℓS) α Qᴰ (PRESHEAFᴰ-VerticalPoducts (Pᴰ , Pᴰ') .vertexᴰ)
+    --⟨id∘αᴰ,id∘αᴰ'⟩ = natTrans
+    --  (λ (Γ , ϕ) ϕᴰ → (id∘αᴰ ⟦ Γ , ϕ ⟧) ϕᴰ , (id∘αᴰ' ⟦ Γ , ϕ ⟧) ϕᴰ)
+    --  (λ {x = Γ,ϕ}{y = Δ,ψ} (f , p) → funExt (λ ϕᴰ →
+    --    ≡-× (funExt⁻ (id∘αᴰ .N-hom (f , p)) ϕᴰ ∙
+    --      λ i → (Pᴰ ⟪ (∫ᴾ⇒ _ _ (ℓ-max (ℓ-max ℓC ℓC') ℓS) (PresheafCategory _ _ .⋆IdR α i) ⟪ f , p ⟫) ⟫) ((id∘αᴰ ⟦ Γ,ϕ ⟧) ϕᴰ))
+    --    (funExt⁻ (id∘αᴰ' .N-hom (f , p)) ϕᴰ ∙
+    --      λ i → (Pᴰ' ⟪ (∫ᴾ⇒ _ _ (ℓ-max (ℓ-max ℓC ℓC') ℓS) (PresheafCategory _ _ .⋆IdR α i) ⟪ f , p ⟫) ⟫) ((id∘αᴰ' ⟦ Γ,ϕ ⟧) ϕᴰ))))

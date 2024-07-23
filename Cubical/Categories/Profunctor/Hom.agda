@@ -44,7 +44,7 @@ module _ {C : Category ℓC ℓC'} where
 
   module _ {P : Profunctor C C ℓC'} (α : NaturalElement P) where
     rec : PROFUNCTOR C C ℓC' [ Hom C , P ]
-    rec .N-ob x .N-ob y f = f ⋆l⟨ P ⟩ α .N-ob x 
+    rec .N-ob x .N-ob y f = f ⋆l⟨ P ⟩ α .N-ob x
     rec .N-ob x .N-hom f = funExt λ g → profAssocL P f g (α .N-ob x)
     rec .N-hom f = makeNatTransPath (funExt λ z → funExt λ g →
       profAssocL P g f (α .N-ob _)

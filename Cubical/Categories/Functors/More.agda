@@ -5,6 +5,7 @@ module Cubical.Categories.Functors.More where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Compose
 open import Cubical.Categories.Functors.Constant
@@ -23,6 +24,7 @@ private
 
 open Category
 open Functor
+open NatTrans
 
 ConstantComposeFunctor :
   (C : Category ℓC ℓC') (D : Category ℓD ℓD' ) (c : C .ob)

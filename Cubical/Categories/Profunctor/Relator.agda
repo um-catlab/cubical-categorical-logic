@@ -1,5 +1,5 @@
 -- | A Relator contravariant in C and covariant in D is
--- | a bifunctor C ^op x D → Set.
+-- | a bifunctor C ^op , D → Set.
 
 -- | This is equivalent to a functor D → Psh(C), but some concepts are
 -- | more naturally formulated in these terms.
@@ -8,7 +8,7 @@
 -- | whereas the category of presheaves as defined currently in the
 -- | library only gives the "separate" functorial action. In practice,
 -- | relators tend to only come with a separate action anyway (e.g.,
--- | Hom) but in principle
+-- | Hom) but in principle a relator carries more information
 {-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Profunctor.Relator where
 

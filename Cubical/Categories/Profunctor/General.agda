@@ -47,8 +47,8 @@ Profunctor C D ℓS = Functor C (PresheafCategory D ℓS)
 
 module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') ℓS where
   PROFUNCTOR : Category _ _
-  PROFUNCTOR = FUNCTOR C (PresheafCategory D ℓS) -- ChangeOfObjects 
-    -- (BifunctorToParFunctor {C = C ^op}{D = D}{E = SET ℓS})
+  PROFUNCTOR = FUNCTOR C (PresheafCategory D ℓS)
+
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
   _[_,_]P : (P : Profunctor C D ℓR) → D .ob → C .ob → Type ℓR
   P [ d , c ]P = ⟨ (P ⟅ c ⟆) ⟅ d ⟆ ⟩
@@ -99,7 +99,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
     prof-act {x}{y} = (ϕ ⟦ x ⟧) ⟦ y ⟧
 
     ϕ-homoL : ∀ {d' d c} (f : D [ d' , d ])(p : P [ d , c ]P)
-      → prof-act (f ⋆l⟨ P ⟩ p) ≡ f ⋆l⟨ Q ⟩ (prof-act p) 
+      → prof-act (f ⋆l⟨ P ⟩ p) ≡ f ⋆l⟨ Q ⟩ (prof-act p)
     ϕ-homoL {c = c} f p = funExt⁻ ((ϕ ⟦ c ⟧) .N-hom f) p
 
     ϕ-homoR : ∀ {d c c'}(p : P [ d , c ]P) (g : C [ c , c' ])

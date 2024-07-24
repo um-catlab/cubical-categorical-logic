@@ -23,7 +23,8 @@ open import
 open import Cubical.Categories.Limits.Cartesian.Base
 
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Presheaf
+open import Cubical.Categories.Displayed.Instances.Presheaf.Base
+open import Cubical.Categories.Displayed.Instances.Presheaf.Properties
 
 private
   variable ℓQ ℓQ' ℓC ℓC' : Level
@@ -56,7 +57,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
   -- the use of rec to define the functor is just to save work
   extension : Functor (FREE-1,× .fst) (PresheafCategory FREE _)
   extension = FCC.rec (Quiver→×Quiver Q)
-    (PresheafCategory FREE _ , ⊤𝓟 {ℓS = ℓ-max ℓQ ℓQ'} , ×𝓟)
+    (PresheafCategory FREE _ , ⊤𝓟 _ _ , ×𝓟 _ _)
     (λ A → YO ⟅ A ⟆)
     λ f → YO ⟪ ↑ f ⟫
 
@@ -72,7 +73,8 @@ module _ (Q : Quiver ℓQ ℓQ') where
     {A : Category ℓA ℓA'}{B : Category ℓB ℓB'}{C : Category ℓC ℓC'}
     (F : Functor A B)(G : Functor B C) where
     isFaithful-GF→isFaithful-F : isFaithful (G ∘F F) → isFaithful F
-    isFaithful-GF→isFaithful-F faith x y f g p = faith x y f g (congS (λ Ff → G ⟪ Ff ⟫) p)
+    isFaithful-GF→isFaithful-F faith x y f g p =
+      faith x y f g (congS (λ Ff → G ⟪ Ff ⟫) p)
 
   ⊆-Faithful : isFaithful ⊆
   ⊆-Faithful = isFaithful-GF→isFaithful-F ⊆ extension comp-Faithful

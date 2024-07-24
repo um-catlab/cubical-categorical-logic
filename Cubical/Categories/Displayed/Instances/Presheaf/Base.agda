@@ -38,9 +38,10 @@ module _ (C : Category ℓC ℓC') (ℓSET ℓSETᴰ : Level) where
     ∫ᴾ⇒ .F-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) .fst = f
     -- the paths don't matter-- we're in a hSet
     -- (but it can make goals look crazy)
-    ∫ᴾ⇒ .F-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) .snd = funExt⁻ (sym (α .N-hom f)) ψ ∙ congS (α ⟦ Γ ⟧) p
+    ∫ᴾ⇒ .F-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) .snd =
+      funExt⁻ (sym (α .N-hom f)) ψ ∙ congS (α ⟦ Γ ⟧) p
     ∫ᴾ⇒ .F-id {x = Γ , ϕ} = ΣPathP (refl , (Q ⟅ Γ ⟆) .snd _ _ _ _)
-    ∫ᴾ⇒ .F-seq {x = Γ , ϕ} (f , p) (g , q) = ΣPathP (refl , (Q ⟅ Γ ⟆) .snd _ _ _ _)
+    ∫ᴾ⇒ .F-seq {x = Γ , ϕ} _ _ = ΣPathP (refl , (Q ⟅ Γ ⟆) .snd _ _ _ _)
 
     module _ (Pᴰ : Presheafᴰ P)(Qᴰ : Presheafᴰ Q) where
       -- data of (α-displayed natural transformations) of displayed presheaves
@@ -52,7 +53,8 @@ module _ (C : Category ℓC ℓC') (ℓSET ℓSETᴰ : Level) where
           ⟨ Pᴰ  ⟅ Γ , ϕ ⟆ ⟩ → ⟨ Qᴰ ⟅ (Γ , (α ⟦ Γ ⟧) ϕ) ⟆ ⟩
         _ = αᴰ .N-ob
 
-        _ : {(Γ , ϕ) (Δ , ψ) : (∫ᴾ P) .ob} ((f , p) : (∫ᴾ P) [ (Γ , ϕ) , (Δ , ψ) ]) →
+        _ : {(Γ , ϕ) (Δ , ψ) : (∫ᴾ P) .ob}
+          ((f , p) : (∫ᴾ P) [ (Γ , ϕ) , (Δ , ψ) ]) →
           αᴰ ⟦ Γ , ϕ ⟧ ∘S Pᴰ ⟪ f , p ⟫
           ≡
           Qᴰ ⟪ f , _ ⟫ ∘S αᴰ ⟦ Δ , ψ ⟧

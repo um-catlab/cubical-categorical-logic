@@ -1,4 +1,4 @@
---{-# OPTIONS --safe #-}
+{-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Instances.Presheaf.Properties where
 
@@ -80,16 +80,16 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
             (π₁' : NatTransᴰ C _ _ (idTrans P) vprod Pᴰ)
             (π₁'-ob : π₁' ⟦_⟧ ≡ π₁ ⟦_⟧) where
             β₁ : seqTransᴰ C _ _ pair' π₁' ≡ id∘αᴰ
-            β₁ = makeNatTransPath (funExt (λ (Γ , ϕ) → funExt (λ ϕᴰ →
-              funExt⁻ (funExt⁻ π₁'-ob (Γ , (α ⟦ Γ ⟧) ϕ)) ((pair' ⟦ Γ , ϕ ⟧) ϕᴰ) ∙
-              congS fst (funExt⁻ (funExt⁻ pair'-ob (Γ , ϕ)) ϕᴰ))))
+            β₁ = makeNatTransPath (funExt (λ _ → funExt (λ _ →
+              funExt⁻ (funExt⁻ π₁'-ob (_ , (α ⟦ _ ⟧) _)) ((pair' ⟦ _ ⟧) _) ∙
+              congS fst (funExt⁻ (funExt⁻ pair'-ob _) _))))
           module _
             (π₂' : NatTransᴰ C _ _ (idTrans P) vprod Pᴰ')
             (π₂'-ob : π₂' ⟦_⟧ ≡ π₂ ⟦_⟧) where
             β₂ : seqTransᴰ C _ _ pair' π₂' ≡ id∘αᴰ'
-            β₂ = makeNatTransPath (funExt (λ (Γ , ϕ) → funExt (λ ϕᴰ →
-              funExt⁻ (funExt⁻ π₂'-ob (Γ , (α ⟦ Γ ⟧) ϕ)) ((pair' ⟦ Γ , ϕ ⟧) ϕᴰ) ∙
-              congS snd (funExt⁻ (funExt⁻ pair'-ob (Γ , ϕ)) ϕᴰ))))
+            β₂ = makeNatTransPath (funExt (λ _ → funExt (λ _ →
+              funExt⁻ (funExt⁻ π₂'-ob (_ , (α ⟦ _ ⟧) _)) ((pair' ⟦ _ ⟧) _) ∙
+              congS snd (funExt⁻ (funExt⁻ pair'-ob _) _))))
 
   PRESHEAFᴰ-VerticalProducts : VerticalBinProducts (PRESHEAFᴰ C ℓS ℓSᴰ)
   PRESHEAFᴰ-VerticalProducts (Pᴰ , Pᴰ') .vertexᴰ = M.vprod Pᴰ Pᴰ'

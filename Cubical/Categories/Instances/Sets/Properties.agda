@@ -41,18 +41,20 @@ module _ {ℓSET : Level} where
       ((λ z → (h z) .fst) , λ z → (h z) .snd) (f , g))
     λ h p i z → (sym p) i .fst z , (sym p) i .snd z
 
-module _ {ℓSET : Level} where 
-  Exponentials'SET : Exponentials (SET ℓSET) (BinProducts'ToBinProducts  (SET ℓSET)  BinProducts'SET)
-  Exponentials'SET (X , Y) .vertex = ((SET ℓSET)[ Y , X ]) , SET ℓSET .isSetHom {Y}{X} 
+module _ {ℓSET : Level} where
+  Exponentials'SET : Exponentials (SET ℓSET)
+    (BinProducts'ToBinProducts  (SET ℓSET)  BinProducts'SET)
+  Exponentials'SET (X , Y) .vertex =
+    (SET ℓSET)[ Y , X ] , SET ℓSET .isSetHom {Y}{X}
   Exponentials'SET (X , Y) .element = λ{(Y→X , y) → Y→X y}
-  Exponentials'SET (X , Y) .universal Z .equiv-proof f = 
-    uniqueExists (λ z y → f (z , y)) refl 
-      (λ a' x y → SET ℓSET .isSetHom {(Z .fst × Y .fst) , isSet× (Z .snd) (Y .snd)}{X} _ _ x y)
+  Exponentials'SET (X , Y) .universal Z .equiv-proof f =
+    uniqueExists (λ z y → f (z , y)) refl
+      (λ a' → SET ℓSET .isSetHom {BinProducts'SET (Z , Y) .vertex} {X} _ _)
       (λ Z→Y→X p → funExt λ z → funExt λ y → funExt⁻ (sym p)  (z , y) )
 
 module _ {ℓSET : Level} where
-  SET'CCC : CartesianClosedCategory (ℓ-suc ℓSET) ℓSET 
-  SET'CCC = SET ℓSET , 
-          (Terminal'ToTerminal terminal'SET) , 
-          (BinProducts'ToBinProducts  (SET ℓSET)  BinProducts'SET) , 
-          Exponentials'SET   
+  SET'CCC : CartesianClosedCategory (ℓ-suc ℓSET) ℓSET
+  SET'CCC = SET ℓSET ,
+          (Terminal'ToTerminal terminal'SET) ,
+          (BinProducts'ToBinProducts  (SET ℓSET)  BinProducts'SET) ,
+          Exponentials'SET

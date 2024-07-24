@@ -12,6 +12,7 @@ open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct
+open import Cubical.Categories.Presheaf.CCC
 
 open import Cubical.Categories.Constructions.Free.Category.Quiver as FC
   hiding (rec)
@@ -52,15 +53,10 @@ module _ (Q : Quiver ℓQ ℓQ') where
 
   -- TODO: wts ⊆* is fully faithful
 
-  -- TODO: eric bond has these
-  postulate
-    presheafTerminal : (C : Category ℓC ℓC')(ℓ : Level) → Terminal (PresheafCategory C ℓ)
-    presheafBinProducts : (C : Category ℓC ℓC')(ℓ : Level) → BinProducts (PresheafCategory C ℓ)
-
   -- the use of rec to define the functor is just to save work
   extension : Functor (FREE-1,× .fst) (PresheafCategory FREE _)
   extension = FCC.rec (Quiver→×Quiver Q)
-    (PresheafCategory FREE _ , presheafTerminal _ _ , presheafBinProducts _ _)
+    (PresheafCategory FREE _ , ⊤𝓟 {ℓS = ℓ-max ℓQ ℓQ'} , ×𝓟)
     (λ A → YO ⟅ A ⟆)
     λ f → YO ⟪ ↑ f ⟫
 
@@ -81,10 +77,11 @@ module _ (Q : Quiver ℓQ ℓQ') where
   ⊆-Faithful : isFaithful ⊆
   ⊆-Faithful = isFaithful-GF→isFaithful-F ⊆ extension comp-Faithful
 
-  NormalForm : (A : FREE-1,× .fst .ob) → (B : FREE-1,× .fst .ob) → Type {!!}
-  NormalForm (↑ x) B = {!!}
-  NormalForm (x × y) B = {!!}
-  NormalForm ⊤ B = {!!}
+  -- inductive normal forms, later
+  --NormalForm : (A : FREE-1,× .fst .ob) → (B : FREE-1,× .fst .ob) → Type {!!}
+  --NormalForm (↑ x) B = {!!}
+  --NormalForm (x × y) B = {!!}
+  --NormalForm ⊤ B = {!!}
 
   -- this has the same data as extension, but the usage is completely different
   -- and we actually need this definition on products and terminal
@@ -92,7 +89,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
   nerve = extension
 
   foo : Section nerve (PRESHEAFᴰ FREE _ {!!})
-  foo = FCC.elimLocal {!Quiver→×Quiver Q!} {!!} {!!} {!!} {!!} {!!}
+  foo = FCC.elimLocal (Quiver→×Quiver Q) (PRESHEAFᴰ-VerticalTerminals FREE _ {!!} (nerve ⟅ ⊤ ⟆)) {!!} {!!} {!!} {!!}
 
   ⊆-Full : isFull ⊆
   ⊆-Full = {!!}

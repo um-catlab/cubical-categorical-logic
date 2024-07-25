@@ -113,8 +113,8 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
     module N = M Pᴰ Pᴰ'
     pair = N.pair id∘αᴰ id∘αᴰ'
 
-  PRESHEAFᴰ-fibration : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
-  PRESHEAFᴰ-fibration {d = Q} (P , Pᴰ , α) = CartesianOver→CartesianLift
+  PRESHEAFᴰ-isFibration : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
+  PRESHEAFᴰ-isFibration {d = Q} (P , Pᴰ , α) = CartesianOver→CartesianLift
     (PRESHEAFᴰ C _ _)
     co
     where

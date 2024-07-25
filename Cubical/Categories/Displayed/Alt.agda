@@ -3,16 +3,20 @@
   The usual definition of a displayed category over C is *precisely*
   that of a lax functor from C to Span.
 
-  The (equivalent) alternate definition provided here is instead
-  *precisely* that of a normal lax functor from C to Prof. The main
-  difference is in the lax functor definition, the fiber category over
-  an object is not primitive, instead being defined as the
+  An (equivalent) alternate definition is instead of a normal lax
+  functor from C to Prof. The main difference is that in targeting
+  Prof, we define a category of *vertical morphisms* over each object,
+  whereas in targeting Span we only define displayed morphisms. Of
+  course vertical morphisms can be *defined* as displayed over id, but
+  in doing so the definition of composition of vertical morphisms
+  *inherently* involves transport, leading to undesirable stuck terms.
 
 -}
 module Cubical.Categories.Displayed.Alt where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv hiding (fiber)
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
@@ -23,146 +27,128 @@ open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Profunctor.Hom
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
 open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
+import Cubical.Categories.Displayed.Base as Fiberless
+import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓCᴰᵥ ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
+open Homomorphism
 open Bilinear
 open Category
 open NatElt
 
-record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ'
-  : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
+
+
+record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
+  : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ (ℓ-max ℓCᴰ' ℓCᴰᵥ)))) where
   no-eta-equality
-
-  -- A displayed category consists of a *lax functor to Prof* that is
-  -- *normal up to isomorphism*.
-
   field
-    -- for each object, a fiber category over it
-    fiber[_] : C .ob → Category ℓCᴰ ℓCᴰ'
-    -- for each morphism, a *profunctor* of morphisms over it!
-    Hom[_] : ∀ {x y} → C [ x , y ] → fiber[ x ] o-[ ℓCᴰ' ]-* fiber[ y ]
-    -- this should laxly preserve the identity morphism
-    idᴰh : ∀ {x} → NatElt Hom[ C .id {x} ]
-    -- actually it should *strongly* preserve the identity morphism!
-    idᴰh-normal : ∀ {x} → isIsoH (rec (idᴰh {x}))
-    -- and it should laxly preserve the composition
-    ⋆ᴰh : ∀ {x y z} → (f : C [ x , y ])(g : C [ y , z ])
-        → Bilinear Hom[ f ] Hom[ g ] Hom[ f ⋆⟨ C ⟩ g ]
-
-  ob[_] : C .ob → Type ℓCᴰ
-  ob[ x ] = fiber[ x ] .ob
-
-  Hom[_][_,_] : ∀ {x y} → C [ x , y ] → ob[ x ] → ob[ y ] → Type ℓCᴰ'
-  Hom[ f ][ xᴰ , yᴰ ] = Hom[ f ] [ xᴰ , yᴰ ]R
-
-  idᴰ : ∀ {x} {xᴰ : ob[ x ]} → Hom[ C .id ][ xᴰ , xᴰ ]
-  idᴰ = idᴰh .N-ob _
-
-  _⋆ᴰ_ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]} {xᴰ yᴰ zᴰ}
-       → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f ⋆⟨ C ⟩ g ][ xᴰ , zᴰ ]
-  fᴰ ⋆ᴰ gᴰ = ⋆ᴰh _ _ .hom fᴰ gᴰ
-
-  infixr 9 _⋆ᴰ_
-  _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : C [ x , y ]} → Hom[ f ][ xᴰ , yᴰ ] → f ≡ g
-         → Hom[ g ][ xᴰ , yᴰ ] → Type ℓCᴰ'
-  _≡[_]_ {x} {y} {xᴰ} {yᴰ} fᴰ p gᴰ = PathP (λ i → Hom[ p i ][ xᴰ , yᴰ ]) fᴰ gᴰ
-
-  infix 2 _≡[_]_
-
+    disp : Fiberless.Categoryᴰ C ℓCᴰ ℓCᴰ'
+  private
+    module disp = Fiberless.Categoryᴰ disp
+    module R = HomᴰReasoning disp
   field
-    -- and finally the equations for the lax preservation
-    ⋆IdLᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
-          → idᴰ ⋆ᴰ fᴰ ≡[ C .⋆IdL f ] fᴰ
-    ⋆IdRᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
-          → fᴰ ⋆ᴰ idᴰ ≡[ C .⋆IdR f ] fᴰ
-    ⋆Assocᴰ : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , z ]}  {h : C [ z , w ]}
-            {xᴰ yᴰ zᴰ wᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ yᴰ , zᴰ ])
-            (hᴰ : Hom[ h ][ zᴰ , wᴰ ])
-            → (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ C .⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
+    vert : ∀ {x} → (xᴰ xᴰ' : disp.ob[ x ]) → Type ℓCᴰᵥ
+    idᵥ : ∀ {x}{xᴰ : disp.ob[ x ]} → vert xᴰ xᴰ
+    _⋆ᵥ_ : ∀ {x}{xᴰ xᴰ' xᴰ'' : disp.ob[ x ]}
+         → vert xᴰ xᴰ' → vert xᴰ' xᴰ'' → vert xᴰ xᴰ''
 
-  isSetHomᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} → isSet Hom[ f ][ xᴰ , yᴰ ]
-  isSetHomᴰ = (Hom[ _ ] ⟅ _ , _ ⟆b) .snd
+    vertToDisp : ∀ {x} {xᴰ xᴰ' : disp.ob[ x ]} → vert xᴰ xᴰ'
+      → disp.Hom[ C .id ][ xᴰ , xᴰ' ]
+    isEquivVertToDisp : ∀ {x} {xᴰ xᴰ' : disp.ob[ x ]}
+      → isEquiv (vertToDisp {x}{xᴰ}{xᴰ'})
+    vertToDispId : ∀ {x} {xᴰ : disp.ob[ x ]}
+      → vertToDisp (idᵥ {xᴰ = xᴰ}) ≡ disp.idᴰ
+    vertToDispSeq : ∀ {x}{xᴰ xᴰ' xᴰ'' : disp.ob[ x ]}
+      → (v : vert xᴰ xᴰ')(u : vert xᴰ' xᴰ'')
+      → vertToDisp (v ⋆ᵥ u) disp.≡[ sym (C .⋆IdL _) ] (vertToDisp v disp.⋆ᴰ vertToDisp u)
 
+    _⋆ᵥᴰ_ : ∀ {x y}{xᴰ' xᴰ : disp.ob[ x ]}{yᴰ : disp.ob[ y ]}{f : C [ x , y ]}
+          → vert xᴰ' xᴰ → disp.Hom[ f ][ xᴰ , yᴰ ]
+          → disp.Hom[ f ][ xᴰ' , yᴰ ]
+    vertᵥᴰ : ∀ {x y}{xᴰ' xᴰ : disp.ob[ x ]}{yᴰ : disp.ob[ y ]}{f : C [ x , y ]}
+          → (v : vert xᴰ' xᴰ) → (fᴰ : disp.Hom[ f ][ xᴰ , yᴰ ])
+          → v ⋆ᵥᴰ fᴰ disp.≡[ sym (C .⋆IdL f) ] vertToDisp v disp.⋆ᴰ fᴰ
+    _⋆ᴰᵥ_ : ∀ {x y}{xᴰ : disp.ob[ x ]}{yᴰ yᴰ' : disp.ob[ y ]}{f : C [ x , y ]}
+          → disp.Hom[ f ][ xᴰ , yᴰ ] → vert yᴰ yᴰ'
+          → disp.Hom[ f ][ xᴰ , yᴰ' ]
+    vertᴰᵥ : ∀ {x y}{xᴰ : disp.ob[ x ]}{yᴰ yᴰ' : disp.ob[ y ]}{f : C [ x , y ]}
+          → (fᴰ : disp.Hom[ f ][ xᴰ , yᴰ ]) → (v : vert yᴰ yᴰ')
+          → fᴰ ⋆ᴰᵥ v disp.≡[ sym (C .⋆IdR f) ] fᴰ disp.⋆ᴰ vertToDisp v
 
-open Categoryᴰ
+  vertToDispInj = λ {x}{xᴰ}{xᴰ'} →
+    isoFunInjective (equivToIso (vertToDisp {x}{xᴰ}{xᴰ'} , isEquivVertToDisp))
 
--- Example: Sets
-open import Cubical.Foundations.Structure
-open import Cubical.Categories.Instances.Sets
-private
-  variable
-    ℓ ℓ' ℓ'' ℓ''' : Level
+  fiber[_] : C .ob → Category ℓCᴰ ℓCᴰᵥ
+  fiber[ x ] .ob = disp.ob[ x ]
+  fiber[ x ] .Hom[_,_] = vert {x}
+  fiber[ x ] .id = idᵥ
+  fiber[ x ] ._⋆_ = _⋆ᵥ_
+  fiber[ x ] .⋆IdL v = vertToDispInj _ _ (R.≡[]-rectify (
+    R.≡[]∙ _ _ (vertToDispSeq _ _)
+    (R.≡[]∙ _ _ (R.≡[]⋆ _ refl vertToDispId refl)
+    (disp.⋆IdLᴰ (vertToDisp v)))))
+  fiber[ x ] .⋆IdR v = vertToDispInj _ _ (R.≡[]-rectify
+    (R.≡[]∙ _ _ (vertToDispSeq _ _)
+    (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl vertToDispId)
+    (disp.⋆IdRᴰ (vertToDisp v)))))
+  fiber[ x ] .⋆Assoc u v w = vertToDispInj _ _ (R.≡[]-rectify
+    (R.≡[]∙ _ _ (vertToDispSeq _ _)
+    (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (vertToDispSeq _ _) refl)
+    (R.≡[]∙ _ _ (disp.⋆Assocᴰ _ _ _)
+    (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (symP (vertToDispSeq _ _)))
+    (symP (vertToDispSeq _ _)))))))
+  fiber[ x ] .isSetHom =
+    isSetRetract vertToDisp
+      (invIsEq isEquivVertToDisp) (retIsEq (isEquivVertToDisp)) disp.isSetHomᴰ
 
-module _ ℓ ℓ' where
-  open Categoryᴰ
-  open Bifunctor
-  module _ (A : hSet ℓ) where
-    depSET : Category _ _
-    depSET .ob = ⟨ A ⟩ → hSet ℓ'
-    depSET .Hom[_,_] B C = ∀ a → ⟨ B a ⟩ → ⟨ C a ⟩
-    depSET .id = λ a z → z
-    depSET ._⋆_ = λ f g a z → g a (f a z)
-    depSET .⋆IdL _ = refl
-    depSET .⋆IdR _ = refl
-    depSET .⋆Assoc _ _ _ = refl
-    depSET .isSetHom {y = C} = isSetΠ λ _ → isSetΠ λ _ → C _ .snd
+  fiber[_]f : ∀ {x y} → (f : C [ x , y ]) → fiber[ x ] o-[ ℓCᴰ' ]-* fiber[ y ]
+  fiber[_]f {x}{y} f = mkBifunctorSep (record
+    { Bif-ob = λ xᴰ yᴰ → disp.Hom[ f ][ xᴰ , yᴰ ] , disp.isSetHomᴰ
+    ; Bif-homL = λ v yᴰ fᴰ → v ⋆ᵥᴰ fᴰ
+    ; Bif-homR = λ xᴰ v fᴰ → fᴰ ⋆ᴰᵥ v
+    ; Bif-L-id = λ {xᴰ}{yᴰ} → funExt λ fᴰ → R.≡[]-rectify
+      (R.≡[]∙ _ _ (vertᵥᴰ _ _)
+      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl vertToDispId refl)
+      (disp.⋆IdLᴰ fᴰ)))
+    ; Bif-L-seq = λ u v → funExt λ fᴰ → R.≡[]-rectify
+      (R.≡[]∙ _ _ (vertᵥᴰ _ _)
+      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (vertToDispSeq v u) refl)
+      (R.≡[]∙ _ _ (disp.⋆Assocᴰ _ _ _)
+      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (symP (vertᵥᴰ u fᴰ)))
+      (symP (vertᵥᴰ _ _))))))
+    ; Bif-R-id = funExt λ fᴰ → R.≡[]-rectify
+      (R.≡[]∙ _ _ (vertᴰᵥ fᴰ _)
+      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl vertToDispId)
+      (disp.⋆IdRᴰ fᴰ)))
+    ; Bif-R-seq = λ u v → funExt λ fᴰ → R.≡[]-rectify
+      (R.≡[]∙ _ _ (vertᴰᵥ _ _)
+      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (vertToDispSeq u v))
+      (R.≡[]∙ _ _ (symP (disp.⋆Assocᴰ _ _ _))
+      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (symP (vertᴰᵥ fᴰ u)) refl)
+      (symP (vertᴰᵥ _ _))))))
+    ; SepBif-RL-commute = λ {xᴰ'}{xᴰ}{yᴰ yᴰ'} u v →
+      funExt λ fᴰ → R.≡[]-rectify
+      (R.≡[]∙ _ _ (vertᵥᴰ _ _)
+      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (vertᴰᵥ _ _))
+      (R.≡[]∙ _ _ (symP (disp.⋆Assocᴰ _ _ _))
+      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (symP (vertᵥᴰ _ _)) refl)
+      (symP (vertᴰᵥ _ _))))))
+    })
 
-  module _ (A B : hSet ℓ) (f : ⟨ A ⟩ → ⟨ B ⟩) where
-    ⊢f : depSET A o-[ _ ]-* depSET B
-    ⊢f = mkBifunctorSep SETᶠ where
-      open BifunctorSep
-      SETᶠ : BifunctorSep _ _ _
-      SETᶠ .Bif-ob B B' = (∀ x → ⟨ B x ⟩ → ⟨ B' (f x) ⟩)
-        , isSetΠ λ x → isSetΠ λ b → B' (f x) .snd
-      SETᶠ .Bif-homL = λ f d z x x₁ → z x (f x x₁)
-      SETᶠ .Bif-homR = λ c g z x x₁ → g (f x) (z x x₁)
-      SETᶠ .Bif-L-id = refl
-      SETᶠ .Bif-L-seq _ _ = refl
-      SETᶠ .Bif-R-id = refl
-      SETᶠ .Bif-R-seq _ _ = refl
-      SETᶠ .SepBif-RL-commute _ _ = refl
+-- TODO: motivating examples:
+-- 1. Slice categories: vertical category should be a commuting
+-- triangle, not a commuting square over id.
 
-  SETᴰ : Categoryᴰ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
-  SETᴰ .fiber[_] = depSET
-  SETᴰ .Hom[_] {x = A}{y = B} f = ⊢f A B f
-  SETᴰ .idᴰh {x = A} = NatEltUnary→NatElt _ neu where
-    open NatEltUnary
-    neu : NatEltUnary _
-    neu .N-ob B = λ a b → b
-    neu .N-nat = λ f → refl
-  SETᴰ .idᴰh-normal = idEquiv _ .snd
-  SETᴰ .⋆ᴰh f g = f*g where
-    open Bilinear
-    f*g : Bilinear _ _ _
-    f*g .hom f^ g^ = λ x y → g^ (f x) (f^ x y)
-    f*g .natL _ _ _ = refl
-    f*g .natM _ _ _ = refl
-    f*g .natR _ _ _ = refl
-  SETᴰ .⋆IdLᴰ = λ _ → refl
-  SETᴰ .⋆IdRᴰ = λ _ → refl
-  SETᴰ .⋆Assocᴰ = λ _ _ _ → refl
+-- 2. Reindexing: the vertical categories can be taken directly from
+-- the codomain, leading to better definitional behavior
 
--- -- TODO: finish this
--- module _ {C : Category ℓC ℓC'} where
---   import Cubical.Categories.Displayed.Base as Original
---   open Original.Categoryᴰ
---   Original→Alt : Original.Categoryᴰ C ℓCᴰ ℓCᴰ' → Categoryᴰ C ℓCᴰ ℓCᴰ'
---   Original→Alt Cᴰ .fiber[_] = fiber Cᴰ
---   Original→Alt Cᴰ .Hom[_] = Homᴰ Cᴰ
---   Original→Alt Cᴰ .idᴰh .N-ob = λ _ → Cᴰ .Original.Categoryᴰ.idᴰ
---   Original→Alt Cᴰ .idᴰh .N-hom× = λ f → f
---   Original→Alt Cᴰ .idᴰh .N-ob-hom×-agree = refl
---   Original→Alt Cᴰ .idᴰh .N-natL = {!!}
---   Original→Alt Cᴰ .idᴰh .N-natR = {!!}
---   Original→Alt Cᴰ .idᴰh-normal = idEquiv _ .snd
---   Original→Alt Cᴰ .⋆ᴰh f g .hom = Cᴰ .Original.Categoryᴰ._⋆ᴰ_
---   Original→Alt Cᴰ .⋆ᴰh f g .natL = {!!}
---   Original→Alt Cᴰ .⋆ᴰh f g .natM = {!!}
---   Original→Alt Cᴰ .⋆ᴰh f g .natR = {!!}
---   Original→Alt Cᴰ .⋆IdLᴰ = Cᴰ .⋆IdLᴰ
---   Original→Alt Cᴰ .⋆IdRᴰ = Cᴰ .⋆IdRᴰ
---   Original→Alt Cᴰ .⋆Assocᴰ = Cᴰ .⋆Assocᴰ
+-- 3. Displayed limits: the definition of a displayed limit is
+-- naturally formulated as having vertical projections and the cone
+-- property stated in terms of mixed composition
+
+-- 4. Should also show that defining the fiber as the morphisms over
+-- id does allow a displayed cat to be "upgraded" to a redundant displayed cat

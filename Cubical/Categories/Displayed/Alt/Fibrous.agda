@@ -12,7 +12,7 @@
   *inherently* involves transport, leading to undesirable stuck terms.
 
 -}
-module Cubical.Categories.Displayed.Alt where
+module Cubical.Categories.Displayed.Alt.Fibrous where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv hiding (fiber)
@@ -30,7 +30,6 @@ open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
 import Cubical.Categories.Displayed.Base as Fiberless
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
-
 private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓCᴰᵥ ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
@@ -39,8 +38,6 @@ open Homomorphism
 open Bilinear
 open Category
 open NatElt
-
-
 
 record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
   : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ (ℓ-max ℓCᴰ' ℓCᴰᵥ)))) where

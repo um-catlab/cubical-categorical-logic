@@ -19,10 +19,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
 
-open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Bifunctor.Redundant as Bif
 open import Cubical.Categories.Instances.Functors
@@ -38,7 +36,7 @@ open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Profunctor.General hiding (profSeqR'; profSeqL')
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More
@@ -48,6 +46,7 @@ private
     ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓS ℓR : Level
 
 open Category
+open Bifunctor
 
 _o-[_]-*_ : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
 C o-[ ℓS ]-* D = Bifunctor (C ^op) D (SET ℓS)
@@ -60,24 +59,56 @@ Relatoro* C ℓS D = C o-[ ℓS ]-* D
 
 -- Relator composition notation
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {ℓR} where
+  _[_,_]R : (R : C o-[ ℓR ]-* D) → C .ob → D .ob → Type ℓR
+  R [ c , d ]R = ⟨ R ⟅ c , d ⟆b ⟩
+
   relSeqL' : ∀ (R : C o-[ ℓR ]-* D) {c' c d}
             (f : C [ c' , c ]) (r : ⟨ R ⟅ c , d ⟆b ⟩)
           → ⟨ R ⟅ c' , d ⟆b ⟩
   relSeqL' R f r = (R ⟪ f ⟫l) r
 
-  infixl 15 relSeqL'
+  infixr 15 relSeqL'
   syntax relSeqL' R f r = f ⋆l⟨ R ⟩ r
+
+  relSeqLId : ∀ (R : C o-[ ℓR ]-* D) {c d}
+            (r : ⟨ R ⟅ c , d ⟆b ⟩)
+          → C .id ⋆l⟨ R ⟩ r ≡ r
+  relSeqLId R = funExt⁻ (R .Bif-L-id)
+
+  profAssocL : ∀ (R : C o-[ ℓR ]-* D) {c'' c' c d}
+    (f' : C [ c'' , c' ])
+    (f : C [ c' , c ])
+    (r : R [ c , d ]R)
+    → ((f' ⋆⟨ C ⟩ f) ⋆l⟨ R ⟩ r) ≡ f' ⋆l⟨ R ⟩ f ⋆l⟨ R ⟩ r
+  profAssocL R f' f = funExt⁻ (R .Bif-L-seq _ _)
 
   relSeqR' : ∀ (R : C o-[ ℓR ]-* D) {c d d'}
             (r : ⟨ R ⟅ c , d ⟆b ⟩) (g : D [ d , d' ])
           → ⟨ R ⟅ c , d' ⟆b ⟩
   relSeqR' R r g = (R ⟪ g ⟫r) r
 
-  infixr 15 relSeqR'
+  infixl 15 relSeqR'
   syntax relSeqR' R r g = r ⋆r⟨ R ⟩ g
 
-  _[_,_]R : (R : C o-[ ℓR ]-* D) → C .ob → D .ob → Type ℓR
-  R [ c , d ]R = ⟨ R ⟅ c , d ⟆b ⟩
+  relSeqRId : ∀ (R : C o-[ ℓR ]-* D) {c d}
+            (r : ⟨ R ⟅ c , d ⟆b ⟩)
+          → r ⋆r⟨ R ⟩ D .id ≡ r
+  relSeqRId R = funExt⁻ (R .Bif-R-id)
+
+  profAssocR : ∀ (R : C o-[ ℓR ]-* D) {c d d' d''}
+    (r : R [ c , d ]R)
+    (g : D [ d , d' ])
+    (g' : D [ d' , d'' ])
+    → (r ⋆r⟨ R ⟩ (g ⋆⟨ D ⟩ g')) ≡ r ⋆r⟨ R ⟩ g ⋆r⟨ R ⟩ g'
+  profAssocR R r g g' = funExt⁻ (R .Bif-R-seq g g') r
+
+  profAssocLR : ∀ (R : C o-[ ℓR ]-* D) {c' c d d'}
+    → (f : C [ c' , c ]) (r : R [ c , d ]R) (g : D [ d , d' ])
+    → (f ⋆l⟨ R ⟩ (r ⋆r⟨ R ⟩ g)) ≡ (f ⋆l⟨ R ⟩ r) ⋆r⟨ R ⟩ g
+  profAssocLR R f r g = funExt⁻ (Bif-RL-commute R f g) r
+
+  isSetHet : (R : C o-[ ℓR ]-* D) → ∀ c d → isSet (R [ c , d ]R)
+  isSetHet R c d = (R ⟅ c , d ⟆b) .snd
 
 module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
   Profunctor→Relatoro* : Profunctor C D ℓS → D o-[ ℓS ]-* C

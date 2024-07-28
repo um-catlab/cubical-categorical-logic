@@ -24,7 +24,9 @@ record Categoryᴰ (C : Category ℓC ℓC')
   no-eta-equality
   field
     ob[_] : (x : C .ob) → Type (ℓCᴰ x)
-    Hom[_][_,_] : {x y : C .ob} → C [ x , y ] → ob[ x ] → ob[ y ] → Type (ℓCᴰ' x y)
+    Hom[_][_,_] : {x y : C .ob}
+      → C [ x , y ] → ob[ x ] → ob[ y ]
+      → Type (ℓCᴰ' x y)
     idᴰ : ∀ {x} {p : ob[ x ]} → Hom[ C .id ][ p , p ]
     _⋆ᴰ_ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]} {xᴰ yᴰ zᴰ}
       → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f ⋆⟨ C ⟩ g ][ xᴰ , zᴰ ]
@@ -32,16 +34,20 @@ record Categoryᴰ (C : Category ℓC ℓC')
   infixr 9 _⋆ᴰ_
   infixr 9 _∘ᴰ_
 
-  _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : C [ x , y ]} → Hom[ f ][ xᴰ , yᴰ ] → f ≡ g → Hom[ g ][ xᴰ , yᴰ ] → Type (ℓCᴰ' x y)
+  _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : C [ x , y ]}
+    → Hom[ f ][ xᴰ , yᴰ ] → f ≡ g → Hom[ g ][ xᴰ , yᴰ ] → Type (ℓCᴰ' x y)
   _≡[_]_ {x} {y} {xᴰ} {yᴰ} fᴰ p gᴰ = PathP (λ i → Hom[ p i ][ xᴰ , yᴰ ]) fᴰ gᴰ
 
   infix 2 _≡[_]_
 
   field
-    ⋆IdLᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idᴰ ⋆ᴰ fᴰ ≡[ C .⋆IdL f ] fᴰ
-    ⋆IdRᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → fᴰ ⋆ᴰ idᴰ ≡[ C .⋆IdR f ] fᴰ
-    ⋆Assocᴰ : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , z ]}  {h : C [ z , w ]} {xᴰ yᴰ zᴰ wᴰ}
-      (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ yᴰ , zᴰ ]) (hᴰ : Hom[ h ][ zᴰ , wᴰ ])
+    ⋆IdLᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+      → idᴰ ⋆ᴰ fᴰ ≡[ C .⋆IdL f ] fᴰ
+    ⋆IdRᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+      → fᴰ ⋆ᴰ idᴰ ≡[ C .⋆IdR f ] fᴰ
+    ⋆Assocᴰ : ∀ {x y z w} {f : C [ x , y ]} {g : C [ y , z ]}  {h : C [ z , w ]}
+      {xᴰ yᴰ zᴰ wᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ yᴰ , zᴰ ])
+      (hᴰ : Hom[ h ][ zᴰ , wᴰ ])
       → (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ C .⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
     isSetHomᴰ : ∀ {x y} {f : C [ x , y ]} {xᴰ yᴰ} → isSet Hom[ f ][ xᴰ , yᴰ ]
 

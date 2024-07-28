@@ -250,4 +250,3 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         (isFib→F⟪π₁⟫* (prods _) Fcᴰ fib)
         (isFib→F⟪π₂⟫* (prods _) Fc'ᴰ fib)
         vbps)
-

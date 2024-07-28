@@ -6,7 +6,6 @@
   (Right) Universal property: a section of the Path bundle is a path
   between section
 
-
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Instances.Path.Displayed where
@@ -19,7 +18,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.TotalCategory as TotalCategory
 open import Cubical.Categories.Constructions.TotalCategory.More as TotalCategory
-open import Cubical.Categories.Profunctor.Relator as Relator hiding (Hom)
+open import Cubical.Categories.Profunctor.Relator as Relator
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base

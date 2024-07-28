@@ -61,7 +61,8 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
       → vertToDisp (idᵥ {xᴰ = xᴰ}) ≡ disp.idᴰ
     vertToDispSeq : ∀ {x}{xᴰ xᴰ' xᴰ'' : disp.ob[ x ]}
       → (v : vert xᴰ xᴰ')(u : vert xᴰ' xᴰ'')
-      → vertToDisp (v ⋆ᵥ u) disp.≡[ sym (C .⋆IdL _) ] (vertToDisp v disp.⋆ᴰ vertToDisp u)
+      → vertToDisp (v ⋆ᵥ u)
+        disp.≡[ sym (C .⋆IdL _) ] (vertToDisp v disp.⋆ᴰ vertToDisp u)
 
     _⋆ᵥᴰ_ : ∀ {x y}{xᴰ' xᴰ : disp.ob[ x ]}{yᴰ : disp.ob[ y ]}{f : C [ x , y ]}
           → vert xᴰ' xᴰ → disp.Hom[ f ][ xᴰ , yᴰ ]

@@ -15,10 +15,11 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Constructions.Bifunctors
 open import Cubical.Categories.Constructions.BinProduct.Redundant as Tensor
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Profunctor.NaturalElement
+open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
 open import Cubical.Categories.Profunctor.Hom
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
 open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
@@ -34,14 +35,14 @@ open Category
 module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
-  (F : Functor ((C ^op) ×C C) D)
+  (F : Bifunctor (C ^op) C D)
    where
 
   -- d -> End F =~ NatElt (D [ d , F - = ])
   End-Spec : Presheaf D _
-  End-Spec = NATURAL-ELEMENTS ∘F
+  End-Spec = NATURAL-ELEMENTS ∘F UNCURRY-BIFUNCTOR _ _ _ ∘F
     CurryBifunctor (Functor→Bifunctor (CurryBifunctor (assoc-bif⁻
-      (HomBif D ∘Fr (F ∘F Tensor.Sym)))))
+      (HomR D ∘Fr Tensor.rec _ _ F))))
 
   End : Type _
   End = UniversalElement D End-Spec

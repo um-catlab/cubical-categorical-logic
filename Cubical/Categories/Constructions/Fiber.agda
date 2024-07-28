@@ -72,11 +72,13 @@ module _ {C : Category ℓC ℓC'}
   --   open BifunctorSep
   --   F : BifunctorSep _ _ _
   --   F .Bif-ob xᴰ yᴰ = (Σ[ f' ∈  singl f ] Cᴰ.Hom[ f' .fst ][ xᴰ , yᴰ ])
-  --     , isSetΣ (isProp→isSet (isContr→isProp (isContrSingl _))) λ _ → Cᴰ.isSetHomᴰ
+  --     , isSetΣ (isProp→isSet (isContr→isProp (isContrSingl _))) λ _
+  --     → Cᴰ.isSetHomᴰ
   --   F .Bif-homL {c = xᴰ} = λ (id' , id≡id' , vᴰ) yᴰ ((f' , f≡f'), fᴰ) →
   --     (id' ⋆⟨ C ⟩ f' , sym (C .⋆IdL _) ∙ cong₂ (C ._⋆_) id≡id' f≡f')
   --     , (vᴰ Cᴰ.⋆ᴰ fᴰ)
-  --   F .Bif-L-id = funExt (λ ((f' , f≡f'), fᴰ) → ΣPathP ((ΣPathP ((C .⋆IdL f') , {!!})) , {!!}))
+  --   F .Bif-L-id = funExt
+  --   (λ ((f' , f≡f'), fᴰ) → ΣPathP ((ΣPathP ((C .⋆IdL f') , {!!})) , {!!}))
   --   F .Bif-L-seq = {!!}
   --   F .Bif-homR {d' = yᴰ} = λ xᴰ (id' , id≡id' , vᴰ) ((f' , f≡f') , fᴰ) →
   --     ((f' ⋆⟨ C ⟩ id')

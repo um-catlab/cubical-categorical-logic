@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Profunctor.Hom where
 
 open import Cubical.Foundations.Prelude
@@ -11,10 +11,12 @@ open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Constructions.Relators
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Profunctor.NaturalElement
+open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
 open import Cubical.Categories.Bifunctor.Redundant as Bif
 
@@ -28,51 +30,51 @@ open NaturalElement
 open NatTrans
 open UniversalElement
 
-Hom : (C : Category ℓC ℓC') → Profunctor C C ℓC'
-Hom C .F-ob x = C [-, x ]
-Hom C .F-hom f .NatTrans.N-ob w g = (C Category.⋆ g) f
-Hom C .F-hom f .NatTrans.N-hom h = funExt (λ g → C .⋆Assoc _ _ _)
-Hom C .F-id = makeNatTransPath (funExt (λ x → funExt λ g → C .⋆IdR g))
-Hom C .F-seq f g = makeNatTransPath (funExt λ _ → funExt λ h →
+HomP : (C : Category ℓC ℓC') → Profunctor C C ℓC'
+HomP C .F-ob x = C [-, x ]
+HomP C .F-hom f .NatTrans.N-ob w g = (C Category.⋆ g) f
+HomP C .F-hom f .NatTrans.N-hom h = funExt (λ g → C .⋆Assoc _ _ _)
+HomP C .F-id = makeNatTransPath (funExt (λ x → funExt λ g → C .⋆IdR g))
+HomP C .F-seq f g = makeNatTransPath (funExt λ _ → funExt λ h →
   sym (C .⋆Assoc _ _ _))
+
+HomR : ∀ (C : Category ℓC ℓC') → C o-[ ℓC' ]-* C
+HomR C = Profunctor→Relatoro* (HomP C)
 
 module _ {C : Category ℓC ℓC'} where
   open NaturalElement
-  IdHom : NaturalElement (Hom C)
-  IdHom .N-ob = λ x → Category.id C
+  IdHom : NaturalElement (HomR C)
+  IdHom .N-ob x = C .id
+  IdHom .N-hom x y f = f
   IdHom .N-nat x y f = C .⋆IdR f ∙ sym (C .⋆IdL f)
+  IdHom .N-ob-determines-N-hom x y f = sym (C .⋆IdR f)
 
-  module _ {P : Profunctor C C ℓC'} (α : NaturalElement P) where
-    rec : PROFUNCTOR C C ℓC' [ Hom C , P ]
-    rec .N-ob x .N-ob y f = f ⋆l⟨ P ⟩ α .N-ob x
-    rec .N-ob x .N-hom f = funExt λ g → profAssocL P f g (α .N-ob x)
-    rec .N-hom f = makeNatTransPath (funExt λ z → funExt λ g →
-      profAssocL P g f (α .N-ob _)
-      ∙ cong (profSeqL' P g) (α .N-nat _ _ f)
-      ∙ profAssocLR P g (α .N-ob _) f)
+  module _ {R : C o-[ ℓC' ]-* C} (α : NaturalElement R) where
+    rec : RELATOR C C ℓC' [ HomR C , R ]
+    rec .N-ob x .N-ob y f = α .N-hom x y f
+    rec .N-ob x .N-hom {x'}{y} h = funExt λ f → N-hom-natR α _ _ _ f h
+    rec .N-hom g =
+      makeNatTransPath (funExt (λ x' → funExt (N-hom-natL α _ _ _ g)))
 
     recβ : (NATURAL-ELEMENTS ⟪ rec ⟫) IdHom ≡ α
-    recβ = NaturalElement≡ (funExt λ x → funExt⁻ ((P ⟅ _ ⟆) .F-id) _)
+    recβ = NaturalElement≡N-hom refl
 
-  module _ {P : Profunctor C C ℓC'} where
-    recη : (ϕ : NatTrans (Hom C) P)
+  module _ {R : C o-[ ℓC' ]-* C} where
+    recη : (ϕ : RELATOR C C ℓC' [ HomR C , R ])
       → rec ((NATURAL-ELEMENTS ⟪ ϕ ⟫) IdHom) ≡ ϕ
-    recη ϕ = makeNatTransPath (funExt λ x → makeNatTransPath (funExt λ y →
-      funExt λ f →
-      sym (ϕ-homoL ϕ f _)
-      ∙ cong (ϕ .N-ob _ .N-ob _) (C .⋆IdR f)))
+    recη ϕ = makeNatTransPath (funExt λ x → makeNatTransPath refl)
 
-  UniversalNaturalElement : UniversalElement (PROFUNCTOR C C ℓC' ^op)
-    NATURAL-ELEMENTS
-  UniversalNaturalElement .vertex = Hom C
+  UniversalNaturalElement
+    : UniversalElement ((RELATOR C C ℓC') ^op) NATURAL-ELEMENTS
+  UniversalNaturalElement .vertex = HomR C
   UniversalNaturalElement .element = IdHom
   UniversalNaturalElement .universal P =
     isoToIsEquiv (iso _ rec recβ recη)
 
--- TODO: port this to new formulation
--- NatElt→NatTrans :
---   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
---   {F : Functor C D}{G : Functor C D}
---   → NatElt (Hom D ∘Flr (F ^opF , G)) → NatTrans F G
--- NatElt→NatTrans ε .NatTrans.N-ob = ε .NatElt.N-ob
--- NatElt→NatTrans ε .NatTrans.N-hom = NatElt.N-LR-agree ε
+-- -- TODO: port this to new formulation
+-- -- NatElt→NatTrans :
+-- --   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+-- --   {F : Functor C D}{G : Functor C D}
+-- --   → NatElt (Hom D ∘Flr (F ^opF , G)) → NatTrans F G
+-- -- NatElt→NatTrans ε .NatTrans.N-ob = ε .NatElt.N-ob
+-- -- NatElt→NatTrans ε .NatTrans.N-hom = NatElt.N-LR-agree ε

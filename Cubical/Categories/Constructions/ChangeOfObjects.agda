@@ -1,6 +1,10 @@
 {-
 
-The Full Image of a Functor
+  Given a category C and a function X → C .ob, make a new category
+  whose objects are X and morphisms are given by C.
+
+  This is useful for cleaning up compositional constructions that end
+  up with useless data in the objects like X × 1.
 
 -}
 {-# OPTIONS --safe #-}

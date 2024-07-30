@@ -16,18 +16,22 @@ open import Cubical.Categories.Bifunctor.Redundant
 
 private
   variable
-    ℓ ℓ' ℓS : Level
+    ℓ ℓ' ℓA ℓB : Level
 
-module _ {C : Category ℓ ℓ'} {ℓS : Level} where
+module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
   private
-    𝓟 = PresheafCategory C ℓS
-  PshProd : Bifunctor 𝓟 𝓟 𝓟
+    𝓟 = PresheafCategory C ℓA
+    𝓠 = PresheafCategory C ℓB
+    ℓC = ℓ-max ℓA ℓB
+    𝓡 = PresheafCategory C ℓC
+
+  PshProd : Bifunctor 𝓟 𝓠 𝓡
   PshProd = mkBifunctorPar B where
     open BifunctorPar
     open Functor
     open NatTrans
     open Category
-    Bob : 𝓟 .ob → 𝓟 .ob → 𝓟 .ob
+    Bob : 𝓟 .ob → 𝓠 .ob → 𝓡 .ob
     Bob P Q .F-ob c =  ⟨ P ⟅ c ⟆ ⟩ × ⟨ Q ⟅ c ⟆ ⟩ ,
       isSet× (str (P ⟅ c ⟆)) ((str (Q ⟅ c ⟆)))
     Bob P Q .F-hom f (p , q) = (P .F-hom f p) , (Q .F-hom f q)
@@ -41,13 +45,13 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
     Bhom× :
       ∀ {P P' Q Q'} →
       𝓟 [ P , P' ] →
-      𝓟 [ Q , Q' ] →
-      𝓟 [ Bob P Q , Bob P' Q' ]
+      𝓠 [ Q , Q' ] →
+      𝓡 [ Bob P Q , Bob P' Q' ]
     Bhom× α β .N-ob c (p , q) = α .N-ob c p , β .N-ob c q
     Bhom× α β .N-hom f = funExt λ (p , q) →
       ΣPathP (funExt⁻ (α .N-hom f) _ , funExt⁻ (β .N-hom f) _)
 
-    B : BifunctorPar 𝓟 𝓟 𝓟
+    B : BifunctorPar 𝓟 𝓠 𝓡
     B .Bif-ob = Bob
     B .Bif-hom× = Bhom×
     B .Bif-×-id =
@@ -61,7 +65,7 @@ module _ {C : Category ℓ ℓ'} {ℓS : Level} where
     open NatTrans
     -- Test to make sure we get the right definitional
     -- behavior for Bif-homL, Bif-homR
-    module _ (P P' Q Q' : 𝓟 .ob) (α : 𝓟 [ P , P' ]) (β : 𝓟 [ Q , Q' ]) c where
+    module _ (P P' : 𝓟 .ob)(Q Q' : 𝓠 .ob) (α : 𝓟 [ P , P' ]) (β : 𝓠 [ Q , Q' ]) c where
       _ : PshProd .Bif-homL α Q .N-ob c ≡ λ (p , q) → α .N-ob c p , q
       _ = refl
 

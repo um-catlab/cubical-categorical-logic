@@ -116,33 +116,31 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
         funExt λ x → funExt λ Zx →
           makeNatTransPath (
             funExt λ y → funExt λ {(y→x , By) →
-            (liftExt ((λ i → (sym prf) i .N-ob y (Z .F-hom (y→x .lower) Zx , By)))
-            ∙ refl
+            (
+              {- normalize the goal.. 
+
+                  Z→A^B .N-ob y (Z .F-hom (y→x .lower) Zx) .N-ob y
+                  (lift (C .id) , By) .lower
+                  ≡
+                  lower
+                  (Z→A^B .N-ob y (Z .F-hom (y→x .lower) Zx) .N-ob y
+                  (lift (C .id) , By))
+
+                  the hole can be filled with refl.. but type checking runs out of memory..
+                  Likely we have been too cavalier with lossy unification and need to fill in some implicits..
+                  but type checking performance is too bad for me to turn off lossy unification..
+              -}
+              liftExt (cong (λ h → h .N-ob y (Z .F-hom (y→x .lower) Zx , By)) (sym prf) ∙ {!   !} )
+              --cong lower ?)
+              -- this should type check.. but Agda runs out of memory
+              --liftExt ((λ i → (sym prf) i .N-ob y (Z .F-hom (y→x .lower) Zx , By)))
             ∙
             cong (λ h → h .N-ob y (lift (C .id) , By))
                 (funExt⁻ (Z→A^B .N-hom (y→x .lower)) Zx )) ∙
 
             cong (λ h → Z→A^B .N-ob x Zx .N-ob y h)
                 (≡-×  (cong lift (C .⋆IdL _)) refl)}))
-  {-
-  action 𝓟
-(Cubical.Categories.Adjoint.2Var.RightAdjointLProf
- (Cubical.Categories.Limits.BinProduct.More.Notation.×Bif 𝓟
-  (×𝓟 C ℓp))
- ⟅ A , B ⟆)
-Z→A^B (eval A B)
 
-    λ Z→A^B prf →
-      makeNatTransPath (
-        funExt λ x → funExt λ Zx →
-          makeNatTransPath (
-            funExt λ y → funExt λ {(y→x , By) →
-              (λ i → (sym prf) i .N-ob y (Z .F-hom (y→x .lower) Zx , By))
-              ∙ cong (λ h → h .N-ob y (lift (C .id) , By))
-                (funExt⁻ (Z→A^B .N-hom (y→x .lower)) Zx )
-              ∙ cong (λ h → Z→A^B .N-ob x Zx .N-ob y h)
-                (≡-×  (cong lift (C .⋆IdL _)) refl)}))
--}
   𝓟-CCC : CartesianClosedCategory _ _
   𝓟-CCC = 𝓟 , ⊤𝓟 _ _ , (×𝓟 _ _ , ⇒𝓟 )
 

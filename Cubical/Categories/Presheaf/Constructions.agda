@@ -22,8 +22,7 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
   private
     𝓟 = PresheafCategory C ℓA
     𝓠 = PresheafCategory C ℓB
-    ℓC = ℓ-max ℓA ℓB
-    𝓡 = PresheafCategory C ℓC
+    𝓡 = PresheafCategory C (ℓ-max ℓA ℓB)
 
   PshProd : Bifunctor 𝓟 𝓠 𝓡
   PshProd = mkBifunctorPar B where
@@ -65,7 +64,9 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
     open NatTrans
     -- Test to make sure we get the right definitional
     -- behavior for Bif-homL, Bif-homR
-    module _ (P P' : 𝓟 .ob)(Q Q' : 𝓠 .ob) (α : 𝓟 [ P , P' ]) (β : 𝓠 [ Q , Q' ]) c where
+    module _ (P P' : 𝓟 .ob)(Q Q' : 𝓠 .ob)
+             (α : 𝓟 [ P , P' ]) (β : 𝓠 [ Q , Q' ]) c where
+
       _ : PshProd .Bif-homL α Q .N-ob c ≡ λ (p , q) → α .N-ob c p , q
       _ = refl
 

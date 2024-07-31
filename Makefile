@@ -9,10 +9,10 @@ AGDA_FILES = $(shell $(FIND_AGDA_FILES))
 AGDAI_FILES = $(AGDA_FILES:.agda=.agdai)
 
 .PHONY: all
-all: test check-line-lengths
+all: test check-whitespace check-line-lengths
 
 .PHONY: test
-test: Everything.agda check-whitespace
+test: Everything.agda
 	$(AGDA) $<
 
 .PHONY: test-and-report

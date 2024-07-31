@@ -86,6 +86,63 @@ jobs:
     - name: Check line lengths
       run: 'make check-line-lengths'
 
+  check-whitespace:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install cabal
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ env.GHC_VERSION }}
+          cabal-version: ${{ env.CABAL_VERSION }}
+          cabal-update: true
+
+      # This caching step allows us to save a lot of building time by only
+      # rebuilding Agda, and re-checking unchanged library files if
+      # absolutely necessary i.e. if we change either the version of Agda,
+      # ghc, or cabal that we want to use for the build.
+      - name: Restore external dependencies cache
+        uses: actions/cache/restore@v3
+        id: cache-external-restore
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
+
+      ########################################################################
+      ## INSTALLATION STEPS
+      ########################################################################
+      - name: Download and install fix-whitespace
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        run: |
+          cd ~
+          git clone https://github.com/agda/fix-whitespace --depth=1
+          cd fix-whitespace
+          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
+          cd ..
+
+      - name: Cache External Dependencies
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-external-save
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ steps.cache-external-restore.outputs.cache-primary-key }}
+
+      ########################################################################
+      ## CHECKOUT
+      ########################################################################
+
+      # By default github actions do not pull the repo
+      - name: Checkout cubical-categorical-logic
+        uses: actions/checkout@v3
+
+      ########################################################################
+      ## TESTING
+      ########################################################################
+
+      - name: Test whitespace
+        run: |
+          ~/.cabal/bin/fix-whitespace --check
+
   compile-agda:
     runs-on: ubuntu-latest
     steps:
@@ -145,15 +202,6 @@ jobs:
           echo "$AGDA_STDLIB_DIR/standard-library.agda-lib" >> ~/.agda/libraries
           echo "$GITHUB_WORKSPACE/cubical-categorical-logic.agda-lib" >> ~/.agda/libraries
 
-      - name: Download and install fix-whitespace
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        run: |
-          cd ~
-          git clone https://github.com/agda/fix-whitespace --depth=1
-          cd fix-whitespace
-          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
-          cd ..
-
       - name: Cache External Dependencies
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
@@ -189,4 +237,3 @@ jobs:
         run: |
           make test \
             AGDA='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace'

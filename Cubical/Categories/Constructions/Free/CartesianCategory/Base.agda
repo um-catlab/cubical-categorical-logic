@@ -186,7 +186,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         lt = LiftedTerminalReindex vt
         lbp : LiftedBinProducts (reindex Dᴰ F)
             (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
-        lbp = LiftedBinProdsReindex
+        lbp = LiftedBinProductsReindex
           (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
           lift-π₁₂ ∧
         CCᴰ : CartesianCategoryᴰ _ ℓDᴰ ℓDᴰ'

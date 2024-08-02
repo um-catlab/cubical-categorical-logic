@@ -1,4 +1,4 @@
-AGDA = agda
+AGDA = agda +RTS -M6G -RTS
 FIX_WHITESPACE = fix-whitespace
 
 # Finds all .agda files in the current directory and subdirectories

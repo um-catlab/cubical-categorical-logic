@@ -113,28 +113,30 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
     module N = M Pᴰ Pᴰ'
     pair = N.pair id∘αᴰ id∘αᴰ'
 
-  PRESHEAFᴰ-isFibration : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
-  PRESHEAFᴰ-isFibration {d = Q} (P , Pᴰ , α) = CartesianOver→CartesianLift
-    (PRESHEAFᴰ C _ _)
-    co
-    where
-    co : CartesianOver (PRESHEAFᴰ C _ _) Pᴰ α
-    co .f*cᴰ' .F-ob (Γ , ϕ) = Pᴰ ⟅ Γ , (α ⟦ Γ ⟧) ϕ ⟆
-    co .f*cᴰ' .F-hom {x = Γ,ϕ} {y = Δ,ψ} (f , p) = Pᴰ ⟪ f ,
-      sym (funExt⁻ (α .N-hom f) (Γ,ϕ .snd)) ∙
-      congS (α ⟦ Δ,ψ .fst ⟧) p ⟫
-    co .f*cᴰ' .F-id {x = Γ , ϕ} = funExt (λ α⟦Γ⟧ϕᴰ →
+  PRESHEAFᴰ-AllCartesianOvers : AllCartesianOvers (PRESHEAFᴰ C ℓS ℓSᴰ)
+  PRESHEAFᴰ-AllCartesianOvers Pᴰ α .f*cᴰ' .F-ob (Γ , ϕ) = Pᴰ ⟅ Γ , (α ⟦ Γ ⟧) ϕ ⟆
+
+  PRESHEAFᴰ-AllCartesianOvers Pᴰ α .f*cᴰ' .F-hom {x = Γ,ϕ} {y = Δ,ψ} (f , p) =
+    Pᴰ ⟪ f ,
+    sym (funExt⁻ (α .N-hom f) (Γ,ϕ .snd)) ∙ congS (α ⟦ Δ,ψ .fst ⟧) p ⟫
+  PRESHEAFᴰ-AllCartesianOvers {c' = P} Pᴰ α .f*cᴰ' .F-id {x = Γ , ϕ} =
+    funExt (λ α⟦Γ⟧ϕᴰ →
       congS (λ x → (Pᴰ ⟪ C .id , x ⟫) α⟦Γ⟧ϕᴰ) ((P ⟅ _ ⟆) .snd _ _ _ _) ∙
       funExt⁻ (Pᴰ .F-id) α⟦Γ⟧ϕᴰ)
-    co .f*cᴰ' .F-seq (f , p) (g , q) =
-      congS (λ x → Pᴰ ⟪ _ , x ⟫) ((P ⟅ _ ⟆) .snd _ _ _ _) ∙
-      Pᴰ .F-seq _ _
-    co .π = natTrans (λ _ → idfun _) (λ _ → refl)
-    co .isCartesian {c'' = R} Rᴰ β βαᴰ = uniqueExists
-      (natTrans (βαᴰ ⟦_⟧) (λ _ → funExt (λ ϕᴰ →
-        funExt⁻ (βαᴰ .N-hom _) ϕᴰ ∙
-        congS (λ x → (Pᴰ ⟪ _ , x ⟫) ((βαᴰ ⟦ _ ⟧) ϕᴰ))
-          ((P ⟅ _ ⟆) .snd _ _ _ _))))
-      (makeNatTransPath refl)
-      (λ _ → isSetNatTrans _ _)
-      (λ _ p → makeNatTransPath (sym (congS N-ob p)))
+  PRESHEAFᴰ-AllCartesianOvers {c' = P} Pᴰ α .f*cᴰ' .F-seq _ _ =
+    congS (λ x → Pᴰ ⟪ _ , x ⟫) ((P ⟅ _ ⟆) .snd _ _ _ _) ∙
+    Pᴰ .F-seq _ _
+  PRESHEAFᴰ-AllCartesianOvers _ _ .π = natTrans (λ _ → idfun _) (λ _ → refl)
+  PRESHEAFᴰ-AllCartesianOvers {c' = P} Pᴰ α .isCartesian {c'' = R} Rᴰ β βαᴰ =
+    uniqueExists
+    (natTrans (βαᴰ ⟦_⟧) (λ _ → funExt (λ ϕᴰ →
+      funExt⁻ (βαᴰ .N-hom _) ϕᴰ ∙
+      congS (λ x → (Pᴰ ⟪ _ , x ⟫) ((βαᴰ ⟦ _ ⟧) ϕᴰ))
+        ((P ⟅ _ ⟆) .snd _ _ _ _))))
+    (makeNatTransPath refl)
+    (λ _ → isSetNatTrans _ _)
+    (λ _ p → makeNatTransPath (sym (congS N-ob p)))
+
+  PRESHEAFᴰ-isFibration : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
+  PRESHEAFᴰ-isFibration _ = CartesianOver→CartesianLift
+    (PRESHEAFᴰ C _ _) (PRESHEAFᴰ-AllCartesianOvers _ _)

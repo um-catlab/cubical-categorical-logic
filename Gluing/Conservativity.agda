@@ -122,7 +122,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
     YOish
     YOish'
 
-  -- see TODO below
+  -- see TODO below below
   S : Section nerve (PRESHEAFᴰ FREE _ _)
   S = elimLocal' (Quiver→×Quiver Q)
     (LiftedTerminalReindex (PRESHEAFᴰ-VerticalTerminals FREE _ _ _))
@@ -143,6 +143,18 @@ module _ (Q : Quiver ℓQ ℓQ') where
       λ f → funExt (λ x₁ → ΣPathP (FREE .⋆Assoc _ _ _ , isSet→SquareP (λ _ _ → FREE-1,× .fst .isSetHom) _ _ _ _))
       -- TODO: reduce duplicate code
 
+  ⊆-Full : isFull ⊆
+  ⊆-Full o o' F[f] = ∣ fff .fst , fff .snd ∙ FREE-1,× .fst .⋆IdL _ ∣₁
+    where
+    fff : ((S .F-obᴰ (⊆ ⟅ o' ⟆) ∘F
+            (∫ᴾ⇒ FREE _ (ℓ-max ℓQ ℓQ') (nerve ⟪ F[f] ⟫) ^opF))
+           ⟅ o , FREE-1,× .fst .id ⟆) .fst
+    fff = S .F-homᴰ F[f] .N-ob (o , FREE-1,× .fst .id) (FREE .id , refl)
+
+  ⊆-FullyFaithful : isFullyFaithful ⊆
+  ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful
+
+
   ---- TODO: this elim stuff doesn't quite have the right "nice" interface
   ---- Reindex/Properties needs fixing
   ---- Also the names don't always match
@@ -162,9 +174,3 @@ module _ (Q : Quiver ℓQ ℓQ') where
   --  module 𝓟FREEᴰ = Categoryᴰ (PRESHEAFᴰ FREE _ _)
   --  HOM : (e : Q .snd .QuiverOver.mor) → 𝓟FREEᴰ.Hom[ YOish'' ⟪ ↑ₑ e ⟫ ][ OB (Q .snd .QuiverOver.dom e) , OB (Q .snd .QuiverOver.cod e) ]
   --  HOM e = {!!} --natTrans (λ  _ x → x ⋆⟨ FREE ⟩ ↑ e) λ f → funExt (λ x₁ → FREE .⋆Assoc _ _ _)
-
-  ⊆-Full : isFull ⊆
-  ⊆-Full o o' F[f] = ∣ S .F-homᴰ F[f] .N-ob (o , FREE-1,× .fst .id) (FREE .id , refl) .fst , {!!} ∣₁
-
-  ⊆-FullyFaithful : isFullyFaithful ⊆
-  ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

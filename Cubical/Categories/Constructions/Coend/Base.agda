@@ -3,7 +3,7 @@
 -- https://1lab.dev/Cat.Diagram.Coend.Sets.html
 
 module Cubical.Categories.Constructions.Coend.Base where
-    open import Cubical.Categories.Bifunctor.Base
+    open import Cubical.Categories.Bifunctor.Redundant
     open import Cubical.Categories.Category
     open import Cubical.Categories.Functor
     open import Cubical.Categories.Instances.Sets
@@ -36,7 +36,7 @@ module Cubical.Categories.Constructions.Coend.Base where
                     F₀(c,c)---ψ(c)-----------> nadir
                 -}
                 extranatural : {c c' : C.ob}(f : C [ c , c' ]) →
-                    (F ⟪ C.id , f ⟫lr D.⋆  ψ c') ≡ ( F ⟪ f ,  C.id ⟫lr D.⋆ ψ c)
+                    (F ⟪ C.id , f ⟫× D.⋆  ψ c') ≡ ( F ⟪ f ,  C.id ⟫× D.⋆ ψ c)
 
         -- TODO : Can probably define a Presheaf structure for Cowedge and then
         -- this should be isomorphic to a universal element of that presheaf.
@@ -67,13 +67,13 @@ module Cubical.Categories.Constructions.Coend.Base where
                    Σ[ Y ∈ ob C ]
                    Σ[ f ∈ (C)[ Y , X ] ] fst( F ⟅ X , Y ⟆b )
                 →  Σ[ X ∈ ob C ] fst ( F ⟅ X , X ⟆b)
-            lmap (X , Y , f , Fxy ) = X , ( F ⟪ id C {X} , f ⟫lr ) Fxy
+            lmap (X , Y , f , Fxy ) = X , ( F ⟪ id C {X} , f ⟫× ) Fxy
 
             rmap : Σ[ X ∈ ob C ]
                    Σ[ Y ∈ ob C ]
                    Σ[ f ∈ (C)[ Y , X ] ] fst( F ⟅ X , Y ⟆b )
                 →  Σ[ X ∈ ob C ] fst ( F ⟅ X , X ⟆b)
-            rmap (X , Y , f , Fxy ) = Y , ( F ⟪ f , id C {Y}  ⟫lr ) Fxy
+            rmap (X , Y , f , Fxy ) = Y , ( F ⟪ f , id C {Y}  ⟫× ) Fxy
 
             {-
                 for morphism f : Y ⇒ X in category C,

@@ -209,11 +209,12 @@ module _ (BaseTy : Type ℓ) (isSetBaseTy : isSet BaseTy) where
 
           ⟦ idₑ ⟧subst = CTXᴰ.idᴰ
           ⟦ δ ⋆ₑ γ ⟧subst = ⟦ δ ⟧subst CTXᴰ.⋆ᴰ ⟦ γ ⟧subst
-          ⟦ ⋆IdLₑ i ⟧subst = {!!}
-          ⟦ ⋆IdRₑ i ⟧subst = {!!}
-          ⟦ ⋆Assocₑ i ⟧subst = {!!}
-          ⟦ !ₑ ⟧subst = {!!}
-          ⟦ 1ηₑ i ⟧subst = {!!}
+          ⟦ ⋆IdLₑ {γ = γ} i ⟧subst = CTXᴰ.⋆IdLᴰ ⟦ γ ⟧subst i
+          ⟦ ⋆IdRₑ  {γ = γ} i ⟧subst = CTXᴰ.⋆IdRᴰ ⟦ γ ⟧subst i
+          ⟦ ⋆Assocₑ {γ = γ}{δ = δ}{θ = θ} i ⟧subst =
+            CTXᴰ.⋆Assocᴰ ⟦ γ ⟧subst ⟦ δ ⟧subst ⟦ θ ⟧subst i
+          ⟦ !ₑ ⟧subst = terminalᴰ .universalᴰ .equiv-proof _ .fst .fst
+          ⟦ 1ηₑ i ⟧subst = {!terminalᴰ .universalᴰ .equiv-proof _ .snd!}
           ⟦ γ ,ₑ M ⟧subst = comprehensionᴰ _ _ .universalᴰ .equiv-proof ({!!} , {!!}) .fst .fst
           ⟦ π₁ₑ ⟧subst = comprehensionᴰ _ _ .elementᴰ .fst
           ⟦ ×β₁ₑ i ⟧subst = {!!}
@@ -230,4 +231,11 @@ module _ (BaseTy : Type ℓ) (isSetBaseTy : isSet BaseTy) where
 
 
           iCTX : GlobalSection CTXᴰ
-          iCTX = {!!}
+          iCTX .Section.F-obᴰ = ⟦_⟧ctx
+          iCTX .Section.F-homᴰ = ⟦_⟧subst
+          iCTX .Section.F-idᴰ = refl
+          iCTX .Section.F-seqᴰ _ _ = refl
+
+          iTm : ∀ A → PshSection CTXᴰ (TMᴰ ⟦ A ⟧ty) iCTX
+          iTm A .PshSection.F-hom = ⟦_⟧tm
+          iTm A .PshSection.F-nat _ _ = refl

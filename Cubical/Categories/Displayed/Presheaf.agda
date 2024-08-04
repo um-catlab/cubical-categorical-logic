@@ -15,6 +15,7 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 
@@ -25,6 +26,7 @@ private
 open Category
 open Functor
 open Functorᴰ
+open Section
 
 -- equivalent to the data of a presheaf Pᴰ over ∫ D and a natural transformation
 -- Pᴰ → P ∘ Fst
@@ -49,3 +51,15 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
       universalᴰ : ∀ {x xᴰ}{f : C [ x , vertex ]}
                  → isEquiv λ (fᴰ : Hom[ f ][ xᴰ , vertexᴰ ]) →
                      Pᴰ .F-homᴰ fᴰ _ elementᴰ
+
+-- Abstract nonsense formulation of this?
+module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
+         {P : Presheaf C ℓP}
+         (Pᴰ : Presheafᴰ D P ℓP')
+         (F : GlobalSection D)
+         where
+  record PshSection : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓP ℓP')) where
+    field
+      F-hom : ∀ {x} (p : ⟨ P ⟅ x ⟆ ⟩) → ⟨ Pᴰ .F-obᴰ (F .F-obᴰ x) p ⟩
+      F-nat : ∀ {x y} (f : C [ x , y ])(p : ⟨ P ⟅ y ⟆ ⟩)
+        → F-hom ((P ⟪ f ⟫) p) ≡ Pᴰ .F-homᴰ (F .F-homᴰ f) p (F-hom p)

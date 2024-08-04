@@ -15,18 +15,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
-open import Cubical.Data.Nat
-open import Cubical.Data.List hiding ([_])
-open import Cubical.Data.FinSet
-open import Cubical.Data.FinSet.Constructors
-open import Cubical.Data.SumFin
-open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Sigma
-open import Cubical.Data.Sum as Sum
-open import Cubical.Data.Unit
-open import Cubical.Data.W.Indexed
-open import Cubical.Functions.FunExtEquiv
 
+open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Terminal.More
@@ -38,6 +28,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Bifunctor.Redundant
 
 open import Cubical.Categories.Displayed.Base
+import Cubical.Categories.Displayed.Reasoning as Reasoning
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -45,25 +36,16 @@ open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Limits.Terminal
 
+open import Syntax.SimpleCategoryWithFamilies as SCWF
 
 variable
-  ℓ ℓ' ℓ'' ℓ''' ℓC ℓC' : Level
+  ℓ ℓ' ℓ'' ℓ''' ℓᴰ ℓᴰ' ℓᴰ'' ℓᴰ''' : Level
 
 open Category
 open Functor
 open Functorᴰ
 open UniversalElement
 open UniversalElementᴰ
-
-FinOrd : ∀ ℓ → Type (ℓ-suc ℓ)
-FinOrd ℓ = TypeWithStr ℓ isFinOrd
-
-isFinOrdUnit* : ∀ {ℓ} → isFinOrd (Unit* {ℓ})
-isFinOrdUnit* .fst = 1
-isFinOrdUnit* .snd .fst = λ _ → fzero
-isFinOrdUnit* .snd .snd .equiv-proof = Sum.elim (λ _ → (tt* , refl) , λ y →
-  ΣPathPProp (λ _ → isSetFin _ _) refl) Empty.elim
-
 
 {-
   Here are some notions of context that we considered
@@ -153,7 +135,7 @@ module _ (BaseTy : Type ℓ) (isSetBaseTy : isSet BaseTy) where
     
     comprehensionSpec : ∀ (Γ : Ctx) (A : BaseTy)
       → Presheaf CTX (ℓ-max ℓ ℓ')
-    comprehensionSpec Γ A = PshProd ⟅ (CTX [-, Γ ]) , TM A ⟆b
+    comprehensionSpec Γ A = ProdWith (TM A) ⟅ Γ ⟆
 
     comprehension : ∀ Γ A → UniversalElement CTX (comprehensionSpec Γ A)
     comprehension Γ A .vertex = Γ ×ₑ A
@@ -166,44 +148,36 @@ module _ (BaseTy : Type ℓ) (isSetBaseTy : isSet BaseTy) where
       ΣPathPProp (λ _ → comprehensionSpec Γ A .F-ob Δ .snd _ _)
         (sym (×ηₑ ∙ cong₂ _,ₑ_ (cong fst commutes) (cong snd commutes)))
 
+    |FreeSCWF| : SimpleCategoryWithFamilies ℓ (ℓ-max ℓ ℓ') ℓ (ℓ-max ℓ ℓ')
+    |FreeSCWF| .fst = CTX
+    |FreeSCWF| .snd .fst = BaseTy
+    |FreeSCWF| .snd .snd .fst = TM
+    |FreeSCWF| .snd .snd .snd .fst = terminalCtx
+    |FreeSCWF| .snd .snd .snd .snd = comprehension
+
     -- Universal property/fundamental lemma of free SCwF:
     -- any displayed SCwF over the syntax, with an interpretation of
     -- the generators extends to a section
-
-    -- we have a notion of "relation over contexts and preservation of relations by substitutions"
-    module _ (CTXᴰ : Categoryᴰ CTX ℓC ℓC')
-             -- a notion of "relation over types"
-             (Tyᴰ : BaseTy → Type ℓ'')
-             -- a notion of "preservation of relations by terms" that has an action of substitution
-             (TMᴰ : ∀ {A} (Aᴰ : Tyᴰ A) → Presheafᴰ CTXᴰ (TM A) ℓ''')
-      where
+    module _ (CTᴰ : SCWFᴰ |FreeSCWF| ℓᴰ ℓᴰ' ℓᴰ'' ℓᴰ''') where
       private
+        CTXᴰ = CTᴰ .fst
         module CTXᴰ = Categoryᴰ CTXᴰ
-      comprehensionSpecᴰ : ∀ {Γ}{A}(Γᴰ : CTXᴰ.ob[ Γ ])(Aᴰ : Tyᴰ A)
-        → Presheafᴰ CTXᴰ (comprehensionSpec Γ A) _
-      comprehensionSpecᴰ Γᴰ Aᴰ = PshProdᴰ (CTXᴰ [-][-, Γᴰ ]) (TMᴰ Aᴰ)
-
-      -- Now that we have appropriate "notions of relation" and "notions of preservation of relation"
-      -- We need to start actually constructing the relations and proving the terms preserve them.
-      module _
-        -- first we need an empty relation over the empty context
-        (terminalᴰ : LiftedTerminal CTXᴰ terminalCtx)
-        -- next we need a context extension relation over context extension
-        (comprehensionᴰ : ∀ {Γ}{A} Γᴰ Aᴰ
-          → UniversalElementᴰ CTXᴰ
-                              (comprehensionSpecᴰ Γᴰ Aᴰ)
-                              (comprehension Γ A))
-        -- and an interpretation of each base type as a relation
-        (⟦_⟧ty : ∀ A → Tyᴰ A)
-        where
-        ⟦_⟧ctx : ∀ Γ → CTXᴰ.ob[ Γ ]
-        ⟦ 1ₑ ⟧ctx = terminalᴰ .vertexᴰ
-        ⟦ Γ ×ₑ A ⟧ctx = comprehensionᴰ ⟦ Γ ⟧ctx ⟦ A ⟧ty .vertexᴰ
+        module R = Reasoning CTXᴰ
+        Tyᴰ = CTᴰ .snd .fst
+        TMᴰ = CTᴰ .snd .snd .fst
+        terminalᴰ = CTᴰ .snd .snd .snd .fst
+        comprehensionᴰ = CTᴰ .snd .snd .snd .snd
 
         Tmᴰ : ∀ {Γ}{A}(M : Tm Γ A)(Γᴰ : CTXᴰ.ob[ Γ ])(Aᴰ : Tyᴰ A) → Type _
         Tmᴰ M Γᴰ Aᴰ = TMᴰ Aᴰ .F-obᴰ Γᴰ M .fst 
+        reindTm : ∀ {Γ A}{M M' : Tm Γ A}{Γᴰ Aᴰ} → M ≡ M' → Tmᴰ M Γᴰ Aᴰ → Tmᴰ M' Γᴰ Aᴰ
+        reindTm = subst λ M → Tmᴰ M _ _
 
-        module _ (⟦_⟧gen : ∀ (f : ⟨ Gen ⟩) → Tmᴰ (iGen f) ⟦ dom f ⟧ctx ⟦ cod f ⟧ty) where
+      module _ (⟦_⟧ty : ∀ A → Tyᴰ A) where
+        ⟦_⟧ctx : ∀ Γ → CTXᴰ.ob[ Γ ]
+        ⟦ 1ₑ ⟧ctx = terminalᴰ .vertexᴰ
+        ⟦ Γ ×ₑ A ⟧ctx = comprehensionᴰ ⟦ Γ ⟧ctx ⟦ A ⟧ty .vertexᴰ
+        module _ (⟦_⟧gen : ∀ f → Tmᴰ (iGen f) ⟦ dom f ⟧ctx ⟦ cod f ⟧ty) where
           ⟦_⟧subst : ∀ (γ : Substitution Δ Γ) → CTXᴰ.Hom[ γ ][ ⟦ Δ ⟧ctx , ⟦ Γ ⟧ctx ]
           ⟦_⟧tm : ∀ (M : Tm Γ A) → Tmᴰ M ⟦ Γ ⟧ctx ⟦ A ⟧ty
 
@@ -214,8 +188,8 @@ module _ (BaseTy : Type ℓ) (isSetBaseTy : isSet BaseTy) where
           ⟦ ⋆Assocₑ {γ = γ}{δ = δ}{θ = θ} i ⟧subst =
             CTXᴰ.⋆Assocᴰ ⟦ γ ⟧subst ⟦ δ ⟧subst ⟦ θ ⟧subst i
           ⟦ !ₑ ⟧subst = terminalᴰ .universalᴰ .equiv-proof _ .fst .fst
-          ⟦ 1ηₑ i ⟧subst = {!terminalᴰ .universalᴰ .equiv-proof _ .snd!}
-          ⟦ γ ,ₑ M ⟧subst = comprehensionᴰ _ _ .universalᴰ .equiv-proof ({!!} , {!!}) .fst .fst
+          ⟦ 1ηₑ i ⟧subst = {!terminalᴰ .universalᴰ .equiv-proof _ .snd _!}
+          ⟦ γ ,ₑ M ⟧subst = comprehensionᴰ _ _ .universalᴰ .equiv-proof (R.reind (sym ×β₁ₑ) ⟦ γ ⟧subst , reindTm (sym ×β₂ₑ) ⟦ M ⟧tm) .fst .fst
           ⟦ π₁ₑ ⟧subst = comprehensionᴰ _ _ .elementᴰ .fst
           ⟦ ×β₁ₑ i ⟧subst = {!!}
           ⟦ ×ηₑ i ⟧subst = {!!}
@@ -223,8 +197,8 @@ module _ (BaseTy : Type ℓ) (isSetBaseTy : isSet BaseTy) where
 
           ⟦ iGen f ⟧tm = ⟦ f ⟧gen
           ⟦ M [ γ ] ⟧tm = TMᴰ _ .F-homᴰ ⟦ γ ⟧subst M ⟦ M ⟧tm 
-          ⟦ SubstId i ⟧tm = {!!}
-          ⟦ SubstAssoc i ⟧tm = {!!}
+          ⟦ SubstId {M = M} i ⟧tm = TMᴰ _ .F-idᴰ i M ⟦ M ⟧tm
+          ⟦ SubstAssoc {M = M}{γ = γ}{δ = δ} i ⟧tm = TMᴰ _ .F-seqᴰ ⟦ δ ⟧subst ⟦ γ ⟧subst i M ⟦ M ⟧tm
           ⟦ π₂ₑ ⟧tm = comprehensionᴰ _ _ .elementᴰ .snd
           ⟦ ×β₂ₑ i ⟧tm = {!!}
           ⟦ isSetTm M M₁ x y i i₁ ⟧tm = {!!}
@@ -239,3 +213,12 @@ module _ (BaseTy : Type ℓ) (isSetBaseTy : isSet BaseTy) where
           iTm : ∀ A → PshSection CTXᴰ (TMᴰ ⟦ A ⟧ty) iCTX
           iTm A .PshSection.F-hom = ⟦_⟧tm
           iTm A .PshSection.F-nat _ _ = refl
+
+          elim : SCWF.Section |FreeSCWF| CTᴰ
+          elim .fst = iCTX
+          elim .snd .fst = ⟦_⟧ty
+          elim .snd .snd .fst = iTm _
+          elim .snd .snd .snd .fst = refl
+          elim .snd .snd .snd .snd Γ A .fst = refl
+          elim .snd .snd .snd .snd Γ A .snd .fst = refl
+          elim .snd .snd .snd .snd Γ A .snd .snd = refl

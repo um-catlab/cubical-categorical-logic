@@ -62,13 +62,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     𝟙ᴰ = termᴰ .vertexᴰ
 
     !tᴰ : ∀ {c} (d : Cᴰ.ob[ c ]) → Cᴰ.Hom[ !t ][ d , 𝟙ᴰ ]
-    !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+    !tᴰ {c} d = termᴰ .universalᴰ !t tt .fst .fst
 
     𝟙ηᴰ : ∀ {c} {d : Cᴰ.ob[ c ]} {f} (fᴰ : Cᴰ.Hom[ f ][ d , 𝟙ᴰ ])
         → fᴰ Cᴰ.≡[ 𝟙η f ] !tᴰ d
-    𝟙ηᴰ {c} {d} {f} fᴰ = R.≡[]-rectify (toPathP (sym fᴰ-commutes))
-      where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
-            fᴰ-commutes = cong fst (contr!tᴰ .snd (reind Cᴰ (𝟙η _) fᴰ , refl))
+    𝟙ηᴰ {c} {d} {f} fᴰ =
+      symP (congP (λ _ → fst) ((termᴰ .universalᴰ !t tt .snd (fᴰ , refl))))
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object
@@ -92,13 +91,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       1ᴰ = vt .vertexᴰ
 
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) → Cᴰ [ f ][ d' , 1ᴰ ]
-      !tᴰ f d' = invIsEq (vt .universalᴰ) tt
+      !tᴰ f d' = vt .universalᴰ f tt .fst .fst
 
-      !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) →
-        isContr (Cᴰ [ f ][ d' , 1ᴰ ])
-      !tᴰ-unique f d' .fst = !tᴰ f d'
-      !tᴰ-unique f d' .snd fᴰ' =
-        cong (λ p → p .fst) (vt .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))
+      -- is this needed?
+      -- !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) →
+      --   isContr (Cᴰ [ f ][ d' , 1ᴰ ])
+      -- !tᴰ-unique f d' .fst = vt .universalᴰ f tt .fst .fst
+      -- !tᴰ-unique f d' .snd = {!!}
+  --     !tᴰ-unique f d' .fst = !tᴰ f d'
+  --     !tᴰ-unique f d' .snd fᴰ' =
+  --       cong (λ p → p .fst) (vt .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))
 
   VerticalTerminals : Type _
   VerticalTerminals = ∀ c → VerticalTerminalAt c
@@ -107,12 +109,23 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     open Terminal'Notation term
     open UniversalElementᴰ
     open UniversalElement
+    private module R = HomᴰReasoning Cᴰ
 
     -- the following definition cannot be η contracted
     Vertical/𝟙→LiftedTerm : VerticalTerminalAt 𝟙 → LiftedTerminal term
     Vertical/𝟙→LiftedTerm vta .vertexᴰ = vta .vertexᴰ
     Vertical/𝟙→LiftedTerm vta .elementᴰ = vta .elementᴰ
-    Vertical/𝟙→LiftedTerm vta .universalᴰ = vta .universalᴰ
+    Vertical/𝟙→LiftedTerm vta .universalᴰ f yP .fst = vta .universalᴰ f yP .fst
+    Vertical/𝟙→LiftedTerm vta .universalᴰ f yP .snd {fib} fibP = ΣPathPProp
+      (λ a x₁ y₁ i j → tt) -- need to figure out what this filler actually is for others
+      (R.≡[]-rectify (congP (λ _ → fst) (vta .universalᴰ f yP  .snd {y = (fib .fst) , {!fib .snd!}} {!fibP!}))) -- 
+      -- (R.≡[]-rectify (λ i → vta .universalᴰ f yP .snd {y = fib .fst , {!fib .snd!}} fibP i .fst))
+      -- ΣPathP
+      -- ( R.≡[]-rectify (λ i → foo i .fst)
+      -- , {!!}) -- filler
+      -- where
+      --   foo = 
+      -- (R.≡[]-rectify (λ i → vta .universalᴰ f yP .snd (fᴰ , fiberP) i .fst) , {!!})
 
     AllVertical→Vertical/𝟙 : VerticalTerminals → LiftedTerminal term
     AllVertical→Vertical/𝟙 vtas = Vertical/𝟙→LiftedTerm (vtas _)

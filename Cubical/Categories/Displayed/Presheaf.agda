@@ -3,6 +3,7 @@ module Cubical.Categories.Displayed.Presheaf where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.More
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
@@ -12,6 +13,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
@@ -42,17 +44,24 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
   -- equivalent to the data of a universal element of Pᴰ such that the
   -- projection preserves the universality
   record UniversalElementᴰ (ue : UniversalElement C P)
-    : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') ℓP') where
-    open UniversalElement ue
+    : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max ℓP ℓP')) where
+    open UniversalElement
     open Categoryᴰ D
     field
-      vertexᴰ : ob[ vertex ]
-      elementᴰ : ⟨ Pᴰ .F-obᴰ vertexᴰ element ⟩
-      universalᴰ : ∀ {x xᴰ}{f : C [ x , vertex ]}
-                 → isEquiv λ (fᴰ : Hom[ f ][ xᴰ , vertexᴰ ]) →
-                     Pᴰ .F-homᴰ fᴰ _ elementᴰ
+      vertexᴰ : ob[ ue .vertex ]
+      elementᴰ : ⟨ Pᴰ .F-obᴰ vertexᴰ (ue .element) ⟩
+      universalᴰ : ∀ {x xᴰ}(f : C [ x , (ue .vertex) ])
+       → isEquivP {AP = λ f → Hom[ f ][ xᴰ , vertexᴰ ]}
+                  {BP = λ p → ⟨ Pᴰ .F-obᴰ _ p ⟩}
+                  (ue .universal x)
+                  (λ f (fᴰ : Hom[ f ][ xᴰ , vertexᴰ ])
+                  → Pᴰ .F-homᴰ fᴰ (ue .element) elementᴰ)
 
 -- Abstract nonsense formulation of this?
+--
+-- Cᴰ - Pᴰ > Setᴰ
+-- |         |
+-- C  - P  > Set
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP}
          (Pᴰ : Presheafᴰ D P ℓP')

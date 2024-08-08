@@ -3,7 +3,7 @@ PANDOC = pandoc
 FIX_WHITESPACE = fix-whitespace
 
 # Finds all .agda or .lagda.* files in the current directory and subdirectories
-FIND_AGDA_FILES = find . \( -name "*.agda" -o -name "*.lagda.*" \)
+FIND_AGDA_FILES = find . \( -name "*.agda" -o -name "*.lagda.*" \) ! -exec git check-ignore -q '{}' \; -print
 AGDA_FILES = $(shell $(FIND_AGDA_FILES))
 
 # The targets are the .agdai files corresponding to the .agda files
@@ -18,7 +18,8 @@ test: Everything.agda
 
 html: Everything.agda
 	$(AGDA) --html --html-dir='$@' --highlight-occurrences --html-highlight=auto '$<'
-	find '$@' -name '*.md' -exec bash -c "$(PANDOC) -f markdown '{}' -t html -o '$@'/Gluing.Conservativity.html --embed-resources --standalone --css='$@'/Agda.css --include-in-header=<(echo '<script>'; cat '$@'/highlight-hover.js; echo '</script>')" \;
+	# TODO: Gluing.Conservativity.html is hardcoded right now
+	find '$@' -name '*.md' -exec bash -c "$(PANDOC) -f markdown \"\$$1\" -t html -o '$@'/Gluing.Conservativity.html --embed-resources --standalone --css='$@'/Agda.css --include-in-header=<(echo '<script>'; cat '$@'/highlight-hover.js; echo '</script>')" bash '{}' \;
 
 .PHONY: test-and-report
 test-and-report:

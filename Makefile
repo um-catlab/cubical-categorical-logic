@@ -18,7 +18,7 @@ test: Everything.agda
 
 html: Everything.agda
 	$(AGDA) --html --html-dir='$@' --highlight-occurrences --html-highlight=auto '$<'
-	find '$@' -name '*.md' -exec $(PANDOC) -f markdown '{}' -t html -o '$@'/Gluing.Conservativity.html --embed-resources --standalone --css='$@'/Agda.css \;
+	find '$@' -name '*.md' -exec bash -c "$(PANDOC) -f markdown '{}' -t html -o '$@'/Gluing.Conservativity.html --embed-resources --standalone --css='$@'/Agda.css --include-in-header=<(echo '<script>'; cat '$@'/highlight-hover.js; echo '</script>')" \;
 
 .PHONY: test-and-report
 test-and-report:

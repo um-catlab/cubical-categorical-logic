@@ -1,3 +1,8 @@
+---
+title: Conservativity
+---
+
+```agda
 {-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 module Gluing.Conservativity where
@@ -49,13 +54,20 @@ open Section
 open NatTrans
 open Cubical.Categories.Constructions.Elements.Contravariant
 open CartesianOver
+```
 
+and test this markdown??
+
+
+```agda
 Quiver→×Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×Quiver ℓ ℓ'
 Quiver→×Quiver Q .fst = Q .fst
 Quiver→×Quiver Q .snd .ProductQuiver.mor = Q .snd .QuiverOver.mor
 Quiver→×Quiver Q .snd .ProductQuiver.dom = ↑_ ∘S Q .snd .QuiverOver.dom
 Quiver→×Quiver Q .snd .ProductQuiver.cod = ↑_ ∘S Q .snd .QuiverOver.cod
+```
 
+```agda
 module _ (Q : Quiver ℓQ ℓQ') where
   private module Q = QuiverOver (Q .snd)
 
@@ -161,3 +173,4 @@ module _ (Q : Quiver ℓQ ℓQ') where
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
   ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful
+```

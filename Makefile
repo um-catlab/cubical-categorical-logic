@@ -1,8 +1,9 @@
 AGDA = agda +RTS -M6G -RTS
+PANDOC = pandoc
 FIX_WHITESPACE = fix-whitespace
 
-# Finds all .agda files in the current directory and subdirectories
-FIND_AGDA_FILES = find . -name "*.agda"
+# Finds all .agda or .lagda.* files in the current directory and subdirectories
+FIND_AGDA_FILES = find . \( -name "*.agda" -o -name "*.lagda.*" \)
 AGDA_FILES = $(shell $(FIND_AGDA_FILES))
 
 # The targets are the .agdai files corresponding to the .agda files
@@ -14,6 +15,10 @@ all: test check-whitespace check-line-lengths
 .PHONY: test
 test: Everything.agda
 	$(AGDA) $<
+
+html: Everything.agda
+	$(AGDA) --html --html-dir='$@' --highlight-occurrences --html-highlight=auto '$<'
+	find '$@' -name '*.md' -exec $(PANDOC) -f markdown '{}' -t html -o '$@'/Gluing.Conservativity.html --embed-resources --standalone --css='$@'/Agda.css \;
 
 .PHONY: test-and-report
 test-and-report:
@@ -40,7 +45,7 @@ check-line-lengths:
 # PHONY in case agda files are created/deleted
 .PHONY: Everything.agda
 Everything.agda:
-	$(FIND_AGDA_FILES) ! -path './$@' | sed -e 's#/#.#g' -e 's/^\.*//' -e 's/.agda$$//' -e 's/^/import /' | LC_ALL=C sort > $@
+	$(FIND_AGDA_FILES) ! -path './$@' | sed -e 's#/#.#g' -e 's/^\.*//' -e 's/\.agda$$//' -e 's/\.lagda\..*$$//' -e 's/^/import /' | LC_ALL=C sort > $@
 
 .PHONY: clean
 clean:

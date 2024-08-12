@@ -2,19 +2,23 @@
 title: finite products are a conservative extension over the free category, via gluing of displayed categories
 abstract: >
     To demonstate some facilities of this library,
-    we use a logical relations construction to show that the inclusion functor of the free Q-category (free category over a quiver Q)
-    in the free Q-category with finite products (free category with finite products over a quiver Q) is fully faithful.
-    Viewing free categories as syntactic term languages, this states that adding finite product types is a conservative extension of type inhabitation of the base Q-theory.
-
+    we use a logical relations construction to show that the inclusion functor from the free category over a quiver Q,
+    to the free category with finite products over Q, is fully faithful.
+    Viewing free categories as proof-relevant syntactic theories of type inhabitation, this states that
+    the addition of finite product types is a conservative extension of the product-less Q-theory.
+    We normalize (potentially) product-ful Q-terms by lifting them into a normal-forms category displayed over the product-ful Q-theory,
+    where the normal-forms category is a gluing of the syntax with displayed presheaves.
 ---
 
 ---
+
+a.
 
 We start by importing everything we need from
 [the upstream cubical agda standard library](https://github.com/agda/cubical) and
 [this library](https://github.com/maxsnew/cubical-categorical-logic).
 
-(`--lossy-unification` keeps the type checking time sufficiently interactive.)
+(`--lossy-unification` just keeps the type checking time sufficiently interactive.)
 ```agda
 {-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
@@ -56,18 +60,6 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Limits.BinProduct
 ```
-Before doing anything, we declare some implicit universe levels that
-parameterize this example.
-So although there is no motive as of yet, we
-
-`ℓQ` of (the type of) Quiver objects,
-`ℓQ'` of (the type of) Quiver edges,
-`ℓC` of (the type of) Category objects,
-and `ℓC'` of (the type of) Category morphisms.
-```agda
-private
-  variable ℓQ ℓQ' ℓC ℓC' : Level
-```
 We open some frequently used namespaces for convenience.
 ```agda
 open Category
@@ -88,7 +80,7 @@ Quiver→×Quiver Q .snd .ProductQuiver.cod = ↑_ ∘S Q .snd .QuiverOver.cod
 ```
 Everything is relative to a Quiver/Signature TODO
 ```agda
-module _ (Q : Quiver ℓQ ℓQ') where
+module _ {ℓQ ℓQ'} (Q : Quiver ℓQ ℓQ') where
   private module Q = QuiverOver (Q .snd)
 
 ```

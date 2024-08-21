@@ -93,6 +93,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) → Cᴰ [ f ][ d' , 1ᴰ ]
       !tᴰ f d' = vt .universalᴰ f tt .fst .fst
 
+      -- η : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ])
+      --   → (fᴰ : Cᴰ [ f ][ d' , 1ᴰ ]) → fᴰ ≡ (!tᴰ _ _)
+      -- η f d' fᴰ i = {!!} where
+      --   foo = vt .universalᴰ f tt .snd (fᴰ , refl)
       -- is this needed?
       -- !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) →
       --   isContr (Cᴰ [ f ][ d' , 1ᴰ ])
@@ -112,20 +116,20 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     private module R = HomᴰReasoning Cᴰ
 
     -- the following definition cannot be η contracted
-    Vertical/𝟙→LiftedTerm : VerticalTerminalAt 𝟙 → LiftedTerminal term
-    Vertical/𝟙→LiftedTerm vta .vertexᴰ = vta .vertexᴰ
-    Vertical/𝟙→LiftedTerm vta .elementᴰ = vta .elementᴰ
-    Vertical/𝟙→LiftedTerm vta .universalᴰ f yP .fst = vta .universalᴰ f yP .fst
-    Vertical/𝟙→LiftedTerm vta .universalᴰ f yP .snd {fib} fibP = ΣPathPProp
-      (λ a x₁ y₁ i j → tt) -- need to figure out what this filler actually is for others
-      (R.≡[]-rectify (congP (λ _ → fst) (vta .universalᴰ f yP  .snd {y = (fib .fst) , {!fib .snd!}} {!fibP!}))) -- 
-      -- (R.≡[]-rectify (λ i → vta .universalᴰ f yP .snd {y = fib .fst , {!fib .snd!}} fibP i .fst))
-      -- ΣPathP
-      -- ( R.≡[]-rectify (λ i → foo i .fst)
-      -- , {!!}) -- filler
-      -- where
-      --   foo = 
-      -- (R.≡[]-rectify (λ i → vta .universalᴰ f yP .snd (fᴰ , fiberP) i .fst) , {!!})
+    -- Vertical/𝟙→LiftedTerm : VerticalTerminalAt 𝟙 → LiftedTerminal term
+    -- Vertical/𝟙→LiftedTerm vta .vertexᴰ = vta .vertexᴰ
+    -- Vertical/𝟙→LiftedTerm vta .elementᴰ = vta .elementᴰ
+    -- Vertical/𝟙→LiftedTerm vta .universalᴰ f yP .fst = vta .universalᴰ f yP .fst
+    -- Vertical/𝟙→LiftedTerm vta .universalᴰ f yP .snd {fib} fibP = ΣPathPProp
+    --   (λ a x₁ y₁ i j → tt) -- need to figure out what this filler actually is for others
+    --   (R.≡[]-rectify (congP (λ _ → fst) (vta .universalᴰ f yP  .snd {y = (fib .fst) , {!fib .snd!}} {!fibP!}))) -- 
+    --   -- (R.≡[]-rectify (λ i → vta .universalᴰ f yP .snd {y = fib .fst , {!fib .snd!}} fibP i .fst))
+    --   -- ΣPathP
+    --   -- ( R.≡[]-rectify (λ i → foo i .fst)
+    --   -- , {!!}) -- filler
+    --   -- where
+    --   --   foo = 
+    --   -- (R.≡[]-rectify (λ i → vta .universalᴰ f yP .snd (fᴰ , fiberP) i .fst) , {!!})
 
-    AllVertical→Vertical/𝟙 : VerticalTerminals → LiftedTerminal term
-    AllVertical→Vertical/𝟙 vtas = Vertical/𝟙→LiftedTerm (vtas _)
+    -- AllVertical→Vertical/𝟙 : VerticalTerminals → LiftedTerminal term
+    -- AllVertical→Vertical/𝟙 vtas = Vertical/𝟙→LiftedTerm (vtas _)

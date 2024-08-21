@@ -51,6 +51,21 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       isCartesian : ∀ {c'' : C .ob}(cᴰ'' : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
                     (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ cᴰ'' , cᴰ' ])
                   → ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ] ] (gᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ)
+    corec : ∀ {c'' : C .ob}(cᴰ'' : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
+      (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ cᴰ'' , cᴰ' ])
+      → Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ]
+    corec cᴰ'' g gfᴰ = isCartesian cᴰ'' g gfᴰ .fst .fst
+
+    corec-β : ∀ {c'' : C .ob}(cᴰ'' : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
+      (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ cᴰ'' , cᴰ' ])
+      → (corec _ _ gfᴰ Cᴰ.⋆ᴰ π) ≡ gfᴰ
+    corec-β cᴰ'' g gfᴰ = isCartesian cᴰ'' g gfᴰ .fst .snd
+
+    corec-η : ∀ {c'' : C .ob}(cᴰ'' : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
+      (gᴰ : Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ])
+      → gᴰ ≡ corec _ _ (gᴰ Cᴰ.⋆ᴰ π)
+    corec-η cᴰ'' g gᴰ = cong fst (sym (isCartesian cᴰ'' g (gᴰ Cᴰ.⋆ᴰ π) .snd
+      (gᴰ , refl)))
 
   module _ {c c' : C .ob}(c'ᴰ : Cᴰ.ob[ c' ])(f : C [ c , c' ]) where
     -- type of witnesses that fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ] is cartesian,
@@ -79,114 +94,114 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   open UniversalElementᴰ
   open isEquiv
-  module _ {c : C .ob} {c' : C .ob}
-           {f : C [ c , c' ]}{cᴰ' : Cᴰ.ob[ c' ]}
-           (cartOver : CartesianOver cᴰ' f)
-           where
-    open CartesianOver cartOver
-    -- | ALERT: this definition does have to introduce a reind, may
-    -- | likely complicate goals
-    CartesianOver→CartesianLift : CartesianLift (c' , (cᴰ' , f))
-    CartesianOver→CartesianLift .vertexᴰ = f*cᴰ'
-    CartesianOver→CartesianLift .elementᴰ = f , (π , refl)
-    CartesianOver→CartesianLift .universalᴰ {c''} {cᴰ''} {g}
-      .equiv-proof (gf , gfᴰ , gf≡g⋆f') =
-      uniqueExists
-        ⟨gfᴰ⟩
-        (ΣPathP ((sym gf≡g⋆f) , (ΣPathPProp (λ _ → C .isSetHom _ _)
-          (symP (R.≡→≡[] (sym β))))))
-        (λ _ → C/Cᴰ.isSetHomᴰ _ _)
-        λ gᴰ gᴰ-lifts →
-        cong fst (isCL .snd (gᴰ
-                   , sym (fromPathP (symP (cong (λ p → p .snd .fst) gᴰ-lifts)))
-          ∙ R.reind-rectify))
-      where
-        gf≡g⋆f = sym (C .⋆IdL gf) ∙ sym gf≡g⋆f' ∙ cong (comp' C f) (C .⋆IdR g)
-        isCL = isCartesian cᴰ'' g (R.reind gf≡g⋆f gfᴰ)
-        ⟨gfᴰ⟩ : Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ]
-        ⟨gfᴰ⟩ = isCL .fst .fst
-        β : ⟨gfᴰ⟩ Cᴰ.⋆ᴰ π ≡ R.reind gf≡g⋆f gfᴰ
-        β = isCL .fst .snd
+--   module _ {c : C .ob} {c' : C .ob}
+--            {f : C [ c , c' ]}{cᴰ' : Cᴰ.ob[ c' ]}
+--            (cartOver : CartesianOver cᴰ' f)
+--            where
+--     open CartesianOver cartOver
+--     -- | ALERT: this definition does have to introduce a reind, may
+--     -- | likely complicate goals
+--     CartesianOver→CartesianLift : CartesianLift (c' , (cᴰ' , f))
+--     CartesianOver→CartesianLift .vertexᴰ = f*cᴰ'
+--     CartesianOver→CartesianLift .elementᴰ = f , (π , refl)
+--     CartesianOver→CartesianLift .universalᴰ {c''} {cᴰ''} {g}
+--       .equiv-proof (gf , gfᴰ , gf≡g⋆f') =
+--       uniqueExists
+--         ⟨gfᴰ⟩
+--         (ΣPathP ((sym gf≡g⋆f) , (ΣPathPProp (λ _ → C .isSetHom _ _)
+--           (symP (R.≡→≡[] (sym β))))))
+--         (λ _ → C/Cᴰ.isSetHomᴰ _ _)
+--         λ gᴰ gᴰ-lifts →
+--         cong fst (isCL .snd (gᴰ
+--                    , sym (fromPathP (symP (cong (λ p → p .snd .fst) gᴰ-lifts)))
+--           ∙ R.reind-rectify))
+--       where
+--         gf≡g⋆f = sym (C .⋆IdL gf) ∙ sym gf≡g⋆f' ∙ cong (comp' C f) (C .⋆IdR g)
+--         isCL = isCartesian cᴰ'' g (R.reind gf≡g⋆f gfᴰ)
+--         ⟨gfᴰ⟩ : Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ]
+--         ⟨gfᴰ⟩ = isCL .fst .fst
+--         β : ⟨gfᴰ⟩ Cᴰ.⋆ᴰ π ≡ R.reind gf≡g⋆f gfᴰ
+--         β = isCL .fst .snd
 
-  module _ {c : C .ob} {c' : C .ob}
-           {cᴰ' : Cᴰ.ob[ c' ]}{f : C [ c , c' ]}
-           (cartLift : CartesianLift (c' , (cᴰ' , f)))
-           where
-    open CartesianOver
-    module cL = UniversalElementᴰ cartLift
-    private
-      f' : C [ c , c' ]
-      f' = cL.elementᴰ .fst
+--   module _ {c : C .ob} {c' : C .ob}
+--            {cᴰ' : Cᴰ.ob[ c' ]}{f : C [ c , c' ]}
+--            (cartLift : CartesianLift (c' , (cᴰ' , f)))
+--            where
+--     open CartesianOver
+--     module cL = UniversalElementᴰ cartLift
+--     private
+--       f' : C [ c , c' ]
+--       f' = cL.elementᴰ .fst
 
-      f'≡f : f' ≡ f
-      f'≡f = sym (C .⋆IdL _) ∙ sym (cL.elementᴰ .snd .snd) ∙ C .⋆IdL _
+--       f'≡f : f' ≡ f
+--       f'≡f = sym (C .⋆IdL _) ∙ sym (cL.elementᴰ .snd .snd) ∙ C .⋆IdL _
 
-      f'*cᴰ' : Cᴰ.ob[ c ]
-      f'*cᴰ' = cL.vertexᴰ
+--       f'*cᴰ' : Cᴰ.ob[ c ]
+--       f'*cᴰ' = cL.vertexᴰ
 
-      π' : Cᴰ.Hom[ f' ][ f'*cᴰ' , cᴰ' ]
-      π' = cL.elementᴰ .snd .fst
+--       π' : Cᴰ.Hom[ f' ][ f'*cᴰ' , cᴰ' ]
+--       π' = cL.elementᴰ .snd .fst
 
-      the-π : Cᴰ.Hom[ f ][ f'*cᴰ' , cᴰ' ]
-      the-π = R.reind f'≡f π'
+--       the-π : Cᴰ.Hom[ f ][ f'*cᴰ' , cᴰ' ]
+--       the-π = R.reind f'≡f π'
 
-    CartesianLift→CartesianOver : CartesianOver cᴰ' f
-    CartesianLift→CartesianOver .f*cᴰ' = cL.vertexᴰ
-    CartesianLift→CartesianOver .π     = the-π
-    CartesianLift→CartesianOver .isCartesian {c''} cᴰ'' g gfᴰ =
-      uniqueExists
-        ⟨gfᴰ⟩
-        (R.≡[]-rectify (R.≡[]∙ _ _
-          (R.≡[]⋆ refl (sym f'≡f) refl (symP (R.reind-filler f'≡f π')))
-          (λ i → the-CL .fst .snd i .snd .fst)))
-        (λ _ → Cᴰ.isSetHomᴰ _ _)
-        λ gᴰ gᴰ⋆π≡gfᴰ → cong fst (the-CL .snd (gᴰ ,
-          ΣPathP (g⋆f'≡g⋆f , (ΣPathPProp (λ _ → C .isSetHom _ _)
-          (R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
-          ▷ gᴰ⋆π≡gfᴰ)))))
-      where
-        the-CL = cL.universalᴰ .equiv-proof (g ⋆⟨ C ⟩ f , gfᴰ , solveCat! C)
-        ⟨gfᴰ⟩ : Cᴰ.Hom[ g ][ cᴰ'' , cL.vertexᴰ ]
-        ⟨gfᴰ⟩ = the-CL .fst .fst
+--     CartesianLift→CartesianOver : CartesianOver cᴰ' f
+--     CartesianLift→CartesianOver .f*cᴰ' = cL.vertexᴰ
+--     CartesianLift→CartesianOver .π     = the-π
+--     CartesianLift→CartesianOver .isCartesian {c''} cᴰ'' g gfᴰ =
+--       uniqueExists
+--         ⟨gfᴰ⟩
+--         (R.≡[]-rectify (R.≡[]∙ _ _
+--           (R.≡[]⋆ refl (sym f'≡f) refl (symP (R.reind-filler f'≡f π')))
+--           (λ i → the-CL .fst .snd i .snd .fst)))
+--         (λ _ → Cᴰ.isSetHomᴰ _ _)
+--         λ gᴰ gᴰ⋆π≡gfᴰ → cong fst (the-CL .snd (gᴰ ,
+--           ΣPathP (g⋆f'≡g⋆f , (ΣPathPProp (λ _ → C .isSetHom _ _)
+--           (R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
+--           ▷ gᴰ⋆π≡gfᴰ)))))
+--       where
+--         the-CL = cL.universalᴰ .equiv-proof (g ⋆⟨ C ⟩ f , gfᴰ , solveCat! C)
+--         ⟨gfᴰ⟩ : Cᴰ.Hom[ g ][ cᴰ'' , cL.vertexᴰ ]
+--         ⟨gfᴰ⟩ = the-CL .fst .fst
 
-        g⋆f'≡g⋆f : g ⋆⟨ C ⟩ f' ≡ g ⋆⟨ C ⟩ f
-        g⋆f'≡g⋆f = cong fst (the-CL .fst .snd)
+--         g⋆f'≡g⋆f : g ⋆⟨ C ⟩ f' ≡ g ⋆⟨ C ⟩ f
+--         g⋆f'≡g⋆f = cong fst (the-CL .fst .snd)
 
-        gᴰ⋆π'≡gᴰ⋆π : ∀ (gᴰ : Cᴰ.Hom[ g ][ cᴰ'' , f'*cᴰ' ])
-                   → gᴰ Cᴰ.⋆ᴰ π' Cᴰ.≡[ cong (seq' C g) f'≡f ] (gᴰ Cᴰ.⋆ᴰ the-π)
-        gᴰ⋆π'≡gᴰ⋆π gᴰ =
-          R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
-
-module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-  {F : Functor C D}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  where
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-  PreservesCartesianLifts : Functorᴰ F Cᴰ Dᴰ → Type _
-  PreservesCartesianLifts Fᴰ =
-      ∀ {c c' : C .ob} (c'ᴰ : Cᴰ.ob[ c' ]) (f : C [ c , c' ]) →
-      (f*c'ᴰ : Cᴰ.ob[ c ])(fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) →
-        isCartesianOver Cᴰ c'ᴰ f fᴰ →
-        isCartesianOver Dᴰ (Fᴰ .F-obᴰ c'ᴰ) (F ⟪ f ⟫) (Fᴰ .F-homᴰ fᴰ)
-
--- -- package together a fibration and its cleavage, with an explicit base
--- ClovenFibration : (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
--- ClovenFibration C ℓCᴰ ℓCᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ] isFibration Cᴰ
+--         gᴰ⋆π'≡gᴰ⋆π : ∀ (gᴰ : Cᴰ.Hom[ g ][ cᴰ'' , f'*cᴰ' ])
+--                    → gᴰ Cᴰ.⋆ᴰ π' Cᴰ.≡[ cong (seq' C g) f'≡f ] (gᴰ Cᴰ.⋆ᴰ the-π)
+--         gᴰ⋆π'≡gᴰ⋆π gᴰ =
+--           R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
 
 -- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
---   (p : ClovenFibration C ℓCᴰ ℓCᴰ')(q : ClovenFibration D ℓDᴰ ℓDᴰ') where
---   module _ {F : Functor C D} (Fᴰ : Functorᴰ F (p .fst) (q .fst)) where
---     open Category
---     open Functorᴰ
---     private
---       module Cᴰ = Categoryᴰ (p .fst)
+--   {F : Functor C D}
+--   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+--   where
+--   private
+--     module Cᴰ = Categoryᴰ Cᴰ
+--   PreservesCartesianLifts : Functorᴰ F Cᴰ Dᴰ → Type _
+--   PreservesCartesianLifts Fᴰ =
+--       ∀ {c c' : C .ob} (c'ᴰ : Cᴰ.ob[ c' ]) (f : C [ c , c' ]) →
+--       (f*c'ᴰ : Cᴰ.ob[ c ])(fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) →
+--         isCartesianOver Cᴰ c'ᴰ f fᴰ →
+--         isCartesianOver Dᴰ (Fᴰ .F-obᴰ c'ᴰ) (F ⟪ f ⟫) (Fᴰ .F-homᴰ fᴰ)
 
---   record FiberedFunctor
---       : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
---       (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓDᴰ ℓDᴰ'))) where
---     field
---       base : Functor C D
---       over : Functorᴰ base (p .fst) (q .fst)
---       preserves-cartesian : PreservesCartesianLifts (p .snd) (q .snd) over
+-- -- -- package together a fibration and its cleavage, with an explicit base
+-- -- ClovenFibration : (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
+-- -- ClovenFibration C ℓCᴰ ℓCᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ] isFibration Cᴰ
+
+-- -- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+-- --   (p : ClovenFibration C ℓCᴰ ℓCᴰ')(q : ClovenFibration D ℓDᴰ ℓDᴰ') where
+-- --   module _ {F : Functor C D} (Fᴰ : Functorᴰ F (p .fst) (q .fst)) where
+-- --     open Category
+-- --     open Functorᴰ
+-- --     private
+-- --       module Cᴰ = Categoryᴰ (p .fst)
+
+-- --   record FiberedFunctor
+-- --       : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
+-- --       (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓDᴰ ℓDᴰ'))) where
+-- --     field
+-- --       base : Functor C D
+-- --       over : Functorᴰ base (p .fst) (q .fst)
+-- --       preserves-cartesian : PreservesCartesianLifts (p .snd) (q .snd) over

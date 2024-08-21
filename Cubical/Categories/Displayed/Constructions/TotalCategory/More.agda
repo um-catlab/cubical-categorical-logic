@@ -10,8 +10,10 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
+import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
 -- open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Constructions.TotalCategory
@@ -55,6 +57,19 @@ module _ {C : Category ℓC ℓC'}
   Assocᴰ⁻ .F-hom f   = f .fst .fst , f .fst .snd , f .snd
   Assocᴰ⁻ .F-id      = refl
   Assocᴰ⁻ .F-seq _ _ = refl
+
+  private
+    module ∫Dᴰ = Categoryᴰ (∫Cᴰ Cᴰ Dᴰ)
+    module R = HomᴰReasoning (∫Cᴰ Cᴰ Dᴰ)
+  secFstᴰToSection :
+    (F : Functorᴰ Id Cᴰ (∫Cᴰ Cᴰ Dᴰ))
+    → (Fstᴰ Dᴰ ∘Fᴰ F) ≡ reindF' _ Eq.refl Eq.refl 𝟙ᴰ⟨ Cᴰ ⟩
+    → GlobalSection Dᴰ
+  secFstᴰToSection F Fst∘F≡Id .F-obᴰ (x , xᴰ) =
+    subst Dᴰ.ob[_] (λ i → x , (Fst∘F≡Id i .F-obᴰ xᴰ) ) (F .F-obᴰ xᴰ .snd)
+  secFstᴰToSection F Fst∘F≡Id .F-homᴰ = {!!}
+  secFstᴰToSection F Fst∘F≡Id .F-idᴰ = {!!}
+  secFstᴰToSection F Fst∘F≡Id .F-seqᴰ = {!!}
 
   -- Functor into the displayed total category
   module _ {E : Category ℓE ℓE'} (F : Functor E C)

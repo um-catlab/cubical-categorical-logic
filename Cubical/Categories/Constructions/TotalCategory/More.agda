@@ -29,6 +29,24 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   Snd .F-idᴰ      = refl
   Snd .F-seqᴰ _ _ = refl
 
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+  -- nasty
+  secFstToSection :
+    (F : Functor C (∫C Cᴰ))
+    → (Fst {Cᴰ = Cᴰ} ∘F F ≡ Id)
+    → GlobalSection Cᴰ
+  secFstToSection F Fst∘F≡Id .F-obᴰ d =
+    
+    subst Cᴰ.ob[_] (funExt⁻ (cong F-ob Fst∘F≡Id) d) (F .F-ob d .snd)
+  secFstToSection F Fst∘F≡Id .F-homᴰ {d}{d'} f =
+    transport (λ i → Cᴰ.Hom[ Fst∘F≡Id i .F-hom f
+      ][ subst-filler Cᴰ.ob[_] (funExt⁻ (cong F-ob Fst∘F≡Id) d) (F .F-ob d .snd) i
+       , subst-filler Cᴰ.ob[_] (funExt⁻ (cong F-ob Fst∘F≡Id) d') (F .F-ob d' .snd) i ])
+      (F .F-hom f .snd)
+  secFstToSection F Fst∘F≡Id .F-idᴰ = {!!}
+  secFstToSection F Fst∘F≡Id .F-seqᴰ = {!!}
+
   module _ {D : Category ℓD ℓD'}
            (F : Functor D C)
            (Fᴰ : Section F Cᴰ)

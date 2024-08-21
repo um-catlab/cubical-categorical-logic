@@ -31,7 +31,7 @@ RightAdjointAtᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                   {d : D .ob}
                   (R⟅d⟆ : RightAdjointAt' C D F d)
                   (dᴰ : Categoryᴰ.ob[_] Dᴰ d)
-                → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓDᴰ')
+                → Type _
 RightAdjointAtᴰ {Cᴰ = Cᴰ}{Dᴰ = Dᴰ} Fᴰ R⟅d⟆ dᴰ =
   UniversalElementᴰ Cᴰ ((Dᴰ [-][-, dᴰ ]) ∘Fᴰ (Fᴰ ^opFᴰ)) R⟅d⟆
 

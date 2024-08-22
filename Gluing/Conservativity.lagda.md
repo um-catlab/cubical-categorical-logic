@@ -12,9 +12,7 @@ abstract: >
 
 ---
 
-a.
-
-We start by importing everything we need from
+We start by importing modules we need from
 [the upstream cubical agda standard library](https://github.com/agda/cubical) and
 [this library](https://github.com/maxsnew/cubical-categorical-logic).
 
@@ -60,7 +58,7 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Limits.BinProduct
 ```
-We open some frequently used namespaces for convenience.
+And open some frequently used namespaces.
 ```agda
 open Category
 open Functor
@@ -70,7 +68,26 @@ open Categoryᴰ
 open Section
 open CartesianOver
 ```
-A free category with finite products TODO
+Recall from the problem statement that we're working with two theories:
+the free category over a quiver Q,
+and the free category with finite products over Q.
+
+For the free category over Q,
+we think of Q as the signature or language of the theory.
+Q stipulates the atomic types-- note that the free category *only* has atomic types--
+and atomic terms between atomic types.
+
+The restriction that atomic terms are between atomic types poses no problem,
+since the only types are atomic-- owing to that there's no type constructors--,
+but this would be strange for Lawvere theories.
+
+So the signature of a free category with finite products
+should declare the atomic types, and atomic terms between type (expressions).
+
+Recalling the notion of a (multi-sorted) Lawvere theory,
+it seems that free categories with finite products should really be over a ×Quiver,
+
+This helper is simply the observation that a quiver is also trivially a ×quiver.
 ```agda
 Quiver→×Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×Quiver ℓ ℓ'
 Quiver→×Quiver Q .fst = Q .fst
@@ -78,19 +95,21 @@ Quiver→×Quiver Q .snd .ProductQuiver.mor = Q .snd .QuiverOver.mor
 Quiver→×Quiver Q .snd .ProductQuiver.dom = ↑_ ∘S Q .snd .QuiverOver.dom
 Quiver→×Quiver Q .snd .ProductQuiver.cod = ↑_ ∘S Q .snd .QuiverOver.cod
 ```
-Everything is relative to a Quiver/Signature TODO
+Since our problem statement is abstract over the signature Q, we parameterize
+the rest of the proof by an abstract Quiver Q (with arbitrary levels).
 ```agda
 module _ {ℓQ ℓQ'} (Q : Quiver ℓQ ℓQ') where
   private module Q = QuiverOver (Q .snd)
 
 ```
-Q-Category
+As a shorthand, we call the Q-Category FREE.
 ```agda
   FREE : Category _ _
   FREE = FreeCat Q
 
 ```
-Q-(Category with finite products)
+And the Q-(Category with finite products) FREE-1,×.
+Notice the use of Quiver→×Quiver
 ```agda
   FREE-1,× : CartesianCategory _ _
   FREE-1,× = FreeCartesianCategory (Quiver→×Quiver Q)
@@ -105,6 +124,8 @@ the "main culprit"
   ⊆ = FC.rec Q ı
 
 ```
+First, to show faithfulness,
+
 the use of rec to define the functor is just to save work, since no specific
 behavior on non-atoms is required
 
@@ -135,6 +156,8 @@ contrast this with `nerve` later
   ⊆-Faithful = isFaithful-GF→isFaithful-F ⊆ extension comp-Faithful
 
 ```
+next, to show fullness,
+
 same type as `extension` but very different usage, and now we *do* care about
 the definitional behavior on non-atoms (ie F-hom), or else we get stuck in
 ⊆-Full
@@ -185,7 +208,7 @@ the definitional behavior on non-atoms (ie F-hom), or else we get stuck in
         isSet→SquareP (λ _ _ → FREE-1,× .fst .isSetHom) _ _ _ _))
 
 ```
-instantiate gluing argument
+finally we instantiate the gluing argument
 ```agda
   ⊆-Full : isFull ⊆
   ⊆-Full o o' F[f] = ∣ f , p ∙ FREE-1,× .fst .⋆IdL _ ∣₁

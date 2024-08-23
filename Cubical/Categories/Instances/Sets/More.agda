@@ -18,9 +18,6 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Presheaf
 
-open import Cubical.Foundations.Isomorphism.More
-
-
 private
   variable
     ℓ ℓ' : Level
@@ -41,12 +38,3 @@ open Functor
 
 ×Sets : Functor ((SET ℓ) ×C (SET ℓ)) (SET ℓ)
 ×Sets = BifunctorToParFunctor ×SetsBif
-
-module _ {A}{B} (f : CatIso (SET ℓ) A B) a where
-  open isUnivalent
-  univSetβ : transport (cong fst (CatIsoToPath isUnivalentSET f)) a
-             ≡ f .fst a
-  univSetβ = (transportRefl _
-    ∙ transportRefl _
-    ∙ transportRefl _
-    ∙ cong (f .fst) (transportRefl _ ∙ transportRefl _ ))

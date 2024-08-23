@@ -31,25 +31,20 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Sigma.More
 open import Cubical.Data.Unit
 
-open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.More
+open import Cubical.Categories.Functor.ComposeProperty
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
-open import Cubical.Categories.Isomorphism.More
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Comma

@@ -20,7 +20,6 @@ open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Isomorphism.More
-open import Cubical.Categories.Constructions.Elements.More
 
 open Category
 open Functor
@@ -75,54 +74,3 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
     (ue : UniversalElement C P) → UniversalElementOn (ue .vertex)
   UniversalElementToUniversalElementOn ue .fst = ue .element
   UniversalElementToUniversalElementOn ue .snd = ue .universal
-
-module UniversalElementNotation {ℓo}{ℓh}
-       {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
-       (ue : UniversalElement C P)
-       where
-  open UniversalElement ue public
-  open NatTrans
-  open NatIso
-  REPR : Representation C P
-  REPR = universalElementToRepresentation C P ue
-
-  unIntroNT : NatTrans (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
-                       (LiftF {ℓ' = ℓh} ∘F P)
-  unIntroNT = REPR .snd .trans
-
-  introNI : NatIso (LiftF {ℓ' = ℓh} ∘F P) (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
-  introNI = symNatIso (REPR .snd)
-
-  intro : ∀ {c} → ⟨ P ⟅ c ⟆ ⟩ → C [ c , vertex ]
-  intro p = universal _ .equiv-proof p .fst .fst
-
-  β : ∀ {c} → {p : ⟨ P ⟅ c ⟆ ⟩} → (element ∘ᴾ⟨ C , P ⟩ intro p) ≡ p
-  β {p = p} = universal _ .equiv-proof p .fst .snd
-
-  η : ∀ {c} → {f : C [ c , vertex ]} → f ≡ intro (element ∘ᴾ⟨ C , P ⟩ f)
-  η {f = f} = cong fst (sym (universal _ .equiv-proof (element ∘ᴾ⟨ C , P ⟩ f)
-    .snd (_ , refl)))
-
-  weak-η : C .id ≡ intro element
-  weak-η = η ∙ cong intro (∘ᴾId C P _)
-
-  extensionality : ∀ {c} → {f f' : C [ c , vertex ]}
-                 → (element ∘ᴾ⟨ C , P ⟩ f) ≡ (element ∘ᴾ⟨ C , P ⟩ f')
-                 → f ≡ f'
-  extensionality = isoFunInjective (equivToIso (_ , (universal _))) _ _
-
-  intro-natural : ∀ {c' c} → {p : ⟨ P ⟅ c ⟆ ⟩}{f : C [ c' , c ]}
-                → intro p ∘⟨ C ⟩ f ≡ intro (p ∘ᴾ⟨ C , P ⟩ f)
-  intro-natural = extensionality
-    ( (∘ᴾAssoc C P _ _ _
-    ∙ cong (action C P _) β)
-    ∙ sym β)
-
-module _
-  {C : Category ℓ ℓ'} (isUnivC : isUnivalent C) (P : Presheaf C ℓS) where
-  open Contravariant
-  isPropUniversalElement : isProp (UniversalElement C P)
-  isPropUniversalElement = isOfHLevelRetractFromIso 1
-    (invIso (TerminalElement≅UniversalElement C P))
-    (isPropTerminal (∫ᴾ_ {C = C} P)
-    (isUnivalentOp (isUnivalent∫ (isUnivalentOp isUnivC) P)))

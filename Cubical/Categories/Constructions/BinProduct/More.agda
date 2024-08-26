@@ -23,13 +23,6 @@ private
 open Category
 open Functor
 
--- Some more functor combinators
-Δ : ∀ (C : Category ℓC ℓC') → Functor C (C ×C C)
-Δ C = Id ,F Id
-
-Sym : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} → Functor (C ×C D) (D ×C C)
-Sym {C = C}{D = D} = Snd C D ,F Fst C D
-
 -- helpful decomposition of morphisms used in several proofs
 -- about product category
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'} where

@@ -27,22 +27,18 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Reasoning
-open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
   hiding (introS; introF)
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
   hiding (introS; introF)
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
   as TotalCatᴰ
-open import Cubical.Categories.Displayed.Constructions.TotalCategory.More
-  as TotalCatᴰ hiding (introS)
-
+  hiding (introS)
 private
   variable
     ℓB ℓB' ℓBᴰ ℓBᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
@@ -75,7 +71,7 @@ module _
     {E : Category ℓE ℓE'}
     (F : Functor E C)
     (Fᴰ : Section F (weaken C D))
-    (Gᴰ : Section (TotalCat.intro' F Fᴰ) Cᴰ)
+    (Gᴰ : Section (TotalCat.intro F Fᴰ) Cᴰ)
     where
 
     open Functorᴰ

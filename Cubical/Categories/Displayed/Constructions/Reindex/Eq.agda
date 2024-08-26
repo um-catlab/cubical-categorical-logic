@@ -17,11 +17,10 @@ open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  hiding (introF; introS)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
-open import Cubical.Categories.Displayed.Properties as Reindex hiding (reindex)
-import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
+import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning

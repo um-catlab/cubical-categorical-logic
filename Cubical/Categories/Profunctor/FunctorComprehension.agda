@@ -45,17 +45,14 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
   as TotalCatᴰ
 open import Cubical.Categories.Yoneda

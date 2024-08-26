@@ -25,16 +25,12 @@ open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
   as TotalCatᴰ hiding (intro)
-open import Cubical.Categories.Displayed.Constructions.TotalCategory.More
-  as TotalCatᴰ
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Displayed.Constructions.Graph

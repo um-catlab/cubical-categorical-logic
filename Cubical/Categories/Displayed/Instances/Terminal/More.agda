@@ -12,8 +12,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Constructions.PropertyOver as PO
+open import Cubical.Categories.Displayed.Fibration.Base
 
 private
   variable
@@ -23,34 +22,23 @@ open Category
 open Categoryᴰ
 open Section
 open Functorᴰ
+open CartesianOver
 
 module _ {C : Category ℓC ℓC'} where
-  hasContrHomsUnitᴰ : hasContrHoms (Unitᴰ C)
-  hasContrHomsUnitᴰ = hasContrHomsPropertyOver C _
+  isFibrationUnitᴰ : isFibration (Unitᴰ C)
+  isFibrationUnitᴰ _ = CartesianOver→CartesianLift (Unitᴰ C) ue
+    where
+    ue : CartesianOver (Unitᴰ C) _ _
+    ue .f*cᴰ' = tt
+    ue .π = tt
+    ue .isCartesian _ _ _ =
+      uniqueExists _ (isPropUnit _ _) (λ _ → isSetUnit _ _)
+      λ _ _ → isPropUnit _ _
 
-  ttS : GlobalSection (Unitᴰ C)
-  ttS .F-obᴰ  = λ _ → tt
-  ttS .F-homᴰ = λ _ → tt
-  ttS .F-idᴰ  = refl
-  ttS .F-seqᴰ _ _ = refl
-
-module _ {C : Category ℓC ℓC'}
-         {D : Category ℓD ℓD'}
-         {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-         {F : Functor C D}
-         where
-  recᴰ : (s : Section F Dᴰ) → Functorᴰ F (Unitᴰ C) Dᴰ
-  recᴰ s .F-obᴰ {x} _      = s .F-obᴰ x
-  recᴰ s .F-homᴰ {f = f} _ = s .F-homᴰ f
-  recᴰ s .F-idᴰ      = s .F-idᴰ
-  recᴰ s .F-seqᴰ _ _ = s .F-seqᴰ _ _
-
-module _ {C : Category ℓC ℓC'}
-         {D : Category ℓD ℓD'}
-         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-         (F : Functor C D) where
-  introF : Functorᴰ F Cᴰ (Unitᴰ D)
-  introF .F-obᴰ = λ _ → tt
-  introF .F-homᴰ = λ _ → tt
-  introF .F-idᴰ = refl
-  introF .F-seqᴰ _ _ = refl
+  module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+    preservesCartesianLiftsIntro :
+      PreservesCartesianLifts {Cᴰ = Cᴰ} (Terminal.introF Id)
+    preservesCartesianLiftsIntro _ _ _ _ _ _ _ _ = uniqueExists _
+      refl
+      (λ _ → isSetUnit _ _)
+      λ _ _ → refl

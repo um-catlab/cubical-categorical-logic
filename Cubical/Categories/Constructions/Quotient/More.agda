@@ -15,7 +15,6 @@ open import Cubical.HITs.SetQuotients as SetQuotients
 
 open import Cubical.Categories.Constructions.Quotient
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
 

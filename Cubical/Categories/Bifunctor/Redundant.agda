@@ -22,7 +22,7 @@ open import Cubical.Foundations.Prelude hiding (Path)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd)
+open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd; Sym)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 import Cubical.Categories.Bifunctor as Separate

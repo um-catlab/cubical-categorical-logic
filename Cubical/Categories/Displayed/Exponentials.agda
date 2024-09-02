@@ -53,13 +53,99 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         module _ (f : C [ c' , c ]) where
           module ∧ = VerticalBinProductsAtNotation (vps (c'ᴰ , isFib cᴰ f .f*cᴰ'))
         -- TODO: draw this out. I think there's too many reinds
-        gal : (f : C [ c' , c ])(fᴰ : Cᴰ.Hom[ f ][ ∧.vert f , cᴰ' ]) → PathP (λ i → Cᴰ.Hom[ C .⋆IdL f i ][ ∧.vert (C .⋆IdL f i) , cᴰ' ])
+        module _ (f : C [ c' , c ]) where
+          1⋆f = C .id ⋆⟨ C ⟩ f
+          hmmm : ∧.vert 1⋆f ≡ ∧.vert f
+          hmmm = cong ∧.vert (C .⋆IdL _)
+          isuckatthis : CatIsoᴰ Cᴰ idCatIso (∧.vert 1⋆f) (∧.vert f)
+          isuckatthis = subst (CatIsoᴰ Cᴰ idCatIso (∧.vert 1⋆f)) hmmm (idᴰCatIsoᴰ Cᴰ)
+          breh : Cᴰ.Hom[ 1⋆f ][ ∧.vert 1⋆f , cᴰ' ] ≡ Cᴰ.Hom[ f ][ ∧.vert f , cᴰ' ]
+          breh = congS (λ x → Cᴰ.Hom[ x ][ ∧.vert x , cᴰ' ]) (C .⋆IdL _)
+        bruh : (f : C [ c' , c ]) →
+          PathP (λ i → Cᴰ.Hom[ C .id ][ congS {y = f} ∧.vert (C .⋆IdL _) i , ∧.vert f ])
           (∧.⟨_,_⟩' f
-            (∧.π₁ _)
+            (∧.π₁ (C .id ⋆⟨ C ⟩ f))
+            (transport (congS (λ x → Cᴰ.Hom[ C .id ][ ∧.vert (C .id ⋆⟨ C ⟩ f) , isFib cᴰ x .f*cᴰ' ]) (C .⋆IdL f)) (∧.π₂ (C .id ⋆⟨ C ⟩ f))))
+          (Cᴰ.idᴰ {p = ∧.vert f})
+        bruh f i = {!∧.η (C .⋆IdL f i) (Cᴰ.idᴰ) i!}
+        fooo : (f : C [ c' , c ]) → ∧.vert (C .id ⋆⟨ C ⟩ f) ≡ ∧.vert f
+        fooo f = congS ∧.vert (C .⋆IdL _)
+        gal : (f : C [ c' , c ])(fᴰ : Cᴰ.Hom[ f ][ ∧.vert f , cᴰ' ]) →
+          PathP (λ i → Cᴰ.Hom[ C .⋆IdL f i ][ ∧.vert (C .⋆IdL f i) , cᴰ' ])
+          (∧.⟨_,_⟩' f
+            (∧.π₁ (seq' C (C .id) f))
             (isFib cᴰ f .isCartesian (∧.vert _) (C .id) (∧.π₂ (C .id ⋆⟨ C ⟩ f) Cᴰ.⋆ᴰ reind (C .⋆IdL _) (isFib cᴰ (C .id ⋆⟨ C ⟩ f) .π)) .fst .fst)
           Cᴰ.⋆ᴰ fᴰ)
           fᴰ
         gal f fᴰ = {!!}
+      module _ where
+        Pᴰ' : Presheafᴰ Cᴰ (C [-, c ]) _
+        Pᴰ' .F-obᴰ {x = c'} c'ᴰ f = Cᴰ.Hom[ f ][ ∧.vert c'ᴰ f , cᴰ' ] , Cᴰ.isSetHomᴰ
+        Pᴰ' .F-homᴰ {x = c'} {y = c''} {f = g} {xᴰ = c'ᴰ} {yᴰ = c''ᴰ} gᴰ f fᴰ =
+          ∧.⟨_,_⟩' c'ᴰ f
+            (reind (C .⋆IdL _) (∧.π₁ c''ᴰ (g ⋆⟨ C ⟩ f) Cᴰ.⋆ᴰ gᴰ))
+            (reind (C .⋆IdL _) (∧.π₂ c''ᴰ (g ⋆⟨ C ⟩ f) Cᴰ.⋆ᴰ isFib cᴰ f .isCartesian _ g (isFib cᴰ (g ⋆⟨ C ⟩ f) .π) .fst .fst))
+          Cᴰ.⋆ᴰ fᴰ
+--Goal: PathP
+--      (λ i →
+--         ⟨
+--         Cᴰ .Categoryᴰ.Hom[_][_,_] ((C [-, c ]) .Functor.F-id i f)
+--         (VerticalBinProductsAtNotation.vert
+--          (vps (c'ᴰ , isFib cᴰ ((C [-, c ]) .Functor.F-id z f) .f*cᴰ')))
+--         cᴰ'
+--         , Cᴰ .Categoryᴰ.isSetHomᴰ
+--         ⟩)
+--      (Cᴰ .Categoryᴰ._⋆ᴰ_
+--       (VerticalBinProductsAtNotation.⟨ vps (c'ᴰ , isFib cᴰ f .f*cᴰ') ,
+--        reind (C .⋆IdL (id C))
+--        (Cᴰ .Categoryᴰ._⋆ᴰ_
+--         (VerticalBinProductsAtNotation.π₁
+--          (vps (c'ᴰ , isFib cᴰ (seq' C (id C) f) .f*cᴰ')))
+--         ((Cᴰ ^opᴰ) .Categoryᴰ.idᴰ))
+--        ⟩'
+--        (reind (C .⋆IdL (id C))
+--         (Cᴰ .Categoryᴰ._⋆ᴰ_
+--          (VerticalBinProductsAtNotation.π₂
+--           (vps (c'ᴰ , isFib cᴰ (seq' C (id C) f) .f*cᴰ')))
+--          (isFib cᴰ f .isCartesian (isFib cᴰ (seq' C (id C) f) .f*cᴰ') (id C)
+--           (isFib cᴰ (seq' C (id C) f) .π) .fst .fst))))
+--       fᴰ)
+--      fᴰ
+        Pᴰ' .F-idᴰ {x = c'} {xᴰ = c'ᴰ} = funExt (λ f → funExt (λ fᴰ → goal f fᴰ))
+          where
+          goal : ∀ f fᴰ → PathP
+            (λ i → Cᴰ.Hom[ C .⋆IdL f i ][ ∧.vert c'ᴰ (C .⋆IdL f i) , cᴰ' ])
+            ((VerticalBinProductsAtNotation.⟨ vps (c'ᴰ , isFib cᴰ f .f*cᴰ') ,
+              reind (C .⋆IdL ((C ^op) .id))
+              (Cᴰ .Categoryᴰ._⋆ᴰ_
+               (VerticalBinProductsAtNotation.π₁
+                (vps (c'ᴰ , isFib cᴰ (seq' C ((C ^op) .id) f) .f*cᴰ')))
+               ((Cᴰ ^opᴰ) .Categoryᴰ.idᴰ))
+              ⟩'
+              (reind (C .⋆IdL ((C ^op) .id))
+               (Cᴰ .Categoryᴰ._⋆ᴰ_
+                (VerticalBinProductsAtNotation.π₂
+                 (vps (c'ᴰ , isFib cᴰ (seq' C ((C ^op) .id) f) .f*cᴰ')))
+                (isFib cᴰ f .isCartesian (isFib cᴰ (seq' C ((C ^op) .id) f) .f*cᴰ')
+                 ((C ^op) .id) (isFib cᴰ (seq' C ((C ^op) .id) f) .π) .fst .fst)))) Cᴰ.⋆ᴰ
+             fᴰ)
+            fᴰ
+          goal f fᴰ i = {!!}
+            where
+            one : PathP
+                   (λ j → Cᴰ.Hom[ C .⋆IdL f j ][ ∧.vert c'ᴰ f , cᴰ' ])
+                   (Cᴰ.idᴰ Cᴰ.⋆ᴰ fᴰ)
+                   fᴰ
+            one = Cᴰ.⋆IdLᴰ fᴰ
+            half : PathP {!!}
+              (∧.⟨_,_⟩' c'ᴰ f (∧.π₁ c'ᴰ (C .id ⋆⟨ C ⟩ f)) {!!})
+              Cᴰ.idᴰ
+            half = {!!}
+            two : PathP (λ j → Cᴰ.Hom[ C .⋆IdL f j ][ ∧.vert c'ᴰ (C .⋆IdL f j) , cᴰ' ])
+              {!!}
+              fᴰ
+            two = {!!}
+        Pᴰ' .F-seqᴰ = {!!}
       Pᴰ : Presheafᴰ Cᴰ (C [-, c ]) _
       Pᴰ .F-obᴰ {x = c'} c'ᴰ f = Cᴰ.Hom[ f ][ ∧.vert c'ᴰ f , cᴰ' ] , Cᴰ.isSetHomᴰ
       Pᴰ .F-homᴰ {x = c'} {y = c''} {f = g} {xᴰ = c'ᴰ} {yᴰ = c''ᴰ} gᴰ f fᴰ =

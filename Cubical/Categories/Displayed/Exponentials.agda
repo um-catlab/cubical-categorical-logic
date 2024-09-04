@@ -30,47 +30,60 @@ private
 open Category
 open UniversalElement
 open Functorᴰ
+open CartesianOver
+open UniversalElementᴰ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   where
-  open CartesianOver
   open Cubical.Categories.Displayed.Reasoning Cᴰ
-  open UniversalElementᴰ
   private
     module Cᴰ = Categoryᴰ Cᴰ
-    -- TODO: this is already in the library, I just don't want to find it right now
-    module _ (c : C .ob) where
-      idue : UniversalElement C (C [-, c ])
-      idue .vertex = c
-      idue .element = C .id
-      idue .universal c' .equiv-proof f = uniqueExists
-        f (C .⋆IdR _) (λ _ → C .isSetHom _ _) (λ _ p → sym p ∙ C .⋆IdR _)
-  module _ {c' c} (f : C [ c' , c ])(c'ᴰ : Cᴰ.ob[ c' ])(cᴰ : Cᴰ.ob[ c ]) where
-    hybrid : Presheafᴰ Cᴰ (C [-, c' ]) _
-    hybrid .F-obᴰ {x = c''} c''ᴰ g =
+  -- TODO: this is already in the library, I just don't want to find it right now
+  module _ (c : C .ob) where
+    idue : UniversalElement C (C [-, c ])
+    idue .vertex = c
+    idue .element = C .id
+    idue .universal c' .equiv-proof f = uniqueExists
+      f (C .⋆IdR _) (λ _ → C .isSetHom _ _) (λ _ p → sym p ∙ C .⋆IdR _)
+  -- the universal property of `c'ᴰ ∧ f* cᴰ`,
+  -- the vertical binary product of c'ᴰ and the pullback of cᴰ' along f
+  module heterogeneous-pair {c' c}
+    (f : C [ c' , c ])(c'ᴰ : Cᴰ.ob[ c' ])(cᴰ : Cᴰ.ob[ c ]) where
+    spec : Presheafᴰ Cᴰ (C [-, c' ]) _
+    spec .F-obᴰ {x = c''} c''ᴰ g =
       Cᴰ.Hom[ g ][ c''ᴰ , c'ᴰ ] × Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ c''ᴰ , cᴰ ] ,
       isSet× Cᴰ.isSetHomᴰ Cᴰ.isSetHomᴰ
-    hybrid .F-homᴰ {x = c''} {y = c'''} {f = h} {xᴰ = c''ᴰ} {yᴰ = c'''ᴰ} hᴰ g (l , r) =
+    spec .F-homᴰ {x = c''} {y = c'''} {f = h}
+      {xᴰ = c''ᴰ} {yᴰ = c'''ᴰ} hᴰ g (l , r) =
       hᴰ Cᴰ.⋆ᴰ l , reind (sym (C .⋆Assoc _ _ _)) (hᴰ Cᴰ.⋆ᴰ r)
-    hybrid .F-idᴰ {x = c''} {xᴰ = c''ᴰ} = funExt (λ g → funExt (λ (l , r) →
-      ΣPathP (Cᴰ.⋆IdLᴰ l , ≡[]-rectify (reind-filler-sym _ _ [ _ ]∙[ _ ] Cᴰ.⋆IdLᴰ _))))
-    hybrid .F-seqᴰ {x = c''''} {y = c'''} {z = c''} {f = h} {g = i}
-      {xᴰ = c''''ᴰ} {yᴰ = c'''ᴰ} {zᴰ = c''ᴰ} hᴰ iᴰ = funExt (λ g → funExt (λ (l , r) → ΣPathP
+    spec .F-idᴰ {x = c''} {xᴰ = c''ᴰ} = funExt (λ g → funExt (λ (l , r) →
+      ΣPathP
+        (Cᴰ.⋆IdLᴰ l ,
+        ≡[]-rectify (reind-filler-sym _ _ [ _ ]∙[ _ ] Cᴰ.⋆IdLᴰ _))))
+    spec .F-seqᴰ {x = c''''} {y = c'''} {z = c''} {f = h} {g = i}
+      {xᴰ = c''''ᴰ} {yᴰ = c'''ᴰ} {zᴰ = c''ᴰ} hᴰ iᴰ =
+      funExt (λ g → funExt (λ (l , r) → ΣPathP
         (Cᴰ.⋆Assocᴰ _ _ _ ,
         ≡[]-rectify (reind-filler-sym _ _ [ _ ]∙[ _ ]
           Cᴰ.⋆Assocᴰ _ _ _ [ _ ]∙[ _ ]
           ≡[]⋆ refl (sym (C .⋆Assoc _ _ _)) refl (reind-filler _ _) [ _ ]∙[ _ ]
           reind-filler _ _))))
-    module  _
-      (isFib : AllCartesianOvers Cᴰ) {- for typechecking performance -}
-      (vps : VerticalBinProducts Cᴰ)
+    ue : Type _
+    ue = UniversalElementᴰ Cᴰ spec (idue c')
+  module _
+    (isFib : AllCartesianOvers Cᴰ) {- for typechecking performance -}
+    (vps : VerticalBinProducts Cᴰ)
+    where
+    module  _ {c' c}
+      (f : C [ c' , c ])(c'ᴰ : Cᴰ.ob[ c' ])(cᴰ : Cᴰ.ob[ c ])
       where
       private
-        module ∧ = VerticalBinProductsAtNotation  (vps (c'ᴰ , isFib cᴰ f .f*cᴰ'))
-      test : UniversalElementᴰ Cᴰ hybrid (idue c')
-      test .vertexᴰ = ∧.vert
-      test .elementᴰ = ∧.π₁ , (∧.π₂ Cᴰ.⋆ᴰ isFib cᴰ f .π)
-      test .universalᴰ {f = g} .equiv-proof (l , r) = uniqueExists
+        module het-pair = heterogeneous-pair f c'ᴰ cᴰ
+        module ∧ = VerticalBinProductsAtNotation (vps (c'ᴰ , isFib cᴰ f .f*cᴰ'))
+      impl : het-pair.ue
+      impl .vertexᴰ = ∧.vert
+      impl .elementᴰ = ∧.π₁ , (∧.π₂ Cᴰ.⋆ᴰ isFib cᴰ f .π)
+      impl .universalᴰ {f = g} .equiv-proof (l , r) = uniqueExists
         ∧.⟨ l , r* ⟩
         (ΣPathP (
           congS fst (∧.β l r*) ,
@@ -91,6 +104,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         r* = isFib cᴰ f .isCartesian _ _ r .fst .fst
         r*-comm : r* Cᴰ.⋆ᴰ isFib cᴰ f .π ≡ r
         r*-comm = isFib cᴰ f .isCartesian _ _ r .fst .snd
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  where
+  open Cubical.Categories.Displayed.Reasoning Cᴰ
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
   module _ {c : C .ob}
     (cᴰ cᴰ' : Cᴰ.ob[ c ]) where
     VerticalExponentialsAtSpec : Presheafᴰ Cᴰ (C [-, c ]) _
@@ -99,7 +117,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     VerticalExponentialsAtSpec .F-idᴰ = {!!}
     VerticalExponentialsAtSpec .F-seqᴰ = {!!}
     VerticalExponentialsAt : Type _
-    VerticalExponentialsAt = UniversalElementᴰ Cᴰ VerticalExponentialsAtSpec (idue c)
+    VerticalExponentialsAt = UniversalElementᴰ Cᴰ VerticalExponentialsAtSpec {!!} --(idue c)
 --module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
 --  (isFib : AllCartesianOvers Cᴰ) {- for typechecking performance -}
 --  (vps : VerticalBinProducts Cᴰ)

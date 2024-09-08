@@ -9,6 +9,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.GroupoidLaws
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
@@ -45,39 +46,79 @@ module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       {xᴰ xᴰ' : ob[ x ]}{yᴰ : ob[ y ]} →
     Hom[ f ][ xᴰ , yᴰ ] → f ≡ g → xᴰ ≡ xᴰ' → Hom[ g ][ xᴰ' , yᴰ ] → Type _
   _≡₂[_,_]_ {yᴰ = yᴰ} fᴰ p q gᴰ = PathP (λ i → Hom[ p i ][ q i , yᴰ ]) fᴰ gᴰ
-  private
-    variable
-      x y : C .ob
-      e f g : C [ x , y ]
-      xᴰ : ob[ x ]
-      xᴰ' : ob[ x ]
-      yᴰ : ob[ y ]
-  reind-dom : xᴰ ≡ xᴰ' → Hom[ f ][ xᴰ , yᴰ ] → Hom[ f ][ xᴰ' , yᴰ ]
-  reind-dom = subst Hom[ _ ][_, _ ]
-  reind-dom-filler : (p : xᴰ ≡ xᴰ') (fᴰ : Hom[ f  ][ xᴰ , yᴰ  ]) →
-    fᴰ ≡dom[ p ] (reind-dom p fᴰ)
-  reind-dom-filler = subst-filler Hom[ _ ][_, _ ]
-  reind-dom-filler-sym : (p : xᴰ ≡ xᴰ') (fᴰ' : Hom[ f ][ xᴰ' , yᴰ ]) →
-    reind-dom (sym p) fᴰ' ≡dom[ p ] fᴰ'
-  reind-dom-filler-sym p fᴰ' = symP (reind-dom-filler (sym p) fᴰ')
+  module _ where
+    private
+      variable
+        x y : C .ob
+        e f g : C [ x , y ]
+        xᴰ : ob[ x ]
+        xᴰ' : ob[ x ]
+        yᴰ : ob[ y ]
+    reind-dom : xᴰ ≡ xᴰ' → Hom[ f ][ xᴰ , yᴰ ] → Hom[ f ][ xᴰ' , yᴰ ]
+    reind-dom = subst Hom[ _ ][_, _ ]
+    reind-dom-filler : (p : xᴰ ≡ xᴰ') (fᴰ : Hom[ f  ][ xᴰ , yᴰ  ]) →
+      fᴰ ≡dom[ p ] (reind-dom p fᴰ)
+    reind-dom-filler = subst-filler Hom[ _ ][_, _ ]
+    reind-dom-filler-sym : (p : xᴰ ≡ xᴰ') (fᴰ' : Hom[ f ][ xᴰ' , yᴰ ]) →
+      reind-dom (sym p) fᴰ' ≡dom[ p ] fᴰ'
+    reind-dom-filler-sym p fᴰ' = symP (reind-dom-filler (sym p) fᴰ')
 
-  reind₂ : f ≡ g → xᴰ ≡ xᴰ' → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g  ][ xᴰ' , yᴰ ]
-  reind₂ = subst2 Hom[_][_, _ ]
-  reind₂-filler : (p : f ≡ g)(q : xᴰ ≡ xᴰ')(fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → fᴰ ≡₂[ p , q ] reind₂ p q fᴰ
-  reind₂-filler = subst2-filler Hom[_][_, _ ]
-  ≡₂[]-rectify : {p p' : f ≡ g}{q : xᴰ ≡ xᴰ'}
-    {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
-    {gᴰ : Hom[ g ][ xᴰ' , yᴰ ]} →
-    fᴰ ≡₂[ p , q ] gᴰ → fᴰ ≡₂[ p' , q ] gᴰ
-  ≡₂[]-rectify {q = q} {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡₂[_, q ] gᴰ) (C .isSetHom _ _ _ _)
-  _◁ᴰ_ : {o : e ≡ f}{p : f ≡ g}
-    {fᴰ : Hom[ f ][ xᴰ , yᴰ ]} →
-    {!fᴰ' ≡[ o ] fᴰ → fᴰ ≡₂[ p , q ] gᴰ → fᴰ' ≡₂[ o ∙ p , q ] gᴰ !}
-  _◁ᴰ_ = {!!}
-  ≡₂[]-contract : {!!}
-  ≡₂[]-contract = {!!}
+    reind₂ : f ≡ g → xᴰ ≡ xᴰ' → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g  ][ xᴰ' , yᴰ ]
+    reind₂ = subst2 Hom[_][_, _ ]
+    reind₂-filler : (p : f ≡ g)(q : xᴰ ≡ xᴰ')(fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → fᴰ ≡₂[ p , q ] reind₂ p q fᴰ
+    reind₂-filler = subst2-filler Hom[_][_, _ ]
+    ≡₂[]-rectify : {p p' : f ≡ g}{q : xᴰ ≡ xᴰ'}
+      {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
+      {gᴰ : Hom[ g ][ xᴰ' , yᴰ ]} →
+      fᴰ ≡₂[ p , q ] gᴰ → fᴰ ≡₂[ p' , q ] gᴰ
+    ≡₂[]-rectify {q = q} {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡₂[_, q ] gᴰ) (C .isSetHom _ _ _ _)
+
+    --module _ {ℓ : Level}
+    --  {A : Type ℓ}{B : A → Type ℓ}{C : (a : A) → B a → Type ℓ}
+    --  {a a' a'' : A}
+    --  {b : B a}{b' : B a'}{b'' : B a''}
+    --  (f : (a : A) → (b : B a) → C a b)
+    --  (p : a ≡ a')(q : a' ≡ a'')
+    --  (r : PathP (λ i → B (p i)) b b')(s : PathP (λ i → B (q i)) b' b'')
+    --  where
+    --  generic :
+    --    cong₂ (λ x y → f x y) (p ∙ q) {!compPathP r s!}
+    --    ≡
+    --    {!!}
+    --  generic = {!!}
+  module _ {x y : C .ob}
+    {e f g : C [ x , y ]}
+    {o : e ≡ f}{p : f ≡ g}
+    {xᴰ : ob[ x ]}{xᴰ' : ob[ x ]}{yᴰ : ob[ y ]}
+    {q : xᴰ ≡ xᴰ'}
+    {fᴰ' : Hom[ e ][ xᴰ , yᴰ ]}{fᴰ : Hom[ f ][ xᴰ , yᴰ ]}{gᴰ : Hom[ g ][ xᴰ' , yᴰ ]}
+    where
+    _◁ᴰ_ : fᴰ' ≡[ o ] fᴰ → fᴰ ≡₂[ p , q ] gᴰ → fᴰ' ≡₂[ o ∙ p , q ] gᴰ
+    l ◁ᴰ r = subst (λ x → PathP (λ i → x i) fᴰ' gᴰ) (sym filler) (compPathP l r)
+      where
+      -- TODO: I don't get why this works, I just copied congFunct and tried
+      helper :
+        cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) (o ∙ p) (refl ∙ q)
+        ≡ cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) o refl ∙ cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) p q
+      helper j i = hcomp (λ k → (λ { (i = i0) → Hom[ e ][ xᴰ , yᴰ ]
+                                   ; (i = i1) → cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) p q k
+                                   ; (j = i0) → cong₂ (λ x y → Hom[ x  ][ y , yᴰ  ]) (compPath-filler o p k) (compPath-filler refl q k) i
+                                   }))
+                                   (cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) o {u = xᴰ} refl i)
+      reduced-filler :
+        cong₂ (Hom[_][_, yᴰ ]) (o ∙ p) q
+        ≡
+        congS (Hom[_][ xᴰ , yᴰ ]) o ∙ cong₂ (Hom[_][_, yᴰ  ]) p q
+      reduced-filler = (congS (cong₂ Hom[_][_, yᴰ ] _) (lUnit _)) ∙ helper
+      filler :
+        _≡_ {A = Hom[ e ][ xᴰ , yᴰ ] ≡ Hom[ g ][ xᴰ' , yᴰ ]}
+        (λ i → Hom[ (o ∙ p) i ][ q i , yᴰ ])
+        (λ i → ((λ z → Hom[ o z ][ xᴰ , yᴰ ]) ∙ (λ z → Hom[ p z ][ q z , yᴰ ])) i)
+      filler = reduced-filler
+  --≡₂[]-contract : {!!}
+  --≡₂[]-contract = {!!}
   --reind₂ : →
-module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+--module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Cubical.Categories.Displayed.Reasoning Cᴰ
   private
     module Cᴰ = Categoryᴰ Cᴰ
@@ -172,7 +213,7 @@ module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         r*-comm = isFib cᴰ f .isCartesian _ _ r .fst .snd
 
 module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-  (ahp : AllHetPairs Cᴰ)
+  (ahp : ReasoningDom.AllHetPairs Cᴰ)
   where
   open Cubical.Categories.Displayed.Reasoning Cᴰ
   open ReasoningDom Cᴰ

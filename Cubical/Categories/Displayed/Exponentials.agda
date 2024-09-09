@@ -184,6 +184,13 @@ module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         η : (gᴰ : Cᴰ.Hom[ g ][ xᴰ , hp .vertexᴰ ]) →
           ((gᴰ Cᴰ.⋆ᴰ π₁) p, reind (sym (C .⋆Assoc _ _ _)) (gᴰ Cᴰ.⋆ᴰ π₂)) ≡ gᴰ
         η gᴰ = retIsEq (hp .universalᴰ) gᴰ
+        module _ where
+          open Reasoning₂ Cᴰ
+          reind₂-pair :
+            {xᴰ' : Cᴰ.ob[ x ]}
+            (q : xᴰ ≡ xᴰ') →
+            (gᴰ p, g⋆fᴰ) ≡₂[ refl , q ] (hᴰ p, h⋆fᴰ')
+          reind₂-pair = ?
   AllHetPairs : Type _
   AllHetPairs = ∀{c' c}
     (f : C [ c' , c ])(c'ᴰ : Cᴰ.ob[ c' ])(cᴰ : Cᴰ.ob[ c ]) →
@@ -263,25 +270,54 @@ module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
           reind (sym (C .⋆Assoc _ _ _)) bar.π₂
         simpl = reind-rectify
         two : reind (sym (C .⋆Assoc _ _ _)) bar.π₂
-          Cᴰ.≡[ C.⋆Assoc _ _ _ ∙ congS (C .id C.⋆_) (sym (C .⋆IdL _)) ]
+          Cᴰ.≡[ C .⋆Assoc _ _ _ ∙ congS (C .id C.⋆_) (sym (C .⋆IdL _)) ]
           Cᴰ.idᴰ Cᴰ.⋆ᴰ bar.π₂
         two = ≡[]-rectify
           (reind-filler-sym _ _ [ _ ]∙[ _ ] symP (Cᴰ.⋆IdLᴰ _))
+        yacc :
+          (reind hm (bar.π₁ Cᴰ.⋆ᴰ Cᴰ.idᴰ)
+          foo.p,
+          reind (sym (C .⋆Assoc _ _ _)) bar.π₂)
+          ≡
+          (reind (sym (C .⋆IdR _)) (bar.π₁)
+          foo.p,
+          reind (sym (C .⋆Assoc _ _ _)) bar.π₂)
+        yacc = cong₂ foo._p,_ (≡[]-rectify (reind₂-contract' (Cᴰ.⋆IdRᴰ _))) refl
+        lex :
+          (reind (sym (C .⋆IdR _)) (bar.π₁)
+          foo.p,
+          reind (sym (C .⋆Assoc _ _ _)) bar.π₂)
+          ≡₂[ refl , vert≡ ]
+          (reind (sym (C .⋆IdR _)) foo.π₁
+          foo.p,
+          reind (cong (C._⋆ f) (sym (C .⋆IdR _))) foo.π₂)
+        lex = {!!}
+        another :
+          (reind hm (bar.π₁ Cᴰ.⋆ᴰ Cᴰ.idᴰ)
+          foo.p,
+          reind (sym (C .⋆Assoc _ _ _)) bar.π₂)
+          ≡
+          ((Cᴰ.idᴰ Cᴰ.⋆ᴰ bar.π₁)
+          foo.p,
+          reind (sym (C .⋆Assoc _ _ _) ∙ congS (_ C.⋆_) (C .⋆IdL _)) (Cᴰ.idᴰ Cᴰ.⋆ᴰ bar.π₂)
+          )
+        another = {!!}
         lemma :
-          {! ((reind hm (bar.π₁ Cᴰ.⋆ᴰ Cᴰ.idᴰ)
+          (reind hm (bar.π₁ Cᴰ.⋆ᴰ Cᴰ.idᴰ)
           foo.p,
           reind (sym (C .⋆Assoc _ _ _) ∙ congS (C._⋆ f) hm) bar.π₂)
-          Cᴰ.⋆ᴰ fᴰ) !}
+          ≡₂[ {!!} , vert≡ ]
+          ((Cᴰ.idᴰ Cᴰ.⋆ᴰ foo.π₁)
+          foo.p,
+          reind (sym (C .⋆Assoc _ _ _)) (Cᴰ.idᴰ Cᴰ.⋆ᴰ foo.π₂))
         lemma = {!!}
         test-η :
-          (Cᴰ.idᴰ Cᴰ.⋆ᴰ bar.π₁)
-          bar.p,
-          reind (sym (C .⋆Assoc _ _ _)) (Cᴰ.idᴰ Cᴰ.⋆ᴰ bar.π₂)
+          ((Cᴰ.idᴰ Cᴰ.⋆ᴰ foo.π₁)
+          foo.p,
+          reind (sym (C .⋆Assoc _ _ _)) (Cᴰ.idᴰ Cᴰ.⋆ᴰ foo.π₂))
           ≡
           Cᴰ.idᴰ
-        test-η = bar.η _
-        test-η' : {!!}
-        test-η' = {!test-η!}
+        test-η = foo.η _
         goal :
           ((reind hm (bar.π₁ Cᴰ.⋆ᴰ Cᴰ.idᴰ)
           foo.p,

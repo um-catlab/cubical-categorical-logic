@@ -36,12 +36,8 @@ open Functorᴰ
 open CartesianOver
 open UniversalElementᴰ
 
-module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+module Reasoning₂ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Categoryᴰ Cᴰ
-  _≡dom[_]_ : {x y : C .ob}{f : C [ x , y ]}
-    {xᴰ xᴰ' : ob[ x ]}{yᴰ : ob[ y ]} →
-    Hom[ f ][ xᴰ , yᴰ ] → xᴰ ≡ xᴰ' → Hom[ f ][ xᴰ' , yᴰ ] → Type _
-  _≡dom[_]_ {f = f} {yᴰ = yᴰ} fᴰ p fᴰ' = PathP (λ i → Hom[ f ][ p i , yᴰ ]) fᴰ fᴰ'
   _≡₂[_,_]_ : {x y : C .ob}{f g : C [ x , y ]}
       {xᴰ xᴰ' : ob[ x ]}{yᴰ : ob[ y ]} →
     Hom[ f ][ xᴰ , yᴰ ] → f ≡ g → xᴰ ≡ xᴰ' → Hom[ g ][ xᴰ' , yᴰ ] → Type _
@@ -51,17 +47,8 @@ module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       variable
         x y : C .ob
         e f g : C [ x , y ]
-        xᴰ : ob[ x ]
-        xᴰ' : ob[ x ]
+        xᴰ xᴰ' : ob[ x ]
         yᴰ : ob[ y ]
-    reind-dom : xᴰ ≡ xᴰ' → Hom[ f ][ xᴰ , yᴰ ] → Hom[ f ][ xᴰ' , yᴰ ]
-    reind-dom = subst Hom[ _ ][_, _ ]
-    reind-dom-filler : (p : xᴰ ≡ xᴰ') (fᴰ : Hom[ f  ][ xᴰ , yᴰ  ]) →
-      fᴰ ≡dom[ p ] (reind-dom p fᴰ)
-    reind-dom-filler = subst-filler Hom[ _ ][_, _ ]
-    reind-dom-filler-sym : (p : xᴰ ≡ xᴰ') (fᴰ' : Hom[ f ][ xᴰ' , yᴰ ]) →
-      reind-dom (sym p) fᴰ' ≡dom[ p ] fᴰ'
-    reind-dom-filler-sym p fᴰ' = symP (reind-dom-filler (sym p) fᴰ')
 
     reind₂ : f ≡ g → xᴰ ≡ xᴰ' → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g  ][ xᴰ' , yᴰ ]
     reind₂ = subst2 Hom[_][_, _ ]
@@ -73,19 +60,6 @@ module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       fᴰ ≡₂[ p , q ] gᴰ → fᴰ ≡₂[ p' , q ] gᴰ
     ≡₂[]-rectify {q = q} {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡₂[_, q ] gᴰ) (C .isSetHom _ _ _ _)
 
-    --module _ {ℓ : Level}
-    --  {A : Type ℓ}{B : A → Type ℓ}{C : (a : A) → B a → Type ℓ}
-    --  {a a' a'' : A}
-    --  {b : B a}{b' : B a'}{b'' : B a''}
-    --  (f : (a : A) → (b : B a) → C a b)
-    --  (p : a ≡ a')(q : a' ≡ a'')
-    --  (r : PathP (λ i → B (p i)) b b')(s : PathP (λ i → B (q i)) b' b'')
-    --  where
-    --  generic :
-    --    cong₂ (λ x y → f x y) (p ∙ q) {!compPathP r s!}
-    --    ≡
-    --    {!!}
-    --  generic = {!!}
   module _ {x y : C .ob}
     {e f g : C [ x , y ]}
     {o : e ≡ f}{p : f ≡ g}
@@ -93,10 +67,10 @@ module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     {q : xᴰ ≡ xᴰ'}
     {fᴰ' : Hom[ e ][ xᴰ , yᴰ ]}{fᴰ : Hom[ f ][ xᴰ , yᴰ ]}{gᴰ : Hom[ g ][ xᴰ' , yᴰ ]}
     where
-    _◁ᴰ_ : fᴰ' ≡[ o ] fᴰ → fᴰ ≡₂[ p , q ] gᴰ → fᴰ' ≡₂[ o ∙ p , q ] gᴰ
-    l ◁ᴰ r = subst (λ x → PathP (λ i → x i) fᴰ' gᴰ) (sym filler) (compPathP l r)
+    _◁₂_ : fᴰ' ≡[ o ] fᴰ → fᴰ ≡₂[ p , q ] gᴰ → fᴰ' ≡₂[ o ∙ p , q ] gᴰ
+    l ◁₂ r = subst (λ x → PathP (λ i → x i) fᴰ' gᴰ) (sym filler) (compPathP l r)
       where
-      -- TODO: I don't get why this works, I just copied congFunct and tried
+      -- TODO: I don't get why this works, I just copied congFunct and tried some things
       helper :
         cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) (o ∙ p) (refl ∙ q)
         ≡ cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) o refl ∙ cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) p q
@@ -105,6 +79,8 @@ module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
                                    ; (j = i0) → cong₂ (λ x y → Hom[ x  ][ y , yᴰ  ]) (compPath-filler o p k) (compPath-filler refl q k) i
                                    }))
                                    (cong₂ (λ x y → Hom[ x ][ y , yᴰ ]) o {u = xᴰ} refl i)
+      -- I'm not sure why we can't just replace filler with reduced-filler, but
+      -- it doesn't type check if I do
       reduced-filler :
         cong₂ (Hom[_][_, yᴰ ]) (o ∙ p) q
         ≡
@@ -115,10 +91,8 @@ module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         (λ i → Hom[ (o ∙ p) i ][ q i , yᴰ ])
         (λ i → ((λ z → Hom[ o z ][ xᴰ , yᴰ ]) ∙ (λ z → Hom[ p z ][ q z , yᴰ ])) i)
       filler = reduced-filler
-  --≡₂[]-contract : {!!}
-  --≡₂[]-contract = {!!}
-  --reind₂ : →
---module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+
+module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Cubical.Categories.Displayed.Reasoning Cᴰ
   private
     module Cᴰ = Categoryᴰ Cᴰ
@@ -213,10 +187,10 @@ module ReasoningDom (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         r*-comm = isFib cᴰ f .isCartesian _ _ r .fst .snd
 
 module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-  (ahp : ReasoningDom.AllHetPairs Cᴰ)
+  (ahp : AllHetPairs Cᴰ)
   where
   open Cubical.Categories.Displayed.Reasoning Cᴰ
-  open ReasoningDom Cᴰ
+  open Reasoning₂ Cᴰ
   private
     module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
@@ -241,6 +215,8 @@ module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         module bar = heterogeneous-pair.HetPairNotation Cᴰ (C .id ⋆⟨ C ⟩ f) xᴰ cᴰ (ahp _ _ _)
         hm : C .id ⋆⟨ C ⟩ C .id ≡ C .id ⋆⟨ C ⟩ C .id
         hm = C .⋆IdL (C .id) ∙ sym (C .⋆IdR (C .id))
+        one : (reind hm (bar.π₁ Cᴰ.⋆ᴰ Cᴰ.idᴰ)) Cᴰ.≡[ {!!} ] (Cᴰ.idᴰ Cᴰ.⋆ᴰ bar.π₁)
+        one = {!!}
         goal :
           ((reind hm (bar.π₁ Cᴰ.⋆ᴰ Cᴰ.idᴰ)
           foo.p,
@@ -248,7 +224,7 @@ module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
           Cᴰ.⋆ᴰ fᴰ)
           ≡₂[ _ , congS (λ x → ahp x xᴰ cᴰ .vertexᴰ) (C .⋆IdL f) ]
           fᴰ
-        goal = {!!}
+        goal = ({!!} [ _ ]∙[ _ ] {!!}) ◁₂ {!!}
     VerticalExponentialsAtSpec .F-seqᴰ = {!!}
     VerticalExponentialsAt : Type _
     VerticalExponentialsAt = UniversalElementᴰ Cᴰ VerticalExponentialsAtSpec {!!} --(idue c)

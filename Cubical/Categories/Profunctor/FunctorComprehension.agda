@@ -31,6 +31,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
@@ -45,6 +46,7 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Properties
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Graph
@@ -220,7 +222,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   private
     𝓟 = PresheafCategory D ℓS
     Pup : Functor C (𝓟up D ℓS)
-    Pup = TotalCat.intro' P
+    Pup = TotalCat.intro P
       (mkContrHomsSection (hasContrHomsPropertyOver _ _) ues)
 
     Pus : Functor C (𝓟us D ℓS)

@@ -186,11 +186,12 @@ module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         η gᴰ = retIsEq (hp .universalᴰ) gᴰ
         module _ where
           open Reasoning₂ Cᴰ
-          reind₂-pair :
-            {xᴰ' : Cᴰ.ob[ x ]}
-            (q : xᴰ ≡ xᴰ') →
-            (gᴰ p, g⋆fᴰ) ≡₂[ refl , q ] (hᴰ p, h⋆fᴰ')
-          reind₂-pair = ?
+          -- TODO: commenting out so this builds and we can push for reference
+          --reind₂-pair :
+          --  {xᴰ' : Cᴰ.ob[ x ]}
+          --  (q : xᴰ ≡ xᴰ') →
+          --  (gᴰ p, g⋆fᴰ) ≡₂[ refl , q ] (hᴰ p, h⋆fᴰ')
+          --reind₂-pair = ?
   AllHetPairs : Type _
   AllHetPairs = ∀{c' c}
     (f : C [ c' , c ])(c'ᴰ : Cᴰ.ob[ c' ])(cᴰ : Cᴰ.ob[ c ]) →

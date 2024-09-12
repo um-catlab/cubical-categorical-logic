@@ -1,13 +1,9 @@
 -- This module defines the free category H equipped with a functor
 -- from a given category 𝓒
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Free.Functor.AltPresented where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as Sum hiding (rec; elim)
@@ -15,9 +11,7 @@ open import Cubical.Data.Sum as Sum hiding (rec; elim)
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Properties as DCat
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Data.Quiver.Base
 
@@ -25,7 +19,7 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Constructions.Presented as Presented
 open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
-open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Instances.Path as PathC
 open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
   hiding (rec; elim; elimLocal)

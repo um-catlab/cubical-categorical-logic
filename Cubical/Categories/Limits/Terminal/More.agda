@@ -5,7 +5,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Isomorphism.More
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit

@@ -24,11 +24,12 @@ open import Cubical.Categories.Profunctor.Hom
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
 open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Constructions.HomPropertyOver
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Constructions.ChangeOfObjects
+
 open import Cubical.Categories.Displayed.BinProduct
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Constructions.Endo as Endo
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning

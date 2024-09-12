@@ -24,8 +24,7 @@ open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Properties
-open import Cubical.Categories.Displayed.Constructions.Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk

@@ -2,10 +2,6 @@
 module Cubical.Tactics.AltFunctorSolver.Solver where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
-open import Cubical.Foundations.GroupoidLaws
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Quiver.Base as Quiver
@@ -14,15 +10,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Power
 open import Cubical.Categories.Functor renaming (Id to IdF)
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.UnderlyingGraph
 
-open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
-open import Cubical.Categories.Displayed.Instances.Path.Displayed
-open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
 open import Cubical.Categories.Constructions.Free.Functor.AltPresented
 

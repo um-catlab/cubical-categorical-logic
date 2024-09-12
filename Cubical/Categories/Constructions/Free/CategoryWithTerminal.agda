@@ -13,14 +13,13 @@ open import Cubical.Data.Sum.Base as Sum hiding (elim; rec)
 open import Cubical.Data.Unit
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
-open import Cubical.Categories.Displayed.Constructions.Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Reasoning
 

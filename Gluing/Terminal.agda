@@ -4,50 +4,25 @@ module Gluing.Terminal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
 
 open import Cubical.Data.Quiver.Base as Quiver
-open import Cubical.Data.List as List hiding ([_])
-open import Cubical.Data.List.Properties as List
 open import Cubical.Data.Nat as Nat
 open import Cubical.Data.Bool as Bool
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Unit as Unit
-open import Cubical.Data.Sigma
-open import Cubical.Data.W.Indexed
 open import Cubical.Relation.Nullary hiding (⟪_⟫)
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Bifunctor.Redundant
-open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Constructions.Free.CategoryWithTerminal as Free
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Properties as Disp
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
-open import Cubical.Categories.Functors.Constant
-open import Cubical.Categories.Functors.More
-open import Cubical.Categories.Functors.HomFunctor
-
-open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Instances.Functors.More
 
 open Category
 open Section

@@ -12,25 +12,17 @@ module Cubical.Categories.Displayed.Instances.Path.Displayed where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.TotalCategory as TotalCategory
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCategory
-open import Cubical.Categories.Profunctor.Relator as Relator
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.Graph
-open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Displayed.Constructions.StructureOver
-open import Cubical.Categories.Displayed.Properties
 
 private
   variable
@@ -69,7 +61,7 @@ module _  {C : Category ℓC ℓC'}
            where
    -- TODO: do we need any of the alternate formulations?
    PathReflection :
-     Section (TotalCategory.intro' F (introS F M N)) PathCᴰ
+     Section (TotalCategory.intro F (introS F M N)) PathCᴰ
      → M ≡ N
    PathReflection M≡N i .F-obᴰ d = M≡N .F-obᴰ d i
    PathReflection M≡N i .F-homᴰ f = M≡N .F-homᴰ f i

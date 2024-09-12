@@ -24,9 +24,6 @@ open import Cubical.Categories.Monad.Base
 open import Cubical.Tactics.CategorySolver.Reflection
 open import Cubical.Tactics.FunctorSolver.Reflection
 
-
-open import Cubical.Foundations.Isomorphism.More
-
 private
   variable
     ℓ ℓ' : Level

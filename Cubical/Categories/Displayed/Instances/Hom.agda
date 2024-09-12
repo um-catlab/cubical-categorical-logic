@@ -21,8 +21,6 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.HLevels.More
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base

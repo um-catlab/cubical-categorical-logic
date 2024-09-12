@@ -7,12 +7,9 @@
 module Cubical.Categories.Monad.Strength.Cartesian.ExtensionSystem where
 
 open import Cubical.Foundations.Prelude
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
-open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal
@@ -20,9 +17,6 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Comonad.Instances.Environment
 open import Cubical.Categories.Monad.ExtensionSystem as Monad
-open import Cubical.Categories.Comonad.ExtensionSystem as
-  Comonad renaming (pull to comonad-pull)
-open import Cubical.Categories.Isomorphism
 
 open import Cubical.Tactics.CategorySolver.Reflection
 

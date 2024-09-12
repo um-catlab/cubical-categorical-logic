@@ -16,7 +16,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base hiding (π)
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning

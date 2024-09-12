@@ -9,7 +9,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Terminal
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Terminal
+open import Cubical.Categories.Displayed.Instances.Terminal as Terminal
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Fibration.Base

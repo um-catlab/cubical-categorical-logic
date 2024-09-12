@@ -16,11 +16,8 @@ import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  as TotalCatᴰ
-open import Cubical.Categories.Displayed.Constructions.TotalCategory.More
   as TotalCatᴰ
 open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.BinProduct.More as BP
@@ -30,7 +27,6 @@ open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Constructions.Reindex.Eq as Reindex
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
-open import Cubical.Categories.Displayed.Properties as Disp
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Hom

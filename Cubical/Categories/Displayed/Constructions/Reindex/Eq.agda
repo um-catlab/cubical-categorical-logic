@@ -121,7 +121,7 @@ module EqReindex
       F-id'
       Dᴰ.idᴰ)
       (λ i → singId .snd i)
-      (symP (R.reind-filler (sym (F .F-id)) _))
+      (symP (R.≡out (R.reind-filler (sym (F .F-id)) _)))
   forgetReindex .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
     subst
       {A = ∀ {x y z} {f : C .Hom[_,_] x y} {g : C .Hom[_,_] y z}{xᴰ}{yᴰ}{zᴰ}
@@ -131,7 +131,7 @@ module EqReindex
       (λ F-seq' →  PathP (λ i → Dᴰ.Hom[ F .F-seq f g i ][ xᴰ , zᴰ ])
        (F-seq' fᴰ gᴰ) (fᴰ Dᴰ.⋆ᴰ gᴰ))
       (λ i → singSeq .snd i)
-      (symP (R.reind-filler (sym (F .F-seq f g)) _))
+      (symP (R.≡out (R.reind-filler (sym (F .F-seq f g)) _)))
 
    -- TODO: it would be really nice to have a macro reindexRefl! that
    -- worked like the following: See

@@ -58,7 +58,7 @@ module _
       (GF-id : ∀ {x} → GF-hom .fst (C.id {x}) ≡ D.id)
       → ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
       → reindF'-hom GF-ob GF-hom (Cᴰ.idᴰ {x}{xᴰ}) Dᴰ.≡[ GF-id ] Dᴰ.idᴰ
-    reindF'-id (_ , Eq.refl) (_ , Eq.refl) GF-id = R.≡[]-rectify (Fᴰ .F-idᴰ)
+    reindF'-id (_ , Eq.refl) (_ , Eq.refl) GF-id = R.rectify (Fᴰ .F-idᴰ)
 
     reindF'-seq : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty GF-ob)
       (GF-seq : ∀ {x}{y}{z}(f : C [ x , y ])(g : C [ y , z ])
@@ -69,7 +69,7 @@ module _
       (fᴰ Cᴰ.⋆ᴰ gᴰ) Dᴰ.≡[ GF-seq f g ]
       reindF'-hom GF-ob GF-hom fᴰ Dᴰ.⋆ᴰ reindF'-hom GF-ob GF-hom gᴰ
     reindF'-seq (_ , Eq.refl) (_ , Eq.refl) GF-seq fᴰ gᴰ =
-      R.≡[]-rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
+      R.rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
 
   open Functor
   -- This is preferable to reindF if the equalities are Refl.

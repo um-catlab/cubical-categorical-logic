@@ -102,9 +102,9 @@ module _ (𝓒 : Category ℓc ℓc') where
           (F .F-homᴰ f)
           (F .F-homᴰ g)
         F-respects-≈ (↑ eq) = F-respects-axioms eq
-        F-respects-≈ {x}{y} (reflₑ f) = R.≡[]-rectify {p = refl} refl
+        F-respects-≈ {x}{y} (reflₑ f) = R.rectify {p = refl} refl
         F-respects-≈ (⋆ₑ-cong e e' p f f' q) =
-          R.≡[]-rectify
+          R.rectify
           (F .F-seqᴰ e f ◁
           (λ i → F-respects-≈ p i 𝓓.⋆ᴰ F-respects-≈ q i)
           ▷ (sym (F .F-seqᴰ e' f')))

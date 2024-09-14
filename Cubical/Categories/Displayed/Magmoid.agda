@@ -62,18 +62,18 @@ module _ {C : Category ℓC ℓC'}
       subst (λ gᴰ → PathP (λ i → Cᴰ.Hom[ C .Category.⋆IdL f i ][ xᴰ , yᴰ ])
         gᴰ fᴰ )
         -- todo: couldn't get congP₂ to work
-        (R.≡[]-rectify λ i → ⋆ᴰ' .snd i (idᴰ' .snd i) fᴰ)
+        (R.rectify λ i → ⋆ᴰ' .snd i (idᴰ' .snd i) fᴰ)
         (Cᴰ.⋆IdLᴰ fᴰ)
     redefine-id⋆ .Categoryᴰ.⋆IdRᴰ {f = f}{xᴰ}{yᴰ} fᴰ =
       subst (λ gᴰ → PathP (λ i → Cᴰ.Hom[ C .Category.⋆IdR f i ][ xᴰ , yᴰ ])
         gᴰ fᴰ)
-        (R.≡[]-rectify λ i → ⋆ᴰ' .snd i fᴰ (idᴰ' .snd i))
+        (R.rectify λ i → ⋆ᴰ' .snd i fᴰ (idᴰ' .snd i))
         (Cᴰ.⋆IdRᴰ fᴰ)
     redefine-id⋆ .Categoryᴰ.⋆Assocᴰ {x}{y}{z}{w}{f}{g}{h}{xᴰ}{yᴰ}{zᴰ}{wᴰ}
       fᴰ gᴰ hᴰ =
       subst2 (PathP (λ i → Cᴰ.Hom[ C .Category.⋆Assoc f g h i ][ xᴰ , wᴰ ]))
-        (R.≡[]-rectify (λ i → ⋆ᴰ' .snd i (⋆ᴰ' .snd i fᴰ gᴰ) hᴰ))
-        (R.≡[]-rectify (λ i → ⋆ᴰ' .snd i fᴰ (⋆ᴰ' .snd i gᴰ hᴰ)))
+        (R.rectify (λ i → ⋆ᴰ' .snd i (⋆ᴰ' .snd i fᴰ gᴰ) hᴰ))
+        (R.rectify (λ i → ⋆ᴰ' .snd i fᴰ (⋆ᴰ' .snd i gᴰ hᴰ)))
         (Cᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ)
 
     private

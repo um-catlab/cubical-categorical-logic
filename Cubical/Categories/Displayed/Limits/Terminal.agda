@@ -66,7 +66,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     𝟙ηᴰ : ∀ {c} {d : Cᴰ.ob[ c ]} {f} (fᴰ : Cᴰ.Hom[ f ][ d , 𝟙ᴰ ])
         → fᴰ Cᴰ.≡[ 𝟙η f ] !tᴰ d
-    𝟙ηᴰ {c} {d} {f} fᴰ = R.≡[]-rectify (toPathP (sym fᴰ-commutes))
+    𝟙ηᴰ {c} {d} {f} fᴰ = R.rectify (toPathP (sym fᴰ-commutes))
       where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
             fᴰ-commutes = cong fst (contr!tᴰ .snd (reind Cᴰ (𝟙η _) fᴰ , refl))
 

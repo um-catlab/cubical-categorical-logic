@@ -94,12 +94,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       uniqueExists
         ⟨gfᴰ⟩
         (ΣPathP ((sym gf≡g⋆f) , (ΣPathPProp (λ _ → C .isSetHom _ _)
-          (symP (R.≡→≡[] (sym β))))))
+          (symP (R.rectify (R.≡out (R.reind-filler _ _ ∙ R.≡in (sym β))))))))
         (λ _ → C/Cᴰ.isSetHomᴰ _ _)
         λ gᴰ gᴰ-lifts →
         cong fst (isCL .snd (gᴰ
                    , sym (fromPathP (symP (cong (λ p → p .snd .fst) gᴰ-lifts)))
-          ∙ R.reind-rectify))
+          ∙ R.rectify (R.≡out (sym (R.reind-filler _ _) ∙ R.reind-filler _ _))))
       where
         gf≡g⋆f = sym (C .⋆IdL gf) ∙ sym gf≡g⋆f' ∙ cong (comp' C f) (C .⋆IdR g)
         isCL = isCartesian cᴰ'' g (R.reind gf≡g⋆f gfᴰ)
@@ -136,14 +136,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     CartesianLift→CartesianOver .isCartesian {c''} cᴰ'' g gfᴰ =
       uniqueExists
         ⟨gfᴰ⟩
-        (R.≡[]-rectify (R.≡[]∙ _ _
-          (R.≡[]⋆ refl (sym f'≡f) refl (symP (R.reind-filler f'≡f π')))
-          (λ i → the-CL .fst .snd i .snd .fst)))
+        (R.rectify (R.≡out (R.⟨ refl ⟩⋆⟨ symP (R.reind-filler f'≡f π') ⟩ ∙
+          R.≡in (λ i → the-CL .fst .snd i .snd .fst))))
         (λ _ → Cᴰ.isSetHomᴰ _ _)
         λ gᴰ gᴰ⋆π≡gfᴰ → cong fst (the-CL .snd (gᴰ ,
           ΣPathP (g⋆f'≡g⋆f , (ΣPathPProp (λ _ → C .isSetHom _ _)
-          (R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
-          ▷ gᴰ⋆π≡gfᴰ)))))
+          (R.rectify (R.≡out (R.⟨ refl ⟩⋆⟨ R.reind-filler f'≡f π' ⟩ ∙
+            R.≡in (gᴰ⋆π≡gfᴰ))))))))
       where
         the-CL = cL.universalᴰ .equiv-proof (g ⋆⟨ C ⟩ f , gfᴰ , solveCat! C)
         ⟨gfᴰ⟩ : Cᴰ.Hom[ g ][ cᴰ'' , cL.vertexᴰ ]
@@ -155,7 +154,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         gᴰ⋆π'≡gᴰ⋆π : ∀ (gᴰ : Cᴰ.Hom[ g ][ cᴰ'' , f'*cᴰ' ])
                    → gᴰ Cᴰ.⋆ᴰ π' Cᴰ.≡[ cong (seq' C g) f'≡f ] (gᴰ Cᴰ.⋆ᴰ the-π)
         gᴰ⋆π'≡gᴰ⋆π gᴰ =
-          R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
+          R.rectify (R.≡out (R.⟨ refl ⟩⋆⟨ R.reind-filler f'≡f π' ⟩))
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}

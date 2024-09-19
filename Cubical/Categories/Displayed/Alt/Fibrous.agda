@@ -88,15 +88,15 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
   fiber[ x ] .⋆IdL v = vertToDispInj _ _ (R.rectify
     (R.≡out (R.≡in (vertToDispSeq _ _) ∙
       R.⟨ R.≡in vertToDispId ⟩⋆⟨ refl ⟩ ∙
-      R.≡in (disp.⋆IdLᴰ _))))
+      R.⋆IdL _)))
   fiber[ x ] .⋆IdR v = vertToDispInj _ _ (R.rectify
     (R.≡out (R.≡in (vertToDispSeq _ _) ∙
       R.⟨ refl ⟩⋆⟨ R.≡in vertToDispId ⟩ ∙
-      R.≡in (disp.⋆IdRᴰ _))))
+      R.⋆IdR _)))
   fiber[ x ] .⋆Assoc u v w = vertToDispInj _ _ (R.rectify
     (R.≡out (R.≡in (vertToDispSeq _ _) ∙
       R.⟨ R.≡in (vertToDispSeq _ _) ⟩⋆⟨ refl ⟩ ∙
-      R.≡in (disp.⋆Assocᴰ _ _ _) ∙
+      R.⋆Assoc _ _ _ ∙
       R.⟨ refl ⟩⋆⟨ sym (R.≡in (vertToDispSeq _ _)) ⟩ ∙
       sym (R.≡in (vertToDispSeq _ _)))))
   fiber[ x ] .isSetHom =
@@ -111,28 +111,28 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
     ; Bif-L-id = λ {xᴰ}{yᴰ} → funExt λ fᴰ → R.rectify
       (R.≡out (R.≡in (vertᵥᴰ _ _) ∙
         R.⟨ R.≡in vertToDispId ⟩⋆⟨ refl ⟩ ∙
-        R.≡in (disp.⋆IdLᴰ _)))
+        R.⋆IdL _))
     ; Bif-L-seq = λ u v → funExt λ fᴰ → R.rectify
       (R.≡out (R.≡in (vertᵥᴰ _ _) ∙
         R.⟨ R.≡in (vertToDispSeq v u) ⟩⋆⟨ refl ⟩ ∙
-        R.≡in (disp.⋆Assocᴰ _ _ _) ∙
+        R.⋆Assoc _ _ _ ∙
         R.⟨ refl ⟩⋆⟨ sym (R.≡in (vertᵥᴰ u fᴰ)) ⟩ ∙
         sym (R.≡in (vertᵥᴰ _ _))))
     ; Bif-R-id = funExt λ fᴰ → R.rectify
       (R.≡out (R.≡in (vertᴰᵥ fᴰ _) ∙
         R.⟨ refl ⟩⋆⟨ R.≡in vertToDispId ⟩ ∙
-        R.≡in (disp.⋆IdRᴰ _)))
+        R.⋆IdR _))
     ; Bif-R-seq = λ u v → funExt λ fᴰ → R.rectify
       (R.≡out (R.≡in (vertᴰᵥ _ _) ∙
         R.⟨ refl ⟩⋆⟨ R.≡in (vertToDispSeq u v) ⟩ ∙
-        sym (R.≡in (disp.⋆Assocᴰ _ _ _)) ∙
+        sym (R.⋆Assoc _ _ _) ∙
         R.⟨ sym (R.≡in (vertᴰᵥ fᴰ u)) ⟩⋆⟨ refl ⟩ ∙
         sym (R.≡in (vertᴰᵥ _ _))))
     ; SepBif-RL-commute = λ {xᴰ'}{xᴰ}{yᴰ yᴰ'} u v →
       funExt λ fᴰ → R.rectify
       (R.≡out (R.≡in (vertᵥᴰ _ _) ∙
         R.⟨ refl ⟩⋆⟨ R.≡in (vertᴰᵥ _ _) ⟩ ∙
-        sym (R.≡in (disp.⋆Assocᴰ _ _ _)) ∙
+        sym (R.⋆Assoc _ _ _) ∙
         R.⟨ sym (R.≡in (vertᵥᴰ _ _)) ⟩⋆⟨ refl ⟩ ∙
         sym (R.≡in (vertᴰᵥ _ _))))
     })

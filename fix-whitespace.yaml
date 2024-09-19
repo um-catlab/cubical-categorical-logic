@@ -45,3 +45,4 @@ included-files:
 # directory there...
 excluded-dirs:
   - "agda"
+  - "html"

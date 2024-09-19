@@ -67,7 +67,8 @@ module _
         ⟨gfᴰ⟩' = f-lift .isCartesian dᴰ'' (F ⟪ g ⟫) gfᴰ'
 
         ⟨gfᴰ⟩'-commutes : ⟨gfᴰ⟩' .fst .fst F*Dᴰ.⋆ᴰ f-lift .π ≡ gfᴰ
-        ⟨gfᴰ⟩'-commutes = R.rectify (R.≡out (sym (R.reind-filler (sym (F .F-seq g f)) _) ∙
+        ⟨gfᴰ⟩'-commutes = R.rectify (R.≡out (
+          sym (R.reind-filler (sym (F .F-seq g f)) _) ∙
           R.≡in (⟨gfᴰ⟩' .fst .snd) ∙
           sym (R.reind-filler (F .F-seq g f) gfᴰ))) {- (R.≡[]∙ _ _ (R.≡[]∙ _ _
           (R.reind-filler-sym (F .F-seq g f) _)
@@ -79,7 +80,9 @@ module _
           → (gᴰ F*Dᴰ.⋆ᴰ f-lift .π) ≡ gfᴰ
           → ⟨gfᴰ⟩' .fst .fst ≡ gᴰ
         ⟨gfᴰ⟩'-uniq gᴰ gᴰ-commutes = cong fst (⟨gfᴰ⟩' .snd (gᴰ ,
-          (R.rectify (R.≡out (R.reind-filler (sym (F .F-seq _ _)) _ ∙ R.≡in gᴰ-commutes ∙ R.reind-filler (F .F-seq g f) gfᴰ)))))
+          (R.rectify (R.≡out (R.reind-filler (sym (F .F-seq _ _)) _ ∙
+                              R.≡in gᴰ-commutes ∙
+                              R.reind-filler (F .F-seq g f) gfᴰ)))))
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}

@@ -99,8 +99,10 @@ module LiftedBinProductsNotation
         (R.reind (sym ×β₁) (fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,
           R.reind (sym ×β₂) (fᴰ Cᴰ.⋆ᴰ π₂ᴰ)) .snd
         ((R.reind (×η {f = f}) fᴰ) , ΣPathP
-        ((R.rectify (R.≡out (R.⟨ sym (R.reind-filler ×η fᴰ) ⟩⋆⟨ refl ⟩ ∙ R.reind-filler (sym ×β₁) _)))
-        , R.rectify (R.≡out (R.⟨ sym (R.reind-filler ×η fᴰ) ⟩⋆⟨ refl ⟩ ∙ R.reind-filler (sym ×β₂) _))))
+        ((R.rectify (R.≡out (R.⟨ sym (R.reind-filler ×η fᴰ) ⟩⋆⟨ refl ⟩ ∙
+                             R.reind-filler (sym ×β₁) _)))
+        , R.rectify (R.≡out (R.⟨ sym (R.reind-filler ×η fᴰ) ⟩⋆⟨ refl ⟩ ∙
+                             R.reind-filler (sym ×β₂) _))))
     ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
     ×ηᴰ = toPathP (sym (cong fst ,pᴰ-contr))
 
@@ -256,13 +258,14 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
               ≡in (congP (λ _ → fst) p))
             q₁''' :
               reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* ≡ fᴰ
-            q₁''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙ ≡in q₁''''))
+            q₁''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
+                                   ≡in q₁''''))
             q₁'' : fᴰ* .fst ≡
               (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
             q₁'' = fᴰ* .snd
               (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
             q₁' : fᴰ* .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
-            q₁' = ≡out (≡in (congP (λ _ → fst) q₁'') ∙ sym (reind-filler _ _)) --congP (λ _ → fst) q₁'' [ _ ]∙[ _ ] reind-filler-sym _ _
+            q₁' = ≡out (≡in (congP (λ _ → fst) q₁'') ∙ sym (reind-filler _ _))
             q₁ : fᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
             q₁ = rectify (≡out (≡in (Cᴰ.⋆IdRᴰ _) ∙ ≡in q₁'))
 
@@ -272,7 +275,8 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
               ≡in (congP (λ _ → snd) p))
             q₂''' :
               reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) Cᴰ.⋆ᴰ B*.π₂* ≡ gᴰ
-            q₂''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙ ≡in q₂''''))
+            q₂''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
+                             ≡in q₂''''))
             q₂'' : gᴰ* .fst ≡
               (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
             q₂'' = gᴰ* .snd

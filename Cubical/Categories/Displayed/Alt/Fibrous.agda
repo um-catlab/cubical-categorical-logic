@@ -85,20 +85,20 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
   fiber[ x ] .Hom[_,_] = vert {x}
   fiber[ x ] .id = idᵥ
   fiber[ x ] ._⋆_ = _⋆ᵥ_
-  fiber[ x ] .⋆IdL v = vertToDispInj _ _ (R.rectify (
-    R.≡[]∙ _ _ (vertToDispSeq _ _)
-    (R.≡[]∙ _ _ (R.≡[]⋆ _ refl vertToDispId refl)
-    (disp.⋆IdLᴰ (vertToDisp v)))))
+  fiber[ x ] .⋆IdL v = vertToDispInj _ _ (R.rectify
+    (R.≡out (R.≡in (vertToDispSeq _ _) ∙
+      R.⟨ R.≡in vertToDispId ⟩⋆⟨ refl ⟩ ∙
+      R.≡in (disp.⋆IdLᴰ _))))
   fiber[ x ] .⋆IdR v = vertToDispInj _ _ (R.rectify
-    (R.≡[]∙ _ _ (vertToDispSeq _ _)
-    (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl vertToDispId)
-    (disp.⋆IdRᴰ (vertToDisp v)))))
+    (R.≡out (R.≡in (vertToDispSeq _ _) ∙
+      R.⟨ refl ⟩⋆⟨ R.≡in vertToDispId ⟩ ∙
+      R.≡in (disp.⋆IdRᴰ _))))
   fiber[ x ] .⋆Assoc u v w = vertToDispInj _ _ (R.rectify
-    (R.≡[]∙ _ _ (vertToDispSeq _ _)
-    (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (vertToDispSeq _ _) refl)
-    (R.≡[]∙ _ _ (disp.⋆Assocᴰ _ _ _)
-    (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (symP (vertToDispSeq _ _)))
-    (symP (vertToDispSeq _ _)))))))
+    (R.≡out (R.≡in (vertToDispSeq _ _) ∙
+      R.⟨ R.≡in (vertToDispSeq _ _) ⟩⋆⟨ refl ⟩ ∙
+      R.≡in (disp.⋆Assocᴰ _ _ _) ∙
+      R.⟨ refl ⟩⋆⟨ sym (R.≡in (vertToDispSeq _ _)) ⟩ ∙
+      sym (R.≡in (vertToDispSeq _ _)))))
   fiber[ x ] .isSetHom =
     isSetRetract vertToDisp
       (invIsEq isEquivVertToDisp) (retIsEq (isEquivVertToDisp)) disp.isSetHomᴰ
@@ -109,32 +109,32 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
     ; Bif-homL = λ v yᴰ fᴰ → v ⋆ᵥᴰ fᴰ
     ; Bif-homR = λ xᴰ v fᴰ → fᴰ ⋆ᴰᵥ v
     ; Bif-L-id = λ {xᴰ}{yᴰ} → funExt λ fᴰ → R.rectify
-      (R.≡[]∙ _ _ (vertᵥᴰ _ _)
-      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl vertToDispId refl)
-      (disp.⋆IdLᴰ fᴰ)))
+      (R.≡out (R.≡in (vertᵥᴰ _ _) ∙
+        R.⟨ R.≡in vertToDispId ⟩⋆⟨ refl ⟩ ∙
+        R.≡in (disp.⋆IdLᴰ _)))
     ; Bif-L-seq = λ u v → funExt λ fᴰ → R.rectify
-      (R.≡[]∙ _ _ (vertᵥᴰ _ _)
-      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (vertToDispSeq v u) refl)
-      (R.≡[]∙ _ _ (disp.⋆Assocᴰ _ _ _)
-      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (symP (vertᵥᴰ u fᴰ)))
-      (symP (vertᵥᴰ _ _))))))
+      (R.≡out (R.≡in (vertᵥᴰ _ _) ∙
+        R.⟨ R.≡in (vertToDispSeq v u) ⟩⋆⟨ refl ⟩ ∙
+        R.≡in (disp.⋆Assocᴰ _ _ _) ∙
+        R.⟨ refl ⟩⋆⟨ sym (R.≡in (vertᵥᴰ u fᴰ)) ⟩ ∙
+        sym (R.≡in (vertᵥᴰ _ _))))
     ; Bif-R-id = funExt λ fᴰ → R.rectify
-      (R.≡[]∙ _ _ (vertᴰᵥ fᴰ _)
-      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl vertToDispId)
-      (disp.⋆IdRᴰ fᴰ)))
+      (R.≡out (R.≡in (vertᴰᵥ fᴰ _) ∙
+        R.⟨ refl ⟩⋆⟨ R.≡in vertToDispId ⟩ ∙
+        R.≡in (disp.⋆IdRᴰ _)))
     ; Bif-R-seq = λ u v → funExt λ fᴰ → R.rectify
-      (R.≡[]∙ _ _ (vertᴰᵥ _ _)
-      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (vertToDispSeq u v))
-      (R.≡[]∙ _ _ (symP (disp.⋆Assocᴰ _ _ _))
-      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (symP (vertᴰᵥ fᴰ u)) refl)
-      (symP (vertᴰᵥ _ _))))))
+      (R.≡out (R.≡in (vertᴰᵥ _ _) ∙
+        R.⟨ refl ⟩⋆⟨ R.≡in (vertToDispSeq u v) ⟩ ∙
+        sym (R.≡in (disp.⋆Assocᴰ _ _ _)) ∙
+        R.⟨ sym (R.≡in (vertᴰᵥ fᴰ u)) ⟩⋆⟨ refl ⟩ ∙
+        sym (R.≡in (vertᴰᵥ _ _))))
     ; SepBif-RL-commute = λ {xᴰ'}{xᴰ}{yᴰ yᴰ'} u v →
       funExt λ fᴰ → R.rectify
-      (R.≡[]∙ _ _ (vertᵥᴰ _ _)
-      (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (vertᴰᵥ _ _))
-      (R.≡[]∙ _ _ (symP (disp.⋆Assocᴰ _ _ _))
-      (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (symP (vertᵥᴰ _ _)) refl)
-      (symP (vertᴰᵥ _ _))))))
+      (R.≡out (R.≡in (vertᵥᴰ _ _) ∙
+        R.⟨ refl ⟩⋆⟨ R.≡in (vertᴰᵥ _ _) ⟩ ∙
+        sym (R.≡in (disp.⋆Assocᴰ _ _ _)) ∙
+        R.⟨ sym (R.≡in (vertᵥᴰ _ _)) ⟩⋆⟨ refl ⟩ ∙
+        sym (R.≡in (vertᴰᵥ _ _))))
     })
 
 -- TODO: motivating examples:

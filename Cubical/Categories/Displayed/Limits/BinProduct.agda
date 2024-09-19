@@ -1,5 +1,4 @@
 {-# OPTIONS --safe #-}
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.BinProduct where
 
 open import Cubical.Foundations.Prelude

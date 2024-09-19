@@ -1,4 +1,5 @@
 {-# OPTIONS --safe #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.BinProduct where
 
 open import Cubical.Foundations.Prelude
@@ -99,12 +100,8 @@ module LiftedBinProductsNotation
         (R.reind (sym ×β₁) (fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,
           R.reind (sym ×β₂) (fᴰ Cᴰ.⋆ᴰ π₂ᴰ)) .snd
         ((R.reind (×η {f = f}) fᴰ) , ΣPathP
-        ( R.≡[]-rectify (R.≡[]∙ _ _
-          (R.≡[]⋆ _ _ (R.reind-filler-sym (sym ×η) fᴰ) (refl {x = π₁ᴰ}))
-          (R.reind-filler (sym ×β₁) _))
-        , R.≡[]-rectify (R.≡[]∙ _ _
-          (R.≡[]⋆ _ _ (R.reind-filler-sym (sym ×η) fᴰ) (refl {x = π₂ᴰ}))
-          (R.reind-filler (sym ×β₂) _))))
+        ((R.rectify (R.≡out (R.⟨ sym (R.reind-filler ×η fᴰ) ⟩⋆⟨ refl ⟩ ∙ R.reind-filler (sym ×β₁) _)))
+        , R.rectify (R.≡out (R.⟨ sym (R.reind-filler ×η fᴰ) ⟩⋆⟨ refl ⟩ ∙ R.reind-filler (sym ×β₂) _))))
     ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
     ×ηᴰ = toPathP (sym (cong fst ,pᴰ-contr))
 
@@ -154,13 +151,14 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
 module _ {C : Category ℓC ℓC'}{c c' : C .ob}
   (prod : BinProduct' C (c , c'))(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
-  open CartesianOver
-  open UniversalElementᴰ
-  open HomᴰReasoning Cᴰ
-
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module c×c' = BinProduct'Notation prod
+    module R = HomᴰReasoning Cᴰ
+
+  open CartesianOver
+  open UniversalElementᴰ
+  open R
 
   module _ {cᴰ : Cᴰ.ob[ c ]}{c'ᴰ : Cᴰ.ob[ c' ]}
     (lift-π₁ : CartesianOver Cᴰ cᴰ c×c'.π₁)
@@ -226,16 +224,20 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
         {x = Ξ} {xᴰ = θ} {f = h} .equiv-proof (fᴰ , gᴰ) = uniqueExists
           hᴰ
           (≡-×
-            (≡[]-rectify (aaa₁ [ _ ]∙[ _ ]
-              symP (Cᴰ.⋆Assocᴰ _ _ _) [ _ ]∙[ _ ]
-              bbb₁ [ _ ]∙[ _ ]
-              ccc₁ [ _ ]∙[ refl ]
-              fᴰ* .fst .snd))
-            (≡[]-rectify (aaa₂ [ _ ]∙[ _ ]
+            (rectify (≡out (≡in aaa₁ ∙
+              sym (≡in (Cᴰ.⋆Assocᴰ _ _ _)) ∙
+              ≡in bbb₁ ∙
+              ≡in ccc₁ ∙
+              ≡in (fᴰ* .fst .snd))))
+            (rectify (≡out (≡in aaa₂ ∙
+              sym (≡in (Cᴰ.⋆Assocᴰ _ _ _)) ∙
+              ≡in bbb₂ ∙
+              ≡in ccc₂ ∙
+              ≡in (gᴰ* .fst .snd)))) {- (≡[]-rectify (aaa₂ [ _ ]∙[ _ ]
               symP (Cᴰ.⋆Assocᴰ _ _ _) [ _ ]∙[ _ ]
               bbb₂ [ _ ]∙[ _ ]
               ccc₂ [ _ ]∙[ refl ]
-              gᴰ* .fst .snd)))
+              gᴰ* .fst .snd)) -})
           (λ _ → isSet× Cᴰ.isSetHomᴰ Cᴰ.isSetHomᴰ _ _)
           (λ hᴰ' p → goal hᴰ' p ∙ ϕ[π₁x]∧ψ[π₂x].η hᴰ')
           where
@@ -254,39 +256,36 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
           goal hᴰ' p = cong₂ ϕ[π₁x]∧ψ[π₂x].⟨_,_⟩ q₁ q₂
             where
             q₁'''' : (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* Cᴰ.≡[ _ ] fᴰ
-            q₁'''' = Cᴰ.⋆Assocᴰ _ _ _ [ _ ]∙[ _ ]
-              congP (λ _ x → hᴰ' Cᴰ.⋆ᴰ x) (reind-filler _ _) [ _ ]∙[ _ ]
-              congP (λ _ → fst) p
+            q₁'''' = ≡out (≡in (Cᴰ.⋆Assocᴰ _ _ _) ∙
+              R.⟨ refl ⟩⋆⟨ reind-filler _ _ ⟩ ∙
+              ≡in (congP (λ _ → fst) p))
             q₁''' :
               reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* ≡ fᴰ
-            q₁''' = ≡[]-rectify
-              (congP (λ _ x → x Cᴰ.⋆ᴰ B*.π₁*) (reind-filler-sym _ _)
-              [ _ ]∙[ _ ] q₁'''')
+            q₁''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙ ≡in q₁''''))
             q₁'' : fᴰ* .fst ≡
               (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
             q₁'' = fᴰ* .snd
               (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
             q₁' : fᴰ* .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
-            q₁' = congP (λ _ → fst) q₁'' [ _ ]∙[ _ ] reind-filler-sym _ _
+            q₁' = ≡out (≡in (congP (λ _ → fst) q₁'') ∙ sym (reind-filler _ _)) --congP (λ _ → fst) q₁'' [ _ ]∙[ _ ] reind-filler-sym _ _
             q₁ : fᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
-            q₁ = ≡[]-rectify (Cᴰ.⋆IdRᴰ (fᴰ* .fst .fst) [ _ ]∙[ _ ] q₁')
+            q₁ = rectify (≡out (≡in (Cᴰ.⋆IdRᴰ _) ∙ ≡in q₁'))
 
             q₂'''' : (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) Cᴰ.⋆ᴰ B*.π₂* Cᴰ.≡[ _ ] gᴰ
-            q₂'''' = Cᴰ.⋆Assocᴰ _ _ _ [ _ ]∙[ _ ]
-              (congP (λ _ x → hᴰ' Cᴰ.⋆ᴰ x) (reind-filler _ _)) [ _ ]∙[ _ ]
-              (congP (λ _ → snd) p)
+            q₂'''' = ≡out (≡in (Cᴰ.⋆Assocᴰ _ _ _) ∙
+              R.⟨ refl ⟩⋆⟨ reind-filler _ _ ⟩ ∙
+              ≡in (congP (λ _ → snd) p))
             q₂''' :
               reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) Cᴰ.⋆ᴰ B*.π₂* ≡ gᴰ
-            q₂''' = ≡[]-rectify (congP (λ _ x → x Cᴰ.⋆ᴰ B*.π₂*)
-              (reind-filler-sym _ _) [ _ ]∙[ _ ] q₂'''')
+            q₂''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙ ≡in q₂''''))
             q₂'' : gᴰ* .fst ≡
               (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
             q₂'' = gᴰ* .snd
               (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
             q₂' : gᴰ* .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂
-            q₂' = congP (λ _ → fst) q₂'' [ _ ]∙[ _ ] reind-filler-sym _ _
+            q₂' = ≡out (≡in (congP (λ _ → fst) q₂'') ∙ sym (reind-filler _ _))
             q₂ : gᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂
-            q₂ = ≡[]-rectify (Cᴰ.⋆IdRᴰ (gᴰ* .fst .fst) [ _ ]∙[ _ ] q₂')
+            q₂ = rectify (≡out (≡in (Cᴰ.⋆IdRᴰ _) ∙ ≡in q₂'))
 
           β :
             (hᴰ Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁ , hᴰ Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂)
@@ -295,10 +294,10 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
           β = ϕ[π₁x]∧ψ[π₂x].β' (fᴰ* .fst .fst) (gᴰ* .fst .fst)
 
           aaa₁ : hᴰ Cᴰ.⋆ᴰ π₁ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ π₁⋆π₁*
-          aaa₁ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (reind-filler-sym _ _)
+          aaa₁ = ≡out (R.⟨ refl ⟩⋆⟨ sym (reind-filler _ _) ⟩)
 
           aaa₂ : hᴰ Cᴰ.⋆ᴰ π₂ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ π₂⋆π₂*
-          aaa₂ = congP (λ _ x → hᴰ Cᴰ.⋆ᴰ x) (reind-filler-sym _ _)
+          aaa₂ = ≡out (R.⟨ refl ⟩⋆⟨ sym (reind-filler _ _) ⟩)
 
           bbb₁ : (hᴰ Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* ≡
             (fᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ B*.π₁*

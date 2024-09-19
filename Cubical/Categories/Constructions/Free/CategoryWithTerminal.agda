@@ -119,7 +119,7 @@ module _ (Ob : Type ℓg) where
           elim-F-homᴰ {d = d} (isProp!ₑ f g i) = goal i
             where
             goal : elim-F-homᴰ f Cᴰ.≡[ isProp!ₑ f g ] elim-F-homᴰ g
-            goal = ≡[]-rectify Cᴰ
+            goal = rectify Cᴰ
               (≡[]∙ Cᴰ _ _
               (𝟙ηᴰ {f = f} (elim-F-homᴰ f))
               (symP (𝟙ηᴰ {f = g} (elim-F-homᴰ g))))

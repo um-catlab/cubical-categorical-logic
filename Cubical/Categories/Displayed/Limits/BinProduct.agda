@@ -233,11 +233,7 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
               sym (≡in (Cᴰ.⋆Assocᴰ _ _ _)) ∙
               ≡in bbb₂ ∙
               ≡in ccc₂ ∙
-              ≡in (gᴰ* .fst .snd)))) {- (≡[]-rectify (aaa₂ [ _ ]∙[ _ ]
-              symP (Cᴰ.⋆Assocᴰ _ _ _) [ _ ]∙[ _ ]
-              bbb₂ [ _ ]∙[ _ ]
-              ccc₂ [ _ ]∙[ refl ]
-              gᴰ* .fst .snd)) -})
+              ≡in (gᴰ* .fst .snd)))))
           (λ _ → isSet× Cᴰ.isSetHomᴰ Cᴰ.isSetHomᴰ _ _)
           (λ hᴰ' p → goal hᴰ' p ∙ ϕ[π₁x]∧ψ[π₂x].η hᴰ')
           where

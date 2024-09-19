@@ -85,15 +85,15 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
   fiber[ x ] .Hom[_,_] = vert {x}
   fiber[ x ] .id = idᵥ
   fiber[ x ] ._⋆_ = _⋆ᵥ_
-  fiber[ x ] .⋆IdL v = vertToDispInj _ _ (R.≡[]-rectify (
+  fiber[ x ] .⋆IdL v = vertToDispInj _ _ (R.rectify (
     R.≡[]∙ _ _ (vertToDispSeq _ _)
     (R.≡[]∙ _ _ (R.≡[]⋆ _ refl vertToDispId refl)
     (disp.⋆IdLᴰ (vertToDisp v)))))
-  fiber[ x ] .⋆IdR v = vertToDispInj _ _ (R.≡[]-rectify
+  fiber[ x ] .⋆IdR v = vertToDispInj _ _ (R.rectify
     (R.≡[]∙ _ _ (vertToDispSeq _ _)
     (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl vertToDispId)
     (disp.⋆IdRᴰ (vertToDisp v)))))
-  fiber[ x ] .⋆Assoc u v w = vertToDispInj _ _ (R.≡[]-rectify
+  fiber[ x ] .⋆Assoc u v w = vertToDispInj _ _ (R.rectify
     (R.≡[]∙ _ _ (vertToDispSeq _ _)
     (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (vertToDispSeq _ _) refl)
     (R.≡[]∙ _ _ (disp.⋆Assocᴰ _ _ _)
@@ -108,28 +108,28 @@ record Categoryᴰ (C : Category ℓC ℓC') ℓCᴰ ℓCᴰ' ℓCᴰᵥ
     { Bif-ob = λ xᴰ yᴰ → disp.Hom[ f ][ xᴰ , yᴰ ] , disp.isSetHomᴰ
     ; Bif-homL = λ v yᴰ fᴰ → v ⋆ᵥᴰ fᴰ
     ; Bif-homR = λ xᴰ v fᴰ → fᴰ ⋆ᴰᵥ v
-    ; Bif-L-id = λ {xᴰ}{yᴰ} → funExt λ fᴰ → R.≡[]-rectify
+    ; Bif-L-id = λ {xᴰ}{yᴰ} → funExt λ fᴰ → R.rectify
       (R.≡[]∙ _ _ (vertᵥᴰ _ _)
       (R.≡[]∙ _ _ (R.≡[]⋆ _ refl vertToDispId refl)
       (disp.⋆IdLᴰ fᴰ)))
-    ; Bif-L-seq = λ u v → funExt λ fᴰ → R.≡[]-rectify
+    ; Bif-L-seq = λ u v → funExt λ fᴰ → R.rectify
       (R.≡[]∙ _ _ (vertᵥᴰ _ _)
       (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (vertToDispSeq v u) refl)
       (R.≡[]∙ _ _ (disp.⋆Assocᴰ _ _ _)
       (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (symP (vertᵥᴰ u fᴰ)))
       (symP (vertᵥᴰ _ _))))))
-    ; Bif-R-id = funExt λ fᴰ → R.≡[]-rectify
+    ; Bif-R-id = funExt λ fᴰ → R.rectify
       (R.≡[]∙ _ _ (vertᴰᵥ fᴰ _)
       (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl vertToDispId)
       (disp.⋆IdRᴰ fᴰ)))
-    ; Bif-R-seq = λ u v → funExt λ fᴰ → R.≡[]-rectify
+    ; Bif-R-seq = λ u v → funExt λ fᴰ → R.rectify
       (R.≡[]∙ _ _ (vertᴰᵥ _ _)
       (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (vertToDispSeq u v))
       (R.≡[]∙ _ _ (symP (disp.⋆Assocᴰ _ _ _))
       (R.≡[]∙ _ _ (R.≡[]⋆ _ refl (symP (vertᴰᵥ fᴰ u)) refl)
       (symP (vertᴰᵥ _ _))))))
     ; SepBif-RL-commute = λ {xᴰ'}{xᴰ}{yᴰ yᴰ'} u v →
-      funExt λ fᴰ → R.≡[]-rectify
+      funExt λ fᴰ → R.rectify
       (R.≡[]∙ _ _ (vertᵥᴰ _ _)
       (R.≡[]∙ _ _ (R.≡[]⋆ refl _ refl (vertᴰᵥ _ _))
       (R.≡[]∙ _ _ (symP (disp.⋆Assocᴰ _ _ _))

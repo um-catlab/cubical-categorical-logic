@@ -37,7 +37,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     NatTransᴰ (idTrans F) Fᴰ Fᴰ
   idTransᴰ F Fᴰ .N-obᴰ {x = c} cᴰ = Dᴰ .idᴰ
   idTransᴰ F Fᴰ .N-homᴰ {x = c} {y = c'} {f = f} {xᴰ = cᴰ} {yᴰ = c'ᴰ} fᴰ =
-    ≡[]-rectify (Dᴰ .⋆IdRᴰ _ [ _ ]∙[ _ ] symP (Dᴰ .⋆IdLᴰ _))
+    rectify (Dᴰ .⋆IdRᴰ _ [ _ ]∙[ _ ] symP (Dᴰ .⋆IdLᴰ _))
 
   makeNatTransPathᴰ : {F G : Functor C D}{α β : NatTrans F G}
       {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}

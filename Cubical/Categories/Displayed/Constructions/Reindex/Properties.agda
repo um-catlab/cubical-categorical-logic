@@ -67,7 +67,7 @@ module _
         ⟨gfᴰ⟩' = f-lift .isCartesian dᴰ'' (F ⟪ g ⟫) gfᴰ'
 
         ⟨gfᴰ⟩'-commutes : ⟨gfᴰ⟩' .fst .fst F*Dᴰ.⋆ᴰ f-lift .π ≡ gfᴰ
-        ⟨gfᴰ⟩'-commutes = R.≡[]-rectify (R.≡[]∙ _ _ (R.≡[]∙ _ _
+        ⟨gfᴰ⟩'-commutes = R.rectify (R.≡[]∙ _ _ (R.≡[]∙ _ _
           (R.reind-filler-sym (F .F-seq g f) _)
           (⟨gfᴰ⟩' .fst .snd))
           (symP (R.reind-filler (F .F-seq g f) gfᴰ)))
@@ -77,7 +77,7 @@ module _
           → (gᴰ F*Dᴰ.⋆ᴰ f-lift .π) ≡ gfᴰ
           → ⟨gfᴰ⟩' .fst .fst ≡ gᴰ
         ⟨gfᴰ⟩'-uniq gᴰ gᴰ-commutes = cong fst (⟨gfᴰ⟩' .snd (gᴰ ,
-          (R.≡[]-rectify (R.≡[]∙ _ _ (R.≡[]∙ _ _
+          (R.rectify (R.≡[]∙ _ _ (R.≡[]∙ _ _
             (R.reind-filler (sym (F .F-seq _ _)) _)
             gᴰ-commutes)
             (R.reind-filler (F .F-seq g f) gfᴰ)))))
@@ -153,11 +153,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         l-β = vbp .universalᴰ .equiv-proof reind-cone .fst .snd
         reind-l-β : (l Rᴰ.⋆ᴰ reind-π₁ , l Rᴰ.⋆ᴰ reind-π₂) ≡ cone
         reind-l-β = ≡-×
-          (≡[]-rectify (reind-filler-sym _ _ [ _ ]∙[ _ ]
+          (rectify (reind-filler-sym _ _ [ _ ]∙[ _ ]
             congP (λ _ x → l Dᴰ.⋆ᴰ x) (reind-filler-sym _ _) [ _ ]∙[ _ ]
             congS fst l-β [ _ ]∙[ _ ]
             reind-filler-sym _ _))
-          (≡[]-rectify (reind-filler-sym _ _ [ _ ]∙[ _ ]
+          (rectify (reind-filler-sym _ _ [ _ ]∙[ _ ]
             congP (λ _ x → l Dᴰ.⋆ᴰ x) (reind-filler-sym _ _) [ _ ]∙[ _ ]
             congS snd l-β [ _ ]∙[ _ ]
             reind-filler-sym _ _))
@@ -165,12 +165,12 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
           (x₁ : (l' Rᴰ.⋆ᴰ reind-π₁ , l' Rᴰ.⋆ᴰ reind-π₂) ≡ cone) →
           (l' Dᴰ.⋆ᴰ Fcᴰ∧Fcᴰ'.π₁ , l' Dᴰ.⋆ᴰ Fcᴰ∧Fcᴰ'.π₂) ≡ reind-cone
         subgoal l' x₁ = ≡-×
-          (≡[]-rectify
+          (rectify
             (congP (λ _ x → l' Dᴰ.⋆ᴰ x) (reind-filler _ _) [ _ ]∙[ _ ]
             reind-filler _ _ [ _ ]∙[ _ ]
             congS fst x₁ [ _ ]∙[ _ ]
             reind-filler _ _))
-          (≡[]-rectify
+          (rectify
             (congP (λ _ x → l' Dᴰ.⋆ᴰ x) (reind-filler _ _) [ _ ]∙[ _ ]
             reind-filler _ _ [ _ ]∙[ _ ]
             congS snd x₁ [ _ ]∙[ _ ]

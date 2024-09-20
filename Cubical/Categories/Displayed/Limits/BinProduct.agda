@@ -159,7 +159,6 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
 
   open CartesianOver
   open UniversalElementᴰ
-  open R
 
   module _ {cᴰ : Cᴰ.ob[ c ]}{c'ᴰ : Cᴰ.ob[ c' ]}
     (lift-π₁ : CartesianOver Cᴰ cᴰ c×c'.π₁)
@@ -212,10 +211,10 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
         π₂⋆π₂* = ϕ[π₁x]∧ψ[π₂x].π₂ Cᴰ.⋆ᴰ B*.π₂*
 
         π₁ᴰ : Cᴰ.Hom[ c×c'.π₁ ][ ϕ[π₁x]∧ψ[π₂x].vert , ϕ ]
-        π₁ᴰ = reind (C .⋆IdL _) π₁⋆π₁*
+        π₁ᴰ = R.reind (C .⋆IdL _) π₁⋆π₁*
 
         π₂ᴰ : Cᴰ.Hom[ c×c'.π₂ ][ ϕ[π₁x]∧ψ[π₂x].vert , ψ ]
-        π₂ᴰ = reind (C .⋆IdL _) π₂⋆π₂*
+        π₂ᴰ = R.reind (C .⋆IdL _) π₂⋆π₂*
 
       VerticalBinProdsAt→LiftedBinProduct : LiftedBinProduct Cᴰ prod (ϕ , ψ)
       VerticalBinProdsAt→LiftedBinProduct .vertexᴰ = ϕ[π₁x]∧ψ[π₂x].vert
@@ -225,16 +224,16 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
         {x = Ξ} {xᴰ = θ} {f = h} .equiv-proof (fᴰ , gᴰ) = uniqueExists
           hᴰ
           (≡-×
-            (rectify (≡out (≡in aaa₁ ∙
-              sym (≡in (Cᴰ.⋆Assocᴰ _ _ _)) ∙
-              ≡in bbb₁ ∙
-              ≡in ccc₁ ∙
-              ≡in (fᴰ* .fst .snd))))
-            (rectify (≡out (≡in aaa₂ ∙
-              sym (≡in (Cᴰ.⋆Assocᴰ _ _ _)) ∙
-              ≡in bbb₂ ∙
-              ≡in ccc₂ ∙
-              ≡in (gᴰ* .fst .snd)))))
+            (R.rectify (R.≡out (R.≡in aaa₁ ∙
+              sym (R.⋆Assoc _ _ _) ∙
+              R.≡in bbb₁ ∙
+              R.≡in ccc₁ ∙
+              R.≡in (fᴰ* .fst .snd))))
+            (R.rectify (R.≡out (R.≡in aaa₂ ∙
+              sym (R.⋆Assoc _ _ _) ∙
+              R.≡in bbb₂ ∙
+              R.≡in ccc₂ ∙
+              R.≡in (gᴰ* .fst .snd)))))
           (λ _ → isSet× Cᴰ.isSetHomᴰ Cᴰ.isSetHomᴰ _ _)
           (λ hᴰ' p → goal hᴰ' p ∙ ϕ[π₁x]∧ψ[π₂x].η hᴰ')
           where
@@ -253,38 +252,38 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
           goal hᴰ' p = cong₂ ϕ[π₁x]∧ψ[π₂x].⟨_,_⟩ q₁ q₂
             where
             q₁'''' : (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* Cᴰ.≡[ _ ] fᴰ
-            q₁'''' = ≡out (≡in (Cᴰ.⋆Assocᴰ _ _ _) ∙
-              R.⟨ refl ⟩⋆⟨ reind-filler _ _ ⟩ ∙
-              ≡in (congP (λ _ → fst) p))
+            q₁'''' = R.≡out (R.⋆Assoc _ _ _ ∙
+              R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩ ∙
+              R.≡in (congP (λ _ → fst) p))
             q₁''' :
-              reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* ≡ fᴰ
-            q₁''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
-                                   ≡in q₁''''))
+              R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* ≡ fᴰ
+            q₁''' = R.rectify (R.≡out (R.⟨ sym (R.reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
+                                   R.≡in q₁''''))
             q₁'' : fᴰ* .fst ≡
-              (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
+              (R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
             q₁'' = fᴰ* .snd
-              (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
+              (R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
             q₁' : fᴰ* .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
-            q₁' = ≡out (≡in (congP (λ _ → fst) q₁'') ∙ sym (reind-filler _ _))
+            q₁' = R.≡out (R.≡in (congP (λ _ → fst) q₁'') ∙ sym (R.reind-filler _ _))
             q₁ : fᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
-            q₁ = rectify (≡out (≡in (Cᴰ.⋆IdRᴰ _) ∙ ≡in q₁'))
+            q₁ = R.rectify (R.≡out (R.⋆IdR _ ∙ R.≡in q₁'))
 
             q₂'''' : (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) Cᴰ.⋆ᴰ B*.π₂* Cᴰ.≡[ _ ] gᴰ
-            q₂'''' = ≡out (≡in (Cᴰ.⋆Assocᴰ _ _ _) ∙
-              R.⟨ refl ⟩⋆⟨ reind-filler _ _ ⟩ ∙
-              ≡in (congP (λ _ → snd) p))
+            q₂'''' = R.≡out (R.⋆Assoc _ _ _ ∙
+              R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩ ∙
+              R.≡in (congP (λ _ → snd) p))
             q₂''' :
-              reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) Cᴰ.⋆ᴰ B*.π₂* ≡ gᴰ
-            q₂''' = rectify (≡out (R.⟨ sym (reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
-                             ≡in q₂''''))
+              R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) Cᴰ.⋆ᴰ B*.π₂* ≡ gᴰ
+            q₂''' = R.rectify (R.≡out (R.⟨ sym (R.reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
+                             R.≡in q₂''''))
             q₂'' : gᴰ* .fst ≡
-              (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
+              (R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
             q₂'' = gᴰ* .snd
-              (reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
+              (R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
             q₂' : gᴰ* .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂
-            q₂' = ≡out (≡in (congP (λ _ → fst) q₂'') ∙ sym (reind-filler _ _))
+            q₂' = R.≡out (R.≡in (congP (λ _ → fst) q₂'') ∙ sym (R.reind-filler _ _))
             q₂ : gᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂
-            q₂ = rectify (≡out (≡in (Cᴰ.⋆IdRᴰ _) ∙ ≡in q₂'))
+            q₂ = R.rectify (R.≡out (R.⋆IdR _ ∙ R.≡in q₂'))
 
           β :
             (hᴰ Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁ , hᴰ Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂)
@@ -293,10 +292,10 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
           β = ϕ[π₁x]∧ψ[π₂x].β' (fᴰ* .fst .fst) (gᴰ* .fst .fst)
 
           aaa₁ : hᴰ Cᴰ.⋆ᴰ π₁ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ π₁⋆π₁*
-          aaa₁ = ≡out (R.⟨ refl ⟩⋆⟨ sym (reind-filler _ _) ⟩)
+          aaa₁ = R.≡out (R.⟨ refl ⟩⋆⟨ sym (R.reind-filler _ _) ⟩)
 
           aaa₂ : hᴰ Cᴰ.⋆ᴰ π₂ᴰ Cᴰ.≡[ _ ] hᴰ Cᴰ.⋆ᴰ π₂⋆π₂*
-          aaa₂ = ≡out (R.⟨ refl ⟩⋆⟨ sym (reind-filler _ _) ⟩)
+          aaa₂ = R.≡out (R.⟨ refl ⟩⋆⟨ sym (R.reind-filler _ _) ⟩)
 
           bbb₁ : (hᴰ Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) Cᴰ.⋆ᴰ B*.π₁* ≡
             (fᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ) Cᴰ.⋆ᴰ B*.π₁*

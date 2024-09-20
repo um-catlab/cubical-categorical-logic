@@ -264,7 +264,8 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
             q₁'' = fᴰ* .snd
               (R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁) , q₁''')
             q₁' : fᴰ* .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
-            q₁' = R.≡out (R.≡in (congP (λ _ → fst) q₁'') ∙ sym (R.reind-filler _ _))
+            q₁' =
+              R.≡out (R.≡in (congP (λ _ → fst) q₁'') ∙ sym (R.reind-filler _ _))
             q₁ : fᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₁
             q₁ = R.rectify (R.≡out (R.⋆IdR _ ∙ R.≡in q₁'))
 
@@ -281,7 +282,8 @@ module _ {C : Category ℓC ℓC'}{c c' : C .ob}
             q₂'' = gᴰ* .snd
               (R.reind (C .⋆IdR h) (hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂) , q₂''')
             q₂' : gᴰ* .fst .fst Cᴰ.≡[ _ ] hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂
-            q₂' = R.≡out (R.≡in (congP (λ _ → fst) q₂'') ∙ sym (R.reind-filler _ _))
+            q₂' =
+              R.≡out (R.≡in (congP (λ _ → fst) q₂'') ∙ sym (R.reind-filler _ _))
             q₂ : gᴰ* .fst .fst Cᴰ.⋆ᴰ Cᴰ.idᴰ ≡ hᴰ' Cᴰ.⋆ᴰ ϕ[π₁x]∧ψ[π₂x].π₂
             q₂ = R.rectify (R.≡out (R.⋆IdR _ ∙ R.≡in q₂'))
 

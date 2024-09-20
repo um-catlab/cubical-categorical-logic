@@ -25,19 +25,19 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   open NatTransᴰ
   open NatTrans
   open Functor
-  open import Cubical.Categories.Displayed.Reasoning Dᴰ
 
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module Dᴰ = Categoryᴰ Dᴰ
     module C = Category C
     module D = Category D
+    import Cubical.Categories.Displayed.Reasoning Dᴰ as R
 
   idTransᴰ : (F : Functor C D)(Fᴰ : Functorᴰ F Cᴰ Dᴰ) →
     NatTransᴰ (idTrans F) Fᴰ Fᴰ
   idTransᴰ F Fᴰ .N-obᴰ {x = c} cᴰ = Dᴰ .idᴰ
   idTransᴰ F Fᴰ .N-homᴰ {x = c} {y = c'} {f = f} {xᴰ = cᴰ} {yᴰ = c'ᴰ} fᴰ =
-    rectify (≡out (≡in (Dᴰ. ⋆IdRᴰ _) ∙ (sym (≡in (Dᴰ .⋆IdLᴰ _)))))
+    R.rectify (R.≡out (R.⋆IdR _ ∙ (sym (R.⋆IdL _))))
 
   makeNatTransPathᴰ : {F G : Functor C D}{α β : NatTrans F G}
       {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}

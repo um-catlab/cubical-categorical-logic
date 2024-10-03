@@ -13,6 +13,10 @@ if [ ! -d "$VENV_DIR" ]; then
 
 fi
 
+if [ ! -e "$VENV_DIR/bin/activate" ]; then
+    echo "If you just installed python3-venv, you need to remove $VENV_DIR and re-run this script"
+    exit 1
+fi
 source "$VENV_DIR/bin/activate"
 
 if [ $? -ne 0 ]; then

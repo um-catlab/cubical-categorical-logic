@@ -38,7 +38,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
   open ProductQuiver
   private module Q = ×QuiverNotation Q
   data Exp : Q.Ob → Q.Ob → Type (ℓ-max ℓQ ℓQ') where
-    ↑ₑ_ : ∀ t → Exp (Q.Dom t) (Q.Cod t)
+    ↑ₑ_ : ∀ t → Exp (Q.Dom t) (↑ (Q.Cod t))
     idₑ : ∀{Γ} → Exp Γ Γ
     _⋆ₑ_ : ∀{Γ Γ' Γ''}(δ : Exp Γ Γ') → (δ' : Exp Γ' Γ'') →  Exp Γ Γ''
     ⋆ₑIdL : ∀{Γ Δ}(δ : Exp Γ Δ) → idₑ ⋆ₑ δ ≡ δ
@@ -97,7 +97,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       elim-F-ob (c₁ × c₂) = elim-F-ob c₁ ×ᴰ elim-F-ob c₂
 
       module _ (ı-hom : ∀ e →
-        Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob (Q.Dom e) , elim-F-ob (Q.Cod e) ])
+        Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob (Q.Dom e) , elim-F-ob (↑ (Q.Cod e)) ])
         where
         open Section
         private
@@ -158,7 +158,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         (ψ : (e : Q .snd .mor) →
                Dᴰ.Hom[ F ⟪ ↑ₑ e ⟫ ][
                elim-F-ob CCᴰ ϕ (Q.Dom e) ,
-               elim-F-ob CCᴰ ϕ (Q.Cod e)
+               elim-F-ob CCᴰ ϕ (↑ (Q.Cod e))
                ])
         where
         elimLocal' : Section F Dᴰ
@@ -195,7 +195,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         (ψ : (e : Q .snd .mor) →
           Dᴰ.Hom[ F ⟪ ↑ₑ e ⟫ ][
             elim-F-ob CCᴰ ϕ (Q.Dom e) ,
-            elim-F-ob CCᴰ ϕ (Q.Cod e)
+            elim-F-ob CCᴰ ϕ (↑ (Q.Cod e))
           ]) where
         elimLocal : Section F Dᴰ
         elimLocal = elimLocal' lt lbp ϕ ψ
@@ -215,7 +215,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     module _ (ψ : (e : Q .snd .mor) →
       CC .fst [
         ϕ* (Q.Dom e) ,
-        ϕ* (Q.Cod e)
+        ϕ* (↑ (Q.Cod e))
       ])
       where
       -- TODO: rec preserves finite products

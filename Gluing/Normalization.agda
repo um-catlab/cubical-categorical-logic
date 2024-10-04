@@ -58,7 +58,7 @@ module _ (Q : ×Quiver ℓq ℓq') where
       var : ∀{τ : Cl .fst .ob} → NeutralTerm τ τ
       proj₁ : ∀{τ₁ τ₂} → NeutralTerm τ₁ (τ₁ CCProd.× τ₂)
       proj₂ : ∀{τ₁ τ₂} → NeutralTerm τ₂ (τ₁ CCProd.× τ₂)
-      symb : ∀(f : Q.mor){Γ}(M : NormalForm (Q.dom f) Γ) → NeutralTerm (Q.cod f) Γ
+      symb : ∀(f : Q.mor){Γ}(M : NormalForm (Q.dom f) Γ) → NeutralTerm (↑ (Q.cod f)) Γ
       isSetNe : ∀{τ Γ} → isSet (NeutralTerm τ Γ)
     data NormalForm where
       shift : ∀{τ : Q .fst} {Γ} → NeutralTerm (↑ τ) Γ → NormalForm (↑ τ) Γ

@@ -15,7 +15,7 @@ module _ (ob : Type ℓ) where
     field
       mor : Type ℓ'
       dom : mor → ProdExpr
-      cod : mor → ProdExpr
+      cod : mor → ob
 
 ×Quiver : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 ×Quiver ℓ ℓ' = Σ[ ob ∈ Type ℓ ] ProductQuiver ob ℓ'

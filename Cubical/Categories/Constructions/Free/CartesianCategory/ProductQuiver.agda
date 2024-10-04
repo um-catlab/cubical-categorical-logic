@@ -21,7 +21,7 @@ module _ (ob : Type ℓ) where
 ×Quiver ℓ ℓ' = Σ[ ob ∈ Type ℓ ] ProductQuiver ob ℓ'
 
 module ×QuiverNotation (Q : ×Quiver ℓ ℓ') where
-  open ProductQuiver
+  open ProductQuiver (Q .snd) public
   Ob = ProdExpr (Q .fst)
-  Dom = Q .snd .dom
-  Cod = Q .snd .cod
+  Dom = dom
+  Cod = cod

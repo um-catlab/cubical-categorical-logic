@@ -26,8 +26,8 @@ module CartesianCategoryNotation (CC : CartesianCategory ℓ ℓ') where
   private
     C = CC .fst
   open Category C
-  open Notation C (CC .snd .snd) renaming (_×_ to _×bp_)
-  open TerminalNotation C (CC .snd .fst)
+  open Notation C (CC .snd .snd) renaming (_×_ to _×bp_) public
+  open TerminalNotation C (CC .snd .fst) public
 
   unitor-l : ∀ {a} → CatIso C (𝟙 ×bp a) a
   unitor-l .fst = π₂

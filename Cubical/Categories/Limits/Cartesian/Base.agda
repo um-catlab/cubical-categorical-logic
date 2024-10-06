@@ -25,7 +25,7 @@ CartesianCategory ℓ ℓ' = Σ[ C ∈ Category ℓ ℓ' ] Terminal C × BinProd
 module CartesianCategoryNotation (CC : CartesianCategory ℓ ℓ') where
   private
     C = CC .fst
-  open Category C
+  open Category C public
   open Notation C (CC .snd .snd) renaming (_×_ to _×bp_) public
   open TerminalNotation C (CC .snd .fst) public
 

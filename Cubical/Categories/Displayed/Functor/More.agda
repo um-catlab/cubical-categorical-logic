@@ -15,7 +15,7 @@ import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
   variable
-    ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' : Level
+    ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -94,3 +94,19 @@ module _
 
       GF-hom : GF-hom-ty GF-ob
       GF-hom = _ , GF-hom≡FF-hom
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ C ℓEᴰ ℓEᴰ'}
+  (Gᴰ : Functorᴰ Id Dᴰ Eᴰ) (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
+  where
+
+  open Functorᴰ
+  private
+    module Fᴰ = Functorᴰ Fᴰ
+    module Gᴰ = Functorᴰ Gᴰ
+
+  -- TODO: "profunctor" version of this where only one of Gᴰ, Fᴰ is vertical
+  vfuncCompᴰ : Functorᴰ Id Cᴰ Eᴰ
+  vfuncCompᴰ = reindF' Id Eq.refl Eq.refl (Gᴰ ∘Fᴰ Fᴰ)
+
+_∘Fᵛᴰ_ = vfuncCompᴰ

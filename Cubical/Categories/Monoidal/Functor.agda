@@ -62,3 +62,37 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
       strmonstr : StrongMonoidalStr F
     open Functor F public
     open StrongMonoidalStr strmonstr public
+
+module _ {M : MonoidalCategory ℓC ℓC'} where
+  open LaxMonoidalStr
+  open Functor
+  private
+    module M = MonoidalCategory M
+    
+  IdLaxStr : LaxMonoidalStr M M (Id {C = M.C})
+  IdLaxStr .ε = M.id
+  IdLaxStr .μ = natTrans (λ _ → M.id) (λ f → M.⋆IdR _ ∙ sym (M.⋆IdL _))
+  IdLaxStr .assoc-law x y z =
+    M.⋆IdR _
+    ∙ (λ i → M.α⟨ _ , _ , _ ⟩ M.⋆ (M.─⊗─ .F-id i))
+    ∙ M.⋆IdR _
+    ∙ sym (M.⋆IdL _)
+    ∙ (λ i → (M.─⊗─ .F-id (~ i)) M.⋆ M.α⟨ _ , _ , _ ⟩)
+    ∙ cong₂ M._⋆_ (sym (M.⋆IdR _)) refl
+  IdLaxStr .unit-law x =
+    cong₂ M._⋆_ (M.⋆IdR _) refl
+    ∙ cong₂ M._⋆_ (M.─⊗─ .F-id) refl
+    ∙ M.⋆IdL _
+
+  IdStrStr : StrongMonoidalStr M M (Id {C = M.C})
+  IdStrStr .StrongMonoidalStr.laxmonstr = IdLaxStr
+  IdStrStr .StrongMonoidalStr.ε-iso = idCatIso .snd 
+  IdStrStr .StrongMonoidalStr.μ-iso = λ _ → idCatIso .snd
+
+  IdLax : LaxMonoidalFunctor M M
+  IdLax .LaxMonoidalFunctor.F = Id
+  IdLax .LaxMonoidalFunctor.laxmonstr = IdLaxStr
+
+  IdStr : StrongMonoidalFunctor M M
+  IdStr .StrongMonoidalFunctor.F = Id
+  IdStr .StrongMonoidalFunctor.strmonstr = IdStrStr

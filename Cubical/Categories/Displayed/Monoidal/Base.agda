@@ -13,6 +13,7 @@ open import Cubical.Categories.NaturalTransformation.Base
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.NaturalTransformation
@@ -81,4 +82,38 @@ module _ (M : MonoidalCategory ℓM ℓM') where
           → (αᴰ⟨ xᴰ , unitᴰ , yᴰ ⟩ Cᴰ.⋆ᴰ (ρᴰ⟨ xᴰ ⟩ ⊗ₕᴰ Cᴰ.idᴰ))
               Cᴰ.≡[ M.triangle x y ]
             (Cᴰ.idᴰ ⊗ₕᴰ ηᴰ⟨ yᴰ ⟩)
-<>
+
+    record MonoidalPropᴰ : Type (ℓ-max (ℓ-max ℓM ℓM') (ℓ-max ℓMᴰ ℓMᴰ')) where
+      field
+        tenstrᴰ : TensorStrᴰ
+      open TensorStrᴰ tenstrᴰ public
+      field
+        αᴰ⟨_,_,_⟩ : ∀ {x y z} xᴰ yᴰ zᴰ
+          → Cᴰ.Hom[ M.α⟨ x , y , z ⟩ ][ xᴰ ⊗ᴰ (yᴰ ⊗ᴰ zᴰ) , (xᴰ ⊗ᴰ yᴰ) ⊗ᴰ zᴰ ]
+        α⁻¹ᴰ⟨_,_,_⟩ : ∀ {x y z} xᴰ yᴰ zᴰ
+          → Cᴰ.Hom[ M.α⁻¹⟨ x , y , z ⟩ ][ (xᴰ ⊗ᴰ yᴰ) ⊗ᴰ zᴰ , xᴰ ⊗ᴰ (yᴰ ⊗ᴰ zᴰ) ]
+
+        ηᴰ⟨_⟩ : ∀ {x} xᴰ
+          → Cᴰ.Hom[ M.η⟨ x ⟩ ][ unitᴰ ⊗ᴰ xᴰ , xᴰ ]
+        η⁻¹ᴰ⟨_⟩ : ∀ {x} xᴰ
+          → Cᴰ.Hom[ M.η⁻¹⟨ x ⟩ ][ xᴰ , unitᴰ ⊗ᴰ xᴰ ]
+
+        ρᴰ⟨_⟩ : ∀ {x} xᴰ
+          → Cᴰ.Hom[ M.ρ⟨ x ⟩ ][ xᴰ ⊗ᴰ unitᴰ , xᴰ ]
+        ρ⁻¹ᴰ⟨_⟩ : ∀ {x} xᴰ
+          → Cᴰ.Hom[ M.ρ⁻¹⟨ x ⟩ ][ xᴰ , xᴰ ⊗ᴰ unitᴰ ]
+
+    TensorPropᴰ→TensorStrᴰ : hasPropHoms Cᴰ → MonoidalPropᴰ → MonoidalStrᴰ
+    TensorPropᴰ→TensorStrᴰ isPropHomᴰ TP = record
+      { tenstrᴰ = TP.tenstrᴰ
+      ; αᴰ = mkNatIsoPropHom M.α _ _ isPropHomᴰ
+             (λ xᴰ → TP.αᴰ⟨ _ , _ , _ ⟩) λ xᴰ → TP.α⁻¹ᴰ⟨ _ , _ , _ ⟩
+      ; ηᴰ = mkNatIsoPropHom M.η _ _ isPropHomᴰ
+             (λ xᴰ → TP.ηᴰ⟨ _ ⟩) λ xᴰ → TP.η⁻¹ᴰ⟨ _ ⟩
+      ; ρᴰ = mkNatIsoPropHom M.ρ _ _ isPropHomᴰ
+             (λ xᴰ → TP.ρᴰ⟨ _ ⟩) λ xᴰ → TP.ρ⁻¹ᴰ⟨ _ ⟩
+      ; pentagonᴰ = λ wᴰ xᴰ yᴰ zᴰ → propHomsFiller Cᴰ isPropHomᴰ _ _ _
+      ; triangleᴰ = λ xᴰ yᴰ → propHomsFiller Cᴰ isPropHomᴰ _ _ _
+      }
+      where
+        module TP = MonoidalPropᴰ TP

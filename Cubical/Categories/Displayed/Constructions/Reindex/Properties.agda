@@ -16,6 +16,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base hiding (π)
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
@@ -45,6 +46,9 @@ module _
     module R = HomᴰReasoning Dᴰ
     module F*Dᴰ = Categoryᴰ F*Dᴰ
     module Dᴰ = Categoryᴰ Dᴰ
+
+  hasPropHomsReindex : hasPropHoms Dᴰ → hasPropHoms (reindex Dᴰ F)
+  hasPropHomsReindex = λ z {c} {c'} f → z (F-hom F f)
 
   module _
     {c : C .ob}{c' : C .ob}

@@ -25,10 +25,11 @@ open import Cubical.Categories.Displayed.Constructions.TotalCategory
   as TotalCatᴰ hiding (introS; introF)
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
   hiding (introF)
-
+open import Cubical.Categories.Displayed.Reasoning as Reasoning
 private
   variable
-    ℓC ℓC' ℓD ℓD' : Level
+    ℓB ℓB' ℓC ℓC' ℓD ℓD' : Level
+    ℓBᴰ ℓBᴰ' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' : Level
     ℓDᴰ₀ ℓDᴰ₀' ℓDᴰ₁ ℓDᴰ₁' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
@@ -49,6 +50,25 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
   Δᴰ .F-homᴰ fᴰ = fᴰ , fᴰ
   Δᴰ .F-idᴰ = refl
   Δᴰ .F-seqᴰ fᴰ gᴰ = refl
+
+module _
+  {B : Category ℓB ℓB'} {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {E : Category ℓE ℓE'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  {F : Functor B C}{G : Functor D E}
+  (Fᴰ : Functorᴰ F Bᴰ Cᴰ) (Gᴰ : Functorᴰ G Dᴰ Eᴰ)
+  where
+  open Functorᴰ
+  private
+    module RCᴰ = Reasoning Cᴰ
+    module REᴰ = Reasoning Eᴰ
+  _×Fᴰ_ : Functorᴰ (F ×F G) (Bᴰ ×Cᴰ Dᴰ) (Cᴰ ×Cᴰ Eᴰ)
+  _×Fᴰ_ .F-obᴰ x = (F-obᴰ Fᴰ (x .fst)) , (F-obᴰ Gᴰ (x .snd))
+  _×Fᴰ_ .F-homᴰ f = F-homᴰ Fᴰ (f .fst) , F-homᴰ Gᴰ (f .snd)
+  _×Fᴰ_ .F-idᴰ = ΣPathP (RCᴰ.rectify (F-idᴰ Fᴰ) , REᴰ.rectify (Gᴰ .F-idᴰ))
+  _×Fᴰ_ .F-seqᴰ fᴰ gᴰ =
+    ΣPathP ((RCᴰ.rectify (Fᴰ .F-seqᴰ _ _)) , REᴰ.rectify (Gᴰ .F-seqᴰ _ _))
 
 module _ {C : Category ℓC ℓC'}
   {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}

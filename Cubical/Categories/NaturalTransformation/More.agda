@@ -91,3 +91,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D}
          (α : NatTrans F G) where
   isNatIso : Type _
   isNatIso = ∀ x → isIsoC D (α .N-ob x)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D}
+         (α : F ≅ᶜ G) where
+  NatIsoAt : ∀ x → CatIso D (F ⟅ x ⟆) (G ⟅ x ⟆)
+  NatIsoAt x = (N-ob (α .trans) x) , (α .nIso x)

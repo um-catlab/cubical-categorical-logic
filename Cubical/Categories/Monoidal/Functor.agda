@@ -32,14 +32,16 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
       μ⟨ x , y ⟩ = μ ⟦ x , y ⟧
 
       field
-        assoc-law : ∀ (x y z : M.C .ob) →
+        α-law : ∀ (x y z : M.C .ob) →
           Path (N.C [ (F ⟅ x ⟆) N.⊗ ((F ⟅ y ⟆) N.⊗ (F ⟅ z ⟆)) , F ⟅ (x M.⊗ y) M.⊗ z ⟆ ])
             (N.α⟨ _ , _ , _ ⟩ ⋆⟨ N.C ⟩ (μ⟨ x , y ⟩ N.⊗ₕ N.id) ⋆⟨ N.C ⟩ μ⟨ _ , z ⟩)
             (N.id N.⊗ₕ μ⟨ y , z ⟩ ⋆⟨ N.C ⟩ μ⟨ x , _ ⟩ ⋆⟨ N.C ⟩ F ⟪ M.α⟨ x , y , z ⟩ ⟫)
-        unit-law : ∀ x →
+        η-law : ∀ x →
           Path (N.C [ N.unit N.⊗ (F ⟅ x ⟆) , F ⟅ x ⟆ ])
             (ε N.⊗ₕ N.id ⋆⟨ N.C ⟩ μ⟨ M.unit , x ⟩ ⋆⟨ N.C ⟩ F ⟪ M.η⟨ x ⟩ ⟫)
             N.η⟨ F ⟅ x ⟆ ⟩
+
+    -- TODO: α⁻¹-law, η⁻¹-law, ρ-law ρ⁻¹-law all derivable
 
     record StrongMonoidalStr : Type ((ℓ-max ℓC (ℓ-max ℓC' ℓD'))) where
       field
@@ -72,14 +74,14 @@ module _ {M : MonoidalCategory ℓC ℓC'} where
   IdLaxStr : LaxMonoidalStr M M (Id {C = M.C})
   IdLaxStr .ε = M.id
   IdLaxStr .μ = natTrans (λ _ → M.id) (λ f → M.⋆IdR _ ∙ sym (M.⋆IdL _))
-  IdLaxStr .assoc-law x y z =
+  IdLaxStr .α-law x y z =
     M.⋆IdR _
     ∙ (λ i → M.α⟨ _ , _ , _ ⟩ M.⋆ (M.─⊗─ .F-id i))
     ∙ M.⋆IdR _
     ∙ sym (M.⋆IdL _)
     ∙ (λ i → (M.─⊗─ .F-id (~ i)) M.⋆ M.α⟨ _ , _ , _ ⟩)
     ∙ cong₂ M._⋆_ (sym (M.⋆IdR _)) refl
-  IdLaxStr .unit-law x =
+  IdLaxStr .η-law x =
     cong₂ M._⋆_ (M.⋆IdR _) refl
     ∙ cong₂ M._⋆_ (M.─⊗─ .F-id) refl
     ∙ M.⋆IdL _

@@ -9,6 +9,8 @@ open import Cubical.Data.Sigma hiding (_×_)
 import Cubical.Data.Sigma as Σ
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Functor
 open import Cubical.Categories.Functor
@@ -53,7 +55,7 @@ module _ (X : Type ℓ) where
       → ((f ⊗ (g ⊗ h)) ⋆ₑ α) ≡ (α ⋆ₑ ((f ⊗ g) ⊗ h))
     α⋆α⁻ : ∀ {x y z} → α {x}{y}{z} ⋆ₑ α⁻ ≡ idₑ
     α⁻⋆α : ∀ {x y z} → α⁻ {x}{y}{z} ⋆ₑ α ≡ idₑ
-    
+
     η : ∀ {x} → MonMor (ε ⊗ x) x
     η⁻ : ∀ {x} → MonMor x (ε ⊗ x)
     η-nat : ∀ {x y} (f : MonMor x y) → ((idₑ ⊗ f) ⋆ₑ η) ≡ (η ⋆ₑ f)
@@ -157,27 +159,103 @@ module _ (X : Type ℓ) where
       rec .F-id = refl
       rec .F-seq _ _ = refl
 
-      open LaxMonoidalFunctor
-      open LaxMonoidalStr
-      open StrongMonoidalStr
       recLax : LaxMonoidalFunctor FreeMonoidalCategory M
       recLax .LaxMonoidalFunctor.F = rec
       recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.ε = M.id
       recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.μ .N-ob x = M.id
       recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.μ .N-hom f =
         M.⋆IdR _ ∙ sym (M.⋆IdL _)
-      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.assoc-law x y z =
+      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.α-law x y z =
         M.⋆IdR _
         ∙ cong₂ M._⋆_ refl (M.─⊗─ .F-id)
         ∙ M.⋆IdR _ ∙ sym (M.⋆IdL _)
         ∙ cong₂ M._⋆_ (sym (M.─⊗─ .F-id)) refl
         ∙ cong₂ M._⋆_ (sym (M.⋆IdR _)) refl
-      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.unit-law x =
+      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.η-law x =
         cong₂ M._⋆_ (M.⋆IdR _ ∙ M.─⊗─ .F-id) refl
         ∙ M.⋆IdL _
 
       recStr : StrongMonoidalFunctor FreeMonoidalCategory M
       recStr .StrongMonoidalFunctor.F = rec
-      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr = recLax .laxmonstr
+      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr =
+        recLax .LaxMonoidalFunctor.laxmonstr
       recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.ε-iso = idCatIso .snd
       recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.μ-iso = λ _ → idCatIso .snd
+
+
+      module _
+             (F : StrongMonoidalFunctor FreeMonoidalCategory M)
+             (i≅ : ∀ x → CatIso M.C (ı x) (F .StrongMonoidalFunctor.F ⟅ ↑ x ⟆))
+             where
+        private
+          module F = StrongMonoidalFunctor F
+        recIso : ∀ x → CatIso M.C (rec-ob x) (F.F ⟅ x ⟆)
+        recIso (↑ x) = i≅ x
+        recIso MonOb.ε = F.ε , F.ε-iso
+        recIso (x ⊗ y) = ⋆Iso ((F-Iso {F = M.─⊗─} (CatIso× M.C M.C (recIso x) (recIso y)))) (F.μ⟨ _ , _ ⟩ , (F.μ-iso (x , y)))
+        opaque
+          recNat : ∀ {x y}(f : MonMor x y)
+            → rec-mor f M.⋆ recIso y .fst
+              ≡ recIso x .fst M.⋆ F.F ⟪ f ⟫
+          recNat idₑ =
+            M.⋆IdL _
+            ∙ sym (M.⋆IdR _)
+            ∙ cong₂ M._⋆_ refl (sym (F.F .F-id))
+          recNat (f ⋆ₑ g) =
+            M.⋆Assoc _ _ _
+            ∙ cong₂ M._⋆_ refl (recNat g)
+            ∙ sym (M.⋆Assoc _ _ _)
+            ∙ cong₂ M._⋆_ (recNat f) refl
+            ∙ M.⋆Assoc _ _ _
+            ∙ cong₂ M._⋆_ refl (sym (F.F-seq _ _))
+          recNat (⋆ₑIdL f i) = {!!}
+          recNat (⋆ₑIdR f i) = {!!}
+          recNat (⋆ₑAssoc e f g i) = {!!}
+          recNat (isSetHomₑ f g x y i j) = {!!}
+          recNat (f ⊗ g) =
+            sym (M.⋆Assoc _ _ _)
+            ∙ cong₂ M._⋆_
+                    ((sym (M.─⊗─ .F-seq _ _))
+                    ∙ cong₂ M._⊗ₕ_ (recNat f) (recNat g)
+                    ∙ (M.─⊗─ .F-seq _ _))
+                    refl
+            ∙ M.⋆Assoc _ _ _
+            ∙ cong₂ M._⋆_ refl (F.μ .N-hom _)
+            ∙ sym (M.⋆Assoc _ _ _)
+          recNat (⊗id i) = {!!}
+          recNat (⊗⋆ f g f' g' i) = {!!}
+          recNat α =
+            sym (M.⋆Assoc _ _ _)
+            ∙ cong₂ M._⋆_ (cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ refl (sym (M.⋆IdR _)) ∙ (M.─⊗─ .F-seq _ _)) ∙ sym (M.⋆Assoc _ _ _)) refl
+            ∙ cong₂ M._⋆_ ( cong₂ M._⋆_ (sym (M.α .trans .N-hom _)) refl ∙ M.⋆Assoc _ _ _) refl
+            ∙ M.⋆Assoc _ _ _
+            ∙ cong₂ M._⋆_ refl (F.α-law _ _ _)
+            ∙ sym (M.⋆Assoc _ _ _)
+            ∙ cong₂ M._⋆_ (sym (M.⋆Assoc _ _ _)) refl
+            ∙ cong₂ M._⋆_ (cong₂ M._⋆_ (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdR _) refl) refl) refl
+          recNat α⁻ = {!!}
+          recNat (α-nat f g h i) = {!!}
+          recNat (α⋆α⁻ i) = {!!}
+          recNat (α⁻⋆α i) = {!!}
+          recNat η =
+            sym (M.η .trans .N-hom _)
+            ∙ cong₂ M._⋆_ refl (sym (F.η-law _))
+            ∙ sym (M.⋆Assoc _ _ _)
+            ∙ cong₂ M._⋆_ (sym (M.⋆Assoc _ _ _)) refl
+            ∙ cong₂ M._⋆_ (cong₂ M._⋆_ (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdL _) (M.⋆IdR _)) refl) refl
+          recNat η⁻ = {!!}
+          recNat (η-nat f i) = {!!}
+          recNat (η⋆η⁻ i) = {!!}
+          recNat (η⁻⋆η i) = {!!}
+          recNat ρ = {!!}
+          recNat ρ⁻ = {!!}
+          recNat (ρ-nat f i) = {!!}
+          recNat (ρ⋆ρ⁻ i) = {!!}
+          recNat (ρ⁻⋆ρ i) = {!!}
+          recNat (pentagon i) = {!!}
+          recNat (triangle i) = {!!}
+
+        recUniq : rec ≅ᶜ F.F
+        recUniq .trans .N-ob x = recIso x .fst
+        recUniq .trans .N-hom = recNat
+        recUniq .nIso x = recIso x .snd

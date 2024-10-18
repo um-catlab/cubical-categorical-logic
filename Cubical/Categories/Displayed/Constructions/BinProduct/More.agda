@@ -52,6 +52,32 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
   Δᴰ .F-seqᴰ fᴰ gᴰ = refl
 
 module _
+  {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  {D : Category ℓD ℓD'} (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+  where
+  module _ {E : Category ℓE ℓE'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') where
+    ×Cᴰ-assoc : Functorᴰ (×C-assoc C D E) (Cᴰ ×Cᴰ (Dᴰ ×Cᴰ Eᴰ)) ((Cᴰ ×Cᴰ Dᴰ) ×Cᴰ Eᴰ)
+    ×Cᴰ-assoc .Functorᴰ.F-obᴰ x = (x .fst , x .snd .fst) , x .snd .snd
+    ×Cᴰ-assoc .Functorᴰ.F-homᴰ x = (x .fst , x .snd .fst) , x .snd .snd
+    ×Cᴰ-assoc .Functorᴰ.F-idᴰ = refl
+    ×Cᴰ-assoc .Functorᴰ.F-seqᴰ _ _ = refl
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Dᴰ = Categoryᴰ Dᴰ
+  rinjᴰ : ∀ {c} → Cᴰ.ob[ c ] → Functorᴰ (rinj C D c) Dᴰ (Cᴰ ×Cᴰ Dᴰ)
+  rinjᴰ cᴰ .Functorᴰ.F-obᴰ = λ z → cᴰ , z
+  rinjᴰ cᴰ .Functorᴰ.F-homᴰ = λ z → Cᴰ.idᴰ , z
+  rinjᴰ cᴰ .Functorᴰ.F-idᴰ = refl
+  rinjᴰ cᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ = ΣPathP ((symP (Cᴰ.⋆IdRᴰ _)) , refl)
+
+  linjᴰ : ∀ {d} → Dᴰ.ob[ d ] → Functorᴰ (linj C D d) Cᴰ (Cᴰ ×Cᴰ Dᴰ)
+  linjᴰ dᴰ .Functorᴰ.F-obᴰ = λ z → z , dᴰ
+  linjᴰ dᴰ .Functorᴰ.F-homᴰ x = x , Dᴰ.idᴰ
+  linjᴰ dᴰ .Functorᴰ.F-idᴰ = refl
+  linjᴰ dᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ = ΣPathP (refl , (symP (Dᴰ.⋆IdRᴰ _)))
+
+module _
   {B : Category ℓB ℓB'} {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

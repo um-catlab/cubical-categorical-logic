@@ -45,5 +45,5 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     sym (profAssocL R _ _ _) ∙ pf
   isTwoSidedWeakFibrationGraph .rightLifts p f .pf* = p ⋆r⟨ R ⟩ f
   isTwoSidedWeakFibrationGraph .rightLifts p f .σ = relSeqLId R _
-  isTwoSidedWeakFibrationGraph .rightLifts p f .wkUniveral pf =
+  isTwoSidedWeakFibrationGraph .rightLifts p f .wkUniversal pf =
     pf ∙ profAssocR R _ _ _

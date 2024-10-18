@@ -42,7 +42,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     field
       pf* : P.ob[ c , d ]
       σ : P.Hom[ C .id , f ][ p , pf* ]
-      wkUniveral : ∀ {c'' d''}
+      wkUniversal : ∀ {c'' d''}
         {p'' : P.ob[ c'' , d'' ]}
         {g : C [ c , c'' ]}{h : D [ d , d'' ]}
         → P.Hom[ g , f ⋆⟨ D ⟩ h ][ p , p'' ]
@@ -55,3 +55,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
         → WeakLeftCartesianLift p f
       rightLifts : ∀ {c d d'} (p : P.ob[ c , d' ]) (f : D [ d' , d ])
         → WeakRightOpCartesianLift p f
+  record isTwoSidedWeakIsoFibration
+    : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max (ℓ-max ℓD ℓD') (ℓ-max ℓP ℓP'))) where
+    field
+      leftLifts : ∀ {c c' d} (p : P.ob[ c' , d ]) (f : CatIso C c c')
+        → WeakLeftCartesianLift p (f .fst)
+      rightLifts : ∀ {c d d'} (p : P.ob[ c , d' ]) (f : CatIso D d' d)
+        → WeakRightOpCartesianLift p (f .fst)
+  

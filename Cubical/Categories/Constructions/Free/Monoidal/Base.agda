@@ -17,6 +17,16 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Free.Category hiding (ε)
 
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.More
+open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.NaturalIsomorphism
+open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Monoidal.Base
+open import Cubical.Categories.Displayed.Constructions.Weaken.Monoidal
+import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+
 private
   variable
     ℓ ℓQ ℓQ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
@@ -25,11 +35,16 @@ open Category
 open Functor
 open NatTrans
 open NatIso
+open NatTransᴰ
+open NatIsoᴰ
 open isIso
+open isIsoᴰ
+open Section
+open Functorᴰ
 module _ (X : Type ℓ) where
   data MonOb : Type ℓ where
     ↑ : X → MonOb
-    ε : MonOb
+    unit : MonOb
     _⊗_ : MonOb → MonOb → MonOb
 
   data MonMor : MonOb → MonOb → Type ℓ where
@@ -56,14 +71,14 @@ module _ (X : Type ℓ) where
     α⋆α⁻ : ∀ {x y z} → α {x}{y}{z} ⋆ₑ α⁻ ≡ idₑ
     α⁻⋆α : ∀ {x y z} → α⁻ {x}{y}{z} ⋆ₑ α ≡ idₑ
 
-    η : ∀ {x} → MonMor (ε ⊗ x) x
-    η⁻ : ∀ {x} → MonMor x (ε ⊗ x)
+    η : ∀ {x} → MonMor (unit ⊗ x) x
+    η⁻ : ∀ {x} → MonMor x (unit ⊗ x)
     η-nat : ∀ {x y} (f : MonMor x y) → ((idₑ ⊗ f) ⋆ₑ η) ≡ (η ⋆ₑ f)
     η⋆η⁻ : ∀ {x} → (η {x} ⋆ₑ η⁻) ≡ idₑ
     η⁻⋆η : ∀ {x} → (η⁻ {x} ⋆ₑ η) ≡ idₑ
 
-    ρ : ∀ {x} → MonMor (x ⊗ ε) x
-    ρ⁻ : ∀ {x} → MonMor x (x ⊗ ε)
+    ρ : ∀ {x} → MonMor (x ⊗ unit) x
+    ρ⁻ : ∀ {x} → MonMor x (x ⊗ unit)
     ρ-nat : ∀ {x y} (f : MonMor x y) → ((f ⊗ idₑ) ⋆ₑ ρ) ≡ (ρ ⋆ₑ f)
     ρ⋆ρ⁻ : ∀ {x} → (ρ {x} ⋆ₑ ρ⁻) ≡ idₑ
     ρ⁻⋆ρ : ∀ {x} → (ρ⁻ {x} ⋆ₑ ρ) ≡ idₑ
@@ -87,7 +102,7 @@ module _ (X : Type ℓ) where
   FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-hom (f , g) = f ⊗ g
   FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-id = ⊗id
   FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-seq f g = ⊗⋆ (f .fst) (g .fst) (f .snd) (g .snd)
-  FreeMonoidalCategoryStr .TensorStr.unit = ε
+  FreeMonoidalCategoryStr .TensorStr.unit = unit
 
   FreeMonoidalCategory : MonoidalCategory ℓ ℓ
   FreeMonoidalCategory .MonoidalCategory.C = |FreeMonoidalCategory|
@@ -113,149 +128,89 @@ module _ (X : Type ℓ) where
   FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.pentagon w x y z = pentagon
   FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.triangle x y = triangle
 
+  module _ (Mᴰ : MonoidalCategoryᴰ FreeMonoidalCategory ℓC ℓC') where
+    private
+      module Mᴰ = MonoidalCategoryᴰ Mᴰ
+    module _ (ı : ∀ (x : X) → Mᴰ.ob[ ↑ x ]) where
+
+      elim-ob : ∀ x → Mᴰ.ob[ x ]
+      elim-ob (↑ x) = ı x
+      elim-ob unit = Mᴰ.unitᴰ
+      elim-ob (x ⊗ y) = elim-ob x Mᴰ.⊗ᴰ elim-ob y
+
+      elim-hom : ∀ {x y}(f : |FreeMonoidalCategory| [ x , y ])
+        → Mᴰ.Hom[ f ][ elim-ob x , elim-ob y ]
+      elim-hom idₑ = Mᴰ.idᴰ
+      elim-hom (f ⋆ₑ g) = elim-hom f Mᴰ.⋆ᴰ elim-hom g
+      elim-hom (⋆ₑIdL f i) = Mᴰ.⋆IdLᴰ (elim-hom f) i
+      elim-hom (⋆ₑIdR f i) = Mᴰ.⋆IdRᴰ (elim-hom f) i
+      elim-hom (⋆ₑAssoc f g h i) = Mᴰ.⋆Assocᴰ (elim-hom f)(elim-hom g)(elim-hom h) i
+      elim-hom (isSetHomₑ f g p q i j) =
+        isSetHomᴰ' Mᴰ.Cᴰ
+          (elim-hom f) (elim-hom g)
+          (cong elim-hom p) (cong elim-hom q)
+          i j
+      elim-hom (f ⊗ g) = elim-hom f Mᴰ.⊗ₕᴰ elim-hom g
+      elim-hom (⊗id i) = Mᴰ.─⊗ᴰ─ .F-idᴰ i
+      elim-hom (⊗⋆ f g f' g' i) = Mᴰ.─⊗ᴰ─ .F-seqᴰ ((elim-hom f) , (elim-hom f')) (elim-hom g , elim-hom g') i
+      elim-hom α = Mᴰ.αᴰ⟨ _ , _ , _ ⟩
+      elim-hom (α-nat f g h i) =
+        Mᴰ.αᴰ .transᴰ .N-homᴰ ((elim-hom f) , (elim-hom g) , (elim-hom h)) i
+      elim-hom α⁻ = Mᴰ.αᴰ .nIsoᴰ _ .invᴰ
+      elim-hom (α⋆α⁻ i) = Mᴰ.αᴰ .nIsoᴰ _ .retᴰ i
+      elim-hom (α⁻⋆α i) = Mᴰ.αᴰ .nIsoᴰ _ .secᴰ i
+      elim-hom η = Mᴰ.ηᴰ⟨ _ ⟩
+      elim-hom (η-nat f i) = Mᴰ.ηᴰ .transᴰ .N-homᴰ (elim-hom f) i
+      elim-hom η⁻ = Mᴰ.ηᴰ .nIsoᴰ _ .invᴰ
+      elim-hom (η⋆η⁻ i) = Mᴰ.ηᴰ .nIsoᴰ _ .retᴰ i
+      elim-hom (η⁻⋆η i) = Mᴰ.ηᴰ .nIsoᴰ _ .secᴰ i
+      elim-hom ρ = Mᴰ.ρᴰ⟨ _ ⟩
+      elim-hom (ρ-nat f i) = Mᴰ.ρᴰ .transᴰ .N-homᴰ (elim-hom f) i
+      elim-hom ρ⁻ = Mᴰ.ρᴰ .nIsoᴰ _ .invᴰ
+      elim-hom (ρ⋆ρ⁻ i) = Mᴰ.ρᴰ .nIsoᴰ _ .retᴰ i
+      elim-hom (ρ⁻⋆ρ i) = Mᴰ.ρᴰ .nIsoᴰ _ .secᴰ i
+      elim-hom (pentagon i) = Mᴰ.pentagonᴰ _ _ _ _ i
+      elim-hom (triangle i) = Mᴰ.triangleᴰ _ _ i
+
+      elim : GlobalSection Mᴰ.Cᴰ
+      elim .F-obᴰ = elim-ob
+      elim .F-homᴰ = elim-hom
+      elim .F-idᴰ = refl
+      elim .F-seqᴰ _ _ = refl
+
   module _ (M : MonoidalCategory ℓC ℓC') where
     private
       module M = MonoidalCategory M
     module _ (ı : X → M.C .ob) where
-      rec-ob : MonOb → M.C .ob
-      rec-ob (↑ x) = ı x
-      rec-ob ε = M.unit
-      rec-ob (x ⊗ y) = rec-ob x M.⊗ rec-ob y
-
-      rec-mor : ∀ {x y} → MonMor x y → M.C [ rec-ob x , rec-ob y ]
-      rec-mor idₑ = M.id
-      rec-mor (e ⋆ₑ e₁) = rec-mor e M.⋆ rec-mor e₁
-      rec-mor (⋆ₑIdL e i) = M.⋆IdL (rec-mor e) i
-      rec-mor (⋆ₑIdR e i) = M.⋆IdR (rec-mor e) i
-      rec-mor (⋆ₑAssoc e f g i) = M.⋆Assoc (rec-mor e) (rec-mor f) (rec-mor g) i
-      rec-mor (isSetHomₑ e f x y i j) =
-        M.isSetHom (rec-mor e) (rec-mor f) (cong rec-mor x) (cong rec-mor y) i j
-      rec-mor (e ⊗ f) = rec-mor e M.⊗ₕ rec-mor f
-      rec-mor (⊗id i) = M.─⊗─ .F-id i
-      rec-mor (⊗⋆ f g f' g' i) =
-        M.─⊗─ .F-seq (rec-mor f , rec-mor f') ((rec-mor g) , (rec-mor g')) i
-      rec-mor α = M.α⟨ _ , _ , _ ⟩
-      rec-mor α⁻ = M.α⁻¹⟨ _ , _ , _ ⟩
-      rec-mor (α-nat f g h i) =
-        M.α .trans .N-hom ((rec-mor f) , ((rec-mor g) , (rec-mor h))) i
-      rec-mor (α⋆α⁻ i) = M.α .nIso _ .ret i
-      rec-mor (α⁻⋆α i) = M.α .nIso _ .sec i
-      rec-mor η = M.η⟨ _ ⟩
-      rec-mor η⁻ = M.η⁻¹⟨ _ ⟩
-      rec-mor (η-nat e i) = M.η .trans .N-hom (rec-mor e) i
-      rec-mor (η⋆η⁻ i) = M.η .nIso _ .ret i
-      rec-mor (η⁻⋆η i) = M.η .nIso _ .sec i
-      rec-mor ρ = M.ρ⟨ _ ⟩
-      rec-mor ρ⁻ = M.ρ⁻¹⟨ _ ⟩
-      rec-mor (ρ-nat e i) = M.ρ .trans .N-hom (rec-mor e) i
-      rec-mor (ρ⋆ρ⁻ i) = M.ρ .nIso _ .ret i
-      rec-mor (ρ⁻⋆ρ i) = M.ρ .nIso _ .sec i
-      rec-mor (pentagon i) = M.pentagon _ _ _ _ i
-      rec-mor (triangle i) = M.triangle _ _ i
-
-      rec : Functor |FreeMonoidalCategory| M.C
-      rec .F-ob = rec-ob
-      rec .F-hom = rec-mor
-      rec .F-id = refl
-      rec .F-seq _ _ = refl
-
-      recLax : LaxMonoidalFunctor FreeMonoidalCategory M
-      recLax .LaxMonoidalFunctor.F = rec
-      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.ε = M.id
-      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.μ .N-ob x = M.id
-      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.μ .N-hom f =
+      private
+        Mᴰ = weaken FreeMonoidalCategory M
+        module Mᴰ = MonoidalCategoryᴰ Mᴰ
+      open StrongMonoidalFunctor
+      open StrongMonoidalStr
+      open LaxMonoidalStr
+      -- TODO: we can probably show that elim is a "strong monoidal
+      -- section" and then get this out as a general principle but we
+      -- haven't needed strong monoidal sections for anything
+      -- else so far so I'll just do this manually
+      rec : StrongMonoidalFunctor FreeMonoidalCategory M
+      rec .F = Wk.introS⁻ (elim Mᴰ ı)
+      rec .strmonstr .laxmonstr .ε = M.id
+      rec .strmonstr .laxmonstr .μ .N-ob x = M.id
+      rec .strmonstr .laxmonstr .μ .N-hom f =
         M.⋆IdR _ ∙ sym (M.⋆IdL _)
-      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.α-law x y z =
+      rec .strmonstr .laxmonstr .α-law x y z =
         M.⋆IdR _
         ∙ cong₂ M._⋆_ refl (M.─⊗─ .F-id)
         ∙ M.⋆IdR _ ∙ sym (M.⋆IdL _)
         ∙ cong₂ M._⋆_ (sym (M.─⊗─ .F-id)) refl
         ∙ cong₂ M._⋆_ (sym (M.⋆IdR _)) refl
-      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.η-law x =
+      rec .strmonstr .laxmonstr .η-law x =
         cong₂ M._⋆_ (M.⋆IdR _ ∙ M.─⊗─ .F-id) refl
         ∙ M.⋆IdL _
+      rec .strmonstr .ε-iso = idCatIso .snd
+      rec .strmonstr .μ-iso _ = idCatIso .snd
 
-      recStr : StrongMonoidalFunctor FreeMonoidalCategory M
-      recStr .StrongMonoidalFunctor.F = rec
-      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr =
-        recLax .LaxMonoidalFunctor.laxmonstr
-      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.ε-iso = idCatIso .snd
-      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.μ-iso = λ _ → idCatIso .snd
-
-
-      module _
-             (F : StrongMonoidalFunctor FreeMonoidalCategory M)
-             (i≅ : ∀ x → CatIso M.C (ı x) (F .StrongMonoidalFunctor.F ⟅ ↑ x ⟆))
-             where
-        private
-          module F = StrongMonoidalFunctor F
-        recIso : ∀ x → CatIso M.C (rec-ob x) (F.F ⟅ x ⟆)
-        recIso (↑ x) = i≅ x
-        recIso MonOb.ε = F.ε , F.ε-iso
-        recIso (x ⊗ y) = ⋆Iso ((F-Iso {F = M.─⊗─} (CatIso× M.C M.C (recIso x) (recIso y)))) (F.μ⟨ _ , _ ⟩ , (F.μ-iso (x , y)))
-        opaque
-          recNat : ∀ {x y}(f : MonMor x y)
-            → rec-mor f M.⋆ recIso y .fst
-              ≡ recIso x .fst M.⋆ F.F ⟪ f ⟫
-          recNat idₑ =
-            M.⋆IdL _
-            ∙ sym (M.⋆IdR _)
-            ∙ cong₂ M._⋆_ refl (sym (F.F .F-id))
-          recNat (f ⋆ₑ g) =
-            M.⋆Assoc _ _ _
-            ∙ cong₂ M._⋆_ refl (recNat g)
-            ∙ sym (M.⋆Assoc _ _ _)
-            ∙ cong₂ M._⋆_ (recNat f) refl
-            ∙ M.⋆Assoc _ _ _
-            ∙ cong₂ M._⋆_ refl (sym (F.F-seq _ _))
-          recNat (⋆ₑIdL f i) = {!!}
-          recNat (⋆ₑIdR f i) = {!!}
-          recNat (⋆ₑAssoc e f g i) = {!!}
-          recNat (isSetHomₑ f g x y i j) = {!!}
-          recNat (f ⊗ g) =
-            sym (M.⋆Assoc _ _ _)
-            ∙ cong₂ M._⋆_
-                    ((sym (M.─⊗─ .F-seq _ _))
-                    ∙ cong₂ M._⊗ₕ_ (recNat f) (recNat g)
-                    ∙ (M.─⊗─ .F-seq _ _))
-                    refl
-            ∙ M.⋆Assoc _ _ _
-            ∙ cong₂ M._⋆_ refl (F.μ .N-hom _)
-            ∙ sym (M.⋆Assoc _ _ _)
-          recNat (⊗id i) = {!!}
-          recNat (⊗⋆ f g f' g' i) = {!!}
-          recNat α =
-            sym (M.⋆Assoc _ _ _)
-            ∙ cong₂ M._⋆_ (cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ refl (sym (M.⋆IdR _)) ∙ (M.─⊗─ .F-seq _ _)) ∙ sym (M.⋆Assoc _ _ _)) refl
-            ∙ cong₂ M._⋆_ ( cong₂ M._⋆_ (sym (M.α .trans .N-hom _)) refl ∙ M.⋆Assoc _ _ _) refl
-            ∙ M.⋆Assoc _ _ _
-            ∙ cong₂ M._⋆_ refl (F.α-law _ _ _)
-            ∙ sym (M.⋆Assoc _ _ _)
-            ∙ cong₂ M._⋆_ (sym (M.⋆Assoc _ _ _)) refl
-            ∙ cong₂ M._⋆_ (cong₂ M._⋆_ (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdR _) refl) refl) refl
-          recNat α⁻ = {!!}
-          recNat (α-nat f g h i) = {!!}
-          recNat (α⋆α⁻ i) = {!!}
-          recNat (α⁻⋆α i) = {!!}
-          recNat η =
-            sym (M.η .trans .N-hom _)
-            ∙ cong₂ M._⋆_ refl (sym (F.η-law _))
-            ∙ sym (M.⋆Assoc _ _ _)
-            ∙ cong₂ M._⋆_ (sym (M.⋆Assoc _ _ _)) refl
-            ∙ cong₂ M._⋆_ (cong₂ M._⋆_ (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdL _) (M.⋆IdR _)) refl) refl
-          recNat η⁻ = {!!}
-          recNat (η-nat f i) = {!!}
-          recNat (η⋆η⁻ i) = {!!}
-          recNat (η⁻⋆η i) = {!!}
-          recNat ρ = {!!}
-          recNat ρ⁻ = {!!}
-          recNat (ρ-nat f i) = {!!}
-          recNat (ρ⋆ρ⁻ i) = {!!}
-          recNat (ρ⁻⋆ρ i) = {!!}
-          recNat (pentagon i) = {!!}
-          recNat (triangle i) = {!!}
-
-        recUniq : rec ≅ᶜ F.F
-        recUniq .trans .N-ob x = recIso x .fst
-        recUniq .trans .N-hom = recNat
-        recUniq .nIso x = recIso x .snd
+      -- recUniq : ∀ (G : StrongMonoidalFunctor FreeMonoidalCategory M)
+      --   → (ı≅ : ∀ x → CatIso M.C (ı x) (G .F ⟅ ↑ x ⟆))
+      --   → NatIso (rec .F) (G .F)
+      -- recUniq = {!!}

@@ -10,6 +10,7 @@ import Cubical.Data.Sigma as Σ
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Functor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Free.Category hiding (ε)
@@ -65,19 +66,50 @@ module _ (X : Type ℓ) where
     ρ⋆ρ⁻ : ∀ {x} → (ρ {x} ⋆ₑ ρ⁻) ≡ idₑ
     ρ⁻⋆ρ : ∀ {x} → (ρ⁻ {x} ⋆ₑ ρ) ≡ idₑ
 
-    penatgon : ∀ {w x y z} →
+    pentagon : ∀ {w x y z} →
       (idₑ {w} ⊗ α {x}{y}{z}) ⋆ₑ (α ⋆ₑ (α ⊗ idₑ)) ≡ (α ⋆ₑ α)
     triangle : ∀ {x y} → α ⋆ₑ (ρ {x} ⊗ idₑ) ≡ (idₑ ⊗ (η {y}))
 
-  FreeMonoidalCategory : Category ℓ ℓ
-  FreeMonoidalCategory .ob = MonOb
-  FreeMonoidalCategory .Hom[_,_] = MonMor
-  FreeMonoidalCategory .id = idₑ
-  FreeMonoidalCategory ._⋆_ = _⋆ₑ_
-  FreeMonoidalCategory .⋆IdL = ⋆ₑIdL
-  FreeMonoidalCategory .⋆IdR = ⋆ₑIdR
-  FreeMonoidalCategory .⋆Assoc = ⋆ₑAssoc
-  FreeMonoidalCategory .isSetHom = isSetHomₑ
+  |FreeMonoidalCategory| : Category ℓ ℓ
+  |FreeMonoidalCategory| .ob = MonOb
+  |FreeMonoidalCategory| .Hom[_,_] = MonMor
+  |FreeMonoidalCategory| .id = idₑ
+  |FreeMonoidalCategory| ._⋆_ = _⋆ₑ_
+  |FreeMonoidalCategory| .⋆IdL = ⋆ₑIdL
+  |FreeMonoidalCategory| .⋆IdR = ⋆ₑIdR
+  |FreeMonoidalCategory| .⋆Assoc = ⋆ₑAssoc
+  |FreeMonoidalCategory| .isSetHom = isSetHomₑ
+
+  FreeMonoidalCategoryStr : TensorStr |FreeMonoidalCategory|
+  FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-ob (x , y) = x ⊗ y
+  FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-hom (f , g) = f ⊗ g
+  FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-id = ⊗id
+  FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-seq f g = ⊗⋆ (f .fst) (g .fst) (f .snd) (g .snd)
+  FreeMonoidalCategoryStr .TensorStr.unit = ε
+
+  FreeMonoidalCategory : MonoidalCategory ℓ ℓ
+  FreeMonoidalCategory .MonoidalCategory.C = |FreeMonoidalCategory|
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.tenstr =
+    FreeMonoidalCategoryStr
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .trans .N-ob x =
+    α
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .trans .N-hom f =
+    α-nat _ _ _
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .inv = α⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .sec = α⁻⋆α
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .ret = α⋆α⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .trans .N-ob x = η
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .trans .N-hom = η-nat
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .inv = η⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .sec = η⁻⋆η
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .ret = η⋆η⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .trans .N-ob x = ρ
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .trans .N-hom = ρ-nat
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .inv = ρ⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .sec = ρ⁻⋆ρ
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .ret = ρ⋆ρ⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.pentagon w x y z = pentagon
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.triangle x y = triangle
 
   module _ (M : MonoidalCategory ℓC ℓC') where
     private
@@ -116,11 +148,36 @@ module _ (X : Type ℓ) where
       rec-mor (ρ-nat e i) = M.ρ .trans .N-hom (rec-mor e) i
       rec-mor (ρ⋆ρ⁻ i) = M.ρ .nIso _ .ret i
       rec-mor (ρ⁻⋆ρ i) = M.ρ .nIso _ .sec i
-      rec-mor (penatgon i) = M.pentagon _ _ _ _ i
+      rec-mor (pentagon i) = M.pentagon _ _ _ _ i
       rec-mor (triangle i) = M.triangle _ _ i
 
-      rec : Functor FreeMonoidalCategory M.C
+      rec : Functor |FreeMonoidalCategory| M.C
       rec .F-ob = rec-ob
       rec .F-hom = rec-mor
       rec .F-id = refl
       rec .F-seq _ _ = refl
+
+      open LaxMonoidalFunctor
+      open LaxMonoidalStr
+      open StrongMonoidalStr
+      recLax : LaxMonoidalFunctor FreeMonoidalCategory M
+      recLax .LaxMonoidalFunctor.F = rec
+      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.ε = M.id
+      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.μ .N-ob x = M.id
+      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.μ .N-hom f =
+        M.⋆IdR _ ∙ sym (M.⋆IdL _)
+      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.assoc-law x y z =
+        M.⋆IdR _
+        ∙ cong₂ M._⋆_ refl (M.─⊗─ .F-id)
+        ∙ M.⋆IdR _ ∙ sym (M.⋆IdL _)
+        ∙ cong₂ M._⋆_ (sym (M.─⊗─ .F-id)) refl
+        ∙ cong₂ M._⋆_ (sym (M.⋆IdR _)) refl
+      recLax .LaxMonoidalFunctor.laxmonstr .LaxMonoidalStr.unit-law x =
+        cong₂ M._⋆_ (M.⋆IdR _ ∙ M.─⊗─ .F-id) refl
+        ∙ M.⋆IdL _
+
+      recStr : StrongMonoidalFunctor FreeMonoidalCategory M
+      recStr .StrongMonoidalFunctor.F = rec
+      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr = recLax .laxmonstr
+      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.ε-iso = idCatIso .snd
+      recStr .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.μ-iso = λ _ → idCatIso .snd

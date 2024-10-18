@@ -12,6 +12,7 @@ open import Cubical.Data.Quiver.Base
 open import Cubical.Data.Sum.Base as Sum hiding (elim; rec)
 open import Cubical.Data.Unit
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Limits.Terminal
@@ -109,11 +110,9 @@ module _ (Ob : Type ℓg) where
           elim-F-homᴰ (⋆ₑAssoc f g h i) = Cᴰ.⋆Assocᴰ
             (elim-F-homᴰ f) (elim-F-homᴰ g) (elim-F-homᴰ h) i
           elim-F-homᴰ (isSetExp f g p q i j) =
-            isOfHLevel→isOfHLevelDep 2
-            ((λ x → Cᴰ.isSetHomᴰ))
-            ((elim-F-homᴰ f)) ((elim-F-homᴰ g))
-            ((cong elim-F-homᴰ p)) ((cong elim-F-homᴰ q))
-            ((isSetExp f g p q))
+            isSetHomᴰ' Cᴰ
+            (elim-F-homᴰ f) (elim-F-homᴰ g)
+            (cong elim-F-homᴰ p) (cong elim-F-homᴰ q)
             i j
           elim-F-homᴰ {d = d} !ₑ = !tᴰ (ϕ* d)
           elim-F-homᴰ {d = d} (isProp!ₑ f g i) = goal i

@@ -18,6 +18,7 @@ open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.Terminal
@@ -112,10 +113,9 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         elim-F-hom (⋆ₑAssoc f g h i) =
           Cᴰ.⋆Assocᴰ (elim-F-hom f) (elim-F-hom g) (elim-F-hom h) i
         elim-F-hom (isSetExp f g p q i j) =
-          isOfHLevel→isOfHLevelDep 2 (λ _ → Cᴰ.isSetHomᴰ)
+          isSetHomᴰ' Cᴰ
           (elim-F-hom f) (elim-F-hom g)
           (cong elim-F-hom p) (cong elim-F-hom q)
-          (isSetExp f g p q)
           i j
         elim-F-hom !ₑ = !tᴰ _
         -- TODO: Why does this need rectify?

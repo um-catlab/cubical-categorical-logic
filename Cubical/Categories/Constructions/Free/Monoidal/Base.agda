@@ -24,8 +24,11 @@ open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Monoidal.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken.Monoidal
 import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Instances.Arrow.Base
+open import Cubical.Categories.Displayed.Instances.Arrow.Monoidal
 
 private
   variable
@@ -198,19 +201,24 @@ module _ (X : Type ℓ) where
       rec .strmonstr .laxmonstr .μ .N-ob x = M.id
       rec .strmonstr .laxmonstr .μ .N-hom f =
         M.⋆IdR _ ∙ sym (M.⋆IdL _)
-      rec .strmonstr .laxmonstr .α-law x y z =
+      rec .strmonstr .laxmonstr .αμ-law x y z =
         M.⋆IdR _
         ∙ cong₂ M._⋆_ refl (M.─⊗─ .F-id)
         ∙ M.⋆IdR _ ∙ sym (M.⋆IdL _)
         ∙ cong₂ M._⋆_ (sym (M.─⊗─ .F-id)) refl
         ∙ cong₂ M._⋆_ (sym (M.⋆IdR _)) refl
-      rec .strmonstr .laxmonstr .η-law x =
-        cong₂ M._⋆_ (M.⋆IdR _ ∙ M.─⊗─ .F-id) refl
-        ∙ M.⋆IdL _
-      rec .strmonstr .ε-iso = idCatIso .snd
-      rec .strmonstr .μ-iso _ = idCatIso .snd
+      rec .strmonstr .laxmonstr .ηε-law x =
+        cong₂ M._⋆_ (M.⋆IdR _ ∙ M.─⊗─ .F-id) refl ∙ M.⋆IdL _
+      rec .strmonstr .laxmonstr .ρε-law x =
+        cong₂ M._⋆_ (M.⋆IdR _ ∙ M.─⊗─ .F-id) refl ∙ M.⋆IdL _
+      rec .strmonstr .ε-isIso = idCatIso .snd
+      rec .strmonstr .μ-isIso _ = idCatIso .snd
 
-      -- recUniq : ∀ (G : StrongMonoidalFunctor FreeMonoidalCategory M)
-      --   → (ı≅ : ∀ x → CatIso M.C (ı x) (G .F ⟅ ↑ x ⟆))
-      --   → NatIso (rec .F) (G .F)
-      -- recUniq = {!!}
+    module _ (G H : StrongMonoidalFunctor FreeMonoidalCategory M) where
+      private
+        module G = StrongMonoidalFunctor G
+        module H = StrongMonoidalFunctor H
+      uniq : ∀ (ı≅ : ∀ x → CatIso M.C (G.F ⟅ ↑ x ⟆ ) (H.F ⟅ ↑ x ⟆ ))
+        → G.F ≅ᶜ H.F
+      uniq ı≅ = IsoReflection (GlobalSectionReindex→Section _ _
+        (elim (IsoComma G H) ı≅))

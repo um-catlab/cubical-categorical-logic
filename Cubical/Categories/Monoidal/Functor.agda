@@ -55,6 +55,12 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
         ∙ sym (F .F-id)
         ∙ cong (F .F-hom) (sym (NatIsoAt M.η _ .snd .sec))
         ∙ F .F-seq _ _)
+
+      -- I guess this is true but good luck proving it
+      -- ρε-law : ∀ x →
+      --   N.id N.⊗ₕ ε ⋆⟨ N.C ⟩ μ⟨ x , M.unit ⟩ ⋆⟨ N.C ⟩ F ⟪ M.ρ⟨ x ⟩ ⟫
+      --   ≡ N.ρ⟨ F ⟅ x ⟆ ⟩
+      -- ρε-law = {!!}
     -- equivalent to LaxMonoidal stuff with op but we'll define it
     -- explicitly for ergonomics
     record OpLaxMonoidalStr : Type (ℓ-max ℓC (ℓ-max ℓC' ℓD')) where

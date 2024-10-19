@@ -26,6 +26,7 @@ private
 open Functorᴰ
 open NatIsoᴰ
 open NatTransᴰ
+open isIsoᴰ
 module _ (M : MonoidalCategory ℓM ℓM') where
   private
     module M = MonoidalCategory M
@@ -62,13 +63,25 @@ module _ (M : MonoidalCategory ℓM ℓM') where
         → Cᴰ.Hom[ M.α⟨ x , y , z ⟩ ][ xᴰ ⊗ᴰ (yᴰ ⊗ᴰ zᴰ) , (xᴰ ⊗ᴰ yᴰ) ⊗ᴰ zᴰ ]
       αᴰ⟨ xᴰ , yᴰ , zᴰ ⟩ = αᴰ .transᴰ .N-obᴰ (xᴰ , yᴰ , zᴰ)
 
+      α⁻¹ᴰ⟨_,_,_⟩ : ∀ {x y z} xᴰ yᴰ zᴰ
+        → Cᴰ.Hom[ M.α⁻¹⟨ x , y , z ⟩ ][ (xᴰ ⊗ᴰ yᴰ) ⊗ᴰ zᴰ , xᴰ ⊗ᴰ (yᴰ ⊗ᴰ zᴰ) ]
+      α⁻¹ᴰ⟨ xᴰ , yᴰ , zᴰ ⟩ = αᴰ .nIsoᴰ (xᴰ , yᴰ , zᴰ) .invᴰ
+
       ηᴰ⟨_⟩ : ∀ {x} xᴰ
         → Cᴰ.Hom[ M.η⟨ x ⟩ ][ unitᴰ ⊗ᴰ xᴰ , xᴰ ]
       ηᴰ⟨ xᴰ ⟩ = ηᴰ .transᴰ .N-obᴰ xᴰ
 
+      η⁻¹ᴰ⟨_⟩ : ∀ {x} xᴰ
+        → Cᴰ.Hom[ M.η⁻¹⟨ x ⟩ ][ xᴰ , unitᴰ ⊗ᴰ xᴰ ]
+      η⁻¹ᴰ⟨ xᴰ ⟩ = ηᴰ .nIsoᴰ xᴰ .invᴰ
+
       ρᴰ⟨_⟩ : ∀ {x} xᴰ
         → Cᴰ.Hom[ M.ρ⟨ x ⟩ ][ xᴰ ⊗ᴰ unitᴰ , xᴰ ]
       ρᴰ⟨ xᴰ ⟩ = ρᴰ .transᴰ .N-obᴰ xᴰ
+
+      ρ⁻¹ᴰ⟨_⟩ : ∀ {x} xᴰ
+        → Cᴰ.Hom[ M.ρ⁻¹⟨ x ⟩ ][ xᴰ , xᴰ ⊗ᴰ unitᴰ ]
+      ρ⁻¹ᴰ⟨ xᴰ ⟩ = ρᴰ .nIsoᴰ xᴰ .invᴰ
 
       field
         pentagonᴰ :

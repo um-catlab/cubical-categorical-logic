@@ -134,14 +134,27 @@ module _ {M : MonoidalCategory ℓC ℓC'}
         MP .η⁻¹ᴰ⟨_⟩ p = PR.reind
           (G.η⁻ε-law _)
           ((P.η⁻¹ᴰ⟨ _ ⟩ P.⋆ᴰ (isoLift _ _ .σ P.⊗ₕᴰ P.idᴰ)) P.⋆ᴰ isoLift _ _ .σ)
-        -- TODO: implement these 
         MP .ρᴰ⟨_⟩ p = PR.reind
-          {!!}
+          (cong₂ N._⋆_ refl
+            (cong₂ N._⋆_ refl (sym (G.ρε-law _))
+            ∙ sym (N.⋆Assoc _ _ _)
+            ∙ cong₂ N._⋆_
+              (sym (N.⋆Assoc _ _ _)
+              ∙ cong₂ N._⋆_ (F-Iso {F = N.─⊗─} (CatIso× N.C N.C idCatIso G.ε-Iso) .snd .sec) refl
+              ∙ N.⋆IdL _)
+              refl)
+          ∙ sym (N.⋆Assoc _ _ _)
+          ∙ cong₂ N._⋆_ (G.μ-isIso _ .sec) refl
+          ∙ N.⋆IdL _)
           (isoLift _ _ .π
           P.⋆ᴰ (P.idᴰ P.⊗ₕᴰ isoLift _ _ .π)
           P.⋆ᴰ P.ρᴰ⟨ p ⟩)
         MP .ρ⁻¹ᴰ⟨_⟩ p = PR.reind
-          {!!}
+          (⋆CancelR (F-Iso {F = G.F} (NatIsoAt M.ρ _))
+            (N.⋆Assoc _ _ _ ∙ cong₂ N._⋆_ refl (G.ρε-law _)
+            ∙ N.ρ .nIso _ .sec
+            ∙ sym (F-Iso {F = G.F} (NatIsoAt M.ρ _) .snd .sec)
+            ))
           (P.ρ⁻¹ᴰ⟨ p ⟩
             P.⋆ᴰ (P.idᴰ P.⊗ₕᴰ isoLift _ _ .σ)
             P.⋆ᴰ isoLift _ _ .σ)

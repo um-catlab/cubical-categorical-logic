@@ -12,6 +12,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Properties
 
 private
   variable
@@ -44,6 +45,10 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
           Path (N.C [ N.unit N.⊗ (F ⟅ x ⟆) , F ⟅ x ⟆ ])
             (ε N.⊗ₕ N.id ⋆⟨ N.C ⟩ μ⟨ M.unit , x ⟩ ⋆⟨ N.C ⟩ F ⟪ M.η⟨ x ⟩ ⟫)
             N.η⟨ F ⟅ x ⟆ ⟩
+        ρε-law : ∀ x →
+          N.id N.⊗ₕ ε ⋆⟨ N.C ⟩ μ⟨ x , M.unit ⟩ ⋆⟨ N.C ⟩ F ⟪ M.ρ⟨ x ⟩ ⟫
+          ≡ N.ρ⟨ F ⟅ x ⟆ ⟩
+
       -- α⁻μ-law
       η⁻ε-law : ∀ x →
         N.η⁻¹⟨ F ⟅ x ⟆ ⟩ ⋆⟨ N.C ⟩ (ε N.⊗ₕ N.id) ⋆⟨ N.C ⟩ μ⟨ _ , _ ⟩
@@ -56,11 +61,6 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
         ∙ cong (F .F-hom) (sym (NatIsoAt M.η _ .snd .sec))
         ∙ F .F-seq _ _)
 
-      -- I guess this is true but good luck proving it
-      -- ρε-law : ∀ x →
-      --   N.id N.⊗ₕ ε ⋆⟨ N.C ⟩ μ⟨ x , M.unit ⟩ ⋆⟨ N.C ⟩ F ⟪ M.ρ⟨ x ⟩ ⟫
-      --   ≡ N.ρ⟨ F ⟅ x ⟆ ⟩
-      -- ρε-law = {!!}
     -- equivalent to LaxMonoidal stuff with op but we'll define it
     -- explicitly for ergonomics
     record OpLaxMonoidalStr : Type (ℓ-max ℓC (ℓ-max ℓC' ℓD')) where
@@ -146,6 +146,9 @@ module _ {M : MonoidalCategory ℓC ℓC'} where
   IdLaxStr .ηε-law x =
     cong₂ M._⋆_ (M.⋆IdR _) refl
     ∙ cong₂ M._⋆_ (M.─⊗─ .F-id) refl
+    ∙ M.⋆IdL _
+  IdLaxStr .ρε-law x =
+    cong₂ M._⋆_ (M.⋆IdR _ ∙ M.─⊗─ .F-id) refl
     ∙ M.⋆IdL _
 
   IdStrStr : StrongMonoidalStr M M (Id {C = M.C})

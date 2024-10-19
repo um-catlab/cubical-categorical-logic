@@ -12,6 +12,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Monoidal
+open import Cubical.Categories.Monoidal.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Functors.More
 
@@ -53,3 +54,25 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
   _×M_ .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .ret = ΣPathP (M.ρ .nIso _ .ret , N.ρ .nIso _ .ret)
   _×M_ .MonoidalCategory.monstr .MonoidalStr.pentagon _ _ _ _ = ΣPathP ((M.pentagon _ _ _ _ ) , (N.pentagon _ _ _ _))
   _×M_ .MonoidalCategory.monstr .MonoidalStr.triangle _ _ = ΣPathP (M.triangle _ _ , N.triangle _ _)
+
+module _ {M : MonoidalCategory ℓC ℓC'} {N : MonoidalCategory ℓD ℓD'}{O : MonoidalCategory ℓE ℓE'}
+  (G : StrongMonoidalFunctor M N)(H : StrongMonoidalFunctor M O)
+  where
+  private
+    module G = StrongMonoidalFunctor G
+    module H = StrongMonoidalFunctor H
+  -- Auto ftw
+  _,F_ : StrongMonoidalFunctor M (N ×M O)
+  _,F_ .StrongMonoidalFunctor.F = G.F BP.,F H.F
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr) .LaxMonoidalStr.ε = G.ε , H.ε
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr) .LaxMonoidalStr.μ .N-ob x = (N-ob G.μ x) , (N-ob H.μ x)
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr) .LaxMonoidalStr.μ .N-hom f = ΣPathP ((N-hom G.μ f) , (N-hom H.μ f))
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr) .LaxMonoidalStr.αμ-law x y z = ΣPathP ((G.αμ-law x y z) , (H.αμ-law x y z))
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr) .LaxMonoidalStr.ηε-law x = ΣPathP ((G.ηε-law x) , (H.ηε-law x))
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr) .LaxMonoidalStr.ρε-law x = ΣPathP ((G.ρε-law x) , (H.ρε-law x))
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.ε-isIso) .inv = (G.ε-isIso .inv) , (H.ε-isIso .inv)
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.ε-isIso) .sec = ΣPathP ((G.ε-isIso .sec) , (H.ε-isIso .sec))
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.ε-isIso) .ret = ΣPathP ((G.ε-isIso .ret) , (H.ε-isIso .ret))
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.μ-isIso) x .inv = (G.μ-isIso x .inv) , (H.μ-isIso x .inv)
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.μ-isIso) x .sec = ΣPathP ((G.μ-isIso x .sec) , (H.μ-isIso x .sec))
+  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.μ-isIso) x .ret = ΣPathP (G.μ-isIso x .ret , H.μ-isIso x .ret)

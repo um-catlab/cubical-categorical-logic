@@ -18,6 +18,7 @@ open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
@@ -28,6 +29,7 @@ open import Cubical.Categories.Displayed.Constructions.TotalCategory
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Displayed.Fibration.TwoSided
+open import Cubical.Categories.Displayed.Fibration.IsoFibration
 open import Cubical.Categories.Displayed.Instances.Arrow.Base
 
 private
@@ -36,6 +38,8 @@ private
 
 open isTwoSidedWeakFibration
 open isTwoSidedWeakIsoFibration
+open isIso
+open Category
 module _ (C : Category ℓC ℓC') where
   isTwoSidedWeakFibrationArrow
     : isTwoSidedWeakFibration {C = C}{D = C} (Arrow C)
@@ -58,3 +62,20 @@ module _ (C : Category ℓC ℓC') where
     } where
       rightLift = isTwoSidedWeakFibrationArrow .rightLifts (p .fst) (f .fst)
       module rightLift = WeakRightOpCartesianLift rightLift
+
+  isIsoFibrationIso : isWeakIsoFibration (Iso C)
+  isIsoFibrationIso {c = x , y}{c' = x' , y'} x'≅y' fg = record
+    { f*cᴰ = ⋆Iso x≅x' (⋆Iso x'≅y' y'≅y)
+    ; π = sym (C .⋆IdR _)
+      ∙ C .⋆Assoc _ _ _
+      ∙ cong₂ (seq' C) refl (cong₂ (seq' C) refl (sym (y'≅y .snd .ret)) ∙ sym (C .⋆Assoc _ _ _))
+      ∙ sym (C .⋆Assoc _ _ _)
+      , _
+    ; σ = sym (C .⋆Assoc _ _ _)
+      ∙ cong₂ (comp' C) refl (x≅x' .snd .sec)
+      ∙ C .⋆IdL _
+      , _
+    }
+    where
+      x≅x' = SplitCatIso× C C fg .fst
+      y'≅y = invIso (SplitCatIso× C C fg .snd)

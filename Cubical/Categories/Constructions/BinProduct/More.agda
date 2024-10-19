@@ -97,3 +97,18 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE �
       ≡⟨ (λ i → (β≡ (c₁ , d₁) (~ i)) ⋆⟨ E ⟩ (G ⟪ fc , fd ⟫)) ⟩
     (((βc c₁) .trans .N-ob d₁) ⋆⟨ E ⟩ (G ⟪ fc , fd ⟫)) ∎
   binaryNatIso F G βc βd β≡ .nIso (c , d)  = (βc c) .nIso d
+
+module _ (C : Category ℓC ℓC')
+         (D : Category ℓD ℓD') where
+  open Functor
+  SplitCatIso× : {x y : C .ob}{z w : D .ob}
+    → CatIso (C ×C D) (x , z) (y , w)
+    → CatIso C x y × CatIso D z w
+  SplitCatIso× f .fst .fst = f .fst .fst
+  SplitCatIso× f .fst .snd .isIso.inv = f .snd .isIso.inv .fst
+  SplitCatIso× f .fst .snd .isIso.sec = cong fst (f .snd .isIso.sec)
+  SplitCatIso× f .fst .snd .isIso.ret = cong fst (f .snd .isIso.ret)
+  SplitCatIso× f .snd .fst = f .fst .snd
+  SplitCatIso× f .snd .snd .isIso.inv = f .snd .isIso.inv .snd
+  SplitCatIso× f .snd .snd .isIso.sec = cong snd (f .snd .isIso.sec)
+  SplitCatIso× f .snd .snd .isIso.ret = cong snd (f .snd .isIso.ret)

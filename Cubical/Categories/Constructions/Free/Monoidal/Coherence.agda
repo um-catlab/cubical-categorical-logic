@@ -135,6 +135,7 @@ module _ (X : hSet ℓ) where
           ∙ cong₂ M._⊗ₕ_ refl (sym (|rec| .F-id {xs})))
 
       opaque
+        -- worst case scenario this is just a symmetric proof to ρ⟨⊗⟩
         η⟨⊗⟩ : ∀ x y →
           (M.α⟨ M.unit , x , y ⟩ M.⋆ (M.η⟨ x ⟩ M.⊗ₕ M.id {y}))
           ≡ M.η⟨ x M.⊗ y ⟩
@@ -166,7 +167,19 @@ module _ (X : hSet ℓ) where
             ≡⟨ sym (M.⋆IdR _) ∙ cong₂ M._⋆_ refl (sym (|rec| .F-id {ys ++ zs})) ⟩
           ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ M.η⟨ _ ⟩) M.⋆ |rec| ⟪ L.id {ys ++ zs} ⟫
             ∎
-        μ-pf (x ∷ xs) ys zs = {!!}
+        μ-pf (x ∷ xs) ys zs =
+          (M.α⟨ _ , _ , _ ⟩ M.⋆ ((M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| xs ys .fst)) M.⊗ₕ M.id))
+            M.⋆ M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| (xs ++ ys) zs .fst)
+            ≡⟨ cong₂ M._⋆_ (cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ refl (sym (M.⋆IdL _)) ∙ M.─⊗─ .F-seq _ _) ∙ sym (M.⋆Assoc _ _ _)) refl ∙ M.⋆Assoc _ _ _ ∙ cong₂ M._⋆_ refl (sym (M.⋆Assoc _ _ _) ∙ cong₂ M._⋆_ (symNatIso M.α .trans .N-hom _) refl) ⟩
+          (M.α⟨ _ , _ , _ ⟩ M.⋆ (M.α⁻¹⟨ _ , _ , _ ⟩ M.⊗ₕ M.id))
+           M.⋆
+           ((M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ (|μ| xs ys .fst M.⊗ₕ M.id))) M.⋆ (M.id M.⊗ₕ |μ| (xs ++ ys) zs .fst))
+            ≡⟨ {!cong₂ M._⋆_ ? ?!} ⟩
+          ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ (M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| xs (ys ++ zs) .fst)))
+           M.⋆ (M.id M.⊗ₕ |rec| ⟪ L.α⟨ xs , ys , zs ⟩ ⟫)
+            ≡⟨ {!!} ⟩
+          ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ (M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| xs (ys ++ zs) .fst))) M.⋆ |rec| ⟪ L.α⟨ x ∷ xs , ys , zs ⟩ ⟫
+            ∎
 
         ρε-pf : ∀ xs →
           (|μ| xs [] .fst) M.⋆ (|rec| ⟪ L.ρ⟨ xs ⟩ ⟫) ≡ M.ρ⟨ |rec| ⟅ xs ⟆ ⟩

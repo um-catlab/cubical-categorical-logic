@@ -16,7 +16,7 @@ open import Cubical.Categories.Monoidal.Properties
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' : Level
+    ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 open Category
 open Functor
 open isIso
@@ -163,3 +163,33 @@ module _ {M : MonoidalCategory ℓC ℓC'} where
   IdStr : StrongMonoidalFunctor M M
   IdStr .StrongMonoidalFunctor.F = Id
   IdStr .StrongMonoidalFunctor.strmonstr = IdStrStr
+
+-- module _ {M : MonoidalCategory ℓC ℓC'}
+--          {N : MonoidalCategory ℓD ℓD'}
+--          {O : MonoidalCategory ℓE ℓE'} where
+--   open LaxMonoidalFunctor
+--   open LaxMonoidalStr
+--   private
+--     module O = MonoidalCategory O
+--   open NatTrans
+--   _∘Lax_ : LaxMonoidalFunctor N O → LaxMonoidalFunctor M N → LaxMonoidalFunctor M O
+--   (G ∘Lax H) .F = G .F ∘F H .F
+--   (G ∘Lax H) .laxmonstr .ε = G .laxmonstr .ε O.⋆ G .F ⟪ H .laxmonstr .ε ⟫
+--   (G ∘Lax H) .laxmonstr .μ .NatTrans.N-ob x =
+--     (G .laxmonstr .μ ∘ˡ (H .F ×F H .F)) ⟦ x ⟧
+--     O.⋆ (G .F ∘ʳ (H .laxmonstr .μ)) ⟦ x ⟧
+--   (G ∘Lax H) .laxmonstr .μ .NatTrans.N-hom f =
+--     sym (O.⋆Assoc _ _ _)
+--     ∙ cong₂ O._⋆_ ((G .laxmonstr .μ ∘ˡ (H .F ×F H .F)) .N-hom f) refl
+--     ∙ O.⋆Assoc _ _ _
+--     ∙ cong₂ O._⋆_ refl ((G .F ∘ʳ (H .laxmonstr .μ)) .N-hom f)
+--     ∙ sym (O.⋆Assoc _ _ _)
+--   (G ∘Lax H) .laxmonstr .αμ-law x y z = {!!}
+--   (G ∘Lax H) .laxmonstr .ηε-law x = {!!}
+--   (G ∘Lax H) .laxmonstr .ρε-law x = {!!}
+
+  -- _∘Str_ : StrongMonoidalFunctor N O → StrongMonoidalFunctor M N → StrongMonoidalFunctor M O
+  -- (G ∘Str H) .StrongMonoidalFunctor.F = G .StrongMonoidalFunctor.F ∘F H .StrongMonoidalFunctor.F
+  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr = {!!}
+  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.ε-isIso = {!!}
+  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.μ-isIso = {!!}

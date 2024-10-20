@@ -222,3 +222,23 @@ module _ (X : Type ℓ) where
         → G.F ≅ᶜ H.F
       uniq ı≅ = IsoReflection (GlobalSectionReindex→Section _ _
         (elim (IsoComma G H) ı≅))
+
+  module _
+      (M : MonoidalCategory ℓD ℓD')
+      (G : StrongMonoidalFunctor M FreeMonoidalCategory)
+      where
+    private
+      module M = MonoidalCategory M
+      module G = StrongMonoidalFunctor G
+    module _
+           (ı : X → M.ob)
+           (ı≅ : ∀ x → CatIso |FreeMonoidalCategory| (G.F ⟅ ı x ⟆) (↑ x))
+      where
+      private
+        r = rec M ı
+        module r = StrongMonoidalFunctor r
+      -- mkRetract : G.F ∘F r.F ≅ᶜ Id
+      -- mkRetract = uniq FreeMonoidalCategory
+      --   {!!} -- TODO: composition of strong monoidal functors
+      --   IdStr
+      --   {!!}

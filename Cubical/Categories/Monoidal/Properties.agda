@@ -111,3 +111,7 @@ module _ (M : MonoidalCategory ℓC ℓC') where
         (⋆CancelR (NatIsoAt M.ρ _)
           (sym (M.ρ .trans .N-hom (M.ρ⟨ M.unit ⟩))))
       ∙ M.triangle _ _)
+
+    -- η⟨⊗⟩ : ∀ {x y}
+    --   → (M.α⟨ M.unit , x , y ⟩ M.⋆ {!!}) ≡ {!!}
+    -- η⟨⊗⟩ = {!!}

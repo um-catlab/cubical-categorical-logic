@@ -135,52 +135,56 @@ module _ (X : hSet ℓ) where
           ∙ cong₂ M._⊗ₕ_ refl (sym (|rec| .F-id {xs})))
 
       opaque
+        pentagon' : ∀ w x y z
+          → (M.α⟨ (w M.⊗ x) , y , z ⟩ M.⋆ (M.α⁻¹⟨ w , x , y ⟩ M.⊗ₕ M.id {z})) M.⋆ M.α⁻¹⟨ w , (x M.⊗ y) , z ⟩
+            ≡ (M.α⁻¹⟨ w , x , (y M.⊗ z) ⟩ M.⋆ (M.id M.⊗ₕ M.α⟨ x , y , z ⟩))
+        pentagon' = {!!}
+
         -- worst case scenario this is just a symmetric proof to ρ⟨⊗⟩
         -- can probably use "co" for monoidal cats to get this from ρ⟨⊗⟩
         η⟨⊗⟩ : ∀ x y →
           (M.α⟨ M.unit , x , y ⟩ M.⋆ (M.η⟨ x ⟩ M.⊗ₕ M.id {y}))
           ≡ M.η⟨ x M.⊗ y ⟩
         η⟨⊗⟩ x y = {!!}
-        -- id⊗-cancel M
-        --   ((cong₂ M._⊗ₕ_ ((sym (M.⋆IdR _))) refl ∙ M.─⊗─ .F-seq _ _)
-        --   ∙ ⋆CancelL {C = M.C} (invIso (NatIsoAt M.α _))
-        --     (sym (M.⋆Assoc _ _ _)
-        --     ∙ cong₂ M._⋆_
-        --         (sym (⋆InvLMove (NatIsoAt M.α _)
-        --           (sym (M.⋆Assoc _ _ _)
-        --           ∙ sym (⋆InvRMove (NatIsoAt M.α _) (⋆InvRMove
-        --                                               (F-Iso {F = M.─⊗─} (CatIso× M.C M.C (NatIsoAt M.α _) idCatIso))
-        --                                                 (M.⋆Assoc _ _ _ ∙ M.pentagon _ _ _ _)
-        --                                                 ∙ M.⋆Assoc _ _ _)))))
-        --         refl
-        --     ∙ {!!}
-        --     ∙ triangle' M _ _))
 
         μ-pf : ∀ xs ys zs →
           (M.α⟨ _ , _ , _ ⟩ M.⋆ (|μ| xs ys .fst M.⊗ₕ M.id)) M.⋆ |μ| (xs ++ ys) zs .fst
           ≡ ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ |μ| xs (ys ++ zs) .fst) M.⋆ |rec| ⟪ L.α⟨ xs , ys , zs ⟩ ⟫
         μ-pf [] ys zs =
-          (M.α⟨ _ , _ , _ ⟩ M.⋆ (M.η⟨ _ ⟩ M.⊗ₕ M.id)) M.⋆ |μ| ys zs .fst
-            ≡⟨ cong₂ M._⋆_ (η⟨⊗⟩ (|rec| ⟅ ys ⟆) (|rec| ⟅ zs ⟆)) refl ⟩
-          M.η⟨ _ ⟩ M.⋆ |μ| ys zs .fst
-            ≡⟨ sym (M.η .trans .N-hom _) ⟩
-          (M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ M.η⟨ _ ⟩
-            ≡⟨ sym (M.⋆IdR _) ∙ cong₂ M._⋆_ refl (sym (|rec| .F-id {ys ++ zs})) ⟩
-          ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ M.η⟨ _ ⟩) M.⋆ |rec| ⟪ L.id {ys ++ zs} ⟫
-            ∎
+          cong₂ M._⋆_ (η⟨⊗⟩ (|rec| ⟅ ys ⟆) (|rec| ⟅ zs ⟆)) refl
+          ∙ sym (M.η .trans .N-hom _)
+          ∙ sym (M.⋆IdR _) ∙ cong₂ M._⋆_ refl (sym (|rec| .F-id {ys ++ zs}))
         μ-pf (x ∷ xs) ys zs =
-          (M.α⟨ _ , _ , _ ⟩ M.⋆ ((M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| xs ys .fst)) M.⊗ₕ M.id))
-            M.⋆ M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| (xs ++ ys) zs .fst)
-            ≡⟨ cong₂ M._⋆_ (cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ refl (sym (M.⋆IdL _)) ∙ M.─⊗─ .F-seq _ _) ∙ sym (M.⋆Assoc _ _ _)) refl ∙ M.⋆Assoc _ _ _ ∙ cong₂ M._⋆_ refl (sym (M.⋆Assoc _ _ _) ∙ cong₂ M._⋆_ (symNatIso M.α .trans .N-hom _) refl) ⟩
-          (M.α⟨ _ , _ , _ ⟩ M.⋆ (M.α⁻¹⟨ _ , _ , _ ⟩ M.⊗ₕ M.id))
-           M.⋆
-           ((M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ (|μ| xs ys .fst M.⊗ₕ M.id))) M.⋆ (M.id M.⊗ₕ |μ| (xs ++ ys) zs .fst))
-            ≡⟨ {!cong₂ M._⋆_ ? ?!} ⟩
-          ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ (M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| xs (ys ++ zs) .fst)))
-           M.⋆ (M.id M.⊗ₕ |rec| ⟪ L.α⟨ xs , ys , zs ⟩ ⟫)
-            ≡⟨ {!!} ⟩
-          ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ (M.α⁻¹⟨ _ , _ , _ ⟩ M.⋆ (M.id M.⊗ₕ |μ| xs (ys ++ zs) .fst))) M.⋆ |rec| ⟪ L.α⟨ x ∷ xs , ys , zs ⟩ ⟫
-            ∎
+          cong₂ M._⋆_
+            (cong₂ M._⋆_ refl
+              (cong₂ M._⊗ₕ_ refl (sym (M.⋆IdL _)) ∙ M.─⊗─ .F-seq _ _)
+              ∙ sym (M.⋆Assoc _ _ _))
+            refl
+          ∙ M.⋆Assoc _ _ _
+          ∙ cong₂ M._⋆_ refl
+            (sym (M.⋆Assoc _ _ _)
+            ∙ cong₂ M._⋆_ (symNatIso M.α .trans .N-hom _) refl
+            ∙ (M.⋆Assoc _ _ _))
+          ∙ sym (M.⋆Assoc _ _ _)
+          ∙ cong₂ M._⋆_ (pentagon' _ _ _ _) refl
+          ∙ M.⋆Assoc _ _ _
+          ∙ cong₂ M._⋆_ refl
+            (cong₂ M._⋆_ refl (sym (M.─⊗─ .F-seq _ _))
+            ∙ sym (M.─⊗─ .F-seq _ _)
+            ∙ cong₂ M._⊗ₕ_
+              (M.⋆IdL _ ∙ M.⋆IdL _ ∙ sym (M.⋆IdL _))
+              (sym (M.⋆Assoc _ _ _) ∙ μ-pf xs ys zs ∙ M.⋆Assoc _ _ _)
+            ∙ M.─⊗─ .F-seq _ _)
+          ∙ sym (M.⋆Assoc _ _ _)
+          ∙ cong₂ M._⋆_ (sym (symNatIso M.α .trans .N-hom _)) refl
+          ∙ M.⋆Assoc _ _ _
+          ∙ cong₂ M._⋆_
+            (cong₂ M._⊗ₕ_ (M.─⊗─ .F-id) refl)
+            (cong₂ M._⋆_ refl
+              (cong₂ M._⊗ₕ_ (sym (M.⋆IdL _)) refl ∙ M.─⊗─ .F-seq _ _)
+            ∙ sym (M.⋆Assoc _ _ _))
+          ∙ sym (M.⋆Assoc _ _ _)
+          ∙ cong₂ M._⋆_ refl (sym (rec∷ {x = x} L.α⟨ xs , ys , zs ⟩))
 
         ρε-pf : ∀ xs →
           (|μ| xs [] .fst) M.⋆ (|rec| ⟪ L.ρ⟨ xs ⟩ ⟫) ≡ M.ρ⟨ |rec| ⟅ xs ⟆ ⟩

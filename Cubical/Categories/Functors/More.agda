@@ -5,11 +5,14 @@ module Cubical.Categories.Functors.More where
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
+open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.Isomorphism.More
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Compose
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Functions.Embedding
@@ -63,3 +66,19 @@ ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-ob = F₀
 ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-hom = F₁ .F-hom
 ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-id = F₁ .F-id
 ActionOnMorphisms→Functor {F₀ = F₀} F₁ .F-seq = F₁ .F-seq
+
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         (F : Functor C D)
+         where
+  open NatTrans
+  open NatIso
+  open isIso
+  hasIsoRetraction→isFaithful : (F⁻ : Functor D C) (ret : F⁻ ∘F F ≅ᶜ Id)
+    → isFaithful F
+  hasIsoRetraction→isFaithful F⁻ ret x y f g F⟪f⟫≡F⟪g⟫ =
+    ⋆CancelL (NatIsoAt ret _)
+      (sym (ret .trans .N-hom f)
+      ∙ cong₂ (seq' C) (cong (F⁻ .F-hom) F⟪f⟫≡F⟪g⟫) refl
+      ∙ ret .trans .N-hom g)

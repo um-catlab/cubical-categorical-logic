@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation.Base
 
 private
@@ -44,3 +45,11 @@ module _ (C : Category ℓC ℓC') where
     mkNatIso α α⁻ .nIso x .inv = α⁻ x
     mkNatIso α α⁻ .nIso x .sec = isThinC _ _
     mkNatIso α α⁻ .nIso x .ret = isThinC _ _
+
+module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD')
+         (F : Functor C D) (F⁻ : Functor D C)
+         (ret : F⁻ ∘F F ≅ᶜ Id)
+         where
+  hasPropHomsIsoRetract : hasPropHoms D → hasPropHoms C
+  hasPropHomsIsoRetract hasPropHomsD f f' =
+    hasIsoRetraction→isFaithful F F⁻ ret _ _ f f' (hasPropHomsD _ _)

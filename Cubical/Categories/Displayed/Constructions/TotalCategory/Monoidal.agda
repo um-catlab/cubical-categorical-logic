@@ -69,7 +69,6 @@ module _ (M : MonoidalCategory ℓC ℓC')
   ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .transᴰ .N-homᴰ fᴰ = ΣPathP
     (N.α .trans .N-hom _ , P.αᴰ .transᴰ .N-homᴰ _)
   ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .nIsoᴰ xᴰ .invᴰ = N.α⁻¹⟨ _ , _ , _ ⟩ , P.α⁻¹ᴰ⟨ _ , _ , _ ⟩
-
   ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .nIsoᴰ xᴰ .secᴰ = ΣPathP ((N.α .nIso _ .sec) , (P.αᴰ .nIsoᴰ _ .secᴰ))
   ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .nIsoᴰ xᴰ .retᴰ = ΣPathP ((N.α .nIso _ .ret) , (P.αᴰ .nIsoᴰ _ .retᴰ))
   ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ηᴰ .transᴰ .N-obᴰ _ = N.η⟨ _ ⟩ , P.ηᴰ⟨ _ ⟩

@@ -92,8 +92,8 @@ module _ (X : hSet ℓ) where
 
       |μ| : ∀ xs ys
         → CatIso M.C
-            ((|rec| ⟅ xs ⟆) M.⊗ (|rec| ⟅ ys ⟆))
-            (|rec| ⟅ xs ++ ys ⟆)
+            ((|rec| ⟅ xs ⟆) M.⊗ (|rec| ⟅ ys ⟆)) -- (x ⊗ xs) ⊗ ys
+            (|rec| ⟅ xs ++ ys ⟆) -- x ⊗ (xs ⊗ ys)
       |μ| [] ys = NatIsoAt M.η (|rec| ⟅ ys ⟆)
       |μ| (x ∷ xs) ys =
         ⋆Iso
@@ -136,6 +136,7 @@ module _ (X : hSet ℓ) where
 
       opaque
         -- worst case scenario this is just a symmetric proof to ρ⟨⊗⟩
+        -- can probably use "co" for monoidal cats to get this from ρ⟨⊗⟩
         η⟨⊗⟩ : ∀ x y →
           (M.α⟨ M.unit , x , y ⟩ M.⋆ (M.η⟨ x ⟩ M.⊗ₕ M.id {y}))
           ≡ M.η⟨ x M.⊗ y ⟩
@@ -201,8 +202,7 @@ module _ (X : hSet ℓ) where
       rec .strmonstr .laxmonstr .ε = M.id
       rec .strmonstr .laxmonstr .μ .NatTrans.N-ob x = |μ| (x .fst) (x .snd) .fst
       rec .strmonstr .laxmonstr .μ .NatTrans.N-hom f = μ-nat (f .fst) (f .snd)
-      rec .strmonstr .laxmonstr .αμ-law xs ys zs =
-        {!!}
+      rec .strmonstr .laxmonstr .αμ-law = μ-pf
       rec .strmonstr .laxmonstr .ηε-law xs =
         cong₂ M._⋆_ (cong₂ M._⋆_ (M.─⊗─ .F-id) refl ∙ M.⋆IdL _) (|rec| .F-id {x = xs})
         ∙ M.⋆IdR _
@@ -211,26 +211,15 @@ module _ (X : hSet ℓ) where
       rec .strmonstr .ε-isIso = idCatIso .snd
       rec .strmonstr .μ-isIso x = |μ| (x .fst) (x .snd) .snd
 
-  -- private
-  --   εL : FX.C [ FX.unit , |reflect| ⟅ [] ⟆ ]
-  --   εL = FX.id
-
-  --   -- TODO: make FreeMonoidalCategory opaque?
-  --   |μL| : ∀ x y → FX.C [ (|reflect| ⟅ x ⟆) FX.⊗ (|reflect| ⟅ y ⟆) , |reflect| ⟅ x ++ y ⟆ ]
-  --   |μL| = List.elim
-  --     (λ y → FX.η⟨ |reflect| ⟅ y ⟆ ⟩)
-  --     λ |μL| y → FX.α⁻¹⟨ _ , _ , _ ⟩ FX.⋆ (FX.id FX.⊗ₕ |μL| y)
-
-  --   μL : FX.─⊗─ ∘F (|reflect| ×F |reflect|) ⇒ |reflect| ∘F L.─⊗─
-  --   μL .NatTrans.N-ob = {!!}
-  --   μL .NatTrans.N-hom = {!!}
-
-  -- reflect : StrongMonoidalFunctor L FX
-  -- reflect .StrongMonoidalFunctor.F = |reflect|
-  -- reflect .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr .LaxMonoidalStr.ε = FX.id
-  -- reflect .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr .LaxMonoidalStr.μ = {!!}
-  -- reflect .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr .LaxMonoidalStr.αμ-law = {!!}
-  -- reflect .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr .LaxMonoidalStr.ηε-law = {!!}
-  -- reflect .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr .LaxMonoidalStr.ρε-law = {!!}
-  -- reflect .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.ε-isIso = idCatIso .snd
-  -- reflect .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.μ-isIso = {!!}
+  private
+    FX = FreeMonoidalCategory ⟨ X ⟩
+    module FX = MonoidalCategory FX
+    j : StrongMonoidalFunctor L FX
+    j = rec FX ↑
+    module j = StrongMonoidalFunctor j
+  coherence : hasPropHoms FX.C
+  coherence = hasPropHomsIsoRetract
+    FX.C L.C (isoRetract .fst) j.F (isoRetract .snd) isThinL
+    where
+      isoRetract = mkRetract ⟨ X ⟩ L j (λ x → x ∷ [])
+        λ x → NatIsoAt FX.ρ (↑ x)

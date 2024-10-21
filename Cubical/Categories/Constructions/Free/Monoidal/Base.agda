@@ -9,7 +9,8 @@ open import Cubical.Data.Sigma hiding (_×_)
 import Cubical.Data.Sigma as Σ
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.BinProduct hiding (_,F_; _×F_)
+open import Cubical.Categories.Constructions.BinProduct.Monoidal
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Functor
@@ -25,10 +26,14 @@ open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Monoidal.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex.Monoidal as Monoidal
 open import Cubical.Categories.Displayed.Constructions.Weaken.Monoidal
 import Cubical.Categories.Displayed.Constructions.Weaken as Wk
-open import Cubical.Categories.Displayed.Instances.Arrow.Base
+open import Cubical.Categories.Displayed.Instances.Arrow.Base hiding (Iso)
 open import Cubical.Categories.Displayed.Instances.Arrow.Monoidal
+open import Cubical.Categories.Displayed.Instances.Arrow.Properties
+open import Cubical.Categories.Displayed.Constructions.TotalCategory.Monoidal
+open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 
 private
   variable
@@ -234,11 +239,30 @@ module _ (X : Type ℓ) where
            (ı : X → M.ob)
            (ı≅ : ∀ x → CatIso |FreeMonoidalCategory| (G.F ⟅ ı x ⟆) (↑ x))
       where
-      private
-        r = rec M ı
-        module r = StrongMonoidalFunctor r
-      -- mkRetract : G.F ∘F r.F ≅ᶜ Id
-      -- mkRetract = uniq FreeMonoidalCategory
-      --   {!!} -- TODO: composition of strong monoidal functors
-      --   IdStr
-      --   {!!}
+
+      mkRetract : Σ[ G⁻ ∈ Functor |FreeMonoidalCategory| M.C ]
+        G.F ∘F G⁻ ≅ᶜ Id
+      mkRetract = G⁻ , GG⁻≅Id
+        where
+          Motive : MonoidalCategoryᴰ FreeMonoidalCategory _ _
+          Motive = ∫Mᴰsr FreeMonoidalCategory M
+            (Monoidal.reindex (Iso FreeMonoidalCategory) (IdStr ×F G)
+            (hasPropHomsIso |FreeMonoidalCategory|)
+            (isIsoFibrationIso |FreeMonoidalCategory|))
+          -- TODO: move this stuff to a general "IsoFiber" construction
+          module Motive = MonoidalCategoryᴰ Motive
+          S : GlobalSection Motive.Cᴰ
+          S = elim Motive (λ x → (ı x) , (invIso (ı≅ x)))
+
+          G⁻ : Functor |FreeMonoidalCategory| M.C
+          G⁻ = introS⁻ _ S .fst
+
+          Id≅GG⁻ = IsoReflection'
+            (compFunctorᴰSection (π _ _) (introS⁻ _ S .snd))
+
+          GG⁻≅Id : G.F ∘F G⁻ ≅ᶜ Id
+          GG⁻≅Id .trans .N-ob = symNatIso Id≅GG⁻ .trans .N-ob
+          GG⁻≅Id .trans .N-hom = symNatIso Id≅GG⁻ .trans .N-hom
+          GG⁻≅Id .nIso x .inv = symNatIso Id≅GG⁻ .nIso x .inv
+          GG⁻≅Id .nIso x .sec = symNatIso Id≅GG⁻ .nIso x .sec
+          GG⁻≅Id .nIso x .ret = symNatIso Id≅GG⁻ .nIso x .ret

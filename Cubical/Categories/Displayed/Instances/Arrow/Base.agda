@@ -12,6 +12,7 @@ module Cubical.Categories.Displayed.Instances.Arrow.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Unit
+import      Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -20,12 +21,13 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-open import Cubical.Categories.Constructions.TotalCategory
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Constructions.TotalCategory hiding (Fst; Snd)
+open import Cubical.Categories.Bifunctor.Redundant hiding (Fst; Snd)
 
 private
   variable
@@ -71,3 +73,12 @@ module _ {C : Category ℓC ℓC'}
     ; nIso = λ x → Fᴰ.F-obᴰ x .snd
     }
     where module Fᴰ = Section Fᴰ
+
+module _ {C : Category ℓC ℓC'}
+         {D : Category ℓD ℓD'}
+         {F : Functor D (C ×C C)}
+         where
+  IsoReflection' : ∀ (Fᴰ : Section F (Iso C))
+    → (Fst C C ∘F F) ≅ᶜ (Snd C C ∘F F)
+  IsoReflection' Fᴰ =
+    IsoReflection (reindS' (Eq.refl , Eq.refl) Fᴰ)

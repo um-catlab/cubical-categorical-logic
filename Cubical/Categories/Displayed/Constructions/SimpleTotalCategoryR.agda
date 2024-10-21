@@ -30,7 +30,7 @@ open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
   hiding (introS; introF)
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
-  hiding (introS; introF)
+  hiding (introS; introF; introS⁻)
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Terminal
@@ -78,6 +78,22 @@ module _
 
     introS : Section F ∫Cᴰsr
     introS = TotalCatᴰ.introS {C = C}{Cᴰ = weaken C D} Cᴰ F Fᴰ Gᴰ
+
+  module _
+    where
+    open Functor
+    open Section
+    introS⁻ : GlobalSection ∫Cᴰsr →
+      Σ[ F ∈ Functor C D ]
+      Section (Id ,F F) Cᴰ
+    introS⁻ S .fst .F-ob z = S .F-obᴰ z .fst
+    introS⁻ S .fst .F-hom f = S .F-homᴰ f .fst
+    introS⁻ S .fst .F-id = cong fst (S .F-idᴰ)
+    introS⁻ S .fst .F-seq _ _ = cong fst (S .F-seqᴰ _ _)
+    introS⁻ S .snd .F-obᴰ z = S .F-obᴰ z .snd
+    introS⁻ S .snd .F-homᴰ f = S .F-homᴰ f .snd
+    introS⁻ S .snd .F-idᴰ = cong snd (S .F-idᴰ)
+    introS⁻ S .snd .F-seqᴰ _ _ = cong snd (S .F-seqᴰ _ _)
 
   -- ∀ c , d . Cᴰ (c , d) → Σ[ d' ] Cᴰ (c , d')
   -- This can be defined more generally for ∫Cᴰ

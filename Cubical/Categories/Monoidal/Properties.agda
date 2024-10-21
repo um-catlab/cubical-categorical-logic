@@ -86,6 +86,18 @@ module _ (M : MonoidalCategory ℓC ℓC') where
   triangle' x y = ⋆InvLMove (NatIsoAt M.α _) (M.triangle x y)
 
   opaque
+    pentagon' : ∀ w x y z
+      → (M.α⟨ (w M.⊗ x) , y , z ⟩ M.⋆ (M.α⁻¹⟨ w , x , y ⟩ M.⊗ₕ M.id {z})) M.⋆ M.α⁻¹⟨ w , (x M.⊗ y) , z ⟩
+       ≡ (M.α⁻¹⟨ w , x , (y M.⊗ z) ⟩ M.⋆ (M.id M.⊗ₕ M.α⟨ x , y , z ⟩))
+    pentagon' w x y z =
+      ⋆InvLMove (NatIsoAt M.α _)
+        (sym (M.⋆Assoc _ _ _)
+        ∙ sym (⋆InvRMove (NatIsoAt M.α _)
+        (⋆InvRMove
+          (F-Iso {F = M.─⊗─} (CatIso× M.C M.C (NatIsoAt M.α _) idCatIso))
+          (M.⋆Assoc _ _ _ ∙ M.pentagon w x y z)
+         ∙ M.⋆Assoc _ _ _)))
+
     ρ⟨⊗⟩ : ∀ {x y}
       → (M.α⟨ _ , _ , _ ⟩ M.⋆ (M.ρ⟨ x M.⊗ y ⟩)) ≡ (M.id {x} M.⊗ₕ M.ρ⟨ y ⟩ )
     ρ⟨⊗⟩ {x}{y} = ⊗id-cancel
@@ -112,6 +124,10 @@ module _ (M : MonoidalCategory ℓC ℓC') where
           (sym (M.ρ .trans .N-hom (M.ρ⟨ M.unit ⟩))))
       ∙ M.triangle _ _)
 
-    -- η⟨⊗⟩ : ∀ {x y}
-    --   → (M.α⟨ M.unit , x , y ⟩ M.⋆ {!!}) ≡ {!!}
-    -- η⟨⊗⟩ = {!!}
+    -- worst case scenario this is just a symmetric proof to ρ⟨⊗⟩
+    -- can probably use "co" for monoidal cats to get this from ρ⟨⊗⟩
+    η⟨⊗⟩ : ∀ x y →
+      (M.α⟨ M.unit , x , y ⟩ M.⋆ (M.η⟨ x ⟩ M.⊗ₕ M.id {y}))
+      ≡ M.η⟨ x M.⊗ y ⟩
+    η⟨⊗⟩ x y = {!!}
+

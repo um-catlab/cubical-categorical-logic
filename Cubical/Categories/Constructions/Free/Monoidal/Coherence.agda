@@ -134,19 +134,6 @@ module _ (X : hSet ℓ) where
           ∙ sym (M.─⊗─ .F-id)
           ∙ cong₂ M._⊗ₕ_ refl (sym (|rec| .F-id {xs})))
 
-      opaque
-        pentagon' : ∀ w x y z
-          → (M.α⟨ (w M.⊗ x) , y , z ⟩ M.⋆ (M.α⁻¹⟨ w , x , y ⟩ M.⊗ₕ M.id {z})) M.⋆ M.α⁻¹⟨ w , (x M.⊗ y) , z ⟩
-            ≡ (M.α⁻¹⟨ w , x , (y M.⊗ z) ⟩ M.⋆ (M.id M.⊗ₕ M.α⟨ x , y , z ⟩))
-        pentagon' = {!!}
-
-        -- worst case scenario this is just a symmetric proof to ρ⟨⊗⟩
-        -- can probably use "co" for monoidal cats to get this from ρ⟨⊗⟩
-        η⟨⊗⟩ : ∀ x y →
-          (M.α⟨ M.unit , x , y ⟩ M.⋆ (M.η⟨ x ⟩ M.⊗ₕ M.id {y}))
-          ≡ M.η⟨ x M.⊗ y ⟩
-        η⟨⊗⟩ x y = {!!}
-
         μ-pf : ∀ xs ys zs →
           (M.α⟨ _ , _ , _ ⟩ M.⋆ (|μ| xs ys .fst M.⊗ₕ M.id)) M.⋆ |μ| (xs ++ ys) zs .fst
           ≡ ((M.id M.⊗ₕ |μ| ys zs .fst) M.⋆ |μ| xs (ys ++ zs) .fst) M.⋆ |rec| ⟪ L.α⟨ xs , ys , zs ⟩ ⟫

@@ -12,6 +12,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Dual
 
 private
   variable
@@ -61,6 +62,7 @@ module _ (M : MonoidalPreorder ℓC ℓC') where
 module _ (M : MonoidalCategory ℓC ℓC') where
   private
     module M = MonoidalCategory M
+    module M^co = MonoidalCategory (M ^co)
 
   ⊗id-cancel : ∀ {x y : M.ob}
     → {f g : M.C [ x , y ]}
@@ -99,7 +101,7 @@ module _ (M : MonoidalCategory ℓC ℓC') where
          ∙ M.⋆Assoc _ _ _)))
 
     ρ⟨⊗⟩ : ∀ {x y}
-      → (M.α⟨ _ , _ , _ ⟩ M.⋆ (M.ρ⟨ x M.⊗ y ⟩)) ≡ (M.id {x} M.⊗ₕ M.ρ⟨ y ⟩ )
+      → (M.α⟨ x , y , M.unit ⟩ M.⋆ (M.ρ⟨ x M.⊗ y ⟩)) ≡ (M.id {x} M.⊗ₕ M.ρ⟨ y ⟩ )
     ρ⟨⊗⟩ {x}{y} = ⊗id-cancel
       (⋆CancelL (NatIsoAt M.α _)
         ( (cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ refl (sym (M.⋆IdL _)) ∙ M.─⊗─ .F-seq _ _)
@@ -124,10 +126,13 @@ module _ (M : MonoidalCategory ℓC ℓC') where
           (sym (M.ρ .trans .N-hom (M.ρ⟨ M.unit ⟩))))
       ∙ M.triangle _ _)
 
-    -- worst case scenario this is just a symmetric proof to ρ⟨⊗⟩
-    -- can probably use "co" for monoidal cats to get this from ρ⟨⊗⟩
-    η⟨⊗⟩ : ∀ x y →
-      (M.α⟨ M.unit , x , y ⟩ M.⋆ (M.η⟨ x ⟩ M.⊗ₕ M.id {y}))
-      ≡ M.η⟨ x M.⊗ y ⟩
-    η⟨⊗⟩ x y = {!!}
+module _ (M : MonoidalCategory ℓC ℓC') where
+  private
+    module M = MonoidalCategory M
+    module M^co = MonoidalCategory (M ^co)
+  η⟨⊗⟩ : ∀ x y →
+    (M.α⟨ M.unit , x , y ⟩ M.⋆ (M.η⟨ x ⟩ M.⊗ₕ M.id {y}))
+    ≡ M.η⟨ x M.⊗ y ⟩
+  η⟨⊗⟩ x y = sym (⋆InvLMove (invIso (NatIsoAt M.α _))
+    (ρ⟨⊗⟩ (M ^co)))
 

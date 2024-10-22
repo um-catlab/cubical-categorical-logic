@@ -33,7 +33,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     field
       transᴰ : NatTransᴰ (α .trans) Fᴰ Gᴰ
       nIsoᴰ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isIsoᴰ Dᴰ (α .nIso x) (transᴰ .N-obᴰ xᴰ)
-      
+
   module _ {F : Functor C D}{G : Functor C D}
     (α : NatIso F G)
     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

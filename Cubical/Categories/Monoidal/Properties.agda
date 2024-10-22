@@ -114,7 +114,7 @@ module _ (M : MonoidalCategory ℓC ℓC') where
         ∙ M.⋆Assoc _ _ _
         ∙ cong₂ M._⋆_ refl (M.⋆Assoc _ _ _ ∙ cong₂ M._⋆_ refl (M.triangle _ _) ∙ cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ (sym (M.─⊗─ .F-id)) refl) ∙ sym (M.α .trans .N-hom _))
         ∙ sym (M.⋆Assoc _ _ _)
-        ∙ cong₂ M._⋆_ (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdL _) refl) refl 
+        ∙ cong₂ M._⋆_ (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdL _) refl) refl
         ∙ cong₂ M._⋆_ (cong₂ M._⊗ₕ_ refl (⋆CancelL (NatIsoAt M.α _) (sym (⋆InvLMove (invIso (NatIsoAt M.α _)) refl) ∙ sym (M.triangle _ _)))) refl
         ∙ M.α .trans .N-hom _ ))
   opaque

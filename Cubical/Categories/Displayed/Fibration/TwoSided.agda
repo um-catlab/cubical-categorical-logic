@@ -33,7 +33,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
         {g : C [ c'' , c ]}{h : D [ d'' , d ]}
         → P.Hom[ (g ⋆⟨ C ⟩ f , h) ][ p'' , p ]
         → P.Hom[ g , h ][ p'' , f*p ]
-        
+
 
   record WeakRightOpCartesianLift {c d d'}
     (p : P.ob[ c , d' ]) (f : D [ d' , d ])
@@ -62,4 +62,4 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
         → WeakLeftCartesianLift p (f .fst)
       rightLifts : ∀ {c d d'} (p : P.ob[ c , d' ]) (f : CatIso D d' d)
         → WeakRightOpCartesianLift p (f .fst)
-  
+

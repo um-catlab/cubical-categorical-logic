@@ -65,13 +65,13 @@ module _ (M : MonoidalCategory ℓC ℓC') where
         λ { ((f-sq , _) , (g-sq , _)) →
           sym (M.─⊗─ .F-seq _ _ )
           ∙ cong₂ M._⊗ₕ_ f-sq g-sq
-          ∙ M.─⊗─ .F-seq _ _ 
+          ∙ M.─⊗─ .F-seq _ _
           , _
           }
       MP .MonoidalPropᴰ.αᴰ⟨_,_,_⟩ x≅x' y≅y' z≅z' =
         sym (M.α .trans .N-hom _) , _
       MP .MonoidalPropᴰ.α⁻¹ᴰ⟨_,_,_⟩ _ _ _ =
-        sym (symNatIso M.α .trans .N-hom _) , _ 
+        sym (symNatIso M.α .trans .N-hom _) , _
       MP .MonoidalPropᴰ.ηᴰ⟨_⟩ x≅x' =
         sym (M.η .trans .N-hom _)
         , _

@@ -70,7 +70,8 @@ module _ {M : MonoidalCategory ℓC ℓC'}
 
     reindex : MonoidalCategoryᴰ M ℓE ℓE'
     reindex .MonoidalCategoryᴰ.Cᴰ = Reindex.reindex P.Cᴰ G.F
-    reindex .MonoidalCategoryᴰ.monstrᴰ = TensorPropᴰ→TensorStrᴰ M (Reindex.reindex P.Cᴰ G.F) hasPropHomsCᴰ MP
+    reindex .MonoidalCategoryᴰ.monstrᴰ =
+      TensorPropᴰ→TensorStrᴰ M (Reindex.reindex P.Cᴰ G.F) hasPropHomsCᴰ MP
       where
         open TensorStrᴰ
         open MonoidalPropᴰ
@@ -85,13 +86,18 @@ module _ {M : MonoidalCategory ℓC ℓC'}
               ∙ cong₂ N._⋆_ (G.μ-isIso _ .sec) refl ∙ N.⋆IdL _)
             (isoLift _ _ .π P.⋆ᴰ ((fᴰ P.⊗ₕᴰ gᴰ) P.⋆ᴰ isoLift _ _ .σ)) }
         MP .αᴰ⟨_,_,_⟩ p q r = PR.reind
-          (cong₂ N._⋆_ refl (cong₂ N._⋆_ refl (sym (N.⋆Assoc _ _ _) ∙ (G.αμ-law _ _ _)))
+          (cong₂ N._⋆_ refl
+            (cong₂ N._⋆_ refl (sym (N.⋆Assoc _ _ _) ∙ (G.αμ-law _ _ _)))
           ∙ sym (N.⋆Assoc _ _ _) ∙ sym (N.⋆Assoc _ _ _)
           ∙ cong₂ N._⋆_
              (N.⋆Assoc _ _ _
              ∙ cong₂ N._⋆_ refl
                (sym (N.⋆Assoc _ _ _)
-               ∙ cong₂ N._⋆_ (F-Iso {F = N.─⊗─} (CatIso× N.C N.C idCatIso (NatIsoAt G.μ-Iso _)) .snd .sec) refl
+               ∙ cong₂ N._⋆_
+                 (F-Iso {F = N.─⊗─}
+                   (CatIso× N.C N.C idCatIso (NatIsoAt G.μ-Iso _))
+                   .snd .sec)
+                 refl
                ∙ N.⋆IdL _)
              ∙ G.μ-isIso _ .sec)
              refl
@@ -105,14 +111,22 @@ module _ {M : MonoidalCategory ℓC ℓC'}
         MP .α⁻¹ᴰ⟨_,_,_⟩ p q r = PR.reind
           (⋆CancelR (F-Iso {F = G.F} (NatIsoAt M.α _))
             ((N.⋆Assoc _ _ _)
-            ∙ cong₂ N._⋆_ refl (N.⋆Assoc _ _ _ ∙ cong₂ N._⋆_ refl (N.⋆Assoc _ _ _
-            ∙ cong₂ N._⋆_ refl (sym (G.αμ-law _ _ _))
-            ∙ sym (N.⋆Assoc _ _ _) ∙ cong₂ N._⋆_ (sym (N.⋆Assoc _ _ _) ∙ cong₂ N._⋆_ (N.α .nIso _ .sec) refl
-            ∙ N.⋆IdL _)
-            refl)
-            ∙ sym (N.⋆Assoc _ _ _)
-            ∙ cong₂ N._⋆_ (F-Iso {F = N.─⊗─} (CatIso× N.C N.C (NatIsoAt G.μ-Iso _) idCatIso) .snd .sec) refl
-            ∙ N.⋆IdL _)
+            ∙ cong₂ N._⋆_ refl
+              (N.⋆Assoc _ _ _
+              ∙ cong₂ N._⋆_ refl
+                (N.⋆Assoc _ _ _
+                ∙ cong₂ N._⋆_ refl (sym (G.αμ-law _ _ _))
+                ∙ sym (N.⋆Assoc _ _ _)
+                ∙ cong₂ N._⋆_
+                  (sym (N.⋆Assoc _ _ _) ∙ cong₂ N._⋆_ (N.α .nIso _ .sec) refl
+                  ∙ N.⋆IdL _)
+                  refl)
+              ∙ sym (N.⋆Assoc _ _ _)
+              ∙ cong₂ N._⋆_
+                  (F-Iso {F = N.─⊗─}
+                    (CatIso× N.C N.C (NatIsoAt G.μ-Iso _) idCatIso) .snd .sec)
+                  refl
+              ∙ N.⋆IdL _)
             ∙ G.μ-isIso _ .sec
             ∙ sym ((F-Iso {F = G.F} (NatIsoAt M.α _)) .snd .sec)))
           (isoLift _ _ .π
@@ -122,11 +136,16 @@ module _ {M : MonoidalCategory ℓC ℓC'}
           P.⋆ᴰ isoLift _ _ .σ
           )
         MP .ηᴰ⟨_⟩ p = PR.reind
-          (cong₂ N._⋆_ refl (
-                 (cong₂ N._⋆_ refl (sym (G.ηε-law _)))
-                 ∙ sym (N.⋆Assoc _ _ _) ∙ cong₂ N._⋆_
-                   ((sym (N.⋆Assoc _ _ _) ∙ cong₂ N._⋆_ (F-Iso {F = N.─⊗─} (CatIso× N.C N.C G.ε-Iso idCatIso) .snd .sec) refl) ∙ N.⋆IdL _)
-                   refl)
+          (cong₂ N._⋆_ refl
+            (cong₂ N._⋆_ refl (sym (G.ηε-law _))
+            ∙ sym (N.⋆Assoc _ _ _)
+            ∙ cong₂ N._⋆_
+              (sym (N.⋆Assoc _ _ _)
+              ∙ cong₂ N._⋆_
+                (F-Iso {F = N.─⊗─} (CatIso× N.C N.C G.ε-Iso idCatIso) .snd .sec)
+                refl
+              ∙ N.⋆IdL _)
+              refl)
           ∙ sym (N.⋆Assoc _ _ _)
           ∙ cong₂ N._⋆_ (NatIsoAt G.μ-Iso _ .snd .sec) refl
           ∙ N.⋆IdL _)
@@ -136,13 +155,15 @@ module _ {M : MonoidalCategory ℓC ℓC'}
           ((P.η⁻¹ᴰ⟨ _ ⟩ P.⋆ᴰ (isoLift _ _ .σ P.⊗ₕᴰ P.idᴰ)) P.⋆ᴰ isoLift _ _ .σ)
         MP .ρᴰ⟨_⟩ p = PR.reind
           (cong₂ N._⋆_ refl
-            (cong₂ N._⋆_ refl (sym (G.ρε-law _))
-            ∙ sym (N.⋆Assoc _ _ _)
+          (cong₂ N._⋆_ refl (sym (G.ρε-law _))
+          ∙ sym (N.⋆Assoc _ _ _)
+          ∙ cong₂ N._⋆_
+            (sym (N.⋆Assoc _ _ _)
             ∙ cong₂ N._⋆_
-              (sym (N.⋆Assoc _ _ _)
-              ∙ cong₂ N._⋆_ (F-Iso {F = N.─⊗─} (CatIso× N.C N.C idCatIso G.ε-Iso) .snd .sec) refl
-              ∙ N.⋆IdL _)
-              refl)
+              (F-Iso {F = N.─⊗─} (CatIso× N.C N.C idCatIso G.ε-Iso) .snd .sec)
+              refl
+            ∙ N.⋆IdL _)
+            refl)
           ∙ sym (N.⋆Assoc _ _ _)
           ∙ cong₂ N._⋆_ (G.μ-isIso _ .sec) refl
           ∙ N.⋆IdL _)

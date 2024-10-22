@@ -25,7 +25,8 @@ open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
-import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR as TotalCatᴰ
+import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
+  as TotalCatᴰ
 
 private
   variable
@@ -37,6 +38,8 @@ module _ (M : MonoidalCategory ℓC ℓC')
          where
   open Category
   open MonoidalCategoryᴰ
+  open TensorStrᴰ
+  open MonoidalStrᴰ
   open Functorᴰ
   open Functor
   open NatTransᴰ
@@ -55,31 +58,41 @@ module _ (M : MonoidalCategory ℓC ℓC')
   ∫Mᴰsr .Cᴰ = TotalCatᴰ.∫Cᴰsr {C = M.C}{D = N.C} P.Cᴰ
   -- TODO: maybe could have used an intro principle for ∫Cᴰsr here
   -- TODO: maybe all of this could be from intro principles for ∫Cᴰ?
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.tenstrᴰ .TensorStrᴰ.─⊗ᴰ─ .F-obᴰ {m , m'}
+  ∫Mᴰsr .monstrᴰ .tenstrᴰ .─⊗ᴰ─ .F-obᴰ {m , m'}
     ((n , p) , (n' , p')) = (n N.⊗ n') , (p P.⊗ᴰ p')
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.tenstrᴰ .TensorStrᴰ.─⊗ᴰ─ .F-homᴰ
+  ∫Mᴰsr .monstrᴰ .tenstrᴰ .─⊗ᴰ─ .F-homᴰ
     ((f , fᴰ) , (g , gᴰ)) = (f N.⊗ₕ g) , (fᴰ P.⊗ₕᴰ gᴰ)
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.tenstrᴰ .TensorStrᴰ.─⊗ᴰ─ .F-idᴰ =
+  ∫Mᴰsr .monstrᴰ .tenstrᴰ .─⊗ᴰ─ .F-idᴰ =
     ΣPathP ((N.─⊗─ .F-id) , PR.rectify (P.─⊗ᴰ─ .F-idᴰ))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.tenstrᴰ .TensorStrᴰ.─⊗ᴰ─ .F-seqᴰ fᴰ gᴰ =
+  ∫Mᴰsr .monstrᴰ .tenstrᴰ .─⊗ᴰ─ .F-seqᴰ fᴰ gᴰ =
     ΣPathP ((N.─⊗─ .F-seq _ _) , PR.rectify (P.─⊗ᴰ─ .F-seqᴰ _ _))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.tenstrᴰ .TensorStrᴰ.unitᴰ = N.unit , P.unitᴰ
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .transᴰ .N-obᴰ xᴰ =
+  ∫Mᴰsr .monstrᴰ .tenstrᴰ .unitᴰ = N.unit , P.unitᴰ
+  ∫Mᴰsr .monstrᴰ .αᴰ .transᴰ .N-obᴰ xᴰ =
     N.α⟨ _ , _ , _ ⟩ , P.αᴰ⟨ _ , _ , _ ⟩
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .transᴰ .N-homᴰ fᴰ = ΣPathP
+  ∫Mᴰsr .monstrᴰ .αᴰ .transᴰ .N-homᴰ fᴰ = ΣPathP
     (N.α .trans .N-hom _ , P.αᴰ .transᴰ .N-homᴰ _)
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .nIsoᴰ xᴰ .invᴰ = N.α⁻¹⟨ _ , _ , _ ⟩ , P.α⁻¹ᴰ⟨ _ , _ , _ ⟩
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .nIsoᴰ xᴰ .secᴰ = ΣPathP ((N.α .nIso _ .sec) , (P.αᴰ .nIsoᴰ _ .secᴰ))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.αᴰ .nIsoᴰ xᴰ .retᴰ = ΣPathP ((N.α .nIso _ .ret) , (P.αᴰ .nIsoᴰ _ .retᴰ))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ηᴰ .transᴰ .N-obᴰ _ = N.η⟨ _ ⟩ , P.ηᴰ⟨ _ ⟩
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ηᴰ .transᴰ .N-homᴰ _ = ΣPathP (N.η .trans .N-hom _ , P.ηᴰ .transᴰ .N-homᴰ _)
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ηᴰ .nIsoᴰ xᴰ .invᴰ = N.η⁻¹⟨ _ ⟩ , P.η⁻¹ᴰ⟨ _ ⟩
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ηᴰ .nIsoᴰ xᴰ .secᴰ = ΣPathP ((N.η .nIso _ .sec) , (P.ηᴰ .nIsoᴰ _ .secᴰ))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ηᴰ .nIsoᴰ xᴰ .retᴰ = ΣPathP ((N.η .nIso _ .ret) , (P.ηᴰ .nIsoᴰ _ .retᴰ))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ρᴰ .transᴰ .N-obᴰ _ = N.ρ⟨ _ ⟩ , P.ρᴰ⟨ _ ⟩
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ρᴰ .transᴰ .N-homᴰ _ = ΣPathP (N.ρ .trans .N-hom _ , P.ρᴰ .transᴰ .N-homᴰ _)
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ρᴰ .nIsoᴰ xᴰ .invᴰ = N.ρ⁻¹⟨ _ ⟩ , P.ρ⁻¹ᴰ⟨ _ ⟩
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ρᴰ .nIsoᴰ xᴰ .secᴰ = ΣPathP ((N.ρ .nIso _ .sec) , (P.ρᴰ .nIsoᴰ _ .secᴰ))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.ρᴰ .nIsoᴰ xᴰ .retᴰ = ΣPathP ((N.ρ .nIso _ .ret) , (P.ρᴰ .nIsoᴰ _ .retᴰ))
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.pentagonᴰ wᴰ xᴰ yᴰ zᴰ = ΣPathP (N.pentagon _ _ _ _ , P.pentagonᴰ _ _ _ _)
-  ∫Mᴰsr .monstrᴰ .MonoidalStrᴰ.triangleᴰ _ _ = ΣPathP (N.triangle _ _ , P.triangleᴰ _ _)
+  ∫Mᴰsr .monstrᴰ .αᴰ .nIsoᴰ xᴰ .invᴰ =
+    N.α⁻¹⟨ _ , _ , _ ⟩ , P.α⁻¹ᴰ⟨ _ , _ , _ ⟩
+  ∫Mᴰsr .monstrᴰ .αᴰ .nIsoᴰ xᴰ .secᴰ =
+    ΣPathP ((N.α .nIso _ .sec) , (P.αᴰ .nIsoᴰ _ .secᴰ))
+  ∫Mᴰsr .monstrᴰ .αᴰ .nIsoᴰ xᴰ .retᴰ =
+    ΣPathP ((N.α .nIso _ .ret) , (P.αᴰ .nIsoᴰ _ .retᴰ))
+  ∫Mᴰsr .monstrᴰ .ηᴰ .transᴰ .N-obᴰ _ = N.η⟨ _ ⟩ , P.ηᴰ⟨ _ ⟩
+  ∫Mᴰsr .monstrᴰ .ηᴰ .transᴰ .N-homᴰ _ =
+    ΣPathP (N.η .trans .N-hom _ , P.ηᴰ .transᴰ .N-homᴰ _)
+  ∫Mᴰsr .monstrᴰ .ηᴰ .nIsoᴰ xᴰ .invᴰ = N.η⁻¹⟨ _ ⟩ , P.η⁻¹ᴰ⟨ _ ⟩
+  ∫Mᴰsr .monstrᴰ .ηᴰ .nIsoᴰ xᴰ .secᴰ =
+    ΣPathP ((N.η .nIso _ .sec) , (P.ηᴰ .nIsoᴰ _ .secᴰ))
+  ∫Mᴰsr .monstrᴰ .ηᴰ .nIsoᴰ xᴰ .retᴰ =
+    ΣPathP ((N.η .nIso _ .ret) , (P.ηᴰ .nIsoᴰ _ .retᴰ))
+  ∫Mᴰsr .monstrᴰ .ρᴰ .transᴰ .N-obᴰ _ = N.ρ⟨ _ ⟩ , P.ρᴰ⟨ _ ⟩
+  ∫Mᴰsr .monstrᴰ .ρᴰ .transᴰ .N-homᴰ _ =
+    ΣPathP (N.ρ .trans .N-hom _ , P.ρᴰ .transᴰ .N-homᴰ _)
+  ∫Mᴰsr .monstrᴰ .ρᴰ .nIsoᴰ xᴰ .invᴰ = N.ρ⁻¹⟨ _ ⟩ , P.ρ⁻¹ᴰ⟨ _ ⟩
+  ∫Mᴰsr .monstrᴰ .ρᴰ .nIsoᴰ xᴰ .secᴰ =
+    ΣPathP ((N.ρ .nIso _ .sec) , (P.ρᴰ .nIsoᴰ _ .secᴰ))
+  ∫Mᴰsr .monstrᴰ .ρᴰ .nIsoᴰ xᴰ .retᴰ =
+    ΣPathP ((N.ρ .nIso _ .ret) , (P.ρᴰ .nIsoᴰ _ .retᴰ))
+  ∫Mᴰsr .monstrᴰ .pentagonᴰ wᴰ xᴰ yᴰ zᴰ =
+    ΣPathP (N.pentagon _ _ _ _ , P.pentagonᴰ _ _ _ _)
+  ∫Mᴰsr .monstrᴰ .triangleᴰ _ _ = ΣPathP (N.triangle _ _ , P.triangleᴰ _ _)

@@ -56,7 +56,9 @@ module _
   {D : Category ℓD ℓD'} (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
   where
   module _ {E : Category ℓE ℓE'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') where
-    ×Cᴰ-assoc : Functorᴰ (×C-assoc C D E) (Cᴰ ×Cᴰ (Dᴰ ×Cᴰ Eᴰ)) ((Cᴰ ×Cᴰ Dᴰ) ×Cᴰ Eᴰ)
+    ×Cᴰ-assoc : Functorᴰ (×C-assoc C D E)
+      (Cᴰ ×Cᴰ (Dᴰ ×Cᴰ Eᴰ))
+      ((Cᴰ ×Cᴰ Dᴰ) ×Cᴰ Eᴰ)
     ×Cᴰ-assoc .Functorᴰ.F-obᴰ x = (x .fst , x .snd .fst) , x .snd .snd
     ×Cᴰ-assoc .Functorᴰ.F-homᴰ x = (x .fst , x .snd .fst) , x .snd .snd
     ×Cᴰ-assoc .Functorᴰ.F-idᴰ = refl

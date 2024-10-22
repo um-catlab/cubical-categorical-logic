@@ -26,7 +26,8 @@ open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Monoidal.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Monoidal as Monoidal
+open import Cubical.Categories.Displayed.Constructions.Reindex.Monoidal
+  as Monoidal
 open import Cubical.Categories.Displayed.Constructions.Weaken.Monoidal
 import Cubical.Categories.Displayed.Constructions.Weaken as Wk
 open import Cubical.Categories.Displayed.Instances.Arrow.Base hiding (Iso)
@@ -109,7 +110,8 @@ module _ (X : Type ℓ) where
   FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-ob (x , y) = x ⊗ y
   FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-hom (f , g) = f ⊗ g
   FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-id = ⊗id
-  FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-seq f g = ⊗⋆ (f .fst) (g .fst) (f .snd) (g .snd)
+  FreeMonoidalCategoryStr .TensorStr.─⊗─ .F-seq f g =
+    ⊗⋆ (f .fst) (g .fst) (f .snd) (g .snd)
   FreeMonoidalCategoryStr .TensorStr.unit = unit
 
   FreeMonoidalCategory : MonoidalCategory ℓ ℓ
@@ -121,20 +123,34 @@ module _ (X : Type ℓ) where
   FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .trans .N-hom f =
     α-nat _ _ _
   FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .inv = α⁻
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .sec = α⁻⋆α
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .ret = α⋆α⁻
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .trans .N-ob x = η
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .trans .N-hom = η-nat
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .inv = η⁻
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .sec = η⁻⋆η
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .ret = η⋆η⁻
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .trans .N-ob x = ρ
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .trans .N-hom = ρ-nat
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .inv = ρ⁻
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .sec = ρ⁻⋆ρ
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .ret = ρ⋆ρ⁻
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.pentagon w x y z = pentagon
-  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.triangle x y = triangle
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .sec =
+    α⁻⋆α
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.α .nIso x .ret =
+    α⋆α⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .trans .N-ob x =
+    η
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .trans .N-hom =
+    η-nat
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .inv =
+    η⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .sec =
+    η⁻⋆η
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.η .nIso x .ret =
+    η⋆η⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .trans .N-ob x =
+    ρ
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .trans .N-hom =
+    ρ-nat
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .inv =
+    ρ⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .sec =
+    ρ⁻⋆ρ
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.ρ .nIso x .ret =
+    ρ⋆ρ⁻
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.pentagon w x y z =
+    pentagon
+  FreeMonoidalCategory .MonoidalCategory.monstr .MonoidalStr.triangle x y =
+    triangle
 
   module _ (Mᴰ : MonoidalCategoryᴰ FreeMonoidalCategory ℓC ℓC') where
     private
@@ -152,7 +168,8 @@ module _ (X : Type ℓ) where
       elim-hom (f ⋆ₑ g) = elim-hom f Mᴰ.⋆ᴰ elim-hom g
       elim-hom (⋆ₑIdL f i) = Mᴰ.⋆IdLᴰ (elim-hom f) i
       elim-hom (⋆ₑIdR f i) = Mᴰ.⋆IdRᴰ (elim-hom f) i
-      elim-hom (⋆ₑAssoc f g h i) = Mᴰ.⋆Assocᴰ (elim-hom f)(elim-hom g)(elim-hom h) i
+      elim-hom (⋆ₑAssoc f g h i) =
+        Mᴰ.⋆Assocᴰ (elim-hom f)(elim-hom g)(elim-hom h) i
       elim-hom (isSetHomₑ f g p q i j) =
         isSetHomᴰ' Mᴰ.Cᴰ
           (elim-hom f) (elim-hom g)
@@ -160,7 +177,11 @@ module _ (X : Type ℓ) where
           i j
       elim-hom (f ⊗ g) = elim-hom f Mᴰ.⊗ₕᴰ elim-hom g
       elim-hom (⊗id i) = Mᴰ.─⊗ᴰ─ .F-idᴰ i
-      elim-hom (⊗⋆ f g f' g' i) = Mᴰ.─⊗ᴰ─ .F-seqᴰ ((elim-hom f) , (elim-hom f')) (elim-hom g , elim-hom g') i
+      elim-hom (⊗⋆ f g f' g' i) =
+        Mᴰ.─⊗ᴰ─ .F-seqᴰ
+          ((elim-hom f) , (elim-hom f'))
+          (elim-hom g , elim-hom g')
+          i
       elim-hom α = Mᴰ.αᴰ⟨ _ , _ , _ ⟩
       elim-hom (α-nat f g h i) =
         Mᴰ.αᴰ .transᴰ .N-homᴰ ((elim-hom f) , (elim-hom g) , (elim-hom h)) i

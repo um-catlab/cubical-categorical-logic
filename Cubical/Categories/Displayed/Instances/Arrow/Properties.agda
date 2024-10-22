@@ -68,7 +68,8 @@ module _ (C : Category ℓC ℓC') where
     { f*cᴰ = ⋆Iso x≅x' (⋆Iso x'≅y' y'≅y)
     ; π = sym (C .⋆IdR _)
       ∙ C .⋆Assoc _ _ _
-      ∙ cong₂ (seq' C) refl (cong₂ (seq' C) refl (sym (y'≅y .snd .ret)) ∙ sym (C .⋆Assoc _ _ _))
+      ∙ cong₂ (seq' C) refl
+        (cong₂ (seq' C) refl (sym (y'≅y .snd .ret)) ∙ sym (C .⋆Assoc _ _ _))
       ∙ sym (C .⋆Assoc _ _ _)
       , _
     ; σ = sym (C .⋆Assoc _ _ _)

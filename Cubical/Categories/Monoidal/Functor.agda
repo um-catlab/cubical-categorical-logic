@@ -38,9 +38,10 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
 
       field
         αμ-law : ∀ (x y z : M.C .ob) →
-          Path (N.C [ (F ⟅ x ⟆) N.⊗ ((F ⟅ y ⟆) N.⊗ (F ⟅ z ⟆)) , F ⟅ (x M.⊗ y) M.⊗ z ⟆ ])
-            (N.α⟨ _ , _ , _ ⟩ ⋆⟨ N.C ⟩ (μ⟨ x , y ⟩ N.⊗ₕ N.id) ⋆⟨ N.C ⟩ μ⟨ _ , z ⟩)
-            (N.id N.⊗ₕ μ⟨ y , z ⟩ ⋆⟨ N.C ⟩ μ⟨ x , _ ⟩ ⋆⟨ N.C ⟩ F ⟪ M.α⟨ x , y , z ⟩ ⟫)
+          (N.α⟨ _ , _ , _ ⟩ ⋆⟨ N.C ⟩ (μ⟨ x , y ⟩ N.⊗ₕ N.id) ⋆⟨ N.C ⟩ μ⟨ _ , z ⟩)
+          ≡
+          (N.id N.⊗ₕ μ⟨ y , z ⟩ ⋆⟨ N.C ⟩ μ⟨ x , _ ⟩
+          ⋆⟨ N.C ⟩ F ⟪ M.α⟨ x , y , z ⟩ ⟫)
         ηε-law : ∀ x →
           Path (N.C [ N.unit N.⊗ (F ⟅ x ⟆) , F ⟅ x ⟆ ])
             (ε N.⊗ₕ N.id ⋆⟨ N.C ⟩ μ⟨ M.unit , x ⟩ ⋆⟨ N.C ⟩ F ⟪ M.η⟨ x ⟩ ⟫)
@@ -73,9 +74,11 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
 
       field
         α⁻μ⁻-law : ∀ (x y z : M.C .ob) →
-            (μ⁻⟨ _ , z ⟩ ⋆⟨ N.C ⟩ (μ⁻⟨ x , y ⟩ N.⊗ₕ N.id) ⋆⟨ N.C ⟩ N.α⁻¹⟨ _ , _ , _ ⟩)
+            (μ⁻⟨ _ , z ⟩ ⋆⟨ N.C ⟩ (μ⁻⟨ x , y ⟩ N.⊗ₕ N.id)
+            ⋆⟨ N.C ⟩ N.α⁻¹⟨ _ , _ , _ ⟩)
             ≡
-            (F ⟪ M.α⁻¹⟨ x , y , z ⟩ ⟫ ⋆⟨ N.C ⟩ μ⁻⟨ x , _ ⟩ ⋆⟨ N.C ⟩ N.id N.⊗ₕ μ⁻⟨ y , z ⟩)
+            (F ⟪ M.α⁻¹⟨ x , y , z ⟩ ⟫ ⋆⟨ N.C ⟩ μ⁻⟨ x , _ ⟩
+            ⋆⟨ N.C ⟩ N.id N.⊗ₕ μ⁻⟨ y , z ⟩)
 
         η⁻-law : ∀ x →
             (F ⟪ M.η⁻¹⟨ x ⟩ ⟫ ⋆⟨ N.C ⟩ μ⁻⟨ M.unit , x ⟩ ⋆⟨ N.C ⟩ ε⁻ N.⊗ₕ N.id)
@@ -120,7 +123,8 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
     open Functor F public
     open OpLaxMonoidalStr oplaxmonstr public
 
-  record StrongMonoidalFunctor : Type (ℓ-max (ℓ-max ℓC ℓD) (ℓ-max ℓC' ℓD')) where
+  record StrongMonoidalFunctor
+    : Type (ℓ-max (ℓ-max ℓC ℓD) (ℓ-max ℓC' ℓD')) where
     field
       F : Functor M.C N.C
       strmonstr : StrongMonoidalStr F
@@ -164,6 +168,7 @@ module _ {M : MonoidalCategory ℓC ℓC'} where
   IdStr .StrongMonoidalFunctor.F = Id
   IdStr .StrongMonoidalFunctor.strmonstr = IdStrStr
 
+-- TODO: complete this
 -- module _ {M : MonoidalCategory ℓC ℓC'}
 --          {N : MonoidalCategory ℓD ℓD'}
 --          {O : MonoidalCategory ℓE ℓE'} where
@@ -172,7 +177,8 @@ module _ {M : MonoidalCategory ℓC ℓC'} where
 --   private
 --     module O = MonoidalCategory O
 --   open NatTrans
---   _∘Lax_ : LaxMonoidalFunctor N O → LaxMonoidalFunctor M N → LaxMonoidalFunctor M O
+--   _∘Lax_ : LaxMonoidalFunctor N O → LaxMonoidalFunctor M N
+--      → LaxMonoidalFunctor M O
 --   (G ∘Lax H) .F = G .F ∘F H .F
 --   (G ∘Lax H) .laxmonstr .ε = G .laxmonstr .ε O.⋆ G .F ⟪ H .laxmonstr .ε ⟫
 --   (G ∘Lax H) .laxmonstr .μ .NatTrans.N-ob x =
@@ -188,8 +194,13 @@ module _ {M : MonoidalCategory ℓC ℓC'} where
 --   (G ∘Lax H) .laxmonstr .ηε-law x = {!!}
 --   (G ∘Lax H) .laxmonstr .ρε-law x = {!!}
 
-  -- _∘Str_ : StrongMonoidalFunctor N O → StrongMonoidalFunctor M N → StrongMonoidalFunctor M O
-  -- (G ∘Str H) .StrongMonoidalFunctor.F = G .StrongMonoidalFunctor.F ∘F H .StrongMonoidalFunctor.F
-  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr = {!!}
-  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.ε-isIso = {!!}
-  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.μ-isIso = {!!}
+  -- _∘Str_ : StrongMonoidalFunctor N O → StrongMonoidalFunctor M N
+  --        → StrongMonoidalFunctor M O
+  -- (G ∘Str H) .StrongMonoidalFunctor.F =
+  --   G .StrongMonoidalFunctor.F ∘F H .StrongMonoidalFunctor.F
+  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.laxmonstr =
+  --   {!!}
+  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.ε-isIso =
+  --   {!!}
+  -- (G ∘Str H) .StrongMonoidalFunctor.strmonstr .StrongMonoidalStr.μ-isIso =
+  --   {!!}

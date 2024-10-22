@@ -89,7 +89,8 @@ module _ (M : MonoidalCategory ℓC ℓC') where
 
   opaque
     pentagon' : ∀ w x y z
-      → (M.α⟨ (w M.⊗ x) , y , z ⟩ M.⋆ (M.α⁻¹⟨ w , x , y ⟩ M.⊗ₕ M.id {z})) M.⋆ M.α⁻¹⟨ w , (x M.⊗ y) , z ⟩
+      → (M.α⟨ (w M.⊗ x) , y , z ⟩ M.⋆ (M.α⁻¹⟨ w , x , y ⟩ M.⊗ₕ M.id {z}))
+        M.⋆ M.α⁻¹⟨ w , (x M.⊗ y) , z ⟩
        ≡ (M.α⁻¹⟨ w , x , (y M.⊗ z) ⟩ M.⋆ (M.id M.⊗ₕ M.α⟨ x , y , z ⟩))
     pentagon' w x y z =
       ⋆InvLMove (NatIsoAt M.α _)
@@ -104,18 +105,39 @@ module _ (M : MonoidalCategory ℓC ℓC') where
       → (M.α⟨ x , y , M.unit ⟩ M.⋆ (M.ρ⟨ x M.⊗ y ⟩)) ≡ (M.id {x} M.⊗ₕ M.ρ⟨ y ⟩ )
     ρ⟨⊗⟩ {x}{y} = ⊗id-cancel
       (⋆CancelL (NatIsoAt M.α _)
-        ( (cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ refl (sym (M.⋆IdL _)) ∙ M.─⊗─ .F-seq _ _)
+        (cong₂ M._⋆_ refl
+          (cong₂ M._⊗ₕ_ refl
+            (sym (M.⋆IdL _)) ∙ M.─⊗─ .F-seq _ _)
           ∙ sym (M.⋆Assoc _ _ _)
-          ∙ cong₂ M._⋆_ (⋆CancelL (F-Iso {F = M.─⊗─} (CatIso× M.C M.C idCatIso (NatIsoAt M.α _)))
-                  ((M.pentagon _ _ _ _)
-                  ∙ sym (M.⋆IdL _) ∙ cong₂ M._⋆_ (sym (F-Iso {F = M.─⊗─} (CatIso× M.C M.C idCatIso (NatIsoAt M.α _)) .snd .ret)) refl
-                  ∙ M.⋆Assoc _ _ _))
-                  refl)
+          ∙ cong₂ M._⋆_
+            (⋆CancelL
+              (F-Iso {F = M.─⊗─} (CatIso× M.C M.C idCatIso (NatIsoAt M.α _)))
+              (M.pentagon _ _ _ _
+              ∙ sym (M.⋆IdL _)
+              ∙ cong₂ M._⋆_
+                (sym (F-Iso {F = M.─⊗─}
+                            (CatIso× M.C M.C idCatIso (NatIsoAt M.α _))
+                            .snd .ret))
+                refl
+              ∙ M.⋆Assoc _ _ _))
+              refl
         ∙ M.⋆Assoc _ _ _
-        ∙ cong₂ M._⋆_ refl (M.⋆Assoc _ _ _ ∙ cong₂ M._⋆_ refl (M.triangle _ _) ∙ cong₂ M._⋆_ refl (cong₂ M._⊗ₕ_ (sym (M.─⊗─ .F-id)) refl) ∙ sym (M.α .trans .N-hom _))
+        ∙ cong₂ M._⋆_ refl
+          (M.⋆Assoc _ _ _
+          ∙ cong₂ M._⋆_ refl
+            (M.triangle _ _
+            ∙ cong₂ M._⊗ₕ_ (sym (M.─⊗─ .F-id)) refl)
+          ∙ sym (M.α .trans .N-hom _))
         ∙ sym (M.⋆Assoc _ _ _)
-        ∙ cong₂ M._⋆_ (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdL _) refl) refl
-        ∙ cong₂ M._⋆_ (cong₂ M._⊗ₕ_ refl (⋆CancelL (NatIsoAt M.α _) (sym (⋆InvLMove (invIso (NatIsoAt M.α _)) refl) ∙ sym (M.triangle _ _)))) refl
+        ∙ cong₂ M._⋆_
+          (sym (M.─⊗─ .F-seq _ _) ∙ cong₂ M._⊗ₕ_ (M.⋆IdL _) refl)
+          refl
+        ∙ cong₂ M._⋆_
+          (cong₂ M._⊗ₕ_ refl
+            (⋆CancelL (NatIsoAt M.α _)
+              (sym (⋆InvLMove (invIso (NatIsoAt M.α _)) refl)
+              ∙ sym (M.triangle _ _))))
+            refl
         ∙ M.α .trans .N-hom _ ))
   opaque
     ρ⟨unit⟩≡η⟨unit⟩ : M.ρ⟨ M.unit ⟩ ≡ M.η⟨ M.unit ⟩

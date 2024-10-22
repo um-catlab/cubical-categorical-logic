@@ -1,5 +1,5 @@
 {-
-  Definition of a natural transformation displayed over another natural transformation.
+  Natural isomorphisms displayed over natural isomorphisms.
 -}
 {-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.NaturalIsomorphism where

@@ -120,32 +120,26 @@ module _ {M : MonoidalCategory ℓC ℓC'} {N : MonoidalCategory ℓD ℓD'}
   private
     module G = StrongMonoidalFunctor G
     module H = StrongMonoidalFunctor H
-  -- Auto ftw
+  open StrongMonoidalFunctor
+  open StrongMonoidalStr
+  open LaxMonoidalStr
   _,F_ : StrongMonoidalFunctor M (N ×M O)
-  _,F_ .StrongMonoidalFunctor.F = G.F BP.,F H.F
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr)
-    .LaxMonoidalStr.ε = G.ε , H.ε
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr)
-    .LaxMonoidalStr.μ .N-ob x = (N-ob G.μ x) , (N-ob H.μ x)
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr)
-    .LaxMonoidalStr.μ .N-hom f = ΣPathP ((N-hom G.μ f) , (N-hom H.μ f))
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr)
-    .LaxMonoidalStr.αμ-law x y z = ΣPathP ((G.αμ-law x y z) , (H.αμ-law x y z))
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr)
-    .LaxMonoidalStr.ηε-law x = ΣPathP ((G.ηε-law x) , (H.ηε-law x))
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.laxmonstr)
-    .LaxMonoidalStr.ρε-law x = ΣPathP ((G.ρε-law x) , (H.ρε-law x))
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.ε-isIso) .inv =
-    (G.ε-isIso .inv) , (H.ε-isIso .inv)
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.ε-isIso) .sec =
-    ΣPathP ((G.ε-isIso .sec) , (H.ε-isIso .sec))
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.ε-isIso) .ret =
-    ΣPathP ((G.ε-isIso .ret) , (H.ε-isIso .ret))
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.μ-isIso) x .inv =
-    (G.μ-isIso x .inv) , (H.μ-isIso x .inv)
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.μ-isIso) x .sec =
+  _,F_ .F = G.F BP.,F H.F
+  _,F_ .strmonstr .laxmonstr .ε = G.ε , H.ε
+  _,F_ .strmonstr .laxmonstr .μ .N-ob x = (N-ob G.μ x) , (N-ob H.μ x)
+  _,F_ .strmonstr .laxmonstr .μ .N-hom f =
+    ΣPathP ((N-hom G.μ f) , (N-hom H.μ f))
+  _,F_ .strmonstr .laxmonstr .αμ-law x y z =
+    ΣPathP ((G.αμ-law x y z) , (H.αμ-law x y z))
+  _,F_ .strmonstr .laxmonstr .ηε-law x = ΣPathP (G.ηε-law x , H.ηε-law x)
+  _,F_ .strmonstr .laxmonstr .ρε-law x = ΣPathP (G.ρε-law x , H.ρε-law x)
+  _,F_ .strmonstr .ε-isIso .inv = (G.ε-isIso .inv) , (H.ε-isIso .inv)
+  _,F_ .strmonstr .ε-isIso .sec = ΣPathP ((G.ε-isIso .sec) , (H.ε-isIso .sec))
+  _,F_ .strmonstr .ε-isIso .ret = ΣPathP ((G.ε-isIso .ret) , (H.ε-isIso .ret))
+  _,F_ .strmonstr .μ-isIso x .inv = (G.μ-isIso x .inv) , (H.μ-isIso x .inv)
+  _,F_ .strmonstr .μ-isIso x .sec =
     ΣPathP ((G.μ-isIso x .sec) , (H.μ-isIso x .sec))
-  (.StrongMonoidalFunctor.strmonstr ,F .StrongMonoidalStr.μ-isIso) x .ret =
+  _,F_ .strmonstr .μ-isIso x .ret =
     ΣPathP (G.μ-isIso x .ret , H.μ-isIso x .ret)
 
 module _ {M : MonoidalCategory ℓC ℓC'} {N : MonoidalCategory ℓD ℓD'}
@@ -158,20 +152,22 @@ module _ {M : MonoidalCategory ℓC ℓC'} {N : MonoidalCategory ℓD ℓD'}
   private
     module G = StrongMonoidalFunctor G
     module H = StrongMonoidalFunctor H
-  -- definable using composition of strongmonoidal functors, but...
+
+  -- would be definable using composition of strongmonoidal functors,
+  -- but that's not done yet
   _×F_ : StrongMonoidalFunctor (M ×M O) (N ×M P)
   _×F_ .F = G .F BP.×F H .F
-  (.strmonstr ×F .laxmonstr) .ε = G.ε , H.ε
-  (.strmonstr ×F .laxmonstr) .μ .N-ob x = (G.μ ⟦ _ ⟧) , H.μ ⟦ _ ⟧
-  (.strmonstr ×F .laxmonstr) .μ .N-hom f =
+  _×F_ .strmonstr .laxmonstr .ε = G.ε , H.ε
+  _×F_ .strmonstr .laxmonstr .μ .N-ob _ = (G.μ ⟦ _ ⟧) , H.μ ⟦ _ ⟧
+  _×F_ .strmonstr .laxmonstr .μ .N-hom _ =
     ΣPathP ((G.μ .N-hom _) , (H.μ .N-hom _))
-  (.strmonstr ×F .laxmonstr) .αμ-law x y z =
+  _×F_ .strmonstr .laxmonstr .αμ-law _ _ _ =
     ΣPathP (G.αμ-law _ _ _ , H.αμ-law _ _ _ )
-  (.strmonstr ×F .laxmonstr) .ηε-law _ = ΣPathP (G.ηε-law _ , H.ηε-law _ )
-  (.strmonstr ×F .laxmonstr) .ρε-law _ = ΣPathP (G.ρε-law _ , H.ρε-law _ )
-  (.strmonstr ×F .ε-isIso) .inv = G.ε-isIso .inv , H.ε-isIso .inv
-  (.strmonstr ×F .ε-isIso) .sec = ΣPathP (G.ε-isIso .sec , H.ε-isIso .sec)
-  (.strmonstr ×F .ε-isIso) .ret = ΣPathP (G.ε-isIso .ret , H.ε-isIso .ret)
-  (.strmonstr ×F .μ-isIso) x .inv = G.μ-isIso _ .inv , H.μ-isIso _ .inv
-  (.strmonstr ×F .μ-isIso) x .sec = ΣPathP (G.μ-isIso _ .sec , H.μ-isIso _ .sec)
-  (.strmonstr ×F .μ-isIso) x .ret = ΣPathP (G.μ-isIso _ .ret , H.μ-isIso _ .ret)
+  _×F_ .strmonstr .laxmonstr .ηε-law _ = ΣPathP (G.ηε-law _ , H.ηε-law _ )
+  _×F_ .strmonstr .laxmonstr .ρε-law _ = ΣPathP (G.ρε-law _ , H.ρε-law _ )
+  _×F_ .strmonstr .ε-isIso .inv = G.ε-isIso .inv , H.ε-isIso .inv
+  _×F_ .strmonstr .ε-isIso .sec = ΣPathP (G.ε-isIso .sec , H.ε-isIso .sec)
+  _×F_ .strmonstr .ε-isIso .ret = ΣPathP (G.ε-isIso .ret , H.ε-isIso .ret)
+  _×F_ .strmonstr .μ-isIso _ .inv = G.μ-isIso _ .inv , H.μ-isIso _ .inv
+  _×F_ .strmonstr .μ-isIso _ .sec = ΣPathP (G.μ-isIso _ .sec , H.μ-isIso _ .sec)
+  _×F_ .strmonstr .μ-isIso _ .ret = ΣPathP (G.μ-isIso _ .ret , H.μ-isIso _ .ret)

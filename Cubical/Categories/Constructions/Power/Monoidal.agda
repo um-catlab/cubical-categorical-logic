@@ -43,6 +43,12 @@ private
 
 open Category
 open Functor
+open MonoidalCategory
+open MonoidalStr
+open TensorStr
+open NatTrans
+open NatIso
+open isIso
 module _ (M : Monoid ℓ-zero) (ℓ : Level) where
   private
     module M = MonoidStr (M .snd)
@@ -76,40 +82,62 @@ module _ (M : Monoid ℓ-zero) (ℓ : Level) where
       → Term A A' → Term B B' → Term (Day⊗ A B) (Day⊗ A' B')
     Day⊗ₕ f g m (split , _) .fst = split
     Day⊗ₕ f g m (((ma , mb) , ma·mb≡m) , (a , b)) .snd = f ma a , g mb b
-  open MonoidalCategory
-  open MonoidalStr
-  open TensorStr
-  open NatTrans
-  open NatIso
-  open isIso
-  private
+
     ⌊_⌋ : 𝓟M .ob → Grammar
     ⌊ A ⌋ m = ⟨ A m ⟩
+
+    DayF : Functor (𝓟M ×C 𝓟M) 𝓟M
+    DayF .F-ob (A , B) m .fst = Day⊗ ⌊ A ⌋ ⌊ B ⌋ m
+    DayF .F-ob (A , B) m .snd =
+      isSetΣ (isSetΣ (isSet× M.is-set M.is-set) λ _ → isProp→isSet (M.is-set _ _)) λ _ → isSet× (A _ .snd) (B _ .snd)
+    DayF .F-hom (f , g) = Day⊗ₕ f g
+    DayF .F-id = refl
+    DayF .F-seq _ _ = refl
+
+    Day-assoc : DayF ∘F (𝟙⟨ PowerCategory ⟨ M ⟩ (SET ℓ) ⟩ ×F DayF) ⇒
+      DayF ∘F
+      (DayF ×F 𝟙⟨ PowerCategory ⟨ M ⟩ (SET ℓ) ⟩) ∘F
+      ×C-assoc (PowerCategory ⟨ M ⟩ (SET ℓ))
+      (PowerCategory ⟨ M ⟩ (SET ℓ)) (PowerCategory ⟨ M ⟩ (SET ℓ))
+    Day-assoc .N-ob (A , B , C) m (sp1 , (a , sp2 , b , c )) =
+      ( _ ,
+      (sym (M.·Assoc _ _ _)
+      ∙ cong₂ M._·_ refl (sp2 .snd)
+      ∙ sp1 .snd))
+      , ((_ , refl) , (a , b))
+      , c
+    Day-assoc .N-hom f = funExt λ m → funExt λ abc →
+      ΣPathP ((ΣPathP (refl , refl)) , (ΣPathP (refl , refl)))
+
+    Day-unit-l : DayF ∘F
+      rinj (PowerCategory ⟨ M ⟩ (SET ℓ)) (PowerCategory ⟨ M ⟩ (SET ℓ))
+      (λ a → (Dayε a , isProp→isSet (isOfHLevelLift 1 (M.is-set _ _))))
+      ⇒ 𝟙⟨ PowerCategory ⟨ M ⟩ (SET ℓ) ⟩
+    Day-unit-l .N-ob A m εa = subst (λ m → ⟨ A m ⟩)
+      (sym (M.·IdL _)
+      ∙ cong₂ M._·_ (sym (εa .snd .fst .lower)) refl
+      ∙ εa .fst .snd)
+      (εa .snd .snd)
+    Day-unit-l .N-hom = {!!}
+
   𝓟 : MonoidalCategory (ℓ-suc ℓ) ℓ
   𝓟 .C = PowerCategory ⟨ M ⟩ (SET ℓ)
-  𝓟 .monstr .tenstr .─⊗─ .F-ob (A , B) m .fst = Day⊗ ⌊ A ⌋ ⌊ B ⌋ m
-  𝓟 .monstr .tenstr .─⊗─ .F-ob (A , B) m .snd =
-    isSetΣ (isSetΣ (isSet× M.is-set M.is-set) λ _ → isProp→isSet (M.is-set _ _))
-      λ _ → isSet× (A _ .snd) (B _ .snd)
-  𝓟 .monstr .tenstr .─⊗─ .F-hom {A , B}{A' , B'}(f , g) = Day⊗ₕ f g
-  𝓟 .monstr .tenstr .─⊗─ .F-id = refl
-  𝓟 .monstr .tenstr .─⊗─ .F-seq f g = refl
+  𝓟 .monstr .tenstr .─⊗─ = DayF
   𝓟 .monstr .tenstr .unit a .fst = Dayε a
   𝓟 .monstr .tenstr .unit a .snd =
     isProp→isSet (isOfHLevelLift 1 (M.is-set _ _))
-  𝓟 .monstr .α .trans .N-ob (A , B , C) m (sp1 , (a , sp2 , b , c )) =
-    ( _ ,
-    (sym (M.·Assoc _ _ _)
-    ∙ cong₂ M._·_ refl (sp2 .snd)
-    ∙ sp1 .snd))
-    , ((_ , refl) , (a , b))
-    , c
-  𝓟 .monstr .α .trans .N-hom f = funExt λ m → funExt λ a → {!!}
-  𝓟 .monstr .α .nIso (A , B , C) .isIso.inv m (sp1 , ((sp2 , a , b) , c )) =
+  𝓟 .monstr .α .trans = Day-assoc
+  𝓟 .monstr .α .nIso (A , B , C) .inv m (sp1 , ((sp2 , a , b) , c )) =
     (_ , M.·Assoc _ _ _ ∙ cong₂ M._·_ (sp2 .snd) refl ∙ (sp1 .snd))
     , (a , ((_ , refl) , (b , c)))
-  𝓟 .monstr .α .nIso (A , B , C) .isIso.sec = funExt λ m → funExt λ sp → {!!}
-  𝓟 .monstr .α .nIso (A , B , C) .isIso.ret = {!!}
+  𝓟 .monstr .α .nIso x .sec = funExt λ m → funExt λ sp →
+    ΣPathP (ΣPathP ({!!} , {!!}) , {!!})
+  𝓟 .monstr .α .nIso x .ret = {!!}
+  -- .trans .N-ob 
+  -- 𝓟 .monstr .α .trans .N-hom f = funExt λ m → funExt λ a → {!!}
+  -- 𝓟 .monstr .α .nIso (A , B , C) .isIso.inv 
+  -- 𝓟 .monstr .α .nIso (A , B , C) .isIso.sec = funExt λ m → funExt λ sp → {!!}
+  -- 𝓟 .monstr .α .nIso (A , B , C) .isIso.ret = {!!}
   𝓟 .monstr .η = {!!}
   𝓟 .monstr .ρ = {!!}
   𝓟 .monstr .pentagon = {!!}

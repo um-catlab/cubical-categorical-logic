@@ -12,91 +12,28 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Instances.Functors.More
 
-open import Cubical.Tactics.CategorySolver.Reflection
+open import Cubical.Categories.Constructions.BinProduct
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
+    ℓA ℓA' ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
 open Category
 open Functor
 
--- helpful decomposition of morphisms used in several proofs
--- about product category
-module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'} where
+module _ (C : Category ℓC ℓC')
+         (D : Category ℓD ℓD') where
+  open Functor
 
-  BinMorphDecompL : ∀ {x1 x2} {y1 y2} ((f , g) : (C ×C D) [ (x1 , y1) ,
-                                                            (x2 , y2) ])
-                      → (F : Functor (C ×C D) E)
-                      → (F ⟪ f , g ⟫) ≡
-                           (F ⟪ f , D .id ⟫) ⋆⟨ E ⟩ (F ⟪ C .id , g ⟫)
-  BinMorphDecompL (f , g) F =
-    (F ⟪ f , g ⟫)
-      ≡⟨ (λ i → F ⟪ C .⋆IdR f (~ i), D .⋆IdL g (~ i)⟫) ⟩
-    (F ⟪ f ⋆⟨ C ⟩ C .id , D .id ⋆⟨ D ⟩ g ⟫)
-      ≡⟨ F .F-seq (f , D .id) (C .id , g) ⟩
-    (F ⟪ f , D .id ⟫) ⋆⟨ E ⟩ (F ⟪ C .id , g ⟫) ∎
-
-  BinMorphDecompR : ∀ {x1 x2} {y1 y2} ((f , g) : (C ×C D) [ (x1 , y1) ,
-                                                            (x2 , y2) ])
-                      → (F : Functor (C ×C D) E)
-                      → (F ⟪ f , g ⟫) ≡
-                        (F ⟪ C .id , g ⟫) ⋆⟨ E ⟩ (F ⟪ f , D .id ⟫)
-  BinMorphDecompR (f , g) F =
-    (F ⟪ f , g ⟫)
-      ≡⟨ (λ i → F ⟪ C .⋆IdL f (~ i), D .⋆IdR g (~ i)⟫) ⟩
-    (F ⟪ C .id ⋆⟨ C ⟩ f , g ⋆⟨ D ⟩ D .id ⟫)
-      ≡⟨ F .F-seq (C .id , g) (f , D .id) ⟩
-    (F ⟪ C .id , g ⟫) ⋆⟨ E ⟩ (F ⟪ f , D .id ⟫) ∎
-
-  open NatIso
-  open NatTrans
-
-  -- Natural isomorphism in each component yields naturality of bifunctor
-  binaryNatIso : ∀ (F G : Functor (C ×C D) E)
-    → ( βc : (∀ (c : C .ob) →
-           NatIso (((curryF D E {Γ = C}) ⟅ F ⟆) ⟅ c ⟆)
-                  (((curryF D E {Γ = C}) ⟅ G ⟆) ⟅ c ⟆)))
-    → ( βd : (∀ (d : D .ob) →
-           NatIso (((curryFl C E {Γ = D}) ⟅ F ⟆) ⟅ d ⟆)
-                  (((curryFl C E {Γ = D}) ⟅ G ⟆) ⟅ d ⟆)))
-    → ( ∀ ((c , d) : (C ×C D) .ob) →
-        ((βc c .trans .N-ob d) ≡ (βd d .trans .N-ob c)))
-    → NatIso F G
-  binaryNatIso F G βc βd β≡ .trans .N-ob (c , d) = (βc c) .trans .N-ob d
-  binaryNatIso F G βc βd β≡ .trans .N-hom {(c₁ , d₁)} {(c₂ , d₂)} (fc , fd) =
-    ((F ⟪ fc , fd ⟫) ⋆⟨ E ⟩ ((βc c₂) .trans .N-ob d₂))
-      ≡⟨ (λ i →
-        ((BinMorphDecompL (fc , fd) F) (i)) ⋆⟨ E ⟩ ((βc c₂) .trans .N-ob d₂)) ⟩
-    (((F ⟪ fc , D .id ⟫) ⋆⟨ E ⟩
-      (F ⟪ C .id , fd ⟫)) ⋆⟨ E ⟩ ((βc c₂) .trans .N-ob d₂))
-      ≡⟨ solveCat! E ⟩
-    ((F ⟪ fc , D .id ⟫) ⋆⟨ E ⟩
-      ((F ⟪ C .id , fd ⟫) ⋆⟨ E ⟩ ((βc c₂) .trans .N-ob d₂)))
-      ≡⟨ (λ i → (F ⟪ fc , D .id ⟫) ⋆⟨ E ⟩ ((βc c₂) .trans .N-hom fd (i))) ⟩
-    ((F ⟪ fc , D .id ⟫) ⋆⟨ E ⟩
-      (((βc c₂) .trans .N-ob d₁) ⋆⟨ E ⟩ (G ⟪ C .id , fd ⟫)))
-      ≡⟨ (λ i → (F ⟪ fc , D .id ⟫) ⋆⟨ E ⟩
-        (((β≡ (c₂ , d₁)) (i)) ⋆⟨ E ⟩ (G ⟪ C .id , fd ⟫))) ⟩
-    ((F ⟪ fc , D .id ⟫) ⋆⟨ E ⟩
-      (((βd d₁) .trans .N-ob c₂) ⋆⟨ E ⟩ (G ⟪ C .id , fd ⟫)))
-      ≡⟨ solveCat! E ⟩
-    (((F ⟪ fc , D .id ⟫) ⋆⟨ E ⟩
-      ((βd d₁) .trans .N-ob c₂)) ⋆⟨ E ⟩ (G ⟪ C .id , fd ⟫))
-      ≡⟨ (λ i → ((βd  d₁) .trans .N-hom fc (i)) ⋆⟨ E ⟩ (G ⟪ C .id , fd ⟫)) ⟩
-    ((((βd d₁) .trans .N-ob c₁) ⋆⟨ E ⟩
-      (G ⟪ fc , D .id ⟫)) ⋆⟨ E ⟩ (G ⟪ C .id , fd ⟫))
-      ≡⟨ solveCat! E ⟩
-    (((βd d₁) .trans .N-ob c₁) ⋆⟨ E ⟩
-      ((G ⟪ fc , D .id ⟫) ⋆⟨ E ⟩ (G ⟪ C .id , fd ⟫)))
-      ≡⟨ (λ i → ((βd d₁) .trans .N-ob c₁) ⋆⟨ E ⟩
-        ((BinMorphDecompL (fc , fd) G) (~ i))) ⟩
-    (((βd  d₁) .trans .N-ob c₁) ⋆⟨ E ⟩ (G ⟪ fc , fd ⟫))
-      ≡⟨ (λ i → (β≡ (c₁ , d₁) (~ i)) ⋆⟨ E ⟩ (G ⟪ fc , fd ⟫)) ⟩
-    (((βc c₁) .trans .N-ob d₁) ⋆⟨ E ⟩ (G ⟪ fc , fd ⟫)) ∎
-  binaryNatIso F G βc βd β≡ .nIso (c , d)  = (βc c) .nIso d
+  module _ (E : Category ℓE ℓE') where
+    ×C-assoc⁻ : Functor ((C ×C D) ×C E) (C ×C (D ×C E))
+    ×C-assoc⁻ .F-ob = λ z → z .fst .fst , z .fst .snd , z .snd
+    ×C-assoc⁻ .F-hom x = x .fst .fst , x .fst .snd , x .snd
+    ×C-assoc⁻ .F-id = refl
+    ×C-assoc⁻ .F-seq f g = refl
 
 module _ (C : Category ℓC ℓC')
          (D : Category ℓD ℓD') where
@@ -112,3 +49,34 @@ module _ (C : Category ℓC ℓC')
   SplitCatIso× f .snd .snd .isIso.inv = f .snd .isIso.inv .snd
   SplitCatIso× f .snd .snd .isIso.sec = cong snd (f .snd .isIso.sec)
   SplitCatIso× f .snd .snd .isIso.ret = cong snd (f .snd .isIso.ret)
+
+private
+  variable
+    A A' : Category ℓA ℓA'
+    B B' : Category ℓB ℓB'
+    C C' : Category ℓC ℓC'
+    D D' : Category ℓD ℓD'
+    F F' : Functor A B
+    G G' : Functor C D
+
+module _ {A : Category ℓA ℓA'}
+    {B : Category ℓB ℓB'}
+    {C : Category ℓC ℓC'}
+    {D : Category ℓD ℓD'}
+    {F F' : Functor A B}
+    {G G' : Functor C D}
+  where
+  open NatTrans
+  NatTrans× :
+    NatTrans F F' → NatTrans G G' →
+    NatTrans (F ×F G) (F' ×F G')
+  NatTrans× α β .N-ob x .fst = α ⟦ x .fst ⟧
+  NatTrans× α β .N-ob x .snd = β ⟦ x .snd ⟧
+  NatTrans× α β .N-hom (f , g) = ΣPathP ((α .N-hom f) , (β .N-hom g))
+
+  open NatIso
+  open isIso
+  NatIso× :
+    NatIso F F' → NatIso G G' → NatIso (F ×F G) (F' ×F G')
+  NatIso× α β .trans = NatTrans× (α .trans) (β .trans)
+  NatIso× α β .nIso (x , y) = CatIso× _ _ (NatIsoAt α x) (NatIsoAt β y) .snd

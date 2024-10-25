@@ -6,8 +6,10 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
+import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor.Equality
 open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Commutativity
 open import Cubical.Categories.Morphism
@@ -96,3 +98,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D}
          (α : F ≅ᶜ G) where
   NatIsoAt : ∀ x → CatIso D (F ⟅ x ⟆) (G ⟅ x ⟆)
   NatIsoAt x = (N-ob (α .trans) x) , (α .nIso x)
+
+
+_∘ʳⁱ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatIso G H)
+       → NatIso (K ∘F G) (K ∘F H)
+(K ∘ʳⁱ β) .trans = K ∘ʳ (β .trans)
+(K ∘ʳⁱ β) .nIso x = F-Iso {F = K} (β .trans ⟦ x ⟧ , β .nIso x) .snd
+

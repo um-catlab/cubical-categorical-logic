@@ -65,6 +65,11 @@ module _ {C : Category ℓC ℓC'}
   ArrowReflection Fᴰ = natTrans Fᴰ.F-obᴰ Fᴰ.F-homᴰ
     where module Fᴰ = Section Fᴰ
 
+  arrIntroS : F1 ⇒ F2 → Section (F1 ,F F2) (Arrow C)
+  arrIntroS α = mkPropHomsSection (hasPropHomsArrow C)
+    (NatTrans.N-ob α)
+    (NatTrans.N-hom α)
+
   IsoReflection : ∀ (Fᴰ : Section (F1 ,F F2) (Iso C)) → F1 ≅ᶜ F2
   IsoReflection Fᴰ = record
     { trans = natTrans
@@ -73,6 +78,11 @@ module _ {C : Category ℓC ℓC'}
     ; nIso = λ x → Fᴰ.F-obᴰ x .snd
     }
     where module Fᴰ = Section Fᴰ
+
+  isoIntroS : F1 ≅ᶜ F2 → Section (F1 ,F F2) (Iso C)
+  isoIntroS α = mkPropHomsSection (hasPropHomsIso C)
+    (λ x → NatTrans.N-ob (α .NatIso.trans) x , α .NatIso.nIso x)
+    (λ {x} {y} f → NatTrans.N-hom (α .NatIso.trans) f , tt)
 
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}

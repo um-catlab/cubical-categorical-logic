@@ -40,7 +40,7 @@ private
     ((M.α ∘ˡⁱ (𝟙⟨ M.C ⟩ ×F ((M.─⊗─ ×F 𝟙⟨ M.C ⟩) ∘F ×C-assoc M.C M.C M.C)))))
 
 private
-g  testα3 : ∀ {w x y z}
+  testα3 : ∀ {w x y z}
     → α3⟨ w , x , y , z ⟩ ≡ α3 .NatIso.trans ⟦ w , x , y , z ⟧
   testα3 = refl
 

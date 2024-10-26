@@ -15,6 +15,9 @@ module _ (ob : Type ℓ) where
     field
       mor : Type ℓ'
       dom : mor → ProdExpr
+      -- atomic function symbols are only at base types, WLOG, since a function
+      -- symbol at a product type is "just" a finite number of paired function
+      -- symbols
       cod : mor → ob
 
 ×Quiver : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))

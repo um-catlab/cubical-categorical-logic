@@ -37,6 +37,14 @@ private
     where module M = MonoidalCategory M
           module MComb = Combinators M
 
+  ηα-lhs ηα-rhs : ∀ {ℓ ℓ' : Level} (M : MonoidalCategory ℓ ℓ') →
+    ∀ x x'
+    → (MonoidalCategory.C M) [ _ , _ ]
+  ηα-lhs M x x' = (M.η⟨ x ⟩ M.⊗ₕ M.id {x'}) M.∘ M.α⟨ M.unit , x , x' ⟩
+    where module M = MonoidalCategory M
+  ηα-rhs M x x' = M.η⟨ x M.⊗ x' ⟩
+    where module M = MonoidalCategory M
+
 private
   F6 = FreeMonoidalCategory (Fin 6)
   module F6 = MonoidalCategory F6
@@ -69,4 +77,26 @@ private
     ı (fsuc (fsuc (fsuc (fsuc (inl x₁))))) = x''''
     ı (fsuc (fsuc (fsuc (fsuc (fsuc (inl x₁)))))) = x'''''
     sem = rec (Fin 6) M ı
+    module sem = StrongMonoidalFunctor sem
+
+private
+  F2 = FreeMonoidalCategory (Fin 2)
+  module F2 = MonoidalCategory F2
+
+  y y' : F2.ob
+  y = ↑ (fromℕ 0)
+  y' = ↑ (fromℕ 1)
+  ηα-free : ηα-lhs F2 y y' ≡ ηα-rhs F2 y y'
+  ηα-free = coherence (Fin 2 , isSetFin) _ _
+
+ηα : ∀ {ℓ ℓ'} (M : MonoidalCategory ℓ ℓ')
+  → ∀ x x'
+  → ηα-lhs M x x' ≡ ηα-rhs M x x'
+ηα M x x' = cong (sem.F .F-hom) ηα-free
+  where
+    module M = MonoidalCategory M
+    ı : Fin 2 → M.ob
+    ı (inl x₁) = x
+    ı (fsuc x₁) = x'
+    sem = rec (Fin 2) M ı
     module sem = StrongMonoidalFunctor sem

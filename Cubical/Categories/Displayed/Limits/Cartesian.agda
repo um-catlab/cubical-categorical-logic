@@ -31,7 +31,7 @@ CartesianCategoryᴰ (C , term , bps) ℓCᴰ ℓCᴰ' =
   LiftedTerminal Cᴰ term'
   × LiftedBinProducts Cᴰ bps'
   where
-  term' : _
+  term' : Terminal' C
   term' = terminalToUniversalElement term
 
   bps' : BinProducts' C

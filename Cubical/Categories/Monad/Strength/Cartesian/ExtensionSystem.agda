@@ -55,7 +55,7 @@ module _ {C : Category ℓ ℓ'} (bp : BinProducts C) where
   module _ (term : Terminal C) (SE : StrongExtensionSystem) where
     open StrongExtensionSystem SE
     open TerminalNotation C term
-    open CartesianCategoryNotation (C , term , bp)
+    module CC = CartesianCategoryNotation (C , term , bp)
     open isIso
     -- This follows abstractly from showing (𝟙 ×-) is equivalent to
     -- the identity monad
@@ -64,21 +64,21 @@ module _ {C : Category ℓ ℓ'} (bp : BinProducts C) where
     E1 = systems 𝟙
     -- f ∘ π₂
     toWith1 : C [ a , b ] → With 𝟙 [ a , b ]
-    toWith1 = C ._⋆_ (unitor-l .fst)
+    toWith1 = C ._⋆_ (CC.unitor-l .fst)
 
     -- f ∘ (! , id)
     fromWith1 : With 𝟙 [ a , b ] → C [ a , b ]
-    fromWith1 = C ._⋆_ (unitor-l .snd .inv)
+    fromWith1 = C ._⋆_ (CC.unitor-l .snd .inv)
 
     fromTo : fromWith1 (toWith1 f) ≡ f
     fromTo =
       sym (C .⋆Assoc _ _ _) ∙
-      cong₂ (comp' C) refl (unitor-l .snd .sec) ∙ C .⋆IdL _
+      cong₂ (comp' C) refl (CC.unitor-l .snd .sec) ∙ C .⋆IdL _
 
     toFrom : toWith1 (fromWith1 f) ≡ f
     toFrom =
       sym (C .⋆Assoc _ _ _) ∙
-      cong₂ (comp' C) refl (unitor-l .snd .ret) ∙ C .⋆IdL _
+      cong₂ (comp' C) refl (CC.unitor-l .snd .ret) ∙ C .⋆IdL _
 
     -- TODO: recover a monad on the original category
     -- General principle would be that you can transport a monad

@@ -45,6 +45,13 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   IsoFiber = ∫Cᴰsr {D = C}
     (reindex (Iso D) (Id {C = D} ×F F))
 
+--  private module IsoFiber = Categoryᴰ IsoFiber
+--  test : (d : D .Category.ob) → IsoFiber.ob[ d ]
+--  test d = {!!} {- C .ob -} , {!!} {- D [ d , F ?0 ] -}, {!!} {- isIso ?1 -}
+--  module _ {d d' : D .Category.ob} (g : D [ d , d' ]) (dᴰ : IsoFiber.ob[ d ]) (d'ᴰ : IsoFiber.ob[ d' ]) where
+--    test' : IsoFiber.Hom[ g ][ dᴰ , d'ᴰ ]
+--    test' = {!!} , {!!} , tt
+--
   IsoFiberReflection : GlobalSection IsoFiber
     → Σ[ F⁻ ∈ Functor D C ] (F ∘F F⁻) ≅ᶜ Id
   IsoFiberReflection S = F⁻ , i where

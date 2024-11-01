@@ -12,11 +12,14 @@
 module Cubical.Categories.Displayed.Constructions.IsoFiber.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 import      Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct
@@ -58,3 +61,30 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     i .trans .N-ob = i~ .trans .N-ob
     i .trans .N-hom = i~ .trans .N-hom
     i .nIso = i~ .nIso
+
+  private
+    module Fib = Categoryᴰ IsoFiber
+  open Category
+  open Functor
+  hasPropHomsIsoFiber : isFaithful F → hasPropHoms IsoFiber
+  hasPropHomsIsoFiber isFaithfulF f (c , e) (c' , e')
+    (g1 , sq1 , tt) (g2 , sq2 , tt) = ΣPathPProp
+    (λ _ → isProp× (isSetHom D _ _) isPropUnit)
+    (isFaithfulF _ _ _ _
+      (⋆CancelL e (sym sq1 ∙ sq2)))
+
+  open isIso
+  hasContrHomsIsoFiber : isFullyFaithful F → hasContrHoms IsoFiber
+  hasContrHomsIsoFiber isFullyFaithfulF f (c , e) (c' , e') =
+    inhProp→isContr
+      ((F⁻⟪goal⟫ .fst .fst) ,
+      (cong (comp' D (e' .fst)) (⋆InvLMove (invIso e) refl)
+      ∙ D .⋆Assoc _ _ _
+      ∙ cong (seq' D (e .fst)) (sym (F⁻⟪goal⟫ .fst .snd)))
+      , tt)
+      (hasPropHomsIsoFiber (isFullyFaithful→Faithful {F = F} isFullyFaithfulF)
+        f (c , e) (c' , e'))
+    where
+      goal : D [ F ⟅ c ⟆ , F ⟅ c' ⟆ ]
+      goal = e .snd .inv ⋆⟨ D ⟩ f ⋆⟨ D ⟩ e' .fst
+      F⁻⟪goal⟫ = isFullyFaithfulF _ _ .equiv-proof goal

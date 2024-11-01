@@ -50,6 +50,12 @@ module _
   hasPropHomsReindex : hasPropHoms Dᴰ → hasPropHoms (reindex Dᴰ F)
   hasPropHomsReindex = λ z {c} {c'} f → z (F-hom F f)
 
+  hasContrHomsReindex : hasContrHoms Dᴰ → hasContrHoms (reindex Dᴰ F)
+  hasContrHomsReindex hasContrHomsDᴰ f cᴰ cᴰ' = inhProp→isContr
+    (hasContrHomsDᴰ (F-hom F f) cᴰ cᴰ' .fst)
+    (hasPropHomsReindex (hasContrHoms→hasPropHoms Dᴰ hasContrHomsDᴰ)
+      f cᴰ cᴰ')
+
   module _
     {c : C .ob}{c' : C .ob}
     {dᴰ' : Dᴰ.ob[ F ⟅ c' ⟆ ]}{f : C [ c , c' ]}

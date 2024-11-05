@@ -30,6 +30,7 @@ module _ (C : Category ℓC ℓC') where
   private module C = Category C
   open isIso
   module _ {c c' c'' : C.ob} where
+    -- this is not super useful?
     CatIso-Post : CatIso C c c' → Iso (C [ c'' , c ]) (C [ c'' , c' ])
     CatIso-Post f = iso
       (C._⋆ f .fst)

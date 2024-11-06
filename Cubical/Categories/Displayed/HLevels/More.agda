@@ -37,3 +37,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       gᴰ
     → fᴰ Cᴰ.≡[ p ] gᴰ
   propHomsFiller fᴰ p gᴰ = toPathP (isPropHom _ _ _ _ _)
+
+  inhPropHoms→ContrHoms :
+    (∀ {x y} (f : C [ x , y ]) xᴰ yᴰ → Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
+    → hasContrHoms Cᴰ
+  inhPropHoms→ContrHoms inhHoms f xᴰ yᴰ =
+    inhProp→isContr (inhHoms f xᴰ yᴰ) (isPropHom f xᴰ yᴰ)

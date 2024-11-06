@@ -11,6 +11,8 @@ module Cubical.Categories.Displayed.Instances.Element where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Equiv
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 import      Cubical.Data.Equality as Eq
 
@@ -19,18 +21,25 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Terminal
 open import Cubical.Categories.Instances.Terminal.More as Terminal
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Representable as Presheaf
+  hiding (UniversalElement)
+open import Cubical.Categories.Presheaf.More
+  hiding (UniversalElementOn)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
+open import Cubical.Categories.Displayed.Constructions.PropertyOver.Displayed
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
+open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
 open import Cubical.Categories.Constructions.TotalCategory hiding (Fst; Snd)
 open import Cubical.Categories.Bifunctor.Redundant as Bif hiding (Fst; Snd)
 open import Cubical.Categories.Profunctor.Relator
@@ -41,6 +50,37 @@ private
 
 open Section
 open Functor
+
+module _ (C : Category ℓC ℓC') (ℓR : Level) where
+  Element : Categoryᴰ (C ×C PresheafCategory C ℓR) _ _
+  Element =
+    Graph {C = C}{D = PresheafCategory C ℓR} (Profunctor→Relatoro* Id)
+
+  hasPropHomsElement : hasPropHoms Element
+  hasPropHomsElement = hasPropHomsGraph (Profunctor→Relatoro* Id)
+
+  UniversalElementOn : Categoryᴰ (C ×C PresheafCategory C ℓR) _ _
+  UniversalElementOn = PropertyOverᴰ Element
+    λ { {c , P} elt → isUniversal C P c elt }
+
+  hasPropHomsUniversalElementOn : hasPropHoms UniversalElementOn
+  hasPropHomsUniversalElementOn =
+    hasPropHomsPropertyOverᴰ Element _ hasPropHomsElement
+
+  UniversalElement : Categoryᴰ (PresheafCategory C ℓR) _ _
+  UniversalElement = ∫Cᴰsl {D = C} UniversalElementOn
+
+  hasContrHomsUniversalElement : hasContrHoms UniversalElement
+  hasContrHomsUniversalElement {P}{Q} α (x , η , ηUniv) (y , ε , εUniv) =
+    uniqueExists
+      (εue.intro ((α ⟦ x ⟧) η))
+      (εue.β , tt)
+      (λ f → isProp× (Q .F-ob _ .snd _ _) isPropUnit)
+      λ { f (f◂α , tt ) → sym (εue.η ∙ cong εue.intro f◂α) }
+    where
+      εue : Presheaf.UniversalElement C Q
+      εue = record { vertex = y ; element = ε ; universal = εUniv }
+      module εue = UniversalElementNotation εue
 
 module _ (C : Category ℓC ℓC') (P : Presheaf C ℓR) where
   private
@@ -54,11 +94,11 @@ module _ (C : Category ℓC ℓC') (P : Presheaf C ℓR) where
       (Id ,F Terminal.intro)
       Eq.refl
       (λ _ _ → Eq.refl)
-  Element : Categoryᴰ C ℓR ℓR
-  Element = EqR.reindex
+  Elemento : Categoryᴰ C ℓR ℓR
+  Elemento = EqR.reindex
   private
-    module Element = Categoryᴰ Element
-    test-ob : ∀ c → Element.ob[ c ] ≡ ⟨ P ⟅ c ⟆ ⟩
+    module Elemento = Categoryᴰ Elemento
+    test-ob : ∀ c → Elemento.ob[ c ] ≡ ⟨ P ⟅ c ⟆ ⟩
     test-ob c = refl
 
 -- Covariant version

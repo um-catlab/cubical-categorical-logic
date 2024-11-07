@@ -6,6 +6,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Functor
@@ -121,11 +123,6 @@ module _
     (pushBinProduct' F c c')
     (BinProductToRepresentable _ (C .snd .snd _ _))
 
-  preservesChosenTerminal→PreservesTerminal : isTerminal D (F ⟅ C.𝟙 ⟆) →
-    preservesTerminals (C .fst) D F
-  preservesChosenTerminal→PreservesTerminal =
-    preserveAnyTerminal→PreservesTerminals (C .fst) D F (C .snd .fst)
-
 -- the pairing of two cartesian functors is cartesian,
 -- made easier assuming everything is cartesian?
 -- Or maybe that assumption isn't useful
@@ -143,28 +140,42 @@ module _
     module B×D = CartesianCategoryNotation (B ×CC D)
   ×CF : CartesianFunctor (A .fst ×C C .fst) (B .fst ×C D .fst)
   ×CF .|F| = F .|F| ×F G .|F|
-  --×CF .PreservesProducts (a , c) (a' , c') η (b , d) .equiv-proof ((b→Fa , d→Gc) , (b→Fa' , d→Gc')) = uniqueExists
-  --  ({!!} , {!!})
-  --  {!!}
-  --  {!!}
-  --  {!!}
-  ×CF .PreservesProducts (a , c) (a' , c') η = preservesChosenBinProduct'→preservesBinProduct'
-    (A .fst ×C C .fst , {!!})
+  ×CF .PreservesProducts (a , c) (a' , c') = preservesChosenBinProduct'→preservesBinProduct'
+    (A ×CC C)
     (B .fst ×C D .fst)
     (×CF .|F|)
-    (a , c)
-    (a' , c')
-    (λ (b , d) → record { equiv-proof = {!!} })
-    η
+    _
+    _
+    goal
+    where
+    goal : isUniversal (B .fst ×C D .fst)
+      (BinProductProf _ ⟅ ×CF .|F| ⟅ a , c ⟆ , ×CF .|F| ⟅ a' , c' ⟆ ⟆)
+      (F .|F| ⟅ a A.×bp a' ⟆ , G .|F| ⟅ c C.×bp c' ⟆)
+      ((F .|F| ⟪ A.π₁ ⟫ , G .|F| ⟪ C.π₁ ⟫) , (F .|F| ⟪ A.π₂ ⟫ , G .|F| ⟪ C.π₂ ⟫))
+    goal (b , d) .equiv-proof ((f₁ , g₁) , (f₂ , g₂)) =
+      uniqueExists
+      (F-preserves b .equiv-proof (f₁ , f₂) .fst .fst , G-preserves d .equiv-proof (g₁ , g₂) .fst .fst)
+      (ΣPathP (≡-× (congS fst F-β) (congS fst G-β) , ≡-× (congS snd F-β) (congS snd G-β)))
+      (λ _ _ _ → isSet× B×D.isSetHom B×D.isSetHom _ _ _ _)
+      λ (h , h') p → ≡-×
+        (congS fst (F-preserves b .equiv-proof (f₁ , f₂) .snd (h , ≡-× (congS (fst ∘S fst) p) (congS (fst ∘S snd) p))))
+        (congS fst (G-preserves d .equiv-proof (g₁ , g₂) .snd (h' , (≡-× (congS (snd ∘S fst) p) (congS (snd ∘S snd) p)))))
+      where
+      F-preserves : isUniversal (B .fst) (BinProductProf _ ⟅ F .|F| ⟅ a ⟆ , F .|F| ⟅ a' ⟆ ⟆) _ _
+      F-preserves = F .PreservesProducts a a' (BinProductToRepresentable (A .fst) (A .snd .snd _ _))
+      F-β = F-preserves b .equiv-proof (f₁ , f₂) .fst .snd
+      G-preserves : isUniversal (D .fst) (BinProductProf _ ⟅ G .|F| ⟅ c ⟆ , G .|F| ⟅ c' ⟆ ⟆) _ _
+      G-preserves = G .PreservesProducts c c' (BinProductToRepresentable (C .fst) (C .snd .snd _ _))
+      G-β = G-preserves d .equiv-proof (g₁ , g₂) .fst .snd
   ×CF .PreservesTerminal =
     preserveAnyTerminal→PreservesTerminals ((A ×CC C) .fst) ((B ×CC D) .fst)
-      (F .|F| ×F G .|F|) ((A ×CC C) .snd .fst)
-      (λ _ → (F-preserves _ .fst , G-preserves _ .fst) , λ _ → ≡-× (F-preserves _ .snd _) (G-preserves _ .snd _))
-      where
-      F-preserves : isTerminal (B .fst) (F .|F| ⟅ A.𝟙 ⟆)
-      F-preserves = F .PreservesTerminal (A .snd .fst)
-      G-preserves : isTerminal (D .fst) (G .|F| ⟅ C.𝟙 ⟆)
-      G-preserves = G .PreservesTerminal (C .snd .fst)
+    (×CF .|F|) ((A ×CC C) .snd .fst)
+    (λ _ → (F-preserves _ .fst , G-preserves _ .fst) , λ _ → ≡-× (F-preserves _ .snd _) (G-preserves _ .snd _))
+    where
+    F-preserves : isTerminal (B .fst) (F .|F| ⟅ A.𝟙 ⟆)
+    F-preserves = F .PreservesTerminal (A .snd .fst)
+    G-preserves : isTerminal (D .fst) (G .|F| ⟅ C.𝟙 ⟆)
+    G-preserves = G .PreservesTerminal (C .snd .fst)
 
 -- TODO: compose cartesian functors
 -- Right now, this would just be to test that the definition

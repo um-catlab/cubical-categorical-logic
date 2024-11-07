@@ -21,21 +21,6 @@ private
   variable
     ℓ ℓ' ℓc ℓc' ℓd ℓd' : Level
 
-preservesTerminal : ∀ (C : Category ℓc ℓc')(D : Category ℓd ℓd')
-                  → Functor C D
-                  → Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓd) ℓd')
-preservesTerminal C D F = ∀ (One : Terminal C) → isTerminal D (F ⟅ One .fst ⟆)
-
-
-preserveOnePreservesAll : ∀ (C : Category ℓc ℓc')(D : Category ℓd ℓd')
-                        → (F : Functor C D)
-                        → (One : Terminal C) → isTerminal D (F ⟅ One .fst ⟆)
-                        → preservesTerminal C D F
-preserveOnePreservesAll C D F One D-preserves-One One' =
-  isoToTerminal D
-                ((F ⟅ One .fst ⟆) , D-preserves-One) (F ⟅ One' .fst ⟆)
-                (F-Iso {F = F} (terminalToIso C One One'))
-
 open UniversalElement
 TerminalPresheaf : ∀ {C : Category ℓc ℓc'} → Presheaf C ℓ-zero
 TerminalPresheaf = Constant _ _ (Unit , isSetUnit)

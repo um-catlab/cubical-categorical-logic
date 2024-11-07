@@ -10,7 +10,7 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Cartesian.Functor
 
 private variable
-  ℓq ℓq' : Level
+  ℓq ℓq' ℓC ℓC' ℓD ℓD' : Level
 
 module _ (Q : ×Quiver ℓq ℓq') where
   private module Q = ×QuiverNotation Q
@@ -18,5 +18,5 @@ module _ (Q : ×Quiver ℓq ℓq') where
   Cl = FreeCartesianCategory Q
   private
     module Cl = CartesianCategoryNotation Cl
-  module _ {C : CartesianCategory {!!} {!!}} {D : CartesianCategory {!!} {!!}}
+  module _ {C : CartesianCategory ℓC ℓC'} {D : CartesianCategory ℓD ℓD'}
     (F : CartesianFunctor C D) where

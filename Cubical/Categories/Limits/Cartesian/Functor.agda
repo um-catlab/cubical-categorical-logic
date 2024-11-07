@@ -113,42 +113,43 @@ module _
   where
   private
     module C = CartesianCategoryNotation C
-  preservesChosenBinProduct'→preservesBinProduct' : ∀ c c' →
-    preservesBinProduct' F c c' (BinProductToRepresentable _ (C .snd .snd _ _)) →
+  preservesAnyBinProduct'→preservesBinProduct' : ∀ c c' →
+    (bp : UniversalElement (C .fst) (BinProductProf _ ⟅ c , c' ⟆)) →
+    preservesBinProduct' F c c' bp →
     preservesBinProducts' F c c'
-  preservesChosenBinProduct'→preservesBinProduct' c c' =
+  preservesAnyBinProduct'→preservesBinProduct' c c' =
     preservesAnyRepresentation→preservesAllRepresentations F
-    _
+    (BinProductProf _ ⟅ c , c' ⟆)
     (BinProductProf _ ⟅ F ⟅ c ⟆ , F ⟅ c' ⟆ ⟆)
     (pushBinProduct' F c c')
-    (BinProductToRepresentable _ (C .snd .snd _ _))
 
 -- the pairing of two cartesian functors is cartesian,
 -- made easier assuming everything is cartesian?
 -- Or maybe that assumption isn't useful
 module _
-  {A : CartesianCategory ℓA ℓA'}{B : CartesianCategory ℓB ℓB'}
-  {C : CartesianCategory ℓC ℓC'}{D : CartesianCategory ℓD ℓD'}
-  (F : CartesianFunctor (A .fst) (B .fst))
-  (G : CartesianFunctor (C .fst) (D .fst))
+  {A : CartesianCategory ℓA ℓA'}{B : Category ℓB ℓB'}
+  {C : CartesianCategory ℓC ℓC'}{D : Category ℓD ℓD'}
+  (F : CartesianFunctor (A .fst) B)
+  (G : CartesianFunctor (C .fst) D)
   where
   open CartesianFunctor
   private
     module A = CartesianCategoryNotation A
     module C = CartesianCategoryNotation C
     module A×C = CartesianCategoryNotation (A ×CC C)
-    module B×D = CartesianCategoryNotation (B ×CC D)
-  ×CF : CartesianFunctor (A .fst ×C C .fst) (B .fst ×C D .fst)
+    module B×D = Category (B ×C D)
+  ×CF : CartesianFunctor (A .fst ×C C .fst) (B ×C D)
   ×CF .|F| = F .|F| ×F G .|F|
-  ×CF .PreservesProducts (a , c) (a' , c') = preservesChosenBinProduct'→preservesBinProduct'
+  ×CF .PreservesProducts (a , c) (a' , c') = preservesAnyBinProduct'→preservesBinProduct'
     (A ×CC C)
-    (B .fst ×C D .fst)
+    (B ×C D)
     (×CF .|F|)
     _
     _
+    {!!}
     goal
     where
-    goal : isUniversal (B .fst ×C D .fst)
+    goal : isUniversal (B ×C D)
       (BinProductProf _ ⟅ ×CF .|F| ⟅ a , c ⟆ , ×CF .|F| ⟅ a' , c' ⟆ ⟆)
       (F .|F| ⟅ a A.×bp a' ⟆ , G .|F| ⟅ c C.×bp c' ⟆)
       ((F .|F| ⟪ A.π₁ ⟫ , G .|F| ⟪ C.π₁ ⟫) , (F .|F| ⟪ A.π₂ ⟫ , G .|F| ⟪ C.π₂ ⟫))
@@ -161,20 +162,20 @@ module _
         (congS fst (F-preserves b .equiv-proof (f₁ , f₂) .snd (h , ≡-× (congS (fst ∘S fst) p) (congS (fst ∘S snd) p))))
         (congS fst (G-preserves d .equiv-proof (g₁ , g₂) .snd (h' , (≡-× (congS (snd ∘S fst) p) (congS (snd ∘S snd) p)))))
       where
-      F-preserves : isUniversal (B .fst) (BinProductProf _ ⟅ F .|F| ⟅ a ⟆ , F .|F| ⟅ a' ⟆ ⟆) _ _
+      F-preserves : isUniversal B (BinProductProf _ ⟅ F .|F| ⟅ a ⟆ , F .|F| ⟅ a' ⟆ ⟆) _ _
       F-preserves = F .PreservesProducts a a' (BinProductToRepresentable (A .fst) (A .snd .snd _ _))
       F-β = F-preserves b .equiv-proof (f₁ , f₂) .fst .snd
-      G-preserves : isUniversal (D .fst) (BinProductProf _ ⟅ G .|F| ⟅ c ⟆ , G .|F| ⟅ c' ⟆ ⟆) _ _
+      G-preserves : isUniversal D (BinProductProf _ ⟅ G .|F| ⟅ c ⟆ , G .|F| ⟅ c' ⟆ ⟆) _ _
       G-preserves = G .PreservesProducts c c' (BinProductToRepresentable (C .fst) (C .snd .snd _ _))
       G-β = G-preserves d .equiv-proof (g₁ , g₂) .fst .snd
   ×CF .PreservesTerminal =
-    preserveAnyTerminal→PreservesTerminals ((A ×CC C) .fst) ((B ×CC D) .fst)
+    preserveAnyTerminal→PreservesTerminals ((A ×CC C) .fst) (B ×C D)
     (×CF .|F|) ((A ×CC C) .snd .fst)
     (λ _ → (F-preserves _ .fst , G-preserves _ .fst) , λ _ → ≡-× (F-preserves _ .snd _) (G-preserves _ .snd _))
     where
-    F-preserves : isTerminal (B .fst) (F .|F| ⟅ A.𝟙 ⟆)
+    F-preserves : isTerminal B (F .|F| ⟅ A.𝟙 ⟆)
     F-preserves = F .PreservesTerminal (A .snd .fst)
-    G-preserves : isTerminal (D .fst) (G .|F| ⟅ C.𝟙 ⟆)
+    G-preserves : isTerminal D (G .|F| ⟅ C.𝟙 ⟆)
     G-preserves = G .PreservesTerminal (C .snd .fst)
 
 -- TODO: compose cartesian functors

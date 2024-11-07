@@ -146,7 +146,7 @@ module _
     (×CF .|F|)
     _
     _
-    {!!}
+    (BinProductToRepresentable _ ((A ×CC C) .snd .snd _ _))
     goal
     where
     goal : isUniversal (B ×C D)

@@ -13,6 +13,7 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.Presheaf
 open import Cubical.Data.Sigma
 
 private
@@ -41,3 +42,6 @@ module CartesianCategoryNotation (CC : CartesianCategory ℓ ℓ') where
 
   CCBinProducts' : BinProducts' C
   CCBinProducts' = BinProductsToBinProducts' _ (CC .snd .snd)
+
+  CCBinProducts'' : ∀ c c' → UniversalElement _ (BinProductProf C ⟅ c , c' ⟆)
+  CCBinProducts'' c c' = BinProductToRepresentable _ (CC .snd .snd c c')

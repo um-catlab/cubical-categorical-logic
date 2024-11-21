@@ -55,7 +55,7 @@ record CartesianFunctor (C : Category ℓC ℓC') (D : Category ℓD ℓD') : Ty
   field
     |F| : Functor C D
     -- TODO: this seems okay, but maybe isn't quite a BinProduct'
-    PreservesProducts : ∀ c c' → preservesRepresentations |F|
+    PreservesBinProducts : ∀ c c' → preservesRepresentations |F|
       (BinProductProf _ ⟅ c , c' ⟆)
       (BinProductProf _ ⟅ |F| ⟅ c ⟆ , |F| ⟅ c' ⟆ ⟆)
       (pushBinProduct' |F| c c')
@@ -140,7 +140,7 @@ module _
     module B×D = Category (B ×C D)
   ×CF : CartesianFunctor (A .fst ×C C .fst) (B ×C D)
   ×CF .|F| = F .|F| ×F G .|F|
-  ×CF .PreservesProducts (a , c) (a' , c') = preservesAnyBinProduct'→preservesBinProduct'
+  ×CF .PreservesBinProducts (a , c) (a' , c') = preservesAnyBinProduct'→preservesBinProduct'
     (A ×CC C)
     (B ×C D)
     (×CF .|F|)
@@ -163,10 +163,10 @@ module _
         (congS fst (G-preserves d .equiv-proof (g₁ , g₂) .snd (h' , (≡-× (congS (snd ∘S fst) p) (congS (snd ∘S snd) p)))))
       where
       F-preserves : isUniversal B (BinProductProf _ ⟅ F .|F| ⟅ a ⟆ , F .|F| ⟅ a' ⟆ ⟆) _ _
-      F-preserves = F .PreservesProducts a a' (BinProductToRepresentable (A .fst) (A .snd .snd _ _))
+      F-preserves = F .PreservesBinProducts a a' (BinProductToRepresentable (A .fst) (A .snd .snd _ _))
       F-β = F-preserves b .equiv-proof (f₁ , f₂) .fst .snd
       G-preserves : isUniversal D (BinProductProf _ ⟅ G .|F| ⟅ c ⟆ , G .|F| ⟅ c' ⟆ ⟆) _ _
-      G-preserves = G .PreservesProducts c c' (BinProductToRepresentable (C .fst) (C .snd .snd _ _))
+      G-preserves = G .PreservesBinProducts c c' (BinProductToRepresentable (C .fst) (C .snd .snd _ _))
       G-β = G-preserves d .equiv-proof (g₁ , g₂) .fst .snd
   ×CF .PreservesTerminal =
     preserveAnyTerminal→PreservesTerminals ((A ×CC C) .fst) (B ×C D)

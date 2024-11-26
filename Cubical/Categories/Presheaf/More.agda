@@ -9,6 +9,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Instances.Sets
@@ -74,6 +75,33 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
     (ue : UniversalElement C P) → UniversalElementOn (ue .vertex)
   UniversalElementToUniversalElementOn ue .fst = ue .element
   UniversalElementToUniversalElementOn ue .snd = ue .universal
+
+  module _ (ue ue' : UniversalElement C P) where
+    open isIso
+    private
+      ∫P = Elements C P
+      ue→Terminal = universalElementToTerminalElement _ _ ue
+      ue'→Terminal = universalElementToTerminalElement _ _ ue'
+      module ue→Terminal = TerminalNotation ∫P ue→Terminal
+      module ue'→Terminal = TerminalNotation ∫P ue'→Terminal
+      ElementsIso : CatIso ∫P (ue→Terminal.𝟙) (ue'→Terminal.𝟙)
+      ElementsIso = terminalToIso _ ue→Terminal ue'→Terminal
+      Elements-triangle : {ϕ : ∫P .ob} →
+        ue→Terminal.!t {a = ϕ} ⋆⟨ ∫P ⟩ ElementsIso .fst ≡ ue'→Terminal.!t {a = ϕ}
+      Elements-triangle = ue'→Terminal.𝟙η'
+      Elements-triangle' : {ϕ : ∫P .ob} →
+        ue'→Terminal.!t {a = ϕ} ⋆⟨ ∫P ⟩ ElementsIso .snd .inv ≡ ue→Terminal.!t {a = ϕ}
+      Elements-triangle' = ue→Terminal.𝟙η'
+    UniversalElements→Iso : CatIso C (ue .vertex) (ue' .vertex)
+    UniversalElements→Iso .fst = ElementsIso .fst .fst
+    UniversalElements→Iso .snd .inv = ElementsIso  .snd .inv .fst
+    UniversalElements→Iso .snd .sec = congS fst (ElementsIso .snd .sec)
+    UniversalElements→Iso .snd .ret = congS fst (ElementsIso .snd .ret)
+    -- this should really be something like ∃!… but that seems overkill
+    UniversalElements→CanonicalIso : ue' .element ∘ᴾ⟨ C , P ⟩ UniversalElements→Iso .fst ≡ ue .element
+    UniversalElements→CanonicalIso = ElementsIso .fst .snd
+    UniversalElements-triangle : (ϕ : ∫P .ob) → {!!}
+    UniversalElements-triangle ϕ = {!!}
 
 module UniversalElementNotation {ℓo}{ℓh}
        {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}

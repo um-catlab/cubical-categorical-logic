@@ -17,7 +17,7 @@ private
     ℓC ℓC' ℓD ℓD' : Level
 
 module _ {C : CartesianCategory ℓC ℓC'} {D : CartesianCategory ℓD ℓD'}
-  (F : CartesianFunctor C D)
+  (F : CartesianFunctor (C .fst) (D .fst))
   where
   private
     module C = CartesianCategoryNotation C

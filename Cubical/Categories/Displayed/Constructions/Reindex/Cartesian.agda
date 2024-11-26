@@ -94,17 +94,9 @@ module _
     reindex .snd .snd (Fcᴰ , Fc'ᴰ) .elementᴰ .snd = R.reind (cong snd foo) (isoLift (Fcᴰ Dᴰ.×ᴰ Fc'ᴰ) ×-iso .π Dᴰ.⋆ᴰ Dᴰ.π₂ᴰ)
     reindex .snd .snd {d = c , c'} (Fcᴰ , Fc'ᴰ) .universalᴰ {f = f} .equiv-proof (a , b) = uniqueExists
       (R.reind
-        (UniversalElements-triangle' BinProductsD'' (D.CCBinProducts' (F .|F| ⟅ c ⟆ , F .|F| ⟅ c' ⟆)) _ ∙ cong₂ D-×'._,p_ (F .|F| .F-seq _ _) (F .|F| .F-seq _ _) ∙ sym D-×'.×η)
-        {- (UniversalElements-triangle'
-          (RepresentableToBinProduct' _
-            (record { vertex = D-×'.vert ; element = (F .|F| ⟪ C.π₁ ⟫) , (F .|F| ⟪ C.π₂ ⟫) ; universal = λ A → record { equiv-proof = λ y → uniqueExists
-              {!y .fst D-×'.,p y .snd!}
-              {!!}
-              {!!}
-              {!!} } }))
-          (D.CCBinProducts' (F .|F| ⟅ c ⟆ , F .|F| ⟅ c' ⟆))
-          _
-          {- ((F .|F| ⟪ f ⋆⟨ C .fst ⟩ C.π₁ ⟫) , (F .|F| ⟪ f ⋆⟨ C .fst ⟩ C.π₂ ⟫)) -}) -}
+        (UniversalElements-triangle' BinProductsD'' (D.CCBinProducts' (F .|F| ⟅ c ⟆ , F .|F| ⟅ c' ⟆)) _ ∙
+          cong₂ D-×'._,p_ (F .|F| .F-seq _ _) (F .|F| .F-seq _ _) ∙
+          sym D-×'.×η)
         (a Dᴰ.,pᴰ b Dᴰ.⋆ᴰ isoLift (Fcᴰ Dᴰ.×ᴰ Fc'ᴰ) ×-iso .σ))
       (ΣPathP (hasPropHoms _ _ _ _ _ , hasPropHoms _ _ _ _ _))
       (λ _ _ _ → isProp→isSet (isPropΣ (hasPropHoms _ _ _) (λ _ → hasPropHoms _ _ _)) _ _ _ _)

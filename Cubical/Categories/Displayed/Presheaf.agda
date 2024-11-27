@@ -4,6 +4,7 @@ module Cubical.Categories.Displayed.Presheaf where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
@@ -14,7 +15,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Base hiding (isIsoᴰ)
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 
@@ -49,3 +50,14 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
       universalᴰ : ∀ {x xᴰ}{f : C [ x , vertex ]}
                  → isEquiv λ (fᴰ : Hom[ f ][ xᴰ , vertexᴰ ]) →
                      Pᴰ .F-homᴰ fᴰ _ elementᴰ
+  record UniversalElementᴰ' (ue : UniversalElement C P)
+    : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max ℓP ℓP')) where
+    open UniversalElement ue
+    open Categoryᴰ D
+    field
+      vertexᴰ : ob[ vertex ]
+      elementᴰ : ⟨ Pᴰ .F-obᴰ vertexᴰ element ⟩
+      universalᴰ : ∀ x xᴰ →
+        isIsoᴰ {Bᴰ = λ p → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩}
+          (isEquivToIsIso (universal x)) λ f (fᴰ : Hom[ f ][ xᴰ , vertexᴰ ])
+          → Pᴰ .F-homᴰ fᴰ _ elementᴰ

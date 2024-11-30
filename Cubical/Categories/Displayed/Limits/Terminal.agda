@@ -3,8 +3,10 @@ module Cubical.Categories.Displayed.Limits.Terminal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -31,6 +33,8 @@ private
 open Category
 open Categoryᴰ
 open Functorᴰ
+open Iso
+open isIsoOver
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
@@ -56,19 +60,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     open UniversalElement
     open UniversalElementᴰ
     open Terminal'Notation term'
-    private module R = HomᴰReasoning Cᴰ
 
     𝟙ᴰ : Cᴰ.ob[ 𝟙 ]
     𝟙ᴰ = termᴰ .vertexᴰ
 
     !tᴰ : ∀ {c} (d : Cᴰ.ob[ c ]) → Cᴰ.Hom[ !t ][ d , 𝟙ᴰ ]
-    !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+    !tᴰ {c} d = termᴰ .universalᴰ {f = !t} .inv tt tt
 
     𝟙ηᴰ : ∀ {c} {d : Cᴰ.ob[ c ]} {f} (fᴰ : Cᴰ.Hom[ f ][ d , 𝟙ᴰ ])
         → fᴰ Cᴰ.≡[ 𝟙η f ] !tᴰ d
-    𝟙ηᴰ {c} {d} {f} fᴰ = R.rectify (toPathP (sym fᴰ-commutes))
-      where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
-            fᴰ-commutes = cong fst (contr!tᴰ .snd (reind Cᴰ (𝟙η _) fᴰ , refl))
+    𝟙ηᴰ {c} {d} {f} fᴰ = symP (termᴰ .universalᴰ {f = !t} .leftInv f fᴰ)
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object
@@ -92,13 +93,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       1ᴰ = vt .vertexᴰ
 
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) → Cᴰ [ f ][ d' , 1ᴰ ]
-      !tᴰ f d' = invIsEq (vt .universalᴰ) tt
+      !tᴰ f d' = vt .universalᴰ {f = f} .inv f tt
 
-      !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) →
-        isContr (Cᴰ [ f ][ d' , 1ᴰ ])
-      !tᴰ-unique f d' .fst = !tᴰ f d'
-      !tᴰ-unique f d' .snd fᴰ' =
-        cong (λ p → p .fst) (vt .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))
+      -- !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) →
+      --   isContr (Cᴰ [ f ][ d' , 1ᴰ ])
+      -- !tᴰ-unique f d' .fst = !tᴰ f d'
+      -- !tᴰ-unique f d' .snd fᴰ' = {!vt .universalᴰ .leftInv!}
+        -- cong (λ p → p .fst) (vt .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))
 
   VerticalTerminals : Type _
   VerticalTerminals = ∀ c → VerticalTerminalAt c
@@ -107,12 +108,19 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     open Terminal'Notation term
     open UniversalElementᴰ
     open UniversalElement
+    private module R = HomᴰReasoning Cᴰ
 
-    -- the following definition cannot be η contracted
     Vertical/𝟙→LiftedTerm : VerticalTerminalAt 𝟙 → LiftedTerminal term
     Vertical/𝟙→LiftedTerm vta .vertexᴰ = vta .vertexᴰ
     Vertical/𝟙→LiftedTerm vta .elementᴰ = vta .elementᴰ
-    Vertical/𝟙→LiftedTerm vta .universalᴰ = vta .universalᴰ
+    Vertical/𝟙→LiftedTerm vta .universalᴰ .inv _ _ =
+      vta .universalᴰ {f = !t} .inv _ _
+    Vertical/𝟙→LiftedTerm vta .universalᴰ .rightInv _ _ = refl
+    Vertical/𝟙→LiftedTerm vta .universalᴰ {x = x} .leftInv  f fᴰ =
+      R.rectify (R.≡out
+        (ΣPathP (_ ,
+          λ i → vta .universalᴰ {f = !t} .inv (𝟙η (f ⋆⟨ C ⟩ C .id) (~ i)) tt)
+        ∙ ΣPathP (_ , vta .universalᴰ {f = !t} .leftInv f fᴰ)))
 
     AllVertical→Vertical/𝟙 : VerticalTerminals → LiftedTerminal term
     AllVertical→Vertical/𝟙 vtas = Vertical/𝟙→LiftedTerm (vtas _)

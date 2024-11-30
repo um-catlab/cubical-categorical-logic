@@ -14,10 +14,10 @@ open import Cubical.Categories.Displayed.NaturalTransformation
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-  (Cᴰ : Categoryᴰ C ℓC ℓC')(Dᴰ : Categoryᴰ D ℓD ℓD') where
+  (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')(Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') where
 
   open Category
   open Functorᴰ
@@ -143,3 +143,18 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     (implicitFunExt (λ {x} → funExt (λ xᴰ →  Dᴰ .⋆Assocᴰ _ _ _)))
   FUNCTORᴰ .isSetHomᴰ {x = F} {y = G} {f = α} {xᴰ = Fᴰ} {yᴰ = Gᴰ} =
     isSetNatTransᴰ
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : Category ℓE ℓE')
+  {F : Functor C D}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ')
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+  open Functorᴰ
+  open NatTransᴰ
+  precomposeFᴰ : Functorᴰ (precomposeF E F) (FUNCTORᴰ Dᴰ Eᴰ) (FUNCTORᴰ Cᴰ Eᴰ)
+  precomposeFᴰ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰ Fᴰ
+  precomposeFᴰ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
+  precomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
+  precomposeFᴰ .F-idᴰ = refl
+  precomposeFᴰ .F-seqᴰ fᴰ gᴰ = refl

@@ -43,8 +43,8 @@ open Bifunctor
 open isEquiv
 
 module _ (C : Category ℓ ℓ') where
-  BinProduct' = RightAdjointAt' _ _ (Δ C)
-  BinProducts' = RightAdjoint' _ _ (Δ C)
+  BinProduct' = RightAdjointAt (Δ C)
+  BinProducts' = RightAdjoint (Δ C)
 
   private
     -- This definition looks promising at first, but doesn't give the

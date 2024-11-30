@@ -9,9 +9,12 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.NaturalTransformation
 
 private
   variable
@@ -42,6 +45,19 @@ _[-][-,_] {C = C} D {c} d .F-obᴰ d' f =
 _[-][-,_] {C = C} D {c} d .F-homᴰ fᴰ g gᴰ = Categoryᴰ._⋆ᴰ_ D fᴰ gᴰ
 _[-][-,_] {C = C} D {c} d .F-idᴰ i g gᴰ = Categoryᴰ.⋆IdLᴰ D gᴰ i
 _[-][-,_] {C = C} D {c} d .F-seqᴰ fᴰ gᴰ i h hᴰ = Categoryᴰ.⋆Assocᴰ D gᴰ fᴰ hᴰ i
+
+module _ {C : Category ℓ ℓ'}{Cᴰ : Categoryᴰ C ℓ'' ℓ'''} where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+  open NatTransᴰ
+  YOᴰ : Functorᴰ (YO {C = C}) Cᴰ (FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓ' ℓ'''))
+  YOᴰ .F-obᴰ xᴰ = Cᴰ [-][-, xᴰ ]
+  YOᴰ .F-homᴰ fᴰ .N-obᴰ xᴰ g gᴰ = gᴰ Cᴰ.⋆ᴰ fᴰ
+  YOᴰ .F-homᴰ fᴰ .N-homᴰ gᴰ i h hᴰ = Cᴰ.⋆Assocᴰ gᴰ hᴰ fᴰ i
+  YOᴰ .F-idᴰ = makeNatTransPathᴰ (Cᴰ ^opᴰ) (SETᴰ ℓ' ℓ''') _ λ i xᴰ f fᴰ →
+    Cᴰ.⋆IdRᴰ fᴰ i
+  YOᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ (λ i xᴰ f hᴰ →
+    Cᴰ.⋆Assocᴰ hᴰ fᴰ gᴰ (~ i))
 
 -- Displayed representable
 _[-][_,-] : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')

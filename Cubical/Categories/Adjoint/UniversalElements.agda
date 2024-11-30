@@ -48,36 +48,10 @@ module _ {C : Category ℓC ℓC'}
   LeftAdjointAt : (d : D .ob) → Type _
   LeftAdjointAt = RightAdjointAt (F ^opF)
 
--- Uh Oh
-RightAdjointAt' : (C : Category ℓC ℓC')
-                  (D : Category ℓD ℓD')
-                  (F : Functor C D) (d : D .ob)
-                → Type _
-RightAdjointAt' C D F d  =
-  UniversalElement C ((D [-, d ]) ∘F (F ^opF))
-
-RightAdjointAt→Prime : (C : Category ℓC ℓC')
-                 (D : Category ℓD ℓD')
-                 (F : Functor C D)
-                 (d : D .ob)
-                 → RightAdjointAt F d → RightAdjointAt' C D F d
-RightAdjointAt→Prime C D F d x .UniversalElement.vertex =
-  UniversalElement.vertex x
-RightAdjointAt→Prime C D F d x .UniversalElement.element =
-  UniversalElement.element x
-RightAdjointAt→Prime C D F d x .UniversalElement.universal =
-  UniversalElement.universal x
-
-RightAdjoint' : (C : Category ℓC ℓC')
-                (D : Category ℓD ℓD')
-                (F : Functor C D)
-              → Type _
-RightAdjoint' C D F = ∀ d → RightAdjointAt' C D F d
-
-IdRightAdj' : (C : Category ℓC ℓC')
-      → RightAdjoint' C C Id
-IdRightAdj' C c .UniversalElement.vertex = c
-IdRightAdj' C c .UniversalElement.element = id C
-IdRightAdj' C c .UniversalElement.universal c' =
+IdRightAdj : (C : Category ℓC ℓC')
+      → RightAdjoint (Id {C = C})
+IdRightAdj C c .UniversalElement.vertex = c
+IdRightAdj C c .UniversalElement.element = id C
+IdRightAdj C c .UniversalElement.universal c' =
   isoToIsEquiv (iso _ (λ z → z) (C .⋆IdR) (C .⋆IdR))
 

@@ -26,12 +26,10 @@ open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.HomPropertyOver
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
-open import Cubical.Categories.Constructions.ChangeOfObjects
+open import Cubical.Categories.Constructions.DisplayOverTerminal
+open import Cubical.Categories.Instances.Terminal
 
-open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Constructions.Endo as Endo
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 
@@ -41,50 +39,44 @@ private
 
 open Category
 
-module _ (C : Category ℓC ℓC') (x : C .ob) where
-  isId : Categoryᴰ (Endo C x) ℓ-zero ℓC'
-  isId = HomPropertyOver→Catᴰ isIdDef where
-    open HomPropertyOver
-    isIdDef : HomPropertyOver (Endo C x) _
-    isIdDef .Hom[_][-,-] = C .id ≡_
-    isIdDef .isPropHomᴰ = λ _ → C .isSetHom _ _
-    isIdDef .idᴰ = refl
-    isIdDef ._⋆ᴰ_ f g f≡id g≡id =
-      sym (C .⋆IdL _) ∙ cong₂ (C ._⋆_) f≡id g≡id
-
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module R = HomᴰReasoning Cᴰ
-  fiber : C .ob → Category ℓCᴰ (ℓ-max ℓC' ℓCᴰ')
-  fiber x = ChangeOfObjects {X = Cᴰ.ob[ x ]}
-    (∫C {C = Endo C x} (isId C x ×ᴰ reindex Cᴰ (Endo.π C x)))
-    λ xᴰ → tt , (tt , xᴰ)
-
+  fiber : C .ob → Category ℓCᴰ ℓCᴰ'
+  fiber x = DispOverTerminal→Category {ℓ* = ℓ-zero}
+    (reindex Cᴰ (FunctorFromTerminal x))
   private
-    hom-test : ∀ x xᴰ yᴰ →
-      fiber x [ xᴰ , yᴰ ]
-      ≡ (Σ[ f ∈ C [ x , x ] ] (C .id ≡ f) × Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
+    ob-test : ∀ x 
+      → fiber x .ob ≡ Cᴰ.ob[ x ]
+    ob-test x = refl
+
+    hom-test : ∀ x xᴰ yᴰ → fiber x [ xᴰ , yᴰ ] ≡ Cᴰ [ C .id {x} ][ xᴰ , yᴰ ]
     hom-test x xᴰ yᴰ = refl
 
+  seqᵛᴰ : ∀ {x y}{f : C [ x , y ]}
+    {xᴰ xᴰ' yᴰ}
+    → Cᴰ.Hom[ C .id ][ xᴰ' , xᴰ ]
+    → Cᴰ [ f ][ xᴰ , yᴰ ]
+    → Cᴰ.Hom[ f ][ xᴰ' , yᴰ ]
+  seqᵛᴰ v fᴰ = R.reind (C .⋆IdL _) (v Cᴰ.⋆ᴰ fᴰ)
+
+  seqᴰᵛ : ∀ {x y}{f : C [ x , y ]}
+    {xᴰ yᴰ yᴰ'}
+    → Cᴰ [ f ][ xᴰ , yᴰ ]
+    → Cᴰ.Hom[ C .id ][ yᴰ , yᴰ' ]
+    → Cᴰ.Hom[ f ][ xᴰ , yᴰ' ]
+  seqᴰᵛ fᴰ v = R.reind (C .⋆IdR _) (fᴰ Cᴰ.⋆ᴰ v)
   -- Homᴰ : ∀ {x y} → (f : C [ x , y ]) → fiber x o-[ _ ]-* fiber y
   -- Homᴰ f = mkBifunctorSep F where
   --   open BifunctorSep
   --   F : BifunctorSep _ _ _
-  --   F .Bif-ob xᴰ yᴰ = (Σ[ f' ∈  singl f ] Cᴰ.Hom[ f' .fst ][ xᴰ , yᴰ ])
-  --     , isSetΣ (isProp→isSet (isContr→isProp (isContrSingl _))) λ _
-  --     → Cᴰ.isSetHomᴰ
-  --   F .Bif-homL {c = xᴰ} = λ (id' , id≡id' , vᴰ) yᴰ ((f' , f≡f'), fᴰ) →
-  --     (id' ⋆⟨ C ⟩ f' , sym (C .⋆IdL _) ∙ cong₂ (C ._⋆_) id≡id' f≡f')
-  --     , (vᴰ Cᴰ.⋆ᴰ fᴰ)
-  --   F .Bif-L-id = funExt
-  --   (λ ((f' , f≡f'), fᴰ) → ΣPathP ((ΣPathP ((C .⋆IdL f') , {!!})) , {!!}))
+  --   F .Bif-ob xᴰ yᴰ = (Cᴰ [ f ][ xᴰ , yᴰ ]) , Cᴰ.isSetHomᴰ
+  --   F .Bif-homL u d = λ fᴰ → seqᵛᴰ u fᴰ
+  --   F .Bif-L-id = funExt λ fᴰ → {!!}
   --   F .Bif-L-seq = {!!}
-  --   F .Bif-homR {d' = yᴰ} = λ xᴰ (id' , id≡id' , vᴰ) ((f' , f≡f') , fᴰ) →
-  --     ((f' ⋆⟨ C ⟩ id')
-  --     , (sym (C .⋆IdR _) ∙ cong₂ (C ._⋆_) f≡f' id≡id'))
-  --     , (fᴰ Cᴰ.⋆ᴰ vᴰ)
+  --   F .Bif-homR c v = λ fᴰ → seqᴰᵛ fᴰ v
   --   F .Bif-R-id = {!!}
   --   F .Bif-R-seq = {!!}
-  --   F .SepBif-RL-commute = {!!}
+  --   F .SepBif-RL-commute u v = funExt λ fᴰ → {!!}

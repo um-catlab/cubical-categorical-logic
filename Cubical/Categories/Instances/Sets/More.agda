@@ -16,6 +16,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Presheaf
 
 private

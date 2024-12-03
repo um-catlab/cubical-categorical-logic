@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Categories.Category
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Functors.More
@@ -31,12 +32,7 @@ open NatTrans
 open UniversalElement
 
 HomP : (C : Category ℓC ℓC') → Profunctor C C ℓC'
-HomP C .F-ob x = C [-, x ]
-HomP C .F-hom f .NatTrans.N-ob w g = (C Category.⋆ g) f
-HomP C .F-hom f .NatTrans.N-hom h = funExt (λ g → C .⋆Assoc _ _ _)
-HomP C .F-id = makeNatTransPath (funExt (λ x → funExt λ g → C .⋆IdR g))
-HomP C .F-seq f g = makeNatTransPath (funExt λ _ → funExt λ h →
-  sym (C .⋆Assoc _ _ _))
+HomP C = YO
 
 HomR : ∀ (C : Category ℓC ℓC') → C o-[ ℓC' ]-* C
 HomR C = Profunctor→Relatoro* (HomP C)

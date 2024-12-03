@@ -9,13 +9,16 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Adjoint
 open import Cubical.Categories.Adjoint.UniversalElements
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Profunctor.Hom
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Presheaf.Representable
 
 private
   variable
@@ -51,16 +54,23 @@ RightAdjointᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
               → Type _
 RightAdjointᴰ Fᴰ R = ∀ {d} dᴰ → RightAdjointAtᴰ Fᴰ (R d) dᴰ
 
+RightAdjointProfᵛ : {C : Category ℓC ℓC'}
+                  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+                  (Fᵛ : Functorᵛ Cᴰ Dᴰ)
+  → Functorᴰ (YO {C = C}) Dᴰ (FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓC' ℓDᴰ'))
+RightAdjointProfᵛ Fᵛ = precomposeFᵛ _ _ (Fᵛ ^opFᵛ) ∘Fᵛᴰ YOᴰ
+
 VerticalRightAdjointAtᴰ : {C : Category ℓC ℓC'}
                      {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-                     (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
+                     (Fᵛ : Functorᵛ Cᴰ Dᴰ)
                      {c : C .ob}
-                     (cᴰ : Categoryᴰ.ob[_] Dᴰ c)
+                     (dᴰ : Categoryᴰ.ob[_] Dᴰ c)
                      → Type _
-VerticalRightAdjointAtᴰ Fᴰ = RightAdjointAtᴰ Fᴰ (IdRightAdj _ _)
+VerticalRightAdjointAtᴰ {Cᴰ = Cᴰ} Fᵛ {c} dᴰ =
+  UniversalElementᵛ Cᴰ c (RightAdjointProfᵛ Fᵛ .F-obᴰ dᴰ)
 
 VerticalRightAdjointᴰ : {C : Category ℓC ℓC'}
                      {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-                     (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
+                     (Fᵛ : Functorᵛ Cᴰ Dᴰ)
                    → Type _
-VerticalRightAdjointᴰ Fᴰ = RightAdjointᴰ Fᴰ (IdRightAdj _)
+VerticalRightAdjointᴰ Fᵛ = ∀ {x} xᴰ → VerticalRightAdjointAtᴰ Fᵛ {x} xᴰ

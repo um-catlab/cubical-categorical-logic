@@ -2,14 +2,17 @@
 module Cubical.Categories.Displayed.Instances.Functor where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Categories.Category
 open import Cubical.Foundations.HLevels
+import Cubical.Data.Equality as Eq
+
+open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation.Base
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 
 private
@@ -158,3 +161,17 @@ module _
   precomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
   precomposeFᴰ .F-idᴰ = refl
   precomposeFᴰ .F-seqᴰ fᴰ gᴰ = refl
+
+module _
+  {C : Category ℓC ℓC'} (E : Category ℓE ℓE')
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ')
+  (Fᴰ : Functorᵛ Cᴰ Dᴰ)
+  where
+  open Functorᴰ
+  open NatTransᴰ
+  precomposeFᵛ : Functorᵛ (FUNCTORᴰ Dᴰ Eᴰ) (FUNCTORᴰ Cᴰ Eᴰ)
+  precomposeFᵛ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰᵛ Fᴰ
+  precomposeFᵛ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
+  precomposeFᵛ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
+  precomposeFᵛ .F-idᴰ = refl
+  precomposeFᵛ .F-seqᴰ _ _ = refl

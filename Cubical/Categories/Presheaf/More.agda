@@ -7,7 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Constructions.Elements
@@ -82,6 +82,7 @@ module UniversalElementNotation {ℓo}{ℓh}
   open UniversalElement ue public
   open NatTrans
   open NatIso
+  open Iso
   REPR : Representation C P
   REPR = universalElementToRepresentation C P ue
 
@@ -92,15 +93,17 @@ module UniversalElementNotation {ℓo}{ℓh}
   introNI : NatIso (LiftF {ℓ' = ℓh} ∘F P) (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
   introNI = symNatIso (REPR .snd)
 
+  universalIso : ∀ (c : C .ob) → Iso (C [ c , vertex ]) ⟨ P ⟅ c ⟆ ⟩
+  universalIso c = equivToIso (_ , universal c)
+
   intro : ∀ {c} → ⟨ P ⟅ c ⟆ ⟩ → C [ c , vertex ]
-  intro p = universal _ .equiv-proof p .fst .fst
+  intro = universalIso _ .inv
 
   β : ∀ {c} → {p : ⟨ P ⟅ c ⟆ ⟩} → (element ∘ᴾ⟨ C , P ⟩ intro p) ≡ p
-  β {p = p} = universal _ .equiv-proof p .fst .snd
+  β = universalIso _ .rightInv _
 
   η : ∀ {c} → {f : C [ c , vertex ]} → f ≡ intro (element ∘ᴾ⟨ C , P ⟩ f)
-  η {f = f} = cong fst (sym (universal _ .equiv-proof (element ∘ᴾ⟨ C , P ⟩ f)
-    .snd (_ , refl)))
+  η {f = f} = sym (universalIso _ .leftInv _)
 
   weak-η : C .id ≡ intro element
   weak-η = η ∙ cong intro (∘ᴾId C P _)

@@ -15,7 +15,7 @@ import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
   variable
-    ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' : Level
+    ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -94,3 +94,47 @@ module _
 
       GF-hom : GF-hom-ty GF-ob
       GF-hom = _ , GF-hom≡FF-hom
+
+Functorᵛ : {C : Category ℓC ℓC'}
+  → Categoryᴰ C ℓCᴰ ℓCᴰ' → Categoryᴰ C ℓDᴰ ℓDᴰ'
+  → Type _
+Functorᵛ = Functorᴰ Id
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ C ℓEᴰ ℓEᴰ'}
+  (Gᴰ : Functorᵛ Dᴰ Eᴰ) (Fᴰ : Functorᵛ Cᴰ Dᴰ)
+  where
+
+  funcCompᵛ : Functorᵛ Cᴰ Eᴰ
+  funcCompᵛ = reindF' _ Eq.refl Eq.refl (Gᴰ ∘Fᴰ Fᴰ)
+
+  _∘Fᵛ_ = funcCompᵛ
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {F : Functor C D}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ D ℓEᴰ ℓEᴰ'}
+  (Gᴰ : Functorᵛ Dᴰ Eᴰ) (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+
+  funcCompᵛᴰ : Functorᴰ F Cᴰ Eᴰ
+  funcCompᵛᴰ = reindF' _ Eq.refl Eq.refl (Gᴰ ∘Fᴰ Fᴰ)
+
+  _∘Fᵛᴰ_ = funcCompᵛᴰ
+
+module _ {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
+  {G : Functor D E}
+  {Cᴰ : Categoryᴰ D ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  (Gᴰ : Functorᴰ G Dᴰ Eᴰ) (Fᴰ : Functorᵛ Cᴰ Dᴰ)
+  where
+
+  funcCompᴰᵛ : Functorᴰ G Cᴰ Eᴰ
+  funcCompᴰᵛ = reindF' _ Eq.refl Eq.refl (Gᴰ ∘Fᴰ Fᴰ)
+  _∘Fᴰᵛ_ = funcCompᴰᵛ
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  (Fᵛ : Functorᵛ Cᴰ Dᴰ)
+  where
+  open Functorᴰ
+  _^opFᵛ : Functorᵛ (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
+  _^opFᵛ = reindF' _ Eq.refl Eq.refl (Fᵛ ^opFᴰ)

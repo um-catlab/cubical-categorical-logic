@@ -78,7 +78,7 @@ module LiftedBinProductsNotation
           → Cᴰ.Hom[ f₁ ][ d , d₁ ] → Cᴰ.Hom[ f₂ ][ d , d₂ ]
           → Cᴰ.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]
     _,pᴰ_{f₁ = f₁}{f₂ = f₂} f₁ᴰ f₂ᴰ =
-      UED.universalᴰ (f₁ ,p f₂) .inv _ (f₁ᴰ , f₂ᴰ)
+      UED.universalᴰ .inv _ (f₁ᴰ , f₂ᴰ)
 
     module _ {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
              {f₁ᴰ : Cᴰ.Hom[ f₁ ][ d , d₁ ]}
@@ -86,7 +86,7 @@ module LiftedBinProductsNotation
            where
       open isIsoOver
       private
-        ,pᴰ-isUniversalᴰ = bpᴰ (d₁ , d₂) .universalᴰ {xᴰ = d}(f₁ ,p f₂)
+        ,pᴰ-isUniversalᴰ = bpᴰ (d₁ , d₂) .universalᴰ {xᴰ = d}
       ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
       ×β₁ᴰ i = UED.βᴰ {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
 
@@ -111,12 +111,12 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       module vbp = UniversalElementᵛ vbp
 
     vert : Cᴰ.ob[ c ]
-    vert = vbp .vertexᴰ
+    vert = vbp .vertexᵛ
 
     -- shorthand for terminal vertical cone
     π₁₂ :
       Cᴰ.Hom[ C .id ][ vert , cᴰ ] × Cᴰ.Hom[ C .id ][ vert , cᴰ' ]
-    π₁₂ = vbp .elementᴰ
+    π₁₂ = vbp .elementᵛ
     π₁ = π₁₂ .fst
     π₂ = π₁₂ .snd
 
@@ -126,16 +126,16 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
         Cᴰ.Hom[ f ][ xᴰ , vert ]
       (fᴰ ,ᵛ fᴰ') = vbp.introᵛ _ (fᴰ , fᴰ')
 
-      βᵛ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+      ×βᵛ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
         → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
         → seqᴰᵛ Cᴰ (fᴰ ,ᵛ fᴰ') π₁ ≡ fᴰ
-      βᵛ₁ = cong fst (vbp.βᵛ {pᴰ = fᴰ , fᴰ'})
+      ×βᵛ₁ = cong fst vbp.βᵛ
 
-      βᵛ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+      ×βᵛ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
         → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
         → seqᴰᵛ Cᴰ (fᴰ ,ᵛ fᴰ') π₂ ≡ fᴰ'
-      βᵛ₂ = cong snd (vbp.βᵛ)
+      ×βᵛ₂ = cong snd vbp.βᵛ
 
-      ηᴰ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]} →
-         fᴰ ≡ ((seqᴰᵛ Cᴰ fᴰ π₁) ,ᵛ ((seqᴰᵛ Cᴰ fᴰ π₂)))
-      ηᴰ = vbp.ηᵛ
+      ×ηᵛ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
+        → fᴰ ≡ (seqᴰᵛ Cᴰ fᴰ π₁ ,ᵛ seqᴰᵛ Cᴰ fᴰ π₂)
+      ×ηᵛ = vbp.ηᵛ

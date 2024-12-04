@@ -48,11 +48,11 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     field
       vertexᴰ : ob[ vertex ]
       elementᴰ : ⟨ Pᴰ .F-obᴰ vertexᴰ element ⟩
-      universalᴰ : ∀ {x xᴰ}(f : C [ x , vertex ]) →
+      universalᴰ : ∀ {x xᴰ} →
         isIsoOver (equivToIso (_ , (universal x)))
           Hom[_][ xᴰ , vertexᴰ ]
           (λ p → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩)
-          λ _ fᴰ → F-homᴰ Pᴰ fᴰ element elementᴰ
+          λ f fᴰ → Pᴰ .F-homᴰ fᴰ element elementᴰ
 
   module UniversalElementᴰNotation {ue : UniversalElement C P}
     (ueᴰ : UniversalElementᴰ ue) where
@@ -65,17 +65,17 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
       → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩
       → D [ intro p ][ xᴰ , vertexᴰ ]
-    introᴰ p pᴰ = universalᴰ (intro p) .inv p pᴰ
+    introᴰ p pᴰ = universalᴰ .inv p pᴰ
 
     βᴰ : ∀ {x xᴰ} {p : ⟨ P ⟅ x ⟆ ⟩} {pᴰ : ⟨ Pᴰ .F-obᴰ xᴰ p ⟩}
        → PathP (λ i → ⟨ Pᴰ .F-obᴰ xᴰ (β {p = p} i) ⟩)
            (Pᴰ .F-homᴰ (introᴰ p pᴰ) element elementᴰ)
            pᴰ
-    βᴰ = universalᴰ _ .rightInv _ _
+    βᴰ = universalᴰ .rightInv _ _
 
     ηᴰ : ∀ {x xᴰ} {f : C [ x , vertex ]} {fᴰ : D [ f ][ xᴰ , vertexᴰ ]}
        → fᴰ D.≡[ η {f = f} ] introᴰ _ (F-homᴰ Pᴰ fᴰ element elementᴰ)
-    ηᴰ = symP (universalᴰ _ .leftInv _ _)
+    ηᴰ = symP (universalᴰ .leftInv _ _)
 
 
 -- A vertical presheaf is a displayed presheaf over a representable
@@ -101,20 +101,20 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') ℓPᴰ) where
     open Categoryᴰ D
     field
-      vertexᴰ : ob[ x ]
-      elementᴰ : ⟨ Pᴰ .F-obᴰ vertexᴰ (C .id) ⟩
-      universalᴰ : ∀ {y yᴰ}(f : C [ y , x ]) →
-        isIso λ (fᴰ : D [ f ][ yᴰ , vertexᴰ ]) → actᵛ Pᴰ fᴰ elementᴰ
+      vertexᵛ : ob[ x ]
+      elementᵛ : ⟨ Pᴰ .F-obᴰ vertexᵛ (C .id) ⟩
+      universalᵛ : ∀ {y yᴰ}{f : C [ y , x ]} →
+        isIso λ (fᴰ : D [ f ][ yᴰ , vertexᵛ ]) → actᵛ Pᴰ fᴰ elementᵛ
 
     introᵛ : ∀ {y yᴰ} (f : C [ y , x ])
       → ⟨ Pᴰ .F-obᴰ yᴰ f ⟩
-      → D [ f ][ yᴰ , vertexᴰ ]
-    introᵛ f = universalᴰ f .fst
+      → D [ f ][ yᴰ , vertexᵛ ]
+    introᵛ f = universalᵛ .fst
 
     βᵛ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : ⟨ Pᴰ .F-obᴰ yᴰ f ⟩}
-      → actᵛ Pᴰ (introᵛ f pᴰ) elementᴰ ≡ pᴰ
-    βᵛ = universalᴰ _ .snd .fst _
+      → actᵛ Pᴰ (introᵛ f pᴰ) elementᵛ ≡ pᴰ
+    βᵛ = universalᵛ .snd .fst _
 
-    ηᵛ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : D [ f ][ yᴰ , vertexᴰ ]}
-      → fᴰ ≡ introᵛ f (actᵛ Pᴰ fᴰ elementᴰ)
-    ηᵛ = sym (universalᴰ _ .snd .snd _)
+    ηᵛ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : D [ f ][ yᴰ , vertexᵛ ]}
+      → fᴰ ≡ introᵛ f (actᵛ Pᴰ fᴰ elementᵛ)
+    ηᵛ = sym (universalᵛ .snd .snd _)

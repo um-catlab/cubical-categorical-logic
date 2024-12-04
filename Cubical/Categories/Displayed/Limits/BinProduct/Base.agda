@@ -65,20 +65,18 @@ module LiftedBinProductsNotation
   _×ᴰ_ d₁ d₂ = bpᴰ (d₁ , d₂) .vertexᴰ
 
   module _ {c₁ c₂} {d₁ : Cᴰ.ob[ c₁ ]} {d₂ : Cᴰ.ob[ c₂ ]} where
-    private
-      module UED = UniversalElementᴰNotation Cᴰ _ (bpᴰ (d₁ , d₂))
 
     π₁ᴰ : Cᴰ.Hom[ π₁ ][ d₁ ×ᴰ d₂ , d₁ ]
-    π₁ᴰ = UED.elementᴰ .fst
+    π₁ᴰ = bpᴰ (d₁ , d₂) .elementᴰ .fst
 
     π₂ᴰ : Cᴰ.Hom[ π₂ ][ d₁ ×ᴰ d₂ , d₂ ]
-    π₂ᴰ = UED.elementᴰ .snd
+    π₂ᴰ = bpᴰ (d₁ , d₂) .elementᴰ .snd
 
     _,pᴰ_ : {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
           → Cᴰ.Hom[ f₁ ][ d , d₁ ] → Cᴰ.Hom[ f₂ ][ d , d₂ ]
           → Cᴰ.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]
     _,pᴰ_{f₁ = f₁}{f₂ = f₂} f₁ᴰ f₂ᴰ =
-      UED.universalᴰ .inv _ (f₁ᴰ , f₂ᴰ)
+      introᴰ (bpᴰ (d₁ , d₂)) _ (f₁ᴰ , f₂ᴰ)
 
     module _ {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
              {f₁ᴰ : Cᴰ.Hom[ f₁ ][ d , d₁ ]}
@@ -88,16 +86,16 @@ module LiftedBinProductsNotation
       private
         ,pᴰ-isUniversalᴰ = bpᴰ (d₁ , d₂) .universalᴰ {xᴰ = d}
       ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
-      ×β₁ᴰ i = UED.βᴰ {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
+      ×β₁ᴰ i = βᴰ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
 
       ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) Cᴰ.≡[ ×β₂ ] f₂ᴰ
-      ×β₂ᴰ i = UED.βᴰ {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
+      ×β₂ᴰ i = βᴰ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
 
     module _ {f : C [ c , c₁ BP.× c₂ ]}
              {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
            where
       ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
-      ×ηᴰ = UED.ηᴰ
+      ×ηᴰ = ηᴰ (bpᴰ (d₁ , d₂))
 
 module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private

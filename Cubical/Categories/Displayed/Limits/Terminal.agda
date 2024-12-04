@@ -65,11 +65,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     𝟙ᴰ = termᴰ .vertexᴰ
 
     !tᴰ : ∀ {c} (d : Cᴰ.ob[ c ]) → Cᴰ.Hom[ !t ][ d , 𝟙ᴰ ]
-    !tᴰ {c} d = termᴰ .universalᴰ !t .inv tt tt
+    !tᴰ {c} d = introᴰ termᴰ tt tt
 
     𝟙ηᴰ : ∀ {c} {d : Cᴰ.ob[ c ]} {f} (fᴰ : Cᴰ.Hom[ f ][ d , 𝟙ᴰ ])
         → fᴰ Cᴰ.≡[ 𝟙η f ] !tᴰ d
-    𝟙ηᴰ {c} {d} {f} fᴰ = symP (termᴰ .universalᴰ !t .leftInv f fᴰ)
+    𝟙ηᴰ {c} {d} {f} fᴰ = ηᴰ termᴰ
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object
@@ -93,7 +93,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       1ᴰ = vt .vertexᴰ
 
       !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) → Cᴰ [ f ][ d' , 1ᴰ ]
-      !tᴰ f d' = vt .universalᴰ f .inv f tt
+      !tᴰ f d' = introᴰ vt f tt
 
       -- !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) →
       --   isContr (Cᴰ [ f ][ d' , 1ᴰ ])
@@ -113,14 +113,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     Vertical/𝟙→LiftedTerm : VerticalTerminalAt 𝟙 → LiftedTerminal term
     Vertical/𝟙→LiftedTerm vta .vertexᴰ = vta .vertexᴰ
     Vertical/𝟙→LiftedTerm vta .elementᴰ = vta .elementᴰ
-    Vertical/𝟙→LiftedTerm vta .universalᴰ _ .inv _ _ =
-      vta .universalᴰ !t .inv _ _
-    Vertical/𝟙→LiftedTerm vta .universalᴰ _ .rightInv _ _ = refl
-    Vertical/𝟙→LiftedTerm vta .universalᴰ x .leftInv  f fᴰ =
+    Vertical/𝟙→LiftedTerm vta .universalᴰ .inv _ _ =
+      vta .universalᴰ .inv _ _
+    Vertical/𝟙→LiftedTerm vta .universalᴰ .rightInv _ _ = refl
+    Vertical/𝟙→LiftedTerm vta .universalᴰ .leftInv  f fᴰ =
       R.rectify (R.≡out
         (ΣPathP (_ ,
-          λ i → vta .universalᴰ !t .inv (𝟙η (f ⋆⟨ C ⟩ C .id) (~ i)) tt)
-        ∙ ΣPathP (_ , vta .universalᴰ !t .leftInv f fᴰ)))
+          λ i → vta .universalᴰ .inv (𝟙η (f ⋆⟨ C ⟩ C .id) (~ i)) tt)
+        ∙ ΣPathP (_ , vta .universalᴰ .leftInv f fᴰ)))
 
     AllVertical→Vertical/𝟙 : VerticalTerminals → LiftedTerminal term
     AllVertical→Vertical/𝟙 vtas = Vertical/𝟙→LiftedTerm (vtas _)

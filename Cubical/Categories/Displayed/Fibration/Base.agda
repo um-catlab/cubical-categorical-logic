@@ -75,7 +75,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   isFibration =
     ∀ {c : C .ob}{c' : C .ob}
     (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
-    → CartesianOver cᴰ' f
+    → CartesianLift cᴰ' f
 -- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --   {F : Functor C D}
 --   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

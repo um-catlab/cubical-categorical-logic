@@ -43,7 +43,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
 
   record UniversalElementᴰ (ue : UniversalElement C P)
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max ℓP ℓPᴰ)) where
-    open UniversalElement ue
+    open UniversalElementNotation ue
     open Categoryᴰ D
     field
       vertexᴰ : ob[ vertex ]
@@ -53,28 +53,21 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           Hom[_][ xᴰ , vertexᴰ ]
           (λ p → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩)
           λ f fᴰ → Pᴰ .F-homᴰ fᴰ element elementᴰ
-
-  module UniversalElementᴰNotation {ue : UniversalElement C P}
-    (ueᴰ : UniversalElementᴰ ue) where
-    open UniversalElementᴰ ueᴰ public
-    open UniversalElementNotation ue
     open isIsoOver
-    private
-      module D = Categoryᴰ D
 
     introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
-      → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩
-      → D [ intro p ][ xᴰ , vertexᴰ ]
+        → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩
+        → D [ intro p ][ xᴰ , vertexᴰ ]
     introᴰ p pᴰ = universalᴰ .inv p pᴰ
 
     βᴰ : ∀ {x xᴰ} {p : ⟨ P ⟅ x ⟆ ⟩} {pᴰ : ⟨ Pᴰ .F-obᴰ xᴰ p ⟩}
-       → PathP (λ i → ⟨ Pᴰ .F-obᴰ xᴰ (β {p = p} i) ⟩)
-           (Pᴰ .F-homᴰ (introᴰ p pᴰ) element elementᴰ)
-           pᴰ
+         → PathP (λ i → ⟨ Pᴰ .F-obᴰ xᴰ (β {p = p} i) ⟩)
+             (Pᴰ .F-homᴰ (introᴰ p pᴰ) element elementᴰ)
+             pᴰ
     βᴰ = universalᴰ .rightInv _ _
 
     ηᴰ : ∀ {x xᴰ} {f : C [ x , vertex ]} {fᴰ : D [ f ][ xᴰ , vertexᴰ ]}
-       → fᴰ D.≡[ η {f = f} ] introᴰ _ (F-homᴰ Pᴰ fᴰ element elementᴰ)
+         → fᴰ ≡[ η {f = f} ] introᴰ _ (F-homᴰ Pᴰ fᴰ element elementᴰ)
     ηᴰ = symP (universalᴰ .leftInv _ _)
 
 

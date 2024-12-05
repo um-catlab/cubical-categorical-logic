@@ -33,9 +33,6 @@ private
 
 open Category
 open Functor
-open UniversalElement
-open UniversalElementᴰ
-open UniversalElementᵛ
 open CartesianLift
 
 module _

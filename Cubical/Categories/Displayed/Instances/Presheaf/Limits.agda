@@ -35,8 +35,7 @@ open Functor
 open NatTrans
 open Contravariant
 open Categoryᴰ
-open UniversalElementᴰ
-open UniversalElementᵛ
+open UniversalElementⱽ
 open isIsoOver
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
@@ -45,29 +44,27 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   private
     module 𝓟ᴰ = Categoryᴰ (PRESHEAFᴰ C ℓS ℓSᴰ)
   opaque
-    hasVerticalTerminals : VerticalTerminals (PRESHEAFᴰ C ℓS ℓSᴰ)
-    hasVerticalTerminals P .vertexᴰ = ⊤𝓟 (∫ᴾ P) ℓSᴰ .fst
-    hasVerticalTerminals P .elementᴰ = tt
-    hasVerticalTerminals P .universalᴰ .inv α tt = natTrans (λ x₁ _ → tt*) (λ _ → refl)
-    hasVerticalTerminals P .universalᴰ .rightInv _ _ = refl
-    hasVerticalTerminals P .universalᴰ .leftInv α αᴰ =
-      makeNatTransPathP _ _ refl
+    hasAllTerminalⱽPRESHEAFᴰ : hasAllTerminalⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
+    hasAllTerminalⱽPRESHEAFᴰ P .vertexⱽ = ⊤𝓟 (∫ᴾ P) ℓSᴰ .fst
+    hasAllTerminalⱽPRESHEAFᴰ P .elementⱽ = tt
+    hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .fst x = natTrans (λ _ _ → tt*) (λ _ → refl)
+    hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .snd .fst _ = refl
+    hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .snd .snd a = makeNatTransPathP refl refl refl
 
-
-    hasVerticalProducts : VerticalBinProducts (PRESHEAFᴰ C ℓS ℓSᴰ)
-    hasVerticalProducts (Pᴰ , Pᴰ') .vertexᵛ = ×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdOb
-    hasVerticalProducts (Pᴰ , Pᴰ') .elementᵛ =
+    hasAllBinProductⱽPRESHEAFᴰ : hasAllBinProductⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
+    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .vertexⱽ = ×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdOb
+    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .elementⱽ =
       (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _))
       , (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _))
-    hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .fst (id∘αᴰ , id∘αᴰ') = natTrans
+    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ .fst (id∘αᴰ , id∘αᴰ') = natTrans
       (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
       λ (f , f-comm) → funExt λ q → ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
-    hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .snd .fst (id∘αᴰ , id∘αᴰ') =
+    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ .snd .fst (id∘αᴰ , id∘αᴰ') =
       ΣPathP
        ( makeNatTransPath (sym (transport-filler _ _))
        , makeNatTransPath (sym (transport-filler _ _)))
   -- may god forgive me for this "proof"
-    hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ {y = Q}{yᴰ = Qᴾ}{f = α} .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
+    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ {y = Q}{yᴰ = Qᴾ}{f = α} .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
       ΣPathP
       (
       fromPathP

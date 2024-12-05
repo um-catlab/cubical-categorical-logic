@@ -82,9 +82,9 @@ module _ (Ob : Type ℓg) where
     FreeCatw/Terminal' = (FC , FCTerminal')
 
     module _ (Cᴰ : Categoryᴰ (FreeCatw/Terminal' .fst) ℓCᴰ ℓCᴰ')
-      (term'ᴰ : LiftedTerminal Cᴰ (FreeCatw/Terminal' .snd)) where
+      (term'ᴰ : Terminalᴰ Cᴰ (FreeCatw/Terminal' .snd)) where
 
-      open LiftedTerminalNotation Cᴰ term'ᴰ
+      open TerminalᴰNotation Cᴰ term'ᴰ
 
       private
         module FC = Category (FreeCatw/Terminal' .fst)
@@ -132,19 +132,19 @@ module _ (Ob : Type ℓg) where
       {D : Category ℓD ℓD'}
       (F : Functor FC D)
       (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
-      (term'ᴰ : VerticalTerminalAt Dᴰ (F ⟅ inr _ ⟆))
+      (term'ᴰ : Terminalⱽ Dᴰ (F ⟅ inr _ ⟆))
       where
       private
         module Dᴰ = Categoryᴰ Dᴰ
-        open VerticalTerminalAtNotation _ _ term'ᴰ
+        open TerminalⱽNotation _ _ term'ᴰ
       module _ (ϕ : ∀ o → Dᴰ.ob[ F ⟅ inl o ⟆ ]) where
         private
           ϕ* : ∀ v → Dᴰ.ob[ F ⟅ v ⟆ ]
-          ϕ* = Sum.elim ϕ λ _ → 1ᴰ
+          ϕ* = Sum.elim ϕ λ _ → 𝟙ⱽ
         module _ (ψ : ∀ e → Dᴰ.Hom[ F ⟪ ↑ e ⟫ ][ ϕ* _ , ϕ* _ ]) where
           elimLocal : Section F Dᴰ
           elimLocal = GlobalSectionReindex→Section _ _
-            (elim _ (Vertical/𝟙→LiftedTerm _ (preservesVerticalTerminal _ term'ᴰ)) ϕ ψ)
+            (elim _ (Terminalⱽ→Terminalᴰ _ (preservesTerminalⱽ _ term'ᴰ)) ϕ ψ)
 
     module _ (D : Category ℓD ℓD')
              (term' : Terminal' D)

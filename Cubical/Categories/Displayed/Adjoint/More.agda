@@ -54,23 +54,23 @@ RightAdjointᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
               → Type _
 RightAdjointᴰ Fᴰ R = ∀ {d} dᴰ → RightAdjointAtᴰ Fᴰ (R d) dᴰ
 
-RightAdjointProfᵛ : {C : Category ℓC ℓC'}
+RightAdjointProfⱽ : {C : Category ℓC ℓC'}
                   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-                  (Fᵛ : Functorᵛ Cᴰ Dᴰ)
+                  (Fⱽ : Functorⱽ Cᴰ Dᴰ)
   → Functorᴰ (YO {C = C}) Dᴰ (FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓC' ℓDᴰ'))
-RightAdjointProfᵛ Fᵛ = precomposeFᵛ _ _ (Fᵛ ^opFᵛ) ∘Fᵛᴰ YOᴰ
+RightAdjointProfⱽ Fⱽ = precomposeFⱽ _ _ (Fⱽ ^opFⱽ) ∘Fⱽᴰ YOᴰ
 
 VerticalRightAdjointAtᴰ : {C : Category ℓC ℓC'}
                      {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-                     (Fᵛ : Functorᵛ Cᴰ Dᴰ)
+                     (Fⱽ : Functorⱽ Cᴰ Dᴰ)
                      {c : C .ob}
                      (dᴰ : Categoryᴰ.ob[_] Dᴰ c)
                      → Type _
-VerticalRightAdjointAtᴰ {Cᴰ = Cᴰ} Fᵛ {c} dᴰ =
-  UniversalElementᵛ Cᴰ c (RightAdjointProfᵛ Fᵛ .F-obᴰ dᴰ)
+VerticalRightAdjointAtᴰ {Cᴰ = Cᴰ} Fⱽ {c} dᴰ =
+  UniversalElementⱽ Cᴰ c (RightAdjointProfⱽ Fⱽ .F-obᴰ dᴰ)
 
 VerticalRightAdjointᴰ : {C : Category ℓC ℓC'}
                      {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-                     (Fᵛ : Functorᵛ Cᴰ Dᴰ)
+                     (Fⱽ : Functorⱽ Cᴰ Dᴰ)
                    → Type _
-VerticalRightAdjointᴰ Fᵛ = ∀ {x} xᴰ → VerticalRightAdjointAtᴰ Fᵛ {x} xᴰ
+VerticalRightAdjointᴰ Fⱽ = ∀ {x} xᴰ → VerticalRightAdjointAtᴰ Fⱽ {x} xᴰ

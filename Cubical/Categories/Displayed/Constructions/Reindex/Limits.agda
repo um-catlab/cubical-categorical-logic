@@ -36,7 +36,7 @@ open Category
 open Functor
 open UniversalElement
 open UniversalElementᴰ
-open UniversalElementᵛ
+open UniversalElementⱽ
 open CartesianLift
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -51,47 +51,43 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module R = HomᴰReasoning Dᴰ
     module F*Dᴰ = Categoryᴰ F*Dᴰ
     module Dᴰ = Categoryᴰ Dᴰ
-  preservesVerticalTerminal :
-    ∀ c → VerticalTerminalAt Dᴰ (F ⟅ c ⟆)
-    → VerticalTerminalAt (Base.reindex Dᴰ F) c
-  preservesVerticalTerminal c 𝟙ᴰ .vertexᴰ = 𝟙ᴰ .vertexᴰ
-  preservesVerticalTerminal c 𝟙ᴰ .elementᴰ = 𝟙ᴰ .elementᴰ
-  preservesVerticalTerminal c 𝟙ᴰ .universalᴰ .inv f _ = introᴰ 𝟙ᴰ (F ⟪ f ⟫) _
-  preservesVerticalTerminal c 𝟙ᴰ .universalᴰ .rightInv _ _ = refl
-  preservesVerticalTerminal c 𝟙ᴰ .universalᴰ {xᴰ = xᴰ} .leftInv f F⟪f⟫ᴰ = R.rectify $ R.≡out $
-    (R.≡in $ congP (λ _ F⟪f⟫ → universalᴰ 𝟙ᴰ {xᴰ = xᴰ} .inv  F⟪f⟫ tt)
-      (F .F-seq _ _ ∙ D.⟨ refl ⟩⋆⟨ F .F-id ⟩))
-    ∙ sym (R.≡in $ ηᴰ 𝟙ᴰ)
+  -- this definition cannot be η-contracted
+  preservesTerminalⱽ :
+    ∀ c → Terminalⱽ Dᴰ (F ⟅ c ⟆)
+    → Terminalⱽ (Base.reindex Dᴰ F) c
+  preservesTerminalⱽ c 𝟙ᴰ .vertexⱽ = 𝟙ᴰ .vertexⱽ
+  preservesTerminalⱽ c 𝟙ᴰ .elementⱽ = 𝟙ᴰ .elementⱽ
+  preservesTerminalⱽ c 𝟙ᴰ .universalⱽ = 𝟙ᴰ .universalⱽ
 
-  hasVerticalTerminals : VerticalTerminals Dᴰ →
-    VerticalTerminals (Base.reindex Dᴰ F)
-  hasVerticalTerminals vtms c = preservesVerticalTerminal c (vtms (F ⟅ c ⟆))
+  hasAllTerminalⱽReindex : hasAllTerminalⱽ Dᴰ →
+    hasAllTerminalⱽ (Base.reindex Dᴰ F)
+  hasAllTerminalⱽReindex vtms c = preservesTerminalⱽ c (vtms (F ⟅ c ⟆))
 
   module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
-    (vbp : VerticalBinProductsAt Dᴰ (Fcᴰ , Fcᴰ')) where
+    (vbp : BinProductⱽ Dᴰ (Fcᴰ , Fcᴰ')) where
     private
-      module Fcᴰ∧Fcᴰ' = VerticalBinProductsAtNotation vbp
+      module Fcᴰ∧Fcᴰ' = BinProductⱽNotation vbp
 
-    preservesVerticalBinProd : VerticalBinProductsAt (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
-    preservesVerticalBinProd .vertexᵛ = vbp .vertexᵛ
-    preservesVerticalBinProd .elementᵛ .fst = R.reind (sym $ F .F-id) $ vbp .elementᵛ .fst
-    preservesVerticalBinProd .elementᵛ .snd = R.reind (sym $ F .F-id) $ vbp .elementᵛ .snd
-    preservesVerticalBinProd .universalᵛ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ᵛ fᴰ₂
-    preservesVerticalBinProd .universalᵛ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
+    preservesBinProductⱽ : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
+    preservesBinProductⱽ .vertexⱽ = vbp .vertexⱽ
+    preservesBinProductⱽ .elementⱽ .fst = R.reind (sym $ F .F-id) $ vbp .elementⱽ .fst
+    preservesBinProductⱽ .elementⱽ .snd = R.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
+    preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
+    preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
       ( (R.rectify $ R.≡out $
         (sym $ R.reind-filler _ _)
         ∙ (sym $ R.reind-filler _ _)
         ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
         ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βᵛ₁ {fᴰ' = fᴰ₂}))
+        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₁ {fᴰ' = fᴰ₂}))
       , (R.rectify $ R.≡out $
         (sym $ R.reind-filler _ _)
         ∙ (sym $ R.reind-filler _ _)
         ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
         ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βᵛ₂ {fᴰ = fᴰ₁})))
-    preservesVerticalBinProd .universalᵛ .snd .snd fᴰ = R.rectify $ R.≡out $
-      (R.≡in $ congP₂ (λ _ → Fcᴰ∧Fcᴰ'._,ᵛ_)
+        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₂ {fᴰ = fᴰ₁})))
+    preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = R.rectify $ R.≡out $
+      (R.≡in $ congP₂ (λ _ → Fcᴰ∧Fcᴰ'._,ⱽ_)
         (R.≡out $
           (sym $ R.reind-filler _ _)
           ∙ (sym $ R.reind-filler _ _)
@@ -102,12 +98,12 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
           ∙ (sym $ R.reind-filler _ _)
           ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
           ∙ R.reind-filler _ _))
-      ∙ sym (R.≡in $ Fcᴰ∧Fcᴰ'.×ηᵛ)
+      ∙ sym (R.≡in $ Fcᴰ∧Fcᴰ'.×ηⱽ)
 
-  hasVerticalBinProds : VerticalBinProducts Dᴰ →
-    VerticalBinProducts (Base.reindex Dᴰ F)
-  hasVerticalBinProds vps Fcᴰ×Fcᴰ' =
-    preservesVerticalBinProd (vps Fcᴰ×Fcᴰ')
+  hasAllBinProductⱽReindex : hasAllBinProductⱽ Dᴰ →
+    hasAllBinProductⱽ (Base.reindex Dᴰ F)
+  hasAllBinProductⱽReindex vps Fcᴰ×Fcᴰ' =
+    preservesBinProductⱽ (vps Fcᴰ×Fcᴰ')
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)
@@ -116,8 +112,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 
   isCartesianⱽReindex : isCartesianⱽ (Base.reindex (Dᴰ .fst) F)
   isCartesianⱽReindex .fst = isFibrationReindex (Dᴰ .fst) F (Dᴰ .snd .fst)
-  isCartesianⱽReindex .snd .fst = hasVerticalTerminals (Dᴰ .snd .snd .fst)
-  isCartesianⱽReindex .snd .snd = hasVerticalBinProds (Dᴰ .snd .snd .snd)
+  isCartesianⱽReindex .snd .fst = hasAllTerminalⱽReindex (Dᴰ .snd .snd .fst)
+  isCartesianⱽReindex .snd .snd = hasAllBinProductⱽReindex (Dᴰ .snd .snd .snd)
 
   reindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
   reindex = Base.reindex (Dᴰ .fst) F , isCartesianⱽReindex

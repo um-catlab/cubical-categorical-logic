@@ -33,7 +33,7 @@ private
     ℓC ℓC' ℓD ℓD' : Level
 
 open UniversalElementᴰ
-open UniversalElementᵛ
+open UniversalElementⱽ
 open CartesianLift
 open Categoryᴰ
 open isIsoOver
@@ -45,24 +45,24 @@ isFibrationSETᴰ cᴰ' f .isCartesian .fst = λ z₁ → z₁
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .fst _ = refl
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .snd _ = refl
 
-hasVerticalTerminals : VerticalTerminals (SETᴰ ℓ ℓ')
-hasVerticalTerminals A .vertexᴰ a = Unit* , isSetUnit*
-hasVerticalTerminals A .elementᴰ = tt
-hasVerticalTerminals A .universalᴰ .inv = λ a _ x₁ _ → tt*
-hasVerticalTerminals A .universalᴰ .rightInv b q = refl
-hasVerticalTerminals A .universalᴰ .leftInv a p = refl
+hasVerticalTerminals : hasAllTerminalⱽ (SETᴰ ℓ ℓ')
+hasVerticalTerminals A .vertexⱽ a = Unit* , isSetUnit*
+hasVerticalTerminals A .elementⱽ = tt
+hasVerticalTerminals A .universalⱽ .fst = λ _ x _ → tt*
+hasVerticalTerminals A .universalⱽ .snd .fst b = refl
+hasVerticalTerminals A .universalⱽ .snd .snd a = refl
 
-hasVerticalBinProds : VerticalBinProducts (SETᴰ ℓ ℓ')
-hasVerticalBinProds {x = A} (Aᴰ₁ , Aᴰ₂) .vertexᵛ a =
+hasVerticalBinProds : hasAllBinProductⱽ (SETᴰ ℓ ℓ')
+hasVerticalBinProds {x = A} (Aᴰ₁ , Aᴰ₂) .vertexⱽ a =
   (⟨ Aᴰ₁ a ⟩ × ⟨ Aᴰ₂ a ⟩) , (isSet× (Aᴰ₁ a .snd) (Aᴰ₂ a .snd))
-hasVerticalBinProds (A₁ , A₂) .elementᵛ = (λ x₁ z → z .fst) , (λ x₁ z → z .snd)
-hasVerticalBinProds (A₁ , A₂) .universalᵛ .fst x x₁ x₂ = x .fst x₁ x₂ , x .snd x₁ x₂
+hasVerticalBinProds (A₁ , A₂) .elementⱽ = (λ x₁ z → z .fst) , (λ x₁ z → z .snd)
+hasVerticalBinProds (A₁ , A₂) .universalⱽ .fst x x₁ x₂ = x .fst x₁ x₂ , x .snd x₁ x₂
 -- sad transportRefl here
-hasVerticalBinProds (A₁ , A₂) .universalᵛ .snd .fst b = sym (transport-filler _ _)
+hasVerticalBinProds (A₁ , A₂) .universalⱽ .snd .fst b = sym (transport-filler _ _)
 -- the transports here are caused by the fact that vertical composition is defined using reindexing :/
 -- the only way to avoid this would be to "fatten" the definition of displayed categories to include the "redundant" vertical and heterogeneous compositions
 -- then in the case of nice examples like SETᴰ (and possibly PRESHEAFᴰ) we would get that there is no transport required
-hasVerticalBinProds (A₁ , A₂) .universalᵛ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a = funExt₂ λ b bᴰ →
+hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a = funExt₂ λ b bᴰ →
   ΣPathP
    ( fromPathP {A = λ i₁ → fst (A₁ (f (transp (λ j → fst B) i₁ b)))} (λ i → a (transport-filler (λ _ → ⟨ B ⟩) b (~ i)) (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b))) bᴰ (~ i)) .fst)
    , fromPathP {A = λ i₁ → fst (A₂ (f (transp (λ j → fst B) i₁ b)))} (λ i → a (transport-filler (λ _ → ⟨ B ⟩) b (~ i)) (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b))) bᴰ (~ i)) .snd))

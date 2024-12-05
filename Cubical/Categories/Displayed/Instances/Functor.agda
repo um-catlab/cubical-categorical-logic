@@ -165,13 +165,13 @@ module _
 module _
   {C : Category ℓC ℓC'} (E : Category ℓE ℓE')
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ')
-  (Fᴰ : Functorᵛ Cᴰ Dᴰ)
+  (Fᴰ : Functorⱽ Cᴰ Dᴰ)
   where
   open Functorᴰ
   open NatTransᴰ
-  precomposeFᵛ : Functorᵛ (FUNCTORᴰ Dᴰ Eᴰ) (FUNCTORᴰ Cᴰ Eᴰ)
-  precomposeFᵛ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰᵛ Fᴰ
-  precomposeFᵛ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
-  precomposeFᵛ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
-  precomposeFᵛ .F-idᴰ = refl
-  precomposeFᵛ .F-seqᴰ _ _ = refl
+  precomposeFⱽ : Functorⱽ (FUNCTORᴰ Dᴰ Eᴰ) (FUNCTORᴰ Cᴰ Eᴰ)
+  precomposeFⱽ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰⱽ Fᴰ
+  precomposeFⱽ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
+  precomposeFⱽ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
+  precomposeFⱽ .F-idᴰ = refl
+  precomposeFⱽ .F-seqᴰ _ _ = refl

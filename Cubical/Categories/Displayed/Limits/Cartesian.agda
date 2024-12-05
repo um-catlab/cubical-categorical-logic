@@ -29,8 +29,8 @@ private
 CartesianCategoryᴰ : CartesianCategory ℓC ℓC' → (ℓCᴰ ℓCᴰ' : Level) → Type _
 CartesianCategoryᴰ (C , term , bps) ℓCᴰ ℓCᴰ' =
   Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ]
-  LiftedTerminal Cᴰ term'
-  × LiftedBinProducts Cᴰ bps'
+  Terminalᴰ Cᴰ term'
+  × hasAllBinProductᴰ Cᴰ bps'
   where
   term' : _
   term' = terminalToUniversalElement term
@@ -39,7 +39,7 @@ CartesianCategoryᴰ (C , term , bps) ℓCᴰ ℓCᴰ' =
   bps' = BinProductsToBinProducts' C bps
 
 isCartesianⱽ : ∀ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') → Type _
-isCartesianⱽ Cᴰ = isFibration Cᴰ × VerticalTerminals Cᴰ × VerticalBinProducts Cᴰ
+isCartesianⱽ Cᴰ = isFibration Cᴰ × hasAllTerminalⱽ Cᴰ × hasAllBinProductⱽ Cᴰ
 
 CartesianCategoryⱽ : Category ℓC ℓC' → (ℓCᴰ ℓCᴰ' : Level) → Type _
 CartesianCategoryⱽ C ℓCᴰ ℓCᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ] isCartesianⱽ Cᴰ
@@ -51,8 +51,8 @@ CartesianCategoryⱽ→CartesianCategoryᴰ :
   → CartesianCategoryᴰ C ℓCᴰ ℓCᴰ'
 CartesianCategoryⱽ→CartesianCategoryᴰ (C , term , bp) (Cᴰ , isFibCᴰ , termⱽ , bpⱽ) =
   Cᴰ
-  , Vertical/𝟙→LiftedTerm Cᴰ (termⱽ _)
-  , λ (xᴰ , yᴰ) → Vertical→LiftedBinProduct (BinProductsToBinProducts' C bp _)
+  , Terminalⱽ→Terminalᴰ Cᴰ (termⱽ _)
+  , λ (xᴰ , yᴰ) → BinProductⱽ→BinProductᴰ (BinProductsToBinProducts' C bp _)
       Cᴰ
       (isFibCᴰ _ _)
       (isFibCᴰ _ _)

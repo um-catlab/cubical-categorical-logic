@@ -30,7 +30,7 @@ open UniversalElement
 open isIsoOver
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   module _ (termC : Terminal' C) (termD : Terminal' D) where
-    termWeaken : LiftedTerminal (weaken C D) termC
+    termWeaken : Terminalᴰ (weaken C D) termC
     termWeaken .vertexᴰ = termD .vertex
     termWeaken .elementᴰ = termD .element
     termWeaken .universalᴰ {xᴰ = d} .inv _ _ = UniversalElementNotation.intro termD _
@@ -38,7 +38,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     termWeaken .universalᴰ {xᴰ = d} .leftInv f g = sym $ UniversalElementNotation.η termD
   module _ (prodC : BinProducts' C)(prodD : BinProducts' D) where
     private module B = BinProducts'Notation prodD
-    binprodWeaken : LiftedBinProducts (weaken C D) prodC
+    binprodWeaken : hasAllBinProductᴰ (weaken C D) prodC
     binprodWeaken _ .vertexᴰ = prodD _ .vertex
     binprodWeaken _ .elementᴰ = prodD _ .element
     binprodWeaken _ .universalᴰ .inv _ (g₁ , g₂) = g₁ B.,p g₂

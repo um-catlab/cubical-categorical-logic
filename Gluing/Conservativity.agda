@@ -117,7 +117,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
   S : Section nerve (PRESHEAFᴰ FREE _ _)
   S = FCC.elimLocal _
     -- tried to put this in Presheaf.Cartesian but it hangs :/
-    (_ , (isFibrationPRESHEAFᴰ _ _ _) , PresheafLimits.hasVerticalTerminals _ _ _ , PresheafLimits.hasVerticalProducts _ _ _)
+    (_ , (isFibrationPRESHEAFᴰ _ _ _) , hasAllTerminalⱽPRESHEAFᴰ _ _ _ , hasAllBinProductⱽPRESHEAFᴰ _ _ _)
     (mkInterpᴰ
       OB
       HOM)

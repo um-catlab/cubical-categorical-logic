@@ -72,42 +72,42 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
 
 
 -- A vertical presheaf is a displayed presheaf over a representable
-VerticalPresheafᴰ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
+Presheafⱽ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           → (c : C .ob) → (ℓPᴰ : Level)
           → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC (ℓ-suc ℓC')) ℓD) ℓD')
                         (ℓ-suc ℓPᴰ))
-VerticalPresheafᴰ D c = Presheafᴰ D (YO ⟅ c ⟆)
+Presheafⱽ D c = Presheafᴰ D (YO ⟅ c ⟆)
 
-actᵛ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+actⱽ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
           → {x : C .ob} → {ℓP : Level}
-  → (Pᵛ : VerticalPresheafᴰ Cᴰ x ℓP)
+  → (Pⱽ : Presheafⱽ Cᴰ x ℓP)
   → ∀ {y}{yᴰ xᴰ} {f : C [ y , x ]}
   → Cᴰ [ f ][ yᴰ , xᴰ ]
-  → ⟨ Pᵛ .F-obᴰ xᴰ (C .id) ⟩
-  → ⟨ Pᵛ .F-obᴰ yᴰ f ⟩
-actᵛ {C = C} Pᵛ fᴰ pᵛ =
-  subst (λ f → ⟨ Pᵛ .F-obᴰ _ f ⟩) (C .⋆IdR _) (Pᵛ .F-homᴰ  fᴰ _ pᵛ)
+  → ⟨ Pⱽ .F-obᴰ xᴰ (C .id) ⟩
+  → ⟨ Pⱽ .F-obᴰ yᴰ f ⟩
+actⱽ {C = C} Pⱽ fᴰ pⱽ =
+  subst (λ f → ⟨ Pⱽ .F-obᴰ _ f ⟩) (C .⋆IdR _) (Pⱽ .F-homᴰ  fᴰ _ pⱽ)
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
-         (x : C .ob) (Pᴰ : VerticalPresheafᴰ D x ℓPᴰ) where
-  record UniversalElementᵛ
+         (x : C .ob) (Pᴰ : Presheafⱽ D x ℓPᴰ) where
+  record UniversalElementⱽ
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') ℓPᴰ) where
     open Categoryᴰ D
     field
-      vertexᵛ : ob[ x ]
-      elementᵛ : ⟨ Pᴰ .F-obᴰ vertexᵛ (C .id) ⟩
-      universalᵛ : ∀ {y yᴰ}{f : C [ y , x ]} →
-        isIso λ (fᴰ : D [ f ][ yᴰ , vertexᵛ ]) → actᵛ Pᴰ fᴰ elementᵛ
+      vertexⱽ : ob[ x ]
+      elementⱽ : ⟨ Pᴰ .F-obᴰ vertexⱽ (C .id) ⟩
+      universalⱽ : ∀ {y yᴰ}{f : C [ y , x ]} →
+        isIso λ (fᴰ : D [ f ][ yᴰ , vertexⱽ ]) → actⱽ Pᴰ fᴰ elementⱽ
 
-    introᵛ : ∀ {y yᴰ} (f : C [ y , x ])
+    introⱽ : ∀ {y yᴰ} (f : C [ y , x ])
       → ⟨ Pᴰ .F-obᴰ yᴰ f ⟩
-      → D [ f ][ yᴰ , vertexᵛ ]
-    introᵛ f = universalᵛ .fst
+      → D [ f ][ yᴰ , vertexⱽ ]
+    introⱽ f = universalⱽ .fst
 
-    βᵛ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : ⟨ Pᴰ .F-obᴰ yᴰ f ⟩}
-      → actᵛ Pᴰ (introᵛ f pᴰ) elementᵛ ≡ pᴰ
-    βᵛ = universalᵛ .snd .fst _
+    βⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : ⟨ Pᴰ .F-obᴰ yᴰ f ⟩}
+      → actⱽ Pᴰ (introⱽ f pᴰ) elementⱽ ≡ pᴰ
+    βⱽ = universalⱽ .snd .fst _
 
-    ηᵛ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : D [ f ][ yᴰ , vertexᵛ ]}
-      → fᴰ ≡ introᵛ f (actᵛ Pᴰ fᴰ elementᵛ)
-    ηᵛ = sym (universalᵛ .snd .snd _)
+    ηⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : D [ f ][ yᴰ , vertexⱽ ]}
+      → fᴰ ≡ introⱽ f (actⱽ Pᴰ fᴰ elementⱽ)
+    ηⱽ = sym (universalⱽ .snd .snd _)

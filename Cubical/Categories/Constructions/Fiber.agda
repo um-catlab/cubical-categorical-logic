@@ -56,26 +56,26 @@ module _ {C : Category ℓC ℓC'}
     hom-test : ∀ x xᴰ yᴰ → fiber x [ xᴰ , yᴰ ] ≡ Cᴰ [ C .id {x} ][ xᴰ , yᴰ ]
     hom-test x xᴰ yᴰ = refl
 
-  seqᵛᴰ : ∀ {x y}{f : C [ x , y ]}
+  seqⱽᴰ : ∀ {x y}{f : C [ x , y ]}
     {xᴰ xᴰ' yᴰ}
     → Cᴰ.Hom[ C .id ][ xᴰ' , xᴰ ]
     → Cᴰ [ f ][ xᴰ , yᴰ ]
     → Cᴰ.Hom[ f ][ xᴰ' , yᴰ ]
-  seqᵛᴰ v fᴰ = R.reind (C .⋆IdL _) (v Cᴰ.⋆ᴰ fᴰ)
+  seqⱽᴰ v fᴰ = R.reind (C .⋆IdL _) (v Cᴰ.⋆ᴰ fᴰ)
 
 
-  infixl 15 seqᵛᴰ
-  syntax seqᵛᴰ Cᴰ v fᴰ = v ⋆ᵛᴰ⟨ Cᴰ ⟩ fᴰ
+  infixl 15 seqⱽᴰ
+  syntax seqⱽᴰ Cᴰ v fᴰ = v ⋆ⱽᴰ⟨ Cᴰ ⟩ fᴰ
 
-  seqᴰᵛ : ∀ {x y}{f : C [ x , y ]}
+  seqᴰⱽ : ∀ {x y}{f : C [ x , y ]}
     {xᴰ yᴰ yᴰ'}
     → Cᴰ [ f ][ xᴰ , yᴰ ]
     → Cᴰ.Hom[ C .id ][ yᴰ , yᴰ' ]
     → Cᴰ.Hom[ f ][ xᴰ , yᴰ' ]
-  seqᴰᵛ fᴰ v = R.reind (C .⋆IdR _) (fᴰ Cᴰ.⋆ᴰ v)
+  seqᴰⱽ fᴰ v = R.reind (C .⋆IdR _) (fᴰ Cᴰ.⋆ᴰ v)
 
-  infixl 15 seqᴰᵛ
-  syntax seqᴰᵛ Cᴰ fᴰ v = fᴰ ⋆ᴰᵛ⟨ Cᴰ ⟩ v
+  infixl 15 seqᴰⱽ
+  syntax seqᴰⱽ Cᴰ fᴰ v = fᴰ ⋆ᴰⱽ⟨ Cᴰ ⟩ v
 
 
 module _ {C : Category ℓC ℓC'}
@@ -83,24 +83,24 @@ module _ {C : Category ℓC ℓC'}
   private
     module Cᴰ = Categoryᴰ Cᴰ
     module R = HomᴰReasoning Cᴰ
-  ⋆Assocᵛᴰᵛ : ∀ {x y} {f : C [ x , y ]} {xᴰ' xᴰ yᴰ yᴰ'}
+  ⋆Assocⱽᴰⱽ : ∀ {x y} {f : C [ x , y ]} {xᴰ' xᴰ yᴰ yᴰ'}
       (u : fiber Cᴰ x [ xᴰ' , xᴰ ])
       (fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
       (v : fiber Cᴰ y [ yᴰ , yᴰ' ])
-      → (u ⋆ᵛᴰ⟨ Cᴰ ⟩ fᴰ) ⋆ᴰᵛ⟨ Cᴰ ⟩ v ≡ u ⋆ᵛᴰ⟨ Cᴰ ⟩ (fᴰ ⋆ᴰᵛ⟨ Cᴰ ⟩ v)
-  ⋆Assocᵛᴰᵛ u fᴰ v = R.rectify $ R.≡out $
+      → (u ⋆ⱽᴰ⟨ Cᴰ ⟩ fᴰ) ⋆ᴰⱽ⟨ Cᴰ ⟩ v ≡ u ⋆ⱽᴰ⟨ Cᴰ ⟩ (fᴰ ⋆ᴰⱽ⟨ Cᴰ ⟩ v)
+  ⋆Assocⱽᴰⱽ u fᴰ v = R.rectify $ R.≡out $
     sym (R.reind-filler _ _)
     ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
     ∙ R.⋆Assoc _ _ _
     ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
     ∙ R.reind-filler _ _
 
-  ⋆Assocᴰᵛᴰ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]} {xᴰ yᴰ yᴰ' zᴰ}
+  ⋆Assocᴰⱽᴰ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]} {xᴰ yᴰ yᴰ' zᴰ}
       (fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
       (v : fiber Cᴰ y [ yᴰ , yᴰ' ])
       (gᴰ : Cᴰ.Hom[ g ][ yᴰ' , zᴰ ])
-      → (fᴰ ⋆ᴰᵛ⟨ Cᴰ ⟩ v) Cᴰ.⋆ᴰ gᴰ ≡ fᴰ Cᴰ.⋆ᴰ (v ⋆ᵛᴰ⟨ Cᴰ ⟩ gᴰ)
-  ⋆Assocᴰᵛᴰ fᴰ v gᴰ = R.rectify $ R.≡out $
+      → (fᴰ ⋆ᴰⱽ⟨ Cᴰ ⟩ v) Cᴰ.⋆ᴰ gᴰ ≡ fᴰ Cᴰ.⋆ᴰ (v ⋆ⱽᴰ⟨ Cᴰ ⟩ gᴰ)
+  ⋆Assocᴰⱽᴰ fᴰ v gᴰ = R.rectify $ R.≡out $
     R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
     ∙ R.⋆Assoc _ _ _
     ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
@@ -110,10 +110,10 @@ module _ {C : Category ℓC ℓC'}
   --   open BifunctorSep
   --   F : BifunctorSep _ _ _
   --   F .Bif-ob xᴰ yᴰ = (Cᴰ [ f ][ xᴰ , yᴰ ]) , Cᴰ.isSetHomᴰ
-  --   F .Bif-homL u d = λ fᴰ → seqᵛᴰ u fᴰ
+  --   F .Bif-homL u d = λ fᴰ → seqⱽᴰ u fᴰ
   --   F .Bif-L-id = funExt λ fᴰ → {!!}
   --   F .Bif-L-seq = {!!}
-  --   F .Bif-homR c v = λ fᴰ → seqᴰᵛ fᴰ v
+  --   F .Bif-homR c v = λ fᴰ → seqᴰⱽ fᴰ v
   --   F .Bif-R-id = {!!}
   --   F .Bif-R-seq = {!!}
   --   F .SepBif-RL-commute u v = funExt λ fᴰ → {!!}

@@ -88,8 +88,8 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       module Cᴰ = Categoryᴰ Cᴰ
       termᴰ = CCᴰ .snd .fst
       bpᴰ = CCᴰ .snd .snd
-      open LiftedTerminalNotation _ termᴰ
-      open LiftedBinProductsNotation bpᴰ
+      open TerminalᴰNotation _ termᴰ
+      open hasAllBinProductᴰNotation bpᴰ
     open UniversalElementᴰ
     module _ (ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]) where
       elim-F-ob : ∀ c → Cᴰ.ob[ c ]

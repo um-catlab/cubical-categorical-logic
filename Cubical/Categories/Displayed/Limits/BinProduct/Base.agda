@@ -23,30 +23,30 @@ private
 
 open Category
 open UniversalElementᴰ
-open UniversalElementᵛ
+open UniversalElementⱽ
 open isIsoOver
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   private module Cᴰ = Categoryᴰ Cᴰ
-  LiftedBinProduct : ∀ {c12} → BinProduct' C c12
+  BinProductᴰ : ∀ {c12} → BinProduct' C c12
               → (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ])
               → Type _
-  LiftedBinProduct = RightAdjointAtᴰ (ΔCᴰ Cᴰ)
+  BinProductᴰ = RightAdjointAtᴰ (ΔCᴰ Cᴰ)
 
-  LiftedBinProducts : BinProducts' C → Type _
-  LiftedBinProducts = RightAdjointᴰ (ΔCᴰ Cᴰ)
+  hasAllBinProductᴰ : BinProducts' C → Type _
+  hasAllBinProductᴰ = RightAdjointᴰ (ΔCᴰ Cᴰ)
 
-  VerticalBinProductsAt : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
-  VerticalBinProductsAt = VerticalRightAdjointAtᴰ (Δᴰ Cᴰ)
+  BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
+  BinProductⱽ = VerticalRightAdjointAtᴰ (Δᴰ Cᴰ)
 
-  VerticalBinProducts : Type _
-  VerticalBinProducts = VerticalRightAdjointᴰ (Δᴰ Cᴰ)
+  hasAllBinProductⱽ : Type _
+  hasAllBinProductⱽ = VerticalRightAdjointᴰ (Δᴰ Cᴰ)
 
-module LiftedBinProductsNotation
+module hasAllBinProductᴰNotation
          {C : Category ℓC ℓC'}
          {Cᴰ : Categoryᴰ C ℓD ℓD'}
          {bp' : BinProducts' C}
-         (bpᴰ : LiftedBinProducts Cᴰ bp')
+         (bpᴰ : hasAllBinProductᴰ Cᴰ bp')
        where
 
   private
@@ -102,38 +102,38 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
     module Cᴰ = Categoryᴰ Cᴰ
     module R = HomᴰReasoning Cᴰ
   -- meant to be used as `module cᴰ∧cᴰ' = VerticalBinProductsAtNotation vbp`
-  module VerticalBinProductsAtNotation {cᴰ cᴰ' : Cᴰ.ob[ c ]}
-    (vbp : VerticalBinProductsAt Cᴰ (cᴰ , cᴰ')) where
+  module BinProductⱽNotation {cᴰ cᴰ' : Cᴰ.ob[ c ]}
+    (vbp : BinProductⱽ Cᴰ (cᴰ , cᴰ')) where
 
     private
-      module vbp = UniversalElementᵛ vbp
+      module vbp = UniversalElementⱽ vbp
 
     vert : Cᴰ.ob[ c ]
-    vert = vbp .vertexᵛ
+    vert = vbp .vertexⱽ
 
     -- shorthand for terminal vertical cone
     π₁₂ :
       Cᴰ.Hom[ C .id ][ vert , cᴰ ] × Cᴰ.Hom[ C .id ][ vert , cᴰ' ]
-    π₁₂ = vbp .elementᵛ
+    π₁₂ = vbp .elementⱽ
     π₁ = π₁₂ .fst
     π₂ = π₁₂ .snd
 
     module _ {x : C .ob}{xᴰ : Cᴰ.ob[ x ]}{f : C [ x , c ]} where
-      _,ᵛ_ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
+      _,ⱽ_ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
         Cᴰ.Hom[ f ][ xᴰ , cᴰ' ] →
         Cᴰ.Hom[ f ][ xᴰ , vert ]
-      (fᴰ ,ᵛ fᴰ') = vbp.introᵛ _ (fᴰ , fᴰ')
+      (fᴰ ,ⱽ fᴰ') = vbp.introⱽ _ (fᴰ , fᴰ')
 
-      ×βᵛ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+      ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
         → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
-        → seqᴰᵛ Cᴰ (fᴰ ,ᵛ fᴰ') π₁ ≡ fᴰ
-      ×βᵛ₁ = cong fst vbp.βᵛ
+        → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₁ ≡ fᴰ
+      ×βⱽ₁ = cong fst vbp.βⱽ
 
-      ×βᵛ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+      ×βⱽ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
         → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
-        → seqᴰᵛ Cᴰ (fᴰ ,ᵛ fᴰ') π₂ ≡ fᴰ'
-      ×βᵛ₂ = cong snd vbp.βᵛ
+        → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₂ ≡ fᴰ'
+      ×βⱽ₂ = cong snd vbp.βⱽ
 
-      ×ηᵛ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
-        → fᴰ ≡ (seqᴰᵛ Cᴰ fᴰ π₁ ,ᵛ seqᴰᵛ Cᴰ fᴰ π₂)
-      ×ηᵛ = vbp.ηᵛ
+      ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
+        → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
+      ×ηⱽ = vbp.ηⱽ

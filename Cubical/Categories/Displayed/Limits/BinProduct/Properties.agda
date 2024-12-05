@@ -45,36 +45,36 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
   module _ {xᴰ₁ : Cᴰ.ob[ x₁ ]}{xᴰ₂ : Cᴰ.ob[ x₂ ]}
     (lift-π₁ : CartesianLift Cᴰ xᴰ₁ c×c'.π₁)
     (lift-π₂ : CartesianLift Cᴰ xᴰ₂ c×c'.π₂)
-    (vbp : VerticalBinProductsAt Cᴰ ((lift-π₁ .f*yᴰ) , (lift-π₂ .f*yᴰ)))
+    (vbp : BinProductⱽ Cᴰ ((lift-π₁ .f*yᴰ) , (lift-π₂ .f*yᴰ)))
     where
-    open VerticalBinProductsAtNotation vbp
-    Vertical→LiftedBinProduct : LiftedBinProduct Cᴰ prod (xᴰ₁ , xᴰ₂)
-    Vertical→LiftedBinProduct .vertexᴰ = vert
-    Vertical→LiftedBinProduct .elementᴰ .fst = π₁ ⋆ᵛᴰ⟨ Cᴰ ⟩ (lift-π₁ .π)
-    Vertical→LiftedBinProduct .elementᴰ .snd = π₂ ⋆ᵛᴰ⟨ Cᴰ ⟩ (lift-π₂ .π)
-    Vertical→LiftedBinProduct .universalᴰ .inv (f₁ , f₂) (fᴰ₁ , fᴰ₂) =
+    open BinProductⱽNotation vbp
+    BinProductⱽ→BinProductᴰ : BinProductᴰ Cᴰ prod (xᴰ₁ , xᴰ₂)
+    BinProductⱽ→BinProductᴰ .vertexᴰ = vert
+    BinProductⱽ→BinProductᴰ .elementᴰ .fst = π₁ ⋆ⱽᴰ⟨ Cᴰ ⟩ (lift-π₁ .π)
+    BinProductⱽ→BinProductᴰ .elementᴰ .snd = π₂ ⋆ⱽᴰ⟨ Cᴰ ⟩ (lift-π₂ .π)
+    BinProductⱽ→BinProductᴰ .universalᴰ .inv (f₁ , f₂) (fᴰ₁ , fᴰ₂) =
       lift-π₁ .isCartesian .fst (R.reind (sym (c×c'.×β₁)) fᴰ₁)
-      ,ᵛ lift-π₂ .isCartesian .fst (R.reind (sym (c×c'.×β₂)) fᴰ₂)
+      ,ⱽ lift-π₂ .isCartesian .fst (R.reind (sym (c×c'.×β₂)) fᴰ₂)
     -- β
-    Vertical→LiftedBinProduct .universalᴰ .rightInv (f₁ , f₂) (fᴰ₁ , fᴰ₂) = ΣPathP
+    BinProductⱽ→BinProductᴰ .universalᴰ .rightInv (f₁ , f₂) (fᴰ₁ , fᴰ₂) = ΣPathP
       ( (R.rectify $ R.≡out $
-        sym (R.≡in (⋆Assocᴰᵛᴰ Cᴰ _ _ _))
-        ∙ R.⟨ R.≡in ×βᵛ₁ ⟩⋆⟨ refl ⟩
+        sym (R.≡in (⋆Assocᴰⱽᴰ Cᴰ _ _ _))
+        ∙ R.⟨ R.≡in ×βⱽ₁ ⟩⋆⟨ refl ⟩
         ∙ R.≡in (lift-π₁ .isCartesian .snd .fst (R.reind (sym (c×c'.×β₁)) fᴰ₁))
         ∙ sym (R.reind-filler _ _))
       , (R.rectify $ R.≡out $
-        sym (R.≡in (⋆Assocᴰᵛᴰ Cᴰ _ _ _))
-        ∙ R.⟨ R.≡in ×βᵛ₂ ⟩⋆⟨ refl ⟩
+        sym (R.≡in (⋆Assocᴰⱽᴰ Cᴰ _ _ _))
+        ∙ R.⟨ R.≡in ×βⱽ₂ ⟩⋆⟨ refl ⟩
         ∙ R.≡in (lift-π₂ .isCartesian .snd .fst (R.reind (sym (c×c'.×β₂)) fᴰ₂))
         ∙ sym (R.reind-filler _ _)))
     -- η
-    -- ( ⟨ fᴰ *ᴰ (π₁ ⋆ᵛᴰ lift-π₁.π ⟩π₁* ,v ⟨ fᴰ *ᵛ π₂ ⟩π₂*) ≡[ η ] fᴰ
-    Vertical→LiftedBinProduct .universalᴰ .leftInv f fᴰ = R.rectify $ R.≡out $
-      (R.≡in (cong₂ _,ᵛ_
-        (cong (lift-π₁ .isCartesian .fst) (cong (R.reind (sym (c×c'.×β₁))) (symP $ ⋆Assocᴰᵛᴰ Cᴰ _ _ _)))
-        (cong (lift-π₂ .isCartesian .fst) (cong (R.reind (sym (c×c'.×β₂))) (symP $ ⋆Assocᴰᵛᴰ Cᴰ _ _ _)))))
-      ∙ R.≡in {p = sym c×c'.×η} (congP₂ (λ _ → _,ᵛ_)
-                (congP (λ _ → lift-π₁ .isCartesian .fst) (R.rectify (R.≡out (sym (R.reind-filler (sym (c×c'.×β₁ )) (seqᴰᵛ Cᴰ fᴰ π₁ Cᴰ.⋆ᴰ lift-π₁ .π))))))
-                (congP (λ _ → lift-π₂ .isCartesian .fst) (R.rectify (R.≡out (sym (R.reind-filler (sym (c×c'.×β₂ )) (seqᴰᵛ Cᴰ fᴰ π₂ Cᴰ.⋆ᴰ lift-π₂ .π)))))))
-      ∙ R.≡in (congP₂ (λ _ → _,ᵛ_) (lift-π₁ .isCartesian .snd .snd (seqᴰᵛ Cᴰ fᴰ π₁)) (lift-π₂ .isCartesian .snd .snd (seqᴰᵛ Cᴰ fᴰ π₂)))
-      ∙ R.≡in (symP ×ηᵛ)
+    -- ( ⟨ fᴰ *ᴰ (π₁ ⋆ⱽᴰ lift-π₁.π ⟩π₁* ,v ⟨ fᴰ *ⱽ π₂ ⟩π₂*) ≡[ η ] fᴰ
+    BinProductⱽ→BinProductᴰ .universalᴰ .leftInv f fᴰ = R.rectify $ R.≡out $
+      (R.≡in (cong₂ _,ⱽ_
+        (cong (lift-π₁ .isCartesian .fst) (cong (R.reind (sym (c×c'.×β₁))) (symP $ ⋆Assocᴰⱽᴰ Cᴰ _ _ _)))
+        (cong (lift-π₂ .isCartesian .fst) (cong (R.reind (sym (c×c'.×β₂))) (symP $ ⋆Assocᴰⱽᴰ Cᴰ _ _ _)))))
+      ∙ R.≡in {p = sym c×c'.×η} (congP₂ (λ _ → _,ⱽ_)
+                (congP (λ _ → lift-π₁ .isCartesian .fst) (R.rectify (R.≡out (sym (R.reind-filler (sym (c×c'.×β₁ )) (seqᴰⱽ Cᴰ fᴰ π₁ Cᴰ.⋆ᴰ lift-π₁ .π))))))
+                (congP (λ _ → lift-π₂ .isCartesian .fst) (R.rectify (R.≡out (sym (R.reind-filler (sym (c×c'.×β₂ )) (seqᴰⱽ Cᴰ fᴰ π₂ Cᴰ.⋆ᴰ lift-π₂ .π)))))))
+      ∙ R.≡in (congP₂ (λ _ → _,ⱽ_) (lift-π₁ .isCartesian .snd .snd (seqᴰⱽ Cᴰ fᴰ π₁)) (lift-π₂ .isCartesian .snd .snd (seqᴰⱽ Cᴰ fᴰ π₂)))
+      ∙ R.≡in (symP ×ηⱽ)

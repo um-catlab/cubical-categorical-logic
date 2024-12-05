@@ -76,71 +76,8 @@ module _
         $ transportTransport⁻ (λ i → Dᴰ.Hom[ F .F-seq _ _ i ][ _ , _ ]) (gᴰ Dᴰ.⋆ᴰ F⟪f⟫-lift .π)) 
       ∙ (R.≡in $ F⟪f⟫-lift .isCartesian .snd .snd gᴰ))
 
-module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-  {F : Functor C D}
-  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  where
-  open isIsoOver
-  private
-    module C = Category C
-    module D = Category D
-    F*Dᴰ = reindex Dᴰ F
-    module R = HomᴰReasoning Dᴰ
-    module F*Dᴰ = Categoryᴰ F*Dᴰ
-    module Dᴰ = Categoryᴰ Dᴰ
-  preservesVerticalTerminal :
-    ∀ c → VerticalTerminalAt Dᴰ (F ⟅ c ⟆)
-    → VerticalTerminalAt (reindex Dᴰ F) c
-  preservesVerticalTerminal c 𝟙ᴰ .vertexᴰ = 𝟙ᴰ .vertexᴰ
-  preservesVerticalTerminal c 𝟙ᴰ .elementᴰ = 𝟙ᴰ .elementᴰ
-  preservesVerticalTerminal c 𝟙ᴰ .universalᴰ .inv f _ = introᴰ 𝟙ᴰ (F ⟪ f ⟫) _
-  preservesVerticalTerminal c 𝟙ᴰ .universalᴰ .rightInv _ _ = refl
-  preservesVerticalTerminal c 𝟙ᴰ .universalᴰ {xᴰ = xᴰ} .leftInv f F⟪f⟫ᴰ = R.rectify $ R.≡out $
-    (R.≡in $ congP (λ _ F⟪f⟫ → universalᴰ 𝟙ᴰ {xᴰ = xᴰ} .inv  F⟪f⟫ tt)
-      (F .F-seq _ _ ∙ D.⟨ refl ⟩⋆⟨ F .F-id ⟩))
-    ∙ sym (R.≡in $ ηᴰ 𝟙ᴰ)
-
-  module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
-    (vbp : VerticalBinProductsAt Dᴰ (Fcᴰ , Fcᴰ')) where
-    private
-      module Fcᴰ∧Fcᴰ' = VerticalBinProductsAtNotation vbp
-
-    preservesVerticalBinProd : VerticalBinProductsAt (reindex Dᴰ F) (Fcᴰ , Fcᴰ')
-    preservesVerticalBinProd .vertexᵛ = vbp .vertexᵛ
-    preservesVerticalBinProd .elementᵛ .fst = R.reind (sym $ F .F-id) $ vbp .elementᵛ .fst
-    preservesVerticalBinProd .elementᵛ .snd = R.reind (sym $ F .F-id) $ vbp .elementᵛ .snd
-    preservesVerticalBinProd .universalᵛ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ᵛ fᴰ₂
-    preservesVerticalBinProd .universalᵛ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
-      ( (R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ (sym $ R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βᵛ₁ {fᴰ' = fᴰ₂}))
-      , (R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ (sym $ R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βᵛ₂ {fᴰ = fᴰ₁})))
-    preservesVerticalBinProd .universalᵛ .snd .snd fᴰ = R.rectify $ R.≡out $
-      (R.≡in $ congP₂ (λ _ → Fcᴰ∧Fcᴰ'._,ᵛ_)
-        (R.≡out $
-          (sym $ R.reind-filler _ _)
-          ∙ (sym $ R.reind-filler _ _)
-          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-          ∙ R.reind-filler _ _)
-        (R.≡out $
-          (sym $ R.reind-filler _ _)
-          ∙ (sym $ R.reind-filler _ _)
-          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-          ∙ R.reind-filler _ _))
-      ∙ sym (R.≡in $ Fcᴰ∧Fcᴰ'.×ηᵛ)
-
-  hasVerticalBinProds : VerticalBinProducts Dᴰ →
-    VerticalBinProducts (reindex Dᴰ F)
-  hasVerticalBinProds vps Fcᴰ×Fcᴰ' =
-    preservesVerticalBinProd (vps Fcᴰ×Fcᴰ')
+  isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
+  isFibrationReindex isFibDᴰ _ _ = reflectsCartesianLifts (isFibDᴰ _ _)
 
 -- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --   {F : Functor C D}
@@ -199,13 +136,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --         (lift-π₁₂ Fcᴰ Fc'ᴰ .snd)
 --         (vbp Fcᴰ Fc'ᴰ)
 
-  module _ (prods : BinProducts' C)
-    (fib : isFibration Dᴰ)
-    (vbps : VerticalBinProducts Dᴰ) where
-    open BinProduct'Notation
-    LiftedBinProductsReindex : LiftedBinProducts (reindex Dᴰ F) prods
-    LiftedBinProductsReindex dᴰ =
-      Vertical→LiftedBinProduct (prods _) (reindex Dᴰ F)
-        (reflectsCartesianLifts Dᴰ F (fib (dᴰ .fst) (F ⟪ π₁ (prods _) ⟫)))
-        (reflectsCartesianLifts Dᴰ F (fib (dᴰ .snd) (F ⟪ π₂ (prods _) ⟫)))
-        (preservesVerticalBinProd (vbps _))
+  --   (vbps : VerticalBinProducts Dᴰ) where
+  --   open BinProduct'Notation
+  --   LiftedBinProductsReindex : LiftedBinProducts (reindex Dᴰ F) prods
+  --   LiftedBinProductsReindex dᴰ =
+  --     Vertical→LiftedBinProduct (prods _) (reindex Dᴰ F)
+  --       (reflectsCartesianLifts Dᴰ F (fib (dᴰ .fst) (F ⟪ π₁ (prods _) ⟫)))
+  --       (reflectsCartesianLifts Dᴰ F (fib (dᴰ .snd) (F ⟪ π₂ (prods _) ⟫)))
+  --       (preservesVerticalBinProd (vbps _))

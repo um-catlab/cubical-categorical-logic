@@ -2,11 +2,15 @@
 module Cubical.Categories.Displayed.Constructions.Weaken.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Limits.Terminal
@@ -21,15 +25,21 @@ private
 open Categoryᴰ
 open UniversalElementᴰ
 open UniversalElement
+open isIsoOver
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   module _ (termC : Terminal' C) (termD : Terminal' D) where
     termWeaken : LiftedTerminal (weaken C D) termC
     termWeaken .vertexᴰ = termD .vertex
     termWeaken .elementᴰ = termD .element
-    termWeaken .universalᴰ = termD .universal _
+    termWeaken .universalᴰ {xᴰ = d} .inv _ _ = UniversalElementNotation.intro termD _
+    termWeaken .universalᴰ {xᴰ = d} .rightInv _ _ = refl
+    termWeaken .universalᴰ {xᴰ = d} .leftInv f g = sym $ UniversalElementNotation.η termD
   module _ (prodC : BinProducts' C)(prodD : BinProducts' D) where
     private module B = BinProducts'Notation prodD
     binprodWeaken : LiftedBinProducts (weaken C D) prodC
     binprodWeaken _ .vertexᴰ = prodD _ .vertex
     binprodWeaken _ .elementᴰ = prodD _ .element
-    binprodWeaken _ .universalᴰ = prodD _ .universal _
+    binprodWeaken _ .universalᴰ .inv _ (g₁ , g₂) = g₁ B.,p g₂
+    binprodWeaken _ .universalᴰ .rightInv _ (g₁ , g₂) =
+      UniversalElementNotation.β (prodD _)
+    binprodWeaken _ .universalᴰ .leftInv _ g = sym $ B.×η

@@ -45,53 +45,10 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   hasVerticalTerminals : VerticalTerminals (PRESHEAFᴰ C ℓS ℓSᴰ)
   hasVerticalTerminals P .vertexᴰ = ⊤𝓟 (∫ᴾ P) ℓSᴰ .fst
   hasVerticalTerminals P .elementᴰ = tt
-  hasVerticalTerminals P .universalᴰ .inv α tt = natTrans (λ x₁ _ → tt*) (λ _ → refl) -- natTrans (λ x₂ _ → tt*) (λ _ → refl)
+  hasVerticalTerminals P .universalᴰ .inv α tt = natTrans (λ x₁ _ → tt*) (λ _ → refl)
   hasVerticalTerminals P .universalᴰ .rightInv _ _ = refl
-  hasVerticalTerminals P .universalᴰ {x = Q}{xᴰ = Qᴰ} .leftInv α αᴰ =
+  hasVerticalTerminals P .universalᴰ .leftInv α αᴰ =
     makeNatTransPathP _ _ refl
-
-  -- private
-  --   -- present PRESHEAFᴰ-VerticalProducts in a more implementation agnostic way
-  --   module M {P : Presheaf C ℓS} (Pᴰ Pᴰ' : Presheafᴰ C ℓS ℓSᴰ P) where
-  --     vprod : Presheafᴰ C _ _ P
-  --     vprod = ×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdOb
-
-  --     π₁ : NatTransᴰ C _ _ (idTrans P) vprod Pᴰ
-  --     π₁ = seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _)
-
-  --     π₂ : NatTransᴰ C _ _ (idTrans P) vprod Pᴰ'
-  --     π₂ = seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _)
-
-  --     module _ {Q}{Qᴰ : Presheafᴰ C _ _ Q}{α : Q ⇒ P}
-  --       (id∘αᴰ : NatTransᴰ C _ _ (seqTrans α (idTrans P)) Qᴰ Pᴰ)
-  --       (id∘αᴰ' : NatTransᴰ C _ _ (seqTrans α (idTrans P)) Qᴰ Pᴰ') where
-  --       pair : NatTransᴰ C _ _ α Qᴰ vprod
-  --       pair = natTrans
-  --         (λ (Γ , ϕ) ϕᴰ → (id∘αᴰ ⟦ Γ , ϕ ⟧) ϕᴰ , (id∘αᴰ' ⟦ Γ , ϕ ⟧) ϕᴰ)
-  --         (λ {x = Γ,ϕ}{y = Δ,ψ} (f , p) → funExt (λ ϕᴰ → ≡-×
-  --           (funExt⁻ (id∘αᴰ .N-hom (f , p)) ϕᴰ ∙
-  --             congS (λ x → (Pᴰ ⟪ _ , x ⟫) ((id∘αᴰ ⟦ Γ,ϕ ⟧) ϕᴰ))
-  --             ((P ⟅ _ ⟆) .snd _ _ _ _))
-  --           (funExt⁻ (id∘αᴰ' .N-hom (f , p)) ϕᴰ ∙
-  --             congS (λ x → (Pᴰ' ⟪ _ , x ⟫) ((id∘αᴰ' ⟦ Γ,ϕ ⟧) ϕᴰ))
-  --             ((P ⟅ _ ⟆) .snd _ _ _ _))))
-  --       module _
-  --         (pair' : NatTransᴰ C _ _ α Qᴰ vprod)
-  --         (pair'-ob : pair' ⟦_⟧ ≡ pair ⟦_⟧) where
-  --         module _
-  --           (π₁' : NatTransᴰ C _ _ (idTrans P) vprod Pᴰ)
-  --           (π₁'-ob : π₁' ⟦_⟧ ≡ π₁ ⟦_⟧) where
-  --           β₁ : seqTransᴰ C _ _ pair' π₁' ≡ id∘αᴰ
-  --           β₁ = makeNatTransPath (funExt (λ _ → funExt (λ _ →
-  --             funExt⁻ (funExt⁻ π₁'-ob (_ , (α ⟦ _ ⟧) _)) ((pair' ⟦ _ ⟧) _) ∙
-  --             congS fst (funExt⁻ (funExt⁻ pair'-ob _) _))))
-  --         module _
-  --           (π₂' : NatTransᴰ C _ _ (idTrans P) vprod Pᴰ')
-  --           (π₂'-ob : π₂' ⟦_⟧ ≡ π₂ ⟦_⟧) where
-  --           β₂ : seqTransᴰ C _ _ pair' π₂' ≡ id∘αᴰ'
-  --           β₂ = makeNatTransPath (funExt (λ _ → funExt (λ _ →
-  --             funExt⁻ (funExt⁻ π₂'-ob (_ , (α ⟦ _ ⟧) _)) ((pair' ⟦ _ ⟧) _) ∙
-  --             congS snd (funExt⁻ (funExt⁻ pair'-ob _) _))))
 
   open UniversalElementᵛ
   hasVerticalProducts : VerticalBinProducts (PRESHEAFᴰ C ℓS ℓSᴰ)
@@ -99,26 +56,39 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   hasVerticalProducts (Pᴰ , Pᴰ') .elementᵛ =
     (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _))
     , (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _))
-  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .fst = {!!}
-  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .snd = {!!}
-  -- PRESHEAFᴰ-VerticalProducts : VerticalBinProducts (PRESHEAFᴰ C ℓS ℓSᴰ)
-  -- PRESHEAFᴰ-VerticalProducts (Pᴰ , Pᴰ') .vertexᴰ = M.vprod Pᴰ Pᴰ'
-  -- PRESHEAFᴰ-VerticalProducts (Pᴰ , Pᴰ') .elementᴰ = M.π₁ Pᴰ Pᴰ' , M.π₂ Pᴰ Pᴰ'
-  -- PRESHEAFᴰ-VerticalProducts (Pᴰ , Pᴰ') .universalᴰ
-  --   .equiv-proof (id∘αᴰ , id∘αᴰ') = uniqueExists
-  --   pair
-  --   (≡-×
-  --     (N.β₁ id∘αᴰ id∘αᴰ' pair refl (M.π₁ _ _) refl)
-  --     (N.β₂ id∘αᴰ id∘αᴰ' pair refl (M.π₂ _ _) refl))
-  --   (λ pair' → isSet× isSetNatTrans isSetNatTrans
-  --     (seqTransᴰ C _ _ pair'
-  --       (PRESHEAFᴰ-VerticalProducts (Pᴰ , Pᴰ') .elementᴰ .fst) ,
-  --     seqTransᴰ C _ _ pair'
-  --       (PRESHEAFᴰ-VerticalProducts (Pᴰ , Pᴰ') .elementᴰ .snd))
-  --     (id∘αᴰ , id∘αᴰ'))
-  --   λ _ p → makeNatTransPath (funExt (λ _ → funExt (λ _ → ≡-×
-  --     (funExt⁻ (funExt⁻ (sym (congS (N-ob ∘S fst) p)) _) _)
-  --     (funExt⁻ (funExt⁻ (sym (congS (N-ob ∘S snd) p)) _) _))))
-  --   where
-  --   module N = M Pᴰ Pᴰ'
-  --   pair = N.pair id∘αᴰ id∘αᴰ'
+  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .fst (id∘αᴰ , id∘αᴰ') = natTrans
+    (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
+    λ (f , f-comm) → funExt λ q → ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
+  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .snd .fst (id∘αᴰ , id∘αᴰ') =
+    ΣPathP
+     ( makeNatTransPath (sym (transport-filler _ _))
+     , makeNatTransPath (sym (transport-filler _ _)))
+  -- may god forgive me for this "proof"
+  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ {y = Q}{yᴰ = Qᴾ}{f = α} .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
+    ΣPathP
+    (
+      fromPathP
+       {A =
+        λ i₃ →
+          F-ob Pᴰ
+          (transp (λ i₁ → ob C) i₃ (q .fst) ,
+           N-ob α (transp (λ i₁ → ob C) i₃ (q .fst))
+           (transp
+            (λ i₄ → fst (F-ob Q (transp (λ i₂ → ob C) (i₃ ∨ ~ i₄) (q .fst))))
+            i₃ (q .snd)))
+          .fst}
+       (λ i → αᴰ .N-ob (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
+                       (transport-filler (λ j → Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst) q' (~ i)) .fst)
+    ,
+      fromPathP
+       {A =
+        λ i →
+          F-ob Pᴰ'
+         (transp (λ i₁ → ob C) i (q .fst) ,
+          N-ob α (transp (λ i₁ → ob C) i (q .fst))
+          (transp
+           (λ i₁ → fst (F-ob Q (transp (λ i₂ → ob C) (i ∨ ~ i₁) (q .fst)))) i
+           (q .snd)))
+         .fst }
+       (λ i → αᴰ .N-ob (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
+                       (transport-filler (λ j → Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst) q' (~ i)) .snd)

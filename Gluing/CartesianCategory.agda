@@ -90,11 +90,9 @@ module _ where
     where
     sem : Functor (FREECC .fst) (SET ℓ-zero)
     sem = Law.rec _
-      (SET ℓ-zero ,
-        Terminal'ToTerminal terminal'SET ,
-        BinProducts'ToBinProducts _ BinProducts'SET)
-      (λ { ans → Bool , isSetBool})
-      λ { t,f → λ (lift tt) → true , false }
+      (SET ℓ-zero , Terminal'ToTerminal terminal'SET , BinProducts'ToBinProducts _ BinProducts'SET)
+      (mkInterpᴰ (λ { ans → Bool , isSetBool })
+                 (λ { t,f (lift tt) → true , false }))
     n : FREECC .fst [ 𝟙 , [ans] ] → Bool
     n e = (sem ⟪ e ⟫) tt*
 
@@ -111,22 +109,17 @@ module _ where
     where
     pts = FREECC .fst [ 𝟙 ,-]
     Canonicalize : Section pts (SETᴰ _ _)
-    Canonicalize = elimLocal _
-      (VerticalTerminalsSETᴰ (pts ⟅ ⊤ ⟆))
-      (λ _ _ → isFib→F⟪π₁⟫* (CCBinProducts' (_ , _)) _ isFibrationSet ,
-        isFib→F⟪π₂⟫* (CCBinProducts' (_ , _)) _ isFibrationSet)
-      (λ _ _ → VerticalBinProds→ϕ[π₁x]∧ψ[π₂x] {F = pts} (CCBinProducts' (_ , _))
-        (isFib→F⟪π₁⟫* (CCBinProducts' (_ , _)) _ isFibrationSet)
-        (isFib→F⟪π₂⟫* (CCBinProducts' (_ , _)) _ isFibrationSet)
-        VerticalBinProdsSETᴰ)
-      (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm})
-      λ { t,f ⟨⟩ (lift tt) →
-         (inl (sym (FREECC .fst .⋆IdL _)
+    Canonicalize = elimLocal _ (SETᴰCartesianCategoryⱽ _ _)
+      (mkInterpᴰ
+        (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
+        (λ { t,f ⟨⟩ (lift tt) →
+          (inl (sym (FREECC .fst .⋆IdL _)
                ∙ cong₂ (seq' (FREECC .fst)) 𝟙η' refl
                ∙ sym (FREECC .fst .⋆Assoc _ _ _)))
-        , inr (sym (FREECC .fst .⋆IdL _)
+          , inr (sym (FREECC .fst .⋆IdL _)
                ∙ cong₂ (seq' (FREECC .fst)) 𝟙η' refl
-               ∙ sym (FREECC .fst .⋆Assoc _ _ _)) }
+               ∙ sym (FREECC .fst .⋆Assoc _ _ _))
+        }))
     fixup : ∀{e'} →
       ([t] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') ⊎
       ([f] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') →

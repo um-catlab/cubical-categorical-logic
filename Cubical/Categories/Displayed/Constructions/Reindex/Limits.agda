@@ -19,7 +19,7 @@ open import Cubical.Categories.Presheaf
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base hiding (π)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base hiding (π; reindex)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.Terminal
@@ -47,13 +47,13 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   private
     module C = Category C
     module D = Category D
-    F*Dᴰ = reindex Dᴰ F
+    F*Dᴰ = Base.reindex Dᴰ F
     module R = HomᴰReasoning Dᴰ
     module F*Dᴰ = Categoryᴰ F*Dᴰ
     module Dᴰ = Categoryᴰ Dᴰ
   preservesVerticalTerminal :
     ∀ c → VerticalTerminalAt Dᴰ (F ⟅ c ⟆)
-    → VerticalTerminalAt (reindex Dᴰ F) c
+    → VerticalTerminalAt (Base.reindex Dᴰ F) c
   preservesVerticalTerminal c 𝟙ᴰ .vertexᴰ = 𝟙ᴰ .vertexᴰ
   preservesVerticalTerminal c 𝟙ᴰ .elementᴰ = 𝟙ᴰ .elementᴰ
   preservesVerticalTerminal c 𝟙ᴰ .universalᴰ .inv f _ = introᴰ 𝟙ᴰ (F ⟪ f ⟫) _
@@ -64,7 +64,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     ∙ sym (R.≡in $ ηᴰ 𝟙ᴰ)
 
   hasVerticalTerminals : VerticalTerminals Dᴰ →
-    VerticalTerminals (reindex Dᴰ F)
+    VerticalTerminals (Base.reindex Dᴰ F)
   hasVerticalTerminals vtms c = preservesVerticalTerminal c (vtms (F ⟅ c ⟆))
 
   module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
@@ -72,7 +72,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     private
       module Fcᴰ∧Fcᴰ' = VerticalBinProductsAtNotation vbp
 
-    preservesVerticalBinProd : VerticalBinProductsAt (reindex Dᴰ F) (Fcᴰ , Fcᴰ')
+    preservesVerticalBinProd : VerticalBinProductsAt (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
     preservesVerticalBinProd .vertexᵛ = vbp .vertexᵛ
     preservesVerticalBinProd .elementᵛ .fst = R.reind (sym $ F .F-id) $ vbp .elementᵛ .fst
     preservesVerticalBinProd .elementᵛ .snd = R.reind (sym $ F .F-id) $ vbp .elementᵛ .snd
@@ -105,16 +105,19 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       ∙ sym (R.≡in $ Fcᴰ∧Fcᴰ'.×ηᵛ)
 
   hasVerticalBinProds : VerticalBinProducts Dᴰ →
-    VerticalBinProducts (reindex Dᴰ F)
+    VerticalBinProducts (Base.reindex Dᴰ F)
   hasVerticalBinProds vps Fcᴰ×Fcᴰ' =
     preservesVerticalBinProd (vps Fcᴰ×Fcᴰ')
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-  {F : Functor C D}
-  {Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ'}
+  (F : Functor C D)
+  (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ')
   where
 
-  isCartesianⱽReindex : isCartesianⱽ (reindex (Dᴰ .fst) F)
+  isCartesianⱽReindex : isCartesianⱽ (Base.reindex (Dᴰ .fst) F)
   isCartesianⱽReindex .fst = isFibrationReindex (Dᴰ .fst) F (Dᴰ .snd .fst)
   isCartesianⱽReindex .snd .fst = hasVerticalTerminals (Dᴰ .snd .snd .fst)
   isCartesianⱽReindex .snd .snd = hasVerticalBinProds (Dᴰ .snd .snd .snd)
+
+  reindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
+  reindex = Base.reindex (Dᴰ .fst) F , isCartesianⱽReindex

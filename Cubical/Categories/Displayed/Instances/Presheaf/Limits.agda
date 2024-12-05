@@ -22,8 +22,9 @@ open import Cubical.Categories.Presheaf.CCC
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
-open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct
+open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Base
@@ -35,6 +36,7 @@ open NatTrans
 open Contravariant
 open Categoryᴰ
 open UniversalElementᴰ
+open UniversalElementᵛ
 open isIsoOver
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
@@ -42,31 +44,32 @@ private
 module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   private
     module 𝓟ᴰ = Categoryᴰ (PRESHEAFᴰ C ℓS ℓSᴰ)
-  hasVerticalTerminals : VerticalTerminals (PRESHEAFᴰ C ℓS ℓSᴰ)
-  hasVerticalTerminals P .vertexᴰ = ⊤𝓟 (∫ᴾ P) ℓSᴰ .fst
-  hasVerticalTerminals P .elementᴰ = tt
-  hasVerticalTerminals P .universalᴰ .inv α tt = natTrans (λ x₁ _ → tt*) (λ _ → refl)
-  hasVerticalTerminals P .universalᴰ .rightInv _ _ = refl
-  hasVerticalTerminals P .universalᴰ .leftInv α αᴰ =
-    makeNatTransPathP _ _ refl
+  opaque
+    hasVerticalTerminals : VerticalTerminals (PRESHEAFᴰ C ℓS ℓSᴰ)
+    hasVerticalTerminals P .vertexᴰ = ⊤𝓟 (∫ᴾ P) ℓSᴰ .fst
+    hasVerticalTerminals P .elementᴰ = tt
+    hasVerticalTerminals P .universalᴰ .inv α tt = natTrans (λ x₁ _ → tt*) (λ _ → refl)
+    hasVerticalTerminals P .universalᴰ .rightInv _ _ = refl
+    hasVerticalTerminals P .universalᴰ .leftInv α αᴰ =
+      makeNatTransPathP _ _ refl
 
-  open UniversalElementᵛ
-  hasVerticalProducts : VerticalBinProducts (PRESHEAFᴰ C ℓS ℓSᴰ)
-  hasVerticalProducts (Pᴰ , Pᴰ') .vertexᵛ = ×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdOb
-  hasVerticalProducts (Pᴰ , Pᴰ') .elementᵛ =
-    (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _))
-    , (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _))
-  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .fst (id∘αᴰ , id∘αᴰ') = natTrans
-    (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
-    λ (f , f-comm) → funExt λ q → ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
-  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .snd .fst (id∘αᴰ , id∘αᴰ') =
-    ΣPathP
-     ( makeNatTransPath (sym (transport-filler _ _))
-     , makeNatTransPath (sym (transport-filler _ _)))
+
+    hasVerticalProducts : VerticalBinProducts (PRESHEAFᴰ C ℓS ℓSᴰ)
+    hasVerticalProducts (Pᴰ , Pᴰ') .vertexᵛ = ×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdOb
+    hasVerticalProducts (Pᴰ , Pᴰ') .elementᵛ =
+      (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _))
+      , (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _))
+    hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .fst (id∘αᴰ , id∘αᴰ') = natTrans
+      (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
+      λ (f , f-comm) → funExt λ q → ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
+    hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ .snd .fst (id∘αᴰ , id∘αᴰ') =
+      ΣPathP
+       ( makeNatTransPath (sym (transport-filler _ _))
+       , makeNatTransPath (sym (transport-filler _ _)))
   -- may god forgive me for this "proof"
-  hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ {y = Q}{yᴰ = Qᴾ}{f = α} .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
-    ΣPathP
-    (
+    hasVerticalProducts (Pᴰ , Pᴰ') .universalᵛ {y = Q}{yᴰ = Qᴾ}{f = α} .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
+      ΣPathP
+      (
       fromPathP
        {A =
         λ i₃ →
@@ -79,7 +82,7 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
           .fst}
        (λ i → αᴰ .N-ob (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
                        (transport-filler (λ j → Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst) q' (~ i)) .fst)
-    ,
+      ,
       fromPathP
        {A =
         λ i →
@@ -91,4 +94,4 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
            (q .snd)))
          .fst }
        (λ i → αᴰ .N-ob (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
-                       (transport-filler (λ j → Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst) q' (~ i)) .snd)
+                       (transport-filler (λ j → Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst) q' (~ i)) .snd)))

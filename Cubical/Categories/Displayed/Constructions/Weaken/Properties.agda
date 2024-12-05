@@ -7,14 +7,16 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct
+open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Presheaf
 
@@ -43,3 +45,15 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     binprodWeaken _ .universalᴰ .rightInv _ (g₁ , g₂) =
       UniversalElementNotation.β (prodD _)
     binprodWeaken _ .universalᴰ .leftInv _ g = sym $ B.×η
+
+module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') where
+  weakenCartesianCategory : CartesianCategoryᴰ C ℓD ℓD'
+  weakenCartesianCategory .fst = weaken (C .fst) (D .fst)
+  weakenCartesianCategory .snd .fst =
+    termWeaken
+      (terminalToUniversalElement (C .snd .fst))
+      ((terminalToUniversalElement (D .snd .fst)))
+  weakenCartesianCategory .snd .snd =
+    binprodWeaken
+      (BinProductsToBinProducts' (C .fst) (C .snd .snd))
+      (BinProductsToBinProducts' (D .fst) (D .snd .snd)) 

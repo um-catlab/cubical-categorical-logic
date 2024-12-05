@@ -22,23 +22,20 @@ open Category
 open Categoryᴰ
 open Section
 open Functorᴰ
-open CartesianOver
+open CartesianLift
 
 module _ {C : Category ℓC ℓC'} where
   isFibrationUnitᴰ : isFibration (Unitᴰ C)
-  isFibrationUnitᴰ _ = CartesianOver→CartesianLift (Unitᴰ C) ue
-    where
-    ue : CartesianOver (Unitᴰ C) _ _
-    ue .f*cᴰ' = tt
-    ue .π = tt
-    ue .isCartesian _ _ _ =
-      uniqueExists _ (isPropUnit _ _) (λ _ → isSetUnit _ _)
-      λ _ _ → isPropUnit _ _
+  isFibrationUnitᴰ _ f .f*yᴰ = tt
+  isFibrationUnitᴰ _ f .π = tt
+  isFibrationUnitᴰ _ f .isCartesian .fst = λ _ → tt
+  isFibrationUnitᴰ _ f .isCartesian .snd .fst b = refl
+  isFibrationUnitᴰ _ f .isCartesian .snd .snd a = refl
 
-  module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-    preservesCartesianLiftsIntro :
-      PreservesCartesianLifts {Cᴰ = Cᴰ} (Terminal.introF Id)
-    preservesCartesianLiftsIntro _ _ _ _ _ _ _ _ = uniqueExists _
-      refl
-      (λ _ → isSetUnit _ _)
-      λ _ _ → refl
+  -- module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  --   preservesCartesianLiftsIntro :
+  --     PreservesCartesianLifts {Cᴰ = Cᴰ} (Terminal.introF Id)
+  --   preservesCartesianLiftsIntro _ _ _ _ _ _ _ _ = uniqueExists _
+  --     refl
+  --     (λ _ → isSetUnit _ _)
+  --     λ _ _ → refl

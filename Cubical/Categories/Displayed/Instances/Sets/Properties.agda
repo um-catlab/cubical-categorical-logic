@@ -3,8 +3,10 @@ module Cubical.Categories.Displayed.Instances.Sets.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.Properties
@@ -15,12 +17,14 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Displayed.Base
+
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct
+open import Cubical.Categories.Displayed.Limits.Terminal
 
 
 private
@@ -29,44 +33,42 @@ private
     ℓC ℓC' ℓD ℓD' : Level
 
 open UniversalElementᴰ
-open CartesianOver
+open UniversalElementᵛ
+open CartesianLift
 open Categoryᴰ
+open isIsoOver
 
-AllCartesianOversSETᴰ : AllCartesianOvers (SETᴰ ℓ ℓ')
-AllCartesianOversSETᴰ {c = A} {A'} B' f .f*cᴰ' x = B' (f x)
-AllCartesianOversSETᴰ {c = A} {A'} B' f .π a b'  = b'
-AllCartesianOversSETᴰ {c = A} {A'} B' f .isCartesian {A''} B'' g gfᴰ =
-  uniqueExists gfᴰ refl
-    (λ gfᴰ' → SETᴰ _ _ .isSetHomᴰ {A''}{A'}{λ x → f (g x)}{B''}{B'} gfᴰ' gfᴰ)
-    λ gfᴰ' → sym
+isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
+isFibrationSETᴰ {c = A}{c' = B} Bᴰ f .f*yᴰ a = Bᴰ (f a)
+isFibrationSETᴰ cᴰ' f .CartesianLift.π = λ x z → z
+isFibrationSETᴰ cᴰ' f .isCartesian .fst = λ z₁ → z₁
+isFibrationSETᴰ cᴰ' f .isCartesian .snd .fst _ = refl
+isFibrationSETᴰ cᴰ' f .isCartesian .snd .snd _ = refl
 
-isFibrationSet : isFibration (SETᴰ ℓ ℓ')
-isFibrationSet dᴰ = CartesianOver→CartesianLift (SETᴰ _ _)
-  (AllCartesianOversSETᴰ _ _)
+hasVerticalTerminals : VerticalTerminals (SETᴰ ℓ ℓ')
+hasVerticalTerminals A .vertexᴰ a = Unit* , isSetUnit*
+hasVerticalTerminals A .elementᴰ = tt
+hasVerticalTerminals A .universalᴰ .inv = λ a _ x₁ _ → tt*
+hasVerticalTerminals A .universalᴰ .rightInv b q = refl
+hasVerticalTerminals A .universalᴰ .leftInv a p = refl
 
-VerticalTerminalsSETᴰ : VerticalTerminals (SETᴰ ℓ ℓ')
-VerticalTerminalsSETᴰ dᴰ .vertexᴰ _ = Unit* , isSetUnit*
-VerticalTerminalsSETᴰ dᴰ .elementᴰ = tt
-VerticalTerminalsSETᴰ dᴰ .universalᴰ .equiv-proof _ = uniqueExists
-  (λ _ _ → tt*)
-  (isPropUnit tt tt)
-  (λ _ p q → isSetUnit tt tt p q)
-  (λ _ _ → funExt λ _ → funExt λ _ → refl)
+hasVerticalBinProds : VerticalBinProducts (SETᴰ ℓ ℓ')
+hasVerticalBinProds {x = A} (Aᴰ₁ , Aᴰ₂) .vertexᵛ a =
+  (⟨ Aᴰ₁ a ⟩ × ⟨ Aᴰ₂ a ⟩) , (isSet× (Aᴰ₁ a .snd) (Aᴰ₂ a .snd))
+hasVerticalBinProds (A₁ , A₂) .elementᵛ = (λ x₁ z → z .fst) , (λ x₁ z → z .snd)
+hasVerticalBinProds (A₁ , A₂) .universalᵛ .fst x x₁ x₂ = x .fst x₁ x₂ , x .snd x₁ x₂
+-- sad transportRefl here
+hasVerticalBinProds (A₁ , A₂) .universalᵛ .snd .fst b = sym (transport-filler _ _)
+-- the transports here are caused by the fact that vertical composition is defined using reindexing :/
+-- the only way to avoid this would be to "fatten" the definition of displayed categories to include the "redundant" vertical and heterogeneous compositions
+-- then in the case of nice examples like SETᴰ (and possibly PRESHEAFᴰ) we would get that there is no transport required
+hasVerticalBinProds (A₁ , A₂) .universalᵛ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a = funExt₂ λ b bᴰ →
+  ΣPathP
+   ( fromPathP {A = λ i₁ → fst (A₁ (f (transp (λ j → fst B) i₁ b)))} (λ i → a (transport-filler (λ _ → ⟨ B ⟩) b (~ i)) (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b))) bᴰ (~ i)) .fst)
+   , fromPathP {A = λ i₁ → fst (A₂ (f (transp (λ j → fst B) i₁ b)))} (λ i → a (transport-filler (λ _ → ⟨ B ⟩) b (~ i)) (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b))) bᴰ (~ i)) .snd))
 
-LiftedTerminalSETᴰ : ∀{ℓ ℓ'} → LiftedTerminal (SETᴰ ℓ ℓ') terminal'SET
-LiftedTerminalSETᴰ {ℓ} {ℓ'} =
-  Vertical/𝟙→LiftedTerm _ (VerticalTerminalsSETᴰ _)
-
-module _ {ℓSETᴰ ℓSETᴰ' : Level} where
-  VerticalBinProdsSETᴰ : VerticalBinProducts (SETᴰ ℓSETᴰ ℓSETᴰ')
-  VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .vertexᴰ x =
-    ⟨ Xᴰ x ⟩ × ⟨ Xᴰ' x ⟩ , isSet× (Xᴰ x .snd) (Xᴰ' x .snd)
-  VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .elementᴰ = (λ _ → fst) , (λ _ → snd)
-  VerticalBinProdsSETᴰ {d = X} (Xᴰ , Xᴰ') .universalᴰ {x = Y} {xᴰ = Yᴰ} {f = h}
-    .equiv-proof (f , g) =
-    uniqueExists (λ y yᴰ → f y yᴰ , g y yᴰ) refl
-    (λ _ → isSet×
-      (SETᴰ ℓSETᴰ ℓSETᴰ' .isSetHomᴰ {x = Y} {y = X} {xᴰ = Yᴰ} {yᴰ = Xᴰ})
-      (SETᴰ ℓSETᴰ ℓSETᴰ' .isSetHomᴰ {x = Y} {y = X} {xᴰ = Yᴰ} {yᴰ = Xᴰ'})
-      _ _)
-    λ _ p i y yᴰ → (sym p) i .fst y yᴰ , (sym p) i .snd y yᴰ
+SETᴰCartesianCategoryⱽ : ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+SETᴰCartesianCategoryⱽ ℓ ℓ' .fst = SETᴰ ℓ ℓ'
+SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .fst = isFibrationSETᴰ
+SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .fst = hasVerticalTerminals
+SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .snd = hasVerticalBinProds

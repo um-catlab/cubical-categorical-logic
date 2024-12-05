@@ -20,7 +20,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Properties
+open import Cubical.Categories.Displayed.Instances.Sets.Properties as SETᴰ
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
 
@@ -113,7 +113,7 @@ canonicity = λ exp → fixup (Canonicalize .F-homᴰ exp _ _)
 
   Canonicalize : Section pts (SETᴰ _ _)
   Canonicalize = elimLocal _ _ _ _
-    (VerticalTerminalsSETᴰ _)
+    (SETᴰ.hasVerticalTerminals _)
     (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
        ; b exp → CanonicalForm exp , isSetCanonicalForm
        })

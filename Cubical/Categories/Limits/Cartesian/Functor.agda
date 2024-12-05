@@ -62,6 +62,14 @@ record CartesianFunctor (C : Category ℓC ℓC') (D : Category ℓD ℓD') : Ty
     -- just reusing what's there
     PreservesTerminal : preservesTerminals _ _ |F|
 
+module _ {C : CartesianCategory ℓC ℓC'} where
+  open CartesianFunctor
+  open UniversalElement
+  IdCF : CartesianFunctor (C .fst) (C .fst)
+  IdCF .|F| = Id
+  IdCF .PreservesBinProducts _ _ = universal
+  IdCF .PreservesTerminal = snd
+
 --module _
 --  {A : Category ℓA ℓA'}{B : Category ℓB ℓB'}
 --  {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -75,35 +83,6 @@ record CartesianFunctor (C : Category ℓC ℓC') (D : Category ℓD ℓD') : Ty
 --    ({!!} , {!!})
 --    {!!}
 --    {!!}
-
--- the product of two cartesian categories is cartesian
-module _
-  (C : CartesianCategory ℓC ℓC')
-  (D : CartesianCategory ℓD ℓD')
-  where
-  open BinProduct
-  private
-    C×D = C .fst ×C D .fst
-    module C×D = Category C×D
-    module C = CartesianCategoryNotation C
-    module D = CartesianCategoryNotation D
-  -- TODO: this is a very manual definition for BinProducts
-  -- This should "just work" by pairing "terminal" elements,
-  -- viewing presheafs as displayed over the indexing category
-  -- But it seems like a sidetrack to do it right now
-  _×CC_ : CartesianCategory (ℓ-max ℓC ℓD) (ℓ-max ℓC' ℓD')
-  _×CC_ .fst = C×D
-  _×CC_ .snd .fst = (C.𝟙 , D.𝟙) , λ _ → (C.!t , D.!t) , (λ _ → ≡-× C.𝟙η' D.𝟙η')
-  _×CC_ .snd .snd (c , d) (c' , d') .binProdOb = (c C.×bp c') , (d D.×bp d')
-  _×CC_ .snd .snd (c , d) (c' , d') .binProdPr₁ = C.π₁ , D.π₁
-  _×CC_ .snd .snd (c , d) (c' , d') .binProdPr₂ = C.π₂ , D.π₂
-  _×CC_ .snd .snd (c , d) (c' , d') .univProp f g = uniqueExists
-    (f .fst C.,p g .fst , f .snd D.,p g .snd)
-    (≡-× C.×β₁ D.×β₁ , ≡-× C.×β₂ D.×β₂)
-    (λ _ _ _ → ≡-× (C×D.isSetHom _ _ _ _) (C×D.isSetHom _ _ _ _))
-    λ _ (p , q) → ≡-×
-      (C.×-extensionality (C.×β₁ ∙ congS fst (sym p)) (C.×β₂ ∙ congS fst (sym q)))
-      (D.×-extensionality (D.×β₁ ∙ congS snd (sym p)) (D.×β₂ ∙ congS snd (sym q)))
 
 -- probably useless helpers in case the domain of a cartesian functor is cartesian
 module _
@@ -138,19 +117,19 @@ module _
     module C = CartesianCategoryNotation C
     module A×C = CartesianCategoryNotation (A ×CC C)
     module B×D = Category (B ×C D)
-  ×CF : CartesianFunctor (A .fst ×C C .fst) (B ×C D)
-  ×CF .|F| = F .|F| ×F G .|F|
-  ×CF .PreservesBinProducts (a , c) (a' , c') = preservesAnyBinProduct'→preservesBinProduct'
+  _×CF_ : CartesianFunctor (A .fst ×C C .fst) (B ×C D)
+  _×CF_ .|F| = F .|F| ×F G .|F|
+  _×CF_ .PreservesBinProducts (a , c) (a' , c') = preservesAnyBinProduct'→preservesBinProduct'
     (A ×CC C)
     (B ×C D)
-    (×CF .|F|)
+    (_×CF_ .|F|)
     _
     _
     (BinProductToRepresentable _ ((A ×CC C) .snd .snd _ _))
     goal
     where
     goal : isUniversal (B ×C D)
-      (BinProductProf _ ⟅ ×CF .|F| ⟅ a , c ⟆ , ×CF .|F| ⟅ a' , c' ⟆ ⟆)
+      (BinProductProf _ ⟅ _×CF_ .|F| ⟅ a , c ⟆ , _×CF_ .|F| ⟅ a' , c' ⟆ ⟆)
       (F .|F| ⟅ a A.×bp a' ⟆ , G .|F| ⟅ c C.×bp c' ⟆)
       ((F .|F| ⟪ A.π₁ ⟫ , G .|F| ⟪ C.π₁ ⟫) , (F .|F| ⟪ A.π₂ ⟫ , G .|F| ⟪ C.π₂ ⟫))
     goal (b , d) .equiv-proof ((f₁ , g₁) , (f₂ , g₂)) =
@@ -168,9 +147,9 @@ module _
       G-preserves : isUniversal D (BinProductProf _ ⟅ G .|F| ⟅ c ⟆ , G .|F| ⟅ c' ⟆ ⟆) _ _
       G-preserves = G .PreservesBinProducts c c' (BinProductToRepresentable (C .fst) (C .snd .snd _ _))
       G-β = G-preserves d .equiv-proof (g₁ , g₂) .fst .snd
-  ×CF .PreservesTerminal =
+  _×CF_ .PreservesTerminal =
     preserveAnyTerminal→PreservesTerminals ((A ×CC C) .fst) (B ×C D)
-    (×CF .|F|) ((A ×CC C) .snd .fst)
+    (_×CF_ .|F|) ((A ×CC C) .snd .fst)
     (λ _ → (F-preserves _ .fst , G-preserves _ .fst) , λ _ → ≡-× (F-preserves _ .snd _) (G-preserves _ .snd _))
     where
     F-preserves : isTerminal B (F .|F| ⟅ A.𝟙 ⟆)

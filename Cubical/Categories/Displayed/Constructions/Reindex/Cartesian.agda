@@ -84,7 +84,7 @@ module _
     reindex .fst = Reindex.reindex (Dᴰ .fst) (F .|F|)
     reindex .snd .fst .vertexᴰ = 𝟙-isoLift .f*cᴰ
     reindex .snd .fst .elementᴰ = _
-    reindex .snd .fst .universalᴰ {xᴰ = xᴰ} .equiv-proof _ = uniqueExists
+    reindex .snd .fst .universalᴰ .equiv-proof _ = uniqueExists
       (R.reind D-𝟙'.𝟙η' (Dᴰ.!tᴰ _ Dᴰ.⋆ᴰ 𝟙-isoLift .σ))
       refl
       (λ _ _ _ → refl)

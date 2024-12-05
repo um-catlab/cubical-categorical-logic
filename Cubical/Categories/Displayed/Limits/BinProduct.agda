@@ -68,6 +68,13 @@ module LiftedBinProductsNotation
   π₂ᴰ : Cᴰ.Hom[ π₂ ][ d₁ ×ᴰ d₂ , d₂ ]
   π₂ᴰ {d₁ = d₁ }{d₂ = d₂} = bpᴰ (d₁ , d₂) .elementᴰ .snd
 
+  _,pᴰ'_ : (f : C [ c , c₁ BP.× c₂ ]) →
+    (Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₁ ][ d , d₁ ]) →
+    (Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₂ ][ d , d₂ ]) →
+    Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]
+  _,pᴰ'_ {d₁ = d₁}{d₂ = d₂} f f1ᴰ f2ᴰ =
+    bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof (f1ᴰ , f2ᴰ) .fst .fst
+
   _,pᴰ_ : {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
          → Cᴰ.Hom[ f₁ ][ d , d₁ ] → Cᴰ.Hom[ f₂ ][ d , d₂ ]
          → Cᴰ.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]

@@ -10,6 +10,10 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Cartesian.Functor
 
 import Cubical.Categories.Displayed.Constructions.IsoFiber.Base as |IsoFiber|
+open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Instances.Arrow.Base hiding (Iso)
+open import Cubical.Categories.Displayed.Instances.Arrow.Properties
+open import Cubical.Categories.Displayed.Instances.Arrow.Cartesian
 open import Cubical.Categories.Displayed.Limits.Cartesian
 
 private
@@ -24,3 +28,5 @@ module _ {C : CartesianCategory ℓC ℓC'} {D : CartesianCategory ℓD ℓD'}
     module D = CartesianCategoryNotation D
     IsoFiber : CartesianCategoryᴰ D {!!} {!!}
     IsoFiber = {!!}
+      where
+      foo = reindex (Iso D) (IdCF ×CF F) (hasPropHomsIso _) (isIsoFibrationIso _)

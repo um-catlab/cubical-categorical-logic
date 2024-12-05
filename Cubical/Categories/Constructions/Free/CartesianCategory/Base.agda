@@ -200,30 +200,30 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
   --       elimLocal : Section F Dᴰ
   --       elimLocal = elimLocal' lt lbp ϕ ψ
 
-  -- module _ (CC : CartesianCategory ℓC ℓC')
-  --   (ϕ : (o : Q .fst) → CC .fst .ob)
-  --   where
-  --   ϕ* : Q.Ob → CC .fst .ob
-  --   ϕ* = elim-F-ob
-  --     (weaken |FreeCartesianCategory| (CC .fst) ,
-  --     termWeaken (terminalToUniversalElement (FreeCartesianCategory .snd .fst))
-  --       (terminalToUniversalElement (CC .snd .fst)) ,
-  --     binprodWeaken
-  --       (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
-  --       (BinProductsToBinProducts' _ (CC .snd .snd)))
-  --     ϕ
-  --   module _ (ψ : (e : Q .snd .mor) →
-  --     CC .fst [
-  --       ϕ* (Q.Dom e) ,
-  --       ϕ* (Q.Cod e)
-  --     ])
-  --     where
-  --     -- TODO: rec preserves finite products
-  --     rec : Functor |FreeCartesianCategory| (CC .fst)
-  --     rec = introS⁻ (elim
-  --       ((weaken |FreeCartesianCategory| (CC .fst)) ,
-  --         termWeaken _ (terminalToUniversalElement (CC .snd .fst)) ,
-  --         binprodWeaken
-  --           (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
-  --           (BinProductsToBinProducts' _ (CC .snd .snd)))
-  --       ϕ ψ)
+  module _ (CC : CartesianCategory ℓC ℓC')
+    (ϕ : (o : Q .fst) → CC .fst .ob)
+    where
+    ϕ* : Q.Ob → CC .fst .ob
+    ϕ* = elim-F-ob
+      (weaken |FreeCartesianCategory| (CC .fst) ,
+      termWeaken (terminalToUniversalElement (FreeCartesianCategory .snd .fst))
+        (terminalToUniversalElement (CC .snd .fst)) ,
+      binprodWeaken
+        (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
+        (BinProductsToBinProducts' _ (CC .snd .snd)))
+      ϕ
+    module _ (ψ : (e : Q .snd .mor) →
+      CC .fst [
+        ϕ* (Q.Dom e) ,
+        ϕ* (Q.Cod e)
+      ])
+      where
+      -- TODO: rec preserves finite products
+      rec : Functor |FreeCartesianCategory| (CC .fst)
+      rec = introS⁻ (elim
+        ((weaken |FreeCartesianCategory| (CC .fst)) ,
+          termWeaken _ (terminalToUniversalElement (CC .snd .fst)) ,
+          binprodWeaken
+            (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
+            (BinProductsToBinProducts' _ (CC .snd .snd)))
+        ϕ ψ)

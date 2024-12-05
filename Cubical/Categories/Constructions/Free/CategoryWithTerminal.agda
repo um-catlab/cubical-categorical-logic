@@ -127,23 +127,23 @@ module _ (Ob : Type ℓg) where
           elim .F-idᴰ = refl
           elim .F-seqᴰ _ _ = refl
 
-    module _
-      {D : Category ℓD ℓD'}
-      (F : Functor FC D)
-      (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
-      (term'ᴰ : VerticalTerminalAt Dᴰ (F ⟅ inr _ ⟆))
-      where
-      private
-        module Dᴰ = Categoryᴰ Dᴰ
-        open VerticalTerminalAtNotation _ _ term'ᴰ
-      module _ (ϕ : ∀ o → Dᴰ.ob[ F ⟅ inl o ⟆ ]) where
-        private
-          ϕ* : ∀ v → Dᴰ.ob[ F ⟅ v ⟆ ]
-          ϕ* = Sum.elim ϕ λ _ → 1ᴰ
-        module _ (ψ : ∀ e → Dᴰ.Hom[ F ⟪ ↑ e ⟫ ][ ϕ* _ , ϕ* _ ]) where
-          elimLocal : Section F Dᴰ
-          elimLocal = GlobalSectionReindex→Section _ _
-            (elim _ (LiftedTerminalReindex term'ᴰ) ϕ ψ)
+    -- module _
+    --   {D : Category ℓD ℓD'}
+    --   (F : Functor FC D)
+    --   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+    --   (term'ᴰ : VerticalTerminalAt Dᴰ (F ⟅ inr _ ⟆))
+    --   where
+    --   private
+    --     module Dᴰ = Categoryᴰ Dᴰ
+    --     open VerticalTerminalAtNotation _ _ term'ᴰ
+    --   module _ (ϕ : ∀ o → Dᴰ.ob[ F ⟅ inl o ⟆ ]) where
+    --     private
+    --       ϕ* : ∀ v → Dᴰ.ob[ F ⟅ v ⟆ ]
+    --       ϕ* = Sum.elim ϕ λ _ → 1ᴰ
+    --     module _ (ψ : ∀ e → Dᴰ.Hom[ F ⟪ ↑ e ⟫ ][ ϕ* _ , ϕ* _ ]) where
+    --       elimLocal : Section F Dᴰ
+    --       elimLocal = GlobalSectionReindex→Section _ _
+    --         (elim _ (LiftedTerminalReindex term'ᴰ) ϕ ψ)
 
     module _ (D : Category ℓD ℓD')
              (term' : Terminal' D)

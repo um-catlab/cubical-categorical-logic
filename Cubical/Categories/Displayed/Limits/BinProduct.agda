@@ -113,6 +113,15 @@ module LiftedBinProductsNotation
     ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
     ×ηᴰ = toPathP (sym (cong fst ,pᴰ-contr))
 
+  ×η''ᴰ : ∀ {f g h p q r}
+            {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ]}
+            {gᴰ : Cᴰ.Hom[ g ][ d , d₂ ]}
+            {hᴰ : Cᴰ.Hom[ h ][ d , d₁ ×ᴰ d₂ ]}
+            (pᴰ : fᴰ Cᴰ.≡[ p ] hᴰ Cᴰ.⋆ᴰ π₁ᴰ)
+            (qᴰ : gᴰ Cᴰ.≡[ q ] hᴰ Cᴰ.⋆ᴰ π₂ᴰ)
+          → (fᴰ ,pᴰ gᴰ) Cᴰ.≡[ r ] hᴰ
+  ×η''ᴰ pᴰ qᴰ = R.rectify (R.≡out (R.≡in (congP₂ (λ _ → _,pᴰ_) pᴰ qᴰ) ∙ symP (R.≡in ×ηᴰ)))
+
 module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private module Cᴰ = Categoryᴰ Cᴰ
   -- meant to be used as `module cᴰ∧cᴰ' = VerticalBinProductsAtNotation vbp`

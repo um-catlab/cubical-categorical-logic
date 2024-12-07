@@ -61,8 +61,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     𝟙ᴰ : Cᴰ.ob[ 𝟙 ]
     𝟙ᴰ = termᴰ .vertexᴰ
 
-    !tᴰ' : ∀ {c f} (d : Cᴰ.ob[ c ]) → Cᴰ.Hom[ f ][ d , 𝟙ᴰ ]
-    !tᴰ' {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+    !tᴰ' : ∀ {c f} {d : Cᴰ.ob[ c ]} → Cᴰ.Hom[ f ][ d , 𝟙ᴰ ]
+    !tᴰ' {c} = termᴰ .universalᴰ .equiv-proof tt .fst .fst
 
     !tᴰ : ∀ {c} (d : Cᴰ.ob[ c ]) → Cᴰ.Hom[ !t ][ d , 𝟙ᴰ ]
     !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst

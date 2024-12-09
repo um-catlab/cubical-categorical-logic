@@ -1,3 +1,5 @@
+{-# OPTIONS --safe #-}
+{-# OPTIONS --lossy-unification #-}
 {-
   Weaken a cartesian category to be a displayed cartesian category.
 -}
@@ -21,8 +23,9 @@ private
 
 module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') where
   open UniversalElementᴰ
-  module C = CartesianCategoryNotation C
-  module D = CartesianCategoryNotation D
+  private
+    module C = CartesianCategoryNotation C
+    module D = CartesianCategoryNotation D
   weaken : CartesianCategoryᴰ C ℓD ℓD'
   weaken .fst = Weaken.weaken (C .fst) (D .fst)
   weaken .snd .fst .vertexᴰ = D.𝟙
@@ -38,4 +41,4 @@ module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') w
     (f D.,p g)
     (≡-× D.×β₁ D.×β₂)
     (λ _ → isSet× D.isSetHom D.isSetHom _ _)
-    λ h p → D.×η'' (sym (cong fst p)) (sym (cong snd p))
+    λ _ p → D.×η'' (sym (cong fst p)) (sym (cong snd p))

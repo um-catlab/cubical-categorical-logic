@@ -58,9 +58,12 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
     isFibrationPRESHEAFᴰ : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
     isFibrationPRESHEAFᴰ Pᴰ α .f*yᴰ = reindPresheafᴰ C α Pᴰ
     isFibrationPRESHEAFᴰ Pᴰ α .π = natTrans (λ x z → z) (λ _ → refl)
-    isFibrationPRESHEAFᴰ {c' = Q} Pᴰ α .isCartesian {g = β} .fst  βαᴰ = natTrans (βαᴰ ⟦_⟧) (λ _ → funExt (λ ϕᴰ →
+    isFibrationPRESHEAFᴰ {c' = Q} Pᴰ α .isCartesian {g = β} .fst  βαᴰ =
+      natTrans (βαᴰ ⟦_⟧) (λ _ → funExt (λ ϕᴰ →
       funExt⁻ (βαᴰ .N-hom _) ϕᴰ ∙
       congS (λ x → (Pᴰ ⟪ _ , x ⟫) ((βαᴰ ⟦ _ ⟧) ϕᴰ))
         ((Q ⟅ _ ⟆) .snd _ _ _ _)))
-    isFibrationPRESHEAFᴰ Pᴰ α .isCartesian {g = β} .snd .fst βαᴰ = makeNatTransPath refl
-    isFibrationPRESHEAFᴰ Pᴰ α .isCartesian {g = β} .snd .snd αᴰ = makeNatTransPath refl
+    isFibrationPRESHEAFᴰ Pᴰ α .isCartesian {g = β} .snd .fst βαᴰ =
+      makeNatTransPath refl
+    isFibrationPRESHEAFᴰ Pᴰ α .isCartesian {g = β} .snd .snd αᴰ =
+      makeNatTransPath refl

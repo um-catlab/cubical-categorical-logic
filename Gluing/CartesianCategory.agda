@@ -90,7 +90,8 @@ module _ where
     where
     sem : Functor (FREECC .fst) (SET ℓ-zero)
     sem = Law.rec _
-      (SET ℓ-zero , Terminal'ToTerminal terminal'SET , BinProducts'ToBinProducts _ BinProducts'SET)
+      (SET ℓ-zero , Terminal'ToTerminal terminal'SET
+                  , BinProducts'ToBinProducts _ BinProducts'SET)
       (mkInterpᴰ (λ { ans → Bool , isSetBool })
                  (λ { t,f (lift tt) → true , false }))
     n : FREECC .fst [ 𝟙 , [ans] ] → Bool

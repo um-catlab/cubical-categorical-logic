@@ -150,8 +150,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : Category ℓE ℓE')
   {F : Functor C D}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ')
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
   where
   open Functorᴰ
   open NatTransᴰ
@@ -164,8 +164,8 @@ module _
 
 module _
   {C : Category ℓC ℓC'} (E : Category ℓE ℓE')
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ')
-  (Fᴰ : Functorⱽ Cᴰ Dᴰ)
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') (Fᴰ : Functorⱽ Cᴰ Dᴰ)
   where
   open Functorᴰ
   open NatTransᴰ

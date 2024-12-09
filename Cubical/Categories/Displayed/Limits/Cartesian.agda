@@ -49,7 +49,8 @@ CartesianCategoryⱽ→CartesianCategoryᴰ :
   ∀ (C : CartesianCategory ℓC ℓC')
   → (Cᴰ : CartesianCategoryⱽ (C .fst) ℓCᴰ ℓCᴰ')
   → CartesianCategoryᴰ C ℓCᴰ ℓCᴰ'
-CartesianCategoryⱽ→CartesianCategoryᴰ (C , term , bp) (Cᴰ , isFibCᴰ , termⱽ , bpⱽ) =
+CartesianCategoryⱽ→CartesianCategoryᴰ
+  (C , term , bp) (Cᴰ , isFibCᴰ , termⱽ , bpⱽ) =
   Cᴰ
   , Terminalⱽ→Terminalᴰ Cᴰ (termⱽ _)
   , λ (xᴰ , yᴰ) → BinProductⱽ→BinProductᴰ (BinProductsToBinProducts' C bp _)

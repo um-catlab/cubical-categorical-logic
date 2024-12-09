@@ -19,7 +19,8 @@ open import Cubical.Categories.Presheaf
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base hiding (π; reindex)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
+  hiding (π; reindex)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.Terminal
@@ -70,8 +71,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 
     preservesBinProductⱽ : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
     preservesBinProductⱽ .vertexⱽ = vbp .vertexⱽ
-    preservesBinProductⱽ .elementⱽ .fst = R.reind (sym $ F .F-id) $ vbp .elementⱽ .fst
-    preservesBinProductⱽ .elementⱽ .snd = R.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
+    preservesBinProductⱽ .elementⱽ .fst =
+      R.reind (sym $ F .F-id) $ vbp .elementⱽ .fst
+    preservesBinProductⱽ .elementⱽ .snd =
+      R.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
     preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
     preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
       ( (R.rectify $ R.≡out $

@@ -6,7 +6,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma hiding (_×_)
-import Cubical.Data.Sigma as Σ
 
 open import
   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
@@ -27,7 +26,8 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
-open import Cubical.Categories.Displayed.Constructions.Reindex.Limits as CartReindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Limits
+  as CartReindex
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
 
@@ -102,7 +102,9 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       constructor mkInterpᴰ
       field
         ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]
-        ı-hom : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob ı-ob (Q.Dom e) , elim-F-ob ı-ob (Q.Cod e) ]
+        ı-hom : ∀ e
+          → Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob ı-ob (Q.Dom e)
+                         , elim-F-ob ı-ob (Q.Cod e) ]
     module _ (ı : Interpᴰ)
         where
         open Section

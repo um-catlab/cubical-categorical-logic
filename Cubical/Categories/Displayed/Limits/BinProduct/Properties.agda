@@ -71,10 +71,20 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
     -- ( ⟨ fᴰ *ᴰ (π₁ ⋆ⱽᴰ lift-π₁.π ⟩π₁* ,v ⟨ fᴰ *ⱽ π₂ ⟩π₂*) ≡[ η ] fᴰ
     BinProductⱽ→BinProductᴰ .universalᴰ .leftInv f fᴰ = R.rectify $ R.≡out $
       (R.≡in (cong₂ _,ⱽ_
-        (cong (lift-π₁ .isCartesian .fst) (cong (R.reind (sym (c×c'.×β₁))) (symP $ ⋆Assocᴰⱽᴰ Cᴰ _ _ _)))
-        (cong (lift-π₂ .isCartesian .fst) (cong (R.reind (sym (c×c'.×β₂))) (symP $ ⋆Assocᴰⱽᴰ Cᴰ _ _ _)))))
+        (cong (lift-π₁ .isCartesian .fst)
+          (cong (R.reind (sym (c×c'.×β₁))) (symP $ ⋆Assocᴰⱽᴰ Cᴰ _ _ _)))
+        (cong (lift-π₂ .isCartesian .fst)
+          (cong (R.reind (sym (c×c'.×β₂))) (symP $ ⋆Assocᴰⱽᴰ Cᴰ _ _ _)))))
       ∙ R.≡in {p = sym c×c'.×η} (congP₂ (λ _ → _,ⱽ_)
-                (congP (λ _ → lift-π₁ .isCartesian .fst) (R.rectify (R.≡out (sym (R.reind-filler (sym (c×c'.×β₁ )) (seqᴰⱽ Cᴰ fᴰ π₁ Cᴰ.⋆ᴰ lift-π₁ .π))))))
-                (congP (λ _ → lift-π₂ .isCartesian .fst) (R.rectify (R.≡out (sym (R.reind-filler (sym (c×c'.×β₂ )) (seqᴰⱽ Cᴰ fᴰ π₂ Cᴰ.⋆ᴰ lift-π₂ .π)))))))
-      ∙ R.≡in (congP₂ (λ _ → _,ⱽ_) (lift-π₁ .isCartesian .snd .snd (seqᴰⱽ Cᴰ fᴰ π₁)) (lift-π₂ .isCartesian .snd .snd (seqᴰⱽ Cᴰ fᴰ π₂)))
+                (congP (λ _ → lift-π₁ .isCartesian .fst)
+                  (R.rectify $ R.≡out $ sym $
+                    R.reind-filler (sym (c×c'.×β₁ ))
+                                   (seqᴰⱽ Cᴰ fᴰ π₁ Cᴰ.⋆ᴰ lift-π₁ .π)))
+                (congP (λ _ → lift-π₂ .isCartesian .fst)
+                  (R.rectify $ R.≡out $ sym $
+                    R.reind-filler (sym (c×c'.×β₂ ))
+                                   (seqᴰⱽ Cᴰ fᴰ π₂ Cᴰ.⋆ᴰ lift-π₂ .π))))
+      ∙ R.≡in (congP₂ (λ _ → _,ⱽ_)
+                      (lift-π₁ .isCartesian .snd .snd (seqᴰⱽ Cᴰ fᴰ π₁))
+                      (lift-π₂ .isCartesian .snd .snd (seqᴰⱽ Cᴰ fᴰ π₂)))
       ∙ R.≡in (symP ×ηⱽ)

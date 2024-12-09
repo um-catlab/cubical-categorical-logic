@@ -36,7 +36,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Properties
-open import Cubical.Categories.Displayed.Instances.Presheaf.Limits as PresheafLimits
+open import Cubical.Categories.Displayed.Instances.Presheaf.Limits
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Limits.BinProduct
 
@@ -79,7 +79,8 @@ module _ (Q : Quiver ℓQ ℓQ') where
   -- the use of rec to define the functor is just to save work, since no
   -- specific behavior on non-atoms is required
   extension : Functor (FREE-1,× .fst) (PresheafCategory FREE _)
-  extension = FCC.rec _ ((PresheafCategory FREE _ , ⊤𝓟 _ _ , ×𝓟 _ _)) (mkInterpᴰ (YO ⟅_⟆) (λ f → YO ⟪ ↑ f ⟫))
+  extension = FCC.rec _ ((PresheafCategory FREE _ , ⊤𝓟 _ _ , ×𝓟 _ _))
+    (mkInterpᴰ (YO ⟅_⟆) (λ f → YO ⟪ ↑ f ⟫))
 
   commutes : YO ≡ extension ∘F ⊆
   commutes = FreeCatFunctor≡ Q _ _
@@ -117,7 +118,9 @@ module _ (Q : Quiver ℓQ ℓQ') where
   S : Section nerve (PRESHEAFᴰ FREE _ _)
   S = FCC.elimLocal _
     -- tried to put this in Presheaf.Cartesian but it hangs :/
-    (_ , (isFibrationPRESHEAFᴰ _ _ _) , hasAllTerminalⱽPRESHEAFᴰ _ _ _ , hasAllBinProductⱽPRESHEAFᴰ _ _ _)
+    (_ , (isFibrationPRESHEAFᴰ _ _ _)
+       , hasAllTerminalⱽPRESHEAFᴰ _ _ _
+       , hasAllBinProductⱽPRESHEAFᴰ _ _ _)
     (mkInterpᴰ
       OB
       HOM)

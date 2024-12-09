@@ -53,7 +53,7 @@ module hasAllBinProductᴰNotation
     module BP = BinProducts'Notation bp'
     module Cᴰ = Categoryᴰ Cᴰ
     module R = HomᴰReasoning Cᴰ
-      
+
   open BP
 
   private

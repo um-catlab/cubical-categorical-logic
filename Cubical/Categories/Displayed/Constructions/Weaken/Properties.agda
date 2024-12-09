@@ -33,9 +33,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     termWeaken : Terminalᴰ (weaken C D) termC
     termWeaken .vertexᴰ = termD .vertex
     termWeaken .elementᴰ = termD .element
-    termWeaken .universalᴰ {xᴰ = d} .inv _ _ = UniversalElementNotation.intro termD _
+    termWeaken .universalᴰ {xᴰ = d} .inv _ _ =
+      UniversalElementNotation.intro termD _
     termWeaken .universalᴰ {xᴰ = d} .rightInv _ _ = refl
-    termWeaken .universalᴰ {xᴰ = d} .leftInv f g = sym $ UniversalElementNotation.η termD
+    termWeaken .universalᴰ {xᴰ = d} .leftInv f g =
+      sym $ UniversalElementNotation.η termD
   module _ (prodC : BinProducts' C)(prodD : BinProducts' D) where
     private module B = BinProducts'Notation prodD
     binprodWeaken : hasAllBinProductᴰ (weaken C D) prodC
@@ -56,4 +58,4 @@ module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') w
   weakenCartesianCategory .snd .snd =
     binprodWeaken
       (BinProductsToBinProducts' (C .fst) (C .snd .snd))
-      (BinProductsToBinProducts' (D .fst) (D .snd .snd)) 
+      (BinProductsToBinProducts' (D .fst) (D .snd .snd))

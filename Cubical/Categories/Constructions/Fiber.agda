@@ -10,23 +10,11 @@
 module Cubical.Categories.Constructions.Fiber where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv hiding (fiber)
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-
-open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Bifunctor.Redundant
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Profunctor.Relator
-open import Cubical.Categories.Profunctor.Hom
-open import Cubical.Categories.Profunctor.Homomorphism.Unary
-open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.HomPropertyOver
-open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Constructions.DisplayOverTerminal
 open import Cubical.Categories.Instances.Terminal
 
@@ -49,7 +37,7 @@ module _ {C : Category ℓC ℓC'}
   fiber x = DispOverTerminal→Category {ℓ* = ℓ-zero}
     (reindex Cᴰ (FunctorFromTerminal x))
   private
-    ob-test : ∀ x 
+    ob-test : ∀ x
       → fiber x .ob ≡ Cᴰ.ob[ x ]
     ob-test x = refl
 

@@ -100,8 +100,8 @@ Functorⱽ : {C : Category ℓC ℓC'}
   → Type _
 Functorⱽ = Functorᴰ Id
 
-module _ {C : Category ℓC ℓC'}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ C ℓEᴰ ℓEᴰ'}
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ C ℓEᴰ ℓEᴰ'}
   (Gᴰ : Functorⱽ Dᴰ Eᴰ) (Fᴰ : Functorⱽ Cᴰ Dᴰ)
   where
 
@@ -110,9 +110,9 @@ module _ {C : Category ℓC ℓC'}
 
   _∘Fⱽ_ = funcCompⱽ
 
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-  {F : Functor C D}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ D ℓEᴰ ℓEᴰ'}
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {Eᴰ : Categoryᴰ D ℓEᴰ ℓEᴰ'}
   (Gᴰ : Functorⱽ Dᴰ Eᴰ) (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
   where
 
@@ -121,9 +121,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
 
   _∘Fⱽᴰ_ = funcCompⱽᴰ
 
-module _ {D : Category ℓD ℓD'} {E : Category ℓE ℓE'}
-  {G : Functor D E}
-  {Cᴰ : Categoryᴰ D ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+module _ {D : Category ℓD ℓD'} {E : Category ℓE ℓE'} {G : Functor D E}
+  {Cᴰ : Categoryᴰ D ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
   (Gᴰ : Functorᴰ G Dᴰ Eᴰ) (Fᴰ : Functorⱽ Cᴰ Dᴰ)
   where
 

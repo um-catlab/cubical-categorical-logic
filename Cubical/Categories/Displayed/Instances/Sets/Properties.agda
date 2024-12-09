@@ -56,18 +56,34 @@ hasVerticalBinProds : hasAllBinProductⱽ (SETᴰ ℓ ℓ')
 hasVerticalBinProds {x = A} (Aᴰ₁ , Aᴰ₂) .vertexⱽ a =
   (⟨ Aᴰ₁ a ⟩ × ⟨ Aᴰ₂ a ⟩) , (isSet× (Aᴰ₁ a .snd) (Aᴰ₂ a .snd))
 hasVerticalBinProds (A₁ , A₂) .elementⱽ = (λ x₁ z → z .fst) , (λ x₁ z → z .snd)
-hasVerticalBinProds (A₁ , A₂) .universalⱽ .fst x x₁ x₂ = x .fst x₁ x₂ , x .snd x₁ x₂
+hasVerticalBinProds (A₁ , A₂) .universalⱽ .fst x x₁ x₂ =
+  x .fst x₁ x₂ , x .snd x₁ x₂
 -- sad transportRefl here
-hasVerticalBinProds (A₁ , A₂) .universalⱽ .snd .fst b = sym (transport-filler _ _)
--- the transports here are caused by the fact that vertical composition is defined using reindexing :/
--- the only way to avoid this would be to "fatten" the definition of displayed categories to include the "redundant" vertical and heterogeneous compositions
--- then in the case of nice examples like SETᴰ (and possibly PRESHEAFᴰ) we would get that there is no transport required
-hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a = funExt₂ λ b bᴰ →
-  ΣPathP
-   ( fromPathP {A = λ i₁ → fst (A₁ (f (transp (λ j → fst B) i₁ b)))} (λ i → a (transport-filler (λ _ → ⟨ B ⟩) b (~ i)) (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b))) bᴰ (~ i)) .fst)
-   , fromPathP {A = λ i₁ → fst (A₂ (f (transp (λ j → fst B) i₁ b)))} (λ i → a (transport-filler (λ _ → ⟨ B ⟩) b (~ i)) (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b))) bᴰ (~ i)) .snd))
+hasVerticalBinProds (A₁ , A₂) .universalⱽ .snd .fst b =
+  sym $ transport-filler _ _
 
-SETᴰCartesianCategoryⱽ : ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+-- the transports here are caused by the fact that vertical
+-- composition is defined using reindexing :/ the only way to avoid
+-- this would be to "fatten" the definition of displayed categories to
+-- include the "redundant" vertical and heterogeneous compositions
+-- then in the case of nice examples like SETᴰ (and possibly
+-- PRESHEAFᴰ) we would get that there is no transport required
+hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a =
+  funExt₂ λ b bᴰ →
+  ΣPathP
+   ( fromPathP {A = λ i₁ → fst (A₁ (f (transp (λ j → fst B) i₁ b)))}
+     (λ i → a
+       (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
+       (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
+         bᴰ (~ i)) .fst)
+   , fromPathP {A = λ i₁ → fst (A₂ (f (transp (λ j → fst B) i₁ b)))}
+     (λ i → a
+       (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
+       (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
+         bᴰ (~ i)) .snd))
+
+SETᴰCartesianCategoryⱽ :
+  ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
 SETᴰCartesianCategoryⱽ ℓ ℓ' .fst = SETᴰ ℓ ℓ'
 SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .fst = isFibrationSETᴰ
 SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .fst = hasVerticalTerminals

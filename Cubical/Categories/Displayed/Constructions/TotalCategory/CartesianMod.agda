@@ -57,17 +57,17 @@ module _
       h₁,h₂ᴰᴰ = h₁ᴰᴰ Cᴰᴰ.,pᴰ h₂ᴰᴰ
     -- try to reduce  performance issue in
     -- Displayed.Constructions.TotalCategory.Cartesian
+    ΣCᴰHom : Type (ℓ-max ℓC' ℓCᴰ')
+    ΣCᴰHom = Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ h ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
+    ΣCᴰHom-η : Type (ℓ-max ℓC' ℓCᴰ')
+    ΣCᴰHom-η = Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ (h C.⋆ C.π₁) C.,p (h C.⋆ C.π₂) ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
+    q''' : Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ h ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
+    q''' = h , hᴰ
+    q'' : Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ h ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
+    q'' = ((h C.⋆ C.π₁) C.,p (h C.⋆ C.π₂)) , (h₁ᴰ Cᴰ.,pᴰ h₂ᴰ)
     opaque
     --module _ where
       --private
-        ΣCᴰHom : Type (ℓ-max ℓC' ℓCᴰ')
-        ΣCᴰHom = Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ h ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
-        ΣCᴰHom-η : Type (ℓ-max ℓC' ℓCᴰ')
-        ΣCᴰHom-η = Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ (h C.⋆ C.π₁) C.,p (h C.⋆ C.π₂) ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
-        q''' : ΣCᴰHom
-        q''' = h , hᴰ
-        q'' : ΣCᴰHom
-        q'' = ((h C.⋆ C.π₁) C.,p (h C.⋆ C.π₂)) , (h₁ᴰ Cᴰ.,pᴰ h₂ᴰ)
         --q'''' : ΣCᴰHom-η
         --q'''' = h , (h₁ᴰ Cᴰ.,pᴰ h₂ᴰ)
         p : q''' ≡ q''
@@ -78,8 +78,8 @@ module _
 
         hᴰᴰ : Cᴰᴰ.Hom[ h , hᴰ ][ xᴰᴰ , cᴰᴰ Cᴰᴰ.×ᴰ c'ᴰᴰ ]
         hᴰᴰ = R.reind (sym p) h₁,h₂ᴰᴰ
-    opaque
-        unfolding ΣCᴰHom q'' q''' p
+    --opaque
+    --    unfolding ΣCᴰHom q'' q''' p
         test : ΣCᴰHom ≡ Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ h ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
         test = refl
         ttt : Σ C.Hom[ x , c C.×bp c' ] (λ h → Cᴰ.Hom[ h ][ xᴰ , cᴰ Cᴰ.×ᴰ c'ᴰ ])
@@ -99,7 +99,7 @@ module _
         --testt : q''' ≡ {!ttt!}
         --testt = refl
     --  private
-        A : h₁,h₂ᴰᴰ Cᴰᴰ.≡[ {!ddd!} {- sym p -} ] hᴰᴰ
+        A : h₁,h₂ᴰᴰ Cᴰᴰ.≡[ sym p {- sym p -} ] hᴰᴰ
         A = R.≡out (R.reind-filler _ _)
       ---- rectify to be over an arbitrary path that isn't 700 lines long
       ---- so we can make these lemmas opaque

@@ -16,11 +16,13 @@ open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.BinProduct.Redundant
+import Cubical.Categories.Constructions.BinProduct as BP
+open import Cubical.Categories.Constructions.BinProduct.Cartesian
+open import Cubical.Categories.Constructions.BinProduct.Redundant hiding (_×C_)
 
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
 
 open UniversalElement
 open UniversalElementᴰ
@@ -37,7 +39,7 @@ module _ (C : CartesianCategory ℓC ℓC') where
   private
     module C = CartesianCategoryNotation C
     hasPropHomsIso = Arrow.hasPropHomsIso (C .fst)
-  Iso : CartesianCategoryᴰ (C ×CC C) ℓC' ℓC'
+  Iso : CartesianCategoryᴰ (C ×C C) ℓC' ℓC'
   Iso .fst = Arrow.Iso (C .fst)
   Iso .snd .fst .vertexᴰ = idCatIso
   Iso .snd .fst .elementᴰ = tt
@@ -59,3 +61,9 @@ module _ (C : CartesianCategory ℓC ℓC') where
     (≡-× (hasPropHomsIso _ _ _ _ _) (hasPropHomsIso _ _ _ _ _))
     (λ _ _ _ → isProp→isSet (isProp× (hasPropHomsIso _ _ _) (hasPropHomsIso _ _ _)) _ _ _ _)
     (λ _ _ → ≡-× (C.isSetHom _ _ _ _) refl)
+
+module _ {C : CartesianCategory ℓC ℓC'} {D : CartesianCategory ℓD ℓD'}
+  (F G : CartesianFunctor (C .fst) (D .fst))
+  where
+  IsoComma : CartesianCategoryᴰ C {!!} {!!}
+  IsoComma = reindex (Iso D) {!F ,F G!} {!!} {!!}

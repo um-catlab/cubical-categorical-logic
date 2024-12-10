@@ -15,6 +15,7 @@ open import Cubical.Categories.Displayed.Instances.Arrow.Base hiding (Iso)
 open import Cubical.Categories.Displayed.Instances.Arrow.Properties
 open import Cubical.Categories.Displayed.Instances.Arrow.Cartesian
 open import Cubical.Categories.Displayed.Limits.Cartesian
+open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR.Cartesian
 
 private
   variable
@@ -23,10 +24,8 @@ private
 module _ {C : CartesianCategory ℓC ℓC'} {D : CartesianCategory ℓD ℓD'}
   (F : CartesianFunctor (C .fst) (D .fst))
   where
+  IsoFiber : CartesianCategoryᴰ D _ _
+  IsoFiber = ∫Cᴰsr D C (reindex (Iso D) (_×F_ {A = D} {C = C} (IdCF {C = D}) F) (hasPropHomsIso _) (isIsoFibrationIso _))
   private
-    module C = CartesianCategoryNotation C
-    module D = CartesianCategoryNotation D
-    IsoFiber : CartesianCategoryᴰ D {!!} {!!}
-    IsoFiber = {!!}
-      where
-      foo = reindex (Iso D) (IdCF ×CF F) (hasPropHomsIso _) (isIsoFibrationIso _)
+    test : IsoFiber .fst ≡ |IsoFiber|.IsoFiber (F .CartesianFunctor.|F|)
+    test = refl

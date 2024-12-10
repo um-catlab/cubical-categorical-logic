@@ -10,6 +10,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Limits.Cartesian.Base
 import Cubical.Categories.Displayed.Instances.Arrow.Base as Arrow
+import Cubical.Categories.Displayed.Instances.Arrow.Properties as Arrow
 open import Cubical.Categories.Limits.Cartesian.Functor
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.BinProduct
@@ -39,6 +40,7 @@ module _ (C : CartesianCategory ℓC ℓC') where
   private
     module C = CartesianCategoryNotation C
     hasPropHomsIso = Arrow.hasPropHomsIso (C .fst)
+
   Iso : CartesianCategoryᴰ (C ×C C) ℓC' ℓC'
   Iso .fst = Arrow.Iso (C .fst)
   Iso .snd .fst .vertexᴰ = idCatIso
@@ -65,5 +67,5 @@ module _ (C : CartesianCategory ℓC ℓC') where
 module _ {C : CartesianCategory ℓC ℓC'} {D : CartesianCategory ℓD ℓD'}
   (F G : CartesianFunctor (C .fst) (D .fst))
   where
-  IsoComma : CartesianCategoryᴰ C {!!} {!!}
-  IsoComma = reindex (Iso D) {!F ,F G!} {!!} {!!}
+  IsoComma : CartesianCategoryᴰ C _ _
+  IsoComma = reindex (Iso D) (_,F_ {A = C} F G) (Arrow.hasPropHomsIso _) (Arrow.isIsoFibrationIso _)

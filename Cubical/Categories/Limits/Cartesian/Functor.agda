@@ -23,7 +23,8 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Constructions.BinProduct
+import Cubical.Categories.Constructions.BinProduct as BP
+open import Cubical.Categories.Constructions.BinProduct.Cartesian
 
 private
   variable
@@ -106,6 +107,68 @@ module _
 -- made easier assuming everything is cartesian?
 -- Or maybe that assumption isn't useful
 module _
+  {A : CartesianCategory ℓA ℓA'}
+  {B : Category ℓB ℓB'}
+  {C : Category ℓC ℓC'}
+  (F : CartesianFunctor (A .fst) B)
+  (G : CartesianFunctor (A .fst) C)
+  where
+  open CartesianFunctor
+  private
+    module A = CartesianCategoryNotation A
+    module B×C = Category  (B BP.×C C)
+  -- TODO: using _,F_ right now requires explicitly specifying A, since F and G don't depend on A .snd
+  _,F_ : CartesianFunctor (A .fst) (B BP.×C C)
+  _,F_ .|F| = F .|F| BP.,F G .|F|
+  _,F_ .PreservesBinProducts a a' = preservesAnyBinProduct'→preservesBinProduct'
+    A
+    (B BP.×C C)
+    (_,F_ .|F| )
+    _
+    _
+    (BinProductToRepresentable _ (A .snd .snd _ _))
+    goal
+    where
+    goal : isUniversal (B BP.×C C)
+      (BinProductProf _ ⟅ _,F_ .|F| ⟅ a ⟆ , _,F_ .|F| ⟅ a' ⟆ ⟆)
+      ((F .|F| ⟅ a A.×bp a' ⟆ , G .|F| ⟅ a A.×bp a' ⟆))
+      ((F .|F| ⟪ A.π₁ ⟫ , G .|F| ⟪ A.π₁ ⟫) , (F .|F| ⟪ A.π₂ ⟫ , G .|F| ⟪ A.π₂ ⟫))
+    goal (b , c) .equiv-proof ((f , f') , (g , g')) = uniqueExists
+      (f,g , f',g')
+      (≡-× (≡-× (congS fst F-β) (congS fst G-β)) (≡-× (congS snd F-β) (congS snd G-β)))
+      (λ _ → isSet× B×C.isSetHom B×C.isSetHom _ _)
+      λ (h , h') p → ≡-×
+        (cong fst (F-η (h , ≡-× (congS (fst ∘S fst) p) (congS (fst ∘S snd) p))))
+        (cong fst (G-η (h' , ≡-× (cong (snd ∘S fst) p) (congS (snd ∘S snd) p))))
+      where
+      F-preserves : isUniversal B (BinProductProf _ ⟅ F .|F| ⟅ a ⟆ , F .|F| ⟅ a' ⟆ ⟆) _ _
+      F-preserves = F .PreservesBinProducts a a' (BinProductToRepresentable (A .fst) (A .snd .snd _ _))
+      f,g = F-preserves b .equiv-proof (f , g) .fst .fst
+      F-β = F-preserves b .equiv-proof (f , g) .fst .snd
+      F-η = F-preserves b .equiv-proof (f , g) .snd
+      G-preserves : isUniversal C (BinProductProf _ ⟅ G .|F| ⟅ a ⟆ , G .|F| ⟅ a' ⟆ ⟆) _ _
+      G-preserves = G .PreservesBinProducts a a' (BinProductToRepresentable (A .fst) (A .snd .snd _ _))
+      f',g' = G-preserves c .equiv-proof (f' , g') .fst .fst
+      G-β = G-preserves c .equiv-proof (f' , g') .fst .snd
+      G-η = G-preserves c .equiv-proof (f' , g') .snd
+  _,F_ .PreservesTerminal = preserveAnyTerminal→PreservesTerminals
+    (A .fst)
+    (B BP.×C C)
+    (_,F_ .|F|)
+    (A .snd .fst)
+    λ _ → (F-preserves _ .fst , G-preserves _ .fst) , λ _ → ≡-× (F-preserves _ .snd _) (G-preserves _ .snd _)
+    where
+    F-preserves : isTerminal B (F .|F| ⟅ A.𝟙 ⟆)
+    F-preserves = F .PreservesTerminal (A .snd .fst)
+    G-preserves : isTerminal C (G .|F| ⟅ A.𝟙 ⟆)
+    G-preserves = G .PreservesTerminal (A .snd .fst)
+-- TODO: this should be defined as the composition of ,F and the projections,
+-- but we don't need this right now and would need composition of cartesian
+-- functors first, which requires modifying the morphism of presheaf stuff to
+-- not require lifts
+-- Although this is technically useable since the underlying functor is just BP.×F
+-- it just duplicates the above proof essentially
+module _
   {A : CartesianCategory ℓA ℓA'}{B : Category ℓB ℓB'}
   {C : CartesianCategory ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : CartesianFunctor (A .fst) B)
@@ -115,28 +178,29 @@ module _
   private
     module A = CartesianCategoryNotation A
     module C = CartesianCategoryNotation C
-    module A×C = CartesianCategoryNotation (A ×CC C)
-    module B×D = Category (B ×C D)
-  _×CF_ : CartesianFunctor (A .fst ×C C .fst) (B ×C D)
-  _×CF_ .|F| = F .|F| ×F G .|F|
-  _×CF_ .PreservesBinProducts (a , c) (a' , c') = preservesAnyBinProduct'→preservesBinProduct'
-    (A ×CC C)
-    (B ×C D)
-    (_×CF_ .|F|)
+    module A×C = CartesianCategoryNotation (A ×C C)
+    module B×D = Category (B BP.×C D)
+  -- TODO: same thing about implicit argumens here
+  _×F_ : CartesianFunctor (A .fst BP.×C C .fst) (B BP.×C D)
+  _×F_ .|F| = F .|F| BP.×F G .|F|
+  _×F_ .PreservesBinProducts (a , c) (a' , c') = preservesAnyBinProduct'→preservesBinProduct'
+    (A ×C C)
+    (B BP.×C D)
+    (_×F_ .|F|)
     _
     _
-    (BinProductToRepresentable _ ((A ×CC C) .snd .snd _ _))
+    (BinProductToRepresentable _ ((A ×C C) .snd .snd _ _))
     goal
     where
-    goal : isUniversal (B ×C D)
-      (BinProductProf _ ⟅ _×CF_ .|F| ⟅ a , c ⟆ , _×CF_ .|F| ⟅ a' , c' ⟆ ⟆)
+    goal : isUniversal (B BP.×C D)
+      (BinProductProf _ ⟅ _×F_ .|F| ⟅ a , c ⟆ , _×F_ .|F| ⟅ a' , c' ⟆ ⟆)
       (F .|F| ⟅ a A.×bp a' ⟆ , G .|F| ⟅ c C.×bp c' ⟆)
       ((F .|F| ⟪ A.π₁ ⟫ , G .|F| ⟪ C.π₁ ⟫) , (F .|F| ⟪ A.π₂ ⟫ , G .|F| ⟪ C.π₂ ⟫))
     goal (b , d) .equiv-proof ((f₁ , g₁) , (f₂ , g₂)) =
       uniqueExists
       (F-preserves b .equiv-proof (f₁ , f₂) .fst .fst , G-preserves d .equiv-proof (g₁ , g₂) .fst .fst)
-      (ΣPathP (≡-× (congS fst F-β) (congS fst G-β) , ≡-× (congS snd F-β) (congS snd G-β)))
-      (λ _ _ _ → isSet× B×D.isSetHom B×D.isSetHom _ _ _ _)
+      (≡-× (≡-× (congS fst F-β) (congS fst G-β)) (≡-× (congS snd F-β) (congS snd G-β)))
+      (λ _ → isSet× B×D.isSetHom B×D.isSetHom _ _)
       λ (h , h') p → ≡-×
         (congS fst (F-preserves b .equiv-proof (f₁ , f₂) .snd (h , ≡-× (congS (fst ∘S fst) p) (congS (fst ∘S snd) p))))
         (congS fst (G-preserves d .equiv-proof (g₁ , g₂) .snd (h' , (≡-× (congS (snd ∘S fst) p) (congS (snd ∘S snd) p)))))
@@ -147,9 +211,9 @@ module _
       G-preserves : isUniversal D (BinProductProf _ ⟅ G .|F| ⟅ c ⟆ , G .|F| ⟅ c' ⟆ ⟆) _ _
       G-preserves = G .PreservesBinProducts c c' (BinProductToRepresentable (C .fst) (C .snd .snd _ _))
       G-β = G-preserves d .equiv-proof (g₁ , g₂) .fst .snd
-  _×CF_ .PreservesTerminal =
-    preserveAnyTerminal→PreservesTerminals ((A ×CC C) .fst) (B ×C D)
-    (_×CF_ .|F|) ((A ×CC C) .snd .fst)
+  _×F_ .PreservesTerminal =
+    preserveAnyTerminal→PreservesTerminals ((A ×C C) .fst) (B BP.×C D)
+    (_×F_ .|F|) ((A ×C C) .snd .fst)
     (λ _ → (F-preserves _ .fst , G-preserves _ .fst) , λ _ → ≡-× (F-preserves _ .snd _) (G-preserves _ .snd _))
     where
     F-preserves : isTerminal B (F .|F| ⟅ A.𝟙 ⟆)

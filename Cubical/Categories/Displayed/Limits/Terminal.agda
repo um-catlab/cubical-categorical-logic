@@ -61,6 +61,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     𝟙ᴰ : Cᴰ.ob[ 𝟙 ]
     𝟙ᴰ = termᴰ .vertexᴰ
 
+    !tᴰ' : ∀ {c f} {d : Cᴰ.ob[ c ]} → Cᴰ.Hom[ f ][ d , 𝟙ᴰ ]
+    !tᴰ' {c} = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+
     !tᴰ : ∀ {c} (d : Cᴰ.ob[ c ]) → Cᴰ.Hom[ !t ][ d , 𝟙ᴰ ]
     !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
 
@@ -69,6 +72,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     𝟙ηᴰ {c} {d} {f} fᴰ = R.rectify (toPathP (sym fᴰ-commutes))
       where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
             fᴰ-commutes = cong fst (contr!tᴰ .snd (reind Cᴰ (𝟙η _) fᴰ , refl))
+
+    𝟙η'ᴰ : ∀ {c} {d : Cᴰ.ob[ c ]}
+        {f} {g} {p : f ≡ g}
+        (fᴰ : Cᴰ.Hom[ f ][ d , 𝟙ᴰ ])
+        (gᴰ : Cᴰ.Hom[ g ][ d , 𝟙ᴰ ])
+        → fᴰ Cᴰ.≡[ p ] gᴰ
+    𝟙η'ᴰ fᴰ gᴰ = R.rectify (R.≡out (R.≡in (𝟙ηᴰ fᴰ) ∙ symP (R.≡in (𝟙ηᴰ gᴰ))))
 
   module _ (c : C .ob) where
     -- Terminal object of the fiber of a fixed object

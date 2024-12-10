@@ -15,13 +15,16 @@ module _ (ob : Type ℓ) where
     field
       mor : Type ℓ'
       dom : mor → ProdExpr
-      cod : mor → ProdExpr
+      -- atomic function symbols are only at base types, WLOG, since a function
+      -- symbol at a product type is "just" a finite number of paired function
+      -- symbols
+      cod : mor → ob
 
 ×Quiver : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 ×Quiver ℓ ℓ' = Σ[ ob ∈ Type ℓ ] ProductQuiver ob ℓ'
 
 module ×QuiverNotation (Q : ×Quiver ℓ ℓ') where
-  open ProductQuiver
+  open ProductQuiver (Q .snd) public
   Ob = ProdExpr (Q .fst)
-  Dom = Q .snd .dom
-  Cod = Q .snd .cod
+  Dom = dom
+  Cod = cod

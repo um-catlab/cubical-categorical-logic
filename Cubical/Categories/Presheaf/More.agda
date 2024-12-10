@@ -9,6 +9,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Instances.Sets
@@ -116,3 +117,41 @@ module UniversalElementNotation {ℓo}{ℓh}
     ( (∘ᴾAssoc C P _ _ _
     ∙ cong (action C P _) β)
     ∙ sym β)
+
+module _ {ℓo}{ℓh}{ℓp} {C : Category ℓo ℓh} {P : Presheaf C ℓp}
+  (ue ue' : UniversalElement C P) where
+  open UniversalElement
+  open isIso
+  private
+    module ue = UniversalElementNotation ue
+    module ue' = UniversalElementNotation ue'
+    ∫P = Elements C P
+    ue→Terminal = universalElementToTerminalElement _ _ ue
+    ue'→Terminal = universalElementToTerminalElement _ _ ue'
+    module ue→Terminal = TerminalNotation ∫P ue→Terminal
+    module ue'→Terminal = TerminalNotation ∫P ue'→Terminal
+    ElementsIso : CatIso ∫P (ue→Terminal.𝟙) (ue'→Terminal.𝟙)
+    ElementsIso = terminalToIso _ ue→Terminal ue'→Terminal
+    module _ (ϕ : ∫P .ob) where
+      Elements-triangle :
+        ue→Terminal.!t {a = ϕ} ⋆⟨ ∫P ⟩ ElementsIso .fst ≡ ue'→Terminal.!t {a = ϕ}
+      Elements-triangle = ue'→Terminal.𝟙η'
+      Elements-triangle' :
+        ue'→Terminal.!t {a = ϕ} ⋆⟨ ∫P ⟩ ElementsIso .snd .inv ≡ ue→Terminal.!t {a = ϕ}
+      Elements-triangle' = ue→Terminal.𝟙η'
+  -- I don't know if this is the "best" interface, but let's list each lemma as
+  -- we go, and add as needed
+  UniversalElements→Iso : CatIso C (ue .vertex) (ue' .vertex)
+  UniversalElements→Iso .fst = ElementsIso .fst .fst
+  UniversalElements→Iso .snd .inv = ElementsIso  .snd .inv .fst
+  UniversalElements→Iso .snd .sec = congS fst (ElementsIso .snd .sec)
+  UniversalElements→Iso .snd .ret = congS fst (ElementsIso .snd .ret)
+  UniversalElements→CanonicalIso : ue' .element ∘ᴾ⟨ C , P ⟩ UniversalElements→Iso .fst ≡ ue .element
+  UniversalElements→CanonicalIso = ElementsIso .fst .snd
+  module _ (ϕ : ∫P .ob) where
+    UniversalElements-triangle :
+      ue.intro (ϕ .snd) ⋆⟨ C ⟩ UniversalElements→Iso .fst ≡ ue'.intro (ϕ .snd)
+    UniversalElements-triangle = congS fst (Elements-triangle ϕ)
+    UniversalElements-triangle' :
+      ue'.intro (ϕ .snd) ⋆⟨ C ⟩ UniversalElements→Iso .snd .inv ≡ ue.intro (ϕ .snd)
+    UniversalElements-triangle' = congS fst (Elements-triangle' ϕ)

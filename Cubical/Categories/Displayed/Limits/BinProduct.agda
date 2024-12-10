@@ -1,4 +1,5 @@
 {-# OPTIONS --safe #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.BinProduct where
 
 open import Cubical.Foundations.Prelude
@@ -68,6 +69,30 @@ module LiftedBinProductsNotation
   π₂ᴰ : Cᴰ.Hom[ π₂ ][ d₁ ×ᴰ d₂ , d₂ ]
   π₂ᴰ {d₁ = d₁ }{d₂ = d₂} = bpᴰ (d₁ , d₂) .elementᴰ .snd
 
+  _,pᴰ'_ : {f : C [ c , c₁ BP.× c₂ ]} →
+    (Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₁ ][ d , d₁ ]) →
+    (Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₂ ][ d , d₂ ]) →
+    Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]
+  _,pᴰ'_ {d₁ = d₁}{d₂ = d₂} f1ᴰ f2ᴰ =
+    bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof (f1ᴰ , f2ᴰ) .fst .fst
+
+  --_,p'ᴰ_ : {f : C [ c , c₁ BP.× c₂ ]} →
+  --  (Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₁ ][ d , d₁ ]) →
+  --  (Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₂ ][ d , d₂ ]) →
+  --  Cᴰ.Hom[ f ,p' g ][ d , d₁ ×ᴰ d₂ ]
+  --_,p'ᴰ_ {d₁ = d₁}{d₂ = d₂} f1ᴰ f2ᴰ =
+  --  bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof (f1ᴰ , f2ᴰ) .fst .fst
+
+  module _ {f : C [ c , c₁ BP.× c₂ ]}
+           {f₁ᴰ : Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₁ ][ d , d₁ ]}
+           {f₂ᴰ : Cᴰ.Hom[ f ⋆⟨ C ⟩ BP.π₂ ][ d , d₂ ]}
+         where
+    ×β₁ᴰ' : ((f₁ᴰ ,pᴰ' f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) ≡ f₁ᴰ
+    ×β₁ᴰ' = cong fst (bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof (f₁ᴰ , f₂ᴰ) .fst .snd)
+
+    ×β₂ᴰ' : ((f₁ᴰ ,pᴰ' f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) ≡ f₂ᴰ
+    ×β₂ᴰ' = cong snd (bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof (f₁ᴰ , f₂ᴰ) .fst .snd)
+
   _,pᴰ_ : {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
          → Cᴰ.Hom[ f₁ ][ d , d₁ ] → Cᴰ.Hom[ f₂ ][ d , d₂ ]
          → Cᴰ.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]
@@ -105,6 +130,24 @@ module LiftedBinProductsNotation
                              R.reind-filler (sym ×β₂) _))))
     ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
     ×ηᴰ = toPathP (sym (cong fst ,pᴰ-contr))
+
+  ×η''ᴰ : ∀ {f g h p q}
+            {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ]}
+            {gᴰ : Cᴰ.Hom[ g ][ d , d₂ ]}
+            {hᴰ : Cᴰ.Hom[ h ][ d , d₁ ×ᴰ d₂ ]}
+            (pᴰ : fᴰ Cᴰ.≡[ p ] hᴰ Cᴰ.⋆ᴰ π₁ᴰ)
+            (qᴰ : gᴰ Cᴰ.≡[ q ] hᴰ Cᴰ.⋆ᴰ π₂ᴰ)
+          → (fᴰ ,pᴰ gᴰ) Cᴰ.≡[ ×η'' p q ] hᴰ
+  ×η''ᴰ pᴰ qᴰ = R.rectify (R.≡out (R.≡in (congP₂ (λ _ → _,pᴰ_) pᴰ qᴰ) ∙ symP (R.≡in ×ηᴰ)))
+
+  ×η''ᴰ' : ∀ {f}
+            {f₁ᴰ : Cᴰ.Hom[ f ⋆⟨ C ⟩ π₁ ][ d , d₁ ]}
+            {f₂ᴰ : Cᴰ.Hom[ f ⋆⟨ C ⟩ π₂ ][ d , d₂ ]}
+            {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
+            (pᴰ : fᴰ Cᴰ.⋆ᴰ π₁ᴰ ≡ f₁ᴰ)
+            (qᴰ : fᴰ Cᴰ.⋆ᴰ π₂ᴰ ≡ f₂ᴰ)
+          → (f₁ᴰ ,pᴰ' f₂ᴰ) ≡ fᴰ
+  ×η''ᴰ' {d₁ = d₁} {d₂ = d₂} pᴰ qᴰ = cong fst (bpᴰ (d₁ , d₂) .universalᴰ .equiv-proof (_ , _) .snd (_ , ≡-× pᴰ qᴰ))
 
 module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private module Cᴰ = Categoryᴰ Cᴰ

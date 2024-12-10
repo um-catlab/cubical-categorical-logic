@@ -17,6 +17,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.CCC
 
 open import Cubical.Categories.Displayed.Base
@@ -140,3 +141,7 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   PRESHEAFᴰ-isFibration : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
   PRESHEAFᴰ-isFibration _ = CartesianOver→CartesianLift
     (PRESHEAFᴰ C _ _) (PRESHEAFᴰ-AllCartesianOvers _ _)
+
+  PRESHEAFᴰ-LiftedBinProducts : LiftedBinProducts (PRESHEAFᴰ C ℓS ℓSᴰ)
+    (BinProductsToBinProducts' _ (×𝓟 _ _))
+  PRESHEAFᴰ-LiftedBinProducts _ = VerticalBinProdsAt→LiftedBinProduct _ _ (PRESHEAFᴰ-AllCartesianOvers _ _) (PRESHEAFᴰ-AllCartesianOvers _ _) (PRESHEAFᴰ-VerticalProducts _)

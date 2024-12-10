@@ -61,6 +61,8 @@ module _
   -- r for "right" because D is on the right of the product
   ∫Cᴰsr : Categoryᴰ C (ℓ-max ℓD ℓCᴰ) (ℓ-max ℓD' ℓCᴰ')
   ∫Cᴰsr = ∫Cᴰ (weaken C D) Cᴰ
+  --module FOO = Categoryᴰ ∫Cᴰsr
+  --foo = {!FOO.ob[ ? ]!}
 
   Fstᴰsr : Functorᴰ Id ∫Cᴰsr (weaken C D)
   Fstᴰsr = Fstᴰ Cᴰ

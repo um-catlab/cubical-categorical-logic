@@ -72,3 +72,5 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
 
       _ : PshProd .Bif-homR P β .N-ob c ≡ λ (p , q) → p , β .N-ob c q
       _ = refl
+
+module _ {C : Category ℓ ℓ'} (P : Presheaf C ℓA) where

@@ -213,6 +213,11 @@ module _ (C : Category ℓ ℓ') where
                      → f ≡ g
     ×-extensionality p1 p2 = extensionality ue (ΣPathP (p1 , p2))
 
+    ×η'' : (f ≡ π₁ ∘⟨ C ⟩ h)
+         → (g ≡ π₂ ∘⟨ C ⟩ h)
+         → f ,p g ≡ h
+    ×η'' p q = ×-extensionality (×β₁ ∙ p) (×β₂ ∙ q)
+
   module Notation (bp : BinProducts C) where
     private
       ues = BinProductsToUnivElts bp
@@ -228,7 +233,7 @@ module _ (C : Category ℓ ℓ') where
         ( π₁ ; π₂
         ; _,p_
         ; ×β₁ ; ×β₂
-        ; ×η ; ×η'
+        ; ×η ; ×η' ; ×η''
         ; ,p-natural
         ; ×-extensionality) public
 

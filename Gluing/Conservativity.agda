@@ -54,7 +54,7 @@ Quiver→×Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×Quiver ℓ �
 Quiver→×Quiver Q .fst = Q .fst
 Quiver→×Quiver Q .snd .ProductQuiver.mor = Q .snd .QuiverOver.mor
 Quiver→×Quiver Q .snd .ProductQuiver.dom = ↑_ ∘S Q .snd .QuiverOver.dom
-Quiver→×Quiver Q .snd .ProductQuiver.cod = ↑_ ∘S Q .snd .QuiverOver.cod
+Quiver→×Quiver Q .snd .ProductQuiver.cod = Q .snd .QuiverOver.cod
 
 module _ (Q : Quiver ℓQ ℓQ') where
   private module Q = QuiverOver (Q .snd)

@@ -31,8 +31,16 @@ CartesianCategoryᴰ (C , term , bps) ℓCᴰ ℓCᴰ' =
   LiftedTerminal Cᴰ term'
   × LiftedBinProducts Cᴰ bps'
   where
-  term' : _
+  term' : Terminal' C
   term' = terminalToUniversalElement term
 
   bps' : BinProducts' C
   bps' = BinProductsToBinProducts' C bps
+
+module CartesianCategoryᴰNotation
+  {C : CartesianCategory ℓC ℓC'}
+  (Cᴰ : CartesianCategoryᴰ C ℓCᴰ ℓCᴰ')
+  where
+  open Categoryᴰ (Cᴰ .fst) public
+  open LiftedTerminalNotation _ (Cᴰ .snd .fst) public
+  open LiftedBinProductsNotation (Cᴰ .snd .snd) public

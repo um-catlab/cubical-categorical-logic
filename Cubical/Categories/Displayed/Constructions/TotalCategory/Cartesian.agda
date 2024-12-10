@@ -30,8 +30,8 @@ module _
     module C = CartesianCategoryNotation C
     module Cᴰ = CartesianCategoryᴰNotation Cᴰ
     module Cᴰᴰ = CartesianCategoryᴰNotation Cᴰᴰ
-    module Q = HomᴰReasoning (Cᴰ .fst)
-    module R = HomᴰReasoning (Cᴰᴰ .fst)
+    module R = HomᴰReasoning (Cᴰ .fst)
+    module Rᴰ = HomᴰReasoning (Cᴰᴰ .fst)
   module Lemma
     {x c c' : C.ob}
     {h : C.Hom[ x , c C.×bp c' ]}
@@ -64,28 +64,21 @@ module _
         p : Σhᴰ ≡ Σh₁,h₂ᴰ
         p = ΣPathP (C.×η ,
                   congP₂ (λ _ → Cᴰ._,pᴰ'_ )
-                      (Q.rectify (Q.≡out (Q.reind-filler _  _)))
-                      (Q.rectify (Q.≡out (Q.reind-filler _  _))))
+                      (R.rectify (R.≡out (R.reind-filler _  _)))
+                      (R.rectify (R.≡out (R.reind-filler _  _))))
 
       hᴰᴰ : Cᴰᴰ.Hom[ h , hᴰ ][ xᴰᴰ , cᴰᴰ Cᴰᴰ.×ᴰ c'ᴰᴰ ]
-      hᴰᴰ = R.reind (sym p) h₁,h₂ᴰᴰ
-      reind-filler : h₁,h₂ᴰᴰ Cᴰᴰ.≡[ sym p ] hᴰᴰ
-      reind-filler = R.≡out (R.reind-filler _ _)
+      hᴰᴰ = Rᴰ.reind (sym p) h₁,h₂ᴰᴰ
       -- rectify to be over an arbitrary path that isn't 700 lines long
       -- so we can make these lemmas opaque
       β₁ : hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.π₁ᴰ Cᴰᴰ.≡[ ΣPathP (refl , Cᴰ.×β₁ᴰ') ] h₁ᴰᴰ
-      β₁ = R.rectify (R.≡out
-          (R.≡in (congP (λ _ → Cᴰᴰ._⋆ᴰ Cᴰᴰ.π₁ᴰ) (symP reind-filler)) ∙
-          R.≡in (Cᴰᴰ.×β₁ᴰ {f₁ᴰ = h₁ᴰᴰ} {f₂ᴰ = h₂ᴰᴰ})))
+      β₁ = Rᴰ.rectify (Rᴰ.≡out
+          (Rᴰ.⟨ sym (Rᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
+          Rᴰ.≡in (Cᴰᴰ.×β₁ᴰ {f₁ᴰ = h₁ᴰᴰ} {f₂ᴰ = h₂ᴰᴰ})))
       β₂ : hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.π₂ᴰ Cᴰᴰ.≡[ ΣPathP (refl , Cᴰ.×β₂ᴰ') ] h₂ᴰᴰ
-      β₂ = R.rectify (R.≡out
-          (R.≡in (congP (λ _ → Cᴰᴰ._⋆ᴰ Cᴰᴰ.π₂ᴰ) (symP reind-filler)) ∙
-          R.≡in (Cᴰᴰ.×β₂ᴰ {f₁ᴰ = h₁ᴰᴰ} {f₂ᴰ = h₂ᴰᴰ})))
-      --η : {hᴰᴰ' : Cᴰᴰ.Hom[ h , hᴰ ][ xᴰᴰ , cᴰᴰ Cᴰᴰ.×ᴰ c'ᴰᴰ ]}
-      --  → (h₁ᴰᴰ Cᴰᴰ.≡[ ΣPathP (refl , symP Cᴰ.×β₁ᴰ') ] hᴰᴰ' Cᴰᴰ.⋆ᴰ Cᴰᴰ.π₁ᴰ)
-      --  → (h₂ᴰᴰ Cᴰᴰ.≡[ ΣPathP (refl , symP Cᴰ.×β₂ᴰ') ] hᴰᴰ' Cᴰᴰ.⋆ᴰ Cᴰᴰ.π₂ᴰ)
-      --  → hᴰᴰ ≡ hᴰᴰ'
-      --η pᴰᴰ qᴰᴰ = R.rectify (R.≡out (R.≡in (symP reind-filler) ∙ R.≡in (Cᴰᴰ.×η''ᴰ pᴰᴰ qᴰᴰ)))
+      β₂ = Rᴰ.rectify (Rᴰ.≡out
+          (Rᴰ.⟨ sym (Rᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙
+          Rᴰ.≡in (Cᴰᴰ.×β₂ᴰ {f₁ᴰ = h₁ᴰᴰ} {f₂ᴰ = h₂ᴰᴰ})))
       η' : ∀ {hᴰ'}
         → {pᴰ : h₁ᴰ ≡ hᴰ' Cᴰ.⋆ᴰ Cᴰ.π₁ᴰ}
         → {qᴰ : h₂ᴰ ≡ hᴰ' Cᴰ.⋆ᴰ Cᴰ.π₂ᴰ}
@@ -93,7 +86,7 @@ module _
         → (h₁ᴰᴰ Cᴰᴰ.≡[ ΣPathP (refl , pᴰ) ] hᴰ'ᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.π₁ᴰ)
         → (h₂ᴰᴰ Cᴰᴰ.≡[ ΣPathP (refl , qᴰ) ] hᴰ'ᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.π₂ᴰ)
         → hᴰᴰ Cᴰᴰ.≡[ ΣPathP (refl , Cᴰ.×η''ᴰ' (sym pᴰ) (sym qᴰ)) ] hᴰ'ᴰ
-      η' pᴰᴰ qᴰᴰ = R.rectify (R.≡out (R.≡in (symP reind-filler) ∙ R.≡in (Cᴰᴰ.×η''ᴰ pᴰᴰ qᴰᴰ)))
+      η' pᴰᴰ qᴰᴰ = Rᴰ.rectify (Rᴰ.≡out (sym (Rᴰ.reind-filler _ _) ∙ Rᴰ.≡in (Cᴰᴰ.×η''ᴰ pᴰᴰ qᴰᴰ)))
   ∫Cᴰ : CartesianCategoryᴰ C (ℓ-max ℓCᴰ ℓCᴰᴰ) (ℓ-max ℓCᴰ' ℓCᴰᴰ')
   ∫Cᴰ .fst = TCᴰ.∫Cᴰ (Cᴰ .fst) (Cᴰᴰ .fst)
   ∫Cᴰ .snd .fst .vertexᴰ = _ , Cᴰᴰ.𝟙ᴰ

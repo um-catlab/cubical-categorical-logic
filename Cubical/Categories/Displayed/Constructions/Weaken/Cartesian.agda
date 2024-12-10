@@ -26,6 +26,8 @@ module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') w
   private
     module C = CartesianCategoryNotation C
     module D = CartesianCategoryNotation D
+  -- TODO: this is Cubical/Categories/Displayed/Constructions/Weaken/Properties.agda
+  -- in PR #117
   weaken : CartesianCategoryᴰ C ℓD ℓD'
   weaken .fst = Weaken.weaken (C .fst) (D .fst)
   weaken .snd .fst .vertexᴰ = D.𝟙

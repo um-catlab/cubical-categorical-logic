@@ -13,23 +13,23 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Isomorphism
-open import Cubical.Data.Sigma
+import Cubical.Data.Sigma as Σ
 
 private
   variable
     ℓ ℓ' : Level
 
 CartesianCategory : (ℓ ℓ' : Level) → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
-CartesianCategory ℓ ℓ' = Σ[ C ∈ Category ℓ ℓ' ] Terminal C × BinProducts C
+CartesianCategory ℓ ℓ' = Σ[ C ∈ Category ℓ ℓ' ] Terminal C Σ.× BinProducts C
 
 module CartesianCategoryNotation (CC : CartesianCategory ℓ ℓ') where
   private
     C = CC .fst
-  open Category C
-  open Notation C (CC .snd .snd) renaming (_×_ to _×bp_)
-  open TerminalNotation C (CC .snd .fst)
+  open Category C public
+  open Notation C (CC .snd .snd) public
+  open TerminalNotation C (CC .snd .fst) public
 
-  unitor-l : ∀ {a} → CatIso C (𝟙 ×bp a) a
+  unitor-l : ∀ {a} → CatIso C (𝟙 × a) a
   unitor-l .fst = π₂
   unitor-l .snd .isIso.inv = !t ,p id
   unitor-l .snd .isIso.sec = ×β₂

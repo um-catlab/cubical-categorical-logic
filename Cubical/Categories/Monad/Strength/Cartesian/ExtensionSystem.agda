@@ -26,7 +26,6 @@ private
 
 module _ {C : Category ℓ ℓ'} (bp : BinProducts C) where
   open Category
-  open Notation C bp
   open EnvNotation bp
 
   private
@@ -54,7 +53,6 @@ module _ {C : Category ℓ ℓ'} (bp : BinProducts C) where
   -- on C because Envs 𝟙 ≅ Id
   module _ (term : Terminal C) (SE : StrongExtensionSystem) where
     open StrongExtensionSystem SE
-    open TerminalNotation C term
     open CartesianCategoryNotation (C , term , bp)
     open isIso
     -- This follows abstractly from showing (𝟙 ×-) is equivalent to

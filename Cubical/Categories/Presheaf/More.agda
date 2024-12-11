@@ -28,6 +28,25 @@ private
   variable
     ℓ ℓ' ℓS ℓS' : Level
 
+module PresheafReasoning {C : Category ℓ ℓ'} (P : Presheaf C ℓS) where
+  private
+    variable
+      x y z  : C .ob
+  _⋆ᴾ_ : (f : C [ x , y ]) (p : ⟨ P ⟅ y ⟆ ⟩) → ⟨ P ⟅ x ⟆ ⟩
+  f ⋆ᴾ p = (P ⟪ f ⟫) p
+
+  ⋆ᴾId : ∀ (p : ⟨ P ⟅ x ⟆ ⟩) → C .id ⋆ᴾ p ≡ p
+  ⋆ᴾId = funExt⁻ (P .F-id)
+
+  ⋆ᴾAssoc : ∀ (f : C [ x , y ])(g : C [ y , z ])(p : ⟨ P ⟅ z ⟆ ⟩)
+          → ((f ⋆⟨ C ⟩ g) ⋆ᴾ p) ≡ (f ⋆ᴾ (g ⋆ᴾ p))
+  ⋆ᴾAssoc f g = funExt⁻ (P .F-seq g f)
+
+  ⟨_⟩⋆ᴾ⟨_⟩ : {f f' : C [ x , y ]} {p p' : ⟨ P ⟅ y ⟆ ⟩}
+          → f ≡ f' → p ≡ p' → f ⋆ᴾ p ≡ f' ⋆ᴾ p'
+  ⟨ ≡f ⟩⋆ᴾ⟨ ≡p ⟩ i = ≡f i ⋆ᴾ ≡p i
+
+
 -- Isomorphism between presheaves of different levels
 PshIso : (C : Category ℓ ℓ')
          (P : Presheaf C ℓS)

@@ -12,6 +12,7 @@ open import Cubical.Data.Sum as Sum
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Base as Law
+  hiding (π₁; π₂)
 open import
     Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Limits.Cartesian.Base
@@ -76,7 +77,6 @@ module _ where
   FREECC = FreeCartesianCategory QUIVER
 
   open CartesianCategoryNotation FREECC
-  open Terminal'Notation CCTerminal'
 
   [ans] : FREECC .fst .ob
   [ans] = ↑ ans

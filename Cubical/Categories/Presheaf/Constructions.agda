@@ -18,7 +18,18 @@ private
   variable
     ℓ ℓ' ℓA ℓB : Level
 
+open Functor
 module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
+  _×𝓟_ : Presheaf C ℓA → Presheaf C ℓB → Presheaf C (ℓ-max ℓA ℓB)
+  (P ×𝓟 Q) .F-ob c .fst = ⟨ P ⟅ c ⟆ ⟩ × ⟨ Q ⟅ c ⟆ ⟩
+  (P ×𝓟 Q) .F-ob c .snd = isSet× (str (P ⟅ c ⟆)) ((str (Q ⟅ c ⟆)))
+  (P ×𝓟 Q) .F-hom f (p , q) = (P .F-hom f p) , (Q .F-hom f q)
+  (P ×𝓟 Q) .F-id =
+      funExt (λ (p , q) → ΣPathP ((funExt⁻ (P .F-id) p) , funExt⁻ (Q .F-id) q))
+  (P ×𝓟 Q) .F-seq f g =
+      funExt λ (p , q) → ΣPathP
+        ( (funExt⁻ (P .F-seq f g) p)
+        , (funExt⁻ (Q .F-seq f g) q))
   private
     𝓟 = PresheafCategory C ℓA
     𝓠 = PresheafCategory C ℓB
@@ -27,31 +38,20 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
   PshProd : Bifunctor 𝓟 𝓠 𝓡
   PshProd = mkBifunctorPar B where
     open BifunctorPar
-    open Functor
     open NatTrans
     open Category
-    Bob : 𝓟 .ob → 𝓠 .ob → 𝓡 .ob
-    Bob P Q .F-ob c =  ⟨ P ⟅ c ⟆ ⟩ × ⟨ Q ⟅ c ⟆ ⟩ ,
-      isSet× (str (P ⟅ c ⟆)) ((str (Q ⟅ c ⟆)))
-    Bob P Q .F-hom f (p , q) = (P .F-hom f p) , (Q .F-hom f q)
-    Bob P Q .F-id =
-      funExt (λ (p , q) → ΣPathP ((funExt⁻ (P .F-id) p) , funExt⁻ (Q .F-id) q))
-    Bob P Q .F-seq f g =
-      funExt λ (p , q) → ΣPathP
-        ( (funExt⁻ (P .F-seq f g) p)
-        , (funExt⁻ (Q .F-seq f g) q))
 
     Bhom× :
       ∀ {P P' Q Q'} →
       𝓟 [ P , P' ] →
       𝓠 [ Q , Q' ] →
-      𝓡 [ Bob P Q , Bob P' Q' ]
+      𝓡 [ P ×𝓟 Q , P' ×𝓟 Q' ]
     Bhom× α β .N-ob c (p , q) = α .N-ob c p , β .N-ob c q
     Bhom× α β .N-hom f = funExt λ (p , q) →
       ΣPathP (funExt⁻ (α .N-hom f) _ , funExt⁻ (β .N-hom f) _)
 
     B : BifunctorPar 𝓟 𝓠 𝓡
-    B .Bif-ob = Bob
+    B .Bif-ob = _×𝓟_
     B .Bif-hom× = Bhom×
     B .Bif-×-id =
       makeNatTransPath (funExt (λ c → funExt (λ (p , q) → refl)))
@@ -72,3 +72,4 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
 
       _ : PshProd .Bif-homR P β .N-ob c ≡ λ (p , q) → p , β .N-ob c q
       _ = refl
+

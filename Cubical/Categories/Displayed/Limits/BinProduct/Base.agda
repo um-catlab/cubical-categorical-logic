@@ -8,13 +8,16 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
@@ -33,6 +36,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
               → Type _
   BinProductᴰ = RightAdjointAtᴰ (ΔCᴰ Cᴰ)
 
+  BinProductᴰPsh : ∀ {x₁ x₂}
+    → Cᴰ.ob[ x₁ ] → Cᴰ.ob[ x₂ ]
+    → Presheafᴰ Cᴰ (BinProductProf C ⟅ x₁ , x₂ ⟆) ℓD'
+  BinProductᴰPsh xᴰ₁ xᴰ₂ = PshProdᴰ (Cᴰ [-][-, xᴰ₁ ]) (Cᴰ [-][-, xᴰ₂ ])
+
   hasAllBinProductᴰ : BinProducts' C → Type _
   hasAllBinProductᴰ = RightAdjointᴰ (ΔCᴰ Cᴰ)
 
@@ -42,6 +50,29 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   hasAllBinProductⱽ : Type _
   hasAllBinProductⱽ = VerticalRightAdjointᴰ (Δᴰ Cᴰ)
 
+  BinProductᴰPsh→BinProductᴰ :
+    ∀ {x₁ x₂} {bp}
+    {xᴰ₁ : Cᴰ.ob[ x₁ ]}{xᴰ₂ : Cᴰ.ob[ x₂ ]}
+    → UniversalElementᴰ Cᴰ (BinProductᴰPsh xᴰ₁ xᴰ₂) (BinProductToRepresentable C (BinProduct'ToBinProduct C bp))
+    → BinProductᴰ bp (xᴰ₁ , xᴰ₂)
+  BinProductᴰPsh→BinProductᴰ xᴰ₁×xᴰ₂ .vertexᴰ = xᴰ₁×xᴰ₂ .vertexᴰ
+  BinProductᴰPsh→BinProductᴰ xᴰ₁×xᴰ₂ .elementᴰ = xᴰ₁×xᴰ₂ .elementᴰ
+  BinProductᴰPsh→BinProductᴰ xᴰ₁×xᴰ₂ .universalᴰ .inv = xᴰ₁×xᴰ₂ .universalᴰ .inv
+  BinProductᴰPsh→BinProductᴰ xᴰ₁×xᴰ₂ .universalᴰ .rightInv = xᴰ₁×xᴰ₂ .universalᴰ .rightInv
+  BinProductᴰPsh→BinProductᴰ xᴰ₁×xᴰ₂ .universalᴰ .leftInv = xᴰ₁×xᴰ₂ .universalᴰ .leftInv
+
+  BinProductᴰ→BinProductᴰPsh : 
+    ∀ {x₁ x₂} {ue}
+    {xᴰ₁ : Cᴰ.ob[ x₁ ]}{xᴰ₂ : Cᴰ.ob[ x₂ ]}
+    → BinProductᴰ (RepresentableToBinProduct' C ue) (xᴰ₁ , xᴰ₂)
+    → UniversalElementᴰ Cᴰ
+        (BinProductᴰPsh xᴰ₁ xᴰ₂)
+        ue
+  BinProductᴰ→BinProductᴰPsh bpᴰ .vertexᴰ = bpᴰ .vertexᴰ
+  BinProductᴰ→BinProductᴰPsh bpᴰ .elementᴰ = bpᴰ .elementᴰ
+  BinProductᴰ→BinProductᴰPsh bpᴰ .universalᴰ .inv = bpᴰ .universalᴰ .inv
+  BinProductᴰ→BinProductᴰPsh bpᴰ .universalᴰ .rightInv = bpᴰ .universalᴰ .rightInv
+  BinProductᴰ→BinProductᴰPsh bpᴰ .universalᴰ .leftInv = bpᴰ .universalᴰ .leftInv
 module hasAllBinProductᴰNotation
          {C : Category ℓC ℓC'}
          {Cᴰ : Categoryᴰ C ℓD ℓD'}

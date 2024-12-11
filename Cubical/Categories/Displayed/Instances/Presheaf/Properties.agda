@@ -17,6 +17,7 @@ open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Presheaf.CCC
+open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
@@ -35,7 +36,7 @@ open UniversalElementᴰ
 open CartesianOver
 
 private
-  variable ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓS ℓSᴰ : Level
+  variable ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓS ℓS' ℓSᴰ : Level
 
 open CartesianLift
 module _ (C : Category ℓC ℓC') where
@@ -53,6 +54,7 @@ module _ (C : Category ℓC ℓC') where
   reindPresheafᴰ {Q = Q} α Pᴰ .F-seq _ _ =
     congS (λ x → Pᴰ ⟪ _ , x ⟫) ((Q ⟅ _ ⟆) .snd _ _ _ _) ∙
     Pᴰ .F-seq _ _
+
 module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   opaque
     isFibrationPRESHEAFᴰ : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)

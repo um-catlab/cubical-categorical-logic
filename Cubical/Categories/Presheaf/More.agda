@@ -26,7 +26,7 @@ open Functor
 
 private
   variable
-    ℓ ℓ' ℓS ℓS' : Level
+    ℓC ℓC' ℓ ℓ' ℓS ℓS' : Level
 
 module PresheafReasoning {C : Category ℓ ℓ'} (P : Presheaf C ℓS) where
   private
@@ -46,6 +46,16 @@ module PresheafReasoning {C : Category ℓ ℓ'} (P : Presheaf C ℓS) where
           → f ≡ f' → p ≡ p' → f ⋆ᴾ p ≡ f' ⋆ᴾ p'
   ⟨ ≡f ⟩⋆ᴾ⟨ ≡p ⟩ i = ≡f i ⋆ᴾ ≡p i
 
+module _ {C : Category ℓC ℓC'}
+         (P : Presheaf C ℓS)
+         (Q : Presheaf C ℓS') where
+  private
+    module P = PresheafReasoning P
+    module Q = PresheafReasoning Q
+  PshHomⱽ : Type _
+  PshHomⱽ = Σ[ N-ob ∈ (∀ (x : C .ob) → ⟨ P ⟅ x ⟆ ⟩ → ⟨ Q ⟅ x ⟆ ⟩) ]
+    (∀ {x y}(f : C [ x , y ])(p : ⟨ P ⟅ y ⟆ ⟩)
+      → N-ob x (f P.⋆ᴾ p) ≡ (f Q.⋆ᴾ N-ob y p))
 
 -- Isomorphism between presheaves of different levels
 PshIso : (C : Category ℓ ℓ')

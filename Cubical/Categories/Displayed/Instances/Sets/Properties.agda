@@ -82,9 +82,10 @@ hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd
        (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
          bᴰ (~ i)) .snd))
 
-SETᴰCartesianCategoryⱽ :
-  ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
-SETᴰCartesianCategoryⱽ ℓ ℓ' .fst = SETᴰ ℓ ℓ'
-SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .fst = isFibrationSETᴰ
-SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .fst = hasVerticalTerminals
-SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .snd = hasVerticalBinProds
+opaque
+  SETᴰCartesianCategoryⱽ :
+    ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+  SETᴰCartesianCategoryⱽ ℓ ℓ' .fst = SETᴰ ℓ ℓ'
+  SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .fst = isFibrationSETᴰ
+  SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .fst = hasVerticalTerminals
+  SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .snd = hasVerticalBinProds

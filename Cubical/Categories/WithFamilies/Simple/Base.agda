@@ -19,6 +19,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 
 open Category
@@ -35,13 +36,20 @@ SCwF ℓC ℓC' ℓT ℓT' =
   Terminal C ×
   (∀ (Γ : C .ob) (A : Ty) → UniversalElement C ((C [-, Γ ]) ×𝓟 Tm A))
 
+
+PreMorphism : SCwF ℓC ℓC' ℓT ℓT' → SCwF ℓD ℓD' ℓS ℓS' → Type _
+PreMorphism (C , CTy , CTm , Cterm , Ccomp) (D , DTy , DTm , Dterm , Dcomp) =
+  Σ[ F ∈ Functor C D ]
+  Σ[ F-Ty ∈ (CTy → DTy) ]
+  (∀ (A : CTy) → PshHomⱽ (CTm A) (DTm (F-Ty A) ∘F (F ^opF)))
+  
 -- Two options here:
 -- 1. Strict: preserve the specified terminal/comprehension/projections up to Path
 -- 2. Weak: image of the terminal object is terminal, image of the comprehension cone is universal
 -- strict morphisms are always weak , the inverse follows if the SCwF is univalent
 open UniversalElement
-Morphism : SCwF ℓC ℓC' ℓT ℓT' → SCwF ℓD ℓD' ℓS ℓS' → Type _
-Morphism (C , CTy , CTm , Cterm , Ccomp) (D , DTy , DTm , Dterm , Dcomp) =
+WkMorphism : SCwF ℓC ℓC' ℓT ℓT' → SCwF ℓD ℓD' ℓS ℓS' → Type _
+WkMorphism (C , CTy , CTm , Cterm , Ccomp) (D , DTy , DTm , Dterm , Dcomp) =
   Σ[ F ∈ Functor C D ]
   Σ[ F-Ty ∈ (CTy → DTy) ]
   Σ[ F-Tm ∈ (∀ (A : CTy) → PshHom F (CTm A) (DTm (F-Ty A))) ]

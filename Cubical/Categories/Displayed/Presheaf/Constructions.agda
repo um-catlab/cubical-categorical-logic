@@ -65,3 +65,15 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       ∙ (Qᴰ.≡in $ (λ i → Qᴰ .F-seqᴰ fᴰ gᴰ i _ qᴰ))
       ∙ Qᴰ.⟨ refl ⟩⋆ᴾ⟨ Qᴰ.reind-filler _ _ ⟩
       ∙ Qᴰ.reind-filler _ _
+
+  PshProdⱽ : {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ Cᴰ P ℓPᴰ) (Qᴰ : Presheafᴰ Cᴰ P ℓQᴰ)
+           → Presheafᴰ Cᴰ P (ℓ-max ℓPᴰ ℓQᴰ)
+  PshProdⱽ Pᴰ Qᴰ .F-obᴰ xᴰ p =
+    ⟨ Pᴰ .F-obᴰ xᴰ p ⟩ × ⟨ Qᴰ .F-obᴰ xᴰ p ⟩
+    , isSet× (str $ Pᴰ .F-obᴰ xᴰ p) (str $ Qᴰ .F-obᴰ xᴰ p)
+  PshProdⱽ Pᴰ Qᴰ .F-homᴰ fᴰ p (pᴰ , qᴰ) = (F-homᴰ Pᴰ fᴰ p pᴰ) , (F-homᴰ Qᴰ fᴰ p qᴰ)
+  PshProdⱽ Pᴰ Qᴰ .F-idᴰ = funExt λ p → funExt λ (pᴰ , qᴰ) →
+    ΣPathP ( funExt⁻ (funExt⁻ (Pᴰ .F-idᴰ) p) pᴰ , (funExt⁻ (funExt⁻ (Qᴰ .F-idᴰ) p) qᴰ))
+  PshProdⱽ Pᴰ Qᴰ .F-seqᴰ fᴰ gᴰ = funExt₂ λ p (pᴰ , qᴰ) → ΣPathP
+       ( (funExt⁻ (funExt⁻ (Pᴰ .F-seqᴰ fᴰ gᴰ) p) pᴰ)
+       , (funExt⁻ (funExt⁻ (Qᴰ .F-seqᴰ fᴰ gᴰ) p) qᴰ))

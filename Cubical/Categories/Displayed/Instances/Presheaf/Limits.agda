@@ -73,17 +73,7 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
     hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ {y = Q}{yᴰ = Qᴾ}{f = α}
       .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
       ΣPathP
-      (
-      fromPathP
-       {A =
-        λ i₃ →
-          F-ob Pᴰ
-          (transp (λ i₁ → ob C) i₃ (q .fst) ,
-           N-ob α (transp (λ i₁ → ob C) i₃ (q .fst))
-           (transp
-            (λ i₄ → fst (F-ob Q (transp (λ i₂ → ob C) (i₃ ∨ ~ i₄) (q .fst))))
-            i₃ (q .snd)))
-          .fst}
+      ( fromPathP
        (λ i → αᴰ .N-ob
          (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
          (transport-filler
@@ -91,17 +81,7 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
              Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q)
                .fst)
            q' (~ i)) .fst)
-      ,
-      fromPathP
-       {A =
-        λ i →
-          F-ob Pᴰ'
-         (transp (λ i₁ → ob C) i (q .fst) ,
-          N-ob α (transp (λ i₁ → ob C) i (q .fst))
-          (transp
-           (λ i₁ → fst (F-ob Q (transp (λ i₂ → ob C) (i ∨ ~ i₁) (q .fst)))) i
-           (q .snd)))
-         .fst }
+      , fromPathP
        (λ i → αᴰ .N-ob
          (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
          (transport-filler

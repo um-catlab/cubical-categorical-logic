@@ -71,12 +71,11 @@ hasVerticalBinProds (A₁ , A₂) .universalⱽ .snd .fst b =
 hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a =
   funExt₂ λ b bᴰ →
   ΣPathP
-   ( fromPathP {A = λ i₁ → fst (A₁ (f (transp (λ j → fst B) i₁ b)))}
-     (λ i → a
+   ( fromPathP (λ i → a
        (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
        (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
          bᴰ (~ i)) .fst)
-   , fromPathP {A = λ i₁ → fst (A₂ (f (transp (λ j → fst B) i₁ b)))}
+   , fromPathP
      (λ i → a
        (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
        (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))

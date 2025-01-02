@@ -19,4 +19,4 @@ module _ (Q : ×Quiver ℓq ℓq') where
   private
     module Cl = CartesianCategoryNotation Cl
   module _ {C : CartesianCategory ℓC ℓC'} {D : CartesianCategory ℓD ℓD'}
-    (F : CartesianFunctor C D) where
+    (F : CartesianFunctor (C .fst) (D .fst)) where

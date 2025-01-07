@@ -13,9 +13,11 @@ open import
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Limits.Cartesian.Functor
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
@@ -227,3 +229,12 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
             (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
             (BinProductsToBinProducts' _ (CC .snd .snd)))
         ϕ ψ)
+  module _
+    (C : CartesianCategory  ℓC ℓC')
+    (G : CartesianFunctor (C .fst) |FreeCartesianCategory|)
+    where
+    open CartesianFunctor
+    module _
+      where
+    --mkRetract : Σ[ F ∈ Functor |FreeCartesianCategory| (C .fst) ] G .|F| ∘F F ≅ᶜ Id
+    --mkRetract = {!IsoFiberReflection!}

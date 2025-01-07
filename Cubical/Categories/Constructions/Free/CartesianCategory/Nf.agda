@@ -22,13 +22,14 @@ module _ (Q : ×Quiver ℓq ℓq')
     proj₁ : ∀{Γ τ₁ τ₂} → NeutralTerm Γ (τ₁ × τ₂) → NeutralTerm Γ τ₁
     proj₂ : ∀{Γ τ₁ τ₂} → NeutralTerm Γ (τ₁ × τ₂) → NeutralTerm Γ τ₂
     symb : ∀{Γ} (f : Q.mor) → NormalForm Γ (Q.dom f) → NeutralTerm Γ (↑ (Q.cod f))
-    -- pair?
     --isSetNe : ∀{Γ τ} → isSet (NeutralTerm Γ τ)
   data NormalForm where
+    -- shift only at ground types to enforce η-long normal forms
     shift : ∀{Γ τ} → NeutralTerm Γ (↑ τ) → NormalForm Γ (↑ τ)
     pair : ∀{Γ τ₁ τ₂} → NormalForm Γ τ₁ → NormalForm Γ τ₂ → NormalForm Γ (τ₁ × τ₂)
     uniq : ∀{Γ} → NormalForm Γ ⊤
     --isSetNf : ∀{Γ τ} → isSet (NormalForm Γ τ)
+  -- two different ASTs for contexts, by induction on the domain and codomain
   data Contains (τ : Q.Ob) : (Γ : Q.Ob) → Type ℓq where
     root : Contains τ τ
     left : ∀{Γ Δ} → Contains τ Γ → Contains τ (Γ × Δ)
@@ -37,17 +38,10 @@ module _ (Q : ×Quiver ℓq ℓq')
     root : Contains' Γ Γ
     left : ∀{τ₁ τ₂} → Contains' Γ (τ₁ × τ₂) → Contains' Γ τ₁
     right : ∀{τ₁ τ₂} → Contains' Γ (τ₁ × τ₂) → Contains' Γ τ₂
-  --foo : NormalForm
-  -- id
-  --SHIFT : ∀{Γ τ} → NeutralTerm Γ τ → NormalForm Γ τ
-  --SHIFT {Γ} {τ = ↑ _} = shift
-  --SHIFT {Γ} {τ = τ × τ₁} x = pair (SHIFT {!!}) {!!}
-  --SHIFT {Γ} {τ = ⊤} x = {!!}
-  --isNormal :
-  --nt : (Γ : Q.Ob) → Q.Ob
-  --nt (↑ x) = ↑ x
-  --nt (x × x₁) = nt x × nt x₁
-  --nt ⊤ = ⊤
+  SHIFT : ∀{Γ τ} → NeutralTerm Γ τ → NormalForm Γ τ
+  SHIFT {Γ} {τ = ↑ _} = shift
+  SHIFT {Γ} {τ = τ₁ × τ₂} n = pair (SHIFT (proj₁ n)) (SHIFT (proj₂ n))
+  SHIFT {Γ} {τ = ⊤} n = uniq
   PROJ₁ : ∀{Γ τ₁ τ₂} → NormalForm Γ (τ₁ × τ₂) → NormalForm Γ τ₁
   PROJ₁ (pair n _) = n
   --PROJ₁ (isSetNf n m p q i j) = isSetNf (PROJ₁ n) (PROJ₁ m) (congS PROJ₁ p) (congS PROJ₁ q) i j
@@ -59,6 +53,10 @@ module _ (Q : ×Quiver ℓq ℓq')
   ETA : ∀{Γ τ₁ τ₂} (n : NormalForm Γ (τ₁ × τ₂)) → n ≡ pair (PROJ₁ n) (PROJ₂ n)
   ETA (pair n n₁) = refl
   --ETA (isSetNf n n₁ x y i i₁) = {!!}
+  ETA! : ∀{Γ} (n : NormalForm Γ ⊤) → n ≡ uniq
+  ETA! uniq = refl
+  ETA↑ : ∀{Γ x} (n : NormalForm Γ (↑ x)) → Σ (NeutralTerm Γ (↑ x)) λ ne → n ≡ shift ne
+  ETA↑ (shift x) = x , refl
   Nf/Nf : ∀{Γ Δ τ} → NormalForm Δ τ → NormalForm Γ Δ → NormalForm Γ τ
   Ne/Nf : ∀{Γ Δ τ} → NeutralTerm Δ τ → NormalForm Γ Δ → NormalForm Γ τ
   Nf/Ne : ∀{Γ Δ τ} → NormalForm Δ τ → NeutralTerm Γ Δ → NormalForm Γ τ
@@ -113,6 +111,8 @@ module _ (Q : ×Quiver ℓq ℓq')
   SHIFT' (proj₂ n) = PROJ₂ (SHIFT' n)
   SHIFT' (symb f x) = shift (symb f x)
   --SHIFT' (isSetNe n n₁ x y i i₁) = isSetNf (SHIFT' n) (SHIFT' n₁) (congS SHIFT' x) (congS SHIFT' y) i i₁
+  aaa : ∀{Γ τ₁ τ₂} (n : NeutralTerm Γ (τ₁ × τ₂)) → SHIFT n ≡ pair (SHIFT (proj₁ n)) (SHIFT (proj₂ n))
+  aaa n = refl
   bbb : ∀{Γ τ₁ τ₂} (n : NeutralTerm Γ (τ₁ × τ₂)) → SHIFT' n ≡ pair (SHIFT' (proj₁ n)) (SHIFT' (proj₂ n))
   bbb var = refl
   bbb (proj₁ n) = ETA _
@@ -198,8 +198,21 @@ module _ (Q : ×Quiver ℓq ℓq')
   --SHIFT {τ = ⊤} n = uniq
   --SHIFT n = Ne/Nf n ID
   --IDLNe' : ∀{Γ τ} (n : NeutralTerm Γ (↑ τ)) → (Ne/Nf n ID) ≡ shift n
+  Goal : ∀ τ₁ → UNIV τ₁ (left root) ≡ SHIFT (proj₁ var)
+  Goal (↑ x) = refl
+  Goal (τ₁ × τ₂) = cong₂ pair {!!} {!!}
+  Goal ⊤ = refl
   IDLNe : ∀{Γ τ} (n : NeutralTerm Γ τ) → (Ne/Nf n ID) ≡ SHIFT' n
   IDL : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf n ID ≡ n
+  Lem : ∀{Γ τ} (n : NeutralTerm Γ τ) → ? --ETA↑ (Ne/Nf n ID) .fst ≡ n
+  Lem var = refl
+  Lem (proj₁ n) = {!!}
+  Lem (proj₂ n) = {!!}
+  Lem (symb f x) = cong₂ symb refl (IDL x)
+  IDLNe' : ∀{Γ τ} (n : NeutralTerm Γ τ) → (Ne/Nf n ID) ≡ SHIFT n
+  IDLNe' {τ = ↑ x} n = ETA↑ _ .snd ∙ congS shift (Lem _)
+  IDLNe' {τ = τ₁ × τ₂} n = ETA _ ∙ cong₂ pair {!!} {!!}
+  IDLNe' {τ = ⊤} n = ETA! _
   --IDLNe' var = refl
   --IDLNe' (proj₁ n) = {!congS PROJ₁!}
   --IDLNe' (proj₂ n) = {!!}

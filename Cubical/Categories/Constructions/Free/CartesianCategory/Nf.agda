@@ -31,16 +31,6 @@ module _ (Q : ×Quiver ℓq ℓq')
     uniq : ∀{Γ} → NormalForm Γ ⊤
     --isSetNf : ∀{Γ τ} → isSet (NormalForm Γ τ)
 
-  -- two different ASTs for contexts, by induction on the domain and codomain
-  data Contains (τ : Q.Ob) : (Γ : Q.Ob) → Type ℓq where
-    root : Contains τ τ
-    left : ∀{Γ Δ} → Contains τ Γ → Contains τ (Γ × Δ)
-    right : ∀{Γ Δ} → Contains τ Δ → Contains τ (Γ × Δ)
-  data Contains' (Γ : Q.Ob) : (τ : Q.Ob) → Type ℓq where
-    root : Contains' Γ Γ
-    left : ∀{τ₁ τ₂} → Contains' Γ (τ₁ × τ₂) → Contains' Γ τ₁
-    right : ∀{τ₁ τ₂} → Contains' Γ (τ₁ × τ₂) → Contains' Γ τ₂
-
   -- NOTE: something of this type should always exist, but how to define it so it behaves well?
   -- Desiderata:
   -- - SHIFT ≡ shift, at base types
@@ -94,6 +84,20 @@ module _ (Q : ×Quiver ℓq ℓq')
   Ne/Ne (symb f x) x₁ = symb f (Nf/Ne x x₁)
   --Ne/Ne (isSetNe x x₂ x₃ y i i₁) x₁ = isSetNe (Ne/Ne x x₁) (Ne/Ne x₂ x₁) (cong₂ Ne/Ne x₃ refl) (cong₂ Ne/Ne y refl) i i₁
 
+  -- two different ASTs for contexts, by induction on the domain and codomain
+  data Contains (τ : Q.Ob) : (Γ : Q.Ob) → Type ℓq where
+    root : Contains τ τ
+    left : ∀{Γ Δ} → Contains τ Γ → Contains τ (Γ × Δ)
+    right : ∀{Γ Δ} → Contains τ Δ → Contains τ (Γ × Δ)
+  data Contains' (Γ : Q.Ob) : (τ : Q.Ob) → Type ℓq where
+    root : Contains' Γ Γ
+    left : ∀{τ₁ τ₂} → Contains' Γ (τ₁ × τ₂) → Contains' Γ τ₁
+    right : ∀{τ₁ τ₂} → Contains' Γ (τ₁ × τ₂) → Contains' Γ τ₂
+  data Embedded Γ τ (n : NormalForm Γ τ) : Q.Ob → Type (ℓ-max ℓq ℓq') where
+    root : Embedded Γ τ n τ
+    left : ∀{τ' τ''} → Embedded Γ τ n τ' → NormalForm Γ τ'' → Embedded Γ τ n (τ' × τ'')
+    right : ∀{τ' τ''} → NormalForm Γ τ' → Embedded Γ τ n τ'' → Embedded Γ τ n (τ' × τ'')
+
   -- [[deprecated]]
   UNIV : ∀{Γ} (τ : Q.Ob) → Contains τ Γ → NormalForm Γ τ
   UNIV (↑ x) root = shift var
@@ -109,8 +113,8 @@ module _ (Q : ×Quiver ℓq ℓq')
   ID' : ∀{τ} → NormalForm τ τ
   ID' = SHIFT var
 
-  IDLNe : ∀{Γ τ} (n : NeutralTerm Γ τ) → (Ne/Nf n ID') ≡ SHIFT n
   IDL : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf n ID' ≡ n
+  IDLNe : ∀{Γ τ} (n : NeutralTerm Γ τ) → (Ne/Nf n ID') ≡ SHIFT n
   IDL (shift x) = IDLNe x
   IDL (pair n n₁) = cong₂ pair (IDL n) (IDL n₁)
   IDL uniq = refl
@@ -120,12 +124,80 @@ module _ (Q : ×Quiver ℓq ℓq')
   IDLNe (symb f x) = congS (λ z → shift (symb f z)) (IDL x)
   --IDLNe (isSetNe n n₁ x y i i₁) = {!!}
 
-  --∀{Γ τ} → (n : NormalForm Γ τ) (n in pair) → Nf/Nf (SHIFT ?) (?) ≡ n
+  Contains'→NeutralTerm : ∀{Γ τ} → Contains' Γ τ → NeutralTerm Γ τ
+  Contains'→NeutralTerm root = var
+  Contains'→NeutralTerm (left ast) = proj₁ (Contains'→NeutralTerm ast)
+  Contains'→NeutralTerm (right ast) = proj₂ (Contains'→NeutralTerm ast)
+
+  Contains'→HOAS? : ∀{Γ Δ τ} → Contains' Δ τ → NormalForm Γ Δ → NormalForm Γ τ
+  Contains'→HOAS? root = idfun _
+  Contains'→HOAS? (left ast) = PROJ₁ ∘S (Contains'→HOAS? ast)
+  Contains'→HOAS? (right ast) = PROJ₂ ∘S (Contains'→HOAS? ast)
+
+  Contains→NeutralTerm : ∀{Γ τ} → Contains τ Γ → NeutralTerm Γ τ
+  Contains→NeutralTerm root = var
+  Contains→NeutralTerm (left ast) = Ne/Ne (Contains→NeutralTerm ast) (proj₁ var)
+  Contains→NeutralTerm (right ast) = Ne/Ne (Contains→NeutralTerm ast) (proj₂ var)
+
+  Contains→HOAS? : ∀{Γ Δ τ} → Contains τ Δ → NormalForm Γ Δ → NormalForm Γ τ
+  Contains→HOAS? root = idfun _
+  Contains→HOAS? (left ast) = Contains→HOAS? ast ∘S PROJ₁
+  Contains→HOAS? (right ast) = Contains→HOAS? ast ∘S PROJ₂
+
+  ∘proj₁ : ∀{Γ Δ τ} → NeutralTerm Γ τ → NeutralTerm (Γ × Δ) τ
+  ∘PROJ₁ : ∀{Γ Δ τ} → NormalForm Γ τ → NormalForm (Γ × Δ) τ
+  ∘proj₁ var = proj₁ var
+  ∘proj₁ (proj₁ n) = proj₁ (∘proj₁ n)
+  ∘proj₁ (proj₂ n) = proj₂ (∘proj₁ n)
+  ∘proj₁ (symb f x) = symb f (∘PROJ₁ x)
+  ∘PROJ₁ (shift x) = shift (∘proj₁ x)
+  ∘PROJ₁ (pair n n₁) = pair (∘PROJ₁ n) (∘PROJ₁ n₁)
+  ∘PROJ₁ uniq = uniq
+  ∘proj₂ : ∀{Γ Δ τ} → NeutralTerm Δ τ → NeutralTerm (Γ × Δ) τ
+  ∘PROJ₂ : ∀{Γ Δ τ} → NormalForm Δ τ → NormalForm (Γ × Δ) τ
+  ∘proj₂ var = proj₂ var
+  ∘proj₂ (proj₁ n) = proj₁ (∘proj₂ n)
+  ∘proj₂ (proj₂ n) = proj₂ (∘proj₂ n)
+  ∘proj₂ (symb f x) = symb f (∘PROJ₂ x)
+  ∘PROJ₂ (shift x) = shift (∘proj₂ x)
+  ∘PROJ₂ (pair n n₁) = pair (∘PROJ₂ n) (∘PROJ₂ n₁)
+  ∘PROJ₂ uniq = uniq
+
+  Embedded→NeutralTerm : ∀{Γ τ n Δ} →
+    Embedded Γ τ n Δ → NeutralTerm Δ τ
+  Embedded→NeutralTerm root = var
+  Embedded→NeutralTerm (left e _) = ∘proj₁ (Embedded→NeutralTerm e)
+  Embedded→NeutralTerm (right _ e) = ∘proj₂ (Embedded→NeutralTerm e)
+
+  |Embedded| : ∀{Γ τ n Δ} →
+    Embedded Γ τ n Δ → NormalForm Γ Δ
+  |Embedded| {n = n} root = n
+  |Embedded| (left e x) = pair (|Embedded| e) x
+  |Embedded| (right x e) = pair x (|Embedded| e)
+
+  -- NOTE: same as ID', but just to be more clear
+  ID'' : ∀{τ} → NormalForm τ τ
+  ID'' = SHIFT (Contains'→NeutralTerm root)
+
+  --MEGA : ∀{Γ Δ τ} → (n : NormalForm Γ Δ)
+  --  (ast : Contains τ Δ) →
+  --  Nf/Nf (SHIFT (Contains'→NeutralTerm ast)) n ≡ Contains'→HOAS? ast n
+  --MEGA {τ = τ} n ast = ?
+  MEGA : ∀{Γ τ Δ} →
+    (n : NormalForm Γ τ)
+    (ast : Embedded Γ τ n Δ) →
+    Nf/Nf (SHIFT (Embedded→NeutralTerm ast)) (|Embedded| ast) ≡ n
+  MEGA {τ = ↑ x} n root = refl
+  MEGA {τ = ↑ x} (shift x₂) (left ast x₁) = {!!} ∙ MEGA (shift x₂) ast
+  MEGA {τ = ↑ x} n (right x₁ ast) = {!!}
+  MEGA {τ = τ₁ × τ₂} n ast = {!!}
+  MEGA {τ = ⊤} n ast = {!!}
+
   IDR : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf ID' n ≡ n
   PPR₁ : ∀{Γ τ₁ τ₂} (n₁ : NormalForm Γ τ₁) (n₂ : NormalForm Γ τ₂) → Nf/Nf (SHIFT (proj₁ var)) (pair n₁ n₂) ≡ n₁
   PPR₂ : ∀{Γ τ₁ τ₂} (n₁ : NormalForm Γ τ₁) (n₂ : NormalForm Γ τ₂) → Nf/Nf (SHIFT (proj₂ var)) (pair n₁ n₂) ≡ n₂
   IDR (shift x) = refl
-  IDR (pair n n₁) = cong₂ pair {!!} {!!}
+  IDR (pair n₁ n₂) = cong₂ pair {!MEGA (pair n₁ n₂) (left root)!} {!!}
   IDR uniq = refl
   PPR₁ {τ₁ = ↑ x} _ _ = refl
   PPR₁ {τ₁ = τ₁ × τ₂} (pair n₁₁ n₁₂) n₂ = cong₂ pair {!PPR₁ ? ?!} {!!}

@@ -123,6 +123,16 @@ module _ (Q : ×Quiver ℓq ℓq')
   _∘PROJ₂ (pair n n₁) = pair (n ∘PROJ₂) (n₁ ∘PROJ₂)
   _∘PROJ₂ uniq = uniq
 
+  CONG : ∀{Γ Δ τ} → (ne : NeutralTerm Γ τ) → SHIFT {Γ = Γ × Δ} (ne ∘proj₁) ≡ (SHIFT ne) ∘PROJ₁
+  CONG {τ = ↑ x} _ = refl
+  CONG {τ = τ₁ × τ₂} ne = cong₂ pair (CONG (proj₁ ne)) (CONG (proj₂ ne))
+  CONG {τ = ⊤} _ = refl
+
+  CONG' : ∀{Γ Δ τ} → (ne : NeutralTerm Δ τ) → SHIFT {Γ = Γ × Δ} (ne ∘proj₂) ≡ (SHIFT ne) ∘PROJ₂
+  CONG' {τ = ↑ x} _ = refl
+  CONG' {τ = τ₁ × τ₂} ne = cong₂ pair (CONG' (proj₁ ne)) (CONG' (proj₂ ne))
+  CONG' {τ = ⊤} _ = refl
+
   ⟨_⟩ : ∀{Γ τ n Δ} →
     Embedded Γ τ n Δ → NeutralTerm Δ τ
   ⟨ root ⟩ = var
@@ -153,6 +163,24 @@ module _ (Q : ×Quiver ℓq ℓq')
   β₁-Nf (pair n n₁) nf₁ nf₂ = cong₂ pair (β₁-Nf n _ _) (β₁-Nf n₁ _ _)
   β₁-Nf uniq nf₁ nf₂ = refl
 
+  β₂ : ∀{Γ τ₁ τ₂ τ₃} →
+    (ne : NeutralTerm τ₂ τ₃) →
+    (nf₁ : NormalForm Γ τ₁) →
+    (nf₂ : NormalForm Γ τ₂) →
+    Ne/Nf (ne ∘proj₂) (pair nf₁ nf₂) ≡ Ne/Nf ne nf₂
+  β₂-Nf : ∀{Γ τ₁ τ₂ τ₃} →
+    (n : NormalForm τ₂ τ₃) →
+    (nf₁ : NormalForm Γ τ₁) →
+    (nf₂ : NormalForm Γ τ₂) →
+    Nf/Nf (n ∘PROJ₂) (pair nf₁ nf₂) ≡ Nf/Nf n nf₂
+  β₂ var nf₁ nf₂ = refl
+  β₂ (proj₁ ne) nf₁ nf₂ = congS PROJ₁ (β₂ ne nf₁ nf₂)
+  β₂ (proj₂ ne) nf₁ nf₂ = congS PROJ₂ (β₂ ne nf₁ nf₂)
+  β₂ (symb f x) nf₁ nf₂ = congS shift (congS (λ z → symb f z) (β₂-Nf x _ _))
+  β₂-Nf (shift x) nf₁ nf₂ = β₂ x _ _
+  β₂-Nf (pair n n₁) nf₁ nf₂ = cong₂ pair (β₂-Nf n _ _) (β₂-Nf n₁ _ _)
+  β₂-Nf uniq nf₁ nf₂ = refl
+
   PROJ₁-Embedded : ∀{Γ τ₁ τ₂ n₁ n₂ Δ} →
     Embedded Γ (τ₁ × τ₂) (pair n₁ n₂) Δ →
     Embedded Γ τ₁ n₁ Δ
@@ -165,23 +193,30 @@ module _ (Q : ×Quiver ℓq ℓq')
     (ast : Embedded Γ τ n Δ) →
     Nf/Nf (SHIFT ⟨ ast ⟩) ∣ ast ∣ ≡ n
   MEGA {τ = ↑ x} _ root = refl
-  MEGA {τ = ↑ x} n (left ast x₁) = β₁ ⟨ ast ⟩ ∣ ast ∣ x₁ ∙ MEGA n ast
-  MEGA {τ = ↑ x} n (right x₁ ast) = {!!}
+  MEGA {τ = ↑ x} n (left ast x₁) = β₁ ⟨ ast ⟩ ∣ ast ∣ x₁ ∙  MEGA n ast 
+  MEGA {τ = ↑ x} n (right x₁ ast) = β₂ ⟨ ast ⟩ x₁ ∣ ast ∣ ∙ MEGA n ast
   MEGA {τ = τ₁ × τ₂} (pair n₁ n₂) root = cong₂ pair (MEGA n₁ (left root n₂)) (MEGA n₂ (right n₁ root))
-  MEGA {τ = τ₁ × τ₂} (pair n₁ n₂) (left ast x) = cong₂ pair ({!!} ∙ MEGA n₁ (left (PROJ₁-Embedded ast) x)) (MEGA n₂ {!!})
-  MEGA {τ = τ₁ × τ₂} n (right x ast) = {!!}
+  MEGA {τ = τ₁ × τ₂} (pair n₁ n₂) (left ast x) = cong₂ pair
+    (congS (λ z → Nf/Nf z (pair ∣ ast ∣ x)) (CONG _) ∙ β₁-Nf (SHIFT _) ∣ ast ∣ x)
+    (congS (λ z → Nf/Nf z (pair ∣ ast ∣ x)) (CONG _) ∙ β₁-Nf (SHIFT _) ∣ ast ∣ x)
+    ∙ MEGA (pair n₁ n₂) ast
+  MEGA {τ = τ₁ × τ₂} (pair n₁ n₂) (right x ast) = cong₂ pair
+    (congS (λ z → Nf/Nf z (pair x ∣ ast ∣)) (CONG' _) ∙ β₂-Nf (SHIFT _) x ∣ ast ∣)
+    (congS (λ z → Nf/Nf z (pair x ∣ ast ∣)) (CONG' _) ∙ β₂-Nf (SHIFT _) x ∣ ast ∣)
+    ∙ MEGA (pair n₁ n₂) ast
   MEGA {τ = ⊤} uniq _ = refl
 
   IDR : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf ID' n ≡ n
-  PPR₁ : ∀{Γ τ₁ τ₂} (n₁ : NormalForm Γ τ₁) (n₂ : NormalForm Γ τ₂) → Nf/Nf (SHIFT (proj₁ var)) (pair n₁ n₂) ≡ n₁
-  PPR₂ : ∀{Γ τ₁ τ₂} (n₁ : NormalForm Γ τ₁) (n₂ : NormalForm Γ τ₂) → Nf/Nf (SHIFT (proj₂ var)) (pair n₁ n₂) ≡ n₂
   IDR (shift x) = refl
-  IDR (pair n₁ n₂) = cong₂ pair {!MEGA (pair n₁ n₂) (left root)!} {!!}
+  IDR (pair n₁ n₂) = cong₂ pair (MEGA n₁ (left root n₂) ) (MEGA n₂ (right n₁ root))
   IDR uniq = refl
-  PPR₁ {τ₁ = ↑ x} _ _ = refl
-  PPR₁ {τ₁ = τ₁ × τ₂} (pair n₁₁ n₁₂) n₂ = cong₂ pair {!PPR₁ ? ?!} {!!}
-  PPR₁ {τ₁ = ⊤} uniq _ = refl
-  PPR₂ = {!!}
+
+  --PPR₁ : ∀{Γ τ₁ τ₂} (n₁ : NormalForm Γ τ₁) (n₂ : NormalForm Γ τ₂) → Nf/Nf (SHIFT (proj₁ var)) (pair n₁ n₂) ≡ n₁
+  --PPR₂ : ∀{Γ τ₁ τ₂} (n₁ : NormalForm Γ τ₁) (n₂ : NormalForm Γ τ₂) → Nf/Nf (SHIFT (proj₂ var)) (pair n₁ n₂) ≡ n₂
+  --PPR₁ {τ₁ = ↑ x} _ _ = refl
+  --PPR₁ {τ₁ = τ₁ × τ₂} (pair n₁₁ n₁₂) n₂ = cong₂ pair {!PPR₁ ? ?!} {!!}
+  --PPR₁ {τ₁ = ⊤} uniq _ = refl
+  --PPR₂ = {!!}
 
   |Nf| : Category {!!} {!!}
   |Nf| .ob = Q.Ob
@@ -189,7 +224,7 @@ module _ (Q : ×Quiver ℓq ℓq')
   |Nf| .id = ID'
   |Nf| ._⋆_ n m = Nf/Nf m n
   |Nf| .⋆IdL n = IDL n
-  |Nf| .⋆IdR = {!!}
+  |Nf| .⋆IdR n = IDR n
   |Nf| .⋆Assoc = {!!}
   |Nf| .isSetHom = {!!} --isSetNf
   --Nf : CartesianCategory {!!} {!!}

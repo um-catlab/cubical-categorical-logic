@@ -199,14 +199,40 @@ module _ (Q : ×Quiver ℓq ℓq')
   IDR : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf ID n ≡ n
   IDR n = IDR-lem n root
 
+  Nf/Nf-PROJ₁ : ∀{Γ Δ τ₁ τ₂} (n₁ : NormalForm Δ (τ₁ × τ₂)) (n₂ : NormalForm Γ Δ) →
+    Nf/Nf (PROJ₁ n₁) n₂ ≡ PROJ₁ (Nf/Nf n₁ n₂)
+  Nf/Nf-PROJ₁ (pair _ _) _ = refl
+
+  Nf/Nf-PROJ₂ : ∀{Γ Δ τ₁ τ₂} (n₁ : NormalForm Δ (τ₁ × τ₂)) (n₂ : NormalForm Γ Δ) →
+    Nf/Nf (PROJ₂ n₁) n₂ ≡ PROJ₂ (Nf/Nf n₁ n₂)
+  Nf/Nf-PROJ₂ (pair _ _) _ = refl
+
+  ASSOC : ∀{Γ Δ Θ τ} →
+    (n₃ : NormalForm Θ τ)
+    (n₂ : NormalForm Δ Θ)
+    (n₁ : NormalForm Γ Δ) →
+    Nf/Nf n₃ (Nf/Nf n₂ n₁) ≡ Nf/Nf (Nf/Nf n₃ n₂) n₁
+  ASSOC' : ∀{Γ Δ Θ τ} →
+    (n₃ : NeutralTerm Θ τ)
+    (n₂ : NormalForm Δ Θ)
+    (n₁ : NormalForm Γ Δ) →
+    Ne/Nf n₃ (Nf/Nf n₂ n₁) ≡ Nf/Nf (Ne/Nf n₃ n₂) n₁
+  ASSOC (shift ne) = ASSOC' ne
+  ASSOC (pair n₃ n₄) n₂ n₁ = cong₂ pair (ASSOC n₃ n₂ n₁) (ASSOC n₄ n₂ n₁)
+  ASSOC uniq _ _ = refl
+  ASSOC' var _ _ = refl
+  ASSOC' (proj₁ n₃) n₂ n₁ = congS PROJ₁ (ASSOC' n₃ n₂ n₁) ∙ sym (Nf/Nf-PROJ₁ (Ne/Nf n₃ n₂) n₁)
+  ASSOC' (proj₂ n₃) n₂ n₁ = congS PROJ₂ (ASSOC' n₃ n₂ n₁) ∙ sym (Nf/Nf-PROJ₂ (Ne/Nf n₃ n₂) n₁)
+  ASSOC' (symb f nf) n₂ n₁ = congS (shift ∘S symb f) (ASSOC nf n₂ n₁)
+
   |Nf| : Category {!!} {!!}
   |Nf| .ob = Q.Ob
   |Nf| .Hom[_,_] = NormalForm
   |Nf| .id = ID
   |Nf| ._⋆_ n m = Nf/Nf m n
-  |Nf| .⋆IdL n = IDL n
-  |Nf| .⋆IdR n = IDR n
-  |Nf| .⋆Assoc = {!!}
+  |Nf| .⋆IdL = IDL
+  |Nf| .⋆IdR = IDR
+  |Nf| .⋆Assoc n₁ n₂ n₃ = ASSOC n₃ n₂ n₁
   |Nf| .isSetHom = {!!} --isSetNf
   --Nf : CartesianCategory {!!} {!!}
   --Nf .fst = |Nf|

@@ -31,8 +31,8 @@ module _ (Q : ×Quiver ℓq ℓq')
     proj₂ : ∀{Γ τ₁ τ₂} → NeutralTerm Γ (τ₁ × τ₂) → NeutralTerm Γ τ₂
     symb : ∀{Γ} (f : Q.mor) → NormalForm Γ (Q.dom f) → NeutralTerm Γ (↑ (Q.cod f))
     -- NOTE: we don't actually need that NeutralTerm is a hSet, so no need to throw those extra paths in
-    -- SIKE: actually we do
-    isSetNe : ∀{Γ τ} → isSet (NeutralTerm Γ τ)
+    -- SIKE: actually we do??
+    --isSetNe : ∀{Γ τ} → isSet (NeutralTerm Γ τ)
 
   --data NormalForm' where
   --  -- shift only at ground types to enforce η-long normal forms
@@ -67,78 +67,125 @@ module _ (Q : ×Quiver ℓq ℓq')
 
   -- this is the "type directed" shift
   SHIFT : ∀{Γ τ} → NeutralTerm Γ τ → NormalForm Γ τ
-  SHIFT {τ = ↑ _} var = ?
-  SHIFT {τ = ↑ _} (proj₁ ne) = ?
-  SHIFT {τ = ↑ _} (proj₂ ne) = ?
-  SHIFT {τ = ↑ _} (symb f x) = ?
-  SHIFT {τ = ↑ _} (isSetNe ne ne₁ x y i i₁) = ?
-  SHIFT {τ = τ₁ × τ₂} ne = {!!} --n = pair (SHIFT $ proj₁ n) (SHIFT $ proj₂ n)
-  SHIFT {τ = ⊤} ne = {!!} --= uniq
+  -- TODO: this is crucial?
+  --SHIFT (isSetNe n m p q i j) = isSetNf _ _ (congS SHIFT p) (congS SHIFT q) i j
+  -- the generating data should follow the expected pattern
+  SHIFT {τ = ↑ _} ne = shift ne
+  SHIFT {τ = τ₁ × τ₂} ne = pair (SHIFT $ proj₁ ne) (SHIFT $ proj₂ ne)
+  SHIFT {τ = ⊤} _ = uniq
   -- there's also a constructor-directed (syntax directed?) shift, but it doesn't obviously have any nice properties?
 
-  --ID : ∀{τ} → NormalForm τ τ
-  --ID = SHIFT var
+  ---- but this isn't useful anywhere
+  --test-test : ∀{Γ x} (n m : NeutralTerm Γ (↑ x)) (p q : n ≡ m) →
+  --  congS (congS shift) (isSetNe n m p q) ≡ isSetNf (shift n) (shift m) (congS shift p) (congS shift q)
+  --test-test _ _ _ _ = isSet→isGroupoid isSetNf _ _ _ _ _ _
 
-  ---- TODO: do we *really* need to use this?
-  ---- I don't feel like I super understand why we need this, but it just seems like we do
-  --PROJ₁ : ∀{Γ τ₁ τ₂} → NormalForm Γ (τ₁ × τ₂) → NormalForm Γ τ₁
-  --PROJ₁ (pair n₁ _) = n₁
-  --PROJ₁ (isSetNf n m p q i j) = isSetNf (PROJ₁ n) (PROJ₁ m) (congS PROJ₁ p) (congS PROJ₁ q) i j
+  --func : ∀{Γ x} → (ne : NeutralTerm Γ (↑ x)) → Type (ℓ-max ℓq ℓq')
+  --func ne = SHIFT ne ≡ shift ne
 
-  --PROJ₂ : ∀{Γ τ₁ τ₂} → NormalForm Γ (τ₁ × τ₂) → NormalForm Γ τ₂
-  --PROJ₂ (pair _ n₂) = n₂
-  --PROJ₂ (isSetNf n m p q i j) = isSetNf (PROJ₂ n) (PROJ₂ m) (congS PROJ₂ p) (congS PROJ₂ q) i j
+  --test-SHIFT : ∀{Γ x} → (ne : NeutralTerm Γ (↑ x)) → SHIFT ne ≡ shift ne
+  --test-SHIFT var = refl
+  --test-SHIFT (proj₁ _) = refl
+  --test-SHIFT (proj₂ _) = refl
+  --test-SHIFT (symb _ _) = refl
+  --test-SHIFT (isSetNe n m p q i j) = goal i j
+  --  where
+  --  --lem1 : congS func p ≡ congS func q
+  --  --lem1 = congS (congS func) (isSetNe n m p q)
+  --  --lem2 : congS (congS shift) (isSetNe n m p q) ≡ isSetNf _ _ (congS shift p) (congS shift q)
+  --  --lem2 = test-test n m p q
+  --  goal : PathP (λ k → PathP (λ l →
+  --         {!isSetNf (SHIFT n) (SHIFT m) (cong SHIFT p) (cong SHIFT q) k l!} ≡ {!isSetNf (shift n) (shift m) (cong shift p) (cong shift q) k l!})
+  --      (test-SHIFT n)
+  --      (test-SHIFT m))
+  --    (cong test-SHIFT p)
+  --    (cong test-SHIFT q)
+  --  goal = toPathP {!!} --isGroupoid→CubeP (λ _ _ _ → NormalForm _ _) (cong test-SHIFT p) (cong test-SHIFT q) refl refl {!!} {!!} (isSet→isGroupoid isSetNf) --isSet→SquareP (λ a b → isSet→isGroupoid isSetNf _ _) (cong test-SHIFT p) (cong test-SHIFT q) refl refl
 
-  ---- substitution, in composition order (*not* "diagramatic" order)
-  --Nf/Nf : ∀{Γ Δ τ} → NormalForm Δ τ → NormalForm Γ Δ → NormalForm Γ τ
-  --Ne/Nf : ∀{Γ Δ τ} → NeutralTerm Δ τ → NormalForm Γ Δ → NormalForm Γ τ
-  --Nf/Ne : ∀{Γ Δ τ} → NormalForm Δ τ → NeutralTerm Γ Δ → NormalForm Γ τ
-  --Ne/Ne : ∀{Γ Δ τ} → NeutralTerm Δ τ → NeutralTerm Γ Δ → NeutralTerm Γ τ
+  -- side note: this is definitely "the" way to define ID, right?
+  ID : ∀{τ} → NormalForm τ τ
+  ID = SHIFT var
 
-  --Nf/Nf (shift ne) nf = Ne/Nf ne nf
-  --Nf/Nf (pair nf₁ nf₂) nf₃ = pair (Nf/Nf nf₁ nf₃) (Nf/Nf nf₂ nf₃)
-  --Nf/Nf uniq _ = uniq
-  --Nf/Nf (isSetNf n m p q i j) nf₂ = isSetNf (Nf/Nf n nf₂) (Nf/Nf m nf₂) (cong₂ Nf/Nf p refl) (cong₂ Nf/Nf q refl) i j
+  -- TODO: do we *really* need to use this?
+  -- I don't feel like I super understand why we need this, but it just seems like we do
+  PROJ₁ : ∀{Γ τ₁ τ₂} → NormalForm Γ (τ₁ × τ₂) → NormalForm Γ τ₁
+  PROJ₁ (pair n₁ _) = n₁
+  PROJ₁ (isSetNf n m p q i j) = isSetNf (PROJ₁ n) (PROJ₁ m) (congS PROJ₁ p) (congS PROJ₁ q) i j
 
-  --Ne/Nf var = idfun _
-  --Ne/Nf (proj₁ ne) nf = PROJ₁ $ Ne/Nf ne nf
-  --Ne/Nf (proj₂ ne) nf = PROJ₂ $ Ne/Nf ne nf
-  --Ne/Nf (symb f nf₁) nf₂ = shift $ symb f $ Nf/Nf nf₁ nf₂
+  PROJ₂ : ∀{Γ τ₁ τ₂} → NormalForm Γ (τ₁ × τ₂) → NormalForm Γ τ₂
+  PROJ₂ (pair _ n₂) = n₂
+  PROJ₂ (isSetNf n m p q i j) = isSetNf (PROJ₂ n) (PROJ₂ m) (congS PROJ₂ p) (congS PROJ₂ q) i j
+
+  -- substitution, in composition order (*not* "diagramatic" order)
+  Nf/Nf : ∀{Γ Δ τ} → NormalForm Δ τ → NormalForm Γ Δ → NormalForm Γ τ
+  Ne/Nf : ∀{Γ Δ τ} → NeutralTerm Δ τ → NormalForm Γ Δ → NormalForm Γ τ
+  Nf/Ne : ∀{Γ Δ τ} → NormalForm Δ τ → NeutralTerm Γ Δ → NormalForm Γ τ
+  Ne/Ne : ∀{Γ Δ τ} → NeutralTerm Δ τ → NeutralTerm Γ Δ → NeutralTerm Γ τ
+
+  Nf/Nf (shift ne) nf = Ne/Nf ne nf
+  Nf/Nf (pair nf₁ nf₂) nf₃ = pair (Nf/Nf nf₁ nf₃) (Nf/Nf nf₂ nf₃)
+  Nf/Nf uniq _ = uniq
+  Nf/Nf (isSetNf n m p q i j) nf₂ = isSetNf (Nf/Nf n nf₂) (Nf/Nf m nf₂)
+    (cong₂ Nf/Nf p refl)
+    (cong₂ Nf/Nf q refl)
+    i j
+
+  Ne/Nf var = idfun _
+  Ne/Nf (proj₁ ne) nf = PROJ₁ $ Ne/Nf ne nf
+  Ne/Nf (proj₂ ne) nf = PROJ₂ $ Ne/Nf ne nf
+  Ne/Nf (symb f nf₁) nf₂ = shift $ symb f $ Nf/Nf nf₁ nf₂
   --Ne/Nf (isSetNe n m p q i j) nf = isSetNf _ _
   --  (congS (λ x → Ne/Nf x nf) p)
   --  (congS (λ x → Ne/Nf x nf) q)
   --  i j
 
-  --Nf/Ne (shift ne₁) ne₂ = shift $ Ne/Ne ne₁ ne₂
-  --Nf/Ne (pair nf₁ nf₂) ne = pair (Nf/Ne nf₁ ne) (Nf/Ne nf₂ ne)
-  --Nf/Ne uniq _ = uniq
-  --Nf/Ne (isSetNf n m p q i j) ne = isSetNf (Nf/Ne n ne) (Nf/Ne m ne) (cong₂ Nf/Ne p refl) (cong₂ Nf/Ne q refl) i j
+  Nf/Ne (shift ne₁) ne₂ = shift $ Ne/Ne ne₁ ne₂
+  Nf/Ne (pair nf₁ nf₂) ne = pair (Nf/Ne nf₁ ne) (Nf/Ne nf₂ ne)
+  Nf/Ne uniq _ = uniq
+  Nf/Ne (isSetNf n m p q i j) ne = isSetNf (Nf/Ne n ne) (Nf/Ne m ne)
+    (cong₂ Nf/Ne p refl)
+    (cong₂ Nf/Ne q refl)
+    i j
 
-  --Ne/Ne var = idfun _
-  --Ne/Ne (proj₁ ne₁) ne₂ = proj₁ $ Ne/Ne ne₁ ne₂
-  --Ne/Ne (proj₂ ne₁) ne₂ = proj₂ $ Ne/Ne ne₁ ne₂
-  --Ne/Ne (symb f nf) ne = symb f $ Nf/Ne nf ne
-  --Ne/Ne (isSetNe ne₁ ne₂ p q i j) ne₃ = isSetNe _ _ (congS (λ x → Ne/Ne x ne₃) p) (congS (λ x → Ne/Ne x ne₃) q) i j
+  Ne/Ne var = idfun _
+  Ne/Ne (proj₁ ne₁) ne₂ = proj₁ $ Ne/Ne ne₁ ne₂
+  Ne/Ne (proj₂ ne₁) ne₂ = proj₂ $ Ne/Ne ne₁ ne₂
+  Ne/Ne (symb f nf) ne = symb f $ Nf/Ne nf ne
+  --Ne/Ne (isSetNe n m p q i j) ne₃ = isSetNe _ _
+  --  (congS (λ x → Ne/Ne x ne₃) p)
+  --  (congS (λ x → Ne/Ne x ne₃) q)
+  --  i j
 
+  ---- [[unnused]]
+  ---- like above, not super useful
   --SHIFT-isSetNe : ∀ {Γ τ} →
   --  (n₁ n₂ : NeutralTerm Γ τ)
   --  (p q : n₁ ≡ n₂) →
   --  congS (congS SHIFT) (isSetNe n₁ n₂ p q) ≡ isSetNf (SHIFT n₁) (SHIFT n₂) (congS SHIFT p) (congS SHIFT q)
   --SHIFT-isSetNe _ _ _ _ = isSet→isGroupoid isSetNf _ _ _ _ _ _
 
-  --IDL : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf n ID ≡ n
-  --IDL-Ne : ∀{Γ τ} (n : NeutralTerm Γ τ) → Ne/Nf n ID ≡ SHIFT n
+  SHIFT-proj₁ : ∀{Γ τ₁ τ₂} (ne : NeutralTerm Γ (τ₁ × τ₂)) → SHIFT (proj₁ ne) ≡ PROJ₁ (SHIFT ne)
+  SHIFT-proj₁ var = refl
+  SHIFT-proj₁ (proj₁ _) = refl
+  SHIFT-proj₁ (proj₂ _) = refl
+  --SHIFT-proj₁ (isSetNe n m p q i j) = {!!}
 
-  --IDL (shift ne) = IDL-Ne ne
-  --IDL (pair nf₁ nf₂) = cong₂ pair (IDL nf₁) (IDL nf₂)
-  --IDL uniq = refl
-  --IDL (isSetNf n₁ n₂ p q i j) k = isSetNf (IDL n₁ k) (IDL n₂ k) (congS (λ x → IDL x k) p) (congS (λ x → IDL x k) q) i j
+  IDL : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf n ID ≡ n
+  IDL-Ne : ∀{Γ τ} (n : NeutralTerm Γ τ) → Ne/Nf n ID ≡ SHIFT n
 
-  --IDL-Ne var = refl
-  --IDL-Ne (proj₁ ne) = congS PROJ₁ $ IDL-Ne ne
-  --IDL-Ne (proj₂ ne) = congS PROJ₂ $ IDL-Ne ne
-  --IDL-Ne (symb f nf) = congS (shift ∘S symb f) $ IDL nf
-  --IDL-Ne (isSetNe n m p q i j) = {!!}
+  IDL (shift ne) = {!IDL-Ne ne!} --IDL-Ne ne ∙ {!!} --IDL-Ne ne
+  IDL (pair nf₁ nf₂) = cong₂ pair (IDL nf₁) (IDL nf₂)
+  IDL uniq = refl
+  IDL (isSetNf n₁ n₂ p q i j) k = isSetNf (IDL n₁ k) (IDL n₂ k) (congS (λ x → IDL x k) p) (congS (λ x → IDL x k) q) i j
+
+  IDL-Ne var = refl
+  IDL-Ne (proj₁ ne) = {!!} --congS PROJ₁ $ IDL-Ne ne
+  IDL-Ne (proj₂ ne) = {!!} --congS PROJ₂ $ IDL-Ne ne
+  IDL-Ne (symb f nf) = congS (shift ∘S symb f) $ IDL nf
+  --IDL-Ne (isSetNe n m p q i j) k = isSetNf _ _
+  --  (congS (λ x → IDL-Ne x k) p)
+  --  (congS (λ x → IDL-Ne x k) q)
+  --  i j
 
   --_∘proj₁ : ∀{Γ Δ τ} → NeutralTerm Γ τ → NeutralTerm (Γ × Δ) τ
   --_∘PROJ₁ : ∀{Γ Δ τ} → NormalForm Γ τ → NormalForm (Γ × Δ) τ

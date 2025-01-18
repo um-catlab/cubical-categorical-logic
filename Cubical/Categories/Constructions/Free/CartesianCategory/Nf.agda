@@ -8,8 +8,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 
-open import Cubical.Relation.Nullary.Base
-open import Cubical.Relation.Nullary.Properties
+open import Cubical.Data.Bool
 
 private
   variable
@@ -45,6 +44,8 @@ module _ (Q : ×Quiver ℓq ℓq')
     shift : ∀{Γ τ} → NeutralTerm Γ (↑ τ) → NormalForm Γ (↑ τ)
     pair : ∀{Γ τ₁ τ₂} → NormalForm Γ τ₁ → NormalForm Γ τ₂ → NormalForm Γ (τ₁ × τ₂)
     uniq : ∀{Γ} → NormalForm Γ ⊤
+    ---- HACK
+    --uniq* : ∀{Γ} → NormalForm Γ ⊤ → NormalForm Γ ⊤ → NormalForm Γ ⊤
     -- either directly stipulate this, or show that NormalForm is a hSet another way
     isSetNf : ∀{Γ τ} → isSet (NormalForm Γ τ)
 
@@ -124,10 +125,16 @@ module _ (Q : ×Quiver ℓq ℓq')
 
   Nf/Nf (shift ne) nf = Ne/Nf ne nf
   Nf/Nf (pair nf₁ nf₂) nf₃ = pair (Nf/Nf nf₁ nf₃) (Nf/Nf nf₂ nf₃)
-  Nf/Nf uniq _ = uniq
-  Nf/Nf (isSetNf n m p q i j) nf₂ = isSetNf (Nf/Nf n nf₂) (Nf/Nf m nf₂)
-    (cong₂ Nf/Nf p refl)
-    (cong₂ Nf/Nf q refl)
+  Nf/Nf uniq nf₂ = uniq -- TODO: is this what we want?
+  --Nf/Nf uniq (shift _) = uniq
+  --Nf/Nf uniq (pair nf₁ nf₂) = {!!} --uniq* (Nf/Nf uniq nf₁) (Nf/Nf uniq nf₂)
+  --Nf/Nf uniq uniq = uniq
+  ----Nf/Nf uniq (uniq* nf₁ nf₂) = uniq* nf₁ nf₂
+  --Nf/Nf uniq (isSetNf n m p q i j) = isSetNf (Nf/Nf uniq n) (Nf/Nf uniq m) (congS (Nf/Nf uniq) p) (congS (Nf/Nf uniq) q) i j
+  --Nf/Nf (uniq* nf₁ nf₂) nf₃ = uniq* (Nf/Nf nf₁ nf₃) (Nf/Nf nf₂ nf₃)
+  Nf/Nf (isSetNf n m p q i j) nf₂ = isSetNf _ _
+    (congS (λ x → Nf/Nf x nf₂) p)
+    (congS (λ x → Nf/Nf x nf₂) q)
     i j
 
   Ne/Nf var = idfun _
@@ -142,6 +149,7 @@ module _ (Q : ×Quiver ℓq ℓq')
   Nf/Ne (shift ne₁) ne₂ = shift $ Ne/Ne ne₁ ne₂
   Nf/Ne (pair nf₁ nf₂) ne = pair (Nf/Ne nf₁ ne) (Nf/Ne nf₂ ne)
   Nf/Ne uniq _ = uniq
+  --Nf/Ne (uniq* nf₁ nf₂) ne = uniq* (Nf/Ne nf₁ ne) (Nf/Ne nf₂ ne)
   Nf/Ne (isSetNf n m p q i j) ne = isSetNf (Nf/Ne n ne) (Nf/Ne m ne)
     (cong₂ Nf/Ne p refl)
     (cong₂ Nf/Ne q refl)
@@ -164,71 +172,68 @@ module _ (Q : ×Quiver ℓq ℓq')
   --  congS (congS SHIFT) (isSetNe n₁ n₂ p q) ≡ isSetNf (SHIFT n₁) (SHIFT n₂) (congS SHIFT p) (congS SHIFT q)
   --SHIFT-isSetNe _ _ _ _ = isSet→isGroupoid isSetNf _ _ _ _ _ _
 
-  SHIFT-proj₁ : ∀{Γ τ₁ τ₂} (ne : NeutralTerm Γ (τ₁ × τ₂)) → SHIFT (proj₁ ne) ≡ PROJ₁ (SHIFT ne)
-  SHIFT-proj₁ var = refl
-  SHIFT-proj₁ (proj₁ _) = refl
-  SHIFT-proj₁ (proj₂ _) = refl
-  --SHIFT-proj₁ (isSetNe n m p q i j) = {!!}
-
   IDL : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf n ID ≡ n
   IDL-Ne : ∀{Γ τ} (n : NeutralTerm Γ τ) → Ne/Nf n ID ≡ SHIFT n
 
-  IDL (shift ne) = {!IDL-Ne ne!} --IDL-Ne ne ∙ {!!} --IDL-Ne ne
+  IDL (shift ne) = IDL-Ne ne
   IDL (pair nf₁ nf₂) = cong₂ pair (IDL nf₁) (IDL nf₂)
   IDL uniq = refl
-  IDL (isSetNf n₁ n₂ p q i j) k = isSetNf (IDL n₁ k) (IDL n₂ k) (congS (λ x → IDL x k) p) (congS (λ x → IDL x k) q) i j
+  --IDL {Γ = ↑ _} uniq = refl
+  --IDL {Γ = Γ × Δ} uniq = refl
+  --IDL {Γ = ⊤} uniq = refl
+  IDL (isSetNf n₁ n₂ p q i j) k = isSetNf _ _ (congS (λ x → IDL x k) p) (congS (λ x → IDL x k) q) i j
 
   IDL-Ne var = refl
-  IDL-Ne (proj₁ ne) = {!!} --congS PROJ₁ $ IDL-Ne ne
-  IDL-Ne (proj₂ ne) = {!!} --congS PROJ₂ $ IDL-Ne ne
+  IDL-Ne (proj₁ ne) = congS PROJ₁ $ IDL-Ne ne
+  IDL-Ne (proj₂ ne) = congS PROJ₂ $ IDL-Ne ne
   IDL-Ne (symb f nf) = congS (shift ∘S symb f) $ IDL nf
   --IDL-Ne (isSetNe n m p q i j) k = isSetNf _ _
   --  (congS (λ x → IDL-Ne x k) p)
   --  (congS (λ x → IDL-Ne x k) q)
   --  i j
 
-  --_∘proj₁ : ∀{Γ Δ τ} → NeutralTerm Γ τ → NeutralTerm (Γ × Δ) τ
-  --_∘PROJ₁ : ∀{Γ Δ τ} → NormalForm Γ τ → NormalForm (Γ × Δ) τ
+  _∘proj₁ : ∀{Γ Δ τ} → NeutralTerm Γ τ → NeutralTerm (Γ × Δ) τ
+  _∘PROJ₁ : ∀{Γ Δ τ} → NormalForm Γ τ → NormalForm (Γ × Δ) τ
 
-  --var ∘proj₁ = proj₁ var
-  --(proj₁ ne) ∘proj₁ = proj₁ $ ne ∘proj₁
-  --(proj₂ ne) ∘proj₁ = proj₂ $ ne ∘proj₁
-  --(symb f nf) ∘proj₁ = symb f $ nf ∘PROJ₁
+  var ∘proj₁ = proj₁ var
+  (proj₁ ne) ∘proj₁ = proj₁ $ ne ∘proj₁
+  (proj₂ ne) ∘proj₁ = proj₂ $ ne ∘proj₁
+  (symb f nf) ∘proj₁ = symb f $ nf ∘PROJ₁
 
-  --(shift ne) ∘PROJ₁ = shift $ ne ∘proj₁
-  --(pair nf₁ nf₂) ∘PROJ₁ = pair (nf₁ ∘PROJ₁) (nf₂ ∘PROJ₁)
-  --uniq ∘PROJ₁ = uniq
-  --(isSetNf n₁ n₂ p q i j) ∘PROJ₁ = isSetNf (n₁ ∘PROJ₁) (n₂ ∘PROJ₁) (congS _∘PROJ₁ p) (congS _∘PROJ₁ q) i j
+  (shift ne) ∘PROJ₁ = shift $ ne ∘proj₁
+  (pair nf₁ nf₂) ∘PROJ₁ = pair (nf₁ ∘PROJ₁) (nf₂ ∘PROJ₁)
+  uniq ∘PROJ₁ = uniq
+  (isSetNf n₁ n₂ p q i j) ∘PROJ₁ = isSetNf (n₁ ∘PROJ₁) (n₂ ∘PROJ₁) (congS _∘PROJ₁ p) (congS _∘PROJ₁ q) i j
 
-  --_∘proj₂ : ∀{Γ Δ τ} → NeutralTerm Δ τ → NeutralTerm (Γ × Δ) τ
-  --_∘PROJ₂ : ∀{Γ Δ τ} → NormalForm Δ τ → NormalForm (Γ × Δ) τ
+  _∘proj₂ : ∀{Γ Δ τ} → NeutralTerm Δ τ → NeutralTerm (Γ × Δ) τ
+  _∘PROJ₂ : ∀{Γ Δ τ} → NormalForm Δ τ → NormalForm (Γ × Δ) τ
 
-  --var ∘proj₂ = proj₂ var
-  --(proj₁ ne) ∘proj₂ = proj₁ $ ne ∘proj₂
-  --(proj₂ ne) ∘proj₂ = proj₂ $ ne ∘proj₂
-  --(symb f nf) ∘proj₂ = symb f $ nf ∘PROJ₂
+  var ∘proj₂ = proj₂ var
+  (proj₁ ne) ∘proj₂ = proj₁ $ ne ∘proj₂
+  (proj₂ ne) ∘proj₂ = proj₂ $ ne ∘proj₂
+  (symb f nf) ∘proj₂ = symb f $ nf ∘PROJ₂
 
-  --(shift ne) ∘PROJ₂ = shift $ ne ∘proj₂
-  --(pair nf₁ nf₂) ∘PROJ₂ = pair (nf₁ ∘PROJ₂) (nf₂ ∘PROJ₂)
-  --uniq ∘PROJ₂ = uniq
-  --(isSetNf n₁ n₂ p q i j) ∘PROJ₂ = isSetNf (n₁ ∘PROJ₂) (n₂ ∘PROJ₂) (congS _∘PROJ₂ p) (congS _∘PROJ₂ q) i j
+  (shift ne) ∘PROJ₂ = shift $ ne ∘proj₂
+  (pair nf₁ nf₂) ∘PROJ₂ = pair (nf₁ ∘PROJ₂) (nf₂ ∘PROJ₂)
+  uniq ∘PROJ₂ = uniq
+  (isSetNf n₁ n₂ p q i j) ∘PROJ₂ = isSetNf (n₁ ∘PROJ₂) (n₂ ∘PROJ₂) (congS _∘PROJ₂ p) (congS _∘PROJ₂ q) i j
 
-  ---- these types of proofs should somehow be automatic...
-  --SHIFT-∘proj₁ : ∀{Γ Δ τ} {ne : NeutralTerm Γ τ} → SHIFT {Γ = Γ × Δ} (ne ∘proj₁) ≡ (SHIFT ne) ∘PROJ₁
-  --SHIFT-∘proj₁ {τ = ↑ x} = refl
-  --SHIFT-∘proj₁ {τ = τ₁ × τ₂} = cong₂ pair SHIFT-∘proj₁ SHIFT-∘proj₁
-  --SHIFT-∘proj₁ {τ = ⊤} = refl
+  -- these types of proofs should somehow be automatic...
+  SHIFT-∘proj₁ : ∀{Γ Δ τ} {ne : NeutralTerm Γ τ} → SHIFT {Γ = Γ × Δ} (ne ∘proj₁) ≡ (SHIFT ne) ∘PROJ₁
+  SHIFT-∘proj₁ {τ = ↑ _} = refl
+  SHIFT-∘proj₁ {τ = τ₁ × τ₂} = cong₂ pair SHIFT-∘proj₁ SHIFT-∘proj₁
+  SHIFT-∘proj₁ {τ = ⊤} = refl
 
-  --SHIFT-∘proj₂ : ∀{Γ Δ τ} {ne : NeutralTerm Δ τ} → SHIFT {Γ = Γ × Δ} (ne ∘proj₂) ≡ (SHIFT ne) ∘PROJ₂
-  --SHIFT-∘proj₂ {τ = ↑ x} = refl
-  --SHIFT-∘proj₂ {τ = τ₁ × τ₂} = cong₂ pair SHIFT-∘proj₂ SHIFT-∘proj₂
-  --SHIFT-∘proj₂ {τ = ⊤} = refl
+  SHIFT-∘proj₂ : ∀{Γ Δ τ} {ne : NeutralTerm Δ τ} → SHIFT {Γ = Γ × Δ} (ne ∘proj₂) ≡ (SHIFT ne) ∘PROJ₂
+  SHIFT-∘proj₂ {τ = ↑ _} = refl
+  SHIFT-∘proj₂ {τ = τ₁ × τ₂} = cong₂ pair SHIFT-∘proj₂ SHIFT-∘proj₂
+  SHIFT-∘proj₂ {τ = ⊤} = refl
 
-  ---- ast of pairs with "pointed" NormalForm
-  --data Embedded Γ τ (n : NormalForm Γ τ) : Q.Ob → Type (ℓ-max ℓq ℓq') where
-  --  root : Embedded Γ τ n τ
-  --  left : ∀{τ' τ''} → Embedded Γ τ n τ' → NormalForm Γ τ'' → Embedded Γ τ n (τ' × τ'')
-  --  right : ∀{τ' τ''} → NormalForm Γ τ' → Embedded Γ τ n τ'' → Embedded Γ τ n (τ' × τ'')
+  -- ast of pairs with "pointed" NormalForm
+  data Embedded Γ τ (n : NormalForm Γ τ) : Q.Ob → Type (ℓ-max ℓq ℓq') where
+    root : Embedded Γ τ n τ
+    left : ∀{τ' τ''} → Embedded Γ τ n τ' → NormalForm Γ τ'' → Embedded Γ τ n (τ' × τ'')
+    right : ∀{τ' τ''} → NormalForm Γ τ' → Embedded Γ τ n τ'' → Embedded Γ τ n (τ' × τ'')
 
   ----FOO : ∀{Γ τ Δ} → (n₁ n₂ : NormalForm Γ τ) (p q : n₁ ≡ n₂) →
   ----  congS (λ x → Embedded Γ τ x Δ) p ≡ congS (λ x → Embedded Γ τ x Δ) q
@@ -236,86 +241,90 @@ module _ (Q : ×Quiver ℓq ℓq')
   ----  (isSetNf _ _ p q)
   ------Embedded Γ τ (isSetNf n₁ n₂ p q i j) Δ
 
-  ---- "project" the point
-  --⟨_⟩ : ∀{Γ τ n Δ} →
-  --  Embedded Γ τ n Δ → NeutralTerm Δ τ
-  --⟨ root ⟩ = var
-  --⟨ left e _ ⟩ = ⟨ e ⟩ ∘proj₁
-  --⟨ right _ e ⟩ = ⟨ e ⟩ ∘proj₂
+  -- "project" the point
+  ⟨_⟩ : ∀{Γ τ n Δ} →
+    Embedded Γ τ n Δ → NeutralTerm Δ τ
+  ⟨ root ⟩ = var
+  ⟨ left e _ ⟩ = ⟨ e ⟩ ∘proj₁
+  ⟨ right _ e ⟩ = ⟨ e ⟩ ∘proj₂
 
-  ---- "forget" the point
-  --∣_∣ : ∀{Γ τ n Δ} →
-  --  Embedded Γ τ n Δ → NormalForm Γ Δ
-  --∣_∣ {n = n} root = n
-  --∣_∣ (left e nf) = pair ∣ e ∣ nf
-  --∣_∣ (right nf e) = pair nf ∣ e ∣
+  -- "forget" the point
+  ∣_∣ : ∀{Γ τ n Δ} →
+    Embedded Γ τ n Δ → NormalForm Γ Δ
+  ∣_∣ {n = n} root = n
+  ∣_∣ (left e nf) = pair ∣ e ∣ nf
+  ∣_∣ (right nf e) = pair nf ∣ e ∣
 
-  --β₁-Ne/Nf : ∀{Γ τ₁ τ₂ τ₃} →
-  --  (ne : NeutralTerm τ₁ τ₃) →
-  --  (nf₁ : NormalForm Γ τ₁) →
-  --  (nf₂ : NormalForm Γ τ₂) →
-  --  Ne/Nf (ne ∘proj₁) (pair nf₁ nf₂) ≡ Ne/Nf ne nf₁
-  --β₁-Nf/Nf : ∀{Γ τ₁ τ₂ τ₃} →
-  --  (nf₃ : NormalForm τ₁ τ₃) →
-  --  (nf₁ : NormalForm Γ τ₁) →
-  --  (nf₂ : NormalForm Γ τ₂) →
-  --  Nf/Nf (nf₃ ∘PROJ₁) (pair nf₁ nf₂) ≡ Nf/Nf nf₃ nf₁
+  β₁-Ne/Nf : ∀{Γ τ₁ τ₂ τ₃} →
+    (ne : NeutralTerm τ₁ τ₃) →
+    (nf₁ : NormalForm Γ τ₁) →
+    (nf₂ : NormalForm Γ τ₂) →
+    Ne/Nf (ne ∘proj₁) (pair nf₁ nf₂) ≡ Ne/Nf ne nf₁
+  β₁-Nf/Nf : ∀{Γ τ₁ τ₂ τ₃} →
+    (nf₃ : NormalForm τ₁ τ₃) →
+    (nf₁ : NormalForm Γ τ₁) →
+    (nf₂ : NormalForm Γ τ₂) →
+    Nf/Nf (nf₃ ∘PROJ₁) (pair nf₁ nf₂) ≡ Nf/Nf nf₃ nf₁
 
-  --β₁-Ne/Nf var _ _ = refl
-  --β₁-Ne/Nf (proj₁ ne) _ _ = congS PROJ₁ $ β₁-Ne/Nf ne _ _
-  --β₁-Ne/Nf (proj₂ ne) _ _ = congS PROJ₂ $ β₁-Ne/Nf ne _ _
-  --β₁-Ne/Nf (symb f nf₁) _ _ = congS (shift ∘S symb f) $ β₁-Nf/Nf nf₁ _ _
+  β₁-Ne/Nf var _ _ = refl
+  β₁-Ne/Nf (proj₁ ne) _ _ = congS PROJ₁ $ β₁-Ne/Nf ne _ _
+  β₁-Ne/Nf (proj₂ ne) _ _ = congS PROJ₂ $ β₁-Ne/Nf ne _ _
+  β₁-Ne/Nf (symb f nf₁) _ _ = congS (shift ∘S symb f) $ β₁-Nf/Nf nf₁ _ _
 
-  --β₁-Nf/Nf (shift ne) = β₁-Ne/Nf ne
-  --β₁-Nf/Nf (pair nf₁ nf₂) _ _ = cong₂ pair (β₁-Nf/Nf nf₁ _ _) (β₁-Nf/Nf nf₂ _ _)
-  --β₁-Nf/Nf uniq _ _ = refl
-  --β₁-Nf/Nf (isSetNf nf₁ nf₂ p q i j) nf₃ nf₄ k = isSetNf _ _
-  --  (congS (λ x → β₁-Nf/Nf x nf₃ nf₄ k) p)
-  --  (congS (λ x → β₁-Nf/Nf x nf₃ nf₄ k) q)
-  --  i j
+  β₁-Nf/Nf (shift ne) = β₁-Ne/Nf ne
+  β₁-Nf/Nf (pair nf₁ nf₂) _ _ = cong₂ pair (β₁-Nf/Nf nf₁ _ _) (β₁-Nf/Nf nf₂ _ _)
+  β₁-Nf/Nf uniq nf₁ nf₂ = refl
+  --β₁-Nf/Nf uniq (shift x) nf₂ = refl
+  --β₁-Nf/Nf uniq (pair nf₁ nf₃) nf₂ = refl
+  --β₁-Nf/Nf uniq uniq nf₂ = refl
+  --β₁-Nf/Nf uniq (isSetNf nf₁ nf₃ x y i i₁) nf₂ = {!Nf/Nf (uniq ∘PROJ₁) (pair (isSetNf nf₁ nf₃ x y i i₁) nf₂)!}
+  β₁-Nf/Nf (isSetNf nf₁ nf₂ p q i j) nf₃ nf₄ k = isSetNf _ _
+    (congS (λ x → β₁-Nf/Nf x nf₃ nf₄ k) p)
+    (congS (λ x → β₁-Nf/Nf x nf₃ nf₄ k) q)
+    i j
 
-  --β₂-Ne/Nf : ∀{Γ τ₁ τ₂ τ₃} →
-  --  (ne : NeutralTerm τ₂ τ₃) →
-  --  (nf₁ : NormalForm Γ τ₁) →
-  --  (nf₂ : NormalForm Γ τ₂) →
-  --  Ne/Nf (ne ∘proj₂) (pair nf₁ nf₂) ≡ Ne/Nf ne nf₂
-  --β₂-Nf/Nf : ∀{Γ τ₁ τ₂ τ₃} →
-  --  (nf₃ : NormalForm τ₂ τ₃) →
-  --  (nf₁ : NormalForm Γ τ₁) →
-  --  (nf₂ : NormalForm Γ τ₂) →
-  --  Nf/Nf (nf₃ ∘PROJ₂) (pair nf₁ nf₂) ≡ Nf/Nf nf₃ nf₂
-  --β₂-Ne/Nf var _ _ = refl
-  --β₂-Ne/Nf (proj₁ ne) _ _ = congS PROJ₁ $ β₂-Ne/Nf ne _ _
-  --β₂-Ne/Nf (proj₂ ne) _ _ = congS PROJ₂ $ β₂-Ne/Nf ne _ _
-  --β₂-Ne/Nf (symb f nf₁) _ _ = congS (shift ∘S symb f) $ β₂-Nf/Nf nf₁ _ _
+  β₂-Ne/Nf : ∀{Γ τ₁ τ₂ τ₃} →
+    (ne : NeutralTerm τ₂ τ₃) →
+    (nf₁ : NormalForm Γ τ₁) →
+    (nf₂ : NormalForm Γ τ₂) →
+    Ne/Nf (ne ∘proj₂) (pair nf₁ nf₂) ≡ Ne/Nf ne nf₂
+  β₂-Nf/Nf : ∀{Γ τ₁ τ₂ τ₃} →
+    (nf₃ : NormalForm τ₂ τ₃) →
+    (nf₁ : NormalForm Γ τ₁) →
+    (nf₂ : NormalForm Γ τ₂) →
+    Nf/Nf (nf₃ ∘PROJ₂) (pair nf₁ nf₂) ≡ Nf/Nf nf₃ nf₂
+  β₂-Ne/Nf var _ _ = refl
+  β₂-Ne/Nf (proj₁ ne) _ _ = congS PROJ₁ $ β₂-Ne/Nf ne _ _
+  β₂-Ne/Nf (proj₂ ne) _ _ = congS PROJ₂ $ β₂-Ne/Nf ne _ _
+  β₂-Ne/Nf (symb f nf₁) _ _ = congS (shift ∘S symb f) $ β₂-Nf/Nf nf₁ _ _
 
-  --β₂-Nf/Nf (shift ne) = β₂-Ne/Nf ne
-  --β₂-Nf/Nf (pair nf₁ nf₂) _ _ = cong₂ pair (β₂-Nf/Nf nf₁ _ _) (β₂-Nf/Nf nf₂ _ _)
-  --β₂-Nf/Nf uniq _ _ = refl
-  --β₂-Nf/Nf (isSetNf nf₁ nf₂ p q i j) nf₃ nf₄ k = isSetNf _ _
-  --  (congS (λ x → β₂-Nf/Nf x nf₃ nf₄ k) p)
-  --  (congS (λ x → β₂-Nf/Nf x nf₃ nf₄ k) q)
-  --  i j
+  β₂-Nf/Nf (shift ne) = β₂-Ne/Nf ne
+  β₂-Nf/Nf (pair nf₁ nf₂) _ _ = cong₂ pair (β₂-Nf/Nf nf₁ _ _) (β₂-Nf/Nf nf₂ _ _)
+  β₂-Nf/Nf uniq _ _ = refl
+  β₂-Nf/Nf (isSetNf nf₁ nf₂ p q i j) nf₃ nf₄ k = isSetNf _ _
+    (congS (λ x → β₂-Nf/Nf x nf₃ nf₄ k) p)
+    (congS (λ x → β₂-Nf/Nf x nf₃ nf₄ k) q)
+    i j
 
-  ----IDR-lem-Ne/Nf : ∀{Γ τ Δ} →
-  ----  (n : NormalForm Γ τ)
-  ----  (ast : Embedded Γ τ n Δ) →
-  ----  Ne/Nf ⟨ ast ⟩ ∣ ast ∣ ≡ n
-  ----IDR-lem-Ne/Nf {τ = ↑ x} n root = refl
-  ----IDR-lem-Ne/Nf {τ = ↑ x} n (left ast x₁) = {!!}
-  ----IDR-lem-Ne/Nf {τ = ↑ x} n (right x₁ ast) = {!!}
-  ----IDR-lem-Ne/Nf {τ = τ₁ × τ₂} n root = refl
-  ----IDR-lem-Ne/Nf {τ = τ₁ × τ₂} n (left ast x) = {!!}
-  ----IDR-lem-Ne/Nf {τ = τ₁ × τ₂} n (right x ast) = {!!}
-  ----IDR-lem-Ne/Nf {τ = ⊤} n root = refl
-  ----IDR-lem-Ne/Nf {τ = ⊤} uniq (left ast x) = {!!} ∙ IDR-lem-Ne/Nf uniq ast
-  ----IDR-lem-Ne/Nf {τ = ⊤} uniq (right x ast) = {!!} ∙ IDR-lem-Ne/Nf uniq ast
-  ------IDR-lem-Ne/Nf {τ = ⊤} (isSetNf n₁ n₂ p q i j) root k = isSetNf _ _
-  ------  (congS (λ x → IDR-lem-Ne/Nf x root k) p)
-  ------  (congS (λ x → IDR-lem-Ne/Nf x root k) q)
-  ------  i j
-  ----IDR-lem-Ne/Nf {τ = ⊤} (isSetNf n₁ n₂ p q i j) (left ast x) = {!IDR-lem-Ne/Nf (isSetNf n₁ n₂ p q i j) ast!}
-  ----IDR-lem-Ne/Nf {τ = ⊤} (isSetNf n₁ n₂ p q i j) (right x ast) = {!!}
+  ------IDR-lem-Ne/Nf : ∀{Γ τ Δ} →
+  ------  (n : NormalForm Γ τ)
+  ------  (ast : Embedded Γ τ n Δ) →
+  ------  Ne/Nf ⟨ ast ⟩ ∣ ast ∣ ≡ n
+  ------IDR-lem-Ne/Nf {τ = ↑ x} n root = refl
+  ------IDR-lem-Ne/Nf {τ = ↑ x} n (left ast x₁) = {!!}
+  ------IDR-lem-Ne/Nf {τ = ↑ x} n (right x₁ ast) = {!!}
+  ------IDR-lem-Ne/Nf {τ = τ₁ × τ₂} n root = refl
+  ------IDR-lem-Ne/Nf {τ = τ₁ × τ₂} n (left ast x) = {!!}
+  ------IDR-lem-Ne/Nf {τ = τ₁ × τ₂} n (right x ast) = {!!}
+  ------IDR-lem-Ne/Nf {τ = ⊤} n root = refl
+  ------IDR-lem-Ne/Nf {τ = ⊤} uniq (left ast x) = {!!} ∙ IDR-lem-Ne/Nf uniq ast
+  ------IDR-lem-Ne/Nf {τ = ⊤} uniq (right x ast) = {!!} ∙ IDR-lem-Ne/Nf uniq ast
+  --------IDR-lem-Ne/Nf {τ = ⊤} (isSetNf n₁ n₂ p q i j) root k = isSetNf _ _
+  --------  (congS (λ x → IDR-lem-Ne/Nf x root k) p)
+  --------  (congS (λ x → IDR-lem-Ne/Nf x root k) q)
+  --------  i j
+  ------IDR-lem-Ne/Nf {τ = ⊤} (isSetNf n₁ n₂ p q i j) (left ast x) = {!IDR-lem-Ne/Nf (isSetNf n₁ n₂ p q i j) ast!}
+  ------IDR-lem-Ne/Nf {τ = ⊤} (isSetNf n₁ n₂ p q i j) (right x ast) = {!!}
 
   ---- this is the "big" inductive lemma for IDR
   --IDR-lem : ∀{Γ τ Δ} →
@@ -335,15 +344,15 @@ module _ (Q : ×Quiver ℓq ℓq')
   --  (congS (λ x → Nf/Nf x $ pair nf ∣ ast ∣) (SHIFT-∘proj₂) ∙ β₂-Nf/Nf (SHIFT _) nf ∣ ast ∣)
   --  ∙ IDR-lem (pair n₁ n₂) ast
   --IDR-lem {τ = τ₁ × τ₂} (isSetNf n₁ n₂ p q i j) ast = {!!}
-  --IDR-lem {τ = ⊤} uniq _ = refl
+  --IDR-lem {τ = ⊤} uniq _ = {!!} --refl
   --IDR-lem {τ = ⊤} (isSetNf n₁ n₂ p q i j) ast = {!!}
 
-  --IDR : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf ID n ≡ n
-  ----IDR n = IDR-lem n root
-  --IDR (shift _) = refl
-  --IDR (pair n n₁) = {!!}
-  --IDR uniq = {!!}
-  --IDR (isSetNf n₁ n₂ p q i j) = {!!}
+  IDR : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf ID n ≡ n
+  --IDR n = IDR-lem n root
+  IDR (shift _) = refl
+  IDR (pair n₁ n₂) = cong₂ pair {!!} {!!}
+  IDR uniq = refl
+  IDR (isSetNf n₁ n₂ p q i j) = {!refl!}
 
   --Nf/Nf-PROJ₁ : ∀{Γ Δ τ₁ τ₂} (n₁ : NormalForm Δ (τ₁ × τ₂)) (n₂ : NormalForm Γ Δ) →
   --  Nf/Nf (PROJ₁ n₁) n₂ ≡ PROJ₁ (Nf/Nf n₁ n₂)

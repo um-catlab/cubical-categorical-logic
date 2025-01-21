@@ -246,12 +246,19 @@ module _ (Q : ×Quiver ℓq ℓq')
     (n₂ : ∥ NormalForm Δ Θ ∥₂)
     (n₁ : ∥ NormalForm Γ Δ ∥₂) →
     ((n₁ ⋆⋆ n₂) ⋆⋆ n₃) ≡ (n₁ ⋆⋆ (n₂ ⋆⋆ n₃))
+  --∣ASSOC∣₂ n₃ n₂ n₁ = rec3 {!!} (λ x x₁ x₂ → {!!}) n₃ n₂ n₁
   ∣ASSOC∣₂ ∣ n₃ ∣₂ ∣ n₂ ∣₂ ∣ n₁ ∣₂ = cong ∣_∣₂ (ASSOC-Nf/Nf/Nf n₃ n₂ n₁)
-  ∣ASSOC∣₂ ∣ n₃ ∣₂ ∣ n₂ ∣₂ (squash₂ n m p q i j) k = squash₂ _ _ (congS (λ x → ∣ASSOC∣₂ ∣ n₃ ∣₂ ∣ n₂ ∣₂ x k) p) ((congS (λ x → ∣ASSOC∣₂ ∣ n₃ ∣₂ ∣ n₂ ∣₂ x k) q)) i j
-  ∣ASSOC∣₂ ∣ n₃ ∣₂ (squash₂ n m p q i j) ∣ n₁ ∣₂ k = squash₂ _ _ (congS (λ x → ∣ASSOC∣₂ ∣ n₃ ∣₂ x ∣ n₁ ∣₂ k) p) (congS (λ x → ∣ASSOC∣₂ ∣ n₃ ∣₂ x ∣ n₁ ∣₂ k) q) i j
-  ∣ASSOC∣₂ ∣ n₃ ∣₂ (squash₂ n m p q i j) (squash₂ n' m' p' q' i' j') k = squash₂ {!∣ASSOC∣₂ ∣ n₃ ∣₂ (p k) (squash₂ n' m' p' q' i' j')!} {!!} {!!} {!!} {!!} {!!} --k = squash₂ (∣ASSOC∣₂ ∣ n₃ ∣₂ n n' k) (∣ASSOC∣₂ ∣ n₃ ∣₂ m m' k) (cong₂ (λ x y → ∣ASSOC∣₂ ∣ n₃ ∣₂ x y k) p p') ((cong₂ (λ x y → ∣ASSOC∣₂ ∣ n₃ ∣₂ x y k) q q')) {!!} {!!}
   ∣ASSOC∣₂ (squash₂ n m p q i j) ∣ n₂ ∣₂ ∣ n₁ ∣₂ k = squash₂ _ _ (congS (λ x → ∣ASSOC∣₂ x ∣ n₂ ∣₂ ∣ n₁ ∣₂ k) p) (congS (λ x → ∣ASSOC∣₂ x ∣ n₂ ∣₂ ∣ n₁ ∣₂ k) q) i j
+  --∣ASSOC∣₂ ∣ n₃ ∣₂ ∣ n₂ ∣₂ (squash₂ n m p q i j) k = squash₂ _ _ (congS (λ x → ∣ASSOC∣₂ ∣ n₃ ∣₂ ∣ n₂ ∣₂ x k) p) ((congS (λ x → ∣ASSOC∣₂ ∣ n₃ ∣₂ ∣ n₂ ∣₂ x k) q)) i j
+  ∣ASSOC∣₂ n₃ (squash₂ n m p q i j) ∣ n₁ ∣₂ k = squash₂ _ _ (congS (λ x → ∣ASSOC∣₂ n₃ x ∣ n₁ ∣₂ k) p) (congS (λ x → ∣ASSOC∣₂ n₃ x ∣ n₁ ∣₂ k) q) i j
+  --∣ASSOC∣₂ ∣ n₃ ∣₂ (squash₂ n m p q i j) (squash₂ n' m' p' q' i' j') =  goal --k = squash₂ (∣ASSOC∣₂ ∣ n₃ ∣₂ n n' k) (∣ASSOC∣₂ ∣ n₃ ∣₂ m m' k) (cong₂ (λ x y → ∣ASSOC∣₂ ∣ n₃ ∣₂ x y k) p p') (cong₂ (λ x y → ∣ASSOC∣₂ ∣ n₃ ∣₂ x y k) q q') {!!} {!!}
+  --  where
+  --  goal : squash₂ ((n' ⋆⋆ squash₂ n m p q i j) ⋆⋆ ∣ n₃ ∣₂) ((squash₂ n' m' p' q' i' {!j'!} ⋆⋆ {!!}) ⋆⋆ ∣ n₃ ∣₂) {!!} {!!} i' j'
+  --          ≡
+  --          squash₂ (n' ⋆⋆ (squash₂ n m p q i j ⋆⋆ ∣ n₃ ∣₂)) {!!} {!!} {!!} i' j'
+  --  goal = {!!}
   --∣ASSOC∣₂ (squash₂ n₃ n₄ p q i j) n₂ n₁ = {!!}
+  ∣ASSOC∣₂ n₃ n₂ (squash₂ n m p q i j) k = squash₂ {!!} {!!} {!!} {!!} {!!} {!!}
 
   |Nf| : Category _ _
   |Nf| .ob = Q.Ob

@@ -52,6 +52,10 @@ encodeTest2 A2 B2 = A2≠B2
 encodeTest2 B2 A2 = A2≠B2 ∘S sym
 encodeTest2 B2 B2 _ = tt
 
+decodeTest2 : (x y : Test2) → codeTest2 x y → x ≡ y
+decodeTest2 A2 A2 p = refl
+decodeTest2 B2 B2 p = refl
+
 A3≠B3 : ∀{x} → ¬ (A3 ≡ B3 x)
 A3≠B3 p = subst {A = Test3} {x = A3} {y = B3 _} ((λ { A3 → Unit ; (B3 _) → ⊥ })) p tt
 
@@ -65,17 +69,21 @@ r3 : (x : Test3) → codeTest3 x x
 r3 A3 = tt
 r3 (B3 x) = r2 x
 
-encodeTest3 : (x y : Test3) → x ≡ y → codeTest3 x y
-encodeTest3 A3 A3 _ = tt
-encodeTest3 A3 (B3 x) = A3≠B3
-encodeTest3 (B3 x) A3 = A3≠B3 ∘S sym
-encodeTest3 (B3 x) (B3 y) p = {!!}
+--encodeTest3 : (x y : Test3) → x ≡ y → codeTest3 x y
+--encodeTest3 A3 A3 _ = tt
+--encodeTest3 A3 (B3 x) = A3≠B3
+--encodeTest3 (B3 x) A3 = A3≠B3 ∘S sym
+--encodeTest3 (B3 x) (B3 y) p = {!decodeTest2!}
 
 encodeTest3' : (x y : Test3) → x ≡ y → codeTest3 x y
 encodeTest3' x y p = subst (codeTest3 x) p (r3 x)
 
+decodeTest3' : (x y : Test3) → codeTest3 x y → x ≡ y
+decodeTest3' A3 A3 p = refl
+decodeTest3' (B3 x) (B3 y) p = congS B3 (decodeTest2 x y p)
+
 inj-B3 : ∀ x' y' → B3 x' ≡ B3 y' → x' ≡ y'
-inj-B3 x' y' p = {!p!}
+inj-B3 x' y' = decodeTest2 x' y' ∘S encodeTest3' (B3 x') (B3 y')
 
 cong-B3-Dec : ∀ x' y' → Dec (x' ≡ y') → Dec (B3 x' ≡ B3 y')
 cong-B3-Dec x' y' (yes p) = yes $ congS B3 p
@@ -111,3 +119,38 @@ isSetTest3 = Discrete→isSet DiscreteTest3
 --Lemma2 A2 = funExt (λ p → {!!})
 --Lemma2 B2 = {!!}
 
+data Test4 : Type ℓ-zero where
+  A4 : Test4
+  B4 : Test4 → Test4
+
+A4≠B4 : ∀{x} → ¬ (A4 ≡ B4 x)
+A4≠B4 p = subst (λ {A4 → Unit ; (B4 _) → ⊥}) p tt
+
+codeTest4 : Test4 → Test4 → Type ℓ-zero
+codeTest4 A4 A4 = Unit
+codeTest4 (B4 x) (B4 y) = codeTest4 x y
+codeTest4 _ _ = ⊥
+
+r4 : (x : Test4) → codeTest4 x x
+r4 A4 = tt
+r4 (B4 x) = r4 x
+
+encodeTest4 : (x y : Test4) → x ≡ y → codeTest4 x y
+encodeTest4 x y p = subst (codeTest4 x) p (r4 x)
+
+decodeTest4 : (x y : Test4) → codeTest4 x y → x ≡ y
+decodeTest4 A4 A4 p = refl
+decodeTest4 (B4 x) (B4 y) p = congS B4 $ decodeTest4 x y p
+
+inj-B4 : ∀ x y → B4 x ≡ B4 y → x ≡ y
+inj-B4 x y = decodeTest4 x y ∘S encodeTest4 (B4 x) (B4 y)
+
+cong-B4-Dec : ∀ x y → Dec (x ≡ y) → Dec (B4 x ≡ B4 y)
+cong-B4-Dec x y (yes p) = yes $ congS B4 p
+cong-B4-Dec x y (no ¬p) = no $ ¬p ∘S (inj-B4 x y)
+
+DiscreteTest4 : Discrete Test4
+DiscreteTest4 A4 A4 = yes refl
+DiscreteTest4 A4 (B4 y) = no A4≠B4
+DiscreteTest4 (B4 x) A4 = no $ A4≠B4 ∘S sym
+DiscreteTest4 (B4 x) (B4 y) = cong-B4-Dec x y $ DiscreteTest4 x y

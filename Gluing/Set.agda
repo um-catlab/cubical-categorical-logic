@@ -154,3 +154,28 @@ DiscreteTest4 A4 A4 = yes refl
 DiscreteTest4 A4 (B4 y) = no A4≠B4
 DiscreteTest4 (B4 x) A4 = no $ A4≠B4 ∘S sym
 DiscreteTest4 (B4 x) (B4 y) = cong-B4-Dec x y $ DiscreteTest4 x y
+
+data Test5 (P5 : Test1) : Test1 → Type ℓ-zero where
+  A5 : Test5 P5 P5
+
+data Test6 (P6 : Type1) (Q6 : Type1) : Type ℓ-zero where
+  A6 : Test6 P6 Q6
+
+test : ∀ x → Test6 x x → Type ℓ-zero
+test _ A6 = {!!}
+
+blah : ∀ x → Test5 x x → Type ℓ-zero
+blah _ t = {!!}
+
+--module _ (P5 : Test4) where
+--  codingTest5 : ∀{Q5} → Test5 P5 Q5 → Test5 P5 Q5 → Type ℓ-zero
+--  codingTest5 x y = Unit
+--
+--  r5 : ∀{Q5} → (x : Test5 P5 Q5) → codingTest5 x x
+--  r5 x = tt
+--
+--  encodeTest5 : ∀{Q5} → (x y : Test5 P5 Q5) → x ≡ y → codingTest5 x y
+--  encodeTest5 x y p = subst (codingTest5 x) p (r5 x)
+--
+--  decodeTest5 : ∀{Q5} x y → codingTest5 x y → x ≡ y
+--  decodeTest5 x y p = {!x!}

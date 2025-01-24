@@ -1,6 +1,3 @@
-{-
-  TODO: This file should be traditional Agda + without K, ie cubical-compatible
--}
 module Cubical.Categories.Constructions.Free.CartesianCategory.Nf where
 
 open import Cubical.Foundations.Prelude
@@ -16,6 +13,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 
+open import Cubical.HITs.PropositionalTruncation
+
 private
   variable
     ℓq ℓq' : Level
@@ -27,19 +26,15 @@ module _ (Q : ×Quiver ℓq ℓq')
     module Q = ×QuiverNotation Q
 
   -- in "classic" natural deduction style, parameterize everything by the context,
-  -- even though TODO: we don't care about the path
   module _ (Γ : Q.Ob) where
     data NormalForm : (τ : Q.Ob) → Type (ℓ-max ℓq ℓq')
     data NeutralTerm : (τ : Q.Ob) → Type (ℓ-max ℓq ℓq')
 
     data NeutralTerm where
-      -- NOTE: Unfortuantely, it seems like we need to explictly take a path/id
-      -- WE DON'T NEED TO KNOW WHAT PATH (1)
-      var : ∀{τ} → {Γ Eq.≡ τ} → NeutralTerm τ
+      var : ∀{τ} → (τ ≡ Γ) → NeutralTerm τ
       proj₁ : ∀{τ₁ τ₂} → NeutralTerm (τ₁ × τ₂) → NeutralTerm τ₁
       proj₂ : ∀{τ₁ τ₂} → NeutralTerm (τ₁ × τ₂) → NeutralTerm τ₂
-      -- same thing (2)
-      symb : ∀{τ} → (f : Q.mor) → {↑ (Q.cod f) Eq.≡ τ} → NormalForm (Q.dom f) → NeutralTerm τ
+      symb : ∀{τ} → (f : Q.mor) → (τ ≡ ↑ (Q.cod f)) → NormalForm (Q.dom f) → NeutralTerm τ
 
     data NormalForm where
       -- shift only at ground types to enforce η-long normal forms
@@ -47,59 +42,86 @@ module _ (Q : ×Quiver ℓq ℓq')
       pair : ∀{τ₁ τ₂} → NormalForm τ₁ → NormalForm τ₂ → NormalForm (τ₁ × τ₂)
       uniq : NormalForm ⊤
 
-    codeNeutralTerm : ∀ τ → NeutralTerm τ → NeutralTerm τ → Type (ℓ-max ℓq ℓq')
-    codeNormalForm : ∀ τ → NormalForm τ → NormalForm τ → Type (ℓ-max ℓq ℓq')
+    codeNeutralTerm : ∀{τ} → NeutralTerm τ → NeutralTerm τ → Type (ℓ-max ℓq ℓq')
+    codeNormalForm : ∀{τ} → NormalForm τ → NormalForm τ → Type (ℓ-max ℓq ℓq')
 
     -- trivial code for NeutralTerms
-    codeNeutralTerm τ x y = x ≡ y
-    ---- (1)
-    --codeNeutralTerm τ var var = Unit*
-    --codeNeutralTerm τ var (proj₁ _) = ⊥*
-    --codeNeutralTerm τ var (proj₂ _) = ⊥*
-    --codeNeutralTerm τ var (symb _ _) = ⊥*
-    --codeNeutralTerm τ (proj₁ _) var = ⊥*
-    --codeNeutralTerm τ (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) =
-    --  {!Σ!}
-    --codeNeutralTerm τ (proj₁ _) (proj₂ _) = ⊥*
-    --codeNeutralTerm τ (proj₁ _) (symb _ _) = ⊥*
-    --codeNeutralTerm τ (proj₂ _) var = ⊥*
-    --codeNeutralTerm τ (proj₂ _) (proj₁ _) = ⊥*
-    --codeNeutralTerm τ (proj₂ x) (proj₂ y) = {!!}
-    --codeNeutralTerm τ (proj₂ _) (symb _ _) = ⊥*
-    --codeNeutralTerm τ (symb _ _) var = ⊥*
-    --codeNeutralTerm τ (symb _ _) (proj₁ _) = ⊥*
-    --codeNeutralTerm τ (symb _ _) (proj₂ _) = ⊥*
-    --codeNeutralTerm τ (symb f x) (symb g y) =
-    --  Σ (f Eq.≡ g) λ {Eq.refl → codeNormalForm (Q.dom f) x y}
+    codeNeutralTerm (var p) (var q) = Lift {j = ℓq'} (p ≡ q)
+    codeNeutralTerm (var _) (proj₁ _) = ⊥*
+    codeNeutralTerm (var _) (proj₂ _) = ⊥*
+    codeNeutralTerm (var _) (symb _ _ _) = ⊥*
+    codeNeutralTerm (proj₁ x) y = {!y!}
+    codeNeutralTerm (proj₂ x) y = {!!}
+    codeNeutralTerm (symb _ _ _) (var _) = ⊥*
+    codeNeutralTerm (symb _ _ _) (proj₁ _) = ⊥*
+    codeNeutralTerm (symb _ _ _) (proj₂ _) = ⊥*
+    codeNeutralTerm (symb f p x) (symb g q y) = Σ (f Eq.≡ g) λ {Eq.refl → (p ≡ q) Σ.× (codeNormalForm x y)}
 
-    codeNormalForm τ (shift x) (shift y) = codeNeutralTerm τ x y
-    codeNormalForm τ (pair x₁ x₂) (pair y₁ y₂) = (codeNormalForm _ x₁ y₁) Σ.× (codeNormalForm _ x₂ y₂)
-    codeNormalForm τ uniq uniq = Unit*
+    codeNormalForm (shift x) (shift y) = codeNeutralTerm x y
+    codeNormalForm (pair w x) (pair y z) = (codeNormalForm w y) Σ.× (codeNormalForm x z)
+    codeNormalForm uniq uniq = Unit*
 
- --   DiscreteNeutralTerm : ∀ τ → Discrete (NeutralTerm τ)
- --   DiscreteNeutralTerm τ x y = {!!}
+    reflCodeNeutralTerm : ∀{τ} → (x : NeutralTerm τ) → codeNeutralTerm x x
+    reflCodeNormalForm : ∀{τ} → (x : NormalForm τ) → codeNormalForm x x
 
- -- --codeNormalForm : ∀{Γ τ} → NormalForm Γ τ → NormalForm Γ τ → Type ℓ-zero
- -- --codeNormalForm (shift x) (shift y) = codeNeutralTerm x y
- -- --codeNormalForm (pair w x) (pair y z) = (codeNormalForm w y) Σ.× (codeNormalForm x z)
- -- --codeNormalForm uniq uniq = Unit
+    reflCodeNeutralTerm (var p) = lift refl
+    reflCodeNeutralTerm (proj₁ x) = {!!}
+    reflCodeNeutralTerm (proj₂ x) = {!!}
+    reflCodeNeutralTerm (symb f p x) = Eq.refl , refl , reflCodeNormalForm x
 
- -- inj-pair : ∀{w x y z} → pair w x ≡ pair y z → (w ≡ y) Σ.× (y ≡ z)
- -- inj-pair p = {!!}
+    reflCodeNormalForm (shift x) = reflCodeNeutralTerm x
+    reflCodeNormalForm (pair x y) = reflCodeNormalForm x , reflCodeNormalForm y
+    reflCodeNormalForm uniq = tt*
 
- -- cong-pair-Dec : ∀{w x y z} →
- --   Dec (w ≡ y) →
- --   Dec (x ≡ z) →
- --   Dec (pair w x ≡ pair y z)
- -- cong-pair-Dec (yes p) (yes q) = yes $ cong₂ pair p q
- -- cong-pair-Dec (yes p) (no ¬p) = no {!!}
- -- cong-pair-Dec (no ¬p) (yes p) = no {!!}
- -- cong-pair-Dec (no ¬p) (no ¬q) = no {!!}
+    encodeNormalForm : ∀{τ} → (x y : NormalForm τ) → x ≡ y → codeNormalForm x y
+    encodeNormalForm x y p = subst (codeNormalForm x) p (reflCodeNormalForm x)
 
- -- DiscreteNormalForm : ∀ Γ τ → Discrete (NormalForm Γ τ)
- -- DiscreteNormalForm Γ τ (shift x) (shift x₁) = {!!}
- -- DiscreteNormalForm Γ τ (pair w x) (pair y z) = {!!}
- -- DiscreteNormalForm Γ τ uniq uniq = yes refl
+    decodeNeutralTerm : ∀{τ} → (x y : NeutralTerm τ) → codeNeutralTerm x y → x ≡ y
+    decodeNormalForm : ∀{τ} → (x y : NormalForm τ) → codeNormalForm x y → x ≡ y
+
+    decodeNeutralTerm (var p) (var q) (lift r) = congS var r
+    decodeNeutralTerm (proj₁ x) y p = {!!}
+    decodeNeutralTerm (proj₂ x) y p = {!!}
+    decodeNeutralTerm (symb f p x) (symb g q y) (Eq.refl , r , s) = cong₂ (symb f) r (decodeNormalForm x y s)
+
+    decodeNormalForm (shift x) (shift y) p = congS shift $ decodeNeutralTerm x y p
+    decodeNormalForm (pair w x) (pair y z) p = cong₂ pair (decodeNormalForm w y (p .fst)) (decodeNormalForm x z (p .snd))
+    decodeNormalForm uniq uniq _ = refl
+
+    inj-shift : ∀{x} {y z : NeutralTerm (↑ x)} → shift y ≡ shift z → y ≡ z
+    inj-shift = decodeNeutralTerm _ _ ∘S encodeNormalForm _ _
+
+    cong-shift-Dec : ∀{x} → {x y : NeutralTerm (↑ x)} → Dec (x ≡ y) →  Dec (shift x ≡ shift y)
+    cong-shift-Dec (yes p) = yes $ congS shift p
+    cong-shift-Dec (no ¬p) = no $ λ q → ¬p $ inj-shift q
+
+    inj-pair : ∀{τ₁ τ₂} →
+      {w y : NormalForm τ₁} {x z : NormalForm τ₂} →
+      pair w x ≡ pair y z → (w ≡ y) Σ.× (x ≡ z)
+    inj-pair p = Σ.map-× (decodeNormalForm _ _) (decodeNormalForm _ _) (encodeNormalForm _ _ p)
+
+    cong-pair-Dec : ∀{τ₁ τ₂} →
+      {w y : NormalForm τ₁} {x z : NormalForm τ₂} →
+      Dec (w ≡ y) →
+      Dec (x ≡ z) →
+      Dec (pair w x ≡ pair y z)
+    cong-pair-Dec (yes p) (yes q) = yes $ cong₂ pair p q
+    cong-pair-Dec (no ¬p) _ = no $ λ q → ¬p $ inj-pair q .fst
+    cong-pair-Dec _ (no ¬p) = no $ λ q → ¬p $ inj-pair q .snd
+
+    --DiscreteNeutralTerm : ∀{τ} → Discrete (NeutralTerm τ)
+    --DiscreteNeutralTerm var y = {!y!}
+    --DiscreteNeutralTerm (proj₁ x) y = {!!}
+    --DiscreteNeutralTerm (proj₂ x) y = {!!}
+    --DiscreteNeutralTerm (symb f x) y = {!y!}
+
+    DiscreteNormalForm : ∀{τ} → Discrete (NormalForm τ)
+    DiscreteNormalForm (shift x) (shift y) = cong-shift-Dec {!!}
+    DiscreteNormalForm (pair w x) (pair y z) = cong-pair-Dec (DiscreteNormalForm w y) (DiscreteNormalForm x z)
+    DiscreteNormalForm uniq uniq = yes refl
+
+    isSetNormalForm : ∀{τ} → isSet (NormalForm τ)
+    isSetNormalForm = Discrete→isSet DiscreteNormalForm
 
   ---- this is the "type directed" shift
   --SHIFT : ∀{Γ τ} → NeutralTerm Γ τ → NormalForm Γ τ

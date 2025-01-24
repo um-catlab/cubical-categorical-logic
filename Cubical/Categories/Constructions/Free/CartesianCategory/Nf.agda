@@ -51,12 +51,14 @@ module _ (Q : ×Quiver ℓq ℓq')
       codeNeutralTerm (var _) (proj₂ _) = ⊥*
       codeNeutralTerm (var _) (symb _ _ _) = ⊥*
       codeNeutralTerm (proj₁ _) (var _) = ⊥*
-      codeNeutralTerm (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) = Σ (τ₂ Eq.≡ τ₃) λ {Eq.refl → codeNeutralTerm x y}
+      codeNeutralTerm (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) =
+        Σ (τ₂ Eq.≡ τ₃) λ p  → codeNeutralTerm (Eq.transport (λ τ → NeutralTerm (_ × τ)) p x) y
       codeNeutralTerm (proj₁ _) (proj₂ _) = ⊥*
       codeNeutralTerm (proj₁ _) (symb _ _ _) = ⊥*
       codeNeutralTerm (proj₂ _) (var _) = ⊥*
       codeNeutralTerm (proj₂ _) (proj₁ _) = ⊥*
-      codeNeutralTerm (proj₂ {τ₁ = τ₁} x) (proj₂ {τ₁ = τ₂} y) = Σ (τ₁ Eq.≡ τ₂) (λ {Eq.refl → codeNeutralTerm x y})
+      codeNeutralTerm (proj₂ {τ₁ = τ₁} x) (proj₂ {τ₁ = τ₂} y) =
+        Σ (τ₁ Eq.≡ τ₂) (λ p → codeNeutralTerm (Eq.transport (λ τ → NeutralTerm (τ × _)) p x) y)
       codeNeutralTerm (proj₂ _) (symb _ _ _) = ⊥*
       codeNeutralTerm (symb _ _ _) (var _) = ⊥*
       codeNeutralTerm (symb _ _ _) (proj₁ _) = ⊥*
@@ -89,65 +91,59 @@ module _ (Q : ×Quiver ℓq ℓq')
       decodeNormalForm : ∀{τ} → (x y : NormalForm τ) → codeNormalForm x y → x ≡ y
 
       decodeNeutralTerm (var p) (var q) (lift r) = congS var r
-      decodeNeutralTerm (proj₁ x) (proj₁ y) (Eq.refl , p) = congS proj₁ $ decodeNeutralTerm _ _ p
-      decodeNeutralTerm (proj₂ x) (proj₂ y) (Eq.refl , p) = congS proj₂ $ decodeNeutralTerm _ _ p
+      decodeNeutralTerm (proj₁ x) (proj₁ y) (Eq.refl , q) = congS proj₁ $ decodeNeutralTerm _ _ q
+      decodeNeutralTerm (proj₂ x) (proj₂ y) (Eq.refl , q) = congS proj₂ $ decodeNeutralTerm _ _ q
       decodeNeutralTerm (symb f p x) (symb g q y) (Eq.refl , r , s) = cong₂ (symb f) r (decodeNormalForm x y s)
 
       decodeNormalForm (shift x) (shift y) p = congS shift $ decodeNeutralTerm x y p
       decodeNormalForm (pair w x) (pair y z) p = cong₂ pair (decodeNormalForm w y (p .fst)) (decodeNormalForm x z (p .snd))
       decodeNormalForm uniq uniq _ = refl
 
-      inj-shift : ∀{x} {y z : NeutralTerm (↑ x)} → shift y ≡ shift z → y ≡ z
-      inj-shift = decodeNeutralTerm _ _ ∘S encodeNormalForm _ _
-
-      cong-shift-Dec : ∀{x} → {x y : NeutralTerm (↑ x)} → Dec (x ≡ y) →  Dec (shift x ≡ shift y)
-      cong-shift-Dec (yes p) = yes $ congS shift p
-      cong-shift-Dec (no ¬p) = no $ λ q → ¬p $ inj-shift q
-
-      inj-pair : ∀{τ₁ τ₂} →
-        {w y : NormalForm τ₁} {x z : NormalForm τ₂} →
-        pair w x ≡ pair y z → (w ≡ y) Σ.× (x ≡ z)
-      inj-pair p = Σ.map-× (decodeNormalForm _ _) (decodeNormalForm _ _) (encodeNormalForm _ _ p)
-
-      cong-pair-Dec : ∀{τ₁ τ₂} →
-        {w y : NormalForm τ₁} {x z : NormalForm τ₂} →
-        Dec (w ≡ y) →
-        Dec (x ≡ z) →
-        Dec (pair w x ≡ pair y z)
-      cong-pair-Dec (yes p) (yes q) = yes $ cong₂ pair p q
-      cong-pair-Dec (no ¬p) _ = no $ λ q → ¬p $ inj-pair q .fst
-      cong-pair-Dec _ (no ¬p) = no $ λ q → ¬p $ inj-pair q .snd
-
-      inj-var : ∀{τ : Q.Ob}
-        {p q : τ ≡ Γ} →
-        var p ≡ var q → p ≡ q
-      inj-var r = encodeNeutralTerm _ _ r .lower
-
-      cong-var-Dec : ∀{τ : Q.Ob}
-        {p q : τ ≡ Γ} →
-        Dec (p ≡ q) →
-        Dec (var p ≡ var q)
-      cong-var-Dec (yes p) = yes $ congS var p
-      cong-var-Dec (no ¬p) = no $ ¬p ∘S inj-var
-
-      inj-proj₁ : ∀{τ₁ τ₂}
-        {x : NeutralTerm (τ₁ × τ₂)} {y : NeutralTerm (τ₁ × τ₂)} →
-        proj₁ x ≡ proj₁ y → x ≡ y
-      inj-proj₁ {τ₂ = τ₂} {x = x} {y = y} p = {!encodeNeutralTerm _ _ p!}
-
-      cong-proj₁-Dec : ∀{τ₁ τ₂ τ₃} →
-        {x : NeutralTerm (τ₁ × τ₂)} {y : NeutralTerm (τ₁ × τ₃)} →
-        (Σ (τ₂ Eq.≡ τ₃) λ {Eq.refl → Dec (x ≡ y)}) → Dec (proj₁ x ≡ proj₁ y)
-      cong-proj₁-Dec (Eq.refl , yes p) = yes $ congS proj₁ p
-      cong-proj₁-Dec (Eq.refl , no ¬p) = {!!} --no $ ¬p ∘S inj-proj₁
-
       DiscreteNeutralTerm : ∀{τ} → Discrete (NeutralTerm τ)
       DiscreteNeutralTerm (var p) (var q) = cong-var-Dec (yes (Discrete→isSet DiscreteOb _ _ p q))
+        where
+        inj-var : ∀{τ : Q.Ob}
+          {p q : τ ≡ Γ} →
+          var p ≡ var q → p ≡ q
+        inj-var r = encodeNeutralTerm _ _ r .lower
+
+        cong-var-Dec : ∀{τ : Q.Ob}
+          {p q : τ ≡ Γ} →
+          Dec (p ≡ q) →
+          Dec (var p ≡ var q)
+        cong-var-Dec (yes p) = yes $ congS var p
+        cong-var-Dec (no ¬p) = no $ ¬p ∘S inj-var
+
       DiscreteNeutralTerm (var x) (proj₁ y) = no {!!}
       DiscreteNeutralTerm (var x) (proj₂ y) = no {!!}
       DiscreteNeutralTerm (var x) (symb f x₁ x₂) = no {!!}
       DiscreteNeutralTerm (proj₁ x) (var x₁) = no {!!}
-      DiscreteNeutralTerm (proj₁ x) (proj₁ y) = {!c!}
+      DiscreteNeutralTerm (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) = cong-proj₁-Dec (subst Dec Eq.PathPathEq (DiscreteOb τ₂ τ₃)) x y
+        where
+        inj-proj₁ : ∀{τ₁ τ₂ τ₃}
+          {x : NeutralTerm (τ₁ × τ₂)} {y : NeutralTerm (τ₁ × τ₃)} →
+          proj₁ x ≡ proj₁ y →
+          Σ (τ₂ Eq.≡ τ₃) λ p → Eq.transport (λ τ → NeutralTerm (_ × τ)) p x ≡ y
+        inj-proj₁ p = encodeNeutralTerm _ _ p .fst , (decodeNeutralTerm _ _ $ encodeNeutralTerm _ _ p .snd)
+
+        isEqSet : {τ : Q.Ob} → isProp (τ Eq.≡ τ)
+        isEqSet p q = sym (Eq.pathToEq-eqToPath _) ∙ congS Eq.pathToEq (Discrete→isSet DiscreteOb _ _ (Eq.eqToPath p) (Eq.eqToPath q)) ∙ Eq.pathToEq-eqToPath _
+
+        cong-proj₁-Dec' : ∀{τ₁ τ₂} →
+          (x : NeutralTerm (τ₁ × τ₂)) (y : NeutralTerm (τ₁ × τ₂)) →
+          Dec (x ≡ y) →
+          Dec (proj₁ x ≡ proj₁ y)
+        cong-proj₁-Dec' x y (yes p) = yes $ congS proj₁ p
+        cong-proj₁-Dec' x y (no ¬p) = no $ λ q → ¬p ((congS (λ z → Eq.transport (λ τ → NeutralTerm (_ × τ)) z x) (isEqSet _ _ )) ∙ inj-proj₁ q .snd)
+
+        cong-proj₁-Dec : ∀{τ₁ τ₂ τ₃} →
+          (p : Dec (τ₂ Eq.≡ τ₃)) →
+          (x : NeutralTerm (τ₁ × τ₂))
+          (y : NeutralTerm (τ₁ × τ₃)) →
+          Dec (proj₁ x ≡ proj₁ y)
+        cong-proj₁-Dec (yes Eq.refl) x y = cong-proj₁-Dec' x y (DiscreteNeutralTerm x y)
+        cong-proj₁-Dec (no ¬p) _ _ = no $ λ q → ¬p $ inj-proj₁ q .fst
+
       DiscreteNeutralTerm (proj₁ x) (proj₂ y) = no {!!}
       DiscreteNeutralTerm (proj₁ x) (symb f x₁ x₂) = no {!!}
       DiscreteNeutralTerm (proj₂ x) (var x₁) = no {!!}
@@ -161,7 +157,30 @@ module _ (Q : ×Quiver ℓq ℓq')
 
       DiscreteNormalForm : ∀{τ} → Discrete (NormalForm τ)
       DiscreteNormalForm (shift x) (shift y) = cong-shift-Dec (DiscreteNeutralTerm x y)
+        where
+        inj-shift : ∀{x} {y z : NeutralTerm (↑ x)} → shift y ≡ shift z → y ≡ z
+        inj-shift = decodeNeutralTerm _ _ ∘S encodeNormalForm _ _
+
+        cong-shift-Dec : ∀{x} → {x y : NeutralTerm (↑ x)} → Dec (x ≡ y) →  Dec (shift x ≡ shift y)
+        cong-shift-Dec (yes p) = yes $ congS shift p
+        cong-shift-Dec (no ¬p) = no $ λ q → ¬p $ inj-shift q
+
       DiscreteNormalForm (pair w x) (pair y z) = cong-pair-Dec (DiscreteNormalForm w y) (DiscreteNormalForm x z)
+        where
+        inj-pair : ∀{τ₁ τ₂} →
+          {w y : NormalForm τ₁} {x z : NormalForm τ₂} →
+          pair w x ≡ pair y z → (w ≡ y) Σ.× (x ≡ z)
+        inj-pair p = Σ.map-× (decodeNormalForm _ _) (decodeNormalForm _ _) (encodeNormalForm _ _ p)
+
+        cong-pair-Dec : ∀{τ₁ τ₂} →
+          {w y : NormalForm τ₁} {x z : NormalForm τ₂} →
+          Dec (w ≡ y) →
+          Dec (x ≡ z) →
+          Dec (pair w x ≡ pair y z)
+        cong-pair-Dec (yes p) (yes q) = yes $ cong₂ pair p q
+        cong-pair-Dec (no ¬p) _ = no $ λ q → ¬p $ inj-pair q .fst
+        cong-pair-Dec _ (no ¬p) = no $ λ q → ¬p $ inj-pair q .snd
+
       DiscreteNormalForm uniq uniq = yes refl
 
       -- all that, just for this

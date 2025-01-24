@@ -114,10 +114,10 @@ module _ (Q : ×Quiver ℓq ℓq')
         cong-var-Dec (yes p) = yes $ congS var p
         cong-var-Dec (no ¬p) = no $ ¬p ∘S inj-var
 
-      DiscreteNeutralTerm (var x) (proj₁ y) = no {!!}
-      DiscreteNeutralTerm (var x) (proj₂ y) = no {!!}
-      DiscreteNeutralTerm (var x) (symb f x₁ x₂) = no {!!}
-      DiscreteNeutralTerm (proj₁ x) (var x₁) = no {!!}
+      DiscreteNeutralTerm (var x) (proj₁ y) = no $ λ p → subst (λ {(var _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (var x) (proj₂ y) = no $ λ p → subst (λ {(var _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (var x) (symb f x₁ x₂) = no $ λ p → subst (λ {(var _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (proj₁ x) (var x₁) = no $ λ p → subst (λ {(proj₁ _) → Unit ; _ → ⊥}) p tt
       DiscreteNeutralTerm (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) = cong-proj₁-Dec (subst Dec Eq.PathPathEq (DiscreteOb τ₂ τ₃)) x y
         where
         inj-proj₁ : ∀{τ₁ τ₂ τ₃}
@@ -144,15 +144,15 @@ module _ (Q : ×Quiver ℓq ℓq')
         cong-proj₁-Dec (yes Eq.refl) x y = cong-proj₁-Dec' x y (DiscreteNeutralTerm x y)
         cong-proj₁-Dec (no ¬p) _ _ = no $ λ q → ¬p $ inj-proj₁ q .fst
 
-      DiscreteNeutralTerm (proj₁ x) (proj₂ y) = no {!!}
-      DiscreteNeutralTerm (proj₁ x) (symb f x₁ x₂) = no {!!}
-      DiscreteNeutralTerm (proj₂ x) (var x₁) = no {!!}
-      DiscreteNeutralTerm (proj₂ x) (proj₁ y) = no {!!}
+      DiscreteNeutralTerm (proj₁ x) (proj₂ y) = no $ λ p → subst (λ {(proj₁ _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (proj₁ x) (symb f x₁ x₂) = no $ λ p → subst (λ {(proj₁ _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (proj₂ x) (var x₁) = no $ λ p → subst (λ {(proj₂ _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (proj₂ x) (proj₁ y) = no $ λ p → subst (λ {(proj₂ _) → Unit ; _ → ⊥}) p tt
       DiscreteNeutralTerm (proj₂ x) (proj₂ y) = {!!}
-      DiscreteNeutralTerm (proj₂ x) (symb f x₁ x₂) = no {!!}
-      DiscreteNeutralTerm (symb f x x₁) (var x₂) = no {!!}
-      DiscreteNeutralTerm (symb f x x₁) (proj₁ y) = no {!!}
-      DiscreteNeutralTerm (symb f x x₁) (proj₂ y) = no {!!}
+      DiscreteNeutralTerm (proj₂ x) (symb f x₁ x₂) = no $ λ p → subst (λ {(proj₂ _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (symb f x x₁) (var x₂) = no $ λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (symb f x x₁) (proj₁ y) = no $ λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt
+      DiscreteNeutralTerm (symb f x x₁) (proj₂ y) = no $ λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt
       DiscreteNeutralTerm (symb f x x₁) (symb f₁ x₂ x₃) = {!!}
 
       DiscreteNormalForm : ∀{τ} → Discrete (NormalForm τ)

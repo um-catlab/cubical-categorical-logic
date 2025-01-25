@@ -29,15 +29,20 @@ module _ (Q : ×Quiver ℓq ℓq')
       isEqSet : {τ : Q.Ob} {τ' : Q.Ob} → isProp (τ Eq.≡ τ')
       isEqSet p q = sym (Eq.pathToEq-eqToPath _) ∙ congS Eq.pathToEq (Discrete→isSet DiscreteOb _ _ (Eq.eqToPath p) (Eq.eqToPath q)) ∙ Eq.pathToEq-eqToPath _
 
+      isEqSet' : {f : Q.Mor} {g : Q.Mor} → isProp (f Eq.≡ g)
+      isEqSet' p q = sym (Eq.pathToEq-eqToPath _) ∙ congS Eq.pathToEq (Discrete→isSet DiscreteMor _ _ (Eq.eqToPath p) (Eq.eqToPath q)) ∙ Eq.pathToEq-eqToPath _
+
     -- in "classic" natural deduction style, parameterize everything by the context,
     module _ (Γ : Q.Ob) where
       data NormalForm : (τ : Q.Ob) → Type (ℓ-max ℓq ℓq')
       data NeutralTerm : (τ : Q.Ob) → Type (ℓ-max ℓq ℓq')
 
       data NeutralTerm where
+        -- TODO: note about why we need this extra Id
         var : ∀{τ} → (τ Eq.≡ Γ) → NeutralTerm τ
         proj₁ : ∀{τ₁ τ₂} → NeutralTerm (τ₁ × τ₂) → NeutralTerm τ₁
         proj₂ : ∀{τ₁ τ₂} → NeutralTerm (τ₁ × τ₂) → NeutralTerm τ₂
+        -- TODO: and here
         symb : ∀{τ} → (f : Q.mor) → (τ Eq.≡ ↑ (Q.cod f)) → NormalForm (Q.dom f) → NeutralTerm τ
 
       data NormalForm where
@@ -67,7 +72,8 @@ module _ (Q : ×Quiver ℓq ℓq')
       codeNeutralTerm (symb _ _ _) (var _) = ⊥*
       codeNeutralTerm (symb _ _ _) (proj₁ _) = ⊥*
       codeNeutralTerm (symb _ _ _) (proj₂ _) = ⊥*
-      codeNeutralTerm (symb f p x) (symb g q y) = Σ (f Eq.≡ g) λ {Eq.refl → (p ≡ q) Σ.× (codeNormalForm x y)}
+      codeNeutralTerm (symb f p x) (symb g q y) =
+        Σ (f Eq.≡ g) (λ r → (Eq.transport (λ h → _ Eq.≡ ↑ Q.cod h) r p ≡ q) Σ.× (codeNormalForm (Eq.transport (λ h → NormalForm (Q.dom h)) r x) y))
 
       codeNormalForm (shift x) (shift y) = codeNeutralTerm x y
       codeNormalForm (pair w x) (pair y z) = (codeNormalForm w y) Σ.× (codeNormalForm x z)
@@ -104,6 +110,8 @@ module _ (Q : ×Quiver ℓq ℓq')
       decodeNormalForm uniq uniq _ = refl
 
       DiscreteNeutralTerm : ∀{τ} → Discrete (NeutralTerm τ)
+      DiscreteNormalForm : ∀{τ} → Discrete (NormalForm τ)
+
       DiscreteNeutralTerm (var p) (var q) = cong-var-Dec (yes (isEqSet p q))
         where
         inj-var : ∀{τ : Q.Ob}
@@ -176,9 +184,30 @@ module _ (Q : ×Quiver ℓq ℓq')
       DiscreteNeutralTerm (symb f x x₁) (var x₂) = no $ λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt
       DiscreteNeutralTerm (symb f x x₁) (proj₁ y) = no $ λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt
       DiscreteNeutralTerm (symb f x x₁) (proj₂ y) = no $ λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt
-      DiscreteNeutralTerm (symb f p x) (symb g q y) = {!!}
+      DiscreteNeutralTerm (symb f p x) (symb g q y) = cong-symb-Dec _ _ (subst Dec Eq.PathPathEq (DiscreteMor _ _)) _ _ _ _
+        where
+        inj-symb : ∀{τ f g p q x y} →
+          symb f p x ≡ symb g q y →
+          Σ (f Eq.≡ g) λ r → (Eq.transport (λ h → τ Eq.≡ ↑ Q.cod h) r p ≡ q) Σ.× (Eq.transport (λ h → NormalForm (Q.dom h)) r x ≡ y)
+        inj-symb u = encodeNeutralTerm _ _ u .fst , encodeNeutralTerm _ _ u .snd .fst , decodeNormalForm _ _ (encodeNeutralTerm _ _ u .snd .snd)
 
-      DiscreteNormalForm : ∀{τ} → Discrete (NormalForm τ)
+        cong-symb-Dec' : ∀{τ} {f : Q.mor} {p q : τ Eq.≡ (↑ Q.cod f)} →
+          p ≡ q →
+          (x y : NormalForm (Q.dom f)) →
+          Dec (x ≡ y) →
+          Dec (symb f p x ≡ symb f q y)
+        cong-symb-Dec' r x y (yes p) = yes $ cong₃ symb refl r p
+        cong-symb-Dec' r x y (no ¬p) = no $ λ s → ¬p (congS (λ z → Eq.transport (λ h → NormalForm (Q.dom h)) z x) (isEqSet' _ _)  ∙ inj-symb s .snd .snd)
+
+        cong-symb-Dec : ∀{τ}
+          (f g : Q.mor) →
+          Dec (f Eq.≡ g) →
+          (p : τ Eq.≡ (↑ Q.cod f)) (q : τ Eq.≡ (↑ Q.cod g)) →
+          (x : NormalForm (Q.dom f)) (y : NormalForm (Q.dom g)) →
+          Dec (symb f p x ≡ symb g q y)
+        cong-symb-Dec f g (yes Eq.refl) p q x y = cong-symb-Dec' (isEqSet p q) x y (DiscreteNormalForm x y)
+        cong-symb-Dec f g (no ¬p) p q x y = no (λ r → ¬p $ inj-symb r .fst)
+
       DiscreteNormalForm (shift x) (shift y) = cong-shift-Dec (DiscreteNeutralTerm x y)
         where
         inj-shift : ∀{x} {y z : NeutralTerm (↑ x)} → shift y ≡ shift z → y ≡ z
@@ -239,7 +268,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     Ne/Nf (var Eq.refl) = idfun _ --subst (NormalForm _) (sym p) --idfun _
     Ne/Nf (proj₁ ne) nf = PROJ₁ $ Ne/Nf ne nf
     Ne/Nf (proj₂ ne) nf = PROJ₂ $ Ne/Nf ne nf
-    Ne/Nf (symb f p nf₁) nf₂ = {!shift $ symb f ? ?!} --shift $ symb f $ Nf/Nf nf₁ nf₂
+    Ne/Nf (symb f Eq.refl nf₁) nf₂ = shift $ symb f Eq.refl $ Nf/Nf nf₁ nf₂
 
     Nf/Ne (shift ne₁) ne₂ = shift $ Ne/Ne ne₁ ne₂
     Nf/Ne (pair nf₁ nf₂) ne = pair (Nf/Ne nf₁ ne) (Nf/Ne nf₂ ne)
@@ -248,7 +277,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     Ne/Ne (var Eq.refl) = idfun _
     Ne/Ne (proj₁ ne₁) ne₂ = proj₁ $ Ne/Ne ne₁ ne₂
     Ne/Ne (proj₂ ne₁) ne₂ = proj₂ $ Ne/Ne ne₁ ne₂
-    Ne/Ne (symb f p nf) ne = {!!} --symb f $ Nf/Ne nf ne
+    Ne/Ne (symb f p nf) ne = symb f p $ Nf/Ne nf ne
 
     IDL : ∀{Γ τ} (n : NormalForm Γ τ) → Nf/Nf n ID ≡ n
     IDL-Ne : ∀{Γ τ} (n : NeutralTerm Γ τ) → Ne/Nf n ID ≡ SHIFT n
@@ -260,7 +289,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     IDL-Ne (var Eq.refl) = refl
     IDL-Ne (proj₁ ne) = congS PROJ₁ $ IDL-Ne ne
     IDL-Ne (proj₂ ne) = congS PROJ₂ $ IDL-Ne ne
-    IDL-Ne (symb f p nf) = {!!} --congS (shift ∘S symb f) $ IDL nf
+    IDL-Ne (symb f Eq.refl nf) = congS (shift ∘S symb f Eq.refl) $ IDL nf
 
     _∘proj₁ : ∀{Γ Δ τ} → NeutralTerm Γ τ → NeutralTerm (Γ × Δ) τ
     _∘PROJ₁ : ∀{Γ Δ τ} → NormalForm Γ τ → NormalForm (Γ × Δ) τ
@@ -268,7 +297,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     (var Eq.refl) ∘proj₁ = proj₁ (var Eq.refl)
     (proj₁ ne) ∘proj₁ = proj₁ $ ne ∘proj₁
     (proj₂ ne) ∘proj₁ = proj₂ $ ne ∘proj₁
-    (symb f p nf) ∘proj₁ = {!!} --symb f $ nf ∘PROJ₁
+    (symb f p nf) ∘proj₁ = symb f p $ nf ∘PROJ₁
 
     (shift ne) ∘PROJ₁ = shift $ ne ∘proj₁
     (pair nf₁ nf₂) ∘PROJ₁ = pair (nf₁ ∘PROJ₁) (nf₂ ∘PROJ₁)
@@ -280,7 +309,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     (var Eq.refl) ∘proj₂ = proj₂ (var Eq.refl)
     (proj₁ ne) ∘proj₂ = proj₁ $ ne ∘proj₂
     (proj₂ ne) ∘proj₂ = proj₂ $ ne ∘proj₂
-    (symb f p nf) ∘proj₂ = {!!} --symb f $ nf ∘PROJ₂
+    (symb f p nf) ∘proj₂ = symb f p $ nf ∘PROJ₂
 
     (shift ne) ∘PROJ₂ = shift $ ne ∘proj₂
     (pair nf₁ nf₂) ∘PROJ₂ = pair (nf₁ ∘PROJ₂) (nf₂ ∘PROJ₂)
@@ -331,7 +360,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     β₁-Ne/Nf (var Eq.refl) _ _ = refl
     β₁-Ne/Nf (proj₁ ne) _ _ = congS PROJ₁ $ β₁-Ne/Nf ne _ _
     β₁-Ne/Nf (proj₂ ne) _ _ = congS PROJ₂ $ β₁-Ne/Nf ne _ _
-    β₁-Ne/Nf (symb f p nf₁) _ _ = {!!} --congS (shift ∘S symb f) $ β₁-Nf/Nf nf₁ _ _
+    β₁-Ne/Nf (symb f Eq.refl nf₁) _ _ = congS (shift ∘S symb f Eq.refl) $ β₁-Nf/Nf nf₁ _ _
 
     β₁-Nf/Nf (shift ne) = β₁-Ne/Nf ne
     β₁-Nf/Nf (pair nf₁ nf₂) _ _ = cong₂ pair (β₁-Nf/Nf nf₁ _ _) (β₁-Nf/Nf nf₂ _ _)
@@ -350,7 +379,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     β₂-Ne/Nf (var Eq.refl) _ _ = refl
     β₂-Ne/Nf (proj₁ ne) _ _ = congS PROJ₁ $ β₂-Ne/Nf ne _ _
     β₂-Ne/Nf (proj₂ ne) _ _ = congS PROJ₂ $ β₂-Ne/Nf ne _ _
-    β₂-Ne/Nf (symb f p nf₁) _ _ = {!!} --congS (shift ∘S symb f) $ β₂-Nf/Nf nf₁ _ _
+    β₂-Ne/Nf (symb f Eq.refl nf₁) _ _ = congS (shift ∘S symb f Eq.refl) $ β₂-Nf/Nf nf₁ _ _
 
     β₂-Nf/Nf (shift ne) = β₂-Ne/Nf ne
     β₂-Nf/Nf (pair nf₁ nf₂) _ _ = cong₂ pair (β₂-Nf/Nf nf₁ _ _) (β₂-Nf/Nf nf₂ _ _)
@@ -404,7 +433,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     ASSOC-Ne/Nf/Nf (var Eq.refl) _ _ = refl
     ASSOC-Ne/Nf/Nf (proj₁ n₃) n₂ n₁ = congS PROJ₁ (ASSOC-Ne/Nf/Nf n₃ n₂ n₁) ∙ sym (Nf/Nf-PROJ₁ (Ne/Nf n₃ n₂) n₁)
     ASSOC-Ne/Nf/Nf (proj₂ n₃) n₂ n₁ = congS PROJ₂ (ASSOC-Ne/Nf/Nf n₃ n₂ n₁) ∙ sym (Nf/Nf-PROJ₂ (Ne/Nf n₃ n₂) n₁)
-    ASSOC-Ne/Nf/Nf (symb f p nf) n₂ n₁ = {!!} --congS (shift ∘S symb f) (ASSOC-Nf/Nf/Nf nf n₂ n₁)
+    ASSOC-Ne/Nf/Nf (symb f Eq.refl nf) n₂ n₁ = congS (shift ∘S symb f Eq.refl) $ ASSOC-Nf/Nf/Nf nf n₂ n₁
 
     |Nf| : Category _ _
     |Nf| .ob = Q.Ob

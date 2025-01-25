@@ -445,7 +445,14 @@ module _ (Q : ×Quiver ℓq ℓq')
     |Nf| .⋆Assoc n₁ n₂ n₃ = ASSOC-Nf/Nf/Nf n₃ n₂ n₁
     |Nf| .isSetHom = isSetNormalForm _
 
-    ------Nf : CartesianCategory {!!} {!!}
-    ------Nf .fst = |Nf|
-    ------Nf .snd .fst = {!!}
-    ------Nf .snd .snd = {!!}
+    Nf : CartesianCategory _ _
+    Nf .fst = |Nf|
+    Nf .snd .fst = ⊤ , (λ Γ → uniq , λ {uniq → refl})
+    Nf .snd .snd Γ Δ = record { binProdOb = Γ × Δ
+                              ; binProdPr₁ = PROJ₁ ID
+                              ; binProdPr₂ = PROJ₂ ID
+                              ; univProp = λ f g → Σ.uniqueExists
+                                (pair f g)
+                                ((IDR-lem f $ left root g) , (IDR-lem g $ right f root))
+                                (λ h → isProp× (isSetNormalForm _ _ _) (isSetNormalForm _ _ _))
+                                λ {(pair f' g') p → cong₂ pair (sym (p .fst) ∙ (IDR-lem f' $ left root g')) (sym (p .snd) ∙ (IDR-lem g' $ right f' root)) }}

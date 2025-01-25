@@ -231,20 +231,23 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         ϕ ψ)
 
   module _
-    (C : CartesianCategory  ℓC ℓC')
+    (C : CartesianCategory ℓC ℓC')
     (G : CartesianFunctor (C .fst) |FreeCartesianCategory|)
     where
     open CartesianFunctor
+    open import Cubical.Categories.Displayed.Constructions.IsoFiber.Base hiding (IsoFiber)
+    open import Cubical.Categories.Displayed.Constructions.IsoFiber.Cartesian
+    open import Cubical.Categories.Displayed.Limits.Cartesian
+    private
+      Cᴰ = IsoFiber {C = C} {D = FreeCartesianCategory} G
+      module Motive = Categoryᴰ (Cᴰ .fst)
     module _
-      (ı : ?)
+      (ı-ob : ∀ o → Motive.ob[ ↑ o ])
+      (ı-hom : ∀ e →
+        Motive.Hom[ ↑ₑ e ][ elim-F-ob Cᴰ ı-ob (Q.dom e) , elim-F-ob Cᴰ ı-ob (↑ (Q.cod e)) ])
       where
-      open import Cubical.Categories.Displayed.Constructions.IsoFiber.Base hiding (IsoFiber)
-      open import Cubical.Categories.Displayed.Constructions.IsoFiber.Cartesian
-      module _
-        where
       mkRetract : Σ[ F ∈ Functor |FreeCartesianCategory| (C .fst) ] G .|F| ∘F F ≅ᶜ Id
-      mkRetract = IsoFiberReflection
-        (G .|F|)
+      mkRetract = IsoFiberReflection (G .|F|)
         (elim (IsoFiber G)
-        (λ o → {!!} , {!!} , {!!})
-        {!!})
+          ı-ob
+          ı-hom)

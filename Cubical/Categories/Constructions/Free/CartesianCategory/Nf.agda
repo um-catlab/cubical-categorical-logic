@@ -13,8 +13,6 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 
-open import Cubical.HITs.PropositionalTruncation
-
 private
   variable
     ℓq ℓq' : Level

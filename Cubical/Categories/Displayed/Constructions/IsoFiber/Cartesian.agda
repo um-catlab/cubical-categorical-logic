@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 {-
   Enhancement of IsoFiber to a displayed cartesian category
   when the functor F : C → D is a cartesian functor

@@ -454,3 +454,8 @@ module _ (Q : ×Quiver ℓq ℓq')
                                 ((IDR-lem f $ left root g) , (IDR-lem g $ right f root))
                                 (λ h → isProp× (isSetNormalForm _ _ _) (isSetNormalForm _ _ _))
                                 λ {(pair f' g') p → cong₂ pair (sym (p .fst) ∙ (IDR-lem f' $ left root g')) (sym (p .snd) ∙ (IDR-lem g' $ right f' root)) }}
+    open import Cubical.Categories.Limits.Cartesian.Functor
+    open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
+    |FreeCC| = |FreeCartesianCategory| Q
+    R : CartesianFunctor |Nf| |FreeCC|
+    R = {!!}

@@ -229,12 +229,22 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
             (BinProductsToBinProducts' _ (FreeCartesianCategory .snd .snd))
             (BinProductsToBinProducts' _ (CC .snd .snd)))
         ϕ ψ)
+
   module _
     (C : CartesianCategory  ℓC ℓC')
     (G : CartesianFunctor (C .fst) |FreeCartesianCategory|)
     where
     open CartesianFunctor
     module _
+      (ı : ?)
       where
-    --mkRetract : Σ[ F ∈ Functor |FreeCartesianCategory| (C .fst) ] G .|F| ∘F F ≅ᶜ Id
-    --mkRetract = {!IsoFiberReflection!}
+      open import Cubical.Categories.Displayed.Constructions.IsoFiber.Base hiding (IsoFiber)
+      open import Cubical.Categories.Displayed.Constructions.IsoFiber.Cartesian
+      module _
+        where
+      mkRetract : Σ[ F ∈ Functor |FreeCartesianCategory| (C .fst) ] G .|F| ∘F F ≅ᶜ Id
+      mkRetract = IsoFiberReflection
+        (G .|F|)
+        (elim (IsoFiber G)
+        (λ o → {!!} , {!!} , {!!})
+        {!!})

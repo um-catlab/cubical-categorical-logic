@@ -10,7 +10,12 @@ open import Cubical.Data.Empty
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Limits.Cartesian.Functor
+open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 
 private
@@ -20,6 +25,8 @@ private
 module _ (Q : ×Quiver ℓq ℓq')
   where
   open Category
+  open Functor
+  open CartesianFunctor
   private
     module Q = ×QuiverNotation Q
   module _ (DiscreteOb : Discrete Q.Ob) (DiscreteMor : Discrete Q.Mor) where
@@ -443,6 +450,7 @@ module _ (Q : ×Quiver ℓq ℓq')
     |Nf| .⋆Assoc n₁ n₂ n₃ = ASSOC-Nf/Nf/Nf n₃ n₂ n₁
     |Nf| .isSetHom = isSetNormalForm _
 
+    -- this should be trivial by definition of the syntax, and luckily, it is...
     Nf : CartesianCategory _ _
     Nf .fst = |Nf|
     Nf .snd .fst = ⊤ , (λ Γ → uniq , λ {uniq → refl})
@@ -454,8 +462,91 @@ module _ (Q : ×Quiver ℓq ℓq')
                                 ((IDR-lem f $ left root g) , (IDR-lem g $ right f root))
                                 (λ h → isProp× (isSetNormalForm _ _ _) (isSetNormalForm _ _ _))
                                 λ {(pair f' g') p → cong₂ pair (sym (p .fst) ∙ (IDR-lem f' $ left root g')) (sym (p .snd) ∙ (IDR-lem g' $ right f' root)) }}
-    open import Cubical.Categories.Limits.Cartesian.Functor
-    open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
+
+    private module Nf = CartesianCategoryNotation Nf
+
     |FreeCC| = |FreeCartesianCategory| Q
+    FreeCC = FreeCartesianCategory Q
+    private module FreeCC = CartesianCategoryNotation FreeCC
+
+    -- this is almost what we want, but definitionally not refl
+    -- (we just need to know that FreeCC is a model, not the intial one, nor even the exact details of the model)
+    --
+    --module _ (C : CartesianCategory ℓC ℓC')
+    --  where
+    --  private
+    --    module C = CartesianCategoryNotation C
+    --  module _ (ϕ : Q .fst → C.ob) where
+    --    module _ (ψ : (e : Q.Mor) → C.Hom[ ϕ* Q C ϕ $ Q.Dom e , ϕ* Q C ϕ $ ↑ (Q.Cod e) ]) where
+
+    -- so instead
+    private module C = FreeCC
+
+    Ne→FreeCC : ∀{Γ τ} → NeutralTerm Γ τ → C.Hom[ Γ , τ ]
+    Nf→FreeCC : ∀{Γ τ} → NormalForm Γ τ → C.Hom[ Γ , τ ]
+
+    Ne→FreeCC (var Eq.refl) = C.id
+    Ne→FreeCC (proj₁ ne) = Ne→FreeCC ne C.⋆ C.π₁
+    Ne→FreeCC (proj₂ ne) = Ne→FreeCC ne C.⋆ C.π₂
+    Ne→FreeCC (symb f Eq.refl nf) = Nf→FreeCC nf C.⋆ (↑ₑ f)
+
+    Nf→FreeCC (shift ne) = Ne→FreeCC ne
+    Nf→FreeCC (pair nf₁ nf₂) = Nf→FreeCC nf₁ C.,p Nf→FreeCC nf₂
+    Nf→FreeCC uniq = C.!t
+
+    Nf→FreeCC-SHIFT : ∀{Γ τ} → (ne : NeutralTerm Γ τ) →
+      Nf→FreeCC (SHIFT ne) ≡ Ne→FreeCC ne
+    Nf→FreeCC-SHIFT {τ = ↑ x} _ = refl
+    Nf→FreeCC-SHIFT {τ = τ₁ × τ₂} ne = cong₂ C._,p_ (Nf→FreeCC-SHIFT (proj₁ ne)) (Nf→FreeCC-SHIFT (proj₂ ne)) ∙ sym C.×η
+    Nf→FreeCC-SHIFT {τ = ⊤} _ = sym $ C.𝟙η _
+
+    Nf→FreeCC-PROJ₁ : ∀{Γ τ₁ τ₂} → (nf : NormalForm Γ (τ₁ × τ₂)) →
+      Nf→FreeCC (PROJ₁ nf) ≡ (Nf→FreeCC nf) C.⋆ C.π₁
+    Nf→FreeCC-PROJ₁ (pair _ _) = sym $ C.×β₁
+
+    Nf→FreeCC-PROJ₂ : ∀{Γ τ₁ τ₂} → (nf : NormalForm Γ (τ₁ × τ₂)) →
+      Nf→FreeCC (PROJ₂ nf) ≡ (Nf→FreeCC nf) C.⋆ C.π₂
+    Nf→FreeCC-PROJ₂ (pair _ _) = sym $ C.×β₂
+
+    Nf→FreeCC-ID : ∀{τ} → Nf→FreeCC {τ} {τ} ID ≡ C.id
+    Nf→FreeCC-ID {τ} = Nf→FreeCC-SHIFT {Γ = τ} (var Eq.refl)
+
+    Nf→FreeCC-Ne/Nf : ∀{Γ Δ τ} → (ne : NeutralTerm Δ τ) (nf : NormalForm Γ Δ) →
+      Nf→FreeCC (Ne/Nf ne nf) ≡ (Ne→FreeCC ne C.∘ Nf→FreeCC nf)
+    Nf→FreeCC-Nf/Nf : ∀{Γ Δ τ} → (nf₂ : NormalForm Δ τ) (nf₁ : NormalForm Γ Δ) →
+      Nf→FreeCC (Nf/Nf nf₂ nf₁) ≡ (Nf→FreeCC nf₂ C.∘ Nf→FreeCC nf₁)
+
+    Nf→FreeCC-Ne/Nf (var Eq.refl) _ = sym $ C.⋆IdR _
+    Nf→FreeCC-Ne/Nf (proj₁ ne) nf = Nf→FreeCC-PROJ₁ (Ne/Nf ne nf) ∙ congS (C._⋆ C.π₁) (Nf→FreeCC-Ne/Nf ne nf) ∙ C.⋆Assoc _ _ _
+    Nf→FreeCC-Ne/Nf (proj₂ ne) nf = Nf→FreeCC-PROJ₂ (Ne/Nf ne nf) ∙ congS (C._⋆ C.π₂) (Nf→FreeCC-Ne/Nf ne nf) ∙ C.⋆Assoc _ _ _
+    Nf→FreeCC-Ne/Nf (symb f Eq.refl nf₂) nf₁ = congS (C._⋆ (↑ₑ f)) (Nf→FreeCC-Nf/Nf nf₂ nf₁) ∙ C.⋆Assoc _ _ _
+
+    Nf→FreeCC-Nf/Nf (shift ne) nf = Nf→FreeCC-Ne/Nf ne nf
+    Nf→FreeCC-Nf/Nf (pair nf₁ nf₂) nf₃ = cong₂ C._,p_ (Nf→FreeCC-Nf/Nf nf₁ nf₃) (Nf→FreeCC-Nf/Nf nf₂ nf₃) ∙ sym C.,p-natural
+    Nf→FreeCC-Nf/Nf uniq _ = sym $ C.𝟙η _
+
+    |R| : Functor |Nf| |FreeCC|
+    |R| .F-ob = idfun _ -- ϕ* Q FreeCC ↑_ Γ
+    |R| .F-hom = Nf→FreeCC --FreeCC ↑_ {!↑ₑ_ {Q = Q}!}
+    |R| .F-id = Nf→FreeCC-ID
+    |R| .F-seq nf₁ nf₂ = Nf→FreeCC-Nf/Nf nf₂ nf₁
+
     R : CartesianFunctor |Nf| |FreeCC|
-    R = {!!}
+    R .|F| = |R|
+    R .PreservesBinProducts Γ Δ = preservesAnyBinProduct'→preservesBinProduct' Nf |FreeCC| (R .|F|) Γ Δ
+      (Nf.CCBinProducts'' Γ Δ)
+      (λ Θ → record { equiv-proof =
+        λ (f , g) → Σ.uniqueExists
+          (f C.,p g)
+          (Σ.≡-×
+            (congS ((f C.,p g) C.⋆_) lemma₁ ∙ C.×β₁)
+            (congS ((f C.,p g) C.⋆_) lemma₂ ∙ C.×β₂))
+          (λ _ → isSet× C.isSetHom C.isSetHom _ _)
+          λ h p → C.×-extensionality (C.×β₁ ∙ sym (congS fst p) ∙ congS (h C.⋆_) lemma₁) (C.×β₂ ∙ sym (congS snd p) ∙ congS (h C.⋆_) lemma₂) })
+      where
+      lemma₁ = Nf→FreeCC-SHIFT (proj₁ $ var Eq.refl) ∙ C.⋆IdL _
+      lemma₂ = Nf→FreeCC-SHIFT (proj₂ $ var Eq.refl) ∙ C.⋆IdL _
+    R .PreservesTerminal = preserveAnyTerminal→PreservesTerminals |Nf| |FreeCC|
+      (R .|F|)
+      (Nf .snd .fst)
+      (FreeCC .snd .fst .snd)

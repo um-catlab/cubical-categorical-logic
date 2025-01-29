@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Constructions.Free.CartesianCategory.Nf where
 
 open import Cubical.Foundations.Prelude
@@ -17,6 +18,8 @@ open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
+
+open import Cubical.Categories.Displayed.Constructions.IsoFiber.Cartesian
 
 private
   variable
@@ -550,3 +553,24 @@ module _ (Q : ×Quiver ℓq ℓq')
       (R .|F|)
       (Nf .snd .fst)
       (FreeCC .snd .fst .snd)
+
+    --S = mkRetract Q Nf R (λ o → ↑ o , idCatIso) λ e → (subst (λ x → NormalForm x _) (sym $ lemma'' _) $ S-hom e) , {!lemma'!} , tt
+    --  where
+    --  lemma'' : ∀ Γ →
+    --    elim-F-ob Q (IsoFiber {C = Nf} {D = FreeCC} R)
+    --    (λ o → (↑ o) , idCatIso)
+    --    Γ .fst
+    --    ≡ Γ
+    --  lemma'' (↑ x) = refl
+    --  lemma'' (Γ × Δ) = cong₂ _×_ (lemma'' Γ) (lemma'' Δ)
+    --  lemma'' ⊤ = refl
+    --  lemma' : ∀ Γ →
+    --    elim-F-ob Q (IsoFiber {C = Nf} {D = FreeCC} R)
+    --    (λ o → (↑ o) , idCatIso)
+    --    Γ
+    --    ≡ (Γ , idCatIso)
+    --  lemma' Γ@(↑ _) = refl
+    --  lemma' (Γ × Δ) = Σ.ΣPathP (lemma'' (Γ × Δ) , Σ.ΣPathP (toPathP (congS (λ x → transport x _) {!!} ∙ transportRefl _ ∙ {!!}) , {!!}))
+    --  lemma' ⊤ = Σ.ΣPathP (refl , Σ.ΣPathP (C.𝟙η' , isProp→PathP (λ _ → isPropIsIso _) _ _))
+    --  S-hom : ∀ e → NormalForm (Q.dom e) (↑ Q.cod e)
+    --  S-hom e = shift $ symb e Eq.refl ID

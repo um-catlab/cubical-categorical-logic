@@ -31,6 +31,8 @@ open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Constructions.IsoFiber.Base hiding (IsoFiber)
+open import Cubical.Categories.Displayed.Constructions.IsoFiber.Cartesian
 
 private
   variable
@@ -235,9 +237,6 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     (G : CartesianFunctor (C .fst) |FreeCartesianCategory|)
     where
     open CartesianFunctor
-    open import Cubical.Categories.Displayed.Constructions.IsoFiber.Base hiding (IsoFiber)
-    open import Cubical.Categories.Displayed.Constructions.IsoFiber.Cartesian
-    open import Cubical.Categories.Displayed.Limits.Cartesian
     private
       Cᴰ = IsoFiber {C = C} {D = FreeCartesianCategory} G
       module Motive = Categoryᴰ (Cᴰ .fst)

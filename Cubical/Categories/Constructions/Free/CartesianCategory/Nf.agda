@@ -4,7 +4,7 @@ module Cubical.Categories.Constructions.Free.CartesianCategory.Nf where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
-open import Cubical.Relation.Nullary
+open import Cubical.Relation.Nullary hiding (⟪_⟫)
 import Cubical.Data.Sigma as Σ
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Empty
@@ -472,6 +472,8 @@ module _ (Q : ×Quiver ℓq ℓq')
     FreeCC = FreeCartesianCategory Q
     private module FreeCC = CartesianCategoryNotation FreeCC
 
+    -- I was wrong, this does introduce additional complexity
+    -- for not much benfit, but maybe we can work through this?
     module _ {ℓC ℓC' : Level} (C : CartesianCategory ℓC ℓC')
       where
       private
@@ -527,11 +529,8 @@ module _ (Q : ×Quiver ℓq ℓq')
     ϕ*-regular (Γ × Δ) = cong₂ _×_ (ϕ*-regular Γ ) (ϕ*-regular Δ)
     ϕ*-regular ⊤ = refl
 
-    ϕ*-subst : ∀{Γ Δ} (H : Q.Ob → Q.Ob → Type (ℓ-max ℓq ℓq')) → H Γ Δ → H (ϕ* Q FreeCC ↑_ Γ) (ϕ* Q FreeCC ↑_ Δ)
-    ϕ*-subst H = subst2 H (sym $ ϕ*-regular _) (sym $ ϕ*-regular _)
-
     ψ : (e : Q.Mor) → FreeCC.Hom[ ϕ* Q FreeCC ↑_ (Q.Dom e) , ϕ* Q FreeCC ↑_ (↑ (Q.Cod e)) ]
-    ψ = ϕ*-subst FreeCC.Hom[_,_] ∘ ↑ₑ_
+    ψ e = pathToIso {C = |FreeCC|} (ϕ*-regular (Q.dom e)) .fst FreeCC.⋆ ↑ₑ e FreeCC.⋆ pathToIso {C = |FreeCC|} (sym $ ϕ*-regular (↑ (Q.cod e))) .fst
 
     |R| : Functor |Nf| |FreeCC|
     |R| .F-ob = ϕ* Q FreeCC ↑_
@@ -559,29 +558,1293 @@ module _ (Q : ×Quiver ℓq ℓq')
       (Nf .snd .fst)
       (FreeCC .snd .fst .snd)
 
-    S = mkRetract Q Nf R (λ o → ↑ o , idCatIso) (λ e → S-hom' e , (FreeCC.⋆IdR _ ∙ {!!} ∙ {!!}) , tt)
+    S = mkRetract Q Nf R
+      (λ o → ↑ o , idCatIso)
+      (λ e → WIP e)
       where
-      lemma'' : ∀ Γ →
-        elim-F-ob Q (IsoFiber {C = Nf} {D = FreeCC} R)
-        (λ o → (↑ o) , idCatIso)
-        Γ .fst
-        ≡ Γ
+      Cᴰ = IsoFiber {C = Nf} {D = FreeCC} R
+      open import Cubical.Categories.Displayed.Limits.Cartesian
+      module Cᴰ = CartesianCategoryᴰNotation Cᴰ
+      elim-ob : ∀ Γ → Cᴰ.ob[ Γ ]
+      elim-ob = elim-F-ob Q Cᴰ (λ o → (↑ o) , idCatIso)
+      S-hom : ∀ e → NormalForm (Q.dom e) (↑ Q.cod e)
+      S-hom e = shift $ symb e Eq.refl ID
+      lemma'' : ∀ Γ → elim-ob Γ .fst ≡ Γ
       lemma'' (↑ x) = refl
       lemma'' (Γ × Δ) = cong₂ _×_ (lemma'' Γ) (lemma'' Δ)
       lemma'' ⊤ = refl
-      lemma' : ∀ Γ →
-        elim-F-ob Q (IsoFiber {C = Nf} {D = FreeCC} R)
-        (λ o → (↑ o) , idCatIso)
-        Γ
-        ≡ (Γ , pathToIso (sym $ ϕ*-regular Γ))
-      lemma' (↑ _) = Σ.ΣPathP (refl , sym pathToIso-refl)
-      lemma' (Γ × Δ) = Σ.ΣPathP (lemma'' (Γ × Δ) , {!!})
-      lemma' ⊤ = Σ.ΣPathP (refl , Σ.ΣPathP (FreeCC.𝟙η' , isProp→PathP (λ _ → isPropIsIso _) _ _))
+      S-hom'' : ∀ e → NormalForm
+        (elim-ob (Q.dom e) .fst)
+        (elim-ob (↑ Q.cod e) .fst)
+      S-hom'' e = (SHIFT ∘ var ∘ Eq.pathToEq ∘ sym $ lemma'' _) Nf.⋆ (S-hom e Nf.⋆ (SHIFT $ var Eq.refl))
+      WHY : ∀ Γ → elim-ob Γ .snd .fst ≡ pathToIso {C = |FreeCC|} (sym $ congP (λ i x → ϕ*-regular x i) (lemma'' Γ)) .fst
+      WHY (↑ x) = sym (congS fst (pathToIso-refl {C = |FreeCC|}))
+      WHY (Γ × Δ) = congS (λ x → x FreeCC.⋆ {!elim-ob (Γ × Δ) .snd .fst!} FreeCC.⋆ {!pathToIso {C = |FreeCC|} (sym (congP (λ i x → ϕ*-regular x i) (lemma'' (Γ × Δ))))!} .fst) (sym FreeCC.×η') ∙
+        FreeCC.⋆IdL _ ∙ {!!}
+--Goal: (⟨ π₁ , π₂ ⟩ ⋆ₑ
+--       (⟨
+--        π₁ ⋆ₑ
+--        elim-F-ob Q
+--        (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--         (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--          (FreeCartesianCategory Q) Nf)
+--         (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--          (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--           (FreeCartesianCategory Q))
+--          (IdCF ×F R)
+--          (λ f cᴰ cᴰ' t u i →
+--             isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--             i
+--             ,
+--             hcomp
+--             (λ { j (i = i0) → t .snd
+--                ; j (i = i1)
+--                    → hcomp (λ i₁ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                })
+--             (t .snd))
+--          (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--           (|FreeCartesianCategory| Q))))
+--        (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Γ .snd .fst
+--        ,
+--        π₂ ⋆ₑ
+--        elim-F-ob Q
+--        (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--         (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--          (FreeCartesianCategory Q) Nf)
+--         (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--          (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--           (FreeCartesianCategory Q))
+--          (IdCF ×F R)
+--          (λ f cᴰ cᴰ' t u i →
+--             isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--             i
+--             ,
+--             hcomp
+--             (λ { j (i = i0) → t .snd
+--                ; j (i = i1)
+--                    → hcomp (λ i₁ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                })
+--             (t .snd))
+--          (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--           (|FreeCartesianCategory| Q))))
+--        (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Δ .snd .fst
+--        ⟩
+--        ⋆ₑ
+--        ((⟨ π₁ , π₂ ⟩ ⋆ₑ
+--          ⟨
+--          Nf→FreeCC (FreeCartesianCategory Q) ↑_
+--          (λ e →
+--             Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--             (λ n →
+--                hcomp
+--                (λ i .o →
+--                   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                   (λ i₁ → Q .fst) i
+--                   (primPOr n (~ n)
+--                    (λ .o₁ →
+--                       elim-F-ob Q
+--                       (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                        (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                        (λ z →
+--                           RepresentableToBinProduct'
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (BinProductToRepresentable
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                        (λ z →
+--                           RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                           (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                       ↑_ (Q.dom e))
+--                    (λ .o₁ →
+--                       Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                       (λ i₁ → Q .fst) i0
+--                       (elim-F-ob Q
+--                        (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                         (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                         (λ z →
+--                            RepresentableToBinProduct'
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (BinProductToRepresentable
+--                             (record
+--                              { ob = ProdExpr (Q .fst)
+--                              ; Hom[_,_] = Exp Q
+--                              ; id = idₑ
+--                              ; _⋆_ = _⋆ₑ_
+--                              ; ⋆IdL = ⋆ₑIdL
+--                              ; ⋆IdR = ⋆ₑIdR
+--                              ; ⋆Assoc = ⋆ₑAssoc
+--                              ; isSetHom = isSetExp
+--                              })
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                         (λ z →
+--                            RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                            (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                        ↑_ (Q.dom e)))
+--                    _))
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) i0
+--                 (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i → Q .fst) n
+--                  (elim-F-ob Q
+--                   (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                    (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                    (λ z →
+--                       RepresentableToBinProduct'
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (BinProductToRepresentable
+--                        (record
+--                         { ob = ProdExpr (Q .fst)
+--                         ; Hom[_,_] = Exp Q
+--                         ; id = idₑ
+--                         ; _⋆_ = _⋆ₑ_
+--                         ; ⋆IdL = ⋆ₑIdL
+--                         ; ⋆IdR = ⋆ₑIdR
+--                         ; ⋆Assoc = ⋆ₑAssoc
+--                         ; isSetHom = isSetExp
+--                         })
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                    (λ z →
+--                       RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                       (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                   ↑_ (Q.dom e)))))
+--             (λ n →
+--                hcomp
+--                (λ i .o →
+--                   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                   (λ i₁ → Q .fst) i
+--                   (primPOr n (~ n) (λ .o₁ → ϕ*-regular (Q.dom e) i)
+--                    (λ .o₁ →
+--                       Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                       (λ i₁ → Q .fst) i0
+--                       (elim-F-ob Q
+--                        (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                         (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                         (λ z →
+--                            RepresentableToBinProduct'
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (BinProductToRepresentable
+--                             (record
+--                              { ob = ProdExpr (Q .fst)
+--                              ; Hom[_,_] = Exp Q
+--                              ; id = idₑ
+--                              ; _⋆_ = _⋆ₑ_
+--                              ; ⋆IdL = ⋆ₑIdL
+--                              ; ⋆IdR = ⋆ₑIdR
+--                              ; ⋆Assoc = ⋆ₑAssoc
+--                              ; isSetHom = isSetExp
+--                              })
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                         (λ z →
+--                            RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                            (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                        ↑_ (Q.dom e)))
+--                    _))
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) i0
+--                 (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i → Q .fst) n
+--                  (elim-F-ob Q
+--                   (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                    (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                    (λ z →
+--                       RepresentableToBinProduct'
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (BinProductToRepresentable
+--                        (record
+--                         { ob = ProdExpr (Q .fst)
+--                         ; Hom[_,_] = Exp Q
+--                         ; id = idₑ
+--                         ; _⋆_ = _⋆ₑ_
+--                         ; ⋆IdL = ⋆ₑIdL
+--                         ; ⋆IdR = ⋆ₑIdR
+--                         ; ⋆Assoc = ⋆ₑAssoc
+--                         ; isSetHom = isSetExp
+--                         })
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                    (λ z →
+--                       RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                       (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                   ↑_ (Q.dom e)))))
+--             i0 idₑ
+--             ⋆ₑ
+--             ((↑ₑ e) ⋆ₑ
+--              Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--              (λ n →
+--                 ↑
+--                 hcomp
+--                 (λ i .o →
+--                    transp (λ i₁ → Q .fst) i
+--                    (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                     _
+--                     (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                      (λ .o₁ →
+--                         ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                      _)))
+--                 (transp (λ i → Q .fst) i0
+--                  (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--              (λ n →
+--                 ↑
+--                 hcomp
+--                 (λ i .o →
+--                    transp (λ i₁ → Q .fst) i
+--                    (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                     _
+--                     (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                      (λ .o₁ →
+--                         ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                      _)))
+--                 (transp (λ i → Q .fst) i0
+--                  (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--              i0 idₑ))
+--          (SHIFT (proj₁ (var Eq.refl)))
+--          ,
+--          Nf→FreeCC (FreeCartesianCategory Q) ↑_
+--          (λ e →
+--             Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--             (λ n →
+--                hcomp
+--                (λ i .o →
+--                   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                   (λ i₁ → Q .fst) i
+--                   (primPOr n (~ n)
+--                    (λ .o₁ →
+--                       elim-F-ob Q
+--                       (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                        (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                        (λ z →
+--                           RepresentableToBinProduct'
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (BinProductToRepresentable
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                        (λ z →
+--                           RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                           (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                       ↑_ (Q.dom e))
+--                    (λ .o₁ →
+--                       Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                       (λ i₁ → Q .fst) i0
+--                       (elim-F-ob Q
+--                        (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                         (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                         (λ z →
+--                            RepresentableToBinProduct'
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (BinProductToRepresentable
+--                             (record
+--                              { ob = ProdExpr (Q .fst)
+--                              ; Hom[_,_] = Exp Q
+--                              ; id = idₑ
+--                              ; _⋆_ = _⋆ₑ_
+--                              ; ⋆IdL = ⋆ₑIdL
+--                              ; ⋆IdR = ⋆ₑIdR
+--                              ; ⋆Assoc = ⋆ₑAssoc
+--                              ; isSetHom = isSetExp
+--                              })
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                         (λ z →
+--                            RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                            (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                        ↑_ (Q.dom e)))
+--                    _))
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) i0
+--                 (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i → Q .fst) n
+--                  (elim-F-ob Q
+--                   (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                    (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                    (λ z →
+--                       RepresentableToBinProduct'
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (BinProductToRepresentable
+--                        (record
+--                         { ob = ProdExpr (Q .fst)
+--                         ; Hom[_,_] = Exp Q
+--                         ; id = idₑ
+--                         ; _⋆_ = _⋆ₑ_
+--                         ; ⋆IdL = ⋆ₑIdL
+--                         ; ⋆IdR = ⋆ₑIdR
+--                         ; ⋆Assoc = ⋆ₑAssoc
+--                         ; isSetHom = isSetExp
+--                         })
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                    (λ z →
+--                       RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                       (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                   ↑_ (Q.dom e)))))
+--             (λ n →
+--                hcomp
+--                (λ i .o →
+--                   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                   (λ i₁ → Q .fst) i
+--                   (primPOr n (~ n) (λ .o₁ → ϕ*-regular (Q.dom e) i)
+--                    (λ .o₁ →
+--                       Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                       (λ i₁ → Q .fst) i0
+--                       (elim-F-ob Q
+--                        (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                         (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                          (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                         ,
+--                         Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                         (λ z →
+--                            RepresentableToBinProduct'
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (BinProductToRepresentable
+--                             (record
+--                              { ob = ProdExpr (Q .fst)
+--                              ; Hom[_,_] = Exp Q
+--                              ; id = idₑ
+--                              ; _⋆_ = _⋆ₑ_
+--                              ; ⋆IdL = ⋆ₑIdL
+--                              ; ⋆IdR = ⋆ₑIdR
+--                              ; ⋆Assoc = ⋆ₑAssoc
+--                              ; isSetHom = isSetExp
+--                              })
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                         (λ z →
+--                            RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                            (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                             (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                        ↑_ (Q.dom e)))
+--                    _))
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) i0
+--                 (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i → Q .fst) n
+--                  (elim-F-ob Q
+--                   (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                    (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                     (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                    ,
+--                    Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                    (λ z →
+--                       RepresentableToBinProduct'
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (BinProductToRepresentable
+--                        (record
+--                         { ob = ProdExpr (Q .fst)
+--                         ; Hom[_,_] = Exp Q
+--                         ; id = idₑ
+--                         ; _⋆_ = _⋆ₑ_
+--                         ; ⋆IdL = ⋆ₑIdL
+--                         ; ⋆IdR = ⋆ₑIdR
+--                         ; ⋆Assoc = ⋆ₑAssoc
+--                         ; isSetHom = isSetExp
+--                         })
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                    (λ z →
+--                       RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                       (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                        (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                   ↑_ (Q.dom e)))))
+--             i0 idₑ
+--             ⋆ₑ
+--             ((↑ₑ e) ⋆ₑ
+--              Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--              (λ n →
+--                 ↑
+--                 hcomp
+--                 (λ i .o →
+--                    transp (λ i₁ → Q .fst) i
+--                    (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                     _
+--                     (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                      (λ .o₁ →
+--                         ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                      _)))
+--                 (transp (λ i → Q .fst) i0
+--                  (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--              (λ n →
+--                 ↑
+--                 hcomp
+--                 (λ i .o →
+--                    transp (λ i₁ → Q .fst) i
+--                    (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                     _
+--                     (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                      (λ .o₁ →
+--                         ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                      _)))
+--                 (transp (λ i → Q .fst) i0
+--                  (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--              i0 idₑ))
+--          (SHIFT (proj₂ (var Eq.refl)))
+--          ⟩)
+--         ⋆ₑ
+--         ⟨
+--         Nf→FreeCC (FreeCartesianCategory Q) ↑_
+--         (λ e →
+--            Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--            (λ n →
+--               hcomp
+--               (λ i .o →
+--                  Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i₁ → Q .fst) i
+--                  (primPOr n (~ n)
+--                   (λ .o₁ →
+--                      elim-F-ob Q
+--                      (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                       (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                       ,
+--                       Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                       (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                        (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                       (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                        (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                       ,
+--                       Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                       (λ z →
+--                          RepresentableToBinProduct'
+--                          (record
+--                           { ob = ProdExpr (Q .fst)
+--                           ; Hom[_,_] = Exp Q
+--                           ; id = idₑ
+--                           ; _⋆_ = _⋆ₑ_
+--                           ; ⋆IdL = ⋆ₑIdL
+--                           ; ⋆IdR = ⋆ₑIdR
+--                           ; ⋆Assoc = ⋆ₑAssoc
+--                           ; isSetHom = isSetExp
+--                           })
+--                          (BinProductToRepresentable
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                       (λ z →
+--                          RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                          (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                           (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                      ↑_ (Q.dom e))
+--                   (λ .o₁ →
+--                      Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                      (λ i₁ → Q .fst) i0
+--                      (elim-F-ob Q
+--                       (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                        (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                        (λ z →
+--                           RepresentableToBinProduct'
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (BinProductToRepresentable
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                        (λ z →
+--                           RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                           (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                       ↑_ (Q.dom e)))
+--                   _))
+--               (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                (λ i → Q .fst) i0
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) n
+--                 (elim-F-ob Q
+--                  (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                   (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                   (λ z →
+--                      RepresentableToBinProduct'
+--                      (record
+--                       { ob = ProdExpr (Q .fst)
+--                       ; Hom[_,_] = Exp Q
+--                       ; id = idₑ
+--                       ; _⋆_ = _⋆ₑ_
+--                       ; ⋆IdL = ⋆ₑIdL
+--                       ; ⋆IdR = ⋆ₑIdR
+--                       ; ⋆Assoc = ⋆ₑAssoc
+--                       ; isSetHom = isSetExp
+--                       })
+--                      (BinProductToRepresentable
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                   (λ z →
+--                      RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                      (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                  ↑_ (Q.dom e)))))
+--            (λ n →
+--               hcomp
+--               (λ i .o →
+--                  Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i₁ → Q .fst) i
+--                  (primPOr n (~ n) (λ .o₁ → ϕ*-regular (Q.dom e) i)
+--                   (λ .o₁ →
+--                      Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                      (λ i₁ → Q .fst) i0
+--                      (elim-F-ob Q
+--                       (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                        (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                        (λ z →
+--                           RepresentableToBinProduct'
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (BinProductToRepresentable
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                        (λ z →
+--                           RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                           (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                       ↑_ (Q.dom e)))
+--                   _))
+--               (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                (λ i → Q .fst) i0
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) n
+--                 (elim-F-ob Q
+--                  (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                   (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                   (λ z →
+--                      RepresentableToBinProduct'
+--                      (record
+--                       { ob = ProdExpr (Q .fst)
+--                       ; Hom[_,_] = Exp Q
+--                       ; id = idₑ
+--                       ; _⋆_ = _⋆ₑ_
+--                       ; ⋆IdL = ⋆ₑIdL
+--                       ; ⋆IdR = ⋆ₑIdR
+--                       ; ⋆Assoc = ⋆ₑAssoc
+--                       ; isSetHom = isSetExp
+--                       })
+--                      (BinProductToRepresentable
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                   (λ z →
+--                      RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                      (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                  ↑_ (Q.dom e)))))
+--            i0 idₑ
+--            ⋆ₑ
+--            ((↑ₑ e) ⋆ₑ
+--             Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--             (λ n →
+--                ↑
+--                hcomp
+--                (λ i .o →
+--                   transp (λ i₁ → Q .fst) i
+--                   (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                    _
+--                    (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                     (λ .o₁ →
+--                        ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                     _)))
+--                (transp (λ i → Q .fst) i0
+--                 (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--             (λ n →
+--                ↑
+--                hcomp
+--                (λ i .o →
+--                   transp (λ i₁ → Q .fst) i
+--                   (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                    _
+--                    (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                     (λ .o₁ →
+--                        ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                     _)))
+--                (transp (λ i → Q .fst) i0
+--                 (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--             i0 idₑ))
+--         (Cubical.Categories.Constructions.Free.CartesianCategory.Nf.transpNormalForm
+--          (λ i →
+--             elim-F-ob Q
+--             (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--              (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--               (FreeCartesianCategory Q) Nf)
+--              (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--               (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--                (FreeCartesianCategory Q))
+--               (IdCF ×F R)
+--               (λ f cᴰ cᴰ' t u i₁ →
+--                  isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--                  i₁
+--                  ,
+--                  hcomp
+--                  (λ { j (i₁ = i0) → t .snd
+--                     ; j (i₁ = i1)
+--                         → hcomp (λ i₂ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                     })
+--                  (t .snd))
+--               (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--                (|FreeCartesianCategory| Q))))
+--             (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Γ .fst
+--             ×
+--             elim-F-ob Q
+--             (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--              (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--               (FreeCartesianCategory Q) Nf)
+--              (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--               (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--                (FreeCartesianCategory Q))
+--               (IdCF ×F R)
+--               (λ f cᴰ cᴰ' t u i₁ →
+--                  isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--                  i₁
+--                  ,
+--                  hcomp
+--                  (λ { j (i₁ = i0) → t .snd
+--                     ; j (i₁ = i1)
+--                         → hcomp (λ i₂ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                     })
+--                  (t .snd))
+--               (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--                (|FreeCartesianCategory| Q))))
+--             (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Δ .fst)
+--          (λ i →
+--             elim-F-ob Q
+--             (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--              (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--               (FreeCartesianCategory Q) Nf)
+--              (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--               (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--                (FreeCartesianCategory Q))
+--               (IdCF ×F R)
+--               (λ f cᴰ cᴰ' t u i₁ →
+--                  isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--                  i₁
+--                  ,
+--                  hcomp
+--                  (λ { j (i₁ = i0) → t .snd
+--                     ; j (i₁ = i1)
+--                         → hcomp (λ i₂ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                     })
+--                  (t .snd))
+--               (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--                (|FreeCartesianCategory| Q))))
+--             (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Γ .fst)
+--          i0 (SHIFT (proj₁ (var Eq.refl))))
+--         ,
+--         Nf→FreeCC (FreeCartesianCategory Q) ↑_
+--         (λ e →
+--            Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--            (λ n →
+--               hcomp
+--               (λ i .o →
+--                  Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i₁ → Q .fst) i
+--                  (primPOr n (~ n)
+--                   (λ .o₁ →
+--                      elim-F-ob Q
+--                      (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                       (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                       ,
+--                       Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                       (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                        (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                       (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                        (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                       ,
+--                       Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                       (λ z →
+--                          RepresentableToBinProduct'
+--                          (record
+--                           { ob = ProdExpr (Q .fst)
+--                           ; Hom[_,_] = Exp Q
+--                           ; id = idₑ
+--                           ; _⋆_ = _⋆ₑ_
+--                           ; ⋆IdL = ⋆ₑIdL
+--                           ; ⋆IdR = ⋆ₑIdR
+--                           ; ⋆Assoc = ⋆ₑAssoc
+--                           ; isSetHom = isSetExp
+--                           })
+--                          (BinProductToRepresentable
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                       (λ z →
+--                          RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                          (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                           (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                      ↑_ (Q.dom e))
+--                   (λ .o₁ →
+--                      Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                      (λ i₁ → Q .fst) i0
+--                      (elim-F-ob Q
+--                       (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                        (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                        (λ z →
+--                           RepresentableToBinProduct'
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (BinProductToRepresentable
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                        (λ z →
+--                           RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                           (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                       ↑_ (Q.dom e)))
+--                   _))
+--               (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                (λ i → Q .fst) i0
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) n
+--                 (elim-F-ob Q
+--                  (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                   (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                   (λ z →
+--                      RepresentableToBinProduct'
+--                      (record
+--                       { ob = ProdExpr (Q .fst)
+--                       ; Hom[_,_] = Exp Q
+--                       ; id = idₑ
+--                       ; _⋆_ = _⋆ₑ_
+--                       ; ⋆IdL = ⋆ₑIdL
+--                       ; ⋆IdR = ⋆ₑIdR
+--                       ; ⋆Assoc = ⋆ₑAssoc
+--                       ; isSetHom = isSetExp
+--                       })
+--                      (BinProductToRepresentable
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                   (λ z →
+--                      RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                      (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                  ↑_ (Q.dom e)))))
+--            (λ n →
+--               hcomp
+--               (λ i .o →
+--                  Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                  (λ i₁ → Q .fst) i
+--                  (primPOr n (~ n) (λ .o₁ → ϕ*-regular (Q.dom e) i)
+--                   (λ .o₁ →
+--                      Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                      (λ i₁ → Q .fst) i0
+--                      (elim-F-ob Q
+--                       (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                        (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                         (⊤ , (λ Γ₁ → !ₑ , (λ t i₁ → ⊤η t (~ i₁)))))
+--                        ,
+--                        Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                        (λ z →
+--                           RepresentableToBinProduct'
+--                           (record
+--                            { ob = ProdExpr (Q .fst)
+--                            ; Hom[_,_] = Exp Q
+--                            ; id = idₑ
+--                            ; _⋆_ = _⋆ₑ_
+--                            ; ⋆IdL = ⋆ₑIdL
+--                            ; ⋆IdR = ⋆ₑIdR
+--                            ; ⋆Assoc = ⋆ₑAssoc
+--                            ; isSetHom = isSetExp
+--                            })
+--                           (BinProductToRepresentable
+--                            (record
+--                             { ob = ProdExpr (Q .fst)
+--                             ; Hom[_,_] = Exp Q
+--                             ; id = idₑ
+--                             ; _⋆_ = _⋆ₑ_
+--                             ; ⋆IdL = ⋆ₑIdL
+--                             ; ⋆IdR = ⋆ₑIdR
+--                             ; ⋆Assoc = ⋆ₑAssoc
+--                             ; isSetHom = isSetExp
+--                             })
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                        (λ z →
+--                           RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                           (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                            (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                       ↑_ (Q.dom e)))
+--                   _))
+--               (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                (λ i → Q .fst) i0
+--                (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.transpProdExpr
+--                 (λ i → Q .fst) n
+--                 (elim-F-ob Q
+--                  (Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken
+--                   (|FreeCartesianCategory| Q) (|FreeCartesianCategory| Q)
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.termWeaken
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   (Cubical.Categories.Limits.Terminal.More.terminalToUniversalElement
+--                    (⊤ , (λ Γ₁ → !ₑ , (λ t i → ⊤η t (~ i)))))
+--                   ,
+--                   Cubical.Categories.Displayed.Constructions.Weaken.Properties.binprodWeaken
+--                   (λ z →
+--                      RepresentableToBinProduct'
+--                      (record
+--                       { ob = ProdExpr (Q .fst)
+--                       ; Hom[_,_] = Exp Q
+--                       ; id = idₑ
+--                       ; _⋆_ = _⋆ₑ_
+--                       ; ⋆IdL = ⋆ₑIdL
+--                       ; ⋆IdR = ⋆ₑIdR
+--                       ; ⋆Assoc = ⋆ₑAssoc
+--                       ; isSetHom = isSetExp
+--                       })
+--                      (BinProductToRepresentable
+--                       (record
+--                        { ob = ProdExpr (Q .fst)
+--                        ; Hom[_,_] = Exp Q
+--                        ; id = idₑ
+--                        ; _⋆_ = _⋆ₑ_
+--                        ; ⋆IdL = ⋆ₑIdL
+--                        ; ⋆IdR = ⋆ₑIdR
+--                        ; ⋆Assoc = ⋆ₑAssoc
+--                        ; isSetHom = isSetExp
+--                        })
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd))))
+--                   (λ z →
+--                      RepresentableToBinProduct' (|FreeCartesianCategory| Q)
+--                      (BinProductToRepresentable (|FreeCartesianCategory| Q)
+--                       (FreeCartesianCategory Q .snd .snd (z .fst) (z .snd)))))
+--                  ↑_ (Q.dom e)))))
+--            i0 idₑ
+--            ⋆ₑ
+--            ((↑ₑ e) ⋆ₑ
+--             Cubical.Categories.Constructions.Free.CartesianCategory.Base.transpX-Exp
+--             (λ n →
+--                ↑
+--                hcomp
+--                (λ i .o →
+--                   transp (λ i₁ → Q .fst) i
+--                   (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                    _
+--                    (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                     (λ .o₁ →
+--                        ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                     _)))
+--                (transp (λ i → Q .fst) i0
+--                 (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--             (λ n →
+--                ↑
+--                hcomp
+--                (λ i .o →
+--                   transp (λ i₁ → Q .fst) i
+--                   (Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver.↑_-0
+--                    _
+--                    (primPOr n (~ n) (λ .o₁ → ↑ transp (λ i₁ → Q .fst) i (Q.cod e))
+--                     (λ .o₁ →
+--                        ↑ transp (λ i₁ → Q .fst) i (transp (λ i₁ → Q .fst) i0 (Q.cod e)))
+--                     _)))
+--                (transp (λ i → Q .fst) i0
+--                 (transp (λ i → Q .fst) i0 (transp (λ i → Q .fst) n (Q.cod e)))))
+--             i0 idₑ))
+--         (Cubical.Categories.Constructions.Free.CartesianCategory.Nf.transpNormalForm
+--          (λ i →
+--             elim-F-ob Q
+--             (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--              (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--               (FreeCartesianCategory Q) Nf)
+--              (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--               (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--                (FreeCartesianCategory Q))
+--               (IdCF ×F R)
+--               (λ f cᴰ cᴰ' t u i₁ →
+--                  isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--                  i₁
+--                  ,
+--                  hcomp
+--                  (λ { j (i₁ = i0) → t .snd
+--                     ; j (i₁ = i1)
+--                         → hcomp (λ i₂ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                     })
+--                  (t .snd))
+--               (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--                (|FreeCartesianCategory| Q))))
+--             (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Γ .fst
+--             ×
+--             elim-F-ob Q
+--             (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--              (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--               (FreeCartesianCategory Q) Nf)
+--              (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--               (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--                (FreeCartesianCategory Q))
+--               (IdCF ×F R)
+--               (λ f cᴰ cᴰ' t u i₁ →
+--                  isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--                  i₁
+--                  ,
+--                  hcomp
+--                  (λ { j (i₁ = i0) → t .snd
+--                     ; j (i₁ = i1)
+--                         → hcomp (λ i₂ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                     })
+--                  (t .snd))
+--               (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--                (|FreeCartesianCategory| Q))))
+--             (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Δ .fst)
+--          (λ i →
+--             elim-F-ob Q
+--             (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+--              (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+--               (FreeCartesianCategory Q) Nf)
+--              (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+--               (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+--                (FreeCartesianCategory Q))
+--               (IdCF ×F R)
+--               (λ f cᴰ cᴰ' t u i₁ →
+--                  isSetExp (f .fst ⋆ₑ cᴰ' .fst) (cᴰ .fst ⋆ₑ f .snd) (t .fst) (u .fst)
+--                  i₁
+--                  ,
+--                  hcomp
+--                  (λ { j (i₁ = i0) → t .snd
+--                     ; j (i₁ = i1)
+--                         → hcomp (λ i₂ → primPOr j (~ j) (λ .o → tt) (λ .o → t .snd)) tt
+--                     })
+--                  (t .snd))
+--               (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+--                (|FreeCartesianCategory| Q))))
+--             (λ o → (↑ o) , idₑ , isiso idₑ (⋆ₑIdL idₑ) (⋆ₑIdL idₑ)) Δ .fst)
+--          i0 (SHIFT (proj₂ (var Eq.refl))))
+--         ⟩)))
+--      ≡
+--      pathToIso
+--      (sym $
+--       congP (λ i x → ϕ*-regular x i) (λ i → lemma'' Γ i × lemma'' Δ i))
+--      .fst
 
-      S-hom : ∀ e → NormalForm (Q.dom e) (↑ Q.cod e)
-      S-hom e = shift $ symb e Eq.refl ID
+      WHY ⊤ = FreeCC.𝟙η'
+      WIP : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elim-ob (Q.dom e) , elim-ob (↑ Q.cod e) ]
+      WIP e = S-hom'' e , HMM , tt
+        where
+        HMM : (↑ₑ e) FreeCC.⋆ FreeCC.id ≡
+          elim-ob (Q.dom e) .snd .fst FreeCC.⋆
+          |R| ⟪ (SHIFT (var (Eq.pathToEq (λ i → lemma'' (Q.dom e) (~ i))))) Nf.⋆ Nf.id ⟫ FreeCC.⋆
+          ψ e
+        HMM = {!elim-ob (Q.dom e) .snd .fst!}
+      --lemma' : ∀ Γ → elim-ob Γ ≡ (Γ , pathToIso (sym $ ϕ*-regular Γ))
+      --lemma' (↑ _) = Σ.ΣPathP (refl , sym pathToIso-refl)
+      --lemma' (Γ × Δ) = Σ.ΣPathP (lemma'' (Γ × Δ) , {!!})
+      --lemma' ⊤ = Σ.ΣPathP (refl , Σ.ΣPathP (FreeCC.𝟙η' , isProp→PathP (λ _ → isPropIsIso _) _ _))
 
-      S-hom' : ∀ e → NormalForm
-        (elim-F-ob Q (IsoFiber {C = Nf} {D = FreeCC} R) (λ o → (↑ o) , idCatIso) (Q.dom e) .fst)
-        (elim-F-ob Q (IsoFiber {C = Nf} {D = FreeCC} R) (λ o → (↑ o) , idCatIso) (↑ Q.cod e) .fst)
-      S-hom' e = subst2 NormalForm (sym $ lemma'' _) (sym $ lemma'' _) (S-hom e)

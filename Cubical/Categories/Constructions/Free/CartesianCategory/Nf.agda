@@ -13,13 +13,15 @@ open import Cubical.Data.Unit
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Limits.Cartesian.Functor
+open import Cubical.Categories.Limits.Cartesian.Functor hiding (_×F_)
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 
 open import Cubical.Categories.Displayed.Constructions.IsoFiber.Cartesian
+
+open import Cubical.Categories.Constructions.BinProduct
 
 private
   variable
@@ -341,11 +343,11 @@ module _ (Q : ×Quiver ℓq ℓq')
       right : ∀{τ' τ''} → NormalForm Γ τ' → Embedded Γ τ n τ'' → Embedded Γ τ n (τ' × τ'')
 
     -- "project" the point
-    ⟨_⟩ : ∀{Γ τ n Δ} →
+    <_> : ∀{Γ τ n Δ} →
       Embedded Γ τ n Δ → NeutralTerm Δ τ
-    ⟨ root ⟩ = var Eq.refl
-    ⟨ left e _ ⟩ = ⟨ e ⟩ ∘proj₁
-    ⟨ right _ e ⟩ = ⟨ e ⟩ ∘proj₂
+    < root > = var Eq.refl
+    < left e _ > = < e > ∘proj₁
+    < right _ e > = < e > ∘proj₂
 
     -- "forget" the point
     ∣_∣ : ∀{Γ τ n Δ} →
@@ -397,10 +399,10 @@ module _ (Q : ×Quiver ℓq ℓq')
     IDR-lem : ∀{Γ τ Δ} →
       (n : NormalForm Γ τ)
       (ast : Embedded Γ τ n Δ) →
-      Nf/Nf (SHIFT ⟨ ast ⟩) ∣ ast ∣ ≡ n
+      Nf/Nf (SHIFT < ast >) ∣ ast ∣ ≡ n
     IDR-lem {τ = ↑ x} _ root = refl
-    IDR-lem {τ = ↑ x} n (left ast nf) = β₁-Ne/Nf ⟨ ast ⟩ ∣ ast ∣ nf ∙  IDR-lem n ast
-    IDR-lem {τ = ↑ x} n (right nf ast) = β₂-Ne/Nf ⟨ ast ⟩ nf ∣ ast ∣ ∙ IDR-lem n ast
+    IDR-lem {τ = ↑ x} n (left ast nf) = β₁-Ne/Nf < ast > ∣ ast ∣ nf ∙  IDR-lem n ast
+    IDR-lem {τ = ↑ x} n (right nf ast) = β₂-Ne/Nf < ast > nf ∣ ast ∣ ∙ IDR-lem n ast
     IDR-lem {τ = τ₁ × τ₂} (pair n₁ n₂) root = cong₂ pair (IDR-lem n₁ $ left root n₂) (IDR-lem n₂ $ right n₁ root)
     IDR-lem {τ = τ₁ × τ₂} (pair n₁ n₂) (left ast nf) = cong₂ pair
       (congS (λ x → Nf/Nf x $ pair ∣ ast ∣ nf) (SHIFT-∘proj₁) ∙ β₁-Nf/Nf (SHIFT _) ∣ ast ∣ nf)
@@ -559,39 +561,573 @@ module _ (Q : ×Quiver ℓq ℓq')
       (Nf .snd .fst)
       (FreeCC .snd .fst .snd)
 
-    --S = mkRetract Q Nf R
-    --  (λ o → ↑ o , idCatIso)
-    --  (λ e → WIP e)
-    --  where
-    --  Cᴰ = IsoFiber {C = Nf} {D = FreeCC} R
-    --  open import Cubical.Categories.Displayed.Limits.Cartesian
-    --  module Cᴰ = CartesianCategoryᴰNotation Cᴰ
-    --  elim-ob : ∀ Γ → Cᴰ.ob[ Γ ]
-    --  elim-ob = elim-F-ob Q Cᴰ (λ o → (↑ o) , idCatIso)
-    --  S-hom : ∀ e → NormalForm (Q.dom e) (↑ Q.cod e)
-    --  S-hom e = shift $ symb e Eq.refl ID
-    --  lemma'' : ∀ Γ → elim-ob Γ .fst ≡ Γ
-    --  lemma'' (↑ x) = refl
-    --  lemma'' (Γ × Δ) = cong₂ _×_ (lemma'' Γ) (lemma'' Δ)
-    --  lemma'' ⊤ = refl
-    --  S-hom'' : ∀ e → NormalForm
-    --    (elim-ob (Q.dom e) .fst)
-    --    (elim-ob (↑ Q.cod e) .fst)
-    --  S-hom'' e = (SHIFT ∘ var ∘ Eq.pathToEq ∘ sym $ lemma'' _) Nf.⋆ (S-hom e Nf.⋆ (SHIFT $ var Eq.refl))
-    --  WHY : ∀ Γ → elim-ob Γ .snd .fst ≡ pathToIso {C = |FreeCC|} (sym $ congP (λ i x → ϕ*-regular x i) (lemma'' Γ)) .fst
-    --  WHY (↑ x) = sym (congS fst (pathToIso-refl {C = |FreeCC|}))
-    --  WHY (Γ × Δ) = congS (λ x → x FreeCC.⋆ {!elim-ob (Γ × Δ) .snd .fst!} FreeCC.⋆ {!pathToIso {C = |FreeCC|} (sym (congP (λ i x → ϕ*-regular x i) (lemma'' (Γ × Δ))))!} .fst) (sym FreeCC.×η') ∙
-    --    FreeCC.⋆IdL _ ∙ {!!}
-    --  WHY ⊤ = FreeCC.𝟙η'
-    --  WIP : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elim-ob (Q.dom e) , elim-ob (↑ Q.cod e) ]
-    --  WIP e = S-hom'' e , HMM , tt
-    --    where
-    --    HMM : (↑ₑ e) FreeCC.⋆ FreeCC.id ≡
-    --      elim-ob (Q.dom e) .snd .fst FreeCC.⋆
-    --      |R| ⟪ (SHIFT (var (Eq.pathToEq (λ i → lemma'' (Q.dom e) (~ i))))) Nf.⋆ Nf.id ⟫ FreeCC.⋆
-    --      ψ e
-    --    HMM = {!elim-ob (Q.dom e) .snd .fst!}
-    --  --lemma' : ∀ Γ → elim-ob Γ ≡ (Γ , pathToIso (sym $ ϕ*-regular Γ))
-    --  --lemma' (↑ _) = Σ.ΣPathP (refl , sym pathToIso-refl)
-    --  --lemma' (Γ × Δ) = Σ.ΣPathP (lemma'' (Γ × Δ) , {!!})
-    --  --lemma' ⊤ = Σ.ΣPathP (refl , Σ.ΣPathP (FreeCC.𝟙η' , isProp→PathP (λ _ → isPropIsIso _) _ _))
+    S = mkRetract Q Nf R
+      (λ o → ↑ o , idCatIso)
+      (λ e → WIP e)
+      where
+      Cᴰ = IsoFiber {C = Nf} {D = FreeCC} R
+      open import Cubical.Categories.Displayed.Limits.Cartesian
+      module Cᴰ = CartesianCategoryᴰNotation Cᴰ
+      elim-ob : ∀ Γ → Cᴰ.ob[ Γ ]
+      elim-ob = elim-F-ob Q Cᴰ (λ o → (↑ o) , idCatIso)
+      S-hom : ∀ e → NormalForm (Q.dom e) (↑ Q.cod e)
+      S-hom e = shift $ symb e Eq.refl ID
+      lemma'' : ∀ Γ → elim-ob Γ .fst ≡ Γ
+      lemma'' (↑ x) = refl
+      lemma'' (Γ × Δ) = cong₂ _×_ (lemma'' Γ) (lemma'' Δ)
+      lemma'' ⊤ = refl
+      maybe : ∀{Γ Δ} → NormalForm Γ Δ → NormalForm (elim-ob Γ .fst) (elim-ob Δ .fst)
+      maybe = subst2 (λ x y → NormalForm x y) (sym $ lemma'' _) (sym $ lemma'' _)
+      S-hom'' : ∀ e → NormalForm
+        (elim-ob (Q.dom e) .fst)
+        (elim-ob (↑ Q.cod e) .fst)
+      S-hom'' e = (SHIFT ∘ var ∘ Eq.pathToEq ∘ sym $ lemma'' _) Nf.⋆ (S-hom e Nf.⋆ (SHIFT $ var Eq.refl))
+      WHY : ∀ Γ → elim-ob Γ .snd .fst ≡ pathToIso {C = |FreeCC|} (sym $ (lemma'' Γ)) .fst
+      WHY (↑ x) = sym (congS fst (pathToIso-refl {C = |FreeCC|}))
+      WHY (Γ × Δ) = {!!} {- congS (λ x → x FreeCC.⋆
+          ⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
+          ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
+            ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
+            ⟨ |R| .F-hom OK , |R| .F-hom {!!} ⟩))
+        (sym FreeCC.×η') ∙
+        FreeCC.⋆IdL _ ∙
+        {!!} -}
+        where
+        import Cubical.Categories.Displayed.Base
+        open Cubical.Categories.Displayed.Base.Categoryᴰ
+        import Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian
+        import Cubical.Categories.Displayed.Constructions.Weaken.Cartesian
+        import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
+        import Cubical.Categories.Displayed.Instances.Arrow.Cartesian
+        import Cubical.Categories.Displayed.Instances.Arrow.Base
+        import Cubical.Categories.Displayed.Instances.Arrow.Properties
+        import Cubical.Categories.Limits.BinProduct
+        import Cubical.Categories.Presheaf.Representable
+        import Cubical.Categories.Constructions.BinProduct.Cartesian
+        LEFT : elim-ob (Γ × Δ) .snd .fst ≡
+          (⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
+            (⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
+              ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆ ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
+                ⟨ Nf→FreeCC
+                   (transp
+                    (λ i →
+                       Cubical.Categories.Displayed.Base.Categoryᴰ.Hom[
+                       Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                       (FreeCartesianCategory Q) Nf .fst
+                       ][
+                       FreeCartesianCategory Q .snd .snd Γ Δ
+                       .Cubical.Categories.Limits.BinProduct.BinProduct.univProp
+                       (fst
+                        (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
+                         ((FreeCartesianCategory Q
+                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                          .fst)
+                         (BinProductProf
+                          (record
+                           { ob =
+                               ob
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; Hom[_,_] =
+                               Hom[_,_]
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; id =
+                               id
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; _⋆_ =
+                               _⋆_
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; ⋆IdL =
+                               λ {x} {y} f i₁ →
+                                 ⋆IdL
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 f i₁
+                           ; ⋆IdR =
+                               λ {x} {y} f i₁ →
+                                 ⋆IdR
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 f i₁
+                           ; ⋆Assoc =
+                               λ {x} {y} {z} {w} f g h i₁ →
+                                 ⋆Assoc
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 f g h (~ (~ i₁))
+                           ; isSetHom =
+                               λ {x} {y} x₁ y₁ x₂ y₂ i₁ i₂ →
+                                 isSetHom
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 x₁ y₁ x₂ y₂ i₁ i₂
+                           })
+                          ⟅
+                          (Γ ,
+                           elim-F-ob Q
+                           (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                            (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                             (FreeCartesianCategory Q) Nf)
+                            (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                             (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                              (FreeCartesianCategory Q))
+                             (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                             (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                              (FreeCartesianCategory Q .fst))
+                             (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                              (|FreeCartesianCategory| Q))))
+                           (λ o → (↑ o) , idCatIso) Γ .fst)
+                          ,
+                          Δ ,
+                          elim-F-ob Q
+                          (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                           (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                            (FreeCartesianCategory Q) Nf)
+                           (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                            (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                             (FreeCartesianCategory Q))
+                            (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                            (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                             (FreeCartesianCategory Q .fst))
+                            (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                             (|FreeCartesianCategory| Q))))
+                          (λ o → (↑ o) , idCatIso) Δ .fst
+                          ⟆)
+                         (BinProductToRepresentable
+                          ((FreeCartesianCategory Q
+                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                           .fst)
+                          ((FreeCartesianCategory Q
+                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                           .snd .snd
+                           (Γ ,
+                            elim-F-ob Q
+                            (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                             (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                              (FreeCartesianCategory Q) Nf)
+                             (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                              (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                               (FreeCartesianCategory Q))
+                              (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                              (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                               (FreeCartesianCategory Q .fst))
+                              (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                               (|FreeCartesianCategory| Q))))
+                            (λ o → (↑ o) , idCatIso) Γ .fst)
+                           (Δ ,
+                            elim-F-ob Q
+                            (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                             (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                              (FreeCartesianCategory Q) Nf)
+                             (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                              (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                               (FreeCartesianCategory Q))
+                              (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                              (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                               (FreeCartesianCategory Q .fst))
+                              (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                               (|FreeCartesianCategory| Q))))
+                            (λ o → (↑ o) , idCatIso) Δ .fst))))
+                        .snd .fst .fst)
+                       (fst
+                        (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
+                         ((FreeCartesianCategory Q
+                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                          .fst)
+                         (BinProductProf
+                          (record
+                           { ob =
+                               ob
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; Hom[_,_] =
+                               Hom[_,_]
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; id =
+                               id
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; _⋆_ =
+                               _⋆_
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                           ; ⋆IdL =
+                               λ {x} {y} f i₁ →
+                                 ⋆IdL
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 f i₁
+                           ; ⋆IdR =
+                               λ {x} {y} f i₁ →
+                                 ⋆IdR
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 f i₁
+                           ; ⋆Assoc =
+                               λ {x} {y} {z} {w} f g h i₁ →
+                                 ⋆Assoc
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 f g h (~ (~ i₁))
+                           ; isSetHom =
+                               λ {x} {y} x₁ y₁ x₂ y₂ i₁ i₂ →
+                                 isSetHom
+                                 ((FreeCartesianCategory Q
+                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                  .fst)
+                                 x₁ y₁ x₂ y₂ i₁ i₂
+                           })
+                          ⟅
+                          (Γ ,
+                           elim-F-ob Q
+                           (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                            (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                             (FreeCartesianCategory Q) Nf)
+                            (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                             (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                              (FreeCartesianCategory Q))
+                             (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                             (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                              (FreeCartesianCategory Q .fst))
+                             (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                              (|FreeCartesianCategory| Q))))
+                           (λ o → (↑ o) , idCatIso) Γ .fst)
+                          ,
+                          Δ ,
+                          elim-F-ob Q
+                          (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                           (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                            (FreeCartesianCategory Q) Nf)
+                           (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                            (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                             (FreeCartesianCategory Q))
+                            (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                            (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                             (FreeCartesianCategory Q .fst))
+                            (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                             (|FreeCartesianCategory| Q))))
+                          (λ o → (↑ o) , idCatIso) Δ .fst
+                          ⟆)
+                         (BinProductToRepresentable
+                          ((FreeCartesianCategory Q
+                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                           .fst)
+                          ((FreeCartesianCategory Q
+                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                           .snd .snd
+                           (Γ ,
+                            elim-F-ob Q
+                            (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                             (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                              (FreeCartesianCategory Q) Nf)
+                             (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                              (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                               (FreeCartesianCategory Q))
+                              (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                              (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                               (FreeCartesianCategory Q .fst))
+                              (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                               (|FreeCartesianCategory| Q))))
+                            (λ o → (↑ o) , idCatIso) Γ .fst)
+                           (Δ ,
+                            elim-F-ob Q
+                            (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                             (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                              (FreeCartesianCategory Q) Nf)
+                             (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                              (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                               (FreeCartesianCategory Q))
+                              (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                              (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                               (FreeCartesianCategory Q .fst))
+                              (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                               (|FreeCartesianCategory| Q))))
+                            (λ o → (↑ o) , idCatIso) Δ .fst))))
+                        .snd .snd .fst)
+                       .fst .snd .fst (~ i)
+                       ,
+                       fst
+                       (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
+                        ((FreeCartesianCategory Q
+                          Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                         .fst)
+                        (BinProductProf
+                         (record
+                          { ob =
+                              ob
+                              ((FreeCartesianCategory Q
+                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                               .fst)
+                          ; Hom[_,_] =
+                              Hom[_,_]
+                              ((FreeCartesianCategory Q
+                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                               .fst)
+                          ; id =
+                              id
+                              ((FreeCartesianCategory Q
+                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                               .fst)
+                          ; _⋆_ =
+                              _⋆_
+                              ((FreeCartesianCategory Q
+                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                               .fst)
+                          ; ⋆IdL =
+                              λ {x} {y} f i₁ →
+                                ⋆IdL
+                                ((FreeCartesianCategory Q
+                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                 .fst)
+                                f i₁
+                          ; ⋆IdR =
+                              λ {x} {y} f i₁ →
+                                ⋆IdR
+                                ((FreeCartesianCategory Q
+                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                 .fst)
+                                f i₁
+                          ; ⋆Assoc =
+                              λ {x} {y} {z} {w} f g h i₁ →
+                                ⋆Assoc
+                                ((FreeCartesianCategory Q
+                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                 .fst)
+                                f g h (~ (~ i₁))
+                          ; isSetHom =
+                              λ {x} {y} x₁ y₁ x₂ y₂ i₁ i₂ →
+                                isSetHom
+                                ((FreeCartesianCategory Q
+                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                 .fst)
+                                x₁ y₁ x₂ y₂ i₁ i₂
+                          })
+                         ⟅
+                         (Γ ,
+                          elim-F-ob Q
+                          (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                           (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                            (FreeCartesianCategory Q) Nf)
+                           (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                            (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                             (FreeCartesianCategory Q))
+                            (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                            (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                             (FreeCartesianCategory Q .fst))
+                            (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                             (|FreeCartesianCategory| Q))))
+                          (λ o → (↑ o) , idCatIso) Γ .fst)
+                         ,
+                         Δ ,
+                         elim-F-ob Q
+                         (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                          (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                           (FreeCartesianCategory Q) Nf)
+                          (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                           (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                            (FreeCartesianCategory Q))
+                           (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                           (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                            (FreeCartesianCategory Q .fst))
+                           (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                            (|FreeCartesianCategory| Q))))
+                         (λ o → (↑ o) , idCatIso) Δ .fst
+                         ⟆)
+                        (BinProductToRepresentable
+                         ((FreeCartesianCategory Q
+                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                          .fst)
+                         ((FreeCartesianCategory Q
+                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                          .snd .snd
+                          (Γ ,
+                           elim-F-ob Q
+                           (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                            (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                             (FreeCartesianCategory Q) Nf)
+                            (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                             (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                              (FreeCartesianCategory Q))
+                             (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                             (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                              (FreeCartesianCategory Q .fst))
+                             (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                              (|FreeCartesianCategory| Q))))
+                           (λ o → (↑ o) , idCatIso) Γ .fst)
+                          (Δ ,
+                           elim-F-ob Q
+                           (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                            (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                             (FreeCartesianCategory Q) Nf)
+                            (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                             (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                              (FreeCartesianCategory Q))
+                             (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                             (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                              (FreeCartesianCategory Q .fst))
+                             (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                              (|FreeCartesianCategory| Q))))
+                           (λ o → (↑ o) , idCatIso) Δ .fst))))
+                       .fst .snd
+                       ]
+                       (elim-ob Γ .fst))
+                    i0
+                    (snd
+                     (fst
+                      (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
+                       ((FreeCartesianCategory Q
+                         Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                        .fst)
+                       (BinProductProf
+                        (record
+                         { ob =
+                             ob
+                             ((FreeCartesianCategory Q
+                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                              .fst)
+                         ; Hom[_,_] =
+                             Hom[_,_]
+                             ((FreeCartesianCategory Q
+                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                              .fst)
+                         ; id =
+                             id
+                             ((FreeCartesianCategory Q
+                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                              .fst)
+                         ; _⋆_ =
+                             _⋆_
+                             ((FreeCartesianCategory Q
+                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                              .fst)
+                         ; ⋆IdL =
+                             λ {x} {y} f i →
+                               ⋆IdL
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                               f i
+                         ; ⋆IdR =
+                             λ {x} {y} f i →
+                               ⋆IdR
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                               f i
+                         ; ⋆Assoc =
+                             λ {x} {y} {z} {w} f g h i →
+                               ⋆Assoc
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                               f g h (~ (~ i))
+                         ; isSetHom =
+                             λ {x} {y} x₁ y₁ x₂ y₂ i i₁ →
+                               isSetHom
+                               ((FreeCartesianCategory Q
+                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                                .fst)
+                               x₁ y₁ x₂ y₂ i i₁
+                         })
+                        ⟅
+                        (Γ ,
+                         elim-F-ob Q
+                         (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                          (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                           (FreeCartesianCategory Q) Nf)
+                          (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                           (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                            (FreeCartesianCategory Q))
+                           (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                           (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                            (FreeCartesianCategory Q .fst))
+                           (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                            (|FreeCartesianCategory| Q))))
+                         (λ o → (↑ o) , idCatIso) Γ .fst)
+                        ,
+                        Δ ,
+                        elim-F-ob Q
+                        (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                         (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                          (FreeCartesianCategory Q) Nf)
+                         (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                          (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                           (FreeCartesianCategory Q))
+                          (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                          (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                           (FreeCartesianCategory Q .fst))
+                          (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                           (|FreeCartesianCategory| Q))))
+                        (λ o → (↑ o) , idCatIso) Δ .fst
+                        ⟆)
+                       (BinProductToRepresentable
+                        ((FreeCartesianCategory Q
+                          Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                         .fst)
+                        ((FreeCartesianCategory Q
+                          Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
+                         .snd .snd
+                         (Γ ,
+                          elim-F-ob Q
+                          (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                           (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                            (FreeCartesianCategory Q) Nf)
+                           (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                            (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                             (FreeCartesianCategory Q))
+                            (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                            (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                             (FreeCartesianCategory Q .fst))
+                            (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                             (|FreeCartesianCategory| Q))))
+                          (λ o → (↑ o) , idCatIso) Γ .fst)
+                         (Δ ,
+                          elim-F-ob Q
+                          (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
+                           (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
+                            (FreeCartesianCategory Q) Nf)
+                           (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
+                            (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
+                             (FreeCartesianCategory Q))
+                            (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
+                            (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
+                             (FreeCartesianCategory Q .fst))
+                            (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
+                             (|FreeCartesianCategory| Q))))
+                          (λ o → (↑ o) , idCatIso) Δ .fst))))
+                      .snd .fst))) , {!!} ⟩)))
+        LEFT = refl
+        OK : Nf.Hom[ elim-ob Γ .fst × elim-ob Δ .fst , elim-ob Γ .fst ]
+        OK = transport (λ i → NormalForm (lemma'' Γ (~ i) × lemma'' Δ (~ i)) {!!}) (Nf.π₁ {a = Γ} {b = Δ}) {- subst2 Nf.Hom[_,_] {!λ i → lemma'' (lemma'' (Γ × Δ) (~ i)) (~ i)!} {!lemma'' Γ i1!} (Nf.π₁ {a = elim-ob Γ .fst}) -}
+      WHY ⊤ = FreeCC.𝟙η'
+      WIP : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elim-ob (Q.dom e) , elim-ob (↑ Q.cod e) ]
+      WIP e = S-hom'' e , HMM , tt
+        where
+        HMM : (↑ₑ e) FreeCC.⋆ FreeCC.id ≡
+          elim-ob (Q.dom e) .snd .fst FreeCC.⋆
+          |R| ⟪ (SHIFT (var (Eq.pathToEq (λ i → lemma'' (Q.dom e) (~ i))))) Nf.⋆ Nf.id ⟫ FreeCC.⋆
+          ψ e
+        HMM = {!elim-ob (Q.dom e) .snd .fst!}
+      --lemma' : ∀ Γ → elim-ob Γ ≡ (Γ , pathToIso (sym $ ϕ*-regular Γ))
+      --lemma' (↑ _) = Σ.ΣPathP (refl , sym pathToIso-refl)
+      --lemma' (Γ × Δ) = Σ.ΣPathP (lemma'' (Γ × Δ) , {!!})
+      --lemma' ⊤ = Σ.ΣPathP (refl , Σ.ΣPathP (FreeCC.𝟙η' , isProp→PathP (λ _ → isPropIsIso _) _ _))

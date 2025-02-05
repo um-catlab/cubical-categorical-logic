@@ -604,6 +604,8 @@ module _ (Q : ×Quiver ℓq ℓq')
         import Cubical.Categories.Limits.BinProduct
         import Cubical.Categories.Presheaf.Representable
         import Cubical.Categories.Constructions.BinProduct.Cartesian
+        import Cubical.Categories.Displayed.Reasoning
+        module R = Cubical.Categories.Displayed.Reasoning (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken FreeCC Nf .fst)
         LEFT : elim-ob (Γ × Δ) .snd .fst ≡
           (⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
             (⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
@@ -611,52 +613,11 @@ module _ (Q : ×Quiver ℓq ℓq')
                 ⟨ Nf→FreeCC
                    (transport
                     (λ i →
-                       Cubical.Categories.Displayed.Base.Categoryᴰ.Hom[
+                       Cubical.Categories.Displayed.Base.Categoryᴰ.Hom[_][_,_]
                        (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken FreeCC Nf .fst)
-                       ][
-                       FreeCC .snd .snd Γ Δ
-                       .Cubical.Categories.Limits.BinProduct.BinProduct.univProp
-                       (fst
-                        (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
-                         ((FreeCartesianCategory Q
-                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                          .fst)
-                         (BinProductProf
-                          ((FreeCC Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf) .fst)
-                          ⟅ (Γ , elim-ob Γ .fst) , Δ , elim-ob Δ .fst ⟆)
-                         (BinProductToRepresentable
-                          ((FreeCartesianCategory Q
-                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                           .fst)
-                          ((FreeCartesianCategory Q
-                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                           .snd .snd
-                           (Γ , elim-ob Γ .fst)
-                           (Δ , elim-ob Δ .fst))))
-                        .snd .fst .fst)
-                       (fst
-                        (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
-                         ((FreeCartesianCategory Q
-                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                          .fst)
-                         (BinProductProf
-                          ((FreeCC Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf) .fst)
-                          ⟅ (Γ , elim-ob Γ .fst) , (Δ , elim-ob Δ .fst) ⟆)
-                         (BinProductToRepresentable
-                          ((FreeCartesianCategory Q
-                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                           .fst)
-                          ((FreeCartesianCategory Q
-                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                           .snd .snd
-                           (Γ , elim-ob Γ .fst)
-                           (Δ , elim-ob Δ .fst))))
-                        .snd .snd .fst)
-                       .fst .snd .fst (~ i)
-                       ,
-                         elim-ob Γ .fst × elim-ob Δ .fst
-                       ]
-                       (elim-ob Γ .fst)) (Nf.π₁ {a = elim-ob Γ .fst})) , {!!} ⟩)))
+                       (×β₁ {t = (FreeCC.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})} {t' = (FreeCC.π₂ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})} (~ i))
+                       (elim-ob Γ .fst × elim-ob Δ .fst)
+                       (elim-ob Γ .fst)) (Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})) , {!!} ⟩)))
         LEFT = refl
         OK : Nf.Hom[ elim-ob Γ .fst × elim-ob Δ .fst , elim-ob Γ .fst ]
         OK = transport (λ i → NormalForm (lemma'' Γ (~ i) × lemma'' Δ (~ i)) {!!}) (Nf.π₁ {a = Γ} {b = Δ}) {- subst2 Nf.Hom[_,_] {!λ i → lemma'' (lemma'' (Γ × Δ) (~ i)) (~ i)!} {!lemma'' Γ i1!} (Nf.π₁ {a = elim-ob Γ .fst}) -}

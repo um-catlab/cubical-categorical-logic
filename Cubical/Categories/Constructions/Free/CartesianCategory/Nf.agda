@@ -613,7 +613,7 @@ module _ (Q : ×Quiver ℓq ℓq')
               ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆ ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
                 ⟨ |R| .F-hom
                     -- this should reduce away with something similar to transortRefl?
-                    (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) Nf.π₁)
+                    (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) $ Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})
                 , |R| .F-hom
                     -- but the path isn't literally refl
                     -- in the worst case, this is true by ua, since we're transporting in a weakened Categoryᴰ
@@ -622,6 +622,11 @@ module _ (Q : ×Quiver ℓq ℓq')
         LEFT = refl
         ENDPOINTS : FreeCC.Hom[ Γ × Δ , elim-ob (Γ × Δ) .fst ]
         ENDPOINTS = elim-ob (Γ × Δ) .snd .fst
+        transpRefl : (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) $
+            Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})
+            ≡
+            Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst}
+        transpRefl = transportRefl Nf.π₁
         --RIGHT : {!!} ≡ pathToIso {C = |FreeCC|} (sym $ lemma'' $ Γ × Δ) .fst
         --RIGHT = refl
       WHY ⊤ = FreeCC.𝟙η'

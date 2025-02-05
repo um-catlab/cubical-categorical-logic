@@ -612,10 +612,9 @@ module _ (Q : ×Quiver ℓq ℓq')
                    (transport
                     (λ i →
                        Cubical.Categories.Displayed.Base.Categoryᴰ.Hom[
-                       Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
-                       (FreeCartesianCategory Q) Nf .fst
+                       (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken FreeCC Nf .fst)
                        ][
-                       FreeCartesianCategory Q .snd .snd Γ Δ
+                       FreeCC .snd .snd Γ Δ
                        .Cubical.Categories.Limits.BinProduct.BinProduct.univProp
                        (fst
                         (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
@@ -623,56 +622,7 @@ module _ (Q : ×Quiver ℓq ℓq')
                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
                           .fst)
                          (BinProductProf
-                          (record
-                           { ob =
-                               ob
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; Hom[_,_] =
-                               Hom[_,_]
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; id =
-                               id
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; _⋆_ =
-                               _⋆_
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; ⋆IdL =
-                               λ {x} {y} f i₁ →
-                                 ⋆IdL
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 f i₁
-                           ; ⋆IdR =
-                               λ {x} {y} f i₁ →
-                                 ⋆IdR
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 f i₁
-                           ; ⋆Assoc =
-                               λ {x} {y} {z} {w} f g h i₁ →
-                                 ⋆Assoc
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 f g h (~ (~ i₁))
-                           ; isSetHom =
-                               λ {x} {y} x₁ y₁ x₂ y₂ i₁ i₂ →
-                                 isSetHom
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 x₁ y₁ x₂ y₂ i₁ i₂
-                           })
+                          ((FreeCC Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf) .fst)
                           ⟅ (Γ , elim-ob Γ .fst) , Δ , elim-ob Δ .fst ⟆)
                          (BinProductToRepresentable
                           ((FreeCartesianCategory Q
@@ -690,56 +640,7 @@ module _ (Q : ×Quiver ℓq ℓq')
                            Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
                           .fst)
                          (BinProductProf
-                          (record
-                           { ob =
-                               ob
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; Hom[_,_] =
-                               Hom[_,_]
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; id =
-                               id
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; _⋆_ =
-                               _⋆_
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                           ; ⋆IdL =
-                               λ {x} {y} f i₁ →
-                                 ⋆IdL
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 f i₁
-                           ; ⋆IdR =
-                               λ {x} {y} f i₁ →
-                                 ⋆IdR
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 f i₁
-                           ; ⋆Assoc =
-                               λ {x} {y} {z} {w} f g h i₁ →
-                                 ⋆Assoc
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 f g h (~ (~ i₁))
-                           ; isSetHom =
-                               λ {x} {y} x₁ y₁ x₂ y₂ i₁ i₂ →
-                                 isSetHom
-                                 ((FreeCartesianCategory Q
-                                   Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                  .fst)
-                                 x₁ y₁ x₂ y₂ i₁ i₂
-                           })
+                          ((FreeCC Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf) .fst)
                           ⟅ (Γ , elim-ob Γ .fst) , (Δ , elim-ob Δ .fst) ⟆)
                          (BinProductToRepresentable
                           ((FreeCartesianCategory Q
@@ -748,162 +649,14 @@ module _ (Q : ×Quiver ℓq ℓq')
                           ((FreeCartesianCategory Q
                             Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
                            .snd .snd
-                           (Γ ,
-                            elim-F-ob Q
-                            (Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian.∫Cᴰ
-                             (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken
-                              (FreeCartesianCategory Q) Nf)
-                             (Cubical.Categories.Displayed.Constructions.Reindex.Cartesian.reindex
-                              (Cubical.Categories.Displayed.Instances.Arrow.Cartesian.Iso
-                               (FreeCartesianCategory Q))
-                              (IdCF Cubical.Categories.Limits.Cartesian.Functor.×F R)
-                              (Cubical.Categories.Displayed.Instances.Arrow.Base.hasPropHomsIso
-                               (FreeCartesianCategory Q .fst))
-                              (Cubical.Categories.Displayed.Instances.Arrow.Properties.isIsoFibrationIso
-                               (|FreeCartesianCategory| Q))))
-                            (λ o → (↑ o) , idCatIso) Γ .fst)
+                           (Γ , elim-ob Γ .fst)
                            (Δ , elim-ob Δ .fst))))
                         .snd .snd .fst)
                        .fst .snd .fst (~ i)
                        ,
-                       fst
-                       (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
-                        ((FreeCartesianCategory Q
-                          Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                         .fst)
-                        (BinProductProf
-                         (record
-                          { ob =
-                              ob
-                              ((FreeCartesianCategory Q
-                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                               .fst)
-                          ; Hom[_,_] =
-                              Hom[_,_]
-                              ((FreeCartesianCategory Q
-                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                               .fst)
-                          ; id =
-                              id
-                              ((FreeCartesianCategory Q
-                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                               .fst)
-                          ; _⋆_ =
-                              _⋆_
-                              ((FreeCartesianCategory Q
-                                Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                               .fst)
-                          ; ⋆IdL =
-                              λ {x} {y} f i₁ →
-                                ⋆IdL
-                                ((FreeCartesianCategory Q
-                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                 .fst)
-                                f i₁
-                          ; ⋆IdR =
-                              λ {x} {y} f i₁ →
-                                ⋆IdR
-                                ((FreeCartesianCategory Q
-                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                 .fst)
-                                f i₁
-                          ; ⋆Assoc =
-                              λ {x} {y} {z} {w} f g h i₁ →
-                                ⋆Assoc
-                                ((FreeCartesianCategory Q
-                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                 .fst)
-                                f g h (~ (~ i₁))
-                          ; isSetHom =
-                              λ {x} {y} x₁ y₁ x₂ y₂ i₁ i₂ →
-                                isSetHom
-                                ((FreeCartesianCategory Q
-                                  Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                 .fst)
-                                x₁ y₁ x₂ y₂ i₁ i₂
-                          })
-                         ⟅
-                         (Γ , elim-ob Γ .fst) , (Δ , elim-ob Δ .fst) ⟆)
-                        (BinProductToRepresentable
-                         ((FreeCartesianCategory Q
-                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                          .fst)
-                         ((FreeCartesianCategory Q
-                           Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                          .snd .snd
-                          (Γ , elim-ob Γ .fst)
-                          (Δ , elim-ob Δ .fst))))
-                       .fst .snd
+                         elim-ob Γ .fst × elim-ob Δ .fst
                        ]
-                       (elim-ob Γ .fst))
-                    (snd
-                     (fst
-                      (Cubical.Categories.Presheaf.Representable.universalElementToTerminalElement
-                       ((FreeCartesianCategory Q
-                         Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                        .fst)
-                       (BinProductProf
-                        (record
-                         { ob =
-                             ob
-                             ((FreeCartesianCategory Q
-                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                              .fst)
-                         ; Hom[_,_] =
-                             Hom[_,_]
-                             ((FreeCartesianCategory Q
-                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                              .fst)
-                         ; id =
-                             id
-                             ((FreeCartesianCategory Q
-                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                              .fst)
-                         ; _⋆_ =
-                             _⋆_
-                             ((FreeCartesianCategory Q
-                               Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                              .fst)
-                         ; ⋆IdL =
-                             λ {x} {y} f i →
-                               ⋆IdL
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                               f i
-                         ; ⋆IdR =
-                             λ {x} {y} f i →
-                               ⋆IdR
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                               f i
-                         ; ⋆Assoc =
-                             λ {x} {y} {z} {w} f g h i →
-                               ⋆Assoc
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                               f g h (~ (~ i))
-                         ; isSetHom =
-                             λ {x} {y} x₁ y₁ x₂ y₂ i i₁ →
-                               isSetHom
-                               ((FreeCartesianCategory Q
-                                 Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                                .fst)
-                               x₁ y₁ x₂ y₂ i i₁
-                         })
-                        ⟅ (Γ , elim-ob Γ .fst) , (Δ , elim-ob Δ .fst) ⟆)
-                       (BinProductToRepresentable
-                        ((FreeCartesianCategory Q
-                          Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                         .fst)
-                        ((FreeCartesianCategory Q
-                          Cubical.Categories.Constructions.BinProduct.Cartesian.×C Nf)
-                         .snd .snd
-                         (Γ , elim-ob Γ .fst)
-                         (Δ , elim-ob Δ .fst))))
-                      .snd .fst))) , {!!} ⟩)))
+                       (elim-ob Γ .fst)) (Nf.π₁ {a = elim-ob Γ .fst})) , {!!} ⟩)))
         LEFT = refl
         OK : Nf.Hom[ elim-ob Γ .fst × elim-ob Δ .fst , elim-ob Γ .fst ]
         OK = transport (λ i → NormalForm (lemma'' Γ (~ i) × lemma'' Δ (~ i)) {!!}) (Nf.π₁ {a = Γ} {b = Δ}) {- subst2 Nf.Hom[_,_] {!λ i → lemma'' (lemma'' (Γ × Δ) (~ i)) (~ i)!} {!lemma'' Γ i1!} (Nf.π₁ {a = elim-ob Γ .fst}) -}

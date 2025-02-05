@@ -608,16 +608,22 @@ module _ (Q : ×Quiver ℓq ℓq')
         module R = Cubical.Categories.Displayed.Reasoning (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken FreeCC Nf .fst)
         LEFT : elim-ob (Γ × Δ) .snd .fst ≡
           (⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
+                                -- this inductively should be pathToIso
             (⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
               ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆ ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
-                ⟨ Nf→FreeCC
+                ⟨ |R| .F-hom
+                    -- this should reduce away with something similar to transortRefl?
                     (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) Nf.π₁)
-                , Nf→FreeCC
+                , |R| .F-hom
+                    -- but the path isn't literally refl
+                    -- in the worst case, this is true by ua, since we're transporting in a weakened Categoryᴰ
                     (R.reind (sym $ FreeCC.×β₂ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) Nf.π₂)
                 ⟩)))
         LEFT = refl
-        OK : Nf.Hom[ elim-ob Γ .fst × elim-ob Δ .fst , elim-ob Γ .fst ]
-        OK = transport (λ i → NormalForm (lemma'' Γ (~ i) × lemma'' Δ (~ i)) {!!}) (Nf.π₁ {a = Γ} {b = Δ}) {- subst2 Nf.Hom[_,_] {!λ i → lemma'' (lemma'' (Γ × Δ) (~ i)) (~ i)!} {!lemma'' Γ i1!} (Nf.π₁ {a = elim-ob Γ .fst}) -}
+        ENDPOINTS : FreeCC.Hom[ Γ × Δ , elim-ob (Γ × Δ) .fst ]
+        ENDPOINTS = elim-ob (Γ × Δ) .snd .fst
+        --RIGHT : {!!} ≡ pathToIso {C = |FreeCC|} (sym $ lemma'' $ Γ × Δ) .fst
+        --RIGHT = refl
       WHY ⊤ = FreeCC.𝟙η'
       WIP : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elim-ob (Q.dom e) , elim-ob (↑ Q.cod e) ]
       WIP e = S-hom'' e , HMM , tt

@@ -54,9 +54,9 @@ on:
 ########################################################################
 
 env:
-  AGDA_BRANCH: v2.6.4
-  GHC_VERSION: 9.4.7
-  CABAL_VERSION: 3.6.2.0
+  AGDA_BRANCH: v2.7.0.1
+  GHC_VERSION: 9.8.2
+  CABAL_VERSION: 3.10.2.1
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
   CACHE_PATHS: |
     ~/.cabal/packages
@@ -64,66 +64,8 @@ env:
     ~/.cabal/bin
 
 
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  line-lengths:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install wcwidth
-
-    - name: Check line lengths
-      run: 'make check-line-lengths'
-
-  check-whitespace:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Install cabal
-        uses: haskell-actions/setup@v2
-        with:
-          ghc-version: ${{ env.GHC_VERSION }}
-          cabal-version: ${{ env.CABAL_VERSION }}
-          cabal-update: true
-
-      ########################################################################
-      ## INSTALLATION STEPS
-      ########################################################################
-      - name: Download and install fix-whitespace
-        run: |
-          cd ~
-          git clone https://github.com/agda/fix-whitespace --depth=1
-          cd fix-whitespace
-          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
-          cd ..
-
-
-      ########################################################################
-      ## CHECKOUT
-      ########################################################################
-
-      # By default github actions do not pull the repo
-      - name: Checkout cubical-categorical-logic
-        uses: actions/checkout@v3
-
-      ########################################################################
-      ## TESTING
-      ########################################################################
-
-      - name: Test whitespace
-        run: |
-          ~/.cabal/bin/fix-whitespace --check
-
   compile-agda:
     runs-on: ubuntu-latest
     steps:
@@ -134,9 +76,24 @@ jobs:
           cabal-version: ${{ env.CABAL_VERSION }}
           cabal-update: true
 
+      - name: Restore external dependencies cache
+        uses: actions/cache/restore@v3
+        id: cache-external-restore
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
+
       ########################################################################
       ## INSTALLATION STEPS
       ########################################################################
+
+      - name: Download and install fix-whitespace
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/agda/fix-whitespace --depth=1
+          cd fix-whitespace
+          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
+          cd ..
 
       - name: Download and install Agda from github
         run: |
@@ -164,6 +121,14 @@ jobs:
           echo "$CUBICAL_DIR/cubical.agda-lib" >> ~/.agda/libraries
           echo "$GITHUB_WORKSPACE/cubical-categorical-logic.agda-lib" >> ~/.agda/libraries
 
+      - name: Save external dependencies cache
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-external-save
+        with:
+          path: ${{ env.CACHE_PATHS }}
+          key: ${{ steps.cache-external-restore.outputs.cache-primary-key }}
+
 
       ########################################################################
       ## CHECKOUT
@@ -177,10 +142,28 @@ jobs:
       ## TESTING
       ########################################################################
 
+      - name: Restore library cache
+        uses: actions/cache/restore@v3
+        id: cache-library-restore
+        with:
+          path: ./_build
+          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Everythings.hs' , 'Cubical/**', 'cubical-categorical-logic.agda-lib') }}
+          restore-keys: |
+            library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
+
       - name: Put cabal programs in PATH
         run: echo "~/.cabal/bin" >> $GITHUB_PATH
 
       - name: Test cubical-categorical-logic
         run: |
           make test \
-            AGDA='~/.cabal/bin/agda +RTS -M6G -RTS -WnoUnsupportedIndexedMatch -W error' \
+            AGDA_EXEC='~/.cabal/bin/agda +RTS -M6G -RTS -WnoUnsupportedIndexedMatch -W error' \
+            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace'
+
+      - name: Save library cache
+        if: steps.cache-library-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-library-save
+        with:
+          path: ./_build
+          key: ${{ steps.cache-library-restore.outputs.cache-primary-key }}

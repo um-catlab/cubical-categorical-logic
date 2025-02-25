@@ -96,6 +96,7 @@ jobs:
           cd ..
 
       - name: Download and install Agda from github
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run: |
           git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
           cd agda
@@ -106,6 +107,7 @@ jobs:
           rm -rf agda
 
       - name: Download Cubical from github
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run : |
           cd ~
           git clone https://github.com/agda/cubical --branch master

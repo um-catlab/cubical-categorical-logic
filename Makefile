@@ -54,15 +54,15 @@ check-Root:
 
 .PHONY : check
 check: gen-everythings
-	$(AGDA) Everything.agda
+	$(AGDA) TestEverything.agda
 
 .PHONY : timings
 timings: clean gen-everythings
-	$(AGDA) -v profile.modules:10 Everything.agda
+	$(AGDA) -v profile.modules:10 TestEverything.agda
 
 .PHONY : listings
 listings: $(wildcard Cubical/**/*.agda)
-	$(AGDA) -i. -isrc --html Everything.agda -v0
+	$(AGDA) -i. -isrc --html TestEverything.agda -v0
 
 .PHONY : clean
 clean:

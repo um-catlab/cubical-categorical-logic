@@ -117,6 +117,7 @@ jobs:
           echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
 
       - name: Set up Agda dependencies
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run : |
           mkdir ~/.agda
           touch ~/.agda/libraries

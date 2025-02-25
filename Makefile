@@ -69,6 +69,10 @@ clean:
 	find . -type f -name '*.agdai' -delete
 	find . -type f -name "Everything.agda" -delete
 
+.PHONY : clean
+clean-everythings:
+	find . -type f -name "Everything.agda" -delete
+
 .PHONY: debug
 debug : ## Print debug information.
 	@echo "AGDA_BIN              = $(AGDA_BIN)"

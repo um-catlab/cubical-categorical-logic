@@ -149,7 +149,7 @@ jobs:
         id: cache-library-restore
         with:
           path: ./_build
-          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Everythings.hs' , 'Cubical/**', 'cubical-categorical-logic.agda-lib') }}
+          key: CubicalCategoricalLogicLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('Everythings.hs' , 'Cubical/**', 'cubical-categorical-logic.agda-lib') }}
           restore-keys: |
             CubicalCategoricalLogicLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
 
@@ -158,7 +158,7 @@ jobs:
         id: cache-cubical-library-restore
         with:
           path: ~/cubical/_build
-          key: library-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('~/cubical/cubical/**', '~/cubical/cubical.agda-lib') }}
+          key: CubicalLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ hashFiles('~/cubical/cubical/**', '~/cubical/cubical.agda-lib') }}
           restore-keys: |
             CubicalLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-
 

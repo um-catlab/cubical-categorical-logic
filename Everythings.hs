@@ -89,7 +89,7 @@ checkRoot = do
                                             "cubical-categorical-logic.agda-lib",
                                             "fix-whitespace.yaml",
                                             "Makefile"]) sub_dirs'
-  imported <- getImported ["Everything"]
+  imported <- getImported ["TestEverything"]
   let missing_files = fmap (\dir -> ["Everything",dir]) sub_dirs \\ imported
   if null missing_files then pure ()
   else do putStrLn "Found some Everything.agda's which are not imported in README.agda:"

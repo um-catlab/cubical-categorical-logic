@@ -49,6 +49,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
        ( (funExt⁻ (funExt⁻ (Pᴰ .F-seqᴰ fᴰ gᴰ) p) pᴰ)
        , (funExt⁻ (funExt⁻ (Qᴰ .F-seqᴰ fᴰ gᴰ) q) qᴰ)))
 
+
+
   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
            (Qᴰ : Presheafᴰ Cᴰ Q ℓQᴰ)
            (α : PshHomⱽ P Q) where

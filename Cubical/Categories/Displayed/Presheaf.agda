@@ -4,6 +4,7 @@ module Cubical.Categories.Displayed.Presheaf where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
@@ -141,11 +142,20 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           (λ p → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩)
           λ f fᴰ → Pᴰ .F-homᴰ fᴰ element elementᴰ
     open isIsoOver
-
+    private
+      module D = Categoryᴰ D
+      module DR = Reasoning D
+      module Pᴰ = PresheafᴰReasoning Pᴰ
     introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
         → ⟨ Pᴰ .F-obᴰ xᴰ p ⟩
         → D [ intro p ][ xᴰ , vertexᴰ ]
     introᴰ p pᴰ = universalᴰ .inv p pᴰ
+
+    introᴰ⟨_⟩ : ∀ {x xᴰ} {p q : ⟨ P ⟅ x ⟆ ⟩} {p≡q : p ≡ q}
+        {pᴰ : ⟨ Pᴰ .F-obᴰ xᴰ p ⟩} {qᴰ : ⟨ Pᴰ .F-obᴰ xᴰ q ⟩}
+        → (pᴰ Pᴰ.≡[ p≡q ] qᴰ)
+        → introᴰ p pᴰ D.≡[ cong intro p≡q ] introᴰ q qᴰ
+    introᴰ⟨ pᴰ≡qᴰ ⟩ i = introᴰ _ (pᴰ≡qᴰ i)
 
     βᴰ : ∀ {x xᴰ} {p : ⟨ P ⟅ x ⟆ ⟩} {pᴰ : ⟨ Pᴰ .F-obᴰ xᴰ p ⟩}
          → PathP (λ i → ⟨ Pᴰ .F-obᴰ xᴰ (β {p = p} i) ⟩)
@@ -156,6 +166,17 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     ηᴰ : ∀ {x xᴰ} {f : C [ x , vertex ]} {fᴰ : D [ f ][ xᴰ , vertexᴰ ]}
          → fᴰ ≡[ η {f = f} ] introᴰ _ (F-homᴰ Pᴰ fᴰ element elementᴰ)
     ηᴰ = symP (universalᴰ .leftInv _ _)
+
+    extensionalityᴰ :
+      ∀ {x xᴰ}{f f' : C [ x , vertex ]}{fP≡f'P}
+      → {fᴰ : D [ f ][ xᴰ , vertexᴰ ]}
+      → {fᴰ' : D [ f' ][ xᴰ , vertexᴰ ]}
+      → (fᴰ Pᴰ.⋆ᴰ elementᴰ) Pᴰ.≡[ fP≡f'P ] (fᴰ' Pᴰ.⋆ᴰ elementᴰ)
+      → fᴰ ≡[ extensionality fP≡f'P ] fᴰ'
+    extensionalityᴰ {fᴰ = fᴰ}{fᴰ'} fᴰP≡fᴰ'P = DR.rectify $ DR.≡out $
+      isoFunInjective (isoOver→Iso (isIsoOver→IsoOver universalᴰ))
+        (_ , fᴰ) (_ , fᴰ')
+        (ΣPathP $ _ , fᴰP≡fᴰ'P)
 
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')

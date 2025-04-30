@@ -33,6 +33,7 @@ open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
+open import Cubical.Categories.Displayed.Section
 import Cubical.Categories.Displayed.Presheaf.CartesianLift as Presheafᴰ
 
 private
@@ -55,6 +56,16 @@ SCwFᴰ (C , Ty , Tm , term , comprehension) ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' =
     UniversalElementᴰ Cᴰ
       (PshProdᴰ (Cᴰ [-][-, Γᴰ ]) (Tmᴰ Aᴰ))
       (comprehension Γ A))
+
+opaque
+  SCwFSection : ∀ {C : SCwF ℓC ℓC' ℓT ℓT'} (Cᴰ : SCwFᴰ C ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') → Type _
+  SCwFSection
+    {C = (C , Ty , Tm , term , comprehension)}
+    (Cᴰ , Tyᴰ , Tmᴰ , termᴰ , comprehensionᴰ) =
+    Σ[ F ∈ GlobalSection Cᴰ ]
+    Σ[ FTy ∈ (∀ A → Tyᴰ A) ]
+    Σ[ FTm ∈ (∀ A → Tyᴰ A) ]
+    {!!} × {!!}
 
 SCwFⱽ : (C : SCwF ℓC ℓC' ℓT ℓT') → (ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level) → Type _
 SCwFⱽ (C , Ty , Tm , term , comprehension) ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' =

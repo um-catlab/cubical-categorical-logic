@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels
@@ -12,7 +13,9 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
+
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -168,3 +171,37 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
         → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
       ×ηⱽ = vbp.ηⱽ
+
+
+  -- module _ {cᴰ : Cᴰ.ob[ c ]}
+  --          {bp : ∀ d → BinProduct' C (c , d)}
+  --          (bpᴰ : ∀ {d} (dᴰ : Cᴰ.ob[ d ]) → BinProductᴰ Cᴰ (bp d) (cᴰ , dᴰ))
+  --          where
+  --   private
+  --     F = BinProductWithF C λ d → BinProduct'ToBinProduct C (bp d)
+  --   open Functorᴰ
+  --   -- TODO: could define this by Functorᴰ Comprehension if we had it
+  --   BinProductᴰWithFᴰ : Functorᴰ F Cᴰ Cᴰ
+  --   BinProductᴰWithFᴰ .F-obᴰ {d} dᴰ = bpᴰ dᴰ .vertexᴰ
+  --   -- f : Cᴰ [ f ][ dᴰ , eᴰ ] → Cᴰ [ c × f ][ cᴰ ×ᴰ dᴰ , cᴰ ×ᴰ eᴰ ]
+  --   BinProductᴰWithFᴰ .F-homᴰ {d}{e}{f}{dᴰ}{eᴰ} fᴰ =
+  --     let module cᴰ×eᴰ = UniversalElementᴰ (bpᴰ eᴰ) in
+  --     let module cᴰ×dᴰ = UniversalElementᴰ (bpᴰ dᴰ) in
+  --     cᴰ×eᴰ.introᴰ _
+  --       ( (cᴰ×dᴰ.elementᴰ .fst)
+  --       , (cᴰ×dᴰ.elementᴰ .snd Cᴰ.⋆ᴰ fᴰ))
+  --   BinProductᴰWithFᴰ .F-idᴰ {d}{dᴰ} =
+  --     let module cᴰ×dᴰ = UniversalElementᴰ (bpᴰ dᴰ) in
+  --     R.rectify $ cᴰ×dᴰ.extensionalityᴰ (cᴰ×dᴰ.Pᴰ.≡out $
+  --       (cᴰ×dᴰ.Pᴰ.≡in $ cᴰ×dᴰ.βᴰ {p = {!!}})
+  --       ∙ (cᴰ×dᴰ.Pᴰ.≡in $ ΣPathP (refl {x = cᴰ×dᴰ.elementᴰ .fst} , Cᴰ.⋆IdRᴰ (cᴰ×dᴰ.elementᴰ .snd)))
+  --       ∙ (sym $ cᴰ×dᴰ.Pᴰ.⋆ᴾId _)
+  --       )
+  --   BinProductᴰWithFᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
+  --     -- let module cᴰ×xᴰ = UniversalElementᴰ (bpᴰ xᴰ) in
+  --     -- let module cᴰ×yᴰ = UniversalElementᴰ (bpᴰ yᴰ) in
+  --     -- let module cᴰ×zᴰ = UniversalElementᴰ (bpᴰ zᴰ) in
+  --     -- R.rectify $ R.≡out $
+  --     --   {!!}
+  --     --   ∙ {!!}
+  --     {!!}

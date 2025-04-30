@@ -40,33 +40,35 @@ open UniversalElementⱽ
 open Fibration.CartesianLift
 open PshCartLift.CartesianLift
 
-module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-         (isFibCᴰ : isFibration Cᴰ)
-         (bpⱽ : hasAllBinProductⱽ Cᴰ)
-  where
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-  Exponentialⱽ : ∀ {x} (xᴰ xᴰ' : Cᴰ.ob[ x ]) → Presheafⱽ Cᴰ x ℓCᴰ'
-  Exponentialⱽ xᴰ xᴰ' .F-obᴰ {z} zᴰ f =
-    Cᴰ [ f ][ bpⱽ (zᴰ , isFibCᴰ xᴰ f .f*yᴰ ) .vertexⱽ , xᴰ' ] , Cᴰ.isSetHomᴰ
-  Exponentialⱽ xᴰ xᴰ' .F-homᴰ = {!!}
-  Exponentialⱽ xᴰ xᴰ' .F-idᴰ = {!!}
-  Exponentialⱽ xᴰ xᴰ' .F-seqᴰ = {!!}
 
-module _ {C : Category ℓC ℓC'}
-         (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-         {P : Presheaf C ℓP}
-         (Pᴰ : Presheafᴰ Cᴰ P ℓPᴰ)
-         (Qᴰ : Presheafᴰ Cᴰ P ℓQᴰ)
-         (isFibQᴰ : PshCartLift.hasAllCartesianLifts Qᴰ)
-         (bpⱽ : hasAllBinProductⱽ Cᴰ)
-  where
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-  Powerⱽ : Presheafᴰ Cᴰ P {!!}
-  Powerⱽ .F-obᴰ {z} zᴰ f = Qᴰ .F-obᴰ (bpⱽ (zᴰ , isFibQᴰ f .p*Pᴰ) .vertexⱽ) f
-  Powerⱽ .F-homᴰ fᴰ p qᴰ =
-    -- TODO: write this more understandably lol
-    Qᴰ .F-homᴰ (bpⱽ _ .elementⱽ .snd ⋆ⱽᴰ⟨ Cᴰ ⟩ isFibQᴰ p .isCartesian .fst (isFibQᴰ (P .Functor.F-hom _ p) .π)) p (isFibQᴰ p .π)
-  Powerⱽ .F-idᴰ = {!!}
-  Powerⱽ .F-seqᴰ = {!!}
+
+-- module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+--          (isFibCᴰ : isFibration Cᴰ)
+--          (bpⱽ : hasAllBinProductⱽ Cᴰ)
+--   where
+--   private
+--     module Cᴰ = Categoryᴰ Cᴰ
+--   Exponentialⱽ : ∀ {x} (xᴰ xᴰ' : Cᴰ.ob[ x ]) → Presheafⱽ Cᴰ x ℓCᴰ'
+--   Exponentialⱽ xᴰ xᴰ' .F-obᴰ {z} zᴰ f =
+--     Cᴰ [ f ][ bpⱽ (zᴰ , isFibCᴰ xᴰ f .f*yᴰ ) .vertexⱽ , xᴰ' ] , Cᴰ.isSetHomᴰ
+--   Exponentialⱽ xᴰ xᴰ' .F-homᴰ = {!!}
+--   Exponentialⱽ xᴰ xᴰ' .F-idᴰ = {!!}
+--   Exponentialⱽ xᴰ xᴰ' .F-seqᴰ = {!!}
+
+-- module _ {C : Category ℓC ℓC'}
+--          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+--          P : Presheaf C ℓP}
+--          (Pᴰ : Presheafᴰ Cᴰ P ℓPᴰ)
+--          (Qᴰ : Presheafᴰ Cᴰ P ℓQᴰ)
+--          (isFibQᴰ : PshCartLift.hasAllCartesianLifts Qᴰ)
+--          (bpⱽ : hasAllBinProductⱽ Cᴰ)
+--   where
+--   private
+--     module Cᴰ = Categoryᴰ Cᴰ
+--   Powerⱽ : Presheafᴰ Cᴰ P {!!}
+--   Powerⱽ .F-obᴰ {z} zᴰ f = Qᴰ .F-obᴰ (bpⱽ (zᴰ , isFibQᴰ f .p*Pᴰ) .vertexⱽ) f
+--   Powerⱽ .F-homᴰ fᴰ p qᴰ =
+--     -- TODO: write this more understandably lol
+--     Qᴰ .F-homᴰ (bpⱽ _ .elementⱽ .snd ⋆ⱽᴰ⟨ Cᴰ ⟩ isFibQᴰ p .isCartesian .fst (isFibQᴰ (P .Functor.F-hom _ p) .π)) p (isFibQᴰ p .π)
+--   Powerⱽ .F-idᴰ = {!!}
+--   Powerⱽ .F-seqᴰ = {!!}

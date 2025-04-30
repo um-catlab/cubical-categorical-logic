@@ -18,6 +18,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Morphism
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
@@ -42,6 +43,12 @@ module _ (C : Category ℓC ℓC') where
 
   hasPropHomsArrow : hasPropHoms Arrow
   hasPropHomsArrow = hasPropHomsGraph (HomBif C)
+
+  IsMono : Categoryᴰ (∫C Arrow) (ℓ-max ℓC ℓC') ℓ-zero
+  IsMono = PropertyOver _ (λ x → isMonic C (x .snd))
+
+  Mono : Categoryᴰ  (C ×C C) _ _
+  Mono = ∫Cᴰ Arrow IsMono
 
   IsIso : Categoryᴰ (∫C Arrow) ℓC' ℓ-zero
   IsIso = PropertyOver _ (λ x → isIso C (x .snd))

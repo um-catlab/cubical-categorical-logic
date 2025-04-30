@@ -15,6 +15,7 @@ open import Cubical.Data.Unit
 import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Morphism
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
@@ -29,7 +30,7 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Instances.Hom
+open import Cubical.Categories.Displayed.Instances.Arrow
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Reasoning
@@ -46,7 +47,7 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private module Slice = EqReindex Cᴰ (BP.Snd C C) Eq.refl (λ _ _ → Eq.refl)
   -- See test below for the intuitive definition
   _/C_ : Categoryᴰ C _ _
-  _/C_ = ∫Cᴰ (weaken C C) (Cᴰ' ×ᴰ Hom C)
+  _/C_ = ∫Cᴰ (weaken C C) (Cᴰ' ×ᴰ Arrow C)
     where Cᴰ' = Slice.reindex
 
   private
@@ -60,7 +61,7 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     (BPᴰ.introS _
       (Slice.introS _ (reindS' (Eq.refl , Eq.refl) TotalCat.Snd))
       (reindS' (Eq.refl , Eq.refl)
-        (compSectionFunctor ID (TotalCat.Fst {Cᴰ = Cᴰ}))))
+        (compSectionFunctor (arrIntroS {F1 = Id}{F2 = Id} (idTrans _)) (TotalCat.Fst {Cᴰ = Cᴰ}))))
 
   private
     open Functorᴰ
@@ -70,7 +71,7 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 module _ (C : Category ℓC ℓC') where
   -- Slices .ob[ c ] = Σ[ c' ∈ C .ob] C [ c' , c ]
   Slices : Categoryᴰ C (ℓ-max ℓC ℓC') (ℓ-max ℓC' ℓC')
-  Slices = ∫Cᴰ (weaken C C) (Hom C)
+  Slices = ∫Cᴰ (weaken C C) (Arrow C)
 
   private
     open Category

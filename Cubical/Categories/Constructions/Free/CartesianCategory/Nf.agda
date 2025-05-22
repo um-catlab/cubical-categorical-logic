@@ -561,84 +561,71 @@ module _ (Q : ×Quiver ℓq ℓq')
       (Nf .snd .fst)
       (FreeCC .snd .fst .snd)
 
-    S = mkRetract Q Nf R
-      (λ o → ↑ o , idCatIso)
-      (λ e → WIP e)
-      where
-      Cᴰ = IsoFiber {C = Nf} {D = FreeCC} R
-      open import Cubical.Categories.Displayed.Limits.Cartesian
-      module Cᴰ = CartesianCategoryᴰNotation Cᴰ
-      elim-ob : ∀ Γ → Cᴰ.ob[ Γ ]
-      elim-ob = elim-F-ob Q Cᴰ (λ o → (↑ o) , idCatIso)
-      S-hom : ∀ e → NormalForm (Q.dom e) (↑ Q.cod e)
-      S-hom e = shift $ symb e Eq.refl ID
-      lemma'' : ∀ Γ → elim-ob Γ .fst ≡ Γ
-      lemma'' (↑ x) = refl
-      lemma'' (Γ × Δ) = cong₂ _×_ (lemma'' Γ) (lemma'' Δ)
-      lemma'' ⊤ = refl
-      maybe : ∀{Γ Δ} → NormalForm Γ Δ → NormalForm (elim-ob Γ .fst) (elim-ob Δ .fst)
-      maybe = subst2 (λ x y → NormalForm x y) (sym $ lemma'' _) (sym $ lemma'' _)
-      S-hom'' : ∀ e → NormalForm
-        (elim-ob (Q.dom e) .fst)
-        (elim-ob (↑ Q.cod e) .fst)
-      S-hom'' e = (SHIFT ∘ var ∘ Eq.pathToEq ∘ sym $ lemma'' _) Nf.⋆ (S-hom e Nf.⋆ (SHIFT $ var Eq.refl))
-      WHY : ∀ Γ → elim-ob Γ .snd .fst ≡ pathToIso {C = |FreeCC|} (sym $ (lemma'' Γ)) .fst
-      WHY (↑ x) = sym (congS fst (pathToIso-refl {C = |FreeCC|}))
-      WHY (Γ × Δ) = {!!} {- congS (λ x → x FreeCC.⋆
-          ⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
-          ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
-            ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
-            ⟨ |R| .F-hom OK , |R| .F-hom {!!} ⟩))
-        (sym FreeCC.×η') ∙
-        FreeCC.⋆IdL _ ∙
-        {!!} -}
-        where
-        import Cubical.Categories.Displayed.Base
-        open Cubical.Categories.Displayed.Base.Categoryᴰ
-        import Cubical.Categories.Displayed.Constructions.TotalCategory.Cartesian
-        import Cubical.Categories.Displayed.Constructions.Weaken.Cartesian
-        import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
-        import Cubical.Categories.Displayed.Instances.Arrow.Cartesian
-        import Cubical.Categories.Displayed.Instances.Arrow.Base
-        import Cubical.Categories.Displayed.Instances.Arrow.Properties
-        import Cubical.Categories.Limits.BinProduct
-        import Cubical.Categories.Presheaf.Representable
-        import Cubical.Categories.Constructions.BinProduct.Cartesian
-        import Cubical.Categories.Displayed.Reasoning
-        module R = Cubical.Categories.Displayed.Reasoning (Cubical.Categories.Displayed.Constructions.Weaken.Cartesian.weaken FreeCC Nf .fst)
-        LEFT : elim-ob (Γ × Δ) .snd .fst ≡
-          (⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
-                                -- this inductively should be pathToIso
-            (⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
-              ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆ ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
-                ⟨ |R| .F-hom
-                    -- this should reduce away with something similar to transortRefl?
-                    (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) $ Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})
-                , |R| .F-hom
-                    -- but the path isn't literally refl
-                    -- in the worst case, this is true by ua, since we're transporting in a weakened Categoryᴰ
-                    (R.reind (sym $ FreeCC.×β₂ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) Nf.π₂)
-                ⟩)))
-        LEFT = refl
-        ENDPOINTS : FreeCC.Hom[ Γ × Δ , elim-ob (Γ × Δ) .fst ]
-        ENDPOINTS = elim-ob (Γ × Δ) .snd .fst
-        transpRefl : (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) $
-            Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})
-            ≡
-            Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst}
-        transpRefl = transportRefl Nf.π₁
-        --RIGHT : {!!} ≡ pathToIso {C = |FreeCC|} (sym $ lemma'' $ Γ × Δ) .fst
-        --RIGHT = refl
-      WHY ⊤ = FreeCC.𝟙η'
-      WIP : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elim-ob (Q.dom e) , elim-ob (↑ Q.cod e) ]
-      WIP e = S-hom'' e , HMM , tt
-        where
-        HMM : (↑ₑ e) FreeCC.⋆ FreeCC.id ≡
-          elim-ob (Q.dom e) .snd .fst FreeCC.⋆
-          |R| ⟪ (SHIFT (var (Eq.pathToEq (λ i → lemma'' (Q.dom e) (~ i))))) Nf.⋆ Nf.id ⟫ FreeCC.⋆
-          ψ e
-        HMM = {!elim-ob (Q.dom e) .snd .fst!}
-      --lemma' : ∀ Γ → elim-ob Γ ≡ (Γ , pathToIso (sym $ ϕ*-regular Γ))
-      --lemma' (↑ _) = Σ.ΣPathP (refl , sym pathToIso-refl)
-      --lemma' (Γ × Δ) = Σ.ΣPathP (lemma'' (Γ × Δ) , {!!})
-      --lemma' ⊤ = Σ.ΣPathP (refl , Σ.ΣPathP (FreeCC.𝟙η' , isProp→PathP (λ _ → isPropIsIso _) _ _))
+    --S = mkRetract Q Nf R
+    --  (λ o → ↑ o , idCatIso)
+    --  (λ e → WIP e)
+    --  where
+    --  Cᴰ = IsoFiber {C = Nf} {D = FreeCC} R
+    --  open import Cubical.Categories.Displayed.Limits.Cartesian
+    --  module Cᴰ = CartesianCategoryᴰNotation Cᴰ
+    --  elim-ob : ∀ Γ → Cᴰ.ob[ Γ ]
+    --  elim-ob = elim-F-ob Q Cᴰ (λ o → (↑ o) , idCatIso)
+    --  S-hom : ∀ e → NormalForm (Q.dom e) (↑ Q.cod e)
+    --  S-hom e = shift $ symb e Eq.refl ID
+    --  lemma'' : ∀ Γ → elim-ob Γ .fst ≡ Γ
+    --  lemma'' (↑ x) = refl
+    --  lemma'' (Γ × Δ) = cong₂ _×_ (lemma'' Γ) (lemma'' Δ)
+    --  lemma'' ⊤ = refl
+    --  maybe : ∀{Γ Δ} → NormalForm Γ Δ → NormalForm (elim-ob Γ .fst) (elim-ob Δ .fst)
+    --  maybe = subst2 (λ x y → NormalForm x y) (sym $ lemma'' _) (sym $ lemma'' _)
+    --  S-hom'' : ∀ e → NormalForm
+    --    (elim-ob (Q.dom e) .fst)
+    --    (elim-ob (↑ Q.cod e) .fst)
+    --  S-hom'' e = (SHIFT ∘ var ∘ Eq.pathToEq ∘ sym $ lemma'' _) Nf.⋆ (S-hom e Nf.⋆ (SHIFT $ var Eq.refl))
+    --  WHY : ∀ Γ → elim-ob Γ .snd .fst ≡ pathToIso {C = |FreeCC|} (sym $ (lemma'' Γ)) .fst
+    --  WHY (↑ x) = sym (congS fst (pathToIso-refl {C = |FreeCC|}))
+    --  WHY (Γ × Δ) = {!!} {- congS (λ x → x FreeCC.⋆
+    --      ⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
+    --      ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
+    --        ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
+    --        ⟨ |R| .F-hom OK , |R| .F-hom {!!} ⟩))
+    --    (sym FreeCC.×η') ∙
+    --    FreeCC.⋆IdL _ ∙
+    --    {!!} -}
+    --    where
+    --    open import Cubical.Categories.Displayed.Constructions.Weaken.Cartesian
+    --    import Cubical.Categories.Displayed.Reasoning as Reasoningᴰ
+    --    module R = Reasoningᴰ (weaken FreeCC Nf .fst)
+    --    LEFT : elim-ob (Γ × Δ) .snd .fst ≡
+    --      (⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆
+    --                            -- this inductively should be pathToIso
+    --        (⟨ FreeCC.π₁ FreeCC.⋆ elim-ob Γ .snd .fst , FreeCC.π₂ FreeCC.⋆ elim-ob Δ .snd .fst ⟩ FreeCC.⋆
+    --          ((⟨ FreeCC.π₁ , FreeCC.π₂ ⟩ FreeCC.⋆ ⟨ |R| .F-hom Nf.π₁ , |R| .F-hom Nf.π₂ ⟩) FreeCC.⋆
+    --            ⟨ |R| .F-hom
+    --                (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) $ Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})
+    --            , |R| .F-hom
+    --                (R.reind (sym $ FreeCC.×β₂ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) Nf.π₂)
+    --            ⟩)))
+    --    LEFT = refl
+    --    ENDPOINTS : FreeCC.Hom[ Γ × Δ , elim-ob (Γ × Δ) .fst ]
+    --    ENDPOINTS = elim-ob (Γ × Δ) .snd .fst
+    --    SIMPL-LEFT : LEFT i0 ≡ {!!}
+    --    SIMPL-LEFT = cong₃ (λ x y z → (x FreeCC.⋆ (y FreeCC.⋆ z))) (sym FreeCC.×η') (cong₂ ⟨_,_⟩ (congS (FreeCC.π₁ FreeCC.⋆_) {!!}) {!!}) (cong₃ (λ x y z → (x FreeCC.⋆ y) FreeCC.⋆ z) {!!} {!!} {!!})
+    --    transpRefl : (R.reind (sym $ FreeCC.×β₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst} {f = FreeCC.π₁} {g = FreeCC.π₂}) $
+    --        Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst})
+    --        ≡
+    --        Nf.π₁ {a = elim-ob Γ .fst} {b = elim-ob Δ .fst}
+    --    transpRefl = transportRefl Nf.π₁
+    --  WHY ⊤ = FreeCC.𝟙η'
+    --  WIP : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elim-ob (Q.dom e) , elim-ob (↑ Q.cod e) ]
+    --  WIP e = S-hom'' e , HMM , tt
+    --    where
+    --    HMM : (↑ₑ e) FreeCC.⋆ FreeCC.id ≡
+    --      elim-ob (Q.dom e) .snd .fst FreeCC.⋆
+    --      |R| ⟪ (SHIFT (var (Eq.pathToEq (λ i → lemma'' (Q.dom e) (~ i))))) Nf.⋆ Nf.id ⟫ FreeCC.⋆
+    --      ψ e
+    --    HMM = {!elim-ob (Q.dom e) .snd .fst!}
+    --  --lemma' : ∀ Γ → elim-ob Γ ≡ (Γ , pathToIso (sym $ ϕ*-regular Γ))
+    --  --lemma' (↑ _) = Σ.ΣPathP (refl , sym pathToIso-refl)
+    --  --lemma' (Γ × Δ) = Σ.ΣPathP (lemma'' (Γ × Δ) , {!!})
+    --  --lemma' ⊤ = Σ.ΣPathP (refl , Σ.ΣPathP (FreeCC.𝟙η' , isProp→PathP (λ _ → isPropIsIso _) _ _))

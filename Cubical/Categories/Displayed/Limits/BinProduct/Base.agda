@@ -59,16 +59,19 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
     BinProductᴰWithFᴰ .F-obᴰ yᴰ = bpᴰ yᴰ .vertexᴰ
     -- fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ]
     -- -------------------------
-    -- fᴰ ×ᴰ yᴰ : Cᴰ [ x × f ][ xᴰ ×ᴰ zᴰ , xᴰ ×ᴰ yᴰ ]
+    -- xᴰ ×ᴰ fᴰ : Cᴰ [ x × f ][ xᴰ ×ᴰ zᴰ , xᴰ ×ᴰ yᴰ ]
     BinProductᴰWithFᴰ .F-homᴰ {f = f}{xᴰ = zᴰ}{yᴰ = yᴰ} fᴰ = introᴰ (bpᴰ yᴰ) _
       (bpᴰ _ .elementᴰ .fst , (bpᴰ _ .elementᴰ .snd Cᴰ.⋆ᴰ fᴰ))
     BinProductᴰWithFᴰ .F-idᴰ {xᴰ = yᴰ} = R.rectify $ R.≡out $
       (R.≡in λ i → introᴰ (bpᴰ yᴰ) _ ((bpᴰ _ .elementᴰ .fst) , (Cᴰ.⋆IdRᴰ (bpᴰ _ .elementᴰ .snd) i)))
       ∙ sym (R.≡in (weak-ηᴰ (bpᴰ _)))
+    -- show that (xᴰ ×ᴰ (fᴰ ⋆ᴰ gᴰ)) ≡ (xᴰ ×ᴰ fᴰ) ⋆ᴰ (xᴰ ×ᴰ fᴰ)
     BinProductᴰWithFᴰ .F-seqᴰ {w} {y} {z} {f} {g} {wᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
       R.rectify $ R.≡out $
+      -- ⟨ π₁ᴰ , π₂ᴰ ⋆ᴰ (fᴰ ⋆ᴰ gᴰ )⟩
       {!!}
-      ∙ {!!}
+      ∙ (R.≡in $ {!!})
+      -- ⟨ π₁ᴰ , π₂ᴰ ⋆ᴰ fᴰ⟩ ⋆ᴰ ⟨ π₁ᴰ , π₂ᴰ ⋆ᴰ gᴰ⟩
 
 module hasAllBinProductᴰNotation
          {C : Category ℓC ℓC'}

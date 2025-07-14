@@ -9,6 +9,8 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Instances.Functor
@@ -68,3 +70,11 @@ _[-][_,-] : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
 (D [-][ d ,-]) .F-homᴰ fᴰ g gᴰ = Categoryᴰ._⋆ᴰ_ D gᴰ fᴰ
 (D [-][ d ,-]) .F-idᴰ i f fᴰ = Categoryᴰ.⋆IdRᴰ D fᴰ i
 (D [-][ d ,-]) .F-seqᴰ fᴰ gᴰ i h hᴰ = Categoryᴰ.⋆Assocᴰ D hᴰ fᴰ gᴰ (~ i)
+
+open Functor
+ΣF : Functor (∫C (SETᴰ ℓ ℓ')) (SET (ℓ-max ℓ ℓ'))
+ΣF .F-ob (A , B) .fst = Σ[ a ∈ ⟨ A ⟩ ] ⟨ B a ⟩
+ΣF .F-ob (A , B) .snd = isSetΣ (A .snd) (λ a → B a .snd)
+ΣF .F-hom (f , g) (x , y) = (f x) , (g x y)
+ΣF .F-id = refl
+ΣF .F-seq f g = refl

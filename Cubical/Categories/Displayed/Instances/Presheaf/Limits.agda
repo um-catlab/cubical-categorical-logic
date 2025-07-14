@@ -25,7 +25,7 @@ open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.Terminal
-open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf hiding (PRESHEAFᴰ)
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Properties

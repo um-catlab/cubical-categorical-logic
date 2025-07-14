@@ -97,10 +97,12 @@ module hasAllBinProductᴰNotation
       private
         ,pᴰ-isUniversalᴰ = bpᴰ (d₁ , d₂) .universalᴰ {xᴰ = d}
       ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
-      ×β₁ᴰ i = UniversalElementᴰNotation.βᴰ _ _ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
+      ×β₁ᴰ i = UniversalElementᴰNotation.βᴰ _ _
+        (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
 
       ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) Cᴰ.≡[ ×β₂ ] f₂ᴰ
-      ×β₂ᴰ i = UniversalElementᴰNotation.βᴰ _ _ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
+      ×β₂ᴰ i = UniversalElementᴰNotation.βᴰ _ _
+        (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
 
     module _ {f : C [ c , c₁ BP.× c₂ ]}
              {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}

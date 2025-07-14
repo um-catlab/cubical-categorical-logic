@@ -42,8 +42,8 @@ Presheafᴰ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
                     (ℓ-suc ℓPᴰ))
 Presheafᴰ {ℓP = ℓP} D P ℓPᴰ = Functorᴰ P (D ^opᴰ) (SETᴰ ℓP ℓPᴰ)
 
-PRESHEAFᴰ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') → ∀ (ℓP ℓPᴰ : Level)
-  → Categoryᴰ (PresheafCategory C ℓP) _ _
+PRESHEAFᴰ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  → ∀ (ℓP ℓPᴰ : Level) → Categoryᴰ (PresheafCategory C ℓP) _ _
 PRESHEAFᴰ Cᴰ ℓP ℓPᴰ = FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓP ℓPᴰ)
 
 -- TODO: make a PresheafNotation to match
@@ -59,7 +59,8 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   p[_][_] : ∀ {x} → ⟨ P ⟅ x ⟆ ⟩ → Cᴰ.ob[ x ] → Type ℓPᴰ
   p[ f ][ xᴰ ] = ⟨ Pᴰ .F-obᴰ xᴰ f ⟩
 
-  _≡[_]_ : ∀ {x xᴰ} {f g : ⟨ P ⟅ x ⟆ ⟩} → p[ f ][ xᴰ ] → f ≡ g → p[ g ][ xᴰ ] → Type ℓPᴰ
+  _≡[_]_ : ∀ {x xᴰ} {f g : ⟨ P ⟅ x ⟆ ⟩} → p[ f ][ xᴰ ] → f ≡ g → p[ g ][ xᴰ ]
+    → Type ℓPᴰ
   _≡[_]_ {x} {xᴰ} {f} {g} fᴰ f≡g gᴰ = PathP (λ i → p[ f≡g i ][ xᴰ ]) fᴰ gᴰ
 
   _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{g}

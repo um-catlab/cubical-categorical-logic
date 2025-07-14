@@ -83,5 +83,6 @@ module _ {C : Category ℓC ℓC'}
     module Rᴰ = Functorᴰ Rᴰ
   open UniversalElement
   open UniversalElementᴰ
-  ∫UEs : ∀ {ues : UniversalElements R} → (uesᴰ : UniversalElementsᴰ ues Rᴰ) → UniversalElements ∫Prof
+  ∫UEs : ∀ {ues : UniversalElements R} → (uesᴰ : UniversalElementsᴰ ues Rᴰ)
+    → UniversalElements ∫Prof
   ∫UEs uesᴰ (x , xᴰ) = ∫UE _ _ (uesᴰ x xᴰ)

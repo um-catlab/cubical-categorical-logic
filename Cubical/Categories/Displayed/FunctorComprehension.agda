@@ -50,7 +50,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
        where
   private
     ∫FunctorComprehension : Functor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ)
-    ∫FunctorComprehension = FunctorComprehension (∫UEs Pᴰ uesᴰ :> UniversalElements (∫Prof Pᴰ))
+    ∫FunctorComprehension =
+      FunctorComprehension (∫UEs Pᴰ uesᴰ :> UniversalElements (∫Prof Pᴰ))
     module Dᴰ = Reasoning Dᴰ
 
   open Functor
@@ -58,6 +59,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FunctorᴰComprehension : Functorᴰ (FunctorComprehension ues) Cᴰ Dᴰ
   FunctorᴰComprehension .F-obᴰ xᴰ = (∫FunctorComprehension ⟅ _ , xᴰ ⟆) .snd
   FunctorᴰComprehension .F-homᴰ fᴰ = (∫FunctorComprehension ⟪ _ , fᴰ ⟫) .snd
-  FunctorᴰComprehension .Functorᴰ.F-idᴰ = Dᴰ.rectify $ Dᴰ.≡out (∫FunctorComprehension .F-id)
+  FunctorᴰComprehension .Functorᴰ.F-idᴰ =
+    Dᴰ.rectify $ Dᴰ.≡out (∫FunctorComprehension .F-id)
   FunctorᴰComprehension .Functorᴰ.F-seqᴰ fᴰ gᴰ =
     Dᴰ.rectify $ Dᴰ.≡out $ ∫FunctorComprehension .F-seq (_ , fᴰ) (_ , gᴰ)

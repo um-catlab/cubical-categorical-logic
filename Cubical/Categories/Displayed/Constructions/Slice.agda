@@ -61,7 +61,8 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     (BPᴰ.introS _
       (Slice.introS _ (reindS' (Eq.refl , Eq.refl) TotalCat.Snd))
       (reindS' (Eq.refl , Eq.refl)
-        (compSectionFunctor (arrIntroS {F1 = Id}{F2 = Id} (idTrans _)) (TotalCat.Fst {Cᴰ = Cᴰ}))))
+        (compSectionFunctor (arrIntroS {F1 = Id}{F2 = Id} (idTrans _))
+          (TotalCat.Fst {Cᴰ = Cᴰ}))))
 
   private
     open Functorᴰ

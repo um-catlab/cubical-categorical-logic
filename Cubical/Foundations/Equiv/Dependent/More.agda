@@ -27,5 +27,7 @@ module _ {isom : Iso A B} {fun : mapOver (isom .fun) P Q} where
     isIsoOver isom P Q fun
     → isIso {A = Σ A P}{B = Σ B Q} λ (a , p) → Iso.fun isom a , fun a p
   isIsoOver→isIsoΣ x .fst = λ z → inv isom (z .fst) , x .inv (z .fst) (z .snd)
-  isIsoOver→isIsoΣ x .snd .fst b = ΣPathP ((rightInv isom (b .fst)) , (x .rightInv (b .fst) (b .snd)))
-  isIsoOver→isIsoΣ x .snd .snd a = ΣPathP ((leftInv isom (a .fst)) , (x .leftInv (a .fst) (a .snd)))
+  isIsoOver→isIsoΣ x .snd .fst b =
+    ΣPathP ((rightInv isom (b .fst)) , (x .rightInv (b .fst) (b .snd)))
+  isIsoOver→isIsoΣ x .snd .snd a =
+    ΣPathP ((leftInv isom (a .fst)) , (x .leftInv (a .fst) (a .snd)))

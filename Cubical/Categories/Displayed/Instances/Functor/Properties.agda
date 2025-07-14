@@ -38,4 +38,4 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   ∫F-Functor .F-id = makeNatTransPath refl
   ∫F-Functor .F-seq f g = makeNatTransPath refl
   -- this should be definable like this but we'll just do it manually bc typechecking v slow that way
-  -- functor∫-dist = CurryBifunctor (ParFunctorToBifunctor (∫.intro (appF _ _ ∘F (∫.Fst ×F ∫.Fst)) {!!})) 
+  -- ∫F-Functor = CurryBifunctor (ParFunctorToBifunctor (∫.intro (appF _ _ ∘F (∫.Fst ×F ∫.Fst)) {!!}))

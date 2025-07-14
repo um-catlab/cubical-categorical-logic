@@ -149,4 +149,3 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
         → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
       ×ηⱽ = vbp.ηⱽ
 
-

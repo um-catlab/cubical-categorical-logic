@@ -115,7 +115,7 @@ jobs:
           cd ~
           git clone https://github.com/agda/cubical --branch master
           cd cubical
-          git checkout ${{ env.$CUBICAL_COMMIT }}
+          git checkout ${{ env.CUBICAL_COMMIT }}
           cd ..
           echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
 

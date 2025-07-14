@@ -127,17 +127,17 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
           (cong elim-F-hom p) (cong elim-F-hom q)
           i j
         elim-F-hom !ₑ = !tᴰ _
-        -- TODO: Why does this need rectify?
         elim-F-hom (⊤η f i) =
           R.rectify {p' = ⊤η f} (𝟙ηᴰ (elim-F-hom f)) i
         elim-F-hom π₁ = π₁ᴰ
         elim-F-hom π₂ = π₂ᴰ
         elim-F-hom ⟨ f₁ , f₂ ⟩ = elim-F-hom f₁ ,pᴰ elim-F-hom f₂
         elim-F-hom (×β₁ {t = f₁}{t' = f₂} i) =
-          ×β₁ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂} i
+          R.rectify {p' = ×β₁}
+            ((×β₁ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂})) i
         elim-F-hom (×β₂ {t = f₁}{t' = f₂} i) =
-          ×β₂ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂} i
-        -- TODO: Why do we need this rectify too?
+          R.rectify {p' = ×β₂}
+            (×β₂ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂}) i
         elim-F-hom (×η {t = f} i) =
           R.rectify {p' = ×η {t = f}} (×ηᴰ {fᴰ = elim-F-hom f}) i
 

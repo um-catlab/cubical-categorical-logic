@@ -12,6 +12,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.FunctorComprehension
 
 import Cubical.Categories.Constructions.TotalCategory as TotalCat

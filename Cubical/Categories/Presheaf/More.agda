@@ -93,7 +93,7 @@ module PresheafNotation {ℓo}{ℓh}
   ⋆Assoc f g = funExt⁻ (P .F-seq g f)
 
   ⟨_⟩⋆⟨_⟩ : ∀ {x y} {f f' : C [ x , y ]} {g g' : p[ y ]}
-          → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
+            → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
   ⟨ f≡f' ⟩⋆⟨ g≡g' ⟩ = cong₂ _⋆_ f≡f' g≡g'
 
 module UniversalElementNotation {ℓo}{ℓh}
@@ -118,26 +118,31 @@ module UniversalElementNotation {ℓo}{ℓh}
   universalIso : ∀ (c : C .ob) → Iso (C [ c , vertex ]) ⟨ P ⟅ c ⟆ ⟩
   universalIso c = equivToIso (_ , universal c)
 
-  intro : ∀ {c} → ⟨ P ⟅ c ⟆ ⟩ → C [ c , vertex ]
+  private
+    module P = PresheafNotation P
+    module C = Category C
+
+  intro : ∀ {c} → P.p[ c ] → C [ c , vertex ]
   intro = universalIso _ .inv
 
-  β : ∀ {c} → {p : ⟨ P ⟅ c ⟆ ⟩} → (element ∘ᴾ⟨ C , P ⟩ intro p) ≡ p
-  β = universalIso _ .rightInv _
+  opaque
+    β : ∀ {c} → {p : P.p[ c ]} → (intro p P.⋆ element) ≡ p
+    β = universalIso _ .rightInv _
 
-  η : ∀ {c} → {f : C [ c , vertex ]} → f ≡ intro (element ∘ᴾ⟨ C , P ⟩ f)
-  η {f = f} = sym (universalIso _ .leftInv _)
+    η : ∀ {c} → {f : C [ c , vertex ]} → f ≡ intro (f P.⋆ element)
+    η {f = f} = sym (universalIso _ .leftInv _)
 
-  weak-η : C .id ≡ intro element
-  weak-η = η ∙ cong intro (∘ᴾId C P _)
+    weak-η : C .id ≡ intro element
+    weak-η = η ∙ cong intro (∘ᴾId C P _)
 
-  extensionality : ∀ {c} → {f f' : C [ c , vertex ]}
-                 → (element ∘ᴾ⟨ C , P ⟩ f) ≡ (element ∘ᴾ⟨ C , P ⟩ f')
-                 → f ≡ f'
-  extensionality = isoFunInjective (equivToIso (_ , (universal _))) _ _
+    extensionality : ∀ {c} → {f f' : C [ c , vertex ]}
+                   → (f P.⋆ element) ≡ (f' P.⋆ element)
+                   → f ≡ f'
+    extensionality = isoFunInjective (equivToIso (_ , (universal _))) _ _
 
-  intro-natural : ∀ {c' c} → {p : ⟨ P ⟅ c ⟆ ⟩}{f : C [ c' , c ]}
-                → intro p ∘⟨ C ⟩ f ≡ intro (p ∘ᴾ⟨ C , P ⟩ f)
-  intro-natural = extensionality
-    ( (∘ᴾAssoc C P _ _ _
-    ∙ cong (action C P _) β)
-    ∙ sym β)
+    intro-natural : ∀ {c' c} → {p : P.p[ c ]}{f : C [ c' , c ]}
+                  → f C.⋆ intro p ≡ intro (f P.⋆ p)
+    intro-natural = extensionality
+      ( (∘ᴾAssoc C P _ _ _
+      ∙ cong (action C P _) β)
+      ∙ sym β)

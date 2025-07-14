@@ -131,9 +131,9 @@ module _ (C : Category ℓ ℓ') where
 
     -- test definitional behavior
     _ : ∀ {b b'}(f : C [ b , b' ]) →
-        BinProductWithF ⟪ f ⟫ ≡
-          bp b' .univProp (bp b .binProdPr₁)
-            (f ∘⟨ C ⟩ bp b .binProdPr₂) .fst .fst
+          BinProductWithF ⟪ f ⟫ ≡
+            bp b' .univProp (bp b .binProdPr₁)
+              (f ∘⟨ C ⟩ bp b .binProdPr₂) .fst .fst
     _ = λ f → refl
     module ProdsWithNotation where
       open UniversalElementNotation {C = C}

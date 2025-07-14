@@ -69,7 +69,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     !tᴰ {c} d = introᴰ tt tt
 
     𝟙ηᴰ : ∀ {c} {d : Cᴰ.ob[ c ]} {f} (fᴰ : Cᴰ.Hom[ f ][ d , 𝟙ᴰ ])
-        → fᴰ Cᴰ.≡[ 𝟙η f ] !tᴰ d
+        → fᴰ Cᴰ.≡[ η ] !tᴰ d
     𝟙ηᴰ {c} {d} {f} fᴰ = ηᴰ
 
   module _ (c : C .ob) where

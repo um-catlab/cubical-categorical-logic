@@ -96,19 +96,23 @@ module hasAllBinProductᴰNotation
       open isIsoOver
       private
         ,pᴰ-isUniversalᴰ = bpᴰ (d₁ , d₂) .universalᴰ {xᴰ = d}
-      ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
-      ×β₁ᴰ i = UniversalElementᴰNotation.βᴰ _ _
-        (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
+      opaque
+        unfolding UniversalElementᴰNotation.βᴰ
+        ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
+        ×β₁ᴰ = λ i → UniversalElementᴰNotation.βᴰ _ _
+          (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
 
-      ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) Cᴰ.≡[ ×β₂ ] f₂ᴰ
-      ×β₂ᴰ i = UniversalElementᴰNotation.βᴰ _ _
-        (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
+        ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) Cᴰ.≡[ ×β₂ ] f₂ᴰ
+        ×β₂ᴰ = λ i → UniversalElementᴰNotation.βᴰ _ _
+          (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
 
     module _ {f : C [ c , c₁ BP.× c₂ ]}
              {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
            where
-      ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
-      ×ηᴰ = UniversalElementᴰNotation.ηᴰ _ _ (bpᴰ (d₁ , d₂))
+      opaque
+        unfolding UniversalElementᴰNotation.ηᴰ
+        ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
+        ×ηᴰ = UniversalElementᴰNotation.ηᴰ _ _ (bpᴰ (d₁ , d₂))
 
 module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private

@@ -175,12 +175,13 @@ module _ (C : Category ℓ ℓ') where
       ×-extensionality p1 p2 = extensionality (ues _) (ΣPathP (p1 , p2))
 
   module _ {a} (bp : ∀ b → BinProduct' (a , b)) where
+    BinProduct'WithUEs : UniversalElements (ProdWithAProf a)
+    BinProduct'WithUEs b .vertex = bp b .vertex
+    BinProduct'WithUEs b .element = bp b .element
+    BinProduct'WithUEs b .universal = bp b .universal
+
     BinProduct'WithF : Functor C C
-    BinProduct'WithF = FunctorComprehension {P = ProdWithAProf a} λ b →
-      record { vertex = bp b .vertex
-             ; element = bp b .element
-             ; universal = bp b .universal
-             }
+    BinProduct'WithF = FunctorComprehension BinProduct'WithUEs
 
   module NotationAt {a b : C .ob} (bp : BinProduct C a b) where
     private

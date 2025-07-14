@@ -515,6 +515,14 @@ BifunctorToParFunctor F .F-hom (f , g) = F .Bif-hom× f g
 BifunctorToParFunctor F .F-id = F .Bif-×-id
 BifunctorToParFunctor F .F-seq f g = F .Bif-×-seq _ _ _ _
 
+ParFunctorToBifunctor : Functor (C ×C D) E → Bifunctor C D E
+ParFunctorToBifunctor F = mkBifunctorPar G where
+  G : BifunctorPar _ _ _
+  G .Bif-ob c d = F ⟅ c , d ⟆
+  G .Bif-hom× f g = F ⟪ f , g ⟫
+  G .Bif-×-id = F .F-id
+  G .Bif-×-seq f f'F g g' = F .F-seq _ _
+
 CurriedToBifunctor : Functor C (FUNCTOR D E) → Bifunctor C D E
 CurriedToBifunctor F = mkBifunctorSep G where
   G : BifunctorSep _ _ _

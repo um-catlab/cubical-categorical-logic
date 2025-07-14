@@ -16,9 +16,11 @@ open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Profunctor
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
@@ -50,28 +52,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
 
   hasAllBinProductⱽ : Type _
   hasAllBinProductⱽ = VerticalRightAdjointᴰ (Δᴰ Cᴰ)
-
-  module _ {x} {xᴰ : Cᴰ.ob[ x ]}
-    (bp  : ∀ y → BinProduct' C (x , y))
-    (bpᴰ : ∀ {y} yᴰ → BinProductᴰ (bp y) (xᴰ , yᴰ)) where
-    open Functorᴰ
-    BinProductᴰWithFᴰ : Functorᴰ (BinProduct'WithF C bp) Cᴰ Cᴰ
-    BinProductᴰWithFᴰ .F-obᴰ yᴰ = bpᴰ yᴰ .vertexᴰ
-    -- fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ]
-    -- -------------------------
-    -- xᴰ ×ᴰ fᴰ : Cᴰ [ x × f ][ xᴰ ×ᴰ zᴰ , xᴰ ×ᴰ yᴰ ]
-    BinProductᴰWithFᴰ .F-homᴰ {f = f}{xᴰ = zᴰ}{yᴰ = yᴰ} fᴰ = introᴰ (bpᴰ yᴰ) _
-      (bpᴰ _ .elementᴰ .fst , (bpᴰ _ .elementᴰ .snd Cᴰ.⋆ᴰ fᴰ))
-    BinProductᴰWithFᴰ .F-idᴰ {xᴰ = yᴰ} = R.rectify $ R.≡out $
-      (R.≡in λ i → introᴰ (bpᴰ yᴰ) _ ((bpᴰ _ .elementᴰ .fst) , (Cᴰ.⋆IdRᴰ (bpᴰ _ .elementᴰ .snd) i)))
-      ∙ sym (R.≡in (weak-ηᴰ (bpᴰ _)))
-    -- show that (xᴰ ×ᴰ (fᴰ ⋆ᴰ gᴰ)) ≡ (xᴰ ×ᴰ fᴰ) ⋆ᴰ (xᴰ ×ᴰ fᴰ)
-    BinProductᴰWithFᴰ .F-seqᴰ {w} {y} {z} {f} {g} {wᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
-      R.rectify $ R.≡out $
-      -- ⟨ π₁ᴰ , π₂ᴰ ⋆ᴰ (fᴰ ⋆ᴰ gᴰ )⟩
-      {!!}
-      ∙ (R.≡in $ {!!})
-      -- ⟨ π₁ᴰ , π₂ᴰ ⋆ᴰ fᴰ⟩ ⋆ᴰ ⟨ π₁ᴰ , π₂ᴰ ⋆ᴰ gᴰ⟩
 
 module hasAllBinProductᴰNotation
          {C : Category ℓC ℓC'}
@@ -107,7 +87,7 @@ module hasAllBinProductᴰNotation
           → Cᴰ.Hom[ f₁ ][ d , d₁ ] → Cᴰ.Hom[ f₂ ][ d , d₂ ]
           → Cᴰ.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]
     _,pᴰ_{f₁ = f₁}{f₂ = f₂} f₁ᴰ f₂ᴰ =
-      introᴰ (bpᴰ (d₁ , d₂)) _ (f₁ᴰ , f₂ᴰ)
+      UniversalElementᴰNotation.introᴰ _ _ (bpᴰ (d₁ , d₂)) _ (f₁ᴰ , f₂ᴰ)
 
     module _ {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
              {f₁ᴰ : Cᴰ.Hom[ f₁ ][ d , d₁ ]}
@@ -117,16 +97,16 @@ module hasAllBinProductᴰNotation
       private
         ,pᴰ-isUniversalᴰ = bpᴰ (d₁ , d₂) .universalᴰ {xᴰ = d}
       ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
-      ×β₁ᴰ i = βᴰ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
+      ×β₁ᴰ i = UniversalElementᴰNotation.βᴰ _ _ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
 
       ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) Cᴰ.≡[ ×β₂ ] f₂ᴰ
-      ×β₂ᴰ i = βᴰ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
+      ×β₂ᴰ i = UniversalElementᴰNotation.βᴰ _ _ (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
 
     module _ {f : C [ c , c₁ BP.× c₂ ]}
              {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
            where
       ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
-      ×ηᴰ = ηᴰ (bpᴰ (d₁ , d₂))
+      ×ηᴰ = UniversalElementᴰNotation.ηᴰ _ _ (bpᴰ (d₁ , d₂))
 
 module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private

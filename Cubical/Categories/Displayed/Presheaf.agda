@@ -24,6 +24,7 @@ import Cubical.Categories.Constructions.TotalCategory as TotalCat
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Instances.Functor
 
 private
   variable
@@ -40,6 +41,10 @@ Presheafᴰ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-suc ℓP))
                     (ℓ-suc ℓPᴰ))
 Presheafᴰ {ℓP = ℓP} D P ℓPᴰ = Functorᴰ P (D ^opᴰ) (SETᴰ ℓP ℓPᴰ)
+
+PRESHEAFᴰ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') → ∀ (ℓP ℓPᴰ : Level)
+  → Categoryᴰ (PresheafCategory C ℓP) _ _
+PRESHEAFᴰ Cᴰ ℓP ℓPᴰ = FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓP ℓPᴰ)
 
 -- TODO: make a PresheafNotation to match
 module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'}

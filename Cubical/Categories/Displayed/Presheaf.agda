@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Presheaf where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Isomorphism
@@ -40,7 +41,9 @@ Presheafᴰ {ℓP = ℓP} D P ℓPᴰ = Functorᴰ P (D ^opᴰ) (SETᴰ ℓP ℓ
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ D P ℓPᴰ) where
-
+  private
+    module D = Categoryᴰ D
+    module R = Reasoning D
   record UniversalElementᴰ (ue : UniversalElement C P)
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max ℓP ℓPᴰ)) where
     open UniversalElementNotation ue
@@ -70,6 +73,10 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          → fᴰ ≡[ η {f = f} ] introᴰ _ (F-homᴰ Pᴰ fᴰ element elementᴰ)
     ηᴰ = symP (universalᴰ .leftInv _ _)
 
+    weak-ηᴰ : idᴰ ≡[ weak-η ] introᴰ _ elementᴰ
+    weak-ηᴰ = R.rectify $ R.≡out $
+      (R.≡in $ ηᴰ)
+      ∙ (R.≡in $ λ i → introᴰ (P .F-id i element) (Pᴰ .F-idᴰ i _ elementᴰ))
 
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')

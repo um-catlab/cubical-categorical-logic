@@ -122,7 +122,6 @@ module _ (C : Category ℓ ℓ') where
     variable
       a b c d : C .ob
       f g h : C [ a , b ]
-
   module _ {a} (bp : ∀ b → BinProduct C a b) where
     BinProductWithToRepresentable : UniversalElements (ProdWithAProf a)
     BinProductWithToRepresentable b = BinProductToRepresentable (bp b)
@@ -174,6 +173,14 @@ module _ (C : Category ℓ ℓ') where
       ×-extensionality : π₁ ∘⟨ C ⟩ f ≡
                          π₁ ∘⟨ C ⟩ g → π₂ ∘⟨ C ⟩ f ≡ π₂ ∘⟨ C ⟩ g → f ≡ g
       ×-extensionality p1 p2 = extensionality (ues _) (ΣPathP (p1 , p2))
+
+  module _ {a} (bp : ∀ b → BinProduct' (a , b)) where
+    BinProduct'WithF : Functor C C
+    BinProduct'WithF = FunctorComprehension {P = ProdWithAProf a} λ b →
+      record { vertex = bp b .vertex
+             ; element = bp b .element
+             ; universal = bp b .universal
+             }
 
   module NotationAt {a b : C .ob} (bp : BinProduct C a b) where
     private

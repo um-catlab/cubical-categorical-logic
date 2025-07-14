@@ -4,6 +4,7 @@ module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
@@ -11,7 +12,10 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Presheaf.Representable
+
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
@@ -22,12 +26,17 @@ private
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
 open Category
+open UniversalElement
 open UniversalElementᴰ
 open UniversalElementⱽ
 open isIsoOver
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
-  private module Cᴰ = Categoryᴰ Cᴰ
+  private
+    module C = Category C
+    module Cᴰ = Categoryᴰ Cᴰ
+    module R = HomᴰReasoning Cᴰ
+
   BinProductᴰ : ∀ {c12} → BinProduct' C c12
               → (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ])
               → Type _
@@ -41,6 +50,25 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
 
   hasAllBinProductⱽ : Type _
   hasAllBinProductⱽ = VerticalRightAdjointᴰ (Δᴰ Cᴰ)
+
+  module _ {x} {xᴰ : Cᴰ.ob[ x ]}
+    (bp  : ∀ y → BinProduct' C (x , y))
+    (bpᴰ : ∀ {y} yᴰ → BinProductᴰ (bp y) (xᴰ , yᴰ)) where
+    open Functorᴰ
+    BinProductᴰWithFᴰ : Functorᴰ (BinProduct'WithF C bp) Cᴰ Cᴰ
+    BinProductᴰWithFᴰ .F-obᴰ yᴰ = bpᴰ yᴰ .vertexᴰ
+    -- fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ]
+    -- -------------------------
+    -- fᴰ ×ᴰ yᴰ : Cᴰ [ x × f ][ xᴰ ×ᴰ zᴰ , xᴰ ×ᴰ yᴰ ]
+    BinProductᴰWithFᴰ .F-homᴰ {f = f}{xᴰ = zᴰ}{yᴰ = yᴰ} fᴰ = introᴰ (bpᴰ yᴰ) _
+      (bpᴰ _ .elementᴰ .fst , (bpᴰ _ .elementᴰ .snd Cᴰ.⋆ᴰ fᴰ))
+    BinProductᴰWithFᴰ .F-idᴰ {xᴰ = yᴰ} = R.rectify $ R.≡out $
+      (R.≡in λ i → introᴰ (bpᴰ yᴰ) _ ((bpᴰ _ .elementᴰ .fst) , (Cᴰ.⋆IdRᴰ (bpᴰ _ .elementᴰ .snd) i)))
+      ∙ sym (R.≡in (weak-ηᴰ (bpᴰ _)))
+    BinProductᴰWithFᴰ .F-seqᴰ {w} {y} {z} {f} {g} {wᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
+      R.rectify $ R.≡out $
+      {!!}
+      ∙ {!!}
 
 module hasAllBinProductᴰNotation
          {C : Category ℓC ℓC'}
@@ -137,3 +165,5 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
         → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
       ×ηⱽ = vbp.ηⱽ
+
+

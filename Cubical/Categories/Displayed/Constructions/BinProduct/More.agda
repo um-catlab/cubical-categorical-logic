@@ -5,18 +5,22 @@
     weakening. Should it?
 
 -}
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Displayed.Constructions.BinProduct.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.NaturalTransformation
+
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Constructions.TotalCategory
@@ -25,6 +29,7 @@ open import Cubical.Categories.Displayed.Constructions.TotalCategory
   as TotalCatᴰ hiding (introS; introF)
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
   hiding (introF)
+open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Reasoning as Reasoning
 private
   variable
@@ -141,3 +146,31 @@ private
     introS' = compFunctorᴰGlobalSection
       (introF F (Unitᴰ.recᴰ Fᴰ₀) (Unitᴰ.recᴰ Fᴰ₁))
       ttS
+
+private
+  variable
+    ℓ ℓ' ℓC'' ℓC''' : Level
+    C C' D D'  : Category ℓ ℓ'
+    Cᴰ Cᴰ' Dᴰ'  : Categoryᴰ C ℓ ℓ'
+open Functorᴰ
+
+module _ {F : Functor C C'} {G : Functor C D'} where
+  _,Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Cᴰ') → (Gᴰ : Functorᴰ G Cᴰ Dᴰ')
+    → Functorᴰ (F ,F G) Cᴰ (Cᴰ' ×Cᴰ Dᴰ')
+  (Fᴰ ,Fᴰ Gᴰ) .F-obᴰ x = F-obᴰ Fᴰ x , F-obᴰ Gᴰ x
+  (Fᴰ ,Fᴰ Gᴰ) .F-homᴰ x = F-homᴰ Fᴰ x , F-homᴰ Gᴰ x
+  (Fᴰ ,Fᴰ Gᴰ) .F-idᴰ = ΣPathP ((Fᴰ .F-idᴰ) , (Gᴰ .F-idᴰ))
+  (Fᴰ ,Fᴰ Gᴰ) .F-seqᴰ fᴰ gᴰ = ΣPathP ((Fᴰ .F-seqᴰ _ _) , Gᴰ .F-seqᴰ _ _)
+
+open NatTrans
+open NatTransᴰ
+,Fᴰ-functorᴰ :
+  Functorᴰ ,F-functor
+    ((FUNCTORᴰ Cᴰ Cᴰ') ×Cᴰ (FUNCTORᴰ Cᴰ Dᴰ'))
+    (FUNCTORᴰ Cᴰ (Cᴰ' ×Cᴰ Dᴰ'))
+,Fᴰ-functorᴰ .F-obᴰ (Fᴰ , Gᴰ) = Fᴰ ,Fᴰ Gᴰ
+,Fᴰ-functorᴰ .F-homᴰ (αᴰ , βᴰ) .N-obᴰ xᴰ = αᴰ .N-obᴰ xᴰ , βᴰ .N-obᴰ xᴰ
+,Fᴰ-functorᴰ .F-homᴰ (αᴰ , βᴰ) .N-homᴰ fᴰ =
+  ΣPathP (αᴰ .N-homᴰ fᴰ , βᴰ .N-homᴰ fᴰ)
+,Fᴰ-functorᴰ .F-idᴰ = makeNatTransPathᴰ _ _ _ refl
+,Fᴰ-functorᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ refl

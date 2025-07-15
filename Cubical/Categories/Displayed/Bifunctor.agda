@@ -224,19 +224,3 @@ module _ {F : Functor (C ×C D) E}
     Fᴰ .F-seqᴰ (fᴰ , gᴰ) (fᴰ' , gᴰ')
   ParFunctorᴰToBifunctorᴰ .Bif-L×-agreeᴰ fᴰ = refl
   ParFunctorᴰToBifunctorᴰ .Bif-R×-agreeᴰ gᴰ = refl
-
--- To implement:
--- 1. [x] Compositions ∘Flᴰ , ∘Frᴰ , ∘Fbᴰ , ∘Flrᴰ
--- 2. [x] appL
--- 3. [x] BifunctorToParFunctor
--- 2. ×Setsᴰ (SETᴰ)
--- 4. ,Fᴰ-functor    (×Cᴰ)
-,Fᴰ-Bif : Bifunctorᴰ ,F-Bif (FUNCTORᴰ Cᴰ Cᴰ') (FUNCTORᴰ Cᴰ Dᴰ') (FUNCTORᴰ Cᴰ (Cᴰ' ×Cᴰ Dᴰ'))
-,Fᴰ-Bif .Bif-obᴰ = {!!}
-,Fᴰ-Bif .Bif-homLᴰ = {!!}
-,Fᴰ-Bif .Bif-homRᴰ = {!!}
-,Fᴰ-Bif .Bif-hom×ᴰ = {!!}
-,Fᴰ-Bif .Bif-×-idᴰ = {!!}
-,Fᴰ-Bif .Bif-×-seqᴰ = {!!}
-,Fᴰ-Bif .Bif-L×-agreeᴰ = {!!}
-,Fᴰ-Bif .Bif-R×-agreeᴰ = {!!}

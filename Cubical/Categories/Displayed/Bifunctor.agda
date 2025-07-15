@@ -96,8 +96,8 @@ module _ {C : Category ℓC ℓC'}
 
 private
   variable
-    C D E : Category ℓ ℓ'
-    Cᴰ Dᴰ Eᴰ : Categoryᴰ C ℓ ℓ'
+    C D E C' D' E' : Category ℓ ℓ'
+    Cᴰ Dᴰ Eᴰ Cᴰ' Dᴰ' Eᴰ' : Categoryᴰ C ℓ ℓ'
 open Category
 open Categoryᴰ
 open Functorᴰ
@@ -108,6 +108,27 @@ appLᴰ Fᴰ cᴰ .F-obᴰ dᴰ = Fᴰ .Bif-obᴰ cᴰ dᴰ
 appLᴰ Fᴰ cᴰ .F-homᴰ gᴰ = Fᴰ .Bif-homRᴰ cᴰ gᴰ
 appLᴰ Fᴰ cᴰ .F-idᴰ = Bif-R-idᴰ Fᴰ
 appLᴰ Fᴰ cᴰ .Functorᴰ.F-seqᴰ = Bif-R-seqᴰ Fᴰ
+
+module _ {F : Bifunctor C' D E} {G : Functor C C'}
+  (Fᴰ : Bifunctorᴰ F Cᴰ' Dᴰ Eᴰ) (Gᴰ : Functorᴰ G Cᴰ Cᴰ') where
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+    module Eᴰ = Reasoning Eᴰ
+  compLᴰ : Bifunctorᴰ (compL F G) Cᴰ Dᴰ Eᴰ
+  compLᴰ .Bif-obᴰ x = Fᴰ .Bif-obᴰ (F-obᴰ Gᴰ x)
+  compLᴰ .Bif-homLᴰ fᴰ dᴰ = Fᴰ .Bif-homLᴰ (F-homᴰ Gᴰ fᴰ) dᴰ
+  compLᴰ .Bif-homRᴰ cᴰ gᴰ = Fᴰ .Bif-homRᴰ (F-obᴰ Gᴰ cᴰ) gᴰ
+  compLᴰ .Bif-hom×ᴰ fᴰ gᴰ = Fᴰ .Bif-hom×ᴰ (F-homᴰ Gᴰ fᴰ) gᴰ
+  compLᴰ .Bif-×-idᴰ = Eᴰ.rectify $ Eᴰ.≡out $
+    (Eᴰ.≡in $ λ i → Fᴰ .Bif-hom×ᴰ (Gᴰ .F-idᴰ i) Dᴰ.idᴰ)
+    ∙ (Eᴰ.≡in $ Fᴰ .Bif-×-idᴰ)
+  compLᴰ .Bif-×-seqᴰ fᴰ fᴰ' gᴰ gᴰ' = Eᴰ.rectify $ Eᴰ.≡out $
+    (Eᴰ.≡in $ (λ i → Fᴰ .Bif-hom×ᴰ (Gᴰ .F-seqᴰ fᴰ fᴰ' i) (gᴰ Dᴰ.⋆ᴰ gᴰ')))
+    ∙ (Eᴰ.≡in $ Fᴰ .Bif-×-seqᴰ _ _ _ _)
+  compLᴰ .Bif-L×-agreeᴰ fᴰ = Eᴰ.rectify $ Fᴰ .Bif-L×-agreeᴰ _
+  compLᴰ .Bif-R×-agreeᴰ gᴰ = Eᴰ.rectify $ Eᴰ.≡out $
+    (Eᴰ.≡in $ Fᴰ .Bif-R×-agreeᴰ _)
+    ∙ (Eᴰ.≡in $ λ i → Fᴰ .Bif-hom×ᴰ (Gᴰ .F-idᴰ (~ i)) gᴰ)
 
 -- To implement:
 -- 1. Compositions ∘Flᴰ , ∘Frᴰ , ∘Fbᴰ , ∘Flrᴰ

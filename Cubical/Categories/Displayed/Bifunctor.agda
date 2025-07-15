@@ -8,6 +8,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd; Sym)
+import Cubical.Categories.Constructions.TotalCategory as ∫
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Bifunctor.Redundant
@@ -43,7 +44,7 @@ module _ {C : Category ℓC ℓC'}
       module F = Bifunctor F
   
     field
-      Bif-obᴰ : ∀ {c d} → Cᴰ.ob[ c ] → Dᴰ.ob[ d ] → Eᴰ.ob[ F ⟅ c , d ⟆b ]
+      Bif-obᴰ : ∀ {c d} → (cᴰ : Cᴰ.ob[ c ]) → (dᴰ : Dᴰ.ob[ d ]) → Eᴰ.ob[ F ⟅ c , d ⟆b ]
       Bif-homLᴰ : ∀ {c c' cᴰ cᴰ'} {f : C [ c , c' ]} (fᴰ : Cᴰ [ f ][ cᴰ , cᴰ' ])
         {d} (dᴰ : Dᴰ.ob[ d ])
         → Eᴰ [ F ⟪ f ⟫l ][ Bif-obᴰ cᴰ dᴰ , Bif-obᴰ cᴰ' dᴰ ]
@@ -98,6 +99,28 @@ private
   variable
     C D E C' D' E' : Category ℓ ℓ'
     Cᴰ Dᴰ Eᴰ Cᴰ' Dᴰ' Eᴰ' : Categoryᴰ C ℓ ℓ'
+
+module _ {F : Bifunctor C D E} (Fᴰ : Bifunctorᴰ F Cᴰ Dᴰ Eᴰ) where
+  private
+    module Eᴰ = Reasoning Eᴰ
+  ∫Bif : Bifunctor (∫.∫C Cᴰ) (∫.∫C Dᴰ) (∫.∫C Eᴰ)
+  ∫Bif = mkBifunctorParAx ∫BifParAx where
+    open BifunctorParAx
+    ∫BifParAx : BifunctorParAx (∫.∫C Cᴰ) (∫.∫C Dᴰ) (∫.∫C Eᴰ)
+    ∫BifParAx .Bif-ob (c , cᴰ) (d , dᴰ) =
+      (Bifunctor.Bif-ob F c d) , (Fᴰ .Bifunctorᴰ.Bif-obᴰ cᴰ dᴰ)
+    ∫BifParAx .Bif-homL (f , fᴰ) (d , dᴰ) =
+      (Bifunctor.Bif-homL F f d) , (Fᴰ .Bifunctorᴰ.Bif-homLᴰ fᴰ dᴰ)
+    ∫BifParAx .Bif-homR (c , cᴰ) (g , gᴰ) =
+      (Bifunctor.Bif-homR F c g) , (Fᴰ .Bifunctorᴰ.Bif-homRᴰ cᴰ gᴰ)
+    ∫BifParAx .Bif-hom× (f , fᴰ) (g , gᴰ) =
+      (Bifunctor.Bif-hom× F f g) , (Fᴰ .Bifunctorᴰ.Bif-hom×ᴰ fᴰ gᴰ)
+    ∫BifParAx .Bif-×-id = Eᴰ.≡in $ (Fᴰ .Bifunctorᴰ.Bif-×-idᴰ) 
+    ∫BifParAx .Bif-×-seq (f , fᴰ) (f' , fᴰ') (g , gᴰ) (g' , gᴰ') =
+      Eᴰ.≡in $ Fᴰ .Bifunctorᴰ.Bif-×-seqᴰ fᴰ fᴰ' gᴰ gᴰ'
+    ∫BifParAx .Bif-L×-agree (f , fᴰ) = Eᴰ.≡in $ Fᴰ .Bifunctorᴰ.Bif-L×-agreeᴰ fᴰ
+    ∫BifParAx .Bif-R×-agree (g , gᴰ) = Eᴰ.≡in $ Fᴰ .Bifunctorᴰ.Bif-R×-agreeᴰ gᴰ
+
 open Category
 open Categoryᴰ
 open Functorᴰ
@@ -108,6 +131,17 @@ appLᴰ Fᴰ cᴰ .F-obᴰ dᴰ = Fᴰ .Bif-obᴰ cᴰ dᴰ
 appLᴰ Fᴰ cᴰ .F-homᴰ gᴰ = Fᴰ .Bif-homRᴰ cᴰ gᴰ
 appLᴰ Fᴰ cᴰ .F-idᴰ = Bif-R-idᴰ Fᴰ
 appLᴰ Fᴰ cᴰ .Functorᴰ.F-seqᴰ = Bif-R-seqᴰ Fᴰ
+
+appRᴰ : {F : Bifunctor C D E} (Fᴰ : Bifunctorᴰ F Cᴰ Dᴰ Eᴰ)
+  {d : D .ob} (dᴰ : ob[_] Dᴰ d) → Functorᴰ (appR F d) Cᴰ Eᴰ
+appRᴰ {Eᴰ = Eᴰ}{F = F} Fᴰ dᴰ = record
+  { F-obᴰ = λ xᴰ → ∫appR .F-ob (_ , xᴰ) .snd
+  ; F-homᴰ = λ fᴰ → ∫appR .F-hom (_ , fᴰ) .snd
+  ; F-idᴰ = R.rectify $ λ i → ∫appR .F-id i .snd  -- R.≡out {!λ i → ∫appR .F-id i .snd!}
+  ; F-seqᴰ = λ fᴰ gᴰ → R.rectify $ λ i → ∫appR .F-seq (_ , fᴰ) (_ , gᴰ) i .snd  } where
+  open Functor
+  module R = Reasoning Eᴰ
+  ∫appR = appR (∫Bif Fᴰ) (_ , dᴰ)
 
 module _ {F : Bifunctor C' D E} {G : Functor C C'}
   (Fᴰ : Bifunctorᴰ F Cᴰ' Dᴰ Eᴰ) (Gᴰ : Functorᴰ G Cᴰ Cᴰ') where
@@ -130,8 +164,42 @@ module _ {F : Bifunctor C' D E} {G : Functor C C'}
     (Eᴰ.≡in $ Fᴰ .Bif-R×-agreeᴰ _)
     ∙ (Eᴰ.≡in $ λ i → Fᴰ .Bif-hom×ᴰ (Gᴰ .F-idᴰ (~ i)) gᴰ)
 
+module _ {F : Bifunctor C D' E} {G : Functor D D'}
+  (Fᴰ : Bifunctorᴰ F Cᴰ Dᴰ' Eᴰ) (Gᴰ : Functorᴰ G Dᴰ Dᴰ') where
+  private
+    module Eᴰ = Reasoning Eᴰ
+    ∫compRᴰ = compR (∫Bif Fᴰ) (∫.∫F Gᴰ)
+    module ∫compRᴰ = Bifunctor ∫compRᴰ
+  compRᴰ : Bifunctorᴰ (compR F G) Cᴰ Dᴰ Eᴰ
+  compRᴰ .Bif-obᴰ cᴰ dᴰ = ∫compRᴰ.Bif-ob (_ , cᴰ) (_ , dᴰ) .snd
+  compRᴰ .Bif-homLᴰ fᴰ dᴰ = ∫compRᴰ.Bif-homL (_ , fᴰ) (_ , dᴰ) .snd
+  compRᴰ .Bif-homRᴰ cᴰ gᴰ = ∫compRᴰ.Bif-homR (_ , cᴰ) (_ , gᴰ) .snd
+  compRᴰ .Bif-hom×ᴰ fᴰ gᴰ = ∫compRᴰ.Bif-hom× (_ , fᴰ) (_ , gᴰ) .snd
+  compRᴰ .Bif-×-idᴰ = Eᴰ.rectify $ λ i → ∫compRᴰ.Bif-×-id i .snd
+  compRᴰ .Bif-×-seqᴰ fᴰ fᴰ' gᴰ gᴰ' = Eᴰ.rectify $ λ i → ∫compRᴰ.Bif-×-seq (_ , fᴰ) (_ , fᴰ') (_ , gᴰ) (_ , gᴰ') i .snd
+  compRᴰ .Bif-L×-agreeᴰ fᴰ = Eᴰ.rectify $ λ i → ∫compRᴰ.Bif-L×-agree (_ , fᴰ) i .snd
+  compRᴰ .Bif-R×-agreeᴰ gᴰ = Eᴰ.rectify $ λ i → ∫compRᴰ.Bif-R×-agree (_ , gᴰ) i .snd
+
+module _ {F : Functor E E'}{G : Bifunctor C D E}
+       (Fᴰ : Functorᴰ F Eᴰ Eᴰ')(Gᴰ : Bifunctorᴰ G Cᴰ Dᴰ Eᴰ)
+  where
+  private
+    module Eᴰ' = Reasoning Eᴰ'
+    ∫compFᴰ = compF (∫.∫F Fᴰ) (∫Bif Gᴰ)
+    module ∫compFᴰ = Bifunctor ∫compFᴰ
+  compFᴰ : Bifunctorᴰ (compF F G) Cᴰ Dᴰ Eᴰ'
+  compFᴰ .Bif-obᴰ cᴰ dᴰ = ∫compFᴰ.Bif-ob (_ , cᴰ) (_ , dᴰ) .snd
+  compFᴰ .Bif-homLᴰ fᴰ dᴰ = ∫compFᴰ.Bif-homL (_ , fᴰ) (_ , dᴰ) .snd
+  compFᴰ .Bif-homRᴰ cᴰ gᴰ = ∫compFᴰ.Bif-homR (_ , cᴰ) (_ , gᴰ) .snd
+  compFᴰ .Bif-hom×ᴰ fᴰ gᴰ = ∫compFᴰ.Bif-hom× (_ , fᴰ) (_ , gᴰ) .snd
+  compFᴰ .Bif-×-idᴰ = Eᴰ'.rectify $ λ i → ∫compFᴰ.Bif-×-id i .snd
+  compFᴰ .Bif-×-seqᴰ fᴰ fᴰ' gᴰ gᴰ' =
+    Eᴰ'.rectify $ λ i → ∫compFᴰ.Bif-×-seq (_ , fᴰ) (_ , fᴰ') (_ , gᴰ) (_ , gᴰ') i .snd
+  compFᴰ .Bif-L×-agreeᴰ fᴰ = Eᴰ'.rectify $ λ i → ∫compFᴰ.Bif-L×-agree (_ , fᴰ) i .snd
+  compFᴰ .Bif-R×-agreeᴰ gᴰ = Eᴰ'.rectify $ λ i → ∫compFᴰ.Bif-R×-agree (_ , gᴰ) i .snd
+
 -- To implement:
--- 1. Compositions ∘Flᴰ , ∘Frᴰ , ∘Fbᴰ , ∘Flrᴰ
+-- 1. [x] Compositions ∘Flᴰ , ∘Frᴰ , ∘Fbᴰ , ∘Flrᴰ
 -- 2. [x] appL
 -- 3. BifunctorToParFunctor
 -- 2. ×SetsBifᴰ (SETᴰ)

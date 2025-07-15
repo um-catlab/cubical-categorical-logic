@@ -15,6 +15,7 @@ open import Cubical.Categories.Profunctor.FunctorComprehension
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Adjoint.2Var
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
 
@@ -23,12 +24,32 @@ private
     ℓC ℓC' : Level
 
 open Category
-open UniversalElement
 open isEquiv
 
 module _ (C : Category ℓC ℓC') where
   Exponential : (c d : C .ob) → (∀ (e : C .ob) → BinProduct C c e) → Type _
   Exponential c d c×- = RightAdjointAt (BinProductWithF _ c×-) d
+
+  module ExponentialNotation {c d} c×- (exp : Exponential c d c×-) where
+    open UniversalElementNotation exp public
+    open ProdsWithNotation C c×- public
+    c⇒d : C .ob
+    c⇒d = vertex
+
+    app : C [ a× c⇒d , d ]
+    app = element
+
+    lda : ∀ {Γ} → C [ a× Γ , d ] → C [ Γ , c⇒d ]
+    lda = intro
+
+    -- this is to test we have the expected definition
+    β⇒ : ∀ {Γ} → (f : C [ a× Γ , d ])
+      → π₁ ,p (π₂ ⋆⟨ C ⟩ lda f) ⋆⟨ C ⟩ app ≡ f
+    β⇒ f = β {p = f}
+
+    η⇒ : ∀ {Γ} → (f : C [ Γ , c⇒d ])
+      → f ≡ lda ((π₁ ,p (π₂ ⋆⟨ C ⟩ f)) ⋆⟨ C ⟩ app)
+    η⇒ f = η {f = f}
 
   module _ (bp : BinProducts C) where
     open Notation C bp
@@ -38,8 +59,9 @@ module _ (C : Category ℓC ℓC') where
     ExponentialF : Exponentials → Functor ((C ^op) ×C C) C
     ExponentialF exps =
       FunctorComprehension {P = RightAdjointLProf ×Bif} exps ∘F Prod.Sym
+    open UniversalElement
 
-    module ExpNotation (exp : Exponentials) where
+    module ExpsNotation (exp : Exponentials) where
       _⇒_ : C .ob → C .ob → C .ob
       c ⇒ d = exp (d , c) .vertex
 

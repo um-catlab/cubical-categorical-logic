@@ -13,6 +13,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Functors.More
 
 open import Cubical.Categories.Constructions.BinProduct
@@ -80,3 +81,11 @@ module _ {A : Category ℓA ℓA'}
     NatIso F F' → NatIso G G' → NatIso (F ×F G) (F' ×F G')
   NatIso× α β .trans = NatTrans× (α .trans) (β .trans)
   NatIso× α β .nIso (x , y) = CatIso× _ _ (NatIsoAt α x) (NatIsoAt β y) .snd
+
+open NatTrans
+,F-functor : Functor ((FUNCTOR C C') ×C (FUNCTOR C D')) (FUNCTOR C (C' ×C D'))
+,F-functor .F-ob (F , G) = F ,F G
+,F-functor .F-hom (α , β) .N-ob x = (α ⟦ x ⟧) , (β ⟦ x ⟧)
+,F-functor .F-hom (α , β) .N-hom f = ΣPathP ((α .N-hom f) , (β .N-hom f))
+,F-functor .F-id = makeNatTransPath refl
+,F-functor .F-seq f g = makeNatTransPath refl

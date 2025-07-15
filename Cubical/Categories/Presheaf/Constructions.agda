@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Presheaf.Constructions where
 
 open import Cubical.Foundations.Prelude
@@ -12,6 +12,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Bifunctor.Redundant
@@ -26,8 +27,11 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
     𝓠 = PresheafCategory C ℓB
     𝓡 = PresheafCategory C (ℓ-max ℓA ℓB)
 
+  PshProd' : Functor (𝓟 ×C 𝓠) 𝓡
+  PshProd' = (postcomposeF _ ×Sets ∘F ,F-functor)
+
   PshProd : Bifunctor 𝓟 𝓠 𝓡
-  PshProd = postcomposeF _ ×Sets ∘Fb ,F-Bif
+  PshProd = ParFunctorToBifunctor PshProd'
 
   private
     open Category

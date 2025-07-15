@@ -53,8 +53,14 @@ module _ (C : Category ℓ ℓ') where
     BadBinProductProf =
       (precomposeF _ (Δ C ^opF) ∘F YO) ∘F R.RedundantToProd C C
 
+    -- This definition is *almost* exactly the same as the next one,
+    -- except using ∘F YO ×F YO vs ∘Flr YO , YO. But it has the same
+    -- problem as the previous. That ∘F vs ∘Flr makes all the difference.
+    AlsoBadBinProductProf : Profunctor (C ⊗ C) C ℓ'
+    AlsoBadBinProductProf = R.rec C C (ParFunctorToBifunctor (PshProd' ∘F (YO ×F YO)))
+
   BinProductProf : Profunctor (C ⊗ C) C ℓ'
-  BinProductProf = R.rec _ _ (PshProd ∘Flr (YO , YO))
+  BinProductProf = R.rec C C (PshProd ∘Flr (YO , YO))
 
   -- Product with a fixed object
   ProdWithAProf : C .ob → Profunctor C C ℓ'

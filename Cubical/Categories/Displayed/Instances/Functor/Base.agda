@@ -148,7 +148,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FUNCTORᴰ .isSetHomᴰ {x = F} {y = G} {f = α} {xᴰ = Fᴰ} {yᴰ = Gᴰ} =
     isSetNatTransᴰ
 
-{- TODO: precompose/postcompose/compose are really just the three operations of a compose bifunctor -}
+-- TODO: precompose/postcompose/compose are really just the three
+-- operations of a compose bifunctor
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : Category ℓE ℓE')
   {F : Functor C D}

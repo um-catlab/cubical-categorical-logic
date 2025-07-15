@@ -46,7 +46,8 @@ module _ {C : Category ℓC ℓC'}
       module F = Bifunctor F
 
     field
-      Bif-obᴰ : ∀ {c d} → (cᴰ : Cᴰ.ob[ c ]) → (dᴰ : Dᴰ.ob[ d ]) → Eᴰ.ob[ F ⟅ c , d ⟆b ]
+      Bif-obᴰ : ∀ {c d} → (cᴰ : Cᴰ.ob[ c ]) → (dᴰ : Dᴰ.ob[ d ])
+        → Eᴰ.ob[ F ⟅ c , d ⟆b ]
       Bif-homLᴰ : ∀ {c c' cᴰ cᴰ'} {f : C [ c , c' ]} (fᴰ : Cᴰ [ f ][ cᴰ , cᴰ' ])
         {d} (dᴰ : Dᴰ.ob[ d ])
         → Eᴰ [ F ⟪ f ⟫l ][ Bif-obᴰ cᴰ dᴰ , Bif-obᴰ cᴰ' dᴰ ]
@@ -87,7 +88,8 @@ module _ {C : Category ℓC ℓC'}
     Bif-R-idᴰ = R.rectify (R.≡out (R.≡in (Bif-R×-agreeᴰ _) ∙ R.≡in Bif-×-idᴰ))
 
     Bif-R-seqᴰ : ∀ {c d d' d''}{g : D [ d , d' ]}{g' : D [ d' , d'' ]}
-                  {cᴰ : Cᴰ.ob[ c ]}{dᴰ dᴰ' dᴰ''}(gᴰ : Dᴰ [ g ][ dᴰ , dᴰ' ])(gᴰ' : Dᴰ [ g' ][ dᴰ' , dᴰ'' ])
+                  {cᴰ : Cᴰ.ob[ c ]}{dᴰ dᴰ' dᴰ''}
+                  (gᴰ : Dᴰ [ g ][ dᴰ , dᴰ' ])(gᴰ' : Dᴰ [ g' ][ dᴰ' , dᴰ'' ])
               → Bif-homRᴰ cᴰ (gᴰ Dᴰ.⋆ᴰ gᴰ')
                   Eᴰ.≡[ F.Bif-R-seq g g' ]
                 Bif-homRᴰ cᴰ gᴰ Eᴰ.⋆ᴰ Bif-homRᴰ cᴰ gᴰ'

@@ -57,7 +57,8 @@ module _ (C : Category ℓ ℓ') where
     -- except using ∘F YO ×F YO vs ∘Flr YO , YO. But it has the same
     -- problem as the previous. That ∘F vs ∘Flr makes all the difference.
     AlsoBadBinProductProf : Profunctor (C ⊗ C) C ℓ'
-    AlsoBadBinProductProf = R.rec C C (ParFunctorToBifunctor (PshProd' ∘F (YO ×F YO)))
+    AlsoBadBinProductProf =
+      R.rec C C (ParFunctorToBifunctor (PshProd' ∘F (YO ×F YO)))
 
   BinProductProf : Profunctor (C ⊗ C) C ℓ'
   BinProductProf = R.rec C C (PshProd ∘Flr (YO , YO))

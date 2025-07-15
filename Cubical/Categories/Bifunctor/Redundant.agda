@@ -566,3 +566,14 @@ _^opBif {C = C}{D = D}{E = E} F = mkBifunctorParAx G where
   G .Bif-×-seq f f' g g' = F.Bif-×-seq f' f g' g
   G .Bif-L×-agree = F.Bif-L×-agree
   G .Bif-R×-agree = F.Bif-R×-agree
+
+-- This probably should go somewhere else
+,F-Bif : Bifunctor (FUNCTOR C C') (FUNCTOR C D') (FUNCTOR C (C' ×C D'))
+,F-Bif {C' = C'}{D' = D'} = mkBifunctorPar ,F' where
+  open BifunctorPar
+  ,F' : BifunctorPar (FUNCTOR _ _) (FUNCTOR _ _) (FUNCTOR _ _)
+  ,F' .Bif-ob = _,F_
+  ,F' .Bif-hom× α β .N-ob c = (α .N-ob c) , (β .N-ob c)
+  ,F' .Bif-hom× α β .N-hom f = ΣPathP (α .N-hom f , β .N-hom f)
+  ,F' .Bif-×-id = makeNatTransPath refl
+  ,F' .Bif-×-seq _ _ _ _ = makeNatTransPath refl

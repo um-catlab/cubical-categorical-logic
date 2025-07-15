@@ -7,10 +7,12 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Bifunctor.Redundant
 
@@ -25,38 +27,7 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
     𝓡 = PresheafCategory C (ℓ-max ℓA ℓB)
 
   PshProd : Bifunctor 𝓟 𝓠 𝓡
-  PshProd = mkBifunctorPar B where
-    open BifunctorPar
-    open Functor
-    open NatTrans
-    open Category
-    Bob : 𝓟 .ob → 𝓠 .ob → 𝓡 .ob
-    Bob P Q .F-ob c =  ⟨ P ⟅ c ⟆ ⟩ × ⟨ Q ⟅ c ⟆ ⟩ ,
-      isSet× (str (P ⟅ c ⟆)) ((str (Q ⟅ c ⟆)))
-    Bob P Q .F-hom f (p , q) = (P .F-hom f p) , (Q .F-hom f q)
-    Bob P Q .F-id =
-      funExt (λ (p , q) → ΣPathP ((funExt⁻ (P .F-id) p) , funExt⁻ (Q .F-id) q))
-    Bob P Q .F-seq f g =
-      funExt λ (p , q) → ΣPathP
-        ( (funExt⁻ (P .F-seq f g) p)
-        , (funExt⁻ (Q .F-seq f g) q))
-
-    Bhom× :
-      ∀ {P P' Q Q'} →
-      𝓟 [ P , P' ] →
-      𝓠 [ Q , Q' ] →
-      𝓡 [ Bob P Q , Bob P' Q' ]
-    Bhom× α β .N-ob c (p , q) = α .N-ob c p , β .N-ob c q
-    Bhom× α β .N-hom f = funExt λ (p , q) →
-      ΣPathP (funExt⁻ (α .N-hom f) _ , funExt⁻ (β .N-hom f) _)
-
-    B : BifunctorPar 𝓟 𝓠 𝓡
-    B .Bif-ob = Bob
-    B .Bif-hom× = Bhom×
-    B .Bif-×-id =
-      makeNatTransPath (funExt (λ c → funExt (λ (p , q) → refl)))
-    B .Bif-×-seq α α' β β' =
-      makeNatTransPath (funExt (λ c → funExt (λ (p , q) → refl)))
+  PshProd = postcomposeF _ ×Sets ∘Fb ,F-Bif
 
   private
     open Category

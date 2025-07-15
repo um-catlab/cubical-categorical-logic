@@ -58,7 +58,7 @@ module _ (C : Category ℓ ℓ') where
 
   -- Product with a fixed object
   ProdWithAProf : C .ob → Profunctor C C ℓ'
-  ProdWithAProf a = BinProductProf ∘F R.ob-× C C a
+  ProdWithAProf a = appL PshProd (YO ⟅ a ⟆) ∘F YO
 
   BinProductToRepresentable : ∀ {a b} → BinProduct C a b
     → UniversalElement C (BinProductProf ⟅ a , b ⟆)

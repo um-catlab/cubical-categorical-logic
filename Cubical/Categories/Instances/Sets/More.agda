@@ -24,18 +24,19 @@ private
     ℓ ℓ' : Level
 
 open Functor
-×SetsBif : Bifunctor (SET ℓ) (SET ℓ) (SET ℓ)
+×SetsBif : Bifunctor (SET ℓ) (SET ℓ') (SET (ℓ-max ℓ ℓ'))
 ×SetsBif = mkBifunctorParAx F where
   open BifunctorParAx
-  F : BifunctorParAx (SET ℓ) (SET ℓ) (SET ℓ)
-  F .Bif-ob A B = ⟨ A ⟩ × ⟨ B ⟩ , isSet× (A .snd) (B .snd)
-  F .Bif-homL f B (x , y) = f x , y
-  F .Bif-homR A g (x , y) = x , (g y)
-  F .Bif-hom× f g (x , y) = (f x) , (g y)
+  F : BifunctorParAx (SET _) (SET _) (SET _)
+  F .Bif-ob A B .fst = ⟨ A ⟩ × ⟨ B ⟩
+  F .Bif-ob A B .snd = isSet× (A .snd) (B .snd)
+  F .Bif-homL = λ f d z → f (z .fst) , z .snd
+  F .Bif-homR = λ c g z → z .fst , g (z .snd)
+  F .Bif-hom× = λ f g z → f (z .fst) , g (z .snd)
   F .Bif-×-id = refl
   F .Bif-×-seq f f' g g' = refl
   F .Bif-L×-agree f = refl
   F .Bif-R×-agree g = refl
 
-×Sets : Functor ((SET ℓ) ×C (SET ℓ)) (SET ℓ)
+×Sets : Functor (SET ℓ ×C SET ℓ') (SET (ℓ-max ℓ ℓ'))
 ×Sets = BifunctorToParFunctor ×SetsBif

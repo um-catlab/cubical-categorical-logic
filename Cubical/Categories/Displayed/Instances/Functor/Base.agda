@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Instances.Functor.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 import Cubical.Data.Equality as Eq
 
@@ -147,6 +148,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FUNCTORᴰ .isSetHomᴰ {x = F} {y = G} {f = α} {xᴰ = Fᴰ} {yᴰ = Gᴰ} =
     isSetNatTransᴰ
 
+{- TODO: precompose/postcompose/compose are really just the three operations of a compose bifunctor -}
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (E : Category ℓE ℓE')
   {F : Functor C D}
@@ -155,12 +157,24 @@ module _
   where
   open Functorᴰ
   open NatTransᴰ
+  import Cubical.Categories.Displayed.Reasoning Dᴰ as R
   precomposeFᴰ : Functorᴰ (precomposeF E F) (FUNCTORᴰ Dᴰ Eᴰ) (FUNCTORᴰ Cᴰ Eᴰ)
   precomposeFᴰ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰ Fᴰ
   precomposeFᴰ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
   precomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
   precomposeFᴰ .F-idᴰ = refl
   precomposeFᴰ .F-seqᴰ fᴰ gᴰ = refl
+
+  postcomposeFᴰ : Functorᴰ (postcomposeF E F) (FUNCTORᴰ Eᴰ Cᴰ) (FUNCTORᴰ Eᴰ Dᴰ)
+  postcomposeFᴰ .F-obᴰ Gᴰ = Fᴰ ∘Fᴰ Gᴰ
+  postcomposeFᴰ .F-homᴰ αᴰ .N-obᴰ xᴰ = F-homᴰ Fᴰ (αᴰ .N-obᴰ xᴰ)
+  postcomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = R.rectify $ R.≡out $
+    (sym $ R.≡in $ Fᴰ .F-seqᴰ _ _)
+    ∙ (R.≡in $ (λ i → Fᴰ .F-homᴰ (αᴰ .N-homᴰ fᴰ i)))
+    ∙ (R.≡in $ Fᴰ .F-seqᴰ _ _)
+  postcomposeFᴰ .F-idᴰ = makeNatTransPathᴰ _ _ _ λ i _ → Fᴰ .F-idᴰ i
+  postcomposeFᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ λ i _ →
+    Fᴰ .F-seqᴰ (fᴰ .N-obᴰ _) (gᴰ .N-obᴰ _) i
 
 module _
   {C : Category ℓC ℓC'} (E : Category ℓE ℓE')

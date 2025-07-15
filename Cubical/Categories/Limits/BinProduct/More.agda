@@ -16,7 +16,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Profunctor.FunctorComprehension
+open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits.BinProduct
@@ -65,6 +65,9 @@ module _ (C : Category ℓ ℓ') where
   -- Product with a fixed object
   ProdWithAProf : C .ob → Profunctor C C ℓ'
   ProdWithAProf a = appL PshProd (YO ⟅ a ⟆) ∘F YO
+
+  hasAllBinProductWith : C .ob → Type (ℓ-max ℓ ℓ')
+  hasAllBinProductWith a = UniversalElements (ProdWithAProf a)
 
   BinProductToRepresentable : ∀ {a b} → BinProduct C a b
     → UniversalElement C (BinProductProf ⟅ a , b ⟆)
@@ -128,6 +131,10 @@ module _ (C : Category ℓ ℓ') where
     variable
       a b c d : C .ob
       f g h : C [ a , b ]
+  module _ {a} (a×- : hasAllBinProductWith a) where
+    a×-F : Functor C C
+    a×-F = FunctorComprehension a×-
+
   module _ {a} (bp : ∀ b → BinProduct C a b) where
     BinProductWithToRepresentable : UniversalElements (ProdWithAProf a)
     BinProductWithToRepresentable b = BinProductToRepresentable (bp b)

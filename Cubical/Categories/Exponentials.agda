@@ -30,6 +30,9 @@ module _ (C : Category ℓC ℓC') where
   Exponential : (c d : C .ob) → (∀ (e : C .ob) → BinProduct C c e) → Type _
   Exponential c d c×- = RightAdjointAt (BinProductWithF _ c×-) d
 
+  Exponential' : (c d : C .ob) → (c×- : hasAllBinProductWith C c) → Type _
+  Exponential' c d c×- = RightAdjointAt (a×-F C c×-) d
+
   module ExponentialNotation {c d} c×- (exp : Exponential c d c×-) where
     open UniversalElementNotation exp public
     open ProdsWithNotation C c×- public

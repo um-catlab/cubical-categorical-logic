@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe  --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
@@ -15,12 +15,15 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Profunctor
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
@@ -46,6 +49,20 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
 
   hasAllBinProductᴰ : BinProducts' C → Type _
   hasAllBinProductᴰ = RightAdjointᴰ (ΔCᴰ Cᴰ)
+
+  open Functorᴰ
+  ProdWithAProfᴰ : ∀ {c} → Cᴰ.ob[ c ]
+    → Profunctorᴰ (ProdWithAProf C c) Cᴰ Cᴰ ℓD'
+  ProdWithAProfᴰ cᴰ = appLᴰ PshProdᴰ (YOᴰ .F-obᴰ cᴰ) ∘Fᴰ YOᴰ
+
+  hasAllBinProductWithᴰ : ∀ {c} → hasAllBinProductWith C c → Cᴰ.ob[ c ]
+    → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+  hasAllBinProductWithᴰ c×- cᴰ = UniversalElementsᴰ c×- (ProdWithAProfᴰ cᴰ)
+
+  a×-Fᴰ : ∀ {c}  {c×- : hasAllBinProductWith C c}
+            {cᴰ} (cᴰ×ᴰ- : hasAllBinProductWithᴰ c×- cᴰ)
+          → Functorᴰ (a×-F C c×-) Cᴰ Cᴰ
+  a×-Fᴰ {cᴰ = cᴰ} cᴰ×ᴰ- = FunctorᴰComprehension {Pᴰ = ProdWithAProfᴰ cᴰ} cᴰ×ᴰ-
 
   BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
   BinProductⱽ = VerticalRightAdjointAtᴰ (Δᴰ Cᴰ)
@@ -154,4 +171,3 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
         → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
       ×ηⱽ = vbp.ηⱽ
-

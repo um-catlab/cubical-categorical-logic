@@ -65,10 +65,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   a×-Fᴰ {cᴰ = cᴰ} cᴰ×ᴰ- = FunctorᴰComprehension {Pᴰ = ProdWithAProfᴰ cᴰ} cᴰ×ᴰ-
 
   BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
-  BinProductⱽ = VerticalRightAdjointAtᴰ (Δᴰ Cᴰ)
+  BinProductⱽ = RightAdjointAtⱽ (Δᴰ Cᴰ)
 
   hasAllBinProductⱽ : Type _
-  hasAllBinProductⱽ = VerticalRightAdjointᴰ (Δᴰ Cᴰ)
+  hasAllBinProductⱽ = RightAdjointⱽ (Δᴰ Cᴰ)
 
 module hasAllBinProductᴰNotation
          {C : Category ℓC ℓC'}
@@ -140,7 +140,7 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
     (vbp : BinProductⱽ Cᴰ (cᴰ , cᴰ')) where
 
     private
-      module vbp = UniversalElementⱽ vbp
+      module vbp = UniversalElementⱽNotation _ _ _ vbp
 
     vert : Cᴰ.ob[ c ]
     vert = vbp .vertexⱽ
@@ -156,18 +156,19 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       _,ⱽ_ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
         Cᴰ.Hom[ f ][ xᴰ , cᴰ' ] →
         Cᴰ.Hom[ f ][ xᴰ , vert ]
-      (fᴰ ,ⱽ fᴰ') = vbp.introⱽ _ (fᴰ , fᴰ')
+      (fᴰ ,ⱽ fᴰ') = vbp.introᴰ _ (fᴰ , fᴰ')
 
-      ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
-        → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
-        → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₁ ≡ fᴰ
-      ×βⱽ₁ = cong fst vbp.βⱽ
+      opaque
+        ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+           → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₁ ≡ fᴰ
+        ×βⱽ₁ = cong fst vbp.βⱽ
 
-      ×βⱽ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
-        → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
-        → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₂ ≡ fᴰ'
-      ×βⱽ₂ = cong snd vbp.βⱽ
+        ×βⱽ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+          → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+         → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₂ ≡ fᴰ'
+        ×βⱽ₂ = cong snd vbp.βⱽ
 
-      ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
-        → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
-      ×ηⱽ = vbp.ηⱽ
+        ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
+          → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
+        ×ηⱽ = vbp.ηⱽ

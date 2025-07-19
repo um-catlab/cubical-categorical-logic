@@ -6,12 +6,12 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct.Redundant.Base as Prod
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Profunctor.FunctorComprehension
+open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Adjoint.2Var
 open import Cubical.Categories.Presheaf.Representable

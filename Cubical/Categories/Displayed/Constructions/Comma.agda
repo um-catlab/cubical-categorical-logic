@@ -17,7 +17,7 @@ open import Cubical.Data.Unit
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
   hiding (intro)
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Properties

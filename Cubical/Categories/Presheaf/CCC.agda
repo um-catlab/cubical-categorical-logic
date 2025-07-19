@@ -2,7 +2,7 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.CCC where
 
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Category
 open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Functor.Base

@@ -15,7 +15,7 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Bifunctor

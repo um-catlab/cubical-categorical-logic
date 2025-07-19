@@ -27,7 +27,7 @@ open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
 open import Cubical.Categories.Constructions.TotalCategory
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Displayed.Fibration.TwoSided
 open import Cubical.Categories.Displayed.Fibration.IsoFibration
 open import Cubical.Categories.Displayed.Instances.Arrow.Base

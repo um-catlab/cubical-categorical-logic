@@ -16,7 +16,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base

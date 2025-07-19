@@ -11,7 +11,7 @@ open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd; Sym)
 import Cubical.Categories.Constructions.TotalCategory as ∫
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor

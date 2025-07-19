@@ -32,7 +32,6 @@ open NatTrans
 open Contravariant
 open Categoryᴰ
 open UniversalElementᴰ
-open CartesianOver
 
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓS ℓSᴰ : Level

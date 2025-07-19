@@ -30,7 +30,7 @@ open import Cubical.Categories.Displayed.Instances.Arrow.Monoidal
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.Reindex.Monoidal
 open import Cubical.Categories.Displayed.Constructions.TotalCategory.Monoidal
-open import Cubical.Categories.Bifunctor.Redundant hiding (Fst; Snd)
+open import Cubical.Categories.Bifunctor hiding (Fst; Snd)
 
 import      Cubical.Categories.Displayed.Constructions.IsoFiber.Base
   as |IsoFiber|

@@ -31,7 +31,7 @@ open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 open import Cubical.Categories.Constructions.TotalCategory hiding (Fst; Snd)
-open import Cubical.Categories.Bifunctor.Redundant hiding (Fst; Snd)
+open import Cubical.Categories.Bifunctor hiding (Fst; Snd)
 
 private
   variable

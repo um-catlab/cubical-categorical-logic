@@ -28,7 +28,7 @@ open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
 open import Cubical.Categories.Constructions.TotalCategory hiding (Fst; Snd)
-open import Cubical.Categories.Bifunctor.Redundant hiding (Fst; Snd)
+open import Cubical.Categories.Bifunctor hiding (Fst; Snd)
 
 private
   variable

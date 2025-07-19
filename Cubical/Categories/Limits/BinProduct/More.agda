@@ -22,7 +22,7 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Adjoint.UniversalElements
-open import Cubical.Categories.Bifunctor.Redundant as R
+open import Cubical.Categories.Bifunctor as R
 
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions

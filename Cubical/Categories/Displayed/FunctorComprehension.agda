@@ -49,3 +49,5 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     Dᴰ.rectify $ Dᴰ.≡out (∫FunctorComprehension .F-id)
   FunctorᴰComprehension .Functorᴰ.F-seqᴰ fᴰ gᴰ =
     Dᴰ.rectify $ Dᴰ.≡out $ ∫FunctorComprehension .F-seq (_ , fᴰ) (_ , gᴰ)
+
+  -- TODO: FunctorⱽComprehension

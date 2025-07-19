@@ -23,7 +23,7 @@ open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
 open import Cubical.Categories.Profunctor.Hom
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
 open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
-open import Cubical.Categories.Bifunctor.Redundant as Redundant
+open import Cubical.Categories.Bifunctor as Redundant
 open import Cubical.Categories.UniversalConstructions.WeightedLimit
 
 

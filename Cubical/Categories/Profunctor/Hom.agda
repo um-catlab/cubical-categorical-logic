@@ -19,7 +19,7 @@ open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
-open import Cubical.Categories.Bifunctor.Redundant as Bif
+open import Cubical.Categories.Bifunctor as Bif
 
 private
   variable

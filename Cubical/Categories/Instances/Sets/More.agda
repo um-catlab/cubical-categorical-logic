@@ -13,7 +13,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Instances.Functors

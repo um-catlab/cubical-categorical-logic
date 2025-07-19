@@ -168,14 +168,19 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     where
     open UniversalElementNotation ue public
     open UniversalElementᴰ ueᴰ public
+    module ∫ue = UniversalElementNotation
+        {C = TotalCat.∫C {C = C} D} (∫UE ueᴰ)
     private
       module P = PresheafNotation {C = C} P
-      module ∫ue = UniversalElementNotation {C = TotalCat.∫C {C = C} D} (∫UE ueᴰ)
 
     introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
         → Pᴰ.p[ p ][ xᴰ ]
         → D [ intro p ][ xᴰ , vertexᴰ ]
     introᴰ p pᴰ = ∫ue.intro (p , pᴰ) .snd
+
+    -- introᴰ⟨_⟩ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
+    --     → Pᴰ.p[ p ][ xᴰ ]
+    --     → D [ intro p ][ xᴰ , vertexᴰ ]
     opaque
       unfolding β
       βᴰ : ∀ {x xᴰ} {p : Pᴰ.pob[ x ] } {pᴰ : Pᴰ.p[ p ][ xᴰ ]}

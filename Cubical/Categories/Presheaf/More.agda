@@ -125,6 +125,9 @@ module UniversalElementNotation {ℓo}{ℓh}
   intro : ∀ {c} → P.p[ c ] → C [ c , vertex ]
   intro = universalIso _ .inv
 
+  intro⟨_⟩ : ∀ {c} → {f g : P.p[ c ]} → f ≡ g → intro f ≡ intro g
+  intro⟨ p ⟩ = cong intro p
+
   opaque
     β : ∀ {c} → {p : P.p[ c ]} → (intro p P.⋆ element) ≡ p
     β = universalIso _ .rightInv _

@@ -108,24 +108,24 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module f*yᴰ = PresheafⱽNotation (CartesianLiftPsh yᴰ f)
       module cL = UniversalElementⱽNotation Cᴰ _ _ cL
     -- This is *not* slow to typecheck, unlike the definition below. Interesting
-    CartesianLift'→CartesianLift : CartesianLift yᴰ f
-    CartesianLift'→CartesianLift .CartesianLift.f*yᴰ = cL.vertexⱽ
-    -- Herein lies the rub
-    -- Goal: Cᴰ.Hom[ f ][ cL.vertexⱽ , yᴰ ]
-    -- cL.elementⱽ : Cᴰ.Hom[ C.id C.⋆ f ][ cL.vertexⱽ , yᴰ ]
-    CartesianLift'→CartesianLift .CartesianLift.π = R.reind (C.⋆IdL f) cL.elementⱽ
-    CartesianLift'→CartesianLift .CartesianLift.isCartesian .fst = cL.introᴰ _
-    CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .fst gfᴰ =
-      R.rectify $ R.≡out $
-      R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-      ∙ (R.reind-filler _ _)
-      ∙ (R.≡in $ cL.βᴰ)
-    CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .snd gᴰ =
+    -- CartesianLift'→CartesianLift : CartesianLift yᴰ f
+    -- CartesianLift'→CartesianLift .CartesianLift.f*yᴰ = cL.vertexⱽ
+    -- -- Herein lies the rub
+    -- -- Goal: Cᴰ.Hom[ f ][ cL.vertexⱽ , yᴰ ]
+    -- -- cL.elementⱽ : Cᴰ.Hom[ C.id C.⋆ f ][ cL.vertexⱽ , yᴰ ]
+    -- CartesianLift'→CartesianLift .CartesianLift.π = R.reind (C.⋆IdL f) cL.elementⱽ
+    -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .fst = cL.introᴰ _
+    -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .fst gfᴰ =
+    --   R.rectify $ R.≡out $
+    --   R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+    --   ∙ (R.reind-filler _ _)
+    --   ∙ (R.≡in $ cL.βᴰ)
+    -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .snd gᴰ = ?
       -- TODO: finish this
-      R.rectify $ R.≡out $
-      {!!}
-      ∙ {!!}
-      ∙ (sym $ R.≡in $ cL.ηᴰ)
+      -- R.rectify $ R.≡out $
+      -- {!cL.intro⟨_⟩!}
+      -- ∙ cL.∫ue.intro⟨ {!!} ⟩
+      -- ∙ (sym $ R.≡in $ cL.ηᴰ)
 
   isFibration : Type _
   isFibration =

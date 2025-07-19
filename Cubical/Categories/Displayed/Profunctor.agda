@@ -18,6 +18,7 @@ open import Cubical.Categories.Profunctor.General
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Instances.Functors.More
@@ -25,6 +26,7 @@ import Cubical.Categories.Constructions.TotalCategory as TotalCat
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Functor
@@ -68,6 +70,25 @@ module _ {C : Category ℓC ℓC'}
   UniversalElementsᴰ = ∀ x (xᴰ : Cᴰ.ob[ x ])
     → UniversalElementᴰ _ (Rᴰ.F-obᴰ xᴰ) (ues x)
 
+-- A vertical profunctor is a profunctor over Yoneda
+Profunctorⱽ : {C : Category ℓC ℓC'}
+  → (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  → (Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ')
+  → ∀ ℓSᴰ → Type _
+Profunctorⱽ Cᴰ Dᴰ ℓSᴰ = Profunctorᴰ YO Cᴰ Dᴰ ℓSᴰ
+
+module _ {C : Category ℓC ℓC'}
+         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+         (Rᴰ : Profunctorⱽ Cᴰ Dᴰ ℓSᴰ)
+         where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Rᴰ = Functorᴰ Rᴰ
+  UniversalElementsⱽ : Type _
+  UniversalElementsⱽ = ∀ x (xᴰ : Cᴰ.ob[ x ]) →
+    UniversalElementⱽ Dᴰ x (Rᴰ.F-obᴰ xᴰ)
+
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
          {R : Profunctor C D ℓS}
@@ -76,7 +97,7 @@ module _ {C : Category ℓC ℓC'}
          (Rᴰ : Profunctorᴰ R Cᴰ Dᴰ ℓSᴰ)
          where
   ∫Prof : Profunctor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ) (ℓ-max ℓS ℓSᴰ)
-  ∫Prof = ((postcomposeF _ ΣF ∘F ∫F-Functor _ _) ∘F TotalCat.∫F Rᴰ)
+  ∫Prof = ((postcomposeF _ ΣF ∘F precomposeF _ (TotalCat.intro (TotalCat.Fst ^opF) (TotalCat.Snd ^opS))) ∘F ∫F-Functor (Dᴰ ^opᴰ) (SETᴰ ℓS ℓSᴰ)) ∘F TotalCat.∫F Rᴰ -- ((postcomposeF _ ΣF ∘F ∫F-Functor _ _) ∘F TotalCat.∫F Rᴰ)
 
   private
     module Cᴰ = Categoryᴰ Cᴰ

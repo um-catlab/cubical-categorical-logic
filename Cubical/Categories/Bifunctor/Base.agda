@@ -200,19 +200,22 @@ Bifunctor→Functor {E = E} F .F-hom (f , g) = F ⟪ f ⟫l ⋆⟨ E ⟩ F ⟪ g
 Bifunctor→Functor {E = E} F .F-id =
   cong₂ (seq' E) (F .Bif-idL) (F .Bif-idR) ∙ E .⋆IdL _
 Bifunctor→Functor {E = E} F .F-seq (f , g) (f' , g') =
-  cong₂ (E ._⋆_) (F .Bif-seqL _ _) (F .Bif-seqR _ _)
+  E.⟨ F .Bif-seqL _ _ ⟩⋆⟨ F .Bif-seqR _ _ ⟩
   ∙ E .⋆Assoc _ _ _
   ∙ cong₂ (E ._⋆_)
     refl
     (sym (E .⋆Assoc _ _ _) ∙ cong₂ (E ._⋆_) (F .Bif-assoc _ _) refl)
-  ∙ lem where
-  lem : E ._⋆_ (F .Bif-homL f _)
-      (E ._⋆_ ((E ⋆ F .Bif-homR _ g) (F .Bif-homL f' _))
-       (F .Bif-homR _ g'))
-      ≡
-      (E ⋆ (E ⋆ Bif-homL F f _) (Bif-homR F _ g))
-      ((E ⋆ Bif-homL F f' _) (Bif-homR F _ g'))
-  lem = solveCat! E
+  ∙ {!!}
+  where
+    module E = Category E
+  -- lem where
+  -- lem : E ._⋆_ (F .Bif-homL f _)
+  --     (E ._⋆_ ((E ⋆ F .Bif-homR _ g) (F .Bif-homL f' _))
+  --      (F .Bif-homR _ g'))
+  --     ≡
+  --     (E ⋆ (E ⋆ Bif-homL F f _) (Bif-homR F _ g))
+  --     ((E ⋆ Bif-homL F f' _) (Bif-homR F _ g'))
+  -- lem = {!!}
 
 Functor→Bifunctor : Functor (C ×C D) E → Bifunctor C D E
 Functor→Bifunctor {C = C}{D = D} F = F ∘Fb UniversalBifunctor {C = C}{D = D}
@@ -237,4 +240,3 @@ appR .Bif-homR F g = F ⟪ g ⟫
 appR .Bif-idR {c = F} = F .F-id
 appR .Bif-seqR {c = F} g g' = F .F-seq g g'
 appR .Bif-assoc α g = sym (α .N-hom g)
-

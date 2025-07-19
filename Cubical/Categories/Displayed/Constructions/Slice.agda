@@ -44,11 +44,12 @@ open Categoryᴰ
 open Functor
 
 module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  private module Slice = EqReindex Cᴰ (BP.Snd C C) Eq.refl (λ _ _ → Eq.refl)
+  private
+    module Cᴰ' = EqReindex Cᴰ (weakenΠ C C) Eq.refl (λ _ _ → Eq.refl)
+    module Arr = EqReindex (Arrow C) (TotalCat.Fst ,F weakenΠ C C) Eq.refl (λ _ _ → Eq.refl)
   -- See test below for the intuitive definition
   _/C_ : Categoryᴰ C _ _
-  _/C_ = ∫Cᴰ (weaken C C) (Cᴰ' ×ᴰ Arrow C)
-    where Cᴰ' = Slice.reindex
+  _/C_ = ∫Cᴰ (weaken C C) (Cᴰ'.reindex ×ᴰ Arr.reindex)
 
   private
     open Category
@@ -56,35 +57,37 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     test : ∀ {c} → _/C_ .ob[_] c ≡ (Σ[ c' ∈ C .ob ] Cᴰ .ob[_] c' × C [ c , c' ])
     test = refl
 
-  Δ/C : Functorᴰ Id Cᴰ _/C_
-  Δ/C = TotalCatᴰ.introF _ _ (Wk.introF Id Id)
-    (BPᴰ.introS _
-      (Slice.introS _ (reindS' (Eq.refl , Eq.refl) TotalCat.Snd))
+  Δ/C : Functorⱽ Cᴰ _/C_
+  Δ/C =
+    TotalCatᴰ.introF _ _ (Wk.introF _ Id)
+      (BPᴰ.introS _ (Cᴰ'.introS _ (reindS' (Eq.refl , Eq.refl) TotalCat.Snd))
       (reindS' (Eq.refl , Eq.refl)
-        (compSectionFunctor (arrIntroS {F1 = Id}{F2 = Id} (idTrans _))
-          (TotalCat.Fst {Cᴰ = Cᴰ}))))
+        (compSectionFunctor
+          (Arr.introS (TotalCat.intro Id (Wk.introS Id Id))
+          (reindS' (Eq.refl , Eq.refl) (arrIntroS (idTrans Id))))
+          TotalCat.Fst)))
 
   private
     open Functorᴰ
     _ : ∀ c (cᴰ : Cᴰ .ob[_] c) → Δ/C .F-obᴰ cᴰ ≡ (c , (cᴰ , C .id))
     _ = λ c cᴰ → refl
 
-module _ (C : Category ℓC ℓC') where
-  -- Slices .ob[ c ] = Σ[ c' ∈ C .ob] C [ c' , c ]
-  Slices : Categoryᴰ C (ℓ-max ℓC ℓC') (ℓ-max ℓC' ℓC')
-  Slices = ∫Cᴰ (weaken C C) (Arrow C)
+-- module _ (C : Category ℓC ℓC') where
+--   -- Slices .ob[ c ] = Σ[ c' ∈ C .ob] C [ c' , c ]
+--   Slices : Categoryᴰ C (ℓ-max ℓC ℓC') (ℓ-max ℓC' ℓC')
+--   Slices = ∫Cᴰ (weaken C C) (Arrow C)
 
-  private
-    open Category
-    open Categoryᴰ
-    test : ∀ {c} → Slices .ob[_] c ≡ (Σ[ c' ∈ C .ob ] C [ c , c' ])
-    test = refl
+--   private
+--     open Category
+--     open Categoryᴰ
+--     test : ∀ {c} → Slices .ob[_] c ≡ (Σ[ c' ∈ C .ob ] C [ c , c' ])
+--     test = refl
 
-  Subobjects : Categoryᴰ C _ _
-  Subobjects = ∫Cᴰ (weaken C C) (Mono C)
-  private
-    open Category
-    open Categoryᴰ
-    test' : ∀ {c} → Subobjects .ob[_] c
-      ≡ (Σ[ c' ∈ C .ob ] Σ[ f ∈ C [ c , c' ] ] isMonic C f)
-    test' = refl
+--   Subobjects : Categoryᴰ C _ _
+--   Subobjects = ∫Cᴰ (weaken C C) (Mono C)
+--   private
+--     open Category
+--     open Categoryᴰ
+--     test' : ∀ {c} → Subobjects .ob[_] c
+--       ≡ (Σ[ c' ∈ C .ob ] Σ[ f ∈ C [ c , c' ] ] isMonic C f)
+--     test' = refl

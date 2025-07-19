@@ -22,7 +22,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Bifunctor.Redundant as Bif
+open import Cubical.Categories.Bifunctor as Bif
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
@@ -117,8 +117,8 @@ module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
   Profunctor→Relator*o : Profunctor C D ℓS → C *-[ ℓS ]-o D
   Profunctor→Relator*o = CurriedToBifunctor
 
-  Profunctor→Relatoro*^op : Profunctor C D ℓS → (C ^op) o-[ ℓS ]-* (D ^op)
-  Profunctor→Relatoro*^op = CurriedToBifunctor
+  -- Profunctor→Relatoro*^op : Profunctor C D ℓS → (C ^op) o-[ ℓS ]-* (D ^op)
+  -- Profunctor→Relatoro*^op = CurriedToBifunctor
 
   Relator→Profunctor : D o-[ ℓS ]-* C → Profunctor C D ℓS
   Relator→Profunctor R = CurryBifunctor (Bif.Sym R)

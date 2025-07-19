@@ -20,7 +20,7 @@ import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec)
 open import Cubical.Categories.Constructions.Presented as Presented
-open import Cubical.Categories.Bifunctor.Redundant as Bif hiding (Sym)
+open import Cubical.Categories.Bifunctor as Bif hiding (Sym)
 
 private
   variable

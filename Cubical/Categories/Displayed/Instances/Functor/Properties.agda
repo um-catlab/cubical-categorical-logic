@@ -10,7 +10,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Constructions.BinProduct
 import Cubical.Categories.Constructions.TotalCategory as ∫
 

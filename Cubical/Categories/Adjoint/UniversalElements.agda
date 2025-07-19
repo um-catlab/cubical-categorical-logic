@@ -7,11 +7,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Profunctor.FunctorComprehension
 open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Yoneda
 
 private
@@ -28,7 +25,7 @@ module _ {C : Category ℓC ℓC'}
          (F : Functor C D)
          where
   RightAdjointProf : Functor D (PresheafCategory C ℓD')
-  RightAdjointProf = precomposeF (SET _) (F ^opF) ∘F YO
+  RightAdjointProf = precomposeF _ (F ^opF) ∘F YO
 
 
   RightAdjointAt : (d : D .ob) → Type _

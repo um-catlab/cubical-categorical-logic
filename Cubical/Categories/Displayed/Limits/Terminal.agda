@@ -88,12 +88,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       UniversalElementⱽ Cᴰ c TerminalⱽSpec
 
     module TerminalⱽNotation (vt : Terminalⱽ) where
-      open UniversalElementⱽ vt public
+      open UniversalElementⱽNotation _ _ _ vt public
       𝟙ⱽ : Cᴰ.ob[ c ]
       𝟙ⱽ = vertexⱽ
 
       !tⱽ : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) → Cᴰ [ f ][ d' , 𝟙ⱽ ]
-      !tⱽ f d' = introⱽ f tt
+      !tⱽ f d' = introᴰ f tt
 
   hasAllTerminalⱽ : Type _
   hasAllTerminalⱽ = ∀ c → Terminalⱽ c
@@ -102,7 +102,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     open Terminal'Notation term
     open UniversalElementᴰ
     open UniversalElement
-    open UniversalElementⱽ
+    open UniversalElementⱽNotation
     private module R = HomᴰReasoning Cᴰ
 
 
@@ -113,4 +113,4 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     Terminalⱽ→Terminalᴰ termⱽ .universalᴰ .rightInv _ _ = refl
     Terminalⱽ→Terminalᴰ termⱽ .universalᴰ .leftInv f fᴰ = R.rectify $ R.≡out $
       (R.≡in $ λ i → TerminalⱽNotation.!tⱽ _ termⱽ (𝟙η f (~ i)) _)
-      ∙ (sym $ R.≡in $ ηⱽ termⱽ )
+      ∙ (sym $ R.≡in $ ηⱽ _ _ _ termⱽ )

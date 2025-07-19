@@ -55,12 +55,12 @@ module _ (C : Category ℓ ℓ') (c : C .Category.ob) where
     (C .⋆IdR)
     (C .⋆IdR))
 
-  selfUnivEltᵒᵖ : UniversalElement (C ^op) (C [ c ,-])
-  selfUnivEltᵒᵖ .vertex = c
-  selfUnivEltᵒᵖ .element = C .id
-  selfUnivEltᵒᵖ .universal _ = isoToIsEquiv (iso _ (λ z → z)
-    (C .⋆IdL)
-    (C .⋆IdL))
+  -- selfUnivEltᵒᵖ : UniversalElement C (C [ c ,-])
+  -- selfUnivEltᵒᵖ .vertex = c
+  -- selfUnivEltᵒᵖ .element = C .id
+  -- selfUnivEltᵒᵖ .universal _ = isoToIsEquiv (iso _ (λ z → z)
+  --   (C .⋆IdL)
+  --   (C .⋆IdL))
 
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
   open UniversalElement

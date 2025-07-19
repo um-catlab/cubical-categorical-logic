@@ -19,7 +19,7 @@ open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
-open import Cubical.Categories.Bifunctor.Redundant as Bif
+open import Cubical.Categories.Bifunctor as Bif
 
 private
   variable
@@ -60,12 +60,12 @@ module _ {C : Category ℓC ℓC'} where
       → rec ((NATURAL-ELEMENTS ⟪ ϕ ⟫) IdHom) ≡ ϕ
     recη ϕ = makeNatTransPath (funExt λ x → makeNatTransPath refl)
 
-  UniversalNaturalElement
-    : UniversalElement ((RELATOR C C ℓC') ^op) NATURAL-ELEMENTS
-  UniversalNaturalElement .vertex = HomR C
-  UniversalNaturalElement .element = IdHom
-  UniversalNaturalElement .universal P =
-    isoToIsEquiv (iso _ rec recβ recη)
+  -- UniversalNaturalElement
+  --   : UniversalElement ((RELATOR C C ℓC') ^op) NATURAL-ELEMENTS
+  -- UniversalNaturalElement .vertex = HomR C
+  -- UniversalNaturalElement .element = IdHom
+  -- UniversalNaturalElement .universal P =
+  --   isoToIsEquiv (iso _ rec recβ recη)
 
 -- -- TODO: port this to new formulation
 -- -- NatElt→NatTrans :

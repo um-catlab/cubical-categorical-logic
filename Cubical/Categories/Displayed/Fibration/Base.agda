@@ -9,6 +9,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base hiding (isIso)
+open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 -- open import Cubical.Categories.Constructions.Fiber
 -- open import Cubical.Categories.Presheaf.Representable
@@ -41,7 +42,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module R = HomᴰReasoning Cᴰ
     module Cᴰ = Categoryᴰ Cᴰ
     module C = Category C
-  {- Explicit definition -}
+  {- Definition #1: Manual, what you would expect -}
   record CartesianLift {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
          : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))
          where
@@ -51,7 +52,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       isCartesian : ∀ {z} {zᴰ} {g : C [ z , x ]} →
         isIso λ (gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]) → (gᴰ Cᴰ.⋆ᴰ π)
 
-  -- This is a huge PITA. Could just be RightAdjointAt?
+  isFibration : Type _
+  isFibration =
+    ∀ {c : C .ob}{c' : C .ob}
+    (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
+    → CartesianLift cᴰ' f
+
+  {- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -}
+  {- CartesianLift' is not definitionally equivalent to CartesianLift because π is over C.id ⋆ f rather than f -}
   CartesianLiftPsh : ∀ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
     → Presheafⱽ Cᴰ x ℓCᴰ'
   CartesianLiftPsh {x} {y} yᴰ f .F-obᴰ zᴰ g .fst = Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]
@@ -103,6 +111,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   CartesianLift' {x} yᴰ f =
     UniversalElementⱽ Cᴰ x (CARTESIANLIFT .F-obᴰ $ _ , yᴰ , f)
 
+  isFibration' : Type _
+  isFibration' =
+    ∀ {c : C .ob}{c' : C .ob}
+    (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
+    → CartesianLift' cᴰ' f
+
+  CartesianLift'F : isFibration' → Functorⱽ (C /C Cᴰ) Cᴰ
+  CartesianLift'F cL's = FunctorⱽComprehension {Pᴰ = CARTESIANLIFT}
+    λ x (_ , yᴰ , f) → cL's yᴰ f
+
   module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) (cL : CartesianLift' yᴰ f) where
     private
       module f*yᴰ = PresheafⱽNotation (CartesianLiftPsh yᴰ f)
@@ -126,19 +144,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       -- {!cL.intro⟨_⟩!}
       -- ∙ cL.∫ue.intro⟨ {!!} ⟩
       -- ∙ (sym $ R.≡in $ cL.ηᴰ)
-
-  isFibration : Type _
-  isFibration =
-    ∀ {c : C .ob}{c' : C .ob}
-    (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
-    → CartesianLift' cᴰ' f
-
   
   -- CartesianLiftF : isFibration → Functorⱽ (C /C Cᴰ) Cᴰ
   -- CartesianLiftF cartesianLifts = {!FunctorⱽComprehension!}
 
-  {- Hi tech definition -}
-
+  {- Definition #3: This is the "textbook" compositional definition. It suffers from very slow performance -}
   CartesianLift'' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
   CartesianLift'' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)
   -- Unfortunately the following is *extremely* slow to type check

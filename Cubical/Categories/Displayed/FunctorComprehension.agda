@@ -9,17 +9,22 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
+import Cubical.Data.Equality as Eq
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.Yoneda
 
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Profunctor
+open import Cubical.Categories.Displayed.Presheaf
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 
 private
@@ -50,4 +55,16 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FunctorᴰComprehension .Functorᴰ.F-seqᴰ fᴰ gᴰ =
     Dᴰ.rectify $ Dᴰ.≡out $ ∫FunctorComprehension .F-seq (_ , fᴰ) (_ , gᴰ)
 
-  -- TODO: FunctorⱽComprehension
+module _ {C : Category ℓC ℓC'}
+         {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+         {Pᴰ : Profunctorⱽ Cᴰ Dᴰ ℓSᴰ}
+         (uesⱽ : UniversalElementsⱽ Pᴰ) where
+  -- WARNING: reindF
+
+  -- The reind is only needed on morphisms. Would probably be
+  -- preferable to have a reindF'' that is Eq on objects but path on
+  -- morphisms
+  FunctorⱽComprehension : Functorⱽ Cᴰ Dᴰ
+  FunctorⱽComprehension = reindF (Functor≡ (λ _ → refl) (Category.⋆IdL C)) $
+    FunctorᴰComprehension {P = YO} {Pᴰ = Pᴰ} λ x xᴰ →
+      UniversalElementⱽ.toUniversalᴰ (uesⱽ x xᴰ)

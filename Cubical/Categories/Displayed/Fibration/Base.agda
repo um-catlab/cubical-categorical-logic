@@ -1,4 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
+{- This file takes 20s to type check -}
 module Cubical.Categories.Displayed.Fibration.Base where
 
 open import Cubical.Foundations.Prelude

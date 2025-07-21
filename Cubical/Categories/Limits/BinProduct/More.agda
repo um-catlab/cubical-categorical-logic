@@ -22,7 +22,7 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Adjoint.UniversalElements
-open import Cubical.Categories.Bifunctor as R
+open import Cubical.Categories.Bifunctor as R hiding (Fst; Snd)
 
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
@@ -124,6 +124,9 @@ module _ (C : Category ℓ ℓ') where
 
     BinProductF : Functor (C R.×C C) C
     BinProductF = FunctorComprehension BinProductsToUnivElts
+
+    BinProductF' : Functor (C ×C C) C
+    BinProductF' = BinProductF ∘F R.ProdToRedundant C C
 
     BinProductBif : Bifunctor C C C
     BinProductBif = R.Functor→Bifunctor BinProductF
@@ -239,20 +242,13 @@ module _ (C : Category ℓ ℓ') where
     private
       ues = BinProductsToUnivElts bp
 
-    module _ (a b : C .ob) where
-      open NotationAt (bp a b)
-      _×_ = vert
+    _×_ : C .ob → C .ob → C .ob
+    a × b = NotationAt.vert (bp a b)
 
     module _ {a b : C .ob} where
       -- TODO: π₁, π₂ are natural transformations as well,
       -- which should follow by general fact that universal elements are natural
-      open NotationAt (bp a b) using
-        ( π₁ ; π₂
-        ; _,p_
-        ; ×β₁ ; ×β₂
-        ; ×η ; ×η'
-        ; ,p-natural
-        ; ×-extensionality) public
+      open NotationAt (bp a b) hiding (vert) public
 
     ×pF = BinProductF bp
 
@@ -277,6 +273,14 @@ module _ (C : Category ℓ ℓ') where
       module PWN = ProdsWithNotation (bp Γ)
       ×pF-with-agrees : ×Bif ⟪ C .id , f ⟫× ≡ PWN.×pF ⟪ f ⟫
       ×pF-with-agrees = sym (×Bif .Bif-R×-agree _)
+
+    π₁Nat : BinProductF' bp ⇒ Fst C C
+    π₁Nat .NatTrans.N-ob _ = π₁
+    π₁Nat .NatTrans.N-hom _ = ×β₁
+
+    π₂Nat : BinProductF' bp ⇒ Snd C C
+    π₂Nat .NatTrans.N-ob _ = π₂
+    π₂Nat .NatTrans.N-hom _ = ×β₂
 
 module _ {C : Category ℓ ℓ'} where
   module BinProduct'Notation {c c' : C .ob} (bp : BinProduct' C (c , c')) =

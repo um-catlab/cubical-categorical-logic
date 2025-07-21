@@ -286,7 +286,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         ∙ (RCᴰ.≡in $ universalⱽ .snd .snd fᴰ)
   module UniversalElementⱽNotation (ueⱽ : UniversalElementⱽ) where
     open UniversalElementⱽ ueⱽ public
-    open UniversalElementᴰNotation Cᴰ Pⱽ (UniversalElementⱽ.toUniversalᴰ ueⱽ) public
+    open UniversalElementᴰNotation Cᴰ Pⱽ (UniversalElementⱽ.toUniversalᴰ ueⱽ)
+      public
     βⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : Pⱽ.p[ f ][ yᴰ ]}
       → introᴰ f pᴰ Pⱽ.⋆ᴰⱽ elementⱽ ≡ pᴰ
     βⱽ = universalⱽ .snd .fst _

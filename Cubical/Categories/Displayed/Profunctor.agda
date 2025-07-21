@@ -97,7 +97,8 @@ module _ {C : Category ℓC ℓC'}
          (Rᴰ : Profunctorᴰ R Cᴰ Dᴰ ℓSᴰ)
          where
   ∫Prof : Profunctor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ) (ℓ-max ℓS ℓSᴰ)
-  ∫Prof = ((postcomposeF _ ΣF) ∘F ∫F-Functor (Dᴰ ^opᴰ) (SETᴰ ℓS ℓSᴰ)) ∘F TotalCat.∫F Rᴰ
+  ∫Prof = ((postcomposeF _ ΣF) ∘F ∫F-Functor (Dᴰ ^opᴰ) (SETᴰ ℓS ℓSᴰ))
+    ∘F TotalCat.∫F Rᴰ
 
   private
     module Cᴰ = Categoryᴰ Cᴰ

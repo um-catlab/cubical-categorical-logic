@@ -59,8 +59,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
     → CartesianLift cᴰ' f
 
-  {- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -}
-  {- CartesianLift' is not definitionally equivalent to CartesianLift because π is over C.id ⋆ f rather than f -}
+  -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
+  -- CartesianLift' is not definitionally equivalent to CartesianLift
+  -- because π is over C.id ⋆ f rather than f
   CartesianLiftPsh : ∀ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
     → Presheafⱽ Cᴰ x ℓCᴰ'
   CartesianLiftPsh {x} {y} yᴰ f .F-obᴰ zᴰ g .fst = Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]
@@ -122,7 +123,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   CartesianLift'F cL's = FunctorⱽComprehension {Pᴰ = CARTESIANLIFT}
     λ x (_ , yᴰ , f) → cL's yᴰ f
 
-  module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) (cL : CartesianLift' yᴰ f) where
+  module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
+    (cL : CartesianLift' yᴰ f) where
     private
       module f*yᴰ = PresheafⱽNotation (CartesianLiftPsh yᴰ f)
       module cL = UniversalElementⱽNotation Cᴰ _ _ cL
@@ -145,11 +147,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       -- {!cL.intro⟨_⟩!}
       -- ∙ cL.∫ue.intro⟨ {!!} ⟩
       -- ∙ (sym $ R.≡in $ cL.ηᴰ)
-  
+
   -- CartesianLiftF : isFibration → Functorⱽ (C /C Cᴰ) Cᴰ
   -- CartesianLiftF cartesianLifts = {!FunctorⱽComprehension!}
 
-  {- Definition #3: This is the "textbook" compositional definition. It suffers from very slow performance -}
+  -- Definition #3: This is the "textbook" compositional
+  -- definition. It suffers from very slow performance
   CartesianLift'' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
   CartesianLift'' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)
   -- Unfortunately the following is *extremely* slow to type check

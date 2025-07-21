@@ -24,14 +24,17 @@ open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.BinProduct.More as BP
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Displayed.Base as Disp
-open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk hiding (introF)
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
+  hiding (introF)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Eq as Reindex
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ hiding (introF)
+open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
+  hiding (introF)
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Arrow
-open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ hiding (introF)
+open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
+  hiding (introF)
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Section.Base

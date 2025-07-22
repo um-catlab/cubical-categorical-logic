@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Limits.Terminal
@@ -27,7 +28,6 @@ private
   variable
     ℓ ℓ' ℓS ℓS' : Level
 
--- Isomorphism between presheaves of different levels
 PshIso : (C : Category ℓ ℓ')
          (P : Presheaf C ℓS)
          (Q : Presheaf C ℓS') → Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS) ℓS')
@@ -96,6 +96,9 @@ module PresheafNotation {ℓo}{ℓh}
             → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
   ⟨ f≡f' ⟩⋆⟨ g≡g' ⟩ = cong₂ _⋆_ f≡f' g≡g'
 
+  isSetPsh : ∀ {x} → isSet (p[ x ])
+  isSetPsh {x} = (P ⟅ x ⟆) .snd
+
 module UniversalElementNotation {ℓo}{ℓh}
        {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
        (ue : UniversalElement C P)
@@ -149,3 +152,30 @@ module UniversalElementNotation {ℓo}{ℓh}
       ( (∘ᴾAssoc C P _ _ _
       ∙ cong (action C P _) β)
       ∙ sym β)
+
+
+-- Natural transformation between presheaves of different levels
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  PshHom : Type _
+  PshHom = Σ[ α ∈ (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) ]
+    (∀ x y (f : C [ x , y ]) (p : P.p[ y ])→
+     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
+
+  isPropN-hom : ∀ (α : (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ])) →
+    isProp (∀ x y (f : C [ x , y ]) (p : P.p[ y ])→
+     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
+  isPropN-hom = λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → Q.isSetPsh _ _
+
+  isSetPshHom : isSet PshHom
+  isSetPshHom = isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
+  makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
+   → α ≡ β
+  makePshHomPath = ΣPathPProp (isPropN-hom P Q)
+
+

@@ -14,6 +14,7 @@ open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Yoneda.More
 
@@ -21,6 +22,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 
@@ -57,82 +60,84 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
         sym (prf₁) i .N-ob x x₁ , sym (prf₂) i .N-ob x x₁
 
 module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
-  private
-    ℓp = ℓ-max ℓ' (ℓ-max ℓ ℓA)
-    ℓq = ℓ-max ℓ' (ℓ-max ℓ ℓB)
-    ℓr = ℓ-max ℓ' (ℓ-max ℓ (ℓ-max ℓA ℓB))
+  -- private
+  --   ℓp = ℓ-max ℓ' (ℓ-max ℓ ℓA)
+  --   ℓq = ℓ-max ℓ' (ℓ-max ℓ ℓB)
+  --   ℓr = ℓ-max ℓ' (ℓ-max ℓ (ℓ-max ℓA ℓB))
 
-    𝓟 = PresheafCategory C ℓp
-    𝓠 = PresheafCategory C ℓq
-    𝓡 = PresheafCategory C ℓr
+  --   𝓟 = PresheafCategory C ℓp
+  --   𝓠 = PresheafCategory C ℓq
+  --   𝓡 = PresheafCategory C ℓr
 
-  ExpOb : ob 𝓟 → ob 𝓠 → ob 𝓡
-  ExpOb A B .F-ob c =
-    (𝓡 [ PshProd ⟅ LiftF {_}{ℓr} ∘F (YONEDA {ℓ}{ℓ'}{C} .F-ob  c) , A ⟆b ,
-        LiftF {_} {ℓr} ∘F B ])
-      , (𝓡 .isSetHom)
-  ExpOb A B .F-hom {X}{Y} Y→X M =
-    PshProd .Bif-hom× ((LiftF {ℓ'}{ℓr} ∘ʳ (YONEDA .F-hom Y→X))) (𝓟 .id)
-    ⋆⟨ 𝓡 ⟩ M
-  ExpOb A B .F-id =
-    funExt λ M →
-      makeNatTransPath (
-        funExt λ Z →
-          funExt λ{ _ →
-            cong (M .N-ob Z) (≡-× (cong lift (C .⋆IdR _)) refl)})
-  ExpOb A B .F-seq f g =
-    funExt λ M →
-      makeNatTransPath (
-        funExt λ Z →
-          funExt λ{ _ →
-            cong (M .N-ob Z) (≡-× (cong lift (sym (C .⋆Assoc _ _ _ ))) refl)})
+  module _ (P : Presheaf C ℓA) (Q : Presheaf C ℓB) where
+    private
+      module C = Category C
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+    -- ExpObFail0 : ob 𝓡
+    -- ExpObFail0 .F-ob x .fst = P.p[ x ] → Q.p[ x ]
+    -- ExpObFail0 .F-ob x .snd = {!!}
+    -- ExpObFail0 .F-hom f α p = {!α!} -- fail! we can't get a Q.p[ y ] out of α, only Q.p[ x ]
+    -- ExpObFail0 .F-id = {!!}
+    -- ExpObFail0 .F-seq = {!!}
+
+    -- ExpObFail1 : Presheaf C {!!}
+    -- ExpObFail1 .F-ob x .fst = ∀ y (f : C [ y , x ]) → P.p[ y ] → Q.p[ y ]
+    -- ExpObFail1 .F-ob x .snd = {!!}
+    -- -- yay problem solved?
+    -- ExpObFail1 .F-hom f α z g p = α z ((C ⋆ g) f) p
+    -- ExpObFail1 .F-id = funExt λ α → funExt λ z → funExt λ g → funExt λ p →
+    --   λ i → α z (C .⋆IdR g i) p
+    -- -- Nope, can't prove F-seq without additional naturality assumption on α
+    -- ExpObFail1 .F-seq f g = {!!}
+
+    ExpOb : Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓA) ℓB)
+    ExpOb .F-ob c .fst = PshHom (PshProd ⟅ (C [-, c ]) , P ⟆b) Q
+    ExpOb .F-ob c .snd = isSetPshHom _ _
+    ExpOb .F-hom f α .fst z (g , p) = α .fst z ((g C.⋆ f) , p)
+    ExpOb .F-hom f α .snd z y h (g , p) =
+      cong (α .fst z) (ΣPathP ((C.⋆Assoc _ _ _) , refl))
+      ∙ α .snd z y h (g C.⋆ f , p)
+    ExpOb .F-id = funExt λ α → makePshHomPath $ funExt λ z → funExt λ (g , p) →
+      cong (α .fst z) (ΣPathP ((C.⋆IdR g) , refl))
+    ExpOb .F-seq f g = funExt λ α → makePshHomPath $
+      funExt λ z → funExt λ (h , p) →
+      cong (α .fst z) (ΣPathP ((sym (C.⋆Assoc h g f)) , refl))
 
 module _ (C : Category ℓ ℓ') (ℓS : Level) where
   private
-    ℓp = ℓ-max ℓ' (ℓ-max ℓ ℓS)
-    𝓟 = PresheafCategory C ℓp
+    ℓS' = ℓ-max ℓ (ℓ-max ℓ' ℓS)
+    module C = Category C
+  
+  -- inlining this definition results in termination checker issues..
+  eval : (A B : Presheaf C ℓS') → PshProd ⟅ ExpOb A B , A ⟆b ⇒ B
+  eval A B .N-ob x (α , a) = α .fst x (C.id , a)
+  eval A B .N-hom f = funExt λ (α , a) →
+    cong (α .fst _) (ΣPathP (C.⋆IdL f ∙ sym (C.⋆IdR f) , refl))
+    ∙ α .snd _ _ _ _
 
-    -- inlining this definition results in termination issues..
-    eval : (A B : ob 𝓟) →
-      PshProd {ℓ}{ℓ'}{C}{ℓp}{ℓp} ⟅ ExpOb {C = C} {ℓp}{ℓp}  B A , B ⟆b ⇒ A
-    eval A B =
-      natTrans (λ{x (B→A , Bx) → B→A .N-ob x ((lift (C .id)) , Bx) .lower})
-      λ {x}{y} f → funExt λ{ (B→A , Bx) →
-      cong lower (cong₂ (B→A .N-ob) refl
-        (≡-× (cong lift ((C .⋆IdL f) ∙ sym (C .⋆IdR f))) refl))
-        ∙ λ i → (funExt⁻ (B→A .N-hom f) (lift (C .id) , Bx)) i .lower }
+  module _ (A B Γ : Presheaf C ℓS') where
+    private
+      module Γ = PresheafNotation Γ
+    λPsh : PshProd ⟅ Γ , A ⟆b ⇒ B → Γ ⇒ ExpOb A B
+    λPsh ϕ .N-ob x γ .fst y (f , a) = ϕ .N-ob y (f Γ.⋆ γ , a)
+    λPsh ϕ .N-ob x γ .snd y z f (g , a) =
+      cong (ϕ .N-ob y) (ΣPathP (Γ.⋆Assoc _ _ _ , refl))
+      ∙ funExt⁻ (ϕ .N-hom _) _
+    λPsh ϕ .N-hom f = funExt (λ γ → makePshHomPath (funExt (λ x → funExt (λ (g , a) → cong (ϕ .N-ob x) (ΣPathP ((sym $ Γ.⋆Assoc _ _ _) , refl))))))
 
-  ⇒𝓟 : Exponentials 𝓟 (×𝓟 C ℓp)
-  ⇒𝓟 (A , B) .vertex = ExpOb {C = C}{ℓp}{ℓp} B A
-  ⇒𝓟 (A , B) .element = eval A B
-  ⇒𝓟 (A , B) .universal Z .equiv-proof Z×B→A =
-    uniqueExists
-      (natTrans (λ x Zx → natTrans (λ{y (Ly→x , By) →
-      lift (Z×B→A .N-ob y ((Z .F-hom (Ly→x .lower) Zx) , By))})
-        λ{y}{z}z→y → funExt λ{ (y→x , By) →
-        liftExt (cong (λ h → Z×B→A .N-ob z (h , B .F-hom z→y By ))
-        (funExt⁻ (Z .F-seq _ _ ) Zx)
-        ∙ funExt⁻ (Z×B→A .N-hom z→y) (Z .F-hom (y→x .lower) Zx , By)) })
-        λ{x}{y}f → funExt λ Zx → makeNatTransPath (funExt λ z →
-          funExt λ{(y→z , Bz)→ liftExt (cong (λ h → Z×B→A .N-ob z (h , Bz))
-          (funExt⁻ (sym (Z .F-seq f (y→z .lower))) Zx))}))
-      (makeNatTransPath (funExt λ x → funExt λ{(Zx , Bx) →
-        cong (λ arg → Z×B→A .N-ob x (arg , Bx)) (funExt⁻ (Z .F-id) Zx)}))
-      (λ a' x y  → 𝓟 .isSetHom _ _  x y)
-      λ Z→A^B prf →
-      makeNatTransPath (
-        funExt λ x → funExt λ Zx →
-          makeNatTransPath (
-            funExt λ y → funExt λ {(y→x , By) →
-            -- this should type check.. but Agda runs out of memory
-            -- tried no lossy unification and filling in implicits
-            -- still no luck
-            ( liftExt (λ i →
-              (sym prf) i .N-ob y (Z .F-hom (y→x .lower) Zx , By))
-            ∙ cong (λ h → h .N-ob y (lift (C .id) , By))
-                (funExt⁻ (Z→A^B .N-hom (y→x .lower)) Zx ))
-            ∙ cong (λ h → Z→A^B .N-ob x Zx .N-ob y h)
-                (≡-×  (cong lift (C .⋆IdL _)) refl)}))
+  ⇒𝓟 : Exponentials (PresheafCategory C ℓS') (×𝓟 C _)
+  ⇒𝓟 (Q , P) .vertex = ExpOb P Q
+  ⇒𝓟 (Q , P) .element = eval P Q
+  ⇒𝓟 (Q , P) .universal Γ = isIsoToIsEquiv
+    ( λPsh P Q Γ
+    , (λ α → makeNatTransPath (funExt (λ x → funExt (λ (f , p) → cong (α .N-ob x) (ΣPathP ((funExt⁻ (Γ .F-id) f) , refl))))))
+    , λ α → makeNatTransPath (funExt (λ x → funExt (λ γ → makePshHomPath (funExt (λ y → funExt λ (f , p) →
+      funExt⁻ (funExt⁻ (cong fst (funExt⁻ (α .N-hom f) γ)) y) _
+      ∙ cong (α .N-ob x γ .fst y) (ΣPathP ((C.⋆IdL f) , refl))))))))
 
   𝓟-CCC : CartesianClosedCategory _ _
-  𝓟-CCC = 𝓟 , ⊤𝓟 _ _ , (×𝓟 _ _ , ⇒𝓟 )
+  𝓟-CCC .fst = PresheafCategory C (ℓ-max ℓ (ℓ-max ℓ' ℓS))
+  𝓟-CCC .snd .fst = ⊤𝓟 C _
+  𝓟-CCC .snd .snd .fst = ×𝓟 C _
+  𝓟-CCC .snd .snd .snd = ⇒𝓟

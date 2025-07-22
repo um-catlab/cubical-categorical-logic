@@ -47,7 +47,7 @@ open Categoryᴰ
 open Functor
 
 module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  private module Slice = EqReindex Cᴰ (BP.Snd C C) Eq.refl (λ _ _ → Eq.refl)
+  module Slice = EqReindex Cᴰ (BP.Snd C C) Eq.refl (λ _ _ → Eq.refl)
   -- See test below for the intuitive definition
   _/C_ : Categoryᴰ C _ _
   _/C_ = ∫Cᴰ (weaken C C) (Cᴰ' ×ᴰ Arrow C)

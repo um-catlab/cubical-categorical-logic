@@ -271,6 +271,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       universalⱽ : ∀ {y yᴰ}{f : C [ y , x ]} →
         isIso λ (fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]) → fᴰ Pⱽ.⋆ᴰⱽ elementⱽ
 
+    CategoryOf : Category ℓC ℓC'
+    CategoryOf = C
+
+    CategoryᴰOf : Categoryᴰ C ℓCᴰ ℓCᴰ'
+    CategoryᴰOf = Cᴰ
+
     toUniversalᴰ : UniversalElementᴰ Cᴰ Pⱽ (selfUnivElt C x)
     toUniversalᴰ .UniversalElementᴰ.vertexᴰ = vertexⱽ
     toUniversalᴰ .UniversalElementᴰ.elementᴰ = elementⱽ

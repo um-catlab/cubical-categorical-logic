@@ -11,6 +11,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base hiding (isIso)
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.NaturalTransformation
 -- open import Cubical.Categories.Constructions.Fiber
 -- open import Cubical.Categories.Presheaf.Representable
@@ -25,8 +26,10 @@ import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Functor.Base
+open import Cubical.Categories.Displayed.Instances.Arrow.Base
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Constructions.Slice
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.FunctorComprehension
 
@@ -157,13 +160,110 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   CartesianLift'' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)
   -- Unfortunately the following is *extremely* slow to type check
 
-  -- module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) (cL : CartesianLift'' yᴰ f) where
-  --   private
-  --     module cL = UniversalElementⱽNotation {C = C} Cᴰ _ _ cL
-  --   CartesianLift''→CartesianLift' : CartesianLift' yᴰ f
-  --   CartesianLift''→CartesianLift' .UniversalElementⱽ.vertexⱽ = cL.vertexⱽ
-  --   CartesianLift''→CartesianLift' .UniversalElementⱽ.elementⱽ = {!cL.elementⱽ!} -- cL.elementⱽ
-  --   CartesianLift''→CartesianLift' .UniversalElementⱽ.universalⱽ = {!!}
+  module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) (cL : CartesianLift'' yᴰ f) where
+    private
+      module cL = UniversalElementⱽNotation {C = C} Cᴰ _ _ cL
+    CartesianLift''→CartesianLift' : CartesianLift' yᴰ f
+    CartesianLift''→CartesianLift' .UniversalElementⱽ.vertexⱽ = cL.vertexⱽ
+    CartesianLift''→CartesianLift' .UniversalElementⱽ.elementⱽ = elt -- cL.elementⱽ
+      where
+
+      -- To get around normalization issues for {! cL.elementⱽ !},
+      -- I first defined cle : t below with t = ?,
+      -- and then I solved for the definition of t to get agda to tell me the type of cL.elementⱽ
+
+      t : Type _
+      -- Used the below normalized types and changed the names/added imports to make each module a valid name
+      t = Σ (C [ F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .fst , y ])
+          (λ fᴰ → (Slice.reindex C Cᴰ [ C.id , fᴰ ][ F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .snd .fst , yᴰ ]) ×
+                   (Arrow C [ C.id , fᴰ ][ F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .snd .snd , f ]))
+
+      -- From C-u C-c C-s/C-u C-u C-c C-s
+      -- t = {!Σ (C [ F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .fst , y ])
+      --      (λ fᴰ →
+      --         (Cubical.Categories.Displayed.Constructions.Slice.Cᴰ' C Cᴰ [
+      --          C.id , fᴰ ][ F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .snd .fst , yᴰ ])
+      --         ×
+      --         (Cubical.Categories.Displayed.Instances.Arrow.Base.Arrow C [
+      --          C.id , fᴰ ][ F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .snd .snd , f ]))
+      --          !}
+
+      -- From C-c C-s
+      -- t = {!Σ
+      --      (Categoryᴰ.Hom[
+      --       Cubical.Categories.Displayed.Constructions.Weaken.Base.weaken C C
+      --       ][ C.id , F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .fst ]
+      --       y)
+      --      (λ fᴰ →
+      --         Categoryᴰ.Hom[
+      --         Cubical.Categories.Displayed.Constructions.Slice.Cᴰ' C Cᴰ
+      --         Cubical.Categories.Displayed.BinProduct._.×ᴰ
+      --         Cubical.Categories.Displayed.Instances.Arrow.Base.Arrow C
+      --         ][ C.id , fᴰ , F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ .snd ]
+      --         (yᴰ , f))!}
+
+      cle : t
+      cle = cL.elementⱽ
+
+      -- Defined this term with a hole for the type then solved
+      fobd : Categoryᴰ.ob[ (C /C Cᴰ) ^opᴰ ] x
+      fobd = F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ
+
+      fobd' : Σ[ z ∈ C.ob ] Categoryᴰ.ob[ Cᴰ ] z × C [ x , z ]
+      fobd' = F-obᴰ (Δ/C C Cᴰ ^opFⱽ) cL.vertexⱽ
+
+      x' : C.ob
+      x' = fobd .fst
+
+      _ : x ≡ x'
+      _ = refl -- nice
+
+      x→x : C [ x , x ]
+      x→x = fobd .snd .snd
+
+      _ : x→x ≡ C.id
+      _ = refl
+
+      xᴰ : Categoryᴰ.ob[ Cᴰ ] x
+      xᴰ = fobd .snd .fst
+
+      t' : Type _
+      t' = Σ[ h ∈ C [ x , y ] ] ((Cᴰ [ h ][ xᴰ , yᴰ ]) × (C.id ⋆⟨ C ⟩ f ≡ C.id ⋆⟨ C ⟩ h))
+
+      --              h
+      --    x ---------------> y
+      --    ^                  ^
+      --    |                  |
+      -- id |                  | f
+      --    |                  |
+      --    x ---------------> x
+      --             id
+
+      cle' : t'
+      cle' = cL.elementⱽ
+
+      h = cle .fst
+      hᴰ = cle .snd .fst
+      id-f≡id-h = cle .snd .snd
+
+      -- Goal needs a morphism displayed over id ⋆⟨ C ⟩ f
+      p : C.id ⋆⟨ C ⟩ f ≡ h
+      p = id-f≡id-h ∙ C.⋆IdL h
+
+      elt : Cᴰ [ C.id ⋆⟨ C ⟩ f ][ xᴰ , yᴰ ]
+      elt = subst (λ z → Cᴰ [ z ][ xᴰ , yᴰ ]) (sym p) hᴰ
+      -- This is actually pretty simple once you know what's going on
+      -- On Friday we sketched this out manually but here Agda kinda gives us the right type
+      --
+      -- C-u C-u C-c C-. Annoyingly hangs but the above method gets us
+      -- Agda to tell us the defintion of the type
+
+    -- TODO
+    CartesianLift''→CartesianLift' .UniversalElementⱽ.universalⱽ {y = z} {yᴰ = zᴰ} {f = g} = {!!}
+      -- {!equivToIso (_ , (cL.universal ?))!}
+    -- CartesianLift''→CartesianLift' .UniversalElementⱽ.universalⱽ {y = z} {yᴰ = zᴰ} {f = g} .fst gᴰ = {!cL.element!}
+    -- CartesianLift''→CartesianLift' .UniversalElementⱽ.universalⱽ .snd .fst b = {!!}
+    -- CartesianLift''→CartesianLift' .UniversalElementⱽ.universalⱽ .snd .snd = {!!}
 
 -- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --   {F : Functor C D}

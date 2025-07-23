@@ -14,10 +14,12 @@ open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
+
 open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 
 private
@@ -90,3 +92,12 @@ open Functor
 ×Setsᴰ .F-homᴰ (g₁ , g₂) (a₁ , a₂) (b₁ , b₂) = g₁ a₁ b₁ , g₂ a₂ b₂
 ×Setsᴰ .F-idᴰ = refl
 ×Setsᴰ .F-seqᴰ fᴰ gᴰ = refl
+
+×Setsⱽ : Functorⱽ
+  (SETᴰ ℓ ℓ' ×ᴰ SETᴰ ℓ ℓ''')
+  (SETᴰ ℓ (ℓ-max ℓ' ℓ'''))
+×Setsⱽ .F-obᴰ (B₁ , B₂) a .fst = ⟨ B₁ a ⟩ × ⟨ B₂ a ⟩
+×Setsⱽ .F-obᴰ (B₁ , B₂) a .snd = isSet× (B₁ a .snd) (B₂ a .snd)
+×Setsⱽ .F-homᴰ (g₁ , g₂) a (b₁ , b₂) = (g₁ a b₁) , (g₂ a b₂)
+×Setsⱽ .F-idᴰ = refl
+×Setsⱽ .F-seqᴰ fᴰ gᴰ = refl

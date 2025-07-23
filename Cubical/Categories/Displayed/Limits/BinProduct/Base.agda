@@ -15,8 +15,10 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Displayed.Base
+import Cubical.Categories.Displayed.BinProduct as BP
 open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
@@ -64,11 +66,23 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
           → Functorᴰ (a×-F C c×-) Cᴰ Cᴰ
   a×-Fᴰ {cᴰ = cᴰ} cᴰ×ᴰ- = FunctorᴰComprehension {Pᴰ = ProdWithAProfᴰ cᴰ} cᴰ×ᴰ-
 
+  -- Vertical Binary Products
   BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
   BinProductⱽ = RightAdjointAtⱽ (Δᴰ Cᴰ)
 
+  BinProductProfⱽ : Profunctorⱽ (Cᴰ BP.×ᴰ Cᴰ) Cᴰ ℓD'
+  BinProductProfⱽ = RightAdjointProfⱽ (Δᴰ Cᴰ)
+
   hasAllBinProductⱽ : Type _
   hasAllBinProductⱽ = RightAdjointⱽ (Δᴰ Cᴰ)
+
+  -- "Direct" definition of BinProductⱽ
+  BinProductⱽ' : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
+  BinProductⱽ' {c} (cᴰ , cᴰ') =
+    UniversalElementⱽ Cᴰ c (PshProdⱽ .F-obᴰ ((YOᴰ .F-obᴰ cᴰ) , (YOᴰ .F-obᴰ cᴰ')))
+
+  BinProduct'Profⱽ : Profunctorⱽ (Cᴰ BP.×ᴰ Cᴰ) Cᴰ ℓD'
+  BinProduct'Profⱽ = PshProdⱽ ∘Fⱽᴰ ((YOᴰ ∘Fᴰⱽ Fstⱽ Cᴰ Cᴰ) ,Fⱽ (YOᴰ ∘Fᴰⱽ Sndⱽ Cᴰ Cᴰ))
 
 module hasAllBinProductᴰNotation
          {C : Category ℓC ℓC'}
@@ -78,18 +92,18 @@ module hasAllBinProductᴰNotation
        where
 
   private
-    module BP = BinProducts'Notation bp'
+    module BP' = BinProducts'Notation bp'
     module Cᴰ = Categoryᴰ Cᴰ
     module R = HomᴰReasoning Cᴰ
 
-  open BP
+  open BP'
 
   private
     variable
       c c' c₁ c₂ : C .ob
       d d' d₁ d₂ : Cᴰ.ob[ c ]
 
-  _×ᴰ_ : Cᴰ.ob[ c₁ ] → Cᴰ.ob[ c₂ ] → Cᴰ.ob[ c₁ BP.× c₂ ]
+  _×ᴰ_ : Cᴰ.ob[ c₁ ] → Cᴰ.ob[ c₂ ] → Cᴰ.ob[ c₁ BP'.× c₂ ]
   _×ᴰ_ d₁ d₂ = bpᴰ (d₁ , d₂) .vertexᴰ
 
   module _ {c₁ c₂} {d₁ : Cᴰ.ob[ c₁ ]} {d₂ : Cᴰ.ob[ c₂ ]} where
@@ -123,7 +137,7 @@ module hasAllBinProductᴰNotation
         ×β₂ᴰ = λ i → UniversalElementᴰNotation.βᴰ _ _
           (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
 
-    module _ {f : C [ c , c₁ BP.× c₂ ]}
+    module _ {f : C [ c , c₁ BP'.× c₂ ]}
              {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
            where
       opaque
@@ -153,6 +167,7 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
     π₂ = π₁₂ .snd
 
     module _ {x : C .ob}{xᴰ : Cᴰ.ob[ x ]}{f : C [ x , c ]} where
+      infixr 4 _,ⱽ_
       _,ⱽ_ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
         Cᴰ.Hom[ f ][ xᴰ , cᴰ' ] →
         Cᴰ.Hom[ f ][ xᴰ , vert ]
@@ -172,3 +187,15 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
         ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
           → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
         ×ηⱽ = vbp.ηⱽ
+module _ {C  : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module R = HomᴰReasoning Cᴰ
+  module AllBinProductⱽNotation (vbp : hasAllBinProductⱽ Cᴰ) where
+    private
+      module bpⱽs {a}{aᴰ aᴰ' : Cᴰ.ob[ a ]} = BinProductⱽNotation (vbp (aᴰ , aᴰ'))
+
+    _×ⱽ_ : ∀ {a} → Cᴰ.ob[ a ] → Cᴰ.ob[ a ] → Cᴰ.ob[ a ]
+    aᴰ ×ⱽ aᴰ' = bpⱽs.vert {aᴰ = aᴰ}{aᴰ' = aᴰ'}
+
+    open bpⱽs hiding (vert) public

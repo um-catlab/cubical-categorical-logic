@@ -180,13 +180,25 @@ module _
 module _
   {C : Category ℓC ℓC'} (E : Category ℓE ℓE')
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-  (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') (Fᴰ : Functorⱽ Cᴰ Dᴰ)
+  (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') (Fⱽ : Functorⱽ Cᴰ Dᴰ)
   where
   open Functorᴰ
   open NatTransᴰ
   precomposeFⱽ : Functorⱽ (FUNCTORᴰ Dᴰ Eᴰ) (FUNCTORᴰ Cᴰ Eᴰ)
-  precomposeFⱽ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰⱽ Fᴰ
-  precomposeFⱽ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
-  precomposeFⱽ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
+  precomposeFⱽ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰⱽ Fⱽ
+  precomposeFⱽ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fⱽ .F-obᴰ xᴰ)
+  precomposeFⱽ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fⱽ .F-homᴰ fᴰ)
   precomposeFⱽ .F-idᴰ = refl
   precomposeFⱽ .F-seqᴰ _ _ = refl
+
+  import Cubical.Categories.Displayed.Reasoning Dᴰ as R
+  postcomposeFⱽ : Functorⱽ (FUNCTORᴰ Eᴰ Cᴰ) (FUNCTORᴰ Eᴰ Dᴰ)
+  postcomposeFⱽ .F-obᴰ Gᴰ = Fⱽ ∘Fⱽᴰ Gᴰ
+  postcomposeFⱽ .F-homᴰ αᴰ .N-obᴰ xᴰ = F-homᴰ Fⱽ (αᴰ .N-obᴰ xᴰ)
+  postcomposeFⱽ .F-homᴰ αᴰ .N-homᴰ fᴰ = R.rectify $ R.≡out $
+    (sym $ R.≡in $ Fⱽ .F-seqᴰ _ _)
+    ∙ (R.≡in $ (λ i → Fⱽ .F-homᴰ (αᴰ .N-homᴰ fᴰ i)))
+    ∙ (R.≡in $ Fⱽ .F-seqᴰ _ _)
+  postcomposeFⱽ .F-idᴰ = makeNatTransPathᴰ _ _ _ (λ i _ → Fⱽ .F-idᴰ i)
+  postcomposeFⱽ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ λ i _ →
+    Fⱽ .F-seqᴰ (fᴰ .N-obᴰ _) (gᴰ .N-obᴰ _) i

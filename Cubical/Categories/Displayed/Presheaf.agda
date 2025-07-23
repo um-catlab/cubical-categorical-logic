@@ -64,18 +64,13 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   infix 2 _≡[_]_
 
   pob[_] : C.ob → Type ℓP
-  pob[ x ] = ⟨ P ⟅ x ⟆ ⟩
+  pob[ x ] = P.p[ x ]
 
   p[_][_] : ∀ {x} → P.p[ x ] → Cᴰ.ob[ x ] → Type ℓPᴰ
   p[ f ][ xᴰ ] = ⟨ Pᴰ .F-obᴰ xᴰ f ⟩
 
-  _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{g}
-     → Cᴰ [ f ][ xᴰ , yᴰ ] → p[ g ][ yᴰ ]
-     → p[ f P.⋆ g ][ xᴰ ]
-  fᴰ ⋆ᴰ gᴰ = Pᴰ .F-homᴰ fᴰ _ gᴰ
-
-  isSetPsh : ∀ {x} → isSet (P.p[ x ])
-  isSetPsh {x} = (P ⟅ x ⟆) .snd
+  isSetPshᴰ : ∀ {x}{p : P.p[ x ]}{xᴰ} → isSet p[ p ][ xᴰ ]
+  isSetPshᴰ {x} {p} {xᴰ} = Pᴰ .F-obᴰ xᴰ p .snd
 
   _≡[_]_ : ∀ {x xᴰ} {f g : P.p[ x ]} → p[ f ][ xᴰ ] → f ≡ g → p[ g ][ xᴰ ]
     → Type ℓPᴰ
@@ -86,11 +81,10 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       → p[ f ][ xᴰ ] → p[ g ][ xᴰ ]
   reind = subst p[_][ _ ]
 
-  opaque
-    reind-filler : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
-      → (fᴰ : p[ f ][ xᴰ ])
-      → fᴰ ≡[ f≡g ] reind f≡g fᴰ
-    reind-filler = subst-filler p[_][ _ ]
+  reind-filler : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
+    → (fᴰ : p[ f ][ xᴰ ])
+    → (f , fᴰ) ≡ (g , reind f≡g fᴰ)
+  reind-filler f≡g fᴰ = ΣPathP (f≡g , (subst-filler p[_][ _ ] f≡g fᴰ))
 
   ≡in : {a : C.ob} {f g : P.p[ a ]}
         {aᴰ : Cᴰ.ob[ a ]}
@@ -114,9 +108,22 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       {fᴰ : p[ f ][ aᴰ ]}
       {gᴰ : p[ g ][ aᴰ ]}
     → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
-  rectify {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡[_] gᴰ) (isSetPsh _ _ _ _)
+  rectify {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡[_] gᴰ) (P.isSetPsh _ _ _ _)
 
   open PresheafNotation (∫P Pᴰ) public
+
+  _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{g}
+     → Cᴰ [ f ][ xᴰ , yᴰ ] → p[ g ][ yᴰ ]
+     → p[ f P.⋆ g ][ xᴰ ]
+  fᴰ ⋆ᴰ gᴰ = ((_ , fᴰ) ⋆ (_ , gᴰ)) .snd
+
+  ⋆Assocᴰ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]}  {h : P.p[ z ]} {xᴰ yᴰ zᴰ}
+      (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) (hᴰ : p[ h ][ zᴰ ])
+      → (fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ P.⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
+  ⋆Assocᴰ fᴰ gᴰ hᴰ = rectify $ ≡out $ ⋆Assoc (_ , fᴰ) (_ , gᴰ) (_ , hᴰ)
+
+  ⋆IdLᴰ : ∀ {x} {f : P.p[ x ]} {xᴰ} (fᴰ : p[ f ][ xᴰ ]) → Cᴰ.idᴰ ⋆ᴰ fᴰ ≡[ P.⋆IdL f ] fᴰ
+  ⋆IdLᴰ fᴰ = rectify $ ≡out $ ⋆IdL (_ , fᴰ)
 
   _⋆ⱽᴰ_ : ∀ {x xᴰ xᴰ'}{g}
      → Cᴰ [ C.id {x} ][ xᴰ , xᴰ' ] → p[ g ][ xᴰ' ]
@@ -127,7 +134,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
     ⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}
       → (gᴰ : p[ g ][ xᴰ ])
       → Cᴰ.idᴰ ⋆ⱽᴰ gᴰ ≡ gᴰ
-    ⋆ⱽIdL gᴰ = rectify $ ≡out $ (sym $ ≡in $ reind-filler _ _) ∙ ⋆IdL _
+    ⋆ⱽIdL gᴰ = rectify $ ≡out $ (sym $ reind-filler _ _) ∙ ⋆IdL _
 
     -- TODO: ⋆ⱽAssoc but it relies on the definition _⋆ⱽ_ in the fiber
 
@@ -238,10 +245,9 @@ module PresheafⱽNotation
       → p[ f ][ xᴰ ]
   fᴰ ⋆ᴰⱽ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
 
-  opaque
-    ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
-      → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
-    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
+  ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
+    → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
+  ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = λ i → reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ) i .snd
 
 actⱽ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
           → {x : C .Category.ob} → {ℓP : Level}

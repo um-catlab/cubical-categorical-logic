@@ -20,13 +20,14 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Constructions.TotalCategory
-  as TotalCat
+  as TotalCat hiding (Fst; Snd)
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  as TotalCatᴰ hiding (introS; introF)
+  as TotalCatᴰ hiding (introS; introF; Fstᴰ)
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
   hiding (introF)
 open import Cubical.Categories.Displayed.Instances.Functor
@@ -60,6 +61,17 @@ module _
   {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   {D : Category ℓD ℓD'} (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
   where
+  Fstᴰ : Functorᴰ (Fst C D) (Cᴰ ×Cᴰ Dᴰ) Cᴰ
+  Fstᴰ .Functorᴰ.F-obᴰ = fst
+  Fstᴰ .Functorᴰ.F-homᴰ = fst
+  Fstᴰ .Functorᴰ.F-idᴰ = refl
+  Fstᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ = refl
+
+  Sndᴰ : Functorᴰ (Snd C D) (Cᴰ ×Cᴰ Dᴰ) Dᴰ
+  Sndᴰ .Functorᴰ.F-obᴰ = snd
+  Sndᴰ .Functorᴰ.F-homᴰ = snd
+  Sndᴰ .Functorᴰ.F-idᴰ = refl
+  Sndᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ = refl
   module _ {E : Category ℓE ℓE'} (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') where
     ×Cᴰ-assoc : Functorᴰ (×C-assoc C D E)
       (Cᴰ ×Cᴰ (Dᴰ ×Cᴰ Eᴰ))
@@ -147,6 +159,20 @@ private
       (introF F (Unitᴰ.recᴰ Fᴰ₀) (Unitᴰ.recᴰ Fᴰ₁))
       ttS
 
+module _ {C : Category ℓC ℓC'}
+  (Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀') (Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁') where
+  Fstⱽ : Functorⱽ (Dᴰ₀ ×ᴰ Dᴰ₁) Dᴰ₀
+  Fstⱽ .Functorᴰ.F-obᴰ = fst
+  Fstⱽ .Functorᴰ.F-homᴰ = fst
+  Fstⱽ .Functorᴰ.F-idᴰ = refl
+  Fstⱽ .Functorᴰ.F-seqᴰ fᴰ gᴰ = refl
+
+  Sndⱽ : Functorⱽ (Dᴰ₀ ×ᴰ Dᴰ₁) Dᴰ₁
+  Sndⱽ .Functorᴰ.F-obᴰ = snd
+  Sndⱽ .Functorᴰ.F-homᴰ = snd
+  Sndⱽ .Functorᴰ.F-idᴰ = refl
+  Sndⱽ .Functorᴰ.F-seqᴰ fᴰ gᴰ = refl
+
 private
   variable
     ℓ ℓ' ℓC'' ℓC''' : Level
@@ -174,3 +200,22 @@ open NatTransᴰ
   ΣPathP (αᴰ .N-homᴰ fᴰ , βᴰ .N-homᴰ fᴰ)
 ,Fᴰ-functorᴰ .F-idᴰ = makeNatTransPathᴰ _ _ _ refl
 ,Fᴰ-functorᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ refl
+
+module _ {F : Functor C D} where
+  _,Fⱽ_ : (Fᴰ : Functorᴰ F Cᴰ Cᴰ') (Fᴰ' : Functorᴰ F Cᴰ Dᴰ')
+    → Functorᴰ F Cᴰ (Cᴰ' ×ᴰ Dᴰ')
+  (Fᴰ ,Fⱽ Gᴰ) .F-obᴰ = λ z → F-obᴰ Fᴰ z , F-obᴰ Gᴰ z
+  (Fᴰ ,Fⱽ Gᴰ) .F-homᴰ = λ z → F-homᴰ Fᴰ z , F-homᴰ Gᴰ z
+  (Fᴰ ,Fⱽ Gᴰ) .F-idᴰ = ΣPathP (F-idᴰ Fᴰ , F-idᴰ Gᴰ)
+  (Fᴰ ,Fⱽ Gᴰ) .F-seqᴰ fᴰ gᴰ = ΣPathP ((F-seqᴰ Fᴰ fᴰ gᴰ) , (F-seqᴰ Gᴰ fᴰ gᴰ))
+
+,Fⱽ-functorⱽ :
+  Functorⱽ
+    ((FUNCTORᴰ Cᴰ Cᴰ') ×ᴰ (FUNCTORᴰ Cᴰ Dᴰ'))
+    (FUNCTORᴰ Cᴰ (Cᴰ' ×ᴰ Dᴰ'))
+,Fⱽ-functorⱽ .F-obᴰ {x = F} (Fᴰ , Fᴰ') = Fᴰ ,Fⱽ Fᴰ'
+,Fⱽ-functorⱽ .F-homᴰ (αᴰ , βᴰ) .N-obᴰ xᴰ = (αᴰ .N-obᴰ xᴰ) , (βᴰ .N-obᴰ xᴰ)
+,Fⱽ-functorⱽ .F-homᴰ (αᴰ , βᴰ) .N-homᴰ fᴰ =
+  ΣPathP ((αᴰ .N-homᴰ fᴰ) , (βᴰ .N-homᴰ fᴰ))
+,Fⱽ-functorⱽ .F-idᴰ = makeNatTransPathᴰ _ _ _ refl
+,Fⱽ-functorⱽ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ refl

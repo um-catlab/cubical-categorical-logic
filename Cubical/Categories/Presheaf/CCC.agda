@@ -108,7 +108,7 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
   private
     ℓS' = ℓ-max ℓ (ℓ-max ℓ' ℓS)
     module C = Category C
-  
+
   -- inlining this definition results in termination checker issues..
   eval : (A B : Presheaf C ℓS') → PshProd ⟅ ExpOb A B , A ⟆b ⇒ B
   eval A B .N-ob x (α , a) = α .fst x (C.id , a)

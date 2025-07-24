@@ -144,7 +144,7 @@ module _ (F : Functor C D) {c : C .ob}
           ∙ (cong fst $ F⟨c×Δ⟩.β)
           ∙ (sym $ cong fst $ Fc×FΓ.β)
           ∙ D.⟨ refl ⟩⋆⟨ sym $ cong fst $ F⟨c×Γ⟩.β ⟩
-          ∙ (sym $ D.⋆Assoc _ _ _) 
+          ∙ (sym $ D.⋆Assoc _ _ _)
           ,
           D.⋆Assoc _ _ _
           ∙ D.⟨ refl ⟩⋆⟨
@@ -166,6 +166,6 @@ module _ (F : Functor C D) {c : C .ob}
       (preservesUniversalElement→UniversalElement _ (F-pres-c×- Δ) (c×- Δ))
     module Fc×FΓ = UniversalElementNotation
       (Fc×- (F ⟅ Γ ⟆))
-  
+
   preservesExponential' : (c' : C.ob) → Exponential' C c c' c×- → Type _
   preservesExponential' c' = preservesUniversalElement (preservesExpCone c')

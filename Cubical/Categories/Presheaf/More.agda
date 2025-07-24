@@ -178,4 +178,3 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} wher
    → α ≡ β
   makePshHomPath = ΣPathPProp (isPropN-hom P Q)
 
-

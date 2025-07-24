@@ -9,6 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
@@ -48,6 +49,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
               → (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ])
               → Type _
   BinProductᴰ = RightAdjointAtᴰ (ΔCᴰ Cᴰ)
+
+  BinProductᴰProf : ∀ {c12} → BinProduct' C c12
+              → Profunctorᴰ (RightAdjointProf (Δ C)) (Cᴰ BP.×Cᴰ Cᴰ) Cᴰ ℓD'
+  BinProductᴰProf bp = RightAdjointProfᴰ (ΔCᴰ Cᴰ)
 
   hasAllBinProductᴰ : BinProducts' C → Type _
   hasAllBinProductᴰ = RightAdjointᴰ (ΔCᴰ Cᴰ)
@@ -167,6 +172,8 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
     π₂ = π₁₂ .snd
 
     module _ {x : C .ob}{xᴰ : Cᴰ.ob[ x ]}{f : C [ x , c ]} where
+      private
+        module Cⱽ = Fibers Cᴰ
       infixr 4 _,ⱽ_
       _,ⱽ_ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
         Cᴰ.Hom[ f ][ xᴰ , cᴰ' ] →
@@ -176,16 +183,16 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       opaque
         ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
            → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
-           → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₁ ≡ fᴰ
+           → (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₁ ≡ fᴰ
         ×βⱽ₁ = cong fst vbp.βⱽ
 
         ×βⱽ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
-         → seqᴰⱽ Cᴰ (fᴰ ,ⱽ fᴰ') π₂ ≡ fᴰ'
+         → (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₂ ≡ fᴰ'
         ×βⱽ₂ = cong snd vbp.βⱽ
 
         ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
-          → fᴰ ≡ (seqᴰⱽ Cᴰ fᴰ π₁ ,ⱽ seqᴰⱽ Cᴰ fᴰ π₂)
+          → fᴰ ≡ (fᴰ Cⱽ.⋆ᴰⱽ π₁ ,ⱽ fᴰ Cⱽ.⋆ᴰⱽ  π₂)
         ×ηⱽ = vbp.ηⱽ
 module _ {C  : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private

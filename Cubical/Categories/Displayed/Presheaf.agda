@@ -185,9 +185,16 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
         → D [ intro p ][ xᴰ , vertexᴰ ]
     introᴰ p pᴰ = ∫ue.intro (p , pᴰ) .snd
 
-    -- introᴰ⟨_⟩ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
-    --     → Pᴰ.p[ p ][ xᴰ ]
-    --     → D [ intro p ][ xᴰ , vertexᴰ ]
+    -- This is kind of useful as a way of doing congruence without
+    -- leaving the reasoning machine.
+    introᴰ⟨_⟩ : ∀ {x xᴰ} {p q : Pᴰ.pob[ x ]}
+        → {pᴰ : Pᴰ.p[ p ][ xᴰ ]}
+        → {qᴰ : Pᴰ.p[ q ][ xᴰ ]}
+        → (p , pᴰ) ≡ (q , qᴰ)
+        → (p , introᴰ p pᴰ) ≡ (q , introᴰ q qᴰ)
+    introᴰ⟨ pᴰ≡qᴰ ⟩ i =
+      _ , introᴰ _ (pᴰ≡qᴰ i .snd)
+
     opaque
       unfolding β
       βᴰ : ∀ {x xᴰ} {p : Pᴰ.pob[ x ] } {pᴰ : Pᴰ.p[ p ][ xᴰ ]}
@@ -249,6 +256,7 @@ module PresheafⱽNotation
     → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
   ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = λ i → reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ) i .snd
 
+-- Remove?
 actⱽ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
           → {x : C .Category.ob} → {ℓP : Level}
   → (Pⱽ : Presheafⱽ Cᴰ x ℓP)

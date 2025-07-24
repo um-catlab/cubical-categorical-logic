@@ -20,11 +20,13 @@ open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits.BinProduct
+open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Bifunctor as R hiding (Fst; Snd)
 
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Yoneda
 
@@ -63,6 +65,9 @@ module _ (C : Category ℓ ℓ') where
   BinProductProf : Profunctor (C ⊗ C) C ℓ'
   BinProductProf = R.rec C C (PshProd ∘Flr (YO , YO))
 
+  BinProduct'' : ∀ (cc' : (C ⊗ C) .ob) → Type _
+  BinProduct'' cc' = UniversalElement C (BinProductProf ⟅ cc' ⟆)
+
   -- Product with a fixed object
   ProdWithAProf : C .ob → Profunctor C C ℓ'
   ProdWithAProf a = appL PshProd (YO ⟅ a ⟆) ∘F YO
@@ -71,7 +76,7 @@ module _ (C : Category ℓ ℓ') where
   hasAllBinProductWith a = UniversalElements (ProdWithAProf a)
 
   BinProductToRepresentable : ∀ {a b} → BinProduct C a b
-    → UniversalElement C (BinProductProf ⟅ a , b ⟆)
+    → BinProduct'' (a , b)
   BinProductToRepresentable bp .vertex = bp .binProdOb
   BinProductToRepresentable bp .element = (bp .binProdPr₁) , (bp .binProdPr₂)
   BinProductToRepresentable bp .universal A .equiv-proof (f1 , f2) .fst .fst =
@@ -85,7 +90,7 @@ module _ (C : Category ℓ ℓ') where
 
   -- TODO: general principle?
   RepresentableToBinProduct' : ∀ {a b}
-    → UniversalElement C (BinProductProf ⟅ a , b ⟆)
+    → BinProduct'' (a , b)
     → BinProduct' (a , b)
   RepresentableToBinProduct' ue .vertex = ue .vertex
   RepresentableToBinProduct' ue .element = ue .element
@@ -288,3 +293,20 @@ module _ {C : Category ℓ ℓ'} where
 
   module BinProducts'Notation (bp : BinProducts' C) =
     Notation C (BinProducts'ToBinProducts C bp)
+
+private
+  variable
+    C D : Category ℓ ℓ'
+module _ (F : Functor C D) where
+  preservesBinProdCones : ∀ c c'
+    → PshHomᴰ F (BinProductProf C ⟅ c , c' ⟆)
+                (BinProductProf D ⟅ F ⟅ c ⟆ , F ⟅ c' ⟆ ⟆)
+  preservesBinProdCones c c' .fst Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
+  preservesBinProdCones c c' .snd Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
+
+  preservesBinProduct' : ∀ {c c'} → BinProduct'' C (c , c') → Type _
+  preservesBinProduct' = preservesUniversalElement (preservesBinProdCones _ _)
+
+  preservesBinProductsWith : ∀ (c : C .ob) → Type _
+  preservesBinProductsWith c = ∀ c'
+    → preservesUniversalElements (preservesBinProdCones c c')

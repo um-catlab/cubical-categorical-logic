@@ -1,0 +1,103 @@
+{- This is intended to replace Presheaf.Morphism upstream -}
+{-# OPTIONS --safe #-}
+module Cubical.Categories.Presheaf.Morphism.Alt where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+
+open import Cubical.Data.Sigma
+
+open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Constructions.Lift
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.Limits
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable
+
+{-
+
+  Given two presheaves P and Q on the same category C, a morphism
+  between them is a natural transformation. Here we generalize this to
+  situations where P and Q are presheaves on *different*
+  categories. This is equivalent to the notion of morphism of
+  fibrations if viewing P and Q as discrete fibrations.
+
+  Given a functor F : C → D, a presheaf P on C and a presheaf Q on D,
+  we can define a homomorphism from P to Q over F as a natural
+  transformation from P to Q o F^op. (if we had implicit cumulativity)
+
+  These are the homs of a 2-category of presheaves displayed over the
+  2-category of categories.
+
+-}
+private
+  variable
+    ℓc ℓc' ℓd ℓd' ℓp ℓq : Level
+
+open Category
+open Contravariant
+open Functor
+open NatTrans
+open UniversalElement
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+         (F : Functor C D)
+         (P : Presheaf C ℓp)
+         (Q : Presheaf D ℓq) where
+  -- We define the displayed morphism by reindexing the codomain
+  PshHomᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
+  PshHomᴰ = PshHom P (Q ∘F (F ^opF))
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+         {F : Functor C D}
+         {P : Presheaf C ℓp}
+         {Q : Presheaf D ℓq}
+         (Fᴰ : PshHomᴰ F P Q)
+         where
+  private
+    module Q = PresheafNotation Q
+  ∫F : Functor (∫ᴾ P) (∫ᴾ Q)
+  ∫F .F-ob (c , p) = F ⟅ c ⟆ , Fᴰ .fst c p
+  ∫F .F-hom (f , tri) = (F ⟪ f ⟫) ,
+    (sym $ Fᴰ .snd _ _ _ _)
+    ∙ cong (Fᴰ .fst _) tri
+  ∫F .F-id = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-id)
+  ∫F .F-seq (f , _) (g , _) = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-seq f g)
+
+  preservesUniversalElement : UniversalElement C P → Type _
+  preservesUniversalElement ue =
+    isUniversal D Q (F ⟅ ue .vertex ⟆) (Fᴰ .fst _ (ue .element))
+
+  preservesUniversalElements : Type _
+  preservesUniversalElements = ∀ ue → preservesUniversalElement ue
+
+  preservesUniversalElement→UniversalElement :
+    preservesUniversalElements
+    → (ue : UniversalElement C P)
+    → UniversalElement D Q
+  preservesUniversalElement→UniversalElement presUniversality ue .vertex =
+    F .F-ob (ue .vertex)
+  preservesUniversalElement→UniversalElement presUniversality ue .element =
+    Fᴰ .fst (ue .vertex) (ue .element)
+  preservesUniversalElement→UniversalElement presUniversality ue .universal =
+    presUniversality ue
+  -- If a presheaf preserves any universal element then it preserves
+  -- all of them since universal elements are unique up to unique
+  -- isomorphism. This is for free if the category is univalent
+  -- because in that case UniversalElement C P is a Prop.
+  preservesUniversalElement→PreservesUniversalElements :
+    ∀ ue → preservesUniversalElement ue → preservesUniversalElements
+  preservesUniversalElement→PreservesUniversalElements ue preservesUE ue' =
+    isTerminalToIsUniversal D Q $
+      preserveAnyTerminal→PreservesTerminals
+        (∫ᴾ P)
+        (∫ᴾ Q)
+        ∫F
+        (universalElementToTerminalElement C P ue)
+        (isUniversalToIsTerminal D Q _ _ preservesUE)
+        (universalElementToTerminalElement C P ue')

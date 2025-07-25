@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 {- This file takes a long time to type check -}
 module Cubical.Categories.Displayed.Fibration.Base where
 
@@ -131,7 +131,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           )
 
     CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
-    CartesianLiftF-fiber f = FunctorComprehension (fibration→HomᴰRepr f)
+    CartesianLiftF-fiber f =
+      FunctorComprehension {P = Cⱽ.HomᴰProf f}(fibration→HomᴰRepr f)
 
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift

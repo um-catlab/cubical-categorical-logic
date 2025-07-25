@@ -113,7 +113,7 @@ module _ (C : Category ℓC ℓC') where
 -- Preservation of an exponential
 module _ (F : Functor C D) {c : C .ob}
   (c×- : hasAllBinProductWith C c)
-  (F-pres-c×- : preservesBinProductsWith F c)
+  (F-pres-c×- : preservesProvidedBinProductsWith F c×-)
   (Fc×- : hasAllBinProductWith D (F ⟅ c ⟆))
   where
 
@@ -130,7 +130,9 @@ module _ (F : Functor C D) {c : C .ob}
   preservesExpCone c' .fst Γ f⟨x⟩ = F⟨c×Γ⟩.intro Fc×FΓ.element D.⋆ F ⟪ f⟨x⟩ ⟫
     where
     module F⟨c×Γ⟩ = UniversalElementNotation
-      (preservesUniversalElement→UniversalElement _ (F-pres-c×- Γ) (c×- Γ))
+      -- NOTE: this has really bad inference :/
+      (preservesUniversalElement→UniversalElement (preservesBinProdCones F c Γ)
+        (c×- Γ) (F-pres-c×- Γ))
     module Fc×FΓ = UniversalElementNotation
       (Fc×- (F ⟅ Γ ⟆))
   preservesExpCone c' .snd Δ Γ γ f⟨x⟩ =
@@ -161,11 +163,11 @@ module _ (F : Functor C D) {c : C .ob}
     where
     module c×Γ = UniversalElementNotation (c×- Γ)
     module F⟨c×Γ⟩ = UniversalElementNotation
-      (preservesUniversalElement→UniversalElement _ (F-pres-c×- Γ) (c×- Γ))
+      (preservesUniversalElement→UniversalElement (preservesBinProdCones F c Γ) (c×- Γ) ((F-pres-c×- Γ)))
     module F⟨c×Δ⟩ = UniversalElementNotation
-      (preservesUniversalElement→UniversalElement _ (F-pres-c×- Δ) (c×- Δ))
+      (preservesUniversalElement→UniversalElement (preservesBinProdCones F c Δ) (c×- Δ) ((F-pres-c×- Δ)))
     module Fc×FΓ = UniversalElementNotation
       (Fc×- (F ⟅ Γ ⟆))
 
-  preservesExponential' : (c' : C.ob) → Exponential' C c c' c×- → Type _
-  preservesExponential' c' = preservesUniversalElement (preservesExpCone c')
+  preservesExponential' : {c' : C.ob} → Exponential' C c c' c×- → Type _
+  preservesExponential' {c'} = preservesUniversalElement (preservesExpCone c')

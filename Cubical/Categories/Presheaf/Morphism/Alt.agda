@@ -77,19 +77,26 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
   preservesUniversalElements = ∀ ue → preservesUniversalElement ue
 
   preservesUniversalElement→UniversalElement :
-    preservesUniversalElements
-    → (ue : UniversalElement C P)
+    (ue : UniversalElement C P)
+    → preservesUniversalElement ue
     → UniversalElement D Q
-  preservesUniversalElement→UniversalElement presUniversality ue .vertex =
+  preservesUniversalElement→UniversalElement ue presUniversality .vertex =
     F .F-ob (ue .vertex)
-  preservesUniversalElement→UniversalElement presUniversality ue .element =
+  preservesUniversalElement→UniversalElement ue presUniversality .element =
     Fᴰ .fst (ue .vertex) (ue .element)
-  preservesUniversalElement→UniversalElement presUniversality ue .universal =
-    presUniversality ue
+  preservesUniversalElement→UniversalElement ue presUniversality .universal =
+    presUniversality
+
   -- If a presheaf preserves any universal element then it preserves
   -- all of them since universal elements are unique up to unique
   -- isomorphism. This is for free if the category is univalent
   -- because in that case UniversalElement C P is a Prop.
+
+  -- This lemma, like other applications of Yoneda should be taken as
+  -- an indication that it is probably fine to build the library
+  -- around the seemingly weaker notion of preservesUniversalElement
+  -- and push uses of this lemma to users rather than to pervasively
+  -- use this in the library itself. YMMV
   preservesUniversalElement→PreservesUniversalElements :
     ∀ ue → preservesUniversalElement ue → preservesUniversalElements
   preservesUniversalElement→PreservesUniversalElements ue preservesUE ue' =

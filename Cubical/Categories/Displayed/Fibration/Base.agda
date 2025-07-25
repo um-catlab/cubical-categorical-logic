@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
-{- This file takes 20s to type check -}
+{- This file takes a long time to type check -}
 module Cubical.Categories.Displayed.Fibration.Base where
 
 open import Cubical.Foundations.Prelude
@@ -42,7 +42,7 @@ open NatTransᴰ
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module R = HomᴰReasoning Cᴰ
-    module Cᴰ = Categoryᴰ Cᴰ
+    module Cᴰ = Fibers Cᴰ
     module C = Category C
   {- Definition #1: Manual, what you would expect -}
   record CartesianLift {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
@@ -76,6 +76,32 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       → gᴰ ≡ introCL (gᴰ Cᴰ.⋆ᴰ π)
     ηCL = sym $ isCartesian .snd .snd _
 
+    introCL-natural :
+      ∀ {z} {zᴰ} {g : C [ z , x ]}
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        {w}{wᴰ} {h : C [ w , z ]}
+        {hᴰ : Cᴰ [ h ][ wᴰ , zᴰ ]}
+      → (hᴰ Cᴰ.⋆ᴰ introCL gfᴰ)
+        ≡ introCL (Cᴰ.reind (sym $ C.⋆Assoc h g f) (hᴰ Cᴰ.⋆ᴰ gfᴰ))
+    introCL-natural =
+      ηCL
+      ∙ (Cᴰ.≡out $ introCL⟨
+        ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+          Cᴰ.⋆Assoc _ _ _
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in $ βCL ⟩
+          ∙ Cᴰ.reind-filler _ _))
+        ⟩)
+
+    introCL≡ :
+      ∀ {z} {zᴰ} {g : C [ z , x ]}
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+      → gfᴰ ≡ gᴰ Cᴰ.⋆ᴰ π
+      → introCL gfᴰ ≡ gᴰ
+    introCL≡ gfᴰ≡gᴰπ =
+      cong snd (introCL⟨ ΣPathP (refl , gfᴰ≡gᴰπ) ⟩)
+      ∙ (sym $ ηCL)
+
   isFibration : Type _
   isFibration =
     ∀ {c : C .ob}{c' : C .ob}
@@ -106,6 +132,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
     CartesianLiftF-fiber f = FunctorComprehension (fibration→HomᴰRepr f)
+
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift
   -- because π is over C.id ⋆ f rather than f

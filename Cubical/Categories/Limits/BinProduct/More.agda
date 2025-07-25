@@ -68,6 +68,8 @@ module _ (C : Category ℓ ℓ') where
   BinProduct'' : ∀ (cc' : (C ⊗ C) .ob) → Type _
   BinProduct'' cc' = UniversalElement C (BinProductProf ⟅ cc' ⟆)
 
+  BinProducts'' = UniversalElements BinProductProf
+
   -- Product with a fixed object
   ProdWithAProf : C .ob → Profunctor C C ℓ'
   ProdWithAProf a = appL PshProd (YO ⟅ a ⟆) ∘F YO
@@ -307,6 +309,15 @@ module _ (F : Functor C D) where
   preservesBinProduct' : ∀ {c c'} → BinProduct'' C (c , c') → Type _
   preservesBinProduct' = preservesUniversalElement (preservesBinProdCones _ _)
 
+  -- If you have all BinProductsWith, you should probably use the next
+  -- one instead
   preservesBinProductsWith : ∀ (c : C .ob) → Type _
   preservesBinProductsWith c = ∀ c'
     → preservesUniversalElements (preservesBinProdCones c c')
+
+  -- In practice this definition is usually nicer to work with than
+  -- the previous.
+  preservesProvidedBinProductsWith :
+    ∀ {c : C .ob} → (c×- : hasAllBinProductWith C c) → Type _
+  preservesProvidedBinProductsWith c×- = ∀ c'
+    → preservesUniversalElement (preservesBinProdCones _ c') (c×- c')

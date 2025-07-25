@@ -15,6 +15,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
@@ -180,6 +181,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     private
       module P = PresheafNotation {C = C} P
 
+    module Pshᴰ = PresheafᴰNotation Pᴰ
     introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
         → Pᴰ.p[ p ][ xᴰ ]
         → D [ intro p ][ xᴰ , vertexᴰ ]
@@ -235,7 +237,7 @@ module PresheafⱽNotation
   {c} {ℓPᴰ} (P : Presheafⱽ Cᴰ c ℓPᴰ) where
   private
     module C = Category C
-    module Cᴰ = Categoryᴰ Cᴰ
+    module Cᴰ = Fibers Cᴰ
     variable
       x y z : C.ob
       f g h : C [ x , y ]
@@ -271,7 +273,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ Cᴰ x ℓPᴰ) where
   private
     module C = Category C
-    module Cᴰ = Categoryᴰ Cᴰ
+    module Cᴰ = Fibers Cᴰ
     module RCᴰ = Reasoning Cᴰ
     module Pⱽ = PresheafⱽNotation Pⱽ
 
@@ -302,9 +304,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     open UniversalElementⱽ ueⱽ public
     open UniversalElementᴰNotation Cᴰ Pⱽ (UniversalElementⱽ.toUniversalᴰ ueⱽ)
       public
+    module Pshⱽ = PresheafⱽNotation Pⱽ
+    introⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → Cᴰ.v[ x ] [ xᴰ , vertexᴰ ]
+    introⱽ = introᴰ C.id
+
     βⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : Pⱽ.p[ f ][ yᴰ ]}
       → introᴰ f pᴰ Pⱽ.⋆ᴰⱽ elementⱽ ≡ pᴰ
     βⱽ = universalⱽ .snd .fst _
+
 
     ηⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]}
       → fᴰ ≡ introᴰ f (fᴰ Pⱽ.⋆ᴰⱽ elementⱽ)

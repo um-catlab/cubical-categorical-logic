@@ -1,0 +1,41 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: Categorical Categorical Logic
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Max
+    family-names: New
+    email: maxsnew@umich.edu
+    affiliation: University of Michigan
+    orcid: 'https://orcid.org/0000-0001-8141-195X'
+  - given-names: Steven
+    family-names: Schaefer
+    email: stschaef@umich.edu
+    affiliation: University of Michigan
+    orcid: 'https://orcid.org/0009-0007-1258-9501'
+  - given-names: Johnson
+    family-names: He
+    email: hejohns@umich.edu
+    affiliation: University of Michigan
+  - given-names: Pranav
+    family-names: Srinivasan
+    email: pransrin@umich.edu
+    affiliation: University of Michigan
+  - given-names: Nathan
+    family-names: Varner
+    email: nmvarner@umich.edu
+    affiliation: University of Michigan
+    orcid: 'https://orcid.org/0009-0000-3031-4930'
+  - given-names: Eric
+    family-names: Bond
+    email: bonderic@umich.edu
+    affiliation: University of Michigan
+abstract: >-
+  Implementation of categorical logic in Cubical Agda for
+  application towards programming language semantics
+license: MIT

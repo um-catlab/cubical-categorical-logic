@@ -1,4 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
+{- *Extremely* slow without lossy-unification -}
 module Cubical.Categories.Displayed.Profunctor where
 
 open import Cubical.Foundations.Prelude

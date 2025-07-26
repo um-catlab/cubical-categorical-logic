@@ -33,7 +33,7 @@ open import Cubical.Categories.Displayed.FunctorComprehension
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ  : Level
 
 open Category
 open Functorᴰ
@@ -41,7 +41,6 @@ open NatTransᴰ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
-    module R = HomᴰReasoning Cᴰ
     module Cᴰ = Fibers Cᴰ
     module C = Category C
   {- Definition #1: Manual, what you would expect -}
@@ -118,21 +117,25 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       fibration→HomᴰRepr .UniversalElement.element = π
       fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv
         ( (λ fᴰ → introCL (Cᴰ.idᴰ Cᴰ.⋆ᴰ fᴰ))
-        , (λ fᴰ → R.rectify $ R.≡out $
-          (sym $ R.reind-filler _ _)
-          ∙ (R.≡in βCL)
-          ∙ R.⋆IdL _)
-        , λ fⱽ → R.rectify $ R.≡out $
-          introCL⟨ ΣPathP (refl , (R.rectify $ R.≡out $
-            R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-            ∙ (sym $ R.⋆Assoc _ _ _)
-            ∙ R.⟨ R.⋆IdL _ ⟩⋆⟨ refl ⟩)) ⟩
-          ∙ (R.≡in $ sym ηCL)
+        , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ (Cᴰ.≡in βCL)
+          ∙ Cᴰ.⋆IdL _)
+        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
+          introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+            Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ refl ⟩)) ⟩
+          ∙ (Cᴰ.≡in $ sym ηCL)
           )
 
     CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
     CartesianLiftF-fiber f =
-      FunctorComprehension {P = Cⱽ.HomᴰProf f}(fibration→HomᴰRepr f)
+      FunctorComprehension
+        {C = Cⱽ.v[ _ ]}
+        {D = Cⱽ.v[ _ ]}
+        {P = Cⱽ.HomᴰProf f}
+        (fibration→HomᴰRepr f)
 
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift
@@ -142,47 +145,47 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   CartesianLiftPsh {x} {y} yᴰ f .F-obᴰ zᴰ g .fst = Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]
   CartesianLiftPsh {x} {y} yᴰ f .F-obᴰ zᴰ g .snd = Cᴰ.isSetHomᴰ
   CartesianLiftPsh {x} {y} yᴰ f .F-homᴰ gᴰ h hfᴰ =
-    R.reind (sym $ C.⋆Assoc _ _ _) $ gᴰ Cᴰ.⋆ᴰ hfᴰ
+    Cᴰ.reind (sym $ C.⋆Assoc _ _ _) $ gᴰ Cᴰ.⋆ᴰ hfᴰ
   CartesianLiftPsh {x} {y} yᴰ f .F-idᴰ = funExt λ g → funExt λ gᴰ →
-    R.rectify $ R.≡out $
-      sym (R.reind-filler _ _)
-      ∙ R.⋆IdL _
+    Cᴰ.rectify $ Cᴰ.≡out $
+      sym (Cᴰ.reind-filler _ _)
+      ∙ Cᴰ.⋆IdL _
   CartesianLiftPsh {x} {y} yᴰ f .F-seqᴰ fᴰ gᴰ = funExt λ h → funExt λ hᴰ →
-    R.rectify $ R.≡out $
-      (sym $ R.reind-filler _ _)
-      ∙ R.⋆Assoc _ _ _
-      ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
-      ∙ R.reind-filler _ _
+    Cᴰ.rectify $ Cᴰ.≡out $
+      (sym $ Cᴰ.reind-filler _ _)
+      ∙ Cᴰ.⋆Assoc _ _ _
+      ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+      ∙ Cᴰ.reind-filler _ _
   CARTESIANLIFT : Profunctorⱽ (C /C Cᴰ) Cᴰ ℓCᴰ'
   CARTESIANLIFT .F-obᴰ (y , yᴰ , f) = CartesianLiftPsh yᴰ f
   CARTESIANLIFT .F-homᴰ (g , gᴰ , square) .N-obᴰ xᴰ h hᴰ =
-    R.reind
+    Cᴰ.reind
       (C.⋆Assoc _ _ _
       ∙ C.⟨ refl ⟩⋆⟨ sym square ⟩
       ∙ sym (C.⋆Assoc _ _ _))
       $ hᴰ Cᴰ.⋆ᴰ gᴰ
   CARTESIANLIFT .F-homᴰ (g , gᴰ , square) .N-homᴰ fᴰ =
     funExt λ h → funExt λ hkᴰ →
-    R.rectify $ R.≡out $
-    (sym $ R.reind-filler _ _)
-    ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-    ∙ R.⋆Assoc _ _ _
-    ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
-    ∙ R.reind-filler _ _
+    Cᴰ.rectify $ Cᴰ.≡out $
+    (sym $ Cᴰ.reind-filler _ _)
+    ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+    ∙ Cᴰ.⋆Assoc _ _ _
+    ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+    ∙ Cᴰ.reind-filler _ _
   CARTESIANLIFT .F-idᴰ = makeNatTransPathᴰ (Cᴰ ^opᴰ) (SETᴰ ℓC' ℓCᴰ')
     (makeNatTransPath (funExt λ _ → funExt C.⋆IdR))
     (implicitFunExt $ funExt λ yᴰ → funExt λ f → funExt λ fgᴰ →
-      R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ R.⋆IdR _)
+      Cᴰ.rectify $ Cᴰ.≡out $
+        (sym $ Cᴰ.reind-filler _ _)
+        ∙ Cᴰ.⋆IdR _)
   CARTESIANLIFT .F-seqᴰ (f , fᴰ , sq-f) (g , gᴰ , sq-g) = makeNatTransPathᴰ _ _
     (makeNatTransPath $ funExt λ _ → funExt λ h → sym $ C.⋆Assoc _ _ _)
     (implicitFunExt $ funExt λ yᴰ → funExt λ h → funExt λ hkᴰ →
-      R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ (sym $ R.⋆Assoc _ _ _)
-        ∙ R.⟨ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-        ∙ R.reind-filler _ _)
+      Cᴰ.rectify $ Cᴰ.≡out $
+        (sym $ Cᴰ.reind-filler _ _)
+        ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+        ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+        ∙ Cᴰ.reind-filler _ _)
 
   CartesianLift' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
   CartesianLift' {x} yᴰ f =
@@ -195,41 +198,43 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → CartesianLift' cᴰ' f
 
   CartesianLift'F : isFibration' → Functorⱽ (C /C Cᴰ) Cᴰ
-  CartesianLift'F cL's = FunctorⱽComprehension {Pᴰ = CARTESIANLIFT}
+  CartesianLift'F cL's = FunctorⱽComprehension
+    -- {C = C}
+    {Pᴰ = CARTESIANLIFT}
     λ x (_ , yᴰ , f) → cL's yᴰ f
 
-  module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
-    (cL : CartesianLift' yᴰ f) where
-    private
-      module f*yᴰ = PresheafⱽNotation (CartesianLiftPsh yᴰ f)
-      module cL = UniversalElementⱽNotation Cᴰ _ _ cL
+  -- module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
+  --   (cL : CartesianLift' yᴰ f) where
+  --   private
+      -- module f*yᴰ = PresheafⱽNotation (CartesianLiftPsh yᴰ f)
+      -- module cL = UniversalElementⱽNotation Cᴰ _ _ cL
     -- This is *not* slow to typecheck, unlike the definition below. Interesting
     -- CartesianLift'→CartesianLift : CartesianLift yᴰ f
     -- CartesianLift'→CartesianLift .CartesianLift.f*yᴰ = cL.vertexⱽ
     -- -- Herein lies the rub
     -- -- Goal: Cᴰ.Hom[ f ][ cL.vertexⱽ , yᴰ ]
     -- -- cL.elementⱽ : Cᴰ.Hom[ C.id C.⋆ f ][ cL.vertexⱽ , yᴰ ]
-    -- CartesianLift'→CartesianLift .CartesianLift.π = R.reind (C.⋆IdL f) cL.elementⱽ
+    -- CartesianLift'→CartesianLift .CartesianLift.π = Cᴰ.reind (C.⋆IdL f) cL.elementⱽ
     -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .fst = cL.introᴰ _
     -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .fst gfᴰ =
-    --   R.rectify $ R.≡out $
-    --   R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-    --   ∙ (R.reind-filler _ _)
-    --   ∙ (R.≡in $ cL.βᴰ)
+    --   Cᴰ.rectify $ Cᴰ.≡out $
+    --   Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+    --   ∙ (Cᴰ.reind-filler _ _)
+    --   ∙ (Cᴰ.≡in $ cL.βᴰ)
     -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .snd gᴰ = ?
       -- TODO: finish this
-      -- R.rectify $ R.≡out $
+      -- Cᴰ.rectify $ Cᴰ.≡out $
       -- {!cL.intro⟨_⟩!}
       -- ∙ cL.∫ue.intro⟨ {!!} ⟩
-      -- ∙ (sym $ R.≡in $ cL.ηᴰ)
+      -- ∙ (sym $ Cᴰ.≡in $ cL.ηᴰ)
 
   -- CartesianLiftF : isFibration → Functorⱽ (C /C Cᴰ) Cᴰ
   -- CartesianLiftF cartesianLifts = {!FunctorⱽComprehension!}
 
   -- Definition #3: This is the "textbook" compositional
   -- definition. It suffers from very slow performance
-  CartesianLift'' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
-  CartesianLift'' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)
+  -- CartesianLift'' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
+  -- CartesianLift'' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)
   -- Unfortunately the following is *extremely* slow to type check
 
   -- module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) (cL : CartesianLift'' yᴰ f) where

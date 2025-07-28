@@ -123,7 +123,7 @@ module _ (C : Category ℓ ℓ') where
     BinProductsToUnivElts c = BinProductToRepresentable (bp (c .fst) (c .snd))
 
     BinProductF : Functor (C R.×C C) C
-    BinProductF = FunctorComprehension BinProductsToUnivElts
+    BinProductF = FunctorComprehension BinProductProf BinProductsToUnivElts
 
     BinProductF' : Functor (C ×C C) C
     BinProductF' = BinProductF ∘F R.ProdToRedundant C C
@@ -137,14 +137,14 @@ module _ (C : Category ℓ ℓ') where
       f g h : C [ a , b ]
   module _ {a} (a×- : hasAllBinProductWith a) where
     a×-F : Functor C C
-    a×-F = FunctorComprehension a×-
+    a×-F = FunctorComprehension (ProdWithAProf a) a×-
 
   module _ {a} (bp : ∀ b → BinProduct C a b) where
     BinProductWithToRepresentable : UniversalElements (ProdWithAProf a)
     BinProductWithToRepresentable b = BinProductToRepresentable (bp b)
 
     BinProductWithF =
-      FunctorComprehension BinProductWithToRepresentable
+      FunctorComprehension (ProdWithAProf a) BinProductWithToRepresentable
 
     -- test definitional behavior
     _ : ∀ {b b'}(f : C [ b , b' ]) →
@@ -198,7 +198,7 @@ module _ (C : Category ℓ ℓ') where
     BinProduct'WithUEs b .universal = bp b .universal
 
     BinProduct'WithF : Functor C C
-    BinProduct'WithF = FunctorComprehension BinProduct'WithUEs
+    BinProduct'WithF = FunctorComprehension (ProdWithAProf a) BinProduct'WithUEs
 
   module NotationAt {a b : C .ob} (bp : BinProduct C a b) where
     private

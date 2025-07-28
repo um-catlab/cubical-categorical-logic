@@ -1,4 +1,4 @@
-{-# OPTIONS --safe  --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 {--
  -- Displayed Functor Comprehension
  -- Construction of a Displayed Functor by defining displayed universal elements
@@ -35,19 +35,19 @@ private
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          {P : Profunctor C D ℓS}
          {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-         {Pᴰ : Profunctorᴰ P Cᴰ Dᴰ ℓSᴰ}
+         (Pᴰ : Profunctorᴰ P Cᴰ Dᴰ ℓSᴰ)
          {ues : UniversalElements P}
          (uesᴰ : UniversalElementsᴰ ues Pᴰ)
        where
   private
     ∫FunctorComprehension : Functor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ)
     ∫FunctorComprehension =
-      FunctorComprehension (∫UEs Pᴰ uesᴰ :> UniversalElements (∫Prof Pᴰ))
+      FunctorComprehension (∫Prof Pᴰ) (∫UEs Pᴰ uesᴰ)
     module Dᴰ = Reasoning Dᴰ
 
   open Functor
   open Functorᴰ
-  FunctorᴰComprehension : Functorᴰ (FunctorComprehension ues) Cᴰ Dᴰ
+  FunctorᴰComprehension : Functorᴰ (FunctorComprehension P ues) Cᴰ Dᴰ
   FunctorᴰComprehension .F-obᴰ xᴰ = (∫FunctorComprehension ⟅ _ , xᴰ ⟆) .snd
   FunctorᴰComprehension .F-homᴰ fᴰ = (∫FunctorComprehension ⟪ _ , fᴰ ⟫) .snd
   FunctorᴰComprehension .Functorᴰ.F-idᴰ =
@@ -66,5 +66,5 @@ module _ {C : Category ℓC ℓC'}
   -- morphisms
   FunctorⱽComprehension : Functorⱽ Cᴰ Dᴰ
   FunctorⱽComprehension = reindF (Functor≡ (λ _ → refl) (Category.⋆IdL C)) $
-    FunctorᴰComprehension {P = YO} {Pᴰ = Pᴰ} λ x xᴰ →
+    FunctorᴰComprehension Pᴰ λ x xᴰ →
       UniversalElementⱽ.toUniversalᴰ (uesⱽ x xᴰ)

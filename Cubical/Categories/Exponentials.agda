@@ -61,7 +61,7 @@ module _ (C : Category ℓC ℓC') where
 
     ExponentialF : Exponentials → Functor ((C ^op) ×C C) C
     ExponentialF exps =
-      FunctorComprehension {P = RightAdjointLProf ×Bif} exps ∘F Prod.Sym
+      FunctorComprehension (RightAdjointLProf ×Bif) exps ∘F Prod.Sym
     open UniversalElement
 
     module ExpsNotation (exp : Exponentials) where

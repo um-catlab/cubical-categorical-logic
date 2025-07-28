@@ -62,7 +62,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   a×-Fᴰ : ∀ {c}  {c×- : hasAllBinProductWith C c}
             {cᴰ} (cᴰ×ᴰ- : hasAllBinProductWithᴰ c×- cᴰ)
           → Functorᴰ (a×-F C c×-) Cᴰ Cᴰ
-  a×-Fᴰ {cᴰ = cᴰ} cᴰ×ᴰ- = FunctorᴰComprehension {Pᴰ = ProdWithAProfᴰ cᴰ} cᴰ×ᴰ-
+  a×-Fᴰ {cᴰ = cᴰ} cᴰ×ᴰ- = FunctorᴰComprehension (ProdWithAProfᴰ cᴰ) cᴰ×ᴰ-
 
   BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
   BinProductⱽ = RightAdjointAtⱽ (Δᴰ Cᴰ)

@@ -47,7 +47,7 @@ limitsOfShape C J =
 limitF : {C : Category ℓc ℓc'}{J : Category ℓj ℓj'}
   → limitsOfShape C J → Functor (FUNCTOR J C) C
 limitF {C = C}{J = J} lims =
-  FunctorComprehension {C = FUNCTOR J C}{D = C} {P = RightAdjointProf ΔCone}
+  FunctorComprehension {C = FUNCTOR J C}{D = C} (RightAdjointProf ΔCone)
     lims
 
 -- TODO: All functors preserve cones

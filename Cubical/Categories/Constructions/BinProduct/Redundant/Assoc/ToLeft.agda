@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.BinProduct.Redundant.Assoc.ToLeft where
 

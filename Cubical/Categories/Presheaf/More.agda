@@ -85,19 +85,20 @@ module PresheafNotation {ℓo}{ℓh}
   _⋆_ : ∀ {x y} (f : C [ x , y ]) (g : p[ y ]) → p[ x ]
   f ⋆ g = P .F-hom f g
 
-  ⋆IdL : ∀ {x} (g : p[ x ]) → C.id ⋆ g ≡ g
-  ⋆IdL = funExt⁻ (P .F-id)
+  opaque
+    ⋆IdL : ∀ {x} (g : p[ x ]) → C.id ⋆ g ≡ g
+    ⋆IdL = funExt⁻ (P .F-id)
 
-  ⋆Assoc : ∀ {x y z} (f : C [ x , y ])(g : C [ y , z ])(h : p[ z ]) →
-    (f C.⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
-  ⋆Assoc f g = funExt⁻ (P .F-seq g f)
+    ⋆Assoc : ∀ {x y z} (f : C [ x , y ])(g : C [ y , z ])(h : p[ z ]) →
+      (f C.⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
+    ⋆Assoc f g = funExt⁻ (P .F-seq g f)
 
-  ⟨_⟩⋆⟨_⟩ : ∀ {x y} {f f' : C [ x , y ]} {g g' : p[ y ]}
-            → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
-  ⟨ f≡f' ⟩⋆⟨ g≡g' ⟩ = cong₂ _⋆_ f≡f' g≡g'
+    ⟨_⟩⋆⟨_⟩ : ∀ {x y} {f f' : C [ x , y ]} {g g' : p[ y ]}
+              → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
+    ⟨ f≡f' ⟩⋆⟨ g≡g' ⟩ = cong₂ _⋆_ f≡f' g≡g'
 
-  isSetPsh : ∀ {x} → isSet (p[ x ])
-  isSetPsh {x} = (P ⟅ x ⟆) .snd
+    isSetPsh : ∀ {x} → isSet (p[ x ])
+    isSetPsh {x} = (P ⟅ x ⟆) .snd
 
 module UniversalElementNotation {ℓo}{ℓh}
        {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
@@ -128,10 +129,10 @@ module UniversalElementNotation {ℓo}{ℓh}
   intro : ∀ {c} → P.p[ c ] → C [ c , vertex ]
   intro = universalIso _ .inv
 
-  intro⟨_⟩ : ∀ {c} → {f g : P.p[ c ]} → f ≡ g → intro f ≡ intro g
-  intro⟨ p ⟩ = cong intro p
-
   opaque
+    intro⟨_⟩ : ∀ {c} → {f g : P.p[ c ]} → f ≡ g → intro f ≡ intro g
+    intro⟨ p ⟩ = cong intro p
+
     β : ∀ {c} → {p : P.p[ c ]} → (intro p P.⋆ element) ≡ p
     β = universalIso _ .rightInv _
 
@@ -179,7 +180,8 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   isSetPshHom = isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
 
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
-  makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
-   → α ≡ β
-  makePshHomPath = ΣPathPProp (isPropN-hom P Q)
+  opaque
+    makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
+     → α ≡ β
+    makePshHomPath = ΣPathPProp (isPropN-hom P Q)
 

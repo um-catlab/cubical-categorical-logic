@@ -198,8 +198,8 @@ open NatTransᴰ
 ,Fᴰ-functorᴰ .F-homᴰ (αᴰ , βᴰ) .N-obᴰ xᴰ = αᴰ .N-obᴰ xᴰ , βᴰ .N-obᴰ xᴰ
 ,Fᴰ-functorᴰ .F-homᴰ (αᴰ , βᴰ) .N-homᴰ fᴰ =
   ΣPathP (αᴰ .N-homᴰ fᴰ , βᴰ .N-homᴰ fᴰ)
-,Fᴰ-functorᴰ .F-idᴰ = makeNatTransPathᴰ _ _ _ refl
-,Fᴰ-functorᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ refl
+,Fᴰ-functorᴰ .F-idᴰ = makeNatTransPathᴰ' _ _ _ refl
+,Fᴰ-functorᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ' _ _ _ refl
 
 module _ {F : Functor C D} where
   _,Fⱽ_ : (Fᴰ : Functorᴰ F Cᴰ Cᴰ') (Fᴰ' : Functorᴰ F Cᴰ Dᴰ')

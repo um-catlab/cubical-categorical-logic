@@ -60,10 +60,10 @@ module _ {C : Category ℓ ℓ'}{Cᴰ : Categoryᴰ C ℓ'' ℓ'''} where
   YOᴰ .F-obᴰ xᴰ = Cᴰ [-][-, xᴰ ]
   YOᴰ .F-homᴰ fᴰ .N-obᴰ xᴰ g gᴰ = gᴰ Cᴰ.⋆ᴰ fᴰ
   YOᴰ .F-homᴰ fᴰ .N-homᴰ gᴰ i h hᴰ = Cᴰ.⋆Assocᴰ gᴰ hᴰ fᴰ i
-  YOᴰ .F-idᴰ = makeNatTransPathᴰ (Cᴰ ^opᴰ) (SETᴰ ℓ' ℓ''') _ λ i xᴰ f fᴰ →
-    Cᴰ.⋆IdRᴰ fᴰ i
-  YOᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ (λ i xᴰ f hᴰ →
-    Cᴰ.⋆Assocᴰ hᴰ fᴰ gᴰ (~ i))
+  YOᴰ .F-idᴰ = makeNatTransPathᴰ' _ _ _ (implicitFunExt $ funExt λ _ → funExt λ _ → funExt λ _ →
+    Cᴰ.⋆IdRᴰ _)
+  YOᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ' _ _ _ (implicitFunExt $ funExt λ _ → funExt λ _ → funExt λ _ →
+    symP $ Cᴰ.⋆Assocᴰ _ _ _ )
 
 -- Displayed representable
 _[-][_,-] : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')

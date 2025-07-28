@@ -57,49 +57,50 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ] → Cᴰ [ g ][ zᴰ , f*yᴰ ]
     introCL = isCartesian .fst
 
-    introCL⟨_⟩ : ∀ {z} {zᴰ} {g g' : C [ z , x ]}
-      {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
-      {g'fᴰ : Cᴰ [ g' C.⋆ f ][ zᴰ , yᴰ ]}
-      → (g , gfᴰ) ≡ (g' , g'fᴰ)
-      → (g , introCL gfᴰ) ≡ (g' , introCL g'fᴰ)
-    introCL⟨ x ⟩ i .fst = x i .fst
-    introCL⟨ x ⟩ i .snd = introCL (x i .snd)
-
-    βCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
-      {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
-      → introCL gfᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ
-    βCL = isCartesian .snd .fst _
-
-    ηCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
-      {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
-      → gᴰ ≡ introCL (gᴰ Cᴰ.⋆ᴰ π)
-    ηCL = sym $ isCartesian .snd .snd _
-
-    introCL-natural :
-      ∀ {z} {zᴰ} {g : C [ z , x ]}
+    opaque
+      introCL⟨_⟩ : ∀ {z} {zᴰ} {g g' : C [ z , x ]}
         {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
-        {w}{wᴰ} {h : C [ w , z ]}
-        {hᴰ : Cᴰ [ h ][ wᴰ , zᴰ ]}
-      → (hᴰ Cᴰ.⋆ᴰ introCL gfᴰ)
-        ≡ introCL (Cᴰ.reind (sym $ C.⋆Assoc h g f) (hᴰ Cᴰ.⋆ᴰ gfᴰ))
-    introCL-natural =
-      ηCL
-      ∙ (Cᴰ.≡out $ introCL⟨
-        ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
-          Cᴰ.⋆Assoc _ _ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in $ βCL ⟩
-          ∙ Cᴰ.reind-filler _ _))
-        ⟩)
+        {g'fᴰ : Cᴰ [ g' C.⋆ f ][ zᴰ , yᴰ ]}
+        → (g , gfᴰ) ≡ (g' , g'fᴰ)
+        → (g , introCL gfᴰ) ≡ (g' , introCL g'fᴰ)
+      introCL⟨ x ⟩ i .fst = x i .fst
+      introCL⟨ x ⟩ i .snd = introCL (x i .snd)
 
-    introCL≡ :
-      ∀ {z} {zᴰ} {g : C [ z , x ]}
+      βCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
         {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        → introCL gfᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ
+      βCL = isCartesian .snd .fst _
+
+      ηCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
         {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
-      → gfᴰ ≡ gᴰ Cᴰ.⋆ᴰ π
-      → introCL gfᴰ ≡ gᴰ
-    introCL≡ gfᴰ≡gᴰπ =
-      cong snd (introCL⟨ ΣPathP (refl , gfᴰ≡gᴰπ) ⟩)
-      ∙ (sym $ ηCL)
+        → gᴰ ≡ introCL (gᴰ Cᴰ.⋆ᴰ π)
+      ηCL = sym $ isCartesian .snd .snd _
+
+      introCL-natural :
+        ∀ {z} {zᴰ} {g : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {w}{wᴰ} {h : C [ w , z ]}
+          {hᴰ : Cᴰ [ h ][ wᴰ , zᴰ ]}
+        → (hᴰ Cᴰ.⋆ᴰ introCL gfᴰ)
+          ≡ introCL (Cᴰ.reind (sym $ C.⋆Assoc h g f) (hᴰ Cᴰ.⋆ᴰ gfᴰ))
+      introCL-natural =
+        ηCL
+        ∙ (Cᴰ.≡out $ introCL⟨
+          ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+            Cᴰ.⋆Assoc _ _ _
+            ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in $ βCL ⟩
+            ∙ Cᴰ.reind-filler _ _))
+          ⟩)
+
+      introCL≡ :
+        ∀ {z} {zᴰ} {g : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+        → gfᴰ ≡ gᴰ Cᴰ.⋆ᴰ π
+        → introCL gfᴰ ≡ gᴰ
+      introCL≡ gfᴰ≡gᴰπ =
+        cong snd (introCL⟨ ΣPathP (refl , gfᴰ≡gᴰπ) ⟩)
+        ∙ (sym $ ηCL)
 
   isFibration : Type _
   isFibration =
@@ -112,21 +113,30 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module Cⱽ = Fibers Cᴰ
     module _ {x}{y}(f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) where
       open CartesianLift (isFib yᴰ f)
+      opaque
+        fibration→HomᴰRepr-section : ∀ {xᴰ} → section {B = Cⱽ.Hom[ f ][ xᴰ , yᴰ ]}
+          (λ f₁ → action Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆) f₁ π) (λ fᴰ → introCL (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
+        fibration→HomᴰRepr-section fᴰ =
+          Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ (Cᴰ.≡in βCL)
+          ∙ Cᴰ.⋆IdL _
+        fibration→HomᴰRepr-retract : ∀ {xᴰ} → retract {B = Cⱽ.Hom[ f ][ xᴰ , yᴰ ]}
+          (λ f₁ → action Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆) f₁ π) (λ fᴰ → introCL (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
+        fibration→HomᴰRepr-retract fⱽ =
+          Cᴰ.rectify $ Cᴰ.≡out $
+          introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+            Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ refl ⟩)) ⟩
+          ∙ (Cᴰ.≡in $ sym ηCL)          
       fibration→HomᴰRepr : UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
       fibration→HomᴰRepr .UniversalElement.vertex = f*yᴰ
       fibration→HomᴰRepr .UniversalElement.element = π
       fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv
         ( (λ fᴰ → introCL (Cᴰ.idᴰ Cᴰ.⋆ᴰ fᴰ))
-        , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
-          (sym $ Cᴰ.reind-filler _ _)
-          ∙ (Cᴰ.≡in βCL)
-          ∙ Cᴰ.⋆IdL _)
-        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
-          introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
-            Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            ∙ Cᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ refl ⟩)) ⟩
-          ∙ (Cᴰ.≡in $ sym ηCL)
+        , fibration→HomᴰRepr-section
+        , fibration→HomᴰRepr-retract
           )
 
     CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
@@ -136,7 +146,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         {D = Cⱽ.v[ _ ]}
         {P = Cⱽ.HomᴰProf f}
         (fibration→HomᴰRepr f)
-
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift
   -- because π is over C.id ⋆ f rather than f
@@ -172,14 +181,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     ∙ Cᴰ.⋆Assoc _ _ _
     ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
     ∙ Cᴰ.reind-filler _ _
-  CARTESIANLIFT .F-idᴰ = makeNatTransPathᴰ (Cᴰ ^opᴰ) (SETᴰ ℓC' ℓCᴰ')
-    (makeNatTransPath (funExt λ _ → funExt C.⋆IdR))
-    (implicitFunExt $ funExt λ yᴰ → funExt λ f → funExt λ fgᴰ →
-      Cᴰ.rectify $ Cᴰ.≡out $
-        (sym $ Cᴰ.reind-filler _ _)
-        ∙ Cᴰ.⋆IdR _)
-  CARTESIANLIFT .F-seqᴰ (f , fᴰ , sq-f) (g , gᴰ , sq-g) = makeNatTransPathᴰ _ _
-    (makeNatTransPath $ funExt λ _ → funExt λ h → sym $ C.⋆Assoc _ _ _)
+  CARTESIANLIFT .F-idᴰ =
+    makeNatTransPathᴰ' _ _ _
+      (implicitFunExt $ funExt λ yᴰ → funExt λ f → funExt λ fgᴰ →
+        Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⋆IdR _)
+  CARTESIANLIFT .F-seqᴰ (f , fᴰ , sq-f) (g , gᴰ , sq-g) =
+    makeNatTransPathᴰ' _ _ _
     (implicitFunExt $ funExt λ yᴰ → funExt λ h → funExt λ hkᴰ →
       Cᴰ.rectify $ Cᴰ.≡out $
         (sym $ Cᴰ.reind-filler _ _)
@@ -279,3 +288,4 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 -- --       base : Functor C D
 -- --       over : Functorᴰ base (p .fst) (q .fst)
 -- --       preserves-cartesian : PreservesCartesianLifts (p .snd) (q .snd) over
+

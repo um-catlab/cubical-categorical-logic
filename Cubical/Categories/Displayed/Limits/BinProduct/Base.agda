@@ -181,6 +181,7 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       (fᴰ ,ⱽ fᴰ') = vbp.introᴰ _ (fᴰ , fᴰ')
 
       opaque
+        unfolding Cⱽ.reind
         ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
            → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
            → (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₁ ≡ fᴰ

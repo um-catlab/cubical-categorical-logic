@@ -43,66 +43,68 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   idTransᴰ F Fᴰ .N-homᴰ {x = c} {y = c'} {f = f} {xᴰ = cᴰ} {yᴰ = c'ᴰ} fᴰ =
     R.rectify (R.≡out (R.⋆IdR _ ∙ (sym (R.⋆IdL _))))
 
-  makeNatTransPathᴰ : {F G : Functor C D}{α β : NatTrans F G}
-      {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}
-      {αᴰ : NatTransᴰ α Fᴰ Gᴰ}{βᴰ : NatTransᴰ β Fᴰ Gᴰ} →
-    (α≡β : α ≡ β) →
-    (aoc : PathP (λ i → {c : C .ob}(cᴰ : Cᴰ.ob[ c ]) →
-        Dᴰ.Hom[ (α≡β i) .N-ob c ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ cᴰ ])
-      (αᴰ .N-obᴰ) (βᴰ .N-obᴰ)) →
-    PathP (λ i → NatTransᴰ (α≡β i) Fᴰ Gᴰ) αᴰ βᴰ
-  makeNatTransPathᴰ α≡β aoc i .N-obᴰ {x = c} cᴰ = (aoc i) cᴰ
-  makeNatTransPathᴰ {F} {G} {α} {β} {Fᴰ} {Gᴰ} {αᴰ} {βᴰ}
-    α≡β aoc i .N-homᴰ {x = c} {y = c'} {f = f} {xᴰ = cᴰ} {yᴰ = c'ᴰ} fᴰ = remᴰ i
-    where
-    left : PathP (λ j → Dᴰ [ α .N-hom f j ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ c'ᴰ ])
-            ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ (αᴰ .N-obᴰ c'ᴰ))
-            ((αᴰ .N-obᴰ cᴰ) Dᴰ.⋆ᴰ (Gᴰ .F-homᴰ fᴰ))
-    left = αᴰ .N-homᴰ fᴰ
-    right : PathP (λ j → Dᴰ [ β .N-hom f j ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ c'ᴰ ])
-            ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ (βᴰ .N-obᴰ c'ᴰ))
-            ((βᴰ .N-obᴰ cᴰ) Dᴰ.⋆ᴰ (Gᴰ .F-homᴰ fᴰ))
-    right = βᴰ .N-homᴰ fᴰ
-    top : PathP _
-          ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ (αᴰ .N-obᴰ c'ᴰ))
-          ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ (βᴰ .N-obᴰ c'ᴰ))
-    top = congP (λ _ x → (Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ (x c'ᴰ)) aoc
-    bottom : PathP _
-             ((αᴰ .N-obᴰ cᴰ) Dᴰ.⋆ᴰ (Gᴰ .F-homᴰ fᴰ))
-             ((βᴰ .N-obᴰ cᴰ) Dᴰ.⋆ᴰ (Gᴰ .F-homᴰ fᴰ))
-    bottom = congP (λ _ x → (x cᴰ) Dᴰ.⋆ᴰ (Gᴰ .F-homᴰ fᴰ)) aoc
-    remᴰ : PathP (λ k →
-             PathP (λ j →
-              Dᴰ.Hom[ (α≡β k) .N-hom f j ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ c'ᴰ ])
-               ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ ((aoc k) c'ᴰ))
-               ((aoc k) cᴰ Dᴰ.⋆ᴰ Gᴰ .F-homᴰ fᴰ))
-           (αᴰ .N-homᴰ fᴰ)
-           (βᴰ .N-homᴰ fᴰ)
-    remᴰ = isSet→SquareP (λ _ _ → Dᴰ.isSetHomᴰ) left right top bottom
+  opaque
+    unfolding makeNatTransPath
+  
+    makeNatTransPathᴰ : {F G : Functor C D}{α β : NatTrans F G}
+        {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}
+        {αᴰ : NatTransᴰ α Fᴰ Gᴰ}{βᴰ : NatTransᴰ β Fᴰ Gᴰ} →
+      (α≡β : α ≡ β) →
+      (aoc : PathP (λ i → {c : C .ob}(cᴰ : Cᴰ.ob[ c ]) →
+          Dᴰ.Hom[ (α≡β i) .N-ob c ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ cᴰ ])
+        (αᴰ .N-obᴰ) (βᴰ .N-obᴰ)) →
+      PathP (λ i → NatTransᴰ (α≡β i) Fᴰ Gᴰ) αᴰ βᴰ
+    makeNatTransPathᴰ α≡β aoc i .N-obᴰ {x = c} cᴰ = (aoc i) cᴰ
+    makeNatTransPathᴰ {F} {G} {α} {β} {Fᴰ} {Gᴰ} {αᴰ} {βᴰ}
+      α≡β aoc i .N-homᴰ {x = c} {y = c'} {f = f} {xᴰ = cᴰ} {yᴰ = c'ᴰ} fᴰ = remᴰ i
+      where
+      left : PathP (λ j → Dᴰ [ α .N-hom f j ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ c'ᴰ ])
+              ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ (αᴰ .N-obᴰ c'ᴰ))
+              ((αᴰ .N-obᴰ cᴰ) Dᴰ.⋆ᴰ (Gᴰ .F-homᴰ fᴰ))
+      left = αᴰ .N-homᴰ fᴰ
+      right : PathP (λ j → Dᴰ [ β .N-hom f j ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ c'ᴰ ])
+              ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ (βᴰ .N-obᴰ c'ᴰ))
+              ((βᴰ .N-obᴰ cᴰ) Dᴰ.⋆ᴰ (Gᴰ .F-homᴰ fᴰ))
+      right = βᴰ .N-homᴰ fᴰ
+
+      remᴰ : PathP (λ k →
+               PathP (λ j →
+                Dᴰ.Hom[ (α≡β k) .N-hom f j ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ c'ᴰ ])
+                 ((Fᴰ .F-homᴰ fᴰ) Dᴰ.⋆ᴰ ((aoc k) c'ᴰ))
+                 ((aoc k) cᴰ Dᴰ.⋆ᴰ Gᴰ .F-homᴰ fᴰ))
+             (αᴰ .N-homᴰ fᴰ)
+             (βᴰ .N-homᴰ fᴰ)
+      remᴰ = isSet→SquareP (λ _ _ → Dᴰ.isSetHomᴰ) left right _ _
+
+    -- TODO: this one should probably be the one without the '
+    makeNatTransPathᴰ' : {F G : Functor C D}{α β : NatTrans F G}
+        {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}
+        {αᴰ : NatTransᴰ α Fᴰ Gᴰ}{βᴰ : NatTransᴰ β Fᴰ Gᴰ} →
+      (α≡β : α .N-ob ≡ β .N-ob) →
+      (aoc : PathP (λ i → {c : C .ob}(cᴰ : Cᴰ.ob[ c ]) →
+          Dᴰ.Hom[ α≡β i c ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ cᴰ ])
+        (αᴰ .N-obᴰ) (βᴰ .N-obᴰ)) →
+      PathP (λ i → NatTransᴰ (makeNatTransPath {α = α}{β = β} α≡β i) Fᴰ Gᴰ) αᴰ βᴰ
+    makeNatTransPathᴰ' α≡β aoc = makeNatTransPathᴰ (makeNatTransPath α≡β) aoc
 
   idLTransᴰ : {F G : Functor C D}{α : NatTrans F G}
     {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}(αᴰ : NatTransᴰ α Fᴰ Gᴰ) →
     PathP (λ i → NatTransᴰ (FUNCTOR C D .⋆IdL α i) Fᴰ Gᴰ)
     (seqTransᴰ (idTransᴰ F Fᴰ) αᴰ) αᴰ
   idLTransᴰ {F} {G} {α} {Fᴰ} {Gᴰ} αᴰ =
-    makeNatTransPathᴰ (FUNCTOR C D .⋆IdL α) goal
-    where
-    goal : PathP (λ i → {c : C .ob} (cᴰ : Cᴰ.ob[ c ]) →
-        Dᴰ.Hom[ D .⋆IdL (α .N-ob c) i ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ cᴰ ])
-      (λ xᴰ → (Dᴰ .idᴰ) Dᴰ.⋆ᴰ (αᴰ .N-obᴰ xᴰ)) (αᴰ .N-obᴰ)
-    goal = implicitFunExt (λ {x} → funExt (λ xᴰ → Dᴰ.⋆IdLᴰ _))
+    makeNatTransPathᴰ' _ (implicitFunExt (funExt (λ _ → Dᴰ.⋆IdLᴰ _)))
+    -- where
+    -- goal : PathP (λ i → {c : C .ob} (cᴰ : Cᴰ.ob[ c ]) →
+    --     Dᴰ.Hom[ D .⋆IdL (α .N-ob c) i ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ cᴰ ])
+    --   (λ xᴰ → (Dᴰ .idᴰ) Dᴰ.⋆ᴰ (αᴰ .N-obᴰ xᴰ)) (αᴰ .N-obᴰ)
+    -- goal = implicitFunExt (λ {x} → funExt (λ xᴰ → Dᴰ.⋆IdLᴰ _))
 
   idRTransᴰ : {F G : Functor C D}{α : NatTrans F G}
     {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}(αᴰ : NatTransᴰ α Fᴰ Gᴰ) →
     PathP (λ i → NatTransᴰ (FUNCTOR C D .⋆IdR α i) Fᴰ Gᴰ)
     (seqTransᴰ αᴰ (idTransᴰ G Gᴰ)) αᴰ
   idRTransᴰ {F} {G} {α} {Fᴰ} {Gᴰ} αᴰ =
-    makeNatTransPathᴰ (FUNCTOR C D .⋆IdR α) goal
-    where
-    goal : PathP (λ i → {c : C .ob} (cᴰ : Cᴰ.ob[ c ]) →
-      Dᴰ.Hom[ D .⋆IdR (α .N-ob c) i ][ Fᴰ .F-obᴰ cᴰ , Gᴰ .F-obᴰ cᴰ ])
-      (λ xᴰ → (αᴰ .N-obᴰ xᴰ) Dᴰ.⋆ᴰ (Dᴰ .idᴰ)) (αᴰ .N-obᴰ)
-    goal = implicitFunExt (λ {x} → funExt (λ xᴰ → Dᴰ.⋆IdRᴰ _))
+    makeNatTransPathᴰ' _ (implicitFunExt (λ {x} → funExt (λ xᴰ → Dᴰ.⋆IdRᴰ _)))
 
   module _ {F G : Functor C D}{α : NatTrans F G}
     {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ} where
@@ -125,13 +127,14 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     NatTransIsoᴰΣ .rightInv _ = refl
     NatTransIsoᴰΣ .leftInv _ = refl
 
-    isSetNatTransᴰ : isSet (NatTransᴰ α Fᴰ Gᴰ)
-    isSetNatTransᴰ = isSetRetract (NatTransIsoᴰΣ .fun)
-      (NatTransIsoᴰΣ .inv) (NatTransIsoᴰΣ .leftInv)
-      (isSetΣSndProp (isSetImplicitΠ (λ c → isSetΠ (λ cᴰ → Dᴰ .isSetHomᴰ)))
-        λ α-components → isPropImplicitΠ3 λ c c' f →
-        isPropImplicitΠ2 (λ cᴰ c'ᴰ →
-          isPropΠ λ fᴰ → λ p q → isSet→SquareP (λ _ _ → Dᴰ .isSetHomᴰ) _ _ _ _))
+    opaque
+      isSetNatTransᴰ : isSet (NatTransᴰ α Fᴰ Gᴰ)
+      isSetNatTransᴰ = isSetRetract (NatTransIsoᴰΣ .fun)
+        (NatTransIsoᴰΣ .inv) (NatTransIsoᴰΣ .leftInv)
+        (isSetΣSndProp (isSetImplicitΠ (λ c → isSetΠ (λ cᴰ → Dᴰ .isSetHomᴰ)))
+          λ α-components → isPropImplicitΠ3 λ c c' f →
+          isPropImplicitΠ2 (λ cᴰ c'ᴰ →
+            isPropΠ λ fᴰ → λ p q → isSet→SquareP (λ _ _ → Dᴰ .isSetHomᴰ) _ _ _ _))
 
   FUNCTORᴰ : Categoryᴰ (FUNCTOR C D)  _ _
   FUNCTORᴰ .ob[_] F = Functorᴰ F Cᴰ Dᴰ
@@ -143,8 +146,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FUNCTORᴰ .⋆IdRᴰ {x = F} {y = G} {f = α} {xᴰ = Fᴰ} {yᴰ = Gᴰ} αᴰ = idRTransᴰ αᴰ
   FUNCTORᴰ .⋆Assocᴰ {x = F} {y = G} {z = H} {w = E} {f = α} {g = β} {h = γ}
     {xᴰ = Fᴰ} {yᴰ = Gᴰ} {zᴰ = Hᴰ} {wᴰ = Eᴰ} αᴰ βᴰ γᴰ =
-    makeNatTransPathᴰ (FUNCTOR C D .⋆Assoc α β γ)
-    (implicitFunExt (λ {x} → funExt (λ xᴰ →  Dᴰ .⋆Assocᴰ _ _ _)))
+    makeNatTransPathᴰ' _ (implicitFunExt (λ {x} → funExt (λ xᴰ →  Dᴰ .⋆Assocᴰ _ _ _)))
   FUNCTORᴰ .isSetHomᴰ {x = F} {y = G} {f = α} {xᴰ = Fᴰ} {yᴰ = Gᴰ} =
     isSetNatTransᴰ
 
@@ -173,9 +175,12 @@ module _
     (sym $ R.≡in $ Fᴰ .F-seqᴰ _ _)
     ∙ (R.≡in $ (λ i → Fᴰ .F-homᴰ (αᴰ .N-homᴰ fᴰ i)))
     ∙ (R.≡in $ Fᴰ .F-seqᴰ _ _)
-  postcomposeFᴰ .F-idᴰ = makeNatTransPathᴰ _ _ _ λ i _ → Fᴰ .F-idᴰ i
-  postcomposeFᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ λ i _ →
-    Fᴰ .F-seqᴰ (fᴰ .N-obᴰ _) (gᴰ .N-obᴰ _) i
+  postcomposeFᴰ .F-idᴰ =
+    makeNatTransPathᴰ _ _ _ (implicitFunExt (funExt λ _ →
+      R.rectify $ Fᴰ .F-idᴰ))
+  postcomposeFᴰ .F-seqᴰ fᴰ gᴰ =
+    makeNatTransPathᴰ _ _ _ (implicitFunExt $ funExt λ _ →
+      R.rectify $ Fᴰ .F-seqᴰ (fᴰ .N-obᴰ _) (gᴰ .N-obᴰ _))
 
 module _
   {C : Category ℓC ℓC'} (E : Category ℓE ℓE')

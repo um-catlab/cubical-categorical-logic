@@ -54,17 +54,40 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          where
   private
     module C = Category C
+
+  opaque
+    FunctorComprehensionF-id : ∀ x → intro (ues x)
+      (N-ob (P ⟪ C.id ⟫) (ues x .vertex) (ues x .element))
+      ≡ id D
+    FunctorComprehensionF-id x =
+      uex.intro≡ ((λ i → P .F-id i .N-ob uex.vertex uex.element)
+        ∙ (sym $ Px.⋆IdL _))
+      where
+      module uex = UniversalElementNotation (ues x)
+      module Px = PresheafNotation (P ⟅ x ⟆)
+
+    FunctorComprehensionF-seq : ∀ {x y z} → (f : C [ x , y ]) (g : C [ y , z ]) →
+      intro (ues z)
+      (N-ob (P ⟪ seq' C f g ⟫) (ues x .vertex) (ues x .element))
+      ≡
+      seq' D
+      (intro (ues y) (N-ob (P ⟪ f ⟫) (ues x .vertex) (ues x .element)))
+      (intro (ues z) (N-ob (P ⟪ g ⟫) (ues y .vertex) (ues y .element)))
+    FunctorComprehensionF-seq {x} {y} {z} f g =
+      cong uez.intro
+        ((λ i → P .F-seq f g i .N-ob _ uex.element)
+        ∙ λ i → P .F-hom g .N-ob _ (uey.β {p = P .F-hom f .N-ob _ uex.element} (~ i)))
+        ∙ cong uez.intro (funExt⁻ (P .F-hom g .N-hom _) _)
+      ∙ (sym $ uez.intro-natural)
+      where
+      module uex = UniversalElementNotation (ues x)
+      module uey = UniversalElementNotation (ues y)
+      module uez = UniversalElementNotation (ues z)
+      module Py = PresheafNotation (P ⟅ y ⟆)
+      module Pz = PresheafNotation (P ⟅ z ⟆)
   FunctorComprehension : Functor C D
   FunctorComprehension .F-ob x = ues x .vertex
   FunctorComprehension .F-hom {x}{y} f =
     intro (ues y) ((P ⟪ f ⟫) .N-ob _ (ues x .element))
-  FunctorComprehension .F-id {x} =
-    (λ i → intro (ues x) (P .F-id i .N-ob _ (ues x .element)))
-    ∙ (sym $ weak-η (ues x))
-  FunctorComprehension .F-seq {x}{y}{z} f g =
-    ((λ i → intro (ues z) (P .F-seq f g i .N-ob _ (ues x .element))))
-    ∙ (cong (intro (ues z)) $
-      ((λ i → P .F-hom g .N-ob _
-        (β (ues y) {p = P .F-hom f .N-ob _ (ues x .element)} (~ i))))
-      ∙ funExt⁻ (P .F-hom g .N-hom _) _)
-    ∙ (sym $ intro-natural (ues z))
+  FunctorComprehension .F-id = FunctorComprehensionF-id _
+  FunctorComprehension .F-seq = FunctorComprehensionF-seq

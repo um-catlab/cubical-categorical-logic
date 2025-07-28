@@ -5,6 +5,7 @@
 module Cubical.Categories.Displayed.Constructions.Reindex.Eq where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 import      Cubical.Data.Equality as Eq
@@ -51,24 +52,26 @@ module _
   open Categoryᴰ Cᴰ
 
   reind' : {a b : C.ob} {f g : C [ a , b ]} (p : f Eq.≡ g)
-      {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
-    → Hom[ f ][ aᴰ , bᴰ ] → Hom[ g ][ aᴰ , bᴰ ]
+        {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
+      → Hom[ f ][ aᴰ , bᴰ ] → Hom[ g ][ aᴰ , bᴰ ]
   reind' p = Eq.transport Hom[_][ _ , _ ] p
+  opaque
+    unfolding R.reind
 
-  reind≡reind' : ∀ {a b : C.ob} {f g : C [ a , b ]}
-    {p : f ≡ g} {e : f Eq.≡ g}
-    {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
-    → (fᴰ : Hom[ f ][ aᴰ , bᴰ ])
-    → R.reind p fᴰ ≡ reind' e fᴰ
-  reind≡reind' {p = p}{e} fᴰ =
-    subst {x = Eq.pathToEq p}
-      (λ e → R.reind p fᴰ ≡ reind' e fᴰ)
-      (isPropEqHom _ _)
-      lem
-    where
-    lem : R.reind p fᴰ ≡ reind' (Eq.pathToEq p) fᴰ
-    lem = sym (Eq.eqToPath
-      ((Eq.transportPathToEq→transportPath Hom[_][ _ , _ ]) p fᴰ))
+    reind≡reind' : ∀ {a b : C.ob} {f g : C [ a , b ]}
+      {p : f ≡ g} {e : f Eq.≡ g}
+      {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
+      → (fᴰ : Hom[ f ][ aᴰ , bᴰ ])
+      → R.reind p fᴰ ≡ reind' e fᴰ
+    reind≡reind' {p = p}{e} fᴰ =
+      subst {x = Eq.pathToEq p}
+        (λ e → R.reind p fᴰ ≡ reind' e fᴰ)
+        (isPropEqHom _ _)
+        lem
+      where
+      lem : R.reind p fᴰ ≡ reind' (Eq.pathToEq p) fᴰ
+      lem = sym (Eq.eqToPath
+        ((Eq.transportPathToEq→transportPath Hom[_][ _ , _ ]) p fᴰ))
 
 module EqReindex
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -121,7 +124,7 @@ module EqReindex
       F-id'
       Dᴰ.idᴰ)
       (λ i → singId .snd i)
-      (symP (R.≡out (R.reind-filler (sym (F .F-id)) _)))
+      (R.rectify $ R.≡out $ sym $ R.reind-filler _ _)
   forgetReindex .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
     subst
       {A = ∀ {x y z} {f : C .Hom[_,_] x y} {g : C .Hom[_,_] y z}{xᴰ}{yᴰ}{zᴰ}
@@ -131,7 +134,7 @@ module EqReindex
       (λ F-seq' →  PathP (λ i → Dᴰ.Hom[ F .F-seq f g i ][ xᴰ , zᴰ ])
        (F-seq' fᴰ gᴰ) (fᴰ Dᴰ.⋆ᴰ gᴰ))
       (λ i → singSeq .snd i)
-      (symP (R.≡out (R.reind-filler (sym (F .F-seq f g)) _)))
+      (R.rectify $ R.≡out $ sym $ R.reind-filler _ _)
 
    -- TODO: it would be really nice to have a macro reindexRefl! that
    -- worked like the following: See

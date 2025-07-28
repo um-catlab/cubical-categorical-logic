@@ -176,10 +176,10 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     where
     open UniversalElementNotation ue public
     open UniversalElementᴰ ueᴰ public
-    module ∫ue = UniversalElementNotation
-        {C = TotalCat.∫C {C = C} D} (∫UE ueᴰ)
     private
       module P = PresheafNotation {C = C} P
+      module ∫ue = UniversalElementNotation
+        {C = TotalCat.∫C {C = C} D} (∫UE ueᴰ)
 
     module Pshᴰ = PresheafᴰNotation Pᴰ
     introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
@@ -187,15 +187,23 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
         → D [ intro p ][ xᴰ , vertexᴰ ]
     introᴰ p pᴰ = ∫ue.intro (p , pᴰ) .snd
 
-    -- This is kind of useful as a way of doing congruence without
-    -- leaving the reasoning machine.
-    introᴰ⟨_⟩ : ∀ {x xᴰ} {p q : Pᴰ.pob[ x ]}
-        → {pᴰ : Pᴰ.p[ p ][ xᴰ ]}
-        → {qᴰ : Pᴰ.p[ q ][ xᴰ ]}
-        → (p , pᴰ) ≡ (q , qᴰ)
-        → (p , introᴰ p pᴰ) ≡ (q , introᴰ q qᴰ)
-    introᴰ⟨ pᴰ≡qᴰ ⟩ i =
-      _ , introᴰ _ (pᴰ≡qᴰ i .snd)
+    opaque
+      introᴰ≡ :
+        {c : R.ob} {p : PresheafNotation.p[ ∫P Pᴰ ] c}
+        {f : TotalCat.∫C D [ c , ∫ue.vertex ]} →
+        p ≡ (∫P Pᴰ PresheafNotation.⋆ f) ∫ue.element
+        → ∫ue.intro p ≡ f
+      introᴰ≡ = ∫ue.intro≡
+
+      -- This is kind of useful as a way of doing congruence without
+      -- leaving the reasoning machine.
+      introᴰ⟨_⟩ : ∀ {x xᴰ} {p q : Pᴰ.pob[ x ]}
+          → {pᴰ : Pᴰ.p[ p ][ xᴰ ]}
+          → {qᴰ : Pᴰ.p[ q ][ xᴰ ]}
+          → (p , pᴰ) ≡ (q , qᴰ)
+          → (p , introᴰ p pᴰ) ≡ (q , introᴰ q qᴰ)
+      introᴰ⟨ pᴰ≡qᴰ ⟩ i =
+        _ , introᴰ _ (pᴰ≡qᴰ i .snd)
 
     opaque
       unfolding β
@@ -254,9 +262,10 @@ module PresheafⱽNotation
       → p[ f ][ xᴰ ]
   fᴰ ⋆ᴰⱽ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
 
-  ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
-    → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
-  ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = λ i → reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ) i .snd
+  opaque
+    ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
+      → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
+    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = λ i → reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ) i .snd
 
 -- Remove?
 actⱽ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -308,11 +317,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     introⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → Cᴰ.v[ x ] [ xᴰ , vertexᴰ ]
     introⱽ = introᴰ C.id
 
-    βⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : Pⱽ.p[ f ][ yᴰ ]}
-      → introᴰ f pᴰ Pⱽ.⋆ᴰⱽ elementⱽ ≡ pᴰ
-    βⱽ = universalⱽ .snd .fst _
+    opaque
+      βⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : Pⱽ.p[ f ][ yᴰ ]}
+        → introᴰ f pᴰ Pⱽ.⋆ᴰⱽ elementⱽ ≡ pᴰ
+      βⱽ = universalⱽ .snd .fst _
 
 
-    ηⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]}
-      → fᴰ ≡ introᴰ f (fᴰ Pⱽ.⋆ᴰⱽ elementⱽ)
-    ηⱽ = sym (universalⱽ .snd .snd _)
+      ηⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]}
+        → fᴰ ≡ introᴰ f (fᴰ Pⱽ.⋆ᴰⱽ elementⱽ)
+      ηⱽ = sym (universalⱽ .snd .snd _)

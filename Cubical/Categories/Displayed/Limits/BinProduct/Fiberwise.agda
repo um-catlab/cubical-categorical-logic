@@ -44,89 +44,158 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-  BinProductⱽ→BinProductFiber : ∀ {a} {aᴰ₁ aᴰ₂}
-    → BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂)
-    → BinProduct'' Cᴰ.v[ a ] (aᴰ₁ , aᴰ₂)
-  BinProductⱽ→BinProductFiber bpⱽ = record
-    { vertex = a₁×ⱽa₂.vertexⱽ
-    ; element = a₁×ⱽa₂.elementⱽ
-    ; universal = λ Γᴰ → isIsoToIsEquiv
-      ( a₁×ⱽa₂.introⱽ
-      , (λ f → a₁×ⱽa₂.Pshⱽ.rectify $ a₁×ⱽa₂.Pshⱽ.≡out $
-        (sym $ a₁×ⱽa₂.Pshⱽ.reind-filler _ _)
-        ∙ (a₁×ⱽa₂.Pshⱽ.≡in $ a₁×ⱽa₂.βᴰ))
-      , λ f → Cᴰ.rectify $ Cᴰ.≡out $
-        a₁×ⱽa₂.introᴰ⟨ sym $ a₁×ⱽa₂.Pshⱽ.reind-filler _ _ ⟩
-        ∙ (sym $ Cᴰ.≡in $ a₁×ⱽa₂.ηᴰ))
-    } where
-    module a₁×ⱽa₂ = UniversalElementⱽNotation _ _ _ bpⱽ
+      using (v[_]; rectify; ≡out; ≡in; reind-filler; Hom[_][_,_]; _⋆ᴰ_; ⟨_⟩⋆⟨_⟩; ⋆Assoc; ⋆IdL; ⋆IdLᴰ)
+  module _ {a} {aᴰ₁ aᴰ₂} (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂)) where
+    private
+      module a₁×ⱽa₂ = UniversalElementⱽNotation _ _ _ bpⱽ
+        using (introⱽ; vertexⱽ; elementⱽ; βᴰ; introᴰ≡)
+      module a₁×ⱽa₂Pshⱽ = UniversalElementⱽNotation.Pshⱽ _ _ _ bpⱽ
+        using (rectify; ≡out; ≡in)
+    opaque
+      binproduct-fiber-section-pf : ∀ Γᴰ → section
+        (λ f →
+           action Cᴰ.v[ a ] (BinProductProf Cᴰ.v[ a ] ⟅ aᴰ₁ , aᴰ₂ ⟆) f
+           a₁×ⱽa₂.elementⱽ)
+        (a₁×ⱽa₂.introⱽ {xᴰ = Γᴰ})
+      binproduct-fiber-section-pf _ _ =
+        a₁×ⱽa₂Pshⱽ.rectify $ a₁×ⱽa₂Pshⱽ.≡out $
+          (a₁×ⱽa₂Pshⱽ.≡in {p = sym $ C.⋆IdL _} $ ΣPathP
+            ( (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)
+            , (Cᴰ.rectify $ (Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _))))
+          ∙ (a₁×ⱽa₂Pshⱽ.≡in $ a₁×ⱽa₂.βᴰ)
+
+      binproduct-fiber-retract-pf : ∀ Γᴰ → retract
+        (λ f →
+           action Cᴰ.v[ a ] (BinProductProf Cᴰ.v[ a ] ⟅ aᴰ₁ , aᴰ₂ ⟆) f
+           a₁×ⱽa₂.elementⱽ)
+        (a₁×ⱽa₂.introⱽ {xᴰ = Γᴰ})
+      binproduct-fiber-retract-pf _ _ =
+        Cᴰ.rectify $ Cᴰ.≡out $
+          a₁×ⱽa₂.introᴰ≡ $ (a₁×ⱽa₂Pshⱽ.≡in {p = sym $ C.⋆IdL _} $ ΣPathP
+            ( (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)
+            , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)))
+    BinProductⱽ→BinProductFiber : BinProduct'' Cᴰ.v[ a ] (aᴰ₁ , aᴰ₂)
+    BinProductⱽ→BinProductFiber .vertex = a₁×ⱽa₂.vertexⱽ
+    BinProductⱽ→BinProductFiber .element = a₁×ⱽa₂.elementⱽ
+    BinProductⱽ→BinProductFiber .universal Γᴰ =
+      isIsoToIsEquiv ( a₁×ⱽa₂.introⱽ
+        , binproduct-fiber-section-pf Γᴰ
+        , binproduct-fiber-retract-pf Γᴰ
+        )
+
   hasAllBinProductⱽ→BinProductFibers :
     ∀ {a} → hasAllBinProductⱽ Cᴰ → BinProducts'' Cᴰ.v[ a ]
   hasAllBinProductⱽ→BinProductFibers bpⱽ (aᴰ₁ , aᴰ₂) =
     BinProductⱽ→BinProductFiber (bpⱽ (aᴰ₁ , aᴰ₂))
 
-  -- TODO: prove that cartesian lifts preserves these binary products
-  cartesianLift-preserves-BinProductFiber :
-    ∀ {a b aᴰ₁ aᴰ₂}
-    → (isFib : isFibration Cᴰ)
-    → (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂))
-    → (f : C [ b , a ])
-    → preservesBinProduct' (CartesianLiftF-fiber Cᴰ isFib f)
-      (BinProductⱽ→BinProductFiber bpⱽ)
-  cartesianLift-preserves-BinProductFiber {b = b}{aᴰ₁}{aᴰ₂} isFib bpⱽ f bᴰ = isIsoToIsEquiv
-    ( (λ (fⱽ₁ , fⱽ₂) → f*×.introCL (bpⱽ.introᴰ _ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))
-    , (λ (fⱽ₁ , fⱽ₂) → ΣPathP
-      -- This part of the proof can probably be simplified
-      ( (Cᴰ.rectify $ Cᴰ.≡out $
-        (sym $ Cᴰ.reind-filler _ _)
-        ∙ (Cᴰ.≡in $ f*aᴰ₁.introCL-natural)
-        ∙ f*aᴰ₁.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+  module _
+    {a b aᴰ₁ aᴰ₂}
+    (isFib : isFibration Cᴰ)
+    (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂))
+    (f : C [ b , a ]) where
+
+    private
+      module f*× = CartesianLift (isFib (vertexⱽ bpⱽ) f)
+      module f*aᴰ₁ = CartesianLift (isFib aᴰ₁ f)
+      module f*aᴰ₂ = CartesianLift (isFib aᴰ₂ f)
+      module bpⱽ = UniversalElementⱽNotation _ _ _ bpⱽ
+        using (introᴰ; elementⱽ; introᴰ≡)
+      module bpⱽ' = BinProductⱽNotation bpⱽ
+        using (×βⱽ₁; ×βⱽ₂)
+
+    intro-f*× : ∀ bᴰ → 
+      Σ Cᴰ.Hom[ C.id ][ bᴰ , f*aᴰ₁.f*yᴰ ]
+      (λ _ → Cᴰ.Hom[ C.id ][ bᴰ , f*aᴰ₂.f*yᴰ ]) →
+      Cᴰ.Hom[ C.id ][ bᴰ , f*×.f*yᴰ ]
+    intro-f*× bᴰ (fⱽ₁ , fⱽ₂) =
+      f*×.introCL (bpⱽ.introᴰ _ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π)))
+
+    opaque
+
+      intro-f*×-retract : ∀ {bᴰ} →
+        retract
+          (λ f₁ →
+           action Cᴰ.v[ b ]
+           (BinProductProf Cᴰ.v[ b ] ⟅
+            CartesianLiftF-fiber Cᴰ isFib f ⟅ aᴰ₁ ⟆ ,
+            CartesianLiftF-fiber Cᴰ isFib f ⟅ aᴰ₂ ⟆
+            ⟆)
+           f₁
+           (CartesianLiftF-fiber Cᴰ isFib f ⟪ bpⱽ.elementⱽ .fst ⟫ ,
+            CartesianLiftF-fiber Cᴰ isFib f ⟪ bpⱽ.elementⱽ .snd ⟫))
+          (intro-f*× bᴰ)
+      intro-f*×-retract fⱽ =
+        (Cᴰ.rectify $ Cᴰ.≡out $ f*×.introCL⟨
+          ΣPathP $ refl , (Cᴰ.rectify $ Cᴰ.≡out $
+            bpⱽ.introᴰ≡ (ΣPathP $
+              (sym $ C.⋆IdR _)
+              , ΣPathP
+                ( (Cᴰ.rectify $ Cᴰ.≡out $
+                  Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+                  ∙ Cᴰ.⋆Assoc _ _ _
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₁.βCL ⟩
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+                  ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
+                , (Cᴰ.rectify $ Cᴰ.≡out $
+                  Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+                  ∙ Cᴰ.⋆Assoc _ _ _
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₂.βCL ⟩
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+                  ∙ (sym $ Cᴰ.⋆Assoc _ _ _))))
+            )
+          ⟩)
+        ∙ sym f*×.ηCL
+
+      intro-f*×-section : ∀ {bᴰ} →
+        section
+          (λ f₁ →
+           action Cᴰ.v[ b ]
+           (BinProductProf Cᴰ.v[ b ] ⟅
+            CartesianLiftF-fiber Cᴰ isFib f ⟅ aᴰ₁ ⟆ ,
+            CartesianLiftF-fiber Cᴰ isFib f ⟅ aᴰ₂ ⟆
+            ⟆)
+           f₁
+           (CartesianLiftF-fiber Cᴰ isFib f ⟪ bpⱽ.elementⱽ .fst ⟫ ,
+            CartesianLiftF-fiber Cᴰ isFib f ⟪ bpⱽ.elementⱽ .snd ⟫))
+          (intro-f*× bᴰ)
+      intro-f*×-section (fⱽ₁ , fⱽ₂) = ΣPathP
+        -- This part of the proof can probably be simplified
+        ( (Cᴰ.rectify $ Cᴰ.≡out $
           (sym $ Cᴰ.reind-filler _ _)
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.reind-filler _ _
-          ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₁)
-          ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
-          ⟩
-        ∙ f*aᴰ₁.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
-        ∙ (sym $ Cᴰ.≡in $ f*aᴰ₁.ηCL)
+          ∙ (Cᴰ.≡in $ f*aᴰ₁.introCL-natural)
+          ∙ f*aᴰ₁.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.reind-filler _ _
+            ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₁)
+            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
+            ⟩
+          ∙ f*aᴰ₁.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
+          ∙ (sym $ Cᴰ.≡in $ f*aᴰ₁.ηCL)
+          )
+        , ((Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ (Cᴰ.≡in $ f*aᴰ₂.introCL-natural)
+          ∙ f*aᴰ₂.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.reind-filler _ _
+            ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₂)
+            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
+            ⟩
+          ∙ f*aᴰ₂.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
+          ∙ (sym $ Cᴰ.≡in $ f*aᴰ₂.ηCL)) )
         )
-      , ((Cᴰ.rectify $ Cᴰ.≡out $
-        (sym $ Cᴰ.reind-filler _ _)
-        ∙ (Cᴰ.≡in $ f*aᴰ₂.introCL-natural)
-        ∙ f*aᴰ₂.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
-          (sym $ Cᴰ.reind-filler _ _)
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.reind-filler _ _
-          ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₂)
-          ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
-          ⟩
-        ∙ f*aᴰ₂.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
-        ∙ (sym $ Cᴰ.≡in $ f*aᴰ₂.ηCL)) )
-      ))
-    , λ fⱽ →
-      -- TODO: use ideas from this (like ∫ue.intro≡) to simplify the above
-      (Cᴰ.rectify $ Cᴰ.≡out $ f*×.introCL⟨
-        ΣPathP $ refl , (Cᴰ.rectify $ Cᴰ.≡out $ bpⱽ.∫ue.intro≡ (bpⱽ.Pshᴰ.≡in $ ΣPathP
-          ( (Cᴰ.≡out $ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.⋆Assoc _ _ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₁.βCL ⟩
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
-          , (Cᴰ.≡out $ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.⋆Assoc _ _ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₂.βCL ⟩
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)))))
-        ⟩)
-      ∙ sym f*×.ηCL)
-    where
-    module f*× = CartesianLift (isFib (vertexⱽ bpⱽ) f)
-    module f*aᴰ₁ = CartesianLift (isFib aᴰ₁ f)
-    module f*aᴰ₂ = CartesianLift (isFib aᴰ₂ f)
-    module bpⱽ = UniversalElementⱽNotation _ _ _ bpⱽ
-    module bpⱽ' = BinProductⱽNotation bpⱽ
-    module f*⟨aᴰ₁×aᴰ₂⟩ = PresheafNotation (BinProductProf Cᴰ.v[ b ] ⟅ f*aᴰ₁.f*yᴰ , f*aᴰ₂.f*yᴰ ⟆)
+
+    cartesianLift-preserves-BinProductFiber :
+      preservesBinProduct' (CartesianLiftF-fiber Cᴰ isFib f)
+                           (BinProductⱽ→BinProductFiber bpⱽ)
+    cartesianLift-preserves-BinProductFiber bᴰ = isIsoToIsEquiv
+      ( intro-f*× bᴰ
+      , intro-f*×-section
+      , intro-f*×-retract)
+

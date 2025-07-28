@@ -80,37 +80,35 @@ module _ (𝓒 : Category ℓc ℓc') where
         𝓓' = CatQuotient.ReindexQuo.reindex 𝓒 _≈_ reflₑ ⋆ₑ-cong 𝓓
         module 𝓓 = Categoryᴰ 𝓓
         module R = HomᴰReasoning 𝓓
-
       open Section
-      elim : (F : GlobalSection 𝓓')
-           → (∀ eq →
+
+      module _ (F : GlobalSection 𝓓')
+        (F-respects-axioms : (∀ eq →
              PathP (λ i → 𝓓.Hom[ ηEq eq i ][
                                  F .F-obᴰ (Ax .dom eq)
                                , F .F-obᴰ (Ax .cod eq) ])
                    (F .F-homᴰ (Ax .lhs eq))
-                   (F .F-homᴰ (Ax .rhs eq)))
-           → GlobalSection 𝓓
-      elim F F-respects-axioms =
-        CatQuotient.elim 𝓒 _≈_ reflₑ ⋆ₑ-cong 𝓓 F
-          (λ _ _ → F-respects-≈) where
-        F-respects-≈ : {x y : 𝓒 .ob} {f g : Hom[ 𝓒 , x ] y}
-          (p : f ≈ g) →
-          PathP
-          (λ i → 𝓓.Hom[ eq/ f g p i ][
-            F .F-obᴰ x
-          , F .F-obᴰ y ])
-          (F .F-homᴰ f)
-          (F .F-homᴰ g)
-        F-respects-≈ (↑ eq) = F-respects-axioms eq
-        F-respects-≈ {x}{y} (reflₑ f) = R.rectify {p = refl} refl
-        F-respects-≈ (⋆ₑ-cong e e' p f f' q) =
-          R.rectify
-          (F .F-seqᴰ e f ◁
-          (λ i → F-respects-≈ p i 𝓓.⋆ᴰ F-respects-≈ q i)
-          ▷ (sym (F .F-seqᴰ e' f')))
-
+                   (F .F-homᴰ (Ax .rhs eq)))) where
+        opaque
+          F-respects-≈ : {x y : 𝓒 .ob} {f g : Hom[ 𝓒 , x ] y}
+            (p : f ≈ g) →
+            PathP
+            (λ i → 𝓓.Hom[ eq/ f g p i ][
+              F .F-obᴰ x
+            , F .F-obᴰ y ])
+            (F .F-homᴰ f)
+            (F .F-homᴰ g)
+          F-respects-≈ (↑ eq) = F-respects-axioms eq
+          F-respects-≈ {x}{y} (reflₑ f) = R.rectify {p = refl} refl
+          F-respects-≈ (⋆ₑ-cong e e' p f f' q) =
+            R.rectify
+            (F .F-seqᴰ e f ◁
+            (λ i → F-respects-≈ p i 𝓓.⋆ᴰ F-respects-≈ q i)
+            ▷ (sym (F .F-seqᴰ e' f')))
+        elim : GlobalSection 𝓓
+        elim = CatQuotient.elim 𝓒 _≈_ reflₑ ⋆ₑ-cong 𝓓 F (λ _ _ → F-respects-≈)
     module _ (𝓓 : Category ℓd ℓd') (F : Functor 𝓒 𝓓)
-        (F-satisfies-axioms : ∀ eq → F ⟪ Ax .lhs eq ⟫ ≡ F ⟪ Ax .rhs eq ⟫)
+      (F-satisfies-axioms : ∀ eq → F ⟪ Ax .lhs eq ⟫ ≡ F ⟪ Ax .rhs eq ⟫)
         where
       rec : Functor PresentedCat 𝓓
       rec = Weaken.introS⁻ (elim _ F' F-satisfies-axioms) where

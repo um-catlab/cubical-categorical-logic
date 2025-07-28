@@ -35,27 +35,19 @@ private
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          {P : Profunctor C D ℓS}
          {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-         {Pᴰ : Profunctorᴰ P Cᴰ Dᴰ ℓSᴰ}
-         {ues : UniversalElements {C = C} {D = D} P}
+         (Pᴰ : Profunctorᴰ P Cᴰ Dᴰ ℓSᴰ)
+         {ues : UniversalElements P}
          (uesᴰ : UniversalElementsᴰ ues Pᴰ)
        where
   private
-    ∫Cᴰ = (TotalCat.∫C {C = C} Cᴰ)
-    ∫Dᴰ = (TotalCat.∫C {C = D} Dᴰ)
-    ∫Pᴰ = ∫Prof {C = C}{D = D} {R = P} Pᴰ
-
-    ∫FunctorComprehension : Functor ∫Cᴰ ∫Dᴰ
+    ∫FunctorComprehension : Functor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ)
     ∫FunctorComprehension =
-      FunctorComprehension
-        {C = ∫Cᴰ}
-        {D = ∫Dᴰ}
-        {P = ∫Pᴰ}
-        (∫UEs {C = C}{D = D} {R = P} Pᴰ {ues = ues} uesᴰ)
+      FunctorComprehension (∫Prof Pᴰ) (∫UEs Pᴰ uesᴰ)
     module Dᴰ = Reasoning Dᴰ
 
   open Functor
   open Functorᴰ
-  FunctorᴰComprehension : Functorᴰ (FunctorComprehension {C = C}{D = D}{P = P} ues) Cᴰ Dᴰ
+  FunctorᴰComprehension : Functorᴰ (FunctorComprehension P ues) Cᴰ Dᴰ
   FunctorᴰComprehension .F-obᴰ xᴰ = (∫FunctorComprehension ⟅ _ , xᴰ ⟆) .snd
   FunctorᴰComprehension .F-homᴰ fᴰ = (∫FunctorComprehension ⟪ _ , fᴰ ⟫) .snd
   FunctorᴰComprehension .Functorᴰ.F-idᴰ =
@@ -74,5 +66,5 @@ module _ {C : Category ℓC ℓC'}
   -- morphisms
   FunctorⱽComprehension : Functorⱽ Cᴰ Dᴰ
   FunctorⱽComprehension = reindF (Functor≡ (λ _ → refl) (Category.⋆IdL C)) $
-    FunctorᴰComprehension {C = C}{D = C}{P = YO}{Pᴰ = Pᴰ} λ x xᴰ →
+    FunctorᴰComprehension Pᴰ λ x xᴰ →
       UniversalElementⱽ.toUniversalᴰ (uesⱽ x xᴰ)

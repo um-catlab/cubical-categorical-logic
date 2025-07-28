@@ -49,7 +49,7 @@ open UniversalElement
 open UniversalElementNotation
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-         {P : Profunctor C D ℓS}
+         (P : Profunctor C D ℓS)
          (ues : UniversalElements P)
          where
   private

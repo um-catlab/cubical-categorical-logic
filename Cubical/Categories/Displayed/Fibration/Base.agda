@@ -131,7 +131,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           )
 
     CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
-    CartesianLiftF-fiber f = FunctorComprehension (fibration→HomᴰRepr f)
+    CartesianLiftF-fiber f = FunctorComprehension ? (fibration→HomᴰRepr f)
 
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift

@@ -47,12 +47,13 @@ open NatTrans
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
          (F : Functor C E) (G : Functor D E) where
-
+  private
+    GraphProf = (HomBif E ∘Fl (F ^opF) ∘Fr G)
   Commaᴰ : Categoryᴰ (C ×C D) ℓE' ℓE'
-  Commaᴰ = Graph {C = C} (HomBif E ∘Fl (F ^opF) ∘Fr G)
+  Commaᴰ = Graph {C = C} GraphProf
 
   hasPropHomsCommaᴰ : hasPropHoms Commaᴰ
-  hasPropHomsCommaᴰ = hasPropHomsGraph _
+  hasPropHomsCommaᴰ = hasPropHomsGraph GraphProf
 
   -- Universal Property: a functor into the comma category is
   -- equivalent to a natural transformation
@@ -72,20 +73,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   Commaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
   Commaᴰ₁ = ∫Cᴰsr Commaᴰ
 
-  private
-    IsoCommaᴰ' : Categoryᴰ (∫C Commaᴰ) _ _
-    IsoCommaᴰ' = (PropertyOver _ (λ (_ , f) → isIso E f))
+  IsoCommaᴰ' : Categoryᴰ (∫C Commaᴰ) _ _
+  IsoCommaᴰ' = (PropertyOver _ (λ (_ , f) → isIso E f))
 
-    hasPropHomsIsoCommaᴰ' : hasPropHoms IsoCommaᴰ'
-    hasPropHomsIsoCommaᴰ' =
-      hasContrHoms→hasPropHoms IsoCommaᴰ' (hasContrHomsPropertyOver _ _)
+  hasContrHomsIsoCommaᴰ' : hasContrHoms IsoCommaᴰ'
+  hasContrHomsIsoCommaᴰ' = hasContrHomsPropertyOver (∫C Commaᴰ) λ _ → isIso E _
 
   IsoCommaᴰ : Categoryᴰ (C ×C D) (ℓ-max ℓE' ℓE') ℓE'
   IsoCommaᴰ = ∫Cᴰ Commaᴰ IsoCommaᴰ'
 
   hasPropHomsIsoCommaᴰ : hasPropHoms IsoCommaᴰ
   hasPropHomsIsoCommaᴰ =
-    hasPropHoms∫Cᴰ IsoCommaᴰ' hasPropHomsCommaᴰ hasPropHomsIsoCommaᴰ'
+    hasPropHoms∫Cᴰ IsoCommaᴰ' hasPropHomsCommaᴰ
+      (hasContrHoms→hasPropHoms IsoCommaᴰ' hasContrHomsIsoCommaᴰ')
 
   IsoComma : Category _ _
   IsoComma = ∫C IsoCommaᴰ
@@ -246,4 +246,5 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
       (mkPropHomsSection (hasPropHomsCommaᴰ _ _)
         (α .trans ⟦_⟧)
         (α .trans .N-hom))
-      (mkContrHomsSection (hasContrHomsPropertyOver _ _) (α .nIso)))
+      (mkContrHomsSection (hasContrHomsIsoCommaᴰ' _ _) (α .nIso)
+      ))

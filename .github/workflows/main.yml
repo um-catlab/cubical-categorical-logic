@@ -58,7 +58,7 @@ env:
   GHC_VERSION: 9.10.2
   CABAL_VERSION: 3.12.1.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
-  CUBICAL_COMMIT : ccd592db1df4f2304463d89e61b81eeb88f68c22
+  CUBICAL_COMMIT : 61f6294a310c00f43acaf8be97f25425d17b83be
   CACHE_PATHS: |
     ~/.cabal/packages
     ~/.cabal/store
@@ -113,7 +113,7 @@ jobs:
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run : |
           cd ~
-          git clone https://github.com/agda/cubical --branch master
+          git clone https://github.com/maxsnew/cubical --branch category-displayed-perf
           cd cubical
           git checkout ${{ env.CUBICAL_COMMIT }}
           cd ..

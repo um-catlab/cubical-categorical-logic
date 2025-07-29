@@ -55,9 +55,8 @@ module _
         {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}
       → Hom[ f ][ aᴰ , bᴰ ] → Hom[ g ][ aᴰ , bᴰ ]
   reind' p = Eq.transport Hom[_][ _ , _ ] p
-  opaque
-    unfolding R.reind
 
+  opaque
     reind≡reind' : ∀ {a b : C.ob} {f g : C [ a , b ]}
       {p : f ≡ g} {e : f Eq.≡ g}
       {aᴰ : ob[ a ]} {bᴰ : ob[ b ]}

@@ -78,7 +78,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     opaque
       -- This proof is pretty tricky without unfolding these.
       -- Might want to develop a better way of showing these coincide...
-      unfolding PresheafᴰNotation.reind HomᴰReasoning.reind
+      unfolding PresheafᴰNotation.reind-filler HomᴰReasoning.reind-filler
       preservesBinProductⱽ-section : ∀ {y}{yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ]}{f}
         → section {A = Dᴰ [ F ⟪ f ⟫ ][ yᴰ , _ ]}
         (λ fᴰ →

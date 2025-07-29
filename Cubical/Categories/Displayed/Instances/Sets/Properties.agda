@@ -67,7 +67,6 @@ module _ {A : hSet ℓ} (Aᴰ₁ Aᴰ₂ : ⟨ A ⟩ → hSet ℓ') where
   -- then in the case of nice examples like SETᴰ (and possibly
   -- PRESHEAFᴰ) we would get that there is no transport required
   opaque
-    unfolding PresheafᴰNotation.reind
     -- this refactor is a great example of why opaque expression
     -- syntax would be extremely helpful
     SETᴰVerticalBinProd-section :
@@ -99,8 +98,10 @@ module _ {A : hSet ℓ} (Aᴰ₁ Aᴰ₂ : ⟨ A ⟩ → hSet ℓ') where
   SETᴰVerticalBinProd .vertexⱽ = Aᴰ₁×Aᴰ₂
   SETᴰVerticalBinProd .elementⱽ = (λ _ → fst) , (λ _ → snd)
   SETᴰVerticalBinProd .universalⱽ .fst (f₁ , f₂) a aᴰ = f₁ _ aᴰ , f₂ _ aᴰ
-  SETᴰVerticalBinProd .universalⱽ .snd .fst = SETᴰVerticalBinProd-section _ _ _
-  SETᴰVerticalBinProd .universalⱽ .snd .snd = SETᴰVerticalBinProd-retract _ _ _
+  SETᴰVerticalBinProd .universalⱽ {y} {yᴰ} {f} .snd .fst =
+    SETᴰVerticalBinProd-section y yᴰ f
+  SETᴰVerticalBinProd .universalⱽ {y} {yᴰ} {f} .snd .snd =
+    SETᴰVerticalBinProd-retract y yᴰ f
 
 hasVerticalBinProds : hasAllBinProductⱽ (SETᴰ ℓ ℓ')
 hasVerticalBinProds (A₁ , A₂) = SETᴰVerticalBinProd A₁ A₂

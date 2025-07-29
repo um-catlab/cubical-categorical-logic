@@ -78,11 +78,10 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   _≡[_]_ {x} {xᴰ} {f} {g} fᴰ f≡g gᴰ =
     PathP (λ i → p[ f≡g i ][ xᴰ ]) fᴰ gᴰ
 
+  reind : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
+    → p[ f ][ xᴰ ] → p[ g ][ xᴰ ]
+  reind = subst p[_][ _ ]
   opaque
-    reind : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
-      → p[ f ][ xᴰ ] → p[ g ][ xᴰ ]
-    reind = subst p[_][ _ ]
-
     reind-filler : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
       → (fᴰ : p[ f ][ xᴰ ])
       → (f , fᴰ) ≡ (g , reind f≡g fᴰ)
@@ -268,11 +267,9 @@ module PresheafⱽNotation
       → p[ f ][ xᴰ ]
   fᴰ ⋆ᴰⱽ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
 
-  opaque
-    unfolding reind
-    ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
-      → Path p[ x , xᴰ ] (f C.⋆ C.id , fᴰ ⋆ᴰ gⱽ) (f , fᴰ ⋆ᴰⱽ gⱽ)
-    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = reind-filler _ _
+  ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
+    → Path p[ x , xᴰ ] (f C.⋆ C.id , fᴰ ⋆ᴰ gⱽ) (f , fᴰ ⋆ᴰⱽ gⱽ)
+  ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = reind-filler _ _
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ Cᴰ x ℓPᴰ) where

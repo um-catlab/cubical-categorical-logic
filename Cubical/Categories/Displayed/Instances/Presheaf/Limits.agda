@@ -40,52 +40,52 @@ open isIsoOver
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
-module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
-  private
-    module 𝓟ᴰ = Categoryᴰ (PRESHEAFᴰ C ℓS ℓSᴰ)
-  opaque
-    hasAllTerminalⱽPRESHEAFᴰ : hasAllTerminalⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
-    hasAllTerminalⱽPRESHEAFᴰ P .vertexⱽ = ⊤𝓟 (∫ᴾ P) ℓSᴰ .fst
-    hasAllTerminalⱽPRESHEAFᴰ P .elementⱽ = tt
-    hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .fst x =
-      natTrans (λ _ _ → tt*) (λ _ → refl)
-    hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .snd .fst _ = refl
-    hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .snd .snd a =
-      makeNatTransPathP refl refl refl
+-- module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
+--   private
+--     module 𝓟ᴰ = Categoryᴰ (PRESHEAFᴰ C ℓS ℓSᴰ)
+--   opaque
+--     hasAllTerminalⱽPRESHEAFᴰ : hasAllTerminalⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
+--     hasAllTerminalⱽPRESHEAFᴰ P .vertexⱽ = ⊤𝓟 (∫ᴾ P) ℓSᴰ .fst
+--     hasAllTerminalⱽPRESHEAFᴰ P .elementⱽ = tt
+--     hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .fst x =
+--       natTrans (λ _ _ → tt*) (λ _ → refl)
+--     hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .snd .fst _ = refl
+--     hasAllTerminalⱽPRESHEAFᴰ P .universalⱽ .snd .snd a =
+--       makeNatTransPathP refl refl refl
 
-    hasAllBinProductⱽPRESHEAFᴰ : hasAllBinProductⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
-    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .vertexⱽ =
-      ×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdOb
-    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .elementⱽ =
-      (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _))
-      , (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _))
-    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ .fst (id∘αᴰ , id∘αᴰ') =
-      natTrans
-      (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
-      λ (f , f-comm) → funExt λ q →
-      ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
-    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ')
-      .universalⱽ .snd .fst (id∘αᴰ , id∘αᴰ') =
-      ΣPathP
-       ( makeNatTransPath (sym (transport-filler _ _))
-       , makeNatTransPath (sym (transport-filler _ _)))
-  -- may god forgive me for this "proof"
-    hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ {y = Q}{yᴰ = Qᴾ}{f = α}
-      .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
-      ΣPathP
-      ( fromPathP
-       (λ i → αᴰ .N-ob
-         (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
-         (transport-filler
-           (λ j →
-             Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q)
-               .fst)
-           q' (~ i)) .fst)
-      , fromPathP
-       (λ i → αᴰ .N-ob
-         (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
-         (transport-filler
-           (λ j →
-             Qᴾ .F-ob
-               (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst)
-           q' (~ i)) .snd)))
+--     hasAllBinProductⱽPRESHEAFᴰ : hasAllBinProductⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
+--     hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .vertexⱽ =
+--       ×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdOb
+--     hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .elementⱽ =
+--       (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₁) (idTransᴰ _ _ _))
+--       , (seqTrans (×𝓟 _ _ Pᴰ Pᴰ' .BinProduct.binProdPr₂) (idTransᴰ _ _ _))
+--     hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ .fst (id∘αᴰ , id∘αᴰ') =
+--       natTrans
+--       (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
+--       λ (f , f-comm) → funExt λ q →
+--       ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
+--     hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ')
+--       .universalⱽ .snd .fst (id∘αᴰ , id∘αᴰ') =
+--       ΣPathP
+--        ( makeNatTransPath (sym (transport-filler _ _))
+--        , makeNatTransPath (sym (transport-filler _ _)))
+--   -- may god forgive me for this "proof"
+--     hasAllBinProductⱽPRESHEAFᴰ (Pᴰ , Pᴰ') .universalⱽ {y = Q}{yᴰ = Qᴾ}{f = α}
+--       .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
+--       ΣPathP
+--       ( fromPathP
+--        (λ i → αᴰ .N-ob
+--          (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
+--          (transport-filler
+--            (λ j →
+--              Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q)
+--                .fst)
+--            q' (~ i)) .fst)
+--       , fromPathP
+--        (λ i → αᴰ .N-ob
+--          (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
+--          (transport-filler
+--            (λ j →
+--              Qᴾ .F-ob
+--                (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst)
+--            q' (~ i)) .snd)))

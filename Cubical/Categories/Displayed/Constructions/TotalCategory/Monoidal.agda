@@ -55,7 +55,7 @@ module _ (M : MonoidalCategory ℓC ℓC')
     module PR = Reasoning P.Cᴰ
 
   ∫Mᴰsr : MonoidalCategoryᴰ M (ℓ-max ℓD ℓE) (ℓ-max ℓD' ℓE')
-  ∫Mᴰsr .Cᴰ = TotalCatᴰ.∫Cᴰsr {C = M.C}{D = N.C} P.Cᴰ
+  ∫Mᴰsr .Cᴰ = TotalCatᴰ.∫Cᴰ {C = M.C}{D = N.C} P.Cᴰ
   -- TODO: maybe could have used an intro principle for ∫Cᴰsr here
   -- TODO: maybe all of this could be from intro principles for ∫Cᴰ?
   ∫Mᴰsr .monstrᴰ .tenstrᴰ .─⊗ᴰ─ .F-obᴰ {m , m'}

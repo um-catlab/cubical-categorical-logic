@@ -9,7 +9,7 @@
 -- | library only gives the "separate" functorial action. In practice,
 -- | relators tend to only come with a separate action anyway (e.g.,
 -- | Hom) but in principle a relator carries more information
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Profunctor.Relator where
 
 open import Cubical.Reflection.RecordEquiv
@@ -118,7 +118,7 @@ module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
   Profunctor→Relator*o = CurriedToBifunctor
 
   Profunctor→Relatoro*^op : Profunctor C D ℓS → (C ^op) o-[ ℓS ]-* (D ^op)
-  Profunctor→Relatoro*^op = CurriedToBifunctor
+  Profunctor→Relatoro*^op P = CurriedToBifunctor P ∘Fl elimOp Id
 
   Relator→Profunctor : D o-[ ℓS ]-* C → Profunctor C D ℓS
   Relator→Profunctor R = CurryBifunctor (Bif.Sym R)

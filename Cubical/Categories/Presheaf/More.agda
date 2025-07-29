@@ -55,7 +55,7 @@ module _ (C : Category ℓ ℓ') (c : C .Category.ob) where
     (C .⋆IdR)
     (C .⋆IdR))
 
-  selfUnivEltᵒᵖ : UniversalElement (C ^op) (C [ c ,-])
+  selfUnivEltᵒᵖ : UniversalElement (C ^op) ((C ^op) [-, c ])
   selfUnivEltᵒᵖ .vertex = c
   selfUnivEltᵒᵖ .element = C .id
   selfUnivEltᵒᵖ .universal _ = isoToIsEquiv (iso _ (λ z → z)

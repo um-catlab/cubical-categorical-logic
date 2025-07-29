@@ -47,11 +47,12 @@ open Categoryᴰ
 open Functor
 
 module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  private module Slice = EqReindex Cᴰ (BP.Snd C C) Eq.refl (λ _ _ → Eq.refl)
+  private
+    module wkCᴰ = EqReindex Cᴰ (weakenΠ C _) Eq.refl (λ _ _ → Eq.refl)
+    module Arrow' = EqReindex (Arrow C) (TotalCat.Fst ,F weakenΠ C _) Eq.refl (λ _ _ → Eq.refl)
   -- See test below for the intuitive definition
   _/C_ : Categoryᴰ C _ _
-  _/C_ = ∫Cᴰ (weaken C C) (Cᴰ' ×ᴰ Arrow C)
-    where Cᴰ' = Slice.reindex
+  _/C_ = ∫Cᴰ (weaken C C) (wkCᴰ.reindex ×ᴰ Arrow'.reindex)
 
   module _ {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
     {F : Functor D C}
@@ -64,10 +65,11 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     introF : Functorᴰ F Dᴰ _/C_
     introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁)
       (BPᴰ.introS _
-        (Slice.introS _ (reindS' (Eq.refl , Eq.refl) (TotalCat.elim Fᴰ₂)))
+        (wkCᴰ.introS _ (reindS' (Eq.refl , Eq.refl) (TotalCat.elim Fᴰ₂)))
+        (Arrow'.introS _
         (reindS' (Eq.refl , Eq.refl)
-          (compSectionFunctor (arrIntroS {F1 = F} {F2 = Fᴰ₁} Fᴰ₃)
-            (TotalCat.Fst {Cᴰ = Dᴰ}))))
+          (compSectionFunctor (arrIntroS Fᴰ₃)
+            TotalCat.Fst)) ))
 
   private
     open Category
@@ -83,18 +85,13 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     _ : ∀ c (cᴰ : Cᴰ .ob[_] c) → Δ/C .F-obᴰ cᴰ ≡ (c , (cᴰ , C .id))
     _ = λ c cᴰ → refl
 
--- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---   {F : Functor C D}
---   (Fᴰ₁ : Functor C D)
---   where
---   introF : Functorᴰ F Cᴰ (D /C Dᴰ)
---   introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁) {!Slice.introS!}
-
 module _ (C : Category ℓC ℓC') where
+  private
+    module Arrow' = EqReindex (Arrow C) (TotalCat.Fst ,F weakenΠ C _) Eq.refl (λ _ _ → Eq.refl)
+    module Mono' = EqReindex (Mono C) (TotalCat.Fst ,F weakenΠ C _) Eq.refl (λ _ _ → Eq.refl)
   -- Slices .ob[ c ] = Σ[ c' ∈ C .ob] C [ c' , c ]
   Slices : Categoryᴰ C (ℓ-max ℓC ℓC') (ℓ-max ℓC' ℓC')
-  Slices = ∫Cᴰ (weaken C C) (Arrow C)
+  Slices = ∫Cᴰ (weaken C C) Arrow'.reindex
 
   private
     open Category
@@ -103,7 +100,7 @@ module _ (C : Category ℓC ℓC') where
     test = refl
 
   Subobjects : Categoryᴰ C _ _
-  Subobjects = ∫Cᴰ (weaken C C) (Mono C)
+  Subobjects = ∫Cᴰ (weaken C C) Mono'.reindex
   private
     open Category
     open Categoryᴰ

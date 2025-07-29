@@ -45,7 +45,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 
   opaque
     unfolding makeNatTransPath
-  
+
     makeNatTransPathᴰ : {F G : Functor C D}{α β : NatTrans F G}
         {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}
         {αᴰ : NatTransᴰ α Fᴰ Gᴰ}{βᴰ : NatTransᴰ β Fᴰ Gᴰ} →

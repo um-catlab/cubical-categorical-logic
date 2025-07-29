@@ -28,7 +28,6 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Arrow.Base
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Constructions.TotalCategory
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 open import Cubical.Categories.Constructions.TotalCategory hiding (Fst; Snd)
 open import Cubical.Categories.Bifunctor hiding (Fst; Snd)
@@ -42,7 +41,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   where
 
   IsoFiber : Categoryᴰ D (ℓ-max ℓC ℓD') (ℓ-max ℓC' ℓD')
-  IsoFiber = ∫Cᴰsr {D = C}
+  IsoFiber = ∫Cᴰ {D = C}
     (reindex (Iso D) (Id {C = D} ×F F))
 
   IsoFiberReflection : GlobalSection IsoFiber

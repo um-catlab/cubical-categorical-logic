@@ -62,7 +62,7 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
     private
       module lift-π₁ = CartesianLift lift-π₁
       module lift-π₂ = CartesianLift lift-π₂
-      module vbp = UniversalElementⱽNotation Cᴰ _ _ vbp
+      -- module vbp = UniversalElementⱽNotation Cᴰ _ _ vbp
     BinProductⱽ→BinProductᴰ : BinProductᴰ Cᴰ prod (xᴰ₁ , xᴰ₂)
     BinProductⱽ→BinProductᴰ .vertexᴰ = vert
     BinProductⱽ→BinProductᴰ .elementᴰ .fst = π₁ Cᴰ.⋆ⱽᴰ (lift-π₁ .π)
@@ -75,29 +75,29 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
       ( (R.rectify $ R.≡out $
         (sym $ R.≡in $ Cᴰ.⋆Assocᴰⱽᴰ)
         ∙ R.⟨ R.≡in ×βⱽ₁ ⟩⋆⟨ refl ⟩
-        ∙ (R.≡in $ lift-π₁.βCL)
+        ∙ lift-π₁.βCL
         ∙ (sym $ R.reind-filler _ _))
       , (R.rectify $ R.≡out $
         (sym $ R.≡in $ Cᴰ.⋆Assocᴰⱽᴰ)
         ∙ R.⟨ R.≡in ×βⱽ₂ ⟩⋆⟨ refl ⟩
-        ∙ (R.≡in $ lift-π₂.βCL)
+        ∙ lift-π₂.βCL
         ∙ (sym $ R.reind-filler _ _)))
     BinProductⱽ→BinProductᴰ .universalᴰ .leftInv f fᴰ = R.rectify $ R.≡out $
       vbp.introᴰ≡
         (vbp.Pshⱽ.≡in {p = sym c×c'.×η ∙ (sym $ C.⋆IdR _)} (ΣPathP
           ((Cᴰ.rectify $ Cᴰ.≡out $
-            (Cᴰ.≡in $ lift-π₁.introCL≡ (R.rectify $ R.≡out $
+            (lift-π₁.introCL≡ (
               (sym $ R.reind-filler _ _)
-              ∙ (Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-              ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
+              ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+              ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
               ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩))
             ∙ (sym $ Cᴰ.reind-filler (C.⋆IdR _ ∙ c×c'.×η) _))
           ,
-            (Cᴰ.rectify $ Cᴰ.≡out $
-            (Cᴰ.≡in $ lift-π₂.introCL≡ (R.rectify $ R.≡out $
-              (sym $ R.reind-filler _ _)
-              ∙ (Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-              ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
-              ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩))
+          (Cᴰ.rectify $ Cᴰ.≡out $
+            lift-π₂.introCL≡
+              ((sym $ R.reind-filler _ _)
+              ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+              ∙ ((sym $ Cᴰ.⋆Assoc _ _ _))
+              ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
             ∙ (sym $ Cᴰ.reind-filler (C.⋆IdR _ ∙ c×c'.×η) _))
         )))

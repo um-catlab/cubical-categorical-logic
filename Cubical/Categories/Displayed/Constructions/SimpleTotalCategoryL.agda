@@ -26,9 +26,8 @@ open import Cubical.Categories.Displayed.Instances.Terminal
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
-  as STotalCatR
-  hiding (introS)
+import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
+  as ∫Cᴰr
 
 private
   variable
@@ -53,27 +52,27 @@ module _
   -- s for "simple" because D is not dependent on C
   -- l for "right" because D is on the left side of the product
   ∫Cᴰsl : Categoryᴰ C _ _
-  ∫Cᴰsl = ∫Cᴰsr {C = C} {D = D} Sym*Cᴰ.reindex
+  ∫Cᴰsl = ∫Cᴰr.∫Cᴰ {C = C} {D = D} Sym*Cᴰ.reindex
 
   Fstᴰsl : Functorᴰ Id ∫Cᴰsl (weaken C D)
-  Fstᴰsl = Fstᴰsr Sym*Cᴰ.reindex
+  Fstᴰsl = ∫Cᴰr.Fstᴰ Sym*Cᴰ.reindex
 
-  module _
-    {E : Category ℓE ℓE'}
-    (F : Functor E C)
-    (Fᴰ : Section F (weaken C D))
-    (Gᴰ : Section (Sym {C = C}{D = D} ∘F TotalCat.intro F Fᴰ) Cᴰ)
-    where
+  -- module _
+  --   {E : Category ℓE ℓE'}
+  --   (F : Functor E C)
+  --   (Fᴰ : Section F (weaken C D))
+  --   (Gᴰ : Section (Sym {C = C}{D = D} ∘F TotalCat.intro F Fᴰ) Cᴰ)
+  --   where
 
-    open Section
+  --   open Section
 
-    introS : Section F ∫Cᴰsl
-    introS = STotalCatR.introS Sym*Cᴰ.reindex F Fᴰ
-      (Sym*Cᴰ.introS _ Gᴰ)
+    -- introS : Section F ∫Cᴰsl
+    -- introS = STotalCatR.introS Sym*Cᴰ.reindex F Fᴰ
+    --   (Sym*Cᴰ.introS _ Gᴰ)
 
-  open Functor
-  Assoc-sl⁻ : Functor (∫C ∫Cᴰsl) (∫C Cᴰ)
-  Assoc-sl⁻ = ∫F Sym*Cᴰ.forgetReindex ∘F Assoc-sl⁻'
-    where
-    Assoc-sl⁻' : Functor (∫C ∫Cᴰsl) (∫C Sym*Cᴰ.reindex)
-    Assoc-sl⁻' = Assoc {C = C}{D = D} Sym*Cᴰ.reindex
+  -- open Functor
+  -- Assoc-sl⁻ : Functor (∫C ∫Cᴰsl) (∫C Cᴰ)
+  -- Assoc-sl⁻ = ∫F Sym*Cᴰ.forgetReindex ∘F Assoc-sl⁻'
+  --   where
+  --   Assoc-sl⁻' : Functor (∫C ∫Cᴰsl) (∫C Sym*Cᴰ.reindex)
+  --   Assoc-sl⁻' = Assoc {C = C}{D = D} Sym*Cᴰ.reindex

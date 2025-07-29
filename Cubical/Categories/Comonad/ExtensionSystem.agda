@@ -51,11 +51,15 @@ module _ (C : Category ℓ ℓ') where
     Kleisli = (MES.Kleisli (C ^op) E) ^op
 
     F : Functor Kleisli C
-    F = (MES.G (C ^op) E) ^opF
+    F = elimOp (MES.G (C ^op) E) -- (MES.G (C ^op) E) ^opF
 
     open import Cubical.Categories.Adjoint.UniversalElements
+    open import Cubical.Categories.Presheaf
+    open UniversalElement
     G : RightAdjoint F
-    G = MES.F (C ^op) E
+    G c .vertex = MES.F (C ^op) E c .vertex
+    G c .element = MES.F (C ^op) E c .element
+    G c .universal = MES.F (C ^op) E c .universal
 
   pull : {T T' : ExtensionSystem} → ComonadMorphism T T' →
          Functor (Kleisli T') (Kleisli T)

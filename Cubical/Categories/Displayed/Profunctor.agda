@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 {- *Extremely* slow without lossy-unification -}
 module Cubical.Categories.Displayed.Profunctor where
 
@@ -98,7 +98,10 @@ module _ {C : Category ℓC ℓC'}
          (Rᴰ : Profunctorᴰ R Cᴰ Dᴰ ℓSᴰ)
          where
   ∫Prof : Profunctor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ) (ℓ-max ℓS ℓSᴰ)
-  ∫Prof = ((postcomposeF _ ΣF) ∘F ∫F-Functor (Dᴰ ^opᴰ) (SETᴰ ℓS ℓSᴰ))
+  ∫Prof =
+    postcomposeF _ ΣF
+    ∘F precomposeF _ TotalCat.∫op
+    ∘F ∫F-Functor _ _
     ∘F TotalCat.∫F Rᴰ
 
   private

@@ -47,6 +47,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   record CartesianLift {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
          : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))
          where
+    no-eta-equality
     field
       f*yᴰ : Cᴰ.ob[ x ]
       π : Cᴰ [ f ][ f*yᴰ , yᴰ ]
@@ -66,15 +67,38 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       introCL⟨ x ⟩ i .fst = x i .fst
       introCL⟨ x ⟩ i .snd = introCL (x i .snd)
 
-      βCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
+      -- Using this vs introCL⟨_⟩ and manual rectify directly resulted
+      -- in about a 5x speedup
+      introCL⟨_⟩⟨_⟩ : ∀ {z} {zᴰ} {g g' : C [ z , x ]}
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        {g'fᴰ : Cᴰ [ g' C.⋆ f ][ zᴰ , yᴰ ]}
+        → g ≡ g'
+        → Path Cᴰ.Hom[ _ , _ ] (g C.⋆ f , gfᴰ) (g' C.⋆ f , g'fᴰ)
+        → Path Cᴰ.Hom[ _ , _ ] (g , introCL gfᴰ) (g' , introCL g'fᴰ)
+      introCL⟨ p ⟩⟨ pᴰ ⟩ =
+        introCL⟨ ΣPathP (p , (Cᴰ.rectify $ Cᴰ.≡out $ pᴰ)) ⟩
+
+      βᴰCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
         {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
         → introCL gfᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ
-      βCL = isCartesian .snd .fst _
+      βᴰCL = isCartesian .snd .fst _
 
-      ηCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
+      βCL :  ∀ {z} {zᴰ} {g : C [ z , x ]} →
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        → Path Cᴰ.Hom[ (z , zᴰ) , (y , yᴰ) ]
+            (g C.⋆ f , introCL gfᴰ Cᴰ.⋆ᴰ π)
+            (g C.⋆ f , gfᴰ)
+      βCL = Cᴰ.≡in βᴰCL
+
+      ηᴰCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
         {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
         → gᴰ ≡ introCL (gᴰ Cᴰ.⋆ᴰ π)
-      ηCL = sym $ isCartesian .snd .snd _
+      ηᴰCL = sym $ isCartesian .snd .snd _
+
+      ηCL :  ∀ {z} {zᴰ} {g : C [ z , x ]} →
+        {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+        → Path Cᴰ.Hom[ _ , _ ] (g , gᴰ) (g , introCL (gᴰ Cᴰ.⋆ᴰ π))
+      ηCL = Cᴰ.≡in ηᴰCL
 
       introCL-natural :
         ∀ {z} {zᴰ} {g : C [ z , x ]}
@@ -84,24 +108,31 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         → (hᴰ Cᴰ.⋆ᴰ introCL gfᴰ)
           ≡ introCL (Cᴰ.reind (sym $ C.⋆Assoc h g f) (hᴰ Cᴰ.⋆ᴰ gfᴰ))
       introCL-natural =
-        ηCL
-        ∙ (Cᴰ.≡out $ introCL⟨
-          ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
-            Cᴰ.⋆Assoc _ _ _
-            ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in $ βCL ⟩
-            ∙ Cᴰ.reind-filler _ _))
-          ⟩)
+        ηᴰCL
+        ∙ (Cᴰ.≡out $ introCL⟨ refl ⟩⟨
+          Cᴰ.⋆Assoc _ _ _
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ βCL ⟩
+          ∙ Cᴰ.reind-filler _ _ ⟩
+          )
 
       introCL≡ :
         ∀ {z} {zᴰ} {g : C [ z , x ]}
           {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
           {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
-        → gfᴰ ≡ gᴰ Cᴰ.⋆ᴰ π
-        → introCL gfᴰ ≡ gᴰ
+        → Path Cᴰ.Hom[ _ , _ ] (g C.⋆ f , gfᴰ) (g C.⋆ f , gᴰ Cᴰ.⋆ᴰ π)
+        → Path Cᴰ.Hom[ _ , _ ] (g , introCL gfᴰ) (g , gᴰ)
       introCL≡ gfᴰ≡gᴰπ =
-        cong snd (introCL⟨ ΣPathP (refl , gfᴰ≡gᴰπ) ⟩)
+        introCL⟨ refl ⟩⟨ gfᴰ≡gᴰπ ⟩
         ∙ (sym $ ηCL)
 
+      introCL≡ᴰ :
+        ∀ {z} {zᴰ} {g : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+        → gfᴰ ≡ gᴰ Cᴰ.⋆ᴰ π
+        → introCL gfᴰ ≡ gᴰ
+      introCL≡ᴰ gfᴰ≡gᴰπ =
+        Cᴰ.rectify $ Cᴰ.≡out (introCL≡ (Cᴰ.≡in gfᴰ≡gᴰπ))
   isFibration : Type _
   isFibration =
     ∀ {c : C .ob}{c' : C .ob}
@@ -119,17 +150,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         fibration→HomᴰRepr-section fᴰ =
           Cᴰ.rectify $ Cᴰ.≡out $
           (sym $ Cᴰ.reind-filler _ _)
-          ∙ (Cᴰ.≡in βCL)
+          ∙ βCL
           ∙ Cᴰ.⋆IdL _
         fibration→HomᴰRepr-retract : ∀ {xᴰ} → retract {B = Cⱽ.Hom[ f ][ xᴰ , yᴰ ]}
           (λ f₁ → action Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆) f₁ π) (λ fᴰ → introCL (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
         fibration→HomᴰRepr-retract fⱽ =
           Cᴰ.rectify $ Cᴰ.≡out $
-          introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+          introCL⟨ refl ⟩⟨
             Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            ∙ Cᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ refl ⟩)) ⟩
-          ∙ (Cᴰ.≡in $ sym ηCL)          
+            ∙ Cᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ refl ⟩ ⟩
+          ∙ (sym ηCL)
       fibration→HomᴰRepr : UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
       fibration→HomᴰRepr .UniversalElement.vertex = f*yᴰ
       fibration→HomᴰRepr .UniversalElement.element = π
@@ -142,9 +173,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
     CartesianLiftF-fiber f =
       FunctorComprehension
-        {C = Cⱽ.v[ _ ]}
-        {D = Cⱽ.v[ _ ]}
-        {P = Cⱽ.HomᴰProf f}
+        (Cⱽ.HomᴰProf f)
         (fibration→HomᴰRepr f)
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift
@@ -229,7 +258,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     --   Cᴰ.rectify $ Cᴰ.≡out $
     --   Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
     --   ∙ (Cᴰ.reind-filler _ _)
-    --   ∙ (Cᴰ.≡in $ cL.βᴰ)
+    --   ∙ cL.β
     -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .snd gᴰ = ?
       -- TODO: finish this
       -- Cᴰ.rectify $ Cᴰ.≡out $

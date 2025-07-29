@@ -161,7 +161,7 @@ Functor→Bifunctor G = G ∘Fb ηBif _ _
 
 ×-op-commute : {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
              → Functor ((C ×C D) ^op) ((C ^op) ×C (D ^op))
-×-op-commute {C = C}{D = D} = rec C D (mkBifunctorParAx G) ^opF where
+×-op-commute {C = C}{D = D} = elimOp (rec C D (mkBifunctorParAx G)) where
   open Bifunctor
   open BifunctorParAx
   G : BifunctorParAx C D (((C ^op) ×C (D ^op)) ^op)

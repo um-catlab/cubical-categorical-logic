@@ -42,6 +42,7 @@ record Bifunctor (C : Category ℓc ℓc')
                  (D : Category ℓd ℓd')
                  (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
     Bif-homL : ∀ {c c'} → (f : C [ c , c' ]) → ∀ d
@@ -77,6 +78,7 @@ record BifunctorParAx (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
     Bif-homL : ∀ {c c'} → (f : C [ c , c' ]) → ∀ d
@@ -99,6 +101,7 @@ record BifunctorSepAx (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
 
@@ -128,6 +131,7 @@ record BifunctorSep (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
 
@@ -154,6 +158,7 @@ record BifunctorPar (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
     Bif-hom× : ∀ {c c' d d'} (f : C [ c , c' ])(g : D [ d , d' ])

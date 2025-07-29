@@ -21,6 +21,7 @@ open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Reasoning as Reasoning
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 
@@ -226,26 +227,28 @@ module Example1 where
   private
     open Normalization QUIVER
     norm = normalize isSetOB isSetMOR
-    _ : forget (norm {c} FQ.id)
-        ≡ []
-    _ = refl
+    opaque
+      unfolding Reasoning.reind
+      _ : forget (norm {c} FQ.id)
+          ≡ []
+      _ = refl
 
-    -- The following two should be refl without length, but length is
-    -- enough.
-    _ : length (forget (norm (FQ.id ∘⟨ FQ ⟩ ↑ h)))
-        ≡ length (h ∷ [])
-    _ = refl
+      -- The following two should be refl without length, but length is
+      -- enough.
+      _ : length (forget (norm (FQ.id ∘⟨ FQ ⟩ ↑ h)))
+          ≡ length (h ∷ [])
+      _ = refl
 
-    _ : length (forget (norm
-               ((↑ h ∘⟨ FQ ⟩ (↑ g ∘⟨ FQ ⟩ FQ.id)) ∘⟨ FQ ⟩ ↑ f)))
-        ≡ length (h ∷ g ∷ f ∷ [])
-    _ = refl
+      _ : length (forget (norm
+                 ((↑ h ∘⟨ FQ ⟩ (↑ g ∘⟨ FQ ⟩ FQ.id)) ∘⟨ FQ ⟩ ↑ f)))
+          ≡ length (h ∷ g ∷ f ∷ [])
+      _ = refl
 
-    non-triviality : ¬ (FQ.id ≡ ↑ h)
-    non-triviality p = 0≠1 (cong (λ e → length (forget (norm e))) p)
-      where
-        0≠1 : ¬ (0 ≡ 1)
-        0≠1 = znots
+      non-triviality : ¬ (FQ.id ≡ ↑ h)
+      non-triviality p = 0≠1 (cong (λ e → length (forget (norm e))) p)
+        where
+          0≠1 : ¬ (0 ≡ 1)
+          0≠1 = znots
 
 module Example2 where
   data OB : Type ℓ-zero where

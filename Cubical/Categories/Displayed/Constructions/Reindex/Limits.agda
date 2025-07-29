@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Transport
 
@@ -22,6 +23,7 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
   hiding (π; reindex)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
@@ -35,6 +37,7 @@ private
 
 open Category
 open Functor
+open Functorᴰ
 open UniversalElement
 open UniversalElementᴰ
 open UniversalElementⱽ
@@ -49,9 +52,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module C = Category C
     module D = Category D
     F*Dᴰ = Base.reindex Dᴰ F
-    module R = HomᴰReasoning Dᴰ
     module F*Dᴰ = Categoryᴰ F*Dᴰ
+    module RF*Dᴰ = HomᴰReasoning F*Dᴰ
     module Dᴰ = Categoryᴰ Dᴰ
+    module RDᴰ = HomᴰReasoning Dᴰ
   -- this definition cannot be η-contracted
   preservesTerminalⱽ :
     ∀ c → Terminalⱽ Dᴰ (F ⟅ c ⟆)
@@ -68,40 +72,59 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     (vbp : BinProductⱽ Dᴰ (Fcᴰ , Fcᴰ')) where
     private
       module Fcᴰ∧Fcᴰ' = BinProductⱽNotation vbp
+      module Fcᴰ∧Fcᴰ'-RP =
+        PresheafⱽNotation (BinProductProfⱽ (Base.reindex Dᴰ F) .F-obᴰ ((Fcᴰ , Fcᴰ')))
+
+    opaque
+      -- This proof is pretty tricky without unfolding these.
+      -- Might want to develop a better way of showing these coincide...
+      unfolding PresheafᴰNotation.reind HomᴰReasoning.reind
+      preservesBinProductⱽ-section : ∀ {y}{yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ]}{f}
+        → section {A = Dᴰ [ F ⟪ f ⟫ ][ yᴰ , _ ]}
+        (λ fᴰ →
+         fᴰ Fcᴰ∧Fcᴰ'-RP.⋆ᴰⱽ (Fcᴰ∧Fcᴰ'.vbp.Pshᴰ.reind (sym $ F .F-id) (vbp .elementⱽ)))
+        (λ (fᴰ₁ , fᴰ₂) → fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂)
+      preservesBinProductⱽ-section (fᴰ₁ , fᴰ₂) = ΣPathP
+        ( (RDᴰ.rectify $ RDᴰ.≡out $
+          (sym $ RDᴰ.reind-filler _ _)
+          ∙ (sym $ RDᴰ.reind-filler _ _)
+          ∙ RDᴰ.⟨ refl ⟩⋆⟨ sym $ RDᴰ.reind-filler _ _ ⟩
+          ∙ RDᴰ.reind-filler _ _
+          ∙ RDᴰ.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₁ {fᴰ' = fᴰ₂}))
+        , (RDᴰ.rectify $ RDᴰ.≡out $
+          (sym $ RDᴰ.reind-filler _ _)
+          ∙ (sym $ RDᴰ.reind-filler _ _)
+          ∙ RDᴰ.⟨ refl ⟩⋆⟨ sym $ RDᴰ.reind-filler _ _ ⟩
+          ∙ RDᴰ.reind-filler _ _
+          ∙ RDᴰ.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₂ {fᴰ = fᴰ₁})))
+
+      preservesBinProductⱽ-retract : ∀ {y}{yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ]}{f}
+        → retract {A = Dᴰ [ F ⟪ f ⟫ ][ yᴰ , _ ]}
+        (λ fᴰ →
+         fᴰ Fcᴰ∧Fcᴰ'-RP.⋆ᴰⱽ (Fcᴰ∧Fcᴰ'.vbp.Pshᴰ.reind (sym $ F .F-id) (vbp .elementⱽ)))
+        (λ (fᴰ₁ , fᴰ₂) → fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂)
+      preservesBinProductⱽ-retract fᴰ =
+        RDᴰ.rectify $ RDᴰ.≡out $
+          (RDᴰ.≡in $ congP₂ (λ _ → Fcᴰ∧Fcᴰ'._,ⱽ_)
+            (RDᴰ.≡out $
+              (sym $ RDᴰ.reind-filler _ _)
+              ∙ (sym $ RDᴰ.reind-filler _ _)
+              ∙ RDᴰ.⟨ refl ⟩⋆⟨ sym $ RDᴰ.reind-filler _ _ ⟩
+              ∙ RDᴰ.reind-filler _ _)
+            (RDᴰ.≡out $
+              (sym $ RDᴰ.reind-filler _ _)
+              ∙ (sym $ RDᴰ.reind-filler _ _)
+              ∙ RDᴰ.⟨ refl ⟩⋆⟨ sym $ RDᴰ.reind-filler _ _ ⟩
+              ∙ RDᴰ.reind-filler _ _))
+          ∙ sym (RDᴰ.≡in $ Fcᴰ∧Fcᴰ'.×ηⱽ)
 
     preservesBinProductⱽ : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
     preservesBinProductⱽ .vertexⱽ = vbp .vertexⱽ
-    preservesBinProductⱽ .elementⱽ .fst =
-      R.reind (sym $ F .F-id) $ vbp .elementⱽ .fst
-    preservesBinProductⱽ .elementⱽ .snd =
-      R.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
+    preservesBinProductⱽ .elementⱽ =
+      Fcᴰ∧Fcᴰ'.vbp.Pshᴰ.reind (sym $ F .F-id) (vbp .elementⱽ)
     preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
-    preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
-      ( (R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ (sym $ R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₁ {fᴰ' = fᴰ₂}))
-      , (R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ (sym $ R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₂ {fᴰ = fᴰ₁})))
-    preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = R.rectify $ R.≡out $
-      (R.≡in $ congP₂ (λ _ → Fcᴰ∧Fcᴰ'._,ⱽ_)
-        (R.≡out $
-          (sym $ R.reind-filler _ _)
-          ∙ (sym $ R.reind-filler _ _)
-          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-          ∙ R.reind-filler _ _)
-        (R.≡out $
-          (sym $ R.reind-filler _ _)
-          ∙ (sym $ R.reind-filler _ _)
-          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-          ∙ R.reind-filler _ _))
-      ∙ sym (R.≡in $ Fcᴰ∧Fcᴰ'.×ηⱽ)
+    preservesBinProductⱽ .universalⱽ .snd .fst = preservesBinProductⱽ-section
+    preservesBinProductⱽ .universalⱽ .snd .snd = preservesBinProductⱽ-retract
 
   hasAllBinProductⱽReindex : hasAllBinProductⱽ Dᴰ →
     hasAllBinProductⱽ (Base.reindex Dᴰ F)

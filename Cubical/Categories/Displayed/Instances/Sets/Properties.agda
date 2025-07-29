@@ -7,6 +7,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.Properties
@@ -52,34 +53,57 @@ hasVerticalTerminals A .universalⱽ .fst = λ _ x _ → tt*
 hasVerticalTerminals A .universalⱽ .snd .fst b = refl
 hasVerticalTerminals A .universalⱽ .snd .snd a = refl
 
-hasVerticalBinProds : hasAllBinProductⱽ (SETᴰ ℓ ℓ')
-hasVerticalBinProds {x = A} (Aᴰ₁ , Aᴰ₂) .vertexⱽ a =
-  (⟨ Aᴰ₁ a ⟩ × ⟨ Aᴰ₂ a ⟩) , (isSet× (Aᴰ₁ a .snd) (Aᴰ₂ a .snd))
-hasVerticalBinProds (A₁ , A₂) .elementⱽ = (λ x₁ z → z .fst) , (λ x₁ z → z .snd)
-hasVerticalBinProds (A₁ , A₂) .universalⱽ .fst x x₁ x₂ =
-  x .fst x₁ x₂ , x .snd x₁ x₂
--- sad transportRefl here
-hasVerticalBinProds (A₁ , A₂) .universalⱽ .snd .fst b =
-  sym $ transport-filler _ _
+module _ {A : hSet ℓ} (Aᴰ₁ Aᴰ₂ : ⟨ A ⟩ → hSet ℓ') where
+  open Functorᴰ
+  private
+    module Aᴰ₁×Aᴰ₂ = PresheafⱽNotation (BinProductProfⱽ (SETᴰ ℓ ℓ') .F-obᴰ {A} (Aᴰ₁ , Aᴰ₂))
+  Aᴰ₁×Aᴰ₂ : ⟨ A ⟩ → hSet ℓ'
+  Aᴰ₁×Aᴰ₂ a = (⟨ Aᴰ₁ a ⟩ × ⟨ Aᴰ₂ a ⟩) , (isSet× (Aᴰ₁ a .snd) (Aᴰ₂ a .snd))
 
--- the transports here are caused by the fact that vertical
--- composition is defined using reindexing :/ the only way to avoid
--- this would be to "fatten" the definition of displayed categories to
--- include the "redundant" vertical and heterogeneous compositions
--- then in the case of nice examples like SETᴰ (and possibly
--- PRESHEAFᴰ) we would get that there is no transport required
-hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a =
-  funExt₂ λ b bᴰ →
-  ΣPathP
-   ( fromPathP (λ i → a
-       (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
-       (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
-         bᴰ (~ i)) .fst)
-   , fromPathP
-     (λ i → a
-       (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
-       (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
-         bᴰ (~ i)) .snd))
+  -- the transports here are caused by the fact that vertical
+  -- composition is defined using reindexing :/ the only way to avoid
+  -- this would be to "fatten" the definition of displayed categories to
+  -- include the "redundant" vertical and heterogeneous compositions
+  -- then in the case of nice examples like SETᴰ (and possibly
+  -- PRESHEAFᴰ) we would get that there is no transport required
+  opaque
+    unfolding PresheafᴰNotation.reind
+    -- this refactor is a great example of why opaque expression
+    -- syntax would be extremely helpful
+    SETᴰVerticalBinProd-section :
+      ∀ (B : hSet ℓ)(Bᴰ : ⟨ B ⟩ → hSet ℓ')(f : SET ℓ [ B , A ]) →
+      section {A = ∀ b → ⟨ Bᴰ b ⟩ →  ⟨ Aᴰ₁ (f b) ⟩ × ⟨ Aᴰ₂ (f b) ⟩ }
+        (λ fᴰ → Aᴰ₁×Aᴰ₂._⋆ᴰⱽ_ {x = B}{xᴰ = Bᴰ}{cᴰ = Aᴰ₁×Aᴰ₂} fᴰ ((λ _ r → fst r) , (λ _ r → snd r)))
+        (λ (f₁ , f₂) a aᴰ → f₁ _ aᴰ , f₂ _ aᴰ)
+    SETᴰVerticalBinProd-section B Bᴰ f (f₁ , f₂) = sym $ transport-filler _ _
+
+    SETᴰVerticalBinProd-retract :
+      ∀ (B : hSet ℓ)(Bᴰ : ⟨ B ⟩ → hSet ℓ')(f : SET ℓ [ B , A ]) →
+        retract {A = ∀ b → ⟨ Bᴰ b ⟩ →  ⟨ Aᴰ₁ (f b) ⟩ × ⟨ Aᴰ₂ (f b) ⟩ }
+        (λ fᴰ → Aᴰ₁×Aᴰ₂._⋆ᴰⱽ_ {x = B}{xᴰ = Bᴰ}{cᴰ = Aᴰ₁×Aᴰ₂} fᴰ ((λ _ r → fst r) , (λ _ r → snd r)))
+        (λ (f₁ , f₂) a aᴰ → f₁ _ aᴰ , f₂ _ aᴰ)
+    SETᴰVerticalBinProd-retract B Bᴰ f a = funExt₂ λ b bᴰ →
+      ΣPathP
+       ( fromPathP (λ i → a
+           (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
+           (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
+             bᴰ (~ i)) .fst)
+       , fromPathP
+         (λ i → a
+           (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
+           (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
+             bᴰ (~ i)) .snd))
+
+
+  SETᴰVerticalBinProd : BinProductⱽ (SETᴰ ℓ ℓ') {c = A} (Aᴰ₁ , Aᴰ₂)
+  SETᴰVerticalBinProd .vertexⱽ = Aᴰ₁×Aᴰ₂
+  SETᴰVerticalBinProd .elementⱽ = (λ _ → fst) , (λ _ → snd)
+  SETᴰVerticalBinProd .universalⱽ .fst (f₁ , f₂) a aᴰ = f₁ _ aᴰ , f₂ _ aᴰ
+  SETᴰVerticalBinProd .universalⱽ .snd .fst = SETᴰVerticalBinProd-section _ _ _
+  SETᴰVerticalBinProd .universalⱽ .snd .snd = SETᴰVerticalBinProd-retract _ _ _
+
+hasVerticalBinProds : hasAllBinProductⱽ (SETᴰ ℓ ℓ')
+hasVerticalBinProds (A₁ , A₂) = SETᴰVerticalBinProd A₁ A₂
 
 SETᴰCartesianCategoryⱽ :
   ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')

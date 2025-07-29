@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 {- This file takes a *very* long time to type check -}
 module Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise where
 
@@ -48,7 +48,8 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   module _ {a} {aᴰ₁ aᴰ₂} (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂)) where
     private
       module a₁×ⱽa₂ = UniversalElementⱽNotation _ _ _ bpⱽ
-        using (introⱽ; vertexⱽ; elementⱽ; βᴰ; introᴰ≡)
+        using (introⱽ; vertexⱽ; elementⱽ; βᴰ; introᴰ≡;
+          module ∫ue)
       module a₁×ⱽa₂Pshⱽ = UniversalElementⱽNotation.Pshⱽ _ _ _ bpⱽ
         using (rectify; ≡out; ≡in)
     opaque
@@ -62,18 +63,18 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           (a₁×ⱽa₂Pshⱽ.≡in {p = sym $ C.⋆IdL _} $ ΣPathP
             ( (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)
             , (Cᴰ.rectify $ (Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _))))
-          ∙ (a₁×ⱽa₂Pshⱽ.≡in $ a₁×ⱽa₂.βᴰ)
+          ∙ (a₁×ⱽa₂.∫ue.β)
 
       binproduct-fiber-retract-pf : ∀ Γᴰ → retract
         (λ f →
            action Cᴰ.v[ a ] (BinProductProf Cᴰ.v[ a ] ⟅ aᴰ₁ , aᴰ₂ ⟆) f
            a₁×ⱽa₂.elementⱽ)
         (a₁×ⱽa₂.introⱽ {xᴰ = Γᴰ})
-      binproduct-fiber-retract-pf _ _ =
-        Cᴰ.rectify $ Cᴰ.≡out $
-          a₁×ⱽa₂.introᴰ≡ $ (a₁×ⱽa₂Pshⱽ.≡in {p = sym $ C.⋆IdL _} $ ΣPathP
-            ( (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)
-            , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)))
+      binproduct-fiber-retract-pf _ _ = Cᴰ.rectify $ Cᴰ.≡out $
+        a₁×ⱽa₂.introᴰ≡ $ a₁×ⱽa₂Pshⱽ.≡in {p = sym $ C.⋆IdR _} $ ΣPathP
+          ( (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)
+          , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _))
+
     BinProductⱽ→BinProductFiber : BinProduct'' Cᴰ.v[ a ] (aᴰ₁ , aᴰ₂)
     BinProductⱽ→BinProductFiber .vertex = a₁×ⱽa₂.vertexⱽ
     BinProductⱽ→BinProductFiber .element = a₁×ⱽa₂.elementⱽ
@@ -103,7 +104,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module bpⱽ' = BinProductⱽNotation bpⱽ
         using (×βⱽ₁; ×βⱽ₂)
 
-    intro-f*× : ∀ bᴰ → 
+    intro-f*× : ∀ bᴰ →
       Σ Cᴰ.Hom[ C.id ][ bᴰ , f*aᴰ₁.f*yᴰ ]
       (λ _ → Cᴰ.Hom[ C.id ][ bᴰ , f*aᴰ₂.f*yᴰ ]) →
       Cᴰ.Hom[ C.id ][ bᴰ , f*×.f*yᴰ ]
@@ -125,26 +126,25 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             CartesianLiftF-fiber Cᴰ isFib f ⟪ bpⱽ.elementⱽ .snd ⟫))
           (intro-f*× bᴰ)
       intro-f*×-retract fⱽ =
-        (Cᴰ.rectify $ Cᴰ.≡out $ f*×.introCL⟨
-          ΣPathP $ refl , (Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.rectify $ Cᴰ.≡out $
+          f*×.introCL⟨ refl ⟩⟨
             bpⱽ.introᴰ≡ (ΣPathP $
               (sym $ C.⋆IdR _)
               , ΣPathP
                 ( (Cᴰ.rectify $ Cᴰ.≡out $
                   Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
                   ∙ Cᴰ.⋆Assoc _ _ _
-                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₁.βCL ⟩
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₁.βCL ⟩
                   ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
                   ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
                 , (Cᴰ.rectify $ Cᴰ.≡out $
                   Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
                   ∙ Cᴰ.⋆Assoc _ _ _
-                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₂.βCL ⟩
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₂.βCL ⟩
                   ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
                   ∙ (sym $ Cᴰ.⋆Assoc _ _ _))))
-            )
-          ⟩)
-        ∙ sym f*×.ηCL
+            ⟩
+          ∙ (Cᴰ.≡in $ sym f*×.ηᴰCL)
 
       intro-f*×-section : ∀ {bᴰ} →
         section
@@ -163,32 +163,32 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         ( (Cᴰ.rectify $ Cᴰ.≡out $
           (sym $ Cᴰ.reind-filler _ _)
           ∙ (Cᴰ.≡in $ f*aᴰ₁.introCL-natural)
-          ∙ f*aᴰ₁.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+          ∙ f*aᴰ₁.introCL⟨ refl ⟩⟨
             (sym $ Cᴰ.reind-filler _ _)
             ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩
             ∙ Cᴰ.reind-filler _ _
             ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₁)
-            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
+            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _
             ⟩
-          ∙ f*aᴰ₁.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
-          ∙ (sym $ Cᴰ.≡in $ f*aᴰ₁.ηCL)
+          ∙ f*aᴰ₁.introCL⟨ C.⋆IdL _ ⟩⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ f*aᴰ₁.ηCL)
           )
         , ((Cᴰ.rectify $ Cᴰ.≡out $
           (sym $ Cᴰ.reind-filler _ _)
           ∙ (Cᴰ.≡in $ f*aᴰ₂.introCL-natural)
-          ∙ f*aᴰ₂.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+          ∙ f*aᴰ₂.introCL⟨ refl ⟩⟨
             (sym $ Cᴰ.reind-filler _ _)
             ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩
             ∙ Cᴰ.reind-filler _ _
             ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₂)
-            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
+            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _
             ⟩
-          ∙ f*aᴰ₂.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
-          ∙ (sym $ Cᴰ.≡in $ f*aᴰ₂.ηCL)) )
+          ∙ f*aᴰ₂.introCL⟨ C.⋆IdL _ ⟩⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ f*aᴰ₂.ηCL)) )
         )
 
     cartesianLift-preserves-BinProductFiber :

@@ -66,14 +66,11 @@ module _
       (sym $ R.reind-filler _ _)
       ∙ (R.≡in $ F⟪f⟫-lift .isCartesian .snd .fst _)
       ∙ (sym $ R.reind-filler _ _)
-
     reflectsCartesianLifts F⟪f⟫-lift .isCartesian .snd .snd gᴰ =
       R.rectify $ R.≡out $
-      ((R.≡in $ congP (λ _ → F⟪f⟫-lift .isCartesian .fst)
-        -- TODO: add reindReind⁻ to Reasoning
-        $ transportTransport⁻ (λ i → Dᴰ.Hom[ F .F-seq _ _ i ][ _ , _ ])
-          (gᴰ Dᴰ.⋆ᴰ F⟪f⟫-lift .π))
-      ∙ (R.≡in $ F⟪f⟫-lift .isCartesian .snd .snd gᴰ))
+        F⟪f⟫-lift.introCL≡ (sym $ R.reind-filler _ _ ∙ R.reind-filler _ _)
+      where
+      module F⟪f⟫-lift = CartesianLift F⟪f⟫-lift
 
   isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
   isFibrationReindex isFibDᴰ _ _ = reflectsCartesianLifts (isFibDᴰ _ _)

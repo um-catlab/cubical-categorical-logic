@@ -1,4 +1,4 @@
-{-# OPTIONS --safe  --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
@@ -158,8 +158,7 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
   module BinProductⱽNotation {cᴰ cᴰ' : Cᴰ.ob[ c ]}
     (vbp : BinProductⱽ Cᴰ (cᴰ , cᴰ')) where
 
-    private
-      module vbp = UniversalElementⱽNotation _ _ _ vbp
+    module vbp = UniversalElementⱽNotation _ _ _ vbp
 
     vert : Cᴰ.ob[ c ]
     vert = vbp .vertexⱽ
@@ -181,7 +180,7 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       (fᴰ ,ⱽ fᴰ') = vbp.introᴰ _ (fᴰ , fᴰ')
 
       opaque
-        unfolding Cⱽ.reind
+        unfolding Cⱽ.reind PresheafⱽNotation.reind
         ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
            → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
            → (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₁ ≡ fᴰ

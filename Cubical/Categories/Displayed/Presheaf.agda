@@ -53,7 +53,7 @@ PRESHEAFᴰ Cᴰ ℓP ℓPᴰ = FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓP ℓPᴰ)
      → {P : Presheaf C ℓP} → {ℓPᴰ : Level}
      → Presheafᴰ D P ℓPᴰ
      → Presheaf (TotalCat.∫C D) (ℓ-max ℓP ℓPᴰ)
-∫P Pᴰ = ΣF ∘F TotalCat.∫F Pᴰ
+∫P Pᴰ = ΣF ∘F TotalCat.∫F Pᴰ ∘F TotalCat.∫op
 
 module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'}
          {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ Cᴰ P ℓPᴰ) where
@@ -78,38 +78,39 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   _≡[_]_ {x} {xᴰ} {f} {g} fᴰ f≡g gᴰ =
     PathP (λ i → p[ f≡g i ][ xᴰ ]) fᴰ gᴰ
 
-  reind : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
+  opaque
+    reind : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
       → p[ f ][ xᴰ ] → p[ g ][ xᴰ ]
-  reind = subst p[_][ _ ]
+    reind = subst p[_][ _ ]
 
-  reind-filler : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
-    → (fᴰ : p[ f ][ xᴰ ])
-    → (f , fᴰ) ≡ (g , reind f≡g fᴰ)
-  reind-filler f≡g fᴰ = ΣPathP (f≡g , (subst-filler p[_][ _ ] f≡g fᴰ))
+    reind-filler : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
+      → (fᴰ : p[ f ][ xᴰ ])
+      → (f , fᴰ) ≡ (g , reind f≡g fᴰ)
+    reind-filler f≡g fᴰ = ΣPathP (f≡g , (subst-filler p[_][ _ ] f≡g fᴰ))
 
-  ≡in : {a : C.ob} {f g : P.p[ a ]}
+    ≡in : {a : C.ob} {f g : P.p[ a ]}
+          {aᴰ : Cᴰ.ob[ a ]}
+          {fᴰ : p[ f ][ aᴰ ]}
+          {gᴰ : p[ g ][ aᴰ ]}
+          {p : f ≡ g}
+        → (fᴰ ≡[ p ] gᴰ)
+        → (f , fᴰ) ≡ (g , gᴰ)
+    ≡in e = ΣPathP (_ , e)
+
+    ≡out : {a : C.ob} {f g : P.p[ a ]}
+           {aᴰ : Cᴰ.ob[ a ]}
+           {fᴰ : p[ f ][ aᴰ ]}
+           {gᴰ : p[ g ][ aᴰ ]}
+         → (e : (f , fᴰ) ≡ (g , gᴰ))
+         → (fᴰ ≡[ fst (PathPΣ e) ] gᴰ)
+    ≡out e = snd (PathPΣ e)
+
+    rectify : {a : C.ob} {f g : P.p[ a ]} {p p' : f ≡ g}
         {aᴰ : Cᴰ.ob[ a ]}
         {fᴰ : p[ f ][ aᴰ ]}
         {gᴰ : p[ g ][ aᴰ ]}
-        {p : f ≡ g}
-      → (fᴰ ≡[ p ] gᴰ)
-      → (f , fᴰ) ≡ (g , gᴰ)
-  ≡in e = ΣPathP (_ , e)
-
-  ≡out : {a : C.ob} {f g : P.p[ a ]}
-         {aᴰ : Cᴰ.ob[ a ]}
-         {fᴰ : p[ f ][ aᴰ ]}
-         {gᴰ : p[ g ][ aᴰ ]}
-       → (e : (f , fᴰ) ≡ (g , gᴰ))
-       → (fᴰ ≡[ fst (PathPΣ e) ] gᴰ)
-  ≡out e = snd (PathPΣ e)
-
-  rectify : {a : C.ob} {f g : P.p[ a ]} {p p' : f ≡ g}
-      {aᴰ : Cᴰ.ob[ a ]}
-      {fᴰ : p[ f ][ aᴰ ]}
-      {gᴰ : p[ g ][ aᴰ ]}
-    → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
-  rectify {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡[_] gᴰ) (P.isSetPsh _ _ _ _)
+      → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
+    rectify {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡[_] gᴰ) (P.isSetPsh _ _ _ _)
 
   open PresheafNotation (∫P Pᴰ) public
 
@@ -118,13 +119,14 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
      → p[ f P.⋆ g ][ xᴰ ]
   fᴰ ⋆ᴰ gᴰ = ((_ , fᴰ) ⋆ (_ , gᴰ)) .snd
 
-  ⋆Assocᴰ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]}  {h : P.p[ z ]} {xᴰ yᴰ zᴰ}
-      (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) (hᴰ : p[ h ][ zᴰ ])
-      → (fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ P.⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
-  ⋆Assocᴰ fᴰ gᴰ hᴰ = rectify $ ≡out $ ⋆Assoc (_ , fᴰ) (_ , gᴰ) (_ , hᴰ)
+  opaque
+    ⋆Assocᴰ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]}  {h : P.p[ z ]} {xᴰ yᴰ zᴰ}
+        (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) (hᴰ : p[ h ][ zᴰ ])
+        → (fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ P.⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
+    ⋆Assocᴰ fᴰ gᴰ hᴰ = rectify $ ≡out $ ⋆Assoc (_ , fᴰ) (_ , gᴰ) (_ , hᴰ)
 
-  ⋆IdLᴰ : ∀ {x} {f : P.p[ x ]} {xᴰ} (fᴰ : p[ f ][ xᴰ ]) → Cᴰ.idᴰ ⋆ᴰ fᴰ ≡[ P.⋆IdL f ] fᴰ
-  ⋆IdLᴰ fᴰ = rectify $ ≡out $ ⋆IdL (_ , fᴰ)
+    ⋆IdLᴰ : ∀ {x} {f : P.p[ x ]} {xᴰ} (fᴰ : p[ f ][ xᴰ ]) → Cᴰ.idᴰ ⋆ᴰ fᴰ ≡[ P.⋆IdL f ] fᴰ
+    ⋆IdLᴰ fᴰ = rectify $ ≡out $ ⋆IdL (_ , fᴰ)
 
   _⋆ⱽᴰ_ : ∀ {x xᴰ xᴰ'}{g}
      → Cᴰ [ C.id {x} ][ xᴰ , xᴰ' ] → p[ g ][ xᴰ' ]
@@ -148,6 +150,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
 
   record UniversalElementᴰ (ue : UniversalElement C P)
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max ℓP ℓPᴰ)) where
+    no-eta-equality
     open UniversalElementNotation ue
     open Categoryᴰ D
     field
@@ -178,9 +181,10 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     open UniversalElementᴰ ueᴰ public
     private
       module P = PresheafNotation {C = C} P
-      module ∫ue = UniversalElementNotation
-        {C = TotalCat.∫C {C = C} D} (∫UE ueᴰ)
+      module ∫P = PresheafNotation (∫P Pᴰ)
 
+    module ∫ue = UniversalElementNotation
+      {C = TotalCat.∫C {C = C} D} (∫UE ueᴰ)
     module Pshᴰ = PresheafᴰNotation Pᴰ
     introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
         → Pᴰ.p[ p ][ xᴰ ]
@@ -201,9 +205,8 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
           → {pᴰ : Pᴰ.p[ p ][ xᴰ ]}
           → {qᴰ : Pᴰ.p[ q ][ xᴰ ]}
           → (p , pᴰ) ≡ (q , qᴰ)
-          → (p , introᴰ p pᴰ) ≡ (q , introᴰ q qᴰ)
-      introᴰ⟨ pᴰ≡qᴰ ⟩ i =
-        _ , introᴰ _ (pᴰ≡qᴰ i .snd)
+          → Path R.Hom[ _ , _ ] (intro p , introᴰ p pᴰ) (intro q , introᴰ q qᴰ)
+      introᴰ⟨ pᴰ≡qᴰ ⟩ = ∫ue.intro⟨ pᴰ≡qᴰ ⟩
 
     opaque
       unfolding β
@@ -246,6 +249,7 @@ module PresheafⱽNotation
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
+
     variable
       x y z : C.ob
       f g h : C [ x , y ]
@@ -258,25 +262,17 @@ module PresheafⱽNotation
   pⱽ[ cᴰ ] = p[ C.id ][ cᴰ ]
 
   _⋆ᴰⱽ_ :
-      Cᴰ [ f ][ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
+      ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{cᴰ : Cᴰ.ob[ c ]}
+        {f : C [ x , c ]}
+      → Cᴰ [ f ][ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
       → p[ f ][ xᴰ ]
   fᴰ ⋆ᴰⱽ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
 
   opaque
+    unfolding reind
     ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
-      → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
-    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = λ i → reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ) i .snd
-
--- Remove?
-actⱽ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-          → {x : C .Category.ob} → {ℓP : Level}
-  → (Pⱽ : Presheafⱽ Cᴰ x ℓP)
-  → ∀ {y}{yᴰ xᴰ} {f : C [ y , x ]}
-  → Cᴰ [ f ][ yᴰ , xᴰ ]
-  → ⟨ Pⱽ .F-obᴰ xᴰ (C .Category.id) ⟩
-  → ⟨ Pⱽ .F-obᴰ yᴰ f ⟩
-actⱽ {C = C} Pⱽ fᴰ pⱽ =
-  subst (λ f → ⟨ Pⱽ .F-obᴰ _ f ⟩) (C .Category.⋆IdR _) (Pⱽ .F-homᴰ  fᴰ _ pⱽ)
+      → Path p[ x , xᴰ ] (f C.⋆ C.id , fᴰ ⋆ᴰ gⱽ) (f , fᴰ ⋆ᴰⱽ gⱽ)
+    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = reind-filler _ _
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ Cᴰ x ℓPᴰ) where
@@ -296,6 +292,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       universalⱽ : ∀ {y yᴰ}{f : C [ y , x ]} →
         isIso λ (fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]) → fᴰ Pⱽ.⋆ᴰⱽ elementⱽ
 
+    -- opaque
+    --   introⱽ
+
     toUniversalᴰ : UniversalElementᴰ Cᴰ Pⱽ (selfUnivElt C x)
     toUniversalᴰ .UniversalElementᴰ.vertexᴰ = vertexⱽ
     toUniversalᴰ .UniversalElementᴰ.elementᴰ = elementⱽ
@@ -303,11 +302,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       universalⱽ .fst fᴰ
     toUniversalᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.rightInv f fᴰ =
       Pⱽ.rectify $ Pⱽ.≡out $
-        (Pⱽ.≡in $ Pⱽ.⋆ᴰid≡⋆ᴰⱽ _ _)
+        Pⱽ.⋆ᴰid≡⋆ᴰⱽ _ _
         ∙ (Pⱽ.≡in $ universalⱽ .snd .fst fᴰ)
     toUniversalᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.leftInv f fᴰ =
       RCᴰ.rectify $ RCᴰ.≡out $
-        (RCᴰ.≡in $ (λ i → universalⱽ .fst (Pⱽ.⋆ᴰid≡⋆ᴰⱽ fᴰ elementⱽ i)))
+        (RCᴰ.≡in $ (λ i → universalⱽ .fst (Pⱽ.⋆ᴰid≡⋆ᴰⱽ fᴰ elementⱽ i .snd)))
         ∙ (RCᴰ.≡in $ universalⱽ .snd .snd fᴰ)
   module UniversalElementⱽNotation (ueⱽ : UniversalElementⱽ) where
     open UniversalElementⱽ ueⱽ public

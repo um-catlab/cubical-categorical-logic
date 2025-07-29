@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Profunctor.Hom where
 
 open import Cubical.Foundations.Prelude
@@ -61,7 +61,7 @@ module _ {C : Category ℓC ℓC'} where
     recη ϕ = makeNatTransPath (funExt λ x → makeNatTransPath refl)
 
   UniversalNaturalElement
-    : UniversalElement ((RELATOR C C ℓC') ^op) NATURAL-ELEMENTS
+    : UniversalElement ((RELATOR C C ℓC') ^op) (NATURAL-ELEMENTS ∘F elimOp Id)
   UniversalNaturalElement .vertex = HomR C
   UniversalNaturalElement .element = IdHom
   UniversalNaturalElement .universal P =

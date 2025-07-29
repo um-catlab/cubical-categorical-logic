@@ -34,7 +34,6 @@ module _ {C : Category ℓC ℓC'}
   RightAdjoint : Type _
   RightAdjoint = UniversalElements RightAdjointProf
 
-
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
          (F : Functor C D)

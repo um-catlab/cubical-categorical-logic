@@ -75,28 +75,29 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
       ( (R.rectify $ R.≡out $
         (sym $ R.≡in $ Cᴰ.⋆Assocᴰⱽᴰ)
         ∙ R.⟨ R.≡in ×βⱽ₁ ⟩⋆⟨ refl ⟩
-        ∙ (R.≡in $ lift-π₁.βCL)
+        ∙ lift-π₁.βCL
         ∙ (sym $ R.reind-filler _ _))
       , (R.rectify $ R.≡out $
         (sym $ R.≡in $ Cᴰ.⋆Assocᴰⱽᴰ)
         ∙ R.⟨ R.≡in ×βⱽ₂ ⟩⋆⟨ refl ⟩
-        ∙ (R.≡in $ lift-π₂.βCL)
+        ∙ lift-π₂.βCL
         ∙ (sym $ R.reind-filler _ _)))
     BinProductⱽ→BinProductᴰ .universalᴰ .leftInv f fᴰ = R.rectify $ R.≡out $
       vbp.∫ue.intro≡
-        (vbp.Pshⱽ.≡in $ ΣPathP
-          ((Cᴰ.≡out $
-            (Cᴰ.≡in $ lift-π₁.introCL≡ (R.rectify $ R.≡out $
+        (vbp.Pshⱽ.≡in {p = sym c×c'.×η ∙ (sym $ C.⋆IdR _)} (ΣPathP
+          ((Cᴰ.rectify $ Cᴰ.≡out $
+            (lift-π₁.introCL≡ (
               (sym $ R.reind-filler _ _)
-              ∙ (Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-              ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
+              ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+              ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
               ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩))
             ∙ (sym $ Cᴰ.reind-filler (C.⋆IdR _ ∙ c×c'.×η) _))
-          , ((Cᴰ.≡out $
-            (Cᴰ.≡in $ lift-π₂.introCL≡ (R.rectify $ R.≡out $
-              (sym $ R.reind-filler _ _)
-              ∙ (Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-              ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
-              ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩))
-            ∙ (sym $ Cᴰ.reind-filler (C.⋆IdR _ ∙ c×c'.×η) _)))
-          ))
+          ,
+          (Cᴰ.rectify $ Cᴰ.≡out $
+            lift-π₂.introCL≡
+              ((sym $ R.reind-filler _ _)
+              ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+              ∙ ((sym $ Cᴰ.⋆Assoc _ _ _))
+              ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
+            ∙ (sym $ Cᴰ.reind-filler (C.⋆IdR _ ∙ c×c'.×η) _))
+        )))

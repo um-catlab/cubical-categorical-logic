@@ -76,53 +76,57 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   cartesianLift-preserves-BinProductFiber {b = b}{aᴰ₁}{aᴰ₂} isFib bpⱽ f bᴰ = isIsoToIsEquiv
     ( (λ (fⱽ₁ , fⱽ₂) → f*×.introCL (bpⱽ.introᴰ _ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))
     , (λ (fⱽ₁ , fⱽ₂) → ΣPathP
-      -- This part of the proof can probably be simplified
-      ( (Cᴰ.rectify $ Cᴰ.≡out $
-        (sym $ Cᴰ.reind-filler _ _)
-        ∙ (Cᴰ.≡in $ f*aᴰ₁.introCL-natural)
-        ∙ f*aᴰ₁.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+        -- This part of the proof can probably be simplified
+        ( (Cᴰ.rectify $ Cᴰ.≡out $
           (sym $ Cᴰ.reind-filler _ _)
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.reind-filler _ _
-          ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₁)
-          ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
-          ⟩
-        ∙ f*aᴰ₁.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
-        ∙ (sym $ Cᴰ.≡in $ f*aᴰ₁.ηCL)
-        )
-      , ((Cᴰ.rectify $ Cᴰ.≡out $
-        (sym $ Cᴰ.reind-filler _ _)
-        ∙ (Cᴰ.≡in $ f*aᴰ₂.introCL-natural)
-        ∙ f*aᴰ₂.introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+          ∙ (Cᴰ.≡in $ f*aᴰ₁.introCL-natural)
+          ∙ f*aᴰ₁.introCL⟨ refl ⟩⟨
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.reind-filler _ _
+            ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₁)
+            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _
+            ⟩
+          ∙ f*aᴰ₁.introCL⟨ C.⋆IdL _ ⟩⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ f*aᴰ₁.ηCL)
+          )
+        , ((Cᴰ.rectify $ Cᴰ.≡out $
           (sym $ Cᴰ.reind-filler _ _)
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ Cᴰ.≡in f*×.βCL ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.reind-filler _ _
-          ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₂)
-          ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _))
-          ⟩
-        ∙ f*aᴰ₂.introCL⟨ ΣPathP (C.⋆IdL _ , (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)) ⟩
-        ∙ (sym $ Cᴰ.≡in $ f*aᴰ₂.ηCL)) )
-      ))
-    , λ fⱽ →
-      -- TODO: use ideas from this (like ∫ue.intro≡) to simplify the above
-      (Cᴰ.rectify $ Cᴰ.≡out $ f*×.introCL⟨
-        ΣPathP $ refl , (Cᴰ.rectify $ Cᴰ.≡out $ bpⱽ.∫ue.intro≡ (bpⱽ.Pshᴰ.≡in $ ΣPathP
-          ( (Cᴰ.≡out $ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.⋆Assoc _ _ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₁.βCL ⟩
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
-          , (Cᴰ.≡out $ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.⋆Assoc _ _ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in f*aᴰ₂.βCL ⟩
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)))))
-        ⟩)
-      ∙ sym f*×.ηCL)
+          ∙ (Cᴰ.≡in $ f*aᴰ₂.introCL-natural)
+          ∙ f*aᴰ₂.introCL⟨ refl ⟩⟨
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in (Cᴰ.⋆IdLᴰ _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.reind-filler _ _
+            ∙ (Cᴰ.≡in $ bpⱽ'.×βⱽ₂)
+            ∙ Cᴰ.reind-filler C.⟨ sym (C.⋆IdL _) ⟩⋆⟨ refl ⟩ _
+            ⟩
+          ∙ f*aᴰ₂.introCL⟨ C.⋆IdL _ ⟩⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ f*aᴰ₂.ηCL)) )
+        ))
+    , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
+          f*×.introCL⟨ refl ⟩⟨
+            bpⱽ.∫ue.intro≡ (ΣPathP $
+              (sym $ C.⋆IdR _)
+              , ΣPathP
+                ( (Cᴰ.rectify $ Cᴰ.≡out $
+                  Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+                  ∙ Cᴰ.⋆Assoc _ _ _
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₁.βCL ⟩
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+                  ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
+                , (Cᴰ.rectify $ Cᴰ.≡out $
+                  Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+                  ∙ Cᴰ.⋆Assoc _ _ _
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₂.βCL ⟩
+                  ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+                  ∙ (sym $ Cᴰ.⋆Assoc _ _ _))))
+            ⟩
+          ∙ (Cᴰ.≡in $ sym f*×.ηᴰCL)
+      )
     where
     module f*× = CartesianLift (isFib (vertexⱽ bpⱽ) f)
     module f*aᴰ₁ = CartesianLift (isFib aᴰ₁ f)

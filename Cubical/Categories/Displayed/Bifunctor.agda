@@ -37,7 +37,7 @@ module _ {C : Category ℓC ℓC'}
      : Type (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓD (ℓ-max ℓD' (ℓ-max ℓE (ℓ-max ℓE'
             (ℓ-max ℓCᴰ (ℓ-max ℓCᴰ' (ℓ-max ℓDᴰ (ℓ-max ℓDᴰ'
             (ℓ-max ℓEᴰ ℓEᴰ'))))))))))) where
-
+    no-eta-equality
     private
       module Cᴰ = Categoryᴰ Cᴰ
       module Dᴰ = Categoryᴰ Dᴰ
@@ -209,6 +209,11 @@ module _ {F : Functor E E'}{G : Bifunctor C D E}
   compFᴰ .Bif-R×-agreeᴰ gᴰ = Eᴰ'.rectify $ λ i →
     ∫compFᴰ.Bif-R×-agree (_ , gᴰ) i .snd
 
+module _ {F : Bifunctor C' D' E} {G : Functor C C'}{H : Functor D D'}
+  (Fᴰ : Bifunctorᴰ F Cᴰ' Dᴰ' Eᴰ)(Gᴰ : Functorᴰ G Cᴰ Cᴰ')(Hᴰ : Functorᴰ H Dᴰ Dᴰ')
+  where
+  compLRᴰ : Bifunctorᴰ (F ∘Flr (G , H)) Cᴰ Dᴰ Eᴰ
+  compLRᴰ = compRᴰ (compLᴰ Fᴰ Gᴰ) Hᴰ
 
 module _ {F : Functor (C ×C D) E}
          (Fᴰ : Functorᴰ F (Cᴰ ×Cᴰ Dᴰ) Eᴰ) where

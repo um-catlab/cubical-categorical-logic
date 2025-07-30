@@ -35,8 +35,11 @@ open Category
 open Functor
 
 module _ (C : Category ℓ ℓ') where
+  BinProductProf' : Bifunctor C C (PresheafCategory C (ℓ-max ℓ' ℓ'))
+  BinProductProf' = PshProd ∘Flr (YO , YO)
+
   BinProductProf : Profunctor (C ⊗ C) C ℓ'
-  BinProductProf = R.rec C C (PshProd ∘Flr (YO , YO))
+  BinProductProf = R.rec _ _ BinProductProf'
 
   BinProduct : ∀ (cc' : (C ⊗ C) .ob) → Type _
   BinProduct cc' = UniversalElement C (BinProductProf ⟅ cc' ⟆)
@@ -45,11 +48,12 @@ module _ (C : Category ℓ ℓ') where
   BinProducts = UniversalElements BinProductProf
 
   -- Product with a fixed object
-  ProdWithAProf : C .ob → Profunctor C C ℓ'
-  ProdWithAProf a = appR PshProd (YO ⟅ a ⟆) ∘F YO
+  module _ (c : C .ob) where
+    ProdWithAProf : Profunctor C C ℓ'
+    ProdWithAProf = appR BinProductProf' c
 
-  BinProductsWith : C .ob → Type (ℓ-max ℓ ℓ')
-  BinProductsWith a = UniversalElements (ProdWithAProf a)
+    BinProductsWith : Type (ℓ-max ℓ ℓ')
+    BinProductsWith = UniversalElements ProdWithAProf
 
   module _ (bp : BinProducts) where
     BinProductF : Functor (C R.×C C) C
@@ -79,20 +83,33 @@ module BinProductNotation {C : Category ℓ ℓ'} {a b} (bp : BinProduct C (a , 
   _,p_ : ∀ {Γ} → C [ Γ , a ] → C [ Γ , b ] → C [ Γ , vert ]
   f₁ ,p f₂ = intro (f₁ , f₂)
 
-  ⟨_⟩,p⟨_⟩ :
-    ∀ {Γ}
-      {f f' : C [ Γ , a ]}
-      {g g' : C [ Γ , b ]}
-    → f ≡ f'
-    → g ≡ g'
-    → (f ,p g) ≡ (f' ,p g')
-  ⟨ f≡f' ⟩,p⟨ g≡g' ⟩ = intro⟨ ΣPathP (f≡f' , g≡g') ⟩
+  opaque
+    ⟨_⟩,p⟨_⟩ :
+      ∀ {Γ}
+        {f f' : C [ Γ , a ]}
+        {g g' : C [ Γ , b ]}
+      → f ≡ f'
+      → g ≡ g'
+      → (f ,p g) ≡ (f' ,p g')
+    ⟨ f≡f' ⟩,p⟨ g≡g' ⟩ = intro⟨ ΣPathP (f≡f' , g≡g') ⟩
 
-  ×β₁ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₁ ≡ f
-  ×β₁ = cong fst β
+    ,p≡ : ∀ {Γ} {f₁ : C [ Γ , a ]} {f₂ : C [ Γ , b ]} {g}
+      → (f₁ ≡ g C.⋆ π₁)
+      → (f₂ ≡ g C.⋆ π₂)
+      → (f₁ ,p f₂) ≡ g
+    ,p≡ f1≡ f2≡ = intro≡ (ΣPathP (f1≡ , f2≡))
 
-  ×β₂ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₂ ≡ g
-  ×β₂ = cong snd β
+    ,p-extensionality : ∀ {Γ} {f g : C [ Γ , vert ]}
+      → (f C.⋆ π₁ ≡ g C.⋆ π₁)
+      → (f C.⋆ π₂ ≡ g C.⋆ π₂)
+      → f ≡ g
+    ,p-extensionality f≡g1 f≡g2 = extensionality (ΣPathP (f≡g1 , f≡g2))
+
+    ×β₁ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₁ ≡ f
+    ×β₁ = cong fst β
+
+    ×β₂ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₂ ≡ g
+    ×β₂ = cong snd β
 
 module BinProductsNotation {C : Category ℓ ℓ'} (bp : BinProducts C) where
   private

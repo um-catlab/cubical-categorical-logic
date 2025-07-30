@@ -1,19 +1,14 @@
-{-# OPTIONS --safe  --lossy-unification #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Constructions.Fiber
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.BinProduct as BP
@@ -21,153 +16,85 @@ open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.FunctorComprehension
-open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
 open Category
-open UniversalElement
-open UniversalElementᴰ
-open UniversalElementⱽ
-open isIsoOver
+open Bifunctorᴰ
+open Functorᴰ
 
+-- Displayed
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   private
     module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
-    module R = HomᴰReasoning Cᴰ
 
-  BinProductᴰ : ∀ {c12} → BinProduct' C c12
-              → (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ])
-              → Type _
-  BinProductᴰ = RightAdjointAtᴰ (ΔCᴰ Cᴰ)
+  -- TODO: if we make a redundant displayed product we could use it here
+  BinProductᴰProf' :
+    Bifunctorᴰ (BinProductProf' C) Cᴰ Cᴰ (PRESHEAFᴰ Cᴰ _ _)
+  BinProductᴰProf' = compLRᴰ PshProdᴰ YOᴰ YOᴰ
 
-  BinProductᴰProf : ∀ {c12} → BinProduct' C c12
-              → Profunctorᴰ (RightAdjointProf (Δ C)) (Cᴰ BP.×Cᴰ Cᴰ) Cᴰ ℓD'
-  BinProductᴰProf bp = RightAdjointProfᴰ (ΔCᴰ Cᴰ)
+  BinProductᴰ : ∀ {c12}
+    → BinProduct C c12
+    → (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ])
+    → Type _
+  BinProductᴰ bp (cᴰ₁ , cᴰ₂) =
+    UniversalElementᴰ Cᴰ bp (BinProductᴰProf' .Bif-obᴰ cᴰ₁ cᴰ₂)
 
-  hasAllBinProductᴰ : BinProducts' C → Type _
-  hasAllBinProductᴰ = RightAdjointᴰ (ΔCᴰ Cᴰ)
+  BinProductsᴰ : BinProducts C → Type _
+  BinProductsᴰ bp =
+    ∀ {c12} (cᴰ12 : (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ]))
+    → BinProductᴰ (bp c12) cᴰ12
 
-  open Functorᴰ
-  ProdWithAProfᴰ : ∀ {c} → Cᴰ.ob[ c ]
-    → Profunctorᴰ (ProdWithAProf C c) Cᴰ Cᴰ ℓD'
-  ProdWithAProfᴰ cᴰ = appLᴰ PshProdᴰ (YOᴰ .F-obᴰ cᴰ) ∘Fᴰ YOᴰ
+  ProdWithAProfᴰ : ∀ {c} (cᴰ : Cᴰ.ob[ c ])
+    → Profunctorᴰ (ProdWithAProf C c) Cᴰ Cᴰ _
+  ProdWithAProfᴰ cᴰ = appRᴰ BinProductᴰProf' cᴰ
 
-  hasAllBinProductWithᴰ : ∀ {c} → hasAllBinProductWith C c → Cᴰ.ob[ c ]
-    → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-  hasAllBinProductWithᴰ c×- cᴰ = UniversalElementsᴰ c×- (ProdWithAProfᴰ cᴰ)
+  BinProductsWithᴰ : ∀ {c}
+    → BinProductsWith C c
+    → Cᴰ.ob[ c ]
+    → Type _
+  BinProductsWithᴰ bp cᴰ = UniversalElementsᴰ bp (ProdWithAProfᴰ cᴰ)
 
-  a×-Fᴰ : ∀ {c}  {c×- : hasAllBinProductWith C c}
-            {cᴰ} (cᴰ×ᴰ- : hasAllBinProductWithᴰ c×- cᴰ)
-          → Functorᴰ (a×-F C c×-) Cᴰ Cᴰ
-  a×-Fᴰ {cᴰ = cᴰ} cᴰ×ᴰ- = FunctorᴰComprehension (ProdWithAProfᴰ cᴰ) cᴰ×ᴰ-
+  module _ {c} (-×c : BinProductsWith C c)
+           {cᴰ} (-×ᴰcᴰ : BinProductsWithᴰ -×c cᴰ)
+           where
+    BinProductWithFᴰ : Functorᴰ (BinProductWithF C -×c) Cᴰ Cᴰ
+    BinProductWithFᴰ =
+      FunctorᴰComprehension (ProdWithAProfᴰ cᴰ) -×ᴰcᴰ
 
   -- Vertical Binary Products
-  BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
-  BinProductⱽ = RightAdjointAtⱽ (Δᴰ Cᴰ)
-
   BinProductProfⱽ : Profunctorⱽ (Cᴰ BP.×ᴰ Cᴰ) Cᴰ ℓD'
-  BinProductProfⱽ = RightAdjointProfⱽ (Δᴰ Cᴰ)
+  BinProductProfⱽ =
+    PshProdⱽ ∘Fⱽᴰ ((YOᴰ ∘Fᴰⱽ Fstⱽ Cᴰ Cᴰ) ,Fⱽ (YOᴰ ∘Fᴰⱽ Sndⱽ Cᴰ Cᴰ))
 
-  hasAllBinProductⱽ : Type _
-  hasAllBinProductⱽ = RightAdjointⱽ (Δᴰ Cᴰ)
+  BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
+  BinProductⱽ {c} (cᴰ₁ , cᴰ₂) =
+    UniversalElementⱽ Cᴰ c (BinProductProfⱽ .F-obᴰ (cᴰ₁ , cᴰ₂))
 
-  -- "Direct" definition of BinProductⱽ
-  BinProductⱽ' : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
-  BinProductⱽ' {c} (cᴰ , cᴰ') =
-    UniversalElementⱽ Cᴰ c (PshProdⱽ .F-obᴰ ((YOᴰ .F-obᴰ cᴰ) , (YOᴰ .F-obᴰ cᴰ')))
+  BinProductsⱽ : Type _
+  BinProductsⱽ = UniversalElementsⱽ BinProductProfⱽ
 
-  BinProduct'Profⱽ : Profunctorⱽ (Cᴰ BP.×ᴰ Cᴰ) Cᴰ ℓD'
-  BinProduct'Profⱽ = PshProdⱽ ∘Fⱽᴰ ((YOᴰ ∘Fᴰⱽ Fstⱽ Cᴰ Cᴰ) ,Fⱽ (YOᴰ ∘Fᴰⱽ Sndⱽ Cᴰ Cᴰ))
+-- TODO: BinProductᴰNotation and its variants, as needed(!)
+  module BinProductⱽNotation {c}{cᴰ cᴰ' : Cᴰ.ob[ c ]}
+    (vbp : BinProductⱽ (cᴰ , cᴰ')) where
 
-module hasAllBinProductᴰNotation
-         {C : Category ℓC ℓC'}
-         {Cᴰ : Categoryᴰ C ℓD ℓD'}
-         {bp' : BinProducts' C}
-         (bpᴰ : hasAllBinProductᴰ Cᴰ bp')
-       where
-
-  private
-    module BP' = BinProducts'Notation bp'
-    module Cᴰ = Categoryᴰ Cᴰ
-    module R = HomᴰReasoning Cᴰ
-
-  open BP'
-
-  private
-    variable
-      c c' c₁ c₂ : C .ob
-      d d' d₁ d₂ : Cᴰ.ob[ c ]
-
-  _×ᴰ_ : Cᴰ.ob[ c₁ ] → Cᴰ.ob[ c₂ ] → Cᴰ.ob[ c₁ BP'.× c₂ ]
-  _×ᴰ_ d₁ d₂ = bpᴰ (d₁ , d₂) .vertexᴰ
-
-  module _ {c₁ c₂} {d₁ : Cᴰ.ob[ c₁ ]} {d₂ : Cᴰ.ob[ c₂ ]} where
-
-    π₁ᴰ : Cᴰ.Hom[ π₁ ][ d₁ ×ᴰ d₂ , d₁ ]
-    π₁ᴰ = bpᴰ (d₁ , d₂) .elementᴰ .fst
-
-    π₂ᴰ : Cᴰ.Hom[ π₂ ][ d₁ ×ᴰ d₂ , d₂ ]
-    π₂ᴰ = bpᴰ (d₁ , d₂) .elementᴰ .snd
-
-    _,pᴰ_ : {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
-          → Cᴰ.Hom[ f₁ ][ d , d₁ ] → Cᴰ.Hom[ f₂ ][ d , d₂ ]
-          → Cᴰ.Hom[ f₁ ,p f₂ ][ d , d₁ ×ᴰ d₂ ]
-    _,pᴰ_{f₁ = f₁}{f₂ = f₂} f₁ᴰ f₂ᴰ =
-      UniversalElementᴰNotation.introᴰ _ _ (bpᴰ (d₁ , d₂)) _ (f₁ᴰ , f₂ᴰ)
-
-    module _ {f₁ : C [ c , c₁ ]}{f₂ : C [ c , c₂ ]}
-             {f₁ᴰ : Cᴰ.Hom[ f₁ ][ d , d₁ ]}
-             {f₂ᴰ : Cᴰ.Hom[ f₂ ][ d , d₂ ]}
-           where
-      open isIsoOver
-      private
-        ,pᴰ-isUniversalᴰ = bpᴰ (d₁ , d₂) .universalᴰ {xᴰ = d}
-      opaque
-        unfolding UniversalElementᴰNotation.βᴰ
-        ×β₁ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.≡[ ×β₁ ] f₁ᴰ
-        ×β₁ᴰ = λ i → UniversalElementᴰNotation.βᴰ _ _
-          (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .fst
-
-        ×β₂ᴰ : ((f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) Cᴰ.≡[ ×β₂ ] f₂ᴰ
-        ×β₂ᴰ = λ i → UniversalElementᴰNotation.βᴰ _ _
-          (bpᴰ (d₁ , d₂)) {pᴰ = (f₁ᴰ , f₂ᴰ)} i .snd
-
-    module _ {f : C [ c , c₁ BP'.× c₂ ]}
-             {fᴰ : Cᴰ.Hom[ f ][ d , d₁ ×ᴰ d₂ ]}
-           where
-      opaque
-        unfolding UniversalElementᴰNotation.ηᴰ
-        ×ηᴰ : fᴰ Cᴰ.≡[ ×η ] ((fᴰ Cᴰ.⋆ᴰ π₁ᴰ) ,pᴰ (fᴰ Cᴰ.⋆ᴰ π₂ᴰ))
-        ×ηᴰ = UniversalElementᴰNotation.ηᴰ _ _ (bpᴰ (d₁ , d₂))
-
-module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-    module R = HomᴰReasoning Cᴰ
-  -- meant to be used as `module cᴰ∧cᴰ' = VerticalBinProductsAtNotation vbp`
-  module BinProductⱽNotation {cᴰ cᴰ' : Cᴰ.ob[ c ]}
-    (vbp : BinProductⱽ Cᴰ (cᴰ , cᴰ')) where
-
-    private
-      module vbp = UniversalElementⱽNotation _ _ _ vbp
+    open UniversalElementⱽ vbp public
 
     vert : Cᴰ.ob[ c ]
-    vert = vbp .vertexⱽ
+    vert = vertexⱽ
 
     -- shorthand for terminal vertical cone
     π₁₂ :
       Cᴰ.Hom[ C .id ][ vert , cᴰ ] × Cᴰ.Hom[ C .id ][ vert , cᴰ' ]
-    π₁₂ = vbp .elementⱽ
+    π₁₂ = elementⱽ
     π₁ = π₁₂ .fst
     π₂ = π₁₂ .snd
 
@@ -178,31 +105,43 @@ module _ {C  : Category ℓC ℓC'}{c : C .ob}{Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       _,ⱽ_ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ] →
         Cᴰ.Hom[ f ][ xᴰ , cᴰ' ] →
         Cᴰ.Hom[ f ][ xᴰ , vert ]
-      (fᴰ ,ⱽ fᴰ') = vbp.introᴰ _ (fᴰ , fᴰ')
+      (fᴰ ,ⱽ fᴰ') = introᴰ (fᴰ , fᴰ')
 
       opaque
+        ,ⱽ≡ : ∀ {g}
+          {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+          → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+          → {gᴰ : Cᴰ.Hom[ g ][ xᴰ , vert ]}
+          → Path Cⱽ.Hom[ _ , _ ] (f , fᴰ) (g , gᴰ Cⱽ.⋆ᴰⱽ π₁)
+          → Path Cⱽ.Hom[ _ , _ ] (f , fᴰ') (g , gᴰ Cⱽ.⋆ᴰⱽ π₂)
+          → Path Cⱽ.Hom[ _ , _ ] (f , (fᴰ ,ⱽ fᴰ')) (g , gᴰ)
+        ,ⱽ≡ fᴰ≡ fᴰ'≡ = ∫ue.intro≡ (ΣPathP (cong fst fᴰ≡ ∙ (sym $ C.⋆IdR _)
+          , (ΣPathP
+          ( (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ≡ ∙ (sym $ Cⱽ.reind-filler _ _))
+          , (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ'≡ ∙ (sym $ Cⱽ.reind-filler _ _))))))
+
         ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
            → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
            → (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₁ ≡ fᴰ
-        ×βⱽ₁ = cong fst vbp.βⱽ
+        ×βⱽ₁ = cong fst βⱽ
+
+        ∫×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+           → Path Cⱽ.Hom[ _ , _ ]
+               (f , (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₁) (f , fᴰ)
+        ∫×βⱽ₁ = Cⱽ.≡in ×βⱽ₁
 
         ×βⱽ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
          → (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₂ ≡ fᴰ'
-        ×βⱽ₂ = cong snd vbp.βⱽ
+        ×βⱽ₂ = cong snd βⱽ
+
+        ∫×βⱽ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+           → Path Cⱽ.Hom[ _ , _ ]
+               (f , (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₂) (f , fᴰ')
+        ∫×βⱽ₂ = Cⱽ.≡in ×βⱽ₂
 
         ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
           → fᴰ ≡ (fᴰ Cⱽ.⋆ᴰⱽ π₁ ,ⱽ fᴰ Cⱽ.⋆ᴰⱽ  π₂)
-        ×ηⱽ = vbp.ηⱽ
-module _ {C  : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-    module R = HomᴰReasoning Cᴰ
-  module AllBinProductⱽNotation (vbp : hasAllBinProductⱽ Cᴰ) where
-    private
-      module bpⱽs {a}{aᴰ aᴰ' : Cᴰ.ob[ a ]} = BinProductⱽNotation (vbp (aᴰ , aᴰ'))
-
-    _×ⱽ_ : ∀ {a} → Cᴰ.ob[ a ] → Cᴰ.ob[ a ] → Cᴰ.ob[ a ]
-    aᴰ ×ⱽ aᴰ' = bpⱽs.vert {aᴰ = aᴰ}{aᴰ' = aᴰ'}
-
-    open bpⱽs hiding (vert) public
+        ×ηⱽ = ηⱽ

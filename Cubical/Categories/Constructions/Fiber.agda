@@ -124,6 +124,12 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     ∙ R.⋆Assoc _ _ _
     ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
 
+  ∫⋆Assocᴰⱽᴰ :
+    Path R.Hom[ _ , _ ]
+      (f C.⋆ h , (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ)
+      (f C.⋆ h , fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
+  ∫⋆Assocᴰⱽᴰ = R.≡in ⋆Assocᴰⱽᴰ
+
   open NatTrans
   HomᴰProf : (f : C [ x , y ]) → Profunctor v[ y ] v[ x ] ℓCᴰ'
   HomᴰProf f .Functor.F-ob yᴰ .Functor.F-ob xᴰ .fst = Hom[ f ][ xᴰ , yᴰ ]

@@ -156,8 +156,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     ∫ue .UniversalElement.universal (v , vᴰ) =
       isIsoToIsEquiv (isIsoOver→isIsoΣ (universalᴰ))
 
-    private
-      module ∫ue = UniversalElementNotation ∫ue
+    module ∫ue = UniversalElementNotation ∫ue
     module Pshᴰ = PresheafᴰNotation Pᴰ
 
     introᴰ : ∀ {x xᴰ} {p : P.p[ x ]}
@@ -238,7 +237,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         (Cᴰ.≡in $ (λ i → universalⱽ .fst (Pⱽ.⋆ᴰid≡⋆ᴰⱽ fᴰ elementⱽ i)))
         ∙ (Cᴰ.≡in $ universalⱽ .snd .snd fᴰ)
 
-    open UniversalElementᴰ toUniversalᴰ hiding (module Pshᴰ)
+    open UniversalElementᴰ toUniversalᴰ hiding (module Pshᴰ) public
     module Pshⱽ = PresheafⱽNotation Pⱽ
 
     introⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → Cᴰ.v[ x ] [ xᴰ , vertexᴰ ]

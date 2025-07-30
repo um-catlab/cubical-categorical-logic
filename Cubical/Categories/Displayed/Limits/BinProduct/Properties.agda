@@ -41,13 +41,13 @@ open UniversalElementⱽ
 open isIsoOver
 
 module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
-  (prod : BinProduct' C (x₁ , x₂))
+  (prod : BinProduct C (x₁ , x₂))
   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-    module c×c' = BinProduct'Notation prod
+    module c×c' = BinProductNotation prod
     module R = HomᴰReasoning Cᴰ
 
   open CartesianLift
@@ -58,11 +58,11 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
     (lift-π₂ : CartesianLift Cᴰ xᴰ₂ c×c'.π₂)
     (vbp : BinProductⱽ Cᴰ ((lift-π₁ .f*yᴰ) , (lift-π₂ .f*yᴰ)))
     where
-    open BinProductⱽNotation vbp
+    open BinProductⱽNotation Cᴰ vbp
     private
       module lift-π₁ = CartesianLift lift-π₁
       module lift-π₂ = CartesianLift lift-π₂
-      module vbp = UniversalElementⱽNotation Cᴰ _ _ vbp
+      module vbp = UniversalElementⱽ vbp
     BinProductⱽ→BinProductᴰ : BinProductᴰ Cᴰ prod (xᴰ₁ , xᴰ₂)
     BinProductⱽ→BinProductᴰ .vertexᴰ = vert
     BinProductⱽ→BinProductᴰ .elementᴰ .fst = π₁ Cᴰ.⋆ⱽᴰ (lift-π₁ .π)
@@ -73,31 +73,35 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
     -- β
     BinProductⱽ→BinProductᴰ .universalᴰ .rightInv (f₁ , f₂) (fᴰ₁ , fᴰ₂) = ΣPathP
       ( (R.rectify $ R.≡out $
-        (sym $ R.≡in $ Cᴰ.⋆Assocᴰⱽᴰ)
-        ∙ R.⟨ R.≡in ×βⱽ₁ ⟩⋆⟨ refl ⟩
+        (sym $ Cᴰ.∫⋆Assocᴰⱽᴰ)
+        ∙ R.⟨ ∫×βⱽ₁ ⟩⋆⟨ refl ⟩
         ∙ lift-π₁.βCL
         ∙ (sym $ R.reind-filler _ _))
       , (R.rectify $ R.≡out $
-        (sym $ R.≡in $ Cᴰ.⋆Assocᴰⱽᴰ)
-        ∙ R.⟨ R.≡in ×βⱽ₂ ⟩⋆⟨ refl ⟩
+        (sym $ Cᴰ.∫⋆Assocᴰⱽᴰ)
+        ∙ R.⟨ ∫×βⱽ₂ ⟩⋆⟨ refl ⟩
         ∙ lift-π₂.βCL
         ∙ (sym $ R.reind-filler _ _)))
     BinProductⱽ→BinProductᴰ .universalᴰ .leftInv f fᴰ = R.rectify $ R.≡out $
-      vbp.∫ue.intro≡
-        (vbp.Pshⱽ.≡in {p = sym c×c'.×η ∙ (sym $ C.⋆IdR _)} (ΣPathP
-          ((Cᴰ.rectify $ Cᴰ.≡out $
-            (lift-π₁.introCL≡ (
-              (sym $ R.reind-filler _ _)
-              ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-              ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-              ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩))
-            ∙ (sym $ Cᴰ.reind-filler (C.⋆IdR _ ∙ c×c'.×η) _))
-          ,
-          (Cᴰ.rectify $ Cᴰ.≡out $
-            lift-π₂.introCL≡
-              ((sym $ R.reind-filler _ _)
-              ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-              ∙ ((sym $ Cᴰ.⋆Assoc _ _ _))
-              ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
-            ∙ (sym $ Cᴰ.reind-filler (C.⋆IdR _ ∙ c×c'.×η) _))
-        )))
+      ,ⱽ≡
+        (lift-π₁.introCL≡'
+          (sym c×c'.×ue.η)
+          ((sym $ R.reind-filler _ _)
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+          ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩))
+        (lift-π₂.introCL≡'
+          (sym c×c'.×ue.η)
+          ((sym $ R.reind-filler _ _)
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+          ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩))
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  (cartesianLifts : isFibration Cᴰ)
+  (bpⱽ : BinProductsⱽ Cᴰ) (bp : BinProducts C)
+  where
+
+  BinProductsⱽ→BinProductsᴰ : BinProductsᴰ Cᴰ bp
+  BinProductsⱽ→BinProductsᴰ cᴰ12 =
+    BinProductⱽ→BinProductᴰ (bp _) Cᴰ
+      (cartesianLifts _ _) (cartesianLifts _ _) (bpⱽ _ _)

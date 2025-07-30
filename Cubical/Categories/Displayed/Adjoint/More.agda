@@ -46,7 +46,7 @@ RightAdjointAtᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                   (dᴰ : Categoryᴰ.ob[_] Dᴰ d)
                 → Type _
 RightAdjointAtᴰ {Cᴰ = Cᴰ}{Dᴰ = Dᴰ} Fᴰ R⟅d⟆ dᴰ =
-  UniversalElementᴰ Cᴰ (RightAdjointProfᴰ Fᴰ .F-obᴰ dᴰ) R⟅d⟆
+  UniversalElementᴰ Cᴰ R⟅d⟆ (RightAdjointProfᴰ Fᴰ .F-obᴰ dᴰ)
 
 RightAdjointᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                 {F : Functor C D}

@@ -38,10 +38,19 @@ open NatTrans
 
 -- This definition is the most convenient to use
 -- But its axioms are redundant as well as its
+
+-- TODO: there's no good reason to include all of the equations as fields.
+
+-- We should promote BifunctorParAx to the definition of Bifunctor and
+-- include all the other equations as definitions in the Bifunctor module
+
+-- We also don't really need BifunctorPar as it's definitionally
+-- equivalent to a functor out of the cartesian product.
 record Bifunctor (C : Category ℓc ℓc')
                  (D : Category ℓd ℓd')
                  (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
     Bif-homL : ∀ {c c'} → (f : C [ c , c' ]) → ∀ d
@@ -77,6 +86,7 @@ record BifunctorParAx (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
     Bif-homL : ∀ {c c'} → (f : C [ c , c' ]) → ∀ d
@@ -99,6 +109,7 @@ record BifunctorSepAx (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
 
@@ -128,6 +139,7 @@ record BifunctorSep (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
 
@@ -154,6 +166,7 @@ record BifunctorPar (C : Category ℓc ℓc')
                   (D : Category ℓd ℓd')
                   (E : Category ℓe ℓe')
        : Type (ℓ-max ℓc (ℓ-max ℓc' (ℓ-max ℓd (ℓ-max ℓd' (ℓ-max ℓe ℓe'))))) where
+  no-eta-equality
   field
     Bif-ob : C .ob → D .ob → E .ob
     Bif-hom× : ∀ {c c' d d'} (f : C [ c , c' ])(g : D [ d , d' ])

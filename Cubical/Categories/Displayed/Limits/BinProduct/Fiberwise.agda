@@ -118,3 +118,9 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module f*aᴰ₂ = CartesianLift (isFib aᴰ₂ f)
     module bpⱽ = BinProductⱽNotation _ bpⱽ
     module f*⟨aᴰ₁×aᴰ₂⟩ = PresheafNotation (BinProductProf Cᴰ.v[ b ] ⟅ f*aᴰ₁.f*yᴰ , f*aᴰ₂.f*yᴰ ⟆)
+
+  BinProductsWithⱽ→BinProductsWithFiber : ∀ {a} {aᴰ}
+    → BinProductsWithⱽ Cᴰ aᴰ
+    → BinProductsWith Cᴰ.v[ a ] aᴰ
+  BinProductsWithⱽ→BinProductsWithFiber -×ⱽaᴰ aᴰ' =
+    BinProductⱽ→BinProductFiber (-×ⱽaᴰ aᴰ')

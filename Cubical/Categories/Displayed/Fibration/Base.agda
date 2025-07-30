@@ -240,34 +240,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   CartesianLift'F cL's = FunctorⱽComprehension {Pᴰ = CARTESIANLIFT}
     λ x (_ , yᴰ , f) → cL's yᴰ f
 
-  module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
-    (cL : CartesianLift' yᴰ f) where
-    private
-      module f*yᴰ = PresheafⱽNotation (CartesianLiftPsh yᴰ f)
-      module cL = UniversalElementⱽ cL -- UniversalElementⱽNotation Cᴰ _ _ cL
-    -- This is *not* slow to typecheck, unlike the definition below. Interesting
-    -- CartesianLift'→CartesianLift : CartesianLift yᴰ f
-    -- CartesianLift'→CartesianLift .CartesianLift.f*yᴰ = cL.vertexⱽ
-    -- -- Herein lies the rub
-    -- -- Goal: Cᴰ.Hom[ f ][ cL.vertexⱽ , yᴰ ]
-    -- -- cL.elementⱽ : Cᴰ.Hom[ C.id C.⋆ f ][ cL.vertexⱽ , yᴰ ]
-    -- CartesianLift'→CartesianLift .CartesianLift.π = Cᴰ.reind (C.⋆IdL f) cL.elementⱽ
-    -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .fst = cL.introᴰ _
-    -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .fst gfᴰ =
-    --   Cᴰ.rectify $ Cᴰ.≡out $
-    --   Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-    --   ∙ (Cᴰ.reind-filler _ _)
-    --   ∙ (Cᴰ.≡in $ cL.βᴰ)
-    -- CartesianLift'→CartesianLift .CartesianLift.isCartesian .snd .snd gᴰ = ?
-      -- TODO: finish this
-      -- Cᴰ.rectify $ Cᴰ.≡out $
-      -- {!cL.intro⟨_⟩!}
-      -- ∙ cL.∫ue.intro⟨ {!!} ⟩
-      -- ∙ (sym $ Cᴰ.≡in $ cL.ηᴰ)
-
-  -- CartesianLiftF : isFibration → Functorⱽ (C /C Cᴰ) Cᴰ
-  -- CartesianLiftF cartesianLifts = {!FunctorⱽComprehension!}
-
   -- Definition #3: This is the "textbook" compositional
   -- definition. It suffers from very slow performance
   CartesianLift'' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _

@@ -82,7 +82,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   BinProductsⱽ : Type _
   BinProductsⱽ = UniversalElementsⱽ BinProductProfⱽ
 
--- TODO: BinProductᴰNotation and its variants, as needed(!)
+  BinProductsWithⱽ : ∀ {c}
+    → Cᴰ.ob[ c ]
+    → Type _
+  BinProductsWithⱽ {c} cᴰ = ∀ cᴰ' → BinProductⱽ (cᴰ' , cᴰ)
+
   module BinProductⱽNotation {c}{cᴰ cᴰ' : Cᴰ.ob[ c ]}
     (vbp : BinProductⱽ (cᴰ , cᴰ')) where
 

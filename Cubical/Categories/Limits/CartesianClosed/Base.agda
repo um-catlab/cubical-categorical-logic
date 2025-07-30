@@ -14,7 +14,7 @@ record CartesianClosedCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) 
   field
     CC : CartesianCategory ℓ ℓ'
   -- potential performance issue
-  open CartesianCategory CC public
+  open CartesianCategory CC
   field
     exps : AllExponentiable C bp
 

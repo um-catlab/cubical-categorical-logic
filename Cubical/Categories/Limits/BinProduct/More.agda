@@ -14,8 +14,9 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
 import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Bifunctor as R hiding (Fst; Snd)
@@ -61,6 +62,9 @@ module _ (C : Category ℓ ℓ') where
 
     BinProductBif : Bifunctor C C C
     BinProductBif = R.Functor→Bifunctor BinProductF
+
+    BinProductF' : Functor (C ×C C) C
+    BinProductF' = BifunctorToParFunctor BinProductBif
 
   module _ {a} (bp : BinProductsWith a) where
     BinProductWithF : Functor C C
@@ -131,6 +135,10 @@ module BinProductsNotation {C : Category ℓ ℓ'} (bp : BinProducts C) where
 
   _×p_ : ∀ {a b c d} → C [ a , b ] → C [ c , d ] → C [ a × c , b × d ]
   f ×p g = ×Bif ⟪ f , g ⟫×
+
+  π₁Nat : BinProductF' C bp ⇒ Fst C C
+  π₁Nat .NatTrans.N-ob _ = π₁
+  π₁Nat .NatTrans.N-hom _ = ×β₁
 
 module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith C a) where
   _×a : C .ob → C .ob

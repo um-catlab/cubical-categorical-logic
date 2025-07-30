@@ -62,6 +62,9 @@ module _ (C : Category ℓC ℓC') where
     Exponentials→Exponentiable allExp {c} d .element = allExp (c , d) .element
     Exponentials→Exponentiable allExp {c} d .universal = allExp (c , d) .universal
 
+    AnExponential : Exponentials → ∀ {c d} → Exponential c d λ c₁ → bp (c₁ , c)
+    AnExponential exps = Exponentials→Exponentiable exps _
+
     AllExponentiable→Exponentials : AllExponentiable → Exponentials
     AllExponentiable→Exponentials allExp (c , d) =
       Exponentiable→Exponentials (allExp c)

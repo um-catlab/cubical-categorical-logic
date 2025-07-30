@@ -13,15 +13,16 @@ private
     ℓ ℓ' : Level
 
 record CartesianCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
+  no-eta-equality
   field
     C : Category ℓ ℓ'
     term : Terminal' C
     bp   : BinProducts C
 
   -- potential performance issue
-  open Category C public
-  open TerminalNotation term public
-  open BinProductsNotation bp public
+  open Category C
+  open TerminalNotation term
+  open BinProductsNotation bp
 
   unitor-l : ∀ {a} → CatIso C (𝟙 × a) a
   unitor-l .fst = π₂

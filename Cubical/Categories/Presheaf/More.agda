@@ -99,6 +99,8 @@ module PresheafNotation {ℓo}{ℓh}
   isSetPsh : ∀ {x} → isSet (p[ x ])
   isSetPsh {x} = (P ⟅ x ⟆) .snd
 
+-- This should eventually be upstreamed to go in the UniversalElement
+-- module itself
 module UniversalElementNotation {ℓo}{ℓh}
        {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
        (ue : UniversalElement C P)

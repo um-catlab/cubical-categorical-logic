@@ -22,15 +22,14 @@ private
     ℓ ℓ' ℓA ℓB : Level
 
 module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
-  private
-    𝓟 = PresheafCategory C ℓA
-    𝓠 = PresheafCategory C ℓB
-    𝓡 = PresheafCategory C (ℓ-max ℓA ℓB)
 
-  PshProd' : Functor (𝓟 ×C 𝓠) 𝓡
+  PshProd' : Functor
+    (PresheafCategory C ℓA ×C PresheafCategory C ℓB)
+    (PresheafCategory C (ℓ-max ℓA ℓB))
   PshProd' = (postcomposeF _ ×Sets ∘F ,F-functor)
 
-  PshProd : Bifunctor 𝓟 𝓠 𝓡
+  PshProd : Bifunctor (PresheafCategory C ℓA) (PresheafCategory C ℓB)
+                      (PresheafCategory C (ℓ-max ℓA ℓB))
   PshProd = ParFunctorToBifunctor PshProd'
 
   private
@@ -39,8 +38,10 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
     open NatTrans
     -- Test to make sure we get the right definitional
     -- behavior for Bif-homL, Bif-homR
-    module _ (P P' : 𝓟 .ob)(Q Q' : 𝓠 .ob)
-             (α : 𝓟 [ P , P' ]) (β : 𝓠 [ Q , Q' ]) c where
+    module _ (P P' : Presheaf C ℓA)(Q Q' : Presheaf C ℓB)
+             (α : PresheafCategory C ℓA [ P , P' ])
+             (β : PresheafCategory C ℓB [ Q , Q' ])
+             c where
 
       _ : PshProd .Bif-homL α Q .N-ob c ≡ λ (p , q) → α .N-ob c p , q
       _ = refl

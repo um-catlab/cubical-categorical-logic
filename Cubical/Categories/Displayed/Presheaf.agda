@@ -7,25 +7,20 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
-import Cubical.Categories.Displayed.Reasoning as Reasoning
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Instances.Functor
 
 private
@@ -35,15 +30,12 @@ private
 open Functor
 open Functorᴰ
 
--- equivalent to the data of a presheaf Pᴰ over ∫ D and a natural transformation
--- Pᴰ → P ∘ Fst
---
 -- IMO the order of D and P here should be swapped to match Functorᴰ
-Presheafᴰ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
-          → (P : Presheaf C ℓP) → (ℓPᴰ : Level)
+Presheafᴰ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (D : Categoryᴰ C ℓD ℓD')
+          → (ℓPᴰ : Level)
           → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-suc ℓP))
                     (ℓ-suc ℓPᴰ))
-Presheafᴰ {ℓP = ℓP} D P ℓPᴰ = Functorᴰ P (D ^opᴰ) (SETᴰ ℓP ℓPᴰ)
+Presheafᴰ {ℓP = ℓP} P D ℓPᴰ = Functorᴰ P (D ^opᴰ) (SETᴰ ℓP ℓPᴰ)
 
 PRESHEAFᴰ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   → ∀ (ℓP ℓPᴰ : Level) → Categoryᴰ (PresheafCategory C ℓP) _ _
@@ -51,12 +43,12 @@ PRESHEAFᴰ Cᴰ ℓP ℓPᴰ = FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓP ℓPᴰ)
 
 ∫P : {C : Category ℓC ℓC'} {D : Categoryᴰ C ℓD ℓD'}
      → {P : Presheaf C ℓP} → {ℓPᴰ : Level}
-     → Presheafᴰ D P ℓPᴰ
+     → Presheafᴰ P D ℓPᴰ
      → Presheaf (TotalCat.∫C D) (ℓ-max ℓP ℓPᴰ)
 ∫P Pᴰ = ΣF ∘F TotalCat.∫F Pᴰ
 
 module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'}
-         {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ Cᴰ P ℓPᴰ) where
+         {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
   private
     module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
@@ -140,101 +132,56 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
     -- TODO: ⋆ⱽAssoc but it relies on the definition _⋆ⱽ_ in the fiber
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
-         {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ D P ℓPᴰ) where
+         {P : Presheaf C ℓP} (ue : UniversalElement C P) (Pᴰ : Presheafᴰ P D ℓPᴰ) where
   private
     module D = Categoryᴰ D
-    module R = Reasoning D
+    module P = PresheafNotation P
     module Pᴰ = PresheafᴰNotation Pᴰ
 
-  record UniversalElementᴰ (ue : UniversalElement C P)
+  record UniversalElementᴰ
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max ℓP ℓPᴰ)) where
     open UniversalElementNotation ue
-    open Categoryᴰ D
     field
-      vertexᴰ : ob[ vertex ]
+      vertexᴰ : D.ob[ vertex ]
       elementᴰ : Pᴰ.p[ element ][ vertexᴰ ]
       universalᴰ : ∀ {x xᴰ} →
         isIsoOver (equivToIso (_ , (universal x)))
-          Hom[_][ xᴰ , vertexᴰ ]
+          D.Hom[_][ xᴰ , vertexᴰ ]
           (λ p → Pᴰ.p[ p ][ xᴰ ])
           λ f fᴰ → fᴰ Pᴰ.⋆ᴰ elementᴰ
-    open isIsoOver
 
-  module _ where
-    open UniversalElement
-    open UniversalElementᴰ
-    ∫UE : ∀ {ue : UniversalElement C P} (ueᴰ : UniversalElementᴰ ue)
-      → UniversalElement (TotalCat.∫C D) (∫P Pᴰ)
-    ∫UE {ue = ue} ueᴰ .vertex = ue .vertex , ueᴰ .vertexᴰ
-    ∫UE {ue = ue} ueᴰ .element = ue .element , ueᴰ .elementᴰ
-    ∫UE {ue = ue} ueᴰ .universal (v , vᴰ) =
-      isIsoToIsEquiv (isIsoOver→isIsoΣ (ueᴰ .universalᴰ))
+    ∫ue : UniversalElement (TotalCat.∫C D) (∫P Pᴰ)
+    ∫ue .UniversalElement.vertex = vertex , vertexᴰ
+    ∫ue .UniversalElement.element = element , elementᴰ
+    ∫ue .UniversalElement.universal (v , vᴰ) =
+      isIsoToIsEquiv (isIsoOver→isIsoΣ (universalᴰ))
 
-  module UniversalElementᴰNotation
-    {ue : UniversalElement C P}
-    (ueᴰ : UniversalElementᴰ ue)
-    where
-    open UniversalElementNotation ue public
-    open UniversalElementᴰ ueᴰ public
-    module ∫ue = UniversalElementNotation
-        {C = TotalCat.∫C {C = C} D} (∫UE ueᴰ)
     private
-      module P = PresheafNotation {C = C} P
-
+      module ∫ue = UniversalElementNotation ∫ue
     module Pshᴰ = PresheafᴰNotation Pᴰ
-    introᴰ : ∀ {x xᴰ} (p : ⟨ P ⟅ x ⟆ ⟩)
+
+    introᴰ : ∀ {x xᴰ} {p : P.p[ x ]}
         → Pᴰ.p[ p ][ xᴰ ]
         → D [ intro p ][ xᴰ , vertexᴰ ]
-    introᴰ p pᴰ = ∫ue.intro (p , pᴰ) .snd
+    introᴰ {p = p} pᴰ = ∫ue.intro (p , pᴰ) .snd
 
-    -- This is kind of useful as a way of doing congruence without
-    -- leaving the reasoning machine.
-    introᴰ⟨_⟩ : ∀ {x xᴰ} {p q : Pᴰ.pob[ x ]}
-        → {pᴰ : Pᴰ.p[ p ][ xᴰ ]}
-        → {qᴰ : Pᴰ.p[ q ][ xᴰ ]}
-        → (p , pᴰ) ≡ (q , qᴰ)
-        → (p , introᴰ p pᴰ) ≡ (q , introᴰ q qᴰ)
-    introᴰ⟨ pᴰ≡qᴰ ⟩ i =
-      _ , introᴰ _ (pᴰ≡qᴰ i .snd)
-
-    opaque
-      unfolding β
-      βᴰ : ∀ {x xᴰ} {p : Pᴰ.pob[ x ] } {pᴰ : Pᴰ.p[ p ][ xᴰ ]}
-           → (introᴰ p pᴰ Pᴰ.⋆ᴰ elementᴰ) Pᴰ.≡[ β ] pᴰ
-      βᴰ = cong snd ∫ue.β
-
-      ηᴰ : ∀ {x xᴰ} {f : C [ x , vertex ]} {fᴰ : D [ f ][ xᴰ , vertexᴰ ]}
-           → fᴰ D.≡[ η {f = f} ] (introᴰ _ (fᴰ Pᴰ.⋆ᴰ elementᴰ))
-      ηᴰ = R.rectify $ cong snd ∫ue.η
-
-      weak-ηᴰ : D.idᴰ D.≡[ weak-η ] introᴰ _ elementᴰ
-      weak-ηᴰ = R.rectify $ cong snd ∫ue.weak-η
-
-      extensionalityᴰ
-        : ∀ {x xᴰ} {f g : C [ x , vertex ]}
-          {fᴰ : D [ f ][ xᴰ , vertexᴰ ]}
-          {gᴰ : D [ g ][ xᴰ , vertexᴰ ]}
-        → (fπ≡gπ : f P.⋆ element  ≡ g P.⋆ element)
-        → (fᴰ Pᴰ.⋆ᴰ elementᴰ) Pᴰ.≡[ fπ≡gπ ] (gᴰ Pᴰ.⋆ᴰ elementᴰ)
-        → fᴰ D.≡[ extensionality fπ≡gπ ] gᴰ
-      extensionalityᴰ fπ≡gπ p = R.rectify $
-        cong snd (∫ue.extensionality (ΣPathP (fπ≡gπ , p)))
-
-      introᴰ-natural : ∀ {x y}{f : C [ x , y ]}{p : P.p[ y ]}
-        {xᴰ yᴰ}{fᴰ : D [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
-        → (fᴰ D.⋆ᴰ introᴰ _ pᴰ) D.≡[ intro-natural ] introᴰ _ (fᴰ Pᴰ.⋆ᴰ pᴰ)
-      introᴰ-natural = R.rectify $ cong snd (∫ue.intro-natural)
+    introᴰ≡ = ∫ue.intro≡
+    introᴰ-natural = ∫ue.intro-natural
+    extensionalityᴰ = ∫ue.extensionality
+    βᴰ = ∫ue.β
+    ηᴰ = ∫ue.η
+    weak-ηᴰ = ∫ue.weak-η
 
 -- A vertical presheaf is a displayed presheaf over a representable
-Presheafⱽ : {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
-          → (c : C .Category.ob) → (ℓPᴰ : Level)
+Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C ℓD ℓD')
+          → (ℓPᴰ : Level)
           → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC (ℓ-suc ℓC')) ℓD) ℓD')
                         (ℓ-suc ℓPᴰ))
-Presheafⱽ D c = Presheafᴰ D (YO ⟅ c ⟆)
+Presheafⱽ {C = C} c D = Presheafᴰ (YO {C = C} ⟅ c ⟆) D
 
 module PresheafⱽNotation
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {c} {ℓPᴰ} (P : Presheafⱽ Cᴰ c ℓPᴰ) where
+  {c} {ℓPᴰ} (P : Presheafⱽ c Cᴰ ℓPᴰ) where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
@@ -258,27 +205,17 @@ module PresheafⱽNotation
     → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
   ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = λ i → reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ) i .snd
 
--- Remove?
-actⱽ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-          → {x : C .Category.ob} → {ℓP : Level}
-  → (Pⱽ : Presheafⱽ Cᴰ x ℓP)
-  → ∀ {y}{yᴰ xᴰ} {f : C [ y , x ]}
-  → Cᴰ [ f ][ yᴰ , xᴰ ]
-  → ⟨ Pⱽ .F-obᴰ xᴰ (C .Category.id) ⟩
-  → ⟨ Pⱽ .F-obᴰ yᴰ f ⟩
-actⱽ {C = C} Pⱽ fᴰ pⱽ =
-  subst (λ f → ⟨ Pⱽ .F-obᴰ _ f ⟩) (C .Category.⋆IdR _) (Pⱽ .F-homᴰ  fᴰ _ pⱽ)
-
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-         (x : C .Category.ob) (Pⱽ : Presheafⱽ Cᴰ x ℓPᴰ) where
+         (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-    module RCᴰ = Reasoning Cᴰ
     module Pⱽ = PresheafⱽNotation Pⱽ
 
-  -- A UniversalElementⱽ is the same as a UniversalElementᴰ but stated
-  -- in terms of ⋆ᴰⱽ instead of ⋆ᴰ.
+  -- A UniversalElementⱽ is equivalent to a UniversalElementᴰ but
+  -- stated in terms of Pⱽ.⋆ᴰⱽ instead of Pⱽ.⋆ᴰ, so the universality
+  -- property is simpler.
+
   record UniversalElementⱽ
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓPᴰ) where
     field
@@ -287,7 +224,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       universalⱽ : ∀ {y yᴰ}{f : C [ y , x ]} →
         isIso λ (fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]) → fᴰ Pⱽ.⋆ᴰⱽ elementⱽ
 
-    toUniversalᴰ : UniversalElementᴰ Cᴰ Pⱽ (selfUnivElt C x)
+    toUniversalᴰ : UniversalElementᴰ Cᴰ (selfUnivElt C x) Pⱽ
     toUniversalᴰ .UniversalElementᴰ.vertexᴰ = vertexⱽ
     toUniversalᴰ .UniversalElementᴰ.elementᴰ = elementⱽ
     toUniversalᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.inv f fᴰ =
@@ -297,22 +234,20 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         (Pⱽ.≡in $ Pⱽ.⋆ᴰid≡⋆ᴰⱽ _ _)
         ∙ (Pⱽ.≡in $ universalⱽ .snd .fst fᴰ)
     toUniversalᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.leftInv f fᴰ =
-      RCᴰ.rectify $ RCᴰ.≡out $
-        (RCᴰ.≡in $ (λ i → universalⱽ .fst (Pⱽ.⋆ᴰid≡⋆ᴰⱽ fᴰ elementⱽ i)))
-        ∙ (RCᴰ.≡in $ universalⱽ .snd .snd fᴰ)
-  module UniversalElementⱽNotation (ueⱽ : UniversalElementⱽ) where
-    open UniversalElementⱽ ueⱽ public
-    open UniversalElementᴰNotation Cᴰ Pⱽ (UniversalElementⱽ.toUniversalᴰ ueⱽ)
-      public
+      Cᴰ.rectify $ Cᴰ.≡out $
+        (Cᴰ.≡in $ (λ i → universalⱽ .fst (Pⱽ.⋆ᴰid≡⋆ᴰⱽ fᴰ elementⱽ i)))
+        ∙ (Cᴰ.≡in $ universalⱽ .snd .snd fᴰ)
+
+    open UniversalElementᴰ toUniversalᴰ hiding (module Pshᴰ)
     module Pshⱽ = PresheafⱽNotation Pⱽ
+
     introⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → Cᴰ.v[ x ] [ xᴰ , vertexᴰ ]
-    introⱽ = introᴰ C.id
+    introⱽ = introᴰ
 
     βⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {pᴰ : Pⱽ.p[ f ][ yᴰ ]}
-      → introᴰ f pᴰ Pⱽ.⋆ᴰⱽ elementⱽ ≡ pᴰ
+      → introᴰ pᴰ Pⱽ.⋆ᴰⱽ elementⱽ ≡ pᴰ
     βⱽ = universalⱽ .snd .fst _
 
-
     ηⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]}
-      → fᴰ ≡ introᴰ f (fᴰ Pⱽ.⋆ᴰⱽ elementⱽ)
+      → fᴰ ≡ introᴰ (fᴰ Pⱽ.⋆ᴰⱽ elementⱽ)
     ηⱽ = sym (universalⱽ .snd .snd _)

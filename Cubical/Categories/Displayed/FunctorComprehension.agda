@@ -42,7 +42,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   private
     ∫FunctorComprehension : Functor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ)
     ∫FunctorComprehension =
-      FunctorComprehension (∫Prof Pᴰ) (∫UEs Pᴰ uesᴰ)
+      FunctorComprehension (∫Prof Pᴰ) (∫ues Pᴰ uesᴰ)
     module Dᴰ = Reasoning Dᴰ
 
   open Functor
@@ -60,7 +60,6 @@ module _ {C : Category ℓC ℓC'}
          {Pᴰ : Profunctorⱽ Cᴰ Dᴰ ℓSᴰ}
          (uesⱽ : UniversalElementsⱽ Pᴰ) where
   -- WARNING: reindF
-
   -- The reind is only needed on morphisms. Would probably be
   -- preferable to have a reindF'' that is Eq on objects but path on
   -- morphisms

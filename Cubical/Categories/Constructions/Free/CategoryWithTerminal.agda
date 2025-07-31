@@ -3,6 +3,7 @@
 module Cubical.Categories.Constructions.Free.CategoryWithTerminal where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category.Base
@@ -23,7 +24,7 @@ open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Limits as Reindex
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
-open import Cubical.Categories.Displayed.Reasoning
+import Cubical.Categories.Displayed.Reasoning as Reasoning
 
 private
   variable
@@ -33,8 +34,8 @@ open Section
 open Functor
 open UniversalElementᴰ
 
-CategoryWithTerminal' : (ℓC ℓC' : Level) → Type _
-CategoryWithTerminal' ℓC ℓC' = Σ[ C ∈ Category ℓC ℓC' ] Terminal' C
+CategoryWithTerminal : (ℓC ℓC' : Level) → Type _
+CategoryWithTerminal ℓC ℓC' = Σ[ C ∈ Category ℓC ℓC' ] Terminal' C
 
 -- freely throw in a terminal object
 module _ (Ob : Type ℓg) where
@@ -72,23 +73,24 @@ module _ (Ob : Type ℓg) where
     FC .⋆Assoc = ⋆ₑAssoc
     FC .isSetHom = isSetExp
 
-    FCTerminal' : Terminal' FC
-    FCTerminal' .vertex = inr tt
-    FCTerminal' .element = tt
-    FCTerminal' .universal A .equiv-proof y =
+    FCTerminal : Terminal' FC
+    FCTerminal .vertex = inr tt
+    FCTerminal .element = tt
+    FCTerminal .universal A .equiv-proof y =
       uniqueExists !ₑ refl (λ _ _ _ → refl) (λ _ _ → isProp!ₑ _ _)
 
-    FreeCatw/Terminal' : CategoryWithTerminal' _ _
-    FreeCatw/Terminal' = (FC , FCTerminal')
+    FreeCatw/Terminal : CategoryWithTerminal _ _
+    FreeCatw/Terminal = (FC , FCTerminal)
 
-    module _ (Cᴰ : Categoryᴰ (FreeCatw/Terminal' .fst) ℓCᴰ ℓCᴰ')
-      (term'ᴰ : Terminalᴰ Cᴰ (FreeCatw/Terminal' .snd)) where
+    module _ (Cᴰ : Categoryᴰ (FreeCatw/Terminal .fst) ℓCᴰ ℓCᴰ')
+      (term'ᴰ : Terminalᴰ Cᴰ (FreeCatw/Terminal .snd)) where
 
       open TerminalᴰNotation Cᴰ term'ᴰ
 
       private
-        module FC = Category (FreeCatw/Terminal' .fst)
+        module FC = Category (FreeCatw/Terminal .fst)
         module Cᴰ = Categoryᴰ Cᴰ
+        module R = Reasoning Cᴰ
 
       -- given an interpretation of atomic objects
       module _ (ϕ : (v : Ob) → Cᴰ.ob[ inl v ]) where
@@ -116,11 +118,11 @@ module _ (Ob : Type ℓg) where
             (cong elim-F-homᴰ p) (cong elim-F-homᴰ q)
             i j
           elim-F-homᴰ {d = d} !ₑ = !tᴰ (ϕ* d)
-          elim-F-homᴰ {d = d} (isProp!ₑ f g i) = goal i
-            where
-            goal : elim-F-homᴰ f Cᴰ.≡[ isProp!ₑ f g ] elim-F-homᴰ g
-            goal = rectify Cᴰ (≡out Cᴰ (≡in Cᴰ (𝟙ηᴰ {f = f} (elim-F-homᴰ f)) ∙
-              ≡in Cᴰ (symP (𝟙ηᴰ {f = g} (elim-F-homᴰ g)))))
+          elim-F-homᴰ {d = d} (isProp!ₑ f g i) =
+            (R.rectify {p' = isProp!ₑ f g}
+              $ R.≡out
+              $ 𝟙extensionalityᴰ {f = _ , elim-F-homᴰ f}{g = _ , elim-F-homᴰ g})
+            i
 
           elim : GlobalSection Cᴰ
           elim .F-obᴰ = ϕ*
@@ -151,7 +153,7 @@ module _ (Ob : Type ℓg) where
              (ϕ : Ob → D .ob)
              where
       private
-        open Terminal'Notation term'
+        open TerminalNotation term'
         ϕ* : Ob' → D .ob
         ϕ* = Sum.elim (λ a → ϕ a) λ _ → 𝟙
 

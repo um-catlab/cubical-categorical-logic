@@ -69,17 +69,20 @@ module _ (Q : Quiver ℓQ ℓQ') where
   FREE-1,× : CartesianCategory _ _
   FREE-1,× = FreeCartesianCategory (Quiver→×Quiver Q)
 
-  ı : Interp Q (FREE-1,× .fst)
+  private
+    module FREE-1,× = CartesianCategory FREE-1,×
+
+  ı : Interp Q FREE-1,×.C
   ı ._$g_ = ↑_
   ı ._<$g>_ = ↑ₑ_
 
-  ⊆ : Functor FREE (FREE-1,× .fst)
+  ⊆ : Functor FREE FREE-1,×.C
   ⊆ = FC.rec Q ı
 
   -- the use of rec to define the functor is just to save work, since no
   -- specific behavior on non-atoms is required
-  extension : Functor (FREE-1,× .fst) (PresheafCategory FREE _)
-  extension = FCC.rec _ ((PresheafCategory FREE _ , ⊤𝓟 _ _ , ×𝓟 _ _))
+  extension : Functor FREE-1,×.C (PresheafCategory FREE _)
+  extension = FCC.rec _ (𝓟-CC _ ℓQ) -- ((PresheafCategory FREE _ , ⊤𝓟 _ _ , ×𝓟 _ _))
     (mkInterpᴰ (YO ⟅_⟆) (λ f → YO ⟪ ↑ f ⟫))
 
   commutes : YO ≡ extension ∘F ⊆
@@ -103,24 +106,21 @@ module _ (Q : Quiver ℓQ ℓQ') where
   -- same type as `extension` but very different usage, and now we *do* care
   -- about the definitional behavior on non-atoms (ie F-hom), or else we get
   -- stuck in ⊆-Full
-  nerve : Functor (FREE-1,× .fst) (PresheafCategory FREE _)
+  nerve : Functor FREE-1,×.C (PresheafCategory FREE _)
   nerve .F-ob Γ .F-ob A =
-    (FREE-1,× .fst) [ ⊆ ⟅ A ⟆ , Γ ] , FREE-1,× .fst .isSetHom
-  nerve .F-ob Γ .F-hom t = λ δ → ⊆ ⟪ t ⟫ ⋆⟨ FREE-1,× .fst ⟩ δ
-  nerve .F-ob Γ .F-id = funExt (FREE-1,× .fst .⋆IdL)
-  nerve .F-ob Γ .F-seq _ _ = funExt (λ _ → FREE-1,× .fst .⋆Assoc _ _ _)
-  nerve .F-hom δ = natTrans (λ _ → λ δ' → δ' ⋆⟨ FREE-1,× .fst ⟩ δ)
-    (λ _ → funExt (λ _ → FREE-1,× .fst .⋆Assoc _ _ _))
-  nerve .F-id = makeNatTransPath (funExt (λ _ → funExt (FREE-1,× .fst .⋆IdR)))
+    FREE-1,×.C [ ⊆ ⟅ A ⟆ , Γ ] , FREE-1,×.C .isSetHom
+  nerve .F-ob Γ .F-hom t = λ δ → ⊆ ⟪ t ⟫ ⋆⟨ FREE-1,×.C ⟩ δ
+  nerve .F-ob Γ .F-id = funExt (FREE-1,×.C .⋆IdL)
+  nerve .F-ob Γ .F-seq _ _ = funExt (λ _ → FREE-1,×.C .⋆Assoc _ _ _)
+  nerve .F-hom δ = natTrans (λ _ → λ δ' → δ' ⋆⟨ FREE-1,×.C ⟩ δ)
+    (λ _ → funExt (λ _ → FREE-1,×.C .⋆Assoc _ _ _))
+  nerve .F-id = makeNatTransPath (funExt (λ _ → funExt (FREE-1,×.C .⋆IdR)))
   nerve .F-seq _ _ = makeNatTransPath
-    (funExt (λ _ → funExt (λ _ → sym (FREE-1,× .fst .⋆Assoc _ _ _))))
+    (funExt (λ _ → funExt (λ _ → sym (FREE-1,×.C .⋆Assoc _ _ _))))
 
   S : Section nerve (PRESHEAFᴰ FREE _ _)
   S = FCC.elimLocal _
-    -- tried to put this in Presheaf.Cartesian but it hangs :/
-    (_ , (isFibrationPRESHEAFᴰ _ _ _)
-       , hasAllTerminalⱽPRESHEAFᴰ _ _ _
-       , hasAllBinProductⱽPRESHEAFᴰ _ _ _)
+    (𝓟-CCⱽ FREE _ _)
     (mkInterpᴰ
       OB
       HOM)
@@ -128,38 +128,38 @@ module _ (Q : Quiver ℓQ ℓQ') where
     OB : (o : FREE .ob) → Presheafᴰ FREE _ _ (nerve ⟅ ⊆ ⟅ o ⟆ ⟆)
     OB o .F-ob (o' , o'→×o) = (Σ[ f ∈ FREE [ o' , o ] ] ⊆ ⟪ f ⟫ ≡ o'→×o) ,
       isSetΣ (FREE .isSetHom)
-      (λ _ → isSet→isGroupoid (FREE-1,× .fst .isSetHom) _ _)
+      (λ _ → isSet→isGroupoid (FREE-1,×.C .isSetHom) _ _)
     OB o .F-hom {x = o',o'→×o} {y = o'',o''→×o} (o''→o' , p) =
       λ (witness-o'→o , q) → witness-o'→o ∘⟨ FREE ⟩ o''→o' ,
-      ⊆ .F-seq _ _ ∙ congS (λ x → ⊆ ⟪ o''→o' ⟫ ⋆⟨ FREE-1,× .fst ⟩ x) q ∙ p
+      ⊆ .F-seq _ _ ∙ congS (λ x → ⊆ ⟪ o''→o' ⟫ ⋆⟨ FREE-1,×.C ⟩ x) q ∙ p
     OB o .F-id = funExt (λ _ → ΣPathP (FREE .⋆IdL _ ,
-      isSet→SquareP (λ _ _ → FREE-1,× .fst .isSetHom) _ _ _ _))
+      isSet→SquareP (λ _ _ → FREE-1,×.C .isSetHom) _ _ _ _))
     OB o .F-seq _ _ = funExt (λ _ → ΣPathP (FREE .⋆Assoc _ _ _ ,
-      isSet→SquareP (λ _ _ → FREE-1,× .fst .isSetHom) _ _ _ _))
+      isSet→SquareP (λ _ _ → FREE-1,×.C .isSetHom) _ _ _ _))
     HOM : (e : Q.mor) →
       𝓟FREEᴰ.Hom[ nerve ⟪ ⊆ ⟪ ↑ e ⟫ ⟫ ][ OB (Q.dom e) , OB (Q.cod e) ]
     HOM e = natTrans
       (λ (o , o→×∙e) (witness-o→∙e , p) →
         ↑ e ∘⟨ FREE ⟩ witness-o→∙e , ⊆ .F-seq _ _ ∙
-        congS (λ x → ⊆ ⟪ ↑ e ⟫ ∘⟨ FREE-1,× .fst ⟩ x) p)
+        congS (λ x → ⊆ ⟪ ↑ e ⟫ ∘⟨ FREE-1,×.C ⟩ x) p)
       λ f → funExt (λ _ → ΣPathP (FREE .⋆Assoc _ _ _ ,
-        isSet→SquareP (λ _ _ → FREE-1,× .fst .isSetHom) _ _ _ _))
+        isSet→SquareP (λ _ _ → FREE-1,×.C .isSetHom) _ _ _ _))
 
   opaque
     unfolding
       isFibrationPRESHEAFᴰ
     ⊆-Full : isFull ⊆
-    ⊆-Full o o' F[f] = ∣ f , p ∙ FREE-1,× .fst .⋆IdL _ ∣₁
+    ⊆-Full o o' F[f] = ∣ f , p ∙ FREE-1,×.C .⋆IdL _ ∣₁
       where
       ⊆[→o'] : 𝓟FREEᴰ.ob[ nerve ⟅ ⊆ ⟅ o' ⟆ ⟆ ]
       ⊆[→o'] = S .F-obᴰ (⊆ ⟅ o' ⟆)
       ⊆[→o']* : 𝓟FREEᴰ.ob[ nerve ⟅ ⊆ ⟅ o ⟆ ⟆ ]
       ⊆[→o']* = isFibrationPRESHEAFᴰ _ _ _ ⊆[→o'] (nerve ⟪ F[f] ⟫) .f*yᴰ
-      f,p : ⟨ ⊆[→o']* ⟅ o , FREE-1,× .fst .id ⟆ ⟩
-      f,p = (S .F-homᴰ F[f] ⟦ o , FREE-1,× .fst .id ⟧) (FREE .id , refl)
+      f,p : ⟨ ⊆[→o']* ⟅ o , FREE-1,×.C .id ⟆ ⟩
+      f,p = (S .F-homᴰ F[f] ⟦ o , FREE-1,×.C .id ⟧) (FREE .id , refl)
       f : FREE [ o , o' ]
       f = f,p .fst
-      p : ⊆ ⟪ f ⟫ ≡ FREE-1,× .fst .id ⋆⟨ FREE-1,× .fst ⟩ F[f]
+      p : ⊆ ⟪ f ⟫ ≡ FREE-1,×.C .id ⋆⟨ FREE-1,×.C ⟩ F[f]
       p = f,p .snd
 
   ⊆-FullyFaithful : isFullyFaithful ⊆

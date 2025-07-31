@@ -81,6 +81,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     open UniversalElementᴰ termᴰ
     open TerminalNotation term'
 
+    module 𝟙ueᴰ = UniversalElementᴰ termᴰ
+
     𝟙ᴰ : Cᴰ.ob[ 𝟙 ]
     𝟙ᴰ = vertexᴰ
 
@@ -96,8 +98,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       , λ _ → sym $ ∫ue.η)
 
 
-    !tᴰ-extensionality : ∀ {cc'} {f g : (∫C Cᴰ) [ cc' , (𝟙 , 𝟙ᴰ) ]} → f ≡ g
-    !tᴰ-extensionality = UniversalElementNotation.extensionality ∫term refl
+    𝟙extensionalityᴰ : ∀ {cc'} {f g : (∫C Cᴰ) [ cc' , (𝟙 , 𝟙ᴰ) ]} → f ≡ g
+    𝟙extensionalityᴰ = UniversalElementNotation.extensionality ∫term refl
 
   module _ (c : C .ob) where
     -- Vertical terminal object over a fixed object

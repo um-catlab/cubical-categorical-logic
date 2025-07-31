@@ -73,8 +73,8 @@ QUIVER .QuiverOver.dom = dom
 QUIVER .QuiverOver.cod = cod
 
 FQ = Free.FC OB QUIVER
-T = (Free.FCTerminal' OB QUIVER)
-open Terminal'Notation T
+T = (Free.FCTerminal OB QUIVER)
+open TerminalNotation T
 
 [b] : FQ .ob
 [b] = inl b
@@ -89,7 +89,7 @@ boolToExp = if_then [t] else [f]
 [t]≠[f] : ¬ ([t] ≡ [f])
 [t]≠[f] = λ p → true≢false (cong n p) where
   sem : Functor FQ (SET ℓ-zero)
-  sem = Free.rec _ QUIVER (SET _) terminal'SET ıO λ
+  sem = Free.rec _ QUIVER (SET _) TerminalSET ıO λ
       { t → λ _ → true ; f → λ _ → false ; d → λ _ → tt* }
     where
     ıO : OB → hSet ℓ-zero
@@ -113,12 +113,12 @@ canonicity = λ exp → fixup (Canonicalize .F-homᴰ exp _ _)
 
   Canonicalize : Section pts (SETᴰ _ _)
   Canonicalize = elimLocal _ _ _ _
-    (SETᴰ.hasVerticalTerminals _)
+    (TerminalsⱽSETᴰ _)
     (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
        ; b exp → CanonicalForm exp , isSetCanonicalForm
        })
-    λ { f → λ ⟨⟩ _ → inr (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙η' refl)
-      ; t → λ ⟨⟩ _ → inl (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙η' refl)
+    λ { f → λ ⟨⟩ _ → inr (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
+      ; t → λ ⟨⟩ _ → inl (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
       ; d → λ x _ → tt* }
 
   fixup : ∀ {e}

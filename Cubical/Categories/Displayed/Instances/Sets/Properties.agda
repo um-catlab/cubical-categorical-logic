@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Displayed.Instances.Sets.Properties where
 
 open import Cubical.Foundations.Prelude
@@ -45,30 +45,28 @@ isFibrationSETᴰ cᴰ' f .isCartesian .fst = λ z₁ → z₁
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .fst _ = refl
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .snd _ = refl
 
-hasVerticalTerminals : hasAllTerminalⱽ (SETᴰ ℓ ℓ')
-hasVerticalTerminals A .vertexⱽ a = Unit* , isSetUnit*
-hasVerticalTerminals A .elementⱽ = tt
-hasVerticalTerminals A .universalⱽ .fst = λ _ x _ → tt*
-hasVerticalTerminals A .universalⱽ .snd .fst b = refl
-hasVerticalTerminals A .universalⱽ .snd .snd a = refl
+TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
+TerminalsⱽSETᴰ A .vertexⱽ a = Unit* , isSetUnit*
+TerminalsⱽSETᴰ A .elementⱽ = tt
+TerminalsⱽSETᴰ A .universalⱽ .fst = λ _ x _ → tt*
+TerminalsⱽSETᴰ A .universalⱽ .snd .fst b = refl
+TerminalsⱽSETᴰ A .universalⱽ .snd .snd a = refl
 
-hasVerticalBinProds : hasAllBinProductⱽ (SETᴰ ℓ ℓ')
-hasVerticalBinProds {x = A} (Aᴰ₁ , Aᴰ₂) .vertexⱽ a =
+BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
+BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .vertexⱽ a =
   (⟨ Aᴰ₁ a ⟩ × ⟨ Aᴰ₂ a ⟩) , (isSet× (Aᴰ₁ a .snd) (Aᴰ₂ a .snd))
-hasVerticalBinProds (A₁ , A₂) .elementⱽ = (λ x₁ z → z .fst) , (λ x₁ z → z .snd)
-hasVerticalBinProds (A₁ , A₂) .universalⱽ .fst x x₁ x₂ =
+BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .elementⱽ = (λ _ → fst) , (λ _ → snd)
+BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .universalⱽ .fst x x₁ x₂ =
   x .fst x₁ x₂ , x .snd x₁ x₂
--- sad transportRefl here
-hasVerticalBinProds (A₁ , A₂) .universalⱽ .snd .fst b =
+BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .universalⱽ .snd .fst b =
   sym $ transport-filler _ _
-
 -- the transports here are caused by the fact that vertical
 -- composition is defined using reindexing :/ the only way to avoid
 -- this would be to "fatten" the definition of displayed categories to
 -- include the "redundant" vertical and heterogeneous compositions
 -- then in the case of nice examples like SETᴰ (and possibly
 -- PRESHEAFᴰ) we would get that there is no transport required
-hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd .snd  a =
+BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .universalⱽ {y = B} {yᴰ = Bᴰ} {f} .snd .snd a =
   funExt₂ λ b bᴰ →
   ΣPathP
    ( fromPathP (λ i → a
@@ -83,7 +81,7 @@ hasVerticalBinProds (A₁ , A₂) .universalⱽ {y = B}{yᴰ = Bᴰ}{f = f} .snd
 
 SETᴰCartesianCategoryⱽ :
   ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
-SETᴰCartesianCategoryⱽ ℓ ℓ' .fst = SETᴰ ℓ ℓ'
-SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .fst = isFibrationSETᴰ
-SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .fst = hasVerticalTerminals
-SETᴰCartesianCategoryⱽ ℓ ℓ' .snd .snd .snd = hasVerticalBinProds
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.Cᴰ = SETᴰ ℓ ℓ'
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.termⱽ = TerminalsⱽSETᴰ
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.bpⱽ = BinProductsⱽSETᴰ
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts = isFibrationSETᴰ

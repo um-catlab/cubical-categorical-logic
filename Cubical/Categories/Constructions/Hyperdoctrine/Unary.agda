@@ -9,7 +9,6 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Instances.Posets.Base
 open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
-open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
 
 private
@@ -24,7 +23,7 @@ record Hyperdoctrine ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     bp : BinProducts cc
     func : Functor (cc  ^op) (POSETADJ ℓ ℓ')
 
-  open Notation cc bp
+  open BinProductsNotation bp
   open HasBothAdj
 
   field

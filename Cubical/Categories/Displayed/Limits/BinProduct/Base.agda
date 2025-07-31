@@ -4,7 +4,7 @@ module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma as Σ hiding (_×_)
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
@@ -43,14 +43,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
 
   BinProductᴰ : ∀ {c12}
     → BinProduct C c12
-    → (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ])
+    → (Cᴰ.ob[ c12 .fst ] Σ.× Cᴰ.ob[ c12 .snd ])
     → Type _
   BinProductᴰ bp (cᴰ₁ , cᴰ₂) =
     UniversalElementᴰ Cᴰ bp (BinProductᴰProf' .Bif-obᴰ cᴰ₁ cᴰ₂)
 
   BinProductsᴰ : BinProducts C → Type _
   BinProductsᴰ bp =
-    ∀ {c12} (cᴰ12 : (Cᴰ.ob[ c12 .fst ] × Cᴰ.ob[ c12 .snd ]))
+    ∀ {c12} (cᴰ12 : (Cᴰ.ob[ c12 .fst ] Σ.× Cᴰ.ob[ c12 .snd ]))
     → BinProductᴰ (bp c12) cᴰ12
 
   ProdWithAProfᴰ : ∀ {c} (cᴰ : Cᴰ.ob[ c ])
@@ -75,7 +75,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   BinProductProfⱽ =
     PshProdⱽ ∘Fⱽᴰ ((YOᴰ ∘Fᴰⱽ Fstⱽ Cᴰ Cᴰ) ,Fⱽ (YOᴰ ∘Fᴰⱽ Sndⱽ Cᴰ Cᴰ))
 
-  BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] × Cᴰ.ob[ c ]) → Type _
+  BinProductⱽ : ∀ {c} → (Cᴰ.ob[ c ] Σ.× Cᴰ.ob[ c ]) → Type _
   BinProductⱽ {c} (cᴰ₁ , cᴰ₂) =
     UniversalElementⱽ Cᴰ c (BinProductProfⱽ .F-obᴰ (cᴰ₁ , cᴰ₂))
 
@@ -97,7 +97,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
 
     -- shorthand for terminal vertical cone
     π₁₂ :
-      Cᴰ.Hom[ C .id ][ vert , cᴰ ] × Cᴰ.Hom[ C .id ][ vert , cᴰ' ]
+      Cᴰ.Hom[ C .id ][ vert , cᴰ ] Σ.× Cᴰ.Hom[ C .id ][ vert , cᴰ' ]
     π₁₂ = elementⱽ
     π₁ = π₁₂ .fst
     π₂ = π₁₂ .snd
@@ -149,3 +149,52 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
         ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
           → fᴰ ≡ (fᴰ Cⱽ.⋆ᴰⱽ π₁ ,ⱽ fᴰ Cⱽ.⋆ᴰⱽ  π₂)
         ×ηⱽ = ηⱽ
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+
+  module BinProductᴰNotation {c d} {cᴰ : Cᴰ.ob[ c ]}{dᴰ : Cᴰ.ob[ d ]}
+    {bp : BinProduct C (c , d)}
+    (bpᴰ : BinProductᴰ Cᴰ bp (cᴰ , dᴰ))
+    where
+    module ×ueᴰ = UniversalElementᴰ bpᴰ
+    open ×ueᴰ
+    open BinProductNotation bp
+
+    π₁ᴰ = elementᴰ .fst
+    π₂ᴰ = elementᴰ .snd
+    _,pᴰ_ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
+      {f₁ f₂}
+      (f₁ᴰ : Cᴰ [ f₁ ][ Γᴰ , cᴰ ])
+      (f₂ᴰ : Cᴰ [ f₂ ][ Γᴰ , dᴰ ])
+      → Cᴰ [ f₁ ,p f₂ ][ Γᴰ , vertexᴰ ]
+    f₁ᴰ ,pᴰ f₂ᴰ = introᴰ (f₁ᴰ , f₂ᴰ)
+
+    module _ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
+      {f₁ f₂}
+      {f₁ᴰ : Cᴰ [ f₁ ][ Γᴰ , cᴰ ]}
+      {f₂ᴰ : Cᴰ [ f₂ ][ Γᴰ , dᴰ ]}
+      where
+      private
+        ×βᴰ = ×ueᴰ.βᴰ {p = _ , f₁ᴰ , f₂ᴰ}
+
+      ×βᴰ₁ : Path Cᴰ.Hom[ _ , _ ] (_ , (f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₁ᴰ) (_ , f₁ᴰ)
+      ×βᴰ₁ i .fst = ×βᴰ i .fst .fst
+      ×βᴰ₁ i .snd = ×βᴰ i .snd .fst
+
+      ×βᴰ₂ : Path Cᴰ.Hom[ _ , _ ] (_ , (f₁ᴰ ,pᴰ f₂ᴰ) Cᴰ.⋆ᴰ π₂ᴰ) (_ , f₂ᴰ)
+      ×βᴰ₂ i .fst = ×βᴰ i .fst .snd
+      ×βᴰ₂ i .snd = ×βᴰ i .snd .snd
+
+  module BinProductsᴰNotation {bp : BinProducts C}(bpᴰ : BinProductsᴰ Cᴰ bp)
+    where
+    open BinProductsNotation bp
+    _×ᴰ_ : ∀ {c d} → Cᴰ.ob[ c ] → Cᴰ.ob[ d ] → Cᴰ.ob[ c × d ]
+    cᴰ ×ᴰ dᴰ = UniversalElementᴰ.vertexᴰ (bpᴰ (cᴰ , dᴰ))
+
+    module _ {c d}{cᴰ : Cᴰ.ob[ c ]}{dᴰ : Cᴰ.ob[ d ]} where
+      open BinProductᴰNotation (bpᴰ (cᴰ , dᴰ)) hiding (module ×ueᴰ) public
+    module ×ueᴰ {c d}(cᴰ : Cᴰ.ob[ c ])(dᴰ : Cᴰ.ob[ d ]) =
+      BinProductᴰNotation.×ueᴰ (bpᴰ (cᴰ , dᴰ))

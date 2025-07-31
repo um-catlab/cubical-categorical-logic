@@ -75,56 +75,57 @@ module _ where
   FREECC : CartesianCategory _ _
   FREECC = FreeCartesianCategory QUIVER
 
-  open CartesianCategoryNotation FREECC
-  open Terminal'Notation CCTerminal'
+  private
+    module FREECC = CartesianCategory FREECC
+  open TerminalNotation FREECC.term
+  open BinProductsNotation FREECC.bp
 
-  [ans] : FREECC .fst .ob
+  [ans] : FREECC.C .ob
   [ans] = ↑ ans
 
-  [t] [f] : FREECC .fst [ 𝟙 , [ans] ]
-  [t] = (↑ₑ (t,f)) ⋆ₑ π₁
-  [f] = (↑ₑ (t,f)) ⋆ₑ π₂
+  [t] [f] : FREECC.C [ 𝟙 , [ans] ]
+  [t] = (↑ₑ (t,f)) ⋆ₑ Exp.π₁
+  [f] = (↑ₑ (t,f)) ⋆ₑ Exp.π₂
 
   [t]≠[f] : ¬ ([t] ≡ [f])
   [t]≠[f] p = true≢false (cong n p)
     where
-    sem : Functor (FREECC .fst) (SET ℓ-zero)
+    sem : Functor (FREECC.C) (SET ℓ-zero)
     sem = Law.rec _
-      (SET ℓ-zero , Terminal'ToTerminal terminal'SET
-                  , BinProducts'ToBinProducts _ BinProducts'SET)
+      SETCC
       (mkInterpᴰ (λ { ans → Bool , isSetBool })
                  (λ { t,f (lift tt) → true , false }))
-    n : FREECC .fst [ 𝟙 , [ans] ] → Bool
+    n : FREECC.C [ 𝟙 , [ans] ] → Bool
     n e = (sem ⟪ e ⟫) tt*
 
-  CanonicalForm : FREECC .fst [ 𝟙 , [ans] ] → Type ℓ-zero
+  CanonicalForm : FREECC.C [ 𝟙 , [ans] ] → Type ℓ-zero
   CanonicalForm e = ([t] ≡ e) ⊎ ([f] ≡ e)
 
   isSetCanonicalForm : ∀ {e} → isSet (CanonicalForm e)
   isSetCanonicalForm {e = e} = isSet⊎
-    (isProp→isSet (FREECC .fst .isSetHom [t] e))
-    (isProp→isSet (FREECC .fst .isSetHom [f] e))
+    (isProp→isSet (FREECC.C .isSetHom [t] e))
+    (isProp→isSet (FREECC.C .isSetHom [f] e))
 
   canonicity : ∀ e → CanonicalForm e
   canonicity e = fixup (Canonicalize .F-homᴰ e _ _)
     where
-    pts = FREECC .fst [ 𝟙 ,-]
+    pts = FREECC.C [ 𝟙 ,-]
     Canonicalize : Section pts (SETᴰ _ _)
     Canonicalize = elimLocal _ (SETᴰCartesianCategoryⱽ _ _)
       (mkInterpᴰ
         (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
         (λ { t,f ⟨⟩ (lift tt) →
-          (inl (sym (FREECC .fst .⋆IdL _)
-               ∙ cong₂ (seq' (FREECC .fst)) 𝟙η' refl
-               ∙ sym (FREECC .fst .⋆Assoc _ _ _)))
-          , inr (sym (FREECC .fst .⋆IdL _)
-               ∙ cong₂ (seq' (FREECC .fst)) 𝟙η' refl
-               ∙ sym (FREECC .fst .⋆Assoc _ _ _))
+          (inl (sym (FREECC.C .⋆IdL _)
+               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
+               ∙ sym (FREECC.C .⋆Assoc _ _ _)))
+          , inr (sym (FREECC.C .⋆IdL _)
+               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
+               ∙ sym (FREECC.C .⋆Assoc _ _ _))
         }))
     fixup : ∀{e'} →
-      ([t] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') ⊎
-      ([f] ≡ FREECC .fst .id ⋆⟨ FREECC .fst ⟩ e') →
+      ([t] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') ⊎
+      ([f] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') →
       CanonicalForm e'
     fixup {e'} = Sum.elim
-      (λ p → inl (p ∙ FREECC .fst .⋆IdL e'))
-      (λ p → inr (p ∙ FREECC .fst .⋆IdL e'))
+      (λ p → inl (p ∙ FREECC.C .⋆IdL e'))
+      (λ p → inr (p ∙ FREECC.C .⋆IdL e'))

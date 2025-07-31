@@ -8,9 +8,10 @@ open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Limits.BinProduct
+open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
-open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
@@ -32,43 +33,33 @@ private variable
 
 open Category
 open Functor
-open BinProduct
 open Bifunctor
 open NatTrans
 open UniversalElement
 
 module _ (C : Category ℓ ℓ') (ℓS : Level) where
-  private 𝓟 = PresheafCategory C ℓS
 
-  ⊤𝓟 : Terminal 𝓟
-  ⊤𝓟 = Constant _ _ (Unit* , isSetUnit*) ,
-    λ _ → natTrans (λ _ _  → tt*) (λ _  → refl) ,
-      λ _  → makeNatTransPath (funExt λ _ →  funExt λ _  → isPropUnit* _ _)
+  ⊤𝓟 : Terminal' (PresheafCategory C ℓS)
+  ⊤𝓟 .vertex = Constant _ _ (Unit* , isSetUnit*)
+  ⊤𝓟 .element = tt
+  ⊤𝓟 .universal _ = isIsoToIsEquiv
+    ( (λ _ → natTrans (λ _ _ → tt*) (λ _ → refl))
+    , (λ _ → refl)
+    , (λ _ → makeNatTransPath refl))
 
-  ×𝓟 : BinProducts 𝓟
-  ×𝓟 A B .binProdOb = PshProd ⟅ A , B ⟆b
-  ×𝓟 A B .binProdPr₁ = natTrans (λ _ (a , _) → a) λ _ → funExt λ{_ → refl}
-  ×𝓟 A B .binProdPr₂ = natTrans (λ _ (_ , b) → b) λ _ → funExt λ{_ → refl}
-  ×𝓟 A B .univProp f g =
-    uniqueExists
+  ×𝓟 : BinProducts (PresheafCategory C ℓS)
+  ×𝓟 (P₁ , P₂) .vertex = PshProd ⟅ P₁ , P₂ ⟆b
+  ×𝓟 (P₁ , P₂) .element .fst = natTrans ((λ _ (a , _) → a)) (λ _ → funExt λ{_ → refl})
+  ×𝓟 (P₁ , P₂) .element .snd = natTrans (λ _ (_ , b) → b) λ _ → funExt λ{_ → refl}
+  ×𝓟 (P₁ , P₂) .universal R = isIsoToIsEquiv
+    ( (λ (f , g) →
       (natTrans (λ x z → f .N-ob x z , g .N-ob x z)
         (λ h → funExt λ z → ≡-×
-          (funExt⁻ (f .N-hom h) z) (funExt⁻ (g .N-hom h) z)))
-      (makeNatTransPath refl , makeNatTransPath refl)
-      (λ a → isProp× (isSetNatTrans _ _) (isSetNatTrans _ _))
-      λ _ (prf₁ , prf₂) → makeNatTransPath λ i x x₁ →
-        sym (prf₁) i .N-ob x x₁ , sym (prf₂) i .N-ob x x₁
+          (funExt⁻ (f .N-hom h) z) (funExt⁻ (g .N-hom h) z))))
+    , (λ _ → ΣPathP (makeNatTransPath refl , (makeNatTransPath refl)))
+    , λ _ → makeNatTransPath (funExt λ x → funExt λ y → ΣPathP (refl , refl)))
 
 module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
-  -- private
-  --   ℓp = ℓ-max ℓ' (ℓ-max ℓ ℓA)
-  --   ℓq = ℓ-max ℓ' (ℓ-max ℓ ℓB)
-  --   ℓr = ℓ-max ℓ' (ℓ-max ℓ (ℓ-max ℓA ℓB))
-
-  --   𝓟 = PresheafCategory C ℓp
-  --   𝓠 = PresheafCategory C ℓq
-  --   𝓡 = PresheafCategory C ℓr
-
   module _ (P : Presheaf C ℓA) (Q : Presheaf C ℓB) where
     private
       module C = Category C
@@ -127,17 +118,21 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
     λPsh ϕ .N-hom f = funExt (λ γ → makePshHomPath (funExt (λ x → funExt (λ (g , a) → cong (ϕ .N-ob x) (ΣPathP ((sym $ Γ.⋆Assoc _ _ _) , refl))))))
 
   ⇒𝓟 : Exponentials (PresheafCategory C ℓS') (×𝓟 C _)
-  ⇒𝓟 (Q , P) .vertex = ExpOb P Q
-  ⇒𝓟 (Q , P) .element = eval P Q
-  ⇒𝓟 (Q , P) .universal Γ = isIsoToIsEquiv
+  ⇒𝓟 (P , Q) .vertex = ExpOb P Q
+  ⇒𝓟 (P , Q) .element = eval P Q
+  ⇒𝓟 (P , Q) .universal Γ = isIsoToIsEquiv
     ( λPsh P Q Γ
     , (λ α → makeNatTransPath (funExt (λ x → funExt (λ (f , p) → cong (α .N-ob x) (ΣPathP ((funExt⁻ (Γ .F-id) f) , refl))))))
     , λ α → makeNatTransPath (funExt (λ x → funExt (λ γ → makePshHomPath (funExt (λ y → funExt λ (f , p) →
       funExt⁻ (funExt⁻ (cong fst (funExt⁻ (α .N-hom f) γ)) y) _
       ∙ cong (α .N-ob x γ .fst y) (ΣPathP ((C.⋆IdL f) , refl))))))))
+  open CartesianCategory renaming (C to Cat)
+  open CartesianClosedCategory
+  𝓟-CC : CartesianCategory _ _
+  𝓟-CC .Cat = PresheafCategory C (ℓ-max ℓ (ℓ-max ℓ' ℓS))
+  𝓟-CC .term = ⊤𝓟 _ _
+  𝓟-CC .bp = ×𝓟 _ _
 
   𝓟-CCC : CartesianClosedCategory _ _
-  𝓟-CCC .fst = PresheafCategory C (ℓ-max ℓ (ℓ-max ℓ' ℓS))
-  𝓟-CCC .snd .fst = ⊤𝓟 C _
-  𝓟-CCC .snd .snd .fst = ×𝓟 C _
-  𝓟-CCC .snd .snd .snd = ⇒𝓟
+  𝓟-CCC .CC = 𝓟-CC
+  𝓟-CCC .exps = Exponentials→AllExponentiable _ _ ⇒𝓟

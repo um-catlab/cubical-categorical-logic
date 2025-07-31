@@ -1,5 +1,4 @@
 {-# OPTIONS --safe --lossy-unification #-}
-{- This file takes a *very* long time to type check -}
 module Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise where
 
 open import Cubical.Foundations.Prelude

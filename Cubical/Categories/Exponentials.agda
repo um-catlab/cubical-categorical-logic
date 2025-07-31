@@ -69,6 +69,9 @@ module _ (C : Category ℓC ℓC') where
     AllExponentiable→Exponentials allExp (c , d) =
       Exponentiable→Exponentials (allExp c)
 
+    Exponentials→AllExponentiable : Exponentials → AllExponentiable
+    Exponentials→AllExponentiable exps c = Exponentials→Exponentiable exps
+
   -- TODO: Exponential'' which doesn't rely on the existence of any products
   -- i.e. Exponential'' c d = UniversalElement (YO c 𝓟⇒ YO d)
 

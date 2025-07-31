@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Displayed.Constructions.Reindex.Limits where
 
 open import Cubical.Foundations.Prelude
@@ -60,14 +60,14 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   preservesTerminalⱽ c 𝟙ᴰ .elementⱽ = 𝟙ᴰ .elementⱽ
   preservesTerminalⱽ c 𝟙ᴰ .universalⱽ = 𝟙ᴰ .universalⱽ
 
-  hasAllTerminalⱽReindex : hasAllTerminalⱽ Dᴰ →
-    hasAllTerminalⱽ (Base.reindex Dᴰ F)
-  hasAllTerminalⱽReindex vtms c = preservesTerminalⱽ c (vtms (F ⟅ c ⟆))
+  TerminalsⱽReindex : Terminalsⱽ Dᴰ →
+    Terminalsⱽ (Base.reindex Dᴰ F)
+  TerminalsⱽReindex vtms c = preservesTerminalⱽ c (vtms (F ⟅ c ⟆))
 
   module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
     (vbp : BinProductⱽ Dᴰ (Fcᴰ , Fcᴰ')) where
     private
-      module Fcᴰ∧Fcᴰ' = BinProductⱽNotation vbp
+      module Fcᴰ∧Fcᴰ' = BinProductⱽNotation _ vbp
 
     preservesBinProductⱽ : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
     preservesBinProductⱽ .vertexⱽ = vbp .vertexⱽ
@@ -82,41 +82,39 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         ∙ (sym $ R.reind-filler _ _)
         ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
         ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₁ {fᴰ' = fᴰ₂}))
+        ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₁)
       , (R.rectify $ R.≡out $
         (sym $ R.reind-filler _ _)
         ∙ (sym $ R.reind-filler _ _)
         ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
         ∙ R.reind-filler _ _
-        ∙ R.≡in (Fcᴰ∧Fcᴰ'.×βⱽ₂ {fᴰ = fᴰ₁})))
+        ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₂))
     preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = R.rectify $ R.≡out $
-      (R.≡in $ congP₂ (λ _ → Fcᴰ∧Fcᴰ'._,ⱽ_)
-        (R.≡out $
-          (sym $ R.reind-filler _ _)
-          ∙ (sym $ R.reind-filler _ _)
-          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-          ∙ R.reind-filler _ _)
-        (R.≡out $
-          (sym $ R.reind-filler _ _)
-          ∙ (sym $ R.reind-filler _ _)
-          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-          ∙ R.reind-filler _ _))
-      ∙ sym (R.≡in $ Fcᴰ∧Fcᴰ'.×ηⱽ)
+      Fcᴰ∧Fcᴰ'.,ⱽ≡
+        (sym (R.reind-filler _ _)
+        ∙ sym (R.reind-filler _ _)
+        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+        ∙ R.reind-filler _ _)
+        (sym (R.reind-filler _ _)
+        ∙ sym (R.reind-filler _ _)
+        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+        ∙ R.reind-filler _ _)
 
-  hasAllBinProductⱽReindex : hasAllBinProductⱽ Dᴰ →
-    hasAllBinProductⱽ (Base.reindex Dᴰ F)
-  hasAllBinProductⱽReindex vps Fcᴰ×Fcᴰ' =
-    preservesBinProductⱽ (vps Fcᴰ×Fcᴰ')
+  BinProductsⱽReindex : BinProductsⱽ Dᴰ →
+    BinProductsⱽ (Base.reindex Dᴰ F)
+  BinProductsⱽReindex vps Fcᴰ Fcᴰ×Fcᴰ' =
+    preservesBinProductⱽ (vps _ _)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)
   (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ')
   where
 
-  isCartesianⱽReindex : isCartesianⱽ (Base.reindex (Dᴰ .fst) F)
-  isCartesianⱽReindex .fst = isFibrationReindex (Dᴰ .fst) F (Dᴰ .snd .fst)
-  isCartesianⱽReindex .snd .fst = hasAllTerminalⱽReindex (Dᴰ .snd .snd .fst)
-  isCartesianⱽReindex .snd .snd = hasAllBinProductⱽReindex (Dᴰ .snd .snd .snd)
-
+  private
+    module Dᴰ = CartesianCategoryⱽ Dᴰ
+  open CartesianCategoryⱽ
   reindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
-  reindex = Base.reindex (Dᴰ .fst) F , isCartesianⱽReindex
+  reindex .Cᴰ = Base.reindex Dᴰ.Cᴰ F
+  reindex .termⱽ = TerminalsⱽReindex Dᴰ.termⱽ
+  reindex .bpⱽ = BinProductsⱽReindex Dᴰ.bpⱽ
+  reindex .cartesianLifts = isFibrationReindex _ _ Dᴰ.cartesianLifts

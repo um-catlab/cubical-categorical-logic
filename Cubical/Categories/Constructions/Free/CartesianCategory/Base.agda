@@ -4,8 +4,10 @@ module Cubical.Categories.Constructions.Free.CartesianCategory.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma hiding (_×_)
+open import Cubical.Data.Unit
 
 open import
   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
@@ -13,8 +15,9 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
@@ -68,35 +71,35 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
   |FreeCartesianCategory| .⋆Assoc = ⋆ₑAssoc
   |FreeCartesianCategory| .isSetHom = isSetExp
 
+  open CartesianCategory
+  open UniversalElement
   FreeCartesianCategory : CartesianCategory _ _
-  FreeCartesianCategory .fst = |FreeCartesianCategory|
-  FreeCartesianCategory .snd .fst = ⊤ , λ Γ → !ₑ , λ t → sym (⊤η t)
-  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdOb = Γ × Δ
-  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdPr₁ = π₁
-  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.binProdPr₂ = π₂
-  FreeCartesianCategory .snd .snd Γ Δ .BinProduct.univProp f g = uniqueExists
-    ⟨ f , g ⟩
-    (×β₁ , ×β₂)
-    (λ _ → isProp× (isSetExp _ _) (isSetExp _ _))
-    λ ⟨f,g⟩' (comm₁ , comm₂) → cong₂ ⟨_,_⟩ (sym comm₁) (sym comm₂) ∙ sym ×η
+  FreeCartesianCategory .C = |FreeCartesianCategory|
+  FreeCartesianCategory .term .vertex = ⊤
+  FreeCartesianCategory .term .element = tt
+  FreeCartesianCategory .term .universal _ =
+    isIsoToIsEquiv ((λ z → !ₑ) , ((λ b → refl) , λ _ → sym $ ⊤η _))
+  FreeCartesianCategory .bp (Γ , Δ) .vertex = Γ × Δ
+  FreeCartesianCategory .bp (Γ , Δ) .element = π₁ , π₂
+  FreeCartesianCategory .bp (Γ , Δ) .universal Θ = isIsoToIsEquiv
+    ( (λ z → ⟨ z .fst , z .snd ⟩)
+    , (λ _ → ΣPathP (×β₁ , ×β₂))
+    , (λ _ → sym $ ×η))
 
   module _
     (CCᴰ : CartesianCategoryᴰ FreeCartesianCategory ℓCᴰ ℓCᴰ')
     where
+    open CartesianCategoryᴰ CCᴰ
     private
-      Cᴰ = CCᴰ .fst
       module Cᴰ = Categoryᴰ Cᴰ
-      termᴰ = CCᴰ .snd .fst
-      bpᴰ = CCᴰ .snd .snd
-      open TerminalᴰNotation _ termᴰ
-      open hasAllBinProductᴰNotation bpᴰ
+    open TerminalᴰNotation _ termᴰ
+    open BinProductsᴰNotation bpᴰ
     open UniversalElementᴰ
     module _ (ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]) where
       elim-F-ob : ∀ c → Cᴰ.ob[ c ]
       elim-F-ob (↑ o)     = ı-ob o
       elim-F-ob ⊤         = 𝟙ᴰ
       elim-F-ob (c₁ × c₂) = elim-F-ob c₁ ×ᴰ elim-F-ob c₂
-
 
     record Interpᴰ : Type (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-max ℓCᴰ ℓCᴰ')) where
       constructor mkInterpᴰ
@@ -128,18 +131,16 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
           i j
         elim-F-hom !ₑ = !tᴰ _
         elim-F-hom (⊤η f i) =
-          R.rectify {p' = ⊤η f} (𝟙ηᴰ (elim-F-hom f)) i
+          (R.rectify {p' = ⊤η f}{fᴰ = elim-F-hom f} $ R.≡out $ 𝟙ueᴰ.ηᴰ) i
         elim-F-hom π₁ = π₁ᴰ
         elim-F-hom π₂ = π₂ᴰ
         elim-F-hom ⟨ f₁ , f₂ ⟩ = elim-F-hom f₁ ,pᴰ elim-F-hom f₂
         elim-F-hom (×β₁ {t = f₁}{t' = f₂} i) =
-          R.rectify {p' = ×β₁}
-            ((×β₁ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂})) i
+          (R.rectify {p' = ×β₁} $ R.≡out $ ×βᴰ₁ {f₁ᴰ = elim-F-hom f₁}{f₂ᴰ = elim-F-hom f₂}) i
         elim-F-hom (×β₂ {t = f₁}{t' = f₂} i) =
-          R.rectify {p' = ×β₂}
-            (×β₂ᴰ {f₁ᴰ = elim-F-hom f₁} {f₂ᴰ = elim-F-hom f₂}) i
+          (R.rectify {p' = ×β₂} $ R.≡out $ ×βᴰ₂ {f₁ᴰ = elim-F-hom f₁}{f₂ᴰ = elim-F-hom f₂}) i
         elim-F-hom (×η {t = f} i) =
-          R.rectify {p' = ×η {t = f}} (×ηᴰ {fᴰ = elim-F-hom f}) i
+          (R.rectify {p' = ×η {t = f}} $ R.≡out $ ×ueᴰ.ηᴰ _ _ {f = _ , elim-F-hom f}) i
 
         elim : GlobalSection Cᴰ
         elim .F-obᴰ = elim-F-ob ı-ob
@@ -152,19 +153,20 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     {F : Functor |FreeCartesianCategory| D}
     (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ') where
     private
-      module Dᴰ = Categoryᴰ (Dᴰ .fst)
-      F*Dᴰ-cartⱽ = CartReindex.reindex F Dᴰ
-      F*Dᴰ-cartᴰ =
-        CartesianCategoryⱽ→CartesianCategoryᴰ FreeCartesianCategory F*Dᴰ-cartⱽ
+      module Dᴰ = CartesianCategoryⱽ Dᴰ
+    F*Dᴰ-cartⱽ = CartReindex.reindex F Dᴰ
+    F*Dᴰ : CartesianCategoryᴰ FreeCartesianCategory _ _
+    F*Dᴰ = CartesianCategoryⱽ→CartesianCategoryᴰ F*Dᴰ-cartⱽ
+    open CartesianCategoryᴰ
 
-    elimLocal : ∀ (ı : Interpᴰ F*Dᴰ-cartᴰ) → Section F (Dᴰ .fst)
-    elimLocal ı = GlobalSectionReindex→Section (Dᴰ .fst) F
-        (elim F*Dᴰ-cartᴰ ı)
 
-  module _ (C : CartesianCategory ℓC ℓC') where
+    elimLocal : ∀ (ı : Interpᴰ F*Dᴰ) → Section F Dᴰ.Cᴰ
+    elimLocal ı = GlobalSectionReindex→Section _ _ (elim F*Dᴰ ı)
+
+  module _ (CC : CartesianCategory ℓC ℓC') where
     private
-      wkC = weakenCartesianCategory FreeCartesianCategory C
+      wkC = weakenCartesianCategory FreeCartesianCategory CC
     -- TODO: rec preserves finite products, should follow from
     -- properties of weaken/elim preserved displayed fin products
-    rec : (ı : Interpᴰ wkC) → Functor |FreeCartesianCategory| (C .fst)
+    rec : (ı : Interpᴰ wkC) → Functor |FreeCartesianCategory| (CC .C)
     rec ı = introS⁻ (elim wkC ı)

@@ -71,6 +71,10 @@ env:
 jobs:
   compile-agda:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - name: Install cabal
         uses: haskell-actions/setup@v2

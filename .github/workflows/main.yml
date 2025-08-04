@@ -199,14 +199,14 @@ jobs:
       ########################################################################
 
       - name: Htmlize cubical categorical logic
-        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'CI')
+        if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'workflow_dispatch'
         run: |
           make listings \
             AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace'
 
       - name: Deploy to GitHub Pages
-        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'CI')
+        if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'workflow_dispatch'
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages

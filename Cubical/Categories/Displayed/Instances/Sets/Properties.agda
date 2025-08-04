@@ -129,4 +129,49 @@ module _ {ℓ} {ℓ'} where
   open Exponentialⱽ
   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
   ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ = {!!}
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof g .fst .fst b bᴰ aᴰ = g b (bᴰ , aᴰ)
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof g .fst .snd =
+    -- TODO : Stuck here
+    -- action SETᴰ.v[ B ]
+    --  (F-ob
+    --   (ExponentiableProf SETᴰ.v[ B ]
+    --    (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
+    --     (λ cᴰ'' →
+    --        BinProductsⱽSETᴰ B
+    --        (cᴰ'' ,
+    --         F-ob (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) Aᴰ))))
+    --   (F-ob (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) Aᴰ'))
+    --  (ExponentialsⱽSETᴰ Aᴰ Aᴰ' .reindex⇒ f Bᴰ .equiv-proof g .fst .fst)
+    --  (preservesExpCone
+    --   (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f)
+    --   (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
+    --    (λ cᴰ'' → BinProductsⱽSETᴰ A (cᴰ'' , Aᴰ)))
+    --   (λ z →
+    --      cartesianLift-preserves-BinProductFiber (SETᴰ ℓ ℓ') isFibrationSETᴰ
+    --      (BinProductsⱽSETᴰ A (z , Aᴰ)) f)
+    --   (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
+    --    (λ cᴰ'' →
+    --       BinProductsⱽSETᴰ B
+    --       (cᴰ'' ,
+    --        F-ob (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) Aᴰ)))
+    --   Aᴰ' .fst (ExponentialsⱽSETᴰ Aᴰ Aᴰ' .cᴰ⇒cᴰ' .vertex)
+    --   (ExponentialsⱽSETᴰ Aᴰ Aᴰ' .cᴰ⇒cᴰ' .element))
+    {!!}
+    ≡⟨ {!!} ⟩
+    g
+    ∎
+    where
+    --                  g
+    -- Bᴰ ×ⱽ f* Aᴰ -------------> Aᴰ'
+    --    |                       |
+    --    |                       |
+    --    |                       |
+    --    v                       v
+    --    B --------------------> A
+    --             f
+    g' : (SETᴰ ℓ ℓ') [ f ][ BinProductsⱽSETᴰ B (Bᴰ , (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) .F-ob Aᴰ) .vertexⱽ , Aᴰ' ]
+    g' = g
+    -- funExt₂ (λ where
+    --   b (bᴰ , aᴰ) → {!g!}
+    -- )
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof g .snd = {!!}

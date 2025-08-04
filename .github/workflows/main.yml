@@ -194,7 +194,7 @@ jobs:
       ## HTML GENERATION
       ########################################################################
 
-      - name: Htmlize cubical
+      - name: Htmlize cubical categorical logic
         if: github.event_name == 'push' && github.ref_name == 'master'
         run: |
           make listings \

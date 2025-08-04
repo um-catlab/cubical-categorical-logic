@@ -3,20 +3,30 @@ module Cubical.Categories.Displayed.Instances.Sets.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Transport
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Adjoint.UniversalElements
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
+open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Exponentials
+
+open import Cubical.Categories.Constructions.Fiber
 
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration.Base
@@ -24,7 +34,9 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct
+open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Exponentials.Base
 
 
 private
@@ -85,3 +97,36 @@ SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.Cᴰ = SETᴰ ℓ ℓ'
 SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.termⱽ = TerminalsⱽSETᴰ
 SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.bpⱽ = BinProductsⱽSETᴰ
 SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts = isFibrationSETᴰ
+
+
+module _ {ℓ} {ℓ'} where
+  private
+    module SETᴰ = Fibers (SETᴰ ℓ ℓ')
+
+    bpw : (A : Category.ob (SET ℓ)) → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
+      UniversalElement SETᴰ.v[ A ] _
+    bpw A Aᴰ =
+      (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
+        (λ cᴰ' → BinProductsⱽSETᴰ A (cᴰ' , Aᴰ)))
+
+  open Functor
+  open UniversalElement
+  FiberExponentialSETᴰ : (A : Category.ob (SET ℓ)) → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
+    Exponential SETᴰ.v[ A ] Aᴰ Aᴰ' (bpw A Aᴰ)
+  FiberExponentialSETᴰ A Aᴰ Aᴰ' .vertex a .fst = ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩
+  FiberExponentialSETᴰ A Aᴰ Aᴰ' .vertex a .snd = isSet→ (str (Aᴰ' a))
+  FiberExponentialSETᴰ A Aᴰ Aᴰ' .element a (f , aᴰ) = f aᴰ
+  FiberExponentialSETᴰ A Aᴰ Aᴰ' .universal Aᴰ'' .equiv-proof f .fst .fst a aᴰ'' aᴰ = f a (aᴰ'' , aᴰ)
+  FiberExponentialSETᴰ A Aᴰ Aᴰ' .universal Aᴰ'' .equiv-proof f .fst .snd =
+    fromPathP (λ i → transport-filler (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ × ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))
+  FiberExponentialSETᴰ A Aᴰ Aᴰ' .universal Aᴰ'' .equiv-proof f .snd (g , x) =
+    ΣPathP (
+      funExt₂ (λ a aᴰ'' → funExt λ aᴰ → sym (funExt⁻ (funExt⁻ x a) (aᴰ'' , aᴰ)))
+      ∙ fromPathP (λ i → transport-filler (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) g (~ i)) ,
+      isSet→SquareP (λ _ _ → str (RightAdjointProf (BinProductWithF SETᴰ.v[ A ] (bpw A Aᴰ)) .F-ob Aᴰ' .F-ob Aᴰ'')) _ _ _ _
+      )
+
+  open Exponentialⱽ
+  ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ = {!!}

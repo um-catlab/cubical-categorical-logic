@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Multicategory.Planar</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">--{-# OPTIONS --rewriting #-}</a>
+
+<a id="32" class="Keyword">module</a> <a id="39" href="Multicategory.Planar.html" class="Module">Multicategory.Planar</a> <a id="60" class="Keyword">where</a>
+
+<a id="67" class="Comment">-- open import Cubical.Foundations.Prelude</a>
+
+<a id="111" class="Comment">-- open import Context</a>
+<a id="134" class="Comment">-- private</a>
+<a id="145" class="Comment">--   variable</a>
+<a id="159" class="Comment">--     ℓo ℓh ℓ ℓ&#39; ℓ&#39;&#39; : Level</a>
+
+<a id="190" class="Comment">-- record Multicategory ℓo ℓh : Type (ℓ-suc (ℓ-max ℓo ℓh)) where</a>
+<a id="255" class="Comment">--   field</a>
+<a id="266" class="Comment">--     Ob  : Type ℓo</a>
+<a id="287" class="Comment">--     Hom : Ctx Ob → Ob → Type ℓh</a>
+<a id="322" class="Comment">--     id      : ∀ (A : Ob) → Hom (sole A) A</a>
+<a id="367" class="Comment">--     _∘[_]_ : ∀ {Γ Δ A} → Hom Γ A → (x : Var Γ) →</a>
+<a id="419" class="Comment">--              Hom Δ (Γ [ x ]) → Hom (Γ [ Δ / x ]) A</a>
+<a id="473" class="Comment">--     idR    : ∀ {Γ A} → (M : Hom Γ A) → (x : Var Γ)</a>
+<a id="527" class="Comment">--            → PathP (λ i → Hom (sole-/R Γ x i) A) (M ∘[ x ] (id (Γ [ x ]))) M</a>
+<a id="607" class="Comment">--     idL    : ∀ {Γ A} → (M : Hom Γ A)</a>
+<a id="647" class="Comment">--            → PathP (λ i → Hom (sole-/L A Γ i) A) (id A ∘[ the-var A ] M) M</a>
+<a id="725" class="Comment">--     compAssoc : ∀ {Γ₁ Γ₂ Γ₃ A}</a>
+<a id="759" class="Comment">--               → (M : Hom Γ₁ A)</a>
+<a id="793" class="Comment">--               → (x : Var Γ₁) → (N : Hom Γ₂ (Γ₁ [ x ]))</a>
+<a id="851" class="Comment">--               -- i.e.</a>
+<a id="876" class="Comment">--               -- - P i0 : Hom Γ₃ (Γ₂ [ y ])</a>
+<a id="923" class="Comment">--               -- - P i1 : Hom Γ₃ (Γ₁ [ Γ₂ / x ] [ nest-var Γ₁ Γ₂ x y ])</a>
+<a id="998" class="Comment">--               → (y : Var Γ₂) → (P : (i : I) → Hom Γ₃ (nest-/ Γ₁ Γ₂ x y i))</a>
+<a id="1076" class="Comment">--               → PathP (λ i → Hom (comp-/-/ Γ₁ Γ₂ Γ₃ x y i) A)</a>
+<a id="1141" class="Comment">--                       (M ∘[ x ] (N ∘[ y ] (P i0)))</a>
+<a id="1195" class="Comment">--                       ((M ∘[ x ] N) ∘[ nest-var Γ₁ Γ₂ x y ] (P i1))</a>
+</pre></body></html>

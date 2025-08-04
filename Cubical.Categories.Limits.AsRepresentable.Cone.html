@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Limits.AsRepresentable.Cone</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Pragma">--lossy-unification</a> <a id="40" class="Symbol">#-}</a>
+
+<a id="45" class="Keyword">module</a> <a id="52" href="Cubical.Categories.Limits.AsRepresentable.Cone.html" class="Module">Cubical.Categories.Limits.AsRepresentable.Cone</a> <a id="99" class="Keyword">where</a>
+
+<a id="106" class="Comment">-- open import Cubical.Foundations.Prelude</a>
+<a id="149" class="Comment">-- open import Cubical.Categories.Category renaming (isIso to isIsoC)</a>
+<a id="219" class="Comment">-- open import Cubical.Categories.Constructions.BinProduct</a>
+<a id="278" class="Comment">-- open import Cubical.Categories.Functor.Base</a>
+<a id="325" class="Comment">-- open import Cubical.Categories.NaturalTransformation.Base</a>
+<a id="386" class="Comment">-- open import Cubical.Categories.NaturalTransformation.Properties</a>
+<a id="453" class="Comment">-- open import Cubical.Categories.Instances.Functors</a>
+<a id="506" class="Comment">-- open import Cubical.Categories.Functors.HomFunctor</a>
+<a id="560" class="Comment">-- open import Cubical.Categories.Functors.Constant</a>
+<a id="612" class="Comment">-- open import Cubical.Categories.Presheaf.Representable</a>
+
+<a id="670" class="Comment">-- open import Cubical.Categories.Instances.Functors.More</a>
+<a id="728" class="Comment">-- open import Cubical.Categories.Profunctor.General</a>
+
+
+<a id="783" class="Comment">-- module _ {ℓj}{ℓj&#39;}{ℓc}{ℓc&#39;}(J : Category ℓj ℓj&#39;)(C : Category ℓc ℓc&#39;) where</a>
+<a id="862" class="Comment">--   -- In point-wise notation</a>
+<a id="893" class="Comment">--   -- CONE c D = NatTrans (J -&gt; Set) (Konst c) D</a>
+<a id="944" class="Comment">--   CONE : (FUNCTOR J C) *-[ ℓ-max (ℓ-max ℓj ℓj&#39;) ℓc&#39; ]-o C</a>
+<a id="1005" class="Comment">--   CONE = HomFunctor (FUNCTOR J C) ∘F</a>
+<a id="1045" class="Comment">--          ((_^opF {C = C}{D = FUNCTOR J C}</a>
+<a id="1090" class="Comment">--            (λF J C (Fst C J))) ×F Id {C = FUNCTOR J C})</a>
+</pre></body></html>

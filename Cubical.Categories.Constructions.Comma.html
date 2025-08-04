@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Constructions.Comma</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Keyword">module</a> <a id="8" href="Cubical.Categories.Constructions.Comma.html" class="Module">Cubical.Categories.Constructions.Comma</a> <a id="47" class="Keyword">where</a>
+
+<a id="54" class="Comment">-- open import Cubical.Categories.Category</a>
+<a id="97" class="Comment">-- open import Cubical.Categories.Functor</a>
+<a id="139" class="Comment">-- open import Cubical.Categories.Constructions.BinProduct</a>
+<a id="198" class="Comment">-- open import Cubical.Foundations.Prelude hiding (Square)</a>
+<a id="257" class="Comment">-- open import Cubical.Foundations.Function</a>
+<a id="301" class="Comment">-- open import Cubical.Foundations.HLevels</a>
+<a id="344" class="Comment">-- open import Cubical.Data.Sigma</a>
+
+<a id="379" class="Comment">-- open import Cubical.Categories.Functors.HomFunctor</a>
+
+<a id="434" class="Comment">-- open import Cubical.Categories.Profunctor.General</a>
+<a id="487" class="Comment">-- open import Cubical.Categories.Constructions.Graph</a>
+
+<a id="542" class="Comment">-- private</a>
+<a id="553" class="Comment">--   variable</a>
+<a id="567" class="Comment">--     ℓC ℓC&#39; ℓD ℓD&#39; ℓE ℓE&#39; : Level</a>
+
+<a id="604" class="Comment">-- open Category hiding (_∘_)</a>
+<a id="634" class="Comment">-- open Functor</a>
+
+<a id="651" class="Comment">-- _↓_ : {C : Category ℓC ℓC&#39;}{D : Category ℓD ℓD&#39;}{E : Category ℓE ℓE&#39;}</a>
+<a id="724" class="Comment">--   (F : Functor C E) (G : Functor D E) → Category _ _</a>
+<a id="780" class="Comment">-- _↓_ {C = C}{D = D}{E = E} F G = Graph</a>
+<a id="821" class="Comment">--   where open Graph {C = C}{D = D} (HomFunctor E ∘F ((F ^opF) ×F G))</a>
+</pre></body></html>

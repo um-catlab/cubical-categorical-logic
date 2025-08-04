@@ -1,0 +1,38 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Constructions.Product.Fin</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">-- Finite Product of categories as flattened lists</a>
+<a id="52" class="Symbol">{-#</a> <a id="56" class="Keyword">OPTIONS</a> <a id="64" class="Pragma">--safe</a> <a id="71" class="Symbol">#-}</a>
+<a id="75" class="Keyword">module</a> <a id="82" href="Cubical.Categories.Constructions.Product.Fin.html" class="Module">Cubical.Categories.Constructions.Product.Fin</a> <a id="127" class="Keyword">where</a>
+
+
+<a id="135" class="Comment">-- open import Cubical.Foundations.HLevels</a>
+<a id="178" class="Comment">-- open import Cubical.Foundations.Prelude</a>
+<a id="221" class="Comment">-- open import Cubical.Data.Sigma</a>
+<a id="255" class="Comment">-- open import Cubical.Data.Nat</a>
+<a id="287" class="Comment">-- open import Cubical.Data.List</a>
+<a id="320" class="Comment">-- open import Cubical.Data.List.Dependent</a>
+<a id="363" class="Comment">-- open import Cubical.Data.Fin</a>
+<a id="395" class="Comment">-- open import Cubical.Categories.Category.Base</a>
+
+<a id="444" class="Comment">-- private</a>
+<a id="455" class="Comment">--   variable</a>
+<a id="469" class="Comment">--     ℓ ℓ&#39; : Level</a>
+
+<a id="490" class="Comment">-- open Category</a>
+
+<a id="508" class="Comment">-- module _ (Cs : List (Category ℓ ℓ&#39;)) where</a>
+<a id="554" class="Comment">--   FPOb : Type _</a>
+<a id="573" class="Comment">--   FPOb = ListP ob Cs</a>
+
+<a id="598" class="Comment">--   FPHom : FPOb → FPOb → Type _</a>
+<a id="632" class="Comment">--   FPHom xs ys = {!!}</a>
+
+<a id="657" class="Comment">-- -- FinProduct : Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ&#39;)) {!!}</a>
+<a id="719" class="Comment">-- -- FinProduct Cs .ob =</a>
+<a id="745" class="Comment">-- -- FinProduct Cs .Hom[_,_] xs ys = {!!} where</a>
+<a id="794" class="Comment">-- -- FinProduct Cs .id = {!!}</a>
+<a id="825" class="Comment">-- -- FinProduct Cs ._⋆_ = {!!}</a>
+<a id="857" class="Comment">-- -- FinProduct Cs .⋆IdL = {!!}</a>
+<a id="890" class="Comment">-- -- FinProduct Cs .⋆IdR = {!!}</a>
+<a id="923" class="Comment">-- -- FinProduct Cs .⋆Assoc = {!!}</a>
+<a id="958" class="Comment">-- -- FinProduct Cs .isSetHom = {!!}</a>
+</pre></body></html>

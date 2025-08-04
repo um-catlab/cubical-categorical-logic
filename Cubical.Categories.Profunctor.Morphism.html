@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Profunctor.Morphism</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Categories.Profunctor.Morphism.html" class="Module">Cubical.Categories.Profunctor.Morphism</a> <a id="70" class="Keyword">where</a>
+
+<a id="77" class="Comment">-- open import Cubical.Foundations.Prelude hiding (Path)</a>
+<a id="134" class="Comment">-- open import Cubical.Foundations.Structure</a>
+<a id="179" class="Comment">-- open import Cubical.Foundations.HLevels</a>
+<a id="222" class="Comment">-- open import Cubical.Foundations.Isomorphism</a>
+<a id="269" class="Comment">-- open import Cubical.Categories.Category</a>
+<a id="312" class="Comment">-- open import Cubical.Categories.Functor</a>
+<a id="354" class="Comment">-- open import Cubical.Categories.Constructions.BinProduct</a>
+<a id="413" class="Comment">-- open import Cubical.Categories.NaturalTransformation</a>
+<a id="469" class="Comment">-- open import Cubical.Categories.Profunctor.General</a>
+<a id="522" class="Comment">-- open import Cubical.Data.Sigma</a>
+<a id="556" class="Comment">-- open import Cubical.Reflection.RecordEquiv</a>
+
+<a id="603" class="Comment">-- open import Cubical.Categories.Instances.Sets</a>
+<a id="652" class="Comment">-- open import Cubical.Categories.Instances.Sets.More</a>
+
+<a id="707" class="Comment">-- private</a>
+<a id="718" class="Comment">--   variable</a>
+<a id="732" class="Comment">--     ℓb ℓb&#39; ℓc ℓc&#39; ℓd ℓd&#39; ℓe ℓe&#39; ℓp ℓr : Level</a>
+
+<a id="782" class="Comment">-- open NatTrans</a>
+<a id="799" class="Comment">-- open Iso</a>
+
+<a id="812" class="Comment">-- -- Square in a double category of functors and profunctors</a>
+<a id="874" class="Comment">-- module _ {B : Category ℓb ℓb&#39;}{C : Category ℓc ℓc&#39;}</a>
+<a id="929" class="Comment">--          {D : Category ℓd ℓd&#39;}{E : Category ℓe ℓe&#39;}</a>
+<a id="984" class="Comment">--          (P : B o-[ ℓp ]-* C) (F : Functor B D)</a>
+<a id="1035" class="Comment">--          (G : Functor C E) (R : D o-[ ℓr ]-* E) where</a>
+<a id="1092" class="Comment">--   record ProfHom : Type ((ℓ-max (ℓ-max (ℓ-max (ℓ-max</a>
+<a id="1148" class="Comment">--                           (ℓ-max ℓb ℓb&#39;) ℓc) ℓc&#39;) ℓp) ℓr)) where</a>
+<a id="1216" class="Comment">--     field</a>
+<a id="1229" class="Comment">--       R-hom : ∀ b c → ⟨ P ⟅ b , c ⟆ ⟩ → ⟨ R ⟅ F ⟅ b ⟆ , G ⟅ c ⟆ ⟆ ⟩</a>
+<a id="1300" class="Comment">--       R-nat : ∀ b&#39; b c c&#39; → (f : B [ b&#39; , b ])</a>
+<a id="1350" class="Comment">--               (p : ⟨ P ⟅ b , c ⟆ ⟩) (g : C [ c , c&#39; ]) →</a>
+<a id="1410" class="Comment">--             R-hom _ _ ((P ⟪ f , g ⟫) p) ≡</a>
+<a id="1455" class="Comment">--               (R ⟪ F ⟪ f ⟫ , G ⟪ g ⟫ ⟫) (R-hom _ _ p)</a>
+
+<a id="1513" class="Comment">--     R-homI : ∀ {b c} → ⟨ P ⟅ b , c ⟆ ⟩ → ⟨ R ⟅ F ⟅ b ⟆ , G ⟅ c ⟆ ⟆ ⟩</a>
+<a id="1585" class="Comment">--     R-homI = R-hom _ _</a>
+<a id="1611" class="Comment">--     R-natI : ∀ {b&#39; b c c&#39;} →</a>
+<a id="1643" class="Comment">--       (f : B [ b&#39; , b ]) (p : ⟨ P ⟅ b , c ⟆ ⟩) (g : C [ c , c&#39; ]) →</a>
+<a id="1714" class="Comment">--             R-hom _ _ ((P ⟪ f , g ⟫) p) ≡</a>
+<a id="1759" class="Comment">--               (R ⟪ F ⟪ f ⟫ , G ⟪ g ⟫ ⟫) (R-hom _ _ p)</a>
+<a id="1816" class="Comment">--     R-natI = R-nat _ _ _ _</a>
+
+<a id="1847" class="Comment">--   open ProfHom</a>
+<a id="1865" class="Comment">--   unquoteDecl ProfHomIsoΣ = declareRecordIsoΣ ProfHomIsoΣ (quote ProfHom)</a>
+<a id="1942" class="Comment">--   ProfHom≡ : ∀ ph ph&#39; → (ph .R-hom ≡ ph&#39; .R-hom) → ph ≡ ph&#39;</a>
+<a id="2005" class="Comment">--   ProfHom≡ ph ph&#39; path =</a>
+<a id="2033" class="Comment">--     isoFunInjective ProfHomIsoΣ ph ph&#39;</a>
+<a id="2075" class="Comment">--       (Σ≡Prop (λ f → isPropΠ6</a>
+<a id="2108" class="Comment">--         (λ a b c d e f&#39; → isPropΠ λ g → (R ⟅ _ , _ ⟆) .snd _ _)) path)</a>
+
+<a id="2183" class="Comment">--   ProfHomNT : Type (ℓ-max (ℓ-max</a>
+  <a id="2221" class="Comment">--   (ℓ-max (ℓ-max (ℓ-max ℓb ℓb&#39;) ℓc) ℓc&#39;) ℓp) ℓr)</a>
+<a id="2272" class="Comment">--   ProfHomNT =</a>
+<a id="2289" class="Comment">--     NatTrans (LiftF {ℓp} {ℓr} ∘F P) (LiftF {ℓr} {ℓp} ∘F R ∘F ((F ^opF) ×F G))</a>
+
+<a id="2371" class="Comment">--   ProfHom→NT : ProfHom → ProfHomNT</a>
+<a id="2409" class="Comment">--   ProfHom→NT ph .N-ob (b , c) f = lift (R-homI ph (f .lower))</a>
+<a id="2474" class="Comment">--   ProfHom→NT ph .N-hom f = funExt λ g → cong lift (R-natI ph _ _ _)</a>
+
+<a id="2546" class="Comment">--   NT→ProfHom : ProfHomNT → ProfHom</a>
+<a id="2584" class="Comment">--   NT→ProfHom α .R-hom _ _ p = α .N-ob _ (lift p) .lower</a>
+<a id="2643" class="Comment">--   NT→ProfHom α .R-nat _ _ _ _ f p g =</a>
+<a id="2684" class="Comment">--     cong lower (λ i → (α .N-hom (f , g) i) (lift p) )</a>
+
+<a id="2742" class="Comment">--   ProfHomIsoNT : Iso ProfHom ProfHomNT</a>
+<a id="2784" class="Comment">--   ProfHomIsoNT .fun = ProfHom→NT</a>
+<a id="2820" class="Comment">--   ProfHomIsoNT .inv = NT→ProfHom</a>
+<a id="2856" class="Comment">--   ProfHomIsoNT .leftInv ph = ProfHom≡ _ _ refl</a>
+<a id="2906" class="Comment">--   ProfHomIsoNT .rightInv α = makeNatTransPath refl</a>
+</pre></body></html>

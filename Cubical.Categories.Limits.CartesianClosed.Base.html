@@ -1,0 +1,22 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Limits.CartesianClosed.Base</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Symbol">{-#</a> <a id="5" class="Keyword">OPTIONS</a> <a id="13" class="Pragma">--safe</a> <a id="20" class="Symbol">#-}</a>
+<a id="24" class="Keyword">module</a> <a id="31" href="Cubical.Categories.Limits.CartesianClosed.Base.html" class="Module">Cubical.Categories.Limits.CartesianClosed.Base</a> <a id="78" class="Keyword">where</a>
+
+<a id="85" class="Keyword">open</a> <a id="90" class="Keyword">import</a> <a id="97" href="Cubical.Categories.Category.html" class="Module">Cubical.Categories.Category</a>
+<a id="125" class="Keyword">open</a> <a id="130" class="Keyword">import</a> <a id="137" href="Cubical.Categories.Exponentials.html" class="Module">Cubical.Categories.Exponentials</a>
+<a id="169" class="Keyword">open</a> <a id="174" class="Keyword">import</a> <a id="181" href="Cubical.Categories.Limits.BinProduct.html" class="Module">Cubical.Categories.Limits.BinProduct</a>
+<a id="218" class="Keyword">open</a> <a id="223" class="Keyword">import</a> <a id="230" href="Cubical.Categories.Limits.Cartesian.Base.html" class="Module">Cubical.Categories.Limits.Cartesian.Base</a>
+<a id="271" class="Keyword">open</a> <a id="276" class="Keyword">import</a> <a id="283" href="Cubical.Categories.Limits.Terminal.html" class="Module">Cubical.Categories.Limits.Terminal</a>
+
+<a id="319" class="Keyword">open</a> <a id="324" class="Keyword">import</a> <a id="331" href="Cubical.Foundations.HLevels.html" class="Module">Cubical.Foundations.HLevels</a>
+<a id="359" class="Keyword">open</a> <a id="364" class="Keyword">import</a> <a id="371" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+
+<a id="400" class="Keyword">record</a> <a id="CartesianClosedCategory"></a><a id="407" href="Cubical.Categories.Limits.CartesianClosed.Base.html#407" class="Record">CartesianClosedCategory</a> <a id="431" class="Symbol">(</a><a id="432" href="Cubical.Categories.Limits.CartesianClosed.Base.html#432" class="Bound">ℓ</a> <a id="434" href="Cubical.Categories.Limits.CartesianClosed.Base.html#434" class="Bound">ℓ&#39;</a> <a id="437" class="Symbol">:</a> <a id="439" href="Agda.Primitive.html#742" class="Postulate">Level</a><a id="444" class="Symbol">)</a> <a id="446" class="Symbol">:</a> <a id="448" href="Agda.Primitive.html#388" class="Primitive">Type</a> <a id="453" class="Symbol">(</a><a id="454" href="Agda.Primitive.html#961" class="Primitive">ℓ-max</a> <a id="460" class="Symbol">(</a><a id="461" href="Agda.Primitive.html#931" class="Primitive">ℓ-suc</a> <a id="467" href="Cubical.Categories.Limits.CartesianClosed.Base.html#432" class="Bound">ℓ</a><a id="468" class="Symbol">)</a> <a id="470" class="Symbol">(</a><a id="471" href="Agda.Primitive.html#931" class="Primitive">ℓ-suc</a> <a id="477" href="Cubical.Categories.Limits.CartesianClosed.Base.html#434" class="Bound">ℓ&#39;</a><a id="479" class="Symbol">))</a> <a id="482" class="Keyword">where</a>
+  <a id="490" class="Keyword">field</a>
+    <a id="CartesianClosedCategory.CC"></a><a id="500" href="Cubical.Categories.Limits.CartesianClosed.Base.html#500" class="Field">CC</a> <a id="503" class="Symbol">:</a> <a id="505" href="Cubical.Categories.Limits.Cartesian.Base.html#395" class="Record">CartesianCategory</a> <a id="523" href="Cubical.Categories.Limits.CartesianClosed.Base.html#432" class="Bound">ℓ</a> <a id="525" href="Cubical.Categories.Limits.CartesianClosed.Base.html#434" class="Bound">ℓ&#39;</a>
+  <a id="530" class="Comment">-- potential performance issue</a>
+  <a id="563" class="Keyword">open</a> <a id="568" href="Cubical.Categories.Limits.Cartesian.Base.html#395" class="Module">CartesianCategory</a> <a id="586" href="Cubical.Categories.Limits.CartesianClosed.Base.html#500" class="Field">CC</a>
+  <a id="591" class="Keyword">field</a>
+    <a id="CartesianClosedCategory.exps"></a><a id="601" href="Cubical.Categories.Limits.CartesianClosed.Base.html#601" class="Field">exps</a> <a id="606" class="Symbol">:</a> <a id="608" href="Cubical.Categories.Exponentials.html#1469" class="Function">AllExponentiable</a> <a id="625" href="Cubical.Categories.Limits.Cartesian.Base.html#500" class="Function">C</a> <a id="627" href="Cubical.Categories.Limits.Cartesian.Base.html#545" class="Function">bp</a>
+
+</pre></body></html>

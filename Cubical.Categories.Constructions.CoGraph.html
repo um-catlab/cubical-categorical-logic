@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Constructions.CoGraph</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">-- The graph of a profunctor</a>
+<a id="30" class="Symbol">{-#</a> <a id="34" class="Keyword">OPTIONS</a> <a id="42" class="Pragma">--safe</a> <a id="49" class="Pragma">-W</a> <a id="52" class="Pragma">noUnsupportedIndexedMatch</a> <a id="78" class="Symbol">#-}</a>
+<a id="82" class="Keyword">module</a> <a id="89" href="Cubical.Categories.Constructions.CoGraph.html" class="Module">Cubical.Categories.Constructions.CoGraph</a> <a id="130" class="Keyword">where</a>
+
+<a id="137" class="Comment">-- open import Cubical.Categories.Category</a>
+<a id="180" class="Comment">-- open import Cubical.Categories.Functor</a>
+<a id="222" class="Comment">-- open import Cubical.Categories.Constructions.BinProduct</a>
+<a id="281" class="Comment">-- open import Cubical.Foundations.Prelude hiding (Square)</a>
+<a id="340" class="Comment">-- open import Cubical.Foundations.Structure</a>
+<a id="385" class="Comment">-- open import Cubical.Foundations.Function</a>
+<a id="429" class="Comment">-- open import Cubical.Foundations.HLevels</a>
+<a id="472" class="Comment">-- open import Cubical.Data.Empty as Empty</a>
+<a id="515" class="Comment">-- open import Cubical.Data.Sigma</a>
+<a id="549" class="Comment">-- open import Cubical.Data.Sum</a>
+<a id="581" class="Comment">-- open import Cubical.Categories.Profunctor.General</a>
+<a id="634" class="Comment">-- open import Cubical.Categories.Functors.HomFunctor</a>
+<a id="688" class="Comment">-- open import Cubical.Categories.Profunctor.Morphism</a>
+
+<a id="743" class="Comment">-- private</a>
+<a id="754" class="Comment">--   variable</a>
+<a id="768" class="Comment">--     ℓC ℓC&#39; ℓD ℓD&#39; ℓS : Level</a>
+
+<a id="801" class="Comment">-- open Category</a>
+<a id="818" class="Comment">-- open Functor</a>
+
+<a id="835" class="Comment">-- module _ {C : Category ℓC ℓC&#39;}</a>
+          <a id="879" class="Comment">-- {D : Category ℓD ℓD&#39;}</a>
+  <a id="906" class="Comment">-- (P : C o-[ ℓS ]-* D) where</a>
+<a id="936" class="Comment">--   CoGraphOb : Type (ℓ-max ℓC ℓD)</a>
+<a id="972" class="Comment">--   CoGraphOb = C .ob ⊎ D .ob</a>
+
+<a id="1004" class="Comment">--   data CoGraphHom : CoGraphOb → CoGraphOb →</a>
+<a id="1051" class="Comment">--                   Type (ℓ-max ℓS (ℓ-max (ℓ-max ℓC ℓC&#39;) (ℓ-max ℓD ℓD&#39;))) where</a>
+<a id="1132" class="Comment">--     ↑o : ∀ {A B} → C [ A , B ] → CoGraphHom (inl A) (inl B)</a>
+<a id="1195" class="Comment">--     ↑* : ∀ {A B} → D [ A , B ] → CoGraphHom (inr A) (inr B)</a>
+<a id="1258" class="Comment">--     ↑p : ∀ {A B} → ⟨ P ⟅ A , B ⟆ ⟩ → CoGraphHom (inl A) (inr B)</a>
+
+<a id="1326" class="Comment">--   CoGraphComp : ∀ {A B C} → CoGraphHom A B → CoGraphHom B C → CoGraphHom A C</a>
+<a id="1406" class="Comment">--   CoGraphComp (↑o f) (↑o f&#39;) = ↑o (f ⋆⟨ C ⟩ f&#39;)</a>
+<a id="1457" class="Comment">--   CoGraphComp (↑* g) (↑* g&#39;) = ↑* (g ⋆⟨ D ⟩ g&#39;)</a>
+<a id="1508" class="Comment">--   CoGraphComp (↑o f) (↑p p) = ↑p (P .F-hom (f , (D .id)) p)</a>
+<a id="1571" class="Comment">--   CoGraphComp (↑p p) (↑* g) = ↑p (P .F-hom ((C .id) , g) p)</a>
+
+<a id="1635" class="Comment">--   ↑p-r : ∀ {A B} → CoGraphHom (inl A) (inr B) → ⟨ P ⟅ A , B ⟆ ⟩</a>
+<a id="1702" class="Comment">--   ↑p-r (↑p p) = p</a>
+
+<a id="1724" class="Comment">--   private</a>
+<a id="1737" class="Comment">--     ↑o-r : ∀ {A B} → CoGraphHom (inl A) (inl B) → C [ A , B ]</a>
+<a id="1802" class="Comment">--     ↑o-r (↑o f) = f</a>
+
+<a id="1826" class="Comment">--     ↑o-r-retract : ∀ {A B} → (f : CoGraphHom (inl A) (inl B)) →</a>
+  <a id="1895" class="Comment">--     ↑o (↑o-r f) ≡ f</a>
+<a id="1918" class="Comment">--     ↑o-r-retract (↑o f) = refl</a>
+
+<a id="1953" class="Comment">--     ↑*-r : ∀ {A B} → CoGraphHom (inr A) (inr B) → D [ A , B ]</a>
+<a id="2018" class="Comment">--     ↑*-r (↑* g) = g</a>
+
+<a id="2042" class="Comment">--     ↑*-r-retract : ∀ {A B} → (f : CoGraphHom (inr A) (inr B)) →</a>
+<a id="2109" class="Comment">--     ↑* (↑*-r f) ≡ f</a>
+<a id="2132" class="Comment">--     ↑*-r-retract (↑* f) = refl</a>
+
+<a id="2167" class="Comment">--     ↑p-r-retract : ∀ {A B} → (f : CoGraphHom (inl A) (inr B)) →</a>
+                      <a id="2256" class="Comment">--     ↑p (↑p-r f) ≡ f</a>
+<a id="2279" class="Comment">--     ↑p-r-retract (↑p f) = refl</a>
+
+<a id="2314" class="Comment">--     absurd-r : ∀ {A B} → CoGraphHom (inr A) (inl B) → ⊥</a>
+<a id="2373" class="Comment">--     absurd-r ()</a>
+
+<a id="2393" class="Comment">--   CoGraph : Category (ℓ-max ℓC ℓD)</a>
+<a id="2431" class="Comment">--                      (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC&#39;) ℓD) ℓD&#39;) ℓS)</a>
+<a id="2504" class="Comment">--   CoGraph .ob = CoGraphOb</a>
+<a id="2533" class="Comment">--   CoGraph .Hom[_,_] = CoGraphHom</a>
+<a id="2569" class="Comment">--   CoGraph .id {inl A} = ↑o (C .id)</a>
+<a id="2607" class="Comment">--   CoGraph .id {inr B} = ↑* (D .id)</a>
+<a id="2645" class="Comment">--   CoGraph ._⋆_ = CoGraphComp</a>
+<a id="2677" class="Comment">--   CoGraph .⋆IdL (↑o f) = cong ↑o (C .⋆IdL f)</a>
+<a id="2725" class="Comment">--   CoGraph .⋆IdL (↑p p) = cong ↑p (λ i → (P .F-id i) p)</a>
+<a id="2783" class="Comment">--   CoGraph .⋆IdL (↑* g) = cong ↑* (D .⋆IdL g)</a>
+<a id="2831" class="Comment">--   CoGraph .⋆IdR (↑o f) = cong ↑o (C .⋆IdR f)</a>
+<a id="2879" class="Comment">--   CoGraph .⋆IdR (↑p p) = cong ↑p (λ i → (P .F-id i) p)</a>
+<a id="2937" class="Comment">--   CoGraph .⋆IdR (↑* g) = cong ↑* (D .⋆IdR g)</a>
+<a id="2985" class="Comment">--   CoGraph .⋆Assoc (↑o f) (↑o f&#39;) (↑o f&#39;&#39;) = cong ↑o (C .⋆Assoc _ _ _)</a>
+<a id="3058" class="Comment">--   CoGraph .⋆Assoc (↑o f) (↑o f&#39;) (↑p p) =</a>
+<a id="3103" class="Comment">--     cong ↑p ((λ i → P .F-hom (f ⋆⟨ C ⟩ f&#39; , D .⋆IdL (D .id) (~ i)) p)</a>
+<a id="3176" class="Comment">--       ∙ λ i → (P .F-seq (f&#39; , D .id) (f , D .id) i) p)</a>
+<a id="3234" class="Comment">--   CoGraph .⋆Assoc (↑o f) (↑p p) (↑* g) =</a>
+<a id="3278" class="Comment">--     cong ↑p ((λ i → (P .F-seq (f , D .id) (C .id , g) (~ i)) p)</a>
+<a id="3345" class="Comment">--       ∙ (λ i → P .F-hom ((C .⋆IdL f ∙ sym (C .⋆IdR f)) i ,</a>
+<a id="3407" class="Comment">--                          (D .⋆IdL g ∙ sym (D .⋆IdR g)) i) p)</a>
+<a id="3471" class="Comment">--       ∙ λ i → (P .F-seq ((C .id) , g) (f , (D .id)) i ) p)</a>
+<a id="3533" class="Comment">--   CoGraph .⋆Assoc (↑p p) (↑* h) (↑* h&#39;) =</a>
+<a id="3578" class="Comment">--     cong ↑p ((λ i → (P .F-seq (C .id , h) (C .id , h&#39;) (~ i)) p)</a>
+<a id="3646" class="Comment">--       ∙ λ i → P .F-hom ( C .⋆IdL (C .id) i , h ⋆⟨ D ⟩ h&#39; ) p)</a>
+<a id="3711" class="Comment">--   CoGraph .⋆Assoc (↑* h) (↑* h&#39;) (↑* h&#39;&#39;) = cong ↑* (D .⋆Assoc _ _ _)</a>
+<a id="3784" class="Comment">--   CoGraph .isSetHom {inl A} {inl A&#39;} =</a>
+<a id="3826" class="Comment">--     isSetRetract ↑o-r ↑o ↑o-r-retract (C .isSetHom)</a>
+<a id="3881" class="Comment">--   CoGraph .isSetHom {inl A} {inr B} =</a>
+<a id="3922" class="Comment">--     isSetRetract ↑p-r ↑p ↑p-r-retract ((P ⟅ _ ⟆ ) .snd)</a>
+<a id="3981" class="Comment">--   CoGraph .isSetHom {inr B} {inr B&#39;} =</a>
+<a id="4023" class="Comment">--     isSetRetract ↑*-r ↑* ↑*-r-retract (D .isSetHom)</a>
+<a id="4078" class="Comment">--   CoGraph .isSetHom {inr B} {inl A} = λ f → Empty.rec (absurd-r f)</a>
+
+<a id="4149" class="Comment">--   ↑oF : Functor C CoGraph</a>
+<a id="4178" class="Comment">--   ↑oF .F-ob = inl</a>
+<a id="4199" class="Comment">--   ↑oF .F-hom = ↑o</a>
+<a id="4220" class="Comment">--   ↑oF .F-id = refl</a>
+<a id="4242" class="Comment">--   ↑oF .F-seq f g = refl</a>
+
+<a id="4270" class="Comment">--   ↑*F : Functor D CoGraph</a>
+<a id="4299" class="Comment">--   ↑*F .F-ob = inr</a>
+<a id="4320" class="Comment">--   ↑*F .F-hom = ↑*</a>
+<a id="4341" class="Comment">--   ↑*F .F-id = refl</a>
+<a id="4363" class="Comment">--   ↑*F .F-seq f g = refl</a>
+
+<a id="4391" class="Comment">--   open ProfHom</a>
+<a id="4409" class="Comment">--   ↑pH : ProfHom P ↑oF ↑*F (HomFunctor CoGraph)</a>
+<a id="4459" class="Comment">--   ↑pH .R-hom b c = ↑p</a>
+<a id="4484" class="Comment">--   ↑pH .R-nat b&#39; b c c&#39; f p g =</a>
+<a id="4518" class="Comment">--     cong ↑p ((λ i → (P ⟪ C .⋆IdL f (~ i) , D .⋆IdL g (~ i) ⟫) p) ∙</a>
+<a id="4588" class="Comment">--       (λ i → P .F-seq (f , (D .id)) ((C .id) , g) i p))</a>
+
+<a id="4648" class="Comment">--   ↑pH-r : ProfHom (HomFunctor CoGraph ∘F ((↑oF ^opF) ×F ↑*F))</a>
+<a id="4713" class="Comment">--                   (Id {C = C}) (Id {C = D}) P</a>
+<a id="4762" class="Comment">--   ↑pH-r .R-hom b c = ↑p-r</a>
+<a id="4791" class="Comment">--   ↑pH-r .R-nat b&#39; b c c&#39; f (↑p p) g =</a>
+<a id="4832" class="Comment">--     (λ i → P .F-seq (f , (D .id)) ((C .id) , g) (~ i) p) ∙</a>
+<a id="4894" class="Comment">--       λ i → P .F-hom (C .⋆IdL f i , D .⋆IdL g i) p</a>
+</pre></body></html>

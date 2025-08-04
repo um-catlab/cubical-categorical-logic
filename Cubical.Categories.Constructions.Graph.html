@@ -1,0 +1,73 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Constructions.Graph</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">-- The graph of a profunctor</a>
+<a id="30" class="Keyword">module</a> <a id="37" href="Cubical.Categories.Constructions.Graph.html" class="Module">Cubical.Categories.Constructions.Graph</a> <a id="76" class="Keyword">where</a>
+
+<a id="83" class="Comment">-- open import Cubical.Categories.Category</a>
+<a id="126" class="Comment">-- open import Cubical.Categories.Functor</a>
+<a id="168" class="Comment">-- open import Cubical.Foundations.Prelude hiding (Square)</a>
+<a id="227" class="Comment">-- open import Cubical.Foundations.Function</a>
+<a id="271" class="Comment">-- open import Cubical.Foundations.HLevels</a>
+<a id="314" class="Comment">-- open import Cubical.Data.Sigma</a>
+<a id="348" class="Comment">-- open import Cubical.Categories.Profunctor.General</a>
+
+<a id="402" class="Comment">-- private</a>
+<a id="413" class="Comment">--   variable</a>
+<a id="427" class="Comment">--     ℓC ℓC&#39; ℓD ℓD&#39; ℓS : Level</a>
+
+<a id="460" class="Comment">-- open Category hiding (_∘_)</a>
+<a id="490" class="Comment">-- open Functor</a>
+
+<a id="507" class="Comment">-- -- Examples:</a>
+<a id="523" class="Comment">-- module Graph {C : Category ℓC ℓC&#39;}{D : Category ℓD ℓD&#39;}</a>
+<a id="582" class="Comment">--              (P : C o-[ ℓS ]-* D) where</a>
+<a id="625" class="Comment">--   Element : Type _</a>
+<a id="647" class="Comment">--   Element = Σ[ c ∈ C .ob ] Σ[ d ∈ D .ob ] (P ⟅ c , d ⟆) .fst</a>
+
+<a id="712" class="Comment">--   Square : Element → Element → Type _</a>
+<a id="753" class="Comment">--   Square (c , d , p) (c&#39; , d&#39; , p&#39;) =</a>
+<a id="794" class="Comment">--     -- more convenient bc the rhs is a prop</a>
+<a id="841" class="Comment">--     Σ[ (f , g) ∈ C [ c , c&#39; ] × D [ d , d&#39; ] ]</a>
+<a id="891" class="Comment">--     P .F-hom ((C .id) , g) p ≡ P .F-hom (f , D .id) p&#39;</a>
+
+<a id="950" class="Comment">--   Graph : Category _ _</a>
+<a id="976" class="Comment">--   Graph .ob = Element</a>
+<a id="1001" class="Comment">--   Graph .Hom[_,_] = Square</a>
+<a id="1031" class="Comment">--   Graph .id = (C .id , D .id) , refl</a>
+<a id="1071" class="Comment">--   Graph ._⋆_ {x = p}{y = p&#39;}{z = p&#39;&#39;} ((f , g) , comm) ((f&#39; , g&#39;) , comm&#39;) =</a>
+<a id="1151" class="Comment">--     -- Time to implement a profunctor solver I guess lol</a>
+<a id="1211" class="Comment">--     (f ⋆⟨ C ⟩ f&#39; , g ⋆⟨ D ⟩ g&#39;) ,</a>
+<a id="1248" class="Comment">--     (P .F-hom (C .id , g ⋆⟨ D ⟩ g&#39;) (p .snd .snd)</a>
+<a id="1301" class="Comment">--       ≡[ i ]⟨ P .F-hom (C .⋆IdR (C .id) (~ i) , g ⋆⟨ D ⟩ g&#39;) (p .snd .snd) ⟩</a>
+<a id="1381" class="Comment">--      P .F-hom (C .id ⋆⟨ C ⟩ C .id , g ⋆⟨ D ⟩ g&#39;) (p .snd .snd)</a>
+<a id="1447" class="Comment">--       ≡[ i ]⟨ P .F-seq (C .id , g) (C .id , g&#39;) i (p .snd .snd) ⟩</a>
+<a id="1516" class="Comment">--      P .F-hom (C .id , g&#39;) (P .F-hom (C .id , g) (p .snd .snd))</a>
+<a id="1583" class="Comment">--       ≡[ i ]⟨ P .F-hom (C .id , g&#39;) (comm i) ⟩</a>
+<a id="1633" class="Comment">--      P .F-hom (C .id , g&#39;) (P .F-hom (f , D .id) (p&#39; .snd .snd))</a>
+<a id="1701" class="Comment">--       ≡[ i ]⟨ P .F-seq (f , D .id) (C .id , g&#39;) (~ i) (p&#39; .snd .snd) ⟩</a>
+<a id="1775" class="Comment">--      P .F-hom (C .id ⋆⟨ C ⟩ f , D .id ⋆⟨ D ⟩ g&#39;) (p&#39; .snd .snd)</a>
+<a id="1842" class="Comment">--       ≡[ i ]⟨ P .F-hom (C .⋆IdL f i , D .⋆IdL g&#39; i) (p&#39; .snd .snd) ⟩</a>
+<a id="1914" class="Comment">--      P .F-hom (f , g&#39;) (p&#39; .snd .snd)</a>
+<a id="1955" class="Comment">--       ≡[ i ]⟨ P .F-hom (C .⋆IdR f (~ i) , D .⋆IdR g&#39; (~ i)) (p&#39; .snd .snd) ⟩</a>
+<a id="2035" class="Comment">--      P .F-hom (f ⋆⟨ C ⟩ C .id , g&#39; ⋆⟨ D ⟩ D .id) (p&#39; .snd .snd)</a>
+<a id="2102" class="Comment">--        ≡[ i ]⟨ P .F-seq (C .id , g&#39;) (f , D .id) i (p&#39; .snd .snd) ⟩</a>
+<a id="2173" class="Comment">--      P .F-hom (f , D .id) (P .F-hom (C .id , g&#39;) (p&#39; .snd .snd))</a>
+<a id="2241" class="Comment">--       ≡[ i ]⟨ P .F-hom (f , D .id) (comm&#39; i) ⟩</a>
+<a id="2291" class="Comment">--      P .F-hom (f , D .id) (P .F-hom (f&#39; , (D .id)) (p&#39;&#39; .snd .snd))</a>
+<a id="2362" class="Comment">--       ≡[ i ]⟨ P .F-seq (f&#39; , (D .id)) (f , (D .id)) (~ i) (p&#39;&#39; .snd .snd) ⟩</a>
+<a id="2441" class="Comment">--      P .F-hom (f ⋆⟨ C ⟩ f&#39; , D .id ⋆⟨ D ⟩ D .id) (p&#39;&#39; .snd .snd)</a>
+<a id="2509" class="Comment">--       ≡[ i ]⟨ P .F-hom (f ⋆⟨ C ⟩ f&#39; , D .⋆IdR (D .id) i) (p&#39;&#39; .snd .snd) ⟩</a>
+<a id="2587" class="Comment">--      P .F-hom (f ⋆⟨ C ⟩ f&#39; , D .id) (p&#39;&#39; .snd .snd)</a>
+<a id="2642" class="Comment">--      ∎)</a>
+<a id="2653" class="Comment">--   Graph .⋆IdL ((f , g), comm) =</a>
+<a id="2688" class="Comment">--     Σ≡Prop (λ x → P .F-ob _ .snd _ _) (≡-× (C .⋆IdL f) (D .⋆IdL g))</a>
+<a id="2759" class="Comment">--   Graph .⋆IdR ((f , g), comm) =</a>
+<a id="2794" class="Comment">--     Σ≡Prop (λ x → P .F-ob _ .snd _ _) (≡-× (C .⋆IdR f) (D .⋆IdR g))</a>
+<a id="2865" class="Comment">--   Graph .⋆Assoc ((f , g) , comm) ((f&#39; , g&#39;) , comm&#39;) ((f&#39;&#39; , g&#39;&#39;) , comm&#39;&#39;) =</a>
+<a id="2946" class="Comment">--     Σ≡Prop (λ x → P .F-ob _ .snd _ _)</a>
+<a id="2987" class="Comment">--            (≡-× (C .⋆Assoc f f&#39; f&#39;&#39;) (D .⋆Assoc g g&#39; g&#39;&#39;))</a>
+<a id="3049" class="Comment">--   Graph .isSetHom =</a>
+<a id="3072" class="Comment">--     isSetΣ (isSet× (C .isSetHom) (D .isSetHom)) λ x →</a>
+<a id="3129" class="Comment">--       isProp→isSet (P .F-ob _ .snd _ _)</a>
+
+<a id="3173" class="Comment">--   -- TODO: isUnivalent if C, D are</a>
+</pre></body></html>

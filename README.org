@@ -6,11 +6,12 @@ especially logical relations. Most of the library is intended to
 eventually be merged upstream after we have experience with the design
 here.
 
+You may click through an HTML version of this repository [here](https://maxsnew.com/cubical-categorical-logic/Cubical.Everything.html).
+
 [1]: https://github.com/agda/cubical
 
-* Style and Build Tests, Or : How to Get a Green Checkmark
-To fit with the Cubical style, we have a check that the displayed text in each Agda file fits within 80 characters width. This is complicated by the use of unicode characters, so in ~.github/workflows/main.yml~ we run a python script that calculates the width of each line accounting for the variable size of unicode characters. If you're currently reading this sentence it means, I have not written anything to do this locally (until then please be good and keep things withing 80 characters).
+* Style and Build Tests
 
-There are also style constraints on whitespace that are used upstream, so we check those with the ~fix-whitespace~ whitespace utility. This checks things like trailing whitespace, tabs v. spaces, etc. To run the check for this, execute ~fix-whitespace --check~. If you remove the ~check~ flag it will automatically fix any issues it finds.
+There are style constraints on whitespace that are used upstream, so we check those with the ~fix-whitespace~ whitespace utility. This checks things like trailing whitespace, tabs v. spaces, etc. There are `makefile` targets to check and fix any whitespace issues.
 
-To check if all of the repository compiles, run ~make test~. If you want a list of which files do not compiles, run ~make test-and-report~. Note that ~make test~ is what is ran on each push, so it also does the above whitespace checks.
+To check if all of the repository compiles, run ~make test~. Note that ~make test~ is what is ran on each push, so it also does the above whitespace checks.

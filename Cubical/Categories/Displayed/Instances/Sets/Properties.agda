@@ -134,19 +134,46 @@ module _ {ℓ} {ℓ'} where
       isSet→SquareP (λ _ _ → str (RightAdjointProf (BinProductWithF SETᴰ.v[ A ] (bpw Aᴰ)) .F-ob Aᴰ' .F-ob Aᴰ'')) _ _ _ _
       )
 
+  open import Cubical.Categories.Yoneda
   open Exponentialⱽ
+  open UniversalElementNotation
   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
   ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
   ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .fst b bᴰ aᴰ = gᴰ b (bᴰ , aᴰ)
   ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .snd =
-    λgᴰ PB.⋆ app'
-      ≡⟨ {!!} ⟩
-    (introCL CLAᴰ⇒Aᴰ' λgᴰ') PB.⋆ (α (Aᴰ ⇒A Aᴰ') ExpA.app)
-      ≡⟨ {!sym $ α-natural ? ? ? ?!} ⟩
-    {!!}
-      ≡⟨ {!!} ⟩
-    gᴰ
-    ∎
+    funExt₂ (λ where
+      b (bᴰ , x) →
+        -- I don't think this is the best way to solve this equality, but I have exhausted all
+        -- ideas other than expanding everything defintionally
+        -- (λgᴰ PB.⋆ app') b (bᴰ , x)
+        --   ≡⟨ refl ⟩
+        -- expPshB .F-hom λgᴰ app' b (bᴰ , x)
+        --   ≡⟨ refl ⟩
+        ((SETᴰ.v[ B ] [-, (f* Aᴰ') ]) ∘F (BinProductWithF _ (bpw (f* Aᴰ)) ^opF))
+          .F-hom λgᴰ app' b (bᴰ , x)
+          ≡⟨ refl ⟩
+        (SETᴰ.v[ B ] [-, (f* Aᴰ') ]) .F-hom ((BinProductWithF _ (bpw (f* Aᴰ)) ^opF) .F-hom λgᴰ)
+          app' b (bᴰ , x)
+          ≡⟨ refl ⟩
+          -- ?1 is some term with an intro?
+        (SETᴰ.v[ B ] [-, (f* Aᴰ') ]) .F-hom {!!}
+          app' b (bᴰ , x)
+          ≡⟨ refl ⟩
+        {!!}
+          ≡⟨ {!!} ⟩
+        {!!}
+          ≡⟨ {!!} ⟩
+        {!!}
+          ≡⟨ {!!} ⟩
+        gᴰ b (bᴰ , x)
+        ∎
+    )
+    -- λgᴰ PB.⋆ app'
+    --   ≡⟨ {!!} ⟩
+    -- (introCL CLAᴰ⇒Aᴰ' λgᴰ') PB.⋆ (α (Aᴰ ⇒A Aᴰ') ExpA.app)
+    --   ≡⟨ {!!} ⟩
+    -- gᴰ
+    -- ∎
     where
     f*F : Functor SETᴰ.v[ A ] SETᴰ.v[ B ]
     f*F = CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f
@@ -203,8 +230,17 @@ module _ {ℓ} {ℓ'} where
     λgᴰ≡ : λgᴰ ≡ introCL CLAᴰ⇒Aᴰ' λgᴰ'
     λgᴰ≡ = ηᴰCL CLAᴰ⇒Aᴰ'
 
-    u : introCL CLAᴰ⇒Aᴰ' λgᴰ' ≡ {!!}
-    u = {!!}
+    u : expPshB .F-hom λgᴰ ≡ λ ϕ → λgᴰ ×pB (SETᴰ.v[ B ] .id) ⋆⟨ SETᴰ.v[ B ] ⟩ ϕ
+    u =
+      -- fromPathP (λ i → transport-filler (λ j → (x : expPshB .F-ob (f* (Aᴰ ⇒A Aᴰ')) .fst) →
+      --                                            (b : ⟨ B ⟩) →
+      --                                            ⟨ Bᴰ b ⟩ × ⟨ Aᴰ (f b) ⟩ →
+      --                                            {!⟨ Aᴰ' (f b) ⟩!})
+      --                    (expPshB .F-hom λgᴰ) i)
+      funExt₂
+      (λ where x b → funExt λ where
+        (bᴰ , aᴰ) → {!!}
+      )
 
     -- precompλgᴰ×id : SETᴰ.v[ B ] [ (f* (Aᴰ ⇒A Aᴰ')) ×B (f* Aᴰ) , f* Aᴰ' ] →
     --                SETᴰ.v[ B ] [  Bᴰ ×B (f* Aᴰ) , f* Aᴰ' ]

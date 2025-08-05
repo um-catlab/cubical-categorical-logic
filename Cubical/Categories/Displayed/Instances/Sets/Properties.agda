@@ -22,6 +22,8 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Exponentials
@@ -48,6 +50,7 @@ open UniversalElementᴰ
 open UniversalElementⱽ
 open CartesianLift
 open Categoryᴰ
+open Category
 open isIsoOver
 
 isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
@@ -102,17 +105,22 @@ SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts = isFib
 module _ {ℓ} {ℓ'} where
   private
     module SETᴰ = Fibers (SETᴰ ℓ ℓ')
+    module C = Category (SET ℓ)
+    module Cᴰ = Categoryᴰ (SETᴰ ℓ ℓ')
 
-    bpw : (A : Category.ob (SET ℓ)) → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
+    bp : (A : SET ℓ .ob) → BinProducts SETᴰ.v[ A ]
+    bp A = BinProductsⱽ→BinProductsFibers (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ
+
+    bpw : {A : Category.ob (SET ℓ)} → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
       UniversalElement SETᴰ.v[ A ] _
-    bpw A Aᴰ =
+    bpw {A = A} Aᴰ =
       (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
         (λ cᴰ' → BinProductsⱽSETᴰ A (cᴰ' , Aᴰ)))
 
   open Functor
   open UniversalElement
   FiberExponentialSETᴰ : (A : Category.ob (SET ℓ)) → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
-    Exponential SETᴰ.v[ A ] Aᴰ Aᴰ' (bpw A Aᴰ)
+    Exponential SETᴰ.v[ A ] Aᴰ Aᴰ' (bpw Aᴰ)
   FiberExponentialSETᴰ A Aᴰ Aᴰ' .vertex a .fst = ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩
   FiberExponentialSETᴰ A Aᴰ Aᴰ' .vertex a .snd = isSet→ (str (Aᴰ' a))
   FiberExponentialSETᴰ A Aᴰ Aᴰ' .element a (f , aᴰ) = f aᴰ
@@ -123,45 +131,86 @@ module _ {ℓ} {ℓ'} where
     ΣPathP (
       funExt₂ (λ a aᴰ'' → funExt λ aᴰ → sym (funExt⁻ (funExt⁻ x a) (aᴰ'' , aᴰ)))
       ∙ fromPathP (λ i → transport-filler (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) g (~ i)) ,
-      isSet→SquareP (λ _ _ → str (RightAdjointProf (BinProductWithF SETᴰ.v[ A ] (bpw A Aᴰ)) .F-ob Aᴰ' .F-ob Aᴰ'')) _ _ _ _
+      isSet→SquareP (λ _ _ → str (RightAdjointProf (BinProductWithF SETᴰ.v[ A ] (bpw Aᴰ)) .F-ob Aᴰ' .F-ob Aᴰ'')) _ _ _ _
       )
 
   open Exponentialⱽ
   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
   ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof g .fst .fst b bᴰ aᴰ = g b (bᴰ , aᴰ)
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof g .fst .snd =
-    -- TODO : Stuck here
-    -- action SETᴰ.v[ B ]
-    --  (F-ob
-    --   (ExponentiableProf SETᴰ.v[ B ]
-    --    (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
-    --     (λ cᴰ'' →
-    --        BinProductsⱽSETᴰ B
-    --        (cᴰ'' ,
-    --         F-ob (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) Aᴰ))))
-    --   (F-ob (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) Aᴰ'))
-    --  (ExponentialsⱽSETᴰ Aᴰ Aᴰ' .reindex⇒ f Bᴰ .equiv-proof g .fst .fst)
-    --  (preservesExpCone
-    --   (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f)
-    --   (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
-    --    (λ cᴰ'' → BinProductsⱽSETᴰ A (cᴰ'' , Aᴰ)))
-    --   (λ z →
-    --      cartesianLift-preserves-BinProductFiber (SETᴰ ℓ ℓ') isFibrationSETᴰ
-    --      (BinProductsⱽSETᴰ A (z , Aᴰ)) f)
-    --   (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
-    --    (λ cᴰ'' →
-    --       BinProductsⱽSETᴰ B
-    --       (cᴰ'' ,
-    --        F-ob (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) Aᴰ)))
-    --   Aᴰ' .fst (ExponentialsⱽSETᴰ Aᴰ Aᴰ' .cᴰ⇒cᴰ' .vertex)
-    --   (ExponentialsⱽSETᴰ Aᴰ Aᴰ' .cᴰ⇒cᴰ' .element))
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .fst b bᴰ aᴰ = gᴰ b (bᴰ , aᴰ)
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .snd =
+    λgᴰ PB.⋆ app'
+      ≡⟨ {!!} ⟩
+    (introCL CLAᴰ⇒Aᴰ' λgᴰ') PB.⋆ (α (Aᴰ ⇒A Aᴰ') ExpA.app)
+      ≡⟨ {!sym $ α-natural ? ? ? ?!} ⟩
     {!!}
-    ≡⟨ {!!} ⟩
-    g
+      ≡⟨ {!!} ⟩
+    gᴰ
     ∎
     where
-    --                  g
+    f*F : Functor SETᴰ.v[ A ] SETᴰ.v[ B ]
+    f*F = CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f
+
+    f*_ : SETᴰ.v[ A ] .ob → SETᴰ.v[ B ] .ob
+    f*_ = f*F .F-ob
+
+    module bpA = BinProductsNotation (bp A)
+    module bpB = BinProductsNotation (bp B)
+
+    _,pA_ = bpA._,p_
+    _,pB_ = bpB._,p_
+    _×A_ = bpA._×_
+    _×pA_ = bpA._×p_
+    _×B_ = bpB._×_
+    _×pB_ = bpB._×p_
+
+    module ExpA = ExponentialsNotation (bp A) (FiberExponentialSETᴰ A)
+    module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
+
+    _⇒A_ = ExpA._⇒_
+    _⇒B_ = ExpB._⇒_
+
+    CLAᴰ = isFibrationSETᴰ {c = B}{c' = A} Aᴰ f
+    CLAᴰ' = isFibrationSETᴰ {c = B}{c' = A} Aᴰ' f
+    CLAᴰ⇒Aᴰ' = isFibrationSETᴰ {c = B}{c' = A} (Aᴰ ⇒A Aᴰ') f
+    module f*Aᴰ = CartesianLift CLAᴰ
+    module f*Aᴰ' = CartesianLift CLAᴰ'
+    module f*Aᴰ⇒Aᴰ' = CartesianLift CLAᴰ⇒Aᴰ'
+
+    expPshA : Functor (SETᴰ.v[ A ] ^op) (SET (ℓ-max ℓ ℓ'))
+    expPshA = ExponentiableProf SETᴰ.v[ A ] (bpw Aᴰ) .F-ob Aᴰ'
+
+    expPshB : Functor (SETᴰ.v[ B ] ^op) (SET (ℓ-max ℓ ℓ'))
+    expPshB = ExponentiableProf SETᴰ.v[ B ] (bpw (f* Aᴰ)) .F-ob (f* Aᴰ')
+
+    module PA = PresheafNotation expPshA
+    module PB = PresheafNotation expPshB
+
+    --              λgᴰ
+    --    Bᴰ -------------> f* (Aᴰ ⇒A Aᴰ')
+    --    |                       |
+    --    |                       |
+    --    |                       |
+    --    v                       v
+    --    B --------------------> B
+    --             id
+    λgᴰ : SETᴰ.v[ B ] [ Bᴰ , f* (Aᴰ ⇒A Aᴰ') ]
+    λgᴰ = ExpB.lda gᴰ
+
+    λgᴰ' : Cᴰ.Hom[ f ][ Bᴰ , Aᴰ ⇒A Aᴰ' ]
+    λgᴰ' = Cᴰ._⋆ᴰ_ {zᴰ = Aᴰ ⇒A Aᴰ'} λgᴰ f*Aᴰ⇒Aᴰ'.π
+
+    λgᴰ≡ : λgᴰ ≡ introCL CLAᴰ⇒Aᴰ' λgᴰ'
+    λgᴰ≡ = ηᴰCL CLAᴰ⇒Aᴰ'
+
+    u : introCL CLAᴰ⇒Aᴰ' λgᴰ' ≡ {!!}
+    u = {!!}
+
+    -- precompλgᴰ×id : SETᴰ.v[ B ] [ (f* (Aᴰ ⇒A Aᴰ')) ×B (f* Aᴰ) , f* Aᴰ' ] →
+    --                SETᴰ.v[ B ] [  Bᴰ ×B (f* Aᴰ) , f* Aᴰ' ]
+    -- precompλgᴰ×id = expPshB .F-hom λgᴰ
+
+    --                  gᴰ
     -- Bᴰ ×ⱽ f* Aᴰ -------------> Aᴰ'
     --    |                       |
     --    |                       |
@@ -169,9 +218,29 @@ module _ {ℓ} {ℓ'} where
     --    v                       v
     --    B --------------------> A
     --             f
-    g' : (SETᴰ ℓ ℓ') [ f ][ BinProductsⱽSETᴰ B (Bᴰ , (CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f) .F-ob Aᴰ) .vertexⱽ , Aᴰ' ]
-    g' = g
-    -- funExt₂ (λ where
-    --   b (bᴰ , aᴰ) → {!g!}
-    -- )
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof g .snd = {!!}
+    gᴰ' : (SETᴰ ℓ ℓ') [ f ][ Bᴰ ×B (f* Aᴰ) , Aᴰ' ]
+    gᴰ' = gᴰ
+
+    pshHom : PshHomᴰ f*F expPshA expPshB
+    pshHom = preservesExpCone f*F (λ Aᴰ'' → bp A (Aᴰ'' , Aᴰ))
+        (λ z →
+           cartesianLift-preserves-BinProductFiber (SETᴰ ℓ ℓ') isFibrationSETᴰ
+           (BinProductsⱽSETᴰ A (z , Aᴰ)) f)
+        (bpw (f* Aᴰ)) Aᴰ'
+
+    α : (Aᴰ'' : ob SETᴰ.v[ A ]) → PA.p[ Aᴰ'' ] → PB.p[ f* Aᴰ'' ]
+    α = pshHom .fst
+
+    α-natural : ∀ Aᴰ₁ Aᴰ₂ h x → α Aᴰ₁ (h PA.⋆ x) ≡ ((f*F .F-hom h) PB.⋆ α Aᴰ₂ x)
+    α-natural = pshHom .snd
+
+    app' : SETᴰ.v[ B ] [ (f* (Aᴰ ⇒A Aᴰ')) ×B (f* Aᴰ) , f* Aᴰ' ]
+    app' = α (Aᴰ ⇒A Aᴰ') ExpA.app
+
+    app'' : Cᴰ.Hom[ f ][ (f* (Aᴰ ⇒A Aᴰ')) ×B (f* Aᴰ) , Aᴰ' ]
+    app'' = Cᴰ._⋆ᴰ_ {zᴰ = Aᴰ'} app' f*Aᴰ'.π
+
+    app≡ : app' ≡ introCL CLAᴰ' app''
+    app≡ = ηᴰCL CLAᴰ'
+
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .snd = {!!}

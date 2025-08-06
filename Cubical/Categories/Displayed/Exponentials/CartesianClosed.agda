@@ -32,11 +32,11 @@ private
 open CartesianClosedCategory
 open CartesianCategoryᴰ
 open CartesianCategory
-record CartesianClosedCategoryᴰ (CCC : CartesianClosedCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type _ where
+record CartesianClosedCategoryᴰ (CCC : CartesianClosedCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
   no-eta-equality
   field
     CCᴰ : CartesianCategoryᴰ (CCC .CC) ℓCᴰ ℓCᴰ'
-    expᴰ : Exponentialsᴰ
+    expsᴰ : Exponentialsᴰ
       (CCᴰ .Cᴰ)
       (CCC .CC .bp)
       (AllExponentiable→Exponentials (CCC .CC .C) (CCC .CC .bp) (CCC .exps))

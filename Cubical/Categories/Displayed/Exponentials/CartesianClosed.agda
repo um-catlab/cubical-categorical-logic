@@ -32,14 +32,15 @@ private
 open CartesianClosedCategory
 open CartesianCategoryᴰ
 open CartesianCategory
-CartesianClosedCategoryᴰ : (CCC : CartesianClosedCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
-CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ' =
-  Σ[ CCᴰ ∈ CartesianCategoryᴰ (CCC .CC) ℓCᴰ ℓCᴰ' ]
-  Exponentialsᴰ
-    (CCᴰ .Cᴰ)
-    (CCC .CC .bp)
-    (AllExponentiable→Exponentials (CCC .CC .C) (CCC .CC .bp) (CCC .exps))
-    (CCᴰ .bpᴰ)
+record CartesianClosedCategoryᴰ (CCC : CartesianClosedCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type _ where
+  no-eta-equality
+  field
+    CCᴰ : CartesianCategoryᴰ (CCC .CC) ℓCᴰ ℓCᴰ'
+    expᴰ : Exponentialsᴰ
+      (CCᴰ .Cᴰ)
+      (CCC .CC .bp)
+      (AllExponentiable→Exponentials (CCC .CC .C) (CCC .CC .bp) (CCC .exps))
+      (CCᴰ .bpᴰ)
 
 open CartesianCategoryⱽ
 CartesianClosedCategoryⱽ :

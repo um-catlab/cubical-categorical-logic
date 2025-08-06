@@ -15,13 +15,17 @@ open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Bifunctor
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
@@ -111,11 +115,9 @@ module _ {ℓ} {ℓ'} where
     bp : (A : SET ℓ .ob) → BinProducts SETᴰ.v[ A ]
     bp A = BinProductsⱽ→BinProductsFibers (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ
 
-    bpw : {A : Category.ob (SET ℓ)} → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
-      UniversalElement SETᴰ.v[ A ] _
-    bpw {A = A} Aᴰ =
-      (BinProductsWithⱽ→BinProductsWithFiber (SETᴰ ℓ ℓ')
-        (λ cᴰ' → BinProductsⱽSETᴰ A (cᴰ' , Aᴰ)))
+    bpw : {A : Category.ob (SET ℓ)} → (Aᴰ : SETᴰ.ob[ A ]) →
+      BinProductsWith SETᴰ.v[ A ] Aᴰ
+    bpw {A = A} Aᴰ Aᴰ' = bp A (Aᴰ' , Aᴰ)
 
   open Functor
   open UniversalElement
@@ -128,155 +130,87 @@ module _ {ℓ} {ℓ'} where
   FiberExponentialSETᴰ A Aᴰ Aᴰ' .universal Aᴰ'' .equiv-proof f .fst .snd =
     fromPathP (λ i → transport-filler (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ × ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))
   FiberExponentialSETᴰ A Aᴰ Aᴰ' .universal Aᴰ'' .equiv-proof f .snd (g , x) =
-    ΣPathP (
-      funExt₂ (λ a aᴰ'' → funExt λ aᴰ → sym (funExt⁻ (funExt⁻ x a) (aᴰ'' , aᴰ)))
-      ∙ fromPathP (λ i → transport-filler (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) g (~ i)) ,
-      isSet→SquareP (λ _ _ → str (RightAdjointProf (BinProductWithF SETᴰ.v[ A ] (bpw Aᴰ)) .F-ob Aᴰ' .F-ob Aᴰ'')) _ _ _ _
-      )
+    {!!}
+    -- ΣPathP (
+    --   funExt₂ (λ a aᴰ'' → funExt λ aᴰ → sym (funExt⁻ (funExt⁻ x a) (aᴰ'' , aᴰ)))
+    --   ∙ fromPathP (λ i → transport-filler (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) g (~ i)) ,
+    --   isSet→SquareP (λ _ _ → str (RightAdjointProf (BinProductWithF SETᴰ.v[ A ] (bpw Aᴰ)) .F-ob Aᴰ' .F-ob Aᴰ'')) _ _ _ _
+    --   )
 
-  open import Cubical.Categories.Yoneda
-  open Exponentialⱽ
-  open UniversalElementNotation
-  ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .fst b bᴰ aᴰ = gᴰ b (bᴰ , aᴰ)
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .snd =
-    funExt₂ (λ where
-      b (bᴰ , x) →
-        -- I don't think this is the best way to solve this equality, but I have exhausted all
-        -- ideas other than expanding everything defintionally
-        -- (λgᴰ PB.⋆ app') b (bᴰ , x)
-        --   ≡⟨ refl ⟩
-        -- expPshB .F-hom λgᴰ app' b (bᴰ , x)
-        --   ≡⟨ refl ⟩
-        ((SETᴰ.v[ B ] [-, (f* Aᴰ') ]) ∘F (BinProductWithF _ (bpw (f* Aᴰ)) ^opF))
-          .F-hom λgᴰ app' b (bᴰ , x)
-          ≡⟨ refl ⟩
-        (SETᴰ.v[ B ] [-, (f* Aᴰ') ]) .F-hom ((BinProductWithF _ (bpw (f* Aᴰ)) ^opF) .F-hom λgᴰ)
-          app' b (bᴰ , x)
-          ≡⟨ refl ⟩
-          -- ?1 is some term with an intro?
-        (SETᴰ.v[ B ] [-, (f* Aᴰ') ]) .F-hom {!!}
-          app' b (bᴰ , x)
-          ≡⟨ refl ⟩
-        {!!}
-          ≡⟨ {!!} ⟩
-        {!!}
-          ≡⟨ {!!} ⟩
-        {!!}
-          ≡⟨ {!!} ⟩
-        gᴰ b (bᴰ , x)
-        ∎
-    )
-    -- λgᴰ PB.⋆ app'
-    --   ≡⟨ {!!} ⟩
-    -- (introCL CLAᴰ⇒Aᴰ' λgᴰ') PB.⋆ (α (Aᴰ ⇒A Aᴰ') ExpA.app)
-    --   ≡⟨ {!!} ⟩
-    -- gᴰ
-    -- ∎
-    where
-    f*F : Functor SETᴰ.v[ A ] SETᴰ.v[ B ]
-    f*F = CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f
+  -- open Exponentialⱽ
+  -- open UniversalElementNotation
+  -- open NatTrans
+  -- open Bifunctor
+  -- ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
+  -- ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
+  -- ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .fst b bᴰ aᴰ = gᴰ b (bᴰ , aᴰ)
+  -- ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .snd =
+  --   (λ i → ×aF .F-hom λgᴰ ⋆⟨ SETᴰ.v[ B ] ⟩ app≡ i)
+  --   ∙ ExpB.β⇒ gᴰ
+  --   where
+  --   f*F : Functor SETᴰ.v[ A ] SETᴰ.v[ B ]
+  --   f*F = CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f
 
-    f*_ : SETᴰ.v[ A ] .ob → SETᴰ.v[ B ] .ob
-    f*_ = f*F .F-ob
+  --   f*_ : SETᴰ.v[ A ] .ob → SETᴰ.v[ B ] .ob
+  --   f*_ = f*F .F-ob
 
-    module bpA = BinProductsNotation (bp A)
-    module bpB = BinProductsNotation (bp B)
+  --   module bpA = BinProductsNotation (bp A)
+  --   module bpB = BinProductsNotation (bp B)
+  --   module bpwf*Aᴰ = BinProductsWithNotation (bpw (f* Aᴰ))
+  --   open bpwf*Aᴰ
 
-    _,pA_ = bpA._,p_
-    _,pB_ = bpB._,p_
-    _×A_ = bpA._×_
-    _×pA_ = bpA._×p_
-    _×B_ = bpB._×_
-    _×pB_ = bpB._×p_
 
-    module ExpA = ExponentialsNotation (bp A) (FiberExponentialSETᴰ A)
-    module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
+  --   module ExpA = ExponentialsNotation (bp A) (FiberExponentialSETᴰ A)
+  --   module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
 
-    _⇒A_ = ExpA._⇒_
-    _⇒B_ = ExpB._⇒_
+  --   _⇒A_ = ExpA._⇒_
+  --   _⇒B_ = ExpB._⇒_
 
-    CLAᴰ = isFibrationSETᴰ {c = B}{c' = A} Aᴰ f
-    CLAᴰ' = isFibrationSETᴰ {c = B}{c' = A} Aᴰ' f
-    CLAᴰ⇒Aᴰ' = isFibrationSETᴰ {c = B}{c' = A} (Aᴰ ⇒A Aᴰ') f
-    module f*Aᴰ = CartesianLift CLAᴰ
-    module f*Aᴰ' = CartesianLift CLAᴰ'
-    module f*Aᴰ⇒Aᴰ' = CartesianLift CLAᴰ⇒Aᴰ'
+  --   CLAᴰ = isFibrationSETᴰ {c = B}{c' = A} Aᴰ f
+  --   CLAᴰ' = isFibrationSETᴰ {c = B}{c' = A} Aᴰ' f
+  --   CLAᴰ⇒Aᴰ' = isFibrationSETᴰ {c = B}{c' = A} (Aᴰ ⇒A Aᴰ') f
+  --   module f*Aᴰ = CartesianLift CLAᴰ
+  --   module f*Aᴰ' = CartesianLift CLAᴰ'
+  --   module f*Aᴰ⇒Aᴰ' = CartesianLift CLAᴰ⇒Aᴰ'
 
-    expPshA : Functor (SETᴰ.v[ A ] ^op) (SET (ℓ-max ℓ ℓ'))
-    expPshA = ExponentiableProf SETᴰ.v[ A ] (bpw Aᴰ) .F-ob Aᴰ'
+  --   expPshA : Functor (SETᴰ.v[ A ] ^op) (SET (ℓ-max ℓ ℓ'))
+  --   expPshA = ExponentiableProf SETᴰ.v[ A ] (bpw Aᴰ) .F-ob Aᴰ'
 
-    expPshB : Functor (SETᴰ.v[ B ] ^op) (SET (ℓ-max ℓ ℓ'))
-    expPshB = ExponentiableProf SETᴰ.v[ B ] (bpw (f* Aᴰ)) .F-ob (f* Aᴰ')
+  --   expPshB : Functor (SETᴰ.v[ B ] ^op) (SET (ℓ-max ℓ ℓ'))
+  --   expPshB = ExponentiableProf SETᴰ.v[ B ] (bpw (f* Aᴰ)) .F-ob (f* Aᴰ')
 
-    module PA = PresheafNotation expPshA
-    module PB = PresheafNotation expPshB
+  --   module PA = PresheafNotation expPshA
+  --   module PB = PresheafNotation expPshB
 
-    --              λgᴰ
-    --    Bᴰ -------------> f* (Aᴰ ⇒A Aᴰ')
-    --    |                       |
-    --    |                       |
-    --    |                       |
-    --    v                       v
-    --    B --------------------> B
-    --             id
-    λgᴰ : SETᴰ.v[ B ] [ Bᴰ , f* (Aᴰ ⇒A Aᴰ') ]
-    λgᴰ = ExpB.lda gᴰ
+  --   --              λgᴰ
+  --   --    Bᴰ -------------> f* (Aᴰ ⇒A Aᴰ')
+  --   --    |                       |
+  --   --    |                       |
+  --   --    |                       |
+  --   --    v                       v
+  --   --    B --------------------> B
+  --   --             id
+  --   λgᴰ : SETᴰ.v[ B ] [ Bᴰ , (f* Aᴰ) ⇒B (f* Aᴰ') ]
+  --   λgᴰ = ExpB.lda gᴰ
 
-    λgᴰ' : Cᴰ.Hom[ f ][ Bᴰ , Aᴰ ⇒A Aᴰ' ]
-    λgᴰ' = Cᴰ._⋆ᴰ_ {zᴰ = Aᴰ ⇒A Aᴰ'} λgᴰ f*Aᴰ⇒Aᴰ'.π
+  --   pshHom : PshHomᴰ f*F expPshA expPshB
+  --   pshHom = preservesExpCone f*F (bpw Aᴰ)
+  --     (λ Aᴰ' → cartesianLift-preserves-BinProductFiber (SETᴰ ℓ ℓ') isFibrationSETᴰ
+  --                      (BinProductsⱽSETᴰ A (Aᴰ' , Aᴰ)) f)
+  --     (bpw (f* Aᴰ)) Aᴰ'
+  --   α : (Aᴰ'' : ob SETᴰ.v[ A ]) → PA.p[ Aᴰ'' ] → PB.p[ f* Aᴰ'' ]
+  --   α = pshHom .fst
 
-    λgᴰ≡ : λgᴰ ≡ introCL CLAᴰ⇒Aᴰ' λgᴰ'
-    λgᴰ≡ = ηᴰCL CLAᴰ⇒Aᴰ'
+  --   vert≡ : ∀ {Aᴰ Aᴰ'} → (f* (Aᴰ ⇒A Aᴰ')) ≡ ((f* Aᴰ) ⇒B (f* Aᴰ'))
+  --   vert≡ = refl
 
-    u : expPshB .F-hom λgᴰ ≡ λ ϕ → λgᴰ ×pB (SETᴰ.v[ B ] .id) ⋆⟨ SETᴰ.v[ B ] ⟩ ϕ
-    u =
-      -- fromPathP (λ i → transport-filler (λ j → (x : expPshB .F-ob (f* (Aᴰ ⇒A Aᴰ')) .fst) →
-      --                                            (b : ⟨ B ⟩) →
-      --                                            ⟨ Bᴰ b ⟩ × ⟨ Aᴰ (f b) ⟩ →
-      --                                            {!⟨ Aᴰ' (f b) ⟩!})
-      --                    (expPshB .F-hom λgᴰ) i)
-      funExt₂
-      (λ where x b → funExt λ where
-        (bᴰ , aᴰ) → {!!}
-      )
+  --   app≡ : α (Aᴰ ⇒A Aᴰ') ExpA.app ≡ ExpB.app
+  --   app≡ = β (FiberExponentialSETᴰ B (f* Aᴰ) (f* Aᴰ'))
 
-    -- precompλgᴰ×id : SETᴰ.v[ B ] [ (f* (Aᴰ ⇒A Aᴰ')) ×B (f* Aᴰ) , f* Aᴰ' ] →
-    --                SETᴰ.v[ B ] [  Bᴰ ×B (f* Aᴰ) , f* Aᴰ' ]
-    -- precompλgᴰ×id = expPshB .F-hom λgᴰ
+  -- ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .snd (hᴰ , x) =
+  --   {!!}
+  --   where
+  --   module ExpA = ExponentialsNotation (bp A) (FiberExponentialSETᴰ A)
+  --   module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
 
-    --                  gᴰ
-    -- Bᴰ ×ⱽ f* Aᴰ -------------> Aᴰ'
-    --    |                       |
-    --    |                       |
-    --    |                       |
-    --    v                       v
-    --    B --------------------> A
-    --             f
-    gᴰ' : (SETᴰ ℓ ℓ') [ f ][ Bᴰ ×B (f* Aᴰ) , Aᴰ' ]
-    gᴰ' = gᴰ
-
-    pshHom : PshHomᴰ f*F expPshA expPshB
-    pshHom = preservesExpCone f*F (λ Aᴰ'' → bp A (Aᴰ'' , Aᴰ))
-        (λ z →
-           cartesianLift-preserves-BinProductFiber (SETᴰ ℓ ℓ') isFibrationSETᴰ
-           (BinProductsⱽSETᴰ A (z , Aᴰ)) f)
-        (bpw (f* Aᴰ)) Aᴰ'
-
-    α : (Aᴰ'' : ob SETᴰ.v[ A ]) → PA.p[ Aᴰ'' ] → PB.p[ f* Aᴰ'' ]
-    α = pshHom .fst
-
-    α-natural : ∀ Aᴰ₁ Aᴰ₂ h x → α Aᴰ₁ (h PA.⋆ x) ≡ ((f*F .F-hom h) PB.⋆ α Aᴰ₂ x)
-    α-natural = pshHom .snd
-
-    app' : SETᴰ.v[ B ] [ (f* (Aᴰ ⇒A Aᴰ')) ×B (f* Aᴰ) , f* Aᴰ' ]
-    app' = α (Aᴰ ⇒A Aᴰ') ExpA.app
-
-    app'' : Cᴰ.Hom[ f ][ (f* (Aᴰ ⇒A Aᴰ')) ×B (f* Aᴰ) , Aᴰ' ]
-    app'' = Cᴰ._⋆ᴰ_ {zᴰ = Aᴰ'} app' f*Aᴰ'.π
-
-    app≡ : app' ≡ introCL CLAᴰ' app''
-    app≡ = ηᴰCL CLAᴰ'
-
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .snd = {!!}
+  --   _⇒A_ = ExpA._⇒_

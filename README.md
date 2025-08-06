@@ -1,16 +1,17 @@
-* Categorical Logic and Type Theory in Cubical
+# Categorical Logic and Type Theory in Cubical
 
-This library is an extension of the cubical library [1] focused on
+This library is an extension of the [cubical library][1] focused on
 formalization of categorical logic and applications to type theory,
 especially logical relations. Most of the library is intended to
 eventually be merged upstream after we have experience with the design
 here.
 
-You may click through an HTML version of this repository [[https://maxsnew.com/cubical-categorical-logic/Cubical.Everything.html][here]].
+The source code has a glorious clickable [rendered version][2].
 
 [1]: https://github.com/agda/cubical
+[2]: https://maxsnew.com/cubical-categorical-logic/Cubical.Everything.html
 
-* Style and Build Tests
+# Style and Build Tests
 
 There are style constraints on whitespace that are used upstream, so we check those with the ~fix-whitespace~ whitespace utility. This checks things like trailing whitespace, tabs v. spaces, etc. There are `makefile` targets to check and fix any whitespace issues.
 

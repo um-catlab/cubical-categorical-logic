@@ -189,3 +189,21 @@ jobs:
         with:
           path: ~/cubical/_build
           key: ${{ steps.cache-cubical-library-restore.outputs.cache-primary-key }}
+
+      ########################################################################
+      ## HTML GENERATION
+      ########################################################################
+
+      - name: Htmlize cubical categorical logic
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        run: |
+          make listings \
+            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
+            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace'
+
+      - name: Deploy to GitHub Pages
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: html

@@ -15,10 +15,7 @@ open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Instances.Sets
@@ -138,8 +135,6 @@ module _ {ℓ} {ℓ'} where
 
   open Exponentialⱽ
   open UniversalElementNotation
-  open NatTrans
-  open Bifunctor
   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
   ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
   ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ .equiv-proof gᴰ .fst .fst b bᴰ aᴰ = gᴰ b (bᴰ , aᴰ)

@@ -94,9 +94,6 @@ module ExponentialNotation {C : Category ℓC ℓC'}{c d} -×c (exp : Exponentia
   lda : ∀ {Γ} → C [ Γ ×a , d ] → C [ Γ , vert ]
   lda = intro
 
-  β⇒ : ∀ {Γ} → (f : C [ Γ ×a , d ]) → ((π₁ C.⋆ lda f) ,p π₂) C.⋆ app ≡ f
-  β⇒ f = β
-
 module ExponentiableNotation {C : Category ℓC ℓC'}{c}
   -×c
   (c⇒- : Exponentiable C c -×c) where

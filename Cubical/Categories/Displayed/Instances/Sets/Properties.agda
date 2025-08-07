@@ -140,11 +140,11 @@ module _ {ℓ} {ℓ'} where
       (λ gᴰ b bᴰ faᴰ → gᴰ b (bᴰ , faᴰ)) ,
       (λ gᴰ →
         (λ i → ×f*Aᴰ.×aF .F-hom (ExpB.lda gᴰ) ⋆⟨ SETᴰ.v[ B ] ⟩ preserves-elt i)
-        ∙ ExpB.β⇒ gᴰ
+        ∙ β (FiberExponentialSETᴰ _ _ _)
       ) ,
       (λ gᴰ → funExt₃ λ b bᴰ faᴰ →
         (λ i → (×f*Aᴰ.×aF .F-hom gᴰ ⋆⟨ SETᴰ.v[ B ] ⟩ preserves-elt i) b (bᴰ , faᴰ))
-        ∙ funExt⁻ (funExt⁻ (ExpB.β⇒ _) b) ((bᴰ , faᴰ))
+        ∙ funExt⁻ (funExt⁻ (β (FiberExponentialSETᴰ _ _ _)) b) ((bᴰ , faᴰ))
       )
     )
     where

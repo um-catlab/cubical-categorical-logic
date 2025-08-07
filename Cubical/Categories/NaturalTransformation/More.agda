@@ -2,22 +2,13 @@
 module Cubical.Categories.NaturalTransformation.More where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
-open import Cubical.Data.Sigma
-import      Cubical.Data.Equality as Eq
-open import Cubical.Categories.Category renaming (isIso to isIsoC)
+
+open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.Equality
 open import Cubical.Categories.Functor.Properties
-open import Cubical.Categories.Commutativity
-open import Cubical.Categories.Morphism
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
-
-open import Cubical.Categories.Instances.Functors
 
 private
   variable
@@ -28,7 +19,7 @@ private
 open Category
 open NatTrans
 open NatIso
-open isIsoC
+open isIso
 
 infixl 8 _∘ᵛ_
 infixl 8 _∘ʰ_
@@ -92,7 +83,7 @@ module _ {A : Category ℓA ℓA'}
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D}
          (α : NatTrans F G) where
   isNatIso : Type _
-  isNatIso = ∀ x → isIsoC D (α .N-ob x)
+  isNatIso = ∀ x → isIso D (α .N-ob x)
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D}
          (α : F ≅ᶜ G) where

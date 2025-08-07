@@ -102,7 +102,6 @@ SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.termⱽ = Terminalsⱽ
 SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.bpⱽ = BinProductsⱽSETᴰ
 SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts = isFibrationSETᴰ
 
-
 module _ {ℓ} {ℓ'} where
   private
     module SETᴰ = Fibers (SETᴰ ℓ ℓ')

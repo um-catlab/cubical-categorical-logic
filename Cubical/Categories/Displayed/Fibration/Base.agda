@@ -226,15 +226,44 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
         ∙ Cᴰ.reind-filler _ _)
 
+
   CartesianLift' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
   CartesianLift' {x} yᴰ f =
     UniversalElementⱽ Cᴰ x (CARTESIANLIFT .F-obᴰ $ _ , yᴰ , f)
+
+  module _ {x y : C .ob}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]}
+    (cL : CartesianLift yᴰ f)
+    where
+
+    private
+      module cL = CartesianLift cL
+    open UniversalElementⱽ
+
+    CartesianLift→CartesianLift' : CartesianLift' yᴰ f
+    CartesianLift→CartesianLift' .vertexⱽ = cL.f*yᴰ
+    CartesianLift→CartesianLift' .elementⱽ = Cᴰ.idᴰ Cᴰ.⋆ᴰ cL.π
+    CartesianLift→CartesianLift' .universalⱽ .fst = cL.isCartesian .fst
+    CartesianLift→CartesianLift' .universalⱽ {z} {zᴰ} {g} .snd .fst gfᴰ =
+      Cᴰ.rectify $ Cᴰ.≡out $
+        sym (Cᴰ.reind-filler _ _)
+        ∙ sym (Cᴰ.reind-filler _ _)
+        ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ⟩
+        ∙ cL.βCL
+    CartesianLift→CartesianLift' .universalⱽ {z} {zᴰ} {g} .snd .snd gᴰ =
+      Cᴰ.rectify $ Cᴰ.≡out $ cL.introCL≡ $
+        sym (Cᴰ.reind-filler _ _)
+        ∙ sym (Cᴰ.reind-filler _ _)
+        ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ⟩
 
   isFibration' : Type _
   isFibration' =
     ∀ {c : C .ob}{c' : C .ob}
     (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
     → CartesianLift' cᴰ' f
+
+  isFibration→isFibration' : isFibration → isFibration'
+  isFibration→isFibration' isFib cᴰ' f =
+    CartesianLift→CartesianLift' (isFib cᴰ' f)
 
   CartesianLift'F : isFibration' → Functorⱽ (C /C Cᴰ) Cᴰ
   CartesianLift'F cL's = FunctorⱽComprehension {Pᴰ = CARTESIANLIFT}

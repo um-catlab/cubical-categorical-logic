@@ -14,6 +14,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Exponentials
+open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Displayed.Base

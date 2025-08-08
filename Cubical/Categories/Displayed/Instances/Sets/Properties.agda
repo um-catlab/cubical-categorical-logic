@@ -127,9 +127,7 @@ module _ {ℓ} {ℓ'} where
           (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ × ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))),
       (λ f  → fromPathP
         (λ i → transport-filler
-          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))
-      )
-    )
+          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))))
 
   open Exponentialⱽ
   open UniversalElementNotation
@@ -139,20 +137,13 @@ module _ {ℓ} {ℓ'} where
     isIsoToIsEquiv (
       (λ gᴰ b bᴰ faᴰ → gᴰ b (bᴰ , faᴰ)) ,
       (λ gᴰ →
-        (λ i → ×f*Aᴰ.×aF .F-hom (ExpB.lda gᴰ) ⋆⟨ SETᴰ.v[ B ] ⟩ preserves-elt i)
-        ∙ β (FiberExponentialSETᴰ _ _ _)
+        cong₂ (seq' SETᴰ.v[ B ]) refl (ExpB.⇒ue.β _ _)
+        ∙ ExpB.⇒ue.β _ _
       ) ,
       (λ gᴰ → funExt₃ λ b bᴰ faᴰ →
-        (λ i → (×f*Aᴰ.×aF .F-hom gᴰ ⋆⟨ SETᴰ.v[ B ] ⟩ preserves-elt i) b (bᴰ , faᴰ))
-        ∙ funExt⁻ (funExt⁻ (β (FiberExponentialSETᴰ _ _ _)) b) ((bᴰ , faᴰ))
-      )
+        funExt⁻ (funExt⁻
+          (cong₂ (seq' SETᴰ.v[ B ]) refl (ExpB.⇒ue.β _ _) ∙ ExpB.⇒ue.β _ _)
+        b) (bᴰ , faᴰ))
     )
     where
-    f*F : Functor SETᴰ.v[ A ] SETᴰ.v[ B ]
-    f*F = CartesianLiftF-fiber (SETᴰ ℓ ℓ') isFibrationSETᴰ f
-
-    module ×f*Aᴰ = BinProductsWithNotation (bpw (f*F ⟅ Aᴰ ⟆))
     module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
-
-    preserves-elt = β (FiberExponentialSETᴰ B
-                         (f*F ⟅ Aᴰ ⟆) (f*F ⟅ Aᴰ' ⟆)) {p = ExpB.app}

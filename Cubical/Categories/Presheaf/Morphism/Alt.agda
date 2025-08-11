@@ -60,6 +60,7 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (Fᴰ : PshHomᴰ F P Q)
          where
   private
+    module P = PresheafNotation P
     module Q = PresheafNotation Q
   ∫F : Functor (∫ᴾ P) (∫ᴾ Q)
   ∫F .F-ob (c , p) = F ⟅ c ⟆ , Fᴰ .fst c p
@@ -69,9 +70,13 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
   ∫F .F-id = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-id)
   ∫F .F-seq (f , _) (g , _) = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-seq f g)
 
+  becomesUniversal :
+    ∀ (v : C .ob) (e : P.p[ v ]) → Type _
+  becomesUniversal v e = isUniversal D Q (F ⟅ v ⟆) (Fᴰ .fst _ e)
+
   preservesUniversalElement : UniversalElement C P → Type _
   preservesUniversalElement ue =
-    isUniversal D Q (F ⟅ ue .vertex ⟆) (Fᴰ .fst _ (ue .element))
+    becomesUniversal (ue .vertex) (ue .element)
 
   preservesUniversalElements : Type _
   preservesUniversalElements = ∀ ue → preservesUniversalElement ue

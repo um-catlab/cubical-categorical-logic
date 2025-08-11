@@ -16,6 +16,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Displayed.Base
@@ -67,9 +68,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (λ _ → cartesianLift-preserves-BinProductFiber Cᴰ cartesianLifts (bpⱽ _ _) f)
             (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
             cᴰ⇒cᴰ'
-
       open ExponentialNotation _ cᴰ⇒cᴰ' public
-      open BinProductsⱽNotation _ bpⱽ hiding (vert)
+      open BinProductsⱽNotation _ bpⱽ
 
       intro≡ :
         ∀ {xᴰ : Cᴰ.ob[ c ]} →
@@ -78,6 +78,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         → Path Cᴰ.Hom[ _ , _ ] (C.id , fᴰ) ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ gᴰ ) ,ⱽ π₂) Cᴰ.⋆ᴰ app))
         → Path Cᴰ.Hom[ _ , _ ] (C.id , lda fᴰ) (C.id , gᴰ)
       intro≡ p = Cᴰ.≡in (⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _ ))
+
+      module f*⟨cᴰ⇒cᴰ'⟩ {b} (f : C [ b , c ]) =
+        ExponentialNotation
+          _ -- The following is obviously terrible and should be redesigned somehow
+          (preservesUniversalElement→UniversalElement
+            (preservesExpCone
+              ((CartesianLiftF-fiber Cᴰ cartesianLifts f))
+              ((BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _))
+              ((λ _ → cartesianLift-preserves-BinProductFiber Cᴰ cartesianLifts (bpⱽ _ _) f))
+              ((BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)) cᴰ')
+            cᴰ⇒cᴰ' (reindex⇒ f))
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'

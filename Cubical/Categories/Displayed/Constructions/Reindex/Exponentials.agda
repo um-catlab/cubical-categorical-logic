@@ -57,9 +57,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     (exp : Exponentialⱽ Dᴰ vbp isFib Fcᴰ Fcᴰ')
     where
 
-    open Exponentialⱽ
-    module Fcᴰ⇒Fcᴰ' = Exponentialⱽ exp
+    private
+      module Fcᴰ⇒Fcᴰ' = Exponentialⱽ exp
+      module isFib = isFibrationNotation _ isFib
 
+    open Exponentialⱽ
     open BinProductsⱽNotation Dᴰ vbp
 
     preservesExponentialⱽ :
@@ -87,4 +89,19 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
           )
         ∙ (sym $ Dᴰ.reind-filler (F .F-id) _)
         )
-    preservesExponentialⱽ .reindex⇒ = {!!}
+    preservesExponentialⱽ .reindex⇒ {Γ} γ Γᴰ = isIsoToIsEquiv
+      ( (λ fⱽ →
+        Dᴰ.reind (sym $ F .F-id) $ Fγ*⟨Fcᴰ⇒Fcᴰ'⟩.lda (Dᴰ.reind (F .F-id) fⱽ)
+        )
+      , (λ fⱽ → Dᴰ.rectify $ Dᴰ.≡out $
+        {!!}
+        ∙ (Dᴰ.≡in $ Fγ*⟨Fcᴰ⇒Fcᴰ'⟩.⇒ue.β)
+        ∙ (sym $ Dᴰ.reind-filler (F .F-id) _))
+      , λ gⱽ → Dᴰ.rectify $ Dᴰ.≡out $
+        (sym $ Dᴰ.reind-filler _ _)
+        ∙ {!!}
+      )
+        -- ∙ (Dᴰ.≡in $ Fγ*⟨Fcᴰ⇒Fcᴰ'⟩.⇒ue.intro⟨ Dᴰ.≡out $ Dᴰ.reind-filler _ _ ⟩)
+        -- ∙ (Dᴰ.≡in $ {!Fγ*⟨Fcᴰ⇒Fcᴰ'⟩.⇒ue.η!}))
+      where
+        module Fγ*⟨Fcᴰ⇒Fcᴰ'⟩ = Fcᴰ⇒Fcᴰ'.f*⟨cᴰ⇒cᴰ'⟩ (F ⟪ γ ⟫)

@@ -59,11 +59,12 @@ module _ {C : Category ℓC ℓC'}
          {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
          {Pᴰ : Profunctorⱽ Cᴰ Dᴰ ℓSᴰ}
          (uesⱽ : UniversalElementsⱽ Pᴰ) where
-  -- WARNING: reindF
-  -- The reind is only needed on morphisms. Would probably be
-  -- preferable to have a reindF'' that is Eq on objects but path on
-  -- morphisms
+
+  -- WARNING: the following definition uses reindexing on
+  -- morphisms. There's no way around this without a "primitive"
+  -- vertical composition.
   FunctorⱽComprehension : Functorⱽ Cᴰ Dᴰ
-  FunctorⱽComprehension = reindF (Functor≡ (λ _ → refl) (Category.⋆IdL C)) $
+  FunctorⱽComprehension = reindF'' _ Eq.refl
+    (implicitFunExt (implicitFunExt (funExt (Category.⋆IdL C)))) $
     FunctorᴰComprehension Pᴰ λ x xᴰ →
       UniversalElementⱽ.toUniversalᴰ (uesⱽ x xᴰ)

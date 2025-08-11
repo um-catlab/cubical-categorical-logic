@@ -48,4 +48,4 @@ CartesianClosedCategoryⱽ C ℓCᴰ ℓCᴰ' =
   Σ[ CCⱽ ∈ CartesianCategoryⱽ C ℓCᴰ ℓCᴰ' ]
   Σ[ bp ∈ BinProducts C ]
   Exponentialsⱽ (Cᴰ CCⱽ) (bpⱽ CCⱽ) (cartesianLifts CCⱽ)
-  × UniversalQuantifiers bp (isFibration→isFibration' $ CCⱽ .cartesianLifts)
+  × UniversalQuantifiers bp (CCⱽ .cartesianLifts)

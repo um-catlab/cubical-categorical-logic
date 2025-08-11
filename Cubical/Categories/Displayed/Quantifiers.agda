@@ -66,8 +66,7 @@ module _
 
   module UniversalQuantifierNotation {a b}{pᴰ : Cᴰ.ob[ a × b ]}
     (∀pᴰ : UniversalQuantifier pᴰ) where
-    private
-      module ∀ueⱽ = UniversalElementⱽ ∀pᴰ
+    module ∀ueⱽ = UniversalElementⱽ ∀pᴰ
     open Functor
     open Functorᴰ
 
@@ -81,5 +80,11 @@ module _
       Cᴰ [ C.id ×p C.id ][ (weakenⱽ ^opFⱽ) .F-obᴰ Γ , pᴰ ] →
       Cᴰ [ C.id ][ Γ , vert ]
     lda fᴰ = ∀ueⱽ.introⱽ fᴰ
+
+  module UniversalQuantifiersNotation (∀ᴰ : UniversalQuantifiers) where
+    module _ {a b}{pᴰ : Cᴰ.ob[ a × b ]} where
+      open UniversalQuantifierNotation (∀ᴰ pᴰ) hiding (module ∀ueⱽ) public
+    module ∀ueⱽ {a b}(pᴰ : Cᴰ.ob[ a × b ]) =
+      UniversalQuantifierNotation.∀ueⱽ (∀ᴰ pᴰ)
 
   -- TODO: define Existential Quantifier/weak Sigma as LeftAdjoint

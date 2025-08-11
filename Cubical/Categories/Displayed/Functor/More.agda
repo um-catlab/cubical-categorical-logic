@@ -17,6 +17,9 @@ private
   variable
     ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
+mixedHEq : {A0 A1 : Type ℓ} (Aeq : A0 Eq.≡ A1) (a0 : A0)(a1 : A1) → Type _
+mixedHEq Aeq a0 a1 = Eq.transport (λ A → A) Aeq a0 ≡ a1
+
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -94,6 +97,19 @@ module _
 
       GF-hom : GF-hom-ty GF-ob
       GF-hom = _ , GF-hom≡FF-hom
+
+  reindF'' : (G : Functor C D)
+             (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)
+             (GF-hom≡FF-hom :
+              mixedHEq (Eq.ap (λ F-ob₁ → ∀ {x} {y}
+                         → C [ x , y ] → D [ F-ob₁ x , F-ob₁ y ])
+                         GF-ob≡FF-ob)
+                (F .F-hom)
+                (G .F-hom)
+                )
+          → Functorᴰ F Cᴰ Dᴰ
+          → Functorᴰ G Cᴰ Dᴰ
+  reindF'' G ob≡ hom≡ = reindF' G ob≡ (Eq.pathToEq hom≡)
 
 Functorⱽ : {C : Category ℓC ℓC'}
   → Categoryᴰ C ℓCᴰ ℓCᴰ' → Categoryᴰ C ℓDᴰ ℓDᴰ'

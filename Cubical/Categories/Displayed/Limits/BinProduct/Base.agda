@@ -90,7 +90,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   module BinProductⱽNotation {c}{cᴰ cᴰ' : Cᴰ.ob[ c ]}
     (vbp : BinProductⱽ (cᴰ , cᴰ')) where
 
-    open UniversalElementⱽ vbp public
+    module ×ueⱽ = UniversalElementⱽ vbp
+    open ×ueⱽ
 
     vert : Cᴰ.ob[ c ]
     vert = vertexⱽ
@@ -150,6 +151,23 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
           → fᴰ ≡ (fᴰ Cⱽ.⋆ᴰⱽ π₁ ,ⱽ fᴰ Cⱽ.⋆ᴰⱽ  π₂)
         ×ηⱽ = ηⱽ
 
+    module _ {x : C .ob}{xᴰ : Cᴰ.ob[ x ]}{f g : C [ x , c ]} where
+      private
+        module Cⱽ = Fibers Cᴰ
+      opaque
+        ⟨_⟩,ⱽ⟨_⟩ :
+          {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+          {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+          {gᴰ : Cᴰ.Hom[ g ][ xᴰ , cᴰ ]}
+          {gᴰ' : Cᴰ.Hom[ g ][ xᴰ , cᴰ' ]}
+          → Path Cⱽ.Hom[ _ , _ ] (f , fᴰ) (g , gᴰ)
+          → Path Cⱽ.Hom[ _ , _ ] (f , fᴰ') (g , gᴰ')
+          → Path Cⱽ.Hom[ _ , _ ] (f , (fᴰ ,ⱽ fᴰ')) (g , (gᴰ ,ⱽ gᴰ'))
+        ⟨ p ⟩,ⱽ⟨ p' ⟩ = ∫ue.intro⟨ ΣPathP (cong fst p
+          , ΣPathP
+          ( (Cⱽ.≡out $ p)
+          , (Cⱽ.rectify $ Cⱽ.≡out $ p'))) ⟩
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   private
     module C = Category C
@@ -157,6 +175,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   module BinProductsⱽNotation (vbp : BinProductsⱽ Cᴰ) {c} where
     _×ⱽ_ : Cᴰ.ob[ c ] → Cᴰ.ob[ c ] → Cᴰ.ob[ c ]
     cᴰ ×ⱽ cᴰ' = BinProductⱽNotation.vert Cᴰ (vbp c (cᴰ , cᴰ'))
+
+    module _ {cᴰ cᴰ' : Cᴰ.ob[ c ]} where
+      open BinProductⱽNotation _ (vbp _ (cᴰ , cᴰ')) public
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
   private

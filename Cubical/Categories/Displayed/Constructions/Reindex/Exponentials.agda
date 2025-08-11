@@ -48,9 +48,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module C = Category C
     module D = Category D
     F*Dᴰ = Base.reindex Dᴰ F
-    module R = HomᴰReasoning Dᴰ
-    module F*Dᴰ = Categoryᴰ F*Dᴰ
-    module Dᴰ = Categoryᴰ Dᴰ
+    module F*Dᴰ = Fibers F*Dᴰ
+    module Dᴰ = Fibers Dᴰ
 
   module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
     (isFib : isFibration Dᴰ)
@@ -60,7 +59,6 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 
     open Exponentialⱽ
     module Fcᴰ⇒Fcᴰ' = ExponentialNotation _ (exp .cᴰ⇒cᴰ')
-    module Fibs = Fibers (Base.reindex Dᴰ F)
 
     open BinProductsⱽNotation Dᴰ vbp
 
@@ -69,40 +67,51 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         Fcᴰ Fcᴰ'
     preservesExponentialⱽ .cᴰ⇒cᴰ' .vertex = Fcᴰ⇒Fcᴰ'.vert
     preservesExponentialⱽ .cᴰ⇒cᴰ' .element =
-      R.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.app
-    preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof fᴰ .fst .fst =
-      R.reind (sym $ F .F-id) $ exp .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof (R.reind (F .F-id) fᴰ) .fst .fst
-    preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof fᴰ .fst .snd =
-      (P ⟪(R.reind (sym $ F .F-id) $
-          exp .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof (R.reind (F .F-id) fᴰ) .fst .fst)⟫ $
-          R.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.app)
-        ≡⟨ refl ⟩
-      ({!!} $ R.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.app)
-        ≡⟨ {!!} ⟩
-      fᴰ
-      ∎
-      where
-      P : Presheaf Fibs.v[ c ] ℓDᴰ'
-      P = ExponentiableProf Fibs.v[ c ] _ .F-ob Fcᴰ'
+      Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.app
+    preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ = isIsoToIsEquiv
+      ( (λ fⱽ → Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.lda (Dᴰ.reind (F .F-id) fⱽ))
+      , (λ fⱽ → Dᴰ.rectify $ Dᴰ.≡out $
+        (sym $ Dᴰ.reind-filler _ _)
+        ∙ (sym $ Dᴰ.reind-filler _ _)
+        ∙ Dᴰ.⟨ ⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ refl ⟩ ∙ Dᴰ.reind-filler _ _  ⟩,ⱽ⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+        ∙ Dᴰ.reind-filler _ _
+        ∙ (Dᴰ.≡in $ Fcᴰ⇒Fcᴰ'.⇒ue.β)
+        ∙ (sym $ Dᴰ.reind-filler (F .F-id) _))
+      , λ fⱽ → {!!})
+    -- .equiv-proof fᴰ .fst .fst =
+    -- preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof fᴰ .fst .fst =
+    --   Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.lda (Dᴰ.reind (F .F-id) fᴰ)
+    -- preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof fᴰ .fst .snd = {!!}
+    --   -- (P ⟪(Dᴰ.reind (sym $ F .F-id) $
+    --   --     exp .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof (Dᴰ.reind (F .F-id) fᴰ) .fst .fst)⟫ $
+    --   --     Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.app)
+    --   --   ≡⟨ refl ⟩
+    --   -- ({!!} $ Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.app)
+    --   --   ≡⟨ {!!} ⟩
+    --   -- fᴰ
+    --   -- ∎
+    --   where
+    --   P : Presheaf F*Dᴰ.v[ c ] ℓDᴰ'
+    --   P = ExponentiableProf F*Dᴰ.v[ c ] _ .F-ob Fcᴰ'
 
-      -- R.rectify $ R.≡out $
-      --   (sym $ R.reind-filler _ _)
-      --   ∙ (sym $ R.reind-filler _ _)
-      --   ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-      --   ∙ {!!}
-      --   ∙ R.reind-filler _ _
-      --   ∙ (λ i → (D.id , exp .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof (R.reind (F .F-id) fᴰ) .fst .snd i))
-      --   ∙ (sym $ R.reind-filler (F .F-id) fᴰ)
-    preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof fᴰ .snd = {!!}
-      -- isIsoToIsEquiv (
-      --   (λ y → R.reind (sym $ F .F-id) $ exp .cᴰ⇒cᴰ' .universal x .equiv-proof (R.reind (F .F-id) y) .fst .fst) ,
-      --   (λ y →
-      --     R.rectify $ R.≡out $
-      --       (sym $ R.reind-filler _ _)
-      --       ∙ (sym $ R.reind-filler _ _)
-      --       ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-      --       ∙ R.reind-filler (D.⋆IdR (F .F-hom C.id)) _
-      --       ∙ ΣPathP (refl , {!exp .cᴰ⇒cᴰ' .universal x .equiv-proof (R.reind (F .F-id) y) .fst .snd!})
-      --     ) ,
-      --   {!!})
+    --   -- Dᴰ.rectify $ Dᴰ.≡out $
+    --   --   (sym $ Dᴰ.reind-filler _ _)
+    --   --   ∙ (sym $ Dᴰ.reind-filler _ _)
+    --   --   ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+    --   --   ∙ {!!}
+    --   --   ∙ Dᴰ.reind-filler _ _
+    --   --   ∙ (λ i → (D.id , exp .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof (Dᴰ.reind (F .F-id) fᴰ) .fst .snd i))
+    --   --   ∙ (sym $ Dᴰ.reind-filler (F .F-id) fᴰ)
+    -- preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof fᴰ .snd = {!!}
+    --   -- isIsoToIsEquiv (
+    --   --   (λ y → Dᴰ.reind (sym $ F .F-id) $ exp .cᴰ⇒cᴰ' .universal x .equiv-proof (Dᴰ.reind (F .F-id) y) .fst .fst) ,
+    --   --   (λ y →
+    --   --     Dᴰ.rectify $ Dᴰ.≡out $
+    --   --       (sym $ Dᴰ.reind-filler _ _)
+    --   --       ∙ (sym $ Dᴰ.reind-filler _ _)
+    --   --       ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+    --   --       ∙ Dᴰ.reind-filler (D.⋆IdR (F .F-hom C.id)) _
+    --   --       ∙ ΣPathP (refl , {!exp .cᴰ⇒cᴰ' .universal x .equiv-proof (Dᴰ.reind (F .F-id) y) .fst .snd!})
+    --   --     ) ,
+    --   --   {!!})
     preservesExponentialⱽ .reindex⇒ = {!!}

@@ -47,16 +47,16 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂)
     → BinProduct Cᴰ.v[ a ] (aᴰ₁ , aᴰ₂)
   BinProductⱽ→BinProductFiber bpⱽ = record
-    { vertex = a₁×ⱽa₂.vertexⱽ
-    ; element = a₁×ⱽa₂.elementⱽ
+    { vertex = a₁×ⱽa₂.×ueⱽ.vertexⱽ
+    ; element = a₁×ⱽa₂.×ueⱽ.elementⱽ
     ; universal = λ Γᴰ → isIsoToIsEquiv
-      ( a₁×ⱽa₂.introⱽ
-      , (λ f → a₁×ⱽa₂.Pshⱽ.rectify $ a₁×ⱽa₂.Pshⱽ.≡out $
-        (sym $ a₁×ⱽa₂.Pshⱽ.reind-filler _ _)
-        ∙ a₁×ⱽa₂.βᴰ
+      ( a₁×ⱽa₂.×ueⱽ.introⱽ
+      , (λ f → a₁×ⱽa₂.×ueⱽ.Pshⱽ.rectify $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.≡out $
+        (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _ _)
+        ∙ a₁×ⱽa₂.×ueⱽ.βᴰ
         )
       , λ f → Cᴰ.rectify $ Cᴰ.≡out $
-        a₁×ⱽa₂.introᴰ≡ (sym $ a₁×ⱽa₂.Pshⱽ.reind-filler _ _)
+        a₁×ⱽa₂.×ueⱽ.introᴰ≡ (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _ _)
         )
     } where
     module a₁×ⱽa₂ = BinProductⱽNotation _ bpⱽ
@@ -74,7 +74,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → preservesBinProduct (CartesianLiftF-fiber Cᴰ isFib f)
       (BinProductⱽ→BinProductFiber bpⱽ)
   cartesianLift-preserves-BinProductFiber {b = b}{aᴰ₁}{aᴰ₂} isFib bpⱽ f bᴰ = isIsoToIsEquiv
-    ( (λ (fⱽ₁ , fⱽ₂) → f*×.introCL (bpⱽ.introᴰ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))
+    ( (λ (fⱽ₁ , fⱽ₂) → f*×.introCL (bpⱽ.×ueⱽ.introᴰ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))
     , (λ (fⱽ₁ , fⱽ₂) → ΣPathP
         -- This part of the proof can probably be simplified
         ((Cᴰ.rectify $ Cᴰ.≡out $

@@ -176,6 +176,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
     CartesianLiftF-fiber f = FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
 
+  module isFibrationNotation (isFib : isFibration) where
+    module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) where
+      open CartesianLift (isFib yᴰ f) public
+
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift
   -- because π is over C.id ⋆ f rather than f

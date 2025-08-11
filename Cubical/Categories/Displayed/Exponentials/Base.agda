@@ -13,12 +13,14 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
+
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Adjoint.More
@@ -54,41 +56,50 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-  module _ (bpⱽ : BinProductsⱽ Cᴰ) (cartesianLifts : isFibration Cᴰ)
+  module _ (bpⱽ : BinProductsⱽ Cᴰ) (isFib : isFibration Cᴰ)
     where
+
+    module bpⱽ = BinProductsⱽNotation _ bpⱽ
+    open bpⱽ
 
     record Exponentialⱽ {c : C.ob} (cᴰ cᴰ' : Cᴰ.ob[ c ]) : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') where
       no-eta-equality
       field
-        cᴰ⇒cᴰ' : Exponential Cᴰ.v[ c ] cᴰ cᴰ'
-          (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ _ → bpⱽ _ _)
-        reindex⇒ : ∀ {b} (f : C [ b , c ])
-          → preservesExponential (CartesianLiftF-fiber Cᴰ cartesianLifts f)
+        vertex : Cᴰ.ob[ c ]
+        element : Cᴰ.v[ c ] [ vertex ×ⱽ cᴰ , cᴰ' ]
+        becomes-universal : ∀ {b} (f : C [ b , c ]) →
+          becomesExponential (CartesianLiftF-fiber Cᴰ isFib f)
             (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
-            (λ _ → cartesianLift-preserves-BinProductFiber Cᴰ cartesianLifts (bpⱽ _ _) f)
+            (λ _ → cartesianLift-preserves-BinProductFiber Cᴰ isFib (bpⱽ _ _) f)
             (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
-            cᴰ⇒cᴰ'
-      open ExponentialNotation _ cᴰ⇒cᴰ' public
-      open BinProductsⱽNotation _ bpⱽ
+            vertex
+            element
+
+      module isFib = isFibrationNotation Cᴰ isFib
+
+      module _ {b} (f : C [ b , c ]) where
+        private
+          reind-bp : BinProductsWith Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f)
+          reind-bp = BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _)
+
+          reind-exp : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f) reind-bp
+          reind-exp .UniversalElement.vertex = _
+          reind-exp .UniversalElement.element = _
+          reind-exp .UniversalElement.universal = becomes-universal f
+
+        module f*⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation reind-bp reind-exp
 
       intro≡ :
-        ∀ {xᴰ : Cᴰ.ob[ c ]} →
-        {fᴰ : Cᴰ.v[ c ] [ xᴰ ×ⱽ cᴰ , cᴰ' ]}
-        {gᴰ : Cᴰ.v[ c ] [ xᴰ , vert ]}
-        → Path Cᴰ.Hom[ _ , _ ] (C.id , fᴰ) ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ gᴰ ) ,ⱽ π₂) Cᴰ.⋆ᴰ app))
-        → Path Cᴰ.Hom[ _ , _ ] (C.id , lda fᴰ) (C.id , gᴰ)
-      intro≡ p = Cᴰ.≡in (⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _ ))
-
-      module f*⟨cᴰ⇒cᴰ'⟩ {b} (f : C [ b , c ]) =
-        ExponentialNotation
-          _ -- The following is obviously terrible and should be redesigned somehow
-          (preservesUniversalElement→UniversalElement
-            (preservesExpCone
-              ((CartesianLiftF-fiber Cᴰ cartesianLifts f))
-              ((BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _))
-              ((λ _ → cartesianLift-preserves-BinProductFiber Cᴰ cartesianLifts (bpⱽ _ _) f))
-              ((BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)) cᴰ')
-            cᴰ⇒cᴰ' (reindex⇒ f))
+        ∀ {x : C.ob}{f : C [ x , c ]} →
+        {xᴰ : Cᴰ.ob[ x ]} →
+        {fᴰ : Cᴰ.Hom[ C.id ][ xᴰ ×ⱽ isFib.f*yᴰ cᴰ f , isFib.f*yᴰ cᴰ' f ]}
+        {gᴰ : Cᴰ.Hom[ C.id ][ xᴰ , f*⟨cᴰ⇒cᴰ'⟩.vert f ]}
+        → Path Cᴰ.Hom[ _ , _ ]
+          (C.id , fᴰ)
+          ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ gᴰ) ,ⱽ π₂) Cᴰ.⋆ᴰ f*⟨cᴰ⇒cᴰ'⟩.app f))
+        → Path Cᴰ.Hom[ _ , _ ] (C.id , f*⟨cᴰ⇒cᴰ'⟩.lda f fᴰ) (C.id , gᴰ)
+      intro≡ {f = f} p =
+        Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ f (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _))
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'

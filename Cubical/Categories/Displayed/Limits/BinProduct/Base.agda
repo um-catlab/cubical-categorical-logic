@@ -177,7 +177,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
     cᴰ ×ⱽ cᴰ' = BinProductⱽNotation.vert Cᴰ (vbp c (cᴰ , cᴰ'))
 
     module _ {cᴰ cᴰ' : Cᴰ.ob[ c ]} where
-      open BinProductⱽNotation _ (vbp _ (cᴰ , cᴰ')) public
+      open BinProductⱽNotation _ (vbp _ (cᴰ , cᴰ')) hiding (vert) public
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
   private

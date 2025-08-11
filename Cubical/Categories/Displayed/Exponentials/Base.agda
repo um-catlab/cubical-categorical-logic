@@ -33,6 +33,7 @@ private
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
+    module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
   Exponentialᴰ :
     ∀ {c d} { -×c : BinProductsWith C c}
@@ -66,6 +67,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (λ _ → cartesianLift-preserves-BinProductFiber Cᴰ cartesianLifts (bpⱽ _ _) f)
             (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
             cᴰ⇒cᴰ'
+
+      open ExponentialNotation _ cᴰ⇒cᴰ' public
+      open BinProductsⱽNotation _ bpⱽ hiding (vert)
+
+      intro≡ :
+        ∀ {xᴰ : Cᴰ.ob[ c ]} →
+        {fᴰ : Cᴰ.v[ c ] [ xᴰ ×ⱽ cᴰ , cᴰ' ]}
+        {gᴰ : Cᴰ.v[ c ] [ xᴰ , vert ]}
+        → Path Cᴰ.Hom[ _ , _ ] (C.id , fᴰ) ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ gᴰ ) ,ⱽ π₂) Cᴰ.⋆ᴰ app))
+        → Path Cᴰ.Hom[ _ , _ ] (C.id , lda fᴰ) (C.id , gᴰ)
+      intro≡ p = Cᴰ.≡in (⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _ ))
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'

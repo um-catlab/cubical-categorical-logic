@@ -15,6 +15,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Limits.BinProduct.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
@@ -26,6 +27,7 @@ open import Cubical.Categories.Displayed.Exponentials.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
+open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 
 private
   variable
@@ -58,7 +60,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     where
 
     open Exponentialⱽ
-    module Fcᴰ⇒Fcᴰ' = ExponentialNotation _ (exp .cᴰ⇒cᴰ')
+    module Fcᴰ⇒Fcᴰ' = Exponentialⱽ exp
 
     open BinProductsⱽNotation Dᴰ vbp
 
@@ -77,7 +79,14 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         ∙ Dᴰ.reind-filler _ _
         ∙ (Dᴰ.≡in $ Fcᴰ⇒Fcᴰ'.⇒ue.β)
         ∙ (sym $ Dᴰ.reind-filler (F .F-id) _))
-      , λ fⱽ → {!!})
+      , λ fⱽ → Dᴰ.rectify $ Dᴰ.≡out $
+        (sym $ Dᴰ.reind-filler _ _)
+        ∙ Fcᴰ⇒Fcᴰ'.intro≡ (
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ {! ⟨ ? ⟩,ⱽ⟨ ? ⟩ !}
+          )
+        ∙ (sym $ Dᴰ.reind-filler (F .F-id) _)
+        )
     -- .equiv-proof fᴰ .fst .fst =
     -- preservesExponentialⱽ .cᴰ⇒cᴰ' .universal dᴰ .equiv-proof fᴰ .fst .fst =
     --   Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.lda (Dᴰ.reind (F .F-id) fᴰ)

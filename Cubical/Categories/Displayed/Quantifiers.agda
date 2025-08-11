@@ -14,6 +14,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
+open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Constructions.Slice as Slice
 open import Cubical.Categories.Displayed.Constructions.TotalCategory as ∫ᴰ
@@ -44,6 +45,7 @@ module _
     bpF = (BinProductF' C bp)
     Cᴰ[a×b] = reindex Cᴰ bpF
     Cᴰ[a] = reindex Cᴰ (Fst C C)
+    module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
 
   π₁Fᴰ : Functorᴰ bpF Cᴰ[a] (C /C Cᴰ) -- Functorᴰ bpF Cᴰ[a] (C /C Cᴰ)
@@ -61,5 +63,23 @@ module _
 
   UniversalQuantifiers : Type _
   UniversalQuantifiers = RightAdjointⱽ weakenⱽ
+
+  module UniversalQuantifierNotation {a b}{pᴰ : Cᴰ.ob[ a × b ]}
+    (∀pᴰ : UniversalQuantifier pᴰ) where
+    private
+      module ∀ueⱽ = UniversalElementⱽ ∀pᴰ
+    open Functor
+    open Functorᴰ
+
+    vert : Cᴰ.ob[ a ]
+    vert = ∀ueⱽ.vertexᴰ
+
+    app  : Cᴰ [ C.id ×p C.id ][ (weakenⱽ ^opFⱽ) .F-obᴰ vert , pᴰ ]
+    app = ∀ueⱽ.elementᴰ
+
+    lda : ∀ {Γ : Cᴰ.ob[ a ]} →
+      Cᴰ [ C.id ×p C.id ][ (weakenⱽ ^opFⱽ) .F-obᴰ Γ , pᴰ ] →
+      Cᴰ [ C.id ][ Γ , vert ]
+    lda fᴰ = ∀ueⱽ.introⱽ fᴰ
 
   -- TODO: define Existential Quantifier/weak Sigma as LeftAdjoint

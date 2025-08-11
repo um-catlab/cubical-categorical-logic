@@ -1,12 +1,14 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --allow-unsolved-metas #-}
 module Cubical.Categories.Displayed.Quantifiers where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.NaturalTransformation
 
@@ -36,68 +38,148 @@ private
 module _
   {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  (bp : BinProducts C)
-  -- This is an overly strong assumption for the construction, we only
-  -- need pullbacks of π₁ . Not clear how to weaken it based on the current impl
-  (isFibration : isFibration Cᴰ)
+  {a : C .Category.ob}
+  (bp : BinProductsWith C a)
+  (isFib : isFibration Cᴰ)
   where
-  open BinProductsNotation bp
   private
-    bpF = (BinProductF' C bp)
-    Cᴰ[a×b] = reindex Cᴰ bpF
-    Cᴰ[a] = reindex Cᴰ (Fst C C)
+    module bp = BinProductsWithNotation bp
     module C = Category C
-    module Cᴰ = Categoryᴰ Cᴰ
+    module Cᴰ = Fibers Cᴰ
+    module isFib = isFibrationNotation _ isFib
 
-  π₁Fᴰ : Functorᴰ bpF Cᴰ[a] (C /C Cᴰ)
-  π₁Fᴰ = Slice.introF C Cᴰ
-    (Fst C C)
-    (Reindex.π Cᴰ (Fst C C))
-    π₁Nat
+  Cᴰ[-×a] : Categoryᴰ C ℓCᴰ ℓCᴰ'
+  Cᴰ[-×a] = reindex Cᴰ bp.×aF
 
-  weakenⱽ : Functorⱽ {C = C ×C C} Cᴰ[a] Cᴰ[a×b]
-  weakenⱽ = Reindex.introF _ (reindF' _ Eq.refl Eq.refl
-    (CartesianLift'F Cᴰ (isFibration→isFibration' isFibration) ∘Fⱽᴰ π₁Fᴰ))
+  open Functorᴰ
+  weakenⱽ : Functorⱽ Cᴰ Cᴰ[-×a]
+  weakenⱽ .F-obᴰ bᴰ = isFib.f*yᴰ bᴰ bp.π₁
+  weakenⱽ .F-homᴰ fᴰ =
+    isFib.introCL _ _ (Cᴰ.reind (sym $ bp.×β₁) (isFib.π _ _ Cᴰ.⋆ᴰ fᴰ))
+  weakenⱽ .F-idᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+    isFib.introCL≡ _ bp.π₁ (sym (Cᴰ.reind-filler _ _)
+      ∙ Cᴰ.⋆IdR _
+      ∙ (sym $ Cᴰ.⋆IdL _)
+      ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
+  weakenⱽ .F-seqᴰ fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+    isFib.introCL≡ _ _
+      (sym (Cᴰ.reind-filler _ _)
+      ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+      ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ∙ (sym $ isFib.βCL _ _) ⟩⋆⟨ refl ⟩
+      ∙ Cᴰ.⋆Assoc _ _ _
+      ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym $ isFib.βCL _ _) ⟩
+      ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+      ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+      )
 
-  UniversalQuantifier : ∀ {a b} (p : Cᴰ.ob[ a × b ]) → Type _
-  UniversalQuantifier = RightAdjointAtⱽ weakenⱽ
+  module _ {Γ} (pᴰ : Cᴰ.ob[ Γ bp.×a ]) where
+    -- UniversalQuantifier : Type _
+    -- UniversalQuantifier = RightAdjointAtⱽ weakenⱽ pᴰ
+    open Functor
+    open Functorᴰ
+    UniversalQuantifierPshⱽ : Presheafⱽ Γ Cᴰ ℓCᴰ'
+    UniversalQuantifierPshⱽ .F-obᴰ {Δ} Δᴰ γ .fst =
+      Cᴰ [ bp.×aF ⟪ γ ⟫ ][ isFib.f*yᴰ Δᴰ bp.π₁ , pᴰ ]
+    UniversalQuantifierPshⱽ .F-obᴰ {Δ} Δᴰ γ .snd = Cᴰ.isSetHomᴰ
+    UniversalQuantifierPshⱽ .F-homᴰ {Δ} {Θ} {δ} {Δᴰ} {Θᴰ} δᴰ γ γᴰ =
+      Cᴰ.reind (sym $ bp.×aF .F-seq _ _) (weakenⱽ .F-homᴰ δᴰ Cᴰ.⋆ᴰ γᴰ)
+    UniversalQuantifierPshⱽ .F-idᴰ = {!!}
+    UniversalQuantifierPshⱽ .F-seqᴰ = {!!}
 
-  UniversalQuantifiers : Type _
-  UniversalQuantifiers = RightAdjointⱽ weakenⱽ
+    UniversalQuantifier : Type _
+    UniversalQuantifier = UniversalElementⱽ Cᴰ Γ UniversalQuantifierPshⱽ
+-- module _
+--   {C : Category ℓC ℓC'}
+--   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   (bp : BinProducts C)
+--   -- This is an overly strong assumption for the construction, we only
+--   -- need pullbacks of π₁ . Not clear how to weaken it based on the current impl
+--   (isFibration : isFibration Cᴰ)
+--   where
+--   open BinProductsNotation bp
+--   private
+--     bpF = (BinProductF' C bp)
+--     Cᴰ[a×b] = reindex Cᴰ bpF
+--     Cᴰ[a] = reindex Cᴰ (Fst C C)
+--     module C = Category C
+--     module Cᴰ = Fibers Cᴰ
+--     module isFib = isFibrationNotation _ isFibration
 
-  module UniversalQuantifierNotation {a b}{pᴰ : Cᴰ.ob[ a × b ]}
+--   π₁Fᴰ : Functorᴰ bpF Cᴰ[a] (C /C Cᴰ)
+--   π₁Fᴰ = Slice.introF C Cᴰ
+--     (Fst C C)
+--     (Reindex.π Cᴰ (Fst C C))
+--     π₁Nat
+
+--   weakenᴰ : Functorᴰ bpF Cᴰ[a] Cᴰ
+--   weakenᴰ = CartesianLiftF Cᴰ isFibration ∘Fⱽᴰ π₁Fᴰ
+
+
+--   weakenⱽ : Functorⱽ {C = C ×C C} Cᴰ[a] Cᴰ[a×b]
+--   weakenⱽ = Reindex.introF _ (reindF' _ Eq.refl Eq.refl
+--     (CartesianLiftF Cᴰ isFibration ∘Fⱽᴰ π₁Fᴰ))
+
+--   open isFibrationNotation Cᴰ isFibration
+--   module _ {a b : C.ob} (pᴰ : Cᴰ.ob[ a × b ]) where
+--     open Functorᴰ
+  module UniversalQuantifierNotation {b}{pᴰ : Cᴰ.ob[ b bp.×a ]}
     (∀pᴰ : UniversalQuantifier pᴰ) where
     module ∀ueⱽ = UniversalElementⱽ ∀pᴰ
     open Functor
     open Functorᴰ
 
-    open isFibrationNotation Cᴰ isFibration
+    open isFibrationNotation Cᴰ isFib
 
-    vert : Cᴰ.ob[ a ]
+    vert : Cᴰ.ob[ b ]
     vert = ∀ueⱽ.vertexᴰ
 
-    app  : Cᴰ [ C.id ×p C.id ][ f*yᴰ vert π₁ , pᴰ ]
-    app = ∀ueⱽ.elementᴰ
+    app : Cᴰ [ bp.×aF ⟪ C.id ⟫ ][ f*yᴰ vert bp.π₁ , pᴰ ]
+    app = ∀ueⱽ.elementⱽ
 
-    lda : ∀ {Γ : Cᴰ.ob[ a ]} →
-      Cᴰ [ C.id ×p C.id ][ f*yᴰ Γ π₁ , pᴰ ] →
-      Cᴰ [ C.id ][ Γ , vert ]
-    lda fᴰ = ∀ueⱽ.introⱽ fᴰ
+    lda : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f} →
+      Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]
+      → Cᴰ [ f ][ Γᴰ , vert ]
+    lda = ∀ueⱽ.universalⱽ .fst
 
-  module UniversalQuantifiersNotation (∀ᴰ : UniversalQuantifiers) where
-    module _ {a b}{pᴰ : Cᴰ.ob[ a × b ]} where
-      open UniversalQuantifierNotation (∀ᴰ pᴰ) hiding (module ∀ueⱽ) public
-    module ∀ueⱽ {a b}(pᴰ : Cᴰ.ob[ a × b ]) =
-      UniversalQuantifierNotation.∀ueⱽ (∀ᴰ pᴰ)
+--   -- --   vert : Cᴰ.ob[ a ]
+--   -- --   vert = ∀ueⱽ.vertexᴰ
 
-  -- TODO: it may be useful to prove the following:
-  -- This definition includes the Beck condition that the quantifier
-  -- is preserved by cartesian lifts, i.e., that quantifiers commute
-  -- with substitution
-  -- Cᴰ [ f ][ Γᴰ , g* (∀ pᴰ) ]
-  -- ≅ Cᴰ [ f ⋆ g ][ Γᴰ , ∀ pᴰ ]
-  -- ≅ Cᴰ [ f ⋆ g ][ Γᴰ , ∀ pᴰ ]
-  -- ≅ Cᴰ [ (f ⋆ g) × b ][ π₁* Γᴰ , pᴰ ]
-  -- ≅ Cᴰ [ (f × b) ⋆ (g × b) ][ π₁* Γᴰ , pᴰ ]
-  -- ≅ Cᴰ [ (f × b) ][ π₁* Γᴰ , (g ⋆ b)* pᴰ ]
-  -- ≅ Cᴰ [ f ][ Γᴰ , ∀ (g ⋆ b)* pᴰ ]
+--   -- --   app  : Cᴰ [ C.id ×p C.id ][ f*yᴰ vert π₁ , pᴰ ]
+--   -- --   app = ∀ueⱽ.elementᴰ
+
+--   -- --   lda : ∀ {Γ : Cᴰ.ob[ a ]} →
+--   -- --     Cᴰ [ C.id ×p C.id ][ f*yᴰ Γ π₁ , pᴰ ] →
+--   -- --     Cᴰ [ C.id ][ Γ , vert ]
+--   -- --   lda fᴰ = ∀ueⱽ.introⱽ fᴰ
+
+-- --   -- -- -- TODO: it may be useful to prove the following:
+-- --   -- -- -- This definition includes the Beck condition that the quantifier
+-- --   -- -- -- is preserved by cartesian lifts, i.e., that quantifiers commute
+-- --   -- -- -- with substitution
+-- --   -- -- -- Cᴰ [ f ][ Γᴰ , g* (∀ pᴰ) ]
+-- --   -- -- -- ≅ Cᴰ [ f ⋆ g ][ Γᴰ , ∀ pᴰ ]
+-- --   -- -- -- ≅ Cᴰ [ f ⋆ g ][ Γᴰ , ∀ pᴰ ]
+-- --   -- -- -- ≅ Cᴰ [ (f ⋆ g) × b ][ π₁* Γᴰ , pᴰ ]
+-- --   -- -- -- ≅ Cᴰ [ (f × b) ⋆ (g × b) ][ π₁* Γᴰ , pᴰ ]
+-- --   -- -- -- ≅ Cᴰ [ (f × b) ][ π₁* Γᴰ , (g ⋆ b)* pᴰ ]
+-- --   -- -- -- ≅ Cᴰ [ f ][ Γᴰ , ∀ (g ⋆ b)* pᴰ ]
+
+
+module _
+  {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (bp : BinProducts C)
+  (isFib : isFibration Cᴰ)
+  where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+
+  UniversalQuantifiers : Type _
+  UniversalQuantifiers = ∀ a Γ pᴰ
+    → UniversalQuantifier {a = a} (λ c → bp (c , a)) isFib {Γ = Γ} pᴰ
+  -- module UniversalQuantifiersNotation (∀ᴰ : UniversalQuantifiers) where
+  --   module _ {a b}{pᴰ : Cᴰ.ob[ a × b ]} where
+  --     open UniversalQuantifierNotation (∀ᴰ pᴰ) hiding (module ∀ueⱽ) public
+  --   module ∀ueⱽ {a b}(pᴰ : Cᴰ.ob[ a × b ]) =
+  --     UniversalQuantifierNotation.∀ueⱽ (∀ᴰ pᴰ)
+

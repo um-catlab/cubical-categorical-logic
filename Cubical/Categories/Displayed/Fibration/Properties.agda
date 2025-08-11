@@ -62,3 +62,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
   isFibration→isFibration' : isFibration Cᴰ → isFibration' Cᴰ
   isFibration→isFibration' cLs cᴰ' f = CartesianLift→CartesianLift' (cLs cᴰ' f)
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  CartesianLiftF : isFibration Cᴰ → Functorⱽ (C /C Cᴰ) Cᴰ
+  CartesianLiftF cLs = CartesianLift'F _ (isFibration→isFibration' cLs)
+

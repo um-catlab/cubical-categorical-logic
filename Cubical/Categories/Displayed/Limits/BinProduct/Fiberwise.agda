@@ -71,7 +71,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → (isFib : isFibration Cᴰ)
     → (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂))
     → (f : C [ b , a ])
-    → preservesBinProduct' (CartesianLiftF-fiber Cᴰ isFib f)
+    → preservesBinProduct (CartesianLiftF-fiber Cᴰ isFib f)
       (BinProductⱽ→BinProductFiber bpⱽ)
   cartesianLift-preserves-BinProductFiber {b = b}{aᴰ₁}{aᴰ₂} isFib bpⱽ f bᴰ = isIsoToIsEquiv
     ( (λ (fⱽ₁ , fⱽ₂) → f*×.introCL (bpⱽ.introᴰ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))

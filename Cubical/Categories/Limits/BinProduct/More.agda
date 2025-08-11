@@ -159,8 +159,8 @@ module _ (F : Functor C D) where
   preservesBinProdCones c c' .fst Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
   preservesBinProdCones c c' .snd Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
 
-  preservesBinProduct' : ∀ {c c'} → BinProduct C (c , c') → Type _
-  preservesBinProduct' = preservesUniversalElement (preservesBinProdCones _ _)
+  preservesBinProduct : ∀ {c c'} → BinProduct C (c , c') → Type _
+  preservesBinProduct = preservesUniversalElement (preservesBinProdCones _ _)
 
   -- If you have all BinProductsWith, you should probably use the next
   -- one instead
@@ -174,3 +174,11 @@ module _ (F : Functor C D) where
     ∀ {c : C .ob} → (-×c : BinProductsWith C c) → Type _
   preservesProvidedBinProductsWith -×c = ∀ c'
     → preservesUniversalElement (preservesBinProdCones c' _) (-×c c')
+
+  preservesProvidedBinProducts :
+    BinProducts C → Type _
+  preservesProvidedBinProducts bp =
+    ∀ c c'
+    → preservesUniversalElement
+        (preservesBinProdCones c c')
+        (bp (c , c'))

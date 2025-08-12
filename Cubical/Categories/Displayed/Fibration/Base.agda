@@ -177,6 +177,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     CartesianLiftF-fiber f = FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
 
   module isFibrationNotation (isFib : isFibration) where
+    f*F = CartesianLiftF-fiber isFib
     module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) where
       open CartesianLift (isFib yᴰ f) using (f*yᴰ) public
     module _ {x y : C .ob}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]} where

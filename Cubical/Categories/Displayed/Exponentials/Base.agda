@@ -10,6 +10,7 @@ module Cubical.Categories.Displayed.Exponentials.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -61,6 +62,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     private
       module bpⱽ = BinProductsⱽNotation _ bpⱽ
+      module isFib = isFibrationNotation Cᴰ isFib
+
     open bpⱽ
 
     record Exponentialⱽ {c : C.ob} (cᴰ cᴰ' : Cᴰ.ob[ c ]) : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') where
@@ -69,24 +72,22 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         vertex : Cᴰ.ob[ c ]
         element : Cᴰ.v[ c ] [ vertex ×ⱽ cᴰ , cᴰ' ]
         becomes-universal : ∀ {b} (f : C [ b , c ]) →
-          becomesExponential (CartesianLiftF-fiber Cᴰ isFib f)
+          becomesExponential (isFib.f*F f)
             (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
             (λ _ → cartesianLift-preserves-BinProductFiber Cᴰ isFib (bpⱽ _ _) f)
             (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
             vertex
             element
 
-      module isFib = isFibrationNotation Cᴰ isFib
-
       module _ {b} (f : C [ b , c ]) where
-        private
-          reind-bp : BinProductsWith Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f)
-          reind-bp = BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _)
+        reind-bp : BinProductsWith Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f)
+        reind-bp = BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _)
 
-          reind-exp : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f) reind-bp
-          reind-exp .UniversalElement.vertex = _
-          reind-exp .UniversalElement.element = _
-          reind-exp .UniversalElement.universal = becomes-universal f
+        reind-exp : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f) reind-bp
+        reind-exp .UniversalElement.vertex = isFib.f*yᴰ vertex f
+        reind-exp .UniversalElement.element =
+          Cᴰ.reind (λ i → C.⋆IdL C.id i) (isFib.introCL (vertex ×ⱽ cᴰ) f _ Cᴰ.⋆ᴰ isFib.introCL cᴰ' f (Cᴰ.idᴰ Cᴰ.⋆ᴰ (isFib.π (vertex ×ⱽ cᴰ) f Cᴰ.⋆ᴰⱽ element)))
+        reind-exp .UniversalElement.universal = becomes-universal f
 
         module f*⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation reind-bp reind-exp
 

@@ -59,7 +59,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   module _ (bpⱽ : BinProductsⱽ Cᴰ) (isFib : isFibration Cᴰ)
     where
 
-    module bpⱽ = BinProductsⱽNotation _ bpⱽ
+    private
+      module bpⱽ = BinProductsⱽNotation _ bpⱽ
     open bpⱽ
 
     record Exponentialⱽ {c : C.ob} (cᴰ cᴰ' : Cᴰ.ob[ c ]) : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') where

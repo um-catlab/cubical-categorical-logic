@@ -112,8 +112,12 @@ module _ {ℓ} {ℓ'} where
     bpw : {A : SET ℓ .ob} → (Aᴰ : SETᴰ.ob[ A ]) → BinProductsWith SETᴰ.v[ A ] Aᴰ
     bpw {A = A} Aᴰ Aᴰ' = bp A (Aᴰ' , Aᴰ)
 
-  open Functor
   open UniversalElement
+
+  -- This isn't strictly necessary to build ExponentialsⱽSETᴰ
+  -- We only need the vertex and element, however because the existing
+  -- proof in ExponentialsⱽSETᴰ .becomes-universal uses β from this structure
+  -- we are keeping this construction for now
   FiberExponentialSETᴰ : (A : SET ℓ .ob) → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
     Exponential SETᴰ.v[ A ] Aᴰ Aᴰ' (bpw Aᴰ)
   FiberExponentialSETᴰ A Aᴰ Aᴰ' .vertex a .fst = ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩
@@ -129,11 +133,16 @@ module _ {ℓ} {ℓ'} where
         (λ i → transport-filler
           (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))))
 
+  private
+    module _ (A : SET ℓ .ob)(Aᴰ Aᴰ' : SETᴰ.ob[ A ]) where
+      module FibExp = ExponentialNotation (bpw Aᴰ) (FiberExponentialSETᴰ A Aᴰ Aᴰ')
+
   open Exponentialⱽ
-  open UniversalElementNotation
+
   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .cᴰ⇒cᴰ' = FiberExponentialSETᴰ A Aᴰ Aᴰ'
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .reindex⇒ {b = B} f Bᴰ =
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .vertex = FibExp.vert A Aᴰ Aᴰ'
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .element = FibExp.app A Aᴰ Aᴰ'
+  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .becomes-universal {b = B} f Bᴰ =
     isIsoToIsEquiv (
       (λ gᴰ b bᴰ faᴰ → gᴰ b (bᴰ , faᴰ)) ,
       (λ gᴰ →

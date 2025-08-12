@@ -53,6 +53,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   private
     module -×c = BinProductsWithNotation -×c
     module -×Fc = BinProductsWithNotation -×Fc
+    module D = Category D
     module Dᴰ = Fibers Dᴰ
     module F*Dᴰ = Fibers (Base.reindex Dᴰ F)
     module isFibDᴰ = isFibrationNotation _ isFibDᴰ
@@ -65,31 +66,24 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       private
         module ∀dᴰ = UniversalQuantifierNotation _ _ ∀dᴰ
       open UniversalElementⱽ
+      open Functor
       ∀Reindex : UniversalQuantifier -×c isFibF*Dᴰ dᴰ
       ∀Reindex .vertexⱽ = ∀dᴰ.vert
       -- want: Dᴰ [ F ⟪ π₁ ⋆ id ,p π₂ ⟫ ][ F ⟪ π₁ ⟫* ∀dᴰ , dᴰ ]
       -- have: Dᴰ [ (π₁ ⋆ id) ,p π₂ ][ π₁* ∀dᴰ, (π₁ ,p π₂)* dᴰ ]
-      ∀Reindex .elementⱽ = Dᴰ.reind {!!}
-        {!!}
+      ∀Reindex .elementⱽ = Dᴰ.reind
+        (D.⟨ refl ⟩⋆⟨ D.⟨ -×Fc.×aF .F-id ⟩⋆⟨ refl ⟩ ∙ D.⋆IdL _ ⟩
+        ∙ F⟨Γ×c⟩.×ue.intro-natural
+        ∙ F⟨Γ×c⟩.⟨ -×Fc.×β₁ ⟩,p⟨ -×Fc.×β₂ ⟩
+        ∙ (sym $ F⟨Γ×c⟩.×ue.weak-η)
+        ∙ (sym $ F .F-id) ∙ cong (F .F-hom) (sym $ -×c.×aF .F-id))
+        (isFibDᴰ.introCL _ _ (Dᴰ.reind
+          (sym $ -×Fc.×β₁) $
+          isFibF*Dᴰ.π ∀dᴰ.vert (fst -×c.×ue.element) )
+        Dᴰ.⋆ᴰ ∀dᴰ.app
+        Dᴰ.⋆ᴰ isFibDᴰ.π _ _)
       ∀Reindex .universalⱽ = {!!}
-    -- ∀Reindex = {!!}
   
-  -- module _ {c c'} (dᴰ : Dᴰ.ob[ F ⟅ c bpC.× c' ⟆ ]) where
-  --   private
-  --     module F⟨c×c'⟩ =
-  --       -- TODO: better interface, this is basically copied from Exponentials
-  --       BinProductNotation (preservesUniversalElement→UniversalElement (preservesBinProdCones F c c') (bpC (c , c')) (F-× c c'))
-  --     module dᴰ' =
-  --       CartesianLift (isFibDᴰ dᴰ (bpD.π₁ F⟨c×c'⟩.,p bpD.π₂))
-  --   module _ (∀dᴰ : UniversalQuantifier {!!} {!!} {!!}) where
-  --     -- open UniversalElementⱽ
-  --     -- private
-  --     --   module ∀dᴰ = UniversalQuantifierNotation _ _ ∀dᴰ
-  --     -- ∀Reindex : UniversalQuantifier bpC isFibF*Dᴰ dᴰ
-  --     -- ∀Reindex .vertexⱽ = ∀dᴰ.vert
-  --     -- -- F*Dᴰ [ F*Dᴰ.id ×p F*Dᴰ.id]
-  --     -- ∀Reindex .elementⱽ = Dᴰ.reind {!!} {!∀dᴰ.app!} -- Dᴰ.reind {!!} {!∀dᴰ.app!}
-  --     -- ∀Reindex .universalⱽ = {!!}
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

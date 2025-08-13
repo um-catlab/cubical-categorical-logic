@@ -183,6 +183,20 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module _ {x y : C .ob}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]} where
       open CartesianLift (isFib yᴰ f) hiding (f*yᴰ) public
 
+  module _ (isFib : isFibration) {x : C.ob} {xᴰ : Cᴰ.ob[ x ]} where
+    open isFibrationNotation isFib
+    id*≅ : CatIsoᴰ Cᴰ idCatIso (f*yᴰ xᴰ C.id) xᴰ
+    id*≅ .fst = π
+    id*≅ .snd .isIsoᴰ.invᴰ = introCL (Cᴰ.reind (sym $ C.⋆IdR _) $ Cᴰ.idᴰ)
+    id*≅ .snd .isIsoᴰ.secᴰ = Cᴰ.rectify $ Cᴰ.≡out $ βCL ∙ (sym $ Cᴰ.reind-filler _ _)
+    id*≅ .snd .isIsoᴰ.retᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+      introCL-natural
+      ∙ introCL⟨ C.⋆IdL C.id ⟩⟨
+        (sym $ Cᴰ.reind-filler _ _)
+        ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
+        ∙ Cᴰ.⋆IdR _ ∙ (sym $ Cᴰ.⋆IdL _) ⟩
+      ∙ sym ηCL
+
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift
   -- because π is over C.id ⋆ f rather than f

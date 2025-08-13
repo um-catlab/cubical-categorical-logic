@@ -183,19 +183,41 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module _ {x y : C .ob}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]} where
       open CartesianLift (isFib yᴰ f) hiding (f*yᴰ) public
 
-  module _ (isFib : isFibration) {x : C.ob} {xᴰ : Cᴰ.ob[ x ]} where
+  -- CartesianLiftF-fiber for the identity is naturally isomorphic
+  -- to the identity functor on fiber categories
+  module _ (isFib : isFibration) {x : C.ob}  where
     open isFibrationNotation isFib
-    id*≅ : CatIsoᴰ Cᴰ idCatIso (f*yᴰ xᴰ C.id) xᴰ
-    id*≅ .fst = π
-    id*≅ .snd .isIsoᴰ.invᴰ = introCL (Cᴰ.reind (sym $ C.⋆IdR _) $ Cᴰ.idᴰ)
-    id*≅ .snd .isIsoᴰ.secᴰ = Cᴰ.rectify $ Cᴰ.≡out $ βCL ∙ (sym $ Cᴰ.reind-filler _ _)
-    id*≅ .snd .isIsoᴰ.retᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-      introCL-natural
-      ∙ introCL⟨ C.⋆IdL C.id ⟩⟨
+    module _ {xᴰ : Cᴰ.ob[ x ]} where
+      id*≅-ob : CatIsoᴰ Cᴰ idCatIso (f*yᴰ xᴰ C.id) xᴰ
+      id*≅-ob .fst = π
+      id*≅-ob .snd .isIsoᴰ.invᴰ = introCL (Cᴰ.reind (sym $ C.⋆IdR _) $ Cᴰ.idᴰ)
+      id*≅-ob .snd .isIsoᴰ.secᴰ = Cᴰ.rectify $ Cᴰ.≡out $ βCL ∙ (sym $ Cᴰ.reind-filler _ _)
+      id*≅-ob .snd .isIsoᴰ.retᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+        introCL-natural
+        ∙ introCL⟨ C.⋆IdL C.id ⟩⟨
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
+            ∙ Cᴰ.⋆IdR _ ∙ (sym $ Cᴰ.⋆IdL _) ⟩
+        ∙ sym ηCL
+
+      id*≅-ob' : CatIso Cᴰ.v[ x ] (f*yᴰ xᴰ C.id) xᴰ
+      id*≅-ob' .fst = π
+      id*≅-ob' .snd .Cubical.Categories.Category.Base.isIso.inv =
+        introCL (Cᴰ.reind (sym $ C.⋆IdR _) $ Cᴰ.idᴰ)
+      id*≅-ob' .snd .Cubical.Categories.Category.Base.isIso.sec =
+        Cᴰ.rectify $ Cᴰ.≡out $ (sym $ Cᴰ.reind-filler _ _) ∙ (Cᴰ.≡in $ id*≅-ob .snd .isIsoᴰ.secᴰ)
+      id*≅-ob' .snd .Cubical.Categories.Category.Base.isIso.ret =
+        Cᴰ.rectify $ Cᴰ.≡out $ (sym $ Cᴰ.reind-filler _ _) ∙ (Cᴰ.≡in $ id*≅-ob .snd .isIsoᴰ.retᴰ)
+
+    id*NatIso : NatIso (f*F {x = x} C.id) Id
+    id*NatIso .NatIso.trans .NatTrans.N-ob xᴰ = id*≅-ob {xᴰ} .fst
+    id*NatIso .NatIso.trans .NatTrans.N-hom fⱽ =
+      Cᴰ.rectify $ Cᴰ.≡out $
         (sym $ Cᴰ.reind-filler _ _)
-        ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
-        ∙ Cᴰ.⋆IdR _ ∙ (sym $ Cᴰ.⋆IdL _) ⟩
-      ∙ sym ηCL
+        ∙ Cᴰ.⟨ introCL⟨ refl ⟩⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩ ⟩⋆⟨ refl ⟩
+        ∙ βCL
+        ∙ (Cᴰ.reind-filler _ _)
+    id*NatIso .NatIso.nIso xᴰ = id*≅-ob' {xᴰ} .snd
 
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift

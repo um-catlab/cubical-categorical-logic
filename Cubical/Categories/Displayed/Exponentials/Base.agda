@@ -10,6 +10,7 @@ module Cubical.Categories.Displayed.Exponentials.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Data.Sigma
 
@@ -84,7 +85,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
       module _ {b} {f : C [ b , c ]} where
         -- TODO: move BinProductsWithⱽ→BinProductsWithFiber into some kind of notation
-        f*⟨cᴰ⇒cᴰ'⟩ : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f) (BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _))
+        f*⟨cᴰ⇒cᴰ'⟩ : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f)
+                       (BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _))
         f*⟨cᴰ⇒cᴰ'⟩ = becomesExponential→Exponential _ _ _ _ (becomes-universal f)
 
         module f*⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation _ f*⟨cᴰ⇒cᴰ'⟩
@@ -103,6 +105,37 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (g , gᴰ)
       lda≡ {f = f} g≡id p =
         Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _)) ∙ (sym $ Cᴰ.reind-filler g≡id _)
+
+      -- TODO finish this exponential structure
+      ⟨cᴰ⇒cᴰ'⟩ : Exponential Cᴰ.v[ c ] cᴰ cᴰ'
+                   (BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ c (cᴰ'' , cᴰ)))
+      ⟨cᴰ⇒cᴰ'⟩ .UniversalElement.vertex = vertex
+      ⟨cᴰ⇒cᴰ'⟩ .UniversalElement.element = {!!}
+      ⟨cᴰ⇒cᴰ'⟩ .UniversalElement.universal = {!!}
+        -- CatIso→UniversalElement
+        --   (record { vertex = isFib.f*yᴰ vertex C.id
+        --           ; element = ((π₁ Cᴰ.⋆ⱽ isFib.π) ,ⱽ π₂) Cᴰ.⋆ⱽ element
+        --           ; universal = λ cᴰ'' →
+        --             isIsoToIsEquiv (
+        --               (λ fⱽ → f*⟨cᴰ⇒cᴰ'⟩.lda (
+        --                  (π₁ ,ⱽ (π₂ Cᴰ.⋆ⱽ isFib.π)) Cᴰ.⋆ⱽ (fⱽ Cᴰ.⋆ⱽ id*≅-ob' Cᴰ isFib .snd .isIso.inv))) ,
+        --               (λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
+        --                 (sym $ Cᴰ.reind-filler _ _)
+        --                 ∙ Cᴰ.⟨ ⟨ (sym $ Cᴰ.reind-filler _ _)
+        --                        ∙ Cᴰ.⟨ refl ⟩⋆⟨
+        --                         lda≡ refl
+        --                           ((sym $ Cᴰ.reind-filler _ _)
+        --                           ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _)
+        --                                          ∙ Cᴰ.⟨ refl ⟩⋆⟨ isFib.introCL⟨ refl ⟩⟨ refl ⟩ ⟩ ⟩
+        --                           ∙ {!!}
+        --                           )
+        --                           ⟩ ⟩,ⱽ⟨ (Cᴰ.reind-filler (sym $ C.⋆IdR _) _) ⟩ ⟩⋆⟨ refl ⟩
+        --                 ∙ {!!}
+        --               ) ,
+        --               {!!})
+        --    })
+        --   (id*≅-ob' Cᴰ isFib {xᴰ = vertex})
+      module ⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation _ ⟨cᴰ⇒cᴰ'⟩
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'
@@ -166,6 +199,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
               ∙ C.⋆IdL _)
               gᴰ
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.inv f fᴰ =
-          uq.lda {!expⱽ!}
+          uq.lda (Cᴰ.reind {!!} $
+            f*⟨cᴰ⇒cᴰ'⟩.lda expⱽ {f = -×c.×aF ⟪ c⇒d.lda f ⟫}
+              {!!} Cᴰ.⋆ᴰ isFib.π)
+          -- uq.lda (Cᴰ.reind {!!} $ (isFib.f*F {!f!} ⟪ {!fᴰ!} ⟫ Cᴰ.⋆ᴰ {!!}) Cᴰ.⋆ᴰⱽ ⟨cᴰ⇒cᴰ'⟩.lda expⱽ bpⱽ.π₁)
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.rightInv = {!!}
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.leftInv = {!!}

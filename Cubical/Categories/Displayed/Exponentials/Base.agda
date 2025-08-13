@@ -10,7 +10,7 @@ module Cubical.Categories.Displayed.Exponentials.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -26,10 +26,13 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
+open import Cubical.Categories.Displayed.Limits.BinProduct.Properties
 open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Fibration.Base
+open import Cubical.Categories.Displayed.Fibration.Properties
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Quantifiers
 
 private
   variable
@@ -103,3 +106,66 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp : BinProducts C)
+    (bpⱽ : BinProductsⱽ Cᴰ)
+    (isFib : isFibration Cᴰ)
+  where
+
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module isFib = isFibrationNotation _ isFib
+    module bp = BinProductsNotation bp
+
+    bpᴰ : BinProductsᴰ Cᴰ bp
+    bpᴰ = BinProductsⱽ→BinProductsᴰ Cᴰ isFib bpⱽ bp
+    module bpᴰ = BinProductsᴰNotation bpᴰ
+    module bpⱽ = BinProductsⱽNotation _ bpⱽ
+
+  module _
+    {c d : C.ob}
+    {cᴰ : Cᴰ.ob[ c ]} {dᴰ : Cᴰ.ob[ d ]}
+    (exp : Exponential C c d (λ c' → bp (c' , c)))
+    where
+
+    private
+      module c⇒d = ExponentialNotation _ exp
+      module -×c = BinProductsWithNotation (λ c' → bp (c' , c))
+
+    module _
+      (expⱽ : Exponentialⱽ Cᴰ bpⱽ isFib (isFib.f*yᴰ cᴰ bp.π₂) (isFib.f*yᴰ dᴰ c⇒d.app))
+      where
+
+      open Exponentialⱽ
+      open UniversalElementᴰ
+      open UniversalElementⱽ
+
+      module _
+        (uq : UniversalQuantifier (λ c' → bp (c' , c)) isFib (expⱽ .vertex))
+        where
+
+        module uq = UniversalQuantifierNotation _ isFib uq
+
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ :
+          Exponentialᴰ Cᴰ cᴰ dᴰ (λ c' cᴰ' → bpᴰ (cᴰ' , cᴰ)) exp
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .vertexᴰ = uq.vert
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ  .elementᴰ = the-elt
+          where
+          fᴰ : Cᴰ [ C.id ][ isFib.f*yᴰ (uq .vertexⱽ) bp.π₁ , expⱽ .vertex ]
+          fᴰ = Cᴰ.reind (-×c.×aF .Functor.F-id) $ uq.app
+
+          gᴰ : Cᴰ [ _ C.⋆ _ C.⋆ c⇒d.app ][ isFib.f*yᴰ (uq .vertexⱽ) bp.π₁ bpⱽ.×ⱽ isFib.f*yᴰ cᴰ bp.π₂ , dᴰ ]
+          gᴰ = ((bpⱽ.π₁ Cᴰ.⋆ᴰ fᴰ) bpⱽ.,ⱽ (bpⱽ.π₂ Cᴰ.⋆ᴰ Cᴰ.idᴰ)) Cᴰ.⋆ᴰ expⱽ .element Cᴰ.⋆ᴰ isFib.π
+
+          the-elt : Cᴰ [ c⇒d.app ][ isFib.f*yᴰ uq.vert bp.π₁ bpⱽ.×ⱽ isFib.f*yᴰ cᴰ bp.π₂ , dᴰ ]
+          the-elt =
+            Cᴰ.reind
+              ((λ i → C.⋆IdL C.id i C.⋆ C.id C.⋆ c⇒d.app)
+              ∙ C.⋆IdL _
+              ∙ C.⋆IdL _)
+              gᴰ
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.inv f fᴰ =
+          uq.lda {!expⱽ!}
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.rightInv = {!!}
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.leftInv = {!!}

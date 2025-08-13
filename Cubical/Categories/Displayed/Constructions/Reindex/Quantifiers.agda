@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification --allow-unsolved-metas #-}
+{-# OPTIONS --lossy-unification #-}
 {-
   Sufficient conditions for Reindexed displayed category to have (universal) quantifiers
 -}
@@ -173,7 +173,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
             → ∀Reindex-intro⁻ (∀Reindex-intro γᴰ) ≡ γᴰ
           ∀Reindex-β {Δ}{Δᴰ}{γ} γᴰ = ∀Reindex-intro⁻≡ _ ∙ (Dᴰ.rectify $ Dᴰ.≡out $
             sym (Dᴰ.reind-filler _ _)
-            ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.⟨ β-lemma ⟩⋆⟨ refl ⟩ ∙ isFibDᴰ.βCL ∙ (sym $ Dᴰ.reind-filler _ _) ⟩
+            ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.⟨ ∀dᴰ.∀β {fᴰ = ∀Reindex-intro' γᴰ} ⟩⋆⟨ refl ⟩ ∙ isFibDᴰ.βCL ∙ (sym $ Dᴰ.reind-filler _ _) ⟩
             ∙ sym (Dᴰ.⋆Assoc _ _ _)
             ∙ Dᴰ.⟨ isFibDᴰ.introCL-natural
               ∙ isFibDᴰ.introCL≡'
@@ -183,17 +183,28 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
                   ((sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ∙ isFibDᴰ.βCL ∙ sym (Dᴰ.reind-filler _ _) ∙ sym (Dᴰ.⋆IdL _) )
               ⟩⋆⟨ refl ⟩
             ∙ Dᴰ.⋆IdL _)
-            where
-              β-lemma : Path Dᴰ.Hom[ _ , _ ]
-                (_ , F-homᴰ (weakenⱽ -×Fc isFibDᴰ) (∀dᴰ.lda (∀Reindex-intro' γᴰ)) Dᴰ.⋆ᴰ ∀dᴰ.app)
-                (_ , ∀Reindex-intro' γᴰ)
-              β-lemma = ∀dᴰ.∀β {fᴰ = ∀Reindex-intro' γᴰ}
 
           ∀Reindex-η : ∀ {Δ}{Δᴰ}{γ : C [ Δ , Γ ]}
             (γᴰ : Dᴰ.Hom[ F ⟪ γ ⟫ ][ Δᴰ , ∀dᴰ.∀ueⱽ.vertexⱽ ])
             → ∀Reindex-intro (∀Reindex-intro⁻ γᴰ) ≡ γᴰ
-          ∀Reindex-η γᴰ = cong ∀Reindex-intro (∀Reindex-intro⁻≡ γᴰ)
-            ∙ {!!}
+          ∀Reindex-η γᴰ = cong ∀Reindex-intro (∀Reindex-intro⁻≡ γᴰ) ∙ (Dᴰ.rectify $ Dᴰ.≡out $ ∀dᴰ.lda≡ refl $
+            (isFibDᴰ.introCL≡'
+              (sym (D.⋆IdR _) ∙ D.⟨ refl ⟩⋆⟨ sym $ -×Fc.×aF .F-id ⟩)
+              ( (sym $ Dᴰ.reind-filler _ _)
+              ∙ Dᴰ.⟨ refl ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.⋆Assoc _ _ _ ⟩ ∙ sym (Dᴰ.⋆Assoc _ _ _) ⟩
+              ∙ sym (Dᴰ.⋆Assoc _ _ _)
+              -- introCL π ⋆ᴰ introCL π ⋆ᴰ introCL (π ⋆ᴰ γᴰ)
+              -- ≡ intro (π ⋆ᴰ γᴰ)
+              ∙ Dᴰ.⟨ sym (Dᴰ.⋆Assoc _ _ _)
+                     -- introCL π ⋆ᴰ introCL π ≡ idᴰ
+                     ∙ Dᴰ.⟨ isFibDᴰ.introCL-natural
+                          ∙ isFibDᴰ.introCL≡'
+                              (-×Fc.×ue.intro-natural ∙ -×Fc.⟨ F⟨-×c⟩.×β₁ ⟩,p⟨ F⟨-×c⟩.×β₂ ⟩ ∙ sym -×Fc.×ue.weak-η)
+                              ((sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ∙ isFibDᴰ.βCL ∙ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.⋆IdL _))
+                        ⟩⋆⟨ refl ⟩
+                     ∙ Dᴰ.⋆IdL _
+                 ⟩⋆⟨ refl ⟩
+              ∙ sym (Dᴰ.⋆Assoc _ _ _))))
 
       ∀Reindex : UniversalQuantifier -×c isFibF*Dᴰ dᴰ
       ∀Reindex .vertexⱽ = ∀Reindex-vert

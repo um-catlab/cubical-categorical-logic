@@ -4,6 +4,7 @@ module Cubical.Categories.Displayed.Quantifiers where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 import Cubical.Data.Equality as Eq
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -141,6 +142,19 @@ module _
       → Cᴰ [ f ][ Γᴰ , vert ]
     lda = ∀ueⱽ.universalⱽ .fst
 
+    lda⟨_⟩⟨_⟩ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f g}
+      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
+      {gᴰ : Cᴰ [ bp.×aF ⟪ g ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
+      → f ≡ g
+      → Path Cᴰ.Hom[ _ , _ ]
+          (_ , fᴰ)
+          (_ , gᴰ)
+      → Path Cᴰ.Hom[ _ , _ ]
+          (_ , lda fᴰ)
+          (_ , lda gᴰ)
+    lda⟨ f≡g ⟩⟨ fᴰ≡gᴰ ⟩ =
+      ∀ueⱽ.∫ue.intro⟨ ΣPathP (f≡g , (Cᴰ.rectify $ Cᴰ.≡out fᴰ≡gᴰ)) ⟩
+
     ∀β : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f} →
       {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
       → Path Cᴰ.Hom[ _ , _ ]
@@ -150,6 +164,29 @@ module _
       Cᴰ.reind-filler _ _
       ∙ Cᴰ.reind-filler _ _
       ∙ (Cᴰ.≡in $ ∀ueⱽ.βⱽ)
+
+    ∀η : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f}
+      {fᴰ : Cᴰ [ f ][ Γᴰ , vert ]}
+      → Path Cᴰ.Hom[ _ , _ ]
+          (f , fᴰ)
+          (f , lda (Cᴰ.reind (sym (bp.×aF .F-seq _ _) ∙ cong (bp.×aF .F-hom) (C.⋆IdR _))
+            (weakenⱽ .F-homᴰ fᴰ Cᴰ.⋆ᴰ app)))
+    ∀η = (Cᴰ.≡in $ ∀ueⱽ.ηⱽ)
+      ∙ lda⟨ refl ⟩⟨ sym (Cᴰ.reind-filler _ _) ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.reind-filler _ _ ⟩
+
+    lda≡ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f g}
+      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
+      {gᴰ : Cᴰ [ g ][ Γᴰ , vert ]}
+      → f ≡ g
+      → Path Cᴰ.Hom[ _ , _ ]
+          (bp.×aF ⟪ f ⟫ , fᴰ)
+          ((bp.×aF ⟪ g ⟫ C.⋆ bp.×aF ⟪ C.id ⟫), (weakenⱽ .F-homᴰ gᴰ Cᴰ.⋆ᴰ app))
+      → Path Cᴰ.Hom[ _ , _ ]
+          (f , lda fᴰ)
+          (g , gᴰ)
+    lda≡ f≡g fᴰ≡gᴰπ =
+      lda⟨ f≡g ⟩⟨ fᴰ≡gᴰπ ∙ Cᴰ.reind-filler _ _ ⟩
+      ∙ sym ∀η
 
 --   -- --   vert : Cᴰ.ob[ a ]
 --   -- --   vert = ∀ueⱽ.vertexᴰ

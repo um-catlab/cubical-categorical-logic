@@ -55,19 +55,19 @@ module _
   weakenⱽ : Functorⱽ Cᴰ Cᴰ[-×a]
   weakenⱽ .F-obᴰ bᴰ = isFib.f*yᴰ bᴰ bp.π₁
   weakenⱽ .F-homᴰ fᴰ =
-    isFib.introCL _ _ (Cᴰ.reind (sym $ bp.×β₁) (isFib.π _ _ Cᴰ.⋆ᴰ fᴰ))
+    isFib.introCL (Cᴰ.reind (sym $ bp.×β₁) (isFib.π Cᴰ.⋆ᴰ fᴰ))
   weakenⱽ .F-idᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-    isFib.introCL≡ _ bp.π₁ (sym (Cᴰ.reind-filler _ _)
+    isFib.introCL≡ (sym (Cᴰ.reind-filler _ _)
       ∙ Cᴰ.⋆IdR _
       ∙ (sym $ Cᴰ.⋆IdL _)
       ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
   weakenⱽ .F-seqᴰ fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-    isFib.introCL≡ _ _
+    isFib.introCL≡
       (sym (Cᴰ.reind-filler _ _)
       ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-      ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ∙ (sym $ isFib.βCL _ _) ⟩⋆⟨ refl ⟩
+      ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ∙ (sym isFib.βCL) ⟩⋆⟨ refl ⟩
       ∙ Cᴰ.⋆Assoc _ _ _
-      ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym $ isFib.βCL _ _) ⟩
+      ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym isFib.βCL) ⟩
       ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
       ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
       )
@@ -141,6 +141,16 @@ module _
       → Cᴰ [ f ][ Γᴰ , vert ]
     lda = ∀ueⱽ.universalⱽ .fst
 
+    ∀β : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f} →
+      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
+      → Path Cᴰ.Hom[ _ , _ ]
+          ((bp.×aF ⟪ f ⟫ C.⋆ bp.×aF ⟪ C.id ⟫) , (weakenⱽ .F-homᴰ (lda fᴰ) Cᴰ.⋆ᴰ app))
+          (bp.×aF ⟪ f ⟫ , fᴰ)
+    ∀β =
+      Cᴰ.reind-filler _ _
+      ∙ Cᴰ.reind-filler _ _
+      ∙ (Cᴰ.≡in $ ∀ueⱽ.βⱽ)
+
 --   -- --   vert : Cᴰ.ob[ a ]
 --   -- --   vert = ∀ueⱽ.vertexᴰ
 
@@ -182,4 +192,3 @@ module _
   --     open UniversalQuantifierNotation (∀ᴰ pᴰ) hiding (module ∀ueⱽ) public
   --   module ∀ueⱽ {a b}(pᴰ : Cᴰ.ob[ a × b ]) =
   --     UniversalQuantifierNotation.∀ueⱽ (∀ᴰ pᴰ)
-

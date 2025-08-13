@@ -178,7 +178,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   module isFibrationNotation (isFib : isFibration) where
     module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) where
-      open CartesianLift (isFib yᴰ f) public
+      open CartesianLift (isFib yᴰ f) using (f*yᴰ) public
+    module _ {x y : C .ob}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]} where
+      open CartesianLift (isFib yᴰ f) hiding (f*yᴰ) public
 
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift

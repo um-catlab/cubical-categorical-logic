@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Quantifiers where
 
 open import Cubical.Foundations.Prelude

@@ -1,3 +1,4 @@
+{-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 {-
   Sufficient conditions for Reindexed displayed category to have (universal) quantifiers

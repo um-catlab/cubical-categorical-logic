@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category hiding (isIso)
+open import Cubical.Categories.Category renaming (isIso to isIsoCat)
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Constructions.Elements
@@ -160,6 +160,36 @@ module UniversalElementNotation {ℓo}{ℓh}
       ∙ cong (action C P _) β)
       ∙ sym β)
 
+module _ {ℓo}{ℓh}
+       {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
+       (ue : UniversalElement C P)
+       where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+
+  open UniversalElementNotation ue
+  module _ {c : C.ob} (ue≅ : CatIso C vertex c) where
+    CatIso→UniversalElement : UniversalElement C P
+    CatIso→UniversalElement .UniversalElement.vertex = c
+    CatIso→UniversalElement .UniversalElement.element = ue≅ .snd .isIsoCat.inv P.⋆ element
+    CatIso→UniversalElement .UniversalElement.universal d =
+      isIsoToIsEquiv (
+        (λ f → intro f C.⋆ ue≅ .fst) ,
+        (λ f → cong (λ z → z element) (sym (P .F-seq _ _))
+               ∙ cong (λ z → (P ⟪ z ⟫) element) (C.⋆Assoc _ _ _ ∙ cong (intro f C.⋆_) (ue≅ .snd .isIsoCat.ret))
+               ∙ cong (λ z → (P ⟪ z ⟫) element) (C.⋆IdR _)
+               ∙ β) ,
+        (λ f →
+          (λ i → intro-natural {p = ue≅ .snd .isIsoCat.inv P.⋆ element}{f = f} (~ i) C.⋆ ue≅ .fst)
+          ∙ (C.⋆Assoc _ _ _)
+          ∙ (λ i → f C.⋆ (intro-natural {p = element}{f = ue≅ .snd .isIsoCat.inv} (~ i) C.⋆ ue≅ .fst))
+          ∙ cong (f C.⋆_) (cong (λ z → (ue≅ .snd .isIsoCat.inv C.⋆ z) C.⋆ ue≅ .fst) (sym weak-η)
+                           ∙ cong (λ z → z C.⋆ ue≅ .fst) (C.⋆IdR _)
+                           ∙ ue≅ .snd .isIsoCat.sec)
+          ∙ C.⋆IdR _
+          )
+      )
 
 -- Natural transformation between presheaves of different levels
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
@@ -184,4 +214,3 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} wher
   makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
    → α ≡ β
   makePshHomPath = ΣPathPProp (isPropN-hom P Q)
-

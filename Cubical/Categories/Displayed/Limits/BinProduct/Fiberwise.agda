@@ -4,7 +4,6 @@ module Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
@@ -37,7 +36,6 @@ open Category
 open UniversalElement
 open UniversalElementᴰ
 open UniversalElementⱽ
-open isIsoOver
 
 module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private

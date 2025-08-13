@@ -170,10 +170,8 @@ module _ {ℓo}{ℓh}
 
   open UniversalElementNotation ue
   module _ {c : C.ob} (ue≅ : CatIso C vertex c) where
-    CatIso→UniversalElement : UniversalElement C P
-    CatIso→UniversalElement .UniversalElement.vertex = c
-    CatIso→UniversalElement .UniversalElement.element = ue≅ .snd .isIsoCat.inv P.⋆ element
-    CatIso→UniversalElement .UniversalElement.universal d =
+    CatIso→Universal : isUniversal C P c (ue≅ .snd .isIsoCat.inv P.⋆ element)
+    CatIso→Universal d =
       isIsoToIsEquiv (
         (λ f → intro f C.⋆ ue≅ .fst) ,
         (λ f → cong (λ z → z element) (sym (P .F-seq _ _))
@@ -190,6 +188,11 @@ module _ {ℓo}{ℓh}
           ∙ C.⋆IdR _
           )
       )
+
+    CatIso→UniversalElement : UniversalElement C P
+    CatIso→UniversalElement .UniversalElement.vertex = c
+    CatIso→UniversalElement .UniversalElement.element = ue≅ .snd .isIsoCat.inv P.⋆ element
+    CatIso→UniversalElement .UniversalElement.universal = CatIso→Universal
 
 -- Natural transformation between presheaves of different levels
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where

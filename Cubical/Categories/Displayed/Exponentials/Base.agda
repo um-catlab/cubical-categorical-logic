@@ -79,29 +79,27 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             vertex
             element
 
-      module _ {b} (f : C [ b , c ]) where
-        reind-bp : BinProductsWith Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f)
-        reind-bp = BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _)
+      module _ {b} {f : C [ b , c ]} where
+        -- TODO: move BinProductsWithⱽ→BinProductsWithFiber into some kind of notation
+        f*⟨cᴰ⇒cᴰ'⟩ : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f) (BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _))
+        f*⟨cᴰ⇒cᴰ'⟩ = becomesExponential→Exponential _ _ _ _ (becomes-universal f)
 
-        reind-exp : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f) reind-bp
-        reind-exp .UniversalElement.vertex = isFib.f*yᴰ vertex f
-        reind-exp .UniversalElement.element =
-          Cᴰ.reind (λ i → C.⋆IdL C.id i) (isFib.introCL (vertex ×ⱽ cᴰ) f _ Cᴰ.⋆ᴰ isFib.introCL cᴰ' f (Cᴰ.idᴰ Cᴰ.⋆ᴰ (isFib.π (vertex ×ⱽ cᴰ) f Cᴰ.⋆ᴰⱽ element)))
-        reind-exp .UniversalElement.universal = becomes-universal f
+        module f*⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation _ f*⟨cᴰ⇒cᴰ'⟩
 
-        module f*⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation reind-bp reind-exp
-
-      intro≡ :
-        ∀ {x : C.ob}{f : C [ x , c ]} →
+      lda≡ :
+        ∀ {x : C.ob}{f : C [ x , c ]}{g} →
         {xᴰ : Cᴰ.ob[ x ]} →
         {fᴰ : Cᴰ.Hom[ C.id ][ xᴰ ×ⱽ isFib.f*yᴰ cᴰ f , isFib.f*yᴰ cᴰ' f ]}
-        {gᴰ : Cᴰ.Hom[ C.id ][ xᴰ , f*⟨cᴰ⇒cᴰ'⟩.vert f ]}
+        {gᴰ : Cᴰ.Hom[ g ][ xᴰ , f*⟨cᴰ⇒cᴰ'⟩.vert ]}
+        → (p : g ≡ C.id)
         → Path Cᴰ.Hom[ _ , _ ]
-          (C.id , fᴰ)
-          ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ gᴰ) ,ⱽ π₂) Cᴰ.⋆ᴰ f*⟨cᴰ⇒cᴰ'⟩.app f))
-        → Path Cᴰ.Hom[ _ , _ ] (C.id , f*⟨cᴰ⇒cᴰ'⟩.lda f fᴰ) (C.id , gᴰ)
-      intro≡ {f = f} p =
-        Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ f (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _))
+            (C.id , fᴰ)
+            ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ Cᴰ.reind p gᴰ) ,ⱽ π₂) Cᴰ.⋆ᴰ f*⟨cᴰ⇒cᴰ'⟩.app))
+        → Path Cᴰ.Hom[ _ , _ ]
+            (C.id , f*⟨cᴰ⇒cᴰ'⟩.lda fᴰ)
+            (g , gᴰ)
+      lda≡ {f = f} g≡id p =
+        Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _)) ∙ (sym $ Cᴰ.reind-filler g≡id _)
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'

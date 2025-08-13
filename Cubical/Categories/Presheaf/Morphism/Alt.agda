@@ -74,6 +74,14 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     ∀ (v : C .ob) (e : P.p[ v ]) → Type _
   becomesUniversal v e = isUniversal D Q (F ⟅ v ⟆) (Fᴰ .fst _ e)
 
+  becomesUniversal→UniversalElement :
+    ∀ {v e}
+    → becomesUniversal v e
+    → UniversalElement D Q
+  becomesUniversal→UniversalElement becomesUE .vertex = _
+  becomesUniversal→UniversalElement becomesUE .element = _
+  becomesUniversal→UniversalElement becomesUE .universal = becomesUE
+
   preservesUniversalElement : UniversalElement C P → Type _
   preservesUniversalElement ue =
     becomesUniversal (ue .vertex) (ue .element)
@@ -85,12 +93,8 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     (ue : UniversalElement C P)
     → preservesUniversalElement ue
     → UniversalElement D Q
-  preservesUniversalElement→UniversalElement ue presUniversality .vertex =
-    F .F-ob (ue .vertex)
-  preservesUniversalElement→UniversalElement ue presUniversality .element =
-    Fᴰ .fst (ue .vertex) (ue .element)
-  preservesUniversalElement→UniversalElement ue presUniversality .universal =
-    presUniversality
+  preservesUniversalElement→UniversalElement ue presUniversality =
+    becomesUniversal→UniversalElement presUniversality
 
   -- If a presheaf preserves any universal element then it preserves
   -- all of them since universal elements are unique up to unique

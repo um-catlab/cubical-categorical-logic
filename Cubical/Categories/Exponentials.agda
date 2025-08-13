@@ -210,6 +210,12 @@ module _ (F : Functor C D) {c : C .ob}
     Type _
   becomesExponential {c'} v e = becomesUniversal (preservesExpCone c') v e
 
+  becomesExponential→Exponential : ∀ {c'}{v e}
+    → becomesExponential {c' = c'} v e
+    → Exponential D (F.F-ob c) (F.F-ob c') -×Fc
+  becomesExponential→Exponential =
+    becomesUniversal→UniversalElement (preservesExpCone _)
+
   preservesExponential : {c' : C.ob} → Exponential C c c' -×c → Type _
   preservesExponential {c'} e = becomesExponential vert app
     where open ExponentialNotation -×c e

@@ -106,37 +106,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       lda≡ {f = f} g≡id p =
         Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _)) ∙ (sym $ Cᴰ.reind-filler g≡id _)
 
-      -- TODO finish this exponential structure
-      ⟨cᴰ⇒cᴰ'⟩ : Exponential Cᴰ.v[ c ] cᴰ cᴰ'
-                   (BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ c (cᴰ'' , cᴰ)))
-      ⟨cᴰ⇒cᴰ'⟩ .UniversalElement.vertex = vertex
-      ⟨cᴰ⇒cᴰ'⟩ .UniversalElement.element = {!!}
-      ⟨cᴰ⇒cᴰ'⟩ .UniversalElement.universal = {!!}
-        -- CatIso→UniversalElement
-        --   (record { vertex = isFib.f*yᴰ vertex C.id
-        --           ; element = ((π₁ Cᴰ.⋆ⱽ isFib.π) ,ⱽ π₂) Cᴰ.⋆ⱽ element
-        --           ; universal = λ cᴰ'' →
-        --             isIsoToIsEquiv (
-        --               (λ fⱽ → f*⟨cᴰ⇒cᴰ'⟩.lda (
-        --                  (π₁ ,ⱽ (π₂ Cᴰ.⋆ⱽ isFib.π)) Cᴰ.⋆ⱽ (fⱽ Cᴰ.⋆ⱽ id*≅-ob' Cᴰ isFib .snd .isIso.inv))) ,
-        --               (λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
-        --                 (sym $ Cᴰ.reind-filler _ _)
-        --                 ∙ Cᴰ.⟨ ⟨ (sym $ Cᴰ.reind-filler _ _)
-        --                        ∙ Cᴰ.⟨ refl ⟩⋆⟨
-        --                         lda≡ refl
-        --                           ((sym $ Cᴰ.reind-filler _ _)
-        --                           ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _)
-        --                                          ∙ Cᴰ.⟨ refl ⟩⋆⟨ isFib.introCL⟨ refl ⟩⟨ refl ⟩ ⟩ ⟩
-        --                           ∙ {!!}
-        --                           )
-        --                           ⟩ ⟩,ⱽ⟨ (Cᴰ.reind-filler (sym $ C.⋆IdR _) _) ⟩ ⟩⋆⟨ refl ⟩
-        --                 ∙ {!!}
-        --               ) ,
-        --               {!!})
-        --    })
-        --   (id*≅-ob' Cᴰ isFib {xᴰ = vertex})
-      module ⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation _ ⟨cᴰ⇒cᴰ'⟩
-
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'
 
@@ -198,10 +167,47 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
               ∙ C.⋆IdL _
               ∙ C.⋆IdL _)
               gᴰ
-        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.inv f fᴰ =
-          uq.lda (Cᴰ.reind {!!} $
-            f*⟨cᴰ⇒cᴰ'⟩.lda expⱽ {f = -×c.×aF ⟪ c⇒d.lda f ⟫}
-              {!!} Cᴰ.⋆ᴰ isFib.π)
-          -- uq.lda (Cᴰ.reind {!!} $ (isFib.f*F {!f!} ⟪ {!fᴰ!} ⟫ Cᴰ.⋆ᴰ {!!}) Cᴰ.⋆ᴰⱽ ⟨cᴰ⇒cᴰ'⟩.lda expⱽ bpⱽ.π₁)
-        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.rightInv = {!!}
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ {x = x}{xᴰ = xᴰ} .isIsoOver.inv f fᴰ =
+          -- Given f : x × c → d
+          --       fᴰ : π₁* xᴰ ×ⱽ π₂* cᴰ → dᴰ over f
+          -- Want a map xᴰ → ∀ (π₂* cᴰ ⇒ app* dᴰ) over λf
+          -- Via ∀λ, it suffices to build a map π₁* xᴰ → (π₂* cᴰ ⇒ app* dᴰ) over (λf × id)
+          -- To build this map, we use λ for the exponential structure on (λf × id)* (π₂* cᴰ ⇒ app* dᴰ)
+          --   as it an exponential in the fiber over (x × c)
+          -- Thus it reduces to building a map π₁* xᴰ ×ⱽ (λf × id)* π₂* cᴰ → (λ f × id)* (app* dᴰ)
+          uq.lda gᴰ
+          where
+          λf×id = -×c.×aF ⟪ c⇒d.lda f ⟫
+          module ⟨λf×id⟩*⟨cᴰ⇒dᴰ⟩ = f*⟨cᴰ⇒cᴰ'⟩ expⱽ {f = λf×id}
+
+          p : ((C.id C.⋆ bp.π₁ bp.,p (C.id C.⋆ λf×id C.⋆ bp.π₂)) C.⋆ f) ≡ ((C.id C.⋆ λf×id) C.⋆ c⇒d.app)
+          p =
+            cong (C._⋆ f) (cong₂ bp._,p_ (C.⋆IdL _) (C.⋆IdL _))
+            ∙ cong₂ C._⋆_ (bp.,p≡ (sym $ C.⋆IdL _) (bp.×β₂ ∙ (sym $ C.⋆IdL _))) refl
+            ∙ C.⋆IdL _
+            ∙ sym c⇒d.⇒ue.β
+            ∙ cong₂ C._⋆_ (sym (C.⋆IdL _)) refl
+
+          hᴰ : Cᴰ.Hom[ C.id ][ isFib.f*yᴰ xᴰ bp.π₁ bpⱽ.×ⱽ isFib.f*yᴰ (isFib.f*yᴰ cᴰ bp.π₂) λf×id , isFib.f*yᴰ (isFib.f*yᴰ dᴰ c⇒d.app) λf×id ]
+          hᴰ = isFib.introCL (isFib.introCL (Cᴰ.reind p $ (((bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) bpᴰ.,pᴰ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π)) Cᴰ.⋆ᴰ fᴰ)))
+
+          gᴰ : Cᴰ.Hom[ λf×id ][ isFib.f*yᴰ xᴰ bp.π₁ , expⱽ .vertex ]
+          gᴰ = ⟨λf×id⟩*⟨cᴰ⇒dᴰ⟩.lda hᴰ Cᴰ.⋆ⱽᴰ isFib.π
+        Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.rightInv f fᴰ =
+          Cᴰ.rectify $ Cᴰ.≡out $
+            Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ bpⱽ.⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ∙ refl ⟩ ⟩,ⱽ⟨ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler (sym $ -×c.×aF .Functor.F-id) _ ⟩ ⟩ ⟩⋆⟨ refl ⟩ ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ Cᴰ.⟨ Cᴰ.⟨ {!!} ⟩⋆⟨ {!!} ⟩ ⟩⋆⟨ {!!} ⟩ ∙ {!!} ∙ isFib.introCL⟨ {!!} ⟩⟨ {!!} ⟩ ⟩⋆⟨ refl ⟩
+            ∙ isFib.βCL
+            ∙ {!!}
+            -- ∙ (sym $ Cᴰ.reind-filler (sym $ C.⋆IdL _) _)
+
+            -- Cᴰ.⟨ bpⱽ.⟨ isFib.introCL⟨ refl ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨
+            --   uq.lda≡ {!!} {!!} ⟩ ∙ {!!} ⟩ ⟩,ⱽ⟨ isFib.introCL⟨ {!!} ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ {!!} ⟩ ⟩ ⟩⋆⟨ refl ⟩
+            -- ∙ Cᴰ.⟨ bpⱽ.⟨ isFib.introCL⟨ {!!} ⟩⟨ {!!} ⟩ ⟩,ⱽ⟨ {!!} ⟩ ⟩⋆⟨ refl ⟩
+            -- ∙ {!!}
+          where
+          λf×id = -×c.×aF ⟪ c⇒d.lda f ⟫
+          module ⟨λf×id⟩*⟨cᴰ⇒dᴰ⟩ = f*⟨cᴰ⇒cᴰ'⟩ expⱽ {f = λf×id}
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.leftInv = {!!}

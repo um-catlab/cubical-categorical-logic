@@ -179,6 +179,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
     module _ {cᴰ cᴰ' : Cᴰ.ob[ c ]} where
       open BinProductⱽNotation _ (vbp _ (cᴰ , cᴰ')) hiding (vert) public
 
+    BinProductFⱽ : Functorⱽ (Cᴰ BP.×ᴰ Cᴰ) Cᴰ
+    BinProductFⱽ =
+      FunctorⱽComprehension {Pᴰ = BinProductProfⱽ Cᴰ} vbp
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
   private
     module C = Category C

@@ -53,6 +53,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     introCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
       Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ] → Cᴰ [ g ][ zᴰ , f*yᴰ ]
     introCL = isCartesian .fst
+
+    introCLⱽ : ∀ {xᴰ} → Cᴰ [ f ][ xᴰ , yᴰ ] → Cᴰ.v[ _ ] [ xᴰ , f*yᴰ ]
+    introCLⱽ fᴰ = introCL (Cᴰ.reind (sym $ C.⋆IdL _) fᴰ)
+
     opaque
       introCL⟨_⟩ : ∀ {z} {zᴰ} {g g' : C [ z , x ]}
         {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
@@ -84,6 +88,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (g C.⋆ f , introCL gfᴰ Cᴰ.⋆ᴰ π)
             (g C.⋆ f , gfᴰ)
       βCL = Cᴰ.≡in βᴰCL
+
+      βⱽCL :
+        ∀ {xᴰ}{fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}
+        → Path Cᴰ.Hom[ _ , _ ]
+            (_ , introCLⱽ fᴰ Cᴰ.⋆ᴰ π)
+            (_ , fᴰ)
+      βⱽCL = βCL ∙ (sym $ Cᴰ.reind-filler _ _)
 
       ηᴰCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
         {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}

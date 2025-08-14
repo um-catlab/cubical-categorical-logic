@@ -3,6 +3,7 @@
 module Cubical.Categories.Displayed.Functor.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
@@ -19,6 +20,9 @@ private
 
 mixedHEq : {A0 A1 : Type ℓ} (Aeq : A0 Eq.≡ A1) (a0 : A0)(a1 : A1) → Type _
 mixedHEq Aeq a0 a1 = Eq.transport (λ A → A) Aeq a0 ≡ a1
+
+mixedSinglP : {A0 A1 : Type ℓ} (Aeq : A0 Eq.≡ A1) (a0 : A0) → Type _
+mixedSinglP Aeq a0 = Σ _ (mixedHEq Aeq a0)
 
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -44,6 +48,12 @@ module _
       (Eq.ap (λ G-ob → ∀ {x}{y} → C [ x , y ] → D [ G-ob x , G-ob y ])
              (GF-ob .snd))
       (F .F-hom)
+
+    GF-hom-ty'' : GF-ob-ty → Type _
+    GF-hom-ty'' GF-ob = mixedSinglP
+      (Eq.ap (λ G-ob → ∀ {x}{y} → C [ x , y ] → D [ G-ob x , G-ob y ])
+             (GF-ob .snd))
+      (F .F-hom)
   module _ (Fᴰ : Functorᴰ F Cᴰ Dᴰ) where
     open Functor
     reindF'-ob : (GF-ob : GF-ob-ty) → ∀ {x} → Cᴰ.ob[ x ] → Dᴰ.ob[ GF-ob .fst x ]
@@ -57,22 +67,55 @@ module _
                      , reindF'-ob GF-ob yᴰ ]
     reindF'-hom (_ , Eq.refl) (_ , Eq.refl) = Fᴰ .F-homᴰ
 
-    reindF'-id : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty GF-ob)
-      (GF-id : ∀ {x} → GF-hom .fst (C.id {x}) ≡ D.id)
-      → ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
-      → reindF'-hom GF-ob GF-hom (Cᴰ.idᴰ {x}{xᴰ}) Dᴰ.≡[ GF-id ] Dᴰ.idᴰ
-    reindF'-id (_ , Eq.refl) (_ , Eq.refl) GF-id = R.rectify (Fᴰ .F-idᴰ)
+    opaque
+      reindF'-id : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty GF-ob)
+        (GF-id : ∀ {x} → GF-hom .fst (C.id {x}) ≡ D.id)
+        → ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
+        → reindF'-hom GF-ob GF-hom (Cᴰ.idᴰ {x}{xᴰ}) Dᴰ.≡[ GF-id ] Dᴰ.idᴰ
+      reindF'-id (_ , Eq.refl) (_ , Eq.refl) GF-id = R.rectify (Fᴰ .F-idᴰ)
 
-    reindF'-seq : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty GF-ob)
-      (GF-seq : ∀ {x}{y}{z}(f : C [ x , y ])(g : C [ y , z ])
-        → GF-hom .fst (f C.⋆ g) ≡ (GF-hom .fst f) D.⋆ GF-hom .fst g)
-      → ∀ {x}{y}{z}{f : C [ x , y ]}{g : C [ y , z ]}{xᴰ}{yᴰ}{zᴰ}
-      → (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) →
-      reindF'-hom GF-ob GF-hom
-      (fᴰ Cᴰ.⋆ᴰ gᴰ) Dᴰ.≡[ GF-seq f g ]
-      reindF'-hom GF-ob GF-hom fᴰ Dᴰ.⋆ᴰ reindF'-hom GF-ob GF-hom gᴰ
-    reindF'-seq (_ , Eq.refl) (_ , Eq.refl) GF-seq fᴰ gᴰ =
-      R.rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
+      reindF'-seq : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty GF-ob)
+        (GF-seq : ∀ {x}{y}{z}(f : C [ x , y ])(g : C [ y , z ])
+          → GF-hom .fst (f C.⋆ g) ≡ (GF-hom .fst f) D.⋆ GF-hom .fst g)
+        → ∀ {x}{y}{z}{f : C [ x , y ]}{g : C [ y , z ]}{xᴰ}{yᴰ}{zᴰ}
+        → (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) →
+        reindF'-hom GF-ob GF-hom
+        (fᴰ Cᴰ.⋆ᴰ gᴰ) Dᴰ.≡[ GF-seq f g ]
+        reindF'-hom GF-ob GF-hom fᴰ Dᴰ.⋆ᴰ reindF'-hom GF-ob GF-hom gᴰ
+      reindF'-seq (_ , Eq.refl) (_ , Eq.refl) GF-seq fᴰ gᴰ =
+        R.rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
+
+    reindF''-hom : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty'' GF-ob)
+                → ∀ {x y}{f : C [ x , y ]}{xᴰ}{yᴰ}
+                → Cᴰ [ f ][ xᴰ , yᴰ ]
+                → Dᴰ [ GF-hom .fst f
+                    ][ reindF'-ob GF-ob xᴰ
+                     , reindF'-ob GF-ob yᴰ ]
+    reindF''-hom (_ , Eq.refl) (GF-hom , Fh≡Gh) fᴰ =
+      R.reind (funExt⁻ (implicitFunExt⁻ (implicitFunExt⁻ Fh≡Gh)) _)
+        $ Fᴰ .F-homᴰ fᴰ
+
+    opaque
+      reindF''-id : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty'' GF-ob)
+        (GF-id : ∀ {x} → GF-hom .fst (C.id {x}) ≡ D.id)
+        → ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
+        → reindF''-hom GF-ob GF-hom (Cᴰ.idᴰ {x}{xᴰ}) Dᴰ.≡[ GF-id ] Dᴰ.idᴰ
+      reindF''-id (_ , Eq.refl) (Gh , Fh≡Gh) GF-id = R.rectify $ R.≡out $
+        sym (R.reind-filler _ _)
+        ∙ (R.≡in $ Fᴰ .F-idᴰ)
+
+      reindF''-seq : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty'' GF-ob)
+        (GF-seq : ∀ {x}{y}{z}(f : C [ x , y ])(g : C [ y , z ])
+          → GF-hom .fst (f C.⋆ g) ≡ (GF-hom .fst f) D.⋆ GF-hom .fst g)
+        → ∀ {x}{y}{z}{f : C [ x , y ]}{g : C [ y , z ]}{xᴰ}{yᴰ}{zᴰ}
+        → (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) →
+        reindF''-hom GF-ob GF-hom
+        (fᴰ Cᴰ.⋆ᴰ gᴰ) Dᴰ.≡[ GF-seq f g ]
+        reindF''-hom GF-ob GF-hom fᴰ Dᴰ.⋆ᴰ reindF''-hom GF-ob GF-hom gᴰ
+      reindF''-seq (_ , Eq.refl) (_ , Fh≡Gh) GF-seq fᴰ gᴰ = R.rectify $ R.≡out $
+        sym (R.reind-filler _ _)
+        ∙ (R.≡in $ Fᴰ .F-seqᴰ _ _)
+        ∙ R.⟨ R.reind-filler _ _ ⟩⋆⟨ R.reind-filler _ _ ⟩
 
   open Functor
   -- This is preferable to reindF if the equalities are Refl.
@@ -98,6 +141,7 @@ module _
       GF-hom : GF-hom-ty GF-ob
       GF-hom = _ , GF-hom≡FF-hom
 
+  -- Variant of reindF' where only the Object equality is an Eq.
   reindF'' : (G : Functor C D)
              (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)
              (GF-hom≡FF-hom :
@@ -109,8 +153,12 @@ module _
                 )
           → Functorᴰ F Cᴰ Dᴰ
           → Functorᴰ G Cᴰ Dᴰ
-  reindF'' G ob≡ hom≡ = reindF' G ob≡ (Eq.pathToEq hom≡)
-
+  reindF'' G ob≡ hom≡ Fᴰ = record
+    { F-obᴰ = reindF'-ob Fᴰ (_ , ob≡)
+    ; F-homᴰ = reindF''-hom Fᴰ (_ , ob≡) (_ , hom≡)
+    ; F-idᴰ = reindF''-id Fᴰ (_ , ob≡) (_ , hom≡) (G .F-id)
+    ; F-seqᴰ = reindF''-seq Fᴰ (_ , ob≡) (_ , hom≡) (G .F-seq)
+    }
 Functorⱽ : {C : Category ℓC ℓC'}
   → Categoryᴰ C ℓCᴰ ℓCᴰ' → Categoryᴰ C ℓDᴰ ℓDᴰ'
   → Type _

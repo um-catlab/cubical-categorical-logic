@@ -56,6 +56,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   _⋆ⱽ_ : ∀ {x xᴰ xᴰ' xᴰ''} → v[ x ] [ xᴰ , xᴰ' ] → v[ x ] [ xᴰ' , xᴰ'' ]
     → v[ x ] [ xᴰ , xᴰ'' ]
   _⋆ⱽ_ = v[ _ ] .Category._⋆_
+  infixr 9 _⋆ⱽ_
   private
     variable
       x y z : C.ob

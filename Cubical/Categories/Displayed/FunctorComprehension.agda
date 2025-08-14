@@ -12,6 +12,7 @@ open import Cubical.Foundations.Function
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.More

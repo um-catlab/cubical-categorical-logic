@@ -8,9 +8,13 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Bifunctor
+import Cubical.Categories.Displayed.Constructions.Reindex.Base as Categoryᴰ
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Functor.Base
@@ -18,8 +22,6 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.More
 
 private
   variable
@@ -51,6 +53,11 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'} {ℓA ℓ
              (PRESHEAFᴰ Cᴰ ℓA (ℓ-max ℓAᴰ ℓBᴰ))
   PshProdⱽ = postcomposeFⱽ (C ^op) (Cᴰ ^opᴰ) ×Setsⱽ ∘Fⱽ ,Fⱽ-functorⱽ
 
+-- Reindexing presheaves
+-- There are 3 different notions of reindexing a presheaf we consider here.
+-- 1. Reindexing a presheaf Qᴰ over Q along a homomorphism α : P ⇒ Q to be over P
+-- 2. Reindexing a presheaf Qᴰ over Q along a functor F to be over (Q ∘ F^op)
+-- 3. The combination of those two, reindexing a presheaf Qᴰ over Q along a heteromorphism α : P =[ F ]=> Q to be over P.
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
@@ -70,3 +77,22 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ∙ Qᴰ.⋆Assoc _ _ _
     ∙ Qᴰ.⟨ refl ⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
     ∙ Qᴰ.reind-filler _ _
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {Q : Presheaf D ℓQ}
+  (F : Functor C D) (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
+  where
+  reindFunc : Presheafᴰ (Q ∘F (F ^opF)) (Categoryᴰ.reindex Dᴰ F) ℓQᴰ
+  reindFunc = Qᴰ ∘Fᴰ (Categoryᴰ.π _ _ ^opFᴰ)
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (α : PshHet F P Q)(Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
+  where
+  reindHet : Presheafᴰ P (Categoryᴰ.reindex Dᴰ F) ℓQᴰ
+  reindHet = reind α $ reindFunc F Qᴰ

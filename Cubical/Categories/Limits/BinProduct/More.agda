@@ -154,8 +154,8 @@ private
     C D : Category ℓ ℓ'
 module _ (F : Functor C D) where
   preservesBinProdCones : ∀ c c'
-    → PshHomᴰ F (BinProductProf C ⟅ c , c' ⟆)
-                (BinProductProf D ⟅ F ⟅ c ⟆ , F ⟅ c' ⟆ ⟆)
+    → PshHet F (BinProductProf C ⟅ c , c' ⟆)
+               (BinProductProf D ⟅ F ⟅ c ⟆ , F ⟅ c' ⟆ ⟆)
   preservesBinProdCones c c' .fst Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
   preservesBinProdCones c c' .snd Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
 

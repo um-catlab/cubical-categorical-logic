@@ -50,14 +50,20 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (P : Presheaf C ℓp)
          (Q : Presheaf D ℓq) where
   -- We define the displayed morphism by reindexing the codomain
-  PshHomᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
-  PshHomᴰ = PshHom P (Q ∘F (F ^opF))
+  PshHet : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
+  PshHet = PshHom P (Q ∘F (F ^opF))
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+         (F : Functor C D) (c : C .ob) where
+  Functor→PshHet : PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
+  Functor→PshHet .fst = λ x → F .F-hom
+  Functor→PshHet .snd = λ x y → F .F-seq
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          {F : Functor C D}
          {P : Presheaf C ℓp}
          {Q : Presheaf D ℓq}
-         (Fᴰ : PshHomᴰ F P Q)
+         (Fᴰ : PshHet F P Q)
          where
   private
     module P = PresheafNotation P

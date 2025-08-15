@@ -16,7 +16,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Displayed.Base
@@ -51,8 +51,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       isCartesian : ∀ {z zᴰ}{g : C [ z , x ]} →
         isIso (λ (gᴰ : Cᴰ [ g ][ zᴰ , p*Pᴰ ]) → gᴰ Pᴰ.⋆ᴰ π)
 
-
-    -- TODO: port all of the methods from Fibration.Base to here.
     opaque
       intro :
         ∀ {z zᴰ}{g : C [ z , x ]}
@@ -154,8 +152,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   YoFibrations→isCatFibration : YoFibrations → Fibration.isFibration Cᴰ
   YoFibrations→isCatFibration YoLifts cᴰ' f = YoLift→CatLift $ YoLifts cᴰ' f
 
--- say I have Dᴰ ⊏ D and a presheaf Qᴰ ⊏ Q with and a psh P on D with α : P ⇒ Q
--- then can we show that α* Qᴰ ⊏ P has all cartesian lifts? (sounds new)
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
          (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
@@ -183,13 +179,26 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
          (F : Functor C D)
          where
   module _ {P : Presheaf D ℓP} (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ) (isFibPᴰ : isFibration Pᴰ) where
-    -- incredible!!!
-    reindexFunctorCartLifts
-      : isFibration (Pᴰ ∘Fᴰ (Reindex.π Dᴰ F ^opFᴰ))
-    reindexFunctorCartLifts p .p*Pᴰ = p*Pᴰ (isFibPᴰ p)
-    reindexFunctorCartLifts p .π = π (isFibPᴰ p)
-    reindexFunctorCartLifts p .isCartesian = isCartesian (isFibPᴰ p)
+    isFibrationReindFunc
+      : isFibration (reindFunc F Pᴰ)
+    isFibrationReindFunc p .p*Pᴰ = p*Pᴰ (isFibPᴰ p)
+    isFibrationReindFunc p .π = π (isFibPᴰ p)
+    isFibrationReindFunc p .isCartesian = isCartesian (isFibPᴰ p)
 
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (α : PshHet F P Q){Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  (isFibQᴰ : isFibration Qᴰ)
+  where
+  isFibrationReindHet : isFibration (reindHet α Qᴰ)
+  isFibrationReindHet = isFibrationReind _ α (isFibrationReindFunc F Qᴰ isFibQᴰ)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+         (F : Functor C D)
+         where
   -- This gives us a very interesting alternate proof of isFibrationReindex
   module _ (isFibDᴰ : Fibration.isFibration Dᴰ) where
     open Fibration.CartesianLift
@@ -198,12 +207,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
 
     isCatFibrationReindex : Fibration.isFibration (Reindex.reindex Dᴰ F)
     isCatFibrationReindex = YoFibrations→isCatFibration yF where
-      module _ {y} (yᴰ  : Dᴰ.ob[ F ⟅ y ⟆ ]) where
-        isFiblem : isFibration _
-        isFiblem = isFibrationReind _
-          (functor→YoPshHom F y)
-          (reindexFunctorCartLifts (Dᴰ [-][-, yᴰ ]) (isCatFibration→YoFibrations isFibDᴰ yᴰ))
+      module _  where
+      yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+        → isFibration (reindHet (Functor→PshHet F y) (Dᴰ [-][-, yᴰ ]))
+      yF' yᴰ = isFibrationReindHet _ (isCatFibration→YoFibrations isFibDᴰ _)
       yF : YoFibrations
-      yF yᴰ p .p*Pᴰ = isFiblem yᴰ p .p*Pᴰ
-      yF yᴰ p .π = isFibDᴰ yᴰ (F ⟪ p ⟫) .π
-      yF yᴰ p .isCartesian = isFiblem yᴰ p .isCartesian
+      yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ
+      yF yᴰ p .π = yF' yᴰ p .π
+      yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian

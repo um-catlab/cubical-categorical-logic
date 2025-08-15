@@ -104,34 +104,93 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         Cᴰ.⋆ⱽ f*⟨cᴰ⇒cᴰ'⟩.app
         Cᴰ.⋆ⱽ isFib.π
 
-      -- β⇒ⱽ :
-      --   ∀ {Γ}{f : C [ Γ , c ]}{Γᴰ}
-      --   → {fᴰ : Cᴰ.Hom[ f ][ Γᴰ ×ⱽ isFib.f*yᴰ cᴰ f , cᴰ' ]}
-      --   → Path Cᴰ.Hom[ _ , _ ]
-      --       (_ , (BinProductFⱽ .F-homᴰ ((lda fᴰ) , isFib.π) Cᴰ.⋆ᴰ app))
-      --       (_ , fᴰ)
-      -- β⇒ⱽ =
-      --   Cᴰ.⟨ {!!} ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ∙ {!!} ⟩
-      --   ∙ {!!}
-      --   ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-      --   ∙ Cᴰ.⟨ (refl ∙ Cᴰ.reind-filler _ _) ∙ (Cᴰ.≡in $ f*⟨cᴰ⇒cᴰ'⟩.⇒ue.β) ⟩⋆⟨ refl ⟩
-      --   ∙ isFib.βⱽCL
+      opaque
+        β⇒ⱽ :
+          ∀ {Γ}{f : C [ Γ , c ]}{Γᴰ}
+          → {fᴰ : Cᴰ.Hom[ f ][ Γᴰ ×ⱽ isFib.f*yᴰ cᴰ f , cᴰ' ]}
+          → Path Cᴰ.Hom[ _ , _ ]
+          -- bpⱽ.BinProductFⱽ .F-homᴰ ((lda fᴰ) , isFib.π)
+              (_ , (lda fᴰ bpⱽ.×p isFib.π) Cᴰ.⋆ᴰ app)
+              (_ , fᴰ)
+        β⇒ⱽ =
+          Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _
+            ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _)
+              ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _)
+                           ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩
+                           ∙ Cᴰ.⋆Assoc _ _ _
+                           ∙ Cᴰ.⟨ refl ⟩⋆⟨ isFib.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+                           ∙ (sym $ Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ isFib.βCL ⟩⋆⟨ refl ⟩ ⟩ ⟩
+          ∙ sym (Cᴰ.⋆Assoc _ _ _)
+          ∙ Cᴰ.⟨ bpⱽ.×ueⱽ.∫ue.intro-natural ⟩⋆⟨ refl ⟩
+          ∙ sym (Cᴰ.⋆Assoc _ _ _)
+          ∙ Cᴰ.⟨ bpⱽ.×ueⱽ.∫ue.intro-natural
+            ∙ bpⱽ.,ⱽ≡
+                (((sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ bpⱽ.×βⱽ₁' ⟩⋆⟨ refl ⟩) ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨ ,ⱽ≡
+                       (sym (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ bpⱽ.×βⱽ₁' ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ bpⱽ.×βⱽ₁' ∙ sym (Cᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩) ∙ Cᴰ.reind-filler _ _)
+                       (sym (sym (Cᴰ.reind-filler _ _)
+                            ∙ Cᴰ.⋆Assoc _ _ _
+                            ∙ Cᴰ.⟨ refl ⟩⋆⟨ bpⱽ.×βⱽ₂' ⟩
+                            ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ bpⱽ.×βⱽ₂' ⟩⋆⟨ refl ⟩))
+                   ⟩⋆⟨ isFib.βCL ∙ (sym $ Cᴰ.reind-filler _ _) ⟩) ∙ Cᴰ.reind-filler _ _)
+                ((sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ bpⱽ.×βⱽ₂' ∙ isFib.introCL-natural ⟩⋆⟨ refl ⟩ ∙ isFib.βCL ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩ ∙ bpⱽ.×βⱽ₂' ∙ sym (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ bpⱽ.×βⱽ₂' ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ bpⱽ.×βⱽ₂' ⟩⋆⟨ refl ⟩))
+                ∙ Cᴰ.reind-filler _ _)
+            ⟩⋆⟨ refl ⟩
+          ∙ Cᴰ.⋆Assoc _ _ _
+          -- (_ ,ⱽ _) ⋆ᴰ introCL 
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ (Cᴰ.⟨ sym $ isFib.βCL ⟩⋆⟨ refl ⟩ ∙ Cᴰ.⋆Assoc _ _ _) ∙ (Cᴰ.⟨ refl ⟩⋆⟨ (Cᴰ.reind-filler _ _ ∙ sym (Cᴰ.⋆IdL _)) ∙ sym isFib.βCL ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _)) ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩
+          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+          ∙ Cᴰ.⟨ (refl ∙ Cᴰ.reind-filler _ _) ∙ (Cᴰ.≡in $ f*⟨cᴰ⇒cᴰ'⟩.⇒ue.β) ⟩⋆⟨ refl ⟩
+          ∙ isFib.βⱽCL
 
-      -- TODO: rename the following
-      lda≡ :
-        ∀ {x : C.ob}{f : C [ x , c ]}{g} →
-        {xᴰ : Cᴰ.ob[ x ]} →
-        {fᴰ : Cᴰ.Hom[ C.id ][ xᴰ ×ⱽ isFib.f*yᴰ cᴰ f , isFib.f*yᴰ cᴰ' f ]}
-        {gᴰ : Cᴰ.Hom[ g ][ xᴰ , f*⟨cᴰ⇒cᴰ'⟩.vert ]}
-        → (p : g ≡ C.id)
-        → Path Cᴰ.Hom[ _ , _ ]
-            (C.id , fᴰ)
-            ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ Cᴰ.reind p gᴰ) ,ⱽ π₂) Cᴰ.⋆ᴰ f*⟨cᴰ⇒cᴰ'⟩.app))
-        → Path Cᴰ.Hom[ _ , _ ]
-            (C.id , f*⟨cᴰ⇒cᴰ'⟩.lda fᴰ)
-            (g , gᴰ)
-      lda≡ {f = f} g≡id p =
-        Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _)) ∙ (sym $ Cᴰ.reind-filler g≡id _)
+        lda≡' :
+          ∀ {Γ}{Γᴰ}{f : C [ Γ , c ]}{g : C [ Γ , c ]}
+          → {fᴰ : Cᴰ.Hom[ f ][ Γᴰ ×ⱽ isFib.f*yᴰ cᴰ f , cᴰ' ]}
+          → {gᴰ : Cᴰ.Hom[ g ][ Γᴰ , vertex ]}
+          → (f≡g : f ≡ g)
+          → Path Cᴰ.Hom[ _ , _ ]
+              (_ , fᴰ)
+              (_ , ((gᴰ bpⱽ.×p Cᴰ.reind f≡g isFib.π) Cᴰ.⋆ᴰ app))
+          → Path Cᴰ.Hom[ _ , _ ]
+              (_ , lda fᴰ)
+              (_ , gᴰ)
+        lda≡' f≡g fᴰ≡gᴰapp =
+          sym (Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⟨ (Cᴰ.≡in $ f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $
+            isFib.introCL≡ (sym (Cᴰ.reind-filler _ _)
+              ∙ sym (isFib.βCL ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ isFib.βCL ⟩⋆⟨ refl ⟩ ⟩
+                ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ bpⱽ.×ueⱽ.∫ue.intro-natural ⟩⋆⟨ refl ⟩
+                ∙ ((Cᴰ.⟨ ,ⱽ≡
+                         (sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ bpⱽ.×βⱽ₁' ∙ sym (Cᴰ.reind-filler _ _) ∙ isFib.introCL-natural ⟩⋆⟨ refl ⟩
+                         ∙ (isFib.βCL ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩ ∙ sym
+                           (Cᴰ.⟨ bpⱽ.×ueⱽ.∫ue.intro-natural ⟩⋆⟨ refl ⟩ ∙ bpⱽ.×βⱽ₁'
+                           ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.⟨ bpⱽ.×ueⱽ.∫ue.intro-natural ⟩⋆⟨ refl ⟩ ∙ bpⱽ.×βⱽ₁' ∙ isFib.introCL-natural ⟩⋆⟨ refl ⟩ ∙ isFib.βCL ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩ ∙ ×βⱽ₁' ))
+                         ∙ Cᴰ.reind-filler _ _)
+                         (sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×βⱽ₂' ∙ refl ⟩⋆⟨ refl ⟩ ∙ (sym $
+                           sym (Cᴰ.reind-filler _ _ ) ∙ Cᴰ.⟨  bpⱽ.×ueⱽ.∫ue.intro-natural ⟩⋆⟨ refl ⟩ ∙ ×βⱽ₂'
+                           ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.⟨ bpⱽ.×ueⱽ.∫ue.intro-natural ⟩⋆⟨ refl ⟩ ∙ ×βⱽ₂' ∙ isFib.introCL-natural ⟩⋆⟨ refl ⟩ ∙ isFib.βCL ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩ ∙ ×βⱽ₂' ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩))
+                     ⟩⋆⟨ refl ⟩ ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⋆Assoc _ _ _ ) ∙ Cᴰ.⟨ refl ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨ Cᴰ.⟨ refl ⟩⋆⟨ (((((Cᴰ.⟨ sym isFib.βCL ⟩⋆⟨ refl ⟩ ∙ Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ sym (Cᴰ.⋆IdL _) ⟩) ∙ Cᴰ.reind-filler _ _) ∙ sym isFib.βCL) ∙ Cᴰ.⟨ sym isFib.introCL-natural ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩) ∙ Cᴰ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _ ⟩)
+                ∙ sym fᴰ≡gᴰapp)
+              ∙ Cᴰ.⟨ (sym isFib.introCL-natural ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym isFib.introCL-natural ∙ Cᴰ.reind-filler _ _ ⟩) ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)))
+               ⟩⋆⟨ refl ⟩
+          ∙ isFib.βCL ∙ sym (Cᴰ.reind-filler (sym $ C.⋆IdL _ ∙ f≡g) _)
+          -- ΣPathP (f≡g ,
+          -- (Cᴰ.rectify $ {!f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡!}))
+          
+        -- TODO: rename the following
+        lda≡ :
+          ∀ {x : C.ob}{f : C [ x , c ]}{g} →
+          {xᴰ : Cᴰ.ob[ x ]} →
+          {fᴰ : Cᴰ.Hom[ C.id ][ xᴰ ×ⱽ isFib.f*yᴰ cᴰ f , isFib.f*yᴰ cᴰ' f ]}
+          {gᴰ : Cᴰ.Hom[ g ][ xᴰ , f*⟨cᴰ⇒cᴰ'⟩.vert ]}
+          → (p : g ≡ C.id)
+          → Path Cᴰ.Hom[ _ , _ ]
+              (C.id , fᴰ)
+              ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ Cᴰ.reind p gᴰ) ,ⱽ π₂) Cᴰ.⋆ᴰ f*⟨cᴰ⇒cᴰ'⟩.app))
+          → Path Cᴰ.Hom[ _ , _ ]
+              (C.id , f*⟨cᴰ⇒cᴰ'⟩.lda fᴰ)
+              (g , gᴰ)
+        lda≡ {f = f} g≡id p =
+          Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _)) ∙ (sym $ Cᴰ.reind-filler g≡id _)
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'

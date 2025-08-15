@@ -136,6 +136,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
                (f , (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₁) (f , fᴰ)
         ∫×βⱽ₁ = Cⱽ.≡in ×βⱽ₁
 
+        ×βⱽ₁' : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+           → Path Cⱽ.Hom[ _ , _ ]
+               (_ , (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰ π₁)
+               (_ , fᴰ)
+        ×βⱽ₁' = Cⱽ.reind-filler _ _ ∙ ∫×βⱽ₁
+
         ×βⱽ₂ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
          → (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₂ ≡ fᴰ'
@@ -146,6 +153,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
            → Path Cⱽ.Hom[ _ , _ ]
                (f , (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰⱽ π₂) (f , fᴰ')
         ∫×βⱽ₂ = Cⱽ.≡in ×βⱽ₂
+
+        ×βⱽ₂' : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
+           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
+           → Path Cⱽ.Hom[ _ , _ ]
+               (_ , (fᴰ ,ⱽ fᴰ') Cⱽ.⋆ᴰ π₂)
+               (_ , fᴰ')
+        ×βⱽ₂' = Cⱽ.reind-filler _ _ ∙ ∫×βⱽ₂
 
         ×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
           → fᴰ ≡ (fᴰ Cⱽ.⋆ᴰⱽ π₁ ,ⱽ fᴰ Cⱽ.⋆ᴰⱽ  π₂)
@@ -172,17 +186,24 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   private
     module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
-  module BinProductsⱽNotation (vbp : BinProductsⱽ Cᴰ) {c} where
-    _×ⱽ_ : Cᴰ.ob[ c ] → Cᴰ.ob[ c ] → Cᴰ.ob[ c ]
-    cᴰ ×ⱽ cᴰ' = BinProductⱽNotation.vert Cᴰ (vbp c (cᴰ , cᴰ'))
+  module BinProductsⱽNotation (vbp : BinProductsⱽ Cᴰ) where
+    module _ {c} where
+      _×ⱽ_ : Cᴰ.ob[ c ] → Cᴰ.ob[ c ] → Cᴰ.ob[ c ]
+      cᴰ ×ⱽ cᴰ' = BinProductⱽNotation.vert Cᴰ (vbp c (cᴰ , cᴰ'))
 
-    module _ {cᴰ cᴰ' : Cᴰ.ob[ c ]} where
-      open BinProductⱽNotation _ (vbp _ (cᴰ , cᴰ')) hiding (vert) public
+      module _ {cᴰ cᴰ' : Cᴰ.ob[ c ]} where
+        open BinProductⱽNotation _ (vbp _ (cᴰ , cᴰ')) hiding (vert) public
 
     BinProductFⱽ : Functorⱽ (Cᴰ BP.×ᴰ Cᴰ) Cᴰ
     BinProductFⱽ =
       FunctorⱽComprehension {Pᴰ = BinProductProfⱽ Cᴰ} vbp
 
+    _×p_ : ∀ {a b}{aᴰ aᴰ' bᴰ bᴰ'}
+      {f : C [ a , b ]}
+      → Cᴰ [ f ][ aᴰ , bᴰ ]
+      → Cᴰ [ f ][ aᴰ' , bᴰ' ]
+      → Cᴰ [ f ][ aᴰ ×ⱽ aᴰ' , bᴰ ×ⱽ bᴰ' ]
+    fᴰ ×p fᴰ' = BinProductFⱽ .F-homᴰ (fᴰ , fᴰ')
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
   private
     module C = Category C

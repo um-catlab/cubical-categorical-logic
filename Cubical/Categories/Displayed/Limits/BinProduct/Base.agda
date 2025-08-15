@@ -204,6 +204,25 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
       → Cᴰ [ f ][ aᴰ' , bᴰ' ]
       → Cᴰ [ f ][ aᴰ ×ⱽ aᴰ' , bᴰ ×ⱽ bᴰ' ]
     fᴰ ×p fᴰ' = BinProductFⱽ .F-homᴰ (fᴰ , fᴰ')
+
+    module _ {x y  z : C.ob}{xᴰ : Cᴰ.ob[ x ]}{yᴰ yᴰ' : Cᴰ.ob[ y ]}{zᴰ zᴰ' : Cᴰ.ob[ z ]}
+      {f : C [ x , y ]}{g : C [ y , z ]}
+      where
+      private
+        module Cⱽ = Fibers Cᴰ
+      ,ⱽ-seq :
+        {fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ]}
+        {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , yᴰ' ]}
+        {gᴰ : Cᴰ.Hom[ g ][ yᴰ , zᴰ ]}
+        {gᴰ' : Cᴰ.Hom[ g ][ yᴰ' , zᴰ' ]} →
+        Path Cⱽ.Hom[ _ , _ ]
+          (f C.⋆ C.id C.⋆ g , ((fᴰ ,ⱽ fᴰ') Cᴰ.⋆ᴰ ((π₁ Cᴰ.⋆ᴰ gᴰ) ,ⱽ (π₂ Cᴰ.⋆ᴰ gᴰ'))))
+          (f C.⋆ g , ((fᴰ Cᴰ.⋆ᴰ gᴰ) ,ⱽ (fᴰ' Cᴰ.⋆ᴰ gᴰ')))
+      ,ⱽ-seq =
+        sym $ ,ⱽ≡
+          (Cⱽ.⟨ sym ×βⱽ₁' ⟩⋆⟨ refl ⟩ ∙ Cⱽ.⋆Assoc _ _ _ ∙ Cⱽ.⟨ refl ⟩⋆⟨ sym ×βⱽ₁' ⟩ ∙ (sym $ Cⱽ.⋆Assoc _ _ _) ∙ Cⱽ.reind-filler _ _)
+          (Cⱽ.⟨ sym ×βⱽ₂' ⟩⋆⟨ refl ⟩ ∙ Cⱽ.⋆Assoc _ _ _ ∙ Cⱽ.⟨ refl ⟩⋆⟨ sym ×βⱽ₂' ⟩ ∙ (sym $ Cⱽ.⋆Assoc _ _ _) ∙ Cⱽ.reind-filler _ _)
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
   private
     module C = Category C

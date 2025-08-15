@@ -16,7 +16,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Displayed.Base
@@ -190,6 +190,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
     reindexFunctorCartLifts p .π = π (isFibPᴰ p)
     reindexFunctorCartLifts p .isCartesian = isCartesian (isFibPᴰ p)
 
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (α : PshHomᴰ F P Q){Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  (isFibQᴰ : isFibration Qᴰ)
+  where
+  isFibrationReindReindex : isFibration (reindReindex α Qᴰ)
+  isFibrationReindReindex = isFibrationReind _ α (reindexFunctorCartLifts F Qᴰ isFibQᴰ)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+         (F : Functor C D)
+         where
   -- This gives us a very interesting alternate proof of isFibrationReindex
   module _ (isFibDᴰ : Fibration.isFibration Dᴰ) where
     open Fibration.CartesianLift
@@ -198,12 +212,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
 
     isCatFibrationReindex : Fibration.isFibration (Reindex.reindex Dᴰ F)
     isCatFibrationReindex = YoFibrations→isCatFibration yF where
-      module _ {y} (yᴰ  : Dᴰ.ob[ F ⟅ y ⟆ ]) where
-        isFiblem : isFibration _
-        isFiblem = isFibrationReind _
-          (functor→YoPshHom F y)
-          (reindexFunctorCartLifts (Dᴰ [-][-, yᴰ ]) (isCatFibration→YoFibrations isFibDᴰ yᴰ))
+      module _  where
+      yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+        → isFibration (reindReindex (functor→YoPshHom F y) (Dᴰ [-][-, yᴰ ]))
+      yF' yᴰ = isFibrationReindReindex _ (isCatFibration→YoFibrations isFibDᴰ _)
       yF : YoFibrations
-      yF yᴰ p .p*Pᴰ = isFiblem yᴰ p .p*Pᴰ
-      yF yᴰ p .π = isFibDᴰ yᴰ (F ⟪ p ⟫) .π
-      yF yᴰ p .isCartesian = isFiblem yᴰ p .isCartesian
+      yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ
+      yF yᴰ p .π = yF' yᴰ p .π
+      yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian

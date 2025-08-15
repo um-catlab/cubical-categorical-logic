@@ -8,9 +8,13 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Bifunctor
+import Cubical.Categories.Displayed.Constructions.Reindex.Base as Categoryᴰ
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Functor.Base
@@ -18,8 +22,6 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.More
 
 private
   variable
@@ -70,3 +72,14 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ∙ Qᴰ.⋆Assoc _ _ _
     ∙ Qᴰ.⟨ refl ⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
     ∙ Qᴰ.reind-filler _ _
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (α : PshHomᴰ F P Q)(Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
+  where
+  -- TODO: naming
+  reindReindex : Presheafᴰ P (Categoryᴰ.reindex Dᴰ F) ℓQᴰ
+  reindReindex = reind α (Qᴰ ∘Fᴰ (Categoryᴰ.π Dᴰ F ^opFᴰ))

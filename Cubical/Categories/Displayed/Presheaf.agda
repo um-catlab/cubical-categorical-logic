@@ -51,7 +51,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
          {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
   private
     module C = Category C
-    module Cᴰ = Categoryᴰ Cᴰ
+    module Cᴰ = Fibers Cᴰ
     module P = PresheafNotation P
   infixr 9 _⋆ᴰ_
   infix 2 _≡[_]_
@@ -124,6 +124,16 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   fⱽ ⋆ⱽᴰ gᴰ = reind (P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
 
   opaque
+    ⋆Assocᴰⱽᴰ : ∀ {x y} {f : C [ x , y ]} {h : P.p[ y ]} {xᴰ yᴰ yᴰ'}
+        (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gⱽ : Cᴰ.v[ y ] [ yᴰ , yᴰ' ]) (hᴰ : p[ h ][ yᴰ' ])
+        → Path p[ _ ]
+            (_ , ((fᴰ Cᴰ.⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ))
+            (_ , (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ)))
+    ⋆Assocᴰⱽᴰ fᴰ gⱽ hᴰ =
+      ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+      ∙ ⋆Assoc _ _ _
+      ∙ ⟨ refl ⟩⋆⟨ reind-filler _ _ ⟩
+
     ⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}
       → (gᴰ : p[ g ][ xᴰ ])
       → Cᴰ.idᴰ ⋆ⱽᴰ gᴰ ≡ gᴰ

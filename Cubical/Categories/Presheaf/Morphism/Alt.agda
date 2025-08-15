@@ -54,6 +54,12 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
   PshHomᴰ = PshHom P (Q ∘F (F ^opF))
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+         (F : Functor C D) (c : C .ob) where
+  Functor→PshHomᴰ : PshHomᴰ F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
+  Functor→PshHomᴰ .fst = λ x → F .F-hom
+  Functor→PshHomᴰ .snd = λ x y → F .F-seq
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          {F : Functor C D}
          {P : Presheaf C ℓp}
          {Q : Presheaf D ℓq}

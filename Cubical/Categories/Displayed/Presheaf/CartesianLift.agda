@@ -51,8 +51,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       isCartesian : ∀ {z zᴰ}{g : C [ z , x ]} →
         isIso (λ (gᴰ : Cᴰ [ g ][ zᴰ , p*Pᴰ ]) → gᴰ Pᴰ.⋆ᴰ π)
 
-
-    -- TODO: port all of the methods from Fibration.Base to here.
     opaque
       intro :
         ∀ {z zᴰ}{g : C [ z , x ]}
@@ -154,8 +152,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   YoFibrations→isCatFibration : YoFibrations → Fibration.isFibration Cᴰ
   YoFibrations→isCatFibration YoLifts cᴰ' f = YoLift→CatLift $ YoLifts cᴰ' f
 
--- say I have Dᴰ ⊏ D and a presheaf Qᴰ ⊏ Q with and a psh P on D with α : P ⇒ Q
--- then can we show that α* Qᴰ ⊏ P has all cartesian lifts? (sounds new)
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
          (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
@@ -183,7 +179,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
          (F : Functor C D)
          where
   module _ {P : Presheaf D ℓP} (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ) (isFibPᴰ : isFibration Pᴰ) where
-    -- incredible!!!
     reindexFunctorCartLifts
       : isFibration (Pᴰ ∘Fᴰ (Reindex.π Dᴰ F ^opFᴰ))
     reindexFunctorCartLifts p .p*Pᴰ = p*Pᴰ (isFibPᴰ p)
@@ -214,7 +209,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
     isCatFibrationReindex = YoFibrations→isCatFibration yF where
       module _  where
       yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
-        → isFibration (reindReindex (functor→YoPshHom F y) (Dᴰ [-][-, yᴰ ]))
+        → isFibration (reindReindex (Functor→PshHomᴰ F y) (Dᴰ [-][-, yᴰ ]))
       yF' yᴰ = isFibrationReindReindex _ (isCatFibration→YoFibrations isFibDᴰ _)
       yF : YoFibrations
       yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ

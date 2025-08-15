@@ -68,8 +68,7 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
     BinProductⱽ→BinProductᴰ .elementᴰ .fst = π₁ Cᴰ.⋆ⱽᴰ (lift-π₁ .π)
     BinProductⱽ→BinProductᴰ .elementᴰ .snd = π₂ Cᴰ.⋆ⱽᴰ (lift-π₂ .π)
     BinProductⱽ→BinProductᴰ .universalᴰ .inv (f₁ , f₂) (fᴰ₁ , fᴰ₂) =
-      lift-π₁ .isCartesian .fst (R.reind (sym (c×c'.×β₁)) fᴰ₁)
-      ,ⱽ lift-π₂ .isCartesian .fst (R.reind (sym (c×c'.×β₂)) fᴰ₂)
+      introCL lift-π₁ (R.reind (sym c×c'.×β₁) fᴰ₁) ,ⱽ introCL lift-π₂ (R.reind (sym c×c'.×β₂) fᴰ₂)
     -- β
     BinProductⱽ→BinProductᴰ .universalᴰ .rightInv (f₁ , f₂) (fᴰ₁ , fᴰ₂) = ΣPathP
       ( (R.rectify $ R.≡out $

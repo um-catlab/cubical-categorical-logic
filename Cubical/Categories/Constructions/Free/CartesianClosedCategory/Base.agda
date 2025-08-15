@@ -98,8 +98,6 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
     open TerminalᴰNotation _ termᴰ
     open BinProductsᴰNotation bpᴰ
     open ExponentialsᴰNotation _ (CCCᴰ .snd)
-    private
-      module Cᴰ = Categoryᴰ Cᴰ
 
     module _ (ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]) where
       elim-F-ob : ∀ c → Cᴰ.ob[ c ]

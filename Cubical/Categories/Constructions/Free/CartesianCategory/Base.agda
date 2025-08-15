@@ -90,8 +90,6 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     (CCᴰ : CartesianCategoryᴰ FreeCartesianCategory ℓCᴰ ℓCᴰ')
     where
     open CartesianCategoryᴰ CCᴰ
-    private
-      module Cᴰ = Categoryᴰ Cᴰ
     open TerminalᴰNotation _ termᴰ
     open BinProductsᴰNotation bpᴰ
     open UniversalElementᴰ

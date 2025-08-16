@@ -11,7 +11,7 @@ module Cubical.Categories.Displayed.Exponentials.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
-open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -27,7 +27,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
-open import Cubical.Categories.Displayed.BinProduct
+open import Cubical.Categories.Displayed.BinProduct hiding (_×ᴰ_)
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
 
@@ -52,6 +52,41 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → Type _
   Exponentialsᴰ bp exps bpᴰ = ∀ {c d} (cᴰ : Cᴰ.ob[ c ])(dᴰ : Cᴰ.ob[ d ])
     → Exponentialᴰ cᴰ dᴰ (λ _ xᴰ → bpᴰ (xᴰ , cᴰ)) (AnExponential C bp exps)
+
+  module ExponentialsᴰNotation
+    {bps : BinProducts C}
+    {exps : Exponentials C bps}
+    {bpsᴰ : BinProductsᴰ Cᴰ bps}
+    (expsᴰ : Exponentialsᴰ bps exps bpsᴰ) where
+    open ExponentialsNotation bps (Exponentials→AllExponentiable _ bps exps)
+    open BinProductsNotation bps
+    open BinProductsᴰNotation bpsᴰ
+
+    _⇒ᴰ_ : ∀{c c'} → Cᴰ.ob[ c ] → Cᴰ.ob[ c' ] →
+      Cᴰ.ob[ c ⇒ c' ]
+    cᴰ ⇒ᴰ c'ᴰ = UniversalElementᴰ.vertexᴰ (expsᴰ cᴰ c'ᴰ)
+
+    appᴰ : ∀{c c'} {cᴰ : Cᴰ.ob[ c ]} {c'ᴰ : Cᴰ.ob[ c' ]} →
+      Cᴰ.Hom[ app ][ (cᴰ ⇒ᴰ c'ᴰ) ×ᴰ cᴰ , c'ᴰ ]
+    appᴰ = UniversalElementᴰ.elementᴰ (expsᴰ _ _)
+
+    ldaᴰ : ∀{Γ c c'} {f : C [ Γ × c , c' ]} →
+      {Γᴰ : Cᴰ.ob[ Γ ]} {cᴰ : Cᴰ.ob[ c ]} {c'ᴰ : Cᴰ.ob[ c' ]} →
+      Cᴰ.Hom[ f ][ Γᴰ ×ᴰ cᴰ , c'ᴰ ] →
+      Cᴰ.Hom[ lda f ][ Γᴰ , cᴰ ⇒ᴰ c'ᴰ ]
+    ldaᴰ = UniversalElementᴰ.introᴰ (expsᴰ _ _)
+
+    βᴰ : ∀{Γ c c'} {f : C [ Γ × c , c' ]} →
+      {Γᴰ : Cᴰ.ob[ Γ ]} {cᴰ : Cᴰ.ob[ c ]} {c'ᴰ : Cᴰ.ob[ c' ]} →
+      {fᴰ : Cᴰ.Hom[ f ][ Γᴰ ×ᴰ cᴰ , c'ᴰ ]} →
+      (_ , (((π₁ᴰ Cᴰ.⋆ᴰ ldaᴰ fᴰ) ,pᴰ π₂ᴰ) Cᴰ.⋆ᴰ appᴰ)) ≡ (f , fᴰ)
+    βᴰ = UniversalElementᴰ.βᴰ (expsᴰ _ _)
+
+    ηᴰ : ∀{Γ c c'} {f : C [ Γ , c ⇒ c' ]} →
+      {Γᴰ : Cᴰ.ob[ Γ ]} {cᴰ : Cᴰ.ob[ c ]} {c'ᴰ : Cᴰ.ob[ c' ]} →
+      {fᴰ : Cᴰ.Hom[ f ][ Γᴰ , cᴰ ⇒ᴰ c'ᴰ ]} →
+      (f , fᴰ) ≡ (_ , ldaᴰ (((π₁ᴰ Cᴰ.⋆ᴰ fᴰ) ,pᴰ π₂ᴰ) Cᴰ.⋆ᴰ appᴰ))
+    ηᴰ = UniversalElementᴰ.ηᴰ (expsᴰ _ _)
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private

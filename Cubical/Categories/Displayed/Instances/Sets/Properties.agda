@@ -32,6 +32,8 @@ open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Constructions.Fiber
 
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
@@ -40,6 +42,7 @@ open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Exponentials.Base
+open import Cubical.Categories.Displayed.Quantifiers
 
 
 private
@@ -156,3 +159,85 @@ module _ {ℓ} {ℓ'} where
     )
     where
     module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
+
+module _ {ℓ} {ℓ'} {A Γ : hSet ℓ} where
+  private
+    module SET = Category (SET ℓ)
+    module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
+    -×A : BinProductsWith (SET ℓ) A
+    -×A = λ Γ → BinProductsSET (Γ , A)
+    module -×A = BinProductsWithNotation -×A
+    module isFib = isFibrationNotation (SETᴰ ℓ (ℓ-max ℓ ℓ')) isFibrationSETᴰ
+    Γ×A = -×A Γ
+    module Γ×A = BinProductNotation Γ×A
+
+  module _ (B : SETᴰ.ob[ Γ×A.vert ]) where
+
+
+    private
+      the-vert : SETᴰ.ob[ Γ ]
+      the-vert γ .fst = ∀ (a : ⟨ A ⟩) → ⟨ B (γ , a) ⟩
+      the-vert γ .snd = isSetΠ λ a → str (B (γ , a))
+
+      the-elt : SETᴰ.Hom[ _ ][ isFib.f*yᴰ {x = Γ×A.vert} the-vert Γ×A.π₁ , B ]
+      the-elt (γ , a) f = f a
+
+      the-intro : ∀ {Δ : SET.ob}{Δᴰ : SETᴰ.ob[ Δ ]}{f : SET.Hom[ Δ , Γ ]}
+        → SETᴰ.Hom[ _ ][ isFib.f*yᴰ {x = -×A Δ .UniversalElement.vertex} Δᴰ (-×A.π₁ {b = Δ})  , B ]
+        → SETᴰ.Hom[ f ][ Δᴰ , the-vert ]
+      the-intro fᴰ δ d a = fᴰ (δ , a) d
+
+      uqPsh = UniversalQuantifierPshⱽ -×A isFibrationSETᴰ B
+      module Pⱽ = PresheafⱽNotation uqPsh
+
+    UniversalQuantifierSETᴰ : UniversalQuantifier -×A isFibrationSETᴰ B
+    UniversalQuantifierSETᴰ .vertexⱽ = the-vert
+    UniversalQuantifierSETᴰ .elementⱽ = the-elt
+    UniversalQuantifierSETᴰ .universalⱽ .fst = the-intro
+    UniversalQuantifierSETᴰ .universalⱽ {y = Δ} {yᴰ = Δᴰ} {f = g} .snd .fst f =
+      SETᴰ.reind refl {bᴰ = B} ((the-intro f) Pⱽ.⋆ᴰ the-elt)
+        ≡⟨ substRefl {x = f} (the-intro f Pⱽ.⋆ᴰ the-elt) ⟩
+      the-intro f Pⱽ.⋆ᴰ the-elt
+        ≡⟨ refl ⟩
+      ∫P uqPsh .Functor.F-hom (_ , the-intro f) (_ , the-elt) .snd
+        ≡⟨ refl ⟩
+      uqPsh .Functorᴰ.F-homᴰ (the-intro f) (λ z → z) the-elt
+        ≡⟨ {!!} ⟩
+      f
+      ∎
+    UniversalQuantifierSETᴰ .universalⱽ .snd .snd = {!!}
+
+
+  -- UniversalQuantifiersSETᴰ :
+  --   UniversalQuantifiers {C = SET ℓ} {Cᴰ = SETᴰ ℓ (ℓ-max ℓ ℓ')}
+  --     BinProductsSET isFibrationSETᴰ
+  -- UniversalQuantifiersSETᴰ A Γ B .vertexⱽ γ .fst = ∀ (a : ⟨ A ⟩) → ⟨ B (γ , a) ⟩
+  -- UniversalQuantifiersSETᴰ A Γ B .vertexⱽ γ .snd = isSetΠ (λ a → str (B (γ , a)))
+  -- UniversalQuantifiersSETᴰ A Γ B .elementⱽ (γ , a) = the-elt {!!}
+  -- -- (γ , a) f = f a
+  -- -- UniversalQuantifiersSETᴰ A Γ B .universalⱽ =
+  -- --   (λ f δ d a → f (δ , a) d) ,
+  -- --   (λ u → {!!}) ,
+  -- --   (λ f → {!!})
+
+  -- UniversalQuantifiersSETᴰ A Γ B .universalⱽ .fst f δ d a = f (δ , a) d
+  -- UniversalQuantifiersSETᴰ A Γ B .universalⱽ {y = Δ} {yᴰ = Δᴰ} .snd .fst f =
+  --   -- (UniversalQuantifierPshⱽ (λ c → BinProductsSET (c , A))
+  --   --   isFibrationSETᴰ B
+  --   --   PresheafⱽNotation.⋆ᴰⱽ (λ δ d a → f (δ , a) d))
+  --   --  (UniversalQuantifiersSETᴰ A Γ B .elementⱽ)
+  --   -- SETᴰ.reind refl ((λ δ d a → f (δ , a) d) SETᴰ.⋆ᴰ UniversalQuantifiersSETᴰ A Γ B .elementⱽ)
+  --   -- SETᴰ.reind {b = A}  refl {bᴰ = {!B!}} ((λ (δ , a) d a' → f (δ , a') d) SETᴰ.⋆ᴰ UniversalQuantifiersSETᴰ A Γ B .elementⱽ)
+  --   {!!}
+  --     ≡⟨ {!!} ⟩
+  --   f
+  --   ∎
+
+  -- -- fᴰ ⋆ᴰⱽ gⱽ = R.reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
+
+  --   -- funExt₂ λ (δ , a) d →
+  --   --   {!!}
+  --   -- SETᴰ.rectify $ SETᴰ.≡out {bᴰ = B} $ sym $ SETᴰ.reind-filler {!!} f
+  --   -- SETᴰ.rectify $ SETᴰ.≡out $ sym $ SETᴰ.reind-filler refl _
+  -- -- funExt₂ (λ where (δ , a) d → {!sym $ SETᴰ.reind-filler _ _!})
+  -- UniversalQuantifiersSETᴰ A Γ B .universalⱽ .snd .snd = {!!}

@@ -18,7 +18,7 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Presheaf.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 

@@ -23,4 +23,4 @@ module _ (C : SCwF ℓC ℓC' ℓT ℓT')(D : SCwF ℓD ℓD' ℓS ℓS') where
   PreFunctor =
     Σ[ F ∈ Functor (C .fst) (D .fst) ]
     Σ[ F-ty ∈ (C .snd .fst → D .snd .fst) ]
-    ∀ {A} → PshHomᴰ F (C .snd .snd .fst A) (D .snd .snd .fst (F-ty A))
+    ∀ {A} → PshHet F (C .snd .snd .fst A) (D .snd .snd .fst (F-ty A))

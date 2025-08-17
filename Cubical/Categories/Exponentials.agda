@@ -157,7 +157,7 @@ module _ (F : Functor C D) {c : C .ob}
     module D = Category D
 
   -- A bit of a misnomer because exponential is not a limit
-  preservesExpCone : ∀ c' → PshHomᴰ F
+  preservesExpCone : ∀ c' → PshHet F
     (ExponentiableProf C -×c ⟅ c' ⟆)
     (ExponentiableProf D -×Fc ⟅ F ⟅ c' ⟆ ⟆)
   preservesExpCone c' .fst Γ f⟨x⟩ = F⟨Γ×c⟩.intro Fc×FΓ.element D.⋆ F ⟪ f⟨x⟩ ⟫

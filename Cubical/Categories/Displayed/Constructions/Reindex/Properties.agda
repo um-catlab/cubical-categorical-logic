@@ -54,6 +54,9 @@ module _
     {c : C .ob}{c' : C .ob}
     {dᴰ' : Dᴰ.ob[ F ⟅ c' ⟆ ]}{f : C [ c , c' ]}
     where
+    -- why is this true, really?
+    -- the first represents the functor (yoRec (F ⟪ f ⟫))* Dᴰ [-][-, dᴰ' ]
+    -- the latter represents the functor (yoRec f)* F*Dᴰ [-][-, dᴰ' ]
     reflectsCartesianLifts
       : CartesianLift Dᴰ dᴰ' (F ⟪ f ⟫)
       → CartesianLift F*Dᴰ dᴰ' f

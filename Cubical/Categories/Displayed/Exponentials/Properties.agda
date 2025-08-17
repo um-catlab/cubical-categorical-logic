@@ -123,30 +123,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
             --   ≡⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _)⟩
             --      ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
             --      ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq ⟩⋆⟨ refl ⟩ ⟩
-            -- -- _ , ((isFib.introCL (Cᴰ.reind (sym bp.×β₁) $
-            -- --       (bpᴰ.π₁ᴰ Cᴰ.⋆ᴰ
-            -- --         (uq.lda $ expⱽ.lda $ isFib.introCL $ Cᴰ.reind p $
-            -- --           (isFib.introCL (Cᴰ.reind (sym bp.×β₁) $ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind (sym bp.×β₂) $ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ fᴰ)))
-            -- --      bpⱽ.,ⱽ
-            -- --      isFib.introCL (Cᴰ.reind (sym bp.×β₂) $ bpᴰ.π₂ᴰ))
-            -- --      Cᴰ.⋆ᴰ
-            -- --      ((bpⱽ.π₁ Cᴰ.⋆ᴰ uq.app) bpⱽ.,ⱽ (bpⱽ.π₂ Cᴰ.⋆ᴰ Cᴰ.reind (sym $ -×c.×aF .Functor.F-id) Cᴰ.idᴰ)) Cᴰ.⋆ᴰ expⱽ.app Cᴰ.⋆ᴰ isFib.π)
-            -- _ , (((isFib.introCL (Cᴰ.reind (sym bp.×β₁) $
-            --      (bpᴰ.π₁ᴰ Cᴰ.⋆ᴰ (uq.lda $ expⱽ.lda $ isFib.introCL $ Cᴰ.reind p $
-            --        (isFib.introCL (Cᴰ.reind (sym bp.×β₁) $ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind (sym bp.×β₂) $ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ fᴰ) ))
-            --   Cᴰ.⋆ᴰ uq.app)
-            --     bpⱽ.,ⱽ
-            --     (isFib.introCL (Cᴰ.reind (sym bp.×β₂) bpᴰ.π₂ᴰ) Cᴰ.⋆ᴰ Cᴰ.reind (sym $ -×c.×aF .Functor.F-id) Cᴰ.idᴰ))
-            --   Cᴰ.⋆ᴰ (expⱽ.app Cᴰ.⋆ᴰ isFib.π))
-            --   ≡⟨ refl ⟩
-            -- _ , (((isFib.introCL (Cᴰ.reind (sym bp.×β₁) $
-            --      ((Cᴰ.reind _ $ bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) Cᴰ.⋆ᴰ (uq.lda $ expⱽ.lda $ isFib.introCL $ Cᴰ.reind p $
-            --        (isFib.introCL (Cᴰ.reind (sym bp.×β₁) $ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind (sym bp.×β₂) $ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ fᴰ) ))
-            --   Cᴰ.⋆ᴰ uq.app)
-            --     bpⱽ.,ⱽ
-            --     (isFib.introCL (Cᴰ.reind (sym bp.×β₂) bpᴰ.π₂ᴰ) Cᴰ.⋆ᴰ Cᴰ.reind (sym $ -×c.×aF .Functor.F-id) Cᴰ.idᴰ))
-            --   Cᴰ.⋆ᴰ (expⱽ.app Cᴰ.⋆ᴰ isFib.π))
-            --   ≡⟨ {!!} ⟩
             -- _ , (((isFib.introCL (Cᴰ.reind (sym bp.×β₁) $
             --      ((Cᴰ.reind _ $ bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) Cᴰ.⋆ᴰ (uq.lda $ expⱽ.lda $ isFib.introCL $ Cᴰ.reind p $
             --        (isFib.introCL (Cᴰ.reind (sym bp.×β₁) $ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind (sym bp.×β₂) $ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ fᴰ) ))
@@ -159,10 +135,27 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
             -- ∎
             Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            -- TODO need to refactor reind-cong to have more general endpoints
-            -- then massage the goal enough to invoke ∀β
-            ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq ∙ bpⱽ.⟨ Cᴰ.⟨ isFib.introCL⟨ {!!} ⟩⟨ {!Cᴰ.reind-cong ? ∙ ?!} ⟩ ⟩⋆⟨ {!!} ⟩ ⟩,ⱽ⟨ {!!} ⟩ ⟩⋆⟨ {!!} ⟩
-            -- ∙ Cᴰ.⟨ bpⱽ.⟨ Cᴰ.⟨ isFib.introCL⟨ {!!} ⟩⟨ {!!} ⟩ ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩ ⟩,ⱽ⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩ ⟩ ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq
+                ∙ bpⱽ.⟨
+                    Cᴰ.⟨
+                      isFib.introCL⟨
+                        {!!}
+                      ⟩⟨
+                        (sym $ Cᴰ.reind-filler _ _)
+                        ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩
+                        ∙ Cᴰ.⋆Assoc _ _ _
+                        ∙ Cᴰ.reind-filler {!!} _
+                      ⟩
+                    ⟩⋆⟨
+                      {!!}
+                    ⟩
+                    ∙ {!!}
+                    ∙ {!uq.∀β!}
+                    ∙ {!!}
+                  ⟩,ⱽ⟨
+                    {!!}
+                  ⟩
+                 ⟩⋆⟨ {!!} ⟩
             ∙ {!!}
           where
           λf×id = -×c.×aF ⟪ c⇒d.lda f ⟫

@@ -1,4 +1,4 @@
---{-# OPTIONS --safe #-}
+{-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
 module Cubical.Categories.Constructions.Free.CartesianClosedCategory.Base where
@@ -18,9 +18,9 @@ open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver hiding (Expr)
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Exponentials.CartesianClosed
 open import Cubical.Categories.Displayed.Exponentials.Base
 open import Cubical.Categories.Displayed.More
@@ -35,9 +35,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
   private module Q = ×⇒QuiverNotation Q
 
   data Expr : Q.Ob → Q.Ob → Type (ℓ-max ℓQ ℓQ') where
-    -- c/p from Free/CartesianCategory
-    -- Did we always just c/p this, or is there a better way excepting things like macros
-    -- BEGIN COPY
+    -- Freely added Category structure
     ↑ₑ_ : ∀ t → Expr (Q.Dom t) (Q.Cod t)
     idₑ : ∀{Γ} → Expr Γ Γ
     _⋆ₑ_ : ∀{Γ Γ' Γ''}(δ : Expr Γ Γ') → (δ' : Expr Γ' Γ'') →  Expr Γ Γ''
@@ -47,6 +45,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       (δ : Expr Γ Γ')(δ' : Expr Γ' Γ'')(δ'' : Expr Γ'' Γ''')
       → (δ ⋆ₑ δ') ⋆ₑ δ'' ≡ δ ⋆ₑ (δ' ⋆ₑ δ'')
     isSetExpr : ∀{Γ Γ'} → isSet (Expr Γ Γ')
+    -- Freely added BinProducts structure
     !ₑ : ∀{Γ} → Expr Γ ⊤
     ⊤η : ∀{Γ}(t : Expr Γ ⊤) → t ≡ !ₑ
     π₁ : ∀{Γ Δ} → Expr (Γ × Δ) Γ
@@ -55,23 +54,19 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
     ×β₁ : ∀{Γ Δ Δ'}{t : Expr Γ Δ}{t' : Expr Γ Δ'} → ⟨ t , t' ⟩ ⋆ₑ π₁ ≡ t
     ×β₂ : ∀{Γ Δ Δ'}{t : Expr Γ Δ}{t' : Expr Γ Δ'} → ⟨ t , t' ⟩ ⋆ₑ π₂ ≡ t'
     ×η : ∀{Γ Δ Δ'}{t : Expr Γ (Δ × Δ')} → t ≡ ⟨ t ⋆ₑ π₁ , t ⋆ₑ π₂ ⟩
-    -- END COPY
-    -- Exponential stuff
+    -- Freely added Exponentials structure
     eval : ∀{Δ Θ} → Expr ((Δ ⇒ Θ) × Δ) Θ
     λ-_ : ∀{Γ Δ Θ} → Expr (Γ × Δ) Θ → Expr Γ (Δ ⇒ Θ)
     λβ : ∀{Γ Δ Θ} → (t : Expr (Γ × Δ) Θ) → (⟨ π₁ ⋆ₑ (λ- t) , π₂ ⟩ ⋆ₑ eval) ≡ t
     λη : ∀{Γ Δ Θ} → (t : Expr Γ (Δ ⇒ Θ)) → (λ- (⟨ π₁ ⋆ₑ t , π₂ ⟩ ⋆ₑ eval)) ≡ t
-
 
   open Category
   open CartesianCategory
   open CartesianClosedCategory
   open UniversalElement
 
-  -- this is also largely copied from Free/CartesianCategory
-  -- is there a good way to avoid that...?
   FreeCartesianClosedCategory : CartesianClosedCategory _ _
-  -- BEGIN COPY
+  -- The CartesianCategory structure is copied from Free/CartesianCategory
   FreeCartesianClosedCategory .CC .C .ob = Q.Ob
   FreeCartesianClosedCategory .CC .C .Hom[_,_] = Expr
   FreeCartesianClosedCategory .CC .C .id = idₑ
@@ -90,22 +85,22 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
     ( (λ z → ⟨ z .fst , z .snd ⟩)
     , (λ _ → ΣPathP (×β₁ , ×β₂))
     , (λ _ → sym $ ×η))
-  -- END COPY
+  -- The Exponentials structure
   FreeCartesianClosedCategory .exps Δ Θ .vertex = Δ ⇒ Θ
   FreeCartesianClosedCategory .exps Δ Θ .element = eval
   FreeCartesianClosedCategory .exps Δ Θ .universal Γ = isIsoToIsEquiv
-    (λ-_ ,
-    λβ ,
-    λη)
+    (λ-_ , λβ , λη)
 
   module _
     (CCCᴰ : CartesianClosedCategoryᴰ FreeCartesianClosedCategory ℓCᴰ ℓCᴰ')
     where
-    open CartesianCategoryᴰ
-    module Cᴰ = Categoryᴰ (CCCᴰ .fst .Cᴰ)
-    open TerminalᴰNotation _ (CCCᴰ .fst .termᴰ)
-    open BinProductsᴰNotation (CCCᴰ .fst .bpᴰ)
+    open CartesianCategoryᴰ (CCCᴰ .fst)
+    open TerminalᴰNotation _ termᴰ
+    open BinProductsᴰNotation bpᴰ
     open ExponentialsᴰNotation _ (CCCᴰ .snd)
+    private
+      module Cᴰ = Categoryᴰ Cᴰ
+
     module _ (ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]) where
       elim-F-ob : ∀ c → Cᴰ.ob[ c ]
       elim-F-ob (↑ o) = ı-ob o
@@ -122,17 +117,18 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       open Section
       open Interpᴰ ı
       private
-        module R = HomᴰReasoning (CCCᴰ .fst .Cᴰ)
+        module R = HomᴰReasoning Cᴰ
+
       elim-F-hom : ∀ {c c'} (f : FreeCartesianClosedCategory .CC .C [ c , c' ]) →
         Cᴰ.Hom[ f ][ elim-F-ob ı-ob c , elim-F-ob ı-ob c' ]
-      -- BEGIN COPY
+      -- elim-F-hom for CartesianCategory structure
       elim-F-hom (↑ₑ t) = ı-hom t
       elim-F-hom idₑ = Cᴰ.idᴰ
       elim-F-hom (f ⋆ₑ g) = elim-F-hom f Cᴰ.⋆ᴰ elim-F-hom g
       elim-F-hom (⋆ₑIdL f i) = Cᴰ.⋆IdLᴰ (elim-F-hom f) i
       elim-F-hom (⋆ₑIdR f i) = Cᴰ.⋆IdRᴰ (elim-F-hom f) i
       elim-F-hom (⋆ₑAssoc f g h i) = Cᴰ.⋆Assocᴰ (elim-F-hom f) (elim-F-hom g) (elim-F-hom h) i
-      elim-F-hom (isSetExpr f g p q i j) = isSetHomᴰ' (CCCᴰ .fst .Cᴰ)
+      elim-F-hom (isSetExpr f g p q i j) = isSetHomᴰ' (Cᴰ)
         (elim-F-hom f) (elim-F-hom g)
         (cong elim-F-hom p) (cong elim-F-hom q)
         i j
@@ -146,7 +142,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       elim-F-hom (×β₂ {t = f} {t' = g} i) = R.rectify {p' = ×β₂}
         (R.≡out (×βᴰ₂ {f₁ᴰ = elim-F-hom f} {f₂ᴰ = elim-F-hom g})) i
       elim-F-hom (×η {t = f} i) = R.rectify {p' = ×η {t = f}} (R.≡out (×ueᴰ.ηᴰ _ _ {f = _ , elim-F-hom f})) i
-      -- END COPY
+      -- elim-F-hom for Exponentials structure
       elim-F-hom eval = appᴰ {cᴰ = elim-F-ob ı-ob _} {c'ᴰ = elim-F-ob ı-ob _}
       elim-F-hom (λ- f) = ldaᴰ (elim-F-hom f)
       elim-F-hom (λβ f i) = R.rectify {p' = λβ f} (R.≡out (βᴰ {fᴰ = elim-F-hom f})) i
@@ -154,7 +150,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       -- ηᴰ seems backwards??
       elim-F-hom (λη f i) = R.rectify {p' = λη f} (R.≡out (sym (ηᴰ {fᴰ = elim-F-hom f}))) i
 
-      elim : GlobalSection (CCCᴰ .fst .Cᴰ)
+      elim : GlobalSection (Cᴰ)
       elim .F-obᴰ = elim-F-ob ı-ob
       elim .F-homᴰ = elim-F-hom
       elim .F-idᴰ = refl

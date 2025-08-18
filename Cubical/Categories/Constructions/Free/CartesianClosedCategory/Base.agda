@@ -58,9 +58,9 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
     eval : ∀{Δ Θ} → Expr ((Δ ⇒ Θ) × Δ) Θ
     λ-_ : ∀{Γ Δ Θ} → Expr (Γ × Δ) Θ → Expr Γ (Δ ⇒ Θ)
     λβ : ∀{Γ Δ Θ} → (t : Expr (Γ × Δ) Θ) → (⟨ π₁ ⋆ₑ (λ- t) , π₂ ⟩ ⋆ₑ eval) ≡ t
-    λη : ∀{Γ Δ Θ} → (t : Expr Γ (Δ ⇒ Θ)) → (λ- (⟨ π₁ ⋆ₑ t , π₂ ⟩ ⋆ₑ eval)) ≡ t
+    λη : ∀{Γ Δ Θ} → (t : Expr Γ (Δ ⇒ Θ)) → t ≡ (λ- (⟨ π₁ ⋆ₑ t , π₂ ⟩ ⋆ₑ eval))
 
-  open Category
+  open Category hiding (_∘_)
   open CartesianCategory
   open CartesianClosedCategory
   open UniversalElement
@@ -89,7 +89,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
   FreeCartesianClosedCategory .exps Δ Θ .vertex = Δ ⇒ Θ
   FreeCartesianClosedCategory .exps Δ Θ .element = eval
   FreeCartesianClosedCategory .exps Δ Θ .universal Γ = isIsoToIsEquiv
-    (λ-_ , λβ , λη)
+    (λ-_ , λβ , sym ∘ λη)
 
   module _
     (CCCᴰ : CartesianClosedCategoryᴰ FreeCartesianClosedCategory ℓCᴰ ℓCᴰ')
@@ -146,9 +146,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       elim-F-hom eval = appᴰ {cᴰ = elim-F-ob ı-ob _} {c'ᴰ = elim-F-ob ı-ob _}
       elim-F-hom (λ- f) = ldaᴰ (elim-F-hom f)
       elim-F-hom (λβ f i) = R.rectify {p' = λβ f} (R.≡out (βᴰ {fᴰ = elim-F-hom f})) i
-      -- where does this sym come from...?
-      -- ηᴰ seems backwards??
-      elim-F-hom (λη f i) = R.rectify {p' = λη f} (R.≡out (sym (ηᴰ {fᴰ = elim-F-hom f}))) i
+      elim-F-hom (λη f i) = R.rectify {p' = λη f} (R.≡out (ηᴰ {fᴰ = elim-F-hom f})) i
 
       elim : GlobalSection (Cᴰ)
       elim .F-obᴰ = elim-F-ob ı-ob

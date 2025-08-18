@@ -1,4 +1,5 @@
 {-# OPTIONS --safe #-}
+-- TODO: move this to Presheaf.Base
 module Cubical.Categories.Displayed.Presheaf where
 
 open import Cubical.Foundations.Prelude
@@ -14,7 +15,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Displayed.Base
@@ -25,12 +27,11 @@ open import Cubical.Categories.Displayed.Instances.Functor
 
 private
   variable
-    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓP ℓPᴰ : Level
+    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓP ℓPᴰ ℓQ ℓQᴰ : Level
 
 open Functor
 open Functorᴰ
 
--- IMO the order of D and P here should be swapped to match Functorᴰ
 Presheafᴰ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (D : Categoryᴰ C ℓD ℓD')
           → (ℓPᴰ : Level)
           → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-suc ℓP))
@@ -140,6 +141,57 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
     ⋆ⱽIdL gᴰ = rectify $ ≡out $ (sym $ reind-filler _ _) ∙ ⋆IdL _
 
     -- TODO: ⋆ⱽAssoc but it relies on the definition _⋆ⱽ_ in the fiber
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  (α : PshHom P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  record PshHomᴰ : Type (ℓ-max ℓQᴰ $ ℓ-max ℓPᴰ $ ℓ-max ℓP $ ℓ-max ℓCᴰ' $ ℓ-max ℓCᴰ $ ℓ-max ℓC' $ ℓ-max ℓC $ ℓ-max ℓQᴰ $ ℓ-max ℓPᴰ $ ℓ-max ℓP $ ℓ-max ℓCᴰ $ ℓC) where
+    no-eta-equality
+    field
+      N-obᴰ  : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α .fst x p ][ xᴰ ]
+      N-homᴰ :
+        ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+        → {f : C [ x , y ]}{p : P.p[ y ]}
+        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+        → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
+            Qᴰ.≡[ α .snd x y f p ]
+          (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ)
+
+  isPshIsoᴰ : PshHomᴰ → isPshIso {P = P}{Q = Q} α → Type _
+  isPshIsoᴰ αᴰ αIsIso = ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]}
+      → isIsoOver (isIsoToIso (αIsIso x)) Pᴰ.p[_][ xᴰ ] Qᴰ.p[_][ xᴰ ]
+          (λ _ → αᴰ .PshHomᴰ.N-obᴰ)
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  (α : PshIso P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+  PshIsoᴰ : Type _
+  PshIsoᴰ =
+    Σ[ αᴰ ∈ PshHomᴰ (α .fst) Pᴰ Qᴰ ] isPshIsoᴰ (α .fst) Pᴰ Qᴰ αᴰ (α .snd)
+
+module _
+  {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  {P : Presheaf C ℓC'} (Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ')
+  where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+  Representsᴰ : ∀ {x} → Representsᵁ C P x → (xᴰ : Cᴰ.ob[ x ]) → Type _
+  Representsᴰ yx≡P xᴰ =
+    PathP (λ i → Presheafᴰ (yx≡P i) Cᴰ ℓCᴰ')
+      (Cᴰ [-][-, xᴰ ])
+      Pᴰ
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP} (ue : UniversalElement C P) (Pᴰ : Presheafᴰ P D ℓPᴰ) where

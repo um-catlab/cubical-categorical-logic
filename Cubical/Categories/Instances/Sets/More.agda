@@ -40,3 +40,15 @@ open Functor
 
 ×Sets : Functor (SET ℓ ×C SET ℓ') (SET (ℓ-max ℓ ℓ'))
 ×Sets = BifunctorToParFunctor ×SetsBif
+
+opaque
+  open isUnivalent
+
+  ~univSetβ : ∀ {A}{B} (f : CatIso (SET ℓ) A B)
+    → ∀ b
+    → transport (λ i → ⟨ CatIsoToPath isUnivalentSET f (~ i) ⟩) b ≡ f .snd .isIso.inv b
+  ~univSetβ f b =
+    transportRefl _ ∙ transportRefl _
+    ∙ cong (f .snd .isIso.inv)
+      (transportRefl _ ∙ transportRefl _ ∙ transportRefl _)
+

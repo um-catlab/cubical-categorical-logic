@@ -188,6 +188,38 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   PshIso : Type _
   PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
+  private
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  open isUnivalent
+
+  PshIso→Path : PshIso P Q → P ≡ Q
+  PshIso→Path α =
+    Functor≡
+      (λ c → CatIsoToPath isUnivalentSET (SETIso c))
+      λ {c}{c'} f →
+        toPathP (funExt (λ q →
+          (transport (Pc≡Qc c') $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
+            ≡⟨ univSetβ (SETIso c') ((f P.⋆ transport (sym $ Pc≡Qc c) q)) ⟩
+          (α .fst .fst c' $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
+            ≡⟨ cong (α .fst .fst c') P.⟨ refl ⟩⋆⟨ ~univSetβ (SETIso c) q ⟩ ⟩
+          (α .fst .fst c' $ f P.⋆ α .snd c .fst q)
+            ≡⟨ α .fst .snd c' c f (α .snd c .fst q) ⟩
+          f Q.⋆ (α .fst .fst c $ α .snd c .fst q)
+            ≡⟨ Q.⟨ refl ⟩⋆⟨ α .snd c .snd .fst q ⟩ ⟩
+          f Q.⋆ q
+            ∎ ))
+
+    where
+      SETIso : ∀ c → CatIso (SET _) (P .F-ob c) (Q .F-ob c)
+      SETIso c = ((α .fst .fst c) ,
+          (isiso (α .snd c .fst) (funExt (α .snd c .snd .fst)) (funExt (α .snd c .snd .snd))))
+
+      Pc≡Qc : ∀ c → P.p[ c ] ≡ Q.p[ c ]
+      Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET (SETIso c) i ⟩
+
+
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where
   seqPshHom : PshHom P Q → PshHom Q R → PshHom P R
   seqPshHom α β .fst x p = β .fst x (α .fst x p)
@@ -239,6 +271,30 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS')(α :
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}
   (α : PshHom P Q) where
 
+-- These things only make sense when the presheaf is at the same
+-- universe level as the Homs of the category.
+module _ (C : Category ℓ ℓ')(P : Presheaf C ℓ') where
+  private
+    module C = Category C
+  -- A version of Representation that depends on Univalence to be useful
+  Representsᵁ : ∀ (x : C.ob) → Type _
+  Representsᵁ x = C [-, x ] ≡ P
+
+  Representationᵁ : Type _
+  Representationᵁ = fiber (C [-,_]) P
+
+  yoPshIso→Representationᵁ : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → Representsᵁ v
+  yoPshIso→Representationᵁ αIsIso = PshIso→Path (C [-, _ ]) P (yoRec P _ , αIsIso)
+
+  PshIso→Representationᵁ : ∀ {v} → PshIso (C [-, v ]) P → Representationᵁ
+  PshIso→Representationᵁ α = _ , PshIso→Path (C [-, _ ]) P α
+
+  UniversalElement→Representationᵁ : UniversalElement C P → Representationᵁ
+  UniversalElement→Representationᵁ ue = ue.vertex , PshIso→Path (C [-, ue.vertex ]) P
+    ( (yoRec P ue.element)
+    , λ x → ue.intro , (λ b → ue.β) , λ _ → sym $ ue.η)
+    where
+      module ue = UniversalElementNotation ue
 
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
   private

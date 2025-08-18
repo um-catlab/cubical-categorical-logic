@@ -165,6 +165,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
           → fᴰ ≡ (fᴰ Cⱽ.⋆ᴰⱽ π₁ ,ⱽ fᴰ Cⱽ.⋆ᴰⱽ  π₂)
         ×ηⱽ = ηⱽ
 
+        ∫×ηⱽ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , vert ]}
+          → Path Cⱽ.Hom[ _ , _ ]
+              (_ , fᴰ) (_ , (fᴰ Cⱽ.⋆ᴰⱽ π₁ ,ⱽ fᴰ Cⱽ.⋆ᴰⱽ  π₂))
+        ∫×ηⱽ = Cⱽ.≡in ηⱽ
+
     module _ {x : C .ob}{xᴰ : Cᴰ.ob[ x ]}{f g : C [ x , c ]} where
       private
         module Cⱽ = Fibers Cᴰ

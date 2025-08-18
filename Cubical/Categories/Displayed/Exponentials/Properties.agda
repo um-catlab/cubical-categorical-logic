@@ -83,80 +83,43 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
         module uq = UniversalQuantifierNotation _ isFib uq
 
         private
-          the-elt' : Cᴰ [ _ C.⋆ _ C.⋆ c⇒d.app ][ isFib.f*yᴰ (uq .vertexⱽ) bp.π₁ bpⱽ.×ⱽ isFib.f*yᴰ cᴰ bp.π₂ , dᴰ ]
-          the-elt' = ((bpⱽ.π₁ Cᴰ.⋆ᴰ uq.app) bpⱽ.,ⱽ (bpⱽ.π₂ Cᴰ.⋆ᴰ Cᴰ.reind (sym $ -×c.×aF .Functor.F-id) Cᴰ.idᴰ)) Cᴰ.⋆ᴰ expⱽ.app Cᴰ.⋆ᴰ isFib.π
-
           the-elt : Cᴰ [ c⇒d.app ][ isFib.f*yᴰ uq.vert bp.π₁ bpⱽ.×ⱽ isFib.f*yᴰ cᴰ bp.π₂ , dᴰ ]
-          the-elt = Cᴰ.reind (cong₂ C._⋆_ (C.⋆IdL _ ∙ -×c.×aF .Functor.F-id) (C.⋆IdL _) ∙ C.⋆IdL _) the-elt'
+          -- the-elt = ((Cᴰ.reind (-×c.×aF .Functor.F-id) uq.app bpⱽ.×p Cᴰ.idᴰ) Cᴰ.⋆ⱽ expⱽ.app) Cᴰ.⋆ⱽᴰ isFib.π
+          the-elt = (Cᴰ.reind (-×c.×aF .Functor.F-id) uq.app bpⱽ.×p Cᴰ.idᴰ) Cᴰ.⋆ⱽᴰ (expⱽ.app Cᴰ.⋆ⱽᴰ isFib.π)
 
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ :
           Exponentialᴰ Cᴰ cᴰ dᴰ (λ c' cᴰ' → bpᴰ (cᴰ' , cᴰ)) exp
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .vertexᴰ = uq.vert
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ  .elementᴰ = the-elt
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ {x = x}{xᴰ = xᴰ} .isIsoOver.inv f fᴰ =
-          -- Given f : x × c → d
-          --       fᴰ : π₁* xᴰ ×ⱽ π₂* cᴰ → dᴰ over f
-          -- Want a map xᴰ → ∀ (π₂* cᴰ ⇒ app* dᴰ) over λf
-          -- Via ∀λ, it suffices to build a map π₁* xᴰ → (π₂* cᴰ ⇒ app* dᴰ) over (λf × id)
-          -- To build this map, we use λ for the exponential structure on (λf × id)* (π₂* cᴰ ⇒ app* dᴰ)
-          --   as it an exponential in the fiber over (x × c)
-          -- Thus it reduces to building a map π₁* xᴰ ×ⱽ (λf × id)* π₂* cᴰ → (λ f × id)* (app* dᴰ)
-
-          uq.lda $ expⱽ.lda $ isFib.introCL $ Cᴰ.reind p $
-               -- This is just the intro of the induced displayed binary product for (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) and (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π)
-               -- but I want to lay everything out in terms of vertical products to understand this proof
-               (isFib.introCL (Cᴰ.reind (sym bp.×β₁) $ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind (sym bp.×β₂) $ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π)))
-               Cᴰ.⋆ᴰ fᴰ
+          uq.lda $ expⱽ.lda $ Cᴰ.reind (C.⋆IdL _) $ ((Cᴰ.idᴰ bpⱽ.×p isFib.introCLⱽ (Cᴰ.reind bp.×β₂ (isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ isFib.introCL (Cᴰ.reind (sym c⇒d.⇒ue.β) fᴰ))
           where
           λf×id = -×c.×aF ⟪ c⇒d.lda f ⟫
 
-          p : (((C.id C.⋆ bp.π₁) bp.,p (C.id C.⋆ λf×id C.⋆ bp.π₂)) C.⋆ f) ≡ λf×id C.⋆ c⇒d.app
-          p =
-            cong (C._⋆ f) (cong₂ bp._,p_ (C.⋆IdL _) (C.⋆IdL _))
-            ∙ cong₂ C._⋆_ (bp.,p≡ (sym $ C.⋆IdL _) (bp.×β₂ ∙ (sym $ C.⋆IdL _))) refl
-            ∙ C.⋆IdL _
-            ∙ sym c⇒d.⇒ue.β
+          p : C.id C.⋆ f ≡ (λf×id C.⋆ c⇒d.app)
+          p =  C.⋆IdL _ ∙ sym c⇒d.⇒ue.β
+
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.rightInv f fᴰ =
           Cᴰ.rectify $ Cᴰ.≡out $
-            -- Goal:
-            -- _
-            --   ≡⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _)⟩
-            --      ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            --      ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq ⟩⋆⟨ refl ⟩ ⟩
-            -- _ , (((isFib.introCL (Cᴰ.reind (sym bp.×β₁) $
-            --      ((Cᴰ.reind _ $ bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) Cᴰ.⋆ᴰ (uq.lda $ expⱽ.lda $ isFib.introCL $ Cᴰ.reind p $
-            --        (isFib.introCL (Cᴰ.reind (sym bp.×β₁) $ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind (sym bp.×β₂) $ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ fᴰ) ))
-            --   Cᴰ.⋆ᴰ uq.app)
-            --     bpⱽ.,ⱽ
-            --     (isFib.introCL (Cᴰ.reind (sym bp.×β₂) bpᴰ.π₂ᴰ) Cᴰ.⋆ᴰ Cᴰ.reind (sym $ -×c.×aF .Functor.F-id) Cᴰ.idᴰ))
-            --   Cᴰ.⋆ᴰ (expⱽ.app Cᴰ.⋆ᴰ isFib.π))
+            Cᴰ.⟨ bpⱽ.⟨ isFib.introCL⟨ refl ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+               ∙ Cᴰ.⋆Assoc _ _ _
+               ∙ Cᴰ.reind-filler _ _
+               ⟩
+               ⟩,ⱽ⟨ isFib.introCL⟨ refl ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.reind-filler _ _ ⟩ ⟩ ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ⟩
+            ∙ Cᴰ.⟨ bpⱽ.⟨ (isFib.introCL⟨ {!C.⋆IdL _!} ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _ ⟩ ∙ (sym $ isFib.introCL-natural)) ⟩,ⱽ⟨ Cᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ refl ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq ∙ bpⱽ.⟨ (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ uq.∀β ⟩ ⟩,ⱽ⟨ Cᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ refl ⟩
+            ∙ {!!}
+            ∙ {!!}
+            ∙ {!!}
+            ∙ {!!}
+
+            -- _ ,
+            --   (isFib.introCL (Cᴰ.reind _ (Cᴰ.reind _ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) Cᴰ.⋆ᴰ uq.lda _)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind _ (Cᴰ.reind _ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π))))
+            --    Cᴰ.⋆ᴰ Cᴰ.reind _ (Cᴰ.reind _ ((bpⱽ.π₁ Cᴰ.⋆ᴰ Cᴰ.reind _ uq.app) bpⱽ.,ⱽ (bpⱽ.π₂ Cᴰ.⋆ᴰ Cᴰ.idᴰ)) Cᴰ.⋆ᴰ Cᴰ.reind _ (expⱽ.app Cᴰ.⋆ᴰ isFib.π))
             --   ≡⟨ {!!} ⟩
             -- f , fᴰ
             -- ∎
-            Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
-            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq
-                ∙ bpⱽ.⟨
-                    Cᴰ.⟨
-                      isFib.introCL⟨
-                        {!!}
-                      ⟩⟨
-                        (sym $ Cᴰ.reind-filler _ _)
-                        ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩
-                        ∙ Cᴰ.⋆Assoc _ _ _
-                        ∙ Cᴰ.reind-filler {!!} _
-                      ⟩
-                    ⟩⋆⟨
-                      {!!}
-                    ⟩
-                    ∙ {!!}
-                    ∙ {!uq.∀β!}
-                    ∙ {!!}
-                  ⟩,ⱽ⟨
-                    {!!}
-                  ⟩
-                 ⟩⋆⟨ {!!} ⟩
-            ∙ {!!}
           where
           λf×id = -×c.×aF ⟪ c⇒d.lda f ⟫
 

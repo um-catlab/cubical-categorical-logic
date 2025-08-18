@@ -1,10 +1,12 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 module Cubical.Categories.Presheaf.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
@@ -18,6 +20,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Isomorphism.More
@@ -26,19 +29,8 @@ open Functor
 
 private
   variable
-    ℓ ℓ' ℓS ℓS' : Level
+    ℓ ℓ' ℓS ℓS' ℓS'' : Level
     ℓD ℓD' : Level
-
-PshIso : (C : Category ℓ ℓ')
-         (P : Presheaf C ℓS)
-         (Q : Presheaf C ℓS') → Type (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS) ℓS')
-PshIso {ℓS = ℓS}{ℓS' = ℓS'} C P Q =
-  CatIso (FUNCTOR (C ^op) (SET (ℓ-max ℓS ℓS')))
-    (LiftF {ℓ = ℓS}{ℓ' = ℓS'} ∘F P)
-    (LiftF {ℓ = ℓS'}{ℓ' = ℓS} ∘F Q)
-
-IdPshIso : (C : Category ℓ ℓ') (P : Presheaf C ℓS) → PshIso C P P
-IdPshIso C P = idCatIso
 
 𝓟o = Presheaf
 
@@ -167,9 +159,10 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
     module C = Category C
     module P = PresheafNotation P
     module Q = PresheafNotation Q
+  -- TODO: make into a record
   PshHom : Type _
   PshHom = Σ[ α ∈ (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) ]
-    (∀ x y (f : C [ x , y ]) (p : P.p[ y ])→
+    (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
      α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
 
   isPropN-hom : ∀ (α : (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ])) →
@@ -184,3 +177,158 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} wher
   makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
    → α ≡ β
   makePshHomPath = ΣPathPProp (isPropN-hom P Q)
+
+
+{- a PshIso is a PshHom whose underlying functions are iso -}
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
+  isPshIso : PshHom P Q → Type _
+  isPshIso α = ∀ x → isIso (α .fst x)
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
+  PshIso : Type _
+  PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
+  private
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  open isUnivalent
+
+  PshIso→Path : PshIso P Q → P ≡ Q
+  PshIso→Path α =
+    Functor≡
+      (λ c → CatIsoToPath isUnivalentSET (SETIso c))
+      λ {c}{c'} f →
+        toPathP (funExt (λ q →
+          (transport (Pc≡Qc c') $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
+            ≡⟨ univSetβ (SETIso c') ((f P.⋆ transport (sym $ Pc≡Qc c) q)) ⟩
+          (α .fst .fst c' $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
+            ≡⟨ cong (α .fst .fst c') P.⟨ refl ⟩⋆⟨ ~univSetβ (SETIso c) q ⟩ ⟩
+          (α .fst .fst c' $ f P.⋆ α .snd c .fst q)
+            ≡⟨ α .fst .snd c' c f (α .snd c .fst q) ⟩
+          f Q.⋆ (α .fst .fst c $ α .snd c .fst q)
+            ≡⟨ Q.⟨ refl ⟩⋆⟨ α .snd c .snd .fst q ⟩ ⟩
+          f Q.⋆ q
+            ∎ ))
+
+    where
+      SETIso : ∀ c → CatIso (SET _) (P .F-ob c) (Q .F-ob c)
+      SETIso c = ((α .fst .fst c) ,
+          (isiso (α .snd c .fst) (funExt (α .snd c .snd .fst)) (funExt (α .snd c .snd .snd))))
+
+      Pc≡Qc : ∀ c → P.p[ c ] ≡ Q.p[ c ]
+      Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET (SETIso c) i ⟩
+
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where
+  seqPshHom : PshHom P Q → PshHom Q R → PshHom P R
+  seqPshHom α β .fst x p = β .fst x (α .fst x p)
+  seqPshHom α β .snd x y f p =
+    cong (β .fst _) (α .snd x y f p)
+    ∙ β .snd x y f (α .fst y p)
+
+  seqIsPshIso : ∀ {α : PshHom P Q}{β : PshHom Q R}
+    → isPshIso {P = P}{Q = Q} α
+    → isPshIso {P = Q}{Q = R} β
+    → isPshIso {P = P}{Q = R} (seqPshHom α β)
+  seqIsPshIso {α}{β} αIsIso βIsIso x = IsoToIsIso $
+    compIso (isIsoToIso (αIsIso x)) (isIsoToIso (βIsIso x))
+
+  seqPshIso : PshIso P Q → PshIso Q R → PshIso P R
+  seqPshIso α β .fst = seqPshHom (α .fst) (β .fst)
+  seqPshIso α β .snd x =
+    IsoToIsIso $
+      compIso (isIsoToIso (α .snd x)) (isIsoToIso (β .snd x))
+
+-- Recursion principle for representables
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
+  private
+    module P = PresheafNotation P
+    module C = Category C
+  -- Universe-polymorphic Yoneda recursion principle
+  yoRec : ∀ {c} → P.p[ c ] → PshHom (C [-, c ]) P
+  yoRec p .fst Γ f = f P.⋆ p
+  yoRec p .snd Δ Γ γ f = P.⋆Assoc γ f p
+
+  yoRecβ : ∀ {c}{p : P.p[ c ]} → yoRec p .fst _ C.id ≡ p
+  yoRecβ = P.⋆IdL _
+
+  yoRecη : ∀ {c}{α : PshHom (C [-, c ]) P}
+    → α ≡ yoRec (α .fst _ C.id)
+  yoRecη {α = α} = makePshHomPath (funExt λ _ → funExt λ _ →
+    cong (α .fst _) (sym $ C.⋆IdR _)
+    ∙ α .snd _ _ _ _)
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS')(α : PshHom P Q) where
+  private
+    module P = PresheafNotation P
+    module C = Category C
+
+  yoRec-natural : ∀ {c}{p : P.p[ c ]} → seqPshHom (yoRec P p) α ≡ yoRec Q (α .fst c p)
+  yoRec-natural = makePshHomPath (funExt λ Γ → funExt λ f →
+    α .snd _ _ _ _)
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}
+  (α : PshHom P Q) where
+
+-- These things only make sense when the presheaf is at the same
+-- universe level as the Homs of the category.
+module _ (C : Category ℓ ℓ')(P : Presheaf C ℓ') where
+  private
+    module C = Category C
+  -- A version of Representation that depends on Univalence to be useful
+  Representsᵁ : ∀ (x : C.ob) → Type _
+  Representsᵁ x = C [-, x ] ≡ P
+
+  Representationᵁ : Type _
+  Representationᵁ = fiber (C [-,_]) P
+
+  yoPshIso→Representationᵁ : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → Representsᵁ v
+  yoPshIso→Representationᵁ αIsIso = PshIso→Path (C [-, _ ]) P (yoRec P _ , αIsIso)
+
+  PshIso→Representationᵁ : ∀ {v} → PshIso (C [-, v ]) P → Representationᵁ
+  PshIso→Representationᵁ α = _ , PshIso→Path (C [-, _ ]) P α
+
+  UniversalElement→Representationᵁ : UniversalElement C P → Representationᵁ
+  UniversalElement→Representationᵁ ue = ue.vertex , PshIso→Path (C [-, ue.vertex ]) P
+    ( (yoRec P ue.element)
+    , λ x → ue.intro , (λ b → ue.β) , λ _ → sym $ ue.η)
+    where
+      module ue = UniversalElementNotation ue
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
+  private
+    module P = PresheafNotation P
+  isPshIso→isUniversal : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → isUniversal C P v e
+  isPshIso→isUniversal ⋆eltIsIso A = isIsoToIsEquiv (⋆eltIsIso A)
+
+  isUniversal→isPshIso : ∀ {v}{e} → isUniversal C P v e → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e)
+  isUniversal→isPshIso eltIsUniversal A = isEquivToIsIso _ (eltIsUniversal A)
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) (ue : UniversalElement C P) where
+  private
+    module P = PresheafNotation P
+    module ue = UniversalElement ue
+  UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
+  UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (α : PshIso P Q) where
+  seqIsUniversalPshIso : ∀ {v e} → isUniversal C P v e → isUniversal C Q v (α .fst .fst v e)
+  seqIsUniversalPshIso isUe = isPshIso→isUniversal Q
+    λ x → (lem x .fst) ,
+          ( (λ q → (sym $ α .fst .snd _ _ _ _) ∙ lem x .snd .fst q)
+          , λ f → cong (lem x .fst) (sym $ α .fst .snd _ _ _ _) ∙ lem x .snd .snd f)
+          -- better definitional behavior than the equivalent
+          -- (subst isPshIso (yoRec-natural P Q _) lem)
+    where
+      lem : isPshIso (seqPshHom (yoRec P _) (α .fst))
+      lem = seqIsPshIso {α = yoRec P _}{β = α .fst} (isUniversal→isPshIso P isUe) (α .snd)
+
+  module _ (ue : UniversalElement C P) where
+    private
+      module ue = UniversalElementNotation ue
+    open UniversalElement
+    PshIsoUniversalElement : UniversalElement C Q
+    PshIsoUniversalElement .vertex = ue.vertex
+    PshIsoUniversalElement .element = α .fst .fst ue.vertex ue.element
+    PshIsoUniversalElement .universal = seqIsUniversalPshIso ue.universal

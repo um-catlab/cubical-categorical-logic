@@ -20,6 +20,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More
@@ -191,13 +192,44 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   PshIso : Type _
   PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
+  open NatIso
+  open NatTrans
+  PshIso→PshIsoLift : PshIso → PshIsoLift C P Q
+  PshIso→PshIsoLift α .trans .N-ob x x₁ = lift (α .fst .fst x (x₁ .lower))
+  PshIso→PshIsoLift α .trans .N-hom f = funExt (λ x₁ → cong lift (α .fst .snd _ _ f (x₁ .lower)))
+  PshIso→PshIsoLift α .nIso x .isIsoC.inv = λ z → lift (α .snd x .fst (z .lower))
+  PshIso→PshIsoLift α .nIso x .isIsoC.sec = funExt (λ x₁ → cong lift (α .snd x .snd .fst (x₁ .lower)) )
+  PshIso→PshIsoLift α .nIso x .isIsoC.ret = funExt (λ x₁ → cong lift (α .snd x .snd .snd (x₁ .lower)))
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') (((α , α-natural) , αIsIso) : PshIso P Q) where
+  private
+    module Q = PresheafNotation Q
+  invPshIso : PshIso Q P
+  invPshIso .fst .fst x = αIsIso _ .fst
+  invPshIso .fst .snd _ _ f q =
+    sym (αIsIso _ .snd .snd _)
+    ∙ cong (αIsIso _ .fst) (sym $
+      α-natural _ _ _ _ ∙ Q.⟨ refl ⟩⋆⟨ αIsIso _ .snd .fst _ ⟩ ∙ (sym $ αIsIso _ .snd .fst _))
+    ∙ (αIsIso _ .snd .snd _)
+  invPshIso .snd x .fst = α _
+  invPshIso .snd x .snd .fst = αIsIso _ .snd .snd
+  invPshIso .snd x .snd .snd = αIsIso _ .snd .fst
+
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
   private
     module P = PresheafNotation P
     module Q = PresheafNotation Q
   open isUnivalent
 
+  open NatTrans
   open isIsoC
+  PshCatIso→PshIso : CatIso (PresheafCategory C ℓS) P Q → PshIso P Q
+  PshCatIso→PshIso α .fst .fst = α .fst .N-ob
+  PshCatIso→PshIso α .fst .snd x₁ y f p = funExt⁻ (α .fst .N-hom _) p
+  PshCatIso→PshIso α .snd x .fst = N-ob (α .snd .inv) x
+  PshCatIso→PshIso α .snd x .snd .fst = funExt⁻ (funExt⁻ (cong N-ob $ α .snd .sec) _)
+  PshCatIso→PshIso α .snd x .snd .snd = funExt⁻ (funExt⁻ (cong N-ob $ α .snd .ret) _)
+
   PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓS) (P .F-ob x) (Q .F-ob x)
   PshIso→SETIso α c .fst = α .fst .fst c
   PshIso→SETIso α c .snd .inv = α .snd c .fst
@@ -250,6 +282,29 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
   private
     module P = PresheafNotation P
     module C = Category C
+
+  RepresentationPshIso : Type _
+  RepresentationPshIso = Σ[ x ∈ _ ] PshIso (C [-, x ]) P
+
+  open UniversalElement
+  module _ ((x , ((αN-ob , αN-hom) , αIsIso)) : RepresentationPshIso) where
+    RepresentationPshIso→UniversalElement : UniversalElement C P
+    RepresentationPshIso→UniversalElement .vertex = x
+    RepresentationPshIso→UniversalElement .element = αN-ob _ C.id
+    RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
+    -- Yet another proof of the Yoneda lemma
+      ( α⁻N-ob _
+      , (λ p →
+           isoFunInjective (isIsoToIso (α⁻ .snd _)) _ _
+             (α⁻N-hom _ _ _ _
+             ∙ C.⟨ refl ⟩⋆⟨ αIsIso _ .snd .snd _ ⟩ ∙ C.⋆IdR _))
+      , (λ f → α⁻N-hom _ _ _ _ ∙ C.⟨ refl ⟩⋆⟨ αIsIso _ .snd .snd _ ⟩
+        ∙ C.⋆IdR _))
+      where
+        α⁻ = invPshIso _ P (((αN-ob , αN-hom) , αIsIso))
+        α⁻N-ob = α⁻ .fst .fst
+        α⁻N-hom = α⁻ .fst .snd
+
   -- Universe-polymorphic Yoneda recursion principle
   yoRec : ∀ {c} → P.p[ c ] → PshHom (C [-, c ]) P
   yoRec p .fst Γ f = f P.⋆ p
@@ -300,6 +355,11 @@ module _ (C : Category ℓ ℓ')(P : Presheaf C ℓ') where
     , λ x → ue.intro , (λ b → ue.β) , λ _ → sym $ ue.η)
     where
       module ue = UniversalElementNotation ue
+
+  Representationᵁ→UniversalElement : Representationᵁ → UniversalElement C P
+  Representationᵁ→UniversalElement (v , yv≡P) =
+    RepresentationPshIso→UniversalElement P
+      (v , (PshCatIso→PshIso _ _ (pathToIso yv≡P)))
 
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
   private

@@ -242,8 +242,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       ∫αᴰ : PshIso (∫P Pᴰ) (∫P Qᴰ)
       ∫αᴰ = ∫PshIsoᴰ _ _ _ αᴰ
 
-
-
 -- Displayed Yoneda
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -300,7 +298,6 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     ηᴰ = ∫ue.η
     weak-ηᴰ = ∫ue.weak-η
 
-
 module _
   {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   {P : Presheaf C ℓC'} (Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ')
@@ -331,6 +328,8 @@ module _
          λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueᴰ.ηᴰ))
     where
       module ueᴰ = UniversalElementᴰ ueᴰ
+
+
 
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C ℓD ℓD')

@@ -101,18 +101,74 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
 
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.rightInv f fᴰ =
           Cᴰ.rectify $ Cᴰ.≡out $
-            Cᴰ.⟨ bpⱽ.⟨ isFib.introCL⟨ refl ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
-               ∙ Cᴰ.⋆Assoc _ _ _
-               ∙ Cᴰ.reind-filler _ _
-               ⟩
-               ⟩,ⱽ⟨ isFib.introCL⟨ refl ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.reind-filler _ _ ⟩ ⟩ ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ⟩
-            ∙ Cᴰ.⟨ bpⱽ.⟨ (isFib.introCL⟨ {!C.⋆IdL _!} ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _ ⟩ ∙ (sym $ isFib.introCL-natural)) ⟩,ⱽ⟨ Cᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ refl ⟩
-            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-            ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq ∙ bpⱽ.⟨ (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ uq.∀β ⟩ ⟩,ⱽ⟨ Cᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ refl ⟩
-            ∙ {!!}
-            ∙ {!!}
-            ∙ {!!}
-            ∙ {!!}
+           {!!}
+           --  Cᴰ.⟨
+           --    bpⱽ.⟨ isFib.introCL⟨ refl ⟩⟨
+           --      (sym $ Cᴰ.reind-filler _ _)
+           --      ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+           --      ∙ Cᴰ.⋆Assoc _ _ _
+           --      ∙ Cᴰ.reind-filler (C.⋆IdL _ ∙ sym bp.×β₁) _
+           --     ⟩
+           --   ⟩,ⱽ⟨
+           --     isFib.introCL⟨ refl ⟩⟨
+           --       (sym $ Cᴰ.reind-filler _ _)
+           --     ∙ (sym $ Cᴰ.reind-filler _ _)
+           --     ∙ Cᴰ.reind-filler (C.⋆IdL _ ∙ sym bp.×β₂) _
+           --     ⟩
+           --   ⟩
+           -- ⟩⋆⟨
+           --   (sym $ Cᴰ.reind-filler _ _)
+           --   ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩
+           -- ⟩
+           -- ∙ Cᴰ.⟨
+           --     bpⱽ.⟨
+           --       isFib.introCL⟨ refl ∙ (sym $ C.⋆IdL _) ⟩⟨
+           --         (sym $ Cᴰ.reind-filler _ _)
+           --         ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler (sym bp.×β₁) _ ⟩
+           --         ∙ Cᴰ.reind-filler _ _
+           --       ⟩
+           --       ∙ (sym $ isFib.introCL-natural)
+           --     ⟩,ⱽ⟨
+           --       Cᴰ.reind-filler (sym $ C.⋆IdL _) _
+           --     ⟩
+           --   ⟩⋆⟨
+           --     refl
+           --   ⟩
+           --  ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+           --  ∙ Cᴰ.⟨ bpⱽ.,ⱽ-seq ∙ bpⱽ.⟨ (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ uq.∀β ⟩ ⟩,ⱽ⟨ Cᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ refl ⟩
+            ∙ (
+              _ , (((bpⱽ.π₁ Cᴰ.⋆ᴰ expⱽ.lda _) bpⱽ.,ⱽ Cᴰ.reind _ (Cᴰ.reind _ (isFib.introCL _) Cᴰ.⋆ᴰ Cᴰ.idᴰ)) Cᴰ.⋆ᴰ Cᴰ.reind _ (expⱽ.app Cᴰ.⋆ᴰ isFib.π))
+                ≡⟨
+                 Cᴰ.⟨
+                   bpⱽ.⟨
+                     refl
+                   ⟩,ⱽ⟨
+                     (sym $ Cᴰ.reind-filler _ _)
+                     ∙ Cᴰ.⟨
+                         (sym $ Cᴰ.reind-filler _ _)
+                       ⟩⋆⟨
+                         refl
+                       ⟩
+                       ∙ Cᴰ.⋆IdR _
+                     ⟩
+                   ⟩⋆⟨
+                     (sym $ Cᴰ.reind-filler _ _)
+                   ⟩
+                   ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+                   -- ∙ Cᴰ.⟨ {!!} ∙ {!!} ∙ {!!} ⟩⋆⟨ {!!} ⟩
+                   -- ∙ Cᴰ.⟨ Cᴰ.⟨ {!!} ⟩⋆⟨ {!? ∙ bpⱽ.∫×ηⱽ!} ⟩ ⟩⋆⟨ {!!} ⟩
+                   ∙ Cᴰ.⟨ Cᴰ.⟨ bpⱽ.⟨ {!!} ⟩,ⱽ⟨ {!!} ⟩ ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+                   ∙ {!!}
+                   ∙ {!expⱽ.β⇒ⱽ!}
+                   ∙ {!!}
+                   ∙ isFib.βCL
+                   ∙ (sym $ Cᴰ.reind-filler _ _)
+                 ⟩
+              f , fᴰ
+              ∎)
+            -- ∙ {!!}
+            -- ∙ {!!}
+            -- ∙ {!!}
 
             -- _ ,
             --   (isFib.introCL (Cᴰ.reind _ (Cᴰ.reind _ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) Cᴰ.⋆ᴰ uq.lda _)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind _ (Cᴰ.reind _ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π))))

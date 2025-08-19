@@ -262,18 +262,3 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     subst (UniversalElementⱽ Cᴰ _)
       (sym (reindYo-seq α Qᴰ p))
       (isFibQᴰ (α .fst _ p))
-
--- Next, we want to show that if we specialize presheafᴰ to a
--- reindexed cat it also preserves fibrationhood.
---
--- in this case
--- isFib Pᴰ means all reindYo p Pᴰ are repr
--- and we want to show all reindYo p (Pᴰ ∘F Reindex.π ^op) are repr.
--- to do that we observe that reindYo p (Pᴰ ∘F Reindex.π ^op) ≡ reindYo p Pᴰ
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-         (F : Functor C D)
-         where
-  module _ {P : Presheaf D ℓP} (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ) (isFibPᴰ : isFibration' Pᴰ) where
-    reindexFunctorCartLifts'
-      : isFibration' (Pᴰ ∘Fᴰ (Reindex.π Dᴰ F ^opFᴰ))
-    reindexFunctorCartLifts' p = {!!}

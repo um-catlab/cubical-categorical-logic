@@ -57,29 +57,35 @@ opaque
       (transportRefl _ ∙ transportRefl _ ∙ transportRefl _)
 
 open isHAEquiv
-CatIso→HAE :
-  ∀ (A : hSet ℓ)(B : hSet ℓ)
-  → CatIso (SET ℓ) A B
-  → HAEquiv ⟨ A ⟩ ⟨ B ⟩
-CatIso→HAE (A , isSetA) (B , isSetB) f .fst = f .fst
-CatIso→HAE (A , isSetA) (B , isSetB) f .snd .g = f .snd .isIso.inv
-CatIso→HAE (A , isSetA) (B , isSetB) f .snd .linv = funExt⁻ (f .snd .isIso.ret)
-CatIso→HAE (A , isSetA) (B , isSetB) f .snd .rinv = funExt⁻ (f .snd .isIso.sec)
-CatIso→HAE (A , isSetA) (B , isSetB) f .snd .com a =
-  isSet→SquareP (λ _ _ → isSetB) _ _ _ _
+module _ (A B : hSet ℓ) (f : CatIso (SET ℓ) A B) where
+  private
+    isSetA = A .snd
+    isSetB = B .snd
+  CatIso→HAE : HAEquiv ⟨ A ⟩ ⟨ B ⟩
+  CatIso→HAE .fst = f .fst
+  CatIso→HAE .snd .g = f .snd .isIso.inv
+  CatIso→HAE .snd .linv = funExt⁻ (f .snd .isIso.ret)
+  CatIso→HAE .snd .rinv = funExt⁻ (f .snd .isIso.sec)
+  CatIso→HAE .snd .com a =
+    isSet→SquareP (λ _ _ → isSetB) _ _ _ _
+
+  CatIso→Iso' : Iso ⟨ A ⟩ ⟨ B ⟩
+  CatIso→Iso' = isHAEquiv→Iso (CatIso→HAE .snd)
+
+  CatIso→⟨A⟩≡⟨B⟩ : ⟨ A ⟩ ≡ ⟨ B ⟩
+  CatIso→⟨A⟩≡⟨B⟩ = ua (_ , (isHAEquiv→isEquiv (CatIso→HAE .snd)))
+
+  CatIso→A≡B : A ≡ B
+  CatIso→A≡B = Σ≡Prop (λ _ → isPropIsSet) CatIso→⟨A⟩≡⟨B⟩
 
 isUnivalentSET' : isUnivalent (SET ℓ)
 isUnivalentSET' .univ (A , isSetA) (B , isSetB) = isIsoToIsEquiv
-  ( (λ f → Σ≡Prop (λ C → isPropIsSet) (CatIso→A≡B f))
+  ( CatIso→A≡B _ _
   , (λ f → CatIso≡ _ _ (funExt (λ x → transportRefl _ ∙ cong (f .fst) (transportRefl _))))
-  , λ p →
+  , (λ p →
     cong (Σ≡Prop (λ C → isPropIsSet)) (isInjectiveTransport
       (funExt (λ x → transportRefl _ ∙ cong (transport (cong fst p)) (transportRefl _))))
-    ∙ section-Σ≡Prop (λ C → isPropIsSet) p)
-  where
-    CatIso→A≡B : CatIso (SET _) (A , isSetA) (B , isSetB)
-      → A ≡ B
-    CatIso→A≡B f = ua (_ , (isHAEquiv→isEquiv (CatIso→HAE _ _ f .snd)))
+    ∙ section-Σ≡Prop (λ C → isPropIsSet) p))
 
 opaque
   open isUnivalent
@@ -101,4 +107,3 @@ opaque
     → transport (λ i → ⟨ CatIsoToPath isUnivalentSET' f (~ i) ⟩) b ≡ f .snd .isIso.inv b
   ~univSet'β f b = cong (f .snd .isIso.inv) (transportRefl _)
 
-  

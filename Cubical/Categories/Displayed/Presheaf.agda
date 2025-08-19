@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --safe --lossy-unification #-}
 -- TODO: move this to Presheaf.Base
 module Cubical.Categories.Displayed.Presheaf where
 
@@ -15,6 +15,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
@@ -167,10 +169,15 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
             Qᴰ.≡[ α .snd x y f p ]
           (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ)
 
+    ∫PshHomᴰ : PshHom (∫P Pᴰ) (∫P Qᴰ)
+    ∫PshHomᴰ .fst (x , xᴰ) (p , pᴰ) = (α .fst _ p) , (N-obᴰ pᴰ)
+    ∫PshHomᴰ .snd _ _ (f , fᴰ) (p , pᴰ) = ΣPathP ((α .snd _ _ f p) , N-homᴰ)
+
   isPshIsoᴰ : PshHomᴰ → isPshIso {P = P}{Q = Q} α → Type _
   isPshIsoᴰ αᴰ αIsIso = ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]}
       → isIsoOver (isIsoToIso (αIsIso x)) Pᴰ.p[_][ xᴰ ] Qᴰ.p[_][ xᴰ ]
           (λ _ → αᴰ .PshHomᴰ.N-obᴰ)
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Q : Presheaf C ℓQ}
@@ -181,17 +188,77 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   PshIsoᴰ =
     Σ[ αᴰ ∈ PshHomᴰ (α .fst) Pᴰ Qᴰ ] isPshIsoᴰ (α .fst) Pᴰ Qᴰ αᴰ (α .snd)
 
-module _
-  {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-  {P : Presheaf C ℓC'} (Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ')
+  open isIsoOver
+  ∫PshIsoᴰ : PshIsoᴰ → PshIso (∫P Pᴰ) (∫P Qᴰ)
+  ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .fst = PshHomᴰ.∫PshHomᴰ αᴰ
+  ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .snd (x , xᴰ) .fst (q , qᴰ) = _ , αᴰIsPshIsoᴰ {p = α .snd _ .fst q} .inv q qᴰ
+  ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .snd (x , xᴰ) .snd .fst (q , qᴰ) =
+    ΣPathP (_ , αᴰIsPshIsoᴰ .rightInv q qᴰ)
+  ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .snd (x , xᴰ) .snd .snd (p , pᴰ) =
+    ΣPathP (_ , αᴰIsPshIsoᴰ .leftInv p pᴰ)
+
+-- We can use paths if the presheaves are of the same level
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓP}
+  (α : PshIso P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓPᴰ) where
+  private
+    module C = Category C
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+  module _ (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) {x : C.ob} where
+    open PshHomᴰ
+    open isIsoᴰ
+    open isIsoOver
+    private
+      α⟨x⟩ : CatIso (SET ℓP) (P .F-ob x) (Q .F-ob x)
+      α⟨x⟩ = PshIso→SETIso P Q α x
+    PshIsoᴰ→SETᴰIsoᴰ : ∀ xᴰ → CatIsoᴰ (SETᴰ ℓP ℓPᴰ) α⟨x⟩ (Pᴰ .F-obᴰ xᴰ) (Qᴰ .F-obᴰ xᴰ)
+    PshIsoᴰ→SETᴰIsoᴰ xᴰ .fst p pᴰ = αᴰ .fst .N-obᴰ pᴰ
+    PshIsoᴰ→SETᴰIsoᴰ xᴰ .snd .invᴰ q qᴰ = αᴰ .snd {p = α .snd x .fst q} .inv q qᴰ
+    PshIsoᴰ→SETᴰIsoᴰ xᴰ .snd .secᴰ = funExt λ q → funExt λ qᴰ →
+      αᴰ .snd .rightInv q qᴰ
+    PshIsoᴰ→SETᴰIsoᴰ xᴰ .snd .retᴰ = funExt λ p → funExt λ pᴰ →
+      αᴰ .snd .leftInv p pᴰ
+  -- Maybe we can just get this from PshIso→Path for ∫αᴰ ?
+  PshIsoᴰ→PathP
+      : ∀ (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
+      → PathP (λ i → Presheafᴰ (PshIso→Path P Q α i) Cᴰ ℓPᴰ) Pᴰ Qᴰ
+  PshIsoᴰ→PathP αᴰ =
+    Functorᴰ≡
+      (λ xᴰ → CatIsoᴰ→P≡Q (PshIso→SETIso P Q α _) (PshIsoᴰ→SETᴰIsoᴰ αᴰ xᴰ))
+      λ {x = x}{xᴰ = xᴰ} fᴰ →
+        toPathP (funExt (λ q → funExt (λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+          sym (Qᴰ.reind-filler _ _)
+          ∙ cong (∫αᴰ .fst .fst _) Pᴰ.⟨ refl ⟩⋆⟨ (sym $ Pᴰ.reind-filler _ _) ⟩
+          ∙ ∫αᴰ .fst .snd _ _ _ _
+          ∙ Qᴰ.⟨ refl ⟩⋆⟨ cong (∫αᴰ .fst .fst _) (cong (∫αᴰ .snd _ .fst) (sym $ Qᴰ.reind-filler _ _))
+                 ∙ ∫αᴰ .snd _ .snd .fst _ ⟩
+        )))
+    where
+      ∫αᴰ : PshIso (∫P Pᴰ) (∫P Qᴰ)
+      ∫αᴰ = ∫PshIsoᴰ _ _ _ αᴰ
+
+
+
+-- Displayed Yoneda
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   where
   private
     module Cᴰ = Categoryᴰ Cᴰ
-  Representsᴰ : ∀ {x} → Representsᵁ C P x → (xᴰ : Cᴰ.ob[ x ]) → Type _
-  Representsᴰ yx≡P xᴰ =
-    PathP (λ i → Presheafᴰ (yx≡P i) Cᴰ ℓCᴰ')
-      (Cᴰ [-][-, xᴰ ])
-      Pᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+
+  open PshHomᴰ
+  yoRecᴰ : ∀ {c}{cᴰ : Cᴰ.ob[ c ]} {p : P.p[ c ]}
+    → (pᴰ : Pᴰ.p[ p ][ cᴰ ]) → PshHomᴰ (yoRec P p) (Cᴰ [-][-, cᴰ ]) Pᴰ
+  yoRecᴰ pᴰ .N-obᴰ fᴰ = fᴰ Pᴰ.⋆ᴰ pᴰ
+  yoRecᴰ pᴰ .N-homᴰ = Pᴰ.⋆Assocᴰ _ _ _
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP} (ue : UniversalElement C P) (Pᴰ : Presheafᴰ P D ℓPᴰ) where
@@ -232,6 +299,38 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     βᴰ = ∫ue.β
     ηᴰ = ∫ue.η
     weak-ηᴰ = ∫ue.weak-η
+
+
+module _
+  {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  {P : Presheaf C ℓC'} (Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ')
+  where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Pᴰ = PresheafᴰNotation Pᴰ
+  Representsᴰ : ∀ {x} → Representsᵁ C P x → (xᴰ : Cᴰ.ob[ x ]) → Type _
+  Representsᴰ yx≡P xᴰ =
+    PathP (λ i → Presheafᴰ (yx≡P i) Cᴰ ℓCᴰ')
+      (Cᴰ [-][-, xᴰ ])
+      Pᴰ
+
+  -- TODO: some general notion of fiberᴰ ?
+  Representationᴰ : Representationᵁ C P → Type _
+  Representationᴰ (x , yx≡P) = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] Representsᴰ yx≡P xᴰ
+
+  UniversalElementᴰ→Representationᴰ :
+    ∀ {ue : UniversalElement C P}
+    → UniversalElementᴰ Cᴰ ue Pᴰ
+    → Representationᴰ (UniversalElement→Representationᵁ C P ue)
+  UniversalElementᴰ→Representationᴰ {ue} ueᴰ = (UniversalElementᴰ.vertexᴰ ueᴰ)
+    , PshIsoᴰ→PathP _ _ _
+    ( yoRecᴰ Pᴰ ueᴰ.elementᴰ
+    , (isisoover
+         (λ _ → ueᴰ.introᴰ)
+         (λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $ ueᴰ.βᴰ)
+         λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueᴰ.ηᴰ))
+    where
+      module ueᴰ = UniversalElementᴰ ueᴰ
 
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C ℓD ℓD')

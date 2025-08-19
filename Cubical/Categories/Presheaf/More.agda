@@ -10,7 +10,7 @@ open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category hiding (isIso)
+open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Constructions.Elements
@@ -185,6 +185,9 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} wher
   isPshIso α = ∀ x → isIso (α .fst x)
 
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
+  private
+    module P = PresheafNotation P using (p[_])
+    module Q = PresheafNotation Q using (p[_])
   PshIso : Type _
   PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
@@ -194,30 +197,32 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
     module Q = PresheafNotation Q
   open isUnivalent
 
+  open isIsoC
+  PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓS) (P .F-ob x) (Q .F-ob x)
+  PshIso→SETIso α c .fst = α .fst .fst c
+  PshIso→SETIso α c .snd .inv = α .snd c .fst
+  PshIso→SETIso α c .snd .sec = funExt (α .snd c .snd .fst)
+  PshIso→SETIso α c .snd .ret = funExt (α .snd c .snd .snd)
+
   PshIso→Path : PshIso P Q → P ≡ Q
   PshIso→Path α =
     Functor≡
-      (λ c → CatIsoToPath isUnivalentSET (SETIso c))
+      (λ c → CatIsoToPath isUnivalentSET' (PshIso→SETIso α c))
       λ {c}{c'} f →
         toPathP (funExt (λ q →
           (transport (Pc≡Qc c') $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
-            ≡⟨ univSetβ (SETIso c') ((f P.⋆ transport (sym $ Pc≡Qc c) q)) ⟩
+            ≡⟨ univSet'β (PshIso→SETIso α c') ((f P.⋆ transport (sym $ Pc≡Qc c) q)) ⟩
           (α .fst .fst c' $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
-            ≡⟨ cong (α .fst .fst c') P.⟨ refl ⟩⋆⟨ ~univSetβ (SETIso c) q ⟩ ⟩
+            ≡⟨ cong (α .fst .fst c') P.⟨ refl ⟩⋆⟨ ~univSet'β (PshIso→SETIso α c) q ⟩ ⟩
           (α .fst .fst c' $ f P.⋆ α .snd c .fst q)
             ≡⟨ α .fst .snd c' c f (α .snd c .fst q) ⟩
           f Q.⋆ (α .fst .fst c $ α .snd c .fst q)
             ≡⟨ Q.⟨ refl ⟩⋆⟨ α .snd c .snd .fst q ⟩ ⟩
           f Q.⋆ q
             ∎ ))
-
     where
-      SETIso : ∀ c → CatIso (SET _) (P .F-ob c) (Q .F-ob c)
-      SETIso c = ((α .fst .fst c) ,
-          (isiso (α .snd c .fst) (funExt (α .snd c .snd .fst)) (funExt (α .snd c .snd .snd))))
-
       Pc≡Qc : ∀ c → P.p[ c ] ≡ Q.p[ c ]
-      Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET (SETIso c) i ⟩
+      Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET' (PshIso→SETIso α c) i ⟩
 
 
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where

@@ -5,7 +5,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Univalence.Dependent
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -21,6 +23,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.Univalence
 
 private
   variable
@@ -38,6 +41,39 @@ module _ ℓ ℓ' where
   SETᴰ .⋆IdRᴰ fᴰ = refl
   SETᴰ .⋆Assocᴰ fᴰ gᴰ hᴰ = refl
   SETᴰ .isSetHomᴰ {yᴰ = Q} = isSetΠ λ x → isSetΠ λ xᴰ → Q _ .snd
+
+
+module _ {A B : hSet ℓ}(f : CatIso (SET ℓ) A B){P : ⟨ A ⟩ → hSet ℓ'}{Q : ⟨ B ⟩ → hSet ℓ'}
+  (fᴰ : CatIsoᴰ (SETᴰ ℓ ℓ') f P Q)
+  where
+  private
+    ⟨P⟩ : ⟨ A ⟩ → Type _
+    ⟨P⟩ a = ⟨ P a ⟩
+
+    ⟨Q⟩ : ⟨ B ⟩ → Type _
+    ⟨Q⟩ b = ⟨ Q b ⟩
+
+  CatIsoᴰ→IsoOver : IsoOver (CatIso→Iso' A B f) ⟨P⟩ ⟨Q⟩
+  CatIsoᴰ→IsoOver .IsoOver.fun = fᴰ .fst
+  CatIsoᴰ→IsoOver .IsoOver.inv = fᴰ .snd .isIsoᴰ.invᴰ
+  CatIsoᴰ→IsoOver .IsoOver.rightInv b =
+    funExt⁻ (funExt⁻ (fᴰ .snd .isIsoᴰ.secᴰ) b)
+  CatIsoᴰ→IsoOver .IsoOver.leftInv a =
+    funExt⁻ (funExt⁻ (fᴰ .snd .isIsoᴰ.retᴰ) a)
+
+  CatIsoᴰ→⟨P⟩≡⟨Q⟩ : PathP (λ i → CatIso→⟨A⟩≡⟨B⟩ A B f i → Type ℓ') ⟨P⟩ ⟨Q⟩
+  CatIsoᴰ→⟨P⟩≡⟨Q⟩ = isoToPathOver (CatIso→HAE A B f .fst) (CatIso→HAE A B f .snd)
+    CatIsoᴰ→IsoOver
+
+  CatIsoᴰ→isSet⟨≡⟩
+    : PathP (λ i → ∀ (x : CatIso→⟨A⟩≡⟨B⟩ A B f i) → isSet (CatIsoᴰ→⟨P⟩≡⟨Q⟩ i x)) (λ x → P x .snd) (λ x → Q x .snd)
+  CatIsoᴰ→isSet⟨≡⟩ = isProp→PathP (λ i → isPropΠ (λ x → isPropIsSet)) _ _
+
+  CatIsoᴰ→P≡Q : PathP (λ i → CatIso→⟨A⟩≡⟨B⟩ A B f i → hSet ℓ') P Q
+  CatIsoᴰ→P≡Q i x .fst = CatIsoᴰ→⟨P⟩≡⟨Q⟩ i x
+  CatIsoᴰ→P≡Q i x .snd = CatIsoᴰ→isSet⟨≡⟩ i x
+
+-- TODO: SETᴰ is univalentᴰ
 
 open Category
 open Functorᴰ
@@ -101,3 +137,4 @@ open Functor
 ×Setsⱽ .F-homᴰ (g₁ , g₂) a (b₁ , b₂) = (g₁ a b₁) , (g₂ a b₂)
 ×Setsⱽ .F-idᴰ = refl
 ×Setsⱽ .F-seqᴰ fᴰ gᴰ = refl
+

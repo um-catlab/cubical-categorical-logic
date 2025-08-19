@@ -37,6 +37,7 @@ record isUnivalentᴰ {C : Category ℓC ℓC'}(isUnivC : isUnivalent C) (Cᴰ :
   open isUnivalent isUnivC
   open Categoryᴰ Cᴰ
   field
+    -- TODO: port this to use HAEquivOver?
     univᴰ : ∀ {x y} (xᴰ : ob[ x ])(yᴰ : ob[ y ])
       → isEquivᴰ {P = λ x≡y → PathP (λ i → ob[ x≡y i ]) xᴰ yᴰ}
                  {Q = λ f → CatIsoᴰ Cᴰ f xᴰ yᴰ}

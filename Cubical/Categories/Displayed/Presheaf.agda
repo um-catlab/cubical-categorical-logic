@@ -7,6 +7,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Equiv.Dependent.More
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
@@ -298,6 +299,45 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     ηᴰ = ∫ue.η
     weak-ηᴰ = ∫ue.weak-η
 
+    -- ⋆ᴰelementᴰ-isPshIsoᴰ :
+    -- TODO:
+    -- toRepresentationPshIsoᴰ : RepresentationPshIsoᴰ {!!}
+    -- toRepresentationPshIsoᴰ = {!!}
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+         {P : Presheaf C ℓP} ((x , yx≅P) : RepresentationPshIso P)
+         (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+  RepresentationPshIsoᴰ : Type _
+  RepresentationPshIsoᴰ =
+    Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoᴰ yx≅P (Cᴰ [-][-, xᴰ ]) Pᴰ
+
+  open UniversalElementᴰ
+  open PshHomᴰ
+  open isIsoOver
+  module _  ((xᴰ , yxᴰ≅Pᴰ) : RepresentationPshIsoᴰ) where
+    private
+      ∫repr→ue : UniversalElement (TotalCat.∫C Cᴰ) (∫P Pᴰ)
+      ∫repr→ue = RepresentationPshIso→UniversalElement
+        (∫P Pᴰ)
+        (_ , (∫PshIsoᴰ yx≅P (Cᴰ [-][-, xᴰ ]) Pᴰ yxᴰ≅Pᴰ))
+      module ∫repr→ue = UniversalElementNotation ∫repr→ue
+
+    RepresentationPshIsoᴰ→UniversalElementᴰ :
+      UniversalElementᴰ Cᴰ
+        (RepresentationPshIso→UniversalElement P (x , yx≅P))
+        Pᴰ
+    RepresentationPshIsoᴰ→UniversalElementᴰ .vertexᴰ  = ∫repr→ue.vertex .snd
+    RepresentationPshIsoᴰ→UniversalElementᴰ .elementᴰ = ∫repr→ue.element .snd
+    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ {Γ} {Γᴰ} .inv p pᴰ = ∫repr→ue.intro (p , pᴰ) .snd
+    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ {Γ} {Γᴰ} .rightInv p pᴰ =
+      Pᴰ.rectify $ Pᴰ.≡out $ ∫repr→ue.β
+    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ {Γ} {Γᴰ} .leftInv f fᴰ =
+      Cᴰ.rectify $ Cᴰ.≡out $ sym $ ∫repr→ue.η
+
 module _
   {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   {P : Presheaf C ℓC'} (Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ')
@@ -305,21 +345,28 @@ module _
   private
     module Cᴰ = Fibers Cᴰ
     module Pᴰ = PresheafᴰNotation Pᴰ
-  Representsᴰ : ∀ {x} → Representsᵁ C P x → (xᴰ : Cᴰ.ob[ x ]) → Type _
-  Representsᴰ yx≡P xᴰ =
+  Representsᵁᴰ : ∀ {x} → Representsᵁ C P x → (xᴰ : Cᴰ.ob[ x ]) → Type _
+  Representsᵁᴰ yx≡P xᴰ =
     PathP (λ i → Presheafᴰ (yx≡P i) Cᴰ ℓCᴰ')
       (Cᴰ [-][-, xᴰ ])
       Pᴰ
 
-  -- TODO: some general notion of fiberᴰ ?
-  Representationᴰ : Representationᵁ C P → Type _
-  Representationᴰ (x , yx≡P) = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] Representsᴰ yx≡P xᴰ
+  Representationᵁᴰ : Representationᵁ C P → Type _
+  Representationᵁᴰ (x , yx≡P) = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] Representsᵁᴰ yx≡P xᴰ
+  -- same but uglier:
+  -- fiberOver {Q = λ P → Presheafᴰ P Cᴰ ℓCᴰ'} (x , yx≡P) (λ _ → Cᴰ [-][-,_]) Pᴰ
 
-  UniversalElementᴰ→Representationᴰ :
+  ∫Reprᵁ : ∀ {repr : Representationᵁ C P} → Representationᵁᴰ repr → Representationᵁ (TotalCat.∫C Cᴰ) (∫P Pᴰ)
+  ∫Reprᵁ {repr} reprᴰ .fst = repr .fst , reprᴰ .fst
+  ∫Reprᵁ {repr} reprᴰ .snd = Functor≡
+    (λ (c , cᴰ) → ΣPathP ((λ i → Σ (repr .snd i .F-ob c .fst) λ x → reprᴰ .snd i .F-obᴰ cᴰ x .fst) , isProp→PathP (λ _ → isPropIsSet) _ _))
+    λ (f , fᴰ) → λ i (x , xᴰ) → (repr .snd i .F-hom f x) , reprᴰ .snd i .F-homᴰ fᴰ x xᴰ
+
+  UniversalElementᴰ→Representationᵁᴰ :
     ∀ {ue : UniversalElement C P}
     → UniversalElementᴰ Cᴰ ue Pᴰ
-    → Representationᴰ (UniversalElement→Representationᵁ C P ue)
-  UniversalElementᴰ→Representationᴰ {ue} ueᴰ = (UniversalElementᴰ.vertexᴰ ueᴰ)
+    → Representationᵁᴰ (UniversalElement→Representationᵁ C P ue)
+  UniversalElementᴰ→Representationᵁᴰ {ue} ueᴰ = ueᴰ.vertexᴰ
     , PshIsoᴰ→PathP _ _ _
     ( yoRecᴰ Pᴰ ueᴰ.elementᴰ
     , (isisoover
@@ -329,7 +376,33 @@ module _
     where
       module ueᴰ = UniversalElementᴰ ueᴰ
 
+  module _ {repr : Representationᵁ C P} (reprᴰ : Representationᵁᴰ repr) where
+    private
+      ∫repr : Representationᵁ (TotalCat.∫C Cᴰ) (∫P Pᴰ)
+      ∫repr = ∫Reprᵁ reprᴰ
 
+      ∫reprpshiso = Representationᵁ→RepresentationPshIso (TotalCat.∫C Cᴰ) (∫P Pᴰ) ∫repr
+
+    open PshHomᴰ
+    open isIsoOver
+    Representationᵁᴰ→RepresentationPshIsoᴰ
+      : RepresentationPshIsoᴰ Cᴰ (Representationᵁ→RepresentationPshIso C P repr) Pᴰ
+    Representationᵁᴰ→RepresentationPshIsoᴰ .fst = reprᴰ .fst
+    Representationᵁᴰ→RepresentationPshIsoᴰ .snd .fst .N-obᴰ pᴰ = ∫reprpshiso .snd .fst .fst _ (_ , pᴰ) .snd
+    Representationᵁᴰ→RepresentationPshIsoᴰ .snd .fst .N-homᴰ =
+      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .fst .snd _ _ _ _
+    Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .inv p pᴰ =
+      ∫reprpshiso .snd .snd _ .fst (p , pᴰ) .snd
+    Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .rightInv p pᴰ =
+      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .snd _ .snd .fst (p , pᴰ)
+    Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .leftInv f fᴰ =
+      Cᴰ.rectify $ Cᴰ.≡out $ ∫reprpshiso .snd .snd _ .snd .snd (f , fᴰ)
+
+    Representationᵁᴰ→UniversalElementᴰ :
+      UniversalElementᴰ Cᴰ (Representationᵁ→UniversalElement C P repr) Pᴰ
+    Representationᵁᴰ→UniversalElementᴰ =
+      RepresentationPshIsoᴰ→UniversalElementᴰ Cᴰ (Representationᵁ→RepresentationPshIso C P repr) Pᴰ
+        Representationᵁᴰ→RepresentationPshIsoᴰ
 
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C ℓD ℓD')

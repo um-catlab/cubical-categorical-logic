@@ -356,10 +356,13 @@ module _ (C : Category ℓ ℓ')(P : Presheaf C ℓ') where
     where
       module ue = UniversalElementNotation ue
 
+  Representationᵁ→RepresentationPshIso : Representationᵁ → RepresentationPshIso P
+  Representationᵁ→RepresentationPshIso (v , yv≡P) = v , (PshCatIso→PshIso _ _ $ pathToIso yv≡P)
+
   Representationᵁ→UniversalElement : Representationᵁ → UniversalElement C P
-  Representationᵁ→UniversalElement (v , yv≡P) =
+  Representationᵁ→UniversalElement repr =
     RepresentationPshIso→UniversalElement P
-      (v , (PshCatIso→PshIso _ _ (pathToIso yv≡P)))
+    $ Representationᵁ→RepresentationPshIso repr
 
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
   private

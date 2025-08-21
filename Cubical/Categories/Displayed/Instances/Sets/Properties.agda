@@ -16,6 +16,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Instances.Sets
@@ -33,6 +34,7 @@ open import Cubical.Categories.Constructions.Fiber
 
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -166,6 +168,7 @@ module _ {ℓ} {ℓ'} {A Γ : hSet ℓ} where
     module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
     -×A : BinProductsWith (SET ℓ) A
     -×A = λ Γ → BinProductsSET (Γ , A)
+    module bp = BinProductsNotation {ℓ' = ℓ} BinProductsSET
     module -×A = BinProductsWithNotation -×A
     module isFib = isFibrationNotation (SETᴰ ℓ (ℓ-max ℓ ℓ')) isFibrationSETᴰ
     Γ×A = -×A Γ
@@ -179,15 +182,38 @@ module _ {ℓ} {ℓ'} {A Γ : hSet ℓ} where
       the-vert γ .fst = ∀ (a : ⟨ A ⟩) → ⟨ B (γ , a) ⟩
       the-vert γ .snd = isSetΠ λ a → str (B (γ , a))
 
-      the-elt : SETᴰ.Hom[ _ ][ isFib.f*yᴰ {x = Γ×A.vert} the-vert Γ×A.π₁ , B ]
+      the-elt : SETᴰ.Hom[ (λ z → z) ][ isFib.f*yᴰ {x = Γ×A.vert} the-vert Γ×A.π₁ , B ]
       the-elt (γ , a) f = f a
 
       the-intro : ∀ {Δ : SET.ob}{Δᴰ : SETᴰ.ob[ Δ ]}{f : SET.Hom[ Δ , Γ ]}
-        → SETᴰ.Hom[ _ ][ isFib.f*yᴰ {x = -×A Δ .UniversalElement.vertex} Δᴰ (-×A.π₁ {b = Δ})  , B ]
+        → SETᴰ.Hom[ -×A.×aF .Functor.F-hom {x = Δ}{y = Γ} f ][ isFib.f*yᴰ {x = -×A Δ .UniversalElement.vertex} Δᴰ (-×A.π₁ {b = Δ})  , B ]
         → SETᴰ.Hom[ f ][ Δᴰ , the-vert ]
       the-intro fᴰ δ d a = fᴰ (δ , a) d
 
+      uqPsh : Presheafⱽ Γ _ _
       uqPsh = UniversalQuantifierPshⱽ -×A isFibrationSETᴰ B
+
+      uqPshHom : ∀ {x y}{f : SET.Hom[ x , y ]}{xᴰ : SETᴰ.ob[ x ]}{yᴰ : SETᴰ.ob[ y ]}
+        (fᴰ : SETᴰ.Hom[ f ][ xᴰ , yᴰ ]) →
+        SETᴰ.Hom[ YO {C = SET ℓ} .Functor.F-ob Γ .Functor.F-hom {x = y} {y = x} f ][ uqPsh .Functorᴰ.F-obᴰ yᴰ , uqPsh .Functorᴰ.F-obᴰ xᴰ ]
+      uqPshHom fᴰ = uqPsh .Functorᴰ.F-homᴰ fᴰ
+
+      -- Testing what the action of uqPshHom is so that the goals below can be definitonally
+      -- manipulated
+      -- uqPshHom' : ∀ {x y}{f : SET.Hom[ x , y ]}{xᴰ : SETᴰ.ob[ x ]}{yᴰ : SETᴰ.ob[ y ]}
+      --   (fᴰ : SETᴰ.Hom[ f ][ xᴰ , yᴰ ]) →
+      --   SETᴰ.Hom[ YO {C = SET ℓ} .Functor.F-ob Γ .Functor.F-hom {x = y} {y = x} f ][ uqPsh .Functorᴰ.F-obᴰ yᴰ , uqPsh .Functorᴰ.F-obᴰ xᴰ ]
+      -- uqPshHom' fᴰ u v =
+      -- isFib.introCL (SETᴰ.reind (sym bp.×β₁) (isFib.π SETᴰ.⋆ᴰ v)) SETᴰ.⋆ᴰ fᴰ
+          -- (YOᴰ .Functorᴰ.F-obᴰ B ∘Fᴰⱽ (weakenⱽ _ _ ^opFⱽ))
+          -- .Functorᴰ.F-homᴰ fᴰ
+          -- YOᴰ .Functorᴰ.F-obᴰ B .Functorᴰ.F-homᴰ
+          --   (isFib.introCL (SETᴰ.reind (sym bp.×β₁) (isFib.π SETᴰ.⋆ᴰ fᴰ)))
+
+      -- uqPshHom≡ : ∀ {x y}{f : SET.Hom[ x , y ]}{xᴰ : SETᴰ.ob[ x ]}{yᴰ : SETᴰ.ob[ y ]}
+      --   (fᴰ : SETᴰ.Hom[ f ][ xᴰ , yᴰ ]) → uqPshHom {f = f} {yᴰ = yᴰ} fᴰ ≡ uqPshHom' fᴰ
+      -- uqPshHom≡ fᴰ = refl
+
       module Pⱽ = PresheafⱽNotation uqPsh
 
     UniversalQuantifierSETᴰ : UniversalQuantifier -×A isFibrationSETᴰ B
@@ -195,16 +221,31 @@ module _ {ℓ} {ℓ'} {A Γ : hSet ℓ} where
     UniversalQuantifierSETᴰ .elementⱽ = the-elt
     UniversalQuantifierSETᴰ .universalⱽ .fst = the-intro
     UniversalQuantifierSETᴰ .universalⱽ {y = Δ} {yᴰ = Δᴰ} {f = g} .snd .fst f =
-      SETᴰ.reind refl {bᴰ = B} ((the-intro f) Pⱽ.⋆ᴰ the-elt)
-        ≡⟨ substRefl {x = f} (the-intro f Pⱽ.⋆ᴰ the-elt) ⟩
-      the-intro f Pⱽ.⋆ᴰ the-elt
-        ≡⟨ refl ⟩
-      ∫P uqPsh .Functor.F-hom (_ , the-intro f) (_ , the-elt) .snd
-        ≡⟨ refl ⟩
-      uqPsh .Functorᴰ.F-homᴰ (the-intro f) (λ z → z) the-elt
-        ≡⟨ {!!} ⟩
-      f
-      ∎
+       SETᴰ.rectify {bᴰ = B} $ SETᴰ.≡out {f = -×A.×aF .Functor.F-hom {y = Γ} g}{g = -×A.×aF .Functor.F-hom {y = Γ} g} $
+        (sym $ SETᴰ.reind-filler refl (the-intro f Pⱽ.⋆ᴰ the-elt))
+        ∙ SETᴰ.⟨ isFib.introCL⟨ {!!} ⟩⟨ {!!} ⟩ ⟩⋆⟨ refl ⟩
+        ∙ SETᴰ.⟨ sym isFib.ηCL ⟩⋆⟨ refl ⟩
+
+      -- SETᴰ.reind refl {bᴰ = B} ((the-intro f) Pⱽ.⋆ᴰ the-elt)
+      --   ≡⟨
+      --    (SETᴰ.rectify {bᴰ = B} $ SETᴰ.≡out {f = -×A.×aF .Functor.F-hom {y = Γ} g}{g = -×A.×aF .Functor.F-hom {y = Γ} g} $
+      --     (sym $ SETᴰ.reind-filler _ _)
+      --     ∙ {!uqPsh .Functorᴰ.F-seqᴰ ? ?!}
+      --     )
+      --     ⟩
+
+      -- SETᴰ.reind refl {bᴰ = B} ((the-intro f) Pⱽ.⋆ᴰ the-elt)
+      --   ≡⟨ substRefl {x = f} (the-intro f Pⱽ.⋆ᴰ the-elt) ⟩
+      -- uqPsh .Functorᴰ.F-homᴰ (the-intro f) (λ z → z) the-elt
+      --   ≡⟨ refl ⟩
+      -- the-intro f Pⱽ.⋆ᴰ the-elt
+      --   ≡⟨ {!!} ⟩
+      -- {!!}
+      --   ≡⟨ {!!} ⟩
+      -- (λ (δ , a) d → the-elt ((g δ) , a) (the-intro f δ d))
+      --   ≡⟨ refl ⟩
+      -- f
+      -- ∎
     UniversalQuantifierSETᴰ .universalⱽ .snd .snd = {!!}
 
 

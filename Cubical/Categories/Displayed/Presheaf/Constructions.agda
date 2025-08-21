@@ -38,7 +38,9 @@ private
     ℓA ℓB ℓAᴰ ℓBᴰ : Level
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
-    ℓP ℓQ ℓR ℓPᴰ ℓQᴰ ℓRᴰ : Level
+    ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
+
+-- TODO: Terminal presheafᴰ here.
 
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   where
@@ -70,6 +72,32 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
             → (Pᴰ : Presheafᴰ P Cᴰ ℓAᴰ)(Qᴰ : Presheafᴰ P Cᴰ ℓBᴰ)
             → Presheafᴰ P Cᴰ _
   Pᴰ ×ⱽPsh Qᴰ = PshProdⱽ .F-obᴰ (Pᴰ , Qᴰ)
+
+  -- This is like PshProdⱽ .F-hom but for homomorphisms/isomorphisms
+  -- between presheaves of different levels
+  --
+  -- We should see if we can get this for free using Lift
+  module - {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Pᴰ' : Presheafᴰ P Cᴰ ℓPᴰ'}
+    {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {Qᴰ' : Presheafᴰ Q Cᴰ ℓQᴰ'}
+    where
+    module _ {α : PshHom P Q} where
+      open PshHomᴰ
+      _×ⱽHom_ : (αᴰ : PshHomᴰ α Pᴰ Qᴰ) (βᴰ : PshHomᴰ α Pᴰ' Qᴰ')
+        → PshHomᴰ α (Pᴰ ×ⱽPsh Pᴰ') (Qᴰ ×ⱽPsh Qᴰ')
+      (αᴰ ×ⱽHom βᴰ) .N-obᴰ (p , p') = (αᴰ .N-obᴰ p) , (βᴰ .N-obᴰ p')
+      (αᴰ ×ⱽHom βᴰ) .N-homᴰ = ΣPathP ((αᴰ .N-homᴰ) , (βᴰ .N-homᴰ))
+
+    module _ {α : PshIso P Q} where
+      open isIsoOver
+      _×ⱽIso_ : (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) (βᴰ : PshIsoᴰ α Pᴰ' Qᴰ')
+        → PshIsoᴰ α (Pᴰ ×ⱽPsh Pᴰ') (Qᴰ ×ⱽPsh Qᴰ')
+      (αᴰ ×ⱽIso βᴰ) .fst = (αᴰ .fst) ×ⱽHom (βᴰ .fst)
+      (αᴰ ×ⱽIso βᴰ) .snd .inv _ (q , q') = (αᴰ .snd .inv _ q) , (βᴰ .snd .inv _ q')
+      (αᴰ ×ⱽIso βᴰ) .snd .rightInv _ _ = ΣPathP ((αᴰ .snd .rightInv _ _) , (βᴰ .snd .rightInv _ _))
+      (αᴰ ×ⱽIso βᴰ) .snd .leftInv _ _ = ΣPathP ((αᴰ .snd .leftInv _ _) , (βᴰ .snd .leftInv _ _))
 
 -- Reindexing presheaves
 -- There are 3 different notions of reindexing a presheaf we consider here.
@@ -172,7 +200,6 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
 
   open PshHomᴰ
   open isIsoOver
-  --TODO: this can be more universe polymorphic
   PshProdⱽ≅ᴰ :
     PshIsoⱽ (Pᴰ ×ᴰPsh Qᴰ) (reind (π₁ P Q) Pᴰ ×ⱽPsh reind (π₂ P Q) Qᴰ)
   PshProdⱽ≅ᴰ .fst .N-obᴰ x = x
@@ -207,6 +234,14 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       sym (Rᴰ.reind-filler _ _ ∙ Rᴰ.reind-filler _ _)
       ∙ Rᴰ.reind-filler _ _
 
+  reind-seqIsoⱽ : PshIsoⱽ (reind α (reind β Rᴰ)) (reind (seqPshHom α β) Rᴰ)
+  reind-seqIsoⱽ .fst .PshHomᴰ.N-obᴰ = λ z → z
+  reind-seqIsoⱽ .fst .PshHomᴰ.N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
+    sym (Rᴰ.reind-filler _ _ ∙ Rᴰ.reind-filler _ _) ∙ Rᴰ.reind-filler _ _
+  reind-seqIsoⱽ .snd .isIsoOver.inv = λ a z → z
+  reind-seqIsoⱽ .snd .isIsoOver.rightInv b q = refl
+  reind-seqIsoⱽ .snd .isIsoOver.leftInv a p = refl
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}(Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   where
@@ -215,6 +250,13 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-id : Pᴰ ≡ reind idPshHom Pᴰ
   reind-id = Functorᴰ≡ (λ _ → refl)
     (λ _ → funExt λ _ → funExt λ _ → Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _)
+
+  reind-idIsoⱽ : PshIsoⱽ Pᴰ (reind idPshHom Pᴰ)
+  reind-idIsoⱽ .fst .PshHomᴰ.N-obᴰ = λ z → z
+  reind-idIsoⱽ .fst .PshHomᴰ.N-homᴰ = Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _
+  reind-idIsoⱽ .snd .isIsoOver.inv = λ a z → z
+  reind-idIsoⱽ .snd .isIsoOver.rightInv b q = refl
+  reind-idIsoⱽ .snd .isIsoOver.leftInv a p = refl
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -234,6 +276,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Qᴰ = PresheafᴰNotation Qᴰ
+  -- is this the universal property of reind?
   reindPshIsoPshIsoᴰ : PshIsoᴰ α (reind (α .fst) Qᴰ) Qᴰ
   reindPshIsoPshIsoᴰ = mkPshIsoᴰEquivOver α (reind (α .fst) Qᴰ) Qᴰ
     (record { N-obᴰ = λ z → z
@@ -253,7 +296,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reindPathToPshIsoPathP :
     ∀ {Q : Presheaf C ℓP} (α : P ≡ Q)
     → (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+    -- TODO: give this kind of PathP a name? it's the analogue of PshIsoᴰ for paths
     → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso α .fst) Qᴰ) Qᴰ
+  -- If we have prove pathToPshIso is an Iso then we could apply reindPshIsoPshIsoᴰ here
   reindPathToPshIsoPathP =
     J (motive _) λ Qᴰ →
       subst (λ α → reind (α .fst) Qᴰ ≡ Qᴰ)

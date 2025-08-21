@@ -1,5 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
--- TODO: move this to Presheaf.Base
+-- TODO: move this to Displayed.Presheaf.Base
 module Cubical.Categories.Displayed.Presheaf where
 
 open import Cubical.Foundations.Prelude
@@ -21,6 +21,7 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
@@ -45,11 +46,21 @@ PRESHEAFᴰ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   → ∀ (ℓP ℓPᴰ : Level) → Categoryᴰ (PresheafCategory C ℓP) _ _
 PRESHEAFᴰ Cᴰ ℓP ℓPᴰ = FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓP ℓPᴰ)
 
+-- The "classical" equivalent of a Presheafᴰ is a presheaf on
+-- TotalCat.∫C with a Fst. The advantage to it being displayed is that
+-- it is definitionally homomorphic
 ∫P : {C : Category ℓC ℓC'} {D : Categoryᴰ C ℓD ℓD'}
      → {P : Presheaf C ℓP} → {ℓPᴰ : Level}
      → Presheafᴰ P D ℓPᴰ
      → Presheaf (TotalCat.∫C D) (ℓ-max ℓP ℓPᴰ)
 ∫P Pᴰ = ΣF ∘F TotalCat.∫F Pᴰ
+
+Fst : {C : Category ℓC ℓC'} {D : Categoryᴰ C ℓD ℓD'}
+     → {P : Presheaf C ℓP} → {ℓPᴰ : Level}
+     → (Pᴰ : Presheafᴰ P D ℓPᴰ)
+     → PshHet TotalCat.Fst (∫P Pᴰ) P
+Fst Pᴰ .fst x x₁ = x₁ .fst
+Fst Pᴰ .snd x y f p = refl
 
 module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'}
          {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
@@ -523,3 +534,9 @@ module _
   --     (UniversalElementᴰ→Representationᵁᴰ Cᴰ Pⱽ ueⱽ.toUniversalᴰ)
   --   where
   --     module ueⱽ = UniversalElementⱽ ueⱽ
+
+-- Kinds of composition:
+-- seqPshHomᴰ/seqPshIoᴰ
+-- seqPshHom/Isoⱽᴰ, seqPshHom/Isoᴰⱽ, seqPshHom/Isoⱽ
+-- seqEltPshHom, seqUEPshIso
+-- invPshIsoᴰ, invPshIsoⱽ

@@ -1,5 +1,4 @@
 -- Finite Product of categories as flattened lists
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Product.Fin where
 
 

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Limits.Cartesian where
 
 open import Cubical.Foundations.Prelude

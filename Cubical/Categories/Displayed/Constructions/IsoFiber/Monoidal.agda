@@ -4,7 +4,6 @@
   functor F : C → D is enhanced with strong monoidal structure
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.IsoFiber.Monoidal where
 
 open import Cubical.Foundations.Prelude

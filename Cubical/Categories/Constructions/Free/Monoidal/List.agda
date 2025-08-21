@@ -12,7 +12,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Free.Monoidal.List where
 
 open import Cubical.Foundations.Prelude

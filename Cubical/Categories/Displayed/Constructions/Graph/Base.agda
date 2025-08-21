@@ -5,7 +5,6 @@
   TODO: rename to "tabulator"
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Graph.Base where
 
 open import Cubical.Foundations.Prelude

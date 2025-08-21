@@ -5,7 +5,6 @@
   TODO: citation
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.WithFamilies.Base where
 
 open import Cubical.Foundations.Prelude

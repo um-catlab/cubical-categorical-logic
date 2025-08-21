@@ -3,7 +3,6 @@
   A displayed SCwF is an abstract notion of "logical family" over a SCwF
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.WithFamilies.Simple.Displayed where
 
 open import Cubical.Foundations.Prelude

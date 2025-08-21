@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise where
 
 open import Cubical.Foundations.Prelude

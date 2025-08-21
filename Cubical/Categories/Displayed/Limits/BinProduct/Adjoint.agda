@@ -1,4 +1,4 @@
-{-# OPTIONS --safe  --lossy-unification #-}
+{-# OPTIONS  --lossy-unification #-}
 {-
 
   Alternate definition as a right adjoint. Turns out to be less nice than the one in Displayed.BinProduct

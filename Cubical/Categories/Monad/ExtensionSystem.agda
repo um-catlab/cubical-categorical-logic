@@ -3,7 +3,6 @@
    deriving the rest of the structure
    https://ncatlab.org/nlab/show/extension+system
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Monad.ExtensionSystem where
 
 open import Cubical.Foundations.Prelude

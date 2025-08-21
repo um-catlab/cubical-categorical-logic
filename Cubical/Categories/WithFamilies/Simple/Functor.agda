@@ -1,5 +1,4 @@
 {- Functors of SCwFs. These come in variants depending on whether the extension is preserved. -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.WithFamilies.Simple.Functor where
 
 open import Cubical.Foundations.Prelude

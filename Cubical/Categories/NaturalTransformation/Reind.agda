@@ -1,5 +1,4 @@
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.NaturalTransformation.Reind where
 
 open import Cubical.Foundations.Prelude

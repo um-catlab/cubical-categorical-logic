@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {- Algebras of a monad formulated in terms of extension systems -}
 module Cubical.Categories.Monad.Algebra where
 

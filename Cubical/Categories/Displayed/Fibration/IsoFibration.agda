@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Fibration.IsoFibration where
 
 open import Cubical.Foundations.Prelude

@@ -1,6 +1,5 @@
 {-
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL where
 
 open import Cubical.Foundations.Prelude

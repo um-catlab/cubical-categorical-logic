@@ -3,7 +3,7 @@
    i.e., in terms of unit and bind, deriving the rest of the structure
    https://ncatlab.org/nlab/show/extension+system
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Monad.Strength.Cartesian.ExtensionSystem where
 
 open import Cubical.Foundations.Prelude

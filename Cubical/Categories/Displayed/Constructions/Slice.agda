@@ -5,7 +5,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Slice where
 
 open import Cubical.Foundations.Prelude

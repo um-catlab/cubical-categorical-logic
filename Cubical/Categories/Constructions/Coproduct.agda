@@ -1,5 +1,4 @@
 -- The coproduct of two categories, with its universal property
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Coproduct where
 
 open import Cubical.Foundations.Prelude

@@ -1,6 +1,5 @@
 -- This module defines the free category H equipped with a functor
 -- from a given category 𝓒
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Free.Functor.AltPresented where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits.CartesianClosed.Base where
 
 open import Cubical.Categories.Category

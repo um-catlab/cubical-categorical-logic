@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
   Given an object x ∈ C, the one-object category of endomorphisms of x

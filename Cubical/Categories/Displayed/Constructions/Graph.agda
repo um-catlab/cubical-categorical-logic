@@ -5,7 +5,6 @@
   TODO: rename to "tabulator"
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Graph where
 
 open import Cubical.Categories.Displayed.Constructions.Graph.Base public

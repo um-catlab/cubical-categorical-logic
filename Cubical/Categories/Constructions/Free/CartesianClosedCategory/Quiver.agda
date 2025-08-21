@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 
 module Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver where

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 -- There are two "obvious" ways to generalize limits to displayed
 -- categories.
 --

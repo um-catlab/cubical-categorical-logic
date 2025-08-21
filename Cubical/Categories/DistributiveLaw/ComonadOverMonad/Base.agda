@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.DistributiveLaw.ComonadOverMonad.Base where
 
 open import Cubical.Foundations.Prelude

@@ -1,5 +1,4 @@
 -- Free category quotiented by equations
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Presented where
 

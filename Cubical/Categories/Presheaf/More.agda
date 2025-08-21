@@ -102,6 +102,7 @@ module PresheafNotation {ℓo}{ℓh}
   isSetPsh : ∀ {x} → isSet (p[ x ])
   isSetPsh {x} = (P ⟅ x ⟆) .snd
 
+-- TODO: move this stuff to Presheaf.Morphism.Alt and Presheaf.Representable.More
 -- Natural transformation between presheaves of different levels
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
   private
@@ -133,9 +134,9 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}where
   idPshHom .snd x y f p = refl
 
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where
-  seqPshHom : PshHom P Q → PshHom Q R → PshHom P R
-  seqPshHom α β .fst x p = β .fst x (α .fst x p)
-  seqPshHom α β .snd x y f p =
+  _⋆PshHom_ : PshHom P Q → PshHom Q R → PshHom P R
+  (α ⋆PshHom β) .fst x p = β .fst x (α .fst x p)
+  (α ⋆PshHom β) .snd x y f p =
     cong (β .fst _) (α .snd x y f p)
     ∙ β .snd x y f (α .fst y p)
 
@@ -180,7 +181,7 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS')(α :
     → α .fst _ (yoRec P p .fst _ f) ≡ yoRec Q (α .fst c p) .fst Γ f
   yoRec-natural-elt = α .snd _ _ _ _
 
-  yoRec-natural : ∀ {c}{p : P.p[ c ]} → seqPshHom (yoRec P p) α ≡ yoRec Q (α .fst c p)
+  yoRec-natural : ∀ {c}{p : P.p[ c ]} → (yoRec P p) ⋆PshHom α ≡ yoRec Q (α .fst c p)
   yoRec-natural = makePshHomPath $ funExt λ _ → funExt λ _ → yoRec-natural-elt
 
 {- a PshIso is a PshHom whose underlying functions are iso -}
@@ -341,13 +342,13 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : 
   seqIsPshIso : ∀ {α : PshHom P Q}{β : PshHom Q R}
     → isPshIso {P = P}{Q = Q} α
     → isPshIso {P = Q}{Q = R} β
-    → isPshIso {P = P}{Q = R} (seqPshHom α β)
+    → isPshIso {P = P}{Q = R} (α ⋆PshHom β)
   seqIsPshIso {α}{β} αIsIso βIsIso x = IsoToIsIso $
     compIso (isIsoToIso (αIsIso x)) (isIsoToIso (βIsIso x))
 
-  seqPshIso : PshIso P Q → PshIso Q R → PshIso P R
-  seqPshIso α β .fst = seqPshHom (α .fst) (β .fst)
-  seqPshIso α β .snd x =
+  _⋆PshIso_ : PshIso P Q → PshIso Q R → PshIso P R
+  (α ⋆PshIso β) .fst = α .fst ⋆PshHom β .fst
+  (α ⋆PshIso β) .snd x =
     IsoToIsIso $
       compIso (isIsoToIso (α .snd x)) (isIsoToIso (β .snd x))
 
@@ -452,7 +453,7 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (α 
           -- better definitional behavior than the equivalent
           -- (subst isPshIso (yoRec-natural P Q _) lem)
     where
-      lem : isPshIso (seqPshHom (yoRec P _) (α .fst))
+      lem : isPshIso ((yoRec P _) ⋆PshHom (α .fst))
       lem = seqIsPshIso {α = yoRec P _}{β = α .fst} (isUniversal→isPshIso P isUe) (α .snd)
 
   module _ (ue : UniversalElement C P) where

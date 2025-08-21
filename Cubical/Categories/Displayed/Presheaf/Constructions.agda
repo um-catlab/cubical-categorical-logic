@@ -229,13 +229,13 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Rᴰ = PresheafᴰNotation Rᴰ
-  reind-seq : reind α (reind β Rᴰ) ≡ reind (seqPshHom α β) Rᴰ
+  reind-seq : reind α (reind β Rᴰ) ≡ reind (α ⋆PshHom β) Rᴰ
   reind-seq = Functorᴰ≡ (λ _ → refl) λ fᴰ → funExt λ p → funExt λ rᴰ →
     Rᴰ.rectify $ Rᴰ.≡out $
       sym (Rᴰ.reind-filler _ _ ∙ Rᴰ.reind-filler _ _)
       ∙ Rᴰ.reind-filler _ _
 
-  reind-seqIsoⱽ : PshIsoⱽ (reind α (reind β Rᴰ)) (reind (seqPshHom α β) Rᴰ)
+  reind-seqIsoⱽ : PshIsoⱽ (reind α (reind β Rᴰ)) (reind (α ⋆PshHom β) Rᴰ)
   reind-seqIsoⱽ .fst .PshHomᴰ.N-obᴰ = λ z → z
   reind-seqIsoⱽ .fst .PshHomᴰ.N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
     sym (Rᴰ.reind-filler _ _ ∙ Rᴰ.reind-filler _ _) ∙ Rᴰ.reind-filler _ _

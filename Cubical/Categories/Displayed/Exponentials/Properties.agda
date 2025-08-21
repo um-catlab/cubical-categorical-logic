@@ -84,7 +84,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
 
         private
           the-elt : Cᴰ [ c⇒d.app ][ isFib.f*yᴰ uq.vert bp.π₁ bpⱽ.×ⱽ isFib.f*yᴰ cᴰ bp.π₂ , dᴰ ]
-          -- the-elt = ((Cᴰ.reind (-×c.×aF .Functor.F-id) uq.app bpⱽ.×p Cᴰ.idᴰ) Cᴰ.⋆ⱽ expⱽ.app) Cᴰ.⋆ⱽᴰ isFib.π
           the-elt = (Cᴰ.reind (-×c.×aF .Functor.F-id) uq.app bpⱽ.×p Cᴰ.idᴰ) Cᴰ.⋆ⱽᴰ (expⱽ.app Cᴰ.⋆ⱽᴰ isFib.π)
 
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ :
@@ -92,7 +91,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .vertexᴰ = uq.vert
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ  .elementᴰ = the-elt
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ {x = x}{xᴰ = xᴰ} .isIsoOver.inv f fᴰ =
-          uq.lda $ expⱽ.lda $ Cᴰ.reind (C.⋆IdL _) $ ((Cᴰ.idᴰ bpⱽ.×p isFib.introCLⱽ (Cᴰ.reind bp.×β₂ (isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ isFib.introCL (Cᴰ.reind (sym c⇒d.⇒ue.β) fᴰ))
+          uq.lda $ expⱽ.lda {f = λf×id} $ Cᴰ.reind (C.⋆IdL _) $ ((Cᴰ.idᴰ bpⱽ.×p isFib.introCLⱽ (Cᴰ.reind bp.×β₂ (isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ isFib.introCL (Cᴰ.reind (sym c⇒d.⇒ue.β) fᴰ))
           where
           λf×id = -×c.×aF ⟪ c⇒d.lda f ⟫
 
@@ -102,6 +101,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
         Exponentialⱽ+UniversalQuanitier→Exponentialᴰ .universalᴰ .isIsoOver.rightInv f fᴰ =
           Cᴰ.rectify $ Cᴰ.≡out $
            {!!}
+           -- These equalities are commented out for perfromance. They fill the gap between the left endpoint and the WIP equality term below
            --  Cᴰ.⟨
            --    bpⱽ.⟨ isFib.introCL⟨ refl ⟩⟨
            --      (sym $ Cᴰ.reind-filler _ _)
@@ -155,27 +155,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (bp :
                      (sym $ Cᴰ.reind-filler _ _)
                    ⟩
                    ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-                   -- ∙ Cᴰ.⟨ {!!} ∙ {!!} ∙ {!!} ⟩⋆⟨ {!!} ⟩
-                   -- ∙ Cᴰ.⟨ Cᴰ.⟨ {!!} ⟩⋆⟨ {!? ∙ bpⱽ.∫×ηⱽ!} ⟩ ⟩⋆⟨ {!!} ⟩
-                   ∙ Cᴰ.⟨ Cᴰ.⟨ bpⱽ.⟨ {!!} ⟩,ⱽ⟨ {!!} ⟩ ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
-                   ∙ {!!}
-                   ∙ {!expⱽ.β⇒ⱽ!}
-                   ∙ {!!}
+                   -- TODO need to rewrite
+                   --    ((bpⱽ.π₁ Cᴰ.⋆ᴰ expⱽ.lda _) bpⱽ.,ⱽ isFib.introCL _)
+                   --    as
+                   --    ? Cᴰ.⋆ᴰ (expⱽ.lda bpⱽ.×p isFib.π)
+                   ∙ Cᴰ.⟨ Cᴰ.⟨ {!!} ⟩⋆⟨ refl ⟩ ∙ (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ expⱽ.β⇒ⱽ {fᴰ = Cᴰ.reind (C.⋆IdL _) $ ((Cᴰ.idᴰ bpⱽ.×p isFib.introCLⱽ (Cᴰ.reind bp.×β₂ (isFib.π Cᴰ.⋆ᴰ isFib.π))) Cᴰ.⋆ᴰ isFib.introCL (Cᴰ.reind (sym c⇒d.⇒ue.β) fᴰ))} ⟩ ⟩⋆⟨ refl ⟩
+                   ∙ Cᴰ.⟨ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ (sym $ Cᴰ.⋆Assoc _ _ _) ∙ isFib.introCL-natural ∙ isFib.introCL⟨ {!!} ⟩⟨ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨ {!!} ⟩⋆⟨ refl ⟩ ∙ Cᴰ.⋆IdL _ ⟩ ⟩⋆⟨ refl ⟩
                    ∙ isFib.βCL
                    ∙ (sym $ Cᴰ.reind-filler _ _)
                  ⟩
               f , fᴰ
               ∎)
-            -- ∙ {!!}
-            -- ∙ {!!}
-            -- ∙ {!!}
-
-            -- _ ,
-            --   (isFib.introCL (Cᴰ.reind _ (Cᴰ.reind _ (bpⱽ.π₁ Cᴰ.⋆ᴰ isFib.π) Cᴰ.⋆ᴰ uq.lda _)) bpⱽ.,ⱽ isFib.introCL (Cᴰ.reind _ (Cᴰ.reind _ (bpⱽ.π₂ Cᴰ.⋆ᴰ isFib.π))))
-            --    Cᴰ.⋆ᴰ Cᴰ.reind _ (Cᴰ.reind _ ((bpⱽ.π₁ Cᴰ.⋆ᴰ Cᴰ.reind _ uq.app) bpⱽ.,ⱽ (bpⱽ.π₂ Cᴰ.⋆ᴰ Cᴰ.idᴰ)) Cᴰ.⋆ᴰ Cᴰ.reind _ (expⱽ.app Cᴰ.⋆ᴰ isFib.π))
-            --   ≡⟨ {!!} ⟩
-            -- f , fᴰ
-            -- ∎
           where
           λf×id = -×c.×aF ⟪ c⇒d.lda f ⟫
 

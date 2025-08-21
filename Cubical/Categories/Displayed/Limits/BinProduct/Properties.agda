@@ -153,7 +153,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 --         , ({!!} ◁ ×ᴰ≡π₁*×ⱽπ₂* (UniversalElement→Representationᵁ C (P ×Psh Q) P×Q)
 --                     {!!}
 --                     {!!}))
-  
+
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

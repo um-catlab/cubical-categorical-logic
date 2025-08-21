@@ -176,86 +176,86 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   isCatFibration : Type _
   isCatFibration = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibration' (Cᴰ [-][-, xᴰ ])
 
--- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---          {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
---          (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
---          (isFibQᴰ : isFibration Qᴰ)
---          where
---   private
---     module Cᴰ = Fibers Cᴰ
---     module Qᴰ = PresheafᴰNotation Qᴰ
---     module isFibQᴰ = isFibrationNotation Qᴰ isFibQᴰ
---   isFibrationReind : isFibration (reind {P = P} α Qᴰ)
---   isFibrationReind p .p*Pᴰ = isFibQᴰ.p*Pᴰ (α .fst _ p)
---   isFibrationReind p .π = isFibQᴰ.π
---   isFibrationReind p .isCartesian .fst qᴰ =
---     isFibQᴰ.intro $ Qᴰ.reind (α .snd _ _ _ p) qᴰ
---   isFibrationReind p .isCartesian .snd .fst qᴰ =
---     Qᴰ.rectify $ Qᴰ.≡out $
---       sym (Qᴰ.reind-filler _ _)
---       ∙ isFibQᴰ.β
---       ∙ (sym $ Qᴰ.reind-filler _ _)
---   isFibrationReind p .isCartesian .snd .snd gᴰ =
---     Cᴰ.rectify $ Cᴰ.≡out $ isFibQᴰ.intro≡ $ sym $
---       Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+         (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
+         (isFibQᴰ : isFibration Qᴰ)
+         where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module isFibQᴰ = isFibrationNotation Qᴰ isFibQᴰ
+  isFibrationReind : isFibration (reind {P = P} α Qᴰ)
+  isFibrationReind p .p*Pᴰ = isFibQᴰ.p*Pᴰ (α .fst _ p)
+  isFibrationReind p .π = isFibQᴰ.π
+  isFibrationReind p .isCartesian .fst qᴰ =
+    isFibQᴰ.intro $ Qᴰ.reind (α .snd _ _ _ p) qᴰ
+  isFibrationReind p .isCartesian .snd .fst qᴰ =
+    Qᴰ.rectify $ Qᴰ.≡out $
+      sym (Qᴰ.reind-filler _ _)
+      ∙ isFibQᴰ.β
+      ∙ (sym $ Qᴰ.reind-filler _ _)
+  isFibrationReind p .isCartesian .snd .snd gᴰ =
+    Cᴰ.rectify $ Cᴰ.≡out $ isFibQᴰ.intro≡ $ sym $
+      Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
 
--- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---          (F : Functor C D)
---          where
---   module _ {P : Presheaf D ℓP} (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ) (isFibPᴰ : isFibration Pᴰ) where
---     isFibrationReindFunc
---       : isFibration (reindFunc F Pᴰ)
---     isFibrationReindFunc p .p*Pᴰ = p*Pᴰ (isFibPᴰ p)
---     isFibrationReindFunc p .π = π (isFibPᴰ p)
---     isFibrationReindFunc p .isCartesian = isCartesian (isFibPᴰ p)
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+         (F : Functor C D)
+         where
+  module _ {P : Presheaf D ℓP} (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ) (isFibPᴰ : isFibration Pᴰ) where
+    isFibrationReindFunc
+      : isFibration (reindFunc F Pᴰ)
+    isFibrationReindFunc p .p*Pᴰ = p*Pᴰ (isFibPᴰ p)
+    isFibrationReindFunc p .π = π (isFibPᴰ p)
+    isFibrationReindFunc p .isCartesian = isCartesian (isFibPᴰ p)
 
--- module _
---   {C : Category ℓC ℓC'}
---   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---   {F : Functor C D}
---   {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
---   (α : PshHet F P Q){Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
---   (isFibQᴰ : isFibration Qᴰ)
---   where
---   isFibrationReindHet : isFibration (reindHet α Qᴰ)
---   isFibrationReindHet = isFibrationReind _ α (isFibrationReindFunc F Qᴰ isFibQᴰ)
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (α : PshHet F P Q){Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  (isFibQᴰ : isFibration Qᴰ)
+  where
+  isFibrationReindHet : isFibration (reindHet α Qᴰ)
+  isFibrationReindHet = isFibrationReind _ α (isFibrationReindFunc F Qᴰ isFibQᴰ)
 
--- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---          (F : Functor C D)
---          where
---   -- This gives us a very interesting alternate proof of isFibrationReindex
---   module _ (isFibDᴰ : Fibration.isFibration Dᴰ) where
---     open Fibration.CartesianLift
---     private
---       module Dᴰ = Categoryᴰ Dᴰ
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+         (F : Functor C D)
+         where
+  -- This gives us a very interesting alternate proof of isFibrationReindex
+  module _ (isFibDᴰ : Fibration.isFibration Dᴰ) where
+    open Fibration.CartesianLift
+    private
+      module Dᴰ = Categoryᴰ Dᴰ
 
---     isCatFibrationReindex : Fibration.isFibration (Reindex.reindex Dᴰ F)
---     isCatFibrationReindex = YoFibrations→isCatFibration yF where
---       module _  where
---       yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
---         → isFibration (reindHet (Functor→PshHet F y) (Dᴰ [-][-, yᴰ ]))
---       yF' yᴰ = isFibrationReindHet _ (isCatFibration→YoFibrations isFibDᴰ _)
---       yF : YoFibrations
---       yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ
---       yF yᴰ p .π = yF' yᴰ p .π
---       yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian
+    isCatFibrationReindex : Fibration.isFibration (Reindex.reindex Dᴰ F)
+    isCatFibrationReindex = YoFibrations→isCatFibration yF where
+      module _  where
+      yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+        → isFibration (reindHet (Functor→PshHet F y) (Dᴰ [-][-, yᴰ ]))
+      yF' yᴰ = isFibrationReindHet _ (isCatFibration→YoFibrations isFibDᴰ _)
+      yF : YoFibrations
+      yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ
+      yF yᴰ p .π = yF' yᴰ p .π
+      yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian
 
--- -- If we use CartesianLift' and we don't worry about definitional
--- -- behavior being too nice, this can become very simple and conceptual
+-- If we use CartesianLift' and we don't worry about definitional
+-- behavior being too nice, this can become very simple and conceptual
 
--- -- For example, in the following, we want to show that
--- -- isFib Qᴰ ⇒ isFib (reind α Qᴰ)
--- --
--- -- isFib Qᴰ means all reindYo q Qᴰ are representable.
--- -- isFib (reind α Qᴰ) means that all reindYo p (reind α Qᴰ).
--- -- but reindYo p (reind α Qᴰ) ≡ reindYo (α p) Qᴰ.
--- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---          {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
---          (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
---          (isFibQᴰ : isFibration' Qᴰ)
---          where
---   isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
---   isFibration'Reind p =
---     subst (UniversalElementⱽ Cᴰ _)
---       (sym (reindYo-seq α Qᴰ p))
---       (isFibQᴰ (α .fst _ p))
+-- For example, in the following, we want to show that
+-- isFib Qᴰ ⇒ isFib (reind α Qᴰ)
+--
+-- isFib Qᴰ means all reindYo q Qᴰ are representable.
+-- isFib (reind α Qᴰ) means that all reindYo p (reind α Qᴰ).
+-- but reindYo p (reind α Qᴰ) ≡ reindYo (α p) Qᴰ.
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+         (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
+         (isFibQᴰ : isFibration' Qᴰ)
+         where
+  isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
+  isFibration'Reind p =
+    subst (UniversalElementⱽ Cᴰ _)
+      (sym (reindYo-seq α Qᴰ p))
+      (isFibQᴰ (α .fst _ p))

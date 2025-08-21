@@ -175,9 +175,14 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ∫PshHomᴰ .snd _ _ (f , fᴰ) (p , pᴰ) = ΣPathP ((α .snd _ _ f p) , N-homᴰ)
 
   isPshIsoᴰ : PshHomᴰ → isPshIso {P = P}{Q = Q} α → Type _
-  isPshIsoᴰ αᴰ αIsIso = ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]}
+  isPshIsoᴰ αᴰ αIsIso = ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
       → isIsoOver (isIsoToIso (αIsIso x)) Pᴰ.p[_][ xᴰ ] Qᴰ.p[_][ xᴰ ]
           (λ _ → αᴰ .PshHomᴰ.N-obᴰ)
+
+  isPshEquivOver : PshHomᴰ → Type _
+  isPshEquivOver αᴰ = ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
+    → isEquivOver {P = Pᴰ.p[_][ xᴰ ]}{Q = Qᴰ.p[_][ xᴰ ]}{f = α .fst x}
+        λ _ → αᴰ .PshHomᴰ.N-obᴰ
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -185,14 +190,30 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (α : PshIso P Q)
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
   PshIsoᴰ : Type _
   PshIsoᴰ =
     Σ[ αᴰ ∈ PshHomᴰ (α .fst) Pᴰ Qᴰ ] isPshIsoᴰ (α .fst) Pᴰ Qᴰ αᴰ (α .snd)
+  open IsoOver
+  mkPshIsoᴰEquivOver : ∀ (αᴰ : PshHomᴰ (α .fst) Pᴰ Qᴰ)
+    → isPshEquivOver (α .fst) Pᴰ Qᴰ αᴰ
+    → PshIsoᴰ
+  mkPshIsoᴰEquivOver αᴰ isPshEqv .fst = αᴰ
+  mkPshIsoᴰEquivOver αᴰ isPshEqv .snd {x}{xᴰ} =
+    isisoover (α-isoOver .inv) (α-isoOver .rightInv)
+      λ p pᴰ → Pᴰ.rectify $ α-isoOver .leftInv p pᴰ
+    where
+    α-isoOver = equivOver→IsoOver {P = Pᴰ.p[_][ xᴰ ]}{Q = Qᴰ.p[_][ xᴰ ]}
+                  (isoToEquiv (isIsoToIso (α .snd x)))
+      (λ a → αᴰ .PshHomᴰ.N-obᴰ)
+      isPshEqv
 
   open isIsoOver
   ∫PshIsoᴰ : PshIsoᴰ → PshIso (∫P Pᴰ) (∫P Qᴰ)
   ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .fst = PshHomᴰ.∫PshHomᴰ αᴰ
-  ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .snd (x , xᴰ) .fst (q , qᴰ) = _ , αᴰIsPshIsoᴰ {p = α .snd _ .fst q} .inv q qᴰ
+  ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .snd (x , xᴰ) .fst (q , qᴰ) = _ , αᴰIsPshIsoᴰ .inv q qᴰ
   ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .snd (x , xᴰ) .snd .fst (q , qᴰ) =
     ΣPathP (_ , αᴰIsPshIsoᴰ .rightInv q qᴰ)
   ∫PshIsoᴰ (αᴰ , αᴰIsPshIsoᴰ) .snd (x , xᴰ) .snd .snd (p , pᴰ) =
@@ -219,7 +240,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       α⟨x⟩ = PshIso→SETIso P Q α x
     PshIsoᴰ→SETᴰIsoᴰ : ∀ xᴰ → CatIsoᴰ (SETᴰ ℓP ℓPᴰ) α⟨x⟩ (Pᴰ .F-obᴰ xᴰ) (Qᴰ .F-obᴰ xᴰ)
     PshIsoᴰ→SETᴰIsoᴰ xᴰ .fst p pᴰ = αᴰ .fst .N-obᴰ pᴰ
-    PshIsoᴰ→SETᴰIsoᴰ xᴰ .snd .invᴰ q qᴰ = αᴰ .snd {p = α .snd x .fst q} .inv q qᴰ
+    PshIsoᴰ→SETᴰIsoᴰ xᴰ .snd .invᴰ q qᴰ = αᴰ .snd .inv q qᴰ
     PshIsoᴰ→SETᴰIsoᴰ xᴰ .snd .secᴰ = funExt λ q → funExt λ qᴰ →
       αᴰ .snd .rightInv q qᴰ
     PshIsoᴰ→SETᴰIsoᴰ xᴰ .snd .retᴰ = funExt λ p → funExt λ pᴰ →
@@ -262,7 +283,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP} (ue : UniversalElement C P) (Pᴰ : Presheafᴰ P D ℓPᴰ) where
   private
-    module D = Categoryᴰ D
+    module D = Fibers D
     module P = PresheafNotation P
     module Pᴰ = PresheafᴰNotation Pᴰ
 
@@ -272,37 +293,32 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     field
       vertexᴰ : D.ob[ vertex ]
       elementᴰ : Pᴰ.p[ element ][ vertexᴰ ]
-      universalᴰ : ∀ {x xᴰ} →
-        isIsoOver (equivToIso (_ , (universal x)))
-          D.Hom[_][ xᴰ , vertexᴰ ]
-          (λ p → Pᴰ.p[ p ][ xᴰ ])
-          λ f fᴰ → fᴰ Pᴰ.⋆ᴰ elementᴰ
+      universalᴰ :
+        isPshIsoᴰ (yoRec P element) (D [-][-, vertexᴰ ]) Pᴰ
+          (yoRecᴰ Pᴰ elementᴰ) ⋆element-isPshIso
+
+    introᴰ : ∀ {x xᴰ} {p : P.p[ x ]}
+        → Pᴰ.p[ p ][ xᴰ ]
+        → D [ intro p ][ xᴰ , vertexᴰ ]
+    introᴰ = universalᴰ .isIsoOver.inv _
 
     ∫ue : UniversalElement (TotalCat.∫C D) (∫P Pᴰ)
     ∫ue .UniversalElement.vertex = vertex , vertexᴰ
     ∫ue .UniversalElement.element = element , elementᴰ
     ∫ue .UniversalElement.universal (v , vᴰ) =
-      isIsoToIsEquiv (isIsoOver→isIsoΣ (universalᴰ))
+      isIsoToIsEquiv (isIsoOver→isIsoΣ universalᴰ)
 
     module ∫ue = UniversalElementNotation ∫ue
     module Pshᴰ = PresheafᴰNotation Pᴰ
 
-    introᴰ : ∀ {x xᴰ} {p : P.p[ x ]}
-        → Pᴰ.p[ p ][ xᴰ ]
-        → D [ intro p ][ xᴰ , vertexᴰ ]
-    introᴰ {p = p} pᴰ = ∫ue.intro (p , pᴰ) .snd
-
+    -- We only provide the ∫ versions of these because working with
+    -- the PathP versions is extremely slow.
     introᴰ≡ = ∫ue.intro≡
     introᴰ-natural = ∫ue.intro-natural
     extensionalityᴰ = ∫ue.extensionality
     βᴰ = ∫ue.β
     ηᴰ = ∫ue.η
     weak-ηᴰ = ∫ue.weak-η
-
-    -- ⋆ᴰelementᴰ-isPshIsoᴰ :
-    -- TODO:
-    -- toRepresentationPshIsoᴰ : RepresentationPshIsoᴰ {!!}
-    -- toRepresentationPshIsoᴰ = {!!}
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          {P : Presheaf C ℓP} ((x , yx≅P) : RepresentationPshIso P)
@@ -411,6 +427,15 @@ Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C 
                         (ℓ-suc ℓPᴰ))
 Presheafⱽ {C = C} c D = Presheafᴰ (YO {C = C} ⟅ c ⟆) D
 
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
+  PshHomⱽ : Type _
+  PshHomⱽ = PshHomᴰ idPshHom Pᴰ Qᴰ
+  PshIsoⱽ : Type _
+  PshIsoⱽ = PshIsoᴰ idPshIso Pᴰ Qᴰ
+
 module PresheafⱽNotation
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {c} {ℓPᴰ} (P : Presheafⱽ c Cᴰ ℓPᴰ) where
@@ -483,3 +508,18 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     ηⱽ : ∀ {y yᴰ} {f : C [ y , x ]} {fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]}
       → fᴰ ≡ introᴰ (fᴰ Pⱽ.⋆ᴰⱽ elementⱽ)
     ηⱽ = sym (universalⱽ .snd .snd _)
+
+module _
+  {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  {c} (Pⱽ : Presheafⱽ c Cᴰ ℓCᴰ')
+  where
+  Representationᵁⱽ : Type _
+  Representationᵁⱽ = Representationᵁᴰ Cᴰ Pⱽ (_ , refl)
+
+  -- UniversalElementⱽ→Representationᵁⱽ : UniversalElementⱽ Cᴰ c Pⱽ → Representationᵁⱽ
+  -- UniversalElementⱽ→Representationᵁⱽ ueⱽ =
+  --   subst (λ p → Representationᵁᴰ Cᴰ Pⱽ p)
+  --     (ΣPathP (refl , {!!}))
+  --     (UniversalElementᴰ→Representationᵁᴰ Cᴰ Pⱽ ueⱽ.toUniversalᴰ)
+  --   where
+  --     module ueⱽ = UniversalElementⱽ ueⱽ

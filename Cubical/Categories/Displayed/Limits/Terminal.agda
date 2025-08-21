@@ -31,24 +31,28 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.TotalCategory as ∫
 open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Functor
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓP : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓP ℓQ : Level
 
 open Category
 open Categoryᴰ
@@ -58,11 +62,18 @@ open isIsoOver
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Categoryᴰ Cᴰ
+  -- For consistency, these should go in Displayed.Presheaf.Constructions
   TerminalPresheafᴰ : (P : Presheaf C ℓP) → Presheafᴰ P Cᴰ ℓ-zero
   TerminalPresheafᴰ P .F-obᴰ x x₁ = Unit , isSetUnit
   TerminalPresheafᴰ P .F-homᴰ = λ _ x _ → tt
   TerminalPresheafᴰ P .F-idᴰ i = λ x x₁ → tt
   TerminalPresheafᴰ P .F-seqᴰ fᴰ gᴰ i = λ x _ → tt
+
+  TerminalPresheafᴰ* : ∀ ℓ → (P : Presheaf C ℓP) → Presheafᴰ P Cᴰ ℓ
+  TerminalPresheafᴰ* ℓ P .F-obᴰ x x₁ = (Unit* {ℓ}) , isSetUnit*
+  TerminalPresheafᴰ* ℓ P .F-homᴰ = λ _ x₁ _ → tt*
+  TerminalPresheafᴰ* ℓ P .F-idᴰ i = λ x₁ _ → tt*
+  TerminalPresheafᴰ* ℓ P .F-seqᴰ fᴰ gᴰ i = λ x₁ _ → tt*
 
   -- Terminal object over a terminal object
   -- TODO: refactor using Constant Functorᴰ eventually
@@ -72,6 +83,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   Terminalᴰ : (term : Terminal' C) →
     Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
   Terminalᴰ term = UniversalElementᴰ _ term TerminalᴰSpec
+
+  reindTerminal* : ∀ {ℓ}{P : Presheaf C ℓP}{Q : Presheaf C ℓQ}(α : PshHom P Q)
+    → reind α (TerminalPresheafᴰ* ℓ Q) ≡ TerminalPresheafᴰ* ℓ P
+  reindTerminal* α = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
 
   module TerminalᴰNotation {term' : Terminal' C}
     (termᴰ : Terminalᴰ term') where

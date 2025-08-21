@@ -65,3 +65,16 @@ P ≃[ (f , ∃!f⁻b ) ] Q = Σ (mapOver f P Q) (isEquivᴰ {Q = Q} ∃!f⁻b)
 
 invEqᴰ : ∀ {eq} → P ≃[ eq ] Q → mapOver (invEq eq) Q P
 invEqᴰ eqᴰ = λ a z → eqᴰ .snd z .fst .fst
+
+
+-- equivOver→isIsoOver :
+--   {isom : Iso A B}
+--   (f : mapOver (isom .fun) P Q)
+--   → isEquivOver {P = P} {Q = Q} f
+--   → isIsoOver isom P Q f
+-- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =
+--   isisoover (isoOver .inv) (isoOver .rightInv)
+--     λ a p → {!isoOver .leftInv a p!}
+--   where
+--     isoOver : IsoOver (equivToIso $ isoToEquiv isom) _ Q
+--     isoOver = equivOver→IsoOver (isoToEquiv isom) f fEquiv

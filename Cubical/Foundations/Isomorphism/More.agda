@@ -1,12 +1,12 @@
 {-# OPTIONS --safe #-}
 module Cubical.Foundations.Isomorphism.More where
 
-open import Cubical.Core.Glue
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Data.Sigma
 
 private
   variable
@@ -23,3 +23,11 @@ isoInv≡ f = isoFun≡ (invIso f)
 
 isEquivToIsIso : ∀ (f : A → B) → isEquiv f → isIso f
 isEquivToIsIso f eq = IsoToIsIso (equivToIso (f , eq))
+
+isPropIsIsoSet :
+  ∀ {f : A → B} → isSet A → isSet B → isProp (isIso f)
+isPropIsIsoSet {f} isSetA isSetB f⁻ f⁻' =
+  Σ≡Prop (λ _ → isProp× (isPropΠ λ _ → isSetB _ _) (isPropΠ λ _ → isSetA _ _))
+    (funExt (λ b → isoFunInjective (isIsoToIso f⁻) _ _
+      (f⁻ .snd .fst b ∙ sym (f⁻' .snd .fst b))))
+

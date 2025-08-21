@@ -8,6 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Transport hiding (pathToIso)
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
@@ -90,8 +91,126 @@ module PresheafNotation {ℓo}{ℓh}
             → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
   ⟨ f≡f' ⟩⋆⟨ g≡g' ⟩ = cong₂ _⋆_ f≡f' g≡g'
 
+  ⟨⟩⋆⟨_⟩ : ∀ {x y} {f : C [ x , y ]} {g g' : p[ y ]}
+            → g ≡ g' → f ⋆ g ≡ f ⋆ g'
+  ⟨⟩⋆⟨_⟩ = ⟨ refl ⟩⋆⟨_⟩
+
+  ⟨_⟩⋆⟨⟩ : ∀ {x y} {f f' : C [ x , y ]} {g : p[ y ]}
+            → f ≡ f' → f ⋆ g ≡ f' ⋆ g
+  ⟨_⟩⋆⟨⟩ = ⟨_⟩⋆⟨ refl ⟩
+
   isSetPsh : ∀ {x} → isSet (p[ x ])
   isSetPsh {x} = (P ⟅ x ⟆) .snd
+
+-- Natural transformation between presheaves of different levels
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  -- TODO: make into a record
+  PshHom : Type _
+  PshHom = Σ[ α ∈ (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) ]
+    (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
+     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
+
+  isPropN-hom : ∀ (α : (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ])) →
+    isProp (∀ x y (f : C [ x , y ]) (p : P.p[ y ])→
+     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
+  isPropN-hom = λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → Q.isSetPsh _ _
+
+  isSetPshHom : isSet PshHom
+  isSetPshHom = isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
+  makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
+   → α ≡ β
+  makePshHomPath = ΣPathPProp (isPropN-hom P Q)
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}where
+  idPshHom : PshHom P P
+  idPshHom .fst x z = z
+  idPshHom .snd x y f p = refl
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where
+  seqPshHom : PshHom P Q → PshHom Q R → PshHom P R
+  seqPshHom α β .fst x p = β .fst x (α .fst x p)
+  seqPshHom α β .snd x y f p =
+    cong (β .fst _) (α .snd x y f p)
+    ∙ β .snd x y f (α .fst y p)
+
+module _ {C : Category ℓ ℓ'} (P : Presheaf C ℓS) where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+  -- Universe-polymorphic Yoneda recursion principle
+  yoRec : ∀ {c} → P.p[ c ] → PshHom (C [-, c ]) P
+  yoRec p .fst Γ f = f P.⋆ p
+  yoRec p .snd Δ Γ γ f = P.⋆Assoc γ f p
+
+  yoRecβ : ∀ {c}{p : P.p[ c ]} → yoRec p .fst _ C.id ≡ p
+  yoRecβ = P.⋆IdL _
+
+  yoRecη-elt : ∀ {c}(α : PshHom (C [-, c ]) P){Γ}{f : C [ Γ , c ]}
+    → α .fst Γ f ≡ yoRec (α .fst _ C.id) .fst Γ f
+  yoRecη-elt α =
+    cong (α .fst _) (sym $ C.⋆IdR _)
+    ∙ α .snd _ _ _ _
+
+  yoRecη : ∀ {c}{α : PshHom (C [-, c ]) P}
+    → α ≡ yoRec (α .fst _ C.id)
+  yoRecη {α = α} = makePshHomPath (funExt (λ _ → funExt (λ _ → yoRecη-elt α)))
+
+  yoRecIso : ∀ c → Iso P.p[ c ] (PshHom (C [-, c ]) P)
+  yoRecIso c =
+    iso yoRec (λ α → α .fst c C.id) (λ _ → sym $ yoRecη) (λ _ → yoRecβ)
+
+  yoRec≡ : ∀ {c} {p : P.p[ c ]}{α}
+    → p ≡ α .fst _ C.id
+    → yoRec p ≡ α
+  yoRec≡ = isoFun≡ (yoRecIso _)
+
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS')(α : PshHom P Q) where
+  private
+    module P = PresheafNotation P
+    module C = Category C
+
+  yoRec-natural-elt : ∀ {Γ c}{f : C [ Γ , c ]}{p : P.p[ c ]}
+    → α .fst _ (yoRec P p .fst _ f) ≡ yoRec Q (α .fst c p) .fst Γ f
+  yoRec-natural-elt = α .snd _ _ _ _
+
+  yoRec-natural : ∀ {c}{p : P.p[ c ]} → seqPshHom (yoRec P p) α ≡ yoRec Q (α .fst c p)
+  yoRec-natural = makePshHomPath $ funExt λ _ → funExt λ _ → yoRec-natural-elt
+
+{- a PshIso is a PshHom whose underlying functions are iso -}
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
+  isPshIso : PshHom P Q → Type _
+  isPshIso α = ∀ x → isIso (α .fst x)
+
+  isPropIsPshIso : ∀ {α} → isProp (isPshIso α)
+  isPropIsPshIso = isPropΠ λ _ → isPropIsIsoSet (P .F-ob _ .snd) (Q .F-ob _ .snd)
+
+module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
+  private
+    module P = PresheafNotation P using (p[_])
+    module Q = PresheafNotation Q using (p[_])
+  PshIso : Type _
+  PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
+
+  open NatIso
+  open NatTrans
+  PshIso→PshIsoLift : PshIso → PshIsoLift C P Q
+  PshIso→PshIsoLift α .trans .N-ob x x₁ = lift (α .fst .fst x (x₁ .lower))
+  PshIso→PshIsoLift α .trans .N-hom f = funExt (λ x₁ → cong lift (α .fst .snd _ _ f (x₁ .lower)))
+  PshIso→PshIsoLift α .nIso x .isIsoC.inv = λ z → lift (α .snd x .fst (z .lower))
+  PshIso→PshIsoLift α .nIso x .isIsoC.sec = funExt (λ x₁ → cong lift (α .snd x .snd .fst (x₁ .lower)) )
+  PshIso→PshIsoLift α .nIso x .isIsoC.ret = funExt (λ x₁ → cong lift (α .snd x .snd .snd (x₁ .lower)))
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
+  makePshIsoPath : ∀ {α β : PshIso P Q} → α .fst .fst ≡ β .fst .fst
+   → α ≡ β
+  makePshIsoPath α≡β = Σ≡Prop (λ _ → isPropIsPshIso) (makePshHomPath α≡β)
 
 -- This should eventually be upstreamed to go in the UniversalElement
 -- module itself
@@ -135,71 +254,28 @@ module UniversalElementNotation {ℓo}{ℓh}
     η {f = f} = sym (universalIso _ .leftInv _)
 
     weak-η : C .id ≡ intro element
-    weak-η = η ∙ cong intro (∘ᴾId C P _)
+    weak-η = η ∙ intro⟨ P.⋆IdL _ ⟩
 
     extensionality : ∀ {c} → {f f' : C [ c , vertex ]}
                    → (f P.⋆ element) ≡ (f' P.⋆ element)
                    → f ≡ f'
-    extensionality = isoFunInjective (equivToIso (_ , (universal _))) _ _
+    extensionality = isoFunInjective (universalIso _) _ _
 
     intro≡ : ∀ {c} → {p : P.p[ c ]}{f : C [ c , vertex ]}
       → p ≡ f P.⋆ element
       → intro p ≡ f
-    intro≡ p≡f*elt = intro⟨ p≡f*elt ⟩ ∙ sym η
+    intro≡ = isoInv≡ (universalIso _)
 
     intro-natural : ∀ {c' c} → {p : P.p[ c ]}{f : C [ c' , c ]}
                   → f C.⋆ intro p ≡ intro (f P.⋆ p)
-    intro-natural = extensionality
-      ( (∘ᴾAssoc C P _ _ _
-      ∙ cong (action C P _) β)
-      ∙ sym β)
+    intro-natural = sym $ intro≡ $ P.⟨⟩⋆⟨ sym $ β ⟩ ∙ (sym $ P.⋆Assoc _ _ _)
 
--- Natural transformation between presheaves of different levels
-module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
-  private
-    module C = Category C
-    module P = PresheafNotation P
-    module Q = PresheafNotation Q
-  -- TODO: make into a record
-  PshHom : Type _
-  PshHom = Σ[ α ∈ (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) ]
-    (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
-     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
+  ⋆element-isPshIso : isPshIso (yoRec P element)
+  ⋆element-isPshIso x = IsoToIsIso (universalIso _)
 
-  isPropN-hom : ∀ (α : (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ])) →
-    isProp (∀ x y (f : C [ x , y ]) (p : P.p[ y ])→
-     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
-  isPropN-hom = λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → Q.isSetPsh _ _
+  asPshIso : PshIso (C [-, vertex ]) P
+  asPshIso = (yoRec P element) , ⋆element-isPshIso
 
-  isSetPshHom : isSet PshHom
-  isSetPshHom = isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
-
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
-  makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
-   → α ≡ β
-  makePshHomPath = ΣPathPProp (isPropN-hom P Q)
-
-
-{- a PshIso is a PshHom whose underlying functions are iso -}
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
-  isPshIso : PshHom P Q → Type _
-  isPshIso α = ∀ x → isIso (α .fst x)
-
-module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') where
-  private
-    module P = PresheafNotation P using (p[_])
-    module Q = PresheafNotation Q using (p[_])
-  PshIso : Type _
-  PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
-
-  open NatIso
-  open NatTrans
-  PshIso→PshIsoLift : PshIso → PshIsoLift C P Q
-  PshIso→PshIsoLift α .trans .N-ob x x₁ = lift (α .fst .fst x (x₁ .lower))
-  PshIso→PshIsoLift α .trans .N-hom f = funExt (λ x₁ → cong lift (α .fst .snd _ _ f (x₁ .lower)))
-  PshIso→PshIsoLift α .nIso x .isIsoC.inv = λ z → lift (α .snd x .fst (z .lower))
-  PshIso→PshIsoLift α .nIso x .isIsoC.sec = funExt (λ x₁ → cong lift (α .snd x .snd .fst (x₁ .lower)) )
-  PshIso→PshIsoLift α .nIso x .isIsoC.ret = funExt (λ x₁ → cong lift (α .snd x .snd .snd (x₁ .lower)))
 
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') (((α , α-natural) , αIsIso) : PshIso P Q) where
   private
@@ -256,14 +332,12 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
       Pc≡Qc : ∀ c → P.p[ c ] ≡ Q.p[ c ]
       Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET' (PshIso→SETIso α c) i ⟩
 
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}where
+  idPshIso : PshIso P P
+  idPshIso .fst = idPshHom
+  idPshIso .snd x = IsoToIsIso idIso
 
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where
-  seqPshHom : PshHom P Q → PshHom Q R → PshHom P R
-  seqPshHom α β .fst x p = β .fst x (α .fst x p)
-  seqPshHom α β .snd x y f p =
-    cong (β .fst _) (α .snd x y f p)
-    ∙ β .snd x y f (α .fst y p)
-
   seqIsPshIso : ∀ {α : PshHom P Q}{β : PshHom Q R}
     → isPshIso {P = P}{Q = Q} α
     → isPshIso {P = Q}{Q = R} β
@@ -277,7 +351,24 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : 
     IsoToIsIso $
       compIso (isIsoToIso (α .snd x)) (isIsoToIso (β .snd x))
 
--- Recursion principle for representables
+module _ {C : Category ℓ ℓ'}{P Q : Presheaf C ℓS} (path : P ≡ Q) where
+  pathToPshIso : PshIso P Q
+  pathToPshIso = PshCatIso→PshIso _ _ (pathToIso path)
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS} where
+  pathToPshIsoRefl : pathToPshIso (refl {x = P}) ≡ idPshIso
+  pathToPshIsoRefl = makePshIsoPath $ funExt λ _ → funExt λ _ →
+    transportTransport⁻ _ _
+
+module _ {C : Category ℓ ℓ'}{x} where
+  open Category
+  pathToPshIsoYo :
+    ∀ {P : Presheaf C ℓ'}(yx≡P : C [-, x ] ≡ P)
+    → pathToPshIso yx≡P .fst ≡ yoRec P (transport (λ i → yx≡P i .F-ob x .fst) $ C .id)
+  pathToPshIsoYo =
+    J (λ P yx≡P → pathToPshIso yx≡P .fst ≡ yoRec P (transport (λ i → yx≡P i .F-ob x .fst) $ C .id))
+      (cong fst pathToPshIsoRefl ∙ (sym $ yoRec≡ (C [-, x ]) $ transportRefl _))
+
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
   private
     module P = PresheafNotation P
@@ -287,49 +378,21 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
   RepresentationPshIso = Σ[ x ∈ _ ] PshIso (C [-, x ]) P
 
   open UniversalElement
-  module _ ((x , ((αN-ob , αN-hom) , αIsIso)) : RepresentationPshIso) where
+  module _ ((x , α) : RepresentationPshIso) where
+    -- this whole thing could be a subst of yoRecIso P x but this
+    -- definition has fewer transports
     RepresentationPshIso→UniversalElement : UniversalElement C P
     RepresentationPshIso→UniversalElement .vertex = x
-    RepresentationPshIso→UniversalElement .element = αN-ob _ C.id
+    RepresentationPshIso→UniversalElement .element = α .fst .fst _ C.id
     RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
-    -- Yet another proof of the Yoneda lemma
-      ( α⁻N-ob _
-      , (λ p →
-           isoFunInjective (isIsoToIso (α⁻ .snd _)) _ _
-             (α⁻N-hom _ _ _ _
-             ∙ C.⟨ refl ⟩⋆⟨ αIsIso _ .snd .snd _ ⟩ ∙ C.⋆IdR _))
-      , (λ f → α⁻N-hom _ _ _ _ ∙ C.⟨ refl ⟩⋆⟨ αIsIso _ .snd .snd _ ⟩
-        ∙ C.⋆IdR _))
+      ( α⁻ Γ
+      , subst motive
+          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong fst $ yoRecIso P x .Iso.rightInv (α .fst)) _) _)
+          (α .snd Γ .snd))
       where
-        α⁻ = invPshIso _ P (((αN-ob , αN-hom) , αIsIso))
-        α⁻N-ob = α⁻ .fst .fst
-        α⁻N-hom = α⁻ .fst .snd
-
-  -- Universe-polymorphic Yoneda recursion principle
-  yoRec : ∀ {c} → P.p[ c ] → PshHom (C [-, c ]) P
-  yoRec p .fst Γ f = f P.⋆ p
-  yoRec p .snd Δ Γ γ f = P.⋆Assoc γ f p
-
-  yoRecβ : ∀ {c}{p : P.p[ c ]} → yoRec p .fst _ C.id ≡ p
-  yoRecβ = P.⋆IdL _
-
-  yoRecη : ∀ {c}{α : PshHom (C [-, c ]) P}
-    → α ≡ yoRec (α .fst _ C.id)
-  yoRecη {α = α} = makePshHomPath (funExt λ _ → funExt λ _ →
-    cong (α .fst _) (sym $ C.⋆IdR _)
-    ∙ α .snd _ _ _ _)
-
-module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS')(α : PshHom P Q) where
-  private
-    module P = PresheafNotation P
-    module C = Category C
-
-  yoRec-natural : ∀ {c}{p : P.p[ c ]} → seqPshHom (yoRec P p) α ≡ yoRec Q (α .fst c p)
-  yoRec-natural = makePshHomPath (funExt λ Γ → funExt λ f →
-    α .snd _ _ _ _)
-
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}
-  (α : PshHom P Q) where
+        α⁻ = (invPshIso _ P α) .fst .fst
+        motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
+        motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
 
 -- These things only make sense when the presheaf is at the same
 -- universe level as the Homs of the category.

@@ -3,10 +3,14 @@ module Cubical.Categories.Limits.Cartesian.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Data.Sigma hiding (_×_)
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Data.Sigma hiding (_×_)
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
+open import Cubical.Categories.Presheaf.More
 
 private
   variable
@@ -37,3 +41,12 @@ record CartesianCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-s
       ≡⟨ (sym $ ×ue.weak-η _ _) ⟩
     id
       ∎
+
+record CartesianCategoryRepr (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
+  no-eta-equality
+  field
+    C : Category ℓ ℓ'
+    term : Representationᵁ C (TerminalPresheaf* ℓ')
+  module C = Category C
+  field
+    bp   : ∀ (c d : C.ob) → Representationᵁ C ((C [-, c ]) ×Psh (C [-, d ]))

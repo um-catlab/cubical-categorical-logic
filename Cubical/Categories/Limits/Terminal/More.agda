@@ -41,6 +41,9 @@ preserveOnePreservesAll C D F One D-preserves-One One' =
 TerminalPresheaf : ∀ {C : Category ℓc ℓc'} → Presheaf C ℓ-zero
 TerminalPresheaf = Constant _ _ (Unit , isSetUnit)
 
+TerminalPresheaf* : ∀ ℓ {C : Category ℓc ℓc'} → Presheaf C ℓ
+TerminalPresheaf* ℓ = Constant _ _ (Unit* , isSetUnit*)
+
 Terminal' :  ∀ (C : Category ℓc ℓc') → Type (ℓ-max ℓc ℓc')
 Terminal' C = UniversalElement C (TerminalPresheaf {C = C})
 

@@ -23,7 +23,7 @@ open import Cubical.Categories.Bifunctor as R hiding (Fst; Snd)
 
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Yoneda
 
 private

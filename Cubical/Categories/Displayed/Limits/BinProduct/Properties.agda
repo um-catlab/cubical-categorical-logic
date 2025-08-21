@@ -85,6 +85,17 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ((Cᴰ [-][-, (π₁* .UniversalElementⱽ.vertexᴰ) ]) ×ⱽPsh (Cᴰ [-][-, (π₂* .UniversalElementⱽ.vertexᴰ) ])))
   where
 
+  ×ᴰ≅π₁*×ⱽπ₂* :
+    PshIsoᴰ (yoRecIso p×q)
+      ((Cᴰ [-][-, (π₁* .UniversalElementⱽ.vertexᴰ) ]) ×ⱽPsh (Cᴰ [-][-, (π₂* .UniversalElementⱽ.vertexᴰ) ]))
+      (Pᴰ ×ᴰPsh Qᴰ)
+  ×ᴰ≅π₁*×ⱽπ₂* =
+    -- TODO: get these fixities right
+    ((yoRecIsoⱽ π₁* ⋆PshIsoⱽ (pathToPshIsoⱽ (cong₂ reind (sym $ yoRec-natural _ _ _) refl) ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)))
+    ×ⱽIso ((yoRecIsoⱽ π₂* ⋆PshIsoⱽ (pathToPshIsoⱽ (cong₂ reind (sym $ yoRec-natural _ _ _) refl) ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)))))
+    ⋆PshIsoⱽᴰ ((reindPshIsoPshIsoᴰ _ _ ×ⱽIso reindPshIsoPshIsoᴰ _ _)
+    ⋆PshIsoᴰⱽ invPshIsoⱽ (PshProdⱽ≅ᴰ Pᴰ Qᴰ))
+
   open PshHomᴰ
   private
     module p×q = UniversalElementNotation p×q

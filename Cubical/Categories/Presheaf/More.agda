@@ -1,4 +1,5 @@
 {-# OPTIONS --safe --lossy-unification #-}
+-- TODO: re-org this and upstream it
 module Cubical.Categories.Presheaf.More where
 
 open import Cubical.Foundations.Prelude
@@ -162,14 +163,14 @@ module _ {C : Category ℓ ℓ'} (P : Presheaf C ℓS) where
     → α ≡ yoRec (α .fst _ C.id)
   yoRecη {α = α} = makePshHomPath (funExt (λ _ → funExt (λ _ → yoRecη-elt α)))
 
-  yoRecIso : ∀ c → Iso P.p[ c ] (PshHom (C [-, c ]) P)
-  yoRecIso c =
+  IsoYoRec : ∀ c → Iso P.p[ c ] (PshHom (C [-, c ]) P)
+  IsoYoRec c =
     iso yoRec (λ α → α .fst c C.id) (λ _ → sym $ yoRecη) (λ _ → yoRecβ)
 
   yoRec≡ : ∀ {c} {p : P.p[ c ]}{α}
     → p ≡ α .fst _ C.id
     → yoRec p ≡ α
-  yoRec≡ = isoFun≡ (yoRecIso _)
+  yoRec≡ = isoFun≡ (IsoYoRec _)
 
 
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS')(α : PshHom P Q) where
@@ -278,7 +279,7 @@ module UniversalElementNotation {ℓo}{ℓh}
   asPshIso = (yoRec P element) , ⋆element-isPshIso
 
 
-module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') (((α , α-natural) , αIsIso) : PshIso P Q) where
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (((α , α-natural) , αIsIso) : PshIso P Q) where
   private
     module Q = PresheafNotation Q
   invPshIso : PshIso Q P
@@ -388,10 +389,10 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
     RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
       ( α⁻ Γ
       , subst motive
-          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong fst $ yoRecIso P x .Iso.rightInv (α .fst)) _) _)
+          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong fst $ IsoYoRec P x .Iso.rightInv (α .fst)) _) _)
           (α .snd Γ .snd))
       where
-        α⁻ = (invPshIso _ P α) .fst .fst
+        α⁻ = (invPshIso α) .fst .fst
         motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
         motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
 
@@ -437,30 +438,39 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) where
   isUniversal→isPshIso : ∀ {v}{e} → isUniversal C P v e → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e)
   isUniversal→isPshIso eltIsUniversal A = isEquivToIsIso _ (eltIsUniversal A)
 
-module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS) (ue : UniversalElement C P) where
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS} (ue : UniversalElement C P) where
   private
     module P = PresheafNotation P
     module ue = UniversalElement ue
   UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
   UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
 
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (α : PshIso P Q) where
-  seqIsUniversalPshIso : ∀ {v e} → isUniversal C P v e → isUniversal C Q v (α .fst .fst v e)
-  seqIsUniversalPshIso isUe = isPshIso→isUniversal Q
+  yoRecIso : PshIso (C [-, ue.vertex ]) P
+  yoRecIso = (yoRec P ue.element) , UniversalElement→yoRecIsIso
+
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
+  open Category
+  seqIsUniversalPshIso : ∀ {v e} → isUniversal C P v e → (α : PshIso P Q)
+    → isUniversal C Q v (α .fst .fst v e)
+  seqIsUniversalPshIso {v}{e} isUe α = isPshIso→isUniversal Q
     λ x → (lem x .fst) ,
-          ( (λ q → (sym $ α .fst .snd _ _ _ _) ∙ lem x .snd .fst q)
-          , λ f → cong (lem x .fst) (sym $ α .fst .snd _ _ _ _) ∙ lem x .snd .snd f)
-          -- better definitional behavior than the equivalent
-          -- (subst isPshIso (yoRec-natural P Q _) lem)
+          subst (motive x)
+            (funExt (λ _ → yoRec-natural-elt P Q (α .fst)))
+            (lem x .snd)
     where
       lem : isPshIso ((yoRec P _) ⋆PshHom (α .fst))
       lem = seqIsPshIso {α = yoRec P _}{β = α .fst} (isUniversal→isPshIso P isUe) (α .snd)
 
-  module _ (ue : UniversalElement C P) where
+      module Q = PresheafNotation Q
+      motive : ∀ x → (C [ x , v ] → Q.p[ x ]) → Type _
+      motive x Nob =
+        section Nob (lem _ .fst)
+        × retract Nob (lem _ .fst)
+  module _ (ue : UniversalElement C P) (α : PshIso P Q) where
     private
       module ue = UniversalElementNotation ue
     open UniversalElement
-    PshIsoUniversalElement : UniversalElement C Q
-    PshIsoUniversalElement .vertex = ue.vertex
-    PshIsoUniversalElement .element = α .fst .fst ue.vertex ue.element
-    PshIsoUniversalElement .universal = seqIsUniversalPshIso ue.universal
+    _◃PshIso_ : UniversalElement C Q
+    _◃PshIso_ .vertex = ue.vertex
+    _◃PshIso_ .element = α .fst .fst ue.vertex ue.element
+    _◃PshIso_ .universal = seqIsUniversalPshIso ue.universal α

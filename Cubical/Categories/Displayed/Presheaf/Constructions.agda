@@ -78,7 +78,7 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   -- between presheaves of different levels
   --
   -- We should see if we can get this for free using Lift
-  module - {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
     {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
     {Pᴰ' : Presheafᴰ P Cᴰ ℓPᴰ'}
     {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}

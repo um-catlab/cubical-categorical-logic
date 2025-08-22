@@ -11,7 +11,6 @@
   SimpleTotalCategoryL.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR where
 
 open import Cubical.Foundations.Prelude

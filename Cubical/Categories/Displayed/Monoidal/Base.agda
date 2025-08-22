@@ -1,5 +1,4 @@
 -- Displayed monoidal categories
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Displayed.Monoidal.Base where
 

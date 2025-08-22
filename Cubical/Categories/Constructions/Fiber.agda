@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
   Given a displayed category Cᴰ over C, and any object x in C, we can

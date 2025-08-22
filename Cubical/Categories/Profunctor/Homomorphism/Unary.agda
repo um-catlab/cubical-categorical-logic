@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Profunctor.Homomorphism.Unary where
 
 open import Cubical.Foundations.Prelude

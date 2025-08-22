@@ -14,7 +14,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Bifunctor where
 
 open import Cubical.Foundations.Prelude hiding (Path)

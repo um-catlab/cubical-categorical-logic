@@ -6,7 +6,6 @@
   Definition 9 in https://arxiv.org/abs/1904.00827
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.WithFamilies.Simple.Base where
 
 open import Cubical.Foundations.Prelude

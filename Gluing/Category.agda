@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Gluing.Category where
 
 open import Cubical.Foundations.Prelude

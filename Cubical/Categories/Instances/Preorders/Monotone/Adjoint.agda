@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 -- defines adjoint for monotone functions and morphisms in the Poset Category
 -- where each morphism has left and right adjoints

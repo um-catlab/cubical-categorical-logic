@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 
 {- The universal category C ⊗ D with a redundant bifunctor C , D → C ⊗ D -}
 {- Isomorphic (but not definitionally) to the cartesian product -}

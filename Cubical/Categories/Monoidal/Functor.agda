@@ -1,5 +1,4 @@
 {- Lax and Strong Monoidal Functors -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Monoidal.Functor where
 

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Reindex where
 
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base public

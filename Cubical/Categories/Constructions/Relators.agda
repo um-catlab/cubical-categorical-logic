@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-
 
   Category whose objects are bifunctors and morphisms are natural

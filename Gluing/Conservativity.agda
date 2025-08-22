@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {-# OPTIONS --lossy-unification #-}
 module Gluing.Conservativity where
 

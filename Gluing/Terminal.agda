@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 -- Gluing for categories with a terminal object
 module Gluing.Terminal where
 

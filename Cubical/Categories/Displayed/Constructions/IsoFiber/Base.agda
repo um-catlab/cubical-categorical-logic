@@ -8,7 +8,6 @@
   is equivalent to a section of F up to isomorphism.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.IsoFiber.Base where
 
 open import Cubical.Foundations.Prelude

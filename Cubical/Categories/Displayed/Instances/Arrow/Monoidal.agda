@@ -10,7 +10,6 @@
   defined as reindex of Iso?
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Instances.Arrow.Monoidal where
 
 open import Cubical.Foundations.Prelude

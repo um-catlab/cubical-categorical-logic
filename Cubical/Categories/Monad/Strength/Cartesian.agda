@@ -1,7 +1,6 @@
 -- {- Strength for a monad on a cartesian category is a bit simpler
 --   than for monoidal categories -}
 {- Unfortunately this is very slow but lossy unification breaks it -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Monad.Strength.Cartesian where
 
 -- open import Cubical.Foundations.Prelude

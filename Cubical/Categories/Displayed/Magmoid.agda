@@ -5,7 +5,6 @@
   to do with Magmoids
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Magmoid where
 
 open import Cubical.Foundations.Prelude

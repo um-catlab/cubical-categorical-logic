@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 -- Free category with a terminal object, over a Quiver
 module Cubical.Categories.Constructions.Free.CategoryWithTerminal where
 

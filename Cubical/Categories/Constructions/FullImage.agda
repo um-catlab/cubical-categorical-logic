@@ -3,7 +3,6 @@
 The Full Image of a Functor
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.FullImage where
 
 open import Cubical.Foundations.Prelude

@@ -6,7 +6,6 @@
   natural isomorphism
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Instances.Arrow.Properties where
 
 open import Cubical.Foundations.Prelude

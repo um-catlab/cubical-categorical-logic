@@ -1,5 +1,4 @@
 {- This is intended to replace Presheaf.Morphism upstream -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Presheaf.Morphism.Alt where
 
 open import Cubical.Foundations.Prelude

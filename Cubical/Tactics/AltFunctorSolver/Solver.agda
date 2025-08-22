@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Tactics.AltFunctorSolver.Solver where
 
 open import Cubical.Foundations.Prelude

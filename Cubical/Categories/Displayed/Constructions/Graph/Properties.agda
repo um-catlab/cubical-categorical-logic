@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Graph.Properties where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Profunctor.Homomorphism.Bilinear where
 
 open import Cubical.Foundations.Prelude

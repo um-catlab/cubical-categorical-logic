@@ -4,7 +4,6 @@
   the structure of a displayed monoidal category.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.TotalCategory.Monoidal where
 
 open import Cubical.Foundations.Prelude

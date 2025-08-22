@@ -7,7 +7,6 @@
   between section
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Instances.Path.Displayed where
 
 open import Cubical.Foundations.Prelude

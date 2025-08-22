@@ -10,7 +10,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Reindex.Monoidal where
 
 open import Cubical.Foundations.Prelude

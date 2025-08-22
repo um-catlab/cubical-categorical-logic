@@ -1,7 +1,6 @@
 {-
   Natural isomorphisms displayed over natural isomorphisms.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.NaturalIsomorphism where
 
 open import Cubical.Foundations.Prelude

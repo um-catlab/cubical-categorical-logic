@@ -1,5 +1,4 @@
 {- The dual monoidal category, I.e. x ⊗^co y = y ⊗ x -}
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Monoidal.Dual where
 

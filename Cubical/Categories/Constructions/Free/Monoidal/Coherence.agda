@@ -1,5 +1,4 @@
 {- Coherence theorem for free monoidal categories on a set -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Free.Monoidal.Coherence where
 
 open import Cubical.Foundations.Prelude

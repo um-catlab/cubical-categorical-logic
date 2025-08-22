@@ -1,7 +1,6 @@
 {-
    A variant of reindexing using J to avoid transport clutter.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Reindex.Eq where
 
 open import Cubical.Foundations.Prelude

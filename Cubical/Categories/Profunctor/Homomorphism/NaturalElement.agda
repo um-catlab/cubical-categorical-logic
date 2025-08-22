@@ -4,7 +4,6 @@
 
   This is a kind of "nullary" homomorphism of relators.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Profunctor.Homomorphism.NaturalElement where
 
 open import Cubical.Reflection.RecordEquiv

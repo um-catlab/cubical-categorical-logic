@@ -9,7 +9,7 @@
 -- | library only gives the "separate" functorial action. In practice,
 -- | relators tend to only come with a separate action anyway (e.g.,
 -- | Hom) but in principle a relator carries more information
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Profunctor.Relator where
 
 open import Cubical.Reflection.RecordEquiv

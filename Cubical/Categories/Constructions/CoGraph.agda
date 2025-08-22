@@ -1,5 +1,5 @@
 -- The graph of a profunctor
-{-# OPTIONS --safe -W noUnsupportedIndexedMatch #-}
+{-# OPTIONS -W noUnsupportedIndexedMatch #-}
 module Cubical.Categories.Constructions.CoGraph where
 
 -- open import Cubical.Categories.Category

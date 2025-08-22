@@ -3,7 +3,6 @@
 
   We're limited by Agda universe levels
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Alt.LevelPoly where
 
 open import Cubical.Foundations.Prelude

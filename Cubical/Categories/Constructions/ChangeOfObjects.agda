@@ -7,7 +7,6 @@
   up with useless data in the objects like X × 1.
 
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.ChangeOfObjects where
 
 open import Cubical.Foundations.Prelude

@@ -275,7 +275,4 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          (isFibQᴰ : isFibration' Qᴰ)
          where
   isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
-  isFibration'Reind p =
-    subst (UniversalElementⱽ Cᴰ _)
-      (sym (reindYo-seq α Qᴰ p))
-      (isFibQᴰ (α .fst _ p))
+  isFibration'Reind p = isFibQᴰ (α .fst _ p) ◃PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)

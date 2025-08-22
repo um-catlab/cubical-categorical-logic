@@ -234,6 +234,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     reindYo-seq = reind-seq _ _ _
       ∙ cong₂ reind (yoRec-natural _ _ _) refl
 
+    -- Can this be done without a subst?
+    reindYo-seqIsoⱽ : PshIsoⱽ (reindYo p (reind α Qᴰ)) (reindYo (α .fst c p) Qᴰ)
+    reindYo-seqIsoⱽ = subst (PshIsoⱽ (reindYo p (reind α Qᴰ))) reindYo-seq idPshIsoᴰ
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   (α : PshIso P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)

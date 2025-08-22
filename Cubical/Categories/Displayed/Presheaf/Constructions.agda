@@ -144,43 +144,6 @@ module _
   reindHet : Presheafᴰ P (CatReindex Dᴰ F) ℓQᴰ
   reindHet = reind α $ reindFunc F Qᴰ
 
-  -- Theorem
-  -- if cᴰ represents Pⱽ and dᴰ represents Qⱽ
-  -- and cᴰ×ⱽdᴰ represents Cᴰ[-][-, cᴰ ] ×ⱽ Cᴰ[-][-, dᴰ ],
-  -- then cᴰ×ⱽdᴰ represents Pⱽ ×ⱽ Qⱽ
-  --
-  -- this is trivial if we use univalence...
-  --   Cᴰ[-][-, cᴰ ] ×ⱽ Cᴰ[-][-, dᴰ ],
-  --   ≡ Pᴰ ×ⱽ Qᴰ
-  --   ≡ Cᴰ[-][-, cᴰ×ⱽdᴰ ]
--- module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
---   {c}
---   (Pᴰ : Presheafⱽ c Cᴰ ℓPᴰ)(Pᴰ' : Presheafⱽ c Cᴰ ℓQᴰ)
---   where
---   open Functorᴰ
---   open Bifunctor
---   open Bifunctorᴰ
-
---   module _
---     {ueᴰ : UniversalElementⱽ _ _ Pᴰ}
---     {ueᴰ' : UniversalElementⱽ _ _ Pᴰ'}
---     where
---     private
---       module C = Category C
---       module ueᴰ = UniversalElementⱽ ueᴰ
---       module ueᴰ' = UniversalElementⱽ ueᴰ'
---       module Pᴰ = PresheafⱽNotation Pᴰ
---       module Pᴰ' = PresheafⱽNotation Pᴰ'
---       Pᴰ×Pᴰ' = PshProdⱽ .F-obᴰ (Pᴰ , Pᴰ')
---       module Pᴰ×Pᴰ' = PresheafⱽNotation (PshProdⱽ .F-obᴰ (Pᴰ , Pᴰ'))
-
---       ueᴰ×ueᴰ' = PshProdⱽ .F-obᴰ (Cᴰ [-][-, ueᴰ.vertexⱽ ] , Cᴰ [-][-, ueᴰ'.vertexⱽ ])
---       module ueᴰ×ueᴰ' = PresheafⱽNotation ueᴰ×ueᴰ'
-
---     open UniversalElementⱽ
-    -- This should follow from the general principle that PshProdⱽ preserves PshHoms, PshIso
-    --   PshProdⱽUE : UniversalElementⱽ _ c Pᴰ×Pᴰ'
-
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)

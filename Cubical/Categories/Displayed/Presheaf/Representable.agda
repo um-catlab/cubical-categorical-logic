@@ -284,14 +284,6 @@ module _
   Representationᵁⱽ : Type _
   Representationᵁⱽ = Representationᵁᴰ Cᴰ Pⱽ (_ , refl)
 
-  -- UniversalElementⱽ→Representationᵁⱽ : UniversalElementⱽ Cᴰ c Pⱽ → Representationᵁⱽ
-  -- UniversalElementⱽ→Representationᵁⱽ ueⱽ =
-  --   subst (λ p → Representationᵁᴰ Cᴰ Pⱽ p)
-  --     (ΣPathP (refl , {!!}))
-  --     (UniversalElementᴰ→Representationᵁᴰ Cᴰ Pⱽ ueⱽ.toUniversalᴰ)
-  --   where
-  --     module ueⱽ = UniversalElementⱽ ueⱽ
-
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}

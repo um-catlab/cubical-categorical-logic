@@ -9,7 +9,7 @@ here.
 The source code has a glorious clickable [rendered version][2].
 
 [1]: https://github.com/agda/cubical
-[2]: https://maxsnew.com/cubical-categorical-logic/Cubical.Everything.html
+[2]: https://um-catlab.github.io/cubical-categorical-logic/Cubical.Everything.html
 
 # Style and Build Tests
 

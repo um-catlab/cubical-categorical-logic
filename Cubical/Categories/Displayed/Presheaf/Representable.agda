@@ -212,7 +212,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       elementⱽ : Pⱽ.pⱽ[ vertexⱽ ]
       universalⱽ : ∀ {y yᴰ}{f : C [ y , x ]} →
         isIso λ (fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]) → fᴰ Pⱽ.⋆ᴰⱽ elementⱽ
-
     toUniversalᴰ : UniversalElementᴰ Cᴰ (selfUnivElt C x) Pⱽ
     toUniversalᴰ .UniversalElementᴰ.vertexᴰ = vertexⱽ
     toUniversalᴰ .UniversalElementᴰ.elementᴰ = elementⱽ
@@ -354,22 +353,36 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module Qᴰ = PresheafᴰNotation Qᴰ
       module ueᴰ◃αⱽ = UniversalElementᴰ ueᴰ◃αⱽ
 
--- ◃PshIsoⱽᴰ isn't as easy to define. Do we need it?
--- open UniversalElement
--- module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   {Q : Presheaf C ℓQ}
---   {ue : UniversalElement C Q}
---   {Pⱽ : Presheafⱽ (ue .vertex) Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
---   where
---   _◃PshIsoⱽᴰ_ : UniversalElementⱽ Cᴰ (ue .vertex) Pⱽ
---     → PshIsoᴰ (UniversalElement→PshIso ue) Pⱽ Qᴰ
---     → UniversalElementᴰ Cᴰ ue Qᴰ
---   ueⱽ ◃PshIsoⱽᴰ αᴰ = record
---     { vertexᴰ = ueⱽ◃αᴰ.vertexᴰ
---     ; elementᴰ = {!αᴰ .fst .N-obᴰ!}
---     ; universalᴰ = {!!}
---     } where
---       module ueⱽ = UniversalElementⱽ ueⱽ
---       module ueⱽ◃αᴰ = UniversalElementᴰ (ueⱽ.toUniversalᴰ ◃PshIsoᴰ αᴰ)
---       module Cᴰ = Fibers Cᴰ
---       module Qᴰ = PresheafᴰNotation Qᴰ
+open UniversalElement
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {Q : Presheaf C ℓQ}
+  {ue : UniversalElement C Q}
+  {Pⱽ : Presheafⱽ (ue .vertex) Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  -- This could probably be implemented as a subst instead of manually.
+  _◃PshIsoⱽᴰ_ : UniversalElementⱽ Cᴰ (ue .vertex) Pⱽ
+    → PshIsoᴰ (yoRecIso ue) Pⱽ Qᴰ
+    → UniversalElementᴰ Cᴰ ue Qᴰ
+  ueⱽ ◃PshIsoⱽᴰ αᴰ = record
+    { vertexᴰ = ueⱽ.vertexⱽ
+    ; elementᴰ = Qᴰ.reind (Q.⋆IdL _) (αᴰ .fst .N-obᴰ ueⱽ.elementⱽ)
+    ; universalᴰ = isisoover
+      (λ q qᴰ → ueⱽ.introᴰ (αᴰ .snd .inv q qᴰ))
+      (λ q qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+        Qᴰ.⟨⟩⋆⟨ (sym $ Qᴰ.reind-filler _ _) ∙ refl ⟩
+        ∙ (sym $ ∫α .fst .snd _ _ _ _)
+        ∙ cong (∫α .fst .fst _) ueⱽ.βᴰ
+        ∙ ∫α .snd _ .snd .fst _)
+      (λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+        ueⱽ.∫ue.intro≡ $
+          invPshIso ∫α .fst .snd _ _ _ _
+          ∙ Pⱽ.⟨⟩⋆⟨ cong (∫α .snd _ .fst) (sym $ Qᴰ.reind-filler _ _)
+          ∙ ∫α .snd _ .snd .snd _ ⟩)
+    } where
+      ∫α = ∫PshIsoᴰ αᴰ
+      module ue = UniversalElementNotation ue
+      module ueⱽ = UniversalElementⱽ ueⱽ
+      module Q = PresheafNotation Q
+      module Qᴰ = PresheafᴰNotation Qᴰ
+      module Pⱽ = PresheafⱽNotation Pⱽ
+      module Cᴰ = Fibers Cᴰ

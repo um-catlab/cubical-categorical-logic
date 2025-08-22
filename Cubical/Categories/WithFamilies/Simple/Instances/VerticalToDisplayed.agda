@@ -12,7 +12,6 @@ open import Cubical.Categories.Presheaf
 
 import Cubical.Categories.Displayed.Presheaf.Constructions as Presheafᴰ
 open import Cubical.Categories.Displayed.Presheaf.CartesianLift
-open import Cubical.Categories.Displayed.Fibration as Categoryᴰ
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct.Properties
 
@@ -31,8 +30,7 @@ module _ {C : SCwF ℓC ℓC' ℓT ℓT'} {Cᴰ : SCwFⱽ C ℓCᴰ ℓCᴰ' ℓ
   SCwFⱽ→SCwFᴰ .snd .snd .fst = Cᴰ .snd .snd .fst
   SCwFⱽ→SCwFᴰ .snd .snd .snd .fst = Terminalⱽ→Terminalᴰ _ (Cᴰ .snd .snd .snd .fst _)
   SCwFⱽ→SCwFᴰ .snd .snd .snd .snd {Γ}{A} Γᴰ Aᴰ =
-    BinProductⱽ→PshProdReprᴰ
-      _
-      (CatLift→YoLift (Cᴰ .snd .snd .snd .snd .fst _ _))
-      (Cᴰ .snd .snd .snd .snd .snd .snd _ _)
+    ×ⱽRepr+π*→×ᴰRepr _
+      (CartesianLift→CartesianLift' _ _ (CatLift→YoLift (Cᴰ .snd .snd .snd .snd .fst _ _)))
+      (CartesianLift→CartesianLift' _ _ (Cᴰ .snd .snd .snd .snd .snd .snd _ _))
       (Cᴰ .snd .snd .snd .snd .snd .fst _ _)

@@ -48,7 +48,6 @@ open PshHomᴰ
 open Functor
 
 -- to use paths we need everything to be at the same universe level
--- this can be generalized though.
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓC'}{Q : Presheaf C ℓC'}
   {Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ'} {Qᴰ : Presheafᴰ Q Cᴰ ℓCᴰ'}
@@ -75,9 +74,11 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
              ×ⱽPsh reindPathToPshIsoPathP (p×q .snd) (reind (π₂ P Q) Qᴰ) i)
       ▷ sym (PshProdⱽ≡ᴰ Pᴰ Qᴰ)
 
+-- It involves a lot more manual combinators, but we can do this
+-- entirely with PshIso and be fully universe polymorphic
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓC'}{Q : Presheaf C ℓC'}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ'} {Qᴰ : Presheafᴰ Q Cᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   (p×q : UniversalElement C (P ×Psh Q))
   (π₁* : UniversalElementⱽ Cᴰ _ (reindYo (p×q .element .fst) Pᴰ))
   (π₂* : UniversalElementⱽ Cᴰ _ (reindYo (p×q .element .snd) Qᴰ))
@@ -96,75 +97,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ⋆PshIsoⱽᴰ ((reindPshIsoPshIsoᴰ _ _ ×ⱽIso reindPshIsoPshIsoᴰ _ _)
     ⋆PshIsoᴰⱽ invPshIsoⱽ (PshProdⱽ≅ᴰ Pᴰ Qᴰ))
 
-  open PshHomᴰ
-  private
-    module p×q = UniversalElementNotation p×q
-    module P×Q = PresheafNotation (P ×Psh Q)
-    module P = PresheafNotation P
-    module Q = PresheafNotation Q
-    module Pᴰ = PresheafᴰNotation Pᴰ
-    module Qᴰ = PresheafᴰNotation Qᴰ
-    module π₁*Pᴰ = PresheafᴰNotation (reind (π₁ P Q) Pᴰ)
-    module π₂*Qᴰ = PresheafᴰNotation (reind (π₂ P Q) Qᴰ)
-    module π₁* = UniversalElementⱽ π₁*
-    module π₂* = UniversalElementⱽ π₂*
-    -- What is the general principle?
-    π₁*-Iso : PshIsoᴰ p×q.asPshIso
-                      (reindYo (p×q .element .fst) Pᴰ)
-                      (reind (π₁ P Q) Pᴰ)
-    π₁*-Iso = mkPshIsoᴰEquivOver _ _ _
-      (record { N-obᴰ = λ z → z
-              ; N-homᴰ = λ {fᴰ = fᴰ} → π₁*Pᴰ.rectify $ π₁*Pᴰ.≡out $
-                sym (π₁*Pᴰ.reind-filler (ΣPathP (_ , (sym $ Q.⋆Assoc _ _ _))) (_ Pᴰ.⋆ᴰ _))
-                ∙ π₁*Pᴰ.reind-filler refl _
-              })
-      λ _ → record { equiv-proof = strictContrFibers _ }
-    π₂*-Iso : PshIsoᴰ p×q.asPshIso
-                      (reindYo (p×q .element .snd) Qᴰ)
-                      (reind (π₂ P Q) Qᴰ)
-    π₂*-Iso = mkPshIsoᴰEquivOver _ _ _
-      (record { N-obᴰ = λ z → z ; N-homᴰ =
-        π₂*Qᴰ.rectify $ π₂*Qᴰ.≡out $
-          (sym $ π₂*Qᴰ.reind-filler (ΣPathP ((sym $ P.⋆Assoc _ _ _) , _)) (_ Qᴰ.⋆ᴰ _))
-          ∙ π₂*Qᴰ.reind-filler refl _
-        })
-      λ _ → record { equiv-proof = strictContrFibers _ }
-
-    -- xⱽ≅×ᴰ : PshIsoᴰ (p×q.asPshIso) ((Cᴰ [-][-, π₁*.vertexᴰ ]) ×ⱽPsh (Cᴰ [-][-, π₂*.vertexᴰ ])) (Pᴰ ×ᴰPsh Qᴰ)
-    -- xⱽ≅×ᴰ = {!seqPshIsoⱽᴰ!}
-
-  -- ×ⱽRepr+π*→×ᴰRepr : UniversalElementᴰ Cᴰ p×q (Pᴰ ×ᴰPsh Qᴰ)
-  -- ×ⱽRepr+π*→×ᴰRepr = {!!}
-
-
--- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   {P : Presheaf C ℓC'}{Q : Presheaf C ℓC'}
---   {Pᴰ : Presheafᴰ P Cᴰ ℓCᴰ'} {Qᴰ : Presheafᴰ Q Cᴰ ℓCᴰ'}
---   (P×Q : UniversalElement C (P ×Psh Q))
---   (lift-π₁ : CartesianLift (P×Q .element .fst) Pᴰ)
---   (lift-π₂ : CartesianLift (P×Q .element .snd) Qᴰ)
---   (bpⱽ : BinProductⱽ Cᴰ (lift-π₁ .CartesianLift.p*Pᴰ , lift-π₂ .CartesianLift.p*Pᴰ))
---   where
-
---   private
---     module π₁*P = CartesianLift lift-π₁
---     module π₂*Q = CartesianLift lift-π₂
---     module bpⱽ = BinProductⱽNotation _ bpⱽ
---     module Pᴰ = PresheafᴰNotation Pᴰ
---     module Qᴰ = PresheafᴰNotation Qᴰ
---     module P×Q = UniversalElementNotation P×Q
---     module Cᴰ = Fibers Cᴰ
-
---   BinProductⱽ→PshProdReprᴰ' : UniversalElementᴰ Cᴰ P×Q (Pᴰ ×ᴰPsh Qᴰ)
---   BinProductⱽ→PshProdReprᴰ' =
---     subst (λ ue× → UniversalElementᴰ Cᴰ ue× (Pᴰ ×ᴰPsh Qᴰ))
---       {!!} -- (isPropUniversalElement {!!} {!!} {!!} {!!})
---       (Representationᵁᴰ→UniversalElementᴰ Cᴰ (Pᴰ ×ᴰPsh Qᴰ) $
---         bpⱽ.vert
---         , ({!!} ◁ ×ᴰ≡π₁*×ⱽπ₂* (UniversalElement→Representationᵁ C (P ×Psh Q) P×Q)
---                     {!!}
---                     {!!}))
-
+  ×ⱽRepr+π*→×ᴰRepr : UniversalElementᴰ Cᴰ p×q (Pᴰ ×ᴰPsh Qᴰ)
+  ×ⱽRepr+π*→×ᴰRepr = π₁*×ⱽπ₂* ◃PshIsoⱽᴰ ×ᴰ≅π₁*×ⱽπ₂*
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -235,8 +169,9 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
     where
     BinProductⱽ→BinProductᴰ : BinProductᴰ Cᴰ prod (xᴰ₁ , xᴰ₂)
     BinProductⱽ→BinProductᴰ =
-      BinProductⱽ→PshProdReprᴰ prod
-        (CatLift→YoLift lift-π₁) (CatLift→YoLift lift-π₂)
+      ×ⱽRepr+π*→×ᴰRepr prod
+        (CartesianLift→CartesianLift' _ _ (CatLift→YoLift lift-π₁))
+        (CartesianLift→CartesianLift' _ _ (CatLift→YoLift lift-π₂))
         vbp
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
@@ -248,11 +183,3 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   BinProductsⱽ→BinProductsᴰ cᴰ12 =
     BinProductⱽ→BinProductᴰ (bp _) Cᴰ
       (cartesianLifts _ _) (cartesianLifts _ _) (bpⱽ _ _)
-
--- module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
---   (cartesianLifts : isCatFibration Cᴰ)
---   (bpⱽ : BinProductsⱽ Cᴰ) (bp : BinProducts C)
---   where
---   BinProductsⱽ'→BinProductsᴰ : BinProductsᴰ Cᴰ bp
---   BinProductsⱽ'→BinProductsᴰ cᴰ12 =
---     {!!}

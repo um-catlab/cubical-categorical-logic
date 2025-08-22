@@ -107,6 +107,26 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   CartesianLift' : ∀ {x} (p : P.p[ x ]) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
   CartesianLift' p Pᴰ = UniversalElementⱽ Cᴰ _ (reindYo p Pᴰ)
 
+  module _ {x} (p : P.p[ x ]) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (cL : CartesianLift p Pᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module cL = CartesianLift cL
+      module p*Pᴰ = PresheafⱽNotation (reindYo p Pᴰ)
+    open UniversalElementⱽ
+    CartesianLift→CartesianLift' : CartesianLift' p Pᴰ
+    CartesianLift→CartesianLift' .vertexⱽ = cL.p*Pᴰ
+    CartesianLift→CartesianLift' .elementⱽ = Cᴰ.idᴰ Pᴰ.⋆ᴰ cL.π
+    CartesianLift→CartesianLift' .universalⱽ .fst = cL.isCartesian .fst
+    CartesianLift→CartesianLift' .universalⱽ {y} {yᴰ} {f} .snd =
+      subst
+        motive
+        (funExt (λ fᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+          Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.⋆IdL _ ⟩ ∙ Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler _ _))
+        (cL.isCartesian .snd)
+      where
+        motive : (Cᴰ [ f ][ yᴰ , cL.p*Pᴰ ] → Pᴰ.p[ f P.⋆ p ][ yᴰ ]) → Type _
+        motive introⱽ = section introⱽ (cL.isCartesian .fst) × retract introⱽ (cL.isCartesian .fst)
+
   -- TODO: make this functorial
   -- i.e. an input displayed category over C whose objects are Σ[ c ] P.p[ c ] × Pᴰ
 

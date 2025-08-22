@@ -174,6 +174,27 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   PshProdⱽ≅ᴰ .snd .rightInv _ _ = refl
   PshProdⱽ≅ᴰ .snd .leftInv _ _ = refl
 
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α β : PshHom P Q}(α≡β : α ≡ β) {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+  reindPathIsoⱽ : PshIsoⱽ (reind α Qᴰ) (reind β Qᴰ)
+  reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong fst α≡β) _) _)
+  reindPathIsoⱽ .fst .PshHomᴰ.N-homᴰ =
+    Qᴰ.rectify $ Qᴰ.≡out $
+      (sym (Qᴰ.reind-filler _ _)
+      ∙ sym (Qᴰ.reind-filler _ _)
+      ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩)
+      ∙ Qᴰ.reind-filler _ _
+  reindPathIsoⱽ .snd .isIsoOver.inv q =
+    Qᴰ.reind ((funExt⁻ (funExt⁻ (cong fst (sym α≡β)) _) _))
+  reindPathIsoⱽ .snd .isIsoOver.rightInv q qᴰ =
+    Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+  reindPathIsoⱽ .snd .isIsoOver.leftInv q qᴰ =
+    Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Q : Presheaf C ℓQ} where
   private
     module C = Category C
@@ -234,9 +255,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     reindYo-seq = reind-seq _ _ _
       ∙ cong₂ reind (yoRec-natural _ _ _) refl
 
-    -- Can this be done without a subst?
     reindYo-seqIsoⱽ : PshIsoⱽ (reindYo p (reind α Qᴰ)) (reindYo (α .fst c p) Qᴰ)
-    reindYo-seqIsoⱽ = subst (PshIsoⱽ (reindYo p (reind α Qᴰ))) reindYo-seq idPshIsoᴰ
+    reindYo-seqIsoⱽ =
+      reind-seqIsoⱽ _ _ _ ⋆PshIsoⱽ reindPathIsoⱽ (yoRec-natural _ _ _)
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

@@ -77,6 +77,9 @@ module _ (A B : hSet ℓ) (f : CatIso (SET ℓ) A B) where
   CatIso→A≡B : A ≡ B
   CatIso→A≡B = Σ≡Prop (λ _ → isPropIsSet) CatIso→⟨A⟩≡⟨B⟩
 
+-- TODO: this should be upstreamed as it has better definitional
+-- behavior than the upstream proof. The upstream proof has two more
+-- transportRefls in it.
 isUnivalentSET' : isUnivalent (SET ℓ)
 isUnivalentSET' .univ (A , isSetA) (B , isSetB) = isIsoToIsEquiv
   ( CatIso→A≡B _ _

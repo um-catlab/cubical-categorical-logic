@@ -193,8 +193,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Categoryᴰ Cᴰ
-  isCatFibration : Type _
-  isCatFibration = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibration' (Cᴰ [-][-, xᴰ ])
+  isCatFibration' : Type _
+  isCatFibration' = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibration' (Cᴰ [-][-, xᴰ ])
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}

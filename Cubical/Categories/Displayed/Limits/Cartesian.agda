@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.Cartesian where
 
 open import Cubical.Foundations.Prelude
@@ -55,7 +56,7 @@ record CartesianCategoryⱽ' (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level
     bpⱽ   : BinProductsⱽ Cᴰ
   module Cᴰ = Categoryᴰ Cᴰ
   field
-    cartesianLifts : PshFib.isCatFibration Cᴰ
+    cartesianLifts : PshFib.isCatFibration' Cᴰ
 
 module _ {CC : CartesianCategory ℓC ℓC'}
          (CCᴰ : CartesianCategoryⱽ (CC .CartesianCategory.C) ℓCᴰ ℓCᴰ') where

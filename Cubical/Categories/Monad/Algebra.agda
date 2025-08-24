@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 {- Algebras of a monad formulated in terms of extension systems -}
 module Cubical.Categories.Monad.Algebra where
 
@@ -6,17 +5,13 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
-open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Monad.ExtensionSystem
 open import Cubical.Categories.Adjoint.UniversalElements
-
-open import Cubical.Foundations.Isomorphism.More
 
 private
   variable

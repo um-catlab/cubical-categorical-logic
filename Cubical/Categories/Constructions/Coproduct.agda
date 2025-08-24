@@ -1,5 +1,4 @@
 -- The coproduct of two categories, with its universal property
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Constructions.Coproduct where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +16,7 @@ open import Cubical.Categories.Functor.Base
 
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
-open import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Instances.Path as PathC
 
 private

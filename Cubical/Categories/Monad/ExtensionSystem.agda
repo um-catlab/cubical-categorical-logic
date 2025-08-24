@@ -3,7 +3,6 @@
    deriving the rest of the structure
    https://ncatlab.org/nlab/show/extension+system
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Monad.ExtensionSystem where
 
 open import Cubical.Foundations.Prelude
@@ -23,9 +22,6 @@ open import Cubical.Categories.Monad.Base
 
 open import Cubical.Tactics.CategorySolver.Reflection
 open import Cubical.Tactics.FunctorSolver.Reflection
-
-
-open import Cubical.Foundations.Isomorphism.More
 
 private
   variable

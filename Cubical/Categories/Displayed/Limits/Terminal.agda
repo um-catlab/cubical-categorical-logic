@@ -1,100 +1,157 @@
-{-# OPTIONS --safe #-}
+-- There are two "obvious" ways to generalize limits to displayed
+-- categories.
+--
+-- 1. The "displayed limit": the total category has the limit, and
+-- first projection strictly preserves it.
+--
+-- 2. The "vertical limit": each fiber category has the limit, and the
+-- displayed morphism profunctors preserve it. If the displayed
+-- category is a fibration, then reindexing will preserve the limit,
+-- but the definition makes sense even if you aren't working with a
+-- fibration.
+--
+-- In the presence of enough fibration structure, vertical implies
+-- displayed.
+--
+-- For terminal objects these look like the following:
+--
+-- 1. A displayed terminal object is an object over a terminal object
+-- in the base such that there is a unique displayed morphism into it.
+--
+-- 2. A vertical terminal object over c is an object over c such that
+-- there is a unique displayed morphism into it.
+--
+-- In this case, we can construct a displayed terminal object over any
+-- terminal object in the base from a vertical terminal object over it
+-- without any additional fibration structure.
 module Cubical.Categories.Displayed.Limits.Terminal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Limits.Terminal
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Constructions.TotalCategory as ∫
 open import Cubical.Categories.Limits.Terminal.More
+open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable
 
--- There are multiple definitions of terminal object in a displayed category:
--- 1. A terminal object in the total category, which is preserved by projection
--- 2. A terminal object in the *fiber* of an object
+open import Cubical.Categories.Displayed.Base
+import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions
+open import Cubical.Categories.Displayed.Functor
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓP : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓP ℓQ : Level
 
 open Category
 open Categoryᴰ
 open Functorᴰ
+open isIsoOver
 
-module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD') where
-  module D = Categoryᴰ D
-  TerminalPresheafᴰ : (P : Presheaf C ℓP) → Presheafᴰ D P ℓ-zero
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+  -- For consistency, these should go in Displayed.Presheaf.Constructions
+  TerminalPresheafᴰ : (P : Presheaf C ℓP) → Presheafᴰ P Cᴰ ℓ-zero
   TerminalPresheafᴰ P .F-obᴰ x x₁ = Unit , isSetUnit
   TerminalPresheafᴰ P .F-homᴰ = λ _ x _ → tt
   TerminalPresheafᴰ P .F-idᴰ i = λ x x₁ → tt
   TerminalPresheafᴰ P .F-seqᴰ fᴰ gᴰ i = λ x _ → tt
 
+  TerminalPresheafᴰ* : ∀ ℓ → (P : Presheaf C ℓP) → Presheafᴰ P Cᴰ ℓ
+  TerminalPresheafᴰ* ℓ P .F-obᴰ x x₁ = (Unit* {ℓ}) , isSetUnit*
+  TerminalPresheafᴰ* ℓ P .F-homᴰ = λ _ x₁ _ → tt*
+  TerminalPresheafᴰ* ℓ P .F-idᴰ i = λ x₁ _ → tt*
+  TerminalPresheafᴰ* ℓ P .F-seqᴰ fᴰ gᴰ i = λ x₁ _ → tt*
+
   -- Terminal object over a terminal object
   -- TODO: refactor using Constant Functorᴰ eventually
-  LiftedTerminalᴰSpec : Presheafᴰ D (TerminalPresheaf {C = C}) ℓ-zero
-  LiftedTerminalᴰSpec = TerminalPresheafᴰ _
+  TerminalᴰSpec : Presheafᴰ (TerminalPresheaf {C = C}) Cᴰ ℓ-zero
+  TerminalᴰSpec = TerminalPresheafᴰ _
 
-  LiftedTerminalᴰ : (term : Terminal' C) →
-    Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-  LiftedTerminalᴰ term = UniversalElementᴰ _ LiftedTerminalᴰSpec term
+  Terminalᴰ : (term : Terminal' C) →
+    Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+  Terminalᴰ term = UniversalElementᴰ _ term TerminalᴰSpec
 
-  module LiftedTerminalᴰNotation {term' : Terminal' C}
-    (termᴰ : LiftedTerminalᴰ term') where
+  reindTerminal* : ∀ {ℓ}{P : Presheaf C ℓP}{Q : Presheaf C ℓQ}(α : PshHom P Q)
+    → reind α (TerminalPresheafᴰ* ℓ Q) ≡ TerminalPresheafᴰ* ℓ P
+  reindTerminal* α = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
+
+  module TerminalᴰNotation {term' : Terminal' C}
+    (termᴰ : Terminalᴰ term') where
 
     open UniversalElement
-    open UniversalElementᴰ
-    open Terminal'Notation term'
-    private module R = HomᴰReasoning D
+    open UniversalElementNotation term'
+    open UniversalElementᴰ termᴰ
+    open TerminalNotation term'
 
-    𝟙ᴰ : D.ob[ 𝟙 ]
-    𝟙ᴰ = termᴰ .vertexᴰ
+    module 𝟙ueᴰ = UniversalElementᴰ termᴰ
 
-    !tᴰ : ∀ {c} (d : D.ob[ c ]) → D.Hom[ !t ][ d , 𝟙ᴰ ]
-    !tᴰ {c} d = termᴰ .universalᴰ .equiv-proof tt .fst .fst
+    𝟙ᴰ : Cᴰ.ob[ 𝟙 ]
+    𝟙ᴰ = vertexᴰ
 
-    𝟙ηᴰ : ∀ {c} {d : D.ob[ c ]} {f} (fᴰ : D.Hom[ f ][ d , 𝟙ᴰ ])
-        → fᴰ D.≡[ 𝟙η f ] !tᴰ d
-    𝟙ηᴰ {c} {d} {f} fᴰ = R.≡[]-rectify (toPathP (sym fᴰ-commutes))
-      where contr!tᴰ = termᴰ .universalᴰ {c}{d}{ !t } .equiv-proof tt
-            fᴰ-commutes = cong fst (contr!tᴰ .snd (reind D (𝟙η _) fᴰ , refl))
+    !tᴰ : ∀ {c} (d : Cᴰ.ob[ c ]) → Cᴰ.Hom[ !t ][ d , 𝟙ᴰ ]
+    !tᴰ {c} d = introᴰ tt
+
+    ∫term : Terminal' (∫C Cᴰ)
+    ∫term .vertex = ∫ue.vertex
+    ∫term .element = tt
+    ∫term .universal (c , cᴰ) = isIsoToIsEquiv
+      ( (λ _ → !t , !tᴰ cᴰ)
+      , (λ _ → refl)
+      , λ _ → sym $ ∫ue.η)
+
+
+    𝟙extensionalityᴰ : ∀ {cc'} {f g : (∫C Cᴰ) [ cc' , (𝟙 , 𝟙ᴰ) ]} → f ≡ g
+    𝟙extensionalityᴰ = UniversalElementNotation.extensionality ∫term refl
 
   module _ (c : C .ob) where
-    -- Terminal object of the fiber of a fixed object
+    -- Vertical terminal object over a fixed object
 
-    -- TODO: Is this equivalent to the more "obvious" definition that
-    -- Fiber c have a terminal object?
-    -- No.
-    VerticalTerminalᴰSpec : Presheafᴰ D (C [-, c ]) ℓ-zero
-    VerticalTerminalᴰSpec = TerminalPresheafᴰ _
+    -- If Cᴰ is a fibration, this is equivalent to a terminal object
+    -- in the fiber over c that is preserved by reindexing
+    TerminalⱽSpec : Presheafⱽ c Cᴰ ℓ-zero
+    TerminalⱽSpec = TerminalPresheafᴰ _
 
     -- This says that for every morphism f : c' → c in C and
-    -- d ∈ D.ob[ c' ] there is a unique lift to fᴰ : D [ f ][ d' , 1c ]
+    -- d ∈ Cᴰ.ob[ c' ] there is a unique lift to fᴰ : Cᴰ [ f ][ d' , 1c ]
     -- In program logic terms this is the "trivial postcondition"
-    VerticalTerminalAtᴰ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
-    VerticalTerminalAtᴰ =
-      UniversalElementᴰ D VerticalTerminalᴰSpec (selfUnivElt C c)
+    Terminalⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+    Terminalⱽ =
+      UniversalElementⱽ Cᴰ c TerminalⱽSpec
 
-    module VerticalTerminalAtᴰNotation (vt : VerticalTerminalAtᴰ) where
-      open UniversalElementᴰ
-      1ᴰ : D.ob[ c ]
-      1ᴰ = vt .vertexᴰ
+    module TerminalⱽNotation (vt : Terminalⱽ) where
+      open UniversalElementⱽ vt public
+      𝟙ⱽ : Cᴰ.ob[ c ]
+      𝟙ⱽ = vertexⱽ
 
-      !tᴰ : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) → D [ f ][ d' , 1ᴰ ]
-      !tᴰ f d' = invIsEq (vt .universalᴰ) tt
+      !tⱽ : ∀ {c'}(f : C [ c' , c ]) (d' : Cᴰ.ob[ c' ]) → Cᴰ [ f ][ d' , 𝟙ⱽ ]
+      !tⱽ f d' = introᴰ tt
 
-      !tᴰ-unique : ∀ {c'}(f : C [ c' , c ]) (d' : D.ob[ c' ]) →
-        isContr (D [ f ][ d' , 1ᴰ ])
-      !tᴰ-unique f d' .fst = !tᴰ f d'
-      !tᴰ-unique f d' .snd fᴰ' =
-        cong (λ p → p .fst) (vt .universalᴰ .equiv-proof tt .snd (fᴰ' , refl))
+  Terminalsⱽ : Type _
+  Terminalsⱽ = ∀ c → Terminalⱽ c
+
+  module _ {term : Terminal' C} where
+    open TerminalNotation term
+    open UniversalElement
+    open UniversalElementᴰ
+    private module R = HomᴰReasoning Cᴰ
+    module _ (termⱽ : Terminalⱽ 𝟙) where
+      private module termⱽ = TerminalⱽNotation _ termⱽ
+      Terminalⱽ→Terminalᴰ : Terminalᴰ term
+      Terminalⱽ→Terminalᴰ .vertexᴰ = termⱽ.vertexⱽ
+      Terminalⱽ→Terminalᴰ .elementᴰ = tt
+      Terminalⱽ→Terminalᴰ .universalᴰ .inv _ _ = termⱽ.!tⱽ _ _
+      Terminalⱽ→Terminalᴰ .universalᴰ .rightInv _ _ = refl
+      Terminalⱽ→Terminalᴰ .universalᴰ .leftInv _ _ = R.rectify $ R.≡out $
+        termⱽ.∫ue.extensionality (ΣPathP (𝟙extensionality , refl))

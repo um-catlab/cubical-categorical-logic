@@ -1,5 +1,4 @@
 -- Free category quotiented by equations
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Constructions.Presented where
 
@@ -16,13 +15,13 @@ open import Cubical.HITs.SetQuotients as SetQuotient
   renaming ([_] to [_]q) hiding (rec; elim)
 
 open import Cubical.Categories.Constructions.Quotient as CatQuotient
-open import Cubical.Categories.Displayed.Constructions.Weaken as Weaken
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Weaken
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec; elim)
 open import Cubical.Categories.Constructions.Quotient.More as CatQuotient
   hiding (elim)
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.Weaken
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Section.Base
 
@@ -102,9 +101,9 @@ module _ (𝓒 : Category ℓc ℓc') where
           (F .F-homᴰ f)
           (F .F-homᴰ g)
         F-respects-≈ (↑ eq) = F-respects-axioms eq
-        F-respects-≈ {x}{y} (reflₑ f) = R.≡[]-rectify {p = refl} refl
+        F-respects-≈ {x}{y} (reflₑ f) = R.rectify {p = refl} refl
         F-respects-≈ (⋆ₑ-cong e e' p f f' q) =
-          R.≡[]-rectify
+          R.rectify
           (F .F-seqᴰ e f ◁
           (λ i → F-respects-≈ p i 𝓓.⋆ᴰ F-respects-≈ q i)
           ▷ (sym (F .F-seqᴰ e' f')))

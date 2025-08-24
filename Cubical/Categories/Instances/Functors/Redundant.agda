@@ -14,7 +14,6 @@
 -- C → Func,ProfHom D E
 -- gives us
 
-{-# OPTIONS --safe #-}
 
 module Cubical.Categories.Instances.Functors.Redundant where
 

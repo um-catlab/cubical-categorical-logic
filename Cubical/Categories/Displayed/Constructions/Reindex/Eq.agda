@@ -1,7 +1,6 @@
 {-
    A variant of reindexing using J to avoid transport clutter.
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Reindex.Eq where
 
 open import Cubical.Foundations.Prelude
@@ -17,11 +16,10 @@ open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
+  hiding (introF; introS)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
-open import Cubical.Categories.Displayed.Properties as Reindex hiding (reindex)
-import Cubical.Categories.Displayed.Constructions.Reindex as Reindex
+import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
@@ -122,7 +120,7 @@ module EqReindex
       F-id'
       Dᴰ.idᴰ)
       (λ i → singId .snd i)
-      (symP (R.reind-filler (sym (F .F-id)) _))
+      (symP (R.≡out (R.reind-filler (sym (F .F-id)) _)))
   forgetReindex .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ =
     subst
       {A = ∀ {x y z} {f : C .Hom[_,_] x y} {g : C .Hom[_,_] y z}{xᴰ}{yᴰ}{zᴰ}
@@ -132,7 +130,7 @@ module EqReindex
       (λ F-seq' →  PathP (λ i → Dᴰ.Hom[ F .F-seq f g i ][ xᴰ , zᴰ ])
        (F-seq' fᴰ gᴰ) (fᴰ Dᴰ.⋆ᴰ gᴰ))
       (λ i → singSeq .snd i)
-      (symP (R.reind-filler (sym (F .F-seq f g)) _))
+      (symP (R.≡out (R.reind-filler (sym (F .F-seq f g)) _)))
 
    -- TODO: it would be really nice to have a macro reindexRefl! that
    -- worked like the following: See

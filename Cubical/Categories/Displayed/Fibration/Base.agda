@@ -1,185 +1,253 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --lossy-unification #-}
+{- This file takes a long time to type check -}
 module Cubical.Categories.Displayed.Fibration.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
-open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Adjoint.UniversalElements
-open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Category.Base hiding (isIso)
+open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Profunctor.General
+
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Adjoint.More
-open import Cubical.Categories.Displayed.Constructions.Slice
 open import Cubical.Categories.Displayed.Presheaf
-import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
-
-open import Cubical.Tactics.CategorySolver.Reflection
+open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Instances.Functor.Base
+open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.Constructions.Slice
+open import Cubical.Categories.Displayed.Profunctor
+open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.Displayed.FunctorComprehension
 
 private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
 open Category
+open Functorᴰ
+open NatTransᴰ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
-    C/Cᴰ = (C /C Cᴰ)
-    module C/Cᴰ = Categoryᴰ C/Cᴰ
-    Δ = Δ/C C Cᴰ
-  -- The "high tech" formulation
-  CartesianLift : ∀ {c : C .ob} → C/Cᴰ.ob[ c ] → Type _
-  CartesianLift = VerticalRightAdjointAtᴰ Δ
+    module Cᴰ = Fibers Cᴰ
+    module C = Category C
+  {- Definition #1: Manual, what you would expect -}
+  record CartesianLift {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
+         : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))
+         where
+    field
+      f*yᴰ : Cᴰ.ob[ x ]
+      π : Cᴰ [ f ][ f*yᴰ , yᴰ ]
+      isCartesian : ∀ {z} {zᴰ} {g : C [ z , x ]} →
+        isIso λ (gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]) → (gᴰ Cᴰ.⋆ᴰ π)
+
+    introCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
+      Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ] → Cᴰ [ g ][ zᴰ , f*yᴰ ]
+    introCL = isCartesian .fst
+    opaque
+      introCL⟨_⟩ : ∀ {z} {zᴰ} {g g' : C [ z , x ]}
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        {g'fᴰ : Cᴰ [ g' C.⋆ f ][ zᴰ , yᴰ ]}
+        → (g , gfᴰ) ≡ (g' , g'fᴰ)
+        → (g , introCL gfᴰ) ≡ (g' , introCL g'fᴰ)
+      introCL⟨ x ⟩ i .fst = x i .fst
+      introCL⟨ x ⟩ i .snd = introCL (x i .snd)
+
+      -- Using this vs introCL⟨_⟩ and manual rectify directly resulted
+      -- in about a 5x speedup
+      introCL⟨_⟩⟨_⟩ : ∀ {z} {zᴰ} {g g' : C [ z , x ]}
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        {g'fᴰ : Cᴰ [ g' C.⋆ f ][ zᴰ , yᴰ ]}
+        → g ≡ g'
+        → Path Cᴰ.Hom[ _ , _ ] (g C.⋆ f , gfᴰ) (g' C.⋆ f , g'fᴰ)
+        → Path Cᴰ.Hom[ _ , _ ] (g , introCL gfᴰ) (g' , introCL g'fᴰ)
+      introCL⟨ p ⟩⟨ pᴰ ⟩ =
+        introCL⟨ ΣPathP (p , (Cᴰ.rectify $ Cᴰ.≡out $ pᴰ)) ⟩
+
+      βᴰCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        → introCL gfᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ
+      βᴰCL = isCartesian .snd .fst _
+
+      βCL :  ∀ {z} {zᴰ} {g : C [ z , x ]} →
+        {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+        → Path Cᴰ.Hom[ (z , zᴰ) , (y , yᴰ) ]
+            (g C.⋆ f , introCL gfᴰ Cᴰ.⋆ᴰ π)
+            (g C.⋆ f , gfᴰ)
+      βCL = Cᴰ.≡in βᴰCL
+
+      ηᴰCL : ∀ {z} {zᴰ} {g : C [ z , x ]} →
+        {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+        → gᴰ ≡ introCL (gᴰ Cᴰ.⋆ᴰ π)
+      ηᴰCL = sym $ isCartesian .snd .snd _
+
+      ηCL :  ∀ {z} {zᴰ} {g : C [ z , x ]} →
+        {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+        → Path Cᴰ.Hom[ _ , _ ] (g , gᴰ) (g , introCL (gᴰ Cᴰ.⋆ᴰ π))
+      ηCL = Cᴰ.≡in ηᴰCL
+
+      introCL≡ :
+        ∀ {z} {zᴰ} {g : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+        → Path Cᴰ.Hom[ _ , _ ] (g C.⋆ f , gfᴰ) (g C.⋆ f , gᴰ Cᴰ.⋆ᴰ π)
+        → Path Cᴰ.Hom[ _ , _ ] (g , introCL gfᴰ) (g , gᴰ)
+      introCL≡ gfᴰ≡gᴰπ =
+        introCL⟨ refl ⟩⟨ gfᴰ≡gᴰπ ⟩
+        ∙ (sym $ ηCL)
+
+      introCL≡' :
+        ∀ {z} {zᴰ} {g g' : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {gᴰ : Cᴰ [ g' ][ zᴰ , f*yᴰ ]}
+        → g ≡ g'
+        → Path Cᴰ.Hom[ _ , _ ] (g C.⋆ f , gfᴰ) (g' C.⋆ f , gᴰ Cᴰ.⋆ᴰ π)
+        → Path Cᴰ.Hom[ _ , _ ] (g , introCL gfᴰ) (g' , gᴰ)
+      introCL≡' g≡g' gfᴰ≡gᴰπ = introCL⟨ g≡g' ⟩⟨ gfᴰ≡gᴰπ ⟩ ∙ sym ηCL
+
+      introCL≡ᴰ :
+        ∀ {z} {zᴰ} {g : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {gᴰ : Cᴰ [ g ][ zᴰ , f*yᴰ ]}
+        → gfᴰ ≡ gᴰ Cᴰ.⋆ᴰ π
+        → introCL gfᴰ ≡ gᴰ
+      introCL≡ᴰ gfᴰ≡gᴰπ =
+        Cᴰ.rectify $ Cᴰ.≡out (introCL≡ (Cᴰ.≡in gfᴰ≡gᴰπ))
+
+      introCL-natural :
+        ∀ {z} {zᴰ} {g : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {w}{wᴰ} {h : C [ w , z ]}
+          {hᴰ : Cᴰ [ h ][ wᴰ , zᴰ ]}
+        → Path Cᴰ.Hom[ _ , _ ]
+          (h C.⋆ g , hᴰ Cᴰ.⋆ᴰ introCL gfᴰ)
+          (h C.⋆ g , introCL (Cᴰ.reind (sym $ C.⋆Assoc h g f) (hᴰ Cᴰ.⋆ᴰ gfᴰ)))
+      introCL-natural =
+        sym $ introCL≡ $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym βCL ⟩
+          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+
+      introCL-naturalᴰ :
+        ∀ {z} {zᴰ} {g : C [ z , x ]}
+          {gfᴰ : Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]}
+          {w}{wᴰ} {h : C [ w , z ]}
+          {hᴰ : Cᴰ [ h ][ wᴰ , zᴰ ]}
+        → (hᴰ Cᴰ.⋆ᴰ introCL gfᴰ)
+          ≡ introCL (Cᴰ.reind (sym $ C.⋆Assoc h g f) (hᴰ Cᴰ.⋆ᴰ gfᴰ))
+      introCL-naturalᴰ = Cᴰ.rectify $ Cᴰ.≡out $ introCL-natural
 
   isFibration : Type _
-  isFibration = VerticalRightAdjointᴰ Δ
-
-  private
-    module R = HomᴰReasoning Cᴰ
-    module Cᴰ = Categoryᴰ Cᴰ
-  -- The "explicit" formulation
-  -- TODO: better names
-  record CartesianOver {c : C .ob}{c' : C .ob}
-                       (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
-         : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) where
-    field
-      f*cᴰ' : Cᴰ.ob[ c ]
-      π     : Cᴰ.Hom[ f ][ f*cᴰ' , cᴰ' ]
-      isCartesian : ∀ {c'' : C .ob}(cᴰ'' : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
-                    (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ cᴰ'' , cᴰ' ])
-                  → ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ] ] (gᴰ Cᴰ.⋆ᴰ π ≡ gfᴰ)
-
-  module _ {c c' : C .ob}(c'ᴰ : Cᴰ.ob[ c' ])(f : C [ c , c' ]) where
-    -- type of witnesses that fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ] is cartesian,
-    -- for convenience
-    isCartesianOver : ∀{f*c'ᴰ : Cᴰ.ob[ c ]} →
-      (fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) → Type _
-    isCartesianOver {f*c'ᴰ = f*c'ᴰ} fᴰ =
-      ∀ {c'' : C .ob}(c''ᴰ : Cᴰ.ob[ c'' ])(g : C [ c'' , c ])
-      (gfᴰ : Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ c''ᴰ , c'ᴰ ]) →
-      ∃![ gᴰ ∈ Cᴰ.Hom[ g ][ c''ᴰ , f*c'ᴰ ] ] (gᴰ Cᴰ.⋆ᴰ fᴰ ≡ gfᴰ)
-
-    open CartesianOver
-
-    isCartesianOver→CartesianOver :
-      {f*c'ᴰ : Cᴰ.ob[ c ]}{fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]} →
-      isCartesianOver fᴰ → CartesianOver c'ᴰ f
-    isCartesianOver→CartesianOver {f*c'ᴰ = f*c'ᴰ} _ .f*cᴰ' = f*c'ᴰ
-    isCartesianOver→CartesianOver {fᴰ = fᴰ} _ .π = fᴰ
-    isCartesianOver→CartesianOver !gᴰ .isCartesian = !gᴰ
-
-  AllCartesianOvers : Type _
-  AllCartesianOvers =
+  isFibration =
     ∀ {c : C .ob}{c' : C .ob}
     (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
-    → CartesianOver cᴰ' f
+    → CartesianLift cᴰ' f
 
-  open UniversalElementᴰ
-  open isEquiv
-  module _ {c : C .ob} {c' : C .ob}
-           {f : C [ c , c' ]}{cᴰ' : Cᴰ.ob[ c' ]}
-           (cartOver : CartesianOver cᴰ' f)
-           where
-    open CartesianOver cartOver
-    -- | ALERT: this definition does have to introduce a reind, may
-    -- | likely complicate goals
-    CartesianOver→CartesianLift : CartesianLift (c' , (cᴰ' , f))
-    CartesianOver→CartesianLift .vertexᴰ = f*cᴰ'
-    CartesianOver→CartesianLift .elementᴰ = f , (π , refl)
-    CartesianOver→CartesianLift .universalᴰ {c''} {cᴰ''} {g}
-      .equiv-proof (gf , gfᴰ , gf≡g⋆f') =
-      uniqueExists
-        ⟨gfᴰ⟩
-        (ΣPathP ((sym gf≡g⋆f) , (ΣPathPProp (λ _ → C .isSetHom _ _)
-          (symP (R.≡→≡[] (sym β))))))
-        (λ _ → C/Cᴰ.isSetHomᴰ _ _)
-        λ gᴰ gᴰ-lifts →
-        cong fst (isCL .snd (gᴰ
-                   , sym (fromPathP (symP (cong (λ p → p .snd .fst) gᴰ-lifts)))
-          ∙ R.reind-rectify))
-      where
-        gf≡g⋆f = sym (C .⋆IdL gf) ∙ sym gf≡g⋆f' ∙ cong (comp' C f) (C .⋆IdR g)
-        isCL = isCartesian cᴰ'' g (R.reind gf≡g⋆f gfᴰ)
-        ⟨gfᴰ⟩ : Cᴰ.Hom[ g ][ cᴰ'' , f*cᴰ' ]
-        ⟨gfᴰ⟩ = isCL .fst .fst
-        β : ⟨gfᴰ⟩ Cᴰ.⋆ᴰ π ≡ R.reind gf≡g⋆f gfᴰ
-        β = isCL .fst .snd
-
-  module _ {c : C .ob} {c' : C .ob}
-           {cᴰ' : Cᴰ.ob[ c' ]}{f : C [ c , c' ]}
-           (cartLift : CartesianLift (c' , (cᴰ' , f)))
-           where
-    open CartesianOver
-    module cL = UniversalElementᴰ cartLift
+  module _ (isFib : isFibration) where
     private
-      f' : C [ c , c' ]
-      f' = cL.elementᴰ .fst
+      module Cⱽ = Fibers Cᴰ
+    module _ {x}{y}(f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) where
+      open CartesianLift (isFib yᴰ f)
+      fibration→HomᴰRepr : UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
+      fibration→HomᴰRepr .UniversalElement.vertex = f*yᴰ
+      fibration→HomᴰRepr .UniversalElement.element = π
+      fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv
+        ( (λ fᴰ → introCL (Cᴰ.idᴰ Cᴰ.⋆ᴰ fᴰ))
+        , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ βCL
+          ∙ Cᴰ.⋆IdL _)
+        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
+          introCL⟨ ΣPathP (refl , (Cᴰ.rectify $ Cᴰ.≡out $
+            Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+            ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+            ∙ Cᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ refl ⟩)) ⟩
+          ∙ (sym ηCL)
+          )
+    CartesianLiftF-fiber : ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
+    CartesianLiftF-fiber f = FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
 
-      f'≡f : f' ≡ f
-      f'≡f = sym (C .⋆IdL _) ∙ sym (cL.elementᴰ .snd .snd) ∙ C .⋆IdL _
+  module isFibrationNotation (isFib : isFibration) where
+    f*F = CartesianLiftF-fiber isFib
+    module _ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) where
+      open CartesianLift (isFib yᴰ f) using (f*yᴰ) public
+    module _ {x y : C .ob}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]} where
+      open CartesianLift (isFib yᴰ f) hiding (f*yᴰ) public
 
-      f'*cᴰ' : Cᴰ.ob[ c ]
-      f'*cᴰ' = cL.vertexᴰ
+  -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
+  -- CartesianLift' is not definitionally equivalent to CartesianLift
+  -- because π is over C.id ⋆ f rather than f
+  CartesianLiftPsh : ∀ {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ])
+    → Presheafⱽ x Cᴰ ℓCᴰ'
+  CartesianLiftPsh {x} {y} yᴰ f .F-obᴰ zᴰ g .fst = Cᴰ [ g C.⋆ f ][ zᴰ , yᴰ ]
+  CartesianLiftPsh {x} {y} yᴰ f .F-obᴰ zᴰ g .snd = Cᴰ.isSetHomᴰ
+  CartesianLiftPsh {x} {y} yᴰ f .F-homᴰ gᴰ h hfᴰ =
+    Cᴰ.reind (sym $ C.⋆Assoc _ _ _) $ gᴰ Cᴰ.⋆ᴰ hfᴰ
+  CartesianLiftPsh {x} {y} yᴰ f .F-idᴰ = funExt λ g → funExt λ gᴰ →
+    Cᴰ.rectify $ Cᴰ.≡out $
+      sym (Cᴰ.reind-filler _ _)
+      ∙ Cᴰ.⋆IdL _
+  CartesianLiftPsh {x} {y} yᴰ f .F-seqᴰ fᴰ gᴰ = funExt λ h → funExt λ hᴰ →
+    Cᴰ.rectify $ Cᴰ.≡out $
+      (sym $ Cᴰ.reind-filler _ _)
+      ∙ Cᴰ.⋆Assoc _ _ _
+      ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+      ∙ Cᴰ.reind-filler _ _
+  CARTESIANLIFT : Profunctorⱽ (C /C Cᴰ) Cᴰ ℓCᴰ'
+  CARTESIANLIFT .F-obᴰ (y , yᴰ , f) = CartesianLiftPsh yᴰ f
+  CARTESIANLIFT .F-homᴰ (g , gᴰ , square) .N-obᴰ xᴰ h hᴰ =
+    Cᴰ.reind
+      (C.⋆Assoc _ _ _
+      ∙ C.⟨ refl ⟩⋆⟨ sym square ⟩
+      ∙ sym (C.⋆Assoc _ _ _))
+      $ hᴰ Cᴰ.⋆ᴰ gᴰ
+  CARTESIANLIFT .F-homᴰ (g , gᴰ , square) .N-homᴰ fᴰ =
+    funExt λ h → funExt λ hkᴰ →
+    Cᴰ.rectify $ Cᴰ.≡out $
+    (sym $ Cᴰ.reind-filler _ _)
+    ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+    ∙ Cᴰ.⋆Assoc _ _ _
+    ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+    ∙ Cᴰ.reind-filler _ _
+  CARTESIANLIFT .F-idᴰ = makeNatTransPathᴰ (Cᴰ ^opᴰ) (SETᴰ ℓC' ℓCᴰ')
+    (makeNatTransPath (funExt λ _ → funExt C.⋆IdR))
+    (implicitFunExt $ funExt λ yᴰ → funExt λ f → funExt λ fgᴰ →
+      Cᴰ.rectify $ Cᴰ.≡out $
+        (sym $ Cᴰ.reind-filler _ _)
+        ∙ Cᴰ.⋆IdR _)
+  CARTESIANLIFT .F-seqᴰ (f , fᴰ , sq-f) (g , gᴰ , sq-g) = makeNatTransPathᴰ _ _
+    (makeNatTransPath $ funExt λ _ → funExt λ h → sym $ C.⋆Assoc _ _ _)
+    (implicitFunExt $ funExt λ yᴰ → funExt λ h → funExt λ hkᴰ →
+      Cᴰ.rectify $ Cᴰ.≡out $
+        (sym $ Cᴰ.reind-filler _ _)
+        ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+        ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+        ∙ Cᴰ.reind-filler _ _)
 
-      π' : Cᴰ.Hom[ f' ][ f'*cᴰ' , cᴰ' ]
-      π' = cL.elementᴰ .snd .fst
+  CartesianLift' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
+  CartesianLift' {x} yᴰ f =
+    UniversalElementⱽ Cᴰ x (CARTESIANLIFT .F-obᴰ $ _ , yᴰ , f)
 
-      the-π : Cᴰ.Hom[ f ][ f'*cᴰ' , cᴰ' ]
-      the-π = R.reind f'≡f π'
+  isFibration' : Type _
+  isFibration' =
+    ∀ {c : C .ob}{c' : C .ob}
+    (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
+    → CartesianLift' cᴰ' f
 
-    CartesianLift→CartesianOver : CartesianOver cᴰ' f
-    CartesianLift→CartesianOver .f*cᴰ' = cL.vertexᴰ
-    CartesianLift→CartesianOver .π     = the-π
-    CartesianLift→CartesianOver .isCartesian {c''} cᴰ'' g gfᴰ =
-      uniqueExists
-        ⟨gfᴰ⟩
-        (R.≡[]-rectify (R.≡[]∙ _ _
-          (R.≡[]⋆ refl (sym f'≡f) refl (symP (R.reind-filler f'≡f π')))
-          (λ i → the-CL .fst .snd i .snd .fst)))
-        (λ _ → Cᴰ.isSetHomᴰ _ _)
-        λ gᴰ gᴰ⋆π≡gfᴰ → cong fst (the-CL .snd (gᴰ ,
-          ΣPathP (g⋆f'≡g⋆f , (ΣPathPProp (λ _ → C .isSetHom _ _)
-          (R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
-          ▷ gᴰ⋆π≡gfᴰ)))))
-      where
-        the-CL = cL.universalᴰ .equiv-proof (g ⋆⟨ C ⟩ f , gfᴰ , solveCat! C)
-        ⟨gfᴰ⟩ : Cᴰ.Hom[ g ][ cᴰ'' , cL.vertexᴰ ]
-        ⟨gfᴰ⟩ = the-CL .fst .fst
+  CartesianLift'F : isFibration' → Functorⱽ (C /C Cᴰ) Cᴰ
+  CartesianLift'F cL's = FunctorⱽComprehension {Pᴰ = CARTESIANLIFT}
+    λ x (_ , yᴰ , f) → cL's yᴰ f
 
-        g⋆f'≡g⋆f : g ⋆⟨ C ⟩ f' ≡ g ⋆⟨ C ⟩ f
-        g⋆f'≡g⋆f = cong fst (the-CL .fst .snd)
-
-        gᴰ⋆π'≡gᴰ⋆π : ∀ (gᴰ : Cᴰ.Hom[ g ][ cᴰ'' , f'*cᴰ' ])
-                   → gᴰ Cᴰ.⋆ᴰ π' Cᴰ.≡[ cong (seq' C g) f'≡f ] (gᴰ Cᴰ.⋆ᴰ the-π)
-        gᴰ⋆π'≡gᴰ⋆π gᴰ =
-          R.≡[]-rectify (R.≡[]⋆ refl f'≡f refl (R.reind-filler f'≡f π'))
-
--- package together a fibration and its cleavage, with an explicit base
-ClovenFibration : (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
-ClovenFibration C ℓCᴰ ℓCᴰ' = Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ] isFibration Cᴰ
-
-module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
-  (p : ClovenFibration C ℓCᴰ ℓCᴰ')(q : ClovenFibration D ℓDᴰ ℓDᴰ') where
-  module _ {F : Functor C D} (Fᴰ : Functorᴰ F (p .fst) (q .fst)) where
-    open Category
-    open Functorᴰ
-    private
-      module Cᴰ = Categoryᴰ (p .fst)
-
-    -- whether a 1-cell preserves cartesian morphisms
-    isFibered : Type _
-    isFibered =
-      ∀ {c c' : C .ob} (c'ᴰ : Cᴰ.ob[ c' ]) (f : C [ c , c' ]) →
-      (f*c'ᴰ : Cᴰ.ob[ c ])(fᴰ : Cᴰ.Hom[ f ][ f*c'ᴰ , c'ᴰ ]) →
-        isCartesianOver (p .fst) c'ᴰ f fᴰ →
-        isCartesianOver (q .fst) (Fᴰ .F-obᴰ c'ᴰ) (F ⟪ f ⟫) (Fᴰ .F-homᴰ fᴰ)
-
-  record FiberedFunctor
-      : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓD ℓD'))
-      (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓDᴰ ℓDᴰ'))) where
-    field
-      base : Functor C D
-      over : Functorᴰ base (p .fst) (q .fst)
-      preserves-cartesian : isFibered over
+  -- Definition #3: This is the "textbook" compositional
+  -- definition. It suffers from very slow performance
+  CartesianLift'' : {x y : C .ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
+  CartesianLift'' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)

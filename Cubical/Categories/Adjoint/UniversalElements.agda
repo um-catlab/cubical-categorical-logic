@@ -1,4 +1,4 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Categories.Adjoint.UniversalElements where
 
@@ -7,11 +7,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Profunctor.FunctorComprehension
 open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Yoneda
 
 private
@@ -28,7 +25,7 @@ module _ {C : Category ℓC ℓC'}
          (F : Functor C D)
          where
   RightAdjointProf : Functor D (PresheafCategory C ℓD')
-  RightAdjointProf = precomposeF (SET _) (F ^opF) ∘F YO
+  RightAdjointProf = precomposeF _ (F ^opF) ∘F YO
 
 
   RightAdjointAt : (d : D .ob) → Type _
@@ -48,36 +45,10 @@ module _ {C : Category ℓC ℓC'}
   LeftAdjointAt : (d : D .ob) → Type _
   LeftAdjointAt = RightAdjointAt (F ^opF)
 
--- Uh Oh
-RightAdjointAt' : (C : Category ℓC ℓC')
-                  (D : Category ℓD ℓD')
-                  (F : Functor C D) (d : D .ob)
-                → Type _
-RightAdjointAt' C D F d  =
-  UniversalElement C ((D [-, d ]) ∘F (F ^opF))
-
-RightAdjointAt→Prime : (C : Category ℓC ℓC')
-                 (D : Category ℓD ℓD')
-                 (F : Functor C D)
-                 (d : D .ob)
-                 → RightAdjointAt F d → RightAdjointAt' C D F d
-RightAdjointAt→Prime C D F d x .UniversalElement.vertex =
-  UniversalElement.vertex x
-RightAdjointAt→Prime C D F d x .UniversalElement.element =
-  UniversalElement.element x
-RightAdjointAt→Prime C D F d x .UniversalElement.universal =
-  UniversalElement.universal x
-
-RightAdjoint' : (C : Category ℓC ℓC')
-                (D : Category ℓD ℓD')
-                (F : Functor C D)
-              → Type _
-RightAdjoint' C D F = ∀ d → RightAdjointAt' C D F d
-
-IdRightAdj' : (C : Category ℓC ℓC')
-      → RightAdjoint' C C Id
-IdRightAdj' C c .UniversalElement.vertex = c
-IdRightAdj' C c .UniversalElement.element = id C
-IdRightAdj' C c .UniversalElement.universal c' =
+IdRightAdj : (C : Category ℓC ℓC')
+      → RightAdjoint (Id {C = C})
+IdRightAdj C c .UniversalElement.vertex = c
+IdRightAdj C c .UniversalElement.element = id C
+IdRightAdj C c .UniversalElement.universal c' =
   isoToIsEquiv (iso _ (λ z → z) (C .⋆IdR) (C .⋆IdR))
 

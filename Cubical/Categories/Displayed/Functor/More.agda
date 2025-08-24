@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 --
 module Cubical.Categories.Displayed.Functor.More where
 
@@ -7,17 +6,18 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 import      Cubical.Data.Equality as Eq
-import      Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Constructions.Weaken
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 private
   variable
-    ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' : Level
+    ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
+
+mixedHEq : {A0 A1 : Type ℓ} (Aeq : A0 Eq.≡ A1) (a0 : A0)(a1 : A1) → Type _
+mixedHEq Aeq a0 a1 = Eq.transport (λ A → A) Aeq a0 ≡ a1
 
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -60,7 +60,7 @@ module _
       (GF-id : ∀ {x} → GF-hom .fst (C.id {x}) ≡ D.id)
       → ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
       → reindF'-hom GF-ob GF-hom (Cᴰ.idᴰ {x}{xᴰ}) Dᴰ.≡[ GF-id ] Dᴰ.idᴰ
-    reindF'-id (_ , Eq.refl) (_ , Eq.refl) GF-id = R.≡[]-rectify (Fᴰ .F-idᴰ)
+    reindF'-id (_ , Eq.refl) (_ , Eq.refl) GF-id = R.rectify (Fᴰ .F-idᴰ)
 
     reindF'-seq : (GF-ob : GF-ob-ty) (GF-hom : GF-hom-ty GF-ob)
       (GF-seq : ∀ {x}{y}{z}(f : C [ x , y ])(g : C [ y , z ])
@@ -71,7 +71,7 @@ module _
       (fᴰ Cᴰ.⋆ᴰ gᴰ) Dᴰ.≡[ GF-seq f g ]
       reindF'-hom GF-ob GF-hom fᴰ Dᴰ.⋆ᴰ reindF'-hom GF-ob GF-hom gᴰ
     reindF'-seq (_ , Eq.refl) (_ , Eq.refl) GF-seq fᴰ gᴰ =
-      R.≡[]-rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
+      R.rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
 
   open Functor
   -- This is preferable to reindF if the equalities are Refl.
@@ -96,3 +96,60 @@ module _
 
       GF-hom : GF-hom-ty GF-ob
       GF-hom = _ , GF-hom≡FF-hom
+
+  reindF'' : (G : Functor C D)
+             (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)
+             (GF-hom≡FF-hom :
+              mixedHEq (Eq.ap (λ F-ob₁ → ∀ {x} {y}
+                         → C [ x , y ] → D [ F-ob₁ x , F-ob₁ y ])
+                         GF-ob≡FF-ob)
+                (F .F-hom)
+                (G .F-hom)
+                )
+          → Functorᴰ F Cᴰ Dᴰ
+          → Functorᴰ G Cᴰ Dᴰ
+  reindF'' G ob≡ hom≡ = reindF' G ob≡ (Eq.pathToEq hom≡)
+
+Functorⱽ : {C : Category ℓC ℓC'}
+  → Categoryᴰ C ℓCᴰ ℓCᴰ' → Categoryᴰ C ℓDᴰ ℓDᴰ'
+  → Type _
+Functorⱽ = Functorᴰ Id
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ C ℓEᴰ ℓEᴰ'}
+  (Gᴰ : Functorⱽ Dᴰ Eᴰ) (Fᴰ : Functorⱽ Cᴰ Dᴰ)
+  where
+
+  funcCompⱽ : Functorⱽ Cᴰ Eᴰ
+  funcCompⱽ = reindF' _ Eq.refl Eq.refl (Gᴰ ∘Fᴰ Fᴰ)
+
+  _∘Fⱽ_ = funcCompⱽ
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {Eᴰ : Categoryᴰ D ℓEᴰ ℓEᴰ'}
+  (Gᴰ : Functorⱽ Dᴰ Eᴰ) (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+
+  funcCompⱽᴰ : Functorᴰ F Cᴰ Eᴰ
+  funcCompⱽᴰ = reindF' _ Eq.refl Eq.refl (Gᴰ ∘Fᴰ Fᴰ)
+
+  _∘Fⱽᴰ_ = funcCompⱽᴰ
+
+module _ {D : Category ℓD ℓD'} {E : Category ℓE ℓE'} {G : Functor D E}
+  {Cᴰ : Categoryᴰ D ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  (Gᴰ : Functorᴰ G Dᴰ Eᴰ) (Fᴰ : Functorⱽ Cᴰ Dᴰ)
+  where
+
+  funcCompᴰⱽ : Functorᴰ G Cᴰ Eᴰ
+  funcCompᴰⱽ = reindF' _ Eq.refl Eq.refl (Gᴰ ∘Fᴰ Fᴰ)
+  _∘Fᴰⱽ_ = funcCompᴰⱽ
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  (Fⱽ : Functorⱽ Cᴰ Dᴰ)
+  where
+  open Functorᴰ
+  _^opFⱽ : Functorⱽ (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
+  _^opFⱽ = reindF' _ Eq.refl Eq.refl (Fⱽ ^opFᴰ)

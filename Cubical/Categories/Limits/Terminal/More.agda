@@ -1,11 +1,9 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits.Terminal.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Isomorphism.More
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -16,7 +14,9 @@ open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
+
 
 private
   variable
@@ -37,41 +37,43 @@ preserveOnePreservesAll C D F One D-preserves-One One' =
                 ((F ⟅ One .fst ⟆) , D-preserves-One) (F ⟅ One' .fst ⟆)
                 (F-Iso {F = F} (terminalToIso C One One'))
 
-open UniversalElement
 TerminalPresheaf : ∀ {C : Category ℓc ℓc'} → Presheaf C ℓ-zero
 TerminalPresheaf = Constant _ _ (Unit , isSetUnit)
+
+TerminalPresheaf* : ∀ ℓ {C : Category ℓc ℓc'} → Presheaf C ℓ
+TerminalPresheaf* ℓ = Constant _ _ (Unit* , isSetUnit*)
 
 Terminal' :  ∀ (C : Category ℓc ℓc') → Type (ℓ-max ℓc ℓc')
 Terminal' C = UniversalElement C (TerminalPresheaf {C = C})
 
 terminalToUniversalElement : ∀ {C : Category ℓc ℓc'} (One : Terminal C)
-  → UniversalElement C (TerminalPresheaf {C = C})
-terminalToUniversalElement One .vertex = One .fst
-terminalToUniversalElement One .element = tt
-terminalToUniversalElement {C = C} One .universal x = isoToIsEquiv (iso
+  → Terminal' C
+terminalToUniversalElement One .UniversalElement.vertex = One .fst
+terminalToUniversalElement One .UniversalElement.element = tt
+terminalToUniversalElement {C = C} One .UniversalElement.universal x = isoToIsEquiv (iso
   (λ _ → tt)
   (λ _ → terminalArrow C One _)
   (λ b i → tt)
   λ a → terminalArrowUnique C {T = One} a)
 
 Terminal'ToTerminal : ∀ {C : Category ℓc ℓc'} → Terminal' C → Terminal C
-Terminal'ToTerminal term' .fst = term' .vertex
+Terminal'ToTerminal term' .fst = term' .UniversalElement.vertex
 Terminal'ToTerminal term' .snd c =
   contr!t .fst .fst
   , (λ !t' → cong fst (contr!t .snd (!t' , refl)) )
-  where contr!t = term' .universal c .equiv-proof tt
+  where contr!t = term' .UniversalElement.universal c .equiv-proof tt
 
-module TerminalNotation (C : Category ℓ ℓ') (term : Terminal C) where
-  𝟙 = term .fst
+module TerminalNotation {ℓ}{ℓ'} {C : Category ℓ ℓ'} (term' : Terminal' C) where
+  module 𝟙ue = UniversalElementNotation term'
+  private
+    module C = Category C
+  open 𝟙ue
+
+  𝟙 : C.ob
+  𝟙 = vertex
 
   !t : ∀ {a} → C [ a , 𝟙 ]
-  !t = terminalArrow C term _
+  !t = intro _
 
-  𝟙η : ∀ {a} → (f : C [ a , 𝟙 ]) → f ≡ !t
-  𝟙η f = sym (terminalArrowUnique C {T = term} f)
-
-  𝟙η' : ∀ {a} → {f g : C [ a , 𝟙 ]} → f ≡ g
-  𝟙η' = 𝟙η _ ∙ sym (𝟙η _)
-
-module Terminal'Notation {ℓ}{ℓ'} {C : Category ℓ ℓ'} (term' : Terminal' C)
-  = TerminalNotation C (Terminal'ToTerminal term')
+  𝟙extensionality : ∀ {a}{f g : C [ a , 𝟙 ]} → f ≡ g
+  𝟙extensionality = extensionality refl

@@ -1,10 +1,8 @@
-{-# OPTIONS --safe #-}
 {-
    Monads as extension systems,
    i.e., in terms of unit and bind, deriving the rest of the structure
    https://ncatlab.org/nlab/show/extension+system
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Comonad.ExtensionSystem where
 
 open import Cubical.Foundations.Prelude

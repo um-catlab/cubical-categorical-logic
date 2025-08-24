@@ -1,4 +1,3 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.NaturalTransformation.More where
 
 open import Cubical.Foundations.Prelude
@@ -6,8 +5,10 @@ open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
+import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functor.Equality
 open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Commutativity
 open import Cubical.Categories.Morphism
@@ -87,16 +88,19 @@ module _ {A : Category ℓA ℓA'}
         (NatIso→FUNCTORIso A B β)
       )
 
-module _ {B : Category ℓB ℓB'} {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
-  open NatTrans
-  -- whiskering
-  -- αF
-  _∘ˡⁱ_ : ∀ {G H : Functor C D} (α : NatIso G H) → (F : Functor B C)
-        → NatIso (G ∘F F) (H ∘F F)
-  _∘ˡⁱ_ {G} {H} α F .trans = α .trans ∘ˡ F
-  _∘ˡⁱ_ {G} {H} α F .nIso x = α .nIso (F ⟅ x ⟆)
-
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D}
          (α : NatTrans F G) where
   isNatIso : Type _
   isNatIso = ∀ x → isIsoC D (α .N-ob x)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F G : Functor C D}
+         (α : F ≅ᶜ G) where
+  NatIsoAt : ∀ x → CatIso D (F ⟅ x ⟆) (G ⟅ x ⟆)
+  NatIsoAt x = (N-ob (α .trans) x) , (α .nIso x)
+
+
+_∘ʳⁱ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatIso G H)
+       → NatIso (K ∘F G) (K ∘F H)
+(K ∘ʳⁱ β) .trans = K ∘ʳ (β .trans)
+(K ∘ʳⁱ β) .nIso x = F-Iso {F = K} (β .trans ⟦ x ⟧ , β .nIso x) .snd
+

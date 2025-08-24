@@ -5,3 +5,5 @@
 *.pdf
 *.synctex.gz
 Everything.agda
+/env/
+!/Everything.agda

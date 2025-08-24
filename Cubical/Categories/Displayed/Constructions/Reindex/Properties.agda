@@ -1,19 +1,29 @@
-{-# OPTIONS --safe #-}
---
 module Cubical.Categories.Displayed.Constructions.Reindex.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Limits.Terminal.More
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Presheaf
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Properties
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base hiding (π)
+open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.BinProduct
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
+open import Cubical.Categories.Displayed.Presheaf
 
 private
   variable
@@ -21,8 +31,8 @@ private
 
 open Category
 open Functor
+open CartesianLift
 
-{- -}
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
@@ -36,39 +46,36 @@ module _
     module F*Dᴰ = Categoryᴰ F*Dᴰ
     module Dᴰ = Categoryᴰ Dᴰ
 
+  hasPropHomsReindex : hasPropHoms Dᴰ → hasPropHoms (reindex Dᴰ F)
+  hasPropHomsReindex = λ z {c} {c'} f → z (F-hom F f)
+
   module _
     {c : C .ob}{c' : C .ob}
     {dᴰ' : Dᴰ.ob[ F ⟅ c' ⟆ ]}{f : C [ c , c' ]}
     where
-    open CartesianOver
-    reflectsCartesianOvers
-      : CartesianOver Dᴰ dᴰ' (F ⟪ f ⟫)
-      → CartesianOver F*Dᴰ dᴰ' f
-    reflectsCartesianOvers f-lift .f*cᴰ' = f-lift .f*cᴰ'
-    reflectsCartesianOvers f-lift .π = f-lift .π
-    reflectsCartesianOvers f-lift .isCartesian {c''} dᴰ'' g gfᴰ = uniqueExists
-      (⟨gfᴰ⟩' .fst .fst)
-      ⟨gfᴰ⟩'-commutes
-      (λ _ → F*Dᴰ.isSetHomᴰ _ _)
-      ⟨gfᴰ⟩'-uniq
-      where
-        gfᴰ' : Dᴰ.Hom[ _ ][ dᴰ'' , dᴰ' ]
-        gfᴰ' = R.reind (F .F-seq g f) gfᴰ
+    -- why is this true, really?
+    -- the first represents the functor (yoRec (F ⟪ f ⟫))* Dᴰ [-][-, dᴰ' ]
+    -- the latter represents the functor (yoRec f)* F*Dᴰ [-][-, dᴰ' ]
+    reflectsCartesianLifts
+      : CartesianLift Dᴰ dᴰ' (F ⟪ f ⟫)
+      → CartesianLift F*Dᴰ dᴰ' f
+    reflectsCartesianLifts F⟪f⟫-lift .f*yᴰ = F⟪f⟫-lift .f*yᴰ
+    reflectsCartesianLifts F⟪f⟫-lift .π = F⟪f⟫-lift .π
+    reflectsCartesianLifts F⟪f⟫-lift .isCartesian .fst gfᴰ =
+      F⟪f⟫-lift .isCartesian .fst (R.reind (F .F-seq _ _) gfᴰ)
+    reflectsCartesianLifts F⟪f⟫-lift .isCartesian .snd .fst gfᴰ =
+      R.rectify $ R.≡out $
+      (sym $ R.reind-filler _ _)
+      ∙ (R.≡in $ F⟪f⟫-lift .isCartesian .snd .fst _)
+      ∙ (sym $ R.reind-filler _ _)
 
-        ⟨gfᴰ⟩' = f-lift .isCartesian dᴰ'' (F ⟪ g ⟫) gfᴰ'
+    reflectsCartesianLifts F⟪f⟫-lift .isCartesian .snd .snd gᴰ =
+      R.rectify $ R.≡out $
+      ((R.≡in $ congP (λ _ → F⟪f⟫-lift .isCartesian .fst)
+        -- TODO: add reindReind⁻ to Reasoning
+        $ transportTransport⁻ (λ i → Dᴰ.Hom[ F .F-seq _ _ i ][ _ , _ ])
+          (gᴰ Dᴰ.⋆ᴰ F⟪f⟫-lift .π))
+      ∙ (R.≡in $ F⟪f⟫-lift .isCartesian .snd .snd gᴰ))
 
-        ⟨gfᴰ⟩'-commutes : ⟨gfᴰ⟩' .fst .fst F*Dᴰ.⋆ᴰ f-lift .π ≡ gfᴰ
-        ⟨gfᴰ⟩'-commutes = R.≡[]-rectify (R.≡[]∙ _ _ (R.≡[]∙ _ _
-          (R.reind-filler-sym (F .F-seq g f) _)
-          (⟨gfᴰ⟩' .fst .snd))
-          (symP (R.reind-filler (F .F-seq g f) gfᴰ)))
-
-        ⟨gfᴰ⟩'-uniq
-          : (gᴰ : F*Dᴰ.Hom[ g ][ dᴰ'' , f-lift .f*cᴰ' ])
-          → (gᴰ F*Dᴰ.⋆ᴰ f-lift .π) ≡ gfᴰ
-          → ⟨gfᴰ⟩' .fst .fst ≡ gᴰ
-        ⟨gfᴰ⟩'-uniq gᴰ gᴰ-commutes = cong fst (⟨gfᴰ⟩' .snd (gᴰ ,
-          (R.≡[]-rectify (R.≡[]∙ _ _ (R.≡[]∙ _ _
-            (R.reind-filler (sym (F .F-seq _ _)) _)
-            gᴰ-commutes)
-            (R.reind-filler (F .F-seq g f) gfᴰ)))))
+  isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
+  isFibrationReindex isFibDᴰ _ _ = reflectsCartesianLifts (isFibDᴰ _ _)

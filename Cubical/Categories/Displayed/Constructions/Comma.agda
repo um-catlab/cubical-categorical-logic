@@ -4,7 +4,7 @@
   over one or both of the projections.
 
 -}
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Constructions.Comma where
 
 open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ open import Cubical.Data.Unit
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
   hiding (intro)
-open import Cubical.Categories.Bifunctor.Redundant
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Constructions.BinProduct as BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Properties
@@ -25,15 +25,11 @@ open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.HLevels.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  as TotalCatᴰ hiding (intro)
-open import Cubical.Categories.Displayed.Constructions.TotalCategory.More
   as TotalCatᴰ
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryR
 open import Cubical.Categories.Displayed.Constructions.SimpleTotalCategoryL
@@ -51,12 +47,13 @@ open NatTrans
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
          (F : Functor C E) (G : Functor D E) where
-
+  private
+    GraphProf = (HomBif E ∘Fl (F ^opF) ∘Fr G)
   Commaᴰ : Categoryᴰ (C ×C D) ℓE' ℓE'
-  Commaᴰ = Graph {C = C} (HomBif E ∘Fl (F ^opF) ∘Fr G)
+  Commaᴰ = Graph {C = C} GraphProf
 
   hasPropHomsCommaᴰ : hasPropHoms Commaᴰ
-  hasPropHomsCommaᴰ = hasPropHomsGraph _
+  hasPropHomsCommaᴰ = hasPropHomsGraph GraphProf
 
   -- Universal Property: a functor into the comma category is
   -- equivalent to a natural transformation
@@ -76,20 +73,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   Commaᴰ₁ : Categoryᴰ C (ℓ-max ℓD ℓE') (ℓ-max ℓD' ℓE')
   Commaᴰ₁ = ∫Cᴰsr Commaᴰ
 
-  private
-    IsoCommaᴰ' : Categoryᴰ (∫C Commaᴰ) _ _
-    IsoCommaᴰ' = (PropertyOver _ (λ (_ , f) → isIso E f))
+  IsoCommaᴰ' : Categoryᴰ (∫C Commaᴰ) _ _
+  IsoCommaᴰ' = (PropertyOver _ (λ (_ , f) → isIso E f))
 
-    hasPropHomsIsoCommaᴰ' : hasPropHoms IsoCommaᴰ'
-    hasPropHomsIsoCommaᴰ' =
-      hasContrHoms→hasPropHoms IsoCommaᴰ' (hasContrHomsPropertyOver _ _)
+  hasContrHomsIsoCommaᴰ' : hasContrHoms IsoCommaᴰ'
+  hasContrHomsIsoCommaᴰ' = hasContrHomsPropertyOver (∫C Commaᴰ) λ _ → isIso E _
 
   IsoCommaᴰ : Categoryᴰ (C ×C D) (ℓ-max ℓE' ℓE') ℓE'
   IsoCommaᴰ = ∫Cᴰ Commaᴰ IsoCommaᴰ'
 
   hasPropHomsIsoCommaᴰ : hasPropHoms IsoCommaᴰ
   hasPropHomsIsoCommaᴰ =
-    hasPropHoms∫Cᴰ IsoCommaᴰ' hasPropHomsCommaᴰ hasPropHomsIsoCommaᴰ'
+    hasPropHoms∫Cᴰ IsoCommaᴰ' hasPropHomsCommaᴰ
+      (hasContrHoms→hasPropHoms IsoCommaᴰ' hasContrHomsIsoCommaᴰ')
 
   IsoComma : Category _ _
   IsoComma = ∫C IsoCommaᴰ
@@ -205,7 +201,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
          where
   open Functorᴰ
   intro : Functor B (Comma F G)
-  intro = TotalCat.intro' (H ,F K) αF where
+  intro = TotalCat.intro (H ,F K) αF where
     αF : Section _ _
     αF = mkPropHomsSection (hasPropHomsCommaᴰ _ _)
       (α ⟦_⟧)
@@ -245,9 +241,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}{E : Category ℓE �
   open NatIso
 
   mkIsoCommaFunctor : Functor B (IsoComma F G)
-  mkIsoCommaFunctor = TotalCat.intro' (H ,F K)
+  mkIsoCommaFunctor = TotalCat.intro (H ,F K)
     (TotalCatᴰ.introS _ _
       (mkPropHomsSection (hasPropHomsCommaᴰ _ _)
         (α .trans ⟦_⟧)
         (α .trans .N-hom))
-      (mkContrHomsSection (hasContrHomsPropertyOver _ _) (α .nIso)))
+      (mkContrHomsSection (hasContrHomsIsoCommaᴰ' _ _) (α .nIso)
+      ))

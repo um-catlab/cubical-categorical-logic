@@ -54,40 +54,27 @@ on:
 ########################################################################
 
 env:
-  AGDA_BRANCH: v2.6.4
-  GHC_VERSION: 9.4.7
-  CABAL_VERSION: 3.6.2.0
+  AGDA_BRANCH: v2.8.0
+  GHC_VERSION: 9.10.2
+  CABAL_VERSION: 3.12.1.0
   CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
+  CUBICAL_COMMIT : 294e7960eeb03a3a5f9041e49980b061e4a4a51b
   CACHE_PATHS: |
     ~/.cabal/packages
     ~/.cabal/store
     ~/.cabal/bin
-
+    ~/.agda
+    ~/cubical
 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  line-lengths:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install wcwidth
-
-    - name: Check line lengths
-      run: 'make check-line-lengths'
-
   compile-agda:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
     steps:
       - name: Install cabal
         uses: haskell-actions/setup@v2
@@ -96,20 +83,24 @@ jobs:
           cabal-version: ${{ env.CABAL_VERSION }}
           cabal-update: true
 
-      # This caching step allows us to save a lot of building time by only
-      # rebuilding Agda, and re-checking unchanged library files if
-      # absolutely necessary i.e. if we change either the version of Agda,
-      # ghc, or cabal that we want to use for the build.
       - name: Restore external dependencies cache
         uses: actions/cache/restore@v3
         id: cache-external-restore
         with:
           path: ${{ env.CACHE_PATHS }}
-          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}
+          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}
 
       ########################################################################
       ## INSTALLATION STEPS
       ########################################################################
+
+      - name: Download and install fix-whitespace
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
+        run: |
+          git clone https://github.com/agda/fix-whitespace --depth=1
+          cd fix-whitespace
+          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
+          cd ..
 
       - name: Download and install Agda from github
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
@@ -122,39 +113,25 @@ jobs:
           cd ..
           rm -rf agda
 
-      - name: Download Agda Standard Library from github
-        run : |
-          cd ~
-          git clone https://github.com/agda/agda-stdlib.git
-          echo "AGDA_STDLIB_DIR=$PWD/agda-stdlib" >> "$GITHUB_ENV"
-
       - name: Download Cubical from github
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run : |
           cd ~
           git clone https://github.com/agda/cubical --branch master
           cd cubical
-          git checkout 2ae84643c74750b49865e44c05b508cb2117c740
+          git checkout ${{ env.CUBICAL_COMMIT }}
           cd ..
           echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
 
       - name: Set up Agda dependencies
+        if: steps.cache-external-restore.outputs.cache-hit != 'true'
         run : |
           mkdir ~/.agda
           touch ~/.agda/libraries
           echo "$CUBICAL_DIR/cubical.agda-lib" >> ~/.agda/libraries
-          echo "$AGDA_STDLIB_DIR/standard-library.agda-lib" >> ~/.agda/libraries
           echo "$GITHUB_WORKSPACE/cubical-categorical-logic.agda-lib" >> ~/.agda/libraries
 
-      - name: Download and install fix-whitespace
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        run: |
-          cd ~
-          git clone https://github.com/agda/fix-whitespace --depth=1
-          cd fix-whitespace
-          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
-          cd ..
-
-      - name: Cache External Dependencies
+      - name: Save external dependencies cache
         if: steps.cache-external-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v3
         id: cache-external-save
@@ -174,19 +151,63 @@ jobs:
       ## TESTING
       ########################################################################
 
+      - name: Restore Cubical Categorical Logic library cache
+        uses: actions/cache/restore@v3
+        id: cache-library-restore
+        with:
+          path: ./_build
+          key: CubicalCategoricalLogicLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-${{ hashFiles('Everythings.hs' , 'Cubical/**', 'cubical-categorical-logic.agda-lib') }}
+          restore-keys: |
+            CubicalCategoricalLogicLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-
+
+      - name: Restore Cubical library cache
+        uses: actions/cache/restore@v3
+        id: cache-cubical-library-restore
+        with:
+          path: ~/cubical/_build
+          key: CubicalLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-${{ hashFiles('~/cubical/cubical/**', '~/cubical/cubical.agda-lib') }}
+          restore-keys: |
+            CubicalLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-
+
       - name: Put cabal programs in PATH
         run: echo "~/.cabal/bin" >> $GITHUB_PATH
-
-      - name: Cache Agdai Files
-        uses: actions/cache@v3
-        with:
-          path: '**/*.agdai'
-          key: ${{ runner.os }}-agdai-${{ hashFiles('**/*.agda') }}
-          restore-keys: |
-            ${{ runner.os }}-agdai-
 
       - name: Test cubical-categorical-logic
         run: |
           make test \
-            AGDA='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
+            AGDA_EXEC='~/.cabal/bin/agda +RTS -M6G -RTS -WnoUnsupportedIndexedMatch -W error' \
             FIX_WHITESPACE='~/.cabal/bin/fix-whitespace'
+
+      - name: Save library cache
+        if: steps.cache-library-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-library-save
+        with:
+          path: ./_build
+          key: ${{ steps.cache-library-restore.outputs.cache-primary-key }}
+
+      - name: Save Cubical library cache
+        if: steps.cache-cubical-library-restore.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-cubical-library-save
+        with:
+          path: ~/cubical/_build
+          key: ${{ steps.cache-cubical-library-restore.outputs.cache-primary-key }}
+
+      ########################################################################
+      ## HTML GENERATION
+      ########################################################################
+
+      - name: Htmlize cubical categorical logic
+        if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'workflow_dispatch'
+        run: |
+          make listings \
+            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
+            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace'
+
+      - name: Deploy to GitHub Pages
+        if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'workflow_dispatch'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: html

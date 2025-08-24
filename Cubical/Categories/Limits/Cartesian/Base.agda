@@ -1,37 +1,51 @@
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Limits.Cartesian.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Data.Sigma hiding (_×_)
+
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Isomorphism
-open import Cubical.Data.Sigma
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
+open import Cubical.Categories.Presheaf.More
 
 private
   variable
     ℓ ℓ' : Level
 
-CartesianCategory : (ℓ ℓ' : Level) → Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ'))
-CartesianCategory ℓ ℓ' = Σ[ C ∈ Category ℓ ℓ' ] Terminal C × BinProducts C
+record CartesianCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
+  no-eta-equality
+  field
+    C : Category ℓ ℓ'
+    term : Terminal' C
+    bp   : BinProducts C
 
-module CartesianCategoryNotation (CC : CartesianCategory ℓ ℓ') where
-  private
-    C = CC .fst
+  -- potential performance issue
   open Category C
-  open Notation C (CC .snd .snd) renaming (_×_ to _×bp_)
-  open TerminalNotation C (CC .snd .fst)
+  open TerminalNotation term
+  open BinProductsNotation bp
 
-  unitor-l : ∀ {a} → CatIso C (𝟙 ×bp a) a
+  unitor-l : ∀ {a} → CatIso C (𝟙 × a) a
   unitor-l .fst = π₂
   unitor-l .snd .isIso.inv = !t ,p id
   unitor-l .snd .isIso.sec = ×β₂
   unitor-l .snd .isIso.ret =
-    ,p-natural ∙ cong₂ _,p_ 𝟙η' (⋆IdR _ ∙ sym (⋆IdL _)) ∙ sym ×η
+    π₂ ⋆ (!t ,p id)
+      ≡⟨ ×ue.intro-natural _ _ ⟩
+    ((π₂ ⋆ !t) ,p (π₂ ⋆ id))
+      ≡⟨ ⟨ 𝟙extensionality ⟩,p⟨ ⋆IdR _ ⟩ ⟩
+    (π₁ ,p π₂)
+      ≡⟨ (sym $ ×ue.weak-η _ _) ⟩
+    id
+      ∎
+
+record CartesianCategoryRepr (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
+  no-eta-equality
+  field
+    C : Category ℓ ℓ'
+    term : Representationᵁ C (TerminalPresheaf* ℓ')
+  module C = Category C
+  field
+    bp   : ∀ (c d : C.ob) → Representationᵁ C ((C [-, c ]) ×Psh (C [-, d ]))

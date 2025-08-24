@@ -3,7 +3,7 @@ Adds the workaround for implicit arguments present in declareRecordIsoΣ
 from here: https://github.com/agda/cubical/issues/995
 Solution by @cmcmA20
 -}
-{-# OPTIONS --no-exact-split --safe #-}
+{-# OPTIONS --no-exact-split #-}
 module Cubical.Reflection.RecordEquiv.More where
 
 open import Cubical.Foundations.Prelude

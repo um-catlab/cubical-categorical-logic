@@ -1,5 +1,11 @@
-AGDA = agda
-FIX_WHITESPACE = fix-whitespace
+AGDA_BIN?=agda
+AGDA_FLAGS?=-W error
+AGDA_EXEC?=$(AGDA_BIN) $(AGDA_FLAGS)
+FIX_WHITESPACE?=fix-whitespace
+RTS_OPTIONS=+RTS -M8G -RTS
+AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
+RUNHASKELL?=runhaskell
+EVERYTHINGS=$(RUNHASKELL) ./Everythings.hs
 
 # Finds all .agda files in the current directory and subdirectories
 FIND_AGDA_FILES = find . -name "*.agda"
@@ -7,42 +13,73 @@ AGDA_FILES = $(shell $(FIND_AGDA_FILES))
 
 # The targets are the .agdai files corresponding to the .agda files
 AGDAI_FILES = $(AGDA_FILES:.agda=.agdai)
+.PHONY : all
+all : build
 
-.PHONY: all
-all: test check-line-lengths
+.PHONY : build
+build :
+	$(MAKE) AGDA_EXEC=$(AGDA_BIN) gen-everythings check
 
-.PHONY: test
-test: Everything.agda check-whitespace
-	$(AGDA) $<
+.PHONY : test
+test : check-whitespace gen-and-check-everythings check-Root check
 
-.PHONY: test-and-report
-test-and-report:
-	@failed=""; \
-	for file in $(AGDA_FILES); do \
-		$(AGDA) $$file || failed="$$failed $$file"; \
-	done; \
-	[ -z "$$failed" ] || (echo "Failed to compile:$$failed" && false)
+# checking and fixing whitespace
 
-.PHONY: check-whitespace
+.PHONY : fix-whitespace
+fix-whitespace:
+	$(FIX_WHITESPACE)
+
+.PHONY : check-whitespace
 check-whitespace:
 	$(FIX_WHITESPACE) --check
+
+# checking and generating Everything files
+
+.PHONY : check-everythings
+check-everythings:
+	$(EVERYTHINGS) check-except
+
+.PHONY : gen-everythings
+gen-everythings:
+	$(EVERYTHINGS) gen-except
+
+.PHONY : gen-and-check-everythings
+gen-and-check-everythings:
+	$(EVERYTHINGS) gen-except
+	$(EVERYTHINGS) check-except
+
+.PHONY : check-Root
+check-Root:
+	$(EVERYTHINGS) check-Root
+
+.PHONY : check
+check: gen-everythings
+	$(AGDA) TestEverything.agda
+
+.PHONY : timings
+timings: clean gen-everythings
+	$(AGDA) -v profile.modules:10 TestEverything.agda
+
+.PHONY : listings
+listings: $(wildcard Cubical/**/*.agda)
+	$(AGDA) -i. -isrc --html TestEverything.agda -v0
+
+.PHONY : clean
+clean:
+	find . -type f -name '*.agdai' -delete
+	find . -type f -name "Everything.agda" -delete
+
+.PHONY : clean
+clean-everythings:
+	find . -type f -name "Everything.agda" -delete
+
+.PHONY: debug
+debug : ## Print debug information.
+	@echo "AGDA_BIN              = $(AGDA_BIN)"
+	@echo "AGDA_FLAGS            = $(AGDA_FLAGS)"
+	@echo "AGDA_EXEC             = $(AGDA_EXEC)"
+	@echo "AGDA                  = $(AGDA)"
 
 .PHONY: check-line-lengths
 check-line-lengths:
 	bash check-line-lengths.sh
-
-# modified from
-# https://github.com/agda/agda-categories/blob/dc2a5bd7ad39b0629b21763884b8e85a96111981/Makefile#L14
-#
-# NOTES:
-# sed: we're using Basic Regular Expression (BRE) syntax
-# sort: LC_ALL=C for a deterministic order
-# PHONY in case agda files are created/deleted
-.PHONY: Everything.agda
-Everything.agda:
-	$(FIND_AGDA_FILES) ! -path './$@' | sed -e 's#/#.#g' -e 's/^\.*//' -e 's/.agda$$//' -e 's/^/import /' | LC_ALL=C sort > $@
-
-.PHONY: clean
-clean:
-	find . -name "*.agdai" -type f -delete
-	-rm Everything.agda

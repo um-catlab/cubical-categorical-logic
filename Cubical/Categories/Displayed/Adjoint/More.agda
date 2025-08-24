@@ -1,7 +1,6 @@
 {-
   Definition of an adjoint pair displayed over another adjoint pair
 -}
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Adjoint.More where
 
 open import Cubical.Foundations.Prelude
@@ -9,12 +8,17 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Adjoint
 open import Cubical.Categories.Adjoint.UniversalElements
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Profunctor.Hom
+open import Cubical.Categories.Yoneda
+
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Presheaf.Representable
 
 private
   variable
@@ -22,37 +26,52 @@ private
 
 open Category
 open Categoryᴰ
+open Functorᴰ
 
--- TODO: eventually reformulate in terms of profunctors
+RightAdjointProfᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+                  {F : Functor C D}
+                  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+                  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  → Functorᴰ (RightAdjointProf F) Dᴰ (FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓD' ℓDᴰ'))
+RightAdjointProfᴰ Fᴰ = precomposeFᴰ _ _ (Fᴰ ^opFᴰ) ∘Fᴰ YOᴰ
+
+-- Should it be RightAdjointᴰAt ?
 RightAdjointAtᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                   {F : Functor C D}
                   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
                   (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
                   {d : D .ob}
-                  (R⟅d⟆ : RightAdjointAt' C D F d)
+                  (R⟅d⟆ : RightAdjointAt F d)
                   (dᴰ : Categoryᴰ.ob[_] Dᴰ d)
-                → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓDᴰ')
+                → Type _
 RightAdjointAtᴰ {Cᴰ = Cᴰ}{Dᴰ = Dᴰ} Fᴰ R⟅d⟆ dᴰ =
-  UniversalElementᴰ Cᴰ ((Dᴰ [-][-, dᴰ ]) ∘Fᴰ (Fᴰ ^opFᴰ)) R⟅d⟆
+  UniversalElementᴰ Cᴰ R⟅d⟆ (RightAdjointProfᴰ Fᴰ .F-obᴰ dᴰ)
 
 RightAdjointᴰ : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
                 {F : Functor C D}
                 {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
                 (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-                (R : RightAdjoint' C D F)
+                (R : RightAdjoint F)
               → Type _
 RightAdjointᴰ Fᴰ R = ∀ {d} dᴰ → RightAdjointAtᴰ Fᴰ (R d) dᴰ
 
-VerticalRightAdjointAtᴰ : {C : Category ℓC ℓC'}
-                     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-                     (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
-                     {c : C .ob}
-                     (cᴰ : Categoryᴰ.ob[_] Dᴰ c)
-                     → Type _
-VerticalRightAdjointAtᴰ Fᴰ = RightAdjointAtᴰ Fᴰ (IdRightAdj' _ _)
+RightAdjointProfⱽ : {C : Category ℓC ℓC'}
+                  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+                  (Fⱽ : Functorⱽ Cᴰ Dᴰ)
+  → Functorᴰ (YO {C = C}) Dᴰ (FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓC' ℓDᴰ'))
+RightAdjointProfⱽ Fⱽ = precomposeFⱽ _ _ (Fⱽ ^opFⱽ) ∘Fⱽᴰ YOᴰ
 
-VerticalRightAdjointᴰ : {C : Category ℓC ℓC'}
+RightAdjointAtⱽ : {C : Category ℓC ℓC'}
                      {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-                     (Fᴰ : Functorᴰ Id Cᴰ Dᴰ)
+                     (Fⱽ : Functorⱽ Cᴰ Dᴰ)
+                     {c : C .ob}
+                     (dᴰ : Categoryᴰ.ob[_] Dᴰ c)
+                     → Type _
+RightAdjointAtⱽ {Cᴰ = Cᴰ} Fⱽ {c} dᴰ =
+  UniversalElementⱽ Cᴰ c (RightAdjointProfⱽ Fⱽ .F-obᴰ dᴰ)
+
+RightAdjointⱽ : {C : Category ℓC ℓC'}
+                     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+                     (Fⱽ : Functorⱽ Cᴰ Dᴰ)
                    → Type _
-VerticalRightAdjointᴰ Fᴰ = RightAdjointᴰ Fᴰ (IdRightAdj' _)
+RightAdjointⱽ Fⱽ = ∀ {x} xᴰ → RightAdjointAtⱽ Fⱽ {x} xᴰ

@@ -5,7 +5,6 @@
 
 -}
 
-{-# OPTIONS --safe #-}
 module Cubical.Categories.Displayed.Constructions.Slice where
 
 open import Cubical.Foundations.Prelude
@@ -15,26 +14,26 @@ open import Cubical.Data.Unit
 import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Morphism
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
-open import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
-  as TotalCatᴰ
-open import Cubical.Categories.Displayed.Constructions.TotalCategory.More
-  as TotalCatᴰ
+  as TotalCatᴰ hiding (introF)
 open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.BinProduct.More as BP
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Displayed.Base as Disp
-open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
+  hiding (introF)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Eq as Reindex
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
-open import Cubical.Categories.Displayed.Properties as Disp
+  hiding (introF)
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Instances.Hom
+open import Cubical.Categories.Displayed.Instances.Arrow
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
+  hiding (introF)
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Section.Base
@@ -50,8 +49,24 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private module Slice = EqReindex Cᴰ (BP.Snd C C) Eq.refl (λ _ _ → Eq.refl)
   -- See test below for the intuitive definition
   _/C_ : Categoryᴰ C _ _
-  _/C_ = ∫Cᴰ (weaken C C) (Cᴰ' ×ᴰ Hom C)
+  _/C_ = ∫Cᴰ (weaken C C) (Cᴰ' ×ᴰ Arrow C)
     where Cᴰ' = Slice.reindex
+
+  module _ {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+    {F : Functor D C}
+    (Fᴰ₁ : Functor D C)
+    (Fᴰ₂ : Functorᴰ Fᴰ₁ Dᴰ Cᴰ)
+    (Fᴰ₃ : F ⇒ Fᴰ₁)
+    where
+    -- NOTE: this is not the most general introduction rule possible.
+    -- A more general version would allow Fᴰ₁ to depend on Dᴰ as well.
+    introF : Functorᴰ F Dᴰ _/C_
+    introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁)
+      (BPᴰ.introS _
+        (Slice.introS _ (reindS' (Eq.refl , Eq.refl) (TotalCat.elim Fᴰ₂)))
+        (reindS' (Eq.refl , Eq.refl)
+          (compSectionFunctor (arrIntroS {F1 = F} {F2 = Fᴰ₁} Fᴰ₃)
+            (TotalCat.Fst {Cᴰ = Dᴰ}))))
 
   private
     open Category
@@ -60,21 +75,25 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     test = refl
 
   Δ/C : Functorᴰ Id Cᴰ _/C_
-  Δ/C = TotalCatᴰ.introF _ _ (Wk.introF Id Id)
-    (BPᴰ.introS _
-      (Slice.introS _ (reindS' (Eq.refl , Eq.refl) TotalCat.Snd))
-      (reindS' (Eq.refl , Eq.refl)
-        (compSectionFunctor ID (TotalCat.Fst {Cᴰ = Cᴰ}))))
+  Δ/C = introF Id 𝟙ᴰ⟨ Cᴰ ⟩ (idTrans Id)
 
   private
     open Functorᴰ
     _ : ∀ c (cᴰ : Cᴰ .ob[_] c) → Δ/C .F-obᴰ cᴰ ≡ (c , (cᴰ , C .id))
     _ = λ c cᴰ → refl
 
+-- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+--   {F : Functor C D}
+--   (Fᴰ₁ : Functor C D)
+--   where
+--   introF : Functorᴰ F Cᴰ (D /C Dᴰ)
+--   introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁) {!Slice.introS!}
+
 module _ (C : Category ℓC ℓC') where
   -- Slices .ob[ c ] = Σ[ c' ∈ C .ob] C [ c' , c ]
   Slices : Categoryᴰ C (ℓ-max ℓC ℓC') (ℓ-max ℓC' ℓC')
-  Slices = ∫Cᴰ (weaken C C) (Hom C)
+  Slices = ∫Cᴰ (weaken C C) (Arrow C)
 
   private
     open Category

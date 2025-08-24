@@ -1,31 +1,29 @@
-{-# OPTIONS --safe --lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
+{-
+
+  This is one of several possible definitions of the binary product.
+  It turns out to be the best.
+
+-}
 module Cubical.Categories.Limits.BinProduct.More where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.BinProduct.More
 import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Functor
+open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Profunctor.FunctorComprehension
-open import Cubical.Categories.Isomorphism
-open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Limits.BinProduct
+open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Adjoint.UniversalElements
-open import Cubical.Categories.Bifunctor.Redundant as R
+open import Cubical.Categories.Bifunctor as R hiding (Fst; Snd)
 
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Yoneda
 
 private
@@ -34,173 +32,153 @@ private
 
   _⊗_ = R._×C_
 
-open Iso
-open UniversalElement
-open BinProduct
 open Category
 open Functor
-open Bifunctor
-open isEquiv
 
 module _ (C : Category ℓ ℓ') where
-  BinProduct' = RightAdjointAt' _ _ (Δ C)
-  BinProducts' = RightAdjoint' _ _ (Δ C)
-
-  private
-    -- This definition looks promising at first, but doesn't give the
-    -- right behavior for BinProductWithF ⟪_⟫
-    BadBinProductProf : Profunctor (C R.×C C) C ℓ'
-    BadBinProductProf =
-      (precomposeF _ (Δ C ^opF) ∘F YO) ∘F R.RedundantToProd C C
+  BinProductProf' : Bifunctor C C (PresheafCategory C (ℓ-max ℓ' ℓ'))
+  BinProductProf' = PshProd ∘Flr (YO , YO)
 
   BinProductProf : Profunctor (C ⊗ C) C ℓ'
-  BinProductProf = R.rec _ _ (PshProd ∘Flr (YO , YO))
+  BinProductProf = R.rec _ _ BinProductProf'
+
+  BinProduct : ∀ (cc' : (C ⊗ C) .ob) → Type _
+  BinProduct cc' = UniversalElement C (BinProductProf ⟅ cc' ⟆)
+
+  BinProducts : Type _
+  BinProducts = UniversalElements BinProductProf
 
   -- Product with a fixed object
-  ProdWithAProf : C .ob → Profunctor C C ℓ'
-  ProdWithAProf a = BinProductProf ∘F R.ob-× C C a
+  module _ (c : C .ob) where
+    ProdWithAProf : Profunctor C C ℓ'
+    ProdWithAProf = appR BinProductProf' c
 
-  BinProductToRepresentable : ∀ {a b} → BinProduct C a b
-    → UniversalElement C (BinProductProf ⟅ a , b ⟆)
-  BinProductToRepresentable bp .vertex = bp .binProdOb
-  BinProductToRepresentable bp .element = (bp .binProdPr₁) , (bp .binProdPr₂)
-  BinProductToRepresentable bp .universal A .equiv-proof (f1 , f2) .fst .fst =
-    bp .univProp f1 f2 .fst .fst
-  BinProductToRepresentable bp .universal A .equiv-proof (f1 , f2) .fst .snd =
-    cong₂ _,_ (bp .univProp f1 f2 .fst .snd .fst)
-              ((bp .univProp f1 f2 .fst .snd .snd))
-  BinProductToRepresentable bp .universal A .equiv-proof (f1 , f2) .snd y =
-    Σ≡Prop (λ _ → isSet× (isSetHom C) (isSetHom C) _ _)
-      (cong fst (bp .univProp f1 f2 .snd ((y .fst) , PathPΣ (y .snd))))
+    BinProductsWith : Type (ℓ-max ℓ ℓ')
+    BinProductsWith = UniversalElements ProdWithAProf
 
-  module _ (bp : BinProducts C) where
-    BinProductsToUnivElts : UniversalElements BinProductProf
-    BinProductsToUnivElts c = BinProductToRepresentable (bp (c .fst) (c .snd))
-
+  module _ (bp : BinProducts) where
     BinProductF : Functor (C R.×C C) C
-    BinProductF = FunctorComprehension BinProductsToUnivElts
+    BinProductF = FunctorComprehension BinProductProf bp
 
     BinProductBif : Bifunctor C C C
     BinProductBif = R.Functor→Bifunctor BinProductF
 
+    BinProductF' : Functor (C ×C C) C
+    BinProductF' = BifunctorToParFunctor BinProductBif
+
+  module _ {a} (bp : BinProductsWith a) where
+    BinProductWithF : Functor C C
+    BinProductWithF = FunctorComprehension (ProdWithAProf a) bp
+
+module BinProductNotation {C : Category ℓ ℓ'} {a b} (bp : BinProduct C (a , b)) where
   private
-    variable
-      a b c d : C .ob
-      f g h : C [ a , b ]
+    module C = Category C
+  module ×ue = UniversalElementNotation bp
+  open ×ue
+  vert = vertex
 
+  π₁ : C [ vert , a ]
+  π₁ = element .fst
 
-  module _ {a} (bp : ∀ b → BinProduct C a b) where
-    BinProductWithToRepresentable : UniversalElements (ProdWithAProf a)
-    BinProductWithToRepresentable b = BinProductToRepresentable (bp b)
+  π₂ : C [ vert , b ]
+  π₂ = element .snd
 
-    BinProductWithF =
-      FunctorComprehension BinProductWithToRepresentable
+  infixr 4 _,p_
+  _,p_ : ∀ {Γ} → C [ Γ , a ] → C [ Γ , b ] → C [ Γ , vert ]
+  f₁ ,p f₂ = intro (f₁ , f₂)
 
-    -- test definitional behavior
-    _ : ∀ {b b'}(f : C [ b , b' ]) →
-        BinProductWithF ⟪ f ⟫ ≡
-          bp b' .univProp (bp b .binProdPr₁)
-            (f ∘⟨ C ⟩ bp b .binProdPr₂) .fst .fst
-    _ = λ f → refl
-    module ProdsWithNotation where
-      open UniversalElementNotation {C = C}
-      private
-        ues = BinProductWithToRepresentable
-      a×_ : C .ob → C .ob
-      a× b = ues b .vertex
+  opaque
+    ⟨_⟩,p⟨_⟩ :
+      ∀ {Γ}
+        {f f' : C [ Γ , a ]}
+        {g g' : C [ Γ , b ]}
+      → f ≡ f'
+      → g ≡ g'
+      → (f ,p g) ≡ (f' ,p g')
+    ⟨ f≡f' ⟩,p⟨ g≡g' ⟩ = intro⟨ ΣPathP (f≡f' , g≡g') ⟩
 
-      π₁ : C [ a× b , a ]
-      π₁ {b} = ues b .element .fst
+    ,p≡ : ∀ {Γ} {f₁ : C [ Γ , a ]} {f₂ : C [ Γ , b ]} {g}
+      → (f₁ ≡ g C.⋆ π₁)
+      → (f₂ ≡ g C.⋆ π₂)
+      → (f₁ ,p f₂) ≡ g
+    ,p≡ f1≡ f2≡ = intro≡ (ΣPathP (f1≡ , f2≡))
 
-      π₂ : C [ a× b , b ]
-      π₂ {b} = ues b .element .snd
+    ,p-extensionality : ∀ {Γ} {f g : C [ Γ , vert ]}
+      → (f C.⋆ π₁ ≡ g C.⋆ π₁)
+      → (f C.⋆ π₂ ≡ g C.⋆ π₂)
+      → f ≡ g
+    ,p-extensionality f≡g1 f≡g2 = extensionality (ΣPathP (f≡g1 , f≡g2))
 
-      _,p_ : C [ c , a ] → C [ c , b ] → C [ c , a× b ]
-      f ,p g = ues _ .universal _ .equiv-proof (f , g) .fst .fst
+    ×β₁ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₁ ≡ f
+    ×β₁ = cong fst β
 
-      ×pF = BinProductWithF
-      ×p_ : C [ b , c ] → C [ a× b , a× c ]
-      ×p_ = BinProductWithF .F-hom
+    ×β₂ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₂ ≡ g
+    ×β₂ = cong snd β
 
-      ×β₁ : π₁ ∘⟨ C ⟩ (f ,p g) ≡ f
-      ×β₁ = cong fst (ues _ .universal _ .equiv-proof _ .fst .snd)
+module BinProductsNotation {C : Category ℓ ℓ'} (bp : BinProducts C) where
+  private
+    module C = Category C
+  _×_ : C .ob → C .ob → C .ob
+  a × b = BinProductNotation.vert  (bp (a , b))
+  module _ {a b : C .ob} where
+    open BinProductNotation (bp (a , b)) hiding (vert; module ×ue) public
+  module ×ue (a b : C .ob) = BinProductNotation.×ue (bp (a , b))
 
-      ×β₂ : π₂ ∘⟨ C ⟩ (f ,p g) ≡ g
-      ×β₂ = cong snd (ues _ .universal _ .equiv-proof _ .fst .snd)
+  ×F' : Functor (C R.×C C) C
+  ×F' = BinProductF C bp
 
-      ×η : f ≡ ((π₁ ∘⟨ C ⟩ f) ,p (π₂ ∘⟨ C ⟩ f))
-      ×η = η (ues _)
+  ×Bif : Bifunctor C C C
+  ×Bif = BinProductBif C bp
 
-      ×η' : C .id {x = a× b} ≡ (π₁ ,p π₂)
-      ×η' = weak-η (ues _)
+  ×F : Functor (C ×C C) C
+  ×F = BifunctorToParFunctor ×Bif
 
-      ,p-natural : ( f ,p g ) ∘⟨ C ⟩ h ≡ ((f ∘⟨ C ⟩ h) ,p (g ∘⟨ C ⟩ h))
-      ,p-natural = intro-natural (ues _)
+  _×p_ : ∀ {a b c d} → C [ a , b ] → C [ c , d ] → C [ a × c , b × d ]
+  f ×p g = ×Bif ⟪ f , g ⟫×
 
-      ×-extensionality : π₁ ∘⟨ C ⟩ f ≡
-                         π₁ ∘⟨ C ⟩ g → π₂ ∘⟨ C ⟩ f ≡ π₂ ∘⟨ C ⟩ g → f ≡ g
-      ×-extensionality p1 p2 = extensionality (ues _) (ΣPathP (p1 , p2))
-  module Notation (bp : BinProducts C) where
-    private
-      ues = BinProductsToUnivElts bp
-    open UniversalElementNotation {C = C}
+  π₁Nat : BinProductF' C bp ⇒ Fst C C
+  π₁Nat .NatTrans.N-ob _ = π₁
+  π₁Nat .NatTrans.N-hom _ = ×β₁
 
-    _×_ : C .ob → C .ob → C .ob
-    a × b = bp a b .binProdOb
+module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith C a) where
+  _×a : C .ob → C .ob
+  b ×a  = BinProductNotation.vert (bp b)
+  module _ {b : C .ob} where
+    open BinProductNotation (bp b) hiding (vert) public
 
-    -- TODO: π₁, π₂ are natural transformations as well,
-    -- which should follow by general fact that universal elements are natural
+  ×aF : Functor C C
+  ×aF = BinProductWithF C bp
 
-    π₁ : C [ a × b , a ]
-    π₁ {a}{b} = bp a b .binProdPr₁
+private
+  variable
+    C D : Category ℓ ℓ'
+module _ (F : Functor C D) where
+  preservesBinProdCones : ∀ c c'
+    → PshHet F (BinProductProf C ⟅ c , c' ⟆)
+               (BinProductProf D ⟅ F ⟅ c ⟆ , F ⟅ c' ⟆ ⟆)
+  preservesBinProdCones c c' .fst Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
+  preservesBinProdCones c c' .snd Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
 
-    π₂ : C [ a × b , b ]
-    π₂ {a}{b} = bp a b .binProdPr₂
+  preservesBinProduct : ∀ {c c'} → BinProduct C (c , c') → Type _
+  preservesBinProduct = preservesUniversalElement (preservesBinProdCones _ _)
 
-    _,p_ : C [ c , a ] → C [ c , b ] → C [ c , a × b ]
-    f ,p g = bp _ _ . univProp f g .fst .fst
+  -- If you have all BinProductsWith, you should probably use the next
+  -- one instead
+  preservesBinProductsWith : ∀ (c : C .ob) → Type _
+  preservesBinProductsWith c = ∀ c'
+    → preservesUniversalElements (preservesBinProdCones c c')
 
-    ×pF = BinProductF bp
+  -- In practice this definition is usually nicer to work with than
+  -- the previous.
+  preservesProvidedBinProductsWith :
+    ∀ {c : C .ob} → (-×c : BinProductsWith C c) → Type _
+  preservesProvidedBinProductsWith -×c = ∀ c'
+    → preservesUniversalElement (preservesBinProdCones c' _) (-×c c')
 
-    ×Bif : R.Bifunctor C C C
-    ×Bif = BinProductBif bp
-
-    _×p_ : C [ a , b ] → C [ c , d ] → C [ a × c , b × d ]
-    f ×p g = ×Bif ⟪ f , g ⟫×
-    private
-      open R.Bifunctor
-      -- Demonstrating the definitional behavior of ×Bif
-      _ : ((f ∘⟨ C ⟩ π₁) ,p (g ∘⟨ C ⟩ π₂)) ≡ (×Bif ⟪ f , g ⟫×)
-      _ = refl
-
-      _ : ((f ∘⟨ C ⟩ π₁) ,p π₂) ≡ (Bif-homL ×Bif f d)
-      _ = refl
-
-      _ : (π₁ ,p (g ∘⟨ C ⟩ π₂)) ≡ (Bif-homR ×Bif c g)
-      _ = refl
-
-    ×β₁ : π₁ ∘⟨ C ⟩ (f ,p g) ≡ f
-    ×β₁ {f = f}{g = g} = cong fst (β (ues _))
-
-    ×β₂ : π₂ ∘⟨ C ⟩ (f ,p g) ≡ g
-    ×β₂ {f = f}{g = g} = cong snd (β (ues _))
-
-    ×η : f ≡ ((π₁ ∘⟨ C ⟩ f) ,p (π₂ ∘⟨ C ⟩ f))
-    ×η {f = f} = η (ues _)
-
-    ×η' : C .id {a × b} ≡ (π₁ ,p π₂)
-    ×η' = weak-η (ues _)
-
-    ,p-natural : ( f ,p g ) ∘⟨ C ⟩ h ≡ ((f ∘⟨ C ⟩ h) ,p (g ∘⟨ C ⟩ h))
-    ,p-natural {f = f}{g = g}{h = h} = intro-natural (ues _)
-
-    -- this has the benefit of always applying
-    ×-extensionality : π₁ ∘⟨ C ⟩ f ≡ π₁ ∘⟨ C ⟩ g
-                     → π₂ ∘⟨ C ⟩ f ≡ π₂ ∘⟨ C ⟩ g
-                     → f ≡ g
-    ×-extensionality p1 p2 = extensionality (ues _) (ΣPathP (p1 , p2))
-
-    module _ (Γ : C .ob) where
-      module PWN = ProdsWithNotation (bp Γ)
-      ×pF-with-agrees : ×Bif ⟪ C .id , f ⟫× ≡ PWN.×pF ⟪ f ⟫
-      ×pF-with-agrees = sym (×Bif .Bif-R×-agree _)
+  preservesProvidedBinProducts :
+    BinProducts C → Type _
+  preservesProvidedBinProducts bp =
+    ∀ c c'
+    → preservesUniversalElement
+        (preservesBinProdCones c c')
+        (bp (c , c'))

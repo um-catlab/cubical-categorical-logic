@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 import      Cubical.Data.Equality as Eq
+import      Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
@@ -15,9 +16,6 @@ import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 private
   variable
     ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
-
-mixedHEq : {A0 A1 : Type ℓ} (Aeq : A0 Eq.≡ A1) (a0 : A0)(a1 : A1) → Type _
-mixedHEq Aeq a0 a1 = Eq.transport (λ A → A) Aeq a0 ≡ a1
 
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -100,7 +98,7 @@ module _
   reindF'' : (G : Functor C D)
              (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)
              (GF-hom≡FF-hom :
-              mixedHEq (Eq.ap (λ F-ob₁ → ∀ {x} {y}
+              Eq.mixedHEq (Eq.ap (λ F-ob₁ → ∀ {x} {y}
                          → C [ x , y ] → D [ F-ob₁ x , F-ob₁ y ])
                          GF-ob≡FF-ob)
                 (F .F-hom)
@@ -153,3 +151,23 @@ module _ {C : Category ℓC ℓC'}
   open Functorᴰ
   _^opFⱽ : Functorⱽ (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
   _^opFⱽ = reindF' _ Eq.refl Eq.refl (Fⱽ ^opFᴰ)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (Fᴰ Gᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Dᴰ = Categoryᴰ Dᴰ
+  open Functorᴰ
+  FunctorᴰEq : Type _
+  FunctorᴰEq =
+    Σ[ obᴰEq ∈ (Eq._≡_ {A = ∀ {x} → Cᴰ.ob[ x ] → Dᴰ.ob[ F ⟅ x ⟆ ]} (Fᴰ .F-obᴰ) (Gᴰ .F-obᴰ) ) ]
+    Eq.HEq
+      (Eq.ap (λ F-obᴰ → (∀ {x y} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+      → Cᴰ [ f ][ xᴰ , yᴰ ]
+      → Dᴰ [ F ⟪ f ⟫ ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]))
+        obᴰEq)
+      (Fᴰ .F-homᴰ)
+      (Gᴰ .F-homᴰ)
+

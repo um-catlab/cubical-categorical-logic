@@ -5,6 +5,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 
+import Cubical.Data.Equality as Eq
+open import Cubical.Data.Equality.More
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -194,3 +196,26 @@ module PresheafⱽNotation
       sym (reind-filler _ _)
       ∙ ⋆Assoc _ _ _
       ∙ ⟨⟩⋆⟨ reind-filler _ _ ⟩
+
+module _ {C : Category ℓC ℓC'}
+  {P : Presheaf C ℓP}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (Pᴰ Qᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  where
+  private
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module Cᴰ = Categoryᴰ Cᴰ
+
+  PresheafᴰEq : Type _
+  PresheafᴰEq =
+    Σ[ tyEq ∈ Eq ((∀ {x} (p : P.p[ x ]) (xᴰ : Cᴰ.ob[ x ]) → Type ℓPᴰ )) Pᴰ.p[_][_] Qᴰ.p[_][_] ]
+    Eq.HEq (Eq.ap (λ p[_][_] → (∀ {x y}{f : C [ y , x ]}{xᴰ}{yᴰ}
+      → {p : P.p[ x ]}
+      → Cᴰ [ f ][ yᴰ , xᴰ ]
+      → p[ p ][ xᴰ ]
+      → p[ f P.⋆ p ][ yᴰ ]))
+      tyEq)
+      Pᴰ._⋆ᴰ_
+      Qᴰ._⋆ᴰ_

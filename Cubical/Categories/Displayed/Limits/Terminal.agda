@@ -61,31 +61,11 @@ open isIsoOver
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Categoryᴰ Cᴰ
-  -- For consistency, these should go in Displayed.Presheaf.Constructions
-  TerminalPresheafᴰ : (P : Presheaf C ℓP) → Presheafᴰ P Cᴰ ℓ-zero
-  TerminalPresheafᴰ P .F-obᴰ x x₁ = Unit , isSetUnit
-  TerminalPresheafᴰ P .F-homᴰ = λ _ x _ → tt
-  TerminalPresheafᴰ P .F-idᴰ i = λ x x₁ → tt
-  TerminalPresheafᴰ P .F-seqᴰ fᴰ gᴰ i = λ x _ → tt
-
-  TerminalPresheafᴰ* : ∀ ℓ → (P : Presheaf C ℓP) → Presheafᴰ P Cᴰ ℓ
-  TerminalPresheafᴰ* ℓ P .F-obᴰ x x₁ = (Unit* {ℓ}) , isSetUnit*
-  TerminalPresheafᴰ* ℓ P .F-homᴰ = λ _ x₁ _ → tt*
-  TerminalPresheafᴰ* ℓ P .F-idᴰ i = λ x₁ _ → tt*
-  TerminalPresheafᴰ* ℓ P .F-seqᴰ fᴰ gᴰ i = λ x₁ _ → tt*
-
   -- Terminal object over a terminal object
   -- TODO: refactor using Constant Functorᴰ eventually
-  TerminalᴰSpec : Presheafᴰ (TerminalPresheaf {C = C}) Cᴰ ℓ-zero
-  TerminalᴰSpec = TerminalPresheafᴰ _
-
   Terminalᴰ : (term : Terminal' C) →
     Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
-  Terminalᴰ term = UniversalElementᴰ _ term TerminalᴰSpec
-
-  reindTerminal* : ∀ {ℓ}{P : Presheaf C ℓP}{Q : Presheaf C ℓQ}(α : PshHom P Q)
-    → reind α (TerminalPresheafᴰ* ℓ Q) ≡ TerminalPresheafᴰ* ℓ P
-  reindTerminal* α = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
+  Terminalᴰ term = UniversalElementᴰ Cᴰ term UnitPshᴰ
 
   module TerminalᴰNotation {term' : Terminal' C}
     (termᴰ : Terminalᴰ term') where
@@ -118,17 +98,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   module _ (c : C .ob) where
     -- Vertical terminal object over a fixed object
 
-    -- If Cᴰ is a fibration, this is equivalent to a terminal object
-    -- in the fiber over c that is preserved by reindexing
-    TerminalⱽSpec : Presheafⱽ c Cᴰ ℓ-zero
-    TerminalⱽSpec = TerminalPresheafᴰ _
-
     -- This says that for every morphism f : c' → c in C and
     -- d ∈ Cᴰ.ob[ c' ] there is a unique lift to fᴰ : Cᴰ [ f ][ d' , 1c ]
     -- In program logic terms this is the "trivial postcondition"
     Terminalⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
-    Terminalⱽ =
-      UniversalElementⱽ Cᴰ c TerminalⱽSpec
+    Terminalⱽ = UniversalElementⱽ Cᴰ c UnitPshᴰ
 
     module TerminalⱽNotation (vt : Terminalⱽ) where
       open UniversalElementⱽ vt public
@@ -149,9 +123,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module _ (termⱽ : Terminalⱽ 𝟙) where
       private module termⱽ = TerminalⱽNotation _ termⱽ
       Terminalⱽ→Terminalᴰ : Terminalᴰ term
-      Terminalⱽ→Terminalᴰ .vertexᴰ = termⱽ.vertexⱽ
-      Terminalⱽ→Terminalᴰ .elementᴰ = tt
-      Terminalⱽ→Terminalᴰ .universalᴰ .inv _ _ = termⱽ.!tⱽ _ _
-      Terminalⱽ→Terminalᴰ .universalᴰ .rightInv _ _ = refl
-      Terminalⱽ→Terminalᴰ .universalᴰ .leftInv _ _ = R.rectify $ R.≡out $
-        termⱽ.∫ue.extensionality (ΣPathP (𝟙extensionality , refl))
+      Terminalⱽ→Terminalᴰ = termⱽ ◁PshIsoⱽᴰ UnitPshᴰ≅UnitPshᴰ
+      private
+        -- manual proof for comparison
+        Terminalⱽ→Terminalᴰ' : Terminalᴰ term
+        Terminalⱽ→Terminalᴰ' .vertexᴰ = termⱽ.vertexⱽ
+        Terminalⱽ→Terminalᴰ' .elementᴰ = tt
+        Terminalⱽ→Terminalᴰ' .universalᴰ .inv _ _ = termⱽ.!tⱽ _ _
+        Terminalⱽ→Terminalᴰ' .universalᴰ .rightInv _ _ = refl
+        Terminalⱽ→Terminalᴰ' .universalᴰ .leftInv _ _ = R.rectify $ R.≡out $
+          termⱽ.∫ue.extensionality (ΣPathP (𝟙extensionality , refl))

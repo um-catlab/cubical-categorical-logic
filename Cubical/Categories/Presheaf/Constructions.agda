@@ -17,6 +17,7 @@ open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Bifunctor
 
 open import Cubical.Categories.Displayed.Base
@@ -29,7 +30,8 @@ private
   variable
     ℓ ℓ' ℓA ℓB : Level
 
-module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
+open Functor
+module _ {C : Category ℓ ℓ'} where
 
   PshProd' : Functor
     (PresheafCategory C ℓA ×C PresheafCategory C ℓB)
@@ -51,6 +53,36 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
     π₂ : PshHom (P ×Psh Q) Q
     π₂ .fst _ = snd
     π₂ .snd _ _ _ _ = refl
+
+    private
+      module C = Category C
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+    open UniversalElementNotation
+    -- More abstract way of constructing this?
+    Power : (-×P : ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)) → Presheaf C ℓB
+    Power _×P .F-ob Γ = Q .F-ob ((Γ ×P) .vertex)
+    Power _×P .F-hom {Γ}{Δ} γ q =
+      intro (Γ ×P) (((Δ ×P) .element .fst C.⋆ γ) , (Δ ×P) .element .snd) Q.⋆ q
+    Power _×P .F-id {Γ} = funExt λ q →
+      Q.⟨ intro⟨_⟩ (Γ ×P) (ΣPathP (C.⋆IdR _ , refl)) ∙ (sym $ weak-η $ Γ ×P) ⟩⋆⟨⟩
+      ∙ Q.⋆IdL _
+    Power _×P .F-seq {Γ}{Δ}{Θ} γ δ = funExt λ q →
+      Q.⟨
+        intro≡ (Γ ×P) (ΣPathP
+          ( (sym (C.⋆Assoc _ _ _) ∙ C.⟨ sym $ cong fst $ β $ Δ ×P ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _
+          ∙ C.⟨ refl ⟩⋆⟨ sym $ cong fst $ β $ Γ ×P ⟩
+          ∙ sym (C.⋆Assoc _ _ _))
+          , (sym $ P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ cong snd $ β $ Γ ×P ⟩ ∙ (cong snd $ β $ Δ ×P))
+          ))
+      ⟩⋆⟨⟩
+      ∙ Q.⋆Assoc _ _ _
+
+  _⇒PshSmall_ :
+    (Σ[ P ∈ Presheaf C ℓA ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P))
+    → Presheaf C ℓB
+    → Presheaf C ℓB
+  (P , _×P) ⇒PshSmall Q = Power P Q _×P
 
   open Functor
   open Functorᴰ

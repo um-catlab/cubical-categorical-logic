@@ -30,6 +30,7 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Isomorphism.More
 
 open Functor
+open NatTrans
 
 private
   variable
@@ -126,16 +127,18 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   isSetPshHom = isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
 
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS}
-  (α : NatTrans P Q)
   where
   private
     module C = Category C
     module P = PresheafNotation P
     module Q = PresheafNotation Q
-    module α = NatTrans α
-  NatTrans→PshHom : PshHom P Q
-  NatTrans→PshHom .fst = α.N-ob
-  NatTrans→PshHom .snd x y f = funExt⁻ (α.N-hom f)
+  NatTrans→PshHom : NatTrans P Q → PshHom P Q
+  NatTrans→PshHom α .fst = α .N-ob
+  NatTrans→PshHom α .snd x y f = funExt⁻ (α .N-hom f)
+
+  PshHom→NatTrans : PshHom P Q → NatTrans P Q
+  PshHom→NatTrans α .N-ob = α .fst
+  PshHom→NatTrans α .N-hom f = funExt (α .snd _ _ f)
 
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
   makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst

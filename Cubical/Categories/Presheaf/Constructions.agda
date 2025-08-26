@@ -29,7 +29,7 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 
 private
   variable
-    ℓ ℓ' ℓA ℓB : Level
+    ℓ ℓ' ℓA ℓB ℓP ℓQ ℓS : Level
 
 open Functor
 module _ {C : Category ℓ ℓ'} where
@@ -80,6 +80,23 @@ module _ {C : Category ℓ ℓ'} where
 
     _⇒PshLarge_ : Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓ' ℓA)) ℓB)
     _⇒PshLarge_ = (PshHomProf ⟅ Q ⟆) ∘F ((appR PshProd P ∘F YO) ^opF)
+    module _ {S : Presheaf C ℓS} where
+      private
+        module S = PresheafNotation S
+        module S×P = PresheafNotation (S ×Psh P)
+      λPshHom : PshHom (S ×Psh P) Q → PshHom S (_⇒PshLarge_)
+      λPshHom f⟨p⟩ .fst Γ s .fst Δ (γ , p) = f⟨p⟩ .fst Δ ((γ S.⋆ s) , p)
+      λPshHom f⟨p⟩ .fst Γ s .snd Θ Δ δ (γ , p) =
+        cong (f⟨p⟩ .fst Θ) (ΣPathP (S.⋆Assoc _ _ _ , refl))
+        ∙ f⟨p⟩ .snd _ _ _ _
+      λPshHom f⟨p⟩ .snd Θ Δ δ s = makePshHomPath (funExt (λ Ξ → funExt (λ (θ , p) →
+        cong (f⟨p⟩ .fst Ξ) (ΣPathP ((sym $ S.⋆Assoc _ _ _) , refl)))))
+
+    appPshHom : PshHom (_⇒PshLarge_ ×Psh P) Q
+    appPshHom .fst Γ (f , p) = f .fst Γ (C.id , p)
+    appPshHom .snd Δ Γ γ (f , p) =
+      cong (f .fst Δ) (ΣPathP (C.⋆IdL _ ∙ sym (C.⋆IdR _) , refl))
+      ∙ f .snd _ _ _ _
 
   _⇒PshSmall_ :
     (Σ[ P ∈ Presheaf C ℓA ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P))

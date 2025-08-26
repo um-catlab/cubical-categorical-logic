@@ -23,6 +23,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More
@@ -124,6 +125,18 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   isSetPshHom : isSet PshHom
   isSetPshHom = isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
 
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS}
+  (α : NatTrans P Q)
+  where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+    module α = NatTrans α
+  NatTrans→PshHom : PshHom P Q
+  NatTrans→PshHom .fst = α.N-ob
+  NatTrans→PshHom .snd x y f = funExt⁻ (α.N-hom f)
+
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
   makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
    → α ≡ β
@@ -134,12 +147,32 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}where
   idPshHom .fst x z = z
   idPshHom .snd x y f p = refl
 
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where
-  _⋆PshHom_ : PshHom P Q → PshHom Q R → PshHom P R
+module _ {C : Category ℓ ℓ'} where
+  _⋆PshHom_ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} → PshHom P Q → PshHom Q R → PshHom P R
   (α ⋆PshHom β) .fst x p = β .fst x (α .fst x p)
   (α ⋆PshHom β) .snd x y f p =
     cong (β .fst _) (α .snd x y f p)
     ∙ β .snd x y f (α .fst y p)
+
+  _⋆PshHomNatTrans_ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS'} → PshHom P Q → NatTrans Q R → PshHom P R
+  α ⋆PshHomNatTrans β = α ⋆PshHom NatTrans→PshHom β
+  _⋆NatTransPshHom_ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS}{R : Presheaf C ℓS'} → NatTrans P Q → PshHom Q R → PshHom P R
+  α ⋆NatTransPshHom β = NatTrans→PshHom α ⋆PshHom β
+
+module _ {C : Category ℓ ℓ'} where
+  open NatTrans
+  PshHomPsh : ∀ (Q : Presheaf C ℓS') → Presheaf (PresheafCategory C ℓS) (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS') ℓS)
+  PshHomPsh Q .F-ob P = (PshHom P Q) , (isSetPshHom _ _)
+  PshHomPsh Q .F-hom α β = α ⋆NatTransPshHom β
+  PshHomPsh Q .F-id = funExt (λ _ → makePshHomPath refl)
+  PshHomPsh Q .F-seq α α' = funExt λ _ → makePshHomPath refl
+
+  PshHomProf : Profunctor (PresheafCategory C ℓS') (PresheafCategory C ℓS) (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS) ℓS')
+  PshHomProf .F-ob Q = PshHomPsh Q
+  PshHomProf .F-hom β .N-ob P α = α ⋆PshHomNatTrans β
+  PshHomProf .F-hom β .N-hom α = funExt λ _ → makePshHomPath refl
+  PshHomProf .F-id = makeNatTransPath (funExt (λ _ → funExt λ _ → makePshHomPath refl))
+  PshHomProf .F-seq β β' = makeNatTransPath (funExt λ _ → funExt λ _ → makePshHomPath refl)
 
 module _ {C : Category ℓ ℓ'} (P : Presheaf C ℓS) where
   private

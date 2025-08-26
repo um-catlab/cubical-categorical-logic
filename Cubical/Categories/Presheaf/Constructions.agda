@@ -18,6 +18,7 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor
 
 open import Cubical.Categories.Displayed.Base
@@ -59,7 +60,6 @@ module _ {C : Category ℓ ℓ'} where
       module P = PresheafNotation P
       module Q = PresheafNotation Q
     open UniversalElementNotation
-    -- More abstract way of constructing this?
     Power : (-×P : ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)) → Presheaf C ℓB
     Power _×P .F-ob Γ = Q .F-ob ((Γ ×P) .vertex)
     Power _×P .F-hom {Γ}{Δ} γ q =
@@ -77,6 +77,9 @@ module _ {C : Category ℓ ℓ'} where
           ))
       ⟩⋆⟨⟩
       ∙ Q.⋆Assoc _ _ _
+
+    _⇒PshLarge_ : Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓ' ℓA)) ℓB)
+    _⇒PshLarge_ = (PshHomProf ⟅ Q ⟆) ∘F ((appR PshProd P ∘F YO) ^opF)
 
   _⇒PshSmall_ :
     (Σ[ P ∈ Presheaf C ℓA ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P))

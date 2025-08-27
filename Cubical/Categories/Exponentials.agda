@@ -12,10 +12,12 @@ import Cubical.Categories.Constructions.BinProduct.Redundant.Base as Redundant
 import Cubical.Categories.Constructions.BinProduct as Separate
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Profunctor.General
 
 private
@@ -29,6 +31,12 @@ module _ (C : Category ℓC ℓC') where
   Exponential : (c d : C .ob) → (BinProductsWith C c) → Type _
   Exponential c d c×- = RightAdjointAt (BinProductWithF C c×-) d
 
+  Exponential' : (c d : C .ob) → (BinProductsWith C c) → Type _
+  Exponential' c d -×c = UniversalElement C (((C [-, c ]) , -×c) ⇒PshSmall (C [-, d ]))
+
+  Exponential'' : (c d : C .ob) → Type _
+  Exponential'' c d = UniversalElement C ((C [-, c ]) ⇒PshLarge (C [-, d ]))
+
   -- Profunctor for an object c being exponentiable
   ExponentiableProf : ∀ {c} (c×- : BinProductsWith C c) → Profunctor C C ℓC'
   ExponentiableProf c×- = RightAdjointProf (BinProductWithF _ c×-)
@@ -36,9 +44,15 @@ module _ (C : Category ℓC ℓC') where
   Exponentiable : ∀ c → (c×- : BinProductsWith C c) → Type _
   Exponentiable c c×- = ∀ d → RightAdjointAt (BinProductWithF _ c×-) d
 
+  Exponentiable' : ∀ c → (_×c : BinProductsWith C c) → Type _
+  Exponentiable' c _×c = ∀ d → Exponential' c d _×c
+
   module _ (bp : BinProducts C) where
     AllExponentiable : Type _
     AllExponentiable = ∀ c → Exponentiable c λ d → bp (d , c)
+
+    AllExponentiable' : Type _
+    AllExponentiable' = ∀ c → Exponentiable' c λ d → bp (d , c)
 
     ExponentialsProf : Profunctor ((C ^op) Redundant.×C C) C ℓC'
     ExponentialsProf =
@@ -71,9 +85,6 @@ module _ (C : Category ℓC ℓC') where
 
     Exponentials→AllExponentiable : Exponentials → AllExponentiable
     Exponentials→AllExponentiable exps c = Exponentials→Exponentiable exps
-
-  -- TODO: Exponential'' which doesn't rely on the existence of any products
-  -- i.e. Exponential'' c d = UniversalElement (YO c 𝓟⇒ YO d)
 
 module ExponentialNotation {C : Category ℓC ℓC'}{c d} -×c (exp : Exponential C c d -×c) where
   private

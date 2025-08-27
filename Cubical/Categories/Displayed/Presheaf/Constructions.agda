@@ -6,7 +6,10 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Equiv.Dependent
+
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
@@ -33,6 +36,8 @@ open import Cubical.Categories.Displayed.Presheaf.Morphism
 
 open Bifunctorᴰ
 open Functorᴰ
+open isIsoOver
+open PshHomᴰ
 private
   variable
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
@@ -41,7 +46,62 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
--- TODO: Terminal presheafᴰ here.
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  where
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+  LiftPshᴰ : (ℓ' : Level) → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓ')
+  LiftPshᴰ ℓ' = LiftFᴰ ℓ' ∘Fⱽᴰ Pᴰ
+
+  LiftHomⱽ : ∀ {ℓ'} → PshHomⱽ Pᴰ (LiftPshᴰ ℓ')
+  LiftHomⱽ .N-obᴰ = λ z → lift z
+  LiftHomⱽ .N-homᴰ = refl
+
+  LiftIsoⱽ : ∀ {ℓ'} → PshIsoⱽ Pᴰ (LiftPshᴰ ℓ')
+  LiftIsoⱽ .fst = LiftHomⱽ
+  LiftIsoⱽ .snd .inv = λ a z → z .lower
+  LiftIsoⱽ .snd .rightInv b q = refl
+  LiftIsoⱽ .snd .leftInv a p = refl
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Q : Presheaf C ℓP} {Qᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
+  {α : P ≡ Q}
+  where
+  Lift-Path :
+    ∀ (αᴰ : PathP (λ i → Presheafᴰ (α i) Cᴰ ℓPᴰ) Pᴰ Qᴰ)
+    → PathP (λ i → Presheafᴰ (α i) Cᴰ (ℓ-max ℓPᴰ ℓ'))
+        (LiftPshᴰ Pᴰ ℓ')
+        (LiftPshᴰ Qᴰ ℓ')
+  Lift-Path αᴰ i = LiftPshᴰ (αᴰ i) _
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Q : Presheaf C ℓQ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+  -- TODO: naming...
+  Lift-F-Homᴰ : ∀ {α : PshHom P Q} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) → PshHomᴰ α (LiftPshᴰ Pᴰ ℓ) (LiftPshᴰ Qᴰ ℓ')
+  Lift-F-Homᴰ αᴰ .N-obᴰ pᴰ = lift (αᴰ .N-obᴰ (pᴰ .lower))
+  Lift-F-Homᴰ αᴰ .N-homᴰ {fᴰ = fᴰ}{pᴰ = pᴰ} i =
+    lift (αᴰ .N-homᴰ {fᴰ = fᴰ}{pᴰ = pᴰ .lower} i)
+
+  Lift-F-Isoᴰ : ∀ {α : PshIso P Q} (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) → PshIsoᴰ α (LiftPshᴰ Pᴰ ℓ) (LiftPshᴰ Qᴰ ℓ')
+  Lift-F-Isoᴰ αᴰ .fst = Lift-F-Homᴰ (αᴰ .fst)
+  Lift-F-Isoᴰ αᴰ .snd .inv _ qᴰ = lift (αᴰ .snd .inv _ (qᴰ .lower))
+  Lift-F-Isoᴰ αᴰ .snd .rightInv p pᴰ i =
+    lift (αᴰ .snd .rightInv p (pᴰ .lower) i)
+  Lift-F-Isoᴰ αᴰ .snd .leftInv q qᴰ i =
+    lift (αᴰ .snd .leftInv q (qᴰ .lower) i)
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  UnitPshᴰ : ∀ {P : Presheaf C ℓP} → Presheafᴰ P Cᴰ ℓ-zero
+  UnitPshᴰ .F-obᴰ _ _ = Unit , isSetUnit
+  UnitPshᴰ .F-homᴰ _ _ _ = tt
+  UnitPshᴰ .F-idᴰ = refl
+  UnitPshᴰ .F-seqᴰ _ _ = refl
 
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   where
@@ -85,14 +145,12 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     {Qᴰ' : Presheafᴰ Q Cᴰ ℓQᴰ'}
     where
     module _ {α : PshHom P Q} where
-      open PshHomᴰ
       _×ⱽHom_ : (αᴰ : PshHomᴰ α Pᴰ Qᴰ) (βᴰ : PshHomᴰ α Pᴰ' Qᴰ')
         → PshHomᴰ α (Pᴰ ×ⱽPsh Pᴰ') (Qᴰ ×ⱽPsh Qᴰ')
       (αᴰ ×ⱽHom βᴰ) .N-obᴰ (p , p') = (αᴰ .N-obᴰ p) , (βᴰ .N-obᴰ p')
       (αᴰ ×ⱽHom βᴰ) .N-homᴰ = ΣPathP ((αᴰ .N-homᴰ) , (βᴰ .N-homᴰ))
 
     module _ {α : PshIso P Q} where
-      open isIsoOver
       _×ⱽIso_ : (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) (βᴰ : PshIsoᴰ α Pᴰ' Qᴰ')
         → PshIsoᴰ α (Pᴰ ×ⱽPsh Pᴰ') (Qᴰ ×ⱽPsh Qᴰ')
       (αᴰ ×ⱽIso βᴰ) .fst = (αᴰ .fst) ×ⱽHom (βᴰ .fst)
@@ -162,8 +220,7 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
       (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _)
       , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _ _)
 
-  open PshHomᴰ
-  open isIsoOver
+  -- This one is only Eq.refl on objects, would need a corresponding eqToPshIsoⱽ' like reindF''
   PshProdⱽ≅ᴰ :
     PshIsoⱽ (Pᴰ ×ᴰPsh Qᴰ) (reind (π₁ P Q) Pᴰ ×ⱽPsh reind (π₂ P Q) Qᴰ)
   PshProdⱽ≅ᴰ .fst .N-obᴰ x = x
@@ -293,3 +350,50 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       subst (λ α → reind (α .fst) Qᴰ ≡ Qᴰ)
         (sym pathToPshIsoRefl)
         (sym $ reind-id _)
+
+module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshHom P Q}
+  where
+  reindUnitEq : PresheafᴰEq (reind α (UnitPshᴰ {Cᴰ = Cᴰ})) UnitPshᴰ
+  reindUnitEq = Eq.refl , Eq.refl
+
+  reindUnit : reind α (UnitPshᴰ {Cᴰ = Cᴰ}) ≡ UnitPshᴰ
+  reindUnit =
+    Functorᴰ≡ (λ _ → funExt λ _ → Σ≡Prop (λ _ → isPropIsSet) refl)
+    λ fᴰ → refl
+
+  reindUnitIsoⱽ : PshIsoⱽ (reind α (UnitPshᴰ {Cᴰ = Cᴰ})) UnitPshᴰ
+  reindUnitIsoⱽ = eqToPshIsoⱽ reindUnitEq
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  where
+  UnitPshᴰ≅UnitPshᴰ : PshIsoᴰ {Cᴰ = Cᴰ} α (UnitPshᴰ {P = P}) (UnitPshᴰ {P = Q})
+  UnitPshᴰ≅UnitPshᴰ =
+    invPshIsoⱽ reindUnitIsoⱽ
+    ⋆PshIsoⱽᴰ reindPshIsoPshIsoᴰ α (UnitPshᴰ {P = Q})
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓP}
+  {α : P ≡ Q}
+  where
+  UnitPshᴰ≡UnitPshᴰ :
+    PathP
+      (λ i → Presheafᴰ (α i) Cᴰ ℓ-zero)
+      (UnitPshᴰ {P = P})
+      (UnitPshᴰ {P = Q})
+  UnitPshᴰ≡UnitPshᴰ = sym reindUnit ◁ reindPathToPshIsoPathP α UnitPshᴰ
+
+module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  reindLiftEq : PresheafᴰEq (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
+  reindLiftEq = Eq.refl , Eq.refl
+
+  reindLift : reind α (LiftPshᴰ Qᴰ ℓ') ≡ LiftPshᴰ (reind α Qᴰ) ℓ'
+  reindLift = Functorᴰ≡ (λ xᴰ → refl) (λ _ → refl)
+
+  reindLiftIsoⱽ : PshIsoⱽ (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
+  reindLiftIsoⱽ = eqToPshIsoⱽ reindLiftEq

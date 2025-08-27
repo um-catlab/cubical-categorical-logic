@@ -4,9 +4,12 @@ module Cubical.Categories.Displayed.Presheaf.Morphism where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
@@ -17,6 +20,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Base
 
 private
@@ -136,16 +140,74 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  where
-  idPshHomᴰ : PshHomⱽ Pᴰ Pᴰ
-  idPshHomᴰ .N-obᴰ = λ z → z
-  idPshHomᴰ .N-homᴰ = refl
+  {Qᴰ : Presheafᴰ P Cᴰ ℓPᴰ} where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    fun-ty = Eq.singl {A = ∀ {x} → P.p[ x ] → (xᴰ : Cᴰ.ob[ x ]) → Type ℓPᴰ} Pᴰ.p[_][_]
+    hom-ty : fun-ty → Type _
+    hom-ty singl-fun =
+      Eq.singlP (Eq.ap (λ p[_][_] → {x y : Category.ob C}{f : C [ y , x ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+       {p : P.p[ x ]} →
+      Cᴰ [ f ][ yᴰ , xᴰ ] → p[ p ][ xᴰ ] → p[ f P.⋆ p ][ yᴰ ]) (singl-fun .snd))
+      Pᴰ._⋆ᴰ_
+  module _ where
+    eqToPshIso-obᴰ : ((p[_][_] , _) : fun-ty) → ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]}
+      → Pᴰ.p[ p ][ xᴰ ] → p[ p ][ xᴰ ]
+    eqToPshIso-obᴰ (_ , Eq.refl) = λ z → z
 
+    eqToPshIso-invᴰ : ((p[_][_] , _) : fun-ty) → ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]}
+      → p[ p ][ xᴰ ] → Pᴰ.p[ p ][ xᴰ ]
+    eqToPshIso-invᴰ (_ , Eq.refl) = λ z → z
+
+    eqToPshIso-homᴰ : ∀ ((p[_][_] , p≡Pp) : fun-ty) ((_⋆ᴰ_ , _) : hom-ty (p[_][_] , p≡Pp))
+      {x}{y}{xᴰ}{yᴰ}{f : C [ x , y ]}{p : P.p[ y ]} →
+      {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]} {pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+      → eqToPshIso-obᴰ (p[_][_] , p≡Pp) (fᴰ Pᴰ.⋆ᴰ pᴰ)
+        ≡ (fᴰ ⋆ᴰ eqToPshIso-obᴰ (p[_][_] , p≡Pp) pᴰ)
+    eqToPshIso-homᴰ (_ , Eq.refl) (_ , Eq.refl) = refl
+
+    eqToPshIso-rightInv : ∀ ((p[_][_] , p≡Pp) : fun-ty) ((_⋆ᴰ_ , _) : hom-ty (p[_][_] , p≡Pp))
+      → ∀ {x}{xᴰ}{p : P.p[ x ]}{qᴰ : p[ p ][ xᴰ ]}
+      → eqToPshIso-obᴰ (p[_][_] , p≡Pp)
+      (eqToPshIso-invᴰ (p[_][_] , p≡Pp) qᴰ)
+      ≡ qᴰ
+    eqToPshIso-rightInv (_ , Eq.refl) (_ , Eq.refl) = refl
+
+    eqToPshIso-leftInv : ∀ ((p[_][_] , p≡Pp) : fun-ty) ((_⋆ᴰ_ , _) : hom-ty (p[_][_] , p≡Pp))
+      → ∀ {x}{xᴰ}{p : P.p[ x ]}{pᴰ : Pᴰ.p[ p ][ xᴰ ]}
+      → eqToPshIso-invᴰ (p[_][_] , p≡Pp) (eqToPshIso-obᴰ (p[_][_] , p≡Pp) pᴰ)
+        ≡ pᴰ
+    eqToPshIso-leftInv (_ , Eq.refl) (_ , Eq.refl) = refl
+
+  eqToPshHomⱽ : PresheafᴰEq Pᴰ Qᴰ → PshHomⱽ Pᴰ Qᴰ
+  eqToPshHomⱽ Pᴰ≡Qᴰ .N-obᴰ = eqToPshIso-obᴰ (_ , Pᴰ≡Qᴰ .fst)
+  eqToPshHomⱽ Pᴰ≡Qᴰ .N-homᴰ = eqToPshIso-homᴰ (_ , Pᴰ≡Qᴰ .fst) (_ , Pᴰ≡Qᴰ .snd)
+
+  eqToPshIsoⱽ : PresheafᴰEq Pᴰ Qᴰ → PshIsoⱽ Pᴰ Qᴰ
+  eqToPshIsoⱽ Pᴰ≡Qᴰ .fst = eqToPshHomⱽ Pᴰ≡Qᴰ
+  eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .inv p = eqToPshIso-invᴰ (_ , Pᴰ≡Qᴰ .fst)
+  eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .rightInv p qᴰ = eqToPshIso-rightInv (_ , Pᴰ≡Qᴰ .fst) (_ , Pᴰ≡Qᴰ .snd)
+  eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .leftInv p pᴰ = eqToPshIso-leftInv (_ , Pᴰ≡Qᴰ .fst) (_ , Pᴰ≡Qᴰ .snd)
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  where
   idPshIsoᴰ : PshIsoⱽ Pᴰ Pᴰ
-  idPshIsoᴰ .fst = idPshHomᴰ
-  idPshIsoᴰ .snd .inv = λ _ z → z
-  idPshIsoᴰ .snd .rightInv = λ _ _ → refl
-  idPshIsoᴰ .snd .leftInv = λ _ _ → refl
+  idPshIsoᴰ = eqToPshIsoⱽ (Eq.refl , Eq.refl)
+
+  idPshHomᴰ : PshHomⱽ Pᴰ Pᴰ
+  idPshHomᴰ = idPshIsoᴰ .fst
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ P Cᴰ ℓPᴰ} where
+  pathToPshIsoⱽ : Pᴰ ≡ Qᴰ → PshIsoⱽ Pᴰ Qᴰ
+  pathToPshIsoⱽ = J (λ Qᴰ _ → PshIsoⱽ Pᴰ Qᴰ) idPshIsoᴰ
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
@@ -269,6 +331,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       where
         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshIsoᴰ βᴰ
 
+
 -- We can use paths if the presheaves are of the same level
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -310,10 +373,3 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     where
       ∫αᴰ : PshIso (∫P Pᴰ) (∫P Qᴰ)
       ∫αᴰ = ∫PshIsoᴰ αᴰ
-
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  {Qᴰ : Presheafᴰ P Cᴰ ℓPᴰ} where
-  pathToPshIsoⱽ : Pᴰ ≡ Qᴰ → PshIsoⱽ Pᴰ Qᴰ
-  pathToPshIsoⱽ = J (λ Qᴰ _ → PshIsoⱽ Pᴰ Qᴰ) idPshIsoᴰ

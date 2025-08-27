@@ -14,6 +14,7 @@ open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 
@@ -37,14 +38,8 @@ preserveOnePreservesAll C D F One D-preserves-One One' =
                 ((F ⟅ One .fst ⟆) , D-preserves-One) (F ⟅ One' .fst ⟆)
                 (F-Iso {F = F} (terminalToIso C One One'))
 
-TerminalPresheaf : ∀ {C : Category ℓc ℓc'} → Presheaf C ℓ-zero
-TerminalPresheaf = Constant _ _ (Unit , isSetUnit)
-
-TerminalPresheaf* : ∀ ℓ {C : Category ℓc ℓc'} → Presheaf C ℓ
-TerminalPresheaf* ℓ = Constant _ _ (Unit* , isSetUnit*)
-
 Terminal' :  ∀ (C : Category ℓc ℓc') → Type (ℓ-max ℓc ℓc')
-Terminal' C = UniversalElement C (TerminalPresheaf {C = C})
+Terminal' C = UniversalElement C UnitPsh
 
 terminalToUniversalElement : ∀ {C : Category ℓc ℓc'} (One : Terminal C)
   → Terminal' C

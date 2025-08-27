@@ -289,61 +289,61 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   {ue : UniversalElement C P}{α : PshIso P Q}
   where
-  _◃PshIsoᴰ_ : (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ) (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
-    → UniversalElementᴰ Cᴰ (ue ◃PshIso α) Qᴰ
-  ueᴰ ◃PshIsoᴰ αᴰ = record
-    { vertexᴰ = ∫◃ .vertex .snd
-    ; elementᴰ = ∫◃ .element .snd
+  _◁PshIsoᴰ_ : (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ) (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
+    → UniversalElementᴰ Cᴰ (ue ◁PshIso α) Qᴰ
+  ueᴰ ◁PshIsoᴰ αᴰ = record
+    { vertexᴰ = ∫◁ .vertex .snd
+    ; elementᴰ = ∫◁ .element .snd
     ; universalᴰ = isisoover
-      (λ q qᴰ → ∫◃.intro (q , qᴰ) .snd)
-      (λ q qᴰ → Qᴰ.rectify $ Qᴰ.≡out $ ∫◃.β)
-      λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ∫◃.η
+      (λ q qᴰ → ∫◁.intro (q , qᴰ) .snd)
+      (λ q qᴰ → Qᴰ.rectify $ Qᴰ.≡out $ ∫◁.β)
+      λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ∫◁.η
     } where
       open UniversalElement
       module Cᴰ = Fibers Cᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
       module ueᴰ = UniversalElementᴰ ueᴰ
-      ∫◃ = ueᴰ.∫ue ◃PshIso ∫PshIsoᴰ αᴰ
-      module ∫◃ = UniversalElementNotation ∫◃
+      ∫◁ = ueᴰ.∫ue ◁PshIso ∫PshIsoᴰ αᴰ
+      module ∫◁ = UniversalElementNotation ∫◁
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {x}
   {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ}{Qⱽ : Presheafⱽ x Cᴰ ℓQᴰ}
   where
-  _◃PshIsoⱽ_ : UniversalElementⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → UniversalElementⱽ Cᴰ x Qⱽ
-  ueⱽ ◃PshIsoⱽ αⱽ = fromUniversalᴰ record
-    { vertexᴰ = ueⱽ◃αⱽ.vertexᴰ
-    ; elementᴰ = ueⱽ◃αⱽ.elementᴰ -- ueᴰ◃αⱽ.elementᴰ
+  _◁PshIsoⱽ_ : UniversalElementⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → UniversalElementⱽ Cᴰ x Qⱽ
+  ueⱽ ◁PshIsoⱽ αⱽ = fromUniversalᴰ record
+    { vertexᴰ = ueⱽ◁αⱽ.vertexᴰ
+    ; elementᴰ = ueⱽ◁αⱽ.elementᴰ -- ueᴰ◁αⱽ.elementᴰ
     ; universalᴰ = isisoover
-      (λ _ → ueⱽ◃αⱽ.introᴰ)
-      (λ _ _ → Qⱽ.rectify $ Qⱽ.≡out $ ueⱽ◃αⱽ.βᴰ)
-      (λ _ _ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueⱽ◃αⱽ.ηᴰ)
+      (λ _ → ueⱽ◁αⱽ.introᴰ)
+      (λ _ _ → Qⱽ.rectify $ Qⱽ.≡out $ ueⱽ◁αⱽ.βᴰ)
+      (λ _ _ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueⱽ◁αⱽ.ηᴰ)
     } where
       module ueⱽ = UniversalElementⱽ ueⱽ
-      ueᴰ◃αⱽ = ueⱽ.toUniversalᴰ ◃PshIsoᴰ αⱽ
+      ueᴰ◁αⱽ = ueⱽ.toUniversalᴰ ◁PshIsoᴰ αⱽ
       module Cᴰ = Fibers Cᴰ
       module Qⱽ = PresheafⱽNotation Qⱽ
-      module ueⱽ◃αⱽ = UniversalElementᴰ ueᴰ◃αⱽ
+      module ueⱽ◁αⱽ = UniversalElementᴰ ueᴰ◁αⱽ
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
   {ue : UniversalElement C P}
   where
-  _◃PshIsoᴰⱽ_ : (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ) (αⱽ : PshIsoⱽ Pᴰ Qᴰ)
+  _◁PshIsoᴰⱽ_ : (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ) (αⱽ : PshIsoⱽ Pᴰ Qᴰ)
     → UniversalElementᴰ Cᴰ ue Qᴰ
-  ueᴰ ◃PshIsoᴰⱽ αⱽ = record
-    { vertexᴰ = ueᴰ◃αⱽ.vertexᴰ
-    ; elementᴰ = ueᴰ◃αⱽ.elementᴰ
+  ueᴰ ◁PshIsoᴰⱽ αⱽ = record
+    { vertexᴰ = ueᴰ◁αⱽ.vertexᴰ
+    ; elementᴰ = ueᴰ◁αⱽ.elementᴰ
     ; universalᴰ = isisoover
-      (λ p qᴰ → ueᴰ◃αⱽ.introᴰ qᴰ)
-      (λ p qᴰ → Qᴰ.rectify $ Qᴰ.≡out $ ueᴰ◃αⱽ.βᴰ)
-      (λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueᴰ◃αⱽ.ηᴰ)
+      (λ p qᴰ → ueᴰ◁αⱽ.introᴰ qᴰ)
+      (λ p qᴰ → Qᴰ.rectify $ Qᴰ.≡out $ ueᴰ◁αⱽ.βᴰ)
+      (λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueᴰ◁αⱽ.ηᴰ)
     } where
-      ueᴰ◃αⱽ = ueᴰ ◃PshIsoᴰ αⱽ
+      ueᴰ◁αⱽ = ueᴰ ◁PshIsoᴰ αⱽ
       module Cᴰ = Fibers Cᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
-      module ueᴰ◃αⱽ = UniversalElementᴰ ueᴰ◃αⱽ
+      module ueᴰ◁αⱽ = UniversalElementᴰ ueᴰ◁αⱽ
 
 open UniversalElement
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -352,10 +352,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {Pⱽ : Presheafⱽ (ue .vertex) Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   where
   -- This could probably be implemented as a subst instead of manually.
-  _◃PshIsoⱽᴰ_ : UniversalElementⱽ Cᴰ (ue .vertex) Pⱽ
+  _◁PshIsoⱽᴰ_ : UniversalElementⱽ Cᴰ (ue .vertex) Pⱽ
     → PshIsoᴰ (yoRecIso ue) Pⱽ Qᴰ
     → UniversalElementᴰ Cᴰ ue Qᴰ
-  ueⱽ ◃PshIsoⱽᴰ αᴰ = record
+  ueⱽ ◁PshIsoⱽᴰ αᴰ = record
     { vertexᴰ = ueⱽ.vertexⱽ
     ; elementᴰ = Qᴰ.reind (Q.⋆IdL _) (αᴰ .fst .N-obᴰ ueⱽ.elementⱽ)
     ; universalᴰ = isisoover

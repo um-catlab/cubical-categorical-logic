@@ -98,7 +98,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ⋆PshIsoᴰⱽ invPshIsoⱽ (PshProdⱽ≅ᴰ Pᴰ Qᴰ))
 
   ×ⱽRepr+π*→×ᴰRepr : UniversalElementᴰ Cᴰ p×q (Pᴰ ×ᴰPsh Qᴰ)
-  ×ⱽRepr+π*→×ᴰRepr = π₁*×ⱽπ₂* ◃PshIsoⱽᴰ ×ᴰ≅π₁*×ⱽπ₂*
+  ×ⱽRepr+π*→×ᴰRepr = π₁*×ⱽπ₂* ◁PshIsoⱽᴰ ×ᴰ≅π₁*×ⱽπ₂*
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -118,38 +118,39 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module P×Q = UniversalElementNotation P×Q
     module Cᴰ = Fibers Cᴰ
 
-  BinProductⱽ→PshProdReprᴰ : UniversalElementᴰ Cᴰ P×Q (Pᴰ ×ᴰPsh Qᴰ)
-  BinProductⱽ→PshProdReprᴰ .vertexᴰ = bpⱽ.vert
-  BinProductⱽ→PshProdReprᴰ .elementᴰ .fst = bpⱽ.π₁ Pᴰ.⋆ⱽᴰ π₁*P.π
-  BinProductⱽ→PshProdReprᴰ .elementᴰ .snd = bpⱽ.π₂ Qᴰ.⋆ⱽᴰ π₂*Q.π
-  BinProductⱽ→PshProdReprᴰ .universalᴰ .inv (f₁ , f₂) (fᴰ₁ , fᴰ₂) =
-    π₁*P.intro (Pᴰ.reind (sym $ cong fst $ P×Q.β) fᴰ₁) bpⱽ.,ⱽ π₂*Q.intro (Qᴰ.reind (sym $ cong snd $ P×Q.β) fᴰ₂)
-  BinProductⱽ→PshProdReprᴰ .universalᴰ .rightInv (f₁ , f₂) (fᴰ₁ , fᴰ₂) = ΣPathP
-    ( (Pᴰ.rectify $ Pᴰ.≡out $
-      (sym $ Pᴰ.⋆Assocᴰⱽᴰ _ _ _)
-      ∙ Pᴰ.⟨ bpⱽ.∫×βⱽ₁ ⟩⋆⟨ refl ⟩
-      ∙ π₁*P.β
-      ∙ (sym $ Pᴰ.reind-filler _ _)
-      )
-    , (Qᴰ.rectify $ Qᴰ.≡out $
-      (sym $ Qᴰ.⋆Assocᴰⱽᴰ _ _ _)
-      ∙ Qᴰ.⟨ bpⱽ.∫×βⱽ₂ ⟩⋆⟨ refl ⟩
-      ∙ π₂*Q.β
-      ∙ (sym $ Qᴰ.reind-filler _ _)))
-  BinProductⱽ→PshProdReprᴰ .universalᴰ .leftInv f fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-    bpⱽ.,ⱽ≡
-      (π₁*P.intro≡
-        ((sym $ Pᴰ.reind-filler _ _)
-        ∙ Pᴰ.⟨ refl ⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
-        ∙ (sym $ Pᴰ.⋆Assoc _ _ _)
-        ∙ Pᴰ.⟨ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
-        ∙ (sym $ Cᴰ.reind-filler P×Q.η _))
-      (π₂*Q.intro≡
-        ((sym $ Qᴰ.reind-filler _ _)
-        ∙ Qᴰ.⟨ refl ⟩⋆⟨ sym $ Qᴰ.reind-filler _ _ ⟩
-        ∙ (sym $ Qᴰ.⋆Assoc _ _ _)
-        ∙ Qᴰ.⟨ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
-        ∙ (sym $ Cᴰ.reind-filler P×Q.η _))
+    -- Old manual proof preserved in a private module for future reference
+    BinProductⱽ→PshProdReprᴰ : UniversalElementᴰ Cᴰ P×Q (Pᴰ ×ᴰPsh Qᴰ)
+    BinProductⱽ→PshProdReprᴰ .vertexᴰ = bpⱽ.vert
+    BinProductⱽ→PshProdReprᴰ .elementᴰ .fst = bpⱽ.π₁ Pᴰ.⋆ⱽᴰ π₁*P.π
+    BinProductⱽ→PshProdReprᴰ .elementᴰ .snd = bpⱽ.π₂ Qᴰ.⋆ⱽᴰ π₂*Q.π
+    BinProductⱽ→PshProdReprᴰ .universalᴰ .inv (f₁ , f₂) (fᴰ₁ , fᴰ₂) =
+      π₁*P.intro (Pᴰ.reind (sym $ cong fst $ P×Q.β) fᴰ₁) bpⱽ.,ⱽ π₂*Q.intro (Qᴰ.reind (sym $ cong snd $ P×Q.β) fᴰ₂)
+    BinProductⱽ→PshProdReprᴰ .universalᴰ .rightInv (f₁ , f₂) (fᴰ₁ , fᴰ₂) = ΣPathP
+      ( (Pᴰ.rectify $ Pᴰ.≡out $
+        (sym $ Pᴰ.⋆Assocᴰⱽᴰ _ _ _)
+        ∙ Pᴰ.⟨ bpⱽ.∫×βⱽ₁ ⟩⋆⟨ refl ⟩
+        ∙ π₁*P.β
+        ∙ (sym $ Pᴰ.reind-filler _ _)
+        )
+      , (Qᴰ.rectify $ Qᴰ.≡out $
+        (sym $ Qᴰ.⋆Assocᴰⱽᴰ _ _ _)
+        ∙ Qᴰ.⟨ bpⱽ.∫×βⱽ₂ ⟩⋆⟨ refl ⟩
+        ∙ π₂*Q.β
+        ∙ (sym $ Qᴰ.reind-filler _ _)))
+    BinProductⱽ→PshProdReprᴰ .universalᴰ .leftInv f fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+      bpⱽ.,ⱽ≡
+        (π₁*P.intro≡
+          ((sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.⟨ refl ⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ Pᴰ.⋆Assoc _ _ _)
+          ∙ Pᴰ.⟨ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
+          ∙ (sym $ Cᴰ.reind-filler P×Q.η _))
+        (π₂*Q.intro≡
+          ((sym $ Qᴰ.reind-filler _ _)
+          ∙ Qᴰ.⟨ refl ⟩⋆⟨ sym $ Qᴰ.reind-filler _ _ ⟩
+          ∙ (sym $ Qᴰ.⋆Assoc _ _ _)
+          ∙ Qᴰ.⟨ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
+          ∙ (sym $ Cᴰ.reind-filler P×Q.η _))
 
 module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
   (prod : BinProduct C (x₁ , x₂))
@@ -169,7 +170,9 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
     where
     BinProductⱽ→BinProductᴰ : BinProductᴰ Cᴰ prod (xᴰ₁ , xᴰ₂)
     BinProductⱽ→BinProductᴰ =
-      ×ⱽRepr+π*→×ᴰRepr prod
+      vbp
+      ◁PshIsoⱽᴰ ×ᴰ≅π₁*×ⱽπ₂*
+        prod
         (CartesianLift→CartesianLift' _ _ (CatLift→YoLift lift-π₁))
         (CartesianLift→CartesianLift' _ _ (CatLift→YoLift lift-π₂))
         vbp

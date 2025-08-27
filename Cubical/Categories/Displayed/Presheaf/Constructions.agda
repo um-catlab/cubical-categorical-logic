@@ -53,11 +53,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   private
     module Pᴰ = PresheafᴰNotation Pᴰ
   LiftPshᴰ : (ℓ' : Level) → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓ')
-  LiftPshᴰ ℓ' .F-obᴰ xᴰ p .fst = Lift {ℓPᴰ}{ℓ'} Pᴰ.p[ p ][ xᴰ ]
-  LiftPshᴰ ℓ' .F-obᴰ xᴰ p .snd = isOfHLevelLift 2 (F-obᴰ Pᴰ xᴰ p .snd)
-  LiftPshᴰ ℓ' .F-homᴰ fᴰ p pᴰ = lift (F-homᴰ Pᴰ fᴰ p (pᴰ .lower))
-  LiftPshᴰ ℓ' .F-idᴰ i p pᴰ = lift (Pᴰ .F-idᴰ i p (pᴰ .lower))
-  LiftPshᴰ ℓ' .F-seqᴰ fᴰ gᴰ i p pᴰ = lift (Pᴰ .F-seqᴰ fᴰ gᴰ i p (pᴰ .lower))
+  LiftPshᴰ ℓ' = LiftFᴰ ℓ' ∘Fⱽᴰ Pᴰ
 
   LiftHomⱽ : ∀ {ℓ'} → PshHomⱽ Pᴰ (LiftPshᴰ ℓ')
   LiftHomⱽ .N-obᴰ = λ z → lift z

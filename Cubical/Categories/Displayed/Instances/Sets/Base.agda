@@ -87,6 +87,12 @@ _[-][-,_] {C = C} D {c} d .F-homᴰ fᴰ g gᴰ = Categoryᴰ._⋆ᴰ_ D fᴰ g�
 _[-][-,_] {C = C} D {c} d .F-idᴰ i g gᴰ = Categoryᴰ.⋆IdLᴰ D gᴰ i
 _[-][-,_] {C = C} D {c} d .F-seqᴰ fᴰ gᴰ i h hᴰ = Categoryᴰ.⋆Assocᴰ D gᴰ fᴰ hᴰ i
 
+LiftFᴰ : ∀ ℓ'' → Functorⱽ (SETᴰ ℓ ℓ') (SETᴰ ℓ (ℓ-max ℓ' ℓ''))
+LiftFᴰ ℓ'' .F-obᴰ P a = Lift {j = ℓ''} ⟨ P a ⟩ , isOfHLevelLift 2 (P a .snd)
+LiftFᴰ ℓ'' .F-homᴰ f a p = lift (f a (p .lower))
+LiftFᴰ ℓ'' .F-idᴰ = refl
+LiftFᴰ ℓ'' .F-seqᴰ fᴰ gᴰ = refl
+
 module _ {C : Category ℓ ℓ'}{Cᴰ : Categoryᴰ C ℓ'' ℓ'''} where
   private
     module Cᴰ = Categoryᴰ Cᴰ

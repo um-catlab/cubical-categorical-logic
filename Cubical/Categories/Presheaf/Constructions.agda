@@ -5,10 +5,13 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
@@ -29,8 +32,13 @@ private
   variable
     ℓ ℓ' ℓA ℓB : Level
 
-module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
+UnitPsh : ∀ {C : Category ℓ ℓ'} → Presheaf C ℓ-zero
+UnitPsh = Constant _ _ (Unit , isSetUnit)
 
+LiftPsh : ∀ {C : Category ℓ ℓ'} (P : Presheaf C ℓA) (ℓ'' : Level) → Presheaf C (ℓ-max ℓA ℓ'')
+LiftPsh P ℓ'' = LiftF {ℓ' = ℓ''} ∘F P
+
+module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
   PshProd' : Functor
     (PresheafCategory C ℓA ×C PresheafCategory C ℓB)
     (PresheafCategory C (ℓ-max ℓA ℓB))

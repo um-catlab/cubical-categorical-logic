@@ -15,6 +15,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory using (∫C)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Constructions
@@ -33,8 +35,10 @@ open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
+open import Cubical.Categories.Displayed.Presheaf.Representable
 
 open Bifunctorᴰ
+open Functor
 open Functorᴰ
 open isIsoOver
 open PshHomᴰ
@@ -80,6 +84,15 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
             → Presheafᴰ (P ×Psh Q) Cᴰ _
   _×ᴰPsh_ = PshProdᴰ .Bif-obᴰ
 
+  ∫×ᴰ≅× : ∀ {P : Presheaf C ℓA}{Q : Presheaf C ℓB}
+            → {Pᴰ : Presheafᴰ P Cᴰ ℓAᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓBᴰ}
+        → PshIso (∫P (Pᴰ ×ᴰPsh Qᴰ)) (∫P Pᴰ ×Psh ∫P Qᴰ)
+  ∫×ᴰ≅× .fst .fst _ ((p , q) , (pᴰ , qᴰ)) = (p , pᴰ) , (q , qᴰ)
+  ∫×ᴰ≅× .fst .snd _ _ _ _ = refl
+  ∫×ᴰ≅× .snd _ .fst ((p , pᴰ) , (q , qᴰ)) = (p , q) , (pᴰ , qᴰ)
+  ∫×ᴰ≅× .snd _ .snd .fst _ = refl
+  ∫×ᴰ≅× .snd _ .snd .snd _ = refl
+
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   where
   -- Internal product: Pᴰ ×ⱽ Qᴰ over P
@@ -92,6 +105,42 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
             → (Pᴰ : Presheafᴰ P Cᴰ ℓAᴰ)(Qᴰ : Presheafᴰ P Cᴰ ℓBᴰ)
             → Presheafᴰ P Cᴰ _
   Pᴰ ×ⱽPsh Qᴰ = PshProdⱽ .F-obᴰ (Pᴰ , Qᴰ)
+
+  LocallyRepresentableᴰ :
+    ((P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P)
+    → Presheafᴰ P Cᴰ ℓPᴰ
+    → Type _
+  LocallyRepresentableᴰ (P , _×P) Pᴰ = ∀ {c} cᴰ → UniversalElementᴰ Cᴰ (c ×P) ((Cᴰ [-][-, cᴰ ]) ×ᴰPsh Pᴰ)
+
+  open UniversalElement
+  open UniversalElementᴰ
+  ∫LocallyRepresentable :
+    {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
+    → ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
+    → LocallyRepresentable (∫P Pᴰ)
+  ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) = ∫ue (Γᴰ ×ᴰPᴰ) ◁PshIso ∫×ᴰ≅×
+
+  module _ {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)}
+           {Q : Presheaf C ℓQ}
+           ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
+           (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+           where
+    open UniversalElement
+    open UniversalElementᴰ
+    private
+      module Cᴰ = Fibers Cᴰ
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+      ∫⇒Small = (_ , (∫LocallyRepresentable ((Pᴰ , _×ᴰPᴰ)))) ⇒PshSmall ∫P Qᴰ
+      module ∫⇒Small = PresheafNotation ∫⇒Small
+    _⇒PshSmallᴰ_ : Presheafᴰ ((P , _×P) ⇒PshSmall Q) Cᴰ ℓQᴰ
+    _⇒PshSmallᴰ_ .F-obᴰ {Γ} Γᴰ = Qᴰ .F-obᴰ ((Γᴰ ×ᴰPᴰ) .vertexᴰ)
+    _⇒PshSmallᴰ_ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ q qᴰ =
+      ((γ , γᴰ) ∫⇒Small.⋆ (q , qᴰ)) .snd
+    _⇒PshSmallᴰ_ .F-idᴰ {Γ} {Γᴰ} = funExt λ q → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      funExt⁻ (∫⇒Small .F-id) (q , qᴰ)
+    _⇒PshSmallᴰ_ .F-seqᴰ γᴰ δᴰ = funExt λ q → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      funExt⁻ (∫⇒Small .F-seq (_ , γᴰ) (_ , δᴰ)) (q , qᴰ)
 
 -- Reindexing presheaves
 -- There are 3 different notions of reindexing a presheaf we consider here.

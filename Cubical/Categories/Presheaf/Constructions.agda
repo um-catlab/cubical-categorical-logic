@@ -70,7 +70,11 @@ module _ {C : Category ℓ ℓ'} where
     π₂ .fst _ = snd
     π₂ .snd _ _ _ _ = refl
 
-  module _ ((P , _×P) : Σ[ P ∈ Presheaf C ℓA ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)) (Q : Presheaf C ℓB) where
+  -- TODO: correct name?
+  LocallyRepresentable : Presheaf C ℓP → Type _
+  LocallyRepresentable P = ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)
+
+  module _ ((P , _×P) : Σ[ P ∈ Presheaf C ℓA ] LocallyRepresentable P) (Q : Presheaf C ℓB) where
     private
       module C = Category C
       module P = PresheafNotation P

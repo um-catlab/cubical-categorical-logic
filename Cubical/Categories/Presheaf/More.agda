@@ -245,10 +245,33 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   PshIso→PshIsoLift α .nIso x .isIsoC.sec = funExt (λ x₁ → cong lift (α .snd x .snd .fst (x₁ .lower)) )
   PshIso→PshIsoLift α .nIso x .isIsoC.ret = funExt (λ x₁ → cong lift (α .snd x .snd .snd (x₁ .lower)))
 
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
-  makePshIsoPath : ∀ {α β : PshIso P Q} → α .fst .fst ≡ β .fst .fst
-   → α ≡ β
-  makePshIsoPath α≡β = Σ≡Prop (λ _ → isPropIsPshIso) (makePshHomPath α≡β)
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (((α , α-natural) , αIsIso) : PshIso P Q) where
+  private
+    module Q = PresheafNotation Q
+  invPshIso : PshIso Q P
+  invPshIso .fst .fst x = αIsIso _ .fst
+  invPshIso .fst .snd _ _ f q =
+    sym (αIsIso _ .snd .snd _)
+    ∙ cong (αIsIso _ .fst) (sym $
+      α-natural _ _ _ _ ∙ Q.⟨ refl ⟩⋆⟨ αIsIso _ .snd .fst _ ⟩ ∙ (sym $ αIsIso _ .snd .fst _))
+    ∙ (αIsIso _ .snd .snd _)
+  invPshIso .snd x .fst = α _
+  invPshIso .snd x .snd .fst = αIsIso _ .snd .snd
+  invPshIso .snd x .snd .snd = αIsIso _ .snd .fst
+
+
+makePshIsoPath : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{α β : PshIso P Q} → α .fst .fst ≡ β .fst .fst
+ → α ≡ β
+makePshIsoPath α≡β = Σ≡Prop (λ _ → isPropIsPshIso) (makePshHomPath α≡β)
+
+open Iso
+
+PshIso→⋆PshHomIso : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''}(α : PshIso P Q)
+  → Iso (PshHom Q R) (PshHom P R)
+PshIso→⋆PshHomIso α .fun β = α .fst ⋆PshHom β
+PshIso→⋆PshHomIso α .inv β = invPshIso α .fst ⋆PshHom β
+PshIso→⋆PshHomIso α .rightInv β = makePshHomPath (funExt λ x → funExt λ p → cong (β .fst x) (α .snd x .snd .snd p))
+PshIso→⋆PshHomIso α .leftInv β = makePshHomPath (funExt λ x → funExt λ p → cong (β .fst x) (α .snd x .snd .fst p))
 
 -- This should eventually be upstreamed to go in the UniversalElement
 -- module itself
@@ -314,20 +337,6 @@ module UniversalElementNotation {ℓo}{ℓh}
   asPshIso : PshIso (C [-, vertex ]) P
   asPshIso = (yoRec P element) , ⋆element-isPshIso
 
-
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (((α , α-natural) , αIsIso) : PshIso P Q) where
-  private
-    module Q = PresheafNotation Q
-  invPshIso : PshIso Q P
-  invPshIso .fst .fst x = αIsIso _ .fst
-  invPshIso .fst .snd _ _ f q =
-    sym (αIsIso _ .snd .snd _)
-    ∙ cong (αIsIso _ .fst) (sym $
-      α-natural _ _ _ _ ∙ Q.⟨ refl ⟩⋆⟨ αIsIso _ .snd .fst _ ⟩ ∙ (sym $ αIsIso _ .snd .fst _))
-    ∙ (αIsIso _ .snd .snd _)
-  invPshIso .snd x .fst = α _
-  invPshIso .snd x .snd .fst = αIsIso _ .snd .snd
-  invPshIso .snd x .snd .snd = αIsIso _ .snd .fst
 
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
   private

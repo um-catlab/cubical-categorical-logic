@@ -4,6 +4,7 @@ module Cubical.Categories.Presheaf.Constructions where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
@@ -103,6 +104,39 @@ module _ {C : Category ℓ ℓ'} where
     → Presheaf C ℓB
     → Presheaf C ℓB
   (P , _×P) ⇒PshSmall Q = Power P Q _×P
+
+  module _ (P : Presheaf C ℓA)(_×P : ∀ c → UniversalElement C ((C [-, c ]) ×Psh P))(Q : Presheaf C ℓB) where
+    private
+      module C = Category C
+      module P = PresheafNotation P
+      module _×P c = PresheafNotation ((C [-, c ]) ×Psh P)
+      module Q = PresheafNotation Q
+    -- P⇒Q Γ :=
+    -- PshHom (y Γ × P) Q
+    -- ≅ PshHom y(Γ ×P) Q
+    -- ≅ Q (Γ ×P)
+    open UniversalElementNotation
+    ⇒PshSmallIso⇒PshLarge : ∀ Γ
+      → Iso Q.p[ (Γ ×P) .vertex ]
+            (PshHom ((C [-, Γ ]) ×Psh P) Q)
+
+    private
+      module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)
+    ⇒PshSmallIso⇒PshLarge Γ =
+      compIso
+        (IsoYoRec Q ((Γ ×P) .vertex))
+        (PshIso→⋆PshHomIso (invPshIso (yoRecIso (Γ ×P))))
+
+    ⇒PshSmall≅⇒PshLarge : PshIso ((P , _×P) ⇒PshSmall Q) (P ⇒PshLarge Q)
+    ⇒PshSmall≅⇒PshLarge .fst .fst = ⇒PshSmallIso⇒PshLarge.fun
+    ⇒PshSmall≅⇒PshLarge .fst .snd Δ Γ γ q = makePshHomPath (funExt λ x → funExt λ p →
+      (sym $ Q.⋆Assoc _ _ _)
+      ∙ Q.⟨ sym $ intro≡ (Γ ×P) $ ΣPathP
+        ( (C.⟨ cong fst $ sym $ β $ Δ ×P ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _) ∙ C.⟨ refl ⟩⋆⟨ cong fst $ sym $ β $ Γ ×P ⟩ ∙ sym (C.⋆Assoc _ _ _)
+        , (cong snd $ sym $ β $ Δ ×P) ∙ P.⟨⟩⋆⟨ cong snd $ sym $ β $ Γ ×P ⟩ ∙ sym (P.⋆Assoc _ _ _)
+        )
+      ⟩⋆⟨⟩)
+    ⇒PshSmall≅⇒PshLarge .snd Γ = IsoToIsIso (⇒PshSmallIso⇒PshLarge Γ)
 
   open Functor
   open Functorᴰ

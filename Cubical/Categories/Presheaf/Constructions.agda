@@ -35,6 +35,11 @@ private
 UnitPsh : ∀ {C : Category ℓ ℓ'} → Presheaf C ℓ-zero
 UnitPsh = Constant _ _ (Unit , isSetUnit)
 
+UnitPsh-intro : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓA}
+  → PshHom P UnitPsh
+UnitPsh-intro .fst = λ x _ → tt
+UnitPsh-intro .snd x y f p = refl
+
 LiftPsh : ∀ {C : Category ℓ ℓ'} (P : Presheaf C ℓA) (ℓ'' : Level) → Presheaf C (ℓ-max ℓA ℓ'')
 LiftPsh P ℓ'' = LiftF {ℓ' = ℓ''} ∘F P
 

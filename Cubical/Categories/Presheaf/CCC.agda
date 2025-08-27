@@ -37,9 +37,8 @@ open NatTrans
 open UniversalElement
 
 module _ (C : Category ℓ ℓ') (ℓS : Level) where
-
   ⊤𝓟 : Terminal' (PresheafCategory C ℓS)
-  ⊤𝓟 .vertex = Constant _ _ (Unit* , isSetUnit*)
+  ⊤𝓟 .vertex = LiftPsh UnitPsh ℓS
   ⊤𝓟 .element = tt
   ⊤𝓟 .universal _ = isIsoToIsEquiv
     ( (λ _ → natTrans (λ _ _ → tt*) (λ _ → refl))

@@ -170,17 +170,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reindPathIsoⱽ .snd .isIsoOver.leftInv q qᴰ =
     Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
 
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Q : Presheaf C ℓQ} where
-  private
-    module C = Category C
-    module Q = PresheafNotation Q
-  module _ {c : C.ob} (q : Q.p[ c ]) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
-    private
-      module Qᴰ = PresheafᴰNotation Qᴰ
-      open Functorᴰ
-    reindYo : Presheafⱽ c Cᴰ ℓQᴰ
-    reindYo = reind (yoRec Q q) Qᴰ
-
 -- Reindexing is compositional:
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}

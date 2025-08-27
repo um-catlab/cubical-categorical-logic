@@ -50,24 +50,24 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
-
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-  LiftPshᴰ : (ℓ' : Level) → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓ')
-  LiftPshᴰ ℓ' = LiftFᴰ ℓ' ∘Fⱽᴰ Pᴰ
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
 
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  module _ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+    LiftPshᴰ : (ℓ' : Level) → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓ')
+    LiftPshᴰ ℓ' = LiftFᴰ ℓ' ∘Fⱽᴰ Pᴰ
+
   UnitPshᴰ : ∀ {P : Presheaf C ℓP} → Presheafᴰ P Cᴰ ℓ-zero
   UnitPshᴰ .F-obᴰ _ _ = Unit , isSetUnit
   UnitPshᴰ .F-homᴰ _ _ _ = tt
   UnitPshᴰ .F-idᴰ = refl
   UnitPshᴰ .F-seqᴰ _ _ = refl
 
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
-  where
   -- External product: (Pᴰ ×ᴰ Qᴰ) over (P × Q)
   PshProd'ᴰ :
     Functorᴰ PshProd' (PRESHEAFᴰ Cᴰ ℓA ℓAᴰ ×Cᴰ PRESHEAFᴰ Cᴰ ℓB ℓBᴰ)
@@ -93,8 +93,6 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   ∫×ᴰ≅× .snd _ .snd .fst _ = refl
   ∫×ᴰ≅× .snd _ .snd .snd _ = refl
 
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
-  where
   -- Internal product: Pᴰ ×ⱽ Qᴰ over P
   PshProdⱽ :
     Functorⱽ (PRESHEAFᴰ Cᴰ ℓA ℓAᴰ ×ᴰ PRESHEAFᴰ Cᴰ ℓA ℓBᴰ)
@@ -113,12 +111,11 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   LocallyRepresentableᴰ (P , _×P) Pᴰ = ∀ {c} cᴰ → UniversalElementᴰ Cᴰ (c ×P) ((Cᴰ [-][-, cᴰ ]) ×ᴰPsh Pᴰ)
 
   open UniversalElement
-  open UniversalElementᴰ
   ∫LocallyRepresentable :
     {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
     → ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
     → LocallyRepresentable (∫P Pᴰ)
-  ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) = ∫ue (Γᴰ ×ᴰPᴰ) ◁PshIso ∫×ᴰ≅×
+  ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) = UniversalElementᴰ.∫ue (Γᴰ ×ᴰPᴰ) ◁PshIso ∫×ᴰ≅×
 
   module _ {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)}
            {Q : Presheaf C ℓQ}
@@ -128,7 +125,6 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     open UniversalElement
     open UniversalElementᴰ
     private
-      module Cᴰ = Fibers Cᴰ
       module Pᴰ = PresheafᴰNotation Pᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
       ∫⇒Small = (_ , (∫LocallyRepresentable ((Pᴰ , _×ᴰPᴰ)))) ⇒PshSmall ∫P Qᴰ
@@ -142,30 +138,63 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     _⇒PshSmallᴰ_ .F-seqᴰ γᴰ δᴰ = funExt λ q → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
       funExt⁻ (∫⇒Small .F-seq (_ , γᴰ) (_ , δᴰ)) (q , qᴰ)
 
--- Reindexing presheaves
--- There are 3 different notions of reindexing a presheaf we consider here.
--- 1. Reindexing a presheaf Qᴰ over Q along a homomorphism α : P ⇒ Q to be over P
--- 2. Reindexing a presheaf Qᴰ over Q along a functor F to be over (Q ∘ F^op)
--- 3. The combination of those two, reindexing a presheaf Qᴰ over Q along a heteromorphism α : P =[ F ]=> Q to be over P.
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-  where
-  private
-    module Qᴰ = PresheafᴰNotation Qᴰ
-  open Functorᴰ
-  reind : Presheafᴰ P Cᴰ ℓQᴰ
-  reind .F-obᴰ {x} xᴰ p = Qᴰ .F-obᴰ xᴰ (α .fst x p)
-  reind .F-homᴰ {y} {x} {f} {yᴰ} {xᴰ} fᴰ p qᴰ =
-    Qᴰ.reind (sym $ α .snd _ _ _ _) (fᴰ Qᴰ.⋆ᴰ qᴰ)
-  reind .F-idᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-    (sym $ Qᴰ.reind-filler _ _)
-    ∙ Qᴰ.⋆IdL _
-  reind .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-    (sym $ Qᴰ.reind-filler _ _)
-    ∙ Qᴰ.⋆Assoc _ _ _
-    ∙ Qᴰ.⟨ refl ⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
-    ∙ Qᴰ.reind-filler _ _
+  -- Reindexing presheaves
+  -- There are 3 different notions of reindexing a presheaf we consider here.
+  -- 1. Reindexing a presheaf Qᴰ over Q along a homomorphism α : P ⇒ Q to be over P
+  -- 2. Reindexing a presheaf Qᴰ over Q along a functor F to be over (Q ∘ F^op)
+  -- 3. The combination of those two, reindexing a presheaf Qᴰ over Q along a heteromorphism α : P =[ F ]=> Q to be over P.
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+           (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+           where
+    private
+      module Qᴰ = PresheafᴰNotation Qᴰ
+    open Functorᴰ
+    reind : Presheafᴰ P Cᴰ ℓQᴰ
+    reind .F-obᴰ {x} xᴰ p = Qᴰ .F-obᴰ xᴰ (α .fst x p)
+    reind .F-homᴰ {y} {x} {f} {yᴰ} {xᴰ} fᴰ p qᴰ =
+      Qᴰ.reind (sym $ α .snd _ _ _ _) (fᴰ Qᴰ.⋆ᴰ qᴰ)
+    reind .F-idᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      (sym $ Qᴰ.reind-filler _ _)
+      ∙ Qᴰ.⋆IdL _
+    reind .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      (sym $ Qᴰ.reind-filler _ _)
+      ∙ Qᴰ.⋆Assoc _ _ _
+      ∙ Qᴰ.⟨ refl ⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
+      ∙ Qᴰ.reind-filler _ _
+
+  module _ {Q : Presheaf C ℓQ} where
+    private
+      module Q = PresheafNotation Q
+    module _ {c : C.ob} (q : Q.p[ c ]) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+      private
+        module Qᴰ = PresheafᴰNotation Qᴰ
+        open Functorᴰ
+      reindYo : Presheafⱽ c Cᴰ ℓQᴰ
+      reindYo = reind (yoRec Q q) Qᴰ
+
+  LocallyRepresentableⱽ : {P : Presheaf C ℓP} → (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
+  LocallyRepresentableⱽ {P = P} Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
+    → UniversalElementⱽ Cᴰ Γ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reind (yoRec P p) Pᴰ)
+    where module P = PresheafNotation P
+
+  module _ {P : Presheaf C ℓP}
+    ((Pᴰ , _×ⱽ_*Pᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableⱽ Pᴰ)
+    (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ)
+    where
+    open UniversalElementⱽ
+    private
+      module P = PresheafNotation P
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+    ⇒PshSmallⱽ : Presheafᴰ P Cᴰ ℓQᴰ
+    ⇒PshSmallⱽ .F-obᴰ {Γ} Γᴰ p = Qᴰ .F-obᴰ ((Γᴰ ×ⱽ p *Pᴰ) .vertexⱽ) p
+    ⇒PshSmallⱽ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ p qᴰ =
+      introᴰ (Γᴰ ×ⱽ p *Pᴰ)
+        (((fst $ elementⱽ $ Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ) Cᴰ.⋆ⱽᴰ γᴰ)
+        , (Pᴰ.reind (P.⋆IdL _) $ snd $ elementⱽ $ Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ))
+      Qᴰ.⋆ᴰ qᴰ
+    ⇒PshSmallⱽ .F-idᴰ {Γ}{Γᴰ} = funExt λ q → funExt λ qᴰ → {!Qᴰ.rectify!}
+    ⇒PshSmallⱽ .F-seqᴰ = {!!}
 
 module _
   {C : Category ℓC ℓC'}

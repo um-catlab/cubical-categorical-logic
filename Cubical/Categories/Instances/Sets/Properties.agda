@@ -56,7 +56,7 @@ module _ {C : Category ℓC ℓC'}
     open SetCoeq.UniversalProperty
     lmap : Σ[ X ∈ ob C ]
            Σ[ Y ∈ ob C ]
-           Σ[ f ∈ (C)[ Y , X ] ] fst( F ⟅ X , Y ⟆b )
+           Σ[ f ∈ (C)[ Y , X ] ] ⟨ F ⟅ X , Y ⟆b ⟩
            →  Σ[ X ∈ ob C ] ⟨ F ⟅ X , X ⟆b ⟩
     lmap (X , Y , f , Fxy ) = X , ( F ⟪ f ⟫r ) Fxy
 

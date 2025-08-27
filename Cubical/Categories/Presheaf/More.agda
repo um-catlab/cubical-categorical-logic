@@ -508,7 +508,7 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} wher
     private
       module ue = UniversalElementNotation ue
     open UniversalElement
-    _◃PshIso_ : UniversalElement C Q
-    _◃PshIso_ .vertex = ue.vertex
-    _◃PshIso_ .element = α .fst .fst ue.vertex ue.element
-    _◃PshIso_ .universal = seqIsUniversalPshIso ue.universal α
+    _◁PshIso_ : UniversalElement C Q
+    _◁PshIso_ .vertex = ue.vertex
+    _◁PshIso_ .element = α .fst .fst ue.vertex ue.element
+    _◁PshIso_ .universal = seqIsUniversalPshIso ue.universal α

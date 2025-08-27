@@ -45,7 +45,7 @@ record CartesianCategoryRepr (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (�
   no-eta-equality
   field
     C : Category ℓ ℓ'
-    term : Representationᵁ C (TerminalPresheaf* ℓ')
+    term : Representationᵁ C (LiftPsh (UnitPsh {C = C}) ℓ')
   module C = Category C
   field
     bp   : ∀ (c d : C.ob) → Representationᵁ C ((C [-, c ]) ×Psh (C [-, d ]))

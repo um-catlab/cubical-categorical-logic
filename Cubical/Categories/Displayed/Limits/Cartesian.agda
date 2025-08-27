@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Instances.Sets
@@ -12,6 +13,7 @@ open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Properties
 open import Cubical.Categories.Displayed.Limits.Terminal
@@ -64,9 +66,13 @@ module _ {CC : CartesianCategory ℓC ℓC'}
   open TerminalNotation term
   open CartesianCategoryⱽ CCᴰ
   open CartesianCategoryᴰ hiding (Cᴰ)
+  open isFibrationNotation Cᴰ cartesianLifts
+  private
+    module bp = BinProductsNotation bp
   CartesianCategoryⱽ→CartesianCategoryᴰ : CartesianCategoryᴰ CC ℓCᴰ ℓCᴰ'
   CartesianCategoryⱽ→CartesianCategoryᴰ .CartesianCategoryᴰ.Cᴰ = Cᴰ
-  CartesianCategoryⱽ→CartesianCategoryᴰ .termᴰ = Terminalⱽ→Terminalᴰ Cᴰ (termⱽ 𝟙)
+  CartesianCategoryⱽ→CartesianCategoryᴰ .termᴰ =
+    termⱽ 𝟙ue.vertex ◁PshIsoⱽᴰ UnitPshᴰ≅UnitPshᴰ
   CartesianCategoryⱽ→CartesianCategoryᴰ .bpᴰ =
     BinProductsⱽ→BinProductsᴰ Cᴰ cartesianLifts bpⱽ bp
 
@@ -75,8 +81,8 @@ record CartesianCategoryReprᴰ (CC : CartesianCategoryRepr ℓC ℓC') (ℓCᴰ
   no-eta-equality
   open CartesianCategoryRepr CC
   field
-    Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
-    termᴰ : Representationᵁᴰ Cᴰ (TerminalPresheafᴰ* Cᴰ ℓCᴰ' (TerminalPresheaf* ℓC')) term
+    Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ' -- (TerminalPresheafᴰ* Cᴰ ℓCᴰ' (TerminalPresheaf* ℓC'))
+    termᴰ : Representationᵁᴰ Cᴰ (LiftPshᴰ UnitPshᴰ ℓCᴰ') term
     bpᴰ   : ∀ {c} {d} cᴰ dᴰ
       → Representationᵁᴰ Cᴰ ((Cᴰ [-][-, cᴰ ]) ×ᴰPsh (Cᴰ [-][-, dᴰ ])) (bp c d)
 
@@ -89,11 +95,11 @@ record CartesianCategoryReprⱽ (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Le
     Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
   module Cᴰ = Categoryᴰ Cᴰ
   field
-    termⱽ : ∀ {c} → Representationᵁⱽ Cᴰ (TerminalPresheafᴰ* Cᴰ ℓCᴰ' (C [-, c ]))
-    bpⱽ   : ∀ {c} (cᴰ dᴰ : Cᴰ.ob[ c ]) → Representationᵁⱽ Cᴰ ((Cᴰ [-][-, cᴰ ]) ×ⱽPsh (Cᴰ [-][-, dᴰ ]))
+    termⱽ : ∀ {c} → Representationᵁⱽ Cᴰ {c = c} (LiftPshᴰ UnitPshᴰ ℓCᴰ')
+    bpⱽ   : ∀ {c} (cᴰ dᴰ : Cᴰ.ob[ c ])
+      → Representationᵁⱽ Cᴰ ((Cᴰ [-][-, cᴰ ]) ×ⱽPsh (Cᴰ [-][-, dᴰ ]))
     cartesianLifts : ∀ {c d} (f : C [ c , d ]) (dᴰ : Cᴰ.ob[ d ])
       → Representationᵁⱽ Cᴰ (reindYo f (Cᴰ [-][-, dᴰ ]))
-
 
 module _ {CC : CartesianCategoryRepr ℓC ℓC'}
          (CCᴰ : CartesianCategoryReprⱽ (CC .CartesianCategoryRepr.C) ℓCᴰ ℓCᴰ') where
@@ -103,8 +109,8 @@ module _ {CC : CartesianCategoryRepr ℓC ℓC'}
   CartesianCategoryⱽ→CartesianCategoryReprᴰ : CartesianCategoryReprᴰ CC ℓCᴰ ℓCᴰ'
   CartesianCategoryⱽ→CartesianCategoryReprᴰ .CartesianCategoryReprᴰ.Cᴰ = Cᴰ
   CartesianCategoryⱽ→CartesianCategoryReprᴰ .termᴰ = _ ,
-    (termⱽ .snd ∙ sym (reindTerminal* Cᴰ _)
-    ◁ reindPathToPshIsoPathP (term .snd) _)
+    termⱽ .snd
+    ◁ Lift-Path UnitPshᴰ≡UnitPshᴰ
   CartesianCategoryⱽ→CartesianCategoryReprᴰ .bpᴰ cᴰ dᴰ =
     _ , ( bpⱽ _ _ .snd
         ◁ ×ᴰ≡π₁*×ⱽπ₂* (bp _ _) (cartesianLifts _ cᴰ) (cartesianLifts _ dᴰ))

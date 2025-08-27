@@ -23,12 +23,16 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Isomorphism.More
 
 open Functor
+open Iso
+open NatIso
+open NatTrans
 
 private
   variable
@@ -59,8 +63,8 @@ module _ (C : Category ℓ ℓ') (c : C .Category.ob) where
     (C .⋆IdL))
 
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
-  open UniversalElement
   open Category
+  open UniversalElement
   UniversalElementOn : C .ob → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   UniversalElementOn vertex =
     Σ[ element ∈ (P ⟅ vertex ⟆) .fst ] isUniversal C P vertex element
@@ -124,6 +128,20 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   isSetPshHom : isSet PshHom
   isSetPshHom = isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
 
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS}
+  where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  NatTrans→PshHom : NatTrans P Q → PshHom P Q
+  NatTrans→PshHom α .fst = α .N-ob
+  NatTrans→PshHom α .snd x y f = funExt⁻ (α .N-hom f)
+
+  PshHom→NatTrans : PshHom P Q → NatTrans P Q
+  PshHom→NatTrans α .N-ob = α .fst
+  PshHom→NatTrans α .N-hom f = funExt (α .snd _ _ f)
+
 module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
   makePshHomPath : ∀ {α β : PshHom P Q} → α .fst ≡ β .fst
    → α ≡ β
@@ -134,12 +152,31 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}where
   idPshHom .fst x z = z
   idPshHom .snd x y f p = refl
 
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} where
-  _⋆PshHom_ : PshHom P Q → PshHom Q R → PshHom P R
+module _ {C : Category ℓ ℓ'} where
+  _⋆PshHom_ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''} → PshHom P Q → PshHom Q R → PshHom P R
   (α ⋆PshHom β) .fst x p = β .fst x (α .fst x p)
   (α ⋆PshHom β) .snd x y f p =
     cong (β .fst _) (α .snd x y f p)
     ∙ β .snd x y f (α .fst y p)
+
+  _⋆PshHomNatTrans_ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS'} → PshHom P Q → NatTrans Q R → PshHom P R
+  α ⋆PshHomNatTrans β = α ⋆PshHom NatTrans→PshHom β
+  _⋆NatTransPshHom_ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS}{R : Presheaf C ℓS'} → NatTrans P Q → PshHom Q R → PshHom P R
+  α ⋆NatTransPshHom β = NatTrans→PshHom α ⋆PshHom β
+
+module _ {C : Category ℓ ℓ'} where
+  PshHomPsh : ∀ (Q : Presheaf C ℓS') → Presheaf (PresheafCategory C ℓS) (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS') ℓS)
+  PshHomPsh Q .F-ob P = (PshHom P Q) , (isSetPshHom _ _)
+  PshHomPsh Q .F-hom α β = α ⋆NatTransPshHom β
+  PshHomPsh Q .F-id = funExt (λ _ → makePshHomPath refl)
+  PshHomPsh Q .F-seq α α' = funExt λ _ → makePshHomPath refl
+
+  PshHomProf : Profunctor (PresheafCategory C ℓS') (PresheafCategory C ℓS) (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS) ℓS')
+  PshHomProf .F-ob Q = PshHomPsh Q
+  PshHomProf .F-hom β .N-ob P α = α ⋆PshHomNatTrans β
+  PshHomProf .F-hom β .N-hom α = funExt λ _ → makePshHomPath refl
+  PshHomProf .F-id = makeNatTransPath (funExt (λ _ → funExt λ _ → makePshHomPath refl))
+  PshHomProf .F-seq β β' = makeNatTransPath (funExt λ _ → funExt λ _ → makePshHomPath refl)
 
 module _ {C : Category ℓ ℓ'} (P : Presheaf C ℓS) where
   private
@@ -200,8 +237,6 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   PshIso : Type _
   PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
-  open NatIso
-  open NatTrans
   PshIso→PshIsoLift : PshIso → PshIsoLift C P Q
   PshIso→PshIsoLift α .trans .N-ob x x₁ = lift (α .fst .fst x (x₁ .lower))
   PshIso→PshIsoLift α .trans .N-hom f = funExt (λ x₁ → cong lift (α .fst .snd _ _ f (x₁ .lower)))
@@ -209,10 +244,32 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   PshIso→PshIsoLift α .nIso x .isIsoC.sec = funExt (λ x₁ → cong lift (α .snd x .snd .fst (x₁ .lower)) )
   PshIso→PshIsoLift α .nIso x .isIsoC.ret = funExt (λ x₁ → cong lift (α .snd x .snd .snd (x₁ .lower)))
 
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} where
-  makePshIsoPath : ∀ {α β : PshIso P Q} → α .fst .fst ≡ β .fst .fst
-   → α ≡ β
-  makePshIsoPath α≡β = Σ≡Prop (λ _ → isPropIsPshIso) (makePshHomPath α≡β)
+module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (((α , α-natural) , αIsIso) : PshIso P Q) where
+  private
+    module Q = PresheafNotation Q
+  invPshIso : PshIso Q P
+  invPshIso .fst .fst x = αIsIso _ .fst
+  invPshIso .fst .snd _ _ f q =
+    sym (αIsIso _ .snd .snd _)
+    ∙ cong (αIsIso _ .fst) (sym $
+      α-natural _ _ _ _ ∙ Q.⟨ refl ⟩⋆⟨ αIsIso _ .snd .fst _ ⟩ ∙ (sym $ αIsIso _ .snd .fst _))
+    ∙ (αIsIso _ .snd .snd _)
+  invPshIso .snd x .fst = α _
+  invPshIso .snd x .snd .fst = αIsIso _ .snd .snd
+  invPshIso .snd x .snd .snd = αIsIso _ .snd .fst
+
+
+makePshIsoPath : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{α β : PshIso P Q} → α .fst .fst ≡ β .fst .fst
+ → α ≡ β
+makePshIsoPath α≡β = Σ≡Prop (λ _ → isPropIsPshIso) (makePshHomPath α≡β)
+
+
+PshIso→⋆PshHomIso : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''}(α : PshIso P Q)
+  → Iso (PshHom Q R) (PshHom P R)
+PshIso→⋆PshHomIso α .fun β = α .fst ⋆PshHom β
+PshIso→⋆PshHomIso α .inv β = invPshIso α .fst ⋆PshHom β
+PshIso→⋆PshHomIso α .rightInv β = makePshHomPath (funExt λ x → funExt λ p → cong (β .fst x) (α .snd x .snd .snd p))
+PshIso→⋆PshHomIso α .leftInv β = makePshHomPath (funExt λ x → funExt λ p → cong (β .fst x) (α .snd x .snd .fst p))
 
 -- This should eventually be upstreamed to go in the UniversalElement
 -- module itself
@@ -222,9 +279,6 @@ module UniversalElementNotation {ℓo}{ℓh}
        where
   open Category
   open UniversalElement ue public
-  open NatTrans
-  open NatIso
-  open Iso
   REPR : Representation C P
   REPR = universalElementToRepresentation C P ue
 
@@ -279,27 +333,11 @@ module UniversalElementNotation {ℓo}{ℓh}
   asPshIso = (yoRec P element) , ⋆element-isPshIso
 
 
-module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} (((α , α-natural) , αIsIso) : PshIso P Q) where
-  private
-    module Q = PresheafNotation Q
-  invPshIso : PshIso Q P
-  invPshIso .fst .fst x = αIsIso _ .fst
-  invPshIso .fst .snd _ _ f q =
-    sym (αIsIso _ .snd .snd _)
-    ∙ cong (αIsIso _ .fst) (sym $
-      α-natural _ _ _ _ ∙ Q.⟨ refl ⟩⋆⟨ αIsIso _ .snd .fst _ ⟩ ∙ (sym $ αIsIso _ .snd .fst _))
-    ∙ (αIsIso _ .snd .snd _)
-  invPshIso .snd x .fst = α _
-  invPshIso .snd x .snd .fst = αIsIso _ .snd .snd
-  invPshIso .snd x .snd .snd = αIsIso _ .snd .fst
-
 module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
   private
     module P = PresheafNotation P
     module Q = PresheafNotation Q
   open isUnivalent
-
-  open NatTrans
   open isIsoC
   PshCatIso→PshIso : CatIso (PresheafCategory C ℓS) P Q → PshIso P Q
   PshCatIso→PshIso α .fst .fst = α .fst .N-ob

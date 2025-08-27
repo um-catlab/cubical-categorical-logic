@@ -4,6 +4,7 @@ module Cubical.Categories.Presheaf.Constructions where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
@@ -20,6 +21,8 @@ open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor
 
 open import Cubical.Categories.Displayed.Base
@@ -30,7 +33,9 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 
 private
   variable
-    ℓ ℓ' ℓA ℓB : Level
+    ℓ ℓ' ℓA ℓB ℓP ℓQ ℓS : Level
+
+open Functor
 
 UnitPsh : ∀ {C : Category ℓ ℓ'} → Presheaf C ℓ-zero
 UnitPsh = Constant _ _ (Unit , isSetUnit)
@@ -43,7 +48,7 @@ UnitPsh-intro .snd x y f p = refl
 LiftPsh : ∀ {C : Category ℓ ℓ'} (P : Presheaf C ℓA) (ℓ'' : Level) → Presheaf C (ℓ-max ℓA ℓ'')
 LiftPsh P ℓ'' = LiftF {ℓ' = ℓ''} ∘F P
 
-module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
+module _ {C : Category ℓ ℓ'} where
   PshProd' : Functor
     (PresheafCategory C ℓA ×C PresheafCategory C ℓB)
     (PresheafCategory C (ℓ-max ℓA ℓB))
@@ -64,6 +69,88 @@ module _ {C : Category ℓ ℓ'} {ℓA ℓB : Level} where
     π₂ : PshHom (P ×Psh Q) Q
     π₂ .fst _ = snd
     π₂ .snd _ _ _ _ = refl
+
+  module _ ((P , _×P) : Σ[ P ∈ Presheaf C ℓA ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)) (Q : Presheaf C ℓB) where
+    private
+      module C = Category C
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+    open UniversalElementNotation
+    _⇒PshSmall_ : Presheaf C ℓB
+    _⇒PshSmall_ .F-ob Γ = Q .F-ob ((Γ ×P) .vertex)
+    _⇒PshSmall_ .F-hom {Γ}{Δ} γ q =
+      intro (Γ ×P) (((Δ ×P) .element .fst C.⋆ γ) , (Δ ×P) .element .snd) Q.⋆ q
+    _⇒PshSmall_ .F-id {Γ} = funExt λ q →
+      Q.⟨ intro⟨_⟩ (Γ ×P) (ΣPathP (C.⋆IdR _ , refl)) ∙ (sym $ weak-η $ Γ ×P) ⟩⋆⟨⟩
+      ∙ Q.⋆IdL _
+    _⇒PshSmall_ .F-seq {Γ}{Δ}{Θ} γ δ = funExt λ q →
+      Q.⟨
+        intro≡ (Γ ×P) (ΣPathP
+          ( (sym (C.⋆Assoc _ _ _) ∙ C.⟨ sym $ cong fst $ β $ Δ ×P ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _
+          ∙ C.⟨ refl ⟩⋆⟨ sym $ cong fst $ β $ Γ ×P ⟩
+          ∙ sym (C.⋆Assoc _ _ _))
+          , (sym $ P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ cong snd $ β $ Γ ×P ⟩ ∙ (cong snd $ β $ Δ ×P))
+          ))
+      ⟩⋆⟨⟩
+      ∙ Q.⋆Assoc _ _ _
+  module _ (P : Presheaf C ℓA) (Q : Presheaf C ℓB) where
+    private
+      module C = Category C
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+    open UniversalElementNotation
+    _⇒PshLarge_ : Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓ' ℓA)) ℓB)
+    _⇒PshLarge_ = (PshHomProf ⟅ Q ⟆) ∘F ((appR PshProd P ∘F YO) ^opF)
+    module _ {S : Presheaf C ℓS} where
+      private
+        module S = PresheafNotation S
+        module S×P = PresheafNotation (S ×Psh P)
+      λPshHom : PshHom (S ×Psh P) Q → PshHom S (_⇒PshLarge_)
+      λPshHom f⟨p⟩ .fst Γ s .fst Δ (γ , p) = f⟨p⟩ .fst Δ ((γ S.⋆ s) , p)
+      λPshHom f⟨p⟩ .fst Γ s .snd Θ Δ δ (γ , p) =
+        cong (f⟨p⟩ .fst Θ) (ΣPathP (S.⋆Assoc _ _ _ , refl))
+        ∙ f⟨p⟩ .snd _ _ _ _
+      λPshHom f⟨p⟩ .snd Θ Δ δ s = makePshHomPath (funExt (λ Ξ → funExt (λ (θ , p) →
+        cong (f⟨p⟩ .fst Ξ) (ΣPathP ((sym $ S.⋆Assoc _ _ _) , refl)))))
+
+    appPshHom : PshHom (_⇒PshLarge_ ×Psh P) Q
+    appPshHom .fst Γ (f , p) = f .fst Γ (C.id , p)
+    appPshHom .snd Δ Γ γ (f , p) =
+      cong (f .fst Δ) (ΣPathP (C.⋆IdL _ ∙ sym (C.⋆IdR _) , refl))
+      ∙ f .snd _ _ _ _
+
+  module _ (P : Presheaf C ℓA)(_×P : ∀ c → UniversalElement C ((C [-, c ]) ×Psh P))(Q : Presheaf C ℓB) where
+    private
+      module C = Category C
+      module P = PresheafNotation P
+      module _×P c = PresheafNotation ((C [-, c ]) ×Psh P)
+      module Q = PresheafNotation Q
+    -- P⇒Q Γ :=
+    -- PshHom (y Γ × P) Q
+    -- ≅ PshHom y(Γ ×P) Q
+    -- ≅ Q (Γ ×P)
+    open UniversalElementNotation
+    ⇒PshSmallIso⇒PshLarge : ∀ Γ
+      → Iso Q.p[ (Γ ×P) .vertex ]
+            (PshHom ((C [-, Γ ]) ×Psh P) Q)
+
+    private
+      module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)
+    ⇒PshSmallIso⇒PshLarge Γ =
+      compIso
+        (IsoYoRec Q ((Γ ×P) .vertex))
+        (PshIso→⋆PshHomIso (invPshIso (yoRecIso (Γ ×P))))
+
+    ⇒PshSmall≅⇒PshLarge : PshIso ((P , _×P) ⇒PshSmall Q) (P ⇒PshLarge Q)
+    ⇒PshSmall≅⇒PshLarge .fst .fst = ⇒PshSmallIso⇒PshLarge.fun
+    ⇒PshSmall≅⇒PshLarge .fst .snd Δ Γ γ q = makePshHomPath (funExt λ x → funExt λ p →
+      (sym $ Q.⋆Assoc _ _ _)
+      ∙ Q.⟨ sym $ intro≡ (Γ ×P) $ ΣPathP
+        ( (C.⟨ cong fst $ sym $ β $ Δ ×P ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _) ∙ C.⟨ refl ⟩⋆⟨ cong fst $ sym $ β $ Γ ×P ⟩ ∙ sym (C.⋆Assoc _ _ _)
+        , (cong snd $ sym $ β $ Δ ×P) ∙ P.⟨⟩⋆⟨ cong snd $ sym $ β $ Γ ×P ⟩ ∙ sym (P.⋆Assoc _ _ _)
+        )
+      ⟩⋆⟨⟩)
+    ⇒PshSmall≅⇒PshLarge .snd Γ = IsoToIsIso (⇒PshSmallIso⇒PshLarge Γ)
 
   open Functor
   open Functorᴰ

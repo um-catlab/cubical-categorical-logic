@@ -30,6 +30,8 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Isomorphism.More
 
 open Functor
+open Iso
+open NatIso
 open NatTrans
 
 private
@@ -61,8 +63,8 @@ module _ (C : Category ℓ ℓ') (c : C .Category.ob) where
     (C .⋆IdL))
 
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
-  open UniversalElement
   open Category
+  open UniversalElement
   UniversalElementOn : C .ob → Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
   UniversalElementOn vertex =
     Σ[ element ∈ (P ⟅ vertex ⟆) .fst ] isUniversal C P vertex element
@@ -163,7 +165,6 @@ module _ {C : Category ℓ ℓ'} where
   α ⋆NatTransPshHom β = NatTrans→PshHom α ⋆PshHom β
 
 module _ {C : Category ℓ ℓ'} where
-  open NatTrans
   PshHomPsh : ∀ (Q : Presheaf C ℓS') → Presheaf (PresheafCategory C ℓS) (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') ℓS') ℓS)
   PshHomPsh Q .F-ob P = (PshHom P Q) , (isSetPshHom _ _)
   PshHomPsh Q .F-hom α β = α ⋆NatTransPshHom β
@@ -236,8 +237,6 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS') wher
   PshIso : Type _
   PshIso = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
-  open NatIso
-  open NatTrans
   PshIso→PshIsoLift : PshIso → PshIsoLift C P Q
   PshIso→PshIsoLift α .trans .N-ob x x₁ = lift (α .fst .fst x (x₁ .lower))
   PshIso→PshIsoLift α .trans .N-hom f = funExt (λ x₁ → cong lift (α .fst .snd _ _ f (x₁ .lower)))
@@ -264,7 +263,6 @@ makePshIsoPath : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C
  → α ≡ β
 makePshIsoPath α≡β = Σ≡Prop (λ _ → isPropIsPshIso) (makePshHomPath α≡β)
 
-open Iso
 
 PshIso→⋆PshHomIso : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'}{R : Presheaf C ℓS''}(α : PshIso P Q)
   → Iso (PshHom Q R) (PshHom P R)
@@ -281,9 +279,6 @@ module UniversalElementNotation {ℓo}{ℓh}
        where
   open Category
   open UniversalElement ue public
-  open NatTrans
-  open NatIso
-  open Iso
   REPR : Representation C P
   REPR = universalElementToRepresentation C P ue
 
@@ -343,8 +338,6 @@ module _ {C : Category ℓ ℓ'}(P : Presheaf C ℓS)(Q : Presheaf C ℓS) where
     module P = PresheafNotation P
     module Q = PresheafNotation Q
   open isUnivalent
-
-  open NatTrans
   open isIsoC
   PshCatIso→PshIso : CatIso (PresheafCategory C ℓS) P Q → PshIso P Q
   PshCatIso→PshIso α .fst .fst = α .fst .N-ob

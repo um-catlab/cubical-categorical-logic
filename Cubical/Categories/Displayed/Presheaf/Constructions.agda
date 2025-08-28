@@ -3,9 +3,11 @@ module Cubical.Categories.Displayed.Presheaf.Constructions where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.More
 
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
@@ -174,9 +176,143 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   LocallyRepresentableⱽ : {P : Presheaf C ℓP} → (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
   LocallyRepresentableⱽ {P = P} Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
-    → UniversalElementⱽ Cᴰ Γ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reind (yoRec P p) Pᴰ)
+    → UniversalElementⱽ Cᴰ Γ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ)
     where module P = PresheafNotation P
 
+  module LocallyRepresentableⱽNotation {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (_×ⱽ_*Pᴰ : LocallyRepresentableⱽ Pᴰ) where
+    private
+      module P = PresheafNotation P
+      module Pᴰ = PresheafᴰNotation Pᴰ
+    open UniversalElementⱽ
+
+    ⌈_×ⱽ_*Pᴰ⌉ : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ]) → Cᴰ.ob[ Γ ]
+    ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ = vertexⱽ $ Γᴰ ×ⱽ p *Pᴰ
+
+    introLR : ∀
+      {Γ}{Γᴰ}{p : P.p[ Γ ]}
+      {Δ}{Δᴰ}{γ : C [ Δ , Γ ]}
+      → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+      → (pᴰ : Pᴰ.p[ γ P.⋆ p ][ Δᴰ ])
+      → Cᴰ [ γ ][ Δᴰ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]
+    introLR {Γᴰ = Γᴰ}{p} γᴰ pᴰ = (introᴰ $ (Γᴰ ×ⱽ p *Pᴰ)) (γᴰ , pᴰ)
+
+    introLR⟨_⟩⟨_⟩ : ∀
+      {Γ}{Γᴰ}{p p' : P.p[ Γ ]}{p≡p'}
+      {Δ}{Δᴰ}{γ γ' : C [ Δ , Γ ]}{γ≡γ'}
+      {γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]}
+      {γᴰ' : Cᴰ [ γ' ][ Δᴰ , Γᴰ ]}
+      {pᴰ : Pᴰ.p[ γ P.⋆ p ][ Δᴰ ]}
+      {pᴰ' : Pᴰ.p[ γ' P.⋆ p' ][ Δᴰ ]}
+      → (γᴰ Cᴰ.≡[ γ≡γ' ] γᴰ')
+      → (pᴰ Pᴰ.≡[ P.⟨ γ≡γ' ⟩⋆⟨ p≡p' ⟩ ] pᴰ')
+      → PathP (λ i → Cᴰ [ γ≡γ' i ][ Δᴰ , ⌈ Γᴰ ×ⱽ p≡p' i *Pᴰ⌉ ])
+          (introLR γᴰ pᴰ)
+          (introLR γᴰ' pᴰ')
+    introLR⟨ γᴰ≡γᴰ' ⟩⟨ pᴰ≡pᴰ' ⟩ i = introLR (γᴰ≡γᴰ' i) (pᴰ≡pᴰ' i)
+
+    π₁LR : ∀ {Γ} Γᴰ (p : P.p[ Γ ]) → Cᴰ.v[ Γ ] [ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ , Γᴰ ]
+    π₁LR Γᴰ p = fst $ elementⱽ $ (Γᴰ ×ⱽ p *Pᴰ)
+
+    π₂LR : ∀ {Γ} Γᴰ (p : P.p[ Γ ]) → Pᴰ.p[ C.id P.⋆ p ][ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]
+    π₂LR Γᴰ p = snd $ elementⱽ $ (Γᴰ ×ⱽ p *Pᴰ)
+
+    π₁LR_⟨_⟩ : ∀ {Γ} {p q : P.p[ Γ ]} Γᴰ → (p≡q : p ≡ q)
+      → PathP (λ i → Cᴰ.v[ Γ ] [ ⌈ Γᴰ ×ⱽ p≡q i *Pᴰ⌉ , Γᴰ ])
+          (π₁LR Γᴰ p)
+          (π₁LR Γᴰ q)
+    π₁LR Γᴰ ⟨ p≡q ⟩ i = π₁LR Γᴰ $ p≡q i
+
+    π₂LR_⟨_⟩ : ∀ {Γ} {p q : P.p[ Γ ]} Γᴰ → (p≡q : p ≡ q)
+      → PathP (λ i → Pᴰ.p[ C.id P.⋆ p≡q i ][ ⌈ Γᴰ ×ⱽ p≡q i *Pᴰ⌉ ])
+          (π₂LR Γᴰ p)
+          (π₂LR Γᴰ q)
+    π₂LR Γᴰ ⟨ p≡q ⟩ i = π₂LR Γᴰ $ p≡q i
+
+    funcLR : ∀
+      {Γ}{Γᴰ}{p : P.p[ Γ ]}
+      {Δ}{Δᴰ}{γ : C [ Δ , Γ ]}
+      → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+      → Cᴰ [ γ ][ ⌈ Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]
+    funcLR {p = p}{γ = γ} γᴰ =
+      introLR (π₁LR _ (γ P.⋆ p) Cᴰ.⋆ⱽᴰ γᴰ) (Pᴰ.reind (P.⋆IdL _) $ (π₂LR _ (γ P.⋆ p)))
+
+--     funcLR⟨_⟩ : ∀
+--       {Γ}{Γᴰ}{p : P.p[ Γ ]}
+--       {Δ}{Δᴰ}{γ γ' : C [ Δ , Γ ]}{γ≡γ'}
+--       → {γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]}
+--       → {γᴰ' : Cᴰ [ γ' ][ Δᴰ , Γᴰ ]}
+--       → γᴰ Cᴰ.≡[ γ≡γ' ] γᴰ'
+--       → PathP (λ i → Cᴰ [ γ≡γ' i ][ ⌈ Δᴰ ×ⱽ γ≡γ' i P.⋆ p *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ])
+--           (funcLR γᴰ)
+--           (funcLR γᴰ')
+--     funcLR⟨ x ⟩ i = funcLR (x i)
+
+    foo : ∀
+      {Γ}
+      {Δ}(Δᴰ : Cᴰ.ob[ Δ ])
+      (γ : C [ Δ , Γ ])
+      (p : P.p[ Γ ])
+      (p' : P.p[ Δ ])
+      → Type _
+    foo Δᴰ γ p p' = Pᴰ.p[ γ P.⋆ p ][ ⌈ Δᴰ ×ⱽ p' *Pᴰ⌉ ]
+
+    funcLR-id : ∀ {Γ}{Γᴰ}{p : P.p[ Γ ]}
+      → PathP (λ i → Cᴰ [ C.id ][ ⌈ Γᴰ ×ⱽ P.⋆IdL p i *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ])
+          (funcLR {Γᴰ = Γᴰ}{p = p} Cᴰ.idᴰ)
+          Cᴰ.idᴰ
+    funcLR-id {Γ}{Γᴰ}{p} =
+      (λ i → introLR (left i) (right i))
+      ▷ (sym $ weak-ηⱽ (Γᴰ ×ⱽ p *Pᴰ))
+      where
+        foo' : (p : P.p[ Γ ])(p' : P.p[ Γ ]) → Type _
+        foo' = foo Γᴰ C.id
+
+        foo'^ :(p' : P.p[ Γ ])(p : P.p[ Γ ]) → Type _
+        foo'^ p' p = foo' p p'
+
+        left : PathP (λ i → Cᴰ.v[ Γ ] [ ⌈ Γᴰ ×ⱽ P.⋆IdL p i *Pᴰ⌉ , Γᴰ ])
+          (π₁LR Γᴰ (C.id P.⋆ p) Cᴰ.⋆ⱽᴰ Cᴰ.idᴰ)
+          (π₁LR Γᴰ p)
+        left = (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)
+          ◁ π₁LR _ ⟨ P.⋆IdL _ ⟩
+
+        right' : PathP (λ i → cong₂ foo' (P.⋆IdL p) (P.⋆IdL p) i)
+          (π₂LR Γᴰ (C.id P.⋆ p))
+          (π₂LR Γᴰ p)
+        right' = π₂LR _ ⟨ P.⋆IdL p ⟩
+
+        right-lem : Path (foo' p (C.id P.⋆ p) ≡ foo' p p)
+          (cong (foo'^ (C.id P.⋆ p)) (sym $ P.⋆IdL p) ∙ cong₂ foo' (P.⋆IdL p) (P.⋆IdL p))
+          (cong (foo' p) (P.⋆IdL p))          
+        right-lem =
+          (cong (foo'^ (C.id P.⋆ p)) (sym $ P.⋆IdL p) ∙ cong₂ foo' (P.⋆IdL p) (P.⋆IdL p))
+            ≡⟨ cong₂ _∙_ refl (cong₂Funct foo' _ _) ⟩
+          (cong (foo'^ (C.id P.⋆ p)) (sym $ P.⋆IdL p)
+          ∙ cong (foo'^ (C.id P.⋆ p)) (P.⋆IdL p)
+          ∙ cong (foo' p) (λ i → P.⋆IdL p i))
+            ≡⟨ assoc _ _ _ ∙ cong₂ _∙_ (sym (sym (rCancel _))) refl ∙ (sym $ lUnit _) ⟩
+          (cong (foo' p) (P.⋆IdL p))
+            ∎
+
+        thing : (pth : (C.id P.⋆ p) ≡ (C.id P.⋆ (C.id P.⋆ p)))
+          → Pᴰ.p[ C.id P.⋆ p ][ ⌈ Γᴰ ×ⱽ (C.id P.⋆ p) *Pᴰ⌉ ]
+            ≡ Pᴰ.p[ C.id P.⋆ (C.id P.⋆ p) ][ ⌈ Γᴰ ×ⱽ (C.id P.⋆ p) *Pᴰ⌉ ]
+        thing pth = (cong Pᴰ.p[_][ ⌈ Γᴰ ×ⱽ (C.id P.⋆ p) *Pᴰ⌉ ]) pth
+
+        right : PathP (λ i → cong (foo' p) (P.⋆IdL p) i)
+          (Pᴰ.reind (P.⋆IdL _) $ π₂LR Γᴰ (C.id P.⋆ p))
+          (π₂LR Γᴰ p)
+        right = rectify (cong₂ _∙_
+          (thing (sym $ P.⋆IdL _) ≡⟨ cong thing (P.isSetPsh _ _ _ _ ) ⟩ thing P.⟨⟩⋆⟨ sym $ P.⋆IdL _ ⟩ ∎)
+          refl
+          ∙ right-lem)
+          (compPathP
+            (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _)
+            right')
+          -- compPathP {!!} {!!} {!!}
+          -- (Pᴰ.rectify $ Pᴰ.≡out $ sym (Pᴰ.reind-filler _ _) ∙ (Pᴰ.≡in $ {!!}))
+          -- ◁ {!!}
+          
   module _ {P : Presheaf C ℓP}
     ((Pᴰ , _×ⱽ_*Pᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableⱽ Pᴰ)
     (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ)
@@ -186,15 +322,30 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module P = PresheafNotation P
       module Pᴰ = PresheafᴰNotation Pᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
+    open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
+    -- Γᴰ ⊢ (Pᴰ ⇒ Qᴰ)(p) := Γᴰ , Pᴰ(p) ⊢ Qᴰ(p)
     ⇒PshSmallⱽ : Presheafᴰ P Cᴰ ℓQᴰ
-    ⇒PshSmallⱽ .F-obᴰ {Γ} Γᴰ p = Qᴰ .F-obᴰ ((Γᴰ ×ⱽ p *Pᴰ) .vertexⱽ) p
+    ⇒PshSmallⱽ .F-obᴰ {Γ} Γᴰ p = Qᴰ .F-obᴰ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ p
     ⇒PshSmallⱽ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ p qᴰ =
-      introᴰ (Γᴰ ×ⱽ p *Pᴰ)
-        (((fst $ elementⱽ $ Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ) Cᴰ.⋆ⱽᴰ γᴰ)
-        , (Pᴰ.reind (P.⋆IdL _) $ snd $ elementⱽ $ Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ))
-      Qᴰ.⋆ᴰ qᴰ
-    ⇒PshSmallⱽ .F-idᴰ {Γ}{Γᴰ} = funExt λ q → funExt λ qᴰ → {!Qᴰ.rectify!}
-    ⇒PshSmallⱽ .F-seqᴰ = {!!}
+      funcLR γᴰ Qᴰ.⋆ᴰ qᴰ
+    ⇒PshSmallⱽ .F-idᴰ {Γ}{Γᴰ} = funExt λ p → funExt λ qᴰ →
+      {!!} ▷
+      (Qᴰ.rectify $ Qᴰ.≡out $ (sym $ Qᴰ.reind-filler (P.⋆IdL _) _) ∙ Qᴰ.⋆IdL _)
+      -- fromPathP (Qᴰ.rectify $ Qᴰ.≡out $
+      --   Qᴰ.⋆IdL _
+      --   ∙ sym (Qᴰ.reind-filler {!!} _))
+      -- symP $ toPathP $ sym $
+      --   (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.⟨ introᴰ≡ (Γᴰ ×ⱽ p *Pᴰ) $ {!!} ⟩⋆⟨⟩
+      --     ∙ {!!})
+      --   ∙ {!!}
+        -- Qᴰ.⟨ introᴰ≡ (Γᴰ ×ⱽ p *Pᴰ) 
+        --   (ΣPathP ((sym $ C.⋆IdL _) , (ΣPathP
+        --   ( (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _ ∙ {!Cᴰ.⟨ ? ⟩⋆⟨ ? ⟩!})
+        --   , {!!}
+        --   ))))
+        --   ⟩⋆⟨⟩
+        -- ∙ {!!}
+    ⇒PshSmallⱽ .F-seqᴰ = λ fᴰ gᴰ i x x₁ → {!!}
 
 module _
   {C : Category ℓC ℓC'}

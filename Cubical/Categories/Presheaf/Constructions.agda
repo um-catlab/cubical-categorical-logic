@@ -137,14 +137,13 @@ module _ {C : Category ℓ ℓ'} where
     ⇒PshSmallIso⇒PshLarge : ∀ Γ
       → Iso Q.p[ (Γ ×P) .vertex ]
             (PshHom ((C [-, Γ ]) ×Psh P) Q)
-
-    private
-      module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)
     ⇒PshSmallIso⇒PshLarge Γ =
       compIso
         (IsoYoRec Q ((Γ ×P) .vertex))
         (PshIso→⋆PshHomIso (invPshIso (yoRecIso (Γ ×P))))
 
+    private
+      module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)
     ⇒PshSmall≅⇒PshLarge : PshIso ((P , _×P) ⇒PshSmall Q) (P ⇒PshLarge Q)
     ⇒PshSmall≅⇒PshLarge .fst .fst = ⇒PshSmallIso⇒PshLarge.fun
     ⇒PshSmall≅⇒PshLarge .fst .snd Δ Γ γ q = makePshHomPath (funExt λ x → funExt λ p →

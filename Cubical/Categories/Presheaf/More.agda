@@ -317,6 +317,7 @@ module UniversalElementNotation {ℓo}{ℓh}
                    → f ≡ f'
     extensionality = isoFunInjective (universalIso _) _ _
 
+    -- this is the best one
     intro≡ : ∀ {c} → {p : P.p[ c ]}{f : C [ c , vertex ]}
       → p ≡ f P.⋆ element
       → intro p ≡ f

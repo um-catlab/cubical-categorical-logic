@@ -2,20 +2,35 @@ module Cubical.Categories.Displayed.Quantifiers where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
+open import Cubical.Functions.FunExtEquiv
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.FunctorComprehension
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Instances.Sets
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Fibration.Base
+import Cubical.Categories.Displayed.Fibration.Base as CatFibration
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.FunctorComprehension
+import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshᴰCL
 
 -- The universal/pi and existential/weak sigma type are defined as
 -- left and right adjoints to a "weakening" functor
@@ -26,20 +41,20 @@ open import Cubical.Categories.Displayed.Presheaf
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓ ℓ' ℓP ℓPᴰ : Level
 
 module _
   {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {a : C .Category.ob}
   (bp : BinProductsWith C a)
-  (isFib : isFibration Cᴰ)
+  (isFib : CatFibration.isFibration Cᴰ)
   where
   private
     module bp = BinProductsWithNotation bp
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-    module isFib = isFibrationNotation _ isFib
+    module isFib = CatFibration.isFibrationNotation _ isFib
 
   Cᴰ[-×a] : Categoryᴰ C ℓCᴰ ℓCᴰ'
   Cᴰ[-×a] = reindex Cᴰ bp.×aF
@@ -91,7 +106,7 @@ module _
     open Functor
     open Functorᴰ
 
-    open isFibrationNotation Cᴰ isFib
+    open CatFibration.isFibrationNotation Cᴰ isFib
 
     vert : Cᴰ.ob[ b ]
     vert = ∀ueⱽ.vertexᴰ
@@ -154,7 +169,7 @@ module _
   {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (bp : BinProducts C)
-  (isFib : isFibration Cᴰ)
+  (isFib : CatFibration.isFibration Cᴰ)
   where
   private
     module Cᴰ = Categoryᴰ Cᴰ
@@ -162,3 +177,170 @@ module _
   UniversalQuantifiers : Type _
   UniversalQuantifiers = ∀ a Γ pᴰ
     → UniversalQuantifier {a = a} (λ c → bp (c , a)) isFib {Γ = Γ} pᴰ
+
+open NatTrans
+open Functor
+open Functorᴰ
+module _
+  {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (F : Functor (PresheafCategory C ℓC') (PresheafCategory C ℓC'))
+  (πF : NatTrans F Id)
+  (ueF : (Q : Presheaf C ℓC') → UniversalElement C (F ⟅ Q ⟆))
+  where
+
+  open UniversalElement
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    πF-PshHom : ∀ Q → PshHom (F ⟅ Q ⟆) Q
+    πF-PshHom Q = NatTrans→PshHom (πF .N-ob Q)
+
+    F-PshHom : ∀ {Q Q' : Presheaf C ℓC'} →
+      (α : NatTrans Q Q') →
+      PshHom (F ⟅ Q ⟆) (F ⟅ Q' ⟆)
+    F-PshHom α = NatTrans→PshHom (F ⟪ α ⟫)
+
+    ＂F_＂ : C.ob → C.ob
+    ＂F Γ ＂ = ueF (C [-, Γ ]) .vertex
+
+    ＂F_＂elt : (Γ : C.ob) → _
+    ＂F Γ ＂elt = ueF (C [-, Γ ]) .element
+
+    ＂π＂ : {Γ : C.ob} → C [ ＂F Γ ＂ , Γ ]
+    ＂π＂ {Γ = Γ} = πF ⟦ C [-, Γ ] ⟧ ⟦ ＂F Γ ＂ ⟧ $ ueF _ .element
+
+    -- F extends a functor on C
+    FC : Functor C C
+    FC = FunctorComprehension (F ∘F YO) (λ Γ → ueF (C [-, Γ ]))
+
+  module _
+    (πF*' : {Γ : C.ob} → (Γᴰ : Cᴰ.ob[ Γ ]) →
+      PshᴰCL.isFibration' (Cᴰ [-][-, Γᴰ ]))
+    where
+
+    open UniversalElementⱽ
+
+    private
+      πF* : ∀ {Γ} → (Γᴰ : Cᴰ.ob[ Γ ]) →
+        UniversalElementⱽ Cᴰ ＂F Γ ＂ (reindYo ＂π＂ (Cᴰ [-][-, Γᴰ ]))
+      πF* Γᴰ = πF*' Γᴰ ＂π＂
+
+      ＂πF*_＂ : ∀ {Γ} → (Γᴰ : Cᴰ.ob[ Γ ]) → Cᴰ.ob[ ＂F Γ ＂ ]
+      ＂πF* Γᴰ ＂ = πF* Γᴰ .vertexⱽ
+
+    module _
+      {P : Presheaf C ℓC'}
+      (Pᴰ : Presheafᴰ (F ⟅ P ⟆) Cᴰ ℓPᴰ) where
+
+      private
+
+        module P = PresheafNotation P
+        module FP = PresheafNotation (F ⟅ P ⟆)
+        module Pᴰ = PresheafᴰNotation Pᴰ
+
+        mkFPElt : ∀ {Γ} → (p : P.p[ Γ ]) →
+          FP.p[ ＂F Γ ＂ ]
+        mkFPElt {Γ} p = (F ⟪ α ⟫) ⟦ ＂F Γ ＂ ⟧ $ ＂F Γ ＂elt
+          where
+          α : NatTrans (C [-, Γ ]) P
+          -- TODO this name should be changed upstream
+          -- or made private
+          α = no-no-no P p
+
+      -- Define ∀ᴰ Pᴰ such that
+      --   (∀ᴰ Pᴰ) [ p ][ Γᴰ ] ≅ Pᴰ [ F p ][ πF* Γᴰ ]
+      --
+      --     Γᴰ --------> ∀ᴰ Pᴰ
+      --     _              _
+      --     |              |
+      --     v      p       v
+      --     Γ -----------> P
+      --
+      --   πF* Γᴰ --------> Pᴰ
+      --     _              _
+      --     |              |
+      --     v     Fp       v
+      --   ＂FΓ＂ --------> F P
+      ∀ᴰPshᴰ : Presheafᴰ P Cᴰ {!!}
+      ∀ᴰPshᴰ .F-obᴰ {x = Γ} Γᴰ p = Pᴰ .F-obᴰ ＂πF* Γᴰ ＂ (mkFPElt p)
+      -- Homs
+      -- Given morphism γᴰ
+      --            γᴰ
+      --     Δᴰ ----------> Γᴰ
+      --     _              _
+      --     |              |
+      --     v      γ       v
+      --     Δ -----------> Γ
+      --
+      -- and element pᴰ
+      --
+      --            pᴰ
+      --     Γᴰ --------> ∀ᴰ Pᴰ
+      --     _              _
+      --     |              |
+      --     v      p       v
+      --     Γ -----------> P
+      --
+      --            pᴰ
+      --   πF* Γᴰ --------> Pᴰ
+      --     _              _
+      --     |              |
+      --     v     Fp       v
+      --   ＂FΓ＂ --------> F P
+      --
+      -- want
+      --
+      --   πF* Δᴰ --------> Pᴰ
+      --     _              _
+      --     |              |
+      --     v              v
+      --   ＂FΔ＂ --------> F P
+      --
+      -- Should πF* should have a functorial action on γᴰ
+      --
+      --         πF* γᴰ
+      --   πF* Δᴰ -----> πF* Γᴰ
+      --     _              _
+      --     |              |
+      --     v    ＂Fγ＂    v
+      --   ＂FΔ＂ ------> ＂FΓ＂
+
+      ∀ᴰPshᴰ .F-homᴰ {x = Γ}{y = Δ}{f = γ}{xᴰ = Γᴰ}{yᴰ = Δᴰ} γᴰ p pᴰ =
+        Pᴰ.reind {!!} $ πF*γᴰ Pᴰ.⋆ᴰ pᴰ
+          where
+          module π*よΓᴰ =
+            PresheafⱽNotation (reindYo ＂π＂ (Cᴰ [-][-, Γᴰ ]))
+          module π*よΔᴰ =
+            PresheafⱽNotation (reindYo ＂π＂ (Cᴰ [-][-, Δᴰ ]))
+
+          ＂Fγ＂ : C [ ＂F Δ ＂ , ＂F Γ ＂ ]
+          ＂Fγ＂ = FC ⟪ γ ⟫
+
+          δᴰ : π*よΓᴰ.p[ ＂Fγ＂ ][ ＂πF* Δᴰ ＂ ]
+          δᴰ = Cᴰ.reind {!!} $
+            πF* Δᴰ .elementⱽ Cᴰ.⋆ᴰ γᴰ
+
+          πF*γᴰ : Cᴰ [ ＂Fγ＂ ][ ＂πF* Δᴰ ＂ , ＂πF* Γᴰ ＂ ]
+          πF*γᴰ = introᴰ (πF* Γᴰ) δᴰ
+      ∀ᴰPshᴰ .F-idᴰ {xᴰ = Γᴰ} = funExt₂ λ p pᴰ →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.⟨
+            introᴰ≡ (πF* Γᴰ)
+              {!!}
+            ⟩⋆⟨⟩
+          ∙ {!!}
+          where
+          module π*よΓᴰ =
+            PresheafⱽNotation (reindYo ＂π＂ (Cᴰ [-][-, Γᴰ ]))
+      ∀ᴰPshᴰ .F-seqᴰ = {!!}
+
+    module _ {Γ : C.ob} {Γᴰ : Cᴰ.ob[ ＂F Γ ＂ ]} where
+      ∀ᴰ : Type _
+      ∀ᴰ = UniversalElementⱽ Cᴰ Γ
+        (∀ᴰPshᴰ (reind α (Cᴰ [-][-, Γᴰ ])))
+        where
+        α : PshHom (F ⟅ C [-, Γ ] ⟆) (C [-, ＂F Γ ＂ ])
+        α = invPshIso {P = C [-, ＂F Γ ＂ ]}{Q = F ⟅ C [-, Γ ] ⟆}
+          (UniversalElementNotation.asPshIso (ueF (C [-, Γ ]))) .fst

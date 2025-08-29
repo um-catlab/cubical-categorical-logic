@@ -14,6 +14,7 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 
@@ -25,7 +26,7 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 
 private
   variable
-    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓP ℓPᴰ ℓQ ℓQᴰ ℓR ℓRᴰ : Level
+    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓPᴰ ℓQ ℓQᴰ ℓR ℓRᴰ : Level
 
 open Functor
 open Functorᴰ
@@ -58,6 +59,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
             Qᴰ.≡[ α .snd x y f p ]
           (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ)
 
+    -- TODO: this should be called ∫PshHom
     ∫PshHomᴰ : PshHom (∫P Pᴰ) (∫P Qᴰ)
     ∫PshHomᴰ .fst (x , xᴰ) (p , pᴰ) = (α .fst _ p) , (N-obᴰ pᴰ)
     ∫PshHomᴰ .snd _ _ (f , fᴰ) (p , pᴰ) = ΣPathP ((α .snd _ _ f p) , N-homᴰ)
@@ -373,3 +375,29 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     where
       ∫αᴰ : PshIso (∫P Pᴰ) (∫P Qᴰ)
       ∫αᴰ = ∫PshIsoᴰ αᴰ
+
+module _
+  {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf D ℓP}
+  {Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ}
+  {Q : Presheaf D ℓQ}
+  {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  where
+  _∘ˡᴰ_ : ∀ {α : PshHom P Q} {F : Functor C D}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+    → PshHomᴰ (α ∘ˡ F) (Pᴰ ∘Fᴰ (Fᴰ ^opFᴰ)) (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+  (αᴰ ∘ˡᴰ Fᴰ) .N-obᴰ = αᴰ .N-obᴰ
+  (αᴰ ∘ˡᴰ Fᴰ) .N-homᴰ = αᴰ .N-homᴰ
+
+  _∘ˡⁱᴰ_ : ∀ {α : PshIso P Q} {F : Functor C D}
+    (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+    → PshIsoᴰ (α ∘ˡⁱ F) (Pᴰ ∘Fᴰ (Fᴰ ^opFᴰ)) (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+  (αᴰ ∘ˡⁱᴰ Fᴰ) .fst = αᴰ .fst ∘ˡᴰ Fᴰ
+  (αᴰ ∘ˡⁱᴰ Fᴰ) .snd .inv = αᴰ .snd .inv
+  (αᴰ ∘ˡⁱᴰ Fᴰ) .snd .rightInv = αᴰ .snd .rightInv
+  (αᴰ ∘ˡⁱᴰ Fᴰ) .snd .leftInv = αᴰ .snd .leftInv
+
+  -- TODO: whiskering for universal element

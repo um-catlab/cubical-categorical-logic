@@ -19,7 +19,7 @@ open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
@@ -36,8 +36,8 @@ open NatTrans
 
 private
   variable
-    ℓ ℓ' ℓS ℓS' ℓS'' : Level
-    ℓD ℓD' : Level
+    ℓ ℓ' ℓP ℓQ ℓS ℓS' ℓS'' : Level
+    ℓC ℓC' ℓD ℓD' : Level
 
 𝓟o = Presheaf
 
@@ -512,3 +512,22 @@ module _ {C : Category ℓ ℓ'}{P : Presheaf C ℓS}{Q : Presheaf C ℓS'} wher
     _◁PshIso_ .vertex = ue.vertex
     _◁PshIso_ .element = α .fst .fst ue.vertex ue.element
     _◁PshIso_ .universal = seqIsUniversalPshIso ue.universal α
+
+-- Whiskering
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {P : Presheaf D ℓP}
+  {Q : Presheaf D ℓQ}
+  where
+  _∘ˡ_ : (α : PshHom P Q) (F : Functor C D)
+    → PshHom (P ∘F (F ^opF)) (Q ∘F (F ^opF))
+  (α ∘ˡ F) .fst x = α .fst (F ⟅ x ⟆)
+  (α ∘ˡ F) .snd x y f p = α .snd _ _ _ p
+
+  _∘ˡⁱ_ : (α : PshIso P Q) (F : Functor C D)
+    → PshIso (P ∘F (F ^opF)) (Q ∘F (F ^opF))
+  (α ∘ˡⁱ F) .fst = α .fst ∘ˡ F
+  (α ∘ˡⁱ F) .snd x .fst = α .snd _ .fst
+  (α ∘ˡⁱ F) .snd x .snd .fst = α .snd _ .snd .fst
+  (α ∘ˡⁱ F) .snd x .snd .snd = α .snd _ .snd .snd

@@ -53,12 +53,12 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module F*Dᴰ = Categoryᴰ F*Dᴰ
     module Dᴰ = Categoryᴰ Dᴰ
   -- this definition cannot be η-contracted
-  preservesTerminalⱽ :
-    ∀ c → Terminalⱽ Dᴰ (F ⟅ c ⟆)
-    → Terminalⱽ (Base.reindex Dᴰ F) c
-  preservesTerminalⱽ c 𝟙ᴰ .vertexⱽ = 𝟙ᴰ .vertexⱽ
-  preservesTerminalⱽ c 𝟙ᴰ .elementⱽ = 𝟙ᴰ .elementⱽ
-  preservesTerminalⱽ c 𝟙ᴰ .universalⱽ = 𝟙ᴰ .universalⱽ
+    preservesTerminalⱽ :
+      ∀ c → Terminalⱽ Dᴰ (F ⟅ c ⟆)
+      → Terminalⱽ (Base.reindex Dᴰ F) c
+    preservesTerminalⱽ c 𝟙ᴰ .vertexⱽ = 𝟙ᴰ .vertexⱽ
+    preservesTerminalⱽ c 𝟙ᴰ .elementⱽ = 𝟙ᴰ .elementⱽ
+    preservesTerminalⱽ c 𝟙ᴰ .universalⱽ = 𝟙ᴰ .universalⱽ
 
   TerminalⱽReindex : ∀ {c}
     → Terminalⱽ Dᴰ (F ⟅ c ⟆)
@@ -75,41 +75,44 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     private
       module Fcᴰ∧Fcᴰ' = BinProductⱽNotation _ vbp
 
-    preservesBinProductⱽ : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
-    preservesBinProductⱽ .vertexⱽ = vbp .vertexⱽ
-    preservesBinProductⱽ .elementⱽ .fst =
-      R.reind (sym $ F .F-id) $ vbp .elementⱽ .fst
-    preservesBinProductⱽ .elementⱽ .snd =
-      R.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
-    preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
-    preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
-      ( (R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ (sym $ R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _
-        ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₁)
-      , (R.rectify $ R.≡out $
-        (sym $ R.reind-filler _ _)
-        ∙ (sym $ R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _
-        ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₂))
-    preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = R.rectify $ R.≡out $
-      Fcᴰ∧Fcᴰ'.,ⱽ≡
-        (sym (R.reind-filler _ _)
-        ∙ sym (R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _)
-        (sym (R.reind-filler _ _)
-        ∙ sym (R.reind-filler _ _)
-        ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
-        ∙ R.reind-filler _ _)
+      preservesBinProductⱽ : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
+      preservesBinProductⱽ .vertexⱽ = vbp .vertexⱽ
+      preservesBinProductⱽ .elementⱽ .fst =
+        R.reind (sym $ F .F-id) $ vbp .elementⱽ .fst
+      preservesBinProductⱽ .elementⱽ .snd =
+        R.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
+      preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
+      preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
+        ( (R.rectify $ R.≡out $
+          (sym $ R.reind-filler _ _)
+          ∙ (sym $ R.reind-filler _ _)
+          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+          ∙ R.reind-filler _ _
+          ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₁)
+        , (R.rectify $ R.≡out $
+          (sym $ R.reind-filler _ _)
+          ∙ (sym $ R.reind-filler _ _)
+          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+          ∙ R.reind-filler _ _
+          ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₂))
+      preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = R.rectify $ R.≡out $
+        Fcᴰ∧Fcᴰ'.,ⱽ≡
+          (sym (R.reind-filler _ _)
+          ∙ sym (R.reind-filler _ _)
+          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+          ∙ R.reind-filler _ _)
+          (sym (R.reind-filler _ _)
+          ∙ sym (R.reind-filler _ _)
+          ∙ R.⟨ refl ⟩⋆⟨ sym $ R.reind-filler _ _ ⟩
+          ∙ R.reind-filler _ _)
 
+    BinProductⱽReindex : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
+    BinProductⱽReindex = reindUEⱽ vbp ◁PshIsoⱽ
+      (reindⱽFunc×ⱽIsoⱽ ⋆PshIsoⱽ (reindⱽFuncRepr ×ⱽIso reindⱽFuncRepr))
   BinProductsⱽReindex : BinProductsⱽ Dᴰ →
     BinProductsⱽ (Base.reindex Dᴰ F)
   BinProductsⱽReindex vps Fcᴰ Fcᴰ×Fcᴰ' =
-    preservesBinProductⱽ (vps _ _)
+    BinProductⱽReindex (vps _ _)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)

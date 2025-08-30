@@ -145,7 +145,7 @@ module _ (Ob : Type ℓg) where
         module _ (ψ : ∀ e → Dᴰ.Hom[ F ⟪ ↑ e ⟫ ][ ϕ* _ , ϕ* _ ]) where
           elimLocal : Section F Dᴰ
           elimLocal = GlobalSectionReindex→Section _ _
-            (elim _ (Terminalⱽ→Terminalᴰ _ (preservesTerminalⱽ _ term'ᴰ)) ϕ ψ)
+            (elim _ (Terminalⱽ→Terminalᴰ _ (TerminalⱽReindex term'ᴰ)) ϕ ψ)
 
     module _ (D : Category ℓD ℓD')
              (term' : Terminal' D)

@@ -33,8 +33,10 @@ open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
+open import Cubical.Categories.Displayed.Presheaf.Representable
 
 open Bifunctorᴰ
+open Functor
 open Functorᴰ
 open isIsoOver
 open PshHomᴰ
@@ -192,6 +194,7 @@ module _
   reindFunc : Presheafᴰ (Q ∘F (F ^opF)) (CatReindex Dᴰ F) ℓQᴰ
   reindFunc = Qᴰ ∘Fᴰ (Reindexπ _ _ ^opFᴰ)
 
+open Category
 module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -201,6 +204,58 @@ module _
   where
   reindHet : Presheafᴰ P (CatReindex Dᴰ F) ℓQᴰ
   reindHet = reind α $ reindFunc F Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {x : C .ob}
+  (F : Functor C D) (Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ)
+  where
+  reindⱽFunc : Presheafⱽ x (CatReindex Dᴰ F) ℓQᴰ
+  reindⱽFunc = reindHet (Functor→PshHet F x) Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  where
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+  reindⱽFuncRepr :
+    ∀ {x}{xᴰ : Dᴰ.ob[ F ⟅ x ⟆ ]} →
+    PshIsoⱽ (reindⱽFunc F (Dᴰ [-][-, xᴰ ]))
+            (CatReindex Dᴰ F [-][-, xᴰ ])
+  reindⱽFuncRepr .fst .N-obᴰ = λ z → z
+  reindⱽFuncRepr .fst .N-homᴰ = refl
+  reindⱽFuncRepr .snd .inv = λ a z → z
+  reindⱽFuncRepr .snd .rightInv _ _ = refl
+  reindⱽFuncRepr .snd .leftInv _ _ = refl
+
+-- Whiskering a UniversalElementⱽ
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {x : C .ob}
+  {F : Functor C D}
+  {Pⱽ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ}
+  where
+  open UniversalElementⱽ
+  private
+    module Pⱽ = PresheafⱽNotation Pⱽ
+  -- manual for now but I feel like this should "just" be whiskering...
+  reindUEⱽ : (ueⱽ : UniversalElementⱽ Dᴰ (F ⟅ x ⟆) Pⱽ)
+    → UniversalElementⱽ (CatReindex Dᴰ F) x (reindⱽFunc F Pⱽ)
+  reindUEⱽ ueⱽ .vertexⱽ = vertexⱽ ueⱽ
+  reindUEⱽ ueⱽ .elementⱽ = Pⱽ.reind (sym $ F .F-id) (elementⱽ ueⱽ)
+  reindUEⱽ ueⱽ .universalⱽ .fst = universalⱽ ueⱽ .fst
+  reindUEⱽ ueⱽ .universalⱽ .snd .fst pᴰ = (Pⱽ.rectify $ Pⱽ.≡out $
+    (sym (Pⱽ.reind-filler _ _) ∙ sym (Pⱽ.reind-filler _ _)
+      ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩ ∙ Pⱽ.reind-filler _ _))
+    ∙ βⱽ ueⱽ
+  reindUEⱽ ueⱽ .universalⱽ .snd .snd fᴰ =
+    cong (introᴰ ueⱽ) (Pⱽ.rectify $ Pⱽ.≡out $ sym (Pⱽ.reind-filler _ _) ∙ sym (Pⱽ.reind-filler _ _) ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩ ∙ Pⱽ.reind-filler _ _)
+    ∙ (sym $ ηⱽ ueⱽ)
 
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -230,6 +285,47 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   PshProdⱽ≅ᴰ .snd .inv _ x = x
   PshProdⱽ≅ᴰ .snd .rightInv _ _ = refl
   PshProdⱽ≅ᴰ .snd .leftInv _ _ = refl
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshHom P Q}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+  reind-π : PshHomᴰ α (reind α Qᴰ) Qᴰ
+  reind-π .N-obᴰ = λ z → z
+  reind-π .N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshHom P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+  reind-introⱽ :
+    PshHomᴰ α Pᴰ Qᴰ
+    → PshHomⱽ Pᴰ (reind α Qᴰ)
+  reind-introⱽ α .N-obᴰ = α .N-obᴰ
+  reind-introⱽ α .N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ (Qᴰ.≡in $ α .N-homᴰ) ∙ Qᴰ.reind-filler _ _
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+  {α : PshHom P Q}
+  {β : PshHom Q R}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+  where
+  private
+    module Rᴰ = PresheafᴰNotation Rᴰ
+  reind-introᴰ :
+    PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ
+    → PshHomᴰ α Pᴰ (reind β Rᴰ)
+  reind-introᴰ αβᴰ .N-obᴰ = αβᴰ .N-obᴰ
+  reind-introᴰ αβᴰ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
+    (Rᴰ.≡in $ αβᴰ .N-homᴰ) ∙ Rᴰ.reind-filler _ _
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -365,7 +461,17 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
 
   reindUnitIsoⱽ : PshIsoⱽ (reind α (UnitPshᴰ {Cᴰ = Cᴰ})) UnitPshᴰ
   reindUnitIsoⱽ = eqToPshIsoⱽ reindUnitEq
+module _ {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {Q : Presheaf D ℓQ}
+  where
+  -- for some reason this can't be inlined. Is this an Agda bug?
+  reindFuncUnitEq : PresheafᴰEq (reindFunc F (UnitPshᴰ {Cᴰ = Dᴰ}{P = Q})) UnitPshᴰ
+  reindFuncUnitEq = (Eq.refl , Eq.refl)
 
+  reindFuncUnitIsoⱽ : PshIsoⱽ (reindFunc F (UnitPshᴰ {Cᴰ = Dᴰ}{P = Q})) UnitPshᴰ
+  reindFuncUnitIsoⱽ = eqToPshIsoⱽ reindFuncUnitEq
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   {α : PshIso P Q}
@@ -387,6 +493,30 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
 module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ}
+  where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module Rᴰ = PresheafᴰNotation Rᴰ
+  -- there's got to be an easier way...
+  reindPshHomⱽ :
+    PshHomⱽ Qᴰ Rᴰ
+    → PshHomⱽ (reind α Qᴰ) (reind α Rᴰ)
+  reindPshHomⱽ βⱽ = reind-introⱽ (reind-π ⋆PshHomᴰⱽ βⱽ)
+
+  reindPshIsoⱽ :
+    PshIsoⱽ Qᴰ Rᴰ
+    → PshIsoⱽ (reind α Qᴰ) (reind α Rᴰ)
+  reindPshIsoⱽ βⱽ .fst = reindPshHomⱽ (βⱽ .fst)
+  reindPshIsoⱽ βⱽ .snd .inv _ x = reind-βⱽ .N-obᴰ x
+    where
+      reind-βⱽ : PshHomⱽ (reind α Rᴰ) (reind α Qᴰ)
+      reind-βⱽ = reind-introⱽ (reind-π ⋆PshHomᴰⱽ invPshIsoⱽ βⱽ .fst)
+  reindPshIsoⱽ βⱽ .snd .rightInv _ _ = βⱽ .snd .rightInv _ _
+  reindPshIsoⱽ βⱽ .snd .leftInv _ _ = βⱽ .snd .leftInv _ _
+
+module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   where
   reindLiftEq : PresheafᴰEq (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
@@ -397,3 +527,32 @@ module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   reindLiftIsoⱽ : PshIsoⱽ (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
   reindLiftIsoⱽ = eqToPshIsoⱽ reindLiftEq
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  where
+  module _ {P : Presheaf D ℓP}{Q : Presheaf D ℓQ} {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+           {α : PshHom P Q}
+           where
+    -- can't write this as a eqToPshIsoⱽ unfortunately
+    reindFuncReind :
+      PshIsoⱽ (reindFunc F $ reind α Qᴰ)
+              (reind (α ∘ˡ F) $ reindFunc F Qᴰ)
+    reindFuncReind .fst .N-obᴰ x = x
+    reindFuncReind .fst .N-homᴰ = refl
+    reindFuncReind .snd .inv _ z = z
+    reindFuncReind .snd .rightInv _ _ = refl
+    reindFuncReind .snd .leftInv _ _ = refl
+
+  module _ {x y}{f : C [ x , y ]}{Qⱽ : Presheafⱽ (F ⟅ y ⟆) Dᴰ ℓQ} where
+    reindYoReindFunc :
+      PshIsoⱽ (reindYo f $ reindⱽFunc F Qⱽ)
+              (reindⱽFunc F (reindYo (F ⟪ f ⟫) Qⱽ))
+    reindYoReindFunc =
+      reindYo-seqIsoⱽ _ _ _
+      -- TODO: turn this yoRec≡ ... into a lemma?
+      ⋆PshIsoⱽ reindPathIsoⱽ (yoRec≡ _ ((sym $ D .⋆IdL _) ∙ cong₂ (seq' D) (sym $ F .F-id) refl))
+      ⋆PshIsoⱽ (invPshIsoⱽ $ reind-seqIsoⱽ _ _ _)
+      ⋆PshIsoⱽ reindPshIsoⱽ (invPshIsoⱽ reindFuncReind)

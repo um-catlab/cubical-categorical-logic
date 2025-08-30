@@ -60,9 +60,15 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   preservesTerminalⱽ c 𝟙ᴰ .elementⱽ = 𝟙ᴰ .elementⱽ
   preservesTerminalⱽ c 𝟙ᴰ .universalⱽ = 𝟙ᴰ .universalⱽ
 
+  TerminalⱽReindex : ∀ {c}
+    → Terminalⱽ Dᴰ (F ⟅ c ⟆)
+    → Terminalⱽ (Base.reindex Dᴰ F) c
+  TerminalⱽReindex 𝟙Fc = reindUEⱽ 𝟙Fc ◁PshIsoⱽ
+    (reindPshIsoⱽ reindFuncUnitIsoⱽ ⋆PshIsoⱽ reindUnitIsoⱽ)
+
   TerminalsⱽReindex : Terminalsⱽ Dᴰ →
     Terminalsⱽ (Base.reindex Dᴰ F)
-  TerminalsⱽReindex vtms c = preservesTerminalⱽ c (vtms (F ⟅ c ⟆))
+  TerminalsⱽReindex vtms c = TerminalⱽReindex (vtms (F ⟅ c ⟆))
 
   module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
     (vbp : BinProductⱽ Dᴰ (Fcᴰ , Fcᴰ')) where

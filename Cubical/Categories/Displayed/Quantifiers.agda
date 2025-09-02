@@ -194,70 +194,115 @@ module _
     module C = Category C
     module Cᴰ = Fibers Cᴰ
     module Psh = Category (PresheafCategory C ℓC')
+    module SET = Category (SET ℓC')
     module _ {Q : Presheaf C ℓC'} where
       module ueF = UniversalElementNotation (ueF Q)
 
     πF-PshHom : ∀ Q → PshHom (F ⟅ Q ⟆) Q
     πF-PshHom Q = NatTrans→PshHom (πF .N-ob Q)
 
-    F-PshHom : ∀ {Q Q' : Presheaf C ℓC'} →
-      (α : NatTrans Q Q') →
-      PshHom (F ⟅ Q ⟆) (F ⟅ Q' ⟆)
-    F-PshHom α = NatTrans→PshHom (F ⟪ α ⟫)
-
     ＂F_＂ : C.ob → C.ob
     ＂F Γ ＂ = ueF (C [-, Γ ]) .vertex
 
-    ＂F_＂elt : (Γ : C.ob) → _
-    ＂F Γ ＂elt = ueF (C [-, Γ ]) .element
-
-    ＂π＂ : {Γ : C.ob} → C [ ＂F Γ ＂ , Γ ]
-    ＂π＂ {Γ = Γ} = πF ⟦ C [-, Γ ] ⟧ ⟦ ＂F Γ ＂ ⟧ $ ＂F Γ ＂elt
-
     -- F extends a functor on C
-    -- i.e whem F (Yo c) ≅ Yo c', define F c := c'
+    -- i.e when F (Yo c) ≅ Yo c', define FC c := c'
     FC : Functor C C
     FC = FunctorComprehension (F ∘F YO) (λ Γ → ueF (C [-, Γ ]))
 
-    πFβ : ∀ {Q}{Q'}{α : NatTrans Q Q'} → F ⟪ α ⟫ Psh.⋆ (πF ⟦ Q' ⟧) ≡ (πF ⟦ Q ⟧ Psh.⋆ α)
-    πFβ = N-hom πF _
+    module _ (Q : Presheaf C ℓC') where
+      private
+        module Q = PresheafNotation Q
+        module FQ = PresheafNotation (F ⟅ Q ⟆)
+      F-elt : ∀ {Γ} → (q : Q.p[ Γ ]) → FQ.p[ ＂F Γ ＂ ]
+      F-elt {Γ} q =
+        F ⟪ PshHom→NatTrans (yoRec Q q) ⟫ ⟦ ＂F Γ ＂ ⟧ $
+          ueF (C [-, Γ ]) .element
+
+      -- TODO
+      F-elt-natural :
+        ∀ {Γ} {Δ} {γ : C [ Γ , Δ ]} (q : Q.p[ Δ ]) →
+        F-elt (γ Q.⋆ q) ≡ (FC ⟪ γ ⟫) FQ.⋆ F-elt q
+      F-elt-natural {Γ = Γ}{Δ = Δ}{γ = γ} q =
+        {!!}
+        -- I don't think this lemma would actually help
+        -- funExt⁻ F-elt-natural' (ueF (C [-, Γ ]) .element)
+        -- where
+        -- F-elt-natural' :
+        --   F ⟪ PshHom→NatTrans (yoRec Q (γ Q.⋆ q)) ⟫
+        --     ⟦ ＂F Γ ＂ ⟧
+        --   ≡ (λ z → F ⟅ Q ⟆ ⟪ FC ⟪ γ ⟫ ⟫ $
+        --     F ⟪ PshHom→NatTrans (yoRec Q q) ⟫ ⟦ ＂F Δ ＂ ⟧ $
+        --       ueF.element)
+        -- F-elt-natural' = {!!}
+
+
+      F-PshHom : PshHom Q ((F ⟅ Q ⟆) ∘F (FC ^opF))
+      F-PshHom .fst Γ = F-elt
+      F-PshHom .snd Γ Δ γ = F-elt-natural
+
+    ＂π＂ : {Γ : C.ob} → C [ ＂F Γ ＂ , Γ ]
+    ＂π＂ {Γ = Γ} =
+      -- natTrans or PshHom here?
+      πF-PshHom (C [-, Γ ]) .fst ＂F Γ ＂ ueF.element
+
 
   module _
-    (πF*' : {Γ : C.ob} → (Γᴰ : Cᴰ.ob[ Γ ]) →
+    (πF* : {Γ : C.ob} → (Γᴰ : Cᴰ.ob[ Γ ]) →
       PshᴰCL.isFibration' (Cᴰ [-][-, Γᴰ ]))
     where
 
     open UniversalElementⱽ
 
     private
-      πF* : ∀ {Γ} → (Γᴰ : Cᴰ.ob[ Γ ]) →
-        UniversalElementⱽ Cᴰ ＂F Γ ＂ (reindYo ＂π＂ (Cᴰ [-][-, Γᴰ ]))
-      πF* Γᴰ = πF*' Γᴰ ＂π＂
+      -- TODO
+      πF*-F-homᴰ : ∀ {Γ} {Δ} {γ : C [ Γ , Δ ]} →
+        {Γᴰ : Cᴰ.ob[ Γ ]} {Δᴰ : Cᴰ.ob[ Δ ]}
+        (γᴰ : Cᴰ [ γ ][ Γᴰ , Δᴰ ]) →
+        Cᴰ [ FC ⟪ γ ⟫ ][ πF* Γᴰ ＂π＂ .vertexⱽ ,
+                         πF* Δᴰ ＂π＂ .vertexⱽ ]
+      πF*-F-homᴰ {γ = γ} {Γᴰ = Γᴰ} {Δᴰ = Δᴰ} γᴰ =
+        introᴰ (πF* Δᴰ ＂π＂) $
+          Cᴰ.reind (
+            (cong₂ C._⋆_ (C.⋆IdL _) refl)
+            ∙ πF-natural) $
+            (πF* Γᴰ ＂π＂ .elementⱽ Cᴰ.⋆ᴰ γᴰ)
+        where
+        πF-natural : ＂π＂ C.⋆ γ ≡ FC ⟪ γ ⟫ C.⋆ ＂π＂
+        πF-natural = {!!}
 
-      ＂πF*_＂ : ∀ {Γ} → (Γᴰ : Cᴰ.ob[ Γ ]) → Cᴰ.ob[ ＂F Γ ＂ ]
-      ＂πF* Γᴰ ＂ = πF* Γᴰ .vertexⱽ
+      -- TODO
+      πF*-F-idᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} →
+        PathP
+          (λ i →
+            Cᴰ [ FC .F-id i ][ πF* Γᴰ ＂π＂ .vertexⱽ ,
+                               πF* Γᴰ ＂π＂ .vertexⱽ ])
+          (πF*-F-homᴰ {Γᴰ = Γᴰ} Cᴰ.idᴰ)
+          Cᴰ.idᴰ
+      πF*-F-idᴰ = {!!}
 
-    πF-Functorᴰ : Functorᴰ FC Cᴰ Cᴰ
-    πF-Functorᴰ .F-obᴰ = ＂πF*_＂
-    πF-Functorᴰ .F-homᴰ {x = Γ}{y = Δ}{f = γ}{xᴰ = Γᴰ}{yᴰ = Δᴰ} γᴰ =
-      introᴰ (πF* Δᴰ) $
-        Cᴰ.reind ((cong₂ C._⋆_ (C.⋆IdL _) refl) ∙ πF-natural) $
-          πF* Γᴰ .elementⱽ Cᴰ.⋆ᴰ γᴰ
-      where
-      module π*よΔᴰ =
-        PresheafⱽNotation (reindYo ＂π＂ (Cᴰ [-][-, Δᴰ ]))
+      -- TODO
+      πF*-F-seqᴰ :
+        ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
+          {Δ} {Δᴰ : Cᴰ.ob[ Δ ]}
+          {Θ} {Θᴰ : Cᴰ.ob[ Θ ]} →
+          {γ : C [ Γ , Δ ]} →
+          {δ : C [ Δ , Θ ]} →
+        (γᴰ : Cᴰ [ γ ][ Γᴰ , Δᴰ ]) →
+        (δᴰ : Cᴰ [ δ ][ Δᴰ , Θᴰ ]) →
+        PathP
+          (λ i →
+            Cᴰ [ FC .F-seq γ δ i ][ πF* Γᴰ ＂π＂ .vertexⱽ ,
+                                    πF* Θᴰ ＂π＂ .vertexⱽ ])
+          (πF*-F-homᴰ (γᴰ Cᴰ.⋆ᴰ δᴰ))
+          (πF*-F-homᴰ γᴰ Cᴰ.⋆ᴰ πF*-F-homᴰ δᴰ)
+      πF*-F-seqᴰ = {!!}
 
-      ＂Fγ＂ : C [ ＂F Γ ＂ , ＂F Δ ＂ ]
-      ＂Fγ＂ = FC ⟪ γ ⟫
-
-      πF-natural : ＂π＂ C.⋆ γ ≡ ＂Fγ＂ C.⋆ ＂π＂
-      πF-natural =
-        {!!}
-        -- cong (λ z → z ⟦ ueF.vertex ⟧ $ ueF.element) (sym $ πFβ {Q = C [-, Γ ]}{Q' = C [-, Δ ]}{α = {!!}})
-        -- ∙ {!!}
-
-    πF-Functorᴰ .F-idᴰ = {!!}
-    πF-Functorᴰ .F-seqᴰ = {!!}
+      -- Should probably call this weakenF instead
+      πF*-Functorᴰ : Functorᴰ FC Cᴰ Cᴰ
+      πF*-Functorᴰ .F-obᴰ Γᴰ = πF* Γᴰ ＂π＂ .vertexⱽ
+      πF*-Functorᴰ .F-homᴰ = πF*-F-homᴰ
+      πF*-Functorᴰ .F-idᴰ = πF*-F-idᴰ
+      πF*-Functorᴰ .F-seqᴰ = πF*-F-seqᴰ
 
     module _
       {P : Presheaf C ℓC'}
@@ -268,128 +313,42 @@ module _
         module FP = PresheafNotation (F ⟅ P ⟆)
         module Pᴰ = PresheafᴰNotation Pᴰ
 
-        mkFPElt : ∀ {Γ} → (p : P.p[ Γ ]) →
-          FP.p[ ＂F Γ ＂ ]
-        mkFPElt {Γ} p = {!!}
-          -- (F ⟪ α ⟫) ⟦ ＂F Γ ＂ ⟧ $ ＂F Γ ＂elt
-          -- where
-          -- α : NatTrans (C [-, Γ ]) P
-          -- α = PshHom→NatTrans (yoRec P p)
-
-        -- FP ≅ C [ - , c ]
-        -- FP ∘F FC ^op ≅ C [ FC ^op - , c ]
-
-        the-nat-trans : NatTrans P ((F ⟅ P ⟆) ∘F (FC ^opF))
-        the-nat-trans = {!!}
-
-        -- the-psh-hom : PshHom P ((F ⟅ P ⟆) ∘F (FC ^opF))
-        -- the-psh-hom .fst _ = mkFPElt
-        -- the-psh-hom .snd Γ Δ γ δ =
-        --   {!!}
-        --   -- mkFPElt (γ P.⋆ δ)
-        --   --   ≡⟨ refl ⟩
-        --   -- ((F ⟪ PshHom→NatTrans (yoRec P (P .F-hom γ δ)) ⟫) ⟦ ＂F Γ ＂ ⟧ $ ＂F Γ ＂elt)
-        --   --   ≡⟨ {!!} ⟩
-        --   -- {!!}
-        --   -- -- {!(F-ob F (C [-, Δ ]) .F-hom (F-hom FC γ)
-        --   -- --   Cubical.Categories.NaturalTransformation.Base._.⋆ᴰ
-        --   -- --   N-ob (F-hom F α) (F-ob FC Γ))
-        --   -- --  ＂F Δ ＂elt!}
-        --   --   ≡⟨ funExt⁻ ((F ⟪ α ⟫) .N-hom (FC ⟪ γ ⟫)) ＂F Δ ＂elt ⟩
-        --   -- (FC ⟪ γ ⟫) FP.⋆ mkFPElt δ
-        --   -- ∎
-        --   -- -- {!!}
-        --   -- -- ∙ funExt⁻ ((F ⟪ α ⟫) .N-hom (FC ⟪ γ ⟫)) ＂F Δ ＂elt
-        --   where
-        --   α : NatTrans (C [-, Δ ]) P
-        --   α = PshHom→NatTrans (yoRec P δ)
-
-
-      -- Define ∀ᴰ Pᴰ such that
-      --   (∀ᴰ Pᴰ) [ p ][ Γᴰ ] ≅ Pᴰ [ F p ][ πF* Γᴰ ]
-      --
-      --     Γᴰ --------> ∀ᴰ Pᴰ
-      --     _              _
-      --     |              |
-      --     v      p       v
-      --     Γ -----------> P
-      --
-      --   πF* Γᴰ --------> Pᴰ
-      --     _              _
-      --     |              |
-      --     v     Fp       v
-      --   ＂FΓ＂ --------> F P
+      -- Trying to do this manually and I
+      -- run into obligations that seem to necessitate
+      -- functorialiaty for πF*
+      -- At the very least, the functoriality of πF* is
+      -- sufficient
       ∀ᴰPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ
-      ∀ᴰPshᴰ = reind {!!} $ (Pᴰ ∘Fᴰ (πF-Functorᴰ ^opFᴰ))
+      ∀ᴰPshᴰ .F-obᴰ Γᴰ p =
+        Pᴰ .F-obᴰ (πF* Γᴰ ＂π＂ .vertexⱽ) (F-elt P p)
+      ∀ᴰPshᴰ .F-homᴰ γᴰ p pᴰ =
+        Pᴰ.reind (sym $ F-elt-natural P p) $
+          πF*-F-homᴰ γᴰ Pᴰ.⋆ᴰ pᴰ
+      ∀ᴰPshᴰ .F-idᴰ = funExt₂ λ p pᴰ →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.⟨ Cᴰ.≡in πF*-F-idᴰ ⟩⋆⟨⟩
+          ∙ Pᴰ.⋆IdL _
+      ∀ᴰPshᴰ .F-seqᴰ γᴰ δᴰ = funExt₂ λ p pᴰ →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.⟨ Cᴰ.≡in (πF*-F-seqᴰ δᴰ γᴰ) ⟩⋆⟨⟩
+          ∙ Pᴰ.⋆Assoc _ _ _
+          ∙ Pᴰ.⟨ refl ⟩⋆⟨ Pᴰ.reind-filler _ _ ⟩
+          ∙ Pᴰ.reind-filler _ _
 
+      -- An equivalent definition that directly uses
+      -- functoriality of πF*
+      -- but is a lot slower at least with the above holes
+      -- ∀ᴰPshᴰ' : Presheafᴰ P Cᴰ ℓPᴰ
+      -- ∀ᴰPshᴰ' = reind (F-PshHom P) $
+      --   (Pᴰ ∘Fᴰ (πF*-Functorᴰ ^opFᴰ))
 
-    --   ∀ᴰPshᴰ .F-obᴰ {x = Γ} Γᴰ p =
-    --     {!!}
-    --     -- Pᴰ .F-obᴰ ＂πF* Γᴰ ＂ (mkFPElt p)
-    --   -- Homs
-    --   -- Given morphism γᴰ
-    --   --            γᴰ
-    --   --     Δᴰ ----------> Γᴰ
-    --   --     _              _
-    --   --     |              |
-    --   --     v      γ       v
-    --   --     Δ -----------> Γ
-    --   --
-    --   -- and element pᴰ
-    --   --
-    --   --            pᴰ
-    --   --     Γᴰ --------> ∀ᴰ Pᴰ
-    --   --     _              _
-    --   --     |              |
-    --   --     v      p       v
-    --   --     Γ -----------> P
-    --   --
-    --   --            pᴰ
-    --   --   πF* Γᴰ --------> Pᴰ
-    --   --     _              _
-    --   --     |              |
-    --   --     v     Fp       v
-    --   --   ＂FΓ＂ --------> F P
-    --   --
-    --   -- want
-    --   --
-    --   --   πF* Δᴰ --------> Pᴰ
-    --   --     _              _
-    --   --     |              |
-    --   --     v              v
-    --   --   ＂FΔ＂ --------> F P
-    --   --
-    --   -- πF* should have a functorial action on γᴰ
-    --   --
-    --   --         πF* γᴰ
-    --   --   πF* Δᴰ -----> πF* Γᴰ
-    --   --     _              _
-    --   --     |              |
-    --   --     v    ＂Fγ＂    v
-    --   --   ＂FΔ＂ ------> ＂FΓ＂
-
-    --   ∀ᴰPshᴰ .F-homᴰ {x = Γ}{y = Δ}{f = γ}{xᴰ = Γᴰ}{yᴰ = Δᴰ} γᴰ p pᴰ =
-    --     {!!}
-    --     -- Pᴰ.reind mkFPElt-natural $ πF-Functorᴰ .F-homᴰ γᴰ Pᴰ.⋆ᴰ pᴰ
-    --       where
-    --       ＂Fγ＂ : C [ ＂F Δ ＂ , ＂F Γ ＂ ]
-    --       ＂Fγ＂ = FC ⟪ γ ⟫
-
-    --       mkFPElt-natural : ＂Fγ＂ FP.⋆ (mkFPElt p) ≡ mkFPElt (γ P.⋆ p)
-    --       mkFPElt-natural = {!!}
-
-    --   ∀ᴰPshᴰ .F-idᴰ {xᴰ = Γᴰ} = funExt₂ λ p pᴰ →
-    --     Pᴰ.rectify $ Pᴰ.≡out $
-    --       (sym $ Pᴰ.reind-filler _ _)
-    --       ∙ Pᴰ.⟨ Cᴰ.≡in (πF-Functorᴰ .F-idᴰ) ⟩⋆⟨⟩
-    --       ∙ Pᴰ.⋆IdL _
-    --   ∀ᴰPshᴰ .F-seqᴰ = {!!}
-
-    -- module _ {Γ : C.ob} {Γᴰ : Cᴰ.ob[ ＂F Γ ＂ ]} where
-    --   ∀ᴰ : Type _
-    --   ∀ᴰ = UniversalElementⱽ Cᴰ Γ
-    --     (∀ᴰPshᴰ (reind α (Cᴰ [-][-, Γᴰ ])))
-    --     where
-    --     α : PshHom (F ⟅ C [-, Γ ] ⟆) (C [-, ＂F Γ ＂ ])
-    --     α = invPshIso {P = C [-, ＂F Γ ＂ ]}{Q = F ⟅ C [-, Γ ] ⟆}
-    --       (UniversalElementNotation.asPshIso (ueF (C [-, Γ ]))) .fst
+    module _ {Γ : C.ob} {Γᴰ : Cᴰ.ob[ ＂F Γ ＂ ]} where
+      ∀ᴰ : Type _
+      ∀ᴰ = UniversalElementⱽ Cᴰ Γ
+        (∀ᴰPshᴰ (reind α (Cᴰ [-][-, Γᴰ ])))
+        where
+        α : PshHom (F ⟅ C [-, Γ ] ⟆) (C [-, ＂F Γ ＂ ])
+        α = invPshIso {P = C [-, ＂F Γ ＂ ]}{Q = F ⟅ C [-, Γ ] ⟆}
+          (UniversalElementNotation.asPshIso (ueF (C [-, Γ ]))) .fst

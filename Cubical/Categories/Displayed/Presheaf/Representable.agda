@@ -242,6 +242,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       → fᴰ ≡ introᴰ (fᴰ Pⱽ.⋆ᴰⱽ elementⱽ)
     ηⱽ = sym (universalⱽ .snd .snd _)
 
+    weak-ηⱽ : Cᴰ.idᴰ ≡ introᴰ (elementⱽ)
+    weak-ηⱽ = ηⱽ ∙ (Cᴰ.rectify $ Cᴰ.≡out $ introᴰ≡ ((sym (Pⱽ.reind-filler _ _) ∙ Pⱽ.⋆IdL _) ∙ sym βᴰ))
+
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {x : C .Category.ob} {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ} where
   private

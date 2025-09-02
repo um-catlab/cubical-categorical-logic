@@ -63,11 +63,13 @@ module _ where
   dom t,f = ⊤
   cod t,f = (↑ ans) × (↑ ans)
 
+  open ×Quiver
+
   QUIVER : ×Quiver _ _
-  QUIVER .fst = OB
-  QUIVER .snd .ProductQuiver.mor = MOR
-  QUIVER .snd .ProductQuiver.dom = dom
-  QUIVER .snd .ProductQuiver.cod = cod
+  QUIVER .ob = OB
+  QUIVER .×Q .ProductQuiver.mor = MOR
+  QUIVER .×Q .ProductQuiver.dom = dom
+  QUIVER .×Q .ProductQuiver.cod = cod
 
   private module Q = ×QuiverNotation QUIVER
 

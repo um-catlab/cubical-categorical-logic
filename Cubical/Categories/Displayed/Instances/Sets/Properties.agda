@@ -10,6 +10,9 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport
+open import Cubical.Foundations.GroupoidLaws
+open import Cubical.Foundations.More
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Unit
@@ -35,12 +38,12 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.CartesianLift using (isCatFibration')
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Exponentials.Base
-
 
 private
   variable
@@ -60,6 +63,15 @@ isFibrationSETᴰ cᴰ' f .CartesianLift.π = λ x z → z
 isFibrationSETᴰ cᴰ' f .isCartesian .fst = λ z₁ → z₁
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .fst _ = refl
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .snd _ = refl
+
+isCatFibration'SETᴰ : isCatFibration' (SETᴰ ℓ ℓ')
+isCatFibration'SETᴰ {x = B} Q {A} f .vertexⱽ a = Q (f a)
+isCatFibration'SETᴰ {x = B} Q {A} f .elementⱽ _ q = q
+isCatFibration'SETᴰ {x = B} Q {A} f .universalⱽ .fst = λ z → z
+isCatFibration'SETᴰ {x = B} Q {A} f .universalⱽ .snd .fst b =
+  transportRefl _ ∙ transportRefl _
+isCatFibration'SETᴰ {x = B} Q {A} f .universalⱽ .snd .snd a =
+  transportRefl _ ∙ transportRefl _
 
 TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
 TerminalsⱽSETᴰ A .vertexⱽ a = Unit* , isSetUnit*
@@ -156,3 +168,61 @@ module _ {ℓ} {ℓ'} where
     )
     where
     module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
+
+Exponentialsⱽ'SETᴰ : Exponentialsⱽ' (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isCatFibration'SETᴰ
+Exponentialsⱽ'SETᴰ {c = A} P Q .vertexⱽ a .fst = ⟨ P a ⟩ → ⟨ Q a ⟩
+Exponentialsⱽ'SETᴰ {c = A} P Q .vertexⱽ a .snd = isSet→ (Q a .snd)
+Exponentialsⱽ'SETᴰ {c = A} P Q .elementⱽ a x = x .fst (x .snd)
+Exponentialsⱽ'SETᴰ {c = A} P Q .universalⱽ .fst f γ γᴰ p = f γ (γᴰ , p)
+Exponentialsⱽ'SETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .fst fᴰ = funExt λ γ → funExt λ γᴰ →
+  -- nasty. avoidable?
+  Q.Prectify $ Q.≡out $ sym $
+    cong₂fᴰ
+      (Γᴰ.reind-filler _ ∙ Γᴰ.reind-filler _)
+      (P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _)
+    ∙ Q.reind-filler _ ∙ Q.reind-filler _
+  where
+    ⟨P⟩ ⟨Q⟩ : ⟨ A ⟩ → Type _
+    ⟨Q⟩ a = ⟨ Q a ⟩
+    ⟨P⟩ a = ⟨ P a ⟩
+    ⟨Γᴰ⟩ : ⟨ Γ ⟩ → Type _
+    ⟨Γᴰ⟩ γ = ⟨ Γᴰ γ ⟩
+    module P = hSetReasoning A ⟨P⟩
+    module Q = hSetReasoning A ⟨Q⟩
+    module Γᴰ = hSetReasoning Γ ⟨Γᴰ⟩
+
+    cong₂fᴰ :
+      ∀ {γ γ'}{γᴰ γᴰ'}{p p'}
+        (γᴰ≡γᴰ' : Path (Σ ⟨ Γ ⟩ ⟨Γᴰ⟩) (γ , γᴰ) (γ' , γᴰ'))
+      → (p≡p' : Path (Σ ⟨ A ⟩ ⟨P⟩) (f γ , p) (f γ' , p'))
+      → Path (Σ ⟨ A ⟩ ⟨Q⟩) (f γ , fᴰ γ (γᴰ , p)) (f γ' , fᴰ γ' (γᴰ' , p'))
+    cong₂fᴰ γᴰ≡γᴰ' p≡p' i = (f (γᴰ≡γᴰ' i .fst)) , (fᴰ (γᴰ≡γᴰ' i .fst) ((γᴰ≡γᴰ' i .snd)
+      , (P.Prectify {e = cong fst p≡p'}{e' = cong f $ cong fst γᴰ≡γᴰ'}(λ j → p≡p' j .snd) i)))
+
+Exponentialsⱽ'SETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .snd fᴰ = funExt λ γ → funExt λ γᴰ → funExt λ p →
+  Q.Prectify $ Q.≡out $ sym $
+    cong₃fᴰ
+      (Γᴰ.reind-filler _ ∙ Γᴰ.reind-filler _)
+      (P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _)
+    ∙ Q.reind-filler _
+    ∙ Q.reind-filler _
+  where
+    ⟨P⟩ ⟨Q⟩ : ⟨ A ⟩ → Type _
+    ⟨Q⟩ a = ⟨ Q a ⟩
+    ⟨P⟩ a = ⟨ P a ⟩
+    ⟨Γᴰ⟩ : ⟨ Γ ⟩ → Type _
+    ⟨Γᴰ⟩ γ = ⟨ Γᴰ γ ⟩
+    module P = hSetReasoning A ⟨P⟩
+    module Q = hSetReasoning A ⟨Q⟩
+    module Γᴰ = hSetReasoning Γ ⟨Γᴰ⟩
+
+
+    cong₃fᴰ :
+      ∀ {γ γ'}{γᴰ γᴰ'}{p p'}
+        (γᴰ≡γᴰ' : Path (Σ ⟨ Γ ⟩ ⟨Γᴰ⟩) (γ , γᴰ) (γ' , γᴰ'))
+      → (p≡p' : Path (Σ ⟨ A ⟩ ⟨P⟩) (f γ , p) (f γ' , p'))
+      → Path (Σ ⟨ A ⟩ ⟨Q⟩) (f γ , fᴰ γ γᴰ p) (f γ' , fᴰ γ' γᴰ' p')
+    cong₃fᴰ γᴰ≡γᴰ' p≡p' i .fst = (f (γᴰ≡γᴰ' i .fst))
+    cong₃fᴰ γᴰ≡γᴰ' p≡p' i .snd =
+      fᴰ _ ((γᴰ≡γᴰ' i .snd))
+        ((P.Prectify {e = cong fst p≡p'}{e' = cong f $ cong fst γᴰ≡γᴰ'}(λ j → p≡p' j .snd) i))

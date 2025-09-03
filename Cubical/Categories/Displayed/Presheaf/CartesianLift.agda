@@ -8,6 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category hiding (isIso)
@@ -240,6 +241,23 @@ module _
   isFibrationReindHet : isFibration (reindHet α Qᴰ)
   isFibrationReindHet = isFibrationReind _ α (isFibrationReindFunc F Qᴰ isFibQᴰ)
 
+-- If we use CartesianLift' and we don't worry about definitional
+-- behavior being too nice, this can become very simple and conceptual
+
+-- For example, in the following, we want to show that
+-- isFib Qᴰ ⇒ isFib (reind α Qᴰ)
+--
+-- isFib Qᴰ means all reindYo q Qᴰ are representable.
+-- isFib (reind α Qᴰ) means that all reindYo p (reind α Qᴰ).
+-- but reindYo p (reind α Qᴰ) ≡ reindYo (α p) Qᴰ.
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+         (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
+         (isFibQᴰ : isFibration' Qᴰ)
+         where
+  isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
+  isFibration'Reind p = isFibQᴰ (α .fst _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
          (F : Functor C D)
          where
@@ -260,19 +278,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
       yF yᴰ p .π = yF' yᴰ p .π
       yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian
 
--- If we use CartesianLift' and we don't worry about definitional
--- behavior being too nice, this can become very simple and conceptual
-
--- For example, in the following, we want to show that
--- isFib Qᴰ ⇒ isFib (reind α Qᴰ)
---
--- isFib Qᴰ means all reindYo q Qᴰ are representable.
--- isFib (reind α Qᴰ) means that all reindYo p (reind α Qᴰ).
--- but reindYo p (reind α Qᴰ) ≡ reindYo (α p) Qᴰ.
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-         {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
-         (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
-         (isFibQᴰ : isFibration' Qᴰ)
-         where
-  isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
-  isFibration'Reind p = isFibQᴰ (α .fst _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
+  isCatFibration'Reindex
+    : isCatFibration' Dᴰ
+    → isCatFibration' (Reindex.reindex Dᴰ F)
+  isCatFibration'Reindex isFib xᴰ f =
+    reindUEⱽ (isFib xᴰ (F ⟪ f ⟫)) ◁PshIsoⱽ
+      (invPshIsoⱽ reindYoReindFunc
+      ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)

@@ -2,12 +2,16 @@ module Cubical.Foundations.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws hiding (cong₂Funct)
 open import Cubical.Foundations.Transport
 
+open import Cubical.Data.Sigma
+
 private
   variable
-    ℓ : Level
+    ℓ ℓ' : Level
     A B : Type ℓ
     x y z w v : A
 
@@ -88,3 +92,37 @@ congS₂Bifunct f p q r s =
   ∙ cong₂ _∙_ (sym (cong₂FunctR f _ _ _)) refl
   ∙ sym (assoc _ _ _)
   ∙ cong₂ _∙_ refl (sym (cong₂Funct' f _ _))
+
+-- Reasoning about a dependent type that is indexed by an hSet
+module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
+  _P≡[_]_ : ∀ {a b : ⟨ A ⟩} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
+  p P≡[ a≡b ] q = p ≡[ cong P a≡b ] q
+  private
+    variable
+      a b c : ⟨ A ⟩
+      p q r : P a
+      pth qth : a ≡ b
+  ≡in :
+    p P≡[ pth ] q
+    → Path (Σ ⟨ A ⟩ P) (a , p) (b , q)
+  ≡in e = ΣPathP $ _ , e
+
+  ≡out :
+    (e : Path (Σ ⟨ A ⟩ P) (a , p) (b , q))
+    → p P≡[ fst $ PathPΣ e ] q
+  ≡out e = snd $ PathPΣ e
+
+  reind : (a ≡ b) → P a → P b
+  reind e p = subst P e p
+
+  reind-filler :
+    ∀ (e : a ≡ b)
+    → Path (Σ ⟨ A ⟩ P) (a , p) (b , reind e p)
+  reind-filler e = ΣPathP (e , (subst-filler P e _))
+
+  -- This is the only part that requires the hSet stuff. Everything else is completely generic
+  Prectify :
+    ∀ {e e' : a ≡ b}
+    → p P≡[ e ] q
+    → p P≡[ e' ] q
+  Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)

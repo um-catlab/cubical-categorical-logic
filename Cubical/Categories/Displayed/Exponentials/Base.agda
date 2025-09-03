@@ -16,6 +16,8 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Exponentials
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -25,11 +27,13 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Adjoint.More
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.BinProduct hiding (_×ᴰ_)
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.CartesianLift using (isCatFibration')
 
 private
   variable
@@ -52,6 +56,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → Type _
   Exponentialsᴰ bp exps bpᴰ = ∀ {c d} (cᴰ : Cᴰ.ob[ c ])(dᴰ : Cᴰ.ob[ d ])
     → Exponentialᴰ cᴰ dᴰ (λ _ xᴰ → bpᴰ (xᴰ , cᴰ)) (AnExponential C bp exps)
+
+  Exponentialᴰ' :
+    ∀ {c d} { -×c : BinProductsWith C c}
+    cᴰ (dᴰ : Cᴰ.ob[ d ]) (-×ᴰcᴰ : LocallyRepresentableᴰ (_ , -×c) (Cᴰ [-][-, cᴰ ]))
+    → (c⇒d : Exponential' C c d -×c)
+    → Type _
+  Exponentialᴰ' cᴰ dᴰ -×ᴰcᴰ c⇒d = UniversalElementᴰ Cᴰ c⇒d
+    ((_ , -×ᴰcᴰ) ⇒PshSmallᴰ (Cᴰ [-][-, dᴰ ]))
 
   module ExponentialsᴰNotation
     {bps : BinProducts C}
@@ -92,6 +104,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
+
+  Exponentialⱽ' :
+    ∀ {c} (cᴰ dᴰ : Cᴰ.ob[ c ])
+    → (-×ⱽcᴰ : LocallyRepresentableⱽ (Cᴰ [-][-, cᴰ ]))
+    → Type _
+  Exponentialⱽ' {c} cᴰ dᴰ -×ⱽcᴰ = UniversalElementⱽ Cᴰ c
+    ((_ , -×ⱽcᴰ) ⇒PshSmallⱽ (Cᴰ [-][-, dᴰ ]))
+
   module _ (bpⱽ : BinProductsⱽ Cᴰ) (isFib : isFibration Cᴰ)
     where
 
@@ -138,3 +158,15 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     Exponentialsⱽ : Type _
     Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'
+
+  module _ (bpⱽ : BinProductsⱽ Cᴰ) (isFib : isCatFibration' Cᴰ)
+    where
+    open UniversalElementⱽ
+    bpⱽ+fib⇒AllReprLocallyRepresentableⱽ :
+      ∀ {c} (cᴰ : Cᴰ.ob[ c ]) → LocallyRepresentableⱽ (Cᴰ [-][-, cᴰ ])
+    bpⱽ+fib⇒AllReprLocallyRepresentableⱽ cᴰ Γᴰ γ =
+      bpⱽ _ (Γᴰ , isFib cᴰ γ .vertexⱽ)
+      ◁PshIsoⱽ (idPshIsoᴰ ×ⱽIso yoRecIsoⱽ (isFib cᴰ γ))
+
+    Exponentialsⱽ' : Type _
+    Exponentialsⱽ' = ∀ {c} cᴰ dᴰ → Exponentialⱽ' {c} cᴰ dᴰ (bpⱽ+fib⇒AllReprLocallyRepresentableⱽ cᴰ)

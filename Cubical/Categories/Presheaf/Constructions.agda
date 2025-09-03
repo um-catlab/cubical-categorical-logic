@@ -70,7 +70,11 @@ module _ {C : Category ℓ ℓ'} where
     π₂ .fst _ = snd
     π₂ .snd _ _ _ _ = refl
 
-  module _ ((P , _×P) : Σ[ P ∈ Presheaf C ℓA ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)) (Q : Presheaf C ℓB) where
+  -- TODO: correct name?
+  LocallyRepresentable : Presheaf C ℓP → Type _
+  LocallyRepresentable P = ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)
+
+  module _ ((P , _×P) : Σ[ P ∈ Presheaf C ℓA ] LocallyRepresentable P) (Q : Presheaf C ℓB) where
     private
       module C = Category C
       module P = PresheafNotation P
@@ -133,14 +137,13 @@ module _ {C : Category ℓ ℓ'} where
     ⇒PshSmallIso⇒PshLarge : ∀ Γ
       → Iso Q.p[ (Γ ×P) .vertex ]
             (PshHom ((C [-, Γ ]) ×Psh P) Q)
-
-    private
-      module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)
     ⇒PshSmallIso⇒PshLarge Γ =
       compIso
         (IsoYoRec Q ((Γ ×P) .vertex))
         (PshIso→⋆PshHomIso (invPshIso (yoRecIso (Γ ×P))))
 
+    private
+      module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)
     ⇒PshSmall≅⇒PshLarge : PshIso ((P , _×P) ⇒PshSmall Q) (P ⇒PshLarge Q)
     ⇒PshSmall≅⇒PshLarge .fst .fst = ⇒PshSmallIso⇒PshLarge.fun
     ⇒PshSmall≅⇒PshLarge .fst .snd Δ Γ γ q = makePshHomPath (funExt λ x → funExt λ p →

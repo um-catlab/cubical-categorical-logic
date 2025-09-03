@@ -84,8 +84,8 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   ⋆IdRᴰⱽ : fᴰ ⋆ᴰⱽ idⱽ ≡ fᴰ
   ⋆IdRᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdR _
 
-  ⋆Assocᴰⱽ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰⱽ hⱽ ≡ (fᴰ ⋆ᴰⱽ (gⱽ ⋆ⱽ hⱽ))
-  ⋆Assocᴰⱽ = R.rectify $ R.≡out $
+  ⋆Assocᴰⱽⱽ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰⱽ hⱽ ≡ (fᴰ ⋆ᴰⱽ (gⱽ ⋆ⱽ hⱽ))
+  ⋆Assocᴰⱽⱽ = R.rectify $ R.≡out $
       (sym $ R.reind-filler _ _)
       ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
       ∙ R.⋆Assoc _ _ _
@@ -101,8 +101,8 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   ⋆IdRⱽᴰ : ∀ (fⱽ : v[ x ] [ xᴰ , xᴰ' ]) → fⱽ ⋆ⱽᴰ idᴰ ≡ fⱽ
   ⋆IdRⱽᴰ fⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdR _
 
-  ⋆Assocⱽᴰ : (fⱽ ⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ ≡ (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ))
-  ⋆Assocⱽᴰ = R.rectify $ R.≡out $
+  ⋆Assocⱽⱽᴰ : (fⱽ ⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ ≡ (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ))
+  ⋆Assocⱽⱽᴰ = R.rectify $ R.≡out $
       (sym $ R.reind-filler _ _)
       ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
       ∙ R.⋆Assoc _ _ _
@@ -123,6 +123,11 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     ∙ R.⋆Assoc _ _ _
     ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
 
+  ⋆Assocⱽᴰᴰ : (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ ≡ fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ)
+  ⋆Assocⱽᴰᴰ = R.rectify $ R.≡out $
+    R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
+    ∙ R.⋆Assoc _ _ _ ∙ R.reind-filler _ _
+
   ∫⋆Assocᴰⱽᴰ :
     Path R.Hom[ _ , _ ]
       (f C.⋆ h , (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ)
@@ -135,13 +140,13 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   HomᴰProf f .Functor.F-ob yᴰ .Functor.F-ob xᴰ .snd = isSetHomᴰ
   HomᴰProf f .Functor.F-ob yᴰ .Functor.F-hom gⱽ fᴰ = gⱽ ⋆ⱽᴰ fᴰ
   HomᴰProf f .Functor.F-ob yᴰ .Functor.F-id = funExt ⋆IdLⱽᴰ
-  HomᴰProf f .Functor.F-ob yᴰ .Functor.F-seq hⱽ gⱽ = funExt λ fᴰ → ⋆Assocⱽᴰ
+  HomᴰProf f .Functor.F-ob yᴰ .Functor.F-seq hⱽ gⱽ = funExt λ fᴰ → ⋆Assocⱽⱽᴰ
   HomᴰProf f .Functor.F-hom gⱽ .N-ob x fᴰ = fᴰ ⋆ᴰⱽ gⱽ
   HomᴰProf f .Functor.F-hom gⱽ .N-hom fⱽ = funExt λ hᴰ → ⋆Assocⱽᴰⱽ
   HomᴰProf f .Functor.F-id = makeNatTransPath (funExt (λ _ → funExt λ fᴰ →
     ⋆IdRᴰⱽ))
   HomᴰProf f .Functor.F-seq gⱽ hⱽ = makeNatTransPath (funExt λ _ → funExt λ fᴰ →
-    sym $ ⋆Assocᴰⱽ)
+    sym $ ⋆Assocᴰⱽⱽ)
 
   open R public
 

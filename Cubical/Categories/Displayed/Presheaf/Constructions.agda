@@ -347,6 +347,7 @@ module _
   reindFunc : Presheafᴰ (Q ∘F (F ^opF)) (CatReindex Dᴰ F) ℓQᴰ
   reindFunc = Qᴰ ∘Fᴰ (Reindexπ _ _ ^opFᴰ)
 
+open Category
 module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -356,3 +357,12 @@ module _
   where
   reindHet : Presheafᴰ P (CatReindex Dᴰ F) ℓQᴰ
   reindHet = reind α $ reindFunc F Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {x : C .ob}
+  (F : Functor C D) (Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ)
+  where
+  reindⱽFunc : Presheafⱽ x (CatReindex Dᴰ F) ℓQᴰ
+  reindⱽFunc = reindHet (Functor→PshHet F x) Qᴰ

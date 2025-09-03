@@ -1,6 +1,7 @@
 module Cubical.Categories.Displayed.Quantifiers where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Functions.FunExtEquiv
@@ -26,6 +27,7 @@ open import Cubical.Categories.Displayed.Instances.Sets
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Profunctor
+open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
@@ -261,40 +263,81 @@ module _
 
     open UniversalElementⱽ
 
+    ＂πF*_＂ : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) → Cᴰ.ob[ ＂F Γ ＂ ]
+    ＂πF* Γᴰ ＂ = πF* Γᴰ .vertexⱽ
+
+    introπF* :
+      ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
+        {Δ} {Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , ＂F Γ ＂ ]}
+      → (γᴰ : Cᴰ [ γ C.⋆ ＂π＂ ][ Δᴰ , Γᴰ ])
+      → Cᴰ [ γ ][ Δᴰ , ＂πF* Γᴰ ＂ ]
+    introπF* {Γᴰ = Γᴰ} γᴰ = introᴰ (πF* Γᴰ) γᴰ
+
+    introπF*⟨_⟩⟨_⟩ :
+      ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
+        {Δ} {Δᴰ Δᴰ' : Cᴰ.ob[ Δ ]}{γ γ' : C [ Δ , ＂F Γ ＂ ]} →
+        {Δᴰ≡Δᴰ' : Δᴰ ≡ Δᴰ'} →
+        (γ≡γ' : γ ≡ γ') →
+        {γᴰ : Cᴰ [ γ C.⋆ ＂π＂ ][ Δᴰ , Γᴰ ]} →
+        {γᴰ' : Cᴰ [ γ' C.⋆ ＂π＂ ][ Δᴰ' , Γᴰ ]} →
+        γᴰ ≡[ (λ i → Cᴰ [ γ≡γ' i C.⋆ ＂π＂ ][ Δᴰ≡Δᴰ' i , Γᴰ ]) ] γᴰ' →
+        introπF* γᴰ ≡[ (λ i → Cᴰ [ γ≡γ' i ][ Δᴰ≡Δᴰ' i , ＂πF* Γᴰ ＂ ]) ] introπF* γᴰ'
+    introπF*⟨ γ≡γ' ⟩⟨ γᴰ≡γᴰ' ⟩ i = introπF* (γᴰ≡γᴰ' i)
+
+    π-πF* : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) → Cᴰ [ ＂π＂ ][ ＂πF* Γᴰ ＂ , Γᴰ ]
+    π-πF* Γᴰ = Cᴰ.reind (C.⋆IdL _) $ πF* Γᴰ .elementⱽ
+
+    β-πF* :
+      ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
+        {Δ} {Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , ＂F Γ ＂ ]}
+      → (γᴰ : Cᴰ [ γ C.⋆ ＂π＂ ][ Δᴰ , Γᴰ ])
+      → introπF* γᴰ Cᴰ.⋆ᴰ π-πF* Γᴰ ≡ γᴰ
+    β-πF* {Γᴰ = Γᴰ} γᴰ =
+      Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+        ∙ Cᴰ.reind-filler _ _
+        ∙ Cᴰ.reind-filler _ _
+        ∙ Cᴰ.≡in (βⱽ (πF* Γᴰ) {pᴰ = γᴰ})
+
+    open PshHomᴰ
+
     Cᴰ[FC] : Categoryᴰ C ℓCᴰ ℓCᴰ'
     Cᴰ[FC] = reindex Cᴰ FC
 
     private
       module Cᴰ[FC] = Fibers Cᴰ[FC]
 
-    weakenπF : Functorⱽ Cᴰ Cᴰ[FC]
-    weakenπF = FunctorⱽComprehension (λ Γ Γᴰ → {!πF* Γᴰ!})
+    weakenπF : Functorᴰ FC Cᴰ Cᴰ
+    weakenπF .F-obᴰ Γᴰ = πF* Γᴰ .vertexⱽ
+    weakenπF .F-homᴰ {f = γ} {xᴰ = Γᴰ} {yᴰ = Δᴰ} γᴰ =
+      introπF* (Cᴰ.reind (＂π＂-natural γ) (π-πF* Γᴰ Cᴰ.⋆ᴰ γᴰ))
+    weakenπF .F-idᴰ {xᴰ = Γᴰ} =
+        introπF*⟨ FC .F-id  ⟩⟨
+          Cᴰ.rectify $ Cᴰ.≡out $
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⋆IdR _
+            ∙ (sym $ Cᴰ.reind-filler _ _)
+        ⟩
+          ▷ (sym $ weak-ηⱽ (πF* Γᴰ))
+    weakenπF .F-seqᴰ γᴰ δᴰ =
+      introπF*⟨ FC .F-seq _ _ ⟩⟨
+        Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+          ∙ Cᴰ.⟨ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+               ∙ Cᴰ.reind-filler _ _
+               ∙ (Cᴰ.≡in $ sym $ β-πF* (Cᴰ.reind (＂π＂-natural _) (π-πF* _ Cᴰ.⋆ᴰ γᴰ)))
+               ⟩⋆⟨ refl ⟩
+          ∙ (Cᴰ.⋆Assoc _ _ _)
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+          ∙ Cᴰ.reind-filler _ _
+      ⟩ ▷ (Cᴰ.rectify $ Cᴰ.≡out $ sym $ introᴰ-natural (πF* _))
 
-  --   weakenπF .F-obᴰ Γᴰ = πF* Γᴰ .vertexⱽ
-  --   weakenπF .F-homᴰ {f = γ} {xᴰ = Γᴰ} {yᴰ = Δᴰ} γᴰ =
-  --     {!!}
-  --     -- introᴰ (πF* Δᴰ) $
-  --     --   {!!}
-  --       -- Cᴰ.reind (cong₂ C._⋆_ (C.⋆IdL _) refl ∙ ＂π＂-natural _) $
-  --       -- Cᴰ.reind ({!!} ∙ ＂π＂-natural γ) $
-  --       --   πF* Γᴰ .elementⱽ Cᴰ.⋆ᴰ γᴰ
-  --   weakenπF .F-idᴰ {xᴰ = Γᴰ} =
-  --     {!!}
+    module _ {Γ} {Γᴰ : Cᴰ.ob[ ＂F Γ ＂ ]} where
 
-  --     -- Cᴰ.rectify $ Cᴰ.≡out $
-  --     --   introᴰ≡ (πF* _)
-  --     --     ({!Cᴰ[FC].≡in!}
-  --     --     ∙ {!!})
-  --     -- Cᴰ.rectify $ Cᴰ.≡out $
-  --     --   introᴰ≡ {!πF* Γᴰ!} $
-  --     --     (sym $ Cᴰ.reind-filler _ _)
-  --     --     ∙ {!!}
-  --   weakenπF .F-seqᴰ = {!!}
-
-  --   module _ {Γ} {Γᴰ : Cᴰ.ob[ ＂F Γ ＂ ]} where
-
-  --     ∀Pshᴰ : Presheafⱽ Γ Cᴰ ℓCᴰ'
-  --     ∀Pshᴰ = RightAdjointProfⱽ weakenπF .F-obᴰ Γᴰ
+      -- ∀Pshᴰ : Presheafⱽ Γ Cᴰ ℓCᴰ'
+      -- ∀Pshᴰ = RightAdjointProfⱽ weakenπF .F-obᴰ Γᴰ
 
   -- --   module _ (Q : Presheaf C ℓC') where
   -- --     private

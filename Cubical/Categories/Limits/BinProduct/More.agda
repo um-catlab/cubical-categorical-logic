@@ -19,6 +19,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Bifunctor as R hiding (Fst; Snd)
 
 open import Cubical.Categories.Presheaf.More
@@ -34,6 +35,7 @@ private
 
 open Category
 open Functor
+open PshHom
 
 module _ (C : Category ℓ ℓ') where
   BinProductProf' : Bifunctor C C (PresheafCategory C (ℓ-max ℓ' ℓ'))
@@ -160,8 +162,8 @@ module _ (F : Functor C D) where
   preservesBinProdCones : ∀ c c'
     → PshHet F (BinProductProf C ⟅ c , c' ⟆)
                (BinProductProf D ⟅ F ⟅ c ⟆ , F ⟅ c' ⟆ ⟆)
-  preservesBinProdCones c c' .fst Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
-  preservesBinProdCones c c' .snd Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
+  preservesBinProdCones c c' .N-ob Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
+  preservesBinProdCones c c' .N-hom Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
 
   preservesBinProduct : ∀ {c c'} → BinProduct C (c , c') → Type _
   preservesBinProduct = preservesUniversalElement (preservesBinProdCones _ _)

@@ -15,7 +15,9 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
@@ -33,6 +35,8 @@ open Category
 open Functor
 open Functorᴰ
 open isIsoOver
+open PshHom
+open PshIso
 open PshHomᴰ
 
 -- Displayed Yoneda
@@ -117,7 +121,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       ∫repr→ue : UniversalElement (TotalCat.∫C Cᴰ) (∫P Pᴰ)
       ∫repr→ue = RepresentationPshIso→UniversalElement
         (∫P Pᴰ)
-        (_ , (∫PshIsoᴰ yxᴰ≅Pᴰ))
+        -- (_ , (∫PshIsoᴰ yxᴰ≅Pᴰ))
+        ?
       module ∫repr→ue = UniversalElementNotation ∫repr→ue
 
     RepresentationPshIsoᴰ→UniversalElementᴰ :
@@ -180,15 +185,16 @@ module _
     Representationᵁᴰ→RepresentationPshIsoᴰ
       : RepresentationPshIsoᴰ Cᴰ (Representationᵁ→RepresentationPshIso C P repr) Pᴰ
     Representationᵁᴰ→RepresentationPshIsoᴰ .fst = reprᴰ .fst
-    Representationᵁᴰ→RepresentationPshIsoᴰ .snd .fst .N-obᴰ pᴰ = ∫reprpshiso .snd .fst .fst _ (_ , pᴰ) .snd
+    Representationᵁᴰ→RepresentationPshIsoᴰ .snd .fst .N-obᴰ pᴰ =
+      ∫reprpshiso .snd .trans .N-ob _ (_ , pᴰ) .snd
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .fst .N-homᴰ =
-      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .fst .snd _ _ _ _
+      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .trans .N-hom _ _ _ _
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .inv p pᴰ =
-      ∫reprpshiso .snd .snd _ .fst (p , pᴰ) .snd
+      ∫reprpshiso .snd .nIso _ .fst (p , pᴰ) .snd
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .rightInv p pᴰ =
-      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .snd _ .snd .fst (p , pᴰ)
+      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .nIso _ .snd .fst (p , pᴰ)
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .leftInv f fᴰ =
-      Cᴰ.rectify $ Cᴰ.≡out $ ∫reprpshiso .snd .snd _ .snd .snd (f , fᴰ)
+      Cᴰ.rectify $ Cᴰ.≡out $ ∫reprpshiso .snd .nIso _ .snd .snd (f , fᴰ)
 
     Representationᵁᴰ→UniversalElementᴰ :
       UniversalElementᴰ Cᴰ (Representationᵁ→UniversalElement C P repr) Pᴰ

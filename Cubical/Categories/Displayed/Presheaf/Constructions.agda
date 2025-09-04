@@ -43,6 +43,7 @@ open Bifunctorᴰ
 open Functor
 open Functorᴰ
 open isIsoOver
+open PshHom
 open PshHomᴰ
 private
   variable

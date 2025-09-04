@@ -21,7 +21,9 @@ open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor
 
@@ -36,14 +38,16 @@ private
     ℓ ℓ' ℓA ℓB ℓP ℓQ ℓS : Level
 
 open Functor
+open PshHom
+open PshIso
 
 UnitPsh : ∀ {C : Category ℓ ℓ'} → Presheaf C ℓ-zero
 UnitPsh = Constant _ _ (Unit , isSetUnit)
 
 UnitPsh-intro : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓA}
   → PshHom P UnitPsh
-UnitPsh-intro .fst = λ x _ → tt
-UnitPsh-intro .snd x y f p = refl
+UnitPsh-intro .N-ob = λ x _ → tt
+UnitPsh-intro .N-hom x y f p = refl
 
 LiftPsh : ∀ {C : Category ℓ ℓ'} (P : Presheaf C ℓA) (ℓ'' : Level) → Presheaf C (ℓ-max ℓA ℓ'')
 LiftPsh P ℓ'' = LiftF {ℓ' = ℓ''} ∘F P
@@ -63,12 +67,12 @@ module _ {C : Category ℓ ℓ'} where
 
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB)where
     π₁ : PshHom (P ×Psh Q) P
-    π₁ .fst _ = fst
-    π₁ .snd _ _ _ _ = refl
+    π₁ .N-ob _ = fst
+    π₁ .N-hom _ _ _ _ = refl
 
     π₂ : PshHom (P ×Psh Q) Q
-    π₂ .fst _ = snd
-    π₂ .snd _ _ _ _ = refl
+    π₂ .N-ob _ = snd
+    π₂ .N-hom _ _ _ _ = refl
 
   -- TODO: correct name?
   LocallyRepresentable : Presheaf C ℓP → Type _
@@ -110,18 +114,18 @@ module _ {C : Category ℓ ℓ'} where
         module S = PresheafNotation S
         module S×P = PresheafNotation (S ×Psh P)
       λPshHom : PshHom (S ×Psh P) Q → PshHom S (_⇒PshLarge_)
-      λPshHom f⟨p⟩ .fst Γ s .fst Δ (γ , p) = f⟨p⟩ .fst Δ ((γ S.⋆ s) , p)
-      λPshHom f⟨p⟩ .fst Γ s .snd Θ Δ δ (γ , p) =
-        cong (f⟨p⟩ .fst Θ) (ΣPathP (S.⋆Assoc _ _ _ , refl))
-        ∙ f⟨p⟩ .snd _ _ _ _
-      λPshHom f⟨p⟩ .snd Θ Δ δ s = makePshHomPath (funExt (λ Ξ → funExt (λ (θ , p) →
-        cong (f⟨p⟩ .fst Ξ) (ΣPathP ((sym $ S.⋆Assoc _ _ _) , refl)))))
+      λPshHom f⟨p⟩ .N-ob Γ s .N-ob Δ (γ , p) = f⟨p⟩ .N-ob Δ ((γ S.⋆ s) , p)
+      λPshHom f⟨p⟩ .N-ob Γ s .N-hom Θ Δ δ (γ , p) =
+        cong (f⟨p⟩ .N-ob Θ) (ΣPathP (S.⋆Assoc _ _ _ , refl))
+        ∙ f⟨p⟩ .N-hom _ _ _ _
+      λPshHom f⟨p⟩ .N-hom Θ Δ δ s = makePshHomPath (funExt (λ Ξ → funExt (λ (θ , p) →
+        cong (f⟨p⟩ .N-ob Ξ) (ΣPathP ((sym $ S.⋆Assoc _ _ _) , refl)))))
 
     appPshHom : PshHom (_⇒PshLarge_ ×Psh P) Q
-    appPshHom .fst Γ (f , p) = f .fst Γ (C.id , p)
-    appPshHom .snd Δ Γ γ (f , p) =
-      cong (f .fst Δ) (ΣPathP (C.⋆IdL _ ∙ sym (C.⋆IdR _) , refl))
-      ∙ f .snd _ _ _ _
+    appPshHom .N-ob Γ (f , p) = f .N-ob Γ (C.id , p)
+    appPshHom .N-hom Δ Γ γ (f , p) =
+      cong (f .N-ob Δ) (ΣPathP (C.⋆IdL _ ∙ sym (C.⋆IdR _) , refl))
+      ∙ f .N-hom _ _ _ _
 
   module _ (P : Presheaf C ℓA)(_×P : ∀ c → UniversalElement C ((C [-, c ]) ×Psh P))(Q : Presheaf C ℓB) where
     private
@@ -145,15 +149,15 @@ module _ {C : Category ℓ ℓ'} where
     private
       module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)
     ⇒PshSmall≅⇒PshLarge : PshIso ((P , _×P) ⇒PshSmall Q) (P ⇒PshLarge Q)
-    ⇒PshSmall≅⇒PshLarge .fst .fst = ⇒PshSmallIso⇒PshLarge.fun
-    ⇒PshSmall≅⇒PshLarge .fst .snd Δ Γ γ q = makePshHomPath (funExt λ x → funExt λ p →
+    ⇒PshSmall≅⇒PshLarge .trans .N-ob = ⇒PshSmallIso⇒PshLarge.fun
+    ⇒PshSmall≅⇒PshLarge .trans .N-hom Δ Γ γ q = makePshHomPath (funExt λ x → funExt λ p →
       (sym $ Q.⋆Assoc _ _ _)
       ∙ Q.⟨ sym $ intro≡ (Γ ×P) $ ΣPathP
         ( (C.⟨ cong fst $ sym $ β $ Δ ×P ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _) ∙ C.⟨ refl ⟩⋆⟨ cong fst $ sym $ β $ Γ ×P ⟩ ∙ sym (C.⋆Assoc _ _ _)
         , (cong snd $ sym $ β $ Δ ×P) ∙ P.⟨⟩⋆⟨ cong snd $ sym $ β $ Γ ×P ⟩ ∙ sym (P.⋆Assoc _ _ _)
         )
       ⟩⋆⟨⟩)
-    ⇒PshSmall≅⇒PshLarge .snd Γ = IsoToIsIso (⇒PshSmallIso⇒PshLarge Γ)
+    ⇒PshSmall≅⇒PshLarge .nIso Γ = IsoToIsIso (⇒PshSmallIso⇒PshLarge Γ)
 
   open Functor
   open Functorᴰ

@@ -12,6 +12,7 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
@@ -207,14 +208,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
       → Cᴰ [ f₁ ,p f₂ ][ Γᴰ , vertexᴰ ]
     f₁ᴰ ,pᴰ f₂ᴰ = introᴰ (f₁ᴰ , f₂ᴰ)
 
-    -- massage ×ueᴰ.∫ue to be a universal element of the specific presheaf required by BinProduct, by permuting the data
     ∫bp : BinProduct (∫C Cᴰ) ((c , cᴰ) , d , dᴰ)
-    ∫bp = subst (UniversalElement _) (NatIsoToPath isUnivalentSET lemma) ×ueᴰ.∫ue
-      where
-      lemma : (∫P (BinProductᴰProf' Cᴰ .Bif-obᴰ cᴰ dᴰ)) ≅ᶜ (BinProductProf (∫C Cᴰ) ⟅ (_ , cᴰ) , (_ , dᴰ) ⟆)
-      lemma .NatIso.trans .NatTrans.N-ob _ = λ (_ , (fᴰ , gᴰ)) → (_ , fᴰ) , (_ , gᴰ)
-      lemma .NatIso.trans .NatTrans.N-hom _ = refl
-      lemma .NatIso.nIso _ = isiso (λ ((f , fᴰ) , (g , gᴰ)) → (f , g) , (fᴰ , gᴰ)) refl refl
+    ∫bp = UniversalElementᴰ.∫ue bpᴰ ◁PshIso ∫×ᴰ≅×
 
     module _ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
       {f₁ f₂}

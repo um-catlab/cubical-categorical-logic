@@ -9,8 +9,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.FinData
-open import Cubical.Data.List
+open import Cubical.Data.FinData hiding (elim)
+open import Cubical.Data.List hiding (elim)
 open import Cubical.Data.List.FinData hiding (ℓ; A; B)
 open import Cubical.Data.List.Dependent
 open import Cubical.Data.Sigma
@@ -22,14 +22,22 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
 
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Presheaf
+
 open import Cubical.Categories.WithFamilies.Simple.Base
+open import Cubical.Categories.WithFamilies.Simple.Displayed
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓC ℓC' ℓT ℓT' : Level
 
 open Category
 open Functor
+open Functorᴰ
+open Section
 open UniversalElement
 
 module _ (Σ₀ : hGroupoid ℓ) where
@@ -171,4 +179,40 @@ module _ (Σ₀ : hGroupoid ℓ) where
   FreeSCwF .snd .fst = ⟨ Σ₀ ⟩
   FreeSCwF .snd .snd .fst = RenPsh
   FreeSCwF .snd .snd .snd .fst = TermCtx
-  FreeSCwF .snd .snd .snd .snd Γ A = CtxExt A Γ
+  FreeSCwF .snd .snd .snd .snd = CtxExt
+
+  -- TODO: prove that it's Free
+  module _ (M : SCwFᴰ FreeSCwF ℓC ℓC' ℓT ℓT') where
+    private
+      module Cᴰ = Categoryᴰ (M .fst)
+      Tyᴰ = M .snd .fst
+      Tmᴰ = M .snd .snd .fst
+      module Tmᴰ {A}{Aᴰ : Tyᴰ A} = PresheafᴰNotation (M .snd .snd .fst Aᴰ)
+      termᴰ = M .snd .snd .snd .fst
+      extᴰ  = M .snd .snd .snd .snd
+    open UniversalElementᴰ
+    open PshHomᴰ
+    module _ (ı : ∀ A → Tyᴰ A) where
+      elimS-F-ob : ∀ Γ → Cᴰ.ob[ Γ ]
+      elimS-F-ob [] = vertexᴰ termᴰ
+      elimS-F-ob (A ∷ Γ) = vertexᴰ (extᴰ (ı A) (elimS-F-ob Γ))
+
+      elimSection : GlobalSection (M .fst)
+      elimSection .F-obᴰ = elimS-F-ob
+      elimSection .F-homᴰ = {!!}
+      elimSection .F-idᴰ = {!!}
+      elimSection .F-seqᴰ = {!!}
+
+      elimVar : ∀ {Γ A} (x : Var Γ A) → ⟨ Tmᴰ (ı A) .F-obᴰ (elimS-F-ob Γ) x ⟩
+      elimVar {Γ = A ∷ Γ}{A = A} vz = extᴰ (ı A) (elimS-F-ob Γ) .elementᴰ .snd
+      elimVar (vs x) = {!!}
+
+      elimPshSection : ∀ {A} → PshSection elimSection (Tmᴰ $ ı A)
+      elimPshSection .N-obᴰ = {!!}
+      elimPshSection .N-homᴰ = {!!}
+
+      elim : StrictSection FreeSCwF M
+      elim .fst = elimSection
+      elim .snd .fst = ı
+      elim .snd .snd .fst = λ _ → elimPshSection
+      elim .snd .snd .snd = {!!}

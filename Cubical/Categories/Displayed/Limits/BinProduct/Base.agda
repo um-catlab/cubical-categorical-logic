@@ -3,12 +3,19 @@ module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma as Σ hiding (_×_)
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Instances.Sets
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.BinProduct as BP
@@ -201,6 +208,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
       → Cᴰ [ f₁ ,p f₂ ][ Γᴰ , vertexᴰ ]
     f₁ᴰ ,pᴰ f₂ᴰ = introᴰ (f₁ᴰ , f₂ᴰ)
 
+    ∫bp : BinProduct (∫C Cᴰ) ((c , cᴰ) , d , dᴰ)
+    ∫bp = UniversalElementᴰ.∫ue bpᴰ ◁PshIso ∫×ᴰ≅×
+
     module _ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
       {f₁ f₂}
       {f₁ᴰ : Cᴰ [ f₁ ][ Γᴰ , cᴰ ]}
@@ -224,6 +234,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
     cᴰ ×ᴰ dᴰ = UniversalElementᴰ.vertexᴰ (bpᴰ (cᴰ , dᴰ))
 
     module _ {c d}{cᴰ : Cᴰ.ob[ c ]}{dᴰ : Cᴰ.ob[ d ]} where
-      open BinProductᴰNotation (bpᴰ (cᴰ , dᴰ)) hiding (module ×ueᴰ) public
+      open BinProductᴰNotation (bpᴰ (cᴰ , dᴰ)) hiding (module ×ueᴰ ; ∫bp) public
     module ×ueᴰ {c d}(cᴰ : Cᴰ.ob[ c ])(dᴰ : Cᴰ.ob[ d ]) =
       BinProductᴰNotation.×ueᴰ (bpᴰ (cᴰ , dᴰ))
+
+    ∫bp : BinProducts (∫C Cᴰ)
+    ∫bp _ = BinProductᴰNotation.∫bp (bpᴰ _)

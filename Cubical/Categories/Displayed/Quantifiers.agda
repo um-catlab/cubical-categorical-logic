@@ -208,21 +208,50 @@ module _
     ＂F_＂ : C.ob → C.ob
     ＂F Γ ＂ = ueF Γ .vertex
 
+    F-Rep : ∀ {Γ} → PshIso (C [-, ＂F Γ ＂ ]) (F ⟅ C [-, Γ ] ⟆)
+    F-Rep = UniversalElementNotation.asPshIso (ueF _)
+
+    πF'-PshHom : ∀ {Γ} → PshHom (C [-, ＂F Γ ＂ ]) (C [-, Γ ])
+    πF'-PshHom {Γ} = _⋆PshHom_ {C = C}
+      {P = C [-, ＂F Γ ＂ ]} {Q = F ⟅ C [-, Γ ] ⟆} {R = C [-, Γ ]}
+      (F-Rep {Γ} .fst) (πF-PshHom (C [-, Γ ]))
+
     ＂π＂ : {Γ : C.ob} → C [ ＂F Γ ＂ , Γ ]
-    ＂π＂ {Γ = Γ} = πF ⟦ C [-, Γ ] ⟧ ⟦ ＂F Γ ＂ ⟧ $ ueF Γ .element
+    ＂π＂ {Γ = Γ} = πF'-PshHom .fst ＂F Γ ＂ C.id
+    -- πF-PshHom (C [-, Γ ]) .fst ＂F Γ ＂ (ueF Γ .element)
 
     -- F extends a functor on C
     FC : Functor C C
     FC = FunctorComprehension (F ∘F YO) (λ Γ → ueF Γ)
 
-    よ＂π＂≡ : (Γ : C.ob) → YO ⟪ ＂π＂ {Γ} ⟫ ≡
-       seqTrans (no-no-no (F ⟅ C [-, Γ ] ⟆) (ueF Γ .element))
-                (πF ⟦ C [-, Γ ] ⟧)
-    よ＂π＂≡ Γ = {!!}
+    F-PshHom : (Q : Presheaf C ℓC') → PshHom Q ((F ⟅ Q ⟆) ∘F (FC ^opF))
+    F-PshHom Q .fst Γ q =
+      F ⟪ PshHom→NatTrans (yoRec Q q) ⟫ ⟦ ＂F Γ ＂ ⟧ $ ueF Γ .element
+    -- TODO naturality
+    F-PshHom Q .snd = {!!}
+
+    ＂π＂' : {Γ : C.ob} → C [ ＂F Γ ＂ , Γ ]
+    ＂π＂' {Γ = Γ} = {!!}
+
+    -- よ＂π＂≡ : (Γ : C.ob) → YO ⟪ ＂π＂ {Γ} ⟫ ≡
+    --    seqTrans (no-no-no (F ⟅ C [-, Γ ] ⟆) (ueF Γ .element))
+    --             (πF ⟦ C [-, Γ ] ⟧)
+    -- よ＂π＂≡ Γ = {!!}
 
     ＂π＂-natural : ∀ {Γ}{Δ}(γ : C [ Γ , Δ ]) → ＂π＂ C.⋆ γ ≡ FC ⟪ γ ⟫ C.⋆ ＂π＂
+    -- TODO naturality
     ＂π＂-natural {Γ}{Δ} γ =
-      {!!}
+      ＂π＂ C.⋆ γ
+        ≡⟨ {!!} ⟩
+      -- πF'-PshHom .fst (F-ob FC Γ)
+      --  (yoRec (C [-, ＂F Δ ＂ ]) C.id .fst (F-ob FC Γ) (F-hom FC γ))
+      --   ≡⟨  (yoRec-natural-elt (C [-, ＂F Δ ＂ ]) (C [-, Δ ]) πF'-PshHom) ⟩
+      FC ⟪ γ ⟫ C.⋆ ＂π＂
+      ∎
+      where
+      module FΓ = PresheafNotation (F ⟅ C [-, Γ ] ⟆)
+      module FΔ = PresheafNotation (F ⟅ C [-, Δ ] ⟆)
+
       -- isFaithfulYO {C = C} ＂F Γ ＂ Δ _ _ $
       --   YO .F-seq ＂π＂ γ
       --   ∙ cong₂ seqTrans (よ＂π＂≡ Γ) refl
@@ -242,10 +271,10 @@ module _
       --   -- ∙ cong₂ seqTrans {!!} refl
       --   ∙ (sym $ YO {C = C} .F-seq {x = ＂F Γ ＂} {y = ＂F Δ ＂} {z = Δ}
       --             (FC ⟪ γ ⟫) ＂π＂)
-       where
-       module ueFΓ = UniversalElementNotation (ueF Γ)
-       module ueFΔ = UniversalElementNotation (ueF Δ)
-       module FΔ = PresheafNotation (F ⟅ C [-, Δ ] ⟆)
+       -- where
+       -- module ueFΓ = UniversalElementNotation (ueF Γ)
+       -- module ueFΔ = UniversalElementNotation (ueF Δ)
+       -- module FΔ = PresheafNotation (F ⟅ C [-, Δ ] ⟆)
 
        -- x : seqTrans (PshHom→NatTrans (yoRec (F ⟅ C [-, Γ ] ⟆) (ueF Γ .element)))
        --              (F ⟪ PshHom→NatTrans $ yoRec (C [-, Δ ]) γ ⟫)
@@ -339,49 +368,52 @@ module _
       ∀Pshⱽ : Presheafⱽ Γ Cᴰ ℓCᴰ'
       ∀Pshⱽ = RightAdjointProfⱽ weakenπFⱽ .F-obᴰ Γᴰ
 
-  -- --   module _
-  -- --     {P : Presheaf C ℓC'}
-  -- --     (Pᴰ : Presheafᴰ (F ⟅ P ⟆) Cᴰ ℓPᴰ) where
+    -- Parametrize by an arbitrary Presheafᴰ
+    module _
+      {P : Presheaf C ℓC'}
+      (Pᴰ : Presheafᴰ (F ⟅ P ⟆) Cᴰ ℓPᴰ) where
 
-  -- --     private
-  -- --       module P = PresheafNotation P
-  -- --       module FP = PresheafNotation (F ⟅ P ⟆)
-  -- --       module Pᴰ = PresheafᴰNotation Pᴰ
+      private
+        module P = PresheafNotation P
+        module FP = PresheafNotation (F ⟅ P ⟆)
+        module Pᴰ = PresheafᴰNotation Pᴰ
 
-  -- --     -- Trying to do this manually and I
-  -- --     -- run into obligations that seem to necessitate
-  -- --     -- functorialiaty for πF*
-  -- --     -- At the very least, the functoriality of πF* is
-  -- --     -- sufficient
-  -- --     ∀ᴰPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ
-  -- --     ∀ᴰPshᴰ .F-obᴰ Γᴰ p =
-  -- --       Pᴰ .F-obᴰ (πF* Γᴰ ＂π＂ .vertexⱽ) (F-elt P p)
-  -- --     ∀ᴰPshᴰ .F-homᴰ γᴰ p pᴰ =
-  -- --       Pᴰ.reind (sym $ F-elt-natural P p) $
-  -- --         πF*-F-homᴰ γᴰ Pᴰ.⋆ᴰ pᴰ
-  -- --     ∀ᴰPshᴰ .F-idᴰ = funExt₂ λ p pᴰ →
-  -- --       Pᴰ.rectify $ Pᴰ.≡out $
-  -- --         (sym $ Pᴰ.reind-filler _ _)
-  -- --         ∙ Pᴰ.⟨ Cᴰ.≡in πF*-F-idᴰ ⟩⋆⟨⟩
-  -- --         ∙ Pᴰ.⋆IdL _
-  -- --     ∀ᴰPshᴰ .F-seqᴰ γᴰ δᴰ = funExt₂ λ p pᴰ →
-  -- --       Pᴰ.rectify $ Pᴰ.≡out $
-  -- --         (sym $ Pᴰ.reind-filler _ _)
-  -- --         ∙ Pᴰ.⟨ Cᴰ.≡in (πF*-F-seqᴰ δᴰ γᴰ) ⟩⋆⟨⟩
-  -- --         ∙ Pᴰ.⋆Assoc _ _ _
-  -- --         ∙ Pᴰ.⟨ refl ⟩⋆⟨ Pᴰ.reind-filler _ _ ⟩
-  -- --         ∙ Pᴰ.reind-filler _ _
+      ∀Pshᴰ : Presheafᴰ P Cᴰ ℓPᴰ
+      ∀Pshᴰ .F-obᴰ Γᴰ p =
+        Pᴰ .F-obᴰ ＂πF* Γᴰ ＂ (F-PshHom P .fst _ p)
+      ∀Pshᴰ .F-homᴰ γᴰ p pᴰ =
+        Pᴰ.reind (sym $ F-PshHom P .snd _ _ _ p) $
+          weakenπF .F-homᴰ γᴰ Pᴰ.⋆ᴰ pᴰ
+      ∀Pshᴰ .F-idᴰ = funExt₂ λ p pᴰ →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.⟨ Cᴰ.≡in $ weakenπF .F-idᴰ ⟩⋆⟨⟩
+          ∙ Pᴰ.⋆IdL _
+      ∀Pshᴰ .F-seqᴰ γᴰ δᴰ = funExt₂ λ p pᴰ →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.⟨ Cᴰ.≡in (weakenπF .F-seqᴰ δᴰ γᴰ) ⟩⋆⟨⟩
+          ∙ Pᴰ.⋆Assoc _ _ _
+          ∙ Pᴰ.⟨ refl ⟩⋆⟨ Pᴰ.reind-filler _ _ ⟩
+          ∙ Pᴰ.reind-filler _ _
 
-  -- --     -- An equivalent definition that directly uses
-  -- --     -- functoriality of πF*
-  -- --     -- but is a lot slower at least with the above holes
-  -- --     -- ∀ᴰPshᴰ' : Presheafᴰ P Cᴰ ℓPᴰ
-  -- --     -- ∀ᴰPshᴰ' = reind (F-PshHom P) $
-  -- --     --   (Pᴰ ∘Fᴰ (πF*-Functorᴰ ^opFᴰ))
+      -- An equivalent definition that directly uses
+      -- functoriality of πF*
+      -- but is a lot slower at least with the above holes
+      -- ∀ᴰPshᴰ' : Presheafᴰ P Cᴰ ℓPᴰ
+      -- ∀ᴰPshᴰ' = reind (F-PshHom P) $ (Pᴰ ∘Fᴰ (weakenπF ^opFᴰ))
 
     module _ {Γ : C.ob} (Γᴰ : Cᴰ.ob[ ＂F Γ ＂ ]) where
       UniversalQuantifierF : Type _
       UniversalQuantifierF = UniversalElementⱽ Cᴰ Γ (∀Pshⱽ Γᴰ)
+
+      UniversalQuantifierF' : Type _
+      UniversalQuantifierF' =
+        UniversalElementⱽ Cᴰ Γ (∀Pshᴰ (reind α (Cᴰ [-][-, Γᴰ ])))
+        where
+        α : PshHom (F ⟅ C [-, Γ ] ⟆) (C [-, ＂F Γ ＂ ])
+        α = invPshIso {P = C [-, ＂F Γ ＂ ]}{Q = F ⟅ C [-, Γ ] ⟆}
+          (UniversalElementNotation.asPshIso (ueF Γ)) .fst
 
     module UniversalQuantifierFNotation {Γ}{Γᴰ : Cᴰ.ob[ ＂F Γ ＂ ]}
       (∀Γᴰ : UniversalQuantifierF Γᴰ) where

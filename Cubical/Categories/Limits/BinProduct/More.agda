@@ -149,6 +149,10 @@ module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith 
   ×aF : Functor C C
   ×aF = BinProductWithF C bp
 
+  π₁Nat : ×aF ⇒ Id
+  π₁Nat .NatTrans.N-ob _ = π₁
+  π₁Nat .NatTrans.N-hom _ = ×β₁
+
 private
   variable
     C D : Category ℓ ℓ'

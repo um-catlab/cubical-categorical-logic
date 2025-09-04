@@ -16,7 +16,7 @@ private
 
 module _
   {C : CartesianCategory ℓC ℓC'}
-  (Cᴰ : CartesianCategoryᴰ C ℓC ℓCᴰ)
+  (Cᴰ : CartesianCategoryᴰ C ℓCᴰ ℓCᴰ')
   where
   open CartesianCategory renaming (C to |C|)
   open CartesianCategoryᴰ renaming (Cᴰ to |Cᴰ|)

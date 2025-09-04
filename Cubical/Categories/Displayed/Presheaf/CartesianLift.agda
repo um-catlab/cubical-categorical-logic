@@ -209,6 +209,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
   isFibration'Reind p = isFibQᴰ (α .fst _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
 
+-- TODO
 -- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
 --          (F : Functor C D)
 --          where

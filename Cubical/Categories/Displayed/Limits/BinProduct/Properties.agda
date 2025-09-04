@@ -30,7 +30,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Presheaf.CartesianLift
-import Cubical.Categories.Displayed.Fibration.Base as CatFib
+import Cubical.Categories.Displayed.Fibration as CatFib
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
@@ -166,15 +166,16 @@ module _ {C : Category ℓC ℓC'}{x₁ x₂ : C .ob}
   module _ {xᴰ₁ : Cᴰ.ob[ x₁ ]}{xᴰ₂ : Cᴰ.ob[ x₂ ]}
     (lift-π₁ : CatFib.CartesianLift Cᴰ xᴰ₁ c×c'.π₁)
     (lift-π₂ : CatFib.CartesianLift Cᴰ xᴰ₂ c×c'.π₂)
-    (vbp : BinProductⱽ Cᴰ ((lift-π₁ .CatFib.CartesianLift.f*yᴰ) , (lift-π₂ .CatFib.CartesianLift.f*yᴰ)))
+    (vbp : BinProductⱽ Cᴰ
+      (CartesianLift.p*Pᴰ lift-π₁ , CartesianLift.p*Pᴰ lift-π₂))
     where
     BinProductⱽ→BinProductᴰ : BinProductᴰ Cᴰ prod (xᴰ₁ , xᴰ₂)
     BinProductⱽ→BinProductᴰ =
       vbp
       ◁PshIsoⱽᴰ ×ᴰ≅π₁*×ⱽπ₂*
         prod
-        (CartesianLift→CartesianLift' _ _ (CatLift→YoLift lift-π₁))
-        (CartesianLift→CartesianLift' _ _ (CatLift→YoLift lift-π₂))
+        (CartesianLift→CartesianLift' _ _ lift-π₁)
+        (CartesianLift→CartesianLift' _ _ lift-π₂)
         vbp
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')

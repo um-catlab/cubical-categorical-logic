@@ -35,7 +35,7 @@ open UniversalElementᴰ
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓS ℓSᴰ : Level
 
-open CartesianLift
+open PshᴰCartesianLift
 module _ (C : Category ℓC ℓC') where
   reindPresheafᴰ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS}
     (α : PresheafCategory C ℓS [ P , Q ])
@@ -54,9 +54,9 @@ module _ (C : Category ℓC ℓC') where
 module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   opaque
     isFibrationPRESHEAFᴰ : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
-    isFibrationPRESHEAFᴰ Pᴰ α .f*yᴰ = reindPresheafᴰ C α Pᴰ
+    isFibrationPRESHEAFᴰ Pᴰ α .p*Pᴰ = reindPresheafᴰ C α Pᴰ
     isFibrationPRESHEAFᴰ Pᴰ α .π = natTrans (λ x z → z) (λ _ → refl)
-    isFibrationPRESHEAFᴰ {c' = Q} Pᴰ α .isCartesian {g = β} .fst  βαᴰ =
+    isFibrationPRESHEAFᴰ {c = Q} Pᴰ α .isCartesian {g = β} .fst  βαᴰ =
       natTrans (βαᴰ ⟦_⟧) (λ _ → funExt (λ ϕᴰ →
       funExt⁻ (βαᴰ .N-hom _) ϕᴰ ∙
       congS (λ x → (Pᴰ ⟪ _ , x ⟫) ((βαᴰ ⟦ _ ⟧) ϕᴰ))

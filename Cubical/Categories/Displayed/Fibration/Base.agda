@@ -28,7 +28,13 @@ open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Presheaf.Base
-import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshᴰCL
+open import Cubical.Categories.Displayed.Presheaf.CartesianLift
+  using () renaming (
+    CartesianLift to PshᴰCartesianLift
+  ; CartesianLift' to PshᴰCartesianLift'
+  ; isFibration to PshᴰisFibration
+  ; isFibration' to PshᴰisFibration'
+    ) public
 
 private
   variable
@@ -48,19 +54,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   -- f (viewed as an element of C [-, y ])
   CartesianLift :
     {x y : C.ob} (yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
-  CartesianLift yᴰ f = PshᴰCL.CartesianLift f (Cᴰ [-][-, yᴰ ])
+  CartesianLift yᴰ f = PshᴰCartesianLift f (Cᴰ [-][-, yᴰ ])
 
   isFibration : Type _
   isFibration =
-    ∀ {c : C.ob}{c' : C.ob}
-    (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
-    → CartesianLift cᴰ' f
+    ∀ {c : C.ob} (cᴰ : Cᴰ.ob[ c ]) → PshᴰisFibration (Cᴰ [-][-, cᴰ ])
 
   module _ (isFib : isFibration) where
     private
       module Cⱽ = Fibers Cᴰ
     module _ {x}{y}(f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) where
-      open PshᴰCL.CartesianLift (isFib yᴰ f)
+      open PshᴰCartesianLift (isFib yᴰ f)
       fibration→HomᴰRepr :
         UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
       fibration→HomᴰRepr .UniversalElement.vertex = p*Pᴰ
@@ -82,13 +86,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
     CartesianLiftF-fiber f =
       FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
-
   module isFibrationNotation (isFib : isFibration) where
     f*F = CartesianLiftF-fiber isFib
     module _ {x y : C.ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) where
-      open PshᴰCL.CartesianLift (isFib yᴰ f) using (p*Pᴰ) public
+      open PshᴰCartesianLift (isFib yᴰ f) using (p*Pᴰ) public
     module _ {x y : C.ob}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]} where
-      open PshᴰCL.CartesianLift (isFib yᴰ f) hiding (p*Pᴰ) public
+      open PshᴰCartesianLift (isFib yᴰ f) hiding (p*Pᴰ) public
+
 
   -- Definition #2: Semi-manual, but defined as a UniversalElementⱽ -
   -- CartesianLift' is not definitionally equivalent to CartesianLift
@@ -99,13 +103,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   -- by f is representable
   CartesianLift' :
     {x y : C.ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
-  CartesianLift' {x} yᴰ f = PshᴰCL.CartesianLift' f (Cᴰ [-][-, yᴰ ])
+  CartesianLift' {x} yᴰ f = PshᴰCartesianLift' f (Cᴰ [-][-, yᴰ ])
 
   isFibration' : Type _
   isFibration' =
-    ∀ {c : C.ob}{c' : C.ob}
-    (cᴰ' : Cᴰ.ob[ c' ])(f : C [ c , c' ])
-    → CartesianLift' cᴰ' f
+    ∀ {c : C.ob} (cᴰ : Cᴰ.ob[ c ]) → PshᴰisFibration' (Cᴰ [-][-, cᴰ ])
 
   -- Definition #3: This is the "textbook" compositional
   -- definition. It suffers from very slow performance

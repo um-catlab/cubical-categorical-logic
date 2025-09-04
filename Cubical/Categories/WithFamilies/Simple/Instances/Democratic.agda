@@ -73,5 +73,4 @@ module _
   CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .fst = Cⱽ.termⱽ
   CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .snd .fst = Cⱽ.cartesianLifts
   CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .snd .snd .fst = Cⱽ.bpⱽ
-  CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .snd .snd .snd =
-    isCatFibration→YoFibrations Cⱽ.cartesianLifts
+  CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .snd .snd .snd = Cⱽ.cartesianLifts

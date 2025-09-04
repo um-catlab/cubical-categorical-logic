@@ -48,7 +48,7 @@ open Categoryᴰ
 open Section
 open NatTrans
 open Cubical.Categories.Constructions.Elements.Contravariant
-open CartesianLift
+open PshᴰCartesianLift
 
 Quiver→×Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×Quiver ℓ ℓ'
 Quiver→×Quiver Q .fst = Q .fst
@@ -153,7 +153,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
       ⊆[→o'] : 𝓟FREEᴰ.ob[ nerve ⟅ ⊆ ⟅ o' ⟆ ⟆ ]
       ⊆[→o'] = S .F-obᴰ (⊆ ⟅ o' ⟆)
       ⊆[→o']* : 𝓟FREEᴰ.ob[ nerve ⟅ ⊆ ⟅ o ⟆ ⟆ ]
-      ⊆[→o']* = isFibrationPRESHEAFᴰ _ _ _ ⊆[→o'] (nerve ⟪ F[f] ⟫) .f*yᴰ
+      ⊆[→o']* = isFibrationPRESHEAFᴰ _ _ _ ⊆[→o'] (nerve ⟪ F[f] ⟫) .p*Pᴰ
       f,p : ⟨ ⊆[→o']* ⟅ o , FREE-1,×.C .id ⟆ ⟩
       f,p = (S .F-homᴰ F[f] ⟦ o , FREE-1,×.C .id ⟧) (FREE .id , refl)
       f : FREE [ o , o' ]

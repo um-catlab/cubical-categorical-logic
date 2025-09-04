@@ -33,7 +33,7 @@ open Functor
 open UniversalElement
 open UniversalElementᴰ
 open UniversalElementⱽ
-open CartesianLift
+open PshᴰCartesianLift
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
@@ -47,46 +47,46 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module F*Dᴰ = Fibers F*Dᴰ
     module Dᴰ = Fibers Dᴰ
 
-  module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
-    (isFib : isFibration Dᴰ)
-    (bpⱽ : BinProductsⱽ Dᴰ)
-    (exp : Exponentialⱽ Dᴰ bpⱽ isFib Fcᴰ Fcᴰ')
-    where
+  -- TODO adapt to new Exponentialⱽ
+  -- module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
+  --   (isFib : isFibration Dᴰ)
+  --   (bpⱽ : BinProductsⱽ Dᴰ)
+  --   (exp : Exponentialⱽ Dᴰ bpⱽ isFib Fcᴰ Fcᴰ')
+  --   where
 
-    private
-      module Fcᴰ⇒Fcᴰ' = Exponentialⱽ exp
-      module isFib = isFibrationNotation Dᴰ isFib
-      module bpⱽ = BinProductsⱽNotation Dᴰ bpⱽ
+  --   private
+  --     module isFib = isFibrationNotation Dᴰ isFib
+  --     module bpⱽ = BinProductsⱽNotation Dᴰ bpⱽ
 
-    open Exponentialⱽ
+  --   open Exponentialⱽ
 
-    preservesExponentialⱽ :
-      Exponentialⱽ (Base.reindex Dᴰ F) (BinProductsⱽReindex bpⱽ) (isFibrationReindex _ F isFib)
-        Fcᴰ Fcᴰ'
-    preservesExponentialⱽ .vertex = Fcᴰ⇒Fcᴰ'.vertex
-    preservesExponentialⱽ .element = Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.element
-    preservesExponentialⱽ .becomes-universal f Fbᴰ =
-      isIsoToIsEquiv (
-        (λ fⱽ → Dᴰ.reind (sym $ F .F-id) $ f*⟨Fcᴰ⇒Fcᴰ'⟩.lda (Dᴰ.reind (F .F-id) $ fⱽ)) ,
-        (λ fⱽ →
-            Dᴰ.rectify $ Dᴰ.≡out $
-              (sym $ Dᴰ.reind-filler _ _)
-              ∙ (sym $ Dᴰ.reind-filler _ _)
-              ∙ Dᴰ.⟨ bpⱽ.⟨(sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙
-                          Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _)∙ refl ⟩ ∙ Dᴰ.reind-filler _ _
-                   ⟩,ⱽ⟨ (sym $ Dᴰ.reind-filler _ _) ⟩
-                   ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _)
-                     ∙ Dᴰ.⟨ isFib.introCL⟨ F .F-id ⟩⟨ (sym $ Dᴰ.reind-filler _ _) ∙ bpⱽ.⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ⟩,ⱽ⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩ ⟩
-                        ⟩⋆⟨ isFib.introCL⟨ F .F-id ⟩⟨ ((sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙
-                            Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩) ⟩  ⟩ ∙ Dᴰ.reind-filler _ _ ⟩
-              ∙ (Dᴰ.reind-filler _ _)
-              ∙ (Dᴰ.≡in $ f*⟨Fcᴰ⇒Fcᴰ'⟩.⇒ue.β)
-              ∙ (sym $ Dᴰ.reind-filler (F .F-id) _)
-        ) ,
-        λ fⱽ → Dᴰ.rectify $ Dᴰ.≡out $
-          (sym $ Dᴰ.reind-filler _ _) ∙ Fcᴰ⇒Fcᴰ'.lda≡ (F .F-id)
-          ((sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _)
-          ∙ Dᴰ.⟨ refl ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ⟩
-          ∙ Dᴰ.⟨ bpⱽ.⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩,ⱽ⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ Dᴰ.⟨ isFib.introCL⟨ F .F-id ⟩⟨ (sym $ Dᴰ.reind-filler _ _) ∙ bpⱽ.⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩,ⱽ⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ⟩ ⟩ ⟩⋆⟨ isFib.introCL⟨ F .F-id ⟩⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩ ⟩ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩)
-      )
-      where module f*⟨Fcᴰ⇒Fcᴰ'⟩ = Fcᴰ⇒Fcᴰ'.f*⟨cᴰ⇒cᴰ'⟩ {f = F ⟪ f ⟫}
+  --   preservesExponentialⱽ :
+  --     Exponentialⱽ (Base.reindex Dᴰ F) (BinProductsⱽReindex bpⱽ) (isFibrationReindex _ F isFib)
+  --       Fcᴰ Fcᴰ'
+  --   preservesExponentialⱽ .vertex = Fcᴰ⇒Fcᴰ'.vertex
+  --   preservesExponentialⱽ .element = Dᴰ.reind (sym $ F .F-id) $ Fcᴰ⇒Fcᴰ'.element
+  --   preservesExponentialⱽ .becomes-universal f Fbᴰ =
+  --     isIsoToIsEquiv (
+  --       (λ fⱽ → Dᴰ.reind (sym $ F .F-id) $ f*⟨Fcᴰ⇒Fcᴰ'⟩.lda (Dᴰ.reind (F .F-id) $ fⱽ)) ,
+  --       (λ fⱽ →
+  --           Dᴰ.rectify $ Dᴰ.≡out $
+  --             (sym $ Dᴰ.reind-filler _ _)
+  --             ∙ (sym $ Dᴰ.reind-filler _ _)
+  --             ∙ Dᴰ.⟨ bpⱽ.⟨(sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙
+  --                         Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _)∙ refl ⟩ ∙ Dᴰ.reind-filler _ _
+  --                  ⟩,ⱽ⟨ (sym $ Dᴰ.reind-filler _ _) ⟩
+  --                  ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _)
+  --                    ∙ Dᴰ.⟨ isFib.introCL⟨ F .F-id ⟩⟨ (sym $ Dᴰ.reind-filler _ _) ∙ bpⱽ.⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ⟩,ⱽ⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩ ⟩
+  --                       ⟩⋆⟨ isFib.introCL⟨ F .F-id ⟩⟨ ((sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙
+  --                           Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩) ⟩  ⟩ ∙ Dᴰ.reind-filler _ _ ⟩
+  --             ∙ (Dᴰ.reind-filler _ _)
+  --             ∙ (Dᴰ.≡in $ f*⟨Fcᴰ⇒Fcᴰ'⟩.⇒ue.β)
+  --             ∙ (sym $ Dᴰ.reind-filler (F .F-id) _)
+  --       ) ,
+  --       λ fⱽ → Dᴰ.rectify $ Dᴰ.≡out $
+  --         (sym $ Dᴰ.reind-filler _ _) ∙ Fcᴰ⇒Fcᴰ'.lda≡ (F .F-id)
+  --         ((sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _)
+  --         ∙ Dᴰ.⟨ refl ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ⟩
+  --         ∙ Dᴰ.⟨ bpⱽ.⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩,ⱽ⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ⟩⋆⟨ Dᴰ.⟨ isFib.introCL⟨ F .F-id ⟩⟨ (sym $ Dᴰ.reind-filler _ _) ∙ bpⱽ.⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩,ⱽ⟨ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ⟩⋆⟨ refl ⟩ ⟩ ⟩ ⟩⋆⟨ isFib.introCL⟨ F .F-id ⟩⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.reind-filler _ _) ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩ ⟩ ⟩ ∙ Dᴰ.reind-filler _ _ ⟩)
+  --     )
+  --     where module f*⟨Fcᴰ⇒Fcᴰ'⟩ = Fcᴰ⇒Fcᴰ'.f*⟨cᴰ⇒cᴰ'⟩ {f = F ⟪ f ⟫}

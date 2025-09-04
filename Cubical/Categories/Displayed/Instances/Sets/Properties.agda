@@ -38,7 +38,8 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Presheaf.CartesianLift using (isCatFibration')
+open import Cubical.Categories.Displayed.Presheaf.CartesianLift
+  using () renaming (CartesianLift to PshᴰCartesianLift)
 open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
@@ -52,25 +53,25 @@ private
 
 open UniversalElementᴰ
 open UniversalElementⱽ
-open CartesianLift
+open PshᴰCartesianLift
 open Categoryᴰ
 open Category
 open isIsoOver
 
 isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
-isFibrationSETᴰ {c = A}{c' = B} Bᴰ f .f*yᴰ a = Bᴰ (f a)
-isFibrationSETᴰ cᴰ' f .CartesianLift.π = λ x z → z
+isFibrationSETᴰ Bᴰ f .p*Pᴰ a = Bᴰ (f a)
+isFibrationSETᴰ cᴰ' f .π = λ x z → z
 isFibrationSETᴰ cᴰ' f .isCartesian .fst = λ z₁ → z₁
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .fst _ = refl
 isFibrationSETᴰ cᴰ' f .isCartesian .snd .snd _ = refl
 
-isCatFibration'SETᴰ : isCatFibration' (SETᴰ ℓ ℓ')
-isCatFibration'SETᴰ {x = B} Q {A} f .vertexⱽ a = Q (f a)
-isCatFibration'SETᴰ {x = B} Q {A} f .elementⱽ _ q = q
-isCatFibration'SETᴰ {x = B} Q {A} f .universalⱽ .fst = λ z → z
-isCatFibration'SETᴰ {x = B} Q {A} f .universalⱽ .snd .fst b =
+isFibration'SETᴰ : isFibration' (SETᴰ ℓ ℓ')
+isFibration'SETᴰ Q f .vertexⱽ a = Q (f a)
+isFibration'SETᴰ Q f .elementⱽ _ q = q
+isFibration'SETᴰ Q f .universalⱽ .fst = λ z → z
+isFibration'SETᴰ Q f .universalⱽ .snd .fst b =
   transportRefl _ ∙ transportRefl _
-isCatFibration'SETᴰ {x = B} Q {A} f .universalⱽ .snd .snd a =
+isFibration'SETᴰ Q f .universalⱽ .snd .snd a =
   transportRefl _ ∙ transportRefl _
 
 TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
@@ -109,10 +110,25 @@ BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .universalⱽ {y = B} {yᴰ = Bᴰ} {
 
 SETᴰCartesianCategoryⱽ :
   ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.Cᴰ = SETᴰ ℓ ℓ'
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.termⱽ = TerminalsⱽSETᴰ
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.bpⱽ = BinProductsⱽSETᴰ
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts = isFibrationSETᴰ
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.Cᴰ =
+  SETᴰ ℓ ℓ'
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.termⱽ =
+  TerminalsⱽSETᴰ
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.bpⱽ =
+  BinProductsⱽSETᴰ
+SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts =
+  isFibrationSETᴰ
+
+SETᴰCartesianCategoryⱽ' :
+  ∀ ℓ ℓ' → CartesianCategoryⱽ' (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.Cᴰ =
+  SETᴰ ℓ ℓ'
+SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.termⱽ =
+  TerminalsⱽSETᴰ
+SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.bpⱽ =
+  BinProductsⱽSETᴰ
+SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.cartesianLifts =
+  isFibration'SETᴰ
 
 module _ {ℓ} {ℓ'} where
   private
@@ -121,7 +137,8 @@ module _ {ℓ} {ℓ'} where
     bp : (A : SET ℓ .ob) → BinProducts SETᴰ.v[ A ]
     bp A = BinProductsⱽ→BinProductsFibers (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ
 
-    bpw : {A : SET ℓ .ob} → (Aᴰ : SETᴰ.ob[ A ]) → BinProductsWith SETᴰ.v[ A ] Aᴰ
+    bpw : {A : SET ℓ .ob} → (Aᴰ : SETᴰ.ob[ A ]) →
+      BinProductsWith SETᴰ.v[ A ] Aᴰ
     bpw {A = A} Aᴰ Aᴰ' = bp A (Aᴰ' , Aᴰ)
 
   open UniversalElement
@@ -140,41 +157,25 @@ module _ {ℓ} {ℓ'} where
       (λ f a aᴰ'' aᴰ → f a (aᴰ'' , aᴰ)) ,
       (λ f → fromPathP
         (λ i → transport-filler
-          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ × ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))),
+          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ × ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩)
+          f (~ i))),
       (λ f  → fromPathP
         (λ i → transport-filler
-          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩) f (~ i))))
+          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩)
+          f (~ i))))
 
   private
     module _ (A : SET ℓ .ob)(Aᴰ Aᴰ' : SETᴰ.ob[ A ]) where
       module FibExp = ExponentialNotation (bpw Aᴰ) (FiberExponentialSETᴰ A Aᴰ Aᴰ')
 
-  open Exponentialⱽ
-
-  ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .vertex = FibExp.vert A Aᴰ Aᴰ'
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .element = FibExp.app A Aᴰ Aᴰ'
-  ExponentialsⱽSETᴰ {c = A} Aᴰ Aᴰ' .becomes-universal {b = B} f Bᴰ =
-    isIsoToIsEquiv (
-      (λ gᴰ b bᴰ faᴰ → gᴰ b (bᴰ , faᴰ)) ,
-      (λ gᴰ →
-        cong₂ (seq' SETᴰ.v[ B ]) refl (ExpB.⇒ue.β _ _)
-        ∙ ExpB.⇒ue.β _ _
-      ) ,
-      (λ gᴰ → funExt₃ λ b bᴰ faᴰ →
-        funExt⁻ (funExt⁻
-          (cong₂ (seq' SETᴰ.v[ B ]) refl (ExpB.⇒ue.β _ _) ∙ ExpB.⇒ue.β _ _)
-        b) (bᴰ , faᴰ))
-    )
-    where
-    module ExpB = ExponentialsNotation (bp B) (FiberExponentialSETᴰ B)
-
-Exponentialsⱽ'SETᴰ : Exponentialsⱽ' (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isCatFibration'SETᴰ
-Exponentialsⱽ'SETᴰ {c = A} P Q .vertexⱽ a .fst = ⟨ P a ⟩ → ⟨ Q a ⟩
-Exponentialsⱽ'SETᴰ {c = A} P Q .vertexⱽ a .snd = isSet→ (Q a .snd)
-Exponentialsⱽ'SETᴰ {c = A} P Q .elementⱽ a x = x .fst (x .snd)
-Exponentialsⱽ'SETᴰ {c = A} P Q .universalⱽ .fst f γ γᴰ p = f γ (γᴰ , p)
-Exponentialsⱽ'SETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .fst fᴰ = funExt λ γ → funExt λ γᴰ →
+-- This is really slow
+ExponentialsⱽSETᴰ :
+  Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibration'SETᴰ
+ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .fst = ⟨ P a ⟩ → ⟨ Q a ⟩
+ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .snd = isSet→ (Q a .snd)
+ExponentialsⱽSETᴰ {c = A} P Q .elementⱽ a x = x .fst (x .snd)
+ExponentialsⱽSETᴰ {c = A} P Q .universalⱽ .fst f γ γᴰ p = f γ (γᴰ , p)
+ExponentialsⱽSETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .fst fᴰ = funExt λ γ → funExt λ γᴰ →
   -- nasty. avoidable?
   Q.Prectify $ Q.≡out $ sym $
     cong₂fᴰ
@@ -199,7 +200,7 @@ Exponentialsⱽ'SETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .f
     cong₂fᴰ γᴰ≡γᴰ' p≡p' i = (f (γᴰ≡γᴰ' i .fst)) , (fᴰ (γᴰ≡γᴰ' i .fst) ((γᴰ≡γᴰ' i .snd)
       , (P.Prectify {e = cong fst p≡p'}{e' = cong f $ cong fst γᴰ≡γᴰ'}(λ j → p≡p' j .snd) i)))
 
-Exponentialsⱽ'SETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .snd fᴰ = funExt λ γ → funExt λ γᴰ → funExt λ p →
+ExponentialsⱽSETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .snd fᴰ = funExt λ γ → funExt λ γᴰ → funExt λ p →
   Q.Prectify $ Q.≡out $ sym $
     cong₃fᴰ
       (Γᴰ.reind-filler _ ∙ Γᴰ.reind-filler _)
@@ -215,7 +216,6 @@ Exponentialsⱽ'SETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .
     module P = hSetReasoning A ⟨P⟩
     module Q = hSetReasoning A ⟨Q⟩
     module Γᴰ = hSetReasoning Γ ⟨Γᴰ⟩
-
 
     cong₃fᴰ :
       ∀ {γ γ'}{γᴰ γᴰ'}{p p'}

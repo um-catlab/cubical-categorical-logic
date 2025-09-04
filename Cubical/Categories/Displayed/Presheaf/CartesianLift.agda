@@ -28,7 +28,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
-import Cubical.Categories.Displayed.Fibration.Base as Fibration
+-- import Cubical.Categories.Displayed.Fibration.Base as Fibration
 
 private
   variable
@@ -149,57 +149,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       open CartesianLift (isFibPᴰ p) hiding (p*Pᴰ) public
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-         where
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-
-  -- TODO: This definitional isomorphism seems to justify defining
-  -- Fibration.CartesianLift as YoLift
-  CatLift→YoLift : ∀ {x y yᴰ}{f : C [ x , y ]}
-    → Fibration.CartesianLift Cᴰ yᴰ f
-    → CartesianLift f (Cᴰ [-][-, yᴰ ])
-  CatLift→YoLift = λ z →
-                        record
-                        { p*Pᴰ = z .Fibration.CartesianLift.f*yᴰ
-                        ; π = z .Fibration.CartesianLift.π
-                        ; isCartesian = z .Fibration.CartesianLift.isCartesian
-                        }
-
-  YoLift→CatLift : ∀ {x y yᴰ}{f : C [ x , y ]}
-    → CartesianLift f (Cᴰ [-][-, yᴰ ])
-    → Fibration.CartesianLift Cᴰ yᴰ f
-  YoLift→CatLift = λ z →
-                        record
-                        { f*yᴰ = z .CartesianLift.p*Pᴰ
-                        ; π = z .CartesianLift.π
-                        ; isCartesian = z .CartesianLift.isCartesian
-                        }
-
-  YoLift'→CatLift' : ∀ {x y yᴰ}{f : C [ x , y ]}
-    → CartesianLift' f (Cᴰ [-][-, yᴰ ])
-    → Fibration.CartesianLift' Cᴰ yᴰ f
-  YoLift'→CatLift' = λ x → record
-    { vertexⱽ = x .UniversalElementⱽ.vertexⱽ
-    ; elementⱽ = x .UniversalElementⱽ.elementⱽ
-    ; universalⱽ = x .UniversalElementⱽ.universalⱽ
-    }
-
-  YoFibrations : Type _
-  YoFibrations = ∀ {y} (yᴰ : Cᴰ.ob[ y ]) → isFibration (Cᴰ [-][-, yᴰ ])
-
-  isCatFibration→YoFibrations : Fibration.isFibration Cᴰ → YoFibrations
-  isCatFibration→YoFibrations isFib yᴰ p = CatLift→YoLift $ isFib yᴰ p
-
-  YoFibrations→isCatFibration : YoFibrations → Fibration.isFibration Cᴰ
-  YoFibrations→isCatFibration YoLifts cᴰ' f = YoLift→CatLift $ YoLifts cᴰ' f
-
-module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-  isCatFibration' : Type _
-  isCatFibration' = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibration' (Cᴰ [-][-, xᴰ ])
-
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
          (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
          (isFibQᴰ : isFibration Qᴰ)
@@ -260,33 +209,33 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
   isFibration'Reind p = isFibQᴰ (α .fst _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
 
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-         (F : Functor C D)
-         where
-  -- This gives us a very interesting alternate proof of isFibrationReindex
-  module _ (isFibDᴰ : Fibration.isFibration Dᴰ) where
-    open Fibration.CartesianLift
-    private
-      module Dᴰ = Categoryᴰ Dᴰ
+-- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+--          (F : Functor C D)
+--          where
+--   -- This gives us a very interesting alternate proof of isFibrationReindex
+--   module _ (isFibDᴰ : isFibration Dᴰ) where
+--     open CartesianLift
+--     private
+--       module Dᴰ = Categoryᴰ Dᴰ
 
-    isCatFibrationReindex : Fibration.isFibration (Reindex.reindex Dᴰ F)
-    isCatFibrationReindex = YoFibrations→isCatFibration yF where
-      module _  where
-      yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
-        → isFibration (reindHet (Functor→PshHet F y) (Dᴰ [-][-, yᴰ ]))
-      yF' yᴰ = isFibrationReindHet _ (isCatFibration→YoFibrations isFibDᴰ _)
-      yF : YoFibrations
-      yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ
-      yF yᴰ p .π = yF' yᴰ p .π
-      yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian
+--     isCatFibrationReindex : Fibration.isFibration (Reindex.reindex Dᴰ F)
+--     isCatFibrationReindex = YoFibrations→isCatFibration yF where
+--       module _  where
+--       yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+--         → isFibration (reindHet (Functor→PshHet F y) (Dᴰ [-][-, yᴰ ]))
+--       yF' yᴰ = isFibrationReindHet _ (isCatFibration→YoFibrations isFibDᴰ _)
+--       yF : YoFibrations
+--       yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ
+--       yF yᴰ p .π = yF' yᴰ p .π
+--       yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian
 
-  isCatFibration'Reindex
-    : isCatFibration' Dᴰ
-    → isCatFibration' (Reindex.reindex Dᴰ F)
-  isCatFibration'Reindex isFib xᴰ f =
-    reindUEⱽ (isFib xᴰ (F ⟪ f ⟫)) ◁PshIsoⱽ
-      (invPshIsoⱽ reindYoReindFunc
-      ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)
+--   isCatFibration'Reindex
+--     : isCatFibration' Dᴰ
+--     → isCatFibration' (Reindex.reindex Dᴰ F)
+--   isCatFibration'Reindex isFib xᴰ f =
+--     reindUEⱽ (isFib xᴰ (F ⟪ f ⟫)) ◁PshIsoⱽ
+--       (invPshIsoⱽ reindYoReindFunc
+--       ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)
 
 -- Reindexing a projectionlike endofunctor gives a displayed endofunctor
 -- when cartesian lifts along the projection exists

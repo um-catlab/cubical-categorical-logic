@@ -41,11 +41,11 @@ CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ' =
     (AllExponentiable→Exponentials (CCC .CC .C) (CCC .CC .bp) (CCC .exps))
     (CCᴰ .bpᴰ)
 
-open CartesianCategoryⱽ
-CartesianClosedCategoryⱽ :
+open CartesianCategoryⱽ'
+CartesianClosedCategoryⱽ' :
   Category ℓC ℓC' → (ℓCᴰ ℓCᴰ' : Level) → Type _
-CartesianClosedCategoryⱽ C ℓCᴰ ℓCᴰ' =
-  Σ[ CCⱽ ∈ CartesianCategoryⱽ C ℓCᴰ ℓCᴰ' ]
+CartesianClosedCategoryⱽ' C ℓCᴰ ℓCᴰ' =
+  Σ[ CCⱽ ∈ CartesianCategoryⱽ' C ℓCᴰ ℓCᴰ' ]
   Σ[ bp ∈ BinProducts C ]
-  Exponentialsⱽ (Cᴰ CCⱽ) (bpⱽ CCⱽ) (cartesianLifts CCⱽ)
-  × UniversalQuantifiers bp (CCⱽ .cartesianLifts)
+  Exponentialsⱽ (Cᴰ CCⱽ) (bpⱽ CCⱽ) (CCⱽ .cartesianLifts)
+  × UniversalQuantifiers' bp (CCⱽ .cartesianLifts)

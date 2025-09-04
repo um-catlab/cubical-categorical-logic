@@ -21,11 +21,11 @@ open Category
 open Categoryᴰ
 open Section
 open Functorᴰ
-open CartesianLift
+open PshᴰCartesianLift
 
 module _ {C : Category ℓC ℓC'} where
   isFibrationUnitᴰ : isFibration (Unitᴰ C)
-  isFibrationUnitᴰ _ f .f*yᴰ = tt
+  isFibrationUnitᴰ _ f .p*Pᴰ = tt
   isFibrationUnitᴰ _ f .π = tt
   isFibrationUnitᴰ _ f .isCartesian .fst = λ _ → tt
   isFibrationUnitᴰ _ f .isCartesian .snd .fst b = refl

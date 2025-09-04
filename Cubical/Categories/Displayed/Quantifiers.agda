@@ -68,21 +68,21 @@ module _
   open Functorᴰ
 
   weakenⱽ : Functorⱽ Cᴰ Cᴰ[-×a]
-  weakenⱽ .F-obᴰ bᴰ = isFib.f*yᴰ bᴰ bp.π₁
+  weakenⱽ .F-obᴰ bᴰ = isFib.p*Pᴰ bᴰ bp.π₁
   weakenⱽ .F-homᴰ fᴰ =
-    isFib.introCL (Cᴰ.reind (sym $ bp.×β₁) (isFib.π Cᴰ.⋆ᴰ fᴰ))
+    isFib.intro (Cᴰ.reind (sym $ bp.×β₁) (isFib.π Cᴰ.⋆ᴰ fᴰ))
   weakenⱽ .F-idᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-    isFib.introCL≡ (sym (Cᴰ.reind-filler _ _)
+    isFib.intro≡ (sym (Cᴰ.reind-filler _ _)
       ∙ Cᴰ.⋆IdR _
       ∙ (sym $ Cᴰ.⋆IdL _)
       ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩)
   weakenⱽ .F-seqᴰ fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-    isFib.introCL≡
+    isFib.intro≡
       (sym (Cᴰ.reind-filler _ _)
       ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-      ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ∙ (sym isFib.βCL) ⟩⋆⟨ refl ⟩
+      ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ∙ (sym isFib.β) ⟩⋆⟨ refl ⟩
       ∙ Cᴰ.⋆Assoc _ _ _
-      ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym isFib.βCL) ⟩
+      ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym isFib.β) ⟩
       ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
       ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
       )
@@ -118,17 +118,17 @@ module _
     vert : Cᴰ.ob[ b ]
     vert = ∀ueⱽ.vertexᴰ
 
-    app : Cᴰ [ bp.×aF ⟪ C.id ⟫ ][ f*yᴰ vert bp.π₁ , pᴰ ]
+    app : Cᴰ [ bp.×aF ⟪ C.id ⟫ ][ p*Pᴰ vert bp.π₁ , pᴰ ]
     app = ∀ueⱽ.elementⱽ
 
     lda : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f} →
-      Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]
+      Cᴰ [ bp.×aF ⟪ f ⟫ ][ p*Pᴰ Γᴰ bp.π₁ , pᴰ ]
       → Cᴰ [ f ][ Γᴰ , vert ]
     lda = ∀ueⱽ.universalⱽ .fst
 
     lda⟨_⟩⟨_⟩ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f g}
-      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
-      {gᴰ : Cᴰ [ bp.×aF ⟪ g ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
+      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ p*Pᴰ Γᴰ bp.π₁ , pᴰ ]}
+      {gᴰ : Cᴰ [ bp.×aF ⟪ g ⟫ ][ p*Pᴰ Γᴰ bp.π₁ , pᴰ ]}
       → f ≡ g
       → Path Cᴰ.Hom[ _ , _ ]
           (_ , fᴰ)
@@ -140,7 +140,7 @@ module _
       ∀ueⱽ.∫ue.intro⟨ ΣPathP (f≡g , (Cᴰ.rectify $ Cᴰ.≡out fᴰ≡gᴰ)) ⟩
 
     ∀β : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f} →
-      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
+      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ p*Pᴰ Γᴰ bp.π₁ , pᴰ ]}
       → Path Cᴰ.Hom[ _ , _ ]
           ((bp.×aF ⟪ f ⟫ C.⋆ bp.×aF ⟪ C.id ⟫) , (weakenⱽ .F-homᴰ (lda fᴰ) Cᴰ.⋆ᴰ app))
           (bp.×aF ⟪ f ⟫ , fᴰ)
@@ -159,7 +159,7 @@ module _
       ∙ lda⟨ refl ⟩⟨ sym (Cᴰ.reind-filler _ _) ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.reind-filler _ _ ⟩
 
     lda≡ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f g}
-      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ f*yᴰ Γᴰ bp.π₁ , pᴰ ]}
+      {fᴰ : Cᴰ [ bp.×aF ⟪ f ⟫ ][ p*Pᴰ Γᴰ bp.π₁ , pᴰ ]}
       {gᴰ : Cᴰ [ g ][ Γᴰ , vert ]}
       → f ≡ g
       → Path Cᴰ.Hom[ _ , _ ]
@@ -267,5 +267,18 @@ module _
 
   module _ (π₁* : ∀ {Γ} → (Γᴰ : Cᴰ.ob[ Γ ]) → PshᴰCL.CartesianLift' bp.π₁ (Cᴰ [-][-, Γᴰ ]))
     {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) where
-    UniveralQuantifier' : Type _
-    UniveralQuantifier' = UniversalQuantifierF bp.×aF bp.π₁Nat π₁* Γᴰ
+    UniversalQuantifier' : Type _
+    UniversalQuantifier' = UniversalQuantifierF bp.×aF bp.π₁Nat π₁* Γᴰ
+
+module _
+  {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (bp : BinProducts C)
+  (isFib : CatFibration.isFibration' Cᴰ)
+  where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+
+  UniversalQuantifiers' : Type _
+  UniversalQuantifiers' = ∀ a Γ pᴰ
+    → UniversalQuantifier' {a = a} (λ c → bp (c , a)) (λ Γᴰ → isFib Γᴰ _) {Γ = Γ} pᴰ

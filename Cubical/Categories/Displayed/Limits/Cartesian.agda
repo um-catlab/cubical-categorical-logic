@@ -58,7 +58,7 @@ record CartesianCategoryⱽ' (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level
     bpⱽ   : BinProductsⱽ Cᴰ
   module Cᴰ = Categoryᴰ Cᴰ
   field
-    cartesianLifts : PshFib.isCatFibration' Cᴰ
+    cartesianLifts : isFibration' Cᴰ
 
 module _ {CC : CartesianCategory ℓC ℓC'}
          (CCᴰ : CartesianCategoryⱽ (CC .CartesianCategory.C) ℓCᴰ ℓCᴰ') where
@@ -66,7 +66,6 @@ module _ {CC : CartesianCategory ℓC ℓC'}
   open TerminalNotation term
   open CartesianCategoryⱽ CCᴰ
   open CartesianCategoryᴰ hiding (Cᴰ)
-  open isFibrationNotation Cᴰ cartesianLifts
   private
     module bp = BinProductsNotation bp
   CartesianCategoryⱽ→CartesianCategoryᴰ : CartesianCategoryᴰ CC ℓCᴰ ℓCᴰ'

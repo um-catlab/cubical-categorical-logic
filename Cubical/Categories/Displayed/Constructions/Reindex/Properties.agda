@@ -31,7 +31,7 @@ private
 
 open Category
 open Functor
-open CartesianLift
+open PshᴰCartesianLift
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -59,7 +59,7 @@ module _
     reflectsCartesianLifts
       : CartesianLift Dᴰ dᴰ' (F ⟪ f ⟫)
       → CartesianLift F*Dᴰ dᴰ' f
-    reflectsCartesianLifts F⟪f⟫-lift .f*yᴰ = F⟪f⟫-lift .f*yᴰ
+    reflectsCartesianLifts F⟪f⟫-lift .p*Pᴰ = F⟪f⟫-lift .p*Pᴰ
     reflectsCartesianLifts F⟪f⟫-lift .π = F⟪f⟫-lift .π
     reflectsCartesianLifts F⟪f⟫-lift .isCartesian .fst gfᴰ =
       F⟪f⟫-lift .isCartesian .fst (R.reind (F .F-seq _ _) gfᴰ)

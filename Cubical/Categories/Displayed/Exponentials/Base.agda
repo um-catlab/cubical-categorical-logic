@@ -33,7 +33,6 @@ open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.BinProduct hiding (_×ᴰ_)
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Presheaf.CartesianLift using (isCatFibration')
 
 private
   variable
@@ -105,61 +104,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module C = Category C
     module Cᴰ = Fibers Cᴰ
 
-  Exponentialⱽ' :
+  Exponentialⱽ :
     ∀ {c} (cᴰ dᴰ : Cᴰ.ob[ c ])
     → (-×ⱽcᴰ : LocallyRepresentableⱽ (Cᴰ [-][-, cᴰ ]))
     → Type _
-  Exponentialⱽ' {c} cᴰ dᴰ -×ⱽcᴰ = UniversalElementⱽ Cᴰ c
+  Exponentialⱽ {c} cᴰ dᴰ -×ⱽcᴰ = UniversalElementⱽ Cᴰ c
     ((_ , -×ⱽcᴰ) ⇒PshSmallⱽ (Cᴰ [-][-, dᴰ ]))
 
-  module _ (bpⱽ : BinProductsⱽ Cᴰ) (isFib : isFibration Cᴰ)
-    where
-
-    private
-      module bpⱽ = BinProductsⱽNotation _ bpⱽ
-      module isFib = isFibrationNotation Cᴰ isFib
-
-    open bpⱽ
-
-    record Exponentialⱽ {c : C.ob} (cᴰ cᴰ' : Cᴰ.ob[ c ]) : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') where
-      no-eta-equality
-      field
-        vertex : Cᴰ.ob[ c ]
-        element : Cᴰ.v[ c ] [ vertex ×ⱽ cᴰ , cᴰ' ]
-        becomes-universal : ∀ {b} (f : C [ b , c ]) →
-          becomesExponential (isFib.f*F f)
-            (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
-            (λ _ → cartesianLift-preserves-BinProductFiber Cᴰ isFib (bpⱽ _ _) f)
-            (BinProductsWithⱽ→BinProductsWithFiber Cᴰ λ cᴰ'' → bpⱽ _ _)
-            vertex
-            element
-
-      module _ {b} {f : C [ b , c ]} where
-        -- TODO: move BinProductsWithⱽ→BinProductsWithFiber into some kind of notation
-        f*⟨cᴰ⇒cᴰ'⟩ : Exponential Cᴰ.v[ b ] (isFib.f*yᴰ cᴰ f) (isFib.f*yᴰ cᴰ' f) (BinProductsWithⱽ→BinProductsWithFiber Cᴰ (λ cᴰ'' → bpⱽ _ _))
-        f*⟨cᴰ⇒cᴰ'⟩ = becomesExponential→Exponential _ _ _ _ (becomes-universal f)
-
-        module f*⟨cᴰ⇒cᴰ'⟩ = ExponentialNotation _ f*⟨cᴰ⇒cᴰ'⟩
-
-      lda≡ :
-        ∀ {x : C.ob}{f : C [ x , c ]}{g} →
-        {xᴰ : Cᴰ.ob[ x ]} →
-        {fᴰ : Cᴰ.Hom[ C.id ][ xᴰ ×ⱽ isFib.f*yᴰ cᴰ f , isFib.f*yᴰ cᴰ' f ]}
-        {gᴰ : Cᴰ.Hom[ g ][ xᴰ , f*⟨cᴰ⇒cᴰ'⟩.vert ]}
-        → (p : g ≡ C.id)
-        → Path Cᴰ.Hom[ _ , _ ]
-            (C.id , fᴰ)
-            ((C.id C.⋆ C.id) , (((π₁ Cᴰ.⋆ⱽ Cᴰ.reind p gᴰ) ,ⱽ π₂) Cᴰ.⋆ᴰ f*⟨cᴰ⇒cᴰ'⟩.app))
-        → Path Cᴰ.Hom[ _ , _ ]
-            (C.id , f*⟨cᴰ⇒cᴰ'⟩.lda fᴰ)
-            (g , gᴰ)
-      lda≡ {f = f} g≡id p =
-        Cᴰ.≡in (f*⟨cᴰ⇒cᴰ'⟩.⇒ue.intro≡ (Cᴰ.rectify $ Cᴰ.≡out $ p ∙ Cᴰ.reind-filler _ _)) ∙ (sym $ Cᴰ.reind-filler g≡id _)
-
-    Exponentialsⱽ : Type _
-    Exponentialsⱽ = ∀ {c} cᴰ cᴰ' → Exponentialⱽ {c} cᴰ cᴰ'
-
-  module _ (bpⱽ : BinProductsⱽ Cᴰ) (isFib : isCatFibration' Cᴰ)
+  module _ (bpⱽ : BinProductsⱽ Cᴰ) (isFib : isFibration' Cᴰ)
     where
     open UniversalElementⱽ
     bpⱽ+fib⇒AllReprLocallyRepresentableⱽ :
@@ -168,5 +120,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       bpⱽ _ (Γᴰ , isFib cᴰ γ .vertexⱽ)
       ◁PshIsoⱽ (idPshIsoᴰ ×ⱽIso yoRecIsoⱽ (isFib cᴰ γ))
 
-    Exponentialsⱽ' : Type _
-    Exponentialsⱽ' = ∀ {c} cᴰ dᴰ → Exponentialⱽ' {c} cᴰ dᴰ (bpⱽ+fib⇒AllReprLocallyRepresentableⱽ cᴰ)
+    Exponentialsⱽ : Type _
+    Exponentialsⱽ =
+      ∀ {c} cᴰ dᴰ →
+      Exponentialⱽ {c} cᴰ dᴰ (bpⱽ+fib⇒AllReprLocallyRepresentableⱽ cᴰ)

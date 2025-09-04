@@ -2,8 +2,12 @@
 module Cubical.Categories.Presheaf.Morphism.Alt where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
+open import Cubical.Reflection.RecordEquiv
+open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -17,6 +21,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Profunctor.General
 
 {-
 
@@ -36,13 +41,118 @@ open import Cubical.Categories.Presheaf.Representable
 -}
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓp ℓq : Level
+    ℓc ℓc' ℓd ℓd' ℓp ℓq ℓr : Level
 
 open Category
 open Contravariant
 open Functor
-open NatTrans
 open UniversalElement
+
+module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+
+  PshHomΣ : Type _
+  PshHomΣ = Σ[ α ∈ (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) ]
+    (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
+     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
+
+  isPropN-hom : ∀ (α : (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ])) →
+    isProp (∀ x y (f : C [ x , y ]) (p : P.p[ y ])→
+     α x (f P.⋆ p) ≡ (f Q.⋆ α y p))
+  isPropN-hom =
+    λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → Q.isSetPsh _ _
+
+  isSetPshHomΣ : isSet PshHomΣ
+  isSetPshHomΣ =
+    isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
+
+  -- Natural transformation between presheaves of different levels
+  record PshHom : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    field
+      N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
+      N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+        N-ob c (f P.⋆ p) ≡ (f Q.⋆ N-ob c' p)
+
+  PshHomΣIso : Iso PshHom PshHomΣ
+  unquoteDef PshHomΣIso = defineRecordIsoΣ PshHomΣIso (quote (PshHom))
+
+  isSetPshHom : isSet PshHom
+  isSetPshHom = isOfHLevelRetractFromIso 2 PshHomΣIso isSetPshHomΣ
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓp}
+  where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  NatTrans→PshHom : NatTrans P Q → PshHom P Q
+  NatTrans→PshHom α .PshHom.N-ob = α .NatTrans.N-ob
+  NatTrans→PshHom α .PshHom.N-hom x y f = funExt⁻ (α .NatTrans.N-hom f)
+
+  PshHom→NatTrans : PshHom P Q → NatTrans P Q
+  PshHom→NatTrans α .NatTrans.N-ob = α .PshHom.N-ob
+  PshHom→NatTrans α .NatTrans.N-hom f = funExt (α .PshHom.N-hom _ _ f)
+
+open PshHom
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
+  private
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  makePshHomΣPath : ∀ {α β : PshHomΣ P Q} → α .fst ≡ β .fst
+   → α ≡ β
+  makePshHomΣPath = ΣPathPProp (isPropN-hom P Q)
+
+  makePshHomPath : ∀ {α β : PshHom P Q} → α .N-ob ≡ β .N-ob
+   → α ≡ β
+  makePshHomPath {α} {β} N-ob≡ =
+    isoFunInjective (PshHomΣIso P Q) α β (makePshHomΣPath N-ob≡)
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
+  idPshHom : PshHom P P
+  idPshHom .N-ob x z = z
+  idPshHom .N-hom x y f p = refl
+
+module _ {C : Category ℓc ℓc'} where
+  _⋆PshHom_ : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} →
+    PshHom P Q → PshHom Q R → PshHom P R
+  (α ⋆PshHom β) .N-ob x p = β .N-ob x (α .N-ob x p)
+  (α ⋆PshHom β) .N-hom x y f p =
+    cong (β .N-ob _) (α .N-hom x y f p)
+    ∙ β .N-hom x y f (α .N-ob y p)
+
+  _⋆PshHomNatTrans_ :
+    ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓq} →
+      PshHom P Q → NatTrans Q R → PshHom P R
+  α ⋆PshHomNatTrans β = α ⋆PshHom NatTrans→PshHom β
+  _⋆NatTransPshHom_ :
+    ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓp}{R : Presheaf C ℓr} →
+      NatTrans P Q → PshHom Q R → PshHom P R
+  α ⋆NatTransPshHom β = NatTrans→PshHom α ⋆PshHom β
+
+module _ {C : Category ℓc ℓc'} where
+  PshHomPsh :
+    ∀ (Q : Presheaf C ℓq) →
+      Presheaf (PresheafCategory C ℓp) (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓq) ℓp)
+  PshHomPsh Q .F-ob P = (PshHom P Q) , (isSetPshHom _ _)
+  PshHomPsh Q .F-hom α β = α ⋆NatTransPshHom β
+  PshHomPsh Q .F-id = funExt (λ _ → makePshHomPath refl)
+  PshHomPsh Q .F-seq α α' = funExt λ _ → makePshHomPath refl
+
+  PshHomProf :
+    Profunctor
+      (PresheafCategory C ℓq)
+      (PresheafCategory C ℓp)
+      (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
+  PshHomProf .F-ob Q = PshHomPsh Q
+  PshHomProf .F-hom β .NatTrans.N-ob P α = α ⋆PshHomNatTrans β
+  PshHomProf .F-hom β .NatTrans.N-hom α = funExt λ _ → makePshHomPath refl
+  PshHomProf .F-id =
+    makeNatTransPath (funExt (λ _ → funExt λ _ → makePshHomPath refl))
+  PshHomProf .F-seq β β' =
+    makeNatTransPath (funExt λ _ → funExt λ _ → makePshHomPath refl)
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (F : Functor C D)
@@ -55,8 +165,8 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (F : Functor C D) (c : C .ob) where
   Functor→PshHet : PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
-  Functor→PshHet .fst = λ x → F .F-hom
-  Functor→PshHet .snd = λ x y → F .F-seq
+  Functor→PshHet .N-ob = λ x → F .F-hom
+  Functor→PshHet .N-hom = λ x y → F .F-seq
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          {F : Functor C D}
@@ -68,16 +178,16 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
     module P = PresheafNotation P
     module Q = PresheafNotation Q
   ∫F : Functor (∫ᴾ P) (∫ᴾ Q)
-  ∫F .F-ob (c , p) = F ⟅ c ⟆ , Fᴰ .fst c p
+  ∫F .F-ob (c , p) = F ⟅ c ⟆ , Fᴰ .N-ob c p
   ∫F .F-hom (f , tri) = (F ⟪ f ⟫) ,
-    (sym $ Fᴰ .snd _ _ _ _)
-    ∙ cong (Fᴰ .fst _) tri
+    (sym $ Fᴰ .N-hom _ _ _ _)
+    ∙ cong (Fᴰ .N-ob _) tri
   ∫F .F-id = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-id)
   ∫F .F-seq (f , _) (g , _) = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-seq f g)
 
   becomesUniversal :
     ∀ (v : C .ob) (e : P.p[ v ]) → Type _
-  becomesUniversal v e = isUniversal D Q (F ⟅ v ⟆) (Fᴰ .fst _ e)
+  becomesUniversal v e = isUniversal D Q (F ⟅ v ⟆) (Fᴰ .N-ob _ e)
 
   becomesUniversal→UniversalElement :
     ∀ {v e}

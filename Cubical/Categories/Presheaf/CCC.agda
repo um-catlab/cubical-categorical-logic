@@ -16,6 +16,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Yoneda.More
 
 open import Cubical.Data.Sigma
@@ -67,8 +68,8 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
     ( (λ f⟨p⟩ → PshHom→NatTrans (λPshHom _ _ (NatTrans→PshHom f⟨p⟩)))
     , (λ α → makeNatTransPath $ funExt (λ x → funExt (λ (f , p) → cong (α .N-ob x) (ΣPathP ((funExt⁻ (S .F-id) f) , refl)))))
     , (λ α → makeNatTransPath $ funExt (λ x → funExt (λ γ → makePshHomPath (funExt (λ y → funExt λ (f , p) →
-      funExt⁻ (funExt⁻ (cong fst (funExt⁻ (α .N-hom f) γ)) y) _
-      ∙ cong (α .N-ob x γ .fst y) (ΣPathP ((C.⋆IdL f) , refl)))))))
+      funExt⁻ (funExt⁻ (cong PshHom.N-ob (funExt⁻ (α .N-hom f) γ)) y) _
+      ∙ cong (α .N-ob x γ .PshHom.N-ob y) (ΣPathP ((C.⋆IdL f) , refl)))))))
     )
 
   open CartesianCategory renaming (C to Cat)

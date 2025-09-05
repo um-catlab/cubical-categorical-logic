@@ -8,6 +8,7 @@ open import Cubical.Data.Unit
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Instances.Sets
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -33,6 +34,13 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   PshSection : Type _
   PshSection =
     PshHomⱽ {Cᴰ = Unitᴰ C} (UnitPshᴰ {P = P}) (Pᴰ ∘Fᴰⱽ (Terminal.recᴰ F ^opFⱽ))
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (F : GlobalSection Cᴰ) c
+  where
+  Section→PshSection : PshSection F (Cᴰ [-][-, F .F-obᴰ c ])
+  Section→PshSection .N-obᴰ {x} {xᴰ} {p} _ = F .F-homᴰ p
+  Section→PshSection .N-homᴰ = F .F-seqᴰ _ _
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}

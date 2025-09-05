@@ -70,7 +70,8 @@ SCwFⱽ (C , Ty , Tm , term , comprehension) ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' =
 
 -- A (strict) section is a section that preserves the SCwF structure on the nose
 module _ (C : SCwF ℓC ℓC' ℓT ℓT') ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , comprehensionᴰ) : SCwFᴰ C ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
-  Tm = C .snd .snd .fst
+  private
+    Tm = C .snd .snd .fst
   open Section
   StrictSection : Type _
   StrictSection =
@@ -78,6 +79,6 @@ module _ (C : SCwF ℓC ℓC' ℓT ℓT') ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , com
     Σ[ F-ty ∈ (∀ A → Tyᴰ A) ]
     -- Takes a Tm A Γ to a Tmᴰ
     Σ[ F-tm ∈ (∀ A → PshSection F (Tmᴰ (F-ty A))) ]
-    -- preserves terminal object    
+    -- preserves terminal object
     strictlyPreservesTerminal F _ termᴰ
-    -- × {!!} -- preserves comprehension
+    × (∀ A → strictlyPreservesLocalRep (Tmᴰ (F-ty A) , comprehensionᴰ (F-ty A)) (F-tm A))

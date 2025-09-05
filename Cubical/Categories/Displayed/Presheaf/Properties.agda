@@ -43,6 +43,7 @@ open Bifunctorᴰ
 open Category
 open Functor
 open Functorᴰ
+open Section
 open isIsoOver
 open PshHomᴰ
 private
@@ -52,7 +53,6 @@ private
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
-
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -464,6 +464,24 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'} where
         invers = ×ⱽ-introᴰ (×ⱽ-π₁ ⋆PshHomⱽᴰ (invPshIsoᴰ αᴰ .fst)) (×ⱽ-π₂ ⋆PshHomⱽᴰ (invPshIsoᴰ βᴰ .fst))
       (αᴰ ×ⱽIso βᴰ) .snd .rightInv _ _ = ΣPathP ((αᴰ .snd .rightInv _ _) , (βᴰ .snd .rightInv _ _))
       (αᴰ ×ⱽIso βᴰ) .snd .leftInv _ _ = ΣPathP ((αᴰ .snd .leftInv _ _) , (βᴰ .snd .leftInv _ _))
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : GlobalSection Cᴰ} where
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (α : PshSection F Pᴰ)
+    (β : PshSection F Qᴰ)
+    where
+    ×ᴰ-introS : PshSection F (Pᴰ ×ᴰPsh Qᴰ)
+    ×ᴰ-introS .N-obᴰ {x} {_} {p , q} _ = (α .N-obᴰ {x}{_}{p} tt) , (β .N-obᴰ {x}{_}{q} tt)
+    ×ᴰ-introS .N-homᴰ = ΣPathP ((α .N-homᴰ) , (β .N-homᴰ))
+
+  module _
+    {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
+    ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
+    (α : PshSection F Pᴰ)
+    where
+    strictlyPreservesLocalRep : Type _
+    strictlyPreservesLocalRep = ∀ c
+      → strictlyPreservesUE F (×ᴰ-introS (Section→PshSection F c) α) (c ×P) (F .F-obᴰ c ×ᴰPᴰ)
 
 module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

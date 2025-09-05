@@ -9,9 +9,10 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.More
 
 open import Cubical.Data.FinData hiding (elim)
-open import Cubical.Data.List hiding (elim)
+open import Cubical.Data.List hiding (elim; [_])
 open import Cubical.Data.List.FinData hiding (ℓ; A; B)
 open import Cubical.Data.List.Dependent
 open import Cubical.Data.Sigma
@@ -19,10 +20,12 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.Fiber hiding (fiber)
+open import Cubical.Categories.Constructions.TotalCategory using (∫C)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
@@ -31,6 +34,7 @@ open import Cubical.Categories.Displayed.Presheaf
 
 open import Cubical.Categories.WithFamilies.Simple.Base
 open import Cubical.Categories.WithFamilies.Simple.Displayed
+open import Cubical.Categories.WithFamilies.Simple.Properties
 
 private
   variable
@@ -183,16 +187,18 @@ module _ (Σ₀ : hGroupoid ℓ) where
   FreeSCwF .snd .snd .snd .fst = TermCtx
   FreeSCwF .snd .snd .snd .snd = CtxExt
 
-  -- TODO: prove that it's Free
   module _ (M : SCwFᴰ FreeSCwF ℓC ℓC' ℓT ℓT') where
     private
       Cᴰ = M .fst
       module Cᴰ = Fibers Cᴰ
+      ∫Cᴰ = ∫C Cᴰ
       Tyᴰ = M .snd .fst
       Tmᴰ = M .snd .snd .fst
+      module ∫Tmᴰ {A}{Aᴰ : Tyᴰ A} = PresheafNotation (∫P (Tmᴰ Aᴰ))
       module Tmᴰ {A}{Aᴰ : Tyᴰ A} = PresheafᴰNotation (Tmᴰ Aᴰ)
       termᴰ = M .snd .snd .snd .fst
       extᴰ  = M .snd .snd .snd .snd
+      module M = SCwFᴰNotation M
     open UniversalElementᴰ
     open PshHomᴰ
     module _ (ı : ∀ A → Tyᴰ A) where
@@ -216,35 +222,64 @@ module _ (Σ₀ : hGroupoid ℓ) where
       elimRen [] = introᴰ termᴰ _
       elimRen (x ∷ γ) = introᴰ (extᴰ _ _) (elimRen γ , elimVar x)
 
-      
       elimRenWkRen : ∀ {Δ Γ A}(γ : Renaming Δ Γ)
-        → Path (Σ[ γ' ∈ Renaming (A ∷ Δ) Γ ] (Cᴰ [ γ' ][ _ , _ ]))
+        → Path (∫Cᴰ [ (A ∷ Δ , _) , (Γ , _) ])
             (_ , elimRen (wkRen γ))
             (_ , extᴰ _ _ .elementᴰ .fst Cᴰ.⋆ᴰ elimRen γ)
       elimRenWkRen [] = extensionalityᴰ termᴰ refl
-      elimRenWkRen (x ∷ γ) = {!!}
+      elimRenWkRen (x ∷ γ) =
+        introᴰ≡ (extᴰ _ _) (ΣPathPᴰ (elimRenWkRen γ ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ PathPᴰΣ (βᴰ $ extᴰ _ _) .fst ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _))
+                           (((sym $ Tmᴰ.reind-filler _ _) ∙ Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ (βᴰ $ extᴰ _ _) .snd ⟩) ∙ sym (Tmᴰ.⋆Assoc _ _ _)))
 
-      elimRen-Id : ∀ Γ → elimRen (idRen Γ) ≡ Cᴰ.idᴰ
-      elimRen-Id [] = Cᴰ.rectify $ Cᴰ.≡out $ extensionalityᴰ termᴰ refl 
-      elimRen-Id (x ∷ Γ) = Cᴰ.rectify $ Cᴰ.≡out $
+      elimRen-Var : ∀ {Δ Γ A}
+        → (γ : Renaming Δ Γ)
+        → (x : Var Γ A)
+        → Path ∫Tmᴰ.p[ _ ]
+            (_ , elimVar (ren γ x))
+            (_ , elimRen γ Tmᴰ.⋆ᴰ elimVar x)
+      elimRen-Var (y ∷ γ) vz = sym $ PathPᴰΣ (βᴰ $ extᴰ _ _) .snd
+      elimRen-Var (y ∷ γ) (vs x) =
+        elimRen-Var γ x
+        ∙ Tmᴰ.⟨ sym $ PathPᴰΣ (βᴰ $ extᴰ _ _) .fst ⟩⋆⟨⟩
+        ∙ Tmᴰ.⋆Assoc _ _ _
+        ∙ Tmᴰ.⟨⟩⋆⟨ Tmᴰ.reind-filler _ _ ⟩
+
+      elimRen-Id : ∀ Γ →
+        Path (∫Cᴰ [ _ , _ ])
+          (_ , elimRen (idRen Γ))
+          (_ , Cᴰ.idᴰ)
+      elimRen-Id [] = extensionalityᴰ termᴰ refl
+      elimRen-Id (x ∷ Γ) =
         introᴰ≡ (extᴰ _ _)
-          (ΣPathP (ΣPathP ((sym $ ⋆Ren⋆IdL _) , refl)
-            , ΣPathP
-            ( (Cᴰ.rectify $ Cᴰ.≡out $ elimRenWkRen _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.≡in $ elimRen-Id Γ ⟩ ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _) )
-            , (Tmᴰ.rectify $ Tmᴰ.≡out $ sym $ Tmᴰ.⋆IdL _))))
+          (ΣPathPᴰ
+            (elimRenWkRen _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ elimRen-Id Γ ⟩ ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _))
+            (sym $ Tmᴰ.⋆IdL _))
+
+      elimRen-Seq : ∀ {Θ Δ Γ}
+        → {δ : Renaming Θ Δ}
+        → (γ : Renaming Δ Γ)
+        → Path (∫Cᴰ [ _ , _ ])
+            (_ , elimRen (δ ⋆Ren γ))
+            (_ , elimRen δ Cᴰ.⋆ᴰ elimRen γ)
+      elimRen-Seq [] = extensionalityᴰ termᴰ refl
+      elimRen-Seq (y ∷ γ) = introᴰ≡ (extᴰ _ _) (ΣPathPᴰ
+        (elimRen-Seq γ ∙ Cᴰ.⟨ refl ⟩⋆⟨ sym $ PathPᴰΣ (βᴰ $ extᴰ _ _) .fst ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _))
+        (elimRen-Var _ _ ∙ Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ (βᴰ $ extᴰ _ _) .snd ⟩ ∙ sym (Tmᴰ.⋆Assoc _ _ _)))
 
       elimSection : GlobalSection (M .fst)
       elimSection .F-obᴰ = elimS-F-ob
       elimSection .F-homᴰ = elimRen
-      elimSection .F-idᴰ = {!!}
-      elimSection .F-seqᴰ = {!!}
+      elimSection .F-idᴰ = Cᴰ.rectify $ Cᴰ.≡out $ elimRen-Id _
+      elimSection .F-seqᴰ δ γ = Cᴰ.rectify $ Cᴰ.≡out $ elimRen-Seq γ
 
       elimPshSection : ∀ {A} → PshSection elimSection (Tmᴰ $ ı A)
       elimPshSection .N-obᴰ {Γ}{_}{x} _ = elimVar x
-      elimPshSection .N-homᴰ = {!!}
+      elimPshSection {A} .N-homᴰ {Δ} {Γ} {_} {_} {γ} {x} =
+        Tmᴰ.rectify $ Tmᴰ.≡out $ elimRen-Var _ _
 
       elim : StrictSection FreeSCwF M
       elim .fst = elimSection
       elim .snd .fst = ı
       elim .snd .snd .fst = λ _ → elimPshSection
-      elim .snd .snd .snd = {!!}
+      elim .snd .snd .snd .fst = refl
+      elim .snd .snd .snd .snd A Γ = ΣPathP (refl , (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ elimRenWkRen _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ elimRen-Id _ ⟩ ∙ Cᴰ.⋆IdR _) , refl)))

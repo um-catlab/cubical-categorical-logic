@@ -18,6 +18,7 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
@@ -45,6 +46,8 @@ open UniversalElementᴰ
 open Bifunctorᴰ
 open isIsoOver
 open PshHomᴰ
+open PshHom
+open PshIso
 open Functor
 
 -- to use paths we need everything to be at the same universe level
@@ -58,8 +61,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module PSHᴰ = Categoryᴰ (PRESHEAFᴰ Cᴰ ℓCᴰ ℓCᴰ')
 
   module _
-    (π₁* : Representationᵁⱽ Cᴰ (reindYo (π₁ P Q .fst _ π₁₂) Pᴰ))
-    (π₂* : Representationᵁⱽ Cᴰ (reindYo (π₂ P Q .fst _ π₁₂) Qᴰ))
+    (π₁* : Representationᵁⱽ Cᴰ (reindYo (π₁ P Q .N-ob _ π₁₂) Pᴰ))
+    (π₂* : Representationᵁⱽ Cᴰ (reindYo (π₂ P Q .N-ob _ π₁₂) Qᴰ))
     where
     ×ᴰ≡π₁*×ⱽπ₂* :
       PathP (λ i → Presheafᴰ (p×q .snd i) Cᴰ ℓCᴰ')

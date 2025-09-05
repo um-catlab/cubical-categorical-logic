@@ -107,8 +107,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
           ∙ R.reind-filler _ _)
 
     BinProductⱽReindex : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
-    BinProductⱽReindex = reindUEⱽ vbp ◁PshIsoⱽ
-      (reindⱽFunc×ⱽIsoⱽ ⋆PshIsoⱽ (reindⱽFuncRepr ×ⱽIso reindⱽFuncRepr))
+    BinProductⱽReindex =
+      -- the annotations on reindⱽFuncRepr are crucial for performance
+      reindUEⱽ vbp
+        ◁PshIsoⱽ
+        (reindⱽFunc×ⱽIsoⱽ ⋆PshIsoⱽ (reindⱽFuncRepr {xᴰ = Fcᴰ} ×ⱽIso reindⱽFuncRepr {Dᴰ = Dᴰ} {F = F} {xᴰ = Fcᴰ'}))
   BinProductsⱽReindex : BinProductsⱽ Dᴰ →
     BinProductsⱽ (Base.reindex Dᴰ F)
   BinProductsⱽReindex vps Fcᴰ Fcᴰ×Fcᴰ' =

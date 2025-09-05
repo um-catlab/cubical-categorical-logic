@@ -18,6 +18,7 @@ open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Profunctor.General
 
 private
@@ -26,6 +27,8 @@ private
     C D : Category ℓC ℓC'
 
 open Category
+
+open PshHom
 
 module _ (C : Category ℓC ℓC') where
   Exponential : (c d : C .ob) → (BinProductsWith C c) → Type _
@@ -171,7 +174,7 @@ module _ (F : Functor C D) {c : C .ob}
   preservesExpCone : ∀ c' → PshHet F
     (ExponentiableProf C -×c ⟅ c' ⟆)
     (ExponentiableProf D -×Fc ⟅ F ⟅ c' ⟆ ⟆)
-  preservesExpCone c' .fst Γ f⟨x⟩ = F⟨Γ×c⟩.intro Fc×FΓ.element D.⋆ F ⟪ f⟨x⟩ ⟫
+  preservesExpCone c' .N-ob Γ f⟨x⟩ = F⟨Γ×c⟩.intro Fc×FΓ.element D.⋆ F ⟪ f⟨x⟩ ⟫
     where
     module F⟨Γ×c⟩ = UniversalElementNotation
       -- NOTE: this has really bad inference :/
@@ -179,7 +182,7 @@ module _ (F : Functor C D) {c : C .ob}
         (-×c Γ) (F-pres-×c Γ))
     module Fc×FΓ = UniversalElementNotation
       (-×Fc (F ⟅ Γ ⟆))
-  preservesExpCone c' .snd Δ Γ γ f⟨x⟩ =
+  preservesExpCone c' .N-hom Δ Γ γ f⟨x⟩ =
     D.⟨ refl ⟩⋆⟨ F.F-seq _ _ ⟩
     ∙ (sym $ D.⋆Assoc _ _ _)
     ∙ D.⟨

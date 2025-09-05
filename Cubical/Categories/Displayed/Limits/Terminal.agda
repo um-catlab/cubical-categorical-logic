@@ -42,6 +42,7 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning

@@ -34,6 +34,8 @@ private
   variable
     ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓQ ℓPᴰ ℓQᴰ : Level
 
+open PshHom
+open PshIso
 open Category
 open Functor
 open Functorᴰ
@@ -158,10 +160,10 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Qᴰ = PresheafᴰNotation Qᴰ
     module isFibQᴰ = isFibrationNotation Qᴰ isFibQᴰ
   isFibrationReind : isFibration (reind {P = P} α Qᴰ)
-  isFibrationReind p .p*Pᴰ = isFibQᴰ.p*Pᴰ (α .fst _ p)
+  isFibrationReind p .p*Pᴰ = isFibQᴰ.p*Pᴰ (α .N-ob _ p)
   isFibrationReind p .π = isFibQᴰ.π
   isFibrationReind p .isCartesian .fst qᴰ =
-    isFibQᴰ.intro $ Qᴰ.reind (α .snd _ _ _ p) qᴰ
+    isFibQᴰ.intro $ Qᴰ.reind (α .N-hom _ _ _ p) qᴰ
   isFibrationReind p .isCartesian .snd .fst qᴰ =
     Qᴰ.rectify $ Qᴰ.≡out $
       sym (Qᴰ.reind-filler _ _)
@@ -207,7 +209,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          (isFibQᴰ : isFibration' Qᴰ)
          where
   isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
-  isFibration'Reind p = isFibQᴰ (α .fst _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
+  isFibration'Reind p = isFibQᴰ (α .N-ob _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
 
 -- TODO
 -- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

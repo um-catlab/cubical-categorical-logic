@@ -35,7 +35,7 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 
 private
   variable
-    ℓ ℓ' ℓA ℓB ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓS : Level
 
 open Functor
 open PshHom
@@ -65,7 +65,7 @@ module _ {C : Category ℓ ℓ'} where
   _×Psh_ : Presheaf C ℓA → Presheaf C ℓB → Presheaf C _
   P ×Psh Q = PshProd ⟅ P , Q ⟆b
 
-  module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB)where
+  module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
     π₁ : PshHom (P ×Psh Q) P
     π₁ .N-ob _ = fst
     π₁ .N-hom _ _ _ _ = refl
@@ -74,7 +74,49 @@ module _ {C : Category ℓ ℓ'} where
     π₂ .N-ob _ = snd
     π₂ .N-hom _ _ _ _ = refl
 
-  -- TODO: correct name?
+  module _
+    {P : Presheaf C ℓA}
+    {Q : Presheaf C ℓB}
+    {R : Presheaf C ℓA'}
+    (α : PshHom R P)
+    (β : PshHom R Q)
+    where
+    ×PshIntro : PshHom R (P ×Psh Q)
+    ×PshIntro .N-ob c x = (α .N-ob c x) , (β .N-ob c x)
+    ×PshIntro .N-hom c c' f p =
+      cong₂ _,_ (α .N-hom c c' f p) (β .N-hom c c' f p)
+
+    ×Pshβ₁ : ×PshIntro ⋆PshHom π₁ P Q ≡ α
+    ×Pshβ₁ = makePshHomPath refl
+
+    ×Pshβ₂ : ×PshIntro ⋆PshHom π₂ P Q ≡ β
+    ×Pshβ₂ = makePshHomPath refl
+
+  module _
+    {P : Presheaf C ℓA}
+    {P' : Presheaf C ℓA'}
+    {Q : Presheaf C ℓB}
+    {Q' : Presheaf C ℓB'}
+    (PIso : PshIso P P')
+    (QIso : PshIso Q Q')
+    where
+    ×PshIso : PshIso (P ×Psh Q) (P' ×Psh Q')
+    ×PshIso .trans =
+      ×PshIntro
+        (π₁ P Q ⋆PshHom PIso .trans)
+        (π₂ P Q ⋆PshHom QIso .trans)
+    ×PshIso .nIso c .fst x =
+      PIso .nIso c .fst (x .fst) ,
+      QIso .nIso c .fst (x .snd)
+    ×PshIso .nIso c .snd .fst b =
+      cong₂ _,_
+        (PIso .nIso c .snd .fst (b .fst))
+        (QIso .nIso c .snd .fst (b .snd))
+    ×PshIso .nIso c .snd .snd b =
+      cong₂ _,_
+        (PIso .nIso c .snd .snd (b .fst))
+        (QIso .nIso c .snd .snd (b .snd))
+
   LocallyRepresentable : Presheaf C ℓP → Type _
   LocallyRepresentable P = ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)
 

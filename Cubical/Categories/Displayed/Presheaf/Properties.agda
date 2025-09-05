@@ -17,6 +17,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -51,6 +52,8 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
+open PshHom
+open PshIso
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -59,7 +62,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   private
     module Qᴰ = PresheafᴰNotation Qᴰ
   reindPathIsoⱽ : PshIsoⱽ (reind α Qᴰ) (reind β Qᴰ)
-  reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong fst α≡β) _) _)
+  reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong N-ob α≡β) _) _)
   reindPathIsoⱽ .fst .PshHomᴰ.N-homᴰ =
     Qᴰ.rectify $ Qᴰ.≡out $
       (sym (Qᴰ.reind-filler _ _)
@@ -67,7 +70,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩)
       ∙ Qᴰ.reind-filler _ _
   reindPathIsoⱽ .snd .isIsoOver.inv q =
-    Qᴰ.reind ((funExt⁻ (funExt⁻ (cong fst (sym α≡β)) _) _))
+    Qᴰ.reind ((funExt⁻ (funExt⁻ (cong N-ob (sym α≡β)) _) _))
   reindPathIsoⱽ .snd .isIsoOver.rightInv q qᴰ =
     Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
   reindPathIsoⱽ .snd .isIsoOver.leftInv q qᴰ =
@@ -180,11 +183,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module P = PresheafNotation P
     module Qᴰ = PresheafᴰNotation Qᴰ
   module _ {c}(p : P.p[ c ]) where
-    reindYo-seq : reindYo p (reind α Qᴰ) ≡ reindYo (α .fst _ p) Qᴰ
+    reindYo-seq : reindYo p (reind α Qᴰ) ≡ reindYo (α .N-ob _ p) Qᴰ
     reindYo-seq = reind-seq _ _ _
       ∙ cong₂ reind (yoRec-natural _ _ _) refl
 
-    reindYo-seqIsoⱽ : PshIsoⱽ (reindYo p (reind α Qᴰ)) (reindYo (α .fst c p) Qᴰ)
+    reindYo-seqIsoⱽ : PshIsoⱽ (reindYo p (reind α Qᴰ)) (reindYo (α .N-ob c p) Qᴰ)
     reindYo-seqIsoⱽ =
       reind-seqIsoⱽ _ _ _ ⋆PshIsoⱽ reindPathIsoⱽ (yoRec-natural _ _ _)
 
@@ -195,8 +198,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   private
     module Qᴰ = PresheafᴰNotation Qᴰ
   -- is this the universal property of reind?
-  reindPshIsoPshIsoᴰ : PshIsoᴰ α (reind (α .fst) Qᴰ) Qᴰ
-  reindPshIsoPshIsoᴰ = mkPshIsoᴰEquivOver α (reind (α .fst) Qᴰ) Qᴰ
+  reindPshIsoPshIsoᴰ : PshIsoᴰ α (reind (α .trans) Qᴰ) Qᴰ
+  reindPshIsoPshIsoᴰ = mkPshIsoᴰEquivOver α (reind (α .trans) Qᴰ) Qᴰ
     (record { N-obᴰ = λ z → z
             ; N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _
             })
@@ -210,16 +213,16 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Cᴰ = Categoryᴰ Cᴰ
     motive : ∀ ℓQᴰ → (Q : Presheaf C ℓP) (α : P ≡ Q) → Type _
     motive ℓQᴰ Q α = ∀ (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-      → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso α .fst) Qᴰ) Qᴰ
+      → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso α .trans) Qᴰ) Qᴰ
   reindPathToPshIsoPathP :
     ∀ {Q : Presheaf C ℓP} (α : P ≡ Q)
     → (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
     -- TODO: give this kind of PathP a name? it's the analogue of PshIsoᴰ for paths
-    → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso α .fst) Qᴰ) Qᴰ
+    → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso α .trans) Qᴰ) Qᴰ
   -- If we have prove pathToPshIso is an Iso then we could apply reindPshIsoPshIsoᴰ here
   reindPathToPshIsoPathP =
     J (motive _) λ Qᴰ →
-      subst (λ α → reind (α .fst) Qᴰ ≡ Qᴰ)
+      subst (λ α → reind (α .trans) Qᴰ ≡ Qᴰ)
         (sym pathToPshIsoRefl)
         (sym $ reind-id _)
 
@@ -454,7 +457,7 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
         → PshIsoᴰ α (Pᴰ ×ⱽPsh Pᴰ') (Qᴰ ×ⱽPsh Qᴰ')
       (αᴰ ×ⱽIso βᴰ) .fst = (αᴰ .fst) ×ⱽHom (βᴰ .fst)
       (αᴰ ×ⱽIso βᴰ) .snd .inv _ = invers .N-obᴰ where
-        invers : PshHomᴰ (invPshIso α .fst) (Qᴰ ×ⱽPsh Qᴰ') (Pᴰ ×ⱽPsh Pᴰ')
+        invers : PshHomᴰ (invPshIso α .trans) (Qᴰ ×ⱽPsh Qᴰ') (Pᴰ ×ⱽPsh Pᴰ')
         invers = ×ⱽ-introᴰ (×ⱽ-π₁ ⋆PshHomⱽᴰ (invPshIsoᴰ αᴰ .fst)) (×ⱽ-π₂ ⋆PshHomⱽᴰ (invPshIsoᴰ βᴰ .fst))
       (αᴰ ×ⱽIso βᴰ) .snd .rightInv _ _ = ΣPathP ((αᴰ .snd .rightInv _ _) , (βᴰ .snd .rightInv _ _))
       (αᴰ ×ⱽIso βᴰ) .snd .leftInv _ _ = ΣPathP ((αᴰ .snd .leftInv _ _) , (βᴰ .snd .leftInv _ _))

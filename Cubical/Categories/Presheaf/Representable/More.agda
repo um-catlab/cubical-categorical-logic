@@ -154,7 +154,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
     module C = Category C
 
   RepresentationPshIso : Type _
-  RepresentationPshIso = Σ[ x ∈ _ ] PshIso (C [-, x ]) P
+  RepresentationPshIso = Σ[ x ∈ C.ob ] PshIso (C [-, x ]) P
 
   open UniversalElement
   module _ ((x , α) : RepresentationPshIso) where
@@ -162,7 +162,8 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
     -- definition has fewer transports
     RepresentationPshIso→UniversalElement : UniversalElement C P
     RepresentationPshIso→UniversalElement .vertex = x
-    RepresentationPshIso→UniversalElement .element = α .trans .N-ob _ C.id
+    RepresentationPshIso→UniversalElement .element =
+      α .trans .N-ob _ C.id
     RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
       ( α⁻ Γ
       , subst motive

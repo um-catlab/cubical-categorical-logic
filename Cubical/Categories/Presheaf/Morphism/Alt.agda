@@ -12,6 +12,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
@@ -176,7 +177,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   record PshIso : Type (ℓ-max (ℓ-max ℓp ℓq) (ℓ-max ℓc ℓc')) where
     field
       trans : PshHom P Q
-      nIso : isPshIso trans
+      nIso : isPshIso {P = P}{Q = Q} trans
 
   PshIsoΣIso : Iso PshIso PshIsoΣ
   unquoteDef PshIsoΣIso = defineRecordIsoΣ PshIsoΣIso (quote (PshIso))
@@ -196,6 +197,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
     funExt (λ x₁ → cong lift (α .nIso x .snd .snd (x₁ .lower)))
 
 open PshIso
+
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   (α : PshIso P Q) where
   private
@@ -307,6 +309,73 @@ module _ {C : Category ℓc ℓc'}
 module _ {C : Category ℓc ℓc'}{P Q : Presheaf C ℓp} (path : P ≡ Q) where
   pathToPshIso : PshIso P Q
   pathToPshIso = PshCatIso→PshIso _ _ (pathToIso path)
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}
+  where
+
+  private
+    module C = Category C
+    module P = PresheafNotation P
+
+  PQ-ob-ty = Eq.singl (P .F-ob)
+  PQ-hom-ty : PQ-ob-ty → Type _
+  PQ-hom-ty PQ-ob =
+    Eq.singlP
+      (Eq.ap
+        (λ Q-ob → ∀ {x}{y} → C [ x , y ] → ⟨ Q-ob y ⟩ → ⟨ Q-ob x ⟩)
+        (PQ-ob .snd))
+      (P .F-hom)
+
+  eqToPshIso-ob : (PQ-ob : PQ-ob-ty) →
+    ∀ (c : C.ob) → hSet ℓp
+  eqToPshIso-ob (_ , Eq.refl) = P .F-ob
+
+  eqToPshIso-N-ob : (PQ-ob : PQ-ob-ty) →
+    ∀ (c : C.ob) → P.p[ c ] → ⟨ PQ-ob .fst c ⟩
+  eqToPshIso-N-ob (_ , Eq.refl) = λ _ z → z
+
+  eqToPshIso-N-hom :
+    (PQ-ob : PQ-ob-ty) →
+    (PQ-hom : PQ-hom-ty PQ-ob) →
+    ∀ (c c' : C.ob) → (f : C [ c , c' ]) →
+    (p : P.p[ c' ]) →
+    eqToPshIso-N-ob PQ-ob c (f P.⋆ p) ≡
+      PQ-hom .fst f (eqToPshIso-N-ob PQ-ob c' p)
+  eqToPshIso-N-hom (_ , Eq.refl) (_ , Eq.refl) =
+    λ _ _ _ _ → refl
+
+  eqToPshIso-nIso :
+    (PQ-ob : PQ-ob-ty) →
+    ∀ (c : C.ob) → isIso (eqToPshIso-N-ob PQ-ob c)
+  eqToPshIso-nIso (_ , Eq.refl) c =
+    (λ z → z) , (λ _ → refl) , (λ _ → refl)
+
+  module _
+    (Q : Presheaf C ℓp)
+    (eq-ob : P .F-ob Eq.≡ Q .F-ob)
+    (eq-hom :
+      Eq.HEq
+        (Eq.ap (λ F-ob' → ∀ {x}{y} →
+                 C [ x , y ] → ⟨ F-ob' y ⟩ → ⟨ F-ob' x ⟩) eq-ob)
+        (P .F-hom) (Q .F-hom))
+    where
+
+    private
+      PQ-ob : PQ-ob-ty
+      PQ-ob = _ , eq-ob
+
+      PQ-hom : PQ-hom-ty PQ-ob
+      PQ-hom = _ , eq-hom
+
+    eqToPshHom : PshHom P Q
+    eqToPshHom = record {
+          N-ob = eqToPshIso-N-ob PQ-ob
+        ; N-hom = eqToPshIso-N-hom PQ-ob PQ-hom }
+
+    eqToPshIso : PshIso P Q
+    eqToPshIso = record {
+        trans = eqToPshHom
+      ; nIso = eqToPshIso-nIso PQ-ob}
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} where
   pathToPshIsoRefl : pathToPshIso (refl {x = P}) ≡ idPshIso

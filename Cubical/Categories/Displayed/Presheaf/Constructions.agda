@@ -21,6 +21,7 @@ open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory using (∫C)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -44,7 +45,9 @@ open Functor
 open Functorᴰ
 open isIsoOver
 open PshHom
+open PshIso
 open PshHomᴰ
+
 private
   variable
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
@@ -90,11 +93,11 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   ∫×ᴰ≅× : ∀ {P : Presheaf C ℓA}{Q : Presheaf C ℓB}
             → {Pᴰ : Presheafᴰ P Cᴰ ℓAᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓBᴰ}
         → PshIso (∫P (Pᴰ ×ᴰPsh Qᴰ)) (∫P Pᴰ ×Psh ∫P Qᴰ)
-  ∫×ᴰ≅× .fst .fst _ ((p , q) , (pᴰ , qᴰ)) = (p , pᴰ) , (q , qᴰ)
-  ∫×ᴰ≅× .fst .snd _ _ _ _ = refl
-  ∫×ᴰ≅× .snd _ .fst ((p , pᴰ) , (q , qᴰ)) = (p , q) , (pᴰ , qᴰ)
-  ∫×ᴰ≅× .snd _ .snd .fst _ = refl
-  ∫×ᴰ≅× .snd _ .snd .snd _ = refl
+  ∫×ᴰ≅× .trans .N-ob _ ((p , q) , (pᴰ , qᴰ)) = (p , pᴰ) , (q , qᴰ)
+  ∫×ᴰ≅× .trans .N-hom _ _ _ _ = refl
+  ∫×ᴰ≅× .nIso _ .fst ((p , pᴰ) , (q , qᴰ)) = (p , q) , (pᴰ , qᴰ)
+  ∫×ᴰ≅× .nIso _ .snd .fst _ = refl
+  ∫×ᴰ≅× .nIso _ .snd .snd _ = refl
 
   -- Internal product: Pᴰ ×ⱽ Qᴰ over P
   PshProdⱽ :
@@ -118,7 +121,12 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
     → ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
     → LocallyRepresentable (∫P Pᴰ)
-  ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) = UniversalElementᴰ.∫ue (Γᴰ ×ᴰPᴰ) ◁PshIso ∫×ᴰ≅×
+  ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) =
+    -- TODO find out why this needs the eqToPshIso term
+    UniversalElementᴰ.∫ue (Γᴰ ×ᴰPᴰ)
+      ◁PshIso
+      (∫×ᴰ≅×
+      ⋆PshIso ×PshIso (eqToPshIso _ Eq.refl Eq.refl) idPshIso)
 
   module _ {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)}
            {Q : Presheaf C ℓQ}
@@ -153,9 +161,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module Qᴰ = PresheafᴰNotation Qᴰ
     open Functorᴰ
     reind : Presheafᴰ P Cᴰ ℓQᴰ
-    reind .F-obᴰ {x} xᴰ p = Qᴰ .F-obᴰ xᴰ (α .fst x p)
+    reind .F-obᴰ {x} xᴰ p = Qᴰ .F-obᴰ xᴰ (α .N-ob x p)
     reind .F-homᴰ {y} {x} {f} {yᴰ} {xᴰ} fᴰ p qᴰ =
-      Qᴰ.reind (sym $ α .snd _ _ _ _) (fᴰ Qᴰ.⋆ᴰ qᴰ)
+      Qᴰ.reind (sym $ α .N-hom _ _ _ _) (fᴰ Qᴰ.⋆ᴰ qᴰ)
     reind .F-idᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
       (sym $ Qᴰ.reind-filler _ _)
       ∙ Qᴰ.⋆IdL _

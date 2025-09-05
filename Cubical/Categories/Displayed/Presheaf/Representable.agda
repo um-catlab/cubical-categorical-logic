@@ -9,6 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
@@ -121,20 +122,32 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       ∫repr→ue : UniversalElement (TotalCat.∫C Cᴰ) (∫P Pᴰ)
       ∫repr→ue = RepresentationPshIso→UniversalElement
         (∫P Pᴰ)
-        -- (_ , (∫PshIsoᴰ yxᴰ≅Pᴰ))
-        ?
+        -- TODO figure out why I now need a PshIso
+        -- between yoneda in TotalCat.∫C and ∫P (Cᴰ [-][-, xᴰ ])
+        -- which is given with this eqToPshIso term
+        --
+        -- This was previously just (- , ∫PshIso yxᴰ≅Pᴰ)
+        -- when PshHom and PshIso were defined as Σ types
+        (_ , (eqToPshIso _ Eq.refl Eq.refl
+              ⋆PshIso ∫PshIso yxᴰ≅Pᴰ))
       module ∫repr→ue = UniversalElementNotation ∫repr→ue
 
     RepresentationPshIsoᴰ→UniversalElementᴰ :
       UniversalElementᴰ Cᴰ
         (RepresentationPshIso→UniversalElement P (x , yx≅P))
         Pᴰ
-    RepresentationPshIsoᴰ→UniversalElementᴰ .vertexᴰ  = ∫repr→ue.vertex .snd
-    RepresentationPshIsoᴰ→UniversalElementᴰ .elementᴰ = ∫repr→ue.element .snd
-    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ {Γ} {Γᴰ} .inv p pᴰ = ∫repr→ue.intro (p , pᴰ) .snd
-    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ {Γ} {Γᴰ} .rightInv p pᴰ =
+    RepresentationPshIsoᴰ→UniversalElementᴰ .vertexᴰ  =
+      ∫repr→ue.vertex .snd
+    RepresentationPshIsoᴰ→UniversalElementᴰ .elementᴰ =
+      ∫repr→ue.element .snd
+    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ
+      {Γ} {Γᴰ} .inv p pᴰ =
+      ∫repr→ue.intro (p , pᴰ) .snd
+    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ
+      {Γ} {Γᴰ} .rightInv p pᴰ =
       Pᴰ.rectify $ Pᴰ.≡out $ ∫repr→ue.β
-    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ {Γ} {Γᴰ} .leftInv f fᴰ =
+    RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ
+      {Γ} {Γᴰ} .leftInv f fᴰ =
       Cᴰ.rectify $ Cᴰ.≡out $ sym $ ∫repr→ue.η
 
 module _
@@ -315,7 +328,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module Cᴰ = Fibers Cᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
       module ueᴰ = UniversalElementᴰ ueᴰ
-      ∫◁ = ueᴰ.∫ue ◁PshIso ∫PshIsoᴰ αᴰ
+      ∫◁ = ueᴰ.∫ue ◁PshIso ∫PshIso αᴰ
       module ∫◁ = UniversalElementNotation ∫◁
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -374,16 +387,16 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (λ q qᴰ → ueⱽ.introᴰ (αᴰ .snd .inv q qᴰ))
       (λ q qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
         Qᴰ.⟨⟩⋆⟨ (sym $ Qᴰ.reind-filler _ _) ∙ refl ⟩
-        ∙ (sym $ ∫α .fst .snd _ _ _ _)
-        ∙ cong (∫α .fst .fst _) ueⱽ.βᴰ
-        ∙ ∫α .snd _ .snd .fst _)
+        ∙ (sym $ ∫α .trans .N-hom _ _ _ _)
+        ∙ cong (∫α .trans .N-ob _) ueⱽ.βᴰ
+        ∙ ∫α .nIso _ .snd .fst _)
       (λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
         ueⱽ.∫ue.intro≡ $
-          invPshIso ∫α .fst .snd _ _ _ _
-          ∙ Pⱽ.⟨⟩⋆⟨ cong (∫α .snd _ .fst) (sym $ Qᴰ.reind-filler _ _)
-          ∙ ∫α .snd _ .snd .snd _ ⟩)
+          invPshIso ∫α .trans .N-hom _ _ _ _
+          ∙ Pⱽ.⟨⟩⋆⟨ cong (∫α .nIso _ .fst) (sym $ Qᴰ.reind-filler _ _)
+          ∙ ∫α .nIso _ .snd .snd _ ⟩)
     } where
-      ∫α = ∫PshIsoᴰ αᴰ
+      ∫α = ∫PshIso αᴰ
       module ue = UniversalElementNotation ue
       module ueⱽ = UniversalElementⱽ ueⱽ
       module Q = PresheafNotation Q

@@ -20,7 +20,7 @@ module _ ((C , Ty , Tm , term , ext) : SCwF ℓC ℓC' ℓT ℓT') where
   FunType : (A B : Ty) → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓT) (ℓ-suc ℓT'))
   FunType A B =
     Σ[ A⇒B ∈ Ty ]
-    PshIso C (Tm A⇒B) (((Tm A) , λ Γ → ext Γ A) ⇒PshSmall Tm B)
+    PshIso C (Tm A⇒B) (((Tm A) , ext A) ⇒PshSmall Tm B)
 
   FunTypes : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓT) (ℓ-suc ℓT'))
   FunTypes = ∀ A B → FunType A B

@@ -27,7 +27,8 @@ private
   variable
     ℓC ℓC' ℓT ℓT' ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level
 
--- is this actually solving anything?
+-- It's unclear to me if this is just as bad performance-wise as
+-- making SCwF/SCwFᴰ into records
 module SCwFNotation (the-scwf : SCwF ℓC ℓC' ℓT ℓT') where
   C = the-scwf .fst
   Ty = the-scwf .snd .fst
@@ -36,7 +37,10 @@ module SCwFNotation (the-scwf : SCwF ℓC ℓC' ℓT ℓT') where
   term = the-scwf .snd .snd .fst
   ext = the-scwf .snd .snd .snd
 
-module SCwFᴰNotation {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}(the-scwfᴰ : SCwFᴰ the-scwf ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
+module SCwFᴰNotation
+  {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}
+  (the-scwfᴰ : SCwFᴰ the-scwf ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
+  where
   open SCwFNotation the-scwf public
   Cᴰ = the-scwfᴰ .fst
   module Cᴰ = Fibers Cᴰ
@@ -45,5 +49,6 @@ module SCwFᴰNotation {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}(the-scwfᴰ : SCw
   module Tmᴰ⟨_⟩ {A : Ty} (Aᴰ : Tyᴰ A) = PresheafᴰNotation (Tmᴰ Aᴰ)
   termᴰ = the-scwfᴰ .snd .snd .snd .fst
   extᴰ = the-scwfᴰ .snd .snd .snd .snd
-  module extᴰ⟨_,_⟩ {Γ}{A} (Γᴰ : Cᴰ.ob[ Γ ])(Aᴰ : Tyᴰ A) = UniversalElementᴰ (extᴰ Aᴰ Γᴰ)
+  module extᴰ⟨_,_⟩ {Γ}{A} (Γᴰ : Cᴰ.ob[ Γ ])(Aᴰ : Tyᴰ A) =
+    UniversalElementᴰ (extᴰ Aᴰ Γᴰ)
 

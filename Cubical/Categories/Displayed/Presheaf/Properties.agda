@@ -405,7 +405,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (UnitPshᴰ {P = Q})
   UnitPshᴰ≡UnitPshᴰ = sym reindUnit ◁ reindPathToPshIsoPathP α UnitPshᴰ
 
--- Does this belong here?
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (F : GlobalSection Cᴰ) where
   UnitPsh→UnitPshᴰ : PshSection F (UnitPshᴰ {P = UnitPsh {C = C}})
   UnitPsh→UnitPshᴰ .N-obᴰ _ = tt

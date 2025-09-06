@@ -45,7 +45,7 @@ module _ (CC : CartesianCategory ℓC ℓC') where
   CartesianCategory→SCwF .snd .fst = CC.C .ob
   CartesianCategory→SCwF .snd .snd .fst = CC.C [-,_]
   CartesianCategory→SCwF .snd .snd .snd .fst = CC.term
-  CartesianCategory→SCwF .snd .snd .snd .snd x y = CC.bp (x , y)
+  CartesianCategory→SCwF .snd .snd .snd .snd x y = CC.bp (y , x)
 
 module _
   {C : CartesianCategory ℓC ℓC'}
@@ -58,7 +58,7 @@ module _
   CartesianCategoryᴰ→SCwFᴰ .snd .fst = Cᴰ.Cᴰ.ob[_]
   CartesianCategoryᴰ→SCwFᴰ .snd .snd .fst = Cᴰ.Cᴰ [-][-,_]
   CartesianCategoryᴰ→SCwFᴰ .snd .snd .snd .fst = Cᴰ.termᴰ
-  CartesianCategoryᴰ→SCwFᴰ .snd .snd .snd .snd Γᴰ Aᴰ = Cᴰ.bpᴰ (Γᴰ , Aᴰ)
+  CartesianCategoryᴰ→SCwFᴰ .snd .snd .snd .snd Γᴰ Aᴰ = Cᴰ.bpᴰ (Aᴰ , Γᴰ)
 
 module _
   {C : CartesianCategory ℓC ℓC'}

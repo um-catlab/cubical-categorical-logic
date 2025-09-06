@@ -35,12 +35,15 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Section
+open import Cubical.Categories.Displayed.Section
 
 open Bifunctor
 open Bifunctorᴰ
 open Category
 open Functor
 open Functorᴰ
+open Section
 open isIsoOver
 open PshHomᴰ
 private
@@ -50,7 +53,6 @@ private
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
-
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -403,9 +405,13 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (UnitPshᴰ {P = Q})
   UnitPshᴰ≡UnitPshᴰ = sym reindUnit ◁ reindPathToPshIsoPathP α UnitPshᴰ
 
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (F : GlobalSection Cᴰ) where
+  UnitPsh→UnitPshᴰ : PshSection F (UnitPshᴰ {P = UnitPsh {C = C}})
+  UnitPsh→UnitPshᴰ .N-obᴰ _ = tt
+  UnitPsh→UnitPshᴰ .N-homᴰ = refl
+
 -- Product
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
-  where
+module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'} where
   module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
     where
     ×ⱽ-introⱽ :
@@ -431,7 +437,6 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     ×ⱽ-π₁ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Pᴰ
     ×ⱽ-π₁ .N-obᴰ = fst
     ×ⱽ-π₁ .N-homᴰ = refl
-
     ×ⱽ-π₂ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Qᴰ
     ×ⱽ-π₂ .N-obᴰ = snd
     ×ⱽ-π₂ .N-homᴰ = refl
@@ -459,7 +464,25 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
       (αᴰ ×ⱽIso βᴰ) .snd .rightInv _ _ = ΣPathP ((αᴰ .snd .rightInv _ _) , (βᴰ .snd .rightInv _ _))
       (αᴰ ×ⱽIso βᴰ) .snd .leftInv _ _ = ΣPathP ((αᴰ .snd .leftInv _ _) , (βᴰ .snd .leftInv _ _))
 
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : GlobalSection Cᴰ} where
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (α : PshSection F Pᴰ)
+    (β : PshSection F Qᴰ)
+    where
+    ×ᴰ-introS : PshSection F (Pᴰ ×ᴰPsh Qᴰ)
+    ×ᴰ-introS .N-obᴰ {x} {_} {p , q} _ = (α .N-obᴰ {x}{_}{p} tt) , (β .N-obᴰ {x}{_}{q} tt)
+    ×ᴰ-introS .N-homᴰ = ΣPathP ((α .N-homᴰ) , (β .N-homᴰ))
+
+  module _
+    {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
+    ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
+    (α : PshSection F Pᴰ)
+    where
+    strictlyPreservesLocalRep : Type _
+    strictlyPreservesLocalRep = ∀ c
+      → strictlyPreservesUE F (×ᴰ-introS (Section→PshSection F c) α) (c ×P) (F .F-obᴰ c ×ᴰPᴰ)
+
+module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
   where

@@ -11,7 +11,7 @@ open import Cubical.Data.Sigma
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' ℓ''' : Level
     A B : Type ℓ
     x y z w v : A
 
@@ -126,3 +126,35 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     → p P≡[ e ] q
     → p P≡[ e' ] q
   Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
+
+ΣPathPᴰ :
+  ∀ {A : Type ℓ}{P : A → Type ℓ'}
+  {B : Type ℓ''}{Q : B → Type ℓ'''}
+  {x y}
+  → Path (Σ A P) (x .fst .fst , x .snd .fst) (y .fst .fst , y .snd .fst)
+  → Path (Σ B Q) (x .fst .snd , x .snd .snd) (y .fst .snd , y .snd .snd)
+  → Path (Σ (A × B) (λ ab → P (ab .fst) × Q (ab .snd))) x y
+ΣPathPᴰ ap≡ bq≡ i = ((ap≡ i .fst) , (bq≡ i .fst)) , ((ap≡ i .snd) , (bq≡ i .snd))
+
+PathPᴰΣ :
+  ∀ {A : Type ℓ}{P : A → Type ℓ'}
+  {B : Type ℓ''}{Q : B → Type ℓ'''}
+  {x y}
+  → Path (Σ (A × B) (λ ab → P (ab .fst) × Q (ab .snd))) x y
+  → ( Path (Σ A P) (x .fst .fst , x .snd .fst) (y .fst .fst , y .snd .fst)
+    × Path (Σ B Q) (x .fst .snd , x .snd .snd) (y .fst .snd , y .snd .snd))
+PathPᴰΣ abpq≡ .fst i = (abpq≡ i .fst .fst) , (abpq≡ i .snd .fst)
+PathPᴰΣ abpq≡ .snd i = (abpq≡ i .fst .snd) , (abpq≡ i .snd .snd)
+
+ΣPathPSnd :
+  ∀ {A : Type ℓ}{B : A → Type ℓ'}{C : (a : A)(b : B a) → Type ℓ''} {x y}
+  → (ab≡ : Path (Σ A B) (x .fst , x .snd .fst) (y .fst , y .snd .fst))
+  → PathP (λ i → C (ab≡ i .fst) (ab≡ i .snd)) (x .snd .snd) (y .snd .snd)
+  → Path (Σ A (λ a → Σ (B a) (C a))) x y
+ΣPathPSnd ab≡ c≡ = ΣPathP ((cong fst ab≡) , (ΣPathP ((cong snd ab≡) , c≡)))
+
+congSndSnd :
+  ∀ {A : Type ℓ}{B : A → Type ℓ'}{C : (a : A)(b : B a) → Type ℓ''}{x y}
+  → (abc≡ : Path (Σ A (λ a → Σ (B a) (C a))) x y)
+  → PathP (λ i → C (abc≡ i .fst) (abc≡ i .snd .fst)) (x .snd .snd) (y .snd .snd)
+congSndSnd abc≡ = λ i → abc≡ i .snd .snd

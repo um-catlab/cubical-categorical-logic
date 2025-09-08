@@ -13,6 +13,7 @@ open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions

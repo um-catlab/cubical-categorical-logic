@@ -67,6 +67,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   UnitPshᴰ≅UnitPshᴰ =
     invPshIsoⱽ reindUnitIsoⱽ
     ⋆PshIsoⱽᴰ reindPshIsoPshIsoᴰ α (UnitPshᴰ {P = Q})
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓP}
   {α : P ≡ Q}

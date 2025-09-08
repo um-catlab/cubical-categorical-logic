@@ -47,6 +47,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
 open import Cubical.Categories.Displayed.Functor
 
 private

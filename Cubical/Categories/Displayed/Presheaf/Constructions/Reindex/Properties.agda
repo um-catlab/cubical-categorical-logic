@@ -164,11 +164,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Pᴰ = PresheafᴰNotation Pᴰ
-  reind-id : Pᴰ ≡ reind idPshHom Pᴰ
+  reind-id : Pᴰ ≡ reind (idPshHom {P = P}) Pᴰ
   reind-id = Functorᴰ≡ (λ _ → refl)
     (λ _ → funExt λ _ → funExt λ _ → Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _)
 
-  reind-idIsoⱽ : PshIsoⱽ Pᴰ (reind idPshHom Pᴰ)
+  reind-idIsoⱽ : PshIsoⱽ Pᴰ (reind (idPshHom {P = P}) Pᴰ)
   reind-idIsoⱽ .fst .PshHomᴰ.N-obᴰ = λ z → z
   reind-idIsoⱽ .fst .PshHomᴰ.N-homᴰ = Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _
   reind-idIsoⱽ .snd .isIsoOver.inv = λ a z → z
@@ -183,9 +183,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module P = PresheafNotation P
     module Qᴰ = PresheafᴰNotation Qᴰ
   module _ {c}(p : P.p[ c ]) where
+    -- TODO This is really slow
     reindYo-seq : reindYo p (reind α Qᴰ) ≡ reindYo (α .N-ob _ p) Qᴰ
-    reindYo-seq = reind-seq _ _ _
-      ∙ cong₂ reind (yoRec-natural _ _ _) refl
+    reindYo-seq =
+      reind-seq (yoRec P p) α Qᴰ
+      ∙ cong₂ reind (yoRec-natural P Q α) refl
 
     reindYo-seqIsoⱽ : PshIsoⱽ (reindYo p (reind α Qᴰ)) (reindYo (α .N-ob c p) Qᴰ)
     reindYo-seqIsoⱽ =
@@ -213,18 +215,18 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Cᴰ = Categoryᴰ Cᴰ
     motive : ∀ ℓQᴰ → (Q : Presheaf C ℓP) (α : P ≡ Q) → Type _
     motive ℓQᴰ Q α = ∀ (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-      → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso α .trans) Qᴰ) Qᴰ
+      → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso {P = P} {Q = Q} α .trans) Qᴰ) Qᴰ
   reindPathToPshIsoPathP :
     ∀ {Q : Presheaf C ℓP} (α : P ≡ Q)
     → (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
     -- TODO: give this kind of PathP a name? it's the analogue of PshIsoᴰ for paths
-    → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso α .trans) Qᴰ) Qᴰ
+    → PathP (λ i → Presheafᴰ (α i) Cᴰ ℓQᴰ) (reind (pathToPshIso {P = P} {Q = Q} α .trans) Qᴰ) Qᴰ
   -- If we have prove pathToPshIso is an Iso then we could apply reindPshIsoPshIsoᴰ here
   reindPathToPshIsoPathP =
     J (motive _) λ Qᴰ →
       subst (λ α → reind (α .trans) Qᴰ ≡ Qᴰ)
-        (sym pathToPshIsoRefl)
-        (sym $ reind-id _)
+        (sym $ pathToPshIsoRefl {C = C})
+        (sym $ reind-id Qᴰ)
 
 module _
   {C : Category ℓC ℓC'}

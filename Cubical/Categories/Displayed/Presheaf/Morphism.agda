@@ -95,6 +95,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   private
     module Pᴰ = PresheafᴰNotation Pᴰ
     module Qᴰ = PresheafᴰNotation Qᴰ
+  -- TODO make this a record
   PshIsoᴰ : Type _
   PshIsoᴰ =
     Σ[ αᴰ ∈ PshHomᴰ (α .trans) Pᴰ Qᴰ ]

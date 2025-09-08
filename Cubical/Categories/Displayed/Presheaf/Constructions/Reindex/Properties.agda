@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Presheaf.Properties where
+module Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -7,43 +7,34 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Equiv.Dependent
 
-import Cubical.Data.Equality as Eq
-open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+import Cubical.Data.Equality as Eq
 
-open import Cubical.Categories.Category
-open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Functor
-open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
-open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Bifunctor
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-  renaming (π to Reindexπ; reindex to CatReindex)
-open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
-open import Cubical.Categories.Displayed.Presheaf.Constructions
-open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Presheaf.Morphism
+open import Cubical.Categories.Displayed.BinProduct
+open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+  renaming (π to Reindexπ; reindex to CatReindex)
 
-open Bifunctor
-open Bifunctorᴰ
-open Category
-open Functor
-open Functorᴰ
-open isIsoOver
-open PshHomᴰ
 private
   variable
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
@@ -52,8 +43,17 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
+open Bifunctorᴰ
+open Functorᴰ
+
+open isIsoOver
+
+open PshHomᴰ
 open PshHom
 open PshIso
+
+open Category
+open Functor
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -243,7 +243,6 @@ module _
   reindⱽFuncRepr .snd .rightInv _ _ = refl
   reindⱽFuncRepr .snd .leftInv _ _ = refl
 
-
 -- Whiskering a UniversalElementⱽ
 module _
   {C : Category ℓC ℓC'}
@@ -296,232 +295,3 @@ module _
       ⋆PshIsoⱽ reindPathIsoⱽ (yoRec≡ _ ((sym $ D .⋆IdL _) ∙ cong₂ (seq' D) (sym $ F .F-id) refl))
       ⋆PshIsoⱽ (invPshIsoⱽ $ reind-seqIsoⱽ _ _ _)
       ⋆PshIsoⱽ reindPshIsoⱽ (invPshIsoⱽ reindFuncReind)
-
-
--- Lift
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
-  where
-  private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-  LiftHomⱽ : ∀ {ℓ'} → PshHomⱽ Pᴰ (LiftPshᴰ Pᴰ ℓ')
-  LiftHomⱽ .N-obᴰ = λ z → lift z
-  LiftHomⱽ .N-homᴰ = refl
-
-  LiftIsoⱽ : ∀ {ℓ'} → PshIsoⱽ Pᴰ (LiftPshᴰ Pᴰ ℓ')
-  LiftIsoⱽ .fst = LiftHomⱽ
-  LiftIsoⱽ .snd .inv = λ a z → z .lower
-  LiftIsoⱽ .snd .rightInv b q = refl
-  LiftIsoⱽ .snd .leftInv a p = refl
-
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  {Q : Presheaf C ℓP} {Qᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
-  {α : P ≡ Q}
-  where
-  Lift-Path :
-    ∀ (αᴰ : PathP (λ i → Presheafᴰ (α i) Cᴰ ℓPᴰ) Pᴰ Qᴰ)
-    → PathP (λ i → Presheafᴰ (α i) Cᴰ (ℓ-max ℓPᴰ ℓ'))
-        (LiftPshᴰ Pᴰ ℓ')
-        (LiftPshᴰ Qᴰ ℓ')
-  Lift-Path αᴰ i = LiftPshᴰ (αᴰ i) _
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  {Q : Presheaf C ℓQ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-  where
-  private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-  -- TODO: naming...
-  Lift-F-Homᴰ : ∀ {α : PshHom P Q} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) → PshHomᴰ α (LiftPshᴰ Pᴰ ℓ) (LiftPshᴰ Qᴰ ℓ')
-  Lift-F-Homᴰ αᴰ .N-obᴰ pᴰ = lift (αᴰ .N-obᴰ (pᴰ .lower))
-  Lift-F-Homᴰ αᴰ .N-homᴰ {fᴰ = fᴰ}{pᴰ = pᴰ} i =
-    lift (αᴰ .N-homᴰ {fᴰ = fᴰ}{pᴰ = pᴰ .lower} i)
-
-  Lift-F-Isoᴰ : ∀ {α : PshIso P Q} (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) → PshIsoᴰ α (LiftPshᴰ Pᴰ ℓ) (LiftPshᴰ Qᴰ ℓ')
-  Lift-F-Isoᴰ αᴰ .fst = Lift-F-Homᴰ (αᴰ .fst)
-  Lift-F-Isoᴰ αᴰ .snd .inv _ qᴰ = lift (αᴰ .snd .inv _ (qᴰ .lower))
-  Lift-F-Isoᴰ αᴰ .snd .rightInv p pᴰ i =
-    lift (αᴰ .snd .rightInv p (pᴰ .lower) i)
-  Lift-F-Isoᴰ αᴰ .snd .leftInv q qᴰ i =
-    lift (αᴰ .snd .leftInv q (qᴰ .lower) i)
-
-module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-  where
-  reindLiftEq : PresheafᴰEq (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
-  reindLiftEq = Eq.refl , Eq.refl
-
-  reindLift : reind α (LiftPshᴰ Qᴰ ℓ') ≡ LiftPshᴰ (reind α Qᴰ) ℓ'
-  reindLift = Functorᴰ≡ (λ xᴰ → refl) (λ _ → refl)
-
-  reindLiftIsoⱽ : PshIsoⱽ (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
-  reindLiftIsoⱽ = eqToPshIsoⱽ reindLiftEq
-
--- Unit
-
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α : PshHom P Q}
-  where
-  reindUnitEq : PresheafᴰEq (reind α (UnitPshᴰ {Cᴰ = Cᴰ})) UnitPshᴰ
-  reindUnitEq = Eq.refl , Eq.refl
-
-  reindUnit : reind α (UnitPshᴰ {Cᴰ = Cᴰ}) ≡ UnitPshᴰ
-  reindUnit =
-    Functorᴰ≡ (λ _ → funExt λ _ → Σ≡Prop (λ _ → isPropIsSet) refl)
-    λ fᴰ → refl
-
-  reindUnitIsoⱽ : PshIsoⱽ (reind α (UnitPshᴰ {Cᴰ = Cᴰ})) UnitPshᴰ
-  reindUnitIsoⱽ = eqToPshIsoⱽ reindUnitEq
-
-module _ {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
-  {Q : Presheaf D ℓQ}
-  where
-  -- for some reason this can't be inlined. Is this an Agda bug?
-  reindFuncUnitEq : PresheafᴰEq (reindFunc F (UnitPshᴰ {Cᴰ = Dᴰ}{P = Q})) UnitPshᴰ
-  reindFuncUnitEq = (Eq.refl , Eq.refl)
-
-  reindFuncUnitIsoⱽ : PshIsoⱽ (reindFunc F (UnitPshᴰ {Cᴰ = Dᴰ}{P = Q})) UnitPshᴰ
-  reindFuncUnitIsoⱽ = eqToPshIsoⱽ reindFuncUnitEq
-
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α : PshIso P Q}
-  where
-  UnitPshᴰ≅UnitPshᴰ : PshIsoᴰ {Cᴰ = Cᴰ} α (UnitPshᴰ {P = P}) (UnitPshᴰ {P = Q})
-  UnitPshᴰ≅UnitPshᴰ =
-    invPshIsoⱽ reindUnitIsoⱽ
-    ⋆PshIsoⱽᴰ reindPshIsoPshIsoᴰ α (UnitPshᴰ {P = Q})
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓP}
-  {α : P ≡ Q}
-  where
-  UnitPshᴰ≡UnitPshᴰ :
-    PathP
-      (λ i → Presheafᴰ (α i) Cᴰ ℓ-zero)
-      (UnitPshᴰ {P = P})
-      (UnitPshᴰ {P = Q})
-  UnitPshᴰ≡UnitPshᴰ = sym reindUnit ◁ reindPathToPshIsoPathP α UnitPshᴰ
-
--- Product
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
-  where
-  module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
-    where
-    ×ⱽ-introⱽ :
-      PshHomⱽ Pᴰ Qᴰ
-      → PshHomⱽ Pᴰ Rᴰ
-      → PshHomⱽ Pᴰ (Qᴰ ×ⱽPsh Rᴰ)
-    ×ⱽ-introⱽ αⱽ βⱽ .N-obᴰ = λ z → αⱽ .N-obᴰ z , βⱽ .N-obᴰ z
-    ×ⱽ-introⱽ αⱽ βⱽ .N-homᴰ = ΣPathP ((αⱽ .N-homᴰ) , (βⱽ .N-homᴰ))
-
-  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-    {α : PshHom P Q}
-    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ}
-    where
-    ×ⱽ-introᴰ :
-      PshHomᴰ α Pᴰ Qᴰ
-      → PshHomᴰ α Pᴰ Rᴰ
-      → PshHomᴰ α Pᴰ (Qᴰ ×ⱽPsh Rᴰ)
-    ×ⱽ-introᴰ αᴰ βᴰ .N-obᴰ = λ z → αᴰ .N-obᴰ z , βᴰ .N-obᴰ z
-    ×ⱽ-introᴰ αᴰ βᴰ .N-homᴰ = ΣPathP ((αᴰ .N-homᴰ) , (βᴰ .N-homᴰ))
-
-  module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
-    where
-    ×ⱽ-π₁ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Pᴰ
-    ×ⱽ-π₁ .N-obᴰ = fst
-    ×ⱽ-π₁ .N-homᴰ = refl
-
-    ×ⱽ-π₂ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Qᴰ
-    ×ⱽ-π₂ .N-obᴰ = snd
-    ×ⱽ-π₂ .N-homᴰ = refl
-
-  -- This is like PshProdⱽ .F-hom but for homomorphisms/isomorphisms
-  -- between presheaves of different levels
-  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-    {Pᴰ' : Presheafᴰ P Cᴰ ℓPᴰ'}
-    {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-    {Qᴰ' : Presheafᴰ Q Cᴰ ℓQᴰ'}
-    where
-    module _ {α : PshHom P Q} where
-      _×ⱽHom_ : (αᴰ : PshHomᴰ α Pᴰ Qᴰ) (βᴰ : PshHomᴰ α Pᴰ' Qᴰ')
-        → PshHomᴰ α (Pᴰ ×ⱽPsh Pᴰ') (Qᴰ ×ⱽPsh Qᴰ')
-      (αᴰ ×ⱽHom βᴰ) = ×ⱽ-introᴰ (×ⱽ-π₁ ⋆PshHomⱽᴰ αᴰ) (×ⱽ-π₂ ⋆PshHomⱽᴰ βᴰ)
-
-    module _ {α : PshIso P Q} where
-      _×ⱽIso_ : (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) (βᴰ : PshIsoᴰ α Pᴰ' Qᴰ')
-        → PshIsoᴰ α (Pᴰ ×ⱽPsh Pᴰ') (Qᴰ ×ⱽPsh Qᴰ')
-      (αᴰ ×ⱽIso βᴰ) .fst = (αᴰ .fst) ×ⱽHom (βᴰ .fst)
-      (αᴰ ×ⱽIso βᴰ) .snd .inv _ = invers .N-obᴰ where
-        invers : PshHomᴰ (invPshIso α .trans) (Qᴰ ×ⱽPsh Qᴰ') (Pᴰ ×ⱽPsh Pᴰ')
-        invers = ×ⱽ-introᴰ (×ⱽ-π₁ ⋆PshHomⱽᴰ (invPshIsoᴰ αᴰ .fst)) (×ⱽ-π₂ ⋆PshHomⱽᴰ (invPshIsoᴰ βᴰ .fst))
-      (αᴰ ×ⱽIso βᴰ) .snd .rightInv _ _ = ΣPathP ((αᴰ .snd .rightInv _ _) , (βᴰ .snd .rightInv _ _))
-      (αᴰ ×ⱽIso βᴰ) .snd .leftInv _ _ = ΣPathP ((αᴰ .snd .leftInv _ _) , (βᴰ .snd .leftInv _ _))
-
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-  where
-  private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-    module Qᴰ = PresheafᴰNotation Qᴰ
-  PshProdⱽ≡ᴰ :
-    Pᴰ ×ᴰPsh Qᴰ ≡ reind (π₁ P Q) Pᴰ ×ⱽPsh reind (π₂ P Q) Qᴰ
-  PshProdⱽ≡ᴰ = Functorᴰ≡
-    (λ Aᴰ → funExt λ (p , q) → ΣPathPProp (λ _ → isPropIsSet) refl)
-    λ fᴰ → funExt λ (p , q) → funExt λ (pᴰ , qᴰ) → ΣPathP $
-      (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _)
-      , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _ _)
-
-  -- This one is only Eq.refl on objects, would need a corresponding eqToPshIsoⱽ' like reindF''
-  PshProdⱽ≅ᴰ :
-    PshIsoⱽ (Pᴰ ×ᴰPsh Qᴰ) (reind (π₁ P Q) Pᴰ ×ⱽPsh reind (π₂ P Q) Qᴰ)
-  PshProdⱽ≅ᴰ .fst .N-obᴰ x = x
-  PshProdⱽ≅ᴰ .fst .N-homᴰ =
-    ΣPathP ( (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _)
-           , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _ _))
-  PshProdⱽ≅ᴰ .snd .inv _ x = x
-  PshProdⱽ≅ᴰ .snd .rightInv _ _ = refl
-  PshProdⱽ≅ᴰ .snd .leftInv _ _ = refl
-
-module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {Pᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-  {α : PshHom P Q}
-  where
-  reind×ⱽIsoⱽ : PshIsoⱽ (reind α (Pᴰ ×ⱽPsh Qᴰ)) (reind α Pᴰ ×ⱽPsh reind α Qᴰ)
-  reind×ⱽIsoⱽ .fst = ×ⱽ-introⱽ (reind-introⱽ (reind-π ⋆PshHomᴰⱽ ×ⱽ-π₁)) (reind-introⱽ (reind-π ⋆PshHomᴰⱽ ×ⱽ-π₂))
-  reind×ⱽIsoⱽ .snd .inv p = invers .N-obᴰ
-    where
-      invers : PshHomⱽ (reind α Pᴰ ×ⱽPsh reind α Qᴰ) (reind α (Pᴰ ×ⱽPsh Qᴰ))
-      invers = reind-introⱽ (×ⱽ-introᴰ (×ⱽ-π₁ ⋆PshHomⱽᴰ reind-π) (×ⱽ-π₂ ⋆PshHomⱽᴰ reind-π))
-  reind×ⱽIsoⱽ .snd .rightInv _ _ = refl
-  reind×ⱽIsoⱽ .snd .leftInv _ _ = refl
-
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {P : Presheaf D ℓP}
-  {Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Dᴰ ℓQᴰ}
-  {F : Functor C D}
-  where
-  reindFunc×ⱽIsoⱽ :
-    PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
-            (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-  reindFunc×ⱽIsoⱽ = eqToPshIsoⱽ the-eq where
-    the-eq : PresheafᴰEq (reindFunc F (Pᴰ ×ⱽPsh Qᴰ)) (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-    the-eq = (Eq.refl , Eq.refl)
-
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {x}
-  {F : Functor C D}
-  {Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ}{Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
-  where
-  reindⱽFunc×ⱽIsoⱽ :
-    PshIsoⱽ (reindⱽFunc F (Pᴰ ×ⱽPsh Qᴰ))
-            (reindⱽFunc F Pᴰ ×ⱽPsh reindⱽFunc F Qᴰ)
-  reindⱽFunc×ⱽIsoⱽ =
-    reindPshIsoⱽ reindFunc×ⱽIsoⱽ
-    ⋆PshIsoⱽ reind×ⱽIsoⱽ

@@ -29,7 +29,6 @@ open import Cubical.Categories.Displayed.Constructions.Slice
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Presheaf.CartesianLift
 import Cubical.Categories.Displayed.Fibration as CatFib
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
@@ -95,9 +94,14 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (Pᴰ ×ᴰPsh Qᴰ)
   ×ᴰ≅π₁*×ⱽπ₂* =
     -- TODO: get these fixities right
-    ((yoRecIsoⱽ π₁* ⋆PshIsoⱽ (pathToPshIsoⱽ (cong₂ reind (sym $ yoRec-natural _ _ _) refl) ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)))
-    ×ⱽIso ((yoRecIsoⱽ π₂* ⋆PshIsoⱽ (pathToPshIsoⱽ (cong₂ reind (sym $ yoRec-natural _ _ _) refl) ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)))))
-    ⋆PshIsoⱽᴰ ((reindPshIsoPshIsoᴰ _ _ ×ⱽIso reindPshIsoPshIsoᴰ _ _)
+    ((((yoRecIsoⱽ π₁*
+        ⋆PshIsoⱽ pathToPshIsoⱽ (cong₂ reind (sym $ yoRec-natural _ _ _) refl)
+        ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ (π₁ P Q) _))
+      ×ⱽIso
+      ((yoRecIsoⱽ π₂*
+        ⋆PshIsoⱽ pathToPshIsoⱽ (cong₂ reind (sym $ yoRec-natural _ _ _) refl))
+        ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ (π₂ P Q) _)))
+    ⋆PshIsoⱽᴰ (reindPshIsoPshIsoᴰ _ _ ×ⱽIso reindPshIsoPshIsoᴰ _ _))
     ⋆PshIsoᴰⱽ invPshIsoⱽ (PshProdⱽ≅ᴰ Pᴰ Qᴰ))
 
   ×ⱽRepr+π*→×ᴰRepr : UniversalElementᴰ Cᴰ p×q (Pᴰ ×ᴰPsh Qᴰ)

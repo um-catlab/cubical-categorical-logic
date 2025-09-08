@@ -25,7 +25,6 @@ private
   variable
     ℓB ℓB' ℓBᴰ ℓBᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
--- TODO
 -- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --   {F : Functor C D}
 --   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

@@ -29,6 +29,7 @@ open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 
@@ -212,8 +213,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
     f₁ᴰ ,pᴰ f₂ᴰ = introᴰ (f₁ᴰ , f₂ᴰ)
 
     ∫bp : BinProduct (∫C Cᴰ) ((c , cᴰ) , d , dᴰ)
-    -- TODO usage of eqToPshIso is now need due to a regression with Σ types and PshIsos
-    ∫bp = UniversalElementᴰ.∫ue bpᴰ ◁PshIso (∫×ᴰ≅× ⋆PshIso eqToPshIso _ Eq.refl Eq.refl)
+    ∫bp = UniversalElementᴰ.∫ue bpᴰ ◁PshIso (∫×ᴰ≅× ⋆PshIso TotalCat×PshYoIso Cᴰ)
 
     module _ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
       {f₁ f₂}

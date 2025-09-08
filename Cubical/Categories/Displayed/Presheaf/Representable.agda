@@ -26,6 +26,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 
 private
@@ -122,13 +123,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       ∫repr→ue : UniversalElement (TotalCat.∫C Cᴰ) (∫P Pᴰ)
       ∫repr→ue = RepresentationPshIso→UniversalElement
         (∫P Pᴰ)
-        -- TODO figure out why I now need a PshIso
-        -- between yoneda in TotalCat.∫C and ∫P (Cᴰ [-][-, xᴰ ])
-        -- which is given with this eqToPshIso term
-        --
-        -- This was previously just (- , ∫PshIso yxᴰ≅Pᴰ)
-        -- when PshHom and PshIso were defined as Σ types
-        (_ , (eqToPshIso _ Eq.refl Eq.refl
+        (_ , ((invPshIso $ TotalCatYoPshIso Cᴰ)
               ⋆PshIso ∫PshIso yxᴰ≅Pᴰ))
       module ∫repr→ue = UniversalElementNotation ∫repr→ue
 

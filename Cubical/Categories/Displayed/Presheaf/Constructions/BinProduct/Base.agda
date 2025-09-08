@@ -25,6 +25,7 @@ open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.BinProduct
@@ -97,11 +98,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     → ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
     → LocallyRepresentable (∫P Pᴰ)
   ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) =
-    -- TODO find out why this needs the eqToPshIso term
     UniversalElementᴰ.∫ue (Γᴰ ×ᴰPᴰ)
       ◁PshIso
-      (∫×ᴰ≅×
-      ⋆PshIso ×PshIso (eqToPshIso _ Eq.refl Eq.refl) idPshIso)
+      (∫×ᴰ≅× ⋆PshIso ×PshIso (TotalCatYoPshIso Cᴰ) idPshIso)
 
   LocallyRepresentableⱽ : {P : Presheaf C ℓP} → (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
   LocallyRepresentableⱽ {P = P} Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])

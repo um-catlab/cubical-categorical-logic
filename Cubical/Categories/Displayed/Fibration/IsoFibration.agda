@@ -45,3 +45,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   isWeakIsoFibration' : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
   isWeakIsoFibration' = ∀ {c c'} (cᴰ : Cᴰ.ob[ c ]) (f : CatIso C c c')
     → WeakIsoLift' cᴰ f
+
+  isIsoFibration : Type _
+  isIsoFibration = ∀ {c c'} (cᴰ : Cᴰ.ob[ c' ]) (f : CatIso C c c')
+    → Σ[ f*cᴰ ∈ Cᴰ.ob[ c ] ] CatIsoᴰ Cᴰ f f*cᴰ cᴰ

@@ -48,6 +48,7 @@ module SCwFᴰNotation
   Tmᴰ = the-scwfᴰ .snd .snd .fst
   module Tmᴰ⟨_⟩ {A : Ty} (Aᴰ : Tyᴰ A) = PresheafᴰNotation (Tmᴰ Aᴰ)
   termᴰ = the-scwfᴰ .snd .snd .snd .fst
+  module termᴰ = UniversalElementᴰ termᴰ
   extᴰ = the-scwfᴰ .snd .snd .snd .snd
   module extᴰ⟨_,_⟩ {Γ}{A} (Γᴰ : Cᴰ.ob[ Γ ])(Aᴰ : Tyᴰ A) =
     UniversalElementᴰ (extᴰ Aᴰ Γᴰ)

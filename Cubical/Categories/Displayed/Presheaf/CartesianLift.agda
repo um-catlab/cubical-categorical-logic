@@ -210,35 +210,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   isFibration'Reind : isFibration' (reind {P = P} α Qᴰ)
   isFibration'Reind p = isFibQᴰ (α .N-ob _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
 
--- TODO
--- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---          (F : Functor C D)
---          where
---   -- This gives us a very interesting alternate proof of isFibrationReindex
---   module _ (isFibDᴰ : isFibration Dᴰ) where
---     open CartesianLift
---     private
---       module Dᴰ = Categoryᴰ Dᴰ
-
---     isCatFibrationReindex : Fibration.isFibration (Reindex.reindex Dᴰ F)
---     isCatFibrationReindex = YoFibrations→isCatFibration yF where
---       module _  where
---       yF' : ∀ {y} (yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
---         → isFibration (reindHet (Functor→PshHet F y) (Dᴰ [-][-, yᴰ ]))
---       yF' yᴰ = isFibrationReindHet _ (isCatFibration→YoFibrations isFibDᴰ _)
---       yF : YoFibrations
---       yF yᴰ p .p*Pᴰ = yF' yᴰ p .p*Pᴰ
---       yF yᴰ p .π = yF' yᴰ p .π
---       yF yᴰ p .isCartesian = yF' yᴰ p .isCartesian
-
---   isCatFibration'Reindex
---     : isCatFibration' Dᴰ
---     → isCatFibration' (Reindex.reindex Dᴰ F)
---   isCatFibration'Reindex isFib xᴰ f =
---     reindUEⱽ (isFib xᴰ (F ⟪ f ⟫)) ◁PshIsoⱽ
---       (invPshIsoⱽ reindYoReindFunc
---       ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)
-
 -- Reindexing a projectionlike endofunctor gives a displayed endofunctor
 -- when cartesian lifts along the projection exists
 -- TODO : Find the most general version of this

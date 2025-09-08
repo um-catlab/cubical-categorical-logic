@@ -27,7 +27,11 @@ open import Cubical.Categories.Displayed.Constructions.Slice
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Displayed.FunctorComprehension
+import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Morphism
+open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.CartesianLift
   using () renaming (
     CartesianLift to PshᴰCartesianLift
@@ -113,3 +117,15 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   -- definition. It suffers from very slow performance
   CartesianLift'' : {x y : C.ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
   CartesianLift'' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (F : Functor C D) where
+
+  isFibration'Reindex
+    : isFibration' Dᴰ
+    → isFibration' (Reindex.reindex Dᴰ F)
+  isFibration'Reindex isFib xᴰ f =
+    reindUEⱽ {F = F} (isFib xᴰ $ F ⟪ f ⟫) ◁PshIsoⱽ
+      (invPshIsoⱽ (reindYoReindFunc {F = F})
+      ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)

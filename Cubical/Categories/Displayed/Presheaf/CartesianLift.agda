@@ -28,7 +28,6 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
--- import Cubical.Categories.Displayed.Fibration.Base as Fibration
 
 private
   variable

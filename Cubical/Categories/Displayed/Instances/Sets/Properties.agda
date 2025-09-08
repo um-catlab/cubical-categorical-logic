@@ -175,13 +175,24 @@ ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .fst = ⟨ P a ⟩ → ⟨ Q a �
 ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .snd = isSet→ (Q a .snd)
 ExponentialsⱽSETᴰ {c = A} P Q .elementⱽ a x = x .fst (x .snd)
 ExponentialsⱽSETᴰ {c = A} P Q .universalⱽ .fst f γ γᴰ p = f γ (γᴰ , p)
-ExponentialsⱽSETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .fst fᴰ = funExt λ γ → funExt λ γᴰ →
+ExponentialsⱽSETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .fst fᴰ =
+  funExt λ γ → funExt λ γᴰ →
   -- nasty. avoidable?
+  -- Disgusting, but filling all these paths in helps performance
   Q.Prectify $ Q.≡out $ sym $
     cong₂fᴰ
-      (Γᴰ.reind-filler _ ∙ Γᴰ.reind-filler _)
-      (P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _)
-    ∙ Q.reind-filler _ ∙ Q.reind-filler _
+      (Γᴰ.reind-filler (λ i → transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0 ∨ ~ i) γ)
+        ∙ Γᴰ.reind-filler λ i → transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0 ∨ ~ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ))
+      (P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) γ))
+        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ)))
+        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
+        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
+        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
+        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
+        ∙ P.reind-filler (λ i → PresheafNotation.⋆IdL (SET ℓ [-, A ]) ((SET ℓ [-, A ]) .Functor.F-hom f (id (SET ℓ))) i (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ)))
+        ∙ P.reind-filler λ i → ⋆IdL (SET ℓ) f (i0 ∨ ~ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0 ∨ ~ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ)))
+      ∙ Q.reind-filler (λ i → ⋆IdL (SET ℓ) f i (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ)))
+      ∙ Q.reind-filler λ i → ⋆IdR (SET ℓ) f i (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i) γ)
   where
     ⟨P⟩ ⟨Q⟩ : ⟨ A ⟩ → Type _
     ⟨Q⟩ a = ⟨ Q a ⟩
@@ -200,13 +211,22 @@ ExponentialsⱽSETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .fs
     cong₂fᴰ γᴰ≡γᴰ' p≡p' i = (f (γᴰ≡γᴰ' i .fst)) , (fᴰ (γᴰ≡γᴰ' i .fst) ((γᴰ≡γᴰ' i .snd)
       , (P.Prectify {e = cong fst p≡p'}{e' = cong f $ cong fst γᴰ≡γᴰ'}(λ j → p≡p' j .snd) i)))
 
-ExponentialsⱽSETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .snd fᴰ = funExt λ γ → funExt λ γᴰ → funExt λ p →
+ExponentialsⱽSETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .snd fᴰ =
+  funExt λ γ → funExt λ γᴰ → funExt λ p →
   Q.Prectify $ Q.≡out $ sym $
     cong₃fᴰ
-      (Γᴰ.reind-filler _ ∙ Γᴰ.reind-filler _)
-      (P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _ ∙ P.reind-filler _)
-    ∙ Q.reind-filler _
-    ∙ Q.reind-filler _
+      (Γᴰ.reind-filler (λ i → transp (λ j → fst Γ) (~ i) γ)
+      ∙ Γᴰ.reind-filler λ i → transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ))
+      (P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) γ))
+      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ)))
+      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
+      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
+      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
+      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
+      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 γ)))
+      ∙ P.reind-filler λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ)))
+    ∙ Q.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 γ)))
+    ∙ Q.reind-filler λ i → f (transp (λ j → fst Γ) i γ)
   where
     ⟨P⟩ ⟨Q⟩ : ⟨ A ⟩ → Type _
     ⟨Q⟩ a = ⟨ Q a ⟩

@@ -78,7 +78,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → PathP (λ i → Presheafᴰ (α i) Cᴰ (ℓ-max ℓPᴰ ℓ'))
         (LiftPshᴰ Pᴰ ℓ')
         (LiftPshᴰ Qᴰ ℓ')
-  Lift-Path αᴰ i = LiftPshᴰ (αᴰ i) _
+  Lift-Path {ℓ' = ℓ'} αᴰ i = LiftPshᴰ (αᴰ i) ℓ'
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
   {Q : Presheaf C ℓQ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}

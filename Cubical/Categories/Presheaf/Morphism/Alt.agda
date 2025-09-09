@@ -75,6 +75,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
 
   -- Natural transformation between presheaves of different levels
   record PshHom : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    constructor pshhom
     field
       N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
       N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
@@ -175,6 +176,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   PshIsoΣ = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
   record PshIso : Type (ℓ-max (ℓ-max ℓp ℓq) (ℓ-max ℓc ℓc')) where
+    constructor pshiso
     field
       trans : PshHom P Q
       nIso : isPshIso {P = P}{Q = Q} trans

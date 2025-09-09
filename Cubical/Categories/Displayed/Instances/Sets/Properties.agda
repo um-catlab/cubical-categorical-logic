@@ -53,25 +53,17 @@ private
 
 open UniversalElementᴰ
 open UniversalElementⱽ
-open PshᴰCartesianLift
 open Categoryᴰ
 open Category
 open isIsoOver
 
 isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
-isFibrationSETᴰ Bᴰ f .p*Pᴰ a = Bᴰ (f a)
-isFibrationSETᴰ cᴰ' f .π = λ x z → z
-isFibrationSETᴰ cᴰ' f .isCartesian .fst = λ z₁ → z₁
-isFibrationSETᴰ cᴰ' f .isCartesian .snd .fst _ = refl
-isFibrationSETᴰ cᴰ' f .isCartesian .snd .snd _ = refl
-
-isFibration'SETᴰ : isFibration' (SETᴰ ℓ ℓ')
-isFibration'SETᴰ Q f .vertexⱽ a = Q (f a)
-isFibration'SETᴰ Q f .elementⱽ _ q = q
-isFibration'SETᴰ Q f .universalⱽ .fst = λ z → z
-isFibration'SETᴰ Q f .universalⱽ .snd .fst b =
+isFibrationSETᴰ Q f .vertexⱽ a = Q (f a)
+isFibrationSETᴰ Q f .elementⱽ _ q = q
+isFibrationSETᴰ Q f .universalⱽ .fst = λ z → z
+isFibrationSETᴰ Q f .universalⱽ .snd .fst b =
   transportRefl _ ∙ transportRefl _
-isFibration'SETᴰ Q f .universalⱽ .snd .snd a =
+isFibrationSETᴰ Q f .universalⱽ .snd .snd a =
   transportRefl _ ∙ transportRefl _
 
 TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
@@ -119,17 +111,6 @@ SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.bpⱽ =
 SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts =
   isFibrationSETᴰ
 
-SETᴰCartesianCategoryⱽ' :
-  ∀ ℓ ℓ' → CartesianCategoryⱽ' (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
-SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.Cᴰ =
-  SETᴰ ℓ ℓ'
-SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.termⱽ =
-  TerminalsⱽSETᴰ
-SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.bpⱽ =
-  BinProductsⱽSETᴰ
-SETᴰCartesianCategoryⱽ' ℓ ℓ' .CartesianCategoryⱽ'.cartesianLifts =
-  isFibration'SETᴰ
-
 module _ {ℓ} {ℓ'} where
   private
     module SETᴰ = Fibers (SETᴰ ℓ ℓ')
@@ -170,7 +151,7 @@ module _ {ℓ} {ℓ'} where
 
 -- This is really slow
 ExponentialsⱽSETᴰ :
-  Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibration'SETᴰ
+  Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
 ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .fst = ⟨ P a ⟩ → ⟨ Q a ⟩
 ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .snd = isSet→ (Q a .snd)
 ExponentialsⱽSETᴰ {c = A} P Q .elementⱽ a x = x .fst (x .snd)

@@ -61,10 +61,10 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
 module _ (C : Category ℓ ℓ') (ℓS : Level) where
   private
     module C = Category C
-  ⇒𝓟 : Exponentials (PresheafCategory C (ℓ-max ℓ (ℓ-max ℓ' ℓS))) (×𝓟 C _)
-  ⇒𝓟 (P , Q) .vertex = P ⇒PshLarge Q
-  ⇒𝓟 (P , Q) .element = PshHom→NatTrans (appPshHom P Q)
-  ⇒𝓟 (P , Q) .universal S = isIsoToIsEquiv
+  ⇒𝓟 : AllExponentiable (PresheafCategory C (ℓ-max ℓ (ℓ-max ℓ' ℓS))) (×𝓟 C _)
+  ⇒𝓟 P Q .vertex = P ⇒PshLarge Q
+  ⇒𝓟 P Q .element = PshHom→NatTrans (appPshHom P Q)
+  ⇒𝓟 P Q .universal S = isIsoToIsEquiv
     ( (λ f⟨p⟩ → PshHom→NatTrans (λPshHom _ _ (NatTrans→PshHom f⟨p⟩)))
     , (λ α → makeNatTransPath $ funExt (λ x → funExt (λ (f , p) → cong (α .N-ob x) (ΣPathP ((funExt⁻ (S .F-id) f) , refl)))))
     , (λ α → makeNatTransPath $ funExt (λ x → funExt (λ γ → makePshHomPath (funExt (λ y → funExt λ (f , p) →
@@ -81,4 +81,4 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
 
   𝓟-CCC : CartesianClosedCategory _ _
   𝓟-CCC .CC = 𝓟-CC
-  𝓟-CCC .exps = Exponentials→AllExponentiable _ _ ⇒𝓟
+  𝓟-CCC .exps = ⇒𝓟

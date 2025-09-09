@@ -33,7 +33,6 @@ open Functor
 open UniversalElement
 open UniversalElementᴰ
 open UniversalElementⱽ
-open PshᴰCartesianLift
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}

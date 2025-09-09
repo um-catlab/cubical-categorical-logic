@@ -45,20 +45,9 @@ record CartesianCategoryⱽ (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
     Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
     termⱽ : Terminalsⱽ Cᴰ
     bpⱽ   : BinProductsⱽ Cᴰ
+  module Cᴰ = Categoryᴰ Cᴰ
+  field
     cartesianLifts : isFibration Cᴰ
-
-  module Cᴰ = Categoryᴰ Cᴰ
-
-record CartesianCategoryⱽ' (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
-  : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
-  no-eta-equality
-  field
-    Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
-    termⱽ : Terminalsⱽ Cᴰ
-    bpⱽ   : BinProductsⱽ Cᴰ
-  module Cᴰ = Categoryᴰ Cᴰ
-  field
-    cartesianLifts : isFibration' Cᴰ
 
 module _ {CC : CartesianCategory ℓC ℓC'}
          (CCᴰ : CartesianCategoryⱽ (CC .CartesianCategory.C) ℓCᴰ ℓCᴰ') where

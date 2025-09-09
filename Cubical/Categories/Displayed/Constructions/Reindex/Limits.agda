@@ -38,7 +38,6 @@ open Functor
 open UniversalElement
 open UniversalElementᴰ
 open UniversalElementⱽ
-open PshᴰCartesianLift
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
@@ -129,4 +128,4 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   reindex .Cᴰ = Base.reindex Dᴰ.Cᴰ F
   reindex .termⱽ = TerminalsⱽReindex Dᴰ.termⱽ
   reindex .bpⱽ = BinProductsⱽReindex Dᴰ.bpⱽ
-  reindex .cartesianLifts = isFibrationReindex _ _ Dᴰ.cartesianLifts
+  reindex .cartesianLifts = isFibrationReindex _ Dᴰ.cartesianLifts

@@ -28,18 +28,21 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Morphism
+open import Cubical.Categories.Displayed.Section
 
 private
   variable
     ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓPᴰ ℓQ ℓQᴰ : Level
 
 open Category
+open isIsoOver
 open Functor
 open Functorᴰ
 open isIsoOver
 open PshHom
 open PshIso
 open PshHomᴰ
+open Section
 
 -- Displayed Yoneda
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -62,10 +65,14 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     module D = Fibers D
     module P = PresheafNotation P
     module Pᴰ = PresheafᴰNotation Pᴰ
+  open UniversalElementNotation ue
+
+  isUniversalᴰ : (vertexᴰ : D.ob[ vertex ]) → Pᴰ.p[ element ][ vertexᴰ ] → Type _
+  isUniversalᴰ vertexᴰ elementᴰ = isPshIsoᴰ (yoRec P element) (D [-][-, vertexᴰ ]) Pᴰ
+    (yoRecᴰ Pᴰ elementᴰ) ⋆element-isPshIso
 
   record UniversalElementᴰ
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max ℓP ℓPᴰ)) where
-    open UniversalElementNotation ue
     field
       vertexᴰ : D.ob[ vertex ]
       elementᴰ : Pᴰ.p[ element ][ vertexᴰ ]

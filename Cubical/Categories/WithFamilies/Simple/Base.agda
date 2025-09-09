@@ -34,5 +34,4 @@ SCwF ℓC ℓC' ℓT ℓT' =
   Σ[ Tm ∈ (Ty → Presheaf C ℓT') ]
   Terminal' C ×
   -- "Simple comprehension"
-  (∀ (Γ : C .ob) (A : Ty)
-  → UniversalElement C (PshProd ⟅ (C [-, Γ ]) , (Tm A) ⟆b ))
+  (∀ A → LocallyRepresentable (Tm A))

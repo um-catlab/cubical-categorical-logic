@@ -38,17 +38,20 @@ open import Cubical.Data.Unit
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.TotalCategory as ∫
-open import Cubical.Categories.Limits.Terminal.More
+open import Cubical.Categories.Limits.Terminal.More hiding (preservesTerminal)
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Section
 
 private
   variable
@@ -63,7 +66,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Categoryᴰ Cᴰ
   -- Terminal object over a terminal object
-  -- TODO: refactor using Constant Functorᴰ eventually
   Terminalᴰ : (term : Terminal' C) →
     Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
   Terminalᴰ term = UniversalElementᴰ Cᴰ term UnitPshᴰ
@@ -134,3 +136,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         Terminalⱽ→Terminalᴰ' .universalᴰ .rightInv _ _ = refl
         Terminalⱽ→Terminalᴰ' .universalᴰ .leftInv _ _ = R.rectify $ R.≡out $
           termⱽ.∫ue.extensionality (ΣPathP (𝟙extensionality , refl))
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Fᴰ : GlobalSection Cᴰ) (term : Terminal' C) where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+  strictlyPreservesTerminal : Terminalᴰ Cᴰ term → Type _
+  strictlyPreservesTerminal = strictlyPreservesUE Fᴰ (UnitPsh→UnitPshᴰ Fᴰ) term
+
+  preservesTerminal : Type _
+  preservesTerminal = preservesUE {Pᴰ = UnitPshᴰ {P = UnitPsh {C = C}}} Fᴰ (UnitPsh→UnitPshᴰ Fᴰ) term

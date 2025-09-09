@@ -10,7 +10,7 @@ open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Properties
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Constructions.TotalCategory as TotalCategory
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
@@ -23,6 +23,7 @@ open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Section
 
 private
   variable
@@ -154,11 +155,12 @@ module _ (M : MonoidalCategory ℓM ℓM') where
     -- Probably some combinators we could use here rather than doing this all manually
     ∫ : MonoidalCategory (ℓ-max ℓM ℓMᴰ) (ℓ-max ℓM' ℓMᴰ')
     ∫ .MonoidalCategory.C = ∫C Cᴰ
-    ∫ .monstr .tenstr .─⊗─ .F-ob ((_ , x), (_ , y)) = _ , (x ⊗ᴰ y)
-    ∫ .monstr .tenstr .─⊗─ .F-hom ((_ , f), (_ , g)) = _ , (f ⊗ₕᴰ g)
-    ∫ .monstr .tenstr .─⊗─ .F-id = ΣPathP (_ , (─⊗ᴰ─ .F-idᴰ))
-    ∫ .monstr .tenstr .─⊗─ .F-seq _ _ = ΣPathP (_ , ─⊗ᴰ─ .F-seqᴰ _ _)
+    ∫ .monstr .tenstr .─⊗─ =
+      TotalCategory.intro {C = M.C}{Cᴰ = Cᴰ}
+        (M.─⊗─ ∘F (TotalCategory.Fst {C = M.C}{Cᴰ = Cᴰ} ×F TotalCategory.Fst {C = M.C}{Cᴰ = Cᴰ}))
+        (compFunctorᴰSection ─⊗ᴰ─ (TotalCategory.Snd ×Sᴰ TotalCategory.Snd))
     ∫ .monstr .tenstr .unit = M.unit , unitᴰ
+    -- TODO: less manual version of this
     ∫ .monstr .α .trans .N-ob ((_ , x), (_ , y), (_ , z)) = _ , αᴰ⟨ x , y , z ⟩
     ∫ .monstr .α .trans .N-hom ((_ , f), (_ , g), (_ , h)) = ΣPathP (_ , αᴰ .transᴰ .N-homᴰ (f , g , h))
     ∫ .monstr .α .nIso ((_ , x) , (_ , y) , _ , z) .inv = _ , α⁻¹ᴰ⟨ x , y , z ⟩

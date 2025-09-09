@@ -180,6 +180,25 @@ private
     Cᴰ Cᴰ' Dᴰ'  : Categoryᴰ C ℓ ℓ'
 open Functorᴰ
 
+module _
+  {B : Category ℓB ℓB'}
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  {F : Functor B C}{G : Functor D E}
+  (Fᴰ : Section F Cᴰ) (Gᴰ : Section G Eᴰ)
+  where
+  open Section
+  private
+    module RCᴰ = Reasoning Cᴰ
+    module REᴰ = Reasoning Eᴰ
+  _×Sᴰ_ : Section (F ×F G) (Cᴰ ×Cᴰ Eᴰ)
+  _×Sᴰ_ .F-obᴰ x = (F-obᴰ Fᴰ (x .fst)) , (F-obᴰ Gᴰ (x .snd))
+  _×Sᴰ_ .F-homᴰ f = F-homᴰ Fᴰ (f .fst) , F-homᴰ Gᴰ (f .snd)
+  _×Sᴰ_ .F-idᴰ = ΣPathP (RCᴰ.rectify (F-idᴰ Fᴰ) , REᴰ.rectify (Gᴰ .F-idᴰ))
+  _×Sᴰ_ .F-seqᴰ fᴰ gᴰ =
+    ΣPathP ((RCᴰ.rectify (Fᴰ .F-seqᴰ _ _)) , REᴰ.rectify (Gᴰ .F-seqᴰ _ _))
+
 module _ {F : Functor C C'} {G : Functor C D'} where
   _,Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Cᴰ') → (Gᴰ : Functorᴰ G Cᴰ Dᴰ')
     → Functorᴰ (F ,F G) Cᴰ (Cᴰ' ×Cᴰ Dᴰ')

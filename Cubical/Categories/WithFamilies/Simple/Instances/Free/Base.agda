@@ -190,7 +190,7 @@ module _ (Σ₀ : hGroupoid ℓ) where
       module M = SCwFᴰNotation M
       ∫Cᴰ = ∫C M.Cᴰ
       module ∫Tmᴰ {A}{Aᴰ : M.Tyᴰ A} = PresheafNotation (∫P (M.Tmᴰ Aᴰ))
-    open PshHomᴰ
+    open PshSection
     module _ (ı : ∀ A → M.Tyᴰ A) where
       elimS-F-ob : ∀ Γ → M.Cᴰ.ob[ Γ ]
       elimS-F-ob [] = M.termᴰ.vertexᴰ
@@ -258,8 +258,8 @@ module _ (Σ₀ : hGroupoid ℓ) where
       elimSection .F-seqᴰ δ γ = M.Cᴰ.rectify $ M.Cᴰ.≡out $ elimRen-Seq γ
 
       elimPshSection : ∀ {A} → PshSection elimSection (M.Tmᴰ $ ı A)
-      elimPshSection .N-obᴰ {Γ}{_}{x} _ = elimVar x
-      elimPshSection {A} .N-homᴰ {Δ} {Γ} {_} {_} {γ} {x} =
+      elimPshSection .N-ob x = elimVar x
+      elimPshSection .N-hom γ x =
         M.Tmᴰ.rectify $ M.Tmᴰ.≡out $ elimRen-Var _ _
 
       elim : StrictSection FreeSCwF M

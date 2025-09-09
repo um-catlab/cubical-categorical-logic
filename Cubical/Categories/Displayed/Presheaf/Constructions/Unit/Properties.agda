@@ -84,7 +84,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
 open Section
 open PshHomᴰ
+open PshSection
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (F : GlobalSection Cᴰ) where
   UnitPsh→UnitPshᴰ : PshSection F (UnitPshᴰ {P = UnitPsh {C = C}})
-  UnitPsh→UnitPshᴰ .N-obᴰ _ = tt
-  UnitPsh→UnitPshᴰ .N-homᴰ = refl
+  UnitPsh→UnitPshᴰ .N-ob _ = tt
+  UnitPsh→UnitPshᴰ .N-hom _ _ = refl

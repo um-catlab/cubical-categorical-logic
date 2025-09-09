@@ -175,6 +175,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
     reindPshIsoⱽ reindFunc×ⱽIsoⱽ
     ⋆PshIsoⱽ reind×ⱽIsoⱽ
 
+open PshSection
 open Section
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : GlobalSection Cᴰ} where
   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
@@ -182,8 +183,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : G
     (β : PshSection F Qᴰ)
     where
     ×ᴰ-introS : PshSection F (Pᴰ ×ᴰPsh Qᴰ)
-    ×ᴰ-introS .N-obᴰ {x} {_} {p , q} _ = (α .N-obᴰ {x}{_}{p} tt) , (β .N-obᴰ {x}{_}{q} tt)
-    ×ᴰ-introS .N-homᴰ = ΣPathP ((α .N-homᴰ) , (β .N-homᴰ))
+    ×ᴰ-introS .N-ob (p , q) = (α .N-ob p , β .N-ob q)
+    ×ᴰ-introS .N-hom _ _ = ΣPathP (α .N-hom _ _ , β .N-hom _ _)
 
   module _
     {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}

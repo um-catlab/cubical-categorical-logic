@@ -31,6 +31,6 @@ module _ {C : SCwF ℓC ℓC' ℓT ℓT'} {Cᴰ : SCwFⱽ C ℓCᴰ ℓCᴰ' ℓ
   SCwFⱽ→SCwFᴰ .snd .snd .snd .fst = Terminalⱽ→Terminalᴰ _ (Cᴰ .snd .snd .snd .fst _)
   SCwFⱽ→SCwFᴰ .snd .snd .snd .snd {Γ}{A} Γᴰ Aᴰ =
     ×ⱽRepr+π*→×ᴰRepr _
-      (CartesianLift→CartesianLift' _ _ (CatLift→YoLift (Cᴰ .snd .snd .snd .snd .fst _ _)))
-      (CartesianLift→CartesianLift' _ _ (Cᴰ .snd .snd .snd .snd .snd .snd _ _))
+      (Cᴰ .snd .snd .snd .snd .fst _ _)
+      (Cᴰ .snd .snd .snd .snd .snd .snd _ _)
       (Cᴰ .snd .snd .snd .snd .snd .fst _ _)

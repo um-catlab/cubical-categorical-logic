@@ -6,6 +6,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma as Σ hiding (_×_)
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
@@ -13,6 +14,8 @@ open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
@@ -26,6 +29,7 @@ open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 
@@ -209,7 +213,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
     f₁ᴰ ,pᴰ f₂ᴰ = introᴰ (f₁ᴰ , f₂ᴰ)
 
     ∫bp : BinProduct (∫C Cᴰ) ((c , cᴰ) , d , dᴰ)
-    ∫bp = UniversalElementᴰ.∫ue bpᴰ ◁PshIso ∫×ᴰ≅×
+    ∫bp = UniversalElementᴰ.∫ue bpᴰ ◁PshIso (∫×ᴰ≅× ⋆PshIso TotalCat×PshYoIso Cᴰ)
 
     module _ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
       {f₁ f₂}

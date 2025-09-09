@@ -1,4 +1,4 @@
-{-# OPTIONS --safe #-}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Limits.Coend where
 
 open import Cubical.Foundations.Prelude

@@ -51,6 +51,7 @@ import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Section
 
 private
   variable

@@ -23,6 +23,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Bifunctor
@@ -31,6 +32,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Section
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Base
 open import Cubical.Categories.Displayed.BinProduct
@@ -172,3 +174,22 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
   reindⱽFunc×ⱽIsoⱽ =
     reindPshIsoⱽ reindFunc×ⱽIsoⱽ
     ⋆PshIsoⱽ reind×ⱽIsoⱽ
+
+open Section
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : GlobalSection Cᴰ} where
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (α : PshSection F Pᴰ)
+    (β : PshSection F Qᴰ)
+    where
+    ×ᴰ-introS : PshSection F (Pᴰ ×ᴰPsh Qᴰ)
+    ×ᴰ-introS .N-obᴰ {x} {_} {p , q} _ = (α .N-obᴰ {x}{_}{p} tt) , (β .N-obᴰ {x}{_}{q} tt)
+    ×ᴰ-introS .N-homᴰ = ΣPathP ((α .N-homᴰ) , (β .N-homᴰ))
+
+  module _
+    {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
+    ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
+    (α : PshSection F Pᴰ)
+    where
+    strictlyPreservesLocalRep : Type _
+    strictlyPreservesLocalRep = ∀ c
+      → strictlyPreservesUE F (×ᴰ-introS (Section→PshSection F c) α) (c ×P) (F .F-obᴰ c ×ᴰPᴰ)

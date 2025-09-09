@@ -16,7 +16,7 @@ open import Cubical.Categories.Displayed.Instances.Terminal as Terminal
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Base
-open import Cubical.Categories.Displayed.Presheaf.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Section

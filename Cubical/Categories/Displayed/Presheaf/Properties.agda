@@ -20,11 +20,13 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Section
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Presheaf.Base
+-- open import Cubical.Categories.Displayed.Presheaf.Section
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 
 private

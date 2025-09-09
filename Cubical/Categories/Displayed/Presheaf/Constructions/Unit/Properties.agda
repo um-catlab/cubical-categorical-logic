@@ -12,6 +12,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
@@ -21,6 +22,8 @@ open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Section
+open import Cubical.Categories.Displayed.Section
 
 private
   variable
@@ -78,3 +81,10 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (UnitPshᴰ {P = P})
       (UnitPshᴰ {P = Q})
   UnitPshᴰ≡UnitPshᴰ = sym reindUnit ◁ reindPathToPshIsoPathP α UnitPshᴰ
+
+open Section
+open PshHomᴰ
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (F : GlobalSection Cᴰ) where
+  UnitPsh→UnitPshᴰ : PshSection F (UnitPshᴰ {P = UnitPsh {C = C}})
+  UnitPsh→UnitPshᴰ .N-obᴰ _ = tt
+  UnitPsh→UnitPshᴰ .N-homᴰ = refl

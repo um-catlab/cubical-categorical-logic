@@ -1,10 +1,9 @@
 {-# OPTIONS --lossy-unification #-}
 {-
-  Displayed and Vertical Exponentials
-
-  Displayed Exponentials are fairly straightforward but Vertical Exponentials
-  are less nice. Here we have defined them in the textbook way: exponential in
-  each fiber that's preserved by reindexing.
+  Displayed and Vertical Exponentials of two objects
+  defined by the representability of the
+  (small) presheaf exponential of their
+  displayed yoneda embeddings
 -}
 module Cubical.Categories.Displayed.Exponentials.Small where
 

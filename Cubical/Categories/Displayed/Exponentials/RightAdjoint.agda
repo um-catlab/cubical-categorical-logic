@@ -6,7 +6,7 @@
   are less nice. Here we have defined them in the textbook way: exponential in
   each fiber that's preserved by reindexing.
 
-  NOTE : This implementation of Displayed Exponentials is
+  NOTE : This implementation of Displayed/Vertical Exponentials is
   deprecated, and the implementation at Displayed.Exponentials.Small is preferred
 -}
 module Cubical.Categories.Displayed.Exponentials.RightAdjoint where

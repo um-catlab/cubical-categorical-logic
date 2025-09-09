@@ -28,7 +28,6 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
-import Cubical.Categories.Displayed.Presheaf.CartesianLift as CL
 
 private
   variable
@@ -37,6 +36,7 @@ private
 open Category
 open Functor
 open Functorᴰ
+open PshHom
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {P : Presheaf C ℓP}
@@ -104,26 +104,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         intro⟨ refl ⟩⟨ gp≡gπ ⟩
         ∙ (Cᴰ.≡in (isCartesian .snd .snd _))
 
-  module _ {x} (p : P.p[ x ]) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (cL : CartesianLift p Pᴰ) where
-    private
-      module Pᴰ = PresheafᴰNotation Pᴰ
-      module cL = CartesianLift cL
-      module p*Pᴰ = PresheafⱽNotation (reindYo p Pᴰ)
-    open UniversalElementⱽ
-    ManualCartesianLift→CartesianLift : CL.CartesianLift p Pᴰ
-    ManualCartesianLift→CartesianLift .vertexⱽ = cL.p*Pᴰ
-    ManualCartesianLift→CartesianLift .elementⱽ = Cᴰ.idᴰ Pᴰ.⋆ᴰ cL.π
-    ManualCartesianLift→CartesianLift .universalⱽ .fst = cL.isCartesian .fst
-    ManualCartesianLift→CartesianLift .universalⱽ {y} {yᴰ} {f} .snd =
-      subst
-        motive
-        (funExt (λ fᴰ → Pᴰ.rectify $ Pᴰ.≡out $
-          Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.⋆IdL _ ⟩ ∙ Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler _ _))
-        (cL.isCartesian .snd)
-      where
-        motive : (Cᴰ [ f ][ yᴰ , cL.p*Pᴰ ] → Pᴰ.p[ f P.⋆ p ][ yᴰ ]) → Type _
-        motive introⱽ = section introⱽ (cL.isCartesian .fst) × retract introⱽ (cL.isCartesian .fst)
-
   -- TODO: make this functorial
   -- i.e. an input displayed category over C whose objects are Σ[ c ] P.p[ c ] × Pᴰ
 
@@ -135,12 +115,51 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module P = PresheafNotation P
   isFibration = ∀ {x} (p : P.p[ x ]) → CartesianLift p Pᴰ
 
-  isFibrationManual→isFibration : isFibration → CL.isFibration Pᴰ
-  isFibrationManual→isFibration isFib p =
-    ManualCartesianLift→CartesianLift p Pᴰ (isFib p)
-
   module isFibrationNotation (isFibPᴰ : isFibration) where
     module _ {x} (p : P.p[ x ]) where
       open CartesianLift (isFibPᴰ p) using (p*Pᴰ) public
     module _ {x} {p : P.p[ x ]} where
       open CartesianLift (isFibPᴰ p) hiding (p*Pᴰ) public
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+         (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)
+         (isFibQᴰ : isFibration Qᴰ)
+         where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module isFibQᴰ = isFibrationNotation Qᴰ isFibQᴰ
+  isFibrationReind : isFibration (reind {P = P} α Qᴰ)
+  isFibrationReind p .p*Pᴰ = isFibQᴰ.p*Pᴰ (α .N-ob _ p)
+  isFibrationReind p .π = isFibQᴰ.π
+  isFibrationReind p .isCartesian .fst qᴰ =
+    isFibQᴰ.intro $ Qᴰ.reind (α .N-hom _ _ _ p) qᴰ
+  isFibrationReind p .isCartesian .snd .fst qᴰ =
+    Qᴰ.rectify $ Qᴰ.≡out $
+      sym (Qᴰ.reind-filler _ _)
+      ∙ isFibQᴰ.β
+      ∙ (sym $ Qᴰ.reind-filler _ _)
+  isFibrationReind p .isCartesian .snd .snd gᴰ =
+    Cᴰ.rectify $ Cᴰ.≡out $ isFibQᴰ.intro≡ $ sym $
+      Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+         (F : Functor C D)
+         where
+  module _ {P : Presheaf D ℓP} (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ) (isFibPᴰ : isFibration Pᴰ) where
+    isFibrationReindFunc
+      : isFibration (reindFunc F Pᴰ)
+    isFibrationReindFunc p .p*Pᴰ = p*Pᴰ (isFibPᴰ p)
+    isFibrationReindFunc p .π = π (isFibPᴰ p)
+    isFibrationReindFunc p .isCartesian = isCartesian (isFibPᴰ p)
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (α : PshHet F P Q){Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  (isFibQᴰ : isFibration Qᴰ)
+  where
+  isFibrationReindHet : isFibration (reindHet α Qᴰ)
+  isFibrationReindHet = isFibrationReind _ α (isFibrationReindFunc F Qᴰ isFibQᴰ)

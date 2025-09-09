@@ -78,8 +78,8 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
       isFibrationPRESHEAFᴰ' Pᴰ α .isCartesian {g = β} .snd .snd αᴰ =
         makeNatTransPath refl
 
-      isFibrationPRESHEAFᴰ : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
-      isFibrationPRESHEAFᴰ Pᴰ =
-        ManualCL.isFibrationManual→isFibration
-          (PRESHEAFᴰ C ℓS ℓSᴰ [-][-, Pᴰ ])
-          (isFibrationPRESHEAFᴰ' Pᴰ)
+    isFibrationPRESHEAFᴰ : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
+    isFibrationPRESHEAFᴰ Pᴰ =
+      ManualCL.isFibrationManual→isFibration
+        (PRESHEAFᴰ C ℓS ℓSᴰ [-][-, Pᴰ ])
+        (isFibrationPRESHEAFᴰ' Pᴰ)

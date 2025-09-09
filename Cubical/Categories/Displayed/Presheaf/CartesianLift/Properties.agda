@@ -113,6 +113,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
          (F : Functor C D)
          where
+  -- TODO This can probably be proven directly for
+  -- CL.isFibration without going through the manual construction
   module _ {P : Presheaf D ℓP}
     (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ) (isFibPᴰ : isFibration Pᴰ) where
     isFibrationReindFunc : isFibration (reindFunc F Pᴰ)
@@ -128,6 +130,8 @@ module _
   (α : PshHet F P Q){Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
   (isFibQᴰ : isFibration Qᴰ)
   where
+  -- TODO This can probably be proven directly for
+  -- CL.isFibration without going through the manual construction
   isFibrationReindHet : isFibration (reindHet α Qᴰ)
   isFibrationReindHet =
       isFibrationManual→isFibration (reindHet α Qᴰ)

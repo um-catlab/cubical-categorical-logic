@@ -31,6 +31,6 @@ module _ {C : SCwF ℓC ℓC' ℓT ℓT'}{D : SCwF ℓD ℓD' ℓS ℓS'}
   reindex .snd .fst A = Dᴰ .snd .fst (F .snd .fst A)
   reindex .snd .snd .fst Aᴰ = Presheafᴰ.reindHet (F .snd .snd) (Dᴰ .snd .snd .fst Aᴰ)
   reindex .snd .snd .snd .fst = Categoryᴰ.TerminalsⱽReindex (Dᴰ .snd .snd .snd .fst)
-  reindex .snd .snd .snd .snd .fst = Categoryᴰ.isFibrationReindex _ _ (Dᴰ .snd .snd .snd .snd .fst)
+  reindex .snd .snd .snd .snd .fst = Categoryᴰ.isFibrationReindex _ (Dᴰ .snd .snd .snd .snd .fst)
   reindex .snd .snd .snd .snd .snd .fst = Categoryᴰ.BinProductsⱽReindex (Dᴰ .snd .snd .snd .snd .snd .fst)
   reindex .snd .snd .snd .snd .snd .snd Aᴰ = isFibrationReindHet (F .snd .snd) (Dᴰ .snd .snd .snd .snd .snd .snd Aᴰ)

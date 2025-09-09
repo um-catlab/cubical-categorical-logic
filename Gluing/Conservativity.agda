@@ -38,6 +38,7 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Properties
 open import Cubical.Categories.Displayed.Instances.Presheaf.Limits
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Limits.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Representable
 
 private
   variable ℓQ ℓQ' ℓC ℓC' : Level
@@ -48,7 +49,6 @@ open Categoryᴰ
 open Section
 open NatTrans
 open Cubical.Categories.Constructions.Elements.Contravariant
-open PshᴰCartesianLift
 
 Quiver→×Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×Quiver ℓ ℓ'
 Quiver→×Quiver Q .fst = Q .fst
@@ -144,6 +144,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
       λ f → funExt (λ _ → ΣPathP (FREE .⋆Assoc _ _ _ ,
         isSet→SquareP (λ _ _ → FREE-1,×.C .isSetHom) _ _ _ _))
 
+  open UniversalElementⱽ
   opaque
     unfolding
       isFibrationPRESHEAFᴰ
@@ -153,7 +154,7 @@ module _ (Q : Quiver ℓQ ℓQ') where
       ⊆[→o'] : 𝓟FREEᴰ.ob[ nerve ⟅ ⊆ ⟅ o' ⟆ ⟆ ]
       ⊆[→o'] = S .F-obᴰ (⊆ ⟅ o' ⟆)
       ⊆[→o']* : 𝓟FREEᴰ.ob[ nerve ⟅ ⊆ ⟅ o ⟆ ⟆ ]
-      ⊆[→o']* = isFibrationPRESHEAFᴰ _ _ _ ⊆[→o'] (nerve ⟪ F[f] ⟫) .p*Pᴰ
+      ⊆[→o']* = isFibrationPRESHEAFᴰ _ _ _ ⊆[→o'] (nerve ⟪ F[f] ⟫) .vertexⱽ
       f,p : ⟨ ⊆[→o']* ⟅ o , FREE-1,×.C .id ⟆ ⟩
       f,p = (S .F-homᴰ F[f] ⟦ o , FREE-1,×.C .id ⟧) (FREE .id , refl)
       f : FREE [ o , o' ]

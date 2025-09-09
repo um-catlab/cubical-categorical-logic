@@ -28,6 +28,7 @@ open import Cubical.Categories.Displayed.Presheaf using (UniversalElementᴰ; Un
 open import Cubical.Categories.Displayed.Fibration.Base
 import Cubical.Categories.Displayed.Fibration.Manual as ManualFib
 import Cubical.Categories.Displayed.Presheaf.CartesianLift.Manual as ManualCL
+open import Cubical.Categories.Displayed.Presheaf.CartesianLift.Properties
 open import Cubical.Categories.Displayed.Instances.Presheaf.Base
 
 open Category
@@ -63,7 +64,7 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
   open ManualCL.CartesianLift
   opaque
     private
-      -- This can likely be refactored to natively use
+      -- TODO This can likely be refactored to natively use
       -- the version of CartesianLift in Displayed.Fibration.Base
       isFibrationPRESHEAFᴰ' : ManualFib.isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
       isFibrationPRESHEAFᴰ' Pᴰ α .p*Pᴰ = reindPresheafᴰ C α Pᴰ
@@ -80,6 +81,6 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
 
     isFibrationPRESHEAFᴰ : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
     isFibrationPRESHEAFᴰ Pᴰ =
-      ManualCL.isFibrationManual→isFibration
+      isFibrationManual→isFibration
         (PRESHEAFᴰ C ℓS ℓSᴰ [-][-, Pᴰ ])
         (isFibrationPRESHEAFᴰ' Pᴰ)

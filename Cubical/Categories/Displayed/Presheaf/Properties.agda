@@ -34,10 +34,6 @@ private
 open Functor
 open Functorᴰ
 
--- These lemmas are needed because PshHom and PshIso
--- are defined to be a record
--- The same equalities hold definitionally if
--- both of these were instead Σ types
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C

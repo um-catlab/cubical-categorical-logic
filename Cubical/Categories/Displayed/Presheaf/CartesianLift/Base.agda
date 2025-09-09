@@ -46,9 +46,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Cᴰ = Fibers Cᴰ
     module P = PresheafNotation P
 
-  -- Hypothesis:
-  -- - By Yoneda, an element p : P.p[ x ] is equivalent to a α : PshHom (C [-, x ]) P
-  -- - CartesianLift is a vertical universal element over reind α Pᴰ
   CartesianLift : ∀ {x} (p : P.p[ x ]) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
   CartesianLift p Pᴰ = UniversalElementⱽ Cᴰ _ (reindYo p Pᴰ)
 
@@ -59,15 +56,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     isFibration : Type _
     isFibration = ∀ {x} (p : P.p[ x ]) → CartesianLift p Pᴰ
 
--- If we don't worry about definitional
--- behavior being too nice, this can become very simple and conceptual
-
--- For example, in the following, we want to show that
--- isFib Qᴰ ⇒ isFib (reind α Qᴰ)
---
--- isFib Qᴰ means all reindYo q Qᴰ are representable.
--- isFib (reind α Qᴰ) means that all reindYo p (reind α Qᴰ).
--- but reindYo p (reind α Qᴰ) ≡ reindYo (α p) Qᴰ.
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
          (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (α : PshHom P Q)

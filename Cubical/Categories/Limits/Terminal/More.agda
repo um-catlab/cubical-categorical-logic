@@ -17,6 +17,7 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 
 
 private

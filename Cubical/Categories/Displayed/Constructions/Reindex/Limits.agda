@@ -38,7 +38,6 @@ open Functor
 open UniversalElement
 open UniversalElementᴰ
 open UniversalElementⱽ
-open CartesianLift
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
@@ -107,8 +106,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
           ∙ R.reind-filler _ _)
 
     BinProductⱽReindex : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
-    BinProductⱽReindex = reindUEⱽ vbp ◁PshIsoⱽ
-      (reindⱽFunc×ⱽIsoⱽ ⋆PshIsoⱽ (reindⱽFuncRepr ×ⱽIso reindⱽFuncRepr))
+    BinProductⱽReindex =
+      -- the annotations on reindⱽFuncRepr are crucial for performance
+      reindUEⱽ vbp
+        ◁PshIsoⱽ
+        (reindⱽFunc×ⱽIsoⱽ ⋆PshIsoⱽ (reindⱽFuncRepr {xᴰ = Fcᴰ} ×ⱽIso reindⱽFuncRepr {Dᴰ = Dᴰ} {F = F} {xᴰ = Fcᴰ'}))
   BinProductsⱽReindex : BinProductsⱽ Dᴰ →
     BinProductsⱽ (Base.reindex Dᴰ F)
   BinProductsⱽReindex vps Fcᴰ Fcᴰ×Fcᴰ' =
@@ -126,4 +128,4 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   reindex .Cᴰ = Base.reindex Dᴰ.Cᴰ F
   reindex .termⱽ = TerminalsⱽReindex Dᴰ.termⱽ
   reindex .bpⱽ = BinProductsⱽReindex Dᴰ.bpⱽ
-  reindex .cartesianLifts = isFibrationReindex _ _ Dᴰ.cartesianLifts
+  reindex .cartesianLifts = isFibrationReindex _ Dᴰ.cartesianLifts

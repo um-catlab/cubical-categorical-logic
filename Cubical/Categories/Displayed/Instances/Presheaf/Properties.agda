@@ -13,16 +13,22 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Presheaf.CCC
+open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Reasoning
+open import Cubical.Categories.Displayed.Instances.Sets
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
-open import Cubical.Categories.Displayed.Presheaf using (UniversalElementᴰ)
+open import Cubical.Categories.Displayed.Presheaf using (UniversalElementᴰ; UniversalElementⱽ)
 open import Cubical.Categories.Displayed.Fibration.Base
+import Cubical.Categories.Displayed.Fibration.Manual as ManualFib
+import Cubical.Categories.Displayed.Presheaf.CartesianLift.Manual as ManualCL
+open import Cubical.Categories.Displayed.Presheaf.CartesianLift.Properties
 open import Cubical.Categories.Displayed.Instances.Presheaf.Base
 
 open Category
@@ -35,7 +41,6 @@ open UniversalElementᴰ
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓS ℓSᴰ : Level
 
-open CartesianLift
 module _ (C : Category ℓC ℓC') where
   reindPresheafᴰ : ∀ {P : Presheaf C ℓS}{Q : Presheaf C ℓS}
     (α : PresheafCategory C ℓS [ P , Q ])
@@ -51,17 +56,31 @@ module _ (C : Category ℓC ℓC') where
   reindPresheafᴰ {Q = Q} α Pᴰ .F-seq _ _ =
     congS (λ x → Pᴰ ⟪ _ , x ⟫) ((Q ⟅ _ ⟆) .snd _ _ _ _) ∙
     Pᴰ .F-seq _ _
+
 module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
+  open UniversalElementⱽ
+  private
+    module PRESHEAFᴰ = Fibers (PRESHEAFᴰ C ℓS ℓSᴰ)
+  open ManualCL.CartesianLift
   opaque
+    private
+      -- TODO This can likely be refactored to natively use
+      -- the version of CartesianLift in Displayed.Fibration.Base
+      isFibrationPRESHEAFᴰ' : ManualFib.isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
+      isFibrationPRESHEAFᴰ' Pᴰ α .p*Pᴰ = reindPresheafᴰ C α Pᴰ
+      isFibrationPRESHEAFᴰ' Pᴰ α .π = natTrans (λ x z → z) (λ _ → refl)
+      isFibrationPRESHEAFᴰ' {c = Q} Pᴰ α .isCartesian {g = β} .fst  βαᴰ =
+        natTrans (βαᴰ ⟦_⟧) (λ _ → funExt (λ ϕᴰ →
+        funExt⁻ (βαᴰ .N-hom _) ϕᴰ ∙
+        congS (λ x → (Pᴰ ⟪ _ , x ⟫) ((βαᴰ ⟦ _ ⟧) ϕᴰ))
+          ((Q ⟅ _ ⟆) .snd _ _ _ _)))
+      isFibrationPRESHEAFᴰ' Pᴰ α .isCartesian {g = β} .snd .fst βαᴰ =
+        makeNatTransPath refl
+      isFibrationPRESHEAFᴰ' Pᴰ α .isCartesian {g = β} .snd .snd αᴰ =
+        makeNatTransPath refl
+
     isFibrationPRESHEAFᴰ : isFibration (PRESHEAFᴰ C ℓS ℓSᴰ)
-    isFibrationPRESHEAFᴰ Pᴰ α .f*yᴰ = reindPresheafᴰ C α Pᴰ
-    isFibrationPRESHEAFᴰ Pᴰ α .π = natTrans (λ x z → z) (λ _ → refl)
-    isFibrationPRESHEAFᴰ {c' = Q} Pᴰ α .isCartesian {g = β} .fst  βαᴰ =
-      natTrans (βαᴰ ⟦_⟧) (λ _ → funExt (λ ϕᴰ →
-      funExt⁻ (βαᴰ .N-hom _) ϕᴰ ∙
-      congS (λ x → (Pᴰ ⟪ _ , x ⟫) ((βαᴰ ⟦ _ ⟧) ϕᴰ))
-        ((Q ⟅ _ ⟆) .snd _ _ _ _)))
-    isFibrationPRESHEAFᴰ Pᴰ α .isCartesian {g = β} .snd .fst βαᴰ =
-      makeNatTransPath refl
-    isFibrationPRESHEAFᴰ Pᴰ α .isCartesian {g = β} .snd .snd αᴰ =
-      makeNatTransPath refl
+    isFibrationPRESHEAFᴰ Pᴰ =
+      isFibrationManual→isFibration
+        (PRESHEAFᴰ C ℓS ℓSᴰ [-][-, Pᴰ ])
+        (isFibrationPRESHEAFᴰ' Pᴰ)

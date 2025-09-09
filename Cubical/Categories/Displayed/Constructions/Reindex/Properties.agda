@@ -19,8 +19,6 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base hiding (π)
-open import Cubical.Categories.Displayed.Limits.Terminal
-open import Cubical.Categories.Displayed.Limits.BinProduct
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
@@ -31,7 +29,6 @@ private
 
 open Category
 open Functor
-open CartesianLift
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -49,33 +46,14 @@ module _
   hasPropHomsReindex : hasPropHoms Dᴰ → hasPropHoms (reindex Dᴰ F)
   hasPropHomsReindex = λ z {c} {c'} f → z (F-hom F f)
 
-  module _
-    {c : C .ob}{c' : C .ob}
-    {dᴰ' : Dᴰ.ob[ F ⟅ c' ⟆ ]}{f : C [ c , c' ]}
-    where
-    -- why is this true, really?
-    -- the first represents the functor (yoRec (F ⟪ f ⟫))* Dᴰ [-][-, dᴰ' ]
-    -- the latter represents the functor (yoRec f)* F*Dᴰ [-][-, dᴰ' ]
-    reflectsCartesianLifts
-      : CartesianLift Dᴰ dᴰ' (F ⟪ f ⟫)
-      → CartesianLift F*Dᴰ dᴰ' f
-    reflectsCartesianLifts F⟪f⟫-lift .f*yᴰ = F⟪f⟫-lift .f*yᴰ
-    reflectsCartesianLifts F⟪f⟫-lift .π = F⟪f⟫-lift .π
-    reflectsCartesianLifts F⟪f⟫-lift .isCartesian .fst gfᴰ =
-      F⟪f⟫-lift .isCartesian .fst (R.reind (F .F-seq _ _) gfᴰ)
-    reflectsCartesianLifts F⟪f⟫-lift .isCartesian .snd .fst gfᴰ =
-      R.rectify $ R.≡out $
-      (sym $ R.reind-filler _ _)
-      ∙ (R.≡in $ F⟪f⟫-lift .isCartesian .snd .fst _)
-      ∙ (sym $ R.reind-filler _ _)
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (F : Functor C D) where
 
-    reflectsCartesianLifts F⟪f⟫-lift .isCartesian .snd .snd gᴰ =
-      R.rectify $ R.≡out $
-      ((R.≡in $ congP (λ _ → F⟪f⟫-lift .isCartesian .fst)
-        -- TODO: add reindReind⁻ to Reasoning
-        $ transportTransport⁻ (λ i → Dᴰ.Hom[ F .F-seq _ _ i ][ _ , _ ])
-          (gᴰ Dᴰ.⋆ᴰ F⟪f⟫-lift .π))
-      ∙ (R.≡in $ F⟪f⟫-lift .isCartesian .snd .snd gᴰ))
-
-  isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
-  isFibrationReindex isFibDᴰ _ _ = reflectsCartesianLifts (isFibDᴰ _ _)
+  isFibrationReindex
+    : isFibration Dᴰ
+    → isFibration (reindex Dᴰ F)
+  isFibrationReindex isFib xᴰ f =
+    reindUEⱽ {F = F} (isFib xᴰ $ F ⟪ f ⟫) ◁PshIsoⱽ
+      (invPshIsoⱽ (reindYoReindFunc {F = F})
+      ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)

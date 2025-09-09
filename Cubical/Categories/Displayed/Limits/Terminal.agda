@@ -43,12 +43,14 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
+open import Cubical.Categories.Displayed.Functor
 
 private
   variable

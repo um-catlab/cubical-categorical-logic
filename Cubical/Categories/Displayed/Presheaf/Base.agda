@@ -48,12 +48,13 @@ PRESHEAFᴰ Cᴰ ℓP ℓPᴰ = FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓP ℓPᴰ)
      → Presheaf (TotalCat.∫C D) (ℓ-max ℓP ℓPᴰ)
 ∫P Pᴰ = ΣF ∘F TotalCat.∫F Pᴰ
 
+open PshHom
 Fst : {C : Category ℓC ℓC'} {D : Categoryᴰ C ℓD ℓD'}
      → {P : Presheaf C ℓP} → {ℓPᴰ : Level}
      → (Pᴰ : Presheafᴰ P D ℓPᴰ)
      → PshHet TotalCat.Fst (∫P Pᴰ) P
-Fst Pᴰ .fst x x₁ = x₁ .fst
-Fst Pᴰ .snd x y f p = refl
+Fst Pᴰ .N-ob x x₁ = x₁ .fst
+Fst Pᴰ .N-hom x y f p = refl
 
 -- TODO: Snd?, Intro?
 

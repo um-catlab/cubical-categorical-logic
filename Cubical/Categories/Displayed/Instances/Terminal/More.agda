@@ -8,6 +8,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Terminal
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Instances.Terminal as Terminal
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
@@ -21,15 +22,15 @@ open Category
 open Categoryᴰ
 open Section
 open Functorᴰ
-open CartesianLift
+open UniversalElementⱽ
 
 module _ {C : Category ℓC ℓC'} where
   isFibrationUnitᴰ : isFibration (Unitᴰ C)
-  isFibrationUnitᴰ _ f .f*yᴰ = tt
-  isFibrationUnitᴰ _ f .π = tt
-  isFibrationUnitᴰ _ f .isCartesian .fst = λ _ → tt
-  isFibrationUnitᴰ _ f .isCartesian .snd .fst b = refl
-  isFibrationUnitᴰ _ f .isCartesian .snd .snd a = refl
+  isFibrationUnitᴰ cᴰ p .vertexⱽ = tt
+  isFibrationUnitᴰ cᴰ p .elementⱽ = tt
+  isFibrationUnitᴰ cᴰ p .universalⱽ .fst = λ _ → tt
+  isFibrationUnitᴰ cᴰ p .universalⱽ .snd .fst = λ _ → refl
+  isFibrationUnitᴰ cᴰ p .universalⱽ .snd .snd = λ _ → refl
 
   -- module _ (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   --   preservesCartesianLiftsIntro :

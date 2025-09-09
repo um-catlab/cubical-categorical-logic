@@ -26,7 +26,6 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Presheaf.Base
--- open import Cubical.Categories.Displayed.Presheaf.Section
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 
 private

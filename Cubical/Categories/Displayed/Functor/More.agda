@@ -2,14 +2,21 @@
 module Cubical.Categories.Displayed.Functor.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
-open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Isomorphism
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
 import      Cubical.Data.Equality as Eq
 import      Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Fibration.IsoFibration
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
@@ -171,3 +178,39 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
       (Fᴰ .F-homᴰ)
       (Gᴰ .F-homᴰ)
 
+
+-- Reindexing a functor by a NatIso
+module _
+  {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  where
+  open NatTrans
+  open NatIso
+  open Functor
+  open Functorᴰ
+  open isIso
+  open isIsoᴰ
+  private
+    module D = Category D
+    module Dᴰ = Fibers Dᴰ
+  -- TODO: actually only need isoLifts for α
+  reindFNIso : ∀ {G}(α : NatIso G F)
+    → isIsoFibration Dᴰ
+    → Functorᴰ F Cᴰ Dᴰ
+    → Functorᴰ G Cᴰ Dᴰ
+  reindFNIso α isoFib Fᴰ .F-obᴰ cᴰ = isoFib _ (NatIsoAt α _) .fst
+  reindFNIso α isoFib Fᴰ .F-homᴰ fᴰ =
+    Dᴰ.reind (D.⟨ refl ⟩⋆⟨ (symNatIso α) .trans .N-hom _ ⟩ ∙ (sym (D.⋆Assoc _ _ _) ∙ D.⟨ α .nIso _ .ret ⟩⋆⟨ refl ⟩) ∙ D.⋆IdL _) $
+    isoFib _ (NatIsoAt α _) .snd .fst Dᴰ.⋆ᴰ Fᴰ .F-homᴰ fᴰ Dᴰ.⋆ᴰ isoFib _ (NatIsoAt α _) .snd .snd .invᴰ
+  reindFNIso α isoFib Fᴰ .F-idᴰ = Dᴰ.rectify $ Dᴰ.≡out $
+    sym (Dᴰ.reind-filler _ _)
+    ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.⟨ ∫F Fᴰ .F-id  ⟩⋆⟨ refl ⟩ ∙ Dᴰ.⋆IdL _ ⟩
+    ∙ (Dᴰ.≡in $ isoFib (F-obᴰ Fᴰ _) (NatIsoAt α _) .snd .snd .retᴰ)
+  reindFNIso α isoFib Fᴰ .F-seqᴰ fᴰ gᴰ = Dᴰ.rectify $ Dᴰ.≡out $ sym $
+    Dᴰ.⟨ (sym $ Dᴰ.reind-filler _ _) ∙ (sym $ Dᴰ.⋆Assoc _ _ _) ⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ⟩
+    ∙ Dᴰ.⋆Assoc _ _ _
+    ∙ Dᴰ.⟨ refl ⟩⋆⟨ (sym $ Dᴰ.⋆Assoc _ _ _) ∙ Dᴰ.⟨ Dᴰ.≡in $ isoFib (F-obᴰ Fᴰ _) (NatIsoAt α _) .snd .snd .secᴰ ⟩⋆⟨ refl ⟩ ∙ Dᴰ.⋆IdL _ ⟩
+    ∙ (Dᴰ.⋆Assoc _ _ _ ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym (Dᴰ.⋆Assoc _ _ _) ∙ Dᴰ.⟨ sym $ ∫F Fᴰ .F-seq _ _ ⟩⋆⟨ refl ⟩ ⟩)
+    ∙ Dᴰ.reind-filler _ _
+    

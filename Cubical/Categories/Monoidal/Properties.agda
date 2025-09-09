@@ -2,6 +2,7 @@
 module Cubical.Categories.Monoidal.Properties where
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.HLevels
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Constructions.BinProduct
@@ -21,6 +22,14 @@ open Functor
 open isIso
 open NatTrans
 open NatIso
+
+module MonoidalCategoryNotation (M : MonoidalCategory ℓC ℓC') where
+  open MonoidalCategory M public
+  ⟨_⟩⊗ₕ⟨_⟩ : ∀ {x y z w}
+    {f f' : C [ x , y ]}
+    {g g' : C [ z , w ]}
+    → f ≡ f' → g ≡ g' → f ⊗ₕ g ≡ f' ⊗ₕ g'
+  ⟨ f≡f' ⟩⊗ₕ⟨ g≡g' ⟩ = cong₂ _⊗ₕ_ f≡f' g≡g'
 
 record MonoidalPreorder ℓC ℓC' : Type (ℓ-suc (ℓ-max ℓC ℓC')) where
   field

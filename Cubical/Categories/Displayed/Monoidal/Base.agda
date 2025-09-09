@@ -3,9 +3,14 @@
 module Cubical.Categories.Displayed.Monoidal.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Properties
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation.Base
@@ -44,6 +49,7 @@ module _ (M : MonoidalCategory ℓM ℓM') where
         → Cᴰ.Hom[ g ][ zᴰ , wᴰ ]
         → Cᴰ.Hom[ f M.⊗ₕ g ][ xᴰ ⊗ᴰ zᴰ , yᴰ ⊗ᴰ wᴰ ]
       fᴰ ⊗ₕᴰ gᴰ = ─⊗ᴰ─ .F-homᴰ (fᴰ , gᴰ)
+
     record MonoidalStrᴰ : Type (ℓ-max (ℓ-max ℓM ℓM') (ℓ-max ℓMᴰ ℓMᴰ')) where
       field
         tenstrᴰ : TensorStrᴰ
@@ -134,5 +140,41 @@ module _ (M : MonoidalCategory ℓM ℓM') where
     field
       Cᴰ : Categoryᴰ M.C ℓMᴰ ℓMᴰ'
       monstrᴰ : MonoidalStrᴰ Cᴰ
-    open Categoryᴰ Cᴰ public
+    -- Probably a bad idea
+    open Fibers Cᴰ public
     open MonoidalStrᴰ monstrᴰ public
+
+    open MonoidalCategory
+    open MonoidalStr
+    open TensorStr
+    open Functor
+    open NatIso
+    open NatTrans
+    open isIso
+    -- Probably some combinators we could use here rather than doing this all manually
+    ∫ : MonoidalCategory (ℓ-max ℓM ℓMᴰ) (ℓ-max ℓM' ℓMᴰ')
+    ∫ .MonoidalCategory.C = ∫C Cᴰ
+    ∫ .monstr .tenstr .─⊗─ .F-ob ((_ , x), (_ , y)) = _ , (x ⊗ᴰ y)
+    ∫ .monstr .tenstr .─⊗─ .F-hom ((_ , f), (_ , g)) = _ , (f ⊗ₕᴰ g)
+    ∫ .monstr .tenstr .─⊗─ .F-id = ΣPathP (_ , (─⊗ᴰ─ .F-idᴰ))
+    ∫ .monstr .tenstr .─⊗─ .F-seq _ _ = ΣPathP (_ , ─⊗ᴰ─ .F-seqᴰ _ _)
+    ∫ .monstr .tenstr .unit = M.unit , unitᴰ
+    ∫ .monstr .α .trans .N-ob ((_ , x), (_ , y), (_ , z)) = _ , αᴰ⟨ x , y , z ⟩
+    ∫ .monstr .α .trans .N-hom ((_ , f), (_ , g), (_ , h)) = ΣPathP (_ , αᴰ .transᴰ .N-homᴰ (f , g , h))
+    ∫ .monstr .α .nIso ((_ , x) , (_ , y) , _ , z) .inv = _ , α⁻¹ᴰ⟨ x , y , z ⟩
+    ∫ .monstr .α .nIso ((_ , x) , (_ , y) , _ , z) .sec = ΣPathP (_ , αᴰ .nIsoᴰ (x , y , z) .secᴰ)
+    ∫ .monstr .α .nIso ((_ , x) , (_ , y) , _ , z) .ret = ΣPathP (_ , αᴰ .nIsoᴰ (x , y , z) .retᴰ)
+    ∫ .monstr .ρ .trans .N-ob (_ , x) = _ , ρᴰ⟨ x ⟩
+    ∫ .monstr .ρ .trans .N-hom (_ , f) = ΣPathP (_ , ρᴰ .transᴰ .N-homᴰ f)
+    ∫ .monstr .ρ .nIso (_ , x) .inv = _ , ρ⁻¹ᴰ⟨ x ⟩
+    ∫ .monstr .ρ .nIso (_ , x) .sec = ΣPathP (_ , ρᴰ .nIsoᴰ x .secᴰ)
+    ∫ .monstr .ρ .nIso (_ , x) .ret = ΣPathP (_ , ρᴰ .nIsoᴰ x .retᴰ)
+    ∫ .monstr .η .trans .N-ob (_ , x) = _ , ηᴰ⟨ x ⟩
+    ∫ .monstr .η .trans .N-hom (_ , f) = ΣPathP (_ , ηᴰ .transᴰ .N-homᴰ f)
+    ∫ .monstr .η .nIso (_ , x) .inv = _ , η⁻¹ᴰ⟨ x ⟩
+    ∫ .monstr .η .nIso (_ , x) .sec = ΣPathP (_ , ηᴰ .nIsoᴰ x .secᴰ)
+    ∫ .monstr .η .nIso (_ , x) .ret = ΣPathP (_ , ηᴰ .nIsoᴰ x .retᴰ)
+    ∫ .monstr .pentagon (_ , w) (_ , x) (_ , y) (_ , z) = ΣPathP (_ , pentagonᴰ w x y z)
+    ∫ .monstr .triangle (_ , x) (_ , y) = ΣPathP (_ , triangleᴰ x y)
+
+    module ∫ = MonoidalCategoryNotation ∫

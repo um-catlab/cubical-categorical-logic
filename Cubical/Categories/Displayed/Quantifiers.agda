@@ -25,7 +25,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.FunctorComprehension
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Sets
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Profunctor

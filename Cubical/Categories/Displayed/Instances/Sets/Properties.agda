@@ -249,19 +249,48 @@ module _ {ℓ} {ℓ'} where
     UniversalQuantifierSETᴰ .elementⱽ (a , b) c = c b
     UniversalQuantifierSETᴰ .universalⱽ .fst fᴰ d dᴰ b =
       fᴰ (d , b) dᴰ
-    UniversalQuantifierSETᴰ .universalⱽ .snd .fst fᴰ =
+    UniversalQuantifierSETᴰ .universalⱽ {y = D} {yᴰ = Dᴰ} {f = f} .snd .fst fᴰ =
       funExt₂ $ λ (d , b) dᴰ →
-        let
-        module C = hSetReasoning A (λ a → ⟨ C (a , b) ⟩)
-        module ∀Psh =
-          PresheafⱽNotation
-            (∀Pshⱽ (BinProductWithF _ -×B) -×B.π₁Nat (λ D → isFibrationSETᴰ D fst)
-              ((SETᴰ ℓ (ℓ-max ℓ ℓ')) [-][-, C ]))
-        in
-        C.Prectify $ C.≡out $
-          (sym $ {!!})
-          ∙ {!!}
-        --   ∙ {!!}
+        C.Prectify $ C.≡out $ sym $
+          cong₂fᴰ
+             -- This cubical nonsense provides a filler
+             -- between b and a sequence of transports
+             -- It can likely be simplified
+            (sym $
+              (λ i → transp (λ _ → ⟨ B ⟩) i
+                      (transp (λ _ → ⟨ B ⟩) i0
+                        (transp (λ _ → ⟨ B ⟩) i0 b)))
+              ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
+                        (transp (λ _ → ⟨ B ⟩) i0 b))
+              ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
+            (Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _)
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+      where
+      ⟨C⟩ : ⟨ A bp.× B ⟩ → Type _
+      ⟨C⟩ ab = ⟨ C ab ⟩
+
+      ⟨Dᴰ⟩ : ⟨ D ⟩ → Type _
+      ⟨Dᴰ⟩ d = ⟨ Dᴰ d ⟩
+
+      module C = hSetReasoning (A bp.× B) ⟨C⟩
+      module Dᴰ = hSetReasoning D ⟨Dᴰ⟩
+
+      cong₂fᴰ : ∀ {b b'} {d d'} {dᴰ dᴰ'} →
+        (b≡b' : b ≡ b') →
+        (dᴰ≡dᴰ' : (d , dᴰ) ≡ (d' , dᴰ')) →
+        Path (Σ ⟨ A bp.× B ⟩ ⟨C⟩)
+         ((f d , b) , fᴰ (d , b) dᴰ)
+         ((f d' , b') , fᴰ (d' , b') dᴰ')
+      cong₂fᴰ b≡b' dᴰ≡dᴰ' i =
+        ((f (dᴰ≡dᴰ' i .fst)) , (b≡b' i)) ,
+        (fᴰ (dᴰ≡dᴰ' i .fst , (b≡b' i)) (dᴰ≡dᴰ' i .snd))
+
     UniversalQuantifierSETᴰ .universalⱽ .snd .snd = {!!}
 
 -- TODO

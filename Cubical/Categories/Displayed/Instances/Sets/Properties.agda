@@ -263,7 +263,9 @@ module _ {ℓ} {ℓ'} where
               ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
                         (transp (λ _ → ⟨ B ⟩) i0 b))
               ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
-            (Dᴰ.reind-filler _
+          -- Confusingly, these underscores are inconsequential
+          -- to performance
+          (Dᴰ.reind-filler _
             ∙ Dᴰ.reind-filler _
             ∙ Dᴰ.reind-filler _
             ∙ Dᴰ.reind-filler _
@@ -291,7 +293,45 @@ module _ {ℓ} {ℓ'} where
         ((f (dᴰ≡dᴰ' i .fst)) , (b≡b' i)) ,
         (fᴰ (dᴰ≡dᴰ' i .fst , (b≡b' i)) (dᴰ≡dᴰ' i .snd))
 
-    UniversalQuantifierSETᴰ .universalⱽ .snd .snd = {!!}
+    UniversalQuantifierSETᴰ .universalⱽ {y = D} {yᴰ = Dᴰ} {f = f} .snd .snd fᴰ =
+      funExt₃ λ d dᴰ b →
+        C.Prectify $ C.≡out $ sym $
+          cong₃fᴰ
+            (sym $
+              (λ i → transp (λ _ → ⟨ B ⟩) i
+                      (transp (λ _ → ⟨ B ⟩) i0
+                        (transp (λ _ → ⟨ B ⟩) i0 b)))
+              ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
+                        (transp (λ _ → ⟨ B ⟩) i0 b))
+              ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
+            (Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _)
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+      where
+      ⟨C⟩ : ⟨ A bp.× B ⟩ → Type _
+      ⟨C⟩ ab = ⟨ C ab ⟩
+
+      ⟨Dᴰ⟩ : ⟨ D ⟩ → Type _
+      ⟨Dᴰ⟩ d = ⟨ Dᴰ d ⟩
+
+      module C = hSetReasoning (A bp.× B) ⟨C⟩
+      module Dᴰ = hSetReasoning D ⟨Dᴰ⟩
+
+      cong₃fᴰ : ∀ {b b'} {d d'} {dᴰ dᴰ'} →
+        (b≡b' : b ≡ b') →
+        (dᴰ≡dᴰ' : (d , dᴰ) ≡ (d' , dᴰ')) →
+        Path (Σ ⟨ A bp.× B ⟩ ⟨C⟩)
+         ((f d , b) , fᴰ d  dᴰ b)
+         ((f d' , b') , fᴰ d' dᴰ' b')
+      cong₃fᴰ b≡b' dᴰ≡dᴰ' i =
+        ((f (dᴰ≡dᴰ' i .fst)) , (b≡b' i)) ,
+        (fᴰ (dᴰ≡dᴰ' i .fst) (dᴰ≡dᴰ' i .snd) (b≡b' i))
+
 
 -- TODO
 -- I think you need an extra assumption on F to make this construction work

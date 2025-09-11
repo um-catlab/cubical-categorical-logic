@@ -18,6 +18,7 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Instances.Sets
@@ -64,8 +65,6 @@ open Functorᴰ
 module _
   {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  (F : Functor C C)
-  (πF : NatTrans F Id)
   where
 
   open UniversalElement
@@ -74,10 +73,15 @@ module _
     module C = Category C
     module Cᴰ = Fibers Cᴰ
 
-  module _
+  module UniversalQuantifierF
+    (F : Functor C C)
+    (πF : NatTrans F Id)
     (πF* : {Γ : C.ob} → (Γᴰ : Cᴰ.ob[ Γ ]) →
-      PshᴰCL.CartesianLift (πF ⟦ Γ ⟧) (Cᴰ [-][-, Γᴰ ]))
+      CartesianLift Cᴰ Γᴰ (πF ⟦ Γ ⟧))
     where
+
+    πF-PshHom : ∀ {Γ} → PshHom (C [-, F ⟅ Γ ⟆ ]) (C [-, Γ ])
+    πF-PshHom = yoRec _ (N-ob πF _)
 
     open UniversalElementⱽ
 
@@ -87,28 +91,30 @@ module _
 
       private
         module Pⱽ = PresheafⱽNotation Pⱽ
-        weakenπFᴰ = PshᴰCL.weakenπFᴰ F πF πF*
 
-      ∀ⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
-      ∀ⱽPsh .F-obᴰ {x = Δ} Δᴰ δ = Pⱽ .F-obᴰ (πF* Δᴰ .vertexⱽ) (F ⟪ δ ⟫)
-      ∀ⱽPsh .F-homᴰ {x = Δ} {y = Θ} {f = δ} {xᴰ = Δᴰ} {yᴰ = Θᴰ} δᴰ γ γᴰ =
-        Pⱽ.reind (sym $ F .F-seq δ γ) $ (weakenπFᴰ .F-homᴰ δᴰ Pⱽ.⋆ᴰ γᴰ)
-      ∀ⱽPsh .F-idᴰ = funExt₂ λ _ _ →
-        Pⱽ.rectify $ Pⱽ.≡out $
-          (sym $ Pⱽ.reind-filler _ _)
-          ∙ Pⱽ.⟨ Cᴰ.≡in $ weakenπFᴰ .F-idᴰ ⟩⋆⟨⟩
-          ∙ Pⱽ.⋆IdL _
-      ∀ⱽPsh .F-seqᴰ δᴰ θᴰ = funExt₂ λ _ _ →
-        Pⱽ.rectify $ Pⱽ.≡out $
-          (sym $ Pⱽ.reind-filler _ _)
-          ∙ Pⱽ.⟨ Cᴰ.≡in (weakenπFᴰ .F-seqᴰ θᴰ δᴰ) ⟩⋆⟨⟩
-          ∙ Pⱽ.⋆Assoc _ _ _
-          ∙ Pⱽ.⟨ refl ⟩⋆⟨ Pⱽ.reind-filler _ _ ⟩
-          ∙ Pⱽ.reind-filler _ _
+      weakenπFᴰ = PshᴰCL.weakenπFᴰ F πF πF*
+
+      ∀FⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
+      ∀FⱽPsh = reind (yoRec _ C.id) $ Pⱽ ∘Fᴰ (weakenπFᴰ ^opFᴰ)
+--       ∀FⱽPsh .F-obᴰ {x = Δ} Δᴰ δ = Pⱽ .F-obᴰ (πF* Δᴰ .vertexⱽ) (F ⟪ δ ⟫)
+--       ∀FⱽPsh .F-homᴰ {x = Δ} {y = Θ} {f = δ} {xᴰ = Δᴰ} {yᴰ = Θᴰ} δᴰ γ γᴰ =
+--         Pⱽ.reind (sym $ F .F-seq δ γ) $ (weakenπFᴰ .F-homᴰ δᴰ Pⱽ.⋆ᴰ γᴰ)
+--       ∀FⱽPsh .F-idᴰ = funExt₂ λ _ _ →
+--         Pⱽ.rectify $ Pⱽ.≡out $
+--           (sym $ Pⱽ.reind-filler _ _)
+--           ∙ Pⱽ.⟨ Cᴰ.≡in $ weakenπFᴰ .F-idᴰ ⟩⋆⟨⟩
+--           ∙ Pⱽ.⋆IdL _
+--       ∀FⱽPsh .F-seqᴰ δᴰ θᴰ = funExt₂ λ _ _ →
+--         Pⱽ.rectify $ Pⱽ.≡out $
+--           (sym $ Pⱽ.reind-filler _ _)
+--           ∙ Pⱽ.⟨ Cᴰ.≡in (weakenπFᴰ .F-seqᴰ θᴰ δᴰ) ⟩⋆⟨⟩
+--           ∙ Pⱽ.⋆Assoc _ _ _
+--           ∙ Pⱽ.⟨ refl ⟩⋆⟨ Pⱽ.reind-filler _ _ ⟩
+--           ∙ Pⱽ.reind-filler _ _
 
     module _ {Γ : C.ob} (Γᴰ : Cᴰ.ob[ F ⟅ Γ ⟆ ]) where
       UniversalQuantifierF : Type _
-      UniversalQuantifierF = UniversalElementⱽ Cᴰ Γ (∀ⱽPsh (Cᴰ [-][-, Γᴰ ]))
+      UniversalQuantifierF = UniversalElementⱽ Cᴰ Γ (∀FⱽPsh (Cᴰ [-][-, Γᴰ ]))
 
     module UniversalQuantifierFNotation {Γ}{Γᴰ : Cᴰ.ob[ F ⟅ Γ ⟆ ]}
       (∀Γᴰ : UniversalQuantifierF Γᴰ) where
@@ -118,11 +124,11 @@ module _
       vert : Cᴰ.ob[ Γ ]
       vert = ∀ueFⱽ.vertexⱽ
 
-      app : Cᴰ [ F ⟪ C.id ⟫ ][ vertexⱽ (πF* ∀ueFⱽ.vertexⱽ) , Γᴰ ]
+      app : Cᴰ [ _ ][ vertexⱽ (πF* ∀ueFⱽ.vertexⱽ) , Γᴰ ]
       app = ∀ueFⱽ.elementⱽ
 
       lda : ∀ {Δ} {Δᴰ : Cᴰ.ob[ Δ ]} {γ} →
-        Cᴰ [ F ⟪ γ ⟫ ][ vertexⱽ (πF* Δᴰ) , Γᴰ ] →
+        Cᴰ [ _ ][ vertexⱽ (πF* Δᴰ) , Γᴰ ] →
         Cᴰ [ γ ][ Δᴰ , vert ]
       lda = ∀ueFⱽ.universalⱽ .fst
 
@@ -148,8 +154,12 @@ module _
 
   module _ (π₁* : ∀ {Γ} → (Γᴰ : Cᴰ.ob[ Γ ]) → PshᴰCL.CartesianLift bp.π₁ (Cᴰ [-][-, Γᴰ ]))
     {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) where
+    open UniversalQuantifierF
     UniversalQuantifier : Type _
     UniversalQuantifier = UniversalQuantifierF bp.×aF bp.π₁Nat π₁* Γᴰ
+
+    ∀ⱽPsh : Presheafⱽ Γ Cᴰ ℓCᴰ'
+    ∀ⱽPsh = ∀FⱽPsh bp.×aF bp.π₁Nat π₁* (Cᴰ [-][-, Γᴰ ])
 
 module _
   {C : Category ℓC ℓC'}

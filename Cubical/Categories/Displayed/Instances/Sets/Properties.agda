@@ -30,6 +30,7 @@ open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Exponentials
 
@@ -240,6 +241,7 @@ module _ {ℓ} {ℓ'} where
     private
       -×B = BinProducts→BinProductsWith (SET ℓ) B bp
       module -×B = BinProductsWithNotation -×B
+
     UniversalQuantifierSETᴰ :
       UniversalQuantifier -×B (λ D → isFibrationSETᴰ D fst) C
     UniversalQuantifierSETᴰ .vertexⱽ a .fst =
@@ -253,9 +255,6 @@ module _ {ℓ} {ℓ'} where
       funExt₂ $ λ (d , b) dᴰ →
         C.Prectify $ C.≡out $ sym $
           cong₂fᴰ
-             -- This cubical nonsense provides a filler
-             -- between b and a sequence of transports
-             -- It can likely be simplified
             (sym $
               (λ i → transp (λ _ → ⟨ B ⟩) i
                       (transp (λ _ → ⟨ B ⟩) i0
@@ -263,13 +262,11 @@ module _ {ℓ} {ℓ'} where
               ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
                         (transp (λ _ → ⟨ B ⟩) i0 b))
               ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
-          -- Confusingly, these underscores are inconsequential
-          -- to performance
-          (Dᴰ.reind-filler _
-            ∙ Dᴰ.reind-filler _
-            ∙ Dᴰ.reind-filler _
-            ∙ Dᴰ.reind-filler _
-            ∙ Dᴰ.reind-filler _)
+            (Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) d)
+              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 d))
+              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d)))
+              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
+              ∙ Dᴰ.reind-filler λ i → transp (λ i₁ → D .fst) i (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
           ∙ C.reind-filler _
           ∙ C.reind-filler _
           ∙ C.reind-filler _
@@ -304,11 +301,11 @@ module _ {ℓ} {ℓ'} where
               ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
                         (transp (λ _ → ⟨ B ⟩) i0 b))
               ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
-            (Dᴰ.reind-filler _
-              ∙ Dᴰ.reind-filler _
-              ∙ Dᴰ.reind-filler _
-              ∙ Dᴰ.reind-filler _
-              ∙ Dᴰ.reind-filler _)
+            (Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) d)
+              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 d))
+              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d)))
+              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
+              ∙ Dᴰ.reind-filler λ i → transp (λ i₁ → D .fst) i (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
           ∙ C.reind-filler _
           ∙ C.reind-filler _
           ∙ C.reind-filler _

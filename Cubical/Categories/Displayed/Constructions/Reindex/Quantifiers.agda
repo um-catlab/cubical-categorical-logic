@@ -14,6 +14,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
@@ -25,32 +26,103 @@ private
   variable
     ℓB ℓB' ℓBᴰ ℓBᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
--- module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
---   {F : Functor C D}
---   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---   {c : C .Category.ob}
---   (-×c : BinProductsWith C c)
---   (-×Fc : BinProductsWith D (F ⟅ c ⟆))
---   (F-× : preservesProvidedBinProductsWith F -×c)
---   (isFibDᴰ : isFibration Dᴰ)
---   where
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {F : Functor C D}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {c : C .Category.ob}
+  (-×c : BinProductsWith C c)
+  (-×Fc : BinProductsWith D (F ⟅ c ⟆))
+  (F-× : preservesProvidedBinProductsWith F -×c)
+  (isFibDᴰ : isFibration Dᴰ)
+  where
 
---   private
---     module -×c = BinProductsWithNotation -×c
---     module -×Fc = BinProductsWithNotation -×Fc
---     module C = Category C
---     module D = Category D
---     module Dᴰ = Fibers Dᴰ
---     module F*Dᴰ = Fibers (Base.reindex Dᴰ F)
---     module isFibDᴰ = isFibrationNotation _ isFibDᴰ
---     isFibF*Dᴰ = isFibrationReindex Dᴰ F isFibDᴰ
---     module isFibF*Dᴰ = isFibrationNotation _ isFibF*Dᴰ
---     module F⟨-×c⟩ {Γ} = BinProductNotation (preservesUniversalElement→UniversalElement (preservesBinProdCones F Γ c) (-×c Γ) (F-× Γ))
---   module _ {Γ} {dᴰ : F*Dᴰ.ob[ Γ -×c.×a ]} where
---     module F⟨Γ×c⟩ = BinProductNotation (preservesUniversalElement→UniversalElement (preservesBinProdCones F Γ c) (-×c Γ) (F-× Γ))
+  open UniversalElementⱽ
 
---     module _ (∀dᴰ : UniversalQuantifier -×Fc isFibDᴰ
---                   (isFibDᴰ.p*Pᴰ dᴰ (-×Fc.π₁ F⟨Γ×c⟩.,p -×Fc.π₂))) where
+  private
+    module -×c = BinProductsWithNotation -×c
+    module -×Fc = BinProductsWithNotation -×Fc
+    module C = Category C
+    module D = Category D
+    module Dᴰ = Fibers Dᴰ
+    F*Dᴰ = Base.reindex Dᴰ F
+    module F*Dᴰ = Fibers F*Dᴰ
+    isFibF*Dᴰ = isFibrationReindex F isFibDᴰ
+    module F⟨-×c⟩ {Γ} = BinProductNotation (preservesUniversalElement→UniversalElement (preservesBinProdCones F Γ c) (-×c Γ) (F-× Γ))
+  module _ {Γ} {dᴰ : F*Dᴰ.ob[ Γ -×c.×a ]} where
+    module F⟨Γ×c⟩ = BinProductNotation (preservesUniversalElement→UniversalElement (preservesBinProdCones F Γ c) (-×c Γ) (F-× Γ))
+
+    private
+      dᴰ' : Dᴰ.ob[ F ⟅ Γ ⟆ -×Fc.×a ]
+      dᴰ' = isFibDᴰ dᴰ (-×Fc.π₁ F⟨Γ×c⟩.,p -×Fc.π₂) .vertexⱽ
+
+    module _
+      (∀dᴰ :
+        UniversalQuantifier -×Fc
+          (λ Γᴰ → isFibDᴰ Γᴰ -×Fc.π₁)
+          dᴰ') where
+
+       private
+         ∀PshDᴰ = ∀Pshⱽ -×Fc.×aF -×Fc.π₁Nat (λ Γᴰ → isFibDᴰ Γᴰ -×Fc.π₁)
+         ∀PshF*Dᴰ = ∀Pshⱽ -×c.×aF -×c.π₁Nat (λ Γᴰ → isFibF*Dᴰ Γᴰ -×c.π₁)
+
+         P : Presheafⱽ (F ⟅ Γ ⟆) Dᴰ ℓDᴰ'
+         P = ∀PshDᴰ (Dᴰ [-][-, dᴰ' ])
+
+         module P = PresheafⱽNotation P
+
+         Q : Presheafⱽ Γ F*Dᴰ ℓDᴰ'
+         Q = ∀PshF*Dᴰ (F*Dᴰ [-][-, dᴰ ])
+
+         module Q = PresheafⱽNotation Q
+
+       open PshHomᴰ
+
+       ∀ReindexPshIsoⱽ :
+         PshIsoⱽ (reindⱽFunc F P) Q
+       ∀ReindexPshIsoⱽ .fst .N-obᴰ {xᴰ = cᴰ} fᴰ =
+         {!!}
+         -- Dᴰ.reind {!!} $
+         --   introᴰ
+         --     (isFibDᴰ cᴰ -×Fc.π₁)
+         --     (Dᴰ.reind {!!} $ isFibDᴰ cᴰ (F ⟪ -×c.π₁ ⟫) .elementⱽ)
+         --   Dᴰ.⋆ᴰ fᴰ Dᴰ.⋆ᴰ isFibDᴰ dᴰ _ .elementⱽ
+       ∀ReindexPshIsoⱽ .fst .N-homᴰ = {!!}
+       ∀ReindexPshIsoⱽ .snd = {!!}
+
+       open Functor
+       ∀Reindex-elt-reind : ∀ {Δ} →
+         ({!F⟨-×c⟩.π₁ {Δ}!} -×Fc.,p F⟨-×c⟩.π₂)
+           D.⋆ -×Fc.×aF ⟪ D.id ⟫
+           D.⋆ D.id
+           D.⋆ (-×Fc.π₁ F⟨-×c⟩.,p -×Fc.π₂)
+           ≡ F ⟪ -×c.×aF ⟪ C.id {Δ} ⟫ ⟫
+         -- (F⟨-×c⟩.π₁ -×Fc.,p F⟨-×c⟩.π₂)
+         --  D.⋆ -×Fc.×aF ⟪ D.id ⟫
+         --  D.⋆ (-×Fc.π₁ F⟨-×c⟩.,p -×Fc.π₂)
+         -- ≡ F ⟪ -×c.×aF ⟪ C.id {Δ} ⟫ ⟫
+       ∀Reindex-elt-reind = {!!}
+         -- (D.⟨ refl ⟩⋆⟨ D.⟨ -×Fc.×aF .F-id ⟩⋆⟨ refl ⟩ ∙ D.⋆IdL _ ⟩
+         -- ∙ F⟨-×c⟩.×ue.intro-natural
+         -- ∙ F⟨-×c⟩.⟨ -×Fc.×β₁ ⟩,p⟨ -×Fc.×β₂ ⟩
+         -- ∙ (sym $ F⟨-×c⟩.×ue.weak-η)
+         -- ∙ (sym $ F .F-id) ∙ cong (F .F-hom) (sym $ -×c.×aF .F-id))
+
+
+       ∀Reindex :
+         UniversalQuantifier -×c (λ Γᴰ → isFibF*Dᴰ Γᴰ -×c.π₁) dᴰ
+       ∀Reindex .vertexⱽ = ∀dᴰ .vertexⱽ
+       ∀Reindex .elementⱽ =
+         Dᴰ.reind ∀Reindex-elt-reind $
+           (introᴰ (isFibDᴰ (∀dᴰ .vertexⱽ) -×Fc.π₁)
+             (Dᴰ.reind (sym $ (-×Fc.×β₁ {g = F .F-hom (-×c.×ue.element .snd)})) $
+               isFibF*Dᴰ (∀dᴰ .vertexⱽ) -×c.π₁ .elementⱽ)
+           Dᴰ.⋆ᴰ ∀dᴰ .elementⱽ
+           Dᴰ.⋆ᴰ isFibDᴰ dᴰ _ .elementⱽ)
+       ∀Reindex .universalⱽ = {!!}
+
+         -- reindUEⱽ ∀dᴰ ◁PshIsoⱽ ∀ReindexPshIsoⱽ
+
+
 --       private
 --         module ∀dᴰ = UniversalQuantifierNotation _ _ ∀dᴰ
 --       open UniversalElementⱽ

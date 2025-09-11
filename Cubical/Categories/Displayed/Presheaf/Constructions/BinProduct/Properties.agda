@@ -157,7 +157,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
   {F : Functor C D}
   where
   reindFunc×ⱽIsoⱽ :
-    PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
+    PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ)) -- (λ b → P b × Q b) ∘ f ≡ (λ a → P (f a) × Q (f a))
             (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
   reindFunc×ⱽIsoⱽ = eqToPshIsoⱽ the-eq where
     the-eq : PresheafᴰEq (reindFunc F (Pᴰ ×ⱽPsh Qᴰ)) (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)

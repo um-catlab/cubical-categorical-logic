@@ -234,3 +234,61 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       where
         Pᴰ~ : (p : P.p[ Γ ])(p' : P.p[ Γ ]) → Type _
         Pᴰ~ p p' = Pᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p' *Pᴰ⌉ ]
+
+    -- I need an η principle here
+    app-naturality-lemma :
+      ∀ {Δ Γ Δᴰ Γᴰ}{γ : C [ Δ , Γ ]}{γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]}
+        {p : P.p[ Γ ]}{pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
+      → Path (Σ[ γ' ∈ C [ Δ , Γ ] ] (Cᴰ [ γ' ][ Δᴰ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]))
+          (C.id C.⋆ γ ,
+            (introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) (γᴰ Pᴰ.⋆ᴰ pᴰ)) Cᴰ.⋆ᴰ funcLR γᴰ))
+          (γ C.⋆ C.id ,
+            (γᴰ Cᴰ.⋆ᴰ introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL p) pᴰ)))
+    app-naturality-lemma {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {γᴰ} {p} {pᴰ} = sym $
+        ∫ue.intro-natural (Γᴰ ×ⱽ p *Pᴰ)
+        ∙ ∫ue.intro≡ (Γᴰ ×ⱽ p *Pᴰ) (×≡Snd-hSet C.isSetHom
+          (Cᴰ.⋆IdR _
+          ∙ (sym $ Cᴰ.⋆IdL _)
+          ∙ Cᴰ.⟨ (sym $ ≡×Snd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .fst) ⟩⋆⟨ refl ⟩
+          ∙ Cᴰ.⋆Assoc _ _ _
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym $ ≡×Snd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .fst) ⟩
+          ∙ sym (Cᴰ.⋆Assoc _ _ _) )
+          (chacha-slide (P._⋆ p) P.isSetPsh C.⟨ sym $ C.⋆IdL γ ⟩⋆⟨ refl ⟩ $ sym $
+            sym (Pᴰ.reind-filler _ _)
+            ∙ Pᴰ.⋆Assoc _ _ _
+            ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ∙ chacha-slide⁻ (P._⋆ p) (≡×Snd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .snd)  ⟩
+            ∙ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+            ∙ Pᴰ.reind-filler _ _ ∙ (chacha-slide⁻ (P._⋆ (γ P.⋆ p)) $ ≡×Snd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .snd)
+            ∙ sym (Pᴰ.reind-filler _ _)
+            ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (sym $ P.⋆IdL p) pᴰ ⟩
+            ∙ Pᴰ.reind-filler _ _
+          ))
+    
+      -- -- TODO: test perf vs this original version
+      -- sym $
+      --   ∫ue.intro-natural (Γᴰ ×ⱽ p *Pᴰ)
+      --   ∙ ∫ue.intro≡ (Γᴰ ×ⱽ p *Pᴰ) (ΣPathPSnd
+      --     (Cᴰ.⋆IdR _
+      --     ∙ (sym $ Cᴰ.⋆IdL _)
+      --     ∙ Cᴰ.⟨ (sym $ PathPΣSnd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .fst) ⟩⋆⟨ refl ⟩
+      --     ∙ Cᴰ.⋆Assoc _ _ _
+      --     ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym $ PathPΣSnd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .fst) ⟩
+      --     ∙ sym (Cᴰ.⋆Assoc _ _ _) )
+      --     (Pᴰ.rectify $ Pᴰ.≡out $ sym $
+      --       sym (Pᴰ.reind-filler _ _)
+      --       ∙ Pᴰ.⋆Assoc _ _ _
+      --       ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ∙ (Pᴰ.≡in $ PathPΣSnd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .snd) ⟩
+      --       ∙ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+      --       ∙ Pᴰ.reind-filler _ _ ∙ (Pᴰ.≡in $ PathPΣSnd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .snd)
+      --       ∙ sym (Pᴰ.reind-filler _ _)
+      --       ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (sym $ P.⋆IdL p) pᴰ ⟩
+      --       ∙ Pᴰ.reind-filler _ _))
+
+-- Goal: (C.id C.⋆ γ ,
+--        introLR Cᴰ.idᴰ
+--        (Pᴰ.reind (λ i → P.⋆IdL (γ P.⋆ p) (~ i)) (γᴰ Pᴰ.⋆ᴰ pᴰ))
+--        Cᴰ.⋆ᴰ funcLR γᴰ)
+--       ≡
+--       (γ C.⋆ C.id ,
+--        γᴰ Cᴰ.⋆ᴰ introLR Cᴰ.idᴰ (Pᴰ.reind (λ i → P.⋆IdL p (~ i)) pᴰ))
+

@@ -47,6 +47,21 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module Dᴰ = Fibers Dᴰ
 
   -- TODO adapt to new Exponentialⱽ
+
+  module _ where
+
+  module _ {c : C .ob} {cᴰ dᴰ : Dᴰ.ob[ F ⟅ c ⟆ ]}
+    where
+    ExponentialⱽReindex : {!!}
+    ExponentialⱽReindex = {!!}
+
+  module _ (bpⱽ : BinProductsⱽ Dᴰ) (isFibDᴰ : isFibration Dᴰ) where
+    ExponentialsⱽReindex
+      : Exponentialsⱽ Dᴰ bpⱽ isFibDᴰ
+      → Exponentialsⱽ F*Dᴰ (BinProductsⱽReindex bpⱽ) (isFibrationReindex F isFibDᴰ)
+    ExponentialsⱽReindex exps cᴰ dᴰ =
+      reindUEⱽ (exps cᴰ dᴰ)
+      ◁PshIsoⱽ ((record { N-obᴰ = λ f → f ; N-homᴰ = {!!} }) , {!!})
   -- module _ {c : C .ob} {Fcᴰ Fcᴰ' : Dᴰ.ob[ F ⟅ c ⟆ ]}
   --   (isFib : isFibration Dᴰ)
   --   (bpⱽ : BinProductsⱽ Dᴰ)

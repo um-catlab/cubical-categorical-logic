@@ -58,6 +58,9 @@ module _ (C : Category ℓ ℓ') where
     BinProductsWith : Type (ℓ-max ℓ ℓ')
     BinProductsWith = UniversalElements ProdWithAProf
 
+    BinProducts→BinProductsWith : BinProducts → BinProductsWith
+    BinProducts→BinProductsWith bp c' = bp (c' , c)
+
   module _ (bp : BinProducts) where
     BinProductF : Functor (C R.×C C) C
     BinProductF = FunctorComprehension BinProductProf bp

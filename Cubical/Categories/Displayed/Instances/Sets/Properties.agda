@@ -19,6 +19,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Instances.Sets
@@ -32,7 +33,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Exponentials
 
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.Fiber hiding (fiber)
 
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Fibration.Base
@@ -45,6 +46,7 @@ open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Exponentials.Base
+open import Cubical.Categories.Displayed.Quantifiers
 
 private
   variable
@@ -227,3 +229,159 @@ ExponentialsⱽSETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .s
     cong₃fᴰ γᴰ≡γᴰ' p≡p' i .snd =
       fᴰ _ ((γᴰ≡γᴰ' i .snd))
         ((P.Prectify {e = cong fst p≡p'}{e' = cong f $ cong fst γᴰ≡γᴰ'}(λ j → p≡p' j .snd) i))
+
+module _ {ℓ} {ℓ'} where
+  private
+    module SET = Category (SET ℓ)
+    module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
+    bp = BinProductsSET {ℓSET = ℓ}
+    module bp = BinProductsNotation bp
+  module _ {A B : SET.ob} (C : SETᴰ.ob[ A bp.× B ]) where
+    private
+      -×B = BinProducts→BinProductsWith (SET ℓ) B bp
+      module -×B = BinProductsWithNotation -×B
+    UniversalQuantifierSETᴰ :
+      UniversalQuantifier -×B (λ D → isFibrationSETᴰ D fst) C
+    UniversalQuantifierSETᴰ .vertexⱽ a .fst =
+      ∀ (b : ⟨ B ⟩) → ⟨ C (a , b) ⟩
+    UniversalQuantifierSETᴰ .vertexⱽ a .snd =
+      isSetΠ (λ _ → str (C _))
+    UniversalQuantifierSETᴰ .elementⱽ (a , b) c = c b
+    UniversalQuantifierSETᴰ .universalⱽ .fst fᴰ d dᴰ b =
+      fᴰ (d , b) dᴰ
+    UniversalQuantifierSETᴰ .universalⱽ {y = D} {yᴰ = Dᴰ} {f = f} .snd .fst fᴰ =
+      funExt₂ $ λ (d , b) dᴰ →
+        C.Prectify $ C.≡out $ sym $
+          cong₂fᴰ
+             -- This cubical nonsense provides a filler
+             -- between b and a sequence of transports
+             -- It can likely be simplified
+            (sym $
+              (λ i → transp (λ _ → ⟨ B ⟩) i
+                      (transp (λ _ → ⟨ B ⟩) i0
+                        (transp (λ _ → ⟨ B ⟩) i0 b)))
+              ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
+                        (transp (λ _ → ⟨ B ⟩) i0 b))
+              ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
+          -- Confusingly, these underscores are inconsequential
+          -- to performance
+          (Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _
+            ∙ Dᴰ.reind-filler _)
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+      where
+      ⟨C⟩ : ⟨ A bp.× B ⟩ → Type _
+      ⟨C⟩ ab = ⟨ C ab ⟩
+
+      ⟨Dᴰ⟩ : ⟨ D ⟩ → Type _
+      ⟨Dᴰ⟩ d = ⟨ Dᴰ d ⟩
+
+      module C = hSetReasoning (A bp.× B) ⟨C⟩
+      module Dᴰ = hSetReasoning D ⟨Dᴰ⟩
+
+      cong₂fᴰ : ∀ {b b'} {d d'} {dᴰ dᴰ'} →
+        (b≡b' : b ≡ b') →
+        (dᴰ≡dᴰ' : (d , dᴰ) ≡ (d' , dᴰ')) →
+        Path (Σ ⟨ A bp.× B ⟩ ⟨C⟩)
+         ((f d , b) , fᴰ (d , b) dᴰ)
+         ((f d' , b') , fᴰ (d' , b') dᴰ')
+      cong₂fᴰ b≡b' dᴰ≡dᴰ' i =
+        ((f (dᴰ≡dᴰ' i .fst)) , (b≡b' i)) ,
+        (fᴰ (dᴰ≡dᴰ' i .fst , (b≡b' i)) (dᴰ≡dᴰ' i .snd))
+
+    UniversalQuantifierSETᴰ .universalⱽ {y = D} {yᴰ = Dᴰ} {f = f} .snd .snd fᴰ =
+      funExt₃ λ d dᴰ b →
+        C.Prectify $ C.≡out $ sym $
+          cong₃fᴰ
+            (sym $
+              (λ i → transp (λ _ → ⟨ B ⟩) i
+                      (transp (λ _ → ⟨ B ⟩) i0
+                        (transp (λ _ → ⟨ B ⟩) i0 b)))
+              ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
+                        (transp (λ _ → ⟨ B ⟩) i0 b))
+              ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
+            (Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _
+              ∙ Dᴰ.reind-filler _)
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+          ∙ C.reind-filler _
+      where
+      ⟨C⟩ : ⟨ A bp.× B ⟩ → Type _
+      ⟨C⟩ ab = ⟨ C ab ⟩
+
+      ⟨Dᴰ⟩ : ⟨ D ⟩ → Type _
+      ⟨Dᴰ⟩ d = ⟨ Dᴰ d ⟩
+
+      module C = hSetReasoning (A bp.× B) ⟨C⟩
+      module Dᴰ = hSetReasoning D ⟨Dᴰ⟩
+
+      cong₃fᴰ : ∀ {b b'} {d d'} {dᴰ dᴰ'} →
+        (b≡b' : b ≡ b') →
+        (dᴰ≡dᴰ' : (d , dᴰ) ≡ (d' , dᴰ')) →
+        Path (Σ ⟨ A bp.× B ⟩ ⟨C⟩)
+         ((f d , b) , fᴰ d  dᴰ b)
+         ((f d' , b') , fᴰ d' dᴰ' b')
+      cong₃fᴰ b≡b' dᴰ≡dᴰ' i =
+        ((f (dᴰ≡dᴰ' i .fst)) , (b≡b' i)) ,
+        (fᴰ (dᴰ≡dᴰ' i .fst) (dᴰ≡dᴰ' i .snd) (b≡b' i))
+
+
+-- TODO
+-- I think you need an extra assumption on F to make this construction work
+--
+-- We're given f : Δ → Γ
+-- δ : Δ such that f δ ≡ π (fib .fst) with fib.fst : F Γ
+-- and we need to construct some element in F Δ
+--
+-- In the product case, this is easy because the fst is δ and the snd is fib.fst.snd
+-- but we cannot construct this abstractly. So I think in generality we may
+-- only be able to build a concrete quantifier in SETᴰ when F is a limit or smth
+-- module _
+--   (F : Functor (SET ℓ) (SET ℓ))
+--   (πF : NatTrans F Id)
+--   {ℓ'}
+--   where
+
+--   private
+--     module SET = Category (SET ℓ)
+--     module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
+
+--   open Functor
+--   open UniversalElement
+--   open UniversalElementⱽ
+
+--   module _
+--     (πF* : {Γ : SET.ob} → (Γᴰ : SETᴰ.ob[ Γ ]) →
+--       CartesianLift (SETᴰ ℓ (ℓ-max ℓ ℓ')) Γᴰ (πF ⟦ Γ ⟧))
+--     where
+
+--     module _ {Γ : SET.ob} (Γᴰ : SETᴰ.ob[ F ⟅ Γ ⟆ ]) where
+--       UniversalQuantifierFSETᴰ : UniversalQuantifierF F πF πF* Γᴰ
+--       UniversalQuantifierFSETᴰ .vertexⱽ γ .fst =
+--         ∀ (fib : fiber (πF ⟦ Γ ⟧) γ) → ⟨ Γᴰ (fib .fst) ⟩
+--       UniversalQuantifierFSETᴰ .vertexⱽ γ .snd =
+--         isSetΠ (λ fib → str (Γᴰ (fib .fst)))
+--       UniversalQuantifierFSETᴰ .elementⱽ Fγ f =
+--         subst (λ z → ⟨ Γᴰ z ⟩) (funExt⁻ (sym $ F .F-id) Fγ)
+--           (πF* (UniversalQuantifierFSETᴰ .vertexⱽ) .elementⱽ Fγ f
+--             (Fγ , refl))
+--       UniversalQuantifierFSETᴰ .universalⱽ {y = Δ} {yᴰ = Δᴰ} {f = f} .fst fᴰ δ δᴰ fib =
+--         {!!}
+--         -- subst (λ z → ⟨ Γᴰ z ⟩) (fibf .snd) $
+--         --   fᴰ (fibf .fst) δᴰ'
+--         where
+--         fibf : fiber (F ⟪ f ⟫) (fib .fst)
+--         -- fibf .fst = F .F-hom (λ z → δ) (fib .fst)
+--         fibf .fst = {!!}
+--         fibf .snd = {!!}
+
+--         δᴰ' : ⟨ (πF* Δᴰ .vertexⱽ) (fibf .fst) ⟩
+--         δᴰ' = {!πF* Δᴰ .elementⱽ!}
+--       UniversalQuantifierFSETᴰ .universalⱽ .snd = {!!}

@@ -23,6 +23,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
@@ -111,6 +112,20 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
       (αᴰ ×ⱽIso βᴰ) .snd .rightInv _ _ = ΣPathP ((αᴰ .snd .rightInv _ _) , (βᴰ .snd .rightInv _ _))
       (αᴰ ×ⱽIso βᴰ) .snd .leftInv _ _ = ΣPathP ((αᴰ .snd .leftInv _ _) , (βᴰ .snd .leftInv _ _))
 
+  module _
+    {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+    {P : Presheaf C ℓP}{R : Presheaf D ℓR}
+    {F : Functor D C}
+    {α : PshHet F R P} {Fᴰ : Functorᴰ F Dᴰ Cᴰ}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ R Dᴰ ℓRᴰ}
+    where
+    ×ⱽ-introHet :
+      PshHetᴰ α Fᴰ Rᴰ Pᴰ
+      → PshHetᴰ α Fᴰ Rᴰ Qᴰ
+      → PshHetᴰ α Fᴰ Rᴰ (Pᴰ ×ⱽPsh Qᴰ)
+    ×ⱽ-introHet αᴰ βᴰ .N-obᴰ rᴰ = αᴰ .N-obᴰ rᴰ , βᴰ .N-obᴰ rᴰ
+    ×ⱽ-introHet αᴰ βᴰ .N-homᴰ = ΣPathP (αᴰ .N-homᴰ , βᴰ .N-homᴰ)
+
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
@@ -157,11 +172,15 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
   {F : Functor C D}
   where
   reindFunc×ⱽIsoⱽ :
-    PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ)) -- (λ b → P b × Q b) ∘ f ≡ (λ a → P (f a) × Q (f a))
+    PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
             (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-  reindFunc×ⱽIsoⱽ = eqToPshIsoⱽ the-eq where
-    the-eq : PresheafᴰEq (reindFunc F (Pᴰ ×ⱽPsh Qᴰ)) (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-    the-eq = (Eq.refl , Eq.refl)
+  reindFunc×ⱽIsoⱽ .fst = ×ⱽ-introⱽ (×ⱽ-π₁ ∘ˡᴰ π Dᴰ F) (×ⱽ-π₂ ∘ˡᴰ π Dᴰ F)
+  reindFunc×ⱽIsoⱽ .snd .inv p = invers .N-obᴰ
+    where
+      invers : PshHomⱽ (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ) (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
+      invers = ×ⱽ-introHet ×ⱽ-π₁ ×ⱽ-π₂
+  reindFunc×ⱽIsoⱽ .snd .rightInv b q = refl
+  reindFunc×ⱽIsoⱽ .snd .leftInv a p = refl
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {x}
@@ -172,8 +191,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
     PshIsoⱽ (reindⱽFunc F (Pᴰ ×ⱽPsh Qᴰ))
             (reindⱽFunc F Pᴰ ×ⱽPsh reindⱽFunc F Qᴰ)
   reindⱽFunc×ⱽIsoⱽ =
-    reindPshIsoⱽ reindFunc×ⱽIsoⱽ
-    ⋆PshIsoⱽ reind×ⱽIsoⱽ
+    reindPshIsoⱽ {α = Functor→PshHet F x} reindFunc×ⱽIsoⱽ
+    ⋆PshIsoⱽ reind×ⱽIsoⱽ {Pᴰ = reindFunc F Pᴰ}{Qᴰ = reindFunc F Qᴰ}
 
 open PshSection
 open Section

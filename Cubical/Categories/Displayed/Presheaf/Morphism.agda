@@ -92,8 +92,8 @@ module _
   {P : Presheaf C ℓP}
   {Q : Presheaf D ℓQ}
   {F : Functor C D}
-  {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
   (α : PshHet F P Q)
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ) where
 

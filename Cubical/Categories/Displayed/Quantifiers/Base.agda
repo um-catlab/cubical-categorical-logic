@@ -22,7 +22,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation as NT
 open import Cubical.Categories.FunctorComprehension
 
 open import Cubical.Categories.Displayed.Base
@@ -62,6 +62,7 @@ private
 open NatTrans
 open Functor
 open Functorᴰ
+open PshHomᴰ
 module _
   {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -85,6 +86,29 @@ module _
 
     open UniversalElementⱽ
 
+
+    weakenπFᴰ = PshᴰCL.weakenπFᴰ F πF πF*
+    module _ (P : Presheaf C ℓP) where
+      private
+        module P = PresheafNotation P
+
+      nt : NatTrans (P ∘F (Id ^opF)) (P ∘F (F ^opF))
+      nt = P NT.∘ʳ ⇒^opFiso .Iso.fun πF
+
+      selfPshHet : PshHet F P P
+      selfPshHet =
+        eqToPshHom _ Eq.refl Eq.refl
+        ⋆PshHom NatTrans→PshHom nt
+
+      module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+        private
+          module Pᴰ = PresheafᴰNotation Pᴰ
+        selfPshHetᴰ : PshHetᴰ selfPshHet weakenπFᴰ Pᴰ Pᴰ
+        selfPshHetᴰ .N-obᴰ pᴰ =
+          Pᴰ.reind (P.⋆Assoc _ _ _ ∙ P.⋆IdL _) $
+            πF* _ .elementⱽ Pᴰ.⋆ᴰ pᴰ
+        selfPshHetᴰ .N-homᴰ = {!!}
+
     module _
       {Γ : C.ob}
       (Pⱽ : Presheafⱽ (F ⟅ Γ ⟆) Cᴰ ℓPᴰ) where
@@ -92,25 +116,8 @@ module _
       private
         module Pⱽ = PresheafⱽNotation Pⱽ
 
-      weakenπFᴰ = PshᴰCL.weakenπFᴰ F πF πF*
-
       ∀FⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
-      ∀FⱽPsh = reind (yoRec _ C.id) $ Pⱽ ∘Fᴰ (weakenπFᴰ ^opFᴰ)
---       ∀FⱽPsh .F-obᴰ {x = Δ} Δᴰ δ = Pⱽ .F-obᴰ (πF* Δᴰ .vertexⱽ) (F ⟪ δ ⟫)
---       ∀FⱽPsh .F-homᴰ {x = Δ} {y = Θ} {f = δ} {xᴰ = Δᴰ} {yᴰ = Θᴰ} δᴰ γ γᴰ =
---         Pⱽ.reind (sym $ F .F-seq δ γ) $ (weakenπFᴰ .F-homᴰ δᴰ Pⱽ.⋆ᴰ γᴰ)
---       ∀FⱽPsh .F-idᴰ = funExt₂ λ _ _ →
---         Pⱽ.rectify $ Pⱽ.≡out $
---           (sym $ Pⱽ.reind-filler _ _)
---           ∙ Pⱽ.⟨ Cᴰ.≡in $ weakenπFᴰ .F-idᴰ ⟩⋆⟨⟩
---           ∙ Pⱽ.⋆IdL _
---       ∀FⱽPsh .F-seqᴰ δᴰ θᴰ = funExt₂ λ _ _ →
---         Pⱽ.rectify $ Pⱽ.≡out $
---           (sym $ Pⱽ.reind-filler _ _)
---           ∙ Pⱽ.⟨ Cᴰ.≡in (weakenπFᴰ .F-seqᴰ θᴰ δᴰ) ⟩⋆⟨⟩
---           ∙ Pⱽ.⋆Assoc _ _ _
---           ∙ Pⱽ.⟨ refl ⟩⋆⟨ Pⱽ.reind-filler _ _ ⟩
---           ∙ Pⱽ.reind-filler _ _
+      ∀FⱽPsh = reind (Functor→PshHet F Γ) $ Pⱽ ∘Fᴰ (weakenπFᴰ ^opFᴰ)
 
     module _ {Γ : C.ob} (Γᴰ : Cᴰ.ob[ F ⟅ Γ ⟆ ]) where
       UniversalQuantifierF : Type _

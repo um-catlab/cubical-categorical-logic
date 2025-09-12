@@ -25,6 +25,7 @@ open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
@@ -146,3 +147,16 @@ module _
           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
           ∙ Cᴰ.reind-filler _ _
       ⟩ ▷ (Cᴰ.rectify $ Cᴰ.≡out $ sym $ introᴰ-natural (πF* _))
+
+    weakenπFNatTransᴰ : NatTransᴰ πF weakenπFᴰ 𝟙ᴰ⟨ Cᴰ ⟩
+    weakenπFNatTransᴰ .NatTransᴰ.N-obᴰ Γᴰ =
+      Cᴰ.reind (C.⋆IdL _) $ πF* Γᴰ .elementⱽ
+    weakenπFNatTransᴰ .NatTransᴰ.N-homᴰ fᴰ =
+      Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+        ∙ Cᴰ.reind-filler _ _
+        ∙ Cᴰ.reind-filler _ _
+        ∙ (Cᴰ.≡in $ βⱽ (πF* _))
+        ∙ (sym $ Cᴰ.reind-filler _ _)
+        ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+        ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩

@@ -86,8 +86,10 @@ module _
 
     open UniversalElementⱽ
 
-
+    -- TODO these shouldn't be in PshᴰCL
     weakenπFᴰ = PshᴰCL.weakenπFᴰ F πF πF*
+    weakenπFNatTransᴰ = PshᴰCL.weakenπFNatTransᴰ F πF πF*
+
     module _ (P : Presheaf C ℓP) where
       private
         module P = PresheafNotation P
@@ -107,7 +109,15 @@ module _
         selfPshHetᴰ .N-obᴰ pᴰ =
           Pᴰ.reind (P.⋆Assoc _ _ _ ∙ P.⋆IdL _) $
             πF* _ .elementⱽ Pᴰ.⋆ᴰ pᴰ
-        selfPshHetᴰ .N-homᴰ = {!!}
+        selfPshHetᴰ .N-homᴰ {fᴰ = fᴰ} =
+          Pᴰ.rectify $ Pᴰ.≡out $
+            (sym $ Pᴰ.reind-filler _ _)
+            ∙ (sym $ Pᴰ.⋆Assoc _ _ _)
+            ∙ Pᴰ.⟨ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩⋆⟨⟩
+            ∙ Pᴰ.⟨ sym $ Cᴰ.≡in $ weakenπFNatTransᴰ .NatTransᴰ.N-homᴰ fᴰ ⟩⋆⟨⟩
+            ∙ Pᴰ.⋆Assoc _ _ _
+            ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+                      ∙ Pᴰ.reind-filler _ _ ⟩
 
     module _
       {Γ : C.ob}

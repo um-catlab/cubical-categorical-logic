@@ -158,3 +158,10 @@ congSndSnd :
   → (abc≡ : Path (Σ A (λ a → Σ (B a) (C a))) x y)
   → PathP (λ i → C (abc≡ i .fst) (abc≡ i .snd .fst)) (x .snd .snd) (y .snd .snd)
 congSndSnd abc≡ = λ i → abc≡ i .snd .snd
+
+funExt₂⁻ : {B : A → Type ℓ} {C : (a : A) → B a → I → Type ℓ'}
+  {f : (x : A) → (y : B x) → C x y i0}
+  {g : (x : A) → (y : B x) → C x y i1}
+  → PathP (λ i → (x : A) → (y : B x) → C x y i) f g
+  → ((x : A) → (y : B x) → PathP (C x y) (f x y) (g x y))
+funExt₂⁻ eq x y i = eq i x y

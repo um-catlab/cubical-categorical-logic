@@ -208,3 +208,10 @@ chacha-slide⁻ :
   → Path (Σ A (λ a → C (f a))) x y
   → Path (Σ B C) (f (x .fst) , x .snd) (f (y .fst) , y .snd)
 chacha-slide⁻ f ac≡ = ΣPathP ((cong f (cong fst ac≡)) , λ i → ac≡ i .snd)
+
+funExt₂⁻ : {B : A → Type ℓ} {C : (a : A) → B a → I → Type ℓ'}
+  {f : (x : A) → (y : B x) → C x y i0}
+  {g : (x : A) → (y : B x) → C x y i1}
+  → PathP (λ i → (x : A) → (y : B x) → C x y i) f g
+  → ((x : A) → (y : B x) → PathP (C x y) (f x y) (g x y))
+funExt₂⁻ eq x y i = eq i x y

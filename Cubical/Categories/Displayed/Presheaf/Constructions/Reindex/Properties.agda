@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.Base
@@ -61,6 +62,19 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Qᴰ = PresheafᴰNotation Qᴰ
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+    PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
+    PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
+      Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
+        αᴰ .N-obᴰ pᴰ
+    PshHomPathPshHomᴰ .N-homᴰ =
+      Qᴰ.rectify $ Qᴰ.≡out $
+        (sym $ Qᴰ.reind-filler _ _)
+        ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
+        ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
+
   reindPathIsoⱽ : PshIsoⱽ (reind α Qᴰ) (reind β Qᴰ)
   reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong N-ob α≡β) _) _)
   reindPathIsoⱽ .fst .PshHomᴰ.N-homᴰ =

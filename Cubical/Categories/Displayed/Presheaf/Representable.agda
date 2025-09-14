@@ -217,6 +217,38 @@ module _
       RepresentationPshIsoᴰ→UniversalElementᴰ Cᴰ (Representationᵁ→RepresentationPshIso C P repr) Pᴰ
         Representationᵁᴰ→RepresentationPshIsoᴰ
 
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Q : Presheaf D ℓQ} {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  {F : Functor C D}{Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {α : PshHet F P Q}
+  {ue : UniversalElement C P}
+  (α-presUE : preservesUniversalElement {F = F}{P = P} α ue)
+  (αᴰ : PshHetᴰ α Fᴰ Pᴰ Qᴰ)
+  (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ)
+  where
+  private
+    module ueᴰ = UniversalElementᴰ ueᴰ
+  preservesUEᴰ : Type _
+  preservesUEᴰ = isUniversalᴰ Dᴰ
+    (preservesUniversalElement→UniversalElement α ue α-presUE)
+    Qᴰ
+    (Fᴰ .F-obᴰ ueᴰ.vertexᴰ)
+    (αᴰ .N-obᴰ ueᴰ.elementᴰ)
+
+
+-- Vertical Universal properties over objects of C
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+         {x : C .Category.ob} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
+  private
+    module Pⱽ = PresheafⱽNotation Pⱽ
+
+  yoRecⱽ : ∀ {xᴰ} → Pⱽ.pⱽ[ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
+  yoRecⱽ pⱽ .N-obᴰ fᴰ = fᴰ Pⱽ.⋆ᴰⱽ pⱽ
+  yoRecⱽ pⱽ .N-homᴰ = Pⱽ.⋆Assocᴰᴰⱽ _ _ _
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
   private
@@ -228,13 +260,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   -- stated in terms of Pⱽ.⋆ᴰⱽ instead of Pⱽ.⋆ᴰ, so the universality
   -- property is simpler.
 
+  isUniversalⱽ : (vertexⱽ : Cᴰ.ob[ x ])(elementⱽ : Pⱽ.pⱽ[ vertexⱽ ]) → Type _
+  isUniversalⱽ vⱽ eⱽ = ∀ {y yᴰ}{f : C [ y , x ]} →
+    isIso λ (fᴰ : Cᴰ [ f ][ yᴰ , vⱽ ]) → fᴰ Pⱽ.⋆ᴰⱽ eⱽ
+
   record UniversalElementⱽ
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓPᴰ) where
     field
       vertexⱽ : Cᴰ.ob[ x ]
       elementⱽ : Pⱽ.pⱽ[ vertexⱽ ]
-      universalⱽ : ∀ {y yᴰ}{f : C [ y , x ]} →
-        isIso λ (fᴰ : Cᴰ [ f ][ yᴰ , vertexⱽ ]) → fᴰ Pⱽ.⋆ᴰⱽ elementⱽ
+      universalⱽ : isUniversalⱽ vertexⱽ elementⱽ
     toUniversalᴰ : UniversalElementᴰ Cᴰ (selfUnivElt C x) Pⱽ
     toUniversalᴰ .UniversalElementᴰ.vertexᴰ = vertexⱽ
     toUniversalᴰ .UniversalElementᴰ.elementᴰ = elementⱽ
@@ -266,7 +301,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     weak-ηⱽ : Cᴰ.idᴰ ≡ introᴰ (elementⱽ)
     weak-ηⱽ = ηⱽ ∙ (Cᴰ.rectify $ Cᴰ.≡out $ introᴰ≡ ((sym (Pⱽ.reind-filler _ _) ∙ Pⱽ.⋆IdL _) ∙ sym βᴰ))
 
-
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {x : C .Category.ob} {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ} where
   private
@@ -284,16 +318,12 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       , λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ ueᴰ.∫ue.intro⟨ sym $ Pⱽ.reind-filler _ _ ⟩ ∙ sym ueᴰ.ηᴰ
     } where module ueᴰ = UniversalElementᴰ ueᴰ
 
-  yoRecⱽ : ∀ {xᴰ} → Pⱽ.pⱽ[ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
-  yoRecⱽ pⱽ .N-obᴰ fᴰ = fᴰ Pⱽ.⋆ᴰⱽ pⱽ
-  yoRecⱽ pⱽ .N-homᴰ = Pⱽ.⋆Assocᴰᴰⱽ _ _ _
-
   module _ (ueⱽ : UniversalElementⱽ Cᴰ x Pⱽ) where
     private
       module ueⱽ = UniversalElementⱽ ueⱽ
 
     yoRecIsoⱽ : PshIsoⱽ (Cᴰ [-][-, ueⱽ.vertexᴰ ]) Pⱽ
-    yoRecIsoⱽ .fst = yoRecⱽ ueⱽ.elementⱽ
+    yoRecIsoⱽ .fst = yoRecⱽ Pⱽ ueⱽ.elementⱽ
     yoRecIsoⱽ .snd = isisoover
       (λ a → ueⱽ.universalⱽ .fst)
       (λ b → ueⱽ.universalⱽ .snd .fst)
@@ -405,3 +435,23 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module Qᴰ = PresheafᴰNotation Qᴰ
       module Pⱽ = PresheafⱽNotation Pⱽ
       module Cᴰ = Fibers Cᴰ
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {x}
+  {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ}
+  {Qⱽ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
+  (αⱽ : PshHetⱽ Fᴰ Pⱽ Qⱽ) -- PshHetᴰ α Fᴰ Pᴰ Qᴰ
+  (ueⱽ : UniversalElementⱽ Cᴰ x Pⱽ)
+  where
+  private
+    module Qⱽ = PresheafⱽNotation Qⱽ
+    module ueⱽ = UniversalElementⱽ ueⱽ
+  preservesUEⱽ : Type _
+  preservesUEⱽ =
+    isUniversalⱽ Dᴰ (F ⟅ x ⟆) Qⱽ (Fᴰ .F-obᴰ ueⱽ.vertexⱽ)
+      -- TODO: define this as N-obⱽ?
+      (Qⱽ.reind (F .F-id) (αⱽ .N-obᴰ ueⱽ.elementⱽ))

@@ -116,8 +116,9 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
     {P : Presheaf C ℓP}{R : Presheaf D ℓR}
     {F : Functor D C}
-    {α : PshHet F R P} {Fᴰ : Functorᴰ F Dᴰ Cᴰ}
+    {α : PshHet F R P}
     {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ R Dᴰ ℓRᴰ}
+    (Fᴰ : Functorᴰ F Dᴰ Cᴰ)
     where
     ×ⱽ-introHet :
       PshHetᴰ α Fᴰ Rᴰ Pᴰ
@@ -178,7 +179,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
   reindFunc×ⱽIsoⱽ .snd .inv p = invers .N-obᴰ
     where
       invers : PshHomⱽ (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ) (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
-      invers = ×ⱽ-introHet ×ⱽ-π₁ ×ⱽ-π₂
+      invers = ×ⱽ-introHet _ ×ⱽ-π₁ ×ⱽ-π₂
   reindFunc×ⱽIsoⱽ .snd .rightInv b q = refl
   reindFunc×ⱽIsoⱽ .snd .leftInv a p = refl
 

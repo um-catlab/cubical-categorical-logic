@@ -109,13 +109,12 @@ module _
   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D}
   {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
   (α : PshHet F P Q)
   (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
   where
   reindHet' : Presheafᴰ P Cᴰ ℓQᴰ
-  reindHet' = reind α $ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)) -- reind α $ reindFunc F Qᴰ
+  reindHet' = reind α $ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
 
 module _
   {C : Category ℓC ℓC'}

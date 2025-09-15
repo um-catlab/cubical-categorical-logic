@@ -28,3 +28,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     (qᴰ : fᴰ Cᴰ.≡[ q ] gᴰ )
     → ∀ i j → Cᴰ.Hom[  C.isSetHom f g p q i j ][ xᴰ , yᴰ ]
   isSetHomᴰ' fᴰ gᴰ pᴰ qᴰ i j = isSetDepHomᴰ fᴰ gᴰ pᴰ qᴰ (C.isSetHom _ _ _ _) i j
+
+  CatIsoⱽ : ∀ {a} → Cᴰ.ob[ a ] → Cᴰ.ob[ a ] → Type _
+  CatIsoⱽ = CatIsoᴰ Cᴰ idCatIso

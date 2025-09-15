@@ -21,6 +21,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.More
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
@@ -331,8 +332,28 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {c} {Pⱽ : Presheafⱽ c Cᴰ ℓCᴰ'}
+  {c} {Pⱽ : Presheafⱽ c Cᴰ ℓPᴰ}
   where
+  open UniversalElementⱽ
+  open isIsoᴰ
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Pⱽ = PresheafⱽNotation Pⱽ
+  UEⱽ-essUniq : (ueⱽ ueⱽ' : UniversalElementⱽ Cᴰ c Pⱽ) → CatIsoⱽ Cᴰ (ueⱽ .vertexⱽ) (ueⱽ' .vertexⱽ)
+  UEⱽ-essUniq ueⱽ ueⱽ' .fst = introⱽ ueⱽ' (elementⱽ ueⱽ)
+  UEⱽ-essUniq ueⱽ ueⱽ' .snd .invᴰ = introⱽ ueⱽ (elementⱽ ueⱽ')
+  UEⱽ-essUniq ueⱽ ueⱽ' .snd .secᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+    UniversalElementᴰ.extensionalityᴰ (toUniversalᴰ ueⱽ') $
+    Pⱽ.⋆Assoc _ _ _
+    ∙ Pⱽ.⟨⟩⋆⟨ UniversalElementᴰ.βᴰ (toUniversalᴰ ueⱽ') ⟩
+    ∙ UniversalElementᴰ.βᴰ (toUniversalᴰ ueⱽ)
+    ∙ (sym $ Pⱽ.⋆IdL _)
+  UEⱽ-essUniq ueⱽ ueⱽ' .snd .retᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+    UniversalElementᴰ.extensionalityᴰ (toUniversalᴰ ueⱽ) $
+    Pⱽ.⋆Assoc _ _ _
+    ∙ Pⱽ.⟨⟩⋆⟨ UniversalElementᴰ.βᴰ (toUniversalᴰ ueⱽ) ⟩
+    ∙ UniversalElementᴰ.βᴰ (toUniversalᴰ ueⱽ')
+    ∙ (sym $ Pⱽ.⋆IdL _)
 
 module _
   {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
@@ -455,3 +476,6 @@ module _
     isUniversalⱽ Dᴰ (F ⟅ x ⟆) Qⱽ (Fᴰ .F-obᴰ ueⱽ.vertexⱽ)
       -- TODO: define this as N-obⱽ?
       (Qⱽ.reind (F .F-id) (αⱽ .N-obᴰ ueⱽ.elementⱽ))
+
+  preservesUEⱽ→UEⱽ : preservesUEⱽ → UniversalElementⱽ Dᴰ (F ⟅ x ⟆) Qⱽ
+  preservesUEⱽ→UEⱽ uⱽ = record { vertexⱽ = F-obᴰ Fᴰ ueⱽ.vertexⱽ ; elementⱽ = Qⱽ.reind (F .F-id) (αⱽ .N-obᴰ ueⱽ.elementⱽ) ; universalⱽ = uⱽ }

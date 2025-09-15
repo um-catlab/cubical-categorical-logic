@@ -178,19 +178,6 @@ module _
       module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
         private
           module Pᴰ = PresheafᴰNotation Pᴰ
-        selfPshHetᴰ : PshHetᴰ selfPshHet weakenπFᴰ Pᴰ Pᴰ
-        selfPshHetᴰ .N-obᴰ pᴰ =
-          Pᴰ.reind (P.⋆Assoc _ _ _ ∙ P.⋆IdL _) $
-            πF* _ .elementⱽ Pᴰ.⋆ᴰ pᴰ
-        selfPshHetᴰ .N-homᴰ {fᴰ = fᴰ} =
-          Pᴰ.rectify $ Pᴰ.≡out $
-            (sym $ Pᴰ.reind-filler _ _)
-            ∙ (sym $ Pᴰ.⋆Assoc _ _ _)
-            ∙ Pᴰ.⟨ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩⋆⟨⟩
-            ∙ Pᴰ.⟨ sym $ Cᴰ.≡in $ weakenπFNatTransᴰ .NatTransᴰ.N-homᴰ fᴰ ⟩⋆⟨⟩
-            ∙ Pᴰ.⋆Assoc _ _ _
-            ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
-                      ∙ Pᴰ.reind-filler _ _ ⟩
 
         selfNatTransᴰ :
           NatTransᴰ (P ∘ʳ opNatTrans πF)
@@ -199,8 +186,14 @@ module _
         selfNatTransᴰ = Pᴰ ∘ʳᴰ opNatTransᴰ weakenπFNatTransᴰ
 
         selfPshHetᴰ' :
-          PshHetᴰ {!!} weakenπFᴰ (Pᴰ ∘Fᴰ (𝟙ᴰ⟨ Cᴰ ⟩ ^opFᴰ)) Pᴰ
-        selfPshHetᴰ' = {!NatTransᴰ→PshHomᴰ!}
+          PshHetᴰ (NatTrans→PshHom (P ∘ʳ opNatTrans πF))
+            weakenπFᴰ (Pᴰ ∘Fᴰ (𝟙ᴰ⟨ Cᴰ ⟩ ^opFᴰ)) Pᴰ
+        selfPshHetᴰ' = NatTransᴰ→PshHomᴰ selfNatTransᴰ
+
+        selfPshHetᴰ :
+          PshHetᴰ selfPshHet weakenπFᴰ Pᴰ Pᴰ
+        selfPshHetᴰ =
+          {!eqToPshHomᴰ!} ⋆PshHomᴰ selfPshHetᴰ'
 
     module _
       {Γ : C.ob}

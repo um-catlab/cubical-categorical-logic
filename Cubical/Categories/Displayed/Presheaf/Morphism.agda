@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Presheaf.Morphism where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels
@@ -13,6 +14,7 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation using (NatTrans)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf.Base
@@ -20,6 +22,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
@@ -86,6 +89,18 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         λ _ → αᴰ .PshHomᴰ.N-obᴰ
 
 open PshHomᴰ
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P Q : Presheaf C ℓP}
+  {α : NatTrans P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
+  (αᴰ : NatTransᴰ α Pᴰ Qᴰ) where
+
+   NatTransᴰ→PshHomᴰ : PshHomᴰ (NatTrans→PshHom α) Pᴰ Qᴰ
+   NatTransᴰ→PshHomᴰ .N-obᴰ = αᴰ .NatTransᴰ.N-obᴰ _ _
+   NatTransᴰ→PshHomᴰ .N-homᴰ {p = p} {fᴰ = fᴰ} {pᴰ = pᴰ} =
+     funExt₂⁻ (αᴰ .NatTransᴰ.N-homᴰ fᴰ) p pᴰ
+
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

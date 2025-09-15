@@ -104,3 +104,8 @@ _∘ʳⁱ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatIso G H)
 (K ∘ʳⁱ β) .trans = K ∘ʳ (β .trans)
 (K ∘ʳⁱ β) .nIso x = F-Iso {F = K} (β .trans ⟦ x ⟧ , β .nIso x) .snd
 
+module _
+  {F F' : Functor C D}
+  where
+  opNatTrans : (F ⇒ F') → ((F' ^opF) ⇒ (F ^opF))
+  opNatTrans = ⇒^opFiso .Iso.fun

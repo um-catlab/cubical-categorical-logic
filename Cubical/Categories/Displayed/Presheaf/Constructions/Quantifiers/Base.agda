@@ -23,6 +23,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation as NT
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.FunctorComprehension
 
 open import Cubical.Categories.Displayed.Base
@@ -31,6 +32,7 @@ open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
@@ -166,7 +168,7 @@ module _
         module P = PresheafNotation P
 
       selfNatTrans : NatTrans (P ∘F (Id ^opF)) (P ∘F (F ^opF))
-      selfNatTrans = P NT.∘ʳ ⇒^opFiso .Iso.fun πF
+      selfNatTrans = P NT.∘ʳ (opNatTrans πF)
 
       selfPshHet : PshHet F P P
       selfPshHet =
@@ -189,6 +191,16 @@ module _
             ∙ Pᴰ.⋆Assoc _ _ _
             ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
                       ∙ Pᴰ.reind-filler _ _ ⟩
+
+        selfNatTransᴰ :
+          NatTransᴰ (P ∘ʳ opNatTrans πF)
+            (Pᴰ ∘Fᴰ (𝟙ᴰ⟨ Cᴰ ⟩ ^opFᴰ))
+            (Pᴰ ∘Fᴰ (weakenπFᴰ ^opFᴰ))
+        selfNatTransᴰ = Pᴰ ∘ʳᴰ opNatTransᴰ weakenπFNatTransᴰ
+
+        selfPshHetᴰ' :
+          PshHetᴰ {!!} weakenπFᴰ (Pᴰ ∘Fᴰ (𝟙ᴰ⟨ Cᴰ ⟩ ^opFᴰ)) Pᴰ
+        selfPshHetᴰ' = {!NatTransᴰ→PshHomᴰ!}
 
     module _
       {Γ : C.ob}

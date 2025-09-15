@@ -20,10 +20,9 @@ open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Fibration
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers
 open import Cubical.Categories.Displayed.Quantifiers
 
 private
   variable
     ℓB ℓB' ℓBᴰ ℓBᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
-
--- TODO reindexing the universal quantifier

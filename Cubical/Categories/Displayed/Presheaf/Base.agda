@@ -134,6 +134,17 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
      → p[ g ][ xᴰ ]
   fⱽ ⋆ⱽᴰ gᴰ = reind (P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
 
+  -- Should it just be fⱽ ≡ fⱽ' instead since that's more "vertical"?
+  ⟨_⟩⋆ⱽᴰ⟨_⟩ :
+    ∀ {x xᴰ xᴰ'}{g g'}
+    {fⱽ fⱽ' : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]}
+    {gᴰ gᴰ'}
+    → Path (Cᴰ.Hom[ _ , _ ]) (_ , fⱽ) (_ , fⱽ')
+    → Path p[ _ ] (g , gᴰ) (g' , gᴰ')
+    → Path p[ _ ] (_ , fⱽ ⋆ⱽᴰ gᴰ) (_ , fⱽ' ⋆ⱽᴰ gᴰ')
+  ⟨_⟩⋆ⱽᴰ⟨_⟩ {fⱽ = fⱽ}{fⱽ'} p q = ≡in (λ i → p' i ⋆ⱽᴰ q i .snd) where
+    p' : fⱽ ≡ fⱽ'
+    p' = Cᴰ.rectify $ Cᴰ.≡out p
   opaque
     ⋆Assocᴰⱽᴰ : ∀ {x y} {f : C [ x , y ]} {h : P.p[ y ]} {xᴰ yᴰ yᴰ'}
         (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gⱽ : Cᴰ.v[ y ] [ yᴰ , yᴰ' ]) (hᴰ : p[ h ][ yᴰ' ])
@@ -145,12 +156,29 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       ∙ ⋆Assoc _ _ _
       ∙ ⟨ refl ⟩⋆⟨ reind-filler _ _ ⟩
 
+    ⋆Assocⱽⱽᴰ : ∀ {x}{h : P.p[ x ]}{xᴰ xᴰ' xᴰ''}
+        (fⱽ : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]) (gⱽ : Cᴰ.v[ x ] [ xᴰ' , xᴰ'' ]) (hᴰ : p[ h ][ xᴰ'' ])
+        → Path p[ _ ]
+            (_ , ((fⱽ Cᴰ.⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ))
+            (_ , (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ)))
+    ⋆Assocⱽⱽᴰ fⱽ gⱽ hᴰ =
+      (sym $ reind-filler _ _) ∙
+      ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+      ∙ ⋆Assoc _ _ _
+      ∙ ⟨⟩⋆⟨ reind-filler _ _ ⟩
+      ∙ reind-filler _ _
+
     ⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}
       → (gᴰ : p[ g ][ xᴰ ])
       → Cᴰ.idᴰ ⋆ⱽᴰ gᴰ ≡ gᴰ
     ⋆ⱽIdL gᴰ = rectify $ ≡out $ (sym $ reind-filler _ _) ∙ ⋆IdL _
 
-    -- TODO: ⋆ⱽAssoc but it relies on the definition _⋆ⱽ_ in the fiber
+    ∫⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}
+      → (gᴰ : p[ g ][ xᴰ ])
+      → Path p[ _ ]
+          (_ , Cᴰ.idᴰ ⋆ⱽᴰ gᴰ)
+          (_ , gᴰ)
+    ∫⋆ⱽIdL gᴰ = sym (reind-filler _ _) ∙ ⋆IdL _
 
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C ℓD ℓD')

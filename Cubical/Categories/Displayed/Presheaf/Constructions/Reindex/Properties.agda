@@ -65,33 +65,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module P = PresheafNotation P
     module Q = PresheafNotation Q
 
-  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
-    PshHomEqPshHomᴰ :
-      (eq-N-ob : α .N-ob Eq.≡ β .N-ob) →
-      (eq-N-hom :
-        Eq.HEq
-          (Eq.ap
-            (λ N-ob' →
-              ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-                N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
-          (α .N-hom) (β .N-hom)) →
-      PshHomᴰ β Pᴰ Qᴰ
-    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-obᴰ = αᴰ .N-obᴰ
-    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-homᴰ = αᴰ .N-homᴰ
-
   module _ (α≡β : α ≡ β) where
-    module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-      (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
-      PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
-      PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
-        Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
-          αᴰ .N-obᴰ pᴰ
-      PshHomPathPshHomᴰ .N-homᴰ =
-        Qᴰ.rectify $ Qᴰ.≡out $
-          (sym $ Qᴰ.reind-filler _ _)
-          ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
-          ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
-
     reindPathIsoⱽ : PshIsoⱽ (reind α Qᴰ) (reind β Qᴰ)
     reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong N-ob α≡β) _) _)
     reindPathIsoⱽ .fst .PshHomᴰ.N-homᴰ =

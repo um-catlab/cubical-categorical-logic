@@ -99,11 +99,11 @@ module _
       vert : Cᴰ.ob[ Γ ]
       vert = ∀ueFⱽ.vertexⱽ
 
-      app : Cᴰ [ _ ][ vertexⱽ (πF* ∀ueFⱽ.vertexⱽ) , Γᴰ ]
+      app : Cᴰ [ _ ][ πF* vert .vertexⱽ , Γᴰ ]
       app = ∀ueFⱽ.elementⱽ
 
       lda : ∀ {Δ} {Δᴰ : Cᴰ.ob[ Δ ]} {γ} →
-        Cᴰ [ _ ][ vertexⱽ (πF* Δᴰ) , Γᴰ ] →
+        Cᴰ [ Functor→PshHet F Γ .PshHom.N-ob Δ γ ][ vertexⱽ (πF* Δᴰ) , Γᴰ ] →
         Cᴰ [ γ ][ Δᴰ , vert ]
       lda = ∀ueFⱽ.universalⱽ .fst
 

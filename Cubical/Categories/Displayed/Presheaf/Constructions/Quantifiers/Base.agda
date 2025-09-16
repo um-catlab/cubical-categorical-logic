@@ -43,7 +43,13 @@ import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshᴰCL
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓ ℓ' ℓP ℓPᴰ ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓ ℓ' ℓP ℓPᴰ ℓQ ℓQᴰ ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+
+open NatTrans
+open Functor
+open Functorᴰ
+open PshHomᴰ
+open UniversalElementⱽ
 
 -- The universal/pi and existential/weak sigma type are defined as
 -- left and right adjoints to a "weakening" functor
@@ -61,10 +67,6 @@ private
 -- The endofunctor F generalizes the usual construction
 -- of a universal quantifier which takes F to be the binary
 -- product and πF to be π₁
-open NatTrans
-open Functor
-open Functorᴰ
-open PshHomᴰ
 module _
   {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -86,7 +88,6 @@ module _
     πF-PshHom : ∀ {Γ} → PshHom (C [-, F ⟅ Γ ⟆ ]) (C [-, Γ ])
     πF-PshHom = yoRec _ (N-ob πF _)
 
-    open UniversalElementⱽ
 
     introπF* :
       ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
@@ -185,15 +186,11 @@ module _
             (Pᴰ ∘Fᴰ (weakenπFᴰ ^opFᴰ))
         selfNatTransᴰ = Pᴰ ∘ʳᴰ opNatTransᴰ weakenπFNatTransᴰ
 
-        selfPshHetᴰ' :
-          PshHetᴰ (NatTrans→PshHom (P ∘ʳ opNatTrans πF))
-            weakenπFᴰ (Pᴰ ∘Fᴰ (𝟙ᴰ⟨ Cᴰ ⟩ ^opFᴰ)) Pᴰ
-        selfPshHetᴰ' = NatTransᴰ→PshHomᴰ selfNatTransᴰ
-
         selfPshHetᴰ :
           PshHetᴰ selfPshHet weakenπFᴰ Pᴰ Pᴰ
         selfPshHetᴰ =
-          {!eqToPshHomᴰ!} ⋆PshHomᴰ selfPshHetᴰ'
+          PshHomEqPshHomᴰ (precomp𝟙ᴰPshIsoᴰ .fst) Eq.refl Eq.refl
+          ⋆PshHomᴰ NatTransᴰ→PshHomᴰ selfNatTransᴰ
 
     module _
       {Γ : C.ob}
@@ -204,6 +201,26 @@ module _
 
       ∀FⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
       ∀FⱽPsh = reind (Functor→PshHet F Γ) $ Pⱽ ∘Fᴰ (weakenπFᴰ ^opFᴰ)
+
+      -- ∀FⱽPsh-app : PshHomⱽ (reind πF-PshHom $ ∀FⱽPsh) Pⱽ
+      -- ∀FⱽPsh-app .N-obᴰ pⱽ =
+      --   Pⱽ.reind {!!} $ (introπF* {!!} Pⱽ.⋆ᴰ pⱽ)
+      -- ∀FⱽPsh-app .N-homᴰ = {!!}
+
+    -- module _
+    --   {D : Category ℓD ℓD'}
+    --   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+    --   {Γ : C.ob}
+    --   {Qᴰ : Presheafⱽ (F ⟅ Γ ⟆) Cᴰ ℓQᴰ}
+    --   {P : Presheaf D ℓP}
+    --   {Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ}
+    --   {G : Functor D C}
+    --   {Gᴰ : Functorᴰ G Dᴰ Cᴰ}
+    --   {α : PshHet G P (C [-, Γ ])}
+    --   (αᴰ : PshHetᴰ (? ⋆PshHom ?) {!!} {!!} Qᴰ)
+    --   where
+    --   ∀Fⱽ-introHet : PshHetᴰ α Gᴰ Pᴰ (∀FⱽPsh Qᴰ)
+    --   ∀Fⱽ-introHet = {!!}
 
 -- The usual universal quantifier defined with respect to
 -- a binary product
@@ -229,5 +246,44 @@ module _
     {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) where
     open UniversalQuantifierFPsh bp.×aF bp.π₁Nat π₁*
 
-    ∀ⱽPsh : Presheafⱽ Γ Cᴰ ℓCᴰ'
-    ∀ⱽPsh = ∀FⱽPsh (Cᴰ [-][-, Γᴰ ])
+    module _
+      {Γ : C.ob}
+      (Pⱽ : Presheafⱽ (Γ bp.×a) Cᴰ ℓPᴰ) where
+
+      private
+        module Pⱽ = PresheafⱽNotation Pⱽ
+      ∀ⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
+      ∀ⱽPsh = ∀FⱽPsh Pⱽ
+
+      -- ∀ⱽPsh-app :
+      --   PshHomⱽ
+      --     (reind (yoRec _ bp.π₁) $ ∀ⱽPsh)
+      --     Pⱽ
+      -- ∀ⱽPsh-app .N-obᴰ {p = p} pⱽ =
+      --   Pⱽ.reind help $
+      --     introπF* (Cᴰ.reind (sym $ bp.×β₁ {g = p C.⋆ bp.π₂}) $ Cᴰ.idᴰ) Pⱽ.⋆ᴰ pⱽ
+      --     where
+      --     help :
+      --       (C.id bp.,p (p C.⋆ bp.π₂)) C.⋆
+      --         bp.×aF ⟪ p C.⋆ bp.π₁ ⟫
+      --       ≡ p
+      --     help =
+      --       bp.,p-extensionality
+      --         (C.⋆Assoc _ _ _
+      --         ∙ cong₂ C._⋆_ refl bp.×β₁
+      --         ∙ (sym $ C.⋆Assoc _ _ _)
+      --         ∙ cong₂ C._⋆_ bp.×β₁ refl
+      --         ∙ C.⋆IdL _)
+      --         (C.⋆Assoc _ _ _
+      --         ∙ cong₂ C._⋆_ refl bp.×β₂
+      --         ∙ bp.×β₂)
+      -- ∀ⱽPsh-app .N-homᴰ =
+      --   Pⱽ.rectify $ Pⱽ.≡out $
+      --     (sym $ Pⱽ.reind-filler _ _)
+      --      ∙ Pⱽ.⟨⟩⋆⟨
+      --        (sym $ Pⱽ.reind-filler _ _)
+      --        ∙ (sym $ Pⱽ.reind-filler _ _)
+      --        ∙ Pⱽ.⟨ {!!} ⟩⋆⟨⟩
+      --        ⟩
+      --     ∙ {!!}
+      --     ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.⟨ {!!} ⟩⋆⟨⟩ ∙ Pⱽ.reind-filler _ _ ⟩

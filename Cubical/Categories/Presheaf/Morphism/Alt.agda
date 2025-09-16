@@ -483,3 +483,11 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
         (universalElementToTerminalElement C P ue)
         (isUniversalToIsTerminal D Q _ _ preservesUE)
         (universalElementToTerminalElement C P ue')
+
+module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp)
+  where
+  private
+    module P = PresheafNotation P
+
+  precomp𝟙PshIso : PshIso P (P ∘F (𝟙⟨ C ⟩ ^opF))
+  precomp𝟙PshIso = eqToPshIso _ Eq.refl Eq.refl

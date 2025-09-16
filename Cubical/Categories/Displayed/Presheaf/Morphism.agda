@@ -444,3 +444,54 @@ module _
   (αᴰ ∘ˡⁱᴰ Fᴰ) .snd .leftInv = αᴰ .snd .leftInv
 
   -- TODO: whiskering for universal element
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α β : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+    PshHomEqPshHomᴰ :
+      (eq-N-ob : α .N-ob Eq.≡ β .N-ob) →
+      (eq-N-hom :
+        Eq.HEq
+          (Eq.ap
+            (λ N-ob' →
+              ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+                N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
+          (α .N-hom) (β .N-hom)) →
+      PshHomᴰ β Pᴰ Qᴰ
+    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-obᴰ = αᴰ .N-obᴰ
+    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-homᴰ = αᴰ .N-homᴰ
+
+  module _ (α≡β : α ≡ β) where
+    module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+      (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+      PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
+      PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
+        Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
+          αᴰ .N-obᴰ pᴰ
+      PshHomPathPshHomᴰ .N-homᴰ =
+        Qᴰ.rectify $ Qᴰ.≡out $
+          (sym $ Qᴰ.reind-filler _ _)
+          ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
+          ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  where
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} where
+    -- TODO I don't know what the right eq-based lemma I need
+    -- to generalize this
+    precomp𝟙ᴰPshIsoᴰ :
+      PshIsoᴰ (precomp𝟙PshIso P) Pᴰ (Pᴰ ∘Fᴰ (𝟙ᴰ⟨ Cᴰ ⟩ ^opFᴰ))
+    precomp𝟙ᴰPshIsoᴰ .fst .N-obᴰ = λ z → z
+    precomp𝟙ᴰPshIsoᴰ .fst .N-homᴰ = refl
+    precomp𝟙ᴰPshIsoᴰ .snd .inv = λ _ z → z
+    precomp𝟙ᴰPshIsoᴰ .snd .rightInv _ _ = refl
+    precomp𝟙ᴰPshIsoᴰ .snd .leftInv _ _ = refl

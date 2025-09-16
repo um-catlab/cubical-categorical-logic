@@ -25,6 +25,7 @@ open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
@@ -102,6 +103,18 @@ module _
   where
   reindHet : Presheafᴰ P (CatReindex Dᴰ F) ℓQᴰ
   reindHet = reind α $ reindFunc F Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (α : PshHet F P Q)
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
+  where
+  reindHet' : Presheafᴰ P Cᴰ ℓQᴰ
+  reindHet' = reind α $ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
 
 module _
   {C : Category ℓC ℓC'}

@@ -153,11 +153,61 @@ PathPᴰΣ abpq≡ .snd i = (abpq≡ i .fst .snd) , (abpq≡ i .snd .snd)
   → Path (Σ A (λ a → Σ (B a) (C a))) x y
 ΣPathPSnd ab≡ c≡ = ΣPathP ((cong fst ab≡) , (ΣPathP ((cong snd ab≡) , c≡)))
 
+×≡Snd :
+  ∀ {A : Type ℓ}{B : A → Type ℓ'}{C : A → Type ℓ''} {x y}
+  → (ab≡ : Path (Σ A B) (x .fst , x .snd .fst) (y .fst , y .snd .fst))
+  → PathP (λ i → C (ab≡ i .fst)) (x .snd .snd) (y .snd .snd)
+  → Path (Σ A (λ a → (B a) × (C a))) x y
+×≡Snd ab≡ c≡ = ΣPathP ((cong fst ab≡) , (ΣPathP ((cong snd ab≡) , c≡)))
+
+×≡Snd-hSet :
+  ∀ {A : Type ℓ}{B : A → Type ℓ'}{C : A → Type ℓ''} {x y}
+  → (isSet A)
+  → (Path (Σ A B) (x .fst , x .snd .fst) (y .fst , y .snd .fst))
+  → (Path (Σ A C) (x .fst , x .snd .snd) (y .fst , y .snd .snd))
+  → Path (Σ A (λ a → B a × C a)) x y
+×≡Snd-hSet {C = C} isSetA ab≡ ac≡ = ΣPathP ((cong fst ab≡) , (ΣPathP ((λ i → ab≡ i .snd) , (rectify (cong (cong C)
+  (isSetA _ _ _ _)) (λ i → ac≡ i .snd)))))
+
+PathPΣSnd : ∀ {A : Type ℓ}{B : A → Type ℓ'}{C : (a : A)(b : B a) → Type ℓ''} {x y}
+  → Path (Σ A (λ a → Σ (B a) (C a))) x y
+  → Σ[ ab≡ ∈ Path (Σ A B) (x .fst , x .snd .fst) (y .fst , y .snd .fst) ]
+    PathP (λ i → C (ab≡ i .fst) (ab≡ i .snd)) (x .snd .snd) (y .snd .snd)
+PathPΣSnd abc≡ .fst i = (abc≡ i .fst) , (abc≡ i .snd .fst)
+PathPΣSnd abc≡ .snd i = abc≡ i .snd .snd
+
+≡×Snd : ∀ {A : Type ℓ}{B : A → Type ℓ'}{C : A → Type ℓ''} {x y}
+  → Path (Σ A (λ a → B a × C a)) x y
+  → Path (Σ A B) (x .fst , x .snd .fst) (y .fst , y .snd .fst)
+    × Path (Σ A C) (x .fst , x .snd .snd) (y .fst , y .snd .snd)
+≡×Snd abc≡ .fst i = abc≡ i .fst , abc≡ i .snd .fst
+≡×Snd abc≡ .snd i = abc≡ i .fst , abc≡ i .snd .snd
+
 congSndSnd :
   ∀ {A : Type ℓ}{B : A → Type ℓ'}{C : (a : A)(b : B a) → Type ℓ''}{x y}
   → (abc≡ : Path (Σ A (λ a → Σ (B a) (C a))) x y)
   → PathP (λ i → C (abc≡ i .fst) (abc≡ i .snd .fst)) (x .snd .snd) (y .snd .snd)
 congSndSnd abc≡ = λ i → abc≡ i .snd .snd
+
+-- TODO: name
+chacha-slide :
+  ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}
+  (f : A → B)
+  {x y}
+  → isSet B
+  → Path A (x .fst) (y .fst)
+  → Path (Σ B C) (f (x .fst) , x .snd) (f (y .fst) , y .snd)
+  → Path (Σ A (λ a → C (f a))) x y
+chacha-slide {C = C} f isSetB a≡ bc≡ =
+  ΣPathP (a≡ , (rectify (cong (cong C) (isSetB _ _ _ _)) λ i → bc≡ i .snd))
+
+chacha-slide⁻ :
+  ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}
+  (f : A → B)
+  {x y}
+  → Path (Σ A (λ a → C (f a))) x y
+  → Path (Σ B C) (f (x .fst) , x .snd) (f (y .fst) , y .snd)
+chacha-slide⁻ f ac≡ = ΣPathP ((cong f (cong fst ac≡)) , λ i → ac≡ i .snd)
 
 funExt₂⁻ : {B : A → Type ℓ} {C : (a : A) → B a → I → Type ℓ'}
   {f : (x : A) → (y : B x) → C x y i0}

@@ -131,7 +131,27 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → PshHomᴰ α Pᴰ (reind β Rᴰ)
   reind-introᴰ αβᴰ .N-obᴰ = αβᴰ .N-obᴰ
   reind-introᴰ αβᴰ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
-    (Rᴰ.≡in $ αβᴰ .N-homᴰ) ∙ Rᴰ.reind-filler _ _
+    (∫PshHom αβᴰ .N-hom _ _ _ _) ∙ Rᴰ.reind-filler _ _
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf D ℓR}
+  {F : Functor C D}
+  {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {α : PshHet F P Q}
+  {β : PshHom Q R}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Rᴰ : Presheafᴰ R Dᴰ ℓRᴰ}
+  where
+  private
+    module Rᴰ = PresheafᴰNotation Rᴰ
+  reind-introHet
+    : PshHetᴰ (α ⋆PshHom (β ∘ˡ F)) Fᴰ Pᴰ Rᴰ
+    → PshHetᴰ α Fᴰ Pᴰ (reind β Rᴰ)
+  reind-introHet αβᴰ .N-obᴰ = αβᴰ .N-obᴰ
+  reind-introHet αβᴰ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
+    ∫PshHom αβᴰ .N-hom _ _ _ _ ∙ Rᴰ.reind-filler _ _
 
 module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

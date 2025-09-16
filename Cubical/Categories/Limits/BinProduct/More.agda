@@ -8,6 +8,8 @@
 module Cubical.Categories.Limits.BinProduct.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
@@ -17,6 +19,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
@@ -183,6 +186,45 @@ module _ (F : Functor C D) where
     ∀ {c : C .ob} → (-×c : BinProductsWith C c) → Type _
   preservesProvidedBinProductsWith -×c = ∀ c'
     → preservesUniversalElement (preservesBinProdCones c' _) (-×c c')
+
+  module preservesProvidedBinProductsWithNotation
+    {c}
+    (-×c : BinProductsWith C c)
+    (-×Fc : BinProductsWith D (F ⟅ c ⟆))
+    (F-× : preservesProvidedBinProductsWith -×c)
+    where
+
+    private
+      module C = Category C
+      module D = Category D
+      module -×c = BinProductsWithNotation -×c
+      module -×Fc = BinProductsWithNotation -×Fc
+
+    mapProdStr : ∀ {Γ} → D [ F ⟅ Γ -×c.×a ⟆ , (F ⟅ Γ ⟆) -×Fc.×a ]
+    mapProdStr = F ⟪ -×c.π₁ ⟫ -×Fc.,p F ⟪ -×c.π₂ ⟫
+
+    preserves-π₁ : ∀ {Γ} → F ⟪ -×c.π₁ ⟫ ≡ mapProdStr {Γ} D.⋆ -×Fc.π₁
+    preserves-π₁ = sym -×Fc.×β₁
+
+    preserves-π₂ : ∀ {Γ} → F ⟪ -×c.π₂ ⟫ ≡ mapProdStr {Γ} D.⋆ -×Fc.π₂
+    preserves-π₂ = sym -×Fc.×β₂
+
+    preservesProdPshHet : ∀ {Γ} →
+      PshHet F (C [-, Γ -×c.×a ]) (D [-, F-ob F Γ -×Fc.×a ])
+    preservesProdPshHet .N-ob c f =
+      F ⟪ f C.⋆ -×c.π₁ ⟫ -×Fc.,p F ⟪ f C.⋆ -×c.π₂ ⟫
+    preservesProdPshHet .N-hom c c' f f' =
+      -×Fc.,p-extensionality
+        (-×Fc.×β₁
+        ∙ cong (F .F-hom) (C.⋆Assoc _ _ _)
+        ∙ F .F-seq _ _
+        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₁)
+        ∙ (sym $ D.⋆Assoc _ _ _))
+        (-×Fc.×β₂
+        ∙ cong (F .F-hom) (C.⋆Assoc _ _ _)
+        ∙ F .F-seq _ _
+        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₂)
+        ∙ (sym $ D.⋆Assoc _ _ _))
 
   preservesProvidedBinProducts :
     BinProducts C → Type _

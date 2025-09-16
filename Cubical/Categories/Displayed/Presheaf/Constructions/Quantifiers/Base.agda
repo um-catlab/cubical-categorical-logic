@@ -200,7 +200,7 @@ module _
         module Pⱽ = PresheafⱽNotation Pⱽ
 
       ∀FⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
-      ∀FⱽPsh = reind (Functor→PshHet F Γ) $ Pⱽ ∘Fᴰ (weakenπFᴰ ^opFᴰ)
+      ∀FⱽPsh = reindHet' (Functor→PshHet F Γ) weakenπFᴰ Pⱽ
 
       -- ∀FⱽPsh-app : PshHomⱽ (reind πF-PshHom $ ∀FⱽPsh) Pⱽ
       -- ∀FⱽPsh-app .N-obᴰ pⱽ =
@@ -241,10 +241,10 @@ module _
     module C = Category C
     module Cᴰ = Fibers Cᴰ
 
-  module _
+  module UniversalQuantifierPsh
     (π₁* : ∀ {Γ} → (Γᴰ : Cᴰ.ob[ Γ ]) → CartesianLift Cᴰ Γᴰ bp.π₁)
-    {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) where
-    open UniversalQuantifierFPsh bp.×aF bp.π₁Nat π₁*
+    where
+    open UniversalQuantifierFPsh bp.×aF bp.π₁Nat π₁* public
 
     module _
       {Γ : C.ob}

@@ -81,7 +81,7 @@ module _
     where
       lem :
         (yoRec P p ⋆PshHom α)
-        ≡ 
+        ≡
         (Functor→PshHet F _ ⋆PshHom (yoRec Q (α .N-ob _ p) ∘ˡ F))
       lem = makePshHomPath (funExt λ x → funExt λ γ → α .N-hom _ _ _ _)
 

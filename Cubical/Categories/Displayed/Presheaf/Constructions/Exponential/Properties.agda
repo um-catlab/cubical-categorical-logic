@@ -78,7 +78,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     ⇒PshSmall-app : PshHomⱽ (((Pᴰ , _×ⱽ_*Pᴰ) ⇒PshSmallⱽ Qᴰ) ×ⱽPsh Pᴰ) Qᴰ
     ⇒PshSmall-app .N-obᴰ (α , pᴰ) =
       Qᴰ.reind (P.⋆IdL _) $
-        introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) pᴰ) Qᴰ.⋆ᴰ α 
+        introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) pᴰ) Qᴰ.⋆ᴰ α
     ⇒PshSmall-app .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} {γᴰ} {α , pᴰ} = Qᴰ.rectify $ Qᴰ.≡out $
       sym (Qᴰ.reind-filler _ _)
       ∙ sym (Qᴰ.⋆Assoc _ _ _)

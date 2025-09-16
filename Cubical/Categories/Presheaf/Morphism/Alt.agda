@@ -404,7 +404,6 @@ module _
   (α ∘ˡⁱ F) .nIso x .fst = α .nIso _ .fst
   (α ∘ˡⁱ F) .nIso x .snd .fst = α .nIso _ .snd .fst
   (α ∘ˡⁱ F) .nIso x .snd .snd = α .nIso _ .snd .snd
-
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (F : Functor C D)
          (P : Presheaf C ℓp)

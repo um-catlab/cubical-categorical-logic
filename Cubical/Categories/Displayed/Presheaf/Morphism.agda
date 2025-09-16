@@ -89,6 +89,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         λ _ → αᴰ .PshHomᴰ.N-obᴰ
 
 open PshHomᴰ
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P Q : Presheaf C ℓP}
   {α : NatTrans P Q}
@@ -101,6 +102,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
    NatTransᴰ→PshHomᴰ .N-homᴰ {p = p} {fᴰ = fᴰ} {pᴰ = pᴰ} =
      funExt₂⁻ (αᴰ .NatTransᴰ.N-homᴰ fᴰ) p pᴰ
 
+-- A displayed "heteromorphism" is a kind of morphism between
+-- displayed presheaves on different categories.
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -120,6 +123,31 @@ module _
 
   PshHetᴰ : Type _
   PshHetᴰ = PshHomᴰ α Pᴰ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {x}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  xᴰ
+  where
+  Functorᴰ→PshHetᴰ : PshHetᴰ (Functor→PshHet F x) Fᴰ (Cᴰ [-][-, xᴰ ]) (Dᴰ [-][-, Fᴰ .F-obᴰ xᴰ ])
+  Functorᴰ→PshHetᴰ .N-obᴰ = Fᴰ .F-homᴰ
+  Functorᴰ→PshHetᴰ .N-homᴰ = Fᴰ .F-seqᴰ _ _
+
+-- A "vertical" heteromorphism is between objects
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {x}
+  {F : Functor C D}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ)
+  (Qⱽ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ) where
+
+  PshHetⱽ : Type _
+  PshHetⱽ = PshHetᴰ (Functor→PshHet F x) Fᴰ Pⱽ Qⱽ
 
 open PshHomᴰ
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

@@ -7,23 +7,25 @@ open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Unit
-import Cubical.Data.Equality as Eq
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Morphism.Alt hiding (∫F)
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Bifunctor
+import Cubical.Categories.Displayed.Constructions.Reindex.Base as ReindCatᴰ
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
@@ -44,9 +46,8 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
-open Bifunctorᴰ
+open Functor
 open Functorᴰ
-
 open PshHom
 open PshIso
 
@@ -55,6 +56,35 @@ module _ {C : Category ℓC ℓC'} where
     : (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) → Type _
   LocallyRepresentableⱽPresheafᴰ P Cᴰ ℓPᴰ =
     Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableⱽ Pᴰ
+
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+    (α : PshHom P Q)
+    (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+    where
+    reindLocallyRepresentableⱽ : LocallyRepresentableⱽ Qᴰ → LocallyRepresentableⱽ (reind α Qᴰ)
+    reindLocallyRepresentableⱽ _×ⱽ_*Qᴰ Γᴰ p = (Γᴰ ×ⱽ (α .N-ob _ p) *Qᴰ) ◁PshIsoⱽ (idPshIsoᴰ ×ⱽIso invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p))
+
+  reindLocallyRepresentableⱽPresheafᴰ : {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+    (α : PshHom Q P)
+    → LocallyRepresentableⱽPresheafᴰ P Cᴰ ℓPᴰ
+    → LocallyRepresentableⱽPresheafᴰ Q Cᴰ ℓPᴰ
+  reindLocallyRepresentableⱽPresheafᴰ α Pᴰ = (reind α (Pᴰ .fst) , reindLocallyRepresentableⱽ α (Pᴰ .fst) (Pᴰ .snd))
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {P : Presheaf C ℓP}
+  (F : Functor C D)
+  (Q : Presheaf D ℓQ)
+  (α : PshHet F P Q)
+  where
+  private
+    module P = PresheafNotation P
+  preservesLocalReprⱽCone-lemma : ∀ {Γ} (p : P.p[ Γ ]) →
+        (yoRec P p ⋆PshHom α)
+        ≡
+        (Functor→PshHet F _ ⋆PshHom (yoRec Q (α .N-ob _ p) ∘ˡ F))
+  preservesLocalReprⱽCone-lemma p = makePshHomPath (funExt λ x → funExt λ γ → α .N-hom _ _ _ _)
 
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -77,17 +107,11 @@ module _
                ((Dᴰ [-][-, Fᴰ .F-obᴰ Γᴰ ]) ×ⱽPsh reindYo (α .N-ob _ p) Qᴰ)
   preservesLocalReprⱽCone Γᴰ p =
     ×ⱽ-introHet Fᴰ (×ⱽ-π₁ ⋆PshHomⱽᴰ Functorᴰ→PshHetᴰ Fᴰ Γᴰ)
-                   (×ⱽ-π₂ ⋆PshHomⱽᴰ reind-introHet (PshHomPathPshHomᴰ lem (reind-π {α = yoRec P p} ⋆PshHomᴰ αᴰ)))
-    where
-      lem :
-        (yoRec P p ⋆PshHom α)
-        ≡ 
-        (Functor→PshHet F _ ⋆PshHom (yoRec Q (α .N-ob _ p) ∘ˡ F))
-      lem = makePshHomPath (funExt λ x → funExt λ γ → α .N-hom _ _ _ _)
+                   (×ⱽ-π₂ ⋆PshHomⱽᴰ reind-introHet (PshHomPathPshHomᴰ (preservesLocalReprⱽCone-lemma F Q α p) (reind-π {α = yoRec P p} ⋆PshHomᴰ αᴰ)))
 
   preservesLocalReprⱽ : LocallyRepresentableⱽ Pᴰ → Type _
   preservesLocalReprⱽ _×ⱽ_*Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
-    → preservesUEⱽ (preservesLocalReprⱽCone Γᴰ p) (Γᴰ ×ⱽ p *Pᴰ)
+    → preservesUEⱽ {Fᴰ = Fᴰ} (preservesLocalReprⱽCone Γᴰ p) (Γᴰ ×ⱽ p *Pᴰ)
 
   preservesLocalReprⱽ→UEⱽ :
     (_×ⱽ_*Pᴰ : LocallyRepresentableⱽ Pᴰ)
@@ -96,6 +120,46 @@ module _
     → UniversalElementⱽ Dᴰ (F ⟅ Γ ⟆) ((Dᴰ [-][-, Fᴰ .F-obᴰ Γᴰ ]) ×ⱽPsh reindYo (α .N-ob _ p) Qᴰ)
   preservesLocalReprⱽ→UEⱽ _×ⱽ_*Pᴰ pres-⟨_×ⱽ_*Pᴰ⟩ Γᴰ p =
     preservesUEⱽ→UEⱽ (preservesLocalReprⱽCone Γᴰ p) (Γᴰ ×ⱽ p *Pᴰ) pres-⟨ Γᴰ ×ⱽ p *Pᴰ⟩
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {Q : Presheaf D ℓQ}
+  (F : Functor C D)
+  ((Qᴰ , _×ⱽ_*Qᴰ) : LocallyRepresentableⱽPresheafᴰ Q Dᴰ ℓQᴰ)
+  where
+  private
+    module Q = PresheafNotation Q
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module Dᴰ = Fibers Dᴰ
+  open UniversalElementⱽ
+  reindFunc'Reindπ-LocallyRepresentableⱽ : LocallyRepresentableⱽ (reindFunc' (ReindCatᴰ.π Dᴰ F) Qᴰ)
+  reindFunc'Reindπ-LocallyRepresentableⱽ {Γ} Γᴰ p =
+    reindUEⱽ  (Γᴰ ×ⱽ p *Qᴰ)
+    ◁PshIsoⱽ (reindⱽFunc×ⱽIsoⱽ {F = F} ⋆PshIsoⱽ (reindⱽFuncRepr {Dᴰ = Dᴰ}{F = F} ×ⱽIso
+      (reindPshIsoⱽ reindFuncReind
+      ⋆PshIsoⱽ reind-seqIsoⱽ (Functor→PshHet F Γ) (yoRec Q p ∘ˡ F) (reindFunc F Qᴰ)
+      ⋆PshIsoⱽ reindPathIsoⱽ (sym $ yoRec≡ (Q ∘F (F ^opF)) (sym $ Q.⟨ F .F-id ⟩⋆⟨⟩ ∙ Q.⋆IdL _)))))
+
+  -- Doing this without subst-isUniversalⱽ led to interminable type-checking
+  Reindπ-preservesLocalReprⱽ : preservesLocalReprⱽ (ReindCatᴰ.π Dᴰ F) (reindFunc' (ReindCatᴰ.π Dᴰ F) Qᴰ) Qᴰ idPshHomᴰ reindFunc'Reindπ-LocallyRepresentableⱽ
+  Reindπ-preservesLocalReprⱽ {Γ} Γᴰ q {Δ} {Δᴰ} {γ} = subst-isUniversalⱽ Dᴰ (F-ob F Γ) ((Dᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo q Qᴰ)
+    (ΣPathP
+    ( (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.reind-filler (λ i → F .F-id (~ i)) _ ∙ Dᴰ.reind-filler (λ i → F .F-id i) _)
+      , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler (λ i → (Q PresheafNotation.⋆ F .F-id (~ i)) q) _ ∙ Qᴰ.reind-filler (λ i →
+                                                                                                                      funExt⁻
+                                                                                                                      (funExt⁻
+                                                                                                                       (λ i₁ →
+                                                                                                                          N-ob
+                                                                                                                          (yoRec≡ (Q ∘F (F ^opF))
+                                                                                                                           (λ i₂ → ((λ i₃ → Q .F-hom (F .F-id i₃) q) ∙ Q.⋆IdL q) (~ i₂))
+                                                                                                                           (~ i₁)))
+                                                                                                                       Γ)
+                                                                                                                      (Category.id C) i) _ ∙ Qᴰ.reind-filler (λ i →
+                                                                                                                                                                funExt₂⁻
+                                                                                                                                                                (λ i₁ → preservesLocalReprⱽCone-lemma F Q idPshHom q i₁ .N-ob) Γ
+                                                                                                                                                                (Category.id C) i) _ ∙ Qᴰ.reind-filler (λ i → (Q PresheafNotation.⋆ F .F-id i) q) _)))
+    (universalⱽ (Γᴰ ×ⱽ q *Qᴰ))
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
@@ -231,7 +295,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         Pᴰ~ : (p : P.p[ Γ ])(p' : P.p[ Γ ]) → Type _
         Pᴰ~ p p' = Pᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p' *Pᴰ⌉ ]
 
-    -- I need an η principle here
     app-naturality-lemma :
       ∀ {Δ Γ Δᴰ Γᴰ}{γ : C [ Δ , Γ ]}{γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]}
         {p : P.p[ Γ ]}{pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
@@ -259,7 +322,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
             ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (sym $ P.⋆IdL p) pᴰ ⟩
             ∙ Pᴰ.reind-filler _ _
           ))
-      -- -- TODO: test perf vs this original version
+      -- TODO: test perf vs this original version
       -- sym $
       --   ∫ue.intro-natural (Γᴰ ×ⱽ p *Pᴰ)
       --   ∙ ∫ue.intro≡ (Γᴰ ×ⱽ p *Pᴰ) (ΣPathPSnd
@@ -287,3 +350,65 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 --       (γ C.⋆ C.id ,
 --        γᴰ Cᴰ.⋆ᴰ introLR Cᴰ.idᴰ (Pᴰ.reind (λ i → P.⋆IdL p (~ i)) pᴰ))
 
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf D ℓP}
+  {F : Functor C D}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ)
+  (_×ⱽ_*FᴰPᴰ : LocallyRepresentableⱽ (reindFunc' Fᴰ Pᴰ))
+  (_×ⱽ_*Pᴰ : LocallyRepresentableⱽ Pᴰ)
+  (presLRⱽ : preservesLocalReprⱽ Fᴰ (reindFunc' Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*FᴰPᴰ)
+  where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module D = Category D
+    module Dᴰ = Fibers Dᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    F⟨_×ⱽ_*FᴰPᴰ⟩ : ∀ {Γ}(Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ F ⟅ Γ ⟆ ]) → UniversalElementⱽ Dᴰ (F ⟅ Γ ⟆) ((Dᴰ [-][-, Fᴰ .F-obᴰ Γᴰ ]) ×ⱽPsh reindYo p Pᴰ)
+    F⟨_×ⱽ_*FᴰPᴰ⟩ = preservesLocalReprⱽ→UEⱽ Fᴰ (reindFunc' Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*FᴰPᴰ presLRⱽ
+
+  presLRⱽ-Isoⱽ : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ F ⟅ Γ ⟆ ])
+    → CatIsoⱽ Dᴰ (UniversalElementⱽ.vertexⱽ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ))
+                (Fᴰ .F-obᴰ $ UniversalElementⱽ.vertexⱽ (Γᴰ ×ⱽ p *FᴰPᴰ) )
+  presLRⱽ-Isoⱽ Γᴰ p = UEⱽ-essUniq
+    (F-obᴰ Fᴰ Γᴰ ×ⱽ p *Pᴰ)
+    F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩
+
+  module _ {Δ}{Γ}{γ : C [ Δ , Γ ]}{Δᴰ}{Γᴰ : Cᴰ.ob[ Γ ]}(γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])(p : P.p[ F ⟅ Γ ⟆ ]) where
+    open UniversalElementⱽ
+    presLRⱽ-Isoⱽ-natural
+      : Path (∫C Dᴰ [ _ , _ ])
+          (_ , (presLRⱽ-Isoⱽ Δᴰ (F ⟪ γ ⟫ P.⋆ p) .fst Dᴰ.⋆ᴰ Fᴰ .F-homᴰ (LocallyRepresentableⱽNotation.funcLR (reindFunc' Fᴰ Pᴰ) _×ⱽ_*FᴰPᴰ γᴰ)))
+          (_ , (LocallyRepresentableⱽNotation.funcLR Pᴰ _×ⱽ_*Pᴰ (Fᴰ .F-homᴰ γᴰ) Dᴰ.⋆ᴰ presLRⱽ-Isoⱽ Γᴰ p .fst))
+    presLRⱽ-Isoⱽ-natural = extensionalityᴰ F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩ (×≡Snd-hSet
+      D.isSetHom
+      (Dᴰ.⋆Assoc _ _ _
+      ∙ Dᴰ.⟨ refl ⟩⋆⟨
+          Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+          ∙ sym ((∫F Fᴰ) .F-seq _ _)
+          ∙ cong (∫F Fᴰ .F-hom) (≡×Snd (βᴰ $ Γᴰ ×ⱽ p *FᴰPᴰ) .fst ∙ sym (Cᴰ.reind-filler _ _))
+          ∙ ((∫F Fᴰ) .F-seq _ _)
+      ⟩ ∙ sym (Dᴰ.⋆Assoc _ _ _)
+      ∙ Dᴰ.⟨ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩ ∙ ≡×Snd (βᴰ $ F⟨ Δᴰ ×ⱽ (F ⟪ γ ⟫ P.⋆ p) *FᴰPᴰ⟩) .fst ⟩⋆⟨ refl ⟩
+      ∙ sym (Dᴰ.⋆Assoc _ _ _
+        ∙ Dᴰ.⟨ refl ⟩⋆⟨ ≡×Snd (βᴰ $ F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩) .fst ⟩
+        ∙  ≡×Snd (βᴰ $ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ)) .fst
+        ∙ sym (Dᴰ.reind-filler _ _)))
+      (chacha-slide {C = λ Fγ⋆p → Pᴰ.p[ Fγ⋆p ][ vertexⱽ (Fᴰ .F-obᴰ Δᴰ ×ⱽ F ⟪ γ ⟫ P.⋆ p *Pᴰ) ]} (P._⋆ p) P.isSetPsh (D.⋆IdR _ ∙ D.⋆IdL _ ∙ sym (D.⋆IdR _ ∙ D.⋆IdR _))
+        (sym (Pᴰ.reind-filler (λ i → P .F-seq D.id (D.id D.⋆ F .F-hom γ) (~ i) p) _)
+        ∙ Pᴰ.⋆Assoc _ _ _
+        ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.⟨⟩⋆⟨ sym (Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler (λ i → P .F-hom (F .F-id i) p) _) ⟩
+                  ∙ Pᴰ.reind-filler _ _
+                  ∙ chacha-slide⁻ (λ γ → F ⟪ γ ⟫ P.⋆ p) (≡×Snd (βᴰ (Γᴰ ×ⱽ p *FᴰPᴰ)) .snd)
+        ⟩ ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _ _) ∙ (Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler (λ i → P .F-hom (F .F-id i) (P .F-hom (F-hom F γ) p)) _) ⟩ ∙ Pᴰ.reind-filler (λ i → P .F-seq D.id D.id (~ i) (P .F-hom (F-hom F γ) p)) _
+        ∙ chacha-slide⁻ (P._⋆ (F ⟪ γ ⟫ P.⋆ p)) (≡×Snd (βᴰ (F⟨ Δᴰ ×ⱽ (F ⟪ γ ⟫ P.⋆ p) *FᴰPᴰ⟩)) .snd)
+        ∙ sym (sym (Pᴰ.reind-filler (λ i → P .F-seq D.id (F .F-hom γ D.⋆ D.id) (~ i) p) _)
+        ∙ Pᴰ.⋆Assoc _ _ _
+        ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (λ i → P .F-seq D.id D.id (~ i) p) _ ∙ chacha-slide⁻ (λ γ → γ P.⋆ p) (≡×Snd (βᴰ (F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩)) .snd) ⟩
+        ∙ Pᴰ.reind-filler (λ i → P .F-seq D.id (F .F-hom γ) (~ i) p) _ ∙ chacha-slide⁻ (λ γ → γ P.⋆ p) (≡×Snd (βᴰ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ)) .snd)
+        ∙ sym (Pᴰ.reind-filler (λ i → P .F-id i (P .F-hom (F .F-hom γ) p)) _))))
+        )

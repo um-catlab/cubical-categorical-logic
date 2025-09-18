@@ -85,13 +85,24 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       reindYo = reind (yoRec Q q) Qᴰ
 
 module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {Q : Presheaf D ℓQ}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
+  where
+  reindFunc' : Presheafᴰ (Q ∘F (F ^opF)) Cᴰ ℓQᴰ
+  reindFunc' = Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)
+
+module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {Q : Presheaf D ℓQ}
   (F : Functor C D) (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
   where
   reindFunc : Presheafᴰ (Q ∘F (F ^opF)) (CatReindex Dᴰ F) ℓQᴰ
-  reindFunc = Qᴰ ∘Fᴰ (Reindexπ _ _ ^opFᴰ)
+  reindFunc = reindFunc' (Reindexπ _ _) Qᴰ
 
 open Category
 module _

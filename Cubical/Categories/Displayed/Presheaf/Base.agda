@@ -116,6 +116,17 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
 
   open PresheafNotation (∫P Pᴰ) public
 
+  reind⟨_⟩⟨_⟩ : ∀ {x : C.ob} {f g : P.p[ x ]}{xᴰ}
+      {fᴰ fᴰ' : p[ f ][ xᴰ ]}
+      (f≡g : f ≡ g)
+    → Path p[ _ ]
+        (f , fᴰ)
+        (f , fᴰ')
+    → Path p[ _ ]
+        (g , reind f≡g fᴰ)
+        (g , reind f≡g fᴰ')
+  reind⟨ f≡g ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind f≡g) (rectify (≡out fᴰ≡fᴰ')))
+
   _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{g}
      → Cᴰ [ f ][ xᴰ , yᴰ ] → p[ g ][ yᴰ ]
      → p[ f P.⋆ g ][ xᴰ ]
@@ -166,6 +177,16 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
       ∙ ⋆Assoc _ _ _
       ∙ ⟨⟩⋆⟨ reind-filler _ _ ⟩
+      ∙ reind-filler _ _
+
+    ⋆Assocⱽᴰᴰ : ∀ {x y} {g : C [ x , y ]}  {h : P.p[ y ]} {xᴰ xᴰ' yᴰ}
+      (fⱽ : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]) (gᴰ : Cᴰ [ g ][ xᴰ' , yᴰ ]) (hᴰ : p[ h ][ yᴰ ])
+      → Path p[ _ ]
+          (_ , (fⱽ Cᴰ.⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ)
+          (_ , fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
+    ⋆Assocⱽᴰᴰ fⱽ gᴰ hᴰ =
+      ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+      ∙ ⋆Assoc _ _ _
       ∙ reind-filler _ _
 
     ⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}

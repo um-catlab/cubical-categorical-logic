@@ -189,6 +189,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
   PshHomⱽ : Type _
   PshHomⱽ = PshHomᴰ idPshHom Pᴰ Qᴰ
+
   PshIsoⱽ : Type _
   PshIsoⱽ = PshIsoᴰ idPshIso Pᴰ Qᴰ
 
@@ -289,6 +290,24 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       where
         module Pᴰ = PresheafᴰNotation Pᴰ
         ∫⋆ = ∫PshIso αᴰ ⋆PshIso ∫PshIso βᴰ
+
+-- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {P : Presheaf C ℓP}
+--   {Q : Presheaf C ℓQ}
+--   (α : PshIso P Q)
+--   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+--   {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+--   where
+--   mkPshIsoᴰ :
+--     (αᴰ : PshHomᴰ (α .trans) Pᴰ Qᴰ)
+--     → (αᴰ⁻ : PshHomᴰ (invPshIso α .trans) Qᴰ Pᴰ)
+--     → PathP (λ i → PshHomᴰ {!!} Qᴰ Qᴰ) (αᴰ⁻ ⋆PshHomᴰ αᴰ) {!!}
+--     → {!!} ≡ {!!}
+--     → PshIsoᴰ α Pᴰ Qᴰ
+--   mkPshIsoᴰ αᴰ αᴰ⁻ s r .fst = αᴰ
+--   mkPshIsoᴰ αᴰ αᴰ⁻ s r .snd .inv = λ _ → αᴰ⁻ .N-obᴰ
+--   mkPshIsoᴰ αᴰ αᴰ⁻ s r .snd .rightInv = {!!}
+--   mkPshIsoᴰ αᴰ αᴰ⁻ s r .snd .leftInv = {!!}
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

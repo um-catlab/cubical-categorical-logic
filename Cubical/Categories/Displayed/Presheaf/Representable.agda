@@ -265,6 +265,18 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   isUniversalⱽ vⱽ eⱽ = ∀ {y yᴰ}{f : C [ y , x ]} →
     isIso λ (fᴰ : Cᴰ [ f ][ yᴰ , vⱽ ]) → fᴰ Pⱽ.⋆ᴰⱽ eⱽ
 
+  -- If you do this by an actual subst then the .fst will have tons of
+  -- transports.
+  subst-isUniversalⱽ : ∀ {vⱽ : Cᴰ.ob[ x ]}{eⱽ eⱽ'}
+    → eⱽ ≡ eⱽ'
+    → isUniversalⱽ vⱽ eⱽ
+    → isUniversalⱽ vⱽ eⱽ'
+  subst-isUniversalⱽ eⱽ≡eⱽ' vⱽ-Univⱽ .fst = vⱽ-Univⱽ .fst
+  subst-isUniversalⱽ eⱽ≡eⱽ' vⱽ-Univⱽ .snd =
+    subst (λ eⱽ → (section (λ fᴰ → fᴰ Pⱽ.⋆ᴰⱽ eⱽ) (vⱽ-Univⱽ .fst)) × retract (λ fᴰ → fᴰ Pⱽ.⋆ᴰⱽ eⱽ) (vⱽ-Univⱽ .fst))
+      eⱽ≡eⱽ'
+      (vⱽ-Univⱽ .snd)
+
   record UniversalElementⱽ
     : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓPᴰ) where
     field

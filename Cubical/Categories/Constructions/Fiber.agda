@@ -11,6 +11,8 @@ module Cubical.Categories.Constructions.Fiber where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
@@ -149,6 +151,18 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     sym $ ⋆Assocᴰⱽⱽ)
 
   open R public
+
+  reind⟨_⟩⟨_⟩ : ∀ {a b : C.ob} {f g : C [ a , b ]}{aᴰ bᴰ}
+      {fᴰ : Cᴰ [ f ][ aᴰ , bᴰ ]}
+      {fᴰ' : Cᴰ [ f ][ aᴰ , bᴰ ]}
+      (p : f ≡ g)
+    → Path R.Hom[ _ , _ ]
+        (f , fᴰ)
+        (f , fᴰ')
+    → Path R.Hom[ _ , _ ]
+        (g , reind p fᴰ)
+        (g , reind p fᴰ')
+  reind⟨ p ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind p) (rectify (≡out fᴰ≡fᴰ')))
 
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

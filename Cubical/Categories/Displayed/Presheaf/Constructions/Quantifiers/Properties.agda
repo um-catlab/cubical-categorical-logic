@@ -34,6 +34,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
+open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
@@ -117,11 +118,75 @@ module _
         module ∀ⱽPshC =
           PresheafⱽNotation (∀ⱽPshC (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ))
 
-      reindHet∀Psh :
-        PshIsoⱽ
-          (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshD Qⱽ))
-          (∀ⱽPshC (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ))
-      reindHet∀Psh = {!!}
+      Fᴰπ₁⇒π₁Fᴰ :
+        NatTransᴰ (F-×.FNatIso .NT.NatIso.trans)
+          (Fᴰ ∘Fᴰ ∀ⱽC.weakenπFᴰ) (∀ⱽD.weakenπFᴰ ∘Fᴰ Fᴰ)
+      Fᴰπ₁⇒π₁Fᴰ .NatTransᴰ.N-obᴰ cᴰ =
+        introᴰ (π₁*D (Fᴰ .F-obᴰ cᴰ)) $
+          Dᴰ.reind ({!!} ∙ {!!}) $
+            Fᴰ .F-homᴰ (π₁*C cᴰ .elementⱽ)
+      Fᴰπ₁⇒π₁Fᴰ .NatTransᴰ.N-homᴰ fᴰ = {!!}
+
+      -- reindHet∀Psh :
+      --   PshIsoⱽ
+      --     (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshD Qⱽ))
+      --     (∀ⱽPshC (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ))
+      -- reindHet∀Psh =
+      --   reindPshIsoⱽ reindFuncCompIsoⱽ
+      --   ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
+      --   ⋆PshIsoⱽ bar
+      --   ⋆PshIsoⱽ {!refl!}
+      --   ⋆PshIsoⱽ baz
+      --   ⋆PshIsoⱽ (invPshIsoⱽ $ reind-seqIsoⱽ _ _ _)
+      --   ⋆PshIsoⱽ reindPshIsoⱽ foo
+      --   where
+      --   foo :
+      --     PshIsoⱽ
+      --       (reind (F-×.preservesProdPshHet ∘ˡ -×c.×aF)
+      --         ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ)))
+      --       (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ
+      --         ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ))
+      --   foo = eqToPshIsoⱽ (Eq.refl , Eq.refl)
+
+      --   bar :
+      --     PshIsoⱽ
+      --       (reind
+      --           (Functor→PshHet F Γ ⋆PshHom
+      --               (Functor→PshHet -×Fc.×aF (F-ob F Γ) ∘ˡ F))
+      --           ((Qⱽ ∘Fᴰ (∀ⱽD.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ)))
+      --       (reind (Functor→PshHet _ Γ) $
+      --       (Qⱽ ∘Fᴰ ((∀ⱽD.weakenπFᴰ ∘Fᴰ Fᴰ) ^opFᴰ)))
+      --   bar = eqToPshIsoⱽ (Eq.refl , Eq.refl)
+
+      --   -- D-PshHom :
+      --   --   PshHom (D [-, F-ob (F ∘F -×c.×aF) Γ ])
+      --   --          (D [-, F-ob F Γ -×Fc.×a ])
+      --   -- D-PshHom
+      --   -- .N-ob d f = f D.⋆ F-×.mapProdStr
+      --   -- D-PshHom .N-hom = {!!}
+
+      --   baz :
+      --     PshIsoⱽ
+      --       (reind {!!} $
+      --           (Qⱽ ∘Fᴰ ((Fᴰ ∘Fᴰ ∀ⱽC.weakenπFᴰ) ^opFᴰ))
+      --       )
+      --       (reind
+      --           (Functor→PshHet -×c.×aF Γ ⋆PshHom
+      --           (F-×.preservesProdPshHet ∘ˡ -×c.×aF))
+      --           ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ)))
+      --   baz = {!!} --eqToPshIsoⱽ (Eq.refl , Eq.refl)
+
+
+-- Goal: PshIsoⱽ
+--       (reind
+--        (Functor→PshHet F Γ ⋆PshHom
+--         (Functor→PshHet -×Fc.×aF (F-ob F Γ) ∘ˡ F))
+--        ((Qⱽ ∘Fᴰ (∀ⱽD.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ)))
+--       (reind
+--        (Functor→PshHet -×c.×aF Γ ⋆PshHom
+--         (F-×.preservesProdPshHet ∘ˡ -×c.×aF))
+--        ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ)))
+
       -- reindHet∀Psh .fst .N-obᴰ {p = p} pⱽ =
       --   Qⱽ.reind the-reind-path
       --     $

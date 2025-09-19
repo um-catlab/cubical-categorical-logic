@@ -322,3 +322,26 @@ module _
       ⋆PshIsoⱽ reindPathIsoⱽ (yoRec≡ _ ((sym $ D .⋆IdL _) ∙ cong₂ (seq' D) (sym $ F .F-id) refl))
       ⋆PshIsoⱽ (invPshIsoⱽ $ reind-seqIsoⱽ _ _ _)
       ⋆PshIsoⱽ reindPshIsoⱽ (invPshIsoⱽ reindFuncReind)
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {P : Presheaf D ℓP}
+  {Q : Presheaf D ℓP}
+  {Qᴰ : Presheafᴰ Q Dᴰ ℓPᴰ}
+  {α : PshHom P Q}
+  where
+
+  reindFuncCompIsoⱽ :
+    PshIsoⱽ
+      (reind α Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+      (reind (α ∘ˡ F) (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)))
+  reindFuncCompIsoⱽ = eqToPshIsoⱽ foo
+      where
+      foo :
+        PresheafᴰEq
+          (reind α Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+          (reind (α ∘ˡ F) (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)))
+      foo = (Eq.refl , Eq.refl)

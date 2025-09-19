@@ -10,6 +10,8 @@ module Cubical.Categories.Limits.BinProduct.More where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism as Iso
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
@@ -17,6 +19,7 @@ open import Cubical.Categories.Constructions.BinProduct
 import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.FunctorComprehension.Properties
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Instances.Sets
@@ -200,6 +203,12 @@ module _ (F : Functor C D) where
       module -×c = BinProductsWithNotation -×c
       module -×Fc = BinProductsWithNotation -×Fc
 
+      module F⟨-×c⟩ {Γ} =
+        BinProductNotation
+          (preservesUniversalElement→UniversalElement
+            (preservesBinProdCones Γ c) (-×c Γ) (F-× Γ))
+
+
     mapProdStr : ∀ {Γ} → D [ F ⟅ Γ -×c.×a ⟆ , (F ⟅ Γ ⟆) -×Fc.×a ]
     mapProdStr = F ⟪ -×c.π₁ ⟫ -×Fc.,p F ⟪ -×c.π₂ ⟫
 
@@ -211,20 +220,54 @@ module _ (F : Functor C D) where
 
     preservesProdPshHet : ∀ {Γ} →
       PshHet F (C [-, Γ -×c.×a ]) (D [-, F-ob F Γ -×Fc.×a ])
-    preservesProdPshHet .N-ob c f =
-      F ⟪ f C.⋆ -×c.π₁ ⟫ -×Fc.,p F ⟪ f C.⋆ -×c.π₂ ⟫
-    preservesProdPshHet .N-hom c c' f f' =
-      -×Fc.,p-extensionality
-        (-×Fc.×β₁
-        ∙ cong (F .F-hom) (C.⋆Assoc _ _ _)
-        ∙ F .F-seq _ _
-        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₁)
-        ∙ (sym $ D.⋆Assoc _ _ _))
-        (-×Fc.×β₂
-        ∙ cong (F .F-hom) (C.⋆Assoc _ _ _)
-        ∙ F .F-seq _ _
-        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₂)
-        ∙ (sym $ D.⋆Assoc _ _ _))
+    preservesProdPshHet = yoRec _ $ mapProdStr
+
+    -- FNatTrans : NatTrans (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
+    -- FNatTrans .NatTrans.N-ob _ = mapProdStr
+    -- FNatTrans .NatTrans.N-hom f =
+    --   -×Fc.,p-extensionality
+    --     (D.⋆Assoc _ _ _
+    --     ∙ cong₂ D._⋆_ refl -×Fc.×β₁
+    --     ∙ (sym $ F .F-seq _ _ )
+    --     ∙ cong (F .F-hom) -×c.×β₁
+    --     ∙ F .F-seq _ _
+    --     ∙ cong₂ D._⋆_ preserves-π₁ refl
+    --     ∙ D.⋆Assoc _ _ _
+    --     ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₁)
+    --     ∙ (sym $ D.⋆Assoc _ _ _))
+    --     (D.⋆Assoc _ _ _
+    --     ∙ cong₂ D._⋆_ refl -×Fc.×β₂
+    --     ∙ (sym $ F .F-seq _ _ )
+    --     ∙ cong (F .F-hom) -×c.×β₂
+    --     ∙ (sym -×Fc.×β₂)
+    --     ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₂)
+    --     ∙ (sym $ D.⋆Assoc _ _ _))
+
+    FNatIso : NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
+    FNatIso =
+      preservesProvidedUniversalElementsNatIso
+        (ProdWithAProf C c) (ProdWithAProf D (F ⟅ c ⟆))
+        F (λ c' → preservesBinProdCones c' c) -×c -×Fc F-×
+    -- FNatIso .NatIso.trans = FNatTrans
+    -- FNatIso .NatIso.nIso c' .isIso.inv =
+    --   -×Fc.π₁ F⟨-×c⟩.,p -×Fc.π₂
+    -- FNatIso .NatIso.nIso c' .isIso.sec =
+    --   {!!}
+    -- FNatIso .NatIso.nIso c' .isIso.ret = {!!}
+
+    -- FNatIso .NatIso.nIso c .isIso.inv =
+    --   F-× c ((-×Fc.×aF ∘F F) .F-ob c)
+    --     .equiv-proof -×Fc.×ue.element .fst .fst
+    -- FNatIso .NatIso.nIso c .isIso.sec =
+    --   {!!}
+    --   -- -×Fc.,p-extensionality
+    --   --   (D.⋆Assoc _ _ _
+    --   --   ∙ cong₂ D._⋆_ refl -×Fc.×β₁
+    --   --   ∙ cong₂ D._⋆_ refl preserves-π₁
+    --   --   ∙ (sym $ D.⋆Assoc _ _ _)
+    --   --   ∙ cong₂ D._⋆_ {!F-× ? ? .equiv-proof ? .snd ?!} refl)
+    --   --   {!!}
+    -- FNatIso .NatIso.nIso c .isIso.ret = {!!}
 
   preservesProvidedBinProducts :
     BinProducts C → Type _

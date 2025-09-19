@@ -46,7 +46,7 @@ open import Cubical.Categories.Profunctor.General
 -}
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓp ℓq ℓr : Level
+    ℓc ℓc' ℓd ℓd' ℓp ℓq ℓr ℓs : Level
 
 open Category
 open Contravariant

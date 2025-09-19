@@ -49,8 +49,6 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module F*Dᴰ = Fibers F*Dᴰ
     module Dᴰ = Fibers Dᴰ
 
-  -- TODO adapt to new Exponentialⱽ
-  -- TODO: implement 
   module _ (bpⱽ : BinProductsⱽ Dᴰ) (isFibDᴰ : isFibration Dᴰ) where
     ExponentialsⱽReindex
       : Exponentialsⱽ Dᴰ bpⱽ isFibDᴰ

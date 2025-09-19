@@ -376,7 +376,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     αᴰ ⋆PshHomᴰⱽ βᴰ = record { N-obᴰ = αᴰ⋆ᴰβᴰ .N-obᴰ ; N-homᴰ = Rᴰ.rectify $ αᴰ⋆ᴰβᴰ .N-homᴰ }
       where
         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshHomᴰ βᴰ
-
+    infixr 9 _⋆PshHomᴰⱽ_
   module _ {α : PshIso P Q} where
     _⋆PshIsoᴰⱽ_ : (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)(βᴰ : PshIsoⱽ Qᴰ Rᴰ) → PshIsoᴰ α Pᴰ Rᴰ
     αᴰ ⋆PshIsoᴰⱽ βᴰ = (αᴰ .fst ⋆PshHomᴰⱽ βᴰ .fst)
@@ -385,6 +385,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
                    (λ _ _ → Pᴰ.rectify $ αᴰ⋆ᴰβᴰ .snd .leftInv _ _))
       where
         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshIsoᴰ βᴰ
+    infixr 9 _⋆PshIsoᴰⱽ_
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{R : Presheaf C ℓR}
@@ -398,6 +399,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     αᴰ ⋆PshHomⱽᴰ βᴰ = record { N-obᴰ = αᴰ⋆ᴰβᴰ .N-obᴰ ; N-homᴰ = Rᴰ.rectify $ αᴰ⋆ᴰβᴰ .N-homᴰ }
       where
         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshHomᴰ βᴰ
+    infixr 9 _⋆PshHomⱽᴰ_
 
   module _ {β : PshIso P R} where
     _⋆PshIsoⱽᴰ_ : (αᴰ : PshIsoⱽ Pᴰ Qᴰ)(βᴰ : PshIsoᴰ β Qᴰ Rᴰ) → PshIsoᴰ β Pᴰ Rᴰ
@@ -407,7 +409,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
                    (λ _ _ → Pᴰ.rectify $ αᴰ⋆ᴰβᴰ .snd .leftInv _ _))
       where
         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshIsoᴰ βᴰ
-
+    infixr 9 _⋆PshIsoⱽᴰ_
 
 -- We can use paths if the presheaves are of the same level
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

@@ -36,6 +36,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   CatIsoⱽ : ∀ {a} → Cᴰ.ob[ a ] → Cᴰ.ob[ a ] → Type _
   CatIsoⱽ = CatIsoᴰ Cᴰ idCatIso
 
+  pathToCatIsoⱽ : ∀ {a}{aᴰ bᴰ : Cᴰ.ob[ a ]} → (aᴰ ≡ bᴰ) → CatIsoⱽ aᴰ bᴰ
+  pathToCatIsoⱽ {aᴰ = aᴰ} = J (λ bᴰ _ → CatIsoⱽ aᴰ bᴰ) (idᴰCatIsoᴰ Cᴰ)
+
   CatIsoⱽ→CatIso : ∀ {a aᴰ aᴰ'}
     → CatIsoⱽ aᴰ aᴰ'
     → CatIso (Cᴰ.v[ a ]) aᴰ aᴰ'

@@ -60,6 +60,11 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   yoRecᴰ pᴰ .N-obᴰ fᴰ = fᴰ Pᴰ.⋆ᴰ pᴰ
   yoRecᴰ pᴰ .N-homᴰ = Pᴰ.⋆Assocᴰ _ _ _
 
+  yoRecᴰ⁻ : ∀ {c}{cᴰ : Cᴰ.ob[ c ]}{p : P.p[ c ]}
+    → PshHomᴰ (yoRec P p) (Cᴰ [-][-, cᴰ ]) Pᴰ
+    → Pᴰ.p[ p ][ cᴰ ]
+  yoRecᴰ⁻ αᴰ = Pᴰ.reind (P.⋆IdL _) $ αᴰ .N-obᴰ Cᴰ.idᴰ
+
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP} (ue : UniversalElement C P) (Pᴰ : Presheafᴰ P D ℓPᴰ) where
   private

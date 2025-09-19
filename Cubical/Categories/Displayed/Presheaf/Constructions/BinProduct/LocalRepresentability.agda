@@ -166,6 +166,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     module C = Category C
     module Cᴰ = Fibers Cᴰ
 
+
   module LocallyRepresentableⱽNotation {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (_×ⱽ_*Pᴰ : LocallyRepresentableⱽ Pᴰ) where
     private
       module P = PresheafNotation P
@@ -233,6 +234,22 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
           (π₂LR Γᴰ q)
     π₂LR Γᴰ ⟨ p≡q ⟩ i = π₂LR Γᴰ $ p≡q i
 
+    π₂LR-cong : ∀ {Γ} {p q : P.p[ Γ ]} Γᴰ
+      → (p≡q : p ≡ q)
+      → (id⋆p≡id⋆q : C.id P.⋆ p ≡ C.id P.⋆ q)
+      → PathP (λ i → Pᴰ.p[ C.id P.⋆ q ][ ⌈ Γᴰ ×ⱽ p≡q i *Pᴰ⌉ ])
+          (Pᴰ.reind id⋆p≡id⋆q (π₂LR Γᴰ p))
+          (π₂LR Γᴰ q)
+    π₂LR-cong Γᴰ p≡q id*p≡id*q =
+      rectify ((sym (congS₂Bifunct Pᴰ~ _ _ _ _) ∙ (congS₂ (congS₂ Pᴰ~) (P.isSetPsh _ _ _ _) (P.isSetPsh _ _ _ _))))
+        (compPathP
+          ((Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _))
+          π₂LR _ ⟨ p≡q ⟩)
+      where
+        Pᴰ~ : (p : P.p[ _ ])(p' : P.p[ _ ]) → Type _
+        Pᴰ~ p p' = Pᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p' *Pᴰ⌉ ]
+
+
     funcLR : ∀
       {Γ}{Γᴰ}{p : P.p[ Γ ]}
       {Δ}{Δᴰ}{γ : C [ Δ , Γ ]}
@@ -282,14 +299,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     funcLR-id {Γ}{Γᴰ}{p} =
       introLR⟨
         (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)
-        ◁ π₁LR _ ⟨ P.⋆IdL _ ⟩
-        ⟩⟨
-        rectify
-          (sym (congS₂Bifunct Pᴰ~ _ _ _ _) ∙ (congS₂ (congS₂ Pᴰ~) (P.isSetPsh _ _ _ _) (P.isSetPsh _ _ _ _)))
-          $
-          compPathP (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _) $
-          π₂LR _ ⟨ P.⋆IdL p ⟩
-        ⟩
+        ◁ π₁LR _ ⟨ P.⋆IdL _ ⟩ ⟩⟨ π₂LR-cong _ _ _ ⟩
       ▷ (sym $ weak-ηⱽ (Γᴰ ×ⱽ p *Pᴰ))
       where
         Pᴰ~ : (p : P.p[ Γ ])(p' : P.p[ Γ ]) → Type _

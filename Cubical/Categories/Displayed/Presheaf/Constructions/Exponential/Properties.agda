@@ -46,6 +46,7 @@ open import Cubical.Categories.Displayed.Presheaf.Representable
 
 
 open Bifunctorᴰ
+open Category
 open Functor
 open Functorᴰ
 open isIsoOver
@@ -60,6 +61,46 @@ private
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {P : Presheaf C ℓP}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  where
+  private
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Cᴰ = Fibers Cᴰ
+  opaque
+    -- these can probably go in PshᴰNotation
+    toPathPPshᴰ
+      : ∀ {x xᴰ yᴰ}{p : P.p[ x ]}
+      → {pᴰ[x] : Pᴰ.p[ p ][ xᴰ ]}
+      → (xᴰ≡yᴰ : xᴰ ≡ yᴰ)
+      → {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
+      → Path (Pᴰ.p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x]) (_ , pᴰ[y])
+      → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y]
+    toPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{pᴰ[x]} =
+      J (λ yᴰ xᴰ≡yᴰ →
+        ∀ {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
+        → Path Pᴰ.p[ _ ] (_ , (pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x])) (_ , pᴰ[y])
+        → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y])
+        λ id*pᴰ[x]≡pᴰ[y] → Pᴰ.rectify $ Pᴰ.≡out $
+          (sym (Pᴰ.⋆IdL _)
+          ∙ Pᴰ.⟨ Cᴰ.≡in (sym (transportRefl Cᴰ.idᴰ)) ⟩⋆⟨⟩)
+          ∙ id*pᴰ[x]≡pᴰ[y]
+
+    fromPathPPshᴰ
+      : ∀ {x xᴰ yᴰ}{p : P.p[ x ]}
+      → {pᴰ[x] : Pᴰ.p[ p ][ xᴰ ]}
+      → (xᴰ≡yᴰ : xᴰ ≡ yᴰ)
+      → {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
+      → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y]
+      → Path (Pᴰ.p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x]) (_ , pᴰ[y])
+    fromPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{pᴰ[x]} =
+      J (λ yᴰ xᴰ≡yᴰ →
+        ∀ {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
+        → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y]
+        → Path (Pᴰ.p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x]) (_ , pᴰ[y]))
+        λ pᴰ[x]≡pᴰ[y] → Pᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ ΣPathP (refl , pᴰ[x]≡pᴰ[y]) ⟩
+          ∙ Pᴰ.⋆IdL _
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
@@ -93,6 +134,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
     module _ {R : Presheaf C ℓR}{Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}{α : PshHom R P} where
       private
+        module R = PresheafNotation R
         module Rᴰ = PresheafᴰNotation Rᴰ
       open LocallyRepresentableⱽNotation _ _×ⱽ_*Pᴰ
       ⇒PshSmallⱽ-introᴰ :
@@ -101,28 +143,40 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       ⇒PshSmallⱽ-introᴰ αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ .N-obᴰ {Γ} {Γᴰ} {r} rᴰ =
         αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ .N-obᴰ ((π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ⱽᴰ rᴰ) , (Pᴰ.reind (P.⋆IdL _) (π₂LR Γᴰ (α .N-ob Γ r))))
       ⇒PshSmallⱽ-introᴰ αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {r} {γᴰ} {rᴰ} =
-        rectify {!!}
-        (compPathP (λ i → αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ .N-obᴰ ({!!} , {!!})) (αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ .N-homᴰ))
+        rectify (sym (congS₂Bifunct Qᴰ2 _ _ _ _)
+                ∙ congS₂ (congS₂ Qᴰ2) (P.isSetPsh _ _ _ _) (P.isSetPsh _ _ _ _))
+        (compPathP
+          (λ i → αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ .N-obᴰ ((lem1 i) , lem2 i))
+          (αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ .N-homᴰ
+            {fᴰ = funcLR γᴰ}
+            {pᴰ = (π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ⱽᴰ rᴰ)
+                  , Pᴰ.reind (P.⋆IdL (α .N-ob Γ r)) (π₂LR Γᴰ (α .N-ob Γ r))}))
         where
+          Qᴰ2 : (p : P.p[ Δ ])(p' : P.p[ Δ ]) → Type _
+          Qᴰ2 p p' = Qᴰ.p[ p ][ vertexⱽ (Δᴰ ×ⱽ p' *Pᴰ) ]
+
           module αᴰ⟨rᴰ,pᴰ⟨α⟩⟩ = PshHomᴰ αᴰ⟨rᴰ,pᴰ⟨α⟩⟩
-          -- lem1 :
-          --   PathP (λ i → ?)
-          --     (π₁LR Δᴰ (α .N-ob Δ ((R PresheafNotation.⋆ γ) r)) Rᴰ.⋆ⱽᴰ (γᴰ Rᴰ.⋆ᴰ rᴰ))
-          --        ≡ (F-homᴰ Rᴰ (funcLR γᴰ) r (π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ⱽᴰ rᴰ))
-          -- lem1 = ?
-          -- lem2 : 
-      -- ((π₁LR Δᴰ (α .N-ob Δ ((R PresheafNotation.⋆ γ) r)) Rᴰ.⋆ⱽᴰ
-      --   (γᴰ Rᴰ.⋆ᴰ rᴰ))
-      --  ,
-      --  Pᴰ.reind (P.⋆IdL (α .N-ob Δ ((R PresheafNotation.⋆ γ) r)))
-      --  (π₂LR Δᴰ (α .N-ob Δ ((R PresheafNotation.⋆ γ) r))))
-      --  ≡
-      -- γᴰ Pᴰ⇒Qᴰ.⋆ᴰ
-      -- αᴰ⟨rᴰ,pᴰ⟨α⟩⟩.N-obᴰ
-      -- ((π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ⱽᴰ rᴰ) ,
-      --  Pᴰ.reind (P.⋆IdL (α .N-ob Γ r)) (π₂LR Γᴰ (α .N-ob Γ r)))
-       
-          -- lem : ((π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ⱽᴰ rᴰ) , (Pᴰ.reind (P.⋆IdL _) (π₂LR Γᴰ (α .N-ob Γ r))))
+          lem1 : PathP (λ i → Rᴰ.p[ γ R.⋆ r ][ vertexⱽ (Δᴰ ×ⱽ α .N-hom Δ Γ γ r i *Pᴰ) ])
+            (π₁LR Δᴰ (α .N-ob Δ ((R PresheafNotation.⋆ γ) r)) Rᴰ.⋆ⱽᴰ (γᴰ Rᴰ.⋆ᴰ rᴰ))
+            (funcLR γᴰ Rᴰ.⋆ᴰ (π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ⱽᴰ rᴰ))
+          lem1 = toPathPPshᴰ Rᴰ (λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))
+            (sym $ sym (Rᴰ.⋆Assocᴰⱽᴰ _ _ _)
+              ∙ Rᴰ.⟨ ΣPathP (refl , β₁LR _ _ ) ⟩⋆⟨⟩
+              ∙ Rᴰ.⋆Assocⱽᴰᴰ _ _ _
+              ∙ (sym (Rᴰ.reind-filler _ _)
+              ∙ Rᴰ.⟨ sym (fromPathPPshᴰ (Cᴰ [-][-, _ ]) ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))) (λ i → π₁LR Δᴰ (α .N-hom _ _ γ r i))) ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩)
+              ∙  Rᴰ.⋆Assocᴰⱽᴰ _ _ _)
+
+          lem2 : PathP (λ i → Pᴰ.p[ α .N-ob Δ (γ R.⋆ r) ][ vertexⱽ (Δᴰ ×ⱽ α .N-hom Δ Γ γ r i *Pᴰ) ])
+            (Pᴰ.reind (P.⋆IdL (α .N-ob Δ (γ R.⋆ r))) (π₂LR Δᴰ (α .N-ob Δ (γ R.⋆ r))))
+            (Pᴰ.reind (sym $ α .N-hom Δ Γ γ r) ((funcLR γᴰ Pᴰ.⋆ᴰ Pᴰ.reind (P.⋆IdL (α .N-ob Γ r)) (π₂LR Γᴰ (α .N-ob Γ r)))))
+          lem2 = toPathPPshᴰ Pᴰ ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ)))
+            ((Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+            ∙ fromPathPPshᴰ Pᴰ ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))) (symP (π₂LR-cong _ _ P.⟨⟩⋆⟨ sym $ α .N-hom _ _ γ r ⟩)) ∙ (sym $ Pᴰ.reind-filler _ _) ∙ Pᴰ.reind-filler _ _)
+            ∙ sym (sym (Pᴰ.reind-filler _ _)
+              ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _ _) ∙ Pᴰ.reind-filler (λ i → P.⋆IdL (α .N-ob Γ r) i) _ ⟩
+              ∙ ΣPathP (refl , β₂LR _ _)
+              ))
     module _ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ} where
       private
         module Rᴰ = PresheafᴰNotation Rᴰ
@@ -170,7 +224,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     module C = Category C
     module Cᴰ = Fibers Cᴰ
 
-  
   module _
     {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
     {Pᴰ : LocallyRepresentableⱽPresheafᴰ P Cᴰ ℓPᴰ}
@@ -187,12 +240,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     -- do not implement manually
     reind⇒PshSmallⱽ .snd .rightInv = {!!}
     reind⇒PshSmallⱽ .snd .leftInv = {!!}
-    -- reind⇒PshSmall .fst = reind-introⱽ (⇒PshSmall-introᴰ ({!⇒PshSmall-app!} ⋆PshHomⱽᴰ reind-π))
-    -- reind⇒PshSmall .snd .inv = λ a → reind⇒PshSmall⁻ .N-obᴰ where
-    --   reind⇒PshSmall⁻ : PshHomⱽ (reind α Pᴰ⇒Qᴰ) ((reind α Pᴰ , reindLocallyRepresentableⱽ α Pᴰ _×ⱽ_*Pᴰ) ⇒PshSmallⱽ reind α Qᴰ)
-    --   reind⇒PshSmall⁻ = {!⇒PshSmall-introⱽ!}
-    -- reind⇒PshSmall .snd .rightInv = {!!}
-    -- reind⇒PshSmall .snd .leftInv = {!!}
 
   module _
     {P : Presheaf C ℓP}

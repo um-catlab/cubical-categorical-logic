@@ -249,6 +249,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         Pᴰ~ : (p : P.p[ _ ])(p' : P.p[ _ ]) → Type _
         Pᴰ~ p p' = Pᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p' *Pᴰ⌉ ]
 
+    LR-cong : ∀ {Γ}{Γᴰ}{p q : P.p[ Γ ]}(p≡q : p ≡ q)
+      → Cᴰ.v[ Γ ] [ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ q *Pᴰ⌉ ]
+    LR-cong p≡q = introLR (π₁LR _ _) (Pᴰ.reind P.⟨⟩⋆⟨ p≡q ⟩ (π₂LR _ _))
 
     funcLR : ∀
       {Γ}{Γᴰ}{p : P.p[ Γ ]}
@@ -258,80 +261,86 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     funcLR {p = p}{γ = γ} γᴰ =
       introLR (π₁LR _ (γ P.⋆ p) Cᴰ.⋆ⱽᴰ γᴰ) (Pᴰ.reind (P.⋆IdL _) $ (π₂LR _ (γ P.⋆ p)))
 
-    -- TODO: this is very slow, figure out how to stay in the reasoning machine
-    funcLR-seq : ∀
-      {Γ}{Γᴰ}{p : P.p[ Γ ]}
-      {Δ}{Δᴰ}{γ : C [ Δ , Γ ]}
-      {Θ}{Θᴰ}{δ : C [ Θ , Δ ]}
-      (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])(δᴰ : Cᴰ [ δ ][ Θᴰ , Δᴰ ])
-      → PathP (λ i → Cᴰ [ δ C.⋆ γ ][ ⌈ Θᴰ ×ⱽ (P.⋆Assoc δ γ p i) *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ])
-          (funcLR {p = p} (δᴰ Cᴰ.⋆ᴰ γᴰ))
-          (funcLR δᴰ Cᴰ.⋆ᴰ funcLR γᴰ)
-    funcLR-seq {Γ} {Γᴰ} {p} {Δ} {Δᴰ} {γ} {Θ} {Θᴰ} {δ} γᴰ δᴰ =
-      introLR⟨
-        (λ i → π₁LR Θᴰ ⟨ P.⋆Assoc _ _ _ ⟩ i Cᴰ.⋆ⱽᴰ (δᴰ Cᴰ.⋆ᴰ γᴰ))
-          ▷ (sym Cᴰ.⋆Assocⱽᴰᴰ
-          ∙ (Cᴰ.≡out $ Cᴰ.⟨ Cᴰ.≡in (sym $ β₁LR _ _) ⟩⋆⟨ refl ⟩)
-          ∙ (Cᴰ.⋆Assocᴰⱽᴰ))
-      ⟩⟨
-        -- solver?
-        rectify
-          ((congS₂ _∙_ refl (congS₂ _∙_ refl (sym $ congS₂Bifunct Pᴰ~ _ _ _ _) ∙ ((sym $ congS₂Bifunct Pᴰ~ _ _ _ _)))
-          ∙ (sym $ congS₂Bifunct Pᴰ~ _ _ _ _))
-          ∙ congS₂ (congS₂ Pᴰ~) (P.isSetPsh _ _ _ _) (P.isSetPsh _ _ _ _))
-        $
-        compPathP (Pᴰ.≡out $ sym (Pᴰ.reind-filler _ _)) $
-        compPathP (π₂LR Θᴰ ⟨ P.⋆Assoc _ _ _ ⟩) $
-        compPathP ((Pᴰ.≡out $ Pᴰ.reind-filler _ _) ▷ (sym $ β₂LR _ _)) $
-        (Pᴰ.≡out $ Pᴰ.reind-filler _ _)
-      ⟩ ▷ (Cᴰ.rectify $ Cᴰ.≡out $ sym $ introᴰ-natural (Γᴰ ×ⱽ p *Pᴰ))
-      where
-        Pᴰ~ : P.p[ Θ ] → P.p[ Θ ] → Type _
-        Pᴰ~ p p' = Pᴰ.p[ p ][ ⌈ Θᴰ ×ⱽ p' *Pᴰ⌉ ]
+    opaque
+      LR-cong≡pathToPshHom :
+        ∀ {Γ}{Γᴰ}{p q : P.p[ Γ ]}(p≡q : p ≡ q)
+        → LR-cong p≡q ≡ pathToCatIsoⱽ Cᴰ (cong ⌈ Γᴰ ×ⱽ_*Pᴰ⌉ p≡q) .fst
+      LR-cong≡pathToPshHom = J (λ q p≡q → LR-cong p≡q ≡ pathToCatIsoⱽ Cᴰ (cong ⌈ _ ×ⱽ_*Pᴰ⌉ p≡q) .fst)
+        (Cᴰ.rectify $ Cᴰ.≡out $
+        ∫ue.intro≡ (_ ×ⱽ _ *Pᴰ) (×≡Snd-hSet C.isSetHom
+          (sym $ Cᴰ.⋆IdL _)
+          (chacha-slide {C = Pᴰ.p[_][ _ ]} (P._⋆ _) P.isSetPsh (sym $ C.⋆IdL _)
+            (sym (Pᴰ.reind-filler _ _)
+            ∙ (sym $ Pᴰ.⋆IdL _)
+            ∙ Pᴰ.reind-filler _ _ )))
+          ∙ Cᴰ.reind-filler _ _)
+    
+      -- TODO: this was very slow, is it faster now?
+      funcLR-seq : ∀
+        {Γ}{Γᴰ}{p : P.p[ Γ ]}
+        {Δ}{Δᴰ}{γ : C [ Δ , Γ ]}
+        {Θ}{Θᴰ}{δ : C [ Θ , Δ ]}
+        (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])(δᴰ : Cᴰ [ δ ][ Θᴰ , Δᴰ ])
+        → PathP (λ i → Cᴰ [ δ C.⋆ γ ][ ⌈ Θᴰ ×ⱽ (P.⋆Assoc δ γ p i) *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ])
+            (funcLR {p = p} (δᴰ Cᴰ.⋆ᴰ γᴰ))
+            (funcLR δᴰ Cᴰ.⋆ᴰ funcLR γᴰ)
+      funcLR-seq {Γ} {Γᴰ} {p} {Δ} {Δᴰ} {γ} {Θ} {Θᴰ} {δ} γᴰ δᴰ =
+        PresheafᴰNotation.toPathPPshᴰ (Cᴰ [-][-, _ ]) (cong ⌈ _ ×ⱽ_*Pᴰ⌉ (P.⋆Assoc _ _ _))
+          (∫ue.extensionality (_ ×ⱽ _ *Pᴰ) (×≡Snd-hSet C.isSetHom
+            (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ ≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .fst ⟩
+            ∙ sym (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ ≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .fst ⟩
+            ∙ sym Cᴰ.∫⋆Assocᴰⱽᴰ
+            ∙ Cᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ ≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .fst ⟩⋆⟨ refl ⟩
+            ∙ sym ((sym (Cᴰ.≡in Cᴰ.⋆Assocᴰⱽᴰ) ∙ Cᴰ.⟨ sym (Cᴰ.reind-filler _ _) ∙ PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ]) (λ i → ⌈ Θᴰ ×ⱽ P.⋆Assoc δ γ p i *Pᴰ⌉) (λ i → π₁LR Θᴰ (P.⋆Assoc δ γ p i)) ⟩⋆⟨ refl ⟩ ∙ Cᴰ.reind-filler _ _)
+              ∙ sym (Cᴰ.≡in Cᴰ.⋆Assocⱽᴰᴰ))))
+            (chacha-slide (P._⋆ p) P.isSetPsh
+              C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩
+              (sym (Pᴰ.reind-filler _ _) ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ∙ chacha-slide⁻ (P._⋆ p) (≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .snd) ⟩
+              ∙ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+              ∙ sym (sym (Pᴰ.reind-filler _ _) ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ∙ chacha-slide⁻ (P._⋆ p) (≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .snd) ∙ (sym $ Pᴰ.reind-filler _ _) ⟩
+              ∙ Pᴰ.reind-filler _ _ ∙ chacha-slide⁻ (P._⋆ _) (≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .snd)
+              ∙ sym (Pᴰ.reind-filler _ _)
+              ∙ sym (PresheafᴰNotation.fromPathPPshᴰ' Pᴰ {p≡q = P.⟨⟩⋆⟨ P.⋆Assoc _ _ _ ⟩ } ((λ i → ⌈ Θᴰ ×ⱽ P.⋆Assoc δ γ p i *Pᴰ⌉)) λ i → π₂LR Θᴰ (P.⋆Assoc δ γ p i)))))))
 
-        Pᴰ~' : P.p[ Θ ] → P.p[ Θ ] → Type _
-        Pᴰ~' p' p = Pᴰ~ p p'
+      funcLR-id : ∀ {Γ}{Γᴰ}{p : P.p[ Γ ]}
+        → PathP (λ i → Cᴰ [ C.id ][ ⌈ Γᴰ ×ⱽ P.⋆IdL p i *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ])
+            (funcLR {Γᴰ = Γᴰ}{p = p} Cᴰ.idᴰ)
+            Cᴰ.idᴰ
+      funcLR-id {Γ}{Γᴰ}{p} = symP (PresheafᴰNotation.toPathPPshᴰ (Cᴰ [-][-, _ ]) ((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _))
+        (Cᴰ.⋆IdR _ ∙ sym (∫ue.intro≡ (_ ×ⱽ _ *Pᴰ) (×≡Snd-hSet C.isSetHom
+          ((sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _
+          ∙ sym (PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ]) ((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _)) (λ i → π₁LR Γᴰ (P.⋆IdL p (~ i)))))
+          (chacha-slide (P._⋆ _) P.isSetPsh (sym $ C.⋆IdL _)
+            ((sym $ Pᴰ.reind-filler _ _) ∙ sym ((sym $ Pᴰ.reind-filler _ _)
+            ∙ PresheafᴰNotation.fromPathPPshᴰ' Pᴰ {p≡q = λ i → C.id P.⋆ P.⋆IdL p (~ i)} ((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _)) (λ i → π₂LR Γᴰ (P.⋆IdL p (~ i))))))))))
 
-    funcLR-id : ∀ {Γ}{Γᴰ}{p : P.p[ Γ ]}
-      → PathP (λ i → Cᴰ [ C.id ][ ⌈ Γᴰ ×ⱽ P.⋆IdL p i *Pᴰ⌉ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ])
-          (funcLR {Γᴰ = Γᴰ}{p = p} Cᴰ.idᴰ)
-          Cᴰ.idᴰ
-    funcLR-id {Γ}{Γᴰ}{p} =
-      introLR⟨
-        (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)
-        ◁ π₁LR _ ⟨ P.⋆IdL _ ⟩ ⟩⟨ π₂LR-cong _ _ _ ⟩
-      ▷ (sym $ weak-ηⱽ (Γᴰ ×ⱽ p *Pᴰ))
-      where
-        Pᴰ~ : (p : P.p[ Γ ])(p' : P.p[ Γ ]) → Type _
-        Pᴰ~ p p' = Pᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p' *Pᴰ⌉ ]
-
-    app-naturality-lemma :
-      ∀ {Δ Γ Δᴰ Γᴰ}{γ : C [ Δ , Γ ]}{γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]}
-        {p : P.p[ Γ ]}{pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
-      → Path (Σ[ γ' ∈ C [ Δ , Γ ] ] (Cᴰ [ γ' ][ Δᴰ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]))
-          (C.id C.⋆ γ ,
-            (introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) (γᴰ Pᴰ.⋆ᴰ pᴰ)) Cᴰ.⋆ᴰ funcLR γᴰ))
-          (γ C.⋆ C.id ,
-            (γᴰ Cᴰ.⋆ᴰ introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL p) pᴰ)))
-    app-naturality-lemma {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {γᴰ} {p} {pᴰ} = sym $
-        ∫ue.intro-natural (Γᴰ ×ⱽ p *Pᴰ)
-        ∙ ∫ue.intro≡ (Γᴰ ×ⱽ p *Pᴰ) (×≡Snd-hSet C.isSetHom
-          (Cᴰ.⋆IdR _
-          ∙ (sym $ Cᴰ.⋆IdL _)
-          ∙ Cᴰ.⟨ (sym $ ≡×Snd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .fst) ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.⋆Assoc _ _ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym $ ≡×Snd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .fst) ⟩
-          ∙ sym (Cᴰ.⋆Assoc _ _ _) )
-          (chacha-slide (P._⋆ p) P.isSetPsh C.⟨ sym $ C.⋆IdL γ ⟩⋆⟨ refl ⟩ $ sym $
-            sym (Pᴰ.reind-filler _ _)
-            ∙ Pᴰ.⋆Assoc _ _ _
-            ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ∙ chacha-slide⁻ (P._⋆ p) (≡×Snd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .snd)  ⟩
-            ∙ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
-            ∙ Pᴰ.reind-filler _ _ ∙ (chacha-slide⁻ (P._⋆ (γ P.⋆ p)) $ ≡×Snd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .snd)
-            ∙ sym (Pᴰ.reind-filler _ _)
-            ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (sym $ P.⋆IdL p) pᴰ ⟩
-            ∙ Pᴰ.reind-filler _ _
-          ))
+      app-naturality-lemma :
+        ∀ {Δ Γ Δᴰ Γᴰ}{γ : C [ Δ , Γ ]}{γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]}
+          {p : P.p[ Γ ]}{pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
+        → Path (Σ[ γ' ∈ C [ Δ , Γ ] ] (Cᴰ [ γ' ][ Δᴰ , ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]))
+            (C.id C.⋆ γ ,
+              (introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) (γᴰ Pᴰ.⋆ᴰ pᴰ)) Cᴰ.⋆ᴰ funcLR γᴰ))
+            (γ C.⋆ C.id ,
+              (γᴰ Cᴰ.⋆ᴰ introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL p) pᴰ)))
+      app-naturality-lemma {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {γᴰ} {p} {pᴰ} = sym $
+          ∫ue.intro-natural (Γᴰ ×ⱽ p *Pᴰ)
+          ∙ ∫ue.intro≡ (Γᴰ ×ⱽ p *Pᴰ) (×≡Snd-hSet C.isSetHom
+            (Cᴰ.⋆IdR _
+            ∙ (sym $ Cᴰ.⋆IdL _)
+            ∙ Cᴰ.⟨ (sym $ ≡×Snd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .fst) ⟩⋆⟨ refl ⟩
+            ∙ Cᴰ.⋆Assoc _ _ _
+            ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ (sym $ ≡×Snd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .fst) ⟩
+            ∙ sym (Cᴰ.⋆Assoc _ _ _) )
+            (chacha-slide (P._⋆ p) P.isSetPsh C.⟨ sym $ C.⋆IdL γ ⟩⋆⟨ refl ⟩ $ sym $
+              sym (Pᴰ.reind-filler _ _)
+              ∙ Pᴰ.⋆Assoc _ _ _
+              ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ∙ chacha-slide⁻ (P._⋆ p) (≡×Snd (∫ue.β (Γᴰ ×ⱽ p *Pᴰ)) .snd)  ⟩
+              ∙ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+              ∙ Pᴰ.reind-filler _ _ ∙ (chacha-slide⁻ (P._⋆ (γ P.⋆ p)) $ ≡×Snd (∫ue.β (Δᴰ ×ⱽ (γ P.⋆ p) *Pᴰ)) .snd)
+              ∙ sym (Pᴰ.reind-filler _ _)
+              ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (sym $ P.⋆IdL p) pᴰ ⟩
+              ∙ Pᴰ.reind-filler _ _
+            ))
       -- TODO: test perf vs this original version
       -- sym $
       --   ∫ue.intro-natural (Γᴰ ×ⱽ p *Pᴰ)
@@ -390,35 +399,36 @@ module _
 
   module _ {Δ}{Γ}{γ : C [ Δ , Γ ]}{Δᴰ}{Γᴰ : Cᴰ.ob[ Γ ]}(γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])(p : P.p[ F ⟅ Γ ⟆ ]) where
     open UniversalElementⱽ
-    presLRⱽ-Isoⱽ-natural
-      : Path (∫C Dᴰ [ _ , _ ])
-          (_ , (presLRⱽ-Isoⱽ Δᴰ (F ⟪ γ ⟫ P.⋆ p) .fst Dᴰ.⋆ᴰ Fᴰ .F-homᴰ (LocallyRepresentableⱽNotation.funcLR (reindFunc' Fᴰ Pᴰ) _×ⱽ_*FᴰPᴰ γᴰ)))
-          (_ , (LocallyRepresentableⱽNotation.funcLR Pᴰ _×ⱽ_*Pᴰ (Fᴰ .F-homᴰ γᴰ) Dᴰ.⋆ᴰ presLRⱽ-Isoⱽ Γᴰ p .fst))
-    presLRⱽ-Isoⱽ-natural = extensionalityᴰ F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩ (×≡Snd-hSet
-      D.isSetHom
-      (Dᴰ.⋆Assoc _ _ _
-      ∙ Dᴰ.⟨ refl ⟩⋆⟨
-          Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
-          ∙ sym ((∫F Fᴰ) .F-seq _ _)
-          ∙ cong (∫F Fᴰ .F-hom) (≡×Snd (βᴰ $ Γᴰ ×ⱽ p *FᴰPᴰ) .fst ∙ sym (Cᴰ.reind-filler _ _))
-          ∙ ((∫F Fᴰ) .F-seq _ _)
-      ⟩ ∙ sym (Dᴰ.⋆Assoc _ _ _)
-      ∙ Dᴰ.⟨ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩ ∙ ≡×Snd (βᴰ $ F⟨ Δᴰ ×ⱽ (F ⟪ γ ⟫ P.⋆ p) *FᴰPᴰ⟩) .fst ⟩⋆⟨ refl ⟩
-      ∙ sym (Dᴰ.⋆Assoc _ _ _
-        ∙ Dᴰ.⟨ refl ⟩⋆⟨ ≡×Snd (βᴰ $ F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩) .fst ⟩
-        ∙  ≡×Snd (βᴰ $ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ)) .fst
-        ∙ sym (Dᴰ.reind-filler _ _)))
-      (chacha-slide {C = λ Fγ⋆p → Pᴰ.p[ Fγ⋆p ][ vertexⱽ (Fᴰ .F-obᴰ Δᴰ ×ⱽ F ⟪ γ ⟫ P.⋆ p *Pᴰ) ]} (P._⋆ p) P.isSetPsh (D.⋆IdR _ ∙ D.⋆IdL _ ∙ sym (D.⋆IdR _ ∙ D.⋆IdR _))
-        (sym (Pᴰ.reind-filler (λ i → P .F-seq D.id (D.id D.⋆ F .F-hom γ) (~ i) p) _)
-        ∙ Pᴰ.⋆Assoc _ _ _
-        ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.⟨⟩⋆⟨ sym (Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler (λ i → P .F-hom (F .F-id i) p) _) ⟩
-                  ∙ Pᴰ.reind-filler _ _
-                  ∙ chacha-slide⁻ (λ γ → F ⟪ γ ⟫ P.⋆ p) (≡×Snd (βᴰ (Γᴰ ×ⱽ p *FᴰPᴰ)) .snd)
-        ⟩ ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _ _) ∙ (Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler (λ i → P .F-hom (F .F-id i) (P .F-hom (F-hom F γ) p)) _) ⟩ ∙ Pᴰ.reind-filler (λ i → P .F-seq D.id D.id (~ i) (P .F-hom (F-hom F γ) p)) _
-        ∙ chacha-slide⁻ (P._⋆ (F ⟪ γ ⟫ P.⋆ p)) (≡×Snd (βᴰ (F⟨ Δᴰ ×ⱽ (F ⟪ γ ⟫ P.⋆ p) *FᴰPᴰ⟩)) .snd)
-        ∙ sym (sym (Pᴰ.reind-filler (λ i → P .F-seq D.id (F .F-hom γ D.⋆ D.id) (~ i) p) _)
-        ∙ Pᴰ.⋆Assoc _ _ _
-        ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (λ i → P .F-seq D.id D.id (~ i) p) _ ∙ chacha-slide⁻ (λ γ → γ P.⋆ p) (≡×Snd (βᴰ (F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩)) .snd) ⟩
-        ∙ Pᴰ.reind-filler (λ i → P .F-seq D.id (F .F-hom γ) (~ i) p) _ ∙ chacha-slide⁻ (λ γ → γ P.⋆ p) (≡×Snd (βᴰ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ)) .snd)
-        ∙ sym (Pᴰ.reind-filler (λ i → P .F-id i (P .F-hom (F .F-hom γ) p)) _))))
-        )
+    opaque
+      presLRⱽ-Isoⱽ-natural
+        : Path (∫C Dᴰ [ _ , _ ])
+            (_ , (presLRⱽ-Isoⱽ Δᴰ (F ⟪ γ ⟫ P.⋆ p) .fst Dᴰ.⋆ᴰ Fᴰ .F-homᴰ (LocallyRepresentableⱽNotation.funcLR (reindFunc' Fᴰ Pᴰ) _×ⱽ_*FᴰPᴰ γᴰ)))
+            (_ , (LocallyRepresentableⱽNotation.funcLR Pᴰ _×ⱽ_*Pᴰ (Fᴰ .F-homᴰ γᴰ) Dᴰ.⋆ᴰ presLRⱽ-Isoⱽ Γᴰ p .fst))
+      presLRⱽ-Isoⱽ-natural = extensionalityᴰ F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩ (×≡Snd-hSet
+        D.isSetHom
+        (Dᴰ.⋆Assoc _ _ _
+        ∙ Dᴰ.⟨ refl ⟩⋆⟨
+            Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+            ∙ sym ((∫F Fᴰ) .F-seq _ _)
+            ∙ cong (∫F Fᴰ .F-hom) (≡×Snd (βᴰ $ Γᴰ ×ⱽ p *FᴰPᴰ) .fst ∙ sym (Cᴰ.reind-filler _ _))
+            ∙ ((∫F Fᴰ) .F-seq _ _)
+        ⟩ ∙ sym (Dᴰ.⋆Assoc _ _ _)
+        ∙ Dᴰ.⟨ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩ ∙ ≡×Snd (βᴰ $ F⟨ Δᴰ ×ⱽ (F ⟪ γ ⟫ P.⋆ p) *FᴰPᴰ⟩) .fst ⟩⋆⟨ refl ⟩
+        ∙ sym (Dᴰ.⋆Assoc _ _ _
+          ∙ Dᴰ.⟨ refl ⟩⋆⟨ ≡×Snd (βᴰ $ F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩) .fst ⟩
+          ∙  ≡×Snd (βᴰ $ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ)) .fst
+          ∙ sym (Dᴰ.reind-filler _ _)))
+        (chacha-slide {C = λ Fγ⋆p → Pᴰ.p[ Fγ⋆p ][ vertexⱽ (Fᴰ .F-obᴰ Δᴰ ×ⱽ F ⟪ γ ⟫ P.⋆ p *Pᴰ) ]} (P._⋆ p) P.isSetPsh (D.⋆IdR _ ∙ D.⋆IdL _ ∙ sym (D.⋆IdR _ ∙ D.⋆IdR _))
+          (sym (Pᴰ.reind-filler (λ i → P .F-seq D.id (D.id D.⋆ F .F-hom γ) (~ i) p) _)
+          ∙ Pᴰ.⋆Assoc _ _ _
+          ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.⟨⟩⋆⟨ sym (Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler (λ i → P .F-hom (F .F-id i) p) _) ⟩
+                    ∙ Pᴰ.reind-filler _ _
+                    ∙ chacha-slide⁻ (λ γ → F ⟪ γ ⟫ P.⋆ p) (≡×Snd (βᴰ (Γᴰ ×ⱽ p *FᴰPᴰ)) .snd)
+          ⟩ ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _ _) ∙ (Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler (λ i → P .F-hom (F .F-id i) (P .F-hom (F-hom F γ) p)) _) ⟩ ∙ Pᴰ.reind-filler (λ i → P .F-seq D.id D.id (~ i) (P .F-hom (F-hom F γ) p)) _
+          ∙ chacha-slide⁻ (P._⋆ (F ⟪ γ ⟫ P.⋆ p)) (≡×Snd (βᴰ (F⟨ Δᴰ ×ⱽ (F ⟪ γ ⟫ P.⋆ p) *FᴰPᴰ⟩)) .snd)
+          ∙ sym (sym (Pᴰ.reind-filler (λ i → P .F-seq D.id (F .F-hom γ D.⋆ D.id) (~ i) p) _)
+          ∙ Pᴰ.⋆Assoc _ _ _
+          ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (λ i → P .F-seq D.id D.id (~ i) p) _ ∙ chacha-slide⁻ (λ γ → γ P.⋆ p) (≡×Snd (βᴰ (F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩)) .snd) ⟩
+          ∙ Pᴰ.reind-filler (λ i → P .F-seq D.id (F .F-hom γ) (~ i) p) _ ∙ chacha-slide⁻ (λ γ → γ P.⋆ p) (≡×Snd (βᴰ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ)) .snd)
+          ∙ sym (Pᴰ.reind-filler (λ i → P .F-id i (P .F-hom (F .F-hom γ) p)) _))))
+          )

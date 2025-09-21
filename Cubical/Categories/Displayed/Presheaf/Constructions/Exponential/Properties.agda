@@ -61,46 +61,6 @@ private
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {P : Presheaf C ℓP}
-  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
-  where
-  private
-    module P = PresheafNotation P
-    module Pᴰ = PresheafᴰNotation Pᴰ
-    module Cᴰ = Fibers Cᴰ
-  opaque
-    -- these can probably go in PshᴰNotation
-    toPathPPshᴰ
-      : ∀ {x xᴰ yᴰ}{p : P.p[ x ]}
-      → {pᴰ[x] : Pᴰ.p[ p ][ xᴰ ]}
-      → (xᴰ≡yᴰ : xᴰ ≡ yᴰ)
-      → {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
-      → Path (Pᴰ.p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x]) (_ , pᴰ[y])
-      → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y]
-    toPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{pᴰ[x]} =
-      J (λ yᴰ xᴰ≡yᴰ →
-        ∀ {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
-        → Path Pᴰ.p[ _ ] (_ , (pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x])) (_ , pᴰ[y])
-        → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y])
-        λ id*pᴰ[x]≡pᴰ[y] → Pᴰ.rectify $ Pᴰ.≡out $
-          (sym (Pᴰ.⋆IdL _)
-          ∙ Pᴰ.⟨ Cᴰ.≡in (sym (transportRefl Cᴰ.idᴰ)) ⟩⋆⟨⟩)
-          ∙ id*pᴰ[x]≡pᴰ[y]
-
-    fromPathPPshᴰ
-      : ∀ {x xᴰ yᴰ}{p : P.p[ x ]}
-      → {pᴰ[x] : Pᴰ.p[ p ][ xᴰ ]}
-      → (xᴰ≡yᴰ : xᴰ ≡ yᴰ)
-      → {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
-      → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y]
-      → Path (Pᴰ.p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x]) (_ , pᴰ[y])
-    fromPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{pᴰ[x]} =
-      J (λ yᴰ xᴰ≡yᴰ →
-        ∀ {pᴰ[y] : Pᴰ.p[ p ][ yᴰ ]}
-        → PathP (λ i → Pᴰ.p[ p ][ xᴰ≡yᴰ i ]) pᴰ[x] pᴰ[y]
-        → Path (Pᴰ.p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst Pᴰ.⋆ᴰ pᴰ[x]) (_ , pᴰ[y]))
-        λ pᴰ[x]≡pᴰ[y] → Pᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ ΣPathP (refl , pᴰ[x]≡pᴰ[y]) ⟩
-          ∙ Pᴰ.⋆IdL _
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
@@ -118,6 +78,40 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       module Qᴰ = PresheafᴰNotation Qᴰ
       Pᴰ⇒Qᴰ = (Pᴰ , _×ⱽ_*Pᴰ) ⇒PshSmallⱽ Qᴰ
       module Pᴰ⇒Qᴰ = PresheafᴰNotation Pᴰ⇒Qᴰ
+
+    -- The easy case. If we are in the Qᴰ reasoning machine, but the
+    -- qᴰ≡qᴰ' is over "refl", then we can use a proof from the Pᴰ⇒Qᴰ
+    -- reasoning machine.
+    ⇒≡-inS :
+      ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{p : P.p[ Γ ]}
+      {qᴰ qᴰ' : Qᴰ.p[ p ][ vertexⱽ (Γᴰ ×ⱽ p *Pᴰ) ]}
+      → Path Pᴰ⇒Qᴰ.p[ _ , Γᴰ ]
+          (p , qᴰ)
+          (p , qᴰ')
+      → Path Qᴰ.p[ _ , vertexⱽ (Γᴰ ×ⱽ p *Pᴰ) ]
+          (p , qᴰ)
+          (p , qᴰ')
+    ⇒≡-inS {Γ}{Γᴰ} qᴰ≡qᴰ' = ΣPathP (refl , (rectify (congS₂ (congS₂ Qᴰ2) (P.isSetPsh _ _ _ _) (P.isSetPsh _ _ _ _)) (λ i → qᴰ≡qᴰ' i .snd))) where
+      Qᴰ2 : (p p' : P.p[ Γ ]) → Type _
+      Qᴰ2 p p' = Qᴰ.p[ p ][ vertexⱽ (Γᴰ ×ⱽ p' *Pᴰ) ]
+
+    -- The general case. If we are in the Pᴰ⇒Qᴰ reasoning machine, we
+    -- can't get back to the Qᴰ, but we need to insert the LR-cong
+    -- Isoⱽ to one side.
+    ⇒≡-in :
+      ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{p p' : P.p[ Γ ]}
+      {qᴰ : Qᴰ.p[ p ][ vertexⱽ (Γᴰ ×ⱽ p *Pᴰ) ]}
+      {qᴰ' : Qᴰ.p[ p' ][ vertexⱽ (Γᴰ ×ⱽ p' *Pᴰ) ]}
+      → (pqᴰ≡p'qᴰ' : Path Pᴰ⇒Qᴰ.p[ _ , Γᴰ ]
+          (p , qᴰ)
+          (p' , qᴰ'))
+      → Path Qᴰ.p[ _ , vertexⱽ (Γᴰ ×ⱽ p *Pᴰ) ]
+          (p , qᴰ)
+          ((C.id P.⋆ p') , (LocallyRepresentableⱽNotation.LR-cong Pᴰ _×ⱽ_*Pᴰ (cong fst pqᴰ≡p'qᴰ') Qᴰ.⋆ᴰ qᴰ'))
+    ⇒≡-in pqᴰ≡p'qᴰ' =
+      sym (Qᴰ.fromPathPPshᴰ' (λ i → vertexⱽ (_ ×ⱽ (pqᴰ≡p'qᴰ' (~ i) .fst) *Pᴰ)) (Pᴰ⇒Qᴰ.≡out (sym pqᴰ≡p'qᴰ')))
+      ∙ Qᴰ.⟨ Cᴰ.≡in (sym (LocallyRepresentableⱽNotation.LR-cong≡pathToPshHom Pᴰ _×ⱽ_*Pᴰ (cong fst pqᴰ≡p'qᴰ'))) ⟩⋆⟨⟩
+
     -- Firstly, the universal property of ⇒PshSmall
     module _ where
       open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
@@ -159,24 +153,67 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
           lem1 : PathP (λ i → Rᴰ.p[ γ R.⋆ r ][ vertexⱽ (Δᴰ ×ⱽ α .N-hom Δ Γ γ r i *Pᴰ) ])
             (π₁LR Δᴰ (α .N-ob Δ ((R PresheafNotation.⋆ γ) r)) Rᴰ.⋆ⱽᴰ (γᴰ Rᴰ.⋆ᴰ rᴰ))
             (funcLR γᴰ Rᴰ.⋆ᴰ (π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ⱽᴰ rᴰ))
-          lem1 = toPathPPshᴰ Rᴰ (λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))
+          lem1 = PresheafᴰNotation.toPathPPshᴰ Rᴰ (λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))
             (sym $ sym (Rᴰ.⋆Assocᴰⱽᴰ _ _ _)
               ∙ Rᴰ.⟨ ΣPathP (refl , β₁LR _ _ ) ⟩⋆⟨⟩
               ∙ Rᴰ.⋆Assocⱽᴰᴰ _ _ _
               ∙ (sym (Rᴰ.reind-filler _ _)
-              ∙ Rᴰ.⟨ sym (fromPathPPshᴰ (Cᴰ [-][-, _ ]) ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))) (λ i → π₁LR Δᴰ (α .N-hom _ _ γ r i))) ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩)
+              ∙ Rᴰ.⟨ sym (PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ]) ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))) (λ i → π₁LR Δᴰ (α .N-hom _ _ γ r i))) ∙ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩)
               ∙  Rᴰ.⋆Assocᴰⱽᴰ _ _ _)
 
           lem2 : PathP (λ i → Pᴰ.p[ α .N-ob Δ (γ R.⋆ r) ][ vertexⱽ (Δᴰ ×ⱽ α .N-hom Δ Γ γ r i *Pᴰ) ])
             (Pᴰ.reind (P.⋆IdL (α .N-ob Δ (γ R.⋆ r))) (π₂LR Δᴰ (α .N-ob Δ (γ R.⋆ r))))
             (Pᴰ.reind (sym $ α .N-hom Δ Γ γ r) ((funcLR γᴰ Pᴰ.⋆ᴰ Pᴰ.reind (P.⋆IdL (α .N-ob Γ r)) (π₂LR Γᴰ (α .N-ob Γ r)))))
-          lem2 = toPathPPshᴰ Pᴰ ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ)))
+          lem2 = PresheafᴰNotation.toPathPPshᴰ Pᴰ ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ)))
             ((Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
-            ∙ fromPathPPshᴰ Pᴰ ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))) (symP (π₂LR-cong _ _ P.⟨⟩⋆⟨ sym $ α .N-hom _ _ γ r ⟩)) ∙ (sym $ Pᴰ.reind-filler _ _) ∙ Pᴰ.reind-filler _ _)
+            ∙ PresheafᴰNotation.fromPathPPshᴰ Pᴰ ((λ i → vertexⱽ (Δᴰ ×ⱽ (α .N-hom _ _ γ r i) *Pᴰ))) (symP (π₂LR-cong _ _ P.⟨⟩⋆⟨ sym $ α .N-hom _ _ γ r ⟩)) ∙ (sym $ Pᴰ.reind-filler _ _) ∙ Pᴰ.reind-filler _ _)
             ∙ sym (sym (Pᴰ.reind-filler _ _)
               ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _ _) ∙ Pᴰ.reind-filler (λ i → P.⋆IdL (α .N-ob Γ r) i) _ ⟩
               ∙ ΣPathP (refl , β₂LR _ _)
               ))
+      opaque
+        ⇒PshSmallⱽ-β : ∀ (αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ)
+          → (⇒PshSmallⱽ-introᴰ αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app ≡ αᴰ
+        ⇒PshSmallⱽ-β αᴰ = makePshHomᴰPath α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ $ λ {Γ} {Γᴰ} {r} → funExt λ rᴰpᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+          sym (Qᴰ.reind-filler _ _)
+          ∙ sym (∫PshHom αᴰ .N-hom _ _ _ _)
+          ∙ N-obᴰ⟨_⟩ αᴰ (×≡Snd-hSet R.isSetPsh
+            (Rᴰ.⟨⟩⋆⟨ sym $ Rᴰ.reind-filler _ _ ⟩ ∙ sym (Rᴰ.⋆Assoc _ _ _)
+            ∙ Rᴰ.⟨ Cᴰ.reind-filler _ _ ∙ ΣPathP (refl , β₁LR _ _) ⟩⋆⟨⟩
+            ∙ Rᴰ.⋆IdL _)
+            (chacha-slide {C = λ p → Pᴰ.p[ p ][ _ ]}
+              (α .N-ob Γ)
+              P.isSetPsh
+              (R.⋆IdL r)
+              (sym (Pᴰ.reind-filler _ _)
+              ∙ ΣPathP (refl , β₂LR _ _)
+              ∙ (sym $ Pᴰ.reind-filler _ _ ))))
+
+        -- the better version of β₂LR should be
+        --   Pᴰ.reind-filler (sym $ P.⋆Assoc _ _ _) _ ∙ chacha-slide⁻ {!P._⋆ _!} (≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .snd)
+
+        ⇒PshSmallⱽ-η : ∀ (αᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
+          → αᴰ ≡ ⇒PshSmallⱽ-introᴰ ((αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app)
+        ⇒PshSmallⱽ-η αᴰ = makePshHomᴰPath α Rᴰ Pᴰ⇒Qᴰ (λ {Γ} {Γᴰ} {r} → funExt λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+          sym (Qᴰ.⋆IdL _)
+          ∙ (Qᴰ.⟨ extensionalityᴰ (_ ×ⱽ _ *Pᴰ) (×≡Snd-hSet C.isSetHom
+            (Cᴰ.⋆IdL _ ∙ sym ((Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ refl ⟩⋆⟨ ≡×Snd (βᴰ $ _ ×ⱽ _ *Pᴰ) .fst ∙ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ ≡×Snd (βᴰ $ _ ×ⱽ _ *Pᴰ) .fst ⟩ ⟩⋆⟨ refl ⟩ ∙ Cᴰ.⟨ ≡×Snd (βᴰ $ _ ×ⱽ _ *Pᴰ) .fst ⟩⋆⟨ refl ⟩ ∙ Cᴰ.⋆IdL _))
+            (chacha-slide {C = Pᴰ.p[_][ _ ]} (P._⋆ _) P.isSetPsh C.⟨ sym (C.⋆IdL _) ∙ C.⟨ sym $ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ⟩⋆⟨ refl ⟩
+              (sym (Pᴰ.reind-filler _ _) ∙ sym (sym (Pᴰ.reind-filler _ _) ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (sym $ P.⋆Assoc _ _ _) _ ∙ chacha-slide⁻ (P._⋆ _) (≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .snd) ∙ sym (Pᴰ.reind-filler _ _) ⟩ ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler (sym $ P.⋆Assoc _ _ _) _ ∙ chacha-slide⁻ (P._⋆ _) (≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .snd) ∙ sym (Pᴰ.reind-filler _ _) ⟩ ∙ Pᴰ.reind-filler (sym $ P.⋆Assoc _ _ _) _ ∙ chacha-slide⁻ (P._⋆ _) (≡×Snd (∫ue.β (_ ×ⱽ _ *Pᴰ)) .snd) ∙ sym (Pᴰ.⋆IdL _ ∙ Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler _ _)))))
+              ⟩⋆⟨⟩
+          ∙ Qᴰ.⋆Assoc _ _ _ ∙ Qᴰ.⋆Assoc _ _ _)
+          ∙ Qᴰ.⟨⟩⋆⟨ sym (⇒≡-in (sym $ lem Γᴰ r rᴰ)) ⟩
+          ∙ Qᴰ.reind-filler _ _
+         )
+         where
+           lem : ∀ {Γ}(Γᴰ : Cᴰ.ob[ Γ ])(r : R.p[ Γ ]) (rᴰ : Rᴰ.p[ r ][ Γᴰ ]) →
+             Path Pᴰ⇒Qᴰ.p[ _ , ⌈ Γᴰ ×ⱽ α .N-ob Γ r *Pᴰ⌉ ]
+               ((C.id P.⋆ α .N-ob Γ r) , funcLR (π₁LR Γᴰ (α .N-ob Γ r)) Qᴰ.⋆ᴰ αᴰ .N-obᴰ rᴰ)
+               (α .N-ob Γ r , αᴰ .N-obᴰ (Rᴰ.reind (R.⋆IdL r) (π₁LR Γᴰ (α .N-ob Γ r) Rᴰ.⋆ᴰ rᴰ)))
+           lem Γᴰ r rᴰ =
+             sym (∫PshHom αᴰ .N-hom _ _ _ _)
+             ∙ N-obᴰ⟨_⟩ αᴰ (Rᴰ.reind-filler _ _)
+
     module _ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ} where
       private
         module Rᴰ = PresheafᴰNotation Rᴰ

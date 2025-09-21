@@ -85,6 +85,20 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → isEquivOver {P = Pᴰ.p[_][ xᴰ ]}{Q = Qᴰ.p[_][ xᴰ ]}{f = α .N-ob x}
         λ _ → αᴰ .PshHomᴰ.N-obᴰ
 
+  open PshHomᴰ
+  -- TODO: PathP version of this
+  makePshHomᴰPath : ∀ {αᴰ βᴰ : PshHomᴰ}
+    → (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → αᴰ .N-obᴰ {x}{xᴰ}{p} ≡ βᴰ .N-obᴰ)
+    → αᴰ ≡ βᴰ
+  makePshHomᴰPath {αᴰ} {βᴰ} αᴰ≡βᴰ i .N-obᴰ = αᴰ≡βᴰ i
+  makePshHomᴰPath {αᴰ} {βᴰ} αᴰ≡βᴰ i .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
+    isSet→SquareP (λ _ _ → Qᴰ.isSetPshᴰ)
+      (αᴰ .N-homᴰ )
+      (βᴰ .N-homᴰ)
+      (λ i → αᴰ≡βᴰ i (F-homᴰ Pᴰ fᴰ p pᴰ))
+      (λ i → fᴰ Qᴰ.⋆ᴰ αᴰ≡βᴰ i pᴰ)
+      i
+
 open PshHomᴰ
 
 -- A displayed "heteromorphism" is a kind of morphism between

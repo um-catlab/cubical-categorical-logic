@@ -56,7 +56,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     intro (uesD (F ⟅ c ⟆)) (α c .N-ob _ (uesC c .element))
   preservesProvidedUniversalElementsNatIso .NatIso.trans .N-hom f =
     intro-natural (uesD _)
-    ∙ {!!}
+    ∙ intro≡ (uesD _)
+        ({!!}
+        ∙ {!!})
+    -- ∙ intro⟨_⟩ (uesD _) {!!}
+    -- ∙ sym (intro-natural (uesD _))
   preservesProvidedUniversalElementsNatIso .NatIso.nIso c =
     isiso
       (the-is-iso .fst (uesD (F-ob F c) .element))
@@ -64,8 +68,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       ∙ intro≡ (uesD _)
           (the-is-iso .snd .fst (uesD (F-ob F c) .element)
            ∙ (sym $ PD.⋆IdL _)))
-      ({!!}
-      ∙ {!!})
+       {!!}
     where
     the-is-iso : Iso.isIso _
     the-is-iso = isEquivToIsIso _ (pres-ues c (uesD (F-ob F c) .vertex))

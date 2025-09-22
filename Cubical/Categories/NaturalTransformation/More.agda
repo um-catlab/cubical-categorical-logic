@@ -109,3 +109,6 @@ module _
   where
   opNatTrans : (F ⇒ F') → ((F' ^opF) ⇒ (F ^opF))
   opNatTrans = ⇒^opFiso .Iso.fun
+
+  opNatIso : NatIso F F' → NatIso (F' ^opF) (F ^opF)
+  opNatIso = congNatIso^opFiso .Iso.fun

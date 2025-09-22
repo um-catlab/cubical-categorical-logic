@@ -13,8 +13,9 @@ open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category hiding (isIso)
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation using (NatTrans)
+open import Cubical.Categories.NaturalTransformation using (NatTrans ; NatIso)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf.Base
@@ -23,6 +24,7 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
@@ -178,6 +180,16 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
                   (isoToEquiv (isIsoToIso (α .nIso x)))
       (λ a → αᴰ .PshHomᴰ.N-obᴰ)
       isPshEqv
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
+
+  pshIsoOfPshIsoᴰ : PshIsoᴰ  α Pᴰ Qᴰ → PshIso P Q
+  pshIsoOfPshIsoᴰ _ = α
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -523,3 +535,21 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     precomp𝟙ᴰPshIsoᴰ .snd .inv = λ _ z → z
     precomp𝟙ᴰPshIsoᴰ .snd .rightInv _ _ = refl
     precomp𝟙ᴰPshIsoᴰ .snd .leftInv _ _ = refl
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P Q : Presheaf C ℓP}
+  {α : NatIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
+  (αᴰ : NatIsoᴰ α Pᴰ Qᴰ) where
+
+   NatIsoᴰ→PshIsoᴰ :
+     PshIsoᴰ
+       (PshCatIso→PshIso P Q (NatIso→FUNCTORIso _ _ α))
+       Pᴰ Qᴰ
+   NatIsoᴰ→PshIsoᴰ .fst = NatTransᴰ→PshHomᴰ (αᴰ .NatIsoᴰ.transᴰ)
+   NatIsoᴰ→PshIsoᴰ .snd .inv = αᴰ .NatIsoᴰ.nIsoᴰ _ .invᴰ
+   NatIsoᴰ→PshIsoᴰ .snd .rightInv b q i =
+     αᴰ .NatIsoᴰ.nIsoᴰ _ .secᴰ i b q
+   NatIsoᴰ→PshIsoᴰ .snd .leftInv a p i =
+     αᴰ .NatIsoᴰ.nIsoᴰ _ .retᴰ i a p

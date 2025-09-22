@@ -306,6 +306,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       } where
         ∫⋆ = ∫PshHom αᴰ ⋆PshHom ∫PshHom βᴰ
 
+    infixr 9 _⋆PshHomᴰ_
+
   module _ {α : PshIso P Q}{β : PshIso Q R} where
     _⋆PshIsoᴰ_ : (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)(βᴰ : PshIsoᴰ β Qᴰ Rᴰ) → PshIsoᴰ (α ⋆PshIso β) Pᴰ Rᴰ
     (αᴰ ⋆PshIsoᴰ βᴰ) = (αᴰ .fst ⋆PshHomᴰ βᴰ .fst) ,
@@ -316,6 +318,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       where
         module Pᴰ = PresheafᴰNotation Pᴰ
         ∫⋆ = ∫PshIso αᴰ ⋆PshIso ∫PshIso βᴰ
+
+    infixr 9 _⋆PshIsoᴰ_
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -545,7 +549,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
    NatIsoᴰ→PshIsoᴰ :
      PshIsoᴰ
-       (PshCatIso→PshIso P Q (NatIso→FUNCTORIso _ _ α))
+       (NatIso→PshIso P Q α)
        Pᴰ Qᴰ
    NatIsoᴰ→PshIsoᴰ .fst = NatTransᴰ→PshHomᴰ (αᴰ .NatIsoᴰ.transᴰ)
    NatIsoᴰ→PshIsoᴰ .snd .inv = αᴰ .NatIsoᴰ.nIsoᴰ _ .invᴰ

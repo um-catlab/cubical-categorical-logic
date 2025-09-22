@@ -233,6 +233,35 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     (λ a → record { equiv-proof = strictContrFibers _ })
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
+  where
+
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  PshIsoᴰ→PshIsoⱽ : PshIsoⱽ Pᴰ (reind (α .trans) Qᴰ)
+  PshIsoᴰ→PshIsoⱽ = invPshIsoⱽ (
+    (PshHomPathPshHomᴰ (makePshHomPath {C = C} (λ i c x → α .nIso c .snd .snd x i)) $
+      reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) ,
+    isisoover
+      (λ a pᴰ → αᴰ .fst .N-obᴰ pᴰ)
+      (λ b q →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.≡in (αᴰ .snd .isIsoOver.leftInv _ q)
+      )
+      (λ a p →
+        Qᴰ.rectify $ Qᴰ.≡out $
+          Qᴰ.≡in (congP (λ i → αᴰ .fst .N-obᴰ) (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _))
+          ∙ (Qᴰ.≡in (αᴰ .snd .isIsoOver.rightInv _ _))
+      ))
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
 
   where

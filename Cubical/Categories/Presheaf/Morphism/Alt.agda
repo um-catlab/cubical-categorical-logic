@@ -18,6 +18,7 @@ open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits
@@ -261,6 +262,9 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) whe
     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .sec) _)
   PshCatIso→PshIso α .nIso x .snd .snd =
     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .ret) _)
+
+  NatIso→PshIso : NatIso P Q → PshIso P Q
+  NatIso→PshIso α = PshCatIso→PshIso (NatIso→FUNCTORIso (C ^op) (SET ℓp) α)
 
   PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓp) (P .F-ob x) (Q .F-ob x)
   PshIso→SETIso α c .fst = α .trans .N-ob c

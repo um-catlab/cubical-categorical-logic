@@ -19,7 +19,7 @@ open import Cubical.Categories.Displayed.NaturalIsomorphism
 
 private
   variable
-    ℓB ℓB' ℓBᴰ ℓBᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+    ℓB ℓB' ℓBᴰ ℓBᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
 
 open Functorᴰ
 open NatTrans
@@ -79,6 +79,33 @@ module _
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+
+  private
+    module Dᴰ = Fibers Dᴰ
+
+  idTransᴰ : NatTransᴰ (idTrans F) Fᴰ Fᴰ
+  idTransᴰ .N-obᴰ _ =  Dᴰ.idᴰ
+  idTransᴰ .N-homᴰ fᴰ =
+    Dᴰ.rectify $ Dᴰ.≡out $
+      Dᴰ.⋆IdR _
+      ∙ (sym $ Dᴰ.⋆IdL _)
+
+  idNatIsoᴰ : NatIsoᴰ (idNatIso F) Fᴰ Fᴰ
+  idNatIsoᴰ .NatIsoᴰ.transᴰ = idTransᴰ
+  idNatIsoᴰ .NatIsoᴰ.nIsoᴰ xᴰ .isIsoᴰ.invᴰ = Dᴰ.idᴰ
+  idNatIsoᴰ .NatIsoᴰ.nIsoᴰ xᴰ .isIsoᴰ.secᴰ =
+    Dᴰ.⋆IdLᴰ (idNatIsoᴰ .NatIsoᴰ.transᴰ .N-obᴰ xᴰ)
+  idNatIsoᴰ .NatIsoᴰ.nIsoᴰ xᴰ .isIsoᴰ.retᴰ =
+    Dᴰ.⋆IdLᴰ (idNatIsoᴰ .NatIsoᴰ.nIsoᴰ xᴰ .isIsoᴰ.invᴰ)
+
+module _
+  {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F G : Functor C D}
   {α : NatTrans F G}
   {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
@@ -117,3 +144,21 @@ module _
     αᴰ .NatIsoᴰ.nIsoᴰ xᴰ .isIsoᴰ.retᴰ
   symNatIsoᴰ .NatIsoᴰ.nIsoᴰ xᴰ .isIsoᴰ.retᴰ =
     αᴰ .NatIsoᴰ.nIsoᴰ xᴰ .isIsoᴰ.secᴰ
+
+module _
+  {B : Category ℓB ℓB'} {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {E : Category ℓE ℓE'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  {F : Functor B C} {G : Functor C D} {H : Functor D E}
+  (Fᴰ : Functorᴰ F Bᴰ Cᴰ) (Gᴰ : Functorᴰ G Cᴰ Dᴰ) (Hᴰ : Functorᴰ H Dᴰ Eᴰ)
+  where
+
+  CATᴰ⋆Assoc :
+    NatIsoᴰ
+      (CAT⋆Assoc F G H)
+      (Hᴰ ∘Fᴰ (Gᴰ ∘Fᴰ Fᴰ))
+      ((Hᴰ ∘Fᴰ Gᴰ) ∘Fᴰ Fᴰ)
+  CATᴰ⋆Assoc .NatIsoᴰ.transᴰ .N-obᴰ = idTransᴰ ((Hᴰ ∘Fᴰ Gᴰ) ∘Fᴰ Fᴰ) .N-obᴰ
+  CATᴰ⋆Assoc .NatIsoᴰ.transᴰ .N-homᴰ = idTransᴰ (Hᴰ ∘Fᴰ (Gᴰ ∘Fᴰ Fᴰ)) .N-homᴰ
+  CATᴰ⋆Assoc .NatIsoᴰ.nIsoᴰ = idNatIsoᴰ (Hᴰ ∘Fᴰ (Gᴰ ∘Fᴰ Fᴰ)) .NatIsoᴰ.nIsoᴰ

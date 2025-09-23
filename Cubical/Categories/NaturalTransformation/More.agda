@@ -2,6 +2,7 @@ module Cubical.Categories.NaturalTransformation.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Univalence
+open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
@@ -112,3 +113,40 @@ module _
 
   opNatIso : NatIso F F' → NatIso (F' ^opF) (F ^opF)
   opNatIso = congNatIso^opFiso .Iso.fun
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  where
+
+  _⋆NatTrans_ : ∀ {F G H : Functor C D} →
+    NatTrans F G → NatTrans G H → NatTrans F H
+  _⋆NatTrans_ = seqTrans
+
+  _⋆NatIso_ : ∀ {F G H : Functor C D} →
+    NatIso F G → NatIso G H → NatIso F H
+  _⋆NatIso_ = seqNatIso
+
+  infixr 9 _⋆NatTrans_
+  infixr 9 _⋆NatIso_
+
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'}
+  (F : Functor C D)
+  (G : Functor D E)
+  where
+
+  private
+    module E = Category E
+
+  ∘F-^opF-NatIso :
+    NatIso
+      ((G ^opF) ∘F (F ^opF))
+      ((G ∘F F) ^opF)
+  ∘F-^opF-NatIso .trans .N-ob x = E.id
+  ∘F-^opF-NatIso .trans .N-hom f = E.⋆IdL _ ∙ (sym $ E.⋆IdR _)
+  ∘F-^opF-NatIso .nIso x .inv = E.id
+  ∘F-^opF-NatIso .nIso x .sec = E.⋆IdL (∘F-^opF-NatIso .nIso x .inv)
+  ∘F-^opF-NatIso .nIso x .ret = E.⋆IdL (N-ob (∘F-^opF-NatIso .trans) x)

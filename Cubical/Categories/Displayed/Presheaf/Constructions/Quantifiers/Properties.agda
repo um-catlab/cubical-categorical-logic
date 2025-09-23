@@ -97,11 +97,6 @@ module _
       (Δᴰ : Dᴰ.ob[ Δ ]) → CartesianLift Dᴰ Δᴰ -×Fc.π₁)
     where
 
-    -- π₁*D : ∀ {Γ} →
-    --   (Δᴰ : Dᴰ.ob[ F ⟅ Γ ⟆ ]) →
-    --   CartesianLift (reindex Dᴰ F) Δᴰ -×c.π₁
-    -- π₁*D Δᴰ = CartesianLiftReindex F {!π₁*C!}
-
     private
       module ∀ⱽC = UniversalQuantifierPsh -×c π₁*C
       ∀ⱽPshC = ∀ⱽC.∀ⱽPsh
@@ -126,23 +121,6 @@ module _
             (∀ⱽD.weakenπFᴰ ∘Fᴰ Fᴰ))
         where
 
-      -- Fᴰπ₁⇒π₁Fᴰ :
-      --   NatTransᴰ (F-×.FNatIso .NT.NatIso.trans)
-      --     (Fᴰ ∘Fᴰ ∀ⱽC.weakenπFᴰ) (∀ⱽD.weakenπFᴰ ∘Fᴰ Fᴰ)
-      -- Fᴰπ₁⇒π₁Fᴰ .NatTransᴰ.N-obᴰ cᴰ =
-      --   introᴰ (π₁*D (Fᴰ .F-obᴰ cᴰ)) $
-      --     Dᴰ.reind ((cong (F .F-hom) (C.⋆IdL _) ∙ F-×.preserves-π₁)) $
-      --       Fᴰ .F-homᴰ (π₁*C cᴰ .elementⱽ)
-      -- Fᴰπ₁⇒π₁Fᴰ .NatTransᴰ.N-homᴰ fᴰ =
-      --   Dᴰ.rectify $ Dᴰ.≡out $
-      --     {!!}
-
-  --     module _
-  --       (Fᴰπ₁⇒π₁Fᴰ-isIsoᴰ : ∀ {Γ}(Γᴰ : Cᴰ.ob[ Γ ]) →
-  --         isIsoᴰ Dᴰ
-  --           (F-×.FNatIso .NT.NatIso.nIso Γ)
-  --           (Fᴰπ₁⇒π₁Fᴰ .NatTransᴰ.N-obᴰ Γᴰ)) where
-
         reindHet∀Psh :
           PshIsoⱽ
             (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshD Qⱽ))
@@ -150,148 +128,36 @@ module _
         reindHet∀Psh =
           reindPshIsoⱽ reindFuncCompIsoⱽ
           ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-          ⋆PshIsoⱽ
-            reindPshIsoⱽ
-              (PshIsoᴰ→PshIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)))
+          ⋆PshIsoⱽ reindPshIsoⱽ (PshIsoᴰ→PshIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
           ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-          ⋆PshIsoⱽ ?
-          ⋆PshIsoⱽ (invPshIsoⱽ (reindPshIsoⱽ $ PshIsoᴰ→PshIsoⱽ the-psh-isoᴰ))
-          ⋆PshIsoⱽ {!!}
-          ⋆PshIsoⱽ reindPathIsoⱽ {!!}
-          ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
           ⋆PshIsoⱽ
-            invPshIsoⱽ
-              (reindPshIsoⱽ
-                (PshIsoᴰ→PshIsoⱽ (invPshIsoᴰ (NatIsoᴰ→PshIsoᴰ (CATᴰ⋆Assoc _ _ _)))))
+            reindPathIsoⱽ
+              (makePshHomPath (funExt₂ λ x p →
+                cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
+                ∙ (sym $ F-×.FNatIso .NT.NatIso.trans .NT.NatTrans.N-hom p)))
           ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
-          ⋆PshIsoⱽ reindPshIsoⱽ foo
+          ⋆PshIsoⱽ reindPshIsoⱽ annotateType
 
-          -- reindPshIsoⱽ reindFuncCompIsoⱽ
-          -- ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-          -- ⋆PshIsoⱽ {!!}
-          -- -- ⋆PshIsoⱽ bar
-          -- -- ⋆PshIsoⱽ reindPathIsoⱽ {!!}
-          -- ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
-          -- ⋆PshIsoⱽ (invPshIsoⱽ (reindPshIsoⱽ $
-          --   PshIsoᴰ→PshIsoⱽ _ _ _ the-psh-isoᴰ))
-          -- ⋆PshIsoⱽ baz
-          -- ⋆PshIsoⱽ (invPshIsoⱽ $ reind-seqIsoⱽ _ _ _)
-          -- ⋆PshIsoⱽ reindPshIsoⱽ foo
           where
 
-          the-psh-isoᴰ :
-            PshIsoᴰ
-              (NatIso→PshIso _ _
-                ((D [-, F-ob F Γ -×Fc.×a ])
-                  NT.∘ʳⁱ (NT.opNatIso $ NT.symNatIso $ F-×.FNatIso)))
-              (Qⱽ ∘Fᴰ ((Fᴰ ∘Fᴰ ∀ⱽC.weakenπFᴰ) ^opFᴰ))
-              (Qⱽ ∘Fᴰ ((∀ⱽD.weakenπFᴰ ∘Fᴰ Fᴰ) ^opFᴰ))
-          the-psh-isoᴰ =
-            NatIsoᴰ→PshIsoᴰ $
-              Qⱽ ∘ʳᴰⁱ opNatIsoᴰ (symNatIsoᴰ Fᴰ-NatIsoᴰ)
+          the-nat-isoᴰ :
+            NatIsoᴰ _
+              ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ))
+              ((Qⱽ ∘Fᴰ (∀ⱽD.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ))
+          the-nat-isoᴰ =
+            (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)
+            ⋆NatIsoᴰ (Qⱽ ∘ʳᴰⁱ
+                        (∘Fᴰ-^opFᴰ-NatIsoᴰ ∀ⱽC.weakenπFᴰ Fᴰ
+                        ⋆NatIsoᴰ opNatIsoᴰ (symNatIsoᴰ Fᴰ-NatIsoᴰ)
+                        ⋆NatIsoᴰ (symNatIsoᴰ $ ∘Fᴰ-^opFᴰ-NatIsoᴰ Fᴰ ∀ⱽD.weakenπFᴰ)))
+            ⋆NatIsoᴰ CATᴰ⋆Assoc _ _ _
 
-          foo :
+          -- This is needed because there is not enough inference if
+          -- eqToPshIsoⱽ is just used inline above
+          annotateType :
             PshIsoⱽ
               (reind (F-×.preservesProdPshHet ∘ˡ -×c.×aF)
                 ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ)))
               (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ
                 ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ))
-          foo = eqToPshIsoⱽ (Eq.refl , Eq.refl)
-
-  --         bar :
-  --           PshIsoⱽ
-  --             (reind
-  --                 (Functor→PshHet F Γ ⋆PshHom
-  --                     (Functor→PshHet -×Fc.×aF (F-ob F Γ) ∘ˡ F))
-  --                 ((Qⱽ ∘Fᴰ (∀ⱽD.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ)))
-  --             (reind (Functor→PshHet _ Γ) $
-  --             (Qⱽ ∘Fᴰ ((∀ⱽD.weakenπFᴰ ∘Fᴰ Fᴰ) ^opFᴰ)))
-  --         bar = eqToPshIsoⱽ (Eq.refl , Eq.refl)
-
-  --         the-psh-hom-path :
-  --           Functor→PshHet (-×Fc.×aF ∘F F) Γ ≡
-  --           {!!} ⋆PshHom
-  --             NatIso→PshIso
-  --               _ _ ((D [-, F-ob (-×Fc.×aF ∘F F) Γ ]) ∘ʳⁱ (NT.opNatIso $ NT.symNatIso $ F-×.FNatIso)) .PshIso.trans
-  --         the-psh-hom-path = {!!}
-
-  --         -- TODO there should be a higher level construction for
-  --         -- this, but I'll do it manually for rn
-          baz :
-            PshIsoⱽ
-              (reind (Functor→PshHet (-×Fc.×aF ∘F F) Γ
-                     ⋆PshHom
-                       NatTrans→PshHom
-                         ((D [-, F-ob (-×Fc.×aF ∘F F) Γ ])
-                           NT.∘ʳ opNatIso (F-×.FNatIso) .NT.NatIso.trans)) $
-                  (Qⱽ ∘Fᴰ ((Fᴰ ∘Fᴰ ∀ⱽC.weakenπFᴰ) ^opFᴰ))
-              )
-              (reind
-                  (Functor→PshHet -×c.×aF Γ ⋆PshHom
-                  (F-×.preservesProdPshHet ∘ˡ -×c.×aF))
-                  ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ)))
-          baz .fst .N-obᴰ x =
-            Qⱽ.reind
-              (sym $ F-×.FNatIso .NT.NatIso.trans .NT.NatTrans.N-hom _)
-              $ x
-          baz .fst .N-homᴰ  =
-            Qⱽ.rectify $ Qⱽ.≡out $
-              (sym $ Qⱽ.reind-filler _ _)
-              ∙ (sym $ Qⱽ.reind-filler _ _)
-              ∙ Qⱽ.⟨⟩⋆⟨ Qⱽ.reind-filler _ _ ⟩
-              ∙ (Qⱽ.reind-filler _ _)
-          baz .snd .isIsoOver.inv a x =
-            Qⱽ.reind (F-×.FNatIso .NT.NatIso.trans .NT.NatTrans.N-hom _) $ x
-          baz .snd .isIsoOver.rightInv _ _ =
-            Qⱽ.rectify $ Qⱽ.≡out $
-              (sym $ Qⱽ.reind-filler _ _)
-              ∙ (sym $ Qⱽ.reind-filler _ _)
-          baz .snd .isIsoOver.leftInv _ _ =
-            Qⱽ.rectify $ Qⱽ.≡out $
-              (sym $ Qⱽ.reind-filler _ _)
-              ∙ (sym $ Qⱽ.reind-filler _ _)
-
-
-  -- -- -- Goal: PshIsoⱽ
-  -- -- --       (reind
-  -- -- --        (Functor→PshHet F Γ ⋆PshHom
-  -- -- --         (Functor→PshHet -×Fc.×aF (F-ob F Γ) ∘ˡ F))
-  -- -- --        ((Qⱽ ∘Fᴰ (∀ⱽD.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ)))
-  -- -- --       (reind
-  -- -- --        (Functor→PshHet -×c.×aF Γ ⋆PshHom
-  -- -- --         (F-×.preservesProdPshHet ∘ˡ -×c.×aF))
-  -- -- --        ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽC.weakenπFᴰ ^opFᴰ)))
-
-  -- --       -- reindHet∀Psh .fst .N-obᴰ {p = p} pⱽ =
-  -- --       --   Qⱽ.reind the-reind-path
-  -- --       --     $
-  -- --       --     introᴰ (π₁*D _)
-  -- --       --       (Dᴰ.reind (cong (F .F-hom) (C.⋆IdL _)
-  -- --       --                  ∙ F-×.preserves-π₁
-  -- --       --                  ∙ (sym $ -×Fc.×β₁ {g = F ⟪ -×c.π₂ ⟫})) $
-  -- --       --         Fᴰ .F-homᴰ (π₁*C _ .elementⱽ))
-  -- --       --       Qⱽ.⋆ᴰ pⱽ
-  -- --       --     where
-  -- --       --     the-reind-path =
-  -- --       --           ((cong₂ D._⋆_ (cong₂ -×Fc._,p_ -×Fc.×β₁ refl) refl)
-  -- --       --           ∙ -×Fc.×ue.intro-natural
-  -- --       --           ∙ -×Fc.⟨
-  -- --       --           (sym $ D.⋆Assoc _ _ _ )
-  -- --       --           ∙ cong₂ D._⋆_ (sym F-×.preserves-π₁) refl
-  -- --       --           ⟩,p⟨ sym F-×.preserves-π₂ ⟩
-  -- --       --           ∙ -×Fc.⟨ sym $ F .F-seq _ _ ⟩,p⟨ refl ⟩
-  -- --       --           ∙ -×Fc.⟨
-  -- --       --           cong (F .F-hom) (sym $ -×c.×β₁) ⟩,p⟨
-  -- --       --           cong (F .F-hom) (sym -×c.×β₂) ⟩
-  -- --       --           )
-  -- --       -- reindHet∀Psh .fst .N-homᴰ {fᴰ = fᴰ} {pᴰ = pᴰ} =
-  -- --       --   Qⱽ.rectify $ Qⱽ.≡out $
-  -- --       --     (sym $ Qⱽ.reind-filler _ _)
-  -- --       --     ∙ Qⱽ.⟨⟩⋆⟨ (sym $ Qⱽ.reind-filler _ _)
-  -- --       --             ∙ (sym $ Qⱽ.reind-filler _ _) ⟩
-  -- --       --     ∙ (sym $ Qⱽ.⋆Assoc _ _ _)
-  -- --       --     ∙ {!!}
-  -- --       --     ∙ Qⱽ.⟨⟩⋆⟨ Qⱽ.reind-filler _ _ ⟩
-  -- --       --     ∙ Qⱽ.reind-filler _ _
-  -- --       --     ∙ Qⱽ.reind-filler _ _
-  -- --       -- reindHet∀Psh .snd = {!!}
+          annotateType = eqToPshIsoⱽ (Eq.refl , Eq.refl)

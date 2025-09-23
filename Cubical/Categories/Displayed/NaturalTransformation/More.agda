@@ -24,6 +24,9 @@ private
 open Functorᴰ
 open NatTrans
 open NatTransᴰ
+open NatIsoᴰ
+open isIsoᴰ
+
 module _
   {B : Category ℓB ℓB'}
   {Bᴰ : Categoryᴰ B ℓBᴰ ℓBᴰ'}
@@ -162,3 +165,73 @@ module _
   CATᴰ⋆Assoc .NatIsoᴰ.transᴰ .N-obᴰ = idTransᴰ ((Hᴰ ∘Fᴰ Gᴰ) ∘Fᴰ Fᴰ) .N-obᴰ
   CATᴰ⋆Assoc .NatIsoᴰ.transᴰ .N-homᴰ = idTransᴰ (Hᴰ ∘Fᴰ (Gᴰ ∘Fᴰ Fᴰ)) .N-homᴰ
   CATᴰ⋆Assoc .NatIsoᴰ.nIsoᴰ = idNatIsoᴰ (Hᴰ ∘Fᴰ (Gᴰ ∘Fᴰ Fᴰ)) .NatIsoᴰ.nIsoᴰ
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  where
+
+  private
+    module Dᴰ = Fibers Dᴰ
+
+  _⋆NatTransᴰ_ : ∀ {F G H : Functor C D} →
+    {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+    {Gᴰ : Functorᴰ G Cᴰ Dᴰ}
+    {Hᴰ : Functorᴰ H Cᴰ Dᴰ}
+    {α : NatTrans F G}
+    {β : NatTrans G H} →
+    NatTransᴰ α Fᴰ Gᴰ → NatTransᴰ β Gᴰ Hᴰ → NatTransᴰ (α ⋆NatTrans β) Fᴰ Hᴰ
+  _⋆NatTransᴰ_ = seqTransᴰ
+
+  _⋆NatIsoᴰ_ : ∀ {F G H : Functor C D} →
+    {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+    {Gᴰ : Functorᴰ G Cᴰ Dᴰ}
+    {Hᴰ : Functorᴰ H Cᴰ Dᴰ}
+    {α : NatIso F G}
+    {β : NatIso G H} →
+    NatIsoᴰ α Fᴰ Gᴰ → NatIsoᴰ β Gᴰ Hᴰ → NatIsoᴰ (α ⋆NatIso β) Fᴰ Hᴰ
+  (αᴰ ⋆NatIsoᴰ βᴰ) .transᴰ = αᴰ .transᴰ ⋆NatTransᴰ βᴰ .transᴰ
+  (αᴰ ⋆NatIsoᴰ βᴰ) .nIsoᴰ xᴰ .invᴰ =
+    (Dᴰ Categoryᴰ.⋆ᴰ βᴰ .nIsoᴰ xᴰ .invᴰ) (αᴰ .nIsoᴰ xᴰ .invᴰ)
+  (αᴰ ⋆NatIsoᴰ βᴰ) .nIsoᴰ xᴰ .secᴰ =
+   Dᴰ.rectify $ Dᴰ.≡out $
+     Dᴰ.⋆Assoc _ _ _
+     ∙ Dᴰ.⟨ refl ⟩⋆⟨ (sym $ Dᴰ.⋆Assoc _ _ _)
+                      ∙ Dᴰ.⟨ Dᴰ.≡in $ αᴰ .nIsoᴰ xᴰ .secᴰ ⟩⋆⟨ refl ⟩
+                      ∙ Dᴰ.⋆IdL _ ⟩
+     ∙ (Dᴰ.≡in $ βᴰ .nIsoᴰ xᴰ .secᴰ)
+  (αᴰ ⋆NatIsoᴰ βᴰ) .nIsoᴰ xᴰ .retᴰ =
+   Dᴰ.rectify $ Dᴰ.≡out $
+     (sym $ Dᴰ.⋆Assoc _ _ _)
+     ∙ Dᴰ.⟨ Dᴰ.⋆Assoc _ _ _
+            ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.≡in (βᴰ .nIsoᴰ xᴰ .retᴰ) ⟩
+            ∙ Dᴰ.⋆IdR _ ⟩⋆⟨ refl ⟩
+     ∙ (Dᴰ.≡in $ αᴰ .nIsoᴰ xᴰ .retᴰ)
+
+  infixr 9 _⋆NatTransᴰ_
+  infixr 9 _⋆NatIsoᴰ_
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {E : Category ℓE ℓE'} {Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  {F : Functor C D}
+  {G : Functor D E}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (Gᴰ : Functorᴰ G Dᴰ Eᴰ)
+  where
+
+  private
+    module Eᴰ = Fibers Eᴰ
+
+  ∘Fᴰ-^opFᴰ-NatIsoᴰ :
+    NatIsoᴰ (∘F-^opF-NatIso F G)
+      ((Gᴰ ^opFᴰ) ∘Fᴰ (Fᴰ ^opFᴰ))
+      ((Gᴰ ∘Fᴰ Fᴰ) ^opFᴰ)
+  ∘Fᴰ-^opFᴰ-NatIsoᴰ .transᴰ .N-obᴰ xᴰ = Eᴰ.idᴰ
+  ∘Fᴰ-^opFᴰ-NatIsoᴰ .transᴰ .N-homᴰ fᴰ =
+    Eᴰ.rectify $ Eᴰ.≡out $
+      Eᴰ.⋆IdL _ ∙ (sym $ Eᴰ.⋆IdR _)
+  ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .invᴰ = Eᴰ.idᴰ
+  ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .secᴰ = Eᴰ.⋆IdLᴰ (∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .invᴰ)
+  ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .retᴰ = Eᴰ.⋆IdLᴰ (∘Fᴰ-^opFᴰ-NatIsoᴰ .transᴰ .N-obᴰ xᴰ)

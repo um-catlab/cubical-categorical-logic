@@ -38,8 +38,9 @@ open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.Displayed.Constructions.Reindex.Limits
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.Base
@@ -72,7 +73,7 @@ module _
     module D = Category D
     module Cᴰ = Fibers Cᴰ
     module Dᴰ = Fibers Dᴰ
-    F*Dᴰ = reindex Dᴰ F
+    F*Dᴰ = Base.reindex Dᴰ F
     module F*Dᴰ = Fibers F*Dᴰ
     module -×c = BinProductsWithNotation -×c
     module -×Fc = BinProductsWithNotation -×Fc
@@ -121,11 +122,11 @@ module _
             (∀ⱽD.weakenπFᴰ ∘Fᴰ Fᴰ))
         where
 
-        reindHet∀Psh :
+        reindHet∀PshIsoⱽ :
           PshIsoⱽ
             (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshD Qⱽ))
             (∀ⱽPshC (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ))
-        reindHet∀Psh =
+        reindHet∀PshIsoⱽ =
           reindPshIsoⱽ reindFuncCompIsoⱽ
           ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
           ⋆PshIsoⱽ reindPshIsoⱽ (PshIsoᴰ→PshIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))

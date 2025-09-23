@@ -180,6 +180,9 @@ module _
       -- TODO having some issues proving the naturality of
       -- the ostensibly definable NatTransᴰ from left to right
       -- so this is a parameter right now
+      --
+      -- TODO provided the NatTransᴰ portion is properly defined
+      -- we still need to prove that it is a NatIsoᴰ for Fᴰ = π D F
       module _
         (Fᴰ-NatIsoᴰ :
           NatIsoᴰ prodStrNatIso

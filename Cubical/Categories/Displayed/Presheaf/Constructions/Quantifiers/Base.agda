@@ -88,7 +88,6 @@ module _
     πF-PshHom : ∀ {Γ} → PshHom (C [-, F ⟅ Γ ⟆ ]) (C [-, Γ ])
     πF-PshHom = yoRec _ (N-ob πF _)
 
-
     introπF* :
       ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
         {Δ} {Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , F ⟅ Γ ⟆ ]}
@@ -202,26 +201,6 @@ module _
       ∀FⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
       ∀FⱽPsh = reindHet' (Functor→PshHet F Γ) weakenπFᴰ Pⱽ
 
-      -- ∀FⱽPsh-app : PshHomⱽ (reind πF-PshHom $ ∀FⱽPsh) Pⱽ
-      -- ∀FⱽPsh-app .N-obᴰ pⱽ =
-      --   Pⱽ.reind {!!} $ (introπF* {!!} Pⱽ.⋆ᴰ pⱽ)
-      -- ∀FⱽPsh-app .N-homᴰ = {!!}
-
-    -- module _
-    --   {D : Category ℓD ℓD'}
-    --   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-    --   {Γ : C.ob}
-    --   {Qᴰ : Presheafⱽ (F ⟅ Γ ⟆) Cᴰ ℓQᴰ}
-    --   {P : Presheaf D ℓP}
-    --   {Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ}
-    --   {G : Functor D C}
-    --   {Gᴰ : Functorᴰ G Dᴰ Cᴰ}
-    --   {α : PshHet G P (C [-, Γ ])}
-    --   (αᴰ : PshHetᴰ (? ⋆PshHom ?) {!!} {!!} Qᴰ)
-    --   where
-    --   ∀Fⱽ-introHet : PshHetᴰ α Gᴰ Pᴰ (∀FⱽPsh Qᴰ)
-    --   ∀Fⱽ-introHet = {!!}
-
 -- The usual universal quantifier defined with respect to
 -- a binary product
 --
@@ -254,36 +233,3 @@ module _
         module Pⱽ = PresheafⱽNotation Pⱽ
       ∀ⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
       ∀ⱽPsh = ∀FⱽPsh Pⱽ
-
-      -- ∀ⱽPsh-app :
-      --   PshHomⱽ
-      --     (reind (yoRec _ bp.π₁) $ ∀ⱽPsh)
-      --     Pⱽ
-      -- ∀ⱽPsh-app .N-obᴰ {p = p} pⱽ =
-      --   Pⱽ.reind help $
-      --     introπF* (Cᴰ.reind (sym $ bp.×β₁ {g = p C.⋆ bp.π₂}) $ Cᴰ.idᴰ) Pⱽ.⋆ᴰ pⱽ
-      --     where
-      --     help :
-      --       (C.id bp.,p (p C.⋆ bp.π₂)) C.⋆
-      --         bp.×aF ⟪ p C.⋆ bp.π₁ ⟫
-      --       ≡ p
-      --     help =
-      --       bp.,p-extensionality
-      --         (C.⋆Assoc _ _ _
-      --         ∙ cong₂ C._⋆_ refl bp.×β₁
-      --         ∙ (sym $ C.⋆Assoc _ _ _)
-      --         ∙ cong₂ C._⋆_ bp.×β₁ refl
-      --         ∙ C.⋆IdL _)
-      --         (C.⋆Assoc _ _ _
-      --         ∙ cong₂ C._⋆_ refl bp.×β₂
-      --         ∙ bp.×β₂)
-      -- ∀ⱽPsh-app .N-homᴰ =
-      --   Pⱽ.rectify $ Pⱽ.≡out $
-      --     (sym $ Pⱽ.reind-filler _ _)
-      --      ∙ Pⱽ.⟨⟩⋆⟨
-      --        (sym $ Pⱽ.reind-filler _ _)
-      --        ∙ (sym $ Pⱽ.reind-filler _ _)
-      --        ∙ Pⱽ.⟨ {!!} ⟩⋆⟨⟩
-      --        ⟩
-      --     ∙ {!!}
-      --     ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.⟨ {!!} ⟩⋆⟨⟩ ∙ Pⱽ.reind-filler _ _ ⟩

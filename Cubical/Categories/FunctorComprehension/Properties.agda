@@ -63,20 +63,20 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       ⟩
     ∙ sym uesD.intro-natural
 
-  -- preservesProvidedUniversalElementsNatIso :
-  --   NatIso
-  --     (F ∘F FunctorComprehension PC uesC)
-  --     (FunctorComprehension PD uesD ∘F F)
-  -- preservesProvidedUniversalElementsNatIso .trans =
-  --   preservesProvidedUniversalElementsNatTrans
-  -- preservesProvidedUniversalElementsNatIso .nIso c =
-  --   isiso
-  --     (the-is-iso .fst (uesD (F-ob F c) .element))
-  --     (intro-natural (uesD _)
-  --     ∙ intro≡ (uesD _)
-  --         (the-is-iso .snd .fst (uesD (F-ob F c) .element)
-  --          ∙ (sym $ PD.⋆IdL _)))
-  --      {!!}
-  --   where
-  --   the-is-iso : Iso.isIso _
-  --   the-is-iso = isEquivToIsIso _ (pres-ues c (uesD (F-ob F c) .vertex))
+  preservesProvidedUniversalElementsNatIso :
+    NatIso
+      (F ∘F FunctorComprehension PC uesC)
+      (FunctorComprehension PD uesD ∘F F)
+  preservesProvidedUniversalElementsNatIso .trans =
+    preservesProvidedUniversalElementsNatTrans
+  preservesProvidedUniversalElementsNatIso .nIso c =
+    isiso
+      (the-is-iso .fst (uesD (F-ob F c) .element))
+      (intro-natural (uesD _)
+      ∙ intro≡ (uesD _)
+          (the-is-iso .snd .fst (uesD (F-ob F c) .element)
+           ∙ (sym $ PD.⋆IdL _)))
+       {!!}
+    where
+    the-is-iso : Iso.isIso _
+    the-is-iso = isEquivToIsIso _ (pres-ues c (uesD (F-ob F c) .vertex))

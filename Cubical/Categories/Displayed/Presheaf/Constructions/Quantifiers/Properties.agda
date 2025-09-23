@@ -27,6 +27,7 @@ open import Cubical.Categories.Instances.Sets
 import Cubical.Categories.NaturalTransformation as NT
 open import Cubical.Categories.NaturalTransformation.More as NT
 open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.FunctorComprehension.Properties
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -76,7 +77,7 @@ module _
     module F*Dᴰ = Fibers F*Dᴰ
     module -×c = BinProductsWithNotation -×c
     module -×Fc = BinProductsWithNotation -×Fc
-    module F-× = preservesProvidedBinProductsWithNotation F -×c -×Fc F-×
+    -- module F-× = preservesProvidedBinProductsWithNotation F -×c -×Fc F-×
     module F⟨-×c⟩ {Γ} =
       BinProductNotation
         (preservesUniversalElement→UniversalElement
@@ -88,7 +89,20 @@ module _
           (preservesUniversalElement→UniversalElement
             (preservesBinProdCones F Γ c) (-×c Γ) (F-× Γ))
 
-  open UniversalElement
+    mapProdStr : ∀ {Γ} → D [ F ⟅ Γ -×c.×a ⟆ , F ⟅ Γ ⟆ -×Fc.×a ]
+    mapProdStr = F ⟪ -×c.π₁ ⟫ -×Fc.,p F ⟪ -×c.π₂ ⟫
+
+    mapProdStrPshHet : ∀ {Γ} →
+      PshHet F (C [-, Γ -×c.×a ]) (D [-, F ⟅ Γ ⟆ -×Fc.×a ])
+    mapProdStrPshHet = yoRec _ mapProdStr
+
+    prodStrNatIso : NT.NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
+    prodStrNatIso =
+      preservesProvidedUniversalElementsNatIso
+        (ProdWithAProf C c) (ProdWithAProf D (F ⟅ c ⟆))
+        F (λ c' → preservesBinProdCones F c' c) -×c -×Fc F-×
+
+  -- open UniversalElement
 
   module _
     (π₁*C : ∀ {Γ} →
@@ -112,70 +126,72 @@ module _
         module ∀ⱽPshDᴰ =
           PresheafⱽNotation (∀ⱽPshDᴰ Qⱽ)
         module ∀ⱽPshCᴰ =
-          PresheafⱽNotation (∀ⱽPshCᴰ (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ))
+          PresheafⱽNotation (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
 
-      Fᴰ-weakening-NatTransᴰ' :
-        NatTransᴰ
-          {!? ⋆NatTrans ?!}
-          Fᴰ
-          (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
-      Fᴰ-weakening-NatTransᴰ' .NatTransᴰ.N-obᴰ xᴰ =
-        {!!}
-        -- introᴰ (π₁*D (F-obᴰ Fᴰ xᴰ)) (Dᴰ.reind {!!} Dᴰ.idᴰ)
-      Fᴰ-weakening-NatTransᴰ' .NatTransᴰ.N-homᴰ = {!!}
+  --     -- Fᴰ-weakening-NatTransᴰ' :
+  --     --   NatTransᴰ
+  --     --     {!? ⋆NatTrans ?!}
+  --     --     Fᴰ
+  --     --     (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
+  --     -- Fᴰ-weakening-NatTransᴰ' .NatTransᴰ.N-obᴰ xᴰ =
+  --     --   {!!}
+  --     --   -- introᴰ (π₁*D (F-obᴰ Fᴰ xᴰ)) (Dᴰ.reind {!!} Dᴰ.idᴰ)
+  --     -- Fᴰ-weakening-NatTransᴰ' .NatTransᴰ.N-homᴰ = {!!}
 
-      Fᴰ-weakening-NatTransᴰ :
-        NatTransᴰ
-          (F-×.FNatIso .NT.NatIso.trans)
-          (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
-          (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
-      Fᴰ-weakening-NatTransᴰ =
-        {!? ⋆NatTransᴰ ?!}
+  --     -- Fᴰ-weakening-NatTransᴰ :
+  --     --   NatTransᴰ
+  --     --     (F-×.FNatIso .NT.NatIso.trans)
+  --     --     (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
+  --     --     (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
+  --     -- Fᴰ-weakening-NatTransᴰ =
+  --     --   {!? ⋆NatTransᴰ ?!}
 
-      -- module _
-      --   (Fᴰ-NatIsoᴰ :
-      --     NatIsoᴰ F-×.FNatIso
-      --       (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
-      --       (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ))
-      --   where
+      module _
+        (Fᴰ-NatIsoᴰ :
+          NatIsoᴰ prodStrNatIso
+            (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
+            (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ))
+        where
 
-      --   reindHet∀PshIsoⱽ :
-      --     PshIsoⱽ
-      --       (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshDᴰ Qⱽ))
-      --       (∀ⱽPshCᴰ (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ))
-      --   reindHet∀PshIsoⱽ =
-      --     reindPshIsoⱽ reindFuncCompIsoⱽ
-      --     ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-      --     ⋆PshIsoⱽ reindPshIsoⱽ (PshIsoᴰ→PshIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
-      --     ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-      --     ⋆PshIsoⱽ
-      --       reindPathIsoⱽ
-      --         (makePshHomPath (funExt₂ λ x p →
-      --           cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
-      --           ∙ (sym $ F-×.FNatIso .NT.NatIso.trans .NT.NatTrans.N-hom p)))
-      --     ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
-      --     ⋆PshIsoⱽ reindPshIsoⱽ annotateType
+        reindHet∀PshIsoⱽ :
+          PshIsoⱽ
+            (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshDᴰ Qⱽ))
+            (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
+        reindHet∀PshIsoⱽ =
+          reindPshIsoⱽ reindFuncCompIsoⱽ
+          ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
+          ⋆PshIsoⱽ reindPshIsoⱽ (PshIsoᴰ→PshIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
+          ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
+          ⋆PshIsoⱽ
+            reindPathIsoⱽ
+              (makePshHomPath (funExt₂ λ x p →
+                cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
+                ∙ (sym $ prodStrNatIso .NT.NatIso.trans .NT.NatTrans.N-hom p)))
+          ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
+          ⋆PshIsoⱽ reindPshIsoⱽ annotateType
 
-      --     where
+          where
 
-      --     the-nat-isoᴰ :
-      --       NatIsoᴰ _
-      --         ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
-      --         ((Qⱽ ∘Fᴰ (∀ⱽDᴰ.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ))
-      --     the-nat-isoᴰ =
-      --       (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)
-      --       ⋆NatIsoᴰ (Qⱽ ∘ʳᴰⁱ
-      --                   (∘Fᴰ-^opFᴰ-NatIsoᴰ ∀ⱽCᴰ.weakenπFᴰ Fᴰ
-      --                   ⋆NatIsoᴰ opNatIsoᴰ (symNatIsoᴰ Fᴰ-NatIsoᴰ)
-      --                   ⋆NatIsoᴰ (symNatIsoᴰ $ ∘Fᴰ-^opFᴰ-NatIsoᴰ Fᴰ ∀ⱽDᴰ.weakenπFᴰ)))
-      --       ⋆NatIsoᴰ CATᴰ⋆Assoc _ _ _
+          the-nat-isoᴰ :
+            NatIsoᴰ _
+              ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
+              ((Qⱽ ∘Fᴰ (∀ⱽDᴰ.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ))
+          the-nat-isoᴰ =
+            (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)
+            ⋆NatIsoᴰ (Qⱽ ∘ʳᴰⁱ
+                        (∘Fᴰ-^opFᴰ-NatIsoᴰ ∀ⱽCᴰ.weakenπFᴰ Fᴰ
+                        ⋆NatIsoᴰ opNatIsoᴰ (symNatIsoᴰ Fᴰ-NatIsoᴰ)
+                        ⋆NatIsoᴰ (symNatIsoᴰ $ ∘Fᴰ-^opFᴰ-NatIsoᴰ Fᴰ ∀ⱽDᴰ.weakenπFᴰ)))
+            ⋆NatIsoᴰ CATᴰ⋆Assoc _ _ _
 
-      --     -- This is needed because there is not enough inference if
-      --     -- eqToPshIsoⱽ is just used inline above
-      --     annotateType :
-      --       PshIsoⱽ
-      --         (reind (F-×.preservesProdPshHet ∘ˡ -×c.×aF)
-      --           ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ)))
-      --         (reindHet' F-×.preservesProdPshHet Fᴰ Qⱽ
-      --           ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
-      --     annotateType = eqToPshIsoⱽ (Eq.refl , Eq.refl)
+          -- This is needed because there is not enough inference if
+          -- eqToPshIsoⱽ is just used inline above
+          -- sameissue as reindFuncUnitEq in
+          -- Displayed.Presheaf.Constructions.Unit.Properties
+          annotateType :
+            PshIsoⱽ
+              (reind (mapProdStrPshHet ∘ˡ -×c.×aF)
+                ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ)))
+              (reindHet' mapProdStrPshHet Fᴰ Qⱽ
+                ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
+          annotateType = eqToPshIsoⱽ (Eq.refl , Eq.refl)

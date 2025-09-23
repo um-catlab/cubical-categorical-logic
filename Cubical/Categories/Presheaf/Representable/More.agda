@@ -254,3 +254,34 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
     _◁PshIso_ .vertex = ue.vertex
     _◁PshIso_ .element = α .trans .N-ob ue.vertex ue.element
     _◁PshIso_ .universal = seqIsUniversalPshIso ue.universal α
+
+
+-- TODO move this?
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+         {F : Functor C D}
+         {P : Presheaf C ℓp}
+         {Q : Presheaf D ℓq}
+         (α : PshHet F P Q)
+         where
+  private
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  module preservesProvidedUniversalElementNotation
+    (ueC : UniversalElement C P)
+    (ueD : UniversalElement D Q)
+    (pres-ue : preservesUniversalElement α ueC)
+    where
+
+    private
+      module ueC = UniversalElementNotation ueC
+      module ueD = UniversalElementNotation ueD
+      module pres-ue =
+        UniversalElementNotation
+          (preservesUniversalElement→UniversalElement α ueC pres-ue)
+
+    mapStr : D [ F ⟅ ueC.vertex ⟆ , ueD.vertex ]
+    mapStr = ueD.intro (α .N-ob ueC.vertex ueC.element)
+
+    theNatTrans :
+      NatTrans (F ∘F {!!}) {!!}
+    theNatTrans = {!!}

@@ -27,8 +27,10 @@ private
 open Category
 open Functor
 open NatTrans
+open NatIso
 open UniversalElement
 open UniversalElementNotation
+open PshHom
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          (PC : Profunctor C C ℓC')
@@ -44,54 +46,37 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module D = Category D
     module PC {c} = PresheafNotation (PC ⟅ c ⟆)
     module PD {d} = PresheafNotation (PD ⟅ d ⟆)
+    module uesC {c} = UniversalElementNotation (uesC c)
+    module uesD {d} = UniversalElementNotation (uesD d)
 
-  open UniversalElement
-
-  open PshHom
-  preservesProvidedUniversalElementsNatIso :
-    NatIso
+  preservesProvidedUniversalElementsNatTrans :
+    NatTrans
       (F ∘F FunctorComprehension PC uesC)
       (FunctorComprehension PD uesD ∘F F)
-  preservesProvidedUniversalElementsNatIso .NatIso.trans .N-ob c =
-    intro (uesD (F ⟅ c ⟆)) (α c .N-ob _ (uesC c .element))
-  preservesProvidedUniversalElementsNatIso .NatIso.trans .N-hom f =
-    intro-natural (uesD _)
-    ∙ intro≡ (uesD _)
-        ({!!}
-        ∙ {!!})
-    -- ∙ intro⟨_⟩ (uesD _) {!!}
-    -- ∙ sym (intro-natural (uesD _))
-  preservesProvidedUniversalElementsNatIso .NatIso.nIso c =
-    isiso
-      (the-is-iso .fst (uesD (F-ob F c) .element))
-      (intro-natural (uesD _)
-      ∙ intro≡ (uesD _)
-          (the-is-iso .snd .fst (uesD (F-ob F c) .element)
-           ∙ (sym $ PD.⋆IdL _)))
-       {!!}
-    where
-    the-is-iso : Iso.isIso _
-    the-is-iso = isEquivToIsIso _ (pres-ues c (uesD (F-ob F c) .vertex))
+  preservesProvidedUniversalElementsNatTrans .N-ob c =
+    uesD.intro (α c .N-ob _ (uesC c .element))
+  preservesProvidedUniversalElementsNatTrans .N-hom f =
+    uesD.intro-natural
+    ∙ uesD.intro⟨
+      PD.⟨ {!pres-ues!} ⟩⋆⟨ refl ⟩
+      ∙ {!!}
+      ⟩
+    ∙ sym uesD.intro-natural
 
-
---   FunctorComprehension : Functor C D
---   FunctorComprehension .F-ob x = ues x .vertex
---   FunctorComprehension .F-hom {x}{y} f =
---     intro (ues y) ((P ⟪ f ⟫) .N-ob _ (ues x .element))
---   FunctorComprehension .F-id {x} =
---     (λ i → intro (ues x) (P .F-id i .N-ob _ (ues x .element)))
---     ∙ (sym $ weak-η (ues x))
---   FunctorComprehension .F-seq {x}{y}{z} f g =
---     ((λ i → intro (ues z) (P .F-seq f g i .N-ob _ (ues x .element))))
---     ∙ (cong (intro (ues z)) $
---       ((λ i → P .F-hom g .N-ob _
---         (β (ues y) {p = P .F-hom f .N-ob _ (ues x .element)} (~ i))))
---       ∙ funExt⁻ (P .F-hom g .N-hom _) _)
---     ∙ (sym $ intro-natural (ues z))
-
--- module _
---   {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
---   (F : Functor C D)
---   (P : Profunctor C D ℓs)
---   (ues : UniversalElements P)
---   where
+  -- preservesProvidedUniversalElementsNatIso :
+  --   NatIso
+  --     (F ∘F FunctorComprehension PC uesC)
+  --     (FunctorComprehension PD uesD ∘F F)
+  -- preservesProvidedUniversalElementsNatIso .trans =
+  --   preservesProvidedUniversalElementsNatTrans
+  -- preservesProvidedUniversalElementsNatIso .nIso c =
+  --   isiso
+  --     (the-is-iso .fst (uesD (F-ob F c) .element))
+  --     (intro-natural (uesD _)
+  --     ∙ intro≡ (uesD _)
+  --         (the-is-iso .snd .fst (uesD (F-ob F c) .element)
+  --          ∙ (sym $ PD.⋆IdL _)))
+  --      {!!}
+  --   where
+  --   the-is-iso : Iso.isIso _
+  --   the-is-iso = isEquivToIsIso _ (pres-ues c (uesD (F-ob F c) .vertex))

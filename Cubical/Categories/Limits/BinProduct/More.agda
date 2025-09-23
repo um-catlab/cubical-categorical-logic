@@ -245,9 +245,10 @@ module _ (F : Functor C D) where
 
     FNatIso : NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
     FNatIso =
-      preservesProvidedUniversalElementsNatIso
-        (ProdWithAProf C c) (ProdWithAProf D (F ⟅ c ⟆))
-        F (λ c' → preservesBinProdCones c' c) -×c -×Fc F-×
+      {!!}
+      -- preservesProvidedUniversalElementsNatIso
+      --   (ProdWithAProf C c) (ProdWithAProf D (F ⟅ c ⟆))
+      --   F (λ c' → preservesBinProdCones c' c) -×c -×Fc F-×
 
     -- FNatIso .NatIso.trans = FNatTrans
     -- FNatIso .NatIso.nIso c' .isIso.inv =

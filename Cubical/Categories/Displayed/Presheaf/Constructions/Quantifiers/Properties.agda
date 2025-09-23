@@ -35,7 +35,6 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
-open import Cubical.Categories.Displayed.NaturalIsomorphism
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base

@@ -1,6 +1,7 @@
 module Cubical.Categories.FunctorComprehension.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 import Cubical.Foundations.Isomorphism as Iso
 open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Function
@@ -12,13 +13,15 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Adjoint.UniversalElements
-open import Cubical.Categories.FunctorComprehension
+open import Cubical.Categories.FunctorComprehension.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Relator
+open import Cubical.Categories.Profunctor.Homomorphism.Alt
 
 private
   variable
@@ -31,15 +34,16 @@ open NatIso
 open UniversalElement
 open UniversalElementNotation
 open PshHom
+open ProfHom
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          (PC : Profunctor C C ℓC')
          (PD : Profunctor D D ℓD')
          (F : Functor C D)
-         (α : ∀ c → PshHet F (PC ⟅ c ⟆) (PD ⟅ F ⟅ c ⟆ ⟆))
+         (α : ProfHet F F PC PD)
          (uesC : UniversalElements PC)
          (uesD : UniversalElements PD)
-         (pres-ues : ∀ c → preservesUniversalElement (α c) (uesC c))
+         (pres-ues : ∀ c → preservesUniversalElement (α .hom c) (uesC c))
          where
   private
     module C = Category C
@@ -54,12 +58,14 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       (F ∘F FunctorComprehension PC uesC)
       (FunctorComprehension PD uesD ∘F F)
   preservesProvidedUniversalElementsNatTrans .N-ob c =
-    uesD.intro (α c .N-ob _ (uesC c .element))
-  preservesProvidedUniversalElementsNatTrans .N-hom f =
+    uesD.intro (α .hom c .N-ob _ (uesC c .element))
+  preservesProvidedUniversalElementsNatTrans .N-hom {x = x}{y = y} f =
     uesD.intro-natural
     ∙ uesD.intro⟨
-      PD.⟨ {!pres-ues!} ⟩⋆⟨ refl ⟩
-      ∙ {!!}
+      PD.⟨ {!!} ⟩⋆⟨
+        cong (α .hom y .N-ob (uesC y .vertex)) {!!}
+        ∙ funExt₂⁻ (cong N-ob (α .nat _ _ f)) (uesC y .vertex) {!!} ⟩
+      ∙ {!PD.⟨ ? ⟩⋆⟨ ? ⟩!}
       ⟩
     ∙ sym uesD.intro-natural
 

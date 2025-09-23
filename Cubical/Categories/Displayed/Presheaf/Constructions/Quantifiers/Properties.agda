@@ -102,8 +102,6 @@ module _
         (ProdWithAProf C c) (ProdWithAProf D (F ⟅ c ⟆))
         F (λ c' → preservesBinProdCones F c' c) -×c -×Fc F-×
 
-  -- open UniversalElement
-
   module _
     (π₁*C : ∀ {Γ} →
       (Γᴰ : Cᴰ.ob[ Γ ]) → CartesianLift Cᴰ Γᴰ -×c.π₁)
@@ -146,6 +144,9 @@ module _
   --     -- Fᴰ-weakening-NatTransᴰ =
   --     --   {!? ⋆NatTransᴰ ?!}
 
+      -- TODO having some issues proving the naturality of
+      -- the ostensibly definable NatTransᴰ from left to right
+      -- so this is a parameter right now
       module _
         (Fᴰ-NatIsoᴰ :
           NatIsoᴰ prodStrNatIso
@@ -172,6 +173,11 @@ module _
 
           where
 
+          -- To avoid ugly goals with many reinds,
+          -- we construct the core of the PshIsoⱽ
+          -- as this NatIsoᴰ. We then turn it into a PshIsoᴰ,
+          -- turn that PshIsoᴰ into a PshIsoⱽ, and patch up
+          -- the necessary reinds in between
           the-nat-isoᴰ :
             NatIsoᴰ _
               ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))

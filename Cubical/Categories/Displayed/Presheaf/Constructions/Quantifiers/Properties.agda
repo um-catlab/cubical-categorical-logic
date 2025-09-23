@@ -8,6 +8,7 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Structure
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
@@ -27,7 +28,6 @@ open import Cubical.Categories.Instances.Sets
 import Cubical.Categories.NaturalTransformation as NT
 open import Cubical.Categories.NaturalTransformation.More as NT
 open import Cubical.Categories.FunctorComprehension
-open import Cubical.Categories.FunctorComprehension.Properties
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -55,6 +55,7 @@ open Functor
 open Functorᴰ
 open PshHom
 open PshHomᴰ
+open UniversalElement
 open UniversalElementⱽ
 
 module _
@@ -77,7 +78,6 @@ module _
     module F*Dᴰ = Fibers F*Dᴰ
     module -×c = BinProductsWithNotation -×c
     module -×Fc = BinProductsWithNotation -×Fc
-    -- module F-× = preservesProvidedBinProductsWithNotation F -×c -×Fc F-×
     module F⟨-×c⟩ {Γ} =
       BinProductNotation
         (preservesUniversalElement→UniversalElement
@@ -96,11 +96,54 @@ module _
       PshHet F (C [-, Γ -×c.×a ]) (D [-, F ⟅ Γ ⟆ -×Fc.×a ])
     mapProdStrPshHet = yoRec _ mapProdStr
 
+    prodStrNatTrans : NT.NatTrans (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
+    prodStrNatTrans .NT.NatTrans.N-ob _ = mapProdStr
+    prodStrNatTrans .NT.NatTrans.N-hom f =
+      -×Fc.,p-extensionality
+        (D.⋆Assoc _ _ _
+        ∙ cong₂ D._⋆_ refl -×Fc.×β₁
+        ∙ (sym $ F .F-seq _ _ )
+        ∙ cong (F .F-hom) -×c.×β₁
+        ∙ F .F-seq _ _
+        ∙ cong₂ D._⋆_ (sym -×Fc.×β₁) refl
+        ∙ D.⋆Assoc _ _ _
+        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₁)
+        ∙ (sym $ D.⋆Assoc _ _ _))
+        (D.⋆Assoc _ _ _
+        ∙ cong₂ D._⋆_ refl -×Fc.×β₂
+        ∙ (sym $ F .F-seq _ _ )
+        ∙ cong (F .F-hom) -×c.×β₂
+        ∙ (sym -×Fc.×β₂)
+        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₂)
+        ∙ (sym $ D.⋆Assoc _ _ _))
+
+    -- We can build this NatTrans/Iso concretely for products, but
+    -- this should be constructible for a general functor comprehension
+    -- I believe its more complex for the abstract case because you
+    -- need to reason about a profunctor heteromorphism mediated by F
+    --
+    -- That is,
+    -- -×c.×aF is replaced with comprehension of S : Profunctor C C ℓS
+    -- -×Fc.×aF is replaced with comprehension of R : Profunctor D D ℓR
+    -- and we have a ProfHet F F S R
+    -- i.e. a natural transformation S ⇒ precomposeF (F ^op) ∘F R ∘F F
     prodStrNatIso : NT.NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
-    prodStrNatIso =
-      preservesProvidedUniversalElementsNatIso
-        (ProdWithAProf C c) (ProdWithAProf D (F ⟅ c ⟆))
-        F (λ c' → preservesBinProdCones F c' c) -×c -×Fc F-×
+    prodStrNatIso .NT.NatIso.trans = prodStrNatTrans
+    prodStrNatIso .NT.NatIso.nIso c =
+      isiso
+        (the-is-iso .fst -×Fc.×ue.element)
+        (-×Fc.×ue.intro-natural
+        ∙ -×Fc.×ue.intro≡
+          (the-is-iso .snd .fst -×Fc.×ue.element
+          ∙ sym (PresheafNotation.⋆IdL (BinProductProf D ⟅ _ ⟆) -×Fc.×ue.element)))
+        (F⟨-×c⟩.×ue.intro-natural
+        ∙ F⟨-×c⟩.×ue.intro≡
+            (-×Fc.×ue.universal ((F ∘F -×c.×aF) .F-ob c) .equiv-proof
+              (F-hom F (-×c.×ue.element .fst) , F-hom F (-×c.×ue.element .snd))
+              .fst .snd
+            ∙ sym (PresheafNotation.⋆IdL (BinProductProf D ⟅ _ ⟆) _)))
+      where
+      the-is-iso = isEquivToIsIso _ (F-× c ((-×Fc.×aF ∘F F) .F-ob c))
 
   module _
     (π₁*C : ∀ {Γ} →
@@ -126,23 +169,13 @@ module _
         module ∀ⱽPshCᴰ =
           PresheafⱽNotation (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
 
-  --     -- Fᴰ-weakening-NatTransᴰ' :
-  --     --   NatTransᴰ
-  --     --     {!? ⋆NatTrans ?!}
-  --     --     Fᴰ
-  --     --     (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
-  --     -- Fᴰ-weakening-NatTransᴰ' .NatTransᴰ.N-obᴰ xᴰ =
-  --     --   {!!}
-  --     --   -- introᴰ (π₁*D (F-obᴰ Fᴰ xᴰ)) (Dᴰ.reind {!!} Dᴰ.idᴰ)
-  --     -- Fᴰ-weakening-NatTransᴰ' .NatTransᴰ.N-homᴰ = {!!}
-
-  --     -- Fᴰ-weakening-NatTransᴰ :
-  --     --   NatTransᴰ
-  --     --     (F-×.FNatIso .NT.NatIso.trans)
-  --     --     (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
-  --     --     (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
-  --     -- Fᴰ-weakening-NatTransᴰ =
-  --     --   {!? ⋆NatTransᴰ ?!}
+      -- Fᴰ-weakening-NatTransᴰ :
+      --   NatTransᴰ
+      --     (F-×.FNatIso .NT.NatIso.trans)
+      --     (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
+      --     (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
+      -- Fᴰ-weakening-NatTransᴰ =
+      --   {!? ⋆NatTransᴰ ?!}
 
       -- TODO having some issues proving the naturality of
       -- the ostensibly definable NatTransᴰ from left to right

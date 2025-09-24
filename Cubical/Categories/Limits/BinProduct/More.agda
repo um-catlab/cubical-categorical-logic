@@ -8,10 +8,6 @@
 module Cubical.Categories.Limits.BinProduct.More where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Isomorphism as Iso
-open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
@@ -21,7 +17,6 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More

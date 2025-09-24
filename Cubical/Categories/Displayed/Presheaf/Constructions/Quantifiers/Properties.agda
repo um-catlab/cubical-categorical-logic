@@ -197,7 +197,7 @@ module _
         reindHet∀PshIsoⱽ =
           reindPshIsoⱽ reindFuncCompIsoⱽ
           ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-          ⋆PshIsoⱽ reindPshIsoⱽ (reind-introIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
+          ⋆PshIsoⱽ reindPshIsoⱽ (reind-introIsoⱽ (Natisoᴰ→pshisoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
           ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
           ⋆PshIsoⱽ
             reindPathIsoⱽ

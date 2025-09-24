@@ -187,16 +187,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {α : PshIso P Q}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
   {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
-
-  pshIsoOfPshIsoᴰ : PshIsoᴰ  α Pᴰ Qᴰ → PshIso P Q
-  pshIsoOfPshIsoᴰ _ = α
-
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  {Q : Presheaf C ℓQ}
-  {α : PshIso P Q}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
   private
     module Pᴰ = PresheafᴰNotation Pᴰ
     module Qᴰ = PresheafᴰNotation Qᴰ

@@ -51,22 +51,6 @@ open Functorᴰ
 open PshHomᴰ
 open UniversalElementⱽ
 
--- The universal/pi and existential/weak sigma type are defined as
--- left and right adjoints to a "weakening" functor
---
--- The weakening functor is defined abstractly by an endofunctor F
--- and natural projection πF : F ⇒ Id such that cartesian lifts of
--- all displayed objects along πF exist
---
--- weakenπF Γᴰ -----> Δᴰ          Γᴰ --------> ∀ Δᴰ
---     -              -           -              -
---     |              |    ≅      |              |
---     v              v           v              v
---    FΓ ----------> FΔ           Γ -----------> Δ
---
--- The endofunctor F generalizes the usual construction
--- of a universal quantifier which takes F to be the binary
--- product and πF to be π₁
 module _
   {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -200,13 +184,6 @@ module _
 
       ∀FⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
       ∀FⱽPsh = reindHet' (Functor→PshHet F Γ) weakenπFᴰ Pⱽ
-
--- The usual universal quantifier defined with respect to
--- a binary product
---
--- Cᴰ(x × y) → Cᴰ x
---     |        |
--- x:C , y:C → x:C
 
 module _
   {C : Category ℓC ℓC'}

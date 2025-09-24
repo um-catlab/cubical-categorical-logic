@@ -109,6 +109,35 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     Qᴰ.rectify $ Qᴰ.≡out $ (Qᴰ.≡in $ α .N-homᴰ) ∙ Qᴰ.reind-filler _ _
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  open isIsoOver
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  reind-introIsoⱽ :
+    PshIsoᴰ α Pᴰ Qᴰ →
+    PshIsoⱽ Pᴰ (reind (α .trans) Qᴰ)
+  reind-introIsoⱽ αᴰ .fst = reind-introⱽ (αᴰ .fst)
+  reind-introIsoⱽ αᴰ .snd =
+    isisoover
+      (λ a qᴰ → Pᴰ.reind (α .nIso _ .snd .snd a) $ αᴰ⁻ .fst .N-obᴰ qᴰ)
+      (λ a p →
+        Qᴰ.rectify $ Qᴰ.≡out $
+          Qᴰ.≡in (congP (λ i → αᴰ .fst .N-obᴰ) (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _))
+          ∙ (Qᴰ.≡in (αᴰ .snd .rightInv _ _)))
+      (λ b q →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.≡in (αᴰ .snd .leftInv _ q))
+    where
+    αᴰ⁻ = invPshIsoᴰ αᴰ
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
   {α : PshHom P Q}
   {β : PshHom Q R}
@@ -231,35 +260,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
             ; N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _
             })
     (λ a → record { equiv-proof = strictContrFibers _ })
-
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α : PshIso P Q}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-  (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
-  where
-
-  private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-    module Qᴰ = PresheafᴰNotation Qᴰ
-
-  PshIsoᴰ→PshIsoⱽ : PshIsoⱽ Pᴰ (reind (α .trans) Qᴰ)
-  PshIsoᴰ→PshIsoⱽ = invPshIsoⱽ (
-    (PshHomPathPshHomᴰ (makePshHomPath {C = C} (λ i c x → α .nIso c .snd .snd x i)) $
-      reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) ,
-    isisoover
-      (λ a pᴰ → αᴰ .fst .N-obᴰ pᴰ)
-      (λ b q →
-        Pᴰ.rectify $ Pᴰ.≡out $
-          (sym $ Pᴰ.reind-filler _ _)
-          ∙ Pᴰ.≡in (αᴰ .snd .isIsoOver.leftInv _ q)
-      )
-      (λ a p →
-        Qᴰ.rectify $ Qᴰ.≡out $
-          Qᴰ.≡in (congP (λ i → αᴰ .fst .N-obᴰ) (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _))
-          ∙ (Qᴰ.≡in (αᴰ .snd .isIsoOver.rightInv _ _))
-      ))
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

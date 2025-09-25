@@ -9,6 +9,9 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
+open import Cubical.Reflection.RecordEquiv
+open import Cubical.Reflection.RecordEquiv.More
+
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
@@ -32,7 +35,7 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 
 private
   variable
-    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓPᴰ ℓQ ℓQᴰ ℓR ℓRᴰ : Level
+    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓPᴰ ℓQ ℓQᴰ ℓR ℓRᴰ ℓS ℓSᴰ : Level
 
 open Functor
 open Functorᴰ
@@ -90,6 +93,42 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → isEquivOver {P = Pᴰ.p[_][ xᴰ ]}{Q = Qᴰ.p[_][ xᴰ ]}{f = α .N-ob x}
         λ _ → αᴰ .PshHomᴰ.N-obᴰ
 
+  PshHomᴰΣ : Type _
+  PshHomᴰΣ =
+    Σ[ N-obᴰ ∈
+         (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α .N-ob x p ][ xᴰ ]) ]
+    (∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+        → {f : C [ x , y ]}{p : P.p[ y ]}
+        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+        → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
+            Qᴰ.≡[ α .N-hom x y f p ]
+          (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
+
+  isPropN-homᴰ :
+    ∀ (N-obᴰ : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
+         {p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α .N-ob x p ][ xᴰ ]) →
+    isProp (∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+        → {f : C [ x , y ]}{p : P.p[ y ]}
+        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+        → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
+            Qᴰ.≡[ α .N-hom x y f p ]
+          (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
+  isPropN-homᴰ =
+    λ _ → isPropImplicitΠ4 λ _ _ _ _ → isPropImplicitΠ4 λ _ _ _ _ →
+      λ _ _ → isSet→SquareP (λ i j → F-obᴰ Qᴰ _ (α .N-hom _ _ _ _ j) .snd) _ _ _ _
+
+  isSetPshHomᴰΣ : isSet PshHomᴰΣ
+  isSetPshHomᴰΣ =
+    isSetΣ
+      (isSetImplicitΠ3 (λ c cᴰ p → isSetΠ (λ pᴰ → Qᴰ.isSetPshᴰ)))
+      λ _ → isProp→isSet (isPropN-homᴰ _)
+
+  PshHomᴰΣIso : Iso PshHomᴰ PshHomᴰΣ
+  unquoteDef PshHomᴰΣIso = defineRecordIsoΣ PshHomᴰΣIso (quote (PshHomᴰ))
+
+  isSetPshHomᴰ : isSet PshHomᴰ
+  isSetPshHomᴰ = isOfHLevelRetractFromIso 2 PshHomᴰΣIso isSetPshHomᴰΣ
+
 open PshHomᴰ
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -125,6 +164,58 @@ module _
 
   PshHetᴰ : Type _
   PshHetᴰ = PshHomᴰ α Pᴰ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  where
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module P = PresheafNotation P
+
+  module _
+    {α β : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+    (βᴰ : PshHomᴰ β Pᴰ Qᴰ)
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
+    PshHomᴰPathP : α ≡ β → Type _
+    PshHomᴰPathP α≡β = PathP (λ i → PshHomᴰ (α≡β i) Pᴰ Qᴰ) αᴰ βᴰ
+
+    makePshHomᴰPathP :
+      (α≡β : α ≡ β) →
+      (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} →
+        PathP (λ i → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α≡β i .N-ob x p ][ xᴰ ])
+          (αᴰ .N-obᴰ {x}{xᴰ}{p}) (βᴰ .N-obᴰ)) →
+      PshHomᴰPathP α≡β
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-obᴰ = αᴰ≡βᴰ i
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-homᴰ
+      {x = x} {y = y} {xᴰ = xᴰ} {f = f} {p = p} {fᴰ = fᴰ} {pᴰ = pᴰ} =
+      isSet→SquareP (λ j k → Qᴰ.isSetPshᴰ {p = α≡β j .N-hom x y f p k })
+        (αᴰ .N-homᴰ {f = f}{fᴰ = fᴰ}{pᴰ = pᴰ})
+        (βᴰ .N-homᴰ {f = f}{fᴰ = fᴰ}{pᴰ = pᴰ})
+        (λ j → αᴰ≡βᴰ j (Pᴰ .F-homᴰ fᴰ p pᴰ))
+        (λ j → fᴰ Qᴰ.⋆ᴰ αᴰ≡βᴰ j pᴰ)
+        i
+
+  module _
+    {α : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {αᴰ βᴰ : PshHomᴰ α Pᴰ Qᴰ}
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
+    makePshHomᴰPath :
+      (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → αᴰ .N-obᴰ {x}{xᴰ}{p} ≡ βᴰ .N-obᴰ)
+      → αᴰ ≡ βᴰ
+    makePshHomᴰPath = makePshHomᴰPathP _ _ refl
 
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -547,3 +638,49 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
      αᴰ .NatIsoᴰ.nIsoᴰ _ .secᴰ i b q
    NatIsoᴰ→PshIsoᴰ .snd .leftInv a p i =
      αᴰ .NatIsoᴰ.nIsoᴰ _ .retᴰ i a p
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  {R : Presheaf C ℓR} {S : Presheaf C ℓS}
+  {α : PshHom P Q}{β : PshHom Q R}{γ : PshHom R S}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ} {Sᴰ : Presheafᴰ S Cᴰ ℓSᴰ}
+  (αᴰ : PshHomᴰ α Pᴰ Qᴰ)(βᴰ : PshHomᴰ β Qᴰ Rᴰ)(γᴰ : PshHomᴰ γ Rᴰ Sᴰ)
+  where
+
+  private
+    module Sᴰ = PresheafᴰNotation Sᴰ
+
+  ⋆PshHomᴰAssoc :
+    PshHomᴰPathP
+      ((αᴰ ⋆PshHomᴰ βᴰ) ⋆PshHomᴰ γᴰ)
+      (αᴰ ⋆PshHomᴰ βᴰ ⋆PshHomᴰ γᴰ)
+      (⋆PshHomAssoc α β γ)
+  ⋆PshHomᴰAssoc =
+    makePshHomᴰPathP _ _ _
+      λ {x}{xᴰ}{p} → funExt λ pᴰ →
+        Sᴰ.rectify {p = refl} refl
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
+  where
+
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  PshIsoᴰ→leftInvᴰ :
+    PshHomᴰPathP (αᴰ .fst ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) idPshHomᴰ (PshIso→leftInv α)
+  PshIsoᴰ→leftInvᴰ =
+    makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} → funExt λ pᴰ →
+      Pᴰ.rectify (αᴰ .snd .leftInv p pᴰ)
+
+  PshIsoᴰ→rightInvᴰ :
+    PshHomᴰPathP (invPshIsoᴰ αᴰ .fst ⋆PshHomᴰ αᴰ .fst) idPshHomᴰ (PshIso→rightInv α)
+  PshIsoᴰ→rightInvᴰ =
+    makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{q} → funExt λ qᴰ →
+      Qᴰ.rectify (αᴰ .snd .rightInv q qᴰ)

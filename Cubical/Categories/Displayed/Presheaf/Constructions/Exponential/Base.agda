@@ -3,52 +3,27 @@ module Cubical.Categories.Displayed.Presheaf.Constructions.Exponential.Base wher
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.GroupoidLaws hiding (cong₂Funct)
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv.Base
-open import Cubical.Foundations.Equiv.Dependent
-open import Cubical.Foundations.More
 
-import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory using (∫C)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Bifunctor
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-  renaming (π to Reindexπ; reindex to CatReindex)
-open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
-open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
-open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 
-open Bifunctorᴰ
 open Functor
 open Functorᴰ
-open isIsoOver
-open PshHom
-open PshIso
-open PshHomᴰ
 
 private
   variable
@@ -93,24 +68,38 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       module P = PresheafNotation P
       module Pᴰ = PresheafᴰNotation Pᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
+
     open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
+
     -- Γᴰ ⊢ (Pᴰ ⇒ Qᴰ)(p) := Γᴰ , Pᴰ(p) ⊢ Qᴰ(p)
     _⇒PshSmallⱽ_ : Presheafᴰ P Cᴰ ℓQᴰ
     _⇒PshSmallⱽ_ .F-obᴰ {Γ} Γᴰ p = Qᴰ .F-obᴰ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ p
     _⇒PshSmallⱽ_ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ p qᴰ = funcLR γᴰ Qᴰ.⋆ᴰ qᴰ
     _⇒PshSmallⱽ_ .F-idᴰ {Γ}{Γᴰ} = funExt λ p → funExt λ qᴰ →
-      rectify
-        (sym (congS₂Bifunct Qᴰ~ _ _ _ _) ∙ congS₂ (congS₂ Qᴰ~) (P.isSetPsh _ _ _ _) (P.isSetPsh _ _ _ _))
-        $ compPathP
-          (λ i → funcLR-id i Qᴰ.⋆ᴰ qᴰ)
-          (Qᴰ.≡out $ Qᴰ.⋆IdL _)
-      where
-        Qᴰ~ : (p p' : P.p[ Γ ]) → Type _
-        Qᴰ~ p' p = Qᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p' *Pᴰ⌉ ]
+      symP $ PresheafᴰNotation.toPathPPshᴰ Qᴰ ((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _)) $
+        Qᴰ.⟨ sym $ introLR≡
+          ((sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)
+          ∙ (sym $ PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ])
+              (((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _)))
+              (cong (π₁LR _) $ sym $ P.⋆IdL _)))
+          (sym (PresheafᴰNotation.fromPathPPshᴰ Pᴰ (cong ⌈ _ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆IdL _)
+            (cong (π₂LR _) (sym $ P.⋆IdL _)) ∙ Pᴰ.reind-filler _ _))
+          ⟩⋆⟨⟩
     _⇒PshSmallⱽ_ .F-seqᴰ {Γ} {Δ} {Θ} {γ} {δ} {Γᴰ} {Δᴰ} {Θᴰ} γᴰ δᴰ = funExt λ p → funExt λ qᴰ →
-      rectify
-        (sym (congS₂Bifunct Qᴰ~ _ _ _ _) ∙ congS₂ (congS₂ Qᴰ~) (P.isSetPsh _ _ _ _) (P.isSetPsh _ _ _ _))
-        $ compPathP (λ i → funcLR-seq γᴰ δᴰ i Qᴰ.⋆ᴰ qᴰ) (Qᴰ.≡out $ Qᴰ.⋆Assoc _ _ _)
-      where
-        Qᴰ~ : (p p' : P.p[ Θ ]) → Type _
-        Qᴰ~ p p' = Qᴰ.p[ p ][ ⌈ Θᴰ ×ⱽ p' *Pᴰ⌉ ]
+      symP $ PresheafᴰNotation.toPathPPshᴰ Qᴰ (cong ⌈ _ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc _ _ _) $
+        sym $
+          Qᴰ.⟨
+            introLR≡
+              ((sym $ Cᴰ.reind-filler _ _)
+              ∙ Cᴰ.⟨ sym $ PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ]) (cong ⌈ _ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc _ _ _)
+                (cong (π₁LR Θᴰ) (sym $ P.⋆Assoc _ _ _))
+                ⟩⋆⟨⟩
+              ∙ (sym $
+                Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ∙ sym (Cᴰ.reind-filler _ _) ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ (sym $ Cᴰ.⋆Assoc _ _ _) ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _ ))
+              ((sym $ Pᴰ.reind-filler _ _)
+              ∙ (sym $ PresheafᴰNotation.fromPathPPshᴰ Pᴰ ((cong ⌈ _ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc _ _ _)) (cong (π₂LR _) (sym $ P.⋆Assoc _ _ _)))
+              ∙ (sym $
+                Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _ _) ⟩ ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _ _) ⟩ ))
+          ⟩⋆⟨⟩
+          ∙ Qᴰ.⋆Assoc _ _ _
+          ∙ Qᴰ.⋆Assoc _ _ _

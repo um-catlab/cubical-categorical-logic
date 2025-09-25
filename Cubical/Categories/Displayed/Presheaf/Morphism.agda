@@ -684,3 +684,28 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   PshIsoᴰ→rightInvᴰ =
     makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{q} → funExt λ qᴰ →
       Qᴰ.rectify (αᴰ .snd .rightInv q qᴰ)
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  {α β γ : PshHom P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {αᴰ : PshHomᴰ α Pᴰ Qᴰ}
+  {βᴰ : PshHomᴰ β Pᴰ Qᴰ}
+  {γᴰ : PshHomᴰ γ Pᴰ Qᴰ}
+  {α≡β : α ≡ β}
+  {β≡γ : β ≡ γ}
+  where
+
+  compPshHomᴰPathP :
+    PshHomᴰPathP αᴰ βᴰ α≡β →
+    PshHomᴰPathP βᴰ γᴰ β≡γ →
+    PshHomᴰPathP αᴰ γᴰ (α≡β ∙ β≡γ)
+  compPshHomᴰPathP ϕᴰ ψᴰ i =
+    -- Don't even ask
+    -- I couldn't figure out the right cubical bit of the
+    -- library to make this work, but somehow hacked this together
+    -- It's like some amalgamation of congP and compPathP
+    comp (λ j → PshHomᴰ (compPath-filler α≡β β≡γ j i) Pᴰ Qᴰ)
+      (λ j → λ { (i = i0) → αᴰ ; (i = i1) → ψᴰ j})
+      (ϕᴰ i)

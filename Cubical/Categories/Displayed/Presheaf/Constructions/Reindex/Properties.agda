@@ -209,19 +209,22 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   reind-introIsoⱽ' :
     PshIsoᴰ α Pᴰ Qᴰ →
-    PshIsoᴰ {!!} Pᴰ (reind (α .trans) Qᴰ)
+    PshIsoᴰ (makePshIso _ _) Pᴰ (reind (α .trans) Qᴰ)
   reind-introIsoⱽ' αᴰ =
     makePshIsoᴰ'
       {αᴰ = reind-introⱽ (αᴰ .fst)}
       {αᴰ⁻ = reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst}
       (makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom {C = C} {P = P} .N-ob c p)))
       (makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd p))
-      (rectify {!!} $
+      (rectify {!!} path-p-l)
+      {!!}
+    where
+    path-p-l :
+      PathP _ (reind-introⱽ (αᴰ .fst) ⋆PshHomᴰ reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) idPshHomᴰ
+    path-p-l =
         compPathP (symP (⋆PshHomᴰAssoc _ _ _)) $
         compPathP (congP₂ (λ _ → _⋆PshHomᴰ_) (reind-βⱽ (αᴰ .fst)) refl) $
         PshIsoᴰ→leftInvᴰ αᴰ
-      )
-      {!!}
     -- makePshIsoᴰ
     --   {!!}
     --   {!!}

@@ -119,10 +119,31 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} →
       funExt λ pᴰ → Qᴰ.rectify {p = refl} refl
 
+  reind-βⱽ' :
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
+    reind-introⱽ αᴰ ⋆PshHomⱽᴰ reind-π ≡ αᴰ
+  reind-βⱽ' αᴰ = makePshHomᴰPath refl
+
   reind-ηⱽ :
     (αⱽ : PshHomⱽ Pᴰ (reind α Qᴰ)) →
     reind-introⱽ (αⱽ ⋆PshHomⱽᴰ reind-π) ≡ αⱽ
   reind-ηⱽ αⱽ = makePshHomᴰPath refl
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+  {α : PshHom P Q} {β : PshHom Q R}
+  {Pᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+  (αᴰ : PshHomⱽ Pᴰ Qᴰ)
+  (βᴰ : PshHomᴰ β Qᴰ Rᴰ)
+  where
+  private
+    module Q = PresheafNotation Q
+    module Qᴰ = PresheafᴰNotation Qᴰ
+  reind-introⱽ-natural :
+    αᴰ ⋆PshHomⱽ reind-introⱽ βᴰ ≡ reind-introⱽ (αᴰ ⋆PshHomⱽᴰ βᴰ)
+  reind-introⱽ-natural = makePshHomᴰPath refl
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
@@ -213,23 +234,19 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-introIsoⱽ' αᴰ =
     makePshIsoᴰ'
       {αᴰ = reind-introⱽ (αᴰ .fst)}
-      {αᴰ⁻ = reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst}
+      -- {αᴰ⁻ = reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst}
+      {αᴰ⁻ = reind-introⱽ (reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) ⋆PshHomⱽᴰ reind-π}
       (makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom {C = C} {P = P} .N-ob c p)))
       (makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd p))
-      (rectify {!!} path-p-l)
-      {!!}
-    where
-    path-p-l :
-      PathP _ (reind-introⱽ (αᴰ .fst) ⋆PshHomᴰ reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) idPshHomᴰ
-    path-p-l =
-        compPathP (symP (⋆PshHomᴰAssoc _ _ _)) $
-        compPathP (congP₂ (λ _ → _⋆PshHomᴰ_) (reind-βⱽ (αᴰ .fst)) refl) $
-        PshIsoᴰ→leftInvᴰ αᴰ
-    -- makePshIsoᴰ
-    --   {!!}
-    --   {!!}
-    --   {!!}
-    --   {!!}
+      -- First is compPshHomᴰPathP' because it is agnostic
+      -- to the path between PshHoms requested by the goal
+      (compPshHomᴰPathP' (congP₂ (λ _ → _⋆PshHomᴰ_) refl (reind-βⱽ' _)) $
+        compPshHomᴰPathP (symP $ ⋆PshHomᴰAssoc _ _ _) $
+        compPshHomᴰPathP (congP₂ (λ _ → _⋆PshHomᴰ_) (reind-βⱽ _) refl) $
+        PshIsoᴰ→leftInvᴰ αᴰ)
+      -- TODO ⟨_⟩⋆PshHomᴰ⟨_⟩
+      -- TODO use reind-introⱽ-natural for this goal
+      (compPshHomᴰPathP' {!reind-introⱽ-natural!} $ {!!})
 
 --   -- reind-introIsoⱽ αᴰ .fst = reind-introⱽ (αᴰ .fst)
 --   -- reind-introIsoⱽ αᴰ .snd .inv = {!makePshIsoᴰ!}

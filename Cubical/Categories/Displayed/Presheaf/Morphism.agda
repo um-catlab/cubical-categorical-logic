@@ -688,6 +688,26 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  {α β : PshHom P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {αᴰ : PshHomᴰ α Pᴰ Qᴰ}
+  {βᴰ : PshHomᴰ β Pᴰ Qᴰ}
+  {α≡β α≡β' : α ≡ β}
+  where
+
+   private
+     module Qᴰ = PresheafᴰNotation Qᴰ
+
+   PshHomᴰPathP-rectify :
+     PshHomᴰPathP αᴰ βᴰ α≡β →
+     PshHomᴰPathP αᴰ βᴰ α≡β'
+   PshHomᴰPathP-rectify ϕᴰ =
+     makePshHomᴰPathP αᴰ βᴰ α≡β' λ {x}{xᴰ}{p} → funExt λ pᴰ →
+       Qᴰ.rectify (congP (λ i u → u .N-obᴰ pᴰ) ϕᴰ)
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
   {α β γ : PshHom P Q}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   {αᴰ : PshHomᴰ α Pᴰ Qᴰ}
@@ -709,3 +729,10 @@ module _
     comp (λ j → PshHomᴰ (compPath-filler α≡β β≡γ j i) Pᴰ Qᴰ)
       (λ j → λ { (i = i0) → αᴰ ; (i = i1) → ψᴰ j})
       (ϕᴰ i)
+
+  module _ {α≡γ : α ≡ γ} where
+    compPshHomᴰPathP' :
+      PshHomᴰPathP αᴰ βᴰ α≡β →
+      PshHomᴰPathP βᴰ γᴰ β≡γ →
+      PshHomᴰPathP αᴰ γᴰ α≡γ
+    compPshHomᴰPathP' ϕᴰ ψᴰ = PshHomᴰPathP-rectify (compPshHomᴰPathP ϕᴰ ψᴰ)

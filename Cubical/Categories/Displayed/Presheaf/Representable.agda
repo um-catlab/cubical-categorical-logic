@@ -225,20 +225,56 @@ module _
   {Q : Presheaf D ℓQ} {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
   {F : Functor C D}{Fᴰ : Functorᴰ F Cᴰ Dᴰ}
   {α : PshHet F P Q}
+  (αᴰ : PshHetᴰ α Fᴰ Pᴰ Qᴰ)
+  where
+
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Cᴰ = Fibers Cᴰ
+
+  becomesUniversalᴰ : ∀ {v}{e} →
+    becomesUniversal α v e →
+    (vᴰ : Cᴰ.ob[ v ])(eᴰ : Pᴰ.p[ e ][ vᴰ ]) → Type _
+  becomesUniversalᴰ becomesUE vᴰ eᴰ =
+    isUniversalᴰ Dᴰ (becomesUniversal→UniversalElement α becomesUE)
+      Qᴰ (Fᴰ .F-obᴰ vᴰ) (αᴰ .N-obᴰ eᴰ)
+
+  becomesUniversalᴰ→UEᴰ : ∀ {v}{e}
+    {becomesUE : becomesUniversal α v e} →
+    {vᴰ : Cᴰ.ob[ v ]}{eᴰ : Pᴰ.p[ e ][ vᴰ ]} →
+    becomesUniversalᴰ becomesUE vᴰ eᴰ →
+    UniversalElementᴰ Dᴰ
+      (becomesUniversal→UniversalElement α becomesUE) Qᴰ
+  becomesUniversalᴰ→UEᴰ becomesUEᴰ .UniversalElementᴰ.vertexᴰ = _
+  becomesUniversalᴰ→UEᴰ becomesUEᴰ .UniversalElementᴰ.elementᴰ = _
+  becomesUniversalᴰ→UEᴰ becomesUEᴰ .UniversalElementᴰ.universalᴰ = becomesUEᴰ
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Q : Presheaf D ℓQ} {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  {F : Functor C D}{Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {α : PshHet F P Q}
   {ue : UniversalElement C P}
   (α-presUE : preservesUniversalElement {F = F}{P = P} α ue)
   (αᴰ : PshHetᴰ α Fᴰ Pᴰ Qᴰ)
-  (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ)
   where
-  private
-    module ueᴰ = UniversalElementᴰ ueᴰ
-  preservesUEᴰ : Type _
-  preservesUEᴰ = isUniversalᴰ Dᴰ
-    (preservesUniversalElement→UniversalElement α ue α-presUE)
-    Qᴰ
-    (Fᴰ .F-obᴰ ueᴰ.vertexᴰ)
-    (αᴰ .N-obᴰ ueᴰ.elementᴰ)
+  module _ (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ) where
+    private
+      module ueᴰ = UniversalElementᴰ ueᴰ
+    preservesUEᴰ : Type _
+    preservesUEᴰ =
+      becomesUniversalᴰ αᴰ α-presUE ueᴰ.vertexᴰ ueᴰ.elementᴰ
 
+  module _
+    (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ)
+    (presUEᴰ : preservesUEᴰ ueᴰ)
+    where
+    preservesUEᴰ→UEᴰ :
+      UniversalElementᴰ Dᴰ
+        (becomesUniversal→UniversalElement α α-presUE) Qᴰ
+    preservesUEᴰ→UEᴰ = becomesUniversalᴰ→UEᴰ αᴰ presUEᴰ
 
 -- Vertical Universal properties over objects of C
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -460,22 +496,50 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}{Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {c}
+  {Pⱽ : Presheafⱽ c Cᴰ ℓPᴰ}
+  {Qⱽ : Presheafⱽ (F ⟅ c ⟆) Dᴰ ℓQᴰ}
+  (αⱽ : PshHetⱽ Fᴰ Pⱽ Qⱽ)
+  where
+
+  private
+    module Pⱽ = PresheafⱽNotation Pⱽ
+    module Qⱽ = PresheafⱽNotation Qⱽ
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+
+  becomesUniversalⱽ :
+    (cᴰ : Cᴰ.ob[ c ])(eⱽ : Pⱽ.p[ C.id ][ cᴰ ]) → Type _
+  becomesUniversalⱽ cᴰ eⱽ =
+    isUniversalⱽ Dᴰ (F ⟅ c ⟆) Qⱽ (Fᴰ .F-obᴰ cᴰ)
+      -- TODO: define this as N-obⱽ?
+      (Qⱽ.reind (F .F-id) $ αⱽ .N-obᴰ eⱽ)
+
+  becomesUniversalⱽ→UEⱽ :
+    ∀ {cᴰ}{eⱽ} →
+    becomesUniversalⱽ cᴰ eⱽ →
+    UniversalElementⱽ Dᴰ (F ⟅ c ⟆) Qⱽ
+  becomesUniversalⱽ→UEⱽ becomesUEⱽ .UniversalElementⱽ.vertexⱽ = _
+  becomesUniversalⱽ→UEⱽ becomesUEⱽ .UniversalElementⱽ.elementⱽ = _
+  becomesUniversalⱽ→UEⱽ becomesUEⱽ .UniversalElementⱽ.universalⱽ = becomesUEⱽ
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D}
   {x}
   {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
   {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ}
   {Qⱽ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
-  (αⱽ : PshHetⱽ Fᴰ Pⱽ Qⱽ) -- PshHetᴰ α Fᴰ Pᴰ Qᴰ
+  (αⱽ : PshHetⱽ Fᴰ Pⱽ Qⱽ)
   (ueⱽ : UniversalElementⱽ Cᴰ x Pⱽ)
   where
   private
     module Qⱽ = PresheafⱽNotation Qⱽ
     module ueⱽ = UniversalElementⱽ ueⱽ
   preservesUEⱽ : Type _
-  preservesUEⱽ =
-    isUniversalⱽ Dᴰ (F ⟅ x ⟆) Qⱽ (Fᴰ .F-obᴰ ueⱽ.vertexⱽ)
-      -- TODO: define this as N-obⱽ?
-      (Qⱽ.reind (F .F-id) (αⱽ .N-obᴰ ueⱽ.elementⱽ))
+  preservesUEⱽ = becomesUniversalⱽ αⱽ ueⱽ.vertexⱽ ueⱽ.elementⱽ
 
   preservesUEⱽ→UEⱽ : preservesUEⱽ → UniversalElementⱽ Dᴰ (F ⟅ x ⟆) Qⱽ
-  preservesUEⱽ→UEⱽ uⱽ = record { vertexⱽ = F-obᴰ Fᴰ ueⱽ.vertexⱽ ; elementⱽ = Qⱽ.reind (F .F-id) (αⱽ .N-obᴰ ueⱽ.elementⱽ) ; universalⱽ = uⱽ }
+  preservesUEⱽ→UEⱽ = becomesUniversalⱽ→UEⱽ αⱽ

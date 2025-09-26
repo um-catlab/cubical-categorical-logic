@@ -2,17 +2,23 @@
 module Cubical.Categories.Displayed.Presheaf.Morphism where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
+open import Cubical.Reflection.RecordEquiv
+open import Cubical.Reflection.RecordEquiv.More
+
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category hiding (isIso)
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation using (NatTrans ; NatIso)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf.Base
@@ -20,6 +26,8 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
@@ -27,7 +35,7 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 
 private
   variable
-    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓPᴰ ℓQ ℓQᴰ ℓR ℓRᴰ : Level
+    ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓP ℓPᴰ ℓQ ℓQᴰ ℓR ℓRᴰ ℓS ℓSᴰ : Level
 
 open Functor
 open Functorᴰ
@@ -85,7 +93,55 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → isEquivOver {P = Pᴰ.p[_][ xᴰ ]}{Q = Qᴰ.p[_][ xᴰ ]}{f = α .N-ob x}
         λ _ → αᴰ .PshHomᴰ.N-obᴰ
 
+  PshHomᴰΣ : Type _
+  PshHomᴰΣ =
+    Σ[ N-obᴰ ∈
+         (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α .N-ob x p ][ xᴰ ]) ]
+    (∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+        → {f : C [ x , y ]}{p : P.p[ y ]}
+        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+        → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
+            Qᴰ.≡[ α .N-hom x y f p ]
+          (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
+
+  isPropN-homᴰ :
+    ∀ (N-obᴰ : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
+         {p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α .N-ob x p ][ xᴰ ]) →
+    isProp (∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+        → {f : C [ x , y ]}{p : P.p[ y ]}
+        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+        → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
+            Qᴰ.≡[ α .N-hom x y f p ]
+          (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
+  isPropN-homᴰ =
+    λ _ → isPropImplicitΠ4 λ _ _ _ _ → isPropImplicitΠ4 λ _ _ _ _ →
+      λ _ _ → isSet→SquareP (λ i j → F-obᴰ Qᴰ _ (α .N-hom _ _ _ _ j) .snd) _ _ _ _
+
+  isSetPshHomᴰΣ : isSet PshHomᴰΣ
+  isSetPshHomᴰΣ =
+    isSetΣ
+      (isSetImplicitΠ3 (λ c cᴰ p → isSetΠ (λ pᴰ → Qᴰ.isSetPshᴰ)))
+      λ _ → isProp→isSet (isPropN-homᴰ _)
+
+  PshHomᴰΣIso : Iso PshHomᴰ PshHomᴰΣ
+  unquoteDef PshHomᴰΣIso = defineRecordIsoΣ PshHomᴰΣIso (quote (PshHomᴰ))
+
+  isSetPshHomᴰ : isSet PshHomᴰ
+  isSetPshHomᴰ = isOfHLevelRetractFromIso 2 PshHomᴰΣIso isSetPshHomᴰΣ
+
 open PshHomᴰ
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P Q : Presheaf C ℓP}
+  {α : NatTrans P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
+  (αᴰ : NatTransᴰ α Pᴰ Qᴰ) where
+
+   NatTransᴰ→PshHomᴰ : PshHomᴰ (NatTrans→PshHom α) Pᴰ Qᴰ
+   NatTransᴰ→PshHomᴰ .N-obᴰ = αᴰ .NatTransᴰ.N-obᴰ _ _
+   NatTransᴰ→PshHomᴰ .N-homᴰ {p = p} {fᴰ = fᴰ} {pᴰ = pᴰ} =
+     funExt₂⁻ (αᴰ .NatTransᴰ.N-homᴰ fᴰ) p pᴰ
 
 -- A displayed "heteromorphism" is a kind of morphism between
 -- displayed presheaves on different categories.
@@ -108,6 +164,58 @@ module _
 
   PshHetᴰ : Type _
   PshHetᴰ = PshHomᴰ α Pᴰ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  where
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module P = PresheafNotation P
+
+  module _
+    {α β : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+    (βᴰ : PshHomᴰ β Pᴰ Qᴰ)
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
+    PshHomᴰPathP : α ≡ β → Type _
+    PshHomᴰPathP α≡β = PathP (λ i → PshHomᴰ (α≡β i) Pᴰ Qᴰ) αᴰ βᴰ
+
+    makePshHomᴰPathP :
+      (α≡β : α ≡ β) →
+      (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} →
+        PathP (λ i → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α≡β i .N-ob x p ][ xᴰ ])
+          (αᴰ .N-obᴰ {x}{xᴰ}{p}) (βᴰ .N-obᴰ)) →
+      PshHomᴰPathP α≡β
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-obᴰ = αᴰ≡βᴰ i
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-homᴰ
+      {x = x} {y = y} {xᴰ = xᴰ} {f = f} {p = p} {fᴰ = fᴰ} {pᴰ = pᴰ} =
+      isSet→SquareP (λ j k → Qᴰ.isSetPshᴰ {p = α≡β j .N-hom x y f p k })
+        (αᴰ .N-homᴰ {f = f}{fᴰ = fᴰ}{pᴰ = pᴰ})
+        (βᴰ .N-homᴰ {f = f}{fᴰ = fᴰ}{pᴰ = pᴰ})
+        (λ j → αᴰ≡βᴰ j (Pᴰ .F-homᴰ fᴰ p pᴰ))
+        (λ j → fᴰ Qᴰ.⋆ᴰ αᴰ≡βᴰ j pᴰ)
+        i
+
+  module _
+    {α : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {αᴰ βᴰ : PshHomᴰ α Pᴰ Qᴰ}
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
+    makePshHomᴰPath :
+      (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → αᴰ .N-obᴰ {x}{xᴰ}{p} ≡ βᴰ .N-obᴰ)
+      → αᴰ ≡ βᴰ
+    makePshHomᴰPath = makePshHomᴰPathP _ _ refl
 
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -279,6 +387,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       } where
         ∫⋆ = ∫PshHom αᴰ ⋆PshHom ∫PshHom βᴰ
 
+    infixr 9 _⋆PshHomᴰ_
+
   module _ {α : PshIso P Q}{β : PshIso Q R} where
     _⋆PshIsoᴰ_ : (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)(βᴰ : PshIsoᴰ β Qᴰ Rᴰ) → PshIsoᴰ (α ⋆PshIso β) Pᴰ Rᴰ
     (αᴰ ⋆PshIsoᴰ βᴰ) = (αᴰ .fst ⋆PshHomᴰ βᴰ .fst) ,
@@ -289,6 +399,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       where
         module Pᴰ = PresheafᴰNotation Pᴰ
         ∫⋆ = ∫PshIso αᴰ ⋆PshIso ∫PshIso βᴰ
+
+    infixr 9 _⋆PshIsoᴰ_
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -457,3 +569,170 @@ module _
   (αᴰ ∘ˡⁱᴰ Fᴰ) .snd .leftInv = αᴰ .snd .leftInv
 
   -- TODO: whiskering for universal element
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α β : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+    PshHomEqPshHomᴰ :
+      (eq-N-ob : α .N-ob Eq.≡ β .N-ob) →
+      (eq-N-hom :
+        Eq.HEq
+          (Eq.ap
+            (λ N-ob' →
+              ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+                N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
+          (α .N-hom) (β .N-hom)) →
+      PshHomᴰ β Pᴰ Qᴰ
+    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-obᴰ = αᴰ .N-obᴰ
+    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-homᴰ = αᴰ .N-homᴰ
+
+  module _ (α≡β : α ≡ β) where
+    module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+      (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+      PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
+      PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
+        Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
+          αᴰ .N-obᴰ pᴰ
+      PshHomPathPshHomᴰ .N-homᴰ =
+        Qᴰ.rectify $ Qᴰ.≡out $
+          (sym $ Qᴰ.reind-filler _ _)
+          ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
+          ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  where
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} where
+    -- TODO I don't know what the right eq-based lemma I need
+    -- to generalize this
+    precomp𝟙ᴰPshIsoᴰ :
+      PshIsoᴰ (precomp𝟙PshIso P) Pᴰ (Pᴰ ∘Fᴰ (𝟙ᴰ⟨ Cᴰ ⟩ ^opFᴰ))
+    precomp𝟙ᴰPshIsoᴰ .fst .N-obᴰ = λ z → z
+    precomp𝟙ᴰPshIsoᴰ .fst .N-homᴰ = refl
+    precomp𝟙ᴰPshIsoᴰ .snd .inv = λ _ z → z
+    precomp𝟙ᴰPshIsoᴰ .snd .rightInv _ _ = refl
+    precomp𝟙ᴰPshIsoᴰ .snd .leftInv _ _ = refl
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P Q : Presheaf C ℓP}
+  {α : NatIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
+  (αᴰ : NatIsoᴰ α Pᴰ Qᴰ) where
+
+   NatIsoᴰ→PshIsoᴰ :
+     PshIsoᴰ
+       (NatIso→PshIso P Q α)
+       Pᴰ Qᴰ
+   NatIsoᴰ→PshIsoᴰ .fst = NatTransᴰ→PshHomᴰ (αᴰ .NatIsoᴰ.transᴰ)
+   NatIsoᴰ→PshIsoᴰ .snd .inv = αᴰ .NatIsoᴰ.nIsoᴰ _ .invᴰ
+   NatIsoᴰ→PshIsoᴰ .snd .rightInv b q i =
+     αᴰ .NatIsoᴰ.nIsoᴰ _ .secᴰ i b q
+   NatIsoᴰ→PshIsoᴰ .snd .leftInv a p i =
+     αᴰ .NatIsoᴰ.nIsoᴰ _ .retᴰ i a p
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  {R : Presheaf C ℓR} {S : Presheaf C ℓS}
+  {α : PshHom P Q}{β : PshHom Q R}{γ : PshHom R S}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ} {Sᴰ : Presheafᴰ S Cᴰ ℓSᴰ}
+  (αᴰ : PshHomᴰ α Pᴰ Qᴰ)(βᴰ : PshHomᴰ β Qᴰ Rᴰ)(γᴰ : PshHomᴰ γ Rᴰ Sᴰ)
+  where
+
+  private
+    module Sᴰ = PresheafᴰNotation Sᴰ
+
+  ⋆PshHomᴰAssoc :
+    PshHomᴰPathP
+      ((αᴰ ⋆PshHomᴰ βᴰ) ⋆PshHomᴰ γᴰ)
+      (αᴰ ⋆PshHomᴰ βᴰ ⋆PshHomᴰ γᴰ)
+      (⋆PshHomAssoc α β γ)
+  ⋆PshHomᴰAssoc =
+    makePshHomᴰPathP _ _ _
+      λ {x}{xᴰ}{p} → funExt λ pᴰ →
+        Sᴰ.rectify {p = refl} refl
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
+  where
+
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  PshIsoᴰ→leftInvᴰ :
+    PshHomᴰPathP (αᴰ .fst ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) idPshHomᴰ (PshIso→leftInv α)
+  PshIsoᴰ→leftInvᴰ =
+    makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} → funExt λ pᴰ →
+      Pᴰ.rectify (αᴰ .snd .leftInv p pᴰ)
+
+  PshIsoᴰ→rightInvᴰ :
+    PshHomᴰPathP (invPshIsoᴰ αᴰ .fst ⋆PshHomᴰ αᴰ .fst) idPshHomᴰ (PshIso→rightInv α)
+  PshIsoᴰ→rightInvᴰ =
+    makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{q} → funExt λ qᴰ →
+      Qᴰ.rectify (αᴰ .snd .rightInv q qᴰ)
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  {α β : PshHom P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {αᴰ : PshHomᴰ α Pᴰ Qᴰ}
+  {βᴰ : PshHomᴰ β Pᴰ Qᴰ}
+  {α≡β α≡β' : α ≡ β}
+  where
+
+   private
+     module Qᴰ = PresheafᴰNotation Qᴰ
+
+   PshHomᴰPathP-rectify :
+     PshHomᴰPathP αᴰ βᴰ α≡β →
+     PshHomᴰPathP αᴰ βᴰ α≡β'
+   PshHomᴰPathP-rectify ϕᴰ =
+     makePshHomᴰPathP αᴰ βᴰ α≡β' λ {x}{xᴰ}{p} → funExt λ pᴰ →
+       Qᴰ.rectify (congP (λ i u → u .N-obᴰ pᴰ) ϕᴰ)
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  {α β γ : PshHom P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {αᴰ : PshHomᴰ α Pᴰ Qᴰ}
+  {βᴰ : PshHomᴰ β Pᴰ Qᴰ}
+  {γᴰ : PshHomᴰ γ Pᴰ Qᴰ}
+  {α≡β : α ≡ β}
+  {β≡γ : β ≡ γ}
+  where
+
+  compPshHomᴰPathP :
+    PshHomᴰPathP αᴰ βᴰ α≡β →
+    PshHomᴰPathP βᴰ γᴰ β≡γ →
+    PshHomᴰPathP αᴰ γᴰ (α≡β ∙ β≡γ)
+  compPshHomᴰPathP ϕᴰ ψᴰ i =
+    -- Don't even ask
+    -- I couldn't figure out the right cubical bit of the
+    -- library to make this work, but somehow hacked this together
+    -- It's like some amalgamation of congP and compPathP
+    comp (λ j → PshHomᴰ (compPath-filler α≡β β≡γ j i) Pᴰ Qᴰ)
+      (λ j → λ { (i = i0) → αᴰ ; (i = i1) → ψᴰ j})
+      (ϕᴰ i)
+
+  module _ {α≡γ : α ≡ γ} where
+    compPshHomᴰPathP' :
+      PshHomᴰPathP αᴰ βᴰ α≡β →
+      PshHomᴰPathP βᴰ γᴰ β≡γ →
+      PshHomᴰPathP αᴰ γᴰ α≡γ
+    compPshHomᴰPathP' ϕᴰ ψᴰ = PshHomᴰPathP-rectify (compPshHomᴰPathP ϕᴰ ψᴰ)

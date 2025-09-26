@@ -8,6 +8,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Equiv.Dependent
 
+open import Cubical.Functions.FunExtEquiv
+
 open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
 
@@ -58,37 +60,28 @@ open Functor
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α β : PshHom P Q}(α≡β : α ≡ β) {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {α β : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   where
   private
     module Qᴰ = PresheafᴰNotation Qᴰ
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
 
-  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
-    PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
-    PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
-      Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
-        αᴰ .N-obᴰ pᴰ
-    PshHomPathPshHomᴰ .N-homᴰ =
+  module _ (α≡β : α ≡ β) where
+    reindPathIsoⱽ : PshIsoⱽ (reind α Qᴰ) (reind β Qᴰ)
+    reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong N-ob α≡β) _) _)
+    reindPathIsoⱽ .fst .PshHomᴰ.N-homᴰ =
       Qᴰ.rectify $ Qᴰ.≡out $
-        (sym $ Qᴰ.reind-filler _ _)
-        ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
-        ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
-
-  reindPathIsoⱽ : PshIsoⱽ (reind α Qᴰ) (reind β Qᴰ)
-  reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong N-ob α≡β) _) _)
-  reindPathIsoⱽ .fst .PshHomᴰ.N-homᴰ =
-    Qᴰ.rectify $ Qᴰ.≡out $
-      (sym (Qᴰ.reind-filler _ _)
-      ∙ sym (Qᴰ.reind-filler _ _)
-      ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩)
-      ∙ Qᴰ.reind-filler _ _
-  reindPathIsoⱽ .snd .isIsoOver.inv q =
-    Qᴰ.reind ((funExt⁻ (funExt⁻ (cong N-ob (sym α≡β)) _) _))
-  reindPathIsoⱽ .snd .isIsoOver.rightInv q qᴰ =
-    Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
-  reindPathIsoⱽ .snd .isIsoOver.leftInv q qᴰ =
-    Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+        (sym (Qᴰ.reind-filler _ _)
+        ∙ sym (Qᴰ.reind-filler _ _)
+        ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩)
+        ∙ Qᴰ.reind-filler _ _
+    reindPathIsoⱽ .snd .isIsoOver.inv q =
+      Qᴰ.reind ((funExt⁻ (funExt⁻ (cong N-ob (sym α≡β)) _) _))
+    reindPathIsoⱽ .snd .isIsoOver.rightInv q qᴰ =
+      Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+    reindPathIsoⱽ .snd .isIsoOver.leftInv q qᴰ =
+      Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
 
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -109,6 +102,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   where
   private
+    module Q = PresheafNotation Q
     module Qᴰ = PresheafᴰNotation Qᴰ
   reind-introⱽ :
     PshHomᴰ α Pᴰ Qᴰ
@@ -116,6 +110,40 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-introⱽ α .N-obᴰ = α .N-obᴰ
   reind-introⱽ α .N-homᴰ =
     Qᴰ.rectify $ Qᴰ.≡out $ (Qᴰ.≡in $ α .N-homᴰ) ∙ Qᴰ.reind-filler _ _
+
+  reind-βⱽ :
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
+    PshHomᴰPathP (reind-introⱽ αᴰ ⋆PshHomᴰ reind-π) αᴰ
+      id⋆α≡α
+  reind-βⱽ αᴰ =
+    makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} →
+      funExt λ pᴰ → Qᴰ.rectify {p = refl} refl
+
+  reind-βⱽ' :
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
+    reind-introⱽ αᴰ ⋆PshHomⱽᴰ reind-π ≡ αᴰ
+  reind-βⱽ' αᴰ = makePshHomᴰPath refl
+
+  reind-ηⱽ :
+    (αⱽ : PshHomⱽ Pᴰ (reind α Qᴰ)) →
+    reind-introⱽ (αⱽ ⋆PshHomⱽᴰ reind-π) ≡ αⱽ
+  reind-ηⱽ αⱽ = makePshHomᴰPath refl
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+  {α : PshHom P Q} {β : PshHom Q R}
+  {Pᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+  (αᴰ : PshHomⱽ Pᴰ Qᴰ)
+  (βᴰ : PshHomᴰ β Qᴰ Rᴰ)
+  where
+  private
+    module Q = PresheafNotation Q
+    module Qᴰ = PresheafᴰNotation Qᴰ
+  reind-introⱽ-natural :
+    αᴰ ⋆PshHomⱽ reind-introⱽ βᴰ ≡ reind-introⱽ (αᴰ ⋆PshHomⱽᴰ βᴰ)
+  reind-introⱽ-natural = makePshHomᴰPath refl
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
@@ -132,6 +160,110 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-introᴰ αβᴰ .N-obᴰ = αβᴰ .N-obᴰ
   reind-introᴰ αβᴰ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
     (∫PshHom αβᴰ .N-hom _ _ _ _) ∙ Rᴰ.reind-filler _ _
+
+  reind-βᴰ :
+    (αᴰ : PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ) →
+    reind-introᴰ αᴰ ⋆PshHomᴰ reind-π ≡ αᴰ
+  reind-βᴰ αᴰ = makePshHomᴰPath refl
+
+  reind-ηᴰ :
+    (αᴰ : PshHomᴰ α Pᴰ (reind β Rᴰ)) →
+    reind-introᴰ (αᴰ ⋆PshHomᴰ reind-π) ≡ αᴰ
+  reind-ηᴰ αᴰ = makePshHomᴰPath refl
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshHom P Q}
+  {α⁻ : PshHom Q P}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {αᴰ : PshHomᴰ α Pᴰ Qᴰ}
+  {αᴰ⁻ : PshHomᴰ α⁻ Qᴰ Pᴰ}
+  (leftInv : α ⋆PshHom α⁻ ≡ idPshHom)
+  (rightInv : α⁻ ⋆PshHom α ≡ idPshHom)
+  (leftInvᴰ : PshHomᴰPathP (αᴰ ⋆PshHomᴰ αᴰ⁻) idPshHomᴰ leftInv)
+  (rightInvᴰ : PshHomᴰPathP (αᴰ⁻ ⋆PshHomᴰ αᴰ) idPshHomᴰ rightInv)
+  where
+
+  makePshIsoᴰ' : PshIsoᴰ (makePshIso leftInv rightInv) Pᴰ Qᴰ
+  makePshIsoᴰ' .fst = αᴰ
+  makePshIsoᴰ' .snd .inv _ = αᴰ⁻ .N-obᴰ
+  makePshIsoᴰ' .snd .isIsoOver.rightInv q qᴰ = congP (λ i z → z .N-obᴰ qᴰ) rightInvᴰ
+  makePshIsoᴰ' .snd .isIsoOver.leftInv p pᴰ = congP (λ i z → z .N-obᴰ pᴰ) leftInvᴰ
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  where
+
+  module _
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {αᴰ : PshHomᴰ (α .trans) Pᴰ Qᴰ}
+    {αᴰ⁻ : PshHomᴰ (invPshIso α .trans) Qᴰ Pᴰ}
+    (leftInvᴰ : PshHomᴰPathP (αᴰ ⋆PshHomᴰ αᴰ⁻) idPshHomᴰ (PshIso→leftInv α))
+    (rightInvᴰ : PshHomᴰPathP (αᴰ⁻ ⋆PshHomᴰ αᴰ) idPshHomᴰ (PshIso→rightInv α))
+    where
+
+    private
+      module Qᴰ = PresheafᴰNotation Qᴰ
+      module Pᴰ = PresheafᴰNotation Pᴰ
+
+    makePshIsoᴰ : PshIsoᴰ α Pᴰ Qᴰ
+    makePshIsoᴰ .fst = αᴰ
+    makePshIsoᴰ .snd .inv _ = αᴰ⁻ .N-obᴰ
+    makePshIsoᴰ .snd .isIsoOver.rightInv q qᴰ =
+      Qᴰ.rectify $ congP (λ i z → z .N-obᴰ qᴰ) rightInvᴰ
+    makePshIsoᴰ .snd .isIsoOver.leftInv p pᴰ =
+      Pᴰ.rectify $ congP (λ i z → z .N-obᴰ pᴰ) leftInvᴰ
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  open isIsoOver
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  -- TODO Finish porting reind-introIsoⱽ using β/η
+  -- reind-introIsoⱽ' :
+  --   PshIsoᴰ α Pᴰ Qᴰ →
+  --   PshIsoᴰ (makePshIso _ _) Pᴰ (reind (α .trans) Qᴰ)
+  -- reind-introIsoⱽ' αᴰ =
+  --   makePshIsoᴰ'
+  --     {αᴰ = reind-introⱽ (αᴰ .fst)}
+  --     -- {αᴰ⁻ = reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst}
+  --     {αᴰ⁻ = reind-introⱽ (reind-π ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) ⋆PshHomⱽᴰ reind-π}
+  --     (makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom {C = C} {P = P} .N-ob c p)))
+  --     (makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd p))
+  --     -- First is compPshHomᴰPathP' because it uses a rectify to be agnostic
+  --     -- to the path between PshHoms requested by the goal
+  --     (compPshHomᴰPathP' (congP₂ (λ _ → _⋆PshHomᴰ_) refl (reind-βⱽ' _)) $
+  --       compPshHomᴰPathP (symP $ ⋆PshHomᴰAssoc _ _ _) $
+  --       compPshHomᴰPathP (congP₂ (λ _ → _⋆PshHomᴰ_) (reind-βⱽ _) refl) $
+  --       PshIsoᴰ→leftInvᴰ αᴰ)
+  --     -- TODO ⟨_⟩⋆PshHomᴰ⟨_⟩
+  --     -- TODO use reind-introⱽ-natural for this goal
+  --     (compPshHomᴰPathP' {!reind-introⱽ-natural!} $ {!!})
+
+  reind-introIsoⱽ : PshIsoᴰ α Pᴰ Qᴰ → PshIsoⱽ Pᴰ (reind (α .trans) Qᴰ)
+  reind-introIsoⱽ αᴰ .fst = reind-introⱽ (αᴰ .fst)
+  reind-introIsoⱽ αᴰ .snd =
+    isisoover
+      (λ a qᴰ → Pᴰ.reind (α .nIso _ .snd .snd a) $ αᴰ⁻ .fst .N-obᴰ qᴰ)
+      (λ a p →
+        Qᴰ.rectify $ Qᴰ.≡out $
+          Qᴰ.≡in (congP (λ i → αᴰ .fst .N-obᴰ) (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _))
+          ∙ (Qᴰ.≡in (αᴰ .snd .rightInv _ _)))
+      (λ b q →
+        Pᴰ.rectify $ Pᴰ.≡out $
+          (sym $ Pᴰ.reind-filler _ _)
+          ∙ Pᴰ.≡in (αᴰ .snd .leftInv _ q))
+    where
+    αᴰ⁻ = invPshIsoᴰ αᴰ
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -165,10 +297,10 @@ module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   reindPshIsoⱽ : PshIsoⱽ Qᴰ Rᴰ → PshIsoⱽ (reind α Qᴰ) (reind α Rᴰ)
   reindPshIsoⱽ βⱽ .fst = reindPshHomⱽ (βⱽ .fst)
-  reindPshIsoⱽ βⱽ .snd .inv _ x = reind-βⱽ .N-obᴰ x
+  reindPshIsoⱽ βⱽ .snd .inv _ x = reind-βⱽ'' .N-obᴰ x
     where
-      reind-βⱽ : PshHomⱽ (reind α Rᴰ) (reind α Qᴰ)
-      reind-βⱽ = reind-introⱽ (reind-π ⋆PshHomᴰⱽ invPshIsoⱽ βⱽ .fst)
+      reind-βⱽ'' : PshHomⱽ (reind α Rᴰ) (reind α Qᴰ)
+      reind-βⱽ'' = reind-introⱽ (reind-π ⋆PshHomᴰⱽ invPshIsoⱽ βⱽ .fst)
   reindPshIsoⱽ βⱽ .snd .rightInv _ _ = βⱽ .snd .rightInv _ _
   reindPshIsoⱽ βⱽ .snd .leftInv _ _ = βⱽ .snd .leftInv _ _
 
@@ -331,3 +463,26 @@ module _
       ⋆PshIsoⱽ reindPathIsoⱽ (yoRec≡ _ ((sym $ D .⋆IdL _) ∙ cong₂ (seq' D) (sym $ F .F-id) refl))
       ⋆PshIsoⱽ (invPshIsoⱽ $ reind-seqIsoⱽ _ _ _)
       ⋆PshIsoⱽ reindPshIsoⱽ (invPshIsoⱽ reindFuncReind)
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {P : Presheaf D ℓP}
+  {Q : Presheaf D ℓP}
+  {Qᴰ : Presheafᴰ Q Dᴰ ℓPᴰ}
+  {α : PshHom P Q}
+  where
+
+  reindFuncCompIsoⱽ :
+    PshIsoⱽ
+      (reind α Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+      (reind (α ∘ˡ F) (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)))
+  reindFuncCompIsoⱽ = eqToPshIsoⱽ foo
+      where
+      foo :
+        PresheafᴰEq
+          (reind α Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+          (reind (α ∘ˡ F) (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)))
+      foo = (Eq.refl , Eq.refl)

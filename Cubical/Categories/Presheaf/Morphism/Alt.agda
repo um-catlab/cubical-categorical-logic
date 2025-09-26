@@ -2,12 +2,15 @@
 module Cubical.Categories.Presheaf.Morphism.Alt where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Transport hiding (pathToIso)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
+
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
@@ -18,6 +21,7 @@ open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits
@@ -46,7 +50,7 @@ open import Cubical.Categories.Profunctor.General
 -}
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓp ℓq ℓr : Level
+    ℓc ℓc' ℓd ℓd' ℓp ℓq ℓr ℓs : Level
 
 open Category
 open Contravariant
@@ -137,6 +141,10 @@ module _ {C : Category ℓc ℓc'} where
       NatTrans P Q → PshHom Q R → PshHom P R
   α ⋆NatTransPshHom β = NatTrans→PshHom α ⋆PshHom β
 
+  module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{α : PshHom P Q} where
+    id⋆α≡α : idPshHom {C = C} ⋆PshHom α ≡ α
+    id⋆α≡α = makePshHomPath refl
+
 open Functor
 module _ {C : Category ℓc ℓc'} where
   PshHomPsh :
@@ -218,6 +226,34 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   invPshIso .nIso c .snd .fst = α .nIso _ .snd .snd
   invPshIso .nIso c .snd .snd = α .nIso _ .snd .fst
 
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
+  {α : PshHom P Q}{α⁻ : PshHom Q P}
+  (leftInv : α ⋆PshHom α⁻ ≡ idPshHom)
+  (rightInv : α⁻ ⋆PshHom α ≡ idPshHom)
+  where
+
+  makePshIso : PshIso P Q
+  makePshIso .trans = α
+  makePshIso .nIso c .fst q = α⁻ .N-ob c q
+  makePshIso .nIso c .snd .fst q = funExt₂⁻ (cong N-ob rightInv) c q
+  makePshIso .nIso c .snd .snd p = funExt₂⁻ (cong N-ob leftInv) c p
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
+  (α : PshIso P Q)
+  where
+
+  PshIso→leftInv : α .trans ⋆PshHom invPshIso α .trans ≡ idPshHom {P = P}
+  PshIso→leftInv =
+    makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom {C = C} {P = P} .N-ob c p))
+
+  PshIso→rightInv :
+    Path
+      (PshHom Q Q)
+      (invPshIso α .trans ⋆PshHom α .trans)
+      idPshHom
+  PshIso→rightInv =
+    makePshHomPath (funExt₂ λ c p → α .nIso c .snd .fst p)
+
 open PshHom
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
   makePshIsoΣPath : {α β : PshIsoΣ P Q} →
@@ -261,6 +297,9 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) whe
     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .sec) _)
   PshCatIso→PshIso α .nIso x .snd .snd =
     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .ret) _)
+
+  NatIso→PshIso : NatIso P Q → PshIso P Q
+  NatIso→PshIso α = PshCatIso→PshIso (NatIso→FUNCTORIso (C ^op) (SET ℓp) α)
 
   PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓp) (P .F-ob x) (Q .F-ob x)
   PshIso→SETIso α c .fst = α .trans .N-ob c
@@ -482,3 +521,25 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
         (universalElementToTerminalElement C P ue)
         (isUniversalToIsTerminal D Q _ _ preservesUE)
         (universalElementToTerminalElement C P ue')
+
+module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp)
+  where
+  private
+    module P = PresheafNotation P
+
+  precomp𝟙PshIso : PshIso P (P ∘F (𝟙⟨ C ⟩ ^opF))
+  precomp𝟙PshIso = eqToPshIso _ Eq.refl Eq.refl
+
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  {R : Presheaf C ℓr} {S : Presheaf C ℓs}
+  (α : PshHom P Q)(β : PshHom Q R)(γ : PshHom R S)
+  where
+
+  ⋆PshHomAssoc :
+    Path
+      (PshHom P S)
+      ((α ⋆PshHom β) ⋆PshHom γ)
+      (α ⋆PshHom (β ⋆PshHom γ))
+  ⋆PshHomAssoc = makePshHomPath refl

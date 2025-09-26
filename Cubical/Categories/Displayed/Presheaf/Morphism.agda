@@ -87,17 +87,18 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   open PshHomᴰ
   -- TODO: PathP version of this
-  makePshHomᴰPath : ∀ {αᴰ βᴰ : PshHomᴰ}
-    → (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → αᴰ .N-obᴰ {x}{xᴰ}{p} ≡ βᴰ .N-obᴰ)
-    → αᴰ ≡ βᴰ
-  makePshHomᴰPath {αᴰ} {βᴰ} αᴰ≡βᴰ i .N-obᴰ = αᴰ≡βᴰ i
-  makePshHomᴰPath {αᴰ} {βᴰ} αᴰ≡βᴰ i .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
-    isSet→SquareP (λ _ _ → Qᴰ.isSetPshᴰ)
-      (αᴰ .N-homᴰ )
-      (βᴰ .N-homᴰ)
-      (λ i → αᴰ≡βᴰ i (F-homᴰ Pᴰ fᴰ p pᴰ))
-      (λ i → fᴰ Qᴰ.⋆ᴰ αᴰ≡βᴰ i pᴰ)
-      i
+  opaque
+    makePshHomᴰPath : ∀ {αᴰ βᴰ : PshHomᴰ}
+      → (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → αᴰ .N-obᴰ {x}{xᴰ}{p} ≡ βᴰ .N-obᴰ)
+      → αᴰ ≡ βᴰ
+    makePshHomᴰPath {αᴰ} {βᴰ} αᴰ≡βᴰ i .N-obᴰ = αᴰ≡βᴰ i
+    makePshHomᴰPath {αᴰ} {βᴰ} αᴰ≡βᴰ i .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
+      isSet→SquareP (λ _ _ → Qᴰ.isSetPshᴰ)
+        (αᴰ .N-homᴰ )
+        (βᴰ .N-homᴰ)
+        (λ i → αᴰ≡βᴰ i (F-homᴰ Pᴰ fᴰ p pᴰ))
+        (λ i → fᴰ Qᴰ.⋆ᴰ αᴰ≡βᴰ i pᴰ)
+        i
 
 open PshHomᴰ
 
@@ -424,6 +425,24 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       where
         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshIsoᴰ βᴰ
     infixr 9 _⋆PshIsoⱽᴰ_
+
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
+  PshIsoⱽ' : Type _
+  PshIsoⱽ' =
+    Σ[ α ∈ PshHomⱽ Pᴰ Qᴰ ]
+    Σ[ α⁻ ∈ PshHomⱽ Qᴰ Pᴰ ]
+    (α ⋆PshHomⱽ α⁻ ≡ idPshHomᴰ)
+    × (α⁻ ⋆PshHomⱽ α ≡ idPshHomᴰ)
+
+  PshIsoⱽ'→PshIsoⱽ : PshIsoⱽ' → PshIsoⱽ Pᴰ Qᴰ
+  PshIsoⱽ'→PshIsoⱽ (α , α⁻ , αα⁻ , α⁻α) .fst = α
+  PshIsoⱽ'→PshIsoⱽ (α , α⁻ , αα⁻ , α⁻α) .snd .inv = λ a → α⁻ .N-obᴰ
+  PshIsoⱽ'→PshIsoⱽ (α , α⁻ , αα⁻ , α⁻α) .snd .rightInv _ q i = α⁻α i .N-obᴰ q
+  PshIsoⱽ'→PshIsoⱽ (α , α⁻ , αα⁻ , α⁻α) .snd .leftInv _ q i = αα⁻ i .N-obᴰ q
 
 -- We can use paths if the presheaves are of the same level
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

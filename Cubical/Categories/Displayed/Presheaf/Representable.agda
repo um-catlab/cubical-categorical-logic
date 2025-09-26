@@ -230,20 +230,56 @@ module _
   {Q : Presheaf D ℓQ} {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
   {F : Functor C D}{Fᴰ : Functorᴰ F Cᴰ Dᴰ}
   {α : PshHet F P Q}
+  (αᴰ : PshHetᴰ α Fᴰ Pᴰ Qᴰ)
+  where
+
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Cᴰ = Fibers Cᴰ
+
+  becomesUniversalᴰ : ∀ {v}{e} →
+    becomesUniversal α v e →
+    (vᴰ : Cᴰ.ob[ v ])(eᴰ : Pᴰ.p[ e ][ vᴰ ]) → Type _
+  becomesUniversalᴰ becomesUE vᴰ eᴰ =
+    isUniversalᴰ Dᴰ (becomesUniversal→UniversalElement α becomesUE)
+      Qᴰ (Fᴰ .F-obᴰ vᴰ) (αᴰ .N-obᴰ eᴰ)
+
+  becomesUniversalᴰ→UEᴰ : ∀ {v}{e}
+    {becomesUE : becomesUniversal α v e} →
+    {vᴰ : Cᴰ.ob[ v ]}{eᴰ : Pᴰ.p[ e ][ vᴰ ]} →
+    becomesUniversalᴰ becomesUE vᴰ eᴰ →
+    UniversalElementᴰ Dᴰ
+      (becomesUniversal→UniversalElement α becomesUE) Qᴰ
+  becomesUniversalᴰ→UEᴰ becomesUEᴰ .UniversalElementᴰ.vertexᴰ = _
+  becomesUniversalᴰ→UEᴰ becomesUEᴰ .UniversalElementᴰ.elementᴰ = _
+  becomesUniversalᴰ→UEᴰ becomesUEᴰ .UniversalElementᴰ.universalᴰ = becomesUEᴰ
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Q : Presheaf D ℓQ} {Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ}
+  {F : Functor C D}{Fᴰ : Functorᴰ F Cᴰ Dᴰ}
+  {α : PshHet F P Q}
   {ue : UniversalElement C P}
   (α-presUE : preservesUniversalElement {F = F}{P = P} α ue)
   (αᴰ : PshHetᴰ α Fᴰ Pᴰ Qᴰ)
-  (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ)
   where
-  private
-    module ueᴰ = UniversalElementᴰ ueᴰ
-  preservesUEᴰ : Type _
-  preservesUEᴰ = isUniversalᴰ Dᴰ
-    (preservesUniversalElement→UniversalElement α ue α-presUE)
-    Qᴰ
-    (Fᴰ .F-obᴰ ueᴰ.vertexᴰ)
-    (αᴰ .N-obᴰ ueᴰ.elementᴰ)
+  module _ (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ) where
+    private
+      module ueᴰ = UniversalElementᴰ ueᴰ
+    preservesUEᴰ : Type _
+    preservesUEᴰ =
+      becomesUniversalᴰ αᴰ α-presUE ueᴰ.vertexᴰ ueᴰ.elementᴰ
 
+  module _
+    (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ)
+    (presUEᴰ : preservesUEᴰ ueᴰ)
+    where
+    preservesUEᴰ→UEᴰ :
+      UniversalElementᴰ Dᴰ
+        (becomesUniversal→UniversalElement α α-presUE) Qᴰ
+    preservesUEᴰ→UEᴰ = becomesUniversalᴰ→UEᴰ αᴰ presUEᴰ
 
 -- Vertical Universal properties over objects of C
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

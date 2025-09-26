@@ -21,7 +21,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.NaturalTransformation
-open import Cubical.Categories.Displayed.NaturalIsomorphism
+open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Monoidal.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base

@@ -25,6 +25,7 @@ open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
@@ -63,86 +64,3 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          where
   isFibrationReind : isFibration (reind {P = P} α Qᴰ)
   isFibrationReind p = isFibQᴰ (α .N-ob _ p) ◁PshIsoⱽ invPshIsoⱽ (reindYo-seqIsoⱽ α Qᴰ p)
-
--- Reindexing a projectionlike endofunctor gives a displayed endofunctor
--- when cartesian lifts along the projection exists
--- TODO : Find the most general version of this
-module _
-  {C : Category ℓC ℓC'}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  (F : Functor C C)
-  (πF : NatTrans F Id)
-  where
-
-  private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
-
-  module _
-    (πF* : {Γ : C.ob} → (Γᴰ : Cᴰ.ob[ Γ ]) →
-      CartesianLift (πF ⟦ Γ ⟧) (Cᴰ [-][-, Γᴰ ]))
-    where
-
-    open UniversalElementⱽ
-
-    introπF* :
-      ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
-        {Δ} {Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , F ⟅ Γ ⟆ ]}
-      → (γᴰ : Cᴰ [ γ C.⋆ πF ⟦ Γ ⟧ ][ Δᴰ , Γᴰ ])
-      → Cᴰ [ γ ][ Δᴰ , vertexᴰ (πF* Γᴰ) ]
-    introπF* {Γᴰ = Γᴰ} γᴰ = introᴰ (πF* Γᴰ) γᴰ
-
-    introπF*⟨_⟩⟨_⟩ :
-      ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
-        {Δ} {Δᴰ Δᴰ' : Cᴰ.ob[ Δ ]}{γ γ' : C [ Δ , F ⟅ Γ ⟆ ]} →
-        {Δᴰ≡Δᴰ' : Δᴰ ≡ Δᴰ'} →
-        (γ≡γ' : γ ≡ γ') →
-        {γᴰ : Cᴰ [ γ C.⋆ πF ⟦ Γ ⟧ ][ Δᴰ , Γᴰ ]} →
-        {γᴰ' : Cᴰ [ γ' C.⋆ πF ⟦ Γ ⟧ ][ Δᴰ' , Γᴰ ]} →
-        γᴰ ≡[ (λ i → Cᴰ [ γ≡γ' i C.⋆ πF ⟦ Γ ⟧ ][ Δᴰ≡Δᴰ' i , Γᴰ ]) ] γᴰ' →
-        introπF* γᴰ ≡[ (λ i → Cᴰ [ γ≡γ' i ][ Δᴰ≡Δᴰ' i , vertexⱽ (πF* Γᴰ) ]) ] introπF* γᴰ'
-    introπF*⟨ γ≡γ' ⟩⟨ γᴰ≡γᴰ' ⟩ i = introπF* (γᴰ≡γᴰ' i)
-
-    π-πF* : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) → Cᴰ [ πF ⟦ Γ ⟧ ][ vertexⱽ (πF* Γᴰ) , Γᴰ ]
-    π-πF* Γᴰ = Cᴰ.reind (C.⋆IdL _) $ πF* Γᴰ .elementⱽ
-
-    β-πF* :
-      ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
-        {Δ} {Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , F ⟅ Γ ⟆ ]}
-      → (γᴰ : Cᴰ [ γ C.⋆ πF ⟦ Γ ⟧ ][ Δᴰ , Γᴰ ])
-      → introπF* γᴰ Cᴰ.⋆ᴰ π-πF* Γᴰ ≡ γᴰ
-    β-πF* {Γᴰ = Γᴰ} γᴰ =
-      Cᴰ.rectify $ Cᴰ.≡out $
-        Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-        ∙ Cᴰ.reind-filler _ _
-        ∙ Cᴰ.reind-filler _ _
-        ∙ Cᴰ.≡in (βⱽ (πF* Γᴰ) {pᴰ = γᴰ})
-
-    open NatTrans
-
-    weakenπFᴰ : Functorᴰ F Cᴰ Cᴰ
-    weakenπFᴰ .F-obᴰ Γᴰ = πF* Γᴰ .vertexⱽ
-    weakenπFᴰ .F-homᴰ {f = γ} {xᴰ = Γᴰ} {yᴰ = Δᴰ} γᴰ =
-      introπF* (Cᴰ.reind (sym $ πF .N-hom γ) $ (π-πF* Γᴰ Cᴰ.⋆ᴰ γᴰ))
-    weakenπFᴰ .F-idᴰ {xᴰ = Γᴰ} =
-        introπF*⟨ F .F-id  ⟩⟨
-          Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _ _)
-            ∙ Cᴰ.⋆IdR _
-            ∙ (sym $ Cᴰ.reind-filler _ _)
-        ⟩
-          ▷ (sym $ weak-ηⱽ (πF* Γᴰ))
-    weakenπFᴰ .F-seqᴰ γᴰ δᴰ =
-      introπF*⟨ F .F-seq _ _ ⟩⟨
-        Cᴰ.rectify $ Cᴰ.≡out $
-          (sym $ Cᴰ.reind-filler _ _)
-          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
-          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
-               ∙ Cᴰ.reind-filler _ _
-               ∙ (Cᴰ.≡in $ sym $ β-πF* (Cᴰ.reind (sym $ πF .N-hom _) (π-πF* _ Cᴰ.⋆ᴰ γᴰ)))
-               ⟩⋆⟨ refl ⟩
-          ∙ (Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
-          ∙ Cᴰ.reind-filler _ _
-      ⟩ ▷ (Cᴰ.rectify $ Cᴰ.≡out $ sym $ introᴰ-natural (πF* _))

@@ -183,7 +183,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       opaque
         ⇒PshSmallⱽ-β : ∀ (αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ)
           → (⇒PshSmallⱽ-introᴰ αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app ≡ αᴰ
-        ⇒PshSmallⱽ-β αᴰ = makePshHomᴰPath α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ $ λ {Γ} {Γᴰ} {r} → funExt λ rᴰpᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+        ⇒PshSmallⱽ-β αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰpᴰ → Qᴰ.rectify $ Qᴰ.≡out $
            sym (Qᴰ.reind-filler _ _)
           ∙ sym (∫PshHom αᴰ .N-hom _ _ _ _)
           ∙ N-obᴰ⟨_⟩ αᴰ (×≡Snd-hSet R.isSetPsh
@@ -193,8 +193,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
         ⇒PshSmallⱽ-η : ∀ (αᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
           → αᴰ ≡ ⇒PshSmallⱽ-introᴰ ((αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app)
-        ⇒PshSmallⱽ-η αᴰ =
-          makePshHomᴰPath α Rᴰ Pᴰ⇒Qᴰ λ {Γ} {Γᴰ} {r} → funExt λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+        ⇒PshSmallⱽ-η αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $
           sym (Qᴰ.⋆IdL _)
           ∙ Qᴰ.⟨
               extensionalityLR

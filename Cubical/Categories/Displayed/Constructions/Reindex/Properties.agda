@@ -50,10 +50,16 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   (F : Functor C D) where
 
+  CartesianLiftReindex : ∀ {c c'}{dᴰ}{f : C [ c , c' ]} →
+    CartesianLift Dᴰ dᴰ (F ⟪ f ⟫) →
+    CartesianLift (reindex Dᴰ F) dᴰ f
+  CartesianLiftReindex cL =
+    reindUEⱽ cL ◁PshIsoⱽ
+      (invPshIsoⱽ (reindYoReindFunc {F = F})
+      ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)
+
   isFibrationReindex
     : isFibration Dᴰ
     → isFibration (reindex Dᴰ F)
   isFibrationReindex isFib xᴰ f =
-    reindUEⱽ {F = F} (isFib xᴰ $ F ⟪ f ⟫) ◁PshIsoⱽ
-      (invPshIsoⱽ (reindYoReindFunc {F = F})
-      ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)
+    CartesianLiftReindex $ isFib xᴰ (F ⟪ f ⟫)

@@ -22,5 +22,6 @@ module _ (ob : Type ℓ) where
 module ×QuiverNotation (Q : ×Quiver ℓ ℓ') where
   open ProductQuiver
   Ob = ProdExpr (Q .fst)
+  Mor = Q .snd .mor
   Dom = Q .snd .dom
   Cod = Q .snd .cod

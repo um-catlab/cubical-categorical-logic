@@ -209,8 +209,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
           ∙ Qᴰ.⟨⟩⋆⟨ sym $ ⇒≡-in $ sym $ sym (∫PshHom αᴰ .N-hom _ _ _ _) ∙ N-obᴰ⟨_⟩ αᴰ (Rᴰ.reind-filler _ _)  ⟩
           ∙ Qᴰ.reind-filler _ _
 
-      ⇒PshSmallⱽ-UMP : Iso (PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ) (PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
-      ⇒PshSmallⱽ-UMP =
+      ⇒PshSmallⱽ-UMPᴰ : Iso (PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ) (PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
+      ⇒PshSmallⱽ-UMPᴰ =
         iso ⇒PshSmallⱽ-introᴰ ⇒PshSmallⱽ-introᴰ⁻
           (λ αᴰ → sym $ ⇒PshSmallⱽ-η αᴰ)
           ⇒PshSmallⱽ-β
@@ -220,12 +220,12 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
           : ∀ {αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ}{βᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ}
           → αᴰ ≡ ⇒PshSmallⱽ-introᴰ⁻ βᴰ
           → ⇒PshSmallⱽ-introᴰ αᴰ ≡ βᴰ
-        ⇒PshSmallⱽ-introᴰ≡ = isoFun≡ ⇒PshSmallⱽ-UMP
-        
+        ⇒PshSmallⱽ-introᴰ≡ = isoFun≡ ⇒PshSmallⱽ-UMPᴰ
+
         ⇒PshSmallⱽ-ext : ∀ {αᴰ βᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ}
           → ⇒PshSmallⱽ-introᴰ⁻ αᴰ ≡ ⇒PshSmallⱽ-introᴰ⁻ βᴰ
           → αᴰ ≡ βᴰ
-        ⇒PshSmallⱽ-ext = isoInvInjective ⇒PshSmallⱽ-UMP _ _
+        ⇒PshSmallⱽ-ext = isoInvInjective ⇒PshSmallⱽ-UMPᴰ _ _
 
     module _ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ} where
       private
@@ -236,3 +236,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         → PshHomⱽ Rᴰ Pᴰ⇒Qᴰ
       ⇒PshSmallⱽ-introⱽ α⟨rᴰ,pᴰ⟩ =
         ⇒PshSmallⱽ-introᴰ ((idPshHomᴰ ×ⱽHom invPshIsoⱽ (reind-idIsoⱽ Pᴰ) .fst) ⋆PshHomⱽ α⟨rᴰ,pᴰ⟩)
+
+      ⇒PshSmallⱽ-UMPⱽ : Iso (PshHomⱽ (Rᴰ ×ⱽPsh Pᴰ) Qᴰ) (PshHomⱽ Rᴰ Pᴰ⇒Qᴰ)
+      ⇒PshSmallⱽ-UMPⱽ =
+        compIso (precomp⋆PshHomⱽᴰ-Iso (idPshIsoᴰ ×ⱽIso invPshIsoⱽ (reind-idIsoⱽ Pᴰ)))
+                ⇒PshSmallⱽ-UMPᴰ

@@ -55,7 +55,6 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       → Exponentialsⱽ F*Dᴰ (BinProductsⱽReindex bpⱽ) (isFibrationReindex F isFibDᴰ)
     ExponentialsⱽReindex exps cᴰ dᴰ =
       reindUEⱽ (exps cᴰ dᴰ)
-      -- TODO: prove that reindex.π preserves bin productsⱽ
       ◁PshIsoⱽ ((reindPshIsoⱽ (invPshIsoⱽ (reindFunc⇒PshSmall ((Dᴰ [-][-, cᴰ ]) , (bpⱽ+fib⇒AllReprLocallyRepresentableⱽ Dᴰ bpⱽ isFibDᴰ cᴰ)) (Dᴰ [-][-, dᴰ ]) (reindFunc'Reindπ-LocallyRepresentableⱽ F ((Dᴰ [-][-, cᴰ ]) , bpⱽ+fib⇒AllReprLocallyRepresentableⱽ Dᴰ bpⱽ isFibDᴰ cᴰ)) (Reindπ-preservesLocalReprⱽ F ((Dᴰ [-][-, cᴰ ]) , _)))))
         ⋆PshIsoⱽ invPshIsoⱽ (reind⇒PshSmallⱽ (Functor→PshHet F _))
         ⋆PshIsoⱽ (reindⱽFuncRepr {Dᴰ = Dᴰ}{F = F} ⇒ⱽIsoⱽ reindⱽFuncRepr {Dᴰ = Dᴰ}{F = F}))

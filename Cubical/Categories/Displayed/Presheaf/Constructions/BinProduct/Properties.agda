@@ -5,8 +5,10 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -59,15 +61,15 @@ open PshIso
 -- Product
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   where
-  module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+  module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
     where
-    ×ⱽ-introⱽ :
-      PshHomⱽ Pᴰ Qᴰ
-      → PshHomⱽ Pᴰ Rᴰ
-      → PshHomⱽ Pᴰ (Qᴰ ×ⱽPsh Rᴰ)
-    ×ⱽ-introⱽ αⱽ βⱽ .N-obᴰ = λ z → αⱽ .N-obᴰ z , βⱽ .N-obᴰ z
-    ×ⱽ-introⱽ αⱽ βⱽ .N-homᴰ = ΣPathP ((αⱽ .N-homᴰ) , (βⱽ .N-homᴰ))
+    ×ⱽ-π₁ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Pᴰ
+    ×ⱽ-π₁ .N-obᴰ = fst
+    ×ⱽ-π₁ .N-homᴰ = refl
 
+    ×ⱽ-π₂ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Qᴰ
+    ×ⱽ-π₂ .N-obᴰ = snd
+    ×ⱽ-π₂ .N-homᴰ = refl
   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
     {α : PshHom P Q}
     {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ}
@@ -79,15 +81,22 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     ×ⱽ-introᴰ αᴰ βᴰ .N-obᴰ = λ z → αᴰ .N-obᴰ z , βᴰ .N-obᴰ z
     ×ⱽ-introᴰ αᴰ βᴰ .N-homᴰ = ΣPathP ((αᴰ .N-homᴰ) , (βᴰ .N-homᴰ))
 
-  module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
-    where
-    ×ⱽ-π₁ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Pᴰ
-    ×ⱽ-π₁ .N-obᴰ = fst
-    ×ⱽ-π₁ .N-homᴰ = refl
+    ×ⱽPsh-UMPᴰ : Iso (PshHomᴰ α Pᴰ Qᴰ × PshHomᴰ α Pᴰ Rᴰ) (PshHomᴰ α Pᴰ (Qᴰ ×ⱽPsh Rᴰ))
+    ×ⱽPsh-UMPᴰ .Iso.fun αᴰβᴰ = ×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)
+    ×ⱽPsh-UMPᴰ .Iso.inv αᴰ = (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₁) , (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₂)
+    ×ⱽPsh-UMPᴰ .Iso.rightInv αᴰ = makePshHomᴰPath (funExt λ p → refl)
+    ×ⱽPsh-UMPᴰ .Iso.leftInv αᴰβᴰ = ΣPathP ((makePshHomᴰPath refl) , (makePshHomᴰPath refl))
 
-    ×ⱽ-π₂ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Qᴰ
-    ×ⱽ-π₂ .N-obᴰ = snd
-    ×ⱽ-π₂ .N-homᴰ = refl
+  module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+    where
+    ×ⱽ-introⱽ :
+      PshHomⱽ Pᴰ Qᴰ
+      → PshHomⱽ Pᴰ Rᴰ
+      → PshHomⱽ Pᴰ (Qᴰ ×ⱽPsh Rᴰ)
+    ×ⱽ-introⱽ = ×ⱽ-introᴰ
+
+    ×ⱽPsh-UMPⱽ : Iso (PshHomⱽ Pᴰ Qᴰ × PshHomⱽ Pᴰ Rᴰ) (PshHomⱽ Pᴰ (Qᴰ ×ⱽPsh Rᴰ))
+    ×ⱽPsh-UMPⱽ = ×ⱽPsh-UMPᴰ
 
   -- This is like PshProdⱽ .F-hom but for homomorphisms/isomorphisms
   -- between presheaves of different levels
@@ -172,28 +181,28 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
   {Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Dᴰ ℓQᴰ}
   {F : Functor C D}
   where
-  reindFunc×ⱽIsoⱽ :
-    PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
-            (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-  reindFunc×ⱽIsoⱽ .fst = ×ⱽ-introⱽ (×ⱽ-π₁ ∘ˡᴰ π Dᴰ F) (×ⱽ-π₂ ∘ˡᴰ π Dᴰ F)
-  reindFunc×ⱽIsoⱽ .snd .inv p = invers .N-obᴰ
-    where
-      invers : PshHomⱽ (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ) (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
-      invers = ×ⱽ-introHet _ ×ⱽ-π₁ ×ⱽ-π₂
-  reindFunc×ⱽIsoⱽ .snd .rightInv b q = refl
-  reindFunc×ⱽIsoⱽ .snd .leftInv a p = refl
+  -- reindFunc×ⱽIsoⱽ :
+  --   PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
+  --           (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
+  -- reindFunc×ⱽIsoⱽ .fst = ×ⱽ-introⱽ (×ⱽ-π₁ ∘ˡᴰ π Dᴰ F) (×ⱽ-π₂ ∘ˡᴰ π Dᴰ F)
+  -- reindFunc×ⱽIsoⱽ .snd .inv p = invers .N-obᴰ
+  --   where
+  --     invers : PshHomⱽ (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ) (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
+  --     invers = ×ⱽ-introHet _ ×ⱽ-π₁ ×ⱽ-π₂
+  -- reindFunc×ⱽIsoⱽ .snd .rightInv b q = refl
+  -- reindFunc×ⱽIsoⱽ .snd .leftInv a p = refl
 
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {x}
-  {F : Functor C D}
-  {Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ}{Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
-  where
-  reindⱽFunc×ⱽIsoⱽ :
-    PshIsoⱽ (reindⱽFunc F (Pᴰ ×ⱽPsh Qᴰ))
-            (reindⱽFunc F Pᴰ ×ⱽPsh reindⱽFunc F Qᴰ)
-  reindⱽFunc×ⱽIsoⱽ =
-    reindPshIsoⱽ {α = Functor→PshHet F x} reindFunc×ⱽIsoⱽ
-    ⋆PshIsoⱽ reind×ⱽIsoⱽ {Pᴰ = reindFunc F Pᴰ}{Qᴰ = reindFunc F Qᴰ}
+-- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+--   {x}
+--   {F : Functor C D}
+--   {Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ}{Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
+--   where
+--   reindⱽFunc×ⱽIsoⱽ :
+--     PshIsoⱽ (reindⱽFunc F (Pᴰ ×ⱽPsh Qᴰ))
+--             (reindⱽFunc F Pᴰ ×ⱽPsh reindⱽFunc F Qᴰ)
+--   reindⱽFunc×ⱽIsoⱽ =
+--     reindPshIsoⱽ {α = Functor→PshHet F x} reindFunc×ⱽIsoⱽ
+--     ⋆PshIsoⱽ reind×ⱽIsoⱽ {Pᴰ = reindFunc F Pᴰ}{Qᴰ = reindFunc F Qᴰ}
 
 open PshSection
 open Section

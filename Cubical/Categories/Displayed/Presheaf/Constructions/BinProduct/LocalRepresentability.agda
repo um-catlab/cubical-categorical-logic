@@ -250,46 +250,46 @@ module _
   preservesLocalReprⱽ→UEⱽ _×ⱽ_*Pᴰ pres-⟨_×ⱽ_*Pᴰ⟩ Γᴰ p =
     preservesUEⱽ→UEⱽ (preservesLocalReprⱽCone Γᴰ p) (Γᴰ ×ⱽ p *Pᴰ) pres-⟨ Γᴰ ×ⱽ p *Pᴰ⟩
 
-module _
-  {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {Q : Presheaf D ℓQ}
-  (F : Functor C D)
-  ((Qᴰ , _×ⱽ_*Qᴰ) : LocallyRepresentableⱽPresheafᴰ Q Dᴰ ℓQᴰ)
-  where
-  private
-    module Q = PresheafNotation Q
-    module Qᴰ = PresheafᴰNotation Qᴰ
-    module Dᴰ = Fibers Dᴰ
-  open UniversalElementⱽ
-  reindFunc'Reindπ-LocallyRepresentableⱽ : LocallyRepresentableⱽ (reindFunc' (ReindCatᴰ.π Dᴰ F) Qᴰ)
-  reindFunc'Reindπ-LocallyRepresentableⱽ {Γ} Γᴰ p =
-    reindUEⱽ  (Γᴰ ×ⱽ p *Qᴰ)
-    ◁PshIsoⱽ (reindⱽFunc×ⱽIsoⱽ {F = F} ⋆PshIsoⱽ (reindⱽFuncRepr {Dᴰ = Dᴰ}{F = F} ×ⱽIso
-      (reindPshIsoⱽ reindFuncReind
-      ⋆PshIsoⱽ reind-seqIsoⱽ (Functor→PshHet F Γ) (yoRec Q p ∘ˡ F) (reindFunc F Qᴰ)
-      ⋆PshIsoⱽ reindPathIsoⱽ (sym $ yoRec≡ (Q ∘F (F ^opF)) (sym $ Q.⟨ F .F-id ⟩⋆⟨⟩ ∙ Q.⋆IdL _)))))
+-- module _
+--   {C : Category ℓC ℓC'}
+--   {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+--   {Q : Presheaf D ℓQ}
+--   (F : Functor C D)
+--   ((Qᴰ , _×ⱽ_*Qᴰ) : LocallyRepresentableⱽPresheafᴰ Q Dᴰ ℓQᴰ)
+--   where
+--   private
+--     module Q = PresheafNotation Q
+--     module Qᴰ = PresheafᴰNotation Qᴰ
+--     module Dᴰ = Fibers Dᴰ
+--   open UniversalElementⱽ
+--   reindFunc'Reindπ-LocallyRepresentableⱽ : LocallyRepresentableⱽ (reindFunc' (ReindCatᴰ.π Dᴰ F) Qᴰ)
+--   reindFunc'Reindπ-LocallyRepresentableⱽ {Γ} Γᴰ p =
+--     reindUEⱽ  (Γᴰ ×ⱽ p *Qᴰ)
+--     ◁PshIsoⱽ (reindⱽFunc×ⱽIsoⱽ {F = F} ⋆PshIsoⱽ (reindⱽFuncRepr {Dᴰ = Dᴰ}{F = F} ×ⱽIso
+--       (reindPshIsoⱽ reindFuncReind
+--       ⋆PshIsoⱽ reind-seqIsoⱽ (Functor→PshHet F Γ) (yoRec Q p ∘ˡ F) (reindFunc F Qᴰ)
+--       ⋆PshIsoⱽ reindPathIsoⱽ (sym $ yoRec≡ (Q ∘F (F ^opF)) (sym $ Q.⟨ F .F-id ⟩⋆⟨⟩ ∙ Q.⋆IdL _)))))
 
-  -- -- Doing this without subst-isUniversalⱽ led to interminable type-checking
-  -- -- I'm not sure the explicit paths even help here
-  Reindπ-preservesLocalReprⱽ : preservesLocalReprⱽ (ReindCatᴰ.π Dᴰ F) (reindFunc' (ReindCatᴰ.π Dᴰ F) Qᴰ) Qᴰ idPshHomᴰ reindFunc'Reindπ-LocallyRepresentableⱽ
-  Reindπ-preservesLocalReprⱽ {Γ} Γᴰ q {Δ} {Δᴰ} {γ} = subst-isUniversalⱽ Dᴰ (F-ob F Γ) ((Dᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo q Qᴰ)
-    (ΣPathP
-    ( (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.reind-filler (λ i → F .F-id (~ i)) _ ∙ Dᴰ.reind-filler (λ i → F .F-id i) _)
-      , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler (λ i → (Q PresheafNotation.⋆ F .F-id (~ i)) q) _ ∙ Qᴰ.reind-filler (λ i →
-                                                                                                                      funExt⁻
-                                                                                                                      (funExt⁻
-                                                                                                                       (λ i₁ →
-                                                                                                                          N-ob
-                                                                                                                          (yoRec≡ (Q ∘F (F ^opF))
-                                                                                                                           (λ i₂ → ((λ i₃ → Q .F-hom (F .F-id i₃) q) ∙ Q.⋆IdL q) (~ i₂))
-                                                                                                                           (~ i₁)))
-                                                                                                                       Γ)
-                                                                                                                      (Category.id C) i) _ ∙ Qᴰ.reind-filler (λ i →
-                                                                                                                                                                funExt₂⁻
-                                                                                                                                                                (λ i₁ → preservesLocalReprⱽCone-lemma F Q idPshHom q i₁ .N-ob) Γ
-                                                                                                                                                                (Category.id C) i) _ ∙ Qᴰ.reind-filler (λ i → (Q PresheafNotation.⋆ F .F-id i) q) _)))
-    (universalⱽ (Γᴰ ×ⱽ q *Qᴰ))
+--   -- -- Doing this without subst-isUniversalⱽ led to interminable type-checking
+--   -- -- I'm not sure the explicit paths even help here
+--   Reindπ-preservesLocalReprⱽ : preservesLocalReprⱽ (ReindCatᴰ.π Dᴰ F) (reindFunc' (ReindCatᴰ.π Dᴰ F) Qᴰ) Qᴰ idPshHomᴰ reindFunc'Reindπ-LocallyRepresentableⱽ
+--   Reindπ-preservesLocalReprⱽ {Γ} Γᴰ q {Δ} {Δᴰ} {γ} = subst-isUniversalⱽ Dᴰ (F-ob F Γ) ((Dᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo q Qᴰ)
+--     (ΣPathP
+--     ( (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.reind-filler (λ i → F .F-id (~ i)) _ ∙ Dᴰ.reind-filler (λ i → F .F-id i) _)
+--       , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler (λ i → (Q PresheafNotation.⋆ F .F-id (~ i)) q) _ ∙ Qᴰ.reind-filler (λ i →
+--                                                                                                                       funExt⁻
+--                                                                                                                       (funExt⁻
+--                                                                                                                        (λ i₁ →
+--                                                                                                                           N-ob
+--                                                                                                                           (yoRec≡ (Q ∘F (F ^opF))
+--                                                                                                                            (λ i₂ → ((λ i₃ → Q .F-hom (F .F-id i₃) q) ∙ Q.⋆IdL q) (~ i₂))
+--                                                                                                                            (~ i₁)))
+--                                                                                                                        Γ)
+--                                                                                                                       (Category.id C) i) _ ∙ Qᴰ.reind-filler (λ i →
+--                                                                                                                                                                 funExt₂⁻
+--                                                                                                                                                                 (λ i₁ → preservesLocalReprⱽCone-lemma F Q idPshHom q i₁ .N-ob) Γ
+--                                                                                                                                                                 (Category.id C) i) _ ∙ Qᴰ.reind-filler (λ i → (Q PresheafNotation.⋆ F .F-id i) q) _)))
+--     (universalⱽ (Γᴰ ×ⱽ q *Qᴰ))
 
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

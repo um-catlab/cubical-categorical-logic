@@ -51,6 +51,7 @@ open import Cubical.Categories.Profunctor.General
 private
   variable
     ℓc ℓc' ℓd ℓd' ℓp ℓq ℓr ℓs : Level
+    ℓC ℓC' ℓP ℓQ ℓR ℓS : Level
 
 open Category
 open Contravariant
@@ -79,6 +80,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
 
   -- Natural transformation between presheaves of different levels
   record PshHom : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    no-eta-equality
     constructor pshhom
     field
       N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
@@ -155,6 +157,7 @@ module _ {C : Category ℓc ℓc'} where
   PshHomPsh Q .F-id = funExt (λ _ → makePshHomPath refl)
   PshHomPsh Q .F-seq α α' = funExt λ _ → makePshHomPath refl
 
+  -- TODO: just use PRESHEAF where the Homs are PshHom instead?
   PshHomProf :
     Profunctor
       (PresheafCategory C ℓq)
@@ -267,20 +270,6 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
     α .trans .N-ob ≡ β .trans .N-ob → α ≡ β
   makePshIsoPath {α} {β} N-ob≡ =
     isoFunInjective (PshIsoΣIso P Q) α β (makePshIsoΣPath N-ob≡)
-
-module _
-  {C : Category ℓc ℓc'}
-  {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
-
-  PshIso→⋆PshHomIso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
-  PshIso→⋆PshHomIso α .Iso.fun β = α .trans ⋆PshHom β
-  PshIso→⋆PshHomIso α .Iso.inv β = invPshIso α .trans ⋆PshHom β
-  PshIso→⋆PshHomIso α .Iso.rightInv β =
-    makePshHomPath
-      (funExt λ x → funExt λ p → cong (β .N-ob x) (α .nIso x .snd .snd p))
-  PshIso→⋆PshHomIso α .Iso.leftInv β =
-    makePshHomPath
-      (funExt λ x → funExt λ p → cong (β .N-ob x) (α .nIso x .snd .fst p))
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) where
   private
@@ -533,13 +522,49 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp)
 module _
   {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  (α : PshHom P Q)
+  where
+  ⋆PshHomIdL : idPshHom {P = P} ⋆PshHom α ≡ α
+  ⋆PshHomIdL = makePshHomPath refl
+  ⋆PshHomIdR : α ⋆PshHom idPshHom ≡ α
+  ⋆PshHomIdR = makePshHomPath refl
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
   {R : Presheaf C ℓr} {S : Presheaf C ℓs}
   (α : PshHom P Q)(β : PshHom Q R)(γ : PshHom R S)
   where
-
   ⋆PshHomAssoc :
     Path
       (PshHom P S)
       ((α ⋆PshHom β) ⋆PshHom γ)
       (α ⋆PshHom (β ⋆PshHom γ))
   ⋆PshHomAssoc = makePshHomPath refl
+
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
+
+  postcomp⋆PshHom-Iso : (α : PshIso Q R) → Iso (PshHom P Q) (PshHom P R)
+  postcomp⋆PshHom-Iso α .Iso.fun β = β ⋆PshHom α .trans
+  postcomp⋆PshHom-Iso α .Iso.inv β = β ⋆PshHom invPshIso α .trans
+  postcomp⋆PshHom-Iso α .Iso.rightInv β =
+    ⋆PshHomAssoc _ _ _
+    ∙ cong (β ⋆PshHom_) (PshIso→rightInv α)
+    ∙ ⋆PshHomIdR β
+  postcomp⋆PshHom-Iso α .Iso.leftInv β =
+    ⋆PshHomAssoc _ _ _
+    ∙ cong (β ⋆PshHom_) (PshIso→leftInv α)
+    ∙ ⋆PshHomIdR β
+
+  precomp⋆PshHom-Iso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
+  precomp⋆PshHom-Iso α .Iso.fun β = α .trans ⋆PshHom β
+  precomp⋆PshHom-Iso α .Iso.inv β = invPshIso α .trans ⋆PshHom β
+  precomp⋆PshHom-Iso α .Iso.rightInv β =
+    sym (⋆PshHomAssoc _ _ _)
+    ∙ cong (_⋆PshHom β) (PshIso→leftInv α)
+    ∙ ⋆PshHomIdL β
+  precomp⋆PshHom-Iso α .Iso.leftInv β =
+    sym (⋆PshHomAssoc _ _ _)
+    ∙ cong (_⋆PshHom β) (PshIso→rightInv α)
+    ∙ ⋆PshHomIdL β

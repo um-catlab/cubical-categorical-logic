@@ -3,10 +3,12 @@ module Cubical.Categories.Displayed.Presheaf.Constructions.Exponential.Base wher
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.Fiber
@@ -16,11 +18,14 @@ open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Profunctor
 
 open Functor
 open Functorᴰ
@@ -33,11 +38,29 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+  where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    ∫⇒Large = (∫P Pᴰ) ⇒PshLarge (∫P Qᴰ)
+    module ∫⇒Large = PresheafNotation ∫⇒Large
+  _⇒PshLargeᴰ_ : Presheafᴰ (P ⇒PshLarge Q) Cᴰ _
+  _⇒PshLargeᴰ_ = PshHomᴰProfᴰ C Cᴰ .F-obᴰ Qᴰ ∘Fᴰ ((appRᴰ PshProdᴰ Pᴰ ∘Fᴰ YOᴰ) ^opFᴰ)
+  private
+    ⇒PshLarge-test : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (α : ⟨ (P ⇒PshLarge Q) .F-ob Γ ⟩)
+      → ⟨ _⇒PshLargeᴰ_ .F-obᴰ Γᴰ α ⟩ ≡ PshHomᴰ α ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) Qᴰ
+    ⇒PshLarge-test = λ Γᴰ α → refl
 
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
   module _ {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)}
            {Q : Presheaf C ℓQ}
            ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)

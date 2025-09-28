@@ -136,11 +136,11 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
     reind⇒PshSmallⱽ : PshIsoⱽ (reindLocallyRepresentableⱽPresheafᴰ α Pᴰ ⇒PshSmallⱽ reind α Pᴰ') (reind α (Pᴰ ⇒PshSmallⱽ Pᴰ'))
     reind⇒PshSmallⱽ = PshIsoⱽ'→PshIsoⱽ _ _ (reind⇒PshSmallⱽ-fun , (reind⇒PshSmallⱽ-inv , reind⇒PshSmallⱽ-rInv , reind⇒PshSmallⱽ-lInv))
-    -- .fst = 
+    -- .fst =
     -- reind⇒PshSmallⱽ .snd .inv _ = reind⇒PshSmallⱽ⁻ .N-obᴰ where
     --   reind⇒PshSmallⱽ⁻ :
     --     PshHomⱽ (reind α (Pᴰ ⇒PshSmallⱽ Pᴰ')) (reindLocallyRepresentableⱽPresheafᴰ α Pᴰ ⇒PshSmallⱽ reind α Pᴰ')
-    --   reind⇒PshSmallⱽ⁻ = 
+    --   reind⇒PshSmallⱽ⁻ =
     -- -- do not implement manually
     -- reind⇒PshSmallⱽ .snd .rightInv = {!!}
     -- reind⇒PshSmallⱽ .snd .leftInv = {!!}

@@ -41,7 +41,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
   open ProductQuiver
   private module Q = ×QuiverNotation Q
   data Exp : Q.Ob → Q.Ob → Type (ℓ-max ℓQ ℓQ') where
-    ↑ₑ_ : ∀ t → Exp (Q.Dom t) (Q.Cod t)
+    ↑ₑ_ : ∀ t → Exp (Q.dom t) (Q.cod t)
     idₑ : ∀{Γ} → Exp Γ Γ
     _⋆ₑ_ : ∀{Γ Γ' Γ''}(δ : Exp Γ Γ') → (δ' : Exp Γ' Γ'') →  Exp Γ Γ''
     ⋆ₑIdL : ∀{Γ Δ}(δ : Exp Γ Δ) → idₑ ⋆ₑ δ ≡ δ
@@ -103,8 +103,8 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       field
         ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]
         ı-hom : ∀ e
-          → Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob ı-ob (Q.Dom e)
-                         , elim-F-ob ı-ob (Q.Cod e) ]
+          → Cᴰ.Hom[ ↑ₑ e ][ elim-F-ob ı-ob (Q.dom e)
+                         , elim-F-ob ı-ob (Q.cod e) ]
     module _ (ı : Interpᴰ)
         where
         open Section

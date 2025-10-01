@@ -190,7 +190,7 @@ congSndSnd :
 congSndSnd abc≡ = λ i → abc≡ i .snd .snd
 
 -- TODO: name
-chacha-slide :
+change-base :
   ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}
   (f : A → B)
   {x y}
@@ -198,16 +198,16 @@ chacha-slide :
   → Path A (x .fst) (y .fst)
   → Path (Σ B C) (f (x .fst) , x .snd) (f (y .fst) , y .snd)
   → Path (Σ A (λ a → C (f a))) x y
-chacha-slide {C = C} f isSetB a≡ bc≡ =
+change-base {C = C} f isSetB a≡ bc≡ =
   ΣPathP (a≡ , (rectify (cong (cong C) (isSetB _ _ _ _)) λ i → bc≡ i .snd))
 
-chacha-slide⁻ :
+change-base⁻ :
   ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}
   (f : A → B)
   {x y}
   → Path (Σ A (λ a → C (f a))) x y
   → Path (Σ B C) (f (x .fst) , x .snd) (f (y .fst) , y .snd)
-chacha-slide⁻ f ac≡ = ΣPathP ((cong f (cong fst ac≡)) , λ i → ac≡ i .snd)
+change-base⁻ f ac≡ = ΣPathP ((cong f (cong fst ac≡)) , λ i → ac≡ i .snd)
 
 funExt₂⁻ : {B : A → Type ℓ} {C : (a : A) → B a → I → Type ℓ'}
   {f : (x : A) → (y : B x) → C x y i0}

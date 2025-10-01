@@ -18,6 +18,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.More
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -116,6 +117,17 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
 
   open PresheafNotation (∫P Pᴰ) public
 
+  reind⟨_⟩⟨_⟩ : ∀ {x : C.ob} {f g : P.p[ x ]}{xᴰ}
+      {fᴰ fᴰ' : p[ f ][ xᴰ ]}
+      (f≡g : f ≡ g)
+    → Path p[ _ ]
+        (f , fᴰ)
+        (f , fᴰ')
+    → Path p[ _ ]
+        (g , reind f≡g fᴰ)
+        (g , reind f≡g fᴰ')
+  reind⟨ f≡g ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind f≡g) (rectify (≡out fᴰ≡fᴰ')))
+
   _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{g}
      → Cᴰ [ f ][ xᴰ , yᴰ ] → p[ g ][ yᴰ ]
      → p[ f P.⋆ g ][ xᴰ ]
@@ -168,6 +180,16 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       ∙ ⟨⟩⋆⟨ reind-filler _ _ ⟩
       ∙ reind-filler _ _
 
+    ⋆Assocⱽᴰᴰ : ∀ {x y} {g : C [ x , y ]}  {h : P.p[ y ]} {xᴰ xᴰ' yᴰ}
+      (fⱽ : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]) (gᴰ : Cᴰ [ g ][ xᴰ' , yᴰ ]) (hᴰ : p[ h ][ yᴰ ])
+      → Path p[ _ ]
+          (_ , (fⱽ Cᴰ.⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ)
+          (_ , fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
+    ⋆Assocⱽᴰᴰ fⱽ gᴰ hᴰ =
+      ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+      ∙ ⋆Assoc _ _ _
+      ∙ reind-filler _ _
+
     ⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}
       → (gᴰ : p[ g ][ xᴰ ])
       → Cᴰ.idᴰ ⋆ⱽᴰ gᴰ ≡ gᴰ
@@ -179,6 +201,33 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
           (_ , Cᴰ.idᴰ ⋆ⱽᴰ gᴰ)
           (_ , gᴰ)
     ∫⋆ⱽIdL gᴰ = sym (reind-filler _ _) ∙ ⋆IdL _
+
+    toPathPPshᴰ
+      : ∀ {x xᴰ yᴰ}{p q : P.p[ x ]}{p≡q : p ≡ q}
+      → {pᴰ : p[ p ][ xᴰ ]}
+      → (xᴰ≡yᴰ : xᴰ ≡ yᴰ)
+      → {qᴰ : p[ q ][ yᴰ ]}
+      → Path (p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst ⋆ᴰ pᴰ) (_ , qᴰ)
+      → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ
+    toPathPPshᴰ {x} {xᴰ} {yᴰ} {p} {q} {p≡q} {pᴰ} = J
+      (λ yᴰ xᴰ≡yᴰ →  ∀ {qᴰ : p[ q ][ yᴰ ]}
+      → Path (p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst ⋆ᴰ pᴰ) (_ , qᴰ)
+      → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ)
+      (λ {qᴰ} idᴰ⋆ᴰpᴰ≡qᴰ →
+        rectify $ ≡out $ (sym (⋆IdL _) ∙ ⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩ ) ∙ idᴰ⋆ᴰpᴰ≡qᴰ)
+
+    fromPathPPshᴰ
+      : ∀ {x xᴰ yᴰ}{p q : P.p[ x ]}{p≡q : p ≡ q}
+      → {pᴰ : p[ p ][ xᴰ ]}
+      → (xᴰ≡yᴰ : xᴰ ≡ yᴰ)
+      → {qᴰ : p[ q ][ yᴰ ]}
+      → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ
+      → Path (p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst ⋆ᴰ pᴰ) (_ , qᴰ)
+    fromPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{q}{p≡q}{pᴰ} = J (λ yᴰ xᴰ≡yᴰ →  ∀ {qᴰ : p[ q ][ yᴰ ]}
+      → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ
+      → Path (p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst ⋆ᴰ pᴰ) (_ , qᴰ))
+      λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
+        ∙ ⋆IdL _
 
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C ℓD ℓD')

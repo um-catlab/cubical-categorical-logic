@@ -572,39 +572,80 @@ module _
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α β : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   where
+
   private
+    module C = Category C
+    module Cᴰ = Categoryᴰ Cᴰ
     module Qᴰ = PresheafᴰNotation Qᴰ
     module P = PresheafNotation P
     module Q = PresheafNotation Q
 
-  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
-    PshHomEqPshHomᴰ :
-      (eq-N-ob : α .N-ob Eq.≡ β .N-ob) →
-      (eq-N-hom :
-        Eq.HEq
-          (Eq.ap
-            (λ N-ob' →
-              ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-                N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
-          (α .N-hom) (β .N-hom)) →
-      PshHomᴰ β Pᴰ Qᴰ
-    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-obᴰ = αᴰ .N-obᴰ
-    PshHomEqPshHomᴰ Eq.refl Eq.refl .N-homᴰ = αᴰ .N-homᴰ
+    αβ-N-ob-ty = Eq.singl (α .N-ob)
+    αβ-N-hom-ty : αβ-N-ob-ty → Type _
+    αβ-N-hom-ty αβ-ob =
+      Eq.singlP
+        (Eq.ap
+           (λ β-ob →
+                ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+                β-ob c (f P.⋆ p) ≡ (f Q.⋆ β-ob c' p))
+           (αβ-ob .snd))
+        (α .N-hom)
 
-  module _ (α≡β : α ≡ β) where
-    module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-      (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
-      PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
-      PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
-        Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
-          αᴰ .N-obᴰ pᴰ
-      PshHomPathPshHomᴰ .N-homᴰ =
-        Qᴰ.rectify $ Qᴰ.≡out $
-          (sym $ Qᴰ.reind-filler _ _)
-          ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
-          ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+
+    PshHomEqPshHomᴰ-N-obᴰ :
+      (αβ-N-ob : αβ-N-ob-ty) →
+        ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
+        {p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ αβ-N-ob .fst x p ][ xᴰ ]
+    PshHomEqPshHomᴰ-N-obᴰ (_ , Eq.refl) = αᴰ .N-obᴰ
+
+    PshHomEqPshHomᴰ-N-homᴰ :
+      (αβ-N-ob : αβ-N-ob-ty) (αβ-N-hom : αβ-N-hom-ty αβ-N-ob) →
+        ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+        → {f : C [ x , y ]}{p : P.p[ y ]}
+        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+        → PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob (fᴰ Pᴰ.⋆ᴰ pᴰ)
+            Qᴰ.≡[ αβ-N-hom .fst x y f p ]
+            (fᴰ Qᴰ.⋆ᴰ PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob pᴰ)
+    PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) (_ , Eq.refl) = αᴰ .N-homᴰ
+
+    module _ {β : PshHom P Q} where
+      module _
+        (eq-N-ob : α .N-ob Eq.≡ β .N-ob)
+        (eq-N-hom :
+          Eq.HEq
+            (Eq.ap
+              (λ N-ob' →
+                ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+                  N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
+            (α .N-hom) (β .N-hom))
+        where
+
+        -- Change the base PshHom of a PshHomᴰ along
+        -- an equality (Eq.≡) of PshHoms
+        PshHomEqPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
+        PshHomEqPshHomᴰ .N-obᴰ =
+          PshHomEqPshHomᴰ-N-obᴰ (_ , eq-N-ob)
+        PshHomEqPshHomᴰ .N-homᴰ =
+          PshHomEqPshHomᴰ-N-homᴰ (_ , eq-N-ob) (_ , eq-N-hom)
+
+      module _ (α≡β : α ≡ β) where
+
+        -- Change the base PshHom of a PshHomᴰ along
+        -- a path of PshHoms
+        PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
+        PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
+          Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
+            αᴰ .N-obᴰ pᴰ
+        PshHomPathPshHomᴰ .N-homᴰ =
+          Qᴰ.rectify $ Qᴰ.≡out $
+            (sym $ Qᴰ.reind-filler _ _)
+            ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
+            ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

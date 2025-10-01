@@ -57,6 +57,7 @@ open Liftω
 -- A LocallySmallCategory has a "proper class" of objects, but small hom sets
 record LocallySmallCategory (ob : Typeω): Typeω where
   field
+    -- since we are in Typeω, there's no reason not to make Hom-ℓ a field
     Hom-ℓ : ob → ob → Level
     Hom[_,_] : ∀ x y → Type (Hom-ℓ x y)
     id : ∀ {x} → Hom[ x , x ]
@@ -150,50 +151,47 @@ module _ {ob}(C : LocallySmallCategory ob) where
     ∫C .LocallySmallCategory.⋆Assoc ffᴰ ggᴰ hhᴰ = ΣPathP ((C.⋆Assoc _ _ _) , (⋆Assocᴰ _ _ _))
     ∫C .LocallySmallCategory.isSetHom = isSetΣ C.isSetHom (λ _ → isSetHomᴰ)
 
-    open LocallySmallCategory ∫C public
--- module _ {ob}(C : LocallySmallCategory ob) where
---   private
---     module C = LocallySmallCategory C
---   record BundledCategoryᴰ : Typeω where
---     field
---       ob-ℓ : ob → Level
---       ob[_] : ∀ (x : ob) → Type (ob-ℓ x)
---       Hom-ℓᴰ : ob → ob → Level
---       Hom[_][_,_] : ∀ {x y}(f : C.Hom[ x , y ])(xᴰ : ob[ x ])(yᴰ : ob[ y ]) → Type (Hom-ℓᴰ x y)
---       idᴰ : ∀ {x} {p : ob[ x ]} → Hom[ C.id ][ p , p ]
---       _⋆ᴰ_ : ∀ {x y z} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]} {xᴰ yᴰ zᴰ}
---         → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f C.⋆ g ][ xᴰ , zᴰ ]
+    private
+      module ∫C = LocallySmallCategory ∫C
+    ≡in : {x y : ob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
+      {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
+      {p : f ≡ g}
+      → (fᴰ ≡[ p ] gᴰ)
+      → Path ∫C.Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
+    ≡in = λ pᴰ → ΣPathP (_ , pᴰ)
 
---     infixr 9 _⋆ᴰ_
+    ≡out : {x y : ob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
+      {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
+      → (ppᴰ : Path ∫C.Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ))
+      → (fᴰ ≡[ fst (PathPΣ ppᴰ) ] gᴰ)
+    ≡out e = snd (PathPΣ e)
 
---     _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : C.Hom[ x , y ]}
---       → (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (p : f ≡ g) (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
---       → Type (Hom-ℓᴰ x y)
---     _≡[_]_ {x} {y} {xᴰ} {yᴰ} fᴰ p gᴰ = PathP (λ i → Hom[ p i ][ xᴰ , yᴰ ]) fᴰ gᴰ
+    -- Rectify the base equality of dependent equalities to whatever we want
+    rectify : {x y : ob}{f g : C.Hom[ x , y ]}{p p' : f ≡ g}
+      {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
+      {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
+      → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
+    rectify {fᴰ = fᴰ}{gᴰ} pᴰ = subst (fᴰ ≡[_] gᴰ) (C.isSetHom _ _ _ _) pᴰ
 
---     infix 2 _≡[_]_
+    -- Reindexing displayed morphisms along an equality in the base
+    reind : {x y : ob}{f g : C.Hom[ x , y ]}
+      {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      (p : f ≡ g)
+      (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+      → Hom[ g ][ xᴰ , yᴰ ]
+    reind = subst Hom[_][ _ , _ ]
 
---     field
---       ⋆IdLᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idᴰ ⋆ᴰ fᴰ ≡[ C.⋆IdL f ] fᴰ
---       ⋆IdRᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → fᴰ ⋆ᴰ idᴰ ≡[ C.⋆IdR f ] fᴰ
---       ⋆Assocᴰ : ∀ {x y z w} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]}  {h : C.Hom[ z , w ]} {xᴰ yᴰ zᴰ wᴰ}
---         (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ yᴰ , zᴰ ]) (hᴰ : Hom[ h ][ zᴰ , wᴰ ])
---         → (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ C.⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
---       isSetHomᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} → isSet Hom[ f ][ xᴰ , yᴰ ]
-
---     ∫C : LocallySmallCategory (Σω[ x ∈ ob ] ob[ x ])
---     ∫C .LocallySmallCategory.Hom-ℓ = _
---     ∫C .LocallySmallCategory.Hom[_,_] xxᴰ yyᴰ =
---       Σ[ f ∈ C.Hom[ xxᴰ .fst , yyᴰ .fst ] ]
---       Hom[ f ][ xxᴰ .snd , yyᴰ .snd ]
---     ∫C .LocallySmallCategory.id = C.id , idᴰ
---     ∫C .LocallySmallCategory._⋆_ ffᴰ ggᴰ = (ffᴰ .fst C.⋆ ggᴰ .fst) , (ffᴰ .snd ⋆ᴰ ggᴰ .snd)
---     ∫C .LocallySmallCategory.⋆IdL ffᴰ = ΣPathP (C.⋆IdL (ffᴰ .fst) , ⋆IdLᴰ (ffᴰ .snd))
---     ∫C .LocallySmallCategory.⋆IdR ffᴰ = ΣPathP (C.⋆IdR (ffᴰ .fst) , ⋆IdRᴰ (ffᴰ .snd))
---     ∫C .LocallySmallCategory.⋆Assoc ffᴰ ggᴰ hhᴰ = ΣPathP ((C.⋆Assoc _ _ _) , (⋆Assocᴰ _ _ _))
---     ∫C .LocallySmallCategory.isSetHom = isSetΣ C.isSetHom (λ _ → isSetHomᴰ)
-
---     open LocallySmallCategory ∫C public
+    reind-filler : {x y : ob}{f g : C.Hom[ x , y ]}
+      {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      (p : f ≡ g)
+      (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+      → (f , fᴰ) ≡ (g , reind p fᴰ)
+    reind-filler p fᴰ = ΣPathP (p , subst-filler Hom[_][ _ , _ ] p fᴰ)
+    -- TODO: port more
+    open ∫C public
 
 module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ C obᴰ) where
   private

@@ -18,9 +18,17 @@ open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuive
 private
   variable
     ℓq ℓq' : Level
-  module _ {ℓ} {A : Type ℓ} (A-Discrete : Discrete A) where
+  module _ {ℓ} {A : Type ℓ} (A-isSet : isSet A) where
     isEqSet : {a a' : A} → isProp (a Eq.≡ a')
-    isEqSet p q = sym (Eq.pathToEq-eqToPath _) ∙ congS Eq.pathToEq (Discrete→isSet A-Discrete _ _ (Eq.eqToPath p) (Eq.eqToPath q)) ∙ Eq.pathToEq-eqToPath _
+    isEqSet p q = sym (Eq.pathToEq-eqToPath _) ∙ congS Eq.pathToEq (A-isSet _ _ (Eq.eqToPath p) (Eq.eqToPath q)) ∙ Eq.pathToEq-eqToPath _
+  module _ {ℓ} {A : Type ℓ} (A-Discrete : Discrete A) where
+    DiscreteEq : ∀(a a' : A) → Dec (a Eq.≡ a')
+    DiscreteEq a a' with A-Discrete a a'
+    ...              | yes p = yes (Eq.pathToEq p)
+    ...              | no p = no (p ∘S Eq.eqToPath)
+  module _ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'} (A-isSet : isSet A) where
+    transportEqRefl' : ∀{a : A} {b : B a} {p : a Eq.≡ a} → b ≡ Eq.transport B p b
+    transportEqRefl' {p = p} = congS (λ x → Eq.transport B x _) (isEqSet A-isSet Eq.refl p)
 
 module _ (Q : ×Quiver' ℓq ℓq') where
   private
@@ -62,7 +70,6 @@ module _ (Q : ×Quiver' ℓq ℓq') where
       codeNormalForm (shift x) (shift y) = codeNeutralTerm x y
       codeNormalForm (pair x₁ x₂) (pair y₁ y₂) = codeNormalForm x₁ y₁ Σ.× codeNormalForm x₂ y₂
       codeNormalForm uniq uniq = Unit*
-      codeNormalForm x y = ⊥*
 
       reflCodeNeutralTerm : ∀{τ} → BinaryRelation.isRefl (codeNeutralTerm {τ})
       reflCodeNormalForm : ∀{τ} → BinaryRelation.isRefl (codeNormalForm {τ})
@@ -121,24 +128,34 @@ module _ (Q : ×Quiver' ℓq ℓq') where
       DiscreteNeutralTerm : ∀{τ} → Discrete (NeutralTerm τ)
       DiscreteNormalForm : ∀{τ} → Discrete (NormalForm τ)
 
-      DiscreteNeutralTerm (var p) (var q) = yes (congS var (isEqSet Discrete-Ob p q))
+      DiscreteNeutralTerm (var p) (var q) = yes (congS var (isEqSet (Discrete→isSet Discrete-Ob) p q))
       DiscreteNeutralTerm (var _) (proj₁ _) = no (λ p → subst (λ {(var _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (var _) (proj₂ _) = no (λ p → subst (λ {(var _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (var _) (symb _ _ _) = no (λ p → subst (λ {(var _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (proj₁ _) (var _) = no (λ p → subst (λ {(proj₁ _) → Unit ; _ → ⊥}) p tt)
-      DiscreteNeutralTerm (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) with Discrete-Ob τ₂ τ₃
-      ...                                                         | yes p = {!!}
-      ...                                                         | no p = no (p ∘S Eq.eqToPath ∘S fst ∘S inj-proj₁)
+      DiscreteNeutralTerm (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) with DiscreteEq Discrete-Ob τ₂ τ₃
+      ...                                                         | yes Eq.refl with DiscreteNeutralTerm x y
+      ...                                                                       | yes p = yes (congS proj₁ p)
+      ...                                                                       | no p = no (λ q → p (transportEqRefl' (Discrete→isSet Discrete-Ob) ∙ inj-proj₁ q .snd))
+      DiscreteNeutralTerm (proj₁ {τ₂ = τ₂} x) (proj₁ {τ₂ = τ₃} y) | no p = no (p ∘S fst ∘S inj-proj₁)
       DiscreteNeutralTerm (proj₁ _) (proj₂ _) = no (λ p → subst (λ {(proj₁ _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (proj₁ _) (symb _ _ _) = no (λ p → subst (λ {(proj₁ _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (proj₂ _) (var _) = no (λ p → subst (λ {(proj₂ _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (proj₂ _) (proj₁ _) = no (λ p → subst (λ {(proj₂ _) → Unit ; _ → ⊥}) p tt)
-      DiscreteNeutralTerm (proj₂ x) (proj₂ y) = {!!}
+      DiscreteNeutralTerm (proj₂ {τ₁ = τ₁} x) (proj₂ {τ₁ = τ₂} y) with DiscreteEq Discrete-Ob τ₁ τ₂
+      ...                                                         | yes Eq.refl with DiscreteNeutralTerm x y
+      ...                                                                       | yes p = yes (congS proj₂ p)
+      ...                                                                       | no p = no (λ q → p (transportEqRefl' (Discrete→isSet Discrete-Ob) ∙ inj-proj₂ q .snd))
+      DiscreteNeutralTerm (proj₂ {τ₁ = τ₁} x) (proj₂ {τ₁ = τ₂} y) | no p = no (p ∘S fst ∘S inj-proj₂)
       DiscreteNeutralTerm (proj₂ _) (symb _ _ _) = no (λ p → subst (λ {(proj₂ _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (symb _ _ _) (var _) = no (λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (symb _ _ _) (proj₁ _) = no (λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt)
       DiscreteNeutralTerm (symb _ _ _) (proj₂ _) = no (λ p → subst (λ {(symb _ _ _) → Unit ; _ → ⊥}) p tt)
-      DiscreteNeutralTerm (symb f x x₁) (symb f₁ x₂ x₃) = {!!}
+      DiscreteNeutralTerm (symb f x₁ x₂) (symb g y₁ y₂) with DiscreteEq Discrete-Mor f g
+      ...                                               | yes Eq.refl with DiscreteNormalForm x₂ y₂
+      ...                                                             | yes p = yes (cong₂ (symb f) (isEqSet (Discrete→isSet Discrete-Ob) _ _) p)
+      ...                                                             | no p = no (λ q → p (transportEqRefl' (Discrete→isSet Discrete-Mor) ∙ inj-symb q .snd .snd))
+      DiscreteNeutralTerm (symb f x₁ x₂) (symb g y₁ y₂) | no p = no (p ∘S fst ∘S inj-symb)
 
       DiscreteNormalForm (shift x) (shift y) with DiscreteNeutralTerm x y
       ...                                    | yes p = yes (congS shift p)

@@ -11,13 +11,17 @@ module Cubical.Categories.Constructions.Fiber where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.Reasoning as Reasoning
+import Cubical.Categories.More as CatReasoning
 
 
 private
@@ -60,9 +64,10 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       x y z : C.ob
       xᴰ xᴰ' xᴰ'' yᴰ yᴰ' yᴰ'' zᴰ : ob[ x ]
       f g h : C [ x , y ]
-      fᴰ gᴰ hᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]
-      fⱽ gⱽ hⱽ : v[ x ] [ xᴰ , xᴰ' ]
+      fᴰ fᴰ' gᴰ gᴰ' hᴰ hᴰ' : Cᴰ [ f ][ xᴰ , yᴰ ]
+      fⱽ fⱽ' gⱽ gⱽ' hⱽ hⱽ' : v[ x ] [ xᴰ , xᴰ' ]
 
+  -- TODO: make the "reasoning machine" the default
   ⋆IdLⱽ : idⱽ ⋆ⱽ fⱽ ≡ fⱽ
   ⋆IdLⱽ = v[ _ ] .Category.⋆IdL _
 
@@ -123,8 +128,11 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     ∙ R.⋆Assoc _ _ _
     ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
 
-  ⋆Assocⱽᴰᴰ : (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ ≡ fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ)
-  ⋆Assocⱽᴰᴰ = R.rectify $ R.≡out $
+  ⋆Assocⱽᴰᴰ :
+    Path R.Hom[ _ , _ ]
+     (_ , (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ)
+     (_ , fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
+  ⋆Assocⱽᴰᴰ =
     R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
     ∙ R.⋆Assoc _ _ _ ∙ R.reind-filler _ _
 
@@ -149,6 +157,41 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     sym $ ⋆Assocᴰⱽⱽ)
 
   open R public
+  open CatReasoning.Reasoning (∫C Cᴰ) public
+
+  ⟨_⟩⋆ⱽᴰ⟨_⟩
+    : Path Hom[ _ , _ ] (_ , fⱽ) (_ , fⱽ')
+    → Path Hom[ _ , _ ] (_ , gᴰ) (_ , gᴰ')
+    → Path Hom[ _ , _ ]
+        (_ , fⱽ ⋆ⱽᴰ gᴰ)
+        (_ , fⱽ' ⋆ⱽᴰ gᴰ')
+  ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ gᴰ≡gᴰ' ⟩ = sym (reind-filler _ _) ∙ ⟨ fⱽ≡fⱽ' ⟩⋆⟨ gᴰ≡gᴰ' ⟩ ∙ reind-filler _ _
+
+  ⟨⟩⋆ⱽᴰ⟨_⟩
+    : Path Hom[ _ , _ ] (_ , gᴰ) (_ , gᴰ')
+    → Path Hom[ _ , _ ]
+        (_ , fⱽ ⋆ⱽᴰ gᴰ)
+        (_ , fⱽ ⋆ⱽᴰ gᴰ')
+  ⟨⟩⋆ⱽᴰ⟨ gᴰ≡gᴰ' ⟩ = ⟨ refl ⟩⋆ⱽᴰ⟨ gᴰ≡gᴰ' ⟩
+
+  ⟨_⟩⋆ⱽᴰ⟨⟩
+    : Path Hom[ _ , _ ] (_ , fⱽ) (_ , fⱽ')
+    → Path Hom[ _ , _ ]
+        (_ , fⱽ  ⋆ⱽᴰ gᴰ)
+        (_ , fⱽ' ⋆ⱽᴰ gᴰ)
+  ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨⟩ = ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ refl ⟩
+
+  reind⟨_⟩⟨_⟩ : ∀ {a b : C.ob} {f g : C [ a , b ]}{aᴰ bᴰ}
+      {fᴰ : Cᴰ [ f ][ aᴰ , bᴰ ]}
+      {fᴰ' : Cᴰ [ f ][ aᴰ , bᴰ ]}
+      (p : f ≡ g)
+    → Path R.Hom[ _ , _ ]
+        (f , fᴰ)
+        (f , fᴰ')
+    → Path R.Hom[ _ , _ ]
+        (g , reind p fᴰ)
+        (g , reind p fᴰ')
+  reind⟨ p ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind p) (rectify (≡out fᴰ≡fᴰ')))
 
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

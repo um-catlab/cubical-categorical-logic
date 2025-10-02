@@ -79,6 +79,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
 
   -- Natural transformation between presheaves of different levels
   record PshHom : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    no-eta-equality
     constructor pshhom
     field
       N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
@@ -299,7 +300,10 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) whe
     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .ret) _)
 
   NatIso→PshIso : NatIso P Q → PshIso P Q
-  NatIso→PshIso α = PshCatIso→PshIso (NatIso→FUNCTORIso (C ^op) (SET ℓp) α)
+  NatIso→PshIso α .trans = NatTrans→PshHom (α .NatIso.trans)
+  NatIso→PshIso α .nIso c .fst = α .NatIso.nIso c .inv
+  NatIso→PshIso α .nIso c .snd .fst q = funExt⁻ (α .NatIso.nIso c .sec) q
+  NatIso→PshIso α .nIso c .snd .snd p = funExt⁻ (α .NatIso.nIso c .ret) p
 
   PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓp) (P .F-ob x) (Q .F-ob x)
   PshIso→SETIso α c .fst = α .trans .N-ob c
@@ -533,6 +537,16 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp)
 module _
   {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  (α : PshHom P Q)
+  where
+  ⋆PshHomIdL : idPshHom {P = P} ⋆PshHom α ≡ α
+  ⋆PshHomIdL = makePshHomPath refl
+  ⋆PshHomIdR : α ⋆PshHom idPshHom ≡ α
+  ⋆PshHomIdR = makePshHomPath refl
+
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
   {R : Presheaf C ℓr} {S : Presheaf C ℓs}
   (α : PshHom P Q)(β : PshHom Q R)(γ : PshHom R S)
   where
@@ -543,3 +557,31 @@ module _
       ((α ⋆PshHom β) ⋆PshHom γ)
       (α ⋆PshHom (β ⋆PshHom γ))
   ⋆PshHomAssoc = makePshHomPath refl
+
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
+
+  postcomp⋆PshHom-Iso : (α : PshIso Q R) → Iso (PshHom P Q) (PshHom P R)
+  postcomp⋆PshHom-Iso α .Iso.fun β = β ⋆PshHom α .trans
+  postcomp⋆PshHom-Iso α .Iso.inv β = β ⋆PshHom invPshIso α .trans
+  postcomp⋆PshHom-Iso α .Iso.rightInv β =
+    ⋆PshHomAssoc _ _ _
+    ∙ cong (β ⋆PshHom_) (PshIso→rightInv α)
+    ∙ ⋆PshHomIdR β
+  postcomp⋆PshHom-Iso α .Iso.leftInv β =
+    ⋆PshHomAssoc _ _ _
+    ∙ cong (β ⋆PshHom_) (PshIso→leftInv α)
+    ∙ ⋆PshHomIdR β
+
+  precomp⋆PshHom-Iso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
+  precomp⋆PshHom-Iso α .Iso.fun β = α .trans ⋆PshHom β
+  precomp⋆PshHom-Iso α .Iso.inv β = invPshIso α .trans ⋆PshHom β
+  precomp⋆PshHom-Iso α .Iso.rightInv β =
+    sym (⋆PshHomAssoc _ _ _)
+    ∙ cong (_⋆PshHom β) (PshIso→leftInv α)
+    ∙ ⋆PshHomIdL β
+  precomp⋆PshHom-Iso α .Iso.leftInv β =
+    sym (⋆PshHomAssoc _ _ _)
+    ∙ cong (_⋆PshHom β) (PshIso→rightInv α)
+    ∙ ⋆PshHomIdL β

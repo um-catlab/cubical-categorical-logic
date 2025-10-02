@@ -681,21 +681,22 @@ module _ {C : Category ℓC ℓC'}
         {p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ αβ-N-ob .fst x p ][ xᴰ ]
     PshHomEqPshHomᴰ-N-obᴰ (_ , Eq.refl) = αᴰ .N-obᴰ
 
-    PshHomEqPshHomᴰ-N-hom :
-      (αβ-N-ob : αβ-N-ob-ty) →
-      ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-        αβ-N-ob .fst c (f P.⋆ p) ≡ (f Q.⋆ αβ-N-ob .fst c' p)
-    PshHomEqPshHomᴰ-N-hom (_ , Eq.refl) c c' f p = α .N-hom c c' f p
+    opaque
+      PshHomEqPshHomᴰ-N-hom :
+        (αβ-N-ob : αβ-N-ob-ty) →
+        ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+          αβ-N-ob .fst c (f P.⋆ p) ≡ (f Q.⋆ αβ-N-ob .fst c' p)
+      PshHomEqPshHomᴰ-N-hom (_ , Eq.refl) c c' f p = α .N-hom c c' f p
 
-    PshHomEqPshHomᴰ-N-homᴰ :
-      (αβ-N-ob : αβ-N-ob-ty) →
-        ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
-        → {f : C [ x , y ]}{p : P.p[ y ]}
-        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
-        → PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob (fᴰ Pᴰ.⋆ᴰ pᴰ)
-            Qᴰ.≡[ PshHomEqPshHomᴰ-N-hom αβ-N-ob x y f p ]
-            (fᴰ Qᴰ.⋆ᴰ PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob pᴰ)
-    PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) = αᴰ .N-homᴰ
+      PshHomEqPshHomᴰ-N-homᴰ :
+        (αβ-N-ob : αβ-N-ob-ty) →
+          ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+          → {f : C [ x , y ]}{p : P.p[ y ]}
+          → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+          → PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob (fᴰ Pᴰ.⋆ᴰ pᴰ)
+              Qᴰ.≡[ PshHomEqPshHomᴰ-N-hom αβ-N-ob x y f p ]
+              (fᴰ Qᴰ.⋆ᴰ PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob pᴰ)
+      PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) = αᴰ .N-homᴰ
 
     module _ {β : PshHom P Q} where
       module _
@@ -757,11 +758,12 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
     module _ {β : PshIso P Q} (eq-N-ob : α .trans .N-ob Eq.≡ β .trans .N-ob) where
       private
-        isPshIso≡ :
-          PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob) ≡ β .nIso
-        isPshIso≡  =
-            isPropIsPshIso {α = β .trans}
-              (PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob)) (β .nIso)
+        opaque
+          isPshIso≡ :
+            PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob) ≡ β .nIso
+          isPshIso≡  =
+              isPropIsPshIso {α = β .trans}
+                (PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob)) (β .nIso)
 
       PshHomEqPshIsoᴰ : PshIsoᴰ β Pᴰ Qᴰ
       PshHomEqPshIsoᴰ .fst = PshHomEqPshHomᴰ (αᴰ .fst) eq-N-ob

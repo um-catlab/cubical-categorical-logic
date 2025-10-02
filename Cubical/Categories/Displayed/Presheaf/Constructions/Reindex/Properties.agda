@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Equiv.Dependent
 
@@ -111,23 +112,30 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-introⱽ α .N-homᴰ =
     Qᴰ.rectify $ Qᴰ.≡out $ (Qᴰ.≡in $ α .N-homᴰ) ∙ Qᴰ.reind-filler _ _
 
-  reind-βⱽ :
-    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
-    PshHomᴰPathP (reind-introⱽ αᴰ ⋆PshHomᴰ reind-π) αᴰ
-      id⋆α≡α
-  reind-βⱽ αᴰ =
-    makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} →
-      funExt λ pᴰ → Qᴰ.rectify {p = refl} refl
+  opaque
+    reind-βⱽ :
+      (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
+      PshHomᴰPathP (reind-introⱽ αᴰ ⋆PshHomᴰ reind-π) αᴰ
+        id⋆α≡α
+    reind-βⱽ αᴰ =
+      makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} →
+        funExt λ pᴰ → Qᴰ.rectify {p = refl} refl
 
-  reind-βⱽ' :
-    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
-    reind-introⱽ αᴰ ⋆PshHomⱽᴰ reind-π ≡ αᴰ
-  reind-βⱽ' αᴰ = makePshHomᴰPath refl
+    reind-βⱽ' :
+      (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
+      reind-introⱽ αᴰ ⋆PshHomⱽᴰ reind-π ≡ αᴰ
+    reind-βⱽ' αᴰ = makePshHomᴰPath refl
 
-  reind-ηⱽ :
-    (αⱽ : PshHomⱽ Pᴰ (reind α Qᴰ)) →
-    reind-introⱽ (αⱽ ⋆PshHomⱽᴰ reind-π) ≡ αⱽ
-  reind-ηⱽ αⱽ = makePshHomᴰPath refl
+    reind-ηⱽ :
+      (αⱽ : PshHomⱽ Pᴰ (reind α Qᴰ)) →
+      reind-introⱽ (αⱽ ⋆PshHomⱽᴰ reind-π) ≡ αⱽ
+    reind-ηⱽ αⱽ = makePshHomᴰPath refl
+
+  reind-UMPⱽ : Iso (PshHomᴰ α Pᴰ Qᴰ) (PshHomⱽ Pᴰ (reind α Qᴰ))
+  reind-UMPⱽ .Iso.fun = reind-introⱽ
+  reind-UMPⱽ .Iso.inv = _⋆PshHomⱽᴰ reind-π
+  reind-UMPⱽ .Iso.rightInv = reind-ηⱽ
+  reind-UMPⱽ .Iso.leftInv = reind-βⱽ'
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
@@ -161,15 +169,22 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-introᴰ αβᴰ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
     (∫PshHom αβᴰ .N-hom _ _ _ _) ∙ Rᴰ.reind-filler _ _
 
-  reind-βᴰ :
-    (αᴰ : PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ) →
-    reind-introᴰ αᴰ ⋆PshHomᴰ reind-π ≡ αᴰ
-  reind-βᴰ αᴰ = makePshHomᴰPath refl
+  opaque
+    reind-βᴰ :
+      (αᴰ : PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ) →
+      reind-introᴰ αᴰ ⋆PshHomᴰ reind-π ≡ αᴰ
+    reind-βᴰ αᴰ = makePshHomᴰPath refl
 
-  reind-ηᴰ :
-    (αᴰ : PshHomᴰ α Pᴰ (reind β Rᴰ)) →
-    reind-introᴰ (αᴰ ⋆PshHomᴰ reind-π) ≡ αᴰ
-  reind-ηᴰ αᴰ = makePshHomᴰPath refl
+    reind-ηᴰ :
+      (αᴰ : PshHomᴰ α Pᴰ (reind β Rᴰ)) →
+      reind-introᴰ (αᴰ ⋆PshHomᴰ reind-π) ≡ αᴰ
+    reind-ηᴰ αᴰ = makePshHomᴰPath refl
+
+  reind-UMP : Iso (PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ) (PshHomᴰ α Pᴰ (reind β Rᴰ))
+  reind-UMP .Iso.fun = reind-introᴰ
+  reind-UMP .Iso.inv = _⋆PshHomᴰ reind-π
+  reind-UMP .Iso.rightInv = reind-ηᴰ
+  reind-UMP .Iso.leftInv = reind-βᴰ
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

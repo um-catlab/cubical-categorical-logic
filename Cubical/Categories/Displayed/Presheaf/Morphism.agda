@@ -653,32 +653,27 @@ module _
 
   -- TODO: whiskering for universal element
 
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {α : PshHom P Q}
   where
 
   private
     module C = Category C
-    module Cᴰ = Categoryᴰ Cᴰ
-    module Qᴰ = PresheafᴰNotation Qᴰ
     module P = PresheafNotation P
     module Q = PresheafNotation Q
 
-    αβ-N-ob-ty = Eq.singl (α .N-ob)
-    αβ-N-hom-ty : αβ-N-ob-ty → Type _
-    αβ-N-hom-ty αβ-ob =
-      Eq.singlP
-        (Eq.ap
-           (λ β-ob →
-                ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-                β-ob c (f P.⋆ p) ≡ (f Q.⋆ β-ob c' p))
-           (αβ-ob .snd))
-        (α .N-hom)
+  αβ-N-ob-ty = Eq.singl (α .N-ob)
 
-  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+  module _
+    {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
     private
       module Pᴰ = PresheafᴰNotation Pᴰ
+      module Cᴰ = Categoryᴰ Cᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
 
     PshHomEqPshHomᴰ-N-obᴰ :
       (αβ-N-ob : αβ-N-ob-ty) →
@@ -686,35 +681,33 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         {p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ αβ-N-ob .fst x p ][ xᴰ ]
     PshHomEqPshHomᴰ-N-obᴰ (_ , Eq.refl) = αᴰ .N-obᴰ
 
+    PshHomEqPshHomᴰ-N-hom :
+      (αβ-N-ob : αβ-N-ob-ty) →
+      ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+        αβ-N-ob .fst c (f P.⋆ p) ≡ (f Q.⋆ αβ-N-ob .fst c' p)
+    PshHomEqPshHomᴰ-N-hom (_ , Eq.refl) c c' f p = α .N-hom c c' f p
+
     PshHomEqPshHomᴰ-N-homᴰ :
-      (αβ-N-ob : αβ-N-ob-ty) (αβ-N-hom : αβ-N-hom-ty αβ-N-ob) →
+      (αβ-N-ob : αβ-N-ob-ty) →
         ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
         → {f : C [ x , y ]}{p : P.p[ y ]}
         → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
         → PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob (fᴰ Pᴰ.⋆ᴰ pᴰ)
-            Qᴰ.≡[ αβ-N-hom .fst x y f p ]
+            Qᴰ.≡[ PshHomEqPshHomᴰ-N-hom αβ-N-ob x y f p ]
             (fᴰ Qᴰ.⋆ᴰ PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob pᴰ)
-    PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) (_ , Eq.refl) = αᴰ .N-homᴰ
+    PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) = αᴰ .N-homᴰ
 
     module _ {β : PshHom P Q} where
       module _
         (eq-N-ob : α .N-ob Eq.≡ β .N-ob)
-        (eq-N-hom :
-          Eq.HEq
-            (Eq.ap
-              (λ N-ob' →
-                ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-                  N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
-            (α .N-hom) (β .N-hom))
         where
-
         -- Change the base PshHom of a PshHomᴰ along
         -- an equality (Eq.≡) of PshHoms
         PshHomEqPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
         PshHomEqPshHomᴰ .N-obᴰ =
           PshHomEqPshHomᴰ-N-obᴰ (_ , eq-N-ob)
         PshHomEqPshHomᴰ .N-homᴰ =
-          PshHomEqPshHomᴰ-N-homᴰ (_ , eq-N-ob) (_ , eq-N-hom)
+          Qᴰ.rectify (PshHomEqPshHomᴰ-N-homᴰ (_ , eq-N-ob))
 
       module _ (α≡β : α ≡ β) where
 
@@ -729,6 +722,57 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
             (sym $ Qᴰ.reind-filler _ _)
             ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
             ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+
+  private
+    module C = Category C
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      PshHomEqPshIsoᴰ-isPshIso :
+        (αβ-N-ob : αβ-N-ob-ty {α = α .trans}) →
+        ∀ x → Σ[ g ∈ (Q.p[ x ] → P.p[ x ]) ]
+              Σ[ _ ∈ section (αβ-N-ob .fst x) g ]
+              retract (αβ-N-ob .fst x) g
+      PshHomEqPshIsoᴰ-isPshIso (_ , Eq.refl) = α .nIso
+
+      PshHomEqPshIsoᴰ-isPshIsoᴰ :
+        (αβ-N-ob : αβ-N-ob-ty {α = α .trans}) →
+          ∀ {x}{xᴰ : Cᴰ.ob[ x ]} →
+          isIsoOver
+            (isIsoToIso (PshHomEqPshIsoᴰ-isPshIso αβ-N-ob x))
+            Pᴰ.p[_][ xᴰ ]
+            Qᴰ.p[_][ xᴰ ]
+            (λ _ → PshHomEqPshHomᴰ-N-obᴰ (αᴰ .fst) αβ-N-ob)
+      PshHomEqPshIsoᴰ-isPshIsoᴰ (_ , Eq.refl) = αᴰ .snd
+
+    module _ {β : PshIso P Q} (eq-N-ob : α .trans .N-ob Eq.≡ β .trans .N-ob) where
+      private
+        isPshIso≡ :
+          PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob) ≡ β .nIso
+        isPshIso≡  =
+            isPropIsPshIso {α = β .trans}
+              (PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob)) (β .nIso)
+
+      PshHomEqPshIsoᴰ : PshIsoᴰ β Pᴰ Qᴰ
+      PshHomEqPshIsoᴰ .fst = PshHomEqPshHomᴰ (αᴰ .fst) eq-N-ob
+      PshHomEqPshIsoᴰ .snd =
+        subst
+          (λ z → isIsoOver
+            (isIsoToIso z)
+            Pᴰ.p[_][ _ ] Qᴰ.p[_][ _ ]
+            λ _ → PshHomEqPshHomᴰ-N-obᴰ (αᴰ .fst) (_ , eq-N-ob))
+          (funExt⁻ isPshIso≡ _)
+          (PshHomEqPshIsoᴰ-isPshIsoᴰ (_ , eq-N-ob))
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

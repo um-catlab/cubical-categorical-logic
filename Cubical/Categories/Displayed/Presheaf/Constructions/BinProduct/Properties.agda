@@ -195,7 +195,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
   reindFunc×ⱽIsoⱽ :
     PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
             (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-  reindFunc×ⱽIsoⱽ .fst = PshHomEqPshHomᴰ (reindFunc×ⱽIsoⱽ' .fst) Eq.refl Eq.refl
+  reindFunc×ⱽIsoⱽ .fst = PshHomEqPshHomᴰ (reindFunc×ⱽIsoⱽ' .fst) Eq.refl
   reindFunc×ⱽIsoⱽ .snd = isisoover (λ a z → z) (λ _ _ → refl) λ _ _ → refl
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

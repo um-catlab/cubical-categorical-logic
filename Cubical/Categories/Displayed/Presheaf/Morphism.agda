@@ -5,7 +5,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Dependent
-open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
@@ -16,8 +15,7 @@ open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
-open import Cubical.Categories.Category
-  hiding (isIso)
+open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation using (NatTrans ; NatIso ; idTrans)
@@ -373,32 +371,21 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
     infixr 9 _⋆PshHomᴰ_
 
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-  where
+module _ {C : Category ℓC ℓC'} where
 
   private
     module C = Category C
-    module Cᴰ = Categoryᴰ Cᴰ
-    module Qᴰ = PresheafᴰNotation Qᴰ
-    module P = PresheafNotation P
-    module Q = PresheafNotation Q
+  αβ-N-ob-ty = Eq.singl (α .N-ob)
 
-    αβ-N-ob-ty = Eq.singl (α .N-ob)
-    αβ-N-hom-ty : αβ-N-ob-ty → Type _
-    αβ-N-hom-ty αβ-ob =
-      Eq.singlP
-        (Eq.ap
-           (λ β-ob →
-                ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-                β-ob c (f P.⋆ p) ≡ (f Q.⋆ β-ob c' p))
-           (αβ-ob .snd))
-        (α .N-hom)
-
-  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
+  module _
+    {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
     private
       module Pᴰ = PresheafᴰNotation Pᴰ
+      module Cᴰ = Categoryᴰ Cᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
 
     PshHomEqPshHomᴰ-N-obᴰ :
       (αβ-N-ob : αβ-N-ob-ty) →
@@ -406,35 +393,34 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         {p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ αβ-N-ob .fst x p ][ xᴰ ]
     PshHomEqPshHomᴰ-N-obᴰ (_ , Eq.refl) = αᴰ .N-obᴰ
 
-    PshHomEqPshHomᴰ-N-homᴰ :
-      (αβ-N-ob : αβ-N-ob-ty) (αβ-N-hom : αβ-N-hom-ty αβ-N-ob) →
-        ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
-        → {f : C [ x , y ]}{p : P.p[ y ]}
-        → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
-        → PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob (fᴰ Pᴰ.⋆ᴰ pᴰ)
-            Qᴰ.≡[ αβ-N-hom .fst x y f p ]
-            (fᴰ Qᴰ.⋆ᴰ PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob pᴰ)
-    PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) (_ , Eq.refl) = αᴰ .N-homᴰ
+    opaque
+      PshHomEqPshHomᴰ-N-hom :
+        (αβ-N-ob : αβ-N-ob-ty) →
+        ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+          αβ-N-ob .fst c (f P.⋆ p) ≡ (f Q.⋆ αβ-N-ob .fst c' p)
+      PshHomEqPshHomᴰ-N-hom (_ , Eq.refl) c c' f p = α .N-hom c c' f p
+
+      PshHomEqPshHomᴰ-N-homᴰ :
+        (αβ-N-ob : αβ-N-ob-ty) →
+          ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+          → {f : C [ x , y ]}{p : P.p[ y ]}
+          → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
+          → PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob (fᴰ Pᴰ.⋆ᴰ pᴰ)
+              Qᴰ.≡[ PshHomEqPshHomᴰ-N-hom αβ-N-ob x y f p ]
+              (fᴰ Qᴰ.⋆ᴰ PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob pᴰ)
+      PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) = αᴰ .N-homᴰ
 
     module _ {β : PshHom P Q} where
       module _
         (eq-N-ob : α .N-ob Eq.≡ β .N-ob)
-        (eq-N-hom :
-          Eq.HEq
-            (Eq.ap
-              (λ N-ob' →
-                ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-                  N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
-            (α .N-hom) (β .N-hom))
         where
-
         -- Change the base PshHom of a PshHomᴰ along
         -- an equality (Eq.≡) of PshHoms
         PshHomEqPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
         PshHomEqPshHomᴰ .N-obᴰ =
           PshHomEqPshHomᴰ-N-obᴰ (_ , eq-N-ob)
         PshHomEqPshHomᴰ .N-homᴰ =
-          PshHomEqPshHomᴰ-N-homᴰ (_ , eq-N-ob) (_ , eq-N-hom)
+          Qᴰ.rectify (PshHomEqPshHomᴰ-N-homᴰ (_ , eq-N-ob))
 
       module _ (α≡β : α ≡ β) where
 
@@ -450,56 +436,61 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
             ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
             ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
 
--- The variants of these are all just eta expansions. We could do
--- something like reindF' but I'll just copy/paste for today.
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+
+  private
+    module C = Category C
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      PshHomEqPshIsoᴰ-isPshIso :
+        (αβ-N-ob : αβ-N-ob-ty {α = α .trans}) →
+        ∀ x → Σ[ g ∈ (Q.p[ x ] → P.p[ x ]) ]
+              Σ[ _ ∈ section (αβ-N-ob .fst x) g ]
+              retract (αβ-N-ob .fst x) g
+      PshHomEqPshIsoᴰ-isPshIso (_ , Eq.refl) = α .nIso
+
+      PshHomEqPshIsoᴰ-isPshIsoᴰ :
+        (αβ-N-ob : αβ-N-ob-ty {α = α .trans}) →
+          ∀ {x}{xᴰ : Cᴰ.ob[ x ]} →
+          isIsoOver
+            (isIsoToIso (PshHomEqPshIsoᴰ-isPshIso αβ-N-ob x))
+            Pᴰ.p[_][ xᴰ ]
+            Qᴰ.p[_][ xᴰ ]
+            (λ _ → PshHomEqPshHomᴰ-N-obᴰ (αᴰ .fst) αβ-N-ob)
+      PshHomEqPshIsoᴰ-isPshIsoᴰ (_ , Eq.refl) = αᴰ .snd
+
+    module _ {β : PshIso P Q} (eq-N-ob : α .trans .N-ob Eq.≡ β .trans .N-ob) where
+      private
+        opaque
+          isPshIso≡ :
+            PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob) ≡ β .nIso
+          isPshIso≡  =
+              isPropIsPshIso {α = β .trans}
+                (PshHomEqPshIsoᴰ-isPshIso (_ , eq-N-ob)) (β .nIso)
+
+      PshHomEqPshIsoᴰ : PshIsoᴰ β Pᴰ Qᴰ
+      PshHomEqPshIsoᴰ .fst = PshHomEqPshHomᴰ (αᴰ .fst) eq-N-ob
+      PshHomEqPshIsoᴰ .snd =
+        subst
+          (λ z → isIsoOver
+            (isIsoToIso z)
+            Pᴰ.p[_][ _ ] Qᴰ.p[_][ _ ]
+            λ _ → PshHomEqPshHomᴰ-N-obᴰ (αᴰ .fst) (_ , eq-N-ob))
+          (funExt⁻ isPshIso≡ _)
+          (PshHomEqPshIsoᴰ-isPshIsoᴰ (_ , eq-N-ob))
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
   where
-  private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-    module Rᴰ = PresheafᴰNotation Rᴰ
-  _⋆PshHomⱽ_ : (αᴰ : PshHomⱽ Pᴰ Qᴰ)(βᴰ : PshHomⱽ Qᴰ Rᴰ) → PshHomⱽ Pᴰ Rᴰ
-  αᴰ ⋆PshHomⱽ βᴰ = PshHomEqPshHomᴰ (αᴰ ⋆PshHomᴰ βᴰ) Eq.refl {!Eq.refl!}
---     record { N-obᴰ = αᴰ⋆ᴰβᴰ .N-obᴰ ; N-homᴰ = Rᴰ.rectify $ αᴰ⋆ᴰβᴰ .N-homᴰ }
---     where
---       αᴰ⋆ᴰβᴰ = αᴰ ⋆PshHomᴰ βᴰ
-
---   _⋆PshIsoⱽ_ : (αᴰ : PshIsoⱽ Pᴰ Qᴰ)(βᴰ : PshIsoⱽ Qᴰ Rᴰ) → PshIsoⱽ Pᴰ Rᴰ
---   αᴰ ⋆PshIsoⱽ βᴰ = (αᴰ .fst ⋆PshHomⱽ βᴰ .fst)
---     , (isisoover (αᴰ⋆ᴰβᴰ .snd .inv)
---                  (λ _ _ → Rᴰ.rectify $ αᴰ⋆ᴰβᴰ .snd .rightInv _ _)
---                  (λ _ _ → Pᴰ.rectify $ αᴰ⋆ᴰβᴰ .snd .leftInv _ _))
---     where
---       αᴰ⋆ᴰβᴰ = αᴰ ⋆PshIsoᴰ βᴰ
---   infixr 9 _⋆PshHomⱽ_
---   infixr 9 _⋆PshIsoⱽ_
-
--- module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
---   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ}
---   where
---   private
---     module Pᴰ = PresheafᴰNotation Pᴰ
---     module Rᴰ = PresheafᴰNotation Rᴰ
---   module _ {α : PshHom P Q} where
---     _⋆PshHomᴰⱽ_ : (αᴰ : PshHomᴰ α Pᴰ Qᴰ)(βᴰ : PshHomⱽ Qᴰ Rᴰ) → PshHomᴰ α Pᴰ Rᴰ
---     αᴰ ⋆PshHomᴰⱽ βᴰ = record { N-obᴰ = αᴰ⋆ᴰβᴰ .N-obᴰ ; N-homᴰ = Rᴰ.rectify $ αᴰ⋆ᴰβᴰ .N-homᴰ }
---       where
---         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshHomᴰ βᴰ
---     infixr 9 _⋆PshHomᴰⱽ_
-
-
---   module _ {α : PshIso P Q} where
---     _⋆PshIsoᴰⱽ_ : (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)(βᴰ : PshIsoⱽ Qᴰ Rᴰ) → PshIsoᴰ α Pᴰ Rᴰ
---     αᴰ ⋆PshIsoᴰⱽ βᴰ = (αᴰ .fst ⋆PshHomᴰⱽ βᴰ .fst)
---       , (isisoover (αᴰ⋆ᴰβᴰ .snd .inv)
---                    (λ _ _ → Rᴰ.rectify $ αᴰ⋆ᴰβᴰ .snd .rightInv _ _)
---                    (λ _ _ → Pᴰ.rectify $ αᴰ⋆ᴰβᴰ .snd .leftInv _ _))
---       where
---         αᴰ⋆ᴰβᴰ = αᴰ ⋆PshIsoᴰ βᴰ
---     infixr 9 _⋆PshIsoᴰⱽ_
-
 
 -- module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 --   {P : Presheaf C ℓP}{R : Presheaf C ℓR}

@@ -172,7 +172,7 @@ module _
         selfPshHetᴰ :
           PshHetᴰ selfPshHet weakenπFᴰ Pᴰ Pᴰ
         selfPshHetᴰ =
-          PshHomEqPshHomᴰ (precomp𝟙ᴰPshIsoᴰ .fst) Eq.refl Eq.refl
+          PshHomEqPshHomᴰ (precomp𝟙ᴰPshIsoᴰ .fst) Eq.refl
           ⋆PshHomᴰ NatTransᴰ→PshHomᴰ selfNatTransᴰ
 
     module _

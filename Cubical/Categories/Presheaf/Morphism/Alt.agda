@@ -585,3 +585,18 @@ module _
     sym (⋆PshHomAssoc _ _ _)
     ∙ cong (_⋆PshHom β) (PshIso→rightInv α)
     ∙ ⋆PshHomIdL β
+
+open import Cubical.Categories.LocallySmall
+
+-- TODO:
+--   should be able to rewrite this as LocallySmallNatTransᴰ
+PRESHEAF : ∀ (C : Category ℓc ℓc')
+  → LocallySmallCategoryᴰ LEVELω (mapω' (Presheaf C))
+PRESHEAF C .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
+PRESHEAF C .LocallySmallCategoryᴰ.Hom[_][_,_] _ (liftω P) (liftω Q) = PshHom P Q
+PRESHEAF C .LocallySmallCategoryᴰ.idᴰ = idPshHom
+PRESHEAF C .LocallySmallCategoryᴰ._⋆ᴰ_  = _⋆PshHom_
+PRESHEAF C .LocallySmallCategoryᴰ.⋆IdLᴰ = ⋆PshHomIdL
+PRESHEAF C .LocallySmallCategoryᴰ.⋆IdRᴰ = ⋆PshHomIdR
+PRESHEAF C .LocallySmallCategoryᴰ.⋆Assocᴰ = ⋆PshHomAssoc
+PRESHEAF C .LocallySmallCategoryᴰ.isSetHomᴰ = isSetPshHom _ _

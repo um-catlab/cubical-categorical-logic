@@ -81,11 +81,11 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     ×ⱽ-introᴰ αᴰ βᴰ .N-obᴰ = λ z → αᴰ .N-obᴰ z , βᴰ .N-obᴰ z
     ×ⱽ-introᴰ αᴰ βᴰ .N-homᴰ = ΣPathP ((αᴰ .N-homᴰ) , (βᴰ .N-homᴰ))
 
-    ×ⱽPsh-UMPᴰ : Iso (PshHomᴰ α Pᴰ Qᴰ × PshHomᴰ α Pᴰ Rᴰ) (PshHomᴰ α Pᴰ (Qᴰ ×ⱽPsh Rᴰ))
-    ×ⱽPsh-UMPᴰ .Iso.fun αᴰβᴰ = ×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)
-    ×ⱽPsh-UMPᴰ .Iso.inv αᴰ = (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₁) , (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₂)
-    ×ⱽPsh-UMPᴰ .Iso.rightInv αᴰ = makePshHomᴰPath (funExt λ p → refl)
-    ×ⱽPsh-UMPᴰ .Iso.leftInv αᴰβᴰ = ΣPathP ((makePshHomᴰPath refl) , (makePshHomᴰPath refl))
+    ×ⱽPsh-UMPⱽ : Iso (PshHomᴰ α Pᴰ Qᴰ × PshHomᴰ α Pᴰ Rᴰ) (PshHomᴰ α Pᴰ (Qᴰ ×ⱽPsh Rᴰ))
+    ×ⱽPsh-UMPⱽ .Iso.fun αᴰβᴰ = ×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)
+    ×ⱽPsh-UMPⱽ .Iso.inv αᴰ = (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₁) , (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₂)
+    ×ⱽPsh-UMPⱽ .Iso.rightInv αᴰ = makePshHomᴰPath (funExt λ p → refl)
+    ×ⱽPsh-UMPⱽ .Iso.leftInv αᴰβᴰ = ΣPathP ((makePshHomᴰPath refl) , (makePshHomᴰPath refl))
 
   module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
     where

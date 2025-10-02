@@ -195,20 +195,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ
   reindFunc×ⱽIsoⱽ :
     PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
             (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-  reindFunc×ⱽIsoⱽ = {!!}
-    -- TODO PshHomEqPshHomᴰ but for PshIsoᴰ
+  reindFunc×ⱽIsoⱽ .fst = PshHomEqPshHomᴰ (reindFunc×ⱽIsoⱽ' .fst) Eq.refl Eq.refl
+  reindFunc×ⱽIsoⱽ .snd = isisoover (λ a z → z) (λ _ _ → refl) λ _ _ → refl
 
--- module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---   {x}
---   {F : Functor C D}
---   {Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ}{Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
---   where
---   reindⱽFunc×ⱽIsoⱽ :
---     PshIsoⱽ (reindⱽFunc F (Pᴰ ×ⱽPsh Qᴰ))
---             (reindⱽFunc F Pᴰ ×ⱽPsh reindⱽFunc F Qᴰ)
---   reindⱽFunc×ⱽIsoⱽ =
---     reindPshIsoⱽ {α = Functor→PshHet F x} reindFunc×ⱽIsoⱽ
---     ⋆PshIsoⱽ reind×ⱽIsoⱽ {Pᴰ = reindFunc F Pᴰ}{Qᴰ = reindFunc F Qᴰ}
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {x}
+  {F : Functor C D}
+  {Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ}{Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
+  where
+  reindⱽFunc×ⱽIsoⱽ :
+    PshIsoⱽ (reindⱽFunc F (Pᴰ ×ⱽPsh Qᴰ))
+            (reindⱽFunc F Pᴰ ×ⱽPsh reindⱽFunc F Qᴰ)
+  reindⱽFunc×ⱽIsoⱽ =
+    reindPshIsoⱽ {α = Functor→PshHet F x} reindFunc×ⱽIsoⱽ
+    ⋆PshIsoⱽ reind×ⱽIsoⱽ {Pᴰ = reindFunc F Pᴰ}{Qᴰ = reindFunc F Qᴰ}
 
 open PshSection
 open Section

@@ -686,35 +686,33 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         {p : P.p[ x ]} → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ αβ-N-ob .fst x p ][ xᴰ ]
     PshHomEqPshHomᴰ-N-obᴰ (_ , Eq.refl) = αᴰ .N-obᴰ
 
+    PshHomEqPshHomᴰ-N-hom :
+      (αβ-N-ob : αβ-N-ob-ty) →
+      ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+        αβ-N-ob .fst c (f P.⋆ p) ≡ (f Q.⋆ αβ-N-ob .fst c' p)
+    PshHomEqPshHomᴰ-N-hom (_ , Eq.refl) c c' f p = α .N-hom c c' f p
+
     PshHomEqPshHomᴰ-N-homᴰ :
-      (αβ-N-ob : αβ-N-ob-ty) (αβ-N-hom : αβ-N-hom-ty αβ-N-ob) →
+      (αβ-N-ob : αβ-N-ob-ty) →
         ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
         → {f : C [ x , y ]}{p : P.p[ y ]}
         → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
         → PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob (fᴰ Pᴰ.⋆ᴰ pᴰ)
-            Qᴰ.≡[ αβ-N-hom .fst x y f p ]
+            Qᴰ.≡[ PshHomEqPshHomᴰ-N-hom αβ-N-ob x y f p ]
             (fᴰ Qᴰ.⋆ᴰ PshHomEqPshHomᴰ-N-obᴰ αβ-N-ob pᴰ)
-    PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) (_ , Eq.refl) = αᴰ .N-homᴰ
+    PshHomEqPshHomᴰ-N-homᴰ (_ , Eq.refl) = αᴰ .N-homᴰ
 
     module _ {β : PshHom P Q} where
       module _
         (eq-N-ob : α .N-ob Eq.≡ β .N-ob)
-        (eq-N-hom :
-          Eq.HEq
-            (Eq.ap
-              (λ N-ob' →
-                ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
-                  N-ob' c (f P.⋆ p) ≡ (f Q.⋆ N-ob' c' p)) eq-N-ob)
-            (α .N-hom) (β .N-hom))
         where
-
         -- Change the base PshHom of a PshHomᴰ along
         -- an equality (Eq.≡) of PshHoms
         PshHomEqPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
         PshHomEqPshHomᴰ .N-obᴰ =
           PshHomEqPshHomᴰ-N-obᴰ (_ , eq-N-ob)
         PshHomEqPshHomᴰ .N-homᴰ =
-          PshHomEqPshHomᴰ-N-homᴰ (_ , eq-N-ob) (_ , eq-N-hom)
+          Qᴰ.rectify (PshHomEqPshHomᴰ-N-homᴰ (_ , eq-N-ob))
 
       module _ (α≡β : α ≡ β) where
 

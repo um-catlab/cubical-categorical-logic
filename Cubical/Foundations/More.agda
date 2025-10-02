@@ -189,7 +189,6 @@ congSndSnd :
   → PathP (λ i → C (abc≡ i .fst) (abc≡ i .snd .fst)) (x .snd .snd) (y .snd .snd)
 congSndSnd abc≡ = λ i → abc≡ i .snd .snd
 
--- TODO: name
 change-base :
   ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}
   (f : A → B)
@@ -200,6 +199,9 @@ change-base :
   → Path (Σ A (λ a → C (f a))) x y
 change-base {C = C} f isSetB a≡ bc≡ =
   ΣPathP (a≡ , (rectify (cong (cong C) (isSetB _ _ _ _)) λ i → bc≡ i .snd))
+
+-- -- If f is an embedding, we can construct the Path A ourselves.
+-- change-base-embedding :
 
 change-base⁻ :
   ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}

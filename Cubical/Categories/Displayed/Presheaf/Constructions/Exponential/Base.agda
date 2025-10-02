@@ -3,7 +3,9 @@ module Cubical.Categories.Displayed.Presheaf.Constructions.Exponential.Base wher
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.More
 
 open import Cubical.Data.Sigma
 
@@ -14,6 +16,8 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 
@@ -23,12 +27,15 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Constructions.IsoFib
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Profunctor
 
 open Functor
 open Functorᴰ
+open PshHomᴰ
 
 private
   variable
@@ -55,6 +62,45 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ⇒PshLarge-test : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (α : ⟨ (P ⇒PshLarge Q) .F-ob Γ ⟩)
       → ⟨ _⇒PshLargeᴰ_ .F-obᴰ Γᴰ α ⟩ ≡ PshHomᴰ α ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) Qᴰ
     ⇒PshLarge-test = λ Γᴰ α → refl
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {P : Presheaf C ℓP}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ)
+  where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    ∫⇒Large = (∫P Pᴰ) ⇒PshLarge (∫P Qᴰ)
+    module ∫⇒Large = PresheafNotation ∫⇒Large
+
+  -- could we use some kind of vertical variant of PshHomᴰProfᴰ
+  _⇒PshLargeⱽ_ : Presheafᴰ P Cᴰ _
+  _⇒PshLargeⱽ_ .F-obᴰ Γᴰ p =
+    (PshHomᴰ (yoRec P p) ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ) Qᴰ)
+    , isSetPshHomᴰ _ _ _
+  -- βⱽ : PshHomⱽ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ) (reindYo p Qᴰ)
+  ------------------------------------------------------------------
+  -- ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo (f P.⋆ p) Pᴰ) (reindYo (f P.⋆ p) Qᴰ)
+  _⇒PshLargeⱽ_ .F-homᴰ γᴰ p αᴰ =
+    PshHomPathPshHomᴰ (sym $ yoRec≡ P P.⟨ sym $ C.⋆IdL _ ⟩⋆⟨⟩) $
+      (yoRecᴰ _ γᴰ ×ⱽHom reind-introᴰ (PshHomPathPshHomᴰ (yoRec≡ P P.⟨ sym $ C.⋆IdL _ ⟩⋆⟨⟩) reind-π))
+      ⋆PshHomᴰ αᴰ
+  _⇒PshLargeⱽ_ .F-idᴰ = funExt (λ p → funExt (λ αⱽ →
+    -- TODO: need to develop some better theory here...
+    -- basically this is something like
+    -- reind _ (yoRecᴰ id × reind _ reind-π) ⋆ᴰ αⱽ
+    -- ≡[reind-filler] (yoRecᴰ id × reind-intro (reind _ reind-π)) ⋆ᴰ αⱽ
+    -- ≡[] (id × id) ⋆ᴰ αⱽ
+    -- ≡[] id ⋆ᴰ αⱽ
+    -- ≡ αⱽ
+    {!!}))
+  _⇒PshLargeⱽ_ .F-seqᴰ = {!!}
+  -- private
+  --   ⇒PshLarge-test : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (α : ⟨ (P ⇒PshLarge Q) .F-ob Γ ⟩)
+  --     → ⟨ _⇒PshLargeᴰ_ .F-obᴰ Γᴰ α ⟩ ≡ PshHomᴰ α ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) Qᴰ
+  --   ⇒PshLarge-test = λ Γᴰ α → refl
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
@@ -91,8 +137,58 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module P = PresheafNotation P
       module Pᴰ = PresheafᴰNotation Pᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
+      module Pᴰ⇒LQᴰ = PresheafᴰNotation (Pᴰ ⇒PshLargeⱽ Qᴰ)
 
     open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
+
+    ⌈_⇒PshSmallⱽ_⌉ : ∀ {Γ} (p : P.p[ Γ ]) (Γᴰ : Cᴰ.ob[ Γ ]) → Type ℓQᴰ
+    ⌈_⇒PshSmallⱽ_⌉ p Γᴰ = Qᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]
+
+    ⇒PshSmallⱽ-⋆ᴰ : ∀ {Δ Γ : C.ob} {Δᴰ : Cᴰ.ob[ Δ ]} {Γᴰ : Cᴰ.ob[ Γ ]}
+      {γ  : C [ Δ , Γ ]} {p : P.p[ Γ ]}
+      (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+      (qᴰ : ⌈_⇒PshSmallⱽ_⌉ p Γᴰ)
+      → ⌈_⇒PshSmallⱽ_⌉ (γ P.⋆ p) Δᴰ
+    ⇒PshSmallⱽ-⋆ᴰ γᴰ qᴰ = funcLR γᴰ Qᴰ.⋆ᴰ qᴰ
+
+    ⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉
+      : {Γ : C.ob} (p : P.p[ Γ ]) (Γᴰ : Cᴰ.ob[ Γ ])
+      → Iso (PshHomᴰ (yoRec P p) ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ) Qᴰ)
+            Qᴰ.p[ p ][ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ ]
+    ⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉ = λ p Γᴰ →
+      compIso
+        (precomp⋆PshHomⱽᴰ-Iso (yoRecIsoⱽ (Γᴰ ×ⱽ p *Pᴰ)))
+        (invIso $ yoRecᴰ-Iso Qᴰ) -- Yoneda
+
+    private
+      better-⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉ : {Γ : C.ob} (p : P.p[ Γ ]) (Γᴰ : Cᴰ.ob[ Γ ])
+        → (αᴰ : PshHomᴰ (yoRec P p) ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ) Qᴰ)
+        → ⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉ p Γᴰ .Iso.fun αᴰ
+          -- ≡ Qᴰ.reind (P.⋆IdL p) (((yoRecIsoⱽ (Γᴰ ×ⱽ p *Pᴰ)) .fst ⋆PshHomⱽᴰ αᴰ) .N-obᴰ Cᴰ.idᴰ)
+          ≡ (Qᴰ.reind (P.⋆IdL p) $ αᴰ .N-obᴰ (π₁LR Γᴰ p , π₂LR Γᴰ p))
+      better-⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉ p Γᴰ αᴰ = Qᴰ.rectify $ Qᴰ.≡out $
+        Qᴰ.reind⟨ _ ⟩⟨ N-obᴰ⟨_⟩ αᴰ (×≡Snd-hSet C.isSetHom ((sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdL _)
+          (change-base (P._⋆ p) P.isSetPsh refl
+            (sym (Pᴰ.reind-filler _ _ ∙ Pᴰ.reind-filler _ _)
+            ∙ Pᴰ.⋆IdL _))) ⟩
+
+    opaque
+      ⇒PshLargeⱽ'→⇒PshSmallⱽ-Nhomᴰ :
+        {Δ Γ : C.ob} {Δᴰ : Cᴰ.ob[ Δ ]} {Γᴰ : Cᴰ.ob[ Γ ]}
+        {γ : C [ Δ , Γ ]} {p : P.p[ Γ ]} (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+        (αᴰ : PshHomᴰ (yoRec P p) ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ) Qᴰ)
+        → ⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉ _ _ .Iso.fun (γᴰ Pᴰ⇒LQᴰ.⋆ᴰ αᴰ)
+          ≡ (funcLR γᴰ Qᴰ.⋆ᴰ ⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉ _ _ .Iso.fun αᴰ)
+      ⇒PshLargeⱽ'→⇒PshSmallⱽ-Nhomᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} γᴰ αᴰ =
+        Qᴰ.rectify $ Qᴰ.≡out $
+          sym (Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _)
+          ∙ λ i → {!!}
+
+    _⇒PshSmallⱽ'_ : Presheafᴰ P Cᴰ ℓQᴰ
+    _⇒PshSmallⱽ'_ = pushⱽPshᴰ Cᴰ (Pᴰ ⇒PshLargeⱽ Qᴰ) ⌈_⇒PshSmallⱽ_⌉
+      ⇒PshSmallⱽ-⋆ᴰ
+      ⌈⇒PshLargeⱽ≅⇒PshSmallⱽ⌉
+      ⇒PshLargeⱽ'→⇒PshSmallⱽ-Nhomᴰ
 
     -- Γᴰ ⊢ (Pᴰ ⇒ Qᴰ)(p) := Γᴰ , Pᴰ(p) ⊢ Qᴰ(p)
     _⇒PshSmallⱽ_ : Presheafᴰ P Cᴰ ℓQᴰ
@@ -126,3 +222,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
           ⟩⋆⟨⟩
           ∙ Qᴰ.⋆Assoc _ _ _
           ∙ Qᴰ.⋆Assoc _ _ _
+
+    private
+      testsmall : _⇒PshSmallⱽ_ ≡ _⇒PshSmallⱽ'_
+      testsmall = Functorᴰ≡ (λ _ → funExt (λ _ → ΣPathP (refl , {!!}))) λ fᴰ → refl

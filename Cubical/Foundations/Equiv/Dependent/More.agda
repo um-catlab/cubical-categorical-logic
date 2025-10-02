@@ -30,6 +30,9 @@ module _ {isom : Iso A B} {fun : mapOver (isom .fun) P Q} where
     ΣPathP ((rightInv isom (b .fst)) , (x .rightInv (b .fst) (b .snd)))
   isIsoOver→isIsoΣ x .snd .snd a =
     ΣPathP ((leftInv isom (a .fst)) , (x .leftInv (a .fst) (a .snd)))
+module _ {isom : Iso A B} (isomᴰ : IsoOver isom P Q) where
+  IsoOver→IsoΣ : Iso (Σ A P) (Σ B Q)
+  IsoOver→IsoΣ = isIsoToIso (isIsoOver→isIsoΣ (IsoOver→isIsoOver isomᴰ))
 
 isContrOver : (P : A → Type ℓP) → isContr A → Type _
 isContrOver {A = A} P (a₀ , a₀≡) =

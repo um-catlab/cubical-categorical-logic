@@ -1,10 +1,46 @@
+-- The notion of Category ℓC ℓC' in Cubical.Categories.Category is
+-- analogous to the set theoretic notion of a *small* category: the
+-- types of the category are ℓC-small and the hom sets are all
+-- ℓC'-small.
+--
+-- This is too restrictive to model many constructions in type
+-- theory. The most paradigmatic example is the Category of hSets SET.
+-- For SET to be a small category, we must fix the universe level SET
+-- ℓ.  But this is overly restrictive, as the notion of function f : A → B
+-- in type theory doesn't dictate that A and B have the same universe
+-- level. This limits the utility of the category theory library.
+
+-- As an example, the product of sets A × B has the universal property
+-- of being a categorical product. If this is stated in terms of fixed
+-- universe levels, we get an overly specific theorem: given A B C :
+-- hSet ℓ, that functions C → A × B are in natural isomorphism with
+-- pairs of functions (C → A) × (C → B). But this same theorem holds
+-- when all of A, B and C are allowed to have different universe
+-- levels, and idiomatic Agda code should be as universe-polymorphic
+-- as possible, lest users of the code are forced to insert tedious
+-- Lift operations everywhere in order to use them.
+--
+-- We can solve this issue by embracing two generalizations of small categories:
+
+-- - Locally Small categories, whose type of objects is "large", i.e.,
+--   in Typeω, whereas every hom set has a universe level (though we
+--   allow the universe level to depend on the objects(!))
+
+-- - *Displayed* Categories, which allow us to talk about morphisms
+--   between objects that are of a different "type". E.g., we can
+--   define a category of sets *displayed over* the set of universe
+--   levels. The objects are of a provided universe level and the
+--   morphisms are merely all functions!
+
+-- The connection between these two is that
 module Cubical.Categories.LocallySmall where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Powerset
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
+
 
 open import Cubical.Data.Prod using (_×ω_; _,_)
 open import Cubical.Data.Sigma
@@ -52,7 +88,14 @@ record Liftω (A : Type ℓ) : Typeω where
   constructor liftω
   field
     lowerω : A
+
 open Liftω
+
+mapω : {A : Type ℓ}{B : Type ℓ'} → (A → B) → Liftω A → Liftω B
+mapω f a = liftω (f (a .lowerω))
+
+mapω' : {A : Type ℓ}{β : A → Level} (f : (a : A) → Type (β a)) (a : Liftω A) → Typeω
+mapω' f a = Liftω (f (a .lowerω))
 
 -- A LocallySmallCategory has a "proper class" of objects, but small hom sets
 record LocallySmallCategory (ob : Typeω): Typeω where
@@ -95,6 +138,9 @@ module _ (C : Category ℓC ℓC') where
   CategoriesAreLocallySmall .⋆IdR = C.⋆IdR
   CategoriesAreLocallySmall .⋆Assoc = C.⋆Assoc
   CategoriesAreLocallySmall .isSetHom = C.isSetHom
+
+LEVELω : LocallySmallCategory (Liftω Level)
+LEVELω = CategoriesAreLocallySmall LEVEL
 
 module _ {Dob} (C : Category ℓC ℓC') (D : LocallySmallCategory Dob) where
   private
@@ -190,7 +236,7 @@ module _ {ob}(C : LocallySmallCategory ob) where
       (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
       → (f , fᴰ) ≡ (g , reind p fᴰ)
     reind-filler p fᴰ = ΣPathP (p , subst-filler Hom[_][ _ , _ ] p fᴰ)
-    -- TODO: port more
+    -- TODO: port Fiber ?
     open ∫C public
 
 module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ C obᴰ) where
@@ -215,13 +261,43 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
     ∫Cᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ ffᴰ ggᴰ hhᴰ = ΣPathP ((Cᴰ.⋆Assocᴰ (ffᴰ .fst) (ggᴰ .fst) (hhᴰ .fst)) , (Cᴰᴰ.⋆Assocᴰ (ffᴰ .snd) (ggᴰ .snd) (hhᴰ .snd)))
     ∫Cᴰ .LocallySmallCategoryᴰ.isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
 
-PRESHEAF : ∀ (C : Category ℓC ℓC') → LocallySmallCategoryᴰ (CategoriesAreLocallySmall LEVEL) λ { (liftω ℓ) → Liftω (Presheaf C ℓ) }
+SET : LocallySmallCategoryᴰ LEVELω (mapω' hSet)
+SET .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
+SET .LocallySmallCategoryᴰ.Hom[_][_,_] _ (liftω X) (liftω Y) = ⟨ X ⟩ → ⟨ Y ⟩
+SET .LocallySmallCategoryᴰ.idᴰ = λ x → x
+SET .LocallySmallCategoryᴰ._⋆ᴰ_ = λ f g x → g (f x)
+SET .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
+SET .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
+SET .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
+SET .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = Y} = isSet→ (Y .lowerω .snd)
+
+-- The total category LocallySmallCategoryᴰ.∫C SET is the "large category of all small sets"
+-- Then
+SETᴰ : LocallySmallCategoryᴰ
+         (LEVEL ⊘ LocallySmallCategoryᴰ.∫C SET)
+         (λ (ℓᴰ , (_ , liftω X)) → Liftω (⟨ X ⟩ → hSet ℓᴰ))
+SETᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
+SETᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , f) (liftω Xᴰ) (liftω Yᴰ) =
+  ∀ x → ⟨ Xᴰ x ⟩ → ⟨ Yᴰ (f x ) ⟩
+SETᴰ .LocallySmallCategoryᴰ.idᴰ = λ x xᴰ → xᴰ
+SETᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ {f = (_ , _ , f)} fᴰ gᴰ x xᴰ =
+  gᴰ (f x) (fᴰ x xᴰ)
+SETᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
+SETᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
+SETᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
+SETᴰ .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = liftω Yᴰ} =
+  isSetΠ λ _ → isSet→ (Yᴰ _ .snd)
+
+-- TODO:
+--   should be able to rewrite this as LocallySmallNatTransᴰ
+PRESHEAF : ∀ (C : Category ℓC ℓC')
+  → LocallySmallCategoryᴰ LEVELω (mapω' (Presheaf C))
 PRESHEAF C .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
 PRESHEAF C .LocallySmallCategoryᴰ.Hom[_][_,_] _ (liftω P) (liftω Q) = PshHom P Q
 PRESHEAF C .LocallySmallCategoryᴰ.idᴰ = idPshHom
 PRESHEAF C .LocallySmallCategoryᴰ._⋆ᴰ_  = _⋆PshHom_
-PRESHEAF C .LocallySmallCategoryᴰ.⋆IdLᴰ = ⋆PshHomIdL     
-PRESHEAF C .LocallySmallCategoryᴰ.⋆IdRᴰ = ⋆PshHomIdR     
+PRESHEAF C .LocallySmallCategoryᴰ.⋆IdLᴰ = ⋆PshHomIdL
+PRESHEAF C .LocallySmallCategoryᴰ.⋆IdRᴰ = ⋆PshHomIdR
 PRESHEAF C .LocallySmallCategoryᴰ.⋆Assocᴰ = ⋆PshHomAssoc
 PRESHEAF C .LocallySmallCategoryᴰ.isSetHomᴰ = isSetPshHom _ _
 
@@ -234,10 +310,13 @@ PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , α) (liftω Pᴰ)
   PshHomᴰ α Pᴰ Qᴰ
 PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.idᴰ = idPshHomᴰ
 PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ = _⋆PshHomᴰ_
-PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ {yᴰ = liftω Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
+PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ {yᴰ = liftω Qᴰ} αᴰ =
+  makePshHomᴰPathP _ _ _ (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
   where module Qᴰ = PresheafᴰNotation Qᴰ
-PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ {yᴰ = liftω Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
+PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ {yᴰ = liftω Qᴰ} αᴰ =
+  makePshHomᴰPathP _ _ _ (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
   where module Qᴰ = PresheafᴰNotation Qᴰ
-PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ {wᴰ = liftω Qᴰ} αᴰ βᴰ γᴰ = makePshHomᴰPathP _ _ _ (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
+PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ {wᴰ = liftω Qᴰ} αᴰ βᴰ γᴰ =
+  makePshHomᴰPathP _ _ _ (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
   where module Qᴰ = PresheafᴰNotation Qᴰ
 PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.isSetHomᴰ = isSetPshHomᴰ _ _ _

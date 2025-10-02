@@ -51,7 +51,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   where
   private
-    module Cᴰ = Categoryᴰ Cᴰ
+    module Cᴰ = Fibers Cᴰ
     module P = PresheafNotation P
     module Pᴰ = PresheafᴰNotation Pᴰ
 
@@ -64,6 +64,18 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → PshHomᴰ (yoRec P p) (Cᴰ [-][-, cᴰ ]) Pᴰ
     → Pᴰ.p[ p ][ cᴰ ]
   yoRecᴰ⁻ αᴰ = Pᴰ.reind (P.⋆IdL _) $ αᴰ .N-obᴰ Cᴰ.idᴰ
+
+  -- Displayed Yoneda Lemma
+  yoRecᴰ-Iso : ∀ {c}{cᴰ : Cᴰ.ob[ c ]} {p : P.p[ c ]}
+    → Iso (Pᴰ.p[ p ][ cᴰ ]) (PshHomᴰ (yoRec P p) (Cᴰ [-][-, cᴰ ]) Pᴰ)
+  yoRecᴰ-Iso .Iso.fun = yoRecᴰ
+  yoRecᴰ-Iso .Iso.inv = yoRecᴰ⁻
+  yoRecᴰ-Iso .Iso.rightInv = λ αᴰ → makePshHomᴰPath $ funExt λ fᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+    Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+    ∙ sym (∫PshHom αᴰ .N-hom _ _ _ _)
+    ∙ cong (∫PshHom αᴰ .N-ob _) (Cᴰ.⋆IdR (_ , fᴰ))
+  yoRecᴰ-Iso .Iso.leftInv = λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+    sym (Pᴰ.reind-filler _ _) ∙ Pᴰ.⋆IdL (_ , pᴰ)
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
          {P : Presheaf C ℓP} (ue : UniversalElement C P) (Pᴰ : Presheafᴰ P D ℓPᴰ) where

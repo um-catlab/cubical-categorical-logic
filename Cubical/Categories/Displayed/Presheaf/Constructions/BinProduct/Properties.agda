@@ -8,6 +8,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Sigma
@@ -47,7 +48,7 @@ private
     ℓA ℓB ℓAᴰ ℓBᴰ : Level
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
-    ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
+    ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ ℓS ℓSᴰ ℓSᴰ' : Level
 
 open Bifunctorᴰ
 open Functorᴰ
@@ -59,6 +60,68 @@ open PshHom
 open PshIso
 
 -- Product
+
+module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
+  where
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    where
+    ×ᴰ-π₁ : PshHomᴰ (π₁ P Q) (Pᴰ ×ᴰPsh Qᴰ) Pᴰ
+    ×ᴰ-π₁ .N-obᴰ = λ z → z .fst
+    ×ᴰ-π₁ .N-homᴰ = refl
+
+    ×ᴰ-π₂ : PshHomᴰ (π₂ P Q) (Pᴰ ×ᴰPsh Qᴰ) Qᴰ
+    ×ᴰ-π₂ .N-obᴰ = λ z → z .snd
+    ×ᴰ-π₂ .N-homᴰ = refl
+
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+    {α : PshHom P Q}
+    {β : PshHom P R}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+    where
+    ×ᴰ-introᴰ :
+      PshHomᴰ α Pᴰ Qᴰ
+      → PshHomᴰ β Pᴰ Rᴰ
+      → PshHomᴰ (×PshIntro α β) Pᴰ (Qᴰ ×ᴰPsh Rᴰ)
+    ×ᴰ-introᴰ αᴰ βᴰ .N-obᴰ pᴰ = (αᴰ .N-obᴰ pᴰ) , (βᴰ .N-obᴰ pᴰ)
+    ×ᴰ-introᴰ αᴰ βᴰ .N-homᴰ = ΣPathP (αᴰ .N-homᴰ , βᴰ .N-homᴰ)
+
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+    (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)(Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ)
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+    ×ᴰPsh-UMP : IsoOver (×Psh-UMP P Q {R = R})
+                        (λ αβ → PshHomᴰ (αβ .fst) Rᴰ Pᴰ × PshHomᴰ (αβ .snd) Rᴰ Qᴰ)
+                        λ α×β → PshHomᴰ α×β Rᴰ (Pᴰ ×ᴰPsh Qᴰ)
+    ×ᴰPsh-UMP .IsoOver.fun αβ αᴰβᴰ = ×ᴰ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)
+    ×ᴰPsh-UMP .IsoOver.inv α×β α×βᴰ = (α×βᴰ ⋆PshHomᴰ ×ᴰ-π₁) , (α×βᴰ ⋆PshHomᴰ ×ᴰ-π₂)
+    ×ᴰPsh-UMP .IsoOver.rightInv α×β α×βᴰ = makePshHomᴰPathP _ _ _ $ funExt λ rᴰ →
+      ΣPathP ((Pᴰ.rectify $ Pᴰ.≡out $ refl) , ((Qᴰ.rectify $ Qᴰ.≡out $ refl)))
+    ×ᴰPsh-UMP .IsoOver.leftInv = λ αβ αᴰβᴰ → ΣPathP
+      ( (makePshHomᴰPathP _ _ _ $ funExt λ rᴰ → Pᴰ.rectify $ Pᴰ.≡out $ refl)
+      , (makePshHomᴰPathP _ _ _ $ funExt λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl))
+
+    ×ᴰPsh-∫UMP : Iso
+      (Σ[ αβ ∈ (PshHom R P × PshHom R Q) ]
+          (PshHomᴰ (αβ .fst) Rᴰ Pᴰ × PshHomᴰ (αβ .snd) Rᴰ Qᴰ))
+      (Σ[ α×β ∈ PshHom R (P ×Psh Q) ] PshHomᴰ α×β Rᴰ (Pᴰ ×ᴰPsh Qᴰ))
+    ×ᴰPsh-∫UMP = IsoOver→IsoΣ ×ᴰPsh-UMP
+
+  module _
+    {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}{S : Presheaf C ℓS}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+    {Sᴰ : Presheafᴰ S Cᴰ ℓSᴰ}
+    where
+
+    module _ {α : PshHom P Q}{β : PshHom R S} where
+      _×ᴰHom_ : (αᴰ : PshHomᴰ α Pᴰ Qᴰ) (βᴰ : PshHomᴰ β Rᴰ Sᴰ)
+        → PshHomᴰ (α ×PshHom β) (Pᴰ ×ᴰPsh Rᴰ) (Qᴰ ×ᴰPsh Sᴰ)
+      αᴰ ×ᴰHom βᴰ = ×ᴰ-introᴰ (×ᴰ-π₁ ⋆PshHomᴰ αᴰ) (×ᴰ-π₂ ⋆PshHomᴰ βᴰ)
+
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   where
   module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}

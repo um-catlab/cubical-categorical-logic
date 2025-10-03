@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓ'' : Level
     A B C : Type ℓ
 
 open Iso
@@ -29,4 +29,16 @@ isPropIsIsoSet {f} isSetA isSetB f⁻ f⁻' =
   Σ≡Prop (λ _ → isProp× (isPropΠ λ _ → isSetB _ _) (isPropΠ λ _ → isSetA _ _))
     (funExt (λ b → isoFunInjective (isIsoToIso f⁻) _ _
       (f⁻ .snd .fst b ∙ sym (f⁻' .snd .fst b))))
+
+-- Version of isoFunInjective for PathPs
+fiberwiseIsoFunInjective :
+  ∀ {A : Type ℓ}{P : A → Type ℓ'}{Q : A → Type ℓ''}
+  {a a' p p'}{a≡a' : a ≡ a'}
+  (f : ∀ a → Iso (P a) (Q a))
+  → PathP (λ i → Q (a≡a' i)) (Iso.fun (f a) p) (Iso.fun (f a') p')
+  → PathP (λ i → P (a≡a' i)) p p'
+fiberwiseIsoFunInjective f fp≡fp' =
+  (sym $ Iso.leftInv (f _) _)
+  ◁ congP (λ _ → f _ .Iso.inv) fp≡fp'
+  ▷ Iso.leftInv (f _) _
 

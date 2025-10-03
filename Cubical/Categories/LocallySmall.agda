@@ -1,3 +1,5 @@
+-- TODO: some stuff in this file should probably be moved around.
+
 -- The notion of Category ℓC ℓC' in Cubical.Categories.Category is
 -- analogous to the set theoretic notion of a *small* category: the
 -- types of the category are ℓC-small and the hom sets are all
@@ -139,7 +141,7 @@ open LocallySmallCategory
 module _ {ob} (C : LocallySmallCategory ob) where
   private
     module C = LocallySmallCategory C
-  
+
   record CatIso (x y : ob) : Type (ℓ-max (C.Hom-ℓ x x) $ ℓ-max (C.Hom-ℓ y y) $ ℓ-max (C.Hom-ℓ y x) (C.Hom-ℓ x y)) where
     no-eta-equality
     constructor iso
@@ -600,7 +602,7 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
         where
           lem : (PathPΣ CatIsoᴰ≡ .fst) ≡ f≡g
           lem = C.ISOC.isSetHom _ _ _ _
-        
+
   idCatIsoᴰ : ∀ {x}{xᴰ : obᴰ x} → CatIsoᴰ C.ISOC.id xᴰ xᴰ
   idCatIsoᴰ .CatIsoᴰ.funᴰ = Cᴰ.idᴰ
   idCatIsoᴰ .CatIsoᴰ.invᴰ = Cᴰ.idᴰ
@@ -656,7 +658,7 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
       {xᴰ yᴰ}{fᴰ : ISOCᴰ.Hom[ f ][ xᴰ , yᴰ ]}{gᴰ : ISOCᴰ.Hom[ g ][ xᴰ , yᴰ ]}
       → Path Cᴰ.Hom[ _ , _ ] (_ , fᴰ .CatIsoᴰ.funᴰ) (_ , gᴰ .CatIsoᴰ.funᴰ)
       → Path ISOCᴰ.Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
-    ISOCᴰ≡ = CatIsoᴰ≡      
+    ISOCᴰ≡ = CatIsoᴰ≡
 
 LEVELω : LocallySmallCategory (Liftω Level)
 LEVELω = CategoriesAreLocallySmall LEVEL

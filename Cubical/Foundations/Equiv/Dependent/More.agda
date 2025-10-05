@@ -7,7 +7,10 @@ open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
+
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
+
 open import Cubical.Foundations.Equiv.Dependent
 
 private
@@ -64,3 +67,11 @@ P ≃[ (f , ∃!f⁻b ) ] Q = Σ (mapOver f P Q) (isEquivᴰ {Q = Q} ∃!f⁻b)
 
 invEqᴰ : ∀ {eq} → P ≃[ eq ] Q → mapOver (invEq eq) Q P
 invEqᴰ eqᴰ = λ a z → eqᴰ .snd z .fst .fst
+
+IsoOverUnit→Iso : {P : Unit → Type ℓP}{Q : Unit → Type ℓQ}{isom : Iso Unit Unit}
+  → IsoOver isom P Q
+  → Iso (P _) (Q _)
+IsoOverUnit→Iso isomᴰ .fun = isomᴰ .fun tt
+IsoOverUnit→Iso isomᴰ .inv = isomᴰ .inv tt
+IsoOverUnit→Iso isomᴰ .rightInv = isomᴰ .rightInv tt
+IsoOverUnit→Iso isomᴰ .leftInv = isomᴰ .leftInv tt

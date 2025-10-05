@@ -4,6 +4,8 @@ module Cubical.Categories.Presheaf.Constructions.Exponential where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
 
 open import Cubical.Data.Sigma
 
@@ -18,6 +20,8 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor
+
+open import Cubical.Categories.LocallySmall
 
 private
   variable
@@ -83,6 +87,7 @@ module _ {C : Category ℓ ℓ'} where
       module P = PresheafNotation P
       module _×P c = PresheafNotation ((C [-, c ]) ×Psh P)
       module Q = PresheafNotation Q
+      module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
     -- P⇒Q Γ :=
     -- PshHom (y Γ × P) Q
     -- ≅ PshHom y(Γ ×P) Q
@@ -94,7 +99,7 @@ module _ {C : Category ℓ ℓ'} where
     ⇒PshSmallIso⇒PshLarge Γ =
       compIso
         (IsoYoRec Q ((Γ ×P) .vertex))
-        (PshIso→⋆PshHomIso (invPshIso (yoRecIso (Γ ×P))))
+        (IsoOverUnit→Iso (PshC.CatIsoᴰ⋆ᴰ-Iso-over (PshC.invCatIsoᴰ (yoRecIso (Γ ×P)))))
 
     private
       module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)

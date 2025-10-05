@@ -47,6 +47,7 @@ module Cubical.Categories.LocallySmall where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
@@ -167,10 +168,17 @@ module _ {ob} (C : LocallySmallCategory ob) where
     (C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.sec ⟩⋆⟨⟩ ∙ C.⋆IdL (g .CatIso.fun) ⟩ ∙ g .CatIso.sec)
     (C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ sym (C.⋆Assoc _ _ _) ∙ C.⟨ g .CatIso.ret ⟩⋆⟨⟩ ∙ C.⋆IdL (f .CatIso.inv) ⟩ ∙ f .CatIso.ret)
 
+  -- The following two lemmas are just that the Yoneda embedding is a
+  -- functor and therefore preserves iso
   ⋆CatIso-Iso : ∀ {x y} → CatIso x y → ∀ {z} → Iso C.Hom[ z , x ] C.Hom[ z , y ]
   ⋆CatIso-Iso f = iso (C._⋆ f .CatIso.fun) (C._⋆ f .CatIso.inv)
     (λ g → C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ f .CatIso.sec ⟩ ∙ C.⋆IdR g)
     (λ g → C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ f .CatIso.ret ⟩ ∙ C.⋆IdR g)
+
+  CatIso⋆-Iso : ∀ {x y} → CatIso x y → ∀ {z} → Iso C.Hom[ y , z ] C.Hom[ x , z ]
+  CatIso⋆-Iso f = iso (f .CatIso.fun C.⋆_) (f .CatIso.inv C.⋆_)
+    (λ g → sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.ret ⟩⋆⟨⟩ ∙ C.⋆IdL g)
+    (λ g → sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.sec ⟩⋆⟨⟩ ∙ C.⋆IdL g)
 
   CatIso≡ : ∀ {x y} {f g : CatIso x y}
     → f .CatIso.fun ≡ g .CatIso.fun
@@ -195,6 +203,12 @@ module _ {ob} (C : LocallySmallCategory ob) where
       → f .CatIso.fun ≡ g .CatIso.fun
       → f ≡ g
     ISOC≡ = CatIso≡
+
+    invCatIso : ∀ {x y} (f : ISOC.Hom[ x , y ]) → ISOC.Hom[ y , x ]
+    invCatIso f .CatIso.fun = f .CatIso.inv
+    invCatIso f .CatIso.inv = f .CatIso.fun
+    invCatIso f .CatIso.sec = f .CatIso.ret
+    invCatIso f .CatIso.ret = f .CatIso.sec
 
 -- The key thing we need is to be able to iterate the ∫C construction
 module _ {ob}(C : LocallySmallCategory ob) where
@@ -621,6 +635,26 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
       → Path Cᴰ.Hom[ _ , _ ] (_ , fᴰ .CatIsoᴰ.funᴰ) (_ , gᴰ .CatIsoᴰ.funᴰ)
       → Path ISOCᴰ.Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
     ISOCᴰ≡ = CatIsoᴰ≡
+
+    invCatIsoᴰ : ∀ {x y xᴰ yᴰ}{f : C.ISOC.Hom[ x , y ]}
+      → (fᴰ : CatIsoᴰ f xᴰ yᴰ)
+      → CatIsoᴰ (C.invCatIso f) yᴰ xᴰ
+    invCatIsoᴰ fᴰ .CatIsoᴰ.funᴰ = fᴰ .CatIsoᴰ.invᴰ
+    invCatIsoᴰ fᴰ .CatIsoᴰ.invᴰ = fᴰ .CatIsoᴰ.funᴰ
+    invCatIsoᴰ fᴰ .CatIsoᴰ.secᴰ = fᴰ .CatIsoᴰ.retᴰ
+    invCatIsoᴰ fᴰ .CatIsoᴰ.retᴰ = fᴰ .CatIsoᴰ.secᴰ
+
+    -- Can probably get this from ∫ somehow
+    CatIsoᴰ⋆ᴰ-Iso-over : ∀ {x y xᴰ yᴰ}{f : C.ISOC.Hom[ x , y ]}
+      → CatIsoᴰ f xᴰ yᴰ
+      → ∀ {z}{zᴰ : obᴰ z}
+      → IsoOver (CatIso⋆-Iso C f) Cᴰ.Hom[_][ yᴰ , zᴰ ] Cᴰ.Hom[_][ xᴰ , zᴰ ]
+    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.fun g gᴰ = fᴰ .CatIsoᴰ.funᴰ Cᴰ.⋆ᴰ gᴰ
+    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.inv g gᴰ = fᴰ .CatIsoᴰ.invᴰ Cᴰ.⋆ᴰ gᴰ
+    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.rightInv g gᴰ = rectify $ ≡out $
+      sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ fᴰ .CatIsoᴰ.retᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
+    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.leftInv g gᴰ = rectify $ ≡out $
+      sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ fᴰ .CatIsoᴰ.secᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
 
 -- The following should probably all go in "Constructions/Instances" modules
 module _ (C : Category ℓC ℓC') where

@@ -62,7 +62,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Reflection.RecordEquiv.More
 
-open import Cubical.Categories.Category using (Category)
+open import Cubical.Categories.Category as SmallCategory using (Category)
 open import Cubical.Categories.Displayed.Base using (Categoryᴰ)
 
 private
@@ -71,16 +71,6 @@ private
     ℓᴰ ℓᴰ' ℓ1ᴰ ℓ2ᴰ ℓwᴰ ℓxᴰ ℓyᴰ ℓzᴰ ℓCᴰ ℓCᴰ' : Level
 
 open _×ω_
-
-LEVEL : Category ℓ-zero ℓ-zero
-LEVEL .Category.ob = Level
-LEVEL .Category.Hom[_,_] = λ _ _ → Unit
-LEVEL .Category.id = tt
-LEVEL .Category._⋆_ = λ f g → tt
-LEVEL .Category.⋆IdL = λ _ → refl
-LEVEL .Category.⋆IdR = λ _ → refl
-LEVEL .Category.⋆Assoc = λ _ _ _ → refl
-LEVEL .Category.isSetHom = isSetUnit
 
 record Σω (A : Typeω) (B : A → Typeω) : Typeω where
   constructor _,_
@@ -205,34 +195,6 @@ module _ {ob} (C : LocallySmallCategory ob) where
       → f .CatIso.fun ≡ g .CatIso.fun
       → f ≡ g
     ISOC≡ = CatIso≡
-
-module _ (C : Category ℓC ℓC') where
-  private
-    module C = Category C
-  CategoriesAreLocallySmall : LocallySmallCategory (Liftω C.ob)
-  CategoriesAreLocallySmall .Hom-ℓ = λ _ _ → ℓC'
-  CategoriesAreLocallySmall .Hom[_,_] x y = C.Hom[ x .lowerω , y .lowerω ]
-  CategoriesAreLocallySmall .id = C.id
-  CategoriesAreLocallySmall ._⋆_ = C._⋆_
-  CategoriesAreLocallySmall .⋆IdL = C.⋆IdL
-  CategoriesAreLocallySmall .⋆IdR = C.⋆IdR
-  CategoriesAreLocallySmall .⋆Assoc = C.⋆Assoc
-  CategoriesAreLocallySmall .isSetHom = C.isSetHom
-
-module _ {Dob} (C : Category ℓC ℓC') (D : LocallySmallCategory Dob) where
-  private
-    module C = Category C
-    module D = LocallySmallCategory D
-  _⊘_ : LocallySmallCategory (C .Category.ob ×ω Dob)
-  -- This is inferrable
-  _⊘_ .Hom-ℓ = λ (_ , y) (_ , y') → ℓ-max ℓC' (D.Hom-ℓ y y')
-  _⊘_ .Hom[_,_] (x , y) (x' , y') = C.Hom[ x , x' ] × D.Hom[ y , y' ]
-  _⊘_ .id = C.id , D.id
-  _⊘_ ._⋆_ (f , g) (f' , g') = (f C.⋆ f') , (g D.⋆ g')
-  _⊘_ .⋆IdL (f , g) = ΣPathP (C.⋆IdL f , D.⋆IdL g)
-  _⊘_ .⋆IdR (f , g) = ΣPathP (C.⋆IdR f , D.⋆IdR g)
-  _⊘_ .⋆Assoc (f , g) (f' , g') (f'' , g'') = ΣPathP (C.⋆Assoc f f' f'' , D.⋆Assoc g g' g'')
-  _⊘_ .isSetHom = isSet× C.isSetHom D.isSetHom
 
 -- The key thing we need is to be able to iterate the ∫C construction
 module _ {ob}(C : LocallySmallCategory ob) where
@@ -660,10 +622,66 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
       → Path ISOCᴰ.Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
     ISOCᴰ≡ = CatIsoᴰ≡
 
+-- The following should probably all go in "Constructions/Instances" modules
+module _ (C : Category ℓC ℓC') where
+  private
+    module C = Category C
+  CategoriesAreLocallySmall : LocallySmallCategory (Liftω C.ob)
+  CategoriesAreLocallySmall .Hom-ℓ = λ _ _ → ℓC'
+  CategoriesAreLocallySmall .Hom[_,_] x y = C.Hom[ x .lowerω , y .lowerω ]
+  CategoriesAreLocallySmall .id = C.id
+  CategoriesAreLocallySmall ._⋆_ = C._⋆_
+  CategoriesAreLocallySmall .⋆IdL = C.⋆IdL
+  CategoriesAreLocallySmall .⋆IdR = C.⋆IdR
+  CategoriesAreLocallySmall .⋆Assoc = C.⋆Assoc
+  CategoriesAreLocallySmall .isSetHom = C.isSetHom
+
+module _ {Dob} (C : Category ℓC ℓC') (D : LocallySmallCategory Dob) where
+  private
+    module C = Category C
+    module D = LocallySmallCategoryNotation D
+  _⊘_ : LocallySmallCategory (C .Category.ob ×ω Dob)
+  -- This is inferrable
+  _⊘_ .Hom-ℓ = λ (_ , y) (_ , y') → ℓ-max ℓC' (D.Hom-ℓ y y')
+  _⊘_ .Hom[_,_] (x , y) (x' , y') = C.Hom[ x , x' ] × D.Hom[ y , y' ]
+  _⊘_ .id = C.id , D.id
+  _⊘_ ._⋆_ (f , g) (f' , g') = (f C.⋆ f') , (g D.⋆ g')
+  _⊘_ .⋆IdL (f , g) = ΣPathP (C.⋆IdL f , D.⋆IdL g)
+  _⊘_ .⋆IdR (f , g) = ΣPathP (C.⋆IdR f , D.⋆IdR g)
+  _⊘_ .⋆Assoc (f , g) (f' , g') (f'' , g'') = ΣPathP (C.⋆Assoc f f' f'' , D.⋆Assoc g g' g'')
+  _⊘_ .isSetHom = isSet× C.isSetHom D.isSetHom
+
+  private
+    module ⊘ = LocallySmallCategoryNotation _⊘_
+  ⊘-iso : ∀ {x y x' y'}
+    → (f : SmallCategory.CatIso C x x')
+    → (g : D.ISOC.Hom[ y , y' ])
+    → ⊘.ISOC.Hom[ (x , y) , (x' , y') ]
+  ⊘-iso f g .CatIso.fun = (f .fst) , (g .CatIso.fun)
+  ⊘-iso f g .CatIso.inv = (f .snd .SmallCategory.isIso.inv) , (g .CatIso.inv)
+  ⊘-iso f g .CatIso.sec = ΣPathP (f .snd .SmallCategory.isIso.sec , g .CatIso.sec)
+  ⊘-iso f g .CatIso.ret = ΣPathP (f .snd .SmallCategory.isIso.ret , g .CatIso.ret)
+
+-- TODO: make into a general indiscrete category construction
+LEVEL : Category ℓ-zero ℓ-zero
+LEVEL .Category.ob = Level
+LEVEL .Category.Hom[_,_] = λ _ _ → Unit
+LEVEL .Category.id = tt
+LEVEL .Category._⋆_ = λ f g → tt
+LEVEL .Category.⋆IdL = λ _ → refl
+LEVEL .Category.⋆IdR = λ _ → refl
+LEVEL .Category.⋆Assoc = λ _ _ _ → refl
+LEVEL .Category.isSetHom = isSetUnit
+
 LEVELω : LocallySmallCategory (Liftω Level)
 LEVELω = CategoriesAreLocallySmall LEVEL
 
--- TODO: generalize to arbitrary categories with Unit as Hom?
+LEVEL-iso : ∀ {ℓ} {ℓ'} → SmallCategory.CatIso LEVEL ℓ ℓ'
+LEVEL-iso .fst = tt
+LEVEL-iso .snd .SmallCategory.isIso.inv = tt
+LEVEL-iso .snd .SmallCategory.isIso.sec = refl
+LEVEL-iso .snd .SmallCategory.isIso.ret = refl
+
 LEVELω-iso : ∀ {ℓ} {ℓ'} → CatIso LEVELω ℓ ℓ'
 LEVELω-iso .CatIso.fun = tt
 LEVELω-iso .CatIso.inv = tt

@@ -12,7 +12,6 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Functions.FunExtEquiv
 
-open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
@@ -198,6 +197,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   PshIsoΣ = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
   record PshIso : Type (ℓ-max (ℓ-max ℓp ℓq) (ℓ-max ℓc ℓc')) where
+    no-eta-equality
     constructor pshiso
     field
       trans : PshHom P Q
@@ -227,6 +227,8 @@ module _ {C : Category ℓc ℓc'} where
     module LEVELω = LocallySmallCategoryNotation LEVELω
     PshC = PRESHEAF C
     module PshC = LocallySmallCategoryᴰNotation PshC
+  PshCatIso : ∀ (P : Presheaf C ℓp)(Q : Presheaf C ℓq) → Type _
+  PshCatIso P Q = PshC.ISOCᴰ.Hom[ LEVELω-iso ][ liftω P , liftω Q ]
 
   module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
     private
@@ -248,7 +250,7 @@ module _ {C : Category ℓc ℓc'} where
     invPshIso α .nIso x .snd .snd = α .nIso x .snd .fst
 
     PshIso→PshCatIso : PshIso P Q
-      → PshC.ISOCᴰ.Hom[ LEVELω-iso ][ liftω P , liftω Q ]
+      → PshCatIso P Q
     PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.funᴰ = α .trans
     PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.invᴰ = invPshIso α .trans
     PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.secᴰ =
@@ -257,21 +259,21 @@ module _ {C : Category ℓc ℓc'} where
       ΣPathP (refl , makePshHomPath (funExt λ x → funExt (α .nIso x .snd .snd)))
 
     PshCatIso→PshIso
-      : PshC.ISOCᴰ.Hom[ LEVELω-iso ][ liftω P , liftω Q ]
+      : PshCatIso P Q
       → PshIso P Q
     PshCatIso→PshIso α .trans = α .LocallySmall.CatIsoᴰ.funᴰ
     PshCatIso→PshIso α .nIso x .fst = α .LocallySmall.CatIsoᴰ.invᴰ .N-ob x
     PshCatIso→PshIso α .nIso x .snd .fst q i = α .LocallySmall.CatIsoᴰ.secᴰ i .snd .N-ob x q
     PshCatIso→PshIso α .nIso x .snd .snd p i = α .LocallySmall.CatIsoᴰ.retᴰ i .snd .N-ob x p
 
-    PshIso≅PshCatIso :
-      Iso (PshIso P Q)
-          PshC.ISOCᴰ.Hom[ LEVELω-iso ][ liftω P , liftω Q ]
-    PshIso≅PshCatIso .Iso.fun = PshIso→PshCatIso
-    PshIso≅PshCatIso .Iso.inv = PshCatIso→PshIso
-    PshIso≅PshCatIso .Iso.rightInv α =
-      PshC.ISOCᴰ.rectify (PshC.ISOCᴰ.≡out $ PshC.ISOCᴰ≡ refl)
-    PshIso≅PshCatIso .Iso.leftInv α = makePshIsoPath refl
+  PshIso≅PshCatIso : ∀ (P : Presheaf C ℓp)(Q : Presheaf C ℓq) →
+    Iso (PshIso P Q)
+        (PshCatIso P Q)
+  PshIso≅PshCatIso P Q .Iso.fun = PshIso→PshCatIso
+  PshIso≅PshCatIso P Q .Iso.inv = PshCatIso→PshIso
+  PshIso≅PshCatIso P Q .Iso.rightInv α =
+    PshC.ISOCᴰ.rectify (PshC.ISOCᴰ.≡out $ PshC.ISOCᴰ≡ refl)
+  PshIso≅PshCatIso P Q .Iso.leftInv α = makePshIsoPath refl
 
   -- This is for when they have the same universe level
   module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓp} where
@@ -303,26 +305,6 @@ module _ {C : Category ℓc ℓc'} where
       where
         Pc≡Qc : ∀ c → P.p[ c ] ≡ Q.p[ c ]
         Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET' (PshIso→SETIso α c) i ⟩
--- module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) where
---   private
---     module P = PresheafNotation P
---     module Q = PresheafNotation Q
---   open isIsoC
---   PshCatIso→PshIso : CatIso (PresheafCategory C ℓp) P Q → PshIso P Q
---   PshCatIso→PshIso α .trans .N-ob = α .fst .NatTrans.N-ob
---   PshCatIso→PshIso α .trans .N-hom x₁ y f p =
---     funExt⁻ (α .fst .NatTrans.N-hom _) p
---   PshCatIso→PshIso α .nIso x .fst = NatTrans.N-ob (α .snd .inv) x
---   PshCatIso→PshIso α .nIso x .snd .fst =
---     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .sec) _)
---   PshCatIso→PshIso α .nIso x .snd .snd =
---     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .ret) _)
-
---   NatIso→PshIso : NatIso P Q → PshIso P Q
---   NatIso→PshIso α .trans = NatTrans→PshHom (α .NatIso.trans)
---   NatIso→PshIso α .nIso c .fst = α .NatIso.nIso c .inv
---   NatIso→PshIso α .nIso c .snd .fst q = funExt⁻ (α .NatIso.nIso c .sec) q
---   NatIso→PshIso α .nIso c .snd .snd p = funExt⁻ (α .NatIso.nIso c .ret) p
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}
   where
@@ -396,108 +378,3 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}
 --     transportTransport⁻
 --       (λ i → P .F-ob (transp (λ j → ob C) i _) .fst)
 --       x
-
--- Whiskering
-module _
-  {C : Category ℓc ℓc'}
-  {D : Category ℓd ℓd'}
-  {P : Presheaf D ℓp}
-  {Q : Presheaf D ℓq}
-  where
-  _∘ˡ_ : (α : PshHom P Q) (F : Functor C D)
-    → PshHom (P ∘F (F ^opF)) (Q ∘F (F ^opF))
-  (α ∘ˡ F) .N-ob x = α .N-ob (F ⟅ x ⟆)
-  (α ∘ˡ F) .N-hom x y f p = α .N-hom _ _ _ p
-
-  _∘ˡⁱ_ : (α : PshIso P Q) (F : Functor C D)
-    → PshIso (P ∘F (F ^opF)) (Q ∘F (F ^opF))
-  (α ∘ˡⁱ F) .trans = α .trans ∘ˡ F
-  (α ∘ˡⁱ F) .nIso x .fst = α .nIso _ .fst
-  (α ∘ˡⁱ F) .nIso x .snd .fst = α .nIso _ .snd .fst
-  (α ∘ˡⁱ F) .nIso x .snd .snd = α .nIso _ .snd .snd
-module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
-         (F : Functor C D)
-         (P : Presheaf C ℓp)
-         (Q : Presheaf D ℓq) where
-  -- We define the displayed morphism by reindexing the codomain
-  PshHet : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
-  PshHet = PshHom P (Q ∘F (F ^opF))
-
-module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
-         (F : Functor C D) (c : C .ob) where
-  Functor→PshHet : PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
-  Functor→PshHet .N-ob = λ x → F .F-hom
-  Functor→PshHet .N-hom = λ x y → F .F-seq
-
-module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
-         {F : Functor C D}
-         {P : Presheaf C ℓp}
-         {Q : Presheaf D ℓq}
-         (Fᴰ : PshHet F P Q)
-         where
-  private
-    module P = PresheafNotation P
-    module Q = PresheafNotation Q
-  ∫F : Functor (∫ᴾ P) (∫ᴾ Q)
-  ∫F .F-ob (c , p) = F ⟅ c ⟆ , Fᴰ .N-ob c p
-  ∫F .F-hom (f , tri) = (F ⟪ f ⟫) ,
-    (sym $ Fᴰ .N-hom _ _ _ _)
-    ∙ cong (Fᴰ .N-ob _) tri
-  ∫F .F-id = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-id)
-  ∫F .F-seq (f , _) (g , _) = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-seq f g)
-
-  becomesUniversal :
-    ∀ (v : C .ob) (e : P.p[ v ]) → Type _
-  becomesUniversal v e = isUniversal D Q (F ⟅ v ⟆) (Fᴰ .N-ob _ e)
-
-  becomesUniversal→UniversalElement :
-    ∀ {v e}
-    → becomesUniversal v e
-    → UniversalElement D Q
-  becomesUniversal→UniversalElement becomesUE .vertex = _
-  becomesUniversal→UniversalElement becomesUE .element = _
-  becomesUniversal→UniversalElement becomesUE .universal = becomesUE
-
-  preservesUniversalElement : UniversalElement C P → Type _
-  preservesUniversalElement ue =
-    becomesUniversal (ue .vertex) (ue .element)
-
-  preservesUniversalElements : Type _
-  preservesUniversalElements = ∀ ue → preservesUniversalElement ue
-
-  preservesUniversalElement→UniversalElement :
-    (ue : UniversalElement C P)
-    → preservesUniversalElement ue
-    → UniversalElement D Q
-  preservesUniversalElement→UniversalElement ue presUniversality =
-    becomesUniversal→UniversalElement presUniversality
-
-  -- If a presheaf preserves any universal element then it preserves
-  -- all of them since universal elements are unique up to unique
-  -- isomorphism. This is for free if the category is univalent
-  -- because in that case UniversalElement C P is a Prop.
-
-  -- This lemma, like other applications of Yoneda should be taken as
-  -- an indication that it is probably fine to build the library
-  -- around the seemingly weaker notion of preservesUniversalElement
-  -- and push uses of this lemma to users rather than to pervasively
-  -- use this in the library itself. YMMV
-  preservesUniversalElement→PreservesUniversalElements :
-    ∀ ue → preservesUniversalElement ue → preservesUniversalElements
-  preservesUniversalElement→PreservesUniversalElements ue preservesUE ue' =
-    isTerminalToIsUniversal D Q $
-      preserveAnyTerminal→PreservesTerminals
-        (∫ᴾ P)
-        (∫ᴾ Q)
-        ∫F
-        (universalElementToTerminalElement C P ue)
-        (isUniversalToIsTerminal D Q _ _ preservesUE)
-        (universalElementToTerminalElement C P ue')
-
-module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp)
-  where
-  private
-    module P = PresheafNotation P
-
-  precomp𝟙PshIso : PshIso P (P ∘F (𝟙⟨ C ⟩ ^opF))
-  precomp𝟙PshIso = eqToPshIso _ Eq.refl Eq.refl

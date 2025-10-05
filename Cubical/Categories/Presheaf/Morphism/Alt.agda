@@ -230,6 +230,16 @@ module _ {C : Category ℓc ℓc'} where
   PshCatIso : ∀ (P : Presheaf C ℓp)(Q : Presheaf C ℓq) → Type _
   PshCatIso P Q = PshC.ISOCᴰ.Hom[ LEVELω-iso ][ liftω P , liftω Q ]
 
+  reindPshCatIso : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}
+    {level-iso : LEVELω.ISOC.Hom[ liftω ℓp , liftω ℓq ]}
+    → PshC.ISOCᴰ.Hom[ level-iso ][ liftω P , liftω Q ]
+    → PshCatIso P Q
+  reindPshCatIso α = LocallySmall.isoᴰ
+    (α .LocallySmall.CatIsoᴰ.funᴰ)
+    (α .LocallySmall.CatIsoᴰ.invᴰ)
+    (α .LocallySmall.CatIsoᴰ.secᴰ)
+    (α .LocallySmall.CatIsoᴰ.retᴰ)
+
   module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
     private
       module P = PresheafNotation P

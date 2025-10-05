@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.More
 
 open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation.Base
@@ -27,10 +28,14 @@ open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLif
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Yoneda
 
+open import Cubical.Categories.LocallySmall
+
 private
   variable
     ℓc ℓc' ℓd ℓd' ℓp ℓq ℓr : Level
 
+open Category
+open Functor
 open PshHom
 open PshIso
 
@@ -81,7 +86,6 @@ module UniversalElementNotation {ℓo}{ℓh}
        {C : Category ℓo ℓh} {ℓp} {P : Presheaf C ℓp}
        (ue : UniversalElement C P)
        where
-  open Category
   open UniversalElement ue public
   REPR : Representation C P
   REPR = universalElementToRepresentation C P ue
@@ -121,7 +125,6 @@ module UniversalElementNotation {ℓo}{ℓh}
                    → f ≡ f'
     extensionality = isoFunInjective (universalIso _) _ _
 
-    -- this is the best one
     intro≡ : ∀ {c} → {p : P.p[ c ]}{f : C [ c , vertex ]}
       → p ≡ f P.⋆ element
       → intro p ≡ f
@@ -134,79 +137,45 @@ module UniversalElementNotation {ℓo}{ℓh}
   ⋆element-isPshIso : isPshIso (yoRec P element)
   ⋆element-isPshIso x = IsoToIsIso (universalIso _)
 
-  asPshIso : PshIso (C [-, vertex ]) P
-  asPshIso .trans = yoRec P element
-  asPshIso .nIso =  ⋆element-isPshIso
-
-open Functor
-module _ {C : Category ℓc ℓc'}{x} where
-  open Category
-  pathToPshIsoYo :
-    ∀ {P : Presheaf C ℓc'}(yx≡P : C [-, x ] ≡ P)
-    → pathToPshIso yx≡P .trans ≡ yoRec P (transport (λ i → yx≡P i .F-ob x .fst) $ C .id)
-  pathToPshIsoYo =
-    J (λ P yx≡P → pathToPshIso yx≡P .trans ≡ yoRec P (transport (λ i → yx≡P i .F-ob x .fst) $ C .id))
-      (cong trans pathToPshIsoRefl ∙ (sym $ yoRec≡ (C [-, x ]) $ transportRefl _))
+  asPshIso : PshCatIso (C [-, vertex ]) P
+  asPshIso = PshIso→PshCatIso (pshiso (yoRec P element) ⋆element-isPshIso)
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
   private
     module P = PresheafNotation P
     module C = Category C
+    module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
 
-  RepresentationPshIso : Type _
-  RepresentationPshIso = Σ[ x ∈ C.ob ] PshIso (C [-, x ]) P
+  subst-isUniversal : ∀ {v e e'} → e ≡ e' → isUniversal C P v e → isUniversal C P v e'
+  subst-isUniversal {v} e≡e' eIsUniversal Γ = isIsoToIsEquiv (intro , subst motive e≡e'
+    (isEquivToIsIso _ (eIsUniversal Γ) .snd))
+    where
+    ue : UniversalElement C P
+    ue = record { vertex = _ ; element = _ ; universal = eIsUniversal }
+    open UniversalElementNotation ue
+    motive : P.p[ v ] → Type _
+    motive e = (section (λ (f : C [ Γ , v ]) → f P.⋆ e) intro) × (retract (λ (f : C [ Γ , v ]) → f P.⋆ e) intro)
+
+  subst-UniversalElement :
+    ∀ (ue : UniversalElement C P)
+    → ∀ {e} → (ue .UniversalElement.element ≡ e)
+    → UniversalElement C P
+  subst-UniversalElement ue ue≡e = record { vertex = _ ; element = _
+    ; universal = subst-isUniversal ue≡e (ue .UniversalElement.universal) }
 
   open UniversalElement
-  module _ ((x , α) : RepresentationPshIso) where
-    -- this whole thing could be a subst of yoRecIso P x but this
-    -- definition has fewer transports
-    RepresentationPshIso→UniversalElement : UniversalElement C P
-    RepresentationPshIso→UniversalElement .vertex = x
-    RepresentationPshIso→UniversalElement .element =
-      α .trans .N-ob _ C.id
-    RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
-      ( α⁻ Γ
+  PshIso→UniversalElement : ∀ {v} → PshCatIso (C [-, v ]) P → UniversalElement C P
+  PshIso→UniversalElement {v} α .vertex = v
+  PshIso→UniversalElement {v} α .element = α .CatIsoᴰ.funᴰ .N-ob v C.id
+  PshIso→UniversalElement {v} α .universal Γ = isIsoToIsEquiv
+      (α .CatIsoᴰ.invᴰ .N-ob Γ
       , subst motive
-          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong N-ob $ IsoYoRec P x .Iso.rightInv (α .trans)) _) _)
-          (α .nIso Γ .snd))
+          (sym $ funExt⁻ (cong N-ob $ IsoYoRec P v .Iso.rightInv (α .CatIsoᴰ.funᴰ)) Γ)
+          ( funExt₂⁻ (cong N-ob $ PshC.≡out (α .CatIsoᴰ.secᴰ)) Γ
+          , funExt₂⁻ (cong N-ob $ PshC.≡out (α .CatIsoᴰ.retᴰ)) Γ))
       where
-        α⁻ = (invPshIso α) .trans .N-ob
-        motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
-        motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
-
--- These things only make sense when the presheaf is at the same
--- universe level as the Homs of the category.
-module _ (C : Category ℓc ℓc')(P : Presheaf C ℓc') where
-  private
-    module C = Category C
-  -- A version of Representation that depends on Univalence to be useful
-  Representsᵁ : ∀ (x : C.ob) → Type _
-  Representsᵁ x = C [-, x ] ≡ P
-
-  Representationᵁ : Type _
-  Representationᵁ = fiber (C [-,_]) P
-
-  yoPshIso→Representationᵁ : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → Representsᵁ v
-  yoPshIso→Representationᵁ αIsIso =
-    PshIso→Path (C [-, _ ]) P (record { trans = yoRec P _ ; nIso = αIsIso })
-
-  PshIso→Representationᵁ : ∀ {v} → PshIso (C [-, v ]) P → Representationᵁ
-  PshIso→Representationᵁ α = _ , PshIso→Path (C [-, _ ]) P α
-
-  UniversalElement→Representationᵁ : UniversalElement C P → Representationᵁ
-  UniversalElement→Representationᵁ ue = ue.vertex , PshIso→Path (C [-, ue.vertex ]) P
-    (record { trans = yoRec P ue.element
-            ; nIso = λ x → ue.intro , (λ b → ue.β) , λ _ → sym $ ue.η })
-    where
-      module ue = UniversalElementNotation ue
-
-  Representationᵁ→RepresentationPshIso : Representationᵁ → RepresentationPshIso P
-  Representationᵁ→RepresentationPshIso (v , yv≡P) = v , (PshCatIso→PshIso _ _ $ pathToIso yv≡P)
-
-  Representationᵁ→UniversalElement : Representationᵁ → UniversalElement C P
-  Representationᵁ→UniversalElement repr =
-    RepresentationPshIso→UniversalElement P
-    $ Representationᵁ→RepresentationPshIso repr
+        motive : (C [ Γ , v ] → P.p[ Γ ]) → Type _
+        motive intro⁻ = section intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ) × retract intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ)
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
   private
@@ -224,33 +193,28 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C
   UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
   UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
 
-  yoRecIso : PshIso (C [-, ue.vertex ]) P
-  yoRecIso = record { trans = yoRec P ue.element
-                    ; nIso = UniversalElement→yoRecIsIso }
+  yoRecIso : PshCatIso (C [-, ue.vertex ]) P
+  yoRecIso = PshIso→PshCatIso (pshiso (yoRec P ue.element) UniversalElement→yoRecIsIso)
+
+module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
+  private
+    module P = PresheafNotation P
+    module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
+  open UniversalElementNotation
+  IsoYoRecIso : ∀ v → Iso (Σ[ e ∈ P.p[ v ] ] isUniversal C P v e)
+                          (PshCatIso (C [-, v ]) P)
+  IsoYoRecIso v .Iso.fun (e , eIsUniversal) = yoRecIso (record { vertex = v ; element = e ; universal = eIsUniversal })
+  IsoYoRecIso v .Iso.inv α = _ , PshIso→UniversalElement P α .universal
+  IsoYoRecIso v .Iso.rightInv α = CatIsoᴰPathP (PRESHEAF C) (ΣPathP (refl , (sym $ yoRecη P)))
+  IsoYoRecIso v .Iso.leftInv f = ΣPathPProp (isPropIsUniversal C P v) (yoRecβ P)
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
-  open Category
-  seqIsUniversalPshIso : ∀ {v e} → isUniversal C P v e → (α : PshIso P Q)
-    → isUniversal C Q v (α .trans .N-ob v e)
-  seqIsUniversalPshIso {v}{e} isUe α = isPshIso→isUniversal Q
-    λ x → (lem x .fst) ,
-          subst (motive x)
-            (funExt (λ _ → yoRec-natural-elt P Q (α .trans)))
-            (lem x .snd)
-    where
-      lem : isPshIso {C = C} ((yoRec P _) ⋆PshHom (α .trans))
-      lem = seqIsPshIso {α = yoRec P _}{β = α .trans} (isUniversal→isPshIso P isUe) (α .nIso)
+  private
+    module P = PresheafNotation P
+    module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
 
-      module Q = PresheafNotation Q
-      motive : ∀ x → (C [ x , v ] → Q.p[ x ]) → Type _
-      motive x Nob =
-        section Nob (lem _ .fst)
-        × retract Nob (lem _ .fst)
-  module _ (ue : UniversalElement C P) (α : PshIso P Q) where
-    private
-      module ue = UniversalElementNotation ue
-    open UniversalElement
-    _◁PshIso_ : UniversalElement C Q
-    _◁PshIso_ .vertex = ue.vertex
-    _◁PshIso_ .element = α .trans .N-ob ue.vertex ue.element
-    _◁PshIso_ .universal = seqIsUniversalPshIso ue.universal α
+  open UniversalElement
+  _◁PshIso_ : (ue : UniversalElement C P) (α : PshCatIso P Q) → UniversalElement C Q
+  ue ◁PshIso α = subst-UniversalElement Q
+    (PshIso→UniversalElement Q $ reindPshCatIso (yoRecIso ue PshC.ISOCᴰ.⋆ᴰ α))
+    (cong (α .CatIsoᴰ.funᴰ .N-ob _) $ P.⋆IdL _)

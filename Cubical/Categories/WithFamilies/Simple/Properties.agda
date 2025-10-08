@@ -34,8 +34,8 @@ module SCwFNotation (the-scwf : SCwF ℓC ℓC' ℓT ℓT') where
   Ty = the-scwf .snd .fst
   Tm = the-scwf .snd .snd .fst
   module Tm⟨_⟩ (A : Ty) = PresheafNotation (Tm A)
-  term = the-scwf .snd .snd .fst
-  ext = the-scwf .snd .snd .snd
+  term = the-scwf .snd .snd .snd .fst
+  ext = the-scwf .snd .snd .snd .snd
 
 module SCwFᴰNotation
   {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}
@@ -52,4 +52,3 @@ module SCwFᴰNotation
   extᴰ = the-scwfᴰ .snd .snd .snd .snd
   module extᴰ {Γ}{A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : Tyᴰ A} =
     UniversalElementᴰ (extᴰ Aᴰ Γᴰ)
-

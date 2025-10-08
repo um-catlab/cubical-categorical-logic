@@ -46,7 +46,7 @@ open Functorᴰ
 open Section
 open UniversalElement
 
-module _ (Σ₀ : hGroupoid ℓ) where
+module FreeSCwF (Σ₀ : hGroupoid ℓ) where
   private
     variable
       Δ Γ Θ Ξ : List ⟨ Σ₀ ⟩

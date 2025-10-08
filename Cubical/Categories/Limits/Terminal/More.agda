@@ -73,3 +73,11 @@ module TerminalNotation {ℓ}{ℓ'} {C : Category ℓ ℓ'} (term' : Terminal' C
 
   𝟙extensionality : ∀ {a}{f g : C [ a , 𝟙 ]} → f ≡ g
   𝟙extensionality = extensionality refl
+
+module _ (C : Category ℓc ℓc') where
+  Initial : Type (ℓ-max ℓc ℓc')
+  Initial = Terminal' (C ^op)
+
+  module InitialNotation (init : Initial) =
+    TerminalNotation init
+      renaming (𝟙 to 𝟘 ; !t to !i ; 𝟙extensionality to 𝟘extensionality)

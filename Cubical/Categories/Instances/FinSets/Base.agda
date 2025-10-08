@@ -11,6 +11,7 @@ open import Cubical.Categories.Category renaming (pathToIso to catPathToIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Constructions.FullSubcategory.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets
@@ -20,27 +21,21 @@ private
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
 
 open Categoryᴰ
+open FullSubcategory'
 
-isFinite : Categoryᴰ (SET ℓ) ℓ ℓ-zero
-isFinite .ob[_] X = isFinSet ⟨ X ⟩
-isFinite .Hom[_][_,_] _ _ _ = Unit
-isFinite .idᴰ = _
-isFinite ._⋆ᴰ_ = _
-isFinite .⋆IdLᴰ _ = refl
-isFinite .⋆IdRᴰ _ = refl
-isFinite .⋆Assocᴰ _ _ _ = refl
-isFinite .isSetHomᴰ = isSetUnit
+isFinite : hSet ℓ → Type ℓ
+isFinite X = isFinSet ⟨ X ⟩
 
-FINSET : Category _ ℓ
-FINSET = ∫C isFinite
+FINSET : ∀ ℓ → Category _ ℓ
+FINSET ℓ = FullSubcategory' (SET ℓ) isFinite
 
 open Category
 
-⟨_⟩fs : FINSET {ℓ} .ob → FinSet ℓ
+⟨_⟩fs : FINSET ℓ .ob → FinSet ℓ
 ⟨ A ⟩fs = (A .fst .fst) , (A .snd)
 
-mkfs : (A : Type ℓ) → isFinSet A → FINSET .ob
+mkfs : (A : Type ℓ) → isFinSet A → FINSET ℓ .ob
 mkfs A isFinSetA = (A , isFinSet→isSet isFinSetA) , isFinSetA
 
-FINSET^op : Category _ ℓ
-FINSET^op = FINSET ^op
+FINSET^op : ∀ ℓ → Category _ ℓ
+FINSET^op ℓ = (FINSET ℓ) ^op

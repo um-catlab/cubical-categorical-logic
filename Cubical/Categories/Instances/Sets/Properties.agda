@@ -9,6 +9,8 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Empty as ⊥
 
 open import Cubical.HITs.SetCoequalizer as SetCoeq
 
@@ -38,6 +40,12 @@ TerminalSET .universal X .equiv-proof y = uniqueExists
   (isPropUnit tt tt)
   (λ _ p' q' → isSetUnit tt tt p' q')
   (λ _ _ → funExt λ _ → isPropUnit* tt* tt*)
+
+InitialSET : Initial (SET ℓ)
+InitialSET .vertex = ⊥* , λ ()
+InitialSET .element = record {}
+InitialSET .universal A =
+  isIsoToIsEquiv ((λ z ()) , (λ _ → refl) , λ _ → funExt λ ())
 
 module _ {C : Category ℓC ℓC'}
   (F : Bifunctor (C ^op) C (SET (ℓ-max ℓC ℓC')))
@@ -90,6 +98,25 @@ module _ {ℓSET : Level} where
       (SET ℓSET .isSetHom {x = Z} {y = Y})
       ((λ z → (h z) .fst) , λ z → (h z) .snd) (f , g))
     λ h p i z → (sym p) i .fst z , (sym p) i .snd z
+
+  BinCoproductsSET : BinCoproducts (SET ℓSET)
+  BinCoproductsSET (X , Y) .vertex =
+    (X .fst ⊎ Y .fst) , isSet⊎ (X .snd) (Y .snd)
+  BinCoproductsSET (X , Y) .element .fst = inl
+  BinCoproductsSET (X , Y) .element .snd = inr
+  BinCoproductsSET (X , Y) .universal Z =
+    isIsoToIsEquiv (
+      (λ (f , g) → Sum.elim f g) ,
+      (λ (f , g) → refl) ,
+      (λ f+g → funExt λ z →
+        Sum.elim
+          {C = λ z → Sum.elim
+                 (λ x → f+g (inl x))
+                 (λ x → f+g (inr x)) z ≡ f+g z}
+           (λ _ → refl)
+           (λ _ → refl)
+           z
+         ))
 
 module _ {ℓSET : Level} where
   ExponentialsSET : AllExponentiable (SET ℓSET) (BinProductsSET)

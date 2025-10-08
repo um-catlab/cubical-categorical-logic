@@ -244,3 +244,30 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD ℓD'} where
 
     ∫bp : BinProducts (∫C Cᴰ)
     ∫bp _ = BinProductᴰNotation.∫bp (bpᴰ _)
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+  BinCoproductᴰ :
+    ∀ {c12}
+    → BinCoproduct C c12
+    → (Cᴰ.ob[ c12 .fst ] Σ.× Cᴰ.ob[ c12 .snd ])
+    → Type _
+  BinCoproductᴰ = BinProductᴰ (Cᴰ ^opᴰ)
+
+  BinCoproductsᴰ : BinCoproducts C → Type _
+  BinCoproductsᴰ = BinProductsᴰ (Cᴰ ^opᴰ)
+
+  module BinCoproductsᴰNotation
+    {bcp : BinCoproducts C}
+    (bcpᴰ : BinCoproductsᴰ bcp) =
+    BinProductsᴰNotation bcpᴰ renaming
+      (∫bp to ∫bcp)
+
+  BinCoproductⱽ : ∀ {c} → (Cᴰ.ob[ c ] Σ.× Cᴰ.ob[ c ]) → Type _
+  BinCoproductⱽ = BinProductⱽ (Cᴰ ^opᴰ)
+
+  BinCoproductsⱽ : Type _
+  BinCoproductsⱽ = BinProductsⱽ (Cᴰ ^opᴰ)
+
+  -- TODO re-export all notations

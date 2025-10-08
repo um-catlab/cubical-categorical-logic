@@ -191,3 +191,20 @@ module _ (F : Functor C D) where
     → preservesUniversalElement
         (preservesBinProdCones c c')
         (bp (c , c'))
+
+module _ (C : Category ℓ ℓ') where
+  BinCoproduct : ∀ (cc' : (C ⊗ C) .ob) → Type _
+  BinCoproduct cc' = BinProduct (C ^op) cc'
+
+  BinCoproducts : Type _
+  BinCoproducts = BinProducts (C ^op)
+
+module _ {ℓ ℓ'} where
+  module BinCoproductNotation {C : Category ℓ ℓ'} {a b}
+    (bcp : BinProduct C (a , b)) =
+    BinProductNotation bcp renaming
+      (π₁ to i₁ ; π₂ to i₂)
+  module BinCoproductsNotation {C : Category ℓ ℓ'}
+    (bcp : BinCoproducts C) =
+    BinProductsNotation bcp renaming
+      (_×_ to _+_ ; ×F to +F)

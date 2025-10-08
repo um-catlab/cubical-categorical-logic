@@ -4,9 +4,13 @@ module Gluing.SCWF where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function as Func
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
+open import Cubical.Data.Empty
 open import Cubical.Data.Nat
 open import Cubical.Data.FinData
 open import Cubical.Data.FinData.FinSet
@@ -22,7 +26,6 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.WithFamilies.Simple
 open import Cubical.Categories.WithFamilies.Simple.Functor
 open import Cubical.Categories.WithFamilies.Simple.Instances.Free.Base
-  renaming (elim to elimSCwF)
 open import Cubical.Categories.WithFamilies.Simple.Instances.Sets
   renaming (SET to SCwFSET)
 open import Cubical.Categories.WithFamilies.Simple.Instances.Reindex
@@ -36,11 +39,18 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets
 
+private
+  variable
+    ℓ : Level
+
 gen : hGroupoid ℓ-zero
 gen = Unit , λ _ _ _ _ _ _ → refl
 
+module free-scwf-on-one-gen = FreeSCwF gen
+open free-scwf-on-one-gen
+
 free-scwf-on-one-gen : SCwF _ _ _ _
-free-scwf-on-one-gen = FreeSCwF gen
+free-scwf-on-one-gen = FreeSCwF
 
 open SCwFNotation free-scwf-on-one-gen
 open TerminalNotation term
@@ -48,62 +58,80 @@ open Category C
 open PshHom
 open Section
 open Functor
+open Iso
 
-CanonicalForm : ∀ {c : ob} → C [ 𝟙 , c ] → Type _
-CanonicalForm e = ℕ
+_⊢_ : ob → Ty → Type _
+Γ ⊢ A = ⟨ Tm A ⟅ Γ ⟆ ⟩
 
-isSetCanonicalForm : ∀ {c} {e : C [ 𝟙 , c ]} → isSet (CanonicalForm e)
-isSetCanonicalForm = isSetℕ
+NormalForm : ∀ {Γ A} → Γ ⊢ A → Type _
+NormalForm {Γ = Γ} M = Fin (length Γ)
 
-SCwFᴰSET : SCwFᴰ (SCwFSET ℓ-zero) _ _ _ _
-SCwFᴰSET = SCwFⱽ→SCwFᴰ {C = SCwFSET _} {Cᴰ = SETⱽ _ ℓ-zero}
+isSetNormalForm : ∀ {Γ A} → {M : Γ ⊢ A} → isSet (NormalForm M)
+isSetNormalForm = isFinSet→isSet isFinSetFinData
 
--- The position of a variable in context
-idx : ∀ {Γ A} → Var gen Γ A → Fin (length Γ)
-idx vz = zero
-idx (vs v) = suc (idx v)
+deBruijn→Fin : ∀ {Γ A} → Var Γ A → Fin (length Γ)
+deBruijn→Fin vz = zero
+deBruijn→Fin (vs v) = suc (deBruijn→Fin v)
 
-lengthP : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} {as : List A}
-  → ListP B as → ℕ
-lengthP [] = 0
-lengthP (b ∷ bs) = suc (lengthP bs)
+Fin→deBruijn : ∀ {Γ A} → Fin (length Γ) → Var Γ A
+Fin→deBruijn {Γ = x ∷ Γ} zero = vz
+Fin→deBruijn {Γ = x ∷ Γ} (suc n) = vs (Fin→deBruijn n)
 
-lengthP-≡ : ∀ {ℓA ℓB} {A : Type ℓA} {B : A → Type ℓB} {as : List A}
-  → (bs : ListP B as) → lengthP bs ≡ length as
-lengthP-≡ {as = []} [] = refl
-lengthP-≡ {as = a ∷ as} (b ∷ bs) = cong suc (lengthP-≡ bs)
+deBruijnSection : ∀ {Γ A} → section (deBruijn→Fin {Γ}{A}) Fin→deBruijn
+deBruijnSection {Γ = x ∷ Γ} zero = refl
+deBruijnSection {Γ = x ∷ Γ} (suc n) = cong suc (deBruijnSection n)
 
-F : PreFunctor free-scwf-on-one-gen FINSET^opSCwF
+deBruijnRetract : ∀ {Γ A} → retract (deBruijn→Fin {Γ}{A}) Fin→deBruijn
+deBruijnRetract vz = refl
+deBruijnRetract (vs v) = cong vs (deBruijnRetract v)
+
+deBruijn≅Fin : ∀ {Γ A} → Iso (Var Γ A) (Fin (length Γ))
+deBruijn≅Fin .fun = deBruijn→Fin
+deBruijn≅Fin .inv = Fin→deBruijn
+deBruijn≅Fin .rightInv = deBruijnSection
+deBruijn≅Fin .leftInv = deBruijnRetract
+
+F : PreFunctor free-scwf-on-one-gen (FINSET^opSCwF ℓ-zero)
 F .fst .F-ob Γ = mkfs (Fin (length Γ)) isFinSetFinData
-F .fst .F-hom γ .fst x = idx (lookupP γ x)
+F .fst .F-hom γ .fst n = deBruijn→Fin (ren γ (Fin→deBruijn n))
 F .fst .F-hom γ .snd = _
 F .fst .F-id {x = Γ} =
-  Σ≡Prop (λ _ → isPropUnit)
-    (funExt λ where n → {!!})
-  where
-  wkRen-lem : ∀ {Γ Δ} → (γ : Renaming gen Δ Γ) → ∀ m → idx (lookupP (wkRen gen γ) m) ≡ suc (idx (lookupP γ m))
-  wkRen-lem (y ∷ γ) m = {!!}
-
-  lookup-lem : ∀ Δ m → idx (lookupP (idRen (Unit , (λ _ _ _ _ z _ _ → z)) Δ) m) ≡ m
-  lookup-lem (tt ∷ Δ) zero = refl
-  lookup-lem (tt ∷ Δ) (suc m) = {!!} ∙ cong suc (lookup-lem Δ m)
-F .fst .F-seq = {!!}
-F .snd = {!!}
+  Σ≡Prop (λ _ → isPropUnit) $
+    funExt λ where
+      n →
+        cong deBruijn→Fin (renId Γ (Fin→deBruijn n))
+        ∙ deBruijnSection n
+F .fst .F-seq γ δ =
+  Σ≡Prop (λ _ → isPropUnit) $
+    funExt λ where
+      n →
+        cong deBruijn→Fin
+          (ren⋆ δ (Fin→deBruijn n)
+           ∙ cong (ren γ)
+             (sym $ deBruijnRetract (ren δ (Fin→deBruijn n))))
+F .snd .fst _ = mkfs Unit isFinSetUnit
+F .snd .snd .N-ob Γ v .fst _ = deBruijn→Fin v
+F .snd .snd .N-ob Γ v .snd = _
+F .snd .snd .N-hom Γ Δ γ v =
+  Σ≡Prop (λ _ → isPropUnit) $
+    funExt λ _ →
+      cong (deBruijn→Fin Func.∘ (ren γ)) (sym $ deBruijnRetract _)
 
 -- reindexSCwFⱽSET : SCwFⱽ free-scwf-on-one-gen _ _ _ _
 -- reindexSCwFⱽSET =
---   reindexSCwFⱽ {C = free-scwf-on-one-gen} {D = SCwFSET ℓ-zero}
---     F (SETⱽ _ ℓ-zero)
+--   reindexSCwFⱽ F {!!}
+  -- reindexSCwFⱽ {C = free-scwf-on-one-gen} {D = SCwFSET ℓ-zero}
+  --   F (SETⱽ _ ℓ-zero)
 
--- -- -- TODO elimLocal for SCwFᴰ
--- -- canonicalize :
--- --   StrictSection
--- --     free-scwf-on-one-gen
--- --     (SCwFⱽ→SCwFᴰ {Cᴰ = reindexSCwFⱽSET})
--- -- canonicalize =
--- --   elimSCwF gen
--- --     (SCwFⱽ→SCwFᴰ {Cᴰ = reindexSCwFⱽSET})
--- --     λ _ _ → Unit , isSetUnit
+-- -- -- -- TODO elimLocal for SCwFᴰ
+-- -- -- canonicalize :
+-- -- --   StrictSection
+-- -- --     free-scwf-on-one-gen
+-- -- --     (SCwFⱽ→SCwFᴰ {Cᴰ = reindexSCwFⱽSET})
+-- -- -- canonicalize =
+-- -- --   elimSCwF gen
+-- -- --     (SCwFⱽ→SCwFᴰ {Cᴰ = reindexSCwFⱽSET})
+-- -- --     λ _ _ → Unit , isSetUnit
 
--- -- canonicity : ∀ {c} → (e : C [ 𝟙 , c ]) → CanonicalForm e
--- -- canonicity e = {!canonicalize .fst .F-homᴰ e !}
+-- -- -- canonicity : ∀ {c} → (e : C [ 𝟙 , c ]) → CanonicalForm e
+-- -- -- canonicity e = {!canonicalize .fst .F-homᴰ e !}

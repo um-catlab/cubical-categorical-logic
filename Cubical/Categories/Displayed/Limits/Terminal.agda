@@ -144,3 +144,16 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Fᴰ
 
   preservesTerminal : Type _
   preservesTerminal = preservesUE {Pᴰ = UnitPshᴰ {P = UnitPsh {C = C}}} Fᴰ (UnitPsh→UnitPshᴰ Fᴰ) term
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+  -- Initial object over an initial object
+  Initialᴰ : (init : Initial C) →
+    Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+  Initialᴰ init = Terminalᴰ (Cᴰ ^opᴰ) init
+
+  module InitialᴰNotation {init : Initial C}
+    (initᴰ : Initialᴰ init) =
+      TerminalᴰNotation (Cᴰ ^opᴰ) initᴰ
+        renaming (𝟙ᴰ to 𝟘ᴰ; !tᴰ to !iᴰ ; ∫term to ∫init)

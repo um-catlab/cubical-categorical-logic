@@ -33,3 +33,14 @@ isFinite .isSetHomᴰ = isSetUnit
 
 FINSET : Category _ ℓ
 FINSET = ∫C isFinite
+
+open Category
+
+⟨_⟩fs : FINSET {ℓ} .ob → FinSet ℓ
+⟨ A ⟩fs = (A .fst .fst) , (A .snd)
+
+mkfs : (A : Type ℓ) → isFinSet A → FINSET .ob
+mkfs A isFinSetA = (A , isFinSet→isSet isFinSetA) , isFinSetA
+
+FINSET^op : Category _ ℓ
+FINSET^op = FINSET ^op

@@ -99,6 +99,7 @@ mapω f a = liftω (f (a .lowerω))
 mapω' : {A : Type ℓ}{β : A → Level} (f : (a : A) → Type (β a)) (a : Liftω A) → Typeω
 mapω' f a = Liftω (f (a .lowerω))
 
+-- TODO: rename to just "Category"
 -- A LocallySmallCategory has a "proper class" of objects, but small hom sets
 record LocallySmallCategory (ob : Typeω): Typeω where
   no-eta-equality
@@ -168,18 +169,6 @@ module _ {ob} (C : LocallySmallCategory ob) where
     (C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.sec ⟩⋆⟨⟩ ∙ C.⋆IdL (g .CatIso.fun) ⟩ ∙ g .CatIso.sec)
     (C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ sym (C.⋆Assoc _ _ _) ∙ C.⟨ g .CatIso.ret ⟩⋆⟨⟩ ∙ C.⋆IdL (f .CatIso.inv) ⟩ ∙ f .CatIso.ret)
 
-  -- The following two lemmas are just that the Yoneda embedding is a
-  -- functor and therefore preserves iso
-  ⋆CatIso-Iso : ∀ {x y} → CatIso x y → ∀ {z} → Iso C.Hom[ z , x ] C.Hom[ z , y ]
-  ⋆CatIso-Iso f = iso (C._⋆ f .CatIso.fun) (C._⋆ f .CatIso.inv)
-    (λ g → C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ f .CatIso.sec ⟩ ∙ C.⋆IdR g)
-    (λ g → C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ f .CatIso.ret ⟩ ∙ C.⋆IdR g)
-
-  CatIso⋆-Iso : ∀ {x y} → CatIso x y → ∀ {z} → Iso C.Hom[ y , z ] C.Hom[ x , z ]
-  CatIso⋆-Iso f = iso (f .CatIso.fun C.⋆_) (f .CatIso.inv C.⋆_)
-    (λ g → sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.ret ⟩⋆⟨⟩ ∙ C.⋆IdL g)
-    (λ g → sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.sec ⟩⋆⟨⟩ ∙ C.⋆IdL g)
-
   CatIso≡ : ∀ {x y} {f g : CatIso x y}
     → f .CatIso.fun ≡ g .CatIso.fun
     → f ≡ g
@@ -210,6 +199,27 @@ module _ {ob} (C : LocallySmallCategory ob) where
     invCatIso f .CatIso.sec = f .CatIso.ret
     invCatIso f .CatIso.ret = f .CatIso.sec
 
+    -- The following two lemmas are just that the Yoneda embedding is a
+    -- functor and therefore preserves iso
+    ⋆CatIso-Iso : ∀ {x y} → CatIso x y → ∀ {z} → Iso C.Hom[ z , x ] C.Hom[ z , y ]
+    ⋆CatIso-Iso f = iso (C._⋆ f .CatIso.fun) (C._⋆ f .CatIso.inv)
+      (λ g → C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ f .CatIso.sec ⟩ ∙ C.⋆IdR g)
+      (λ g → C.⋆Assoc _ _ _ ∙ C.⟨⟩⋆⟨ f .CatIso.ret ⟩ ∙ C.⋆IdR g)
+
+    CatIso⋆-Iso : ∀ {x y} → CatIso x y → ∀ {z} → Iso C.Hom[ y , z ] C.Hom[ x , z ]
+    CatIso⋆-Iso f = iso (f .CatIso.fun C.⋆_) (f .CatIso.inv C.⋆_)
+      (λ g → sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.ret ⟩⋆⟨⟩ ∙ C.⋆IdL g)
+      (λ g → sym (C.⋆Assoc _ _ _) ∙ C.⟨ f .CatIso.sec ⟩⋆⟨⟩ ∙ C.⋆IdL g)
+
+    subst-CatIso : ∀ {x y g g⁻}
+      (f : CatIso x y)
+      (f≡g : f .CatIso.fun ≡ g)
+      (f⁻≡g⁻ : f .CatIso.inv ≡ g⁻)
+      → CatIso x y
+    subst-CatIso {x}{y}{g}{g⁻} f f≡g f⁻≡g⁻ = iso g g⁻
+      (subst {A = C.Hom[ x , y ] × C.Hom[ y , x ]} (λ (g , g⁻) → g⁻ C.⋆ g ≡ C.id) (ΣPathP (f≡g , f⁻≡g⁻)) (f .CatIso.sec))
+      (subst {A = C.Hom[ x , y ] × C.Hom[ y , x ]} (λ (g , g⁻) → g C.⋆ g⁻ ≡ C.id) (ΣPathP (f≡g , f⁻≡g⁻)) (f .CatIso.ret))
+
 -- The key thing we need is to be able to iterate the ∫C construction
 module _ {ob}(C : LocallySmallCategory ob) where
   private
@@ -219,7 +229,7 @@ module _ {ob}(C : LocallySmallCategory ob) where
     field
       Hom-ℓᴰ : (x : ob)(xᴰ : ob[ x ]) (y : ob)(yᴰ : ob[ y ]) → Level
       Hom[_][_,_] : ∀ {x y}(f : C.Hom[ x , y ])(xᴰ : ob[ x ])(yᴰ : ob[ y ]) → Type (Hom-ℓᴰ x xᴰ y yᴰ)
-      idᴰ : ∀ {x} {p : ob[ x ]} → Hom[ C.id ][ p , p ]
+      idᴰ : ∀ {x} {xᴰ : ob[ x ]} → Hom[ C.id ][ xᴰ , xᴰ ]
       _⋆ᴰ_ : ∀ {x y z} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]} {xᴰ yᴰ zᴰ}
         → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f C.⋆ g ][ xᴰ , zᴰ ]
     infixr 9 _⋆ᴰ_
@@ -244,6 +254,12 @@ module _ {ob}(C : LocallySmallCategory ob) where
     ∫Hom[ xxᴰ , yyᴰ ] =
       Σ[ f ∈ C.Hom[ xxᴰ .fst , yyᴰ .fst ] ]
       Hom[ f ][ xxᴰ .snd , yyᴰ .snd ]
+
+    _∫≡_ :  ∀ {x y xᴰ yᴰ} {f g : C.Hom[ x , y ]}
+      → (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
+      → Type _
+    fᴰ ∫≡ gᴰ = Path ∫Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
+    infix 2 _∫≡_
 
     -- Reindexing displayed morphisms along an equality in the base
     reind : {x y : ob}{f g : C.Hom[ x , y ]}
@@ -276,13 +292,11 @@ module _ {ob}(C : LocallySmallCategory ob) where
       {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
       {p : f ≡ g}
       → (fᴰ ≡[ p ] gᴰ)
-      → Path ∫Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
+      → fᴰ ∫≡ gᴰ
     ≡in = λ pᴰ → ΣPathP (_ , pᴰ)
     ⋆IdLᴰᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
       → (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
-      → Path (∫Hom[ _ , _ ])
-          (_ , (idᴰ ⋆ᴰ fᴰ))
-          (_ , fᴰ)
+      → idᴰ ⋆ᴰ fᴰ ∫≡ fᴰ
     ⋆IdLᴰᴰ fᴰ = ≡in (⋆IdLᴰ fᴰ)
 
     ⋆IdRᴰᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
@@ -648,7 +662,7 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
     CatIsoᴰ⋆ᴰ-Iso-over : ∀ {x y xᴰ yᴰ}{f : C.ISOC.Hom[ x , y ]}
       → CatIsoᴰ f xᴰ yᴰ
       → ∀ {z}{zᴰ : obᴰ z}
-      → IsoOver (CatIso⋆-Iso C f) Cᴰ.Hom[_][ yᴰ , zᴰ ] Cᴰ.Hom[_][ xᴰ , zᴰ ]
+      → IsoOver (C.CatIso⋆-Iso f) Cᴰ.Hom[_][ yᴰ , zᴰ ] Cᴰ.Hom[_][ xᴰ , zᴰ ]
     CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.fun g gᴰ = fᴰ .CatIsoᴰ.funᴰ Cᴰ.⋆ᴰ gᴰ
     CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.inv g gᴰ = fᴰ .CatIsoᴰ.invᴰ Cᴰ.⋆ᴰ gᴰ
     CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.rightInv g gᴰ = rectify $ ≡out $

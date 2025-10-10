@@ -175,7 +175,9 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
           , funExt₂⁻ (cong N-ob $ PshC.≡out (α .CatIsoᴰ.retᴰ)) Γ))
       where
         motive : (C [ Γ , v ] → P.p[ Γ ]) → Type _
-        motive intro⁻ = section intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ) × retract intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ)
+        motive intro⁻ =
+          section intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ)
+          × retract intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ)
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
   private

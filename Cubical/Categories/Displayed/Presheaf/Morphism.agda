@@ -28,10 +28,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.LocallySmall
-  using (LocallySmallCategory; LocallySmallCategoryᴰ; module LocallySmallCategoryᴰNotation;
-        LEVEL; _⊘_; Liftω; Σω; _,_; liftω; mapω'; ⊘-iso; LEVEL-iso; LEVELω-iso)
-import Cubical.Categories.LocallySmall as LocallySmall
+open import Cubical.Categories.LocallySmall as LocallySmall
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.NaturalTransformation
@@ -56,7 +53,7 @@ module _ {C : Category ℓC ℓC'} where
   private
     module C = Category C
     PshC = PRESHEAF C
-    module PshC = LocallySmallCategoryᴰNotation PshC
+    module PshC = LocallySmallCategoryNotation PshC
 -- First, we do the bare minimum to define the displayed category of PshHoms
   module _ {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     private
@@ -181,40 +178,40 @@ module _ {C : Category ℓC ℓC'} where
         module Q = PresheafNotation Q
         module Pᴰ = PresheafᴰNotation Pᴰ
         module Qᴰ = PresheafᴰNotation Qᴰ
-      makePshHomᴰPathP :
-        ∀ (α≡β : α ≡ β)
-        → (αᴰ≡βᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}
-            → PathP (λ i → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α≡β i .N-ob x p ][ xᴰ ] )
-                    (αᴰ .N-obᴰ)
-                    (βᴰ .N-obᴰ))
-        → PshHomᴰPathP α≡β αᴰ βᴰ
-      makePshHomᴰPathP α≡β αᴰ≡βᴰ = fiberwiseIsoFunInjective (λ α → PshHomᴰΣIso α Pᴰ Qᴰ)
-        (ΣPathPProp (λ αN-obᴰ → isPropImplicitΠ4 (λ _ _ _ _ → isPropImplicitΠ4 (λ _ _ _ _ →
-          λ pf1 pf2 → isSet→SquareP (λ _ _ → Qᴰ.isSetPshᴰ) pf1 pf2 refl refl)))
-          (implicitFunExt $ implicitFunExt $ implicitFunExt $ αᴰ≡βᴰ))
+      opaque
+        makePshHomᴰPathP :
+          ∀ (α≡β : α ≡ β)
+          → (αᴰ≡βᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}
+              → PathP (λ i → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α≡β i .N-ob x p ][ xᴰ ] )
+                      (αᴰ .N-obᴰ)
+                      (βᴰ .N-obᴰ))
+          → PshHomᴰPathP α≡β αᴰ βᴰ
+        makePshHomᴰPathP α≡β αᴰ≡βᴰ = fiberwiseIsoFunInjective (λ α → PshHomᴰΣIso α Pᴰ Qᴰ)
+          (ΣPathPProp (λ αN-obᴰ → isPropImplicitΠ4 (λ _ _ _ _ → isPropImplicitΠ4 (λ _ _ _ _ →
+            λ pf1 pf2 → isSet→SquareP (λ _ _ → Qᴰ.isSetPshᴰ) pf1 pf2 refl refl)))
+            (implicitFunExt $ implicitFunExt $ implicitFunExt $ αᴰ≡βᴰ))
   open PshHomᴰ
   PRESHEAFᴰ : (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-    → LocallySmallCategoryᴰ
-        (LEVEL ⊘ LocallySmallCategoryᴰ.∫C (PRESHEAF C))
-        λ { (ℓPᴰ , (_ , liftω P)) → Liftω (Presheafᴰ P Cᴰ ℓPᴰ) }
+    → LocallySmallCategoryᴰ (PRESHEAF C)
+        λ (_ , (liftω P)) → Σω[ (liftω ℓPᴰ) ∈ Liftω Level ] Liftω (Presheafᴰ P Cᴰ ℓPᴰ)
   PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
-  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , α) (liftω Pᴰ) (liftω Qᴰ) =
-    PshHomᴰ α Pᴰ Qᴰ
+  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] α (_ , liftω P) (_ , liftω Q) = PshHomᴰ α P Q
   PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.idᴰ = idPshHomᴰ
   PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ = _⋆PshHomᴰ_
-  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ {yᴰ = liftω Qᴰ} αᴰ =
+  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ {yᴰ = (_ , liftω Qᴰ)} αᴰ =
     makePshHomᴰPathP _
       (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
     where module Qᴰ = PresheafᴰNotation Qᴰ
-  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ {yᴰ = liftω Qᴰ} αᴰ =
+  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ {yᴰ = (_ , liftω Qᴰ)} αᴰ =
     makePshHomᴰPathP _
       (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
     where module Qᴰ = PresheafᴰNotation Qᴰ
-  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ {wᴰ = liftω Qᴰ} αᴰ βᴰ γᴰ =
+  PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ {wᴰ = (_ , liftω Qᴰ)} αᴰ βᴰ γᴰ =
     makePshHomᴰPathP _
       (funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
     where module Qᴰ = PresheafᴰNotation Qᴰ
   PRESHEAFᴰ Cᴰ .LocallySmallCategoryᴰ.isSetHomᴰ = isSetPshHomᴰ _ _ _
+
   module _ {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     private
       module Cᴰ = Categoryᴰ Cᴰ
@@ -231,6 +228,22 @@ module _ {C : Category ℓC ℓC'} where
         β : PshHom Q R
         αᴰ : PshHomᴰ α Pᴰ Qᴰ
         βᴰ : PshHomᴰ β Qᴰ Rᴰ
+
+    module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
+      private
+        module P = PresheafNotation P
+        module Pᴰ = PresheafᴰNotation Pᴰ
+        module Qᴰ = PresheafᴰNotation Qᴰ
+      opaque
+        makePshHomᴰPath : {αᴰ : PshHomᴰ α Pᴰ Qᴰ}{βᴰ : PshHomᴰ β Pᴰ Qᴰ}
+          → (α≡β : α ≡ β)
+          → (∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : Pᴰ.p[ p ][ xᴰ ])
+            → Path Qᴰ.p[ _ ] (_ , αᴰ .N-obᴰ pᴰ) (_ , βᴰ .N-obᴰ pᴰ))
+          → Path PshCᴰ.Hom[ _ , _ ] (α , αᴰ) (β , βᴰ)
+        makePshHomᴰPath α≡β αᴰ≡βᴰ = PshCᴰ.≡in $ makePshHomᴰPathP α≡β $
+          funExt (λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ αᴰ≡βᴰ pᴰ)
+
+
     -- Iso stuff
     module _ (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
       private
@@ -242,11 +255,8 @@ module _ {C : Category ℓC ℓC'} where
         → Σ[ invᴰ ∈ (∀ {q} → Qᴰ.p[ q ][ xᴰ ] → Pᴰ.p[ αIsIso x .fst q ][ xᴰ ]) ]
           (∀ {q}(qᴰ : Qᴰ.p[ q ][ xᴰ ]) → Path Qᴰ.p[ _ ] (_ , αᴰ .N-obᴰ (invᴰ qᴰ)) (_ , qᴰ))
           × (∀ {p}(pᴰ : Pᴰ.p[ p ][ xᴰ ]) → Path Pᴰ.p[ _ ] (_ , invᴰ (αᴰ .N-obᴰ pᴰ)) (_ , pᴰ))
-    module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} where
-      -- Convenient abbreviation, but use PshCᴰ.⋆ⱽ etc for the operations
-      PshHomⱽ : (α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) → Type _
-      PshHomⱽ α Pᴰ Qᴰ = PshCᴰ.Hom[ _ , _ , α ][ liftω Pᴰ , liftω Qᴰ ]
 
+    module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} where
       record PshIsoᴰ (α : PshIso P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
         : Type (ℓ-max ℓC $ ℓ-max ℓC' $ ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' $ ℓ-max ℓP $ ℓ-max ℓPᴰ $ ℓ-max ℓQ $ ℓQᴰ)
         where
@@ -258,8 +268,7 @@ module _ {C : Category ℓC ℓC'} where
 
       PshCatIsoᴰ : (α : PshCatIso P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
         → Type _
-      PshCatIsoᴰ α Pᴰ Qᴰ = PshCᴰ.ISOCᴰ.Hom[ ⊘-iso LEVEL _ LEVEL-iso (LocallySmall.∫CatIso _ α)
-        ][ liftω Pᴰ , liftω Qᴰ ]
+      PshCatIsoᴰ α Pᴰ Qᴰ = PshCᴰ.ISOCᴰ.Hom[ α ][ (_ , liftω Pᴰ) , (_ , liftω Qᴰ) ]
 
       ∫PshIso :  {α : PshIso P Q} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
         → (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) → PshIso (∫P Pᴰ) (∫P Qᴰ)
@@ -267,6 +276,13 @@ module _ {C : Category ℓC ℓC'} where
       ∫PshIso αᴰ .nIso xxᴰ .fst qqᴰ = _ , (αᴰ .PshIsoᴰ.nIsoᴰ .fst (qqᴰ .snd))
       ∫PshIso αᴰ .nIso xxᴰ .snd .fst = λ b → αᴰ .PshIsoᴰ.nIsoᴰ .snd .fst (b .snd)
       ∫PshIso αᴰ .nIso xxᴰ .snd .snd = λ a → αᴰ .PshIsoᴰ.nIsoᴰ .snd .snd (a .snd)
+
+    module _ {P : Presheaf C ℓP} where
+      PshHomⱽ : (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) → Type _
+      PshHomⱽ Pᴰ Qᴰ = PshHomᴰ idPshHom Pᴰ Qᴰ
+
+      PshIsoⱽ : (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) → Type _
+      PshIsoⱽ Pᴰ Qᴰ = PshCatIsoᴰ PshC.ISOC.id Pᴰ Qᴰ
 
     invPshIsoᴰ : {α : PshIso P Q} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
       → (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
@@ -290,12 +306,12 @@ module _ {C : Category ℓC ℓC'} where
       PshIsoᴰ→PshCatIsoᴰ : ∀ α (αᴰ : PshIsoᴰ α Pᴰ Qᴰ) → PshCatIsoᴰ (PshIso→PshCatIso α) Pᴰ Qᴰ
       PshIsoᴰ→PshCatIsoᴰ α αᴰ .LocallySmall.CatIsoᴰ.funᴰ = αᴰ .PshIsoᴰ.transᴰ
       PshIsoᴰ→PshCatIsoᴰ α αᴰ .LocallySmall.CatIsoᴰ.invᴰ = invPshIsoᴰ αᴰ .PshIsoᴰ.transᴰ
-      PshIsoᴰ→PshCatIsoᴰ α αᴰ .LocallySmall.CatIsoᴰ.secᴰ =
-        ΣPathP (ΣPathP (refl , (PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.secᴰ))
-          , makePshHomᴰPathP _ (funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $ αᴰ .PshIsoᴰ.nIsoᴰ .snd .fst qᴰ))
-      PshIsoᴰ→PshCatIsoᴰ α αᴰ .LocallySmall.CatIsoᴰ.retᴰ =
-        ΣPathP (ΣPathP (refl , (PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.retᴰ))
-          , makePshHomᴰPathP _ (funExt λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $ αᴰ .PshIsoᴰ.nIsoᴰ .snd .snd pᴰ))
+      PshIsoᴰ→PshCatIsoᴰ α αᴰ .LocallySmall.CatIsoᴰ.secᴰ = makePshHomᴰPath
+        (PshIso→PshCatIso α .LocallySmall.CatIso.sec)
+        (λ qᴰ → αᴰ .PshIsoᴰ.nIsoᴰ .snd .fst qᴰ)
+      PshIsoᴰ→PshCatIsoᴰ α αᴰ .LocallySmall.CatIsoᴰ.retᴰ = makePshHomᴰPath
+        (PshIso→PshCatIso α .LocallySmall.CatIso.ret)
+        (λ pᴰ → αᴰ .PshIsoᴰ.nIsoᴰ .snd .snd pᴰ)
 
       PshCatIsoᴰ→PshIsoᴰ : ∀ α (αᴰ : PshCatIsoᴰ α Pᴰ Qᴰ) → PshIsoᴰ (PshCatIso→PshIso α) Pᴰ Qᴰ
       PshCatIsoᴰ→PshIsoᴰ α αᴰ .PshIsoᴰ.transᴰ = αᴰ .LocallySmall.CatIsoᴰ.funᴰ
@@ -312,13 +328,8 @@ module _ {C : Category ℓC ℓC'} where
       -- PshIsoᴰ≅PshCatIsoᴰ = isoover PshIsoᴰ→PshCatIsoᴰ PshCatIsoᴰ→PshIsoᴰ
       --   (λ α αᴰ → PshCᴰ.ISOCᴰ.rectify $ PshCᴰ.ISOCᴰ.≡out $ PshCᴰ.ISOCᴰ≡ refl)
       --   λ α αᴰ → {!makePshHomᴰPathP!}
-      module _ {α β : PshHom P Q} where
-        PshCᴰ-reind :
-          (α≡β : α ≡ β)
-          → (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
-          → PshHomᴰ β Pᴰ Qᴰ
-        PshCᴰ-reind α≡β = PshCᴰ.reind (ΣPathP (refl , ΣPathP (refl , α≡β)))
 
+      module _ {α β : PshHom P Q} where
         PshCᴰ-reind-N-ob :
           (α≡β : α .N-ob ≡ β .N-ob)
           → (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
@@ -357,15 +368,6 @@ module _ {C : Category ℓC ℓC'} where
           βsingl = (β .N-ob , α≡β)
 
         opaque
-          PshCᴰ-reind-filler :
-            (α≡β : α ≡ β)
-            → (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
-            → Path PshCᴰ.Hom[ _ , _ ]
-                (_ , αᴰ)
-                (_ , PshCᴰ-reind α≡β αᴰ)
-          PshCᴰ-reind-filler α≡β αᴰ =
-            PshCᴰ.reind-filler (ΣPathP (refl , ΣPathP (refl , _))) αᴰ
-
           PshCᴰ-reind-N-ob-filler :
             (α≡β : α .N-ob ≡ β .N-ob)
             → (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
@@ -373,8 +375,7 @@ module _ {C : Category ℓC ℓC'} where
                 (_ , αᴰ)
                 (_ , PshCᴰ-reind-N-ob α≡β αᴰ)
           PshCᴰ-reind-N-ob-filler α≡β αᴰ =
-            ΣPathP (ΣPathP (refl , ΣPathP (refl , _)) , (makePshHomᴰPathP (makePshHomPath α≡β)
-              (funExt (λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _ _))))
+            makePshHomᴰPath (makePshHomPath α≡β) (λ pᴰ → Qᴰ.reind-filler _ _)
 
           PshCᴰ-reind-N-ob-Eq-filler :
             (α≡β : α .N-ob Eq.≡ β .N-ob)
@@ -382,26 +383,23 @@ module _ {C : Category ℓC ℓC'} where
             → Path PshCᴰ.Hom[ _ , _ ]
                 (_ , αᴰ)
                 (_ , PshCᴰ-reind-N-ob-Eq α≡β αᴰ)
-          PshCᴰ-reind-N-ob-Eq-filler α≡β αᴰ = ΣPathP (ΣPathP (refl , ΣPathP (refl , _)) , (makePshHomᴰPathP (makePshHomPath (Eq.eqToPath α≡β))
-              (funExt (λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _ _ ∙ Qᴰ.≡in (sym $ N-ob-Eq-filler αᴰ (β .N-ob , α≡β) pᴰ)))))
+          PshCᴰ-reind-N-ob-Eq-filler α≡β αᴰ = makePshHomᴰPath (makePshHomPath (Eq.eqToPath α≡β))
+            (λ pᴰ → Qᴰ.reind-filler _ _ ∙ (Qᴰ.≡in $ sym $ N-ob-Eq-filler αᴰ (β .N-ob , α≡β) pᴰ))
 
     module _ {α β : PshCatIso P Q} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
       PshCᴰ-reind-N-ob-Eq-PshIso :
-        (α≡β : α .LocallySmall.CatIsoᴰ.funᴰ .N-ob Eq.≡ β .LocallySmall.CatIsoᴰ.funᴰ .N-ob)
-        (α⁻≡β⁻ : α .LocallySmall.CatIsoᴰ.invᴰ .N-ob Eq.≡ β .LocallySmall.CatIsoᴰ.invᴰ .N-ob)
+        (α≡β : α .LocallySmall.CatIso.fun .N-ob Eq.≡ β .LocallySmall.CatIso.fun .N-ob)
+        (α⁻≡β⁻ : α .LocallySmall.CatIso.inv .N-ob Eq.≡ β .LocallySmall.CatIso.inv .N-ob)
         (αᴰ : PshCatIsoᴰ α Pᴰ Qᴰ)
         → PshCatIsoᴰ β Pᴰ Qᴰ
-      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .LocallySmall.CatIsoᴰ.funᴰ =
-        PshCᴰ-reind-N-ob-Eq Pᴰ Qᴰ α≡β (αᴰ .LocallySmall.CatIsoᴰ.funᴰ)
-      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .LocallySmall.CatIsoᴰ.invᴰ =
-        PshCᴰ-reind-N-ob-Eq Qᴰ Pᴰ α⁻≡β⁻ (αᴰ .LocallySmall.CatIsoᴰ.invᴰ)
-      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .LocallySmall.CatIsoᴰ.secᴰ =
-        -- TODO: this is the reason we needed lossy unification. Can maybe avoid if we make the homs of ⊘ no-eta-equality?
+      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .CatIsoᴰ.funᴰ = PshCᴰ-reind-N-ob-Eq Pᴰ Qᴰ α≡β (αᴰ .CatIsoᴰ.funᴰ)
+      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .CatIsoᴰ.invᴰ = PshCᴰ-reind-N-ob-Eq Qᴰ Pᴰ α⁻≡β⁻ (αᴰ .CatIsoᴰ.invᴰ)
+      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .CatIsoᴰ.secᴰ =
         PshCᴰ.⟨ sym $ PshCᴰ-reind-N-ob-Eq-filler Qᴰ Pᴰ _ _ ⟩⋆⟨ sym $ PshCᴰ-reind-N-ob-Eq-filler Pᴰ Qᴰ _ _ ⟩
-        ∙ αᴰ .LocallySmall.CatIsoᴰ.secᴰ
-      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .LocallySmall.CatIsoᴰ.retᴰ =
+        ∙ αᴰ .CatIsoᴰ.secᴰ
+      PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .CatIsoᴰ.retᴰ =
         PshCᴰ.⟨ sym $ PshCᴰ-reind-N-ob-Eq-filler Pᴰ Qᴰ _ _ ⟩⋆⟨ sym $ PshCᴰ-reind-N-ob-Eq-filler Qᴰ Pᴰ _ _ ⟩
-        ∙ αᴰ .LocallySmall.CatIsoᴰ.retᴰ
+        ∙ αᴰ .CatIsoᴰ.retᴰ
 
 -- TODO: deleted stuff we might want to restore:
 -- 1. eqToPshIsoᴰ

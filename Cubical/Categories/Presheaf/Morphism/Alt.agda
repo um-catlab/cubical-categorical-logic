@@ -24,9 +24,7 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits
-open import Cubical.Categories.LocallySmall
-  using (module LocallySmallCategoryNotation;  LocallySmallCategoryᴰ; module LocallySmallCategoryᴰNotation; LEVELω; LEVELω-iso; mapω'; liftω)
-import Cubical.Categories.LocallySmall as LocallySmall
+open import Cubical.Categories.LocallySmall as LocallySmall renaming (isIso to isIsoLSC)
 open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
@@ -149,15 +147,15 @@ module _ {C : Category ℓc ℓc'} where
 -- TODO:
 --   should be able to rewrite this as LocallySmallNatTransᴰ
 PRESHEAF : ∀ (C : Category ℓc ℓc')
-  → LocallySmallCategoryᴰ LEVELω (mapω' (Presheaf C))
-PRESHEAF C .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
-PRESHEAF C .LocallySmallCategoryᴰ.Hom[_][_,_] _ (liftω P) (liftω Q) = PshHom P Q
-PRESHEAF C .LocallySmallCategoryᴰ.idᴰ = idPshHom
-PRESHEAF C .LocallySmallCategoryᴰ._⋆ᴰ_  = _⋆PshHom_
-PRESHEAF C .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → makePshHomPath refl
-PRESHEAF C .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → makePshHomPath refl
-PRESHEAF C .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → makePshHomPath refl
-PRESHEAF C .LocallySmallCategoryᴰ.isSetHomᴰ = isSetPshHom _ _
+  → LocallySmallCategory (Σω[ (liftω ℓP) ∈ Liftω Level ] Liftω (Presheaf C ℓP))
+PRESHEAF C .LocallySmallCategory.Hom-ℓ = _
+PRESHEAF C .LocallySmallCategory.Hom[_,_] (_ , (liftω P)) (_ , (liftω Q)) = PshHom P Q
+PRESHEAF C .LocallySmallCategory.id = idPshHom
+PRESHEAF C .LocallySmallCategory._⋆_ = _⋆PshHom_
+PRESHEAF C .LocallySmallCategory.⋆IdL = λ _ → makePshHomPath refl
+PRESHEAF C .LocallySmallCategory.⋆IdR = λ _ → makePshHomPath refl
+PRESHEAF C .LocallySmallCategory.⋆Assoc = λ _ _ _ → makePshHomPath refl
+PRESHEAF C .LocallySmallCategory.isSetHom = isSetPshHom _ _
 
 module _ {C : Category ℓc ℓc'} where
   PshHomPsh :
@@ -222,23 +220,17 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
 
 open PshIso
 
+-- A PshCatIso is an iso in the (locally small) category of
+-- presheaves, that is the inverse is known to be a homomorphism.
+--
+-- Eventually PshCatIso should become the default and PshIso should
+-- only be used as a *method of construction* for PshCatIso.
 module _ {C : Category ℓc ℓc'} where
   private
-    module LEVELω = LocallySmallCategoryNotation LEVELω
     PshC = PRESHEAF C
-    module PshC = LocallySmallCategoryᴰNotation PshC
+    module PshC = LocallySmallCategoryNotation PshC
   PshCatIso : ∀ (P : Presheaf C ℓp)(Q : Presheaf C ℓq) → Type _
-  PshCatIso P Q = PshC.ISOCᴰ.Hom[ LEVELω-iso ][ liftω P , liftω Q ]
-
-  reindPshCatIso : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}
-    {level-iso : LEVELω.ISOC.Hom[ liftω ℓp , liftω ℓq ]}
-    → PshC.ISOCᴰ.Hom[ level-iso ][ liftω P , liftω Q ]
-    → PshCatIso P Q
-  reindPshCatIso α = LocallySmall.isoᴰ
-    (α .LocallySmall.CatIsoᴰ.funᴰ)
-    (α .LocallySmall.CatIsoᴰ.invᴰ)
-    (α .LocallySmall.CatIsoᴰ.secᴰ)
-    (α .LocallySmall.CatIsoᴰ.retᴰ)
+  PshCatIso P Q = PshC.ISOC.Hom[ (_ , liftω P) , (_ , liftω Q) ]
 
   module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
     private
@@ -261,60 +253,26 @@ module _ {C : Category ℓc ℓc'} where
 
     PshIso→PshCatIso : PshIso P Q
       → PshCatIso P Q
-    PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.funᴰ = α .trans
-    PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.invᴰ = invPshIso α .trans
-    PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.secᴰ =
-      ΣPathP (refl , makePshHomPath (funExt λ x → funExt (α .nIso x .snd .fst)))
-    PshIso→PshCatIso α .LocallySmall.CatIsoᴰ.retᴰ =
-      ΣPathP (refl , makePshHomPath (funExt λ x → funExt (α .nIso x .snd .snd)))
+    PshIso→PshCatIso α .LocallySmall.CatIso.fun = α .trans
+    PshIso→PshCatIso α .LocallySmall.CatIso.inv = invPshIso α .trans
+    PshIso→PshCatIso α .LocallySmall.CatIso.sec = makePshHomPath (funExt λ x → funExt (α .nIso x .snd .fst))
+    PshIso→PshCatIso α .LocallySmall.CatIso.ret = makePshHomPath (funExt λ x → funExt (α .nIso x .snd .snd))
 
     PshCatIso→PshIso
       : PshCatIso P Q
       → PshIso P Q
-    PshCatIso→PshIso α .trans = α .LocallySmall.CatIsoᴰ.funᴰ
-    PshCatIso→PshIso α .nIso x .fst = α .LocallySmall.CatIsoᴰ.invᴰ .N-ob x
-    PshCatIso→PshIso α .nIso x .snd .fst q i = α .LocallySmall.CatIsoᴰ.secᴰ i .snd .N-ob x q
-    PshCatIso→PshIso α .nIso x .snd .snd p i = α .LocallySmall.CatIsoᴰ.retᴰ i .snd .N-ob x p
+    PshCatIso→PshIso α .trans = α .LocallySmall.CatIso.fun
+    PshCatIso→PshIso α .nIso x .fst = α .LocallySmall.CatIso.inv .N-ob x
+    PshCatIso→PshIso α .nIso x .snd .fst q i = α .LocallySmall.CatIso.sec i .N-ob x q
+    PshCatIso→PshIso α .nIso x .snd .snd p i = α .LocallySmall.CatIso.ret i .N-ob x p
 
   PshIso≅PshCatIso : ∀ (P : Presheaf C ℓp)(Q : Presheaf C ℓq) →
     Iso (PshIso P Q)
         (PshCatIso P Q)
   PshIso≅PshCatIso P Q .Iso.fun = PshIso→PshCatIso
   PshIso≅PshCatIso P Q .Iso.inv = PshCatIso→PshIso
-  PshIso≅PshCatIso P Q .Iso.rightInv α =
-    PshC.ISOCᴰ.rectify (PshC.ISOCᴰ.≡out $ PshC.ISOCᴰ≡ refl)
+  PshIso≅PshCatIso P Q .Iso.rightInv α = PshC.ISOC≡ refl
   PshIso≅PshCatIso P Q .Iso.leftInv α = makePshIsoPath refl
-
-  -- This is for when they have the same universe level
-  module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓp} where
-    private
-      module P = PresheafNotation P
-      module Q = PresheafNotation Q
-    PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓp) (P .F-ob x) (Q .F-ob x)
-    PshIso→SETIso α c .fst = α .trans .N-ob c
-    PshIso→SETIso α c .snd .isIsoC.inv = α .nIso c .fst
-    PshIso→SETIso α c .snd .isIsoC.sec = funExt (α .nIso c .snd .fst)
-    PshIso→SETIso α c .snd .isIsoC.ret = funExt (α .nIso c .snd .snd)
-
-    PshIso→Path : PshIso P Q → P ≡ Q
-    PshIso→Path α =
-      Functor≡
-        (λ c → CatIsoToPath isUnivalentSET' (PshIso→SETIso α c))
-        λ {c}{c'} f →
-          toPathP (funExt (λ q →
-            (transport (Pc≡Qc c') $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
-              ≡⟨ univSet'β (PshIso→SETIso α c') ((f P.⋆ transport (sym $ Pc≡Qc c) q)) ⟩
-            (α .trans .N-ob c' $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
-              ≡⟨ cong (α .trans .N-ob c') P.⟨ refl ⟩⋆⟨ ~univSet'β (PshIso→SETIso α c) q ⟩ ⟩
-            (α .trans .N-ob c' $ f P.⋆ α .nIso c .fst q)
-              ≡⟨ α .trans .N-hom c' c f (α .nIso c .fst q) ⟩
-            f Q.⋆ (α .trans .N-ob c $ α .nIso c .fst q)
-              ≡⟨ Q.⟨ refl ⟩⋆⟨ α .nIso c .snd .fst q ⟩ ⟩
-            f Q.⋆ q
-              ∎ ))
-      where
-        Pc≡Qc : ∀ c → P.p[ c ] ≡ Q.p[ c ]
-        Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET' (PshIso→SETIso α c) i ⟩
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}
   where
@@ -377,14 +335,43 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}
           N-ob = eqToPshIso-N-ob PQ-ob
         ; N-hom = eqToPshIso-N-hom PQ-ob PQ-hom }
 
+    -- TODO: make the default constructing a PshCatIso
     eqToPshIso : PshIso P Q
     eqToPshIso = record {
         trans = eqToPshHom
       ; nIso = eqToPshIso-nIso PQ-ob}
 
--- module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} where
---   pathToPshIsoRefl : pathToPshIso (refl {x = P}) ≡ idPshIso
---   pathToPshIsoRefl = makePshIsoPath $ funExt λ _ → funExt λ x →
---     transportTransport⁻
---       (λ i → P .F-ob (transp (λ j → ob C) i _) .fst)
---       x
+    eqToPshCatIso : PshCatIso P Q
+    eqToPshCatIso = PshIso→PshCatIso eqToPshIso
+
+-- -- Univalence stuff. Needed?
+--   -- This is for when they have the same universe level
+--   module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓp} where
+--     private
+--       module P = PresheafNotation P
+--       module Q = PresheafNotation Q
+--     PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓp) (P .F-ob x) (Q .F-ob x)
+--     PshIso→SETIso α c .fst = α .trans .N-ob c
+--     PshIso→SETIso α c .snd .isIsoC.inv = α .nIso c .fst
+--     PshIso→SETIso α c .snd .isIsoC.sec = funExt (α .nIso c .snd .fst)
+--     PshIso→SETIso α c .snd .isIsoC.ret = funExt (α .nIso c .snd .snd)
+
+--     PshIso→Path : PshIso P Q → P ≡ Q
+--     PshIso→Path α =
+--       Functor≡
+--         (λ c → CatIsoToPath isUnivalentSET' (PshIso→SETIso α c))
+--         λ {c}{c'} f →
+--           toPathP (funExt (λ q →
+--             (transport (Pc≡Qc c') $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
+--               ≡⟨ univSet'β (PshIso→SETIso α c') ((f P.⋆ transport (sym $ Pc≡Qc c) q)) ⟩
+--             (α .trans .N-ob c' $ (f P.⋆ transport (sym $ Pc≡Qc c) q))
+--               ≡⟨ cong (α .trans .N-ob c') P.⟨ refl ⟩⋆⟨ ~univSet'β (PshIso→SETIso α c) q ⟩ ⟩
+--             (α .trans .N-ob c' $ f P.⋆ α .nIso c .fst q)
+--               ≡⟨ α .trans .N-hom c' c f (α .nIso c .fst q) ⟩
+--             f Q.⋆ (α .trans .N-ob c $ α .nIso c .fst q)
+--               ≡⟨ Q.⟨ refl ⟩⋆⟨ α .nIso c .snd .fst q ⟩ ⟩
+--             f Q.⋆ q
+--               ∎ ))
+--       where
+--         Pc≡Qc : ∀ c → P.p[ c ] ≡ Q.p[ c ]
+--         Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET' (PshIso→SETIso α c) i ⟩

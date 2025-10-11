@@ -153,6 +153,15 @@ record Bifunctorᴰ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}
   ∫F .Bif-L×-agree (_ , fᴰ) (_ , dᴰ) = Bif-L×-agreeᴰ fᴰ dᴰ
   ∫F .Bif-R×-agree (_ , cᴰ) (_ , gᴰ) = Bif-R×-agreeᴰ cᴰ gᴰ
 
+-- Cᴰ ⇒ⱽ Dᴰ
+-- an object over x is a functor F : Cᴰ.v[ x ] → Dᴰ.v[ x ]
+-- a morphism from F_x : Cᴰ⇒Dᴰ[ x ] to G_y : Cᴰ⇒Dᴰ[ y ]
+--
+-- over f : C [ x , y ] is?
+-- well it could be a profunctor homomorphism Cᴰ[ f ][ xᴰ , yᴰ ] → Cᴰ [ f ][ F xᴰ , G yᴰ ]
+-- if Cᴰ, Dᴰ are fibrations this could be a nat trans F ∘ f* ⇒ f* ∘ G : Cᴰ.v[ y ] → Dᴰ.v[ x ]
+--   i.e., for every yᴰ a morphism Dᴰ.v[ x ][ F (f* yᴰ) , f* (G yᴰ) ],
+--   i.e., Dᴰ [ f ][ F (f* yᴰ) , yᴰ ]
 record Bifunctorⱽ {C : LocallySmallCategory Cob}{E : LocallySmallCategory Eob}
   (F : Functor C E)
   (Cᴰ : LocallySmallCategoryᴰ C Cobᴰ)
@@ -177,12 +186,15 @@ record Bifunctorⱽ {C : LocallySmallCategory Cob}{E : LocallySmallCategory Eob}
       (gᴰ : Dᴰ.Hom[ f ][ dᴰ , dᴰ' ])
       → Eᴰ.Hom[ F.F-hom f ][ Bif-obᴰ cᴰ dᴰ , Bif-obᴰ cᴰ' dᴰ' ]
     -- -- homL doesn't make sense unless Dᴰ is an (op)fibration
+    -- -- does it make sense if Dᴰ is Conduché?
     -- Bif-homLᴰ : ∀ {c c'}{cᴰ cᴰ' }
     --   {f : C.Hom[ c , c' ]}
     --   (fᴰ : Cᴰ.Hom[ f ][ cᴰ , cᴰ' ])
     --   (dᴰ : Dobᴰ c')
     --   → Eᴰ.Hom[ f ][ Bif-obᴰ cᴰ (f Dᴰ.^* dᴰ) , Bif-obᴰ cᴰ' dᴰ ]
     -- -- vice-versa homR makes sense only if Cᴰ is an (op)fibration
+
+    -- Hm...
     Bif-×-idᴰ : ∀ {c}{cᴰ : Cobᴰ c}{dᴰ : Dobᴰ c}
       → Bif-hom×ᴰ (Cᴰ.idᴰ {xᴰ = cᴰ}) (Dᴰ.idᴰ {xᴰ = dᴰ}) Eᴰ.∫≡ Eᴰ.idᴰ
     Bif-×-seqᴰ : ∀ {c c' c''}{cᴰ cᴰ' cᴰ'' dᴰ dᴰ' dᴰ''}

@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 {-
 
   Given a displayed category Cᴰ over C, and any object x in C, we can
@@ -18,6 +19,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.Reasoning as Reasoning
@@ -28,6 +30,7 @@ private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
+open Bilinear
 module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
@@ -136,6 +139,13 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
     ∙ R.⋆Assoc _ _ _ ∙ R.reind-filler _ _
 
+  ⋆Assocᴰᴰⱽ :
+    Path R.Hom[ _ , _ ]
+     (_ , (fᴰ ⋆ᴰ gᴰ) ⋆ᴰⱽ hⱽ)
+     (_ , fᴰ ⋆ᴰ (gᴰ ⋆ᴰⱽ hⱽ))
+  ⋆Assocᴰᴰⱽ =
+    sym (R.reind-filler _ _) ∙ R.⋆Assoc _ _ _
+    ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
   ∫⋆Assocᴰⱽᴰ :
     Path R.Hom[ _ , _ ]
       (f C.⋆ h , (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ)
@@ -155,6 +165,13 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     ⋆IdRᴰⱽ))
   HomᴰProf f .Functor.F-seq gⱽ hⱽ = makeNatTransPath (funExt λ _ → funExt λ fᴰ →
     sym $ ⋆Assocᴰⱽⱽ)
+
+  ⋆ᴰBilinear : ∀ (f : C [ x , y ])(g : C [ y , z ])
+    → Bilinear (HomᴰProf f) (HomᴰProf g) (HomᴰProf (f C.⋆ g))
+  ⋆ᴰBilinear f g ._⋆ᵖ_ = _⋆ᴰ_
+  ⋆ᴰBilinear f g .⋆Assocᶜᵖᵖ fⱽ fᴰ gᴰ = R.rectify $ R.≡out $ ⋆Assocⱽᴰᴰ
+  ⋆ᴰBilinear f g .⋆Assocᵖᶜᵖ fᴰ gⱽ gᴰ = ⋆Assocᴰⱽᴰ
+  ⋆ᴰBilinear f g .Bilinear.⋆Assocᵖᵖᶜ fᴰ gᴰ hⱽ = R.rectify $ R.≡out $ ⋆Assocᴰᴰⱽ
 
   open R public
   open CatReasoning.Reasoning (∫C Cᴰ) public

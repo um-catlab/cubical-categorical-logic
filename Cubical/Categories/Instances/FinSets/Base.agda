@@ -24,18 +24,18 @@ open Categoryᴰ
 open FullSubcategory'
 
 isFinite : hSet ℓ → Type ℓ
-isFinite X = isFinSet ⟨ X ⟩
+isFinite X = isFinOrd ⟨ X ⟩
 
-FINSET : ∀ ℓ → Category _ ℓ
-FINSET ℓ = FullSubcategory' (SET ℓ) isFinite
+FINORD : ∀ ℓ → Category _ ℓ
+FINORD ℓ = FullSubcategory' (SET ℓ) isFinite
 
 open Category
 
-⟨_⟩fs : FINSET ℓ .ob → FinSet ℓ
-⟨ A ⟩fs = (A .fst .fst) , (A .snd)
+⟨_⟩fo : FINORD ℓ .ob → Σ (Type ℓ) isFinOrd
+⟨ A ⟩fo = (A .fst .fst) , (A .snd)
 
-mkfs : (A : Type ℓ) → isFinSet A → FINSET ℓ .ob
-mkfs A isFinSetA = (A , isFinSet→isSet isFinSetA) , isFinSetA
+mkfo : (A : Type ℓ) → isFinOrd A → FINORD ℓ .ob
+mkfo A isFinOrdA = (A , isFinSet→isSet (isFinOrd→isFinSet isFinOrdA)) , isFinOrdA
 
-FINSET^op : ∀ ℓ → Category _ ℓ
-FINSET^op ℓ = (FINSET ℓ) ^op
+FINORD^op : ∀ ℓ → Category _ ℓ
+FINORD^op ℓ = (FINORD ℓ) ^op

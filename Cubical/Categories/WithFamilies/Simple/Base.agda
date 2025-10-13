@@ -93,6 +93,9 @@ module ExtendContextF
     ExtendContext : Functor C C
     ExtendContext = FunctorComprehension ExtendContextProf (ext A)
 
+  _,,_ : C .ob → Ty → C .ob
+  Γ ,, A = ExtendContext A ⟅ Γ ⟆
+
 module ContinuationPresheaf
   ((C , Ty , Tm , term , ext) : SCwF ℓC ℓC' ℓT ℓT') where
   open ExtendContextF (C , Ty , Tm , term , ext)

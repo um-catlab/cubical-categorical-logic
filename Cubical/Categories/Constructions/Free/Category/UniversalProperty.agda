@@ -40,20 +40,21 @@ open Section
 open HetSection
 open QuiverOver
 
-module _ (Q : Quiver ℓg ℓg') (C : Category ℓc ℓc') (ı : Interp Q C) where
-  module _ {ℓd ℓd'} (Cᴰ : Categoryᴰ C ℓd ℓd') (ıᴰ : Interpᴰ Q ı Cᴰ) where
-    private
-      module Cᴰ = Categoryᴰ Cᴰ
+module _ (Q : Quiver ℓg ℓg') where
+  module _ (C : Category ℓc ℓc') (ı : Interp Q C) where
+    module _ {ℓd ℓd'} (Cᴰ : Categoryᴰ C ℓd ℓd') (ıᴰ : Interpᴰ Q ı Cᴰ) where
+      private
+        module Cᴰ = Categoryᴰ Cᴰ
 
-    extends : GlobalSection Cᴰ → Type _
-    extends S =
-      Σ[ p ∈ (∀ q → (ıᴰ $gᴰ q) ≡ S .F-obᴰ (ı $g q)) ]
-      (∀ g → PathP (λ i → Cᴰ [ ı <$g> g ][ p (Q .snd .dom g) i , p (Q .snd .cod g) i ])
-               (ıᴰ <$g>ᴰ g)
-               (S .F-homᴰ (ı <$g> g)))
+      extends : GlobalSection Cᴰ → Type _
+      extends S =
+        Σ[ p ∈ (∀ q → (ıᴰ $gᴰ q) ≡ S .F-obᴰ (ı $g q)) ]
+        (∀ g → PathP (λ i → Cᴰ [ ı <$g> g ][ p (Q .snd .dom g) i , p (Q .snd .cod g) i ])
+                 (ıᴰ <$g>ᴰ g)
+                 (S .F-homᴰ (ı <$g> g)))
 
-  isFreeCategory : Typeω
-  isFreeCategory = ∀ {ℓd ℓd' : Level}
-    → (Cᴰ : Categoryᴰ C ℓd ℓd')
-    → (ıᴰ : Interpᴰ Q ı Cᴰ)
-    → Σ (GlobalSection Cᴰ) (extends Cᴰ ıᴰ)
+    isFreeCategory : Typeω
+    isFreeCategory = ∀ {ℓd ℓd' : Level}
+      → (Cᴰ : Categoryᴰ C ℓd ℓd')
+      → (ıᴰ : Interpᴰ Q ı Cᴰ)
+      → Σ (GlobalSection Cᴰ) (extends Cᴰ ıᴰ)

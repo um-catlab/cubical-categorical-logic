@@ -25,7 +25,7 @@ open import Cubical.Categories.Bifunctor
 
 private
   variable
-    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓD ℓD' ℓP ℓQ ℓS : Level
 
 open Functor
 open PshHom

@@ -117,6 +117,7 @@ F .snd .snd .N-hom Γ Δ γ v =
     funExt λ _ →
       cong (deBruijn→Fin Func.∘ (ren γ)) (sym $ deBruijnRetract _)
 
+
 -- reindexSCwFⱽSET : SCwFⱽ free-scwf-on-one-gen _ _ _ _
 -- reindexSCwFⱽSET =
 --   reindexSCwFⱽ F {!!}

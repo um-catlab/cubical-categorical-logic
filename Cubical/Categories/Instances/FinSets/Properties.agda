@@ -17,6 +17,7 @@ open import Cubical.Data.FinSet.Constructors
 
 open import Cubical.Categories.Category renaming (pathToIso to catPathToIso)
 open import Cubical.Categories.WithFamilies.Simple
+open import Cubical.Categories.WithFamilies.Simple.Displayed
 open import Cubical.Categories.WithFamilies.Simple.Instances.Democratic
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Representable
@@ -30,6 +31,10 @@ open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Constructions.FullSubcategory.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Limits.Terminal renaming (preservesTerminal to secPreservesTerminal)
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.Presheaf.Section
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Properties
 
 private
   variable
@@ -70,3 +75,36 @@ module _ ℓ where
 
   FINSET^opSCwF : SCwF (ℓ-suc ℓ) ℓ (ℓ-suc ℓ) ℓ
   FINSET^opSCwF = CartesianCategory→SCwF FINSET^opCartesianCategory
+
+  module isFreeSCwFFINSET^op {ℓC ℓC' ℓSᴰ ℓSᴰ'} (Sᴰ : SCwFᴰ FINSET^opSCwF ℓC ℓC' ℓSᴰ ℓSᴰ') where
+    private
+      module Sᴰ = SCwFᴰNotation Sᴰ
+      module FINSET^op = SCwFNotation FINSET^opSCwF
+
+    elimSection : GlobalSection Sᴰ.Cᴰ
+    elimSection .Section.F-obᴰ A = {!!}
+    elimSection .Section.F-homᴰ = {!!}
+    elimSection .Section.F-idᴰ = {!!}
+    elimSection .Section.F-seqᴰ = {!!}
+
+    elimTy : (A : FINSET^op.Ty) → Sᴰ.Tyᴰ A
+    elimTy A = {!!}
+
+    elimPshSection :
+      (A : FINSET^op.Ty) →
+      PshSection elimSection (Sᴰ.Tmᴰ $ elimTy A)
+    elimPshSection = {!!}
+
+    elimPreservesTerminal : secPreservesTerminal elimSection InitialFINSET
+    elimPreservesTerminal = {!!}
+
+    elimPreservesExt : (A : FINSET^op.Ty) →
+      preservesLocalRep ((Sᴰ.Tmᴰ $ elimTy A) , Sᴰ.extᴰ (elimTy A)) (elimPshSection A)
+    elimPreservesExt = {!!}
+
+    elimSCwFSection : SCwFSection FINSET^opSCwF Sᴰ
+    elimSCwFSection = {!!}
+
+
+  isFreeSCwFFINSET^op : isFreeSCwF FINSET^opSCwF
+  isFreeSCwFFINSET^op Sᴰ = {!!}

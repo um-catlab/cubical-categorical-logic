@@ -36,6 +36,7 @@ module SCwFNotation (the-scwf : SCwF ℓC ℓC' ℓT ℓT') where
   module Tm⟨_⟩ (A : Ty) = PresheafNotation (Tm A)
   term = the-scwf .snd .snd .snd .fst
   ext = the-scwf .snd .snd .snd .snd
+  _,,_ = ExtendContextF._,,_ the-scwf
 
 module SCwFᴰNotation
   {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}
@@ -52,3 +53,10 @@ module SCwFᴰNotation
   extᴰ = the-scwfᴰ .snd .snd .snd .snd
   module extᴰ {Γ}{A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : Tyᴰ A} =
     UniversalElementᴰ (extᴰ Aᴰ Γᴰ)
+
+module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
+  isFreeSCwF : Typeω
+  isFreeSCwF =
+    ∀ {ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level}
+      → (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
+      → SCwFSection S Sᴰ

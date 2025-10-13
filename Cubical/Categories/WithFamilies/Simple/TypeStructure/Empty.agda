@@ -24,3 +24,5 @@ module _ ((C , Ty , Tm , term , ext) : SCwF ℓC ℓC' ℓT ℓT') where
   EmptyType =
     Σ[ 0Ty ∈ Ty ] ∀ (C : Ty) →
       PshIso (Cont 0Ty C) EmptyPsh
+
+  -- PreservesEmptyType :

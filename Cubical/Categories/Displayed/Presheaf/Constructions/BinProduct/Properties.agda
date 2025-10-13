@@ -229,3 +229,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : G
     strictlyPreservesLocalRep : Type _
     strictlyPreservesLocalRep = ∀ c
       → strictlyPreservesUE F (×ᴰ-introS (Section→PshSection F c) α) (c ×P) (F .F-obᴰ c ×ᴰPᴰ)
+
+    preservesLocalRep : Type _
+    preservesLocalRep = ∀ c →
+      preservesUE F (×ᴰ-introS (Section→PshSection F c) α) (c ×P)

@@ -13,6 +13,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Constant
 
 private
   variable
@@ -31,7 +32,4 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Cᴰ = Fibers Cᴰ
 
   UnitPshᴰ : ∀ {P : Presheaf C ℓP} → Presheafᴰ P Cᴰ ℓ-zero
-  UnitPshᴰ .F-obᴰ _ _ = Unit , isSetUnit
-  UnitPshᴰ .F-homᴰ _ _ _ = tt
-  UnitPshᴰ .F-idᴰ = refl
-  UnitPshᴰ .F-seqᴰ _ _ = refl
+  UnitPshᴰ = ConstantPshᴰ (Unit , isSetUnit)

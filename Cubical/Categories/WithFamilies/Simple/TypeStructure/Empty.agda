@@ -10,19 +10,33 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
+open import Cubical.Categories.Displayed.Presheaf.Morphism
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Empty
+
 open import Cubical.Categories.WithFamilies.Simple.Base
+open import Cubical.Categories.WithFamilies.Simple.Properties
+open import Cubical.Categories.WithFamilies.Simple.Displayed
 
 private
   variable
-    ℓC ℓC' ℓT ℓT' ℓD ℓD' ℓS ℓS' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓT ℓT' ℓD ℓD' ℓS ℓS' : Level
 
-module _ ((C , Ty , Tm , term , ext) : SCwF ℓC ℓC' ℓT ℓT') where
-
-  open ContinuationPresheaf (C , Ty , Tm , term , ext)
+module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
+  open SCwFNotation S
+  open ContinuationPresheaf S
 
   EmptyType : Type _
   EmptyType =
     Σ[ 0Ty ∈ Ty ] ∀ (C : Ty) →
       PshIso (Cont 0Ty C) EmptyPsh
 
-  -- PreservesEmptyType :
+  -- module _
+  --   ((0Ty , 0Ty≅) : EmptyType)
+  --   (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓS ℓS') where
+  --   open SCwFᴰNotation Sᴰ hiding (Ty)
+
+  --   -- TODO Contᴰ
+  --   EmptyTypeᴰ : Type _
+  --   EmptyTypeᴰ =
+  --     Σ[ 0Tyᴰ ∈ Tyᴰ 0Ty ]
+  --       ∀ {A} (Aᴰ : Tyᴰ A) → PshIsoᴰ (0Ty≅ A) {!!} EmptyPshᴰ

@@ -16,29 +16,16 @@ open import Cubical.Data.Prod using (_×ω_; _,_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
-open import Cubical.Reflection.RecordEquiv.More
-
-open import Cubical.Categories.Category as SmallCategory using (Category)
-open import Cubical.Categories.Displayed.Base using (Categoryᴰ)
-open import Cubical.Categories.LocallySmall as LocallySmall
-
-private
-  variable
-    ℓ ℓ' ℓ1 ℓ2 ℓw ℓx ℓy ℓz ℓC ℓC' : Level
-    ℓᴰ ℓᴰ' ℓ1ᴰ ℓ2ᴰ ℓwᴰ ℓxᴰ ℓyᴰ ℓzᴰ ℓCᴰ ℓCᴰ' : Level
-
-    Cob Dob Eob : Typeω
-    Cobᴰ : Cob → Typeω
-    Dobᴰ : Dob → Typeω
-    Eobᴰ : Eob → Typeω
+open import Cubical.Categories.LocallySmall.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Variables
 
 open CatIso
 open CatIsoᴰ
 
-record Functor (C : LocallySmallCategory Cob) (D : LocallySmallCategory Dob) : Typeω where
+record Functor (C : Category Cob CHom-ℓ) (D : Category Dob DHom-ℓ) : Typeω where
   private
-    module C = LocallySmallCategoryNotation C
-    module D = LocallySmallCategoryNotation D
+    module C = CategoryNotation C
+    module D = CategoryNotation D
   field
     F-ob : Cob → Dob
     F-hom : ∀ {x y} → C.Hom[ x , y ] → D.Hom[ F-ob x , F-ob y ]
@@ -47,7 +34,7 @@ record Functor (C : LocallySmallCategory Cob) (D : LocallySmallCategory Dob) : T
       (f : C.Hom[ x , y ])
       (g : C.Hom[ y , z ])
       → F-hom (f C.⋆ g) ≡ F-hom f D.⋆ F-hom g
-  -- TODO: this is functoriality on a displayed category of paths worth defining?
+  -- TODO: this is functoriality on a displayed category of paths. worth defining?
   F-hom⟨_⟩ : ∀ {x y} {f g : C.Hom[ x , y ]}
     → (f≡g : f ≡ g)
     → F-hom f ≡ F-hom g
@@ -61,13 +48,13 @@ record Functor (C : LocallySmallCategory Cob) (D : LocallySmallCategory Dob) : T
 
 open Functor
 
-idF : ∀ {C : LocallySmallCategory Cob} → Functor C C
+idF : ∀ {C : Category Cob CHom-ℓ} → Functor C C
 idF .F-ob = λ z → z
 idF .F-hom = λ z → z
 idF .F-id = refl
 idF .F-seq f g = refl
 
-_∘F_ : ∀ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}{E : LocallySmallCategory Eob}
+_∘F_ : ∀ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}{E : Category Eob EHom-ℓ}
   → Functor D E → Functor C D
   → Functor C E
 (F ∘F G) .F-ob = λ z → F .F-ob (G .F-ob z)
@@ -75,10 +62,10 @@ _∘F_ : ∀ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}{E : Lo
 (F ∘F G) .F-id = cong (F .F-hom) (G .F-id) ∙ F .F-id
 (F ∘F G) .F-seq f g = cong (F .F-hom) (G .F-seq f g) ∙ F .F-seq (G .F-hom f) (G .F-hom g)
 
-module _ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob} where
+module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ} where
   private
-    module C = LocallySmallCategoryNotation C
-    module D = LocallySmallCategoryNotation D
+    module C = CategoryNotation C
+    module D = CategoryNotation D
   F-Iso : (F : Functor C D) → Functor C.ISOC D.ISOC
   F-Iso F .F-ob = F .F-ob
   F-Iso F .F-hom = F-iso F
@@ -90,16 +77,18 @@ module _ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob} where
     F-ISO = F-Iso F
     module F-ISO = Functor F-ISO
 
-record Functorᴰ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}
+record Functorᴰ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   (F : Functor C D)
-  (Cᴰ : LocallySmallCategoryᴰ C Cobᴰ)
-  (Dᴰ : LocallySmallCategoryᴰ D Dobᴰ)
+  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)
+  (Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ)
   : Typeω where
+  no-eta-equality
+  constructor functorᴰ
   private
-    module C = LocallySmallCategoryNotation C
-    module D = LocallySmallCategoryNotation D
-    module Cᴰ = LocallySmallCategoryᴰNotation Cᴰ
-    module Dᴰ = LocallySmallCategoryᴰNotation Dᴰ
+    module C = CategoryNotation C
+    module D = CategoryNotation D
+    module Cᴰ = CategoryᴰNotation Cᴰ
+    module Dᴰ = CategoryᴰNotation Dᴰ
     module F = FunctorNotation F
   field
     F-obᴰ : ∀ {x} → Cobᴰ x → Dobᴰ (F.F-ob x)
@@ -136,15 +125,15 @@ record Functorᴰ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}
   ∫F .F-seq (_ , fᴰ) (_ , gᴰ) = F-seqᴰ fᴰ gᴰ
 
 open Functorᴰ
-module _ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}
+module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   {F : Functor C D}
-  {Cᴰ : LocallySmallCategoryᴰ C Cobᴰ}
-  {Dᴰ : LocallySmallCategoryᴰ D Dobᴰ}
+  {Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ}
+  {Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ}
   where
 
   private
-    module Cᴰ = LocallySmallCategoryᴰNotation Cᴰ
-    module Dᴰ = LocallySmallCategoryᴰNotation Dᴰ
+    module Cᴰ = CategoryᴰNotation Cᴰ
+    module Dᴰ = CategoryᴰNotation Dᴰ
     module F = FunctorNotation F
 
   F-Isoᴰ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → Functorᴰ F.F-ISO Cᴰ.ISOCᴰ Dᴰ.ISOCᴰ
@@ -155,16 +144,36 @@ module _ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}
 
   module FunctorᴰNotation (Fᴰ : Functorᴰ F Cᴰ Dᴰ) where
     open Functor (∫F Fᴰ) public -- should this be FunctorNotation?
+    open Functorᴰ Fᴰ public
+
     F-ISOᴰ = F-Isoᴰ Fᴰ
     module F-ISOᴰ = Functorᴰ F-ISOᴰ
 
-Functorⱽ : {C : LocallySmallCategory Cob} (Cᴰ : LocallySmallCategoryᴰ C Cobᴰ)(Dᴰ : LocallySmallCategoryᴰ C Dobᴰ)
+Functorⱽ : {C : Category Cob CHom-ℓ}
+           (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)(Dᴰ : Categoryᴰ C Dobᴰ DHom-ℓᴰ)
   → Typeω
 Functorⱽ = Functorᴰ idF
 
-idFᴰ : ∀ {C : LocallySmallCategory Cob}  {Cᴰ : LocallySmallCategoryᴰ C Cobᴰ}
+idFᴰ : ∀ {C : Category Cob CHom-ℓ}  {Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ}
   → Functorⱽ Cᴰ Cᴰ
 idFᴰ .F-obᴰ = λ z → z
 idFᴰ .F-homᴰ = λ fᴰ → fᴰ
 idFᴰ .F-idᴰ = refl
 idFᴰ .F-seqᴰ fᴰ gᴰ = refl
+
+_∘Fᴰ_ : ∀ {C : Category Cob CHom-ℓ}{Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ}
+  {D : Category Dob DHom-ℓ}{Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ}
+  {E : Category Eob EHom-ℓ}{Eᴰ : Categoryᴰ E Eobᴰ EHom-ℓᴰ}
+  {G : Functor D E}
+  {F : Functor C D}
+  (Gᴰ : Functorᴰ G Dᴰ Eᴰ)
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  → Functorᴰ (G ∘F F) Cᴰ Eᴰ
+Gᴰ ∘Fᴰ Fᴰ = functorᴰ
+  (λ xᴰ → Gᴰ.F-obᴰ (Fᴰ.F-obᴰ xᴰ))
+  (λ fᴰ → Gᴰ.F-homᴰ (Fᴰ.F-homᴰ fᴰ))
+  (Gᴰ.F-homᴰ⟨ Fᴰ.F-idᴰ ⟩ ∙ Gᴰ.F-idᴰ)
+  λ fᴰ gᴰ → Gᴰ.F-homᴰ⟨ Fᴰ.F-seqᴰ fᴰ gᴰ ⟩ ∙ Gᴰ.F-seqᴰ (Fᴰ.F-homᴰ fᴰ) (Fᴰ.F-homᴰ gᴰ)
+  where
+    module Gᴰ = Functorᴰ Gᴰ
+    module Fᴰ = Functorᴰ Fᴰ

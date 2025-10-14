@@ -43,7 +43,7 @@
 -- all indexed sets, displyaed over the indexing set and the universe
 -- level of the indexed sets.
 
-module Cubical.Categories.LocallySmall where
+module Cubical.Categories.LocallySmall.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -63,13 +63,21 @@ open import Cubical.Data.Unit
 
 open import Cubical.Reflection.RecordEquiv.More
 
-open import Cubical.Categories.Category as SmallCategory using (Category)
-open import Cubical.Categories.Displayed.Base using (Categoryᴰ)
+import Cubical.Categories.Category as Small
+-- open import Cubical.Categories.Displayed.Base using (Categoryᴰ)
 
 private
   variable
     ℓ ℓ' ℓ1 ℓ2 ℓw ℓx ℓy ℓz ℓC ℓC' : Level
     ℓᴰ ℓᴰ' ℓ1ᴰ ℓ2ᴰ ℓwᴰ ℓxᴰ ℓyᴰ ℓzᴰ ℓCᴰ ℓCᴰ' : Level
+    Cob Dob Eob : Typeω
+    C-ℓ : Cob → Cob → Level
+    D-ℓ : Dob → Dob → Level
+    E-ℓ : Eob → Eob → Level
+    Cobᴰ : Cob → Typeω
+    Cobᴰ-ℓ : Cob → Level
+    Dobᴰ : Dob → Typeω
+    CHom-ℓᴰ : ∀ (x y : Cob)(xᴰ : Cobᴰ x)(yᴰ : Cobᴰ y) → Level
 
 open _×ω_
 
@@ -101,11 +109,15 @@ mapω' f a = Liftω (f (a .lowerω))
 
 -- TODO: rename to just "Category"
 -- A LocallySmallCategory has a "proper class" of objects, but small hom sets
-record LocallySmallCategory (ob : Typeω): Typeω where
+
+-- We prefer this as the primitive over Large categories because we
+-- can't use the ≡ type for Large categories.
+
+-- we make Hom-ℓ a parameter because it makes it possible to abstract
+-- over stronger "smallness" conditions
+record Category (ob : Typeω) (Hom-ℓ : ob → ob → Level) : Typeω where
   no-eta-equality
   field
-    -- since we are in Typeω, there's no reason not to make Hom-ℓ a field
-    Hom-ℓ : ob → ob → Level
     Hom[_,_] : ∀ x y → Type (Hom-ℓ x y)
     id : ∀ {x} → Hom[ x , x ]
     _⋆_ : ∀ {x y z}(f : Hom[ x , y ])(g : Hom[ y , z ]) → Hom[ x , z ]
@@ -128,13 +140,58 @@ record LocallySmallCategory (ob : Typeω): Typeω where
           → f ≡ f' → f ⋆ g ≡ f' ⋆ g
   ⟨ ≡f ⟩⋆⟨⟩ = cong (_⋆ _) ≡f
 
-open LocallySmallCategory
+open Category
 
-module _ {ob} (C : LocallySmallCategory ob) where
+-- A (LS) Category with a small type of objects
+SmallObjectsCategory : ∀ {ℓC}(ob : Type ℓC)(C-ℓ : ob → ob → Level) → Typeω
+SmallObjectsCategory ob C-ℓ = Category (Liftω ob) λ (liftω x) (liftω y) → C-ℓ x y
+
+-- A (LS) Category such that all hom sets are at the *same* universe level
+GloballySmallCategory : (Cob : Typeω)(ℓC' : Level) → Typeω
+GloballySmallCategory Cob ℓC' = Category Cob λ _ _ → ℓC'
+
+-- A (LS) category such that the type of objects is small and all the
+-- universe levels are the same
+
+-- This is the only variant that is itself a small type: the
+-- definition of Category in Cubical.Categories.Category
+SmallCategory : ∀ ℓC (ℓC' : Level) → Typeω
+SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySmallCategory (Liftω ob) ℓC'
+
+module _ (C : Small.Category ℓC ℓC') where
   private
-    module C = LocallySmallCategory C
+    module C = Small.Category C
+  |mkSmallCategory| : GloballySmallCategory (Liftω C.ob) ℓC'
+  |mkSmallCategory| .Hom[_,_] (liftω x) (liftω y) = C.Hom[ x , y ]
+  |mkSmallCategory| .id = C.id
+  |mkSmallCategory| ._⋆_ = C._⋆_
+  |mkSmallCategory| .⋆IdL = C.⋆IdL
+  |mkSmallCategory| .⋆IdR = C.⋆IdR
+  |mkSmallCategory| .⋆Assoc = C.⋆Assoc
+  |mkSmallCategory| .isSetHom = C.isSetHom
 
-  record CatIso (x y : ob) : Type (ℓ-max (C.Hom-ℓ x x) $ ℓ-max (C.Hom-ℓ y y) $ ℓ-max (C.Hom-ℓ y x) (C.Hom-ℓ x y)) where
+  mkSmallCategory : SmallCategory ℓC ℓC'
+  mkSmallCategory = liftω C.ob , |mkSmallCategory|
+
+module _ ((Cob , C) : SmallCategory ℓC ℓC') where
+  open Small.Category
+  private
+    module C = Category C
+  SmallLocallySmallCategory→SmallCategory : Small.Category ℓC ℓC'
+  SmallLocallySmallCategory→SmallCategory .ob = Cob .lowerω
+  SmallLocallySmallCategory→SmallCategory .Hom[_,_] x y = C.Hom[ liftω x , liftω y ]
+  SmallLocallySmallCategory→SmallCategory .id = C.id
+  SmallLocallySmallCategory→SmallCategory ._⋆_ = C._⋆_
+  SmallLocallySmallCategory→SmallCategory .⋆IdL = C.⋆IdL
+  SmallLocallySmallCategory→SmallCategory .⋆IdR = C.⋆IdR
+  SmallLocallySmallCategory→SmallCategory .⋆Assoc = C.⋆Assoc
+  SmallLocallySmallCategory→SmallCategory .isSetHom = C.isSetHom
+
+module _ (C : Category Cob C-ℓ) where
+  private
+    module C = Category C
+
+  record CatIso (x y : Cob) : Type (ℓ-max (C-ℓ x x) $ ℓ-max (C-ℓ y y) $ ℓ-max (C-ℓ y x) (C-ℓ x y)) where
     no-eta-equality
     constructor iso
     field
@@ -143,15 +200,15 @@ module _ {ob} (C : LocallySmallCategory ob) where
       sec : inv C.⋆ fun ≡ C.id
       ret : fun C.⋆ inv ≡ C.id
 
-  isIso : {x y : ob}(f : C.Hom[ x , y ]) → Type _
+  isIso : ∀ {x y}(f : C.Hom[ x , y ]) → Type _
   isIso {x}{y} f = (Σ[ inv ∈ C.Hom[ y , x ] ] ((inv C.⋆ f ≡ C.id) × (f C.⋆ inv ≡ C.id)))
 
-  CatIsoIsoΣ : {x y : ob}
+  CatIsoIsoΣ : ∀ {x y}
     → Iso (CatIso x y)
           (Σ[ fun ∈ C.Hom[ x , y ] ] isIso fun)
   unquoteDef CatIsoIsoΣ = defineRecordIsoΣ CatIsoIsoΣ (quote (CatIso))
 
-  isPropIsIso : {x y : ob}{f : C.Hom[ x , y ]} → isProp (isIso f)
+  isPropIsIso : ∀ {x y}{f : C.Hom[ x , y ]} → isProp (isIso f)
   isPropIsIso {f = f} inv inv' = Σ≡Prop (λ _ → isProp× (C.isSetHom _ _) (C.isSetHom _ _))
     (sym (C.⋆IdR _)
     ∙ C.⟨⟩⋆⟨ sym $ inv' .snd .snd ⟩
@@ -174,8 +231,7 @@ module _ {ob} (C : LocallySmallCategory ob) where
     → f ≡ g
   CatIso≡ f≡g = isoFunInjective CatIsoIsoΣ _ _ (Σ≡Prop (λ _ → isPropIsIso) f≡g)
 
-  ISO : LocallySmallCategory ob
-  ISO .Hom-ℓ = _
+  ISO : Category Cob _
   ISO .Hom[_,_] = CatIso
   ISO .id = idCatIso
   ISO ._⋆_ = ⋆CatIso
@@ -184,10 +240,10 @@ module _ {ob} (C : LocallySmallCategory ob) where
   ISO .⋆Assoc _ _ _ = CatIso≡ (C.⋆Assoc _ _ _)
   ISO .isSetHom = isSetIso CatIsoIsoΣ (isSetΣ C.isSetHom (λ _ → isProp→isSet isPropIsIso))
 
-  module LocallySmallCategoryNotation where
-    open LocallySmallCategory C public
+  module CategoryNotation where
+    open Category C public
     ISOC = ISO
-    module ISOC = LocallySmallCategory ISOC
+    module ISOC = Category ISOC
     ISOC≡ : ∀ {x y} {f g : ISOC.Hom[ x , y ]}
       → f .CatIso.fun ≡ g .CatIso.fun
       → f ≡ g
@@ -221,14 +277,16 @@ module _ {ob} (C : LocallySmallCategory ob) where
       (subst {A = C.Hom[ x , y ] × C.Hom[ y , x ]} (λ (g , g⁻) → g C.⋆ g⁻ ≡ C.id) (ΣPathP (f≡g , f⁻≡g⁻)) (f .CatIso.ret))
 
 -- The key thing we need is to be able to iterate the ∫C construction
-module _ {ob}(C : LocallySmallCategory ob) where
+module _ (C : Category Cob C-ℓ) where
   private
-    module C = LocallySmallCategory C
-  record LocallySmallCategoryᴰ (ob[_] : ob → Typeω) : Typeω where
+    module C = Category C
+  -- Hom-ℓᴰ can't depend on f without making _≡[_]_ ill typed
+  record Categoryᴰ (ob[_] : Cob → Typeω)(Hom-ℓᴰ : ∀ x y (xᴰ : ob[ x ])(yᴰ : ob[ y ]) → Level)
+    : Typeω where
     no-eta-equality
     field
-      Hom-ℓᴰ : (x : ob)(xᴰ : ob[ x ]) (y : ob)(yᴰ : ob[ y ]) → Level
-      Hom[_][_,_] : ∀ {x y}(f : C.Hom[ x , y ])(xᴰ : ob[ x ])(yᴰ : ob[ y ]) → Type (Hom-ℓᴰ x xᴰ y yᴰ)
+      Hom[_][_,_] : ∀ {x y}(f : C.Hom[ x , y ])(xᴰ : ob[ x ])(yᴰ : ob[ y ])
+        → Type (Hom-ℓᴰ _ _ xᴰ yᴰ)
       idᴰ : ∀ {x} {xᴰ : ob[ x ]} → Hom[ C.id ][ xᴰ , xᴰ ]
       _⋆ᴰ_ : ∀ {x y z} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]} {xᴰ yᴰ zᴰ}
         → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f C.⋆ g ][ xᴰ , zᴰ ]
@@ -236,21 +294,12 @@ module _ {ob}(C : LocallySmallCategory ob) where
 
     _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : C.Hom[ x , y ]}
       → (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (p : f ≡ g) (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
-      → Type (Hom-ℓᴰ x xᴰ y yᴰ)
+      → Type (Hom-ℓᴰ _ _ xᴰ yᴰ)
     _≡[_]_ {x} {y} {xᴰ} {yᴰ} fᴰ p gᴰ = PathP (λ i → Hom[ p i ][ xᴰ , yᴰ ]) fᴰ gᴰ
 
     infix 2 _≡[_]_
 
-    -- TODO: should we just make these be Hom in the total category instead?
-    field
-      ⋆IdLᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idᴰ ⋆ᴰ fᴰ ≡[ C.⋆IdL f ] fᴰ
-      ⋆IdRᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → fᴰ ⋆ᴰ idᴰ ≡[ C.⋆IdR f ] fᴰ
-      ⋆Assocᴰ : ∀ {x y z w} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]}  {h : C.Hom[ z , w ]} {xᴰ yᴰ zᴰ wᴰ}
-        (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ yᴰ , zᴰ ]) (hᴰ : Hom[ h ][ zᴰ , wᴰ ])
-        → (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ C.⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
-      isSetHomᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} → isSet Hom[ f ][ xᴰ , yᴰ ]
-
-    ∫Hom[_,_] : (x y : Σω ob ob[_]) → Type _
+    ∫Hom[_,_] : (x y : Σω Cob ob[_]) → Type _
     ∫Hom[ xxᴰ , yyᴰ ] =
       Σ[ f ∈ C.Hom[ xxᴰ .fst , yyᴰ .fst ] ]
       Hom[ f ][ xxᴰ .snd , yyᴰ .snd ]
@@ -261,8 +310,18 @@ module _ {ob}(C : LocallySmallCategory ob) where
     fᴰ ∫≡ gᴰ = Path ∫Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
     infix 2 _∫≡_
 
+    field
+      ⋆IdLᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+        → idᴰ ⋆ᴰ fᴰ ∫≡ fᴰ
+      ⋆IdRᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+        → fᴰ ⋆ᴰ idᴰ ∫≡ fᴰ
+      ⋆Assocᴰ : ∀ {x y z w} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]}  {h : C.Hom[ z , w ]} {xᴰ yᴰ zᴰ wᴰ}
+        (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ yᴰ , zᴰ ]) (hᴰ : Hom[ h ][ zᴰ , wᴰ ])
+        → (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ ∫≡ fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
+      isSetHomᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} → isSet Hom[ f ][ xᴰ , yᴰ ]
+
     -- Reindexing displayed morphisms along an equality in the base
-    reind : {x y : ob}{f g : C.Hom[ x , y ]}
+    reind : {x y : Cob}{f g : C.Hom[ x , y ]}
       {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
       (p : f ≡ g)
       (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
@@ -287,38 +346,38 @@ module _ {ob}(C : LocallySmallCategory ob) where
       → Hom[ f ][ xᴰ , yᴰ' ]
     fᴰ ⋆ᴰⱽ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
 
-    ≡in : {x y : ob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+    ≡in : {x y : Cob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
       {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
       {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
       {p : f ≡ g}
       → (fᴰ ≡[ p ] gᴰ)
       → fᴰ ∫≡ gᴰ
     ≡in = λ pᴰ → ΣPathP (_ , pᴰ)
-    ⋆IdLᴰᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
-      → (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
-      → idᴰ ⋆ᴰ fᴰ ∫≡ fᴰ
-    ⋆IdLᴰᴰ fᴰ = ≡in (⋆IdLᴰ fᴰ)
-
-    ⋆IdRᴰᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
-      → (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
-      → Path (∫Hom[ _ , _ ])
-          (_ , (fᴰ ⋆ᴰ idᴰ))
-          (_ , fᴰ)
-    ⋆IdRᴰᴰ fᴰ = ≡in (⋆IdRᴰ fᴰ)
-
-    ⋆Assocᴰᴰᴰ : ∀ {w x y z wᴰ xᴰ yᴰ zᴰ}
-      {f : C.Hom[ w , x ]}
-      {g : C.Hom[ x , y ]}
-      {h : C.Hom[ y , z ]}
-      (fᴰ : Hom[ f ][ wᴰ , xᴰ ])
-      (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
-      (hᴰ : Hom[ h ][ yᴰ , zᴰ ])
-      → Path ∫Hom[ _ , _ ]
-          (_ , (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ)
-          (_ , fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ))
-    ⋆Assocᴰᴰᴰ fᴰ gᴰ hᴰ = ≡in (⋆Assocᴰ fᴰ gᴰ hᴰ)
-
     opaque
+      ⋆IdLᴰᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
+        → (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+        → idᴰ ⋆ᴰ fᴰ ∫≡ fᴰ
+      ⋆IdLᴰᴰ fᴰ = ⋆IdLᴰ fᴰ
+
+      ⋆IdRᴰᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
+        → (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+        → Path (∫Hom[ _ , _ ])
+            (_ , (fᴰ ⋆ᴰ idᴰ))
+            (_ , fᴰ)
+      ⋆IdRᴰᴰ fᴰ = ⋆IdRᴰ fᴰ
+
+      ⋆Assocᴰᴰᴰ : ∀ {w x y z wᴰ xᴰ yᴰ zᴰ}
+        {f : C.Hom[ w , x ]}
+        {g : C.Hom[ x , y ]}
+        {h : C.Hom[ y , z ]}
+        (fᴰ : Hom[ f ][ wᴰ , xᴰ ])
+        (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
+        (hᴰ : Hom[ h ][ yᴰ , zᴰ ])
+        → Path ∫Hom[ _ , _ ]
+            (_ , (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ)
+            (_ , fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ))
+      ⋆Assocᴰᴰᴰ fᴰ gᴰ hᴰ = ⋆Assocᴰ fᴰ gᴰ hᴰ
+
       isSetDepHomᴰ : ∀ {x y xᴰ yᴰ} →
         isSetDep (λ (f : C.Hom[ x , y ]) → Hom[ f ][ xᴰ , yᴰ ])
       isSetDepHomᴰ = isSet→isSetDep (λ f → isSetHomᴰ)
@@ -332,21 +391,21 @@ module _ {ob}(C : LocallySmallCategory ob) where
         → ∀ i j → Hom[  C.isSetHom f g p q i j ][ xᴰ , yᴰ ]
       isSetHomᴰ' fᴰ gᴰ pᴰ qᴰ i j = isSetDepHomᴰ fᴰ gᴰ pᴰ qᴰ (C.isSetHom _ _ _ _) i j
 
-      ≡out : {x y : ob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      ≡out : {x y : Cob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
         {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
         {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
         → (ppᴰ : Path ∫Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ))
         → (fᴰ ≡[ fst (PathPΣ ppᴰ) ] gᴰ)
       ≡out e = snd (PathPΣ e)
 
-      rectify : {x y : ob}{f g : C.Hom[ x , y ]}{p p' : f ≡ g}
+      rectify : {x y : Cob}{f g : C.Hom[ x , y ]}{p p' : f ≡ g}
         {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
         {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
         {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
         → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
       rectify {fᴰ = fᴰ}{gᴰ} pᴰ = subst (fᴰ ≡[_] gᴰ) (C.isSetHom _ _ _ _) pᴰ
 
-      reind-filler : {x y : ob}{f g : C.Hom[ x , y ]}
+      reind-filler : {x y : Cob}{f g : C.Hom[ x , y ]}
         {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
         (p : f ≡ g)
         (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
@@ -366,44 +425,41 @@ module _ {ob}(C : LocallySmallCategory ob) where
             (_ , reind q gᴰ)
       reind-cong p q fᴰ≡gᴰ = sym (reind-filler _ _) ∙ fᴰ≡gᴰ ∙ reind-filler _ _
 
-    ∫C : LocallySmallCategory (Σω[ x ∈ ob ] ob[ x ])
-    ∫C .LocallySmallCategory.Hom-ℓ = _
-    ∫C .LocallySmallCategory.Hom[_,_] = ∫Hom[_,_]
-    ∫C .LocallySmallCategory.id = _ , idᴰ
-    ∫C .LocallySmallCategory._⋆_ ffᴰ ggᴰ = _ , (ffᴰ .snd ⋆ᴰ ggᴰ .snd)
-    ∫C .LocallySmallCategory.⋆IdL ffᴰ = ⋆IdLᴰᴰ _
-    ∫C .LocallySmallCategory.⋆IdR ffᴰ = ⋆IdRᴰᴰ _
-    ∫C .LocallySmallCategory.⋆Assoc ffᴰ ggᴰ hhᴰ = ⋆Assocᴰᴰᴰ _ _ _
-    ∫C .LocallySmallCategory.isSetHom = isSetΣ C.isSetHom (λ _ → isSetHomᴰ)
+    ∫C : Category (Σω[ x ∈ Cob ] ob[ x ]) _
+    ∫C .Hom[_,_] = ∫Hom[_,_]
+    ∫C .id = _ , idᴰ
+    ∫C ._⋆_ ffᴰ ggᴰ = _ , (ffᴰ .snd ⋆ᴰ ggᴰ .snd)
+    ∫C .⋆IdL ffᴰ = ⋆IdLᴰᴰ _
+    ∫C .⋆IdR ffᴰ = ⋆IdRᴰᴰ _
+    ∫C .⋆Assoc ffᴰ ggᴰ hhᴰ = ⋆Assocᴰᴰᴰ _ _ _
+    ∫C .isSetHom = isSetΣ C.isSetHom (λ _ → isSetHomᴰ)
 
     private
-      module ∫C = LocallySmallCategoryNotation ∫C
+      module ∫C = CategoryNotation ∫C
     opaque
       ⋆IdLⱽᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
         → (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
-        → Path (∫Hom[ _ , _ ])
-            (_ , (idᴰ ⋆ⱽᴰ fᴰ))
-            (_ , fᴰ)
+        → idᴰ ⋆ⱽᴰ fᴰ ∫≡ fᴰ
       ⋆IdLⱽᴰ fᴰ = sym (reind-filler _ _) ∙ ⋆IdLᴰᴰ fᴰ
 
       ⋆IdLⱽⱽ : ∀ {x xᴰ yᴰ}(fⱽ : Hom[ C.id {x} ][ xᴰ , yᴰ ])
-        → Path (∫Hom[ _ , _ ]) (_ , (idᴰ ⋆ⱽ fⱽ)) (_ , fⱽ)
+        → idᴰ ⋆ⱽ fⱽ ∫≡ fⱽ
       ⋆IdLⱽⱽ = ⋆IdLⱽᴰ
 
       ⋆IdLᴰⱽ : ∀ {x xᴰ yᴰ}(fⱽ : Hom[ C.id {x} ][ xᴰ , yᴰ ])
-        → Path (∫Hom[ _ , _ ]) (_ , (idᴰ ⋆ᴰⱽ fⱽ)) (_ , fⱽ)
+        → idᴰ ⋆ᴰⱽ fⱽ ∫≡ fⱽ
       ⋆IdLᴰⱽ = λ fᴰ → sym (reind-filler _ _) ∙ ⋆IdLᴰᴰ fᴰ
 
       ⋆IdRᴰⱽ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}(fᴰ : Hom[ f ][ xᴰ , yᴰ ])
-        → Path (∫Hom[ _ , _ ]) (_ , (fᴰ ⋆ᴰⱽ idᴰ)) (_ , fᴰ)
+        → fᴰ ⋆ᴰⱽ idᴰ ∫≡ fᴰ
       ⋆IdRᴰⱽ = λ fᴰ → sym (reind-filler _ _) ∙ ⋆IdRᴰᴰ fᴰ
 
       ⋆IdRⱽᴰ : ∀ {x xᴰ yᴰ}(fⱽ : Hom[ C.id {x} ][ xᴰ , yᴰ ])
-        → Path (∫Hom[ _ , _ ]) (_ , (fⱽ ⋆ⱽᴰ idᴰ)) (_ , fⱽ)
+        → fⱽ ⋆ⱽᴰ idᴰ ∫≡ fⱽ
       ⋆IdRⱽᴰ = λ fᴰ → sym (reind-filler _ _) ∙ ⋆IdRᴰᴰ fᴰ
 
       ⋆IdRⱽⱽ : ∀ {x xᴰ yᴰ}(fⱽ : Hom[ C.id {x} ][ xᴰ , yᴰ ])
-        → Path (∫Hom[ _ , _ ]) (_ , (fⱽ ⋆ⱽ idᴰ)) (_ , fⱽ)
+        → fⱽ ⋆ⱽ idᴰ ∫≡ fⱽ
       ⋆IdRⱽⱽ fⱽ = ⋆IdRⱽᴰ fⱽ
 
       ⋆Assocⱽᴰᴰ : ∀ {x y z wᴰ xᴰ yᴰ zᴰ}
@@ -412,9 +468,7 @@ module _ {ob}(C : LocallySmallCategory ob) where
         (fⱽ : Hom[ C.id {x} ][ wᴰ , xᴰ ])
         (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
         (hᴰ : Hom[ h ][ yᴰ , zᴰ ])
-        → Path ∫Hom[ _ , _ ]
-            (_ , (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ)
-            (_ , fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
+        → (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ ∫≡ fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ)
       ⋆Assocⱽᴰᴰ _ _ _ = ∫C.⟨ sym $ reind-filler _ _ ⟩⋆⟨⟩ ∙ ⋆Assocᴰᴰᴰ _ _ _ ∙ reind-filler _ _
 
       ⋆Assocᴰⱽᴰ : ∀ {w x z wᴰ xᴰ yᴰ zᴰ}
@@ -478,8 +532,7 @@ module _ {ob}(C : LocallySmallCategory ob) where
             (_ , fⱽ ⋆ⱽ (gⱽ ⋆ⱽ hⱽ))
       ⋆Assocⱽⱽⱽ fⱽ gⱽ hⱽ = (sym $ reind-filler _ _) ∙ ∫C.⟨ sym $ reind-filler _ _ ⟩⋆⟨⟩ ∙ ⋆Assocᴰᴰᴰ _ _ _ ∙ ∫C.⟨⟩⋆⟨ reind-filler _ _ ⟩ ∙ reind-filler _ _
 
-    v[_] : (x : ob) → LocallySmallCategory ob[ x ]
-    v[ x ] .Hom-ℓ = _
+    v[_] : (x : Cob) → Category ob[ x ] (Hom-ℓᴰ x x)
     v[ x ] .Hom[_,_] = Hom[ C.id ][_,_]
     v[ x ] .id = idᴰ
     v[ x ] ._⋆_ fⱽ gⱽ = fⱽ ⋆ⱽ gⱽ
@@ -488,34 +541,69 @@ module _ {ob}(C : LocallySmallCategory ob) where
     v[ x ] .⋆Assoc fⱽ gⱽ hⱽ = rectify $ ≡out $ ⋆Assocⱽⱽⱽ _ _ _
     v[ x ] .isSetHom = isSetHomᴰ
 
-    module Cⱽ {x : ob} = LocallySmallCategory (v[ x ])
+    module Cⱽ {x : Cob} = Category (v[ x ])
     open ∫C public
 
--- Instances
-module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ C obᴰ) where
+open Categoryᴰ
+
+-- Displayed categories whose fibers are *small* categories.
+-- This means:
+-- 1. The type of displayed objects over any fixed object is small
+-- 2. The type of displayed hom sets is small and the level only
+-- depends on the base objects.
+module _ (C : Category Cob C-ℓ) where
   private
-    module C = LocallySmallCategoryNotation C
-    module Cᴰ = LocallySmallCategoryᴰ Cᴰ
-  module _ {obᴰᴰ}(Cᴰᴰ : LocallySmallCategoryᴰ Cᴰ.∫C obᴰᴰ) where
+    module C = Category C
+  module _ (obᴰ-ℓ : Cob → Level) (obᴰ : ∀ x → Type (obᴰ-ℓ x))
+    (Homᴰ-ℓ : ∀ (x y : Cob) → Level) where
+    SmallFibersCategoryᴰ : Typeω
+    SmallFibersCategoryᴰ = Categoryᴰ C (λ x → Liftω (obᴰ x)) λ x y _ _ → Homᴰ-ℓ x y
+
+module _ {C : Category Cob C-ℓ} {Cobᴰ}{Cᴰ-ℓ} (Cᴰ : SmallFibersCategoryᴰ C Cobᴰ-ℓ Cobᴰ Cᴰ-ℓ) where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+           
+  SmallFiber : (x : Cob) → Small.Category (Cobᴰ-ℓ x) (Cᴰ-ℓ x x)
+  SmallFiber x = SmallLocallySmallCategory→SmallCategory ((liftω (Cobᴰ x)) , Cᴰ.v[ x ])
+
+-- Instances
+module _ {C : Category Cob C-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) where
+  private
+    module C = CategoryNotation C
+    module Cᴰ = Categoryᴰ Cᴰ
+  module _ {Cobᴰᴰ CHom-ℓᴰᴰ}(Cᴰᴰ : Categoryᴰ Cᴰ.∫C Cobᴰᴰ CHom-ℓᴰᴰ) where
     private
-      module Cᴰᴰ = LocallySmallCategoryᴰ Cᴰᴰ
-    ∫Cᴰ : LocallySmallCategoryᴰ C λ x → Σω[ xᴰ ∈ obᴰ x ] obᴰᴰ (x , xᴰ)
-    ∫Cᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ x xᴰ y yᴰ =
-    -- This is inferrable but I've included it for the curious
-      ℓ-max (Cᴰ.Hom-ℓᴰ x (xᴰ .fst) y (yᴰ .fst))
-            (Cᴰᴰ.Hom-ℓᴰ (x , xᴰ .fst) (xᴰ .snd) (y , yᴰ .fst) (yᴰ .snd))
-    ∫Cᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] f xᴰxᴰᴰ yᴰyᴰᴰ =
+      module Cᴰᴰ = Categoryᴰ Cᴰᴰ
+    ∫Cᴰ : Categoryᴰ C (λ x → Σω[ xᴰ ∈ Cobᴰ x ] Cobᴰᴰ (x , xᴰ)) _
+    ∫Cᴰ .Hom[_][_,_] f xᴰxᴰᴰ yᴰyᴰᴰ =
       Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ xᴰxᴰᴰ .fst , yᴰyᴰᴰ .fst ] ]
         Cᴰᴰ.Hom[ f , fᴰ ][ xᴰxᴰᴰ .snd , yᴰyᴰᴰ .snd ]
-    ∫Cᴰ .LocallySmallCategoryᴰ.idᴰ = Cᴰ.idᴰ , Cᴰᴰ.idᴰ
-    ∫Cᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ ffᴰ ggᴰ = (ffᴰ .fst Cᴰ.⋆ᴰ ggᴰ .fst) , (ffᴰ .snd Cᴰᴰ.⋆ᴰ ggᴰ .snd)
-    ∫Cᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ ffᴰ = ΣPathP (_ , Cᴰᴰ.⋆IdLᴰ (ffᴰ .snd))
-    ∫Cᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ ffᴰ = ΣPathP (_ , Cᴰᴰ.⋆IdRᴰ (ffᴰ .snd))
-    ∫Cᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ ffᴰ ggᴰ hhᴰ = ΣPathP (_ , Cᴰᴰ.⋆Assocᴰ (ffᴰ .snd) (ggᴰ .snd) (hhᴰ .snd))
-    ∫Cᴰ .LocallySmallCategoryᴰ.isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
+    ∫Cᴰ .idᴰ = Cᴰ.idᴰ , Cᴰᴰ.idᴰ
+    ∫Cᴰ ._⋆ᴰ_ ffᴰ ggᴰ = (ffᴰ .fst Cᴰ.⋆ᴰ ggᴰ .fst) , (ffᴰ .snd Cᴰᴰ.⋆ᴰ ggᴰ .snd)
+    ∫Cᴰ .⋆IdLᴰ ffᴰ =
+      ΣPathP ((C.⋆IdL _) , (
+      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdLᴰ (ffᴰ .snd)))))
+    ∫Cᴰ .⋆IdRᴰ ffᴰ =
+      ΣPathP ((C.⋆IdR _) , (
+      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdRᴰ (ffᴰ .snd)))))
+    ∫Cᴰ .⋆Assocᴰ ffᴰ ggᴰ hhᴰ =
+      ΣPathP (C.⋆Assoc _ _ _ ,
+      (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assoc _ _ _) ,
+      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
+    ∫Cᴰ .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
 
-  record CatIsoᴰ {x y : ob}(f : C.ISOC.Hom[ x , y ]) (xᴰ : obᴰ x ) (yᴰ : obᴰ y)
-    : Type (ℓ-max (C.Hom-ℓ x x) $ ℓ-max (Cᴰ.Hom-ℓᴰ x xᴰ x xᴰ) $ ℓ-max (Cᴰ.Hom-ℓᴰ y yᴰ x xᴰ) $ ℓ-max (Cᴰ.Hom-ℓᴰ x xᴰ y yᴰ) $ ℓ-max (C.Hom-ℓ y y) $ (Cᴰ.Hom-ℓᴰ y yᴰ y yᴰ) )
+  record CatIsoᴰ {x y : Cob}(f : C.ISOC.Hom[ x , y ]) (xᴰ : Cobᴰ x ) (yᴰ : Cobᴰ y)
+    : Type (ℓ-max (C-ℓ x x) $
+            ℓ-max (C-ℓ x y) $
+            ℓ-max (C-ℓ y x) $
+            ℓ-max (C-ℓ y y) $
+            ℓ-max (CHom-ℓᴰ x x xᴰ xᴰ) $
+            ℓ-max (CHom-ℓᴰ x y xᴰ yᴰ) $
+            ℓ-max (CHom-ℓᴰ y x yᴰ xᴰ) $
+            ℓ-max (CHom-ℓᴰ y y yᴰ yᴰ) $
+            ℓ-zero)
     where
     no-eta-equality
     constructor isoᴰ
@@ -533,7 +621,7 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
           × Path Cᴰ.Hom[ _ , _ ] (_ , funᴰ Cᴰ.⋆ᴰ invᴰ) (_ , Cᴰ.idᴰ))
   unquoteDef CatIsoᴰIsoΣ = defineRecordIsoΣ CatIsoᴰIsoΣ (quote (CatIsoᴰ))
 
-  ∫CatIso : {x y : ob}{f : C.ISOC.Hom[ x , y ]} {xᴰ : obᴰ x}{yᴰ : obᴰ y}
+  ∫CatIso : {x y : Cob}{f : C.ISOC.Hom[ x , y ]} {xᴰ : Cobᴰ x}{yᴰ : Cobᴰ y}
     → (fᴰ : CatIsoᴰ f xᴰ yᴰ)
     → Cᴰ.ISOC.Hom[ (_ , xᴰ) , (_ , yᴰ) ]
   ∫CatIso fᴰ .CatIso.fun = _ , fᴰ .CatIsoᴰ.funᴰ
@@ -548,7 +636,7 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
     Path Cᴰ.Hom[ _ , _ ] (_ , invᴰ Cᴰ.⋆ᴰ funᴰ) (_ , Cᴰ.idᴰ)
     × Path Cᴰ.Hom[ _ , _ ] (_ , funᴰ Cᴰ.⋆ᴰ invᴰ) (_ , Cᴰ.idᴰ)
 
-  module _ {x y : ob}{f g : C.ISOC.Hom[ x , y ]}
+  module _ {x y : Cob}{f g : C.ISOC.Hom[ x , y ]}
     {xᴰ yᴰ}{fᴰ : CatIsoᴰ f xᴰ yᴰ}{gᴰ : CatIsoᴰ g xᴰ yᴰ}
     (fᴰfunᴰ≡gᴰfunᴰ : Path Cᴰ.Hom[ _ , _ ]
         (_ , fᴰ .CatIsoᴰ.funᴰ)
@@ -579,10 +667,10 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
           (g .CatIso.ret)
           i
         fᴰ≡gᴰ : PathP (λ i → CatIsoᴰ (f≡g i) xᴰ yᴰ) fᴰ gᴰ
-        fᴰ≡gᴰ i .CatIsoᴰ.funᴰ = ∫fᴰ≡∫gᴰ i .CatIso.fun .snd -- ∫fᴰ≡∫gᴰ i .CatIso.fun .snd
-        fᴰ≡gᴰ i .CatIsoᴰ.invᴰ = ∫fᴰ≡∫gᴰ i .CatIso.inv .snd -- ∫fᴰ≡∫gᴰ i .CatIso.inv .snd
-        fᴰ≡gᴰ i .CatIsoᴰ.secᴰ = ∫fᴰ≡∫gᴰ i .CatIso.sec -- ∫fᴰ≡∫gᴰ i .CatIso.sec
-        fᴰ≡gᴰ i .CatIsoᴰ.retᴰ = ∫fᴰ≡∫gᴰ i .CatIso.ret -- ∫fᴰ≡∫gᴰ i .CatIso.ret
+        fᴰ≡gᴰ i .CatIsoᴰ.funᴰ = ∫fᴰ≡∫gᴰ i .CatIso.fun .snd
+        fᴰ≡gᴰ i .CatIsoᴰ.invᴰ = ∫fᴰ≡∫gᴰ i .CatIso.inv .snd
+        fᴰ≡gᴰ i .CatIsoᴰ.secᴰ = ∫fᴰ≡∫gᴰ i .CatIso.sec
+        fᴰ≡gᴰ i .CatIsoᴰ.retᴰ = ∫fᴰ≡∫gᴰ i .CatIso.ret
 
       CatIsoᴰPathP : ∀ {f≡g : f ≡ g}
         → PathP (λ i → CatIsoᴰ (f≡g i) xᴰ yᴰ) fᴰ gᴰ
@@ -593,7 +681,7 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
           lem : (PathPΣ CatIsoᴰ≡ .fst) ≡ f≡g
           lem = C.ISOC.isSetHom _ _ _ _
 
-  idCatIsoᴰ : ∀ {x}{xᴰ : obᴰ x} → CatIsoᴰ C.ISOC.id xᴰ xᴰ
+  idCatIsoᴰ : ∀ {x}{xᴰ : Cobᴰ x} → CatIsoᴰ C.ISOC.id xᴰ xᴰ
   idCatIsoᴰ .CatIsoᴰ.funᴰ = Cᴰ.idᴰ
   idCatIsoᴰ .CatIsoᴰ.invᴰ = Cᴰ.idᴰ
   idCatIsoᴰ .CatIsoᴰ.secᴰ = Cᴰ.⋆IdL _
@@ -613,23 +701,20 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
     where
     ∫fᴰ⋆∫gᴰ = ∫CatIso fᴰ Cᴰ.ISOC.⋆ ∫CatIso gᴰ
 
-  private
-    module ISOC = LocallySmallCategory (ISO C)
-  ISOᴰ : LocallySmallCategoryᴰ (ISO C) obᴰ
-  ISOᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
-  ISOᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] = CatIsoᴰ
-  ISOᴰ .LocallySmallCategoryᴰ.idᴰ = idCatIsoᴰ
-  ISOᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ = ⋆CatIsoᴰ
-  ISOᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ fᴰ = CatIsoᴰPathP (Cᴰ.⋆IdL _)
-  ISOᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ fᴰ = CatIsoᴰPathP (Cᴰ.⋆IdR _)
-  ISOᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ = CatIsoᴰPathP (Cᴰ.⋆Assoc _ _ _)
-  ISOᴰ .LocallySmallCategoryᴰ.isSetHomᴰ = isSetIso CatIsoᴰIsoΣ
-    (isSetΣ Cᴰ.isSetHomᴰ (λ _ → isSetΣ Cᴰ.isSetHomᴰ λ _ → isProp→isSet (isProp× (Cᴰ.isSetHom _ _) (Cᴰ.isSetHom _ _))))
-
-  CatIsoⱽ : {x : ob}(xᴰ yᴰ : obᴰ x) → Type _
+  ISOᴰ : Categoryᴰ C.ISOC Cobᴰ _
+  ISOᴰ .Hom[_][_,_] = CatIsoᴰ
+  ISOᴰ .idᴰ = idCatIsoᴰ
+  ISOᴰ ._⋆ᴰ_ = ⋆CatIsoᴰ
+  ISOᴰ .⋆IdLᴰ fᴰ = CatIsoᴰ≡ (Cᴰ.⋆IdLᴰ (fᴰ .CatIsoᴰ.funᴰ))
+  ISOᴰ .⋆IdRᴰ fᴰ = CatIsoᴰ≡ (Cᴰ.⋆IdRᴰ (fᴰ .CatIsoᴰ.funᴰ))
+  ISOᴰ .⋆Assocᴰ fᴰ gᴰ hᴰ = CatIsoᴰ≡ $ Cᴰ.⋆Assocᴰ _ _ _
+  ISOᴰ .isSetHomᴰ = isSetIso CatIsoᴰIsoΣ (isSetΣ Cᴰ.isSetHomᴰ (λ _ → isSetΣ Cᴰ.isSetHomᴰ
+    λ _ → isProp→isSet (isProp× (Cᴰ.isSetHom _ _) (Cᴰ.isSetHom _ _))))
+    
+  CatIsoⱽ : {x : Cob}(xᴰ yᴰ : Cobᴰ x) → Type _
   CatIsoⱽ = CatIsoᴰ (idCatIso C)
 
-  CatIsoⱽ→CatIsoFiber : ∀ {x}{xᴰ yᴰ : obᴰ x}
+  CatIsoⱽ→CatIsoFiber : ∀ {x}{xᴰ yᴰ : Cobᴰ x}
     (fⱽ : CatIsoⱽ xᴰ yᴰ)
     → CatIso Cᴰ.v[ x ] xᴰ yᴰ
   CatIsoⱽ→CatIsoFiber fⱽ .CatIso.fun = fⱽ .CatIsoᴰ.funᴰ
@@ -639,15 +724,15 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
   CatIsoⱽ→CatIsoFiber fⱽ .CatIso.ret = Cᴰ.rectify $ Cᴰ.≡out $
     sym (Cᴰ.reind-filler _ _) ∙ fⱽ .CatIsoᴰ.retᴰ
 
-  module LocallySmallCategoryᴰNotation where
-    open LocallySmallCategoryᴰ Cᴰ public
+  module CategoryᴰNotation where
+    open Categoryᴰ Cᴰ public
     ISOCᴰ = ISOᴰ
-    module ISOCᴰ = LocallySmallCategoryᴰ ISOᴰ
+    module ISOCᴰ = Categoryᴰ ISOᴰ
     ISOCᴰ≡ :
-      ∀ {x y : ob}{f g : C.ISOC.Hom[ x , y ]}
+      ∀ {x y : Cob}{f g : C.ISOC.Hom[ x , y ]}
       {xᴰ yᴰ}{fᴰ : ISOCᴰ.Hom[ f ][ xᴰ , yᴰ ]}{gᴰ : ISOCᴰ.Hom[ g ][ xᴰ , yᴰ ]}
-      → Path Cᴰ.Hom[ _ , _ ] (_ , fᴰ .CatIsoᴰ.funᴰ) (_ , gᴰ .CatIsoᴰ.funᴰ)
-      → Path ISOCᴰ.Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
+      → fᴰ .CatIsoᴰ.funᴰ Cᴰ.∫≡ gᴰ .CatIsoᴰ.funᴰ
+      → fᴰ ISOCᴰ.∫≡ gᴰ
     ISOCᴰ≡ = CatIsoᴰ≡
 
     invCatIsoᴰ : ∀ {x y xᴰ yᴰ}{f : C.ISOC.Hom[ x , y ]}
@@ -661,108 +746,107 @@ module _ {ob}{C : LocallySmallCategory ob}{obᴰ}(Cᴰ : LocallySmallCategoryᴰ
     -- Can probably get this from ∫ somehow
     CatIsoᴰ⋆ᴰ-Iso-over : ∀ {x y xᴰ yᴰ}{f : C.ISOC.Hom[ x , y ]}
       → CatIsoᴰ f xᴰ yᴰ
-      → ∀ {z}{zᴰ : obᴰ z}
+      → ∀ {z}{zᴰ : Cobᴰ z}
       → IsoOver (C.CatIso⋆-Iso f) Cᴰ.Hom[_][ yᴰ , zᴰ ] Cᴰ.Hom[_][ xᴰ , zᴰ ]
     CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.fun g gᴰ = fᴰ .CatIsoᴰ.funᴰ Cᴰ.⋆ᴰ gᴰ
     CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.inv g gᴰ = fᴰ .CatIsoᴰ.invᴰ Cᴰ.⋆ᴰ gᴰ
-    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.rightInv g gᴰ = rectify $ ≡out $
+    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.rightInv g gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
       sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ fᴰ .CatIsoᴰ.retᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
-    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.leftInv g gᴰ = rectify $ ≡out $
+    CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.leftInv g gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
       sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ fᴰ .CatIsoᴰ.secᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
 
--- The following should probably all go in "Constructions/Instances" modules
-module _ (C : Category ℓC ℓC') where
-  private
-    module C = Category C
-  CategoriesAreLocallySmall : LocallySmallCategory (Liftω C.ob)
-  CategoriesAreLocallySmall .Hom-ℓ = λ _ _ → ℓC'
-  CategoriesAreLocallySmall .Hom[_,_] x y = C.Hom[ x .lowerω , y .lowerω ]
-  CategoriesAreLocallySmall .id = C.id
-  CategoriesAreLocallySmall ._⋆_ = C._⋆_
-  CategoriesAreLocallySmall .⋆IdL = C.⋆IdL
-  CategoriesAreLocallySmall .⋆IdR = C.⋆IdR
-  CategoriesAreLocallySmall .⋆Assoc = C.⋆Assoc
-  CategoriesAreLocallySmall .isSetHom = C.isSetHom
+-- module _ {Dob} (C : Small.Category ℓC ℓC') (D : Category Dob) where
+--   private
+--     module C = Small.Category C
+--     module D = CategoryNotation D
+--   _⊘_ : ?
+--   _⊘_ = ?
+-- --   _⊘_ : Category (C .Category.ob ×ω Dob)
+-- --   -- This is inferrable
+-- --   _⊘_ .Hom-ℓ = λ (_ , y) (_ , y') → ℓ-max ℓC' (D.Hom-ℓ y y')
+-- --   _⊘_ .Hom[_,_] (x , y) (x' , y') = C.Hom[ x , x' ] × D.Hom[ y , y' ]
+-- --   _⊘_ .id = C.id , D.id
+-- --   _⊘_ ._⋆_ (f , g) (f' , g') = (f C.⋆ f') , (g D.⋆ g')
+-- --   _⊘_ .⋆IdL (f , g) = ΣPathP (C.⋆IdL f , D.⋆IdL g)
+-- --   _⊘_ .⋆IdR (f , g) = ΣPathP (C.⋆IdR f , D.⋆IdR g)
+-- --   _⊘_ .⋆Assoc (f , g) (f' , g') (f'' , g'') = ΣPathP (C.⋆Assoc f f' f'' , D.⋆Assoc g g' g'')
+-- --   _⊘_ .isSetHom = isSet× C.isSetHom D.isSetHom
 
-module _ {Dob} (C : Category ℓC ℓC') (D : LocallySmallCategory Dob) where
-  private
-    module C = Category C
-    module D = LocallySmallCategoryNotation D
-  _⊘_ : LocallySmallCategory (C .Category.ob ×ω Dob)
-  -- This is inferrable
-  _⊘_ .Hom-ℓ = λ (_ , y) (_ , y') → ℓ-max ℓC' (D.Hom-ℓ y y')
-  _⊘_ .Hom[_,_] (x , y) (x' , y') = C.Hom[ x , x' ] × D.Hom[ y , y' ]
-  _⊘_ .id = C.id , D.id
-  _⊘_ ._⋆_ (f , g) (f' , g') = (f C.⋆ f') , (g D.⋆ g')
-  _⊘_ .⋆IdL (f , g) = ΣPathP (C.⋆IdL f , D.⋆IdL g)
-  _⊘_ .⋆IdR (f , g) = ΣPathP (C.⋆IdR f , D.⋆IdR g)
-  _⊘_ .⋆Assoc (f , g) (f' , g') (f'' , g'') = ΣPathP (C.⋆Assoc f f' f'' , D.⋆Assoc g g' g'')
-  _⊘_ .isSetHom = isSet× C.isSetHom D.isSetHom
-
-  private
-    module ⊘ = LocallySmallCategoryNotation _⊘_
-  ⊘-iso : ∀ {x y x' y'}
-    → (f : SmallCategory.CatIso C x x')
-    → (g : D.ISOC.Hom[ y , y' ])
-    → ⊘.ISOC.Hom[ (x , y) , (x' , y') ]
-  ⊘-iso f g .CatIso.fun = (f .fst) , (g .CatIso.fun)
-  ⊘-iso f g .CatIso.inv = (f .snd .SmallCategory.isIso.inv) , (g .CatIso.inv)
-  ⊘-iso f g .CatIso.sec = ΣPathP (f .snd .SmallCategory.isIso.sec , g .CatIso.sec)
-  ⊘-iso f g .CatIso.ret = ΣPathP (f .snd .SmallCategory.isIso.ret , g .CatIso.ret)
+-- --   private
+-- --     module ⊘ = LocallySmallCategoryNotation _⊘_
+-- --   ⊘-iso : ∀ {x y x' y'}
+-- --     → (f : SmallCategory.CatIso C x x')
+-- --     → (g : D.ISOC.Hom[ y , y' ])
+-- --     → ⊘.ISOC.Hom[ (x , y) , (x' , y') ]
+-- --   ⊘-iso f g .CatIso.fun = (f .fst) , (g .CatIso.fun)
+-- --   ⊘-iso f g .CatIso.inv = (f .snd .SmallCategory.isIso.inv) , (g .CatIso.inv)
+-- --   ⊘-iso f g .CatIso.sec = ΣPathP (f .snd .SmallCategory.isIso.sec , g .CatIso.sec)
+-- --   ⊘-iso f g .CatIso.ret = ΣPathP (f .snd .SmallCategory.isIso.ret , g .CatIso.ret)
 
 -- TODO: make into a general indiscrete category construction
-LEVEL : Category ℓ-zero ℓ-zero
-LEVEL .Category.ob = Level
-LEVEL .Category.Hom[_,_] = λ _ _ → Unit
-LEVEL .Category.id = tt
-LEVEL .Category._⋆_ = λ f g → tt
-LEVEL .Category.⋆IdL = λ _ → refl
-LEVEL .Category.⋆IdR = λ _ → refl
-LEVEL .Category.⋆Assoc = λ _ _ _ → refl
-LEVEL .Category.isSetHom = isSetUnit
+LEVEL : Small.Category ℓ-zero ℓ-zero
+LEVEL .Small.Category.ob = Level
+LEVEL .Small.Category.Hom[_,_] = λ _ _ → Unit
+LEVEL .Small.Category.id = tt
+LEVEL .Small.Category._⋆_ = λ f g → tt
+LEVEL .Small.Category.⋆IdL = λ _ → refl
+LEVEL .Small.Category.⋆IdR = λ _ → refl
+LEVEL .Small.Category.⋆Assoc = λ _ _ _ → refl
+LEVEL .Small.Category.isSetHom = isSetUnit
 
-LEVELω : LocallySmallCategory (Liftω Level)
-LEVELω = CategoriesAreLocallySmall LEVEL
+LEVELω : SmallCategory ℓ-zero ℓ-zero
+LEVELω = mkSmallCategory LEVEL
 
-LEVEL-iso : ∀ {ℓ} {ℓ'} → SmallCategory.CatIso LEVEL ℓ ℓ'
-LEVEL-iso .fst = tt
-LEVEL-iso .snd .SmallCategory.isIso.inv = tt
-LEVEL-iso .snd .SmallCategory.isIso.sec = refl
-LEVEL-iso .snd .SmallCategory.isIso.ret = refl
+-- -- LEVEL-iso : ∀ {ℓ} {ℓ'} → SmallCategory.CatIso LEVEL ℓ ℓ'
+-- -- LEVEL-iso .fst = tt
+-- -- LEVEL-iso .snd .SmallCategory.isIso.inv = tt
+-- -- LEVEL-iso .snd .SmallCategory.isIso.sec = refl
+-- -- LEVEL-iso .snd .SmallCategory.isIso.ret = refl
 
-LEVELω-iso : ∀ {ℓ} {ℓ'} → CatIso LEVELω ℓ ℓ'
-LEVELω-iso .CatIso.fun = tt
-LEVELω-iso .CatIso.inv = tt
-LEVELω-iso .CatIso.sec = refl
-LEVELω-iso .CatIso.ret = refl
+-- -- LEVELω-iso : ∀ {ℓ} {ℓ'} → CatIso LEVELω ℓ ℓ'
+-- -- LEVELω-iso .CatIso.fun = tt
+-- -- LEVELω-iso .CatIso.inv = tt
+-- -- LEVELω-iso .CatIso.sec = refl
+-- -- LEVELω-iso .CatIso.ret = refl
 
-SET : LocallySmallCategoryᴰ LEVELω (mapω' hSet)
-SET .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
-SET .LocallySmallCategoryᴰ.Hom[_][_,_] _ (liftω X) (liftω Y) = ⟨ X ⟩ → ⟨ Y ⟩
-SET .LocallySmallCategoryᴰ.idᴰ = λ x → x
-SET .LocallySmallCategoryᴰ._⋆ᴰ_ = λ f g x → g (f x)
-SET .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
-SET .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
-SET .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
-SET .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = Y} = isSet→ (Y .lowerω .snd)
+SET : SmallFibersCategoryᴰ (LEVELω .snd) _ (λ (liftω ℓ) → hSet ℓ) _
+SET .Hom[_][_,_] _ (liftω X) (liftω Y) = ⟨ X ⟩ → ⟨ Y ⟩
+SET .idᴰ = λ z → z
+SET ._⋆ᴰ_ = λ g f x → f (g x)
+SET .⋆IdLᴰ = λ _ → refl
+SET .⋆IdRᴰ = λ _ → refl
+SET .⋆Assocᴰ = λ _ _ _ → refl
+SET .isSetHomᴰ {yᴰ = (liftω Y)} = isSet→ (Y .snd)
 
-module SET = LocallySmallCategoryᴰNotation SET
+-- -- -- module SET = LocallySmallCategoryᴰNotation SET
+-- -- -- -- The total category LocallySmallCategoryᴰ.∫C SET is the "large category of all small sets"
+-- -- -- -- Then
+-- -- -- SETᴰ : LocallySmallCategoryᴰ
+-- -- --          (LEVEL ⊘ LocallySmallCategoryᴰ.∫C SET)
+-- -- --          (λ (ℓᴰ , (_ , liftω X)) → Liftω (⟨ X ⟩ → hSet ℓᴰ))
+-- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
+-- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , f) (liftω Xᴰ) (liftω Yᴰ) =
+-- -- --   ∀ x → ⟨ Xᴰ x ⟩ → ⟨ Yᴰ (f x ) ⟩
+-- -- -- SETᴰ .LocallySmallCategoryᴰ.idᴰ = λ x xᴰ → xᴰ
+-- -- -- SETᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ {f = (_ , _ , f)} fᴰ gᴰ x xᴰ =
+-- -- --   gᴰ (f x) (fᴰ x xᴰ)
+-- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
+-- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
+-- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
+-- -- -- SETᴰ .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = liftω Yᴰ} =
+-- -- --   isSetΠ λ _ → isSet→ (Yᴰ _ .snd)
 
--- The total category LocallySmallCategoryᴰ.∫C SET is the "large category of all small sets"
--- Then
-SETᴰ : LocallySmallCategoryᴰ
-         (LEVEL ⊘ LocallySmallCategoryᴰ.∫C SET)
-         (λ (ℓᴰ , (_ , liftω X)) → Liftω (⟨ X ⟩ → hSet ℓᴰ))
-SETᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
-SETᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , f) (liftω Xᴰ) (liftω Yᴰ) =
-  ∀ x → ⟨ Xᴰ x ⟩ → ⟨ Yᴰ (f x ) ⟩
-SETᴰ .LocallySmallCategoryᴰ.idᴰ = λ x xᴰ → xᴰ
-SETᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ {f = (_ , _ , f)} fᴰ gᴰ x xᴰ =
-  gᴰ (f x) (fᴰ x xᴰ)
-SETᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
-SETᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
-SETᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
-SETᴰ .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = liftω Yᴰ} =
-  isSetΠ λ _ → isSet→ (Yᴰ _ .snd)
+-- -- -- module SETᴰ = LocallySmallCategoryᴰNotation SETᴰ
 
-module SETᴰ = LocallySmallCategoryᴰNotation SETᴰ
+-- -- -- module _ (C : LocallySmallCategory Cob) (D : LocallySmallCategory Dob) where
+-- -- --   private
+-- -- --     module D = LocallySmallCategory D
+-- -- --   weaken : LocallySmallCategoryᴰ C λ _ → Dob
+-- -- --   weaken .LocallySmallCategoryᴰ.Hom-ℓᴰ _ x _ y = D.Hom-ℓ x y
+-- -- --   weaken .LocallySmallCategoryᴰ.Hom[_][_,_] _ = D.Hom[_,_]
+-- -- --   weaken .LocallySmallCategoryᴰ.idᴰ = D.id
+-- -- --   weaken .LocallySmallCategoryᴰ._⋆ᴰ_ = D._⋆_
+-- -- --   weaken .LocallySmallCategoryᴰ.⋆IdLᴰ = D.⋆IdL
+-- -- --   weaken .LocallySmallCategoryᴰ.⋆IdRᴰ = D.⋆IdR
+-- -- --   weaken .LocallySmallCategoryᴰ.⋆Assocᴰ = D.⋆Assoc
+-- -- --   weaken .LocallySmallCategoryᴰ.isSetHomᴰ = D.isSetHom

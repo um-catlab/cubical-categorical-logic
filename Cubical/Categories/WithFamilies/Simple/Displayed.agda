@@ -89,3 +89,5 @@ module _ (C : SCwF ℓC ℓC' ℓT ℓT') ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , com
     Σ[ F-tm ∈ (∀ A → PshSection F (Tmᴰ (F-ty A))) ]
     secPreservesTerminal F (C .snd .snd .snd .fst)
     × (∀ A → preservesLocalRep (Tmᴰ (F-ty A) , comprehensionᴰ (F-ty A)) (F-tm A))
+
+ -- TODO StrictSection → SCwFSection

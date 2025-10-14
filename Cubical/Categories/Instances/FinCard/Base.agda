@@ -22,3 +22,7 @@ FINCARD .⋆IdL _ = refl
 FINCARD .⋆IdR _ = refl
 FINCARD .⋆Assoc _ _ _ = refl
 FINCARD .isSetHom = isSet→ isSetFin
+
+
+FINCARD^op : Category ℓ-zero ℓ-zero
+FINCARD^op = FINCARD ^op

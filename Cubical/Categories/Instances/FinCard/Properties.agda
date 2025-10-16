@@ -374,7 +374,8 @@ module _ ℓ where
               ∙ Sᴰ.Cᴰ.⋆IdR _) ,
             refl)))
 
+  open isFreeSCwFFINCARD^op
 
-  -- TODO need StrictSection → SCwFSection
-  -- isFreeSCwFFINCARD^op : isFreeSCwF FINCARD^opSCwF
-  -- isFreeSCwFFINCARD^op Sᴰ = {!!}
+  isStrictFreeSCwFFINCARD^op : isStrictFreeSCwF FINCARD^opSCwF
+  isStrictFreeSCwFFINCARD^op Sᴰ =
+    elimFINCARD^opStrict Sᴰ {!!}

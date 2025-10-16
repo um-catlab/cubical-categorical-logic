@@ -91,3 +91,13 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
     ∀ {ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level}
       → (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
       → SCwFSection S Sᴰ
+
+  isStrictFreeSCwF : Typeω
+  isStrictFreeSCwF =
+    ∀ {ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level}
+      → (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
+      → StrictSection S Sᴰ
+
+  isStrictFreeSCwF→isFreeSCwF : isStrictFreeSCwF → isFreeSCwF
+  isStrictFreeSCwF→isFreeSCwF strict-free Sᴰ =
+    StrictSection→SCwFSection S Sᴰ (strict-free Sᴰ)

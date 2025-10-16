@@ -90,4 +90,19 @@ module _ (C : SCwF ℓC ℓC' ℓT ℓT') ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , com
     secPreservesTerminal F (C .snd .snd .snd .fst)
     × (∀ A → preservesLocalRep (Tmᴰ (F-ty A) , comprehensionᴰ (F-ty A)) (F-tm A))
 
- -- TODO StrictSection → SCwFSection
+  StrictSection→SCwFSection :
+    StrictSection → SCwFSection
+  StrictSection→SCwFSection Fᴰ =
+    Fᴰ .fst ,
+    Fᴰ .snd .fst ,
+    Fᴰ .snd .snd .fst ,
+    strictlyPreservesTerminal→preservesTerminal
+      (Fᴰ .fst)
+      (C .snd .snd .snd .fst)
+      termᴰ
+      (Fᴰ .snd .snd .snd .fst) ,
+    (λ c →
+      strictlyPreservesLocalRep→preservesLocalRep
+        (_ , comprehensionᴰ (Fᴰ .snd .fst c))
+        (Fᴰ .snd .snd .fst _)
+        (Fᴰ .snd .snd .snd .snd c) )

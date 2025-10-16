@@ -145,6 +145,20 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Fᴰ
   preservesTerminal : Type _
   preservesTerminal = preservesUE {Pᴰ = UnitPshᴰ {P = UnitPsh {C = C}}} Fᴰ (UnitPsh→UnitPshᴰ Fᴰ) term
 
+  strictlyPreservesTerminal→preservesTerminal :
+    (termᴰ : Terminalᴰ Cᴰ term) →
+    strictlyPreservesTerminal termᴰ →
+    preservesTerminal
+  strictlyPreservesTerminal→preservesTerminal
+    termᴰ
+    strict-pres =
+      strictlyPreservesUE→preservesUE
+        Fᴰ
+        (UnitPsh→UnitPshᴰ Fᴰ)
+        term
+        termᴰ
+        strict-pres
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Categoryᴰ Cᴰ

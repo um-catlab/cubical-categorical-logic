@@ -43,6 +43,10 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}{P : Presh
   UnitPshᴰ-introᴰ .PshHomᴰ.N-obᴰ = λ _ → tt
   UnitPshᴰ-introᴰ .PshHomᴰ.N-homᴰ = refl
 
+  Unit*Pshᴰ-introᴰ : ∀ {ℓ} → PshHomᴰ α Pᴰ (Unit*Pshᴰ {Cᴰ = Cᴰ}{P = Q}{ℓ = ℓ})
+  Unit*Pshᴰ-introᴰ .PshHomᴰ.N-obᴰ = λ _ → lift tt
+  Unit*Pshᴰ-introᴰ .PshHomᴰ.N-homᴰ = refl
+
   UnitPshᴰ-UMP : Iso Unit (PshHomᴰ α Pᴰ (UnitPshᴰ {Cᴰ = Cᴰ}{P = Q}))
   UnitPshᴰ-UMP .Iso.fun = λ _ → UnitPshᴰ-introᴰ
   UnitPshᴰ-UMP .Iso.inv = λ _ → tt

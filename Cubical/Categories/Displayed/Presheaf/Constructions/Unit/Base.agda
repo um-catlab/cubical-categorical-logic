@@ -33,3 +33,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   UnitPshᴰ : ∀ {P : Presheaf C ℓP} → Presheafᴰ P Cᴰ ℓ-zero
   UnitPshᴰ = ConstantPshᴰ (Unit , isSetUnit)
+
+  Unit*Pshᴰ : ∀ {P : Presheaf C ℓP} {ℓ} → Presheafᴰ P Cᴰ ℓ
+  Unit*Pshᴰ = ConstantPshᴰ (Unit* , isOfHLevelLift 2 isSetUnit)

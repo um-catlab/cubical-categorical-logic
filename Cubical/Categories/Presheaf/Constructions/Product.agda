@@ -37,14 +37,13 @@ open Functor
 open PshHom
 open PshIso
 
-
 ℓs-max : (n : ℕ) → (Fin n → Level) → Level
 ℓs-max zero _ = ℓ-zero
 ℓs-max (suc n) ℓs = ℓ-max (ℓs-max n (ℓs ∘ fsuc)) (ℓs fzero)
 
-
 module _ {C : Category ℓ ℓ'} where
-  FinProdPsh : {n : ℕ} → {ℓs : Fin n → Level} →
+  FinProdPsh :
+    {n : ℕ} → {ℓs : Fin n → Level} →
     ((k : Fin n) → Presheaf C (ℓs k))
     → Presheaf C (ℓs-max n ℓs)
   FinProdPsh {zero} Ps = Unit*Psh

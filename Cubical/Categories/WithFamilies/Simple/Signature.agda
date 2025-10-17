@@ -16,6 +16,7 @@ open import Cubical.Data.SumFin
 open import Cubical.Categories.Category
 open import Cubical.Categories.WithFamilies.Simple.Base
 open import Cubical.Categories.WithFamilies.Simple.Properties
+open import Cubical.Categories.WithFamilies.Simple.Displayed
 -- open import Cubical.Categories.Bifunctor
 -- open import Cubical.Categories.Yoneda
 -- open import Cubical.Categories.Functor
@@ -30,10 +31,13 @@ open import Cubical.Categories.Presheaf.Constructions.Product
 -- open import Cubical.Categories.Presheaf.Representable.More
 -- open import Cubical.Categories.Profunctor.General
 
+open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Morphism
+
 
 private
   variable
-    ℓC ℓC' ℓT ℓT' ℓD ℓD' ℓQ ℓQ' ℓ ℓ' : Level
+    ℓC ℓC' ℓT ℓT' ℓD ℓD' ℓQ ℓQ' ℓ ℓ' ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level
 
 open Category
 
@@ -54,13 +58,24 @@ module _ ((base-ty , function-symbols) : Signature ℓ ℓ') (S : SCwF ℓC ℓC
   record Interp : Typeω where
     field
       ↑ty_ : base-ty → Ty
-    field
       ↑fun_ : (f : funsym) →
               PshHom
                 (FinProdPsh (λ k → Tm (↑ty dom f .snd k)))
                 (Tm (↑ty (cod f)))
 
+  module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ ℓTᴰ ℓTᴰ') where
+    open SCwFᴰNotation Sᴰ
+    record Interpᴰ (ι : Interp) : Typeω where
+      open Interp ι
+      field
+        ↑tyᴰ_ : (A : base-ty) → Tyᴰ (↑ty A)
+        ↑funᴰ_ : (f : funsym) →
+          PshHomᴰ (↑fun f) {!!} (Tmᴰ (↑tyᴰ cod f))
+
 record SCwFOver (sig : Signature ℓ ℓ') ℓC ℓC' ℓT ℓT' : Typeω where
   field
     S : SCwF ℓC ℓC' ℓT ℓT'
     interp : Interp sig S
+
+module _ (sig : Signature ℓ ℓ') (SOver : SCwFOver sig ℓC ℓC' ℓT ℓT') where
+  open SCwFOver SOver

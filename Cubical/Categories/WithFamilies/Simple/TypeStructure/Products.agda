@@ -1,6 +1,8 @@
 module Cubical.Categories.WithFamilies.Simple.TypeStructure.Products where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.LevelsSyntax
 
 open import Cubical.Data.Sigma
 
@@ -21,26 +23,31 @@ open import Cubical.Categories.WithFamilies.Simple.Displayed
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓT ℓT' ℓD ℓD' ℓS ℓS' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓT ℓT' ℓTᴰ ℓTᴰ' ℓD ℓD' ℓS ℓS' : Level
 
 module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open SCwFNotation S
-  ProdType : (A B : Ty) → Type _
+  ProdType : (A B : ⟨ Ty ⟩) → Type _
   ProdType A B =
-    Σ[ A×B ∈ Ty ] PshIso (Tm A×B) (Tm A ×Psh Tm B)
+    Σ[ A×B ∈ ⟨ Ty ⟩ ] PshIso (Tm A×B) (Tm A ×Psh Tm B)
 
   ProdTypes : Type _
   ProdTypes = ∀ A B → ProdType A B
 
-  module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓS ℓS') where
-    open SCwFᴰNotation Sᴰ hiding (Ty)
-    module _ {A B : Ty}
+  record hasProductTypes : Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ 0ℓ ⌉ℓ where
+    field product-types : ProdTypes
+
+  open hasProductTypes {{...}} public
+
+  module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
+    open SCwFᴰNotation S Sᴰ hiding (Ty)
+    module _ {A B : ⟨ Ty ⟩}
       ((A×B , A×B≅) : ProdType A B)
-      (Aᴰ : Tyᴰ A) (Bᴰ : Tyᴰ B)
+      (Aᴰ : ⟨ Tyᴰ A ⟩) (Bᴰ : ⟨ Tyᴰ B ⟩)
       where
       ProdTypeᴰ : Type _
       ProdTypeᴰ =
-        Σ[ Aᴰ×Bᴰ ∈ Tyᴰ A×B ]
+        Σ[ Aᴰ×Bᴰ ∈ ⟨ Tyᴰ A×B ⟩ ]
           PshIsoᴰ A×B≅ (Tmᴰ Aᴰ×Bᴰ) (Tmᴰ Aᴰ ×ᴰPsh Tmᴰ Bᴰ)
 
       module _ (Fᴰ : SCwFSection S Sᴰ) where
@@ -50,3 +57,17 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
         preservesProdType =
           preservesUE (Fᴰ .fst) (Fᴰ .snd .snd .fst A×B)
             (TmUE S A×B)
+
+    module _ (prods : ProdTypes) where
+      ProdTypesᴰ : Type _
+      ProdTypesᴰ =
+        ∀ {A B : ⟨ Ty ⟩} →
+        (Aᴰ : ⟨ Tyᴰ A ⟩) (Bᴰ : ⟨ Tyᴰ B ⟩) →
+        ProdTypeᴰ (prods A B) Aᴰ Bᴰ
+
+      record hasProductTypesᴰ : Type
+        ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ
+          ℓCᴰ ,ℓ ℓCᴰ' ,ℓ ℓTᴰ ,ℓ ℓTᴰ' ,ℓ 0ℓ ⌉ℓ where
+        field product-typesᴰ : ProdTypesᴰ
+
+      open hasProductTypesᴰ {{...}} public

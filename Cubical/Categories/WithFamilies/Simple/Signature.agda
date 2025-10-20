@@ -1,6 +1,7 @@
 module Cubical.Categories.WithFamilies.Simple.Signature where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.LevelsSyntax
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
@@ -12,11 +13,14 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.WithFamilies.Simple.Base
 open import Cubical.Categories.WithFamilies.Simple.Properties
 open import Cubical.Categories.WithFamilies.Simple.Displayed
-
+open import Cubical.Categories.WithFamilies.Simple.TypeStructure
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions.Product
+open import Cubical.Categories.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Presheaf.Constructions.Unit
+open import Cubical.Categories.Presheaf.Constructions.Empty
 
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Presheaf
@@ -29,105 +33,180 @@ private
 
 open Category
 
-module _ (base-ty : Type ℓ) where
+record hasTypeFormers : Type (ℓ-suc ℓ-zero) where
+  field
+    hasUnit hasEmpty hasProducts hasSums hasFunctions : Type
+
+open hasTypeFormers {{...}} public
+
+module _ {{whichTypes : hasTypeFormers}} (base-ty : Type ℓ) where
 
   data TypalExpression : Type ℓ where
-    1̂ 0̂ : TypalExpression
     ↑ : base-ty → TypalExpression
-    _+̂_ _×̂_ _⇒̂_ : base-ty → base-ty → TypalExpression
+    1̂ : {{ hasUnit }} → TypalExpression
+    _×̂_ : {{ hasProducts }} → TypalExpression → TypalExpression → TypalExpression
+    _⇒̂_ : {{ hasFunctions }} → TypalExpression → TypalExpression → TypalExpression
+    -- 0̂ : {{ hasEmpty }} → TypalExpression
+    -- _+̂_ : {{ hasSums }} → TypalExpression → TypalExpression → TypalExpression
 
   record SignatureOver ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     field
       funsym : Type ℓ'
-      dom : funsym → Σ[ n ∈ ℕ ] (Fin n → base-ty)
-      cod : funsym → base-ty
+      dom : funsym → Σ[ n ∈ ℕ ] (Fin n → TypalExpression)
+      cod : funsym → TypalExpression
 
--- Signature : ∀ ℓ ℓ' → Type _
--- Signature ℓ ℓ' = Σ[ base-ty ∈ Type ℓ ] SignatureOver base-ty ℓ'
+module _ {{whichTypes : hasTypeFormers}} where
+  Signature : ∀ ℓ ℓ' → Type _
+  Signature ℓ ℓ' = Σ[ base-ty ∈ Type ℓ ] SignatureOver base-ty ℓ'
 
--- module _ ((base-ty , function-symbols) : Signature ℓ ℓ') (S : SCwF ℓC ℓC' ℓT ℓT') where
---   open SignatureOver function-symbols
---   open SCwFNotation S
+module _
+  (S : SCwF ℓC ℓC' ℓT ℓT')
+  {{whichTypes : hasTypeFormers}}
+  where
 
---   module _ (↑ty : base-ty → Ty) where
---     ↑tm : base-ty → Presheaf C _
---     ↑tm A = Tm (↑ty A)
+  record SemanticTypeFormers :
+    Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ 0ℓ ⌉ℓ where
+    field
+      {{⟦1⟧}} : {{hasUnit}} → hasUnitType S
+      {{⟦×⟧}} : {{hasProducts}} → hasProductTypes S
+      {{⟦⇒⟧}} : {{hasFunctions}} → hasFunctionTypes S
+      -- {{⟦0⟧}} : {{hasEmpty}} → hasEmptyType S
+      -- {{⟦+⟧}} : {{hasSums}} → hasSumTypes S
 
---     mkArgs : (f : funsym) → Fin (dom f .fst) → Presheaf C _
---     mkArgs f k = ↑tm (dom f .snd k)
+  open SemanticTypeFormers {{...}} public
 
---     ↑dom :  (f : funsym) → Presheaf C _
---     ↑dom f = FinProdPsh $ mkArgs f
+  module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
+    record SemanticTypeFormersᴰ :
+      Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ ℓCᴰ ,ℓ ℓCᴰ' ,ℓ ℓTᴰ ,ℓ ℓTᴰ' ,ℓ 0ℓ ⌉ℓ where
+      field
+        {{⟦1⟧ᴰ}} : {{S-unit : hasUnitType S}} →
+          hasUnitTypeᴰ S Sᴰ unit-type
+        {{⟦×⟧ᴰ}} : {{S-prods : hasProductTypes S}} →
+          hasProductTypesᴰ S Sᴰ product-types
+        {{⟦⇒⟧ᴰ}} : {{S-funs : hasFunctionTypes S}} →
+          hasFunctionTypesᴰ S Sᴰ function-types
+        -- {{⟦0⟧ᴰ}} : {{hasEmpty}} → hasEmptyType S
+        -- {{⟦+⟧ᴰ}} : {{hasSums}} → hasSumTypes S
 
---     ↑cod :  (f : funsym) → Presheaf C _
---     ↑cod f = ↑tm (cod f)
+module _ {{whichTypes : hasTypeFormers}} where
+  module _
+    ((base-ty , function-symbols) : Signature ℓ ℓ')
+    (S : SCwF ℓC ℓC' ℓT ℓT')
+    {{semTypes : SemanticTypeFormers S}}
+    where
+    open SignatureOver function-symbols
+    open SCwFNotation S
 
---     record Interp : Typeω where
---       field
---         ↑fun : (f : funsym) → PshHom (↑dom f) (↑cod f)
+    module _ (↑ty : base-ty → ⟨ Ty ⟩) where
+      ↑tm : base-ty → Presheaf C _
+      ↑tm A = Tm (↑ty A)
 
---     module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
---       open SCwFᴰNotation Sᴰ
---       module _ (↑tyᴰ : (A : base-ty) → Tyᴰ (↑ty A)) where
---         ↑tmᴰ : (A : base-ty) → Presheafᴰ (↑tm A) Cᴰ _
---         ↑tmᴰ A = Tmᴰ (↑tyᴰ A)
+      ⟦_⟧Ty : TypalExpression base-ty → ⟨ Ty ⟩
+      ⟦ ↑ A ⟧Ty = ↑ty A
+      ⟦ 1̂ ⟧Ty = unit-type .fst
+      ⟦ e ×̂ e' ⟧Ty = product-types ⟦ e ⟧Ty ⟦ e' ⟧Ty .fst
+      ⟦ e ⇒̂ e' ⟧Ty = function-types ⟦ e ⟧Ty ⟦ e' ⟧Ty .fst
+      -- ⟦ 0̂ ⟧Ty = empty-type .fst
+      -- ⟦ e +̂ e' ⟧Ty = sum-types ⟦ e ⟧Ty ⟦ e' ⟧Ty .fst
 
---         mkArgsᴰ :
---           (f : funsym) → (k : Fin (dom f .fst)) →
---           Presheafᴰ (↑tm (dom f .snd k)) Cᴰ _
---         mkArgsᴰ f k = ↑tmᴰ (dom f .snd k)
+      ↑expr : TypalExpression base-ty → Presheaf C _
+      ↑expr e = Tm ⟦ e ⟧Ty
 
---         ↑domᴰ : (f : funsym) → Presheafᴰ (↑dom f) Cᴰ _
---         ↑domᴰ f = FinProdPshᴰ (mkArgs f) (mkArgsᴰ f)
+      dom→TE : (f : funsym) → TypalExpression base-ty
+      dom→TE f with dom f .fst
+      ... | zero = {!!}
+      ... | (suc n) = {!!}
 
---         ↑codᴰ :  (f : funsym) → Presheafᴰ (↑cod f) Cᴰ _
---         ↑codᴰ f = ↑tmᴰ (cod f)
+      mkArgs : (f : funsym) → Fin (dom f .fst) → Presheaf C _
+      mkArgs f k = ↑expr (dom f .snd k)
 
---         record Interpᴰ (ι : Interp) : Typeω where
---           open Interp ι
---           field
---             ↑funᴰ : (f : funsym) → PshHomᴰ (↑fun f) (↑domᴰ f) (↑codᴰ f)
+      ↑dom :  (f : funsym) → Presheaf C _
+      ↑dom f = FinProdPsh $ mkArgs f
 
--- record SCwFOver (sig : Signature ℓ ℓ') ℓC ℓC' ℓT ℓT' : Typeω where
---   field
---     S : SCwF ℓC ℓC' ℓT ℓT'
---   open SCwFNotation S
---   field
---     ↑ty : ⟨ sig ⟩ → Ty
---     interp : Interp sig S ↑ty
+      ↑cod :  (f : funsym) → Presheaf C _
+      ↑cod f = ↑expr (cod f)
 
--- record SCwFᴰOver
---   (sig : Signature ℓ ℓ')
---   (SOver : SCwFOver sig ℓC ℓC' ℓT ℓT')
---   ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Typeω where
---   open SignatureOver (sig .snd) public
---   open SCwFOver SOver public
---   field
---     Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ'
---   open SCwFᴰNotation Sᴰ
---   field
---     ↑tyᴰ : (A : ⟨ sig ⟩) → Tyᴰ (↑ty A)
---     interpᴰ : Interpᴰ sig S ↑ty Sᴰ ↑tyᴰ interp
+      record Interp : Typeω where
+        field
+          ↑fun : (f : funsym) → PshHom (↑dom f) (↑cod f)
 
--- module _
---   (sig : Signature ℓ ℓ')
---   (SOver : SCwFOver sig ℓC ℓC' ℓT ℓT')
---   (SᴰOver : SCwFᴰOver sig SOver ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
---   where
---   open SCwFᴰOver SᴰOver
+      module _
+        (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
+        {{semTypesᴰ : SemanticTypeFormersᴰ S Sᴰ}}
+        where
+        open SCwFᴰNotation S Sᴰ
+        module _ (↑tyᴰ : (A : base-ty) → ⟨ Tyᴰ (↑ty A) ⟩) where
+          ↑tmᴰ : (A : base-ty) → Presheafᴰ (↑tm A) Cᴰ _
+          ↑tmᴰ A = Tmᴰ (↑tyᴰ A)
 
---   module _
---     ((Fᴰ , F-ty , F-tm
---          , presTerm , presLocalRep) : SCwFSection S Sᴰ) where
+          ⟦_⟧Tyᴰ : (e : TypalExpression base-ty) → ⟨ Tyᴰ ⟦ e ⟧Ty ⟩
+          ⟦ ↑ A ⟧Tyᴰ = ↑tyᴰ A
+          ⟦ 1̂ ⟧Tyᴰ = unit-typeᴰ .fst
+          ⟦ e ×̂ e' ⟧Tyᴰ = product-typesᴰ ⟦ e ⟧Tyᴰ ⟦ e' ⟧Tyᴰ .fst
+          ⟦ e ⇒̂ e' ⟧Tyᴰ = function-typesᴰ ⟦ e ⟧Tyᴰ ⟦ e' ⟧Tyᴰ .fst
 
---     PreservesBaseType : ⟨ sig ⟩ → Type _
---     PreservesBaseType A = F-ty (↑ty A) ≡ ↑tyᴰ A
+          ↑exprᴰ : (e : TypalExpression base-ty) → Presheafᴰ (↑expr e) Cᴰ _
+          ↑exprᴰ e = Tmᴰ ⟦ e ⟧Tyᴰ
 
---     PreservesBaseTypes : Type _
---     PreservesBaseTypes = ∀ (A : ⟨ sig ⟩) → PreservesBaseType A
+          mkArgsᴰ :
+            (f : funsym) → (k : Fin (dom f .fst)) →
+            Presheafᴰ (↑expr (dom f .snd k)) Cᴰ _
+          mkArgsᴰ f k = ↑exprᴰ (dom f .snd k)
 
---     PreservesFunctionSymbol : funsym → Type _
---     PreservesFunctionSymbol f = {!!}
+          ↑domᴰ : (f : funsym) → Presheafᴰ (↑dom f) Cᴰ _
+          ↑domᴰ f = FinProdPshᴰ (mkArgs f) (mkArgsᴰ f)
 
---     PreservesSignature : Type _
---     PreservesSignature = {!!}
+          ↑codᴰ :  (f : funsym) → Presheafᴰ (↑cod f) Cᴰ _
+          ↑codᴰ f = ↑exprᴰ (cod f)
+
+          record Interpᴰ (ι : Interp) : Typeω where
+            open Interp ι
+            field
+              ↑funᴰ : (f : funsym) → PshHomᴰ (↑fun f) (↑domᴰ f) (↑codᴰ f)
+
+  record SCwFOver (sig : Signature ℓ ℓ') ℓC ℓC' ℓT ℓT' : Typeω where
+    field
+      S : SCwF ℓC ℓC' ℓT ℓT'
+    open SCwFNotation S
+    field
+      {{semTypes}} : SemanticTypeFormers S
+      ↑ty : ⟨ sig ⟩ → ⟨ Ty ⟩
+      interp : Interp sig S ↑ty
+
+  record SCwFᴰOver
+    (sig : Signature ℓ ℓ')
+    (SOver : SCwFOver sig ℓC ℓC' ℓT ℓT')
+    ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Typeω where
+    open SignatureOver (sig .snd) public
+    open SCwFOver SOver public
+    field
+      Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ'
+    open SCwFᴰNotation S Sᴰ
+    field
+      ↑tyᴰ : (A : ⟨ sig ⟩) → ⟨ Tyᴰ (↑ty A) ⟩
+      {{semTypesᴰ}} : SemanticTypeFormersᴰ S Sᴰ
+      interpᴰ : Interpᴰ sig S ↑ty Sᴰ ↑tyᴰ interp
+
+  module _
+    (sig : Signature ℓ ℓ')
+    (SOver : SCwFOver sig ℓC ℓC' ℓT ℓT')
+    (SᴰOver : SCwFᴰOver sig SOver ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
+    where
+    open SCwFᴰOver SᴰOver
+
+    module _
+      ((Fᴰ , F-ty , F-tm
+           , presTerm , presLocalRep) : SCwFSection S Sᴰ) where
+
+      PreservesBaseType : ⟨ sig ⟩ → Type _
+      PreservesBaseType A = F-ty (↑ty A) ≡ ↑tyᴰ A
+
+      PreservesBaseTypes : Type _
+      PreservesBaseTypes = ∀ (A : ⟨ sig ⟩) → PreservesBaseType A
+
+      PreservesFunctionSymbol : funsym → Type _
+      PreservesFunctionSymbol f =
+        preservesUE Fᴰ (F-tm {!!}) {!!}
+
+  --     PreservesSignature : Type _
+  --     PreservesSignature = {!!}

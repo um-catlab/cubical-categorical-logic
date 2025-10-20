@@ -1,6 +1,9 @@
 module Cubical.Categories.WithFamilies.Simple.TypeStructure.Unit where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.LevelsSyntax
+open import Cubical.Foundations.More
 
 open import Cubical.Data.Sigma
 
@@ -21,27 +24,37 @@ open import Cubical.Categories.WithFamilies.Simple.Displayed
 
 private
   variable
-    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓT ℓT' ℓD ℓD' ℓS ℓS' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓT ℓT' ℓTᴰ ℓTᴰ' ℓD ℓD' ℓS ℓS' : Level
 
 module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open SCwFNotation S
 
   UnitType : Type _
-  UnitType = Σ[ 1Ty ∈ Ty ] PshIso (Tm 1Ty) UnitPsh
+  UnitType = Σ[ 1Ty ∈ ⟨ Ty ⟩ ] PshIso (Tm 1Ty) UnitPsh
 
-  module _
-    ((1Ty , 1Ty≅) : UnitType)
-    (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓS ℓS') where
-    open SCwFᴰNotation Sᴰ
-    UnitTypeᴰ : Type _
-    UnitTypeᴰ =
-      Σ[ 1Tyᴰ ∈ Tyᴰ 1Ty ]
-        PshIsoᴰ 1Ty≅ (Tmᴰ 1Tyᴰ) UnitPshᴰ
+  record hasUnitType : Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ 0ℓ ⌉ℓ where
+    field unit-type : UnitType
 
-    module _ (Fᴰ : SCwFSection S Sᴰ) where
-      open Section
+  open hasUnitType {{...}} public
 
-      preservesUnitType : Type _
-      preservesUnitType =
-        preservesUE (Fᴰ .fst) (Fᴰ .snd .snd .fst 1Ty)
-          (TmUE S 1Ty)
+  module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
+    open SCwFᴰNotation S Sᴰ
+    module _ ((1Ty , 1Ty≅) : UnitType) where
+      UnitTypeᴰ : Type _
+      UnitTypeᴰ =
+        Σ[ 1Tyᴰ ∈ ⟨ Tyᴰ 1Ty ⟩ ]
+          PshIsoᴰ 1Ty≅ (Tmᴰ 1Tyᴰ) UnitPshᴰ
+
+      record hasUnitTypeᴰ :
+        Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ ℓCᴰ ,ℓ ℓCᴰ' ,ℓ ℓTᴰ ,ℓ ℓTᴰ' ,ℓ 0ℓ ⌉ℓ where
+        field unit-typeᴰ : UnitTypeᴰ
+
+      open hasUnitTypeᴰ {{...}} public
+
+      module _ (Fᴰ : SCwFSection S Sᴰ) where
+        open Section
+
+        preservesUnitType : Type _
+        preservesUnitType =
+          preservesUE (Fᴰ .fst) (Fᴰ .snd .snd .fst 1Ty)
+            (TmUE S 1Ty)

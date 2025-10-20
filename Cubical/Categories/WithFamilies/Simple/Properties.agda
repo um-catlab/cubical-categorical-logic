@@ -36,20 +36,20 @@ module SCwFNotation (the-scwf : SCwF ℓC ℓC' ℓT ℓT') where
   C = the-scwf .fst
   Ty = the-scwf .snd .fst
   Tm = the-scwf .snd .snd .fst
-  module Tm⟨_⟩ (A : Ty) = PresheafNotation (Tm A)
+  module Tm⟨_⟩ (A : ⟨ Ty ⟩) = PresheafNotation (Tm A)
   term = the-scwf .snd .snd .snd .fst
   module TermCtx = TerminalNotation term
   ext = the-scwf .snd .snd .snd .snd
 
   _,,_ = ExtendContextF._,,_ the-scwf
-  _⊢_ : C .Category.ob → Ty → Type _
+  _⊢_ : C .Category.ob → ⟨ Ty ⟩ → Type _
   Γ ⊢ A = ⟨ Tm A ⟅ Γ ⟆ ⟩
 
-  sole : Ty → C .ob
+  sole : ⟨ Ty ⟩ → C .ob
   sole = TermCtx.𝟙 ,,_
 
 module SCwFᴰNotation
-  {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}
+  (the-scwf : SCwF ℓC ℓC' ℓT ℓT')
   (the-scwfᴰ : SCwFᴰ the-scwf ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
   where
   open SCwFNotation the-scwf public
@@ -57,13 +57,13 @@ module SCwFᴰNotation
   module Cᴰ = Fibers Cᴰ
   Tyᴰ = the-scwfᴰ .snd .fst
   Tmᴰ = the-scwfᴰ .snd .snd .fst
-  module Tmᴰ {A : Ty}{Aᴰ : Tyᴰ A} = PresheafᴰNotation (Tmᴰ Aᴰ)
+  module Tmᴰ {A : ⟨ Ty ⟩}{Aᴰ : ⟨ Tyᴰ A ⟩} = PresheafᴰNotation (Tmᴰ Aᴰ)
   termᴰ = the-scwfᴰ .snd .snd .snd .fst
   module termᴰ = UniversalElementᴰ termᴰ
   extᴰ = the-scwfᴰ .snd .snd .snd .snd
-  module extᴰ {Γ}{A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : Tyᴰ A} =
+  module extᴰ {Γ}{A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : ⟨ Tyᴰ A ⟩} =
     UniversalElementᴰ (extᴰ Aᴰ Γᴰ)
-  _[_]⊢ᴰ_ : ∀ {Γ A} → Cᴰ.ob[ Γ ] → Γ ⊢ A → Tyᴰ A → Type _
+  _[_]⊢ᴰ_ : ∀ {Γ A} → Cᴰ.ob[ Γ ] → Γ ⊢ A → ⟨ Tyᴰ A ⟩ → Type _
   Γᴰ [ M ]⊢ᴰ Aᴰ = ⟨ Tmᴰ Aᴰ .Functorᴰ.F-obᴰ Γᴰ M ⟩
 
 module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
@@ -72,7 +72,7 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open UniversalElement
 
 
-  module _ (A : Ty) where
+  module _ (A : ⟨ Ty ⟩) where
     private
       module 1,A = UniversalElementNotation (ext A 𝟙)
 

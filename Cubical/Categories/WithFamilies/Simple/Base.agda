@@ -13,8 +13,6 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
-open import Cubical.HITs.GroupoidTruncation
-
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -40,8 +38,8 @@ private
 SCwF : (ℓC ℓC' ℓT ℓT' : Level) → Type _
 SCwF ℓC ℓC' ℓT ℓT' =
   Σ[ C ∈ Category ℓC ℓC' ]
-  Σ[ Ty ∈ Type ℓT ]
-  Σ[ Tm ∈ (Ty → Presheaf C ℓT') ]
+  Σ[ Ty ∈ hSet ℓT ]
+  Σ[ Tm ∈ (⟨ Ty ⟩ → Presheaf C ℓT') ]
   Terminal' C ×
   -- "Simple comprehension"
   (∀ A → LocallyRepresentable (Tm A))
@@ -58,15 +56,12 @@ module ExtendContextF
   -- thereby defining a functor on contexts that extends
   -- with respect to a fixed type
 
+  -- TODO make ty a set
   TY : Category ℓT ℓT
-  TY = DiscreteCategory (∥ Ty ∥₃ , isGroupoidGroupoidTrunc)
+  TY = DiscreteCategory (⟨ Ty ⟩ , (isSet→isGroupoid (Ty .snd)))
 
   TM : Functor TY (PresheafCategory C ℓT')
-  TM =
-    DiscFunc $
-      rec
-        (isUnivalent.isGroupoid-ob isUnivalentPresheafCategory)
-        Tm
+  TM = DiscFunc $ Tm
 
   open Bifunctor
   ExtendContextBif : Bifunctor C TY (PresheafCategory C (ℓ-max ℓC' ℓT'))
@@ -79,10 +74,10 @@ module ExtendContextF
       {C = C} {D = TY}
     PshProd (YO , TM)
 
-  module _ (A : Ty) where
+  module _ (A : ⟨ Ty ⟩) where
 
     ExtendContextProf : Profunctor C C (ℓ-max ℓC' ℓT')
-    ExtendContextProf = appR ExtendContextBif ∣ A ∣₃
+    ExtendContextProf = appR ExtendContextBif A
 
     open Functor
     open UniversalElement
@@ -93,14 +88,15 @@ module ExtendContextF
     ExtendContext : Functor C C
     ExtendContext = FunctorComprehension ExtendContextProf (ext A)
 
-  _,,_ : C .ob → Ty → C .ob
+  _,,_ : C .ob → ⟨ Ty ⟩ → C .ob
   Γ ,, A = ExtendContext A ⟅ Γ ⟆
 
 module ContinuationPresheaf
   ((C , Ty , Tm , term , ext) : SCwF ℓC ℓC' ℓT ℓT') where
   open ExtendContextF (C , Ty , Tm , term , ext)
-  module _ (A B : Ty) where
+  module _ (A B : ⟨ Ty ⟩) where
     open Functor
 
-    Cont : Presheaf C _
-    Cont = Tm B ∘F ((ExtendContext A) ^opF)
+    opaque
+      Cont : Presheaf C ℓT'
+      Cont = Tm B ∘F ((ExtendContext A) ^opF)

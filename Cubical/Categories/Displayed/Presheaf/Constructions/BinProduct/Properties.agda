@@ -61,6 +61,46 @@ open PshIso
 -- Product
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   where
+  module _
+    {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    where
+    ×ᴰ-π₁ : PshHomᴰ (π₁ _ _) (Pᴰ ×ᴰPsh Qᴰ) Pᴰ
+    ×ᴰ-π₁ .N-obᴰ = fst
+    ×ᴰ-π₁ .N-homᴰ = refl
+
+    ×ᴰ-π₂ : PshHomᴰ (π₂ _ _) (Pᴰ ×ᴰPsh Qᴰ) Qᴰ
+    ×ᴰ-π₂ .N-obᴰ = snd
+    ×ᴰ-π₂ .N-homᴰ = refl
+
+  module _
+    {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {R : Presheaf C ℓR}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+    {α : PshHom R P} {β : PshHom R Q}
+    (αᴰ : PshHomᴰ α Rᴰ Pᴰ) (βᴰ : PshHomᴰ β Rᴰ Qᴰ)
+    where
+    ×ᴰ-introᴰ : PshHomᴰ (×PshIntro α β) Rᴰ (Pᴰ ×ᴰPsh Qᴰ)
+    ×ᴰ-introᴰ .N-obᴰ z = αᴰ .N-obᴰ z , βᴰ .N-obᴰ z
+    ×ᴰ-introᴰ .N-homᴰ = ΣPathP (αᴰ .N-homᴰ , βᴰ .N-homᴰ)
+
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
+    ×ᴰPshβ₁ : PshHomᴰPathP (×ᴰ-introᴰ ⋆PshHomᴰ ×ᴰ-π₁) αᴰ (×Pshβ₁ α β)
+    ×ᴰPshβ₁ =
+      makePshHomᴰPathP _ _ _
+        λ {c}{cᴰ}{r} → funExt λ rᴰ →
+          Pᴰ.rectify $ Pᴰ.≡out $ refl
+
+    ×ᴰPshβ₂ : PshHomᴰPathP (×ᴰ-introᴰ ⋆PshHomᴰ ×ᴰ-π₂) βᴰ (×Pshβ₂ α β)
+    ×ᴰPshβ₂ =
+      makePshHomᴰPathP _ _ _
+        λ {c}{cᴰ}{r} → funExt λ rᴰ →
+          Qᴰ.rectify $ Qᴰ.≡out $ refl
+
   module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
     where
     ×ⱽ-π₁ : PshHomⱽ (Pᴰ ×ⱽPsh Qᴰ) Pᴰ

@@ -1,6 +1,8 @@
 module Cubical.Categories.WithFamilies.Simple.TypeStructure.Sums where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.LevelsSyntax
 
 open import Cubical.Data.Sigma
 
@@ -26,13 +28,20 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
 
   open ContinuationPresheaf (C , Ty , Tm , term , ext)
 
-  SumType : (A B : Ty) → Type _
+  SumType : (A B : ⟨ Ty ⟩) → Type _
   SumType A B =
-    Σ[ A+B ∈ Ty ] ∀ (C : Ty) →
+    Σ[ A+B ∈ ⟨ Ty ⟩ ] ∀ (C : ⟨ Ty ⟩) →
+      -- ∀ Γ
+      -- Γ , A + B ⊢ C iff Γ , A ⊢ C and Γ , B ⊢ C
       PshIso (Cont A+B C) (Cont A C ×Psh Cont B C)
 
   SumTypes : Type _
   SumTypes = ∀ A B → SumType A B
+
+  record hasSumTypes : Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ 0ℓ ⌉ℓ where
+    field sum-types : SumTypes
+
+  open hasSumTypes {{...}} public
 
   -- module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓS ℓS') where
   --   open SCwFᴰNotation Sᴰ hiding (Ty)

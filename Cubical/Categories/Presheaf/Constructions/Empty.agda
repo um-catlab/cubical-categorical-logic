@@ -21,6 +21,9 @@ open PshHom
 EmptyPsh : ∀ {C : Category ℓ ℓ'} → Presheaf C ℓ-zero
 EmptyPsh = Constant _ _ (⊥ , (λ ()))
 
+Empty*Psh : ∀ {C : Category ℓ ℓ'} {ℓ''} → Presheaf C ℓ''
+Empty*Psh = Constant _ _ (⊥* , (λ ()))
+
 EmptyPsh-elim : ∀ {C : Category ℓ ℓ'}{P : Presheaf C ℓA}
   → PshHom EmptyPsh P
 EmptyPsh-elim .N-ob c ()

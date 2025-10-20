@@ -31,23 +31,23 @@ open QuiverOver
 open Axioms
 
 module _ (C : Category ℓc ℓc') (D : Category ℓd ℓd') where
+  data ProdGenerator : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓd ℓd')) where
+    homR : ∀ (c : C .ob) {d d' : D .ob} (g : D [ d , d' ]) → ProdGenerator
+    homL : ∀ {c c' : C .ob} (f : C [ c , c' ]) (d : D .ob) → ProdGenerator
+    hom× : ∀ {c c' : C .ob}
+             {d d' : D .ob}
+             (f : C [ c , c' ]) (g : D [ d , d' ]) → ProdGenerator
+
+  -- For axioms, we'll use the Parallel action axioms as they're the concicest
+  data ProdAx : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓd ℓd')) where
+    ×-id : (c : C .ob)(d : D .ob) → ProdAx
+    ×-seq : ∀ {c c' c''}{d d' d''}
+           (f : C [ c , c' ])(f' : C [ c' , c'' ])
+           (g : D [ d , d' ])(g' : D [ d' , d'' ]) → ProdAx
+    L×-agree : ∀ {c c'} (f : C [ c , c' ]) (d : D .ob) → ProdAx
+    R×-agree : ∀ {d d'} (c : C .ob) (g : D [ d , d' ]) → ProdAx
+
   private
-    data ProdGenerator : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓd ℓd')) where
-      homR : ∀ (c : C .ob) {d d' : D .ob} (g : D [ d , d' ]) → ProdGenerator
-      homL : ∀ {c c' : C .ob} (f : C [ c , c' ]) (d : D .ob) → ProdGenerator
-      hom× : ∀ {c c' : C .ob}
-               {d d' : D .ob}
-               (f : C [ c , c' ]) (g : D [ d , d' ]) → ProdGenerator
-
-    -- For axioms, we'll use the Parallel action axioms as they're the concicest
-    data ProdAx : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓd ℓd')) where
-      ×-id : (c : C .ob)(d : D .ob) → ProdAx
-      ×-seq : ∀ {c c' c''}{d d' d''}
-             (f : C [ c , c' ])(f' : C [ c' , c'' ])
-             (g : D [ d , d' ])(g' : D [ d' , d'' ]) → ProdAx
-      L×-agree : ∀ {c c'} (f : C [ c , c' ]) (d : D .ob) → ProdAx
-      R×-agree : ∀ {d d'} (c : C .ob) (g : D [ d , d' ]) → ProdAx
-
     Q : Quiver (ℓ-max ℓc ℓd) (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓd ℓd'))
     Q .fst = C .ob × D .ob
     Q .snd .mor = ProdGenerator

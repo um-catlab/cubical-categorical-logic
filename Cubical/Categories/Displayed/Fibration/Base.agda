@@ -3,6 +3,7 @@
 module Cubical.Categories.Displayed.Fibration.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
@@ -60,31 +61,30 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     ∀ {c : C.ob} (cᴰ : Cᴰ.ob[ c ]) → PshᴰisFibration (Cᴰ [-][-, cᴰ ])
 
   -- TODO port to the this version of cartesian lift
-  -- module _ (isFib : isFibration) where
-  --   private
-  --     module Cⱽ = Fibers Cᴰ
-  --   module _ {x}{y}(f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) where
-  --     fibration→HomᴰRepr :
-  --       UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
-  --     fibration→HomᴰRepr .UniversalElement.vertex = p*Pᴰ
-  --     fibration→HomᴰRepr .UniversalElement.element = π
-  --     fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv
-  --       ( (λ fᴰ → intro (Cᴰ.idᴰ Cᴰ.⋆ᴰ fᴰ))
-  --       , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
-  --         (sym $ Cᴰ.reind-filler _ _)
-  --         ∙ β
-  --         ∙ Cᴰ.⋆IdL _)
-  --       , λ fⱽ →
-  --         Cᴰ.rectify $ Cᴰ.≡out $
-  --           intro≡ $
-  --             Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-  --             ∙ Cᴰ.⋆IdL _
-  --         )
+  module _ (isFib : isFibration) where
+    private
+      module Cⱽ = Fibers Cᴰ
+    module _ {x}{y}(f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) where
+      private
+        module f*yᴰ = UniversalElementⱽ (isFib yᴰ f)
+      fibration→HomᴰRepr :
+        UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
+      fibration→HomᴰRepr .UniversalElement.vertex = f*yᴰ.vertexⱽ
+      fibration→HomᴰRepr .UniversalElement.element =
+        Cⱽ.reind (C.⋆IdL f) f*yᴰ.elementⱽ
+      fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv ((λ fᴰ → f*yᴰ.introᴰ (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
+        , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _ _  ⟩)
+          ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.≡in f*yᴰ.βⱽ
+          ∙ Cᴰ.⋆IdL _)
+        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $ f*yᴰ.∫ue.intro≡
+            (change-base {C = Cᴰ [_][ _ , _ ]} (C._⋆ f) C.isSetHom
+              (sym $ C.⋆IdL (f*yᴰ.∫ue.element .fst))
+              (Cⱽ.⋆IdL _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cⱽ.⟨⟩⋆⟨ sym $ Cⱽ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _ )))
 
-  --   CartesianLiftF-fiber :
-  --     ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
-  --   CartesianLiftF-fiber f =
-  --     FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
+    CartesianLiftF-fiber :
+      ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
+    CartesianLiftF-fiber f =
+      FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
 
   -- Definition #2: This is the "textbook" compositional
   -- definition. It suffers from very slow performance

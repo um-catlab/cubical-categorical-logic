@@ -18,18 +18,23 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
+open import Cubical.Categories.LocallySmall
+open import Cubical.Categories.LocallySmall.Functor as LocallySmall
+open import Cubical.Categories.LocallySmall.Bifunctor as LocallySmall
+
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Bifunctor
+open import Cubical.Categories.Displayed.Functor as Small
+open import Cubical.Categories.Displayed.Functor.More as Small
+open import Cubical.Categories.Displayed.Bifunctor as Small
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Base renaming (PRESHEAFᴰ to SmallPRESHEAFᴰ)
 open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Presheaf.Morphism
 
 private
   variable
@@ -39,8 +44,8 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
-open Bifunctorᴰ
-open Functorᴰ
+open Small.Bifunctorᴰ
+open Small.Functorᴰ
 
 open PshHom
 open PshIso
@@ -52,13 +57,13 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
   -- External product: (Pᴰ ×ᴰ Qᴰ) over (P × Q)
   PshProd'ᴰ :
-    Functorᴰ PshProd' (PRESHEAFᴰ Cᴰ ℓA ℓAᴰ ×Cᴰ PRESHEAFᴰ Cᴰ ℓB ℓBᴰ)
-                      (PRESHEAFᴰ Cᴰ (ℓ-max ℓA ℓB) (ℓ-max ℓAᴰ ℓBᴰ))
+    Small.Functorᴰ PshProd' (SmallPRESHEAFᴰ Cᴰ ℓA ℓAᴰ ×Cᴰ SmallPRESHEAFᴰ Cᴰ ℓB ℓBᴰ)
+                      (SmallPRESHEAFᴰ Cᴰ (ℓ-max ℓA ℓB) (ℓ-max ℓAᴰ ℓBᴰ))
   PshProd'ᴰ = postcomposeFᴰ (C ^op) (Cᴰ ^opᴰ) ×Setsᴰ ∘Fᴰ ,Fᴰ-functorᴰ
 
   PshProdᴰ :
-    Bifunctorᴰ PshProd (PRESHEAFᴰ Cᴰ ℓA ℓAᴰ) (PRESHEAFᴰ Cᴰ ℓB ℓBᴰ)
-                       (PRESHEAFᴰ Cᴰ (ℓ-max ℓA ℓB) (ℓ-max ℓAᴰ ℓBᴰ))
+    Small.Bifunctorᴰ PshProd (SmallPRESHEAFᴰ Cᴰ ℓA ℓAᴰ) (SmallPRESHEAFᴰ Cᴰ ℓB ℓBᴰ)
+                       (SmallPRESHEAFᴰ Cᴰ (ℓ-max ℓA ℓB) (ℓ-max ℓAᴰ ℓBᴰ))
   PshProdᴰ = ParFunctorᴰToBifunctorᴰ PshProd'ᴰ
 
   _×ᴰPsh_ : ∀ {P : Presheaf C ℓA}{Q : Presheaf C ℓB}
@@ -77,8 +82,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
   -- Internal product: Pᴰ ×ⱽ Qᴰ over P
   PshProdⱽ :
-    Functorⱽ (PRESHEAFᴰ Cᴰ ℓA ℓAᴰ ×ᴰ PRESHEAFᴰ Cᴰ ℓA ℓBᴰ)
-             (PRESHEAFᴰ Cᴰ ℓA (ℓ-max ℓAᴰ ℓBᴰ))
+    Small.Functorⱽ (SmallPRESHEAFᴰ Cᴰ ℓA ℓAᴰ ×ᴰ SmallPRESHEAFᴰ Cᴰ ℓA ℓBᴰ)
+             (SmallPRESHEAFᴰ Cᴰ ℓA (ℓ-max ℓAᴰ ℓBᴰ))
   PshProdⱽ = postcomposeFⱽ (C ^op) (Cᴰ ^opᴰ) ×Setsⱽ ∘Fⱽ ,Fⱽ-functorⱽ
 
   _×ⱽPsh_ : ∀ {P : Presheaf C ℓA}
@@ -86,23 +91,33 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
             → Presheafᴰ P Cᴰ _
   Pᴰ ×ⱽPsh Qᴰ = PshProdⱽ .F-obᴰ (Pᴰ , Qᴰ)
 
-  LocallyRepresentableᴰ :
-    ((P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P)
-    → Presheafᴰ P Cᴰ ℓPᴰ
-    → Type _
-  LocallyRepresentableᴰ (P , _×P) Pᴰ = ∀ {c} cᴰ → UniversalElementᴰ Cᴰ (c ×P) ((Cᴰ [-][-, cᴰ ]) ×ᴰPsh Pᴰ)
+  open Bifunctorⱽ
+  PshProdⱽ' : Bifunctorⱽ idF (PRESHEAFᴰ Cᴰ) (PRESHEAFᴰ Cᴰ) (PRESHEAFᴰ Cᴰ)
+  PshProdⱽ' .Bif-obᴰ (_ , liftω Pᴰ) (_ , liftω Qᴰ) = _ , liftω (Pᴰ ×ⱽPsh Qᴰ)
+  PshProdⱽ' .Bif-hom×ᴰ {c' = (_ , liftω Q)} αᴰ βᴰ = pshhomᴰ (λ {x} {xᴰ} {p} z →
+                                           αᴰ .PshHomᴰ.N-obᴰ (z .fst) , βᴰ .PshHomᴰ.N-obᴰ (z .snd))
+                                             (×≡Snd-hSet (PresheafNotation.isSetPsh Q)
+                                               (αᴰ .PshHomᴰ.N-homᴰ) (βᴰ .PshHomᴰ.N-homᴰ))
+  PshProdⱽ' .Bif-×-idᴰ = makePshHomᴰPath refl (λ _ → refl)
+  PshProdⱽ' .Bif-×-seqᴰ = makePshHomᴰPath refl (λ _ → refl)
 
-  open UniversalElement
-  ∫LocallyRepresentable :
-    {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
-    → ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
-    → LocallyRepresentable (∫P Pᴰ)
-  ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) =
-    UniversalElementᴰ.∫ue (Γᴰ ×ᴰPᴰ)
-      ◁PshIso
-      (∫×ᴰ≅× ⋆PshIso ×PshIso (TotalCatYoPshIso Cᴰ) idPshIso)
+  -- LocallyRepresentableᴰ :
+  --   ((P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P)
+  --   → Presheafᴰ P Cᴰ ℓPᴰ
+  --   → Type _
+  -- LocallyRepresentableᴰ (P , _×P) Pᴰ = ∀ {c} cᴰ → UniversalElementᴰ Cᴰ (c ×P) ((Cᴰ [-][-, cᴰ ]) ×ᴰPsh Pᴰ)
 
-  LocallyRepresentableⱽ : {P : Presheaf C ℓP} → (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
-  LocallyRepresentableⱽ {P = P} Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
-    → UniversalElementⱽ Cᴰ Γ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ)
-    where module P = PresheafNotation P
+  -- open UniversalElement
+  -- ∫LocallyRepresentable :
+  --   {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
+  --   → ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
+  --   → LocallyRepresentable (∫P Pᴰ)
+  -- ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) =
+  --   UniversalElementᴰ.∫ue (Γᴰ ×ᴰPᴰ)
+  --     ◁PshIso
+  --     (∫×ᴰ≅× ⋆PshIso ×PshIso (TotalCatYoPshIso Cᴰ) idPshIso)
+
+  -- LocallyRepresentableⱽ : {P : Presheaf C ℓP} → (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
+  -- LocallyRepresentableⱽ {P = P} Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
+  --   → UniversalElementⱽ Cᴰ Γ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ)
+  --   where module P = PresheafNotation P

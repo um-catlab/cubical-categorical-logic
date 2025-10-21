@@ -37,11 +37,16 @@ open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Variables
 
 open Category
--- A Presheaf C ℓP is a functor C^op → hSet ℓP, not a functor C → SET, i.e.,
---   Cᵒ → SET.v[ ℓ ]
+open Categoryᴰ
 
--- so each presheaf is not actually a functor C^op → SET but a choice
--- of ℓ and a functor C^op → Set ℓ (which is a small category)
+-- We want to define a category of presheaves of various universe
+-- levels.
+-- 
+-- A Psh C ℓP should be a functor C^o → SET.v[ ℓP ].
+-- this is equivalent to a displayed functor weaken C^op → SET.v[ ℓP ] over K ℓP : 1 → LEVEL
+--
+-- So the category of all Psh C is the total category of the category
+-- of displayed functors weaken 1 C^op → SET
 
 -- the type of natural transformations between functors of locally
 -- small categories is large because while each D.Hom[_,_] is small,
@@ -66,6 +71,9 @@ record LargeNatTrans {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
     N-hom : ∀ {x y}(f : C.Hom[ x , y ])
       → (F.F-hom f D.⋆ N-ob y) ≡ (N-ob x D.⋆ G.F-hom f)
 
+-- To make a small type of natural transformations, we need
+-- 1. C to have a small type of objects and a global universe level of all homs (i.e., a Small Category)
+-- 2. D to have a global universe level
 module _ {(Cob , C) : SmallCategory ℓC ℓC'} where
   record NatTrans 
     {D : GloballySmallCategory Dob ℓD'}
@@ -83,9 +91,10 @@ module _ {(Cob , C) : SmallCategory ℓC ℓC'} where
       N-ob : ∀ x → D.Hom[ F.F-ob (liftω x) , G.F-ob (liftω x) ]
       N-hom : ∀ {x y}(f : C.Hom[ liftω x , liftω y ])
         → (F.F-hom f D.⋆ N-ob y) ≡ (N-ob x D.⋆ G.F-hom f)
-open NatTrans
+-- open NatTrans
 
 module _ {(Cob , C) : SmallCategory ℓC ℓC'}{D : GloballySmallCategory Dob ℓD'} where
+  open NatTrans
   private
     module C = CategoryNotation C
     module D = CategoryNotation D
@@ -136,12 +145,288 @@ module _ ((Cob , C) : SmallCategory ℓC ℓC')(D : GloballySmallCategory Dob �
   FUNCTOR .Category.⋆IdL α = makeNatTransPath $ funExt λ _ → D.⋆IdL _
   FUNCTOR .Category.⋆IdR α = makeNatTransPath $ funExt λ _ → D.⋆IdR _
   FUNCTOR .Category.⋆Assoc α β γ = makeNatTransPath $ funExt λ _ →
-    D.⋆Assoc (α .N-ob _) (β .N-ob _) (γ .N-ob _)
+    D.⋆Assoc _ _ _
   FUNCTOR .Category.isSetHom = isSetIso (NatTransIsoΣ _ _)
     (isSetΣ
       (isSetΠ (λ _ → D.isSetHom))
       λ _ → isProp→isSet (isPropImplicitΠ2 (λ _ _ → isPropΠ (λ f → D.isSetHom _ _))))
 
+record LargeNatTransᴰ
+  {C-ob D-ob CHom-ℓ DHom-ℓ}
+  {C : Category C-ob CHom-ℓ}
+  {D : Category D-ob DHom-ℓ}
+  {F G : Functor C D}
+  {Cobᴰ Dobᴰ CHom-ℓᴰ DHom-ℓᴰ}
+  {Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ}
+  {Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ}
+  (α : LargeNatTrans F G)
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (Gᴰ : Functorᴰ G Cᴰ Dᴰ)
+  : Typeω
+  where
+  no-eta-equality
+  private
+    module α = LargeNatTrans α
+    module F = FunctorNotation F
+    module Fᴰ = FunctorᴰNotation Fᴰ
+    module G = FunctorNotation G
+    module Gᴰ = FunctorᴰNotation Gᴰ
+    module C =  CategoryNotation C
+    module Cᴰ = CategoryᴰNotation Cᴰ
+    module D =  CategoryNotation D
+    module Dᴰ = CategoryᴰNotation Dᴰ
+  field
+    N-obᴰ : ∀ {x}(xᴰ : Cobᴰ x) → Dᴰ.Hom[ α.N-ob x ][ Fᴰ.F-obᴰ xᴰ , Gᴰ.F-obᴰ xᴰ ]
+    N-homᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
+      (fᴰ  : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
+      → (Fᴰ.F-homᴰ fᴰ Dᴰ.⋆ᴰ N-obᴰ yᴰ) Dᴰ.∫≡ (N-obᴰ xᴰ Dᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
+
+-- Things that contribute to the size:
+-- 1. x  -- need small Cob
+-- 2. xᴰ -- need global bound on Cobᴰ
+-- 3. Dᴰ.Hom -- need global bound on Dᴰ.Hom
+-- 4. f  -- need global bound on C.Hom
+-- 5. fᴰ -- need global bound on Cᴰ.Hom
+-- 6. Dᴰ.∫≡ -- need global bound on Dᴰ.Hom and D.Hom
+
+-- TODO: SmallNatTransᴰ
+-- record SmallNatTransᴰ
+--   {C-ob D-ob CHom-ℓ DHom-ℓ}
+--   {C : Category C-ob CHom-ℓ}
+--   {D : Category D-ob DHom-ℓ}
+--   {F G : Functor C D}
+--   {Cobᴰ Dobᴰ CHom-ℓᴰ DHom-ℓᴰ}
+--   {Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ}
+--   {Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ}
+--   (α : SmallNatTrans F G)
+--   (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+--   (Gᴰ : Functorᴰ G Cᴰ Dᴰ)
+--   : Typeω
+--   where
+--   no-eta-equality
+--   private
+--     module α = LargeNatTrans α
+--     module F = FunctorNotation F
+--     module Fᴰ = FunctorᴰNotation Fᴰ
+--     module G = FunctorNotation G
+--     module Gᴰ = FunctorᴰNotation Gᴰ
+--     module C =  CategoryNotation C
+--     module Cᴰ = CategoryᴰNotation Cᴰ
+--     module D =  CategoryNotation D
+--     module Dᴰ = CategoryᴰNotation Dᴰ
+--   field
+--     N-obᴰ : ∀ {x}(xᴰ : Cobᴰ x) → Dᴰ.Hom[ α.N-ob x ][ Fᴰ.F-obᴰ xᴰ , Gᴰ.F-obᴰ xᴰ ]
+--     N-homᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
+--       (fᴰ  : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
+--       → (Fᴰ.F-homᴰ fᴰ Dᴰ.⋆ᴰ N-obᴰ yᴰ) Dᴰ.∫≡ (N-obᴰ xᴰ Dᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
+
+--
+-- This works, but is unfortunately not satisfied by weaken C → SET so it isn't this simple...Everything holds except SET is not globally small, the Hom sets are of arbitrarily high universe level.
+
+-- But it still works out that PshHom between presheaves is small
+-- because the Functors are indexed only by an object and the size of
+-- the displayed Homs is determined only by the objects of the base
+-- (i.e., small fibers)
+--
+
+-- Let's generalize specifically the construction for Presheaves.
+--
+-- This is equivalent to a LargeNatTrans between
+-- functors from weaken 1 C^o to SET
+-- Let's try that directly first.
+--
+--
+-- module _
+--   {(Cob , C) : SmallCategory ℓC ℓC'}
+--   {(Dob , D) : SmallCategory ℓD ℓD'}
+--   {F G : Functor UNIT D} -- i.e., just an object
+--   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+--   {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+--   (α : NatTrans F G) -- i.e., just a morphism
+--   (Fᴰ : Functorᴰ F (weaken UNIT C) Dᴰ)
+--   (Gᴰ : Functorᴰ G (weaken UNIT C) Dᴰ)
+--   where
+--   private
+--     module α = NatTrans α
+--     module F = FunctorNotation F
+--     module Fᴰ = FunctorᴰNotation Fᴰ
+--     module G = FunctorNotation G
+--     module Gᴰ = FunctorᴰNotation Gᴰ
+--     module C =  CategoryNotation C
+--     -- module Cᴰ = CategoryᴰNotation Cᴰ
+--     module D =  CategoryNotation D
+--     module Dᴰ = CategoryᴰNotation Dᴰ
+
+--   record SmallFibNatTransᴰ : Type (ℓ-max (DHom-ℓᴰ (F.F-ob _) (G.F-ob _)) $ ℓ-max ℓD' $ ℓ-max ℓC' ℓC)
+--     where
+--     no-eta-equality
+--     field
+--       N-ob : ∀ x → Dᴰ.Hom[ α.N-ob _ ][ Fᴰ.F-obᴰ (liftω x) , Gᴰ.F-obᴰ (liftω x) ]
+--       N-hom : ∀ {x y}
+--         (f  : C.Hom[ liftω x , liftω y ])
+--         → (Fᴰ.F-homᴰ f Dᴰ.⋆ᴰ N-ob y) Dᴰ.∫≡ (N-ob x Dᴰ.⋆ᴰ Gᴰ.F-homᴰ f)
+
+module _
+  {(Cob , C) : SmallCategory ℓC ℓC'}
+  {D : GloballySmallCategory Dob ℓD'}
+  {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+  (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)
+  where
+  private
+    module C =  CategoryNotation C
+    module D =  CategoryNotation D
+    module Dᴰ = CategoryᴰNotation Dᴰ
+  module _
+    {d d' : Dob}
+    (g : D.Hom[ d , d' ])
+    (F : Functor C Dᴰ.v[ d ])
+    (G : Functor C Dᴰ.v[ d' ])
+    where
+    private
+      module F = FunctorNotation F
+      module G = FunctorNotation G
+    record SmallFibNatTrans : Type (ℓ-max (DHom-ℓᴰ d d') $ ℓ-max ℓC' ℓC)
+      where
+      no-eta-equality
+      constructor natTrans
+      field
+        N-ob : ∀ x → Dᴰ.Hom[ g ][ F.F-ob (liftω x) , G.F-ob (liftω x) ]
+        N-hom : ∀ {x y}
+          (f  : C.Hom[ liftω x , liftω y ])
+          → (F.F-hom f Dᴰ.⋆ⱽᴰ N-ob y) ≡ (N-ob x Dᴰ.⋆ᴰⱽ G.F-hom f)
+      N-hom' : ∀ {x y}
+          (f  : C.Hom[ liftω x , liftω y ])
+          → (F.F-hom f Dᴰ.⋆ᴰ N-ob y) Dᴰ.∫≡ (N-ob x Dᴰ.⋆ᴰ G.F-hom f)
+      N-hom' f = Dᴰ.reind-filler _ _ ∙ Dᴰ.≡in (N-hom f) ∙ (sym $ Dᴰ.reind-filler _ _)
+
+module _
+  {(Cob , C) : SmallCategory ℓC ℓC'}
+  {D : GloballySmallCategory Dob ℓD'}
+  {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+  {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+  where
+  private
+    module C =  CategoryNotation C
+    module D =  CategoryNotation D
+    module Dᴰ = CategoryᴰNotation Dᴰ
+  open SmallFibNatTrans
+  idSFTrans : ∀ {d}(F : Functor C Dᴰ.v[ d ])
+    → SmallFibNatTrans Dᴰ D.id F F
+  idSFTrans F .N-ob _ = Dᴰ.idᴰ
+  idSFTrans F .N-hom f = Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdRⱽᴰ _ ∙ (sym $ Dᴰ.⋆IdLᴰⱽ _)
+
+  seqSFTrans : ∀ {d d' d''}
+    {g : D.Hom[ d , d' ]}{g' : D.Hom[ d' , d'' ]}
+    {F G H}
+    (α : SmallFibNatTrans {_}{_}{_}{_}{_ , C} Dᴰ g F G)
+    (β : SmallFibNatTrans Dᴰ g' G H)
+    → SmallFibNatTrans Dᴰ (g D.⋆ g') F H
+  seqSFTrans α β .N-ob x = α .N-ob x Dᴰ.⋆ᴰ β .N-ob x
+  seqSFTrans α β .N-hom f = Dᴰ.rectify $ Dᴰ.≡out $
+    sym (Dᴰ.⋆Assocⱽᴰᴰ _ _ _)
+    ∙ Dᴰ.⟨ Dᴰ.≡in $ α .N-hom f ⟩⋆⟨⟩
+    ∙ Dᴰ.⋆Assocᴰⱽᴰ _ _ _
+    ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.≡in $ β .N-hom f ⟩
+    ∙ (sym $ Dᴰ.⋆Assocᴰᴰⱽ _ _ _)
+
+  module _
+    {d d'}
+    (g : D.Hom[ d , d' ])
+    (F : Functor C Dᴰ.v[ d ])
+    (G : Functor C Dᴰ.v[ d' ])
+    where
+    private
+      module F = Functor F
+      module G = Functor G
+    SFNatTransIsoΣ :
+      Iso (SmallFibNatTrans Dᴰ g F G)
+        (Σ[ N-ob ∈ (∀ x → Dᴰ.Hom[ g ][ F.F-ob (liftω x) , G.F-ob (liftω x) ])]
+        (∀ {x y}
+          (f  : C.Hom[ liftω x , liftω y ])
+          → (F.F-hom f Dᴰ.⋆ⱽᴰ N-ob y) ≡ (N-ob x Dᴰ.⋆ᴰⱽ G.F-hom f)))
+    unquoteDef SFNatTransIsoΣ = defineRecordIsoΣ SFNatTransIsoΣ (quote (SmallFibNatTrans))
+
+  makeSFNatTransPath : ∀ {d d'}
+    {g g' : D.Hom[ d , d' ]}
+    {F : Functor C Dᴰ.v[ d ]}
+    {G : Functor C Dᴰ.v[ d' ]}
+    {α : SmallFibNatTrans Dᴰ g F G}
+    {β : SmallFibNatTrans Dᴰ g' F G}
+    → Path (Σ[ g ∈ D.Hom[ d , d' ] ] (∀ x → Dᴰ.Hom[ g ][ Functor.F-ob F (liftω x) , Functor.F-ob G (liftω x) ])) (_ , α .N-ob) (_ , β .N-ob)
+    → Path (Σ[ g ∈ D.Hom[ d , d' ] ] SmallFibNatTrans Dᴰ g F G)
+        (_ , α)
+        (_ , β)
+  makeSFNatTransPath = {!!}
+
+module _
+  {D : GloballySmallCategory Dob ℓD'}
+  {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+  ((Cob , C) : SmallCategory ℓC ℓC')
+  (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)
+  where
+  private
+    module C =  CategoryNotation C
+    module D =  CategoryNotation D
+    module Dᴰ = CategoryᴰNotation Dᴰ
+  open SmallFibNatTrans
+  FIBER-FUNCTOR : Categoryᴰ D (λ d → Functor C Dᴰ.v[ d ]) _
+  FIBER-FUNCTOR .Hom[_][_,_] = SmallFibNatTrans Dᴰ
+  FIBER-FUNCTOR .idᴰ = idSFTrans _
+  FIBER-FUNCTOR ._⋆ᴰ_ α β = seqSFTrans α β
+  FIBER-FUNCTOR .⋆IdLᴰ α = {!!}
+  FIBER-FUNCTOR .⋆IdRᴰ α = {!!}
+  FIBER-FUNCTOR .⋆Assocᴰ α β γ = {!!}
+  FIBER-FUNCTOR .isSetHomᴰ = {!!}
+
+-- Globally Small Presheaves on C should be ∫C (FIBER-FUNCTOR C SET)
+
+-- module _
+--   {D-ob DHom-ℓ}
+--   {(Cob, C) : SmallCategory ℓC ℓC'}
+--   {D : Category D-ob DHom-ℓ}
+--   {Cobᴰ Dobᴰ CHom-ℓᴰ DHom-ℓᴰ}
+--   {Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ}
+--   {F G : Functor C D}
+--   (α : LargeNatTrans F G)
+--   (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+--   (Gᴰ : Functorᴰ G Cᴰ Dᴰ)
+--   : Typeω
+--   where
+--   no-eta-equality
+--   private
+--     module α = LargeNatTrans α
+--     module F = FunctorNotation F
+--     module Fᴰ = FunctorᴰNotation Fᴰ
+--     module G = FunctorNotation G
+--     module Gᴰ = FunctorᴰNotation Gᴰ
+--     module C =  CategoryNotation C
+--     module Cᴰ = CategoryᴰNotation Cᴰ
+--     module D =  CategoryNotation D
+--     module Dᴰ = CategoryᴰNotation Dᴰ
+--   field
+    -- N-obᴰ : ∀ {x}(xᴰ : Cobᴰ x) → Dᴰ.Hom[ α.N-ob x ][ Fᴰ.F-obᴰ xᴰ , Gᴰ.F-obᴰ xᴰ ]
+    -- N-homᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
+    --   (fᴰ  : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
+    --   → (Fᴰ.F-homᴰ fᴰ Dᴰ.⋆ᴰ N-obᴰ yᴰ) Dᴰ.∫≡ (N-obᴰ xᴰ Dᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
+
+-- there appears to be more generality if we replace Dᴰ.∫≡ with a
+-- PathP but it is illusory because in order to have a small type of NatTrans we already require a global bound on D.Hom
+
+
+
+-- So we need
+-- 1. C is small
+-- 2. Cobᴰ is displayed small
+-- 3. D is globally small
+-- 4. Dᴰ is displayed globally small
+
+
+    -- constraints:
+    -- -- xᴰ: need Cᴰ to have a small types of displayed objects
+    -- -- → Dᴰ.Hom[_,_]: need Dᴰ to have small types of morphisms (locally small ok)
+    -- -- fᴰ, need Cᴰ to have a global bound on Cᴰ.Hom[_,_]
+    -- -- global bound at Dᴰ.Hom[_,_]
+    -- -- If we make N-homᴰ a PathP we don't need as strict of a bound on Dᴰ, does that matter?
 -- record NatTransᴰ
 --   {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}
 --   {Cᴰ : LocallySmallCategoryᴰ C Cobᴰ}{Dᴰ : LocallySmallCategoryᴰ D Dobᴰ}
@@ -151,19 +436,9 @@ module _ ((Cob , C) : SmallCategory ℓC ℓC')(D : GloballySmallCategory Dob �
 --   where
 --   no-eta-equality
 --   constructor natTransᴰ
---   private
---     module α = NatTrans α
---     module F = FunctorNotation F
---     module Fᴰ = FunctorᴰNotation Fᴰ
---     module G = FunctorNotation G
---     module Gᴰ = FunctorᴰNotation Gᴰ
---     module C = LocallySmallCategoryNotation C
---     module Cᴰ = LocallySmallCategoryᴰNotation Cᴰ
---     module D = LocallySmallCategoryNotation D
---     module Dᴰ = LocallySmallCategoryᴰNotation Dᴰ
     
 --   field
 --     N-obᴰ : ∀ {x}(xᴰ : Cobᴰ x) → Dᴰ.Hom[ α.N-ob x ][ Fᴰ.F-obᴰ xᴰ , Gᴰ.F-obᴰ xᴰ ]
 --     N-homᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}(fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
---       → (Fᴰ.F-homᴰ fᴰ Dᴰ.⋆ᴰ N-obᴰ yᴰ) Dᴰ.∫≡ (N-obᴰ xᴰ Dᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
+--       → 
 

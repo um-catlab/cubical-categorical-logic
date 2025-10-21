@@ -1,3 +1,8 @@
+-- This is for the notion of reindexing a presheaf Qᴰ over Q along a
+-- homomorphism α : P ⇒ Q to be over P, i.e., the "fibration"
+-- structure of presheaves.
+--
+-- For reindexing along a functor, see Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor
 module Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base where
 
 open import Cubical.Foundations.Prelude
@@ -49,12 +54,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-
-  -- Reindexing presheaves
-  -- There are 3 different notions of reindexing a presheaf we consider here.
-  -- 1. Reindexing a presheaf Qᴰ over Q along a homomorphism α : P ⇒ Q to be over P
-  -- 2. Reindexing a presheaf Qᴰ over Q along a functor F to be over (Q ∘ F^op)
-  -- 3. The combination of those two, reindexing a presheaf Qᴰ over Q along a heteromorphism α : P =[ F ]=> Q to be over P.
   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
            (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
            where
@@ -83,55 +82,3 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         open Functorᴰ
       reindYo : Presheafⱽ c Cᴰ ℓQᴰ
       reindYo = reind (yoRec Q q) Qᴰ
-
-module _
-  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
-  {Q : Presheaf D ℓQ}
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-  (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
-  where
-  reindFunc' : Presheafᴰ (Q ∘F (F ^opF)) Cᴰ ℓQᴰ
-  reindFunc' = Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)
-
-module _
-  {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {Q : Presheaf D ℓQ}
-  (F : Functor C D) (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
-  where
-  reindFunc : Presheafᴰ (Q ∘F (F ^opF)) (CatReindex Dᴰ F) ℓQᴰ
-  reindFunc = reindFunc' (Reindexπ _ _) Qᴰ
-
-open Category
-module _
-  {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
-  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
-  (α : PshHet F P Q)(Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
-  where
-  reindHet : Presheafᴰ P (CatReindex Dᴰ F) ℓQᴰ
-  reindHet = reind α $ reindFunc F Qᴰ
-
-module _
-  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
-  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
-  (α : PshHet F P Q)
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-  (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
-  where
-  reindHet' : Presheafᴰ P Cᴰ ℓQᴰ
-  reindHet' = reind α $ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
-
-module _
-  {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {x : C .ob}
-  (F : Functor C D) (Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ)
-  where
-  reindⱽFunc : Presheafⱽ x (CatReindex Dᴰ F) ℓQᴰ
-  reindⱽFunc = reindHet (Functor→PshHet F x) Qᴰ

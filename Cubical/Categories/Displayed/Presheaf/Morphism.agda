@@ -68,7 +68,9 @@ module _ {C : Category ℓC ℓC'} where
         module Pᴰ = PresheafᴰNotation Pᴰ
         module Qᴰ = PresheafᴰNotation Qᴰ
 
-      record PshHomᴰ : Type (ℓ-max ℓQᴰ $ ℓ-max ℓPᴰ $ ℓ-max ℓP $ ℓ-max ℓCᴰ' $ ℓ-max ℓCᴰ $ ℓ-max ℓC' $ ℓ-max ℓC $ ℓ-max ℓQᴰ $ ℓ-max ℓPᴰ $ ℓ-max ℓP $ ℓ-max ℓCᴰ $ ℓC) where
+      record PshHomᴰ : Type
+        (ℓ-max ℓQᴰ $ ℓ-max ℓPᴰ $ ℓ-max ℓQ $ ℓ-max ℓP $ ℓ-max ℓCᴰ' $ ℓ-max ℓCᴰ $ ℓ-max ℓC' $ ℓC)
+        where
         no-eta-equality
         constructor pshhomᴰ
         field
@@ -78,13 +80,11 @@ module _ {C : Category ℓC ℓC'} where
             ∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
             → {f : C [ x , y ]}{p : P.p[ y ]}
             → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
-            → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
-                Qᴰ.≡[ α .N-hom x y f p ]
-              (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ)
+            → Path Qᴰ.p[ _ ] (_ , N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)) (_ , fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ)
 
         ∫PshHom : PshHom (∫P Pᴰ) (∫P Qᴰ)
         ∫PshHom .N-ob (x , xᴰ) (p , pᴰ) = (α .N-ob _ p) , (N-obᴰ pᴰ)
-        ∫PshHom .N-hom _ _ (f , fᴰ) (p , pᴰ) = ΣPathP ((α .N-hom _ _ f p) , N-homᴰ)
+        ∫PshHom .N-hom _ _ _ _ = N-homᴰ
 
         private
           module ∫Pᴰ = PresheafNotation (∫P Pᴰ)
@@ -104,9 +104,7 @@ module _ {C : Category ℓC ℓC'} where
         (∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
             → {f : C [ x , y ]}{p : P.p[ y ]}
             → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
-            → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
-                Qᴰ.≡[ α .N-hom x y f p ]
-              (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
+            → Path Qᴰ.p[ _ ] (_ , N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)) (_ , fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
 
       opaque
         isPropN-homᴰ :
@@ -115,18 +113,12 @@ module _ {C : Category ℓC ℓC'} where
           isProp (∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
               → {f : C [ x , y ]}{p : P.p[ y ]}
               → {fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : Pᴰ.p[ p ][ yᴰ ]}
-              → N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)
-                  Qᴰ.≡[ α .N-hom x y f p ]
-                (fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
-        isPropN-homᴰ =
-          λ _ → isPropImplicitΠ4 λ _ _ _ _ → isPropImplicitΠ4 λ _ _ _ _ →
-            λ _ _ → isSet→SquareP (λ i j → F-obᴰ Qᴰ _ (α .N-hom _ _ _ _ j) .snd) _ _ _ _
+              → Path Qᴰ.p[ _ ] (_ , N-obᴰ (fᴰ Pᴰ.⋆ᴰ pᴰ)) (_ , fᴰ Qᴰ.⋆ᴰ N-obᴰ pᴰ))
+        isPropN-homᴰ N-obᴰ = isPropImplicitΠ4 λ _ _ _ _ → isPropImplicitΠ4 λ _ _ _ _ → Qᴰ.isSetPsh _ _
 
         isSetPshHomᴰΣ : isSet PshHomᴰΣ
-        isSetPshHomᴰΣ =
-          isSetΣ
-            (isSetImplicitΠ3 (λ c cᴰ p → isSetΠ (λ pᴰ → Qᴰ.isSetPshᴰ)))
-            λ _ → isProp→isSet (isPropN-homᴰ _)
+        isSetPshHomᴰΣ = isSetΣ (isSetImplicitΠ3 (λ _ _ _ → isSetΠ (λ _ → Qᴰ.isSetPshᴰ)))
+          (λ _ → isProp→isSet (isPropN-homᴰ _))
 
       PshHomᴰΣIso : Iso PshHomᴰ PshHomᴰΣ
       unquoteDef PshHomᴰΣIso = defineRecordIsoΣ PshHomᴰΣIso (quote (PshHomᴰ))
@@ -159,7 +151,7 @@ module _ {C : Category ℓC ℓC'} where
       → PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ
     _⋆PshHomᴰ_ {Rᴰ = Rᴰ} αᴰ βᴰ = record
       { N-obᴰ = λ pᴰ → ∫⋆ .N-ob _ (_ , pᴰ) .snd
-      ; N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $ ∫⋆ .N-hom _ _ _ _
+      ; N-homᴰ = ∫⋆ .N-hom _ _ _ _
       } where
         module Rᴰ = PresheafᴰNotation Rᴰ
         ∫⋆ = ∫PshHom αᴰ ⋆PshHom ∫PshHom βᴰ
@@ -186,9 +178,10 @@ module _ {C : Category ℓC ℓC'} where
                       (αᴰ .N-obᴰ)
                       (βᴰ .N-obᴰ))
           → PshHomᴰPathP α≡β αᴰ βᴰ
-        makePshHomᴰPathP α≡β αᴰ≡βᴰ = fiberwiseIsoFunInjective (λ α → PshHomᴰΣIso α Pᴰ Qᴰ)
-          (ΣPathPProp (λ αN-obᴰ → isPropImplicitΠ4 (λ _ _ _ _ → isPropImplicitΠ4 (λ _ _ _ _ →
-            λ pf1 pf2 → isSet→SquareP (λ _ _ → Qᴰ.isSetPshᴰ) pf1 pf2 refl refl)))
+        makePshHomᴰPathP α≡β αᴰ≡βᴰ = fiberwiseIsoFunInjective
+          (λ α → PshHomᴰΣIso α Pᴰ Qᴰ)
+          (ΣPathPProp
+            (isPropN-homᴰ β Pᴰ _)
             (implicitFunExt $ implicitFunExt $ implicitFunExt $ αᴰ≡βᴰ))
   open PshHomᴰ
   PRESHEAFᴰ : (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
@@ -243,7 +236,6 @@ module _ {C : Category ℓC ℓC'} where
         makePshHomᴰPath α≡β αᴰ≡βᴰ = PshCᴰ.≡in $ makePshHomᴰPathP α≡β $
           funExt (λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ αᴰ≡βᴰ pᴰ)
 
-
     -- Iso stuff
     module _ (αᴰ : PshHomᴰ α Pᴰ Qᴰ) where
       private
@@ -289,7 +281,7 @@ module _ {C : Category ℓC ℓC'} where
       → PshIsoᴰ (invPshIso α) Qᴰ Pᴰ
     invPshIsoᴰ {Pᴰ = Pᴰ}{Qᴰ = Qᴰ} αᴰ = pshisoᴰ
       (pshhomᴰ (λ qᴰ → ∫αᴰ⁻ .trans .N-ob _ (_ , qᴰ) .snd)
-               (Pᴰ.rectify $ Pᴰ.≡out $ ∫αᴰ⁻ .trans .N-hom _ _ _ _))
+               (∫αᴰ⁻ .trans .N-hom _ _ _ _))
       ((αᴰ .PshIsoᴰ.transᴰ .N-obᴰ)
       , (αᴰ .PshIsoᴰ.nIsoᴰ .snd .snd)
       , (αᴰ .PshIsoᴰ.nIsoᴰ .snd .fst))
@@ -328,15 +320,13 @@ module _ {C : Category ℓC ℓC'} where
       -- PshIsoᴰ≅PshCatIsoᴰ = isoover PshIsoᴰ→PshCatIsoᴰ PshCatIsoᴰ→PshIsoᴰ
       --   (λ α αᴰ → PshCᴰ.ISOCᴰ.rectify $ PshCᴰ.ISOCᴰ.≡out $ PshCᴰ.ISOCᴰ≡ refl)
       --   λ α αᴰ → {!makePshHomᴰPathP!}
-
       module _ {α β : PshHom P Q} where
         PshCᴰ-reind-N-ob :
           (α≡β : α .N-ob ≡ β .N-ob)
           → (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
           → PshHomᴰ β Pᴰ Qᴰ
         PshCᴰ-reind-N-ob α≡β αᴰ .N-obᴰ p = Qᴰ.reind (funExt₂⁻ α≡β _ _) (αᴰ .N-obᴰ p)
-        PshCᴰ-reind-N-ob α≡β αᴰ .N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $
-          (sym $ Qᴰ.reind-filler _ _)
+        PshCᴰ-reind-N-ob α≡β αᴰ .N-homᴰ = (sym $ Qᴰ.reind-filler _ _)
           ∙ ∫PshHom αᴰ .N-hom _ _ _ _
           ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
 
@@ -357,13 +347,13 @@ module _ {C : Category ℓC ℓC'} where
           (α≡β : α .N-ob Eq.≡ β .N-ob)
           → (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
           → PshHomᴰ β Pᴰ Qᴰ
-        PshCᴰ-reind-N-ob-Eq α≡β αᴰ = pshhomᴰ (N-ob-Eq αᴰ βsingl)
-          (N-ob-Eq-filler αᴰ βsingl _
-          ◁ (Qᴰ.rectify $ Qᴰ.≡out $
-              (sym $ Qᴰ.reind-filler _ _)
-              ∙ ∫PshHom αᴰ .N-hom _ _ _ _
-              ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩)
-          ▷ cong (_ Qᴰ.⋆ᴰ_) (sym $ N-ob-Eq-filler αᴰ βsingl _)) where
+        PshCᴰ-reind-N-ob-Eq α≡β αᴰ = pshhomᴰ (N-ob-Eq αᴰ βsingl) (
+          Qᴰ.≡in (N-ob-Eq-filler αᴰ βsingl _)
+          ∙ sym (Qᴰ.reind-filler _ _)
+          ∙ αᴰ .N-homᴰ
+          ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _
+                  ∙ (sym $ Qᴰ.≡in $ N-ob-Eq-filler αᴰ βsingl _) ⟩)
+          where
           βsingl : Eq.singl (α .N-ob)
           βsingl = (β .N-ob , α≡β)
 
@@ -400,6 +390,9 @@ module _ {C : Category ℓC ℓC'} where
       PshCᴰ-reind-N-ob-Eq-PshIso α≡β α⁻≡β⁻ αᴰ .CatIsoᴰ.retᴰ =
         PshCᴰ.⟨ sym $ PshCᴰ-reind-N-ob-Eq-filler Pᴰ Qᴰ _ _ ⟩⋆⟨ sym $ PshCᴰ-reind-N-ob-Eq-filler Qᴰ Pᴰ _ _ ⟩
         ∙ αᴰ .CatIsoᴰ.retᴰ
+    ∫PshCatIso :  {α : PshCatIso P Q} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+      → (αᴰ : PshCatIsoᴰ α Pᴰ Qᴰ) → PshCatIso (∫P Pᴰ) (∫P Qᴰ)
+    ∫PshCatIso αᴰ = PshIso→PshCatIso (∫PshIso (PshCatIsoᴰ→PshIsoᴰ _ _ _ αᴰ))
 
 -- TODO: deleted stuff we might want to restore:
 -- 1. eqToPshIsoᴰ

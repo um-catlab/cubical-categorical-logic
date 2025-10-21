@@ -150,9 +150,8 @@ SmallObjectsCategory ob C-ℓ = Category (Liftω ob) λ (liftω x) (liftω y) �
 GloballySmallCategory : (Cob : Typeω)(ℓC' : Level) → Typeω
 GloballySmallCategory Cob ℓC' = Category Cob λ _ _ → ℓC'
 
--- A (LS) category such that the type of objects is small and all the
--- universe levels are the same
-
+-- A category is small if it both has small objects and is globally
+-- small.
 -- This is the only variant that is itself a small type: the
 -- definition of Category in Cubical.Categories.Category
 SmallCategory : ∀ ℓC (ℓC' : Level) → Typeω
@@ -562,7 +561,6 @@ module _ (C : Category Cob C-ℓ) where
 module _ {C : Category Cob C-ℓ} {Cobᴰ}{Cᴰ-ℓ} (Cᴰ : SmallFibersCategoryᴰ C Cobᴰ-ℓ Cobᴰ Cᴰ-ℓ) where
   private
     module Cᴰ = Categoryᴰ Cᴰ
-           
   SmallFiber : (x : Cob) → Small.Category (Cobᴰ-ℓ x) (Cᴰ-ℓ x x)
   SmallFiber x = SmallLocallySmallCategory→SmallCategory ((liftω (Cobᴰ x)) , Cᴰ.v[ x ])
 
@@ -755,6 +753,39 @@ module _ {C : Category Cob C-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) where
     CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.leftInv g gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
       sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ fᴰ .CatIsoᴰ.secᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
 
+-- Variants of smallness for displayed categories.
+-- SmallObjectsCategoryᴰ
+--   : ∀ (C : Category Cob C-ℓ)
+--   → {ℓC}(ob : Type ℓC)(C-ℓ : ob → ob → Level)
+--   → Typeω
+-- SmallObjectsCategoryᴰ ob C-ℓ = Category (Liftω ob) λ (liftω x) (liftω y) → C-ℓ x y
+
+-- -- A (LS) Category such that all hom sets are at the *same* universe level
+-- GloballySmallCategory : (Cob : Typeω)(ℓC' : Level) → Typeω
+-- GloballySmallCategory Cob ℓC' = Category Cob λ _ _ → ℓC'
+
+-- -- A category is small if it both has small objects and is globally
+-- -- small.
+-- -- This is the only variant that is itself a small type: the
+-- -- definition of Category in Cubical.Categories.Category
+-- SmallCategory : ∀ ℓC (ℓC' : Level) → Typeω
+-- SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySmallCategory (Liftω ob) ℓC'
+
+Indiscrete : (ob : Typeω) → GloballySmallCategory ob ℓ-zero
+Indiscrete ob .Hom[_,_] = λ _ _ → Unit
+Indiscrete ob .id = tt                
+Indiscrete ob ._⋆_ = λ f g → tt       
+Indiscrete ob .⋆IdL = λ _ → refl      
+Indiscrete ob .⋆IdR = λ _ → refl      
+Indiscrete ob .⋆Assoc = λ _ _ _ → refl
+Indiscrete ob .isSetHom = isSetUnit   
+
+UNIT : GloballySmallCategory (Liftω Unit) ℓ-zero
+UNIT = Indiscrete (Liftω Unit)
+
+SmallUNIT : SmallCategory ℓ-zero ℓ-zero
+SmallUNIT = _ , UNIT
+
 -- module _ {Dob} (C : Small.Category ℓC ℓC') (D : Category Dob) where
 --   private
 --     module C = Small.Category C
@@ -817,6 +848,19 @@ SET .⋆IdLᴰ = λ _ → refl
 SET .⋆IdRᴰ = λ _ → refl
 SET .⋆Assocᴰ = λ _ _ _ → refl
 SET .isSetHomᴰ {yᴰ = (liftω Y)} = isSet→ (Y .snd)
+
+module _ (C : Category Cob C-ℓ)(D : Category Dob D-ℓ) where
+  private
+    module C = CategoryNotation C
+    module D = CategoryNotation D
+  weaken : Categoryᴰ C (λ _ → Dob) _
+  weaken .Hom[_][_,_] = λ _ → D.Hom[_,_]
+  weaken .idᴰ = D.id
+  weaken ._⋆ᴰ_ = D._⋆_
+  weaken .⋆IdLᴰ = λ f → ≡-× (C.⋆IdL _) (D.⋆IdL f)
+  weaken .⋆IdRᴰ = λ f → ≡-× (C.⋆IdR _) (D.⋆IdR f)
+  weaken .⋆Assocᴰ = λ f g h → ≡-× (C.⋆Assoc _ _ _) (D.⋆Assoc f g h)
+  weaken .isSetHomᴰ = D.isSetHom
 
 -- -- -- module SET = LocallySmallCategoryᴰNotation SET
 -- -- -- -- The total category LocallySmallCategoryᴰ.∫C SET is the "large category of all small sets"

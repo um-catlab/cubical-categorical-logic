@@ -190,7 +190,6 @@ congSndSnd :
   → PathP (λ i → C (abc≡ i .fst) (abc≡ i .snd .fst)) (x .snd .snd) (y .snd .snd)
 congSndSnd abc≡ = λ i → abc≡ i .snd .snd
 
--- TODO: name
 change-base :
   ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}
   (f : A → B)

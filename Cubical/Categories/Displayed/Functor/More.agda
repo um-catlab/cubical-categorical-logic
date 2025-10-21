@@ -1,9 +1,11 @@
---
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Functor.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Functor
 import      Cubical.Data.Equality as Eq
 import      Cubical.Data.Equality.More as Eq
@@ -16,6 +18,9 @@ import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 private
   variable
     ℓ ℓB ℓB' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
+
+open Functor
+open Functorᴰ
 
 Idᴰ : {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   → Functorᴰ Id Cᴰ Cᴰ
@@ -175,3 +180,54 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
       (Fᴰ .F-homᴰ)
       (Gᴰ .F-homᴰ)
 
+
+module _ {C : Category ℓC ℓC'} where
+  private
+    module C = Category C
+  Functorⱽ' : (x : C.ob) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')(Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ') → Type _
+  Functorⱽ' x Cᴰ Dᴰ = Functor Cᴰ.v[ x ] Dᴰ.v[ x ] where
+    module Cᴰ = Fibers Cᴰ
+    module Dᴰ = Fibers Dᴰ
+
+
+  record NatTransⱽ {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}{x y}
+    (f : C [ x , y ]) (Fⱽ : Functorⱽ' x Cᴰ Dᴰ) (Gⱽ : Functorⱽ' y Cᴰ Dᴰ)
+    : Type (ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' ℓDᴰ')
+    where
+    no-eta-equality
+    constructor nattransⱽ
+    private
+      module Cᴰ = Fibers Cᴰ
+      module Dᴰ = Fibers Dᴰ
+    field
+      N-obⱽ : ∀ {xᴰ yᴰ} (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) → Dᴰ [ f ][ Fⱽ .F-ob xᴰ , Gⱽ .F-ob yᴰ ]
+      N-homⱽR : ∀ {xᴰ yᴰ yᴰ'} (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ])(fⱽ : Cᴰ.v[ y ] [ yᴰ , yᴰ' ])
+        → N-obⱽ (fᴰ Cᴰ.⋆ᴰⱽ fⱽ) ≡ (N-obⱽ fᴰ Dᴰ.⋆ᴰⱽ Gⱽ .F-hom fⱽ)
+      N-homⱽL : ∀ {xᴰ' xᴰ yᴰ} (fⱽ : Cᴰ.v[ x ] [ xᴰ' , xᴰ ])(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ])
+        → N-obⱽ (fⱽ Cᴰ.⋆ⱽᴰ fᴰ) ≡ (Fⱽ .F-hom fⱽ Dᴰ.⋆ⱽᴰ N-obⱽ fᴰ)
+  open NatTransⱽ
+  module _ {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} where
+    private
+      module Cᴰ = Fibers Cᴰ
+      module Dᴰ = Fibers Dᴰ
+
+    idNatTransⱽ : ∀ {x} (Fⱽ : Functorⱽ' x Cᴰ Dᴰ) → NatTransⱽ C.id Fⱽ Fⱽ
+    idNatTransⱽ {x} Fⱽ .N-obⱽ = Fⱽ .F-hom
+    idNatTransⱽ {x} Fⱽ .N-homⱽR fⱽ gⱽ =
+      cong (Fⱽ .F-hom) (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.reind-filler _ _)
+      ∙ Fⱽ .F-seq _ _
+      ∙ (Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _ _) ∙ Dᴰ.reind-filler _ _)
+    idNatTransⱽ {x} Fⱽ .N-homⱽL fⱽ gⱽ = Fⱽ .F-seq fⱽ gⱽ
+
+    _⋆NatTransⱽ_ : ∀ {x y z}{f : C [ x , y ]}{g : C [ y , z ]}
+      {Fⱽ : Functorⱽ' x Cᴰ Dᴰ}
+      {Gⱽ : Functorⱽ' y Cᴰ Dᴰ}
+      {Hⱽ : Functorⱽ' z Cᴰ Dᴰ}
+      (αⱽ : NatTransⱽ f Fⱽ Gⱽ)
+      (βⱽ : NatTransⱽ g Gⱽ Hⱽ)
+      → NatTransⱽ (f C.⋆ g) Fⱽ Hⱽ
+    (αⱽ ⋆NatTransⱽ βⱽ) .N-obⱽ = {!!}
+    (αⱽ ⋆NatTransⱽ βⱽ) .N-homⱽR = {!!}
+    (αⱽ ⋆NatTransⱽ βⱽ) .N-homⱽL = {!!}
+
+    -- FUNCTORⱽ : (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')(Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ') → Categoryᴰ C

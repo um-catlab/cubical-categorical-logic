@@ -109,38 +109,42 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
        → (fᴰ ≡[ fst (PathPΣ e) ] gᴰ)
   ≡out e = snd (PathPΣ e)
 
-  rectify : {a : C.ob} {f g : P.p[ a ]} {p p' : f ≡ g}
-      {aᴰ : Cᴰ.ob[ a ]}
-      {fᴰ : p[ f ][ aᴰ ]}
-      {gᴰ : p[ g ][ aᴰ ]}
-    → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
-  rectify {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡[_] gᴰ) (P.isSetPsh _ _ _ _)
+  -- Can we get away with making rectify opaque?
+  opaque
+    rectify : {a : C.ob} {f g : P.p[ a ]} {p p' : f ≡ g}
+        {aᴰ : Cᴰ.ob[ a ]}
+        {fᴰ : p[ f ][ aᴰ ]}
+        {gᴰ : p[ g ][ aᴰ ]}
+      → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
+    rectify {fᴰ = fᴰ} {gᴰ = gᴰ} = subst (fᴰ ≡[_] gᴰ) (P.isSetPsh _ _ _ _)
 
   open PresheafNotation (∫P Pᴰ) public
 
-  reind⟨_⟩⟨_⟩ : ∀ {x : C.ob} {f g : P.p[ x ]}{xᴰ}
-      {fᴰ fᴰ' : p[ f ][ xᴰ ]}
-      (f≡g : f ≡ g)
-    → Path p[ _ ]
-        (f , fᴰ)
-        (f , fᴰ')
-    → Path p[ _ ]
-        (g , reind f≡g fᴰ)
-        (g , reind f≡g fᴰ')
-  reind⟨ f≡g ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind f≡g) (rectify (≡out fᴰ≡fᴰ')))
+  opaque
+    reind⟨_⟩⟨_⟩ : ∀ {x : C.ob} {f g : P.p[ x ]}{xᴰ}
+        {fᴰ fᴰ' : p[ f ][ xᴰ ]}
+        (f≡g : f ≡ g)
+      → Path p[ _ ]
+          (f , fᴰ)
+          (f , fᴰ')
+      → Path p[ _ ]
+          (g , reind f≡g fᴰ)
+          (g , reind f≡g fᴰ')
+    reind⟨ f≡g ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind f≡g) (rectify (≡out fᴰ≡fᴰ')))
 
   _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{g}
      → Cᴰ [ f ][ xᴰ , yᴰ ] → p[ g ][ yᴰ ]
      → p[ f P.⋆ g ][ xᴰ ]
   fᴰ ⋆ᴰ gᴰ = ((_ , fᴰ) ⋆ (_ , gᴰ)) .snd
 
-  ⋆Assocᴰ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]}  {h : P.p[ z ]} {xᴰ yᴰ zᴰ}
-      (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) (hᴰ : p[ h ][ zᴰ ])
-      → (fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ P.⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
-  ⋆Assocᴰ fᴰ gᴰ hᴰ = rectify $ ≡out $ ⋆Assoc (_ , fᴰ) (_ , gᴰ) (_ , hᴰ)
+  opaque
+    ⋆Assocᴰ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]}  {h : P.p[ z ]} {xᴰ yᴰ zᴰ}
+        (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) (hᴰ : p[ h ][ zᴰ ])
+        → (fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ hᴰ ≡[ P.⋆Assoc f g h ] fᴰ ⋆ᴰ (gᴰ ⋆ᴰ hᴰ)
+    ⋆Assocᴰ fᴰ gᴰ hᴰ = rectify $ ≡out $ ⋆Assoc (_ , fᴰ) (_ , gᴰ) (_ , hᴰ)
 
-  ⋆IdLᴰ : ∀ {x} {f : P.p[ x ]} {xᴰ} (fᴰ : p[ f ][ xᴰ ]) → Cᴰ.idᴰ ⋆ᴰ fᴰ ≡[ P.⋆IdL f ] fᴰ
-  ⋆IdLᴰ fᴰ = rectify $ ≡out $ ⋆IdL (_ , fᴰ)
+    ⋆IdLᴰ : ∀ {x} {f : P.p[ x ]} {xᴰ} (fᴰ : p[ f ][ xᴰ ]) → Cᴰ.idᴰ ⋆ᴰ fᴰ ≡[ P.⋆IdL f ] fᴰ
+    ⋆IdLᴰ fᴰ = rectify $ ≡out $ ⋆IdL (_ , fᴰ)
 
   _⋆ⱽᴰ_ : ∀ {x xᴰ xᴰ'}{g}
      → Cᴰ [ C.id {x} ][ xᴰ , xᴰ' ] → p[ g ][ xᴰ' ]
@@ -148,17 +152,18 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   fⱽ ⋆ⱽᴰ gᴰ = reind (P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
 
   -- Should it just be fⱽ ≡ fⱽ' instead since that's more "vertical"?
-  ⟨_⟩⋆ⱽᴰ⟨_⟩ :
-    ∀ {x xᴰ xᴰ'}{g g'}
-    {fⱽ fⱽ' : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]}
-    {gᴰ gᴰ'}
-    → Path (Cᴰ.Hom[ _ , _ ]) (_ , fⱽ) (_ , fⱽ')
-    → Path p[ _ ] (g , gᴰ) (g' , gᴰ')
-    → Path p[ _ ] (_ , fⱽ ⋆ⱽᴰ gᴰ) (_ , fⱽ' ⋆ⱽᴰ gᴰ')
-  ⟨_⟩⋆ⱽᴰ⟨_⟩ {fⱽ = fⱽ}{fⱽ'} p q = ≡in (λ i → p' i ⋆ⱽᴰ q i .snd) where
-    p' : fⱽ ≡ fⱽ'
-    p' = Cᴰ.rectify $ Cᴰ.≡out p
   opaque
+    ⟨_⟩⋆ⱽᴰ⟨_⟩ :
+      ∀ {x xᴰ xᴰ'}{g g'}
+      {fⱽ fⱽ' : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]}
+      {gᴰ gᴰ'}
+      → Path (Cᴰ.Hom[ _ , _ ]) (_ , fⱽ) (_ , fⱽ')
+      → Path p[ _ ] (g , gᴰ) (g' , gᴰ')
+      → Path p[ _ ] (_ , fⱽ ⋆ⱽᴰ gᴰ) (_ , fⱽ' ⋆ⱽᴰ gᴰ')
+    ⟨_⟩⋆ⱽᴰ⟨_⟩ {fⱽ = fⱽ}{fⱽ'} p q = ≡in (λ i → p' i ⋆ⱽᴰ q i .snd) where
+      p' : fⱽ ≡ fⱽ'
+      p' = Cᴰ.rectify $ Cᴰ.≡out p
+
     ⋆Assocᴰⱽᴰ : ∀ {x y} {f : C [ x , y ]} {h : P.p[ y ]} {xᴰ yᴰ yᴰ'}
         (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gⱽ : Cᴰ.v[ y ] [ yᴰ , yᴰ' ]) (hᴰ : p[ h ][ yᴰ' ])
         → Path p[ _ ]

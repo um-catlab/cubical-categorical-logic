@@ -87,7 +87,7 @@ module _ {C : Category ℓ ℓ'} where
       module P = PresheafNotation P
       module _×P c = PresheafNotation ((C [-, c ]) ×Psh P)
       module Q = PresheafNotation Q
-      module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
+      module PshC = LocallySmallCategoryNotation (PRESHEAF C)
     -- P⇒Q Γ :=
     -- PshHom (y Γ × P) Q
     -- ≅ PshHom y(Γ ×P) Q
@@ -99,7 +99,7 @@ module _ {C : Category ℓ ℓ'} where
     ⇒PshSmallIso⇒PshLarge Γ =
       compIso
         (IsoYoRec Q ((Γ ×P) .vertex))
-        (IsoOverUnit→Iso (PshC.CatIsoᴰ⋆ᴰ-Iso-over (PshC.invCatIsoᴰ (yoRecIso (Γ ×P)))))
+        ((PshC.CatIso⋆-Iso (PshC.invCatIso (asPshIso (Γ ×P)))))
 
     private
       module ⇒PshSmallIso⇒PshLarge Γ = Iso (⇒PshSmallIso⇒PshLarge Γ)

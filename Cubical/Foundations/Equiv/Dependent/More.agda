@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
@@ -20,6 +21,18 @@ private
     B : Type ℓB
     P : A → Type ℓP
     Q : B → Type ℓQ
+
+module IsoNotation {ℓ ℓ'} {A : Type ℓ}{B : Type ℓ'} (isom : Iso A B) where
+  open Iso isom public
+  fun≡ : ∀ {x y} → x ≡ inv y → fun x ≡ y
+  fun≡ = isoFun≡ isom
+
+  fun-inj : ∀ {y y'} → fun y ≡ fun y' → y ≡ y'
+  fun-inj = isoFunInjective isom _ _
+
+  inv-inj : ∀ {x x'} → inv x ≡ inv x' → x ≡ x'
+  inv-inj = isoInvInjective isom _ _
+
 open Iso
 open IsoOver
 open isIsoOver
@@ -75,3 +88,34 @@ IsoOverUnit→Iso isomᴰ .fun = isomᴰ .fun tt
 IsoOverUnit→Iso isomᴰ .inv = isomᴰ .inv tt
 IsoOverUnit→Iso isomᴰ .rightInv = isomᴰ .rightInv tt
 IsoOverUnit→Iso isomᴰ .leftInv = isomᴰ .leftInv tt
+
+record IsoOver' {ℓ ℓ' ℓ'' ℓ'''} {A : Type ℓ}{B : Type ℓ'}
+  (isom : Iso A B)(P : A → Type ℓ'')(Q : B → Type ℓ''')
+  : Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓ'' ℓ''')) where
+  no-eta-equality
+  constructor isoover
+  field
+    funᴰ : mapOver (isom .fun) P Q
+    invᴰ : mapOver (isom .inv) Q P
+  ∫fun : Σ A P → Σ B Q
+  ∫fun = λ z → Iso.fun isom (z .fst) , funᴰ (z .fst) (z .snd)
+  ∫inv : Σ B Q → Σ A P
+  ∫inv = λ z → Iso.inv isom (z .fst) , invᴰ (z .fst) (z .snd)
+  field
+    rightInvᴰ : section ∫fun ∫inv
+    leftInvᴰ  : retract ∫fun ∫inv
+
+  asIso : Iso (Σ A P) (Σ B Q)
+  asIso = iso ∫fun ∫inv rightInvᴰ leftInvᴰ
+
+  open IsoNotation asIso public
+
+PointwiseIso→IsoOver'Id : ∀ {ℓ ℓ'' ℓ'''}{A : Type ℓ}(P : A → Type ℓ'')(Q : A → Type ℓ''')
+  → (∀ a → Iso (P a) (Q a)) → IsoOver' (idIso {A = A}) P Q
+PointwiseIso→IsoOver'Id P Q isoms .IsoOver'.funᴰ = λ a → fun (isoms (fun idIso a))
+PointwiseIso→IsoOver'Id P Q isoms .IsoOver'.invᴰ = λ a → inv (isoms (inv idIso a))
+PointwiseIso→IsoOver'Id P Q isoms .IsoOver'.rightInvᴰ b =
+  ΣPathP (refl , (rightInv (isoms (b .fst)) (b .snd)))
+PointwiseIso→IsoOver'Id P Q isoms .IsoOver'.leftInvᴰ a =
+  ΣPathP (refl , (leftInv (isoms (a .fst)) (a .snd)))
+

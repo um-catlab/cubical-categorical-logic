@@ -128,12 +128,20 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshHom .N-hom x y f p = refl
 
 module _ {C : Category ℓc ℓc'} where
-  _⋆PshHom_ : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} →
-    PshHom P Q → PshHom Q R → PshHom P R
-  (α ⋆PshHom β) .N-ob x p = β .N-ob x (α .N-ob x p)
-  (α ⋆PshHom β) .N-hom x y f p =
-    cong (β .N-ob _) (α .N-hom x y f p)
-    ∙ β .N-hom x y f (α .N-ob y p)
+  module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} (α : PshHom P Q) (β : PshHom Q R) where
+    private
+      module P = PresheafNotation P
+      module R = PresheafNotation R
+    opaque
+      ⋆PshHom-N-hom : ∀ x y (f : C [ x , y ]) (p : P.p[ y ])
+        → β .N-ob x (α .N-ob x (f P.⋆ p)) ≡ f R.⋆ β .N-ob y (α .N-ob y p)
+      ⋆PshHom-N-hom x y f p =
+        cong (β .N-ob _) (α .N-hom x y f p)
+        ∙ β .N-hom x y f (α .N-ob y p)
+
+    _⋆PshHom_ : PshHom P R
+    _⋆PshHom_ .N-ob x p = β .N-ob x (α .N-ob x p)
+    _⋆PshHom_ .N-hom = ⋆PshHom-N-hom
 
   _⋆PshHomNatTrans_ :
     ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓq} →
@@ -258,13 +266,16 @@ module _ {C : Category ℓc ℓc'} where
     PshIso→PshCatIso α .LocallySmall.CatIso.sec = makePshHomPath (funExt λ x → funExt (α .nIso x .snd .fst))
     PshIso→PshCatIso α .LocallySmall.CatIso.ret = makePshHomPath (funExt λ x → funExt (α .nIso x .snd .snd))
 
+    PshCatIso→isPshIso : (α : PshCatIso P Q) → isPshIso (α .LocallySmall.CatIso.fun)
+    PshCatIso→isPshIso α x .fst = α .LocallySmall.CatIso.inv .N-ob x
+    PshCatIso→isPshIso α x .snd .fst q i = α .LocallySmall.CatIso.sec i .N-ob x q
+    PshCatIso→isPshIso α x .snd .snd p i = α .LocallySmall.CatIso.ret i .N-ob x p
+
     PshCatIso→PshIso
       : PshCatIso P Q
       → PshIso P Q
     PshCatIso→PshIso α .trans = α .LocallySmall.CatIso.fun
-    PshCatIso→PshIso α .nIso x .fst = α .LocallySmall.CatIso.inv .N-ob x
-    PshCatIso→PshIso α .nIso x .snd .fst q i = α .LocallySmall.CatIso.sec i .N-ob x q
-    PshCatIso→PshIso α .nIso x .snd .snd p i = α .LocallySmall.CatIso.ret i .N-ob x p
+    PshCatIso→PshIso α .nIso = PshCatIso→isPshIso α
 
   PshIso≅PshCatIso : ∀ (P : Presheaf C ℓp)(Q : Presheaf C ℓq) →
     Iso (PshIso P Q)

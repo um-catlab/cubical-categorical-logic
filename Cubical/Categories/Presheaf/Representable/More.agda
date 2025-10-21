@@ -13,7 +13,7 @@ open import Cubical.Data.Sigma
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Reflection.RecordEquiv
 
-open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Category as Small
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Constructions.Opposite
 open import Cubical.Categories.Functor
@@ -43,6 +43,11 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   private
     module C = Category C
     module P = PresheafNotation P
+  isUniversal→UniversalElement : ∀ {v e} → isUniversal C P v e → UniversalElement C P
+  isUniversal→UniversalElement e-isUniversal .UniversalElement.vertex = _
+  isUniversal→UniversalElement e-isUniversal .UniversalElement.element = _
+  isUniversal→UniversalElement e-isUniversal .UniversalElement.universal = e-isUniversal
+
   -- Universe-polymorphic Yoneda recursion principle
   yoRec : ∀ {c} → P.p[ c ] → PshHom (C [-, c ]) P
   yoRec p .N-ob Γ f = f P.⋆ p
@@ -144,7 +149,24 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
   private
     module P = PresheafNotation P
     module C = Category C
-    module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
+    module PshC = LocallySmallCategoryNotation (PRESHEAF C)
+
+  module _ where
+    open UniversalElementNotation
+    UE-essUniq : ∀ (ue ue' : UniversalElement C P)
+      → Small.CatIso C (ue .vertex) (ue' .vertex)
+    UE-essUniq ue ue' .fst = intro ue' $ element ue
+    UE-essUniq ue ue' .snd .isIso.inv = intro ue $ element ue'
+    UE-essUniq ue ue' .snd .isIso.sec = extensionality ue' $
+      P.⋆Assoc _ _ _
+      ∙ P.⟨⟩⋆⟨ β ue' ⟩
+      ∙ β ue
+      ∙ (sym $ P.⋆IdL _)
+    UE-essUniq ue ue' .snd .isIso.ret = extensionality ue $
+      P.⋆Assoc _ _ _
+      ∙ P.⟨⟩⋆⟨ β ue ⟩
+      ∙ β ue'
+      ∙ (sym $ P.⋆IdL _)
 
   subst-isUniversal : ∀ {v e e'} → e ≡ e' → isUniversal C P v e → isUniversal C P v e'
   subst-isUniversal {v} e≡e' eIsUniversal Γ = isIsoToIsEquiv (intro , subst motive e≡e'
@@ -160,24 +182,24 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
     ∀ (ue : UniversalElement C P)
     → ∀ {e} → (ue .UniversalElement.element ≡ e)
     → UniversalElement C P
-  subst-UniversalElement ue ue≡e = record { vertex = _ ; element = _
-    ; universal = subst-isUniversal ue≡e (ue .UniversalElement.universal) }
+  subst-UniversalElement ue ue≡e = isUniversal→UniversalElement P
+    (subst-isUniversal ue≡e (ue .UniversalElement.universal))
 
-  open UniversalElement
+  open UniversalElementNotation
   PshIso→UniversalElement : ∀ {v} → PshCatIso (C [-, v ]) P → UniversalElement C P
   PshIso→UniversalElement {v} α .vertex = v
-  PshIso→UniversalElement {v} α .element = α .CatIsoᴰ.funᴰ .N-ob v C.id
+  PshIso→UniversalElement {v} α .element = α .CatIso.fun .N-ob v C.id
   PshIso→UniversalElement {v} α .universal Γ = isIsoToIsEquiv
-      (α .CatIsoᴰ.invᴰ .N-ob Γ
+      (α .CatIso.inv .N-ob Γ
       , subst motive
-          (sym $ funExt⁻ (cong N-ob $ IsoYoRec P v .Iso.rightInv (α .CatIsoᴰ.funᴰ)) Γ)
-          ( funExt₂⁻ (cong N-ob $ PshC.≡out (α .CatIsoᴰ.secᴰ)) Γ
-          , funExt₂⁻ (cong N-ob $ PshC.≡out (α .CatIsoᴰ.retᴰ)) Γ))
+          (sym $ funExt⁻ (cong N-ob $ IsoYoRec P v .Iso.rightInv (α .CatIso.fun)) Γ)
+          ( funExt₂⁻ (cong N-ob $ (α .CatIso.sec)) Γ
+          , funExt₂⁻ (cong N-ob $ (α .CatIso.ret)) Γ))
       where
         motive : (C [ Γ , v ] → P.p[ Γ ]) → Type _
         motive intro⁻ =
-          section intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ)
-          × retract intro⁻ (α .CatIsoᴰ.invᴰ .N-ob Γ)
+          section intro⁻ (α .CatIso.inv .N-ob Γ)
+          × retract intro⁻ (α .CatIso.inv .N-ob Γ)
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
   private
@@ -188,35 +210,33 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
   isUniversal→isPshIso : ∀ {v}{e} → isUniversal C P v e → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e)
   isUniversal→isPshIso eltIsUniversal A = isEquivToIsIso _ (eltIsUniversal A)
 
-module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C P) where
-  private
-    module P = PresheafNotation P
-    module ue = UniversalElement ue
-  UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
-  UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
-
-  yoRecIso : PshCatIso (C [-, ue.vertex ]) P
-  yoRecIso = PshIso→PshCatIso (pshiso (yoRec P ue.element) UniversalElement→yoRecIsIso)
-
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
   private
     module P = PresheafNotation P
-    module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
+    module PshC = LocallySmallCategoryNotation (PRESHEAF C)
   open UniversalElementNotation
-  IsoYoRecIso : ∀ v → Iso (Σ[ e ∈ P.p[ v ] ] isUniversal C P v e)
+  Iso-asPshIso : ∀ v → Iso (Σ[ e ∈ P.p[ v ] ] isUniversal C P v e)
                           (PshCatIso (C [-, v ]) P)
-  IsoYoRecIso v .Iso.fun (e , eIsUniversal) = yoRecIso (record { vertex = v ; element = e ; universal = eIsUniversal })
-  IsoYoRecIso v .Iso.inv α = _ , PshIso→UniversalElement P α .universal
-  IsoYoRecIso v .Iso.rightInv α = CatIsoᴰPathP (PRESHEAF C) (ΣPathP (refl , (sym $ yoRecη P)))
-  IsoYoRecIso v .Iso.leftInv f = ΣPathPProp (isPropIsUniversal C P v) (yoRecβ P)
+  Iso-asPshIso v .Iso.fun (e , eIsUniversal) = asPshIso (isUniversal→UniversalElement P eIsUniversal)
+  Iso-asPshIso v .Iso.inv α = _ , universal (PshIso→UniversalElement P α)
+  Iso-asPshIso v .Iso.rightInv α = PshC.ISOC≡ (sym $ yoRecη P)
+  Iso-asPshIso v .Iso.leftInv ue = ΣPathPProp (isPropIsUniversal C P v) (yoRecβ P)
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
   private
     module P = PresheafNotation P
-    module PshC = LocallySmallCategoryᴰNotation (PRESHEAF C)
+    module PshC = LocallySmallCategoryNotation (PRESHEAF C)
 
-  open UniversalElement
+  open UniversalElementNotation
   _◁PshIso_ : (ue : UniversalElement C P) (α : PshCatIso P Q) → UniversalElement C Q
   ue ◁PshIso α = subst-UniversalElement Q
-    (PshIso→UniversalElement Q $ reindPshCatIso (yoRecIso ue PshC.ISOCᴰ.⋆ᴰ α))
-    (cong (α .CatIsoᴰ.funᴰ .N-ob _) $ P.⋆IdL _)
+    (PshIso→UniversalElement Q $ (asPshIso ue PshC.ISOC.⋆ α))
+    (cong (α .CatIso.fun .N-ob _) $ P.⋆IdL _)
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+  (F : Functor C D)
+  x
+  where
+  F⟨selfUnivElt⟩ : UniversalElement D (D [-, F ⟅ x ⟆ ])
+  F⟨selfUnivElt⟩ = subst-UniversalElement (D [-, F-ob F x ]) (selfUnivElt D (F ⟅ x ⟆))
+    (sym $ F .F-id)

@@ -15,9 +15,11 @@ module Cubical.Categories.Displayed.Presheaf.Section where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
@@ -55,7 +57,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       N-ob  : ∀ {x}(p : P.p[ x ]) → Pᴰ.p[ p ][ F .F-obᴰ x ]
       N-hom :
         ∀ {x y}(f : C [ x , y ])(p : P.p[ y ])
-        → N-ob (f P.⋆ p) ≡ (F .F-homᴰ f Pᴰ.⋆ᴰ N-ob p)
+        → Path Pᴰ.p[ _ ] (_ , N-ob (f P.⋆ p)) (_ , (F .F-homᴰ f Pᴰ.⋆ᴰ N-ob p))
 
   open PshSection
   PshSection→PshHomⱽ : PshSection → PshHomⱽ {Cᴰ = Unitᴰ C} (UnitPshᴰ {P = P}) (Pᴰ ∘Fᴰⱽ (Terminal.recᴰ F ^opFⱽ))
@@ -66,13 +68,14 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   PshHomⱽ→PshSection α .N-ob = λ p → α .N-obᴰ tt
   PshHomⱽ→PshSection α .N-hom = λ f p → α .N-homᴰ
 
+open Functor
 open PshSection
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (F : GlobalSection Cᴰ) c
   where
   Section→PshSection : PshSection F (Cᴰ [-][-, F .F-obᴰ c ])
   Section→PshSection .N-ob = F .F-homᴰ
-  Section→PshSection .N-hom = F .F-seqᴰ
+  Section→PshSection .N-hom f p = ΣPathP (refl , F .F-seqᴰ f p)
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}

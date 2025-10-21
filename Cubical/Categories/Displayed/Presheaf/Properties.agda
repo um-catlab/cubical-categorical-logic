@@ -42,12 +42,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   TotalCatYoPshIso :
     ∀ {c} {cᴰ : Cᴰ.ob[ c ]} →
-    PshIso (∫P (Cᴰ [-][-, cᴰ ])) ((TotalCat.∫C Cᴰ) [-, c , cᴰ ])
-  TotalCatYoPshIso = eqToPshIso _ Eq.refl Eq.refl
+    PshCatIso (∫P (Cᴰ [-][-, cᴰ ])) ((TotalCat.∫C Cᴰ) [-, c , cᴰ ])
+  TotalCatYoPshIso = eqToPshCatIso _ Eq.refl Eq.refl
 
   TotalCat×PshYoIso :
     ∀ {c d} {cᴰ : Cᴰ.ob[ c ]}{dᴰ : Cᴰ.ob[ d ]} →
-    PshIso
+    PshCatIso
       (∫P (Cᴰ [-][-, cᴰ ]) ×Psh ∫P (Cᴰ [-][-, dᴰ ]))
       (BinProductProf (TotalCat.∫C Cᴰ) .F-ob (((c , cᴰ)) , ((d , dᴰ))))
-  TotalCat×PshYoIso = eqToPshIso _ Eq.refl Eq.refl
+  TotalCat×PshYoIso = eqToPshCatIso _ Eq.refl Eq.refl

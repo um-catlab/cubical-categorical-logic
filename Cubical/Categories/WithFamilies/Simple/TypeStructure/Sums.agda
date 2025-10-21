@@ -26,11 +26,9 @@ private
 module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open SCwFNotation S
 
-  open ContinuationPresheaf (C , Ty , Tm , term , ext)
-
-  SumType : (A B : ⟨ Ty ⟩) → Type _
+  SumType : (A B : Ty) → Type _
   SumType A B =
-    Σ[ A+B ∈ ⟨ Ty ⟩ ] ∀ (C : ⟨ Ty ⟩) →
+    Σ[ A+B ∈ Ty ] ∀ (C : Ty) →
       -- ∀ Γ
       -- Γ , A + B ⊢ C iff Γ , A ⊢ C and Γ , B ⊢ C
       PshIso (Cont A+B C) (Cont A C ×Psh Cont B C)

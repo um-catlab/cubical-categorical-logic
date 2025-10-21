@@ -29,9 +29,9 @@ private
 module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open SCwFNotation S
 
-  FunType : (A B : ⟨ Ty ⟩) → Type _
+  FunType : (A B : Ty) → Type _
   FunType A B =
-    Σ[ A⇒B ∈ ⟨ Ty ⟩ ]
+    Σ[ A⇒B ∈ Ty ]
     PshIso (Tm A⇒B) ((Tm A , ext A) ⇒PshSmall Tm B)
 
   FunTypes : Type _
@@ -43,16 +43,16 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open hasFunctionTypes {{...}} public
 
   module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
-    open SCwFᴰNotation S Sᴰ hiding (Ty)
+    open SCwFᴰNotation S Sᴰ
 
     module _
-      {A B : ⟨ Ty ⟩}
+      {A B : Ty}
       ((A⇒B , A⇒B≅) : FunType A B)
-      (Aᴰ : ⟨ Tyᴰ A ⟩) (Bᴰ : ⟨ Tyᴰ B ⟩)
+      (Aᴰ : Tyᴰ A) (Bᴰ : Tyᴰ B)
       where
       FunTypeᴰ : Type _
       FunTypeᴰ =
-        Σ[ Aᴰ⇒Bᴰ ∈ ⟨ Tyᴰ A⇒B ⟩ ]
+        Σ[ Aᴰ⇒Bᴰ ∈ Tyᴰ A⇒B ]
           PshIsoᴰ A⇒B≅ (Tmᴰ Aᴰ⇒Bᴰ) ((Tmᴰ Aᴰ , extᴰ Aᴰ) ⇒PshSmallᴰ Tmᴰ Bᴰ)
 
       module _ (Fᴰ : SCwFSection S Sᴰ) where
@@ -66,8 +66,8 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
     module _ (funs : FunTypes) where
       FunTypesᴰ : Type _
       FunTypesᴰ =
-        ∀ {A B : ⟨ Ty ⟩} →
-        (Aᴰ : ⟨ Tyᴰ A ⟩) (Bᴰ : ⟨ Tyᴰ B ⟩) →
+        ∀ {A B : Ty} →
+        (Aᴰ : Tyᴰ A) (Bᴰ : Tyᴰ B) →
         FunTypeᴰ (funs A B) Aᴰ Bᴰ
 
       record hasFunctionTypesᴰ :
@@ -75,3 +75,12 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
         field function-typesᴰ : FunTypesᴰ
 
       open hasFunctionTypesᴰ {{...}} public
+
+      module _ (Fᴰ : SCwFSection S Sᴰ) where
+        open Section
+
+        preservesFunTypes : Type _
+        preservesFunTypes =
+          ∀ {A B : Ty} →
+          (Aᴰ : Tyᴰ A) (Bᴰ : Tyᴰ B) →
+          preservesFunType (funs A B) Aᴰ Bᴰ Fᴰ

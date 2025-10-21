@@ -30,10 +30,17 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open SCwFNotation S
 
   UnitType : Type _
-  UnitType = Σ[ 1Ty ∈ ⟨ Ty ⟩ ] PshIso (Tm 1Ty) UnitPsh
+  UnitType = Σ[ 1Ty ∈ Ty ] PshIso (Tm 1Ty) UnitPsh
 
   record hasUnitType : Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ 0ℓ ⌉ℓ where
-    field unit-type : UnitType
+    field
+      unit-type : UnitType
+    -- TODO naming
+    -- the-unit-type : Ty
+    -- the-unit-type = unit-type .fst
+
+    -- the-unit-type-iso : PshIso (Tm the-unit-type) UnitPsh
+    -- the-unit-type-iso = unit-type .snd
 
   open hasUnitType {{...}} public
 
@@ -42,7 +49,7 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
     module _ ((1Ty , 1Ty≅) : UnitType) where
       UnitTypeᴰ : Type _
       UnitTypeᴰ =
-        Σ[ 1Tyᴰ ∈ ⟨ Tyᴰ 1Ty ⟩ ]
+        Σ[ 1Tyᴰ ∈ Tyᴰ 1Ty ]
           PshIsoᴰ 1Ty≅ (Tmᴰ 1Tyᴰ) UnitPshᴰ
 
       record hasUnitTypeᴰ :

@@ -13,6 +13,8 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
+open import Cubical.Data.Empty
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Sets
@@ -20,6 +22,8 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions
 
 open import Cubical.Categories.Displayed.Base
@@ -29,6 +33,8 @@ open import Cubical.Categories.Displayed.Limits.Cartesian
 open import Cubical.Categories.Displayed.Presheaf.CartesianLift
 open import Cubical.Categories.WithFamilies.Simple.Base
 open import Cubical.Categories.WithFamilies.Simple.Displayed
+open import Cubical.Categories.WithFamilies.Simple.TypeStructure
+open import Cubical.Categories.WithFamilies.Simple.Signature
 
 open Category
 open Categoryᴰ
@@ -46,6 +52,49 @@ module _ (CC : CartesianCategory ℓC ℓC') where
   CartesianCategory→SCwF .snd .snd .fst = CC.C [-,_]
   CartesianCategory→SCwF .snd .snd .snd .fst = CC.term
   CartesianCategory→SCwF .snd .snd .snd .snd x y = CC.bp (y , x)
+
+-- TODO merge with above module?
+module DemocraticSCwFStructure (CC : CartesianCategory ℓC ℓC') where
+  private
+    module CC = CartesianCategory CC
+
+  open PshIso
+  open UniversalElement
+
+  DemocraticSCwF = CartesianCategory→SCwF CC
+
+  instance
+    DemocraticUnitType : hasUnitType DemocraticSCwF
+    DemocraticUnitType .unit-type .fst = CC.term .vertex
+    DemocraticUnitType .unit-type .snd .trans =
+      pshhom
+        (λ c _ → tt)
+        (λ c c' f p → CC.term .universal (CC.term .vertex) .equiv-proof tt .fst .snd)
+    DemocraticUnitType .unit-type .snd .nIso c .fst =
+      λ z → CC.term .universal c .equiv-proof tt .fst .fst
+    DemocraticUnitType .unit-type .snd .nIso c .snd .fst =
+      λ b → CC.term .universal (CC.term .vertex) .equiv-proof tt .fst .snd
+    DemocraticUnitType .unit-type .snd .nIso c .snd .snd f =
+      λ i → CC.term .universal c .equiv-proof tt .snd (f , refl) i .fst
+
+    DemocraticProductType : hasProductTypes DemocraticSCwF
+    DemocraticProductType .product-types A B .fst =
+      CC.bp (A , B) .vertex
+    DemocraticProductType .product-types A B .snd =
+      UniversalElementNotation.asPshIso (CC.bp (A , B))
+
+    -- This should be predicated on the existence of sums, initial, and exponentials
+    DemocraticTypeFormers : hasTypeFormers
+    DemocraticTypeFormers .hasTypeFormers.hasUnit = Unit
+    DemocraticTypeFormers .hasTypeFormers.hasEmpty = ⊥
+    DemocraticTypeFormers .hasTypeFormers.hasProducts = Unit
+    DemocraticTypeFormers .hasTypeFormers.hasSums = ⊥
+    DemocraticTypeFormers .hasTypeFormers.hasFunctions = ⊥
+
+    DemocraticSemanticTypeFormers : SemanticTypeFormers DemocraticSCwF
+    DemocraticSemanticTypeFormers .SemanticTypeFormers.⟦1⟧ = DemocraticUnitType
+    DemocraticSemanticTypeFormers .SemanticTypeFormers.⟦×⟧ = DemocraticProductType
+    DemocraticSemanticTypeFormers .SemanticTypeFormers.⟦⇒⟧ {{()}}
 
 module _
   {C : CartesianCategory ℓC ℓC'}

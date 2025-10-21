@@ -55,39 +55,21 @@ SCwFᴰ : (C : SCwF ℓC ℓC' ℓT ℓT') → (ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ
 SCwFᴰ (C , Ty , Tm , term , comprehension) ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' =
   Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ]
   let module Cᴰ = Categoryᴰ Cᴰ in
-  Σ[ Tyᴰ ∈ (⟨ Ty ⟩ → hSet ℓTᴰ) ]
-  Σ[ Tmᴰ ∈ (∀ {A} (Aᴰ : ⟨ Tyᴰ A ⟩) → Presheafᴰ (Tm A) Cᴰ ℓTᴰ') ]
+  Σ[ Tyᴰ ∈ (Ty → Type ℓTᴰ) ]
+  Σ[ Tmᴰ ∈ (∀ {A} (Aᴰ : Tyᴰ A) → Presheafᴰ (Tm A) Cᴰ ℓTᴰ') ]
   Terminalᴰ Cᴰ term ×
-  (∀ {A} (Aᴰ : ⟨ Tyᴰ A ⟩) → LocallyRepresentableᴰ (_ , comprehension A) (Tmᴰ Aᴰ))
-
-module ExtendContextFᴰ
-  (S : SCwF ℓC ℓC' ℓT ℓT')
-  ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , extᴰ) : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
-  where
-  open ExtendContextF S
-
-  TYᴰ : Categoryᴰ TY ℓTᴰ ℓ-zero
-  TYᴰ = PropertyOver TY λ A → ⟨ Tyᴰ A ⟩
-
-  -- TODO don't want to flesh this out too much right now
-  -- when the presheaf interface will change so soon
-  open Functorᴰ
-  -- TMᴰ : Functorᴰ TM TYᴰ (PRESHEAFᴰ Cᴰ ℓT' ℓTᴰ')
-  -- TMᴰ .F-obᴰ Aᴰ = Tmᴰ Aᴰ
-  -- TMᴰ .F-homᴰ _ = {!!}
-  -- TMᴰ .F-idᴰ = {!!}
-  -- TMᴰ .F-seqᴰ = {!!}
+  (∀ {A} (Aᴰ : Tyᴰ A) → LocallyRepresentableᴰ (_ , comprehension A) (Tmᴰ Aᴰ))
 
 SCwFⱽ : (C : SCwF ℓC ℓC' ℓT ℓT') → (ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level) → Type _
 SCwFⱽ (C , Ty , Tm , term , comprehension) ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' =
   Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ]
   let module Cᴰ = Categoryᴰ Cᴰ in
-  Σ[ Tyᴰ ∈ (⟨ Ty ⟩ → hSet ℓTᴰ) ]
-  Σ[ Tmᴰ ∈ (∀ {A} (Aᴰ : ⟨ Tyᴰ A ⟩) → Presheafᴰ (Tm A) Cᴰ ℓTᴰ') ]
+  Σ[ Tyᴰ ∈ (Ty → Type ℓTᴰ) ]
+  Σ[ Tmᴰ ∈ (∀ {A} (Aᴰ : Tyᴰ A) → Presheafᴰ (Tm A) Cᴰ ℓTᴰ') ]
   Terminalsⱽ Cᴰ ×
   isFibration Cᴰ ×
   BinProductsⱽ Cᴰ ×
-  (∀ {A} (Aᴰ : ⟨ Tyᴰ A ⟩) → Presheafᴰ.isFibration (Tmᴰ Aᴰ))
+  (∀ {A} (Aᴰ : Tyᴰ A) → Presheafᴰ.isFibration (Tmᴰ Aᴰ))
 
 -- A (strict) section is a section that preserves the SCwF structure on the nose
 module _ (C : SCwF ℓC ℓC' ℓT ℓT') ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , comprehensionᴰ) : SCwFᴰ C ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
@@ -95,7 +77,7 @@ module _ (C : SCwF ℓC ℓC' ℓT ℓT') ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , com
   StrictSection : Type _
   StrictSection =
     Σ[ F ∈ GlobalSection Cᴰ ]
-    Σ[ F-ty ∈ (∀ A → ⟨ Tyᴰ A ⟩) ]
+    Σ[ F-ty ∈ (∀ A → Tyᴰ A) ]
     -- Takes a Tm A Γ to a Tmᴰ
     Σ[ F-tm ∈ (∀ A → PshSection F (Tmᴰ (F-ty A))) ]
     -- preserves terminal object
@@ -106,7 +88,7 @@ module _ (C : SCwF ℓC ℓC' ℓT ℓT') ((Cᴰ , Tyᴰ , Tmᴰ , termᴰ , com
   SCwFSection : Type _
   SCwFSection =
     Σ[ F ∈ GlobalSection Cᴰ ]
-    Σ[ F-ty ∈ (∀ A → ⟨ Tyᴰ A ⟩) ]
+    Σ[ F-ty ∈ (∀ A → Tyᴰ A) ]
     Σ[ F-tm ∈ (∀ A → PshSection F (Tmᴰ (F-ty A))) ]
     secPreservesTerminal F (C .snd .snd .snd .fst)
     × (∀ A → preservesLocalRep (Tmᴰ (F-ty A) , comprehensionᴰ (F-ty A)) (F-tm A))

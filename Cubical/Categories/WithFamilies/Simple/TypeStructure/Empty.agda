@@ -25,11 +25,10 @@ private
 
 module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open SCwFNotation S
-  open ContinuationPresheaf S
 
   EmptyType : Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ 0ℓ ⌉ℓ
   EmptyType =
-    Σ[ 0Ty ∈ ⟨ Ty ⟩ ] ∀ (C : ⟨ Ty ⟩) →
+    Σ[ 0Ty ∈ Ty ] ∀ (C : Ty) →
       PshIso (Cont 0Ty C) EmptyPsh
 
   record hasEmptyType : Type ⌈ ℓC ,ℓ ℓC' ,ℓ ℓT ,ℓ ℓT' ,ℓ 0ℓ ⌉ℓ where

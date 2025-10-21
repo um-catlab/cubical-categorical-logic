@@ -38,6 +38,7 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.WithFamilies.Simple
+open import Cubical.Categories.WithFamilies.Simple.Signature
 open import Cubical.Categories.WithFamilies.Simple.Displayed
 open import Cubical.Categories.WithFamilies.Simple.Instances.Democratic
 
@@ -46,6 +47,7 @@ open import Cubical.Categories.Displayed.Limits.Terminal renaming (preservesTerm
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Section
+open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Properties
 
@@ -64,6 +66,7 @@ open Section
 open UniversalElementᴰ
 open PshHom
 open PshIso
+open PshHomᴰ
 open PshSection
 open isIsoOver
 
@@ -207,175 +210,333 @@ module _ ℓ where
   FINCARDSCwF : SCwF _ _ _ _
   FINCARDSCwF = CartesianCategory→SCwF FINCARDCartesianCategory
 
-  FINCARD^opTmPsh : Presheaf FINCARD^op ℓ-zero
-  FINCARD^opTmPsh .F-ob Γ = Fin Γ , isSetFin
-  FINCARD^opTmPsh .F-hom = λ f → f
-  FINCARD^opTmPsh .F-id = refl
-  FINCARD^opTmPsh .F-seq = λ _ _ → refl
-
-  FINCARD^opTmPshIso :
-    PshIso (FINCARD^op [-, 1 ]) FINCARD^opTmPsh
-  FINCARD^opTmPshIso .trans .N-ob _ f = f fzero
-  FINCARD^opTmPshIso .trans .N-hom _ _ _ _ = refl
-  FINCARD^opTmPshIso .nIso _ =
-    (λ z _ → z) ,
-    (λ _ → refl) ,
-    λ f → funExt λ where fzero → refl
-
-  FINCARD^opTmPshIso× : ∀ Γ →
-    PshIso
-      ((FINCARD^op [-, Γ ]) ×Psh (FINCARD^op [-, 1 ]))
-      ((FINCARD^op [-, Γ ]) ×Psh FINCARD^opTmPsh)
-  FINCARD^opTmPshIso× Γ = ×PshIso idPshIso FINCARD^opTmPshIso
-
   FINCARD^opSCwF : SCwF _ _ _ _
-  FINCARD^opSCwF .fst = FINCARD^op
-  FINCARD^opSCwF .snd .fst = Unit
-  FINCARD^opSCwF .snd .snd .fst _ = FINCARD^opTmPsh
-  FINCARD^opSCwF .snd .snd .snd .fst = InitialFINCARD
-  FINCARD^opSCwF .snd .snd .snd .snd _ Γ =
-    BinCoproductsFINCARD (Γ , 1) ◁PshIso FINCARD^opTmPshIso× Γ
+  FINCARD^opSCwF = CartesianCategory→SCwF FINCARD^opCartesianCategory
 
-  module isFreeSCwFFINCARD^op {ℓC ℓC' ℓSᴰ ℓSᴰ'} (Sᴰ : SCwFᴰ FINCARD^opSCwF ℓC ℓC' ℓSᴰ ℓSᴰ') where
+  -- FINCARD^opTmPsh : Presheaf FINCARD^op ℓ-zero
+  -- FINCARD^opTmPsh .F-ob Γ = Fin Γ , isSetFin
+  -- FINCARD^opTmPsh .F-hom = λ f → f
+  -- FINCARD^opTmPsh .F-id = refl
+  -- FINCARD^opTmPsh .F-seq = λ _ _ → refl
+
+  -- FINCARD^opTmPshIso :
+  --   PshIso (FINCARD^op [-, 1 ]) FINCARD^opTmPsh
+  -- FINCARD^opTmPshIso .trans .N-ob _ f = f fzero
+  -- FINCARD^opTmPshIso .trans .N-hom _ _ _ _ = refl
+  -- FINCARD^opTmPshIso .nIso _ =
+  --   (λ z _ → z) ,
+  --   (λ _ → refl) ,
+  --   λ f → funExt λ where fzero → refl
+
+  -- FINCARD^opTmPshIso× : ∀ Γ →
+  --   PshIso
+  --     ((FINCARD^op [-, Γ ]) ×Psh (FINCARD^op [-, 1 ]))
+  --     ((FINCARD^op [-, Γ ]) ×Psh FINCARD^opTmPsh)
+  -- FINCARD^opTmPshIso× Γ = ×PshIso idPshIso FINCARD^opTmPshIso
+
+  instance
+    connectives : hasTypeFormers
+    connectives .hasUnit = ⊤
+    connectives .hasEmpty = ⊥.⊥
+    connectives .hasProducts = ⊤
+    connectives .hasSums = ⊥.⊥
+    connectives .hasFunctions = ⊥.⊥
+
+    -- FINCARD^op-hasUnitType :
+    --   hasUnitType (CartesianCategory→SCwF FINCARD^opCartesianCategory)
+    -- FINCARD^op-hasUnitType =
+    --   CartesianCategory→SCwF-hasUnitType FINCARD^opCartesianCategory
+
+    -- FINCARD^op-hasProductTypes :
+    --   hasProductTypes (CartesianCategory→SCwF FINCARD^opCartesianCategory)
+    -- FINCARD^op-hasProductTypes =
+    --   CartesianCategory→SCwF-hasProductTypes FINCARD^opCartesianCategory
+
+  open TypeSyntax Unit
+
+  sig : Signature ℓ-zero ℓ-zero
+  sig .fst = Unit -- base types
+  sig .snd .SignatureOver.funsym = ⊥.⊥
+  sig .snd .SignatureOver.dom ()
+  sig .snd .SignatureOver.cod ()
+
+  open SemanticTypeFormers
+
+  open DemocraticSCwFStructure FINCARD^opCartesianCategory
+
+  FINCARD^opOverSig : SCwFOver sig _ _ _ _
+  FINCARD^opOverSig .SCwFOver.S = DemocraticSCwF
+  FINCARD^opOverSig .SCwFOver.semTypes .⟦1⟧ = DemocraticUnitType
+  FINCARD^opOverSig .SCwFOver.semTypes .⟦×⟧ = DemocraticProductType
+  FINCARD^opOverSig .SCwFOver.semTypes .⟦⇒⟧ {{()}}
+  FINCARD^opOverSig .SCwFOver.↑ty _ = 1
+  FINCARD^opOverSig .SCwFOver.interp .InterpDefs.Interp.↑fun ()
+
+  module _ {ℓCᴰ ℓCᴰ' ℓSᴰ ℓSᴰ'}
+    (SᴰOver : SCwFᴰOver sig FINCARD^opOverSig ℓCᴰ ℓCᴰ' ℓSᴰ ℓSᴰ')
+    where
+    open SCwFOver FINCARD^opOverSig
+    open SCwFᴰOver SᴰOver
     private
-      module Sᴰ = SCwFᴰNotation Sᴰ
-      ∫Sᴰ = ∫C Sᴰ.Cᴰ
-      module ∫Sᴰ = Category ∫Sᴰ
-      module FINCARD^op = SCwFNotation FINCARD^opSCwF
-      module C = Category FINCARD^op.C
-      module ∫Tmᴰ {A}{Aᴰ : Sᴰ.Tyᴰ A} = PresheafNotation (∫P (Sᴰ.Tmᴰ Aᴰ))
+      module S = SCwFNotation S
+      module Sᴰ = SCwFᴰNotation S Sᴰ
+      module Tmᴰ {A}{Aᴰ : Sᴰ.Tyᴰ A} = PresheafᴰNotation (Sᴰ.Tmᴰ Aᴰ)
 
     open TerminalNotation InitialFINCARD
     open TerminalᴰNotation _ Sᴰ.termᴰ
 
-    module _ {n m} {f : FINCARD^op [ n , suc m ]} where
-      private
-        module 1,m = UniversalElementNotation (FINCARD^op.ext tt m)
-      suc-sole-lem : 1,m.intro (f Func.∘ inr , f fzero) ≡ f
-      suc-sole-lem = 1,m.intro≡ refl
+    open InterpDefs sig S (λ _ → ↑ty _)
+    open InterpᴰDefs Sᴰ (λ _ → ↑tyᴰ _)
 
-    module _ (elimTy : (A : FINCARD^op.Ty) → Sᴰ.Tyᴰ A) where
-      elimS-F-ob : ∀ n → Sᴰ.Cᴰ.ob[ n ]
-      elimS-F-ob zero = 𝟙ᴰ
-      elimS-F-ob (suc n) =
-        Sᴰ.extᴰ.vertexᴰ {Γᴰ = elimS-F-ob n}{Aᴰ = elimTy tt}
+    _ : 0 ≡ unit-type .fst
+    _ = refl
 
-      elimTm : ∀ {Γ A} (M : Γ FINCARD^op.⊢ A ) → elimS-F-ob Γ Sᴰ.[ M ]⊢ᴰ elimTy A
-      elimTm {suc Γ} {_} fzero = Sᴰ.extᴰ.elementᴰ .snd
-      elimTm {suc Γ} {_} (fsuc M) =
-        Sᴰ.extᴰ.elementᴰ .fst Sᴰ.Tmᴰ.⋆ᴰ elimTm M
+    _ : 1 ≡ ↑ty _
+    _ = refl
 
-      elimSubst : ∀ {Δ Γ} (γ : C.Hom[ Δ , Γ ]) →
-        Sᴰ.Cᴰ [ γ ][ elimS-F-ob Δ , elimS-F-ob Γ ]
-      elimSubst {Δ} {zero} γ =
-        Sᴰ.Cᴰ.reind 𝟙extensionality $ !tᴰ (elimS-F-ob Δ)
-      elimSubst {Δ} {suc Γ} γ =
-        Sᴰ.Cᴰ.reind suc-sole-lem $
-          Sᴰ.extᴰ.introᴰ ((elimSubst (γ Func.∘ fsuc)) , (elimTm (γ fzero)))
+    ⟦_⟧ctx : S.C .ob → TypalExpression
+    ⟦ zero ⟧ctx = 1̂
+    ⟦ suc A ⟧ctx = ↑ _ ×̂ ⟦ A ⟧ctx
 
-      elimSubst-fsuc : ∀ {Δ Γ} (γ : C.Hom[ Δ , Γ ]) →
-        Path (∫Sᴰ [ _ , _ ])
-          (_ , elimSubst (fsuc Func.∘ γ))
-          (_ , (Sᴰ.extᴰ.elementᴰ .fst Sᴰ.Cᴰ.⋆ᴰ elimSubst γ))
-      elimSubst-fsuc {Γ = zero} γ = 𝟙extensionalityᴰ
-      elimSubst-fsuc {Γ = suc Γ} γ =
-        (sym $ Sᴰ.Cᴰ.reind-filler _ _)
-         ∙ Sᴰ.extᴰ.introᴰ≡
-             (ΣPathPᴰ
-               (elimSubst-fsuc (γ Func.∘ fsuc)
-               ∙ Sᴰ.Cᴰ.⟨
-                   refl
-                 ⟩⋆⟨
-                   (sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .fst)
-                   ∙ Sᴰ.Cᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
-                 ⟩
-               ∙ (sym $ Sᴰ.Cᴰ.⋆Assoc _ _ _)
-               )
-               (Sᴰ.Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .snd ⟩
-               ∙ (sym $ Sᴰ.Tmᴰ.⋆Assoc _ _ _)
-               ∙ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.⟨⟩⋆⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩ ⟩⋆⟨⟩))
+    ctx→ty : S.C .ob → S.Ty
+    ctx→ty Γ = ⟦ ⟦ Γ ⟧ctx ⟧Ty
 
-      elimSubst-id : ∀ Γ →
-        Path (∫Sᴰ [ (Γ , elimS-F-ob Γ) , _ ])
-          (_ , elimSubst λ z → z)
-          (_ , Sᴰ.Cᴰ.idᴰ)
-      elimSubst-id zero = Sᴰ.termᴰ.extensionalityᴰ refl
-      elimSubst-id (suc Γ) =
-        (sym $ Sᴰ.Cᴰ.reind-filler _ _)
-        ∙ Sᴰ.extᴰ.introᴰ≡
-            (ΣPathPᴰ
-              (elimSubst-fsuc (λ z → z)
-              ∙ Sᴰ.Cᴰ.⟨⟩⋆⟨ elimSubst-id Γ ⟩
-              ∙ Sᴰ.Cᴰ.⋆IdR _
-              ∙ (sym $ Sᴰ.Cᴰ.⋆IdL _))
-              (sym $ Sᴰ.Tmᴰ.⋆IdL _))
+    ty→ty-expr : S.Ty → TypalExpression
+    ty→ty-expr zero = 1̂
+    ty→ty-expr (suc A) = ty→ty-expr A ×̂ ↑ _
 
-      elimSubst-Tm : ∀ {Δ Γ A} →
-        (γ : C.Hom[ Δ , Γ ]) →
-        (M : Γ FINCARD^op.⊢ A) →
-        Path (∫Tmᴰ.p[ _ ])
-          (_ , elimTm (γ M))
-          (_ , (elimSubst γ Sᴰ.Tmᴰ.⋆ᴰ elimTm M))
-      elimSubst-Tm {Γ = suc Γ} γ fzero =
-        (sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .snd)
-        ∙ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
-      elimSubst-Tm {Γ = suc Γ} γ (fsuc M) =
-        elimSubst-Tm (γ Func.∘ fsuc) M
-        ∙ Sᴰ.Tmᴰ.⟨ sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .fst ⟩⋆⟨⟩
-        ∙ Sᴰ.Tmᴰ.⋆Assoc _ _ _
-        ∙ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+    elim-ctx : ∀ (Γ : S.C .ob) → Sᴰ.Cᴰ.ob[ Γ ]
+    elim-ctx zero = 𝟙ᴰ
+    elim-ctx (suc Γ) = elim-ctx Γ Sᴰ.,,ᴰ ↑tyᴰ _
 
-      elimSubst-seq : ∀ {Θ Δ Γ} →
-        {δ : C.Hom[ Θ , Δ ]} →
-        (γ : C.Hom[ Δ , Γ ]) →
-        Path (∫Sᴰ [ _ , _ ])
-          (_ , elimSubst (δ C.⋆ γ))
-          (_ , (elimSubst δ Sᴰ.Cᴰ.⋆ᴰ elimSubst γ))
-      elimSubst-seq {Γ = zero} γ = 𝟙extensionalityᴰ
-      elimSubst-seq {Γ = suc Γ} γ =
-        (sym $ Sᴰ.Cᴰ.reind-filler _ _)
-        ∙ Sᴰ.extᴰ.introᴰ≡
-            (ΣPathPᴰ
-              (elimSubst-seq (γ Func.∘ fsuc)
-              ∙ Sᴰ.Cᴰ.⟨⟩⋆⟨ (sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .fst)
-                            ∙ Sᴰ.Cᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩ ⟩
-              ∙ (sym $ Sᴰ.Cᴰ.⋆Assoc _ _ _))
-              (elimSubst-Tm _ _
-              ∙ Sᴰ.Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .snd ⟩
-              ∙ Sᴰ.Tmᴰ.⟨⟩⋆⟨ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩ ⟩
-              ∙ (sym $ Sᴰ.Tmᴰ.⋆Assoc _ _ _ )))
+    elim-ctx' : ∀ (Γ : S.C .ob) → Sᴰ.Cᴰ.ob[ ⟦ ⟦ Γ ⟧ctx ⟧Ty + 0 ]
+    elim-ctx' Γ = Sᴰ.soleᴰ ⟦ ⟦ Γ ⟧ctx ⟧Tyᴰ
 
-      elimSection : GlobalSection Sᴰ.Cᴰ
-      elimSection .F-obᴰ = elimS-F-ob
-      elimSection .F-homᴰ = elimSubst
-      elimSection .F-idᴰ = Sᴰ.Cᴰ.rectify $ Sᴰ.Cᴰ.≡out $ elimSubst-id _
-      elimSection .F-seqᴰ δ γ =
-        Sᴰ.Cᴰ.rectify $ Sᴰ.Cᴰ.≡out $ elimSubst-seq {δ = δ} γ
+    ctx→TE→Ty→ctx : ∀ (Γ : S.C .ob) → S.sole (⟦ ⟦ Γ ⟧ctx ⟧Ty) ≡ Γ
+    ctx→TE→Ty→ctx zero = refl
+    ctx→TE→Ty→ctx (suc Γ) =
+      (sym $ +-assoc _ 1 0)
+      ∙ +-assoc _ 0 1
+      ∙ cong (_+ 1) (ctx→TE→Ty→ctx Γ)
+      ∙ +-suc Γ 0
+      ∙ cong suc (+-zero Γ)
 
-      elimPshSection :
-        (A : FINCARD^op.Ty) →
-        PshSection elimSection (Sᴰ.Tmᴰ $ elimTy A)
-      elimPshSection _ .N-ob = elimTm
-      elimPshSection _ .N-hom γ M =
-        Sᴰ.Tmᴰ.rectify $ Sᴰ.Tmᴰ.≡out $ elimSubst-Tm γ M
+    elim-ty : (A : S.Ty) → Sᴰ.Tyᴰ A
+    elim-ty zero = unit-typeᴰ .fst
+    elim-ty (suc A) = product-typesᴰ (elim-ty A) (↑tyᴰ _) .fst
 
-      elimFINCARD^opStrict : StrictSection FINCARD^opSCwF Sᴰ
-      elimFINCARD^opStrict .fst = elimSection
-      elimFINCARD^opStrict .snd .fst = elimTy
-      elimFINCARD^opStrict .snd .snd .fst = elimPshSection
-      elimFINCARD^opStrict .snd .snd .snd .fst = refl
-      elimFINCARD^opStrict .snd .snd .snd .snd _ Γ =
-        ΣPathP (
-          refl ,
-          (ΣPathP (
-            (Sᴰ.Cᴰ.rectify $ Sᴰ.Cᴰ.≡out $
-              elimSubst-fsuc _
-              ∙ Sᴰ.Cᴰ.⟨⟩⋆⟨ elimSubst-id Γ ⟩
-              ∙ Sᴰ.Cᴰ.⋆IdR _) ,
-            refl)))
+    tm' : ∀ {Γ A} (M : Γ S.⊢ A) → S.sole ⟦ ⟦ Γ ⟧ctx ⟧Ty S.⊢ A
+    tm' {Γ} {A} M = subst (S._⊢ A) (sym $ ctx→TE→Ty→ctx Γ) M
 
-  open isFreeSCwFFINCARD^op
+    elim-tm' : ∀ {Γ A} (M : Γ S.⊢ A) → elim-ctx' Γ Sᴰ.[ tm' M ]⊢ᴰ elim-ty A
+    elim-tm' = {!!}
 
-  isStrictFreeSCwFFINCARD^op : isStrictFreeSCwF FINCARD^opSCwF
-  isStrictFreeSCwFFINCARD^op Sᴰ =
-    elimFINCARD^opStrict Sᴰ {!!}
+    elim-tm : ∀ {Γ A} (M : Γ S.⊢ A) → elim-ctx Γ Sᴰ.[ M ]⊢ᴰ elim-ty A
+    elim-tm M = {!!}
+
+    -- elim-tm {Γ = zero} {A = zero} M =
+    --   Tmᴰ.reind 𝟙extensionality $ unit-typeᴰ .snd .snd .inv _ _
+    -- elim-tm {Γ = zero} {A = suc A} M = ⊥.rec (M fzero)
+    -- elim-tm {Γ = suc Γ} {A = zero} M =
+    --   Tmᴰ.reind 𝟙extensionality $ unit-typeᴰ .snd .snd .inv _ _
+    -- elim-tm {Γ = suc Γ} {A = suc A} M =
+    --   Tmᴰ.reind {!!} $
+    --     {!!} Tmᴰ.⋆ᴰ elim-tm {!M Func.∘ fsuc!}
+      -- Tmᴰ.reind M≡ $
+      --   product-typesᴰ (elim-ty A) (↑tyᴰ _) .snd .snd .inv
+      --     ((M Func.∘ fsuc) , (λ _ → M fzero))
+      --     (elim-tm (M Func.∘ fsuc) , (Tmᴰ.reind {!!} $ Sᴰ.extᴰ.elementᴰ .snd))
+      -- where
+      -- M≡ : _ ≡ M
+      -- M≡ = funExt λ where
+      --   fzero → refl
+      --   (fsuc k) → refl
+
+      -- M₀≡ : _ ≡ (λ _ → M fzero)
+      -- M₀≡ = funExt λ where fzero → {!!}
+
+    elim-subst : ∀ {Δ Γ} (γ : S.C [ Δ , Γ ]) →
+      Sᴰ.Cᴰ [ γ ][ elim-ctx Δ , elim-ctx Γ ]
+    elim-subst {Γ = zero} γ = Sᴰ.Cᴰ.reind 𝟙extensionality $ !tᴰ (elim-ctx _)
+    elim-subst {Γ = suc Γ} γ =
+      Sᴰ.Cᴰ.reind {!!} $
+        Sᴰ.extᴰ.introᴰ ((elim-subst (γ Func.∘ fsuc)) , {!!})
+
+    elimSection : GlobalSection Sᴰ.Cᴰ
+    elimSection .F-obᴰ Γ = elim-ctx Γ
+    elimSection .F-homᴰ γ = {!!}
+    elimSection .F-idᴰ = {!!}
+    elimSection .F-seqᴰ = {!!}
+
+  -- -- --   the-sec : SCwFSection S Sᴰ
+  -- -- --   the-sec .fst = {!!}
+  -- -- --   the-sec .snd = {!!}
+
+
+  -- -- --   -- private
+  -- -- --   --   module Sᴰ = SCwFᴰNotation FINCARD^opSCwF Sᴰ
+  -- -- --   --   ∫Sᴰ = ∫C Sᴰ.Cᴰ
+  -- -- --   --   module ∫Sᴰ = Category ∫Sᴰ
+  -- -- --   --   module FINCARD^op = SCwFNotation FINCARD^opSCwF
+  -- -- --   --   module C = Category FINCARD^op.C
+  -- -- --   --   module ∫Tmᴰ {A}{Aᴰ : Sᴰ.Tyᴰ A} = PresheafNotation (∫P (Sᴰ.Tmᴰ Aᴰ))
+
+  -- -- --   -- open TerminalNotation InitialFINCARD
+  -- -- --   -- open TerminalᴰNotation _ Sᴰ.termᴰ
+
+  -- -- --   -- module _ {n m} {f : FINCARD^op [ n , suc m ]} where
+  -- -- --   --   private
+  -- -- --   --     module 1,m = UniversalElementNotation (FINCARD^op.ext {!!} {!!})
+  -- -- --     -- suc-sole-lem : 1,m.intro (f Func.∘ inr , f fzero) ≡ f
+  -- -- --     -- suc-sole-lem = 1,m.intro≡ refl
+
+  -- -- -- --   module _ (elimTy : (A : FINCARD^op.Ty) → Sᴰ.Tyᴰ A) where
+  -- -- -- --     elimS-F-ob : ∀ n → Sᴰ.Cᴰ.ob[ n ]
+  -- -- -- --     elimS-F-ob zero = 𝟙ᴰ
+  -- -- -- --     elimS-F-ob (suc n) =
+  -- -- -- --       Sᴰ.extᴰ.vertexᴰ {Γᴰ = elimS-F-ob n}{Aᴰ = elimTy tt}
+
+  -- -- -- --     elimTm : ∀ {Γ A} (M : Γ FINCARD^op.⊢ A ) → elimS-F-ob Γ Sᴰ.[ M ]⊢ᴰ elimTy A
+  -- -- -- --     elimTm {suc Γ} {_} fzero = Sᴰ.extᴰ.elementᴰ .snd
+  -- -- -- --     elimTm {suc Γ} {_} (fsuc M) =
+  -- -- -- --       Sᴰ.extᴰ.elementᴰ .fst Sᴰ.Tmᴰ.⋆ᴰ elimTm M
+
+  -- -- -- --     elimSubst : ∀ {Δ Γ} (γ : C.Hom[ Δ , Γ ]) →
+  -- -- -- --       Sᴰ.Cᴰ [ γ ][ elimS-F-ob Δ , elimS-F-ob Γ ]
+  -- -- -- --     elimSubst {Δ} {zero} γ =
+  -- -- -- --       Sᴰ.Cᴰ.reind 𝟙extensionality $ !tᴰ (elimS-F-ob Δ)
+  -- -- -- --     elimSubst {Δ} {suc Γ} γ =
+  -- -- -- --       Sᴰ.Cᴰ.reind suc-sole-lem $
+  -- -- -- --         Sᴰ.extᴰ.introᴰ ((elimSubst (γ Func.∘ fsuc)) , (elimTm (γ fzero)))
+
+  -- -- -- --     elimSubst-fsuc : ∀ {Δ Γ} (γ : C.Hom[ Δ , Γ ]) →
+  -- -- -- --       Path (∫Sᴰ [ _ , _ ])
+  -- -- -- --         (_ , elimSubst (fsuc Func.∘ γ))
+  -- -- -- --         (_ , (Sᴰ.extᴰ.elementᴰ .fst Sᴰ.Cᴰ.⋆ᴰ elimSubst γ))
+  -- -- -- --     elimSubst-fsuc {Γ = zero} γ = 𝟙extensionalityᴰ
+  -- -- -- --     elimSubst-fsuc {Γ = suc Γ} γ =
+  -- -- -- --       (sym $ Sᴰ.Cᴰ.reind-filler _ _)
+  -- -- -- --        ∙ Sᴰ.extᴰ.introᴰ≡
+  -- -- -- --            (ΣPathPᴰ
+  -- -- -- --              (elimSubst-fsuc (γ Func.∘ fsuc)
+  -- -- -- --              ∙ Sᴰ.Cᴰ.⟨
+  -- -- -- --                  refl
+  -- -- -- --                ⟩⋆⟨
+  -- -- -- --                  (sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .fst)
+  -- -- -- --                  ∙ Sᴰ.Cᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+  -- -- -- --                ⟩
+  -- -- -- --              ∙ (sym $ Sᴰ.Cᴰ.⋆Assoc _ _ _)
+  -- -- -- --              )
+  -- -- -- --              (Sᴰ.Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .snd ⟩
+  -- -- -- --              ∙ (sym $ Sᴰ.Tmᴰ.⋆Assoc _ _ _)
+  -- -- -- --              ∙ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.⟨⟩⋆⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩ ⟩⋆⟨⟩))
+
+  -- -- -- --     elimSubst-id : ∀ Γ →
+  -- -- -- --       Path (∫Sᴰ [ (Γ , elimS-F-ob Γ) , _ ])
+  -- -- -- --         (_ , elimSubst λ z → z)
+  -- -- -- --         (_ , Sᴰ.Cᴰ.idᴰ)
+  -- -- -- --     elimSubst-id zero = Sᴰ.termᴰ.extensionalityᴰ refl
+  -- -- -- --     elimSubst-id (suc Γ) =
+  -- -- -- --       (sym $ Sᴰ.Cᴰ.reind-filler _ _)
+  -- -- -- --       ∙ Sᴰ.extᴰ.introᴰ≡
+  -- -- -- --           (ΣPathPᴰ
+  -- -- -- --             (elimSubst-fsuc (λ z → z)
+  -- -- -- --             ∙ Sᴰ.Cᴰ.⟨⟩⋆⟨ elimSubst-id Γ ⟩
+  -- -- -- --             ∙ Sᴰ.Cᴰ.⋆IdR _
+  -- -- -- --             ∙ (sym $ Sᴰ.Cᴰ.⋆IdL _))
+  -- -- -- --             (sym $ Sᴰ.Tmᴰ.⋆IdL _))
+
+  -- -- -- --     elimSubst-Tm : ∀ {Δ Γ A} →
+  -- -- -- --       (γ : C.Hom[ Δ , Γ ]) →
+  -- -- -- --       (M : Γ FINCARD^op.⊢ A) →
+  -- -- -- --       Path (∫Tmᴰ.p[ _ ])
+  -- -- -- --         (_ , elimTm (γ M))
+  -- -- -- --         (_ , (elimSubst γ Sᴰ.Tmᴰ.⋆ᴰ elimTm M))
+  -- -- -- --     elimSubst-Tm {Γ = suc Γ} γ fzero =
+  -- -- -- --       (sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .snd)
+  -- -- -- --       ∙ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+  -- -- -- --     elimSubst-Tm {Γ = suc Γ} γ (fsuc M) =
+  -- -- -- --       elimSubst-Tm (γ Func.∘ fsuc) M
+  -- -- -- --       ∙ Sᴰ.Tmᴰ.⟨ sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .fst ⟩⋆⟨⟩
+  -- -- -- --       ∙ Sᴰ.Tmᴰ.⋆Assoc _ _ _
+  -- -- -- --       ∙ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+
+  -- -- -- --     elimSubst-seq : ∀ {Θ Δ Γ} →
+  -- -- -- --       {δ : C.Hom[ Θ , Δ ]} →
+  -- -- -- --       (γ : C.Hom[ Δ , Γ ]) →
+  -- -- -- --       Path (∫Sᴰ [ _ , _ ])
+  -- -- -- --         (_ , elimSubst (δ C.⋆ γ))
+  -- -- -- --         (_ , (elimSubst δ Sᴰ.Cᴰ.⋆ᴰ elimSubst γ))
+  -- -- -- --     elimSubst-seq {Γ = zero} γ = 𝟙extensionalityᴰ
+  -- -- -- --     elimSubst-seq {Γ = suc Γ} γ =
+  -- -- -- --       (sym $ Sᴰ.Cᴰ.reind-filler _ _)
+  -- -- -- --       ∙ Sᴰ.extᴰ.introᴰ≡
+  -- -- -- --           (ΣPathPᴰ
+  -- -- -- --             (elimSubst-seq (γ Func.∘ fsuc)
+  -- -- -- --             ∙ Sᴰ.Cᴰ.⟨⟩⋆⟨ (sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .fst)
+  -- -- -- --                           ∙ Sᴰ.Cᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩ ⟩
+  -- -- -- --             ∙ (sym $ Sᴰ.Cᴰ.⋆Assoc _ _ _))
+  -- -- -- --             (elimSubst-Tm _ _
+  -- -- -- --             ∙ Sᴰ.Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ Sᴰ.extᴰ.βᴰ .snd ⟩
+  -- -- -- --             ∙ Sᴰ.Tmᴰ.⟨⟩⋆⟨ Sᴰ.Tmᴰ.⟨ Sᴰ.Cᴰ.reind-filler _ _ ⟩⋆⟨⟩ ⟩
+  -- -- -- --             ∙ (sym $ Sᴰ.Tmᴰ.⋆Assoc _ _ _ )))
+
+  -- -- -- --     elimSection : GlobalSection Sᴰ.Cᴰ
+  -- -- -- --     elimSection .F-obᴰ = elimS-F-ob
+  -- -- -- --     elimSection .F-homᴰ = elimSubst
+  -- -- -- --     elimSection .F-idᴰ = Sᴰ.Cᴰ.rectify $ Sᴰ.Cᴰ.≡out $ elimSubst-id _
+  -- -- -- --     elimSection .F-seqᴰ δ γ =
+  -- -- -- --       Sᴰ.Cᴰ.rectify $ Sᴰ.Cᴰ.≡out $ elimSubst-seq {δ = δ} γ
+
+  -- -- -- --     elimPshSection :
+  -- -- -- --       (A : FINCARD^op.Ty) →
+  -- -- -- --       PshSection elimSection (Sᴰ.Tmᴰ $ elimTy A)
+  -- -- -- --     elimPshSection _ .N-ob = elimTm
+  -- -- -- --     elimPshSection _ .N-hom γ M =
+  -- -- -- --       Sᴰ.Tmᴰ.rectify $ Sᴰ.Tmᴰ.≡out $ elimSubst-Tm γ M
+
+  -- -- -- --     elimFINCARD^opStrict : StrictSection FINCARD^opSCwF Sᴰ
+  -- -- -- --     elimFINCARD^opStrict .fst = elimSection
+  -- -- -- --     elimFINCARD^opStrict .snd .fst = elimTy
+  -- -- -- --     elimFINCARD^opStrict .snd .snd .fst = elimPshSection
+  -- -- -- --     elimFINCARD^opStrict .snd .snd .snd .fst = refl
+  -- -- -- --     elimFINCARD^opStrict .snd .snd .snd .snd _ Γ =
+  -- -- -- --       ΣPathP (
+  -- -- -- --         refl ,
+  -- -- -- --         (ΣPathP (
+  -- -- -- --           (Sᴰ.Cᴰ.rectify $ Sᴰ.Cᴰ.≡out $
+  -- -- -- --             elimSubst-fsuc _
+  -- -- -- --             ∙ Sᴰ.Cᴰ.⟨⟩⋆⟨ elimSubst-id Γ ⟩
+  -- -- -- --             ∙ Sᴰ.Cᴰ.⋆IdR _) ,
+  -- -- -- --           refl)))
+
+
+  -- -- -- -- open PreservesSemanticTypes
+  -- -- -- -- open PreservesSignature
+  -- -- -- -- isFreeFINCARD^op : isFreeSCwFOver sig FINCARD^opOverSig
+  -- -- -- -- isFreeFINCARD^op SᴰOver .fst .fst = {!!}
+  -- -- -- -- isFreeFINCARD^op SᴰOver .fst .snd = {!!}
+  -- -- -- -- isFreeFINCARD^op SᴰOver .snd = {!!}
+
+  -- -- -- -- -- FINCARD^opSCwF : SCwF _ _ _ _
+  -- -- -- -- -- FINCARD^opSCwF .fst = FINCARD^op
+  -- -- -- -- -- FINCARD^opSCwF .snd .fst = Unit
+  -- -- -- -- -- FINCARD^opSCwF .snd .snd .fst _ = FINCARD^opTmPsh
+  -- -- -- -- -- FINCARD^opSCwF .snd .snd .snd .fst = InitialFINCARD
+  -- -- -- -- -- FINCARD^opSCwF .snd .snd .snd .snd _ Γ =
+  -- -- -- -- --   BinCoproductsFINCARD (Γ , 1) ◁PshIso FINCARD^opTmPshIso× Γ
+
+  -- -- -- -- -- module isFreeSCwFFINCARD^op {ℓC ℓC' ℓSᴰ ℓSᴰ'} (Sᴰ : SCwFᴰ FINCARD^opSCwF ℓC ℓC' ℓSᴰ ℓSᴰ') where
+  -- -- -- -- --   private
+  -- -- -- -- --     module Sᴰ = SCwFᴰNotation FINCARD^opSCwF Sᴰ
+  -- -- -- -- --     ∫Sᴰ = ∫C Sᴰ.Cᴰ
+  -- -- -- -- --     module ∫Sᴰ = Category ∫Sᴰ
+  -- -- -- -- --     module FINCARD^op = SCwFNotation FINCARD^opSCwF
+  -- -- -- -- --     module C = Category FINCARD^op.C
+  -- -- -- -- --     module ∫Tmᴰ {A}{Aᴰ : Sᴰ.Tyᴰ A} = PresheafNotation (∫P (Sᴰ.Tmᴰ Aᴰ))
+
+  -- -- -- -- -- open isFreeSCwFFINCARD^op
+
+  -- -- -- -- -- isStrictFreeSCwFFINCARD^op : isStrictFreeSCwF FINCARD^opSCwF
+  -- -- -- -- -- isStrictFreeSCwFFINCARD^op Sᴰ =
+  -- -- -- -- --   elimFINCARD^opStrict Sᴰ {!!}

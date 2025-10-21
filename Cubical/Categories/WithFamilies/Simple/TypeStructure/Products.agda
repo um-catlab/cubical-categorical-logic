@@ -27,9 +27,9 @@ private
 
 module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open SCwFNotation S
-  ProdType : (A B : ⟨ Ty ⟩) → Type _
+  ProdType : (A B : Ty) → Type _
   ProdType A B =
-    Σ[ A×B ∈ ⟨ Ty ⟩ ] PshIso (Tm A×B) (Tm A ×Psh Tm B)
+    Σ[ A×B ∈ Ty ] PshIso (Tm A×B) (Tm A ×Psh Tm B)
 
   ProdTypes : Type _
   ProdTypes = ∀ A B → ProdType A B
@@ -40,14 +40,14 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
   open hasProductTypes {{...}} public
 
   module _ (Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ') where
-    open SCwFᴰNotation S Sᴰ hiding (Ty)
-    module _ {A B : ⟨ Ty ⟩}
+    open SCwFᴰNotation S Sᴰ
+    module _ {A B : Ty}
       ((A×B , A×B≅) : ProdType A B)
-      (Aᴰ : ⟨ Tyᴰ A ⟩) (Bᴰ : ⟨ Tyᴰ B ⟩)
+      (Aᴰ : Tyᴰ A) (Bᴰ : Tyᴰ B)
       where
       ProdTypeᴰ : Type _
       ProdTypeᴰ =
-        Σ[ Aᴰ×Bᴰ ∈ ⟨ Tyᴰ A×B ⟩ ]
+        Σ[ Aᴰ×Bᴰ ∈ Tyᴰ A×B ]
           PshIsoᴰ A×B≅ (Tmᴰ Aᴰ×Bᴰ) (Tmᴰ Aᴰ ×ᴰPsh Tmᴰ Bᴰ)
 
       module _ (Fᴰ : SCwFSection S Sᴰ) where
@@ -61,8 +61,8 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
     module _ (prods : ProdTypes) where
       ProdTypesᴰ : Type _
       ProdTypesᴰ =
-        ∀ {A B : ⟨ Ty ⟩} →
-        (Aᴰ : ⟨ Tyᴰ A ⟩) (Bᴰ : ⟨ Tyᴰ B ⟩) →
+        ∀ {A B : Ty} →
+        (Aᴰ : Tyᴰ A) (Bᴰ : Tyᴰ B) →
         ProdTypeᴰ (prods A B) Aᴰ Bᴰ
 
       record hasProductTypesᴰ : Type
@@ -71,3 +71,10 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
         field product-typesᴰ : ProdTypesᴰ
 
       open hasProductTypesᴰ {{...}} public
+
+      module _ (Fᴰ : SCwFSection S Sᴰ) where
+        preservesProdTypes : Type _
+        preservesProdTypes =
+          ∀ {A B} →
+          (Aᴰ : Tyᴰ A) (Bᴰ : Tyᴰ B) →
+          preservesProdType (prods A B) Aᴰ Bᴰ Fᴰ

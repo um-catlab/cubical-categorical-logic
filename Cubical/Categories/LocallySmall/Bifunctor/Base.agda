@@ -19,26 +19,18 @@ open import Cubical.Data.Unit
 open import Cubical.Reflection.RecordEquiv.More
 
 open import Cubical.Categories.LocallySmall.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor.Base as LocallySmall
 
-private
-  variable
-    ℓ ℓ' ℓ1 ℓ2 ℓw ℓx ℓy ℓz ℓC ℓC' : Level
-    ℓᴰ ℓᴰ' ℓ1ᴰ ℓ2ᴰ ℓwᴰ ℓxᴰ ℓyᴰ ℓzᴰ ℓCᴰ ℓCᴰ' : Level
-
-    Bob Cob Dob Eob : Typeω
-    Bobᴰ : Bob → Typeω
-    Cobᴰ : Cob → Typeω
-    Dobᴰ : Dob → Typeω
-    Eobᴰ : Eob → Typeω
+open import Cubical.Categories.LocallySmall.Displayed
 
 open CatIso
 open CatIsoᴰ
 
 -- TODO get this loading
-record Bifunctor (C : Category Cob)
-                 (D : Category Dob)
-                 (E : Category Eob)
+record Bifunctor (C : Category Cob CHom-ℓ)
+                 (D : Category Dob DHom-ℓ)
+                 (E : Category Eob EHom-ℓ)
        : Typeω where
   no-eta-equality
   constructor bifunctor
@@ -80,11 +72,14 @@ record Bifunctor (C : Category Cob)
 
 open Bifunctor
 
-record Bifunctorᴰ {C : Category Cob}{D : Category Dob}{E : Category Eob}
+record Bifunctorᴰ
+  {C : Category Cob CHom-ℓ}
+  {D : Category Dob DHom-ℓ}
+  {E : Category Eob EHom-ℓ}
   (F : Bifunctor C D E)
-  (Cᴰ : Categoryᴰ C Cobᴰ)
-  (Dᴰ : Categoryᴰ D Dobᴰ)
-  (Eᴰ : Categoryᴰ E Eobᴰ)
+  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)
+  (Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ)
+  (Eᴰ : Categoryᴰ E Eobᴰ EHom-ℓᴰ)
   : Typeω where
   no-eta-equality
   constructor bifunctorᴰ
@@ -163,11 +158,11 @@ record Bifunctorᴰ {C : Category Cob}{D : Category Dob}{E : Category Eob}
 -- if Cᴰ, Dᴰ are fibrations this could be a nat trans F ∘ f* ⇒ f* ∘ G : Cᴰ.v[ y ] → Dᴰ.v[ x ]
 --   i.e., for every yᴰ a morphism Dᴰ.v[ x ][ F (f* yᴰ) , f* (G yᴰ) ],
 --   i.e., Dᴰ [ f ][ F (f* yᴰ) , yᴰ ]
-record Bifunctorⱽ {C : Category Cob}{E : Category Eob}
+record Bifunctorⱽ {C : Category Cob CHom-ℓ}{E : Category Eob EHom-ℓ}
   (F : Functor C E)
-  (Cᴰ : Categoryᴰ C Cobᴰ)
-  (Dᴰ : Categoryᴰ C Dobᴰ)
-  (Eᴰ : Categoryᴰ E Eobᴰ)
+  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)
+  (Dᴰ : Categoryᴰ C Dobᴰ DHom-ℓᴰ)
+  (Eᴰ : Categoryᴰ E Eobᴰ EHom-ℓᴰ)
   : Typeω where
   no-eta-equality
   constructor bifunctorⱽ

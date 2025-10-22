@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Bifunctor where
+module Cubical.Categories.LocallySmall.Bifunctor.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -18,8 +18,8 @@ open import Cubical.Data.Unit
 
 open import Cubical.Reflection.RecordEquiv.More
 
-open import Cubical.Categories.LocallySmall as LocallySmall
-open import Cubical.Categories.LocallySmall.Functor as LocallySmall
+open import Cubical.Categories.LocallySmall.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Functor.Base as LocallySmall
 
 private
   variable
@@ -35,16 +35,17 @@ private
 open CatIso
 open CatIsoᴰ
 
-record Bifunctor (C : LocallySmallCategory Cob)
-                 (D : LocallySmallCategory Dob)
-                 (E : LocallySmallCategory Eob)
+-- TODO get this loading
+record Bifunctor (C : Category Cob)
+                 (D : Category Dob)
+                 (E : Category Eob)
        : Typeω where
   no-eta-equality
   constructor bifunctor
   private
-    module C = LocallySmallCategoryNotation C
-    module D = LocallySmallCategoryNotation D
-    module E = LocallySmallCategoryNotation E
+    module C = CategoryNotation C
+    module D = CategoryNotation D
+    module E = CategoryNotation E
 
   field
     Bif-ob : Cob → Dob → Eob
@@ -79,21 +80,21 @@ record Bifunctor (C : LocallySmallCategory Cob)
 
 open Bifunctor
 
-record Bifunctorᴰ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}{E : LocallySmallCategory Eob}
+record Bifunctorᴰ {C : Category Cob}{D : Category Dob}{E : Category Eob}
   (F : Bifunctor C D E)
-  (Cᴰ : LocallySmallCategoryᴰ C Cobᴰ)
-  (Dᴰ : LocallySmallCategoryᴰ D Dobᴰ)
-  (Eᴰ : LocallySmallCategoryᴰ E Eobᴰ)
+  (Cᴰ : Categoryᴰ C Cobᴰ)
+  (Dᴰ : Categoryᴰ D Dobᴰ)
+  (Eᴰ : Categoryᴰ E Eobᴰ)
   : Typeω where
   no-eta-equality
   constructor bifunctorᴰ
   private
-    module C = LocallySmallCategoryNotation C
-    module D = LocallySmallCategoryNotation D
-    module E = LocallySmallCategoryNotation E
-    module Cᴰ = LocallySmallCategoryᴰNotation Cᴰ
-    module Dᴰ = LocallySmallCategoryᴰNotation Dᴰ
-    module Eᴰ = LocallySmallCategoryᴰNotation Eᴰ
+    module C = CategoryNotation C
+    module D = CategoryNotation D
+    module E = CategoryNotation E
+    module Cᴰ = CategoryᴰNotation Cᴰ
+    module Dᴰ = CategoryᴰNotation Dᴰ
+    module Eᴰ = CategoryᴰNotation Eᴰ
     module F = Bifunctor F
 
   field
@@ -162,20 +163,20 @@ record Bifunctorᴰ {C : LocallySmallCategory Cob}{D : LocallySmallCategory Dob}
 -- if Cᴰ, Dᴰ are fibrations this could be a nat trans F ∘ f* ⇒ f* ∘ G : Cᴰ.v[ y ] → Dᴰ.v[ x ]
 --   i.e., for every yᴰ a morphism Dᴰ.v[ x ][ F (f* yᴰ) , f* (G yᴰ) ],
 --   i.e., Dᴰ [ f ][ F (f* yᴰ) , yᴰ ]
-record Bifunctorⱽ {C : LocallySmallCategory Cob}{E : LocallySmallCategory Eob}
+record Bifunctorⱽ {C : Category Cob}{E : Category Eob}
   (F : Functor C E)
-  (Cᴰ : LocallySmallCategoryᴰ C Cobᴰ)
-  (Dᴰ : LocallySmallCategoryᴰ C Dobᴰ)
-  (Eᴰ : LocallySmallCategoryᴰ E Eobᴰ)
+  (Cᴰ : Categoryᴰ C Cobᴰ)
+  (Dᴰ : Categoryᴰ C Dobᴰ)
+  (Eᴰ : Categoryᴰ E Eobᴰ)
   : Typeω where
   no-eta-equality
   constructor bifunctorⱽ
   private
-    module C = LocallySmallCategoryNotation C
-    module E = LocallySmallCategoryNotation E
-    module Cᴰ = LocallySmallCategoryᴰNotation Cᴰ
-    module Dᴰ = LocallySmallCategoryᴰNotation Dᴰ
-    module Eᴰ = LocallySmallCategoryᴰNotation Eᴰ
+    module C = CategoryNotation C
+    module E = CategoryNotation E
+    module Cᴰ = CategoryᴰNotation Cᴰ
+    module Dᴰ = CategoryᴰNotation Dᴰ
+    module Eᴰ = CategoryᴰNotation Eᴰ
     module F = FunctorNotation F
 
   field

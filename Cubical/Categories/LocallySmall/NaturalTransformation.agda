@@ -346,17 +346,54 @@ module _
           → (F.F-hom f Dᴰ.⋆ⱽᴰ N-ob y) ≡ (N-ob x Dᴰ.⋆ᴰⱽ G.F-hom f)))
     unquoteDef SFNatTransIsoΣ = defineRecordIsoΣ SFNatTransIsoΣ (quote (SmallFibNatTrans))
 
-  makeSFNatTransPath : ∀ {d d'}
+    isSetSFNatTrans : isSet (SmallFibNatTrans Dᴰ g F G)
+    isSetSFNatTrans =
+      isSetRetract (Iso.fun SFNatTransIsoΣ ) (Iso.inv SFNatTransIsoΣ)
+        (Iso.leftInv SFNatTransIsoΣ)
+        (isSetΣSndProp
+          (isSetΠ (λ _ → Dᴰ.isSetHomᴰ))
+          (λ _ → isPropImplicitΠ2 (λ _ _ → isPropΠ (λ _ → Dᴰ.isSetHomᴰ _ _))))
+
+  makeSFNatTransPathP : ∀ {d d'}
     {g g' : D.Hom[ d , d' ]}
     {F : Functor C Dᴰ.v[ d ]}
     {G : Functor C Dᴰ.v[ d' ]}
     {α : SmallFibNatTrans Dᴰ g F G}
     {β : SmallFibNatTrans Dᴰ g' F G}
-    → Path (Σ[ g ∈ D.Hom[ d , d' ] ] (∀ x → Dᴰ.Hom[ g ][ Functor.F-ob F (liftω x) , Functor.F-ob G (liftω x) ])) (_ , α .N-ob) (_ , β .N-ob)
-    → Path (Σ[ g ∈ D.Hom[ d , d' ] ] SmallFibNatTrans Dᴰ g F G)
-        (_ , α)
-        (_ , β)
-  makeSFNatTransPath = {!!}
+    → (g≡g' : g ≡ g')
+    → PathP
+        (λ i → ∀ x →
+          Dᴰ.Hom[ g≡g' i ][ Functor.F-ob F (liftω x),
+                            Functor.F-ob G (liftω x) ])
+        (α .N-ob)
+        (β .N-ob)
+    → PathP (λ i → SmallFibNatTrans Dᴰ (g≡g' i) F G) α β
+  makeSFNatTransPathP g≡g' p i .N-ob x = p i x
+  makeSFNatTransPathP {F = F} {G = G} {α = α} {β = β} g≡g' p i .N-hom {x = x} {y = y} f =
+    isSet→SquareP (λ i j → Dᴰ.isSetHomᴰ)
+      (α .N-hom f)
+      (β .N-hom f)
+      (λ j → Functor.F-hom F f Dᴰ.⋆ⱽᴰ p j y)
+      (λ j → p j x Dᴰ.⋆ᴰⱽ Functor.F-hom G f)
+      i
+
+  module _
+    {d d'}
+    {g g' : D.Hom[ d , d' ]}
+    {F : Functor C Dᴰ.v[ d ]}
+    {G : Functor C Dᴰ.v[ d' ]}
+    {α : SmallFibNatTrans Dᴰ g F G}
+    {β : SmallFibNatTrans Dᴰ g' F G}
+    (g≡g' : g ≡ g')
+    (p : ∀ x → α .N-ob x Dᴰ.∫≡ β .N-ob x)
+    where
+
+    makeSFNatTransPath :
+      Path (Σ[ h ∈ (D.Hom[ d , d' ]) ] SmallFibNatTrans Dᴰ h F G) ((_ , α)) ((_ , β))
+    makeSFNatTransPath =
+      ΣPathP
+        (g≡g' ,
+        makeSFNatTransPathP g≡g' (funExt λ x → Dᴰ.rectify (Dᴰ.≡out (p x))))
 
 module _
   {D : GloballySmallCategory Dob ℓD'}
@@ -373,10 +410,15 @@ module _
   FIBER-FUNCTOR .Hom[_][_,_] = SmallFibNatTrans Dᴰ
   FIBER-FUNCTOR .idᴰ = idSFTrans _
   FIBER-FUNCTOR ._⋆ᴰ_ α β = seqSFTrans α β
-  FIBER-FUNCTOR .⋆IdLᴰ α = {!!}
-  FIBER-FUNCTOR .⋆IdRᴰ α = {!!}
-  FIBER-FUNCTOR .⋆Assocᴰ α β γ = {!!}
-  FIBER-FUNCTOR .isSetHomᴰ = {!!}
+  FIBER-FUNCTOR .⋆IdLᴰ {f = f} α =
+    makeSFNatTransPath (D.⋆IdL _) (λ x → Dᴰ.⋆IdLᴰ (α .N-ob x))
+  FIBER-FUNCTOR .⋆IdRᴰ α =
+    makeSFNatTransPath (D.⋆IdR _) (λ x → Dᴰ.⋆IdRᴰ (α .N-ob x))
+  FIBER-FUNCTOR .⋆Assocᴰ α β γ =
+    makeSFNatTransPath
+      (D.⋆Assoc _ _ _)
+      (λ x → Dᴰ.⋆Assocᴰ (α .N-ob x) (β .N-ob x) (γ .N-ob x))
+  FIBER-FUNCTOR .isSetHomᴰ = isSetSFNatTrans _ _ _
 
 -- Globally Small Presheaves on C should be ∫C (FIBER-FUNCTOR C SET)
 

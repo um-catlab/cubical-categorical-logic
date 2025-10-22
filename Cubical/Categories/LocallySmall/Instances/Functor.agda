@@ -29,7 +29,7 @@ open Category
 open Categoryᴰ
 
 module _
-  {D : GloballySmallCategory Dob ℓD'}
+  {D : Category Dob DHom-ℓ}
   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
   ((Cob , C) : SmallCategory ℓC ℓC')
   (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)

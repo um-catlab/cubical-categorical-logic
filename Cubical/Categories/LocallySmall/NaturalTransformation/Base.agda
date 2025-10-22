@@ -25,10 +25,11 @@ open import Cubical.Reflection.RecordEquiv.More
 
 import Cubical.Categories.Category as Small
 open import Cubical.Categories.LocallySmall.Base as LocallySmall
-open import Cubical.Categories.LocallySmall.Displayed.Base
-open import Cubical.Categories.LocallySmall.Displayed.Properties
 open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Variables
+
+open import Cubical.Categories.LocallySmall.Displayed.Base
+open import Cubical.Categories.LocallySmall.Displayed.Properties
 
 open Category
 open Categoryᴰ
@@ -145,36 +146,6 @@ module _ ((Cob , C) : SmallCategory ℓC ℓC')(D : GloballySmallCategory Dob �
       (isSetΠ (λ _ → D.isSetHom))
       λ _ → isProp→isSet (isPropImplicitΠ2 (λ _ _ → isPropΠ (λ f → D.isSetHom _ _))))
 
-record LargeNatTransᴰ
-  {C-ob D-ob CHom-ℓ DHom-ℓ}
-  {C : Category C-ob CHom-ℓ}
-  {D : Category D-ob DHom-ℓ}
-  {F G : Functor C D}
-  {Cobᴰ Dobᴰ CHom-ℓᴰ DHom-ℓᴰ}
-  {Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ}
-  {Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ}
-  (α : LargeNatTrans F G)
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-  (Gᴰ : Functorᴰ G Cᴰ Dᴰ)
-  : Typeω
-  where
-  no-eta-equality
-  private
-    module α = LargeNatTrans α
-    module F = FunctorNotation F
-    module Fᴰ = FunctorᴰNotation Fᴰ
-    module G = FunctorNotation G
-    module Gᴰ = FunctorᴰNotation Gᴰ
-    module C =  CategoryNotation C
-    module Cᴰ = CategoryᴰNotation Cᴰ
-    module D =  CategoryNotation D
-    module Dᴰ = CategoryᴰNotation Dᴰ
-  field
-    N-obᴰ : ∀ {x}(xᴰ : Cobᴰ x) → Dᴰ.Hom[ α.N-ob x ][ Fᴰ.F-obᴰ xᴰ , Gᴰ.F-obᴰ xᴰ ]
-    N-homᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
-      (fᴰ  : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
-      → (Fᴰ.F-homᴰ fᴰ Dᴰ.⋆ᴰ N-obᴰ yᴰ) Dᴰ.∫≡ (N-obᴰ xᴰ Dᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
-
 -- Things that contribute to the size:
 -- 1. x  -- need small Cob
 -- 2. xᴰ -- need global bound on Cobᴰ
@@ -262,7 +233,7 @@ record LargeNatTransᴰ
 
 module _
   {(Cob , C) : SmallCategory ℓC ℓC'}
-  {D : GloballySmallCategory Dob ℓD'}
+  {D : Category Dob DHom-ℓ}
   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
   (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)
   where
@@ -295,7 +266,7 @@ module _
 
 module _
   {(Cob , C) : SmallCategory ℓC ℓC'}
-  {D : GloballySmallCategory Dob ℓD'}
+  {D : Category Dob DHom-ℓ}
   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
   {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
   where

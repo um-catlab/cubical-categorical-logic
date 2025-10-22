@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Constructions.Weaken where
+module Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken where
 
 open import Cubical.Foundations.Prelude
 

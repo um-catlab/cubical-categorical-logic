@@ -13,6 +13,8 @@ open Category
 open Categoryᴰ
 open Σω
 
+-- I guess if I'm being consistent, this should be in
+-- LocallySmall.Displayed.Instances
 SET : SmallFibersCategoryᴰ LEVEL _ (λ (liftω ℓ) → hSet ℓ) _
 SET .Hom[_][_,_] _ (liftω X) (liftω Y) = ⟨ X ⟩ → ⟨ Y ⟩
 SET .idᴰ = λ z → z

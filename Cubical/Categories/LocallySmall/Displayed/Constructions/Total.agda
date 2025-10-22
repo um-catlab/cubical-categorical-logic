@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Displayed.Instances.Total where
+module Cubical.Categories.LocallySmall.Displayed.Constructions.Total where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

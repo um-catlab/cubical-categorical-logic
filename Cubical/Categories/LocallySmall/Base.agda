@@ -142,6 +142,18 @@ record Category (ob : Typeω) (Hom-ℓ : ob → ob → Level) : Typeω where
 
 open Category
 
+⟨_⟩ob : ∀ {Cob}{CHom-ℓ} → Category Cob CHom-ℓ → Typeω
+⟨_⟩ob {Cob = Cob} C = Cob
+
+_^op : ∀ {Cob}{CHom-ℓ} → Category Cob CHom-ℓ → Category Cob λ x y → CHom-ℓ y x
+(C ^op) .Hom[_,_] x y = C .Hom[_,_] y x
+(C ^op) .id = C .id
+(C ^op) ._⋆_ f g = C ._⋆_ g f
+(C ^op) .⋆IdL = C .⋆IdR
+(C ^op) .⋆IdR = C .⋆IdL
+(C ^op) .⋆Assoc f g h = sym (C .⋆Assoc _ _ _)
+(C ^op) .isSetHom = C .isSetHom
+
 -- A (LS) Category with a small type of objects
 SmallObjectsCategory : ∀ {ℓC}(ob : Type ℓC)(C-ℓ : ob → ob → Level) → Typeω
 SmallObjectsCategory ob C-ℓ = Category (Liftω ob) λ (liftω x) (liftω y) → C-ℓ x y

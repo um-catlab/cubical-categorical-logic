@@ -23,6 +23,7 @@ open import Cubical.Categories.LocallySmall.Base as LocallySmall
 open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Base
 open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Displayed
 
 open Category
 open Categoryᴰ

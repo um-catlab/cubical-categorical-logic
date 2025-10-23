@@ -84,6 +84,10 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       reindYo : Presheafⱽ c Cᴰ ℓQᴰ
       reindYo = reind (yoRec Q q) Qᴰ
 
+  module _ {x y}(f : C [ x , y ]) (Qⱽ : Presheafⱽ y Cᴰ ℓQᴰ) where
+    reindⱽ : Presheafⱽ x Cᴰ ℓQᴰ
+    reindⱽ = reindYo f Qⱽ
+
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

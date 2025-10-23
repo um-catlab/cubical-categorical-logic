@@ -86,6 +86,24 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     CartesianLiftF-fiber f =
       FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
 
+    -- CartesianLiftF-Id :
+    --   ∀ x → NatIso (CartesianLiftF-fiber (C.id {x})) Id
+    -- CartesianLiftF-Id x = record { trans = {!!} ; nIso = {!!} }
+    --   where
+    --     t : NatTrans (CartesianLiftF-fiber (C.id {x})) Id
+    --     t .NatTrans.N-ob xᴰ = Cⱽ.reind (C.⋆IdL C.id) id*xᴰ.elementᴰ
+    --       where
+    --         module id*xᴰ = UniversalElementⱽ (isFib xᴰ C.id)
+    --     t .NatTrans.N-hom {xᴰ}{yᴰ} fⱽ = {!!}
+    -- CartesianLiftF-Seq :
+    --   ∀ {x y z}(f : C [ x , y ])(g : C [ y , z ])
+    --     → NatIso
+    --         (CartesianLiftF-fiber (f C.⋆ g))
+    --         (CartesianLiftF-fiber f ∘F CartesianLiftF-fiber g)
+    -- CartesianLiftF-Seq x = {!!}
+
+    -- Triangle/Pentagon laws?
+
   -- Definition #2: This is the "textbook" compositional
   -- definition. It suffers from very slow performance
   CartesianLift' : {x y : C.ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _

@@ -181,17 +181,18 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
         (_ , fⱽ' ⋆ⱽᴰ gᴰ)
   ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨⟩ = ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ refl ⟩
 
-  reind⟨_⟩⟨_⟩ : ∀ {a b : C.ob} {f g : C [ a , b ]}{aᴰ bᴰ}
+  reind⟨_⟩⟨_⟩⟨_⟩ : ∀ {a b : C.ob} {f f' g g' : C [ a , b ]}{aᴰ bᴰ}
       {fᴰ : Cᴰ [ f ][ aᴰ , bᴰ ]}
-      {fᴰ' : Cᴰ [ f ][ aᴰ , bᴰ ]}
+      {fᴰ' : Cᴰ [ f' ][ aᴰ , bᴰ ]}
       (p : f ≡ g)
+      (p' : f' ≡ g')
     → Path R.Hom[ _ , _ ]
         (f , fᴰ)
-        (f , fᴰ')
+        (f' , fᴰ')
     → Path R.Hom[ _ , _ ]
         (g , reind p fᴰ)
-        (g , reind p fᴰ')
-  reind⟨ p ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind p) (rectify (≡out fᴰ≡fᴰ')))
+        (g' , reind p' fᴰ')
+  reind⟨ p ⟩⟨ p' ⟩⟨ fᴰ≡fᴰ' ⟩ = sym (reind-filler p _) ∙ fᴰ≡fᴰ' ∙ reind-filler p' _
 
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

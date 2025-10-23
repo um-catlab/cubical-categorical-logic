@@ -25,7 +25,7 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Limits
-open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_)
+open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_; _∘ʳ_)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
@@ -447,6 +447,20 @@ module _
   (α ∘ˡⁱ F) .nIso x .fst = α .nIso _ .fst
   (α ∘ˡⁱ F) .nIso x .snd .fst = α .nIso _ .snd .fst
   (α ∘ˡⁱ F) .nIso x .snd .snd = α .nIso _ .snd .snd
+
+module _
+  {C : Category ℓc ℓc'}
+  {D : Category ℓd ℓd'}
+  {F : Functor C D}
+  {G : Functor C D}
+  where
+  _∘ʳ_ : (P : Presheaf D ℓp)(α : NatTrans G F)
+    → PshHom (P ∘F (F ^opF)) (P ∘F (G ^opF))
+  P ∘ʳ α = pshhom
+    (λ x p → α .NatTrans.N-ob x P.⋆ p)
+    λ x y f p → sym (P.⋆Assoc _ _ _) ∙ P.⟨ sym $ α .NatTrans.N-hom _ ⟩⋆⟨⟩ ∙ P.⋆Assoc _ _ _
+    where
+      module P = PresheafNotation P
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (F : Functor C D)
          (P : Presheaf C ℓp)
@@ -454,6 +468,18 @@ module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
   -- We define the displayed morphism by reindexing the codomain
   PshHet : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
   PshHet = PshHom P (Q ∘F (F ^opF))
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+         {F : Functor C D}
+         {G : Functor C D}
+         (ι : NatIso F G)
+         (P : Presheaf C ℓp)
+         (Q : Presheaf D ℓq)
+         (α : PshHet F P Q)
+         (β : PshHet G P Q)
+         where
+  PshHet≅ : Type _
+  PshHet≅ = α ≡ (β ⋆PshHom (Q ∘ʳ ι .NatIso.trans))
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
          (F : Functor C D) (c : C .ob) where

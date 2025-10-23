@@ -248,7 +248,7 @@ module PresheafⱽNotation
       cᴰ : Cᴰ.ob[ c ]
       xᴰ yᴰ zᴰ : Cᴰ.ob[ x ]
   open PresheafᴰNotation P public
-
+  open Functor
   pⱽ[_] : (cᴰ : Cᴰ.ob[ c ]) → Type ℓPᴰ
   pⱽ[ cᴰ ] = p[ C.id ][ cᴰ ]
 
@@ -267,6 +267,15 @@ module PresheafⱽNotation
       → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
     ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = λ i → reind-filler (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ) i .snd
 
+    ⋆IdLⱽ : ∀ (pⱽ : pⱽ[ cᴰ ]) → Cᴰ.idᴰ ⋆ⱽ pⱽ ≡ pⱽ
+    ⋆IdLⱽ pⱽ = rectify $ ≡out $ sym (reind-filler _ _) ∙ ⋆IdL _
+
+    ⋆Assocⱽⱽⱽ : ∀ (fⱽ : Cᴰ.v[ c ] [ xᴰ , yᴰ ])(gⱽ : Cᴰ.v[ c ] [ yᴰ , zᴰ ])(pⱽ : pⱽ[ zᴰ ])
+      → (fⱽ Cᴰ.⋆ⱽ gⱽ) ⋆ⱽ pⱽ ≡ fⱽ ⋆ⱽ (gⱽ ⋆ⱽ pⱽ)
+    ⋆Assocⱽⱽⱽ fⱽ gⱽ pⱽ = rectify $ ≡out $
+      sym (reind-filler _ _) ∙ ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+      ∙ ⋆Assoc _ _ _
+      ∙ ⟨⟩⋆⟨ reind-filler _ _ ⟩ ∙ reind-filler _ _
     ⋆Assocᴰᴰⱽ :
       ∀ (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ])(gᴰ : Cᴰ [ g ][ yᴰ , cᴰ ])(pⱽ : pⱽ[ cᴰ ])
       → (fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰⱽ pⱽ ≡ fᴰ ⋆ᴰ (gᴰ ⋆ᴰⱽ pⱽ)
@@ -274,6 +283,13 @@ module PresheafⱽNotation
       sym (reind-filler _ _)
       ∙ ⋆Assoc _ _ _
       ∙ ⟨⟩⋆⟨ reind-filler _ _ ⟩
+
+  -- A vertical presheaf over c induces a presheaf on the fiber category over c
+  v : Presheaf Cᴰ.v[ c ] ℓPᴰ
+  v .F-ob cᴰ = P .F-obᴰ cᴰ C.id
+  v .F-hom fⱽ pⱽ = fⱽ ⋆ⱽ pⱽ
+  v .F-id = funExt ⋆IdLⱽ
+  v .F-seq fⱽ gⱽ = funExt $ ⋆Assocⱽⱽⱽ gⱽ fⱽ
 
 module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}

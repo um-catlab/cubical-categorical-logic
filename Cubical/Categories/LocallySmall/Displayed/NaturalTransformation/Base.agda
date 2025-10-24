@@ -55,16 +55,66 @@ record LargeNatTransᴰ
       (fᴰ  : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
       → (Fᴰ.F-homᴰ fᴰ Dᴰ.⋆ᴰ N-obᴰ yᴰ) Dᴰ.∫≡ (N-obᴰ xᴰ Dᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
 
+-- module _
+--   {(Cob , C) : SmallCategory ℓC ℓC'}
+--   {(Dob , D) : SmallCategory ℓD ℓD'}
+--   {F G : Functor UNIT D} -- i.e., just an object
+--   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+--   {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+--   (α : NatTrans F G) -- i.e., just a morphism
+--   (Fᴰ : Functorᴰ F (weaken UNIT C) Dᴰ)
+--   (Gᴰ : Functorᴰ G (weaken UNIT C) Dᴰ)
+--   where
+
+open Functorᴰ
+open SmallFibNatTrans
+open Liftω
+open Σω
 module _
   {(Cob , C) : SmallCategory ℓC ℓC'}
-  {(Dob , D) : SmallCategory ℓD ℓD'}
-  {F G : Functor UNIT D} -- i.e., just an object
-  {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
-  {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
-  (α : NatTrans F G) -- i.e., just a morphism
-  (Fᴰ : Functorᴰ F (weaken UNIT C) Dᴰ)
-  (Gᴰ : Functorᴰ G (weaken UNIT C) Dᴰ)
+  {ℓCᴰ ℓCᴰ'}
+  ((Cobᴰ , Cᴰ) : SmallCategoryᴰ ((Cob , C)) ℓCᴰ ℓCᴰ')
+  {D : Category Dob DHom-ℓ}
+  {Dob-ℓᴰ Dobᴰ DHom-ℓᴰ}
+  (Dᴰ : SmallFibersCategoryᴰ D Dob-ℓᴰ Dobᴰ DHom-ℓᴰ)
+  {Eob-ℓᴰ Eobᴰ}
+  {EHom-ℓᴰ : Dob → Dob → Level}
+  (Eᴰ : SmallFibersCategoryᴰ (∫C Dᴰ) Eob-ℓᴰ Eobᴰ λ u v → EHom-ℓᴰ (u .fst ) (v .fst))
   where
+  private
+    module C = CategoryNotation C
+    module Cᴰ = CategoryᴰNotation Cᴰ
+    module D = CategoryNotation D
+    module Dᴰ = CategoryᴰNotation Dᴰ
+    module Eᴰ = CategoryᴰOver∫Notation Eᴰ
+
+  module _
+    -- (F G : Functor C D)
+    -- {(d , dᴰ) (d' , dᴰ') : ⟨ ∫C Dᴰ ⟩ob}
+    {d d' : Dob}
+    (g : D.Hom[ d , d' ])
+    (F : Functor C Dᴰ.v[ d ])
+    (G : Functor C Dᴰ.v[ d' ])
+    (α : SmallFibNatTrans Dᴰ g F G)
+    (Fᴰ : Functorᴰ F Cᴰ Eᴰ.vᴰ[ d ])
+    (Gᴰ : Functorᴰ G Cᴰ Eᴰ.vᴰ[ d' ])
+    where
+    private
+      module F = FunctorNotation F
+      module G = FunctorNotation G
+      module Fᴰ = FunctorᴰNotation Fᴰ
+      module Gᴰ = FunctorᴰNotation Gᴰ
+
+    record SmallFibNatTransᴰ : Type (ℓ-max (ℓ-max ℓC ℓCᴰ) (EHom-ℓᴰ d d'))
+      where
+      no-eta-equality
+      constructor natTransᴰ
+      field
+        N-obᴰ :
+          (x : Cob .lowerω) →
+          (xᴰ : Cobᴰ .lowerω x) →
+          Eᴰ.Hom[ g , α .N-ob x ][ Fᴰ .F-obᴰ (liftω xᴰ) , Gᴰ .F-obᴰ (liftω xᴰ) ]
+          --   → Eᴰ.Hom[ α .N-ob x ][ Fᴰ .F-obᴰ (liftω xᴰ) , Gᴰ .F-obᴰ (liftω xᴰ) ]
 
 
 -- module _

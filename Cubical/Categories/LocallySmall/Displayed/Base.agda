@@ -298,10 +298,21 @@ module _ (C : Category Cob CHom-ℓ) where
     SmallFibersCategoryᴰ : Typeω
     SmallFibersCategoryᴰ = Categoryᴰ C (λ x → Liftω (obᴰ x)) λ x y _ _ → Homᴰ-ℓ x y
 
-module _ {C : Category Cob CHom-ℓ} {Cᴰ-ℓ}{Cobᴰ}
-  (Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓ)
+module _ {C : Category Cob CHom-ℓ}
+  {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
+  (Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓᴰ)
   where
   private
     module Cᴰ = Categoryᴰ Cᴰ
-  SmallFiber : (x : Cob) → Small.Category (Cᴰ-ℓ x) (CHom-ℓ x x)
+  SmallFiber : (x : Cob) → Small.Category (Cᴰ-ℓ x) (CHom-ℓᴰ x x)
   SmallFiber x = SmallLocallySmallCategory→SmallCategory ((liftω (Cobᴰ x)) , Cᴰ.v[ x ])
+
+module _ ((Cob , C) : SmallCategory ℓC ℓC') ℓCᴰ ℓCᴰ' where
+  private
+    module C = Category C
+
+  SmallCategoryᴰ : Typeω
+  SmallCategoryᴰ =
+    Σω[ (liftω obᴰ) ∈ Liftω (Cob .Liftω.lowerω → Type ℓCᴰ) ]
+      Categoryᴰ C (λ c → Liftω (obᴰ (c .Liftω.lowerω)))
+        λ _ _ _ _ → ℓCᴰ'

@@ -14,6 +14,7 @@ open import Cubical.Categories.LocallySmall.Variables
 open Category
 open Categoryᴰ
 open Σω
+open Liftω
 
 module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) where
   private
@@ -41,3 +42,40 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
       (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assoc _ _ _) ,
       (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
     ∫Cᴰ .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
+
+-- module _
+--   {ℓC ℓC'}
+--   {(Cob , C) : SmallCategory ℓC ℓC'}
+--   {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
+--   (Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓᴰ)
+--   where
+--   private
+--     module C = CategoryNotation C
+--     module Cᴰ = Categoryᴰ Cᴰ
+--   module _
+--     {C-ℓᴰᴰ} {Cobᴰᴰ} {CHom-ℓᴰᴰ}
+--     (Cᴰᴰ :
+--       SmallFibersCategoryᴰ Cᴰ.∫C
+--         (λ x → {!!})
+--         Cobᴰᴰ {!!})
+--     where
+--     private
+--       module Cᴰᴰ = Categoryᴰ Cᴰᴰ
+
+--     ∫CᴰSF :
+--       SmallFibersCategoryᴰ C _
+--         (λ (x : Liftω (Cob .lowerω)) →
+--           Σ[ xᴰ ∈ Cobᴰ x ] Cobᴰᴰ (x , (liftω xᴰ)))
+--         -- (λ (x : Cob) → Σ[ xᴰ ∈ Cobᴰ x ] Cobᴰᴰ (x , liftω xᴰ))
+--         -- (λ (x : {!Cob!}) → Σ[ xᴰ ∈ Cobᴰ {!!} ] Cobᴰᴰ ({!!} , liftω xᴰ) )
+--         {!!}
+--     ∫CᴰSF .Hom[_][_,_] f xᴰxᴰᴰ yᴰyᴰᴰ =
+--       {!!}
+--       -- Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ liftω (xᴰxᴰᴰ .lowerω .fst) , liftω (yᴰyᴰᴰ .lowerω .fst) ] ]
+--       --   Cᴰᴰ.Hom[ f , fᴰ ][ liftω (xᴰxᴰᴰ .lowerω .snd) , liftω (yᴰyᴰᴰ .lowerω .snd) ]
+--     ∫CᴰSF .idᴰ = {!!}
+--     ∫CᴰSF ._⋆ᴰ_ = {!!}
+--     ∫CᴰSF .⋆IdLᴰ = {!!}
+--     ∫CᴰSF .⋆IdRᴰ = {!!}
+--     ∫CᴰSF .⋆Assocᴰ = {!!}
+--     ∫CᴰSF .isSetHomᴰ = {!!}

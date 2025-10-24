@@ -44,6 +44,7 @@ module _
     module C = CategoryNotation (C .snd)
     module SET = CategoryᴰNotation SET
 
+  -- TODO: Can I do yoneda embedding as a functor?
   よ : Presheaf C ℓC'
   よ .F-ob c' = liftω (C.Hom[ c' , liftω c ] , C.isSetHom)
   よ .F-hom f g = f C.⋆ g

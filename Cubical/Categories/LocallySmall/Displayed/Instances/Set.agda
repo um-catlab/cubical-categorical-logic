@@ -11,23 +11,20 @@ open import Cubical.Categories.LocallySmall.Instances.Set
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct
 
 open import Cubical.Categories.LocallySmall.Displayed.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 
 open Category
 open Categoryᴰ
 open Σω
 
 
--- Can also display this directly over LEVEL
--- by using ∫Cᴰ
 SETᴰ :
-  SmallFibersCategoryᴰ (LEVEL ×C ∫C SET) _
-    (λ (liftω ℓ , (liftω ℓ' , liftω A)) → ⟨ A ⟩ → hSet ℓ)
+  SmallFibersCategoryᴰ (∫C SET ×C LEVEL) _
+    (λ ((liftω ℓ , liftω A) , liftω ℓ') → ⟨ A ⟩ → hSet ℓ')
     _
-SETᴰ .Hom[_][_,_] (_ , (_ , f)) (liftω A) (liftω B) =
+SETᴰ .Hom[_][_,_] ((_ , f), _) (liftω A) (liftω B) =
   ∀ x → ⟨ A x ⟩ → ⟨ B (f x) ⟩
 SETᴰ .idᴰ = λ x z → z
-SETᴰ ._⋆ᴰ_ {f = (_ , (_ , f))} {(_ , (_ , g))}
+SETᴰ ._⋆ᴰ_ {f = ((_ , f), _)} {((_ , g), _)}
   fᴰ gᴰ x xᴰ = gᴰ (f x) (fᴰ x xᴰ)
 SETᴰ .⋆IdLᴰ _ = refl
 SETᴰ .⋆IdRᴰ _ = refl

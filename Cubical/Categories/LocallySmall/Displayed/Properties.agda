@@ -190,6 +190,107 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
     CatIsoᴰ⋆ᴰ-Iso-over fᴰ .IsoOver.leftInv g gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
       sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ fᴰ .CatIsoᴰ.secᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
 
+module _ {C : Category Cob CHom-ℓ}{Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ} where
+  private
+    module Cᴰ = CategoryᴰNotation Cᴰ
+  module CategoryᴰOver∫Notation
+    (Dᴰ : Categoryᴰ (∫C Cᴰ) Dobᴰ DHom-ℓᴰ)
+    where
+    private
+      module Dᴰ = Categoryᴰ Dᴰ
+    open CategoryᴰNotation Dᴰ public
+
+    vᴰ[_] : (c : Cob) → Categoryᴰ Cᴰ.v[ c ] (λ cᴰ → Dobᴰ (c , cᴰ)) _
+    vᴰ[ c ] .Hom[_][_,_] fᴰ xᴰ yᴰ = Dᴰ.Hom[ (id C , fᴰ) ][ xᴰ , yᴰ ]
+    vᴰ[ c ] .idᴰ = Dᴰ.idᴰ
+    vᴰ[ c ] ._⋆ᴰ_ fᴰ gᴰ = Dᴰ.reind (Cᴰ.reind-filler _ _) $ (fᴰ Dᴰ.⋆ᴰ gᴰ)
+    vᴰ[ c ] .⋆IdLᴰ fᴰ =
+      ΣPathP (
+        (Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⋆IdLᴰ _) ,
+        (Dᴰ.rectify $ Dᴰ.≡out $
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ Dᴰ.⋆IdLᴰ _))
+    vᴰ[ c ] .⋆IdRᴰ fᴰ =
+      ΣPathP (
+        (Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⋆IdRᴰ _) ,
+        (Dᴰ.rectify $ Dᴰ.≡out $
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ Dᴰ.⋆IdRᴰ _))
+    vᴰ[ c ] .⋆Assocᴰ fᴰ gᴰ hᴰ =
+      ΣPathP (
+        (Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+          ∙ Cᴰ.⋆Assocᴰ _ _ _
+          ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+          ∙ Cᴰ.reind-filler _ _
+          ),
+        (Dᴰ.rectify $ Dᴰ.≡out $
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
+          ∙ Dᴰ.⋆Assocᴰ _ _ _
+          ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩
+          ∙ Dᴰ.reind-filler _ _
+          ))
+    vᴰ[ c ] .isSetHomᴰ = Dᴰ.isSetHomᴰ
+
+module _ {(Cob , C) : SmallCategory ℓC ℓC'}{Cob-ℓᴰ}{Cobᴰ}{CHom-ℓᴰ}
+  {Cᴰ : SmallFibersCategoryᴰ C Cob-ℓᴰ Cobᴰ CHom-ℓᴰ} where
+  private
+    module Cᴰ = CategoryᴰNotation Cᴰ
+  module CategoryᴰOver∫SFNotation
+    {Dob-ℓᴰ}{Dobᴰ}{DHom-ℓᴰ}
+    (Dᴰ : SmallFibersCategoryᴰ (∫C Cᴰ) Dob-ℓᴰ Dobᴰ DHom-ℓᴰ)
+    where
+    private
+      module Dᴰ = Categoryᴰ Dᴰ
+    open CategoryᴰNotation Dᴰ public
+
+    vᴰ[_]SF : (c : Cob .Liftω.lowerω) →
+      SmallFibersCategoryᴰ Cᴰ.v[ liftω c ] _
+        (λ cᴰ → Dobᴰ (liftω c , cᴰ))
+        _
+    vᴰ[ c ]SF .Hom[_][_,_] fᴰ xᴰ yᴰ = Dᴰ.Hom[ (id C , fᴰ) ][ xᴰ , yᴰ ]
+    vᴰ[ c ]SF .idᴰ = Dᴰ.idᴰ
+    vᴰ[ c ]SF ._⋆ᴰ_ fᴰ gᴰ = Dᴰ.reind (Cᴰ.reind-filler _ _) $ (fᴰ Dᴰ.⋆ᴰ gᴰ)
+    vᴰ[ c ]SF .⋆IdLᴰ fᴰ =
+      ΣPathP (
+        (Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⋆IdLᴰ _) ,
+        (Dᴰ.rectify $ Dᴰ.≡out $
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ Dᴰ.⋆IdLᴰ _))
+    vᴰ[ c ]SF .⋆IdRᴰ fᴰ =
+      ΣPathP (
+        (Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⋆IdRᴰ _) ,
+        (Dᴰ.rectify $ Dᴰ.≡out $
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ Dᴰ.⋆IdRᴰ _))
+    vᴰ[ c ]SF .⋆Assocᴰ fᴰ gᴰ hᴰ =
+      ΣPathP (
+        (Cᴰ.rectify $ Cᴰ.≡out $
+          (sym $ Cᴰ.reind-filler _ _)
+          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+          ∙ Cᴰ.⋆Assocᴰ _ _ _
+          ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+          ∙ Cᴰ.reind-filler _ _
+          ),
+        (Dᴰ.rectify $ Dᴰ.≡out $
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
+          ∙ Dᴰ.⋆Assocᴰ _ _ _
+          ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩
+          ∙ Dᴰ.reind-filler _ _
+          ))
+    vᴰ[ c ]SF .isSetHomᴰ = Dᴰ.isSetHomᴰ
+
 -- Variants of smallness for displayed categories.
 -- SmallObjectsCategoryᴰ
 --   : ∀ (C : Category Cob C-ℓ)

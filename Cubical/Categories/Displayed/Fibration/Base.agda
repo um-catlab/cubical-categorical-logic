@@ -1,5 +1,4 @@
 {-# OPTIONS --lossy-unification #-}
-{- This file takes a long time to type check -}
 module Cubical.Categories.Displayed.Fibration.Base where
 
 open import Cubical.Foundations.Prelude
@@ -59,51 +58,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   isFibration : Type _
   isFibration =
     ∀ {c : C.ob} (cᴰ : Cᴰ.ob[ c ]) → PshᴰisFibration (Cᴰ [-][-, cᴰ ])
-
-  -- TODO port to the this version of cartesian lift
-  module _ (isFib : isFibration) where
-    private
-      module Cⱽ = Fibers Cᴰ
-    module _ {x}{y}(f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) where
-      private
-        module f*yᴰ = UniversalElementⱽ (isFib yᴰ f)
-      fibration→HomᴰRepr :
-        UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
-      fibration→HomᴰRepr .UniversalElement.vertex = f*yᴰ.vertexⱽ
-      fibration→HomᴰRepr .UniversalElement.element =
-        Cⱽ.reind (C.⋆IdL f) f*yᴰ.elementⱽ
-      fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv ((λ fᴰ → f*yᴰ.introᴰ (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
-        , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _ _  ⟩)
-          ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.≡in f*yᴰ.βⱽ
-          ∙ Cᴰ.⋆IdL _)
-        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $ f*yᴰ.∫ue.intro≡
-            (change-base {C = Cᴰ [_][ _ , _ ]} (C._⋆ f) C.isSetHom
-              (sym $ C.⋆IdL (f*yᴰ.∫ue.element .fst))
-              (Cⱽ.⋆IdL _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cⱽ.⟨⟩⋆⟨ sym $ Cⱽ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _ )))
-
-    CartesianLiftF-fiber :
-      ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
-    CartesianLiftF-fiber f =
-      FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
-
-    -- CartesianLiftF-Id :
-    --   ∀ x → NatIso (CartesianLiftF-fiber (C.id {x})) Id
-    -- CartesianLiftF-Id x = record { trans = {!!} ; nIso = {!!} }
-    --   where
-    --     t : NatTrans (CartesianLiftF-fiber (C.id {x})) Id
-    --     t .NatTrans.N-ob xᴰ = Cⱽ.reind (C.⋆IdL C.id) id*xᴰ.elementᴰ
-    --       where
-    --         module id*xᴰ = UniversalElementⱽ (isFib xᴰ C.id)
-    --     t .NatTrans.N-hom {xᴰ}{yᴰ} fⱽ = {!!}
-    -- CartesianLiftF-Seq :
-    --   ∀ {x y z}(f : C [ x , y ])(g : C [ y , z ])
-    --     → NatIso
-    --         (CartesianLiftF-fiber (f C.⋆ g))
-    --         (CartesianLiftF-fiber f ∘F CartesianLiftF-fiber g)
-    -- CartesianLiftF-Seq x = {!!}
-
-    -- Triangle/Pentagon laws?
-
   -- Definition #2: This is the "textbook" compositional
   -- definition. It suffers from very slow performance
   CartesianLift' : {x y : C.ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _

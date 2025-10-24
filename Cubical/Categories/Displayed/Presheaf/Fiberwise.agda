@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -34,6 +35,7 @@ open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
 open import Cubical.Categories.Displayed.Fibration.Base
+open import Cubical.Categories.Displayed.Fibration.Properties
 
 private
   variable
@@ -43,9 +45,8 @@ private
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
-open Bifunctorᴰ
 open Functorᴰ
-
+open Iso
 open PshHom
 open PshIso
 
@@ -66,7 +67,7 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C �
     module P = PresheafNotation P
     module Cᴰ = Fibers Cᴰ
     module C = Category C
-    module isFib {x}{y}(f : C [ y , x ])(xᴰ : Cᴰ.ob[ x ]) = UniversalElementⱽ (isFib xᴰ f)
+    module isFib = FibrationNotation isFib
   record Presheafᶠ (ℓPᴰ : Level)
     : Type (ℓ-max ℓPᴰ $ ℓ-max ℓCᴰ' $ ℓ-max ℓCᴰ $ ℓ-max ℓP $ ℓ-max ℓC' $ ℓ-max ℓC $ ℓ-suc ℓPᴰ) where
     constructor presheafᶠ
@@ -76,9 +77,6 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C �
     p[_][_] : ∀ {x} → P.p[ x ] → Cᴰ.ob[ x ] → Type ℓPᴰ
     p[ p ][ xᴰ ] = ⟨ P-obᶠ p ⟅ xᴰ ⟆ ⟩
 
-    _⋆ⱽᴰ_ : ∀ {x xᴰ yᴰ}{p : P.p[ x ]}(fⱽ : Cᴰ.v[ x ] [ xᴰ , yᴰ ])(pᴰ : p[ p ][ yᴰ ])
-      → p[ p ][ xᴰ ]
-    fⱽ ⋆ⱽᴰ pᴰ = (P-obᶠ _ ⟪ fⱽ ⟫) pᴰ
 
     _≡[_]_ : ∀ {x xᴰ} {f g : P.p[ x ]} → p[ f ][ xᴰ ] → f ≡ g → p[ g ][ xᴰ ]
       → Type ℓPᴰ
@@ -88,30 +86,69 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C �
       → Type _
     _∫≡_ {x}{xᴰ}{f}{g} fᴰ gᴰ = (f , fᴰ) ≡ (g , gᴰ)
 
+    infix 2 _∫≡_
+
+    isSetPshᶠ : ∀ {x}{p : P.p[ x ]}{xᴰ} → isSet (p[ p ][ xᴰ ])
+    isSetPshᶠ {x}{p}{xᴰ} = (P-obᶠ p ⟅ xᴰ ⟆) .snd
+
+    private
+      module Pⱽ {x}{p : P.p[ x ]} = PresheafNotation (P-obᶠ p)
+
+    _⋆ⱽᴰ_ : ∀ {x xᴰ yᴰ}{p : P.p[ x ]}(fⱽ : Cᴰ.v[ x ] [ xᴰ , yᴰ ])(pᴰ : p[ p ][ yᴰ ])
+      → p[ p ][ xᴰ ]
+    fⱽ ⋆ⱽᴰ pᴰ = fⱽ Pⱽ.⋆ pᴰ
+
+    -- ⋆IdLⱽᴰ : 
+
     reind : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
       → p[ f ][ xᴰ ] → p[ g ][ xᴰ ]
     reind = subst p[_][ _ ]
 
+    ≡in : ∀ {x} {p q : P.p[ x ]} {xᴰ}
+         {pᴰ : p[ p ][ xᴰ ]}
+         {qᴰ : p[ q ][ xᴰ ]}
+         {p≡q : p ≡ q}
+       → (pᴰ ≡[ p≡q ] qᴰ)
+       → pᴰ ∫≡ qᴰ
+    ≡in pᴰ≡qᴰ = ΣPathP (_ , pᴰ≡qᴰ)
+
+    ≡out : ∀ {x} {p q : P.p[ x ]} {xᴰ}
+         {pᴰ : p[ p ][ xᴰ ]}
+         {qᴰ : p[ q ][ xᴰ ]}
+       → (e : pᴰ ∫≡ qᴰ)
+       → (pᴰ ≡[ fst (PathPΣ e) ] qᴰ)
+    ≡out e = snd $ PathPΣ e
+
+
     field
       P-homᶠ : ∀ {x y} (f : C [ y , x ])(p : P.p[ x ])
-        → PshHet (CartesianLiftF-fiber Cᴰ isFib f) (P-obᶠ p) (P-obᶠ (f P.⋆ p))
+        → PshHet (f isFib.*F) (P-obᶠ p) (P-obᶠ (f P.⋆ p))
 
     _*_ : ∀ {x y}{xᴰ}{p : P.p[ x ]} (f : C [ y , x ])(pᴰ : p[ p ][ xᴰ ])
-      → p[ f P.⋆ p ][ isFib.vertexⱽ f xᴰ ]
+      → p[ f P.⋆ p ][ f isFib.* xᴰ ]
     f * pᴰ = P-homᶠ f _ .N-ob _ pᴰ
+
+    infixr 9 _*_
+
+    -- *-naturality is like functoriality of f *
+    *-natural : ∀ {x y}{xᴰ xᴰ'}{p : P.p[ x ]} (f : C [ y , x ])(fⱽ : Cᴰ.v[ x ] [ xᴰ' , xᴰ ])(pᴰ : p[ p ][ xᴰ ])
+      → f * (fⱽ Pⱽ.⋆ pᴰ) ≡
+        ((f isFib.*F) ⟪ fⱽ ⟫) Pⱽ.⋆ (f * pᴰ)
+    *-natural {x}{y}{xᴰ}{xᴰ'}{p} f fⱽ pᴰ =
+      P-homᶠ f p .N-hom xᴰ' xᴰ fⱽ pᴰ
+
     field
       -- Just going to specify this manually for now, probably should
       -- make it some kind of natural trans equality or sthg
       P-idᶠ :  ∀ {x}{xᴰ} {p : P.p[ x ]} (pᴰ : p[ p ][ xᴰ ] )
         → (C.id * pᴰ)
             ∫≡
-          (Cᴰ.reind (C.⋆IdL _) (isFib.elementⱽ C.id _) ⋆ⱽᴰ pᴰ)
+          (isFib.π Pⱽ.⋆ pᴰ)
       P-seqᶠ : ∀ {x y z xᴰ}{p : P.p[ x ]}(g : C [ z , y ])(f : C [ y , x ])(pᴰ : p[ p ][ xᴰ ])
         →
           ((g C.⋆ f) * pᴰ)
             ∫≡
-          (isFib.introᴰ g _ (isFib.introᴰ f _ (Cᴰ.reind (sym $ C.⋆Assoc _ _ _) (isFib.elementⱽ (g C.⋆ f) xᴰ)))
-            ⋆ⱽᴰ (g * (f * pᴰ)))
+          (isFib.introⱽ (isFib.introᴰ isFib.π) Pⱽ.⋆ (g * f * pᴰ))
 
     opaque
       reind-filler : ∀ {x}{xᴰ}{f g : P.p[ x ]}(f≡g : f ≡ g)
@@ -119,24 +156,80 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C �
         → fᴰ ∫≡ reind f≡g fᴰ
       reind-filler f≡g fᴰ = ΣPathP (f≡g , (subst-filler p[_][ _ ] f≡g fᴰ))
 
+      rectify :
+        ∀ {x}{p p' : P.p[ x ]}{p≡p' p≡p'' : p ≡ p'}{xᴰ}
+        {pᴰ : p[ p ][ xᴰ ]}
+        {pᴰ' : p[ p' ][ xᴰ ]}
+        → pᴰ ≡[ p≡p' ] pᴰ'
+        → pᴰ ≡[ p≡p'' ] pᴰ'
+      rectify {pᴰ = pᴰ}{pᴰ'} = subst (pᴰ ≡[_] pᴰ') (P.isSetPsh _ _ _ _)
+
+      ⟨_⟩⋆ⱽᴰ⟨_⟩ : ∀ {x xᴰ yᴰ}{p p' : P.p[ x ]}{fⱽ fⱽ' : Cᴰ.v[ x ] [ xᴰ , yᴰ ]}{pᴰ : p[ p ][ yᴰ ]}{pᴰ' : p[ p' ][ yᴰ ]}
+        (fⱽ≡fⱽ' : fⱽ Cᴰ.∫≡ fⱽ')(pᴰ≡pᴰ' : pᴰ ∫≡ pᴰ')
+        → (fⱽ Pⱽ.⋆ pᴰ) ∫≡ (fⱽ' Pⱽ.⋆ pᴰ')
+      ⟨_⟩⋆ⱽᴰ⟨_⟩ {fⱽ = fⱽ}{fⱽ' = fⱽ'} fⱽ≡fⱽ' pᴰ≡pᴰ' = ≡in $ λ i → fⱽ≡fⱽ'' i Pⱽ.⋆ pᴰ≡pᴰ' i .snd
+        where 
+          fⱽ≡fⱽ'' : fⱽ ≡ fⱽ'
+          fⱽ≡fⱽ'' = Cᴰ.rectify $ Cᴰ.≡out $ fⱽ≡fⱽ' 
+
     _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p : P.p[ y ]}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ])(pᴰ : p[ p ][ yᴰ ])
       → p[ f P.⋆ p ][ xᴰ ]
     -- I can convert fᴰ to a Cᴰ.v[ x ][ xᴰ , f*yᴰ ]
     _⋆ᴰ_ {f = f} fᴰ pᴰ =
-      isFib.introⱽ f _ (Cᴰ.reind (sym $ C.⋆IdL f) fᴰ) ⋆ⱽᴰ (f * pᴰ)
+      isFib.introⱽ fᴰ Pⱽ.⋆ (f * pᴰ)
 
+    opaque
+      ∫⋆IdLᴰ : ∀ {x xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
+        → (Cᴰ.idᴰ ⋆ᴰ pᴰ) ∫≡ pᴰ
+      ∫⋆IdLᴰ pᴰ = ⟨ refl ⟩⋆ⱽᴰ⟨ P-idᶠ pᴰ ⟩
+        ∙ ≡in (sym (Pⱽ.⋆Assoc _ _ _) ∙ Pⱽ.⟨ isFib.UMPⱽ .leftInv Cᴰ.idᴰ ⟩⋆⟨⟩ ∙ Pⱽ.⋆IdL pᴰ)
 
--- If Pⱽ is a presheafᴰ on Cᴰ over C [-][-, x ], then the following
--- things are all true:
+      ∫⋆Assocᴰ : ∀ {x y z xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
+        (fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ])(gᴰ : Cᴰ [ g ][ yᴰ , xᴰ ])(pᴰ : p[ p ][ xᴰ ])
+        → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ (gᴰ ⋆ᴰ pᴰ))
+      ∫⋆Assocᴰ {f = f}{g}{p} fᴰ gᴰ pᴰ = ⟨ refl ⟩⋆ⱽᴰ⟨ P-seqᶠ _ _ pᴰ ⟩
+        ∙ (≡in $
+          (isFib.introⱽ (fᴰ Cᴰ.⋆ᴰ gᴰ) Pⱽ.⋆ (isFib.introⱽ (isFib.introᴰ isFib.π) Pⱽ.⋆ (f * g * pᴰ)))
+            ≡⟨ sym (Pⱽ.⋆Assoc _ _ _) ∙ Pⱽ.⟨
+              (isFib.introⱽ (fᴰ Cᴰ.⋆ᴰ gᴰ) Cᴰ.⋆ⱽ isFib.introⱽ {f = f} (isFib.introᴰ isFib.π))
+                ≡⟨ isoInvInjective isFib.UMPⱽ _ _
+                  (Cᴰ.⋆Assocⱽⱽᴰ ∙ (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⟨⟩⋆ⱽᴰ⟨ Cᴰ.≡in $ isFib.UMPⱽ .leftInv _ ⟩)
+                  ∙ isoInvInjective isFib.UMP _ _
+                    (Cᴰ.rectify $ Cᴰ.≡out $
+                      Cᴰ.⋆Assocⱽᴰᴰ ∙ Cᴰ.⟨⟩⋆ⱽᴰ⟨ Cᴰ.≡in $ isFib.UMP .leftInv _ ⟩
+                      ∙ (Cᴰ.≡in $ isFib.UMPⱽ .leftInv _)
+                      ∙ Cᴰ.⟨ Cᴰ.≡in $ sym $ isFib.UMPⱽ .leftInv _ ⟩⋆⟨ Cᴰ.≡in $ sym $ isFib.UMPⱽ .leftInv _ ⟩
+                      ∙ (Cᴰ.≡in $ sym Cᴰ.⋆Assocᴰⱽᴰ))
+                  ∙ Cᴰ.⋆Assocⱽᴰⱽ
+                  ∙ (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⟨⟩⋆ⱽᴰ⟨ sym $ Cᴰ.≡in $ isFib.UMPⱽ .leftInv _ ⟩)
+                  ∙ sym Cᴰ.⋆Assocⱽⱽᴰ
+                  )
+                 ⟩
+               (isFib.introⱽ fᴰ Cᴰ.⋆ⱽ isFib.introⱽ {f = f} (isFib.π Cᴰ.⋆ᴰⱽ isFib.introⱽ gᴰ))
+                ∎
+              ⟩⋆⟨⟩ ∙ Pⱽ.⋆Assoc _ _ _  ⟩
+          (isFib.introⱽ fᴰ Pⱽ.⋆ ((f isFib.*F) ⟪ isFib.introⱽ gᴰ ⟫ Pⱽ.⋆ (f * g * pᴰ)))
+            ≡⟨ Pⱽ.⟨⟩⋆⟨ sym $ *-natural _ _ _ ⟩ ⟩
+          (isFib.introⱽ fᴰ Pⱽ.⋆ (f * (isFib.introⱽ gᴰ Pⱽ.⋆ (g * pᴰ))))
+            ∎)
 
--- 1. Pⱽ restricts to a presheaf on Cᴰ.v[ x ]. Call this Pⱽ.v the elements are just elements of Pⱽ over the identity on x
+    Presheafᶠ→Presheafᴰ : Presheafᴰ P Cᴰ ℓPᴰ
+    Presheafᶠ→Presheafᴰ .F-obᴰ xᴰ p = p[ p ][ xᴰ ] , isSetPshᶠ
+    Presheafᶠ→Presheafᴰ .F-homᴰ fᴰ p pᴰ = fᴰ ⋆ᴰ pᴰ
+    Presheafᶠ→Presheafᴰ .F-idᴰ = funExt (λ p → funExt (λ pᴰ → rectify $ ≡out $ ∫⋆IdLᴰ pᴰ))
+    Presheafᶠ→Presheafᴰ .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ pᴰ → rectify $ ≡out $ ∫⋆Assocᴰ gᴰ fᴰ pᴰ
 
--- 2. For every f : C [ y , x ], Pⱽ can be restricted to a presheaf on Cᴰ.v[ y ]
---    (see `reindYo f Pⱽ`) Call this f*Pⱽ.v . The elements f*Pⱽ.v[ yᴰ ] can be defined as elements Pⱽ.p[ f ]
---
+-- -- -- If Pⱽ is a presheafᴰ on Cᴰ over C [-][-, x ], then the following
+-- -- -- things are all true:
 
--- If Cᴰ is a fibration, then f induces a functor f* : Cᴰ.v[ x ] → Cᴰ.v[ y ]
--- 3. We get a presheaf heteromorphism f* : PshHet f* Pⱽ f*Pⱽ
---    this takes an element Pⱽ.p[ id {x} ][ xᴰ ] to an element Pⱽ.p[ f ][ f* xᴰ ]
--- 4.
+-- -- -- 1. Pⱽ restricts to a presheaf on Cᴰ.v[ x ]. Call this Pⱽ.v the elements are just elements of Pⱽ over the identity on x
+
+-- -- -- 2. For every f : C [ y , x ], Pⱽ can be restricted to a presheaf on Cᴰ.v[ y ]
+-- -- --    (see `reindYo f Pⱽ`) Call this f*Pⱽ.v . The elements f*Pⱽ.v[ yᴰ ] can be defined as elements Pⱽ.p[ f ]
+-- -- --
+
+-- -- -- If Cᴰ is a fibration, then f induces a functor f* : Cᴰ.v[ x ] → Cᴰ.v[ y ]
+-- -- -- 3. We get a presheaf heteromorphism f* : PshHet f* Pⱽ f*Pⱽ
+-- -- --    this takes an element Pⱽ.p[ id {x} ][ xᴰ ] to an element Pⱽ.p[ f ][ f* xᴰ ]
+-- -- -- 4.
 

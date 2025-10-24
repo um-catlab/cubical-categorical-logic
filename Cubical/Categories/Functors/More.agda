@@ -81,3 +81,13 @@ module _ {C : Category ℓC ℓC'}
       (sym (ret .trans .N-hom f)
       ∙ cong₂ (seq' C) (cong (F⁻ .F-hom) F⟪f⟫≡F⟪g⟫) refl
       ∙ ret .trans .N-hom g)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (F : Functor C D)
+  (F-hom' : singl {A = ∀ {x y} → C [ x , y ] → D [ F ⟅ x ⟆ , F ⟅ y ⟆ ]} (F .F-hom))
+  where
+  substFunctor : Functor C D
+  substFunctor .F-ob = F .F-ob
+  substFunctor .F-hom = F-hom' .fst
+  substFunctor .F-id = (λ i → F-hom' .snd (~ i) (C .id)) ∙ F .F-id
+  substFunctor .F-seq f g = (λ i → F-hom' .snd (~ i) ((C ⋆ f) g)) ∙ F .F-seq f g ∙ cong₂ (seq' D) (λ i → F-hom' .snd i f) ((λ i → F-hom' .snd i g))

@@ -65,6 +65,15 @@ module _
   reindPshᴰPshHomᴰ Fᴰ αᴰ .N-obᴰ = αᴰ .N-obᴰ
   reindPshᴰPshHomᴰ Fᴰ αᴰ .N-homᴰ = αᴰ .N-homᴰ
 
+  -- could implement this as an EqReindex of reindPshᴰPshHomᴰ
+  reindPshᴰPshHomⱽ :
+    {F : Functor C D} {P : Presheaf D ℓP}
+    {Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Dᴰ ℓQᴰ}
+    (Fᴰ : Functorᴰ F Cᴰ Dᴰ)(αᴰ : PshHomⱽ Pᴰ Qᴰ)
+    → PshHomⱽ (reindPshᴰFunctor Fᴰ Pᴰ) (reindPshᴰFunctor Fᴰ Qᴰ)
+  reindPshᴰPshHomⱽ Fᴰ αᴰ .N-obᴰ = αᴰ .N-obᴰ
+  reindPshᴰPshHomⱽ Fᴰ αᴰ .N-homᴰ = αᴰ .N-homᴰ
+
   reindPshᴰPshIsoᴰ :
     {F : Functor C D} {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
     {α : PshIso P Q}

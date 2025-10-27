@@ -269,20 +269,6 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
   makePshIsoPath {α} {β} N-ob≡ =
     isoFunInjective (PshIsoΣIso P Q) α β (makePshIsoΣPath N-ob≡)
 
-module _
-  {C : Category ℓc ℓc'}
-  {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
-
-  PshIso→⋆PshHomIso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
-  PshIso→⋆PshHomIso α .Iso.fun β = α .trans ⋆PshHom β
-  PshIso→⋆PshHomIso α .Iso.inv β = invPshIso α .trans ⋆PshHom β
-  PshIso→⋆PshHomIso α .Iso.rightInv β =
-    makePshHomPath
-      (funExt λ x → funExt λ p → cong (β .N-ob x) (α .nIso x .snd .snd p))
-  PshIso→⋆PshHomIso α .Iso.leftInv β =
-    makePshHomPath
-      (funExt λ x → funExt λ p → cong (β .N-ob x) (α .nIso x .snd .fst p))
-
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) where
   private
     module P = PresheafNotation P

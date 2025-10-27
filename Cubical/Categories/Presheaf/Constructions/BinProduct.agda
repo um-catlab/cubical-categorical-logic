@@ -78,11 +78,11 @@ module _ {C : Category ℓ ℓ'} where
     ×Pshβ₂ = makePshHomPath refl
 
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
-    ×PshUMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHom R (P ×Psh Q)) (PshHom R P × PshHom R Q)
-    ×PshUMP .Iso.fun α = (α ⋆PshHom π₁ P Q) , (α ⋆PshHom π₂ P Q)
-    ×PshUMP .Iso.inv (α , β) = ×PshIntro α β
-    ×PshUMP .Iso.rightInv (α , β) = ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
-    ×PshUMP .Iso.leftInv α = makePshHomPath refl
+    ×Psh-UMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHom R (P ×Psh Q)) (PshHom R P × PshHom R Q)
+    ×Psh-UMP .Iso.fun α = (α ⋆PshHom π₁ P Q) , (α ⋆PshHom π₂ P Q)
+    ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
+    ×Psh-UMP .Iso.rightInv (α , β) = ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
+    ×Psh-UMP .Iso.leftInv α = makePshHomPath refl
 
   module _
     {P : Presheaf C ℓA}

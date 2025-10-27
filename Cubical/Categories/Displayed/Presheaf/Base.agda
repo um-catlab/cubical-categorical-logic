@@ -16,6 +16,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More

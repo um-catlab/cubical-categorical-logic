@@ -12,26 +12,32 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Bifunctor
 
 private
   variable
-    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓS : Level
 
 open Functor
 open PshHom
 open PshIso
 
 module _ {C : Category ℓ ℓ'} where
+  private
+    module C = Category C
   PshProd' : Functor
     (PresheafCategory C ℓA ×C PresheafCategory C ℓB)
     (PresheafCategory C (ℓ-max ℓA ℓB))
@@ -71,6 +77,21 @@ module _ {C : Category ℓ ℓ'} where
     ×Pshβ₂ : ×PshIntro ⋆PshHom π₂ P Q ≡ β
     ×Pshβ₂ = makePshHomPath refl
 
+  module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
+    ×PshUMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHom R (P ×Psh Q)) (PshHom R P × PshHom R Q)
+    ×PshUMP .Iso.fun α = (α ⋆PshHom π₁ P Q) , (α ⋆PshHom π₂ P Q)
+    ×PshUMP .Iso.inv (α , β) = ×PshIntro α β
+    ×PshUMP .Iso.rightInv (α , β) = ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
+    ×PshUMP .Iso.leftInv α = makePshHomPath refl
+
+  module _
+    {P : Presheaf C ℓA}
+    {P' : Presheaf C ℓA'}
+    {Q : Presheaf C ℓB}
+    {Q' : Presheaf C ℓB'}
+    where
+    _×PshHom_ : PshHom P P' → PshHom Q Q' → PshHom (P ×Psh Q) (P' ×Psh Q')
+    α ×PshHom β = ×PshIntro (π₁ P Q ⋆PshHom α) (π₂ P Q ⋆PshHom β)
   module _
     {P : Presheaf C ℓA}
     {P' : Presheaf C ℓA'}
@@ -80,10 +101,7 @@ module _ {C : Category ℓ ℓ'} where
     (QIso : PshIso Q Q')
     where
     ×PshIso : PshIso (P ×Psh Q) (P' ×Psh Q')
-    ×PshIso .trans =
-      ×PshIntro
-        (π₁ P Q ⋆PshHom PIso .trans)
-        (π₂ P Q ⋆PshHom QIso .trans)
+    ×PshIso .trans = (PIso .trans ×PshHom QIso .trans)
     ×PshIso .nIso c .fst x =
       PIso .nIso c .fst (x .fst) ,
       QIso .nIso c .fst (x .snd)
@@ -96,8 +114,17 @@ module _ {C : Category ℓ ℓ'} where
         (PIso .nIso c .snd .snd (b .fst))
         (QIso .nIso c .snd .snd (b .snd))
 
+  -- This should be possible to do compositionally if PshProd were
+  -- universe polymorphic
+  LRProf : (P : Presheaf C ℓP) → Profunctor C C (ℓ-max ℓ' ℓP)
+  LRProf P .F-ob x = (C [-, x ]) ×Psh P
+  LRProf P .F-hom f = PshHom→NatTrans (×PshIntro (π₁ _ _ ⋆PshHom yoRec _ f) (π₂ _ _))
+  LRProf P .F-id = makeNatTransPath $ funExt λ y → funExt λ f → ΣPathP (C.⋆IdR _ , refl)
+  LRProf P .F-seq f g = makeNatTransPath $ funExt λ y → funExt λ h →
+    ΣPathP ((sym $ C.⋆Assoc (π₁ (C [-, _ ]) P .N-ob y h) f g) , refl)
+
   LocallyRepresentable : Presheaf C ℓP → Type _
-  LocallyRepresentable P = ∀ c → UniversalElement C ((C [-, c ]) ×Psh P)
+  LocallyRepresentable P = UniversalElements $ LRProf P
 
   private
     open Category
@@ -115,3 +142,22 @@ module _ {C : Category ℓ ℓ'} where
 
       _ : PshProd .Bif-homR P β .N-ob c ≡ λ (p , q) → p , β .N-ob c q
       _ = refl
+
+module _ {C : Category ℓ ℓ'}{D : Category ℓD ℓD'}
+  (F : Functor D C)
+  (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
+  reindPsh× : PshIso (reindPsh F (P ×Psh Q)) (reindPsh F P ×Psh reindPsh F Q)
+  reindPsh× .trans = ×PshIntro (reindPshHom F (π₁ P Q)) (reindPshHom F (π₂ P Q))
+  reindPsh× .nIso x .fst = λ z → z
+  reindPsh× .nIso x .snd .fst b = refl
+  reindPsh× .nIso x .snd .snd a = refl
+
+-- Local Representability stuff
+-- TODO: move to its own module probably
+LRPresheaf : ∀ (C : Category ℓ ℓ') (ℓP : Level) → Type _
+LRPresheaf C ℓP = Σ (Presheaf C ℓP) LocallyRepresentable
+
+LRPsh→Functor : ∀ {C : Category ℓ ℓ'}
+  ((P , _×P) : LRPresheaf C ℓP)
+  → Functor C C
+LRPsh→Functor (P , _×P) = FunctorComprehension (LRProf P) _×P

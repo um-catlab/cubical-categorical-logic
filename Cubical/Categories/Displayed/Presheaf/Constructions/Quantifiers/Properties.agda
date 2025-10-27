@@ -235,52 +235,55 @@ module _
               PresheafⱽNotation (∀ⱽPshDᴰ Qⱽ)
             module ∀ⱽPshCᴰ =
               PresheafⱽNotation (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
-
+          -- This can likely be simplified using the UMP of the
+          -- quantifier
+          -- Furhter, any mention of makePshHomPath will
+          -- be replaced when we finish porting our manual PshHoms
+          -- to the locally small category of presheaves
           reindHet∀PshIsoⱽ :
             PshIsoⱽ
               (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshDᴰ Qⱽ))
               (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
           reindHet∀PshIsoⱽ =
-            {!!}
-            -- reindPshIsoⱽ reindFuncCompIsoⱽ
-            -- ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-            -- ⋆PshIsoⱽ reindPshIsoⱽ (reind-introIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
-            -- ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-            -- ⋆PshIsoⱽ
-            --   reindPathIsoⱽ
-            --     (makePshHomPath (funExt₂ λ x p →
-            --       cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
-            --       ∙ (sym $ prodStrNatIso .NT.NatIso.trans .NT.NatTrans.N-hom p)))
-            -- ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
-            -- ⋆PshIsoⱽ reindPshIsoⱽ annotateType
+            reindPshIsoⱽ reindFuncCompIsoⱽ
+            ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
+            ⋆PshIsoⱽ reindPshIsoⱽ (reind-introIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
+            ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
+            ⋆PshIsoⱽ
+              reindPathIsoⱽ
+                (makePshHomPath (funExt₂ λ x p →
+                  cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
+                  ∙ (sym $ prodStrNatIso .NatIso.trans .NatTrans.N-hom p)))
+            ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
+            ⋆PshIsoⱽ reindPshIsoⱽ annotateType
 
-            -- where
+            where
 
-            -- -- To avoid ugly goals with many reinds,
-            -- -- we construct the core of the PshIsoⱽ
-            -- -- as this NatIsoᴰ. We then turn it into a PshIsoᴰ,
-            -- -- turn that PshIsoᴰ into a PshIsoⱽ, and patch up
-            -- -- the necessary reinds in between
-            -- the-nat-isoᴰ :
-            --   NatIsoᴰ _
-            --     ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
-            --     ((Qⱽ ∘Fᴰ (∀ⱽDᴰ.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ))
-            -- the-nat-isoᴰ =
-            --   (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)
-            --   ⋆NatIsoᴰ (Qⱽ ∘ʳᴰⁱ
-            --               (∘Fᴰ-^opFᴰ-NatIsoᴰ ∀ⱽCᴰ.weakenπFᴰ Fᴰ
-            --               ⋆NatIsoᴰ opNatIsoᴰ (symNatIsoᴰ Fᴰ-weakening-NatIsoᴰ)
-            --               ⋆NatIsoᴰ (symNatIsoᴰ $ ∘Fᴰ-^opFᴰ-NatIsoᴰ Fᴰ ∀ⱽDᴰ.weakenπFᴰ)))
-            --   ⋆NatIsoᴰ CATᴰ⋆Assoc _ _ _
+            -- To avoid ugly goals with many reinds,
+            -- we construct the core of the PshIsoⱽ
+            -- as this NatIsoᴰ. We then turn it into a PshIsoᴰ,
+            -- turn that PshIsoᴰ into a PshIsoⱽ, and patch up
+            -- the necessary reinds in between
+            the-nat-isoᴰ :
+              NatIsoᴰ _
+                ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
+                ((Qⱽ ∘Fᴰ (∀ⱽDᴰ.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ))
+            the-nat-isoᴰ =
+              (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)
+              ⋆NatIsoᴰ (Qⱽ ∘ʳᴰⁱ
+                          (∘Fᴰ-^opFᴰ-NatIsoᴰ ∀ⱽCᴰ.weakenπFᴰ Fᴰ
+                          ⋆NatIsoᴰ opNatIsoᴰ (symNatIsoᴰ Fᴰ-weakening-NatIsoᴰ)
+                          ⋆NatIsoᴰ (symNatIsoᴰ $ ∘Fᴰ-^opFᴰ-NatIsoᴰ Fᴰ ∀ⱽDᴰ.weakenπFᴰ)))
+              ⋆NatIsoᴰ CATᴰ⋆Assoc _ _ _
 
-            -- -- This is needed because there is not enough inference if
-            -- -- eqToPshIsoⱽ is just used inline above
-            -- -- sameissue as reindFuncUnitEq in
-            -- -- Displayed.Presheaf.Constructions.Unit.Properties
-            -- annotateType :
-            --   PshIsoⱽ
-            --     (reind (mapProdStrPshHet ∘ˡ -×c.×aF)
-            --       ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ)))
-            --     (reindHet' mapProdStrPshHet Fᴰ Qⱽ
-            --       ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
-            -- annotateType = eqToPshIsoⱽ (Eq.refl , Eq.refl)
+            -- This is needed because there is not enough inference if
+            -- eqToPshIsoⱽ is just used inline above
+            -- sameissue as reindFuncUnitEq in
+            -- Displayed.Presheaf.Constructions.Unit.Properties
+            annotateType :
+              PshIsoⱽ
+                (reind (mapProdStrPshHet ∘ˡ -×c.×aF)
+                  ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ)))
+                (reindHet' mapProdStrPshHet Fᴰ Qⱽ
+                  ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
+            annotateType = eqToPshIsoⱽ (Eq.refl , Eq.refl)

@@ -22,7 +22,9 @@ open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Fiberwise.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.LocalRepresentability
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Profunctor
@@ -73,6 +75,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module Qᴰ = PresheafᴰNotation Qᴰ
       ∫⇒Small = (_ , (∫LocallyRepresentable ((Pᴰ , _×ᴰPᴰ)))) ⇒PshSmall ∫P Qᴰ
       module ∫⇒Small = PresheafNotation ∫⇒Small
+    -- _⇒PshSmallᴰ_ : Presheafᴰ ((P , _×P) ⇒PshSmall Q) Cᴰ ℓQᴰ
+    -- _⇒PshSmallᴰ_ = ?
+
     _⇒PshSmallᴰ_ : Presheafᴰ ((P , _×P) ⇒PshSmall Q) Cᴰ ℓQᴰ
     _⇒PshSmallᴰ_ .F-obᴰ {Γ} Γᴰ = Qᴰ .F-obᴰ ((Γᴰ ×ᴰPᴰ) .vertexᴰ)
     _⇒PshSmallᴰ_ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ q qᴰ =
@@ -94,7 +99,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
     open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
 
-    -- Γᴰ ⊢ (Pᴰ ⇒ Qᴰ)(p) := Γᴰ , Pᴰ(p) ⊢ Qᴰ(p)
+    -- Γᴰ ⊢ (Pᴰ ⇒ Qᴰ)(p) := Γᴰ × Pᴰ(p) ⊢ Qᴰ(p)
     _⇒PshSmallⱽ_ : Presheafᴰ P Cᴰ ℓQᴰ
     _⇒PshSmallⱽ_ .F-obᴰ {Γ} Γᴰ p = Qᴰ .F-obᴰ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ p
     _⇒PshSmallⱽ_ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ p qᴰ = funcLR γᴰ Qᴰ.⋆ᴰ qᴰ

@@ -12,7 +12,7 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
@@ -21,6 +21,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.FunctorComprehension
 open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -28,6 +29,7 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 
@@ -106,3 +108,28 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   LocallyRepresentableⱽ {P = P} Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
     → UniversalElementⱽ Cᴰ Γ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindYo p Pᴰ)
     where module P = PresheafNotation P
+
+
+module _ {C : Category ℓC ℓC'} where
+  LocallyRepresentablePresheafᴰ :
+    ((P , _×P) : LocallyRepresentablePresheaf C ℓP)
+    → (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+    → (ℓPᴰ : Level)
+    → Type _
+  LocallyRepresentablePresheafᴰ (P , _×P) Cᴰ ℓPᴰ =
+    Σ (Presheafᴰ P Cᴰ ℓPᴰ) (LocallyRepresentableᴰ (P , _×P))
+
+  LocallyRepresentablePresheafⱽ :
+    (P : Presheaf C ℓP)
+    → (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+    → (ℓPᴰ : Level)
+    → Type _
+  LocallyRepresentablePresheafⱽ P Cᴰ ℓPᴰ =
+    Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyRepresentableⱽ
+
+-- LRPshᴰ→Functorᴰ : ∀ {C : Category ℓ ℓ'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {P : LocallyRepresentablePresheaf C ℓP}
+--   (Pᴰ : LocallyRepresentablePresheafᴰ P Cᴰ ℓPᴰ)
+--   → Functorᴰ (LRPsh→Functor P) Cᴰ Cᴰ
+-- LRPshᴰ→Functorᴰ {P = (P , _×P)} (Pᴰ , _×ᴰPᴰ) =
+--   FunctorᴰComprehension {!!} {!!}

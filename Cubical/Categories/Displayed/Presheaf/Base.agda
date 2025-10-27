@@ -229,6 +229,13 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
         ∙ ⋆IdL _
 
+  restrict : ∀ {x}(p : P.p[ x ]) → Presheaf Cᴰ.v[ x ] ℓPᴰ
+  restrict p .Functor.F-ob xᴰ = Pᴰ .F-obᴰ xᴰ p
+  restrict p .Functor.F-hom = _⋆ⱽᴰ_
+  restrict p .Functor.F-id = funExt ⋆ⱽIdL
+  restrict p .Functor.F-seq gⱽ fⱽ = funExt (λ pᴰ → rectify $ ≡out $
+    ⋆Assocⱽⱽᴰ fⱽ gⱽ pᴰ)
+
 -- A vertical presheaf is a displayed presheaf over a representable
 Presheafⱽ : {C : Category ℓC ℓC'} (c : C .Category.ob) (D : Categoryᴰ C ℓD ℓD')
           → (ℓPᴰ : Level)

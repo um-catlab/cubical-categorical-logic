@@ -16,12 +16,13 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Presheaf.Constructions.Restriction
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Bifunctor
 
 private
   variable
-    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓC ℓC' ℓD ℓD' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓS : Level
 
 open Functor
 open PshHom
@@ -35,22 +36,33 @@ module _ {C : Category ℓ ℓ'} where
       module Q = PresheafNotation Q
     open UniversalElementNotation
     _⇒PshSmall_ : Presheaf C ℓB
-    _⇒PshSmall_ .F-ob Γ = Q .F-ob ((Γ ×P) .vertex)
-    _⇒PshSmall_ .F-hom {Γ}{Δ} γ q =
-      intro (Γ ×P) (((Δ ×P) .element .fst C.⋆ γ) , (Δ ×P) .element .snd) Q.⋆ q
-    _⇒PshSmall_ .F-id {Γ} = funExt λ q →
-      Q.⟨ intro⟨_⟩ (Γ ×P) (ΣPathP (C.⋆IdR _ , refl)) ∙ (sym $ weak-η $ Γ ×P) ⟩⋆⟨⟩
-      ∙ Q.⋆IdL _
-    _⇒PshSmall_ .F-seq {Γ}{Δ}{Θ} γ δ = funExt λ q →
-      Q.⟨
-        intro≡ (Γ ×P) (ΣPathP
-          ( (sym (C.⋆Assoc _ _ _) ∙ C.⟨ sym $ cong fst $ β $ Δ ×P ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _
-          ∙ C.⟨ refl ⟩⋆⟨ sym $ cong fst $ β $ Γ ×P ⟩
-          ∙ sym (C.⋆Assoc _ _ _))
-          , (sym $ P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ cong snd $ β $ Γ ×P ⟩ ∙ (cong snd $ β $ Δ ×P))
-          ))
-      ⟩⋆⟨⟩
-      ∙ Q.⋆Assoc _ _ _
+    _⇒PshSmall_ = restrictPsh (LRPsh→Functor (_ , _×P)) Q
+
+    private
+      module ⇒PshSmall = PresheafNotation _⇒PshSmall_
+      testPshSmall : ∀ Γ → ⇒PshSmall.p[ Γ ] ≡ Q.p[ (Γ ×P) .vertex ]
+      testPshSmall Γ = refl
+
+  -- (_×P)*Q
+  -- F*(_×P)*Q ≅ (F ∘ _×P)*Q ≅ (_×(F P))*(F*Q)
+  --
+  -- F ∘ _×P : C → D
+  -- ≅ _×F*P ∘ F : C → D
+    ⇒PshSmall-app : PshHom (_⇒PshSmall_ ×Psh P) Q
+    ⇒PshSmall-app .N-ob c (q⟨c×P⟩ , p) = intro (c ×P) (C.id , p) Q.⋆ q⟨c×P⟩
+    ⇒PshSmall-app .N-hom = {!!}
+    
+    module _ {S : Presheaf C ℓS} where
+      private
+        module S = PresheafNotation S
+        module S×P = PresheafNotation (S ×Psh P)
+      ⇒PshSmall-intro : PshHom (S ×Psh P) Q → PshHom S (_⇒PshSmall_)
+      -- need a Q.p[ c ×P ]
+      ⇒PshSmall-intro α .N-ob c s = α .N-ob ((c ×P) .vertex) (((c ×P) .element .fst S.⋆ s) , (c ×P) .element .snd)
+      ⇒PshSmall-intro α .N-hom c c' f s =
+        {!!}
+
+
   module _ (P : Presheaf C ℓA) (Q : Presheaf C ℓB) where
     private
       module C = Category C
@@ -59,6 +71,11 @@ module _ {C : Category ℓ ℓ'} where
     open UniversalElementNotation
     _⇒PshLarge_ : Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓ' ℓA)) ℓB)
     _⇒PshLarge_ = (PshHomProf ⟅ Q ⟆) ∘F ((appR PshProd P ∘F YO) ^opF)
+    private
+      module ⇒PshLarge = PresheafNotation _⇒PshLarge_
+      testPshLarge : ∀ Γ → ⇒PshLarge.p[ Γ ] ≡ PshHom ((C [-, Γ ]) ×Psh P) Q
+      testPshLarge Γ = refl
+
     module _ {S : Presheaf C ℓS} where
       private
         module S = PresheafNotation S
@@ -108,3 +125,20 @@ module _ {C : Category ℓ ℓ'} where
         )
       ⟩⋆⟨⟩)
     ⇒PshSmall≅⇒PshLarge .nIso Γ = IsoToIsIso (⇒PshSmallIso⇒PshLarge Γ)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  (F : Functor C D)
+  ((P , _×P) : LocallyRepresentablePresheaf D ℓP)
+  (_×F*P : LocallyRepresentable (restrictPsh F P))
+  (Q : Presheaf D ℓQ)
+  where
+  private
+    module Q = PresheafNotation Q
+  restrictPsh⇒Small :
+    PshIso (restrictPsh F ((P , _×P) ⇒PshSmall Q))
+           ((restrictPsh F P , _×F*P) ⇒PshSmall restrictPsh F Q)
+  restrictPsh⇒Small .trans = ⇒PshSmall-intro (restrictPsh F P , _×F*P) (restrictPsh F Q)
+    (invPshIso (restrictPsh× F ((P , _×P) ⇒PshSmall Q) P) .trans ⋆PshHom restrictPshHom F (⇒PshSmall-app (P , _×P) Q))
+  restrictPsh⇒Small .nIso c .fst q⟨c×F*P⟩ = {!!} Q.⋆ q⟨c×F*P⟩
+  restrictPsh⇒Small .nIso c .snd = {!!}
+  -- module _ ((P , _×P) : Σ[ P ∈ Presheaf C ℓA ] LocallyRepresentable P) (Q : Presheaf C ℓB) where

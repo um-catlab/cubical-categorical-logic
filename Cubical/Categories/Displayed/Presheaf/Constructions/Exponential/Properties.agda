@@ -39,6 +39,8 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.LocalRepresentability
+
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Exponential.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
@@ -75,11 +77,11 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       module Qᴰ = PresheafᴰNotation Qᴰ
     open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
 
-    ⇒PshSmall-app : PshHomⱽ (((Pᴰ , _×ⱽ_*Pᴰ) ⇒PshSmallⱽ Qᴰ) ×ⱽPsh Pᴰ) Qᴰ
-    ⇒PshSmall-app .N-obᴰ (α , pᴰ) =
+    ⇒PshSmallⱽ-app : PshHomⱽ (((Pᴰ , _×ⱽ_*Pᴰ) ⇒PshSmallⱽ Qᴰ) ×ⱽPsh Pᴰ) Qᴰ
+    ⇒PshSmallⱽ-app .N-obᴰ (α , pᴰ) =
       Qᴰ.reind (P.⋆IdL _) $
         introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) pᴰ) Qᴰ.⋆ᴰ α
-    ⇒PshSmall-app .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} {γᴰ} {α , pᴰ} = Qᴰ.rectify $ Qᴰ.≡out $
+    ⇒PshSmallⱽ-app .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} {γᴰ} {α , pᴰ} = Qᴰ.rectify $ Qᴰ.≡out $
       sym (Qᴰ.reind-filler _ _)
       ∙ sym (Qᴰ.⋆Assoc _ _ _)
       ∙ Qᴰ.⟨ app-naturality-lemma ⟩⋆⟨⟩

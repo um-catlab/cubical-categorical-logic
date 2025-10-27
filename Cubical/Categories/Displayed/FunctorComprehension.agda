@@ -24,7 +24,8 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Profunctor
-open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Representable
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 
 private

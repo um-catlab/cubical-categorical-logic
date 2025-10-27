@@ -20,6 +20,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 import Cubical.Categories.More as CatReasoning
 
@@ -201,8 +202,29 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
         (g' , reind p' fᴰ')
   reind⟨ p ⟩⟨ p' ⟩⟨ fᴰ≡fᴰ' ⟩ = sym (reind-filler p _) ∙ fᴰ≡fᴰ' ∙ reind-filler p' _
 
+open Category
+open Functor
+open Functorᴰ
+
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  open Category
   fiber : C .ob → Category ℓCᴰ ℓCᴰ'
   fiber x = Fibers.v[_] Cᴰ x
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}(Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Dᴰ = Fibers Dᴰ
+  fiberF : ∀ (x : C .ob) → Functor (fiber Cᴰ x) (fiber Dᴰ (F ⟅ x ⟆))
+  fiberF x .F-ob = Fᴰ .F-obᴰ
+  fiberF x .F-hom fⱽ = Dᴰ.reind (F .F-id) $ Fᴰ .F-homᴰ fⱽ
+  fiberF x .F-id = Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _ _) ∙ (Dᴰ.≡in $ F-idᴰ Fᴰ)
+  fiberF x .F-seq fⱽ gⱽ = Dᴰ.rectify $ Dᴰ.≡out $
+    sym (Dᴰ.reind-filler _ _)
+    ∙ cong (∫F Fᴰ .F-hom) (sym $ Cᴰ.reind-filler _ _)
+    ∙ (Dᴰ.≡in $ F-seqᴰ Fᴰ fⱽ gⱽ)
+    ∙ Dᴰ.⟨ Dᴰ.reind-filler _ _  ⟩⋆⟨ Dᴰ.reind-filler _ _  ⟩
+    ∙ Dᴰ.reind-filler _ _ 

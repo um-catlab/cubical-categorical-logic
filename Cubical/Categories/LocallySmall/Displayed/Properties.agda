@@ -238,10 +238,6 @@ module _ {C : Category Cob CHom-ℓ}{Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ} wh
           ))
     vᴰ[ c ] .isSetHomᴰ = Dᴰ.isSetHomᴰ
 
-module _ {(Cob , C) : SmallCategory ℓC ℓC'}{Cob-ℓᴰ}{Cobᴰ}{CHom-ℓᴰ}
-  {Cᴰ : SmallFibersCategoryᴰ C Cob-ℓᴰ Cobᴰ CHom-ℓᴰ} where
-  private
-    module Cᴰ = CategoryᴰNotation Cᴰ
   module CategoryᴰOver∫SFNotation
     {Dob-ℓᴰ}{Dobᴰ}{DHom-ℓᴰ}
     (Dᴰ : SmallFibersCategoryᴰ (∫C Cᴰ) Dob-ℓᴰ Dobᴰ DHom-ℓᴰ)
@@ -250,9 +246,9 @@ module _ {(Cob , C) : SmallCategory ℓC ℓC'}{Cob-ℓᴰ}{Cobᴰ}{CHom-ℓᴰ}
       module Dᴰ = Categoryᴰ Dᴰ
     open CategoryᴰNotation Dᴰ public
 
-    vᴰ[_]SF : (c : Cob .Liftω.lowerω) →
-      SmallFibersCategoryᴰ Cᴰ.v[ liftω c ] _
-        (λ cᴰ → Dobᴰ (liftω c , cᴰ))
+    vᴰ[_]SF : (c : Cob) →
+      SmallFibersCategoryᴰ Cᴰ.v[ c ] _
+        (λ cᴰ → Dobᴰ (c , cᴰ))
         _
     vᴰ[ c ]SF .Hom[_][_,_] fᴰ xᴰ yᴰ = Dᴰ.Hom[ (id C , fᴰ) ][ xᴰ , yᴰ ]
     vᴰ[ c ]SF .idᴰ = Dᴰ.idᴰ
@@ -291,6 +287,55 @@ module _ {(Cob , C) : SmallCategory ℓC ℓC'}{Cob-ℓᴰ}{Cobᴰ}{CHom-ℓᴰ}
           ))
     vᴰ[ c ]SF .isSetHomᴰ = Dᴰ.isSetHomᴰ
 
+module _
+  {C : Category Cob CHom-ℓ}
+  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) where
+  private
+    module C = CategoryNotation C
+    module Cᴰ = Categoryᴰ Cᴰ
+
+  module _
+    (idᴰ' : ∀ {x : Cob} {xᴰ : Cobᴰ x} →
+       Σ[ fᴰ ∈ Cᴰ.Hom[ C.id ][ xᴰ , xᴰ ] ] Cᴰ.idᴰ ≡ fᴰ)
+    (⋆ᴰ' : ∀ {x y z : Cob}
+       {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]}
+       {xᴰ : Cobᴰ x} {yᴰ : Cobᴰ y} {zᴰ : Cobᴰ z} →
+       (fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ]) →
+       (gᴰ : Cᴰ.Hom[ g ][ yᴰ , zᴰ ]) →
+       Σ[ hᴰ ∈ Cᴰ.Hom[ f C.⋆ g ][ xᴰ , zᴰ ] ] (fᴰ Cᴰ.⋆ᴰ gᴰ) ≡ hᴰ)
+    where
+
+    redefine-idᴰ-⋆ᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ
+    redefine-idᴰ-⋆ᴰ .Hom[_][_,_] = Cᴰ.Hom[_][_,_]
+    redefine-idᴰ-⋆ᴰ .idᴰ = idᴰ' .fst
+    redefine-idᴰ-⋆ᴰ ._⋆ᴰ_ fᴰ gᴰ = ⋆ᴰ' fᴰ gᴰ .fst
+    redefine-idᴰ-⋆ᴰ .⋆IdLᴰ fᴰ =
+      ΣPathP (
+        (C.⋆IdL _) ,
+        subst (λ gᴰ → gᴰ Cᴰ.≡[ C.⋆IdL _ ] fᴰ)
+          (⋆ᴰ' Cᴰ.idᴰ fᴰ .snd
+          ∙ cong₂ (λ u v → ⋆ᴰ' u v .fst) (idᴰ' .snd) refl)
+          (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ _))
+    redefine-idᴰ-⋆ᴰ .⋆IdRᴰ fᴰ =
+      ΣPathP (
+        (C.⋆IdR _) ,
+        subst (λ gᴰ → gᴰ Cᴰ.≡[ C.⋆IdR _ ] fᴰ)
+          (⋆ᴰ' fᴰ Cᴰ.idᴰ .snd
+          ∙ cong₂ (λ u v → ⋆ᴰ' u v .fst) refl (idᴰ' .snd))
+          (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ _))
+    redefine-idᴰ-⋆ᴰ .⋆Assocᴰ fᴰ gᴰ hᴰ =
+      ΣPathP (
+        (C.⋆Assoc _ _ _) ,
+        subst2
+          (λ u v → u Cᴰ.≡[ C.⋆Assoc _ _ _ ] v)
+          (⋆ᴰ' (fᴰ Cᴰ.⋆ᴰ gᴰ) hᴰ .snd
+          ∙ cong (λ z → ⋆ᴰ' z hᴰ .fst) (⋆ᴰ' fᴰ gᴰ .snd))
+          (⋆ᴰ' fᴰ (gᴰ Cᴰ.⋆ᴰ hᴰ) .snd
+          ∙ cong (λ z → ⋆ᴰ' fᴰ z .fst) (⋆ᴰ' gᴰ hᴰ .snd))
+          (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _)
+        )
+    redefine-idᴰ-⋆ᴰ .isSetHomᴰ = Cᴰ.isSetHomᴰ
+
 -- Variants of smallness for displayed categories.
 -- SmallObjectsCategoryᴰ
 --   : ∀ (C : Category Cob C-ℓ)
@@ -310,34 +355,6 @@ module _ {(Cob , C) : SmallCategory ℓC ℓC'}{Cob-ℓᴰ}{Cobᴰ}{CHom-ℓᴰ}
 -- SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySmallCategory (Liftω ob) ℓC'
 
 
-
--- module _ {Dob} (C : Small.Category ℓC ℓC') (D : Category Dob) where
---   private
---     module C = Small.Category C
---     module D = CategoryNotation D
---   _⊘_ : ?
---   _⊘_ = ?
--- --   _⊘_ : Category (C .Category.ob ×ω Dob)
--- --   -- This is inferrable
--- --   _⊘_ .Hom-ℓ = λ (_ , y) (_ , y') → ℓ-max ℓC' (D.Hom-ℓ y y')
--- --   _⊘_ .Hom[_,_] (x , y) (x' , y') = C.Hom[ x , x' ] × D.Hom[ y , y' ]
--- --   _⊘_ .id = C.id , D.id
--- --   _⊘_ ._⋆_ (f , g) (f' , g') = (f C.⋆ f') , (g D.⋆ g')
--- --   _⊘_ .⋆IdL (f , g) = ΣPathP (C.⋆IdL f , D.⋆IdL g)
--- --   _⊘_ .⋆IdR (f , g) = ΣPathP (C.⋆IdR f , D.⋆IdR g)
--- --   _⊘_ .⋆Assoc (f , g) (f' , g') (f'' , g'') = ΣPathP (C.⋆Assoc f f' f'' , D.⋆Assoc g g' g'')
--- --   _⊘_ .isSetHom = isSet× C.isSetHom D.isSetHom
-
--- --   private
--- --     module ⊘ = LocallySmallCategoryNotation _⊘_
--- --   ⊘-iso : ∀ {x y x' y'}
--- --     → (f : SmallCategory.CatIso C x x')
--- --     → (g : D.ISOC.Hom[ y , y' ])
--- --     → ⊘.ISOC.Hom[ (x , y) , (x' , y') ]
--- --   ⊘-iso f g .CatIso.fun = (f .fst) , (g .CatIso.fun)
--- --   ⊘-iso f g .CatIso.inv = (f .snd .SmallCategory.isIso.inv) , (g .CatIso.inv)
--- --   ⊘-iso f g .CatIso.sec = ΣPathP (f .snd .SmallCategory.isIso.sec , g .CatIso.sec)
--- --   ⊘-iso f g .CatIso.ret = ΣPathP (f .snd .SmallCategory.isIso.ret , g .CatIso.ret)
 
 -- -- LEVEL-iso : ∀ {ℓ} {ℓ'} → SmallCategory.CatIso LEVEL ℓ ℓ'
 -- -- LEVEL-iso .fst = tt

@@ -32,8 +32,8 @@ module _ ((Cob , C) : SmallCategory ℓC ℓC') where
   Presheaf : Level → Typeω
   Presheaf ℓP = Functor (C ^op) SET.v[ liftω ℓP ]
 
-  PRESHEAF : Category _ _
-  PRESHEAF = ∫C (FIBER-FUNCTOR (Cob , C ^op) SET)
+  PRESHEAF : Categoryᴰ LEVEL (λ d → Functor (C ^op) SET.v[ d ]) _
+  PRESHEAF = FIBER-FUNCTOR (Cob , C ^op) SET
 
 open Functor
 module _

@@ -285,6 +285,21 @@ module _ (C : Category Cob CHom-ℓ) where
 
 open Categoryᴰ
 
+module _
+  {C : Category Cob CHom-ℓ}
+  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)
+  where
+   private
+     module Cᴰ = Categoryᴰ Cᴰ
+   _^opᴰ : Categoryᴰ (C ^op) Cobᴰ λ x y xᴰ yᴰ → CHom-ℓᴰ y x yᴰ xᴰ
+   _^opᴰ .Hom[_][_,_] f xᴰ yᴰ = Cᴰ.Hom[ f ][ yᴰ , xᴰ ]
+   _^opᴰ .idᴰ = Cᴰ.idᴰ
+   _^opᴰ ._⋆ᴰ_ fᴰ gᴰ = gᴰ Cᴰ.⋆ᴰ fᴰ
+   _^opᴰ .⋆IdLᴰ = Cᴰ.⋆IdRᴰ
+   _^opᴰ .⋆IdRᴰ = Cᴰ.⋆IdLᴰ
+   _^opᴰ .⋆Assocᴰ _ _ _ = sym (Cᴰ.⋆Assocᴰ _ _ _ )
+   _^opᴰ .isSetHomᴰ = Cᴰ.isSetHomᴰ
+
 -- Displayed categories whose fibers are *small* categories.
 -- This means:
 -- 1. The type of displayed objects over any fixed object is small

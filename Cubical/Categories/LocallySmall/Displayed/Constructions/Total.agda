@@ -43,39 +43,97 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
       (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
     ∫Cᴰ .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
 
--- module _
---   {ℓC ℓC'}
---   {(Cob , C) : SmallCategory ℓC ℓC'}
---   {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
---   (Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓᴰ)
---   where
---   private
---     module C = CategoryNotation C
---     module Cᴰ = Categoryᴰ Cᴰ
---   module _
---     {C-ℓᴰᴰ} {Cobᴰᴰ} {CHom-ℓᴰᴰ}
---     (Cᴰᴰ :
---       SmallFibersCategoryᴰ Cᴰ.∫C
---         (λ x → {!!})
---         Cobᴰᴰ {!!})
---     where
---     private
---       module Cᴰᴰ = Categoryᴰ Cᴰᴰ
+module _
+  {C : Category Cob CHom-ℓ}
+  {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
+  (Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓᴰ)
+  where
+  private
+    module C = CategoryNotation C
+    module Cᴰ = Categoryᴰ Cᴰ
+  module _
+    -- The levels of Cᴰᴰ only depend on the
+    -- base objects in C
+    {C-ℓᴰᴰ : Cob → Level}
+    {Cobᴰᴰ}
+    {CHom-ℓᴰᴰ : Cob → Cob → Level}
+    (Cᴰᴰ :
+      SmallFibersCategoryᴰ Cᴰ.∫C
+        (λ x → C-ℓᴰᴰ (x .fst))
+        Cobᴰᴰ (λ x y → CHom-ℓᴰᴰ (x .fst) (y .fst)))
+    where
+    private
+      module Cᴰᴰ = Categoryᴰ Cᴰᴰ
 
---     ∫CᴰSF :
---       SmallFibersCategoryᴰ C _
---         (λ (x : Liftω (Cob .lowerω)) →
---           Σ[ xᴰ ∈ Cobᴰ x ] Cobᴰᴰ (x , (liftω xᴰ)))
---         -- (λ (x : Cob) → Σ[ xᴰ ∈ Cobᴰ x ] Cobᴰᴰ (x , liftω xᴰ))
---         -- (λ (x : {!Cob!}) → Σ[ xᴰ ∈ Cobᴰ {!!} ] Cobᴰᴰ ({!!} , liftω xᴰ) )
---         {!!}
---     ∫CᴰSF .Hom[_][_,_] f xᴰxᴰᴰ yᴰyᴰᴰ =
---       {!!}
---       -- Σ[ fᴰ ∈ Cᴰ.Hom[ f ][ liftω (xᴰxᴰᴰ .lowerω .fst) , liftω (yᴰyᴰᴰ .lowerω .fst) ] ]
---       --   Cᴰᴰ.Hom[ f , fᴰ ][ liftω (xᴰxᴰᴰ .lowerω .snd) , liftω (yᴰyᴰᴰ .lowerω .snd) ]
---     ∫CᴰSF .idᴰ = {!!}
---     ∫CᴰSF ._⋆ᴰ_ = {!!}
---     ∫CᴰSF .⋆IdLᴰ = {!!}
---     ∫CᴰSF .⋆IdRᴰ = {!!}
---     ∫CᴰSF .⋆Assocᴰ = {!!}
---     ∫CᴰSF .isSetHomᴰ = {!!}
+    ∫CᴰSF :
+      SmallFibersCategoryᴰ C _
+        (λ (x : Cob) →
+          Σ[ xᴰ ∈ Cobᴰ x ] Cobᴰᴰ (x , liftω xᴰ))
+        _
+    ∫CᴰSF .Hom[_][_,_] f xᴰxᴰᴰ yᴰyᴰᴰ =
+      Σ[ fᴰ ∈
+        Cᴰ.Hom[ f ][
+          liftω (xᴰxᴰᴰ .lowerω .fst) ,
+          liftω (yᴰyᴰᴰ .lowerω .fst) ] ]
+        Cᴰᴰ.Hom[ f , fᴰ ][
+          liftω (xᴰxᴰᴰ .lowerω .snd) ,
+          liftω (yᴰyᴰᴰ .lowerω .snd) ]
+    ∫CᴰSF .idᴰ = Cᴰ.idᴰ , Cᴰᴰ.idᴰ
+    ∫CᴰSF ._⋆ᴰ_ fᴰ gᴰ =
+      (fᴰ .fst Cᴰ.⋆ᴰ gᴰ .fst) ,
+      (fᴰ .snd Cᴰᴰ.⋆ᴰ gᴰ .snd)
+    ∫CᴰSF .⋆IdLᴰ ffᴰ =
+      ΣPathP ((C.⋆IdL _) , (
+      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdLᴰ (ffᴰ .snd)))))
+    ∫CᴰSF .⋆IdRᴰ ffᴰ =
+      ΣPathP ((C.⋆IdR _) , (
+      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdRᴰ (ffᴰ .snd)))))
+    ∫CᴰSF .⋆Assocᴰ ffᴰ ggᴰ hhᴰ =
+      ΣPathP (C.⋆Assoc _ _ _ ,
+      (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assoc _ _ _) ,
+      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
+    ∫CᴰSF .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
+
+    module ∫CᴰSFNotation where
+      vᴰ[_]SF : (c : Cob) →
+        SmallFibersCategoryᴰ Cᴰ.v[ c ] _
+          (λ cᴰ → Cobᴰᴰ (c , cᴰ))
+          _
+      vᴰ[ c ]SF .Hom[_][_,_] fᴰ xᴰ yᴰ = Cᴰᴰ.Hom[ (id C , fᴰ) ][ xᴰ , yᴰ ]
+      vᴰ[ c ]SF .idᴰ = Cᴰᴰ.idᴰ
+      vᴰ[ c ]SF ._⋆ᴰ_ fᴰ gᴰ = Cᴰᴰ.reind (Cᴰ.reind-filler _ _) $ (fᴰ Cᴰᴰ.⋆ᴰ gᴰ)
+      vᴰ[ c ]SF .⋆IdLᴰ fᴰ =
+        ΣPathP (
+          (Cᴰ.rectify $ Cᴰ.≡out $
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⋆IdLᴰ _) ,
+          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+            (sym $ Cᴰᴰ.reind-filler _ _)
+            ∙ Cᴰᴰ.⋆IdLᴰ _))
+      vᴰ[ c ]SF .⋆IdRᴰ fᴰ =
+        ΣPathP (
+          (Cᴰ.rectify $ Cᴰ.≡out $
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⋆IdRᴰ _) ,
+          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+            (sym $ Cᴰᴰ.reind-filler _ _)
+            ∙ Cᴰᴰ.⋆IdRᴰ _))
+      vᴰ[ c ]SF .⋆Assocᴰ fᴰ gᴰ hᴰ =
+        ΣPathP (
+          (Cᴰ.rectify $ Cᴰ.≡out $
+            (sym $ Cᴰ.reind-filler _ _)
+            ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+            ∙ Cᴰ.⋆Assocᴰ _ _ _
+            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+            ∙ Cᴰ.reind-filler _ _
+            ),
+          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+            (sym $ Cᴰᴰ.reind-filler _ _)
+            ∙ Cᴰᴰ.⟨ sym $ Cᴰᴰ.reind-filler _ _ ⟩⋆⟨⟩
+            ∙ Cᴰᴰ.⋆Assocᴰ _ _ _
+            ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler _ _ ⟩
+            ∙ Cᴰᴰ.reind-filler _ _
+            ))
+      vᴰ[ c ]SF .isSetHomᴰ = Cᴰᴰ.isSetHomᴰ

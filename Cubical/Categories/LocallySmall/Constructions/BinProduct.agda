@@ -4,9 +4,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Prod using (_×ω_; _,_)
 
 open import Cubical.Categories.LocallySmall.Base
 open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Functor
 
 open Category
 open Σω
@@ -31,3 +33,57 @@ module _
       (C.⋆Assoc (f .fst) (g .fst) (h .fst))
       (D.⋆Assoc (f .snd) (g .snd) (h .snd))
   _×C_ .isSetHom = isSet× C.isSetHom D.isSetHom
+
+  open Functor
+  π₁ : Functor _×C_ C
+  π₁ .F-ob = λ z → z .fst
+  π₁ .F-hom = λ z → z .fst
+  π₁ .F-id = refl
+  π₁ .F-seq _ _ = refl
+
+  π₂ : Functor _×C_ D
+  π₂ .F-ob = λ z → z .snd
+  π₂ .F-hom = λ z → z .snd
+  π₂ .F-id = refl
+  π₂ .F-seq _ _ = refl
+
+
+module _
+  ((Cob , C) : SmallCategory ℓC ℓC')
+  (D : Category Dob DHom-ℓ) where
+  private
+    module C = Category C
+    module D = CategoryNotation D
+  _⊘_ : Category (Cob .Liftω.lowerω ×ω Dob) _
+  _⊘_ .Hom[_,_] (x , y) (x' , y') = C.Hom[ liftω x , liftω x' ] × D.Hom[ y , y' ]
+  _⊘_ .id = C.id , D.id
+  _⊘_ ._⋆_ (f , g) (f' , g') = (f C.⋆ f') , (g D.⋆ g')
+  _⊘_ .⋆IdL (f , g) = ΣPathP (C.⋆IdL f , D.⋆IdL g)
+  _⊘_ .⋆IdR (f , g) = ΣPathP (C.⋆IdR f , D.⋆IdR g)
+  _⊘_ .⋆Assoc (f , g) (f' , g') (f'' , g'') = ΣPathP (C.⋆Assoc f f' f'' , D.⋆Assoc g g' g'')
+  _⊘_ .isSetHom = isSet× C.isSetHom D.isSetHom
+
+  open Functor
+  ⊘π₁ : Functor _⊘_ C
+  ⊘π₁ .F-ob (c , d) = liftω c
+  ⊘π₁ .F-hom (f , g) = f
+  ⊘π₁ .F-id = refl
+  ⊘π₁ .F-seq _ _ = refl
+
+  ⊘π₂ : Functor _⊘_ D
+  ⊘π₂ .F-ob (c , d) = d
+  ⊘π₂ .F-hom (f , g) = g
+  ⊘π₂ .F-id = refl
+  ⊘π₂ .F-seq _ _ = refl
+
+
+--   private
+--     module ⊘ = LocallySmallCategoryNotation _⊘_
+--   ⊘-iso : ∀ {x y x' y'}
+--     → (f : SmallCategory.CatIso C x x')
+--     → (g : D.ISOC.Hom[ y , y' ])
+--     → ⊘.ISOC.Hom[ (x , y) , (x' , y') ]
+--   ⊘-iso f g .CatIso.fun = (f .fst) , (g .CatIso.fun)
+--   ⊘-iso f g .CatIso.inv = (f .snd .SmallCategory.isIso.inv) , (g .CatIso.inv)
+--   ⊘-iso f g .CatIso.sec = ΣPathP (f .snd .SmallCategory.isIso.sec , g .CatIso.sec)
+--   ⊘-iso f g .CatIso.ret = ΣPathP (f .snd .SmallCategory.isIso.ret , g .CatIso.ret)

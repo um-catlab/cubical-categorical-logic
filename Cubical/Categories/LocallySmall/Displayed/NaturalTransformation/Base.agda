@@ -70,7 +70,7 @@ open Functorᴰ
 open SmallFibNatTrans
 open Liftω
 open Σω
-module _
+module SmallFibNatTransᴰDefs
   {(Cob , C) : SmallCategory ℓC ℓC'}
   {ℓCᴰ ℓCᴰ'}
   ((Cobᴰ , Cᴰ) : SmallCategoryᴰ ((Cob , C)) ℓCᴰ ℓCᴰ')
@@ -86,18 +86,16 @@ module _
     module Cᴰ = CategoryᴰNotation Cᴰ
     module D = CategoryNotation D
     module Dᴰ = CategoryᴰNotation Dᴰ
-    module Eᴰ = CategoryᴰOver∫Notation Eᴰ
+    module Eᴰ = CategoryᴰOver∫SFNotation Eᴰ
 
   module _
-    -- (F G : Functor C D)
-    -- {(d , dᴰ) (d' , dᴰ') : ⟨ ∫C Dᴰ ⟩ob}
     {d d' : Dob}
-    (g : D.Hom[ d , d' ])
-    (F : Functor C Dᴰ.v[ d ])
-    (G : Functor C Dᴰ.v[ d' ])
+    {g : D.Hom[ d , d' ]}
+    {F : Functor C Dᴰ.v[ d ]}
+    {G : Functor C Dᴰ.v[ d' ]}
     (α : SmallFibNatTrans Dᴰ g F G)
-    (Fᴰ : Functorᴰ F Cᴰ Eᴰ.vᴰ[ d ])
-    (Gᴰ : Functorᴰ G Cᴰ Eᴰ.vᴰ[ d' ])
+    (Fᴰ : Functorᴰ F Cᴰ Eᴰ.vᴰ[ d ]SF)
+    (Gᴰ : Functorᴰ G Cᴰ Eᴰ.vᴰ[ d' ]SF)
     where
     private
       module F = FunctorNotation F
@@ -105,17 +103,65 @@ module _
       module Fᴰ = FunctorᴰNotation Fᴰ
       module Gᴰ = FunctorᴰNotation Gᴰ
 
-    record SmallFibNatTransᴰ : Type (ℓ-max (ℓ-max ℓC ℓCᴰ) (EHom-ℓᴰ d d'))
+    record SmallFibNatTransᴰ :
+      Type
+        (ℓ-max
+          (ℓ-max (ℓ-max ℓC ℓCᴰ) (EHom-ℓᴰ d d'))
+          (ℓ-max (DHom-ℓᴰ d d') (ℓ-max (ℓ-max ℓC' ℓCᴰ') (DHom-ℓ d d'))))
       where
       no-eta-equality
       constructor natTransᴰ
       field
         N-obᴰ :
-          (x : Cob .lowerω) →
+          {x : Cob .lowerω} →
           (xᴰ : Cobᴰ .lowerω x) →
-          Eᴰ.Hom[ g , α .N-ob x ][ Fᴰ .F-obᴰ (liftω xᴰ) , Gᴰ .F-obᴰ (liftω xᴰ) ]
-          --   → Eᴰ.Hom[ α .N-ob x ][ Fᴰ .F-obᴰ (liftω xᴰ) , Gᴰ .F-obᴰ (liftω xᴰ) ]
+          Eᴰ.Hom[ g , α .N-ob x ][
+            Fᴰ .F-obᴰ (liftω xᴰ) ,
+            Gᴰ .F-obᴰ (liftω xᴰ) ]
+        N-homᴰ :
+          ∀ {x y : Cob .lowerω}
+            {xᴰ : Cobᴰ .lowerω x}
+            {yᴰ : Cobᴰ .lowerω y}
+            {f : C.Hom[ liftω x , liftω y ]}
+            (fᴰ : Cᴰ.Hom[ f ][ liftω xᴰ , liftω yᴰ ]) →
+            (Fᴰ.F-homᴰ fᴰ Eᴰ.⋆ᴰ N-obᴰ yᴰ)
+              Eᴰ.∫≡ (N-obᴰ xᴰ Eᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
 
+  open SmallFibNatTransᴰ
+
+  module _
+    {d : Dob}
+    {F : Functor C Dᴰ.v[ d ]}
+    (Fᴰ : Functorᴰ F Cᴰ Eᴰ.vᴰ[ d ]SF)
+    where
+
+    idSFTransᴰ : SmallFibNatTransᴰ (idSFTrans F) Fᴰ Fᴰ
+    idSFTransᴰ .N-obᴰ = λ xᴰ → Eᴰ.idᴰ
+    idSFTransᴰ .N-homᴰ fᴰ = Eᴰ.⋆IdRᴰ _ ∙ (sym $ Eᴰ.⋆IdLᴰ _)
+
+  module _
+    {d d' d'' : Dob}
+    {g : D.Hom[ d , d' ]} {h : D.Hom[ d' , d'' ]}
+    {F : Functor C Dᴰ.v[ d ]}
+    {G : Functor C Dᴰ.v[ d' ]}
+    {H : Functor C Dᴰ.v[ d'' ]}
+    {Fᴰ : Functorᴰ F Cᴰ Eᴰ.vᴰ[ d ]SF}
+    {Gᴰ : Functorᴰ G Cᴰ Eᴰ.vᴰ[ d' ]SF}
+    {Hᴰ : Functorᴰ H Cᴰ Eᴰ.vᴰ[ d'' ]SF}
+    {α : SmallFibNatTrans Dᴰ g F G}
+    {β : SmallFibNatTrans Dᴰ h G H}
+    (αᴰ : SmallFibNatTransᴰ α Fᴰ Gᴰ)
+    (βᴰ : SmallFibNatTransᴰ β Gᴰ Hᴰ)
+    where
+
+    seqSFTransᴰ : SmallFibNatTransᴰ (seqSFTrans α β) Fᴰ Hᴰ
+    seqSFTransᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ xᴰ Eᴰ.⋆ᴰ βᴰ .N-obᴰ xᴰ
+    seqSFTransᴰ .N-homᴰ fᴰ =
+      (sym $ Eᴰ.⋆Assocᴰ _ _ _)
+      ∙ Eᴰ.⟨ αᴰ .N-homᴰ fᴰ ⟩⋆⟨⟩
+      ∙ Eᴰ.⋆Assocᴰ _ _ _
+      ∙ Eᴰ.⟨⟩⋆⟨ βᴰ .N-homᴰ fᴰ ⟩
+      ∙ (sym $ Eᴰ.⋆Assocᴰ _ _ _)
 
 -- module _
 --   {(Cob , C) : SmallCategory ℓC ℓC'}

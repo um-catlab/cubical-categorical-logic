@@ -52,9 +52,3 @@ module _
       (D.⋆Assoc _ _ _)
       (λ x → Dᴰ.⋆Assocᴰ (α .N-ob x) (β .N-ob x) (γ .N-ob x))
   FIBER-FUNCTOR .isSetHomᴰ = isSetSFNatTrans _ _ _
-
-  FIBER-FUNCTOR' :
-    SmallFibersCategoryᴰ D {!!}
-      (λ d → {!Functor!})
-      {!!}
-  FIBER-FUNCTOR' = {!!}

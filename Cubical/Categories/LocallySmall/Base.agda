@@ -79,6 +79,7 @@ private
     Dobᴰ : Dob → Typeω
     CHom-ℓᴰ : ∀ (x y : Cob)(xᴰ : Cobᴰ x)(yᴰ : Cobᴰ y) → Level
 
+-- TODO foundations or some other base dir
 open _×ω_
 
 record Σω (A : Typeω) (B : A → Typeω) : Typeω where

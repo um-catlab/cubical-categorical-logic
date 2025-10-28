@@ -195,9 +195,10 @@ module _
             (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshDᴰ Qⱽ))
             (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
         reindHet∀PshIsoⱽ =
-          reindPshIsoⱽ reindFuncCompIsoⱽ
+          reindPshIsoⱽ (Functor→PshHet F Γ) reindFuncCompIsoⱽ
           ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-          ⋆PshIsoⱽ reindPshIsoⱽ (reind-introIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
+          ⋆PshIsoⱽ reindPshIsoⱽ (Functor→PshHet F Γ ⋆PshHom
+                                 (Functor→PshHet -×Fc.×aF (F-ob F Γ) ∘ˡ F)) (reind-introIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
           ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
           ⋆PshIsoⱽ
             reindPathIsoⱽ
@@ -205,7 +206,7 @@ module _
                 cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
                 ∙ (sym $ prodStrNatIso .NT.NatIso.trans .NT.NatTrans.N-hom p)))
           ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
-          ⋆PshIsoⱽ reindPshIsoⱽ annotateType
+          ⋆PshIsoⱽ reindPshIsoⱽ (Functor→PshHet -×c.×aF Γ) annotateType
 
           where
 

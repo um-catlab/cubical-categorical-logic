@@ -16,6 +16,7 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
@@ -62,8 +63,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   TerminalⱽReindex : ∀ {c}
     → Terminalⱽ Dᴰ (F ⟅ c ⟆)
     → Terminalⱽ (Base.reindex Dᴰ F) c
-  TerminalⱽReindex 𝟙Fc = reindUEⱽ 𝟙Fc ◁PshIsoⱽ
-    (reindPshIsoⱽ reindFuncUnitIsoⱽ ⋆PshIsoⱽ reindUnitIsoⱽ)
+  TerminalⱽReindex 𝟙Fc =
+    reindUEⱽ 𝟙Fc
+    ◁PshIsoⱽ (reindPshIsoⱽ (Functor→PshHet F _) (reindPshᴰFunctorUnitIsoⱽ (Base.π Dᴰ F))
+    ⋆PshIsoⱽ reindUnitIsoⱽ)
 
   TerminalsⱽReindex : Terminalsⱽ Dᴰ →
     Terminalsⱽ (Base.reindex Dᴰ F)

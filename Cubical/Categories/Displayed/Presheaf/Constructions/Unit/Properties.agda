@@ -21,6 +21,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Section
@@ -64,17 +65,14 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   reindUnitIsoⱽ : PshIsoⱽ (reind α (UnitPshᴰ {Cᴰ = Cᴰ})) UnitPshᴰ
   reindUnitIsoⱽ = eqToPshIsoⱽ reindUnitEq
 
-module _ {C : Category ℓC ℓC'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D}
   {Q : Presheaf D ℓQ}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
   where
-  -- for some reason this can't be inlined. Is this an Agda bug?
-  reindFuncUnitEq : PresheafᴰEq (reindFunc F (UnitPshᴰ {Cᴰ = Dᴰ}{P = Q})) UnitPshᴰ
-  reindFuncUnitEq = (Eq.refl , Eq.refl)
-
-  reindFuncUnitIsoⱽ : PshIsoⱽ (reindFunc F (UnitPshᴰ {Cᴰ = Dᴰ}{P = Q})) UnitPshᴰ
-  reindFuncUnitIsoⱽ = eqToPshIsoⱽ reindFuncUnitEq
+  reindPshᴰFunctorUnitIsoⱽ : PshIsoⱽ (reindPshᴰFunctor Fᴰ (UnitPshᴰ {Cᴰ = Dᴰ}{P = Q})) UnitPshᴰ
+  reindPshᴰFunctorUnitIsoⱽ = eqToPshIsoⱽ (Eq.refl , Eq.refl)
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

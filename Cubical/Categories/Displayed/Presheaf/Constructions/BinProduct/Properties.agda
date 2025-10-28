@@ -165,7 +165,6 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     ×ⱽ-introHet αᴰ βᴰ .N-obᴰ rᴰ = αᴰ .N-obᴰ rᴰ , βᴰ .N-obᴰ rᴰ
     ×ⱽ-introHet αᴰ βᴰ .N-homᴰ = ΣPathP (αᴰ .N-homᴰ , βᴰ .N-homᴰ)
 
-
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   where
   module _
@@ -176,8 +175,11 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     (Fᴰ : Functorᴰ F Dᴰ Cᴰ)
     where
     reindPshᴰFunctor-×ⱽ :
-      PshIsoⱽ (reindPshᴰFunctor Fᴰ (Pᴰ ×ⱽPsh Qᴰ)) (reindPshᴰFunctor Fᴰ Pᴰ ×ⱽPsh reindPshᴰFunctor Fᴰ  Qᴰ)
+      PshIsoⱽ (reindPshᴰFunctor Fᴰ (Pᴰ ×ⱽPsh Qᴰ))
+              (reindPshᴰFunctor Fᴰ Pᴰ ×ⱽPsh reindPshᴰFunctor Fᴰ  Qᴰ)
+    -- Forward direction can be defined using the UMP
     reindPshᴰFunctor-×ⱽ .fst = ×ⱽPsh-UMPᴰ .Iso.fun (reindPshᴰPshHomⱽ Fᴰ ×ⱽ-π₁ , reindPshᴰPshHomⱽ Fᴰ ×ⱽ-π₂)
+    -- Backward direction must be defined manually
     reindPshᴰFunctor-×ⱽ .snd .inv p (pᴰ , qᴰ) = (pᴰ , qᴰ)
     reindPshᴰFunctor-×ⱽ .snd .rightInv = λ _ _ → refl
     reindPshᴰFunctor-×ⱽ .snd .leftInv = λ _ _ → refl
@@ -211,9 +213,15 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
 
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {Pᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-  {α : PshHom P Q}
+  (α : PshHom P Q)
+  (Pᴰ : Presheafᴰ Q Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
   where
+  -- This should work by a Yoneda argument...
+  --   PshHomⱽ R (reind α (Pᴰ ×ⱽPsh Qᴰ))
+  --   ≅ PshHomᴰ α R (Pᴰ ×ⱽPsh Qᴰ)
+  --   ≅ (PshHomᴰ α R Pᴰ) × (PshHomᴰ α R Qᴰ)
+  --   ≅ (PshHomⱽ R (reind α Pᴰ)) × (PshHomⱽ R (reind α Qᴰ))
+  --   ≅ PshHomⱽ R ((reind α Pᴰ) ×ⱽPsh (reind α Qᴰ))
   reind×ⱽIsoⱽ : PshIsoⱽ (reind α (Pᴰ ×ⱽPsh Qᴰ)) (reind α Pᴰ ×ⱽPsh reind α Qᴰ)
   reind×ⱽIsoⱽ .fst = ×ⱽ-introⱽ (reind-introⱽ (reind-π ⋆PshHomᴰⱽ ×ⱽ-π₁)) (reind-introⱽ (reind-π ⋆PshHomᴰⱽ ×ⱽ-π₂))
   reind×ⱽIsoⱽ .snd .inv p = invers .N-obᴰ
@@ -224,38 +232,18 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   reind×ⱽIsoⱽ .snd .leftInv _ _ = refl
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {P : Presheaf D ℓP}
-  {Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Dᴰ ℓQᴰ}
-  {F : Functor C D}
-  where
-  reindFunc×ⱽIsoⱽ' :
-    PshIsoᴰ (idPshIso {P = P} ∘ˡⁱ F ) (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
-              (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-  reindFunc×ⱽIsoⱽ' .fst = ×ⱽ-introᴰ (×ⱽ-π₁ ∘ˡᴰ π Dᴰ F) (×ⱽ-π₂ ∘ˡᴰ π Dᴰ F)
-  reindFunc×ⱽIsoⱽ' .snd .inv p = invers .N-obᴰ
-    where
-      invers : PshHomⱽ (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ) (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
-      invers = ×ⱽ-introHet _ ×ⱽ-π₁ ×ⱽ-π₂
-  reindFunc×ⱽIsoⱽ' .snd .rightInv b q = refl
-  reindFunc×ⱽIsoⱽ' .snd .leftInv a p = refl
-
-  reindFunc×ⱽIsoⱽ :
-    PshIsoⱽ (reindFunc F (Pᴰ ×ⱽPsh Qᴰ))
-            (reindFunc F Pᴰ ×ⱽPsh reindFunc F Qᴰ)
-  reindFunc×ⱽIsoⱽ .fst = PshHomEqPshHomᴰ (reindFunc×ⱽIsoⱽ' .fst) Eq.refl
-  reindFunc×ⱽIsoⱽ .snd = isisoover (λ a z → z) (λ _ _ → refl) λ _ _ → refl
-
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {x}
   {F : Functor C D}
   {Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ}{Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ}
   where
+  -- This is just the combination of the fact that ×ⱽPsh commutes with
+  -- both kinds of reindexing. Maybe shouldn't even be a lemma
   reindⱽFunc×ⱽIsoⱽ :
     PshIsoⱽ (reindⱽFunc F (Pᴰ ×ⱽPsh Qᴰ))
             (reindⱽFunc F Pᴰ ×ⱽPsh reindⱽFunc F Qᴰ)
   reindⱽFunc×ⱽIsoⱽ =
-    reindPshIsoⱽ {α = Functor→PshHet F x} reindFunc×ⱽIsoⱽ
-    ⋆PshIsoⱽ reind×ⱽIsoⱽ {Pᴰ = reindFunc F Pᴰ}{Qᴰ = reindFunc F Qᴰ}
+    reindPshIsoⱽ (Functor→PshHet F x) (reindPshᴰFunctor-×ⱽ (π Dᴰ F))
+    ⋆PshIsoⱽ reind×ⱽIsoⱽ (Functor→PshHet F x) (reindFunc F Pᴰ) (reindFunc F Qᴰ)
 
 open PshSection
 open Section

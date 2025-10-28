@@ -11,10 +11,12 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
@@ -56,7 +58,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   CartesianLiftReindex cL =
     reindUEⱽ cL ◁PshIsoⱽ
       (invPshIsoⱽ (reindYoReindFunc {F = F})
-      ⋆PshIsoⱽ reindPshIsoⱽ reindⱽFuncRepr)
+      ⋆PshIsoⱽ reindPshIsoⱽ (yoRec (C [-, _ ]) _) reindⱽFuncRepr)
 
   isFibrationReindex
     : isFibration Dᴰ

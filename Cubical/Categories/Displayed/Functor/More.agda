@@ -4,6 +4,7 @@ module Cubical.Categories.Displayed.Functor.More where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Functor
 import      Cubical.Data.Equality as Eq
 import      Cubical.Data.Equality.More as Eq
@@ -173,4 +174,3 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
         obᴰEq)
       (Fᴰ .F-homᴰ)
       (Gᴰ .F-homᴰ)
-

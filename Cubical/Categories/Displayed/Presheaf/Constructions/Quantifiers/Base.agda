@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.Base where
 
 open import Cubical.Foundations.Prelude
@@ -38,6 +39,7 @@ open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Displayed.FunctorComprehension
 import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshᴰCL
 
@@ -48,6 +50,8 @@ private
 open NatTrans
 open Functor
 open Functorᴰ
+open PshIso
+open PshHom
 open PshHomᴰ
 open UniversalElementⱽ
 
@@ -104,6 +108,19 @@ module _
         ∙ Cᴰ.reind-filler _ _
         ∙ Cᴰ.reind-filler _ _
         ∙ Cᴰ.≡in (βⱽ (πF* Γᴰ) {pᴰ = γᴰ})
+
+    βᴰ-πF* :
+      ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
+        {Δ} {Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , F ⟅ Γ ⟆ ]}
+      → (γᴰ : Cᴰ [ γ C.⋆ πF ⟦ Γ ⟧ ][ Δᴰ , Γᴰ ])
+      → Path
+          Cᴰ.Hom[ _ , _ ]
+          (_ , introπF* γᴰ Cᴰ.⋆ᴰ πF* Γᴰ .elementⱽ)
+          (_ , γᴰ)
+    βᴰ-πF* γᴰ =
+      Cᴰ.reind-filler _ _
+      ∙ Cᴰ.reind-filler _ _
+      ∙ Cᴰ.≡in (βⱽ (πF* _) {pᴰ = γᴰ})
 
     open NatTrans
 
@@ -172,8 +189,18 @@ module _
         selfPshHetᴰ :
           PshHetᴰ selfPshHet weakenπFᴰ Pᴰ Pᴰ
         selfPshHetᴰ =
-          PshHomEqPshHomᴰ (precomp𝟙ᴰPshIsoᴰ .fst) Eq.refl
-          ⋆PshHomᴰ NatTransᴰ→PshHomᴰ selfNatTransᴰ
+           PshHomEqPshHomᴰ (precomp𝟙ᴰPshIsoᴰ .fst) Eq.refl
+           ⋆PshHomᴰ NatTransᴰ→PshHomᴰ selfNatTransᴰ
+
+    module _
+      {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+      {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+      where
+      private
+        module P = PresheafNotation P
+        module Q = PresheafNotation Q
+        module Pᴰ = PresheafᴰNotation Pᴰ
+        module Qᴰ = PresheafᴰNotation Qᴰ
 
     module _
       {Γ : C.ob}
@@ -208,5 +235,153 @@ module _
 
       private
         module Pⱽ = PresheafⱽNotation Pⱽ
+
       ∀ⱽPsh : Presheafⱽ Γ Cᴰ ℓPᴰ
       ∀ⱽPsh = ∀FⱽPsh Pⱽ
+
+      module _
+        {Q : Presheaf C ℓQ}
+        (α : PshHom Q (C [-, Γ ]))
+        where
+
+        mkProdPshHom : PshHom (Q ×Psh (C [-, a ])) (C [-, Γ bp.×a ])
+        mkProdPshHom = ×PshIntro (π₁ _ _ ⋆PshHom α) (π₂ _ _) ⋆PshHom invPshIso (yoRecIso (bp Γ)) .trans
+
+      module _
+        {Q : Presheaf C ℓQ}
+        {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+        {α : PshHom Q (C [-, Γ ])}
+        (αᴰ : PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
+                     Qᴰ (reindPshᴰFunctor weakenπFᴰ Pⱽ))
+        where
+
+        private
+          module Q = PresheafNotation Q
+          module Qᴰ = PresheafᴰNotation Qᴰ
+          module αᴰ = PshHomᴰ αᴰ
+
+        ∀ⱽPsh-introᴰ⁻' :
+          PshHomᴰ (mkProdPshHom α) (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ
+        ∀ⱽPsh-introᴰ⁻' .N-obᴰ qᴰ =
+          Pⱽ.reind
+            (sym $ bp.,p≡
+              (((sym $ C.⋆IdL _)
+                ∙ C.⟨ sym bp.×β₁ ⟩⋆⟨ refl ⟩
+                ∙ C.⋆Assoc _ _ _
+                ∙ C.⟨ refl ⟩⋆⟨ sym bp.×β₁ ⟩)
+                ∙ (sym $ C.⋆Assoc _ _ _))
+              (sym bp.×β₂
+              ∙ C.⟨ refl ⟩⋆⟨ sym bp.×β₂ ⟩
+              ∙ (sym $ C.⋆Assoc _ _ _))) $
+            (introπF* (Cᴰ.reind (sym bp.×β₁) $ Cᴰ.idᴰ) Pⱽ.⋆ᴰ αᴰ.N-obᴰ qᴰ)
+        ∀ⱽPsh-introᴰ⁻' .N-homᴰ =
+          Pⱽ.rectify $ Pⱽ.≡out $
+            (sym $ Pⱽ.reind-filler _ _)
+            ∙ Pⱽ.⟨⟩⋆⟨ αᴰ.N-obᴰ⟨(sym $ Qᴰ.reind-filler _ _)⟩ ⟩
+            ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.≡in αᴰ.N-homᴰ ⟩
+            ∙ (sym $ Pⱽ.⋆Assoc _ _ _)
+            ∙ Pⱽ.⟨
+              introᴰ-natural (π₁* _)
+              ∙ (introᴰ≡ (π₁* _) $
+                   change-base (C._⋆ bp.π₁) C.isSetHom
+                     (bp.,p-extensionality
+                       (C.⋆Assoc _ _ _
+                       ∙ C.⟨ refl ⟩⋆⟨ bp.×β₁ ⟩
+                       ∙ (sym $ C.⋆Assoc _ _ _)
+                       ∙ C.⟨ bp.×β₁ ⟩⋆⟨ refl ⟩
+                       ∙ C.⋆IdL _
+                       ∙ (sym $ C.⋆IdR _)
+                       ∙ C.⟨ refl ⟩⋆⟨ sym $ bp.×β₁ ⟩
+                       ∙ (sym $ C.⋆Assoc _ _ _))
+                       (C.⋆Assoc _ _ _
+                       ∙ C.⟨ refl ⟩⋆⟨ bp.×β₂ ⟩
+                       ∙ bp.×β₂
+                       ∙ C.⟨ refl ⟩⋆⟨ sym $ bp.×β₂ ⟩
+                       ∙ (sym $ C.⋆Assoc _ _ _))
+                     ∙ (sym $ C.⋆IdR _)) $
+                     (sym $ Cᴰ.reind-filler _ _)
+                     ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _ _)
+                                      ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩
+                     ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+                     ∙ Cᴰ.⟨ βᴰ-πF* _ ⟩⋆⟨ refl ⟩
+                     ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+                     ∙ Cᴰ.⋆IdL _
+                     ∙ (sym $ Cᴰ.⋆IdR _)
+                     ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+                     ∙ Cᴰ.reind-filler _ _
+                     ∙ (sym $ βᴰ-πF* _)
+                     ∙ Cᴰ.reind-filler _ _)
+              ⟩⋆⟨⟩
+            ∙ Pⱽ.⟨ sym $ introᴰ-natural (π₁* _) ⟩⋆⟨⟩
+            ∙ Pⱽ.⋆Assoc _ _ _
+            ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.reind-filler _ _ ⟩
+
+      module _
+        {Q : Presheaf C ℓQ}
+        {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+        {α : PshHom Q (C [-, Γ ])}
+        (αᴰ : PshHomᴰ α Qᴰ ∀ⱽPsh)
+        where
+
+        private
+          module Q = PresheafNotation Q
+          module Qᴰ = PresheafᴰNotation Qᴰ
+
+        ∀ⱽPsh-introᴰ⁻ :
+          PshHomᴰ (mkProdPshHom α)
+            (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ
+        ∀ⱽPsh-introᴰ⁻ = ∀ⱽPsh-introᴰ⁻' (αᴰ ⋆PshHomᴰ reind-π)
+
+      module _
+        {Q : Presheaf C ℓQ}
+        {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+        {α : PshHom Q (C [-, Γ ])}
+        (αᴰ : PshHomᴰ
+             (×PshIntro (π₁ _ _ ⋆PshHom α) (π₂ _ _ )
+               ⋆PshHom invPshIso (yoRecIso (bp Γ)) .trans)
+               (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
+        where
+        private
+          module Q = PresheafNotation Q
+          module Qᴰ = PresheafᴰNotation Qᴰ
+          module αᴰ = PshHomᴰ αᴰ
+
+        ∀ⱽPsh-introᴰ' :
+          PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
+            Qᴰ
+            (reindPshᴰFunctor weakenπFᴰ Pⱽ)
+        ∀ⱽPsh-introᴰ' .N-obᴰ {x = c} {xᴰ = cᴰ} {p = q} qᴰ =
+          Pⱽ.reind
+            (bp.×ue.intro≡
+              (ΣPathP (
+                (α .N-hom _ _ _ q
+                ∙ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩)
+                ∙ sym bp.×β₁ ,
+                (sym bp.×β₂))))
+            $
+            αᴰ .N-obᴰ {p = _ , bp.π₂} $
+              elementⱽ (π₁* _) Qᴰ.⋆ᴰ qᴰ
+        ∀ⱽPsh-introᴰ' .N-homᴰ =
+          Pⱽ.rectify $ Pⱽ.≡out $
+            (sym $ Pⱽ.reind-filler _ _)
+            ∙ αᴰ.N-obᴰ⟨
+                change-base _ Q.isSetPsh
+                  -- TODO this ΣPathP can probably be simplified
+                  (ΣPathP (
+                    (Q.⟨ C.⋆IdL _ ⟩⋆⟨⟩
+                     ∙ (sym $ Q.⋆Assoc _ _ _)
+                     ∙ Q.⟨ sym bp.×β₁
+                           ∙ C.⟨ refl ⟩⋆⟨ sym $ C.⋆IdL _ ⟩ ⟩⋆⟨⟩
+                     ∙ (Q.⋆Assoc _ _ _)) ,
+                    sym bp.×β₂))
+                  (Qᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+                  ∙ (sym $ Qᴰ.⋆Assoc _ _ _)
+                  ∙ Qᴰ.⟨ Cᴰ.reind-filler _ _ ∙ (sym $ βᴰ-πF* _) ⟩⋆⟨⟩
+                  ∙ Qᴰ.⋆Assoc _ _ _
+                  ∙ Qᴰ.reind-filler _ _)
+               ⟩
+            ∙ Pⱽ.≡in (αᴰ .N-homᴰ)
+            ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.reind-filler _ _ ⟩
+
+        ∀ⱽPsh-introᴰ : PshHomᴰ α Qᴰ ∀ⱽPsh
+        ∀ⱽPsh-introᴰ = reind-introᴰ ∀ⱽPsh-introᴰ'

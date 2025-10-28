@@ -17,6 +17,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory.Base as ∫
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -25,8 +26,8 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Instances.Sets
-import Cubical.Categories.NaturalTransformation as NT
-open import Cubical.Categories.NaturalTransformation.More as NT
+open import Cubical.Categories.NaturalTransformation renaming (_∘ˡ_ to _∘ˡNT_)
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.FunctorComprehension
 
 open import Cubical.Categories.Displayed.Base
@@ -44,6 +45,7 @@ open import Cubical.Categories.Displayed.Constructions.Reindex.Limits
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.Base
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.UniversalProperty
 open import Cubical.Categories.Displayed.FunctorComprehension
 import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshᴰCL
 
@@ -89,61 +91,61 @@ module _
           (preservesUniversalElement→UniversalElement
             (preservesBinProdCones F Γ c) (-×c Γ) (F-× Γ))
 
-    mapProdStr : ∀ {Γ} → D [ F ⟅ Γ -×c.×a ⟆ , F ⟅ Γ ⟆ -×Fc.×a ]
-    mapProdStr = F ⟪ -×c.π₁ ⟫ -×Fc.,p F ⟪ -×c.π₂ ⟫
+  mapProdStr : ∀ {Γ} → D [ F ⟅ Γ -×c.×a ⟆ , F ⟅ Γ ⟆ -×Fc.×a ]
+  mapProdStr = F ⟪ -×c.π₁ ⟫ -×Fc.,p F ⟪ -×c.π₂ ⟫
 
-    mapProdStrPshHet : ∀ {Γ} →
-      PshHet F (C [-, Γ -×c.×a ]) (D [-, F ⟅ Γ ⟆ -×Fc.×a ])
-    mapProdStrPshHet = yoRec _ mapProdStr
+  mapProdStrPshHet : ∀ {Γ} →
+    PshHet F (C [-, Γ -×c.×a ]) (D [-, F ⟅ Γ ⟆ -×Fc.×a ])
+  mapProdStrPshHet = yoRec _ mapProdStr
 
-    prodStrNatTrans : NT.NatTrans (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
-    prodStrNatTrans .NT.NatTrans.N-ob _ = mapProdStr
-    prodStrNatTrans .NT.NatTrans.N-hom f =
-      -×Fc.,p-extensionality
-        (D.⋆Assoc _ _ _
-        ∙ cong₂ D._⋆_ refl -×Fc.×β₁
-        ∙ (sym $ F .F-seq _ _ )
-        ∙ cong (F .F-hom) -×c.×β₁
-        ∙ F .F-seq _ _
-        ∙ cong₂ D._⋆_ (sym -×Fc.×β₁) refl
-        ∙ D.⋆Assoc _ _ _
-        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₁)
-        ∙ (sym $ D.⋆Assoc _ _ _))
-        (D.⋆Assoc _ _ _
-        ∙ cong₂ D._⋆_ refl -×Fc.×β₂
-        ∙ (sym $ F .F-seq _ _ )
-        ∙ cong (F .F-hom) -×c.×β₂
-        ∙ (sym -×Fc.×β₂)
-        ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₂)
-        ∙ (sym $ D.⋆Assoc _ _ _))
+  prodStrNatTrans : NatTrans (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
+  prodStrNatTrans .NatTrans.N-ob _ = mapProdStr
+  prodStrNatTrans .NatTrans.N-hom f =
+    -×Fc.,p-extensionality
+      (D.⋆Assoc _ _ _
+      ∙ cong₂ D._⋆_ refl -×Fc.×β₁
+      ∙ (sym $ F .F-seq _ _ )
+      ∙ cong (F .F-hom) -×c.×β₁
+      ∙ F .F-seq _ _
+      ∙ cong₂ D._⋆_ (sym -×Fc.×β₁) refl
+      ∙ D.⋆Assoc _ _ _
+      ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₁)
+      ∙ (sym $ D.⋆Assoc _ _ _))
+      (D.⋆Assoc _ _ _
+      ∙ cong₂ D._⋆_ refl -×Fc.×β₂
+      ∙ (sym $ F .F-seq _ _ )
+      ∙ cong (F .F-hom) -×c.×β₂
+      ∙ (sym -×Fc.×β₂)
+      ∙ cong₂ D._⋆_ refl (sym -×Fc.×β₂)
+      ∙ (sym $ D.⋆Assoc _ _ _))
 
-    -- We can build this NatTrans/Iso concretely for products, but
-    -- this should be constructible for a general functor comprehension
-    -- I believe its more complex for the abstract case because you
-    -- need to reason about a profunctor heteromorphism mediated by F
-    --
-    -- That is,
-    -- -×c.×aF is replaced with comprehension of S : Profunctor C C ℓS
-    -- -×Fc.×aF is replaced with comprehension of R : Profunctor D D ℓR
-    -- and we have a ProfHet F F S R
-    -- i.e. a natural transformation S ⇒ precomposeF (F ^op) ∘F R ∘F F
-    prodStrNatIso : NT.NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
-    prodStrNatIso .NT.NatIso.trans = prodStrNatTrans
-    prodStrNatIso .NT.NatIso.nIso c =
-      isiso
-        (the-is-iso .fst -×Fc.×ue.element)
-        (-×Fc.×ue.intro-natural
-        ∙ -×Fc.×ue.intro≡
-          (the-is-iso .snd .fst -×Fc.×ue.element
-          ∙ sym (PresheafNotation.⋆IdL (BinProductProf D ⟅ _ ⟆) -×Fc.×ue.element)))
-        (F⟨-×c⟩.×ue.intro-natural
-        ∙ F⟨-×c⟩.×ue.intro≡
-            (-×Fc.×ue.universal ((F ∘F -×c.×aF) .F-ob c) .equiv-proof
-              (F-hom F (-×c.×ue.element .fst) , F-hom F (-×c.×ue.element .snd))
-              .fst .snd
-            ∙ sym (PresheafNotation.⋆IdL (BinProductProf D ⟅ _ ⟆) _)))
-      where
-      the-is-iso = isEquivToIsIso _ (F-× c ((-×Fc.×aF ∘F F) .F-ob c))
+  -- We can build this NatTrans/Iso concretely for products, but
+  -- this should be constructible for a general functor comprehension
+  -- I believe its more complex for the abstract case because you
+  -- need to reason about a profunctor heteromorphism mediated by F
+  --
+  -- That is,
+  -- -×c.×aF is replaced with comprehension of S : Profunctor C C ℓS
+  -- -×Fc.×aF is replaced with comprehension of R : Profunctor D D ℓR
+  -- and we have a ProfHet F F S R
+  -- i.e. a natural transformation S ⇒ precomposeF (F ^op) ∘F R ∘F F
+  prodStrNatIso : NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
+  prodStrNatIso .NatIso.trans = prodStrNatTrans
+  prodStrNatIso .NatIso.nIso c =
+    isiso
+      (the-is-iso .fst -×Fc.×ue.element)
+      (-×Fc.×ue.intro-natural
+      ∙ -×Fc.×ue.intro≡
+        (the-is-iso .snd .fst -×Fc.×ue.element
+        ∙ sym (PresheafNotation.⋆IdL (BinProductProf D ⟅ _ ⟆) -×Fc.×ue.element)))
+      (F⟨-×c⟩.×ue.intro-natural
+      ∙ F⟨-×c⟩.×ue.intro≡
+          (-×Fc.×ue.universal ((F ∘F -×c.×aF) .F-ob c) .equiv-proof
+            (F-hom F (-×c.×ue.element .fst) , F-hom F (-×c.×ue.element .snd))
+            .fst .snd
+          ∙ sym (PresheafNotation.⋆IdL (BinProductProf D ⟅ _ ⟆) _)))
+    where
+    the-is-iso = isEquivToIsIso _ (F-× c ((-×Fc.×aF ∘F F) .F-ob c))
 
   module _
     (π₁*C : ∀ {Γ} →
@@ -158,82 +160,130 @@ module _
       module ∀ⱽDᴰ = UniversalQuantifierPsh -×Fc π₁*D
       ∀ⱽPshDᴰ = ∀ⱽDᴰ.∀ⱽPsh
 
-    module _ {Γ : C.ob}
-      (Qⱽ : Presheafⱽ (F ⟅ Γ ⟆ -×Fc.×a) Dᴰ ℓQᴰ)
-      (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-      where
-      private
-        module Qⱽ = PresheafⱽNotation Qⱽ
-        module ∀ⱽPshDᴰ =
-          PresheafⱽNotation (∀ⱽPshDᴰ Qⱽ)
-        module ∀ⱽPshCᴰ =
-          PresheafⱽNotation (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
+    module Fᴰ-weakening (Fᴰ : Functorᴰ F Cᴰ Dᴰ) where
 
-      -- Fᴰ-weakening-NatTransᴰ :
-      --   NatTransᴰ
-      --     (F-×.FNatIso .NT.NatIso.trans)
-      --     (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
-      --     (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
-      -- Fᴰ-weakening-NatTransᴰ =
-      --   {!? ⋆NatTransᴰ ?!}
+      Fᴰ-weakening-NatTransᴰ :
+        NatTransᴰ prodStrNatTrans
+          (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
+          (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
+      Fᴰ-weakening-NatTransᴰ .NatTransᴰ.N-obᴰ xᴰ =
+        ∀ⱽDᴰ.introπF* $
+          Dᴰ.reind (cong (F .F-hom) (C.⋆IdL _) ∙ (sym -×Fc.×β₁)) $
+            Fᴰ .F-homᴰ (elementⱽ (π₁*C xᴰ))
+      Fᴰ-weakening-NatTransᴰ .NatTransᴰ.N-homᴰ fᴰ =
+        Dᴰ.rectify $ Dᴰ.≡out $
+          introᴰ-natural (π₁*D _)
+          ∙ introᴰ≡ (π₁*D _)
+              (change-base (D._⋆ -×Fc.π₁) D.isSetHom
+                (-×Fc.,p-extensionality
+                  (D.⋆Assoc _ _ _
+                  ∙ D.⟨ refl ⟩⋆⟨ -×Fc.×β₁ ⟩
+                  ∙ (sym $ F .F-seq _ _)
+                  ∙ cong (F .F-hom) (-×c.×β₁)
+                  ∙ F .F-seq _ _
+                  ∙ D.⟨ sym -×Fc.×β₁ ⟩⋆⟨ refl ⟩
+                  ∙ D.⋆Assoc _ _ _
+                  ∙ D.⟨ refl ⟩⋆⟨ sym -×Fc.×β₁ ⟩
+                  ∙ (sym $ D.⋆Assoc _ _ _))
+                  (D.⋆Assoc _ _ _
+                  ∙ D.⟨ refl ⟩⋆⟨ -×Fc.×β₂ ⟩
+                  ∙ (sym $ F .F-seq _ _)
+                  ∙ cong (F .F-hom) (-×c.×β₂)
+                  ∙ sym -×Fc.×β₂
+                  ∙ D.⟨ refl ⟩⋆⟨ sym -×Fc.×β₂ ⟩
+                  ∙ (sym $ D.⋆Assoc _ _ _))
+                ∙ (sym $ D.⋆IdR _))
+                ((sym $ Dᴰ.reind-filler _ _)
+                ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+                ∙ (sym $ ∫.∫F Fᴰ .F-seq _ _)
+                ∙ cong (∫.∫F Fᴰ .F-hom)
+                    (∀ⱽCᴰ.βᴰ-πF* _
+                    ∙ (sym $ Cᴰ.reind-filler _ _)
+                    ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ )
+                ∙ ∫.∫F Fᴰ .F-seq _ _
+                ∙ Dᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+                ∙ Dᴰ.⟨ sym (∀ⱽDᴰ.βᴰ-πF* _) ⟩⋆⟨ refl ⟩
+                ∙ Dᴰ.⋆Assoc _ _ _
+                ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ∙ Dᴰ.reind-filler _ _ ⟩
+                ∙ Dᴰ.reind-filler _ _
+                ∙ sym (∀ⱽDᴰ.βᴰ-πF* _)
+                ∙ Dᴰ.⟨ sym (introᴰ-natural (π₁*D _)) ⟩⋆⟨ refl ⟩
+                ∙ Dᴰ.reind-filler _ _))
 
-      -- TODO having some issues proving the naturality of
-      -- the ostensibly definable NatTransᴰ from left to right
-      -- so this is a parameter right now
-      --
-      -- TODO provided the NatTransᴰ portion is properly defined
-      -- we still need to prove that it is a NatIsoᴰ for Fᴰ = π D F
+      Fᴰ-weakening-isNatIsoᴰ-Ty : Type _
+      Fᴰ-weakening-isNatIsoᴰ-Ty =
+        ∀ {x} (xᴰ : Cᴰ.ob[ x ]) →
+          isIsoᴰ Dᴰ (prodStrNatIso .NatIso.nIso x) (Fᴰ-weakening-NatTransᴰ .NatTransᴰ.N-obᴰ xᴰ)
+
       module _
-        (Fᴰ-NatIsoᴰ :
-          NatIsoᴰ prodStrNatIso
-            (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
-            (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ))
+        (Fᴰ-weakening-isNatIsoᴰ : Fᴰ-weakening-isNatIsoᴰ-Ty)
         where
 
-        reindHet∀PshIsoⱽ :
-          PshIsoⱽ
-            (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshDᴰ Qⱽ))
-            (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
-        reindHet∀PshIsoⱽ =
-          reindPshIsoⱽ reindFuncCompIsoⱽ
-          ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-          ⋆PshIsoⱽ reindPshIsoⱽ (reind-introIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
-          ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
-          ⋆PshIsoⱽ
-            reindPathIsoⱽ
-              (makePshHomPath (funExt₂ λ x p →
-                cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
-                ∙ (sym $ prodStrNatIso .NT.NatIso.trans .NT.NatTrans.N-hom p)))
-          ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
-          ⋆PshIsoⱽ reindPshIsoⱽ annotateType
+        private
+          Fᴰ-weakening-NatIsoᴰ :
+            NatIsoᴰ prodStrNatIso
+              (Fᴰ ∘Fᴰ ∀ⱽCᴰ.weakenπFᴰ)
+              (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
+          Fᴰ-weakening-NatIsoᴰ = record {
+              transᴰ = Fᴰ-weakening-NatTransᴰ
+            ; nIsoᴰ = Fᴰ-weakening-isNatIsoᴰ }
 
-          where
-
-          -- To avoid ugly goals with many reinds,
-          -- we construct the core of the PshIsoⱽ
-          -- as this NatIsoᴰ. We then turn it into a PshIsoᴰ,
-          -- turn that PshIsoᴰ into a PshIsoⱽ, and patch up
-          -- the necessary reinds in between
-          the-nat-isoᴰ :
-            NatIsoᴰ _
-              ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
-              ((Qⱽ ∘Fᴰ (∀ⱽDᴰ.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ))
-          the-nat-isoᴰ =
-            (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)
-            ⋆NatIsoᴰ (Qⱽ ∘ʳᴰⁱ
-                        (∘Fᴰ-^opFᴰ-NatIsoᴰ ∀ⱽCᴰ.weakenπFᴰ Fᴰ
-                        ⋆NatIsoᴰ opNatIsoᴰ (symNatIsoᴰ Fᴰ-NatIsoᴰ)
-                        ⋆NatIsoᴰ (symNatIsoᴰ $ ∘Fᴰ-^opFᴰ-NatIsoᴰ Fᴰ ∀ⱽDᴰ.weakenπFᴰ)))
-            ⋆NatIsoᴰ CATᴰ⋆Assoc _ _ _
-
-          -- This is needed because there is not enough inference if
-          -- eqToPshIsoⱽ is just used inline above
-          -- sameissue as reindFuncUnitEq in
-          -- Displayed.Presheaf.Constructions.Unit.Properties
-          annotateType :
+        module _ {Γ : C.ob} (Qⱽ : Presheafⱽ (F ⟅ Γ ⟆ -×Fc.×a) Dᴰ ℓQᴰ) where
+          private
+            module Qⱽ = PresheafⱽNotation Qⱽ
+            module ∀ⱽPshDᴰ =
+              PresheafⱽNotation (∀ⱽPshDᴰ Qⱽ)
+            module ∀ⱽPshCᴰ =
+              PresheafⱽNotation (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
+          -- This can likely be simplified using the UMP of the
+          -- quantifier
+          -- Furhter, any mention of makePshHomPath will
+          -- be replaced when we finish porting our manual PshHoms
+          -- to the locally small category of presheaves
+          reindHet∀PshIsoⱽ :
             PshIsoⱽ
-              (reind (mapProdStrPshHet ∘ˡ -×c.×aF)
-                ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ)))
-              (reindHet' mapProdStrPshHet Fᴰ Qⱽ
-                ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
-          annotateType = eqToPshIsoⱽ (Eq.refl , Eq.refl)
+              (reindHet' (Functor→PshHet F Γ) Fᴰ (∀ⱽPshDᴰ Qⱽ))
+              (∀ⱽPshCᴰ (reindHet' mapProdStrPshHet Fᴰ Qⱽ))
+          reindHet∀PshIsoⱽ =
+            reindPshIsoⱽ reindFuncCompIsoⱽ
+            ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
+            ⋆PshIsoⱽ reindPshIsoⱽ (reind-introIsoⱽ (NatIsoᴰ→PshIsoᴰ (symNatIsoᴰ the-nat-isoᴰ)))
+            ⋆PshIsoⱽ reind-seqIsoⱽ _ _ _
+            ⋆PshIsoⱽ
+              reindPathIsoⱽ
+                (makePshHomPath (funExt₂ λ x p →
+                  cong₂ D._⋆_ (D.⋆IdL _ ∙ D.⋆IdR _) refl
+                  ∙ (sym $ prodStrNatIso .NatIso.trans .NatTrans.N-hom p)))
+            ⋆PshIsoⱽ invPshIsoⱽ (reind-seqIsoⱽ _ _ _)
+            ⋆PshIsoⱽ reindPshIsoⱽ annotateType
+
+            where
+
+            -- To avoid ugly goals with many reinds,
+            -- we construct the core of the PshIsoⱽ
+            -- as this NatIsoᴰ. We then turn it into a PshIsoᴰ,
+            -- turn that PshIsoᴰ into a PshIsoⱽ, and patch up
+            -- the necessary reinds in between
+            the-nat-isoᴰ :
+              NatIsoᴰ _
+                ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
+                ((Qⱽ ∘Fᴰ (∀ⱽDᴰ.weakenπFᴰ ^opFᴰ)) ∘Fᴰ (Fᴰ ^opFᴰ))
+            the-nat-isoᴰ =
+              (symNatIsoᴰ $ CATᴰ⋆Assoc _ _ _)
+              ⋆NatIsoᴰ (Qⱽ ∘ʳᴰⁱ
+                          (∘Fᴰ-^opFᴰ-NatIsoᴰ ∀ⱽCᴰ.weakenπFᴰ Fᴰ
+                          ⋆NatIsoᴰ opNatIsoᴰ (symNatIsoᴰ Fᴰ-weakening-NatIsoᴰ)
+                          ⋆NatIsoᴰ (symNatIsoᴰ $ ∘Fᴰ-^opFᴰ-NatIsoᴰ Fᴰ ∀ⱽDᴰ.weakenπFᴰ)))
+              ⋆NatIsoᴰ CATᴰ⋆Assoc _ _ _
+
+            -- This is needed because there is not enough inference if
+            -- eqToPshIsoⱽ is just used inline above
+            -- sameissue as reindFuncUnitEq in
+            -- Displayed.Presheaf.Constructions.Unit.Properties
+            annotateType :
+              PshIsoⱽ
+                (reind (mapProdStrPshHet ∘ˡ -×c.×aF)
+                  ((Qⱽ ∘Fᴰ (Fᴰ ^opFᴰ)) ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ)))
+                (reindHet' mapProdStrPshHet Fᴰ Qⱽ
+                  ∘Fᴰ (∀ⱽCᴰ.weakenπFᴰ ^opFᴰ))
+            annotateType = eqToPshIsoⱽ (Eq.refl , Eq.refl)

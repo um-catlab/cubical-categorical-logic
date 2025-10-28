@@ -1,0 +1,3 @@
+module Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.UniversalProperty where
+
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.UniversalProperty.Quantifiers public

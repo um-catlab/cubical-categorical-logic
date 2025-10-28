@@ -173,6 +173,10 @@ SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySm
 ⟨_⟩small-ob : ∀ {ℓC ℓC'} → SmallCategory ℓC ℓC' → Type ℓC
 ⟨ C ⟩small-ob = C .fst .lowerω
 
+⟨_⟩smallcat : ∀ {ℓC ℓC'} → ((Cob , C) : SmallCategory ℓC ℓC')
+  → GloballySmallCategory (Liftω (Cob .lowerω)) ℓC'
+⟨ (Cob , C) ⟩smallcat = C
+
 module _ (C : Small.Category ℓC ℓC') where
   private
     module C = Small.Category C

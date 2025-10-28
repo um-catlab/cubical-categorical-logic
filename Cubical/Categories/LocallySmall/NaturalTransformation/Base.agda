@@ -259,10 +259,24 @@ module _
         N-hom : ∀ {x y}
           (f  : C.Hom[ liftω x , liftω y ])
           → (F.F-hom f Dᴰ.⋆ⱽᴰ N-ob y) ≡ (N-ob x Dᴰ.⋆ᴰⱽ G.F-hom f)
+
       N-hom' : ∀ {x y}
           (f  : C.Hom[ liftω x , liftω y ])
           → (F.F-hom f Dᴰ.⋆ᴰ N-ob y) Dᴰ.∫≡ (N-ob x Dᴰ.⋆ᴰ G.F-hom f)
       N-hom' f = Dᴰ.reind-filler _ _ ∙ Dᴰ.≡in (N-hom f) ∙ (sym $ Dᴰ.reind-filler _ _)
+
+    module _
+      (N-ob : ∀ x → Dᴰ.Hom[ g ][ F.F-ob (liftω x) , G.F-ob (liftω x) ])
+      where
+      N-hom'→N-hom : ∀ {x y}
+          (f  : C.Hom[ liftω x , liftω y ])
+          → (F.F-hom f Dᴰ.⋆ᴰ N-ob y) Dᴰ.∫≡ (N-ob x Dᴰ.⋆ᴰ G.F-hom f)
+          → (F.F-hom f Dᴰ.⋆ⱽᴰ N-ob y) ≡ (N-ob x Dᴰ.⋆ᴰⱽ G.F-hom f)
+      N-hom'→N-hom f p =
+        Dᴰ.rectify $ Dᴰ.≡out $
+          (sym $ Dᴰ.reind-filler _ _)
+          ∙ p
+          ∙ Dᴰ.reind-filler _ _
 
 module _
   {(Cob , C) : SmallCategory ℓC ℓC'}

@@ -27,7 +27,6 @@ open import Cubical.Categories.LocallySmall.Displayed
 open CatIso
 open CatIsoᴰ
 
--- TODO get this loading
 record Bifunctor (C : Category Cob CHom-ℓ)
                  (D : Category Dob DHom-ℓ)
                  (E : Category Eob EHom-ℓ)

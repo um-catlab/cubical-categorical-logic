@@ -33,10 +33,13 @@ module _
     module _ ((Cobᴰ , Cᴰ) : SmallCategoryᴰ (Cob , C) ℓCᴰ ℓCᴰ') where
       Presheafᴰ : (ℓPᴰ : Level) → Typeω
       Presheafᴰ ℓPᴰ =
+        -- TODO I would like for these displayed functors
+        -- to be over P, not this composition
         Functorᴰ (SET→weakenLevelSET _ _ ∘F P) (Cᴰ ^opᴰ)
           (SETᴰ.vᴰ[ (liftω ℓP) , (liftω ℓPᴰ) ]SF)
 
       PRESHEAFᴰ : Categoryᴰ (LEVEL ×C LEVEL) _ _
       PRESHEAFᴰ =
+        -- TODO I would like to have FIBER-FUNCTOR into SETᴰ
         ∫Cᴰ (FIBER-FUNCTOR (Cob , C ^op) weakenLevelSET)
             (FIBER-FUNCTORᴰ (Cobᴰ , Cᴰ ^opᴰ) weakenLevelSET SETᴰ'')

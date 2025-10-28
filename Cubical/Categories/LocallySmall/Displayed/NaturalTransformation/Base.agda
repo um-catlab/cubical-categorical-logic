@@ -116,8 +116,8 @@ module SmallFibNatTransᴰDefs
           {x : Cob .lowerω} →
           (xᴰ : Cobᴰ .lowerω x) →
           Eᴰ.Hom[ g , α .N-ob x ][
-            Fᴰ .F-obᴰ (liftω xᴰ) ,
-            Gᴰ .F-obᴰ (liftω xᴰ) ]
+            Fᴰ.F-obᴰ (liftω xᴰ) ,
+            Gᴰ.F-obᴰ (liftω xᴰ) ]
         N-homᴰ :
           ∀ {x y : Cob .lowerω}
             {xᴰ : Cobᴰ .lowerω x}
@@ -126,6 +126,31 @@ module SmallFibNatTransᴰDefs
             (fᴰ : Cᴰ.Hom[ f ][ liftω xᴰ , liftω yᴰ ]) →
             (Fᴰ.F-homᴰ fᴰ Eᴰ.⋆ᴰ N-obᴰ yᴰ)
               Eᴰ.∫≡ (N-obᴰ xᴰ Eᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
+
+    SFNatTransᴰIsoΣ :
+      Iso SmallFibNatTransᴰ
+        (Σ[ N-obᴰ ∈
+          (∀ {x : Cob .lowerω} (xᴰ : Cobᴰ .lowerω x) →
+             Eᴰ.Hom[ g , α .N-ob x ][ Fᴰ.F-obᴰ (liftω xᴰ) ,
+                                      Gᴰ.F-obᴰ (liftω xᴰ)  ])]
+          (∀ {x y : Cob .lowerω}
+            {xᴰ : Cobᴰ .lowerω x}
+            {yᴰ : Cobᴰ .lowerω y}
+            {f : C.Hom[ liftω x , liftω y ]}
+            (fᴰ : Cᴰ.Hom[ f ][ liftω xᴰ , liftω yᴰ ]) →
+            (Fᴰ.F-homᴰ fᴰ Eᴰ.⋆ᴰ N-obᴰ yᴰ)
+              Eᴰ.∫≡ (N-obᴰ xᴰ Eᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)))
+    unquoteDef SFNatTransᴰIsoΣ =
+      defineRecordIsoΣ SFNatTransᴰIsoΣ (quote SmallFibNatTransᴰ)
+
+    isSetSFNatTransᴰ : isSet SmallFibNatTransᴰ
+    isSetSFNatTransᴰ =
+      isSetIso SFNatTransᴰIsoΣ
+        (isSetΣSndProp
+          (isSetImplicitΠ λ _ → isSetΠ λ _ → Eᴰ.isSetHomᴰ)
+          (λ _ → isPropImplicitΠ4 λ _ _ _ _ →
+            isPropImplicitΠ λ _ → isPropΠ λ _ →
+              ∫C Eᴰ .isSetHom _ _))
 
   open SmallFibNatTransᴰ
 
@@ -163,57 +188,75 @@ module SmallFibNatTransᴰDefs
       ∙ Eᴰ.⟨⟩⋆⟨ βᴰ .N-homᴰ fᴰ ⟩
       ∙ (sym $ Eᴰ.⋆Assocᴰ _ _ _)
 
--- module _
---   {(Cob , C) : SmallCategory ℓC ℓC'}
---   {(Dob , D) : SmallCategory ℓD ℓD'}
---   {F G : Functor UNIT D} -- i.e., just an object
---   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
---   {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
---   (α : NatTrans F G) -- i.e., just a morphism
---   (Fᴰ : Functorᴰ F (weaken UNIT C) Dᴰ)
---   (Gᴰ : Functorᴰ G (weaken UNIT C) Dᴰ)
---   where
---   private
---     module α = NatTrans α
---     module F = FunctorNotation F
---     module Fᴰ = FunctorᴰNotation Fᴰ
---     module G = FunctorNotation G
---     module Gᴰ = FunctorᴰNotation Gᴰ
---     module C =  CategoryNotation C
---     module D =  CategoryNotation D
---     module Dᴰ = CategoryᴰNotation Dᴰ
+  module _
+    {d d' : Dob}
+    {g g' : D.Hom[ d , d' ]}
+    {F : Functor C Dᴰ.v[ d ]}
+    {G : Functor C Dᴰ.v[ d' ]}
+    {α : SmallFibNatTrans Dᴰ g F G}
+    {β : SmallFibNatTrans Dᴰ g' F G}
+    {Fᴰ : Functorᴰ F Cᴰ Eᴰ.vᴰ[ d ]SF}
+    {Gᴰ : Functorᴰ G Cᴰ Eᴰ.vᴰ[ d' ]SF}
+    (αᴰ : SmallFibNatTransᴰ α Fᴰ Gᴰ)
+    (βᴰ : SmallFibNatTransᴰ β Fᴰ Gᴰ)
+    where
+    private
+      module F = FunctorNotation F
+      module G = FunctorNotation G
+      module Fᴰ = FunctorᴰNotation Fᴰ
+      module Gᴰ = FunctorᴰNotation Gᴰ
+      module ∫Eᴰ = CategoryNotation (∫C Eᴰ)
 
---   record SmallFibNatTransᴰ : Type (ℓ-max (DHom-ℓᴰ (F.F-ob _) (G.F-ob _)) $ ℓ-max ℓD' $ ℓ-max ℓC' ℓC)
---     where
---     no-eta-equality
---     field
---       N-obᴰ : ∀ x →
---         Dᴰ.Hom[ α.N-ob _ ][ Fᴰ.F-obᴰ (liftω x) , Gᴰ.F-obᴰ (liftω x) ]
---       N-homᴰ : ∀ {x y}
---         (f  : C.Hom[ liftω x , liftω y ]) →
---         ({!!} Dᴰ.⋆ⱽᴰ {!!}) ≡ {!!}
+    makeSFNatTransᴰPathP :
+      (g≡g' : g ≡ g') →
+      (α≡β : PathP (λ i → SmallFibNatTrans Dᴰ (g≡g' i) F G) α β) →
+      PathP (λ i → ∀ {x : Cob .lowerω} → (xᴰ : Cobᴰ .lowerω x) →
+        Eᴰ.Hom[ g≡g' i , α≡β i .N-ob x ][ Fᴰ.F-obᴰ (liftω xᴰ) ,
+                                          Gᴰ.F-obᴰ (liftω xᴰ) ])
+        (αᴰ .N-obᴰ)
+        (βᴰ .N-obᴰ) →
+      PathP (λ i → SmallFibNatTransᴰ (α≡β i) Fᴰ Gᴰ) αᴰ βᴰ
+    makeSFNatTransᴰPathP g≡g' α≡β p i .N-obᴰ xᴰ = p i xᴰ
+    makeSFNatTransᴰPathP g≡g' α≡β p i .N-homᴰ {xᴰ = xᴰ} {yᴰ = yᴰ} fᴰ =
+      isSet→SquareP (λ i j → ∫Eᴰ.isSetHom)
+        (αᴰ .N-homᴰ fᴰ) (βᴰ .N-homᴰ fᴰ)
+        (λ j → (_ , Fᴰ.F-homᴰ fᴰ) ∫Eᴰ.⋆ (_ , p j yᴰ))
+        (λ j → (_ , p j xᴰ) ∫Eᴰ.⋆ (_ , Gᴰ.F-homᴰ fᴰ))
+        i
 
---       -- N-homᴰ : ∀ {x y}
---       --   (f  : C.Hom[ liftω x , liftω y ])
---       --   → (Fᴰ.F-homᴰ f Dᴰ.⋆ᴰ N-obᴰ y) Dᴰ.∫≡ (N-obᴰ x Dᴰ.⋆ᴰ Gᴰ.F-homᴰ f)
+  module _
+    {d d' : Dob}
+    {g g' : D.Hom[ d , d' ]}
+    {F : Functor C Dᴰ.v[ d ]}
+    {G : Functor C Dᴰ.v[ d' ]}
+    {α : SmallFibNatTrans Dᴰ g F G}
+    {β : SmallFibNatTrans Dᴰ g' F G}
+    {Fᴰ : Functorᴰ F Cᴰ Eᴰ.vᴰ[ d ]SF}
+    {Gᴰ : Functorᴰ G Cᴰ Eᴰ.vᴰ[ d' ]SF}
+    {αᴰ : SmallFibNatTransᴰ α Fᴰ Gᴰ}
+    {βᴰ : SmallFibNatTransᴰ β Fᴰ Gᴰ}
+    -- (g≡g' : g ≡ g')
+    -- (α≡β : PathP (λ i → SmallFibNatTrans Dᴰ (g≡g' i) F G) α β)
+    (α≡β : Path (Σ[ h ∈ D.Hom[ d , d' ] ] SmallFibNatTrans Dᴰ h F G)
+      (g , α) (g' , β))
+    (p : ∀ {x} (xᴰ : Cobᴰ .lowerω x) →
+      αᴰ .N-obᴰ xᴰ Eᴰ.∫≡ βᴰ .N-obᴰ xᴰ)
+    where
+    private
+      module F = FunctorNotation F
+      module G = FunctorNotation G
+      module Fᴰ = FunctorᴰNotation Fᴰ
+      module Gᴰ = FunctorᴰNotation Gᴰ
+      module ∫Eᴰ = CategoryNotation (∫C Eᴰ)
 
--- open SmallFibNatTransᴰ
-
--- module _
---   {(Cob , C) : SmallCategory ℓC ℓC'}
---   {(Dob , D) : SmallCategory ℓD ℓD'}
---   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
---   {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
---   where
---   private
---     module C =  CategoryNotation C
---     module D =  CategoryNotation D
---     module Dᴰ = CategoryᴰNotation Dᴰ
-
---   idSFTransᴰ :
---     {F : Functor UNIT D} →
---     (Fᴰ : Functorᴰ F (weaken UNIT C) Dᴰ) →
---     SmallFibNatTransᴰ (idTrans F) Fᴰ Fᴰ
---   idSFTransᴰ Fᴰ .N-obᴰ _ = Dᴰ.idᴰ
---   idSFTransᴰ Fᴰ .N-homᴰ fᴰ =
---     {!!}
+    makeSFNatTransᴰPath :
+      Path
+        (Σ[ (h , γ) ∈
+          (Σ[ h ∈ D.Hom[ d , d' ] ] SmallFibNatTrans Dᴰ h F G) ]
+            SmallFibNatTransᴰ γ Fᴰ Gᴰ)
+        (_ ,  αᴰ) (_ , βᴰ)
+    makeSFNatTransᴰPath =
+      ΣPathP (α≡β ,
+        (makeSFNatTransᴰPathP αᴰ βᴰ (cong fst α≡β) (cong snd α≡β)
+          (implicitFunExt λ {x} → funExt λ xᴰ →
+             Eᴰ.rectify $ Eᴰ.≡out $ p xᴰ)))

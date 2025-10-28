@@ -1,9 +1,6 @@
 module Cubical.Categories.LocallySmall.Displayed.Instances.Presheaf where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function
 
 open import Cubical.Categories.LocallySmall.Base
 open import Cubical.Categories.LocallySmall.Variables

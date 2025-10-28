@@ -1,14 +1,12 @@
 {-
-  The graph category of a profunctor viewed as a displayed category
-  over the product.
-
-  TODO: rename to "tabulator"
+  The Tabulator of a profunctor specializes to the displayed category of elements of a presheaf.
 -}
 
 module Cubical.Categories.Displayed.Constructions.Graph.Presheaf where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.Structure
 
@@ -41,7 +39,14 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
     open StructureOver
     Str : StructureOver C _ _
     Str .ob[_] = P.p[_]
+    -- this version lines up definitionally with fiber. See test-Elements below
     Str .Hom[_][_,_] f p q = (f P.⋆ q) ≡ p
     Str .idᴰ = P.⋆IdL _
     Str ._⋆ᴰ_ fy≡x gz≡y = P.⋆Assoc _ _ _ ∙ cong (_ P.⋆_) gz≡y ∙ fy≡x
     Str .isPropHomᴰ = P.isSetPsh _ _
+
+  private
+    module ∫Elements = Category (∫C Elements)
+    test-Elements : ∀ x p y q
+      → ∫Elements.Hom[ (x , p) , (y , q) ] ≡ fiber (P._⋆ q) p
+    test-Elements x p y q = refl

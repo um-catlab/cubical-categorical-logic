@@ -50,7 +50,7 @@ open UniversalElement
 
 -- Whiskering
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
-  -- TODO: this is a universe polymorphic functor. Evantuall
+  -- TODO: define this as a universe-polymorphic functor once we have that
   -- reindPsh : Functor C D → Functor (Presheaf D) (Presheaf C)
   reindPsh : (F : Functor C D) (Q : Presheaf D ℓQ) → Presheaf C ℓQ
   reindPsh F Q = Q ∘F (F ^opF)

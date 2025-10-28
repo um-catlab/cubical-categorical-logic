@@ -27,6 +27,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
@@ -38,12 +39,16 @@ open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Exponential.Base
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Exponential.UniversalProperty
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 
+
 open Bifunctorᴰ
+open Category
 open Functor
 open Functorᴰ
 open isIsoOver
@@ -73,15 +78,36 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       module P = PresheafNotation P
       module Pᴰ = PresheafᴰNotation Pᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
-    open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
-
-    ⇒PshSmall-app : PshHomⱽ (((Pᴰ , _×ⱽ_*Pᴰ) ⇒PshSmallⱽ Qᴰ) ×ⱽPsh Pᴰ) Qᴰ
-    ⇒PshSmall-app .N-obᴰ (α , pᴰ) =
-      Qᴰ.reind (P.⋆IdL _) $
-        introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) pᴰ) Qᴰ.⋆ᴰ α
-    ⇒PshSmall-app .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} {γᴰ} {α , pᴰ} = Qᴰ.rectify $ Qᴰ.≡out $
-      sym (Qᴰ.reind-filler _ _)
-      ∙ sym (Qᴰ.⋆Assoc _ _ _)
-      ∙ Qᴰ.⟨ app-naturality-lemma ⟩⋆⟨⟩
-      ∙ Qᴰ.⋆Assoc _ _ _
-      ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩
+      Pᴰ⇒Qᴰ = (Pᴰ , _×ⱽ_*Pᴰ) ⇒PshSmallⱽ Qᴰ
+      module Pᴰ⇒Qᴰ = PresheafᴰNotation Pᴰ⇒Qᴰ
+    -- Some isomorphism principles
+    module _ {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+      {F : Functor D C}{Fᴰ : Functorᴰ F Dᴰ Cᴰ}
+      (_×ⱽ_*Fᴰ*Pᴰ : LocallyRepresentableⱽ (reindPshᴰFunctor Fᴰ Pᴰ))
+      (presLRⱽ : preservesLocalReprⱽ Fᴰ (reindPshᴰFunctor Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*Fᴰ*Pᴰ)
+      where
+      private
+        module D = Category D
+        module Dᴰ = Fibers Dᴰ
+        module Fᴰ*Qᴰ = PresheafᴰNotation (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+        module Fᴰ*⟨Pᴰ⇒Qᴰ⟩ = PresheafᴰNotation (Pᴰ⇒Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
+        Fᴰ*Pᴰ⇒Fᴰ*Qᴰ = (reindPshᴰFunctor Fᴰ Pᴰ , _×ⱽ_*Fᴰ*Pᴰ) ⇒PshSmallⱽ reindPshᴰFunctor Fᴰ Qᴰ
+      reindPshᴰFunctor⇒PshSmall : PshIsoⱽ Fᴰ*Pᴰ⇒Fᴰ*Qᴰ (reindPshᴰFunctor Fᴰ Pᴰ⇒Qᴰ)
+      reindPshᴰFunctor⇒PshSmall .fst .N-obᴰ {Γ} {Γᴰ} {p} qᴰ⟨Γ,p⟩ =
+        UEⱽ-essUniq (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ) (preservesLocalReprⱽ→UEⱽ Fᴰ (reindPshᴰFunctor Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*Fᴰ*Pᴰ presLRⱽ Γᴰ p) .fst
+        Qᴰ.⋆ⱽᴰ qᴰ⟨Γ,p⟩
+      reindPshᴰFunctor⇒PshSmall .fst .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} {γᴰ} {qᴰ⟨Γ,p⟩} = Qᴰ.rectify $ Qᴰ.≡out $
+        (sym $ Qᴰ.⋆Assocⱽᴰᴰ _ _ _)
+        ∙ Qᴰ.⟨ (sym $ Cᴰ.reind-filler _ _) ∙ presLRⱽ-Isoⱽ-natural Fᴰ Pᴰ _×ⱽ_*Fᴰ*Pᴰ _×ⱽ_*Pᴰ presLRⱽ γᴰ p ∙ Cᴰ.reind-filler _ _  ⟩⋆⟨ refl ⟩
+        ∙ Qᴰ.⋆Assocᴰⱽᴰ _ _ _
+      reindPshᴰFunctor⇒PshSmall .snd {Γ} {Γᴰ} .inv p qᴰ⟨Γ,p⟩ =
+        invIsoⱽ _ (UEⱽ-essUniq (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ) (preservesLocalReprⱽ→UEⱽ Fᴰ (reindPshᴰFunctor Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*Fᴰ*Pᴰ presLRⱽ Γᴰ p)) .fst
+        Qᴰ.⋆ⱽᴰ qᴰ⟨Γ,p⟩
+      reindPshᴰFunctor⇒PshSmall .snd {Γ} {Γᴰ} .rightInv p qᴰ⟨Γ,p⟩ = Qᴰ.rectify $ Qᴰ.≡out $
+        sym (Qᴰ.⋆Assocⱽⱽᴰ _ _ _)
+        ∙ Qᴰ.⟨  Cᴰ.≡in $ CatIsoⱽ→CatIso Cᴰ (UEⱽ-essUniq (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ) (preservesLocalReprⱽ→UEⱽ Fᴰ (reindPshᴰFunctor Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*Fᴰ*Pᴰ presLRⱽ Γᴰ p)) .snd .isIso.ret ⟩⋆ⱽᴰ⟨ refl ⟩
+        ∙ Qᴰ.∫⋆ⱽIdL _
+      reindPshᴰFunctor⇒PshSmall .snd {Γ} {Γᴰ} .leftInv p qᴰ⟨Γ,p⟩ = Qᴰ.rectify $ Qᴰ.≡out $
+        sym (Qᴰ.⋆Assocⱽⱽᴰ _ _ _)
+        ∙ Qᴰ.⟨  Cᴰ.≡in $ CatIsoⱽ→CatIso Cᴰ (UEⱽ-essUniq (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ) (preservesLocalReprⱽ→UEⱽ Fᴰ (reindPshᴰFunctor Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*Fᴰ*Pᴰ presLRⱽ Γᴰ p)) .snd .isIso.sec ⟩⋆ⱽᴰ⟨ refl ⟩
+        ∙ Qᴰ.∫⋆ⱽIdL _

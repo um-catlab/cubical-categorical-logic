@@ -22,6 +22,7 @@ open import Cubical.Categories.NaturalTransformation using (NatTrans ; NatIso ; 
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
@@ -153,28 +154,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
    PshHomᴰ→NatTransᴰ .NatTransᴰ.N-obᴰ = λ xᴰ x₁ → αᴰ .N-obᴰ
    PshHomᴰ→NatTransᴰ .NatTransᴰ.N-homᴰ = λ fᴰ → funExt (λ p → funExt (λ pᴰ → αᴰ .N-homᴰ))
 
--- A displayed "heteromorphism" is a kind of morphism between
--- displayed presheaves on different categories.
-module _
-  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {P : Presheaf C ℓP}
-  {Q : Presheaf D ℓQ}
-  {F : Functor C D}
-  (α : PshHet F P Q)
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
-  (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ) where
-
-  private
-    module Cᴰ = Categoryᴰ Cᴰ
-    module P = PresheafNotation P
-    module Pᴰ = PresheafᴰNotation Pᴰ
-    module Qᴰ = PresheafᴰNotation Qᴰ
-
-  PshHetᴰ : Type _
-  PshHetᴰ = PshHomᴰ α Pᴰ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))
-
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
@@ -227,30 +206,6 @@ module _
       → αᴰ ≡ βᴰ
     makePshHomᴰPath = makePshHomᴰPathP _ _ refl
 
-module _
-  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
-  {x}
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-  xᴰ
-  where
-  Functorᴰ→PshHetᴰ : PshHetᴰ (Functor→PshHet F x) Fᴰ (Cᴰ [-][-, xᴰ ]) (Dᴰ [-][-, Fᴰ .F-obᴰ xᴰ ])
-  Functorᴰ→PshHetᴰ .N-obᴰ = Fᴰ .F-homᴰ
-  Functorᴰ→PshHetᴰ .N-homᴰ = Fᴰ .F-seqᴰ _ _
-
--- A "vertical" heteromorphism is between objects
-module _
-  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {x}
-  {F : Functor C D}
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-  (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ)
-  (Qⱽ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ) where
-
-  PshHetⱽ : Type _
-  PshHetⱽ = PshHetᴰ (Functor→PshHet F x) Fᴰ Pⱽ Qⱽ
 
 open PshHomᴰ
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

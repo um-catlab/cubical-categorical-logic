@@ -33,6 +33,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
@@ -302,7 +303,7 @@ module _
 
 module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ} (α : PshHom P Q)
   where
   private
     module Qᴰ = PresheafᴰNotation Qᴰ
@@ -477,7 +478,7 @@ module _
       -- TODO: turn this yoRec≡ ... into a lemma?
       ⋆PshIsoⱽ reindPathIsoⱽ (yoRec≡ _ ((sym $ D .⋆IdL _) ∙ cong₂ (seq' D) (sym $ F .F-id) refl))
       ⋆PshIsoⱽ (invPshIsoⱽ $ reind-seqIsoⱽ _ _ _)
-      ⋆PshIsoⱽ reindPshIsoⱽ (invPshIsoⱽ reindFuncReind)
+      ⋆PshIsoⱽ reindPshIsoⱽ (Functor→PshHet F x) (invPshIsoⱽ reindFuncReind)
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

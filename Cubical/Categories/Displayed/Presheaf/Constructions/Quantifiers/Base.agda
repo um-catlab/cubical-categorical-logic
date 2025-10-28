@@ -252,7 +252,7 @@ module _
         {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
         {α : PshHom Q (C [-, Γ ])}
         (αᴰ : PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
-                Qᴰ (reindFunc' weakenπFᴰ Pⱽ))
+                     Qᴰ (reindPshᴰFunctor weakenπFᴰ Pⱽ))
         where
 
         private
@@ -349,7 +349,7 @@ module _
         ∀ⱽPsh-introᴰ' :
           PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
             Qᴰ
-            (reindFunc' weakenπFᴰ Pⱽ)
+            (reindPshᴰFunctor weakenπFᴰ Pⱽ)
         ∀ⱽPsh-introᴰ' .N-obᴰ {x = c} {xᴰ = cᴰ} {p = q} qᴰ =
           Pⱽ.reind
             (bp.×ue.intro≡

@@ -269,20 +269,6 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
   makePshIsoPath {α} {β} N-ob≡ =
     isoFunInjective (PshIsoΣIso P Q) α β (makePshIsoΣPath N-ob≡)
 
-module _
-  {C : Category ℓc ℓc'}
-  {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
-
-  PshIso→⋆PshHomIso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
-  PshIso→⋆PshHomIso α .Iso.fun β = α .trans ⋆PshHom β
-  PshIso→⋆PshHomIso α .Iso.inv β = invPshIso α .trans ⋆PshHom β
-  PshIso→⋆PshHomIso α .Iso.rightInv β =
-    makePshHomPath
-      (funExt λ x → funExt λ p → cong (β .N-ob x) (α .nIso x .snd .snd p))
-  PshIso→⋆PshHomIso α .Iso.leftInv β =
-    makePshHomPath
-      (funExt λ x → funExt λ p → cong (β .N-ob x) (α .nIso x .snd .fst p))
-
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) where
   private
     module P = PresheafNotation P
@@ -447,84 +433,6 @@ module _
   (α ∘ˡⁱ F) .nIso x .fst = α .nIso _ .fst
   (α ∘ˡⁱ F) .nIso x .snd .fst = α .nIso _ .snd .fst
   (α ∘ˡⁱ F) .nIso x .snd .snd = α .nIso _ .snd .snd
-module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
-         (F : Functor C D)
-         (P : Presheaf C ℓp)
-         (Q : Presheaf D ℓq) where
-  -- We define the displayed morphism by reindexing the codomain
-  PshHet : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq)
-  PshHet = PshHom P (Q ∘F (F ^opF))
-
-module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
-         (F : Functor C D) (c : C .ob) where
-  Functor→PshHet : PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
-  Functor→PshHet .N-ob = λ x → F .F-hom
-  Functor→PshHet .N-hom = λ x y → F .F-seq
-
-module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
-         {F : Functor C D}
-         {P : Presheaf C ℓp}
-         {Q : Presheaf D ℓq}
-         (Fᴰ : PshHet F P Q)
-         where
-  private
-    module P = PresheafNotation P
-    module Q = PresheafNotation Q
-  ∫F : Functor (∫ᴾ P) (∫ᴾ Q)
-  ∫F .F-ob (c , p) = F ⟅ c ⟆ , Fᴰ .N-ob c p
-  ∫F .F-hom (f , tri) = (F ⟪ f ⟫) ,
-    (sym $ Fᴰ .N-hom _ _ _ _)
-    ∙ cong (Fᴰ .N-ob _) tri
-  ∫F .F-id = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-id)
-  ∫F .F-seq (f , _) (g , _) = Σ≡Prop (λ _ → Q.isSetPsh _ _) (F .F-seq f g)
-
-  becomesUniversal :
-    ∀ (v : C .ob) (e : P.p[ v ]) → Type _
-  becomesUniversal v e = isUniversal D Q (F ⟅ v ⟆) (Fᴰ .N-ob _ e)
-
-  becomesUniversal→UniversalElement :
-    ∀ {v e}
-    → becomesUniversal v e
-    → UniversalElement D Q
-  becomesUniversal→UniversalElement becomesUE .vertex = _
-  becomesUniversal→UniversalElement becomesUE .element = _
-  becomesUniversal→UniversalElement becomesUE .universal = becomesUE
-
-  preservesUniversalElement : UniversalElement C P → Type _
-  preservesUniversalElement ue =
-    becomesUniversal (ue .vertex) (ue .element)
-
-  preservesUniversalElements : Type _
-  preservesUniversalElements = ∀ ue → preservesUniversalElement ue
-
-  preservesUniversalElement→UniversalElement :
-    (ue : UniversalElement C P)
-    → preservesUniversalElement ue
-    → UniversalElement D Q
-  preservesUniversalElement→UniversalElement ue presUniversality =
-    becomesUniversal→UniversalElement presUniversality
-
-  -- If a presheaf preserves any universal element then it preserves
-  -- all of them since universal elements are unique up to unique
-  -- isomorphism. This is for free if the category is univalent
-  -- because in that case UniversalElement C P is a Prop.
-
-  -- This lemma, like other applications of Yoneda should be taken as
-  -- an indication that it is probably fine to build the library
-  -- around the seemingly weaker notion of preservesUniversalElement
-  -- and push uses of this lemma to users rather than to pervasively
-  -- use this in the library itself. YMMV
-  preservesUniversalElement→PreservesUniversalElements :
-    ∀ ue → preservesUniversalElement ue → preservesUniversalElements
-  preservesUniversalElement→PreservesUniversalElements ue preservesUE ue' =
-    isTerminalToIsUniversal D Q $
-      preserveAnyTerminal→PreservesTerminals
-        (∫ᴾ P)
-        (∫ᴾ Q)
-        ∫F
-        (universalElementToTerminalElement C P ue)
-        (isUniversalToIsTerminal D Q _ _ preservesUE)
-        (universalElementToTerminalElement C P ue')
 
 module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp)
   where

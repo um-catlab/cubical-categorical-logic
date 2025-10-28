@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.UniversalProperty.ComposeWeakening where
 
 open import Cubical.Foundations.Prelude
@@ -91,7 +92,7 @@ module _
        module _
          {α : PshHom Q (C [-, Γ ])}
          (αᴰ : PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
-                 Qᴰ (reindFunc' weakenπFᴰ Pⱽ))
+                 Qᴰ (reindPshᴰFunctor weakenπFᴰ Pⱽ))
          where
 
          private
@@ -171,7 +172,7 @@ module _
              (PshHomᴰ (mkProdPshHom Pⱽ α)
                (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
              (PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
-                Qᴰ (reindFunc' weakenπFᴰ Pⱽ))
+                Qᴰ (reindPshᴰFunctor weakenπFᴰ Pⱽ))
          ∀Psh-UMPᴰ' =
            iso
              (∀ⱽPsh-introᴰ' Pⱽ)

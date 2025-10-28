@@ -20,6 +20,7 @@ open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Bifunctor as R hiding (Fst; Snd)
 
 open import Cubical.Categories.Presheaf.More

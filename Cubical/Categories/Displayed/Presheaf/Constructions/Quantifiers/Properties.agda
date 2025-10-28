@@ -17,6 +17,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory.Base as ∫
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -160,8 +161,6 @@ module _
       ∀ⱽPshDᴰ = ∀ⱽDᴰ.∀ⱽPsh
 
     module Fᴰ-weakening (Fᴰ : Functorᴰ F Cᴰ Dᴰ) where
-      private
-        module Fᴰ = FunctorᴰNotation Fᴰ
 
       Fᴰ-weakening-NatTransᴰ :
         NatTransᴰ prodStrNatTrans
@@ -196,11 +195,12 @@ module _
                 ∙ (sym $ D.⋆IdR _))
                 ((sym $ Dᴰ.reind-filler _ _)
                 ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
-                ∙ (sym $ Fᴰ.∫F-seqᴰ _ _)
-                ∙ Fᴰ.⟨ ∀ⱽCᴰ.βᴰ-πF* _
-                       ∙ (sym $ Cᴰ.reind-filler _ _)
-                       ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ ⟩Fᴰ
-                ∙ Fᴰ.∫F-seqᴰ _ _
+                ∙ (sym $ ∫.∫F Fᴰ .F-seq _ _)
+                ∙ cong (∫.∫F Fᴰ .F-hom)
+                    (∀ⱽCᴰ.βᴰ-πF* _
+                    ∙ (sym $ Cᴰ.reind-filler _ _)
+                    ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩ )
+                ∙ ∫.∫F Fᴰ .F-seq _ _
                 ∙ Dᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
                 ∙ Dᴰ.⟨ sym (∀ⱽDᴰ.βᴰ-πF* _) ⟩⋆⟨ refl ⟩
                 ∙ Dᴰ.⋆Assoc _ _ _

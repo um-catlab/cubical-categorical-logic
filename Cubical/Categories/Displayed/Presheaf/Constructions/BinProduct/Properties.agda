@@ -267,12 +267,3 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : G
     ×ᴰ-introS : PshSection F (Pᴰ ×ᴰPsh Qᴰ)
     ×ᴰ-introS .N-ob (p , q) = (α .N-ob p , β .N-ob q)
     ×ᴰ-introS .N-hom _ _ = ΣPathP (α .N-hom _ _ , β .N-hom _ _)
-
-  module _
-    {(P , _×P) : Σ[ P ∈ Presheaf C ℓP ] LocallyRepresentable P}
-    ((Pᴰ , _×ᴰPᴰ) : Σ[ Pᴰ ∈ Presheafᴰ P Cᴰ ℓPᴰ ] LocallyRepresentableᴰ (P , _×P) Pᴰ)
-    (α : PshSection F Pᴰ)
-    where
-    strictlyPreservesLocalRep : Type _
-    strictlyPreservesLocalRep = ∀ c
-      → strictlyPreservesUE F (×ᴰ-introS (Section→PshSection F c) α) (c ×P) (F .F-obᴰ c ×ᴰPᴰ)

@@ -17,10 +17,12 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Functor
@@ -298,3 +300,7 @@ module _ {C : Category ℓC ℓC'}
       tyEq)
       Pᴰ._⋆ᴰ_
       Qᴰ._⋆ᴰ_
+
+PRESHEAFⱽ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  → ∀ (ℓPᴰ : Level) → Categoryᴰ C _ _
+PRESHEAFⱽ Cᴰ ℓPᴰ = reindex (PRESHEAFᴰ Cᴰ _ ℓPᴰ) YO

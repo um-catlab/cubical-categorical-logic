@@ -17,6 +17,7 @@ open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
@@ -125,3 +126,15 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   PshHomᴰProfᴰ .F-seqᴰ {P} {P'} {P''} {α} {α'} {Pᴰ} {Pᴰ'} {Pᴰ''} αᴰ αᴰ' = makeNatTransPathᴰ _ _ _ (implicitFunExt (funExt (λ Qᴰ → funExt (λ β → funExt λ βᴰ →
     makePshHomᴰPathP _ _ _ (funExt λ qᴰ → Pᴰ''.rectify $ Pᴰ''.≡out $ refl))))) where
       module Pᴰ'' = PresheafᴰNotation Pᴰ''
+
+-- Neologism?
+Prosection : {C : Category ℓC ℓC'}{D : Category ℓC ℓC'}
+  → (F : Functor C D)
+  → (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+  → ∀ ℓSᴰ → Type _
+Prosection F Dᴰ ℓSᴰ = Section F (PRESHEAFⱽ Dᴰ ℓSᴰ)
+
+GlobalProsection : {C : Category ℓC ℓC'}
+  → (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  → ∀ ℓSᴰ → Type _
+GlobalProsection = Prosection Id

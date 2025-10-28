@@ -26,6 +26,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Morphism
+open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
@@ -84,16 +85,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       reindYo : Presheafⱽ c Cᴰ ℓQᴰ
       reindYo = reind (yoRec Q q) Qᴰ
 
-module _
-  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
-  {Q : Presheaf D ℓQ}
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
-  (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
-  where
-  reindFunc' : Presheafᴰ (Q ∘F (F ^opF)) Cᴰ ℓQᴰ
-  reindFunc' = Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ)
 
 module _
   {C : Category ℓC ℓC'}
@@ -102,7 +93,7 @@ module _
   (F : Functor C D) (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
   where
   reindFunc : Presheafᴰ (Q ∘F (F ^opF)) (CatReindex Dᴰ F) ℓQᴰ
-  reindFunc = reindFunc' (Reindexπ _ _) Qᴰ
+  reindFunc = reindPshᴰFunctor (Reindexπ _ _) Qᴰ
 
 open Category
 module _
@@ -113,7 +104,7 @@ module _
   (α : PshHet F P Q)(Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
   where
   reindHet : Presheafᴰ P (CatReindex Dᴰ F) ℓQᴰ
-  reindHet = reind α $ reindFunc F Qᴰ
+  reindHet = reind α $ reindPshᴰFunctor (Reindexπ Dᴰ F) Qᴰ
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

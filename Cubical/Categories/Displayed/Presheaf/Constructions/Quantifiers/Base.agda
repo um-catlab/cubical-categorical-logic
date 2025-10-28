@@ -383,8 +383,5 @@ module _
             ∙ Pⱽ.≡in (αᴰ .N-homᴰ)
             ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.reind-filler _ _ ⟩
 
-        ∀ⱽPsh-introᴰ :
-          PshHomᴰ α
-              Qᴰ
-              ∀ⱽPsh
+        ∀ⱽPsh-introᴰ : PshHomᴰ α Qᴰ ∀ⱽPsh
         ∀ⱽPsh-introᴰ = reind-introᴰ ∀ⱽPsh-introᴰ'

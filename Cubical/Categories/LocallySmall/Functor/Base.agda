@@ -16,6 +16,9 @@ open import Cubical.Data.Prod using (_×ω_; _,_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
+import Cubical.Categories.Category as Small
+import Cubical.Categories.Functor as SmallF
+
 open import Cubical.Categories.LocallySmall.Base as LocallySmall
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Displayed.Base
@@ -78,3 +81,33 @@ module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ} where
     open Functor F public
     F-ISO = F-Iso F
     module F-ISO = Functor F-ISO
+
+module _
+  {C : Small.Category ℓC ℓC'}
+  {D : Small.Category ℓD ℓD'}
+  (F : SmallF.Functor C D)
+  where
+  private
+    C' = mkSmallCategory C
+    D' = mkSmallCategory D
+
+  mkSmallFunctor : Functor ⟨ C' ⟩smallcat ⟨ D' ⟩smallcat
+  mkSmallFunctor .F-ob =
+    λ z → liftω (F .SmallF.Functor.F-ob (z .Liftω.lowerω))
+  mkSmallFunctor .F-hom = F .SmallF.Functor.F-hom
+  mkSmallFunctor .F-id = F .SmallF.Functor.F-id
+  mkSmallFunctor .F-seq = F .SmallF.Functor.F-seq
+
+module _
+  {C : Category Cob CHom-ℓ}
+  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)
+  where
+   private
+     module Cᴰ = Categoryᴰ Cᴰ
+     module ∫Cᴰ = Category Cᴰ.∫C
+
+   σ∫C : (c : Cob) → Functor Cᴰ.v[ c ] Cᴰ.∫C
+   σ∫C c .F-ob = λ z → c , z
+   σ∫C c .F-hom = λ z → Category.id C , z
+   σ∫C c .F-id = refl
+   σ∫C c .F-seq f g = sym $ Cᴰ.reind-filler _ _

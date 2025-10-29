@@ -336,6 +336,77 @@ module _
         )
     redefine-idᴰ-⋆ᴰ .isSetHomᴰ = Cᴰ.isSetHomᴰ
 
+module _
+  {C : Category Cob CHom-ℓ}
+  {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
+  (Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓᴰ)
+  where
+  open Liftω
+  private
+    module C = CategoryNotation C
+    module Cᴰ = Categoryᴰ Cᴰ
+  module _ {ℓbaseᴰ}
+    {baseᴰ : Type ℓbaseᴰ}
+    {ℓdependᴰ :  Cob → baseᴰ → Level}
+    {dependᴰ : (c : Cob) → (cᴰ : Cobᴰ c) → (b : baseᴰ) → Type (ℓdependᴰ c b)}
+    where
+    private
+      Cᴰᴰob : (b : baseᴰ) → ⟨ Cᴰ.∫C ⟩ob → Typeω
+      Cᴰᴰob b (c , cᴰ) = Liftω (dependᴰ c (cᴰ .lowerω) b)
+
+    module SmallDisplayedFiberCategoryᴰ
+      {CHom-ℓᴰᴰ : (x y : Cob) → baseᴰ → baseᴰ → Level}
+      (Cᴰᴰ : Categoryᴰ Cᴰ.∫C
+        (λ (c , cᴰ) → Σω[ (liftω b) ∈ Liftω baseᴰ ] Cᴰᴰob b (c , cᴰ))
+        (λ (x , _) (y , _) (bxᴰ , _) (byᴰ , _) →
+           CHom-ℓᴰᴰ x y (bxᴰ .lowerω) (byᴰ .lowerω)))
+      where
+      private
+        module Cᴰᴰ = Categoryᴰ Cᴰᴰ
+
+      vᴰ[_][_] : (c : Cob) → (b : baseᴰ) →
+        SmallCategoryᴰ (_ , Cᴰ.v[ c ]) (ℓdependᴰ c b) (CHom-ℓᴰᴰ c c b b)
+      vᴰ[ c ][ b ] .fst = liftω (λ cᴰ → dependᴰ c cᴰ b)
+      vᴰ[ c ][ b ] .snd .Hom[_][_,_] fᴰ xᴰ yᴰ =
+        Cᴰᴰ.Hom[ C.id , fᴰ ][ (liftω b , xᴰ) ,
+                              (liftω b , yᴰ) ]
+      vᴰ[ c ][ b ] .snd .idᴰ = Cᴰᴰ.idᴰ
+      vᴰ[ c ][ b ] .snd ._⋆ᴰ_ fᴰ gᴰ =
+        Cᴰᴰ.reind (Cᴰ.reind-filler _ _) $ fᴰ Cᴰᴰ.⋆ᴰ gᴰ
+      vᴰ[ c ][ b ] .snd .⋆IdLᴰ fᴰ =
+          ΣPathP (
+            (Cᴰ.rectify $ Cᴰ.≡out $
+              (sym $ Cᴰ.reind-filler _ _)
+              ∙ Cᴰ.⋆IdLᴰ _) ,
+            (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+              (sym $ Cᴰᴰ.reind-filler _ _)
+              ∙ Cᴰᴰ.⋆IdLᴰ _))
+      vᴰ[ c ][ b ] .snd .⋆IdRᴰ fᴰ =
+          ΣPathP (
+            (Cᴰ.rectify $ Cᴰ.≡out $
+              (sym $ Cᴰ.reind-filler _ _)
+              ∙ Cᴰ.⋆IdRᴰ _) ,
+            (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+              (sym $ Cᴰᴰ.reind-filler _ _)
+              ∙ Cᴰᴰ.⋆IdRᴰ _))
+      vᴰ[ c ][ b ] .snd .⋆Assocᴰ fᴰ gᴰ hᴰ =
+          ΣPathP (
+            (Cᴰ.rectify $ Cᴰ.≡out $
+              (sym $ Cᴰ.reind-filler _ _)
+              ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+              ∙ Cᴰ.⋆Assocᴰ _ _ _
+              ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+              ∙ Cᴰ.reind-filler _ _
+              ),
+            (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+              (sym $ Cᴰᴰ.reind-filler _ _)
+              ∙ Cᴰᴰ.⟨ sym $ Cᴰᴰ.reind-filler _ _ ⟩⋆⟨⟩
+              ∙ Cᴰᴰ.⋆Assocᴰ _ _ _
+              ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler _ _ ⟩
+              ∙ Cᴰᴰ.reind-filler _ _
+              ))
+      vᴰ[ c ][ b ] .snd .isSetHomᴰ = Cᴰᴰ.isSetHomᴰ
+
 -- Variants of smallness for displayed categories.
 -- SmallObjectsCategoryᴰ
 --   : ∀ (C : Category Cob C-ℓ)

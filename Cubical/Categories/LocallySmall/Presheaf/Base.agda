@@ -13,9 +13,11 @@ open import Cubical.Categories.LocallySmall.Instances.Level
 open import Cubical.Categories.LocallySmall.Instances.Set
 open import Cubical.Categories.LocallySmall.Instances.Functor
 open import Cubical.Categories.LocallySmall.Functor
+open import Cubical.Categories.LocallySmall.Functor.Constant
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Base
 
 open import Cubical.Categories.LocallySmall.Displayed
+open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 
 open Category
@@ -34,9 +36,8 @@ module _ ((Cob , C) : SmallCategory ℓC ℓC') where
   PRESHEAF = FIBER-FUNCTOR (Cob , C ^op) SET
 
 module _ {C : SmallCategory ℓC ℓC'} where
-  mkPshOb : ∀ {ℓP} → Presheaf C ℓP → ⟨ ∫C (PRESHEAF C) ⟩ob
-  mkPshOb P .fst = liftω _
-  mkPshOb P .snd = P
+  ⟨_⟩Psh : ∀ {ℓP} → Presheaf C ℓP → ⟨ ∫C (PRESHEAF C) ⟩ob
+  ⟨_⟩Psh = mk∫Ob (PRESHEAF C)
 
 open Functor
 module _
@@ -64,8 +65,7 @@ module _
 
 open SmallFibNatTrans
 module _
-  (C : SmallCategory ℓC ℓC')
-  (c : ⟨ C ⟩small-ob)
+  {C : SmallCategory ℓC ℓC'}
   where
   private
     module C = CategoryNotation (C .snd)
@@ -73,7 +73,7 @@ module _
     module PSH = CategoryᴰNotation (PRESHEAF C)
     module ∫PSH = CategoryNotation (∫C (PRESHEAF C))
   よ : Functor ⟨ C ⟩smallcat (∫C (PRESHEAF C))
-  よ .F-ob (liftω c) = mkPshOb (C [-, c ])
+  よ .F-ob (liftω c) = ⟨ C [-, c ] ⟩Psh
   よ .F-hom f .fst = _
   よ .F-hom f .snd .N-ob c g = g C.⋆ f
   よ .F-hom {x = x}{y = y} f .snd .N-hom g =
@@ -86,6 +86,16 @@ module _
   よ .F-seq f g =
     makeSFNatTransPath refl
       (λ _ → ΣPathP (refl , funExt λ _ → sym $ C.⋆Assoc _ _ _ ))
+
+  HomLevelF : Functor ⟨ C ⟩smallcat LEVEL
+  HomLevelF = Constant (liftω ℓC')
+
+  open Section
+  よS : Section HomLevelF (PRESHEAF C)
+  よS .F-obᴰ c = よ .F-ob c .snd
+  よS .F-homᴰ f = よ .F-hom f .snd
+  よS .F-idᴰ i = _ , よ .F-id i .snd
+  よS .F-seqᴰ f g i = _ , よ .F-seq f g i .snd
 
 -- TODO port presheaf notation
 module PresheafNotation {ℓC}{ℓC'}

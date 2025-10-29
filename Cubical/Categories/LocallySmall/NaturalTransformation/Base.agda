@@ -268,6 +268,10 @@ module _
     module _
       (N-ob : ∀ x → Dᴰ.Hom[ g ][ F.F-ob (liftω x) , G.F-ob (liftω x) ])
       where
+      -- This is useful for establishing naturality when the goal has
+      -- transports on the endpoints
+      -- but the module structure for this definition is bonked so you
+      -- need to provide many arguments manually
       N-hom'→N-hom : ∀ {x y}
           (f  : C.Hom[ liftω x , liftω y ])
           → (F.F-hom f Dᴰ.⋆ᴰ N-ob y) Dᴰ.∫≡ (N-ob x Dᴰ.⋆ᴰ G.F-hom f)

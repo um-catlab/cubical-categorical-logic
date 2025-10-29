@@ -17,6 +17,8 @@ open Categoryᴰ
 
 open Σω
 
+-- TODO need to change SmallFibNatTransᴰ and FIBER-FUNCTORᴰ
+-- to reference SmallDisplayedFiberCategoryᴰ
 module _
   {(Cob , C) : SmallCategory ℓC ℓC'}
   {ℓCᴰ ℓCᴰ'}

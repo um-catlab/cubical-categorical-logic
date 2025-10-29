@@ -74,6 +74,34 @@ record Functorᴰ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   ∫F .F-id = F-idᴰ
   ∫F .F-seq (_ , fᴰ) (_ , gᴰ) = F-seqᴰ fᴰ gᴰ
 
+
+module _
+  {C : SmallCategory ℓC ℓC'} {D : SmallCategory ℓD ℓD'}
+  {F : Functor ⟨ C ⟩smallcat  ⟨ D ⟩smallcat}
+  {Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ'}
+  {ℓDᴰ ℓDᴰ'}
+  {Dᴰ : SmallCategoryᴰ D ℓDᴰ ℓDᴰ'}
+  (Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ  ⟨ Dᴰ ⟩smallcatᴰ)
+  where
+  private
+    module F = FunctorNotation F
+    module Fᴰ = Functorᴰ Fᴰ
+
+  ∫Fsmall' : Functor ⟨ ∫Csmall Cᴰ ⟩smallcat ⟨ ∫Csmall Dᴰ ⟩smallcat
+  ∫Fsmall' .F-ob (liftω (x , xᴰ)) =
+    liftω (F.F-ob (liftω x) .Liftω.lowerω ,
+           Fᴰ.F-obᴰ (liftω xᴰ) .Liftω.lowerω)
+  ∫Fsmall' .F-hom (f , fᴰ) = F.F-hom f , Fᴰ.F-homᴰ fᴰ
+  ∫Fsmall' .F-id = Fᴰ.F-idᴰ
+  ∫Fsmall' .F-seq = λ f g → Fᴰ.F-seqᴰ (f .snd) (g .snd)
+
+  open Categoryᴰ
+  ∫Fsmall : Functor (∫C ⟨ Cᴰ ⟩smallcatᴰ) (∫C ⟨ Dᴰ ⟩smallcatᴰ)
+  ∫Fsmall .F-ob  = λ z → F.F-ob (z .Σω.fst) , Fᴰ.F-obᴰ (z .Σω.snd)
+  ∫Fsmall .F-hom = λ z → F.F-hom (z .fst) , Fᴰ.F-homᴰ (z .snd)
+  ∫Fsmall .F-id = Fᴰ.F-idᴰ
+  ∫Fsmall .F-seq = λ f g → Fᴰ.F-seqᴰ (f .snd) (g .snd)
+
 open Functorᴰ
 module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   {F : Functor C D}
@@ -127,3 +155,33 @@ Gᴰ ∘Fᴰ Fᴰ = functorᴰ
   where
     module Gᴰ = Functorᴰ Gᴰ
     module Fᴰ = Functorᴰ Fᴰ
+
+module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
+  {F : Functor C D}
+  {Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ}
+  {Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (c : Cob)
+  where
+  private
+    module C = CategoryNotation C
+    module D = CategoryNotation D
+    module Cᴰ = CategoryᴰNotation Cᴰ
+    module Dᴰ = CategoryᴰNotation Dᴰ
+    module F = FunctorNotation F
+    module Fᴰ = FunctorᴰNotation Fᴰ
+
+  Fv : Functor Cᴰ.v[ c ] Dᴰ.v[ F.F-ob c ]
+  Fv .F-ob = Fᴰ.F-obᴰ
+  Fv .F-hom fᴰ = Dᴰ.reind F.F-id $ Fᴰ.F-homᴰ fᴰ
+  Fv .F-id =
+    Dᴰ.rectify $ Dᴰ.≡out $
+      (sym $ Dᴰ.reind-filler _ _)
+      ∙ Fᴰ.F-idᴰ
+  Fv .F-seq fᴰ gᴰ =
+    Dᴰ.rectify $ Dᴰ.≡out $
+      (sym $ Dᴰ.reind-filler _ _)
+      ∙ Fᴰ.F-homᴰ⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
+      ∙ Fᴰ.F-seqᴰ _ _
+      ∙ Dᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩
+      ∙ Dᴰ.reind-filler _ _

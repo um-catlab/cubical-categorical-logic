@@ -108,7 +108,6 @@ mapω f a = liftω (f (a .lowerω))
 mapω' : {A : Type ℓ}{β : A → Level} (f : (a : A) → Type (β a)) (a : Liftω A) → Typeω
 mapω' f a = Liftω (f (a .lowerω))
 
--- TODO: rename to just "Category"
 -- A LocallySmallCategory has a "proper class" of objects, but small hom sets
 
 -- We prefer this as the primitive over Large categories because we
@@ -176,6 +175,9 @@ SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySm
 ⟨_⟩smallcat : ∀ {ℓC ℓC'} → ((Cob , C) : SmallCategory ℓC ℓC')
   → GloballySmallCategory (Liftω (Cob .lowerω)) ℓC'
 ⟨ (Cob , C) ⟩smallcat = C
+
+_^opsmall : ∀ {ℓC ℓC'} → SmallCategory ℓC ℓC' → SmallCategory ℓC ℓC'
+(Cob , C) ^opsmall = Cob , (C ^op)
 
 module _ (C : Small.Category ℓC ℓC') where
   private

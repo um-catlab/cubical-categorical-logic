@@ -291,6 +291,11 @@ module _
   where
    private
      module Cᴰ = Categoryᴰ Cᴰ
+     module ∫Cᴰ = Category (∫C Cᴰ)
+
+   mk∫Ob : {c : Cob} (cᴰ : Cobᴰ c) → ⟨ ∫C Cᴰ ⟩ob
+   mk∫Ob cᴰ = _ , cᴰ
+
    _^opᴰ : Categoryᴰ (C ^op) Cobᴰ λ x y xᴰ yᴰ → CHom-ℓᴰ y x yᴰ xᴰ
    _^opᴰ .Hom[_][_,_] f xᴰ yᴰ = Cᴰ.Hom[ f ][ yᴰ , xᴰ ]
    _^opᴰ .idᴰ = Cᴰ.idᴰ
@@ -331,3 +336,38 @@ module _ ((Cob , C) : SmallCategory ℓC ℓC') ℓCᴰ ℓCᴰ' where
     Σω[ (liftω obᴰ) ∈ Liftω (Cob .Liftω.lowerω → Type ℓCᴰ) ]
       Categoryᴰ C (λ c → Liftω (obᴰ (c .Liftω.lowerω)))
         λ _ _ _ _ → ℓCᴰ'
+
+
+⟨_⟩small-obᴰ : {C : SmallCategory ℓC ℓC'} →
+  (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') →
+  C .fst .Liftω.lowerω → Type ℓCᴰ
+⟨ Cᴰ ⟩small-obᴰ = Cᴰ .fst .Liftω.lowerω
+
+⟨_⟩smallcatᴰ : {C : SmallCategory ℓC ℓC'} →
+  (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') →
+   Categoryᴰ ⟨ C ⟩smallcat (λ c → Liftω (⟨ Cᴰ ⟩small-obᴰ (c .Liftω.lowerω)))
+      λ _ _ _ _ → ℓCᴰ'
+⟨ Cᴰ ⟩smallcatᴰ = Cᴰ .snd
+
+module _
+  {C : SmallCategory ℓC ℓC'}
+  (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ')
+  where
+  private
+    module C = CategoryNotation ⟨ C ⟩smallcat
+    module Cᴰ = Categoryᴰ ⟨ Cᴰ ⟩smallcatᴰ
+
+  _^opsmallᴰ : SmallCategoryᴰ (C ^opsmall) ℓCᴰ ℓCᴰ'
+  _^opsmallᴰ .fst = liftω (λ z → Cᴰ .fst .Liftω.lowerω z)
+  _^opsmallᴰ .snd = ⟨ Cᴰ ⟩smallcatᴰ ^opᴰ
+
+  ∫Csmall : SmallCategory _ _
+  ∫Csmall .fst = liftω (Σ ⟨ C ⟩small-ob ⟨ Cᴰ ⟩small-obᴰ)
+  ∫Csmall .snd .Hom[_,_] (liftω (c , cᴰ)) (liftω (d , dᴰ))
+    = Cᴰ.∫Hom[ (liftω c , liftω cᴰ) , (liftω d , liftω dᴰ) ]
+  ∫Csmall .snd .id = id (C .snd) , idᴰ (Cᴰ .snd)
+  ∫Csmall .snd ._⋆_ f g = (f .fst C.⋆ g .fst) , (f .snd Cᴰ.⋆ᴰ g .snd)
+  ∫Csmall .snd .⋆IdL = λ f → ⋆IdLᴰ (Cᴰ .snd) (f .snd)
+  ∫Csmall .snd .⋆IdR = λ f → ⋆IdRᴰ (Cᴰ .snd) (f .snd)
+  ∫Csmall .snd .⋆Assoc = λ f g h → ⋆Assocᴰ (Cᴰ .snd) (f .snd) (g .snd) (h .snd)
+  ∫Csmall .snd .isSetHom = isSetΣ (isSetHom (C .snd)) (λ _ → isSetHomᴰ (Cᴰ .snd))

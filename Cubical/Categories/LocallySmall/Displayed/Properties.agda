@@ -354,6 +354,11 @@ module _
     (CHom-ℓᴰᴰᴰ : (x y : Cob) → Cobᴰᴰ → Cobᴰᴰ → Level)
     where
 
+    -- Is this just a total category weakened
+    -- over another total category?
+    -- It looks quite similar, but the double displayed objects
+    -- (Cobᴰᴰᴰ) is indeed dependent on c and cᴰ so it isn't so
+    -- simple
     SmallFibersᴰCategoryᴰ : Typeω
     SmallFibersᴰCategoryᴰ =
       Categoryᴰ Cᴰ.∫C

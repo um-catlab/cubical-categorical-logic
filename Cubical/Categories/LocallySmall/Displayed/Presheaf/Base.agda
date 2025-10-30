@@ -14,6 +14,7 @@ open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Displayed
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Set
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor
+open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 
@@ -27,45 +28,29 @@ module _
   where
   private
     module SET = CategoryᴰNotation SET
-
-    -- TODO this isn't the best interface
-    -- change upon clean up
-    module SETᴰ = SmallDisplayedFiberCategoryᴰ SET SETᴰ'''
+    module SETᴰ = SmallFibersᴰCategoryᴰNotation SETᴰ
 
   module _ {ℓP : Level}  (P : Presheaf C ℓP) where
     module _ (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') where
       private
         module Cᴰ = CategoryᴰNotation ⟨ Cᴰ ⟩smallcatᴰ
 
-      -- Presheafᴰ : (ℓPᴰ : Level) → Typeω
-      -- Presheafᴰ ℓPᴰ =
-      --   -- TODO I would like for these displayed functors
-      --   -- to be over P, not this composition
-      --   Functorᴰ (SET→weakenLevelSET _ _ ∘F P) (⟨ Cᴰ ⟩smallcatᴰ ^opᴰ)
-      --     (SETᴰ.vᴰ[ (liftω ℓP) , (liftω ℓPᴰ) ]SF)
-
-      Presheafᴰ' : (ℓPᴰ : Level) → Typeω
-      Presheafᴰ' ℓPᴰ =
-        -- I'm trying to use ⟨_⟩smallcatᴰ and _^opsmallᴰ
-        -- to be helpful, but it may be more trouble than its worth
-        -- because they don't necessarily commute
-        -- And so I don't know what ought to be the preferred ordering
-
+      Presheafᴰ : (ℓPᴰ : Level) → Typeω
+      Presheafᴰ ℓPᴰ =
         Functorᴰ P ⟨ Cᴰ ^opsmallᴰ ⟩smallcatᴰ
           ⟨ SETᴰ.vᴰ[ liftω ℓP ][ ℓPᴰ ] ⟩smallcatᴰ
-          -- Nice! no ugly compositions or reindexing
 
-      -- PRESHEAFᴰ : Categoryᴰ (LEVEL ×C LEVEL) _ _
-      -- PRESHEAFᴰ =
-      --   -- TODO I would like to have FIBER-FUNCTOR into SETᴰ
-      --   ∫Cᴰ (FIBER-FUNCTOR (C ^opsmall) weakenLevelSET)
-      --       (FIBER-FUNCTORᴰ (Cᴰ ^opsmallᴰ) weakenLevelSET SETᴰ'')
+      PRESHEAFᴰ : Categoryᴰ (∫C (weaken (∫C (PRESHEAF C)) LEVEL)) _ _
+      PRESHEAFᴰ = FIBER-FUNCTORᴰ (Cᴰ ^opsmallᴰ) SET SETᴰ
 
-      PRESHEAFᴰ' : Categoryᴰ {!!} _ _
-      PRESHEAFᴰ' =
-        ∫Cᴰ (FIBER-FUNCTOR (C ^opsmall) SET)
-            (FIBER-FUNCTORᴰ (Cᴰ ^opsmallᴰ) {!!} {!!})
-
+      -- The locally small displayed category of
+      -- globally small displayed presheaves
+      -- displayed over the locally small category
+      -- of globally small presheaves on a small
+      -- category
+      -- I love it when word salad is edible
+      ∫PRESHEAFᴰ : Categoryᴰ (∫C (PRESHEAF C)) _ _
+      ∫PRESHEAFᴰ = ∫Cᴰ _ PRESHEAFᴰ
 
       -- module _ {ℓPᴰ} (Pᴰ : Presheafᴰ ℓPᴰ) where
       --   private
@@ -73,14 +58,15 @@ module _
       --     module Pᴰ = FunctorᴰNotation Pᴰ
 
       --   ∫P : Presheaf (∫Csmall Cᴰ) (ℓ-max ℓP ℓPᴰ)
-      --   ∫P = ΣF ∘F (Pᴰ.∫F ∘F help)
-      --     where
-      --     help :
-      --       Functor
-      --         (⟨ ∫Csmall Cᴰ ⟩smallcat ^op)
-      --         (CategoryᴰNotation.∫C (⟨ Cᴰ ⟩smallcatᴰ ^opᴰ))
-      --     help = record {
-      --         F-ob = λ z → liftω (z .lowerω .fst) , liftω (z .lowerω .snd)
-      --       ; F-hom = λ {x} {y} z → z
-      --       ; F-id = refl
-      --       ; F-seq = λ _ _ → refl }
+      --   ∫P = {!!} ∘F {!Pᴰ.∫F!}
+      -- --   ∫P = ΣF ∘F (Pᴰ.∫F ∘F help)
+      -- --     where
+      -- --     help :
+      -- --       Functor
+      -- --         (⟨ ∫Csmall Cᴰ ⟩smallcat ^op)
+      -- --         (CategoryᴰNotation.∫C (⟨ Cᴰ ⟩smallcatᴰ ^opᴰ))
+      -- --     help = record {
+      -- --         F-ob = λ z → liftω (z .lowerω .fst) , liftω (z .lowerω .snd)
+      -- --       ; F-hom = λ {x} {y} z → z
+      -- --       ; F-id = refl
+      -- --       ; F-seq = λ _ _ → refl }

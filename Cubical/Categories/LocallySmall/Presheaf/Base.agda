@@ -25,15 +25,15 @@ open Categoryᴰ
 open Σω
 open Liftω
 
-module _ ((Cob , C) : SmallCategory ℓC ℓC') where
+module _ (C : SmallCategory ℓC ℓC') where
   private
     module SET = CategoryᴰNotation SET
 
   Presheaf : Level → Typeω
-  Presheaf ℓP = Functor (C ^op) SET.v[ liftω ℓP ]
+  Presheaf ℓP = Functor ⟨ C ^opsmall ⟩smallcat SET.v[ liftω ℓP ]
 
-  PRESHEAF : Categoryᴰ LEVEL (λ d → Functor (C ^op) SET.v[ d ]) _
-  PRESHEAF = FIBER-FUNCTOR (Cob , C ^op) SET
+  PRESHEAF : Categoryᴰ LEVEL (λ d → Functor ⟨ C ^opsmall ⟩smallcat SET.v[ d ]) _
+  PRESHEAF = FIBER-FUNCTOR (C ^opsmall) SET
 
 module _ {C : SmallCategory ℓC ℓC'} where
   ⟨_⟩Psh : ∀ {ℓP} → Presheaf C ℓP → ⟨ ∫C (PRESHEAF C) ⟩ob

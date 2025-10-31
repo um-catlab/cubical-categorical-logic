@@ -337,7 +337,6 @@ module _ ((Cob , C) : SmallCategory ℓC ℓC') ℓCᴰ ℓCᴰ' where
       Categoryᴰ C (λ c → Liftω (obᴰ (c .Liftω.lowerω)))
         λ _ _ _ _ → ℓCᴰ'
 
-
 ⟨_⟩small-obᴰ : {C : SmallCategory ℓC ℓC'} →
   (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') →
   C .fst .Liftω.lowerω → Type ℓCᴰ

@@ -5,6 +5,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws hiding (cong₂Funct)
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
@@ -189,7 +190,6 @@ congSndSnd :
   → PathP (λ i → C (abc≡ i .fst) (abc≡ i .snd .fst)) (x .snd .snd) (y .snd .snd)
 congSndSnd abc≡ = λ i → abc≡ i .snd .snd
 
--- TODO: name
 change-base :
   ∀ {A : Type ℓ}{B : Type ℓ'}{C : B → Type ℓ''}
   (f : A → B)
@@ -215,3 +215,10 @@ funExt₂⁻ : {B : A → Type ℓ} {C : (a : A) → B a → I → Type ℓ'}
   → PathP (λ i → (x : A) → (y : B x) → C x y i) f g
   → ((x : A) → (y : B x) → PathP (C x y) (f x y) (g x y))
 funExt₂⁻ eq x y i = eq i x y
+
+isSet→Square :
+  {A : Type ℓ}
+  {a b c d : A}  (isSetA : isSet A)
+  (p : a ≡ c) (q : b ≡ d) (r : a ≡ b) (s : c ≡ d)
+  → Square r s p q
+isSet→Square isSetA p q r s = compPath→Square (isSetA _ _ _ _)

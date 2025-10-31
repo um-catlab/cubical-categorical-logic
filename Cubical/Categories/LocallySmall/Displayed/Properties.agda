@@ -18,6 +18,7 @@ open import Cubical.Reflection.RecordEquiv.More
 import Cubical.Categories.Category as Small
 open import Cubical.Categories.LocallySmall.Base
 open import Cubical.Categories.LocallySmall.Displayed.Base
+open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Variables
 
 open Category
@@ -336,167 +337,67 @@ module _
         )
     redefine-idᴰ-⋆ᴰ .isSetHomᴰ = Cᴰ.isSetHomᴰ
 
-module _
-  {C : Category Cob CHom-ℓ}
-  {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
-  (Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓᴰ)
-  where
-  open Liftω
-  private
-    module C = CategoryNotation C
-    module Cᴰ = Categoryᴰ Cᴰ
+-- -- -- SmallObjectsCategoryᴰ
+-- -- --   : ∀ (C : Category Cob C-ℓ)
+-- -- --   → {ℓC}(ob : Type ℓC)(C-ℓ : ob → ob → Level)
+-- -- --   → Typeω
+-- -- -- SmallObjectsCategoryᴰ ob C-ℓ = Category (Liftω ob) λ (liftω x) (liftω y) → C-ℓ x y
 
-  module _
-    {Cᴰᴰ-ℓ}
-    (Cobᴰᴰ : Type Cᴰᴰ-ℓ)
-    (Cᴰᴰᴰ-ℓ :  Cob → Cobᴰᴰ → Level)
-    (Cobᴰᴰᴰ : (c : Cob) → (cᴰ : Cobᴰ c) → (cᴰᴰᴰ : Cobᴰᴰ) → Type (Cᴰᴰᴰ-ℓ c cᴰᴰᴰ))
-    (CHom-ℓᴰᴰᴰ : (x y : Cob) → Cobᴰᴰ → Cobᴰᴰ → Level)
-    where
+-- -- -- -- A (LS) Category such that all hom sets are at the *same* universe level
+-- -- -- GloballySmallCategory : (Cob : Typeω)(ℓC' : Level) → Typeω
+-- -- -- GloballySmallCategory Cob ℓC' = Category Cob λ _ _ → ℓC'
 
-    -- Is this just a total category weakened
-    -- over another total category?
-    -- It looks quite similar, but the double displayed objects
-    -- (Cobᴰᴰᴰ) is indeed dependent on c and cᴰ so it isn't so
-    -- simple
-    SmallFibersᴰCategoryᴰ : Typeω
-    SmallFibersᴰCategoryᴰ =
-      Categoryᴰ Cᴰ.∫C
-        (λ (c , cᴰ) →
-          Σω[ (liftω cᴰᴰ) ∈ Liftω Cobᴰᴰ ] Liftω (Cobᴰᴰᴰ c (cᴰ .lowerω) cᴰᴰ))
-        -- It's important that the level is only dependent on the first
-        -- projections of the pairs below
-        (λ ccᴰ ddᴰ cᴰᴰcᴰᴰᴰ dᴰᴰdᴰᴰᴰ → CHom-ℓᴰᴰᴰ
-          (ccᴰ .fst) (ddᴰ .fst) (cᴰᴰcᴰᴰᴰ .fst .lowerω) (dᴰᴰdᴰᴰᴰ .fst .lowerω))
-
-
-module _
-  {C : Category Cob CHom-ℓ}
-  {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
-  {Cᴰ : SmallFibersCategoryᴰ C Cᴰ-ℓ Cobᴰ CHom-ℓᴰ}
-  where
-  open Liftω
-  private
-    module C = CategoryNotation C
-    module Cᴰ = Categoryᴰ Cᴰ
-
-  module _
-    {Cᴰᴰ-ℓ}
-    {Cobᴰᴰ : Type Cᴰᴰ-ℓ}
-    {Cᴰᴰᴰ-ℓ :  Cob → Cobᴰᴰ → Level}
-    {Cobᴰᴰᴰ : (c : Cob) → (cᴰ : Cobᴰ c) → (cᴰᴰᴰ : Cobᴰᴰ) → Type (Cᴰᴰᴰ-ℓ c cᴰᴰᴰ)}
-    {CHom-ℓᴰᴰᴰ : (x y : Cob) → Cobᴰᴰ → Cobᴰᴰ → Level}
-    where
-
-    module SmallFibersᴰCategoryᴰNotation (Cᴰᴰ : SmallFibersᴰCategoryᴰ Cᴰ Cobᴰᴰ Cᴰᴰᴰ-ℓ Cobᴰᴰᴰ CHom-ℓᴰᴰᴰ) where
-      private
-        module Cᴰᴰ = CategoryᴰNotation Cᴰᴰ
-      open Cᴰᴰ public
-
-      vᴰ[_][_] : (c : Cob) → (cᴰᴰ : Cobᴰᴰ) →
-        SmallCategoryᴰ (_ , Cᴰ.v[ c ]) (Cᴰᴰᴰ-ℓ c cᴰᴰ) (CHom-ℓᴰᴰᴰ c c cᴰᴰ cᴰᴰ)
-      vᴰ[ c ][ cᴰᴰ ] .fst = liftω (λ cᴰ → Cobᴰᴰᴰ c cᴰ cᴰᴰ)
-      vᴰ[ c ][ cᴰᴰ ] .snd .Hom[_][_,_] fᴰ xᴰ yᴰ =
-        Cᴰᴰ.Hom[ C.id , fᴰ ][ (liftω cᴰᴰ , xᴰ) ,
-                              (liftω cᴰᴰ , yᴰ) ]
-      vᴰ[ c ][ cᴰᴰ ] .snd .idᴰ = Cᴰᴰ.idᴰ
-      vᴰ[ c ][ cᴰᴰ ] .snd ._⋆ᴰ_ fᴰ gᴰ =
-        Cᴰᴰ.reind (Cᴰ.reind-filler _ _) $ fᴰ Cᴰᴰ.⋆ᴰ gᴰ
-      vᴰ[ c ][ cᴰᴰ ] .snd .⋆IdLᴰ fᴰ =
-          ΣPathP (
-            (Cᴰ.rectify $ Cᴰ.≡out $
-              (sym $ Cᴰ.reind-filler _ _)
-              ∙ Cᴰ.⋆IdLᴰ _) ,
-            (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-              (sym $ Cᴰᴰ.reind-filler _ _)
-              ∙ Cᴰᴰ.⋆IdLᴰ _))
-      vᴰ[ c ][ cᴰᴰ ] .snd .⋆IdRᴰ fᴰ =
-          ΣPathP (
-            (Cᴰ.rectify $ Cᴰ.≡out $
-              (sym $ Cᴰ.reind-filler _ _)
-              ∙ Cᴰ.⋆IdRᴰ _) ,
-            (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-              (sym $ Cᴰᴰ.reind-filler _ _)
-              ∙ Cᴰᴰ.⋆IdRᴰ _))
-      vᴰ[ c ][ cᴰᴰ ] .snd .⋆Assocᴰ fᴰ gᴰ hᴰ =
-          ΣPathP (
-            (Cᴰ.rectify $ Cᴰ.≡out $
-              (sym $ Cᴰ.reind-filler _ _)
-              ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
-              ∙ Cᴰ.⋆Assocᴰ _ _ _
-              ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
-              ∙ Cᴰ.reind-filler _ _
-              ),
-            (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-              (sym $ Cᴰᴰ.reind-filler _ _)
-              ∙ Cᴰᴰ.⟨ sym $ Cᴰᴰ.reind-filler _ _ ⟩⋆⟨⟩
-              ∙ Cᴰᴰ.⋆Assocᴰ _ _ _
-              ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler _ _ ⟩
-              ∙ Cᴰᴰ.reind-filler _ _
-              ))
-      vᴰ[ c ][ cᴰᴰ ] .snd .isSetHomᴰ = Cᴰᴰ.isSetHomᴰ
-
--- SmallObjectsCategoryᴰ
---   : ∀ (C : Category Cob C-ℓ)
---   → {ℓC}(ob : Type ℓC)(C-ℓ : ob → ob → Level)
---   → Typeω
--- SmallObjectsCategoryᴰ ob C-ℓ = Category (Liftω ob) λ (liftω x) (liftω y) → C-ℓ x y
-
--- -- A (LS) Category such that all hom sets are at the *same* universe level
--- GloballySmallCategory : (Cob : Typeω)(ℓC' : Level) → Typeω
--- GloballySmallCategory Cob ℓC' = Category Cob λ _ _ → ℓC'
-
--- -- A category is small if it both has small objects and is globally
--- -- small.
--- -- This is the only variant that is itself a small type: the
--- -- definition of Category in Cubical.Categories.Category
--- SmallCategory : ∀ ℓC (ℓC' : Level) → Typeω
--- SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySmallCategory (Liftω ob) ℓC'
+-- -- -- -- A category is small if it both has small objects and is globally
+-- -- -- -- small.
+-- -- -- -- This is the only variant that is itself a small type: the
+-- -- -- -- definition of Category in Cubical.Categories.Category
+-- -- -- SmallCategory : ∀ ℓC (ℓC' : Level) → Typeω
+-- -- -- SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySmallCategory (Liftω ob) ℓC'
 
 
 
--- -- LEVEL-iso : ∀ {ℓ} {ℓ'} → SmallCategory.CatIso LEVEL ℓ ℓ'
--- -- LEVEL-iso .fst = tt
--- -- LEVEL-iso .snd .SmallCategory.isIso.inv = tt
--- -- LEVEL-iso .snd .SmallCategory.isIso.sec = refl
--- -- LEVEL-iso .snd .SmallCategory.isIso.ret = refl
+-- -- -- -- LEVEL-iso : ∀ {ℓ} {ℓ'} → SmallCategory.CatIso LEVEL ℓ ℓ'
+-- -- -- -- LEVEL-iso .fst = tt
+-- -- -- -- LEVEL-iso .snd .SmallCategory.isIso.inv = tt
+-- -- -- -- LEVEL-iso .snd .SmallCategory.isIso.sec = refl
+-- -- -- -- LEVEL-iso .snd .SmallCategory.isIso.ret = refl
 
--- -- LEVELω-iso : ∀ {ℓ} {ℓ'} → CatIso LEVELω ℓ ℓ'
--- -- LEVELω-iso .CatIso.fun = tt
--- -- LEVELω-iso .CatIso.inv = tt
--- -- LEVELω-iso .CatIso.sec = refl
--- -- LEVELω-iso .CatIso.ret = refl
+-- -- -- -- LEVELω-iso : ∀ {ℓ} {ℓ'} → CatIso LEVELω ℓ ℓ'
+-- -- -- -- LEVELω-iso .CatIso.fun = tt
+-- -- -- -- LEVELω-iso .CatIso.inv = tt
+-- -- -- -- LEVELω-iso .CatIso.sec = refl
+-- -- -- -- LEVELω-iso .CatIso.ret = refl
 
 
--- -- -- module SET = LocallySmallCategoryᴰNotation SET
--- -- -- -- The total category LocallySmallCategoryᴰ.∫C SET is the "large category of all small sets"
--- -- -- -- Then
--- -- -- SETᴰ : LocallySmallCategoryᴰ
--- -- --          (LEVEL ⊘ LocallySmallCategoryᴰ.∫C SET)
--- -- --          (λ (ℓᴰ , (_ , liftω X)) → Liftω (⟨ X ⟩ → hSet ℓᴰ))
--- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
--- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , f) (liftω Xᴰ) (liftω Yᴰ) =
--- -- --   ∀ x → ⟨ Xᴰ x ⟩ → ⟨ Yᴰ (f x ) ⟩
--- -- -- SETᴰ .LocallySmallCategoryᴰ.idᴰ = λ x xᴰ → xᴰ
--- -- -- SETᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ {f = (_ , _ , f)} fᴰ gᴰ x xᴰ =
--- -- --   gᴰ (f x) (fᴰ x xᴰ)
--- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
--- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
--- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
--- -- -- SETᴰ .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = liftω Yᴰ} =
--- -- --   isSetΠ λ _ → isSet→ (Yᴰ _ .snd)
+-- -- -- -- -- module SET = LocallySmallCategoryᴰNotation SET
+-- -- -- -- -- -- The total category LocallySmallCategoryᴰ.∫C SET is the "large category of all small sets"
+-- -- -- -- -- -- Then
+-- -- -- -- -- SETᴰ : LocallySmallCategoryᴰ
+-- -- -- -- --          (LEVEL ⊘ LocallySmallCategoryᴰ.∫C SET)
+-- -- -- -- --          (λ (ℓᴰ , (_ , liftω X)) → Liftω (⟨ X ⟩ → hSet ℓᴰ))
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , f) (liftω Xᴰ) (liftω Yᴰ) =
+-- -- -- -- --   ∀ x → ⟨ Xᴰ x ⟩ → ⟨ Yᴰ (f x ) ⟩
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.idᴰ = λ x xᴰ → xᴰ
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ {f = (_ , _ , f)} fᴰ gᴰ x xᴰ =
+-- -- -- -- --   gᴰ (f x) (fᴰ x xᴰ)
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
+-- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = liftω Yᴰ} =
+-- -- -- -- --   isSetΠ λ _ → isSet→ (Yᴰ _ .snd)
 
--- -- -- module SETᴰ = LocallySmallCategoryᴰNotation SETᴰ
+-- -- -- -- -- module SETᴰ = LocallySmallCategoryᴰNotation SETᴰ
 
--- -- -- module _ (C : LocallySmallCategory Cob) (D : LocallySmallCategory Dob) where
--- -- --   private
--- -- --     module D = LocallySmallCategory D
--- -- --   weaken : LocallySmallCategoryᴰ C λ _ → Dob
--- -- --   weaken .LocallySmallCategoryᴰ.Hom-ℓᴰ _ x _ y = D.Hom-ℓ x y
--- -- --   weaken .LocallySmallCategoryᴰ.Hom[_][_,_] _ = D.Hom[_,_]
--- -- --   weaken .LocallySmallCategoryᴰ.idᴰ = D.id
--- -- --   weaken .LocallySmallCategoryᴰ._⋆ᴰ_ = D._⋆_
--- -- --   weaken .LocallySmallCategoryᴰ.⋆IdLᴰ = D.⋆IdL
--- -- --   weaken .LocallySmallCategoryᴰ.⋆IdRᴰ = D.⋆IdR
--- -- --   weaken .LocallySmallCategoryᴰ.⋆Assocᴰ = D.⋆Assoc
--- -- --   weaken .LocallySmallCategoryᴰ.isSetHomᴰ = D.isSetHom
+-- -- -- -- -- module _ (C : LocallySmallCategory Cob) (D : LocallySmallCategory Dob) where
+-- -- -- -- --   private
+-- -- -- -- --     module D = LocallySmallCategory D
+-- -- -- -- --   weaken : LocallySmallCategoryᴰ C λ _ → Dob
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ.Hom-ℓᴰ _ x _ y = D.Hom-ℓ x y
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ.Hom[_][_,_] _ = D.Hom[_,_]
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ.idᴰ = D.id
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ._⋆ᴰ_ = D._⋆_
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ.⋆IdLᴰ = D.⋆IdL
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ.⋆IdRᴰ = D.⋆IdR
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ.⋆Assocᴰ = D.⋆Assoc
+-- -- -- -- --   weaken .LocallySmallCategoryᴰ.isSetHomᴰ = D.isSetHom

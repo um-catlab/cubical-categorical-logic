@@ -22,6 +22,7 @@ open import Cubical.Categories.LocallySmall.Variables
 
 open import Cubical.Categories.LocallySmall.Displayed.Base
 open import Cubical.Categories.LocallySmall.Displayed.Properties
+open import Cubical.Categories.LocallySmall.Displayed.SmallFibers
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 
@@ -58,17 +59,6 @@ record LargeNatTransᴰ
       (fᴰ  : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
       → (Fᴰ.F-homᴰ fᴰ Dᴰ.⋆ᴰ N-obᴰ yᴰ) Dᴰ.∫≡ (N-obᴰ xᴰ Dᴰ.⋆ᴰ Gᴰ.F-homᴰ fᴰ)
 
--- module _
---   {(Cob , C) : SmallCategory ℓC ℓC'}
---   {(Dob , D) : SmallCategory ℓD ℓD'}
---   {F G : Functor UNIT D} -- i.e., just an object
---   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
---   {Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
---   (α : NatTrans F G) -- i.e., just a morphism
---   (Fᴰ : Functorᴰ F (weaken UNIT C) Dᴰ)
---   (Gᴰ : Functorᴰ G (weaken UNIT C) Dᴰ)
---   where
-
 open Functorᴰ
 open SmallFibNatTrans
 open Liftω
@@ -80,10 +70,9 @@ module SmallFibNatTransᴰDefs
   {D : Category Dob DHom-ℓ}
   {Dob-ℓᴰ Dobᴰ DHom-ℓᴰ}
   (Dᴰ : SmallFibersCategoryᴰ D Dob-ℓᴰ Dobᴰ DHom-ℓᴰ)
-  {Dᴰᴰ-ℓ}
-  {Dobᴰᴰ : Type Dᴰᴰ-ℓ}
-  {Dᴰᴰᴰ-ℓ Dobᴰᴰᴰ DHom-ℓᴰᴰᴰ }
-  (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Dobᴰᴰ Dᴰᴰᴰ-ℓ Dobᴰᴰᴰ DHom-ℓᴰᴰᴰ)
+  {E : Category Eob EHom-ℓ}
+  {Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ}
+  (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ E Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
   private
     module C = CategoryNotation ⟨ C ⟩smallcat
@@ -91,6 +80,11 @@ module SmallFibNatTransᴰDefs
     module D = CategoryNotation D
     module Dᴰ = CategoryᴰNotation Dᴰ
     module Dᴰᴰ = SmallFibersᴰCategoryᴰNotation Dᴰᴰ
+    module E = CategoryNotation E
+
+    Dᴰ×E = weaken (∫C Dᴰ) E
+    module Dᴰ×E = CategoryᴰNotation Dᴰ×E
+    module ∫Dᴰ×E = CategoryNotation Dᴰ×E.∫C
 
     C⇒Dᴰ = FIBER-FUNCTOR C Dᴰ
     module C⇒Dᴰ = CategoryᴰNotation C⇒Dᴰ
@@ -98,18 +92,20 @@ module SmallFibNatTransᴰDefs
     module ∫C⇒Dᴰ = CategoryNotation ∫C⇒Dᴰ
 
     weaken∫C⇒Dᴰ : Categoryᴰ _ _ _
-    weaken∫C⇒Dᴰ = weaken ∫C⇒Dᴰ (Indiscrete (Liftω Dobᴰᴰ))
+    weaken∫C⇒Dᴰ = weaken ∫C⇒Dᴰ E
     module weaken∫C⇒Dᴰ = Categoryᴰ weaken∫C⇒Dᴰ
+
 
   module _
     {d d' : Dob}
     {g : D.Hom[ d , d' ]}
+    {e e' : Eob}
+    (h : E.Hom[ e , e' ])
     {F : Functor ⟨ C ⟩smallcat Dᴰ.v[ d ]}
     {G : Functor ⟨ C ⟩smallcat Dᴰ.v[ d' ]}
     (α : SmallFibNatTrans Dᴰ g F G)
-    {dᴰᴰ dᴰᴰ' : Dobᴰᴰ}
-    (Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ dᴰᴰ ] ⟩smallcatᴰ)
-    (Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ dᴰᴰ' ] ⟩smallcatᴰ)
+    (Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ e ] ⟩smallcatᴰ)
+    (Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ e' ] ⟩smallcatᴰ)
     where
     private
       module F = FunctorNotation F
@@ -120,7 +116,7 @@ module SmallFibNatTransᴰDefs
     record SmallFibNatTransᴰ :
       Type
         (ℓ-max
-          (ℓ-max (ℓ-max ℓC ℓCᴰ) (DHom-ℓᴰᴰᴰ d d' dᴰᴰ dᴰᴰ'))
+          (ℓ-max (ℓ-max (EHom-ℓ e e') (ℓ-max ℓC ℓCᴰ)) (DHom-ℓᴰᴰ d d' e e'))
           (ℓ-max (DHom-ℓᴰ d d') (ℓ-max (ℓ-max ℓC' ℓCᴰ') (DHom-ℓ d d'))))
       where
       no-eta-equality
@@ -129,9 +125,8 @@ module SmallFibNatTransᴰDefs
         N-obᴰ :
           {x : ⟨ C ⟩small-ob} →
           (xᴰ : ⟨ Cᴰ ⟩small-obᴰ x) →
-          Dᴰᴰ.Hom[ g , α .N-ob x ][
-            (_ , Fᴰ.F-obᴰ (liftω xᴰ)) ,
-            (_ , Gᴰ.F-obᴰ (liftω xᴰ)) ]
+          Dᴰᴰ.Hom[ (g , α .N-ob x) , h  ][ Fᴰ.F-obᴰ (liftω xᴰ) ,
+                                           Gᴰ.F-obᴰ (liftω xᴰ) ]
         N-homᴰ :
           ∀ {x y : ⟨ C ⟩small-ob}
             {xᴰ : ⟨ Cᴰ ⟩small-obᴰ x}
@@ -145,8 +140,8 @@ module SmallFibNatTransᴰDefs
       Iso SmallFibNatTransᴰ
         (Σ[ N-obᴰ ∈
           (∀ {x : ⟨ C ⟩small-ob} → (xᴰ : ⟨ Cᴰ ⟩small-obᴰ x) →
-             Dᴰᴰ.Hom[ g , α .N-ob x ][ (_ , Fᴰ.F-obᴰ (liftω xᴰ)) ,
-                                       (_ , Gᴰ.F-obᴰ (liftω xᴰ))  ])]
+             Dᴰᴰ.Hom[ (g , α .N-ob x) , h ][ Fᴰ.F-obᴰ (liftω xᴰ) ,
+                                             Gᴰ.F-obᴰ (liftω xᴰ)  ])]
 
           (∀ {x y : ⟨ C ⟩small-ob}
             {xᴰ : ⟨ Cᴰ ⟩small-obᴰ x}
@@ -170,31 +165,33 @@ module SmallFibNatTransᴰDefs
   open SmallFibNatTransᴰ
 
   module _
-    {d : Dob} {dᴰᴰ : Dobᴰᴰ}
-    {F : Functor ⟨ C ⟩smallcat Dᴰ.v[ d ]} (Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ dᴰᴰ ] ⟩smallcatᴰ)
+    {d : Dob} {e : Eob}
+    {F : Functor ⟨ C ⟩smallcat Dᴰ.v[ d ]}
+    (Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ e ] ⟩smallcatᴰ)
     where
 
-    idSFTransᴰ : SmallFibNatTransᴰ (idSFTrans F) Fᴰ Fᴰ
+    idSFTransᴰ : SmallFibNatTransᴰ E.id (idSFTrans F) Fᴰ Fᴰ
     idSFTransᴰ .N-obᴰ = λ xᴰ → Dᴰᴰ.idᴰ
     idSFTransᴰ .N-homᴰ fᴰ = Dᴰᴰ.⋆IdRᴰ _ ∙ (sym $ Dᴰᴰ.⋆IdLᴰ _)
 
   module _
     {d d' d'' : Dob}
-    {dᴰᴰ dᴰᴰ' dᴰᴰ'' : Dobᴰᴰ}
-    {g : D.Hom[ d , d' ]} {h : D.Hom[ d' , d'' ]}
+    {e e' e'' : Eob}
+    {g : D.Hom[ d , d' ]} {g' : D.Hom[ d' , d'' ]}
+    {h : E.Hom[ e , e' ]} {h' : E.Hom[ e' , e'' ]}
     {F : Functor ⟨ C ⟩smallcat Dᴰ.v[ d ]}
     {G : Functor ⟨ C ⟩smallcat Dᴰ.v[ d' ]}
     {H : Functor ⟨ C ⟩smallcat Dᴰ.v[ d'' ]}
-    {Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ dᴰᴰ ] ⟩smallcatᴰ}
-    {Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ dᴰᴰ' ] ⟩smallcatᴰ}
-    {Hᴰ : Functorᴰ H ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d'' ][ dᴰᴰ'' ] ⟩smallcatᴰ}
+    {Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ e ] ⟩smallcatᴰ}
+    {Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ e' ] ⟩smallcatᴰ}
+    {Hᴰ : Functorᴰ H ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d'' ][ e'' ] ⟩smallcatᴰ}
     {α : SmallFibNatTrans Dᴰ g F G}
-    {β : SmallFibNatTrans Dᴰ h G H}
-    (αᴰ : SmallFibNatTransᴰ α Fᴰ Gᴰ)
-    (βᴰ : SmallFibNatTransᴰ β Gᴰ Hᴰ)
+    {β : SmallFibNatTrans Dᴰ g' G H}
+    (αᴰ : SmallFibNatTransᴰ h α Fᴰ Gᴰ)
+    (βᴰ : SmallFibNatTransᴰ h' β Gᴰ Hᴰ)
     where
 
-    seqSFTransᴰ : SmallFibNatTransᴰ (seqSFTrans α β) Fᴰ Hᴰ
+    seqSFTransᴰ : SmallFibNatTransᴰ (h E.⋆ h') (seqSFTrans α β) Fᴰ Hᴰ
     seqSFTransᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ xᴰ Dᴰᴰ.⋆ᴰ βᴰ .N-obᴰ xᴰ
     seqSFTransᴰ .N-homᴰ fᴰ =
       (sym $ Dᴰᴰ.⋆Assocᴰ _ _ _)
@@ -204,16 +201,17 @@ module SmallFibNatTransᴰDefs
       ∙ (sym $ Dᴰᴰ.⋆Assocᴰ _ _ _)
 
   module _
-    {d d' : Dob} {dᴰᴰ dᴰᴰ' : Dobᴰᴰ}
+    {d d' : Dob} {e e' : Eob}
     {g g' : D.Hom[ d , d' ]}
+    {h h' : E.Hom[ e , e' ]}
     {F : Functor ⟨ C ⟩smallcat Dᴰ.v[ d ]}
     {G : Functor ⟨ C ⟩smallcat Dᴰ.v[ d' ]}
     {α : SmallFibNatTrans Dᴰ g F G}
     {β : SmallFibNatTrans Dᴰ g' F G}
-    {Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ dᴰᴰ ] ⟩smallcatᴰ}
-    {Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ dᴰᴰ' ] ⟩smallcatᴰ}
-    (αᴰ : SmallFibNatTransᴰ α Fᴰ Gᴰ)
-    (βᴰ : SmallFibNatTransᴰ β Fᴰ Gᴰ)
+    {Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ e ] ⟩smallcatᴰ}
+    {Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ e' ] ⟩smallcatᴰ}
+    (αᴰ : SmallFibNatTransᴰ h α Fᴰ Gᴰ)
+    (βᴰ : SmallFibNatTransᴰ h' β Fᴰ Gᴰ)
     where
     private
       module F = FunctorNotation F
@@ -224,15 +222,16 @@ module SmallFibNatTransᴰDefs
 
     makeSFNatTransᴰPathP :
       (g≡g' : g ≡ g') →
+      (h≡h' : h ≡ h') →
       (α≡β : PathP (λ i → SmallFibNatTrans Dᴰ (g≡g' i) F G) α β) →
       PathP (λ i → ∀ {x : ⟨ C ⟩small-ob} → (xᴰ : ⟨ Cᴰ ⟩small-obᴰ x) →
-        Dᴰᴰ.Hom[ g≡g' i , α≡β i .N-ob x ][ (_ , Fᴰ.F-obᴰ (liftω xᴰ)) ,
-                                           (_ , Gᴰ.F-obᴰ (liftω xᴰ)) ])
+        Dᴰᴰ.Hom[ (g≡g' i , α≡β i .N-ob x) , h≡h' i ][ Fᴰ.F-obᴰ (liftω xᴰ) ,
+                                                      Gᴰ.F-obᴰ (liftω xᴰ) ])
         (αᴰ .N-obᴰ)
         (βᴰ .N-obᴰ) →
-      PathP (λ i → SmallFibNatTransᴰ (α≡β i) Fᴰ Gᴰ) αᴰ βᴰ
-    makeSFNatTransᴰPathP g≡g' α≡β p i .N-obᴰ xᴰ = p i xᴰ
-    makeSFNatTransᴰPathP g≡g' α≡β p i .N-homᴰ {xᴰ = xᴰ} {yᴰ = yᴰ} fᴰ =
+      PathP (λ i → SmallFibNatTransᴰ (h≡h' i) (α≡β i) Fᴰ Gᴰ) αᴰ βᴰ
+    makeSFNatTransᴰPathP g≡g' h≡h' α≡β p i .N-obᴰ xᴰ = p i xᴰ
+    makeSFNatTransᴰPathP g≡g' h≡h' α≡β p i .N-homᴰ {xᴰ = xᴰ} {yᴰ = yᴰ} fᴰ =
       isSet→SquareP (λ i j → ∫Dᴰᴰ.isSetHom)
         (αᴰ .N-homᴰ fᴰ) (βᴰ .N-homᴰ fᴰ)
         (λ j → (_ , Fᴰ.F-homᴰ fᴰ) ∫Dᴰᴰ.⋆ (_ , p j yᴰ))
@@ -241,18 +240,19 @@ module SmallFibNatTransᴰDefs
 
   module _
     {d d' : Dob}
-    {dᴰᴰ dᴰᴰ' : Dobᴰᴰ}
+    {e e' : Eob}
     {g g' : D.Hom[ d , d' ]}
+    {h h' : E.Hom[ e , e' ]}
     {F : Functor ⟨ C ⟩smallcat Dᴰ.v[ d ]}
     {G : Functor ⟨ C ⟩smallcat Dᴰ.v[ d' ]}
     {α : SmallFibNatTrans Dᴰ g F G}
     {β : SmallFibNatTrans Dᴰ g' F G}
-    {Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ dᴰᴰ ] ⟩smallcatᴰ}
-    {Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ dᴰᴰ' ] ⟩smallcatᴰ}
-    {αᴰ : SmallFibNatTransᴰ α Fᴰ Gᴰ}
-    {βᴰ : SmallFibNatTransᴰ β Fᴰ Gᴰ}
-    (α≡β : Path (weaken∫C⇒Dᴰ.Hom[ ((d , F) , liftω dᴰᴰ) , ((d' , G) , liftω dᴰᴰ') ])
-      ((g , α) , tt) ((g' , β) , tt))
+    {Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ e ] ⟩smallcatᴰ}
+    {Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ e' ] ⟩smallcatᴰ}
+    {αᴰ : SmallFibNatTransᴰ h α Fᴰ Gᴰ}
+    {βᴰ : SmallFibNatTransᴰ h' β Fᴰ Gᴰ}
+    (α≡β : Path (weaken∫C⇒Dᴰ.Hom[ ((d , F) , e) , ((d' , G) , e') ])
+      ((g , α) , h) ((g' , β) , h'))
     (p : ∀ {x} (xᴰ : ⟨ Cᴰ ⟩small-obᴰ x) →
       αᴰ .N-obᴰ xᴰ Dᴰᴰ.∫≡ βᴰ .N-obᴰ xᴰ)
     where
@@ -265,15 +265,14 @@ module SmallFibNatTransᴰDefs
 
     makeSFNatTransᴰPath :
       Path
-        (Σ[ ((h , γ) , _) ∈
-          weaken∫C⇒Dᴰ.Hom[ ((d , F) , liftω dᴰᴰ) , ((d' , G) , liftω dᴰᴰ') ] ]
-            SmallFibNatTransᴰ γ Fᴰ Gᴰ)
+        (Σ[ ((g , γ) , h) ∈
+          weaken∫C⇒Dᴰ.Hom[ ((d , F) , e) , ((d' , G) , e') ] ]
+            SmallFibNatTransᴰ h γ Fᴰ Gᴰ)
         (_ , αᴰ)
         (_ , βᴰ)
     makeSFNatTransᴰPath =
       ΣPathP
         (α≡β ,
-        (makeSFNatTransᴰPathP αᴰ βᴰ
-          (λ i → α≡β i .fst .fst) (λ i → α≡β i .fst .snd)
-          (implicitFunExt λ {x} → funExt λ xᴰ →
-             Dᴰᴰ.rectify $ Dᴰᴰ.≡out $ p xᴰ)))
+        makeSFNatTransᴰPathP αᴰ βᴰ
+          (λ i → α≡β i .fst .fst) (λ i → α≡β i .snd) (λ i → α≡β i .fst .snd)
+          (implicitFunExt λ {x} → funExt λ xᴰ → Dᴰᴰ.rectify $ Dᴰᴰ.≡out $ p xᴰ))

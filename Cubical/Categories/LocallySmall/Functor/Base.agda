@@ -22,10 +22,8 @@ import Cubical.Categories.Functor as SmallF
 open import Cubical.Categories.LocallySmall.Base as LocallySmall
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Displayed.Base
-open import Cubical.Categories.LocallySmall.Displayed.Properties
 
 open CatIso
-open CatIsoᴰ
 
 record Functor (C : Category Cob CHom-ℓ) (D : Category Dob DHom-ℓ) : Typeω where
   private

@@ -142,4 +142,3 @@ open Functor
 ×Setsⱽ .F-homᴰ (g₁ , g₂) a (b₁ , b₂) = (g₁ a b₁) , (g₂ a b₂)
 ×Setsⱽ .F-idᴰ = refl
 ×Setsⱽ .F-seqᴰ fᴰ gᴰ = refl
-

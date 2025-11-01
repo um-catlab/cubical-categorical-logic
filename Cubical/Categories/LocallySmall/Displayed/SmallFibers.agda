@@ -100,20 +100,19 @@ module SmallFibersᴰCategoryᴰNotation
     module Cᴰ = CategoryᴰNotation Cᴰ
     module Cᴰᴰ = CategoryᴰNotation Cᴰᴰ
 
-  -- Using this definiton for SmallFibNatTransᴰ
-  -- causes SmallFibNatTransᴰ to be large
+  -- The definition of SmallFibNatTransᴰ is parameterized by two
+  -- displayed functor
+  -- (Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d ][ e ] ⟩smallcatᴰ)
+  -- (Gᴰ : Functorᴰ G ⟨ Cᴰ ⟩smallcatᴰ ⟨ Dᴰᴰ.vᴰ[ d' ][ e' ] ⟩smallcatᴰ)
+  --
+  -- If instead of mapping into vᴰ[_][_], we have Fᴰ/Gᴰ into vᴰ[_][_]'
+  -- the resulting type SmallFibNatTransᴰ is large (at Typeω)
   vᴰ[_][_]' : (c : Cob) → (d : Dob) → SmallCategoryᴰ (_ , Cᴰ.v[ c ])
     (obᴰᴰ-ℓ c d)
     (Hom-ℓᴰᴰ c c d d)
   vᴰ[ c ][ d ]' = SmallFibersᴰOver _ _ _ _ _ Cᴰᴰ c d
 
-  module _ c d {x}{y} (f : Cᴰ.Hom[ C.id ][ x , y ]) xᴰ yᴰ where
-    private
-      module u = CategoryᴰNotation ⟨ vᴰ[ c ][ d ]' ⟩smallcatᴰ
-      test : u.Hom[ f ][ xᴰ , yᴰ ] ≡ Cᴰᴰ.Hom[ (C.id , f) , D.id ][ xᴰ , yᴰ ]
-      test = refl
-
-  -- But this definiton results in it being small
+  -- But using the following definiton results in it being small
   -- I'd like to avoid a new manual definition, but I can't make
   -- sense of why the one defined above causes this largeness
   vᴰ[_][_] : (c : Cob) → (d : Dob) → SmallCategoryᴰ (_ , Cᴰ.v[ c ])
@@ -157,3 +156,18 @@ module SmallFibersᴰCategoryᴰNotation
           ∙ Cᴰᴰ.reind-filler _ _
           ))
   vᴰ[ c ][ d ] .snd .isSetHomᴰ = Cᴰᴰ.isSetHomᴰ
+
+  -- It's even more confusing because of these definitional equalities
+  private
+    module _ c d {x}{y} where
+      u = vᴰ[ c ][ d ]'
+      module u = CategoryᴰNotation ⟨ u ⟩smallcatᴰ
+      v = vᴰ[ c ][ d ]
+      module v = CategoryᴰNotation ⟨ v ⟩smallcatᴰ
+
+      _ : ⟨ u ⟩small-obᴰ ≡ ⟨ v ⟩small-obᴰ
+      _ = refl
+
+      module _ (f : Cᴰ.Hom[ C.id ][ x , y ]) xᴰ yᴰ where
+        _ : u.Hom[ f ][ xᴰ , yᴰ ] ≡ v.Hom[ f ][ xᴰ , yᴰ ]
+        _ = refl

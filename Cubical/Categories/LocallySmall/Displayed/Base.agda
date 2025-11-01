@@ -293,6 +293,9 @@ module _
      module Cᴰ = Categoryᴰ Cᴰ
      module ∫Cᴰ = Category (∫C Cᴰ)
 
+   ⟨_⟩obᴰ : Cob → Typeω
+   ⟨_⟩obᴰ = Cobᴰ
+
    mk∫Ob : {c : Cob} (cᴰ : Cobᴰ c) → ⟨ ∫C Cᴰ ⟩ob
    mk∫Ob cᴰ = _ , cᴰ
 

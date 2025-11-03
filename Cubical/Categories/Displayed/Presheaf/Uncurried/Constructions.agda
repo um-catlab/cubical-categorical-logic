@@ -14,9 +14,7 @@ open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.Properties
-open import Cubical.Categories.Functors.Constant
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Functors.Constant.More
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
@@ -30,6 +28,7 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable hiding (Elements)
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
@@ -80,31 +79,67 @@ module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   where
+  LiftPshᴰ' : Presheafᴰ' P Cᴰ ℓPᴰ → (ℓPᴰ' : Level) → Presheafᴰ' P Cᴰ (ℓ-max ℓPᴰ ℓPᴰ')
+  LiftPshᴰ' Pᴰ' ℓPᴰ' = LiftF {ℓ' = ℓPᴰ'} ∘F Pᴰ'
+
   UnitPshᴰ' : Presheafᴰ' P Cᴰ ℓ-zero
   UnitPshᴰ' = UnitPsh
   module _ (Pᴰ : Presheafᴰ' P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ' P Cᴰ ℓQᴰ) where
     _×ⱽPsh_ : Presheafᴰ' P Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
     _×ⱽPsh_ = Pᴰ ×Psh Qᴰ
 
-    _⇒ⱽPshLarge_ : Presheafᴰ' P Cᴰ (ℓ-max
-                                    (ℓ-max
-                                     (ℓ-max (ℓ-max ℓC (ℓ-max ℓCᴰ ℓP)) (ℓ-max ℓC' (ℓ-max ℓCᴰ' ℓP)))
-                                     (ℓ-max (ℓ-max ℓC' (ℓ-max ℓCᴰ' ℓP)) ℓPᴰ))
-                                    ℓQᴰ)
+    _⇒ⱽPshLarge_ : Presheafᴰ' P Cᴰ (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓPᴰ) ℓQᴰ)
     _⇒ⱽPshLarge_ = Pᴰ ⇒PshLarge Qᴰ
 
+    -- -- Does LocallyRepresentableⱽ Pᴰ allow us to construct a functor from Cᴰ / P to Cᴰ / P ? Yes.
+    -- -- it maps (Γ , Γᴰ , p) to (Γ , Γᴰ ×ⱽ p *Pᴰ , p)
+    -- _⇒ⱽPshSmall_ : Presheafᴰ' P Cᴰ ℓQᴰ
+    -- _⇒ⱽPshSmall_ = reindPsh {!!} Qᴰ
+      -- on objects (Pᴰ ⇒ⱽPshSmall Qᴰ) (Γ , Γᴰ , p) = Qᴰ (Γ , Γᴰ ×ⱽ p*Pᴰ , p)
+
+
+  -- UMP of ∀PshLarge is
+  -- R |-ⱽ ∀PshLarge PQᴰ
+  -- ≅ π₁ * R |-ⱽ PQᴰ
+
+  -- so given (Γ , Γᴰ , p)
+  -- (∀PshLarge PQᴰ) (Γ , Γᴰ , p)
+  -- ≅[Yoneda] Yo(Γ,Γᴰ,p) ⊢ⱽ ∀PshLarge PQᴰ
+  -- ≅ π₁* Yo(Γ,Γᴰ,p) ⊢ⱽ PQᴰ
+
+  -- So to do this definition we need
+  -- 1. [X] PshHomⱽ is a profunctor
+  -- 2. π₁* : Pshⱽ' P → Pshⱽ' (P × Q) is a functor
+  ∀PshLarge : (Q : Presheaf C ℓQ)
+    → Presheafᴰ' (P ×Psh Q) Cᴰ ℓPᴰ
+    → Presheafᴰ' P Cᴰ (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓQ) ℓPᴰ)
+  ∀PshLarge Q PQᴰ = reindPsh (precomposeF (SET (ℓ-max ℓC' (ℓ-max ℓCᴰ' ℓP))) ((Idᴰ /Fⱽ π₁ P Q) ^opF) ∘F YO) (PshHomPsh PQᴰ)
+
+  -- -- To make a ∀PshSmall, we need the presheaf Q being quantified
+  -- -- over to be LocallyRepresentable _×Q and for Cᴰ to have
+  -- -- cartesian lifts of π₁ of Γ ×Q.
+
+  -- -- if that's established then we can make a functor ×Q : Cᴰ / P → Cᴰ / P × Q
+  -- -- that sends (Γ , Γᴰ , p) to (Γ ×Q , π₁* Γᴰ , p ×Q)
+  --
+  -- -- And then ∀PshSmall Q PQᴰ = reindPsh ×Q PQᴰ
+
+  -- ∀PshSmall : ((Q , _×Q) : LRPresheaf C ℓQ)
+  --   → isFibration Cᴰ
+  --   → Presheafᴰ' (P ×Psh Q) Cᴰ ℓPᴰ
+  --   → Presheafᴰ' P Cᴰ ℓPᴰ
+  -- ∀PshSmall (Q , _×Q) isFibCᴰ PQᴰ = reindPsh {!!} PQᴰ
 module _
-  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
-  {F : Functor C D}
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  (F : Functor (Dᴰ / Q) (Cᴰ / P))
   (P : Presheaf D ℓP)
-  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
   where
   UnitPshᴰ-reindPshᴰFunctor :
-    PshIsoⱽ' (reindPshᴰFunctor Fᴰ (UnitPshᴰ' {Cᴰ = Dᴰ}{P = P}))
-             (UnitPshᴰ' {Cᴰ = Cᴰ})
-  UnitPshᴰ-reindPshᴰFunctor = pathToPshIso $
-    sym $ Constant-natural (SET ℓ-zero) (Unit , isSetUnit) _
+    PshIsoⱽ' (reindPsh F UnitPshᴰ')
+             UnitPshᴰ'
+  UnitPshᴰ-reindPshᴰFunctor = pathToPshIso $ sym $
+    Constant-natural (SET ℓ-zero) (Unit , isSetUnit) (F ^opF)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -116,8 +151,9 @@ module _
     PshIsoⱽ' (reindPsh F (Pᴰ ×ⱽPsh Qᴰ))
              (reindPsh F Pᴰ ×ⱽPsh reindPsh F Qᴰ)
   ×ⱽPsh-reindPshFunctor = pathToPshIso $
-    -- (×Sets ∘ (Pᴰ ,F Qᴰ)) ∘ ~Fᴰ
-    (sym $ F-assoc)
-    -- ×Sets ∘ ((Pᴰ ,F Qᴰ) ∘ ~Fᴰ)
-    ∙ cong (×Sets ∘F_) ,F-natural
-    -- ×Sets ∘ (Pᴰ ∘ ~Fᴰ ,F Qᴰ ∘ ~Fᴰ)
+    (×Sets ∘F (Pᴰ ,F Qᴰ)) ∘F (F ^opF)
+      ≡⟨ (sym $ F-assoc) ⟩
+    ×Sets ∘F (Pᴰ ,F Qᴰ) ∘F (F ^opF)
+      ≡⟨ cong (×Sets ∘F_) ,F-natural ⟩
+    ×Sets ∘F (reindPsh F Pᴰ ,F reindPsh F Qᴰ)
+      ∎

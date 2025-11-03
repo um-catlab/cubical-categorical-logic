@@ -91,3 +91,5 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
         (Dᴰ [-][-, Fyᴰ ]')
       ⋆PshIsoⱽ' invPshIso (reindPsh∘F≅ (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ]')))
       ⋆PshIsoⱽ' (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ' (reindexRepresentableIsoⱽ' Dᴰ F y Fyᴰ)))
+
+-- TODO: ReindexCartesianCategoryⱽ'

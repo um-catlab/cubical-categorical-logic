@@ -40,6 +40,8 @@ open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.Base
 open import Cubical.Categories.Displayed.FunctorComprehension
 import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshᴰCL

@@ -22,8 +22,7 @@ open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
-open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Base
-open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.LocalRepresentability.Base
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Profunctor

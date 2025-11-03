@@ -22,6 +22,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation as NT
 open import Cubical.Categories.NaturalTransformation.More
@@ -39,6 +40,8 @@ open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Displayed.FunctorComprehension
 import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshᴰCL

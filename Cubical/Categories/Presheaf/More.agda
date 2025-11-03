@@ -82,6 +82,7 @@ module PresheafNotation {ℓo}{ℓh}
   p[_] : C.ob → Type ℓp
   p[ x ] = ⟨ P ⟅ x ⟆ ⟩
 
+  infixr 9 _⋆_
   _⋆_ : ∀ {x y} (f : C [ x , y ]) (g : p[ y ]) → p[ x ]
   f ⋆ g = P .F-hom f g
 

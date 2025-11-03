@@ -129,6 +129,10 @@ module _
   infixr 9 _⋆NatTrans_
   infixr 9 _⋆NatIso_
 
+  -- eqToNatIso : {F G : Functor C D}
+  --   → FunctorEq F G
+  --   → NatIso F G
+  -- eqToNatIso F≡G = {!!}
 
 module _
   {C : Category ℓC ℓC'}
@@ -150,3 +154,4 @@ module _
   ∘F-^opF-NatIso .nIso x .inv = E.id
   ∘F-^opF-NatIso .nIso x .sec = E.⋆IdL (∘F-^opF-NatIso .nIso x .inv)
   ∘F-^opF-NatIso .nIso x .ret = E.⋆IdL (N-ob (∘F-^opF-NatIso .trans) x)
+

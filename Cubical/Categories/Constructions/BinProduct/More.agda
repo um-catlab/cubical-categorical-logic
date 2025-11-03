@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 -- Product of two categories
 
 module Cubical.Categories.Constructions.BinProduct.More where
@@ -56,9 +57,10 @@ private
     B B' : Category ℓB ℓB'
     C C' : Category ℓC ℓC'
     D D' : Category ℓD ℓD'
+    E E' : Category ℓE ℓE'
     F F' : Functor A B
     G G' : Functor C D
-
+    H H' : Functor D E
 module _ {A : Category ℓA ℓA'}
     {B : Category ℓB ℓB'}
     {C : Category ℓC ℓC'}
@@ -88,3 +90,6 @@ open NatTrans
 ,F-functor .F-hom (α , β) .N-hom f = ΣPathP ((α .N-hom f) , (β .N-hom f))
 ,F-functor .F-id = makeNatTransPath refl
 ,F-functor .F-seq f g = makeNatTransPath refl
+
+,F-natural : (F ,F G) ∘F H ≡ (F ∘F H ,F G ∘F H)
+,F-natural = Functor≡ (λ _ → refl) (λ _ → refl)

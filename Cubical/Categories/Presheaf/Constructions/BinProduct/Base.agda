@@ -47,8 +47,19 @@ module _ {C : Category ℓ ℓ'} where
                       (PresheafCategory C (ℓ-max ℓA ℓB))
   PshProd = ParFunctorToBifunctor PshProd'
 
+  -×Psh_ : Presheaf C ℓA → Functor (PresheafCategory C ℓB) (PresheafCategory C (ℓ-max ℓA ℓB))
+  -×Psh Q = appR PshProd Q
+
+  _×Psh- : Presheaf C ℓA → Functor (PresheafCategory C ℓB) (PresheafCategory C (ℓ-max ℓA ℓB))
+  P ×Psh- = appL PshProd P
+
   _×Psh_ : Presheaf C ℓA → Presheaf C ℓB → Presheaf C _
   P ×Psh Q = PshProd ⟅ P , Q ⟆b
+
+  private
+    testPshProd : ∀ (P : Presheaf C ℓA)(Q : Presheaf C ℓB)
+      → P ×Psh Q ≡ ×Sets ∘F (P ,F Q)
+    testPshProd P Q = refl
 
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
     π₁ : PshHom (P ×Psh Q) P

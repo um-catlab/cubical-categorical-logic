@@ -1,11 +1,16 @@
 module Cubical.Categories.LocallySmall.Presheaf.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
+
+import Cubical.Categories.Category.Base as SmallCat
+import Cubical.Categories.Presheaf.Base as SmallPsh
+import Cubical.Categories.Functor.Base as SmallFunctor
 
 open import Cubical.Categories.LocallySmall.Base
 open import Cubical.Categories.LocallySmall.Variables
@@ -25,10 +30,12 @@ open Categoryᴰ
 open Σω
 open Liftω
 
-module _ (C : SmallCategory ℓC ℓC') where
-  private
-    module SET = CategoryᴰNotation SET
+private
+  module SET = CategoryᴰNotation SET
 
+module _ (C : SmallCategory ℓC ℓC') where
+
+  -- A globally small presheaf
   Presheaf : Level → Typeω
   Presheaf ℓP = Functor ⟨ C ^opsmall ⟩smallcat SET.v[ liftω ℓP ]
 
@@ -39,6 +46,53 @@ module _ {C : SmallCategory ℓC ℓC'} where
   ⟨_⟩Psh : ∀ {ℓP} → Presheaf C ℓP → ⟨ ∫C (PRESHEAF C) ⟩ob
   ⟨_⟩Psh = mk∫Ob (PRESHEAF C)
 
+module _ {C : SmallCat.Category ℓC ℓC'} where
+  private
+    module C = SmallCat.Category C
+  SmallPresheaf : (ℓP : Level) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-suc ℓP))
+  SmallPresheaf = SmallPsh.Presheaf C
+
+  -- Compatibility of existing construction of
+  -- small presheaves with the incoming notion
+  -- of globally small presheaf
+  module _ ℓP where
+    open Functor
+    module SFunctor = SmallFunctor.Functor
+
+    SmallPresheaf→Presheaf : SmallPresheaf ℓP → Presheaf (mkSmallCategory C) ℓP
+    SmallPresheaf→Presheaf P .F-ob = λ z → liftω (P .SFunctor.F-ob (z .lowerω))
+    SmallPresheaf→Presheaf P .F-hom = P .SFunctor.F-hom
+    SmallPresheaf→Presheaf P .F-id = P .SFunctor.F-id
+    SmallPresheaf→Presheaf P .F-seq f g =
+      P .SFunctor.F-seq f g ∙ (sym $ transportRefl _)
+
+    Presheaf→SmallPresheaf : Presheaf (mkSmallCategory C) ℓP → SmallPresheaf ℓP
+    Presheaf→SmallPresheaf P .SFunctor.F-ob = λ z → F-ob P (liftω z) .lowerω
+    Presheaf→SmallPresheaf P .SFunctor.F-hom = P .F-hom
+    Presheaf→SmallPresheaf P .SFunctor.F-id = P .F-id
+    Presheaf→SmallPresheaf P .SFunctor.F-seq f g =
+      P .F-seq f g ∙ transportRefl _
+
+    SmallPresheaf→Presheaf→SmallPresheaf : ∀ (P : SmallPresheaf ℓP) →
+      Presheaf→SmallPresheaf (SmallPresheaf→Presheaf P) ≡ P
+    SmallPresheaf→Presheaf→SmallPresheaf P =
+      SmallFunctor.Functor≡ (λ _ → refl) λ _ → refl
+
+    -- Can't directly reason about equality within Typeω
+    -- However, this is a close to a definitional iso as we can
+    -- ask for
+    Presheaf→SmallPresheaf→Presheaf-F-ob :
+      ∀ (P : Presheaf (mkSmallCategory C) ℓP) →
+      (c : ⟨ mkSmallCategory C ⟩small-ob) →
+      P .F-ob (liftω c) .lowerω ≡ Presheaf→SmallPresheaf P .SFunctor.F-ob c
+    Presheaf→SmallPresheaf→Presheaf-F-ob P c = refl
+
+    Presheaf→SmallPresheaf→Presheaf-F-hom :
+      ∀ (P : Presheaf (mkSmallCategory C) ℓP) →
+      {c c' : ⟨ mkSmallCategory C ⟩small-ob} →
+      P .F-hom {x = liftω c} {y = liftω c'} ≡ Presheaf→SmallPresheaf P .SFunctor.F-hom
+    Presheaf→SmallPresheaf→Presheaf-F-hom P = refl
+
 open Functor
 module _
   (C : SmallCategory ℓC ℓC')
@@ -46,7 +100,6 @@ module _
   where
   private
     module C = CategoryNotation (C .snd)
-    module SET = CategoryᴰNotation SET
 
   _[-,_] : Presheaf C ℓC'
   _[-,_] .F-ob c' = liftω (C.Hom[ c' , liftω c ] , C.isSetHom)
@@ -69,7 +122,6 @@ module _
   where
   private
     module C = CategoryNotation (C .snd)
-    module SET = CategoryᴰNotation SET
     module PSH = CategoryᴰNotation (PRESHEAF C)
     module ∫PSH = CategoryNotation (∫C (PRESHEAF C))
   よ : Functor ⟨ C ⟩smallcat (∫C (PRESHEAF C))

@@ -93,27 +93,24 @@ module _ {C : Category ℓC ℓC'}
   _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) → (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
 
--- Interestingly, this one is at a lower universe level than Presheafᴰ
-
--- Undecided about the naming here. ' is pretty bad but will do as a
--- temporary solution. Should we just call it Presheafᴰ and use
--- modules to resolve the difference?
-Presheafᴰ' : {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+-- Interestingly, this one is at a lower universe level than Curried.Presheafᴰ
+-- Use modules to distinguish this from Curried.Presheafᴰ
+Presheafᴰ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
            → (ℓPᴰ : Level)
            → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
-Presheafᴰ' {ℓP = ℓP} P Cᴰ ℓPᴰ = Presheaf (Cᴰ / P) ℓPᴰ
+Presheafᴰ {ℓP = ℓP} P Cᴰ ℓPᴰ = Presheaf (Cᴰ / P) ℓPᴰ
 
-Presheafⱽ' : {C : Category ℓC ℓC'} (x : C .ob)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+Presheafⱽ : {C : Category ℓC ℓC'} (x : C .ob)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
            → (ℓPᴰ : Level)
            → Type _
-Presheafⱽ' {C = C} x = Presheafᴰ' (C [-, x ])
+Presheafⱽ {C = C} x = Presheafᴰ (C [-, x ])
 
-module Presheafᴰ'Notation {C : Category ℓC ℓC'}
+module PresheafᴰNotation {C : Category ℓC ℓC'}
   -- Cᴰ and P *must* be supplied, Cᴰ for type-checking and P for performance.
   -- revisit this once no-eta-equality for categories is turned on
   (Cᴰ : Categoryᴰ C ℓD ℓD')
   (P : Presheaf C ℓP)
-  (Pᴰ : Presheafᴰ' P Cᴰ ℓPᴰ) where
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
@@ -157,47 +154,47 @@ module Presheafᴰ'Notation {C : Category ℓC ℓC'}
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
-  (Pᴰ : Presheafᴰ' P Cᴰ ℓPᴰ)
-  (Qᴰ : Presheafᴰ' P Cᴰ ℓQᴰ) where
-  PshHomⱽ' : Type _
-  PshHomⱽ' = PshHom Pᴰ Qᴰ
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
+  PshHomⱽ : Type _
+  PshHomⱽ = PshHom Pᴰ Qᴰ
 
-  PshIsoⱽ' : Type _
-  PshIsoⱽ' = PshIso Pᴰ Qᴰ
-
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  (Pᴰ : Presheafᴰ' P Cᴰ ℓPᴰ)
-  (Qᴰ : Presheafᴰ' P Cᴰ ℓQᴰ) where
-  isPshIsoⱽ' : PshHomⱽ' Pᴰ Qᴰ → Type _
-  isPshIsoⱽ' = isPshIso
+  PshIsoⱽ : Type _
+  PshIsoⱽ = PshIso Pᴰ Qᴰ
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
-  {Pᴰ : Presheafᴰ' P Cᴰ ℓPᴰ}
-  where
-  idPshIsoⱽ' : PshIsoⱽ' Pᴰ Pᴰ
-  idPshIsoⱽ' = idPshIso
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
+  isPshIsoⱽ : PshHomⱽ Pᴰ Qᴰ → Type _
+  isPshIsoⱽ = isPshIso
 
-  idPshHomⱽ' : PshHomⱽ' Pᴰ Pᴰ
-  idPshHomⱽ' = idPshHom
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  where
+  idPshIsoⱽ : PshIsoⱽ Pᴰ Pᴰ
+  idPshIsoⱽ = idPshIso
+
+  idPshHomⱽ : PshHomⱽ Pᴰ Pᴰ
+  idPshHomⱽ = idPshHom
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
-  {Pᴰ : Presheafᴰ' P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ' P Cᴰ ℓQᴰ}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
   where
-  invPshIsoⱽ' : PshIsoⱽ' Pᴰ Qᴰ → PshIsoⱽ' Qᴰ Pᴰ
-  invPshIsoⱽ' = invPshIso
+  invPshIsoⱽ : PshIsoⱽ Pᴰ Qᴰ → PshIsoⱽ Qᴰ Pᴰ
+  invPshIsoⱽ = invPshIso
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
-  {Pᴰ : Presheafᴰ' P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ' P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ' P Cᴰ ℓRᴰ}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
   where
-  _⋆PshHomⱽ'_ : (αᴰ : PshHomⱽ' Pᴰ Qᴰ)(βᴰ : PshHomⱽ' Qᴰ Rᴰ) → PshHomⱽ' Pᴰ Rᴰ
-  _⋆PshHomⱽ'_ = _⋆PshHom_
+  _⋆PshHomⱽ_ : (αᴰ : PshHomⱽ Pᴰ Qᴰ)(βᴰ : PshHomⱽ Qᴰ Rᴰ) → PshHomⱽ Pᴰ Rᴰ
+  _⋆PshHomⱽ_ = _⋆PshHom_
 
-  _⋆PshIsoⱽ'_ : (αᴰ : PshIsoⱽ' Pᴰ Qᴰ)(βᴰ : PshIsoⱽ' Qᴰ Rᴰ) → PshIsoⱽ' Pᴰ Rᴰ
-  _⋆PshIsoⱽ'_ = _⋆PshIso_
+  _⋆PshIsoⱽ_ : (αᴰ : PshIsoⱽ Pᴰ Qᴰ)(βᴰ : PshIsoⱽ Qᴰ Rᴰ) → PshIsoⱽ Pᴰ Rᴰ
+  _⋆PshIsoⱽ_ = _⋆PshIso_
 
-  infixr 9 _⋆PshHomⱽ'_
-  infixr 9 _⋆PshIsoⱽ'_
+  infixr 9 _⋆PshHomⱽ_
+  infixr 9 _⋆PshIsoⱽ_

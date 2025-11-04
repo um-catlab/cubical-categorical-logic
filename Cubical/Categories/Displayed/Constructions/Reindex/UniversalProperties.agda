@@ -34,8 +34,6 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
--- open import Cubical.Categories.Displayed.Fibration.Base
--- open import Cubical.Categories.Displayed.Presheaf hiding (PshIsoⱽ')
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
@@ -64,12 +62,12 @@ module _
     → Functor (reindex Dᴰ F / (C [-, x ])) (Dᴰ / (D [-, F ⟅ x ⟆ ]))
   reindex-π-/ x = π Dᴰ F /Fᴰ Functor→PshHet F x
 
-  reindexRepresentableIsoⱽ' : ∀ (x : C.ob)(Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
-    → PshIsoⱽ' (reindex Dᴰ F [-][-, Fxᴰ ]') (reindPsh (reindex-π-/ x) (Dᴰ [-][-, Fxᴰ ]'))
-  reindexRepresentableIsoⱽ' x Fxᴰ .PshIso.trans .N-ob = λ c z → z
-  reindexRepresentableIsoⱽ' x Fxᴰ .PshIso.trans .N-hom _ _ _ _ = Dᴰ.rectify $ Dᴰ.≡out $
+  reindexRepresentableIsoⱽ : ∀ (x : C.ob)(Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → PshIsoⱽ (reindex Dᴰ F [-][-, Fxᴰ ]) (reindPsh (reindex-π-/ x) (Dᴰ [-][-, Fxᴰ ]))
+  reindexRepresentableIsoⱽ x Fxᴰ .PshIso.trans .N-ob = λ c z → z
+  reindexRepresentableIsoⱽ x Fxᴰ .PshIso.trans .N-hom _ _ _ _ = Dᴰ.rectify $ Dᴰ.≡out $
     sym (Dᴰ.reind-filler _ _) ∙ sym (Dᴰ.reind-filler _ _) ∙ Dᴰ.reind-filler _ _
-  reindexRepresentableIsoⱽ' x Fxᴰ .PshIso.nIso (y , yᴰ , f) =
+  reindexRepresentableIsoⱽ x Fxᴰ .PshIso.nIso (y , yᴰ , f) =
     (λ z → z) , (λ _ → refl) , (λ _ → refl)
 
   -- Make this a more general lemma about composing /Fⱽ and /Fᴰ ?
@@ -82,14 +80,14 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   (F : Functor C D) where
 
-  isFibration'Reindex : isFibration' Dᴰ → isFibration' (reindex Dᴰ F)
-  isFibration'Reindex isFibDᴰ {y} Fyᴰ x f = (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫) .fst)
-    , reindexRepresentableIsoⱽ' Dᴰ F _ _
-      ⋆PshIsoⱽ' reindPshIso (reindex-π-/ Dᴰ F x) (isFibDᴰ Fyᴰ (F-ob F x) (F-hom F f) .snd)
-      ⋆PshIsoⱽ' (reindPsh∘F≅ (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Dᴰ [-][-, Fyᴰ ]')
-      ⋆PshIsoⱽ' reindNatIsoPsh (pathToNatIso (reindexRepresentable-seq Dᴰ F))
-        (Dᴰ [-][-, Fyᴰ ]')
-      ⋆PshIsoⱽ' invPshIso (reindPsh∘F≅ (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ]')))
-      ⋆PshIsoⱽ' (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ' (reindexRepresentableIsoⱽ' Dᴰ F y Fyᴰ)))
+  isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
+  isFibrationReindex isFibDᴰ {y} Fyᴰ x f = (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫) .fst)
+    , reindexRepresentableIsoⱽ Dᴰ F _ _
+      ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (isFibDᴰ Fyᴰ (F-ob F x) (F-hom F f) .snd)
+      ⋆PshIsoⱽ (reindPsh∘F≅ (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Dᴰ [-][-, Fyᴰ ])
+      ⋆PshIsoⱽ reindNatIsoPsh (pathToNatIso (reindexRepresentable-seq Dᴰ F))
+        (Dᴰ [-][-, Fyᴰ ])
+      ⋆PshIsoⱽ invPshIso (reindPsh∘F≅ (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ])))
+      ⋆PshIsoⱽ (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F y Fyᴰ)))
 
--- TODO: ReindexCartesianCategoryⱽ'
+-- TODO: ReindexCartesianCategoryⱽ

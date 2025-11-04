@@ -35,7 +35,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Morphism
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Base as Uncurried
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
@@ -59,9 +59,9 @@ open PshHomᴰ
 module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module P = PresheafNotation P
-  module _ (Pᴰ' : Presheafᴰ' P Cᴰ ℓPᴰ) where
+  module _ (Pᴰ' : Uncurried.Presheafᴰ P Cᴰ ℓPᴰ) where
     private
-      module Pᴰ' = Presheafᴰ'Notation Cᴰ P Pᴰ'
+      module Pᴰ' = Uncurried.PresheafᴰNotation Cᴰ P Pᴰ'
     CurryPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ
     CurryPshᴰ .F-obᴰ {x} xᴰ p = Pᴰ' .F-ob (x , xᴰ , p)
     CurryPshᴰ .F-homᴰ {f = f} fᴰ p pᴰ = fᴰ Pᴰ'.⋆ᴰ pᴰ
@@ -71,7 +71,7 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
   module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
     private
       module Pᴰ = PresheafᴰNotation Pᴰ
-    UncurryPshᴰ : Presheafᴰ' P Cᴰ ℓPᴰ
+    UncurryPshᴰ : Uncurried.Presheafᴰ P Cᴰ ℓPᴰ
     UncurryPshᴰ .F-ob (x , xᴰ , p) = Pᴰ .F-obᴰ xᴰ p
     UncurryPshᴰ .F-hom {x = (x , xᴰ , p)}{y = (y , yᴰ , q)} (f , fᴰ , f⋆p≡q) pᴰ =
       Pᴰ.reind f⋆p≡q (fᴰ Pᴰ.⋆ᴰ pᴰ)
@@ -83,7 +83,7 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
       ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ⟩
       ∙ Pᴰ.reind-filler _ _
 
-  CurryPshᴰIso : Iso (Presheafᴰ' P Cᴰ ℓPᴰ) (Presheafᴰ P Cᴰ ℓPᴰ)
+  CurryPshᴰIso : Iso (Uncurried.Presheafᴰ P Cᴰ ℓPᴰ) (Presheafᴰ P Cᴰ ℓPᴰ)
   CurryPshᴰIso .fun = CurryPshᴰ
   CurryPshᴰIso .inv = UncurryPshᴰ
   CurryPshᴰIso .rightInv Pᴰ = Functorᴰ≡ (λ _ → refl)
@@ -95,19 +95,19 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
       sym (Pᴰ.reind-filler _ _)
       ∙ (Pᴰ'.≡in $ λ i → Pᴰ' .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ)
     where module Pᴰ = PresheafᴰNotation (CurryPshᴰ Pᴰ')
-          module Pᴰ' = Presheafᴰ'Notation Cᴰ P Pᴰ'
+          module Pᴰ' = Uncurried.PresheafᴰNotation Cᴰ P Pᴰ'
 
 module _ {C : Category ℓC ℓC'} {x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  CurryPshⱽ : Presheafⱽ' x Cᴰ ℓPᴰ → Presheafⱽ x Cᴰ ℓPᴰ
+  CurryPshⱽ : Uncurried.Presheafⱽ x Cᴰ ℓPᴰ → Presheafⱽ x Cᴰ ℓPᴰ
   CurryPshⱽ = CurryPshᴰ _ Cᴰ
 
 module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  (Pᴰ' : Presheafᴰ' P Cᴰ ℓPᴰ)
-  (Qᴰ' : Presheafᴰ' P Cᴰ ℓQᴰ)
+  (Pᴰ' : Uncurried.Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ' : Uncurried.Presheafᴰ P Cᴰ ℓQᴰ)
   where
   private
-    module Pᴰ' = Presheafᴰ'Notation Cᴰ P Pᴰ'
-    module Qᴰ' = Presheafᴰ'Notation Cᴰ P Qᴰ'
+    module Pᴰ' = Uncurried.PresheafᴰNotation Cᴰ P Pᴰ'
+    module Qᴰ' = Uncurried.PresheafᴰNotation Cᴰ P Qᴰ'
   CurryPshHom : PshHom Pᴰ' Qᴰ' → PshHomⱽ (CurryPshᴰ P Cᴰ Pᴰ') (CurryPshᴰ P Cᴰ Qᴰ')
   CurryPshHom α .PshHomᴰ.N-obᴰ = α .PshHom.N-ob _
   CurryPshHom α .PshHomᴰ.N-homᴰ =

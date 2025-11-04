@@ -64,6 +64,7 @@ _∘F_ : ∀ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}{E : Category
 (F ∘F G) .F-hom = λ z → F .F-hom (G .F-hom z)
 (F ∘F G) .F-id = cong (F .F-hom) (G .F-id) ∙ F .F-id
 (F ∘F G) .F-seq f g = cong (F .F-hom) (G .F-seq f g) ∙ F .F-seq (G .F-hom f) (G .F-hom g)
+infixr 30 _∘F_
 
 module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ} where
   private

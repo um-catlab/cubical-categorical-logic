@@ -46,7 +46,7 @@ module _ {C : SmallCategory ℓC ℓC'} where
   ⟨_⟩Psh : ∀ {ℓP} → Presheaf C ℓP → ⟨ ∫C (PRESHEAF C) ⟩ob
   ⟨_⟩Psh = mk∫Ob (PRESHEAF C)
 
-module _ {C : SmallCat.Category ℓC ℓC'} where
+module _ (C : SmallCat.Category ℓC ℓC') where
   private
     module C = SmallCat.Category C
   SmallPresheaf : (ℓP : Level) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-suc ℓP))
@@ -57,21 +57,39 @@ module _ {C : SmallCat.Category ℓC ℓC'} where
   -- of globally small presheaf
   module _ ℓP where
     open Functor
-    module SFunctor = SmallFunctor.Functor
+    private
+      module SFunctor = SmallFunctor.Functor
 
     SmallPresheaf→Presheaf : SmallPresheaf ℓP → Presheaf (mkSmallCategory C) ℓP
     SmallPresheaf→Presheaf P .F-ob = λ z → liftω (P .SFunctor.F-ob (z .lowerω))
     SmallPresheaf→Presheaf P .F-hom = P .SFunctor.F-hom
     SmallPresheaf→Presheaf P .F-id = P .SFunctor.F-id
-    SmallPresheaf→Presheaf P .F-seq f g =
-      P .SFunctor.F-seq f g ∙ (sym $ transportRefl _)
+    SmallPresheaf→Presheaf P .F-seq {x = liftω x} {z = liftω z} f g =
+      P .SFunctor.F-seq f g
+      -- ∙ (SET.≡out
+      --      {xᴰ = liftω (P .SFunctor.F-ob x)}
+      --      {yᴰ = liftω (P .SFunctor.F-ob z)} $
+      --      SET.reind-filler
+      --        {xᴰ = liftω (P .SFunctor.F-ob x)}
+      --        {yᴰ = liftω (P .SFunctor.F-ob z)}
+      --         refl _)
+      ∙ (sym $ transportRefl _)
 
     Presheaf→SmallPresheaf : Presheaf (mkSmallCategory C) ℓP → SmallPresheaf ℓP
     Presheaf→SmallPresheaf P .SFunctor.F-ob = λ z → F-ob P (liftω z) .lowerω
     Presheaf→SmallPresheaf P .SFunctor.F-hom = P .F-hom
     Presheaf→SmallPresheaf P .SFunctor.F-id = P .F-id
-    Presheaf→SmallPresheaf P .SFunctor.F-seq f g =
-      P .F-seq f g ∙ transportRefl _
+    Presheaf→SmallPresheaf P .SFunctor.F-seq {x = x} {z = z}
+       f g =
+      P .F-seq f g
+      -- ∙ (SET.≡out
+      --      {xᴰ = P .F-ob (liftω x)}
+      --      {yᴰ = P .F-ob (liftω z)} $
+      --      sym $ SET.reind-filler
+      --              {xᴰ = P .F-ob (liftω x)}
+      --              {yᴰ = P .F-ob (liftω z)}
+      --              refl _)
+      ∙ (transportRefl _)
 
     SmallPresheaf→Presheaf→SmallPresheaf : ∀ (P : SmallPresheaf ℓP) →
       Presheaf→SmallPresheaf (SmallPresheaf→Presheaf P) ≡ P

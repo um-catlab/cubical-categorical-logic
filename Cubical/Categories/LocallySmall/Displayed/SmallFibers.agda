@@ -21,6 +21,7 @@ open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Base
+open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex
@@ -42,6 +43,8 @@ module _
   (Hom-ℓᴰᴰ : (c c' : Cob) → (d d' : Dob) → Level)
   where
   private
+    module C = CategoryNotation C
+    module C×D = CategoryNotation (C ×C D)
     module Cᴰ = CategoryᴰNotation Cᴰ
 
   SmallFibersᴰCategoryᴰ : Typeω
@@ -53,7 +56,8 @@ module _
                 (ccᴰd .snd) (ccᴰd' .snd))
 
   private
-    Cᴰ' = reindexEqSF (π₁ C D) Cᴰ Eq.refl (λ _ _ → Eq.refl)
+    Cᴰ' : SmallFibersCategoryᴰ (C ×C D) _ _ _
+    Cᴰ' = reindexEqSF (π₁ C D) Cᴰ Eq.refl (λ _ _ → Eq.refl) -- F-F-hom-Eq F-F-seq-Eq
     module Cᴰ' = CategoryᴰNotation Cᴰ'
 
   module _ (Cᴰᴰ : SmallFibersᴰCategoryᴰ) where
@@ -107,17 +111,19 @@ module SmallFibersᴰCategoryᴰNotation
   --
   -- If instead of mapping into vᴰ[_][_], we have Fᴰ/Gᴰ into vᴰ[_][_]'
   -- the resulting type SmallFibNatTransᴰ is large (at Typeω)
-  vᴰ[_][_]' : (c : Cob) → (d : Dob) → SmallCategoryᴰ (_ , Cᴰ.v[ c ])
-    (obᴰᴰ-ℓ c d)
-    (Hom-ℓᴰᴰ c c d d)
+  vᴰ[_][_]' : (c : Cob) → (d : Dob) →
+    SmallCategoryᴰ (liftω (Cobᴰ c) , Cᴰ.v[ c ])
+      (obᴰᴰ-ℓ c d)
+      (Hom-ℓᴰᴰ c c d d)
   vᴰ[ c ][ d ]' = SmallFibersᴰOver _ _ _ _ _ Cᴰᴰ c d
 
   -- But using the following definiton results in it being small
   -- I'd like to avoid a new manual definition, but I can't make
   -- sense of why the one defined above causes this largeness
-  vᴰ[_][_] : (c : Cob) → (d : Dob) → SmallCategoryᴰ (_ , Cᴰ.v[ c ])
-    (obᴰᴰ-ℓ c d)
-    (Hom-ℓᴰᴰ c c d d)
+  vᴰ[_][_] : (c : Cob) → (d : Dob) →
+    SmallCategoryᴰ (liftω (Cobᴰ c) , Cᴰ.v[ c ])
+      (obᴰᴰ-ℓ c d)
+      (Hom-ℓᴰᴰ c c d d)
   vᴰ[ c ][ d ] .fst = liftω (λ cᴰ → obᴰᴰ ((c , liftω cᴰ) , d))
   vᴰ[ c ][ d ] .snd .Hom[_][_,_] fᴰ xᴰ yᴰ = Cᴰᴰ.Hom[ (C.id , fᴰ), D.id ][ xᴰ , yᴰ ]
   vᴰ[ c ][ d ] .snd .idᴰ = Cᴰᴰ.idᴰ
@@ -166,6 +172,9 @@ module SmallFibersᴰCategoryᴰNotation
       module v = CategoryᴰNotation ⟨ v ⟩smallcatᴰ
 
       _ : ⟨ u ⟩small-obᴰ ≡ ⟨ v ⟩small-obᴰ
+      _ = refl
+
+      _ : ∀ {x}{xᴰ} → u.idᴰ {x = x}{xᴰ = xᴰ} ≡ v.idᴰ
       _ = refl
 
       module _ (f : Cᴰ.Hom[ C.id ][ x , y ]) xᴰ yᴰ where

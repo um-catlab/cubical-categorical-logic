@@ -8,6 +8,7 @@ open import Cubical.Foundations.HLevels.More
 open import Cubical.Data.Sigma
 
 import Cubical.Categories.Category as Small
+import Cubical.Categories.Displayed.Base as Smallᴰ
 open import Cubical.Categories.LocallySmall.Base
 open import Cubical.Categories.LocallySmall.Variables
 
@@ -373,3 +374,26 @@ module _
   ∫Csmall .snd .⋆IdR = λ f → ⋆IdRᴰ (Cᴰ .snd) (f .snd)
   ∫Csmall .snd .⋆Assoc = λ f g h → ⋆Assocᴰ (Cᴰ .snd) (f .snd) (g .snd) (h .snd)
   ∫Csmall .snd .isSetHom = isSetΣ (isSetHom (C .snd)) (λ _ → isSetHomᴰ (Cᴰ .snd))
+
+module _
+  {C : Small.Category ℓC ℓC'}
+  (Cᴰ : Smallᴰ.Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Small.Category C
+    module Cᴰ = Smallᴰ.Categoryᴰ Cᴰ
+
+  |mkSmallCategoryᴰ| :
+    Categoryᴰ (⟨ mkSmallCategory C ⟩smallcat)
+      (λ c → Liftω Cᴰ.ob[ c .Liftω.lowerω ])
+      λ _ _ _ _ → ℓCᴰ'
+  |mkSmallCategoryᴰ| .Hom[_][_,_] f (liftω xᴰ) (liftω yᴰ) =
+    Cᴰ.Hom[ f ][ xᴰ , yᴰ ]
+  |mkSmallCategoryᴰ| .idᴰ = Cᴰ.idᴰ
+  |mkSmallCategoryᴰ| ._⋆ᴰ_ = Cᴰ._⋆ᴰ_
+  |mkSmallCategoryᴰ| .⋆IdLᴰ fᴰ = ΣPathP ((C.⋆IdL _) , (Cᴰ.⋆IdLᴰ fᴰ))
+  |mkSmallCategoryᴰ| .⋆IdRᴰ fᴰ = ΣPathP ((λ i → C.⋆IdR _ i) , Cᴰ.⋆IdRᴰ fᴰ)
+  |mkSmallCategoryᴰ| .⋆Assocᴰ fᴰ gᴰ hᴰ = ΣPathP ((C.⋆Assoc _ _ _) , (Cᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ))
+  |mkSmallCategoryᴰ| .isSetHomᴰ = Cᴰ.isSetHomᴰ
+
+  mkSmallCategoryᴰ : SmallCategoryᴰ (mkSmallCategory C) ℓCᴰ ℓCᴰ'
+  mkSmallCategoryᴰ = (liftω (λ c → Cᴰ.ob[ c ])) , |mkSmallCategoryᴰ|

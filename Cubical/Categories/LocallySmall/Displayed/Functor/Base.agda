@@ -74,7 +74,6 @@ record Functorᴰ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   ∫F .F-id = F-idᴰ
   ∫F .F-seq (_ , fᴰ) (_ , gᴰ) = F-seqᴰ fᴰ gᴰ
 
-
 module _
   {C : SmallCategory ℓC ℓC'} {D : SmallCategory ℓD ℓD'}
   {F : Functor ⟨ C ⟩smallcat  ⟨ D ⟩smallcat}

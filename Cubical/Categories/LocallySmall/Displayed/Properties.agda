@@ -17,6 +17,7 @@ open import Cubical.Reflection.RecordEquiv.More
 
 import Cubical.Categories.Category as Small
 open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Variables
@@ -30,6 +31,7 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
   private
     module C = CategoryNotation C
     module Cᴰ = Categoryᴰ Cᴰ
+
   record CatIsoᴰ {x y : Cob}(f : C.ISOC.Hom[ x , y ]) (xᴰ : Cobᴰ x ) (yᴰ : Cobᴰ y)
     : Type (ℓ-max (CHom-ℓ x x) $
             ℓ-max (CHom-ℓ x y) $
@@ -162,6 +164,15 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
 
   module CategoryᴰNotation where
     open Categoryᴰ Cᴰ public
+
+    open Functor
+    Fst : Functor Cᴰ.∫C C
+    Fst .F-ob = λ z → z .fst
+    Fst .F-hom = λ z → z .fst
+    Fst .F-id = refl
+    Fst .F-seq = λ _ _ → refl
+
+
     ISOCᴰ = ISOᴰ
     module ISOCᴰ = Categoryᴰ ISOᴰ
     ISOCᴰ≡ :

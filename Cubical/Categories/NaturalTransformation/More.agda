@@ -129,11 +129,6 @@ module _
   infixr 9 _⋆NatTrans_
   infixr 9 _⋆NatIso_
 
-  -- eqToNatIso : {F G : Functor C D}
-  --   → FunctorEq F G
-  --   → NatIso F G
-  -- eqToNatIso F≡G = {!!}
-
 module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}

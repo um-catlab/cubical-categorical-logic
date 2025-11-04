@@ -102,13 +102,18 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       a b c : ⟨ A ⟩
       p q r : P a
       pth qth : a ≡ b
+  infix 2 _∫≡_
+
+  _∫≡_ : ∀ {a b}(p : P a)(q : P b) → Type (ℓ-max ℓ ℓ')
+  p ∫≡ q = Path (Σ ⟨ A ⟩ P) (_ , p) (_ , q)
+
   ≡in :
     p P≡[ pth ] q
-    → Path (Σ ⟨ A ⟩ P) (a , p) (b , q)
+    → p ∫≡ q
   ≡in e = ΣPathP $ _ , e
 
   ≡out :
-    (e : Path (Σ ⟨ A ⟩ P) (a , p) (b , q))
+    (e : p ∫≡ q)
     → p P≡[ fst $ PathPΣ e ] q
   ≡out e = snd $ PathPΣ e
 
@@ -117,7 +122,7 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
 
   reind-filler :
     ∀ (e : a ≡ b)
-    → Path (Σ ⟨ A ⟩ P) (a , p) (b , reind e p)
+    → p ∫≡ reind e p
   reind-filler e = ΣPathP (e , (subst-filler P e _))
 
   -- This is the only part that requires the hSet stuff. Everything else is completely generic

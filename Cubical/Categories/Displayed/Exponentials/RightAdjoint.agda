@@ -36,6 +36,8 @@ open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
 open import Cubical.Categories.Displayed.BinProduct hiding (_×ᴰ_)
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Exponential
 
 private
   variable

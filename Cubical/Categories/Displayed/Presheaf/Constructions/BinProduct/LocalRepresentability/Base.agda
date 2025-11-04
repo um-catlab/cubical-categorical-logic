@@ -32,7 +32,6 @@ open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Properties
 open import Cubical.Categories.Displayed.BinProduct

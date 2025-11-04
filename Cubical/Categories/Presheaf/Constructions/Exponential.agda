@@ -50,12 +50,21 @@ module _ {C : Category ℓ ℓ'} where
       module Q = PresheafNotation Q
     open UniversalElementNotation
     _⇒PshLarge_ : Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓ' ℓA)) ℓB)
-    _⇒PshLarge_ = (PshHomProf ⟅ Q ⟆) ∘F ((appR PshProd P ∘F YO) ^opF)
+    _⇒PshLarge_ = (PshHomPsh Q) ∘F ((appR PshProd P ∘F YO) ^opF)
 
     private
       module P⇒Q = PresheafNotation _⇒PshLarge_
       test⇒PshLarge : ∀ c → P⇒Q.p[ c ] ≡ PshHom ((C [-, c ]) ×Psh P) Q
       test⇒PshLarge c = refl
+
+    -- under what circumstances
+    -- (P ⇒PshLarge Q) ∘ F
+    -- ≅ (P ∘ F) ⇒PshLarge (Q ∘ F) ?
+    --
+    -- Let's try;
+    -- (P ⇒PshLarge Q) ∘ F
+    -- = (PshHomPsh Q) ∘ ((appR PshProd P ∘ YO) ^opF) ∘ F
+    -- ≅ (PshHomPsh Q) ∘ ((appR PshProd P ∘ YO) ∘ F  ^opF) ^opF
 
     appPshHom : PshHom (_⇒PshLarge_ ×Psh P) Q
     appPshHom .N-ob Γ (f , p) = f .N-ob Γ (C.id , p)

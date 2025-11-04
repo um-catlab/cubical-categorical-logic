@@ -40,12 +40,15 @@ open import Cubical.Categories.Profunctor.General
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓR ℓS : Level
+    ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓP ℓQ ℓR ℓS : Level
 
 open Category
 open Contravariant -- Grothendieck construction for presheaves
 open Functor
+open NatTrans
+open NatIso
 open PshHom
+open PshIso
 open UniversalElement
 
 -- Whiskering
@@ -55,6 +58,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   reindPsh : (F : Functor C D) (Q : Presheaf D ℓQ) → Presheaf C ℓQ
   reindPsh F Q = Q ∘F (F ^opF)
 
+  -- This is just whiskering
   reindPshHom : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
     → (F : Functor C D) (α : PshHom P Q)
     → PshHom (reindPsh F P) (reindPsh F Q)
@@ -65,10 +69,33 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   reindPshIso : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
     → (F : Functor C D) (α : PshIso P Q)
     → PshIso (reindPsh F P) (reindPsh F Q)
-  reindPshIso F α .PshIso.trans = reindPshHom F (α .PshIso.trans)
-  reindPshIso F α .PshIso.nIso x .fst = α .PshIso.nIso _ .fst
-  reindPshIso F α .PshIso.nIso x .snd .fst = α .PshIso.nIso _ .snd .fst
-  reindPshIso F α .PshIso.nIso x .snd .snd = α .PshIso.nIso _ .snd .snd
+  reindPshIso F α .trans = reindPshHom F (α .trans)
+  reindPshIso F α .nIso x .fst = α .nIso _ .fst
+  reindPshIso F α .nIso x .snd .fst = α .nIso _ .snd .fst
+  reindPshIso F α .nIso x .snd .snd = α .nIso _ .snd .snd
+
+  -- this is right-whiskering
+  reindNatTransPsh :
+    {F G : Functor C D}
+    → (α : NatTrans G F) (P : Presheaf D ℓP)
+    → PshHom (reindPsh F P) (reindPsh G P)
+  reindNatTransPsh α P = pshhom (λ c p → α.N-ob c P.⋆ p) λ _ _ f p →
+    sym (P.⋆Assoc _ _ _) ∙ P.⟨ sym $ α.N-hom f ⟩⋆⟨⟩ ∙ P.⋆Assoc _ _ _
+    where
+      module α = NatTrans α
+      module P = PresheafNotation P
+
+  reindNatIsoPsh :
+    {F G : Functor C D}
+    → (α : NatIso F G) (P : Presheaf D ℓP)
+    → PshIso (reindPsh F P) (reindPsh G P)
+  reindNatIsoPsh α P .trans = reindNatTransPsh (symNatIso α .trans) P
+  reindNatIsoPsh α P .nIso x .fst = reindNatTransPsh (α .trans) P .N-ob _
+  reindNatIsoPsh α P .nIso x .snd =
+    (λ p → sym (P.⋆Assoc _ _ _) ∙ P.⟨ α .nIso x .isIsoC.sec ⟩⋆⟨⟩ ∙ P.⋆IdL p)
+    , λ p → sym (P.⋆Assoc _ _ _) ∙ P.⟨ α .nIso x .isIsoC.ret ⟩⋆⟨⟩ ∙ P.⋆IdL p
+    where
+      module P = PresheafNotation P
 
   PshHet : (F : Functor C D) (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) → Type _
   PshHet F P Q = PshHom P (reindPsh F Q)
@@ -141,4 +168,12 @@ reindPshId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
 reindPshId≅ P = eqToPshIso (reindPsh Id P) Eq.refl Eq.refl
 
 -- -- TODO
--- reindPsh∘F≅ : PshIso (reindPsh F (reindPsh G P)) (reindPsh (G ∘ F) P)
+reindPsh∘F≅ :
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'}
+  (F : Functor C D)
+  (G : Functor D E)
+  (P : Presheaf E ℓP)
+  → PshIso (reindPsh F (reindPsh G P)) (reindPsh (G ∘F F) P)
+reindPsh∘F≅ F G P = eqToPshIso (reindPsh (G ∘F F) P) Eq.refl Eq.refl

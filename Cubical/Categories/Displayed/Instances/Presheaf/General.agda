@@ -25,10 +25,15 @@ open import Cubical.Categories.Displayed.Exponentials.Small
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Limits.Cartesian
+open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Lift
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Exponential
 
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level

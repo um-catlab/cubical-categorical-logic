@@ -34,7 +34,10 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Limits.Terminal renaming (preservesTerminal to secPreservesTerminal)
 open import Cubical.Categories.Displayed.Limits.BinProduct
-open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Section
 open import Cubical.Categories.Displayed.Section
 import Cubical.Categories.Displayed.Presheaf.CartesianLift as Presheafᴰ
 

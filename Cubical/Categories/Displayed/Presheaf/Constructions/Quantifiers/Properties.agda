@@ -44,6 +44,7 @@ open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.Limits
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Quantifiers.UniversalProperty
 open import Cubical.Categories.Displayed.FunctorComprehension

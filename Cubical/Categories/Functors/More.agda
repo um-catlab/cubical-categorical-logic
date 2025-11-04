@@ -2,7 +2,9 @@
 module Cubical.Categories.Functors.More where
 
 open import Cubical.Foundations.Prelude
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Isomorphism.More
@@ -27,6 +29,13 @@ private
 open Category
 open Functor
 open NatTrans
+
+FunctorEq : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  → (F G : Functor C D) → Type _
+FunctorEq {C = C}{D = D} F G = Σ[ ob≡ ∈ (F .F-ob Eq.≡ G .F-ob) ]
+  Eq.HEq (Eq.ap ((λ F-ob₁ → ∀ {x} {y} → C [ x , y ] → D [ F-ob₁ x , F-ob₁ y ])) ob≡)
+    (F .F-hom)
+    (G .F-hom)
 
 ConstantComposeFunctor :
   (C : Category ℓC ℓC') (D : Category ℓD ℓD' ) (c : C .ob)

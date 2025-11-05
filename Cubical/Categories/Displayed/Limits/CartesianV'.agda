@@ -4,9 +4,13 @@ module Cubical.Categories.Displayed.Limits.CartesianV' where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Limits.Cartesian.Base
+
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+import Cubical.Categories.Displayed.Presheaf.Representable as Curried
+open import Cubical.Categories.Displayed.Limits.CartesianD
 
 private
   variable
@@ -23,3 +27,13 @@ record CartesianCategoryⱽ (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
   module Cᴰ = Categoryᴰ Cᴰ
 
 -- TODO: CartesianCategoryⱽ'→CartesianCategoryᴰ
+-- CartesianCategoryⱽ→CartesianCategoryᴰ :
+--   ∀ (CC : CartesianCategory ℓC ℓC')
+--   → CartesianCategoryⱽ (CC .CartesianCategory.C) ℓCᴰ ℓCᴰ'
+--   → CartesianCategoryᴰ CC ℓCᴰ ℓCᴰ'
+-- CartesianCategoryⱽ→CartesianCategoryᴰ CC CCⱽ =
+--   cartesiancategoryᴰ Cᴰ
+--     {!!}
+--     {!!}
+--   where
+--     open CartesianCategoryⱽ CCⱽ

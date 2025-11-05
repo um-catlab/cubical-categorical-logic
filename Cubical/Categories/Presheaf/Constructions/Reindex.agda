@@ -35,6 +35,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Profunctor.General
 
@@ -104,6 +105,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     → PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
   Functor→PshHet F c .N-ob _ = F .F-hom
   Functor→PshHet F c .N-hom _ _ = F .F-seq
+
+  Functor→PshHet-yoRec-commute : {c c' : C .ob}(F : Functor C D) (f : C [ c , c' ]) →
+    (Functor→PshHet F c ⋆PshHom reindPshHom F (yoRec (D [-, F ⟅ c' ⟆ ]) (F ⟪ f ⟫)))
+    ≡ (yoRec (C [-, c' ]) f ⋆PshHom Functor→PshHet F c')
+  Functor→PshHet-yoRec-commute F f = makePshHomPath (funExt₂ (λ x p → sym $ F .F-seq p f))
 
   module _ {F : Functor C D}{P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
     (α : PshHet F P Q)

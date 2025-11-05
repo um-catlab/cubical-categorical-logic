@@ -65,6 +65,7 @@ private
     ℓA ℓB ℓAᴰ ℓBᴰ : Level
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+    ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
 open Category
@@ -92,6 +93,58 @@ module _ {C : Category ℓC ℓC'}
 
   _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) → (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+
+-- /Fᴰ-seq :
+--  :
+-- /Fⱽᴰ-seq :
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}{Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf E ℓR}
+  {F : Functor C D}{G : Functor D E}
+  where
+  private
+    module R = PresheafNotation R
+  /Fᴰ-seq : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (α : PshHet F P Q)(Gᴰ : Functorᴰ G Dᴰ Eᴰ) (β : PshHet G Q R)
+    → Path (Functor (Cᴰ / P) (Eᴰ / R))
+        ((Gᴰ /Fᴰ β) ∘F (Fᴰ /Fᴰ α))
+        ((Gᴰ ∘Fᴰ Fᴰ) /Fᴰ (α ⋆PshHom (reindPshHom F β ⋆PshHom reindPsh∘F≅ F G R .trans)))
+  /Fᴰ-seq Fᴰ α Gᴰ β = Functor≡ (λ _ → refl)
+    (λ f → ΣPathP (refl , ΣPathP (refl , isSet→SquareP (λ i j → R.isSetPsh) _ _ _ _)))
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}{Eᴰ : Categoryᴰ D ℓEᴰ ℓEᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf D ℓR}
+  {F : Functor C D}
+  where
+  private
+    module R = PresheafNotation R
+  /Fⱽᴰ-seq : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (α : PshHet F P Q) (Gⱽ : Functorⱽ Dᴰ Eᴰ) (β : PshHom Q R)
+    → Path (Functor (Cᴰ / P) (Eᴰ / R))
+        ((Gⱽ /Fⱽ β) ∘F (Fᴰ /Fᴰ α))
+        ((Gⱽ ∘Fⱽᴰ Fᴰ) /Fᴰ (α ⋆PshHom reindPshHom F β))
+  /Fⱽᴰ-seq Fᴰ α Gⱽ β =
+    Functor≡ (λ _ → refl)
+      (λ _ → ΣPathP (refl , (ΣPathP (refl ,
+        (isSet→SquareP (λ i j → R.isSetPsh) _ _ _ _)))))
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}{Eᴰ : Categoryᴰ D ℓEᴰ ℓEᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf D ℓR}
+  {G : Functor C D}
+  where
+  private
+    module R = PresheafNotation R
+  /Fᴰⱽ-seq : (Fⱽ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) (Gᴰ : Functorᴰ G Dᴰ Eᴰ) (β : PshHet G Q R)
+    → Path (Functor (Cᴰ / P) (Eᴰ / R))
+        ((Gᴰ /Fᴰ β) ∘F (Fⱽ /Fⱽ α))
+        ((Gᴰ ∘Fᴰⱽ Fⱽ) /Fᴰ (α ⋆PshHom β))
+  /Fᴰⱽ-seq Fⱽ α Gᴰ β =
+    Functor≡ (λ _ → refl)
+      (λ _ → ΣPathP (refl , (ΣPathP (refl ,
+        (isSet→SquareP (λ i j → R.isSetPsh) _ _ _ _)))))
+
+-- /Fⱽ-seq :
+-- /Fᴰ-id
 
 -- Interestingly, this one is at a lower universe level than Curried.Presheafᴰ
 -- Use modules to distinguish this from Curried.Presheafᴰ

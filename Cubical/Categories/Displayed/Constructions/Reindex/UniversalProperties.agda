@@ -74,20 +74,30 @@ module _
   reindexRepresentable-seq : ∀ {x y f}
     → (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) ∘F (π Dᴰ F /Fᴰ Functor→PshHet F x)
       ≡ (π Dᴰ F /Fᴰ Functor→PshHet F y) ∘F (Idᴰ /Fⱽ yoRec (C [-, y ]) f)
-  reindexRepresentable-seq = Functor≡ (λ _ → ΣPathP (refl , (ΣPathP (refl , (sym $ F .F-seq _ _)))))
-    (λ _ → ΣPathP (refl , ΣPathP (refl , isSet→SquareP (λ i j → D.isSetHom) _ _ _ _)))
+  reindexRepresentable-seq =
+    /Fⱽᴰ-seq (π Dᴰ F) (Functor→PshHet F _) Idᴰ (yoRec (D [-, F.F-ob _ ]) (F.F-hom _))
+    ∙ cong₂ _/Fᴰ_ (Functorᴰ≡ (λ _ → refl) (λ _ → refl)) (Functor→PshHet-yoRec-commute F _)
+    ∙ (sym $ /Fᴰⱽ-seq Idᴰ (yoRec (C [-, _ ]) _) (π Dᴰ F) (Functor→PshHet F _))
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   (F : Functor C D) where
+  private
+    module Dᴰ = Fibers Dᴰ
+  cartesianLiftReindex :
+    ∀ {x y}(f : C [ x , y ])(yᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+      → CartesianLift (D [-, F ⟅ y ⟆ ]) Dᴰ (F ⟪ f ⟫) (Dᴰ [-][-, yᴰ ])
+      → CartesianLift (C [-, y ]) (reindex Dᴰ F) f (reindex Dᴰ F [-][-, yᴰ ])
+  cartesianLiftReindex {x}{y} f yᴰ Ff*yᴰ = (Ff*yᴰ .fst) ,
+    reindexRepresentableIsoⱽ Dᴰ F _ _
+    ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (Ff*yᴰ .snd)
+    ⋆PshIsoⱽ (reindPsh∘F≅ (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Dᴰ [-][-, yᴰ ])
+    ⋆PshIsoⱽ reindNatIsoPsh (pathToNatIso (reindexRepresentable-seq Dᴰ F))
+      (Dᴰ [-][-, yᴰ ])
+    ⋆PshIsoⱽ invPshIso (reindPsh∘F≅ (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, yᴰ ])))
+    ⋆PshIsoⱽ (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F y yᴰ)))
 
   isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
-  isFibrationReindex isFibDᴰ {y} Fyᴰ x f = (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫) .fst)
-    , reindexRepresentableIsoⱽ Dᴰ F _ _
-      ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (isFibDᴰ Fyᴰ (F-ob F x) (F-hom F f) .snd)
-      ⋆PshIsoⱽ (reindPsh∘F≅ (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Dᴰ [-][-, Fyᴰ ])
-      ⋆PshIsoⱽ reindNatIsoPsh (pathToNatIso (reindexRepresentable-seq Dᴰ F))
-        (Dᴰ [-][-, Fyᴰ ])
-      ⋆PshIsoⱽ invPshIso (reindPsh∘F≅ (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ])))
-      ⋆PshIsoⱽ (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F y Fyᴰ)))
+  isFibrationReindex isFibDᴰ {y} Fyᴰ x f = cartesianLiftReindex f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))
 
 -- TODO: ReindexCartesianCategoryⱽ

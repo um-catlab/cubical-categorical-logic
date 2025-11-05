@@ -29,8 +29,11 @@ private
 module _ {C : Category ℓC ℓC'}(P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module P = PresheafNotation P
+  CartesianLift : ∀ {x} (p : P.p[ x ])(Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Type _
+  CartesianLift p Pᴰ = Representableⱽ Cᴰ _ (reindPshᴰNatTrans (yoRec P p) Pᴰ)
+
   isFibrationPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ → Type _
-  isFibrationPshᴰ Pᴰ = ∀ x (p : P.p[ x ]) → Representableⱽ Cᴰ x (reindPshᴰNatTrans (yoRec P p) Pᴰ)
+  isFibrationPshᴰ Pᴰ = ∀ x (p : P.p[ x ]) → CartesianLift p Pᴰ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private

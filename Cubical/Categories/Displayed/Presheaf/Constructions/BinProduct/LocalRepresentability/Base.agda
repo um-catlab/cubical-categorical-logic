@@ -82,7 +82,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   ∫LocallyRepresentable (Pᴰ , _×ᴰPᴰ) (Γ , Γᴰ) =
     UniversalElementᴰ.∫ue (Γᴰ ×ᴰPᴰ)
       ◁PshIso
-      (∫×ᴰ≅× ⋆PshIso ×PshIso (TotalCatYoPshIso Cᴰ) idPshIso)
+      (∫×ᴰ≅× ⋆PshIso (TotalCatYoPshIso Cᴰ ×PshIso idPshIso))
 
   -- -- WIP
   -- module _ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where

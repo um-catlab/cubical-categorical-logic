@@ -111,16 +111,16 @@ module _ {C : Category ℓ ℓ'} where
     (PIso : PshIso P P')
     (QIso : PshIso Q Q')
     where
-    ×PshIso : PshIso (P ×Psh Q) (P' ×Psh Q')
-    ×PshIso .trans = (PIso .trans ×PshHom QIso .trans)
-    ×PshIso .nIso c .fst x =
+    _×PshIso_ : PshIso (P ×Psh Q) (P' ×Psh Q')
+    _×PshIso_ .trans = (PIso .trans ×PshHom QIso .trans)
+    _×PshIso_ .nIso c .fst x =
       PIso .nIso c .fst (x .fst) ,
       QIso .nIso c .fst (x .snd)
-    ×PshIso .nIso c .snd .fst b =
+    _×PshIso_ .nIso c .snd .fst b =
       cong₂ _,_
         (PIso .nIso c .snd .fst (b .fst))
         (QIso .nIso c .snd .fst (b .snd))
-    ×PshIso .nIso c .snd .snd b =
+    _×PshIso_ .nIso c .snd .snd b =
       cong₂ _,_
         (PIso .nIso c .snd .snd (b .fst))
         (QIso .nIso c .snd .snd (b .snd))

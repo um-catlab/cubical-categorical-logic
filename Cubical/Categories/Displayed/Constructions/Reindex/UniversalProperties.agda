@@ -22,6 +22,7 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Representable.More
 
@@ -100,4 +101,22 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
   isFibrationReindex isFibDᴰ {y} Fyᴰ x f = cartesianLiftReindex f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))
 
--- TODO: ReindexCartesianCategoryⱽ
+  TerminalⱽReindex : ∀ (x : C .ob) → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
+  TerminalⱽReindex x termⱽ = (termⱽ .fst) ,
+    (reindexRepresentableIsoⱽ Dᴰ F _ _
+    ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (termⱽ .snd)
+    ⋆PshIsoⱽ UnitPshᴰ-reindPsh (reindex-π-/ Dᴰ F x))
+
+  BinProductⱽReindex : ∀ {x : C .ob} (xᴰ yᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → BinProductⱽ Dᴰ xᴰ yᴰ
+    → BinProductⱽ (reindex Dᴰ F) xᴰ yᴰ
+  BinProductⱽReindex xᴰ yᴰ xᴰ∧yᴰ = xᴰ∧yᴰ .fst ,
+    reindexRepresentableIsoⱽ Dᴰ F _ _
+    ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F _) (xᴰ∧yᴰ .snd)
+    ⋆PshIsoⱽ ×ⱽPsh-reindPsh (Dᴰ [-][-, xᴰ ]) (Dᴰ [-][-, yᴰ ])
+    ⋆PshIsoⱽ (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F _ _) ×PshIso invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F _ _))
+
+  isCartesianⱽReindex : isCartesianⱽ Dᴰ → isCartesianⱽ (reindex Dᴰ F)
+  isCartesianⱽReindex isCartⱽDᴰ .fst = isFibrationReindex (isCartⱽDᴰ .fst)
+  isCartesianⱽReindex isCartⱽDᴰ .snd .fst = λ x → TerminalⱽReindex x (isCartⱽDᴰ .snd .fst (F-ob F x))
+  isCartesianⱽReindex isCartⱽDᴰ .snd .snd = λ xᴰ yᴰ → BinProductⱽReindex xᴰ yᴰ (isCartⱽDᴰ .snd .snd xᴰ yᴰ)

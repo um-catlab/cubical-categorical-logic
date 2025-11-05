@@ -133,12 +133,11 @@ module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
   (F : Functor (Dᴰ / Q) (Cᴰ / P))
-  (P : Presheaf D ℓP)
   where
-  UnitPshᴰ-reindPshᴰFunctor :
+  UnitPshᴰ-reindPsh :
     PshIsoⱽ (reindPsh F UnitPshᴰ)
             UnitPshᴰ
-  UnitPshᴰ-reindPshᴰFunctor = pathToPshIso $ sym $
+  UnitPshᴰ-reindPsh = pathToPshIso $ sym $
     Constant-natural (SET ℓ-zero) (Unit , isSetUnit) (F ^opF)
 
 module _
@@ -147,10 +146,10 @@ module _
   {F : Functor (Dᴰ / Q) (Cᴰ / P)}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ)
   where
-  ×ⱽPsh-reindPshFunctor :
+  ×ⱽPsh-reindPsh :
     PshIsoⱽ (reindPsh F (Pᴰ ×ⱽPsh Qᴰ))
             (reindPsh F Pᴰ ×ⱽPsh reindPsh F Qᴰ)
-  ×ⱽPsh-reindPshFunctor = pathToPshIso $
+  ×ⱽPsh-reindPsh = pathToPshIso $
     (×Sets ∘F (Pᴰ ,F Qᴰ)) ∘F (F ^opF)
       ≡⟨ (sym $ F-assoc) ⟩
     ×Sets ∘F (Pᴰ ,F Qᴰ) ∘F (F ^opF)

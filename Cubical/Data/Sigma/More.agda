@@ -12,6 +12,8 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 open import Cubical.Data.Sigma
 
+open import Cubical.Data.Prod using (_×ω_; _,_)
+
 
 open Iso
 
@@ -27,3 +29,31 @@ change-contractum : (p : ∃![ x₀ ∈ A ] B x₀) → singl (p .fst .fst)
 change-contractum {B = B} ((x₀ , p₀) , contr) (x , x₀≡x) =
   (x , subst B x₀≡x p₀)
   , (λ yq → ΣPathP ((sym x₀≡x) , symP (subst-filler B x₀≡x p₀)) ∙ contr yq)
+
+open _×ω_
+
+record Σω (A : Typeω) (B : A → Typeω) : Typeω where
+  constructor _,_
+  field
+    fst : A
+    snd : B fst
+
+Σω-syntax : ∀ (A : Typeω) (B : A → Typeω) → Typeω
+Σω-syntax = Σω
+
+syntax Σω-syntax A (λ x → B) = Σω[ x ∈ A ] B
+
+open Σω
+
+record Liftω (A : Type ℓ) : Typeω where
+  constructor liftω
+  field
+    lowerω : A
+
+open Liftω
+
+mapω : {A : Type ℓ}{B : Type ℓ'} → (A → B) → Liftω A → Liftω B
+mapω f a = liftω (f (a .lowerω))
+
+mapω' : {A : Type ℓ}{β : A → Level} (f : (a : A) → Type (β a)) (a : Liftω A) → Typeω
+mapω' f a = Liftω (f (a .lowerω))

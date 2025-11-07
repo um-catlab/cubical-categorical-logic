@@ -2,11 +2,15 @@ module Cubical.Categories.LocallySmall.Instances.Functor.Base where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Categories.LocallySmall.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Base
 open import Cubical.Categories.LocallySmall.Variables
-open import Cubical.Categories.LocallySmall.Displayed
+
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
+open import Cubical.Categories.LocallySmall.Displayed.Category.Small
+open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 
 open Category
 open Categoryᴰ
@@ -14,16 +18,16 @@ open Categoryᴰ
 module _
   {D : Category Dob DHom-ℓ}
   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
-  ((Cob , C) : SmallCategory ℓC ℓC')
+  (C : SmallCategory ℓC ℓC')
   (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)
   where
   private
-    module C =  CategoryNotation C
+    module C =  SmallCategory C
     module D =  CategoryNotation D
     module Dᴰ = CategoryᴰNotation Dᴰ
   open SmallFibNatTrans
 
-  FIBER-FUNCTOR : Categoryᴰ D (λ d → Functor C Dᴰ.v[ d ]) _
+  FIBER-FUNCTOR : Categoryᴰ D (λ d → Functor C.cat Dᴰ.v[ d ]) _
   FIBER-FUNCTOR .Hom[_][_,_] = SmallFibNatTrans Dᴰ
   FIBER-FUNCTOR .idᴰ = idSFTrans _
   FIBER-FUNCTOR ._⋆ᴰ_ α β = seqSFTrans α β

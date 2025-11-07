@@ -8,20 +8,19 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
 open import Cubical.Foundations.Isomorphism hiding (isIso)
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.More
-  using (isSet→Square)
-  renaming (rectify to TypeRectify)
 
-open import Cubical.Data.Prod using (_×ω_; _,_)
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.Data.Unit
 
 import Cubical.Categories.Category as Small
 import Cubical.Categories.Functor as SmallF
 
-open import Cubical.Categories.LocallySmall.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
-open import Cubical.Categories.LocallySmall.Displayed.Base
+
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 
 open CatIso
 
@@ -88,11 +87,12 @@ module _
   where
   private
     C' = mkSmallCategory C
+    module C' = SmallCategory C'
     D' = mkSmallCategory D
+    module D' = SmallCategory D'
 
-  mkSmallFunctor : Functor ⟨ C' ⟩smallcat ⟨ D' ⟩smallcat
-  mkSmallFunctor .F-ob =
-    λ z → liftω (F .SmallF.Functor.F-ob (z .Liftω.lowerω))
+  mkSmallFunctor : Functor C'.cat D'.cat
+  mkSmallFunctor .F-ob = mapω (F .SmallF.Functor.F-ob)
   mkSmallFunctor .F-hom = F .SmallF.Functor.F-hom
   mkSmallFunctor .F-id = F .SmallF.Functor.F-id
   mkSmallFunctor .F-seq = F .SmallF.Functor.F-seq

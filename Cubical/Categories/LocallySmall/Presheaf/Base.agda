@@ -7,26 +7,27 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 
 import Cubical.Categories.Category.Base as SmallCat
 import Cubical.Categories.Presheaf.Base as SmallPsh
 import Cubical.Categories.Functor.Base as SmallFunctor
 
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
-open import Cubical.Categories.LocallySmall.Instances.Set
 open import Cubical.Categories.LocallySmall.Instances.Functor
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Functor.Constant
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Base
 
-open import Cubical.Categories.LocallySmall.Displayed
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
+open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 
-open Category
-open Categoryᴰ
 open Σω
 open Liftω
 
@@ -34,16 +35,24 @@ private
   module SET = CategoryᴰNotation SET
 
 module _ (C : SmallCategory ℓC ℓC') where
+  private
+    module C = SmallCategory C
+    module C^op = SmallCategory (C ^opsmall)
 
   -- A globally small presheaf
   Presheaf : Level → Typeω
-  Presheaf ℓP = Functor ⟨ C ^opsmall ⟩smallcat SET.v[ liftω ℓP ]
+  Presheaf ℓP = Functor C^op.cat SET.v[ liftω ℓP ]
 
-  PRESHEAF : Categoryᴰ LEVEL (λ d → Functor ⟨ C ^opsmall ⟩smallcat SET.v[ d ]) _
+  PRESHEAF : Categoryᴰ LEVEL (λ d → Functor C^op.cat SET.v[ d ]) _
   PRESHEAF = FIBER-FUNCTOR (C ^opsmall) SET
 
 module _ {C : SmallCategory ℓC ℓC'} where
-  ⟨_⟩Psh : ∀ {ℓP} → Presheaf C ℓP → ⟨ ∫C (PRESHEAF C) ⟩ob
+  PSH = PRESHEAF C
+  module PSH = Categoryᴰ PSH
+
+module _ {C : SmallCategory ℓC ℓC'} where
+  open Categoryᴰ
+  ⟨_⟩Psh : ∀ {ℓP} → Presheaf C ℓP → Category.Ob (∫C (PRESHEAF C))
   ⟨_⟩Psh = mk∫Ob (PRESHEAF C)
 
 module _ (C : SmallCat.Category ℓC ℓC') where
@@ -66,6 +75,8 @@ module _ (C : SmallCat.Category ℓC ℓC') where
     SmallPresheaf→Presheaf P .F-id = P .SFunctor.F-id
     SmallPresheaf→Presheaf P .F-seq {x = liftω x} {z = liftω z} f g =
       P .SFunctor.F-seq f g
+      -- I'd like to use reind-filler reasoning principles
+      -- but SET.reind-filler requires many implicits to be filled in
       -- ∙ (SET.≡out
       --      {xᴰ = liftω (P .SFunctor.F-ob x)}
       --      {yᴰ = liftω (P .SFunctor.F-ob z)} $
@@ -96,28 +107,25 @@ module _ (C : SmallCat.Category ℓC ℓC') where
     SmallPresheaf→Presheaf→SmallPresheaf P =
       SmallFunctor.Functor≡ (λ _ → refl) λ _ → refl
 
-    -- Can't directly reason about equality within Typeω
-    -- However, this is a close to a definitional iso as we can
-    -- ask for
     Presheaf→SmallPresheaf→Presheaf-F-ob :
       ∀ (P : Presheaf (mkSmallCategory C) ℓP) →
-      (c : ⟨ mkSmallCategory C ⟩small-ob) →
+      (c : mkSmallCategory C .SmallCategory.small-ob) →
       P .F-ob (liftω c) .lowerω ≡ Presheaf→SmallPresheaf P .SFunctor.F-ob c
     Presheaf→SmallPresheaf→Presheaf-F-ob P c = refl
 
     Presheaf→SmallPresheaf→Presheaf-F-hom :
       ∀ (P : Presheaf (mkSmallCategory C) ℓP) →
-      {c c' : ⟨ mkSmallCategory C ⟩small-ob} →
+         {c c' : mkSmallCategory C .SmallCategory.small-ob} →
       P .F-hom {x = liftω c} {y = liftω c'} ≡ Presheaf→SmallPresheaf P .SFunctor.F-hom
     Presheaf→SmallPresheaf→Presheaf-F-hom P = refl
 
 open Functor
 module _
   (C : SmallCategory ℓC ℓC')
-  (c : ⟨ C ⟩small-ob)
+  (c : C .SmallCategory.small-ob)
   where
   private
-    module C = CategoryNotation (C .snd)
+    module C = SmallCategory C
 
   _[-,_] : Presheaf C ℓC'
   _[-,_] .F-ob c' = liftω (C.Hom[ c' , liftω c ] , C.isSetHom)
@@ -139,10 +147,10 @@ module _
   {C : SmallCategory ℓC ℓC'}
   where
   private
-    module C = CategoryNotation (C .snd)
-    module PSH = CategoryᴰNotation (PRESHEAF C)
-    module ∫PSH = CategoryNotation (∫C (PRESHEAF C))
-  よ : Functor ⟨ C ⟩smallcat (∫C (PRESHEAF C))
+    module C = SmallCategory C
+  open Categoryᴰ
+
+  よ : Functor  C.cat (∫C (PRESHEAF C))
   よ .F-ob (liftω c) = ⟨ C [-, c ] ⟩Psh
   よ .F-hom f .fst = _
   よ .F-hom f .snd .N-ob c g = g C.⋆ f
@@ -157,7 +165,7 @@ module _
     makeSFNatTransPath refl
       (λ _ → ΣPathP (refl , funExt λ _ → sym $ C.⋆Assoc _ _ _ ))
 
-  HomLevelF : Functor ⟨ C ⟩smallcat LEVEL
+  HomLevelF : Functor C.cat LEVEL
   HomLevelF = Constant (liftω ℓC')
 
   open Section
@@ -167,11 +175,42 @@ module _
   よS .F-idᴰ i = _ , よ .F-id i .snd
   よS .F-seqᴰ f g i = _ , よ .F-seq f g i .snd
 
--- TODO port presheaf notation
-module PresheafNotation {ℓC}{ℓC'}
-  {C : SmallCategory ℓC ℓC'}
-  {ℓP}
-  (P : Presheaf C ℓP)
-  where
-  p[_] : ⟨ C ⟩small-ob → Type ℓP
-  p[ c ] = ⟨ P .F-ob (liftω c) .lowerω ⟩
+module _ {C : SmallCategory ℓC ℓC'} where
+  private
+    module C = SmallCategory C
+  module PresheafNotation {ℓP} (P : Presheaf C ℓP) where
+    p[_] : C.small-ob → Type ℓP
+    p[ x ] = ⟨ P .F-ob (liftω x) .lowerω ⟩
+
+    infixr 9 _⋆_
+    _⋆_ : ∀ {x y} (f : C.Hom[ liftω x , liftω y ]) (g : p[ y ]) → p[ x ]
+    f ⋆ g = P .F-hom f g
+
+    ⋆IdL : ∀ {x} (g : p[ x ]) → C.id ⋆ g ≡ g
+    ⋆IdL = funExt⁻ (P .F-id)
+
+    ⟨_⟩⋆⟨_⟩ : ∀ {x y}
+      {f f' : C.Hom[ liftω x , liftω y ]}
+      {g g' : p[ y ]}
+              → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
+    ⟨ f≡f' ⟩⋆⟨ g≡g' ⟩ = cong₂ _⋆_ f≡f' g≡g'
+
+    ⟨⟩⋆⟨_⟩ : ∀ {x y} {f : C.Hom[ liftω x , liftω y ]} {g g' : p[ y ]}
+              → g ≡ g' → f ⋆ g ≡ f ⋆ g'
+    ⟨⟩⋆⟨_⟩ = ⟨ refl ⟩⋆⟨_⟩
+
+    ⟨_⟩⋆⟨⟩ : ∀ {x y} {f f' : C.Hom[ liftω x , liftω y ]} {g : p[ y ]}
+              → f ≡ f' → f ⋆ g ≡ f' ⋆ g
+    ⟨_⟩⋆⟨⟩ = ⟨_⟩⋆⟨ refl ⟩
+
+    ⋆Assoc : ∀ {x y z}
+      (f : C.Hom[ liftω x , liftω y ])
+      (g : C.Hom[ liftω y , liftω z ])(h : p[ z ]) →
+      (f C.⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
+    ⋆Assoc f g h =
+      funExt⁻ (P .F-seq g f) h
+      ∙ transportRefl _
+      ∙ ⟨⟩⋆⟨ ⟨⟩⋆⟨ transportRefl _ ⟩ ⟩
+
+    isSetPsh : ∀ {x} → isSet (p[ x ])
+    isSetPsh {x} = P .F-ob (liftω x) .lowerω .snd

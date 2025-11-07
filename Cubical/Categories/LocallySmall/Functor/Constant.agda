@@ -2,7 +2,7 @@ module Cubical.Categories.LocallySmall.Functor.Constant where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
 

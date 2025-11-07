@@ -4,11 +4,11 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Unit
 
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 
 open Category
-open Σω
 
 Indiscrete : (ob : Typeω) → GloballySmallCategory ob ℓ-zero
 Indiscrete ob .Hom[_,_] = λ _ _ → Unit

@@ -5,16 +5,20 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.Data.Prod using (_×ω_; _,_)
 
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Base
 open import Cubical.Categories.LocallySmall.Instances.Functor
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base
 
-open import Cubical.Categories.LocallySmall.Displayed
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
+open import Cubical.Categories.LocallySmall.Displayed.Category.Small
+open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
 
@@ -43,7 +47,7 @@ module _
   (Eᴰ : SmallFibersCategoryᴰ E Eobᴰ-ℓ Eobᴰ EHom-ℓᴰ)
   where
   private
-    module C =  CategoryNotation (C .snd)
+    module C =  SmallCategory C
     module D =  CategoryNotation D
     module Dᴰ = CategoryᴰNotation Dᴰ
     module E =  CategoryNotation E

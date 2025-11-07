@@ -6,24 +6,21 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
-open import Cubical.Foundations.Isomorphism hiding (isIso)
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.More
-  using (isSet→Square)
-  renaming (rectify to TypeRectify)
 
-open import Cubical.Data.Prod using (_×ω_; _,_)
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.Data.Unit
 
 open import Cubical.Reflection.RecordEquiv.More
 
-open import Cubical.Categories.LocallySmall.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct
-open import Cubical.Categories.LocallySmall.Functor.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Functor.Base
 
-open import Cubical.Categories.LocallySmall.Displayed
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
+open import Cubical.Categories.LocallySmall.Displayed.Category.Small
+open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
 

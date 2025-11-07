@@ -74,10 +74,12 @@ module Cubical.Categories.LocallySmall.Displayed.Section.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed
+
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
+open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 
 open Category

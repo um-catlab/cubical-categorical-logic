@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Displayed.Properties where
+module Cubical.Categories.LocallySmall.Displayed.Category.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -12,20 +12,22 @@ open import Cubical.Foundations.More
   renaming (rectify to TypeRectify)
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 
 open import Cubical.Reflection.RecordEquiv.More
 
 import Cubical.Categories.Category as Small
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Base
+
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
+open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Variables
 
 open Category
 open Categoryᴰ
 open Σω
-
 
 module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) where
   private
@@ -171,7 +173,6 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
     Fst .F-hom = λ z → z .fst
     Fst .F-id = refl
     Fst .F-seq = λ _ _ → refl
-
 
     ISOCᴰ = ISOᴰ
     module ISOCᴰ = Categoryᴰ ISOᴰ
@@ -347,68 +348,3 @@ module _
           (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _)
         )
     redefine-idᴰ-⋆ᴰ .isSetHomᴰ = Cᴰ.isSetHomᴰ
-
--- -- -- SmallObjectsCategoryᴰ
--- -- --   : ∀ (C : Category Cob C-ℓ)
--- -- --   → {ℓC}(ob : Type ℓC)(C-ℓ : ob → ob → Level)
--- -- --   → Typeω
--- -- -- SmallObjectsCategoryᴰ ob C-ℓ = Category (Liftω ob) λ (liftω x) (liftω y) → C-ℓ x y
-
--- -- -- -- A (LS) Category such that all hom sets are at the *same* universe level
--- -- -- GloballySmallCategory : (Cob : Typeω)(ℓC' : Level) → Typeω
--- -- -- GloballySmallCategory Cob ℓC' = Category Cob λ _ _ → ℓC'
-
--- -- -- -- A category is small if it both has small objects and is globally
--- -- -- -- small.
--- -- -- -- This is the only variant that is itself a small type: the
--- -- -- -- definition of Category in Cubical.Categories.Category
--- -- -- SmallCategory : ∀ ℓC (ℓC' : Level) → Typeω
--- -- -- SmallCategory ℓC ℓC' = Σω[ (liftω ob) ∈ Liftω (Type ℓC) ] GloballySmallCategory (Liftω ob) ℓC'
-
-
-
--- -- -- -- LEVEL-iso : ∀ {ℓ} {ℓ'} → SmallCategory.CatIso LEVEL ℓ ℓ'
--- -- -- -- LEVEL-iso .fst = tt
--- -- -- -- LEVEL-iso .snd .SmallCategory.isIso.inv = tt
--- -- -- -- LEVEL-iso .snd .SmallCategory.isIso.sec = refl
--- -- -- -- LEVEL-iso .snd .SmallCategory.isIso.ret = refl
-
--- -- -- -- LEVELω-iso : ∀ {ℓ} {ℓ'} → CatIso LEVELω ℓ ℓ'
--- -- -- -- LEVELω-iso .CatIso.fun = tt
--- -- -- -- LEVELω-iso .CatIso.inv = tt
--- -- -- -- LEVELω-iso .CatIso.sec = refl
--- -- -- -- LEVELω-iso .CatIso.ret = refl
-
-
--- -- -- -- -- module SET = LocallySmallCategoryᴰNotation SET
--- -- -- -- -- -- The total category LocallySmallCategoryᴰ.∫C SET is the "large category of all small sets"
--- -- -- -- -- -- Then
--- -- -- -- -- SETᴰ : LocallySmallCategoryᴰ
--- -- -- -- --          (LEVEL ⊘ LocallySmallCategoryᴰ.∫C SET)
--- -- -- -- --          (λ (ℓᴰ , (_ , liftω X)) → Liftω (⟨ X ⟩ → hSet ℓᴰ))
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom-ℓᴰ = _
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.Hom[_][_,_] (_ , _ , f) (liftω Xᴰ) (liftω Yᴰ) =
--- -- -- -- --   ∀ x → ⟨ Xᴰ x ⟩ → ⟨ Yᴰ (f x ) ⟩
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.idᴰ = λ x xᴰ → xᴰ
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ._⋆ᴰ_ {f = (_ , _ , f)} fᴰ gᴰ x xᴰ =
--- -- -- -- --   gᴰ (f x) (fᴰ x xᴰ)
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdLᴰ = λ _ → refl
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆IdRᴰ = λ _ → refl
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.⋆Assocᴰ = λ _ _ _ → refl
--- -- -- -- -- SETᴰ .LocallySmallCategoryᴰ.isSetHomᴰ {yᴰ = liftω Yᴰ} =
--- -- -- -- --   isSetΠ λ _ → isSet→ (Yᴰ _ .snd)
-
--- -- -- -- -- module SETᴰ = LocallySmallCategoryᴰNotation SETᴰ
-
--- -- -- -- -- module _ (C : LocallySmallCategory Cob) (D : LocallySmallCategory Dob) where
--- -- -- -- --   private
--- -- -- -- --     module D = LocallySmallCategory D
--- -- -- -- --   weaken : LocallySmallCategoryᴰ C λ _ → Dob
--- -- -- -- --   weaken .LocallySmallCategoryᴰ.Hom-ℓᴰ _ x _ y = D.Hom-ℓ x y
--- -- -- -- --   weaken .LocallySmallCategoryᴰ.Hom[_][_,_] _ = D.Hom[_,_]
--- -- -- -- --   weaken .LocallySmallCategoryᴰ.idᴰ = D.id
--- -- -- -- --   weaken .LocallySmallCategoryᴰ._⋆ᴰ_ = D._⋆_
--- -- -- -- --   weaken .LocallySmallCategoryᴰ.⋆IdLᴰ = D.⋆IdL
--- -- -- -- --   weaken .LocallySmallCategoryᴰ.⋆IdRᴰ = D.⋆IdR
--- -- -- -- --   weaken .LocallySmallCategoryᴰ.⋆Assocᴰ = D.⋆Assoc
--- -- -- -- --   weaken .LocallySmallCategoryᴰ.isSetHomᴰ = D.isSetHom

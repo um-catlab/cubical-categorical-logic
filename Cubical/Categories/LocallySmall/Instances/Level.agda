@@ -3,7 +3,10 @@ module Cubical.Categories.LocallySmall.Instances.Level where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Data.Sigma.More
+
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct

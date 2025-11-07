@@ -1,28 +1,23 @@
 module Cubical.Categories.LocallySmall.Displayed.Functor.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
-open import Cubical.Foundations.Isomorphism hiding (isIso)
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.More
-  using (isSet→Square)
-  renaming (rectify to TypeRectify)
 
-open import Cubical.Data.Prod using (_×ω_; _,_)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
+open import Cubical.Data.Sigma.More
 
-open import Cubical.Categories.LocallySmall.Base as LocallySmall
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor.Base
 
-open import Cubical.Categories.LocallySmall.Displayed.Base
-open import Cubical.Categories.LocallySmall.Displayed.Properties
+open import Cubical.Categories.LocallySmall.Displayed.Category.Base
+open import Cubical.Categories.LocallySmall.Displayed.Category.Small
+open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 
+open Σω
 open CatIso
 open CatIsoᴰ
 open Functor
@@ -75,31 +70,41 @@ record Functorᴰ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   ∫F .F-seq (_ , fᴰ) (_ , gᴰ) = F-seqᴰ fᴰ gᴰ
 
 module _
-  {C : SmallCategory ℓC ℓC'} {D : SmallCategory ℓD ℓD'}
-  {F : Functor ⟨ C ⟩smallcat  ⟨ D ⟩smallcat}
-  {Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ'}
-  {ℓDᴰ ℓDᴰ'}
-  {Dᴰ : SmallCategoryᴰ D ℓDᴰ ℓDᴰ'}
-  (Fᴰ : Functorᴰ F ⟨ Cᴰ ⟩smallcatᴰ  ⟨ Dᴰ ⟩smallcatᴰ)
-  where
+  {C : SmallCategory ℓC ℓC'} {D : SmallCategory ℓD ℓD'} where
   private
-    module F = FunctorNotation F
-    module Fᴰ = Functorᴰ Fᴰ
+    module C = SmallCategory C
+    module D = SmallCategory D
+  module _ {F : Functor (C.cat) (D.cat)}
+    {Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ'}
+    {ℓDᴰ ℓDᴰ'}
+    {Dᴰ : SmallCategoryᴰ D ℓDᴰ ℓDᴰ'}
+    where
 
-  ∫Fsmall' : Functor ⟨ ∫Csmall Cᴰ ⟩smallcat ⟨ ∫Csmall Dᴰ ⟩smallcat
-  ∫Fsmall' .F-ob (liftω (x , xᴰ)) =
-    liftω (F.F-ob (liftω x) .Liftω.lowerω ,
-           Fᴰ.F-obᴰ (liftω xᴰ) .Liftω.lowerω)
-  ∫Fsmall' .F-hom (f , fᴰ) = F.F-hom f , Fᴰ.F-homᴰ fᴰ
-  ∫Fsmall' .F-id = Fᴰ.F-idᴰ
-  ∫Fsmall' .F-seq = λ f g → Fᴰ.F-seqᴰ (f .snd) (g .snd)
+    private
+      module Cᴰ = SmallCategoryᴰ Cᴰ
+      module ∫Cᴰ = SmallCategory Cᴰ.∫Csmall
+      module Dᴰ = SmallCategoryᴰ Dᴰ
+      module ∫Dᴰ = SmallCategory Dᴰ.∫Csmall
 
-  open Categoryᴰ
-  ∫Fsmall : Functor (∫C ⟨ Cᴰ ⟩smallcatᴰ) (∫C ⟨ Dᴰ ⟩smallcatᴰ)
-  ∫Fsmall .F-ob  = λ z → F.F-ob (z .Σω.fst) , Fᴰ.F-obᴰ (z .Σω.snd)
-  ∫Fsmall .F-hom = λ z → F.F-hom (z .fst) , Fᴰ.F-homᴰ (z .snd)
-  ∫Fsmall .F-id = Fᴰ.F-idᴰ
-  ∫Fsmall .F-seq = λ f g → Fᴰ.F-seqᴰ (f .snd) (g .snd)
+    module _ (Fᴰ : Functorᴰ F (Cᴰ.catᴰ) (Dᴰ.catᴰ)) where
+      private
+        module F = FunctorNotation F
+        module Fᴰ = Functorᴰ Fᴰ
+
+      ∫Fsmall' : Functor ∫Cᴰ.cat ∫Dᴰ.cat
+      ∫Fsmall' .F-ob (liftω (x , xᴰ)) =
+        liftω (F.F-ob (liftω x) .Liftω.lowerω ,
+               Fᴰ.F-obᴰ (liftω xᴰ) .Liftω.lowerω)
+      ∫Fsmall' .F-hom (f , fᴰ) = F.F-hom f , Fᴰ.F-homᴰ fᴰ
+      ∫Fsmall' .F-id = Fᴰ.F-idᴰ
+      ∫Fsmall' .F-seq = λ f g → Fᴰ.F-seqᴰ (f .snd) (g .snd)
+
+      open Categoryᴰ
+      ∫Fsmall : Functor (∫C (Cᴰ.catᴰ)) (∫C (Dᴰ.catᴰ))
+      ∫Fsmall .F-ob  = λ z → F.F-ob (z .Σω.fst) , Fᴰ.F-obᴰ (z .Σω.snd)
+      ∫Fsmall .F-hom = λ z → F.F-hom (z .fst) , Fᴰ.F-homᴰ (z .snd)
+      ∫Fsmall .F-id = Fᴰ.F-idᴰ
+      ∫Fsmall .F-seq = λ f g → Fᴰ.F-seqᴰ (f .snd) (g .snd)
 
 open Functorᴰ
 module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}

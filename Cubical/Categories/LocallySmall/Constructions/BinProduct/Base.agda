@@ -4,9 +4,11 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.Data.Prod using (_×ω_; _,_)
 
-open import Cubical.Categories.LocallySmall.Base
+open import Cubical.Categories.LocallySmall.Category.Base
+open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Instances.Functor
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
@@ -49,12 +51,12 @@ module _
   π₂ .F-seq _ _ = refl
 
 module _
-  ((Cob , C) : SmallCategory ℓC ℓC')
+  (C : SmallCategory ℓC ℓC')
   (D : Category Dob DHom-ℓ) where
   private
-    module C = Category C
+    module C = SmallCategory C
     module D = CategoryNotation D
-  _⊘_ : Category (Cob .Liftω.lowerω ×ω Dob) _
+  _⊘_ : Category (C.small-ob ×ω Dob) _
   _⊘_ .Hom[_,_] (x , y) (x' , y') = C.Hom[ liftω x , liftω x' ] × D.Hom[ y , y' ]
   _⊘_ .id = C.id , D.id
   _⊘_ ._⋆_ (f , g) (f' , g') = (f C.⋆ f') , (g D.⋆ g')
@@ -64,7 +66,7 @@ module _
   _⊘_ .isSetHom = isSet× C.isSetHom D.isSetHom
 
   open Functor
-  ⊘π₁ : Functor _⊘_ C
+  ⊘π₁ : Functor _⊘_ C.cat
   ⊘π₁ .F-ob (c , d) = liftω c
   ⊘π₁ .F-hom (f , g) = f
   ⊘π₁ .F-id = refl

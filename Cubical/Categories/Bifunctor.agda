@@ -17,6 +17,7 @@
 module Cubical.Categories.Bifunctor where
 
 open import Cubical.Foundations.Prelude hiding (Path)
+open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -546,12 +547,34 @@ CurriedToBifunctor F = mkBifunctorSep G where
   G .Bif-R-seq g g' = (F ⟅ _ ⟆) .F-seq g g'
   G .SepBif-RL-commute f g = (F ⟪ f ⟫) .N-hom g
 
+CurriedToBifunctorL : Functor C (FUNCTOR D E) → Bifunctor D C E
+CurriedToBifunctorL F = mkBifunctorSep G where
+  G : BifunctorSep _ _ _
+  G .Bif-ob d c = F ⟅ c ⟆ ⟅ d ⟆
+  G .Bif-homL g c = F ⟅ c ⟆ ⟪ g ⟫
+  G .Bif-homR d f = F ⟪ f ⟫ ⟦ d ⟧
+  G .Bif-L-id = (F ⟅ _ ⟆) .F-id
+  G .Bif-L-seq g g' = (F ⟅ _ ⟆) .F-seq g g'
+  G .Bif-R-id = cong (_⟦ _ ⟧) (F .F-id)
+  G .Bif-R-seq f f' = (cong (_⟦ _ ⟧) (F .F-seq f f'))
+  G .SepBif-RL-commute g f = sym $ (F ⟪ f ⟫) .N-hom g
+
 CurryBifunctor : Bifunctor C D E → Functor C (FUNCTOR D E)
 CurryBifunctor F .F-ob c = appL F c
 CurryBifunctor F .F-hom f .N-ob d = appR F d .F-hom f
 CurryBifunctor F .F-hom f .N-hom g = Bif-RL-commute F f g
 CurryBifunctor F .F-id = makeNatTransPath (funExt λ d → F .Bif-L-id)
 CurryBifunctor F .F-seq _ _ = makeNatTransPath (funExt λ d → F .Bif-L-seq _ _)
+
+CurryBifunctorL : Bifunctor C D E → Functor D (FUNCTOR C E)
+CurryBifunctorL F .F-ob = appR F
+CurryBifunctorL F .F-hom g .N-ob c = appL F c ⟪ g ⟫
+CurryBifunctorL F .F-hom g .N-hom f = sym $ Bif-RL-commute F f g
+CurryBifunctorL F .F-id = makeNatTransPath $ funExt λ c → F .Bif-R-id
+CurryBifunctorL F .F-seq _ _ = makeNatTransPath $ funExt λ d → F .Bif-R-seq _ _
+
+App : Bifunctor (FUNCTOR C D) C D
+App = CurriedToBifunctor Id
 
 _^opBif : Bifunctor C D E
         → Bifunctor (C ^op) (D ^op) (E ^op)

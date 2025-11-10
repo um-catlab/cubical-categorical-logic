@@ -74,6 +74,8 @@ module Cubical.Categories.LocallySmall.Displayed.Section.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
+open import Cubical.Data.Sigma.More
+
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor.Base
@@ -112,6 +114,12 @@ module _ {C : Category Cob CHom-ℓ}
         (f≡g : f ≡ g) →
         F-homᴰ f Cᴰ.∫≡ F-homᴰ g
     F-homᴰ⟨ f≡g ⟩ i = (F.F-hom (f≡g i)) , (F-homᴰ (f≡g i))
+
+    ∫S : Functor D Cᴰ.∫C
+    ∫S .F-ob d = F.F-ob d , F-obᴰ d
+    ∫S .F-hom f = F.F-hom f , F-homᴰ f
+    ∫S .F-id = F-idᴰ
+    ∫S .F-seq f g = F-seqᴰ f g
 
 {-
    A Global Section is a local section over the identity functor.

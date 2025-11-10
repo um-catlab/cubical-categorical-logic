@@ -154,8 +154,6 @@ module _
     ProductOfFibers→×CᴰSFFiber Dᴰ Eᴰ ∘F (F ,F G)
   ,F-SFFunctorⱽ .F-homᴰ fᴰ .N-ob x = fᴰ .fst .N-ob x , fᴰ .snd .N-ob x
   ,F-SFFunctorⱽ .F-homᴰ {xᴰ = xᴰ}{yᴰ = yᴰ} (α , β) .N-hom g =
-     -- Should this be done more directly instead of using
-     -- N-hom'→N-hom?
      N-hom'→N-hom (Dᴰ ×CᴰSF Eᴰ) _
        (ProductOfFibers→×CᴰSFFiber Dᴰ Eᴰ ∘F (xᴰ .fst ,F xᴰ .snd))
        (ProductOfFibers→×CᴰSFFiber Dᴰ Eᴰ ∘F (yᴰ .fst ,F yᴰ .snd))

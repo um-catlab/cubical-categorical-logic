@@ -7,7 +7,7 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Functor
+open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct
 open import Cubical.Categories.LocallySmall.Instances.Indiscrete

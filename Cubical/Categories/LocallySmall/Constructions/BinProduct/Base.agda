@@ -9,9 +9,9 @@ open import Cubical.Data.Prod using (_×ω_; _,_)
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Instances.Functor
+open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
 open import Cubical.Categories.LocallySmall.Variables
-open import Cubical.Categories.LocallySmall.Functor
+open import Cubical.Categories.LocallySmall.Functor.Base
 
 open Category
 open Σω

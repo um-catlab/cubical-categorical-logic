@@ -15,14 +15,13 @@ open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Presheaf.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
-open import Cubical.Categories.LocallySmall.Instances.Functor
-open import Cubical.Categories.LocallySmall.Instances.Functor.Properties
+open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct
   hiding (π₁ ; π₂)
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Functor.Constant
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Base
+open import Cubical.Categories.LocallySmall.NaturalTransformation.SmallFibered
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties

@@ -10,7 +10,7 @@ open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Functor.Constant
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Base
+open import Cubical.Categories.LocallySmall.NaturalTransformation.SmallFibered
 open import Cubical.Categories.LocallySmall.Presheaf.Base
 
 open Functor

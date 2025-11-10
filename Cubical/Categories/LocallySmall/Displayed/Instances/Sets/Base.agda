@@ -13,6 +13,7 @@ open import Cubical.Categories.LocallySmall.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
 
+open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base

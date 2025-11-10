@@ -32,6 +32,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Section.Bisection
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
+open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base
 
 open Category
 open Categoryᴰ

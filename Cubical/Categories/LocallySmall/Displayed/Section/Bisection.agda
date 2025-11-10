@@ -62,15 +62,3 @@ module _ (C : Category Cob CHom-ℓ)
     Bif-hom×ᴰ⟨ f≡f' ⟩⟨ g≡g' ⟩ i =
       (F.Bif-hom× (f≡f' i) (g≡g' i))
       , (Bif-hom×ᴰ (f≡f' i) (g≡g' i))
-
--- module _
---   {C : Category Cob CHom-ℓ}
---   {D : Category Dob DHom-ℓ}
---   {E : Category Eob EHom-ℓ}
---   where
-
---   BisectionToParSection :
---     {F : Bifunctor C D E} →
---     {Eᴰ : Categoryᴰ E Eobᴰ EHom-ℓᴰ} →
---     Bisection C D F Eᴰ → Σω[ a ∈ {!!} ] {!!}
---   BisectionToParSection = {!!}

@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Presheaf.Constructions.Unit where
+module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Constructions.Unit.Base where
 
 open import Cubical.Foundations.Prelude
 

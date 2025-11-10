@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Presheaf.Constructions.BinProduct where
+module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Constructions.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -74,7 +74,6 @@ module _ (C : SmallCategory ℓC ℓC') where
     π₂ .snd .N-ob = λ _ → snd
     π₂ .snd .N-hom f = transportRefl _
 
-  -- TODO
   module _
     {P : Presheaf C ℓP}
     {Q : Presheaf C ℓQ}

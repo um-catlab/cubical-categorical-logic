@@ -21,11 +21,14 @@ open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Constructions.Tensor
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Profunctor.Constructions.Extension
 open import Cubical.Categories.Bifunctor
+open import Cubical.Categories.Yoneda.More
 
 private
   variable
@@ -55,6 +58,25 @@ module _ {C : Category ℓ ℓ'} where
 
   _×Psh_ : Presheaf C ℓA → Presheaf C ℓB → Presheaf C _
   P ×Psh Q = PshProd ⟅ P , Q ⟆b
+
+  -×Psh_-cocontinuous : (P : Presheaf C ℓA) → CoContinuous (-×Psh P)
+  -×Psh P -cocontinuous Q =
+    pshiso (pshhom
+      (λ c (q , p) → (C.id , p) P⊗Q.,⊗ q )
+      λ c c' f (q , p) → P⊗Q.swap _ _ _ ∙ cong (P⊗Q._,⊗ _) (ΣPathP ((C.⋆IdL f ∙ (sym $ C.⋆IdR f)) , refl)))
+      λ c → (P⊗Q.rec Q×P.isSetPsh (λ (f , p) q → (Q .F-hom f q) , p)
+        λ (f , p) g q → ΣPathP ((sym $ Q.⋆Assoc f g q) , refl))
+      , (P⊗Q.ind (λ fpq → _ , extPQ.isSetPsh _ _)
+        (λ (f , p) q → P⊗Q.swap _ _ _ ∙ cong (P⊗Q._,⊗ _) (ΣPathP ((C.⋆IdL f) , refl))))
+      , (λ (q , p) → ΣPathP ((Q.⋆IdL _) , refl))
+    where
+      P-pro : Bifunctor (C ^op) C (SET _)
+      P-pro = compR (CurriedToBifunctorL (-×Psh P)) YONEDA
+
+      module Q = PresheafNotation Q
+      module P⊗Q = ext-⊗ P-pro Q
+      module Q×P = PresheafNotation (Q ×Psh P)
+      module extPQ = PresheafNotation (ext P-pro ⟅ Q ⟆)
 
   private
     testPshProd : ∀ (P : Presheaf C ℓA)(Q : Presheaf C ℓB)

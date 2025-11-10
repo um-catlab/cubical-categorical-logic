@@ -45,6 +45,9 @@ open PshHom
 open PshIso
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
+  module ext-⊗ {ℓP}{ℓQ} (P : Bifunctor (D ^op) C (SET ℓP)) (Q : Presheaf C ℓQ){d} =
+    Tensor (CurryBifunctor P ⟅ d ⟆) Q
+
   -- TODO: make this a bifunctor
   ext : Bifunctor (D ^op) C (SET ℓP)
     → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓ))
@@ -55,5 +58,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
       → ⟨ (ext P ⟅ Q ⟆) .F-ob d ⟩ ≡ ((CurryBifunctor P ⟅ d ⟆) ⊗ Q)
     test-ext P Q d = refl
 
-  -- CoContinuous : Functor (PresheafCategory C ℓC') (PresheafCategory D ℓ') → Type _
-  -- CoContinuous F^ = ∀ P → PshIso (F^ ⟅ P ⟆) (ext (F^ ∘F YONEDA) ⟅ P ⟆)
+  CoContinuous : {ℓP : Level → Level}
+    (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
+    → Typeω
+  CoContinuous P = ∀ {ℓ} (Q : Presheaf C ℓ) → PshIso (P ⟅ Q ⟆) (ext (CurriedToBifunctorL P ∘Fr YONEDA) ⟅ Q ⟆)

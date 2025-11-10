@@ -19,10 +19,11 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Tensor
-open import Cubical.Categories.Yoneda
+open import Cubical.Categories.Yoneda.More
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Constructions.Extension
+open import Cubical.Categories.FunctorComprehension
 
 private
   variable
@@ -40,6 +41,7 @@ module _
   private
     module D = Category D
   -- Any profunctor we can define a large presheaf of morphisms "out" of the profunctor
+
   -- TODO: define this as a bifunctor so we can use that it respects nat iso of profunctors
   module _ (P : Bifunctor (D ^op) C (SET ℓP)) where
     F⇒LargeProf : Bifunctor (C ^op) (PresheafCategory D ℓS) (SET (ℓ-max (ℓ-max (ℓ-max ℓD ℓD') ℓP) ℓS))
@@ -141,3 +143,47 @@ module _
       F⇒Small-UMP =
         compIso (postcomp⋆PshHom-Iso F⇒Small≅F⇒Large)
           (F⇒Large-UMP (compR (HomBif D) F) P Q)
+
+  module P⇒Large-cocontinuous {ℓP : Level → Level}
+    (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
+    (P-cocontinuous : CoContinuous P)
+    where
+    private
+      P-bif : Bifunctor (D ^op) C (SET (ℓP ℓC'))
+      P-bif = CurriedToBifunctorL P ∘Fr YONEDA
+
+    P⇒Large : Presheaf D ℓQ → Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓD ℓD') (ℓP ℓC')) ℓQ)
+    P⇒Large Q = P-bif F⇒Large Q
+
+    module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
+      P⇒Large-UMP : Iso (PshHom R (P⇒Large Q)) (PshHom (P ⟅ R ⟆) Q)
+      P⇒Large-UMP = compIso (F⇒Large-UMP P-bif Q R)
+        (precomp⋆PshHom-Iso (P-cocontinuous R))
+
+  module P⇒Large+Small {ℓP : Level → Level}
+    (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
+    (P-cocontinuous : CoContinuous P)
+    (P-repr : ∀ c → UniversalElement D (P ⟅ C [-, c ] ⟆))
+    where
+    open P⇒Large-cocontinuous P P-cocontinuous public
+
+    private
+      P-prof : Profunctor C D (ℓP ℓC')
+      P-prof = CurryBifunctorL (CurriedToBifunctorL P ∘Fr YONEDA)
+
+      F : Functor C D
+      F = FunctorComprehension P-prof λ c → record { vertex = P-repr c .UniversalElement.vertex ; element = P-repr c .UniversalElement.element ; universal = P-repr c .UniversalElement.universal }
+
+    P⇒Small : Presheaf D ℓQ → Presheaf C ℓQ
+    P⇒Small = F F⇒Small_
+
+    -- module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
+    --   P⇒Small-UMP : Iso (PshHom R (P⇒Small Q)) (PshHom (P ⟅ R ⟆) Q)
+    --   P⇒Small-UMP =
+    --       -- Need that F⇒Large respects universe-polymorphic ProfIso
+    --       -- and a universe-polymorphic NatIso between
+    --       --   compR (CurriedToBifunctorL P) YONEDA -- (i.e., P ∘ Yo)
+    --       --   compR (HomBif D) F                   -- (i.e., Yo ∘ F)
+    --     compIso
+    --       (postcomp⋆PshHom-Iso (F⇒Small≅F⇒Large F Q ⋆PshIso {!!}))
+    --       (P⇒Large-UMP Q R)

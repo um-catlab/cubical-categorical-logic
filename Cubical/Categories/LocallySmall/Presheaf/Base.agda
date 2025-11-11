@@ -1,4 +1,11 @@
-module Cubical.Categories.LocallySmall.Presheaf.Base where
+{-- A globally small presheaf on a small category C
+-- is a contravariant functor from C to the category
+-- of sets *at a fixed universe level*
+--
+-- For a globally small presheaf P, not only are all sets
+-- in its image small but they are the *same* level.
+--}
+module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
@@ -39,7 +46,6 @@ module _ (C : SmallCategory ℓC ℓC') where
     module C = SmallCategory C
     module C^op = SmallCategory (C ^opsmall)
 
-  -- A globally small presheaf
   Presheaf : Level → Typeω
   Presheaf ℓP = Functor C^op.cat SET.v[ liftω ℓP ]
 
@@ -61,9 +67,9 @@ module _ (C : SmallCat.Category ℓC ℓC') where
   SmallPresheaf : (ℓP : Level) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-suc ℓP))
   SmallPresheaf = SmallPsh.Presheaf C
 
-  -- Compatibility of existing construction of
-  -- small presheaves with the incoming notion
-  -- of globally small presheaf
+  -- A small presheaf (as in Cubical.Categories.Presheaf.Base)
+  -- is definitionally isomorphic to a globally small presheaf on
+  -- a small category
   module _ ℓP where
     open Functor
     private
@@ -150,30 +156,27 @@ module _
     module C = SmallCategory C
   open Categoryᴰ
 
-  よ : Functor  C.cat (∫C (PRESHEAF C))
-  よ .F-ob (liftω c) = ⟨ C [-, c ] ⟩Psh
-  よ .F-hom f .fst = _
-  よ .F-hom f .snd .N-ob c g = g C.⋆ f
-  よ .F-hom {x = x}{y = y} f .snd .N-hom g =
-    N-hom'→N-hom SET _ (C [-, x .lowerω ]) (C [-, y .lowerω ])
-      (よ .F-hom f .snd .N-ob) g
-      (ΣPathP (refl , funExt λ _ → C.⋆Assoc _ _ _))
-  よ .F-id =
-    makeSFNatTransPath refl
-      (λ _ → ΣPathP (refl , funExt λ _ → C.⋆IdR _))
-  よ .F-seq f g =
-    makeSFNatTransPath refl
-      (λ _ → ΣPathP (refl , funExt λ _ → sym $ C.⋆Assoc _ _ _ ))
-
   HomLevelF : Functor C.cat LEVEL
   HomLevelF = Constant (liftω ℓC')
 
   open Section
-  よS : Section HomLevelF (PRESHEAF C)
-  よS .F-obᴰ c = よ .F-ob c .snd
-  よS .F-homᴰ f = よ .F-hom f .snd
-  よS .F-idᴰ i = _ , よ .F-id i .snd
-  よS .F-seqᴰ f g i = _ , よ .F-seq f g i .snd
+  YONEDA-S : Section HomLevelF (PRESHEAF C)
+  YONEDA-S .F-obᴰ c = C [-, c .lowerω ]
+  YONEDA-S .F-homᴰ f .N-ob c g = g C.⋆ f
+  YONEDA-S .F-homᴰ {d = x}{d' = y} f .N-hom g =
+    N-hom'→N-hom SET _ (C [-, x .lowerω ]) (C [-, y .lowerω ])
+      (YONEDA-S .F-homᴰ f .N-ob)
+      g
+      (ΣPathP (refl , funExt λ _ → C.⋆Assoc _ _ _))
+  YONEDA-S .F-idᴰ =
+    makeSFNatTransPath refl
+      (λ _ → ΣPathP (refl , funExt λ _ → C.⋆IdR _))
+  YONEDA-S .F-seqᴰ f g =
+    makeSFNatTransPath refl
+      (λ _ → ΣPathP (refl , funExt λ _ → sym $ C.⋆Assoc _ _ _ ))
+
+  YONEDA : Functor C.cat (∫C (PRESHEAF C))
+  YONEDA = intro YONEDA-S
 
 module _ {C : SmallCategory ℓC ℓC'} where
   private
@@ -214,3 +217,23 @@ module _ {C : SmallCategory ℓC ℓC'} where
 
     isSetPsh : ∀ {x} → isSet (p[ x ])
     isSetPsh {x} = P .F-ob (liftω x) .lowerω .snd
+
+module _  where
+  open SmallCategoryVariables
+  open SmallCategory
+  module _
+    (F : Functor (C .cat) (D .cat))
+    (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) where
+    PshHet : Type _
+    PshHet = PSH.Hom[ ⟨ P ⟩Psh , ⟨ Q ∘F (F ^opF) ⟩Psh ]
+
+  module _ (F : Functor (C .cat) (D .cat)) where
+    Functor→PshHet :  (c : C .small-ob)
+      → PshHet F (C [-, c ]) (D [-, F .F-ob (liftω c) .lowerω ])
+    Functor→PshHet c .fst = _
+    Functor→PshHet c .snd .N-ob _ = F .F-hom
+    Functor→PshHet c .snd .N-hom f =
+      N-hom'→N-hom SET _
+        (C [-, c ])
+        ((D [-, F .F-ob (liftω c) .lowerω ]) ∘F (F ^opF))
+        {!!} f (ΣPathPProp {!!} {!!})

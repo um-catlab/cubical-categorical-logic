@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma.More
 
 import Cubical.Categories.Category as Small
-open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Variables.Base
 open import Cubical.Categories.LocallySmall.Category.Base
 
 open Σω

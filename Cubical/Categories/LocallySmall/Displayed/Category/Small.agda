@@ -13,7 +13,7 @@ import Cubical.Categories.Displayed.Base as Smallᴰ
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Variables.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 

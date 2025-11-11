@@ -110,3 +110,11 @@ module _
    σ c .F-hom = λ z → Category.id C , z
    σ c .F-id = refl
    σ c .F-seq f g = sym $ Cᴰ.reind-filler _ _
+
+module _ where
+  open CategoryVariables
+  _^opF  : Functor C D → Functor (C ^op) (D ^op)
+  (F ^opF) .F-ob      = F .F-ob
+  (F ^opF) .F-hom     = F .F-hom
+  (F ^opF) .F-id      = F .F-id
+  (F ^opF) .F-seq f g = F .F-seq g f

@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
-open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Variables.Base
 
 open Category
 open Σω
@@ -27,6 +27,9 @@ module _ (C : Category Cob CHom-ℓ) where
       _⋆ᴰ_ : ∀ {x y z} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]} {xᴰ yᴰ zᴰ}
         → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f C.⋆ g ][ xᴰ , zᴰ ]
     infixr 9 _⋆ᴰ_
+
+    Ob[_] : Cob → Typeω
+    Ob[_] = ob[_]
 
     _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : C.Hom[ x , y ]}
       → (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (p : f ≡ g) (gᴰ : Hom[ g ][ xᴰ , yᴰ ])

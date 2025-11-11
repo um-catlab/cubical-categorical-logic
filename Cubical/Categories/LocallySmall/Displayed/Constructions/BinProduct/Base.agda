@@ -61,6 +61,41 @@ module _
   _×Cᴰ_ .isSetHomᴰ = isSet× Cᴰ.isSetHomᴰ Dᴰ.isSetHomᴰ
 
 module _
+  {C : SmallCategory ℓC ℓC'}(Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ')
+  {D : SmallCategory ℓD ℓC'}(Dᴰ : SmallCategoryᴰ D ℓDᴰ ℓDᴰ')
+  where
+  private
+    module C = SmallCategory C
+    module Cᴰ = SmallCategoryᴰ Cᴰ
+    module D = SmallCategory D
+    module Dᴰ = SmallCategoryᴰ Dᴰ
+
+  open SmallCategoryᴰ
+  _×Cᴰsmall_ : SmallCategoryᴰ (C ×Csmall D) _ _
+  _×Cᴰsmall_ .small-obᴰ (c , d) = Cᴰ.small-obᴰ c × Dᴰ.small-obᴰ d
+  _×Cᴰsmall_ .catᴰ .Hom[_][_,_] (f , g)
+    (liftω (c , d)) (liftω (c' , d')) =
+    Cᴰ.Hom[ f ][ liftω c , liftω c' ] × Dᴰ.Hom[ g ][ liftω d , liftω d' ]
+  _×Cᴰsmall_ .catᴰ .idᴰ = Cᴰ.idᴰ , Dᴰ.idᴰ
+  _×Cᴰsmall_ .catᴰ ._⋆ᴰ_ (fᴰ , gᴰ) (fᴰ' , gᴰ') = fᴰ Cᴰ.⋆ᴰ fᴰ' , gᴰ Dᴰ.⋆ᴰ gᴰ'
+  _×Cᴰsmall_ .catᴰ .⋆IdLᴰ _ =
+    ΣPathP (
+      ΣPathP ((C.⋆IdL _) , (D.⋆IdL _)) ,
+      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ _) ,
+              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdLᴰ _)))
+  _×Cᴰsmall_ .catᴰ .⋆IdRᴰ _ =
+    ΣPathP (
+      ΣPathP ((C.⋆IdR _) , (D.⋆IdR _)) ,
+      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ _) ,
+              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdRᴰ _)))
+  _×Cᴰsmall_ .catᴰ .⋆Assocᴰ _ _ _ =
+    ΣPathP (
+      ΣPathP ((C.⋆Assoc _ _ _) , (D.⋆Assoc _ _ _)) ,
+      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _) ,
+              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆Assocᴰ _ _ _)))
+  _×Cᴰsmall_ .catᴰ .isSetHomᴰ = isSet× Cᴰ.isSetHomᴰ Dᴰ.isSetHomᴰ
+
+module _
   {C : Category Cob CHom-ℓ}{Cobᴰ-ℓ Cobᴰ CHom-ℓᴰ}
   (Cᴰ : SmallFibersCategoryᴰ C Cobᴰ-ℓ Cobᴰ CHom-ℓᴰ)
   {D : Category Dob DHom-ℓ} {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}

@@ -217,3 +217,24 @@ module _ {C : SmallCategory ℓC ℓC'} where
 
     isSetPsh : ∀ {x} → isSet (p[ x ])
     isSetPsh {x} = P .F-ob (liftω x) .lowerω .snd
+
+module _  where
+  open SmallCategoryVariables
+  open SmallCategory
+  module _
+    (F : Functor (C .cat) (D .cat))
+    (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) where
+    PshHet : Type _
+    PshHet = PSH.Hom[ ⟨ P ⟩Psh , ⟨ Q ∘F (F ^opF) ⟩Psh ]
+
+  module _ (F : Functor (C .cat) (D .cat)) where
+    Functor→PshHet :  (c : C .small-ob)
+      → PshHet F (C [-, c ]) (D [-, F .F-ob (liftω c) .lowerω ])
+    Functor→PshHet c .fst = _
+    Functor→PshHet c .snd .N-ob _ = F .F-hom
+    Functor→PshHet c .snd .N-hom f =
+      N-hom'→N-hom SET _
+        (C [-, c ])
+        ((D [-, F .F-ob (liftω c) .lowerω ]) ∘F (F ^opF))
+        (λ _ → F .F-hom) f
+        (ΣPathP (refl , (funExt λ h → F .F-seq _ _)))

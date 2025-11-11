@@ -149,7 +149,7 @@ module _
     (Cᴰᴰ : SmallFibersCategoryᴰ Cᴰ.∫C C-ℓᴰᴰ Cobᴰᴰ CHom-ℓᴰᴰ)
     where
     private
-      module Cᴰᴰ = Categoryᴰ Cᴰᴰ
+      module Cᴰᴰ = ∫CᴰNotation Cᴰ Cᴰᴰ
 
     module ∫CᴰSFNotation where
       -- SmallFiberedness is preserved under partial application
@@ -158,39 +158,4 @@ module _
         SmallFibersCategoryᴰ Cᴰ.v[ c ] _
           (λ cᴰ → Cobᴰᴰ (c , cᴰ))
           (λ x y → CHom-ℓᴰᴰ (c , x) (c , y))
-      vᴰ[ c ]SF .Hom[_][_,_] fᴰ xᴰ yᴰ = Cᴰᴰ.Hom[ (id C , fᴰ) ][ xᴰ , yᴰ ]
-      vᴰ[ c ]SF .idᴰ = Cᴰᴰ.idᴰ
-      vᴰ[ c ]SF ._⋆ᴰ_ fᴰ gᴰ = Cᴰᴰ.reind (Cᴰ.reind-filler _ _) $ (fᴰ Cᴰᴰ.⋆ᴰ gᴰ)
-      vᴰ[ c ]SF .⋆IdLᴰ fᴰ =
-        ΣPathP (
-          (Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _ _)
-            ∙ Cᴰ.⋆IdLᴰ _) ,
-          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-            (sym $ Cᴰᴰ.reind-filler _ _)
-            ∙ Cᴰᴰ.⋆IdLᴰ _))
-      vᴰ[ c ]SF .⋆IdRᴰ fᴰ =
-        ΣPathP (
-          (Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _ _)
-            ∙ Cᴰ.⋆IdRᴰ _) ,
-          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-            (sym $ Cᴰᴰ.reind-filler _ _)
-            ∙ Cᴰᴰ.⋆IdRᴰ _))
-      vᴰ[ c ]SF .⋆Assocᴰ fᴰ gᴰ hᴰ =
-        ΣPathP (
-          (Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _ _)
-            ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
-            ∙ Cᴰ.⋆Assocᴰ _ _ _
-            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
-            ∙ Cᴰ.reind-filler _ _
-            ),
-          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-            (sym $ Cᴰᴰ.reind-filler _ _)
-            ∙ Cᴰᴰ.⟨ sym $ Cᴰᴰ.reind-filler _ _ ⟩⋆⟨⟩
-            ∙ Cᴰᴰ.⋆Assocᴰ _ _ _
-            ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler _ _ ⟩
-            ∙ Cᴰᴰ.reind-filler _ _
-            ))
-      vᴰ[ c ]SF .isSetHomᴰ = Cᴰᴰ.isSetHomᴰ
+      vᴰ[ c ]SF = Cᴰᴰ.vᴰ[ c ]

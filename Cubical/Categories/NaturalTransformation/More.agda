@@ -129,7 +129,6 @@ module _
   infixr 9 _⋆NatTrans_
   infixr 9 _⋆NatIso_
 
-
 module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
@@ -150,3 +149,4 @@ module _
   ∘F-^opF-NatIso .nIso x .inv = E.id
   ∘F-^opF-NatIso .nIso x .sec = E.⋆IdL (∘F-^opF-NatIso .nIso x .inv)
   ∘F-^opF-NatIso .nIso x .ret = E.⋆IdL (N-ob (∘F-^opF-NatIso .trans) x)
+

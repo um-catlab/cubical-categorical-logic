@@ -6,7 +6,7 @@ open import Cubical.Categories.Limits.Cartesian.Base
 
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
-open import Cubical.Categories.Displayed.Limits.Cartesian
+open import Cubical.Categories.Displayed.Limits.CartesianD
 
 import Cubical.Categories.Constructions.TotalCategory as TC
 

@@ -36,7 +36,7 @@ private
   variable
     ℓB ℓB' ℓC ℓC' ℓD ℓD' : Level
     ℓBᴰ ℓBᴰ' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' : Level
-    ℓDᴰ₀ ℓDᴰ₀' ℓDᴰ₁ ℓDᴰ₁' ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
+    ℓDᴰ₀ ℓDᴰ₀' ℓDᴰ₁ ℓDᴰ₁' ℓE ℓE' ℓEᴰ ℓEᴰ' ℓEᴰ₀ ℓEᴰ₀' ℓEᴰ₁ ℓEᴰ₁' : Level
 
 module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
   where
@@ -172,6 +172,15 @@ module _ {C : Category ℓC ℓC'}
   Sndⱽ .Functorᴰ.F-homᴰ = snd
   Sndⱽ .Functorᴰ.F-idᴰ = refl
   Sndⱽ .Functorᴰ.F-seqᴰ fᴰ gᴰ = refl
+
+module _ {C : Category ℓC ℓC'}
+  {Dᴰ₀ : Categoryᴰ C ℓDᴰ₀ ℓDᴰ₀'} {Dᴰ₁ : Categoryᴰ C ℓDᴰ₁ ℓDᴰ₁'}
+  {E : Category ℓE ℓE'} {Eᴰ₀ : Categoryᴰ E ℓEᴰ₀ ℓEᴰ₀'}{Eᴰ₁ : Categoryᴰ E ℓEᴰ₁ ℓEᴰ₁'}
+  {F : Functor E C}
+  where
+  _×ᴰF_ : (Fᴰ₀ : Functorᴰ F Eᴰ₀ Dᴰ₀) (Fᴰ₁ : Functorᴰ F Eᴰ₁ Dᴰ₁)
+    → Functorᴰ F (Eᴰ₀ ×ᴰ Eᴰ₁) (Dᴰ₀ ×ᴰ Dᴰ₁)
+  Fᴰ₀ ×ᴰF Fᴰ₁ = introF F (Fᴰ₀ ∘Fᴰⱽ Fstⱽ Eᴰ₀ Eᴰ₁) (Fᴰ₁ ∘Fᴰⱽ Sndⱽ Eᴰ₀ Eᴰ₁)
 
 private
   variable

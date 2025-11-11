@@ -31,6 +31,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Bifunctor
 
 {-
 
@@ -168,6 +169,10 @@ module _ {C : Category ℓc ℓc'} where
     makeNatTransPath (funExt (λ _ → funExt λ _ → makePshHomPath refl))
   PshHomProf .F-seq β β' =
     makeNatTransPath (funExt λ _ → funExt λ _ → makePshHomPath refl)
+
+  PshHomBif : Bifunctor ((PresheafCategory C ℓp) ^op) (PresheafCategory C ℓq)
+    (SET (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓp) ℓq))
+  PshHomBif = Sym $ CurriedToBifunctor PshHomProf
 
 {- a PshIso is a PshHom whose underlying functions are iso -}
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} where

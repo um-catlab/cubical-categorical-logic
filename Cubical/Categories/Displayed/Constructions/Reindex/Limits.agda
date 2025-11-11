@@ -23,12 +23,16 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
   hiding (π; reindex)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
-open import Cubical.Categories.Displayed.Limits.Cartesian
+open import Cubical.Categories.Displayed.Limits.CartesianD
+open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
 
 private
   variable

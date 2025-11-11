@@ -48,8 +48,10 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
+open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.Section
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
 

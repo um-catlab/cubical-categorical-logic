@@ -21,7 +21,8 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Limits.Cartesian
+open import Cubical.Categories.Displayed.Limits.CartesianD
+open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Section.Base

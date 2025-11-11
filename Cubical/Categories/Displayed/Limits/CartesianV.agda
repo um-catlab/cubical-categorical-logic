@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Limits.Cartesian where
+module Cubical.Categories.Displayed.Limits.CartesianV where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
@@ -17,6 +17,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Properties
 open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.CartesianD
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshFib
@@ -26,17 +27,6 @@ open import Cubical.Categories.Displayed.Presheaf
 private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
-
-record CartesianCategoryᴰ (CC : CartesianCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
-  : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
-  no-eta-equality
-  open CartesianCategory CC
-  field
-    Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
-    termᴰ : Terminalᴰ Cᴰ term
-    bpᴰ   : BinProductsᴰ Cᴰ bp
-
-  module Cᴰ = Categoryᴰ Cᴰ
 
 record CartesianCategoryⱽ (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
   : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
@@ -63,18 +53,6 @@ module _ {CC : CartesianCategory ℓC ℓC'}
     termⱽ 𝟙ue.vertex ◁PshIsoⱽᴰ UnitPshᴰ≅UnitPshᴰ
   CartesianCategoryⱽ→CartesianCategoryᴰ .bpᴰ =
     BinProductsⱽ→BinProductsᴰ Cᴰ cartesianLifts bpⱽ bp
-
-record CartesianCategoryReprᴰ (CC : CartesianCategoryRepr ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
-  : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
-  no-eta-equality
-  open CartesianCategoryRepr CC
-  field
-    Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ' -- (TerminalPresheafᴰ* Cᴰ ℓCᴰ' (TerminalPresheaf* ℓC'))
-    termᴰ : Representationᵁᴰ Cᴰ (LiftPshᴰ UnitPshᴰ ℓCᴰ') term
-    bpᴰ   : ∀ {c} {d} cᴰ dᴰ
-      → Representationᵁᴰ Cᴰ ((Cᴰ [-][-, cᴰ ]) ×ᴰPsh (Cᴰ [-][-, dᴰ ])) (bp c d)
-
-  module Cᴰ = Categoryᴰ Cᴰ
 
 record CartesianCategoryReprⱽ (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
   : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where

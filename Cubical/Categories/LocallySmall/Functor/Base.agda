@@ -105,8 +105,8 @@ module _
      module Cᴰ = Categoryᴰ Cᴰ
      module ∫Cᴰ = Category Cᴰ.∫C
 
-   in[_]∫ : (c : Cob) → Functor Cᴰ.v[ c ] Cᴰ.∫C
-   in[ c ]∫ .F-ob = λ z → c , z
-   in[ c ]∫ .F-hom = λ z → Category.id C , z
-   in[ c ]∫ .F-id = refl
-   in[ c ]∫ .F-seq f g = sym $ Cᴰ.reind-filler _ _
+   σ : (c : Cob) → Functor Cᴰ.v[ c ] Cᴰ.∫C
+   σ c .F-ob = λ z → c , z
+   σ c .F-hom = λ z → Category.id C , z
+   σ c .F-id = refl
+   σ c .F-seq f g = sym $ Cᴰ.reind-filler _ _

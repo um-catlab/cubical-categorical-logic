@@ -176,7 +176,7 @@ module _
       (λ _ → ΣPathP (refl , funExt λ _ → sym $ C.⋆Assoc _ _ _ ))
 
   YONEDA : Functor C.cat (∫C (PRESHEAF C))
-  YONEDA = ∫S YONEDA-S
+  YONEDA = intro YONEDA-S
 
 module _ {C : SmallCategory ℓC ℓC'} where
   private

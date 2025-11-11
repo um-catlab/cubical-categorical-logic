@@ -73,7 +73,7 @@ module _
 
         app-natural : ∀ d d' (f : D [ d , d' ]) (p : (appL P d' ⊗ (P F⇒Large Q)))
           → app d (f P⊗P⇒Q'.⋆ p) ≡ (f Q.⋆ app d' p)
-        app-natural d d' f = P⊗P⇒Q.ind (λ _ → _ , (Q.isSetPsh _ _))
+        app-natural d d' f = P⊗P⇒Q.ind (λ _ → Q.isSetPsh _ _)
           λ p q → q .N-hom d d' f p
 
     module _ (R : Presheaf C ℓR) where
@@ -97,14 +97,14 @@ module _
           funExt⁻ (funExt⁻ (cong N-ob (α .N-hom _ _ f r)) _) _
         app'-nat : ∀ d d' (f : D [ d , d' ]) (pr : P⊗R'.p[ d' ])
           → app' d (f P⊗R'.⋆ pr) ≡ (f Q.⋆ app' d' pr)
-        app'-nat d d' f = P⊗R.ind (λ pr → _ , Q.isSetPsh _ _) (λ p q → α .N-ob _ q .N-hom _ _ f p)
+        app'-nat d d' f = P⊗R.ind (λ pr → Q.isSetPsh _ _) (λ p q → α .N-ob _ q .N-hom _ _ f p)
 
       F⇒Large-UMP : Iso (PshHom R (P F⇒Large Q)) (PshHom (ext P ⟅ R ⟆) Q)
       F⇒Large-UMP .fun = F⇒Large-λ⁻
       F⇒Large-UMP .inv = F⇒Large-λ
       -- F⇒Large-λ⁻ (F⇒Large-λ α) .N-ob d x ≡ α .N-ob d x
       F⇒Large-UMP .rightInv α = makePshHomPath $ funExt λ d → funExt $
-        P⊗R.ind (λ pr → _ , Q.isSetPsh _ _)
+        P⊗R.ind (λ pr → Q.isSetPsh _ _)
           (λ p r → refl)
       F⇒Large-UMP .leftInv α = makePshHomPath $ funExt λ c → funExt λ r → makePshHomPath $ funExt λ d → funExt λ p →
         refl
@@ -150,7 +150,7 @@ module _
     where
     private
       P-bif : Bifunctor (D ^op) C (SET (ℓP ℓC'))
-      P-bif = CurriedToBifunctorL P ∘Fr YONEDA
+      P-bif = CurriedToBifunctorL (P ∘F CurryBifunctorL (HomBif C))
 
     P⇒Large : Presheaf D ℓQ → Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓD ℓD') (ℓP ℓC')) ℓQ)
     P⇒Large Q = P-bif F⇒Large Q
@@ -159,31 +159,3 @@ module _
       P⇒Large-UMP : Iso (PshHom R (P⇒Large Q)) (PshHom (P ⟅ R ⟆) Q)
       P⇒Large-UMP = compIso (F⇒Large-UMP P-bif Q R)
         (precomp⋆PshHom-Iso (P-cocontinuous R))
-
-  module P⇒Large+Small {ℓP : Level → Level}
-    (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
-    (P-cocontinuous : CoContinuous P)
-    (P-repr : ∀ c → UniversalElement D (P ⟅ C [-, c ] ⟆))
-    where
-    open P⇒Large-cocontinuous P P-cocontinuous public
-
-    private
-      P-prof : Profunctor C D (ℓP ℓC')
-      P-prof = CurryBifunctorL (CurriedToBifunctorL P ∘Fr YONEDA)
-
-      F : Functor C D
-      F = FunctorComprehension P-prof λ c → record { vertex = P-repr c .UniversalElement.vertex ; element = P-repr c .UniversalElement.element ; universal = P-repr c .UniversalElement.universal }
-
-    P⇒Small : Presheaf D ℓQ → Presheaf C ℓQ
-    P⇒Small = F F⇒Small_
-
-    -- module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
-    --   P⇒Small-UMP : Iso (PshHom R (P⇒Small Q)) (PshHom (P ⟅ R ⟆) Q)
-    --   P⇒Small-UMP =
-    --       -- Need that F⇒Large respects universe-polymorphic ProfIso
-    --       -- and a universe-polymorphic NatIso between
-    --       --   compR (CurriedToBifunctorL P) YONEDA -- (i.e., P ∘ Yo)
-    --       --   compR (HomBif D) F                   -- (i.e., Yo ∘ F)
-    --     compIso
-    --       (postcomp⋆PshHom-Iso (F⇒Small≅F⇒Large F Q ⋆PshIso {!!}))
-    --       (P⇒Large-UMP Q R)

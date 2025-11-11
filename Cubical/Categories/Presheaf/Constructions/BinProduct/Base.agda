@@ -7,6 +7,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -15,9 +16,10 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
+open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Reindex
@@ -32,7 +34,7 @@ open import Cubical.Categories.Yoneda.More
 
 private
   variable
-    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓR ℓS : Level
 
 open Functor
 open PshHom
@@ -59,24 +61,10 @@ module _ {C : Category ℓ ℓ'} where
   _×Psh_ : Presheaf C ℓA → Presheaf C ℓB → Presheaf C _
   P ×Psh Q = PshProd ⟅ P , Q ⟆b
 
-  -×Psh_-cocontinuous : (P : Presheaf C ℓA) → CoContinuous (-×Psh P)
-  -×Psh P -cocontinuous Q =
-    pshiso (pshhom
-      (λ c (q , p) → (C.id , p) P⊗Q.,⊗ q )
-      λ c c' f (q , p) → P⊗Q.swap _ _ _ ∙ cong (P⊗Q._,⊗ _) (ΣPathP ((C.⋆IdL f ∙ (sym $ C.⋆IdR f)) , refl)))
-      λ c → (P⊗Q.rec Q×P.isSetPsh (λ (f , p) q → (Q .F-hom f q) , p)
-        λ (f , p) g q → ΣPathP ((sym $ Q.⋆Assoc f g q) , refl))
-      , (P⊗Q.ind (λ fpq → _ , extPQ.isSetPsh _ _)
-        (λ (f , p) q → P⊗Q.swap _ _ _ ∙ cong (P⊗Q._,⊗ _) (ΣPathP ((C.⋆IdL f) , refl))))
-      , (λ (q , p) → ΣPathP ((Q.⋆IdL _) , refl))
-    where
-      P-pro : Bifunctor (C ^op) C (SET _)
-      P-pro = compR (CurriedToBifunctorL (-×Psh P)) YONEDA
-
-      module Q = PresheafNotation Q
-      module P⊗Q = ext-⊗ P-pro Q
-      module Q×P = PresheafNotation (Q ×Psh P)
-      module extPQ = PresheafNotation (ext P-pro ⟅ Q ⟆)
+  -- irritatingly not definitional...
+  -×Psh-Fob : ∀ (P : Presheaf C ℓP) (Q : Presheaf C ℓQ)
+    → PshIso (P ×Psh Q) ((-×Psh Q) ⟅ P ⟆)
+  -×Psh-Fob P Q = eqToPshIso (F-ob (-×Psh Q) P) Eq.refl Eq.refl
 
   private
     testPshProd : ∀ (P : Presheaf C ℓA)(Q : Presheaf C ℓB)
@@ -172,3 +160,36 @@ module _ {C : Category ℓ ℓ'}{D : Category ℓD ℓD'}
   reindPsh× .nIso x .fst = λ z → z
   reindPsh× .nIso x .snd .fst b = refl
   reindPsh× .nIso x .snd .snd a = refl
+
+module _ {C : Category ℓ ℓ'}{D : Category ℓD ℓD'} where
+  -- (R(d,c) ⊗[ c ] Q(c,*)) × P(d,*) ≅ (R(d,c) × P(d,*)) ⊗[ c ] Q(c,*)
+  ⊗×-comm : (R : Bifunctor (D ^op) C (SET ℓR)) (P : Presheaf D ℓP) (Q : Presheaf C ℓQ)
+    → PshIso ((ext R ⟅ Q ⟆) ×Psh P) (ext (CurriedToBifunctorL ((-×Psh P) ∘F CurryBifunctorL R)) ⟅ Q ⟆)
+  ⊗×-comm R P Q = pshiso (pshhom
+    (λ d → uncurry (R⊗Q.rec (isSet→ extR×PQ.isSetPsh)
+      (λ r q p → (r , p) R×P⊗Q.,⊗ q) (λ r f q → funExt λ p → R×P⊗Q.swap (r , p) f q)))
+    λ c c' f → uncurry (R⊗Q.ind (λ _ → isPropΠ (λ _ → extR×PQ.isSetPsh _ _))
+      (λ r q p → refl)))
+    λ d → (R×P⊗Q.rec extRQ×P.isSetPsh (λ (r , p) q → (r R⊗Q.,⊗ q) , p) λ (r , p) f q → ΣPathP ((R⊗Q.swap r f q) , refl))
+    , R×P⊗Q.ind (λ _ → extR×PQ.isSetPsh _ _) (λ _ _ → refl)
+    , uncurry (R⊗Q.ind (λ _ → isPropΠ (λ _ → extRQ×P.isSetPsh _ _)) λ _ _ _ → refl)
+    where
+      module extRQ = PresheafNotation (ext R ⟅ Q ⟆)
+      module extRQ×P = PresheafNotation ((ext R ⟅ Q ⟆) ×Psh P)
+      module R⊗Q = ext-⊗ R Q
+      module R×P⊗Q = ext-⊗ (CurriedToBifunctorL ((-×Psh P) ∘F CurryBifunctorL R)) Q
+      module extR×PQ = PresheafNotation (ext (CurriedToBifunctorL ((-×Psh P) ∘F CurryBifunctorL R)) ⟅ Q ⟆)
+      module P = PresheafNotation P
+
+module _ {C : Category ℓ ℓ'} where
+  private
+    module C = Category C
+
+  -×Psh_-cocontinuous : (P : Presheaf C ℓA) → CoContinuous (-×Psh P)
+  -×Psh P -cocontinuous Q =
+    invPshIso (-×Psh-Fob Q P) -- just expanding definitions
+  -- Q(c,*) × P(c,*)
+    ⋆PshIso ((×PshIso (CoYoneda Q) idPshIso)
+  -- (C(c,c') ⊗[ c' ] Q(c',*)) × P(c,*)
+    ⋆PshIso (⊗×-comm (HomBif C) P Q))
+  -- (C(c,c') × P(c,*)) ⊗[ c' ] Q(c',*)

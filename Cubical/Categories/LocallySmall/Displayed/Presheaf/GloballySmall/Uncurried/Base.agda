@@ -44,7 +44,7 @@ module _ where
     (P : Presheaf C ℓP) where
     open SmallCategoryᴰ
     _/_ : SmallCategory _ _
-    _/_ = ∫Csmall (Cᴰ ×Cᴰsmall Element P)
+    _/_ = ∫Csmall (Cᴰ ×ᴰsmall Element P)
 
   module _
     (P : Presheaf C ℓP)
@@ -68,6 +68,7 @@ module _ where
       module C = SmallCategory C
       module Cᴰ = SmallCategoryᴰ Cᴰ
       module P = PresheafNotation P
+      module Pᴰ = PresheafNotation Pᴰ
     p[_][_] : ∀ {x} → P.p[ x ] → Cᴰ.small-obᴰ x → Type ℓPᴰ
     p[ p ][ xᴰ ] = ⟨ Pᴰ .F-ob (liftω (_ , xᴰ , p)) .lowerω ⟩
 
@@ -89,25 +90,25 @@ module _ where
         {f : C.Hom[ x , y ]}{p q}
         (fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
         (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ .lowerω ])
-        -- → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ≡ reind f⋆p≡q (fᴰ ⋆ᴰ pᴰ)
-        → Pᴰ .F-hom ((f , f) , fᴰ , f⋆p≡q) pᴰ ≡ reind f⋆p≡q (fᴰ ⋆ᴰ pᴰ)
-        -- Why do we have (f , f) here
-      ⋆ᴰ-reind = {!!}
-      -- ⋆ᴰ-reind {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ = rectify $ ≡out $ (sym $ ≡in $ lem) ∙ reind-filler f⋆p≡q where
-      --   lem : PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
-      --     (Pᴰ .F-hom (f , fᴰ , (λ _ → P .F-hom f p)) pᴰ)
-      --     (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
-      --   lem i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
+        → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ≡ reind f⋆p≡q (fᴰ ⋆ᴰ pᴰ)
+      ⋆ᴰ-reind {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ = rectify $ ≡out $ (sym $ ≡in $ lem) ∙ reind-filler f⋆p≡q where
+        lem : PathP (λ i → ⟨ Pᴰ .F-ob (liftω (x .lowerω , xᴰ .lowerω , f⋆p≡q i) ) .lowerω ⟩)
+          (Pᴰ .F-hom (f , fᴰ , (λ _ → P .F-hom f p)) pᴰ)
+          (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+        lem i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
 
-      -- ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
-      --   → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
-      -- ⋆IdLᴰ {x}{xᴰ}{p} pᴰ = reind-filler _ ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-id) pᴰ)
+      ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
+        → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
+      ⋆IdLᴰ {x}{xᴰ}{p} pᴰ = reind-filler _ ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-id) pᴰ)
 
-      -- ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
-      --   (fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ])
-      --   (gᴰ : Cᴰ [ g ][ yᴰ , xᴰ ])
-      --   (pᴰ : p[ p ][ xᴰ ])
-      --   → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
-      -- ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
-      --   reind-filler _
-      --   ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) _)
+      ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C.Hom[ z , y ]}{g : C.Hom[ y , x ]}{p : P.p[ x .lowerω ]}
+        (fᴰ : Cᴰ.Hom[ f ][ zᴰ , yᴰ ])
+        (gᴰ : Cᴰ.Hom[ g ][ yᴰ , xᴰ ])
+        (pᴰ : p[ p ][ xᴰ .lowerω ])
+        → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
+      ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
+        reind-filler _
+        ∙ ≡in ((sym $ ⋆ᴰ-reind _ _ _)
+               ∙ funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) pᴰ ∙ {!!})
+        -- reind-filler _
+        -- ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) _)

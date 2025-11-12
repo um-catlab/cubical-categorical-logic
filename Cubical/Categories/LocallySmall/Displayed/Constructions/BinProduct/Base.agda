@@ -4,6 +4,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 open import Cubical.Data.Prod using (_×ω_; _,_)
@@ -20,6 +21,7 @@ open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
+open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 
 open Category
@@ -94,6 +96,30 @@ module _
       ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _) ,
               (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆Assocᴰ _ _ _)))
   _×Cᴰsmall_ .catᴰ .isSetHomᴰ = isSet× Cᴰ.isSetHomᴰ Dᴰ.isSetHomᴰ
+
+module _
+  {C : SmallCategory ℓC ℓC'}
+  (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ')
+  (Dᴰ : SmallCategoryᴰ C ℓDᴰ ℓDᴰ')
+  where
+  open SmallCategory
+  open SmallCategoryᴰ
+  private
+    module C = SmallCategory C
+    module Cᴰ = SmallCategoryᴰ Cᴰ
+    module Dᴰ = SmallCategoryᴰ Dᴰ
+
+  -- The fiberwise product of displayed categories arises as the
+  -- pullback --- that is, the reindexing --- of the displayed
+  -- product of categories
+  _×ᴰsmall_ : SmallCategoryᴰ C _ _
+  _×ᴰsmall_ = smallcatᴰ _ (reindexEq Δ ((Cᴰ ×Cᴰsmall Dᴰ) .catᴰ) Eq.refl λ _ _ → Eq.refl)
+    where
+    Δ : Functor C.cat ((C ×Csmall C) .cat)
+    Δ .Functor.F-ob = λ z → liftω (z .Liftω.lowerω , z .Liftω.lowerω)
+    Δ .Functor.F-hom = λ z → z , z
+    Δ .Functor.F-id = refl
+    Δ .Functor.F-seq = λ _ _ → refl
 
 module _
   {C : Category Cob CHom-ℓ}{Cobᴰ-ℓ Cobᴰ CHom-ℓᴰ}

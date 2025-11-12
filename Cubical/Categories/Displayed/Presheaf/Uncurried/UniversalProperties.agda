@@ -29,15 +29,23 @@ private
 module _ {C : Category ℓC ℓC'}(P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module P = PresheafNotation P
+  CartesianLiftPsh : ∀ {x} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (p : P.p[ x ])
+    → Type _
+  CartesianLiftPsh {x = x} Pᴰ p = Representableⱽ Cᴰ x (reindPshᴰNatTrans (yoRec P p) Pᴰ)
+
   isFibrationPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ → Type _
-  isFibrationPshᴰ Pᴰ = ∀ x (p : P.p[ x ]) → Representableⱽ Cᴰ x (reindPshᴰNatTrans (yoRec P p) Pᴰ)
+  isFibrationPshᴰ Pᴰ = ∀ x (p : P.p[ x ]) → CartesianLiftPsh Pᴰ p
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
+  CartesianLift : ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ])
+    → Type _
+  CartesianLift f yᴰ = CartesianLiftPsh (C [-, _ ]) Cᴰ (Cᴰ [-][-, yᴰ ]) f
+
   isFibration : Type _
-  isFibration = ∀ {x}(xᴰ : Cᴰ.ob[ x ]) → isFibrationPshᴰ (C [-, x ]) Cᴰ (Cᴰ [-][-, xᴰ ])
+  isFibration = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibrationPshᴰ (C [-, x ]) Cᴰ (Cᴰ [-][-, xᴰ ])
 
   Terminalⱽ : ∀ (x : C.ob) → Type _
   Terminalⱽ x = Representableⱽ Cᴰ x UnitPshᴰ
@@ -48,7 +56,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductⱽ : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
   BinProductⱽ {x} xᴰ yᴰ = Representableⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
 
-  -- TODO: Need I make this a profunctor?
   BinProductsⱽ : Type _
   BinProductsⱽ = ∀ {x} xᴰ yᴰ → BinProductⱽ {x} xᴰ yᴰ
 
@@ -57,6 +64,3 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   LargeExponentialsⱽ : Type _
   LargeExponentialsⱽ = ∀ {x} xᴰ yᴰ → LargeExponentialⱽ {x} xᴰ yᴰ
-
-  isCartesianⱽ : Type _
-  isCartesianⱽ = isFibration × Terminalsⱽ × BinProductsⱽ

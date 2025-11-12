@@ -37,7 +37,7 @@ open import Cubical.Categories.Displayed.Presheaf.Base as Curried
   hiding (Presheafᴰ; Presheafⱽ; module PresheafᴰNotation)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Curry
-open import Cubical.Categories.Displayed.Presheaf.Representable as Curried hiding (yoRecⱽ)
+open import Cubical.Categories.Displayed.Presheaf.Representable as Curried hiding (yoRecⱽ; _◁PshIsoⱽ_)
 
 private
   variable
@@ -56,8 +56,8 @@ open Iso
 module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Fibers Cᴰ
-  _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
-  _[-][-,_] xᴰ = UncurryPshᴰ (C [-, x ]) Cᴰ (Cᴰ Curried.[-][-, xᴰ ])
+  _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ (ℓ-max ℓC' (ℓ-max ℓC' ℓCᴰ'))
+  _[-][-,_] xᴰ = (Cᴰ / (C [-, _ ])) [-, x , xᴰ , (id C) ]
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {x : C .Category.ob} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
@@ -65,8 +65,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module C = Category C
     module Pⱽ = PresheafᴰNotation Cᴰ _ Pⱽ
   yoRecⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
-  yoRecⱽ pⱽ = UncurryPshHomⱽ _ _ (Curried.yoRecⱽ (CurryPshⱽ Cᴰ Pⱽ) pⱽ)
-    ⋆PshHomⱽ pathToPshIso (CurryPshᴰIso _ Cᴰ .leftInv _) .trans
+  yoRecⱽ = yoRec Pⱽ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
@@ -92,6 +91,5 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {x}
   {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ}{Qⱽ : Presheafⱽ x Cᴰ ℓQᴰ}
   where
-  _◁PshIsoⱽ'_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
-  (xᴰ , α) ◁PshIsoⱽ' β = (xᴰ , (α ⋆PshIso β))
-
+  _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
+  (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))

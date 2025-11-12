@@ -82,14 +82,13 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
   {F : Functor C D}
   where
-
   _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHet F P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)
+
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   where
-
   _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) → (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
 
@@ -99,6 +98,10 @@ Presheafᴰ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Category�
            → (ℓPᴰ : Level)
            → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
 Presheafᴰ {ℓP = ℓP} P Cᴰ ℓPᴰ = Presheaf (Cᴰ / P) ℓPᴰ
+
+PresheafᴰCategory : {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') → (ℓPᴰ : Level)
+  → Category _ _
+PresheafᴰCategory P Cᴰ ℓPᴰ = PresheafCategory (Cᴰ / P) ℓPᴰ
 
 Presheafⱽ : {C : Category ℓC ℓC'} (x : C .ob)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
            → (ℓPᴰ : Level)

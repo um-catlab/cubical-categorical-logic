@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 -- Reindexing a Presheaf by a Functor.
 
 -- given presheaf Q on D and functor F : C → D we can reindex Q to be
@@ -23,6 +24,7 @@ open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Functor
@@ -37,10 +39,12 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Constructions.Extension
+open import Cubical.Categories.Presheaf.Constructions.Tensor
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓP ℓQ ℓR ℓS : Level
+    ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓP ℓQ ℓR ℓS : Level
 
 open Category
 open Contravariant -- Grothendieck construction for presheaves
@@ -57,6 +61,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   -- reindPsh : Functor C D → Functor (Presheaf D) (Presheaf C)
   reindPsh : (F : Functor C D) (Q : Presheaf D ℓQ) → Presheaf C ℓQ
   reindPsh F Q = Q ∘F (F ^opF)
+
+  reindPshF : (F : Functor C D) → Functor (PresheafCategory D ℓQ) (PresheafCategory C ℓQ)
+  reindPshF F = precomposeF (SET _) (F ^opF)
 
   -- This is just whiskering
   reindPshHom : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
@@ -177,3 +184,33 @@ reindPsh∘F≅ :
   (P : Presheaf E ℓP)
   → PshIso (reindPsh F (reindPsh G P)) (reindPsh (G ∘F F) P)
 reindPsh∘F≅ F G P = eqToPshIso (reindPsh (G ∘F F) P) Eq.refl Eq.refl
+
+module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  -- reindPsh F (c ↦ P(c,d) ⊗[ d ] Q(d,*))
+  -- ≅ b ↦ P(F b, d) ⊗[ d ] Q(d, *)
+  reindPsh-⊗ : (F : Functor B C) (P : Bifunctor (C ^op) D (SET ℓR)) (Q : Presheaf D ℓQ)
+    → PshIso (reindPsh F (ext P ⟅ Q ⟆))
+             (ext ((CurriedToBifunctorL (reindPshF F ∘F CurryBifunctorL P))) ⟅ Q ⟆)
+  reindPsh-⊗ F P Q = pshiso (pshhom
+    (λ b → P⊗Q.rec extF*PQ.isSetPsh F*P⊗Q._,⊗_ F*P⊗Q.swap)
+    λ b b' f → P⊗Q.ind (λ _ → extF*PQ.isSetPsh _ _) (λ _ _ → refl))
+    λ b → (F*P⊗Q.rec F*extPQ.isSetPsh P⊗Q._,⊗_ P⊗Q.swap)
+    , F*P⊗Q.ind (λ _ → extF*PQ.isSetPsh _ _) (λ _ _ → refl)
+    , P⊗Q.ind (λ _ → extPQ.isSetPsh _ _) λ _ _ → refl
+    where
+      F*P = CurriedToBifunctorL (reindPshF F ∘F CurryBifunctorL P)
+      module F*extPQ = PresheafNotation (reindPsh F (ext P ⟅ Q ⟆))
+      module extPQ = PresheafNotation (ext P ⟅ Q ⟆)
+      module extF*PQ = PresheafNotation (ext F*P ⟅ Q ⟆)
+      module P⊗Q = ext-⊗ P Q
+      module F*P⊗Q = ext-⊗ F*P Q
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  reindPshF-cocont : (F : Functor C D)
+    → CoContinuous (reindPshF F)
+  reindPshF-cocont F Q =
+    -- F* Q
+    reindPshIso F (CoYoneda Q)
+    -- F* ◇Q
+    ⋆PshIso reindPsh-⊗ F (HomBif D) Q
+    -- ◇ (F* Q)

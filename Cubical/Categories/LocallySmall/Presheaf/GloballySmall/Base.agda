@@ -54,7 +54,8 @@ module _ (C : SmallCategory ℓC ℓC') where
 
 module _ {C : SmallCategory ℓC ℓC'} where
   PSH = PRESHEAF C
-  module PSH = Categoryᴰ PSH
+  module PSH = CategoryᴰNotation PSH
+  module PSHISO = CategoryᴰNotation PSH.ISOCᴰ
 
 module _ {C : SmallCategory ℓC ℓC'} where
   open Categoryᴰ
@@ -221,11 +222,19 @@ module _ {C : SmallCategory ℓC ℓC'} where
 module _  where
   open SmallCategoryVariables
   open SmallCategory
+
+  module _ (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
+    PshHom : Type _
+    PshHom = PSH.Hom[ ⟨ P ⟩Psh , ⟨ Q ⟩Psh ]
+
+    PshIso : Type _
+    PshIso = PSHISO.Hom[ ⟨ P ⟩Psh , ⟨ Q ⟩Psh ]
+
   module _
     (F : Functor (C .cat) (D .cat))
     (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) where
     PshHet : Type _
-    PshHet = PSH.Hom[ ⟨ P ⟩Psh , ⟨ Q ∘F (F ^opF) ⟩Psh ]
+    PshHet = PshHom P (Q ∘F (F ^opF))
 
   module _ (F : Functor (C .cat) (D .cat)) where
     Functor→PshHet :  (c : C .small-ob)

@@ -99,7 +99,10 @@ module _ where
 
       ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
         → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
-      ⋆IdLᴰ {x}{xᴰ}{p} pᴰ = reind-filler _ ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-id) pᴰ)
+      ⋆IdLᴰ {x}{xᴰ}{p} pᴰ =
+        reind-filler _
+        ∙ (≡in $ sym $ ⋆ᴰ-reind _ _ _)
+        ∙ (≡in $ Pᴰ.⋆IdL _)
 
       ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C.Hom[ z , y ]}{g : C.Hom[ y , x ]}{p : P.p[ x .lowerω ]}
         (fᴰ : Cᴰ.Hom[ f ][ zᴰ , yᴰ ])
@@ -108,7 +111,30 @@ module _ where
         → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
       ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
         reind-filler _
-        ∙ ≡in ((sym $ ⋆ᴰ-reind _ _ _)
-               ∙ funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) pᴰ ∙ {!!})
-        -- reind-filler _
-        -- ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) _)
+        ∙ (≡in $ sym $ ⋆ᴰ-reind _ _ _)
+        ∙ (≡in $ Pᴰ.⋆Assoc (f , fᴰ , refl) (g , gᴰ , refl) pᴰ)
+
+
+module _  where
+  open SmallCategoryVariables
+  module _
+    {Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ'}
+    {P : Presheaf C ℓP}
+    where
+    PSHᴰ = PRESHEAF (Cᴰ / P)
+    module PSHᴰ = CategoryᴰNotation PSHᴰ
+    module PSHISOᴰ = CategoryᴰNotation PSHᴰ.ISOCᴰ
+
+module _  where
+  open SmallCategoryᴰVariables
+  module _
+    {P : Presheaf C ℓP}
+    (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+    (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ)
+    where
+
+    PshHomⱽ : Type _
+    PshHomⱽ = PshHom Pᴰ Qᴰ
+
+    PshIsoⱽ : Type _
+    PshIsoⱽ = PshIso Pᴰ Qᴰ

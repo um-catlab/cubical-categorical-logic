@@ -26,7 +26,7 @@ record SmallCategory (ℓC ℓC' : Level) : Typeω where
   field
     small-ob : Type ℓC
     cat : GloballySmallCategory (Liftω small-ob) ℓC'
-  open Category cat public
+  open CategoryNotation cat public
 
 open SmallCategory
 

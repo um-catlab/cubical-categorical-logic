@@ -1,19 +1,19 @@
 module Cubical.Data.Sigma.More where
 
-open import Cubical.Data.Sigma.Base
-
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
+
+open import Cubical.Data.Prod using (_×ω_; _,_)
 open import Cubical.Data.Sigma
 
-
 open Iso
+open _×ω_
 
 private
   variable
@@ -40,3 +40,30 @@ FrobeniusReciprocity {B' = B'} f y .rightInv (((x , fx≡y) , p) , q) =
   ΣPathP (refl , (substSubst⁻ B' fx≡y q))
 FrobeniusReciprocity {B' = B'} f y .leftInv ((x , fx≡y) , p , q) =
   ΣPathP (refl , (ΣPathP (refl , (substSubst⁻ B' (sym $ fx≡y) q))))
+
+record Σω (A : Typeω) (B : A → Typeω) : Typeω where
+  constructor _,_
+  field
+    fst : A
+    snd : B fst
+
+Σω-syntax : ∀ (A : Typeω) (B : A → Typeω) → Typeω
+Σω-syntax = Σω
+
+syntax Σω-syntax A (λ x → B) = Σω[ x ∈ A ] B
+
+open Σω
+
+record Liftω (A : Type ℓ) : Typeω where
+  constructor liftω
+  field
+    lowerω : A
+
+open Liftω
+
+mapω : {A : Type ℓ}{B : Type ℓ'} → (A → B) → Liftω A → Liftω B
+mapω f a = liftω (f (a .lowerω))
+
+mapω' : {A : Type ℓ}{β : A → Level} (f : (a : A) → Type (β a)) (a : Liftω A) → Typeω
+mapω' f a = Liftω (f (a .lowerω))
+

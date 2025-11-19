@@ -26,8 +26,6 @@ open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Tensor
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Profunctor.Constructions.Extension
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Yoneda.More

@@ -441,7 +441,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   LR∀Presheaf : (ℓP : Level) → Type _
   LR∀Presheaf ℓP = Σ (Presheaf C ℓP) LocallyRepresentable∀
 
-  module _ (P : Presheaf C ℓQ)((Q , _×Q , π₁*) : LR∀Presheaf ℓQ) where
+  module _ {P : Presheaf C ℓQ}((Q , _×Q , π₁*) : LR∀Presheaf ℓQ) where
     private
       module P = PresheafNotation P
       module P×Q = PresheafNotation (P ×Psh Q)
@@ -472,3 +472,5 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     private
       module ∀PshSmall = P⇒Large-cocontinuous-repr {C = Cᴰ / P}{D = Cᴰ / (P ×Psh Q)} (wkPshᴰ Q) (wkPshᴰ-cocont Q) (λ (Γ , Γᴰ , p) → LR∀-repr Γᴰ p
         ◁PshIso eqToPshIso (F-ob (wkPshᴰ Q ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) _) Eq.refl Eq.refl)
+    ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
+    ∀PshSmall = ∀PshSmall.P⇒Small

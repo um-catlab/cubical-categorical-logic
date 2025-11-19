@@ -1,4 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
+-- TODO: rewrite this to use Constructions.RightAdjoint
 module Cubical.Categories.Presheaf.Constructions.Exponential where
 
 open import Cubical.Foundations.Prelude

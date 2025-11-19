@@ -40,6 +40,7 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
@@ -70,10 +71,11 @@ private
 open Category
 open Functor
 open Functorᴰ
+open NatTrans
+open PshHom
 open PshIso
 
--- TODO: better name...
--- I guess there isn't really anything very slice-like about this...
+-- TODO: better name?
 _/_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
 Cᴰ / P = ∫C (Cᴰ ×ᴰ Element P)
 
@@ -89,8 +91,15 @@ module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   where
-  _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) → (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
+  _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  where
+  /FⱽId : Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P} ≡ Id
+  /FⱽId = Functor≡ (λ _ → refl) (λ f → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) refl)))
 
 -- Interestingly, this one is at a lower universe level than Curried.Presheafᴰ
 -- Use modules to distinguish this from Curried.Presheafᴰ
@@ -134,13 +143,20 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
   fᴰ ⋆ᴰ pᴰ = Pᴰ .F-hom (_ , fᴰ , refl) pᴰ
 
   opaque
+    ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
+      → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
+        (fᴰ ⋆ᴰ pᴰ)
+        (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+    ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
+
     ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
       → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ≡ reind f⋆p≡q (fᴰ ⋆ᴰ pᴰ)
-    ⋆ᴰ-reind {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ = rectify $ ≡out $ (sym $ ≡in $ lem) ∙ reind-filler f⋆p≡q where
-      lem : PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
-        (Pᴰ .F-hom (f , fᴰ , (λ _ → P .F-hom f p)) pᴰ)
-        (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
-      lem i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
+    ⋆ᴰ-reind {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ = rectify $ ≡out $ (sym $ ≡in $ ⋆ᴰ-reindᴰ fᴰ f⋆p≡q pᴰ) ∙ reind-filler f⋆p≡q
+
+    -- TODO: make this ⋆ᴰ-reind
+    ∫⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
+      → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)
+    ∫⋆ᴰ-reind fᴰ f⋆p≡q pᴰ = (≡in $ ⋆ᴰ-reind fᴰ f⋆p≡q pᴰ) ∙ (sym $ reind-filler _)
 
     ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
       → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
@@ -155,6 +171,15 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
       reind-filler _
       ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) _)
 
+  ∫ : Presheaf (∫C Cᴰ) (ℓ-max ℓP ℓPᴰ)
+  ∫ .F-ob (x , xᴰ) .fst = Σ[ p ∈ _ ] p[ p ][ xᴰ ]
+  ∫ .F-ob (x , xᴰ) .snd = isSetΣ P.isSetPsh (λ _ → isSetPshᴰ)
+  ∫ .F-hom (f , fᴰ) (p , pᴰ) = (f P.⋆ p) , (fᴰ ⋆ᴰ pᴰ)
+  ∫ .F-id = funExt λ _ → ⋆IdLᴰ _
+  ∫ .F-seq _ _ = funExt λ _ → ⋆Assocᴰ _ _ _
+
+  open PresheafNotation ∫ public
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
@@ -164,6 +189,61 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   PshIsoⱽ : Type _
   PshIsoⱽ = PshIso Pᴰ Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+  reindPshᴰNatTrans : Presheafᴰ P Cᴰ ℓQᴰ
+  reindPshᴰNatTrans = reindPsh (Idᴰ /Fⱽ α) Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+  (α : PshHom P Q)(β : PshHom Q R) (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ) where
+  private
+    module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
+  -- TODO: this is Eq.refl on objects but not morphisms
+  reindPshᴰNatTrans-seq : PshIso (reindPshᴰNatTrans (α ⋆PshHom β) Rᴰ) (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ)
+  reindPshᴰNatTrans-seq = pathToPshIso (Functor≡ (λ _ → refl) (λ _ → funExt (λ _ → Rᴰ.rectify $ Rᴰ.≡out
+    $ Rᴰ.∫⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.∫⋆ᴰ-reind _ _ _))))
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} (α : PshHom P P) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+  private
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+  -- TODO: this is Eq.refl on objects but not morphisms
+  reindPshᴰNatTrans-id : PshIso (reindPshᴰNatTrans idPshHom Pᴰ) Pᴰ
+  reindPshᴰNatTrans-id = pathToPshIso (Functor≡ (λ _ → refl) (λ _ → funExt λ _ → Pᴰ.rectify $ Pᴰ.≡out $
+    Pᴰ.∫⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.∫⋆ᴰ-reind _ _ _)))
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α β : PshHom P Q) (α≡β : α ≡ β) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+  private
+    module Q = PresheafNotation Q
+    module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+  reindPshᴰNatTrans-Path : PshIso (reindPshᴰNatTrans α Qᴰ) (reindPshᴰNatTrans β Qᴰ)
+  reindPshᴰNatTrans-Path = reindNatIsoPsh (pathToNatIso (cong₂ _/Fⱽ_ refl α≡β)) Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  {P : Presheaf D ℓP}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ)
+  where
+  reindPshᴰFunctor : Presheafᴰ (reindPsh F P) Cᴰ ℓPᴰ
+  reindPshᴰFunctor = reindPsh (Fᴰ /Fᴰ idPshHom) Pᴰ
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  (α : PshHom P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+  -- Constructing a fibration from its fibers and restrictions
+  PshHomᴰ : Type _
+  PshHomᴰ = PshHomⱽ Pᴰ (reindPshᴰNatTrans α Qᴰ)
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

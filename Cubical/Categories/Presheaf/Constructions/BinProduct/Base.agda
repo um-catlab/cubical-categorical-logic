@@ -98,6 +98,9 @@ module _ {C : Category ℓ ℓ'} where
     ×Pshβ₂ : ×PshIntro ⋆PshHom π₂ P Q ≡ β
     ×Pshβ₂ = makePshHomPath refl
 
+  ΔPshHom : {P : Presheaf C ℓA} → PshHom P (P ×Psh P)
+  ΔPshHom = ×PshIntro idPshHom idPshHom
+
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
     ×Psh-UMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHom R (P ×Psh Q)) (PshHom R P × PshHom R Q)
     ×Psh-UMP .Iso.fun α = (α ⋆PshHom π₁ P Q) , (α ⋆PshHom π₂ P Q)

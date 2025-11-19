@@ -283,10 +283,19 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {x : C .Category.ob} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
   private
     module Pⱽ = PresheafⱽNotation Pⱽ
+    module Cᴰ = Fibers Cᴰ
 
   yoRecⱽ : ∀ {xᴰ} → Pⱽ.pⱽ[ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
   yoRecⱽ pⱽ .N-obᴰ fᴰ = fᴰ Pⱽ.⋆ᴰⱽ pⱽ
   yoRecⱽ pⱽ .N-homᴰ = Pⱽ.⋆Assocᴰᴰⱽ _ _ _
+
+  yoRecⱽ-UMP : ∀ {xᴰ} → Iso (PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ) Pⱽ.pⱽ[ xᴰ ]
+  yoRecⱽ-UMP = iso (λ αⱽ → αⱽ .N-obᴰ Cᴰ.idᴰ) yoRecⱽ
+    (λ pⱽ → Pⱽ.rectify $ Pⱽ.≡out $ sym (Pⱽ.reind-filler _ _) ∙ Pⱽ.⋆IdL _)
+    λ αⱽ → makePshHomᴰPathP (yoRecⱽ (αⱽ .N-obᴰ Cᴰ.idᴰ)) αⱽ refl
+      (funExt (λ fᴰ → Pⱽ.rectify $ Pⱽ.≡out $
+        sym (Pⱽ.reind-filler _ _) ∙ sym ((∫PshHom αⱽ) .N-hom _ _ _ _)
+        ∙ cong (∫PshHom αⱽ .N-ob _) (Cᴰ.⋆IdR _)))
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where

@@ -205,6 +205,15 @@ module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD �
       module P⊗Q = ext-⊗ P Q
       module F*P⊗Q = ext-⊗ F*P Q
 
+  -- reindPsh F (c ↦ ∀[ d ] P(d,c) → Q(d,*))
+  -- ≅ (b ↦ ∀[ d ] P(d,F b) → Q(d,*))
+  reindPsh-PshHom : (F : Functor B C) (P : Bifunctor (D ^op) C (SET ℓR)) (Q : Presheaf D ℓQ)
+    → PshIso (reindPsh F $ appR (PshHomBif ∘Fl (CurryBifunctorL P ^opF)) Q)
+             (appR (PshHomBif ∘Fl ((CurryBifunctorL (P ∘Fr F)) ^opF) ) Q)
+  reindPsh-PshHom F P Q = pshiso (pshhom (λ b α → pshhom (α .N-ob) (α .N-hom)) λ _ _ f α → makePshHomPath refl)
+    λ b → (λ β → pshhom (β .N-ob) (β .N-hom))
+    , (λ α → makePshHomPath refl)
+    , (λ β → makePshHomPath refl)
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   reindPshF-cocont : (F : Functor C D)
     → CoContinuous (reindPshF F)

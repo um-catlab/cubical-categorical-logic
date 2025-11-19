@@ -18,6 +18,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -37,7 +38,8 @@ open import Cubical.Categories.Displayed.Presheaf.Base as Curried
   hiding (Presheafᴰ; Presheafⱽ; module PresheafᴰNotation)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Curry
-open import Cubical.Categories.Displayed.Presheaf.Representable as Curried hiding (yoRecⱽ; _◁PshIsoⱽ_)
+open import Cubical.Categories.Displayed.Presheaf.Representable as Curried
+  hiding (yoRecⱽ; yoRecⱽ-UMP; yoRecᴰ; _◁PshIsoⱽ_)
 
 private
   variable
@@ -50,22 +52,50 @@ private
 open Category
 open Functor
 open Functorᴰ
+open PshHom
 open PshIso
 open Iso
 
 module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Fibers Cᴰ
-  _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ (ℓ-max ℓC' (ℓ-max ℓC' ℓCᴰ'))
-  _[-][-,_] xᴰ = (Cᴰ / (C [-, _ ])) [-, x , xᴰ , (id C) ]
+  _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
+  _[-][-,_] xᴰ = UncurryPshᴰ (C [-, x ]) Cᴰ (Cᴰ Curried.[-][-, xᴰ ])
 
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-         {x : C .Category.ob} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
     module C = Category C
-    module Pⱽ = PresheafᴰNotation Cᴰ _ Pⱽ
-  yoRecⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
-  yoRecⱽ = yoRec Pⱽ
+    module Cᴰ = Fibers Cᴰ
+  module _ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+    private
+      module P = PresheafNotation P
+      module Pᴰ = PresheafᴰNotation Cᴰ _ Pᴰ
+    yoRecᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]} (pᴰ : Pᴰ.p[ p ][ xᴰ ]) → PshHomᴰ (yoRec P p) (Cᴰ [-][-, xᴰ ]) Pᴰ
+    yoRecᴰ pᴰ = Uncurry-recᴰ (Cᴰ Curried.[-][-, _ ]) Pᴰ (Curried.yoRecᴰ (CurryPshᴰ P Cᴰ Pᴰ) pᴰ)
+  module _ {x : C .ob} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
+    private
+      module Pⱽ = PresheafᴰNotation Cᴰ _ Pⱽ
+    yoRecⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
+    yoRecⱽ pⱽ = Uncurry-recⱽ (Cᴰ Curried.[-][-, _ ]) Pⱽ (Curried.yoRecⱽ (CurryPshᴰ (C [-, x ]) Cᴰ Pⱽ) pⱽ)
+
+    yoRecⱽ-UMP :
+      ∀ {xᴰ}
+      → Iso (PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ) (Pⱽ.p[ C.id ][ xᴰ ])
+    yoRecⱽ-UMP = compIso
+      (Uncurry-recⱽ-Iso (Cᴰ Curried.[-][-, _ ]) Pⱽ)
+      (Curried.yoRecⱽ-UMP (CurryPshᴰ (C [-, x ]) Cᴰ Pⱽ))
+
+  -- -- TODO: need yoIndᴰ for Curried PshHomᴰ
+  -- Yoᴰ≅Yo : ∀ {x}(xᴰ : Cᴰ.ob[ x ]) → PshIsoⱽ (Cᴰ [-][-, xᴰ ]) ((Cᴰ / (C [-, x ])) [-, x , xᴰ , C.id ])
+  -- Yoᴰ≅Yo {x} xᴰ =
+  --   makePshIso
+  --     {α = yoRecⱽ ((Cᴰ / (C [-, x ])) [-, x , xᴰ , C.id ]) (C.id , Cᴰ.idᴰ , C.⋆IdL C.id)}
+  --     {α⁻ = yoRec (Cᴰ [-][-, xᴰ ]) Cᴰ.idᴰ}
+  --     (isoFunInjective (CurryPshHom-FF-Iso (Cᴰ [-][-, xᴰ ]) (Cᴰ [-][-, xᴰ ])) _ _
+  --       {!yoRecᴰ!})
+  --     (yoInd _ _ idPshHom
+  --        (ΣPathP ((transportRefl (C.id C.⋆ C.id) ∙ C.⋆IdL C.id) , ΣPathPProp (λ _ → C.isSetHom _ _)
+  --        (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdL _))))
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where

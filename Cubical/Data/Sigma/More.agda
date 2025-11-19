@@ -27,3 +27,16 @@ change-contractum : (p : ∃![ x₀ ∈ A ] B x₀) → singl (p .fst .fst)
 change-contractum {B = B} ((x₀ , p₀) , contr) (x , x₀≡x) =
   (x , subst B x₀≡x p₀)
   , (λ yq → ΣPathP ((sym x₀≡x) , symP (subst-filler B x₀≡x p₀)) ∙ contr yq)
+
+FrobeniusReciprocity :
+  ∀ (f : A → A') y
+  → Iso (Σ[ (x , _) ∈ fiber f y ] (B x) × B' (f x))
+        ((Σ[ (x , _) ∈ fiber f y ] B x) × B' y)
+FrobeniusReciprocity {B' = B'} f y .fun ((x , fx≡y) , p , q) =
+  ((x , fx≡y) , p) , subst B' fx≡y q
+FrobeniusReciprocity {B' = B'} f y .inv (((x , fx≡y) , p) , q) =
+  (x , fx≡y) , (p , subst B' (sym $ fx≡y) q)
+FrobeniusReciprocity {B' = B'} f y .rightInv (((x , fx≡y) , p) , q) =
+  ΣPathP (refl , (substSubst⁻ B' fx≡y q))
+FrobeniusReciprocity {B' = B'} f y .leftInv ((x , fx≡y) , p , q) =
+  ΣPathP (refl , (ΣPathP (refl , (substSubst⁻ B' (sym $ fx≡y) q))))

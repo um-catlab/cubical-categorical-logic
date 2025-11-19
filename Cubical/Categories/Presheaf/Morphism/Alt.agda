@@ -133,6 +133,7 @@ module _ {C : Category ℓc ℓc'} where
   (α ⋆PshHom β) .N-hom x y f p =
     cong (β .N-ob _) (α .N-hom x y f p)
     ∙ β .N-hom x y f (α .N-ob y p)
+  infixr 9 _⋆PshHom_
 
   _⋆PshHomNatTrans_ :
     ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓq} →
@@ -215,12 +216,13 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
 open PshIso
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
-  (α : PshIso P Q) where
+  where
   private
+    module P = PresheafNotation P
     module Q = PresheafNotation Q
-  invPshIso : PshIso Q P
-  invPshIso .trans .N-ob c = α .nIso c .fst
-  invPshIso .trans .N-hom _ _ f q =
+  invPshIso : (α : PshIso P Q) → PshIso Q P
+  invPshIso α .trans .N-ob c = α .nIso c .fst
+  invPshIso α .trans .N-hom _ _ f q =
     sym (α .nIso _ .snd .snd _)
     ∙ cong (α .nIso _ .fst)
       (sym $
@@ -228,9 +230,26 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
         ∙ Q.⟨ refl ⟩⋆⟨ α .nIso _ .snd .fst _ ⟩
         ∙ (sym $ α .nIso _ .snd .fst _))
     ∙ α .nIso _ .snd .snd _
-  invPshIso .nIso c .fst = α .trans .N-ob _
-  invPshIso .nIso c .snd .fst = α .nIso _ .snd .snd
-  invPshIso .nIso c .snd .snd = α .nIso _ .snd .fst
+  invPshIso α .nIso c .fst = α .trans .N-ob _
+  invPshIso α .nIso c .snd .fst = α .nIso _ .snd .snd
+  invPshIso α .nIso c .snd .snd = α .nIso _ .snd .fst
+
+  -- Convenient when we already have the iso on Types
+  Isos→PshIso : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
+    → (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
+      Iso.fun (isos x) (f P.⋆ p) ≡ f Q.⋆ (Iso.fun (isos y) p))
+    → PshIso P Q
+  Isos→PshIso isos isos-areNat .trans .N-ob x = Iso.fun (isos x)
+  Isos→PshIso isos isos-areNat .trans .N-hom = isos-areNat
+  Isos→PshIso isos isos-areNat .nIso x .fst = Iso.inv (isos x)
+  Isos→PshIso isos isos-areNat .nIso x .snd .fst = Iso.rightInv (isos x)
+  Isos→PshIso isos isos-areNat .nIso x .snd .snd = Iso.leftInv (isos x)
+
+  PshIso→Isos : PshIso P Q → ∀ x → Iso (P.p[ x ]) (Q.p[ x ])
+  PshIso→Isos α = λ x →
+    iso (α .trans .N-ob x) (α .nIso x .fst)
+      (α .nIso x .snd .fst)
+      (α .nIso x .snd .snd)
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   {α : PshHom P Q}{α⁻ : PshHom Q P}
@@ -238,6 +257,7 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   (rightInv : α⁻ ⋆PshHom α ≡ idPshHom)
   where
 
+  -- TODO: make α, α⁻ explicit arguments
   makePshIso : PshIso P Q
   makePshIso .trans = α
   makePshIso .nIso c .fst q = α⁻ .N-ob c q
@@ -341,6 +361,7 @@ module _ {C : Category ℓc ℓc'}
   (α ⋆PshIso β) .nIso x =
     IsoToIsIso $
       compIso (isIsoToIso (α .nIso x)) (isIsoToIso (β .nIso x))
+  infixr 9 _⋆PshIso_
 
 module _ {C : Category ℓc ℓc'}{P Q : Presheaf C ℓp} (path : P ≡ Q) where
   pathToPshIso : PshIso P Q

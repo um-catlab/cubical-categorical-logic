@@ -1,4 +1,4 @@
-module Cubical.Categories.Monoidal.EnrichedMore where 
+module Cubical.Categories.Monoidal.Enriched.More where 
 
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Foundations.Prelude

@@ -66,6 +66,7 @@ private
     ℓA ℓB ℓAᴰ ℓBᴰ : Level
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+    ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
 open Category
@@ -86,7 +87,18 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   where
   _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHet F P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)
-
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}{Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf E ℓR}
+  {F : Functor C D}{G : Functor D E}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  (α : PshHet F P Q)
+  (Gᴰ : Functorᴰ G Dᴰ Eᴰ)
+  (β : PshHet G Q R)
+  where
+  /Fᴰ-seq : (Gᴰ /Fᴰ β) ∘F (Fᴰ /Fᴰ α) ≡ ((Gᴰ ∘Fᴰ Fᴰ) /Fᴰ (α ⋆PshHet β))
+  /Fᴰ-seq = Functor≡ (λ _ → refl) (λ (f , fᴰ , f⋆p≡p') →
+    ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh R _ _) refl)) )
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -157,18 +169,17 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
         (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
     ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
 
-    ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
-      → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ≡ reind f⋆p≡q (fᴰ ⋆ᴰ pᴰ)
-    ⋆ᴰ-reind {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ = rectify $ ≡out $ (sym $ ≡in $ ⋆ᴰ-reindᴰ fᴰ f⋆p≡q pᴰ) ∙ reind-filler f⋆p≡q
-
     -- TODO: make this ⋆ᴰ-reind
-    ∫⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
+    ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
       → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)
-    ∫⋆ᴰ-reind fᴰ f⋆p≡q pᴰ = (≡in $ ⋆ᴰ-reind fᴰ f⋆p≡q pᴰ) ∙ (sym $ reind-filler _)
+    ⋆ᴰ-reind fᴰ f⋆p≡q pᴰ =
+      sym $ ≡in $ ⋆ᴰ-reindᴰ fᴰ f⋆p≡q pᴰ
 
     ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
       → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
-    ⋆IdLᴰ {x}{xᴰ}{p} pᴰ = reind-filler _ ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-id) pᴰ)
+    ⋆IdLᴰ {x}{xᴰ}{p} pᴰ =
+      (sym $ ⋆ᴰ-reind Cᴰ.idᴰ _ pᴰ)
+      ∙ (≡in $ funExt⁻ (Pᴰ .F-id) pᴰ)
 
     ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
       (fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ])
@@ -176,8 +187,8 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
       (pᴰ : p[ p ][ xᴰ ])
       → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
     ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
-      reind-filler _
-      ∙ (≡in $ (sym $ ⋆ᴰ-reind _ _ _) ∙ funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) _)
+      (sym $ ⋆ᴰ-reind (fᴰ Cᴰ.⋆ᴰ gᴰ) _ pᴰ)
+      ∙ ≡in (funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) pᴰ)
 
   ∫ : Presheaf (∫C Cᴰ) (ℓ-max ℓP ℓPᴰ)
   ∫ .F-ob (x , xᴰ) .fst = Σ[ p ∈ _ ] p[ p ][ xᴰ ]
@@ -213,17 +224,17 @@ module _
   -- TODO: this is Eq.refl on objects but not morphisms
   reindPshᴰNatTrans-seq : PshIso (reindPshᴰNatTrans (α ⋆PshHom β) Rᴰ) (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ)
   reindPshᴰNatTrans-seq = pathToPshIso (Functor≡ (λ _ → refl) (λ _ → funExt (λ _ → Rᴰ.rectify $ Rᴰ.≡out
-    $ Rᴰ.∫⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.∫⋆ᴰ-reind _ _ _))))
+    $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _))))
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} (α : PshHom P P) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
   private
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
-  -- TODO: this is Eq.refl on objects but not morphisms
+  -- TODO: this is Eq.refl on objects but not morphisms, should probably have an intermediate eqToPshIso
   reindPshᴰNatTrans-id : PshIso (reindPshᴰNatTrans idPshHom Pᴰ) Pᴰ
   reindPshᴰNatTrans-id = pathToPshIso (Functor≡ (λ _ → refl) (λ _ → funExt λ _ → Pᴰ.rectify $ Pᴰ.≡out $
-    Pᴰ.∫⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.∫⋆ᴰ-reind _ _ _)))
+    Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)))
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α β : PshHom P Q) (α≡β : α ≡ β) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where

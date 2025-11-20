@@ -185,6 +185,22 @@ reindPsh∘F≅ :
   → PshIso (reindPsh F (reindPsh G P)) (reindPsh (G ∘F F) P)
 reindPsh∘F≅ F G P = eqToPshIso (reindPsh (G ∘F F) P) Eq.refl Eq.refl
 
+module _ {C : Category ℓC ℓC'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  where
+  PshHom→PshHet : PshHom P Q → PshHet Id P Q
+  PshHom→PshHet α = α ⋆PshHom reindPshId≅ Q .trans
+module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} where
+  idPshHet : PshHet Id P P
+  idPshHet = PshHom→PshHet idPshHom
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'}{F : Functor C D}{G : Functor D E}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf E ℓR}
+  where
+  _⋆PshHet_ : PshHet F P Q → PshHet G Q R → PshHet (G ∘F F) P R
+  α ⋆PshHet β = α ⋆PshHom reindPshHom F β ⋆PshHom reindPsh∘F≅ F G R .trans
+
 module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   -- reindPsh F (c ↦ P(c,d) ⊗[ d ] Q(d,*))
   -- ≅ b ↦ P(F b, d) ⊗[ d ] Q(d, *)

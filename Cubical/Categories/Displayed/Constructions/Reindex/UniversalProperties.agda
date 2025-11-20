@@ -34,6 +34,7 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
@@ -48,6 +49,7 @@ private
 
 open Category
 open Functor
+open Functorᴰ
 open NatTrans
 open NatIso
 open PshHom
@@ -62,24 +64,14 @@ module _
     module D = Category D
     module Dᴰ = Fibers Dᴰ
     module F = Functor F
+
   reindex-π-/ : (x : C.ob)
     → Functor (reindex Dᴰ F / (C [-, x ])) (Dᴰ / (D [-, F ⟅ x ⟆ ]))
   reindex-π-/ x = π Dᴰ F /Fᴰ Functor→PshHet F x
 
   reindexRepresentableIsoⱽ : ∀ (x : C.ob)(Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
     → PshIsoⱽ (reindex Dᴰ F [-][-, Fxᴰ ]) (reindPsh (reindex-π-/ x) (Dᴰ [-][-, Fxᴰ ]))
-  reindexRepresentableIsoⱽ x Fxᴰ .trans = yoRec (reindPsh (reindex-π-/ x) (Dᴰ [-][-, Fxᴰ ])) (D.id , (Dᴰ.idᴰ , (D.⋆IdL D.id ∙ (sym $ F.F-id))))
-  reindexRepresentableIsoⱽ x Fxᴰ .nIso (y , Fyᴰ , f) .fst (g , gᴰ , g⋆id≡F⟪f⟫) =
-    f , (Dᴰ.reind ((sym $ D.⋆IdR g) ∙ g⋆id≡F⟪f⟫) gᴰ , C.⋆IdR f)
-  reindexRepresentableIsoⱽ x Fxᴰ .nIso (y , Fyᴰ , f) .snd .fst (g , gᴰ , g⋆id≡F⟪f⟫) =
-    ΣPathP ((D.⋆IdR _ ∙ sym g⋆id≡F⟪f⟫ ∙ D.⋆IdR g)
-     , (ΣPathPProp (λ _ → D.isSetHom _ _)
-       (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdR _ ∙ (sym $ Dᴰ.reind-filler _ _))))
-  reindexRepresentableIsoⱽ x Fxᴰ .nIso (y , Fyᴰ , f) .snd .snd (g , gᴰ , g⋆id≡f) =
-    ΣPathP (sym g⋆id≡f ∙ C.⋆IdR g
-    , ΣPathPProp
-      (λ _ → C.isSetHom _ _)
-      (Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _ _) ∙ Dᴰ.⋆IdR _))
+  reindexRepresentableIsoⱽ x Fxᴰ = FFFunctorᴰ→PshIsoᴰ (π Dᴰ F) Fxᴰ (π-FFᴰ Dᴰ F)
 
   -- Make this a more general lemma about composing /Fⱽ and /Fᴰ ?
   reindexRepresentable-seq : ∀ {x y f}

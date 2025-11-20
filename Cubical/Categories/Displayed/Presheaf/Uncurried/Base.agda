@@ -87,6 +87,14 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHet F P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)
 
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {F : Functor C D}
+  where
+  _/FᴰYo_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (x : C .ob) → Functor (Cᴰ / (C [-, x ])) (Dᴰ / (D [-, F ⟅ x ⟆ ]))
+  Fᴰ /FᴰYo x = Fᴰ /Fᴰ Functor→PshHet F x
+
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

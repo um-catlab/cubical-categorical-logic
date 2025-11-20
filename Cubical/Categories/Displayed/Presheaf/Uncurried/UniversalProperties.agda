@@ -68,10 +68,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   Terminalsⱽ = ∀ x → Terminalⱽ x
 
   BinProductⱽ : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
-  BinProductⱽ {x} xᴰ Γᴰ = Representableⱽ Cᴰ x ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh (Cᴰ [-][-, xᴰ ]))
+  BinProductⱽ {x} Γᴰ xᴰ = Representableⱽ Cᴰ x ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh (Cᴰ [-][-, xᴰ ]))
 
   BinProductsWithⱽ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Type _
-  BinProductsWithⱽ {x} xᴰ = ∀ yᴰ → BinProductⱽ xᴰ yᴰ
+  BinProductsWithⱽ {x} xᴰ = ∀ Γᴰ → BinProductⱽ Γᴰ xᴰ
 
   isLRⱽ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Type _
   isLRⱽ {x} xᴰ = Σ[ lifts ∈ CartesianLiftable xᴰ ]
@@ -82,8 +82,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   LRⱽObᴰ→LRⱽ : ∀ {x} → (xᴰ : LRⱽObᴰ x) → LRⱽPresheafᴰ (C [-, x ]) Cᴰ _
   LRⱽObᴰ→LRⱽ (xᴰ , _) .fst = Cᴰ [-][-, xᴰ ]
-  LRⱽObᴰ→LRⱽ (xᴰ , _*xᴰ , _*xᴰ×ⱽ_) .snd {Γ} Γᴰ f =
-    (f *xᴰ×ⱽ Γᴰ) .fst , (f *xᴰ×ⱽ Γᴰ) .snd ⋆PshIsoⱽ ×PshIso idPshIso ((f *xᴰ) .snd)
+  LRⱽObᴰ→LRⱽ (xᴰ , _*xᴰ , _*xᴰ×ⱽ_) .snd {Γ} Γᴰ f = ((f *xᴰ×ⱽ Γᴰ) .fst) ,
+    ((f *xᴰ×ⱽ Γᴰ) .snd ⋆PshIsoⱽ ×PshIso idPshIso ((f *xᴰ) .snd))
 
   BinProductsⱽ : Type _
   BinProductsⱽ = ∀ {x} xᴰ yᴰ → BinProductⱽ {x} xᴰ yᴰ
@@ -102,7 +102,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductsⱽ+Fibration→AllLRⱽ : BinProductsⱽ → isFibration
     → ∀ x (xᴰ : Cᴰ.ob[ x ]) → isLRⱽ xᴰ
   BinProductsⱽ+Fibration→AllLRⱽ bpⱽ lifts x xᴰ =
-    (λ {x = y} → lifts xᴰ y) , (λ {Γ} f → bpⱽ (lifts xᴰ Γ f .fst))
+    (λ {x = y} → lifts xᴰ y) , (λ {Γ} f → λ Γᴰ → bpⱽ Γᴰ (lifts xᴰ Γ f .fst))
 
   Exponentialsⱽ : BinProductsⱽ → isFibration → Type _
   Exponentialsⱽ bpⱽ lifts = ∀ {x} (xᴰ yᴰ : Cᴰ.ob[ x ])

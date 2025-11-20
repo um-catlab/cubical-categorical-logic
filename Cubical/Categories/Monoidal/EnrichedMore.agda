@@ -1,0 +1,85 @@
+module Cubical.Categories.Monoidal.EnrichedMore where 
+
+open import Cubical.Categories.Monoidal.Base
+open import Cubical.Foundations.Prelude
+open import Cubical.Categories.Functor
+
+module _ {ℓV ℓV' : Level} (V : MonoidalCategory ℓV ℓV') (ℓE : Level) where
+
+  open MonoidalCategory V
+    renaming (ob to obV; Hom[_,_] to V[_,_]; id to idV; _⋆_ to _⋆V_)
+
+  record EnrichedCategory : Type (ℓ-max (ℓ-max ℓV ℓV') (ℓ-suc ℓE)) where
+    field
+      ob : Type ℓE
+      Hom[_,_] : ob → ob → obV
+      id : ∀ {x} → V[ unit , Hom[ x , x ] ]
+      seq : ∀ x y z → V[ Hom[ x , y ] ⊗ Hom[ y , z ] , Hom[ x , z ] ]
+
+      -- Axioms
+      ⋆IdL : ∀ x y →   η⟨ _ ⟩  ≡  (id {x} ⊗ₕ idV)  ⋆V  (seq x x y)
+      ⋆IdR : ∀ x y →   ρ⟨ _ ⟩  ≡  (idV ⊗ₕ id {y})  ⋆V  (seq x y y)
+      ⋆Assoc : ∀ x y z w →
+          α⟨ _ , _ , _ ⟩  ⋆V  ((seq x y z) ⊗ₕ idV)  ⋆V  (seq x z w)
+                          ≡  (idV ⊗ₕ (seq y z w))  ⋆V  (seq x y w)
+
+-- NOTE: The following should be added to 
+-- Cubical.Categories.Monoidal.Enriched                        
+module _ {ℓV ℓV'  : Level} (V : MonoidalCategory ℓV ℓV') where 
+  open MonoidalCategory V
+    renaming (ob to obV; Hom[_,_] to V[_,_]; id to idV; _⋆_ to _⋆V_; ⋆Assoc to VAssoc)
+
+  record EnrichedFunctor {ℓE ℓD : Level}(E : EnrichedCategory V ℓE)(D : EnrichedCategory V ℓD) : Type (ℓ-max (ℓ-max (ℓ-max ℓV ℓV') (ℓ-suc ℓE)) (ℓ-suc ℓD)) where 
+    private module E = EnrichedCategory E 
+    private module D = EnrichedCategory D 
+    field 
+      F₀ : E.ob → D.ob
+      F₁ : {X Y : E.ob} → V[ E.Hom[ X , Y ] , D.Hom[ F₀ X , F₀ Y ] ]
+      Fid : {X : E.ob} → (E.id {X} ⋆V F₁ {X} {X}) ≡ D.id {F₀ X}
+      Fseq : {X Y Z : E.ob} → (F₁ {X} {Y} ⊗ₕ F₁ {Y} {Z}) ⋆V D.seq (F₀ X) (F₀ Y) (F₀ Z) ≡ E.seq X Y Z ⋆V F₁ {X} {Z} 
+
+
+  open EnrichedFunctor
+  open EnrichedCategory
+  open Functor
+  ecomp : {ℓ : Level}{C D E : EnrichedCategory V ℓ} → EnrichedFunctor C D → EnrichedFunctor D E → EnrichedFunctor C E 
+  ecomp  F G .F₀ c = F₀ G (F₀ F c)
+  ecomp  F G .F₁ = F₁ F ⋆V F₁ G
+  ecomp  {C} F G .Fid = (sym (VAssoc _ _ _) ∙ cong (λ h → h ⋆V F₁ G) (F .Fid) ) ∙ G .Fid
+  ecomp  {C} F G .Fseq = 
+    ((((cong₂ _⋆V_ (─⊗─ .F-seq _ _) refl ∙ VAssoc _ _ _ ) 
+    ∙ cong (λ h → (F₁ F ⊗ₕ F₁ F) ⋆V h ) (G .Fseq)) 
+    ∙ sym (VAssoc _ _ _)) 
+    ∙ cong (λ h → h ⋆V F₁ G) (F .Fseq)) 
+    ∙ VAssoc _ _ _  
+
+
+module _ 
+    {ℓV ℓV'  : Level} 
+    {V : MonoidalCategory ℓV ℓV'}
+    {ℓE : Level} 
+    {ℓD : Level}
+    {𝓒 : EnrichedCategory V ℓE}
+    {𝓓 : EnrichedCategory V ℓD}
+    (F G : EnrichedFunctor V  𝓒 𝓓 ) where 
+    
+    open EnrichedCategory 𝓒 
+      renaming (ob to 𝓒ob ; Hom[_,_] to 𝓒[_,_])
+    open EnrichedCategory 𝓓 
+      renaming (Hom[_,_] to 𝓓[_,_] ; seq to 𝓓seq)
+    open MonoidalCategory V
+      renaming (ob to obV; Hom[_,_] to V[_,_]; id to idV; _⋆_ to _⋆V_ ; unit to Vunit)
+    open EnrichedFunctor F 
+    open EnrichedFunctor G 
+      renaming (F₀ to G₀ ; F₁ to G₁)
+
+    record EnrichedNatTrans : Type ((ℓ-max (ℓ-max (ℓ-max ℓV ℓV') (ℓ-suc ℓE)) (ℓ-suc ℓD))) where 
+      field 
+        E-N-ob : ∀ (c : 𝓒ob) → V[ Vunit , 𝓓[ F₀ c , G₀ c ] ]
+        E-N-hom : 
+          ∀ (c c' : 𝓒ob) → 
+            (ρ⁻¹⟨ 𝓒[ c , c' ] ⟩ ⋆V ((F₁ ⊗ₕ E-N-ob c') ⋆V 𝓓seq _ _ _)) 
+              ≡ 
+            (η⁻¹⟨ 𝓒[ c , c' ] ⟩ ⋆V (E-N-ob c ⊗ₕ G₁ ⋆V 𝓓seq _ _ _))
+
+  

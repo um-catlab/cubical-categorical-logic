@@ -363,7 +363,6 @@ module _
   LocallyRepresentableⱽ Pᴰ = ∀ {x} (xᴰ : Cᴰ.ob[ x ])(p : P.p[ x ])
     → Representableⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×Psh reindPshᴰNatTrans (yoRec P p) Pᴰ)
 
-  -- This need push-repr and push-PshIsoⱽ to be implemented to be completed
   LocallyRepresentableⱽ→LocallyRepresentable : {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
     → LocallyRepresentableⱽ Pᴰ
     → LocallyRepresentable Pᴰ

@@ -85,18 +85,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       (Uncurry-recⱽ-Iso (Cᴰ Curried.[-][-, _ ]) Pⱽ)
       (Curried.yoRecⱽ-UMP (CurryPshᴰ (C [-, x ]) Cᴰ Pⱽ))
 
-  Yoᴰ≅Yo : ∀ {x}(xᴰ : Cᴰ.ob[ x ]) → PshIsoⱽ (Cᴰ [-][-, xᴰ ]) ((Cᴰ / (C [-, x ])) [-, x , xᴰ , C.id ])
-  Yoᴰ≅Yo {x} xᴰ =
-    makePshIso
-      {α = yoRecⱽ ((Cᴰ / (C [-, x ])) [-, x , xᴰ , C.id ]) (C.id , Cᴰ.idᴰ , C.⋆IdL C.id)}
-      {α⁻ = yoRec (Cᴰ [-][-, xᴰ ]) Cᴰ.idᴰ}
-      (isoFunInjective (yoRecⱽ-UMP (Cᴰ [-][-, xᴰ ])) _ _
-        -- This is very nasty definitionally, probably a bad sign
-        (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdL _))
-      (yoInd _ _ idPshHom
-         (ΣPathP ((transportRefl (C.id C.⋆ C.id) ∙ C.⋆IdL C.id) , ΣPathPProp (λ _ → C.isSetHom _ _)
-         (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdL _))))
-
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
   private

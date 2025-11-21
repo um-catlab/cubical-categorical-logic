@@ -72,7 +72,6 @@ module Dynamics.Delay where
     ... | inl x  = done x
     ... | inr tt = step (toDelay λ n → f (suc n))
 
-
     retr : {X : Type ℓ} → (d : Delay X) → toDelay (fromDelay d) ≡ d
     retr d i .view with d .view
     ... | done x  = done x
@@ -177,13 +176,15 @@ module Dynamics.Delay where
     unfold : {X : Type ℓ} →  Delay X → StateF X (Delay X)  
     unfold d = State-rec doneF stepF (d .view)
 
+    fold : {X : Type ℓ} → StateF X (Delay X) → Delay X  
+    fold = StateF-rec (delay_ ∘S done) (delay_ ∘S step)
+
     d-iso : {X : Type ℓ} → Iso (Delay X) (StateF X (Delay X))
     d-iso .Iso.fun = unfold
-    d-iso .Iso.inv (doneF x) = delay done x
-    d-iso .Iso.inv (stepF x) = delay step x
+    d-iso .Iso.inv = fold
     d-iso .Iso.rightInv (doneF x) = refl
     d-iso .Iso.rightInv (stepF x) = refl
-    d-iso .Iso.leftInv d i . view with d .view 
+    d-iso .Iso.leftInv d i .view with d .view 
     ... | done x = done x
     ... | step x = step x
 

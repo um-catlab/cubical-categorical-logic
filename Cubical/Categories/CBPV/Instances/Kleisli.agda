@@ -1,6 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 
-module Gluing.CBPV.Kleisli where
+module Cubical.Categories.CBPV.Instances.Kleisli where
   open import Cubical.Foundations.Prelude
   open import Cubical.Categories.Functor
   open import Cubical.Categories.Category
@@ -14,9 +14,10 @@ module Gluing.CBPV.Kleisli where
   open import Cubical.Categories.Monoidal.Base
   open import Cubical.Categories.Monoidal.Enriched
   open import Cubical.Categories.Monad.ExtensionSystem
-  open import Gluing.CBPV.Model
-  open import Cubical.Categories.Monoidal.Enriched.More
-  open import Cubical.Categories.Monoidal.Enriched.Presheaf
+  open import Cubical.Categories.CBPV.Instances.Free
+  open import Cubical.Categories.Enriched.More
+  open import Cubical.Categories.Enriched.Presheaf
+  open import Cubical.Categories.CBPV.Base
 
   open Functor
   open CBPVModel

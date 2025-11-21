@@ -1,5 +1,5 @@
 
-module Dynamics.TransitionSystem where
+module Cubical.Categories.CBPV.Instances.TransitionSystem where
 
   open import Cubical.Categories.Functor
   open import Cubical.Categories.Instances.Sets

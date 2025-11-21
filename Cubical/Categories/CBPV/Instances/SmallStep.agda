@@ -1,6 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 
-module Dynamics.CBPVSmallStep where
+module Cubical.Categories.CBPV.Instances.SmallStep where
     open import Cubical.Categories.Instances.Sets
     open import Cubical.Categories.Category
     open import Cubical.Foundations.Function
@@ -10,16 +10,16 @@ module Dynamics.CBPVSmallStep where
     open import Cubical.Foundations.HLevels
     open import Cubical.Categories.Monoidal.Base
     open import Cubical.Categories.Monoidal.Enriched
-    open import Cubical.Categories.Monoidal.Enriched.More
-    open import Cubical.Categories.Monoidal.Enriched.Presheaf
+    open import Cubical.Categories.Enriched.More
+    open import Cubical.Categories.Enriched.Presheaf
     open import Cubical.Categories.Functor
     open import Cubical.Categories.Instances.Sets
     open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
     open import Cubical.Categories.NaturalTransformation
     open import Cubical.Foundations.Structure
-    open import Syntax.CBPV
-    open import Gluing.CBPV.Model using (CBPVModel ; CBPVModelHom)
-    open import Dynamics.TransitionSystem
+    open import Cubical.Categories.CBPV.Instances.Free
+    open import Cubical.Categories.CBPV.Base using (CBPVModel ; CBPVModelHom)
+    open import Cubical.Categories.CBPV.Instances.TransitionSystem
 
     open CBPVModel
     open Category

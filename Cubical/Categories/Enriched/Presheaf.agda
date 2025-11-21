@@ -1,6 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 
-module Cubical.Categories.Monoidal.Enriched.Presheaf where
+module Cubical.Categories.Enriched.Presheaf where
 
   open import Cubical.Categories.Category
   open import Cubical.Foundations.Prelude
@@ -17,7 +17,7 @@ module Cubical.Categories.Monoidal.Enriched.Presheaf where
   open import Cubical.Categories.Presheaf.Constructions.BinProduct
   open import Cubical.Categories.Presheaf.Constructions.Reindex
   open import Cubical.Categories.Monoidal.Enriched
-  open import Cubical.Categories.Monoidal.Enriched.More
+  open import Cubical.Categories.Enriched.More
   open import Cubical.Categories.Bifunctor
   open import Cubical.Categories.NaturalTransformation
   open import Cubical.Data.Unit

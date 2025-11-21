@@ -1,4 +1,4 @@
-module Dynamics.Delay where 
+module Cubical.CoData.Delay where 
   open import Cubical.Foundations.Prelude
   open import Cubical.Categories.Category 
   open import Cubical.Categories.Functor 

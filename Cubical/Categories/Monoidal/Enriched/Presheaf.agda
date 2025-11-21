@@ -16,6 +16,8 @@ module Cubical.Categories.Monoidal.Enriched.Presheaf where
     open import Cubical.Categories.Presheaf.Constructions.Exponential
     open import Cubical.Categories.Presheaf.Constructions.BinProduct
     open import Cubical.Categories.Presheaf.Constructions.Reindex
+    open import Cubical.Categories.Monoidal.Enriched
+    open import Cubical.Categories.Monoidal.Enriched.More
     open import Cubical.Categories.Bifunctor
     open import Cubical.Categories.NaturalTransformation
     open import Cubical.Data.Unit
@@ -30,8 +32,6 @@ module Cubical.Categories.Monoidal.Enriched.Presheaf where
     open NatTrans
     open BinProduct
     open Bifunctor
-
-    open import Cubical.Categories.Monoidal.Enriched.More
     open EnrichedCategory
 
 

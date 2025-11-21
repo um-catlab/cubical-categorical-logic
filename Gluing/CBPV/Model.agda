@@ -15,6 +15,7 @@ module Gluing.CBPV.Model where
     open import Cubical.Foundations.Isomorphism
     open import Cubical.Data.Sigma 
     open import Cubical.Categories.Monoidal.Enriched.Presheaf
+    open import Cubical.Categories.Monoidal.Enriched
     open import Cubical.Categories.Monoidal.Enriched.More
 
     open Category     

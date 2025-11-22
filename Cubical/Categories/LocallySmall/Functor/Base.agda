@@ -25,6 +25,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open CatIso
 
 record Functor (C : Category Cob CHom-ℓ) (D : Category Dob DHom-ℓ) : Typeω where
+  -- no-eta-equality
   private
     module C = CategoryNotation C
     module D = CategoryNotation D
@@ -98,15 +99,43 @@ module _
   mkSmallFunctor .F-seq = F .SmallF.Functor.F-seq
 
 module _
-  {C : Category Cob CHom-ℓ}
-  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)
+  {C : SmallCategory ℓC ℓC'}
+  {D : SmallCategory ℓD ℓD'}
   where
-   private
-     module Cᴰ = Categoryᴰ Cᴰ
-     module ∫Cᴰ = Category Cᴰ.∫C
+  private
+    module C = SmallCategory C
+    module D = SmallCategory D
+    C' = SmallLocallySmallCategory→SmallCategory C
+    D' = SmallLocallySmallCategory→SmallCategory D
+  module _ (F : Functor C.cat D.cat) where
+    SmallLocallySmallFunctor→SmallFunctor :
+      SmallF.Functor C' D'
+    SmallLocallySmallFunctor→SmallFunctor .SmallF.Functor.F-ob =
+      λ z → F-ob F (liftω z) .Liftω.lowerω
+    SmallLocallySmallFunctor→SmallFunctor .SmallF.Functor.F-hom =
+      F-hom F
+    SmallLocallySmallFunctor→SmallFunctor .SmallF.Functor.F-id =
+      F-id F
+    SmallLocallySmallFunctor→SmallFunctor .SmallF.Functor.F-seq =
+      F-seq F
 
-   σ : (c : Cob) → Functor Cᴰ.v[ c ] Cᴰ.∫C
-   σ c .F-ob = λ z → c , z
-   σ c .F-hom = λ z → Category.id C , z
-   σ c .F-id = refl
-   σ c .F-seq f g = sym $ Cᴰ.reind-filler _ _
+module _
+  {C : SmallCategory ℓC ℓC'} where
+  private
+    module C = SmallCategory C
+    C' = SmallLocallySmallCategory→SmallCategory C
+
+  open SmallCategory
+  mkSmallCategoryF-intro :
+    Functor C.cat (mkSmallCategory C' .cat)
+  mkSmallCategoryF-intro .F-ob = λ z → z
+  mkSmallCategoryF-intro .F-hom = λ z → z
+  mkSmallCategoryF-intro .F-id = refl
+  mkSmallCategoryF-intro .F-seq = λ _ _ → refl
+
+  mkSmallCategoryF-elim :
+    Functor (mkSmallCategory C' .cat) C.cat
+  mkSmallCategoryF-elim .F-ob = λ z → z
+  mkSmallCategoryF-elim .F-hom = λ z → z
+  mkSmallCategoryF-elim .F-id = refl
+  mkSmallCategoryF-elim .F-seq = λ _ _ → refl

@@ -27,3 +27,13 @@ module _
   (F ,F G) .F-hom = λ z → F-hom F z , F-hom G z
   (F ,F G) .F-id = ≡-× (F-id F) (F-id G)
   (F ,F G) .F-seq _ _ = ≡-× (F-seq F _ _) (F-seq G _ _)
+
+module _
+  {Bob BHom-ℓ}
+  {B : Category Bob BHom-ℓ}
+  {C : Category Cob CHom-ℓ}
+  {D : Category Dob DHom-ℓ}
+  {E : Category Eob EHom-ℓ}
+  where
+  _×F_ : Functor B D → Functor C E → Functor (B ×C C) (D ×C E)
+  F ×F G = (F ∘F π₁ _ _) ,F (G ∘F π₂ _ _)

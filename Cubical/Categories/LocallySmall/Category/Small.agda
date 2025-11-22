@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma.More
 
 import Cubical.Categories.Category as Small
-open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Variables.Base
 open import Cubical.Categories.LocallySmall.Category.Base
 
 open Σω
@@ -26,7 +26,7 @@ record SmallCategory (ℓC ℓC' : Level) : Typeω where
   field
     small-ob : Type ℓC
     cat : GloballySmallCategory (Liftω small-ob) ℓC'
-  open Category cat public
+  open CategoryNotation cat public
 
 open SmallCategory
 

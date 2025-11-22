@@ -207,7 +207,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡αp)
     -- ===============================
     -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡αp)
-
     push-σ : PshHomᴰ α Pᴰ push
     push-σ .N-ob (Γ , Γᴰ , p) pᴰ = p , (pᴰ , refl)
     push-σ .N-hom _ _ (γ , Γᴰ , γ⋆p≡p') pᴰ = ΣPathP ((sym $ γ⋆p≡p') , (ΣPathPProp (λ _ → Q.isSetPsh _ _)
@@ -317,8 +316,6 @@ module _ {C : Category ℓC ℓC'} where
       test : ∀ x → PB.p[ x ] ≡ (Σ[ (p , q) ∈ P.p[ x ] × Q.p[ x ] ] α .N-ob x p ≡ β .N-ob x q)
       test x = refl
 
-    -- pb-π : PshHom Pullback (P ×Psh Q)
-
     module _ {S : Presheaf C ℓS}
       (α' : PshHom S Q) (β' : PshHom S P)
       where
@@ -342,7 +339,7 @@ module _ {C : Category ℓC ℓC'} where
           compIso (Σ-cong-iso-fst (isIsoToIso (ispb Γ q))) $
           compIso Σ-assoc-swap-Iso $
           Σ-assoc-Iso
-        --
+
         BeckChevalley : PshIsoⱽ (push α' (reindPshᴰNatTrans β' Pᴰ)) (reindPshᴰNatTrans β (push α Pᴰ))
         BeckChevalley = Isos→PshIso (λ (Γ , Γᴰ , q) → BeckChevalley-ptwise Γ Γᴰ q)
           λ (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q') (s , pᴰ , q'≡α's) →

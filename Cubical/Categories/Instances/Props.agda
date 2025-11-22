@@ -23,9 +23,12 @@ private
   variable ℓ : Level
 
 open Functor
--- TODO: make a general "Thin category/Preorder→Category" construction
+
 PROP : ∀ ℓ → Category (ℓ-suc ℓ) ℓ
-PROP ℓ = ThinCategory (hProp ℓ) (λ P Q → ⟨ P ⟩ → ⟨ Q ⟩) (λ {a} z → z) (λ {a} {b} {c} z z₁ z₂ → z₁ (z z₂)) λ {b = Q} → isProp→ (Q .snd)
+PROP ℓ = ThinCategory (hProp ℓ) (λ P Q → ⟨ P ⟩ → ⟨ Q ⟩)
+  (λ {a} z → z)
+  (λ {a} {b} {c} z z₁ z₂ → z₁ (z z₂))
+  λ {b = Q} → isProp→ (Q .snd)
 
 hasPropHomsPROP : hasPropHoms (PROP ℓ)
 hasPropHomsPROP {y = Q} = isProp→ (Q .snd)

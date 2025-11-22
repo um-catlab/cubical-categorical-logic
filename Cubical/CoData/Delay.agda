@@ -153,7 +153,6 @@ module Cubical.CoData.Delay where
       view (Delay-map-seq {ℓ}{A}{B}{C}{f}{g}{d} i) =
         State-map-seq {ℓ}{A}{B}{C}{f}{g}{d .view} i
 
-
     DelayF : Functor (SET ℓ) (SET ℓ)
     DelayF .F-ob X = Delay ⟨ X ⟩ , isSetDelay (X .snd)
     DelayF .F-hom = Delay-map

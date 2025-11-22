@@ -4,11 +4,10 @@
 
 module Cubical.Categories.CBPV.Instances.Free where
   open import Cubical.Foundations.Function
-  open import Cubical.Data.List hiding (init)
+  open import Cubical.Data.List 
   open import Cubical.Foundations.Prelude renaming (comp to compose)
 
-
-  module Syn { ℓ : Level} where
+  module Syn {ℓ : Level} where
     mutual
       data CTy : Type ℓ where
         fun : VTy → CTy → CTy
@@ -19,18 +18,16 @@ module Cubical.Categories.CBPV.Instances.Free where
         prod : VTy → VTy → VTy
         U : CTy → VTy
 
+    Ctx = List VTy
 
-    Ctx = List {ℓ} VTy
-
-    ⊘ : Ctx
-    ⊘ = []
+    · : Ctx
+    · = []
 
     private
       variable
         Δ Γ Θ ξ Δ' Γ' Θ' ξ' : Ctx
         B B' B'' B''' : CTy
         A A' : VTy
-
 
     data Sub[_,_] : (Δ : Ctx) (Γ : Ctx) → Type ℓ
     data _⊢v_   : (Γ : Ctx) (S : VTy) → Type ℓ
@@ -57,8 +54,8 @@ module Cubical.Categories.CBPV.Instances.Free where
       isSetSub : isSet (Sub[ Δ , Γ ])
 
       -- with a terminal object
-      !s : Sub[ Γ , ⊘ ]
-      ⊘η : γ ≡ !s
+      !s : Sub[ Γ , · ]
+      ·η : γ ≡ !s
 
       -- universal property of context extension
       _,s_ : Sub[ Γ , Δ ] → Γ ⊢v A → Sub[ Γ , A ∷ Δ ]
@@ -77,7 +74,7 @@ module Cubical.Categories.CBPV.Instances.Free where
       var : (A ∷ Γ) ⊢v A
       varβ : var [ δ ,s v ]v ≡ v
 
-      -- we arent' interested in preserving type structure here..
+      -- we are not interested in preserving type structure here..
       -- so no natural isomorphisms
       u :
         ----------
@@ -95,7 +92,7 @@ module Cubical.Categories.CBPV.Instances.Free where
         Γ ⊢v U B
 
     data _◂_⊢k_ where
-      -- a cateogory of stacks
+      -- a category of stacks
       ∙k : Γ ◂ B ⊢k B
       _∘k_ :  Γ ◂ B' ⊢k B'' → Γ ◂ B ⊢k B' → Γ ◂ B ⊢k B''
       ∘kIdL : ∙k ∘k E ≡ E
@@ -129,7 +126,7 @@ module Cubical.Categories.CBPV.Instances.Free where
       plugId : ∙k [ m ]∙ ≡ m
       plugAssoc : (E' ∘k E) [ m ]∙ ≡ (E' [ E [ m ]∙ ]∙)
 
-      -- enriched in presehaves of contexts
+      -- enriched in presheaves of contexts
       _[_]c : Γ ⊢c B → Sub[ Δ , Γ ] → Δ ⊢c B
       subIdC : m [ ids ]c ≡ m
       subAssocC : m [ γ ∘s δ ]c ≡ (m [ γ ]c) [ δ ]c
@@ -277,12 +274,12 @@ module Cubical.Categories.CBPV.Instances.Free where
     up Γ A .nIso Δ .isIso.sec = funExt λ (γ , m) → ΣPathP (wkβ , varβ)
     up Γ A .nIso Δ .isIso.ret = funExt λ γ → sym ,sη
 
-    init : CBPVModel
-    init .𝓒 = SCat
-    init .𝓔 = E
-    init .vTy = VTy
-    init .vTm = vtm
-    init .cTm = ctm
-    init .emp = ⊘ , λ Γ → !s , λ _ → sym ⊘η
-    init ._×c_ Γ A = A ∷ Γ
-    init .up×c = up
+    CBPVExpSubst : CBPVModel
+    CBPVExpSubst .𝓒 = SCat
+    CBPVExpSubst .𝓔 = E
+    CBPVExpSubst .vTy = VTy
+    CBPVExpSubst .vTm = vtm
+    CBPVExpSubst .cTm = ctm
+    CBPVExpSubst .emp = · , λ Γ → !s , λ _ → sym ·η
+    CBPVExpSubst ._×c_ Γ A = A ∷ Γ
+    CBPVExpSubst .up×c = up

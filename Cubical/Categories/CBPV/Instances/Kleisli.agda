@@ -13,7 +13,8 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
-open import Cubical.Categories.Monad.ExtensionSystem
+open import Cubical.Categories.Monad.ExtensionSystem 
+  renaming (Kleisli to KleisliCat)
 open import Cubical.Categories.CBPV.Instances.Free
 open import Cubical.Categories.Enriched.More
 open import Cubical.Categories.Enriched.Presheaf
@@ -38,7 +39,7 @@ module Model {ℓ : Level}(M : ExtensionSystem (SET ℓ)) where
   private
     T : ob set → ob set
     T = M .fst
-    K = Kleisli set M
+    K = KleisliCat set M
     E = enrich K
 
     𝓟[_,_] : ob 𝓟 → ob 𝓟 → Type (ℓ-suc ℓ)
@@ -81,18 +82,18 @@ module Model {ℓ : Level}(M : ExtensionSystem (SET ℓ)) where
       makePshHomPath (funExt λ Δ → funExt λ {(γ , m) →
       cong lift (funExt λ d → funExt⁻ bind-comp _)}))
 
-  kleisli : CBPVModel
-  kleisli .𝓒 = set
-  kleisli .𝓔 = E
-  kleisli .vTy = ob set
-  kleisli .vTm A = set [-, A ]
-  kleisli .cTm = tmb
-  kleisli .emp =
+  Kleisli : CBPVModel
+  Kleisli .𝓒 = set
+  Kleisli .𝓔 = E
+  Kleisli .vTy = ob set
+  Kleisli .vTm A = set [-, A ]
+  Kleisli .cTm = tmb
+  Kleisli .emp =
     (Unit*  {ℓ}, isSetUnit*) ,
     λ X → (λ _ → tt*) ,
     λ f → funExt λ _ → refl
-  kleisli ._×c_ =  λ A B → ⟨ A ⟩ × ⟨ B ⟩ , isSetΣ (A .snd) λ _ → B .snd
-  kleisli .up×c = λ Γ A →
+  Kleisli ._×c_ =  λ A B → ⟨ A ⟩ × ⟨ B ⟩ , isSetΣ (A .snd) λ _ → B .snd
+  Kleisli .up×c = λ Γ A →
     record {
       trans =
         natTrans

@@ -11,6 +11,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty renaming (elim to ⊥elim)
 open import Cubical.Data.Maybe renaming (rec to mrec)
+open import Cubical.Data.Maybe.More
 open import Cubical.Reflection.Base
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Relation.Binary.Base
@@ -26,31 +27,12 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Foundations.Equiv.Base
 open Category
 open Functor
+open OrderedFunctor
 
 module TSys {ℓ : Level} where
 
-  isSetMaybe : {A : hSet ℓ} → isSet (Maybe ⟨ A ⟩)
-  isSetMaybe {A} = isOfHLevelMaybe 0 (A .snd)
-
-  map-Maybe-seq : {A B C : Set ℓ}{f : A → B}{g : B → C} → (x : Maybe A) →
-    map-Maybe (λ x₂ → g (f x₂)) x ≡ map-Maybe g (map-Maybe f x)
-  map-Maybe-seq nothing = refl
-  map-Maybe-seq (just x) = refl
-
-  U : Functor (PREORDER ℓ ℓ) (SET ℓ)
-  U .F-ob (p , pisSet)= ⟨ p ⟩ , pisSet
-  U .F-hom f = f .MonFun.f
-  U .F-id = refl
-  U .F-seq _ _ = refl
-
-  record OrderedFunctor : Set (ℓ-suc ℓ) where
-    field
-      F : Functor (SET ℓ) (SET ℓ)
-      ≤ : Functor (SET ℓ) (PREORDER ℓ ℓ)
-      commute : F ≡ U ∘F ≤
-  open OrderedFunctor
   MaybeF : Functor (SET ℓ) (SET ℓ)
-  MaybeF .F-ob X = (Maybe ⟨ X  ⟩) , isSetMaybe {X}
+  MaybeF .F-ob X = (Maybe ⟨ X ⟩) , isSetMaybe {A = X}
   MaybeF .F-hom = map-Maybe
   MaybeF .F-id = funExt map-Maybe-id
   MaybeF .F-seq f g = funExt map-Maybe-seq
@@ -114,7 +96,7 @@ module TSys {ℓ : Level} where
         (λ a b → ≤m-isProp)
         (λ a → ≤m-refl)
         λ a b c → ≤m-trans)) ,
-      isSetMaybe {X}
+      isSetMaybe {A = X}
 
   ord : Functor (SET ℓ) (PREORDER ℓ ℓ)
   ord .F-ob = maybePreorder
@@ -145,11 +127,11 @@ module TSys {ℓ : Level} where
     term = Σ ⟨ state ⟩ isterm
 
     eq-term : {t1 t2 : term} → fst t1 ≡ fst t2 → t1 ≡ t2
-    eq-term p = ΣPathP (p , toPathP (isSetMaybe{state} _ _ _ _))
+    eq-term p = ΣPathP (p , toPathP (isSetMaybe {A = state} _ _ _ _))
 
     hterm : hSet _
     hterm = term , isSetΣ (state .snd)
-      λ _ → isOfHLevelSuc 1 ((isSetMaybe {state} _ _))
+      λ _ → isOfHLevelSuc 1 ((isSetMaybe{A = state} _ _))
 
     dec-canStep : (s : ⟨ state ⟩) → Dec (canStep s)
     dec-canStep s with trans s
@@ -173,7 +155,7 @@ module TSys {ℓ : Level} where
     -- terminals never step
     nostep : ((s , prf) : term) → canStep? s ≡ inl prf
     nostep (s , prf)  with canStep? s
-    ... | inl x = cong inl (isSetMaybe {state} _ _ _ _)
+    ... | inl x = cong inl (isSetMaybe {A = state} _ _ _ _)
     ... | inr (s' , prf') =
       ⊥elim {ℓ}{λ _ → inr (s' , prf') ≡ inl prf}
             ((¬nothing≡just (sym prf ∙ prf')))
@@ -184,7 +166,7 @@ module TSys {ℓ : Level} where
     ... | inl x =
       ⊥elim {ℓ} {λ _ → inl x ≡ inr (s' , prf)} (¬nothing≡just  (sym x ∙ prf))
     ... | inr (s'' , prf') =
-      cong inr (ΣPathP (goal , toPathP (isSetMaybe {state} _ _ _ _))) where
+      cong inr (ΣPathP (goal , toPathP (isSetMaybe {A = state} _ _ _ _))) where
       goal : s''  ≡ s'
       goal = just-inj _ _ (sym prf' ∙ prf)
 
@@ -198,7 +180,6 @@ module TSys {ℓ : Level} where
     partition s with canStep? s
     ... | inl x = inl (s , x)
     ... | inr x = inr (s , x)
-
 
   open TSystem
 
@@ -286,3 +267,66 @@ module TSys {ℓ : Level} where
   TSysCat .⋆IdR _ =  TSysMap≡ refl
   TSysCat .⋆Assoc _ _ _ = TSysMap≡ refl
   TSysCat .isSetHom = TSysMapisSet
+
+{-}
+  module mod {ℓ : Level} where
+  private
+    set = SET ℓ
+    𝓜 = model.𝓟Mon set
+    self = model.self  set
+
+    self[_,_] = self {ℓ} .Hom[_,_]
+
+    E : EnrichedCategory 𝓜 _
+    E = enrich TSysCat
+
+    E[_,_] = E .Hom[_,_]
+
+  semcmp : ob E → ob (self {ℓ})
+  semcmp S .F-ob Γ =
+    (Lift (set [ Γ , S .state ])) ,
+    isOfHLevelLift 2 (set .isSetHom {Γ}{S .state})
+  semcmp S .F-hom γ m = lift (m .lower ∘S γ)
+  semcmp S .F-id = refl
+  semcmp S .F-seq _ _ = refl
+
+  stacktrans : {S T : TSystem {ℓ}} →
+    NatTrans E[ S , T ] self[ semcmp S , semcmp T ]
+  stacktrans {S}{T} .N-ob Γ (lift k) =
+    pshhom
+      (λ Δ (γ , m) → lift λ Δ∙ → k (γ Δ∙) .tmap (m .lower Δ∙))
+      λ _ _ _ _  → cong lift refl
+  stacktrans {S}{T} .N-hom f = funExt λ x → makePshHomPath refl
+
+  EF : EnrichedFunctor 𝓜 E self
+  EF .F₀ = semcmp
+  EF .F₁ {S}{T} = stacktrans
+  EF .Fid = makeNatTransPath
+    (funExt λ Γ → funExt λ tt* → makePshHomPath refl)
+  EF .Fseq = makeNatTransPath
+    (funExt λ Γ → funExt λ tt* → makePshHomPath refl)
+
+  sem : CBPVModel
+  sem .𝓒 = set
+  sem .𝓔 = E
+  sem .vTy = hSet ℓ
+  sem .vTm A = set [-, A ]
+  sem .cTm = EF
+  sem .emp =
+    (Unit*  {ℓ}, isSetUnit*) ,
+    λ X → (λ _ → tt*) , λ f → funExt λ _ → refl
+  sem ._×c_ = λ A B → ⟨ A ⟩ × ⟨ B ⟩ , isSetΣ (A .snd) λ _ → B .snd
+  sem .up×c Γ A =
+    record {
+      trans =
+        natTrans
+          (λ X f → (λ x → fst (f x)) , (λ x → snd (f x)))
+          λ _ → refl ;
+      nIso = λ X →
+        isiso
+          (λ {(f , g) x → (f x) , (g x)})
+          (funExt (λ _ → refl))
+          (funExt (λ _ → refl)) }
+-- TODO define instance for syntax with defined substitution
+
+-}

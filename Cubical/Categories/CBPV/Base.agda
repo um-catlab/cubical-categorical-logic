@@ -14,10 +14,14 @@ open import Cubical.Foundations.Structure
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
-open import Cubical.Categories.Enriched.Presheaf
 open import Cubical.Categories.Monoidal.Enriched
-open import Cubical.Categories.Enriched.More
-
+open import Cubical.Categories.WithFamilies.Simple.Base
+open import Cubical.Categories.Monoidal.Instances.Presheaf
+open import Cubical.Categories.Enriched.Functors.Base
+open import Cubical.Categories.Enriched.NaturalTransformation.Base
+open import Cubical.Categories.Enriched.Instances.Presheaf.Self
+open import Cubical.Categories.WithFamilies.Simple.Functor
+open import Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase
 open Category
 open Functor
 open NatTrans
@@ -25,22 +29,80 @@ open MonoidalCategory
 open StrictMonCategory
 open EnrichedCategory
 
-record CBPVModel {ℓ ℓ' ℓS ℓE : Level} :
-  Type (ℓ-suc (ℓ-suc (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓS ℓE))))) where
-    field
-      𝓒 : Category ℓ ℓ'
-    open model 𝓒 {ℓS} using (self ; 𝓟Mon)
-    -- 𝓟Mon : MonoidalCategory (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) ℓm
-    field
-      𝓔 : EnrichedCategory 𝓟Mon ℓE
-      vTy : Type ℓ
-      vTm :  vTy  → Presheaf 𝓒 ℓ'
-      cTm : EnrichedFunctor 𝓟Mon 𝓔 self
-      emp : Terminal 𝓒
-      _×c_ : ob 𝓒 → vTy  → ob 𝓒
-      up×c : (Γ : ob 𝓒)(A : vTy ) →
-        𝓒 [-, (Γ ×c A) ] ≅ᶜ (𝓒 [-, Γ ]) ×Psh vTm A
+private
+  variable
+    ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level
+    ℓD ℓD' ℓVTy' ℓVTm' ℓCTy' ℓCTm' : Level
 
+CBPVModel : (ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level) → Type _ 
+CBPVModel ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm = 
+  Σ[ Scwf ∈ SCwF ℓC ℓC' ℓVTy ℓVTm ] 
+  Σ[ Stacks ∈ EnrichedCategory (𝓟Mon (Scwf .fst)) ℓCTy ] 
+  EnrichedFunctor (𝓟Mon (Scwf .fst)) Stacks (self (Scwf .fst)) 
+  where 
+    open PshMon {ℓS = ℓCTm} 
+
+
+-- universe levels are a terrible mess
+module _ 
+  (C : CBPVModel ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm)
+  (D : CBPVModel ℓD ℓD' ℓVTy' ℓVTm' ℓCTy' ℓCTm') where
+
+  record CBPVFunctor : Type _ where 
+    private 
+      ctxC = C .fst .fst 
+      ctxD = D .fst .fst
+      compCatC = C .snd .fst
+      compCatD = D .snd .fst
+      compTmC = C .snd .snd
+      compTmD = D .snd .snd
+      module PMC = PshMon {ℓS = ℓCTm} ctxC
+      module PMD = PshMon {ℓS = ℓCTm} ctxD
+    field 
+      preFun : PreFunctor (C .fst) (D .fst)
+      F-stack : EnrichedFunctor PMC.𝓟Mon compCatC {!   !} 
+{-}      preFun : PreFunctor (C .fst) (D .fst)
+      F-stack : EnrichedFunctor PMC.𝓟Mon compCatC (BaseChange (preFun .fst) compCatD)
+    adjust : EnrichedFunctor PMC.𝓟Mon compCatC (self ctxC) 
+    adjust = 
+      eseq 
+        PMC.𝓟Mon 
+        F-stack 
+        (eseq 
+          PMC.𝓟Mon  
+          (BaseChangeF {!   !} {! compTmD  !}) 
+          {!   !})
+    field 
+      F-cty : EnrichedNatTrans compTmC adjust 
+    {-}
+-}
+        ecomp
+      mod𝓒.𝓟Mon
+      stk
+      (ecomp mod𝓒.𝓟Mon (BaseChangeF ctx N.cTm) (BaseChangeSelf ctx))
+  CBPVFunctor = 
+    Σ[ prefun ∈ PreFunctor (C .fst) (D .fst) ] 
+    Σ[ F-stack ∈ 
+      EnrichedFunctor 
+        PMC.𝓟Mon 
+        compCatC 
+        (BaseChange (prefun .fst) compCatD) ] 
+    EnrichedNatTrans compTmC {!   !} 
+    where 
+      ctxC = C .fst .fst 
+      ctxD = D .fst .fst
+      compCatC = C .snd .fst
+      compCatD = D .snd .fst
+      compTmC = C .snd .snd
+      compTmD = D .snd .snd
+      private 
+        module PMC = PshMon {ℓS = ℓCTm} ctxC
+        module PMD = PshMon {ℓS = ℓCTm} ctxD
+      adjust : EnrichedFunctor PMC.𝓟Mon compCatC (self ctxC) 
+      adjust = 
+        eseq PMC.𝓟Mon {! F-stack  !} {!   !}
+        -}
+{-
 record CBPVModelHom {ℓ ℓ' : Level} (M N : CBPVModel{ℓ}{ℓ'}) :
   Type (ℓ-suc (ℓ-suc (ℓ-max ℓ ℓ'))) where
   private module M = CBPVModel M
@@ -63,3 +125,4 @@ record CBPVModelHom {ℓ ℓ' : Level} (M N : CBPVModel{ℓ}{ℓ'}) :
       (ecomp mod𝓒.𝓟Mon (BaseChangeF ctx N.cTm) (BaseChangeSelf ctx))
   field
     cmp : EnrichedNatTrans M.cTm adjust
+-}

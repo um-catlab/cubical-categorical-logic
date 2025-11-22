@@ -11,7 +11,7 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Reflection.RecordEquiv.More
 
-open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Variables.Base
 
 open Σω
 open Liftω

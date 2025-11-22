@@ -155,14 +155,3 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
 
   CatIsoⱽ : {x : Cob}(xᴰ yᴰ : Cobᴰ x) → Type _
   CatIsoⱽ = CatIsoᴰ (idCatIso C)
-
-  -- TODO put in notation
-  -- CatIsoⱽ→CatIsoFiber : ∀ {x}{xᴰ yᴰ : Cobᴰ x}
-  --   (fⱽ : CatIsoⱽ xᴰ yᴰ)
-  --   → CatIso Cᴰ.v[ x ] xᴰ yᴰ
-  -- CatIsoⱽ→CatIsoFiber fⱽ .CatIso.fun = fⱽ .CatIsoᴰ.funᴰ
-  -- CatIsoⱽ→CatIsoFiber fⱽ .CatIso.inv = fⱽ .CatIsoᴰ.invᴰ
-  -- CatIsoⱽ→CatIsoFiber fⱽ .CatIso.sec = Cᴰ.rectify $ Cᴰ.≡out $
-  --   sym (Cᴰ.reind-filler _ _) ∙ fⱽ .CatIsoᴰ.secᴰ
-  -- CatIsoⱽ→CatIsoFiber fⱽ .CatIso.ret = Cᴰ.rectify $ Cᴰ.≡out $
-  --   sym (Cᴰ.reind-filler _ _) ∙ fⱽ .CatIsoᴰ.retᴰ

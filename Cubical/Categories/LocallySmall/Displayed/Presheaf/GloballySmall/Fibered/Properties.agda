@@ -193,37 +193,3 @@ module _
       _[-][-,_] ≡
         SmallLocallySmallFunctorᴰ→SmallFunctorᴰ _[-][-,_]'
     _ = SmallFunctorᴰ.Functorᴰ≡ (λ _ → refl) (λ _ → refl)
-
-module _  where
-  open SmallCategoryᴰVariables
-  open SmallCategoryᴰ
-
-  module _
-    {P : Presheaf C ℓP}
-    {Q : Presheaf C ℓQ}
-    (α : PshHom P Q)
-    {Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ'}
-    (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
-    (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-    where
-    PshHomᴰ : Type _
-    PshHomᴰ = PSHᴰ.Hom[ _ , _ , α ][ Pᴰ , Qᴰ ]
-
-  module _
-    {P : Presheaf C ℓP}
-    {Q : Presheaf C ℓQ}
-    (α : PshIso P Q)
-    {Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ'}
-    (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
-    (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-    where
-    private
-      module LEVEL×PSH = CategoryᴰNotation (LEVEL×PSH Cᴰ)
-      the-iso : CatIso LEVEL×PSH.∫C
-        (liftω ℓP , (liftω ℓPᴰ , P)) (liftω ℓQ , (liftω ℓQᴰ , Q))
-      the-iso .CatIso.fun = tt , (tt , (α .CatIsoᴰ.funᴰ))
-      the-iso .CatIso.inv = tt , (tt , (α .CatIsoᴰ.invᴰ))
-      the-iso .CatIso.sec i = tt , α .CatIsoᴰ.secᴰ i
-      the-iso .CatIso.ret i = tt , α .CatIsoᴰ.retᴰ i
-    PshIsoᴰ : Type _
-    PshIsoᴰ = PSHISOᴰ.Hom[ the-iso ][ Pᴰ , Qᴰ ]

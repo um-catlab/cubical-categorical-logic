@@ -79,8 +79,6 @@ module _ (C : SmallCategory ℓC ℓC') where
       module Q = PresheafNotation Q
     open Functor
     π₁ : PshHom (P ×Psh Q) P
-    -- π₁ =
-    -- mkPshHom (λ _ → fst) λ _ _ → {!refl!}
     π₁ .N-ob = λ _ → fst
     π₁ .N-hom {x = x} {y = y} f =
      SET.≡out
@@ -88,10 +86,18 @@ module _ (C : SmallCategory ℓC ℓC') where
        (sym $ SET.reind-filler
          {xᴰ = (P ×Psh Q) .F-ob (liftω x)} {yᴰ = P .F-ob (liftω y)}
          refl _)
-    -- transportRefl _
     -- This goal is indeed a simple transportRefl, but I'm not
     -- sure what the most general strategy ought to be when
     -- proving naturality of arbitary PshHoms
+    -- We should have a bridge between the naturality proofs needed
+    -- for these PshHoms and the naturality proofs in the manual
+    -- definition of PshHom for small presheaves.
+    -- That is, the corresponding constructions of π₁ in
+    -- Presheaf.Constructions.BinProduct.Base has N-hom via refl,
+    -- and in LocallySmall.Presheaf.GloballySmall.Fibered.Base we
+    -- have shown a definitional isomorphism between the two notions
+    -- of presheaf, so we should be able to have an interface for proving the
+    -- above N-hom that also only mentions refl
 
     π₂ : PshHom (P ×Psh Q) Q
     π₂ .N-ob = λ _ → snd
@@ -131,6 +137,8 @@ module _ (C : SmallCategory ℓC ℓC') where
 
   -- TODO to speed things up, make ⋆PshHom notation
   -- or make the homs in the presheaf category opaque
+  -- because cmoposition in PSHC is quite slow
+  --
   -- module _ (P : Presheaf C ℓP)(Q : Presheaf C ℓQ) where
   --   ×Psh-UMP :
   --     ∀ {R : Presheaf C ℓR} →

@@ -65,8 +65,8 @@ module _ where
     private
       module C = SmallCategory C
       module Cᴰ = SmallCategoryᴰ Cᴰ
-      module P = PresheafNotation C P
-      module Pᴰ = PresheafNotation (Cᴰ / P) Pᴰ
+      module P = PresheafNotation P
+      module Pᴰ = PresheafNotation Pᴰ
     p[_][_] : ∀ {x} → P.p[ x ] → Cᴰ.small-obᴰ x → Type ℓPᴰ
     p[ p ][ xᴰ ] = ⟨ Pᴰ .F-ob (liftω (_ , xᴰ , p)) .lowerω ⟩
 

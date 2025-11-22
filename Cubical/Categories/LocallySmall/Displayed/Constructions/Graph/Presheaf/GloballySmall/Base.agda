@@ -32,7 +32,7 @@ module _ (C : SmallCategory ℓC ℓC') (P : Presheaf C ℓP) where
   open StructureOver
   private
     module C = SmallCategory C
-    module P = PresheafNotation C P
+    module P = PresheafNotation P
     ElementStr : StructureOver C.cat (mapω' P.p[_]) _
     ElementStr .Hom[_][_,_] f (liftω p) (liftω q) = (f P.⋆ q) ≡ p
     ElementStr .idᴰ = P.⋆IdL _
@@ -96,7 +96,7 @@ module _ where
 --   {C : SmallCategory ℓC ℓC'}{D : SmallCategory ℓD ℓD'} (F : Functor (C .cat) (D .cat)) (Q : Presheaf D ℓQ)
 --   where
 --   private
---     module Q = PresheafNotation D Q
+--     module Q = PresheafNotation Q
   -- TODO finish these after porting reindPsh
   -- reindPsh-intro : ∀ {P : Presheaf C ℓP}
   --   → (Functorᴰ F (Element P) (Element Q))

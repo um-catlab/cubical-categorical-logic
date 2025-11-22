@@ -69,3 +69,6 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         (β (ues y) {p = P .F-hom f .N-ob _ (ues x .element)} (~ i))))
       ∙ funExt⁻ (P .F-hom g .N-hom _) _)
     ∙ (sym $ intro-natural (ues z))
+
+  -- TODO: need universe polymorphic profunctor iso:
+  --   Yo ∘F FunctorComprehension P ues ≅ P

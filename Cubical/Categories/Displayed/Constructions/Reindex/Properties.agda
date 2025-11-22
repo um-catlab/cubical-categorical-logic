@@ -19,8 +19,9 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base hiding (π)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
@@ -48,6 +49,9 @@ module _
 
   hasPropHomsReindex : hasPropHoms Dᴰ → hasPropHoms (reindex Dᴰ F)
   hasPropHomsReindex = λ z {c} {c'} f → z (F-hom F f)
+
+  π-FFᴰ : FullyFaithfulᴰ (π Dᴰ F)
+  π-FFᴰ f xᴰ yᴰ = (λ z → z) , ((λ _ → refl) , (λ _ → refl))
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

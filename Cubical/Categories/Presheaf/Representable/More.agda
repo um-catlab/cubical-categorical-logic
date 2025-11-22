@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.Representable.More where
 
 open import Cubical.Foundations.Prelude
@@ -15,6 +16,7 @@ open import Cubical.Reflection.RecordEquiv
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Constructions.Opposite
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
@@ -59,6 +61,9 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   IsoYoRec : ∀ c → Iso P.p[ c ] (PshHom (C [-, c ]) P)
   IsoYoRec c =
     iso yoRec (λ α → α .N-ob c C.id) (λ _ → sym $ yoRecη) (λ _ → yoRecβ)
+
+  yoInd : ∀ {c} (α β : PshHom (C [-, c ]) P) → (α .N-ob c C.id) ≡ β .N-ob c C.id → α ≡ β
+  yoInd = isoInvInjective (IsoYoRec _)
 
   yoRec≡ : ∀ {c} {p : P.p[ c ]}{α}
     → p ≡ α .N-ob _ C.id
@@ -254,3 +259,23 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
     _◁PshIso_ .vertex = ue.vertex
     _◁PshIso_ .element = α .trans .N-ob ue.vertex ue.element
     _◁PshIso_ .universal = seqIsUniversalPshIso ue.universal α
+
+
+module _ {C : Category ℓc ℓc'} where
+  □ : Functor (PresheafCategory C ℓp) (PresheafCategory C _)
+  □ = CurryBifunctorL (PshHomBif ∘Fl ((CurryBifunctorL $ HomBif C) ^opF))
+
+  module _ (P : Presheaf C ℓp) where
+    private
+      module C = Category C
+      module P = PresheafNotation P
+    -- (□ P)(c,*) = ∀[ c' ] C(c',c) -> P(c',*)
+    Yoneda : PshIso (□ ⟅ P ⟆) P
+    Yoneda .trans .N-ob c α = α .N-ob c C.id
+    Yoneda .trans .N-hom c c' f α =
+      cong (α .N-ob c) (C.⋆IdL f ∙ (sym $ C.⋆IdR f)) ∙ α .N-hom c c' f C.id
+    Yoneda .nIso c .fst p = pshhom (λ _ f → f P.⋆ p) (λ _ _ f g → P.⋆Assoc f g p)
+    Yoneda .nIso c .snd .fst p = P.⋆IdL p
+    Yoneda .nIso c .snd .snd α = makePshHomPath (funExt λ c → funExt λ f →
+      sym (α .N-hom _ _ f C.id)
+      ∙ cong (α .N-ob c) (C.⋆IdR f))

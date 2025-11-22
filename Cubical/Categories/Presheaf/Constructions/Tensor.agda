@@ -71,11 +71,12 @@ module _ {C : Category ℓ ℓ'} where
     rec {_}{A} isSetA case-,⊗ case-swap = elim (λ _ → (A , isSetA)) case-,⊗ case-swap
 
     opaque
-      ind : ∀ (A : _⊗_ → hProp ℓA)
-        (case-,⊗ : ∀ {x} → (p : |P| x)(q : |Q| x) → ⟨ A (p ,⊗ q) ⟩)
-        pq → ⟨ A pq ⟩
-      ind A case-,⊗ = elim (λ pq → ⟨ A pq ⟩ , isProp→isSet (A pq .snd)) case-,⊗
-        λ p f q → isProp→PathP (λ i → A (swap p f q i) .snd) (case-,⊗ p (F-hom Q f $ q)) (case-,⊗ (F-hom P f $ p) q)
+      ind : ∀ {A : _⊗_ → Type ℓA}
+        (isPropA : ∀ pq → isProp (A pq))
+        (case-,⊗ : ∀ {x} → (p : |P| x)(q : |Q| x) → A (p ,⊗ q))
+        pq → A pq
+      ind isPropA case-,⊗ = elim (λ _ → _ , isProp→isSet (isPropA _)) case-,⊗
+        λ p f q → isProp→PathP (λ i → isPropA (swap p f q i)) (case-,⊗ p (F-hom Q f $ q)) (case-,⊗ (F-hom P f $ p) q)
 
   open Tensor using (_⊗_; isSet⊗; elim; rec; ind) public
   _⊗NT_ : ∀ {P P' : (Functor C (SET ℓP))}{Q Q' : (Functor (C ^op) (SET ℓQ))}
@@ -92,7 +93,7 @@ module _ {C : Category ℓ ℓ'} where
   opaque
     ⊗NT-id : ∀ {P : (Functor C (SET ℓP))}{Q : (Functor (C ^op) (SET ℓQ))}
       → (idTrans P ⊗NT idTrans Q) ≡ idfun _
-    ⊗NT-id {P = P}{Q = Q} = funExt $ ind P Q (λ pq → ((idTrans P ⊗NT idTrans Q) pq ≡ pq) , isSet⊗ _ _)
+    ⊗NT-id {P = P}{Q = Q} = funExt $ ind P Q (λ pq → isSet⊗ _ _)
       λ p q → refl
 
     ⊗NT-seq : ∀ {P P' P'' : (Functor C (SET ℓP))}{Q Q' Q'' : (Functor (C ^op) (SET ℓQ))}
@@ -100,8 +101,8 @@ module _ {C : Category ℓ ℓ'} where
       (β : NatTrans Q Q')(β' : NatTrans Q' Q'')
       → ∀ pq → (seqTrans α α' ⊗NT seqTrans β β') pq ≡ (α' ⊗NT β') ((α ⊗NT β) pq)
     ⊗NT-seq {P = P} {P'' = P''} {Q = Q} {Q'' = Q''} α α' β β' =
-      ind P Q (λ pq → ((seqTrans α α' ⊗NT seqTrans β β') pq ≡ (α' ⊗NT β') ((α ⊗NT β) pq)) , isSet⊗ _ _)
-      (λ p q → refl)
+      P⊗Q.ind (λ _ → isSet⊗ _ _) λ _ _ → refl
+      where module P⊗Q = Tensor P Q
 
   ⊗-Bif : Bifunctor (FUNCTOR C (SET ℓP)) (FUNCTOR (C ^op) (SET ℓQ)) (SET _)
   ⊗-Bif = mkBifunctorPar ⊗-ParBif where
@@ -113,20 +114,20 @@ module _ {C : Category ℓ ℓ'} where
     ⊗-ParBif .Bif-×-seq α α' β β' = funExt (⊗NT-seq α α' β β')
 
   ◇F : Functor (PresheafCategory C ℓP) (PresheafCategory C (ℓ-max (ℓ-max ℓ ℓ') ℓP))
-  ◇F = CurryBifunctor $ Sym $ ⊗-Bif ∘Fl YONEDA'
+  ◇F = CurryBifunctor $ Sym $ ⊗-Bif ∘Fl CurryBifunctor (HomBif C)
 
   ◇ : Presheaf C ℓP → Presheaf C (ℓ-max (ℓ-max ℓ ℓ') ℓP)
   ◇ = ◇F .F-ob
 
   private
-    test-◇ : ∀ (P : Presheaf C ℓP) x → ⟨ ◇ P .F-ob x ⟩ ≡ ((C [ x ,-]) ⊗ P)
+    test-◇ : ∀ (P : Presheaf C ℓP) x → ⟨ ◇ P .F-ob x ⟩ ≡ (appL (HomBif C) x ⊗ P)
     test-◇ P x = refl
 
   module _ (P : Presheaf C ℓP) where
     private
       module P = PresheafNotation P
       module ◇P = PresheafNotation (◇ P)
-      module ◇P⊗ {x} = Tensor (C [ x ,-]) P
+      module ◇P⊗ {x} = Tensor (appL (HomBif C) x) P
     CoYoneda : PshIso P (◇ P)
     CoYoneda .trans .N-ob x p = C .id ◇P⊗.,⊗ p
     CoYoneda .trans .N-hom x y f p =
@@ -137,5 +138,5 @@ module _ {C : Category ℓ ℓ'} where
         ◇P→P = ◇P⊗.rec P.isSetPsh P._⋆_ λ f g q → sym $ P.⋆Assoc f g q
 
         ◇P-rt : section (λ p → C .id ◇P⊗.,⊗ p) ◇P→P
-        ◇P-rt = ◇P⊗.ind (λ f⊗p → ((C .id ◇P⊗.,⊗ ◇P→P f⊗p) ≡ f⊗p) , isSet⊗ _ _)
+        ◇P-rt = ◇P⊗.ind (λ f⊗p → isSet⊗ _ _)
           λ f p → ◇P⊗.swap _ _ _ ∙ cong (◇P⊗._,⊗ p) (C .⋆IdL f)

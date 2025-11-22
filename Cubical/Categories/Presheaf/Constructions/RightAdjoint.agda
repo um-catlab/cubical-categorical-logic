@@ -73,7 +73,7 @@ module _
 
         app-natural : ∀ d d' (f : D [ d , d' ]) (p : (appL P d' ⊗ (P F⇒Large Q)))
           → app d (f P⊗P⇒Q'.⋆ p) ≡ (f Q.⋆ app d' p)
-        app-natural d d' f = P⊗P⇒Q.ind (λ _ → _ , (Q.isSetPsh _ _))
+        app-natural d d' f = P⊗P⇒Q.ind (λ _ → Q.isSetPsh _ _)
           λ p q → q .N-hom d d' f p
 
     module _ (R : Presheaf C ℓR) where
@@ -97,46 +97,41 @@ module _
           funExt⁻ (funExt⁻ (cong N-ob (α .N-hom _ _ f r)) _) _
         app'-nat : ∀ d d' (f : D [ d , d' ]) (pr : P⊗R'.p[ d' ])
           → app' d (f P⊗R'.⋆ pr) ≡ (f Q.⋆ app' d' pr)
-        app'-nat d d' f = P⊗R.ind (λ pr → _ , Q.isSetPsh _ _) (λ p q → α .N-ob _ q .N-hom _ _ f p)
+        app'-nat d d' f = P⊗R.ind (λ pr → Q.isSetPsh _ _) (λ p q → α .N-ob _ q .N-hom _ _ f p)
 
       F⇒Large-UMP : Iso (PshHom R (P F⇒Large Q)) (PshHom (ext P ⟅ R ⟆) Q)
       F⇒Large-UMP .fun = F⇒Large-λ⁻
       F⇒Large-UMP .inv = F⇒Large-λ
-      -- F⇒Large-λ⁻ (F⇒Large-λ α) .N-ob d x ≡ α .N-ob d x
       F⇒Large-UMP .rightInv α = makePshHomPath $ funExt λ d → funExt $
-        P⊗R.ind (λ pr → _ , Q.isSetPsh _ _)
+        P⊗R.ind (λ pr → Q.isSetPsh _ _)
           (λ p r → refl)
       F⇒Large-UMP .leftInv α = makePshHomPath $ funExt λ c → funExt λ r → makePshHomPath $ funExt λ d → funExt λ p →
         refl
 
   -- If we have a functor, we can do better: morphisms "out" of a functor, are just elements at F ⟅ c ⟆
   F⇒SmallF : (F : Functor C D)
-    → Profunctor (PresheafCategory D ℓQ) C ℓQ
-  F⇒SmallF F = CurryBifunctor $ App ∘Fr (F ^opF)
+    → Functor (PresheafCategory D ℓQ) (PresheafCategory C ℓQ)
+  F⇒SmallF = reindPshF
 
   _F⇒Small_ : (F : Functor C D) (Q : Presheaf D ℓQ) → Presheaf C ℓQ
   F F⇒Small Q = F⇒SmallF F ⟅ Q ⟆
 
   private
-    testF⇒Small : ∀ (F : Functor C D) (Q : Presheaf D ℓQ) c
-      → ⟨ (F F⇒Small Q) .F-ob c ⟩ ≡ ⟨ Q .F-ob (F ⟅ c ⟆ )⟩
-    testF⇒Small F Q c = refl
+    testF⇒Small' : ∀ (F : Functor C D) (Q : Presheaf D ℓQ)
+      → (F F⇒Small Q) ≡ reindPsh F Q
+    testF⇒Small' F Q = refl
 
   -- By the Yoneda lemma, these two constructions agree when the profunctor is constructed as Yo ∘F F
   module _ (F : Functor C D) (P : Presheaf D ℓP) where
     private
       module P = PresheafNotation P
     F⇒Small≅F⇒Large : PshIso (F F⇒Small P) ((HomBif D ∘Fr F) F⇒Large P)
-    -- This is just Yoneda, but doesn't fit definitionally.
-    -- Need to work that out how to reuse that here
-    F⇒Small≅F⇒Large .trans .N-ob c p .N-ob d f = f P.⋆ p
-    F⇒Small≅F⇒Large .trans .N-ob c p .N-hom d d' g f = P.⋆Assoc g f p
-    F⇒Small≅F⇒Large .trans .N-hom c c' f p = makePshHomPath (funExt λ d → funExt λ g →
-      sym $ P.⋆Assoc _ _ _)
-    F⇒Small≅F⇒Large .nIso x .fst α = α .N-ob _ D.id
-    F⇒Small≅F⇒Large .nIso x .snd .fst α = makePshHomPath $ funExt λ d → funExt λ f →
-      (sym $ α .N-hom _ _ f _) ∙ cong (α .N-ob d) (D.⋆IdR f)
-    F⇒Small≅F⇒Large .nIso x .snd .snd p = P.⋆IdL p
+    F⇒Small≅F⇒Large =
+      -- F* P
+      reindPshIso F (invPshIso (Yoneda P))
+      -- F* □P
+      ⋆PshIso reindPsh-PshHom F (HomBif D) P
+      -- □ (F* P)
 
     module _ (Q : Presheaf C ℓQ) where
       F⇒Small-UMP : Iso (PshHom Q (F F⇒Small P)) (PshHom (ext (HomBif D ∘Fr F) ⟅ Q ⟆) P)
@@ -144,13 +139,16 @@ module _
         compIso (postcomp⋆PshHom-Iso F⇒Small≅F⇒Large)
           (F⇒Large-UMP (compR (HomBif D) F) P Q)
 
+  -- In practice, we typically have a functor of presheaves, not a profunctor.
+  -- This functor has a right adjoint when it is co-continuous,
+  -- meaning it is determined by its restriction to representables
   module P⇒Large-cocontinuous {ℓP : Level → Level}
     (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
     (P-cocontinuous : CoContinuous P)
     where
     private
       P-bif : Bifunctor (D ^op) C (SET (ℓP ℓC'))
-      P-bif = CurriedToBifunctorL P ∘Fr YONEDA
+      P-bif = CurriedToBifunctorL (P ∘F CurryBifunctorL (HomBif C))
 
     P⇒Large : Presheaf D ℓQ → Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓD ℓD') (ℓP ℓC')) ℓQ)
     P⇒Large Q = P-bif F⇒Large Q
@@ -160,30 +158,24 @@ module _
       P⇒Large-UMP = compIso (F⇒Large-UMP P-bif Q R)
         (precomp⋆PshHom-Iso (P-cocontinuous R))
 
-  module P⇒Large+Small {ℓP : Level → Level}
+  module P⇒Large-cocontinuous-repr {ℓP : Level → Level}
     (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
     (P-cocontinuous : CoContinuous P)
-    (P-repr : ∀ c → UniversalElement D (P ⟅ C [-, c ] ⟆))
+    (P-repr : UniversalElements {C = C}{D = D} (P ∘F (CurryBifunctorL $ HomBif C)))
     where
     open P⇒Large-cocontinuous P P-cocontinuous public
-
     private
-      P-prof : Profunctor C D (ℓP ℓC')
-      P-prof = CurryBifunctorL (CurriedToBifunctorL P ∘Fr YONEDA)
-
-      F : Functor C D
-      F = FunctorComprehension P-prof λ c → record { vertex = P-repr c .UniversalElement.vertex ; element = P-repr c .UniversalElement.element ; universal = P-repr c .UniversalElement.universal }
+      P-F : Functor C D
+      P-F = FunctorComprehension (P ∘F (CurryBifunctorL $ HomBif C)) P-repr
 
     P⇒Small : Presheaf D ℓQ → Presheaf C ℓQ
-    P⇒Small = F F⇒Small_
+    P⇒Small = P-F F⇒Small_
 
-    -- module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
-    --   P⇒Small-UMP : Iso (PshHom R (P⇒Small Q)) (PshHom (P ⟅ R ⟆) Q)
-    --   P⇒Small-UMP =
-    --       -- Need that F⇒Large respects universe-polymorphic ProfIso
-    --       -- and a universe-polymorphic NatIso between
-    --       --   compR (CurriedToBifunctorL P) YONEDA -- (i.e., P ∘ Yo)
-    --       --   compR (HomBif D) F                   -- (i.e., Yo ∘ F)
-    --     compIso
-    --       (postcomp⋆PshHom-Iso (F⇒Small≅F⇒Large F Q ⋆PshIso {!!}))
-    --       (P⇒Large-UMP Q R)
+    module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
+      -- P⇒Small-UMP : Iso (PshHom R (P⇒Small Q)) (PshHom (P ⟅ R ⟆) Q)
+      -- -- Bifunctor (D ^op) C (SET ℓD')
+      -- -- Bifunctor (D ^op) C (SET (ℓP ℓC'))
+      -- P⇒Small-UMP =
+      --   compIso (postcomp⋆PshHom-Iso
+      --     (F⇒Small≅F⇒Large P-F Q ⋆PshIso {!CurriedToBifunctorL (P ∘F CurryBifunctorL (HomBif C))!}))
+      --     (P⇒Large-UMP Q R)

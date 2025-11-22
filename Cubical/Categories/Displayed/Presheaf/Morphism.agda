@@ -84,6 +84,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       → Path ∫Qᴰ.p[ xxᴰ ] (_ , N-obᴰ (ppᴰ .snd)) (_ , N-obᴰ (ppᴰ' .snd))
     N-obᴰ⟨_⟩ = cong (∫PshHom .N-ob _)
 
+    open PshHom ∫PshHom public
+
   isPshIsoᴰ : PshHomᴰ → isPshIso {P = P}{Q = Q} α → Type _
   isPshIsoᴰ αᴰ αIsIso = ∀ {x}{xᴰ : Cᴰ.ob[ x ]}
       → isIsoOver (isIsoToIso (αIsIso x)) Pᴰ.p[_][ xᴰ ] Qᴰ.p[_][ xᴰ ]

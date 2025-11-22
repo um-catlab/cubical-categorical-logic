@@ -52,13 +52,20 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
   ext : Bifunctor (D ^op) C (SET ℓP)
     → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓ))
   ext P = CurryBifunctor $ Sym $ ⊗-Bif ∘Fl CurryBifunctor P
-    -- CurryBifunctor $ Sym $ ⊗-Bif ∘Fl (CurryBifunctor $ Sym $ CurriedToBifunctor P)
   private
     test-ext : ∀ (P : Bifunctor (D ^op) C (SET ℓP)) (Q : Presheaf C ℓQ) d
       → ⟨ (ext P ⟅ Q ⟆) .F-ob d ⟩ ≡ ((CurryBifunctor P ⟅ d ⟆) ⊗ Q)
     test-ext P Q d = refl
 
+
   CoContinuous : {ℓP : Level → Level}
     (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
     → Typeω
-  CoContinuous P = ∀ {ℓ} (Q : Presheaf C ℓ) → PshIso (P ⟅ Q ⟆) (ext (CurriedToBifunctorL P ∘Fr YONEDA) ⟅ Q ⟆)
+  CoContinuous P = ∀ {ℓ} (Q : Presheaf C ℓ)
+    → PshIso (P ⟅ Q ⟆) (ext (CurriedToBifunctorL (P ∘F CurryBifunctorL (HomBif C))) ⟅ Q ⟆)
+
+module _ {C : Category ℓC ℓC'} where
+  private
+    test-ext' : ∀ (Q : Presheaf C ℓQ) →
+      ext (HomBif C) ⟅ Q ⟆ ≡ ◇ Q
+    test-ext' Q = refl

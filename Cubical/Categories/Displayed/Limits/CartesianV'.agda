@@ -15,6 +15,7 @@ private
 record CartesianCategoryⱽ (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
   : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
   no-eta-equality
+  constructor cartesiancategoryⱽ
   field
     Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
     termⱽ : Terminalsⱽ Cᴰ

@@ -2,8 +2,9 @@
 module Cubical.Categories.Displayed.Functor.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Category.Base hiding (isIso)
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Functor
 import      Cubical.Data.Equality as Eq
@@ -20,6 +21,8 @@ private
 
 Idᴰ : {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} → Functorᴰ Id Cᴰ Cᴰ
 Idᴰ = 𝟙ᴰ⟨ _ ⟩
+
+
 
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -174,3 +177,15 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
         obᴰEq)
       (Fᴰ .F-homᴰ)
       (Gᴰ .F-homᴰ)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+  where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Dᴰ = Categoryᴰ Dᴰ
+    module Fᴰ = Functorᴰ Fᴰ
+  FullyFaithfulᴰ : Type _
+  FullyFaithfulᴰ = ∀ {x y}(f : C [ x , y ])(xᴰ : Cᴰ.ob[ x ])(yᴰ : Cᴰ.ob[ y ])
+    → isIso {A = Cᴰ.Hom[ f ][ xᴰ , yᴰ ]}{B = Dᴰ.Hom[ F ⟪ f ⟫ ][ Fᴰ.F-obᴰ xᴰ , Fᴰ.F-obᴰ yᴰ ]} Fᴰ.F-homᴰ

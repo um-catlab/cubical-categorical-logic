@@ -7,9 +7,11 @@ module Cubical.CoData.Delay where
   open import Cubical.Categories.Instances.Sets
   open import Cubical.Categories.Limits.Terminal
   open import Cubical.Categories.Instances.FunctorAlgebras
+  open import Cubical.Categories.Monad.ExtensionSystem
   open import Cubical.Foundations.Isomorphism
   open import Cubical.Foundations.HLevels
   open import Cubical.Foundations.Function
+  open import Cubical.Data.Sigma.Properties
   open import Cubical.Data.Nat
   import Cubical.Data.Equality as Eq
   open import Cubical.Data.Sum renaming (rec to ⊎rec)
@@ -18,7 +20,7 @@ module Cubical.CoData.Delay where
   open Functor
   open Algebra
   open AlgebraHom
-  open import Cubical.Data.Sigma.Properties
+  open ExtensionSystemFor
 
   private
     variable
@@ -27,14 +29,14 @@ module Cubical.CoData.Delay where
   module Basics where
 
     data StateF (Res Rec : Type ℓ) : Type ℓ where
-      doneF : Res -> StateF Res Rec
-      stepF : Rec -> StateF Res Rec
+      doneF : Res → StateF Res Rec
+      stepF : Rec → StateF Res Rec
 
     record Delay (Res : Type ℓ) : Type ℓ
 
     data State (Res : Type ℓ) : Type ℓ where
-      done : Res -> State Res
-      step : Delay Res -> State Res
+      done : Res → State Res
+      step : Delay Res → State Res
 
     record Delay Res where
       constructor delay_
@@ -77,7 +79,7 @@ module Cubical.CoData.Delay where
     ... | done x  = done x
     ... | step d' = step (retr d' i)
 
-    isSetDelay : ∀ {ℓ : Level} -> {X : Type ℓ} → isSet X → isSet (Delay X)
+    isSetDelay : ∀ {ℓ : Level} → {X : Type ℓ} → isSet X → isSet (Delay X)
     isSetDelay {X = X} p =
       isSetRetract
         fromDelay
@@ -85,7 +87,7 @@ module Cubical.CoData.Delay where
         retr
         (isSetΠ λ n → isSet⊎ p isSetUnit)
 
-    isSetState : ∀ {ℓ : Level} -> {X : Type ℓ} → isSet X → isSet (State X)
+    isSetState : ∀ {ℓ : Level} → {X : Type ℓ} → isSet X → isSet (State X)
     isSetState {X = X} p =
       isSetRetract
         (State-rec inl inr)
@@ -94,7 +96,7 @@ module Cubical.CoData.Delay where
           ; (step x) → refl})
         (isSet⊎ p (isSetDelay p))
 
-    isSetStateF : ∀ {ℓ : Level} -> {X Y : Type ℓ} →
+    isSetStateF : ∀ {ℓ : Level} → {X Y : Type ℓ} →
       isSet X → isSet Y → isSet (StateF X Y)
     isSetStateF {X = X}{Y} p q =
       isSetRetract
@@ -231,8 +233,8 @@ module Cubical.CoData.Delay where
           (D .str ∘S (h) ≡ StateF-map h ∘S (c .str))) →
           s ≡ s'
         unique' (h , com) (h' , com') =
-          Σ≡Prop (λ g ->
-            isSetΠ (λ v -> isSetStateF (R .snd) (D .carrier .snd)) _ _)
+          Σ≡Prop (λ g →
+            isSetΠ (λ v → isSetStateF (R .snd) (D .carrier .snd)) _ _)
           (funExt eq-fun) where
 
           eq-fun : (x : ⟨ c .carrier ⟩) → PathP (λ v → Delay ⟨ R ⟩) (h x) (h' x)
@@ -277,3 +279,85 @@ module Cubical.CoData.Delay where
         goal : isContr ((CoAlg R) [ c , D ])
         goal = hom , uniq
 
+  module Monad {ℓ : Level} where
+    open Basics
+
+    D : ob (SET ℓ) → ob (SET ℓ)
+    D X = (Delay ⟨ X ⟩) , (isSetDelay (X .snd))
+
+    ret-s : {A : Type ℓ} → A → State A
+    ret-s a = done a
+
+    ret-d : {A : Type ℓ} → A → Delay A
+    ret-d a = delay (ret-s a)
+
+    mutual
+      bind-s : {A B : Type ℓ} → State A → (A → State B) → State B
+      bind-s (done x) f = f x
+      bind-s (step x) f = step (bind-d x λ a → delay (f a))
+
+      bind-d : {A B : Type ℓ} → Delay A → (A → Delay B) → Delay B
+      view (bind-d d f) = bind-s (d .view) λ a → f a .view
+
+    eq-d : {A : Type ℓ}{d d' : Delay A} → d .view ≡ d' .view → d ≡ d'
+    eq-d p i .view = p i
+
+    bind-ret-l : {A B : Type ℓ} → (f : A → Delay B)(a : A) →
+      bind-d (ret-d a) f ≡ f a
+    bind-ret-l f a = eq-d refl
+
+    mutual
+      bind-s-ret : {A : Type ℓ}{s : State A} → bind-s s ret-s ≡ s
+      bind-s-ret {s = done x} = refl
+      bind-s-ret {s = step x} = cong step (bind-ret-r {d = x})
+
+      bind-ret-r : {A : Type ℓ}{d : Delay A} → bind-d d ret-d ≡ d
+      view (bind-ret-r {A}{d} i) = bind-s-ret {A}{d .view} i
+
+
+    DFun→SFun : {X Y : Type ℓ} → (X → Delay Y) → (X → State Y)
+    DFun→SFun f x = view (f x)
+
+    -- SFun→DFun
+    SFun→DFun : {X Y : Type ℓ} → (X → State Y) → (X → Delay Y)
+    SFun→DFun f x = delay (f x)
+
+    mutual
+      comp-s : {X Y Z : Type ℓ} → (f : Y → State Z) → (g : X → State Y) →
+          (s : State X) →
+        bind-s (bind-s s g) f ≡
+        bind-s s (λ x' → bind-s (g x') f)
+      comp-s f g (done x₁) = refl
+      comp-s {X}{Y}{Z} f g (step d) i =
+        step (
+          goal
+            (λ x' → delay bind-s (g x') f)
+            (Eq.pathToEq (funExt lem)) i) where
+
+        lem : ∀ x' ->
+          delay (bind-s (g x')f ) ≡
+          bind-d  (SFun→DFun g x')(SFun→DFun f)
+        lem x' i .view = bind-s (g x') f
+
+        goal : ∀ (f' : X -> Delay Z) ->
+          f' Eq.≡ (λ x' -> bind-d (SFun→DFun g x')(SFun→DFun f) ) ->
+          bind-d (bind-d d (λ  x' -> delay (g  x')))  (λ  x' -> delay (f  x'))
+            ≡
+          bind-d d f'
+        goal _ Eq.refl = comp-d (SFun→DFun f) (SFun→DFun g) d
+
+      comp-d : {X Y Z : Type ℓ} → (f : Y → Delay Z) → (g : X → Delay Y) →
+        (d : Delay X) →
+        bind-d (bind-d d g) f ≡
+        bind-d d (λ x' → bind-d (g  x')f)
+      comp-d f g d i .view = comp-s (DFun→SFun f)(DFun→SFun g) (view d) i
+
+    DExt' : ExtensionSystemFor (SET ℓ) D
+    DExt' .η = ret-d
+    DExt' .bind f m = bind-d m f
+    DExt' .bind-r = funExt λ d → bind-ret-r
+    DExt' .bind-l = funExt λ d → bind-ret-l _ _
+    DExt' .bind-comp {X}{Y}{f}{Z}{g}= funExt λ d → comp-d _ _ _
+
+    DExt : ExtensionSystem (SET ℓ)
+    DExt = D , DExt'

@@ -11,13 +11,13 @@ module Cubical.Categories.CBPV.Instances.Free where
   module Syn { ℓ : Level} where
     mutual
       data CTy : Type ℓ where
-          fun : VTy → CTy → CTy
-          F : VTy → CTy
+        fun : VTy → CTy → CTy
+        F : VTy → CTy
 
       data VTy : Type ℓ where
-          one : VTy
-          prod : VTy → VTy → VTy
-          U : CTy → VTy
+        one : VTy
+        prod : VTy → VTy → VTy
+        U : CTy → VTy
 
 
     Ctx = List {ℓ} VTy
@@ -150,26 +150,26 @@ module Cubical.Categories.CBPV.Instances.Free where
         Γ ⊢c B
 
       lam :
-          (A ∷ Γ) ⊢c B →
-          ----------------
-          Γ ⊢c fun A B
+        (A ∷ Γ) ⊢c B →
+        ----------------
+        Γ ⊢c fun A B
       app :
-          Γ ⊢c fun A B →
-          Γ ⊢v A →
-          ----------------
-          Γ ⊢c B
+        Γ ⊢c fun A B →
+        Γ ⊢v A →
+        ----------------
+        Γ ⊢c B
 
       rec× :
-          Γ ⊢v (prod A A') →
-          (A' ∷ (A ∷  Γ)) ⊢c B →
-          --------------------
-          Γ ⊢c B
+        Γ ⊢v (prod A A') →
+        (A' ∷ (A ∷  Γ)) ⊢c B →
+        --------------------
+        Γ ⊢c B
 
       bind :
-          Γ ⊢c F A →
-          (A ∷ Γ) ⊢c B →
-          -----------
-          Γ ⊢c B
+        Γ ⊢c F A →
+        (A ∷ Γ) ⊢c B →
+        -----------
+        Γ ⊢c B
 
     _[_]vP = _[_]v
     varP = var
@@ -193,6 +193,7 @@ module Cubical.Categories.CBPV.Instances.Free where
     open Category
     open Functor
     open NatTrans
+    open NatIso
     open CBPVModel {ℓ}
     open Syn {ℓ}
 
@@ -260,13 +261,12 @@ module Cubical.Categories.CBPV.Instances.Free where
     ctm .Fseq =
       makeNatTransPath (funExt λ Γ → funExt λ (k , k') →
         makePshHomPath (funExt λ Δ → funExt λ (γ , m) →
-            cong₂
-            (λ h1 h2 → ((k' [ h1 ]k) [ (k [ h2 ]k) [ m ]∙ ]∙))
-            ∘sIdR ∘sIdR
-            ∙ sym plugAssoc
-            ∙ cong (λ h → ( h [ m ]∙)) (sym substDist)))
+          cong₂
+          (λ h1 h2 → ((k' [ h1 ]k) [ (k [ h2 ]k) [ m ]∙ ]∙))
+          ∘sIdR ∘sIdR
+          ∙ sym plugAssoc
+          ∙ cong (λ h → ( h [ m ]∙)) (sym substDist)))
 
-    open NatIso
     up : (Γ : Ctx) (A : VTy) →
       SCat [-, (A ∷ Γ) ] ≅ᶜ ((SCat [-, Γ ]) ×Psh vtm A)
     up Γ A .trans = goal where

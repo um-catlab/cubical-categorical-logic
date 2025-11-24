@@ -28,7 +28,6 @@ open import Cubical.Categories.Instances.Sets
 
 open Category
 open Functor
-open OrderedFunctor renaming(≤ to order)
 open Iso
 
 private

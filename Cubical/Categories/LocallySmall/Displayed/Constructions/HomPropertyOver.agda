@@ -1,4 +1,11 @@
--- | Structure displayed over a category.
+-- Define a subcagtegory of a given category C by filtering
+-- out the morphisms that satisfy a given property.
+-- This is made precise by defining a displayed category
+-- whose displayed morphisms are proofs that the morphisms
+-- in the original category satisfy the predicate
+--
+-- This construction is the equivalent to a wide subcategory of C
+-- https://ncatlab.org/nlab/show/wide+subcategory
 module Cubical.Categories.LocallySmall.Displayed.Constructions.HomPropertyOver where
 
 open import Cubical.Foundations.Prelude

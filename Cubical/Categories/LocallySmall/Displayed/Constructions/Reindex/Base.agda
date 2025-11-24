@@ -212,8 +212,6 @@ module _
     -- In this way, the morphisms here can be treated like deferred
     -- transorts, and we can maximally postpone the katabasis
     -- into transport hell
-    --
-    -- See the fiber examples below
     reindex' : Categoryᴰ C (λ c → Dobᴰ (F.F-ob c)) _
     reindex' .Hom[_][_,_] f xᴰ yᴰ =
       Σ[ g ∈ D.Hom[ F.F-ob _ , F.F-ob _ ] ]

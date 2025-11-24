@@ -170,46 +170,46 @@ module _ where
     PshIso : Type _
     PshIso = PSHISO.Homᴰ[_,_] {f = iso _ _ refl refl} P Q
 
-  -- An attempt at briding the gap between the naturality conditions
+  -- An attempt at bridging the gap between the naturality conditions
   -- of Presheaf.Morphism.Alt.PshHom and FibNatTrans as defined in
   -- LocallySmall.NaturalTransformation.Fibered, but it's not as
   -- helpful as expected. I thought using these constructs would remove
   -- transports, but it actually seems to add more of them :(
   -- I'm keeping this in because I think we want principles like
   -- this that are indeed usable
-  -- module _ {C : SmallCategory ℓC ℓC'}
-  --   {P : Presheaf C ℓP} (Q : Presheaf C ℓQ) where
-  --   open FibNatTransDefs (C ^opsmall) SET
-  --   open FibNatTrans
+  module _ {C : SmallCategory ℓC ℓC'}
+    {P : Presheaf C ℓP} (Q : Presheaf C ℓQ) where
+    open FibNatTransDefs (C ^opsmall) SET
+    open FibNatTrans
 
-  --   private
-  --     module C = SmallCategory C
-  --     module P = PresheafNotation P
-  --     module Q = PresheafNotation Q
-  --   module _ (α : ∀ (x : C.small-ob) → P.p[ x ] → Q.p[ x ]) where
-  --     PshHom-N-homTy : Type _
-  --     PshHom-N-homTy =
-  --       ∀ {x y : C.small-ob} → (f : C.Hom[ liftω x , liftω y ])
-  --         (p : P.p[ y ]) →
-  --         α x (f P.⋆ p) ≡ (f Q.⋆ α y p)
+    private
+      module C = SmallCategory C
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+    module _ (α : ∀ (x : C.small-ob) → P.p[ x ] → Q.p[ x ]) where
+      PshHom-N-homTy : Type _
+      PshHom-N-homTy =
+        ∀ {x y : C.small-ob} → (f : C.Hom[ liftω x , liftω y ])
+          (p : P.p[ y ]) →
+          α x (f P.⋆ p) ≡ (f Q.⋆ α y p)
 
-  --     mkPshHom-N-hom :
-  --       PshHom-N-homTy →
-  --       ∀ {x y : C.small-ob} →
-  --         (f : C.Hom[ liftω x , liftω y ]) →
-  --       N-homTy _
-  --         (FiberedFunctorEq→FiberedFunctor Eq.refl (liftω ℓP) P)
-  --         (FiberedFunctorEq→FiberedFunctor Eq.refl (liftω ℓQ) Q)
-  --         α f
-  --     mkPshHom-N-hom PshHom-N-hom f =
-  --       N-hom'→N-hom _ _ _ _
-  --         (λ i → _ , λ p → PshHom-N-hom f p i)
+      mkPshHom-N-hom :
+        PshHom-N-homTy →
+        ∀ {x y : C.small-ob} →
+          (f : C.Hom[ liftω x , liftω y ]) →
+        N-homTy _
+          (FiberedFunctorEq→FiberedFunctor Eq.refl (liftω ℓP) P)
+          (FiberedFunctorEq→FiberedFunctor Eq.refl (liftω ℓQ) Q)
+          α f
+      mkPshHom-N-hom PshHom-N-hom f =
+        N-hom'→N-hom _ _ _ _
+          (λ i → _ , λ p → PshHom-N-hom f p i)
 
-  --     mkPshHom :
-  --       PshHom-N-homTy →
-  --       PshHom P Q
-  --     mkPshHom PshHom-N-hom .N-ob = α
-  --     mkPshHom PshHom-N-hom .N-hom = mkPshHom-N-hom PshHom-N-hom
+      mkPshHom :
+        PshHom-N-homTy →
+        PshHom P Q
+      mkPshHom PshHom-N-hom .N-ob = α
+      mkPshHom PshHom-N-hom .N-hom = mkPshHom-N-hom PshHom-N-hom
 
   module _
     (F : Functor (C .cat) (D .cat))

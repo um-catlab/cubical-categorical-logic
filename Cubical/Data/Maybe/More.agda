@@ -45,7 +45,7 @@ module Cubical.Data.Maybe.More where
   ≤-trans {m = just x} {just y} {nothing} _ ()
   ≤-trans {m = just x} {just y} {just z} p q = p ∙ q
 
-  maybePreorder : (X : hSet ℓ) → Preorder _ _
+  maybePreorder : (X : hSet ℓ) → Preorder ℓ ℓ
   maybePreorder X = 
     Maybe ⟨ X ⟩ , 
     preorderstr 

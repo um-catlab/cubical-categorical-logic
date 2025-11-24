@@ -14,7 +14,7 @@ module Cubical.CoData.Delay where
   open import Cubical.Data.Sigma.Properties
   open import Cubical.Data.Nat
   import Cubical.Data.Equality as Eq
-  open import Cubical.Data.Sum renaming (rec to ⊎rec)
+  open import Cubical.Data.Sum renaming (rec to ⊎rec; map to ⊎map)
   open import Cubical.Data.Unit renaming (Unit to ⊤ )
   open Category
   open Functor
@@ -28,9 +28,8 @@ module Cubical.CoData.Delay where
 
   module Basics where
 
-    data StateF (Res Rec : Type ℓ) : Type ℓ where
-      doneF : Res → StateF Res Rec
-      stepF : Rec → StateF Res Rec
+    StateF : (Res Rec : Type ℓ) →  Type ℓ 
+    StateF Res Rec = Res ⊎ Rec
 
     record Delay (Res : Type ℓ) : Type ℓ
 
@@ -44,10 +43,6 @@ module Cubical.CoData.Delay where
       field view : State Res
 
     open Delay public
-
-    StateF-rec : {A B C : Type ℓ} → (A → C) → (B → C) →  StateF A B → C
-    StateF-rec f g (doneF x) = f x
-    StateF-rec f g (stepF x) = g x
 
     State-rec : {A B : Type ℓ} → (A → B) → (Delay A → B) → State A → B
     State-rec f g (done x) = f x
@@ -96,32 +91,21 @@ module Cubical.CoData.Delay where
           ; (step x) → refl})
         (isSet⊎ p (isSetDelay p))
 
-    isSetStateF : ∀ {ℓ : Level} → {X Y : Type ℓ} →
-      isSet X → isSet Y → isSet (StateF X Y)
-    isSetStateF {X = X}{Y} p q =
-      isSetRetract
-        (StateF-rec inl inr)
-        (⊎rec doneF stepF)
-        (λ {(doneF x) → refl
-          ; (stepF x) → refl})
-        ((isSet⊎ p q))
-
   module Dynamics where
     open Basics
 
     StateF-map : {A B C : Type ℓ} → (B → C) → StateF A B → StateF A C
-    StateF-map f (doneF x) = doneF x
-    StateF-map f (stepF x) = stepF (f x)
+    StateF-map f = ⊎map (λ x → x) f
 
     StateF-map-id : {A B : Type ℓ}{s : StateF A B} →
       StateF-map (λ x → x) s ≡ s
-    StateF-map-id {s = doneF x} = refl
-    StateF-map-id {s = stepF x} = refl
+    StateF-map-id {s = inl x} = refl
+    StateF-map-id {s = inr x} = refl
 
     StateF-map-seq :  {R A B C : Type ℓ}{f : A → B}{g : B → C}{s : StateF R A} →
         StateF-map (λ x → g (f x)) s ≡ StateF-map g (StateF-map f s)
-    StateF-map-seq {s = doneF x} = refl
-    StateF-map-seq {s = stepF x} = refl
+    StateF-map-seq {s = inl x} = refl
+    StateF-map-seq {s = inr x} = refl
 
     mutual
       State-map : {A B : Type ℓ} → (A → B) → State A → State B
@@ -166,7 +150,7 @@ module Cubical.CoData.Delay where
     StateFun' .F-seq _ _ = funExt λ _ → State-map-seq
 
     StateFun : ob (SET ℓ) → Functor (SET ℓ) (SET ℓ)
-    StateFun X .F-ob Y = (StateF ⟨ X ⟩  ⟨ Y ⟩) , isSetStateF (X .snd) (Y .snd)
+    StateFun X .F-ob Y = (StateF ⟨ X ⟩  ⟨ Y ⟩) , isSet⊎ (X .snd) (Y .snd)
     StateFun X .F-hom = StateF-map
     StateFun X .F-id = funExt λ _ → StateF-map-id
     StateFun X .F-seq _ _ = funExt λ _ → StateF-map-seq
@@ -175,16 +159,16 @@ module Cubical.CoData.Delay where
     CoAlg R = AlgebrasCategory (StateFun R ^opF) ^op
 
     unfold : {X : Type ℓ} →  Delay X → StateF X (Delay X)
-    unfold d = State-rec doneF stepF (d .view)
+    unfold d = State-rec inl inr (d .view)
 
     fold : {X : Type ℓ} → StateF X (Delay X) → Delay X
-    fold = StateF-rec (delay_ ∘S done) (delay_ ∘S step)
+    fold = ⊎rec (delay_ ∘S done) (delay_ ∘S step)
 
     d-iso : {X : Type ℓ} → Iso (Delay X) (StateF X (Delay X))
     d-iso .Iso.fun = unfold
     d-iso .Iso.inv = fold
-    d-iso .Iso.rightInv (doneF x) = refl
-    d-iso .Iso.rightInv (stepF x) = refl
+    d-iso .Iso.rightInv (inl x) = refl
+    d-iso .Iso.rightInv (inr x) = refl
     d-iso .Iso.leftInv d i .view with d .view
     ... | done x = done x
     ... | step x = step x
@@ -194,7 +178,7 @@ module Cubical.CoData.Delay where
     unfold-inj d1 d2 eq = isoFunInjective d-iso d1 d2 eq
 
     unfold-inv2 : {X : Type ℓ} →(d : Delay X) →  (d' : Delay X) →
-      unfold d ≡ stepF d' →  d .view ≡ step d'
+      unfold d ≡ inr d' →  d .view ≡ step d'
     unfold-inv2 d d' H =
       cong view (isoFunInjective d-iso d (delay (step d')) H)
 
@@ -215,14 +199,14 @@ module Cubical.CoData.Delay where
 
         fun : ⟨ c .carrier ⟩ → Delay ⟨ R ⟩
         view (fun x) with (c .str x)
-        ... | doneF r = done r
-        ... | stepF y = step (fun y)
+        ... | inl r = done r
+        ... | inr y = step (fun y)
 
         commute : (v : ⟨ c .carrier ⟩ ) →
           (D .str ∘S fun) v ≡ (StateF-map fun ∘S c .str) v
         commute v with c .str v
-        ... | doneF x = refl
-        ... | stepF v' = refl
+        ... | inl x = refl
+        ... | inr v' = refl
 
         hom : CoAlg R [ c , D ]
         hom .carrierHom = fun
@@ -233,29 +217,29 @@ module Cubical.CoData.Delay where
           s ≡ s'
         unique' (h , com) (h' , com') =
           Σ≡Prop (λ g →
-            isSetΠ (λ v → isSetStateF (R .snd) (D .carrier .snd)) _ _)
+            isSetΠ (λ v → isSet⊎ (R .snd) (D .carrier .snd)) _ _)
           (funExt eq-fun) where
 
           eq-fun : (x : ⟨ c .carrier ⟩) → PathP (λ v → Delay ⟨ R ⟩) (h x) (h' x)
           view (eq-fun v i) with c .str v in eq
-          ... | doneF x  =
+          ... | inl x  =
             view (unfold-inj (h v) (h' v) (com-v ∙ sym com'-v) i) where
-            com-v : unfold (h v) ≡ doneF x
+            com-v : unfold (h v) ≡ inl x
             com-v = funExtS⁻ com v ∙ (λ j → StateF-map h (Eq.eqToPath eq j))
 
-            com'-v : unfold (h' v) ≡ doneF x
+            com'-v : unfold (h' v) ≡ inl x
             com'-v = funExtS⁻ com' v ∙ (λ j → StateF-map h' (Eq.eqToPath eq j))
 
-          ... | stepF v'  =
+          ... | inr v'  =
             (goal
               (h v .view)
               (h' v .view)
               (Eq.pathToEq eq-hv)
               (Eq.pathToEq eq-h'v)) i where
-            com-v : unfold (h v) ≡ stepF (h v')
+            com-v : unfold (h v) ≡ inr (h v')
             com-v = funExtS⁻ com v ∙ (λ j → StateF-map h (Eq.eqToPath eq j))
 
-            com'-v : unfold (h' v) ≡ stepF (h' v')
+            com'-v : unfold (h' v) ≡ inr (h' v')
             com'-v = funExtS⁻ com' v ∙ (λ j → StateF-map h' (Eq.eqToPath eq j))
 
             eq-hv : h v .view ≡ step (h v')
@@ -317,7 +301,6 @@ module Cubical.CoData.Delay where
     DFun→SFun : {X Y : Type ℓ} → (X → Delay Y) → (X → State Y)
     DFun→SFun f x = view (f x)
 
-    -- SFun→DFun
     SFun→DFun : {X Y : Type ℓ} → (X → State Y) → (X → Delay Y)
     SFun→DFun f x = delay (f x)
 

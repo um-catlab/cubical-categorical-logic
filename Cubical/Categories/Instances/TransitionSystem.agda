@@ -1,5 +1,5 @@
 
-module Cubical.Categories.CBPV.Instances.TransitionSystem where
+module Cubical.Categories.Instances.TransitionSystem where
 
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
@@ -14,8 +14,6 @@ open import Cubical.Data.Maybe renaming (rec to mrec)
 open import Cubical.Data.Maybe.More
 open import Cubical.Reflection.Base
 open import Cubical.Reflection.RecordEquiv
-open import Cubical.Relation.Binary.Base
-open import Cubical.Relation.Binary.Preorder
 open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.HLevels
@@ -27,7 +25,8 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Foundations.Equiv.Base
 open Category
 open Functor
-open OrderedFunctor
+open OrderedFunctor renaming(≤ to order)
+open Iso
 
 module TSys {ℓ : Level} where
 
@@ -37,79 +36,19 @@ module TSys {ℓ : Level} where
   MaybeF .F-id = funExt map-Maybe-id
   MaybeF .F-seq f g = funExt map-Maybe-seq
 
-  _≤m_ : {A : hSet ℓ } → Maybe ⟨ A ⟩ → Maybe ⟨ A ⟩ → Set ℓ
-  nothing ≤m n = Unit*
-  just x ≤m nothing = ⊥*
-  _≤m_ {A} (just x) (just y) = (x ≡ y)
-
-  ≡-to-≤m  : {A : hSet ℓ}{x y : ⟨ A ⟩}{m n : Maybe ⟨ A ⟩ } →
-    m ≡ just x → n ≡ just y → x ≡ y → _≤m_ {A} m n
-  ≡-to-≤m {A} p q r = subst2 (λ h1 h2 → _≤m_ {A} h1 h2) (sym p) (sym q) r
-
-  eq : {A : hSet ℓ }{m n : Maybe ⟨ A ⟩} → m ≡ n → _≤m_ {A} m n
-  eq {A} {nothing} {n} _ = tt*
-  eq {A} {just x} {nothing} p =
-    ⊥elim {A = λ _ → _≤m_{A} (just x) nothing}(¬nothing≡just (sym p))
-  eq {A} {just x} {just x₁} p = just-inj _ _ p
-
-  inversion : {A : hSet ℓ}{a : ⟨ A ⟩ }{n : Maybe ⟨ A ⟩ } →
-    _≤m_ {A} (just a) n → Σ ⟨ A ⟩ λ a' → (n ≡ just a') × (a ≡ a' )
-  inversion {A} {a} {just x} p = x , refl , p
-
-  ≤m-isProp : {A : hSet ℓ}{m n : Maybe ⟨ A ⟩ } → isProp (_≤m_ {A} m n )
-  ≤m-isProp {A} {nothing} {nothing} = isPropUnit*
-  ≤m-isProp {A} {nothing} {just x} = isPropUnit*
-  ≤m-isProp {A} {just x} {nothing} ()
-  ≤m-isProp {A} {just x} {just y} p q = A .snd x y p q
-
-  ≤m-refl : {A : hSet ℓ}{m : Maybe ⟨ A ⟩ } → _≤m_ {A} m m
-  ≤m-refl {A} {nothing} = tt*
-  ≤m-refl {A} {just x} = refl
-
-  ≤m-trans : {A : hSet ℓ}{m n p : Maybe ⟨ A ⟩ } →
-    _≤m_{A} m n → _≤m_ {A} n p → _≤m_ {A} m p
-  ≤m-trans {A} {nothing} {n} {p} _ _ = tt*
-  ≤m-trans {A} {just x} {nothing} {p} ()
-  ≤m-trans {A} {just x} {just y} {nothing} _ ()
-  ≤m-trans {A} {just x} {just y} {just z} p q = p ∙ q
-
-  monoF : {A B : hSet ℓ}{x y : Maybe ⟨ A ⟩ }{f : ⟨ A ⟩  → ⟨ B ⟩ } →
-      _≤m_ {A} x y → _≤m_ {B} (map-Maybe f x) (map-Maybe f y)
-  monoF {A} {B} {nothing} {y} p = tt*
-  monoF {A} {B} {just x} {just y}{f} p = cong f p
-
-  monoF' : {A B : hSet ℓ}{x y : Maybe ⟨ A ⟩ }{f g : ⟨ A ⟩  → ⟨ B ⟩ } →
-    f ≡ g →  _≤m_ {B} (map-Maybe f x) (map-Maybe g x)
-  monoF' {A} {B} {nothing} {y} {f} {g} p = tt*
-  monoF' {A} {B} {just x} {y} {f} {g} p = funExt⁻ p _
-
-  monoBind : {A B C : hSet ℓ}{x : Maybe ⟨ A ⟩ }
-    {f : ⟨ A ⟩  → ⟨ B ⟩ }{g : ⟨ B ⟩ → ⟨ C ⟩ }→
-    _≤m_ {C} (map-Maybe (g ∘S f) x) (map-Maybe g (map-Maybe f x))
-  monoBind {x = nothing} = tt*
-  monoBind {x = just x} = refl
-
-  maybePreorder : ob (SET ℓ) → ob (PREORDER ℓ ℓ)
-  maybePreorder X = (Maybe ⟨ X ⟩  ,
-    preorderstr (_≤m_{X})
-      (ispreorder
-        (λ a b → ≤m-isProp)
-        (λ a → ≤m-refl)
-        λ a b c → ≤m-trans)) ,
-      isSetMaybe {A = X}
-
   ord : Functor (SET ℓ) (PREORDER ℓ ℓ)
-  ord .F-ob = maybePreorder
-  ord .F-hom {A}{B}f = record { f = map-Maybe f ; isMon = monoF }
+  ord .F-ob X = maybePreorder X , isSetMaybe {A = X}
+  ord .F-hom {A}{B}f = record { f = map-Maybe f ; isMon = mono-map }
   ord .F-id = eqMon _ _ (funExt map-Maybe-id)
   ord .F-seq _ _ = eqMon _ _ (funExt map-Maybe-seq)
 
+  -- this allows for lax coalgebra homomorphisms
   MaybeOrdered : OrderedFunctor
   MaybeOrdered .F = MaybeF
-  MaybeOrdered .≤ = ord
+  MaybeOrdered .order = ord
   MaybeOrdered .commute = Functor≡ (λ _ → refl) (λ _ → refl)
 
-  record TSystem : Set(ℓ-suc ℓ) where
+  record TSystem (ℓ : Level) : Type(ℓ-suc ℓ) where
     field
       state : hSet ℓ
       trans : ⟨ state ⟩ → Maybe ⟨ state ⟩
@@ -183,18 +122,18 @@ module TSys {ℓ : Level} where
 
   open TSystem
 
-  module _ (S T : TSystem) where
-    record TSystem[_,_] : Set ℓ where
+  module _ (S T : TSystem ℓ) where
+    record TSystem[_,_] : Type ℓ where
       field
         tmap : ⟨ S .state ⟩  → ⟨ T .state ⟩
         comm : {s : ⟨ S .state ⟩ } →
-          _≤m_{T .state} (map-Maybe tmap (S .trans s))  (T .trans (tmap s))
+          (map-Maybe tmap (S .trans s)) ≤ (T .trans (tmap s))
 
     TSystemHomSigma : Type ℓ
     TSystemHomSigma =
       Σ (⟨ S .state ⟩  → ⟨ T .state ⟩)
         λ f → {s : ⟨ S .state ⟩ } →
-          _≤m_ {T .state}(map-Maybe f (S .trans s) ) (T .trans (f s))
+          (map-Maybe f (S .trans s) ) ≤ (T .trans (f s))
 
     TSysHomIsoΣ : Iso (TSystem[_,_]) (TSystemHomSigma)
     unquoteDef TSysHomIsoΣ =
@@ -202,9 +141,8 @@ module TSys {ℓ : Level} where
 
   open TSystem[_,_]
 
-
   module _
-    {S T : TSystem}
+    {S T : TSystem ℓ}
     (f  : TSystem[ S , T ])
     ((s , (s' , s↦s')) : steps S) where
     {-
@@ -218,48 +156,47 @@ module TSys {ℓ : Level} where
       (T .trans (tmap f s) ≡ just a') × (f .tmap s' ≡ a'))
     step-T =
       inversion
-        (subst ( λ h → h ≤m T .trans (tmap f s))
+        (subst ( λ h → h ≤ T .trans (tmap f s))
         (cong₂ map-Maybe refl s↦s') (f .comm))
 
     commutes : T .trans (tmap f s) ≡ just (tmap f s')
     commutes = step-T  .snd .fst ∙ cong just (sym (step-T .snd .snd))
 
-  TSysMap≡ : {S T : TSystem}{f g : TSystem[ S , T ]} →
+  TSysMap≡ : {S T : TSystem ℓ}{f g : TSystem[ S , T ]} →
     f .tmap ≡ g .tmap → f ≡ g
   TSysMap≡ {S}{T}{f}{g} p =
     isoFunInjective
       (TSysHomIsoΣ S T)
       f
       g
-      (Σ≡Prop (λ f → isPropImplicitΠ λ _ → ≤m-isProp) p)
+      (Σ≡Prop (λ f → isPropImplicitΠ λ _ → ≤-isProp{A = T .state}) p)
 
-  open Iso
-  TSysMapisSet : {S T : TSystem} → isSet (TSystem[ S , T ])
+  TSysMapisSet : {S T : TSystem ℓ} → isSet (TSystem[ S , T ])
   TSysMapisSet {S} {T} =
     isSetRetract
       (fun (TSysHomIsoΣ S T))
       (inv (TSysHomIsoΣ S T))
       (leftInv (TSysHomIsoΣ S T))
     (isSetΣ (isSet→ (T .state .snd))
-    λ _ → isProp→isSet (isPropImplicitΠ λ _ → ≤m-isProp))
+    λ _ → isProp→isSet (isPropImplicitΠ λ _ → ≤-isProp {A = T .state}))
 
-  idSysHom : {S : TSystem} → TSystem[ S , S ]
+  idSysHom : {S : TSystem ℓ} → TSystem[ S , S ]
   idSysHom .tmap s = s
   idSysHom {S} .comm {s} =
-    subst (λ x → x ≤m S .trans s) (sym (map-Maybe-id _)) ≤m-refl
+    subst (λ x → x ≤ S .trans s) (sym (map-Maybe-id _)) ≤-refl
 
-  _∘TS_ : {S T R : TSystem} →
+  _∘TS_ : {S T R : TSystem ℓ} →
     TSystem[ S , T ] → TSystem[ T , R ] → TSystem[ S , R ]
   _∘TS_ {S}{T}{R} f g .tmap = g .tmap ∘S f .tmap
-  _∘TS_ {S}{T}{R} f g .comm {s} =
-    ≤m-trans
-      (≤m-trans
-        (monoBind{S .state}{T .state})
-        (monoF (f .comm)))
+  _∘TS_ {S}{T}{R} f g .comm {s} = 
+    ≤-trans 
+      (≤-trans 
+        (mono-map-comp {f = f .tmap}{g .tmap}) 
+        (mono-map (f .comm))) 
       (g .comm)
 
   TSysCat : Category _ _
-  TSysCat .ob = TSystem
+  TSysCat .ob = TSystem ℓ
   TSysCat .Hom[_,_] = TSystem[_,_]
   TSysCat .id = idSysHom
   TSysCat ._⋆_ = _∘TS_

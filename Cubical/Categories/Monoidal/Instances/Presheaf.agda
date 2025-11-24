@@ -16,6 +16,7 @@ open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Data.Unit
@@ -45,10 +46,7 @@ module PshMon {ℓ ℓ' ℓS : Level}(C : Category ℓ ℓ')where
     {ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc (ℓm))}{ℓ-max (ℓ-max ℓ ℓ') ℓm}{𝓟}⨂'
 
   𝟙 : ob 𝓟
-  𝟙 .F-ob _ = Unit* , isSetUnit*
-  𝟙 .F-hom = λ _ _ → tt*
-  𝟙 .F-id = refl
-  𝟙 .F-seq _ _ = refl
+  𝟙 = LiftPsh UnitPsh ℓm
 
   𝓟Ten :  TensorStr 𝓟
   𝓟Ten . ─⊗─ = ⨂

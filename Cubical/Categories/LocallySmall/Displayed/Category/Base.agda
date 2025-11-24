@@ -1,4 +1,3 @@
-{-# OPTIONS -W noUnsupportedIndexedMatch #-}
 module Cubical.Categories.LocallySmall.Displayed.Category.Base where
 
 open import Cubical.Foundations.Prelude
@@ -178,7 +177,7 @@ module _ (C : Category Cob CHom-ℓ) where
         {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
         → (ppᴰ :  fᴰ ∫Eq  gᴰ)
         → (fᴰ Eq[ Eq.ap fst ppᴰ ] gᴰ)
-      Eqout Eq.refl = Eq.refl
+      Eqout {fᴰ = fᴰ}{gᴰ = gᴰ} = Eq.J (λ hᴰ eq → fᴰ Eq[ Eq.ap fst eq ] hᴰ .snd) Eq.refl
 
       rectify : {x y : Cob}{f g : C.Hom[ x , y ]}{p p' : f ≡ g}
         {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}

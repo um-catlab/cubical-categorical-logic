@@ -29,10 +29,10 @@ private
     ℓ ℓ' ℓS ℓE : Level
 
 module _
-    {C D : Category ℓ ℓ'}
-    (F : Functor D C)
-    (EC : EnrichedCategory (PshMon.𝓟Mon C ℓS) ℓE )
-    where
+  {C D : Category ℓ ℓ'}
+  (F : Functor D C)
+  (EC : EnrichedCategory (PshMon.𝓟Mon C ℓS) ℓE )
+  where
 
   private
     module PMC = PshMon C ℓS

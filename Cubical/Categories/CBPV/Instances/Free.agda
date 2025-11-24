@@ -174,7 +174,7 @@ module _ {ℓ : Level} where
   varP = var
 
 -- TODO initiality
-module InitialModel {ℓ : Level} where
+module _ {ℓ : Level} where
   open import Cubical.Foundations.Structure
 
   open import Cubical.Data.List
@@ -311,3 +311,4 @@ module InitialModel {ℓ : Level} where
   CBPVExpSubst .Scwf = scwf
   CBPVExpSubst .Stacks = stacks
   CBPVExpSubst .CTm = cTm
+

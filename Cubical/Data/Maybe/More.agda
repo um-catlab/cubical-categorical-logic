@@ -31,13 +31,13 @@ nothing ≤ n = Unit*
 just x ≤ nothing = ⊥*
 just x ≤ just y = x ≡ y
 
-≤-isProp : {A : hSet ℓ}{m n : Maybe ⟨ A ⟩ } → isProp (_≤_ {A = ⟨ A ⟩} m n )
+≤-isProp : {A : hSet ℓ}{m n : Maybe ⟨ A ⟩} → isProp (_≤_ {A = ⟨ A ⟩} m n )
 ≤-isProp {m = nothing} {nothing} = isPropUnit*
 ≤-isProp {m = nothing} {just x} = isPropUnit*
 ≤-isProp {m = just x} {nothing} ()
 ≤-isProp {A = A} {just x} {just y} p q = A .snd x y p q
 
-≤-refl : {A : Type ℓ}{m : Maybe A } → m ≤ m
+≤-refl : {A : Type ℓ}{m : Maybe A} → m ≤ m
 ≤-refl {m = nothing} = tt*
 ≤-refl {m = just x} = refl
 

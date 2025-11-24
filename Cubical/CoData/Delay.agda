@@ -10,6 +10,7 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Sum renaming (rec to ⊎rec; map to ⊎map)
+open import Cubical.Data.Sum.More
 open import Cubical.Data.Unit renaming (Unit to ⊤ )
 
 open import Cubical.Categories.Category
@@ -29,9 +30,6 @@ private
   variable
     ℓ : Level
 
-StateF : (Res Rec : Type ℓ) →  Type ℓ
-StateF Res Rec = Res ⊎ Rec
-
 mutual
   State : Type ℓ → Type ℓ
   State A = A ⊎ (Delay A)
@@ -43,38 +41,31 @@ mutual
 
 open Delay public
 
-pattern done x = inl x
-pattern step x = inr x
-
-State-rec : {A B : Type ℓ} → (A → B) → (Delay A → B) → State A → B
-State-rec f g (done x) = f x
-State-rec f g (step x) = g x
-
 Delay-rec : {A B : Type ℓ} → (A → B) → (Delay A → B) → Delay A → B
 Delay-rec f g d = ⊎rec f g (d .view)
 
 -- Given a Delay d, return a function on nats that,
--- when d ≡ running ^ n (done x),
--- maps n to done x and every other number to step tt.
+-- when d ≡ running ^ n (inl x),
+-- maps n to inl x and every other number to inr tt.
 fromDelay : {X : Type ℓ} → Delay X → (ℕ → X ⊎ Unit)
 fromDelay d n with d .view
-fromDelay d zero    | done x = done x
-fromDelay d (suc n) | done x = step tt
-fromDelay d zero    | step _ = step tt
-fromDelay d (suc n) | step d' = fromDelay d' n
+fromDelay d zero    | inl x = inl x
+fromDelay d (suc n) | inl x = inr tt
+fromDelay d zero    | inr _ = inr tt
+fromDelay d (suc n) | inr d' = fromDelay d' n
 
 -- Given a function f on nats,
--- return a delay that runs for n0 steps and returns x,
--- where n0 is the smallest nat such that f n0 = done x.
+-- return a delay that runs for n0 inrs and returns x,
+-- where n0 is the smallest nat such that f n0 = inl x.
 toDelay : {X : Type ℓ} → (ℕ → X ⊎ Unit) → Delay X
 toDelay f .view with f zero
-... | inl x  = done x
-... | inr tt = step (toDelay λ n → f (suc n))
+... | inl x  = inl x
+... | inr tt = inr (toDelay λ n → f (suc n))
 
 retr : {X : Type ℓ} → (d : Delay X) → toDelay (fromDelay d) ≡ d
 retr d i .view with d .view
-... | done x  = done x
-... | step d' = step (retr d' i)
+... | inl x  = inl x
+... | inr d' = inr (retr d' i)
 
 isSetDelay : ∀ {ℓ : Level} → {X : Type ℓ} → isSet X → isSet (Delay X)
 isSetDelay {X = X} p =
@@ -89,23 +80,10 @@ isSetState {X = X} p = isSet⊎ p (isSetDelay p)
 
 module Dynamics where
 
-  StateF-map : {A B C : Type ℓ} → (B → C) → StateF A B → StateF A C
-  StateF-map f = ⊎map (λ x → x) f
-
-  StateF-map-id : {A B : Type ℓ}{s : StateF A B} →
-    StateF-map (λ x → x) s ≡ s
-  StateF-map-id {s = done x} = refl
-  StateF-map-id {s = step x} = refl
-
-  StateF-map-seq :  {R A B C : Type ℓ}{f : A → B}{g : B → C}{s : StateF R A} →
-      StateF-map (λ x → g (f x)) s ≡ StateF-map g (StateF-map f s)
-  StateF-map-seq {s = done x} = refl
-  StateF-map-seq {s = step x} = refl
-
   mutual
     State-map : {A B : Type ℓ} → (A → B) → State A → State B
-    State-map f (done x) = done (f x)
-    State-map f (step x) = step (Delay-map f x)
+    State-map f (inl x) = inl (f x)
+    State-map f (inr x) = inr (Delay-map f x)
 
     Delay-map : {A B : Type ℓ} → (A → B) → Delay A → Delay B
     view (Delay-map f d) = State-map f (d .view)
@@ -113,19 +91,18 @@ module Dynamics where
   mutual
     State-map-id : {A : Type ℓ}{s : State A} →
       State-map (λ x → x) s ≡ s
-    State-map-id {s = done x} = refl
-    State-map-id {s = step x} = cong inr Delay-map-id
+    State-map-id {s = inl x} = refl
+    State-map-id {s = inr x} = cong inr Delay-map-id
 
     Delay-map-id : {A : Type ℓ}{d : Delay A} →
       Delay-map (λ x → x) d ≡ d
     view (Delay-map-id {A = A}{d} i) = State-map-id {A = A}{d .view} i
 
   mutual
-
     State-map-seq :  {A B C : Type ℓ}{f : A → B}{g : B → C}{s : State A} →
       State-map (λ x → g (f x)) s ≡ State-map g (State-map f s)
-    State-map-seq {s = done x} = refl
-    State-map-seq {s = step x} = cong inr Delay-map-seq
+    State-map-seq {s = inl x} = refl
+    State-map-seq {s = inr x} = cong inr Delay-map-seq
 
     Delay-map-seq : {A B C : Type ℓ}{f : A → B}{g : B → C}{d : Delay A} →
       Delay-map (λ x → g (f x)) d ≡ Delay-map g (Delay-map f d)
@@ -139,37 +116,37 @@ module Dynamics where
   DelayF .F-seq _ _ = funExt λ _ → Delay-map-seq
 
   StateFun : ob (SET ℓ) → Functor (SET ℓ) (SET ℓ)
-  StateFun X .F-ob Y = (StateF ⟨ X ⟩  ⟨ Y ⟩) , isSet⊎ (X .snd) (Y .snd)
-  StateFun X .F-hom = StateF-map
-  StateFun X .F-id = funExt λ _ → StateF-map-id
-  StateFun X .F-seq _ _ = funExt λ _ → StateF-map-seq
+  StateFun X .F-ob Y = (⟨ X ⟩ ⊎ ⟨ Y ⟩) , isSet⊎ (X .snd) (Y .snd)
+  StateFun X .F-hom = map-r
+  StateFun X .F-id = map-id
+  StateFun X .F-seq _ _ = map-seq
 
   CoAlg : ob (SET ℓ) → Category (ℓ-suc ℓ) ℓ
   CoAlg R = AlgebrasCategory (StateFun R ^opF) ^op
 
-  unfold : {X : Type ℓ} → Delay X → StateF X (Delay X)
-  unfold d = State-rec done step (d .view)
+  unfold : {X : Type ℓ} → Delay X → X ⊎ (Delay X)
+  unfold d = ⊎rec inl inr (d .view)
 
-  fold : {X : Type ℓ} → StateF X (Delay X) → Delay X
-  fold = ⊎rec (delay_ ∘S done) (delay_ ∘S step)
+  fold : {X : Type ℓ} → X ⊎ (Delay X) → Delay X
+  fold = ⊎rec (delay_ ∘S inl) (delay_ ∘S inr)
 
-  d-iso : {X : Type ℓ} → Iso (Delay X) (StateF X (Delay X))
+  d-iso : {X : Type ℓ} → Iso (Delay X) (X ⊎ (Delay X))
   d-iso .Iso.fun = unfold
   d-iso .Iso.inv = fold
-  d-iso .Iso.rightInv (done x) = refl
-  d-iso .Iso.rightInv (step x) = refl
+  d-iso .Iso.rightInv (inl x) = refl
+  d-iso .Iso.rightInv (inr x) = refl
   d-iso .Iso.leftInv d i .view with d .view
-  ... | done x = done x
-  ... | step x = step x
+  ... | inl x = inl x
+  ... | inr x = inr x
 
   unfold-inj : {X : Type ℓ} → (d1 d2 : Delay X) →
     unfold d1 ≡ unfold d2 → d1 ≡ d2
   unfold-inj d1 d2 eq = isoFunInjective d-iso d1 d2 eq
 
   unfold-inv2 : {X : Type ℓ} →(d : Delay X) →  (d' : Delay X) →
-    unfold d ≡ step d' →  d .view ≡ step d'
+    unfold d ≡ inr d' →  d .view ≡ inr d'
   unfold-inv2 d d' H =
-    cong view (isoFunInjective d-iso d (delay (step d')) H)
+    cong view (isoFunInjective d-iso d (delay (inr d')) H)
 
   DelayCoAlg : (R : ob (SET ℓ)) → ob (CoAlg R)
   DelayCoAlg R .carrier = Delay ⟨ R ⟩ , isSetDelay (R .snd)
@@ -188,21 +165,21 @@ module Dynamics where
 
       fun : ⟨ c .carrier ⟩ → Delay ⟨ R ⟩
       view (fun x) with (c .str x)
-      ... | done r = done r
-      ... | step y = step (fun y)
+      ... | inl r = inl r
+      ... | inr y = inr (fun y)
 
       commute : (v : ⟨ c .carrier ⟩ ) →
-        (D .str ∘S fun) v ≡ (StateF-map fun ∘S c .str) v
+        (D .str ∘S fun) v ≡ (map-r fun ∘S c .str) v
       commute v with c .str v
-      ... | done x = refl
-      ... | step v' = refl
+      ... | inl x = refl
+      ... | inr v' = refl
 
       hom : CoAlg R [ c , D ]
       hom .carrierHom = fun
       hom .strHom = funExt commute
 
       unique' : (s s' : Σ[ h ∈ (⟨ c .carrier  ⟩ → Delay ⟨ R ⟩ ) ]
-        (D .str ∘S (h) ≡ StateF-map h ∘S (c .str))) →
+        (D .str ∘S (h) ≡ map-r h ∘S (c .str))) →
         s ≡ s'
       unique' (h , com) (h' , com') =
         Σ≡Prop (λ g →
@@ -211,35 +188,35 @@ module Dynamics where
 
         eq-fun : (x : ⟨ c .carrier ⟩) → PathP (λ v → Delay ⟨ R ⟩) (h x) (h' x)
         view (eq-fun v i) with c .str v in eq
-        ... | done x  =
+        ... | inl x  =
           view (unfold-inj (h v) (h' v) (com-v ∙ sym com'-v) i) where
-          com-v : unfold (h v) ≡ done x
-          com-v = funExtS⁻ com v ∙ (λ j → StateF-map h (Eq.eqToPath eq j))
+          com-v : unfold (h v) ≡ inl x
+          com-v = funExtS⁻ com v ∙ (λ j → map-r h (Eq.eqToPath eq j))
 
-          com'-v : unfold (h' v) ≡ done x
-          com'-v = funExtS⁻ com' v ∙ (λ j → StateF-map h' (Eq.eqToPath eq j))
+          com'-v : unfold (h' v) ≡ inl x
+          com'-v = funExtS⁻ com' v ∙ (λ j → map-r h' (Eq.eqToPath eq j))
 
-        ... | step v'  =
+        ... | inr v'  =
           (goal
             (h v .view)
             (h' v .view)
             (Eq.pathToEq eq-hv)
             (Eq.pathToEq eq-h'v)) i where
-          com-v : unfold (h v) ≡ step (h v')
-          com-v = funExtS⁻ com v ∙ (λ j → StateF-map h (Eq.eqToPath eq j))
+          com-v : unfold (h v) ≡ inr (h v')
+          com-v = funExtS⁻ com v ∙ (λ j → map-r h (Eq.eqToPath eq j))
 
-          com'-v : unfold (h' v) ≡ step (h' v')
-          com'-v = funExtS⁻ com' v ∙ (λ j → StateF-map h' (Eq.eqToPath eq j))
+          com'-v : unfold (h' v) ≡ inr (h' v')
+          com'-v = funExtS⁻ com' v ∙ (λ j → map-r h' (Eq.eqToPath eq j))
 
-          eq-hv : h v .view ≡ step (h v')
+          eq-hv : h v .view ≡ inr (h v')
           eq-hv = unfold-inv2 (h v) (h v') com-v
 
-          eq-h'v : h' v .view ≡ step (h' v')
+          eq-h'v : h' v .view ≡ inr (h' v')
           eq-h'v = unfold-inv2 (h' v) (h' v') com'-v
 
           goal : ∀ s1 s2 →
-            s1 Eq.≡ step (h v') →
-            s2 Eq.≡ step (h' v') →
+            s1 Eq.≡ inr (h v') →
+            s2 Eq.≡ inr (h' v') →
             s1 ≡ s2
           goal _ _ Eq.refl Eq.refl = cong inr (eq-fun v')
 
@@ -257,15 +234,15 @@ module Monad {ℓ : Level} where
   D X = (Delay ⟨ X ⟩) , (isSetDelay (X .snd))
 
   ret-s : {A : Type ℓ} → A → State A
-  ret-s a = done a
+  ret-s a = inl a
 
   ret-d : {A : Type ℓ} → A → Delay A
   ret-d a = delay (ret-s a)
 
   mutual
     bind-s : {A B : Type ℓ} → State A → (A → State B) → State B
-    bind-s (done x) f = f x
-    bind-s (step x) f = step (bind-d x λ a → delay (f a))
+    bind-s (inl x) f = f x
+    bind-s (inr x) f = inr (bind-d x λ a → delay (f a))
 
     bind-d : {A B : Type ℓ} → Delay A → (A → Delay B) → Delay B
     view (bind-d d f) = bind-s (d .view) λ a → f a .view
@@ -279,8 +256,8 @@ module Monad {ℓ : Level} where
 
   mutual
     bind-s-ret : {A : Type ℓ}{s : State A} → bind-s s ret-s ≡ s
-    bind-s-ret {s = done x} = refl
-    bind-s-ret {s = step x} = cong inr (bind-ret-r {d = x})
+    bind-s-ret {s = inl x} = refl
+    bind-s-ret {s = inr x} = cong inr (bind-ret-r {d = x})
 
     bind-ret-r : {A : Type ℓ}{d : Delay A} → bind-d d ret-d ≡ d
     view (bind-ret-r {A}{d} i) = bind-s-ret {A}{d .view} i
@@ -296,9 +273,9 @@ module Monad {ℓ : Level} where
         (s : State X) →
       bind-s (bind-s s g) f ≡
       bind-s s (λ x' → bind-s (g x') f)
-    comp-s f g (done x₁) = refl
-    comp-s {X}{Y}{Z} f g (step d) i =
-      step (
+    comp-s f g (inl x₁) = refl
+    comp-s {X}{Y}{Z} f g (inr d) i =
+      inr (
         goal
           (λ x' → delay bind-s (g x') f)
           (Eq.pathToEq (funExt lem)) i) where
@@ -330,3 +307,4 @@ module Monad {ℓ : Level} where
 
   DExt : ExtensionSystem (SET ℓ)
   DExt = D , DExt'
+

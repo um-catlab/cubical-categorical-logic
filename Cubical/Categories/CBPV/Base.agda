@@ -1,15 +1,17 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.CBPV.Base where
+
 open import Cubical.Foundations.Prelude
+
+open import Cubical.Categories.Enriched.Functors.Base
+open import Cubical.Categories.Enriched.Instances.Presheaf.Self
+open import Cubical.Categories.Enriched.NaturalTransformation.Base
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
-open import Cubical.Categories.WithFamilies.Simple.Base
 open import Cubical.Categories.Monoidal.Instances.Presheaf
-open import Cubical.Categories.Enriched.Functors.Base
-open import Cubical.Categories.Enriched.NaturalTransformation.Base
-open import Cubical.Categories.Enriched.Instances.Presheaf.Self
+open import Cubical.Categories.WithFamilies.Simple.Base
 open import Cubical.Categories.WithFamilies.Simple.Functor
-open MonoidalCategory hiding (C)
+
 open EnrichedCategory
 
 private
@@ -28,8 +30,7 @@ record CBPVModel (ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level) :
   field
     Scwf : SCwF ℓC ℓC' ℓVTy ℓVTm
   C = Scwf .fst
-  V = PshMon.𝓟Mon {ℓS = ℓCTm} C
+  V = PshMon.𝓟Mon C ℓCTm
   field
     Stacks : EnrichedCategory V ℓCTy
-    CTm : EnrichedFunctor V Stacks (self C)
-
+    CTm : EnrichedFunctor V Stacks (self C _)

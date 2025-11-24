@@ -1,23 +1,29 @@
 module Cubical.Categories.Enriched.Instances.FromCat where
+
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Enriched.Functors.Base
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Functor
-open import Cubical.Categories.Instances.Sets
+
 open Category
-open Functor
 open EnrichedCategory
 open EnrichedFunctor
+open Functor
 open NatTrans
 
-module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
+private
+  variable
+    ℓ ℓ' : Level
+
+module _ (C : Category ℓ ℓ') where
   private
-    module PM  = PshMon {ℓS = ℓ'} (SET ℓ')
+    module PM  = PshMon (SET ℓ') ℓ'
     module M = MonoidalCategory PM.𝓟Mon
 
   -- set indexed hom
@@ -49,7 +55,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
 
 module _ {ℓ ℓ' : Level}(C D : Category ℓ ℓ')(F : Functor C D) where
   private
-    module PM  = PshMon {ℓS = ℓ'} (SET ℓ')
+    module PM  = PshMon (SET ℓ') ℓ'
     module M = MonoidalCategory PM.𝓟Mon
 
   enrich-fmap : {c c' : ob (Cat→Enriched  C)} →

@@ -1,17 +1,21 @@
 module Cubical.Categories.Enriched.NaturalTransformation.Base where
+
+open import Cubical.Foundations.Prelude
+
+open import Cubical.Categories.Enriched.Functors.Base
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
-open import Cubical.Categories.Enriched.Functors.Base
-open import Cubical.Foundations.Prelude
-open import Cubical.Categories.Functor
+
 open EnrichedCategory
 open Functor
 
+private
+  variable
+    ℓV ℓV' ℓD ℓE : Level
+
 module _
-  {ℓV ℓV'  : Level}
   {V : MonoidalCategory ℓV ℓV'}
-  {ℓE : Level}
-  {ℓD : Level}
   {C : EnrichedCategory V ℓE}
   {D : EnrichedCategory V ℓD}
   (F G : EnrichedFunctor V C D) where
@@ -29,7 +33,9 @@ module _
       E-N-ob : ∀ (c : C.ob) → V.Hom[ V.unit , D.Hom[ F.F-ob c , G.F-ob c ] ]
       E-N-hom :
         ∀ (c c' : C.ob) →
-          (V.ρ⁻¹⟨ C.Hom[ c , c' ] ⟩ V.⋆ ((F.F-hom V.⊗ₕ E-N-ob c') V.⋆ D.seq _ _ _))
+          (V.ρ⁻¹⟨ C.Hom[ c , c' ] ⟩
+            V.⋆ ((F.F-hom V.⊗ₕ E-N-ob c') V.⋆ D.seq _ _ _))
             ≡
-          (V.η⁻¹⟨ C.Hom[ c , c' ] ⟩ V.⋆ (E-N-ob c V.⊗ₕ G.F-hom V.⋆ D.seq _ _ _))
+          (V.η⁻¹⟨ C.Hom[ c , c' ] ⟩
+            V.⋆ (E-N-ob c V.⊗ₕ G.F-hom V.⋆ D.seq _ _ _))
 

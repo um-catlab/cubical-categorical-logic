@@ -1,34 +1,42 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Monoidal.Instances.Presheaf where
-open import Cubical.Categories.Category
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Categories.Functor
+
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Prelude
+
+open import Cubical.Data.Unit
+
+open import Cubical.Categories.Bifunctor
+open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
 open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Unit
-open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Limits.BinProduct
-open import Cubical.Data.Unit
-open MonoidalCategory renaming (C to Cat)
-open MonoidalStr
-open TensorStr
+open import Cubical.Categories.Presheaf.Morphism.Alt
+
+open Bifunctor
+open BinProduct
 open Category
 open Functor
+open MonoidalCategory renaming (C to Cat)
+open MonoidalStr
 open NatIso
 open NatTrans
-open BinProduct
-open Bifunctor
+open TensorStr
 
-module PshMon {ℓ ℓ' ℓS : Level}(C : Category ℓ ℓ')where
+private
+  variable
+    ℓ ℓ' : Level
+
+module PshMon (C : Category ℓ ℓ')(ℓS : Level) where
   ℓm = ℓ-max ℓ' (ℓ-max ℓ ℓS)
   𝓟 = PresheafCategory C (ℓm)
 

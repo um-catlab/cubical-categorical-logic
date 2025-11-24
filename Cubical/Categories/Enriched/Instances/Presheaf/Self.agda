@@ -1,37 +1,40 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Enriched.Instances.Presheaf.Self where
-open import Cubical.Categories.Category
-open import Cubical.Categories.Monoidal.Instances.Presheaf
+
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Categories.Functor
-open import Cubical.Foundations.HLevels
-open import Cubical.Categories.Monoidal.Base
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
-open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.Constructions.Exponential
-open import Cubical.Categories.Presheaf.Constructions.BinProduct
-open import Cubical.Categories.Presheaf.Constructions.Reindex
+
 open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Monoidal.Enriched
+open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.BinProduct
-open import Cubical.Data.Unit
-open MonoidalCategory renaming (C to Cat)
-open MonoidalStr
-open TensorStr
+open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Enriched
+open import Cubical.Categories.Monoidal.Instances.Presheaf
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Presheaf.Constructions.Exponential
+open import Cubical.Categories.Presheaf.Morphism.Alt
+
 open Category
+open Bifunctor
+open BinProduct
+open EnrichedCategory
 open Functor
+open MonoidalCategory
+open MonoidalStr
 open NatIso
 open NatTrans
-open BinProduct
-open Bifunctor
-open EnrichedCategory
+open TensorStr
 
-module _ {ℓ ℓ' ℓS : Level}(C : Category ℓ ℓ') where
-  open PshMon {ℓS = ℓS} C
+private
+  variable
+    ℓ ℓ' ℓS : Level
+
+module _ (C : Category ℓ ℓ')(ℓS : Level) where
+  open PshMon C ℓS
 
   adjL : {P Q R : ob 𝓟} → 𝓟 [ P ×Psh Q , R ] → 𝓟 [ P , R ^ Q ]
   adjL {P}{Q}{R} f = PshHom→NatTrans (λPshHom Q R (NatTrans→PshHom f))

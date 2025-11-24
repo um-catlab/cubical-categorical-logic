@@ -1,46 +1,42 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase where
-open import Cubical.Categories.Monoidal.Instances.Presheaf
-open import Cubical.Categories.Enriched.Instances.Presheaf.Self
-open import Cubical.Categories.Category
+
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Categories.Functor
-open import Cubical.Foundations.HLevels
-open import Cubical.Categories.Monoidal.Base
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
-open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.Constructions.Exponential
-open import Cubical.Categories.Presheaf.Constructions.BinProduct
-open import Cubical.Categories.Presheaf.Constructions.Reindex
-open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Monoidal.Enriched
-open import Cubical.Categories.Limits.BinProduct
+
 open import Cubical.Data.Unit
+
+open import Cubical.Categories.Bifunctor
+open import Cubical.Categories.Category
 open import Cubical.Categories.Enriched.Functors.Base
-open MonoidalCategory renaming (C to Cat)
-open MonoidalStr
-open TensorStr
+open import Cubical.Categories.Enriched.Instances.Presheaf.Self
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Enriched
+open import Cubical.Categories.Monoidal.Instances.Presheaf
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
+
 open Category
-open Functor
-open NatIso
-open NatTrans
-open BinProduct
-open Bifunctor
 open EnrichedCategory
 open EnrichedFunctor
+open Functor
+open NatTrans
 
-module _ {ℓ ℓ' : Level}{C D : Category ℓ ℓ'}(F : Functor D C)
-    {ℓS ℓE : Level}
-    (EC : EnrichedCategory (PshMon.𝓟Mon {ℓS = ℓS} C) ℓE )
+private
+  variable
+    ℓ ℓ' ℓS ℓE : Level
+
+module _
+    {C D : Category ℓ ℓ'}
+    (F : Functor D C)
+    (EC : EnrichedCategory (PshMon.𝓟Mon C ℓS) ℓE )
     where
 
   private
-    module PMC = PshMon {ℓS = ℓS} C
-    module PMD = PshMon {ℓS = ℓS} D
+    module PMC = PshMon C ℓS
+    module PMD = PshMon D ℓS
     module MC = MonoidalCategory PMC.𝓟Mon
     module MD = MonoidalCategory PMD.𝓟Mon
 
@@ -91,14 +87,14 @@ module _ {ℓ ℓ' : Level}{C D : Category ℓ ℓ'}(F : Functor D C)
       (cong N-ob (EC .⋆Assoc x y z w)) (F-ob F d))
 
 module _
-  {ℓ ℓ' ℓS ℓE : Level}
   {C D : Category ℓ ℓ'}
   (F : Functor D C)
-  {ℓS ℓE : Level} where
+  (ℓS : Level)
+  where
 
   private
-    module PMC = PshMon {ℓS = ℓS} C
-    module PMD = PshMon {ℓS = ℓS} D
+    module PMC = PshMon C ℓS
+    module PMD = PshMon D ℓS
 
   module _
     {EC EC' : EnrichedCategory PMC.𝓟Mon ℓE}
@@ -115,9 +111,9 @@ module _
       makeNatTransPath (funExt λ d → funExt⁻
         (cong N-ob (EF .F-seq)) (F-ob F d))
 
-  BaseChangeSelf : EnrichedFunctor PMD.𝓟Mon (BaseChange F (self C)) (self D)
+  BaseChangeSelf : EnrichedFunctor PMD.𝓟Mon (BaseChange F (self C _)) (self D _)
   BaseChangeSelf .F-ob = reindPsh F
-  BaseChangeSelf .F-hom = distrib^ F (self C)
+  BaseChangeSelf .F-hom = distrib^ F (self C _)
   BaseChangeSelf .F-id =
     makeNatTransPath (funExt λ m → funExt λ {tt* →
     makePshHomPath (funExt λ n → funExt λ {(f , XFn) → refl})})

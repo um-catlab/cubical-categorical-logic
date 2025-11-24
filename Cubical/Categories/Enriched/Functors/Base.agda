@@ -1,17 +1,23 @@
 module Cubical.Categories.Enriched.Functors.Base where
+
+open import Cubical.Foundations.Prelude
+
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
-open import Cubical.Foundations.Prelude
-open import Cubical.Categories.Functor
+
 open EnrichedCategory
 open Functor
 
-module _ {ℓV ℓV'  : Level} (V : MonoidalCategory ℓV ℓV') where
+private
+  variable
+    ℓV ℓV' ℓC ℓD ℓE : Level
+
+module _ (V : MonoidalCategory ℓV ℓV') where
   private
     module V = MonoidalCategory V
 
   record EnrichedFunctor
-    {ℓE ℓD : Level}
     (E : EnrichedCategory V ℓE)
     (D : EnrichedCategory V ℓD) :
       Type (ℓ-max (ℓ-max (ℓ-max ℓV ℓV') (ℓ-suc ℓE)) (ℓ-suc ℓD)) where
@@ -28,7 +34,7 @@ module _ {ℓV ℓV'  : Level} (V : MonoidalCategory ℓV ℓV') where
 
   open EnrichedFunctor
 
-  eseq : {ℓC ℓD ℓE : Level}→
+  eseq :
     {C : EnrichedCategory V ℓC} →
     {D : EnrichedCategory V ℓD} →
     {E : EnrichedCategory V ℓE} →

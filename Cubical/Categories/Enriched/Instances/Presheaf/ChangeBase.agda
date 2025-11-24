@@ -1,6 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 
-module Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase where 
+module Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase where
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.Enriched.Instances.Presheaf.Self
 open import Cubical.Categories.Category
@@ -40,19 +40,19 @@ module _ {ℓ ℓ' : Level}{C D : Category ℓ ℓ'}(F : Functor D C)
     {ℓS ℓE : Level}
     (EC : EnrichedCategory (PshMon.𝓟Mon {ℓS = ℓS} C) ℓE )
     where
-    
+
   private
     module PMC = PshMon {ℓS = ℓS} C
     module PMD = PshMon {ℓS = ℓS} D
     module MC = MonoidalCategory PMC.𝓟Mon
     module MD = MonoidalCategory PMD.𝓟Mon
-      
+
   EC[_,_] = EC .Hom[_,_]
 
   distrib^ : {X Y : MC.ob} →
     MD.Hom[ reindPsh F (Y PMC.^ X) , reindPsh F Y PMD.^ reindPsh F X ]
-  distrib^ .N-ob d exp = 
-    pshhom 
+  distrib^ .N-ob d exp =
+    pshhom
       (λ {d' (f , XFd') → exp .PshHom.N-ob (F .F-ob d') (F .F-hom f , XFd')})
       λ {d d' f (g , FXd') →
       cong (λ h → exp .PshHom.N-ob _ h) (cong₂ _,_ (F .F-seq _ _) refl)
@@ -61,16 +61,16 @@ module _ {ℓ ℓ' : Level}{C D : Category ℓ ℓ'}(F : Functor D C)
   distrib^ .N-hom {d}{d'} f = funExt λ p →
     makePshHomPath (funExt λ  d'' → funExt λ {(g , XFd'') →
       cong (λ h → p .PshHom.N-ob _ h) (cong₂ _,_ (sym ( F-seq F g f )) refl)})
-  
+
   distrib : {x y z : ob EC} →
     PMD.𝓟 [ reindPsh F EC[ x , y ] MD.⊗ reindPsh F EC[ y , z ] ,
       reindPsh F (EC[ x , y ] MC.⊗ EC[ y , z ]) ]
   distrib = natTrans (λ _ x → x) λ _ → refl
-  
+
   const : PMD.𝓟 [ MD.unit , reindPsh F MC.unit ]
   const = natTrans (λ _ _ → tt*) λ _ → refl
 
-  Eid : {x : ob EC} → PMD.𝓟 [ MD.unit , reindPsh F EC[ x , x ] ] 
+  Eid : {x : ob EC} → PMD.𝓟 [ MD.unit , reindPsh F EC[ x , x ] ]
   Eid = const ●ᵛ (EC .id ∘ˡ (F ^opF))
 
   Eseq : {x y z : ob EC} →
@@ -99,32 +99,32 @@ module _
   (F : Functor D C)
   {ℓS ℓE : Level} where
 
-  private 
+  private
     module PMC = PshMon {ℓS = ℓS} C
     module PMD = PshMon {ℓS = ℓS} D
 
-  module _ 
+  module _
     {EC EC' : EnrichedCategory PMC.𝓟Mon ℓE}
     (EF : EnrichedFunctor PMC.𝓟Mon EC EC')
-    where 
+    where
 
     BaseChangeF : EnrichedFunctor PMD.𝓟Mon (BaseChange F EC) (BaseChange F EC')
-    BaseChangeF .F₀ = EF .F₀ 
-    BaseChangeF .F₁ = EF .F₁ ∘ˡ (F ^opF)
-    BaseChangeF .Fid = 
+    BaseChangeF .F-ob = EF .F-ob
+    BaseChangeF .F-hom = EF .F-hom ∘ˡ (F ^opF)
+    BaseChangeF .F-id =
       makeNatTransPath (funExt λ d → funExt⁻
-        (cong N-ob (EF. Fid)) (F-ob F d))
-    BaseChangeF .Fseq = 
+        (cong N-ob (EF. F-id)) (F-ob F d))
+    BaseChangeF .F-seq =
       makeNatTransPath (funExt λ d → funExt⁻
-        (cong N-ob (EF .Fseq)) (F-ob F d))
-  
-  BaseChangeSelf : EnrichedFunctor PMD.𝓟Mon (BaseChange F (self C)) (self D) 
-  BaseChangeSelf .F₀ = reindPsh F
-  BaseChangeSelf .F₁ = distrib^ F (self C)
-  BaseChangeSelf .Fid = 
+        (cong N-ob (EF .F-seq)) (F-ob F d))
+
+  BaseChangeSelf : EnrichedFunctor PMD.𝓟Mon (BaseChange F (self C)) (self D)
+  BaseChangeSelf .F-ob = reindPsh F
+  BaseChangeSelf .F-hom = distrib^ F (self C)
+  BaseChangeSelf .F-id =
     makeNatTransPath (funExt λ m → funExt λ {tt* →
     makePshHomPath (funExt λ n → funExt λ {(f , XFn) → refl})})
-  BaseChangeSelf .Fseq = 
+  BaseChangeSelf .F-seq =
     makeNatTransPath (funExt λ m → funExt λ{(f , x) →
     makePshHomPath (funExt λ n → funExt λ {(g , XFn) →
       cong (λ h → x . PshHom.N-ob _ h)

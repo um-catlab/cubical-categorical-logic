@@ -1,10 +1,10 @@
-module Cubical.Categories.Enriched.Instances.FromCat where 
+module Cubical.Categories.Enriched.Instances.FromCat where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
+open import Cubical.Categories.Enriched.Functors.Base
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
-open import Cubical.Categories.Enriched.More
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
@@ -16,7 +16,7 @@ open EnrichedCategory
 open EnrichedFunctor
 open NatTrans
 
-module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where 
+module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   private
     module PM  = PshMon {ℓS = ℓ'} (SET ℓ')
     module M = MonoidalCategory PM.𝓟Mon
@@ -33,7 +33,7 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   seqE c₁ c₂ c₃ .N-ob A (f , g) = lift λ a → f .lower a ⋆⟨ C ⟩ g .lower a
   seqE c₁ c₂ c₃ .N-hom _ = refl
 
-  Cat→Enriched : EnrichedCategory PM.𝓟Mon ℓ 
+  Cat→Enriched : EnrichedCategory PM.𝓟Mon ℓ
   Cat→Enriched .ob = ob C
   Cat→Enriched .Hom[_,_] = iHom
   Cat→Enriched .id = id'
@@ -47,9 +47,9 @@ module _ {ℓ ℓ' : Level} (C : Category ℓ ℓ') where
   Cat→Enriched .⋆Assoc _ _ _ _ =
     makeNatTransPath (funExt λ A → funExt λ (f , (g , h)) →
       cong lift (funExt λ a → C .⋆Assoc _ _ _))
-      
+
 module _ {ℓ ℓ' : Level}(C D : Category ℓ ℓ')(F : Functor C D) where
-  private 
+  private
     module PM  = PshMon {ℓS = ℓ'} (SET ℓ')
     module M = MonoidalCategory PM.𝓟Mon
 
@@ -61,12 +61,12 @@ module _ {ℓ ℓ' : Level}(C D : Category ℓ ℓ')(F : Functor C D) where
       (λ A P → lift (λ a → F .F-hom (P .lower a)))
       λ f → refl
 
-  Functor→Enriched : EnrichedFunctor PM.𝓟Mon (Cat→Enriched C) (Cat→Enriched D) 
-  Functor→Enriched .F₀ = F .F-ob
-  Functor→Enriched .F₁ = enrich-fmap
-  Functor→Enriched .Fid = 
+  Functor→Enriched : EnrichedFunctor PM.𝓟Mon (Cat→Enriched C) (Cat→Enriched D)
+  Functor→Enriched .F-ob = F .F-ob
+  Functor→Enriched .F-hom = enrich-fmap
+  Functor→Enriched .F-id =
     makeNatTransPath (funExt λ A → funExt λ {tt* →
       cong lift (funExt λ a → F .F-id)})
-  Functor→Enriched .Fseq = 
+  Functor→Enriched .F-seq =
     makeNatTransPath (funExt λ A → funExt λ {(f , g) →
       cong lift (funExt λ a → sym (F .F-seq (f .lower a) (g .lower a) ))})

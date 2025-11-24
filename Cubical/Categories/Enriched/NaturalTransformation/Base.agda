@@ -16,7 +16,7 @@ module _
   {D : EnrichedCategory V ℓD}
   (F G : EnrichedFunctor V C D) where
 
-  private 
+  private
     module C = EnrichedCategory C
     module D = EnrichedCategory D
     module V = MonoidalCategory V

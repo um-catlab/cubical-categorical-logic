@@ -188,11 +188,11 @@ module TSys {ℓ : Level} where
   _∘TS_ : {S T R : TSystem ℓ} →
     TSystem[ S , T ] → TSystem[ T , R ] → TSystem[ S , R ]
   _∘TS_ {S}{T}{R} f g .tmap = g .tmap ∘S f .tmap
-  _∘TS_ {S}{T}{R} f g .comm {s} = 
-    ≤-trans 
-      (≤-trans 
-        (mono-map-comp {f = f .tmap}{g .tmap}) 
-        (mono-map (f .comm))) 
+  _∘TS_ {S}{T}{R} f g .comm {s} =
+    ≤-trans
+      (≤-trans
+        (mono-map-comp {f = f .tmap}{g .tmap})
+        (mono-map (f .comm)))
       (g .comm)
 
   TSysCat : Category _ _

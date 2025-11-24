@@ -4,7 +4,7 @@
 
 module Cubical.Categories.CBPV.Instances.Free where
   open import Cubical.Foundations.Function
-  open import Cubical.Data.List 
+  open import Cubical.Data.List
   open import Cubical.Foundations.Prelude renaming (comp to compose)
 
   module Syn {ℓ : Level} where

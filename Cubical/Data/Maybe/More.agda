@@ -1,4 +1,4 @@
-module Cubical.Data.Maybe.More where 
+module Cubical.Data.Maybe.More where
   open import Cubical.Foundations.HLevels
   open import Cubical.Foundations.Prelude
   open import Cubical.Foundations.Structure
@@ -13,7 +13,7 @@ module Cubical.Data.Maybe.More where
   private
     variable
       ℓ : Level
-      
+
   isSetMaybe : {A : hSet ℓ} → isSet (Maybe ⟨ A ⟩)
   isSetMaybe {A = A} = isOfHLevelMaybe 0 (A .snd)
 
@@ -23,10 +23,10 @@ module Cubical.Data.Maybe.More where
   map-Maybe-seq (just x) = refl
 
   -- not MaybeRel _≡_
-  _≤_ : {A : Type ℓ} → Maybe A → Maybe A → Type ℓ 
+  _≤_ : {A : Type ℓ} → Maybe A → Maybe A → Type ℓ
   nothing ≤ n = Unit*
   just x ≤ nothing = ⊥*
-  just x ≤ just y = x ≡ y 
+  just x ≤ just y = x ≡ y
 
   ≤-isProp : {A : hSet ℓ}{m n : Maybe ⟨ A ⟩ } → isProp (_≤_ {A = ⟨ A ⟩} m n )
   ≤-isProp {m = nothing} {nothing} = isPropUnit*
@@ -46,13 +46,13 @@ module Cubical.Data.Maybe.More where
   ≤-trans {m = just x} {just y} {just z} p q = p ∙ q
 
   maybePreorder : (X : hSet ℓ) → Preorder ℓ ℓ
-  maybePreorder X = 
-    Maybe ⟨ X ⟩ , 
-    preorderstr 
+  maybePreorder X =
+    Maybe ⟨ X ⟩ ,
+    preorderstr
       _≤_
-      (ispreorder 
-        (λ _ _ → ≤-isProp {A = X}) 
-        (λ _ → ≤-refl) 
+      (ispreorder
+        (λ _ _ → ≤-isProp {A = X})
+        (λ _ → ≤-refl)
         (λ _ _ _ → ≤-trans))
 
   ≡-to-≤m  : {A : Type ℓ}{m n : Maybe A} → m ≡ n → m ≤ n

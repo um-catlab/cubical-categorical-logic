@@ -29,7 +29,7 @@ PREORDER ℓ ℓ' = record
   ; ⋆Assoc = λ f g h → eqMon _ _ refl
   ; isSetHom = λ {_} {Y} → MonFunIsSet (Y .snd)
   }
-  
+
 U : Functor (PREORDER ℓ ℓ) (SET ℓ)
 U .F-ob (p , pisSet)= ⟨ p ⟩ , pisSet
 U .F-hom f = f .MonFun.f

@@ -28,21 +28,21 @@ module Cubical.CoData.Delay where
 
   module Basics where
 
-    StateF : (Res Rec : Type ℓ) →  Type ℓ 
+    StateF : (Res Rec : Type ℓ) →  Type ℓ
     StateF Res Rec = Res ⊎ Rec
 
     mutual
-      State : Type ℓ → Type ℓ 
+      State : Type ℓ → Type ℓ
       State A = A ⊎ (Delay A)
 
       record Delay (A : Type ℓ) : Type ℓ where
         constructor delay_
         coinductive
-        field view : State A 
+        field view : State A
 
     open Delay public
 
-    pattern done x = inl x 
+    pattern done x = inl x
     pattern step x = inr x
 
     State-rec : {A B : Type ℓ} → (A → B) → (Delay A → B) → State A → B

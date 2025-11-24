@@ -1,4 +1,4 @@
-module Cubical.Categories.Instances.FromEnriched where 
+module Cubical.Categories.Instances.FromEnriched where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
@@ -12,22 +12,22 @@ open Category
 open EnrichedCategory
 open NatTrans
 
-module _ 
+module _
   {ℓ ℓ' ℓS : Level}
-  {C : Category ℓ ℓ'} 
-  (E : EnrichedCategory (PshMon.𝓟Mon {ℓS = ℓS} C) ℓS) where 
+  {C : Category ℓ ℓ'}
+  (E : EnrichedCategory (PshMon.𝓟Mon {ℓS = ℓS} C) ℓS) where
 
   module E = EnrichedCategory E
   module PMC = PshMon {ℓS = ℓS} C
   module M = MonoidalCategory PMC.𝓟Mon
 
 
-  Enriched→Cat : Category _ _ 
+  Enriched→Cat : Category _ _
   Enriched→Cat .ob = ob E
   Enriched→Cat .Hom[_,_] e₁ e₂ = PMC.𝓟 [ PMC.𝟙 , E.Hom[ e₁ , e₂ ] ]
   Enriched→Cat .id = E.id
-  Enriched→Cat ._⋆_ {e₁}{e₂}{e₃} 
-    f g =  dup {ℓS = ℓS} C ⋆⟨ PMC.𝓟 ⟩ f M.⊗ₕ g ⋆⟨ PMC.𝓟 ⟩ E.seq e₁ e₂ e₃  
+  Enriched→Cat ._⋆_ {e₁}{e₂}{e₃}
+    f g =  dup {ℓS = ℓS} C ⋆⟨ PMC.𝓟 ⟩ f M.⊗ₕ g ⋆⟨ PMC.𝓟 ⟩ E.seq e₁ e₂ e₃
   Enriched→Cat .⋆IdL {e₁}{e₂} f =
       makeNatTransPath (funExt λ c → funExt λ {tt* →
       λ i → sym (E.⋆IdL e₁ e₂) i .N-ob c (tt* , f .N-ob c tt*)})

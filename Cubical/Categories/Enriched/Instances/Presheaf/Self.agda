@@ -1,6 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 
-module Cubical.Categories.Enriched.Instances.Presheaf.Self where 
+module Cubical.Categories.Enriched.Instances.Presheaf.Self where
 open import Cubical.Categories.Category
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Foundations.Prelude

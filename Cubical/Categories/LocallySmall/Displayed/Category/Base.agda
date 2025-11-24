@@ -8,6 +8,7 @@ open import Cubical.Foundations.HLevels.More
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables.Base
@@ -206,6 +207,14 @@ module _ (C : Category Cob CHom-ℓ) where
         (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
         → fᴰ ∫≡ reindEq p fᴰ
       reindEq-pathFiller Eq.refl fᴰ = refl
+
+      reind≡reindEq : {x y : Cob}{f g : C.Hom[ x , y ]}
+        {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        {p : f ≡ g} {e : f Eq.≡ g} →
+        (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) →
+        reind p fᴰ ≡ reindEq e fᴰ
+      reind≡reindEq {p = p} {e = Eq.refl} fᴰ =
+        rectify $ ≡out $ sym $ reind-filler _ _
 
       reind-cong : ∀ {x y xᴰ yᴰ}{f f' g g' : C.Hom[ x , y ]}
         {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}

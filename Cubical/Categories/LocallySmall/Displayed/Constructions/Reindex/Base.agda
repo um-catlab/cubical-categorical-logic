@@ -96,9 +96,10 @@ module _
     private
       module Dᴰ = Categoryᴰ Dᴰ
     -- This definition of reindexing is the most straightforward to
-    -- define, but the use of reind on morphism can bog
-    -- down the definitional behavior of categories dfined as
-    -- a reindexing
+    -- define, but the use of reind on morphisms
+    -- makes it sometimes inconvenient for defining
+    -- constructions as a reindexing as a transport will
+    -- be inserted at every composition
     reindex :
       Categoryᴰ C
         (λ c → Dobᴰ (F.F-ob c))
@@ -152,45 +153,12 @@ module _
         (F.F-hom f) D.⋆ (F.F-hom g) Eq.≡ F.F-hom (f C.⋆ g))
       where
 
-      private
-        -- todo: generalize upstream somewhere to Data.Equality?
-        isPropEqHom : ∀ {a b : Dob} {f g : D.Hom[ a , b ]}
-                    → isProp (f Eq.≡ g)
-        isPropEqHom {f = f}{g} =
-          subst isProp (Eq.PathPathEq {x = f}{y = g}) (D.isSetHom f g)
-
-        reind' : {a b : Dob} {f g : D.Hom[ a , b ]} (p : f Eq.≡ g)
-            {aᴰ : Dobᴰ a} {bᴰ : Dobᴰ  b }
-          → Dᴰ.Hom[ f ][ aᴰ , bᴰ ]
-          → Dᴰ.Hom[ g ][ aᴰ , bᴰ ]
-        reind' p = Eq.transport Dᴰ.Hom[_][ _ , _ ] p
-
-        reind≡reind' : ∀ {a b : Dob} {f g : D.Hom[ a , b ]}
-          {p : f ≡ g} {e : f Eq.≡ g}
-          {aᴰ : Dobᴰ a} {bᴰ : Dobᴰ b }
-          → (fᴰ : Dᴰ.Hom[ f ][ aᴰ , bᴰ ])
-          → Dᴰ.reind p fᴰ ≡ reind' e fᴰ
-        reind≡reind' {p = p}{e} fᴰ =
-          subst {x = Eq.pathToEq p}
-            (λ e → Dᴰ.reind p fᴰ ≡ reind' e fᴰ)
-            (isPropEqHom _ _)
-            lem
-          where
-          lem : Dᴰ.reind p fᴰ ≡ reind' (Eq.pathToEq p) fᴰ
-          lem =
-            sym $ Eq.eqToPath $
-              Eq.transportPathToEq→transportPath
-                Dᴰ.Hom[_][ _ , _ ] p fᴰ
-
       reindexEq : Categoryᴰ C (λ c → Dobᴰ (F.F-ob c)) _
       reindexEq =
         redefine-idᴰ-⋆ᴰ reindex
-          (λ {x}{xᴰ} →
-            reind' F-id' Dᴰ.idᴰ ,
-            (reind≡reind' Dᴰ.idᴰ))
-          (λ fᴰ gᴰ →
-            reind' (F-seq' _ _) (fᴰ Dᴰ.⋆ᴰ gᴰ) ,
-            reind≡reind' (fᴰ Dᴰ.⋆ᴰ gᴰ))
+          (Dᴰ.reindEq F-id' Dᴰ.idᴰ , Dᴰ.reind≡reindEq Dᴰ.idᴰ)
+          (λ fᴰ gᴰ → Dᴰ.reindEq (F-seq' _ _) (fᴰ Dᴰ.⋆ᴰ gᴰ) ,
+                     Dᴰ.reind≡reindEq (fᴰ Dᴰ.⋆ᴰ gᴰ))
 
   module _ {Dᴰ-ℓ Dobᴰ DHom-ℓᴰ}
     (Dᴰ : SmallFibersCategoryᴰ D Dᴰ-ℓ Dobᴰ DHom-ℓᴰ) where

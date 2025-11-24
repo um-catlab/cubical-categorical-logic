@@ -14,6 +14,7 @@ open import Cubical.Foundations.Prelude
            ; funExt    to funExtPath
            ; isContr   to isContrPath
            ; isProp    to isPropPath
+           ; isSet    to isSetPath
            )
 open import Cubical.Foundations.Equiv
   renaming ( fiber     to fiberPath
@@ -47,3 +48,6 @@ mixedHEq Aeq a0 a1 = Path _ (transport (λ A → A) Aeq a0) a1
 Eq : ∀ {ℓ} (A : Type ℓ) → A → A → Type ℓ
 Eq A a b = a ≡ b
 
+isSet→isSetEq : isSetPath A → {a a' : A} → isPropPath (a ≡ a')
+isSet→isSetEq isSetA {a = a} {a' = a'} =
+  substPath isPropPath PathPathEq (isSetA a a')

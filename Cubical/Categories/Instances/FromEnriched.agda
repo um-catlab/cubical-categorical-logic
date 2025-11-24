@@ -7,7 +7,6 @@ open import Cubical.Categories.Monoidal.Enriched
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.Enriched.Instances.Presheaf.Self
 open import Cubical.Categories.NaturalTransformation
-
 open Category
 open EnrichedCategory
 open NatTrans

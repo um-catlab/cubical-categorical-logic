@@ -9,7 +9,6 @@ open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
-
 open Category
 open Functor
 open EnrichedCategory

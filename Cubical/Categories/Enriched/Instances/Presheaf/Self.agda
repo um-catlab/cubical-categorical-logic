@@ -1,5 +1,4 @@
 {-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.Enriched.Instances.Presheaf.Self where
 open import Cubical.Categories.Category
 open import Cubical.Categories.Monoidal.Instances.Presheaf
@@ -20,7 +19,6 @@ open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Monoidal.Enriched
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Data.Unit
-
 open MonoidalCategory renaming (C to Cat)
 open MonoidalStr
 open TensorStr

@@ -1,6 +1,4 @@
-
 module Cubical.Categories.Instances.TransitionSystem where
-
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Category

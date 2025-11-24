@@ -1,5 +1,4 @@
 {-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase where
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.Enriched.Instances.Presheaf.Self
@@ -22,7 +21,6 @@ open import Cubical.Categories.Monoidal.Enriched
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Data.Unit
 open import Cubical.Categories.Enriched.Functors.Base
-
 open MonoidalCategory renaming (C to Cat)
 open MonoidalStr
 open TensorStr
@@ -34,7 +32,6 @@ open BinProduct
 open Bifunctor
 open EnrichedCategory
 open EnrichedFunctor
-
 
 module _ {ℓ ℓ' : Level}{C D : Category ℓ ℓ'}(F : Functor D C)
     {ℓS ℓE : Level}

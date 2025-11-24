@@ -1,5 +1,4 @@
 module Cubical.Categories.Enriched.Functors.Base where
-
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
 open import Cubical.Foundations.Prelude
@@ -26,7 +25,6 @@ module _ {ℓV ℓV'  : Level} (V : MonoidalCategory ℓV ℓV') where
         (F-hom {X} {Y} V.⊗ₕ F-hom {Y} {Z}) V.⋆ D.seq (F-ob X) (F-ob Y) (F-ob Z)
         ≡
         E.seq X Y Z V.⋆ F-hom {X} {Z}
-
 
   open EnrichedFunctor
 

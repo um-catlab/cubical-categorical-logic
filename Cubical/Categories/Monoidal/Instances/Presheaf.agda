@@ -1,7 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.Monoidal.Instances.Presheaf where
-
 open import Cubical.Categories.Category
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -20,7 +18,6 @@ open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Data.Unit
-
 open MonoidalCategory renaming (C to Cat)
 open MonoidalStr
 open TensorStr

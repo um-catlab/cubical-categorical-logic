@@ -1,4 +1,3 @@
-
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.CBPV.Base where
 open import Cubical.Foundations.Prelude

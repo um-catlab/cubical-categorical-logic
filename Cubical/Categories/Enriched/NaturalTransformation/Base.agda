@@ -26,10 +26,10 @@ module _
   record EnrichedNatTrans :
       Type ((ℓ-max (ℓ-max (ℓ-max ℓV ℓV') (ℓ-suc ℓE)) (ℓ-suc ℓD))) where
     field
-      E-N-ob : ∀ (c : C.ob) → V.Hom[ V.unit , D.Hom[ F.F₀ c , G.F₀ c ] ]
+      E-N-ob : ∀ (c : C.ob) → V.Hom[ V.unit , D.Hom[ F.F-ob c , G.F-ob c ] ]
       E-N-hom :
         ∀ (c c' : C.ob) →
-          (V.ρ⁻¹⟨ C.Hom[ c , c' ] ⟩ V.⋆ ((F.F₁ V.⊗ₕ E-N-ob c') V.⋆ D.seq _ _ _))
+          (V.ρ⁻¹⟨ C.Hom[ c , c' ] ⟩ V.⋆ ((F.F-hom V.⊗ₕ E-N-ob c') V.⋆ D.seq _ _ _))
             ≡
-          (V.η⁻¹⟨ C.Hom[ c , c' ] ⟩ V.⋆ (E-N-ob c V.⊗ₕ G.F₁ V.⋆ D.seq _ _ _))
+          (V.η⁻¹⟨ C.Hom[ c , c' ] ⟩ V.⋆ (E-N-ob c V.⊗ₕ G.F-hom V.⋆ D.seq _ _ _))
 

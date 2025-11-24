@@ -170,3 +170,141 @@ module Cubical.Categories.CBPV.Instances.Free where
 
     _[_]vP = _[_]v
     varP = var
+    
+  -- TODO initiality
+  module InitialModel {ℓ : Level} where
+    open import Cubical.Data.List 
+    open import Cubical.Categories.Monoidal.Instances.Presheaf 
+    open import Cubical.Categories.Enriched.Instances.Presheaf.Self
+    open import Cubical.Categories.Monoidal.Enriched
+    open import Cubical.Categories.Enriched.Functors.Base
+    open import Cubical.Categories.CBPV.Base
+    open import Cubical.Foundations.Structure
+    open import Cubical.Categories.Category
+    open import Cubical.Categories.Functor
+    open import Cubical.Categories.Presheaf.Representable
+    open import Cubical.Categories.Limits.Terminal.More
+    open import Cubical.Categories.NaturalTransformation
+    open import Cubical.Categories.Instances.Sets
+    open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
+    open import Cubical.Categories.Presheaf.Constructions
+    open import Cubical.Categories.WithFamilies.Simple.Base
+    open import Cubical.Data.Sigma
+    open import Cubical.Data.Unit
+    open EnrichedCategory
+    open EnrichedFunctor
+    open UniversalElement
+    open Category
+    open Functor
+    open NatTrans
+    open NatIso
+    open CBPVModel 
+    open Syn {ℓ}
+
+    SCat : Category _ _
+    SCat .ob = Ctx
+    SCat .Hom[_,_] = Sub[_,_]
+    SCat .id = ids
+    SCat ._⋆_ f g = g ∘s f
+    SCat .⋆IdL _ = ∘sIdR
+    SCat .⋆IdR _ = ∘sIdL
+    SCat .⋆Assoc _ _ _ = ∘sAssoc
+    SCat .isSetHom = isSetSub
+
+    open PshMon {ℓ}{ℓ}{ℓ} SCat
+
+    Ehom : CTy  → CTy  → ob 𝓟
+    Ehom B B' .F-ob Γ = Γ ◂ B ⊢k B' , isSetStack
+    Ehom B B' .F-hom γ k = k [ γ ]k
+    Ehom B B' .F-id = funExt λ _ → subIdK
+    Ehom B B' .F-seq γ δ = funExt λ k → subAssocK
+
+    E : EnrichedCategory 𝓟Mon _
+    E .ob = CTy
+    E .Hom[_,_] = Ehom
+    E .id = natTrans (λ _ _ → ∙k) λ _ → funExt λ _ → sym plugDist
+    E .seq _ _ _ =
+      natTrans (λ{x₁ (k , k') → k' ∘k k}) λ _ → funExt λ _ →  sym substDist
+    E .⋆IdL _ _ = makeNatTransPath (funExt λ _ → funExt λ _  → sym ∘kIdR)
+    E .⋆IdR _ _ = makeNatTransPath (funExt λ _ → funExt λ _  → sym ∘kIdL)
+    E .⋆Assoc _ _ _ _ =
+      makeNatTransPath  (funExt λ _ → funExt λ _ →  ∘kAssoc)
+
+    vTm : VTy → Functor (SCat ^op) (SET ℓ)
+    vTm A .F-ob Γ = (Γ ⊢v A) , isSetVal
+    vTm A .F-hom γ v = v [ γ ]v
+    vTm A .F-id = funExt λ _ → subIdV
+    vTm A .F-seq _ _ = funExt λ _ → subAssocV
+
+    selfSCat = self {ℓ}{ℓ}{ℓ} SCat
+
+    cTm' : E .ob → ob selfSCat
+    cTm' B .F-ob Γ = (Γ ⊢c B) , isSetComp
+    cTm' B .F-hom γ m = m [ γ ]c
+    cTm' B .F-id = funExt λ _ → subIdC
+    cTm' B .F-seq _ _ = funExt λ _ →  subAssocC
+
+    𝓟[_,_] = 𝓟 .Hom[_,_]
+    E[_,_] = E .Hom[_,_]
+    self[_,_]  = selfSCat .Hom[_,_]
+
+    plug : (B B' : ob E) → 𝓟[ E[ B , B' ] , self[ cTm' B , cTm' B' ]  ] 
+    plug B B' .N-ob Γ k  = 
+      pshhom
+        (λ Δ (γ , m) → (k [ γ ]k) [ m ]∙)
+        λ Δ Θ γ (δ , m) → subPlugComp
+    plug B B' .N-hom γ = 
+      funExt λ k →
+      makePshHomPath (funExt λ Θ → funExt λ (δ , m) →
+        cong (λ h → h [ m ]∙ ) (sym subAssocK))
+
+    cTm : EnrichedFunctor 𝓟Mon E selfSCat
+    cTm .F-ob = cTm'
+    cTm .F-hom {B} {B'}= plug B B'
+    cTm .F-id {B} =
+      makeNatTransPath (funExt λ Γ → funExt λ tt* →
+        makePshHomPath (funExt λ Δ → funExt λ (γ , m) →
+        cong (λ h → h [ m ]∙) plugDist ∙ plugId ))
+    cTm .F-seq =
+      makeNatTransPath (funExt λ Γ → funExt λ (k , k') →
+        makePshHomPath (funExt λ Δ → funExt λ (γ , m) →
+          cong₂
+          (λ h1 h2 → ((k' [ h1 ]k) [ (k [ h2 ]k) [ m ]∙ ]∙))
+          ∘sIdR ∘sIdR
+          ∙ sym plugAssoc
+          ∙ cong (λ h → ( h [ m ]∙)) (sym substDist)))
+
+    comprehension : (Γ : Ctx) (A : VTy) →
+      SCat [-, (A ∷ Γ) ] ≅ᶜ ((SCat [-, Γ ]) ×Psh vTm A)
+    comprehension Γ A .trans = goal where
+      goal : NatTrans (SCat [-, A ∷ Γ ]) ((SCat [-, Γ ]) ×Psh vTm A)
+      goal .N-ob Δ γ = (wk ∘s γ) , (var [ γ ]v)
+      goal .N-hom γ = funExt λ δ → ΣPathP (∘sAssoc , subAssocV)
+    comprehension Γ A .nIso Δ .isIso.inv (γ , m) = γ ,s m
+    comprehension Γ A .nIso Δ .isIso.sec = 
+      funExt λ (γ , m) → ΣPathP (wkβ , varβ)
+    comprehension Γ A .nIso Δ .isIso.ret = funExt λ γ → sym ,sη
+
+    term : Terminal' SCat
+    term .vertex = ·
+    term .element = tt
+    term .universal Γ = 
+      record { 
+        equiv-proof = λ tt → (!s , refl) , λ Δ → 
+        ΣPathP (sym ·η , λ _ _ → tt) 
+      }
+    
+    scwf : SCwF _ _ _ _ 
+    scwf .fst = SCat
+    scwf .snd .fst = VTy
+    scwf .snd .snd .fst = vTm
+    scwf .snd .snd .snd = term , λ A Γ → 
+      representationToUniversalElement _ _ 
+      ((A ∷ Γ) , 
+      (PshIso→PshIsoLift _ _ (NatIso→PshIso _ _ (comprehension Γ A))))
+
+    CBPVExpSubst : CBPVModel _ _ _ _ _ _ 
+    CBPVExpSubst .Scwf = scwf
+    CBPVExpSubst .Stacks = E
+    CBPVExpSubst .CTm = cTm
+  

@@ -36,7 +36,7 @@ U .F-hom f = f .MonFun.f
 U .F-id = refl
 U .F-seq _ _ = refl
 
-record OrderedFunctor : Set (ℓ-suc ℓ) where
+record OrderedFunctor : Type (ℓ-suc ℓ) where
   field
     F : Functor (SET ℓ) (SET ℓ)
     ≤ : Functor (SET ℓ) (PREORDER ℓ ℓ)

@@ -17,7 +17,7 @@ module Cubical.Data.Maybe.More where
   isSetMaybe : {A : hSet ℓ} → isSet (Maybe ⟨ A ⟩)
   isSetMaybe {A = A} = isOfHLevelMaybe 0 (A .snd)
 
-  map-Maybe-seq : {A B C : Set ℓ}{f : A → B}{g : B → C} → (x : Maybe A) →
+  map-Maybe-seq : {A B C : Type ℓ}{f : A → B}{g : B → C} → (x : Maybe A) →
     map-Maybe (λ x₂ → g (f x₂)) x ≡ map-Maybe g (map-Maybe f x)
   map-Maybe-seq nothing = refl
   map-Maybe-seq (just x) = refl

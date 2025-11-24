@@ -170,11 +170,11 @@ module Cubical.Categories.CBPV.Instances.Free where
 
     _[_]vP = _[_]v
     varP = var
-    
+
   -- TODO initiality
   module InitialModel {ℓ : Level} where
-    open import Cubical.Data.List 
-    open import Cubical.Categories.Monoidal.Instances.Presheaf 
+    open import Cubical.Data.List
+    open import Cubical.Categories.Monoidal.Instances.Presheaf
     open import Cubical.Categories.Enriched.Instances.Presheaf.Self
     open import Cubical.Categories.Monoidal.Enriched
     open import Cubical.Categories.Enriched.Functors.Base
@@ -198,7 +198,7 @@ module Cubical.Categories.CBPV.Instances.Free where
     open Functor
     open NatTrans
     open NatIso
-    open CBPVModel 
+    open CBPVModel
     open Syn {ℓ}
 
     SCat : Category _ _
@@ -248,12 +248,12 @@ module Cubical.Categories.CBPV.Instances.Free where
     E[_,_] = E .Hom[_,_]
     self[_,_]  = selfSCat .Hom[_,_]
 
-    plug : (B B' : ob E) → 𝓟[ E[ B , B' ] , self[ cTm' B , cTm' B' ]  ] 
-    plug B B' .N-ob Γ k  = 
+    plug : (B B' : ob E) → 𝓟[ E[ B , B' ] , self[ cTm' B , cTm' B' ]  ]
+    plug B B' .N-ob Γ k  =
       pshhom
         (λ Δ (γ , m) → (k [ γ ]k) [ m ]∙)
         λ Δ Θ γ (δ , m) → subPlugComp
-    plug B B' .N-hom γ = 
+    plug B B' .N-hom γ =
       funExt λ k →
       makePshHomPath (funExt λ Θ → funExt λ (δ , m) →
         cong (λ h → h [ m ]∙ ) (sym subAssocK))
@@ -281,30 +281,30 @@ module Cubical.Categories.CBPV.Instances.Free where
       goal .N-ob Δ γ = (wk ∘s γ) , (var [ γ ]v)
       goal .N-hom γ = funExt λ δ → ΣPathP (∘sAssoc , subAssocV)
     comprehension Γ A .nIso Δ .isIso.inv (γ , m) = γ ,s m
-    comprehension Γ A .nIso Δ .isIso.sec = 
+    comprehension Γ A .nIso Δ .isIso.sec =
       funExt λ (γ , m) → ΣPathP (wkβ , varβ)
     comprehension Γ A .nIso Δ .isIso.ret = funExt λ γ → sym ,sη
 
     term : Terminal' SCat
     term .vertex = ·
     term .element = tt
-    term .universal Γ = 
-      record { 
-        equiv-proof = λ tt → (!s , refl) , λ Δ → 
-        ΣPathP (sym ·η , λ _ _ → tt) 
+    term .universal Γ =
+      record {
+        equiv-proof = λ tt → (!s , refl) , λ Δ →
+        ΣPathP (sym ·η , λ _ _ → tt)
       }
-    
-    scwf : SCwF _ _ _ _ 
+
+    scwf : SCwF _ _ _ _
     scwf .fst = SCat
     scwf .snd .fst = VTy
     scwf .snd .snd .fst = vTm
-    scwf .snd .snd .snd = term , λ A Γ → 
-      representationToUniversalElement _ _ 
-      ((A ∷ Γ) , 
+    scwf .snd .snd .snd = term , λ A Γ →
+      representationToUniversalElement _ _
+      ((A ∷ Γ) ,
       (PshIso→PshIsoLift _ _ (NatIso→PshIso _ _ (comprehension Γ A))))
 
-    CBPVExpSubst : CBPVModel _ _ _ _ _ _ 
+    CBPVExpSubst : CBPVModel _ _ _ _ _ _
     CBPVExpSubst .Scwf = scwf
     CBPVExpSubst .Stacks = E
     CBPVExpSubst .CTm = cTm
-  
+

@@ -81,6 +81,9 @@ isSetState {X = X} p = isSet⊎ p (isSetDelay p)
 module Dynamics where
 
   mutual
+    -- this is just ⊎map f (Delay-map f)
+    -- but we can't use this definition
+    -- without the termination checker throwing a fit
     State-map : {A B : Type ℓ} → (A → B) → State A → State B
     State-map f (inl x) = inl (f x)
     State-map f (inr x) = inr (Delay-map f x)

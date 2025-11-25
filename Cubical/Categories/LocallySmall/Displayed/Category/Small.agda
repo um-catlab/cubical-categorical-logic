@@ -85,14 +85,14 @@ module _ (C : SmallCategory ℓC ℓC') where
   record SmallCategoryᴰ (ℓCᴰ ℓCᴰ' : Level) : Typeω where
     constructor smallcatᴰ
     field
-       small-obᴰ : C.small-ob → Type ℓCᴰ
-       catᴰ : GloballySmallCategoryᴰ C.cat (mapω' small-obᴰ) ℓCᴰ'
+       obᴰ : C.ob → Type ℓCᴰ
+       catᴰ : GloballySmallCategoryᴰ C.cat (mapω' obᴰ) ℓCᴰ'
     private
       module Cᴰ = Categoryᴰ catᴰ
 
     open SmallCategory
     ∫Csmall : SmallCategory _ _
-    ∫Csmall .small-ob = Σ C.small-ob small-obᴰ
+    ∫Csmall .ob = Σ C.ob obᴰ
     ∫Csmall .cat .Hom[_,_] (liftω (c , cᴰ)) (liftω (d , dᴰ)) =
       Cᴰ.∫Hom[ (liftω c , liftω cᴰ) , (liftω d , liftω dᴰ) ]
     ∫Csmall .cat .id = C.id , Cᴰ.idᴰ
@@ -116,7 +116,7 @@ module _
     module Cᴰ = SmallCategoryᴰ Cᴰ
 
   _^opsmallᴰ : SmallCategoryᴰ (C ^opsmall) ℓCᴰ ℓCᴰ'
-  _^opsmallᴰ = smallcatᴰ Cᴰ.small-obᴰ (Cᴰ.catᴰ ^opᴰ)
+  _^opsmallᴰ = smallcatᴰ Cᴰ.obᴰ (Cᴰ.catᴰ ^opᴰ)
 
 module _
   {C : Small.Category ℓC ℓC'}
@@ -152,7 +152,7 @@ module _
 
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ :
     Smallᴰ.Categoryᴰ (SmallLocallySmallCategory→SmallCategory C) ℓCᴰ ℓCᴰ'
-  SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .ob[_] = Cᴰ.small-obᴰ
+  SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .ob[_] = Cᴰ.obᴰ
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .Hom[_][_,_] f xᴰ yᴰ =
     Cᴰ.Hom[ f ][ liftω xᴰ , liftω yᴰ ]
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .idᴰ = Cᴰ.idᴰ

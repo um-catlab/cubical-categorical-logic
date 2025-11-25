@@ -24,14 +24,14 @@ GloballySmallCategory Cob ℓC' = Category Cob λ _ _ → ℓC'
 record SmallCategory (ℓC ℓC' : Level) : Typeω where
   constructor smallcat
   field
-    small-ob : Type ℓC
-    cat : GloballySmallCategory (Liftω small-ob) ℓC'
+    ob : Type ℓC
+    cat : GloballySmallCategory (Liftω ob) ℓC'
   open CategoryNotation cat public
 
 open SmallCategory
 
 _^opsmall : ∀ {ℓC ℓC'} → SmallCategory ℓC ℓC' → SmallCategory ℓC ℓC'
-(C ^opsmall) .small-ob = C .small-ob
+(C ^opsmall) .ob = C .ob
 (C ^opsmall) .cat = (C .cat) ^op
 
 module _ (C : Small.Category ℓC ℓC') where
@@ -54,7 +54,7 @@ module _ (C : SmallCategory ℓC ℓC') where
   private
     module C = SmallCategory C
   SmallLocallySmallCategory→SmallCategory : Small.Category ℓC ℓC'
-  SmallLocallySmallCategory→SmallCategory .ob = C.small-ob
+  SmallLocallySmallCategory→SmallCategory .ob = C.ob
   SmallLocallySmallCategory→SmallCategory .Hom[_,_] x y = C.Hom[ liftω x , liftω y ]
   SmallLocallySmallCategory→SmallCategory .id = C.id
   SmallLocallySmallCategory→SmallCategory ._⋆_ = C._⋆_

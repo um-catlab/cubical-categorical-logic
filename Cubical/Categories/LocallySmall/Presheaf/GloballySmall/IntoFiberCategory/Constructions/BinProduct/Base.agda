@@ -67,18 +67,6 @@ module _ (C : SmallCategory ℓC ℓC') where
         ΣPathP ((λ i → α .N-hom f i .snd (x .fst)) , λ i → β .N-hom f i .snd (x .snd))))
   PshProd' .F-idᴰ = makeNatTransPath refl (λ _ → refl)
   PshProd' .F-seqᴰ α β = makeNatTransPath refl (λ _ → refl)
-  -- The below definition gives a compositional construction for PshProd'
-  -- but when defined in this compositional manner, the composition operation
-  -- of the resulting presheaf introduces a transport whereas the manual definition above
-  -- does not
-  --   FUNCTOR→FUNCTOR-EQ (C ^opsmall) SET Eq.refl
-  --   ∘Fᴰ (postcomposeF _ _ ×SET
-  --   ∘Fᴰ (,Fⱽ (C ^opsmall) SET SET
-  --   ∘Fᴰ introF-×Cᴰ (×Cπ₁ _ _) (×Cπ₂ _ _)
-  --     (FUNCTOR-EQ→FUNCTOR (C ^opsmall) SET Eq.refl
-  --       ∘Fᴰ π₁ᴰ _ _)
-  --     (FUNCTOR-EQ→FUNCTOR (C ^opsmall) SET Eq.refl
-  --       ∘Fᴰ π₂ᴰ _ _)))
 
   PshProdᴰ : Bifunctorᴰ (ParFunctorToBifunctor ℓ-MAX) PSHC PSHC PSHC
   PshProdᴰ = ParFunctorᴰToBifunctorᴰ PshProd'
@@ -131,3 +119,50 @@ module _ (C : SmallCategory ℓC ℓC') where
     ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
     ×Psh-UMP .Iso.rightInv (α , β) i = (×Pshβ₁ α β i .snd) , ×Pshβ₂ α β i .snd
     ×Psh-UMP .Iso.leftInv α = cong snd (makeNatTransPath refl λ _ → refl)
+
+  private
+    module BadDefinitionalBehavior where
+      -- The below definition gives a compositional construction for PshProd'
+      -- but when defined in this compositional manner, the composition operation
+      -- of the resulting presheaf introduces a transport whereas the manual definition above
+      -- does not
+      -- I believe these transports come from FUNCTOR→FUNCTOR-EQ, and in particular
+      -- the functor fib→fibEq.
+      PshProd'Bad : Functorᴰ ℓ-MAX (PSHC ×Cᴰ PSHC) PSHC
+      PshProd'Bad =
+        FUNCTOR→FUNCTOR-EQ (C ^opsmall) SET Eq.refl
+        ∘Fᴰ (postcomposeF _ _ ×SET
+        ∘Fᴰ (,Fⱽ (C ^opsmall) SET SET
+        ∘Fᴰ introF-×Cᴰ (×Cπ₁ _ _) (×Cπ₂ _ _)
+          (FUNCTOR-EQ→FUNCTOR (C ^opsmall) SET Eq.refl
+            ∘Fᴰ π₁ᴰ _ _)
+          (FUNCTOR-EQ→FUNCTOR (C ^opsmall) SET Eq.refl
+          ∘Fᴰ π₂ᴰ _ _)))
+
+      PshProdᴰBad : Bifunctorᴰ (ParFunctorToBifunctor ℓ-MAX) PSHC PSHC PSHC
+      PshProdᴰBad = ParFunctorᴰToBifunctorᴰ PshProd'Bad
+
+      PshProdBad : Bifunctor PSHC.∫C PSHC.∫C PSHC.∫C
+      PshProdBad = Bifunctorᴰ.∫F PshProdᴰBad
+
+      open Bifunctor
+      _×PshBad_ : Presheaf C ℓP → Presheaf C ℓQ → Presheaf C (ℓ-max ℓP ℓQ)
+      P ×PshBad Q = PshProdBad .Bif-ob (_ , P) (_ , Q) .snd
+      module _ (P : Presheaf C ℓP)(Q : Presheaf C ℓQ) where
+        private
+          module P = PresheafNotation P
+          module Q = PresheafNotation Q
+        open Functor
+
+        -- This is bad because it is not definitionally equivalent
+        -- to the definitions in
+        -- Cubical.Categories.Presheaf.Constructions.BinProduct.Base
+        -- To see this, note that the naturality for the following PshHom
+        -- involves a transportRefl.
+        -- However both in
+        -- Cubical.Categories.Presheaf.Constructions.BinProduct.Base
+        -- and with the manual definition of PshProd' above
+        -- the naturality follows by refl
+        π₁Bad : PshHom (P ×PshBad Q) P
+        π₁Bad =
+          mkPshHom (λ _ → fst) λ _ _ → transportRefl _ ∙ P.⟨⟩⋆⟨ transportRefl _ ⟩

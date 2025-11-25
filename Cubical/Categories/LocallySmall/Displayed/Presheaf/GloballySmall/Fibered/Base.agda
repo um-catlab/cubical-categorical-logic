@@ -82,7 +82,7 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
     module Cᴰ = SmallCategoryᴰ Cᴰ
     module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH
 
-  open FunctorCategoryᴰ (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+  open FunctorEqᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
 
   -- PRESHEAFᴰ is displayed over LEVEL×PSH
   -- where
@@ -98,7 +98,8 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
   --    |        v          |
   --    \      LEVEL        /
   PRESHEAFᴰ : Categoryᴰ LEVEL×PSH.∫C _ _
-  PRESHEAFᴰ = FUNCTOR-EQᴰ Eq.refl (λ _ _ _ _ → Eq.refl)
+  PRESHEAFᴰ = FUNCTOR-EQᴰ (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+    Eq.refl (λ _ _ _ _ → Eq.refl)
 
 module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') where
   private
@@ -108,7 +109,6 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
     module Cᴰ = SmallCategoryᴰ Cᴰ
     module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH
 
-  open FunctorCategoryᴰ (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
   private
     module PSHᴰ = CategoryᴰNotation (PRESHEAFᴰ Cᴰ)
     module PSHISOᴰ = CategoryᴰNotation PSHᴰ.ISOCᴰ

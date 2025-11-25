@@ -55,8 +55,8 @@ module _
   {Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ}
   (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Eᴰ Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
-  open NatTransᴰDefs Cᴰ Dᴰ Eᴰ Dᴰᴰ public
-  open FunctorEqᴰDefs Cᴰ Dᴰ Eᴰ Dᴰᴰ public
+  open NatTransᴰDefs Cᴰ Dᴰ Eᴰ Dᴰᴰ
+  open FunctorEqᴰDefs Cᴰ Dᴰ Eᴰ Dᴰᴰ
   open NatTransᴰ
   private
     module C = SmallCategory C

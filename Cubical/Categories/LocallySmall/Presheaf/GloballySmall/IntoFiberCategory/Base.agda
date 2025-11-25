@@ -6,7 +6,7 @@
 -- For a globally small presheaf P, not only are all sets
 -- in its image small but they are the *same* level.
 --}
-module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Fibered.Base where
+module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
@@ -28,11 +28,11 @@ open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Functor using (_∘F_ ; _^opF)
 import Cubical.Categories.LocallySmall.Functor as LocallySmallF
 open import Cubical.Categories.LocallySmall.Functor.Constant
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
@@ -170,13 +170,6 @@ module _ where
     PshIso : Type _
     PshIso = PSHISO.Homᴰ[_,_] {f = iso _ _ refl refl} P Q
 
-  -- An attempt at bridging the gap between the naturality conditions
-  -- of Presheaf.Morphism.Alt.PshHom and NatTrans as defined in
-  -- LocallySmall.NaturalTransformation.Fibered, but it's not as
-  -- helpful as expected. I thought using these constructs would remove
-  -- transports, but it actually seems to add more of them :(
-  -- I'm keeping this in because I think we want principles like
-  -- this that are indeed usable
   module _ {C : SmallCategory ℓC ℓC'}
     {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} where
     open NatTransDefs (C ^opsmall) SET

@@ -11,6 +11,7 @@ open import Cubical.Foundations.More
   using (isSet→Square)
   renaming (rectify to TypeRectify)
 
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
@@ -88,6 +89,10 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
 
     v[_] : (c : Cob) → Category (Cobᴰ c) (CHom-ℓᴰ c c)
     v[_] = fib Cᴰ
+
+    module _ (C-⋆ : C.Id⋆Eq) where
+      vEq⟨_⟩[_] : (c : Cob) → Category (Cobᴰ c) (CHom-ℓᴰ c c)
+      vEq⟨_⟩[_] = fibEq Cᴰ C-⋆
 
     module Cⱽ {c : Cob} = Category (v[ c ])
 

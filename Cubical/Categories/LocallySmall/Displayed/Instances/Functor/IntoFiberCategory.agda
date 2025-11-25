@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.LocallySmall.Displayed.Instances.Functor.Fibered where
+module Cubical.Categories.LocallySmall.Displayed.Instances.Functor.IntoFiberCategory where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -18,9 +18,9 @@ import Cubical.Categories.Category as Small
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Instances.Unit
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 import Cubical.Categories.LocallySmall.Functor as LocallySmallF
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Instances.Indiscrete
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Constructions.ChangeOfObjects
@@ -32,8 +32,8 @@ open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObje
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
-open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.Fibered.Base
-open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.Fibered.Eq
+open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Base
+open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Eq
 
 open Category
 open Categoryᴰ

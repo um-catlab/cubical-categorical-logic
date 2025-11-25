@@ -307,9 +307,7 @@ module _
   private
     module C = CategoryNotation C
 
-  module _
-    (C-⋆ : ∀ {x} → C.id C.⋆ C.id Eq.≡ C.id {x})
-    where
+  module _ (C-⋆ : C.Id⋆Eq) where
     -- An alternative to v[_] for taking fiber categories
     -- For this construction to be well-behaved,
     -- C must have definitionally that C.id ⋆ C.id Eq.≡ C.id

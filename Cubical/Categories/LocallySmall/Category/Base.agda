@@ -6,6 +6,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
 open import Cubical.Foundations.Isomorphism hiding (isIso)
 
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
@@ -143,3 +144,7 @@ module _ (C : Category Cob CHom-ℓ) where
     subst-CatIso {x}{y}{g}{g⁻} f f≡g f⁻≡g⁻ = iso g g⁻
       (subst {A = C.Hom[ x , y ] × C.Hom[ y , x ]} (λ (g , g⁻) → g⁻ C.⋆ g ≡ C.id) (ΣPathP (f≡g , f⁻≡g⁻)) (f .CatIso.sec))
       (subst {A = C.Hom[ x , y ] × C.Hom[ y , x ]} (λ (g , g⁻) → g C.⋆ g⁻ ≡ C.id) (ΣPathP (f≡g , f⁻≡g⁻)) (f .CatIso.ret))
+
+
+    Id⋆Eq  : Typeω
+    Id⋆Eq = ∀ {x} → C.id C.⋆ C.id Eq.≡ C.id {x}

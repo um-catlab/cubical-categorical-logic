@@ -14,8 +14,8 @@ open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Properties
 open import Cubical.Categories.LocallySmall.Constructions.Total.Properties as TotalCat
@@ -316,6 +316,7 @@ module _
     module C = CategoryNotation C
     module Cᴰ = CategoryᴰNotation Cᴰ
     module D = CategoryNotation D
+    module C×D = CategoryNotation (C ×C D)
     module Dᴰ = CategoryᴰNotation Dᴰ
     module Cᴰ×Dᴰ = CategoryᴰNotation (Cᴰ ×CᴰSF Dᴰ)
 
@@ -360,19 +361,19 @@ module _
 
   open Functorᴰ
 
-  ,F-SFFunctorⱽ :
+  ,Fⱽ :
     Functorⱽ
       (FUNCTOR C Dᴰ ×Cᴰ FUNCTOR C Eᴰ)
       (FUNCTOR C (Dᴰ ×CᴰSF Eᴰ))
-  ,F-SFFunctorⱽ .F-obᴰ (F , G) =
+  ,Fⱽ .F-obᴰ (F , G) =
     ProductOfFibers→×CᴰSFFiber Dᴰ Eᴰ ∘F (F ,F G)
-  ,F-SFFunctorⱽ .F-homᴰ fᴰ .NatTransDᴰ×Eᴰ.N-ob x = fᴰ .fst .NatTransDᴰ.N-ob x , fᴰ .snd .NatTransEᴰ.N-ob x
-  ,F-SFFunctorⱽ .F-homᴰ {xᴰ = xᴰ}{yᴰ = yᴰ} (α , β) .NatTransDᴰ×Eᴰ.N-hom g =
+  ,Fⱽ .F-homᴰ fᴰ .NatTransDᴰ×Eᴰ.N-ob x = fᴰ .fst .NatTransDᴰ.N-ob x , fᴰ .snd .NatTransEᴰ.N-ob x
+  ,Fⱽ .F-homᴰ {xᴰ = xᴰ}{yᴰ = yᴰ} (α , β) .NatTransDᴰ×Eᴰ.N-hom g =
        (ΣPathP (D×E.⋆IdL _ ∙ (sym $ D×E.⋆IdR _) ,
                ΣPathP (
                  (Dᴰ.rectify (Dᴰ.≡out $ NatTransDᴰ.N-hom α g)) ,
                  (Eᴰ.rectify (Eᴰ.≡out $ NatTransEᴰ.N-hom β g)))))
-  ,F-SFFunctorⱽ .F-idᴰ =
+  ,Fⱽ .F-idᴰ =
     FuncDᴰ×Eᴰ.makeNatTransPath refl (λ _ → refl)
-  ,F-SFFunctorⱽ .F-seqᴰ _ _ =
+  ,Fⱽ .F-seqᴰ _ _ =
     FuncDᴰ×Eᴰ.makeNatTransPath refl (λ _ → refl)

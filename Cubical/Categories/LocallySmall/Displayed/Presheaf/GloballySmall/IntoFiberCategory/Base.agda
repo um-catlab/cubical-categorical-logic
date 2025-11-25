@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.LocallySmall.Displayed.Presheaf.GloballySmall.Fibered.Base where
+module Cubical.Categories.LocallySmall.Displayed.Presheaf.GloballySmall.IntoFiberCategory.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
@@ -22,14 +22,14 @@ open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Instances.Level
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Functor using (_∘F_ ; _^opF)
 import Cubical.Categories.LocallySmall.Functor as LocallySmallF
-open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Fibered.Base
+open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
-open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base using (_∘Fᴰ_)
 import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Properties using (_^opFᴰ)
@@ -38,8 +38,8 @@ open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
-open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.Fibered.Base
-open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.Fibered.Eq
+open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Base
+open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Eq
 
 open Σω
 open Liftω

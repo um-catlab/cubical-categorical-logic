@@ -16,8 +16,8 @@ open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Functor
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
-open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Fibered.Base
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
+open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small

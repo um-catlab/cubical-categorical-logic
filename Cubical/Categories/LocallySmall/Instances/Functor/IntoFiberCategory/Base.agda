@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.LocallySmall.Instances.Functor.Fibered.Base where
+module Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory.Base where
 
 open import Cubical.Foundations.Prelude
 
@@ -9,7 +9,8 @@ open import Cubical.Data.Sigma.More
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 import Cubical.Categories.LocallySmall.Functor.Base as LocallySmallF
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
+open import Cubical.Categories.LocallySmall.Functor.IntoFiberCategory
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Variables
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base

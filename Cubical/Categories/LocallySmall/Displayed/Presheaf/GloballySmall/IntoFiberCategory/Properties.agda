@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.LocallySmall.Displayed.Presheaf.GloballySmall.Fibered.Properties where
+module Cubical.Categories.LocallySmall.Displayed.Presheaf.GloballySmall.IntoFiberCategory.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
@@ -27,23 +27,23 @@ open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Functor.Constant
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
-open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Fibered.Base
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
+open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
-open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
-open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.Fibered.Base
+open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Base
 
-open import Cubical.Categories.LocallySmall.Displayed.Presheaf.GloballySmall.Fibered.Base
+open import Cubical.Categories.LocallySmall.Displayed.Presheaf.GloballySmall.IntoFiberCategory.Base
 
 open Σω
 open Liftω

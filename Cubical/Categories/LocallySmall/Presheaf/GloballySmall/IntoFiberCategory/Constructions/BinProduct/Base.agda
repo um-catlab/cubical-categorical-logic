@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Fibered.Constructions.BinProduct.Base where
+module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Constructions.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -14,16 +14,16 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Fibered.Base
+open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct
   renaming (π₁ to ×Cπ₁ ; π₂ to ×Cπ₂)
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Functor.Constant
-open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
@@ -73,7 +73,7 @@ module _ (C : SmallCategory ℓC ℓC') where
   -- does not
   --   FUNCTOR→FUNCTOR-EQ (C ^opsmall) SET Eq.refl
   --   ∘Fᴰ (postcomposeF _ _ ×SET
-  --   ∘Fᴰ (,F-SFFunctorⱽ (C ^opsmall) SET SET
+  --   ∘Fᴰ (,Fⱽ (C ^opsmall) SET SET
   --   ∘Fᴰ introF-×Cᴰ (×Cπ₁ _ _) (×Cπ₂ _ _)
   --     (FUNCTOR-EQ→FUNCTOR (C ^opsmall) SET Eq.refl
   --       ∘Fᴰ π₁ᴰ _ _)

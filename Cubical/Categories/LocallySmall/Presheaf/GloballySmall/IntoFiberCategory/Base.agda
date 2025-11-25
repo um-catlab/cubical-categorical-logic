@@ -21,6 +21,7 @@ open import Cubical.Data.Sigma.More
 import Cubical.Categories.Category.Base as SmallCat
 import Cubical.Categories.Presheaf.Base as SmallPsh
 import Cubical.Categories.Presheaf.More as SmallPsh
+import Cubical.Categories.Presheaf.Morphism.Alt as SmallPsh
 import Cubical.Categories.Functor.Base as SmallFunctor
 import Cubical.Categories.Instances.Sets as SmallCatSets
 
@@ -69,6 +70,10 @@ module _ (C : SmallCategory ℓC ℓC') where
   SmallPresheaf : (ℓP : Level) → Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-suc ℓP))
   SmallPresheaf = SmallPsh.Presheaf C'
 
+  module _ {ℓP} {ℓQ} (P : SmallPresheaf ℓP) (Q : SmallPresheaf ℓQ) where
+    SmallPshHom : Type _
+    SmallPshHom = SmallPsh.PshHom P Q
+
   -- A small presheaf (as in Cubical.Categories.Presheaf.Base)
   -- is definitionally isomorphic to a globally small presheaf on
   -- a small category
@@ -105,6 +110,7 @@ module _ (C : SmallCategory ℓC ℓC') where
       Presheaf→SmallPresheaf (SmallPresheaf→Presheaf P) ≡ P
     SmallPresheaf→Presheaf→SmallPresheaf P =
       SmallFunctor.Functor≡ (λ _ → refl) λ _ → refl
+
 
 module _
   (C : SmallCategory ℓC ℓC')
@@ -218,3 +224,64 @@ module _ where
     Functor→PshHet c .N-ob = λ _ → F-hom F
     Functor→PshHet c .N-hom f =
         (λ i → _ , λ h → F .F-seq f h i)
+
+module _ (C : SmallCategory ℓC ℓC') where
+  private
+    module C = SmallCategory C
+    C' = SmallLocallySmallCategory→SmallCategory C
+  open NatTransDefs (C ^opsmall) SET
+  open NatTrans
+  module _ {ℓP} {ℓQ} {P : SmallPresheaf C ℓP} {Q : SmallPresheaf C ℓQ} where
+    SmallPshHom→PshHom :
+      SmallPshHom C P Q →
+      PshHom (SmallPresheaf→Presheaf C ℓP P) (SmallPresheaf→Presheaf C ℓQ Q)
+    SmallPshHom→PshHom α .N-ob = α .SmallPsh.PshHom.N-ob
+    SmallPshHom→PshHom α .N-hom f =
+      ΣPathP (refl , (funExt (α .SmallPsh.PshHom.N-hom _ _ f)))
+
+  module _ {ℓP} {ℓQ} {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} where
+    PshHom→SmallPshHom :
+      PshHom P Q →
+      SmallPshHom C (Presheaf→SmallPresheaf C ℓP P) (Presheaf→SmallPresheaf C ℓQ Q)
+    PshHom→SmallPshHom α .SmallPsh.PshHom.N-ob = α .N-ob
+    PshHom→SmallPshHom α .SmallPsh.PshHom.N-hom c c' f p i =
+      α .N-hom f i .snd p
+
+  module _ {ℓP} {ℓQ} {P : SmallPresheaf C ℓP} {Q : SmallPresheaf C ℓQ}
+    (α : SmallPshHom C P Q) where
+
+    SmallPshHom→PshHom→SmallPshHom-N-ob : ∀ {c} →
+      PshHom→SmallPshHom (SmallPshHom→PshHom α) .SmallPsh.PshHom.N-ob c ≡
+        (α .SmallPsh.PshHom.N-ob c)
+    SmallPshHom→PshHom→SmallPshHom-N-ob = refl
+
+    SmallPshHom→PshHom→SmallPshHom-N-hom : ∀ {f} →
+      PshHom→SmallPshHom (SmallPshHom→PshHom α) .SmallPsh.PshHom.N-hom f ≡
+        (α .SmallPsh.PshHom.N-hom f)
+    SmallPshHom→PshHom→SmallPshHom-N-hom = refl
+
+    SmallPshHom→PshHom→SmallPshHom :
+      PathP
+        (λ i → SmallPshHom C
+          (SmallPresheaf→Presheaf→SmallPresheaf C ℓP P i)
+          (SmallPresheaf→Presheaf→SmallPresheaf C ℓQ Q i))
+          (PshHom→SmallPshHom (SmallPshHom→PshHom α)) α
+    SmallPshHom→PshHom→SmallPshHom i .SmallPsh.PshHom.N-ob c =
+      α .SmallPsh.PshHom.N-ob c
+    SmallPshHom→PshHom→SmallPshHom i .SmallPsh.PshHom.N-hom c c' f p =
+      α .SmallPsh.PshHom.N-hom c c' f p
+
+  module _ {ℓP} {ℓQ} {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+    (α : PshHom P Q) where
+
+    PshHom→SmallPshHom→PshHom-N-ob :
+      (SmallPshHom→PshHom (PshHom→SmallPshHom α)) .N-ob ≡ α .N-ob
+    PshHom→SmallPshHom→PshHom-N-ob = refl
+
+    PshHom→SmallPshHom→PshHom-N-hom : ∀ {x y} {f : C.Hom[ x , y ]} →
+      (SmallPshHom→PshHom (PshHom→SmallPshHom α)) .N-hom f ≡ α .N-hom f
+    PshHom→SmallPshHom→PshHom-N-hom = refl
+
+    PshHom→SmallPshHom→PshHom :
+      SmallPshHom→PshHom (PshHom→SmallPshHom α) ≡ α
+    PshHom→SmallPshHom→PshHom = makeNatTransPathP refl refl

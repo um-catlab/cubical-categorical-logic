@@ -63,7 +63,7 @@ module _
   _×Csmall_ : SmallCategory _ _
   _×Csmall_ =
     smallcat _
-      (ChangeOfObjects {X = Liftω (C.small-ob × D.small-ob)} (C.cat ×C D.cat)
+      (ChangeOfObjects {X = Liftω (C.ob × D.ob)} (C.cat ×C D.cat)
         (λ (liftω (c , d)) → liftω c , liftω d))
 
   open Functor

@@ -105,7 +105,7 @@ module _
   {ℓPᴰ : Level}
   where
   open Functorᴰ
-  open FibNatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+  open NatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
   private
     module SETⱽᴰ = CategoryᴰNotation (SETᴰ.vᴰ[ liftω ℓP ][ liftω ℓPᴰ ])
     module SETⱽᴰ' = SmallCatFiber.Fibers (SmallCatᴰSetsᴰ.SETᴰ ℓP ℓPᴰ)
@@ -161,15 +161,15 @@ open Functorᴰ
 module _
   {C : SmallCategory ℓC ℓC'}
   (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ')
-  {c : C .SmallCategory.small-ob}
-  (cᴰ : Cᴰ .SmallCategoryᴰ.small-obᴰ c)
+  {c : C .SmallCategory.ob}
+  (cᴰ : Cᴰ .SmallCategoryᴰ.obᴰ c)
   where
   private
     module C = SmallCategory C
     module Cᴰ = SmallCategoryᴰ Cᴰ
     Cᴰ' = SmallLocallySmallCategoryᴰ→SmallCategoryᴰ Cᴰ
 
-  open FibNatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+  open NatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
 
   _[-][-,_] : Presheafᴰ (C [-, c ]) Cᴰ ℓCᴰ'
   _[-][-,_] = SmallPresheafᴰOverSmallPresheaf→Presheafᴰ _ Cᴰ ℓCᴰ' (Cᴰ' SmallCatᴰSetsᴰ.[-][-, cᴰ ])

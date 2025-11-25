@@ -29,7 +29,8 @@ open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
 open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
-open import Cubical.Categories.LocallySmall.Functor
+open import Cubical.Categories.LocallySmall.Functor using (_∘F_ ; _^opF)
+import Cubical.Categories.LocallySmall.Functor as LocallySmallF
 open import Cubical.Categories.LocallySmall.Functor.Constant
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
 
@@ -44,6 +45,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 
 open Σω
 open Liftω
+open LocallySmallF.Functor
 
 private
   module SET = CategoryᴰNotation SET
@@ -53,12 +55,12 @@ module _ (C : SmallCategory ℓC ℓC') where
     module C = SmallCategory C
     module C^op = SmallCategory (C ^opsmall)
 
-  open FibNatTransDefs (C ^opsmall) SET
+  open NatTransDefs (C ^opsmall) SET
   Presheaf : (ℓP : Level) → Typeω
-  Presheaf ℓP = FiberedFunctorEq Eq.refl (liftω ℓP)
+  Presheaf ℓP = FunctorEq Eq.refl (liftω ℓP)
 
-  PRESHEAF : Categoryᴰ LEVEL (FiberedFunctorEq Eq.refl) _
-  PRESHEAF = FIBERED-FUNCTOR-EQ (C ^opsmall) SET Eq.refl
+  PRESHEAF : Categoryᴰ LEVEL (FunctorEq Eq.refl) _
+  PRESHEAF = FUNCTOR-EQ (C ^opsmall) SET Eq.refl
 
 module _ (C : SmallCategory ℓC ℓC') where
   private
@@ -71,7 +73,6 @@ module _ (C : SmallCategory ℓC ℓC') where
   -- is definitionally isomorphic to a globally small presheaf on
   -- a small category
   module _ ℓP where
-    open Functor
     private
       module SFunctor = SmallFunctor.Functor
 
@@ -89,13 +90,13 @@ module _ (C : SmallCategory ℓC ℓC') where
 
     Presheaf→SmallPresheaf→Presheaf-F-ob :
       ∀ (P : Presheaf C ℓP) →
-      (c : C .SmallCategory.small-ob) →
+      (c : C .SmallCategory.ob) →
       P .F-ob (liftω c) .lowerω ≡ Presheaf→SmallPresheaf P .SFunctor.F-ob c
     Presheaf→SmallPresheaf→Presheaf-F-ob P c = refl
 
     Presheaf→SmallPresheaf→Presheaf-F-hom :
       ∀ (P : Presheaf C ℓP) →
-         {c c' : C .SmallCategory.small-ob} →
+         {c c' : C .SmallCategory.ob} →
       P .F-hom {x = liftω c} {y = liftω c'} ≡
         Presheaf→SmallPresheaf P .SFunctor.F-hom
     Presheaf→SmallPresheaf→Presheaf-F-hom P = refl
@@ -105,13 +106,12 @@ module _ (C : SmallCategory ℓC ℓC') where
     SmallPresheaf→Presheaf→SmallPresheaf P =
       SmallFunctor.Functor≡ (λ _ → refl) λ _ → refl
 
-open Functor
 module _
   (C : SmallCategory ℓC ℓC')
-  (c : C .SmallCategory.small-ob)
+  (c : C .SmallCategory.ob)
   where
 
-  open FibNatTransDefs (C ^opsmall) SET
+  open NatTransDefs (C ^opsmall) SET
   private
     module C = SmallCategory C
 
@@ -127,10 +127,10 @@ module _
     module C = SmallCategory C
   open Categoryᴰ
 
-  open FibNatTransDefs (C ^opsmall) SET
-  open FibNatTrans
+  open NatTransDefs (C ^opsmall) SET
+  open NatTrans
 
-  HomLevelF : Functor C.cat LEVEL
+  HomLevelF : LocallySmallF.Functor C.cat LEVEL
   HomLevelF = Constant (liftω ℓC')
 
   open Section
@@ -138,15 +138,15 @@ module _
   YONEDA-S .F-obᴰ c = C [-, c .lowerω ]
   YONEDA-S .F-homᴰ f .N-ob c g = g C.⋆ f
   YONEDA-S .F-homᴰ {d = x}{d' = y} f .N-hom g =
-    N-hom'→N-hom _ _ _ _ λ i → _ , λ h → C.⋆Assoc g h f i
+    λ i → _ , λ h → C.⋆Assoc g h f i
   YONEDA-S .F-idᴰ =
-    makeFibNatTransPath refl
+    makeNatTransPath refl
       (λ _ → ΣPathP (refl , funExt λ _ → C.⋆IdR _))
   YONEDA-S .F-seqᴰ f g =
-    makeFibNatTransPath refl
+    makeNatTransPath refl
       (λ _ → ΣPathP (refl , funExt λ _ → sym $ C.⋆Assoc _ _ _ ))
 
-  YONEDA : Functor C.cat (∫C (PRESHEAF C))
+  YONEDA : LocallySmallF.Functor C.cat (∫C (PRESHEAF C))
   YONEDA = intro YONEDA-S
 
 module _ {C : SmallCategory ℓC ℓC'} where
@@ -171,38 +171,37 @@ module _ where
     PshIso = PSHISO.Homᴰ[_,_] {f = iso _ _ refl refl} P Q
 
   -- An attempt at bridging the gap between the naturality conditions
-  -- of Presheaf.Morphism.Alt.PshHom and FibNatTrans as defined in
+  -- of Presheaf.Morphism.Alt.PshHom and NatTrans as defined in
   -- LocallySmall.NaturalTransformation.Fibered, but it's not as
   -- helpful as expected. I thought using these constructs would remove
   -- transports, but it actually seems to add more of them :(
   -- I'm keeping this in because I think we want principles like
   -- this that are indeed usable
   module _ {C : SmallCategory ℓC ℓC'}
-    {P : Presheaf C ℓP} (Q : Presheaf C ℓQ) where
-    open FibNatTransDefs (C ^opsmall) SET
-    open FibNatTrans
+    {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} where
+    open NatTransDefs (C ^opsmall) SET
+    open NatTrans
 
     private
       module C = SmallCategory C
       module P = PresheafNotation P
       module Q = PresheafNotation Q
-    module _ (α : ∀ (x : C.small-ob) → P.p[ x ] → Q.p[ x ]) where
+    module _ (α : ∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) where
       PshHom-N-homTy : Type _
       PshHom-N-homTy =
-        ∀ {x y : C.small-ob} → (f : C.Hom[ liftω x , liftω y ])
+        ∀ {x y : C.ob} → (f : C.Hom[ liftω x , liftω y ])
           (p : P.p[ y ]) →
           α x (f P.⋆ p) ≡ (f Q.⋆ α y p)
 
       mkPshHom-N-hom :
         PshHom-N-homTy →
-        ∀ {x y : C.small-ob} →
+        ∀ {x y : C.ob} →
           (f : C.Hom[ liftω x , liftω y ]) →
         N-homTy _
-          (FiberedFunctorEq→FiberedFunctor Eq.refl (liftω ℓP) P)
-          (FiberedFunctorEq→FiberedFunctor Eq.refl (liftω ℓQ) Q)
+          (FunctorEq→Functor Eq.refl (liftω ℓP) P)
+          (FunctorEq→Functor Eq.refl (liftω ℓQ) Q)
           α f
       mkPshHom-N-hom PshHom-N-hom f =
-        N-hom'→N-hom _ _ _ _
           (λ i → _ , λ p → PshHom-N-hom f p i)
 
       mkPshHom :
@@ -212,18 +211,17 @@ module _ where
       mkPshHom PshHom-N-hom .N-hom = mkPshHom-N-hom PshHom-N-hom
 
   module _
-    (F : Functor (C .cat) (D .cat))
+    (F : LocallySmallF.Functor (C .cat) (D .cat))
     (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) where
     PshHet : Type _
     PshHet = PshHom P (Q ∘F (F ^opF))
 
-  module _ (F : Functor (C .cat) (D .cat)) where
-    open FibNatTransDefs (C ^opsmall) SET
-    open FibNatTrans
+  module _ (F : LocallySmallF.Functor (C .cat) (D .cat)) where
+    open NatTransDefs (C ^opsmall) SET
+    open NatTrans
 
-    Functor→PshHet :  (c : C .small-ob)
+    Functor→PshHet :  (c : C .ob)
       → PshHet F (C [-, c ]) (D [-, F .F-ob (liftω c) .lowerω ])
     Functor→PshHet c .N-ob = λ _ → F-hom F
     Functor→PshHet c .N-hom f =
-      N-hom'→N-hom _ _ _ _
         (λ i → _ , λ h → F .F-seq f h i)

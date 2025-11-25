@@ -34,18 +34,18 @@ module _
   where
 
   private
-    module FibF-D = FibNatTransDefs D Eᴰ
-    module FibF-C = FibNatTransDefs C Eᴰ
-    module FibNT-D = FibF-D.FibNatTrans
-    module FibNT-C = FibF-C.FibNatTrans
+    module FuncD = NatTransDefs D Eᴰ
+    module FuncC = NatTransDefs C Eᴰ
+    module NatTransD = FuncD.NatTrans
+    module NatTransC = FuncC.NatTrans
 
-  precomposeF : Functorⱽ (FIBERED-FUNCTOR D Eᴰ) (FIBERED-FUNCTOR C Eᴰ)
+  precomposeF : Functorⱽ (FUNCTOR D Eᴰ) (FUNCTOR C Eᴰ)
   precomposeF .F-obᴰ = _∘F F
-  precomposeF .F-homᴰ α .FibNT-C.N-ob c =
-    α .FibNT-D.N-ob (F-ob F (liftω c) .Liftω.lowerω)
-  precomposeF .F-homᴰ α .FibNT-C.N-hom f = α .FibNT-D.N-hom (F-hom F f)
-  precomposeF .F-idᴰ = FibF-C.makeFibNatTransPath refl (λ _ → refl)
-  precomposeF .F-seqᴰ _ _ = FibF-C.makeFibNatTransPath refl (λ _ → refl)
+  precomposeF .F-homᴰ α .NatTransC.N-ob c =
+    α .NatTransD.N-ob (F-ob F (liftω c) .Liftω.lowerω)
+  precomposeF .F-homᴰ α .NatTransC.N-hom f = α .NatTransD.N-hom (F-hom F f)
+  precomposeF .F-idᴰ = FuncC.makeNatTransPath refl (λ _ → refl)
+  precomposeF .F-seqᴰ _ _ = FuncC.makeNatTransPath refl (λ _ → refl)
 
 module _
   {C : SmallCategory ℓC ℓC'}
@@ -63,22 +63,21 @@ module _
     module Fᴰ = Functorᴰ Fᴰ
     module Eᴰ = Categoryᴰ Eᴰ
 
-    module FibF-Dᴰ = FibNatTransDefs C Dᴰ
-    module FibF-Eᴰ = FibNatTransDefs C Eᴰ
-    module FibNT-Dᴰ = FibF-Dᴰ.FibNatTrans
-    module FibNT-Eᴰ = FibF-Eᴰ.FibNatTrans
+    module FuncDᴰ = NatTransDefs C Dᴰ
+    module FuncEᴰ = NatTransDefs C Eᴰ
+    module NatTransDᴰ = FuncDᴰ.NatTrans
+    module NatTransEᴰ = FuncEᴰ.NatTrans
 
-  postcomposeF : Functorᴰ F (FIBERED-FUNCTOR C Dᴰ) (FIBERED-FUNCTOR C Eᴰ)
+  postcomposeF : Functorᴰ F (FUNCTOR C Dᴰ) (FUNCTOR C Eᴰ)
   postcomposeF .F-obᴰ G = Fv Fᴰ _ ∘F G
-  postcomposeF .F-homᴰ α .FibNT-Eᴰ.N-ob c = Fᴰ.F-homᴰ (α .FibNT-Dᴰ.N-ob c)
-  postcomposeF .F-homᴰ {xᴰ = G}{yᴰ = H} α .FibNT-Eᴰ.N-hom f =
-    FibF-Eᴰ.N-hom'→N-hom (Fv Fᴰ _ ∘F G) (Fv Fᴰ _ ∘F H) _ f $
+  postcomposeF .F-homᴰ α .NatTransEᴰ.N-ob c = Fᴰ.F-homᴰ (α .NatTransDᴰ.N-ob c)
+  postcomposeF .F-homᴰ {xᴰ = G}{yᴰ = H} α .NatTransEᴰ.N-hom f =
       Eᴰ.⟨ sym $ Eᴰ.reind-filler _ _ ⟩⋆⟨⟩
       ∙ (sym $ Fᴰ.F-seqᴰ _ _)
-      ∙ Fᴰ.F-homᴰ⟨ FibNT-Dᴰ.N-hom' α f ⟩
+      ∙ Fᴰ.F-homᴰ⟨ NatTransDᴰ.N-hom α f ⟩
       ∙ Fᴰ.F-seqᴰ _ _
       ∙ Eᴰ.⟨⟩⋆⟨ Eᴰ.reind-filler _ _ ⟩
   postcomposeF .F-idᴰ =
-    FibF-Eᴰ.makeFibNatTransPath F.F-id λ _ → Fᴰ.F-idᴰ
+    FuncEᴰ.makeNatTransPath F.F-id λ _ → Fᴰ.F-idᴰ
   postcomposeF .F-seqᴰ _ _ =
-    FibF-Eᴰ.makeFibNatTransPath (F.F-seq _ _) λ _ → Fᴰ.F-seqᴰ _ _
+    FuncEᴰ.makeNatTransPath (F.F-seq _ _) λ _ → Fᴰ.F-seqᴰ _ _

@@ -90,7 +90,7 @@ module _
 
   open SmallCategoryᴰ
   _×Cᴰsmall_ : SmallCategoryᴰ (C ×Csmall D) _ _
-  _×Cᴰsmall_ .small-obᴰ (c , d) = Cᴰ.small-obᴰ c × Dᴰ.small-obᴰ d
+  _×Cᴰsmall_ .obᴰ (c , d) = Cᴰ.obᴰ c × Dᴰ.obᴰ d
   _×Cᴰsmall_ .catᴰ .Hom[_][_,_] (f , g)
     (liftω (c , d)) (liftω (c' , d')) =
     Cᴰ.Hom[ f ][ liftω c , liftω c' ] × Dᴰ.Hom[ g ][ liftω d , liftω d' ]
@@ -366,29 +366,28 @@ module _
     module Eᴰ = CategoryᴰNotation Eᴰ
     module D×E =  CategoryNotation (D ×C E)
     module Dᴰ×ᴰEᴰ =  CategoryᴰNotation (Dᴰ ×CᴰSF Eᴰ)
-    module FibF-Dᴰ = FibNatTransDefs C Dᴰ
-    module FibNT-Dᴰ = FibF-Dᴰ.FibNatTrans
-    module FibF-Eᴰ = FibNatTransDefs C Eᴰ
-    module FibNT-Eᴰ = FibF-Eᴰ.FibNatTrans
-    module FibF-Dᴰ×Eᴰ = FibNatTransDefs C (Dᴰ ×CᴰSF Eᴰ)
-    module FibNT-Dᴰ×Eᴰ = FibF-Dᴰ×Eᴰ.FibNatTrans
+    module FuncDᴰ = NatTransDefs C Dᴰ
+    module NatTransDᴰ = FuncDᴰ.NatTrans
+    module FuncEᴰ = NatTransDefs C Eᴰ
+    module NatTransEᴰ = FuncEᴰ.NatTrans
+    module FuncDᴰ×Eᴰ = NatTransDefs C (Dᴰ ×CᴰSF Eᴰ)
+    module NatTransDᴰ×Eᴰ = FuncDᴰ×Eᴰ.NatTrans
 
   open Functorᴰ
 
   ,F-SFFunctorⱽ :
     Functorⱽ
-      (FIBERED-FUNCTOR C Dᴰ ×Cᴰ FIBERED-FUNCTOR C Eᴰ)
-      (FIBERED-FUNCTOR C (Dᴰ ×CᴰSF Eᴰ))
+      (FUNCTOR C Dᴰ ×Cᴰ FUNCTOR C Eᴰ)
+      (FUNCTOR C (Dᴰ ×CᴰSF Eᴰ))
   ,F-SFFunctorⱽ .F-obᴰ (F , G) =
     ProductOfFibers→×CᴰSFFiber Dᴰ Eᴰ ∘F (F ,F G)
-  ,F-SFFunctorⱽ .F-homᴰ fᴰ .FibNT-Dᴰ×Eᴰ.N-ob x = fᴰ .fst .FibNT-Dᴰ.N-ob x , fᴰ .snd .FibNT-Eᴰ.N-ob x
-  ,F-SFFunctorⱽ .F-homᴰ {xᴰ = xᴰ}{yᴰ = yᴰ} (α , β) .FibNT-Dᴰ×Eᴰ.N-hom g =
-     FibF-Dᴰ×Eᴰ.N-hom'→N-hom _ _ _ _
+  ,F-SFFunctorⱽ .F-homᴰ fᴰ .NatTransDᴰ×Eᴰ.N-ob x = fᴰ .fst .NatTransDᴰ.N-ob x , fᴰ .snd .NatTransEᴰ.N-ob x
+  ,F-SFFunctorⱽ .F-homᴰ {xᴰ = xᴰ}{yᴰ = yᴰ} (α , β) .NatTransDᴰ×Eᴰ.N-hom g =
        (ΣPathP (D×E.⋆IdL _ ∙ (sym $ D×E.⋆IdR _) ,
                ΣPathP (
-                 (Dᴰ.rectify (Dᴰ.≡out $ FibNT-Dᴰ.N-hom' α g)) ,
-                 (Eᴰ.rectify (Eᴰ.≡out $ FibNT-Eᴰ.N-hom' β g)))))
+                 (Dᴰ.rectify (Dᴰ.≡out $ NatTransDᴰ.N-hom α g)) ,
+                 (Eᴰ.rectify (Eᴰ.≡out $ NatTransEᴰ.N-hom β g)))))
   ,F-SFFunctorⱽ .F-idᴰ =
-    FibF-Dᴰ×Eᴰ.makeFibNatTransPath refl (λ _ → refl)
+    FuncDᴰ×Eᴰ.makeNatTransPath refl (λ _ → refl)
   ,F-SFFunctorⱽ .F-seqᴰ _ _ =
-    FibF-Dᴰ×Eᴰ.makeFibNatTransPath refl (λ _ → refl)
+    FuncDᴰ×Eᴰ.makeNatTransPath refl (λ _ → refl)

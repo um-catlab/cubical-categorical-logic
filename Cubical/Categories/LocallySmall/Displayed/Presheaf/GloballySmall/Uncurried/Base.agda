@@ -51,7 +51,7 @@ module _ where
     Presheafᴰ : Level → Typeω
     Presheafᴰ = Presheaf (Cᴰ / P)
 
-  module _ (c : C .small-ob) where
+  module _ (c : C .ob) where
     Presheafⱽ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ' → Level → Typeω
     Presheafⱽ = Presheafᴰ (C [-, c ])
 
@@ -67,13 +67,13 @@ module _ where
       module Cᴰ = SmallCategoryᴰ Cᴰ
       module P = PresheafNotation P
       module Pᴰ = PresheafNotation Pᴰ
-    p[_][_] : ∀ {x} → P.p[ x ] → Cᴰ.small-obᴰ x → Type ℓPᴰ
+    p[_][_] : ∀ {x} → P.p[ x ] → Cᴰ.obᴰ x → Type ℓPᴰ
     p[ p ][ xᴰ ] = ⟨ Pᴰ .F-ob (liftω (_ , xᴰ , p)) .lowerω ⟩
 
     isSetPshᴰ : ∀ {x}{p : P.p[ x ]}{xᴰ} → isSet p[ p ][ xᴰ ]
     isSetPshᴰ = Pᴰ .F-ob _ .lowerω .snd
 
-    module pReasoning {x}{xᴰ : Cᴰ.small-obᴰ x} =
+    module pReasoning {x}{xᴰ : Cᴰ.obᴰ x} =
       hSetReasoning (P .F-ob (liftω x) .lowerω) p[_][ xᴰ ]
     open pReasoning renaming
       (_P≡[_]_ to _≡[_]_; Prectify to rectify) public

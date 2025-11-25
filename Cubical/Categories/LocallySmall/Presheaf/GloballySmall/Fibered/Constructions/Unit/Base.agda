@@ -18,8 +18,8 @@ open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open Functor
 
 module _ {C : SmallCategory ℓC ℓC'} where
-  open FibNatTransDefs (C ^opsmall) SET
-  open FibNatTrans
+  open NatTransDefs (C ^opsmall) SET
+  open NatTrans
 
   UnitPsh : Presheaf C ℓ-zero
   UnitPsh = Constant (liftω (Unit , isSetUnit))

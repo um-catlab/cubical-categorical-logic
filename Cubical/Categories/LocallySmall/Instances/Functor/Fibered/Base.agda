@@ -8,7 +8,7 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Functor.Base
+import Cubical.Categories.LocallySmall.Functor.Base as LocallySmallF
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Fibered
 open import Cubical.Categories.LocallySmall.Variables
 
@@ -17,7 +17,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObjects
-open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
+import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ
 
 open Category
 open Categoryᴰ
@@ -33,44 +33,45 @@ module _
     module C =  SmallCategory C
     module D =  CategoryNotation D
     module Dᴰ = CategoryᴰNotation Dᴰ
-  open FibNatTransDefs C Dᴰ
-  open FibNatTrans
+  open NatTransDefs C Dᴰ
+  open NatTrans
 
-  FIBERED-FUNCTOR : Categoryᴰ D FiberedFunctor _
-  FIBERED-FUNCTOR .Hom[_][_,_] = FibNatTrans
-  FIBERED-FUNCTOR .idᴰ = idFibTrans _
-  FIBERED-FUNCTOR ._⋆ᴰ_ α β = seqFibTrans α β
-  FIBERED-FUNCTOR .⋆IdLᴰ {f = f} α =
-    makeFibNatTransPath (D.⋆IdL _) (λ x → Dᴰ.⋆IdLᴰ (α .N-ob x))
-  FIBERED-FUNCTOR .⋆IdRᴰ α =
-    makeFibNatTransPath (D.⋆IdR _) (λ x → Dᴰ.⋆IdRᴰ (α .N-ob x))
-  FIBERED-FUNCTOR .⋆Assocᴰ α β γ =
-    makeFibNatTransPath
+  FUNCTOR : Categoryᴰ D Functor _
+  FUNCTOR .Hom[_][_,_] = NatTrans
+  FUNCTOR .idᴰ = idTrans _
+  FUNCTOR ._⋆ᴰ_ α β = seqTrans α β
+  FUNCTOR .⋆IdLᴰ {f = f} α =
+    makeNatTransPath (D.⋆IdL _) (λ x → Dᴰ.⋆IdLᴰ (α .N-ob x))
+  FUNCTOR .⋆IdRᴰ α =
+    makeNatTransPath (D.⋆IdR _) (λ x → Dᴰ.⋆IdRᴰ (α .N-ob x))
+  FUNCTOR .⋆Assocᴰ α β γ =
+    makeNatTransPath
       (D.⋆Assoc _ _ _)
       (λ x → Dᴰ.⋆Assocᴰ (α .N-ob x) (β .N-ob x) (γ .N-ob x))
-  FIBERED-FUNCTOR .isSetHomᴰ = isSetFibNatTrans _ _ _
+  FUNCTOR .isSetHomᴰ = isSetNatTrans _ _ _
 
   module _ (D-⋆ : ∀ {x} → D.id D.⋆ D.id Eq.≡ D.id {x}) where
-    FIBERED-FUNCTOR-EQ : Categoryᴰ D (FiberedFunctorEq D-⋆) _
-    FIBERED-FUNCTOR-EQ =
-      ChangeOfDisplayedObjectsᴰ.ChangeOfObjectsᴰ FIBERED-FUNCTOR
-        (FiberedFunctorEq→FiberedFunctor D-⋆ _)
+    FUNCTOR-EQ : Categoryᴰ D (FunctorEq D-⋆) _
+    FUNCTOR-EQ =
+      ChangeOfDisplayedObjectsᴰ.ChangeOfObjectsᴰ FUNCTOR
+        (FunctorEq→Functor D-⋆ _)
 
-    FIBERED-FUNCTOR→FIBERED-FUNCTOR-EQ :
-      Functorⱽ FIBERED-FUNCTOR FIBERED-FUNCTOR-EQ
-    FIBERED-FUNCTOR→FIBERED-FUNCTOR-EQ .Functorᴰ.F-obᴰ =
-      FiberedFunctor→FiberedFunctorEq D-⋆ _
-    FIBERED-FUNCTOR→FIBERED-FUNCTOR-EQ .Functorᴰ.F-homᴰ α =
+    open LocallySmallFᴰ.Functorᴰ
+    FUNCTOR→FUNCTOR-EQ :
+      LocallySmallFᴰ.Functorⱽ FUNCTOR FUNCTOR-EQ
+    FUNCTOR→FUNCTOR-EQ .F-obᴰ =
+      Functor→FunctorEq D-⋆ _
+    FUNCTOR→FUNCTOR-EQ .F-homᴰ α =
       natTrans
-        (FibNatTransDefs.FibNatTrans.N-ob α)
-        (FibNatTransDefs.FibNatTrans.N-hom α)
-    FIBERED-FUNCTOR→FIBERED-FUNCTOR-EQ .Functorᴰ.F-idᴰ =
-      makeFibNatTransPath refl λ _ → refl
-    FIBERED-FUNCTOR→FIBERED-FUNCTOR-EQ .Functorᴰ.F-seqᴰ _ _ =
-      makeFibNatTransPath refl λ _ → refl
+        (NatTransDefs.NatTrans.N-ob α)
+        (NatTransDefs.NatTrans.N-hom α)
+    FUNCTOR→FUNCTOR-EQ .F-idᴰ =
+      makeNatTransPath refl λ _ → refl
+    FUNCTOR→FUNCTOR-EQ .F-seqᴰ _ _ =
+      makeNatTransPath refl λ _ → refl
 
-    FIBERED-FUNCTOR-EQ→FIBERED-FUNCTOR :
-      Functorⱽ FIBERED-FUNCTOR-EQ FIBERED-FUNCTOR
-    FIBERED-FUNCTOR-EQ→FIBERED-FUNCTOR =
+    FUNCTOR-EQ→FUNCTOR :
+      LocallySmallFᴰ.Functorⱽ FUNCTOR-EQ FUNCTOR
+    FUNCTOR-EQ→FUNCTOR =
       ChangeOfDisplayedObjectsᴰ.πᴰ
-        FIBERED-FUNCTOR (FiberedFunctorEq→FiberedFunctor D-⋆ _)
+        FUNCTOR (FunctorEq→Functor D-⋆ _)

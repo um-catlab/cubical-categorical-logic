@@ -23,22 +23,28 @@ open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Instances.Level
 open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
-open import Cubical.Categories.LocallySmall.Functor
+open import Cubical.Categories.LocallySmall.Functor using (_∘F_ ; _^opF)
+import Cubical.Categories.LocallySmall.Functor as LocallySmallF
 open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.Fibered.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor.Fibered
-open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Functor.Properties
+open import Cubical.Categories.LocallySmall.Displayed.Functor.Base using (_∘Fᴰ_)
+import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ
+open import Cubical.Categories.LocallySmall.Displayed.Functor.Properties using (_^opFᴰ)
+import Cubical.Categories.LocallySmall.Displayed.Functor.Properties as LocallySmallFᴰ
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.Fibered.Base
+open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.Fibered.Eq
 
 open Σω
 open Liftω
+open LocallySmallF.Functor
+open LocallySmallFᴰ.Functorᴰ
 
 private
   module SET = CategoryᴰNotation SET
@@ -50,23 +56,23 @@ module _ {C : SmallCategory ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : SmallCateg
     module Cᴰ = SmallCategoryᴰ Cᴰ
     module CᴰNotation = CategoryᴰNotation (Cᴰ.catᴰ)
 
-  open FibNatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+  open NatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+  open FunctorEqᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
 
   Presheafᴰ : Level → Typeω
-  Presheafᴰ ℓPᴰ = FiberedFunctorEqᴰ Eq.refl (λ _ _ → Eq.refl) P (liftω ℓPᴰ)
+  Presheafᴰ ℓPᴰ = FunctorEqᴰ Eq.refl (λ _ _ → Eq.refl) P (liftω ℓPᴰ)
 
-  open Functorᴰ
   module _ (Pᴰ : Presheafᴰ ℓPᴰ) where
     ∫P : Presheaf Cᴰ.∫Csmall (ℓ-max ℓP ℓPᴰ)
     ∫P = ΣF ℓP ℓPᴰ ∘F ∫F Pᴰ ∘F F
       where
-      F : Functor
+      F : LocallySmallF.Functor
         (SmallCategory.cat (Cᴰ.∫Csmall ^opsmall))
         (Categoryᴰ.∫C (SmallCategoryᴰ.catᴰ (Cᴰ ^opsmallᴰ)))
-      F .Functor.F-ob = λ z → liftω (z .lowerω .fst) , liftω (z .lowerω .snd)
-      F .Functor.F-hom = λ z → z
-      F .Functor.F-id = refl
-      F .Functor.F-seq = λ _ _ → refl
+      F .F-ob = λ z → liftω (z .lowerω .fst) , liftω (z .lowerω .snd)
+      F .F-hom = λ z → z
+      F .F-id = refl
+      F .F-seq = λ _ _ → refl
 
 module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') where
   private
@@ -76,7 +82,7 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
     module Cᴰ = SmallCategoryᴰ Cᴰ
     module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH
 
-  open FiberedFunctorCategoryᴰ (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+  open FunctorCategoryᴰ (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
 
   -- PRESHEAFᴰ is displayed over LEVEL×PSH
   -- where
@@ -92,7 +98,7 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
   --    |        v          |
   --    \      LEVEL        /
   PRESHEAFᴰ : Categoryᴰ LEVEL×PSH.∫C _ _
-  PRESHEAFᴰ = FIBERED-FUNCTOR-EQᴰ Eq.refl (λ _ _ _ _ → Eq.refl)
+  PRESHEAFᴰ = FUNCTOR-EQᴰ Eq.refl (λ _ _ _ _ → Eq.refl)
 
 module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') where
   private
@@ -102,7 +108,7 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
     module Cᴰ = SmallCategoryᴰ Cᴰ
     module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH
 
-  open FiberedFunctorCategoryᴰ (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+  open FunctorCategoryᴰ (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
   private
     module PSHᴰ = CategoryᴰNotation (PRESHEAFᴰ Cᴰ)
     module PSHISOᴰ = CategoryᴰNotation PSHᴰ.ISOCᴰ
@@ -120,10 +126,10 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
       module D = SmallCategory D
       module Dᴰ = SmallCategoryᴰ Dᴰ
 
-    module _ {F : Functor (C.cat) (D.cat)}
+    module _ {F : LocallySmallF.Functor (C.cat) (D.cat)}
       {P : Presheaf C ℓP} {Q : Presheaf D ℓQ}
       (α : PshHet F P Q)
-      (Fᴰ : Functorᴰ F Cᴰ.catᴰ Dᴰ.catᴰ)
+      (Fᴰ : LocallySmallFᴰ.Functorᴰ F Cᴰ.catᴰ Dᴰ.catᴰ)
       (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ) where
       PshHetᴰ : Type _
       PshHetᴰ = PshHomᴰ α Pᴰ (Qᴰ ∘Fᴰ (Fᴰ ^opFᴰ))

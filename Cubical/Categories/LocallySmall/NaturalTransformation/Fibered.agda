@@ -97,21 +97,21 @@ module NatTransDefs
 
   open NatTrans
 
-  idFibTrans : ∀ {d}(F : Functor d)
+  idTrans : ∀ {d}(F : Functor d)
     → NatTrans D.id F F
-  idFibTrans F .N-ob _ = Dᴰ.idᴰ
-  idFibTrans F .N-hom f =
+  idTrans F .N-ob _ = Dᴰ.idᴰ
+  idTrans F .N-hom f =
     Dᴰ.⋆IdRᴰ _
     ∙ (sym $ Dᴰ.⋆IdLᴰ _)
 
-  seqFibTrans : ∀ {d d' d''}
+  seqTrans : ∀ {d d' d''}
     {g : D.Hom[ d , d' ]}{g' : D.Hom[ d' , d'' ]}
     {F G H}
     (α : NatTrans g F G)
     (β : NatTrans g' G H)
     → NatTrans (g D.⋆ g') F H
-  seqFibTrans α β .N-ob x = α .N-ob x Dᴰ.⋆ᴰ β .N-ob x
-  seqFibTrans {F = F} {H = H} α β .N-hom f =
+  seqTrans α β .N-ob x = α .N-ob x Dᴰ.⋆ᴰ β .N-ob x
+  seqTrans {F = F} {H = H} α β .N-hom f =
       (sym $ Dᴰ.⋆Assocᴰ _ _ _)
       ∙ Dᴰ.⟨ N-hom α f ⟩⋆⟨⟩
       ∙ Dᴰ.⋆Assoc _ _ _

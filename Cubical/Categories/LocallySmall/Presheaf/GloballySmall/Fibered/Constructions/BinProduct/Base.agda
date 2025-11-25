@@ -49,17 +49,36 @@ module _ (C : SmallCategory ℓC ℓC') where
     PSHC = PRESHEAF C
     module PSHC = CategoryᴰNotation PSHC
 
+  open Functor
   open Functorᴰ
+  open NatTransDefs (C ^opsmall) SET
+  open NatTrans
   PshProd' : Functorᴰ ℓ-MAX (PSHC ×Cᴰ PSHC) PSHC
-  PshProd' =
-    FIBERED-FUNCTOR→FIBERED-FUNCTOR-EQ (C ^opsmall) SET Eq.refl
-    ∘Fᴰ (postcomposeF _ _ ×SET
-    ∘Fᴰ (,F-SFFunctorⱽ (C ^opsmall) SET SET
-    ∘Fᴰ introF-×Cᴰ (×Cπ₁ _ _) (×Cπ₂ _ _)
-      (FIBERED-FUNCTOR-EQ→FIBERED-FUNCTOR (C ^opsmall) SET Eq.refl
-        ∘Fᴰ π₁ᴰ _ _)
-      (FIBERED-FUNCTOR-EQ→FIBERED-FUNCTOR (C ^opsmall) SET Eq.refl
-        ∘Fᴰ π₂ᴰ _ _)))
+  PshProd' .F-obᴰ (P , Q) .F-ob c = liftω (_ , isSet× (P .F-ob c .lowerω .snd) (Q .F-ob c .lowerω .snd))
+  PshProd' .F-obᴰ (P , Q) .F-hom = λ c (p , q) → F-hom P c p , F-hom Q c q
+  PshProd' .F-obᴰ (P , Q) .F-id = funExt λ pq →
+    ΣPathP (funExt⁻ (P .F-id) (pq .fst) , funExt⁻ (Q .F-id) (pq .snd))
+  PshProd' .F-obᴰ (P , Q) .F-seq f g = funExt λ pq →
+    ΣPathP ((funExt⁻ (P .F-seq f g) (pq .fst)) , (funExt⁻ (Q .F-seq f g) (pq .snd)))
+  PshProd' .F-homᴰ (α , β) =
+    natTrans
+      (λ c x → (α .N-ob c (x .fst)) , (β .N-ob c (x .snd)))
+      λ f → ΣPathP (refl , (funExt λ x →
+        ΣPathP ((λ i → α .N-hom f i .snd (x .fst)) , λ i → β .N-hom f i .snd (x .snd))))
+  PshProd' .F-idᴰ = makeNatTransPath refl (λ _ → refl)
+  PshProd' .F-seqᴰ α β = makeNatTransPath refl (λ _ → refl)
+  -- The below definition gives a compositional construction for PshProd'
+  -- but when defined in this compositional manner, the composition operation
+  -- of the resulting presheaf introduces a transport whereas the manual definition above
+  -- does not
+  --   FUNCTOR→FUNCTOR-EQ (C ^opsmall) SET Eq.refl
+  --   ∘Fᴰ (postcomposeF _ _ ×SET
+  --   ∘Fᴰ (,F-SFFunctorⱽ (C ^opsmall) SET SET
+  --   ∘Fᴰ introF-×Cᴰ (×Cπ₁ _ _) (×Cπ₂ _ _)
+  --     (FUNCTOR-EQ→FUNCTOR (C ^opsmall) SET Eq.refl
+  --       ∘Fᴰ π₁ᴰ _ _)
+  --     (FUNCTOR-EQ→FUNCTOR (C ^opsmall) SET Eq.refl
+  --       ∘Fᴰ π₂ᴰ _ _)))
 
   PshProdᴰ : Bifunctorᴰ (ParFunctorToBifunctor ℓ-MAX) PSHC PSHC PSHC
   PshProdᴰ = ParFunctorᴰToBifunctorᴰ PshProd'
@@ -70,38 +89,16 @@ module _ (C : SmallCategory ℓC ℓC') where
   open Bifunctor
   _×Psh_ : Presheaf C ℓP → Presheaf C ℓQ → Presheaf C (ℓ-max ℓP ℓQ)
   P ×Psh Q = PshProd .Bif-ob (_ , P) (_ , Q) .snd
-
-  open FibNatTransDefs (C ^opsmall) SET
-  open FibNatTrans
   module _ (P : Presheaf C ℓP)(Q : Presheaf C ℓQ) where
     private
       module P = PresheafNotation P
       module Q = PresheafNotation Q
     open Functor
     π₁ : PshHom (P ×Psh Q) P
-    π₁ .N-ob = λ _ → fst
-    π₁ .N-hom {x = x} {y = y} f =
-     SET.≡out
-       {xᴰ = (P ×Psh Q) .F-ob (liftω x)} {yᴰ = P .F-ob (liftω y)}
-       (sym $ SET.reind-filler
-         {xᴰ = (P ×Psh Q) .F-ob (liftω x)} {yᴰ = P .F-ob (liftω y)}
-         refl _)
-    -- This goal is indeed a simple transportRefl, but I'm not
-    -- sure what the most general strategy ought to be when
-    -- proving naturality of arbitary PshHoms
-    -- We should have a bridge between the naturality proofs needed
-    -- for these PshHoms and the naturality proofs in the manual
-    -- definition of PshHom for small presheaves.
-    -- That is, the corresponding constructions of π₁ in
-    -- Presheaf.Constructions.BinProduct.Base has N-hom via refl,
-    -- and in LocallySmall.Presheaf.GloballySmall.Fibered.Base we
-    -- have shown a definitional isomorphism between the two notions
-    -- of presheaf, so we should be able to have an interface for proving the
-    -- above N-hom that also only mentions refl
+    π₁ = mkPshHom (λ _ → fst) (λ _ _ → refl)
 
     π₂ : PshHom (P ×Psh Q) Q
-    π₂ .N-ob = λ _ → snd
-    π₂ .N-hom f = transportRefl _
+    π₂ = mkPshHom (λ _ → snd) (λ _ _ → refl)
 
   module _
     {P : Presheaf C ℓP}
@@ -115,41 +112,22 @@ module _ (C : SmallCategory ℓC ℓC') where
       module Q = PresheafNotation Q
 
     ×PshIntro : PshHom {C = C} R (P ×Psh Q)
-    ×PshIntro .N-ob c x = α .N-ob c x , β .N-ob c x
-    ×PshIntro .N-hom f =
-      funExt λ p →
-        (λ i → α .N-hom f i p , β .N-hom f i p)
-        ∙ ΣPathP (
-          (transportRefl _
-           ∙ P.⟨⟩⋆⟨ sym $ transportRefl _ ⟩
-           ∙ (sym $ transportRefl _)
-           ∙ (sym $ transportRefl _)) ,
-          transportRefl _
-           ∙ Q.⟨⟩⋆⟨ sym $ transportRefl _ ⟩
-           ∙ (sym $ transportRefl _)
-           ∙ (sym $ transportRefl _))
+    ×PshIntro =
+      mkPshHom (λ c r → α .N-ob c r , β .N-ob c r)
+        λ f p → λ i → (α .N-hom f i .snd p) , (β .N-hom f i .snd p)
 
     ×Pshβ₁ : ×PshIntro PSHC.⋆ᴰ π₁ P Q PSHC.∫≡ α
-    ×Pshβ₁ = makeFibNatTransPath refl (λ _ → refl)
+    ×Pshβ₁ = makeNatTransPath refl (λ _ → refl)
 
     ×Pshβ₂ : ×PshIntro PSHC.⋆ᴰ π₂ P Q PSHC.∫≡ β
-    ×Pshβ₂ = makeFibNatTransPath refl (λ _ → refl)
+    ×Pshβ₂ = makeNatTransPath refl (λ _ → refl)
 
-  -- TODO to speed things up, make ⋆PshHom notation
-  -- or make the homs in the presheaf category opaque
-  -- because cmoposition in PSHC is quite slow
-  --
-  -- module _ (P : Presheaf C ℓP)(Q : Presheaf C ℓQ) where
-  --   ×Psh-UMP :
-  --     ∀ {R : Presheaf C ℓR} →
-  --     Iso (PshHom {C = C} R (P ×Psh Q))
-  --         (PshHom {C = C} R P × PshHom {C = C} R Q)
-  --   ×Psh-UMP .Iso.fun α = (α PSHC.⋆ᴰ π₁ P Q) , {!!}
-  --   ×Psh-UMP .Iso.inv = {!!}
-  --   ×Psh-UMP .Iso.rightInv = {!!}
-  --   ×Psh-UMP .Iso.leftInv = {!!}
-  --   -- ×Psh-UMP .Iso.fun α = (α PSHC.⋆ᴰ π₁ P Q) , (α PSHC.⋆ᴰ π₂ P Q)
-  --   -- ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
-  --   -- ×Psh-UMP .Iso.rightInv (α , β) =
-  --   --   ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
-  --   -- ×Psh-UMP .Iso.leftInv α = makeFibNatTransPath refl (λ _ → refl)
+  module _ (P : Presheaf C ℓP)(Q : Presheaf C ℓQ) where
+    ×Psh-UMP :
+      ∀ {R : Presheaf C ℓR} →
+      Iso (PshHom {C = C} R (P ×Psh Q))
+          (PshHom {C = C} R P × PshHom {C = C} R Q)
+    ×Psh-UMP .Iso.fun α = (α PSHC.⋆ᴰ π₁ P Q) , (α PSHC.⋆ᴰ π₂ P Q)
+    ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
+    ×Psh-UMP .Iso.rightInv (α , β) i = (×Pshβ₁ α β i .snd) , ×Pshβ₂ α β i .snd
+    ×Psh-UMP .Iso.leftInv α = cong snd (makeNatTransPath refl λ _ → refl)

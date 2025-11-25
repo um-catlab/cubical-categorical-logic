@@ -63,18 +63,18 @@ module _ where
     {F : Functor (C .cat) (D .cat)}
     (α : PshHet {C = C} {D = D} F P Q)
     where
-    open FibNatTransDefs (C ^opsmall) SET
-    open FibNatTrans
+    open NatTransDefs (C ^opsmall) SET
+    open NatTrans
     PshHet→ElementFunctorᴰ :
       Functorᴰ F (Element C P .catᴰ) (Element D Q .catᴰ)
     PshHet→ElementFunctorᴰ =
       mkPropHomsFunctor (hasPropHomsElement D Q)
         (λ (liftω p) → liftω (α .N-ob _ p))
-        λ {yᴰ = py} f⋆p≡p' →
-          (sym $ cong (λ z → z .snd (py .Liftω.lowerω)) (N-hom' α _))
-          ∙ cong (α .N-ob _) f⋆p≡p'
+        (λ {yᴰ = py} f⋆p≡p' →
+          (sym $ cong (λ z → z .snd (py .Liftω.lowerω)) (α .N-hom _))
+          ∙ cong (α .N-ob _) f⋆p≡p')
 
-  module _ (F : Functor (C .cat) (D .cat))(c : C .small-ob) where
+  module _ (F : Functor (C .cat) (D .cat))(c : C .ob) where
     open Functor
     Functor→ElementFunctorᴰ :
       Functorᴰ F

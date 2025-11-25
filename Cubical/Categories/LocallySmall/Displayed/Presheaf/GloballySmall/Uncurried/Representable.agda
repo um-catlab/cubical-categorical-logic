@@ -41,7 +41,7 @@ module _ where
   open SmallCategoryVariables
   open SmallCategory
   module _
-    {c : C .small-ob}
+    {c : C .ob}
     (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ')
     where
     private
@@ -51,7 +51,7 @@ module _ where
     -- TODO
     -- implement the general conversion between curried and uncurried
     -- presheaves
-    _[-][-,_] : Cᴰ.small-obᴰ c → Presheafⱽ c Cᴰ ℓCᴰ'
+    _[-][-,_] : Cᴰ.obᴰ c → Presheafⱽ c Cᴰ ℓCᴰ'
     _[-][-,_] cᴰ .F-ob (liftω (x , xᴰ , f)) = liftω (Cᴰ.Hom[ f ][ liftω xᴰ , liftω cᴰ ] , Cᴰ.isSetHomᴰ)
     _[-][-,_] cᴰ .F-hom (f , fᴰ , the-≡) gᴰ =
       Cᴰ.reind the-≡ (fᴰ Cᴰ.⋆ᴰ gᴰ)

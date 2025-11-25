@@ -59,6 +59,17 @@ module _
         (sym $ Cᴰ.reind-filler _ _)
         ∙ Cᴰ.reindEq-pathFiller _ _
 
+    -- fib→fibEq introduces a transport when acting on composition
+    -- of morphisms
+    module _ where
+      private
+        module Cᴰv = CategoryNotation (fib Cᴰ c)
+
+        module _ {x y z} {f : Cᴰv.Hom[ x , y ]}{g : Cᴰv.Hom[ y , z ]} where
+          _ : fib→fibEq .Functor.F-hom (f Cᴰv.⋆ g) ≡
+                 transp (λ i → Cᴰ.Hom[ C.⋆IdR C.id i ][ x , z ]) i0 (f Cᴰ.⋆ᴰ g)
+          _ = refl
+
     fibEq→fib :  Functor (fibEq Cᴰ C-⋆ c) (fib Cᴰ c)
     fibEq→fib .Functor.F-ob = λ z → z
     fibEq→fib .Functor.F-hom = λ z → z
@@ -68,6 +79,17 @@ module _
       Cᴰ.rectify $ Cᴰ.≡out $
         (sym $ Cᴰ.reindEq-pathFiller _ _)
         ∙ Cᴰ.reind-filler _ _
+
+    -- fibEq→fib is an Eq.transport on morphisms, which is very
+    -- nice definitionally when C-⋆ is Eq.refl
+    module _ where
+      private
+        module Cᴰv = CategoryNotation (fibEq Cᴰ C-⋆ c)
+
+        module _ {x y z} {f : Cᴰv.Hom[ x , y ]}{g : Cᴰv.Hom[ y , z ]} where
+          _ : fibEq→fib .Functor.F-hom (f Cᴰv.⋆ g) ≡
+                Eq.transport Cᴰ.Hom[_][ x , z ] C-⋆ (f Cᴰ.⋆ᴰ g)
+          _ = refl
 
     open Functor
     fibEq→fib→fibEq-F-hom :

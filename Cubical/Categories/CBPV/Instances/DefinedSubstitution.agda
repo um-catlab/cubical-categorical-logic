@@ -1,4 +1,5 @@
 {-# OPTIONS -WnoUnsupportedIndexedMatch #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Categories.CBPV.Instances.DefinedSubstitution where
 
@@ -119,8 +120,8 @@ private
   variable
     A A' X Y : VTy
     B B' : CTy
-    Δ Δ' Γ Θ Ξ : Ctx
-    γ δ θ : Sub[ Δ , Γ ]
+    Δ Δ' Γ Θ Ξ ξ : Ctx
+    γ  : Sub[ Δ , Γ ]
 
 index : Sub[ Δ , Γ ] → (x : Var Γ A) → Δ ⊢v A 
 index (y ∷ γ) vz = y
@@ -205,11 +206,124 @@ mutual
   subcId (rec× v m) = cong₂ rec× (subvId v) {!   !}
   subcId (bind m n) = cong₂ bind (subcId m) {!   !}
 
+
+subvAssoc : (f : Sub[ Δ , Γ ]) (g : Sub[ Θ , Δ ]) →
+  subv (g ⋆Sub f) ≡ (λ x₁ → subv g (subv f x₁))
+subvAssoc = {!   !}
+
 ⋆Sub⋆IdL : (γ : Sub[ Δ , Γ ]) → 
   (idSub ⋆Sub γ) ≡ γ 
 ⋆Sub⋆IdL [] = refl
 ⋆Sub⋆IdL (v ∷ γ) = s⟨ subvId v ⟩∷⟨ ⋆Sub⋆IdL γ ⟩
 
+⋆Sub⋆IdR : {Γ : Ctx} → (γ : Sub[ Δ , Γ ]) → 
+  (γ ⋆Sub idSub) ≡ γ 
+⋆Sub⋆IdR {Γ} [] = {!   !}
+⋆Sub⋆IdR {[]} (y ∷ γ) = {!   !}
+⋆Sub⋆IdR {A ∷ Γ} (y ∷ γ) = {!   !}
+
+⋆Sub⋆Assoc : ∀ (f : Sub[ ξ , Θ ]) (g : Sub[ Θ , Δ ]) (h : Sub[ Δ , Γ ]) →
+  ((f ⋆Sub g) ⋆Sub h) ≡ (f ⋆Sub (g ⋆Sub h))
+⋆Sub⋆Assoc _ _ [] = refl
+⋆Sub⋆Assoc _ _ (y ∷ h) = s⟨ {! funExt (subvAssoc _ _)!} ⟩∷⟨ ⋆Sub⋆Assoc _ _ _ ⟩
+
+
+open import Cubical.Categories.CBPV.Base
+open import Cubical.Categories.WithFamilies.Simple.Base
+open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Sets
+open Functor
+open Category
+open CBPVModel
+open import Cubical.Categories.Limits.Terminal.More
+
+SubCat : Category _ _ 
+SubCat .ob = Ctx
+SubCat .Hom[_,_] = Sub[_,_]
+SubCat .id = idSub
+SubCat ._⋆_ = _⋆Sub_
+SubCat .⋆IdL = ⋆Sub⋆IdL
+SubCat .⋆IdR = ⋆Sub⋆IdR
+SubCat .⋆Assoc = ⋆Sub⋆Assoc
+SubCat .isSetHom = isOfHLevelSucSuc-ListP 0 λ _ → {!   !}
+
+vTm : VTy → Functor (SubCat ^op) (SET _)
+vTm A .F-ob Γ = (Γ ⊢v A) , {!   !}
+vTm A .F-hom = subv
+vTm A .F-id = funExt subvId
+vTm A .F-seq f g = {!   !}
+
+ηterm : (Γ : Ctx)(γ : Sub[ Γ  , · ]) → 
+  [] ≡ γ 
+ηterm Γ [] = refl
+
+term : Terminal' SubCat 
+term = 
+  record { 
+    vertex = · ; 
+    element = tt ; 
+    universal = λ A → 
+      record { 
+        equiv-proof = λ tt → ([] , refl) , λ (v , p) → 
+        ΣPathP (ηterm _ _ , λ _ _ → tt)} }
+
+scwf : SCwF _ _ _ _
+scwf .fst = SubCat
+scwf .snd .fst = VTy
+scwf .snd .snd .fst = vTm
+scwf .snd .snd .snd .fst = term
+scwf .snd .snd .snd .snd = {!   !}
+
+open import Cubical.Categories.Monoidal.Instances.Presheaf
+open PshMon SubCat ℓ-zero
+open import Cubical.Categories.Monoidal.Enriched
+open import Cubical.Categories.Enriched.Instances.Presheaf.Self
+open EnrichedCategory
+open import Cubical.Categories.Enriched.Functors.Base
+open EnrichedFunctor
+
+Ehom : CTy → CTy → ob 𝓟 
+Ehom B B' .F-ob Γ = (Γ ◂ B ⊢k B') , {!   !}
+Ehom B B' .F-hom = {!   !}
+Ehom B B' .F-id = {!   !}
+Ehom B B' .F-seq = {!   !}
+
+stacks : EnrichedCategory 𝓟Mon  _ 
+stacks .ob = CTy
+stacks .Hom[_,_] = Ehom
+stacks .id = {!   !}
+stacks .seq = {!   !}
+stacks .⋆IdL = {!   !}
+stacks .⋆IdR = {!   !}
+stacks .⋆Assoc = {!   !}
+
+selfSCat = self SubCat ℓ-zero
+𝓟[_,_] = 𝓟 .Hom[_,_]
+stacks[_,_] = stacks .Hom[_,_]
+self[_,_]  = selfSCat .Hom[_,_]
+
+cTm' : ob stacks → ob selfSCat 
+cTm' B .F-ob Γ = (Γ ⊢c B) , {!   !}
+cTm' B .F-hom = subc
+cTm' B .F-id = funExt subcId
+cTm' B .F-seq = {!   !}
+
+plug : (B B' : ob stacks) → 𝓟[ stacks[ B , B' ] , self[ cTm' B , cTm' B' ] ]
+plug B B' = {!   !}
+
+cTm : EnrichedFunctor 𝓟Mon stacks selfSCat
+cTm .F-ob = cTm'
+cTm .F-hom {B}{B'}= plug B B'
+cTm .F-id = {!   !}
+cTm .F-seq = {!   !}
+
+CBPVDefSubst : CBPVModel _ _ _ _ _ _
+CBPVDefSubst .Scwf = scwf
+CBPVDefSubst .Stacks = stacks
+CBPVDefSubst .CTm = cTm
+
+{-}
 
 clc : CTy → Type 
 clc B = · ⊢c B 
@@ -217,47 +331,31 @@ clc B = · ⊢c B
 clv : VTy → Type 
 clv A = · ⊢v A 
 
-data CanStep : {B : CTy} → (m : clc B) → Type where 
-  s-force-thunk : {B : CTy}{m : clc B} → 
-    CanStep (force (thunk m))
-  s-app-lam : {A : VTy}{B : CTy}{v : clv A}{m : (A ,, []) ⊢c B} → 
-    CanStep (app (lam m) v)
-  s-bind-ret : {A : VTy}{B : CTy}{v : clv A}{m : (A ,, []) ⊢c B} → 
-    CanStep (bind (ret v) m)
-  s-rec×-pair : {A A' : VTy}{B : CTy}{v : clv A}{w : clv A'}
-    {m : (A ,, (A' ,, [])) ⊢c B} → 
-    CanStep (rec× (pair v w) m)
+data TermP : {B : CTy} → · ⊢c B → Type where 
+  t-ret : {A : VTy}{v : · ⊢v A} → 
+    TermP (ret v)
+  t-lam : {A : VTy}{B : CTy}{m : (A ,, ·) ⊢c B} → 
+    TermP (lam m)
 
-open import  Cubical.Relation.Nullary
+Term : CTy → Type 
+Term B = Σ[ m ∈ clc B ] TermP m
 
-canStep : {B : CTy} → (m : clc B) → Dec (CanStep m) 
-canStep (ret x) = no λ ()
-canStep (force (thunk x)) = yes s-force-thunk
-canStep (lam m) = no λ ()
-canStep (app (force x₁) x) = no λ ()
-canStep (app (lam m) x) = yes s-app-lam
-canStep (app (app m x₁) x) = no λ ()
-canStep (app (rec× x₁ m) x) = no λ ()
-canStep (app (bind m m₁) x) = no λ ()
-canStep (rec× (pair x x₁) m) = yes s-rec×-pair
-canStep (bind (ret x) m₁) = yes s-bind-ret
-canStep (bind (force x) m₁) = no λ ()
-canStep (bind (app m x) m₁) = no λ ()
-canStep (bind (rec× x m) m₁) = no λ ()
-canStep (bind (bind m m₂) m₁) = no λ ()
+step :  {B : CTy} → clc B → Term B ⊎ clc B 
+step (ret v) = inl ((ret v) , t-ret)
+step (force (thunk m)) = inr m
+step (lam m) = inl ((lam m) , t-lam)
+step (app m v) = 
+  ⊎rec 
+    (λ {(.(lam _) , (t-lam{m = m})) → inr (subc (v ∷ []) m) }) 
+    (λ m' → inr (app m' v)) 
+    (step m)
+step (rec× (pair v w) m) = inr (subc (v ∷ (w ∷ [])) m)
+step (bind m n) = 
+  ⊎rec 
+    (λ {(.(ret _) , (t-ret{v = v})) → inr (subc (v ∷ []) n)}) 
+    (λ m' → inr (bind m' n)) 
+    (step m)
 
-Terminals : CTy → Type 
-Terminals B = Σ[ m ∈ clc B ] ¬ (CanStep m)
-
-step' : {B : CTy}{m : clc B}→ CanStep m → clc B 
-step' (s-force-thunk {m = m}) = m
-step' (s-app-lam {v = v}{m}) = subc (v ∷ []) m
-step' (s-bind-ret{v = v}{m}) = subc (v ∷ []) m
-step' (s-rec×-pair{v = v}{w}{m}) = subc (v ∷ (w ∷ [])) m
-open import Cubical.Foundations.Function
-
-step : {B : CTy} → clc B → (Terminals B) ⊎ (clc B)
-step m = decRec (inr ∘S step') (λ p → inl (m , p)) (canStep m)
 
 
 open import Cubical.CoData.Delay
@@ -266,24 +364,23 @@ open import Cubical.Categories.Category
 open Category
 open import  Cubical.Categories.Instances.FunctorAlgebras
 open import Cubical.Foundations.Structure hiding(str)
-
-open import Cubical.Data.Sigma
 open import Cubical.Categories.Limits.Terminal
 
-Term : CTy → hSet ℓ-zero 
-Term B = Terminals B , {!   !}
+hTerm : CTy → hSet ℓ-zero 
+hTerm B = Term B , {!   !}
 
-clc' : CTy → hSet ℓ-zero 
-clc' B = (clc B) , {!   !}
+hclc : CTy → hSet ℓ-zero 
+hclc B = (clc B) , {!   !}
 
-coalg : (B : CTy) → ob (CoAlg (Term B))
-coalg B = algebra (clc' B) step 
+coalg : (B : CTy) → ob (CoAlg (hTerm B)) 
+coalg B = algebra (hclc B) step 
 
-run' : (B : CTy) → CoAlg (Term B) [ coalg B , DelayCoAlg (Term B) ] 
-run' B = terminalArrow (CoAlg (Term B)) (FinalCoAlg (Term B)) (coalg B)
+
+run' : (B : CTy) → CoAlg (hTerm B) [ coalg B , DelayCoAlg (hTerm B) ] 
+run' B = terminalArrow (CoAlg (hTerm B)) (FinalCoAlg (hTerm B)) (coalg B)
 open AlgebraHom 
 
-run : {B : CTy} → clc B → Delay ⟨ Term B ⟩ 
+run : {B : CTy} → clc B → Delay ⟨ hTerm B ⟩ 
 run {B} m = run' B .carrierHom m
 
 prog : clc (F one)
@@ -292,10 +389,17 @@ prog = bind (ret u) (app (lam (ret (var vz))) (var vz))
 open import Cubical.Data.Nat 
 
 poke : {A : Type} → ℕ → Delay A → A ⊎ Delay A 
-poke zero d = unfold d
+poke zero d = inr d
 poke (suc n) d = ⊎rec inl (poke n) (unfold d)
+  
 
-
-_ : poke 2 (run prog) ≡ (inl (ret u , (λ ())))
+_ : poke 3 (run prog) ≡ inl ((ret u) , t-ret)
 _ = refl
+ 
+prog2 : clc (F one)
+prog2 = bind (ret u) (app (force(thunk(lam (ret (var vz))))) (var vz))
 
+_ : poke 4 (run prog2) ≡ inl ((ret u) , t-ret)
+_ = refl
+  
+-}

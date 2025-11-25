@@ -43,7 +43,7 @@ open LocallySmallFᴰ.Functorᴰ
 open Liftω
 open Σω
 
-module FunctorCategoryᴰ
+module _
   {C : SmallCategory ℓC ℓC'}
   {ℓCᴰ ℓCᴰ'}
   (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ')

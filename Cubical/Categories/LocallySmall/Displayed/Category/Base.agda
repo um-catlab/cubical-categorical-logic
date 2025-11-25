@@ -7,9 +7,11 @@ open import Cubical.Foundations.HLevels.More
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
+import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.LocallySmall.Category.Base
-open import Cubical.Categories.LocallySmall.Variables
+open import Cubical.Categories.LocallySmall.Variables.Base
 
 open Category
 open Σω
@@ -28,12 +30,27 @@ module _ (C : Category Cob CHom-ℓ) where
         → Hom[ f ][ xᴰ , yᴰ ] → Hom[ g ][ yᴰ , zᴰ ] → Hom[ f C.⋆ g ][ xᴰ , zᴰ ]
     infixr 9 _⋆ᴰ_
 
+    Ob[_] : Cob → Typeω
+    Ob[_] = ob[_]
+
     _≡[_]_ : ∀ {x y xᴰ yᴰ} {f g : C.Hom[ x , y ]}
       → (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (p : f ≡ g) (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
       → Type (Hom-ℓᴰ _ _ xᴰ yᴰ)
     _≡[_]_ {x} {y} {xᴰ} {yᴰ} fᴰ p gᴰ = PathP (λ i → Hom[ p i ][ xᴰ , yᴰ ]) fᴰ gᴰ
 
+    _Eq[_]_ : ∀ {x y xᴰ yᴰ} {f g : C.Hom[ x , y ]}
+      → (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (p : f Eq.≡ g) (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
+      → Type (Hom-ℓᴰ _ _ xᴰ yᴰ)
+    _Eq[_]_ {x} {y} {xᴰ} {yᴰ} fᴰ p gᴰ =
+      Eq.HEq (Eq.ap Hom[_][ xᴰ , yᴰ ] p) fᴰ gᴰ
+
     infix 2 _≡[_]_
+    infix 2 _Eq[_]_
+
+    -- This is convenient when displayed over an indiscrete
+    -- category where the morphism f is uniquely determined
+    Homᴰ[_,_] : ∀ {x y}{f : C.Hom[ x , y ]} → (xᴰ : ob[ x ]) (yᴰ : ob[ y ]) → Type _
+    Homᴰ[_,_] {f = f} xᴰ yᴰ = Hom[ f ][ xᴰ , yᴰ ]
 
     ∫Hom[_,_] : (x y : Σω Cob ob[_]) → Type _
     ∫Hom[ xxᴰ , yyᴰ ] =
@@ -45,6 +62,12 @@ module _ (C : Category Cob CHom-ℓ) where
       → Type _
     fᴰ ∫≡ gᴰ = Path ∫Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ)
     infix 2 _∫≡_
+
+    _∫Eq_ :  ∀ {x y xᴰ yᴰ} {f g : C.Hom[ x , y ]}
+      → (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
+      → Type _
+    fᴰ ∫Eq gᴰ = Eq._≡_ {A = ∫Hom[ _ , _ ]} (_ , fᴰ) (_ , gᴰ)
+    infix 2 _∫Eq_
 
     field
       ⋆IdLᴰ : ∀ {x y} {f : C.Hom[ x , y ]} {xᴰ yᴰ} (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
@@ -63,6 +86,13 @@ module _ (C : Category Cob CHom-ℓ) where
       (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
       → Hom[ g ][ xᴰ , yᴰ ]
     reind = subst Hom[_][ _ , _ ]
+
+    reindEq : {x y : Cob}{f g : C.Hom[ x , y ]}
+      {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      (p : f Eq.≡ g)
+      (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+      → Hom[ g ][ xᴰ , yᴰ ]
+    reindEq p fᴰ = Eq.transport Hom[_][ _ , _ ] p fᴰ
 
     _⋆ⱽᴰ_ : ∀ {x y} {xᴰ xᴰ' yᴰ}{g : C.Hom[ x , y ]}
       (fⱽ : Hom[ C.id ][ xᴰ , xᴰ' ])
@@ -89,6 +119,15 @@ module _ (C : Category Cob CHom-ℓ) where
       → (fᴰ ≡[ p ] gᴰ)
       → fᴰ ∫≡ gᴰ
     ≡in = λ pᴰ → ΣPathP (_ , pᴰ)
+
+    Eqin : {x y : Cob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+      {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
+      {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
+      (p : f Eq.≡ g)
+      → (fᴰ Eq[ p ] gᴰ)
+      → fᴰ ∫Eq gᴰ
+    Eqin Eq.refl Eq.refl = Eq.refl
+
     opaque
       ⋆IdLᴰᴰ : ∀ {x y xᴰ yᴰ}{f : C.Hom[ x , y ]}
         → (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
@@ -134,6 +173,13 @@ module _ (C : Category Cob CHom-ℓ) where
         → (fᴰ ≡[ fst (PathPΣ ppᴰ) ] gᴰ)
       ≡out e = snd (PathPΣ e)
 
+      Eqout : {x y : Cob}{f g : C.Hom[ x , y ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
+        {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
+        → (ppᴰ :  fᴰ ∫Eq  gᴰ)
+        → (fᴰ Eq[ Eq.ap fst ppᴰ ] gᴰ)
+      Eqout {fᴰ = fᴰ}{gᴰ = gᴰ} = Eq.J (λ hᴰ eq → fᴰ Eq[ Eq.ap fst eq ] hᴰ .snd) Eq.refl
+
       rectify : {x y : Cob}{f g : C.Hom[ x , y ]}{p p' : f ≡ g}
         {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
         {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
@@ -147,6 +193,28 @@ module _ (C : Category Cob CHom-ℓ) where
         (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
         → Path (∫Hom[ _ , _ ]) (f , fᴰ) (g , reind p fᴰ)
       reind-filler p fᴰ = ΣPathP (p , subst-filler Hom[_][ _ , _ ] p fᴰ)
+
+      reindEq-filler : {x y : Cob}{f g : C.Hom[ x , y ]}
+        {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        (p : f Eq.≡ g)
+        (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+        → fᴰ ∫Eq reindEq p fᴰ
+      reindEq-filler Eq.refl fᴰ = Eq.refl
+
+      reindEq-pathFiller : {x y : Cob}{f g : C.Hom[ x , y ]}
+        {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        (p : f Eq.≡ g)
+        (fᴰ : Hom[ f ][ xᴰ , yᴰ ])
+        → fᴰ ∫≡ reindEq p fᴰ
+      reindEq-pathFiller Eq.refl fᴰ = refl
+
+      reind≡reindEq : {x y : Cob}{f g : C.Hom[ x , y ]}
+        {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        {p : f ≡ g} {e : f Eq.≡ g} →
+        (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) →
+        reind p fᴰ ≡ reindEq e fᴰ
+      reind≡reindEq {p = p} {e = Eq.refl} fᴰ =
+        rectify $ ≡out $ sym $ reind-filler _ _
 
       reind-cong : ∀ {x y xᴰ yᴰ}{f f' g g' : C.Hom[ x , y ]}
         {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
@@ -269,16 +337,6 @@ module _ (C : Category Cob CHom-ℓ) where
             (_ , fⱽ ⋆ⱽ (gⱽ ⋆ⱽ hⱽ))
       ⋆Assocⱽⱽⱽ fⱽ gⱽ hⱽ = (sym $ reind-filler _ _) ∙ ∫C.⟨ sym $ reind-filler _ _ ⟩⋆⟨⟩ ∙ ⋆Assocᴰᴰᴰ _ _ _ ∙ ∫C.⟨⟩⋆⟨ reind-filler _ _ ⟩ ∙ reind-filler _ _
 
-    v[_] : (x : Cob) → Category ob[ x ] (Hom-ℓᴰ x x)
-    v[ x ] .Hom[_,_] = Hom[ C.id ][_,_]
-    v[ x ] .id = idᴰ
-    v[ x ] ._⋆_ fⱽ gⱽ = fⱽ ⋆ⱽ gⱽ
-    v[ x ] .⋆IdL fⱽ = rectify $ ≡out $ ⋆IdLⱽⱽ _
-    v[ x ] .⋆IdR fⱽ = rectify $ ≡out $ ⋆IdRⱽⱽ _
-    v[ x ] .⋆Assoc fⱽ gⱽ hⱽ = rectify $ ≡out $ ⋆Assocⱽⱽⱽ _ _ _
-    v[ x ] .isSetHom = isSetHomᴰ
-
-    module Cⱽ {x : Cob} = Category (v[ x ])
     open ∫C public
 
 open Categoryᴰ

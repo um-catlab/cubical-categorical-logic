@@ -96,7 +96,7 @@ module _ {C : Category Cob CHom-ℓ}
   private
     module C = CategoryNotation C
     module D = CategoryNotation D
-    module Cᴰ = CategoryᴰNotation Cᴰ
+    module Cᴰ = Categoryᴰ Cᴰ
     module F = FunctorNotation F
 
   -- Section without a qualifier means *local* section.
@@ -181,7 +181,7 @@ module _
   where
   open Section
   private
-    module Eᴰ = CategoryᴰNotation Eᴰ
+    module Eᴰ = Categoryᴰ Eᴰ
     module Fᴰ = Section Fᴰ
     module G = FunctorNotation G
 
@@ -220,8 +220,8 @@ module _
   where
   open Section
   private
-    module Eᴰ = CategoryᴰNotation Eᴰ
-    module Fᴰ = FunctorᴰNotation Fᴰ
+    module Eᴰ = Categoryᴰ Eᴰ
+    module Fᴰ = Functorᴰ Fᴰ
     module Gᴰ = Section Gᴰ
 
   compFunctorᴰSection : Section (F ∘F G) Eᴰ

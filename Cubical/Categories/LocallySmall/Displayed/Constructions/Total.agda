@@ -45,45 +45,6 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
       (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
     ∫Cᴰ .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
 
-    module ∫CᴰNotation where
-      vᴰ[_] : (c : Cob) → Categoryᴰ Cᴰ.v[ c ] (λ cᴰ → Cobᴰᴰ (c , cᴰ)) _
-      vᴰ[ c ] .Hom[_][_,_] fᴰ xᴰ yᴰ = Cᴰᴰ.Hom[ (id C , fᴰ) ][ xᴰ , yᴰ ]
-      vᴰ[ c ] .idᴰ = Cᴰᴰ.idᴰ
-      vᴰ[ c ] ._⋆ᴰ_ fᴰ gᴰ = Cᴰᴰ.reind (Cᴰ.reind-filler _ _) $ (fᴰ Cᴰᴰ.⋆ᴰ gᴰ)
-      vᴰ[ c ] .⋆IdLᴰ fᴰ =
-        ΣPathP (
-          (Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _ _)
-            ∙ Cᴰ.⋆IdLᴰ _) ,
-          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-            (sym $ Cᴰᴰ.reind-filler _ _)
-            ∙ Cᴰᴰ.⋆IdLᴰ _))
-      vᴰ[ c ] .⋆IdRᴰ fᴰ =
-        ΣPathP (
-          (Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _ _)
-            ∙ Cᴰ.⋆IdRᴰ _) ,
-          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-            (sym $ Cᴰᴰ.reind-filler _ _)
-            ∙ Cᴰᴰ.⋆IdRᴰ _))
-      vᴰ[ c ] .⋆Assocᴰ fᴰ gᴰ hᴰ =
-        ΣPathP (
-          (Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _ _)
-            ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
-            ∙ Cᴰ.⋆Assocᴰ _ _ _
-            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
-            ∙ Cᴰ.reind-filler _ _
-            ),
-          (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-            (sym $ Cᴰᴰ.reind-filler _ _)
-            ∙ Cᴰᴰ.⟨ sym $ Cᴰᴰ.reind-filler _ _ ⟩⋆⟨⟩
-            ∙ Cᴰᴰ.⋆Assocᴰ _ _ _
-            ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler _ _ ⟩
-            ∙ Cᴰᴰ.reind-filler _ _
-            ))
-      vᴰ[ c ] .isSetHomᴰ = Cᴰᴰ.isSetHomᴰ
-
 module _
   {C : Category Cob CHom-ℓ}
   {Cᴰ-ℓ}{Cobᴰ}{CHom-ℓᴰ}
@@ -136,26 +97,3 @@ module _
       (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assoc _ _ _) ,
       (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
     ∫CᴰSF .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
-
-module _
-  {C : Category Cob CHom-ℓ}
-  (Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ)
-  where
-  private
-    module C = CategoryNotation C
-    module Cᴰ = Categoryᴰ Cᴰ
-  module _
-    {C-ℓᴰᴰ} {Cobᴰᴰ} {CHom-ℓᴰᴰ}
-    (Cᴰᴰ : SmallFibersCategoryᴰ Cᴰ.∫C C-ℓᴰᴰ Cobᴰᴰ CHom-ℓᴰᴰ)
-    where
-    private
-      module Cᴰᴰ = ∫CᴰNotation Cᴰ Cᴰᴰ
-
-    module ∫CᴰSFNotation where
-      -- SmallFiberedness is preserved under partial application
-      -- of arguments in the base
-      vᴰ[_]SF : (c : Cob) →
-        SmallFibersCategoryᴰ Cᴰ.v[ c ] _
-          (λ cᴰ → Cobᴰᴰ (c , cᴰ))
-          (λ x y → CHom-ℓᴰᴰ (c , x) (c , y))
-      vᴰ[ c ]SF = Cᴰᴰ.vᴰ[ c ]

@@ -1,4 +1,3 @@
-
 module Cubical.Categories.Displayed.Constructions.HomPropertyOver where
 
 open import Cubical.Foundations.Prelude

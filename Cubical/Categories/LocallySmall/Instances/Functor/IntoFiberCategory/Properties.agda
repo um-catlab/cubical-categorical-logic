@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Instances.Functor.Fibered.Properties where
+module Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -8,20 +8,20 @@ open import Cubical.Data.Sigma.More
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Functor.Base
-open import Cubical.Categories.LocallySmall.NaturalTransformation.SmallFibered
+open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Variables
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered.Base
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
+open import Cubical.Categories.LocallySmall.Displayed.Functor.Properties
 
 open Category
 open Categoryᴰ
 
 open Functor
-open SmallFibNatTrans
 open Functorᴰ
 
 module _
@@ -33,12 +33,19 @@ module _
   (Eᴰ : SmallFibersCategoryᴰ E Eobᴰ-ℓ Eobᴰ EHom-ℓᴰ)
   where
 
-  precomposeF : Functorⱽ (FIBER-FUNCTOR D Eᴰ) (FIBER-FUNCTOR C Eᴰ)
-  precomposeF .F-obᴰ G = G ∘F F
-  precomposeF .F-homᴰ α .N-ob c = α .N-ob (F-ob F (liftω c) .Liftω.lowerω)
-  precomposeF .F-homᴰ α .N-hom = λ f₁ → α .N-hom (F-hom F f₁)
-  precomposeF .F-idᴰ = makeSFNatTransPath refl (λ _ → refl)
-  precomposeF .F-seqᴰ _ _ = makeSFNatTransPath refl (λ _ → refl)
+  private
+    module FuncD = NatTransDefs D Eᴰ
+    module FuncC = NatTransDefs C Eᴰ
+    module NatTransD = FuncD.NatTrans
+    module NatTransC = FuncC.NatTrans
+
+  precomposeF : Functorⱽ (FUNCTOR D Eᴰ) (FUNCTOR C Eᴰ)
+  precomposeF .F-obᴰ = _∘F F
+  precomposeF .F-homᴰ α .NatTransC.N-ob c =
+    α .NatTransD.N-ob (F-ob F (liftω c) .Liftω.lowerω)
+  precomposeF .F-homᴰ α .NatTransC.N-hom f = α .NatTransD.N-hom (F-hom F f)
+  precomposeF .F-idᴰ = FuncC.makeNatTransPath refl (λ _ → refl)
+  precomposeF .F-seqᴰ _ _ = FuncC.makeNatTransPath refl (λ _ → refl)
 
 module _
   {C : SmallCategory ℓC ℓC'}
@@ -53,19 +60,24 @@ module _
   where
   private
     module F = FunctorNotation F
-    module Fᴰ = FunctorᴰNotation Fᴰ
-    module Eᴰ = CategoryᴰNotation Eᴰ
+    module Fᴰ = Functorᴰ Fᴰ
+    module Eᴰ = Categoryᴰ Eᴰ
 
-  postcomposeF : Functorᴰ F (FIBER-FUNCTOR C Dᴰ) (FIBER-FUNCTOR C Eᴰ)
+    module FuncDᴰ = NatTransDefs C Dᴰ
+    module FuncEᴰ = NatTransDefs C Eᴰ
+    module NatTransDᴰ = FuncDᴰ.NatTrans
+    module NatTransEᴰ = FuncEᴰ.NatTrans
+
+  postcomposeF : Functorᴰ F (FUNCTOR C Dᴰ) (FUNCTOR C Eᴰ)
   postcomposeF .F-obᴰ G = Fv Fᴰ _ ∘F G
-  postcomposeF .F-homᴰ α .N-ob c = Fᴰ.F-homᴰ (α .N-ob c)
-  postcomposeF .F-homᴰ {xᴰ = G}{yᴰ = H} α .N-hom f =
-    N-hom'→N-hom Eᴰ _ (Fv Fᴰ _ ∘F G) (Fv Fᴰ _ ∘F H) _ f $
+  postcomposeF .F-homᴰ α .NatTransEᴰ.N-ob c = Fᴰ.F-homᴰ (α .NatTransDᴰ.N-ob c)
+  postcomposeF .F-homᴰ {xᴰ = G}{yᴰ = H} α .NatTransEᴰ.N-hom f =
       Eᴰ.⟨ sym $ Eᴰ.reind-filler _ _ ⟩⋆⟨⟩
       ∙ (sym $ Fᴰ.F-seqᴰ _ _)
-      ∙ Fᴰ.F-homᴰ⟨ N-hom' α f ⟩
+      ∙ Fᴰ.F-homᴰ⟨ NatTransDᴰ.N-hom α f ⟩
       ∙ Fᴰ.F-seqᴰ _ _
       ∙ Eᴰ.⟨⟩⋆⟨ Eᴰ.reind-filler _ _ ⟩
-  postcomposeF .F-idᴰ = makeSFNatTransPath F.F-id λ _ → Fᴰ.F-idᴰ
+  postcomposeF .F-idᴰ =
+    FuncEᴰ.makeNatTransPath F.F-id λ _ → Fᴰ.F-idᴰ
   postcomposeF .F-seqᴰ _ _ =
-    makeSFNatTransPath (F.F-seq _ _) λ _ → Fᴰ.F-seqᴰ _ _
+    FuncEᴰ.makeNatTransPath (F.F-seq _ _) λ _ → Fᴰ.F-seqᴰ _ _

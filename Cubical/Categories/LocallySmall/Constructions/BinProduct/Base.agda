@@ -9,7 +9,8 @@ open import Cubical.Data.Prod using (_×ω_; _,_)
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Instances.Functor.Fibered
+open import Cubical.Categories.LocallySmall.Constructions.ChangeOfObjects
+open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor.Base
 
@@ -49,3 +50,29 @@ module _
   π₂ .F-hom = λ z → z .snd
   π₂ .F-id = refl
   π₂ .F-seq _ _ = refl
+
+module _
+  (C : SmallCategory ℓC ℓC')
+  (D : SmallCategory ℓD ℓD')
+  where
+  private
+    module C = SmallCategory C
+    module D = SmallCategory D
+
+  open SmallCategory
+  _×Csmall_ : SmallCategory _ _
+  _×Csmall_ =
+    smallcat _
+      (ChangeOfObjects {X = Liftω (C.ob × D.ob)} (C.cat ×C D.cat)
+        (λ (liftω (c , d)) → liftω c , liftω d))
+
+  open Functor
+  π₁small : Functor (_×Csmall_ .cat) C.cat
+  π₁small =
+    π₁ C.cat D.cat
+    ∘F π (C.cat ×C D.cat) λ (liftω (c , d)) → liftω c , liftω d
+
+  π₂small : Functor (_×Csmall_ .cat) D.cat
+  π₂small =
+    π₂ C.cat D.cat
+    ∘F π (C.cat ×C D.cat) λ (liftω (c , d)) → liftω c , liftω d

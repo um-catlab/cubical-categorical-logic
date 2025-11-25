@@ -25,6 +25,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObjects
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 
@@ -90,28 +91,12 @@ module _
 
   open SmallCategoryᴰ
   _×Cᴰsmall_ : SmallCategoryᴰ (C ×Csmall D) _ _
-  _×Cᴰsmall_ .obᴰ (c , d) = Cᴰ.obᴰ c × Dᴰ.obᴰ d
-  _×Cᴰsmall_ .catᴰ .Hom[_][_,_] (f , g)
-    (liftω (c , d)) (liftω (c' , d')) =
-    Cᴰ.Hom[ f ][ liftω c , liftω c' ] × Dᴰ.Hom[ g ][ liftω d , liftω d' ]
-  _×Cᴰsmall_ .catᴰ .idᴰ = Cᴰ.idᴰ , Dᴰ.idᴰ
-  _×Cᴰsmall_ .catᴰ ._⋆ᴰ_ (fᴰ , gᴰ) (fᴰ' , gᴰ') = fᴰ Cᴰ.⋆ᴰ fᴰ' , gᴰ Dᴰ.⋆ᴰ gᴰ'
-  _×Cᴰsmall_ .catᴰ .⋆IdLᴰ _ =
-    ΣPathP (
-      ΣPathP ((C.⋆IdL _) , (D.⋆IdL _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdLᴰ _)))
-  _×Cᴰsmall_ .catᴰ .⋆IdRᴰ _ =
-    ΣPathP (
-      ΣPathP ((C.⋆IdR _) , (D.⋆IdR _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdRᴰ _)))
-  _×Cᴰsmall_ .catᴰ .⋆Assocᴰ _ _ _ =
-    ΣPathP (
-      ΣPathP ((C.⋆Assoc _ _ _) , (D.⋆Assoc _ _ _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆Assocᴰ _ _ _)))
-  _×Cᴰsmall_ .catᴰ .isSetHomᴰ = isSet× Cᴰ.isSetHomᴰ Dᴰ.isSetHomᴰ
+  _×Cᴰsmall_ = smallcatᴰ _
+    (ChangeOfObjectsᴰ.ChangeOfObjectsᴰ
+      {X = Liftω (C.ob × D.ob)}
+      {Y = λ (liftω (c , d)) → Liftω (Cᴰ.obᴰ c × Dᴰ.obᴰ d)}
+      (Cᴰ.catᴰ ×Cᴰ Dᴰ.catᴰ)
+      λ (liftω (cᴰ , dᴰ)) → liftω cᴰ , liftω dᴰ)
 
 module _
   {C : Category Cob CHom-ℓ}

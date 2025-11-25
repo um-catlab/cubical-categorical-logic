@@ -109,7 +109,7 @@ mutual
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma 
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum renaming (rec to ⊎rec)
 
 
 Sub[_,_] : Ctx → Ctx → Type 
@@ -211,87 +211,91 @@ mutual
 ⋆Sub⋆IdL (v ∷ γ) = s⟨ subvId v ⟩∷⟨ ⋆Sub⋆IdL γ ⟩
 
 
+clc : CTy → Type 
+clc B = · ⊢c B 
 
-data Term : {B : CTy} → · ⊢c B → Type where 
-  t-ret : {A : VTy}{v : · ⊢v A} → 
-    Term (ret v)
-  t-lam : {A : VTy}{B : CTy}{m : (A ,, ·) ⊢c B} → 
-    Term (lam m)
+clv : VTy → Type 
+clv A = · ⊢v A 
 
-data Stuck : {B : CTy} → (m : · ⊢c B) → Type where
-  -- application stuck forms
-  s-app-force :
-    {A : VTy} {B : CTy}
-    {f : · ⊢v U (fun A B)}
-    {v : · ⊢v A} →
-    Stuck (app (force f) v)
+data CanStep : {B : CTy} → (m : clc B) → Type where 
+  s-force-thunk : {B : CTy}{m : clc B} → 
+    CanStep (force (thunk m))
+  s-app-lam : {A : VTy}{B : CTy}{v : clv A}{m : (A ,, []) ⊢c B} → 
+    CanStep (app (lam m) v)
+  s-bind-ret : {A : VTy}{B : CTy}{v : clv A}{m : (A ,, []) ⊢c B} → 
+    CanStep (bind (ret v) m)
+  s-rec×-pair : {A A' : VTy}{B : CTy}{v : clv A}{w : clv A'}
+    {m : (A ,, (A' ,, [])) ⊢c B} → 
+    CanStep (rec× (pair v w) m)
 
-  s-app-app :
-    {A A' : VTy} {B : CTy}
-    {m  : · ⊢c fun A (fun A' B)}
-    {v : · ⊢v A}
-    {w  : · ⊢v A'} →
-    Stuck (app (app m v) w)
+open import  Cubical.Relation.Nullary
 
-  s-app-rec× :
-    {A A' A'' : VTy} {B : CTy}
-    {p : · ⊢v (prod A A')}
-    {m : (A ,, (A' ,, ·)) ⊢c fun A'' B}
-    {x : · ⊢v A''} →
-    Stuck (app (rec× p m) x)
+canStep : {B : CTy} → (m : clc B) → Dec (CanStep m) 
+canStep (ret x) = no λ ()
+canStep (force (thunk x)) = yes s-force-thunk
+canStep (lam m) = no λ ()
+canStep (app (force x₁) x) = no λ ()
+canStep (app (lam m) x) = yes s-app-lam
+canStep (app (app m x₁) x) = no λ ()
+canStep (app (rec× x₁ m) x) = no λ ()
+canStep (app (bind m m₁) x) = no λ ()
+canStep (rec× (pair x x₁) m) = yes s-rec×-pair
+canStep (bind (ret x) m₁) = yes s-bind-ret
+canStep (bind (force x) m₁) = no λ ()
+canStep (bind (app m x) m₁) = no λ ()
+canStep (bind (rec× x m) m₁) = no λ ()
+canStep (bind (bind m m₂) m₁) = no λ ()
 
-  s-app-bind :
-    {A A' : VTy} {B : CTy}
-    {m  : · ⊢c F A'}
-    {n : (A' ,, ·) ⊢c fun A B}
-    {x  : · ⊢v A} →
-    Stuck (app (bind m n) x)
+Terminals : CTy → Type 
+Terminals B = Σ[ m ∈ clc B ] ¬ (CanStep m)
 
-  -- bind stuck forms
-  s-bind-force :
-    {A : VTy} {B : CTy}
-    {u : · ⊢v U (F A)}
-    {k : (A ,, ·) ⊢c B} →
-    Stuck (bind (force u) k)
+step' : {B : CTy}{m : clc B}→ CanStep m → clc B 
+step' (s-force-thunk {m = m}) = m
+step' (s-app-lam {v = v}{m}) = subc (v ∷ []) m
+step' (s-bind-ret{v = v}{m}) = subc (v ∷ []) m
+step' (s-rec×-pair{v = v}{w}{m}) = subc (v ∷ (w ∷ [])) m
+open import Cubical.Foundations.Function
 
-  s-bind-app :
-    {A A' : VTy} {B : CTy}
-    {m : · ⊢c fun A' (F A)}
-    {v : · ⊢v A'}
-    {k : (A ,, ·) ⊢c B} →
-    Stuck (bind (app m v) k)
+step : {B : CTy} → clc B → (Terminals B) ⊎ (clc B)
+step m = decRec (inr ∘S step') (λ p → inl (m , p)) (canStep m)
 
-  s-bind-rec× :
-    {A₁ A₂ A' : VTy} {B : CTy}
-    {p : · ⊢v (prod A₁ A₂)}
-    {m : (A₁ ,, (A₂ ,, ·)) ⊢c F A'}
-    {k : (A' ,, ·) ⊢c B} →
-    Stuck (bind (rec× p m) k)
 
-  s-bind-bind :
-    {A A' : VTy} {B : CTy}
-    {m  : · ⊢c F A}
-    {n : (A ,, ·) ⊢c F A'}
-    {k  : (A' ,, ·) ⊢c B} →
-    Stuck (bind (bind m n) k)
+open import Cubical.CoData.Delay
 
-step : {B : CTy} → (m : · ⊢c B) → (Term m ⊎ Stuck m) ⊎ (· ⊢c B) 
--- steps
-step (force (thunk m)) = inr m
-step (app (lam m) v) = inr (subc (v ∷ []) m)
-step (bind (ret v) m) = inr (subc (v ∷ []) m)
-step (rec× (pair v w) m) = inr (subc (v ∷ (w ∷ [])) m)
+open import Cubical.Categories.Category
+open Category
+open import  Cubical.Categories.Instances.FunctorAlgebras
+open import Cubical.Foundations.Structure hiding(str)
 
--- terminal
-step (ret x) = inl (inl t-ret) 
-step (lam m) = inl (inl t-lam)
+open import Cubical.Data.Sigma
+open import Cubical.Categories.Limits.Terminal
 
--- stuck terms
-step (app (force x₁) x) = inl (inr s-app-force)
-step (app (app m x₁) x) = inl (inr s-app-app)
-step (app (rec× x₁ m) x) = inl (inr s-app-rec×)
-step (app (bind m m₁) x) = inl (inr s-app-bind)
-step (bind (force x) m₁) = inl (inr s-bind-force)
-step (bind (app m x) m₁) = inl (inr s-bind-app)
-step (bind (rec× x m) m₁) = inl (inr s-bind-rec×)
-step (bind (bind m m₂) m₁) = inl (inr s-bind-bind) 
+Term : CTy → hSet ℓ-zero 
+Term B = Terminals B , {!   !}
+
+clc' : CTy → hSet ℓ-zero 
+clc' B = (clc B) , {!   !}
+
+coalg : (B : CTy) → ob (CoAlg (Term B))
+coalg B = algebra (clc' B) step 
+
+run' : (B : CTy) → CoAlg (Term B) [ coalg B , DelayCoAlg (Term B) ] 
+run' B = terminalArrow (CoAlg (Term B)) (FinalCoAlg (Term B)) (coalg B)
+open AlgebraHom 
+
+run : {B : CTy} → clc B → Delay ⟨ Term B ⟩ 
+run {B} m = run' B .carrierHom m
+
+prog : clc (F one)
+prog = bind (ret u) (app (lam (ret (var vz))) (var vz))
+
+open import Cubical.Data.Nat 
+
+poke : {A : Type} → ℕ → Delay A → A ⊎ Delay A 
+poke zero d = unfold d
+poke (suc n) d = ⊎rec inl (poke n) (unfold d)
+
+
+_ : poke 99 (run prog) ≡ (inl (ret u , (λ ())))
+_ = refl
+

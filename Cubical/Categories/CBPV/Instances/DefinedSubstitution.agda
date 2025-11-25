@@ -296,6 +296,6 @@ poke zero d = unfold d
 poke (suc n) d = ⊎rec inl (poke n) (unfold d)
 
 
-_ : poke 99 (run prog) ≡ (inl (ret u , (λ ())))
+_ : poke 2 (run prog) ≡ (inl (ret u , (λ ())))
 _ = refl
 

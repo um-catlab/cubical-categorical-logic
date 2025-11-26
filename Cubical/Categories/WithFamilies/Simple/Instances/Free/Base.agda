@@ -27,18 +27,14 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 
--- commented because there are build issues I don't know how to deal with atm
-{-
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf
--} 
+
 open import Cubical.Categories.WithFamilies.Simple.Base
-{-
 open import Cubical.Categories.WithFamilies.Simple.Displayed
 open import Cubical.Categories.WithFamilies.Simple.Properties
--}
 
 private
   variable
@@ -46,8 +42,8 @@ private
 
 open Category
 open Functor
--- open Functorᴰ
--- open Section
+open Functorᴰ
+open Section
 open UniversalElement
 
 module _ (Σ₀ : hGroupoid ℓ) where
@@ -189,7 +185,6 @@ module _ (Σ₀ : hGroupoid ℓ) where
   FreeSCwF .snd .snd .snd .fst = TermCtx
   FreeSCwF .snd .snd .snd .snd = CtxExt
 
-{-
   module _ (M : SCwFᴰ FreeSCwF ℓC ℓC' ℓT ℓT') where
     private
       module M = SCwFᴰNotation M
@@ -279,4 +274,3 @@ module _ (Σ₀ : hGroupoid ℓ) where
             ∙ M.Cᴰ.⟨ refl ⟩⋆⟨ elimRen-Id _ ⟩
             ∙ M.Cᴰ.⋆IdR _)
           , refl)))
--} 

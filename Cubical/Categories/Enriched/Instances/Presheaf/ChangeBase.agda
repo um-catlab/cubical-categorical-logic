@@ -7,6 +7,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Category
+open import Cubical.Categories.Presheaf.Constructions.Lift
 open import Cubical.Categories.Enriched.Functors.Base
 open import Cubical.Categories.Enriched.Instances.Presheaf.Self
 open import Cubical.Categories.Functor
@@ -85,6 +86,30 @@ module _
   BaseChange .⋆Assoc x y z w =
     makeNatTransPath (funExt λ d → funExt⁻
       (cong N-ob (EC .⋆Assoc x y z w)) (F-ob F d))
+
+module _
+  {ℓC ℓC' ℓS ℓS' : Level}
+  {C : Category ℓC ℓC'}
+  (EC : EnrichedCategory (PshMon.𝓟Mon C ℓS) ℓE )
+  where
+  ℓm = ℓ-max (ℓ-max ℓC ℓC') ℓS
+  open import Cubical.Categories.Instances.Sets
+  open MonoidalCategory renaming (C to Cat)
+
+  LiftE : EnrichedCategory (PshMon.𝓟Mon C (ℓ-max ℓm ℓS')) ℓE
+  LiftE .ob = ob EC
+  LiftE .Hom[_,_] X Y = LiftPsh (EC .Hom[_,_] X Y) ℓS'
+  LiftE .id .N-ob c tt* = lift (EC .id .N-ob c tt*)
+  LiftE .id .N-hom f i tt* = lift (EC .id .N-hom f i tt*)
+  LiftE .seq x y z .N-ob c (lift f , lift g) = lift (EC .seq x y z .N-ob c (f , g))
+  LiftE .seq x y z .N-hom f i (lift g , lift h) = lift (EC .seq x y z  .N-hom f i (g , h))
+  LiftE .⋆IdL x y = makeNatTransPath (funExt λ c → funExt λ (tt* , lift f) → 
+    cong lift (cong (λ h → h .N-ob c (tt* , f )) (EC .⋆IdL x y))) 
+  LiftE .⋆IdR x y = makeNatTransPath (funExt λ c → funExt λ (lift f , tt*) → 
+     cong lift (cong (λ h → h .N-ob c (f , tt*)) (EC .⋆IdR x y))) 
+  LiftE .⋆Assoc x y z w = makeNatTransPath (funExt λ c → 
+    funExt λ (lift f , (lift g , lift h)) → 
+     cong lift (cong (λ h' → h' .N-ob c (f , (g , h))) (EC .⋆Assoc x y z w)) )
 
 module _
   {C D : Category ℓ ℓ'}

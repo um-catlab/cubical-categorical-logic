@@ -191,6 +191,11 @@ s⟨_⟩∷⟨_⟩ :
   → Path (Sub[ Δ , (A ∷ Γ)]) (x ∷ γ) (x' ∷ γ')
 s⟨ x ⟩∷⟨ γ ⟩ i = x i ∷ γ i
 
+
+indexId : (x : Var Γ A) → index idSub x ≡ var x
+indexId vz = refl
+indexId (vs x) = {!   !} 
+
 mutual 
   subvId : (v : Γ ⊢v A) → subv idSub v ≡ v 
   subvId (var x) = {! refl  !}
@@ -227,6 +232,11 @@ subvAssoc = {!   !}
 ⋆Sub⋆Assoc _ _ [] = refl
 ⋆Sub⋆Assoc _ _ (y ∷ h) = s⟨ {! funExt (subvAssoc _ _)!} ⟩∷⟨ ⋆Sub⋆Assoc _ _ _ ⟩
 
+open import Cubical.Foundations.Function
+
+subv⋆ : ∀ {Γ Δ Θ : Ctx} → (g : Sub[ Θ , Δ ]) (f : Sub[ Δ , Γ ])(x : Γ ⊢v A) → 
+  subv (g ⋆Sub f) x ≡ (subv g ((subv f) x))
+subv⋆ g f x = {!   !}
 
 open import Cubical.Categories.CBPV.Base
 open import Cubical.Categories.WithFamilies.Simple.Base
@@ -252,7 +262,7 @@ vTm : VTy → Functor (SubCat ^op) (SET _)
 vTm A .F-ob Γ = (Γ ⊢v A) , {!   !}
 vTm A .F-hom = subv
 vTm A .F-id = funExt subvId
-vTm A .F-seq f g = {!   !}
+vTm A .F-seq f g = funExt (subv⋆ _ _)
 
 ηterm : (Γ : Ctx)(γ : Sub[ Γ  , · ]) → 
   [] ≡ γ 

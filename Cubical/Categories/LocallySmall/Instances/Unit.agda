@@ -21,11 +21,15 @@ SmallUNIT : SmallCategory ℓ-zero ℓ-zero
 SmallUNIT = smallcat _ UNIT
 
 module _ {C : Category Cob CHom-ℓ} (c : Cob) where
+  -- TODO: delete elimUNIT, wrong terminology
   elimUNIT : Functor UNIT C
   elimUNIT .Functor.F-ob = λ z → c
   elimUNIT .Functor.F-hom = λ z → id C
   elimUNIT .Functor.F-id = refl
   elimUNIT .Functor.F-seq = λ _ _ → sym (⋆IdR C _)
+
+  rec : Functor UNIT C
+  rec = elimUNIT
 
 module _ {C : Category Cob CHom-ℓ} where
   introUNIT : Functor C UNIT

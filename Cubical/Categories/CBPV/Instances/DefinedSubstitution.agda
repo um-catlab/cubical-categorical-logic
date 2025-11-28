@@ -41,7 +41,7 @@ Ctx = List ⟨ hGTy  ⟩
 
 _,,_ : VTy → Ctx → Ctx 
 A ,, Γ = A List.∷ Γ
-
+-- add base types like sums
 mutual 
   data _⊢v_  : Ctx → VTy →  Set where 
     var : {Γ : Ctx}{A : VTy} → 
@@ -179,11 +179,6 @@ _⋆Sub_ : Sub[ Θ , Δ ] → Sub[ Δ , Γ ] → Sub[ Θ , Γ ]
 δ ⋆Sub [] = []
 δ ⋆Sub (x ∷ γ) = subv δ x ∷ (δ ⋆Sub γ)
 
-subWkSub : ∀ (γ : Sub[ Δ , Γ ])(v : Var Γ A) → 
-  subv (wksub {A = A}idSub) (var v) ≡ var (vs v) 
-subWkSub γ vz = refl
-subWkSub (y ∷ γ) (vs v) = {!   !}
-
 s⟨_⟩∷⟨_⟩ :
   ∀ {x x' : Δ ⊢v A}{γ γ' : Sub[ Δ , Γ ]}
   → x ≡ x'
@@ -191,14 +186,19 @@ s⟨_⟩∷⟨_⟩ :
   → Path (Sub[ Δ , (A ∷ Γ)]) (x ∷ γ) (x' ∷ γ')
 s⟨ x ⟩∷⟨ γ ⟩ i = x i ∷ γ i
 
-
+-- Forward declaration needed for subWkSub
 indexId : (x : Var Γ A) → index idSub x ≡ var x
 indexId vz = refl
-indexId (vs x) = {!   !} 
+indexId (vs x) = {!   !}
+
+subWkSub : ∀ (γ : Sub[ Δ , Γ ])(v : Var Γ A) → 
+  subv (wksub {A = A}idSub) (var v) ≡ var (vs v) 
+subWkSub γ vz = refl
+subWkSub (y ∷ γ) (vs v) = {!   !} 
 
 mutual 
   subvId : (v : Γ ⊢v A) → subv idSub v ≡ v 
-  subvId (var x) = {! refl  !}
+  subvId (var x) = indexId x
   subvId u = refl
   subvId (pair v w) = cong₂ pair (subvId v) (subvId w)
   subvId (thunk m) = cong thunk (subcId m)
@@ -206,15 +206,36 @@ mutual
   subcId : (m : Γ ⊢c B) → subc idSub m ≡ m 
   subcId (ret v) = cong ret (subvId v)
   subcId (force v) = cong force (subvId v)
-  subcId (lam m) = cong lam {!   !}
+  subcId (lam m) = cong lam (subcId m)
   subcId (app m v) = cong₂ app (subcId m) (subvId v)
-  subcId (rec× v m) = cong₂ rec× (subvId v) {!   !}
-  subcId (bind m n) = cong₂ bind (subcId m) {!   !}
+  subcId (rec× v m) = cong₂ rec× (subvId v) (subcId m)
+  subcId (bind m n) = cong₂ bind (subcId m) (subcId n)
 
+open import Cubical.Foundations.Function
+
+-- Define subv⋆ and subc⋆ mutually
+mutual
+  subv⋆ : ∀ {Γ Δ Θ : Ctx} → (g : Sub[ Θ , Δ ]) (f : Sub[ Δ , Γ ])(x : Γ ⊢v A) → 
+    subv (g ⋆Sub f) x ≡ (subv g ((subv f) x))
+  subv⋆ g [] (var x) = {!   !}
+  subv⋆ g (y ∷ f) (var vz) = refl
+  subv⋆ g (y ∷ f) (var (vs x)) = subv⋆ g f (var x)
+  subv⋆ g f u = refl
+  subv⋆ g f (pair v w) = cong₂ pair (subv⋆ g f v) (subv⋆ g f w)
+  subv⋆ g f (thunk m) = cong thunk (subc⋆ g f m)
+
+  subc⋆ : ∀ {Γ Δ Θ : Ctx} → (g : Sub[ Θ , Δ ]) (f : Sub[ Δ , Γ ]) (m : Γ ⊢c B) → 
+    subc (g ⋆Sub f) m ≡ (subc g (subc f m))
+  subc⋆ g f (ret v) = cong ret (subv⋆ g f v)
+  subc⋆ g f (force v) = cong force (subv⋆ g f v)
+  subc⋆ g f (lam m) = {!   !}
+  subc⋆ g f (app m v) = cong₂ app (subc⋆ g f m) (subv⋆ g f v)
+  subc⋆ g f (rec× v m) =  {!   !} --cong₂ rec× (subv⋆ g f v) (subc⋆ (liftSub (liftSub g)) (liftSub (liftSub f)) m)
+  subc⋆ g f (bind m n) = {!   !} -- cong₂ bind (subc⋆ g f m) (subc⋆ (liftSub g) (liftSub f) n)
 
 subvAssoc : (f : Sub[ Δ , Γ ]) (g : Sub[ Θ , Δ ]) →
   subv (g ⋆Sub f) ≡ (λ x₁ → subv g (subv f x₁))
-subvAssoc = {!   !}
+subvAssoc f g = funExt (λ v → subv⋆ g f v)
 
 ⋆Sub⋆IdL : (γ : Sub[ Δ , Γ ]) → 
   (idSub ⋆Sub γ) ≡ γ 
@@ -223,20 +244,14 @@ subvAssoc = {!   !}
 
 ⋆Sub⋆IdR : {Γ : Ctx} → (γ : Sub[ Δ , Γ ]) → 
   (γ ⋆Sub idSub) ≡ γ 
-⋆Sub⋆IdR {Γ} [] = {!   !}
+⋆Sub⋆IdR {Γ} [] = refl
 ⋆Sub⋆IdR {[]} (y ∷ γ) = {!   !}
 ⋆Sub⋆IdR {A ∷ Γ} (y ∷ γ) = {!   !}
 
 ⋆Sub⋆Assoc : ∀ (f : Sub[ ξ , Θ ]) (g : Sub[ Θ , Δ ]) (h : Sub[ Δ , Γ ]) →
   ((f ⋆Sub g) ⋆Sub h) ≡ (f ⋆Sub (g ⋆Sub h))
 ⋆Sub⋆Assoc _ _ [] = refl
-⋆Sub⋆Assoc _ _ (y ∷ h) = s⟨ {! funExt (subvAssoc _ _)!} ⟩∷⟨ ⋆Sub⋆Assoc _ _ _ ⟩
-
-open import Cubical.Foundations.Function
-
-subv⋆ : ∀ {Γ Δ Θ : Ctx} → (g : Sub[ Θ , Δ ]) (f : Sub[ Δ , Γ ])(x : Γ ⊢v A) → 
-  subv (g ⋆Sub f) x ≡ (subv g ((subv f) x))
-subv⋆ g f x = {!   !}
+⋆Sub⋆Assoc _ _ (y ∷ h) = {!   !}
 
 open import Cubical.Categories.CBPV.Base
 open import Cubical.Categories.WithFamilies.Simple.Base
@@ -256,10 +271,10 @@ SubCat ._⋆_ = _⋆Sub_
 SubCat .⋆IdL = ⋆Sub⋆IdL
 SubCat .⋆IdR = ⋆Sub⋆IdR
 SubCat .⋆Assoc = ⋆Sub⋆Assoc
-SubCat .isSetHom = isOfHLevelSucSuc-ListP 0 λ _ → {!   !}
+SubCat .isSetHom = {!   !}
 
 vTm : VTy → Functor (SubCat ^op) (SET _)
-vTm A .F-ob Γ = (Γ ⊢v A) , {!   !}
+vTm A .F-ob Γ = (Γ ⊢v A) , (λ _ _ → {!   !})
 vTm A .F-hom = subv
 vTm A .F-id = funExt subvId
 vTm A .F-seq f g = funExt (subv⋆ _ _)
@@ -282,8 +297,7 @@ scwf : SCwF _ _ _ _
 scwf .fst = SubCat
 scwf .snd .fst = VTy
 scwf .snd .snd .fst = vTm
-scwf .snd .snd .snd .fst = term
-scwf .snd .snd .snd .snd = {!   !}
+scwf .snd .snd .snd = term , (λ A Γ → {!   !})
 
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open PshMon SubCat ℓ-zero
@@ -294,8 +308,8 @@ open import Cubical.Categories.Enriched.Functors.Base
 open EnrichedFunctor
 
 Ehom : CTy → CTy → ob 𝓟 
-Ehom B B' .F-ob Γ = (Γ ◂ B ⊢k B') , {!   !}
-Ehom B B' .F-hom = {!   !}
+Ehom B B' .F-ob Γ = (Γ ◂ B ⊢k B') , (λ _ _ → {!   !})
+Ehom B B' .F-hom γ k = {!   !}
 Ehom B B' .F-id = {!   !}
 Ehom B B' .F-seq = {!   !}
 
@@ -314,13 +328,13 @@ stacks[_,_] = stacks .Hom[_,_]
 self[_,_]  = selfSCat .Hom[_,_]
 
 cTm' : ob stacks → ob selfSCat 
-cTm' B .F-ob Γ = (Γ ⊢c B) , {!   !}
+cTm' B .F-ob Γ = (Γ ⊢c B) , (λ _ _ → {!   !})
 cTm' B .F-hom = subc
 cTm' B .F-id = funExt subcId
 cTm' B .F-seq = {!   !}
 
 plug : (B B' : ob stacks) → 𝓟[ stacks[ B , B' ] , self[ cTm' B , cTm' B' ] ]
-plug B B' = {!   !}
+plug B B' = {!   !} 
 
 cTm : EnrichedFunctor 𝓟Mon stacks selfSCat
 cTm .F-ob = cTm'

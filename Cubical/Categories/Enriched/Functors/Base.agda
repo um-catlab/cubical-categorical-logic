@@ -49,3 +49,13 @@ module _ (V : MonoidalCategory ℓV ℓV') where
     ∙ sym (V.⋆Assoc _ _ _))
     ∙ cong (λ h → h V.⋆ F-hom G) (F .F-seq))
     ∙ V.⋆Assoc _ _ _
+
+  module _ 
+    (EC : EnrichedCategory V ℓE)
+    (ℓE' : Level ) where 
+
+    LiftOb : EnrichedFunctor EC (LiftEC EC ℓE') 
+    LiftOb .F-ob = lift
+    LiftOb .F-hom = V.id
+    LiftOb .F-id = V.⋆IdR _
+    LiftOb .F-seq = (cong₂ (V._⋆_) (V.─⊗─  .F-id) refl ∙ V.⋆IdL _) ∙ sym (V.⋆IdR _)

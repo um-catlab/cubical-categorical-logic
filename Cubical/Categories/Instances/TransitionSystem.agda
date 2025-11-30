@@ -108,6 +108,13 @@ match {S = S} s with S .trans s
 ... | inl x = inl (x , refl)
 ... | inr x = inr (x , refl)
 
+matcht : {S T : TSystem ℓ}{f : TSystem[ S , T ]}→ 
+  (s : ⟨ S .term ⟩) →  (Σ[ t-trm ∈  ⟨ T .term ⟩ ] (f .tmap s ≡ inl t-trm))
+                       ⊎ (Σ[ t ∈ ⟨ T .state ⟩ ] (f .tmap s ≡ inr t))
+matcht {f = f} s with (f .tmap s)
+... | inl x = inl (x , refl)
+... | inr x = inr (x , refl)
+
 _∘TS_ : {S T R : TSystem ℓ} →
   TSystem[ S , T ] → TSystem[ T , R ] → TSystem[ S , R ]
 (f ∘TS g) .smap = g .smap ∘S f .smap

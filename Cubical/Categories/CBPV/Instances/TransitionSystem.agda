@@ -28,7 +28,6 @@ open import Cubical.Categories.WithFamilies.Simple.Instances.Sets
 
 open Category
 open Functor
-open CBPVModel hiding (V)
 open EnrichedFunctor
 open EnrichedCategory
 open MonoidalCategory
@@ -73,7 +72,7 @@ module _ (ℓ : Level) where
 
 
   TSystemModel : CBPVModel _ _ _ _ _ _
-  TSystemModel .Scwf = SETScwf ℓ
-  TSystemModel .Stacks = E
-  TSystemModel .CTm = cTm
+  TSystemModel .fst = SETScwf ℓ
+  TSystemModel .snd .fst = E
+  TSystemModel .snd .snd = cTm
 

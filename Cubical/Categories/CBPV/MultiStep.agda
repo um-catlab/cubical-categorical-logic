@@ -28,8 +28,6 @@ open import Cubical.Categories.WithFamilies.Simple.Functor
 open import Cubical.Categories.WithFamilies.Simple.Instances.Sets
   renaming (SET to SETSCwF)
 
-open CBPVFunctor
-open CBPVModel
 open EnrichedFunctor
 open Functor
 open PshHom
@@ -40,7 +38,7 @@ private
   variable
     ℓ : Level 
 
--- TODO generalize this to any extension system
+-- TODO generalize this to (any?) extension system
 -- not just delay
 module _ (ℓ : Level) where 
 
@@ -107,18 +105,31 @@ module _ (ℓ : Level) where
       ∙ (cong₃ rec⊎ refl refl (sym h) 
       ∙ sym (bind-ret-l _ _ )) 
       ∙ cong₂ bind-d (cong₃ rec⊎ refl refl (sym p)) refl
+    ... | inr x = ?
 
 
-  EF : EnrichedFunctor 𝓥 (S . Stacks) (T .Stacks)
+  EF : EnrichedFunctor 𝓥 (S . snd .fst) (T .snd .fst)
   EF = Functor→Enriched TSysCat (K DExt) EF' 
 
- 
-  FStacks : EnrichedFunctor 𝓥 {!   !} (BaseChange Id ℓ ℓ (T .Stacks))
-  FStacks = eseq 𝓥 {!   !} (eseq 𝓥 EF (record { F-ob = {!   !} ; F-hom = {!   !} ; F-id = {!   !} ; F-seq = {!   !} }))
 
+  -- thse coercions are essentially Id since there is no lifting
+  -- as the CBPV models are of the same levels
+  dumb1 : EnrichedFunctor 𝓥 (LiftE (S .snd .fst)) (S .snd .fst)
+  dumb1 = ?
+
+  dumb2 : EnrichedFunctor 𝓥 (T .snd .fst) (BaseChange (IdPreFun .fst) ℓ ℓ (T .snd .fst))
+  dumb2 .F-ob X = X
+  dumb2 .F-hom = ?
+  dumb2 .F-id = {!   !}
+  dumb2 .F-seq = {!   !}
+
+  MultiStep : CBPVFunctor S T 
+  MultiStep = IdPreFun , ((eseq 𝓥  dumb1 (eseq 𝓥 EF dumb2 ) ) , {!   !})
+{-
   MultiStep : CBPVFunctor S T
   MultiStep .PreF = IdPreFun
   -- My machine dies trying to work with these holes
   -- or rather .. LiftE and BaseChange ..
   MultiStep .F-stacks = {!   !} -- eseq 𝓥 ? ?
   MultiStep .F-comp = {!   !}
+-}

@@ -24,7 +24,6 @@ open import  Cubical.Categories.WithFamilies.Simple.Instances.Sets
   renaming (SET to SETSCwF)
 
 open Category
-open CBPVModel
 open Functor
 open EnrichedCategory
 open EnrichedFunctor
@@ -77,6 +76,6 @@ module _ {ℓ : Level}(M : ExtensionSystem (SET ℓ)) where
         cong lift (funExt λ d → funExt⁻ bind-comp _)})) 
 
   Kleisli : CBPVModel _ _ _ _ _ _
-  Kleisli .Scwf = SETSCwF ℓ
-  Kleisli .Stacks = E
-  Kleisli .CTm = cTm
+  Kleisli .fst = SETSCwF ℓ
+  Kleisli .snd .fst = E
+  Kleisli .snd .snd = cTm

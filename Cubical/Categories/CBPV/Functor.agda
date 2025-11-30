@@ -20,7 +20,6 @@ open import Cubical.Categories.WithFamilies.Simple.Functor
 open import Cubical.Categories.WithFamilies.Simple.Base 
 
 open Category
-open CBPVModel hiding (V)
 open EnrichedCategory
 open Functor
 open MonoidalCategory renaming (C to Cat)
@@ -32,6 +31,28 @@ private
     ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level
     ℓD ℓD' ℓVTy' ℓVTm' ℓCTy' ℓCTm' : Level
 
+CBPVFunctor : 
+  {ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm ℓD ℓD' ℓVTy' ℓVTm' ℓCTy' ℓCTm' : Level}→ 
+  (C : CBPVModel ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm)
+  (D : CBPVModel ℓD ℓD' ℓVTy' ℓVTm' ℓCTy' ℓCTm') → Type _ 
+CBPVFunctor {ℓCTm = ℓCTm} {ℓCTm' = ℓCTm'} C D = 
+  Σ[ PreF ∈ PreFunctor (C .fst) (D .fst) ]
+  Σ[ F-Stacks ∈ EnrichedFunctor V (LiftE (C .snd .fst)) (BaseChange (PreF .fst) ℓCTm ℓCTm'(D .snd .fst)) ] 
+  EnrichedNatTrans 
+    (eseq V 
+      (LiftEF (C .snd .snd) ℓmD) 
+      (LiftSelf _ _)) 
+    (eseq V 
+      F-Stacks 
+      (eseq V 
+        (BaseChangeF (PreF .fst) ℓCTm (D .snd .snd))
+        (BaseLiftSelf (PreF .fst) ℓmC))) where 
+    ctxC = C .fst .fst 
+    ctxD = D .fst .fst
+    ℓmC = PshMon.ℓm ctxC ℓCTm
+    ℓmD = PshMon.ℓm ctxD ℓCTm'
+    V = PshMon.𝓟Mon ctxC (ℓ-max ℓmC ℓmD)
+{-
 record CBPVFunctor
   (C : CBPVModel ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm)
   (D : CBPVModel ℓD ℓD' ℓVTy' ℓVTm' ℓCTy' ℓCTm') : 
@@ -89,7 +110,7 @@ record CBPVFunctor
       EnrichedNatTrans 
         LCTM 
         (eseq V F-stacks (eseq V LDTM Final))
-
+-}
 
 {-
 this is also ungodly slow ...

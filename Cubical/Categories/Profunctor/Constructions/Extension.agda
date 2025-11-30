@@ -30,12 +30,12 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Tensor
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Yoneda.More
 
 private
   variable
-    ℓ ℓ' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓR ℓS : Level
 
 open Category
 open Bifunctor
@@ -49,14 +49,28 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
     Tensor (CurryBifunctor P ⟅ d ⟆) Q
 
   -- TODO: make this a bifunctor
-  ext : Bifunctor (D ^op) C (SET ℓP)
-    → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓ))
+  ext : D o-[ ℓP ]-* C
+    → Functor (PresheafCategory C ℓ)
+              (PresheafCategory D (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓ))
   ext P = CurryBifunctor $ Sym $ ⊗-Bif ∘Fl CurryBifunctor P
   private
-    test-ext : ∀ (P : Bifunctor (D ^op) C (SET ℓP)) (Q : Presheaf C ℓQ) d
+    test-ext : ∀ (P : D o-[ ℓP ]-* C) (Q : Presheaf C ℓQ) d
       → ⟨ (ext P ⟅ Q ⟆) .F-ob d ⟩ ≡ ((CurryBifunctor P ⟅ d ⟆) ⊗ Q)
     test-ext P Q d = refl
 
+  ext-Iso : ∀
+    {P : D o-[ ℓP ]-* C}
+    {Q : D o-[ ℓQ ]-* C}
+    (α : RelatorIso P Q)
+    (R : Presheaf C ℓR)
+    → PshIso (ext P ⟅ R ⟆) (ext Q ⟅ R ⟆)
+  ext-Iso {P = P}{Q = Q} α R = Isos→PshIso (λ d → appL-Iso α d ⊗Iso idPshIso)
+    λ d d' f →
+      P⊗R.ind (λ _ → Q⊗R.isSet⊗ _ _) λ p r → cong (Q⊗R._,⊗ _)
+      (appR-Hom (α .trans) _ .N-hom _ _ _ _)
+    where
+      module P⊗R = ext-⊗ P R using (ind)
+      module Q⊗R = ext-⊗ Q R using (isSet⊗; _,⊗_)
 
   CoContinuous : {ℓP : Level → Level}
     (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))

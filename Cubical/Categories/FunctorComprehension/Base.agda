@@ -32,12 +32,15 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Relator
 
 private
   variable
@@ -55,20 +58,39 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          where
   private
     module C = Category C
+    module D = Category D
+    module P = RelatorNotation (CurriedToBifunctorL P)
   FunctorComprehension : Functor C D
   FunctorComprehension .F-ob x = ues x .vertex
   FunctorComprehension .F-hom {x}{y} f =
-    intro (ues y) ((P ⟪ f ⟫) .N-ob _ (ues x .element))
+    intro (ues y) (ues x .element P.⋆ʳᶜ f)
   FunctorComprehension .F-id {x} =
-    (λ i → intro (ues x) (P .F-id i .N-ob _ (ues x .element)))
+    cong (intro (ues x)) (P.⋆IdRʳᶜ (ues x .element))
     ∙ (sym $ weak-η (ues x))
   FunctorComprehension .F-seq {x}{y}{z} f g =
-    ((λ i → intro (ues z) (P .F-seq f g i .N-ob _ (ues x .element))))
-    ∙ (cong (intro (ues z)) $
-      ((λ i → P .F-hom g .N-ob _
-        (β (ues y) {p = P .F-hom f .N-ob _ (ues x .element)} (~ i))))
-      ∙ funExt⁻ (P .F-hom g .N-hom _) _)
-    ∙ (sym $ intro-natural (ues z))
+    intro≡ (ues z)
+      (sym (P.⋆Assocʳᶜᶜ _ _ _)
+      ∙ P.⟨ sym $ β (ues y) ⟩⋆ʳᶜ⟨ refl ⟩
+      ∙ P.⋆Assocᶜʳᶜ _ _ _
+      ∙ P.⟨ refl ⟩⋆ᶜʳ⟨ sym $ β (ues z) ⟩
+      ∙ (sym $ P.⋆Assocᶜᶜʳ _ _ _))
 
-  -- TODO: need universe polymorphic profunctor iso:
-  --   Yo ∘F FunctorComprehension P ues ≅ P
+  -- P ≅ Yo ∘F FunctorComprehension P ues
+  open PshHom
+  open PshIso
+  FunctorComprehension-Iso :
+    RelatorIso
+    (CurriedToBifunctorL P)
+    (compR (HomBif D) FunctorComprehension)
+  FunctorComprehension-Iso .trans = mkRelatorHom (λ d c → intro (ues c))
+    (λ d d' c f p → sym $ intro-natural (ues c))
+    λ d c c' p g → intro≡ (ues c') $ sym $
+      ((intro (ues c) p D.⋆ intro (ues c') (ues c .element P.⋆ʳᶜ g)) P.⋆ᶜʳ ues c' .element)
+        ≡⟨ P.⋆Assocᶜᶜʳ _ _ _ ∙ P.⟨ refl ⟩⋆ᶜʳ⟨ β (ues c') ⟩ ⟩
+      (intro (ues c) p P.⋆ᶜʳ (ues c .element P.⋆ʳᶜ g))
+        ≡⟨ sym (P.⋆Assocᶜʳᶜ _ _ _) ∙ P.⟨ β $ ues c ⟩⋆ʳᶜ⟨ refl ⟩ ⟩
+      (p P.⋆ʳᶜ g)
+        ∎
+  FunctorComprehension-Iso .nIso (d , c) .fst = P._⋆ᶜʳ ues c .element
+  FunctorComprehension-Iso .nIso (d , c) .snd .fst f = sym $ η $ ues c
+  FunctorComprehension-Iso .nIso (d , c) .snd .snd p = β $ ues c

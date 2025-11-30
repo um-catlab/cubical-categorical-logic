@@ -24,7 +24,7 @@ open import Cubical.Categories.Yoneda.More
 
 private
   variable
-    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓR ℓS : Level
 
 open Category
 open Bifunctor
@@ -140,3 +140,36 @@ module _ {C : Category ℓ ℓ'} where
         ◇P-rt : section (λ p → C .id ◇P⊗.,⊗ p) ◇P→P
         ◇P-rt = ◇P⊗.ind (λ f⊗p → isSet⊗ _ _)
           λ f p → ◇P⊗.swap _ _ _ ∙ cong (◇P⊗._,⊗ p) (C .⋆IdL f)
+
+  _⊗Hom_ :
+    ∀ {P : Functor C (SET ℓP)}{Q : Functor C (SET ℓQ)}
+    {R : Functor (C ^op) (SET ℓR)}{S : Functor (C ^op) (SET ℓS)}
+    (α : PshHom P Q)
+    (β : PshHom R S)
+    → P ⊗ R → Q ⊗ S
+  _⊗Hom_ {P = P}{Q = Q}{R = R}{S = S} α β =
+    P⊗R.rec Q⊗S.isSet⊗
+      (λ {x} p r → α .N-ob x p Q⊗S.,⊗ β .N-ob x r)
+      (λ p f r →
+        cong (_ Q⊗S.,⊗_) (β .N-hom _ _ f r)
+        ∙ Q⊗S.swap _ f _
+        ∙ cong (Q⊗S._,⊗ _) (sym $ α .N-hom _ _ f p))
+    where
+      module P⊗R = Tensor P R
+      module Q⊗S = Tensor Q S
+
+  _⊗Iso_ : ∀ {P : Functor C (SET ℓP)}{Q : Functor C (SET ℓQ)}
+    {R : Functor (C ^op) (SET ℓR)}{S : Functor (C ^op) (SET ℓS)}
+    (α : PshIso P Q)
+    (β : PshIso R S)
+    → Iso (P ⊗ R) (Q ⊗ S)
+  _⊗Iso_ {P = P}{Q = Q}{R = R}{S = S} α β = iso
+    (α .trans ⊗Hom β .trans)
+    (invPshIso α .trans ⊗Hom invPshIso β .trans)
+    (Q⊗S.ind (λ _ → Q⊗S.isSet⊗ _ _)
+      (λ q s → cong₂ Q⊗S._,⊗_ (α .nIso _ .snd .fst q) (β .nIso _ .snd .fst s)))
+    (P⊗R.ind (λ _ → P⊗R.isSet⊗ _ _)
+      (λ p r → cong₂ P⊗R._,⊗_ (α .nIso _ .snd .snd p) (β .nIso _ .snd .snd r)))
+    where
+      module P⊗R = Tensor P R
+      module Q⊗S = Tensor Q S

@@ -20,21 +20,20 @@ open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Functor.Constant
 open import Cubical.Categories.LocallySmall.Functor.Properties
 
-open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
-open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
+-- open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
+-- open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
-open import Cubical.Categories.LocallySmall.Displayed.Section.Base
-open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
+-- open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
+-- open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
+-- open import Cubical.Categories.LocallySmall.Displayed.Section.Base
+-- open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 
 open Category
 open Categoryᴰ
 open Σω
 open Liftω
-
 
 module _
   {C : Category Cob CHom-ℓ}
@@ -63,7 +62,6 @@ module _
         (λ ccᴰd ccᴰd' →
           Hom-ℓᴰᴰ (ccᴰd .fst) (ccᴰd' .fst)
                   (ccᴰd .snd .fst) (ccᴰd' .snd .fst))
-
 module _
   (C : Category Cob CHom-ℓ)
   {Cobᴰ}{CHom-ℓᴰ}
@@ -86,6 +84,21 @@ module _
     module _ (Cᴰᴰ : SmallFibersᴰCategoryᴰ Cᴰ Dᴰ obᴰᴰ-ℓ obᴰᴰ Hom-ℓᴰᴰ) where
       private
         module Cᴰᴰ = CategoryᴰNotation Cᴰᴰ
+      ∫Cᴰ : SmallFibersCategoryᴰ (∫C Cᴰ) _
+        (λ (c , cᴰ) → Σ[ dᴰ ∈ Dobᴰ c ] obᴰᴰ (c , (cᴰ , (liftω dᴰ))))
+        _
+      ∫Cᴰ .Hom[_][_,_] (f , fᴰ) (liftω (dᴰ , cᴰᴰ)) (liftω (dᴰ' , cᴰᴰ')) =
+        Σ[ gᴰ ∈ Dᴰ.Hom[ f ][ liftω dᴰ , liftω dᴰ' ] ]
+        Cᴰᴰ.Hom[ f , (fᴰ , gᴰ) ][ liftω cᴰᴰ , liftω cᴰᴰ' ]
+      ∫Cᴰ .idᴰ = Dᴰ.idᴰ , Cᴰᴰ.idᴰ
+      ∫Cᴰ ._⋆ᴰ_ (gᴰ , gᴰᴰ) (hᴰ , hᴰᴰ) = (gᴰ Dᴰ.⋆ᴰ hᴰ) , (gᴰᴰ Cᴰᴰ.⋆ᴰ hᴰᴰ)
+      ∫Cᴰ .⋆IdLᴰ (gᴰ , gᴰᴰ) =
+        ΣPathP ((Cᴰ.⋆IdLᴰ _) , ΣPathP ((Dᴰ.rectify-out (Dᴰ.⋆IdLᴰ gᴰ)) , (Cᴰᴰ.rectify-out (Cᴰᴰ.⋆IdLᴰ gᴰᴰ))))
+      ∫Cᴰ .⋆IdRᴰ (gᴰ , gᴰᴰ) =
+        ΣPathP ((Cᴰ.⋆IdRᴰ _) , ΣPathP ((Dᴰ.rectify-out (Dᴰ.⋆IdRᴰ gᴰ)) , (Cᴰᴰ.rectify-out (Cᴰᴰ.⋆IdRᴰ gᴰᴰ))))
+      ∫Cᴰ .⋆Assocᴰ (gᴰ , gᴰᴰ) (hᴰ , hᴰᴰ) (kᴰ , kᴰᴰ) =
+        ΣPathP (Cᴰ.⋆Assocᴰ _ _ _ , ΣPathP (Dᴰ.rectify-out (Dᴰ.⋆Assocᴰ gᴰ hᴰ kᴰ) , Cᴰᴰ.rectify-out (Cᴰᴰ.⋆Assocᴰ gᴰᴰ hᴰᴰ kᴰᴰ)))
+      ∫Cᴰ .isSetHomᴰ = isSetΣ Dᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
       module _ (c : Cob) (cᴰ : Cobᴰ c) where
         open Functor
         open Functorᴰ

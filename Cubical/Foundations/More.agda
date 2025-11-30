@@ -227,3 +227,15 @@ isSet→Square :
   (p : a ≡ c) (q : b ≡ d) (r : a ≡ b) (s : c ≡ d)
   → Square r s p q
 isSet→Square isSetA p q r s = compPath→Square (isSetA _ _ _ _)
+
+congDep : {A : Type ℓ}
+  {B : A → Type ℓ'}
+  {B' : A → Type ℓ''}
+  → {a₁ a₂ : A}
+  → {b₁ : B a₁}
+  → {b₂ : B a₂}
+  → (f : ∀ a → B a → B' a)
+  → (a₁≡a₂ : a₁ ≡ a₂)
+  → PathP (λ i → B (a₁≡a₂ i)) b₁ b₂
+  → PathP (λ i → B' (a₁≡a₂ i)) (f a₁ b₁) (f a₂ b₂)
+congDep f a₁≡a₂ b₁≡b₂ = λ i → f (a₁≡a₂ i) (b₁≡b₂ i)

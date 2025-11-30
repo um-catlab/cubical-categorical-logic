@@ -1,4 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
+{- TODO: move this to LocallySmall.Presheaf.GloballySmall.Base -}
+
 {-- A globally small presheaf on a small category C
 -- is a contravariant functor from C to the category
 -- of sets *at a fixed universe level*
@@ -60,7 +62,7 @@ module _ (C : SmallCategory ℓC ℓC') where
   Presheaf : (ℓP : Level) → Typeω
   Presheaf ℓP = FunctorEq Eq.refl (liftω ℓP)
 
-  PRESHEAF : Categoryᴰ LEVEL (FunctorEq Eq.refl) _
+  PRESHEAF : Categoryᴰ LEVEL (λ ℓP → Presheaf (ℓP .lowerω)) _
   PRESHEAF = FUNCTOR-EQ (C ^opsmall) SET Eq.refl
 
 module _ (C : SmallCategory ℓC ℓC') where
@@ -110,7 +112,6 @@ module _ (C : SmallCategory ℓC ℓC') where
       Presheaf→SmallPresheaf (SmallPresheaf→Presheaf P) ≡ P
     SmallPresheaf→Presheaf→SmallPresheaf P =
       SmallFunctor.Functor≡ (λ _ → refl) λ _ → refl
-
 
 module _
   (C : SmallCategory ℓC ℓC')

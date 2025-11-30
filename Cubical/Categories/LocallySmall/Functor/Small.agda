@@ -1,3 +1,13 @@
+-- A version of displayed functor that ends up being small.
+--
+-- Equivalent to a displayed functor
+--
+-- C --> Dᴰ
+-- |     |
+-- 1 --> D
+--
+-- with sufficient conditions on C, D, Dᴰ to form small types of
+-- functors and displayed natural transformations
 module Cubical.Categories.LocallySmall.Functor.Small where
 
 open import Cubical.Foundations.Prelude
@@ -29,7 +39,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 
 open Category
 open Categoryᴰ
@@ -68,7 +78,6 @@ record Functor
   asFunctorᴰ : Functorᴰ (Unit.rec d) (weaken C.cat) Dᴰ
   asFunctorᴰ = functorᴰ (mapω F-ob) F-hom (Dᴰ.≡in F-id) λ fᴰ gᴰ → Dᴰ.≡in (F-seq fᴰ gᴰ)
 
-
 module _
   {C : SmallCategory ℓC ℓC'}
   {D : Category Dob DHom-ℓ}
@@ -97,7 +106,7 @@ module _
           → (F.F-hom g Dᴰ.⋆ᴰ N-ob c') Dᴰ.∫≡ (N-ob c Dᴰ.⋆ᴰ F'.F-hom g)
       ∫N-hom g = Dᴰ.≡in $ N-hom g
 
-    
+
     N-obTy : Type _
     N-obTy = ∀ c → Dᴰ.Hom[ f ][ liftω (F.F-ob c) , liftω (F'.F-ob c) ]
 
@@ -200,5 +209,30 @@ module _
   {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
   (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)
   where
+  Bifunctor : (d : Dob) → Type _
+  Bifunctor d = Functor B (FUNCTOR C Dᴰ) d
+
   BIFUNCTOR : SmallFibersCategoryᴰ D _ (Functor B (FUNCTOR C Dᴰ)) _
   BIFUNCTOR = FUNCTOR B (FUNCTOR C Dᴰ)
+
+-- module _
+--   (C : SmallCategory ℓC ℓC')
+--   where
+--   open Functor
+--   private
+--     module C = SmallCategory C
+
+--   _[-,_] : C.ob → Functor (C ^opsmall) SET (liftω ℓC')
+--   _[-,_] c .F-ob c' = C.Hom[ liftω c' , liftω c ] , C.isSetHom
+--   _[-,_] c .F-hom f g = f C.⋆ g
+--   _[-,_] c .F-id = funExt C.⋆IdL
+--   _[-,_] c .F-seq f g = funExt $ C.⋆Assoc g f
+
+--   HOM : Bifunctor C (C ^opsmall) SET (liftω ℓC')
+--   HOM .F-ob = _[-,_]
+--   HOM .F-hom f = natTrans (λ _ → C._⋆ f) λ g → funExt λ h → C.⋆Assoc g h f
+--   HOM .F-id = makeNatTransPathP refl _ _ λ c → funExt C.⋆IdR
+--   HOM .F-seq f g = makeNatTransPathP refl _ _ (λ c → funExt λ h → sym $ C.⋆Assoc h f g)
+
+--   -- We also need a "large homᴰ" for
+--   -- Bifunctor (Psh C) (Psh C ^op) SET

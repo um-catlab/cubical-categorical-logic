@@ -392,6 +392,10 @@ module _
   _⇒ⱽPshSmall_ : Presheafᴰ P Cᴰ ℓQᴰ
   _⇒ⱽPshSmall_ = ⇒ⱽPshSmall.P⇒Small Qᴰ
 
+  ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+    → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
+  ⇒ⱽPshSmall-UMP = ⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _
+
 module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   where
   private
@@ -449,3 +453,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         ◁PshIso eqToPshIso (F-ob (wkPshᴰ Q ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) _) Eq.refl Eq.refl)
     ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
     ∀PshSmall = ∀PshSmall.P⇒Small
+
+    ∀PshSMall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+      → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
+    ∀PshSMall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _

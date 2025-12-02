@@ -81,7 +81,6 @@ module _ {C : Category ℓc ℓc'}
     よPshHom-LP = PshHomPsh {ℓp = ℓ-max ℓp ℓq} LP
     よPshHom-LQ = PshHomPsh {ℓp = ℓ-max ℓp ℓq} LQ
 
-
   module _ (α : PshIso よPshHom-P よPshHom-Q) where
     private
       α' : PshIso よLP よLQ

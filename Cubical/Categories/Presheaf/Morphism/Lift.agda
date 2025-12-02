@@ -69,19 +69,16 @@ module _ {C : Category ℓc ℓc'}
   private
     PSHpq = PresheafCategory C (ℓ-max ℓp ℓq)
 
-    よPshHom-P = PshHomPsh {ℓp = ℓ-max ℓp ℓq} P
-    よPshHom-Q = PshHomPsh {ℓp = ℓ-max ℓp ℓq} Q
-
     LP = LiftPsh P (ℓ-max ℓp ℓq)
     LQ = LiftPsh Q (ℓ-max ℓp ℓq)
 
     よLP = yo {C = PSHpq} LP
     よLQ = yo {C = PSHpq} LQ
 
-    よPshHom-LP = PshHomPsh {ℓp = ℓ-max ℓp ℓq} LP
-    よPshHom-LQ = PshHomPsh {ℓp = ℓ-max ℓp ℓq} LQ
-
-  module _ (α : PshIso よPshHom-P よPshHom-Q) where
+  module _
+    (α : PshIso
+          (PshHomPsh {ℓp = ℓ-max ℓp ℓq} P)
+          (PshHomPsh {ℓp = ℓ-max ℓp ℓq} Q)) where
     private
       α' : PshIso よLP よLQ
       α' = yo≅PshHomPsh LP

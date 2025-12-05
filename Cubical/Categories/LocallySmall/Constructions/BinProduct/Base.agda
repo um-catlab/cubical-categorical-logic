@@ -37,6 +37,7 @@ module _
       (C.⋆Assoc (f .fst) (g .fst) (h .fst))
       (D.⋆Assoc (f .snd) (g .snd) (h .snd))
   _×C_ .isSetHom = isSet× C.isSetHom D.isSetHom
+  infixr 5 _×C_
 
   open Functor
   π₁ : Functor _×C_ C

@@ -26,7 +26,14 @@ record SmallCategory (ℓC ℓC' : Level) : Typeω where
   field
     ob : Type ℓC
     cat : GloballySmallCategory (Liftω ob) ℓC'
-  open CategoryNotation cat public
+  private
+    module cat = CategoryNotation cat
+
+  -- Give Hom-like notation without having to fiddle with lifts
+  [_,_] : ob → ob → Type ℓC'
+  [ c , c' ] = cat.Hom[ liftω c , liftω c' ]
+
+  open cat public
 
 open SmallCategory
 

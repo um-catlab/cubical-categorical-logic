@@ -18,3 +18,10 @@ Indiscrete ob .⋆IdL = λ _ → refl
 Indiscrete ob .⋆IdR = λ _ → refl
 Indiscrete ob .⋆Assoc = λ _ _ _ → refl
 Indiscrete ob .isSetHom = isSetUnit
+
+module _ {ob : Typeω} (c c' : ob) where
+  mkIndiscreteIso : CatIso (Indiscrete ob) c c'
+  mkIndiscreteIso .CatIso.fun = tt
+  mkIndiscreteIso .CatIso.inv = tt
+  mkIndiscreteIso .CatIso.sec = refl
+  mkIndiscreteIso .CatIso.ret = refl

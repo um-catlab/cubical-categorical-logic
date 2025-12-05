@@ -157,5 +157,3 @@ module _
   ∘F-^opF-NatIso .nIso x .sec = E.⋆IdL (∘F-^opF-NatIso .nIso x .inv)
   ∘F-^opF-NatIso .nIso x .ret = E.⋆IdL (N-ob (∘F-^opF-NatIso .trans) x)
 
-
- 

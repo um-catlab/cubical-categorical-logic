@@ -185,7 +185,7 @@ reindPsh∘F≅ :
   → PshIso (reindPsh F (reindPsh G P)) (reindPsh (G ∘F F) P)
 reindPsh∘F≅ F G P = eqToPshIso (reindPsh (G ∘F F) P) Eq.refl Eq.refl
 
-reindPsh-square : 
+reindPsh-square :
   {B : Category ℓB ℓB'}
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}

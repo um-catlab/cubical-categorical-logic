@@ -117,7 +117,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F G : Functor C D)
   Functorial-Yo-Iso αYo .nIso x .isIso.inv = αYo .nIso (G .F-ob x , x) .fst (id D)
   Functorial-Yo-Iso αYo .nIso x .isIso.sec = sym (natL (αYo .trans) _ _)
     ∙ cong (αYo .trans .N-ob _) (D .⋆IdR _)
-    ∙ αYo .nIso (G .F-ob x , x) .snd .fst (id D) 
+    ∙ αYo .nIso (G .F-ob x , x) .snd .fst (id D)
   Functorial-Yo-Iso αYo .nIso x .isIso.ret =
     sym (natL (invPshIso αYo .trans) _ _)
     ∙ cong (αYo .nIso _ .fst) (D .⋆IdR _)

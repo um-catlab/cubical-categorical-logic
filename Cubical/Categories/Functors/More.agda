@@ -44,7 +44,7 @@ improveF-hom : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 improveF-hom {C = C}{D = D} F F-hom-singl = record
   { F-ob = F .F-ob
   ; F-hom = F-hom'
-  ; F-id = λ {x} → subst (λ (F-hom'' : F-hom-ty) → F-hom'' (C .id {x}) ≡ D .id) F-hom≡F-hom' (F .F-id) -- 
+  ; F-id = λ {x} → subst (λ (F-hom'' : F-hom-ty) → F-hom'' (C .id {x}) ≡ D .id) F-hom≡F-hom' (F .F-id) --
   ; F-seq = λ f g →
     subst
      (λ (F-hom'' : F-hom-ty) →

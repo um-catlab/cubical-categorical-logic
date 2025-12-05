@@ -86,7 +86,7 @@ module _
   -- TODO: generalize this to any displayed functor:
   --                Fᴰ / Fx
   -- Cᴰ / C [-, x ] ---> Dᴰ / D [-, F x ]
-  --    |                  | 
+  --    |                  |
   --    | Cᴰ / (_⋆ f)      | Dᴰ / (_⋆ F f)
   --    |                  |
   -- Cᴰ / C [-, y ] ---> Dᴰ / D [-, F y ]

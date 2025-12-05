@@ -11,6 +11,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
+open import Cubical.Categories.Constructions.TotalCategory
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
@@ -205,6 +206,10 @@ module _
   opNatTransᴰ : NatTransᴰ (opNatTrans α) (Gᴰ ^opFᴰ) (Fᴰ ^opFᴰ)
   opNatTransᴰ .N-obᴰ = αᴰ .N-obᴰ
   opNatTransᴰ .N-homᴰ fᴰ = symP (αᴰ .N-homᴰ fᴰ)
+
+  ∫NT : NatTrans (∫F Fᴰ) (∫F Gᴰ)
+  ∫NT .N-ob x = N-ob α (x .fst) , αᴰ .N-obᴰ (x .snd)
+  ∫NT .N-hom (f , fᴰ) = ΣPathP ((N-hom α f) , (αᴰ .N-homᴰ fᴰ))
 
 module _
   {C : Category ℓC ℓC'}

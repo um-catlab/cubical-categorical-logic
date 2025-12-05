@@ -113,6 +113,12 @@ module RelatorNotation
       ∙ (sym $ funExt⁻ (R .Bif-RL-fuse f g) h)
   open Bifunctor R public
 
+module ProfunctorNotation {ℓC ℓC' ℓD ℓD' ℓR}
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  (R : Profunctor C D ℓR)
+  = RelatorNotation (CurriedToBifunctorL R)
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   private
     module C = Category C
@@ -126,6 +132,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 
   RelatorIso : (P : C o-[ ℓP ]-* D) → (Q : C o-[ ℓQ ]-* D) → Type _
   RelatorIso P Q = PshIso (Relator→Psh P) (Relator→Psh Q)
+
+  ProfunctorHom ProfunctorIso : (P : Profunctor D C ℓP) (Q : Profunctor D C ℓQ) → Type _
+  ProfunctorHom P Q = RelatorHom (CurriedToBifunctorL P) (CurriedToBifunctorL Q)
+  ProfunctorIso P Q = RelatorIso (CurriedToBifunctorL P) (CurriedToBifunctorL Q)
 
   module _ {P : C o-[ ℓP ]-* D}{Q : C o-[ ℓQ ]-* D} where
     private
@@ -145,20 +155,27 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
         ∙ funExt⁻ (Q.Bif-LR-fuse f g) (N-ob c' d' p)
 
     open PshHom
+    natL : ∀ (α : RelatorHom P Q) {c c' d} (f : C.Hom[ c , c' ])(p : P.Het[ c' , d ])
+        → α .N-ob (c , d) (f P.⋆ᶜʳ p) ≡ (f Q.⋆ᶜʳ α .N-ob (c' , d) p)
+    natL α {c} {c'} {d} f p =
+      (cong (α .N-ob (c , d)) (funExt⁻ (P .Bif-L×-agree f) p)
+      ∙ α .N-hom (c , d) (c' , d) (f , D.id) p)
+      ∙ (sym $ (funExt⁻ (Q .Bif-L×-agree f) _))
+
+    natR : ∀ (α : RelatorHom P Q) {c d d'} (p : P.Het[ c , d ])(g : D.Hom[ d , d' ])
+      → α .N-ob (c , d') (p P.⋆ʳᶜ g) ≡ (α .N-ob (c , d) p Q.⋆ʳᶜ g)
+    natR α {c}{d}{d'} p g =
+      cong (α .N-ob (c , d')) (funExt⁻ (P .Bif-R×-agree g) p)
+      ∙ α .N-hom (c , d') (c , d) (C.id , g) p
+      ∙ (sym $ funExt⁻ (Q .Bif-R×-agree g) _)
+
     appL-Hom : RelatorHom P Q → ∀ c → PshHom (appL P c) (appL Q c)
     appL-Hom α c .N-ob d = α .N-ob (c , d)
-    appL-Hom α c .N-hom d d' f p =
-      cong (α .N-ob (c , d)) (funExt⁻ (P .Bif-R×-agree f) p)
-      ∙ α .N-hom (c , d) (c , d') (C.id , f) p
-      ∙ (sym $ funExt⁻ (Q .Bif-R×-agree f) _)
+    appL-Hom α c .N-hom _ _ f p = natR α p f
     -- is there a way to get this for free from appL-Hom?
     appR-Hom : RelatorHom P Q → ∀ d → PshHom (appR P d) (appR Q d)
     appR-Hom α d .N-ob c = α .N-ob (c , d)
-    appR-Hom α d .N-hom c c' f p =
-      cong (α .N-ob (c , d)) (funExt⁻ (P .Bif-L×-agree f) p)
-      ∙ α .N-hom (c , d) (c' , d) (f , D.id) p
-      ∙ (sym $ (funExt⁻ (Q .Bif-L×-agree f) _))
-
+    appR-Hom α d .N-hom _ _ = natL α
   module _ {P : C o-[ ℓP ]-* D}{Q : C o-[ ℓQ ]-* D} where
     open PshHom
     open PshIso

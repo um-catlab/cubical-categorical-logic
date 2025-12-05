@@ -108,11 +108,18 @@ _∘ʳⁱ_ : ∀ (K : Functor C D) → {G H : Functor B C} (β : NatIso G H)
 module _
   {F F' : Functor C D}
   where
+  private
+    module D = Category D
   opNatTrans : (F ⇒ F') → ((F' ^opF) ⇒ (F ^opF))
   opNatTrans = ⇒^opFiso .Iso.fun
 
   opNatIso : NatIso F F' → NatIso (F' ^opF) (F ^opF)
   opNatIso = congNatIso^opFiso .Iso.fun
+
+  isosToNatIso : (isos : ∀ x → CatIso D (F ⟅ x ⟆) (F' ⟅ x ⟆))
+    → (N-hom : ∀ x y (f : C [ x , y ]) → (F ⟪ f ⟫ D.⋆ isos y .fst) ≡ (isos x .fst D.⋆ F' ⟪ f ⟫))
+    → NatIso F F'
+  isosToNatIso isos are-nat = record { trans = natTrans (λ x → isos x .fst) (are-nat _ _) ; nIso = λ x → isos x .snd }
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -150,3 +157,5 @@ module _
   ∘F-^opF-NatIso .nIso x .sec = E.⋆IdL (∘F-^opF-NatIso .nIso x .inv)
   ∘F-^opF-NatIso .nIso x .ret = E.⋆IdL (N-ob (∘F-^opF-NatIso .trans) x)
 
+
+ 

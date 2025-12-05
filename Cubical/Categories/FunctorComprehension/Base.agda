@@ -35,27 +35,32 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Relator
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓS ℓR : Level
+    ℓC ℓC' ℓD ℓD' ℓE ℓE' ℓS ℓR : Level
 
 open Category
 open Functor
 open NatTrans
+open NatIso
+open PshHom
+open PshIso
 open UniversalElement
-open UniversalElementNotation
-
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          (P : Profunctor C D ℓS)
          (ues : UniversalElements P)
          where
+  open UniversalElementNotation
+
   private
     module C = Category C
     module D = Category D
@@ -76,13 +81,11 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
       ∙ (sym $ P.⋆Assocᶜᶜʳ _ _ _))
 
   -- P ≅ Yo ∘F FunctorComprehension P ues
-  open PshHom
-  open PshIso
-  FunctorComprehension-Iso :
+  FunctorComprehension-Repr :
     RelatorIso
     (CurriedToBifunctorL P)
     (compR (HomBif D) FunctorComprehension)
-  FunctorComprehension-Iso .trans = mkRelatorHom (λ d c → intro (ues c))
+  FunctorComprehension-Repr .trans = mkRelatorHom (λ d c → intro (ues c))
     (λ d d' c f p → sym $ intro-natural (ues c))
     λ d c c' p g → intro≡ (ues c') $ sym $
       ((intro (ues c) p D.⋆ intro (ues c') (ues c .element P.⋆ʳᶜ g)) P.⋆ᶜʳ ues c' .element)
@@ -91,6 +94,87 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         ≡⟨ sym (P.⋆Assocᶜʳᶜ _ _ _) ∙ P.⟨ β $ ues c ⟩⋆ʳᶜ⟨ refl ⟩ ⟩
       (p P.⋆ʳᶜ g)
         ∎
-  FunctorComprehension-Iso .nIso (d , c) .fst = P._⋆ᶜʳ ues c .element
-  FunctorComprehension-Iso .nIso (d , c) .snd .fst f = sym $ η $ ues c
-  FunctorComprehension-Iso .nIso (d , c) .snd .snd p = β $ ues c
+  FunctorComprehension-Repr .nIso (d , c) .fst = P._⋆ᶜʳ ues c .element
+  FunctorComprehension-Repr .nIso (d , c) .snd .fst f = sym $ η $ ues c
+  FunctorComprehension-Repr .nIso (d , c) .snd .snd p = β $ ues c
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F G : Functor C D)
+  -- TODO: put this somewhere else
+
+  where
+  -- TODO: re-use one of the many Yonedas we already have? This one can actually use FF of Yoneda
+  Functorial-Yo : (αYo : (RelatorHom (compR (HomBif D) F) (compR (HomBif D) G))) → NatTrans F G
+  Functorial-Yo αYo .N-ob x = αYo .N-ob (F ⟅ x ⟆ , x) (D .id)
+  Functorial-Yo αYo .N-hom f =
+    sym (natL αYo (F ⟪ f ⟫) (D .id))
+    ∙ cong (αYo .N-ob _) (idTrans F .N-hom f)
+    ∙ natR αYo (id D) f
+
+  Functorial-Yo-Iso :
+    (αYo : (RelatorIso (compR (HomBif D) F) (compR (HomBif D) G)))
+    → NatIso F G
+  Functorial-Yo-Iso αYo .trans = Functorial-Yo (αYo .trans)
+  Functorial-Yo-Iso αYo .nIso x .isIso.inv = αYo .nIso (G .F-ob x , x) .fst (id D)
+  Functorial-Yo-Iso αYo .nIso x .isIso.sec = sym (natL (αYo .trans) _ _)
+    ∙ cong (αYo .trans .N-ob _) (D .⋆IdR _)
+    ∙ αYo .nIso (G .F-ob x , x) .snd .fst (id D) 
+  Functorial-Yo-Iso αYo .nIso x .isIso.ret =
+    sym (natL (invPshIso αYo .trans) _ _)
+    ∙ cong (αYo .nIso _ .fst) (D .⋆IdR _)
+    ∙ αYo .nIso (F .F-ob x , x) .snd .snd (id D)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
+         (P : Profunctor C D ℓS)(Q : Profunctor C E ℓR)
+         (F : Functor D E)
+         (α : ProfunctorHom P (reindPshF F ∘F Q))
+         (uesP : UniversalElements P)
+         where
+  -- TODO: make this a combinator somewhere
+  α' : ∀ (x : C .ob) → PshHet F (P ⟅ x ⟆) (Q ⟅ x ⟆)
+  α' x = pshhom (λ c → α .N-ob (c , x)) λ c c' f p →
+    natL α f p
+
+  preserves-UE→NatIso
+    : (uesQ : UniversalElements Q)
+    → (F-pres-uesP : ∀ (x : C .ob) → preservesUniversalElement (α' x) (uesP x))
+    → NatIso (F ∘F FunctorComprehension P uesP) (FunctorComprehension Q uesQ)
+  preserves-UE→NatIso uesQ F-pres-uesP = isosToNatIso
+    (λ x → UniversalElement→Iso (record { vertex = _ ; element = α .N-ob _ (uesP x .element) ; universal = F-pres-uesP x }
+      ◁PshIso invPshIso uesQ.asPshIso))
+    λ x y f →
+      (F ⟪ uesP.intro (uesP.element P.⋆ʳᶜ f) ⟫ E.⋆ uesQ.intro F-uesP.element)
+        ≡⟨ uesQ.intro-natural ∙ uesQ.intro≡
+          (((F ⟪ uesP.intro (uesP.element P.⋆ʳᶜ f) ⟫) Q.⋆ᶜʳ F-uesP.element)
+            ≡⟨ sym (natL α _ _) ∙ cong (α .N-ob _) uesP.β ∙ natR α _ _ ⟩
+          (F-uesP.element Q.⋆ʳᶜ f)
+            ≡⟨ Q.⟨ sym $ uesQ.β ⟩⋆ʳᶜ⟨ refl ⟩ ∙ Q.⋆Assocᶜʳᶜ _ _ _ ⟩
+          (uesQ.intro F-uesP.element Q.⋆ᶜʳ (uesQ.element Q.⋆ʳᶜ f))
+            ≡⟨ Q.⟨ refl ⟩⋆ᶜʳ⟨ (sym $ uesQ.β) ⟩ ∙ (sym $ Q.⋆Assocᶜᶜʳ _ _ _) ⟩
+          ((uesQ.intro F-uesP.element E.⋆ uesQ.intro (uesQ.element Q.⋆ʳᶜ f)) Q.⋆ᶜʳ uesQ.element) ∎) ⟩
+      (uesQ.intro F-uesP.element E.⋆ uesQ.intro (uesQ.element Q.⋆ʳᶜ f))
+        ∎
+    where
+      module E = Category E
+      module P = ProfunctorNotation P
+      module Q = ProfunctorNotation Q
+      F-uesP : ∀ x → UniversalElement E (Q ⟅ x ⟆)
+      F-uesP = λ x → record { vertex = F-ob F (uesP x .vertex) ; element = α' x .N-ob (uesP x .vertex) (uesP x .element) ; universal = F-pres-uesP x }
+      module uesQ {x} = UniversalElementNotation (uesQ x)
+      module F-uesP {x} = UniversalElementNotation {P = Q ⟅ x ⟆} (F-uesP x)
+      module uesP {x} = UniversalElementNotation (uesP x)
+
+  -- FC-NatIso' : NatIso ()
+         -- (uesQ : UniversalElements Q)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+         (P : Profunctor C D ℓS)(Q : Profunctor C D ℓR)
+         (uesP : UniversalElements P)
+         (uesQ : UniversalElements Q)
+         (α : ProfunctorIso P Q)
+         where
+  FunctorComprehension-NatIso : NatIso (FunctorComprehension P uesP) (FunctorComprehension Q uesQ)
+  FunctorComprehension-NatIso =
+    Functorial-Yo-Iso (FunctorComprehension P uesP) (FunctorComprehension Q uesQ) $
+    (invPshIso $ FunctorComprehension-Repr P uesP)
+    ⋆PshIso α
+    ⋆PshIso FunctorComprehension-Repr Q uesQ

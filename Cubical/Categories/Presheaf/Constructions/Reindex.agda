@@ -112,6 +112,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   Functor→PshHet F c .N-ob _ = F .F-hom
   Functor→PshHet F c .N-hom _ _ = F .F-seq
 
+  -- This should not be in the reindex file. PshHet should go somewhere else
   module _ {F : Functor C D}{P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
     (α : PshHet F P Q)
     where
@@ -174,7 +175,6 @@ reindPshId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
   → PshIso P (reindPsh Id P)
 reindPshId≅ P = eqToPshIso (reindPsh Id P) Eq.refl Eq.refl
 
--- -- TODO
 reindPsh∘F≅ :
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
@@ -184,6 +184,23 @@ reindPsh∘F≅ :
   (P : Presheaf E ℓP)
   → PshIso (reindPsh F (reindPsh G P)) (reindPsh (G ∘F F) P)
 reindPsh∘F≅ F G P = eqToPshIso (reindPsh (G ∘F F) P) Eq.refl Eq.refl
+
+reindPsh-square : 
+  {B : Category ℓB ℓB'}
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'}
+  (F : Functor B C)
+  (G : Functor C E)
+  (H : Functor B D)
+  (K : Functor D E)
+  (P : Presheaf E ℓP)
+  → (NatIso (G ∘F F) (K ∘F H))
+  → PshIso (reindPsh F $ reindPsh G P) (reindPsh H $ reindPsh K P)
+reindPsh-square F G H K P GF≅KH =
+  reindPsh∘F≅ F G P
+  ⋆PshIso reindNatIsoPsh GF≅KH P
+  ⋆PshIso (invPshIso $ reindPsh∘F≅ H K P)
 
 module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

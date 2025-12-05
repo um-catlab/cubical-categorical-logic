@@ -169,9 +169,8 @@ module _
     (P-repr : UniversalElements {C = C}{D = D} (P ∘F (CurryBifunctorL $ HomBif C)))
     where
     open P⇒Large-cocontinuous P P-cocontinuous public
-    private
-      P-F : Functor C D
-      P-F = FunctorComprehension (P ∘F (CurryBifunctorL $ HomBif C)) P-repr
+    P-F : Functor C D
+    P-F = FunctorComprehension (P ∘F (CurryBifunctorL $ HomBif C)) P-repr
 
     P⇒Small : Presheaf D ℓQ → Presheaf C ℓQ
     P⇒Small = P-F F⇒Small_
@@ -188,7 +187,7 @@ module _
           -- P R
           (P-cocontinuous R ⋆PshIso
           -- ext (P ∘ Yo) R
-          ext-Iso (FunctorComprehension-Iso (P ∘F CurryBifunctorL (HomBif C)) P-repr) R))
+          ext-Iso (FunctorComprehension-Repr (P ∘F CurryBifunctorL (HomBif C)) P-repr) R))
           -- ext (YO ∘ F) R
         -- PshHom (P R) Q
 

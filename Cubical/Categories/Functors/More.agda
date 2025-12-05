@@ -37,6 +37,28 @@ FunctorEq {C = C}{D = D} F G = Σ[ ob≡ ∈ (F .F-ob Eq.≡ G .F-ob) ]
     (F .F-hom)
     (G .F-hom)
 
+improveF-hom : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  → (F : Functor C D)
+  → (F-hom-singl : ∀ {x y} (f : C [ x , y ]) → singl (F ⟪ f ⟫))
+  → Functor C D
+improveF-hom {C = C}{D = D} F F-hom-singl = record
+  { F-ob = F .F-ob
+  ; F-hom = F-hom'
+  ; F-id = λ {x} → subst (λ (F-hom'' : F-hom-ty) → F-hom'' (C .id {x}) ≡ D .id) F-hom≡F-hom' (F .F-id) -- 
+  ; F-seq = λ f g →
+    subst
+     (λ (F-hom'' : F-hom-ty) →
+        F-hom'' (seq' C f g) ≡ seq' D (F-hom'' f) (F-hom'' g))
+     F-hom≡F-hom' (F .F-seq f g)
+  } where
+    F-hom-ty : Type _
+    F-hom-ty = ∀ {x y} (f : C [ x , y ]) → D [ F ⟅ x ⟆ , F ⟅ y ⟆ ]
+    F-hom' : F-hom-ty
+    F-hom' f = F-hom-singl f .fst
+
+    F-hom≡F-hom' : Path F-hom-ty (F .F-hom) F-hom'
+    F-hom≡F-hom' = implicitFunExt (implicitFunExt (funExt λ f → F-hom-singl f .snd))
+
 ConstantComposeFunctor :
   (C : Category ℓC ℓC') (D : Category ℓD ℓD' ) (c : C .ob)
   (F : Functor C D) →

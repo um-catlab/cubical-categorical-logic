@@ -59,8 +59,20 @@ open Iso
 module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Fibers Cᴰ
+  -- Why did I do this?
   _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
   _[-][-,_] xᴰ = UncurryPshᴰ (C [-, x ]) Cᴰ (Cᴰ Curried.[-][-, xᴰ ])
+
+  _[-][-,_]' : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ (ℓ-max ℓC' (ℓ-max ℓC' ℓCᴰ'))
+  _[-][-,_]' xᴰ = (Cᴰ / (C [-, x ])) [-, x , (xᴰ , (C .id)) ]
+
+  repr≅ : ∀ (xᴰ : Cᴰ.ob[ x ]) → PshIsoⱽ (_[-][-,_] xᴰ) (_[-][-,_]' xᴰ)
+  repr≅ xᴰ = pshiso (pshhom (λ (Γ , Γᴰ , f) fᴰ → f , (fᴰ , C .⋆IdR f))
+    λ c c' f p → ΣPathP ((sym $ f .snd .snd) , ΣPathPProp (λ _ → C .isSetHom _ _) (Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _)))
+      λ (Γ , Γᴰ , f) → (λ (γ , γᴰ , γ⋆id≡f) → Cᴰ.reind ((sym $ ⋆IdR C γ) ∙ γ⋆id≡f) γᴰ)
+      , (λ (γ , γᴰ , γ⋆id≡f) → ΣPathP ((sym $ (sym $ ⋆IdR C γ) ∙ γ⋆id≡f) , (ΣPathPProp (λ _ → C .isSetHom _ _)
+        (Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _))))
+      , λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private

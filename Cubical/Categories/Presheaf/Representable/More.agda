@@ -143,6 +143,18 @@ module UniversalElementNotation {ℓo}{ℓh}
   asPshIso .trans = yoRec P element
   asPshIso .nIso =  ⋆element-isPshIso
 
+
+module _ {C : Category ℓc ℓc'} {x} (ue : UniversalElement C (C [-, x ])) where
+  private
+    module C = Category C
+    module ue = UniversalElementNotation ue
+  open isIsoC
+  UniversalElement→Iso : CatIso C ue.vertex x
+  UniversalElement→Iso .fst = ue.element
+  UniversalElement→Iso .snd .inv = ue.intro C.id
+  UniversalElement→Iso .snd .sec = ue.β
+  UniversalElement→Iso .snd .ret = ue.intro-natural ∙ ue.intro≡ (C.⋆IdR _ ∙ sym (C.⋆IdL _))
+
 open Functor
 module _ {C : Category ℓc ℓc'}{x} where
   open Category

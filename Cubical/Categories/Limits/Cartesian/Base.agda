@@ -49,3 +49,5 @@ record CartesianCategoryRepr (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (�
   module C = Category C
   field
     bp   : ∀ (c d : C.ob) → Representationᵁ C ((C [-, c ]) ×Psh (C [-, d ]))
+
+-- TODO: cartesian functor

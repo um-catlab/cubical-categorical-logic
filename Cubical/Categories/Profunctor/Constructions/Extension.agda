@@ -72,6 +72,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
       module P⊗R = ext-⊗ P R using (ind)
       module Q⊗R = ext-⊗ Q R using (isSet⊗; _,⊗_)
 
+  -- TODO: make this natural in Q
   CoContinuous : {ℓP : Level → Level}
     (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
     → Typeω

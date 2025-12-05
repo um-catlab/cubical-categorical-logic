@@ -1,4 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
+{- TODO: split up this file into a bunch of individual construction files -}
 
 {-
 
@@ -27,8 +28,11 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base hiding (isIso)
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Bifunctor
+open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Functors.Constant.More
+open import Cubical.Categories.FunctorComprehension.Base
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Constructions.Fiber
@@ -168,11 +172,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         module Rᴰ = PresheafᴰNotation Cᴰ (P ×Psh P) Rᴰ
       PathPsh-rec : PshHomⱽ UnitPsh (reindPshᴰNatTrans ΔPshHom Rᴰ) → PshHomⱽ PathPsh Rᴰ
       PathPsh-rec αⱽ .N-ob (x , xᴰ , p , q) p≡q =
-        -- should I use Pᴰ.⋆ instead of reind?
+        -- should I use formal-reind instead of reind?
         Rᴰ.reind (ΣPathP (refl , p≡q)) (αⱽ .N-ob (x , xᴰ , p) tt)
       PathPsh-rec αⱽ .N-hom (Δ , Δᴰ , (p , q)) (Γ , Γᴰ , (p' , q')) (γ , γᴰ , γ⋆p,γ⋆q≡p',q') p≡q = Rᴰ.rectify $ Rᴰ.≡out $
-        sym (Rᴰ.reind-filler _)
-        ∙ (Rᴰ.≡in $ αⱽ .N-hom _ _ (γ , γᴰ , PathPΣ γ⋆p,γ⋆q≡p',q' .fst) tt)
+        (sym $ Rᴰ.reind-filler _)
+        ∙ Rᴰ.≡in (αⱽ .N-hom _ _  (γ , (γᴰ , (PathPΣ γ⋆p,γ⋆q≡p',q' .fst))) tt)
         ∙ Rᴰ.⋆ᴰ-reind _ _ _
         ∙ Rᴰ.⟨⟩⋆⟨ Rᴰ.reind-filler _ ⟩
         ∙ sym (Rᴰ.⋆ᴰ-reind _ _ _)
@@ -188,6 +192,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         (λ αⱽ → makePshHomPath $ funExt λ (Γ , Γᴰ , p) → funExt λ _ → transportRefl _)
         λ αⱽ → makePshHomPath $ funExt λ (Γ , Γᴰ , (p , q)) → funExt λ p≡q →
           sym (Rᴰ.rectify $ Rᴰ.≡out $ (Rᴰ.≡in $ (λ i → αⱽ .N-ob (Γ , (Γᴰ , (p , (p≡q (~ i))))) (λ j → p≡q ((~ i) ∧ j)))) ∙ Rᴰ.reind-filler _)
+
   module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
     private
       module Q = PresheafNotation Q
@@ -250,8 +255,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     -- (P × Q[α]) ⊢ ((∃αP)[α] × Q[α])
     -- ------------------------------
     -- P ⊢ ∃αP [α]      Q[α] ⊢ Q[α]
-    -- This could be done more compositionally. It might be faster to type check that way.
-    -- Or less compositionally!
     FrobeniusReciprocity-ptwise : ∀ ((Γ , Γᴰ , q) : (Cᴰ / Q) .ob) →
       Iso (Σ[ p ∈ P.p[ Γ ] ] (Pᴰ.p[ p ][ Γᴰ ] × Qᴰ.p[ α .N-ob Γ p ][ Γᴰ ]) × (q ≡ α .N-ob Γ p))
           ((Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (q ≡ α .N-ob Γ p)) × Qᴰ.p[ q ][ Γᴰ ])
@@ -290,14 +293,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
     push-repr : ∀ {x xᴰ p}
       → PshIsoⱽ ((Cᴰ / P) [-, x , xᴰ , p ]) (pushⱽ P p (Cᴰ [-][-, xᴰ ]))
-    push-repr {x}{xᴰ}{p} = makePshIso
-      {α = yoRec (pushⱽ P _ (Cᴰ [-][-, _ ])) (C.id , (Cᴰ.idᴰ , (sym $ P.⋆IdL p)))}
-      {α⁻ = push-recⱽ (yoRec P p) (Cᴰ [-][-, xᴰ ]) (yoRecᴰ ((Cᴰ / P) [-, x , xᴰ , p ]) (C.id , (Cᴰ.idᴰ , (P.⋆IdL p))))}
-      (yoInd ((Cᴰ / P) [-, x , xᴰ , p ]) _ _ (ΣPathP ((C.⋆IdL _ ∙ C.⋆IdR _ ∙ C.⋆IdL _) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdL _ ∙  Cᴰ.⋆IdR _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)))))
-      (isoFunInjective (push-UMP (yoRec P p) (Cᴰ [-][-, xᴰ ])) _ _
-        (isoFunInjective (yoRecⱽ-UMP _) _ _
-          (ΣPathP ((C.⋆IdR _ ∙ C.⋆IdL _ ∙ C.⋆IdL _) , (ΣPathPProp (λ _ → P.isSetPsh _ _)
-            (Cᴰ.rectify $ Cᴰ.≡out $ sym (Cᴰ.reind-filler _ _) ∙ (Cᴰ.⋆IdR _ ∙ Cᴰ.⋆IdL _ ∙ Cᴰ.⋆IdL _)))))))
+    push-repr {x}{xᴰ}{p} = pshiso (pshhom (λ (Γ , Γᴰ , q) (γ , γᴰ , γ⋆p≡q) → γ , (γᴰ , (sym $ γ⋆p≡q)))
+      λ c c' f p → ΣPathP (refl , (ΣPathPProp (λ _ → P.isSetPsh _ _) (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _ _))))
+      λ (Γ , Γᴰ , q) → (λ (f , fᴰ , q≡f⋆p) → f , (fᴰ , (sym $ q≡f⋆p)))
+        , (λ _ → refl) , (λ _ → refl)
 
 module _ {C : Category ℓC ℓC'} where
   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
@@ -382,19 +381,39 @@ LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyReprese
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ)
-  where
+  {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
   private
+    module C = Category C
+    module P = PresheafNotation P
     module ⇒ⱽPshSmall = P⇒Large-cocontinuous-repr (-×Psh (Pᴰ .fst)) (-×Psh (Pᴰ .fst) -cocontinuous)
       (λ Γ → LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) Γ
         ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
+  ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
+  ×LRⱽPshᴰ = ⇒ⱽPshSmall.P-F
 
-  _⇒ⱽPshSmall_ : Presheafᴰ P Cᴰ ℓQᴰ
-  _⇒ⱽPshSmall_ = ⇒ⱽPshSmall.P⇒Small Qᴰ
+  ×LRⱽPshᴰ' : Functor (Cᴰ / P) (Cᴰ / P)
+  ×LRⱽPshᴰ' = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 
-  ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
-    → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
-  ⇒ⱽPshSmall-UMP = ⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _
+  module _ (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
+
+    _⇒ⱽPshSmall_ : Presheafᴰ P Cᴰ ℓQᴰ
+    _⇒ⱽPshSmall_ = reindPsh ×LRⱽPshᴰ Qᴰ
+
+    ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+      → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
+    ⇒ⱽPshSmall-UMP = ⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : LRⱽPresheafᴰ P Cᴰ ℓQᴰ) where
+  ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ (Pᴰ .fst) (Qᴰ .fst))
+    → NatIso (×LRⱽPshᴰ Pᴰ) (×LRⱽPshᴰ Qᴰ)
+  ×LRⱽPshᴰ-Iso α = FunctorComprehension-NatIso _ _ _ _
+   (pshiso (pshhom (λ c z → z .fst , α .trans .N-ob (c .fst) (z .snd))
+     λ c c' f p → ΣPathP (refl , α .trans .N-hom (c .fst) (c' .fst) (f .fst) (p .snd)))
+     (λ x → (λ x₁ → x₁ .fst , α .nIso (x .fst) .fst (x₁ .snd))
+     , ((λ b → ΣPathP (refl , (α .nIso (x .fst) .snd .fst (b .snd))))
+     , λ b → ΣPathP (refl , (α .nIso (x .fst) .snd .snd (b .snd))))))
 
 module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   where
@@ -451,8 +470,11 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     private
       module ∀PshSmall = P⇒Large-cocontinuous-repr {C = Cᴰ / P}{D = Cᴰ / (P ×Psh Q)} (wkPshᴰ Q) (wkPshᴰ-cocont Q) (λ (Γ , Γᴰ , p) → LR∀-repr Γᴰ p
         ◁PshIso eqToPshIso (F-ob (wkPshᴰ Q ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) _) Eq.refl Eq.refl)
+    wkLR∀ : Functor (Cᴰ / P) (Cᴰ / (P ×Psh Q))
+    wkLR∀ = ∀PshSmall.P-F
+
     ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
-    ∀PshSmall = ∀PshSmall.P⇒Small
+    ∀PshSmall = reindPsh wkLR∀
 
     ∀PshSMall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
       → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)

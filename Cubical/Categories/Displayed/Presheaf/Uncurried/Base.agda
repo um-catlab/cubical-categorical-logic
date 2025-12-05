@@ -52,11 +52,16 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
+open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
@@ -73,6 +78,7 @@ open Category
 open Functor
 open Functorᴰ
 open NatTrans
+open NatIso
 open PshHom
 open PshIso
 
@@ -113,6 +119,32 @@ module _ {C : Category ℓC ℓC'}
   where
   _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'} {P : Presheaf C ℓP}
+  where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+  -- TODO: generalize to ×ᴰ
+  /NatTrans : {F G : Functor D (Cᴰ / P)}
+    → (α : NatTrans (Fst ∘F F) (Fst ∘F G))
+    → (αᴰ : NatTransᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
+    → (αP : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd )
+    → NatTrans F G
+  /NatTrans α αᴰ αP .N-ob x = (α .N-ob x) , (αᴰ .NatTransᴰ.N-obᴰ tt) , (αP x)
+  /NatTrans α αᴰ αP .N-hom {x}{y} f = ΣPathP ((N-hom α f) , (ΣPathPProp (λ _ → P.isSetPsh _ _)
+    (αᴰ .NatTransᴰ.N-homᴰ tt)))
+
+  /NatIso : {F G : Functor D (Cᴰ / P)}
+    → (α : NatIso (Fst ∘F F) (Fst ∘F G))
+    → (αᴰ : NatIsoᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
+    → (αP : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd )
+    → NatIso F G
+  /NatIso α αᴰ αP = record { trans = /NatTrans (α .trans) (αᴰ .NatIsoᴰ.transᴰ) αP
+    ; nIso = λ x → isiso ((α .nIso x .isIso.inv) , ((αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ)
+      , ((P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩) ∙ P.⋆IdL _))
+      (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.secᴰ))))
+      (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.retᴰ))))
+    }
 
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -162,6 +194,10 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
     → p[ f P.⋆ p ][ xᴰ ]
   fᴰ ⋆ᴰ pᴰ = Pᴰ .F-hom (_ , fᴰ , refl) pᴰ
 
+  formal-reind : ∀ {x xᴰ}{p p' : P.p[ x ]}(p≡p' : p ≡ p')(pᴰ : p[ p ][ xᴰ ])
+    → p[ p' ][ xᴰ ]
+  formal-reind {p = p} p≡p' = Pᴰ .F-hom (C.id , Cᴰ.idᴰ , P.⋆IdL p ∙ p≡p')
+
   opaque
     ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
       → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
@@ -180,6 +216,10 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
     ⋆IdLᴰ {x}{xᴰ}{p} pᴰ =
       (sym $ ⋆ᴰ-reind Cᴰ.idᴰ _ pᴰ)
       ∙ (≡in $ funExt⁻ (Pᴰ .F-id) pᴰ)
+
+    formal-reind-filler : ∀ {x xᴰ}{p q : P.p[ x ]}(id⋆p≡q : C.id P.⋆ p ≡ q) (pᴰ : p[ p ][ xᴰ ])
+      → Pᴰ .F-hom (C.id , Cᴰ.idᴰ , id⋆p≡q) pᴰ ∫≡ pᴰ
+    formal-reind-filler {x} {xᴰ} {p} {q} id⋆p≡q pᴰ = ⋆ᴰ-reind Cᴰ.idᴰ id⋆p≡q pᴰ ∙ ⋆IdLᴰ pᴰ
 
     ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
       (fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ])

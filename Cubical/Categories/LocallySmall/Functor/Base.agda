@@ -81,6 +81,17 @@ module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ} where
     F-ISO = F-Iso F
     module F-ISO = Functor F-ISO
 
+open SmallCategory
+module _
+  (C : SmallCategory ℓC ℓC')
+  (D : SmallCategory ℓD ℓD')
+  where
+  SmallFunctor : Type _
+  SmallFunctor =
+    SmallF.Functor
+      (SmallLocallySmallCategory→SmallCategory C)
+      (SmallLocallySmallCategory→SmallCategory D)
+
 module _
   {C : Small.Category ℓC ℓC'}
   {D : Small.Category ℓD ℓD'}

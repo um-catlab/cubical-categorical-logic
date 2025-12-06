@@ -10,16 +10,16 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
+import Cubical.Categories.Functor as SmallF
+import Cubical.Categories.NaturalTransformation as SmallNT
+
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Instances.Level
 
-open import Cubical.Categories.LocallySmall.Displayed.Category.Base
-open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
-open import Cubical.Categories.LocallySmall.Displayed.Category.Small
-open import Cubical.Categories.LocallySmall.Displayed.Category.SmallDisplayedFibers
+open import Cubical.Categories.LocallySmall.Displayed.Category
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
@@ -27,6 +27,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken.Properties
+open import Cubical.Categories.LocallySmall.Displayed.Fibration.IsoFibration
 
 open Category
 open Categoryᴰ
@@ -40,6 +41,32 @@ SET .⋆IdLᴰ = λ _ → refl
 SET .⋆IdRᴰ = λ _ → refl
 SET .⋆Assocᴰ = λ _ _ _ → refl
 SET .isSetHomᴰ {yᴰ = (liftω Y)} = isSet→ (Y .snd)
+
+open WeakJoin
+open opIsoLift
+open CatIsoᴰ
+SET-WeakJoinsIsoOpFibration : WeakJoinsIsoOpFibration SET
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .weakJoin = liftω (ℓ-max ℓ ℓ')
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A) .f*cᴰ =
+  liftω (Lift {j = ℓ'} ⟨ A ⟩ , isOfHLevelLift 2 (A .snd))
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+  .f*cᴰIsoᴰ .funᴰ = λ z → lift z
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+  .f*cᴰIsoᴰ .invᴰ = λ z → z .lower
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+  .f*cᴰIsoᴰ .secᴰ = refl
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+  .f*cᴰIsoᴰ .retᴰ = refl
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A) .f*cᴰ =
+  liftω (Lift {j = ℓ} ⟨ A ⟩ , isOfHLevelLift 2 (A .snd))
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+  .f*cᴰIsoᴰ .funᴰ = λ z → lift z
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+  .f*cᴰIsoᴰ .invᴰ = λ z → z .lower
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+  .f*cᴰIsoᴰ .secᴰ = refl
+SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+  .f*cᴰIsoᴰ .retᴰ = refl
 
 open Bifunctorᴰ
 ×SETBif : Bifunctorᴰ ℓ-MAXBif SET SET SET
@@ -81,6 +108,14 @@ SETAt ℓ = smallcat _ SET.v[ liftω ℓ ]
 
 SETAtEq : (ℓ : Level) → SmallCategory _ _
 SETAtEq ℓ = smallcat _ (fibEq SET Eq.refl (liftω ℓ))
+
+LiftF : ∀ (ℓ ℓ' : Level) →
+  SmallFunctor (SETAtEq ℓ) (SETAtEq (ℓ-max ℓ ℓ'))
+LiftF ℓ ℓ' .SmallF.Functor.F-ob A =
+  Lift {j = ℓ'} ⟨ A ⟩ , isOfHLevelLift 2 (A .snd)
+LiftF ℓ ℓ' .SmallF.Functor.F-hom = λ z z₁ → lift (z (z₁ .lower))
+LiftF ℓ ℓ' .SmallF.Functor.F-id = refl
+LiftF ℓ ℓ' .SmallF.Functor.F-seq = λ _ _ → refl
 
 SETᴰAt : (ℓ ℓ' : Level) → SmallCategoryᴰ (SETAt ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
 SETᴰAt ℓ ℓ' = smallcatᴰ _ SETᴰ.vᴰ[ liftω ℓ ][ liftω ℓ' ]

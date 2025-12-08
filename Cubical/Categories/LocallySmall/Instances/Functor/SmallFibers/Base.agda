@@ -21,6 +21,7 @@ import Cubical.Categories.NaturalTransformation as SmallNT
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
+open import Cubical.Categories.LocallySmall.Category.HLevels
 import Cubical.Categories.LocallySmall.Functor.Base as LocallySmallF
 import Cubical.Categories.LocallySmall.Functor.IntoFiberCategory as IntoFibCat
 import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory as IntoFibCatNatTrans
@@ -44,11 +45,10 @@ open Categoryᴰ
 open SmallCategory
 
 module _
-  {CTy : Type ℓC}
+  {C : SmallCategory ℓC ℓC'}
   {D : SmallCategory ℓD ℓD'}
   where
   private
-    C = smallcat _ (Indiscrete (Liftω CTy))
     module C = SmallCategory C
     module D = SmallCategory D
   module _
@@ -65,123 +65,137 @@ module _
     open opIsoLift
     open CatIsoᴰ
 
-    module _ (isoOpFibCᴰ : isIsoOpFibration Cᴰ) where
-
-     FUNCTOR : Categoryᴰ (SmallCategory.cat ((C ^opsmall) ×Csmall D))
-       (λ (liftω (c , d)) → Functor c d)
-       _
-     FUNCTOR .Hom[_][_,_] f = NatTrans isoOpFibCᴰ (f .snd)
-     FUNCTOR .idᴰ = idTrans isoOpFibCᴰ _
-     FUNCTOR ._⋆ᴰ_ = seqTrans isoOpFibCᴰ
-     FUNCTOR .⋆IdLᴰ {xᴰ = F} {yᴰ = G} α =
-       makeNatTransPath isoOpFibCᴰ (D.⋆IdL _)
-         (λ x →
-           Dᴰ.⟨⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ⟩
-           ∙ (sym $ Dᴰ.⋆Assocᴰ _ _ _)
-           ∙ Dᴰ.⟨ IntoFibCatNatTrans.NatTransDefs.NatTrans.N-hom α
-                   (isoOpFibCᴰ (liftω x)
-                    (mkIndiscreteIso _ _)
-                    .opIsoLift.f*cᴰIsoᴰ .CatIsoᴰ.funᴰ) ⟩⋆⟨⟩
-           ∙ Dᴰ.⋆Assocᴰ _ _ _
-           ∙ Dᴰ.⟨⟩⋆⟨
-              Dᴰ.reind-filler _ _
-              ∙ Dᴰ.≡in (sym $ G.F-seq _ _)
-              ∙ Dᴰ.≡in G.F-hom⟨
-                  Cᴰ.rectify $ Cᴰ.≡out $
-                  (sym $ Cᴰ.reind-filler _ _)
-                  ∙ Cᴰ.⋆Assocᴰ _ _ _
-                  ∙ Cᴰ.⟨⟩⋆⟨ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
-                            ∙ Cᴰ.⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩⋆⟨⟩
-                            ∙ Cᴰ.⋆IdLᴰ _ ⟩
-                  ∙ Cᴰ.⋆Assocᴰ _ _ _
-                  ∙ Cᴰ.⟨⟩⋆⟨ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
-                            ∙ Cᴰ.⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩⋆⟨⟩
-                            ∙ Cᴰ.⋆IdLᴰ _ ⟩
-                  ∙ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .secᴰ
-                  ∙ Cᴰ.reind-filler _ _
-                  ⟩
-              ⟩
-           ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.≡in G.F-id ∙ (sym $ Dᴰ.reind-filler _ _) ⟩
-           ∙ Dᴰ.⋆IdRᴰ _)
-        where
-        module G = LocallySmallF.FunctorNotation G
-     FUNCTOR .⋆IdRᴰ {xᴰ = F} {yᴰ = G} α =
-       makeNatTransPath isoOpFibCᴰ (D.⋆IdR _)
-         (λ x →
-           Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
-           ∙ Dᴰ.⟨⟩⋆⟨
-             Dᴰ.reind-filler _ _
-             ∙ (Dᴰ.≡in $ sym $ G.F-seq _ _)
-             ∙ Dᴰ.≡in G.F-hom⟨
+    module _ (hasContrHomsC : hasContrHoms C.cat) where
+      module _ (isoOpFibCᴰ : isIsoOpFibration Cᴰ) where
+        FUNCTOR : Categoryᴰ (SmallCategory.cat ((C ^opsmall) ×Csmall D))
+          (λ (liftω (c , d)) → Functor c d)
+          _
+        FUNCTOR .Hom[_][_,_] f = NatTrans hasContrHomsC isoOpFibCᴰ (f .snd)
+        FUNCTOR .idᴰ = idTrans hasContrHomsC isoOpFibCᴰ _
+        FUNCTOR ._⋆ᴰ_ = seqTrans hasContrHomsC isoOpFibCᴰ
+        FUNCTOR .⋆IdLᴰ {xᴰ = F} {yᴰ = G} α =
+          ΣPathP (ΣPathP ((isContr→isProp (hasContrHomsC _ _) _ _) , refl) , refl)
+          ∙ makeNatTransPath hasContrHomsC isoOpFibCᴰ (D.⋆IdL _) (λ x →
+            Dᴰ.⟨⟩⋆⟨ (sym $ Dᴰ.reind-filler _ _) ⟩
+            ∙ (sym $ Dᴰ.⋆Assocᴰ _ _ _)
+            ∙ Dᴰ.⟨ IntoFibCatNatTrans.NatTransDefs.NatTrans.N-hom α _ ⟩⋆⟨⟩
+            ∙ Dᴰ.⋆Assocᴰ _ _ _
+            ∙ Dᴰ.⟨⟩⋆⟨
+               Dᴰ.reind-filler _ _
+               ∙ Dᴰ.≡in (sym $ G.F-seq _ _)
+               ∙ Dᴰ.≡in G.F-hom⟨
                  Cᴰ.rectify $ Cᴰ.≡out $
-                   (sym $ Cᴰ.reind-filler _ _)
-                   ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
-                   ∙ Cᴰ.⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ
-                        ⟩⋆⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .secᴰ ⟩
-                   ∙ Cᴰ.⋆IdLᴰ _
+                   (sym $ Cᴰ.reind-filler _ _ )
+                   ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+                   ∙ Cᴰ.⋆Assocᴰ _ _ _
+                   ∙ Cᴰ.⟨⟩⋆⟨ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                             ∙ Cᴰ.⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩⋆⟨⟩
+                             ∙ Cᴰ.⋆IdLᴰ _ ⟩
+                   ∙ Cᴰ.⋆Assocᴰ _ _ _
+                   ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩ ⟩
+                   ∙ Cᴰ.⟨⟩⋆⟨ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                             ∙ Cᴰ.⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩⋆⟨⟩
+                             ∙ Cᴰ.⋆IdLᴰ _ ⟩
+                   ∙ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .secᴰ
                    ∙ Cᴰ.reind-filler _ _
+                 ⟩
                ⟩
-             ∙ Dᴰ.≡in G.F-id
-             ∙ (sym $ Dᴰ.reind-filler _ _)
-           ⟩
-           ∙ Dᴰ.⋆IdRᴰ _
-         )
-        where
-        module G = LocallySmallF.FunctorNotation G
-     FUNCTOR .⋆Assocᴰ {xᴰ = F} {yᴰ = G} {zᴰ = H} {wᴰ = K} α β γ =
-       makeNatTransPath isoOpFibCᴰ (D.⋆Assoc _ _ _)
-         (λ x →
-           Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
-           ∙ Dᴰ.⋆Assocᴰ _ _ _
-           ∙ Dᴰ.⟨⟩⋆⟨
-               Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
-               ∙ Dᴰ.⋆Assocᴰ _ _ _
-               ∙ Dᴰ.⟨⟩⋆⟨
-                  (sym $ Dᴰ.⋆Assocᴰ _ _ _)
-                  ∙ Dᴰ.⟨ IntoFibCatNatTrans.NatTransDefs.NatTrans.N-hom γ
-                          (SmallNT.NatTrans.N-ob (LiftF-seq isoOpFibCᴰ) x) ⟩⋆⟨⟩
+            ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.≡in G.F-id ∙ (sym $ Dᴰ.reind-filler _ _) ⟩
+            ∙ Dᴰ.⋆IdRᴰ _)
+          ∙ ΣPathP (ΣPathP ((isContr→isProp (hasContrHomsC _ _) _ _) , refl) , refl)
+           where
+           module G = LocallySmallF.FunctorNotation G
+
+        FUNCTOR .⋆IdRᴰ {xᴰ = F} {yᴰ = G} α =
+          ΣPathP (ΣPathP ((isContr→isProp (hasContrHomsC _ _) _ _) , refl) , refl)
+          ∙ makeNatTransPath hasContrHomsC isoOpFibCᴰ (D.⋆IdR _) (λ x →
+              Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+              ∙ Dᴰ.⟨⟩⋆⟨
+                Dᴰ.reind-filler _ _
+                ∙ (Dᴰ.≡in $ sym $ G.F-seq _ _)
+                ∙ Dᴰ.≡in G.F-hom⟨
+                    Cᴰ.rectify $ Cᴰ.≡out $
+                      (sym $ Cᴰ.reind-filler _ _)
+                      ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+                      ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                      ∙ Cᴰ.⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ
+                           ⟩⋆⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .secᴰ ⟩
+                      ∙ Cᴰ.⋆IdLᴰ _
+                      ∙ Cᴰ.reind-filler _ _
+                  ⟩
+                ∙ Dᴰ.≡in G.F-id
+                ∙ (sym $ Dᴰ.reind-filler _ _)
+              ⟩
+              ∙ Dᴰ.⋆IdRᴰ _)
+          ∙ ΣPathP (ΣPathP ((isContr→isProp (hasContrHomsC _ _) _ _) , refl) , refl)
+           where
+           module G = LocallySmallF.FunctorNotation G
+
+        FUNCTOR .⋆Assocᴰ {xᴰ = F} {yᴰ = G} {zᴰ = H} {wᴰ = K} α β γ =
+          ΣPathP (ΣPathP ((isContr→isProp (hasContrHomsC _ _) _ _) , refl) , refl)
+          ∙ makeNatTransPath hasContrHomsC isoOpFibCᴰ (D.⋆Assoc _ _ _) (λ x →
+              Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+              ∙ Dᴰ.⋆Assocᴰ _ _ _
+              ∙ Dᴰ.⟨⟩⋆⟨
+                  Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
                   ∙ Dᴰ.⋆Assocᴰ _ _ _
                   ∙ Dᴰ.⟨⟩⋆⟨
-                    Dᴰ.reind-filler _ _
-                    ∙ (Dᴰ.≡in $ sym $ K.F-seq _ _)
-                    ∙ Dᴰ.≡in K.F-hom⟨
-                        Cᴰ.rectify $ Cᴰ.≡out $
-                        (sym $ Cᴰ.reind-filler _ _)
-                        ∙ Cᴰ.⋆Assocᴰ _ _ _
-                        ∙ Cᴰ.⋆Assocᴰ _ _ _
-                        ∙ Cᴰ.⟨⟩⋆⟨
-                            Cᴰ.⋆Assocᴰ _ _ _
-                            ∙ Cᴰ.⟨⟩⋆⟨
-                               (sym $ Cᴰ.⋆Assocᴰ _ _ _)
-                               ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
-                               ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
-                               ∙ Cᴰ.⟨
-                                   Cᴰ.⟨ Cᴰ.⋆Assocᴰ _ _ _
-                                        ∙ Cᴰ.⟨⟩⋆⟨
-                                            isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩
-                                            ∙ Cᴰ.⋆IdRᴰ _ ⟩⋆⟨⟩
-                                    ∙ Cᴰ.⋆Assocᴰ _ _ _
-                                    ∙ Cᴰ.⟨⟩⋆⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩
-                                    ∙ Cᴰ.⋆IdRᴰ _
-                                    ∙ (sym $ Cᴰ.⋆IdLᴰ _)
-                                    ∙ Cᴰ.⟨ sym $ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩⋆⟨⟩
-                                  ⟩⋆⟨⟩
+                     (sym $ Dᴰ.⋆Assocᴰ _ _ _)
+                     ∙ Dᴰ.⟨ IntoFibCatNatTrans.NatTransDefs.NatTrans.N-hom γ
+                             (SmallNT.NatTrans.N-ob (LiftF-seq hasContrHomsC isoOpFibCᴰ) x) ⟩⋆⟨⟩
+                     ∙ Dᴰ.⋆Assocᴰ _ _ _
+                     ∙ Dᴰ.⟨⟩⋆⟨
+                        Dᴰ.reind-filler _ _
+                        ∙ (Dᴰ.≡in $ sym $ K.F-seq _ _)
+                        ∙ (Dᴰ.≡in $ K.F-hom⟨
+                             Cᴰ.rectify $ Cᴰ.≡out $
+                               (sym $ Cᴰ.reind-filler _ _)
+                               ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
                                ∙ Cᴰ.⋆Assocᴰ _ _ _
-                               ∙ Cᴰ.⋆Assocᴰ _ _ _ ⟩
-                            ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _) ⟩
-                        ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
-                        ∙ Cᴰ.reind-filler _ _
-                      ⟩
-                    ∙ (Dᴰ.≡in $ K.F-seq _ _)
-                    ∙ (sym $ Dᴰ.reind-filler _ _)
-                    ⟩
+                               ∙ Cᴰ.⋆Assocᴰ _ _ _
+                               ∙ Cᴰ.⟨⟩⋆⟨
+                                   Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
+                                   ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                                   ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                                   ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                                   ∙ Cᴰ.⟨
+                                      Cᴰ.⋆Assocᴰ _ _ _
+                                      ∙ Cᴰ.⋆Assocᴰ _ _ _
+                                      ∙ Cᴰ.⋆Assocᴰ _ _ _
+                                      ∙ Cᴰ.⟨⟩⋆⟨
+                                         Cᴰ.⋆Assocᴰ _ _ _
+                                         ∙ Cᴰ.⟨⟩⋆⟨
+                                           Cᴰ.⟨⟩⋆⟨
+                                              (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                                              ∙ Cᴰ.⟨ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdLᴰ _ ⟩
+                                           ∙ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ
+                                           ⟩
+                                         ∙ Cᴰ.⋆IdRᴰ _
+                                       ⟩
+                                      ∙ Cᴰ.⟨ (sym $ Cᴰ.⋆IdRᴰ _)
+                                             ∙ Cᴰ.⟨⟩⋆⟨ sym $ isoOpFibCᴰ _ _ .f*cᴰIsoᴰ .retᴰ ⟩
+                                             ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _) ⟩⋆⟨⟩
+                                      ⟩⋆⟨⟩
+                                   ∙ Cᴰ.⋆Assocᴰ _ _ _
+                                   ∙ Cᴰ.⋆Assocᴰ _ _ _
+                                 ⟩
+                               ∙ (sym $ Cᴰ.⋆Assocᴰ _ _ _)
+                               ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
+                               ∙ Cᴰ.reind-filler _ _
+                           ⟩)
+                        ∙ (Dᴰ.≡in $ K.F-seq _ _)
+                        ∙ (sym $ Dᴰ.reind-filler _ _)
+                       ⟩
+                     ∙ (sym $ Dᴰ.⋆Assocᴰ _ _ _)
+                   ⟩
                   ∙ (sym $ Dᴰ.⋆Assocᴰ _ _ _)
                 ⟩
-               ∙ (sym $ Dᴰ.⋆Assocᴰ _ _ _)
-             ⟩
-           ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.⟨ Dᴰ.⟨⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩ ⟩⋆⟨⟩ ∙ Dᴰ.reind-filler _ _ ⟩
-         )
-        where
-        module K = LocallySmallF.FunctorNotation K
-     FUNCTOR .isSetHomᴰ =
-       IntoFibCatNatTrans.NatTransDefs.isSetNatTrans _ _ _ _ _
+              ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.⟨ Dᴰ.⟨⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩ ⟩⋆⟨⟩
+                        ∙ Dᴰ.reind-filler _ _ ⟩ )
+          ∙ ΣPathP (ΣPathP ((isContr→isProp (hasContrHomsC _ _) _ _) , refl) , refl)
+
+           where
+           module K = LocallySmallF.FunctorNotation K
+
+        FUNCTOR .isSetHomᴰ =
+          IntoFibCatNatTrans.NatTransDefs.isSetNatTrans _ _ _ _ _

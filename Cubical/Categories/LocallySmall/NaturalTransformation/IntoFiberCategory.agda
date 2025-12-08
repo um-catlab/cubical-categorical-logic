@@ -14,6 +14,7 @@ open import Cubical.Reflection.RecordEquiv.More
 
 import Cubical.Categories.Category as Small
 import Cubical.Categories.Functor as SmallFunctor
+
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 import Cubical.Categories.LocallySmall.Functor.Base as LocallySmallF
@@ -24,6 +25,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
+import Cubical.Categories.LocallySmall.Displayed.Functor as LocallySmallFᴰ
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
 
@@ -156,3 +158,79 @@ module NatTransDefs
       ΣPathP
         (g≡g' ,
         makeNatTransPathP g≡g' (funExt λ x → Dᴰ.rectify (Dᴰ.≡out (p x))))
+
+module _
+  (C : SmallCategory ℓC ℓC')
+  {D : Category Dob DHom-ℓ}
+  {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+  (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)
+  (E : SmallCategory ℓE ℓE')
+  where
+  private
+    module C = SmallCategory C
+    module D = CategoryNotation D
+    module Dᴰ = CategoryᴰNotation Dᴰ
+    module E = SmallCategory E
+
+  open NatTransDefs
+
+  module _
+    {d d'}
+    {F : Functor C Dᴰ d}
+    {G : Functor C Dᴰ d'}
+    {g : D.Hom[ d , d' ]}
+    (ϕ : LocallySmallF.Functor E.cat C.cat)
+    (α : NatTrans C Dᴰ g F G)
+    where
+
+    whiskerL :
+      NatTrans E Dᴰ g
+        (F LocallySmallF.∘F ϕ) (G LocallySmallF.∘F ϕ)
+    whiskerL = natTrans
+                (λ x →
+                   α .NatTrans.N-ob
+                   (LocallySmallF.Functor.F-ob ϕ (liftω x) .Liftω.lowerω))
+                (λ {x} {y} f → α .NatTrans.N-hom (LocallySmallF.Functor.F-hom ϕ f))
+
+
+module _
+  (C : SmallCategory ℓC ℓC')
+  {D : Category Dob DHom-ℓ}
+  {E : Category Eob EHom-ℓ}
+  {Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ}
+  (Dᴰ : SmallFibersCategoryᴰ D Dobᴰ-ℓ Dobᴰ DHom-ℓᴰ)
+  {Eobᴰ-ℓ Eobᴰ EHom-ℓᴰ}
+  (Eᴰ : SmallFibersCategoryᴰ E Eobᴰ-ℓ Eobᴰ EHom-ℓᴰ)
+  where
+  private
+    module C = SmallCategory C
+    module D = CategoryNotation D
+    module E = CategoryNotation E
+    module Dᴰ = CategoryᴰNotation Dᴰ
+    module Eᴰ = CategoryᴰNotation Eᴰ
+
+  open NatTransDefs
+  module _
+    {d d'}
+    {F : Functor C Dᴰ d}
+    {G : Functor C Dᴰ d'}
+    {g : D.Hom[ d , d' ]}
+    (ψ : LocallySmallF.Functor D E)
+    (ϕ : LocallySmallFᴰ.Functorᴰ ψ Dᴰ Eᴰ)
+    (α : NatTrans C Dᴰ g F G)
+    where
+    private
+      module ϕ = LocallySmallFᴰ.Functorᴰ ϕ
+
+    whiskerR :
+      NatTrans C Eᴰ (LocallySmallF.Functor.F-hom ψ g)
+        (LocallySmallFᴰ.Fv ϕ d LocallySmallF.∘F F)
+        (LocallySmallFᴰ.Fv ϕ d' LocallySmallF.∘F G)
+    whiskerR .NatTrans.N-ob =
+      λ x → LocallySmallFᴰ.Functorᴰ.F-homᴰ ϕ (α .NatTrans.N-ob x)
+    whiskerR .NatTrans.N-hom f =
+      Eᴰ.⟨ sym $ Eᴰ.reind-filler _ _ ⟩⋆⟨⟩
+      ∙ (sym $ ϕ.F-seqᴰ _ _ )
+      ∙ ϕ.F-homᴰ⟨ α .NatTrans.N-hom f ⟩
+      ∙ ϕ.F-seqᴰ _ _
+      ∙ Eᴰ.⟨⟩⋆⟨ Eᴰ.reind-filler _ _ ⟩

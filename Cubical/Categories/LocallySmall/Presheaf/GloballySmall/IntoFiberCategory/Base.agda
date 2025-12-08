@@ -111,6 +111,17 @@ module _ (C : SmallCategory ℓC ℓC') where
     SmallPresheaf→Presheaf→SmallPresheaf P =
       SmallFunctor.Functor≡ (λ _ → refl) λ _ → refl
 
+module _ (C : SmallCategory ℓC ℓC') where
+  private
+    module C = SmallCategory C
+    module C^op = SmallCategory (C ^opsmall)
+
+  SMALL-PRESHEAF : SmallFibersCategoryᴰ LEVEL _
+    (λ (liftω ℓ) → SmallPresheaf C ℓ) _
+  SMALL-PRESHEAF =
+    ChangeOfDisplayedObjectsᴰ.ChangeOfObjectsᴰ
+      (PRESHEAF C)
+      (λ {ℓ} (liftω P) → SmallPresheaf→Presheaf C (ℓ .lowerω) P)
 
 module _
   (C : SmallCategory ℓC ℓC')

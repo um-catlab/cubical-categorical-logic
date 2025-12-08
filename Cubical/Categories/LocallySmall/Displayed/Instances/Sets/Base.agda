@@ -46,26 +46,26 @@ open WeakJoin
 open opIsoLift
 open CatIsoᴰ
 SET-WeakJoinsIsoOpFibration : WeakJoinsIsoOpFibration SET
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .weakJoin = liftω (ℓ-max ℓ ℓ')
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A) .f*cᴰ =
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .weakJoin = (ℓ-max ℓ ℓ')
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftL (liftω A) .f*cᴰ =
   liftω (Lift {j = ℓ'} ⟨ A ⟩ , isOfHLevelLift 2 (A .snd))
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftL (liftω A)
   .f*cᴰIsoᴰ .funᴰ = λ z → lift z
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftL (liftω A)
   .f*cᴰIsoᴰ .invᴰ = λ z → z .lower
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftL (liftω A)
   .f*cᴰIsoᴰ .secᴰ = refl
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftL (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftL (liftω A)
   .f*cᴰIsoᴰ .retᴰ = refl
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A) .f*cᴰ =
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftR (liftω A) .f*cᴰ =
   liftω (Lift {j = ℓ} ⟨ A ⟩ , isOfHLevelLift 2 (A .snd))
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftR (liftω A)
   .f*cᴰIsoᴰ .funᴰ = λ z → lift z
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftR (liftω A)
   .f*cᴰIsoᴰ .invᴰ = λ z → z .lower
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftR (liftω A)
   .f*cᴰIsoᴰ .secᴰ = refl
-SET-WeakJoinsIsoOpFibration (liftω ℓ) (liftω ℓ') .opIsoLiftR (liftω A)
+SET-WeakJoinsIsoOpFibration ℓ ℓ' .opIsoLiftR (liftω A)
   .f*cᴰIsoᴰ .retᴰ = refl
 
 open Bifunctorᴰ

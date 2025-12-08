@@ -19,6 +19,8 @@ open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Categories.Monad.Base
+open import Cubical.Categories.Adjoint
+open import Cubical.Categories.Adjoint.Monad
 
 open import Cubical.Tactics.CategorySolver.Reflection
 open import Cubical.Tactics.FunctorSolver.Reflection
@@ -243,3 +245,9 @@ module _ (C : Category ℓ ℓ') where
                 ((C ⋆ g) ((C ⋆ F-hom (M .fst) f) (N-ob (M .snd .IsMonad.μ) _)))
               ) (N-ob (M .snd .IsMonad.μ) _)
       lem2 = solveFunctor! C C (M .fst)
+
+  open Cubical.Categories.Adjoint.UnitCounit
+  open Cubical.Categories.Adjoint.UnitCounit._⊣_
+  ExtensionSystem→Monad : (T : ExtensionSystem) -> (F' : Functor C (Kleisli T)) -> (F' ⊣ (G T)) -> Monad C
+  ExtensionSystem→Monad T F' F⊣G = (G T) ∘F F' , MonadFromAdjunction F' (G T) F⊣G
+

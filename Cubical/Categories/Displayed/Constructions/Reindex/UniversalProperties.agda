@@ -10,6 +10,7 @@ open import Cubical.Foundations.HLevels.More
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -18,6 +19,7 @@ open import Cubical.Categories.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
+open import Cubical.Categories.NaturalTransformation.Reind
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
@@ -74,30 +76,9 @@ module _
     → Functor (reindex Dᴰ F / (C [-, x ])) (Dᴰ / (D [-, F ⟅ x ⟆ ]))
   reindex-π-/ x = π Dᴰ F /Fᴰ Functor→PshHet F x
 
-  -- private
-  --   test : ∀ x → reindex-π-/ x .F-hom ≡ λ (f , fᴰ , tri) → F ⟪ f ⟫ , fᴰ , (sym $ F .F-seq _ _) ∙ cong (F .F-hom) tri
-  --   test = λ x → funExt λ f → ΣPathP (refl , ΣPathP (refl , refl))
-
   reindexRepresentableIsoⱽ : ∀ (x : C.ob)(Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
     → PshIsoⱽ (reindex Dᴰ F [-][-, Fxᴰ ]) (reindPsh (reindex-π-/ x) (Dᴰ [-][-, Fxᴰ ]))
   reindexRepresentableIsoⱽ x Fxᴰ = FFFunctorᴰ→PshIsoᴰ (π Dᴰ F) Fxᴰ (π-FFᴰ Dᴰ F)
-
-  -- Make this a more general lemma about composing /Fⱽ and /Fᴰ ?
-  -- TODO: generalize this to any displayed functor:
-  --                Fᴰ / Fx
-  -- Cᴰ / C [-, x ] ---> Dᴰ / D [-, F x ]
-  --    |                  |
-  --    | Cᴰ / (_⋆ f)      | Dᴰ / (_⋆ F f)
-  --    |                  |
-  -- Cᴰ / C [-, y ] ---> Dᴰ / D [-, F y ]
-  --                Fᴰ / Fy
-  reindexRepresentable-seq : ∀ {x y f}
-    → NatIso ((Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) ∘F (π Dᴰ F /Fᴰ Functor→PshHet F x))
-             ((π Dᴰ F /Fᴰ Functor→PshHet F y) ∘F (Idᴰ /Fⱽ yoRec (C [-, y ]) f))
-  reindexRepresentable-seq = /NatIso
-    (record { trans = natTrans (λ _ → D.id) (λ _ → D.⋆IdR _ ∙ sym (D.⋆IdL _)) ; nIso = λ _ → idCatIso {C = D} .snd })
-    (record { transᴰ = record { N-obᴰ = λ _ → Dᴰ.idᴰ ; N-homᴰ = λ _ → Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdR _ ∙ sym (Dᴰ.⋆IdL _) } ; nIsoᴰ = λ _ → idᴰCatIsoᴰ Dᴰ .snd })
-    λ _ → D.⋆IdL _ ∙ F .F-seq _ _
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -117,7 +98,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
       ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (F⟪f⟫*Fyᴰ .snd)
       -- reindPsh (reindex-π-/ Dᴰ F x) $ reindPsh (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
-      ⋆PshIsoⱽ reindPsh-square (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ]) (reindexRepresentable-seq Dᴰ F)
+      ⋆PshIsoⱽ reindPsh-square (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ]) (reindexRepresentable-seq (π Dᴰ F))
       -- reindPsh (Idᴰ /Fⱽ yoRec (C [-, y ]) f) $ reindPsh (π Dᴰ F /Fᴰ Functor→PshHet F y) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
       ⋆PshIsoⱽ (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F y Fyᴰ)))
       -- reindPsh (Idᴰ /Fⱽ yoRec (C [-, y ]) f) $ reindex Dᴰ F [-][-, F⟪f⟫*Fyᴰ ]
@@ -157,10 +138,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   module _ {x} (Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])(Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ) where
     private
       module Qᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ x ⟆ ]) Qᴰ
-    -- What we need is exactly that Fxᴰ is LRⱽObᴰ
-
-    -- The large version of this theorem only holds when Pᴰ is LRⱽ
-    -- anyway so there's no probably no point in proving it
   isLRⱽReindex : ∀ {x} (Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓPᴰ)
     → LocallyRepresentableⱽ Pᴰ
     → LocallyRepresentableⱽ (reindPsh (reindex-π-/ Dᴰ F x) Pᴰ)
@@ -171,7 +148,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     ⋆PshIsoⱽ reindPsh× (reindex-π-/ Dᴰ F Γ) (Dᴰ [-][-, Γᴰ ]) (reindPshᴰNatTrans (yoRec (D [-, F-ob F x ]) (F-hom F f)) Pᴰ)
     ⋆PshIsoⱽ
       ×PshIso (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F Γ Γᴰ))
-              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ (reindexRepresentable-seq Dᴰ F))
+              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ (reindexRepresentable-seq (π Dᴰ F)))
 
   LRⱽReindex : ∀ {x} → (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ)
     → LRⱽPresheafᴰ (C [-, x ]) (reindex Dᴰ F) ℓPᴰ
@@ -184,45 +161,26 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     ⋆PshIsoⱽ ×PshIso idPshIso
       (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (invPshIso $ reindexRepresentableIsoⱽ Dᴰ F x Fxᴰ))
 
-  -- the proof here is tedious, we might hope that there is a simpler
-  -- version for large exponential, but the proof for large
-  -- exponential only seems to work when Pᴰ is LRⱽ!
-  reindex-×LRⱽPshᴰ-commute' : ∀ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ)
-    → NatIso ((×LRⱽPshᴰ' Pᴰ) ∘F reindex-π-/ Dᴰ F x)
-             (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ' (LRⱽReindex Pᴰ))
-  reindex-×LRⱽPshᴰ-commute' Pᴰ = presLR→NatIso (reindex-π-/ Dᴰ F _) _ _
-    (pshhom (λ (Γ , FΓᴰ , f) pᴰ → pᴰ) λ _ _ _ _ → refl)
-    λ (Γ , FΓᴰ , f) (Δ , Δᴰ , g) → isIsoToIsEquiv
-      ((λ ((γ , γᴰ , γ⋆F⟪f⟫≡g) , pᴰ) → γ , (×ⱽ*Pᴰ.introᴰ γᴰ (Pᴰ .fst .F-hom (_ , Dᴰ.idᴰ , (sym $ γ⋆F⟪f⟫≡g ∙ (sym $ D.⋆IdL g))) pᴰ) , γ⋆F⟪f⟫≡g))
-      , (λ ((γ , γᴰ , γ⋆F⟪f⟫≡g) , pᴰ) → ΣPathP ((ΣPathP ((DR.⟨⟩⋆⟨ F-id F ⟩ ∙ D.⋆IdR γ) , (ΣPathPProp (λ _ → D.isSetHom _ _) (Dᴰ.rectify $ Dᴰ.≡out $
-        (_ , (×ⱽ*Pᴰ.introᴰ γᴰ _ Dᴰ.⋆ᴰ (Dᴰ.reind _ Dᴰ.idᴰ ×ⱽ*Pᴰ.⋆π₁ⱽ))
-          ≡⟨ Dᴰ.⟨⟩⋆⟨ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ ⟩
-          ∙ ×ⱽ*Pᴰ.β₁ⱽ γᴰ _ ⟩
-          _ , γᴰ ∎)
-        ))))
-        , (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _
-        ∙ Pᴰ.⟨⟩⋆⟨ sym (Pᴰ.reind-filler _) ∙ Pᴰ.formal-reind-filler _ _ ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ ⟩
-        ∙ ×ⱽ*Pᴰ.β₂ⱽ γᴰ _ ∙ Pᴰ.formal-reind-filler _ _)))
-      , λ (γ , γᴰ , γ⋆F⟪f⟫≡g) → ΣPathP (DR.⟨⟩⋆⟨ F-id F ⟩ ∙ D.⋆IdR γ , ΣPathPProp (λ _ → D.isSetHom _ _)
-        (Dᴰ.rectify $ Dᴰ.≡out $
-          ×ⱽ*Pᴰ.introᴰ≡
-            (sym (×ⱽ*Pᴰ.⋆π₁ⱽ-natural γᴰ _) ∙ ×ⱽ*Pᴰ.⟨ Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩ ∙ Dᴰ.⋆IdR _ ⟩⋆π₁ⱽ)
-            (Pᴰ.formal-reind-filler _ _ ∙ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (Pᴰ.⟨⟩⋆⟨ sym (Pᴰ.reind-filler _) ∙ Pᴰ.formal-reind-filler _ _ ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ ⟩ ∙ sym (×ⱽ*Pᴰ.⋆π₂ⱽ-natural γᴰ _) ∙ ×ⱽ*Pᴰ.⟨ Dᴰ.⋆IdR (γ , γᴰ) ⟩⋆π₂ⱽ)))))
-    where
-      module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ
-      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst)
-
   reindex-×LRⱽPshᴰ-commute : ∀ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ)
     → NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
              (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
-  reindex-×LRⱽPshᴰ-commute Pᴰ =
-    -- TODO: eqToNatTrans
-    record { trans = natTrans (λ x → (Dᴰ / (D [-, F ⟅ _ ⟆ ])) .id)
-      λ _ → idTrans Id .N-hom _ ; nIso = λ _ → idNatIso (×LRⱽPshᴰ Pᴰ ∘F reindex-π-/ Dᴰ F _) .nIso _ }
-    ⋆NatIso reindex-×LRⱽPshᴰ-commute' Pᴰ
-    ⋆NatIso record { trans = natTrans ((λ x → (Dᴰ / (D [-, F ⟅ _ ⟆ ])) .id))
-      (λ _ → idTrans Id .N-hom _) ; nIso = λ _ → idNatIso ((reindex-π-/ Dᴰ F _ ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))) .nIso _ }
+  reindex-×LRⱽPshᴰ-commute {ℓPᴰ}{x} Pᴰ = presLR→NatIso (reindex-π-/ Dᴰ F _) _ _ idPshHom
+    (λ (Γ , Γᴰ , f) → substUniversalElement (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) (F ⟅ Γ ⟆ , Γᴰ , F ⟪ f ⟫)) _
+      (ΣPathP ((ΣPathP ((sym $ F .F-id) , (ΣPathPProp (λ _ → D.isSetHom _ _)
+      (Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*Pᴰ.⟨ (Dᴰ.reind-filler _ _) ⟩⋆π₁ⱽ))))
+      , (Pᴰ.rectify $ Pᴰ.≡out $ sym (Pᴰ.reind-filler _) ∙ ×ⱽ*Pᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ ∙ (sym $ Pᴰ.formal-reind-filler _ _) ∙ Pᴰ.reind-filler _))))
+    where
+      module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ
+      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst)
+      presCone-isUniversal :
+        ∀ ((Γ , Γᴰ , f) : (reindex Dᴰ F / (C [-, x ])) .ob)
+        → isUniversal (Dᴰ / (D [-, F ⟅ x ⟆ ])) (((Dᴰ / (D [-, F ⟅ x ⟆ ])) [-, reindex-π-/ Dᴰ F x ⟅ (Γ , Γᴰ , f) ⟆ ]) ×Psh Pᴰ .fst)
+          ((F ⟅ Γ ⟆) , ((Pᴰ .snd Γᴰ (F ⟪ f ⟫) .fst) , (F ⟪ f ⟫)))
+          ((D.id , ×ⱽ*Pᴰ.π₁ⱽ , (λ i → D.⋆IdL (F-hom F f) i)) , Pᴰ.reind _ ×ⱽ*Pᴰ.π₂ⱽ)
+      presCone-isUniversal (Γ , Γᴰ , f) =
+        LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) (F ⟅ Γ ⟆ , Γᴰ , F ⟪ f ⟫) .UniversalElement.universal
 
+  -- Note: this proof does not appear to generalize to the large definition of the exponential.
   reindexExponentialⱽ : ∀ {x} (Fxᴰ : LRⱽObᴰ Dᴰ (F ⟅ x ⟆)) (Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
     → Exponentialⱽ Dᴰ Fxᴰ Fyᴰ
     → Exponentialⱽ (reindex Dᴰ F) (LRⱽObᴰReindex Fxᴰ) Fyᴰ

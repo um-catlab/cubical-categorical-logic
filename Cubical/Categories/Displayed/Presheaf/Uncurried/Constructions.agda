@@ -29,6 +29,7 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category.Base hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.Reind
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Functors.Constant.More
@@ -384,15 +385,22 @@ module _
   {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
   private
     module C = Category C
+    module Cᴰ = Fibers Cᴰ
     module P = PresheafNotation P
     module ⇒ⱽPshSmall = P⇒Large-cocontinuous-repr (-×Psh (Pᴰ .fst)) (-×Psh (Pᴰ .fst) -cocontinuous)
       (λ Γ → LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) Γ
         ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
   ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
-  ×LRⱽPshᴰ = ⇒ⱽPshSmall.P-F
+  ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 
-  ×LRⱽPshᴰ' : Functor (Cᴰ / P) (Cᴰ / P)
-  ×LRⱽPshᴰ' = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+  ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F : NatIso ×LRⱽPshᴰ ⇒ⱽPshSmall.P-F
+  ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F = record { trans = natTrans (λ x → (Cᴰ / P) .id)
+    λ f → (Cᴰ / P) .⋆IdR _
+    ∙ ΣPathP ((sym $ C.⋆IdL _ ∙ C.⋆IdL _) , (ΣPathPProp (λ _ → P.isSetPsh _ _)
+    (Cᴰ.rectify $ Cᴰ.≡out $
+    sym $ Cᴰ.⋆IdL _ ∙ Cᴰ.⋆IdL _)))
+    ∙ (Cᴰ / P) .⋆IdL _
+    ; nIso = λ x → idCatIso {C = Cᴰ / P} .snd }
 
   module _ (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
 
@@ -401,19 +409,16 @@ module _
 
     ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
       → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
-    ⇒ⱽPshSmall-UMP = ⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _
+    ⇒ⱽPshSmall-UMP =
+      compIso (postcomp⋆PshHom-Iso (reindNatIsoPsh ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F Qᴰ))
+              (⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : LRⱽPresheafᴰ P Cᴰ ℓQᴰ) where
   ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ (Pᴰ .fst) (Qᴰ .fst))
     → NatIso (×LRⱽPshᴰ Pᴰ) (×LRⱽPshᴰ Qᴰ)
-  ×LRⱽPshᴰ-Iso α = FunctorComprehension-NatIso _ _ _ _
-   (pshiso (pshhom (λ c z → z .fst , α .trans .N-ob (c .fst) (z .snd))
-     λ c c' f p → ΣPathP (refl , α .trans .N-hom (c .fst) (c' .fst) (f .fst) (p .snd)))
-     (λ x → (λ x₁ → x₁ .fst , α .nIso (x .fst) .fst (x₁ .snd))
-     , ((λ b → ΣPathP (refl , (α .nIso (x .fst) .snd .fst (b .snd))))
-     , λ b → ΣPathP (refl , (α .nIso (x .fst) .snd .snd (b .snd))))))
+  ×LRⱽPshᴰ-Iso α = LRPshIso→NatIso _ _ α
 
 module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   where

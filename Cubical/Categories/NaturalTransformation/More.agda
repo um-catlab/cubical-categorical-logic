@@ -51,7 +51,6 @@ module _ {B : Category ℓB ℓB'}
 
 _∘ʰ'_ = whiskerTrans'
 
-
 α : {F : Functor B C} {G : Functor C D} {H : Functor D E}
   → NatTrans (H ∘F (G ∘F F)) ((H ∘F G) ∘F F)
 α = pathToNatTrans F-assoc

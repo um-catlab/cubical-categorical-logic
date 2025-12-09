@@ -10,6 +10,7 @@ open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Reflection.RecordEquiv
 
@@ -143,6 +144,43 @@ module UniversalElementNotation {ℓo}{ℓh}
   asPshIso .trans = yoRec P element
   asPshIso .nIso =  ⋆element-isPshIso
 
+module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
+  private
+    module P = PresheafNotation P
+  isPshIso→isUniversal : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → isUniversal C P v e
+  isPshIso→isUniversal ⋆eltIsIso A = isIsoToIsEquiv (⋆eltIsIso A)
+
+  isUniversal→isPshIso : ∀ {v}{e} → isUniversal C P v e → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e)
+  isUniversal→isPshIso eltIsUniversal A = isEquivToIsIso _ (eltIsUniversal A)
+
+  isUniversal→UniversalElement : ∀ {v}{e} → isUniversal C P v e → UniversalElement C P
+  isUniversal→UniversalElement isUE = record { vertex = _ ; element = _ ; universal = isUE }
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C P) where
+  private
+    module P = PresheafNotation P
+    module ue = UniversalElementNotation ue
+  UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
+  UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
+
+  yoRecIso : PshIso (C [-, ue.vertex ]) P
+  yoRecIso = record { trans = yoRec P ue.element
+                    ; nIso = UniversalElement→yoRecIsIso }
+
+  substUniversalElement : (elt : P.p[ ue.vertex ])
+    → ue.element ≡ elt
+    → isUniversal C P ue.vertex elt
+  substUniversalElement elt ue≡elt = isPshIso→isUniversal P λ Γ → ue.intro
+    , subst (λ e → section (P._⋆ e) ue.intro × retract (P._⋆ e) ue.intro)
+       ue≡elt
+       (isUniversal→isPshIso _ ue.universal Γ .snd)
+
+  private
+    -- This doesn't hold definitionally if we implement substUniversalElement as a subst, instead there's a transport refl
+    test-substUE : ∀ (elt : P.p[ ue.vertex ]) (ue≡e : ue.element ≡ elt)
+      Γ (p : P.p[ Γ ])
+      → substUniversalElement elt ue≡e Γ .equiv-proof p .fst .fst ≡ ue.intro p
+    test-substUE e ue≡e = λ _ _ → refl
 
 module _ {C : Category ℓc ℓc'} {x} (ue : UniversalElement C (C [-, x ])) where
   private
@@ -224,26 +262,6 @@ module _ (C : Category ℓc ℓc')(P : Presheaf C ℓc') where
   Representationᵁ→UniversalElement repr =
     RepresentationPshIso→UniversalElement P
     $ Representationᵁ→RepresentationPshIso repr
-
-module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
-  private
-    module P = PresheafNotation P
-  isPshIso→isUniversal : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → isUniversal C P v e
-  isPshIso→isUniversal ⋆eltIsIso A = isIsoToIsEquiv (⋆eltIsIso A)
-
-  isUniversal→isPshIso : ∀ {v}{e} → isUniversal C P v e → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e)
-  isUniversal→isPshIso eltIsUniversal A = isEquivToIsIso _ (eltIsUniversal A)
-
-module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C P) where
-  private
-    module P = PresheafNotation P
-    module ue = UniversalElement ue
-  UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
-  UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
-
-  yoRecIso : PshIso (C [-, ue.vertex ]) P
-  yoRecIso = record { trans = yoRec P ue.element
-                    ; nIso = UniversalElement→yoRecIsIso }
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
   open Category

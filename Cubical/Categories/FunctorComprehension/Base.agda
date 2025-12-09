@@ -99,10 +99,9 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FunctorComprehension-Repr .nIso (d , c) .snd .snd p = β $ ues c
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F G : Functor C D)
-  -- TODO: put this somewhere else
-
   where
-  -- TODO: re-use one of the many Yonedas we already have? This one can actually use FF of Yoneda
+  -- TODO: This should probably go in something like Profunctor.Representable. In fact maybe this whole file should be moved to Profunctor.Representable.
+  -- TODO: Can this be rewritten to use one of the many Yonedas we already have?
   Functorial-Yo : (αYo : (RelatorHom (compR (HomBif D) F) (compR (HomBif D) G))) → NatTrans F G
   Functorial-Yo αYo .N-ob x = αYo .N-ob (F ⟅ x ⟆ , x) (D .id)
   Functorial-Yo αYo .N-hom f =
@@ -129,14 +128,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE �
          (α : ProfunctorHom P (reindPshF F ∘F Q))
          (uesP : UniversalElements P)
          where
-  -- TODO: make this a combinator somewhere
-  α' : ∀ (x : C .ob) → PshHet F (P ⟅ x ⟆) (Q ⟅ x ⟆)
-  α' x = pshhom (λ c → α .N-ob (c , x)) λ c c' f p →
-    natL α f p
 
   preserves-UE→NatIso
     : (uesQ : UniversalElements Q)
-    → (F-pres-uesP : ∀ (x : C .ob) → preservesUniversalElement (α' x) (uesP x))
+    → (F-pres-uesP : ∀ (x : C .ob) → preservesUniversalElement (app-ProfHom α x) (uesP x))
     → NatIso (F ∘F FunctorComprehension P uesP) (FunctorComprehension Q uesQ)
   preserves-UE→NatIso uesQ F-pres-uesP = isosToNatIso
     (λ x → UniversalElement→Iso (record { vertex = _ ; element = α .N-ob _ (uesP x .element) ; universal = F-pres-uesP x }
@@ -158,13 +153,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE �
       module P = ProfunctorNotation P
       module Q = ProfunctorNotation Q
       F-uesP : ∀ x → UniversalElement E (Q ⟅ x ⟆)
-      F-uesP = λ x → record { vertex = F-ob F (uesP x .vertex) ; element = α' x .N-ob (uesP x .vertex) (uesP x .element) ; universal = F-pres-uesP x }
+      F-uesP = λ x → record { vertex = F-ob F (uesP x .vertex) ; element = app-ProfHom α x .N-ob (uesP x .vertex) (uesP x .element) ; universal = F-pres-uesP x }
       module uesQ {x} = UniversalElementNotation (uesQ x)
       module F-uesP {x} = UniversalElementNotation {P = Q ⟅ x ⟆} (F-uesP x)
       module uesP {x} = UniversalElementNotation (uesP x)
-
-  -- FC-NatIso' : NatIso ()
-         -- (uesQ : UniversalElements Q)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
          (P : Profunctor C D ℓS)(Q : Profunctor C D ℓR)

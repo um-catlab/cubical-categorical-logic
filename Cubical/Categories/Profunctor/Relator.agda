@@ -188,6 +188,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     appR-Iso α d = pshiso (appR-Hom (α .trans) d)
       (λ c → α .nIso (c , d) .fst , α .nIso (c , d) .snd .fst , α .nIso (c , d) .snd .snd)
 
+  module _ {P : Profunctor D C ℓP}{Q : Profunctor D C ℓQ} where
+    app-ProfHom : ProfunctorHom P Q → ∀ x → PshHom (P ⟅ x ⟆) (Q ⟅ x ⟆)
+    app-ProfHom α x = pshhom (λ c → α .PshHom.N-ob (c , x)) (λ c c' f p → natL α f p)
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {ℓR} where
   _[_,_]R : (R : C o-[ ℓR ]-* D) → C .ob → D .ob → Type ℓR
   R [ c , d ]R = ⟨ R ⟅ c , d ⟆b ⟩

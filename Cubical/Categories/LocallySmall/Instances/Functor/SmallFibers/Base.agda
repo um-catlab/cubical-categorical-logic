@@ -67,6 +67,19 @@ module _
 
     module _ (hasContrHomsC : hasContrHoms C.cat) where
       module _ (isoOpFibCᴰ : isIsoOpFibration Cᴰ) where
+        -- This construction is completed but it isn't actually
+        -- the correct generalization of presheaves over
+        -- a presheaf category
+        --
+        -- We can't instantiate this construction where
+        -- Cᴰ is a category of presheaves, as it does not have this
+        -- isoOpFibration property over LEVEL
+        -- I'd then thought that it would be sufficient to
+        -- restrict to a category of levels that only has morphisms
+        -- that respect the ordering between levels. That is,
+        -- restrict to only the morphisms for which these opCartesian
+        -- isoLifts exists. That's very nearly the right definition, however
+        -- then the category of levels no longer has contractible homs
         FUNCTOR : Categoryᴰ (SmallCategory.cat ((C ^opsmall) ×Csmall D))
           (λ (liftω (c , d)) → Functor c d)
           _

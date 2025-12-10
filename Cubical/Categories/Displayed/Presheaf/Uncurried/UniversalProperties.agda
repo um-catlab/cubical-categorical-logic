@@ -87,6 +87,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductsⱽ : Type _
   BinProductsⱽ = ∀ {x} xᴰ yᴰ → BinProductⱽ {x} xᴰ yᴰ
 
+  AllLRⱽ : Type _
+  AllLRⱽ = ∀ {x} xᴰ → isLRⱽObᴰ {x} xᴰ
+
   LargeExponentialⱽ : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
   LargeExponentialⱽ {x} xᴰ yᴰ = Representableⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ⇒ⱽPshLarge (Cᴰ [-][-, yᴰ ]))
 
@@ -97,42 +100,44 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   Exponentialⱽ : ∀ {x} ((xᴰ , _×ⱽxᴰ) : LRⱽObᴰ x) (yᴰ : Cᴰ.ob[ x ]) → Type _
   Exponentialⱽ {x} xᴰ yᴰ =
     Representableⱽ Cᴰ x (LRⱽObᴰ→LRⱽ xᴰ ⇒ⱽPshSmall (Cᴰ [-][-, yᴰ ]))
-  -- TODO: make an explicit definition for the functor you get out of an LRⱽ
 
   BinProductsⱽ+Fibration→AllLRⱽ : BinProductsⱽ → isFibration
-    → ∀ x (xᴰ : Cᴰ.ob[ x ]) → isLRⱽObᴰ xᴰ
-  BinProductsⱽ+Fibration→AllLRⱽ bpⱽ lifts x xᴰ {Γ} Γᴰ f =
+    → AllLRⱽ
+  BinProductsⱽ+Fibration→AllLRⱽ bpⱽ lifts {x} xᴰ {Γ} Γᴰ f =
     (bpⱽ Γᴰ (lifts xᴰ Γ f .fst) .fst)
     , (bpⱽ _ _ .snd
       ⋆PshIsoⱽ ×PshIso idPshIso (lifts xᴰ Γ f .snd))
 
-  Exponentialsⱽ : BinProductsⱽ → isFibration → Type _
-  Exponentialsⱽ bpⱽ lifts = ∀ {x} (xᴰ yᴰ : Cᴰ.ob[ x ])
-    → Exponentialⱽ (xᴰ , (BinProductsⱽ+Fibration→AllLRⱽ bpⱽ lifts x xᴰ)) yᴰ
+  Exponentialsⱽ : AllLRⱽ → Type _
+  Exponentialsⱽ lrⱽ = ∀ {x} (xᴰ yᴰ : Cᴰ.ob[ x ])
+    → Exponentialⱽ (xᴰ , lrⱽ xᴰ) yᴰ
 
-  isLR∀Ob : (A : C.ob) → Type _
-  isLR∀Ob A =
-    Σ[ _×A ∈ BinProductsWith C A ]
-    ∀ (Γ : C.ob) → Quadrable ((Γ ×A) .element .fst)
+  isLR∀Ob : (A : C.ob) (_×A : BinProductsWith C A) → Type _
+  isLR∀Ob A _×A = ∀ (Γ : C.ob) → Quadrable ((Γ ×A) .element .fst)
 
-  BinProducts+isFibration→isLR∀Ob : BinProducts C → isFibration
-    → ∀ A → isLR∀Ob A
-  BinProducts+isFibration→isLR∀Ob bp lifts A = (λ Γ → bp (Γ , A)) ,
-    λ Γ yᴰ → lifts yᴰ (bp (Γ , A) .vertex) (bp (Γ , A) .element .fst)
+  -- -- TODO: double check to make sure this is the right definition, the
+  -- -- reindPshᴰ is a little suspicious
+  UniversalQuantifier : ∀ {Γ} A (_×A : BinProductsWith C A) (π₁* : isLR∀Ob A _×A) (Aᴰ : Cᴰ.ob[ (Γ ×A) .vertex ]) → Type _
+  UniversalQuantifier {Γ} A _×A π₁* Aᴰ = Representableⱽ Cᴰ Γ (
+    ∀PshSmall Cᴰ ((C [-, A ]) , _×A , (π₁* _))
+    (reindPshᴰNatTrans (invPshIso (yoRecIso (Γ ×A)) .trans) (Cᴰ [-][-, Aᴰ ]))
+    )
 
-  LR∀Ob : Type _
-  LR∀Ob = Σ C.ob isLR∀Ob
+  module _ (bp : BinProducts C) where
+    AllLR∀ : Type _
+    AllLR∀ = ∀ (A Γ : C.ob) → Quadrable (bp (Γ , A) .element .fst)
 
-  -- TODO: double check to make sure this is the right definition, the
-  -- reindPshᴰ is a little suspicious
-  UniversalQuantifier : ∀ {Γ} ((A , _×A , π₁*) : LR∀Ob) (Aᴰ : Cᴰ.ob[ (Γ ×A) .vertex ]) → Type _
-  UniversalQuantifier {Γ} (A , _×A , π₁*) Aᴰ = Representableⱽ Cᴰ Γ (
-    ∀PshSmall Cᴰ ((C [-, A ]) , (_×A , (λ {x} → π₁* x)))
-                 (reindPshᴰNatTrans (invPshIso (yoRecIso (Γ ×A)) .trans) (Cᴰ [-][-, Aᴰ ])))
+    BinProducts+isFibration→AllLR∀ : isFibration → AllLR∀
+    BinProducts+isFibration→AllLR∀ lifts A Γ yᴰ =
+      lifts yᴰ (bp (Γ , A) .vertex) (bp (Γ , A) .element .fst)
 
-  UniversalQuantifiers : BinProducts C → isFibration → Type _
-  UniversalQuantifiers bp lifts = ∀ Γ A (Aᴰ : Cᴰ.ob[ bp (Γ , A) .vertex ]) →
-    UniversalQuantifier {Γ = Γ} (A , BinProducts+isFibration→isLR∀Ob bp lifts A) Aᴰ
+    LR∀Ob : Type _
+    LR∀Ob = Σ[ A ∈ C.ob ] isLR∀Ob A (λ c → bp (c , A))
+
+    UniversalQuantifiers : AllLR∀ → Type _
+    UniversalQuantifiers lr∀ = ∀ Γ A (Aᴰ : Cᴰ.ob[ bp (Γ , A) .vertex ]) → UniversalQuantifier A (λ c → bp (c , A))
+      (lr∀ A)
+      Aᴰ
 
   module LRⱽPresheafᴰNotation {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
     private

@@ -23,7 +23,6 @@ open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
-open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More

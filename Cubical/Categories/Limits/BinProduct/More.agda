@@ -59,6 +59,9 @@ module _ (C : Category ℓ ℓ') where
     BinProductsWith : Type (ℓ-max ℓ ℓ')
     BinProductsWith = UniversalElements ProdWithAProf
 
+    BinProductsWithRepr : Type (ℓ-max ℓ ℓ')
+    BinProductsWithRepr = AllRepresentable ProdWithAProf
+
     BinProducts→BinProductsWith : BinProducts → BinProductsWith
     BinProducts→BinProductsWith bp c' = bp (c' , c)
 

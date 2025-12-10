@@ -18,8 +18,8 @@ CartesianClosedCategoryⱽ CC ℓCᴰ ℓCᴰ' =
   Σ[ termⱽ ∈ Terminalsⱽ Cᴰ ]
   Σ[ bpⱽ   ∈ BinProductsⱽ Cᴰ ]
   Σ[ cartesianLifts ∈ isFibration Cᴰ ]
-  Σ[ expⱽ ∈ Exponentialsⱽ Cᴰ bpⱽ cartesianLifts ]
-  UniversalQuantifiers Cᴰ bp cartesianLifts
+  Σ[ expⱽ ∈ Exponentialsⱽ Cᴰ {!!} ]
+  {!!} -- UniversalQuantifiers Cᴰ bp cartesianLifts
   where
     open CartesianCategory CC
 

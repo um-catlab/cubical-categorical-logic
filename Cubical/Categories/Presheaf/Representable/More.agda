@@ -28,6 +28,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
 
 private
@@ -228,6 +229,11 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
         α⁻ = (invPshIso α) .trans .N-ob
         motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
         motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (P : Profunctor C D ℓp) where
+  open Category
+  AllRepresentable : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓd) ℓd') ℓp)
+  AllRepresentable = ∀ (x : C .ob) → RepresentationPshIso (P ⟅ x ⟆)
 
 -- These things only make sense when the presheaf is at the same
 -- universe level as the Homs of the category.

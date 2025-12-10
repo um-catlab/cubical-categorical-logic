@@ -481,6 +481,6 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
     ∀PshSmall = reindPsh wkLR∀
 
-    ∀PshSMall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+    ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
       → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
-    ∀PshSMall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _
+    ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _

@@ -25,6 +25,8 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Morphism.Lift
+open import Cubical.Categories.Presheaf.Constructions.Lift
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Yoneda
@@ -279,3 +281,55 @@ module _ {C : Category ℓc ℓc'} where
     Yoneda .nIso c .snd .snd α = makePshHomPath (funExt λ c → funExt λ f →
       sym (α .N-hom _ _ f C.id)
       ∙ cong (α .N-ob c) (C.⋆IdR f))
+
+module _ {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq} where
+  private
+    PSHpq = PresheafCategory C (ℓ-max ℓp ℓq)
+
+    LP = LiftPsh P (ℓ-max ℓp ℓq)
+    LQ = LiftPsh Q (ℓ-max ℓp ℓq)
+
+    よLP = yo {C = PSHpq} LP
+    よLQ = yo {C = PSHpq} LQ
+
+  module _
+    (α : PshIso
+          (PshHomPsh {ℓp = ℓ-max ℓp ℓq} P)
+          (PshHomPsh {ℓp = ℓ-max ℓp ℓq} Q)) where
+    private
+      α' : PshIso よLP よLQ
+      α' = yo≅PshHomPsh LP
+           ⋆PshIso invPshIso (PshHomPsh-LiftPshIso P)
+           ⋆PshIso α
+           ⋆PshIso (PshHomPsh-LiftPshIso Q)
+           ⋆PshIso invPshIso (yo≅PshHomPsh LQ)
+
+      LiftP≅LiftQ : PshIso LP LQ
+      LiftP≅LiftQ = PshCatIso→PshIso LP LQ the-cat-iso
+       where
+       the-cat-iso : CatIso PSHpq LP LQ
+       the-cat-iso =
+         liftIso {F = YO {C = PSHpq}} isFullyFaithfulYO
+           (NatIso→FUNCTORIso _ _ (PshIso→NatIso よLP よLQ α'))
+
+    PshHomPshIso→PshIso : PshIso P Q
+    PshHomPshIso→PshIso =
+      LiftPshIso P (ℓ-max ℓp ℓq)
+      ⋆PshIso LiftP≅LiftQ
+      ⋆PshIso invPshIso (LiftPshIso Q (ℓ-max ℓp ℓq))
+
+  module _ (α : PshIso P Q) where
+    PshIso→PshHomPshIso : ∀ {ℓr} →
+      PshIso (PshHomPsh {ℓp = ℓr} P) (PshHomPsh Q)
+    PshIso→PshHomPshIso .trans .N-ob R β = β ⋆PshHom α .trans
+    PshIso→PshHomPshIso .trans .N-hom _ _ _ _ = ⋆PshHomAssoc _ _ _
+    PshIso→PshHomPshIso .nIso R .fst β = β ⋆PshHom invPshIso α .trans
+    PshIso→PshHomPshIso .nIso R .snd .fst β =
+      ⋆PshHomAssoc _ _ _
+      ∙ cong (β ⋆PshHom_) (PshIso→rightInv α)
+      ∙ ⋆PshHomIdR β
+    PshIso→PshHomPshIso .nIso R .snd .snd β =
+      ⋆PshHomAssoc _ _ _
+      ∙ cong (β ⋆PshHom_) (PshIso→leftInv α)
+      ∙ ⋆PshHomIdR β

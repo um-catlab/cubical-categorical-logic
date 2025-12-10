@@ -14,6 +14,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Presheaf
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Functor
@@ -41,16 +42,6 @@ private
 
 open Category
 open Categoryᴰ
--- TODO: move these upstream
-PRESHEAF : (C : Category ℓC ℓC') (ℓP : Level) → Category _ _
-PRESHEAF C ℓP .ob = Presheaf C ℓP
-PRESHEAF C ℓP .Hom[_,_] = PshHom
-PRESHEAF C ℓP .id = idPshHom
-PRESHEAF C ℓP ._⋆_ = _⋆PshHom_
-PRESHEAF C ℓP .⋆IdL = λ f → makePshHomPath refl
-PRESHEAF C ℓP .⋆IdR = λ f → makePshHomPath refl
-PRESHEAF C ℓP .⋆Assoc = ⋆PshHomAssoc
-PRESHEAF C ℓP .isSetHom = isSetPshHom _ _
 
 -- TODO: move upstream
 PRESHEAFᴰ' : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')

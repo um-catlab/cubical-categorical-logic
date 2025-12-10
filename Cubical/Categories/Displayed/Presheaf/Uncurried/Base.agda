@@ -321,6 +321,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   idPshHomⱽ : PshHomⱽ Pᴰ Pᴰ
   idPshHomⱽ = idPshHom
 
+  idPshHomᴰ : PshHomᴰ idPshHom Pᴰ Pᴰ
+  idPshHomᴰ = invPshIso (reindPshᴰNatTrans-id idPshHom Pᴰ) .trans
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
@@ -340,3 +343,23 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   infixr 9 _⋆PshHomⱽ_
   infixr 9 _⋆PshIsoⱽ_
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  {R : Presheaf C ℓR}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+  where
+
+  _⋆PshHomᴰ_ :
+    {α : PshHom P Q}
+    {β : PshHom Q R} →
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+    (βᴰ : PshHomᴰ β Qᴰ Rᴰ) →
+    PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ
+  αᴰ ⋆PshHomᴰ βᴰ =
+    {!!}
+    ⋆PshHomⱽ αᴰ
+    ⋆PshHomⱽ {!!}

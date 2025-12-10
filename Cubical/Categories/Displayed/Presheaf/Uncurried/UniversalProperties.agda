@@ -77,8 +77,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   isLRⱽObᴰ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Type _
   isLRⱽObᴰ {x} xᴰ = LocallyRepresentableⱽ (Cᴰ [-][-, xᴰ ])
-    -- Σ[ lifts ∈ CartesianLiftable xᴰ ]
-    -- (∀ {Γ}(f : C [ Γ , x ]) → BinProductsWithⱽ (lifts f .fst))
 
   LRⱽObᴰ : ∀ (x : C.ob) → Type _
   LRⱽObᴰ x = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] isLRⱽObᴰ xᴰ

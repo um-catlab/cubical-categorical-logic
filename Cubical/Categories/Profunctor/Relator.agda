@@ -15,7 +15,8 @@ module Cubical.Categories.Profunctor.Relator where
 open import Cubical.Reflection.RecordEquiv
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
@@ -37,13 +38,15 @@ open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Instances.Functors.More
 
 private
   variable
-    ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓS ℓR : Level
+    ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓS ℓR : Level
 
 open Category
 open Bifunctor
@@ -57,7 +60,138 @@ C *-[ ℓS ]-o D = Bifunctor C (D ^op) (SET ℓS)
 Relatoro* : (C : Category ℓC ℓC') → ∀ ℓS → (D : Category ℓD ℓD') → Type _
 Relatoro* C ℓS D = C o-[ ℓS ]-* D
 
--- Relator composition notation
+module RelatorNotation
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  (R : C o-[ ℓR ]-* D)
+  where
+  private
+    module C = Category C
+    module D = Category D
+    variable
+      x x' x'' x''' : C.ob
+      y y' y'' y''' : D.ob
+    module R = Bifunctor R
+    -- ⋆IdLᶜᵖ
+  Het[_,_] : (x : C.ob) (y : D.ob) → Type _
+  Het[ x , y ] = ⟨ R.Bif-ob x y  ⟩
+
+  _⋆ʳᶜ_ : (h : Het[ x , y ])(g : D [ y , y' ]) → Het[ x , y' ]
+  h ⋆ʳᶜ g = R.Bif-homR _ g h
+  _⋆ᶜʳ_ : (f : C [ x , x' ])(h : Het[ x' , y ]) → Het[ x , y ]
+  f ⋆ᶜʳ h = R.Bif-homL f _ h
+
+  opaque
+    ⟨_⟩⋆ʳᶜ⟨_⟩ : {h h' : Het[ x , y ]}{g g' : D [ y , y' ]}
+      → h ≡ h' → g ≡ g' → h ⋆ʳᶜ g ≡ h' ⋆ʳᶜ g'
+    ⟨ h≡h' ⟩⋆ʳᶜ⟨ g≡g' ⟩ = cong₂ _⋆ʳᶜ_ h≡h' g≡g'
+
+    ⟨_⟩⋆ᶜʳ⟨_⟩ : {f f' : C [ x' , x ]}{h h' : Het[ x , y ]}
+      → f ≡ f' → h ≡ h' → f ⋆ᶜʳ h ≡ f' ⋆ᶜʳ h'
+    ⟨ f≡f' ⟩⋆ᶜʳ⟨ h≡h' ⟩ = cong₂ _⋆ᶜʳ_ f≡f' h≡h'
+
+    ⋆IdLᶜʳ : (h : Het[ x , y ])
+      → C.id ⋆ᶜʳ h ≡ h
+    ⋆IdLᶜʳ = funExt⁻ R.Bif-L-id
+
+    ⋆IdRʳᶜ : (h : Het[ x , y ])
+      → h ⋆ʳᶜ D.id ≡ h
+    ⋆IdRʳᶜ = funExt⁻ R.Bif-R-id
+
+    ⋆Assocʳᶜᶜ : (h : Het[ x , y ])(g : D [ y , y' ])(g' : D [ y' , y'' ])
+      → ((h ⋆ʳᶜ g) ⋆ʳᶜ g') ≡ (h ⋆ʳᶜ (g D.⋆ g'))
+    ⋆Assocʳᶜᶜ h g g' = sym $ funExt⁻ (R.Bif-R-seq g g') h
+
+    ⋆Assocᶜᶜʳ : (f' : C [ x'' , x' ])(f : C [ x' , x ])(h : Het[ x , y ])
+      → ((f' C.⋆ f) ⋆ᶜʳ h) ≡ (f' ⋆ᶜʳ (f ⋆ᶜʳ h))
+    ⋆Assocᶜᶜʳ f' f h = funExt⁻ (R.Bif-L-seq f f') h
+
+    ⋆Assocᶜʳᶜ : (f : C [ x , x' ])(h : Het[ x' , y ])(g : D [ y , y' ])
+      → ((f ⋆ᶜʳ h) ⋆ʳᶜ g) ≡ (f ⋆ᶜʳ (h ⋆ʳᶜ g))
+    ⋆Assocᶜʳᶜ f h g =
+      funExt⁻ (R .Bif-LR-fuse f g) h
+      ∙ (sym $ funExt⁻ (R .Bif-RL-fuse f g) h)
+  open Bifunctor R public
+
+module ProfunctorNotation {ℓC ℓC' ℓD ℓD' ℓR}
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  (R : Profunctor C D ℓR)
+  = RelatorNotation (CurriedToBifunctorL R)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  private
+    module C = Category C
+    module D = Category D
+  -- TODO: this relies on definitional (C ×C D ^op) ^op ≡ (C ^op ×C D)
+  Relator→Psh : (P : C o-[ ℓP ]-* D) → Presheaf (C ×C D ^op) ℓP
+  Relator→Psh P = BifunctorToParFunctor P
+
+  RelatorHom : (P : C o-[ ℓP ]-* D) → (Q : C o-[ ℓQ ]-* D) → Type _
+  RelatorHom P Q = PshHom (Relator→Psh P) (Relator→Psh Q)
+
+  RelatorIso : (P : C o-[ ℓP ]-* D) → (Q : C o-[ ℓQ ]-* D) → Type _
+  RelatorIso P Q = PshIso (Relator→Psh P) (Relator→Psh Q)
+
+  ProfunctorHom ProfunctorIso : (P : Profunctor D C ℓP) (Q : Profunctor D C ℓQ) → Type _
+  ProfunctorHom P Q = RelatorHom (CurriedToBifunctorL P) (CurriedToBifunctorL Q)
+  ProfunctorIso P Q = RelatorIso (CurriedToBifunctorL P) (CurriedToBifunctorL Q)
+
+  module _ {P : C o-[ ℓP ]-* D}{Q : C o-[ ℓQ ]-* D} where
+    private
+      module P = RelatorNotation P
+      module Q = RelatorNotation Q
+    mkRelatorHom : (N-ob : ∀ c d → P.Het[ c , d ] → Q.Het[ c , d ])
+      → (N-homL : ∀ c c' d (f : C.Hom[ c , c' ])(p : P.Het[ c' , d ])
+        → N-ob c d (f P.⋆ᶜʳ p) ≡ (f Q.⋆ᶜʳ N-ob c' d p))
+      → (N-homR : ∀ c d d' (p : P.Het[ c , d ])(g : D.Hom[ d , d' ])
+        → N-ob c d' (p P.⋆ʳᶜ g) ≡ (N-ob c d p Q.⋆ʳᶜ g))
+      → RelatorHom P Q
+    mkRelatorHom N-ob N-homL N-homR = pshhom (λ (c , d) → N-ob c d)
+      λ (c , d) (c' , d') (f , g) p →
+        cong (N-ob c d) (sym $ funExt⁻ (P.Bif-LR-fuse f g) p)
+        ∙ (N-homR c d' d (f P.⋆ᶜʳ p) g
+        ∙ Q.⟨ N-homL c c' d' f p ⟩⋆ʳᶜ⟨ refl ⟩)
+        ∙ funExt⁻ (Q.Bif-LR-fuse f g) (N-ob c' d' p)
+
+    open PshHom
+    natL : ∀ (α : RelatorHom P Q) {c c' d} (f : C.Hom[ c , c' ])(p : P.Het[ c' , d ])
+        → α .N-ob (c , d) (f P.⋆ᶜʳ p) ≡ (f Q.⋆ᶜʳ α .N-ob (c' , d) p)
+    natL α {c} {c'} {d} f p =
+      (cong (α .N-ob (c , d)) (funExt⁻ (P .Bif-L×-agree f) p)
+      ∙ α .N-hom (c , d) (c' , d) (f , D.id) p)
+      ∙ (sym $ (funExt⁻ (Q .Bif-L×-agree f) _))
+
+    natR : ∀ (α : RelatorHom P Q) {c d d'} (p : P.Het[ c , d ])(g : D.Hom[ d , d' ])
+      → α .N-ob (c , d') (p P.⋆ʳᶜ g) ≡ (α .N-ob (c , d) p Q.⋆ʳᶜ g)
+    natR α {c}{d}{d'} p g =
+      cong (α .N-ob (c , d')) (funExt⁻ (P .Bif-R×-agree g) p)
+      ∙ α .N-hom (c , d') (c , d) (C.id , g) p
+      ∙ (sym $ funExt⁻ (Q .Bif-R×-agree g) _)
+
+    appL-Hom : RelatorHom P Q → ∀ c → PshHom (appL P c) (appL Q c)
+    appL-Hom α c .N-ob d = α .N-ob (c , d)
+    appL-Hom α c .N-hom _ _ f p = natR α p f
+    -- is there a way to get this for free from appL-Hom?
+    appR-Hom : RelatorHom P Q → ∀ d → PshHom (appR P d) (appR Q d)
+    appR-Hom α d .N-ob c = α .N-ob (c , d)
+    appR-Hom α d .N-hom _ _ = natL α
+  module _ {P : C o-[ ℓP ]-* D}{Q : C o-[ ℓQ ]-* D} where
+    open PshHom
+    open PshIso
+    appL-Iso : RelatorIso P Q → ∀ c → PshIso (appL P c) (appL Q c)
+    appL-Iso α c = pshiso (appL-Hom (α .trans) c)
+      (λ d → (α .nIso (c , d) .fst) ,
+        ( α .nIso (c , d) .snd .fst
+        , α .nIso (c , d) .snd .snd))
+    appR-Iso : RelatorIso P Q → ∀ c → PshIso (appR P c) (appR Q c)
+    appR-Iso α d = pshiso (appR-Hom (α .trans) d)
+      (λ c → α .nIso (c , d) .fst , α .nIso (c , d) .snd .fst , α .nIso (c , d) .snd .snd)
+
+  module _ {P : Profunctor D C ℓP}{Q : Profunctor D C ℓQ} where
+    app-ProfHom : ProfunctorHom P Q → ∀ x → PshHom (P ⟅ x ⟆) (Q ⟅ x ⟆)
+    app-ProfHom α x = pshhom (λ c → α .PshHom.N-ob (c , x)) (λ c c' f p → natL α f p)
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {ℓR} where
   _[_,_]R : (R : C o-[ ℓR ]-* D) → C .ob → D .ob → Type ℓR
   R [ c , d ]R = ⟨ R ⟅ c , d ⟆b ⟩

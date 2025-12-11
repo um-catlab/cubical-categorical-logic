@@ -3,7 +3,7 @@ module Cubical.Categories.Profunctor.Homomorphism.Bilinear where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 open import Cubical.Categories.Category
-open import Cubical.Categories.Profunctor.Relator
+open import Cubical.Categories.Profunctor.Relator hiding (natL; natR)
 
 private
   variable

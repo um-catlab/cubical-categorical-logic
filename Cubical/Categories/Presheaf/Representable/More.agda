@@ -10,6 +10,7 @@ open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Reflection.RecordEquiv
 
@@ -25,6 +26,8 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Morphism.Lift
+open import Cubical.Categories.Presheaf.Constructions.Lift
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Yoneda
@@ -143,6 +146,55 @@ module UniversalElementNotation {ℓo}{ℓh}
   asPshIso .trans = yoRec P element
   asPshIso .nIso =  ⋆element-isPshIso
 
+module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
+  private
+    module P = PresheafNotation P
+  isPshIso→isUniversal : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → isUniversal C P v e
+  isPshIso→isUniversal ⋆eltIsIso A = isIsoToIsEquiv (⋆eltIsIso A)
+
+  isUniversal→isPshIso : ∀ {v}{e} → isUniversal C P v e → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e)
+  isUniversal→isPshIso eltIsUniversal A = isEquivToIsIso _ (eltIsUniversal A)
+
+  isUniversal→UniversalElement : ∀ {v}{e} → isUniversal C P v e → UniversalElement C P
+  isUniversal→UniversalElement isUE = record { vertex = _ ; element = _ ; universal = isUE }
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C P) where
+  private
+    module P = PresheafNotation P
+    module ue = UniversalElementNotation ue
+  UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
+  UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
+
+  yoRecIso : PshIso (C [-, ue.vertex ]) P
+  yoRecIso = record { trans = yoRec P ue.element
+                    ; nIso = UniversalElement→yoRecIsIso }
+
+  substUniversalElement : (elt : P.p[ ue.vertex ])
+    → ue.element ≡ elt
+    → isUniversal C P ue.vertex elt
+  substUniversalElement elt ue≡elt = isPshIso→isUniversal P λ Γ → ue.intro
+    , subst (λ e → section (P._⋆ e) ue.intro × retract (P._⋆ e) ue.intro)
+       ue≡elt
+       (isUniversal→isPshIso _ ue.universal Γ .snd)
+
+  private
+    -- This doesn't hold definitionally if we implement substUniversalElement as a subst, instead there's a transport refl
+    test-substUE : ∀ (elt : P.p[ ue.vertex ]) (ue≡e : ue.element ≡ elt)
+      Γ (p : P.p[ Γ ])
+      → substUniversalElement elt ue≡e Γ .equiv-proof p .fst .fst ≡ ue.intro p
+    test-substUE e ue≡e = λ _ _ → refl
+
+module _ {C : Category ℓc ℓc'} {x} (ue : UniversalElement C (C [-, x ])) where
+  private
+    module C = Category C
+    module ue = UniversalElementNotation ue
+  open isIsoC
+  UniversalElement→Iso : CatIso C ue.vertex x
+  UniversalElement→Iso .fst = ue.element
+  UniversalElement→Iso .snd .inv = ue.intro C.id
+  UniversalElement→Iso .snd .sec = ue.β
+  UniversalElement→Iso .snd .ret = ue.intro-natural ∙ ue.intro≡ (C.⋆IdR _ ∙ sym (C.⋆IdL _))
+
 open Functor
 module _ {C : Category ℓc ℓc'}{x} where
   open Category
@@ -213,26 +265,6 @@ module _ (C : Category ℓc ℓc')(P : Presheaf C ℓc') where
     RepresentationPshIso→UniversalElement P
     $ Representationᵁ→RepresentationPshIso repr
 
-module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
-  private
-    module P = PresheafNotation P
-  isPshIso→isUniversal : ∀ {v}{e} → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e) → isUniversal C P v e
-  isPshIso→isUniversal ⋆eltIsIso A = isIsoToIsEquiv (⋆eltIsIso A)
-
-  isUniversal→isPshIso : ∀ {v}{e} → isUniversal C P v e → isPshIso {P = C [-, v ]}{Q = P} (yoRec P e)
-  isUniversal→isPshIso eltIsUniversal A = isEquivToIsIso _ (eltIsUniversal A)
-
-module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C P) where
-  private
-    module P = PresheafNotation P
-    module ue = UniversalElement ue
-  UniversalElement→yoRecIsIso : isPshIso (yoRec P ue.element)
-  UniversalElement→yoRecIsIso = isUniversal→isPshIso P ue.universal
-
-  yoRecIso : PshIso (C [-, ue.vertex ]) P
-  yoRecIso = record { trans = yoRec P ue.element
-                    ; nIso = UniversalElement→yoRecIsIso }
-
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} where
   open Category
   seqIsUniversalPshIso : ∀ {v e} → isUniversal C P v e → (α : PshIso P Q)
@@ -279,3 +311,55 @@ module _ {C : Category ℓc ℓc'} where
     Yoneda .nIso c .snd .snd α = makePshHomPath (funExt λ c → funExt λ f →
       sym (α .N-hom _ _ f C.id)
       ∙ cong (α .N-ob c) (C.⋆IdR f))
+
+module _ {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq} where
+  private
+    PSHpq = PresheafCategory C (ℓ-max ℓp ℓq)
+
+    LP = LiftPsh P (ℓ-max ℓp ℓq)
+    LQ = LiftPsh Q (ℓ-max ℓp ℓq)
+
+    よLP = yo {C = PSHpq} LP
+    よLQ = yo {C = PSHpq} LQ
+
+  module _
+    (α : PshIso
+          (PshHomPsh {ℓp = ℓ-max ℓp ℓq} P)
+          (PshHomPsh {ℓp = ℓ-max ℓp ℓq} Q)) where
+    private
+      α' : PshIso よLP よLQ
+      α' = yo≅PshHomPsh LP
+           ⋆PshIso invPshIso (PshHomPsh-LiftPshIso P)
+           ⋆PshIso α
+           ⋆PshIso (PshHomPsh-LiftPshIso Q)
+           ⋆PshIso invPshIso (yo≅PshHomPsh LQ)
+
+      LiftP≅LiftQ : PshIso LP LQ
+      LiftP≅LiftQ = PshCatIso→PshIso LP LQ the-cat-iso
+       where
+       the-cat-iso : CatIso PSHpq LP LQ
+       the-cat-iso =
+         liftIso {F = YO {C = PSHpq}} isFullyFaithfulYO
+           (NatIso→FUNCTORIso _ _ (PshIso→NatIso よLP よLQ α'))
+
+    PshHomPshIso→PshIso : PshIso P Q
+    PshHomPshIso→PshIso =
+      LiftPshIso P (ℓ-max ℓp ℓq)
+      ⋆PshIso LiftP≅LiftQ
+      ⋆PshIso invPshIso (LiftPshIso Q (ℓ-max ℓp ℓq))
+
+  module _ (α : PshIso P Q) where
+    PshIso→PshHomPshIso : ∀ {ℓr} →
+      PshIso (PshHomPsh {ℓp = ℓr} P) (PshHomPsh Q)
+    PshIso→PshHomPshIso .trans .N-ob R β = β ⋆PshHom α .trans
+    PshIso→PshHomPshIso .trans .N-hom _ _ _ _ = ⋆PshHomAssoc _ _ _
+    PshIso→PshHomPshIso .nIso R .fst β = β ⋆PshHom invPshIso α .trans
+    PshIso→PshHomPshIso .nIso R .snd .fst β =
+      ⋆PshHomAssoc _ _ _
+      ∙ cong (β ⋆PshHom_) (PshIso→rightInv α)
+      ∙ ⋆PshHomIdR β
+    PshIso→PshHomPshIso .nIso R .snd .snd β =
+      ⋆PshHomAssoc _ _ _
+      ∙ cong (β ⋆PshHom_) (PshIso→leftInv α)
+      ∙ ⋆PshHomIdR β

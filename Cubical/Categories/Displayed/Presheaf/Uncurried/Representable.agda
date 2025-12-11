@@ -54,6 +54,8 @@ open Functor
 open Functorᴰ
 open PshHom
 open PshIso
+open NatTrans
+open NatIso
 open Iso
 
 module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
@@ -125,9 +127,26 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FFFunctorᴰ→PshIsoᴰ xᴰ FFFᴰ = pshiso (Functorᴰ→PshHetᴰ xᴰ)
     (λ (Γ , Γᴰ , f) → (FFFᴰ f Γᴰ xᴰ .fst) , FFFᴰ f Γᴰ xᴰ .snd)
 
+  --                Fᴰ / F-hom
+  -- Cᴰ / C [-, x ] ---> Dᴰ / D [-, F x ]
+  --    |                  |
+  --    | Cᴰ / (_⋆ f)      | Dᴰ / (_⋆ F f)
+  --    |                  |
+  -- Cᴰ / C [-, y ] ---> Dᴰ / D [-, F y ]
+  --                Fᴰ / F-hom
+  reindexRepresentable-seq : ∀ {x y f}
+    → NatIso ((Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F ⟪ f ⟫)) ∘F (Fᴰ /Fᴰ Functor→PshHet F x))
+             ((Fᴰ /Fᴰ Functor→PshHet F y) ∘F (Idᴰ /Fⱽ yoRec (C [-, y ]) f))
+  reindexRepresentable-seq = /NatIso
+    -- TODO: eqToNatIso didn't type check even though it did interactively
+    (record { trans = natTrans (λ _ → D .id) (λ _ → idTrans Id .N-hom _) ; nIso = λ _ → idNatIso Id .nIso _ })
+    (record { transᴰ = record { N-obᴰ = λ _ → Dᴰ.idᴰ ; N-homᴰ = λ _ → Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdR _ ∙ sym (Dᴰ.⋆IdL _) } ; nIsoᴰ = λ _ → idᴰCatIsoᴰ Dᴰ .snd })
+    λ _ → D .⋆IdL _ ∙ F .F-seq _ _
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {x}
   {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ}{Qⱽ : Presheafⱽ x Cᴰ ℓQᴰ}
   where
   _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
   (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))
+

@@ -7,7 +7,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Profunctor.Relator
+open import Cubical.Categories.Profunctor.Relator hiding (natL; natR)
 
 private
   variable

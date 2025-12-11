@@ -17,9 +17,9 @@ private
 ClosedCategoryⱽ : (CC : CartesianCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
 ClosedCategoryⱽ CC ℓCᴰ ℓCᴰ' =
   Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ]
+  Σ[ cartLifts ∈ isFibration Cᴰ ]
   Σ[ lrⱽ ∈ AllLRⱽ Cᴰ ]
-  Σ[ lr∀ ∈ AllLR∀ Cᴰ bp ]
   Σ[ expⱽ ∈ Exponentialsⱽ Cᴰ lrⱽ ]
-  UniversalQuantifiers Cᴰ bp lr∀
+  UniversalQuantifiers Cᴰ bp (BinProducts+isFibration→AllLR∀ Cᴰ bp cartLifts)
   where
     open CartesianCategory CC

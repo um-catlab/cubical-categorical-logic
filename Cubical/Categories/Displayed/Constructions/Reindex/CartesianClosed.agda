@@ -41,8 +41,10 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Constructions.Reindex.Fibration
+open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
+open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.ClosedV
@@ -103,17 +105,27 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
 
 module _
   {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
-  (Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ') (F : CartesianFunctor CC CD)
+  (Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ') (F : CartesianFunctor CC (CD .CartesianCategory.C))
   where
   private
     module C = CartesianCategory CC
     module D = CartesianCategory CD
+    module Dᴰ = Fibers (Dᴰ .fst)
+  open UniversalElement
+  UniversalQuantifierReindex :
+    ∀ {A Γ} (Aᴰ : Dᴰ.ob[ (F .fst) ⟅ C.bp (Γ , A) .vertex ⟆ ])
+    → UniversalQuantifier (Dᴰ .fst) ((F .fst) ⟅ A ⟆) (λ c → D.bp (c , F-ob (F .fst) A)) (BinProducts+isFibration→AllLR∀ (Dᴰ .fst) D.bp (Dᴰ .snd .fst) {!!}) {!Aᴰ!}
+    → UniversalQuantifier (reindex (Dᴰ .fst) (F .fst)) A (λ c → C.bp (c , A))
+      (BinProducts+isFibration→AllLR∀ (reindex (Dᴰ .fst) (F .fst)) C.bp (isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst)) A)
+      Aᴰ
+  UniversalQuantifierReindex = {!!}
+
   CCCⱽReindex : ClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
   CCCⱽReindex =
     reindex (Dᴰ .fst) (F .fst)
-    , (AllLRⱽReindex (F .fst) (Dᴰ .snd .fst))
-    , {!!}
-    , (ExponentialsⱽReindex (F .fst) (Dᴰ .snd .fst) (Dᴰ .snd .snd .snd .fst))
+    , isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst)
+    , (AllLRⱽReindex (F .fst) (Dᴰ .snd .snd .fst))
+    , (ExponentialsⱽReindex (F .fst) (Dᴰ .snd .snd .fst) (Dᴰ .snd .snd .snd .fst))
     , {!!}
   -- CCCⱽReindex =
   --   (reindex (Dᴰ .fst) (F .fst))

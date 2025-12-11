@@ -32,6 +32,21 @@ open NatTrans
 open NatIso
 open isIsoC
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+
+  -- TODO: it would be a lot more ergonomic if the argument to
+  -- eqToNatIso were FunctorEq F G. We would be able to do that if we
+  -- could implement the following:
+
+  -- module _ (Fl Fr Gl Gr : Functor C D) where
+  --   ,F-FunctorEq : FunctorEq Fl Fr → FunctorEq Gl Gr → FunctorEq (Fl ,F Gl) (Fr ,F Gr)
+  --   ,F-FunctorEq Fl≅Fr Gl≅Gr .fst = {!Fl≅Fr .fst!}
+  --   ,F-FunctorEq Fl≅Fr Gl≅Gr .snd = {!!}
+
+  -- but we can't because FunctorEq is an Eq between functions, so it
+  -- would require function extensionality we should probably change
+  -- the definition of FunctorEq to make this work!
+
+
   open Functor
   reindNatTrans : (Fl Fr Gl Gr : Functor C D)
     → FunctorEq (Fl ,F Gl) (Fr ,F Gr)

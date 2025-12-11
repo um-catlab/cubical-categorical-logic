@@ -165,7 +165,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     PathPsh = PROP→SET ∘F PathPsh' ∘F (∫F {F = Id} (Sndⱽ Cᴰ (Element (P ×Psh P))) ^opF)
 
     -- TODO: general isPropPsh
-    Refl : PshHomⱽ ΔPshHom (UnitPsh {C = Cᴰ / P}) PathPsh
+    Refl : PshHomᴰ ΔPshHom (UnitPsh {C = Cᴰ / P}) PathPsh
     Refl = pshhom (λ _ _ → refl) (λ _ _ _ _ → P.isSetPsh _ _ _ _)
 
     module _ {Rᴰ : Presheafᴰ (P ×Psh P) Cᴰ ℓRᴰ} where

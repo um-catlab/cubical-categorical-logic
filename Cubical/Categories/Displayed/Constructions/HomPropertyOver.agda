@@ -5,6 +5,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.ChangeOfObjects
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Constructions.StructureOver
 
@@ -33,6 +35,9 @@ module _ {C : Category ℓC ℓC'} (Pᴰ : HomPropertyOver C ℓH) where
     struct .StructureOver.idᴰ = idᴰ
     struct .StructureOver._⋆ᴰ_ = _ ⋆ᴰ _
     struct .StructureOver.isPropHomᴰ = isPropHomᴰ _
+
+  HomPropertyOver→Cat : Category _ _
+  HomPropertyOver→Cat = ChangeOfObjects {X = ob} (∫C HomPropertyOver→Catᴰ) λ c → c , _
 
 module examples where
   open import Cubical.Categories.Constructions.TotalCategory

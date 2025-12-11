@@ -24,18 +24,20 @@ CartesianClosedCategoryⱽ CC ℓCᴰ ℓCᴰ' =
     open CartesianCategory CC
 
 -- This is ungodly slow, why? exponential module stuff?
--- record CartesianClosedCategoryⱽ' (CC : CartesianCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
---   : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
---   no-eta-equality
---   constructor cartesiancategoryⱽ
---   open CartesianCategory CC public
---   field
---     Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
---     termⱽ : Terminalsⱽ Cᴰ
---     bpⱽ   : BinProductsⱽ Cᴰ
---     cartesianLifts : isFibration Cᴰ
---     expⱽ : Exponentialsⱽ Cᴰ bpⱽ cartesianLifts
---     ∀s   : UniversalQuantifiers Cᴰ bp cartesianLifts
---   module Cᴰ = Categoryᴰ Cᴰ
+-- NOTE: The bottleneck is UniversalQuantifiers. Making that type
+-- opaque gets rid of the speed issue
+record CartesianClosedCategoryⱽ' (CC : CartesianCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
+  : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
+  no-eta-equality
+  constructor cartesiancategoryⱽ
+  open CartesianCategory CC public renaming (C to CartesianCat)
+  field
+    CartesianClosedCatᴰ : Categoryᴰ CartesianCat ℓCᴰ ℓCᴰ'
+    termⱽ : Terminalsⱽ CartesianClosedCatᴰ
+    bpⱽ   : BinProductsⱽ CartesianClosedCatᴰ
+    cartesianLifts : isFibration CartesianClosedCatᴰ
+    expⱽ : Exponentialsⱽ CartesianClosedCatᴰ bpⱽ cartesianLifts
+    ∀s   : UniversalQuantifiers CartesianClosedCatᴰ bp cartesianLifts
+  module Cᴰ = Categoryᴰ CartesianClosedCatᴰ
 
--- -- TODO: CartesianCategoryⱽ'→CartesianCategoryᴰ
+-- TODO: CartesianCategoryⱽ'→CartesianCategoryᴰ

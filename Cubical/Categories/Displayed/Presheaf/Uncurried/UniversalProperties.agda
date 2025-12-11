@@ -130,9 +130,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     ∀PshSmall Cᴰ ((C [-, A ]) , (_×A , (λ {x} → π₁* x)))
                  (reindPshᴰNatTrans (invPshIso (yoRecIso (Γ ×A)) .trans) (Cᴰ [-][-, Aᴰ ])))
 
-  UniversalQuantifiers : BinProducts C → isFibration → Type _
-  UniversalQuantifiers bp lifts = ∀ Γ A (Aᴰ : Cᴰ.ob[ bp (Γ , A) .vertex ]) →
-    UniversalQuantifier {Γ = Γ} (A , BinProducts+isFibration→isLR∀Ob bp lifts A) Aᴰ
+  opaque
+    UniversalQuantifiers : BinProducts C → isFibration → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+    UniversalQuantifiers bp lifts = ∀ Γ A (Aᴰ : Cᴰ.ob[ bp (Γ , A) .vertex ]) →
+      UniversalQuantifier {Γ = Γ} (A , BinProducts+isFibration→isLR∀Ob bp lifts A) Aᴰ
 
   module LRⱽPresheafᴰNotation {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
     private

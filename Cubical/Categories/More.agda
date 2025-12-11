@@ -6,6 +6,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Instances.Isomorphism
 
 private
   variable
@@ -58,3 +59,8 @@ module Reasoning (C : Category ℓ ℓ') where
 
       test : C [ x , s ]
       test = x →⟨ f ⟩→ y →⟨ g ⟩→ z →⟨ h ⟩→ w →⟨ k ⟩→ u →⟨ l ⟩→ v →⟨ m ⟩∎ s
+
+module CategoryNotation (C : Category ℓ ℓ') where
+  ISOC = ISO C
+  module ISOC = Reasoning ISOC
+  open Reasoning C public

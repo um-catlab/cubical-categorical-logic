@@ -165,13 +165,13 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     PathPsh = PROP→SET ∘F PathPsh' ∘F (∫F {F = Id} (Sndⱽ Cᴰ (Element (P ×Psh P))) ^opF)
 
     -- TODO: general isPropPsh
-    Refl : PshHomⱽ (UnitPsh {C = Cᴰ / P}) (reindPshᴰNatTrans ΔPshHom PathPsh)
+    Refl : PshHomⱽ ΔPshHom (UnitPsh {C = Cᴰ / P}) PathPsh
     Refl = pshhom (λ _ _ → refl) (λ _ _ _ _ → P.isSetPsh _ _ _ _)
 
     module _ {Rᴰ : Presheafᴰ (P ×Psh P) Cᴰ ℓRᴰ} where
       private
         module Rᴰ = PresheafᴰNotation Cᴰ (P ×Psh P) Rᴰ
-      PathPsh-rec : PshHomⱽ UnitPsh (reindPshᴰNatTrans ΔPshHom Rᴰ) → PshHomⱽ PathPsh Rᴰ
+      PathPsh-rec : PshHomᴰ ΔPshHom UnitPsh Rᴰ → PshHomⱽ PathPsh Rᴰ
       PathPsh-rec αⱽ .N-ob (x , xᴰ , p , q) p≡q =
         -- should I use formal-reind instead of reind?
         Rᴰ.reind (ΣPathP (refl , p≡q)) (αⱽ .N-ob (x , xᴰ , p) tt)
@@ -186,7 +186,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       --   p ≡ p' ⊢ Qᴰ(p,p')
       -- =====================
       --   * ⊢ Qᴰ(p,p)
-      PathPsh-UMP : Iso (PshHomⱽ PathPsh Rᴰ) (PshHomⱽ UnitPsh (reindPshᴰNatTrans ΔPshHom Rᴰ))
+      PathPsh-UMP : Iso (PshHomⱽ PathPsh Rᴰ) (PshHomᴰ ΔPshHom UnitPsh Rᴰ)
       PathPsh-UMP = iso
         (λ αⱽ → Refl ⋆PshHom reindPshHom (Idᴰ /Fⱽ ΔPshHom) αⱽ)
         PathPsh-rec

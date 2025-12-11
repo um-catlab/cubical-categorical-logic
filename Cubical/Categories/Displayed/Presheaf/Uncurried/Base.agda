@@ -30,6 +30,7 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
@@ -261,20 +262,19 @@ module _
   (α : PshHom P Q)(β : PshHom Q R) (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ) where
   private
     module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
-  -- TODO: this is Eq.refl on objects but not morphisms
   reindPshᴰNatTrans-seq : PshIso (reindPshᴰNatTrans (α ⋆PshHom β) Rᴰ) (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ)
-  reindPshᴰNatTrans-seq = pathToPshIso (Functor≡ (λ _ → refl) (λ _ → funExt (λ _ → Rᴰ.rectify $ Rᴰ.≡out
-    $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _))))
+  reindPshᴰNatTrans-seq = Isos→PshIso (λ _ → idIso) λ _ _ →
+    λ _ _ → Rᴰ.rectify $ Rᴰ.≡out $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} (α : PshHom P P) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
   private
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
-  -- TODO: this is Eq.refl on objects but not morphisms, should probably have an intermediate eqToPshIso
   reindPshᴰNatTrans-id : PshIso (reindPshᴰNatTrans idPshHom Pᴰ) Pᴰ
-  reindPshᴰNatTrans-id = pathToPshIso (Functor≡ (λ _ → refl) (λ _ → funExt λ _ → Pᴰ.rectify $ Pᴰ.≡out $
-    Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)))
+  reindPshᴰNatTrans-id = Isos→PshIso (λ _ → idIso) λ _ _ _ _ → Pᴰ.rectify $ Pᴰ.≡out $
+    Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
+
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α β : PshHom P Q) (α≡β : α ≡ β) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where

@@ -47,7 +47,7 @@ open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Morphism.Alt as Alt
 open import Cubical.Categories.Presheaf.Representable hiding (Elements)
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
@@ -315,6 +315,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
   where
+  private
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
   idPshIsoⱽ : PshIsoⱽ Pᴰ Pᴰ
   idPshIsoⱽ = idPshIso
 
@@ -322,7 +324,12 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   idPshHomⱽ = idPshHom
 
   idPshHomᴰ : PshHomᴰ idPshHom Pᴰ Pᴰ
-  idPshHomᴰ = invPshIso (reindPshᴰNatTrans-id idPshHom Pᴰ) .trans
+  -- idPshHomᴰ = invPshIso (reindPshᴰNatTrans-id idPshHom Pᴰ) .trans
+  idPshHomᴰ .N-ob = λ c z → z
+  idPshHomᴰ .N-hom c c' f p =
+    Pᴰ.rectify $ Pᴰ.≡out $
+      Pᴰ.⋆ᴰ-reind _ _ _
+      ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -352,6 +359,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
   where
+  private
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+    module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
 
   _⋆PshHomᴰ_ :
     {α : PshHom P Q}
@@ -359,7 +370,63 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
     (βᴰ : PshHomᴰ β Qᴰ Rᴰ) →
     PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ
-  αᴰ ⋆PshHomᴰ βᴰ =
-    {!!}
-    ⋆PshHomⱽ αᴰ
-    ⋆PshHomⱽ {!!}
+  (αᴰ ⋆PshHomᴰ βᴰ) .N-ob c x =
+    βᴰ .N-ob _ (αᴰ .N-ob c x)
+  (αᴰ ⋆PshHomᴰ βᴰ) .N-hom c c' f p =
+    Rᴰ.rectify $ Rᴰ.≡out $
+      (Rᴰ.≡in $ cong (βᴰ .N-ob _) (αᴰ .N-hom c c' f p))
+      ∙ (Rᴰ.≡in $ βᴰ .N-hom _ _ _ (αᴰ .N-ob _ p))
+      ∙ Rᴰ.⋆ᴰ-reind _ _ _
+      ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
+  -- (αᴰ ⋆PshHomᴰ βᴰ) =
+  --   αᴰ
+  --   ⋆PshHomⱽ (βᴰ Alt.∘ˡ (Idᴰ /Fⱽ _))
+  --   ⋆PshHomⱽ invPshIso (reindPshᴰNatTrans-seq _ _ Rᴰ) .trans
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  where
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module P = PresheafNotation P
+
+  module _
+    {α β : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+    (βᴰ : PshHomᴰ β Pᴰ Qᴰ)
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+      module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
+    PshHomᴰPathP : α ≡ β → Type _
+    PshHomᴰPathP α≡β = PathP (λ i → PshHomᴰ (α≡β i) Pᴰ Qᴰ) αᴰ βᴰ
+
+    makePshHomᴰPathP :
+      (α≡β : α ≡ β) →
+      (PathP (λ i → ((x , xᴰ , p) : ob (Cᴰ / P)) → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α≡β i .N-ob x p ][ xᴰ ])
+          (αᴰ .N-ob) (βᴰ .N-ob)) →
+      PshHomᴰPathP α≡β
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-ob = αᴰ≡βᴰ i
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-hom c c' f p =
+      isSet→SquareP (λ j k → Qᴰ.isSetPshᴰ)
+        (αᴰ .N-hom c c' f p)
+        (βᴰ .N-hom c c' f p)
+        (λ j → αᴰ≡βᴰ j _ (Pᴰ .F-hom f p))
+        (λ j → Qᴰ .F-hom ((Idᴰ /Fⱽ α≡β j) .F-hom f) (αᴰ≡βᴰ j c' p))
+        i
+
+  module _
+    {α : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {αᴰ βᴰ : PshHomᴰ α Pᴰ Qᴰ}
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+      module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
+    makePshHomᴰPath : (αᴰ .N-ob ≡ βᴰ .N-ob) → αᴰ ≡ βᴰ
+    makePshHomᴰPath = makePshHomᴰPathP αᴰ βᴰ (λ i → α)

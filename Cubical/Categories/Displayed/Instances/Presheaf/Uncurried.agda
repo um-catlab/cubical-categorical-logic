@@ -2,9 +2,11 @@
 module Cubical.Categories.Displayed.Instances.Presheaf.Uncurried where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
@@ -44,28 +46,23 @@ module _
   (ℓP ℓPᴰ : Level)
   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   where
+  private
+    module PSH = Category (PRESHEAF C ℓP)
   PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP) _ _
   PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
   PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰ
   PRESHEAFᴰ .idᴰ = idPshHomᴰ
-  PRESHEAFᴰ ._⋆ᴰ_ = {!_⋆PshHomᴰ_!}
-  PRESHEAFᴰ .⋆IdLᴰ = {!!}
-  PRESHEAFᴰ .⋆IdRᴰ = {!!}
-  PRESHEAFᴰ .⋆Assocᴰ = {!!}
-  PRESHEAFᴰ .isSetHomᴰ = {!!}
-  -- PRESHEAFᴰ .ob[_] = Presheafᴰ
-  -- PRESHEAFᴰ .Hom[_][_,_] = NatTransᴰ
-  -- PRESHEAFᴰ .idᴰ = idTransᴰ
-  -- PRESHEAFᴰ ._⋆ᴰ_ = seqTransᴰ
-  -- PRESHEAFᴰ .⋆IdLᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ =
-  --   makeNatTransPathP refl
-  --   (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdL _))
-  --   refl
-  -- PRESHEAFᴰ .⋆IdRᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ =
-  --   makeNatTransPathP refl
-  --   (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdR _))
-  --   refl
-  -- PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Sᴰ} αᴰ βᴰ γᴰ = makeNatTransPathP refl
-  --   (congS (λ x → Sᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆Assoc _ _ _))
-  --   refl
-  -- PRESHEAFᴰ .isSetHomᴰ = isSetNatTrans
+  PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰ_
+  PRESHEAFᴰ .⋆IdLᴰ  {yᴰ = Qᴰ} _ =
+    makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
+    where
+    module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
+  PRESHEAFᴰ .⋆IdRᴰ {yᴰ = Qᴰ} _ =
+    makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
+    where
+    module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
+  PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Rᴰ} _ _ _ =
+    makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Rᴰ.rectify {e = refl} refl)
+    where
+    module Rᴰ = PresheafᴰNotation Cᴰ _ Rᴰ
+  PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _

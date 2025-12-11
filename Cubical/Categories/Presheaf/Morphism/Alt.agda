@@ -268,7 +268,6 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   (α : PshIso P Q)
   where
-
   PshIso→leftInv : α .trans ⋆PshHom invPshIso α .trans ≡ idPshHom {P = P}
   PshIso→leftInv =
     makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom {C = C} {P = P} .N-ob c p))

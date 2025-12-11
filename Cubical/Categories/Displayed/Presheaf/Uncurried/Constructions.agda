@@ -91,6 +91,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
     UnitPshᴰ : Presheafᴰ P Cᴰ ℓ-zero
     UnitPshᴰ = UnitPsh
+
+    Unit*Pshᴰ : ∀ {ℓ1} → Presheafᴰ P Cᴰ ℓ1
+    Unit*Pshᴰ = Unit*Psh
     module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
       _×ⱽPsh_ : Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
       _×ⱽPsh_ = Pᴰ ×Psh Qᴰ

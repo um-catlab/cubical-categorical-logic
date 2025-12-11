@@ -380,7 +380,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
   -- (αᴰ ⋆PshHomᴰ βᴰ) =
   --   αᴰ
-  --   ⋆PshHomⱽ (βᴰ Alt.∘ˡ (Idᴰ /Fⱽ _))
+  --   ⋆PshHomⱽ reindPshHom (Idᴰ /Fⱽ _) βᴰ
   --   ⋆PshHomⱽ invPshIso (reindPshᴰNatTrans-seq _ _ Rᴰ) .trans
 
 module _

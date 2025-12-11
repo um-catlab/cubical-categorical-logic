@@ -30,6 +30,7 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
@@ -66,3 +67,8 @@ module _
     where
     module Rᴰ = PresheafᴰNotation Cᴰ _ Rᴰ
   PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _
+
+  CartesianClosedⱽ-PRESHEAFᴰ : CartesianClosedCategoryⱽ {!!} {!!} {!!}
+  CartesianClosedⱽ-PRESHEAFᴰ .fst = PRESHEAFᴰ
+  CartesianClosedⱽ-PRESHEAFᴰ .snd .fst = {!!}
+  CartesianClosedⱽ-PRESHEAFᴰ .snd .snd = {!!}

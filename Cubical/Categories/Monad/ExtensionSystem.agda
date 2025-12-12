@@ -246,8 +246,50 @@ module _ (C : Category ℓ ℓ') where
               ) (N-ob (M .snd .IsMonad.μ) _)
       lem2 = solveFunctor! C C (M .fst)
 
-  open Cubical.Categories.Adjoint.UnitCounit
-  open Cubical.Categories.Adjoint.UnitCounit._⊣_
-  ExtensionSystem→Monad : (T : ExtensionSystem) -> (F' : Functor C (Kleisli T)) -> (F' ⊣ (G T)) -> Monad C
-  ExtensionSystem→Monad T F' F⊣G = (G T) ∘F F' , MonadFromAdjunction F' (G T) F⊣G
+  ExtensionSystem→Monad : ExtensionSystem → Monad C
+  ExtensionSystem→Monad M .fst .F-ob              = M .fst
+  ExtensionSystem→Monad M .fst .F-hom {x} {y} f   = (M .snd .bind) (((M .snd .η) {y}) ∘⟨ C ⟩ f)
+  ExtensionSystem→Monad M .fst .F-id {x}          =
+    (cong (M .snd .bind) ((C .⋆IdL) ((M .snd .η) {x})))
+    ∙ (M .snd .bind-r)
+  ExtensionSystem→Monad M .fst .F-seq {x} {y} {z} f g =
+    (cong (M .snd .bind) (((C .⋆Assoc) f g (M .snd .η {z}))))    
+    ∙ (cong
+      (λ e → (M .snd .bind) (e ∘⟨ C ⟩ f))
+      (sym ((M .snd .bind-l) {f = ((M .snd .η {z}) ∘⟨ C ⟩ g)}))
+    )
+    ∙ (sym (cong
+      (M .snd .bind)
+      ((C .⋆Assoc)
+        f
+        ((M .snd .η) {y})
+        ((M .snd .bind) (((M .snd .η) {z}) ∘⟨ C ⟩ g))
+      )
+    ))
+    ∙ (sym ((M .snd .bind-comp) {f = ((M .snd .η) {z}) ∘⟨ C ⟩ g} {g = ((M .snd .η) {y}) ∘⟨ C ⟩ f}))
+  ExtensionSystem→Monad M .snd .IsMonad.η .N-ob x = (M .snd .η)
+  ExtensionSystem→Monad M .snd .IsMonad.η .N-hom {x} {y} f = {!  
+    ((M .snd .bind-l) {f})
+  !}
+  ExtensionSystem→Monad M .snd .IsMonad.μ .N-ob x = (M .snd .bind) (C .id {(M .fst x)})
+  ExtensionSystem→Monad M .snd .IsMonad.μ .N-hom  = {!   !}
+  ExtensionSystem→Monad M .snd .IsMonad.idl-μ     = {!   !}
+  ExtensionSystem→Monad M .snd .IsMonad.idr-μ     = {!   !}
+  ExtensionSystem→Monad M .snd .IsMonad.assoc-μ   = {!   !}
+
+  -- open import Cubical.Categories.FunctorComprehension.Base
+  -- open import Cubical.Categories.Adjoint.UniversalElements
+  -- Kleisli-Left : (T : ExtensionSystem) -> (Functor C (Kleisli T))
+  -- Kleisli-Left T = (FunctorComprehension (RightAdjointProf ((G T) ^opF)) (F T)) ^opF
+
+  -- open Cubical.Categories.Adjoint.UnitCounit
+  -- open Cubical.Categories.Adjoint.UnitCounit._⊣_
+  -- Kleisli-Left-Adjoint-G : (T : ExtensionSystem) -> ((Kleisli-Left T) ⊣ (G T))
+  -- Kleisli-Left-Adjoint-G T = {!   !} -- TODO
+
+  -- open Cubical.Categories.Adjoint.UnitCounit
+  -- open Cubical.Categories.Adjoint.UnitCounit._⊣_
+  -- ExtensionSystem→Monad : (T : ExtensionSystem) -> Monad C
+  -- ExtensionSystem→Monad T = (G T) ∘F (Kleisli-Left T) , MonadFromAdjunction (Kleisli-Left T) (G T) (Kleisli-Left-Adjoint-G T)
+
 

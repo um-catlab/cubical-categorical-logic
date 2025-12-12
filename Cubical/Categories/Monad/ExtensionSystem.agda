@@ -268,11 +268,38 @@ module _ (C : Category ℓ ℓ') where
     ))
     ∙ (sym ((M .snd .bind-comp) {f = ((M .snd .η) {z}) ∘⟨ C ⟩ g} {g = ((M .snd .η) {y}) ∘⟨ C ⟩ f}))
   ExtensionSystem→Monad M .snd .IsMonad.η .N-ob x = (M .snd .η)
-  ExtensionSystem→Monad M .snd .IsMonad.η .N-hom {x} {y} f = {!  
-    ((M .snd .bind-l) {f})
-  !}
+  ExtensionSystem→Monad M .snd .IsMonad.η .N-hom {x} {y} f = sym ((M .snd .bind-l) {f = ((M .snd .η) {y}) ∘⟨ C ⟩ f})
   ExtensionSystem→Monad M .snd .IsMonad.μ .N-ob x = (M .snd .bind) (C .id {(M .fst x)})
-  ExtensionSystem→Monad M .snd .IsMonad.μ .N-hom  = {!   !}
+  ExtensionSystem→Monad M .snd .IsMonad.μ .N-hom {x} {y} f =
+    ((M .snd .bind-comp)
+      {f = C .id}
+      {g = ((M .snd .η)) ∘⟨ C ⟩ ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) )}
+    )
+    ∙ (cong
+      (M .snd .bind)
+      ((C .⋆Assoc)
+        ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) )
+        (M .snd .η)
+        ( (M .snd .bind) (C .id {(M .fst y)}) )
+      )
+    )
+    ∙ (cong
+      (λ e → (M .snd .bind) (e ∘⟨ C ⟩ ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) )))
+      ((M .snd .bind-l) {f = C .id})
+    )
+    ∙ (cong
+      (M .snd .bind)
+      ((C .⋆IdR) ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) ))
+    )
+    ∙ (sym (cong
+      (M .snd .bind)
+      ((C .⋆IdL) ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) ))
+    ))
+    ∙ (sym (
+      (M .snd .bind-comp)
+      {f = (((M .snd .η)) ∘⟨ C ⟩ f)}
+      {g = (C .id)}
+    ))
   ExtensionSystem→Monad M .snd .IsMonad.idl-μ     = {!   !}
   ExtensionSystem→Monad M .snd .IsMonad.idr-μ     = {!   !}
   ExtensionSystem→Monad M .snd .IsMonad.assoc-μ   = {!   !}

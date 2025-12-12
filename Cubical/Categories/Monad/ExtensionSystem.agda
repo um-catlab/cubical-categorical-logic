@@ -300,9 +300,68 @@ module _ (C : Category ℓ ℓ') where
       {f = (((M .snd .η)) ∘⟨ C ⟩ f)}
       {g = (C .id)}
     ))
-  ExtensionSystem→Monad M .snd .IsMonad.idl-μ     = {!   !}
-  ExtensionSystem→Monad M .snd .IsMonad.idr-μ     = {!   !}
-  ExtensionSystem→Monad M .snd .IsMonad.assoc-μ   = {!   !}
+  ExtensionSystem→Monad M .snd .IsMonad.idl-μ     =
+    makeNatTransPathP
+    F-rUnit
+    refl
+    (funExt
+      (λ x → (M .snd .bind-l) {f = C .id})
+    )
+  ExtensionSystem→Monad M .snd .IsMonad.idr-μ     =
+    makeNatTransPathP
+    F-lUnit
+    refl
+    (funExt
+      (λ x →
+        (M .snd .bind-comp) {f = C .id} {g = (M .snd .η) ∘⟨ C ⟩ (M .snd .η)}
+        ∙ (cong
+          (M .snd .bind)
+          ((C .⋆Assoc)
+            (M .snd .η)
+            (M .snd .η)
+            ((M .snd .bind) (C .id))
+          )
+        )
+        ∙ (cong 
+          (λ e → (M .snd .bind) (e ∘⟨ C ⟩ (M .snd .η)))
+          ((M .snd .bind-l) {f = C .id})
+        )
+        ∙ (cong
+          (M .snd .bind)
+          ((C .⋆IdR) (M .snd .η))
+        )
+        ∙ (M .snd .bind-r))
+    )
+  ExtensionSystem→Monad M .snd .IsMonad.assoc-μ   =
+    makeNatTransPathP
+    F-assoc
+    refl
+    (funExt λ x →
+      (M .snd .bind-comp) {f = C .id} {g = (M .snd .η) ∘⟨ C ⟩ ((M .snd .bind) (C .id))}
+      ∙ ((cong
+        (M .snd .bind)
+        ((C .⋆Assoc)
+          ((M .snd .bind) (C .id))
+          (M .snd .η)
+          ((M .snd .bind) (C .id))
+        )
+      )
+      ∙ (cong 
+        (λ e → (M .snd .bind) (e ∘⟨ C ⟩ ((M .snd .bind) (C .id))))
+        ((M .snd .bind-l) {f = C .id})
+      )
+      ∙ (cong
+        (M .snd .bind)
+        ((C .⋆IdR) ((M .snd .bind) (C .id)))
+      )
+      ∙ (sym (cong
+        (M .snd .bind)
+        ((C .⋆IdL) ((M .snd .bind) (C .id)))
+      )))
+      ∙ (sym
+        ((M .snd .bind-comp) {f = C .id} {g = C .id})
+      )
+    )
 
   -- open import Cubical.Categories.FunctorComprehension.Base
   -- open import Cubical.Categories.Adjoint.UniversalElements

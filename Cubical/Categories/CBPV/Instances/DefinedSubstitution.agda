@@ -151,7 +151,7 @@ mutual
   renSubc γ (bind m n) = bind (renSubc γ m) (renSubc (liftRen γ) n)
 
 wksub : Sub[ Δ , Γ ] → Sub[ A ,, Δ ,  Γ ]
-wksub {Δ}{Γ}{A} γ = mapOverIdfun (λ A v → renSubv (wkRen  (idRen _)) v) _ γ
+wksub {Δ}{Γ}{A} γ = mapOverIdfun (λ A v → renSubv (wkRen (idRen _)) v) _ γ
 
 liftSub : Sub[ Δ , Γ ] → Sub[ A ,, Δ , A ,, Γ ]
 liftSub {Δ}{Γ}{A} γ = var vz ∷ wksub γ
@@ -171,6 +171,11 @@ mutual
   subc γ (rec× v m) = rec× (subv γ v) (subc (liftSub(liftSub γ)) m)
   subc γ (bind m n) = bind (subc γ m) (subc (liftSub γ) n)
 
+subk : Sub[ Δ , Γ ] → Γ ◂ B ⊢k B' → Δ ◂ B ⊢k B' 
+subk γ varc = varc
+subk γ (∙V v k) = ∙V (subv γ v) (subk γ k)
+subk γ (x←∙:M k m) = x←∙:M (subk γ k) (subc (liftSub γ) m)
+
 idSub : ∀ {Γ} → Sub[ Γ , Γ ]
 idSub {[]} = []
 idSub {x ∷ Γ} = (var vz) ∷ wksub idSub
@@ -179,6 +184,34 @@ _⋆Sub_ : Sub[ Θ , Δ ] → Sub[ Δ , Γ ] → Sub[ Θ , Γ ]
 δ ⋆Sub [] = []
 δ ⋆Sub (x ∷ γ) = subv δ x ∷ (δ ⋆Sub γ)
 
+_⋆k_ : {B₁ B₂ B₃ : CTy} → Γ ◂ B₁ ⊢k B₂ → Γ ◂ B₂ ⊢k B₃ → Γ ◂ B₁ ⊢k B₃ 
+k ⋆k varc = k
+k ⋆k ∙V v k' = ∙V v (k ⋆k k')
+k ⋆k x←∙:M k' m = x←∙:M (k ⋆k k') m
+
+⋆kId : {k : Γ ◂ B ⊢k B'} → k ≡ (varc ⋆k k) 
+⋆kId {k = varc} = refl
+⋆kId {k = ∙V x k} = cong₂ ∙V refl ⋆kId 
+⋆kId {k = x←∙:M k x} = cong₂ x←∙:M ⋆kId refl
+
+⋆kAssoc : {B₁ B₂ B₃ B₄ : CTy}
+  {k₁ : Γ ◂ B₁ ⊢k B₂}
+  {k₂ : Γ ◂ B₂ ⊢k B₃}
+  {k₃ : Γ ◂ B₃ ⊢k B₄} → 
+  ((k₁ ⋆k k₂) ⋆k k₃) ≡ (k₁ ⋆k (k₂ ⋆k k₃))
+⋆kAssoc {k₃ = varc} = refl
+⋆kAssoc {k₃ = ∙V x k₃} = cong₂ ∙V refl ⋆kAssoc
+⋆kAssoc {k₃ = x←∙:M k₃ x} = cong₂ x←∙:M ⋆kAssoc refl
+
+distrib : {γ : Sub[ Δ , Γ ]}
+  {B₁ B₂ B₃ : CTy}
+  {k : Γ ◂ B₁ ⊢k B₂}
+  {k' : Γ ◂ B₂ ⊢k B₃} → 
+  (subk γ k ⋆k subk γ k') ≡ subk γ (k ⋆k k')
+distrib {k' = varc} = refl
+distrib {k' = ∙V x k'} = cong₂ ∙V refl distrib
+distrib {k' = x←∙:M k' x} = cong₂ x←∙:M distrib refl
+
 s⟨_⟩∷⟨_⟩ :
   ∀ {x x' : Δ ⊢v A}{γ γ' : Sub[ Δ , Γ ]}
   → x ≡ x'
@@ -186,15 +219,20 @@ s⟨_⟩∷⟨_⟩ :
   → Path (Sub[ Δ , (A ∷ Γ)]) (x ∷ γ) (x' ∷ γ')
 s⟨ x ⟩∷⟨ γ ⟩ i = x i ∷ γ i
 
--- Forward declaration needed for subWkSub
-indexId : (x : Var Γ A) → index idSub x ≡ var x
-indexId vz = refl
-indexId (vs x) = {!   !}
+indexWkSub : (γ : Sub[ Δ , Γ ])(x : Var Γ A) → 
+  index (wksub γ) x ≡ renSubv (wkRen (idRen Δ)) (index γ x)
+indexWkSub γ x = {!   !}
 
-subWkSub : ∀ (γ : Sub[ Δ , Γ ])(v : Var Γ A) → 
-  subv (wksub {A = A}idSub) (var v) ≡ var (vs v) 
-subWkSub γ vz = refl
-subWkSub (y ∷ γ) (vs v) = {!   !} 
+indexId : (x : Var Γ A) → index idSub x ≡ var x
+indexId {Γ = A' ∷ Γ} {A = A} vz = refl
+indexId {Γ = A' ∷ Γ} {A = A} (vs x) = {!   !}
+
+subWkSub : ∀ (γ : Sub[ Δ , Γ ])(t : Γ ⊢v A) → 
+  subv (wksub {A = A} γ) t ≡ renSubv (wkRen (idRen Δ)) (subv γ t)
+subWkSub γ (var x) = indexWkSub _ _
+subWkSub γ u = refl
+subWkSub γ (pair t t₁) = cong₂ pair {! subWkSub γ t !} {!   !}
+subWkSub γ (thunk x) = {!   !}
 
 mutual 
   subvId : (v : Γ ⊢v A) → subv idSub v ≡ v 
@@ -217,7 +255,7 @@ open import Cubical.Foundations.Function
 mutual
   subv⋆ : ∀ {Γ Δ Θ : Ctx} → (g : Sub[ Θ , Δ ]) (f : Sub[ Δ , Γ ])(x : Γ ⊢v A) → 
     subv (g ⋆Sub f) x ≡ (subv g ((subv f) x))
-  subv⋆ g [] (var x) = {!   !}
+  subv⋆ g [] (var ())
   subv⋆ g (y ∷ f) (var vz) = refl
   subv⋆ g (y ∷ f) (var (vs x)) = subv⋆ g f (var x)
   subv⋆ g f u = refl
@@ -228,7 +266,7 @@ mutual
     subc (g ⋆Sub f) m ≡ (subc g (subc f m))
   subc⋆ g f (ret v) = cong ret (subv⋆ g f v)
   subc⋆ g f (force v) = cong force (subv⋆ g f v)
-  subc⋆ g f (lam m) = {!   !}
+  subc⋆ g f (lam m) = cong lam {!  liftSub !} ∙ {!  liftSub !}
   subc⋆ g f (app m v) = cong₂ app (subc⋆ g f m) (subv⋆ g f v)
   subc⋆ g f (rec× v m) =  {!   !} --cong₂ rec× (subv⋆ g f v) (subc⋆ (liftSub (liftSub g)) (liftSub (liftSub f)) m)
   subc⋆ g f (bind m n) = {!   !} -- cong₂ bind (subc⋆ g f m) (subc⋆ (liftSub g) (liftSub f) n)
@@ -236,6 +274,10 @@ mutual
 subvAssoc : (f : Sub[ Δ , Γ ]) (g : Sub[ Θ , Δ ]) →
   subv (g ⋆Sub f) ≡ (λ x₁ → subv g (subv f x₁))
 subvAssoc f g = funExt (λ v → subv⋆ g f v)
+
+subcAssoc : (f : Sub[ Δ , Γ ]) (g : Sub[ Θ , Δ ]) →
+  subc (g ⋆Sub f) ≡ (λ x₁ → subc g (subc f x₁))
+subcAssoc f g = funExt (λ v → subc⋆ g f v)
 
 ⋆Sub⋆IdL : (γ : Sub[ Δ , Γ ]) → 
   (idSub ⋆Sub γ) ≡ γ 
@@ -245,13 +287,12 @@ subvAssoc f g = funExt (λ v → subv⋆ g f v)
 ⋆Sub⋆IdR : {Γ : Ctx} → (γ : Sub[ Δ , Γ ]) → 
   (γ ⋆Sub idSub) ≡ γ 
 ⋆Sub⋆IdR {Γ} [] = refl
-⋆Sub⋆IdR {[]} (y ∷ γ) = {!   !}
-⋆Sub⋆IdR {A ∷ Γ} (y ∷ γ) = {!   !}
+⋆Sub⋆IdR (y ∷ γ) = s⟨ refl ⟩∷⟨ {!   !} ⟩
 
 ⋆Sub⋆Assoc : ∀ (f : Sub[ ξ , Θ ]) (g : Sub[ Θ , Δ ]) (h : Sub[ Δ , Γ ]) →
   ((f ⋆Sub g) ⋆Sub h) ≡ (f ⋆Sub (g ⋆Sub h))
 ⋆Sub⋆Assoc _ _ [] = refl
-⋆Sub⋆Assoc _ _ (y ∷ h) = {!   !}
+⋆Sub⋆Assoc f g (_∷_ {A} y h) = s⟨ {! funExt⁻ (subvAssoc g f) ?  !} ⟩∷⟨ ⋆Sub⋆Assoc _ _ _ ⟩
 
 open import Cubical.Categories.CBPV.Base
 open import Cubical.Categories.WithFamilies.Simple.Base
@@ -260,7 +301,6 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open Functor
 open Category
-open CBPVModel
 open import Cubical.Categories.Limits.Terminal.More
 
 SubCat : Category _ _ 
@@ -306,21 +346,35 @@ open import Cubical.Categories.Enriched.Instances.Presheaf.Self
 open EnrichedCategory
 open import Cubical.Categories.Enriched.Functors.Base
 open EnrichedFunctor
+open import Cubical.Categories.NaturalTransformation.Base 
+open NatTrans
+open import Cubical.Categories.Presheaf.Morphism.Alt 
+open PshHom
 
 Ehom : CTy → CTy → ob 𝓟 
 Ehom B B' .F-ob Γ = (Γ ◂ B ⊢k B') , (λ _ _ → {!   !})
-Ehom B B' .F-hom γ k = {!   !}
+Ehom B B' .F-hom = subk
 Ehom B B' .F-id = {!   !}
 Ehom B B' .F-seq = {!   !}
 
 stacks : EnrichedCategory 𝓟Mon  _ 
 stacks .ob = CTy
 stacks .Hom[_,_] = Ehom
-stacks .id = {!   !}
-stacks .seq = {!   !}
-stacks .⋆IdL = {!   !}
-stacks .⋆IdR = {!   !}
-stacks .⋆Assoc = {!   !}
+stacks .id .N-ob Γ tt* = varc
+stacks .id .N-hom γ = funExt λ _ → refl
+stacks .seq X Y Z .N-ob Γ (k , k') = k ⋆k k'
+stacks .seq X Y Z .N-hom γ = goal where 
+-- inline → termination issues
+  goal : (λ x₁ → subk γ (x₁ .fst) ⋆k subk γ (x₁ .snd)) 
+    ≡
+    (λ x₁ → subk γ (x₁ .fst ⋆k x₁ .snd))
+  goal = funExt λ (k , k') → distrib 
+stacks .⋆IdL B B' = 
+  makeNatTransPath (funExt λ Γ → funExt λ (_ , k) → ⋆kId)
+stacks .⋆IdR B B' = 
+  makeNatTransPath (funExt λ Γ → funExt λ (k , _) → refl)
+stacks .⋆Assoc B₁ B₂ B₃ B₄ = 
+  makeNatTransPath (funExt λ Γ → funExt λ (k₁ , (k₂ , k₃)) → ⋆kAssoc)
 
 selfSCat = self SubCat ℓ-zero
 𝓟[_,_] = 𝓟 .Hom[_,_]
@@ -331,99 +385,29 @@ cTm' : ob stacks → ob selfSCat
 cTm' B .F-ob Γ = (Γ ⊢c B) , (λ _ _ → {!   !})
 cTm' B .F-hom = subc
 cTm' B .F-id = funExt subcId
-cTm' B .F-seq = {!   !}
+cTm' B .F-seq f g = {!  subcAssoc f g   !}
+
+plug' : {Γ : Ctx}{B B' : CTy} → Γ ◂ B ⊢k B' → Γ ⊢c B → Γ ⊢c B' 
+plug' varc m = m
+plug' (∙V v k) m = app (plug' k m) v
+plug' (x←∙:M k n) m = bind (plug' k m) n
 
 plug : (B B' : ob stacks) → 𝓟[ stacks[ B , B' ] , self[ cTm' B , cTm' B' ] ]
-plug B B' = {!   !} 
+plug B B' .N-ob Γ k = pshhom (λ Δ (γ , m) → plug' (subk γ k) m) {!   !}
+plug B B' .N-hom = {!   !} 
 
 cTm : EnrichedFunctor 𝓟Mon stacks selfSCat
 cTm .F-ob = cTm'
 cTm .F-hom {B}{B'}= plug B B'
-cTm .F-id = {!   !}
-cTm .F-seq = {!   !}
+cTm .F-id = 
+  makeNatTransPath (funExt λ Γ → funExt λ _ → 
+    makePshHomPath (funExt λ Δ → funExt λ (γ , m) → refl))
+cTm .F-seq = 
+  makeNatTransPath (funExt λ Γ → funExt λ (k , k') → 
+    makePshHomPath (funExt λ Δ → funExt λ (γ , m) →  
+      {!   !} ))
 
 CBPVDefSubst : CBPVModel _ _ _ _ _ _
-CBPVDefSubst .Scwf = scwf
-CBPVDefSubst .Stacks = stacks
-CBPVDefSubst .CTm = cTm
-
-{-}
-
-clc : CTy → Type 
-clc B = · ⊢c B 
-
-clv : VTy → Type 
-clv A = · ⊢v A 
-
-data TermP : {B : CTy} → · ⊢c B → Type where 
-  t-ret : {A : VTy}{v : · ⊢v A} → 
-    TermP (ret v)
-  t-lam : {A : VTy}{B : CTy}{m : (A ,, ·) ⊢c B} → 
-    TermP (lam m)
-
-Term : CTy → Type 
-Term B = Σ[ m ∈ clc B ] TermP m
-
-step :  {B : CTy} → clc B → Term B ⊎ clc B 
-step (ret v) = inl ((ret v) , t-ret)
-step (force (thunk m)) = inr m
-step (lam m) = inl ((lam m) , t-lam)
-step (app m v) = 
-  ⊎rec 
-    (λ {(.(lam _) , (t-lam{m = m})) → inr (subc (v ∷ []) m) }) 
-    (λ m' → inr (app m' v)) 
-    (step m)
-step (rec× (pair v w) m) = inr (subc (v ∷ (w ∷ [])) m)
-step (bind m n) = 
-  ⊎rec 
-    (λ {(.(ret _) , (t-ret{v = v})) → inr (subc (v ∷ []) n)}) 
-    (λ m' → inr (bind m' n)) 
-    (step m)
-
-
-
-open import Cubical.CoData.Delay
-
-open import Cubical.Categories.Category
-open Category
-open import  Cubical.Categories.Instances.FunctorAlgebras
-open import Cubical.Foundations.Structure hiding(str)
-open import Cubical.Categories.Limits.Terminal
-
-hTerm : CTy → hSet ℓ-zero 
-hTerm B = Term B , {!   !}
-
-hclc : CTy → hSet ℓ-zero 
-hclc B = (clc B) , {!   !}
-
-coalg : (B : CTy) → ob (CoAlg (hTerm B)) 
-coalg B = algebra (hclc B) step 
-
-
-run' : (B : CTy) → CoAlg (hTerm B) [ coalg B , DelayCoAlg (hTerm B) ] 
-run' B = terminalArrow (CoAlg (hTerm B)) (FinalCoAlg (hTerm B)) (coalg B)
-open AlgebraHom 
-
-run : {B : CTy} → clc B → Delay ⟨ hTerm B ⟩ 
-run {B} m = run' B .carrierHom m
-
-prog : clc (F one)
-prog = bind (ret u) (app (lam (ret (var vz))) (var vz))
-
-open import Cubical.Data.Nat 
-
-poke : {A : Type} → ℕ → Delay A → A ⊎ Delay A 
-poke zero d = inr d
-poke (suc n) d = ⊎rec inl (poke n) (unfold d)
-  
-
-_ : poke 3 (run prog) ≡ inl ((ret u) , t-ret)
-_ = refl
- 
-prog2 : clc (F one)
-prog2 = bind (ret u) (app (force(thunk(lam (ret (var vz))))) (var vz))
-
-_ : poke 4 (run prog2) ≡ inl ((ret u) , t-ret)
-_ = refl
-  
--}
+CBPVDefSubst .fst  = scwf
+CBPVDefSubst .snd .fst = stacks
+CBPVDefSubst .snd .snd = cTm

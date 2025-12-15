@@ -18,19 +18,25 @@ open import Cubical.Categories.CBPV.Instances.Kleisli
 open import Cubical.Categories.Enriched.Functors.Base
 open import Cubical.Categories.Enriched.Instances.FromCat 
 open import Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase
+open import  Cubical.Categories.Enriched.Instances.Presheaf.ChangeBaseFunctor
+open import Cubical.Categories.Enriched.Instances.Presheaf.Self
+open import Cubical.Categories.Enriched.NaturalTransformation.Base
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.TransitionSystem
 open import Cubical.Categories.Monad.ExtensionSystem 
   renaming (Kleisli to KleisliCat)
 open import Cubical.Categories.Monoidal.Instances.Presheaf
+open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.WithFamilies.Simple.Functor
 open import Cubical.Categories.WithFamilies.Simple.Instances.Sets
   renaming (SET to SETSCwF)
 
 open EnrichedFunctor
+open EnrichedNatTrans
 open Functor
 open PshHom
+open NatTrans
 open TSystem
 open TSystem[_,_]
 
@@ -73,6 +79,11 @@ module _ (ℓ : Level) where
       (algebra (B .state) (B .trans))  
       .carrierHom
 
+  exe-term : (B : TSystem ℓ)(s : ⟨ B .state ⟩)→ 
+    (isTerm : Σ[ t ∈ ⟨ B . term ⟩ ] B .trans s ≡ inl t) → 
+    exe B s ≡ ret-d (isTerm .fst) 
+  exe-term B s p = {!   !}
+
   runE : {B B' : TSystem ℓ} → 
     TSysCat [ B , B' ] → (K DExt) [ B .term , B' .term ] 
   runE {B} {B'} f t = 
@@ -105,15 +116,85 @@ module _ (ℓ : Level) where
       ∙ (cong₃ rec⊎ refl refl (sym h) 
       ∙ sym (bind-ret-l _ _ )) 
       ∙ cong₂ bind-d (cong₃ rec⊎ refl refl (sym p)) refl
-    ... | inr x = ?
 
 
   EF : EnrichedFunctor 𝓥 (S . snd .fst) (T .snd .fst)
   EF = Functor→Enriched TSysCat (K DExt) EF' 
 
 
+  matchd : {A : Type ℓ}(d : Delay A) → 
+    (Σ[ a ∈ A ] d ≡ ret-d a) ⊎ (Σ[ d' ∈ Delay A ] d ≡ (delay  inr d') )
+  matchd d with unfold d 
+  ... | inl x = inl (x , {! unfold-inv2 !})
+  ... | inr x = inr (x , {! unfold-inv2 ? ?  ?  !})
+  
+
+  -- this proof will be similar to the one for monotone sequences
+  exe-lemma : {S T : TSystem ℓ}
+    {f : TSystem[ S , T ]}
+    {s : ⟨ S .state ⟩} → 
+    exe T (f .smap s) 
+    ≡ bind-d (exe S s) (λ s' → rec⊎ ret-d (exe T) (f .tmap s'))
+  exe-lemma {S}{T}{f}{s} with match {S = S} s
+  ... | inl (s-trm , p) = {!   !}
+  ... | inr (s' , p) = {!   !}
+  {-}  
+  exe-lemma {S}{T}{f}{s} with matchd (exe S s)
+  ... | inl (s-trm , p) = 
+      (goal -- use comutativity of f here
+      ∙ sym (bind-ret-l _ _ )) 
+      ∙ cong₂ bind-d (sym p) refl where 
+
+      have : exe S s ≡ ret-d s-trm 
+      have = p 
+
+      goal : exe T (f .smap s) ≡ runE f s-trm
+      goal = {! f .comm  !}
+  ... | inr (d' , p) = {!   !} -- use coinduction here
+  -- with view (fun (S .term) (algebra (S .state) (S .trans))s)
+  -}
+  {-with match s 
+  ... | inl (s-trm , p) = {! bind-d  !}
+  ... | inr (s' , p) = {!   !}
+  -}
+    
+  --  {!   !} ∙ eq-d {!   !}
+  -- with (unfold (exe S s))
+
+
+  -- this works because the enrichments are the same for S and T 
+  -- and there is no change in levels
+  ENT : EnrichedNatTrans (S .snd .snd) (eseq _ EF (T .snd .snd)) 
+  ENT .E-N-ob S .N-ob Γ tt* = 
+    pshhom 
+      (λ Δ (γ , m) → lift λ Δ∙ → exe S (m Δ∙ .lower)) 
+      λ Δ Θ γ (δ , m) → refl
+  ENT .E-N-ob S .N-hom f = funExt λ tt* → 
+    makePshHomPath (funExt λ Γ → funExt λ (Δ , m) → 
+      refl)
+  ENT .E-N-hom S T = 
+    makeNatTransPath (funExt λ Γ → funExt λ k → 
+    makePshHomPath (funExt λ Δ → funExt λ (γ , m) → 
+    cong lift (funExt λ Δ∙ → exe-lemma {S}{T}{k .lower (γ Δ∙)}{m Δ∙ .lower})))
+
+  -- look at the difference here
+  _ = EnrichedFunctor {ℓ-suc (ℓ-suc ℓ)}{ℓ-suc ℓ} 𝓥 {ℓ-suc ℓ}{ℓ} 
+    (T .snd .fst) 
+    {!  BaseChange {ℓ-suc ℓ}{ℓ-suc ℓ}{ℓ}{ℓ-suc ℓ}{ℓ}{SET ℓ}{SET ℓ} Id ℓ ℓ (T .snd .fst)  !}
+
+
+{-
+  dumb2 : EnrichedFunctor 𝓥 (T .snd .fst) {! BaseChange {ℓ-suc ℓ}{ℓ-suc ℓ}{ℓ}{ℓ-suc ℓ}{ℓ}{SET ℓ}{SET ℓ} Id ℓ ℓ (T .snd .fst) !}
+  -- (BaseChange (IdPreFun .fst) ℓ ℓ (T .snd .fst))
+  dumb2 .F-ob X = {!   !}
+  dumb2 .F-hom = {!   !}
+  dumb2 .F-id = {!   !}
+  dumb2 .F-seq = {!   !}
+  -}
+{-ll\ll
   -- thse coercions are essentially Id since there is no lifting
   -- as the CBPV models are of the same levels
+  {-
   dumb1 : EnrichedFunctor 𝓥 (LiftE (S .snd .fst)) (S .snd .fst)
   dumb1 = ?
 
@@ -122,9 +203,13 @@ module _ (ℓ : Level) where
   dumb2 .F-hom = ?
   dumb2 .F-id = {!   !}
   dumb2 .F-seq = {!   !}
+  -}
 
   MultiStep : CBPVFunctor S T 
-  MultiStep = IdPreFun , ((eseq 𝓥  dumb1 (eseq 𝓥 EF dumb2 ) ) , {!   !})
+  MultiStep = 
+    IdPreFun , {!   !} , {!   !} 
+    -- ((eseq 𝓥  dumb1 (eseq 𝓥 EF dumb2 ) )
+-} 
 {-
   MultiStep : CBPVFunctor S T
   MultiStep .PreF = IdPreFun

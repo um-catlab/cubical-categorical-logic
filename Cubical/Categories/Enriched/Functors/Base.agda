@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
+open import Cubical.Categories.Monoidal.Enriched.More
 
 open EnrichedCategory
 open Functor

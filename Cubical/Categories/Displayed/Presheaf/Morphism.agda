@@ -863,3 +863,30 @@ module _
       PshHomᴰPathP βᴰ γᴰ β≡γ →
       PshHomᴰPathP αᴰ γᴰ α≡γ
     compPshHomᴰPathP' ϕᴰ ψᴰ = PshHomᴰPathP-rectify (compPshHomᴰPathP ϕᴰ ψᴰ)
+
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+  where
+  private
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+    module Cᴰ = Categoryᴰ Cᴰ
+
+  open Iso
+  module _
+    (isos : ∀ {x} (p : P.p[ x ]) xᴰ → Iso Pᴰ.p[ p ][ xᴰ ] Qᴰ.p[ p ][ xᴰ ])
+    (iso-areNat : ∀ {x}{y} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]} →
+      {p : P.p[ y ]} → (pᴰ : Pᴰ.p[ p ][ yᴰ ]) →
+      (fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ]) →
+      isos (f P.⋆ p) xᴰ .fun (fᴰ Pᴰ.⋆ᴰ pᴰ)  ≡ (fᴰ Qᴰ.⋆ᴰ isos p yᴰ .fun pᴰ))
+    where
+    Isos→PshIsoⱽ : PshIsoⱽ Pᴰ Qᴰ
+    Isos→PshIsoⱽ .fst .N-obᴰ = isos _ _ .fun
+    Isos→PshIsoⱽ .fst .N-homᴰ = iso-areNat _ _
+    Isos→PshIsoⱽ .snd .inv _ = inv (isos _ _)
+    Isos→PshIsoⱽ .snd .rightInv _ = rightInv (isos _ _)
+    Isos→PshIsoⱽ .snd .leftInv _ = leftInv (isos _ _)

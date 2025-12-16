@@ -8,6 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
+open import Cubical.Foundations.Equiv.Dependent
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -55,6 +56,7 @@ open Functorᴰ
 open Iso
 open PshHom
 open PshHomᴰ
+open isIsoOver
 
 module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
@@ -171,7 +173,6 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
   CurryPshHom-FF-Iso .rightInv = λ αⱽ → makePshHomᴰPath refl
   CurryPshHom-FF-Iso .leftInv = λ α → makePshHomPath refl
 
-
 module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ)
@@ -186,3 +187,9 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
     N-obᴰ⟨ α ⟩ (sym $ Pᴰ.reind-filler _ _)
     ∙ Qᴰ.≡in (α .N-homᴰ)
     ∙ Qᴰ.reind-filler _ _
+
+  UncurryPshIsoⱽ : PshIsoⱽ Pᴰ Qᴰ → PshIso (UncurryPshᴰ P Cᴰ Pᴰ) (UncurryPshᴰ P Cᴰ Qᴰ)
+  UncurryPshIsoⱽ α .PshIso.trans = UncurryPshHomⱽ (α .fst)
+  UncurryPshIsoⱽ α .PshIso.nIso x .fst p = α .snd .inv (x .snd .snd) p
+  UncurryPshIsoⱽ α .PshIso.nIso x .snd =
+    α .snd .rightInv (x .snd .snd) , α .snd .leftInv (x .snd .snd)

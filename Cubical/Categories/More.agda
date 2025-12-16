@@ -63,4 +63,5 @@ module Reasoning (C : Category ℓ ℓ') where
 module CategoryNotation (C : Category ℓ ℓ') where
   ISOC = ISO C
   module ISOC = Reasoning ISOC
+  open Category C public
   open Reasoning C public

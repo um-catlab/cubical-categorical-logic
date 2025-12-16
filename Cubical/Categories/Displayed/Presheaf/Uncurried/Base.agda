@@ -325,11 +325,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   idPshHomᴰ : PshHomᴰ idPshHom Pᴰ Pᴰ
   idPshHomᴰ = invPshIso (reindPshᴰNatTrans-id idPshHom Pᴰ) .trans
-  -- idPshHomᴰ .N-ob = λ c z → z
-  -- idPshHomᴰ .N-hom c c' f p =
-  --   Pᴰ.rectify $ Pᴰ.≡out $
-  --     Pᴰ.⋆ᴰ-reind _ _ _
-  --     ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -370,14 +365,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
     (βᴰ : PshHomᴰ β Qᴰ Rᴰ) →
     PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ
-  -- (αᴰ ⋆PshHomᴰ βᴰ) .N-ob c x =
-  --   βᴰ .N-ob _ (αᴰ .N-ob c x)
-  -- (αᴰ ⋆PshHomᴰ βᴰ) .N-hom c c' f p =
-  --   Rᴰ.rectify $ Rᴰ.≡out $
-  --     (Rᴰ.≡in $ cong (βᴰ .N-ob _) (αᴰ .N-hom c c' f p))
-  --     ∙ (Rᴰ.≡in $ βᴰ .N-hom _ _ _ (αᴰ .N-ob _ p))
-  --     ∙ Rᴰ.⋆ᴰ-reind _ _ _
-  --     ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
   (αᴰ ⋆PshHomᴰ βᴰ) =
     αᴰ
     ⋆PshHomⱽ reindPshHom (Idᴰ /Fⱽ _) βᴰ

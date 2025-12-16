@@ -246,11 +246,27 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   Isos→PshIso isos isos-areNat .nIso x .snd .fst = Iso.rightInv (isos x)
   Isos→PshIso isos isos-areNat .nIso x .snd .snd = Iso.leftInv (isos x)
 
+  Isos→PshIso' : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
+    → PshIso P Q
+  Isos→PshIso' isos .trans .N-ob = λ c → Iso.fun (isos c)
+  Isos→PshIso' isos .trans .N-hom c c' f p = {!!}
+    where
+    P≡Q : LiftPsh P ℓq ≡ LiftPsh Q ℓp
+    P≡Q = {!!}
+  Isos→PshIso' isos .nIso x .fst = Iso.inv (isos x)
+  Isos→PshIso' isos .nIso x .snd .fst = Iso.rightInv (isos x)
+  Isos→PshIso' isos .nIso x .snd .snd = Iso.leftInv (isos x)
+
   PshIso→Isos : PshIso P Q → ∀ x → Iso (P.p[ x ]) (Q.p[ x ])
   PshIso→Isos α = λ x →
     iso (α .trans .N-ob x) (α .nIso x .fst)
       (α .nIso x .snd .fst)
       (α .nIso x .snd .snd)
+
+  PshIso→Isos-areNat : (α : PshIso P Q) →
+    (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
+      Iso.fun (PshIso→Isos α x) (f P.⋆ p) ≡ f Q.⋆ (Iso.fun (PshIso→Isos α y) p))
+  PshIso→Isos-areNat = λ α → α .trans .N-hom
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   {α : PshHom P Q}{α⁻ : PshHom Q P}
@@ -534,3 +550,24 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   yo≅PshHomPsh .nIso Q .fst = PshHom→NatTrans
   yo≅PshHomPsh .nIso Q .snd .fst _ = makePshHomPath refl
   yo≅PshHomPsh .nIso Q .snd .snd _ = makeNatTransPath refl
+
+module _ {C : Category ℓc ℓc'} where
+  -- Syntax for chains of compositions of PshIsos
+  -- annotated by their intermediate endpoints a la equational reasoning
+  -- from Cubical.Foundations.Prelude
+  private
+    variable
+      ℓP ℓQ ℓR ℓU : Level
+      P : Presheaf C ℓP
+      Q : Presheaf C ℓQ
+      R : Presheaf C ℓR
+      U : Presheaf C ℓU
+
+  _PshIso⟨_⟩_ : (P : Presheaf C ℓP) → PshIso P Q → PshIso Q R → PshIso P R
+  _ PshIso⟨ α ⟩ β = α ⋆PshIso β
+
+  _∎PshIso : (P : Presheaf C ℓP) → PshIso P P
+  P ∎PshIso = idPshIso {P = P}
+
+  infixr  0 _PshIso⟨_⟩_
+  infix   1 _∎PshIso

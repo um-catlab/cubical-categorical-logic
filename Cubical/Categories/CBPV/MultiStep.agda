@@ -87,7 +87,7 @@ module _ (ℓ : Level) where
     TSysCat [ B , B' ] → (K DExt) [ B .term , B' .term ] 
   runE {B} {B'} f t = 
       rec⊎ 
-        (delay_ ∘S inl) -- done, ret
+        ret-d -- done, ret
         (exe B') -- exec
         (f .tmap t) -- either it is done, or we execute
 
@@ -159,7 +159,7 @@ module _ (ℓ : Level) where
     (eseq 𝓥 
       efun
       (eseq 𝓥 
-        (BaseChangeF Id ℓ (T .snd .snd)) 
+        (BaseChangeF Id {ℓS = ℓ} ℓ (T .snd .snd)) 
         (BaseLiftSelf Id (ℓ-suc ℓ)))) 
   ent .E-N-ob S .N-ob Γ tt* .N-ob Δ (γ , m) = 
     lift (lift λ Δ∙ → exe S (m .lower Δ∙ .lower))
@@ -172,7 +172,6 @@ module _ (ℓ : Level) where
     makePshHomPath (funExt λ Δ → funExt λ (γ , m) → 
     cong lift (cong lift (funExt λ Δ∙ → 
       exe-lemma {S}{T}{k .lower .lower (γ Δ∙)}{m .lower Δ∙ .lower}))))
-
 
   MultiStep : CBPVFunctor S T 
   MultiStep = 

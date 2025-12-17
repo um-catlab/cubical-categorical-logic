@@ -9,11 +9,13 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 open import Cubical.Functions.FunExtEquiv
 
+import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.More
+open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Compose
 -- open import Cubical.Categories.NaturalTransformation
@@ -23,6 +25,7 @@ open import Cubical.Categories.Instances.Presheaf
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Constructions.Tensor
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable hiding (Elements)
 open import Cubical.Categories.Presheaf.Representable.More
@@ -133,54 +136,96 @@ module _
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .CartesianClosedCatᴰ = PRESHEAFᴰ
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .termⱽ P .fst = Unit*Pshᴰ
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .termⱽ P .snd =
-    PSHᴰ [-][-, Unit*Pshᴰ ]
-      PshIso⟨ Isos→PshIso
-               (λ _ → iso (λ _ → tt) (λ _ → pshhom (λ _ _ → tt*) (λ _ _ _ _ → refl))
-                          (λ _ → refl) (λ _ → makePshHomPath refl))
-               (λ _ _ _ _ → refl) ⟩
-    UnitPsh
-    ∎PshIso
+    {!!}
+
+    -- PSHᴰ [-][-, Unit*Pshᴰ ]
+    --   PshIso⟨ Isos→PshIso
+    --            (λ _ → iso (λ _ → tt) (λ _ → pshhom (λ _ _ → tt*) (λ _ _ _ _ → refl))
+    --                       (λ _ → refl) (λ _ → makePshHomPath refl))
+    --            (λ _ _ _ _ → refl) ⟩
+    -- UnitPsh
+    -- ∎PshIso
+
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .bpⱽ Pᴰ Qᴰ .fst = Pᴰ ×ⱽPsh Qᴰ
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .bpⱽ {x = P} Pᴰ Qᴰ .snd =
-    (PSHᴰ [-][-, Pᴰ ×ⱽPsh Qᴰ ])
-      PshIso⟨ Isos→PshIso
-        (λ (R , Rᴰ , α) →
-          PshHomᴰ α Rᴰ (Pᴰ ×ⱽPsh Qᴰ)
-            Iso⟨ PshIso→Isos (PshIso→PshHomPshIso (reindPsh× (Idᴰ /Fⱽ α) Pᴰ Qᴰ)) Rᴰ ⟩
-          PshHomⱽ Rᴰ (reindPshᴰNatTrans α Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)
-            Iso⟨ ×Psh-UMP (reindPshᴰNatTrans α Pᴰ) (reindPshᴰNatTrans α Qᴰ) ⟩
-          (PshHomᴰ α Rᴰ Pᴰ) × (PshHomᴰ α Rᴰ Qᴰ)
-          ∎Iso)
-        (λ _ _ _ _ → ΣPathP (makePshHomPath refl , makePshHomPath refl)) ⟩
-    (PSHᴰ [-][-, Pᴰ ]) ×ⱽPsh (PSHᴰ [-][-, Qᴰ ])
-    ∎PshIso
+    {!!}
+
+    -- (PSHᴰ [-][-, Pᴰ ×ⱽPsh Qᴰ ])
+    --   PshIso⟨ Isos→PshIso
+    --     (λ (R , Rᴰ , α) →
+    --       PshHomᴰ α Rᴰ (Pᴰ ×ⱽPsh Qᴰ)
+    --         Iso⟨ PshIso→Isos (PshIso→PshHomPshIso (reindPsh× (Idᴰ /Fⱽ α) Pᴰ Qᴰ)) Rᴰ ⟩
+    --       PshHomⱽ Rᴰ (reindPshᴰNatTrans α Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)
+    --         Iso⟨ ×Psh-UMP (reindPshᴰNatTrans α Pᴰ) (reindPshᴰNatTrans α Qᴰ) ⟩
+    --       (PshHomᴰ α Rᴰ Pᴰ) × (PshHomᴰ α Rᴰ Qᴰ)
+    --       ∎Iso)
+    --     (λ _ _ _ _ → ΣPathP (makePshHomPath refl , makePshHomPath refl)) ⟩
+    -- (PSHᴰ [-][-, Pᴰ ]) ×ⱽPsh (PSHᴰ [-][-, Qᴰ ])
+    -- ∎PshIso
+
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .cartesianLifts {x = P} Pᴰ Q α .fst =
     reindPshᴰNatTrans α Pᴰ
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .cartesianLifts {x = P} Pᴰ Q α .snd =
     PSHᴰ [-][-, reindPshᴰNatTrans α Pᴰ ]
       PshIso⟨
-        invPshIso
-        (Isos→PshIso
+        invPshIso (
+        Isos→PshIso
           (λ (R , Rᴰ , β) →
-            PshHomᴰ (β ⋆PshHom α) Rᴰ Pᴰ
-              Iso⟨ PshIso→Isos (PshIso→PshHomPshIso (reindPshᴰNatTrans-seq β α Pᴰ)) Rᴰ ⟩
-            PshHomᴰ β Rᴰ (reindPshᴰNatTrans α Pᴰ)
+            PshHomⱽ Rᴰ (reindPshᴰNatTrans (β ⋆PshHom α) Pᴰ)
+              Iso⟨ PshIso→Isos
+                    (PshIso→PshHomPshIso
+                      ((reindPshᴰNatTrans-seq β α Pᴰ))) Rᴰ ⟩
+            PshHomⱽ Rᴰ (reindPshᴰNatTrans β (reindPshᴰNatTrans α Pᴰ))
             ∎Iso
           )
           (λ (S , Sᴰ , β) (R , Rᴰ , γ) (η , ηᴰ , ηγ≡β) p →
-            makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ →
-              Pᴰ.rectify $ Pᴰ.≡out $
-                 {!!}
-                 ∙ {!!}
-            )
+
+            PSHᴰ.rectify $ PSHᴰ.≡out $
+               (_ , YPᴰ.reind _ (ηᴰ PSHᴰ.⋆ᴰ p)
+                     ⋆PshHomⱽ reindPshᴰNatTrans-seq β α Pᴰ .trans)
+               ≡⟨ {!!} ⟩
+               {!!}
+               ≡⟨ {!!} ⟩
+               (_ , ηᴰ PSHᴰ.⋆ᴰ (p ⋆PshHomⱽ reindPshᴰNatTrans-seq γ α Pᴰ .trans))
+               ≡⟨ Yα*Pᴰ.reind-filler _ ⟩
+               (_ , Yα*Pᴰ.reind _
+                  (ηᴰ PSHᴰ.⋆ᴰ (p ⋆PshHomⱽ reindPshᴰNatTrans-seq γ α Pᴰ .trans)))
+                ∎
+
+
+
+
+            -- YPᴰ.reind _
+            --   (ηᴰ
+            --   ⋆PshHomⱽ reindPshHom _ p
+            --   ⋆PshHomⱽ invPshIso (reindPshᴰNatTrans-seq η (γ ⋆PshHom α) Pᴰ) .trans)
+            -- ⋆PshHom reindPshᴰNatTrans-seq β α Pᴰ .trans
+            --   ≡⟨ PSHᴰ.rectify $ PSHᴰ.≡out $
+            --        PSHᴰ.≡in (PSHᴰ.rectify $
+            --          cong (_⋆PshHom reindPshᴰNatTrans-seq β α Pᴰ .trans)
+            --            (PSHᴰ.rectify $ PSHᴰ.≡out $ sym $ YPᴰ.reind-filler _ ))
+            --        ∙ {!!}
+            --        -- ∙ PSHᴰ.⟨ sym $ YPᴰ.reind-filler _ ⟩⋆⟨⟩
+            --        ∙ {!!}
+            --        ∙ Yα*Pᴰ.reind-filler _
+            --    ⟩
+            -- Yα*Pᴰ.reind _
+            --   (ηᴰ
+            --   ⋆PshHomⱽ reindPshHom _ (p ⋆PshHom reindPshᴰNatTrans-seq γ α Pᴰ .trans)
+            --   ⋆PshHomⱽ invPshIso
+            --     (reindPshᴰNatTrans-seq η γ (reindPshᴰNatTrans α Pᴰ)) .trans)
+            -- ∎
+
           ))
-          ⟩
+        ⟩
     reindPshᴰNatTrans (yoRec _ α) (PSHᴰ [-][-, Pᴰ ])
     ∎PshIso
 
      where
      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
-    --  module α*Pᴰ = PresheafᴰNotation Cᴰ Q (reindPshᴰNatTrans α Pᴰ)
+     module YPᴰ = PresheafᴰNotation PSHᴰ (PRESHEAF C ℓP [-, P ]) (PSHᴰ [-][-, Pᴰ ])
+     module Yα*Pᴰ = PresheafᴰNotation PSHᴰ _ (PSHᴰ [-][-, reindPshᴰNatTrans α Pᴰ ])
+     module α*Pᴰ = PresheafᴰNotation Cᴰ Q (reindPshᴰNatTrans α Pᴰ)
 
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .expⱽ = {!!}
   CartesianClosedCategoryⱽ'-PRESHEAFᴰ .∀s = {!!}
@@ -195,3 +240,31 @@ module _
   --     where
   --     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
   -- CartesianClosedⱽ-PRESHEAFᴰ .snd .snd .snd .snd = {!!}
+
+      -- PshIso⟨
+      --   invPshIso
+      --   (Isos→PshIso
+      --     (λ (R , Rᴰ , β) →
+      --       PshHomᴰ (β ⋆PshHom α) Rᴰ Pᴰ
+      --         Iso⟨ PshIso→Isos (PshIso→PshHomPshIso (reindPshᴰNatTrans-seq β α Pᴰ)) Rᴰ ⟩
+      --       PshHomᴰ β Rᴰ (reindPshᴰNatTrans α Pᴰ)
+      --       ∎Iso
+      --     )
+      --     (λ (S , Sᴰ , β) (R , Rᴰ , γ) (η , ηᴰ , ηγ≡β) p →
+      --       {!!}
+      --     )
+      --     -- (λ (S , Sᴰ , β) (R , Rᴰ , γ) (η , ηᴰ , ηγ≡β) p →
+      --     --   let module βα*Pᴰ = PresheafᴰNotation Cᴰ S (reindPshᴰNatTrans (β ⋆PshHom α) Pᴰ) in
+      --     --   let module γα*Pᴰ = PresheafᴰNotation Cᴰ R (reindPshᴰNatTrans (γ ⋆PshHom α) Pᴰ) in
+      --     --   makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ →
+      --     --     Pᴰ.rectify $ Pᴰ.≡out $
+      --     --       _ ,
+      --     --       {!!}
+      --     --         ≡⟨ {!!} ⟩
+      --     --       _ , {!!}
+      --     --       ∎
+      --     --   )
+      --     -- )
+      --     )
+      --     ⟩
+    -- reindPshᴰNatTrans (yoRec _ α) (PSHᴰ [-][-, Pᴰ ])

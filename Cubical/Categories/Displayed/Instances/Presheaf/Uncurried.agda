@@ -193,6 +193,14 @@ module _
                   (ηᴰ PSHᴰ.⋆ᴰ (p ⋆PshHomⱽ reindPshᴰNatTrans-seq γ α Pᴰ .trans)))
                 ∎
 
+            -- -- Another fraught attempt
+            -- makePshHomPath (funExt₂ λ _ _ →
+            --   Pᴰ.rectify $ Pᴰ.≡out $
+            -- -- can't use any form of reind-filler/⋆ᴰ-reind for Pᴰ or α*Pᴰ here
+            --    {!sym $ Pᴰ.reind-filler _!}
+            --    ∙ {!!}
+            --    )
+
 
 
 

@@ -2,8 +2,10 @@ module Cubical.Categories.2Category.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -50,6 +52,10 @@ record 2Category ℓ ℓ' ℓ'' :
 
     isGroupoidHom₁ : ∀ {x y} → isGroupoid Hom₁[ x , y ]
     isSetHom₂ : ∀ {x y} {f g : Hom₁[ x , y ]} → isSet (Hom₂[ f , g ])
+
+  infixr 9 _⋆₁_
+  infixr 9 _⋆ⱽ_
+  infixr 9 _⋆ᴴ_
 
 open 2Category
 open NatTrans
@@ -99,3 +105,48 @@ module _ {ℓC ℓC'} where
   CAT .isGroupoidHom₁ {y = D} = isOfHLevelFunctor 1 D.groupoid-obs
     where module D = GroupoidObjectsCategory D
   CAT .isSetHom₂ = isSetNatTrans
+
+module _ {ℓC ℓC'} (C : Category ℓC ℓC') where
+  private
+    module C = Category C
+
+  Cat→2Cat : 2Category _ _ _
+  Cat→2Cat .ob = C.ob
+  Cat→2Cat .Hom₁[_,_] = C.Hom[_,_]
+  Cat→2Cat .Hom₂[_,_] _ _ = Unit
+  Cat→2Cat .id₁ = C.id
+  Cat→2Cat .id₂ = tt
+  Cat→2Cat ._⋆₁_ = C._⋆_
+  Cat→2Cat ._⋆ⱽ_ = λ _ _ → tt
+  Cat→2Cat ._⋆ᴴ_ = λ _ _ → tt
+  Cat→2Cat .⋆₁IdL = C.⋆IdL
+  Cat→2Cat .⋆₁IdR = C.⋆IdR
+  Cat→2Cat .⋆₁Assoc = C.⋆Assoc
+  Cat→2Cat .⋆₂IdL = λ _ → refl
+  Cat→2Cat .⋆₂IdR = λ _ → refl
+  Cat→2Cat .⋆₂Assoc = λ _ _ _ → refl
+  Cat→2Cat .interchange = λ _ _ _ _ → refl
+  Cat→2Cat .isGroupoidHom₁ = isSet→isGroupoid C.isSetHom
+  Cat→2Cat .isSetHom₂ = isSetUnit
+
+module _ {ℓC ℓC' ℓC''} (C : 2Category ℓC ℓC' ℓC'') where
+  private
+    module C = 2Category C
+  _^op2 : 2Category ℓC ℓC' ℓC''
+  _^op2 .ob = C.ob
+  _^op2 .Hom₁[_,_] x y = C.Hom₁[ y , x ]
+  _^op2 .Hom₂[_,_] f g = C.Hom₂[ g , f ]
+  _^op2 .id₁ = C.id₁
+  _^op2 .id₂ = C.id₂
+  _^op2 ._⋆₁_ = λ f g → g C.⋆₁ f
+  _^op2 ._⋆ⱽ_ = λ z z₁ → z₁ C.⋆ⱽ z
+  _^op2 ._⋆ᴴ_ = λ z₁ z₂ → z₂ C.⋆ᴴ z₁
+  _^op2 .⋆₁IdL = C.⋆₁IdR
+  _^op2 .⋆₁IdR = C.⋆₁IdL
+  _^op2 .⋆₁Assoc _ _ _ = sym $ C.⋆₁Assoc _ _ _
+  _^op2 .⋆₂IdL = C.⋆₂IdR
+  _^op2 .⋆₂IdR = C.⋆₂IdL
+  _^op2 .⋆₂Assoc _ _ _ = sym $ C.⋆₂Assoc _ _ _
+  _^op2 .interchange = λ α β γ δ → C.interchange δ γ β α
+  _^op2 .isGroupoidHom₁ = C.isGroupoidHom₁
+  _^op2 .isSetHom₂ = C.isSetHom₂

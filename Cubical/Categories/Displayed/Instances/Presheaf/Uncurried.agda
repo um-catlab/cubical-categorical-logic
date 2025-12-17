@@ -183,6 +183,7 @@ module _
             PSHᴰ.rectify $ PSHᴰ.≡out $
                (_ , YPᴰ.reind _ (ηᴰ PSHᴰ.⋆ᴰ p)
                      ⋆PshHomⱽ reindPshᴰNatTrans-seq β α Pᴰ .trans)
+               -- Can't use any reind-filler or ⋆ᴰ-reind here
                ≡⟨ {!!} ⟩
                {!!}
                ≡⟨ {!!} ⟩

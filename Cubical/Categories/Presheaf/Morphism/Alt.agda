@@ -246,17 +246,6 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   Isos→PshIso isos isos-areNat .nIso x .snd .fst = Iso.rightInv (isos x)
   Isos→PshIso isos isos-areNat .nIso x .snd .snd = Iso.leftInv (isos x)
 
-  Isos→PshIso' : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
-    → PshIso P Q
-  Isos→PshIso' isos .trans .N-ob = λ c → Iso.fun (isos c)
-  Isos→PshIso' isos .trans .N-hom c c' f p = {!!}
-    where
-    P≡Q : LiftPsh P ℓq ≡ LiftPsh Q ℓp
-    P≡Q = {!!}
-  Isos→PshIso' isos .nIso x .fst = Iso.inv (isos x)
-  Isos→PshIso' isos .nIso x .snd .fst = Iso.rightInv (isos x)
-  Isos→PshIso' isos .nIso x .snd .snd = Iso.leftInv (isos x)
-
   PshIso→Isos : PshIso P Q → ∀ x → Iso (P.p[ x ]) (Q.p[ x ])
   PshIso→Isos α = λ x →
     iso (α .trans .N-ob x) (α .nIso x .fst)

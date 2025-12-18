@@ -36,8 +36,6 @@ open Iso
 open PshHom
 open PshIso
 
---
-
 module _
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}

@@ -19,7 +19,6 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
-open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
@@ -30,8 +29,10 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
+open import Cubical.Categories.Presheaf.Constructions.Lift
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Bifunctor
+open import Cubical.Categories.Yoneda
 
 {-
 
@@ -326,6 +327,12 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) whe
   PshIso→SETIso α c .snd .sec = funExt (α .nIso c .snd .fst)
   PshIso→SETIso α c .snd .ret = funExt (α .nIso c .snd .snd)
 
+  PshIso→NatIso : PshIso P Q → NatIso P Q
+  PshIso→NatIso α .NatIso.trans = PshHom→NatTrans (α .trans)
+  PshIso→NatIso α .NatIso.nIso c .inv = α .nIso c .fst
+  PshIso→NatIso α .NatIso.nIso c .sec = funExt (α .nIso c .snd .fst)
+  PshIso→NatIso α .NatIso.nIso c .ret = funExt (α .nIso c .snd .snd)
+
   PshIso→Path : PshIso P Q → P ≡ Q
   PshIso→Path α =
     Functor≡
@@ -544,3 +551,12 @@ module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} w
           (α .nIso x .snd)
     improve-PshIso : PshIso P Q
     improve-PshIso = pshiso (improve-PshHom (α .trans) α') (λ x → (α⁻ .fst x) , isInvα⁻ x)
+
+module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
+  yo≅PshHomPsh :
+    PshIso (yo {C = PresheafCategory C ℓp} P) (PshHomPsh {ℓp = ℓp} P)
+  yo≅PshHomPsh .trans .N-ob c = NatTrans→PshHom
+  yo≅PshHomPsh .trans .N-hom c c' f p = makePshHomPath refl
+  yo≅PshHomPsh .nIso Q .fst = PshHom→NatTrans
+  yo≅PshHomPsh .nIso Q .snd .fst _ = makePshHomPath refl
+  yo≅PshHomPsh .nIso Q .snd .snd _ = makeNatTransPath refl

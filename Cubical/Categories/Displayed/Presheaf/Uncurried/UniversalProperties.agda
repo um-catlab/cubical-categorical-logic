@@ -81,6 +81,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   Exponentialⱽ : ∀ {x} ((xᴰ , _×ⱽxᴰ) : LRⱽObᴰ x) (yᴰ : Cᴰ.ob[ x ]) → Type _
   Exponentialⱽ {x} xᴰ yᴰ =
     Representableⱽ Cᴰ x (LRⱽObᴰ→LRⱽ xᴰ ⇒ⱽPshSmall (Cᴰ [-][-, yᴰ ]))
+  -- TODO: make an explicit definition for the functor you get out of an LRⱽ
 
   -- BinProductsⱽ+Fibration→AllLRⱽ : BinProductsⱽ → isFibration
   --   → AllLRⱽ

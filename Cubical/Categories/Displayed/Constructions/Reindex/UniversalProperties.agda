@@ -43,6 +43,7 @@ open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
 open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Limits.CartesianV'
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions

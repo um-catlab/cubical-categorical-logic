@@ -1,8 +1,10 @@
 module Cubical.Categories.2Functor.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.2Category.Base
@@ -12,7 +14,7 @@ open import Cubical.Categories.NaturalTransformation
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓC ℓC' ℓC'' ℓD ℓD' ℓD'' : Level
+    ℓ ℓ' ℓ'' ℓC ℓC' ℓC'' ℓD ℓD' ℓD'' ℓE ℓE' ℓE'' : Level
 
 record LaxFunctor (C : 2Category ℓC ℓC' ℓC'') (D : 2Category ℓD ℓD' ℓD'') :
     Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓC'') (ℓ-max (ℓ-max ℓD ℓD') ℓD''))
@@ -91,3 +93,53 @@ record PseudoFunctor (C : 2Category ℓC ℓC' ℓC'') (D : 2Category ℓD ℓD'
     lax : LaxFunctor C D
     pseudo : isPseudo lax
   open LaxFunctor lax public
+
+open LaxFunctor
+
+module _
+  {C : 2Category ℓC ℓC' ℓC''}
+  {D : 2Category ℓD ℓD' ℓD''}
+  {E : 2Category ℓE ℓE' ℓE''}
+  (F : LaxFunctor C D)
+  (G : LaxFunctor D E)
+  where
+
+  private
+    module C = 2Category C
+    module D = 2Category D
+    module E = 2Category E
+    module F = LaxFunctor F
+    module G = LaxFunctor G
+
+  seqLaxFunctor : LaxFunctor C E
+  seqLaxFunctor .F₀ = λ z → G.F₀ (F.F₀ z)
+  seqLaxFunctor .F₁ = λ z → G.F₁ (F.F₁ z)
+  seqLaxFunctor .F₂ = λ z → G.F₂ (F.F₂ z)
+  seqLaxFunctor .F-id = G.F-id E.⋆ⱽ G.F₂ F.F-id
+  seqLaxFunctor .F-seq = λ f g → G.F-seq (F.F₁ f) (F.F₁ g) E.⋆ⱽ G.F₂ (F.F-seq f g)
+  seqLaxFunctor .F-id₂ = cong G.F₂ F.F-id₂ ∙ G.F-id₂
+  seqLaxFunctor .F-seqⱽ α β =
+    cong G.F₂ (F.F-seqⱽ α β)
+    ∙ G.F-seqⱽ (F.F₂ α) (F.F₂ β)
+  seqLaxFunctor .F-seqᴴ α β =
+    E.⋆ⱽAssoc _ _ _
+    ∙ cong₂ E._⋆ⱽ_ refl
+        ((sym $ G.F-seqⱽ _ _)
+         ∙ cong G.F₂ (F.F-seqᴴ α β))
+    ∙ cong₂ E._⋆ⱽ_ refl (G.F-seqⱽ _ _)
+    ∙ (sym $ E.⋆ⱽAssoc _ _ _)
+    ∙ cong₂ E._⋆ⱽ_ (G.F-seqᴴ (F.F₂ α) (F.F₂ β)) refl
+    ∙ E.⋆ⱽAssoc _ _ _
+  seqLaxFunctor .F-unitality-l f =
+    E.Prectify {!!} $ E.≡out $
+      {!!}
+      ∙ ΣPathP (ΣPathP (_ , _) , (G.F-unitality-l (F.F₁ f)))
+      ∙ ΣPathP (refl , (cong G.F₂ (sym F.F-id₂)))
+    -- Prectify $
+    --   {!!}
+    --   -- ∙ (G.F-unitality-l (F.F₁ f))
+    --   ∙ (Prectify $ E.⟨ {!!} ⟩⋆ⱽ⟨ refl ⟩)
+    --   ∙ (Prectify $ G.F-unitality-l (F.F₁ f))
+    --   ∙ (cong G.F₂ (sym F.F-id₂))
+  seqLaxFunctor .F-unitality-r = {!!}
+  seqLaxFunctor .F-associativity = {!!}

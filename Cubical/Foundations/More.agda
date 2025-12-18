@@ -227,3 +227,41 @@ isSet→Square :
   (p : a ≡ c) (q : b ≡ d) (r : a ≡ b) (s : c ≡ d)
   → Square r s p q
 isSet→Square isSetA p q r s = compPath→Square (isSetA _ _ _ _)
+
+module Reasoning (A : Type ℓ) (P : A → Type ℓ') where
+  _P≡[_]_ : ∀ {a b : A} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
+  p P≡[ a≡b ] q = p ≡[ cong P a≡b ] q
+  private
+    variable
+      a b c : A
+      p q r : P a
+      pth qth : a ≡ b
+  infix 2 _∫≡_
+
+  _∫≡_ : ∀ {a b}(p : P a)(q : P b) → Type (ℓ-max ℓ ℓ')
+  p ∫≡ q = Path (Σ A P) (_ , p) (_ , q)
+
+  ≡in :
+    p P≡[ pth ] q
+    → p ∫≡ q
+  ≡in e = ΣPathP $ _ , e
+
+  ≡out :
+    (e : p ∫≡ q)
+    → p P≡[ fst $ PathPΣ e ] q
+  ≡out e = snd $ PathPΣ e
+
+  reind : (a ≡ b) → P a → P b
+  reind e p = subst P e p
+
+  reind-filler :
+    ∀ (e : a ≡ b)
+    → p ∫≡ reind e p
+  reind-filler e = ΣPathP (e , (subst-filler P e _))
+
+  Prectify :
+    ∀ {e e' : a ≡ b}
+    → e ≡ e'
+    → p P≡[ e ] q
+    → p P≡[ e' ] q
+  Prectify {p = p} {q = q} = subst (p P≡[_] q)

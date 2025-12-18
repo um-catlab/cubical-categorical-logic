@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
 private

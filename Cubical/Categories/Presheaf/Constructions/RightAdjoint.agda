@@ -10,6 +10,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Presheaf.Base
@@ -34,6 +35,8 @@ open Functor
 open Iso
 open PshHom
 open PshIso
+
+-- 
 
 module _
   {C : Category ℓC ℓC'}
@@ -88,18 +91,8 @@ module _
       F⇒Large-λ α .N-hom c c' f r = makePshHomPath $ λ i d p →
         α .N-ob d (P⊗R.swap p f r i)
 
-      F⇒Large-λ⁻ : PshHom R (P F⇒Large Q) → PshHom (ext P ⟅ R ⟆) Q
-      F⇒Large-λ⁻ α = pshhom app' app'-nat
-        where
-        app' : ∀ d → P⊗R'.p[ d ] → Q.p[ d ]
-        app' d = P⊗R.rec Q.isSetPsh (λ p r → α .N-ob _ r .N-ob d p) λ p f r →
-          funExt⁻ (funExt⁻ (cong N-ob (α .N-hom _ _ f r)) _) _
-        app'-nat : ∀ d d' (f : D [ d , d' ]) (pr : P⊗R'.p[ d' ])
-          → app' d (f P⊗R'.⋆ pr) ≡ (f Q.⋆ app' d' pr)
-        app'-nat d d' f = P⊗R.ind (λ pr → Q.isSetPsh _ _) (λ p q → α .N-ob _ q .N-hom _ _ f p)
-
       F⇒Large-UMP : Iso (PshHom R (P F⇒Large Q)) (PshHom (ext P ⟅ R ⟆) Q)
-      F⇒Large-UMP .fun = F⇒Large-λ⁻
+      F⇒Large-UMP .fun = λ α → ext-HomR P α ⋆PshHom F⇒Large-app
       F⇒Large-UMP .inv = F⇒Large-λ
       F⇒Large-UMP .rightInv α = makePshHomPath $ funExt λ d → funExt $
         P⊗R.ind (λ pr → Q.isSetPsh _ _)
@@ -107,25 +100,15 @@ module _
       F⇒Large-UMP .leftInv α = makePshHomPath $ funExt λ c → funExt λ r → makePshHomPath $ funExt λ d → funExt λ p →
         refl
 
-  -- If we have a functor, we can do better: morphisms "out" of a functor, are just elements at F ⟅ c ⟆
-  F⇒SmallF : (F : Functor C D)
-    → Functor (PresheafCategory D ℓQ) (PresheafCategory C ℓQ)
-  F⇒SmallF = reindPshF
-
-  _F⇒Small_ : (F : Functor C D) (Q : Presheaf D ℓQ) → Presheaf C ℓQ
-  F F⇒Small Q = F⇒SmallF F ⟅ Q ⟆
-
-  private
-    testF⇒Small' : ∀ (F : Functor C D) (Q : Presheaf D ℓQ)
-      → (F F⇒Small Q) ≡ reindPsh F Q
-    testF⇒Small' F Q = refl
+  -- If the profunctor P is representable as a functor F, then the
+  -- right adjoint is a small presheaf: the reindexing by F.
 
   -- By the Yoneda lemma, these two constructions agree when the profunctor is constructed as Yo ∘F F
   module _ (F : Functor C D) (P : Presheaf D ℓP) where
     private
       module P = PresheafNotation P
-    F⇒Small≅F⇒Large : PshIso (F F⇒Small P) ((HomBif D ∘Fr F) F⇒Large P)
-    F⇒Small≅F⇒Large =
+    reindPshF≅F⇒Large : PshIso (reindPsh F P) ((HomBif D ∘Fr F) F⇒Large P)
+    reindPshF≅F⇒Large =
       -- F* P
       reindPshIso F (invPshIso (Yoneda P))
       -- F* □P
@@ -133,10 +116,11 @@ module _
       -- □ (F* P)
 
     module _ (Q : Presheaf C ℓQ) where
-      F⇒Small-UMP : Iso (PshHom Q (F F⇒Small P)) (PshHom (ext (HomBif D ∘Fr F) ⟅ Q ⟆) P)
+      F⇒Small-UMP : Iso (PshHom (ext (HomBif D ∘Fr F) ⟅ Q ⟆) P) (PshHom Q (reindPsh F P))
       F⇒Small-UMP =
-        compIso (postcomp⋆PshHom-Iso F⇒Small≅F⇒Large)
-          (F⇒Large-UMP (compR (HomBif D) F) P Q)
+        compIso
+          (invIso $ F⇒Large-UMP (compR (HomBif D) F) P Q)
+          (postcomp⋆PshHom-Iso $ invPshIso reindPshF≅F⇒Large)
 
   -- In practice, we typically have a functor of presheaves, not a profunctor.
   -- This functor has a right adjoint when it is co-continuous,
@@ -173,23 +157,23 @@ module _
     P-F = FunctorComprehension (P ∘F (CurryBifunctorL $ HomBif C)) P-repr
 
     P⇒Small : Presheaf D ℓQ → Presheaf C ℓQ
-    P⇒Small = P-F F⇒Small_
+    P⇒Small = reindPsh P-F
 
-    module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
-      P⇒Small-UMP : Iso (PshHom R (P⇒Small Q)) (PshHom (P ⟅ R ⟆) Q)
-      -- Bifunctor (D ^op) C (SET ℓD')
-      -- Bifunctor (D ^op) C (SET (ℓP ℓC'))
-      P⇒Small-UMP =
-        -- PshHom R (P ⇒Small Q)
-        compIso (F⇒Small-UMP P-F Q R) $
-        -- (PshHom (ext (YO ∘ F) R) Q)
-        (precomp⋆PshHom-Iso
-          -- P R
-          (P-cocontinuous R ⋆PshIso
-          -- ext (P ∘ Yo) R
-          ext-Iso (FunctorComprehension-Repr (P ∘F CurryBifunctorL (HomBif C)) P-repr) R))
-          -- ext (YO ∘ F) R
-        -- PshHom (P R) Q
+    -- module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
+    --   P⇒Small-UMP : Iso (PshHom R (P⇒Small Q)) (PshHom (P ⟅ R ⟆) Q)
+    --   -- Bifunctor (D ^op) C (SET ℓD')
+    --   -- Bifunctor (D ^op) C (SET (ℓP ℓC'))
+    --   P⇒Small-UMP =
+    --     -- PshHom R (P ⇒Small Q)
+    --     compIso (F⇒Small-UMP P-F Q R) $
+    --     -- (PshHom (ext (YO ∘ F) R) Q)
+    --     (precomp⋆PshHom-Iso
+    --       -- P R
+    --       (P-cocontinuous R ⋆PshIso
+    --       -- ext (P ∘ Yo) R
+    --       ext-Iso (FunctorComprehension-Repr (P ∘F CurryBifunctorL (HomBif C)) P-repr) R))
+    --       -- ext (YO ∘ F) R
+    --     -- PshHom (P R) Q
 
       -- -- The following alternate proof instead needs that (_⇒Large Q) is functorial, but this would require natiso of functors between presheaf categories
       -- P⇒Small-UMP' : Iso (PshHom R (P⇒Small Q)) (PshHom (P ⟅ R ⟆) Q)

@@ -65,6 +65,7 @@ open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
 
 private
   variable
@@ -79,13 +80,23 @@ open Category
 open Functor
 open Functorᴰ
 open NatTrans
+open NatTransᴰ
 open NatIso
+open NatIsoᴰ
 open PshHom
 open PshIso
 
 -- TODO: better name?
 _/_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
 Cᴰ / P = ∫C (Cᴰ ×ᴰ Element P)
+
+_/'_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
+_/'_ {C = C} Cᴰ P = ∫C (EqReindex.reindex Cᴰ (Fst {C = C}{Cᴰ = Element P}) Eq.refl λ _ _ → Eq.refl)
+
+-- The Beck-Chevalley stuff in the universal quantifier lemmas have to
+-- do some annoying shuffling that wouldn't be necessary if we use
+-- _/'_ for everything...any downside to redefining / to be defined
+-- this way and refactoring everything?
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -120,6 +131,7 @@ module _ {C : Category ℓC ℓC'}
   where
   _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'} {P : Presheaf C ℓP}
   where
   private
@@ -147,10 +159,41 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
       (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.retᴰ))))
     }
 
+-- TODO:
+-- 1. /Fⱽ-seq
+-- 2. /Fⱽ-NatIso
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {Fᴰ Fᴰ' : Functorⱽ Cᴰ Dᴰ}
+  {α α' : PshHom P Q}
+  where
+  private
+    module P = PresheafNotation P
+  _/FⱽNI_ : (Fᴰ≅Fᴰ : NatIsoᴰ (idNatIso Id) Fᴰ Fᴰ') (α≡α' : α ≡ α') → NatIso (Fᴰ /Fⱽ α) (Fᴰ' /Fⱽ α')
+  Fᴰ≅Fᴰ /FⱽNI α≡α' = /NatIso ((record { trans = natTrans (λ (x , _ , _) → idTrans {C = C} Id .N-ob x) (λ _ → idTrans Id .N-hom _)
+    ; nIso = λ _ → idCatIso .snd }))
+      (record { transᴰ =
+        record { N-obᴰ = λ _ → Fᴰ≅Fᴰ .transᴰ .N-obᴰ _ ; N-homᴰ = λ _ → Fᴰ≅Fᴰ .transᴰ .N-homᴰ _ }
+        ; nIsoᴰ = λ _ → Fᴰ≅Fᴰ .nIsoᴰ _ })
+      λ (_ , _ , p) → sym (α' .N-hom _ _ _ _) ∙ λ i → α≡α' (~ i) .N-ob _ (P.⋆IdL p i)
+
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+  /FⱽId-Iso : NatIso (Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P}) Id
+  /FⱽId-Iso = /NatIso
+    (record { trans = natTrans (λ (x , _ , _) → idTrans {C = C} Id .N-ob x) (λ _ → idTrans {C = C} Id .N-hom _)
+    ; nIso = λ _ → idCatIso .snd })
+    (record { transᴰ = record { N-obᴰ = λ _ → Cᴰ.idᴰ ; N-homᴰ = λ _ → Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _) }
+    ; nIsoᴰ = λ _ → idᴰCatIsoᴰ Cᴰ .snd })
+    λ _ → P.⋆IdL _
+
   /FⱽId : Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P} ≡ Id
   /FⱽId = Functor≡ (λ _ → refl) (λ f → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) refl)))
 

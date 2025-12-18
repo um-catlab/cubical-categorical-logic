@@ -8,6 +8,9 @@
 module Cubical.Categories.Limits.BinProduct.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
@@ -16,6 +19,7 @@ import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.Cartesian
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
@@ -152,6 +156,7 @@ module BinProductsNotation {C : Category ℓ ℓ'} (bp : BinProducts C) where
 module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith C a) where
   _×a : C .ob → C .ob
   b ×a  = BinProductNotation.vert (bp b)
+  private module C = Category C
   module _ {b : C .ob} where
     open BinProductNotation (bp b) hiding (vert) public
 
@@ -161,6 +166,17 @@ module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith 
   π₁Nat : ×aF ⇒ Id
   π₁Nat .NatTrans.N-ob _ = π₁
   π₁Nat .NatTrans.N-hom _ = ×β₁
+
+  π₁CartNat : CartesianNatTrans ×aF Id
+  π₁CartNat .fst = π₁Nat
+  π₁CartNat .snd {x} {y} f {d} p p₁ p₁f≡pπ₁ =
+    uniqueExists (p₁ ,p (p C.⋆ π₂))
+      ((sym $ ,p-extensionality
+        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₁ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ ×β₁ ⟩⋆⟨ refl ⟩ ∙ (sym p₁f≡pπ₁))
+        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩ ∙ ×β₂))
+       , (sym ×β₁))
+      (λ _ → isProp× (C.isSetHom _ _) (C.isSetHom _ _))
+      λ p' (p≡p'⋆id×f , p₁≡p'π₁) → ,p≡ p₁≡p'π₁ (C.⟨ p≡p'⋆id×f ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩)
 
 private
   variable

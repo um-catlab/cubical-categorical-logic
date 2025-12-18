@@ -108,4 +108,3 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) wh
         (presLRCone-Nat (P .fst) (Q .fst) α)
         (P .snd) (λ c → Q .snd (F-ob F c))
         F⟪-×P⟫≅F⟪-⟫×Q))
-

@@ -1,0 +1,23 @@
+
+
+
+
+What is a discrete fibration as a property of a displayed category?
+
+1. Being equivalent to Element P for some P : C^op \to Set
+
+2. hasPropHoms ∧ hasCartesianLift
+
+   f : x → y and yᴰ : C.ob[ y ] then
+
+   f*yᴰ : C.ob[ x ] and π : Cᴰ.Hom[ f ][ f*yᴰ , yᴰ ]
+
+   s.t. Cᴰ.Hom[ g ⋆⟨ C ⟩ f ][ zᴰ , yᴰ ] → Cᴰ.Hom[ g ][ zᴰ , f*yᴰ ]
+
+   Ty : Categoryᴰ C ∧ hasPropHoms Ty ∧ hasCartesianLifts Ty
+
+   Tm : Categoryᴰ (∫ Ty) ∧ hasPropHoms Tm ∧ hasCartesianLifts Tm
+
+   Given Γ, and A : Ty Γ,
+
+   Tm (Γ, A)

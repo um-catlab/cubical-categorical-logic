@@ -98,6 +98,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       _⇒ⱽPshLarge_ : Presheafᴰ P Cᴰ (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓPᴰ) ℓQᴰ)
       _⇒ⱽPshLarge_ = Pᴰ ⇒PshLarge Qᴰ
 
+    -- TODO: rename: This is not weakening, wkLR∀ is.
     wkPshᴰ : (Q : Presheaf C ℓQ) → Functor (PresheafᴰCategory P Cᴰ ℓPᴰ) (PresheafᴰCategory (P ×Psh Q) Cᴰ ℓPᴰ)
     wkPshᴰ Q = reindPshF (Idᴰ /Fⱽ π₁ P Q)
 
@@ -407,11 +408,11 @@ module _
     _⇒ⱽPshSmall_ : Presheafᴰ P Cᴰ ℓQᴰ
     _⇒ⱽPshSmall_ = reindPsh ×LRⱽPshᴰ Qᴰ
 
-    ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
-      → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
-    ⇒ⱽPshSmall-UMP =
-      compIso (postcomp⋆PshHom-Iso (reindNatIsoPsh ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F Qᴰ))
-              (⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _)
+    -- ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+    --   → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
+    -- ⇒ⱽPshSmall-UMP =
+    --   compIso (postcomp⋆PshHom-Iso (reindNatIsoPsh ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F Qᴰ))
+    --           (⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -481,6 +482,6 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
     ∀PshSmall = reindPsh wkLR∀
 
-    ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
-      → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
-    ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _
+    -- ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+    --   → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
+    -- ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _

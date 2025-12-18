@@ -28,6 +28,12 @@ change-contractum {B = B} ((x₀ , p₀) , contr) (x , x₀≡x) =
   (x , subst B x₀≡x p₀)
   , (λ yq → ΣPathP ((sym x₀≡x) , symP (subst-filler B x₀≡x p₀)) ∙ contr yq)
 
+module _ {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''} where
+  Σ-assoc-IsoR : Iso (Σ[ (a , _) ∈ Σ A C ] B a) (Σ[ a ∈ A ] B a × C a)
+  Σ-assoc-IsoR =
+    compIso Σ-assoc-swap-Iso $
+    Σ-assoc-Iso
+
 FrobeniusReciprocity :
   ∀ (f : A → A') y
   → Iso (Σ[ (x , _) ∈ fiber f y ] (B x) × B' (f x))

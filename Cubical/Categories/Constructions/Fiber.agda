@@ -35,6 +35,13 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     module R = Reasoning Cᴰ
   open Cᴰ public
 
+  _∫≡_ :
+    ∀ {x y}{f f' : C [ x , y ]}{xᴰ yᴰ}
+    → Cᴰ [ f ][ xᴰ , yᴰ ]
+    → Cᴰ [ f' ][ xᴰ , yᴰ ]
+    → Type _
+  fᴰ ∫≡ f'ᴰ = Path R.Hom[ _ , _ ] (_ , fᴰ) (_ , f'ᴰ)
+
   v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
   v[ x ] .Category.ob = ob[ x ]
   v[ x ] .Category.Hom[_,_] = Hom[ C.id ][_,_]

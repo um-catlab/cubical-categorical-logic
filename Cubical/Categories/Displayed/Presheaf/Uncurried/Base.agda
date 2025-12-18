@@ -41,7 +41,9 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
@@ -104,7 +106,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
   where
   _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHet F P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
-  Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)
+  Fᴰ /Fᴰ α = improveF-hom (∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)) λ _ → _ , refl
+
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}{Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf E ℓR}
@@ -129,8 +132,10 @@ module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   where
-  _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
-  Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+  module _ (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) where
+    _/Fⱽ_ :  Functor (Cᴰ / P) (Dᴰ / Q)
+    -- experiment: does this help?
+    _/Fⱽ_ = improveF-hom (Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)) (λ _ → _ , refl)
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'} {P : Presheaf C ℓP}
   where
@@ -138,64 +143,83 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
     module Cᴰ = Fibers Cᴰ
     module P = PresheafNotation P
   -- TODO: generalize to ×ᴰ
-  /NatTrans : {F G : Functor D (Cᴰ / P)}
-    → (α : NatTrans (Fst ∘F F) (Fst ∘F G))
-    → (αᴰ : NatTransᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
-    → (αP : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd )
-    → NatTrans F G
-  /NatTrans α αᴰ αP .N-ob x = (α .N-ob x) , (αᴰ .NatTransᴰ.N-obᴰ tt) , (αP x)
-  /NatTrans α αᴰ αP .N-hom {x}{y} f = ΣPathP ((N-hom α f) , (ΣPathPProp (λ _ → P.isSetPsh _ _)
-    (αᴰ .NatTransᴰ.N-homᴰ tt)))
+  module _ {F G : Functor D (Cᴰ / P)}
+    (α : NatTrans (Fst ∘F F) (Fst ∘F G))
+    (αᴰ : NatTransᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
+    (αP : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd)
+    where
+    opaque
+      αP' : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd
+      αP' = αP
 
-  /NatIso : {F G : Functor D (Cᴰ / P)}
-    → (α : NatIso (Fst ∘F F) (Fst ∘F G))
-    → (αᴰ : NatIsoᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
-    → (αP : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd )
-    → NatIso F G
-  /NatIso α αᴰ αP = record { trans = /NatTrans (α .trans) (αᴰ .NatIsoᴰ.transᴰ) αP
-    ; nIso = λ x → isiso ((α .nIso x .isIso.inv) , ((αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ)
-      , ((P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩) ∙ P.⋆IdL _))
-      (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.secᴰ))))
-      (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.retᴰ))))
-    }
+    /NatTrans : NatTrans F G
+    /NatTrans = improveNatTrans (natTrans
+      (λ x → (N-ob α x) , ((αᴰ .N-obᴰ tt) , (αP' x)))
+      (λ f → ΣPathP ((N-hom α f) , ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .N-homᴰ tt)))) (_ , refl)
 
--- TODO:
--- 1. /Fⱽ-seq
--- 2. /Fⱽ-NatIso
+  module _ {F G : Functor D (Cᴰ / P)}
+    (α : NatIso (Fst ∘F F) (Fst ∘F G))
+    (αᴰ : NatIsoᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
+    (αP : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd)
+    where
+    opaque
+      αP'' : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd
+      αP'' = αP
 
-module _ {C : Category ℓC ℓC'}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
-  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-  {Fᴰ Fᴰ' : Functorⱽ Cᴰ Dᴰ}
-  {α α' : PshHom P Q}
-  where
-  private
-    module P = PresheafNotation P
-  _/FⱽNI_ : (Fᴰ≅Fᴰ : NatIsoᴰ (idNatIso Id) Fᴰ Fᴰ') (α≡α' : α ≡ α') → NatIso (Fᴰ /Fⱽ α) (Fᴰ' /Fⱽ α')
-  Fᴰ≅Fᴰ /FⱽNI α≡α' = /NatIso ((record { trans = natTrans (λ (x , _ , _) → idTrans {C = C} Id .N-ob x) (λ _ → idTrans Id .N-hom _)
-    ; nIso = λ _ → idCatIso .snd }))
-      (record { transᴰ =
-        record { N-obᴰ = λ _ → Fᴰ≅Fᴰ .transᴰ .N-obᴰ _ ; N-homᴰ = λ _ → Fᴰ≅Fᴰ .transᴰ .N-homᴰ _ }
-        ; nIsoᴰ = λ _ → Fᴰ≅Fᴰ .nIsoᴰ _ })
-      λ (_ , _ , p) → sym (α' .N-hom _ _ _ _) ∙ λ i → α≡α' (~ i) .N-ob _ (P.⋆IdL p i)
+      /NI-lem : ∀ x
+        → P .F-hom (α .nIso x .isIso.inv) (F .F-ob x .snd .snd) ≡ G .F-ob x .snd .snd
+      /NI-lem x = (P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩ ∙ P.⋆IdL _
 
-module _ {C : Category ℓC ℓC'}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  where
-  private
-    module Cᴰ = Fibers Cᴰ
-    module P = PresheafNotation P
-  /FⱽId-Iso : NatIso (Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P}) Id
-  /FⱽId-Iso = /NatIso
-    (record { trans = natTrans (λ (x , _ , _) → idTrans {C = C} Id .N-ob x) (λ _ → idTrans {C = C} Id .N-hom _)
-    ; nIso = λ _ → idCatIso .snd })
-    (record { transᴰ = record { N-obᴰ = λ _ → Cᴰ.idᴰ ; N-homᴰ = λ _ → Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _) }
-    ; nIsoᴰ = λ _ → idᴰCatIsoᴰ Cᴰ .snd })
-    λ _ → P.⋆IdL _
+    /NatIso : NatIso F G
+    /NatIso = improveNatIso
+      (
+      record { trans = /NatTrans (α .trans) (αᴰ .transᴰ) αP''
+      ; nIso = λ x →
+        isiso ( (α .nIso x .isIso.inv)
+              , αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ
+              , /NI-lem x)
+        (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ))))
+        (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))) }
+      )
+      (_ , refl) (_ , refl)
 
-  /FⱽId : Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P} ≡ Id
-  /FⱽId = Functor≡ (λ _ → refl) (λ f → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) refl)))
+-- -- TODO:
+-- -- 1. /Fⱽ-seq
+-- -- 2. /Fⱽ-NatIso
+
+-- module _ {C : Category ℓC ℓC'}
+--   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+--   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+--   {Fᴰ Fᴰ' : Functorⱽ Cᴰ Dᴰ}
+--   {α α' : PshHom P Q}
+--   where
+--   private
+--     module P = PresheafNotation P
+--   _/FⱽNI_ : (Fᴰ≅Fᴰ : NatIsoᴰ (idNatIso Id) Fᴰ Fᴰ') (α≡α' : α ≡ α') → NatIso (Fᴰ /Fⱽ α) (Fᴰ' /Fⱽ α')
+--   Fᴰ≅Fᴰ /FⱽNI α≡α' = /NatIso ((record { trans = natTrans (λ (x , _ , _) → idTrans {C = C} Id .N-ob x) (λ _ → idTrans Id .N-hom _)
+--     ; nIso = λ _ → idCatIso .snd }))
+--       (record { transᴰ =
+--         record { N-obᴰ = λ _ → Fᴰ≅Fᴰ .transᴰ .N-obᴰ _ ; N-homᴰ = λ _ → Fᴰ≅Fᴰ .transᴰ .N-homᴰ _ }
+--         ; nIsoᴰ = λ _ → Fᴰ≅Fᴰ .nIsoᴰ _ })
+--       λ (_ , _ , p) → sym (α' .N-hom _ _ _ _) ∙ λ i → α≡α' (~ i) .N-ob _ (P.⋆IdL p i)
+
+-- module _ {C : Category ℓC ℓC'}
+--   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {P : Presheaf C ℓP}
+--   where
+--   private
+--     module Cᴰ = Fibers Cᴰ
+--     module P = PresheafNotation P
+--   /FⱽId-Iso : NatIso (Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P}) Id
+--   /FⱽId-Iso = /NatIso
+--     (record { trans = natTrans (λ (x , _ , _) → idTrans {C = C} Id .N-ob x) (λ _ → idTrans {C = C} Id .N-hom _)
+--     ; nIso = λ _ → idCatIso .snd })
+--     (record { transᴰ = record { N-obᴰ = λ _ → Cᴰ.idᴰ ; N-homᴰ = λ _ → Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _) }
+--     ; nIsoᴰ = λ _ → idᴰCatIsoᴰ Cᴰ .snd })
+--     λ _ → P.⋆IdL _
+
+--   /FⱽId : Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P} ≡ Id
+--   /FⱽId = Functor≡ (λ _ → refl) (λ f → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) refl)))
 
 -- Interestingly, this one is at a lower universe level than Curried.Presheafᴰ
 -- Use modules to distinguish this from Curried.Presheafᴰ

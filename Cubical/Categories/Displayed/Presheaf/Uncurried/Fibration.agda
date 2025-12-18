@@ -72,10 +72,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     πⱽ = Cᴰ.idᴰ ⋆πⱽ
 
     opaque
-      -- introᴰ-natural : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
-      --   {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]}
-      --   → Path Cᴰ.Hom[ _ , _ ] (_ , introᴰ {!!}) (_ , {!!})
-      -- introᴰ-natural = {!invPshIso (f*yᴰ .snd) .trans .N-hom _ _ _ _!}
 
       congP-introᴰ :
         ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g'}
@@ -93,13 +89,23 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           → (g≡g' : g ≡ g')
           → (gfᴰ≡g'fᴰ :
             Path Cᴰ.Hom[ _ , _ ]
-              (_ , gfᴰ)
-              (_ , g'fᴰ))
+              ((g C.⋆ f) , gfᴰ)
+              ((g' C.⋆ f) , g'fᴰ))
           → Path Cᴰ.Hom[ _ , _ ]
-              (_ , introᴰ gfᴰ)
-              (_ , introᴰ g'fᴰ)
+              (g , introᴰ gfᴰ)
+              (g' , introᴰ g'fᴰ)
       cong-introᴰ g≡g' gfᴰ≡g'fᴰ =
         ΣPathP (g≡g' , (congP-introᴰ (Cᴰ.rectify $ Cᴰ.≡out gfᴰ≡g'fᴰ)))
+      -- introᴰ-natural : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}{h}{g}
+      --   {hᴰ : Cᴰ [ h ][ Δᴰ , Γᴰ ]}
+      --   {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]}
+      --   → Path Cᴰ.Hom[ _ , _ ] (_ , introᴰ ({!hᴰ!} Cᴰ.⋆ᴰ {!!})) (_ , {!!})
+      -- introᴰ-natural =
+      --   {!!}
+        -- cong-introᴰ {!!} ({!!} ∙ Cᴰ.reind-filler _ _)
+        -- ∙ (Cᴰ.≡in $ invPshIso (f*yᴰ .snd) .trans .N-hom _ _ _ _)
+        -- ∙ {!!}
+
 
       ⟨_⟩⋆πⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g'}
         → {gᴰ : Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]}
@@ -162,6 +168,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (g' , g'ᴰ)
       extensionalityᴰ g≡g' gᴰπⱽ≡g'ᴰπⱽ = ηᴰ _ ∙ cong-introᴰ g≡g' gᴰπⱽ≡g'ᴰπⱽ ∙ (sym $ ηᴰ _)
 
+      extensionalityᴰin : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g'}
+        → {gᴰ : Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]}
+        → {g'ᴰ : Cᴰ [ g' ][ Γᴰ , f*yᴰ .fst ]}
+        → (g≡g' : g ≡ g')
+        → Path Cᴰ.Hom[ _ , _ ]
+            (g C.⋆ f , gᴰ ⋆πⱽ)
+            (g' C.⋆ f , g'ᴰ ⋆πⱽ)
+        → gᴰ Cᴰ.≡[ g≡g' ] g'ᴰ
+      extensionalityᴰin g≡g' gᴰπⱽ≡g'ᴰπⱽ = Cᴰ.rectify $ Cᴰ.≡out $ extensionalityᴰ g≡g' gᴰπⱽ≡g'ᴰπⱽ
+
       introᴰ≡ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
         → {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]}
         → {gᴰ : Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]}
@@ -199,23 +215,22 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   isFibration = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibrationPshᴰ (C [-, x ]) Cᴰ (Cᴰ [-][-, xᴰ ])
 
 
-  -- what's the most general functoriality theorem we can prove?
-  --
-
-  -- wkFᴰ-homᴰ : {x y : C.ob} {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]}
-  --   {yᴰ : Cᴰ.ob[ y ]} →
-  --   Cᴰ [ f ][ xᴰ , yᴰ ] →
-  --   Cᴰ [ F .F-hom f ][ π* x xᴰ .fst , π* y yᴰ .fst ]
-
-  -- this one is based on a naturality square ofc.
-  -- can we do based on *any* square?
-
+  -- Given a commuting square like this in C
   --    f
   -- w --> x
   -- | g   | h
   -- \/    \/
   -- y --> z
   --    k
+  --
+  -- we can fill this horn and get a commuting square in C over the above
+  --
+  --      sq-filler kᴰ
+  -- g*yᴰ -----------> h*zᴰ
+  -- | π                | π
+  -- \/                 \/
+  -- yᴰ   -----------> zᴰ
+  --          kᴰ
   module _ {w x y z}{f : C [ w , x ]}{g : C [ w , y ]}{h : C [ x , z ]}{k : C [ y , z ]}
     {yᴰ : Cᴰ.ob[ y ]}
     {zᴰ : Cᴰ.ob[ z ]}
@@ -234,6 +249,26 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     cartLift-sq-filler : (commutes : g C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*zᴰ .fst ]
     cartLift-sq-filler commutes = cartLift-sq-filler-gen (C.⟨ C.⋆IdL g ⟩⋆⟨ refl ⟩ ∙ commutes)
 
+  module _ {w x y z}{f f' : C [ w , x ]}{g : C [ w , y ]}{h : C [ x , z ]}{k k' : C [ y , z ]}
+    {yᴰ : Cᴰ.ob[ y ]}
+    {zᴰ : Cᴰ.ob[ z ]}
+    (g*yᴰ : CartesianLift g yᴰ)
+    (h*zᴰ : CartesianLift h zᴰ)
+    (kᴰ : Cᴰ [ k ][ yᴰ , zᴰ ])
+    (k'ᴰ : Cᴰ [ k' ][ yᴰ , zᴰ ])
+    (commutes : g C.⋆ k ≡ f C.⋆ h)
+    (commutes' : g C.⋆ k' ≡ f' C.⋆ h)
+    (f≡f' : f ≡ f')
+    (kᴰ≡k'ᴰ : kᴰ Cᴰ.∫≡ k'ᴰ)
+    where
+    private
+      module g*yᴰ = CartesianLiftNotation g*yᴰ
+      module h*zᴰ = CartesianLiftNotation h*zᴰ
+    opaque
+      cartLift-sq-filler-cong :
+        cartLift-sq-filler g*yᴰ h*zᴰ kᴰ commutes
+        Cᴰ.∫≡ cartLift-sq-filler g*yᴰ h*zᴰ k'ᴰ commutes'
+      cartLift-sq-filler-cong = h*zᴰ.cong-introᴰ f≡f' $ Cᴰ.cong-reind _ _ Cᴰ.⟨⟩⋆⟨ kᴰ≡k'ᴰ ⟩
   --    f
   -- w --> x
   -- | g   | h
@@ -364,6 +399,20 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
       sq-filler : (commutes : g C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g * yᴰ , h * zᴰ ]
       sq-filler = cartLift-sq-filler (cartLifts yᴰ w g) (cartLifts zᴰ x h) kᴰ
+    module _ {w x y z}{f f' : C [ w , x ]}{g : C [ w , y ]}{h : C [ x , z ]}{k k' : C [ y , z ]}
+      {yᴰ : Cᴰ.ob[ y ]}
+      {zᴰ : Cᴰ.ob[ z ]}
+      (kᴰ : Cᴰ [ k ][ yᴰ , zᴰ ])
+      (k'ᴰ : Cᴰ [ k' ][ yᴰ , zᴰ ])
+      (commutes : g C.⋆ k ≡ f C.⋆ h)
+      (commutes' : g C.⋆ k' ≡ f' C.⋆ h)
+      (f≡f' : f ≡ f')
+      (kᴰ≡k'ᴰ : kᴰ Cᴰ.∫≡ k'ᴰ)
+      where
+      opaque
+        sq-filler-cong : sq-filler kᴰ commutes Cᴰ.∫≡ sq-filler k'ᴰ commutes'
+        sq-filler-cong = cartLift-sq-filler-cong (cartLifts yᴰ w g) (cartLifts zᴰ x h) kᴰ k'ᴰ commutes commutes' f≡f' kᴰ≡k'ᴰ
+
     module _ {x y}{g : C [ x , y ]}
       {yᴰ : Cᴰ.ob[ y ]}
       where
@@ -422,3 +471,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             ((f C.⋆ f') , sq-filler-gen (kᴰ Cᴰ.⋆ᴰ k'ᴰ) _)
       sq-collapse =
         cartLift-sq-collapse (cartLifts yᴰ w g) (cartLifts zᴰ x h) (cartLifts z'ᴰ x' h') kᴰ k'ᴰ
+
+    -- Say in addition to this
+    --    f     f'
+    -- w --> x --> x'
+    -- | g   | h   | h'
+    -- \/    \/    \/
+    -- y --> z --> z'
+    --    k     k'
+    module _ where
+      -- sq-filler-comm
+      --   → Path Cᴰ.Hom[ _ , _ ]
+      --       (? , sq-filler-gen kᴰ comm1 Cᴰ.⋆ᴰ sq-filler-gen k'ᴰ comm2)
+      --       (? , sq-filler-gen kᴰ comm1 Cᴰ.⋆ᴰ sq-filler-gen k'ᴰ comm2)

@@ -23,11 +23,11 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.StructureOver
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.HLevels.More
 
 private
   variable
@@ -70,7 +70,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (α : PshHet F P Q)
   where
   PshHet→ElementFunctorᴰ : Functorᴰ F (Element P) (Element Q)
-  PshHet→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsElement Q)
+  PshHet→ElementFunctorᴰ = mkOpaquePropHomsFunctor (hasPropHomsElement Q)
     (α .PshHom.N-ob _)
     λ f⋆p≡p' → (sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _) f⋆p≡p'
 
@@ -95,17 +95,19 @@ module _
   reindPsh-intro : ∀ {P : Presheaf C ℓP}
     → (Functorᴰ F (Element P) (Element Q))
     → (Functorⱽ (Element P) (Element (reindPsh F Q)))
-  reindPsh-intro {P = P} Fᴰ = mkPropHomsFunctor (hasPropHomsElement $ reindPsh F Q)
+  reindPsh-intro {P = P} Fᴰ = mkOpaquePropHomsFunctor (hasPropHomsElement $ reindPsh F Q)
     (Fᴰ .F-obᴰ)
     (Fᴰ .F-homᴰ)
 
   reindPsh-π : Functorᴰ F (Element (reindPsh F Q)) (Element Q)
-  reindPsh-π = mkPropHomsFunctor (hasPropHomsElement Q) (λ {x} z → z) λ {x} {y} {f} {xᴰ} {yᴰ} z → z
+  reindPsh-π = mkOpaquePropHomsFunctor (hasPropHomsElement Q) (λ {x} z → z) λ {x} {y} {f} {xᴰ} {yᴰ} z → z
 
   reindPsh-UMPⱽ : ∀ {P : Presheaf C ℓP}
     → Iso (Functorⱽ (Element P) (Element (reindPsh F Q)))
           (Functorᴰ F (Element P) (Element Q))
   reindPsh-UMPⱽ .fun = reindPsh-π ∘Fᴰⱽ_
   reindPsh-UMPⱽ {P = P} .inv = reindPsh-intro {P = P}
-  reindPsh-UMPⱽ .rightInv Fⱽ = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
-  reindPsh-UMPⱽ .leftInv Fᴰ = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
+  reindPsh-UMPⱽ .rightInv Fⱽ = Functorᴰ≡ (λ _ → refl)
+    (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)
+  reindPsh-UMPⱽ .leftInv Fᴰ = Functorᴰ≡ (λ _ → refl)
+    (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)

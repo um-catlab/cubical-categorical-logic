@@ -91,7 +91,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     -- reindPsh ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ (reindex Dᴰ F) (LRⱽReindex Fxᴰ)) $ reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fyᴰ ]
     ⋆PshIsoⱽ reindPshIso (×LRⱽPshᴰ (LRⱽReindex F (LRⱽObᴰ→LRⱽ Dᴰ Fxᴰ))) (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fyᴰ))
     -- reindPsh ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ (reindex Dᴰ F) (LRⱽReindex Fxᴰ)) $ reindex Dᴰ F [-][-, Fyᴰ ]
-    ⋆PshIsoⱽ reindNatIsoPsh (×LRⱽPshᴰ-Iso (LRⱽReindex F (LRⱽObᴰ→LRⱽ Dᴰ Fxᴰ)) (LRⱽObᴰ→LRⱽ (reindex Dᴰ F) (LRⱽObᴰReindex F Fxᴰ)) (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x (LRⱽObᴰReindex F Fxᴰ .fst)))) (reindex Dᴰ F [-][-, Fyᴰ ]) 
+    ⋆PshIsoⱽ reindNatIsoPsh (×LRⱽPshᴰ-Iso (LRⱽReindex F (LRⱽObᴰ→LRⱽ Dᴰ Fxᴰ)) (LRⱽObᴰ→LRⱽ (reindex Dᴰ F) (LRⱽObᴰReindex F Fxᴰ)) (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x (LRⱽObᴰReindex F Fxᴰ .fst)))) (reindex Dᴰ F [-][-, Fyᴰ ])
     -- reindPsh ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ (reindex Dᴰ F) (LRⱽReindex Fxᴰ)) $ (reindex Dᴰ F [-][-, Fyᴰ ])
 
   ExponentialsⱽReindex :
@@ -130,9 +130,9 @@ module _
       )
     -- reindPsh (π / F) $ reindPsh wk-Yo(FA) $ reindPsh FΓ×FA-intro $ reindPsh FΓ×FA≅F(Γ×A) $ Dᴰ [-][-, Aᴰ ]
     ⋆PshIsoⱽ {!!}
-    -- 
+    --
     ⋆PshIsoⱽ {!!}
-    -- 
+    --
     -- ⋆PshIsoⱽ (invPshIso $ reindPsh∘F≅ _ _ (reindPsh (reindex-π-/ (Dᴰ .fst) (F .fst) (vertex (C.bp (Γ , A))))
     --                                        (Dᴰ .fst [-][-, Aᴰ ])))
     -- reindPsh wk-Yo(A) $ reindPsh Γ×A-intro $ reind (π / F) $ Dᴰ [-][-, Aᴰ ]

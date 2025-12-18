@@ -3,8 +3,8 @@
   Definition
 
        D
-       | 
-       \/ 
+       |
+       \/
   C -> E
 
 -}
@@ -56,6 +56,12 @@ module _ (C : Category ℓ ℓ') where
     open Cospan cospan
     open Pullback pb
 
+    pullbackExtensionality : ∀ {Γ}{f g : C [ Γ , pbOb ]}
+      → (f C.⋆ pbPr₁) ≡ (g C.⋆ pbPr₁)
+      → (f C.⋆ pbPr₂) ≡ (g C.⋆ pbPr₂)
+      → f ≡ g
+    pullbackExtensionality f1≡g1 f2≡g2 = (sym $ pullbackArrowUnique {H = C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ pbCommutes ⟩ ∙ sym (C.⋆Assoc _ _ _)} refl refl)
+      ∙ pullbackArrowUnique f1≡g1 f2≡g2
     -- TODO: this is a natural iso proving that Yoneda preserves
     -- pullbacks.
     isPullback→ΣIso : ∀ Γ (f : C [ Γ , l ])

@@ -51,7 +51,7 @@ open isIso
 -- π' : F' ⇒ D on D
 -- G : C → D
 -- swap : GF≅F'G
--- swap ⋆ π' ≡ G ⟪ π ⟫ 
+-- swap ⋆ π' ≡ G ⟪ π ⟫
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C C)
@@ -76,7 +76,7 @@ module _
     π'-Quant = (π' , (π'Cart , λ x yᴰ → cartLifts yᴰ (F' ⟅ x ⟆) (π' ⟦ x ⟧)))
 
   module _ {Γ : C.ob} where
-    -- 
+    --
     UniversalQuantifier-commute-mate : NatIso
       (reindex-π-/ Dᴰ G Γ ∘F ((Idᴰ /Fⱽ yoRec (C [-, Γ ]) (π ⟦ Γ ⟧))))
       (((Idᴰ /Fⱽ yoRec (D [-, G ⟅ Γ ⟆ ]) (π' ⟦ G ⟅ Γ ⟆ ⟧)))
@@ -95,7 +95,7 @@ module _
       ((wkF π'-Quant (G ⟅ Γ ⟆)) ∘F reindex-π-/ Dᴰ G Γ)
       -- ≅ (Id , Id , swap Γ) ∘F (G , Id , G)  ∘F (F , π* , F)
       (((Idᴰ /Fⱽ yoRec (D [-, F' ⟅ G ⟅ Γ ⟆ ⟆ ]) (swap .trans ⟦ Γ ⟧)) ∘F reindex-π-/ Dᴰ G (F ⟅ Γ ⟆)) ∘F wkF π-Quant Γ)
-    UniversalQuantifier-commute-lemma' = symNatIso 
+    UniversalQuantifier-commute-lemma' = symNatIso
       (record { trans =
         improveNatTrans (Mate {!!} (symNatIso UniversalQuantifier-commute-mate .trans) {!!})
           {!!}
@@ -157,14 +157,14 @@ module _
   --           -- Dᴰ.⟨⟩⋆⟨ cartLifts.tri-filler≡sq-filler ⟩
   --           -- ∙ cartLifts.sq-collapse δᴰ Dᴰ.idᴰ
   --           -- ∙ {!!}
-  --           -- ∙ {!!} -- 
+  --           -- ∙ {!!} --
   --           --     -- {!!} -- (cartLifts Θᴰ (F' ⟅ G ⟅ Θ ⟆ ⟆) (π' ⟦ G ⟅ Θ ⟆ ⟧))
   --           --     -- {!!} -- (cartLifts Θᴰ (G ⟅ F ⟅ Θ ⟆ ⟆) (G ⟪ π ⟦ Θ ⟧ ⟫))
   --           --     -- {!cartLifts ? ? ?!}
   --           --     -- {!!}
   --           --     -- {!!})
   --           -- ∙ Dᴰ.⟨ sym $ cartLifts.tri-filler≡sq-filler ⟩⋆⟨⟩
-                                  
+
   --                                 -- Dᴰ.rectify $ Dᴰ.≡out $
   --                                 -- -- cartLifts.introᴰ (Dᴰ.reind _ ?) ⋆ᴰ cartLifts.introᴰ (Dᴰ.reind _ ?)
   --                                 -- {!!}

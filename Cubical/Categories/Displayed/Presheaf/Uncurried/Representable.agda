@@ -129,7 +129,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
 --     module Cᴰ = Fibers Cᴰ
 --     module Pᴰ = PresheafᴰNotation Cᴰ (C [-, x ]) Pᴰ
 
-  -- introᴰ : 
+  -- introᴰ :
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

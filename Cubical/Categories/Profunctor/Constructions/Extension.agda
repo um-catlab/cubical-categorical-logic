@@ -68,7 +68,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
     λ d d' f → P⊗Q.ind (λ _ → P⊗R.isSet⊗ _ _) (λ _ _ → refl)
     where
       module P⊗Q = ext-⊗ P Q
-      module P⊗R = ext-⊗ P R    
+      module P⊗R = ext-⊗ P R
 
   ext-HomL : ∀
     {P : D o-[ ℓP ]-* C}

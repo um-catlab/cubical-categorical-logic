@@ -529,7 +529,7 @@ module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} w
     opaque
       α'-N-hom-ty : PshHom-N-hom-ty P Q (α' .fst)
       α'-N-hom-ty = subst (PshHom-N-hom-ty P Q) (α' .snd) (α .N-hom)
-    
+
     improve-PshHom : PshHom P Q
     improve-PshHom = pshhom (α' .fst) α'-N-hom-ty
 

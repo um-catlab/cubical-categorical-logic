@@ -48,15 +48,16 @@ module _
   CartesianNatTrans : (F G : Functor C D) → Type _
   CartesianNatTrans F G = Σ (NatTrans F G) isCartesian
 
-  module _ {F G : Functor C D} ((α , α-cart) : CartesianNatTrans F G) {x y} (f : C [ x , y ]) where
-    CartesianNatTrans→PBSq : Pullback D (cospan (F ⟅ y ⟆) (G ⟅ y ⟆) (G ⟅ x ⟆) (α ⟦ y ⟧) (G ⟪ f ⟫))
-    CartesianNatTrans→PBSq = record
+  module _ {F G : Functor C D} ((α , α-cart) : CartesianNatTrans F G)  where
+    CartesianNatTrans→PBSq : ∀ {x y} (f : C [ x , y ]) → Pullback D (cospan (F ⟅ y ⟆) (G ⟅ y ⟆) (G ⟅ x ⟆) (α ⟦ y ⟧) (G ⟪ f ⟫))
+    CartesianNatTrans→PBSq {x}{y} f = record
                               { pbOb = F ⟅ x ⟆
                               ; pbPr₁ = F ⟪ f ⟫
                               ; pbPr₂ = α ⟦ x ⟧
                               ; pbCommutes = α .N-hom f
                               ; univProp = α-cart f
                               }
+    module CartNatTransPBs {x y} (f : C [ x , y ]) = Pullback (CartesianNatTrans→PBSq f)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{F : Functor C C}{F' : Functor D D}
   (G : Functor C D)

@@ -249,7 +249,7 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
 
 -- -- The "ordinary" Universal Quantifier
 
-module _ {C : Category ℓC ℓC'} {F : Functor C C} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
@@ -261,17 +261,17 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} (Cᴰ : Categoryᴰ C ℓC�
     wkASpec Γ = RightAdjointProf (Idᴰ /Fⱽ yoRec (C [-, Γ ]) -×A.π₁)
 
     module _ (π* : ∀ Γ → Quadrable Cᴰ (-×A.π₁ {b = Γ})) where
+      π₁Quant : QuantTrans -×A.×aF Cᴰ
+      π₁Quant = -×A.π₁Nat , (-×A.π₁CartNat .snd) , π*
+
       wkA : ∀ Γ → Functor (Cᴰ / (C [-, Γ ])) (Cᴰ / (C [-, Γ -×A.×a ]))
-      wkA Γ = wkF {F = BinProductWithF C -×A}{Cᴰ = Cᴰ}
-        (-×A.π₁Nat , ((-×A.π₁CartNat .snd) , π*))
-        Γ
+      wkA Γ = wkF {F = BinProductWithF C -×A}{Cᴰ = Cᴰ} π₁Quant Γ
 
       ∀Pshⱽ : ∀ {Γ} → Cᴰ.ob[ Γ -×A.×a ] → Presheafⱽ Γ Cᴰ _
       ∀Pshⱽ {Γ = Γ} Aᴰ = reindPsh (wkA Γ) (Cᴰ [-][-, Aᴰ ])
 
       UniversalQuantifier : ∀ {Γ} → Cᴰ.ob[ Γ -×A.×a ] → Type _
-      UniversalQuantifier Aᴰ =
-        Representableⱽ Cᴰ _ (reindPsh (wkA _) (Cᴰ [-][-, Aᴰ ]))
+      UniversalQuantifier = ∀FOb π₁Quant
 
   module _ (bp : BinProducts C) (isFib : isFibration Cᴰ) where
     private

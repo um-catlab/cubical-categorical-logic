@@ -8,8 +8,9 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
 private
   variable
@@ -21,7 +22,6 @@ ClosedCategoryⱽ CC ℓCᴰ ℓCᴰ' =
   Σ[ cartLifts ∈ isFibration Cᴰ ]
   Σ[ lrⱽ ∈ AllLRⱽ Cᴰ ]
   Σ[ expⱽ ∈ Exponentialsⱽ Cᴰ lrⱽ ]
-  {!Universal!}
-  -- UniversalQuantifiers Cᴰ bp (BinProducts+isFibration→AllLR∀ Cᴰ bp cartLifts)
+  UniversalQuantifiers Cᴰ bp cartLifts
   where
     open CartesianCategory CC

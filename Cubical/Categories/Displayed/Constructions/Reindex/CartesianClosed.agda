@@ -100,55 +100,16 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     → Exponentialsⱽ (reindex Dᴰ F) (AllLRⱽReindex F allLRⱽ)
   ExponentialsⱽReindex allLRⱽ expsⱽ xᴰ yᴰ = reindexExponentialⱽ (xᴰ , allLRⱽ xᴰ) yᴰ (expsⱽ xᴰ yᴰ)
 
-module _
-  {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
-  (Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ') (F : CartesianFunctor CC (CD .CartesianCategory.C))
-  where
-  private
-    module C = CartesianCategory CC
-    module D = CartesianCategory CD
-    module Dᴰ = Fibers (Dᴰ .fst)
-  open UniversalElement
-  -- TODO: cleanup
-  UniversalQuantifierReindex :
-    ∀ {A Γ} (Aᴰ : Dᴰ.ob[ (F .fst) ⟅ C.bp (Γ , A) .vertex ⟆ ])
-    → UniversalQuantifier (Dᴰ .fst) ((F .fst) ⟅ A ⟆) (λ c → D.bp (c , F-ob (F .fst) A))
-        (BinProducts+isFibration→AllLR∀ (Dᴰ .fst) D.bp (Dᴰ .snd .fst) (F-ob (F .fst) A))
-        ((Dᴰ .snd .fst) Aᴰ (D.bp ((F .fst) ⟅ Γ ⟆ , F-ob (F .fst) A) .vertex)
-          (F .snd Γ A (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .vertex)
-            .equiv-proof (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .element) .fst .fst) .fst)
-    → UniversalQuantifier (reindex (Dᴰ .fst) (F .fst)) A (λ c → C.bp (c , A))
-      (BinProducts+isFibration→AllLR∀ (reindex (Dᴰ .fst) (F .fst)) C.bp (isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst)) A)
-      Aᴰ
-  UniversalQuantifierReindex {A} {Γ} Aᴰ ∀Aᴰ = ∀Aᴰ .fst ,
-    -- reindex Dᴰ F [-][-, ∀Aᴰ ]
-    reindexRepresentableIsoⱽ (Dᴰ .fst) (F .fst) Γ (∀Aᴰ .fst)
-    -- reindPsh (π / F) $ Dᴰ [-][-, ∀Aᴰ ]
-    ⋆PshIsoⱽ reindPshIso (reindex-π-/ (Dᴰ .fst) (F .fst) Γ)
-      (∀Aᴰ .snd
-      ⋆PshIsoⱽ reindPshIso _ (reindPshIso _ (Dᴰ .snd .fst Aᴰ _ _ .snd))
-      )
-    -- reindPsh (π / F) $ reindPsh wk-Yo(FA) $ reindPsh FΓ×FA-intro $ reindPsh FΓ×FA≅F(Γ×A) $ Dᴰ [-][-, Aᴰ ]
-    ⋆PshIsoⱽ {!!}
-    --
-    ⋆PshIsoⱽ {!!}
-    --
-    -- ⋆PshIsoⱽ (invPshIso $ reindPsh∘F≅ _ _ (reindPsh (reindex-π-/ (Dᴰ .fst) (F .fst) (vertex (C.bp (Γ , A))))
-    --                                        (Dᴰ .fst [-][-, Aᴰ ])))
-    -- reindPsh wk-Yo(A) $ reindPsh Γ×A-intro $ reind (π / F) $ Dᴰ [-][-, Aᴰ ]
-    -- ⋆PshIsoⱽ (reindPshIso _ $ reindPshIso _ $ invPshIso $ reindexRepresentableIsoⱽ (Dᴰ .fst) (F .fst) (vertex (C.bp (Γ , A))) Aᴰ)
-    -- reindPsh wk-Yo(A) $ reindPsh Γ×A-intro $ reindex Dᴰ F [-][-, Aᴰ ]
-
-  CCCⱽReindex : ClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
-  CCCⱽReindex =
-    reindex (Dᴰ .fst) (F .fst)
-    , isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst)
-    , (AllLRⱽReindex (F .fst) (Dᴰ .snd .snd .fst))
-    , (ExponentialsⱽReindex (F .fst) (Dᴰ .snd .snd .fst) (Dᴰ .snd .snd .snd .fst))
-    -- TODO: make the following thing readable lol
-    , λ Γ A Aᴰ → UniversalQuantifierReindex Aᴰ (Dᴰ .snd .snd .snd .snd (F-ob (F .fst) Γ) (F-ob (F .fst) A)
-                                                 (Dᴰ .snd .fst Aᴰ (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .vertex)
-                                                  (F .snd Γ A (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .vertex)
-                                                   .equiv-proof (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .element)
-                                                   .fst .fst)
-                                                  .fst))
+--   CCCⱽReindex : ClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
+--   CCCⱽReindex =
+--     reindex (Dᴰ .fst) (F .fst)
+--     , isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst)
+--     , (AllLRⱽReindex (F .fst) (Dᴰ .snd .snd .fst))
+--     , (ExponentialsⱽReindex (F .fst) (Dᴰ .snd .snd .fst) (Dᴰ .snd .snd .snd .fst))
+--     -- TODO: make the following thing readable lol
+--     , λ Γ A Aᴰ → UniversalQuantifierReindex Aᴰ (Dᴰ .snd .snd .snd .snd (F-ob (F .fst) Γ) (F-ob (F .fst) A)
+--                                                  (Dᴰ .snd .fst Aᴰ (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .vertex)
+--                                                   (F .snd Γ A (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .vertex)
+--                                                    .equiv-proof (D.bp (F-ob (F .fst) Γ , F-ob (F .fst) A) .element)
+--                                                    .fst .fst)
+--                                                   .fst))

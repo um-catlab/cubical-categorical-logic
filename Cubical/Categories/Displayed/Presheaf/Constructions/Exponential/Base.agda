@@ -95,11 +95,14 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
     open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
 
+    -- this breaks if we make presheafnotation opaque...
+
     -- Γᴰ ⊢ (Pᴰ ⇒ Qᴰ)(p) := Γᴰ , Pᴰ(p) ⊢ Qᴰ(p)
     _⇒PshSmallⱽ_ : Presheafᴰ P Cᴰ ℓQᴰ
     _⇒PshSmallⱽ_ .F-obᴰ {Γ} Γᴰ p = Qᴰ .F-obᴰ ⌈ Γᴰ ×ⱽ p *Pᴰ⌉ p
     _⇒PshSmallⱽ_ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ p qᴰ = funcLR γᴰ Qᴰ.⋆ᴰ qᴰ
-    _⇒PshSmallⱽ_ .F-idᴰ {Γ}{Γᴰ} = funExt λ p → funExt λ qᴰ →
+    _⇒PshSmallⱽ_ .F-idᴰ {Γ}{Γᴰ} =
+      funExt λ p → funExt λ qᴰ →
       symP $ PresheafᴰNotation.toPathPPshᴰ Qᴰ ((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _)) $
         Qᴰ.⟨ sym $ introLR≡
           ((sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)

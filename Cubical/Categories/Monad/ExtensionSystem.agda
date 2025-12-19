@@ -19,6 +19,8 @@ open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Categories.Monad.Base
+open import Cubical.Categories.Adjoint
+open import Cubical.Categories.Adjoint.Monad
 
 open import Cubical.Tactics.CategorySolver.Reflection
 open import Cubical.Tactics.FunctorSolver.Reflection
@@ -243,3 +245,120 @@ module _ (C : Category ℓ ℓ') where
                 ((C ⋆ g) ((C ⋆ F-hom (M .fst) f) (N-ob (M .snd .IsMonad.μ) _)))
               ) (N-ob (M .snd .IsMonad.μ) _)
       lem2 = solveFunctor! C C (M .fst)
+
+  ExtensionSystem→Monad : ExtensionSystem → Monad C
+  ExtensionSystem→Monad M .fst .F-ob              = M .fst
+  ExtensionSystem→Monad M .fst .F-hom {x} {y} f   = (M .snd .bind) (((M .snd .η) {y}) ∘⟨ C ⟩ f)
+  ExtensionSystem→Monad M .fst .F-id {x}          =
+    (cong (M .snd .bind) ((C .⋆IdL) ((M .snd .η) {x})))
+    ∙ (M .snd .bind-r)
+  ExtensionSystem→Monad M .fst .F-seq {x} {y} {z} f g =
+    (cong (M .snd .bind) (((C .⋆Assoc) f g (M .snd .η {z}))))    
+    ∙ (cong
+      (λ e → (M .snd .bind) (e ∘⟨ C ⟩ f))
+      (sym ((M .snd .bind-l) {f = ((M .snd .η {z}) ∘⟨ C ⟩ g)}))
+    )
+    ∙ (sym (cong
+      (M .snd .bind)
+      ((C .⋆Assoc)
+        f
+        ((M .snd .η) {y})
+        ((M .snd .bind) (((M .snd .η) {z}) ∘⟨ C ⟩ g))
+      )
+    ))
+    ∙ (sym ((M .snd .bind-comp) {f = ((M .snd .η) {z}) ∘⟨ C ⟩ g} {g = ((M .snd .η) {y}) ∘⟨ C ⟩ f}))
+  ExtensionSystem→Monad M .snd .IsMonad.η .N-ob x = (M .snd .η)
+  ExtensionSystem→Monad M .snd .IsMonad.η .N-hom {x} {y} f = sym ((M .snd .bind-l) {f = ((M .snd .η) {y}) ∘⟨ C ⟩ f})
+  ExtensionSystem→Monad M .snd .IsMonad.μ .N-ob x = (M .snd .bind) (C .id {(M .fst x)})
+  ExtensionSystem→Monad M .snd .IsMonad.μ .N-hom {x} {y} f =
+    ((M .snd .bind-comp)
+      {f = C .id}
+      {g = ((M .snd .η)) ∘⟨ C ⟩ ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) )}
+    )
+    ∙ (cong
+      (M .snd .bind)
+      ((C .⋆Assoc)
+        ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) )
+        (M .snd .η)
+        ( (M .snd .bind) (C .id {(M .fst y)}) )
+      )
+    )
+    ∙ (cong
+      (λ e → (M .snd .bind) (e ∘⟨ C ⟩ ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) )))
+      ((M .snd .bind-l) {f = C .id})
+    )
+    ∙ (cong
+      (M .snd .bind)
+      ((C .⋆IdR) ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) ))
+    )
+    ∙ (sym (cong
+      (M .snd .bind)
+      ((C .⋆IdL) ( (M .snd .bind) (((M .snd .η)) ∘⟨ C ⟩ f) ))
+    ))
+    ∙ (sym (
+      (M .snd .bind-comp)
+      {f = (((M .snd .η)) ∘⟨ C ⟩ f)}
+      {g = (C .id)}
+    ))
+  ExtensionSystem→Monad M .snd .IsMonad.idl-μ     =
+    makeNatTransPathP
+    F-rUnit
+    refl
+    (funExt
+      (λ x → (M .snd .bind-l) {f = C .id})
+    )
+  ExtensionSystem→Monad M .snd .IsMonad.idr-μ     =
+    makeNatTransPathP
+    F-lUnit
+    refl
+    (funExt
+      (λ x →
+        (M .snd .bind-comp) {f = C .id} {g = (M .snd .η) ∘⟨ C ⟩ (M .snd .η)}
+        ∙ (cong
+          (M .snd .bind)
+          ((C .⋆Assoc)
+            (M .snd .η)
+            (M .snd .η)
+            ((M .snd .bind) (C .id))
+          )
+        )
+        ∙ (cong 
+          (λ e → (M .snd .bind) (e ∘⟨ C ⟩ (M .snd .η)))
+          ((M .snd .bind-l) {f = C .id})
+        )
+        ∙ (cong
+          (M .snd .bind)
+          ((C .⋆IdR) (M .snd .η))
+        )
+        ∙ (M .snd .bind-r))
+    )
+  ExtensionSystem→Monad M .snd .IsMonad.assoc-μ   =
+    makeNatTransPathP
+    F-assoc
+    refl
+    (funExt λ x →
+      (M .snd .bind-comp) {f = C .id} {g = (M .snd .η) ∘⟨ C ⟩ ((M .snd .bind) (C .id))}
+      ∙ ((cong
+        (M .snd .bind)
+        ((C .⋆Assoc)
+          ((M .snd .bind) (C .id))
+          (M .snd .η)
+          ((M .snd .bind) (C .id))
+        )
+      )
+      ∙ (cong 
+        (λ e → (M .snd .bind) (e ∘⟨ C ⟩ ((M .snd .bind) (C .id))))
+        ((M .snd .bind-l) {f = C .id})
+      )
+      ∙ (cong
+        (M .snd .bind)
+        ((C .⋆IdR) ((M .snd .bind) (C .id)))
+      )
+      ∙ (sym (cong
+        (M .snd .bind)
+        ((C .⋆IdL) ((M .snd .bind) (C .id)))
+      )))
+      ∙ (sym
+        ((M .snd .bind-comp) {f = C .id} {g = C .id})
+      )
+    )

@@ -533,24 +533,22 @@ module _
 
 module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} where
   module _ (α : PshHom P Q) (α' : singl (α .N-ob)) where
-    opaque
-      α'-N-hom-ty : PshHom-N-hom-ty P Q (α' .fst)
-      α'-N-hom-ty = subst (PshHom-N-hom-ty P Q) (α' .snd) (α .N-hom)
+    α'-N-hom-ty : PshHom-N-hom-ty P Q (α' .fst)
+    α'-N-hom-ty = subst (PshHom-N-hom-ty P Q) (α' .snd) (α .N-hom)
 
-    improve-PshHom : PshHom P Q
-    improve-PshHom = pshhom (α' .fst) α'-N-hom-ty
+    improvePshHom : PshHom P Q
+    improvePshHom = pshhom (α' .fst) α'-N-hom-ty
 
   module _ (α : PshIso P Q) (α' : singl (α .trans .N-ob)) (α⁻ : singl (invPshIso α .trans .N-ob)) where
-    opaque
-      isInvα⁻ : ∀ (x : C .ob)
-        → section (α' .fst x) (α⁻ .fst x) × retract (α' .fst x) (α⁻ .fst x)
-      isInvα⁻ x =
-        subst2 (λ N-ob N-ob⁻ → section (N-ob x) (N-ob⁻ x) × retract (N-ob x) (N-ob⁻ x))
-          (α' .snd)
-          (α⁻ .snd)
-          (α .nIso x .snd)
-    improve-PshIso : PshIso P Q
-    improve-PshIso = pshiso (improve-PshHom (α .trans) α') (λ x → (α⁻ .fst x) , isInvα⁻ x)
+    isInvα⁻ : ∀ (x : C .ob)
+      → section (α' .fst x) (α⁻ .fst x) × retract (α' .fst x) (α⁻ .fst x)
+    isInvα⁻ x =
+      subst2 (λ N-ob N-ob⁻ → section (N-ob x) (N-ob⁻ x) × retract (N-ob x) (N-ob⁻ x))
+        (α' .snd)
+        (α⁻ .snd)
+        (α .nIso x .snd)
+    improvePshIso : PshIso P Q
+    improvePshIso = pshiso (improvePshHom (α .trans) α') (λ x → (α⁻ .fst x) , isInvα⁻ x)
 
 module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   yo≅PshHomPsh :

@@ -50,8 +50,6 @@ open NatIso
 open NatTrans
 open isIso
 
--- The setup is
---
 -- π : F ⇒ C on C
 -- π' : F' ⇒ D on D
 -- G : C → D

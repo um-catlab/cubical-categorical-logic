@@ -41,14 +41,15 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex.Fibration
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
 open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
-open import Cubical.Categories.Displayed.Constructions.Reindex.Fibration
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
@@ -75,30 +76,29 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     module F*Dᴰ = Fibers (reindex Dᴰ F)
 
   reindexTerminalⱽ : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
-  reindexTerminalⱽ x 𝟙ⱽ = (𝟙ⱽ .fst)
+  reindexTerminalⱽ x 𝟙ⱽ = (𝟙ⱽ .fst) , 
     -- reindex Dᴰ F [-][-, 𝟙ⱽ ]
-    , (reindexRepresentableIsoⱽ Dᴰ F _ _
+    (reindexRepresentableIsoⱽ Dᴰ F _ _
     -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, 𝟙ⱽ ]
     ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (𝟙ⱽ .snd)
     -- reindPsh (reindex-π-/ Dᴰ F x) $ UnitPshᴰ
     ⋆PshIsoⱽ reindPsh-Unit (reindex-π-/ Dᴰ F x))
     -- UnitPshᴰ
-
   TerminalsⱽReindex : Terminalsⱽ Dᴰ → Terminalsⱽ (reindex Dᴰ F)
   TerminalsⱽReindex 𝟙ⱽs x = reindexTerminalⱽ x (𝟙ⱽs (F ⟅ x ⟆))
 
   reindexBinProductⱽ : ∀ {x} (Fxᴰ Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
     → BinProductⱽ Dᴰ Fxᴰ Fyᴰ
     → BinProductⱽ (reindex Dᴰ F) Fxᴰ Fyᴰ
-  reindexBinProductⱽ {x} Fxᴰ Fyᴰ Fxᴰ∧Fyᴰ = Fxᴰ∧Fyᴰ .fst
+  reindexBinProductⱽ {x} Fxᴰ Fyᴰ Fxᴰ∧Fyᴰ = Fxᴰ∧Fyᴰ .fst ,
     -- reindex Dᴰ F [-][-, Fxᴰ ∧ Fyᴰ ]
-    , reindexRepresentableIsoⱽ Dᴰ F x (Fxᴰ∧Fyᴰ .fst)
+    (reindexRepresentableIsoⱽ Dᴰ F x (Fxᴰ∧Fyᴰ .fst)
     -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fxᴰ ∧ Fyᴰ ]
     ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (Fxᴰ∧Fyᴰ .snd)
     -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fxᴰ ] × Dᴰ [-][-, Fyᴰ ]
     ⋆PshIsoⱽ reindPsh× (reindex-π-/ Dᴰ F x) (Dᴰ [-][-, Fxᴰ ]) (Dᴰ [-][-, Fyᴰ ])
     -- (reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fxᴰ ]) × (reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fyᴰ ])
-    ⋆PshIsoⱽ ×PshIso (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fxᴰ)) (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fyᴰ))
+    ⋆PshIsoⱽ ×PshIso (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fxᴰ)) (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fyᴰ)))
     -- (reindex Dᴰ F [-][-, Fxᴰ ]) × (reindex Dᴰ F [-][-, Fyᴰ ])
 
   BinProductsⱽReindex : BinProductsⱽ Dᴰ → BinProductsⱽ (reindex Dᴰ F)
@@ -112,50 +112,72 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     → LocallyRepresentableⱽ (reindPsh (reindex-π-/ Dᴰ F x) Pᴰ)
   isLRⱽReindex Pᴰ _×ⱽ_*Pᴰ Γᴰ f .fst = (Γᴰ ×ⱽ (F ⟪ f ⟫) *Pᴰ) .fst
   isLRⱽReindex {x = x} Pᴰ _×ⱽ_*Pᴰ {Γ} Γᴰ f .snd =
-    reindexRepresentableIsoⱽ Dᴰ F Γ (isLRⱽReindex Pᴰ _×ⱽ_*Pᴰ Γᴰ f .fst)
+    (reindexRepresentableIsoⱽ Dᴰ F Γ ((Γᴰ ×ⱽ (F ⟪ f ⟫) *Pᴰ) .fst)
     ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F Γ) ((Γᴰ ×ⱽ F-hom F f *Pᴰ) .snd)
     ⋆PshIsoⱽ reindPsh× (reindex-π-/ Dᴰ F Γ) (Dᴰ [-][-, Γᴰ ]) (reindPshᴰNatTrans (yoRec (D [-, F-ob F x ]) (F-hom F f)) Pᴰ)
     ⋆PshIsoⱽ
       ×PshIso (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F Γ Γᴰ))
-              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ (reindexRepresentable-seq (π Dᴰ F)))
+              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ (reindexRepresentable-seq (π Dᴰ F))))
 
   LRⱽReindex : ∀ {x} → (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ)
     → LRⱽPresheafᴰ (C [-, x ]) (reindex Dᴰ F) ℓPᴰ
   LRⱽReindex (Pᴰ , _×ⱽ_*Pᴰ) = (reindPsh (reindex-π-/ Dᴰ F _) Pᴰ) , (isLRⱽReindex Pᴰ _×ⱽ_*Pᴰ)
 
-  isLRⱽObᴰReindex : ∀ {x} (xᴰ : Dᴰ.ob[ F ⟅ x ⟆ ]) → isLRⱽObᴰ Dᴰ xᴰ → isLRⱽObᴰ (reindex Dᴰ F) xᴰ
+  isLRⱽObᴰReindex : ∀ {x} (xᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → isLRⱽObᴰ Dᴰ xᴰ
+    → isLRⱽObᴰ (reindex Dᴰ F) xᴰ
   isLRⱽObᴰReindex {x} xᴰ _×ⱽ_*xᴰ {Γ} Γᴰ f =
     (Γᴰ ×ⱽ (F ⟪ f ⟫) *xᴰ) .fst
-    , isLRⱽReindex (Dᴰ [-][-, xᴰ ]) _×ⱽ_*xᴰ Γᴰ f .snd
+    ,
+    improvePshIso 
+    (isLRⱽReindex (Dᴰ [-][-, xᴰ ]) _×ⱽ_*xᴰ Γᴰ f .snd
     ⋆PshIsoⱽ ×PshIso idPshIso
       (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, x ]) f) $
        invPshIso $
-       reindexRepresentableIsoⱽ Dᴰ F x xᴰ)
-
+       reindexRepresentableIsoⱽ Dᴰ F x xᴰ))
+    ((λ (Δ , Δᴰ , γ) γᴰ → _ ,
+      Dᴰ.reind (sym $ F .F-seq γ f) (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
+    -- why is this so slow?
+    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out $
+      ΣPathP (refl ,
+      (Dᴰ.rectify $ Dᴰ.≡out $
+        Dᴰ.cong-reind (λ i →
+                         N-ob (symNatIso (reindexRepresentable-seq (π Dᴰ F)) .trans) _ .snd
+                         .snd i) (λ i → F .F-seq γ f (~ i)) (Dᴰ.⋆IdL _))))) )
+    ((λ (Δ , Δᴰ , γ) (γᴰ , γfᴰ) →
+      ×ⱽ*xᴰ.introᴰ γᴰ (Dᴰ.reind (F .F-seq γ f) γfᴰ)) , funExt λ (Δ , Δᴰ , γ) → funExt λ (γᴰ , γfᴰ) →
+      Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*xᴰ.cong-introᴰ refl (Dᴰ.cong-reind _ _ (Dᴰ.⋆IdL _)))
+    where
+      module ×ⱽ*xᴰ = LRⱽPresheafᴰNotation Dᴰ (_ , _×ⱽ_*xᴰ)
   LRⱽObᴰReindex : ∀ {x} → LRⱽObᴰ Dᴰ (F ⟅ x ⟆) → LRⱽObᴰ (reindex Dᴰ F) x
   LRⱽObᴰReindex {x} (Fxᴰ , _×ⱽ_*Fxᴰ) = Fxᴰ , isLRⱽObᴰReindex Fxᴰ _×ⱽ_*Fxᴰ
 
   AllLRⱽReindex : AllLRⱽ Dᴰ → AllLRⱽ (reindex Dᴰ F)
   AllLRⱽReindex allLRⱽ {x} xᴰ = LRⱽObᴰReindex (xᴰ , allLRⱽ xᴰ) .snd
 
-  reindex-×LRⱽPshᴰ-commute : ∀ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ)
-    → NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
-             (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
-  reindex-×LRⱽPshᴰ-commute {ℓPᴰ}{x} Pᴰ = presLR→NatIso (reindex-π-/ Dᴰ F _) _ _ idPshHom
-    (λ (Γ , Γᴰ , f) → substUniversalElement (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) (F ⟅ Γ ⟆ , Γᴰ , F ⟪ f ⟫)) _
-      (ΣPathP ((ΣPathP ((sym $ F .F-id) , (ΣPathPProp (λ _ → D.isSetHom _ _)
-      (Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*Pᴰ.⟨ (Dᴰ.reind-filler _ _) ⟩⋆π₁ⱽ))))
-      , (Pᴰ.rectify $ Pᴰ.≡out $ sym (Pᴰ.reind-filler _) ∙ ×ⱽ*Pᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ ∙ (sym $ Pᴰ.formal-reind-filler _ _) ∙ Pᴰ.reind-filler _))))
-    where
+  module _ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ) where
+    private
       module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ
       module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst)
-      presCone-isUniversal :
-        ∀ ((Γ , Γᴰ , f) : (reindex Dᴰ F / (C [-, x ])) .ob)
-        → isUniversal (Dᴰ / (D [-, F ⟅ x ⟆ ])) (((Dᴰ / (D [-, F ⟅ x ⟆ ])) [-, reindex-π-/ Dᴰ F x ⟅ (Γ , Γᴰ , f) ⟆ ]) ×Psh Pᴰ .fst)
-          ((F ⟅ Γ ⟆) , ((Pᴰ .snd Γᴰ (F ⟪ f ⟫) .fst) , (F ⟪ f ⟫)))
-          ((D.id , ×ⱽ*Pᴰ.π₁ⱽ , (λ i → D.⋆IdL (F-hom F f) i)) , Pᴰ.reind _ ×ⱽ*Pᴰ.π₂ⱽ)
-      presCone-isUniversal (Γ , Γᴰ , f) =
-        LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) (F ⟅ Γ ⟆ , Γᴰ , F ⟪ f ⟫) .UniversalElement.universal
+    reindex-×LRⱽPshᴰ-commute
+      : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
+               (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
+    reindex-×LRⱽPshᴰ-commute = -- strictPresLR→NatIso
+      -- (reindex-π-/ Dᴰ F x)
+      -- (reindPsh (reindex-π-/ Dᴰ F x) (Pᴰ .fst) ,
+      --   LocallyRepresentableⱽ→LocallyRepresentable (LRⱽReindex Pᴰ .snd))
+      -- (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+      -- idPshHom
+      -- (λ _ → Eq.refl)
+      strictPresLRⱽ→NatIso (reindex-π-/ Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
+        (λ _ → Eq.refl)
+      (λ (Γ , Γᴰ , f ) → ΣPathP ((ΣPathP ((F .F-id) , (ΣPathPProp (λ _ → D.isSetHom _ _)
+        (Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ))))
+      , (Pᴰ.rectify $ Pᴰ.≡out $
+        sym (Pᴰ.reind-filler _)
+        ∙ (Pᴰ.formal-reind-filler _ _
+        ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ)
+        ∙ Pᴰ.reind-filler _)))
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -170,4 +192,3 @@ module _
       (TerminalsⱽReindex F Dᴰ.termⱽ)
       (BinProductsⱽReindex F Dᴰ.bpⱽ)
       (isFibrationReindex Dᴰ.Cᴰ F Dᴰ.cartesianLifts)
-

@@ -108,6 +108,7 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
   _∫≡_ : ∀ {a b}(p : P a)(q : P b) → Type (ℓ-max ℓ ℓ')
   p ∫≡ q = Path (Σ ⟨ A ⟩ P) (_ , p) (_ , q)
 
+  
   ≡in :
     p P≡[ pth ] q
     → p ∫≡ q

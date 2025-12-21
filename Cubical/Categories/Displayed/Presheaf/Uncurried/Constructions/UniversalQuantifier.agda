@@ -1,3 +1,40 @@
+{-
+
+-- Let Cᴰ displayed over C.
+
+-- Given an object A : C such that all products Γ × A exist, and π₁ :
+-- Γ × A → A is quadrable, and an object Aᴰ over some Γ × A, the
+-- universal quantifier ∀ Aᴰ is specified by the universal property
+-- that
+--
+--  Cᴰ [-][-, ∀ Aᴰ ] ≅ reindPsh (wk A) Cᴰ [-][-, Aᴰ ]
+--
+-- where wk A : (Cᴰ / C [-, Γ ]) → (Cᴰ / C [-, Γ × A ])
+-- is the functor defined by wk A (Δ , Δᴰ , γ) = (Δ × A , π₁*Δᴰ , γ × A)
+
+-- For performance reasons, we define this as an instance of the
+-- following more general situation:
+--
+-- Again let Cᴰ displayed over C.
+-- Let F be an endofunctor on C with a projection natural transformation π : F ⇒ C such that
+-- 1. π is *Cartesian*, i.e. its naturality squares are pullbacks
+-- 2. π is *Cᴰ-quadrable* i.e., all cartesian lifts π* Aᴰ exist.
+-- Then given some Aᴰ over FΓ, the universal quantifier ∀ Aᴰ is specified by 
+--  Cᴰ [-][-, ∀ Aᴰ ] ≅ reindPsh wkF Cᴰ [-][-, Aᴰ ]
+--
+-- where wkF : (Cᴰ / C [-, Γ ]) → (Cᴰ / C [-, F Γ ])
+-- is the functor defined by wk (Δ , Δᴰ , γ) = (F Δ , π*Δᴰ , F γ)
+-- Note that this weakening functor is itself right adjoint to the projection map
+-- (Id / π) : Cᴰ / C [-, F Γ ] → Cᴰ / C [-, Γ ]
+
+-- TODO: This means that the restriction operation
+--   wkF* : 𝓟 (Cᴰ / C [-, F Γ ]) → 𝓟 (Cᴰ / C [-, Γ ])
+-- is right adjoint to the restriction by projection
+--   (Id/π)* : 𝓟 (Cᴰ / C [-, Γ ]) → 𝓟 (Cᴰ / C [-, F Γ ])
+--
+-- meaning Qᴰ → wkF* Pᴰ ≅ (Id/π)*Qᴰ → Pᴰ
+-}
+
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier where
 

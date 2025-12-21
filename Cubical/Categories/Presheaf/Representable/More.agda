@@ -185,6 +185,16 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C
       → substUniversalElement elt ue≡e Γ .equiv-proof p .fst .fst ≡ ue.intro p
     test-substUE e ue≡e = λ _ _ → refl
 
+module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
+  private
+    module P = PresheafNotation P
+
+  substIsUniversal : ∀ {v}{uelt elt : P.p[ v ]}
+    → isUniversal C P v uelt
+    → uelt ≡ elt
+    → isUniversal C P v elt
+  substIsUniversal u-univ ue≡e = substUniversalElement {C = C}{P = P} (isUniversal→UniversalElement P u-univ) _ ue≡e
+
 module _ {C : Category ℓc ℓc'} {x} (ue : UniversalElement C (C [-, x ])) where
   private
     module C = Category C

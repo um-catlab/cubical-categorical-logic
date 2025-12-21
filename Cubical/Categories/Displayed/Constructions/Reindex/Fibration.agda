@@ -91,12 +91,12 @@ module _
     → CartesianLift Dᴰ (F ⟪ f ⟫) Fyᴰ
     → CartesianLift (reindex Dᴰ F) f Fyᴰ
   reindexCartesianLift {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ = (F⟪f⟫*Fyᴰ .fst) ,
-    improve-PshIso (reindexCartesianLift' {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ .snd)
+    improvePshIso (reindexCartesianLift' {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ .snd)
       ((λ (Γ , Γᴰ , g) F⟪g⟫ᴰ → Dᴰ.reind (sym $ F .F-seq g f) (F⟪g⟫ᴰ F⟪f⟫*Fyᴰ.⋆πⱽ))
-      , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪g⟫ᴰ → Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _ _)
+      , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪g⟫ᴰ →
+        Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _ _)
         ∙ Dᴰ.⋆IdL _
-        ∙ Dᴰ.reind-filler _ _
-        )
+        ∙ Dᴰ.reind-filler _ _)
       ((λ (Γ , Γᴰ , g) F⟪gf⟫ᴰ → F⟪f⟫*Fyᴰ.introᴰ (Dᴰ.reind (F .F-seq g f) F⟪gf⟫ᴰ))
       , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪gf⟫ᴰ → Dᴰ.rectify $ Dᴰ.≡out $
         F⟪f⟫*Fyᴰ.cong-introᴰ refl (sym (Dᴰ.reind-filler _ _) ∙ Dᴰ.⋆IdL _ ∙ Dᴰ.reind-filler _ _))

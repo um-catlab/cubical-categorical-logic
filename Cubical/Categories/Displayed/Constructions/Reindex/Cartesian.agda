@@ -76,7 +76,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     module F*Dᴰ = Fibers (reindex Dᴰ F)
 
   reindexTerminalⱽ : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
-  reindexTerminalⱽ x 𝟙ⱽ = (𝟙ⱽ .fst) , 
+  reindexTerminalⱽ x 𝟙ⱽ = (𝟙ⱽ .fst) ,
     -- reindex Dᴰ F [-][-, 𝟙ⱽ ]
     (reindexRepresentableIsoⱽ Dᴰ F _ _
     -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, 𝟙ⱽ ]
@@ -129,7 +129,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   isLRⱽObᴰReindex {x} xᴰ _×ⱽ_*xᴰ {Γ} Γᴰ f =
     (Γᴰ ×ⱽ (F ⟪ f ⟫) *xᴰ) .fst
     ,
-    improvePshIso 
+    improvePshIso
     (isLRⱽReindex (Dᴰ [-][-, xᴰ ]) _×ⱽ_*xᴰ Γᴰ f .snd
     ⋆PshIsoⱽ ×PshIso idPshIso
       (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, x ]) f) $

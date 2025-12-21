@@ -19,7 +19,7 @@
 -- Let F be an endofunctor on C with a projection natural transformation π : F ⇒ C such that
 -- 1. π is *Cartesian*, i.e. its naturality squares are pullbacks
 -- 2. π is *Cᴰ-quadrable* i.e., all cartesian lifts π* Aᴰ exist.
--- Then given some Aᴰ over FΓ, the universal quantifier ∀ Aᴰ is specified by 
+-- Then given some Aᴰ over FΓ, the universal quantifier ∀ Aᴰ is specified by
 --  Cᴰ [-][-, ∀ Aᴰ ] ≅ reindPsh wkF Cᴰ [-][-, Aᴰ ]
 --
 -- where wkF : (Cᴰ / C [-, Γ ]) → (Cᴰ / C [-, F Γ ])

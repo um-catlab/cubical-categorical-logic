@@ -2,8 +2,6 @@ module Cubical.Categories.Displayed.Limits.ClosedV where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Unit
-
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Displayed.Base
@@ -11,6 +9,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
 
 private
   variable

@@ -70,7 +70,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (α : PshHet F P Q)
   where
   PshHet→ElementFunctorᴰ : Functorᴰ F (Element P) (Element Q)
-  PshHet→ElementFunctorᴰ = mkOpaquePropHomsFunctor (hasPropHomsElement Q)
+  PshHet→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsElement Q)
     (α .PshHom.N-ob _)
     λ f⋆p≡p' → (sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _) f⋆p≡p'
 
@@ -95,12 +95,12 @@ module _
   reindPsh-intro : ∀ {P : Presheaf C ℓP}
     → (Functorᴰ F (Element P) (Element Q))
     → (Functorⱽ (Element P) (Element (reindPsh F Q)))
-  reindPsh-intro {P = P} Fᴰ = mkOpaquePropHomsFunctor (hasPropHomsElement $ reindPsh F Q)
+  reindPsh-intro {P = P} Fᴰ = mkPropHomsFunctor (hasPropHomsElement $ reindPsh F Q)
     (Fᴰ .F-obᴰ)
     (Fᴰ .F-homᴰ)
 
   reindPsh-π : Functorᴰ F (Element (reindPsh F Q)) (Element Q)
-  reindPsh-π = mkOpaquePropHomsFunctor (hasPropHomsElement Q) (λ {x} z → z) λ {x} {y} {f} {xᴰ} {yᴰ} z → z
+  reindPsh-π = mkPropHomsFunctor (hasPropHomsElement Q) (λ {x} z → z) λ {x} {y} {f} {xᴰ} {yᴰ} z → z
 
   reindPsh-UMPⱽ : ∀ {P : Presheaf C ℓP}
     → Iso (Functorⱽ (Element P) (Element (reindPsh F Q)))

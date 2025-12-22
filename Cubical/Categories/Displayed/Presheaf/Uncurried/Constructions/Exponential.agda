@@ -21,6 +21,8 @@
 -}
 
 {-# OPTIONS --lossy-unification #-}
+
+-- This should probably be UniversalProperties.Exponential, not Constructions.Exponential
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential where
 
 open import Cubical.Foundations.Prelude
@@ -78,9 +80,8 @@ module _
   {P : Presheaf C ℓP}
   where
   private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
-    module P = PresheafNotation P
+    module Cᴰ = Fibers Cᴰ using (ob[_])
+    module P = PresheafNotation P using (p[_])
 
   LocallyRepresentableⱽ : Presheafᴰ P Cᴰ ℓPᴰ → Type _
   LocallyRepresentableⱽ Pᴰ = ∀ {x} (xᴰ : Cᴰ.ob[ x ])(p : P.p[ x ])
@@ -109,9 +110,9 @@ LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyReprese
 
 module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
   private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
-    module P = PresheafNotation P
+    module C = Category C using (id; _⋆_; ob; ⋆IdL)
+    module Cᴰ = Fibers Cᴰ using (ob[_]; Hom[_][_,_]; ⋆IdR; Hom[_,_]; idᴰ; _≡[_]_; _∫≡_; ≡in; ≡out; rectify; _⋆ᴰ_; reind; reind-filler)
+    module P = PresheafNotation P using (p[_]; _⋆_)
   open PresheafᴰNotation Cᴰ P (Pᴰ .fst)
   _×ⱽ_* : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ Γ ]) → Cᴰ.ob[ Γ ]
   Γᴰ ×ⱽ p * = Pᴰ .snd Γᴰ p .fst
@@ -157,7 +158,7 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       {γᴰ' : Cᴰ.Hom[ γ' ][ Δᴰ , Γᴰ ]}
       {γpᴰ : p[ γ P.⋆ p ][ Δᴰ ]}
       {γ'pᴰ : p[ γ' P.⋆ p ][ Δᴰ ]}
-      (γᴰ≡γᴰ' : Path (Cᴰ.Hom[ _ , _ ]) (_ , γᴰ) (_ , γᴰ'))
+      (γᴰ≡γᴰ' : γᴰ Cᴰ.∫≡ γᴰ')
       (γpᴰ≡γ'pᴰ : γpᴰ ∫≡ γ'pᴰ)
       → Path (Cᴰ.Hom[ _ , _ ]) (_ , introᴰ γᴰ γpᴰ) (_ , introᴰ γᴰ' γ'pᴰ)
     cong-introᴰ γᴰ≡γᴰ' γpᴰ≡γ'pᴰ =
@@ -255,10 +256,10 @@ module _
     -- module ⇒ⱽPshSmall = P⇒Large-cocontinuous-repr (-×Psh (Pᴰ .fst)) (-×Psh (Pᴰ .fst) -cocontinuous)
     --   (λ Γ → LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) Γ
     --     ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
-  ×LRⱽPshᴰ' : Functor (Cᴰ / P) (Cᴰ / P)
-  ×LRⱽPshᴰ' = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+  ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
+  ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 
-  -- -- this is slow but doable. Try profiling it?
+  -- -- this would be a preferable definition but it's very slow to typecheck and use. Why?
   -- ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
   -- ×LRⱽPshᴰ = improveF-hom ×LRⱽPshᴰ'
   --   (λ {(Δ , Δᴰ , f) (Γ , Γᴰ , f')} (γ , γᴰ , γf'≡f) →
@@ -281,7 +282,7 @@ module _
   module _ (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
 
     _⇒ⱽPshSmall_ : Presheafᴰ P Cᴰ ℓQᴰ
-    _⇒ⱽPshSmall_ = reindPsh ×LRⱽPshᴰ' Qᴰ
+    _⇒ⱽPshSmall_ = reindPsh ×LRⱽPshᴰ Qᴰ
 
     -- ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
     --   → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
@@ -289,10 +290,13 @@ module _
     --   compIso (postcomp⋆PshHom-Iso (reindNatIsoPsh ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F Qᴰ))
     --           (⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _)
 
---   {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : LRⱽPresheafᴰ P Cᴰ ℓQᴰ) where
---   ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ (Pᴰ .fst) (Qᴰ .fst))
---     → NatIso (×LRⱽPshᴰ Pᴰ) (×LRⱽPshᴰ Qᴰ)
---   ×LRⱽPshᴰ-Iso α = LRPshIso→NatIso _ _ α
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : LRⱽPresheafᴰ P Cᴰ ℓQᴰ) where
+  ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ (Pᴰ .fst) (Qᴰ .fst))
+    → NatIso (×LRⱽPshᴰ Pᴰ) (×LRⱽPshᴰ Qᴰ)
+  ×LRⱽPshᴰ-Iso α = LRPshIso→NatIso _ _ α
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -304,111 +308,49 @@ module _
   (Qᴰ : LRⱽPresheafᴰ Q Dᴰ ℓQᴰ)
   (αᴰ : PshHomⱽ (Pᴰ .fst) (reindPsh F (Qᴰ .fst)))
   where
-  -- private
-  --   module C = Category C
-  --   module Cᴰ = Fibers Cᴰ
-  --   module D = Category D
-  --   module Dᴰ = Fibers Dᴰ
-  --   module ×ⱽPᴰ = LRⱽPresheafᴰNotation Cᴰ Pᴰ
-  --   module ×ⱽQᴰ = LRⱽPresheafᴰNotation Dᴰ Qᴰ
-  --   module Qᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ x ⟆ ]) (Qᴰ .fst)
-  --   module F = Functor F
-  --   module Fᴰ = Functorᴰ Fᴰ
-  -- open Category
-  -- open PresheafNotation renaming (p[_] to [_]p[_])
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module D = Category D
+    module Dᴰ = Fibers Dᴰ
+    module ×ⱽPᴰ = LRⱽPresheafᴰNotation Cᴰ Pᴰ
+    module ×ⱽQᴰ = LRⱽPresheafᴰNotation Dᴰ Qᴰ
+    module Qᴰ = PresheafᴰNotation Dᴰ Q (Qᴰ .fst)
+    module F = Functor F
+  open Category
+  open PresheafNotation renaming (p[_] to [_]p[_])
 
-  -- strictPresLRⱽ→NatIso :
-  --   (F⟅c×P⟆≡Fc×Q : (c : Category.ob (Cᴰ / P)) →
-  --     F ⟅ LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex
-  --     ⟆
-  --     Eq.≡
-  --     LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
-  --     .vertex)
-  --   → (((c : Category.ob (Cᴰ / P)) →
-  --     Eq.mixedHEq
-  --     (Eq.ap
-  --      (λ Fc×Q →
-  --         ((Dᴰ / Q) [ Fc×Q , F ⟅ c ⟆ ]) × PresheafNotation.p[ Qᴰ .fst ] Fc×Q)
-  --      (F⟅c×P⟆≡Fc×Q c))
-  --     (F ⟪
-  --      LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
-  --      .fst
-  --      ⟫
-  --      ,
-  --      αᴰ .N-ob
-  --      (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex)
-  --      (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
-  --       .snd))
-  --     (LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
-  --      .element)))
-  --   → NatIso ((×LRⱽPshᴰ Qᴰ) ∘F F) (F ∘F (×LRⱽPshᴰ Pᴰ))
-  -- strictPresLRⱽ→NatIso F⟅c×P⟆≡Fc×Q F⟅π⟆≡π = strictPresLR→NatIso F
-  --   (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
-  --   (Qᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd))
-  --   αᴰ
-  --   F⟅c×P⟆≡Fc×Q
-  --   F⟅π⟆≡π
-
--- module _
---   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
---   (F : Functor C D)
---   (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
---   {x}
---   (Pᴰ : LRⱽPresheafᴰ (C [-, x ]) Cᴰ ℓPᴰ)
---   (Qᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓQᴰ)
---   (αᴰ : PshHomⱽ (Pᴰ .fst) (reindPsh (Fᴰ /Fᴰ Functor→PshHet F x) (Qᴰ .fst)))
---   where
---   private
---     module C = Category C
---     module Cᴰ = Fibers Cᴰ
---     module D = Category D
---     module Dᴰ = Fibers Dᴰ
---     module ×ⱽPᴰ = LRⱽPresheafᴰNotation Cᴰ Pᴰ
---     module ×ⱽQᴰ = LRⱽPresheafᴰNotation Dᴰ Qᴰ
---     module Qᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ x ⟆ ]) (Qᴰ .fst)
---     module F = Functor F
---     module Fᴰ = Functorᴰ Fᴰ
---   open Category
---   open PresheafNotation renaming (p[_] to [_]p[_])
---   strictPresLRⱽ→NatIso :
-
-
-  -- strictPresLRⱽ→NatIso :
-  --   -- (F⟅c×P⟆≡Fc×Q : ∀ Γ Γᴰ p → Fᴰ.F-obᴰ {x = Γ} (Γᴰ ×ⱽPᴰ.×ⱽ p *) Eq.≡ ((Fᴰ.F-obᴰ Γᴰ) ×ⱽQᴰ.×ⱽ (F ⟪ p ⟫) *))
-  --   -- (F⟅π⟆≡π : ∀ Γ Γᴰ p →
-  --   --   Eq.mixedHEq (Eq.ap (λ Δᴰ →
-  --   --     (Dᴰ [ D.id ][ Δᴰ , Fᴰ.F-obᴰ Γᴰ ]) × Qᴰ.p[  D.id D.⋆ F ⟪ p ⟫ ][ Δᴰ ])
-  --   --     (F⟅c×P⟆≡Fc×Q Γ Γᴰ p))
-  --   -- (Dᴰ.reind F.F-id (Fᴰ.F-homᴰ ×ⱽPᴰ.π₁ⱽ) , Qᴰ.reind (F.F-seq _ _ ∙ D.⟨ F.F-id ⟩⋆⟨ refl ⟩)
-  --   --   (αᴰ .N-ob _ ×ⱽPᴰ.π₂ⱽ))
-  --   -- (×ⱽQᴰ.π₁ⱽ , ×ⱽQᴰ.π₂ⱽ))
-  --   → NatIso ((×LRⱽPshᴰ Qᴰ) ∘F (Fᴰ /Fᴰ Functor→PshHet F x)) ((Fᴰ /Fᴰ Functor→PshHet F x) ∘F (×LRⱽPshᴰ Pᴰ))
-  -- strictPresLRⱽ→NatIso F⟅c×P⟆≡Fc×Q F⟅π⟆≡π =
-  --   strictPresLR→NatIso (Fᴰ /Fᴰ Functor→PshHet F x)
-  --     (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
-  --     (Qᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd))
-  --     αᴰ
-  --     (λ (Γ , Γᴰ , p) →
-  --       lem1 Γ p
-  --         (Fᴰ.F-obᴰ (Pᴰ .snd Γᴰ p .fst))
-  --         (Qᴰ .snd (Fᴰ.F-obᴰ Γᴰ) (F.F-hom p) .fst)
-  --         (F⟅c×P⟆≡Fc×Q Γ Γᴰ p))
-  --     λ (Γ , Γᴰ , p) → {!!}
-  --   where
-  --     lem1 : ∀ Γ p F⟨×⟩ F×F
-  --       → (Eq.Eq (Dᴰ.ob[ F ⟅ Γ ⟆ ]) F⟨×⟩ F×F)
-  --       → Eq.Eq ((Dᴰ / (D [-, F ⟅ x ⟆ ])) .ob)
-  --           ((F ⟅ Γ ⟆) , F⟨×⟩ , (F ⟪ p ⟫))
-  --           ((F ⟅ Γ ⟆) , F×F , (F ⟪ p ⟫))
-  --     lem1 Γ p F⟨×⟩ F×F Eq.refl = Eq.refl
-
-  --     lem2 : ∀ Γ Γᴰ p F⟨×⟩ F×F
-  --       → (eqn : Eq.Eq (Dᴰ.ob[ F ⟅ Γ ⟆ ]) F⟨×⟩ F×F)
-  --       → Eq.mixedHEq (Eq.ap (λ Fc×Q → (Dᴰ / (D [-, F ⟅ x ⟆ ])) [ Fc×Q , (Fᴰ /Fᴰ (Functor→PshHet F x)) ⟅ Γ , Γᴰ , p ⟆  ] × [ Qᴰ .fst ]p[ Fc×Q ]) (lem1 Γ p F⟨×⟩ F×F eqn))
-  --         ({!!} , {!!})
-  --         {!!}
-  --     lem2 = {!!}
+  strictPresLRⱽ→NatIso :
+    (F⟅c×P⟆≡Fc×Q : (c : Category.ob (Cᴰ / P)) →
+      F ⟅ LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex
+      ⟆
+      Eq.≡
+      LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
+      .vertex)
+    → (((c : Category.ob (Cᴰ / P)) →
+      Eq.mixedHEq
+      (Eq.ap
+       (λ Fc×Q →
+          ((Dᴰ / Q) [ Fc×Q , F ⟅ c ⟆ ]) × PresheafNotation.p[ Qᴰ .fst ] Fc×Q)
+       (F⟅c×P⟆≡Fc×Q c))
+      (F ⟪
+       LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
+       .fst
+       ⟫
+       ,
+       αᴰ .N-ob
+       (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex)
+       (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
+        .snd))
+      (LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
+       .element)))
+    → NatIso ((×LRⱽPshᴰ Qᴰ) ∘F F) (F ∘F (×LRⱽPshᴰ Pᴰ))
+  strictPresLRⱽ→NatIso F⟅c×P⟆≡Fc×Q F⟅π⟆≡π = strictPresLR→NatIso F
+    (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+    (Qᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd))
+    αᴰ
+    F⟅c×P⟆≡Fc×Q
+    F⟅π⟆≡π
 
 module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private

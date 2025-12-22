@@ -166,7 +166,7 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
   wkF-UE Γ (Δ , Δᴰ , γ) = RepresentationPshIso→UniversalElement ((wkProf Cᴰ π Γ) .F-ob (Δ , Δᴰ , γ))
     ((F ⟅ Δ ⟆ , π* Δ Δᴰ .fst , F ⟪ γ ⟫) , wkF-ReprIso Γ (Δ , Δᴰ , γ))
 
-  -- Should use FunctorComprehensionᴰ for this!
+  -- Could use FunctorComprehensionᴰ for this
   wkF-ugly : ∀ Γ → Functor (Cᴰ / (C [-, Γ ])) (Cᴰ / (C [-, F ⟅ Γ ⟆ ]))
   wkF-ugly Γ = FunctorComprehension (wkProf Cᴰ π Γ) (wkF-UE Γ)
 
@@ -175,45 +175,6 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
     Cᴰ [ f ][ xᴰ , yᴰ ] →
     Cᴰ [ F .F-hom f ][ π* x xᴰ .fst , π* y yᴰ .fst ]
   wkFᴰ-homᴰ {f = f} fᴰ = cartLift-sq-filler Cᴰ (π* _ _) (π* _ _) fᴰ (sym $ π .N-hom f)
---   opaque
---     wkFᴰ-id : ∀ {x : C.ob}{xᴰ : Cᴰ.ob[ x ]} →
---       Path (Cᴰ.Hom[ _ , _ ])
---         (_ , wkFᴰ-homᴰ Cᴰ.idᴰ)
---         (_ , Cᴰ.idᴰ {p = π* x xᴰ .fst})
---     wkFᴰ-id = π*.cong-introᴰ (F .F-id) (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _) ∙ (sym $ π*.ηᴰ _)
---     wkFᴰ-idᴰ : {x : C.ob} {xᴰ : Cᴰ.ob[ x ]} →
---       wkFᴰ-homᴰ Cᴰ.idᴰ Cᴰ.≡[ F .F-id ] Cᴰ.idᴰ {p = π* x xᴰ .fst}
---     wkFᴰ-idᴰ = Cᴰ.rectify $ Cᴰ.≡out $ wkFᴰ-id
-
---     wkFᴰ-seq : {x y z : C.ob} {f : C [ x , y ]} {g : C [ y , z ]}
---       {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]} {zᴰ : Cᴰ.ob[ z ]}
---       (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) →
---       Path Cᴰ.Hom[ _ , _ ]
---         (_ , wkFᴰ-homᴰ (fᴰ Cᴰ.⋆ᴰ gᴰ))
---         (_ , wkFᴰ-homᴰ fᴰ Cᴰ.⋆ᴰ wkFᴰ-homᴰ gᴰ)
---     wkFᴰ-seq fᴰ gᴰ =
---       π*.cong-introᴰ (F .F-seq _ _)
---         (sym (Cᴰ.reind-filler _ _)
---         ∙ (sym $
---           π*.⋆πⱽ-natural
---           ∙ Cᴰ.⟨⟩⋆⟨ π*.βᴰ _ ∙ sym (Cᴰ.reind-filler _ _) ∙ refl ⟩
---           ∙ sym (Cᴰ.⋆Assoc _ _ _)
---           ∙ Cᴰ.⟨
---               sym π*.⋆πⱽ-natural
---               ∙ π*.⟨ Cᴰ.⋆IdR _ ⟩⋆πⱽ
---               ∙ π*.βᴰ _
---               ∙ sym (Cᴰ.reind-filler _ _)
---                ⟩⋆⟨⟩
---           ∙ Cᴰ.⋆Assoc _ _ _))
---       ∙ (sym $ π*.ηᴰ _)
-
---     wkFᴰ-seqᴰ : {x y z : C.ob} {f : C [ x , y ]} {g : C [ y , z ]}
---       {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]} {zᴰ : Cᴰ.ob[ z ]}
---       (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ]) →
---       wkFᴰ-homᴰ (fᴰ Cᴰ.⋆ᴰ gᴰ)
---         Cᴰ.≡[ F .F-seq f g ]
---       wkFᴰ-homᴰ fᴰ Cᴰ.⋆ᴰ wkFᴰ-homᴰ gᴰ
---     wkFᴰ-seqᴰ = λ fᴰ gᴰ → Cᴰ.rectify $ Cᴰ.≡out $ wkFᴰ-seq fᴰ gᴰ
 
   wkFᴰ : Functorᴰ F Cᴰ Cᴰ
   wkFᴰ = record { F-obᴰ = λ {Γ} Γᴰ → π* Γ Γᴰ .fst
@@ -225,49 +186,6 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
 
   wkF : ∀ Γ → Functor (Cᴰ / (C [-, Γ ])) (Cᴰ / (C [-, F ⟅ Γ ⟆ ]))
   wkF Γ = _/Fᴰ_ {F = F} wkFᴰ (Functor→PshHet F Γ) --
-
-  -- TODO: extract this from the universal element formulation of adjunction...
-  -- wkF-ε : ∀ {Γ} → NatTrans ((Idᴰ /Fⱽ yoRec (C [-, Γ ]) (π ⟦ Γ ⟧)) ∘F wkF Γ) Id
-  -- wkF-ε {Γ} = /NatTrans
-  --   (natTrans (λ (Δ , _ , _) → π ⟦ Δ ⟧) (λ _ → π .N-hom _))
-  --   (record { N-obᴰ = λ {(Δ , Δᴰ , _)} _ → Cᴰ.reind (C.⋆IdL (N-ob π Δ)) $ π*.πⱽ
-  --           ; N-homᴰ = λ _ → Cᴰ.rectify $ Cᴰ.≡out $
-  --             Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩ ∙ sym π*.⋆πⱽ-natural
-  --             ∙ π*.⟨ Cᴰ.⋆IdR _ ⟩⋆πⱽ
-  --             ∙ π*.βᴰ _
-  --             ∙ (sym $ Cᴰ.reind-filler _ _)
-  --             ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
-  --           })
-  --   (λ (x , _ , γ) → sym $ π .N-hom _)
-
-  opaque
-    pb-naturality-lemma : ∀ {Θ Δ Γ : C.ob}
-      {δ : C [ Θ , Δ ]}
-      {γ~ : C [ Θ , F ⟅ Γ ⟆ ]}
-      {γ~' : C [ Δ , F ⟅ Γ ⟆ ]}
-      (δγ~'≡γ~ : δ C.⋆ γ~' ≡ γ~)
-      → δ C.⋆ π-Cart (γ~' C.⋆ π ⟦ Γ ⟧) γ~' C.id (λ i → C.⋆IdL (γ~' C.⋆ π ⟦ Γ ⟧) (~ i)) .fst .fst
-        ≡ π-Cart (γ~ C.⋆ π ⟦ Γ ⟧) γ~ C.id (λ i → C.⋆IdL (γ~ C.⋆ N-ob π Γ) (~ i)) .fst .fst C.⋆ F ⟪ δ ⟫
-    pb-naturality-lemma {Θ} {Δ} {Γ} {δ} {γ~} {γ~'} δγ~'≡γ~ =
-      pullbackExtensionality C (CartesianNatTrans→PBSq (π , π-Cart) (γ~' C.⋆ (π ⟦ Γ ⟧)))
-        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ sym $ pullbackArrowPr₁ C (CartesianNatTrans→PBSq (π , π-Cart) (γ~' C.⋆ (π ⟦ Γ ⟧))) _ C.id _ ⟩
-          ∙ ((δγ~'≡γ~ ∙ pullbackArrowPr₁ C (CartesianNatTrans→PBSq (π , π-Cart) (γ~ C.⋆ (π ⟦ Γ ⟧))) γ~ C.id _)
-          ∙ C.⟨ refl ⟩⋆⟨ cong (F .F-hom) (C.⟨ sym δγ~'≡γ~ ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _) ∙ F .F-seq _ _ ⟩) ∙ (sym $ C.⋆Assoc _ _ _))
-        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ sym $ pullbackArrowPr₂ C (CartesianNatTrans→PBSq (π , π-Cart) (γ~' C.⋆ (π ⟦ Γ ⟧))) _ C.id _ ⟩
-          ∙ ((C.⋆IdR _ ∙ (sym $ C.⋆IdL δ) ∙ C.⟨ pullbackArrowPr₂ C (CartesianNatTrans→PBSq (π , π-Cart) (γ~ C.⋆ (π ⟦ Γ ⟧))) γ~ C.id _ ⟩⋆⟨ refl ⟩) ∙ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ sym $ π .N-hom δ ⟩ ) ∙ sym (C.⋆Assoc _ _ _))
-
-  -- wkF-η : ∀ {Γ} → NatTrans Id (wkF Γ ∘F (Idᴰ /Fⱽ yoRec (C [-, Γ ]) (π ⟦ Γ ⟧)))
-  -- wkF-η {Γ} = /NatTrans
-  --   (natTrans (λ (Δ , _ , γ~) → Pullback.pullbackArrow (CartesianNatTrans→PBSq (π , π-Cart) (γ~ C.⋆ π ⟦ Γ ⟧)) γ~ C.id (sym $ C.⋆IdL _))
-  --     λ (_ , _ , δγ~'≡γ~) → pb-naturality-lemma δγ~'≡γ~)
-  --   (record
-  --     { N-obᴰ = λ {(Δ , Δᴰ , γ~)} _ → π*.introᴰ (Cᴰ.reind (pullbackArrowPr₂ C (CartesianNatTrans→PBSq (π , π-Cart) (γ~ C.⋆ π ⟦ Γ ⟧)) γ~ C.id _) Cᴰ.idᴰ)
-  --     ; N-homᴰ = λ {(Θ , Θᴰ , γ~)}{(Δ , Δᴰ , γ~')}{(δ , δᴰ , δγ~'≡γ~)} _ → Cᴰ.rectify $ Cᴰ.≡out $
-  --       π*.extensionalityᴰ (pb-naturality-lemma δγ~'≡γ~) (π*.⋆πⱽ-natural
-  --         ∙ Cᴰ.⟨⟩⋆⟨ π*.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
-  --         ∙ Cᴰ.⋆IdR (_ , δᴰ)
-  --         ∙ (sym $ π*.⋆πⱽ-natural ∙ Cᴰ.⟨⟩⋆⟨ π*.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _ _) ∙ refl ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ π*.βᴰ' _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _)) })
-  --   λ (Δ , _ , γ~) → sym $ pullbackArrowPr₁ C (CartesianNatTrans→PBSq (π , π-Cart) (γ~ C.⋆ π ⟦ Γ ⟧)) γ~ C.id _
 
   ∀FPshⱽ : ∀ {Γ} → Cᴰ.ob[ F ⟅ Γ ⟆ ] → Presheafⱽ Γ Cᴰ ℓCᴰ'
   ∀FPshⱽ Aᴰ = reindPsh (wkF _) (Cᴰ [-][-, Aᴰ ])

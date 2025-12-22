@@ -67,11 +67,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   (F : Functor C D) where
   private
-    module C = Category C
-    module D = Category D
-    module DR = Reasoning D
-    module Dᴰ = Fibers Dᴰ
-    module F*Dᴰ = Fibers (reindex Dᴰ F)
+    module D = Category D using (isSetHom)
+    module Dᴰ = Fibers Dᴰ using (ob[_]; reind; reind-filler; rectify; ≡out; cong-reind; ⋆IdL)
 
   reindexTerminalⱽ : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
   reindexTerminalⱽ x 𝟙ⱽ = (𝟙ⱽ .fst) ,
@@ -155,21 +152,17 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
 
   module _ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ) where
     private
-      module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ
-      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst)
+      module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ using (⟨_⟩⋆π₁ⱽ; ⟨_⟩⋆π₂ⱽ)
+      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; reind-filler; formal-reind-filler)
     reindex-×LRⱽPshᴰ-commute
       : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
                (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
     reindex-×LRⱽPshᴰ-commute =
-      -- -- strictPresLR→NatIso
-      -- -- (reindex-π-/ Dᴰ F x)
-      -- -- (reindPsh (reindex-π-/ Dᴰ F x) (Pᴰ .fst) ,
-      -- --   LocallyRepresentableⱽ→LocallyRepresentable (LRⱽReindex Pᴰ .snd))
-      -- -- (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
-      -- -- idPshHom
-      -- -- (λ _ → Eq.refl)
       strictPresLRⱽ→NatIso (reindex-π-/ Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
         (λ _ → Eq.refl)
+      -- this doesn't run out of memory with the LRPsh→Functor
+      -- definition but does for the "improved" version. I think this
+      -- is a type error with the improved version but it runs out of memory figuring that out...
       (λ (Γ , Γᴰ , f ) → ΣPathP ((ΣPathP ((F .F-id) , (ΣPathPProp (λ _ → D.isSetHom _ _)
         (Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ))))
       , (Pᴰ.rectify $ Pᴰ.≡out $
@@ -183,7 +176,7 @@ module _
   (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ') (F : Functor C D)
   where
   private
-    module Dᴰ = CartesianCategoryⱽ Dᴰ
+    module Dᴰ = CartesianCategoryⱽ Dᴰ using (Cᴰ; termⱽ; bpⱽ; cartesianLifts)
   CartesianCategoryⱽReindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
   CartesianCategoryⱽReindex =
     cartesiancategoryⱽ

@@ -116,10 +116,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableⱽ : Type _
   Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
 
-  -- ∫Representableⱽ : Representableⱽ → RepresentationPshIso Pⱽ.∫
-  -- ∫Representableⱽ (vᴰ , reprⱽ) .fst = x , vᴰ
-  -- ∫Representableⱽ (vᴰ , reprⱽ) .snd = {!? ⋆PshIsoⱽ ?!} -- invPshIso (∫Repr-iso Cᴰ) ⋆PshIsoⱽ ?
-
+-- -- TODO: implement this, analogous to UniversalElementNotation
 -- module RepresentableⱽNotation {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{x}
 --   (Pᴰ : Presheafⱽ x Cᴰ ℓPᴰ)
 --   ((vertexⱽ , repr) : Representableⱽ Cᴰ x Pᴰ)
@@ -128,8 +125,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
 --     module C = Category C
 --     module Cᴰ = Fibers Cᴰ
 --     module Pᴰ = PresheafᴰNotation Cᴰ (C [-, x ]) Pᴰ
-
-  -- introᴰ :
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

@@ -29,7 +29,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base hiding (_[-][-,_])
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.Constructions.Reindex.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
@@ -141,7 +141,7 @@ open Category
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (G : Functor C D)
-  (Dᴰ : Categoryᴰ D ℓD ℓDᴰ')
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
   (cartLifts : isFibration Dᴰ)
   where
   private

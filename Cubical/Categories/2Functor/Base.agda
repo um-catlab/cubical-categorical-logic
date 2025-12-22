@@ -133,6 +133,8 @@ module _
   seqLaxFunctor .F-unitality-l f =
     E.Prectify {!!} $ E.≡out $
       {!!}
+      ∙ {!!}
+      ∙ {!E.⟨ ? ⟩⋆ⱽ⟨ ? ⟩!}
       ∙ ΣPathP (ΣPathP (_ , _) , (G.F-unitality-l (F.F₁ f)))
       ∙ ΣPathP (refl , (cong G.F₂ (sym F.F-id₂)))
     -- Prectify $

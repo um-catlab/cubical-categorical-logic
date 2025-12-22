@@ -589,3 +589,69 @@ _^opBif {C = C}{D = D}{E = E} F = mkBifunctorParAx G where
   G .Bif-×-seq f f' g g' = F.Bif-×-seq f' f g' g
   G .Bif-L×-agree = F.Bif-L×-agree
   G .Bif-R×-agree = F.Bif-R×-agree
+
+CurryBifunctor-CurriedToBifunctor≡ :
+  (F : Bifunctor C D E) → F ≡ CurriedToBifunctor (CurryBifunctor F)
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-ob = Bif-ob F
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-homL = Bif-homL F
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-homR = Bif-homR F
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-hom× f g = F .Bif-LR-fuse f g (~ i)
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-L-id = Bif-L-id F
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-L-seq = Bif-L-seq F
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-R-id = Bif-R-id F
+CurryBifunctor-CurriedToBifunctor≡ F i .Bif-R-seq = Bif-R-seq F
+CurryBifunctor-CurriedToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-×-id =
+  isProp→PathP (λ j → isSetHom E (F .Bif-LR-fuse (C .id) (D .id) (~ j)) (E .id)) (F .Bif-×-id)
+    ((CurriedToBifunctor (CurryBifunctor F)) .Bif-×-id) i
+CurryBifunctor-CurriedToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-×-seq f f' g g' =
+  isProp→PathP
+    (λ j → isSetHom E (F .Bif-LR-fuse (f C.⋆ f') (g D.⋆ g') (~ j))
+      (F .Bif-LR-fuse f g (~ j) E.⋆ F .Bif-LR-fuse f' g' (~ j)))
+    (F .Bif-×-seq f f' g g')
+    ((CurriedToBifunctor (CurryBifunctor F)) .Bif-×-seq f f' g g') i
+    where
+    module C = Category C
+    module D = Category D
+    module E = Category E
+CurryBifunctor-CurriedToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-L×-agree f =
+  isProp→PathP
+    (λ j → isSetHom E (Bif-homL F f _) (F .Bif-LR-fuse f D.id (~ j)))
+    (F .Bif-L×-agree f)
+    ((CurriedToBifunctor (CurryBifunctor F)) .Bif-L×-agree f) i
+    where
+    module C = Category C
+    module D = Category D
+    module E = Category E
+CurryBifunctor-CurriedToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-R×-agree g =
+  isProp→PathP
+    (λ j → isSetHom E (Bif-homR F _ g) (F .Bif-LR-fuse C.id g (~ j)))
+    (F .Bif-R×-agree g)
+    ((CurriedToBifunctor (CurryBifunctor F)) .Bif-R×-agree g) i
+    where
+    module C = Category C
+    module D = Category D
+    module E = Category E
+CurryBifunctor-CurriedToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-LR-fuse f g =
+  isProp→PathP
+    (λ j → isSetHom E (F .Bif-homL f _ E.⋆ F .Bif-homR _ g) (F .Bif-LR-fuse f g (~ j)))
+    (F .Bif-LR-fuse f g)
+    ((CurriedToBifunctor (CurryBifunctor F)) .Bif-LR-fuse f g) i
+    where
+    module C = Category C
+    module D = Category D
+    module E = Category E
+CurryBifunctor-CurriedToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-RL-fuse f g =
+  isProp→PathP
+    (λ j → isSetHom E (F .Bif-homR _ g E.⋆ F .Bif-homL f _) (F .Bif-LR-fuse f g (~ j)))
+    (F .Bif-RL-fuse f g)
+    ((CurriedToBifunctor (CurryBifunctor F)) .Bif-RL-fuse f g) i
+    where
+    module C = Category C
+    module D = Category D
+    module E = Category E
+
+Bifunctor≡ : {F G : Bifunctor C D E} → CurryBifunctor F ≡ CurryBifunctor G → F ≡ G
+Bifunctor≡ {F = F} {G = G} e =
+  CurryBifunctor-CurriedToBifunctor≡ F
+  ∙ cong CurriedToBifunctor e
+  ∙ sym (CurryBifunctor-CurriedToBifunctor≡ G)

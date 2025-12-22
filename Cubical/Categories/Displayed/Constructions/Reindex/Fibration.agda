@@ -41,7 +41,7 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.HLevels
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning

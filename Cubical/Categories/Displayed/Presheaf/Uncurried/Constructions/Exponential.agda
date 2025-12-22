@@ -255,13 +255,12 @@ module _
     -- module ⇒ⱽPshSmall = P⇒Large-cocontinuous-repr (-×Psh (Pᴰ .fst)) (-×Psh (Pᴰ .fst) -cocontinuous)
     --   (λ Γ → LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) Γ
     --     ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
-  ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
-  ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+  ×LRⱽPshᴰ' : Functor (Cᴰ / P) (Cᴰ / P)
+  ×LRⱽPshᴰ' = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 
-
-
-  -- improved-×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
-  -- improved-×LRⱽPshᴰ = improveF-hom ×LRⱽPshᴰ
+  -- -- this is slow but doable. Try profiling it?
+  -- ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
+  -- ×LRⱽPshᴰ = improveF-hom ×LRⱽPshᴰ'
   --   (λ {(Δ , Δᴰ , f) (Γ , Γᴰ , f')} (γ , γᴰ , γf'≡f) →
   --     (γ , (×ⱽPᴰ.introᴰ (Cᴰ.reind (C.⋆IdL γ) (×ⱽPᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ)) (Pᴰ.reind (P.⋆IdL _ ∙ sym γf'≡f) ×ⱽPᴰ.π₂ⱽ) , γf'≡f)) ,
   --     (ΣPathP ((C.⋆IdL _) , ΣPathPProp (λ _ → P.isSetPsh _ _)
@@ -282,7 +281,7 @@ module _
   module _ (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
 
     _⇒ⱽPshSmall_ : Presheafᴰ P Cᴰ ℓQᴰ
-    _⇒ⱽPshSmall_ = reindPsh ×LRⱽPshᴰ Qᴰ
+    _⇒ⱽPshSmall_ = reindPsh ×LRⱽPshᴰ' Qᴰ
 
     -- ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
     --   → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
@@ -317,37 +316,39 @@ module _
   --   module Fᴰ = Functorᴰ Fᴰ
   -- open Category
   -- open PresheafNotation renaming (p[_] to [_]p[_])
-  strictPresLRⱽ→NatIso :
-    (F⟅c×P⟆≡Fc×Q : (c : Category.ob (Cᴰ / P)) →
-      F ⟅ LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex
-      ⟆
-      Eq.≡
-      LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
-      .vertex)
-    → (((c : Category.ob (Cᴰ / P)) →
-      Eq.mixedHEq
-      (Eq.ap
-       (λ Fc×Q →
-          ((Dᴰ / Q) [ Fc×Q , F ⟅ c ⟆ ]) × PresheafNotation.p[ Qᴰ .fst ] Fc×Q)
-       (F⟅c×P⟆≡Fc×Q c))
-      (F ⟪
-       LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
-       .fst
-       ⟫
-       ,
-       αᴰ .N-ob
-       (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex)
-       (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
-        .snd))
-      (LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
-       .element)))
-    → NatIso ((×LRⱽPshᴰ Qᴰ) ∘F F) (F ∘F (×LRⱽPshᴰ Pᴰ))
-  strictPresLRⱽ→NatIso F⟅c×P⟆≡Fc×Q F⟅π⟆≡π = strictPresLR→NatIso F
-    (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
-    (Qᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd))
-    αᴰ
-    F⟅c×P⟆≡Fc×Q
-    F⟅π⟆≡π
+
+  -- strictPresLRⱽ→NatIso :
+  --   (F⟅c×P⟆≡Fc×Q : (c : Category.ob (Cᴰ / P)) →
+  --     F ⟅ LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex
+  --     ⟆
+  --     Eq.≡
+  --     LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
+  --     .vertex)
+  --   → (((c : Category.ob (Cᴰ / P)) →
+  --     Eq.mixedHEq
+  --     (Eq.ap
+  --      (λ Fc×Q →
+  --         ((Dᴰ / Q) [ Fc×Q , F ⟅ c ⟆ ]) × PresheafNotation.p[ Qᴰ .fst ] Fc×Q)
+  --      (F⟅c×P⟆≡Fc×Q c))
+  --     (F ⟪
+  --      LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
+  --      .fst
+  --      ⟫
+  --      ,
+  --      αᴰ .N-ob
+  --      (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex)
+  --      (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
+  --       .snd))
+  --     (LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
+  --      .element)))
+  --   → NatIso ((×LRⱽPshᴰ Qᴰ) ∘F F) (F ∘F (×LRⱽPshᴰ Pᴰ))
+  -- strictPresLRⱽ→NatIso F⟅c×P⟆≡Fc×Q F⟅π⟆≡π = strictPresLR→NatIso F
+  --   (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+  --   (Qᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd))
+  --   αᴰ
+  --   F⟅c×P⟆≡Fc×Q
+  --   F⟅π⟆≡π
+
 -- module _
 --   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 --   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

@@ -19,7 +19,6 @@ open import Cubical.Categories.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.NaturalTransformation.Reind
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
@@ -39,14 +38,13 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Fibration
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties hiding (isFibrationReindex)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Limits.CartesianV'
-import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
@@ -162,13 +160,14 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     reindex-×LRⱽPshᴰ-commute
       : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
                (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
-    reindex-×LRⱽPshᴰ-commute = -- strictPresLR→NatIso
-      -- (reindex-π-/ Dᴰ F x)
-      -- (reindPsh (reindex-π-/ Dᴰ F x) (Pᴰ .fst) ,
-      --   LocallyRepresentableⱽ→LocallyRepresentable (LRⱽReindex Pᴰ .snd))
-      -- (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
-      -- idPshHom
-      -- (λ _ → Eq.refl)
+    reindex-×LRⱽPshᴰ-commute =
+      -- -- strictPresLR→NatIso
+      -- -- (reindex-π-/ Dᴰ F x)
+      -- -- (reindPsh (reindex-π-/ Dᴰ F x) (Pᴰ .fst) ,
+      -- --   LocallyRepresentableⱽ→LocallyRepresentable (LRⱽReindex Pᴰ .snd))
+      -- -- (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+      -- -- idPshHom
+      -- -- (λ _ → Eq.refl)
       strictPresLRⱽ→NatIso (reindex-π-/ Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
         (λ _ → Eq.refl)
       (λ (Γ , Γᴰ , f ) → ΣPathP ((ΣPathP ((F .F-id) , (ΣPathPProp (λ _ → D.isSetHom _ _)

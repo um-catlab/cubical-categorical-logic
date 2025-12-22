@@ -165,29 +165,28 @@ module _
   private
     module D = Category D
   module _ (α : NatTrans F G) (α' : singl (α .N-ob)) where
-    opaque
-      improveN-hom : N-hom-Type F G (α' .fst)
-      improveN-hom = subst (N-hom-Type F G) (α' .snd) (N-hom α)
+    -- opaque
+    improveN-hom : N-hom-Type F G (α' .fst)
+    improveN-hom = subst (N-hom-Type F G) (α' .snd) (N-hom α)
     improveNatTrans : NatTrans F G
     improveNatTrans = natTrans (α' .fst) improveN-hom
 
   module _ (α : NatIso F G) (α' : singl (α .trans .N-ob)) (α⁻ : singl (symNatIso α .trans .N-ob)) where
-    opaque
-      secαα⁻ : (x : C .ob)
-        → α⁻ .fst x D.⋆ α' .fst x ≡ D.id
-      secαα⁻ = subst2 (λ N-ob N-ob⁻ → (x : C .ob)
-        → N-ob⁻ x D.⋆ N-ob x ≡ D.id )
-        (α' .snd)
-        (α⁻ .snd)
-        (λ x → α .nIso x .sec)
+    secαα⁻ : (x : C .ob)
+      → α⁻ .fst x D.⋆ α' .fst x ≡ D.id
+    secαα⁻ = subst2 (λ N-ob N-ob⁻ → (x : C .ob)
+      → N-ob⁻ x D.⋆ N-ob x ≡ D.id )
+      (α' .snd)
+      (α⁻ .snd)
+      (λ x → α .nIso x .sec)
 
-      retαα⁻ : (x : C .ob)
-        → α' .fst x D.⋆ α⁻ .fst x ≡ D.id
-      retαα⁻ = subst2 (λ N-ob N-ob⁻ → (x : C .ob)
-        → N-ob x D.⋆ N-ob⁻ x ≡ D.id )
-        (α' .snd)
-        (α⁻ .snd)
-        (λ x → α .nIso x .ret)
+    retαα⁻ : (x : C .ob)
+      → α' .fst x D.⋆ α⁻ .fst x ≡ D.id
+    retαα⁻ = subst2 (λ N-ob N-ob⁻ → (x : C .ob)
+      → N-ob x D.⋆ N-ob⁻ x ≡ D.id )
+      (α' .snd)
+      (α⁻ .snd)
+      (λ x → α .nIso x .ret)
 
     improveNatIso : NatIso F G
     improveNatIso = record

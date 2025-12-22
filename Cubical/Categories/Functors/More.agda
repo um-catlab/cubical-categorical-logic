@@ -46,20 +46,19 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   F-hom' : F-hom-ty
   F-hom' f = F-hom-singl f .fst
 
-  opaque
-    F-hom≡F-hom' : Path F-hom-ty (F .F-hom) F-hom'
-    F-hom≡F-hom' = implicitFunExt (implicitFunExt (funExt λ f → F-hom-singl f .snd))
+  F-hom≡F-hom' : Path F-hom-ty (F .F-hom) F-hom'
+  F-hom≡F-hom' = implicitFunExt (implicitFunExt (funExt λ f → F-hom-singl f .snd))
 
-    Fid : {x : C .ob} → F-hom' (C .id {x}) ≡ D .id
-    Fid {x} = subst (λ (F-hom'' : F-hom-ty) → F-hom'' (C .id {x}) ≡ D .id) F-hom≡F-hom' (F .F-id) --
+  Fid : {x : C .ob} → F-hom' (C .id {x}) ≡ D .id
+  Fid {x} = subst (λ (F-hom'' : F-hom-ty) → F-hom'' (C .id {x}) ≡ D .id) F-hom≡F-hom' (F .F-id) --
 
-    Fseq : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ]) →
-      F-hom' (seq' C f g) ≡ seq' D (F-hom' f) (F-hom' g)
-    Fseq = λ f g →
-      subst
-       (λ (F-hom'' : F-hom-ty) →
-          F-hom'' (seq' C f g) ≡ seq' D (F-hom'' f) (F-hom'' g))
-       F-hom≡F-hom' (F .F-seq f g)
+  Fseq : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ]) →
+    F-hom' (seq' C f g) ≡ seq' D (F-hom' f) (F-hom' g)
+  Fseq = λ f g →
+    subst
+     (λ (F-hom'' : F-hom-ty) →
+        F-hom'' (seq' C f g) ≡ seq' D (F-hom'' f) (F-hom'' g))
+     F-hom≡F-hom' (F .F-seq f g)
 
   improveF-hom : Functor C D
   improveF-hom = record

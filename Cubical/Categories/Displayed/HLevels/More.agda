@@ -29,15 +29,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     module Cᴰ = Categoryᴰ Cᴰ
     module RCᴰ = Reasoning Cᴰ
 
-  opaque
-    propHomsFiller :
-      ∀ {x y}{xᴰ yᴰ}
-        {f g : C [ x , y ]}
-        (fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
-        (p : f ≡ g)
-        gᴰ
-      → fᴰ Cᴰ.≡[ p ] gᴰ
-    propHomsFiller fᴰ p gᴰ = toPathP (isPropHom _ _ _ _ _)
+  propHomsFiller :
+    ∀ {x y}{xᴰ yᴰ}
+      {f g : C [ x , y ]}
+      (fᴰ : Cᴰ.Hom[ f ][ xᴰ , yᴰ ])
+      (p : f ≡ g)
+      gᴰ
+    → fᴰ Cᴰ.≡[ p ] gᴰ
+  propHomsFiller fᴰ p gᴰ = toPathP (isPropHom _ _ _ _ _)
 
 module _
        {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
@@ -58,11 +57,11 @@ module _
       {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
        → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ])
     where
-    opaque
-      Fhomᴰ : {x y : C .ob}
-        {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
-         → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]
-      Fhomᴰ = F-homᴰ
+    -- TODO: this is no longer actually opaque...
+    Fhomᴰ : {x y : C .ob}
+      {f : C [ x , y ]} {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+       → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]
+    Fhomᴰ = F-homᴰ
     mkOpaquePropHomsFunctor : Functorᴰ F Cᴰ Dᴰ
     mkOpaquePropHomsFunctor .Functorᴰ.F-obᴰ = F-obᴰ
     mkOpaquePropHomsFunctor .Functorᴰ.F-homᴰ = Fhomᴰ

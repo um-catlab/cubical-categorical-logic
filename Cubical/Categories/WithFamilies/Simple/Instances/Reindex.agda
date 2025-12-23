@@ -12,6 +12,7 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 import Cubical.Categories.Displayed.Constructions.Reindex as Categoryᴰ
+import Cubical.Categories.Displayed.Constructions.Reindex.CurriedFibration as Categoryᴰ
 import Cubical.Categories.Displayed.Presheaf.Constructions as Presheafᴰ
 open import Cubical.Categories.Displayed.Presheaf.CartesianLift
 open import Cubical.Categories.Displayed.Presheaf.Base

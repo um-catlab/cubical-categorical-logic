@@ -41,6 +41,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)
   (F-hom-singl : ∀ {x y} (f : C [ x , y ]) → singl (F ⟪ f ⟫))
   where
+  -- I lifted these definitions to make it easier to make them opaque,
+  -- but I have ultimately ended up keeping them transparent.
   F-hom-ty : Type _
   F-hom-ty = ∀ {x y} (f : C [ x , y ]) → D [ F ⟅ x ⟆ , F ⟅ y ⟆ ]
   F-hom' : F-hom-ty
@@ -50,7 +52,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   F-hom≡F-hom' = implicitFunExt (implicitFunExt (funExt λ f → F-hom-singl f .snd))
 
   Fid : {x : C .ob} → F-hom' (C .id {x}) ≡ D .id
-  Fid {x} = subst (λ (F-hom'' : F-hom-ty) → F-hom'' (C .id {x}) ≡ D .id) F-hom≡F-hom' (F .F-id) --
+  Fid {x} = subst (λ (F-hom'' : F-hom-ty) → F-hom'' (C .id {x}) ≡ D .id) F-hom≡F-hom' (F .F-id)
 
   Fseq : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ]) →
     F-hom' (seq' C f g) ≡ seq' D (F-hom' f) (F-hom' g)

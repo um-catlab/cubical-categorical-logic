@@ -165,7 +165,6 @@ module _
   private
     module D = Category D
   module _ (α : NatTrans F G) (α' : singl (α .N-ob)) where
-    -- opaque
     improveN-hom : N-hom-Type F G (α' .fst)
     improveN-hom = subst (N-hom-Type F G) (α' .snd) (N-hom α)
     improveNatTrans : NatTrans F G
@@ -225,8 +224,6 @@ module _
     (_ , funExt λ x → D.⋆IdR _ ∙ D.⟨ D.⋆IdR _ ⟩⋆⟨ refl ⟩)
 
 -- Composition of natural transformation/iso "squares"
-
---
 
 -- B F C F' C'
 -- G   H    H'

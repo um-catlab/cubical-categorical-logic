@@ -72,7 +72,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     πⱽ = Cᴰ.idᴰ ⋆πⱽ
 
     opaque
-
       congP-introᴰ :
         ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g'}
           → {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]}
@@ -96,16 +95,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
               (g' , introᴰ g'fᴰ)
       cong-introᴰ g≡g' gfᴰ≡g'fᴰ =
         ΣPathP (g≡g' , (congP-introᴰ (Cᴰ.rectify $ Cᴰ.≡out gfᴰ≡g'fᴰ)))
-      -- introᴰ-natural : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}{h}{g}
-      --   {hᴰ : Cᴰ [ h ][ Δᴰ , Γᴰ ]}
-      --   {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]}
-      --   → Path Cᴰ.Hom[ _ , _ ] (_ , introᴰ ({!hᴰ!} Cᴰ.⋆ᴰ {!!})) (_ , {!!})
-      -- introᴰ-natural =
-      --   {!!}
-        -- cong-introᴰ {!!} ({!!} ∙ Cᴰ.reind-filler _ _)
-        -- ∙ (Cᴰ.≡in $ invPshIso (f*yᴰ .snd) .trans .N-hom _ _ _ _)
-        -- ∙ {!!}
-
 
       ⟨_⟩⋆πⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g'}
         → {gᴰ : Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]}
@@ -471,16 +460,3 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             ((f C.⋆ f') , sq-filler-gen (kᴰ Cᴰ.⋆ᴰ k'ᴰ) _)
       sq-collapse =
         cartLift-sq-collapse (cartLifts yᴰ w g) (cartLifts zᴰ x h) (cartLifts z'ᴰ x' h') kᴰ k'ᴰ
-
-    -- Say in addition to this
-    --    f     f'
-    -- w --> x --> x'
-    -- | g   | h   | h'
-    -- \/    \/    \/
-    -- y --> z --> z'
-    --    k     k'
-    module _ where
-      -- sq-filler-comm
-      --   → Path Cᴰ.Hom[ _ , _ ]
-      --       (? , sq-filler-gen kᴰ comm1 Cᴰ.⋆ᴰ sq-filler-gen k'ᴰ comm2)
-      --       (? , sq-filler-gen kᴰ comm1 Cᴰ.⋆ᴰ sq-filler-gen k'ᴰ comm2)

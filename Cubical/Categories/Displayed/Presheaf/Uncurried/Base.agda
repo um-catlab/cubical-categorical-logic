@@ -106,7 +106,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
   where
   _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHet F P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
-  Fᴰ /Fᴰ α = improveF-hom (∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)) λ _ → _ , refl
+  Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}{Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
@@ -134,8 +134,7 @@ module _ {C : Category ℓC ℓC'}
   where
   module _ (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) where
     _/Fⱽ_ :  Functor (Cᴰ / P) (Dᴰ / Q)
-    -- experiment: does this help?
-    _/Fⱽ_ = improveF-hom (Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)) (λ _ → _ , refl)
+    _/Fⱽ_ = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'} {P : Presheaf C ℓP}
   where
@@ -152,9 +151,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
     αP' = αP
 
     /NatTrans : NatTrans F G
-    /NatTrans = improveNatTrans (natTrans
+    /NatTrans = natTrans
       (λ x → (N-ob α x) , ((αᴰ .N-obᴰ tt) , (αP' x)))
-      (λ f → ΣPathP ((N-hom α f) , ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .N-homᴰ tt)))) (_ , refl)
+      (λ f → ΣPathP ((N-hom α f) , ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .N-homᴰ tt)))
 
   module _ {F G : Functor D (Cᴰ / P)}
     (α : NatIso (Fst ∘F F) (Fst ∘F G))
@@ -169,8 +168,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
     /NI-lem x = (P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩ ∙ P.⋆IdL _
 
     /NatIso : NatIso F G
-    /NatIso = improveNatIso
-      (
+    /NatIso =
       record { trans = /NatTrans (α .trans) (αᴰ .transᴰ) αP''
       ; nIso = λ x →
         isiso ( (α .nIso x .isIso.inv)
@@ -178,8 +176,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
               , /NI-lem x)
         (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ))))
         (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))) }
-      )
-      (_ , refl) (_ , refl)
 
 -- -- TODO:
 -- -- 1. /Fⱽ-seq

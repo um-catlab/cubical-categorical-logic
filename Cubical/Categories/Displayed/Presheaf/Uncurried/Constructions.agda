@@ -98,6 +98,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       _⇒ⱽPshLarge_ : Presheafᴰ P Cᴰ (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓPᴰ) ℓQᴰ)
       _⇒ⱽPshLarge_ = Pᴰ ⇒PshLarge Qᴰ
 
+    -- TODO: rename: This is not weakening, wkLR∀ is.
     wkPshᴰ : (Q : Presheaf C ℓQ) → Functor (PresheafᴰCategory P Cᴰ ℓPᴰ) (PresheafᴰCategory (P ×Psh Q) Cᴰ ℓPᴰ)
     wkPshᴰ Q = reindPshF (Idᴰ /Fⱽ π₁ P Q)
 
@@ -346,80 +347,6 @@ module _ {C : Category ℓC ℓC'} where
           ΣPathP ((β' .N-hom Δ Γ γ s) , ΣPathPProp (λ _ → R.isSetPsh _ _)
           (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)))
 
--- Representability condition to get UMP for ⇒ⱽSmall
-module _
-  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  where
-  private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
-    module P = PresheafNotation P
-
-  LocallyRepresentableⱽ : Presheafᴰ P Cᴰ ℓPᴰ → Type _
-  LocallyRepresentableⱽ Pᴰ = ∀ {x} (xᴰ : Cᴰ.ob[ x ])(p : P.p[ x ])
-    → Representableⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×Psh reindPshᴰNatTrans (yoRec P p) Pᴰ)
-
-  LocallyRepresentableⱽ→LocallyRepresentable : {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-    → LocallyRepresentableⱽ Pᴰ
-    → LocallyRepresentable Pᴰ
-  LocallyRepresentableⱽ→LocallyRepresentable {Pᴰ = Pᴰ} _×ⱽ_*Pᴰ (Γ , Γᴰ , p) =
-    RepresentationPshIso→UniversalElement (((Cᴰ / P) [-, Γ , Γᴰ , p ]) ×Psh Pᴰ)
-      ((_ , (Γᴰ ×ⱽ p *Pᴰ) .fst , p) ,
-      -- Cᴰ / P [-, Γ , (Γᴰ ×ⱽ p *Pᴰ) , p ]
-      push-repr
-      -- pushⱽ p (Cᴰ [-][-, (Γᴰ ×ⱽ p *Pᴰ) ])
-      ⋆PshIso push-PshIsoⱽ (yoRec P p) ((Γᴰ ×ⱽ p *Pᴰ) .snd)
-      -- pushⱽ p (Cᴰ [-][-, Γᴰ ] ×ⱽ (reindPshᴰNatTrans (yoRec p) Pᴰ))
-      ⋆PshIso FrobeniusReciprocity (yoRec P p) (Cᴰ [-][-, Γᴰ ]) Pᴰ
-      -- pushⱽ p (Cᴰ [-][-, Γᴰ ]) ×ⱽ Pᴰ
-      ⋆PshIso ×PshIso (invPshIso push-repr) idPshIso
-      -- (Cᴰ / P [-][-, Γ , Γᴰ , p ]) ×ⱽ Pᴰ
-      )
-
-LRⱽPresheafᴰ : {C : Category ℓC ℓC'}(P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) → Type _
-LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyRepresentableⱽ
-
-module _
-  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
-  private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
-    module P = PresheafNotation P
-    module ⇒ⱽPshSmall = P⇒Large-cocontinuous-repr (-×Psh (Pᴰ .fst)) (-×Psh (Pᴰ .fst) -cocontinuous)
-      (λ Γ → LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) Γ
-        ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
-  ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
-  ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
-
-  ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F : NatIso ×LRⱽPshᴰ ⇒ⱽPshSmall.P-F
-  ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F = record { trans = natTrans (λ x → (Cᴰ / P) .id)
-    λ f → (Cᴰ / P) .⋆IdR _
-    ∙ ΣPathP ((sym $ C.⋆IdL _ ∙ C.⋆IdL _) , (ΣPathPProp (λ _ → P.isSetPsh _ _)
-    (Cᴰ.rectify $ Cᴰ.≡out $
-    sym $ Cᴰ.⋆IdL _ ∙ Cᴰ.⋆IdL _)))
-    ∙ (Cᴰ / P) .⋆IdL _
-    ; nIso = λ x → idCatIso {C = Cᴰ / P} .snd }
-
-  module _ (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
-
-    _⇒ⱽPshSmall_ : Presheafᴰ P Cᴰ ℓQᴰ
-    _⇒ⱽPshSmall_ = reindPsh ×LRⱽPshᴰ Qᴰ
-
-    ⇒ⱽPshSmall-UMP : ∀ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
-      → Iso (PshHom Rᴰ _⇒ⱽPshSmall_) (PshHom (Rᴰ ×Psh Pᴰ .fst) Qᴰ)
-    ⇒ⱽPshSmall-UMP =
-      compIso (postcomp⋆PshHom-Iso (reindNatIsoPsh ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F Qᴰ))
-              (⇒ⱽPshSmall.P⇒Small-UMP Qᴰ _)
-
-module _
-  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : LRⱽPresheafᴰ P Cᴰ ℓQᴰ) where
-  ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ (Pᴰ .fst) (Qᴰ .fst))
-    → NatIso (×LRⱽPshᴰ Pᴰ) (×LRⱽPshᴰ Qᴰ)
-  ×LRⱽPshᴰ-Iso α = LRPshIso→NatIso _ _ α
-
 module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   where
   private
@@ -481,6 +408,6 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
     ∀PshSmall = reindPsh wkLR∀
 
-    ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
-      → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
-    ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _
+    -- ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+    --   → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
+    -- ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _

@@ -21,7 +21,7 @@ open import Cubical.Categories.Instances.Functors
 
 private
   variable
-    ℓA ℓA' ℓB ℓB' ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
+    ℓA ℓA' ℓB ℓB' ℓC ℓC' ℓC'' ℓC''' ℓD ℓD' ℓE ℓE' ℓE'' ℓE''' : Level
     ℓ ℓ' ℓ'' : Level
     B C D E : Category ℓ ℓ'
 
@@ -156,3 +156,153 @@ module _
   ∘F-^opF-NatIso .nIso x .sec = E.⋆IdL (∘F-^opF-NatIso .nIso x .inv)
   ∘F-^opF-NatIso .nIso x .ret = E.⋆IdL (N-ob (∘F-^opF-NatIso .trans) x)
 
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {F : Functor C D}
+  {G : Functor C D}
+  where
+  private
+    module D = Category D
+  module _ (α : NatTrans F G) (α' : singl (α .N-ob)) where
+    improveN-hom : N-hom-Type F G (α' .fst)
+    improveN-hom = subst (N-hom-Type F G) (α' .snd) (N-hom α)
+    improveNatTrans : NatTrans F G
+    improveNatTrans = natTrans (α' .fst) improveN-hom
+
+  module _ (α : NatIso F G) (α' : singl (α .trans .N-ob)) (α⁻ : singl (symNatIso α .trans .N-ob)) where
+    secαα⁻ : (x : C .ob)
+      → α⁻ .fst x D.⋆ α' .fst x ≡ D.id
+    secαα⁻ = subst2 (λ N-ob N-ob⁻ → (x : C .ob)
+      → N-ob⁻ x D.⋆ N-ob x ≡ D.id )
+      (α' .snd)
+      (α⁻ .snd)
+      (λ x → α .nIso x .sec)
+
+    retαα⁻ : (x : C .ob)
+      → α' .fst x D.⋆ α⁻ .fst x ≡ D.id
+    retαα⁻ = subst2 (λ N-ob N-ob⁻ → (x : C .ob)
+      → N-ob x D.⋆ N-ob⁻ x ≡ D.id )
+      (α' .snd)
+      (α⁻ .snd)
+      (λ x → α .nIso x .ret)
+
+    improveNatIso : NatIso F G
+    improveNatIso = record
+      { trans = improveNatTrans (α .trans) α'
+      ; nIso = λ x → isiso (α⁻ .fst x)
+        (secαα⁻ x)
+        (retαα⁻ x) }
+
+module _
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'}
+  {F : Functor C D}
+  {G : Functor C E}
+  {H : Functor D E}
+  {H⁻ : Functor E D}
+  (ρ : (H⁻ ∘F H) ≅ᶜ Id)
+  where
+  private
+    module D = Category D
+    retrMovePost' : (H ∘F F) ≅ᶜ G → F ≅ᶜ (H⁻ ∘F G)
+    retrMovePost' HF≅G =
+      -- F
+      (symNatIso $ CAT⋆IdR {F = F})
+      -- Id ∘F F
+      ⋆NatIso (F ∘ˡi symNatIso ρ)
+      -- (H⁻ ∘F H) ∘F F
+      ⋆NatIso (symNatIso $ CAT⋆Assoc F H H⁻)
+      -- H⁻ ∘F (H ∘F F)
+      ⋆NatIso (H⁻ ∘ʳi HF≅G)
+      -- H⁻ ∘F G
+
+  retrMovePost : (H ∘F F) ≅ᶜ G → F ≅ᶜ (H⁻ ∘F G)
+  retrMovePost HF≅G = improveNatIso (retrMovePost' HF≅G)
+    (_ , (funExt λ x → D.⋆IdL _ ∙ D.⟨ refl ⟩⋆⟨ D.⋆IdL _ ⟩))
+    (_ , funExt λ x → D.⋆IdR _ ∙ D.⟨ D.⋆IdR _ ⟩⋆⟨ refl ⟩)
+
+-- Composition of natural transformation/iso "squares"
+
+-- B F C F' C'
+-- G   H    H'
+-- D K E K' E'
+module _
+  {B : Category ℓB ℓB'}
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'}
+  {C' : Category ℓC'' ℓC'''}
+  {E' : Category ℓE'' ℓE'''}
+  {F : Functor B C}
+  {G : Functor B D}
+  {H : Functor C E}
+  {K : Functor D E}
+  {F' : Functor C C'}
+  {H' : Functor C' E'}
+  {K' : Functor E E'}
+  where
+  private
+    module E' = Category E'
+  _□NatTrans_
+    : (α : NatTrans (H ∘F F) (K ∘F G))
+      (β : NatTrans (H' ∘F F') (K' ∘F H))
+    →      NatTrans (H' ∘F F' ∘F F) (K' ∘F K ∘F G)
+  α □NatTrans β =
+    improveNatTrans (
+      -- H' (F' F)
+      CAT⋆Assoc F F' H' .trans
+      -- (H' F') F
+      ⋆NatTrans (β ∘ˡ F)
+      -- (K' H) F
+      ⋆NatTrans symNatIso (CAT⋆Assoc F H K') .trans
+      -- K' (H F)
+      ⋆NatTrans (K' ∘ʳ α))
+      (_ , (funExt λ x → E'.⋆IdL _ ∙ E'.⟨ refl ⟩⋆⟨ E'.⋆IdL _ ⟩))
+
+  infixr 9 _□NatTrans_
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  CAT⋆IdL : {F : Functor C D} → NatIso (F ∘F Id) F
+  CAT⋆IdL {F = F} = record { trans = natTrans (idTrans F .N-ob) (idTrans F .N-hom) ; nIso = idNatIso F .nIso }
+
+-- B F C F' C' === C'
+-- ||  H    H'     ||
+-- B = B K' E' K'' C'
+module _
+  {B : Category ℓB ℓB'}
+  {C : Category ℓC ℓC'}
+  {C' : Category ℓC'' ℓC'''}
+  {E' : Category ℓE'' ℓE'''}
+  {F : Functor B C}
+  {F' : Functor C C'}
+  {H : Functor C B}
+  {H' : Functor C' E'}
+  {K' : Functor B E'}
+  {K'' : Functor E' C'}
+  where
+  private
+    module C' = Category C'
+    module E' = Category E'
+    module K'' = Functor K''
+  Mate : (ε : NatTrans (H ∘F F) Id) (α : NatTrans (H' ∘F F') (K' ∘F H)) (η : NatTrans Id (K'' ∘F H'))
+    → NatTrans (F' ∘F F) (K'' ∘F K')
+  Mate ε α η = improveNatTrans
+    -- F' F
+    ((symNatIso CAT⋆IdR .trans ⋆NatTrans (η ∘ˡ (F' ∘F F)))
+    ⋆NatTrans symNatIso (CAT⋆Assoc (F' ∘F F) H' K'') .trans
+    -- K'' H' F' F
+    ⋆NatTrans (K'' ∘ʳ
+      -- H' F' F
+      (CAT⋆Assoc _ _ _ .trans
+      ⋆NatTrans α ∘ˡ F
+      -- K' H F
+      ⋆NatTrans symNatIso (CAT⋆Assoc _ _ _) .trans
+      ⋆NatTrans (K' ∘ʳ ε)
+      ⋆NatTrans CAT⋆IdL .trans)
+      -- H'
+      ))
+    -- K'' K'
+    $ (λ x → η  ⟦ F' ⟅ F ⟅ x ⟆ ⟆ ⟧ C'.⋆ K'' ⟪ α ⟦ F ⟅ x ⟆ ⟧ ⟫ C'.⋆ K'' ⟪ K' ⟪ ε ⟦ x ⟧ ⟫ ⟫)
+    , funExt λ x → C'.⟨ C'.⋆IdL _ ⟩⋆⟨ C'.⋆IdL _ ∙ cong K''.F-hom (E'.⋆IdL _ ∙ E'.⟨ refl ⟩⋆⟨ E'.⋆IdL _ ∙ E'.⋆IdR _ ⟩) ∙ K''.F-seq _ _ ⟩

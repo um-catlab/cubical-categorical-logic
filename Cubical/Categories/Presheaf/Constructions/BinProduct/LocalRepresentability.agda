@@ -7,6 +7,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
+import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -92,11 +94,17 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) wh
       (λ c c' d → presLRCone .N-hom c c')
       λ c d d' (g , p) f → ΣPathP ((F .F-seq g f) , refl)
 
+
+
   module _ ((P , _×P) : LRPresheaf C ℓP) (Q : Presheaf D ℓQ)
     (α : PshHet F P Q)
     where
+    open UniversalElement
     presLR : Type _
-    presLR = ∀ (x : C.ob) → preservesUniversalElement (presLRCone P Q α {x}) (x ×P)
+    presLR = ∀ (x : C.ob)
+      → becomesUniversal (presLRCone P Q α {x})
+        ((x ×P) .vertex)
+        ((x ×P) .element)
 
   module _ (P : LRPresheaf C ℓP) (Q : LRPresheaf D ℓQ)
     (α : PshHet F (P .fst) (Q .fst))
@@ -109,3 +117,23 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) wh
         (P .snd) (λ c → Q .snd (F-ob F c))
         F⟪-×P⟫≅F⟪-⟫×Q))
 
+  module _ (P : LRPresheaf C ℓP) (Q : LRPresheaf D ℓQ)
+    (α : PshHet F (P .fst) (Q .fst))
+    where
+    open UniversalElement
+    private
+      module Q = PresheafNotation (Q .fst)
+
+    strictPresLR→NatIso :
+      (F⟅c×P⟆≡Fc×Q : ∀ c → F ⟅ P .snd c .vertex ⟆ Eq.≡ Q .snd (F ⟅ c ⟆) .vertex)
+      → (F⟅π⟆≡π : ∀ c →
+        Eq.mixedHEq (Eq.ap (λ Fc×Q → (D [ Fc×Q , F ⟅ c ⟆ ]) × Q.p[ Fc×Q ]) (F⟅c×P⟆≡Fc×Q c))
+          (F ⟪ P .snd c .element .fst ⟫ , α .N-ob _ (P .snd c .element .snd))
+          (Q .snd (F ⟅ c ⟆) .element))
+      → NatIso (LRPsh→Functor Q ∘F F) (F ∘F LRPsh→Functor P)
+    strictPresLR→NatIso F⟅c×P⟆≡Fc×Q F⟅π⟆≡π = presLR→NatIso P Q α
+      λ c → strictlyPreservesUniversalElement (presLRCone (P .fst) (Q .fst) α)
+        (P .snd c)
+        (Q .snd (F ⟅ c ⟆))
+        (F⟅c×P⟆≡Fc×Q c)
+        (F⟅π⟆≡π c)

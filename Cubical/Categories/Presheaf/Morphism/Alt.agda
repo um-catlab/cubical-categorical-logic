@@ -79,6 +79,10 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   isSetPshHomΣ =
     isSetΣ (isSetΠ (λ _ → isSet→ Q.isSetPsh)) λ _ → isProp→isSet (isPropN-hom _)
 
+  PshHom-N-hom-ty : ((c : C.ob) → P.p[ c ] → Q.p[ c ]) → Type _
+  PshHom-N-hom-ty N-ob = ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+    N-ob c (f P.⋆ p) ≡ (f Q.⋆ N-ob c' p)
+
   -- Natural transformation between presheaves of different levels
   record PshHom : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
     no-eta-equality
@@ -526,6 +530,25 @@ module _
     sym (⋆PshHomAssoc _ _ _)
     ∙ cong (_⋆PshHom β) (PshIso→rightInv α)
     ∙ ⋆PshHomIdL β
+
+module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} where
+  module _ (α : PshHom P Q) (α' : singl (α .N-ob)) where
+    α'-N-hom-ty : PshHom-N-hom-ty P Q (α' .fst)
+    α'-N-hom-ty = subst (PshHom-N-hom-ty P Q) (α' .snd) (α .N-hom)
+
+    improvePshHom : PshHom P Q
+    improvePshHom = pshhom (α' .fst) α'-N-hom-ty
+
+  module _ (α : PshIso P Q) (α' : singl (α .trans .N-ob)) (α⁻ : singl (invPshIso α .trans .N-ob)) where
+    isInvα⁻ : ∀ (x : C .ob)
+      → section (α' .fst x) (α⁻ .fst x) × retract (α' .fst x) (α⁻ .fst x)
+    isInvα⁻ x =
+      subst2 (λ N-ob N-ob⁻ → section (N-ob x) (N-ob⁻ x) × retract (N-ob x) (N-ob⁻ x))
+        (α' .snd)
+        (α⁻ .snd)
+        (α .nIso x .snd)
+    improvePshIso : PshIso P Q
+    improvePshIso = pshiso (improvePshHom (α .trans) α') (λ x → (α⁻ .fst x) , isInvα⁻ x)
 
 module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   yo≅PshHomPsh :

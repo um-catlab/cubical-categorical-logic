@@ -8,6 +8,9 @@
 module Cubical.Categories.Limits.BinProduct.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
@@ -16,7 +19,10 @@ import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.Cartesian
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
@@ -36,6 +42,8 @@ private
 
 open Category
 open Functor
+open NatTrans
+open NatIso
 open PshHom
 
 module _ (C : Category ℓ ℓ') where
@@ -58,6 +66,9 @@ module _ (C : Category ℓ ℓ') where
 
     BinProductsWith : Type (ℓ-max ℓ ℓ')
     BinProductsWith = UniversalElements ProdWithAProf
+
+    BinProductsWithRepr : Type (ℓ-max ℓ ℓ')
+    BinProductsWithRepr = AllRepresentable ProdWithAProf
 
     BinProducts→BinProductsWith : BinProducts → BinProductsWith
     BinProducts→BinProductsWith bp c' = bp (c' , c)
@@ -149,6 +160,7 @@ module BinProductsNotation {C : Category ℓ ℓ'} (bp : BinProducts C) where
 module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith C a) where
   _×a : C .ob → C .ob
   b ×a  = BinProductNotation.vert (bp b)
+  private module C = Category C
   module _ {b : C .ob} where
     open BinProductNotation (bp b) hiding (vert) public
 
@@ -159,15 +171,38 @@ module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith 
   π₁Nat .NatTrans.N-ob _ = π₁
   π₁Nat .NatTrans.N-hom _ = ×β₁
 
+  π₁CartNat : CartesianNatTrans ×aF Id
+  π₁CartNat .fst = π₁Nat
+  π₁CartNat .snd {x} {y} f {d} p p₁ p₁f≡pπ₁ =
+    uniqueExists (p₁ ,p (p C.⋆ π₂))
+      ((sym $ ,p-extensionality
+        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₁ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ ×β₁ ⟩⋆⟨ refl ⟩ ∙ (sym p₁f≡pπ₁))
+        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩ ∙ ×β₂))
+       , (sym ×β₁))
+      (λ _ → isProp× (C.isSetHom _ _) (C.isSetHom _ _))
+      λ p' (p≡p'⋆id×f , p₁≡p'π₁) → ,p≡ p₁≡p'π₁ (C.⟨ p≡p'⋆id×f ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩)
+
 private
   variable
     C D : Category ℓ ℓ'
 module _ (F : Functor C D) where
+  private
+    module D = Category D
   preservesBinProdCones : ∀ c c'
     → PshHet F (BinProductProf C ⟅ c , c' ⟆)
                (BinProductProf D ⟅ F ⟅ c ⟆ , F ⟅ c' ⟆ ⟆)
   preservesBinProdCones c c' .N-ob Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
   preservesBinProdCones c c' .N-hom Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
+
+  preservesBinProdWithCones : ∀ c
+    → ProfunctorHom (ProdWithAProf C c)
+      (reindPshF F ∘F ProdWithAProf D (F ⟅ c ⟆) ∘F F)
+  preservesBinProdWithCones c =
+    pshhom
+      (λ c₁ x → preservesBinProdCones _ _ .N-ob (c₁ .fst) x)
+      λ (c1 , c2) (c1' , c2') (f1 , f2) (g1 , g2) → ΣPathP
+        ( (F .F-seq _ _ ∙ D.⟨ F .F-seq f1 g1 ⟩⋆⟨ refl ⟩)
+        , F .F-seq f1 g2)
 
   preservesBinProduct : ∀ {c c'} → BinProduct C (c , c') → Type _
   preservesBinProduct = preservesUniversalElement (preservesBinProdCones _ _)
@@ -192,3 +227,32 @@ module _ (F : Functor C D) where
     → preservesUniversalElement
         (preservesBinProdCones c c')
         (bp (c , c'))
+  module _ {c}
+      (-×c : BinProductsWith C c)
+      (-×Fc : BinProductsWith D (F ⟅ c ⟆))
+      (F⟨-×c⟩≅F⟨-⟩×Fc : preservesProvidedBinProductsWith -×c)
+      where
+    private
+      module -×c = BinProductsWithNotation -×c
+      module -×Fc = BinProductsWithNotation -×Fc
+      module F⟪-×c⟫ {Γ} = BinProductNotation (isUniversal→UniversalElement _ (F⟨-×c⟩≅F⟨-⟩×Fc Γ))
+    preservesProvidedBinProductsWith→NatIso
+      : NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
+    preservesProvidedBinProductsWith→NatIso =
+      improveNatIso
+      (preserves-UE→NatIso (ProdWithAProf C c) (ProdWithAProf D (F ⟅ c ⟆) ∘F F) F (preservesBinProdWithCones c)
+        -×c
+        (λ c' → -×Fc (F ⟅ c' ⟆))
+        F⟨-×c⟩≅F⟨-⟩×Fc
+      ⋆NatIso record { trans = natTrans (λ x → D.id) (λ _ → idTrans (BinProductsWithNotation.×aF -×Fc ∘F F) .N-hom _)
+        ; nIso = idNatIso (BinProductsWithNotation.×aF -×Fc ∘F F) .nIso })
+      (_ , (funExt λ _ → D.⋆IdR _))
+      (_ , funExt λ _ →
+        D.⋆IdL _
+        ∙ F⟪-×c⟫.,p≡ (D.⋆IdL _ ∙ (sym $ F⟪-×c⟫.×β₁)) (D.⋆IdL _ ∙ (sym $ F⟪-×c⟫.×β₂)))
+
+    preservesProvidedBinProductsWith→preservesCartNatTrans :
+      Σ[ swap ∈ NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)]
+      (∀ Γ → (swap .trans ⟦ Γ ⟧ D.⋆ -×Fc.π₁) ≡ F ⟪ -×c.π₁ ⟫)
+    preservesProvidedBinProductsWith→preservesCartNatTrans = preservesProvidedBinProductsWith→NatIso
+      , (λ Γ → -×Fc.×β₁)

@@ -30,6 +30,7 @@ open import Cubical.Categories.Presheaf.Morphism.Lift
 open import Cubical.Categories.Presheaf.Constructions.Lift
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
 
 private
@@ -184,6 +185,16 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C
       → substUniversalElement elt ue≡e Γ .equiv-proof p .fst .fst ≡ ue.intro p
     test-substUE e ue≡e = λ _ _ → refl
 
+module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
+  private
+    module P = PresheafNotation P
+
+  substIsUniversal : ∀ {v}{uelt elt : P.p[ v ]}
+    → isUniversal C P v uelt
+    → uelt ≡ elt
+    → isUniversal C P v elt
+  substIsUniversal u-univ ue≡e = substUniversalElement {C = C}{P = P} (isUniversal→UniversalElement P u-univ) _ ue≡e
+
 module _ {C : Category ℓc ℓc'} {x} (ue : UniversalElement C (C [-, x ])) where
   private
     module C = Category C
@@ -230,6 +241,11 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
         α⁻ = (invPshIso α) .trans .N-ob
         motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
         motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
+
+module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (P : Profunctor C D ℓp) where
+  open Category
+  AllRepresentable : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓd) ℓd') ℓp)
+  AllRepresentable = ∀ (x : C .ob) → RepresentationPshIso (P ⟅ x ⟆)
 
 -- These things only make sense when the presheaf is at the same
 -- universe level as the Homs of the category.

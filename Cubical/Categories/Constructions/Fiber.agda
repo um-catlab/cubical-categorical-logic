@@ -35,6 +35,13 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     module R = Reasoning Cᴰ
   open Cᴰ public
 
+  _∫≡_ :
+    ∀ {x y}{f f' : C [ x , y ]}{xᴰ yᴰ}
+    → Cᴰ [ f ][ xᴰ , yᴰ ]
+    → Cᴰ [ f' ][ xᴰ , yᴰ ]
+    → Type _
+  fᴰ ∫≡ f'ᴰ = Path R.Hom[ _ , _ ] (_ , fᴰ) (_ , f'ᴰ)
+
   v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
   v[ x ] .Category.ob = ob[ x ]
   v[ x ] .Category.Hom[_,_] = Hom[ C.id ][_,_]
@@ -181,17 +188,18 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
         (_ , fⱽ' ⋆ⱽᴰ gᴰ)
   ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨⟩ = ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ refl ⟩
 
-  reind⟨_⟩⟨_⟩ : ∀ {a b : C.ob} {f g : C [ a , b ]}{aᴰ bᴰ}
+  cong-reind : ∀ {a b : C.ob} {f f' g g' : C [ a , b ]}{aᴰ bᴰ}
       {fᴰ : Cᴰ [ f ][ aᴰ , bᴰ ]}
-      {fᴰ' : Cᴰ [ f ][ aᴰ , bᴰ ]}
+      {fᴰ' : Cᴰ [ f' ][ aᴰ , bᴰ ]}
       (p : f ≡ g)
+      (p' : f' ≡ g')
     → Path R.Hom[ _ , _ ]
         (f , fᴰ)
-        (f , fᴰ')
+        (f' , fᴰ')
     → Path R.Hom[ _ , _ ]
         (g , reind p fᴰ)
-        (g , reind p fᴰ')
-  reind⟨ p ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind p) (rectify (≡out fᴰ≡fᴰ')))
+        (g' , reind p' fᴰ')
+  cong-reind p p' fᴰ≡fᴰ' = sym (reind-filler _ _) ∙ fᴰ≡fᴰ' ∙ reind-filler _ _
 
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

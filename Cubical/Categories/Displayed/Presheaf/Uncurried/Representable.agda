@@ -64,6 +64,15 @@ module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓC
   _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
   _[-][-,_] xᴰ = UncurryPshᴰ (C [-, x ]) Cᴰ (Cᴰ Curried.[-][-, xᴰ ])
 
+  ∫Repr-iso : ∀ {xᴰ}
+    → PshIso (PresheafᴰNotation.∫ Cᴰ (C [-, x ]) (_[-][-,_] xᴰ))
+             ((∫C Cᴰ) [-, x , xᴰ ])
+  ∫Repr-iso {xᴰ} .trans .N-ob (y , yᴰ) (f , fᴰ) = f , fᴰ
+  ∫Repr-iso {xᴰ} .trans .N-hom = λ _ _ _ _ → sym $ Cᴰ.reind-filler _ _
+  ∫Repr-iso {xᴰ} .nIso (y , yᴰ) .fst (f , fᴰ) = f , fᴰ
+  ∫Repr-iso {xᴰ} .nIso (y , yᴰ) .snd .fst _ = refl
+  ∫Repr-iso {xᴰ} .nIso (y , yᴰ) .snd .snd _ = refl
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
     module C = Category C
@@ -107,6 +116,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableⱽ : Type _
   Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
 
+-- -- TODO: implement this, analogous to UniversalElementNotation
+-- module RepresentableⱽNotation {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{x}
+--   (Pᴰ : Presheafⱽ x Cᴰ ℓPᴰ)
+--   ((vertexⱽ , repr) : Representableⱽ Cᴰ x Pᴰ)
+--   where
+--   private
+--     module C = Category C
+--     module Cᴰ = Fibers Cᴰ
+--     module Pᴰ = PresheafᴰNotation Cᴰ (C [-, x ]) Pᴰ
+
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D} (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
@@ -149,4 +168,3 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
   (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))
-

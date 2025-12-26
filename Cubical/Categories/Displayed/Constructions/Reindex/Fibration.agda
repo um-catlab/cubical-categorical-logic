@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties where
+module Cubical.Categories.Displayed.Constructions.Reindex.Fibration where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -42,11 +42,12 @@ open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Limits.CartesianV'
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
@@ -72,11 +73,35 @@ module _
     module Dᴰ = Fibers Dᴰ
     module F = Functor F
 
-  reindex-π-/ : (x : C.ob)
-    → Functor (reindex Dᴰ F / (C [-, x ])) (Dᴰ / (D [-, F ⟅ x ⟆ ]))
-  reindex-π-/ x = π Dᴰ F /Fᴰ Functor→PshHet F x
+  -- This is the compositional definition, below we "improve" the definitional behavior
+  reindexCartesianLift' : ∀ {x y}(f : C [ x , y ])(Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    → CartesianLift Dᴰ (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift (reindex Dᴰ F) f Fyᴰ
+  reindexCartesianLift' {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ = (F⟪f⟫*Fyᴰ .fst)
+    , reindexRepresentableIsoⱽ Dᴰ F _ _
+      -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
+      ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (F⟪f⟫*Fyᴰ .snd)
+      -- reindPsh (reindex-π-/ Dᴰ F x) $ reindPsh (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
+      ⋆PshIsoⱽ reindPsh-square (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ]) (reindexRepresentable-seq (π Dᴰ F))
+      -- reindPsh (Idᴰ /Fⱽ yoRec (C [-, y ]) f) $ reindPsh (π Dᴰ F /Fᴰ Functor→PshHet F y) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
+      ⋆PshIsoⱽ (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F y Fyᴰ)))
+      -- reindPsh (Idᴰ /Fⱽ yoRec (C [-, y ]) f) $ reindex Dᴰ F [-][-, F⟪f⟫*Fyᴰ ]
 
-  reindexRepresentableIsoⱽ : ∀ (x : C.ob)(Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
-    → PshIsoⱽ (reindex Dᴰ F [-][-, Fxᴰ ]) (reindPsh (reindex-π-/ x) (Dᴰ [-][-, Fxᴰ ]))
-  reindexRepresentableIsoⱽ x Fxᴰ =
-    FFFunctorᴰ→PshIsoᴰ (π Dᴰ F) Fxᴰ (π-FFᴰ Dᴰ F)
+  reindexCartesianLift : ∀ {x y}(f : C [ x , y ])(Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    → CartesianLift Dᴰ (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift (reindex Dᴰ F) f Fyᴰ
+  reindexCartesianLift {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ = (F⟪f⟫*Fyᴰ .fst) ,
+    improvePshIso (reindexCartesianLift' {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ .snd)
+      ((λ (Γ , Γᴰ , g) F⟪g⟫ᴰ → Dᴰ.reind (sym $ F .F-seq g f) (F⟪g⟫ᴰ F⟪f⟫*Fyᴰ.⋆πⱽ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪g⟫ᴰ →
+        Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _ _)
+        ∙ Dᴰ.⋆IdL _
+        ∙ Dᴰ.reind-filler _ _)
+      ((λ (Γ , Γᴰ , g) F⟪gf⟫ᴰ → F⟪f⟫*Fyᴰ.introᴰ (Dᴰ.reind (F .F-seq g f) F⟪gf⟫ᴰ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪gf⟫ᴰ → Dᴰ.rectify $ Dᴰ.≡out $
+        F⟪f⟫*Fyᴰ.cong-introᴰ refl (sym (Dᴰ.reind-filler _ _) ∙ Dᴰ.⋆IdL _ ∙ Dᴰ.reind-filler _ _))
+    where
+      module F⟪f⟫*Fyᴰ = CartesianLiftNotation Dᴰ F⟪f⟫*Fyᴰ
+
+  isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
+  isFibrationReindex isFibDᴰ {y} Fyᴰ x f = reindexCartesianLift f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))

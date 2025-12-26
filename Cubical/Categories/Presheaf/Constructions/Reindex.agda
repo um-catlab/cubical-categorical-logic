@@ -22,6 +22,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Bifunctor
@@ -37,6 +38,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Constructions.Extension
@@ -126,6 +128,23 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     preservesUniversalElement : UniversalElement C P → Type _
     preservesUniversalElement ue = becomesUniversal (ue .vertex) (ue .element)
 
+    veryStrictlyPreservesUniversalElement :
+      (ueP : UniversalElement C P)
+      → (e : Q.p[ F ⟅ ueP .vertex ⟆ ])
+      → (ueQ : isUniversal D Q _ e)
+      → (e ≡ α .N-ob _ (ueP .element))
+      → preservesUniversalElement ueP
+    veryStrictlyPreservesUniversalElement ueP e = substIsUniversal Q
+
+    strictlyPreservesUniversalElement :
+      (ueP : UniversalElement C P)
+      (ueQ : UniversalElement D Q)
+      → (vP≡vQ : F ⟅ ueP .vertex ⟆ Eq.≡ ueQ .vertex)
+      → (eP≡eQ : Eq.mixedHEq (Eq.ap Q.p[_] vP≡vQ) (α .N-ob (ueP .vertex) (ueP .element)) (ueQ .element))
+      → preservesUniversalElement ueP
+    strictlyPreservesUniversalElement ueP ueQ Eq.refl eP≡eQ =
+      veryStrictlyPreservesUniversalElement ueP (ueQ .element) (ueQ .universal) (sym eP≡eQ)
+
     preservesUniversalElements = ∀ ue → preservesUniversalElement ue
 
     becomesUniversal→UniversalElement :
@@ -201,6 +220,19 @@ reindPsh-square F G H K P GF≅KH =
   reindPsh∘F≅ F G P
   ⋆PshIso reindNatIsoPsh GF≅KH P
   ⋆PshIso (invPshIso $ reindPsh∘F≅ H K P)
+
+reindPsh-tri :
+  {B : Category ℓB ℓB'}
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  (F : Functor B C)
+  (G : Functor C D)
+  (H : Functor B D)
+  (P : Presheaf D ℓP)
+  → (NatIso (G ∘F F) H)
+  → PshIso (reindPsh F $ reindPsh G P) (reindPsh H P)
+reindPsh-tri F G H P GF≅H = reindPsh∘F≅ F G P
+  ⋆PshIso reindNatIsoPsh GF≅H P
 
 module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

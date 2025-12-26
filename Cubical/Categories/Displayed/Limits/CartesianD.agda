@@ -49,4 +49,3 @@ record CartesianCategoryReprᴰ (CC : CartesianCategoryRepr ℓC ℓC') (ℓCᴰ
       → Representationᵁᴰ Cᴰ ((Cᴰ [-][-, cᴰ ]) ×ᴰPsh (Cᴰ [-][-, dᴰ ])) (bp c d)
 
   module Cᴰ = Categoryᴰ Cᴰ
-

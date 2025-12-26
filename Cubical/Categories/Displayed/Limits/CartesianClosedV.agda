@@ -6,7 +6,10 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
 
 private
   variable
@@ -15,15 +18,22 @@ private
 CartesianClosedCategoryⱽ : (CC : CartesianCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
 CartesianClosedCategoryⱽ CC ℓCᴰ ℓCᴰ' =
   Σ[ Cᴰ ∈ Categoryᴰ C ℓCᴰ ℓCᴰ' ]
+  Σ[ cartLifts ∈ isFibration Cᴰ ]
   Σ[ termⱽ ∈ Terminalsⱽ Cᴰ ]
-  Σ[ bpⱽ   ∈ BinProductsⱽ Cᴰ ]
-  Σ[ cartesianLifts ∈ isFibration Cᴰ ]
-  Σ[ expⱽ ∈ Exponentialsⱽ Cᴰ bpⱽ cartesianLifts ]
-  UniversalQuantifiers Cᴰ bp cartesianLifts
+  Σ[ bpⱽ ∈ BinProductsⱽ Cᴰ ]
+  -- AllLRⱽ is technically redundant with cartLifts+bpⱽ, but I will
+  -- keep it for now because the reindexing theorem depends on it
+  Σ[ lrⱽ ∈ AllLRⱽ Cᴰ ]
+  Σ[ expⱽ ∈ Exponentialsⱽ Cᴰ lrⱽ ]
+  UniversalQuantifiers Cᴰ bp cartLifts
   where
     open CartesianCategory CC
 
--- This is ungodly slow, why? exponential module stuff?
+-- This is ungodly slow, likely due to exponential module stuff.
+--
+-- I'm leaving it here because it would probably be an informative
+-- example for profiling exponential module blowups.
+
 -- record CartesianClosedCategoryⱽ' (CC : CartesianCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
 --   : Type (ℓ-suc (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ')))) where
 --   no-eta-equality

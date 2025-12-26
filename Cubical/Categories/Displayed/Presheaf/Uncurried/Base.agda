@@ -41,7 +41,9 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
@@ -65,6 +67,7 @@ open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
 
 private
   variable
@@ -79,13 +82,23 @@ open Category
 open Functor
 open Functorᴰ
 open NatTrans
+open NatTransᴰ
 open NatIso
+open NatIsoᴰ
 open PshHom
 open PshIso
 
 -- TODO: better name?
 _/_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
 Cᴰ / P = ∫C (Cᴰ ×ᴰ Element P)
+
+_/'_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
+_/'_ {C = C} Cᴰ P = ∫C (EqReindex.reindex Cᴰ (Fst {C = C}{Cᴰ = Element P}) Eq.refl λ _ _ → Eq.refl)
+
+-- The Beck-Chevalley stuff in the universal quantifier lemmas have to
+-- do some annoying shuffling that wouldn't be necessary if we use
+-- _/'_ for everything...any downside to redefining / to be defined
+-- this way and refactoring everything?
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -94,6 +107,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   where
   _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHet F P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰ α)
+
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}{Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf E ℓR}
@@ -118,41 +132,54 @@ module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   where
-  _/Fⱽ_ : (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
-  Fᴰ /Fⱽ α = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+  module _ (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom P Q) where
+    _/Fⱽ_ :  Functor (Cᴰ / P) (Dᴰ / Q)
+    _/Fⱽ_ = Fᴰ /Fᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Category ℓD ℓD'} {P : Presheaf C ℓP}
   where
   private
     module Cᴰ = Fibers Cᴰ
     module P = PresheafNotation P
   -- TODO: generalize to ×ᴰ
-  /NatTrans : {F G : Functor D (Cᴰ / P)}
-    → (α : NatTrans (Fst ∘F F) (Fst ∘F G))
-    → (αᴰ : NatTransᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
-    → (αP : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd )
-    → NatTrans F G
-  /NatTrans α αᴰ αP .N-ob x = (α .N-ob x) , (αᴰ .NatTransᴰ.N-obᴰ tt) , (αP x)
-  /NatTrans α αᴰ αP .N-hom {x}{y} f = ΣPathP ((N-hom α f) , (ΣPathPProp (λ _ → P.isSetPsh _ _)
-    (αᴰ .NatTransᴰ.N-homᴰ tt)))
+  module _ {F G : Functor D (Cᴰ / P)}
+    (α : NatTrans (Fst ∘F F) (Fst ∘F G))
+    (αᴰ : NatTransᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
+    (αP : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd)
+    where
+    αP' : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd
+    αP' = αP
 
-  /NatIso : {F G : Functor D (Cᴰ / P)}
-    → (α : NatIso (Fst ∘F F) (Fst ∘F G))
-    → (αᴰ : NatIsoᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
-    → (αP : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd )
-    → NatIso F G
-  /NatIso α αᴰ αP = record { trans = /NatTrans (α .trans) (αᴰ .NatIsoᴰ.transᴰ) αP
-    ; nIso = λ x → isiso ((α .nIso x .isIso.inv) , ((αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ)
-      , ((P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩) ∙ P.⋆IdL _))
-      (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.secᴰ))))
-      (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.retᴰ))))
-    }
+    /NatTrans : NatTrans F G
+    /NatTrans = natTrans
+      (λ x → (N-ob α x) , ((αᴰ .N-obᴰ tt) , (αP' x)))
+      (λ f → ΣPathP ((N-hom α f) , ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .N-homᴰ tt)))
 
-module _ {C : Category ℓC ℓC'}
-  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  where
-  /FⱽId : Idᴰ {Cᴰ = Cᴰ} /Fⱽ idPshHom {P = P} ≡ Id
-  /FⱽId = Functor≡ (λ _ → refl) (λ f → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) refl)))
+  module _ {F G : Functor D (Cᴰ / P)}
+    (α : NatIso (Fst ∘F F) (Fst ∘F G))
+    (αᴰ : NatIsoᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
+    (αP : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd)
+    where
+    αP'' : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd
+    αP'' = αP
+
+    /NI-lem : ∀ x
+      → P .F-hom (α .nIso x .isIso.inv) (F .F-ob x .snd .snd) ≡ G .F-ob x .snd .snd
+    /NI-lem x = (P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩ ∙ P.⋆IdL _
+
+    /NatIso : NatIso F G
+    /NatIso =
+      record { trans = /NatTrans (α .trans) (αᴰ .transᴰ) αP''
+      ; nIso = λ x →
+        isiso ( (α .nIso x .isIso.inv)
+              , αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ
+              , /NI-lem x)
+        (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ))))
+        (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))) }
+
+-- -- TODO:
+-- -- 1. /Fⱽ-seq
+-- -- 2. /Fⱽ-NatIso
 
 -- Interestingly, this one is at a lower universe level than Curried.Presheafᴰ
 -- Use modules to distinguish this from Curried.Presheafᴰ
@@ -199,37 +226,36 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
     → p[ p' ][ xᴰ ]
   formal-reind {p = p} p≡p' = Pᴰ .F-hom (C.id , Cᴰ.idᴰ , P.⋆IdL p ∙ p≡p')
 
-  opaque
-    ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
-      → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
-        (fᴰ ⋆ᴰ pᴰ)
-        (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
-    ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
+  ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
+    → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
+      (fᴰ ⋆ᴰ pᴰ)
+      (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+  ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
 
-    -- TODO: make this ⋆ᴰ-reind
-    ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
-      → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)
-    ⋆ᴰ-reind fᴰ f⋆p≡q pᴰ =
-      sym $ ≡in $ ⋆ᴰ-reindᴰ fᴰ f⋆p≡q pᴰ
+  -- TODO: make this ⋆ᴰ-reind
+  ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
+    → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)
+  ⋆ᴰ-reind fᴰ f⋆p≡q pᴰ =
+    sym $ ≡in $ ⋆ᴰ-reindᴰ fᴰ f⋆p≡q pᴰ
 
-    ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
-      → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
-    ⋆IdLᴰ {x}{xᴰ}{p} pᴰ =
-      (sym $ ⋆ᴰ-reind Cᴰ.idᴰ _ pᴰ)
-      ∙ (≡in $ funExt⁻ (Pᴰ .F-id) pᴰ)
+  ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
+    → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
+  ⋆IdLᴰ {x}{xᴰ}{p} pᴰ =
+    (sym $ ⋆ᴰ-reind Cᴰ.idᴰ _ pᴰ)
+    ∙ (≡in $ funExt⁻ (Pᴰ .F-id) pᴰ)
 
-    formal-reind-filler : ∀ {x xᴰ}{p q : P.p[ x ]}(id⋆p≡q : C.id P.⋆ p ≡ q) (pᴰ : p[ p ][ xᴰ ])
-      → Pᴰ .F-hom (C.id , Cᴰ.idᴰ , id⋆p≡q) pᴰ ∫≡ pᴰ
-    formal-reind-filler {x} {xᴰ} {p} {q} id⋆p≡q pᴰ = ⋆ᴰ-reind Cᴰ.idᴰ id⋆p≡q pᴰ ∙ ⋆IdLᴰ pᴰ
+  formal-reind-filler : ∀ {x xᴰ}{p q : P.p[ x ]}(id⋆p≡q : C.id P.⋆ p ≡ q) (pᴰ : p[ p ][ xᴰ ])
+    → Pᴰ .F-hom (C.id , Cᴰ.idᴰ , id⋆p≡q) pᴰ ∫≡ pᴰ
+  formal-reind-filler {x} {xᴰ} {p} {q} id⋆p≡q pᴰ = ⋆ᴰ-reind Cᴰ.idᴰ id⋆p≡q pᴰ ∙ ⋆IdLᴰ pᴰ
 
-    ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
-      (fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ])
-      (gᴰ : Cᴰ [ g ][ yᴰ , xᴰ ])
-      (pᴰ : p[ p ][ xᴰ ])
-      → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
-    ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
-      (sym $ ⋆ᴰ-reind (fᴰ Cᴰ.⋆ᴰ gᴰ) _ pᴰ)
-      ∙ ≡in (funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) pᴰ)
+  ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
+    (fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ])
+    (gᴰ : Cᴰ [ g ][ yᴰ , xᴰ ])
+    (pᴰ : p[ p ][ xᴰ ])
+    → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
+  ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
+    (sym $ ⋆ᴰ-reind (fᴰ Cᴰ.⋆ᴰ gᴰ) _ pᴰ)
+    ∙ ≡in (funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) pᴰ)
 
   ∫ : Presheaf (∫C Cᴰ) (ℓ-max ℓP ℓPᴰ)
   ∫ .F-ob (x , xᴰ) .fst = Σ[ p ∈ _ ] p[ p ][ xᴰ ]

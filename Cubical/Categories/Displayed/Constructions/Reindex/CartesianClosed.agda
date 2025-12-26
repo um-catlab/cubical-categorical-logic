@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties where
+module Cubical.Categories.Displayed.Constructions.Reindex.CartesianClosed where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
@@ -41,9 +41,16 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Constructions.Reindex.Exponential
+open import Cubical.Categories.Displayed.Constructions.Reindex.Fibration
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
+open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalQuantifier
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Limits.CartesianV'
+open import Cubical.Categories.Displayed.Limits.ClosedV
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
@@ -61,22 +68,34 @@ open NatTrans
 open NatIso
 open PshHom
 open PshIso
+open CartesianCategory
 
-module _
-  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
-  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
-  where
-  private
-    module C = Category C
-    module D = Category D
-    module Dᴰ = Fibers Dᴰ
-    module F = Functor F
+module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
+  {Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ'}
+  (F : CartesianFunctor CC (CD .C)) where
 
-  reindex-π-/ : (x : C.ob)
-    → Functor (reindex Dᴰ F / (C [-, x ])) (Dᴰ / (D [-, F ⟅ x ⟆ ]))
-  reindex-π-/ x = π Dᴰ F /Fᴰ Functor→PshHet F x
+  ClosedⱽReindex : ClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
+  ClosedⱽReindex =
+    (reindex (Dᴰ .fst) (F .fst))
+    , (isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst))
+    , (AllLRⱽReindex (F .fst) (Dᴰ .snd .snd .fst))
+    , (ExponentialsⱽReindex (F .fst) (Dᴰ .snd .snd .fst) (Dᴰ .snd .snd .snd .fst))
+    , hasUniversalQuantifiersReindex (F .fst) (Dᴰ .fst) (Dᴰ .snd .fst)
+      (CC .bp) (CD .bp) (F .snd) (Dᴰ .snd .snd .snd .snd)
 
-  reindexRepresentableIsoⱽ : ∀ (x : C.ob)(Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
-    → PshIsoⱽ (reindex Dᴰ F [-][-, Fxᴰ ]) (reindPsh (reindex-π-/ x) (Dᴰ [-][-, Fxᴰ ]))
-  reindexRepresentableIsoⱽ x Fxᴰ =
-    FFFunctorᴰ→PshIsoᴰ (π Dᴰ F) Fxᴰ (π-FFᴰ Dᴰ F)
+
+
+module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
+  {Dᴰ : CartesianClosedCategoryⱽ CD ℓDᴰ ℓDᴰ'}
+  (F : CartesianFunctor CC (CD .C)) where
+
+  CCCⱽReindex : CartesianClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
+  CCCⱽReindex
+    = (reindex (Dᴰ .fst) (F .fst))
+    , (isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst))
+    , (TerminalsⱽReindex (F .fst) (Dᴰ .snd .snd .fst))
+    , (BinProductsⱽReindex (F .fst) (Dᴰ .snd .snd .snd .fst))
+    , (AllLRⱽReindex (F .fst) (Dᴰ .snd .snd .snd .snd .fst))
+    , (ExponentialsⱽReindex (F .fst) (Dᴰ .snd .snd .snd .snd .fst) (Dᴰ .snd .snd .snd .snd .snd .fst))
+    , (hasUniversalQuantifiersReindex (F .fst) (Dᴰ .fst) (Dᴰ .snd .fst)
+        (CC .bp) (CD .bp) (F .snd) (Dᴰ .snd .snd .snd .snd .snd .snd))

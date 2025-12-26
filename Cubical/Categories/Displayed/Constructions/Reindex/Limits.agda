@@ -23,6 +23,7 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
   hiding (π; reindex)
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.Displayed.Constructions.Reindex.CurriedFibration
 open import Cubical.Categories.Displayed.Limits.CartesianD
 open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.Terminal

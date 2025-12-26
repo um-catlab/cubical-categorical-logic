@@ -8,6 +8,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Functors.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor

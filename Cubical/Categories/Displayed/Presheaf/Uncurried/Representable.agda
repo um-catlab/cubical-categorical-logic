@@ -149,15 +149,33 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       → Cᴰ [ ue.intro p ][ Γᴰ , ueᴰ .fst ]
     introᴰ = ueᴰ .snd .snd _ _ .inv _
 
+    cong-introᴰ :
+      ∀ {Γ Γᴰ}
+      → {p p' : P.p[ Γ ]} {pᴰ : Pᴰ.p[ p ][ Γᴰ ]}{p'ᴰ : Pᴰ.p[ p' ][ Γᴰ ]}
+      → pᴰ Pᴰ.∫≡ p'ᴰ
+      → introᴰ pᴰ Cᴰ.∫≡ introᴰ p'ᴰ
+    cong-introᴰ pᴰ≡p'ᴰ i =
+      (ue.intro (pᴰ≡p'ᴰ i .fst))
+      , (introᴰ {p = pᴰ≡p'ᴰ i .fst} (pᴰ≡p'ᴰ i .snd))
+
     βᴰ : ∀ {Γ Γᴰ}{p : P.p[ Γ ]}
       → (pᴰ : Pᴰ.p[ p ][ Γᴰ ])
       → (introᴰ pᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst) Pᴰ.≡[ ue.β ] pᴰ
     βᴰ {Γ}{Γᴰ}{p} pᴰ = Pᴰ.rectify $ ueᴰ .snd .snd Γ Γᴰ .rightInv p pᴰ
 
+    ∫βᴰ : ∀ {Γ Γᴰ}{p : P.p[ Γ ]}
+      → (pᴰ : Pᴰ.p[ p ][ Γᴰ ])
+      → (introᴰ pᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst) Pᴰ.∫≡ pᴰ
+    ∫βᴰ pᴰ = Pᴰ.≡in $ βᴰ pᴰ
+
     ηᴰ : ∀ {Γ Γᴰ}{f : C [ Γ , ue.vertex ]}
       → (fᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ])
       → fᴰ Cᴰ.≡[ ue.η ] introᴰ (fᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst)
     ηᴰ {Γ}{Γᴰ}{f} fᴰ = symP $ Cᴰ.rectify $ ueᴰ .snd .snd Γ Γᴰ .leftInv f fᴰ
+    ∫ηᴰ : ∀ {Γ Γᴰ}{f : C [ Γ , ue.vertex ]}
+      → (fᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ])
+      → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst)
+    ∫ηᴰ fᴰ = Cᴰ.≡in $ ηᴰ fᴰ
 
   -- Could be more compositional but too lazy
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)

@@ -259,6 +259,11 @@ module _
   ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
   ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 
+  private
+    test-ob : ∀ ((Γ , Γᴰ , p) : (Cᴰ / P) .Category.ob) →
+      ×LRⱽPshᴰ .Functor.F-ob (Γ , Γᴰ , p) ≡ (Γ , ((Γᴰ ×ⱽPᴰ.×ⱽ p *) , p))
+    test-ob (Γ , Γᴰ , p) = refl
+
   -- -- this would be a preferable definition but it's very slow to typecheck and use. Why?
   -- ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
   -- ×LRⱽPshᴰ = improveF-hom ×LRⱽPshᴰ'
@@ -389,4 +394,3 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   Exponentialsⱽ : AllLRⱽ → Type _
   Exponentialsⱽ lrⱽ = ∀ {x} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Exponentialⱽ (xᴰ , lrⱽ xᴰ) yᴰ
-

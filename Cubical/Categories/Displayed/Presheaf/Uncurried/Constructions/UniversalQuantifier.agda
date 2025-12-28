@@ -117,7 +117,7 @@ open NatTrans
 open NatIso
 open PshHom
 open PshIso
-open UniversalElement
+open UniversalElementNotation
 
 module _ {C : Category ℓC ℓC'} {F : Functor C C} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (π : NatTrans F Id) where
   -- Weakening is right adjoint to projection
@@ -235,3 +235,42 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     UniversalQuantifiers = ∀ {Γ A} (Aᴰ : Cᴰ.ob[ Γ bp.× A ])
       → UniversalQuantifier A (λ c → bp (c , A))
           (λ Δ yᴰ → isFib yᴰ (Δ bp.× A) bp.π₁) Aᴰ
+
+-- The "ordinary" UniversalQuantifier quantifying over a locally representable presheaf
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+  LRᴰPresheaf : (ℓP : Level) → Type _
+  LRᴰPresheaf ℓP = Σ[ P ∈ LRPresheaf C ℓP ] ∀ Γ → Quadrable Cᴰ (πLRF P .N-ob Γ)
+  module _ ((P , π*) : LRᴰPresheaf ℓP) where
+    private
+      module P = PresheafNotation (P .fst)
+    π₁PshQuant : QuantTrans (LRPsh→Functor P) Cᴰ
+    π₁PshQuant = (πLRF P) , ((πLRFCart P) , π*)
+
+    module _ {R : Presheaf C ℓR} where
+      private
+        module R = PresheafNotation R
+        module π* {Γ} = QuadrableNotation Cᴰ (π* Γ)
+
+      π*Fᴰ : Functorᴰ (LRPsh→Functor P) Cᴰ Cᴰ
+      π*Fᴰ .F-obᴰ {Γ} Γᴰ = π* Γ Γᴰ .fst
+      π*Fᴰ .F-homᴰ {f = γ} γᴰ = cartLift-sq-filler Cᴰ (π* _ _) (π* _ _) γᴰ
+        (sym $ fst $ PathPΣ $ β $ P .snd _)
+      π*Fᴰ .F-idᴰ {x} {xᴰ} = Cᴰ.rectify $ Cᴰ.≡out $
+        cartLift-sq-id Cᴰ (π* _ _) $
+        intro≡ (P .snd x) (ΣPathP ((C.⋆IdR _ ∙ sym (C.⋆IdL _)) , (sym $ P.⋆IdL _)))
+      π*Fᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+        cartLift-sq-seq Cᴰ (π* _ _) (π* _ _) (π* _ _) fᴰ gᴰ $
+        (intro≡ (P .snd z) (sym $ ΣPathP
+          ( C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ fst $ PathPΣ $ β $ P .snd z ⟩
+            ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ fst $ PathPΣ $ β $ P .snd y ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _
+          , P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ snd $ PathPΣ $ β $ P .snd z ⟩
+          ∙ (snd $ PathPΣ $ β $ P .snd y))))
+
+      wkPsh : Functor (Cᴰ / R) (Cᴰ / (R ×Psh P .fst))
+      wkPsh = _/Fᴰ_ {F = LRPsh→Functor P} π*Fᴰ ⟪-⟫×P
+
+      ∀Pshᴰ : (Pᴰ : Presheafᴰ (R ×Psh P .fst) Cᴰ ℓPᴰ) → Presheafᴰ R Cᴰ ℓPᴰ
+      ∀Pshᴰ = reindPsh wkPsh

@@ -109,7 +109,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductᴰ'Spec≅BinProductᴰSpec {A} {B} bp Aᴰ Bᴰ =
     -- yoRec π₁ * (Cᴰ [-][-, Aᴰ ]) × yoRec π₂ * (Cᴰ [-][-, Bᴰ ])
     invPshIso (×PshIso (reindPshᴰNatTrans-tri _ _ _ _ (sym $ yoRec≡ _ (sym $ C.⋆IdL _))) (reindPshᴰNatTrans-tri _ _ _ _ (sym $ yoRec≡ _ (sym $ C.⋆IdL _))))
-    -- 
+    --
     ⋆PshIso (invPshIso $ reindPsh× (Idᴰ /Fⱽ asPshIso bp .trans) (reindPshᴰNatTrans (π₁ (C [-, A ]) (C [-, B ])) (Cᴰ [-][-, Aᴰ ])) (reindPshᴰNatTrans (π₂ (C [-, A ]) (C [-, B ])) (Cᴰ [-][-, Bᴰ ])))
     -- yoRec (π₁ , π₂) * (π₁* (Cᴰ [-][-, Aᴰ ]) × π₂* (Cᴰ [-][-, Bᴰ ]))
 
@@ -162,7 +162,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   module BinProductsᴰNotation (bp : BinProducts C) (bpᴰ : BinProductsᴰ bp) where
     _×ᴰ_ : ∀ {A B} (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Cᴰ.ob[ bp (A , B) .vertex ]
     Aᴰ ×ᴰ Bᴰ = bpᴰ Aᴰ Bᴰ .fst
-    
+
     private
       module BPNotation {A : C.ob}{B : C.ob} {Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]}
         = BinProductᴰNotation (bp (A , B)) (bpᴰ Aᴰ Bᴰ)

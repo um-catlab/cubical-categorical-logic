@@ -144,7 +144,7 @@ unfold-inj : {X : Type ℓ} → (d1 d2 : Delay X) →
   unfold d1 ≡ unfold d2 → d1 ≡ d2
 unfold-inj d1 d2 eq = isoFunInjective d-iso d1 d2 eq
 
-unfold-inv2 : {X : Type ℓ} →(d : Delay X) →  (d' : Delay X) →
+unfold-inv2 : {X : Type ℓ} →(d : Delay X) → (d' : Delay X) →
   unfold d ≡ inr d' →  d .view ≡ inr d'
 unfold-inv2 d d' H =
   cong view (isoFunInjective d-iso d (delay (inr d')) H)

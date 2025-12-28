@@ -36,11 +36,29 @@ private
 module _ (C : Category ℓ ℓ')(ℓS : Level) where
   open PshMon C ℓS
 
+  open import Cubical.Foundations.Isomorphism 
+  open Iso
+  open import Cubical.Data.Sigma
+
   adjL : {P Q R : ob 𝓟} → 𝓟 [ P ×Psh Q , R ] → 𝓟 [ P , R ^ Q ]
   adjL {P}{Q}{R} f = PshHom→NatTrans (λPshHom Q R (NatTrans→PshHom f))
 
+  adjR : {P Q R : ob 𝓟} →  𝓟 [ P , R ^ Q ] → 𝓟 [ P ×Psh Q , R ]
+  adjR {P}{Q}{R} f = PshHom→NatTrans (⇒PshLarge-UMP Q R .fun (NatTrans→PshHom f))
+
   dup : {P : ob 𝓟} → 𝓟 [ P , P ×Psh P ]
   dup = natTrans (λ x x₁ → x₁ , x₁) λ _ → refl
+
+  helper : {P Q R : ob 𝓟}{f g : 𝓟 [ P , R ^ Q ]} → 
+    adjR f ≡ adjR g → 
+    f ≡ g
+  helper {P}{Q}{R} prf = sym (lem _) ∙ cong adjL prf ∙ lem _ where 
+    lem : (f : 𝓟 [ P , R ^ Q ]) → adjL (adjR f) ≡ f 
+    lem f = makeNatTransPath (funExt λ c → funExt λ Pc → 
+      makePshHomPath (funExt λ c' → funExt λ (h , Qc') →
+      (λ i → f .N-hom h i Pc .PshHom.N-ob c' (C .id , Qc')) 
+      ∙ cong (f .N-ob c Pc .PshHom.N-ob c') (ΣPathP ((C .⋆IdL h) , refl)) ))
+  
 
   swap : {P Q : ob 𝓟} → 𝓟 [ P ×Psh Q , Q ×Psh P ]
   swap = dup ⋆⟨ 𝓟 ⟩  ⨂' .Bif-hom× π₂p π₁p

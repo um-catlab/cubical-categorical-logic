@@ -21,6 +21,10 @@ map-l f = map f (idfun _)
 map-r : (A → B) → C ⊎ A → C ⊎ B
 map-r f = map (idfun _) f
 
+rec-eta : {x : A ⊎ B} → rec inl inr x ≡ x 
+rec-eta {x = inl x} = refl
+rec-eta {x = inr x} = refl
+
 map-id :
   map {ℓ}{A}{ℓ}{A}{ℓ}{B} (idfun _) (idfun _) ≡ (idfun _)
 map-id i (inl x) = inl x

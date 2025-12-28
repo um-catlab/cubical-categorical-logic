@@ -28,7 +28,6 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.WithFamilies.Simple.Base
 
 open Category
-open CBPVModel
 open EnrichedCategory
 open EnrichedFunctor
 open Functor
@@ -160,9 +159,9 @@ data _⊢c_ where
   _[_]c : Γ ⊢c B → Sub[ Δ , Γ ] → Δ ⊢c B
   subIdC : m [ ids ]c ≡ m
   subAssocC : m [ γ ∘s δ ]c ≡ (m [ γ ]c) [ δ ]c
+
   subPlugDist : (E [ m ]∙) [ γ ]c ≡ ((E [ γ ]k) [ m [ γ ]c ]∙)
-  subPlugComp : ((E [ δ ∘s γ ]k) [ m [ γ ]c ]∙) ≡
-                (((E [ δ ]k) [ m ]∙) [ γ ]c)
+
   isSetComp : isSet (Γ ⊢c B)
 
   -- computations
@@ -249,30 +248,42 @@ stacks[_,_] = stacks .Hom[_,_]
 self[_,_]  = selfSCat .Hom[_,_]
 
 plug : (B B' : ob stacks) → 𝓟[ stacks[ B , B' ] , self[ cTm' B , cTm' B' ] ]
-plug B B' .N-ob Γ k  =
-  pshhom
-    (λ Δ (γ , m) → (k [ γ ]k) [ m ]∙)
-    λ Δ Θ γ (δ , m) → subPlugComp
-plug B B' .N-hom γ =
-  funExt λ k →
-  makePshHomPath (funExt λ Θ → funExt λ (δ , m) →
-    cong (λ h → h [ m ]∙ ) (sym subAssocK))
+plug B B' = 
+  adjL _ _  (
+    natTrans 
+      (λ Γ (k , m) → k [ m ]∙) 
+      (λ γ → funExt λ (k , m) → sym subPlugDist))
 
 cTm : EnrichedFunctor 𝓟Mon stacks selfSCat
 cTm .F-ob = cTm'
-cTm .F-hom {B} {B'}= plug B B'
-cTm .F-id {B} =
-  makeNatTransPath (funExt λ Γ → funExt λ tt* →
-    makePshHomPath (funExt λ Δ → funExt λ (γ , m) →
+cTm .F-hom {B} {B'} = plug B B'
+cTm .F-id = helper _ _ (
+  makeNatTransPath (funExt λ Γ → funExt λ (tt* , m) → 
     cong (λ h → h [ m ]∙) plugDist ∙ plugId ))
-cTm .F-seq =
-  makeNatTransPath (funExt λ Γ → funExt λ (k , k') →
-    makePshHomPath (funExt λ Δ → funExt λ (γ , m) →
-      cong₂
-      (λ h1 h2 → ((k' [ h1 ]k) [ (k [ h2 ]k) [ m ]∙ ]∙))
-      ∘sIdR ∘sIdR
-      ∙ sym plugAssoc
-      ∙ cong (λ h → ( h [ m ]∙)) (sym substDist)))
+
+    {- 
+      (∙k [ ids ]k) [ m ]∙ ≡ m
+
+      or equivalently
+
+      ∙k [ m ]∙ ≡ m
+    -}
+cTm .F-seq = helper _ _ (
+  makeNatTransPath (funExt λ Γ → funExt λ ((k , k'), m) → 
+    cong₂ _[_]∙ 
+      (cong₂ _[_]k refl ∘sIdL ∙ subIdK) 
+      (cong₂ _[_]∙ ((cong₂ _[_]k refl ∘sIdL ∙ subIdK)) refl ∙ refl) 
+    ∙ sym plugAssoc -- the main part
+    ∙ cong (λ h → h [ m ]∙) (sym subIdK) )) 
+{-
+  (k' [ ids ∘s ids ]k) [ (k [ ids ∘s ids ]k) [ m ]∙ ]∙ ≡
+  ((k' ∘k k) [ ids ]k) [ m ]∙
+
+  or equivalently
+  
+  k' [ k [ m ]∙ ]∙ ≡
+  (k' ∘k k) [ m ]∙
+-}
 
 comprehension : (Γ : Ctx) (A : VTy) →
   SCat [-, (A ∷ Γ) ] ≅ᶜ ((SCat [-, Γ ]) ×Psh vTm A)
@@ -304,6 +315,6 @@ scwf .snd .snd .snd = term , λ A Γ →
   (PshIso→PshIsoLift _ _ (NatIso→PshIso _ _ (comprehension Γ A))))
 
 CBPVExpSubst : CBPVModel _ _ _ _ _ _
-CBPVExpSubst .Scwf = scwf
-CBPVExpSubst .Stacks = stacks
-CBPVExpSubst .CTm = cTm
+CBPVExpSubst .fst = scwf
+CBPVExpSubst .snd .fst = stacks
+CBPVExpSubst .snd .snd = cTm

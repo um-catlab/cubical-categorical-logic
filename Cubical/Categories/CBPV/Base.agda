@@ -14,10 +14,12 @@ open import Cubical.Categories.WithFamilies.Simple.Functor
 
 open EnrichedCategory
 
-private
-  variable
-    ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level
-
+CBPVModel : (ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level) → Type _ 
+CBPVModel ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm = 
+  Σ[ Scwf ∈ SCwF ℓC ℓC' ℓVTy ℓVTm ] 
+  Σ[ Stacks ∈ EnrichedCategory (PshMon.𝓟Mon (Scwf .fst) ℓCTm) ℓCTy ] 
+  EnrichedFunctor ((PshMon.𝓟Mon (Scwf .fst) ℓCTm)) Stacks (self (Scwf .fst) _)
+{-
 record CBPVModel (ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level) :
   Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max
     (ℓ-suc (ℓ-suc ℓC))
@@ -34,3 +36,4 @@ record CBPVModel (ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level) :
   field
     Stacks : EnrichedCategory V ℓCTy
     CTm : EnrichedFunctor V Stacks (self C _)
+-}

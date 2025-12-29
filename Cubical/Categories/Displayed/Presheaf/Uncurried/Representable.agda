@@ -140,6 +140,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
 
   module UniversalElementᴰNotation {ue : UniversalElement C P} (ueᴰ : UniversalElementᴰ ue) where
     module ue = UniversalElementNotation ue
+    vertexᴰ = ueᴰ .fst
+    elementᴰ = ueᴰ .snd .fst
     asReprᴰ : Representableᴰ (ue .vertex , asPshIso ue)
     asReprᴰ = (ueᴰ .fst) , ((yoRecᴰ Pᴰ (ueᴰ .snd .fst)) , (ueᴰ .snd .snd))
 

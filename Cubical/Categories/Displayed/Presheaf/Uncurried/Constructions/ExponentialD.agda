@@ -65,7 +65,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
   module _ (P : LRPresheaf C ℓP) where
     isLRᴰ : (Pᴰ : Presheafᴰ (P .fst) Cᴰ ℓPᴰ) → Type _
-    isLRᴰ Pᴰ = ∀ Γ (Γᴰ : Cᴰ.ob[ Γ ])
+    isLRᴰ Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])
       → UniversalElementᴰ Cᴰ ((C [-, Γ ]) ×Psh P .fst) ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) (P .snd Γ)
 
 module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) where
@@ -80,18 +80,18 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
     open PresheafᴰNotation Cᴰ (P .fst) (Pᴰ .fst) public
 
     private
-      module ueᴰ {Γ}{Γᴰ} = UniversalElementᴰNotation Cᴰ _ _ (Pᴰ .snd Γ Γᴰ)
+      module ueᴰ {Γ}{Γᴰ} = UniversalElementᴰNotation Cᴰ _ _ (Pᴰ .snd {Γ} Γᴰ)
 
     open ueᴰ public
 
     _×ᴰPᴰ : ∀ {Γ} → Cᴰ.ob[ Γ ] → Cᴰ.ob[ P .snd Γ .vertex ]
-    Γᴰ ×ᴰPᴰ = Pᴰ .snd _ Γᴰ .fst
+    Γᴰ ×ᴰPᴰ = Pᴰ .snd  Γᴰ .fst
 
     π₁ᴰ : ∀ {Γ}{Γᴰ} → Cᴰ [ P .snd Γ .element .fst ][ Γᴰ ×ᴰPᴰ , Γᴰ ]
-    π₁ᴰ {Γ} {Γᴰ} = Pᴰ .snd Γ Γᴰ .snd .fst .fst
+    π₁ᴰ {Γ} {Γᴰ} = Pᴰ .snd {Γ} Γᴰ .snd .fst .fst
 
     π₂ᴰ : ∀ {Γ}{Γᴰ} → p[ P .snd Γ .element .snd ][ Γᴰ ×ᴰPᴰ ]
-    π₂ᴰ {Γ} {Γᴰ} = Pᴰ .snd Γ Γᴰ .snd .fst .snd
+    π₂ᴰ {Γ} {Γᴰ} = Pᴰ .snd {Γ} Γᴰ .snd .fst .snd
 
     module _ {Γ A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : Cᴰ.ob[ A ]} where
       ×-cong-introᴰ : ∀ {f f' : C [ Γ , A ]}{p p' : P.p[ Γ ]}{fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]}{fᴰ' : Cᴰ [ f' ][ Γᴰ , Aᴰ ]}
@@ -124,6 +124,17 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
         ×β₂ᴰ : (ueᴰ.introᴰ (fᴰ , pᴰ) ⋆ᴰ π₂ᴰ) ∫≡ pᴰ
         ×β₂ᴰ = sym (⋆ᴰ-reind _ _ _) ∙ PathPᴰΣ (ueᴰ.∫βᴰ (fᴰ , pᴰ)) .snd
 
+    -- TODO: uncurried functor comprehensionᴰ ?
+    ×ᴰPᴰ-Fᴰ : Functorᴰ (LRPsh→Functor P) Cᴰ Cᴰ
+    ×ᴰPᴰ-Fᴰ .F-obᴰ {Γ} Γᴰ = Γᴰ ×ᴰPᴰ
+    ×ᴰPᴰ-Fᴰ .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ = ueᴰ.introᴰ ((π₁ᴰ Cᴰ.⋆ᴰ γᴰ) , π₂ᴰ)
+    ×ᴰPᴰ-Fᴰ .F-idᴰ {x} {xᴰ} = Cᴰ.rectify $ Cᴰ.≡out $ ×-introᴰ≡
+      (Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _))
+      (sym $ formal-reind-filler _ _)
+    ×ᴰPᴰ-Fᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $ ×-introᴰ≡
+      (sym $ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×β₁ᴰ ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×β₁ᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _)
+      (sym $ ⋆Assoc _ _ _ ∙ ⟨⟩⋆⟨ ×β₂ᴰ ⟩ ∙ ×β₂ᴰ)
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
     module C = Category C
@@ -132,32 +143,24 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   module _ {Q : Presheaf C ℓQ} (P : LRPresheaf C ℓP) (Pᴰ : LRᴰPresheafᴰ P Cᴰ ℓPᴰ) where
     private
       module Pᴰ = LRᴰPresheafᴰNotation P Cᴰ _ Pᴰ
-    -- TODO: uncurried functor comprehensionᴰ ?
-    ×ᴰPᴰ-Fᴰ : Functorᴰ (LRPsh→Functor P) Cᴰ Cᴰ
-    ×ᴰPᴰ-Fᴰ .F-obᴰ {Γ} Γᴰ = Γᴰ Pᴰ.×ᴰPᴰ
-    ×ᴰPᴰ-Fᴰ .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ = Pᴰ.introᴰ ((Pᴰ.π₁ᴰ Cᴰ.⋆ᴰ γᴰ) , Pᴰ.π₂ᴰ)
-    ×ᴰPᴰ-Fᴰ .F-idᴰ {x} {xᴰ} = Cᴰ.rectify $ Cᴰ.≡out $ Pᴰ.×-introᴰ≡
-      (Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _))
-      (sym $ Pᴰ.formal-reind-filler _ _)
-    ×ᴰPᴰ-Fᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $ Pᴰ.×-introᴰ≡
-      (sym $ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ Pᴰ.×β₁ᴰ ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Pᴰ.×β₁ᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _)
-      (sym $ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.×β₂ᴰ ⟩ ∙ Pᴰ.×β₂ᴰ)
-
     ×ᴰPᴰ : Functor (Cᴰ / (P ⇒PshSmall Q)) (Cᴰ / Q)
-    ×ᴰPᴰ = _/Fᴰ_ {F = LRPsh→Functor P} ×ᴰPᴰ-Fᴰ idPshHom
+    ×ᴰPᴰ = _/Fᴰ_ {F = LRPsh→Functor P} Pᴰ.×ᴰPᴰ-Fᴰ idPshHom
 
     module _ (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
       ⇒ᴰPshSmall : Presheafᴰ (P ⇒PshSmall Q) Cᴰ ℓQᴰ
       ⇒ᴰPshSmall = reindPsh ×ᴰPᴰ Qᴰ
 
 
+LROb : Category ℓC ℓC' → Type _
+LROb C = Σ C.ob (BinProductsWith C)
+  where module C = Category C
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
 
-  module _ ((A , _×A) : Σ C.ob (BinProductsWith C))
-           where
+  module _ ((A , _×A) : LROb C) where
     isLRᴰOb : Cᴰ.ob[ A ] → Type _
     isLRᴰOb Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
 
@@ -176,4 +179,64 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   module _ (bp : BinProducts C) (bpᴰ : BinProductsᴰ Cᴰ bp) where
     AllExponentiableᴰ : AllExponentiable C bp → Type _
     AllExponentiableᴰ _⇒_ = ∀ {A} (Aᴰ : Cᴰ.ob[ A ])
-      → Exponentiableᴰ (A , (λ c → bp (c , A))) (Aᴰ , (λ Γ Γᴰ → bpᴰ Γᴰ Aᴰ)) (A ⇒_)
+      → Exponentiableᴰ (A , (λ c → bp (c , A))) (Aᴰ , (λ Γᴰ → bpᴰ Γᴰ Aᴰ)) (A ⇒_)
+
+-- Notations
+module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {(A , _×A) : LROb C}
+  {(Aᴰ , _×ᴰAᴰ) : LRᴰOb Cᴰ (A , _×A)}
+  {B}{Bᴰ}
+  (A⇒B : Exponential C A B _×A)
+  (Aᴰ⇒ᴰBᴰ : Exponentialᴰ Cᴰ (A , _×A) (Aᴰ , _×ᴰAᴰ) Bᴰ A⇒B)
+  where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module -×A = BinProductsWithNotation _×A
+    module -×ᴰAᴰ = LRᴰPresheafᴰNotation (_ , _×A) Cᴰ _ (_ , _×ᴰAᴰ)
+    module A⇒B = ExponentialNotation {C = C} _×A A⇒B
+    module Aᴰ⇒BᴰPshᴰ = PresheafᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
+      (⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
+    module ueᴰ = UniversalElementᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) (⇒ᴰPshSmall ((C [-, A ]) , _×A) ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])) Aᴰ⇒ᴰBᴰ
+  _impr⋆ᴰ_ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+    {γ : C [ Δ , Γ ]}
+    {f : C [ (Γ ×A) .vertex , B ]}
+    (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+    (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+    → Cᴰ [ LRPsh→Functor (_ , _×A) ⟪ γ ⟫ C.⋆ f ][ Δᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
+  γᴰ impr⋆ᴰ fᴰ = -×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ γᴰ Cᴰ.⋆ᴰ fᴰ
+
+  impr≡compositional⋆ᴰ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+    {γ : C [ Δ , Γ ]}
+    {f : C [ (Γ ×A) .vertex , B ]}
+    (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+    (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+    → (γᴰ impr⋆ᴰ fᴰ) Cᴰ.∫≡ (γᴰ Aᴰ⇒BᴰPshᴰ.⋆ᴰ fᴰ)
+  impr≡compositional⋆ᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {f} γᴰ fᴰ = Cᴰ.reind-filler _ _
+
+  λᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
+    → Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
+    → Cᴰ [ A⇒B.lda f ][ Γᴰ , Aᴰ⇒ᴰBᴰ .fst ]
+  λᴰ = Aᴰ⇒ᴰBᴰ .snd .snd _ _ .inv _
+
+  appᴰ : Cᴰ [ A⇒B.app ][ Aᴰ⇒ᴰBᴰ .fst -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
+  appᴰ = Aᴰ⇒ᴰBᴰ .snd .fst
+
+  ⇒βᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
+    → (fᴰ : Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+    → (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ (λᴰ fᴰ) Cᴰ.⋆ᴰ appᴰ) Cᴰ.∫≡ fᴰ
+  ⇒βᴰ fᴰ = impr≡compositional⋆ᴰ _ _ ∙ (Cᴰ.≡in $ ueᴰ.βᴰ fᴰ)
+
+  ⇒ηᴰ : ∀ {Γ}{Γᴰ}{f : C [ Γ , A⇒B.⇒ue.vertex ]}
+    → (fᴰ : Cᴰ [ f ][  Γᴰ , Aᴰ⇒ᴰBᴰ .fst ])
+    → fᴰ Cᴰ.∫≡ λᴰ (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ fᴰ Cᴰ.⋆ᴰ appᴰ)
+  ⇒ηᴰ fᴰ = (Cᴰ.≡in $ ueᴰ.ηᴰ fᴰ) ∙ ueᴰ.cong-introᴰ (sym $ impr≡compositional⋆ᴰ _ _)
+
+module ExponentialsᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (bp : BinProducts C) (bpᴰ : BinProductsᴰ Cᴰ bp)
+  (_⇒_ : AllExponentiable C bp) (_⇒ᴰ_ : AllExponentiableᴰ Cᴰ bp bpᴰ _⇒_) where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module ueᴰ {A}{B}{Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]} = ExponentialᴰNotation (A ⇒ B) (Aᴰ ⇒ᴰ Bᴰ)
+
+  open ueᴰ public

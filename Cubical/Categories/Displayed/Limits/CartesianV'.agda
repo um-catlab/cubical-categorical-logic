@@ -14,6 +14,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 
 private
   variable
@@ -40,6 +41,7 @@ record CartesianCategoryᴰ (CC : CartesianCategory ℓC ℓC') (ℓCᴰ ℓCᴰ
     termᴰ : Terminalᴰ Cᴰ term
     bpᴰ : BinProductsᴰ Cᴰ bp
   module Cᴰ = Fibers Cᴰ
+  module termᴰ = UniversalElementᴰNotation Cᴰ _ _ termᴰ
   module bpᴰ = BinProductsᴰNotation Cᴰ bp bpᴰ
 
 module _ (CC : CartesianCategory ℓC ℓC') where

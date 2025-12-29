@@ -82,8 +82,8 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       elimHom (⋆ₑAssoc f g h i) = Cᴰ.⋆Assocᴰ (elimHom f) (elimHom g) (elimHom h) i
       elimHom (isSetExp f g p q i j) =
         isSetHomᴰ' Cᴰ (elimHom f) (elimHom g) (λ i → elimHom (p i)) (λ i → elimHom (q i)) i j
-      elimHom !ₑ = introᴰ _ _ _ termᴰ tt
-      elimHom (⊤η f i) = Cᴰ.rectify {p' = ⊤η f} (ηᴰ _ _ _ termᴰ (elimHom f)) i
+      elimHom !ₑ = termᴰ.introᴰ tt
+      elimHom (⊤η f i) = Cᴰ.rectify {p' = ⊤η f} (termᴰ.ηᴰ (elimHom f)) i
       elimHom (π₁ {A}{B}) = bpᴰ.πᴰ₁
       elimHom (π₂ {A}{B}) = bpᴰ.πᴰ₂
       elimHom ⟨ f , g ⟩ = bpᴰ.introᴰ ((elimHom f) , (elimHom g))

@@ -123,7 +123,6 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
         ×β₂ᴰ : (ueᴰ.introᴰ (fᴰ , pᴰ) ⋆ᴰ π₂ᴰ) ∫≡ pᴰ
         ×β₂ᴰ = sym (⋆ᴰ-reind _ _ _) ∙ PathPᴰΣ (ueᴰ.∫βᴰ (fᴰ , pᴰ)) .snd
 
-      -- ×ηᴰ = {!!}
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
     module C = Category C

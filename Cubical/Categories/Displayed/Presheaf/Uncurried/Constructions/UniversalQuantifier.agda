@@ -270,7 +270,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           ∙ (snd $ PathPΣ $ β $ P .snd y))))
 
       wkPsh : Functor (Cᴰ / R) (Cᴰ / (R ×Psh P .fst))
-      wkPsh = _/Fᴰ_ {F = LRPsh→Functor P} π*Fᴰ ⟪-⟫×P
+      wkPsh = _/Fᴰ_ {F = LRPsh→Functor P} π*Fᴰ (⟪-⟫×P P)
 
       ∀Pshᴰ : (Pᴰ : Presheafᴰ (R ×Psh P .fst) Cᴰ ℓPᴰ) → Presheafᴰ R Cᴰ ℓPᴰ
       ∀Pshᴰ = reindPsh wkPsh

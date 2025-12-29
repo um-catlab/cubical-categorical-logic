@@ -22,6 +22,7 @@ open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Exponentials.Small
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
@@ -64,8 +65,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
   module _ (P : LRPresheaf C ℓP) where
     isLRᴰ : (Pᴰ : Presheafᴰ (P .fst) Cᴰ ℓPᴰ) → Type _
-    isLRᴰ Pᴰ = ∀ Γ (Γᴰ : Cᴰ.ob[ Γ ]) → UniversalElementᴰ Cᴰ ((C [-, Γ ]) ×Psh P .fst) ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) (P .snd Γ)
-
+    isLRᴰ Pᴰ = ∀ Γ (Γᴰ : Cᴰ.ob[ Γ ])
+      → UniversalElementᴰ Cᴰ ((C [-, Γ ]) ×Psh P .fst) ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) (P .snd Γ)
 
 module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) where
   private
@@ -146,5 +147,33 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     ×ᴰPᴰ = _/Fᴰ_ {F = LRPsh→Functor P} ×ᴰPᴰ-Fᴰ idPshHom
 
     module _ (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
-      Exponentialᴰ : Presheafᴰ (P ⇒PshSmall Q) Cᴰ ℓQᴰ
-      Exponentialᴰ = reindPsh ×ᴰPᴰ Qᴰ
+      ⇒ᴰPshSmall : Presheafᴰ (P ⇒PshSmall Q) Cᴰ ℓQᴰ
+      ⇒ᴰPshSmall = reindPsh ×ᴰPᴰ Qᴰ
+
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+
+  module _ ((A , _×A) : Σ C.ob (BinProductsWith C))
+           where
+    isLRᴰOb : Cᴰ.ob[ A ] → Type _
+    isLRᴰOb Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
+
+    LRᴰOb = Σ Cᴰ.ob[ A ] isLRᴰOb
+    module _ ((Aᴰ , _×ᴰAᴰ): LRᴰOb) where
+      Exponentialᴰ : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A → Type _
+      Exponentialᴰ {B} Bᴰ A⇒B =
+        UniversalElementᴰ Cᴰ
+          (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
+          (⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
+          A⇒B
+
+      Exponentiableᴰ : Exponentiable C A _×A → Type _
+      Exponentiableᴰ A⇒_ = ∀ {B} Bᴰ → Exponentialᴰ {B = B} Bᴰ (A⇒ B)
+
+  module _ (bp : BinProducts C) (bpᴰ : BinProductsᴰ Cᴰ bp) where
+    AllExponentiableᴰ : AllExponentiable C bp → Type _
+    AllExponentiableᴰ _⇒_ = ∀ {A} (Aᴰ : Cᴰ.ob[ A ])
+      → Exponentiableᴰ (A , (λ c → bp (c , A))) (Aᴰ , (λ Γ Γᴰ → bpᴰ Γᴰ Aᴰ)) (A ⇒_)

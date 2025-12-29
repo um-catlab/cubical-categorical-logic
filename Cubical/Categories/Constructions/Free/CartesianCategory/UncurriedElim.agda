@@ -113,3 +113,5 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
 
     elimLocal : (ı : Interpᴰ elimLocalMotive) → Section F Cᴰ
     elimLocal ı = GlobalSectionReindex→Section Cᴰ F (elim elimLocalMotive ı)
+
+  -- TODO: recursor, induction principle

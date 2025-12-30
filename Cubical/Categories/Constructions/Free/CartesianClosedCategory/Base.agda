@@ -60,8 +60,8 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
     λη : ∀{Γ Δ Θ} → (t : Expr Γ (Δ ⇒ Θ)) → t ≡ (λ- (⟨ π₁ ⋆ₑ t , π₂ ⟩ ⋆ₑ eval))
 
   open Category hiding (_∘_)
-  open CartesianCategory
-  open CartesianClosedCategory
+  open CartesianCategory using (C; term; bp)
+  open CartesianClosedCategory using (CC; exps)
   open UniversalElement
 
   FreeCartesianClosedCategory : CartesianClosedCategory _ _

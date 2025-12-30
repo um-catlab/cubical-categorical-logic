@@ -18,6 +18,7 @@ module Cubical.Categories.Bifunctor where
 
 open import Cubical.Foundations.Prelude hiding (Path)
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -650,8 +651,54 @@ CurryBifunctor-CurriedToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-RL-fuse f 
     module D = Category D
     module E = Category E
 
-Bifunctor≡ : {F G : Bifunctor C D E} → CurryBifunctor F ≡ CurryBifunctor G → F ≡ G
-Bifunctor≡ {F = F} {G = G} e =
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ :
+--   ∀ {ℓC ℓC' ℓD ℓD' ℓE ℓE'} →
+--   {C : Category ℓC ℓC'}
+--   {D : Category ℓD ℓD'}
+--   {E : Category ℓE ℓE'} →
+--   (F : Bifunctor C D E) → F ≡ ParFunctorToBifunctor (BifunctorToParFunctor F)
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-ob = Bif-ob F
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-homL f d = F .Bif-L×-agree f i
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-homR c g = F .Bif-R×-agree g i
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-hom× = Bif-hom× F
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-L-id =
+--   isSet→SquareP (λ _ _ → E .isSetHom)
+--     (F .Bif-L-id)
+--     (ParFunctorToBifunctor {C = C} {D = D} {E = E}
+--       (BifunctorToParFunctor F) .Bif-L-id)
+--       (F .Bif-L×-agree (C .id)) refl i
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ {C = C} {D = D} {E = E} F i .Bif-L-seq f f' =
+--   isSet→SquareP (λ _ _ → E .isSetHom)
+--     (F .Bif-L-seq f f')
+--     (ParFunctorToBifunctor {C = C} {D = D} {E = E}
+--       (BifunctorToParFunctor F) .Bif-L-seq f f')
+--     (Bif-L×-agree F ((C ⋆ f) f'))
+--     {!!}
+--     i
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-R-id = {!!}
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-R-seq = {!!}
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-×-id = Bif-×-id F
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-×-seq = Bif-×-seq F
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-L×-agree = {!!}
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-R×-agree = {!!}
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-LR-fuse = {!!}
+-- BifunctorToParFunctor=ParFunctorToBifunctor≡ F i .Bif-RL-fuse = {!!}
+
+Bifunctor≡' : {F G : Bifunctor C D E} → CurryBifunctor F ≡ CurryBifunctor G → F ≡ G
+Bifunctor≡' {F = F} {G = G} e =
   CurryBifunctor-CurriedToBifunctor≡ F
   ∙ cong CurriedToBifunctor e
   ∙ sym (CurryBifunctor-CurriedToBifunctor≡ G)
+
+Bifunctor≡ :
+  ∀ {ℓC ℓC' ℓD ℓD' ℓE ℓE'} →
+  {C : Category ℓC ℓC'}
+  {D : Category ℓD ℓD'}
+  {E : Category ℓE ℓE'} →
+  {F G : Bifunctor C D E} →
+  BifunctorToParFunctor F ≡ BifunctorToParFunctor G → F ≡ G
+Bifunctor≡ {F = F} {G = G} e =
+  {!!}
+--   BifunctorToParFunctor=ParFunctorToBifunctor≡ F
+--   ∙ cong ParFunctorToBifunctor e
+--   ∙ (sym $ BifunctorToParFunctor=ParFunctorToBifunctor≡ G)

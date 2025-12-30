@@ -133,6 +133,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   RelatorIso : (P : C o-[ ℓP ]-* D) → (Q : C o-[ ℓQ ]-* D) → Type _
   RelatorIso P Q = PshIso (Relator→Psh P) (Relator→Psh Q)
 
+  RelatorIso→Path : {P Q : C o-[ ℓP ]-* D} →
+    RelatorIso P Q → P ≡ Q
+  RelatorIso→Path α = Bifunctor≡ (PshIso→Path _ _ α)
+
   ProfunctorHom ProfunctorIso : (P : Profunctor D C ℓP) (Q : Profunctor D C ℓQ) → Type _
   ProfunctorHom P Q = RelatorHom (CurriedToBifunctorL P) (CurriedToBifunctorL Q)
   ProfunctorIso P Q = RelatorIso (CurriedToBifunctorL P) (CurriedToBifunctorL Q)

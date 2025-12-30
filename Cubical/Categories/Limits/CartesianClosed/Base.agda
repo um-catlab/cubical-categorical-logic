@@ -17,3 +17,4 @@ record CartesianClosedCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) 
   field
     exps : AllExponentiable C bp
 
+  open ExponentialsNotation bp exps public

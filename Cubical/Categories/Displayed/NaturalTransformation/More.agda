@@ -30,6 +30,8 @@ open NatTransᴰ
 open isIso
 open isIsoᴰ
 
+
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   record NatIsoᴰ {F : Functor C D}{G : Functor C D}
     (α : NatIso F G)
@@ -100,7 +102,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     open NatTrans
     open NatIsoᴰ
     private
-      module Dᴰ = Categoryᴰ Dᴰ
+      module Cᴰ = Categoryᴰ Cᴰ
+      module Dᴰ = Fibers Dᴰ
+    isosToNatIsoᴰ :
+      (isoᴰs : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → CatIsoᴰ Dᴰ (NatIsoAt α x) (Fᴰ .F-obᴰ xᴰ) (Gᴰ .F-obᴰ xᴰ))
+      → (∀ {x y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}{f : C [ x , y ]}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ])
+          → (Fᴰ .F-homᴰ fᴰ Dᴰ.⋆ᴰ isoᴰs yᴰ .fst) Dᴰ.∫≡ (isoᴰs xᴰ .fst Dᴰ.⋆ᴰ Gᴰ .F-homᴰ fᴰ))
+      → NatIsoᴰ α Fᴰ Gᴰ
+    isosToNatIsoᴰ isoᴰs homᴰ .transᴰ .N-obᴰ = λ xᴰ → isoᴰs xᴰ .fst
+    isosToNatIsoᴰ isoᴰs homᴰ .transᴰ .N-homᴰ fᴰ = Dᴰ.rectify $ Dᴰ.≡out $ homᴰ fᴰ
+    isosToNatIsoᴰ isoᴰs homᴰ .nIsoᴰ xᴰ .invᴰ = isoᴰs xᴰ .snd .invᴰ
+    isosToNatIsoᴰ isoᴰs homᴰ .nIsoᴰ xᴰ .secᴰ = isoᴰs xᴰ .snd .secᴰ
+    isosToNatIsoᴰ isoᴰs homᴰ .nIsoᴰ xᴰ .retᴰ = isoᴰs xᴰ .snd .retᴰ
+
     mkNatIsoPropHom : hasPropHoms Dᴰ
       → (∀ {x} xᴰ → Dᴰ.Hom[ α .trans ⟦ x ⟧ ][ Fᴰ .F-obᴰ xᴰ , Gᴰ .F-obᴰ xᴰ ])
       → (∀ {x} xᴰ → Dᴰ.Hom[ α .nIso x .inv ][ Gᴰ .F-obᴰ xᴰ , Fᴰ .F-obᴰ xᴰ ])

@@ -242,6 +242,14 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       cong-introᴰ γᴰ≡γᴰ'⋆π₁ γpᴰ≡γᴰ'⋆π₂
       ∙ ηⱽ' γᴰ'
 
+    extensionalityᴰ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ γ'}{p : P.p[ Γ ]}
+      → {γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]}
+      → {γᴰ' : Cᴰ [ γ' ][ Δᴰ , Γᴰ ×ⱽ p * ]}
+      → (γᴰ ⋆π₁ⱽ Cᴰ.∫≡ γᴰ' ⋆π₁ⱽ)
+      → (γᴰ ⋆π₂ⱽ ∫≡ γᴰ' ⋆π₂ⱽ)
+      → γᴰ Cᴰ.∫≡ γᴰ'
+    extensionalityᴰ γᴰ1≡ γᴰ2≡ = (sym $ introᴰ≡ (sym $ γᴰ1≡) (sym $ γᴰ2≡)) ∙ ηⱽ' _
+
     asLR : LRPresheaf (Cᴰ / P) ℓPᴰ
     asLR = (Pᴰ .fst) , (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 module _

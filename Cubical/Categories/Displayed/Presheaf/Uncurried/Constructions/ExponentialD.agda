@@ -117,6 +117,14 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
         → ueᴰ.introᴰ (fᴰ , pᴰ) Cᴰ.∫≡ fᴰ,pᴰ
       ×-introᴰ≡ fᴰ≡ pᴰ≡ = ×-cong-introᴰ fᴰ≡ pᴰ≡ ∙ sym ×ηᴰ
 
+      ×-extensionalityᴰ : ∀ {f,p f,p' : C [ Γ , P .snd A .vertex ]}
+        {fᴰ,pᴰ : Cᴰ [ f,p ][ Γᴰ , Aᴰ ×ᴰPᴰ ]}
+        {fᴰ,pᴰ' : Cᴰ [ f,p' ][ Γᴰ , Aᴰ ×ᴰPᴰ ]}
+        → (fᴰ,pᴰ Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.∫≡ (fᴰ,pᴰ' Cᴰ.⋆ᴰ π₁ᴰ)
+        → (fᴰ,pᴰ ⋆ᴰ π₂ᴰ) ∫≡ (fᴰ,pᴰ' ⋆ᴰ π₂ᴰ)
+        → fᴰ,pᴰ Cᴰ.∫≡ fᴰ,pᴰ'
+      ×-extensionalityᴰ 1≡ 2≡ = ×ηᴰ ∙ ×-introᴰ≡ 1≡ 2≡
+
       module _ {f : C [ Γ , A ]} {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {p : P.p[ Γ ]} {pᴰ : p[ p ][ Γᴰ ]} where
         ×β₁ᴰ : (ueᴰ.introᴰ (fᴰ , pᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.∫≡ fᴰ
         ×β₁ᴰ = Cᴰ.reind-filler _ _ ∙ PathPᴰΣ (ueᴰ.∫βᴰ (fᴰ , pᴰ)) .fst
@@ -161,16 +169,20 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module Cᴰ = Fibers Cᴰ
 
   module _ ((A , _×A) : LROb C) where
-    isLRᴰOb : Cᴰ.ob[ A ] → Type _
-    isLRᴰOb Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
+    isLRᴰObᴰ : Cᴰ.ob[ A ] → Type _
+    isLRᴰObᴰ Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
 
-    LRᴰOb = Σ Cᴰ.ob[ A ] isLRᴰOb
-    module _ ((Aᴰ , _×ᴰAᴰ): LRᴰOb) where
+    LRᴰObᴰ = Σ Cᴰ.ob[ A ] isLRᴰObᴰ
+    module _ ((Aᴰ , _×ᴰAᴰ): LRᴰObᴰ) where
+      ExponentialᴰSpec : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A
+        → Presheafᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) Cᴰ ℓCᴰ'
+      ExponentialᴰSpec {B} Bᴰ A⇒B = ⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])
+
       Exponentialᴰ : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A → Type _
       Exponentialᴰ {B} Bᴰ A⇒B =
         UniversalElementᴰ Cᴰ
           (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
-          (⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
+          (ExponentialᴰSpec Bᴰ A⇒B)
           A⇒B
 
       Exponentiableᴰ : Exponentiable C A _×A → Type _
@@ -184,7 +196,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 -- Notations
 module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {(A , _×A) : LROb C}
-  {(Aᴰ , _×ᴰAᴰ) : LRᴰOb Cᴰ (A , _×A)}
+  {(Aᴰ , _×ᴰAᴰ) : LRᴰObᴰ Cᴰ (A , _×A)}
   {B}{Bᴰ}
   (A⇒B : Exponential C A B _×A)
   (Aᴰ⇒ᴰBᴰ : Exponentialᴰ Cᴰ (A , _×A) (Aᴰ , _×ᴰAᴰ) Bᴰ A⇒B)

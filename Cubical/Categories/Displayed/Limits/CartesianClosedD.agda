@@ -15,6 +15,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 open import Cubical.Categories.Displayed.Limits.CartesianV'
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 
 private
   variable
@@ -28,13 +29,8 @@ private
 --
 --   where open CartesianClosedCategory CCC
 
-record CartesianClosedCategoryᴰ (CCC : CartesianClosedCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type ((ℓ-max (ℓ-max (ℓ-max (ℓ-suc ℓC) (ℓ-suc ℓC')) (ℓ-suc ℓCᴰ)) (ℓ-suc ℓCᴰ'))) where
-  open CartesianClosedCategory CCC
-  field
-    CCᴰ : CartesianCategoryᴰ CC ℓCᴰ ℓCᴰ'
-
-  open CartesianCategoryᴰ CCᴰ public
-  field
-    expᴰ : AllExponentiableᴰ Cᴰ bp bpᴰ exps
-
-  open ExponentialsᴰNotation {C = C}{Cᴰ = Cᴰ} bp bpᴰ exps expᴰ public
+module _ (CCC : CartesianClosedCategory ℓC ℓC') (CCCⱽ : CartesianClosedCategoryⱽ (CartesianClosedCategory.CC CCC) ℓCᴰ ℓCᴰ') where
+  open CartesianClosedCategoryᴰ
+  CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ : CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ'
+  CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .CCᴰ = CartesianCategoryⱽ→CartesianCategoryᴰ (CartesianClosedCategory.CC CCC) {!!}
+  CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .expᴰ = {!!}

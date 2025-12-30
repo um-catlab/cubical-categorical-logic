@@ -13,7 +13,7 @@ open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Exponentials.Small
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Constructions.BinProduct.LocalRepresentabilityx
+open import Cubical.Categories.Presheaf.Constructions.BinProduct.LocalRepresentability
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More

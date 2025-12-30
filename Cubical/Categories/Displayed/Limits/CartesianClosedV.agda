@@ -49,7 +49,6 @@ record CartesianClosedCategoryⱽ (CC : CartesianCategory ℓC ℓC') (ℓCᴰ �
     expⱽ : Exponentialsⱽ Cᴰ lrⱽ
     forallⱽ : UniversalQuantifiers Cᴰ bp cartesianLifts
 
--- -- TODO: CartesianCategoryⱽ'→CartesianCategoryᴰ
 record CartesianClosedCategoryᴰ (CCC : CartesianClosedCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type ((ℓ-max (ℓ-max (ℓ-max (ℓ-suc ℓC) (ℓ-suc ℓC')) (ℓ-suc ℓCᴰ)) (ℓ-suc ℓCᴰ'))) where
   open CartesianClosedCategory CCC
   field
@@ -60,14 +59,6 @@ record CartesianClosedCategoryᴰ (CCC : CartesianClosedCategory ℓC ℓC') (�
     expᴰ : AllExponentiableᴰ Cᴰ bp bpᴰ exps
 
   open ExponentialsᴰNotation {C = C}{Cᴰ = Cᴰ} bp bpᴰ exps expᴰ public
-
-
- -- (LRⱽObᴰ→LRⱽ Cᴰ
- --  (cartesianLifts π₂* Aᴰ _ (×ue.element (⇒ue.vertex A B) A .snd) .fst
- --   ,
- --   lrⱽ
- --   (cartesianLifts Aᴰ (×ue.vertex (⇒ue.vertex A B) A)
- --    (×ue.element (⇒ue.vertex A B) A .snd) .fst)))
 
 module _ (CCC : CartesianClosedCategory ℓC ℓC') (CCCⱽ : CartesianClosedCategoryⱽ (CartesianClosedCategory.CC CCC) ℓCᴰ ℓCᴰ') where
   open CartesianClosedCategoryⱽ CCCⱽ

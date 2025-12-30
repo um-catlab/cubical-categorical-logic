@@ -44,7 +44,6 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     → Type _
   fᴰ ∫≡ f'ᴰ = Path R.Hom[ _ , _ ] (_ , fᴰ) (_ , f'ᴰ)
 
-
   v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
   v[ x ] .Category.ob = ob[ x ]
   v[ x ] .Category.Hom[_,_] = Hom[ C.id ][_,_]

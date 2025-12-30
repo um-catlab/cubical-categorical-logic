@@ -46,6 +46,7 @@ open PshHom
 open PshIso
 open UniversalElementNotation
 
+open UniversalElement
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C

@@ -4,6 +4,7 @@
   functor F : C → D is enhanced with strong monoidal structure
 
 -}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Constructions.IsoFiber.Monoidal where
 
 open import Cubical.Foundations.Prelude
@@ -44,7 +45,8 @@ module _ {M : MonoidalCategory ℓC ℓC'} {N : MonoidalCategory ℓD ℓD'}
   where
 
   IsoFiber : MonoidalCategoryᴰ N (ℓ-max ℓC ℓD') (ℓ-max ℓC' ℓD')
-  IsoFiber = ∫Mᴰsr N M
+  IsoFiber =
+    ∫Mᴰsr N M
     (reindex (Iso N) (IdStr ×F G)
       (hasPropHomsIso (MonoidalCategory.C N))
       (isIsoFibrationIso (MonoidalCategory.C N)))

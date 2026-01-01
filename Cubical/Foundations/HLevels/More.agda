@@ -9,10 +9,10 @@ private
     ℓ ℓ' : Level
 
 isPropIso : {A : Type ℓ}{B : Type ℓ'} → Iso A B → isProp B → isProp A
-isPropIso f = isPropRetract (f .Iso.fun) (Iso.inv f) (Iso.leftInv f)
+isPropIso f = isPropRetract (f .Iso.fun) (Iso.inv f) (Iso.ret f)
 
 isSetIso : {A : Type ℓ}{B : Type ℓ'} → Iso A B → isSet B → isSet A
-isSetIso f = isSetRetract (f .Iso.fun) (Iso.inv f) (Iso.leftInv f)
+isSetIso f = isSetRetract (f .Iso.fun) (Iso.inv f) (Iso.ret f)
 
 isSetDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
 isSetDep = isOfHLevelDep 2

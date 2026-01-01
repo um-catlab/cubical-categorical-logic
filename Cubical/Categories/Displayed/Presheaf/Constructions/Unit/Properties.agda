@@ -47,8 +47,8 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}{P : Presh
   UnitPshᴰ-UMP : Iso Unit (PshHomᴰ α Pᴰ (UnitPshᴰ {Cᴰ = Cᴰ}{P = Q}))
   UnitPshᴰ-UMP .Iso.fun = λ _ → UnitPshᴰ-introᴰ
   UnitPshᴰ-UMP .Iso.inv = λ _ → tt
-  UnitPshᴰ-UMP .Iso.rightInv = λ αᴰ → makePshHomᴰPath refl
-  UnitPshᴰ-UMP .Iso.leftInv = λ _ → refl
+  UnitPshᴰ-UMP .Iso.sec = λ αᴰ → makePshHomᴰPath refl
+  UnitPshᴰ-UMP .Iso.ret = λ _ → refl
 
 module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

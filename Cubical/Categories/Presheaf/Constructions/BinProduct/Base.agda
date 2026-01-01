@@ -103,8 +103,8 @@ module _ {C : Category ℓ ℓ'} where
     ×Psh-UMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHom R (P ×Psh Q)) (PshHom R P × PshHom R Q)
     ×Psh-UMP .Iso.fun α = (α ⋆PshHom π₁ P Q) , (α ⋆PshHom π₂ P Q)
     ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
-    ×Psh-UMP .Iso.rightInv (α , β) = ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
-    ×Psh-UMP .Iso.leftInv α = makePshHomPath refl
+    ×Psh-UMP .Iso.sec (α , β) = ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
+    ×Psh-UMP .Iso.ret α = makePshHomPath refl
 
   module _
     {P : Presheaf C ℓA}

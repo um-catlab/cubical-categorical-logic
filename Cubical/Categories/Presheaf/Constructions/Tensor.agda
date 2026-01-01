@@ -144,7 +144,7 @@ module _ {C : Category ℓ ℓ'} where
   _⊗Hom_ :
     ∀ {P : Functor C (SET ℓP)}{Q : Functor C (SET ℓQ)}
     {R : Functor (C ^op) (SET ℓR)}{S : Functor (C ^op) (SET ℓS)}
-    (α : PshHom P Q)
+    (α : PshHom (P ∘F fromOpOp) (Q ∘F fromOpOp))
     (β : PshHom R S)
     → P ⊗ R → Q ⊗ S
   _⊗Hom_ {P = P}{Q = Q}{R = R}{S = S} α β =
@@ -160,7 +160,7 @@ module _ {C : Category ℓ ℓ'} where
 
   _⊗Iso_ : ∀ {P : Functor C (SET ℓP)}{Q : Functor C (SET ℓQ)}
     {R : Functor (C ^op) (SET ℓR)}{S : Functor (C ^op) (SET ℓS)}
-    (α : PshIso P Q)
+    (α : PshIso (P ∘F fromOpOp) (Q ∘F fromOpOp))
     (β : PshIso R S)
     → Iso (P ⊗ R) (Q ⊗ S)
   _⊗Iso_ {P = P}{Q = Q}{R = R}{S = S} α β = iso

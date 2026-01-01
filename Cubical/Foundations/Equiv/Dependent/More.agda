@@ -27,9 +27,9 @@ module _ {isom : Iso A B} {fun : mapOver (isom .fun) P Q} where
     → isIso {A = Σ A P}{B = Σ B Q} λ (a , p) → Iso.fun isom a , fun a p
   isIsoOver→isIsoΣ x .fst = λ z → inv isom (z .fst) , x .inv (z .fst) (z .snd)
   isIsoOver→isIsoΣ x .snd .fst b =
-    ΣPathP ((rightInv isom (b .fst)) , (x .rightInv (b .fst) (b .snd)))
+    ΣPathP ((sec isom (b .fst)) , (x .rightInv (b .fst) (b .snd)))
   isIsoOver→isIsoΣ x .snd .snd a =
-    ΣPathP ((leftInv isom (a .fst)) , (x .leftInv (a .fst) (a .snd)))
+    ΣPathP ((ret isom (a .fst)) , (x .leftInv (a .fst) (a .snd)))
 
 module _ (isom : Iso A B) (isomᴰ : IsoOver isom P Q) where
   IsoOver→Iso : Iso (Σ A P) (Σ B Q)
@@ -76,8 +76,8 @@ invEqᴰ eqᴰ = λ a z → eqᴰ .snd z .fst .fst
 --   → isEquivOver {P = P} {Q = Q} f
 --   → isIsoOver isom P Q f
 -- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =
---   isisoover (isoOver .inv) (isoOver .rightInv)
---     λ a p → {!isoOver .leftInv a p!}
+--   isisoover (isoOver .inv) (isoOver .sec)
+--     λ a p → {!isoOver .ret a p!}
 --   where
 --     isoOver : IsoOver (equivToIso $ isoToEquiv isom) _ Q
 --     isoOver = equivOver→IsoOver (isoToEquiv isom) f fEquiv

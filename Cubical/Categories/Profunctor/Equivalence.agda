@@ -64,8 +64,8 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
     record {
      fun = (ProfRepresentation→PshFunctorRepresentation C D R) ;
      inv = (PshFunctorRepresentation→ProfRepresentation C D R) ;
-     rightInv = Psh→Prof→Psh ;
-     leftInv = Prof→Psh→Prof
+     sec = Psh→Prof→Psh ;
+     ret = Prof→Psh→Prof
     }
     where
     Psh→Prof→Psh : (Psh : PshFunctorRepresentation C D R)
@@ -127,8 +127,8 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
     record {
       fun = PshFunctorRepresentation→ParamUnivElt C D R ;
       inv = ParamUnivElt→PshFunctorRepresentation C D R ;
-      rightInv = Univ→PshFunctor→Univ ;
-      leftInv = PshFunctor→Univ→PshFunctor
+      sec = Univ→PshFunctor→Univ ;
+      ret = PshFunctor→Univ→PshFunctor
     }
     where
     Univ→PshFunctor→Univ : ∀ (U : ParamUnivElt C D R) →
@@ -141,7 +141,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
       in
       funExt (λ c →
         -- easier to do proof with UniversalElements, use isomorphism
-        sym (UniversalElement≅UnivElt D (pAppR R c) .Iso.rightInv (U' c))
+        sym (UniversalElement≅UnivElt D (pAppR R c) .Iso.sec (U' c))
         ∙
         congS (UniversalElement→UnivElt D (pAppR R c))
           -- underlying proof of Universal Elements being the same
@@ -158,7 +158,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (R : C *-[ ℓS ]-o
             ))
           )
         ∙
-        UniversalElement≅UnivElt D (pAppR R c) .Iso.rightInv (U c)
+        UniversalElement≅UnivElt D (pAppR R c) .Iso.sec (U c)
       )
 
     PshFunctor→Univ→PshFunctor : ∀ (Psh : (PshFunctorRepresentation C D R)) →

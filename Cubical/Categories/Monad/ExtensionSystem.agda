@@ -144,7 +144,7 @@ module _ (C : Category ℓ ℓ') where
     isSetRetract
       (MonadMorphismIsoΣ .fun)
       ((MonadMorphismIsoΣ .inv))
-      ((MonadMorphismIsoΣ .leftInv))
+      (MonadMorphismIsoΣ .ret)
     (isSetΣ (isSetΠ (λ _ → C .isSetHom))
       (λ _ → isSetΣ (isSetΠ (λ _ → isProp→isSet (C .isSetHom _ _)))
                     λ _ → isSetΠ3 (λ _ _ _ → isProp→isSet (C .isSetHom _ _))))

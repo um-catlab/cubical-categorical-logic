@@ -28,8 +28,10 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
   hiding (introS; introF)
+open import Cubical.Categories.Displayed.Constructions.Reindex.Eq as Eq
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
   hiding (introS; introF; introS⁻)
+open import Cubical.Categories.Displayed.Constructions.Weaken.Properties
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Terminal
@@ -55,28 +57,28 @@ module _
 
   private
     module Cᴰ = Categoryᴰ Cᴰ
-
+    module Cᴰ' = EqReindex Cᴰ ∫wk→× Eq.refl (λ _ _ → Eq.refl)
   -- s for "simple" because D is not dependent on C
   -- r for "right" because D is on the right of the product
   ∫Cᴰsr : Categoryᴰ C (ℓ-max ℓD ℓCᴰ) (ℓ-max ℓD' ℓCᴰ')
-  ∫Cᴰsr = ∫Cᴰ (weaken C D) Cᴰ
+  ∫Cᴰsr = ∫Cᴰ (weaken C D) Cᴰ'.reindex
 
   Fstᴰsr : Functorᴰ Id ∫Cᴰsr (weaken C D)
-  Fstᴰsr = Fstᴰ Cᴰ
+  Fstᴰsr = Fstᴰ Cᴰ'.reindex
 
-  -- TODO: Sndᴰsr
+  -- -- TODO: Sndᴰsr
 
   module _
     {E : Category ℓE ℓE'}
     (F : Functor E C)
     (Fᴰ : Section F (weaken C D))
-    (Gᴰ : Section (TotalCat.intro F Fᴰ) Cᴰ)
+    (Gᴰ : Section (TotalCat.intro F Fᴰ) Cᴰ'.reindex)
     where
 
     open Functorᴰ
 
     introS : Section F ∫Cᴰsr
-    introS = TotalCatᴰ.introS {C = C}{Cᴰ = weaken C D} Cᴰ F Fᴰ Gᴰ
+    introS = TotalCatᴰ.introS {C = C}{Cᴰ = weaken C D} Cᴰ'.reindex F Fᴰ Gᴰ
 
   module _
     where
@@ -100,6 +102,6 @@ module _
   -- Assocᴰsr = intro _ (Wk.intro (BP.Fst C D) (BP.Snd C D))
   --   (reindF' _ Eq.refl Eq.refl TotalCat.Snd)
 
-  -- Σ[ c ] Σ[ d ] Cᴰ (c , d) → Σ[ cd ] Cᴰ cd
-  Assoc : Functor (∫C ∫Cᴰsr) (∫C Cᴰ)
-  Assoc = Assocᴰ {Cᴰ = weaken C D} Cᴰ
+  -- -- Σ[ c ] Σ[ d ] Cᴰ (c , d) → Σ[ cd ] Cᴰ cd
+  -- Assoc : Functor (∫C ∫Cᴰsr) (∫C Cᴰ)
+  -- Assoc = {!!} -- Assocᴰ {Cᴰ = weaken C D} Cᴰ'.reindex

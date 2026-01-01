@@ -121,12 +121,12 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     NatTransIsoᴰΣ .fun αᴰ = αᴰ .N-obᴰ , αᴰ .N-homᴰ
     NatTransIsoᴰΣ .inv (ob , hom) .N-obᴰ = ob
     NatTransIsoᴰΣ .inv (ob , hom) .N-homᴰ = hom
-    NatTransIsoᴰΣ .rightInv _ = refl
-    NatTransIsoᴰΣ .leftInv _ = refl
+    NatTransIsoᴰΣ .sec _ = refl
+    NatTransIsoᴰΣ .ret _ = refl
 
     isSetNatTransᴰ : isSet (NatTransᴰ α Fᴰ Gᴰ)
     isSetNatTransᴰ = isSetRetract (NatTransIsoᴰΣ .fun)
-      (NatTransIsoᴰΣ .inv) (NatTransIsoᴰΣ .leftInv)
+      (NatTransIsoᴰΣ .inv) (NatTransIsoᴰΣ .ret)
       (isSetΣSndProp (isSetImplicitΠ (λ c → isSetΠ (λ cᴰ → Dᴰ .isSetHomᴰ)))
         λ α-components → isPropImplicitΠ3 λ c c' f →
         isPropImplicitΠ2 (λ cᴰ c'ᴰ →

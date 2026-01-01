@@ -86,11 +86,11 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
   CurryPshᴰIso : Iso (Uncurried.Presheafᴰ P Cᴰ ℓPᴰ) (Presheafᴰ P Cᴰ ℓPᴰ)
   CurryPshᴰIso .fun = CurryPshᴰ
   CurryPshᴰIso .inv = UncurryPshᴰ
-  CurryPshᴰIso .rightInv Pᴰ = Functorᴰ≡ (λ _ → refl)
+  CurryPshᴰIso .sec Pᴰ = Functorᴰ≡ (λ _ → refl)
     λ fᴰ → funExt λ p → funExt λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
       sym $ Pᴰ.reind-filler _ _
     where module Pᴰ = PresheafᴰNotation Pᴰ
-  CurryPshᴰIso .leftInv Pᴰ' = Functor≡ (λ _ → refl) λ (f , fᴰ , f⋆p≡q) → funExt λ pᴰ →
+  CurryPshᴰIso .ret Pᴰ' = Functor≡ (λ _ → refl) λ (f , fᴰ , f⋆p≡q) → funExt λ pᴰ →
     Pᴰ'.rectify $ Pᴰ'.≡out $
       sym (Pᴰ.reind-filler _ _)
       ∙ (Pᴰ'.≡in $ λ i → Pᴰ' .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ)
@@ -168,8 +168,8 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
   CurryPshHom-FF-Iso : Iso (PshHom Pᴰ' Qᴰ') (PshHomⱽ (CurryPshᴰ P Cᴰ Pᴰ') (CurryPshᴰ P Cᴰ Qᴰ'))
   CurryPshHom-FF-Iso .fun = CurryPshHom
   CurryPshHom-FF-Iso .inv = CurryPshHom⁻
-  CurryPshHom-FF-Iso .rightInv = λ αⱽ → makePshHomᴰPath refl
-  CurryPshHom-FF-Iso .leftInv = λ α → makePshHomPath refl
+  CurryPshHom-FF-Iso .sec = λ αⱽ → makePshHomᴰPath refl
+  CurryPshHom-FF-Iso .ret = λ α → makePshHomPath refl
 
 
 module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

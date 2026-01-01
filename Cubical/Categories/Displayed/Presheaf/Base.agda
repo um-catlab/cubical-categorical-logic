@@ -22,6 +22,7 @@ open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
+import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -50,7 +51,7 @@ PRESHEAFᴰ Cᴰ ℓP ℓPᴰ = FUNCTORᴰ (Cᴰ ^opᴰ) (SETᴰ ℓP ℓPᴰ)
      → {P : Presheaf C ℓP} → {ℓPᴰ : Level}
      → Presheafᴰ P D ℓPᴰ
      → Presheaf (TotalCat.∫C D) (ℓ-max ℓP ℓPᴰ)
-∫P Pᴰ = ΣF ∘F TotalCat.∫F Pᴰ
+∫P Pᴰ = ΣF ∘F TotalCat.∫F Pᴰ ∘F TotalCat.∫C-op-commute
 
 open PshHom
 Fst : {C : Category ℓC ℓC'} {D : Categoryᴰ C ℓD ℓD'}

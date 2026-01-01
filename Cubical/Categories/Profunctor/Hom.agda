@@ -61,7 +61,7 @@ module _ {C : Category ℓC ℓC'} where
     recη ϕ = makeNatTransPath (funExt λ x → makeNatTransPath refl)
 
   UniversalNaturalElement
-    : UniversalElement ((RELATOR C C ℓC') ^op) NATURAL-ELEMENTS
+    : UniversalElement ((RELATOR C C ℓC') ^op) (NATURAL-ELEMENTS ∘F fromOpOp)
   UniversalNaturalElement .vertex = HomR C
   UniversalNaturalElement .element = IdHom
   UniversalNaturalElement .universal P =

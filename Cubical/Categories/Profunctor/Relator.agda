@@ -28,7 +28,7 @@ open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
@@ -113,6 +113,9 @@ module RelatorNotation
       ∙ (sym $ funExt⁻ (R .Bif-RL-fuse f g) h)
   open Bifunctor R public
 
+  rappL : ∀ c → Presheaf (D ^op) ℓR
+  rappL c = appL R c ∘F fromOpOp
+
 module ProfunctorNotation {ℓC ℓC' ℓD ℓD' ℓR}
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
@@ -125,7 +128,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     module D = Category D
   -- TODO: this relies on definitional (C ×C D ^op) ^op ≡ (C ^op ×C D)
   Relator→Psh : (P : C o-[ ℓP ]-* D) → Presheaf (C ×C D ^op) ℓP
-  Relator→Psh P = BifunctorToParFunctor P
+  Relator→Psh P = BifunctorToParFunctor P ∘F ((BP.Fst C (D ^op) ^opF) ,F recOp (BP.Snd C (D ^op)))
 
   RelatorHom : (P : C o-[ ℓP ]-* D) → (Q : C o-[ ℓQ ]-* D) → Type _
   RelatorHom P Q = PshHom (Relator→Psh P) (Relator→Psh Q)
@@ -169,17 +172,21 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       ∙ α .N-hom (c , d') (c , d) (C.id , g) p
       ∙ (sym $ funExt⁻ (Q .Bif-R×-agree g) _)
 
-    appL-Hom : RelatorHom P Q → ∀ c → PshHom (appL P c) (appL Q c)
+    appL-Hom : RelatorHom P Q → ∀ c → PshHom (P.rappL c) (Q.rappL c)
     appL-Hom α c .N-ob d = α .N-ob (c , d)
     appL-Hom α c .N-hom _ _ f p = natR α p f
+
     -- is there a way to get this for free from appL-Hom?
     appR-Hom : RelatorHom P Q → ∀ d → PshHom (appR P d) (appR Q d)
     appR-Hom α d .N-ob c = α .N-ob (c , d)
     appR-Hom α d .N-hom _ _ = natL α
   module _ {P : C o-[ ℓP ]-* D}{Q : C o-[ ℓQ ]-* D} where
+    private
+      module P = RelatorNotation P
+      module Q = RelatorNotation Q
     open PshHom
     open PshIso
-    appL-Iso : RelatorIso P Q → ∀ c → PshIso (appL P c) (appL Q c)
+    appL-Iso : RelatorIso P Q → ∀ c → PshIso (P.rappL c) (Q.rappL c)
     appL-Iso α c = pshiso (appL-Hom (α .trans) c)
       (λ d → (α .nIso (c , d) .fst) ,
         ( α .nIso (c , d) .snd .fst
@@ -252,7 +259,7 @@ module _ {C : Category ℓC ℓC'} {ℓS} {D : Category ℓD ℓD'} where
   Profunctor→Relator*o = CurriedToBifunctor
 
   Profunctor→Relatoro*^op : Profunctor C D ℓS → (C ^op) o-[ ℓS ]-* (D ^op)
-  Profunctor→Relatoro*^op = CurriedToBifunctor
+  Profunctor→Relatoro*^op P = CurriedToBifunctor P ∘Flr (fromOpOp , Id)
 
   Relator→Profunctor : D o-[ ℓS ]-* C → Profunctor C D ℓS
   Relator→Profunctor R = CurryBifunctor (Bif.Sym R)

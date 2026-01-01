@@ -90,9 +90,9 @@ module _ {C : Category ℓ ℓ'} where
             (PshHom (S ×Psh P) Q)
       ⇒PshLarge-UMP .Iso.fun α = ×PshIntro (π₁ S P ⋆PshHom α) (π₂ S P) ⋆PshHom appPshHom
       ⇒PshLarge-UMP .Iso.inv = λPshHom
-      ⇒PshLarge-UMP .Iso.rightInv α⟨s,p⟩ = makePshHomPath $ funExt λ x → funExt λ (s , p) →
+      ⇒PshLarge-UMP .Iso.sec α⟨s,p⟩ = makePshHomPath $ funExt λ x → funExt λ (s , p) →
         cong (α⟨s,p⟩ .N-ob x) (ΣPathP ((S.⋆IdL s) , refl))
-      ⇒PshLarge-UMP .Iso.leftInv α = makePshHomPath $ funExt λ x → funExt λ s →
+      ⇒PshLarge-UMP .Iso.ret α = makePshHomPath $ funExt λ x → funExt λ s →
         makePshHomPath $ funExt λ y → funExt λ (f , p) →
           funExt⁻ (funExt⁻ (cong N-ob (α .N-hom y x f _)) _) _
           ∙ cong (α .N-ob x s .N-ob y) (ΣPathP ((C.⋆IdL f) , refl))

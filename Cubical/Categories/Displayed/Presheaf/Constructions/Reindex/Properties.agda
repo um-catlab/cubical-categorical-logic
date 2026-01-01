@@ -135,8 +135,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-UMPⱽ : Iso (PshHomᴰ α Pᴰ Qᴰ) (PshHomⱽ Pᴰ (reind α Qᴰ))
   reind-UMPⱽ .Iso.fun = reind-introⱽ
   reind-UMPⱽ .Iso.inv = _⋆PshHomⱽᴰ reind-π
-  reind-UMPⱽ .Iso.rightInv = reind-ηⱽ
-  reind-UMPⱽ .Iso.leftInv = reind-βⱽ'
+  reind-UMPⱽ .Iso.sec = reind-ηⱽ
+  reind-UMPⱽ .Iso.ret = reind-βⱽ'
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
@@ -184,8 +184,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reind-UMP : Iso (PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ) (PshHomᴰ α Pᴰ (reind β Rᴰ))
   reind-UMP .Iso.fun = reind-introᴰ
   reind-UMP .Iso.inv = _⋆PshHomᴰ reind-π
-  reind-UMP .Iso.rightInv = reind-ηᴰ
-  reind-UMP .Iso.leftInv = reind-βᴰ
+  reind-UMP .Iso.sec = reind-ηᴰ
+  reind-UMP .Iso.ret = reind-βᴰ
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -195,17 +195,17 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   {αᴰ : PshHomᴰ α Pᴰ Qᴰ}
   {αᴰ⁻ : PshHomᴰ α⁻ Qᴰ Pᴰ}
-  (leftInv : α ⋆PshHom α⁻ ≡ idPshHom)
-  (rightInv : α⁻ ⋆PshHom α ≡ idPshHom)
-  (leftInvᴰ : PshHomᴰPathP (αᴰ ⋆PshHomᴰ αᴰ⁻) idPshHomᴰ leftInv)
-  (rightInvᴰ : PshHomᴰPathP (αᴰ⁻ ⋆PshHomᴰ αᴰ) idPshHomᴰ rightInv)
+  (ret : α ⋆PshHom α⁻ ≡ idPshHom)
+  (sec : α⁻ ⋆PshHom α ≡ idPshHom)
+  (retᴰ : PshHomᴰPathP (αᴰ ⋆PshHomᴰ αᴰ⁻) idPshHomᴰ ret)
+  (secᴰ : PshHomᴰPathP (αᴰ⁻ ⋆PshHomᴰ αᴰ) idPshHomᴰ sec)
   where
 
-  makePshIsoᴰ' : PshIsoᴰ (makePshIso leftInv rightInv) Pᴰ Qᴰ
+  makePshIsoᴰ' : PshIsoᴰ (makePshIso ret sec) Pᴰ Qᴰ
   makePshIsoᴰ' .fst = αᴰ
   makePshIsoᴰ' .snd .inv _ = αᴰ⁻ .N-obᴰ
-  makePshIsoᴰ' .snd .isIsoOver.rightInv q qᴰ = congP (λ i z → z .N-obᴰ qᴰ) rightInvᴰ
-  makePshIsoᴰ' .snd .isIsoOver.leftInv p pᴰ = congP (λ i z → z .N-obᴰ pᴰ) leftInvᴰ
+  makePshIsoᴰ' .snd .isIsoOver.rightInv q qᴰ = congP (λ i z → z .N-obᴰ qᴰ) secᴰ
+  makePshIsoᴰ' .snd .isIsoOver.leftInv p pᴰ = congP (λ i z → z .N-obᴰ pᴰ) retᴰ
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -217,8 +217,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
     {αᴰ : PshHomᴰ (α .trans) Pᴰ Qᴰ}
     {αᴰ⁻ : PshHomᴰ (invPshIso α .trans) Qᴰ Pᴰ}
-    (leftInvᴰ : PshHomᴰPathP (αᴰ ⋆PshHomᴰ αᴰ⁻) idPshHomᴰ (PshIso→leftInv α))
-    (rightInvᴰ : PshHomᴰPathP (αᴰ⁻ ⋆PshHomᴰ αᴰ) idPshHomᴰ (PshIso→rightInv α))
+    (retᴰ : PshHomᴰPathP (αᴰ ⋆PshHomᴰ αᴰ⁻) idPshHomᴰ (PshIso→ret α))
+    (secᴰ : PshHomᴰPathP (αᴰ⁻ ⋆PshHomᴰ αᴰ) idPshHomᴰ (PshIso→sec α))
     where
 
     private
@@ -229,9 +229,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     makePshIsoᴰ .fst = αᴰ
     makePshIsoᴰ .snd .inv _ = αᴰ⁻ .N-obᴰ
     makePshIsoᴰ .snd .isIsoOver.rightInv q qᴰ =
-      Qᴰ.rectify $ congP (λ i z → z .N-obᴰ qᴰ) rightInvᴰ
+      Qᴰ.rectify $ congP (λ i z → z .N-obᴰ qᴰ) secᴰ
     makePshIsoᴰ .snd .isIsoOver.leftInv p pᴰ =
-      Pᴰ.rectify $ congP (λ i z → z .N-obᴰ pᴰ) leftInvᴰ
+      Pᴰ.rectify $ congP (λ i z → z .N-obᴰ pᴰ) retᴰ
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -260,7 +260,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   --     (compPshHomᴰPathP' (congP₂ (λ _ → _⋆PshHomᴰ_) refl (reind-βⱽ' _)) $
   --       compPshHomᴰPathP (symP $ ⋆PshHomᴰAssoc _ _ _) $
   --       compPshHomᴰPathP (congP₂ (λ _ → _⋆PshHomᴰ_) (reind-βⱽ _) refl) $
-  --       PshIsoᴰ→leftInvᴰ αᴰ)
+  --       PshIsoᴰ→retᴰ αᴰ)
   --     -- TODO ⟨_⟩⋆PshHomᴰ⟨_⟩
   --     -- TODO use reind-introⱽ-natural for this goal
   --     (compPshHomᴰPathP' {!reind-introⱽ-natural!} $ {!!})

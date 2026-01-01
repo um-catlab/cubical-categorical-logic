@@ -117,8 +117,8 @@ module _ (C : SmallCategory ℓC ℓC') where
           (PshHom {C = C} R P × PshHom {C = C} R Q)
     ×Psh-UMP .Iso.fun α = (α PSHC.⋆ᴰ π₁ P Q) , (α PSHC.⋆ᴰ π₂ P Q)
     ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
-    ×Psh-UMP .Iso.rightInv (α , β) i = (×Pshβ₁ α β i .snd) , ×Pshβ₂ α β i .snd
-    ×Psh-UMP .Iso.leftInv α = cong snd (makeNatTransPath refl λ _ → refl)
+    ×Psh-UMP .Iso.sec (α , β) i = (×Pshβ₁ α β i .snd) , ×Pshβ₂ α β i .snd
+    ×Psh-UMP .Iso.ret α = cong snd (makeNatTransPath refl λ _ → refl)
 
   private
     module BadDefinitionalBehavior where

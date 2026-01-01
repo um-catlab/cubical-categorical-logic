@@ -20,3 +20,7 @@ module Reasoning (C : Category ℓ ℓ') where
   ⟨_⟩⋆⟨⟩ : ∀ {x y z} {f f' : C [ x , y ]} {g : C [ y , z ]}
           → f ≡ f' → f ⋆ g ≡ f' ⋆ g
   ⟨ ≡f ⟩⋆⟨⟩ = cong (_⋆ _) ≡f
+
+open Category
+idIsCatIso : (C : Category ℓ ℓ') → ∀ {x} → isIso C (C .id {x})
+idIsCatIso C {x} = isiso (id C) (⋆IdL C (id C)) (⋆IdL C (id C))

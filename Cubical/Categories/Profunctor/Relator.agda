@@ -189,8 +189,25 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       (λ c → α .nIso (c , d) .fst , α .nIso (c , d) .snd .fst , α .nIso (c , d) .snd .snd)
 
   module _ {P : Profunctor D C ℓP}{Q : Profunctor D C ℓQ} where
+    mkProfHom : (α : ∀ d → PshHom (P ⟅ d ⟆) (Q ⟅ d ⟆))
+      → ((c : C.ob) (d d' : D.ob) (p : fst (Functor.F-ob (Functor.F-ob P d) c)) (g : D.Hom[ d , d' ]) → α d' .PshHom.N-ob c (NatTrans.N-ob (Functor.F-hom P g) c p) ≡ NatTrans.N-ob (Functor.F-hom Q g) c (α d .PshHom.N-ob c p)) → ProfunctorHom P Q
+    mkProfHom α α-Nat = mkRelatorHom (λ c d → α d .PshHom.N-ob c) (λ c c' d → α d .PshHom.N-hom c c') α-Nat
+
     app-ProfHom : ProfunctorHom P Q → ∀ x → PshHom (P ⟅ x ⟆) (Q ⟅ x ⟆)
     app-ProfHom α x = pshhom (λ c → α .PshHom.N-ob (c , x)) (λ c c' f p → natL α f p)
+
+  open PshHom
+  open PshIso
+  ProfunctorIso→NatIso : {P Q : Profunctor D C ℓP}
+    → ProfunctorIso P Q
+    → NatIso P Q
+  ProfunctorIso→NatIso {P = P}{Q = Q} α = record
+    { trans = natTrans (λ d → PshHom→NatTrans (app-ProfHom (α .trans) d)) λ f → makeNatTransPath (funExt (λ c → funExt (λ p → natR (α .trans) p f)))
+    ; nIso = λ d →
+      isiso (PshHom→NatTrans (app-ProfHom (invPshIso α .trans) d))
+            (makeNatTransPath (funExt (λ c → funExt $ α .nIso (c , d) .snd .fst)))
+            (makeNatTransPath (funExt (λ c → funExt $ α .nIso (c , d) .snd .snd)))
+    }
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {ℓR} where
   _[_,_]R : (R : C o-[ ℓR ]-* D) → C .ob → D .ob → Type ℓR

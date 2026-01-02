@@ -247,8 +247,8 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   Isos→PshIso isos isos-areNat .trans .N-ob x = Iso.fun (isos x)
   Isos→PshIso isos isos-areNat .trans .N-hom = isos-areNat
   Isos→PshIso isos isos-areNat .nIso x .fst = Iso.inv (isos x)
-  Isos→PshIso isos isos-areNat .nIso x .snd .fst = Iso.rightInv (isos x)
-  Isos→PshIso isos isos-areNat .nIso x .snd .snd = Iso.leftInv (isos x)
+  Isos→PshIso isos isos-areNat .nIso x .snd .fst = Iso.sec (isos x)
+  Isos→PshIso isos isos-areNat .nIso x .snd .snd = Iso.ret (isos x)
 
   PshIso→Isos : PshIso P Q → ∀ x → Iso (P.p[ x ]) (Q.p[ x ])
   PshIso→Isos α = λ x →
@@ -258,31 +258,31 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   {α : PshHom P Q}{α⁻ : PshHom Q P}
-  (leftInv : α ⋆PshHom α⁻ ≡ idPshHom)
-  (rightInv : α⁻ ⋆PshHom α ≡ idPshHom)
+  (ret : α ⋆PshHom α⁻ ≡ idPshHom)
+  (sec : α⁻ ⋆PshHom α ≡ idPshHom)
   where
 
   -- TODO: make α, α⁻ explicit arguments
   makePshIso : PshIso P Q
   makePshIso .trans = α
   makePshIso .nIso c .fst q = α⁻ .N-ob c q
-  makePshIso .nIso c .snd .fst q = funExt₂⁻ (cong N-ob rightInv) c q
-  makePshIso .nIso c .snd .snd p = funExt₂⁻ (cong N-ob leftInv) c p
+  makePshIso .nIso c .snd .fst q = funExt₂⁻ (cong N-ob sec) c q
+  makePshIso .nIso c .snd .snd p = funExt₂⁻ (cong N-ob ret) c p
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   (α : PshIso P Q)
   where
 
-  PshIso→leftInv : α .trans ⋆PshHom invPshIso α .trans ≡ idPshHom {P = P}
-  PshIso→leftInv =
+  PshIso→ret : α .trans ⋆PshHom invPshIso α .trans ≡ idPshHom {P = P}
+  PshIso→ret =
     makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom {C = C} {P = P} .N-ob c p))
 
-  PshIso→rightInv :
+  PshIso→sec :
     Path
       (PshHom Q Q)
       (invPshIso α .trans ⋆PshHom α .trans)
       idPshHom
-  PshIso→rightInv =
+  PshIso→sec =
     makePshHomPath (funExt₂ λ c p → α .nIso c .snd .fst p)
 
 open PshHom
@@ -510,25 +510,25 @@ module _
   postcomp⋆PshHom-Iso : (α : PshIso Q R) → Iso (PshHom P Q) (PshHom P R)
   postcomp⋆PshHom-Iso α .Iso.fun β = β ⋆PshHom α .trans
   postcomp⋆PshHom-Iso α .Iso.inv β = β ⋆PshHom invPshIso α .trans
-  postcomp⋆PshHom-Iso α .Iso.rightInv β =
+  postcomp⋆PshHom-Iso α .Iso.sec β =
     ⋆PshHomAssoc _ _ _
-    ∙ cong (β ⋆PshHom_) (PshIso→rightInv α)
+    ∙ cong (β ⋆PshHom_) (PshIso→sec α)
     ∙ ⋆PshHomIdR β
-  postcomp⋆PshHom-Iso α .Iso.leftInv β =
+  postcomp⋆PshHom-Iso α .Iso.ret β =
     ⋆PshHomAssoc _ _ _
-    ∙ cong (β ⋆PshHom_) (PshIso→leftInv α)
+    ∙ cong (β ⋆PshHom_) (PshIso→ret α)
     ∙ ⋆PshHomIdR β
 
   precomp⋆PshHom-Iso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
   precomp⋆PshHom-Iso α .Iso.fun β = α .trans ⋆PshHom β
   precomp⋆PshHom-Iso α .Iso.inv β = invPshIso α .trans ⋆PshHom β
-  precomp⋆PshHom-Iso α .Iso.rightInv β =
+  precomp⋆PshHom-Iso α .Iso.sec β =
     sym (⋆PshHomAssoc _ _ _)
-    ∙ cong (_⋆PshHom β) (PshIso→leftInv α)
+    ∙ cong (_⋆PshHom β) (PshIso→ret α)
     ∙ ⋆PshHomIdL β
-  precomp⋆PshHom-Iso α .Iso.leftInv β =
+  precomp⋆PshHom-Iso α .Iso.ret β =
     sym (⋆PshHomAssoc _ _ _)
-    ∙ cong (_⋆PshHom β) (PshIso→rightInv α)
+    ∙ cong (_⋆PshHom β) (PshIso→sec α)
     ∙ ⋆PshHomIdL β
 
 module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} where

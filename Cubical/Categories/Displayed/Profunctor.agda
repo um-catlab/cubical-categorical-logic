@@ -8,6 +8,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
+import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -85,7 +86,10 @@ module _ {C : Category ℓC ℓC'}
          (Rᴰ : Profunctorᴰ R Cᴰ Dᴰ ℓSᴰ)
          where
   ∫Prof : Profunctor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ) (ℓ-max ℓS ℓSᴰ)
-  ∫Prof = ((postcomposeF _ ΣF) ∘F ∫F-Functor (Dᴰ ^opᴰ) (SETᴰ ℓS ℓSᴰ))
+  ∫Prof =
+    (postcomposeF _ ΣF)
+    ∘F precomposeF _ TotalCat.∫C-op-commute
+    ∘F ∫F-Functor (Dᴰ ^opᴰ) (SETᴰ ℓS ℓSᴰ)
     ∘F TotalCat.∫F Rᴰ
 
   private

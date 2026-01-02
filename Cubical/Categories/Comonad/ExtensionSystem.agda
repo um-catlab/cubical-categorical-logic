@@ -12,6 +12,7 @@ open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.Properties
 open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Monad.Base
 import Cubical.Categories.Monad.ExtensionSystem as MES
 
@@ -49,11 +50,13 @@ module _ (C : Category ℓ ℓ') where
     Kleisli = (MES.Kleisli (C ^op) E) ^op
 
     F : Functor Kleisli C
-    F = (MES.G (C ^op) E) ^opF
+    F = recOp (MES.G (C ^op) E)
 
     open import Cubical.Categories.Adjoint.UniversalElements
+    open UniversalElement
     G : RightAdjoint F
-    G = MES.F (C ^op) E
+    G c = record { vertex = G^op c .vertex ; element = G^op c .element ; universal = G^op c .universal }
+      where G^op = MES.F (C ^op) E
 
   pull : {T T' : ExtensionSystem} → ComonadMorphism T T' →
          Functor (Kleisli T') (Kleisli T)

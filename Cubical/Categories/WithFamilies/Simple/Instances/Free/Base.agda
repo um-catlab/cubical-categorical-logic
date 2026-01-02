@@ -13,7 +13,7 @@ open import Cubical.Foundations.More
 
 open import Cubical.Data.FinData hiding (elim)
 open import Cubical.Data.List hiding (elim; [_])
-open import Cubical.Data.List.FinData hiding (ℓ; A; B)
+open import Cubical.Data.List.FinData
 open import Cubical.Data.List.Dependent
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit

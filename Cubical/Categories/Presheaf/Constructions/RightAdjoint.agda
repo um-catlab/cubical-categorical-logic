@@ -92,10 +92,10 @@ module _
       F⇒Large-UMP : Iso (PshHom R (P F⇒Large Q)) (PshHom (ext P ⟅ R ⟆) Q)
       F⇒Large-UMP .fun = λ α → ext-HomR P α ⋆PshHom F⇒Large-app
       F⇒Large-UMP .inv = F⇒Large-λ
-      F⇒Large-UMP .rightInv α = makePshHomPath $ funExt λ d → funExt $
+      F⇒Large-UMP .sec α = makePshHomPath $ funExt λ d → funExt $
         P⊗R.ind (λ pr → Q.isSetPsh _ _)
           (λ p r → refl)
-      F⇒Large-UMP .leftInv α = makePshHomPath $ funExt λ c → funExt λ r → makePshHomPath $ funExt λ d → funExt λ p →
+      F⇒Large-UMP .ret α = makePshHomPath $ funExt λ c → funExt λ r → makePshHomPath $ funExt λ d → funExt λ p →
         refl
 
   -- If the profunctor P is representable as a functor F, then the

@@ -50,8 +50,7 @@ module isSetTmProof {ℓ} (Σ : Sig ℓ) (Γ : ℕ) where
   TmRetractOfW (app f args) = cong (app f) (funExt λ x → TmRetractOfW (args x))
 
   isSetTm-S : isSet (Tm-S tt)
-  isSetTm-S = isSet⊎ isSetFin (Σ .isSetFunSymbol)
-
+  isSetTm-S = isSet⊎ (isSetFin {k = Γ}) (Σ .isSetFunSymbol)
 
   isSetTm : isSet (Tm Σ Γ)
   isSetTm =

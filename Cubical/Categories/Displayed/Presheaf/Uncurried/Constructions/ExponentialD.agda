@@ -10,25 +10,21 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.More
-open import Cubical.Foundations.Isomorphism
 
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.More
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory using (∫C)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Exponentials.Small
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Constructions.Reindex
@@ -37,14 +33,10 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Profunctor.Relator
-open import Cubical.Categories.Profunctor.Representable
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.NaturalTransformation
-open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
@@ -60,14 +52,11 @@ private
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
 open Functorᴰ
-open NatTrans
-open NatIso
 open PshHom
 open PshIso
 open UniversalElementNotation
 open UniversalElementᴰNotation
 open isIsoOver
-open Iso
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
@@ -159,170 +148,107 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     module C = Category C
     module Cᴰ = Fibers Cᴰ
 
-  module _ (P : LRPresheaf C ℓP) (Pᴰ : LRᴰPresheafᴰ P Cᴰ ℓPᴰ) where
+  module _ {Q : Presheaf C ℓQ} (P : LRPresheaf C ℓP) (Pᴰ : LRᴰPresheafᴰ P Cᴰ ℓPᴰ) where
     private
-      module P = PresheafNotation (P .fst)
-      module ×P {A} = UniversalElementNotation (P .snd A)
       module Pᴰ = LRᴰPresheafᴰNotation P Cᴰ _ Pᴰ
+    ×ᴰPᴰ : Functor (Cᴰ / (P ⇒PshSmall Q)) (Cᴰ / Q)
+    ×ᴰPᴰ = _/Fᴰ_ {F = LRPsh→Functor P} Pᴰ.×ᴰPᴰ-Fᴰ idPshHom
 
-    -- ×ᴰPᴰSpec {Q} (Γ , Γᴰ , q) (Δ , Δᴰ , (q' , p')) =
-    --   π₁*((Cᴰ / Q) [-, (Γ , Γᴰ , q) ]) (Δ , Δᴰ , (q' , p')) ×ⱽ π₂* Pᴰ (Δ , Δᴰ , (q' , p'))
-    --   := (Cᴰ / Q) [ (Δ , Δᴰ , q') , (Γ , Γᴰ , q) ]
-    --      × Pᴰ (Δ , Δᴰ , p')
-    ×ᴰPᴰSpec : {Q : Presheaf C ℓQ} → Profunctor (Cᴰ / Q) (Cᴰ / (Q ×Psh (P .fst))) (ℓ-max ℓPᴰ (ℓ-max ℓC' (ℓ-max ℓCᴰ' ℓQ)))
-    ×ᴰPᴰSpec {Q = Q} =
-      (-×Psh (reindPshᴰNatTrans (π₂ Q (P .fst)) (Pᴰ .fst)))
-      ∘F reindPshF (Idᴰ /Fⱽ π₁ Q (P .fst))
-      ∘F YO
-
-    ×ᴰPᴰ : {Q : Presheaf C ℓQ}  → Functor (Cᴰ / Q) (Cᴰ / (Q ×Psh (P .fst)))
-    ×ᴰPᴰ {Q = Q} = _/Fᴰ_ {F = LRPsh→Functor P} Pᴰ.×ᴰPᴰ-Fᴰ
-      (×PshIntro (⇒PshSmall-UMP P Q .inv (π₁ Q (P .fst))) (⇒PshSmall-UMP P (P .fst) .inv (π₂ Q (P .fst))) ⋆PshHom invPshIso (reindPsh× _ _ _) .trans)
-
-    ×ᴰPᴰ-UMP : {Q : Presheaf C ℓQ} →
-      (×ᴰPᴰ {Q = Q}) RepresentsProf (×ᴰPᴰSpec {Q = Q})
-    ×ᴰPᴰ-UMP {Q = Q} = pshiso (mkProfHom (λ (Γ , Γᴰ , q) → yoRec _ (((×P.element .fst) , (Pᴰ.π₁ᴰ , Q.⟨ sym $ C.⋆IdL _ ⟩⋆⟨⟩)) , Pᴰ.reind (sym $ P.⋆IdL _) Pᴰ.π₂ᴰ))
-      λ _ _ _ p _ →
-        ≡-× (/Hom≡ Cᴰ Q
-          (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ PathPΣ ×P.β .fst ⟩ ∙ sym (C.⋆Assoc _ _ _))
-          (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ Pᴰ.×β₁ᴰ ⟩ ∙ (sym $ Cᴰ.⋆Assoc _ _ _)))
-          (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (Pᴰ.⟨⟩⋆⟨ sym (Pᴰ.reind-filler _) ⟩ ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.×β₂ᴰ ⟩ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ ⟩) ∙ sym (Pᴰ.⋆ᴰ-reind _ _ _))
-        ) -- naturality
-      λ ((Δ , Δᴰ , (q' , p')) , (Γ , Γᴰ , q)) →
-        -- inverse
-        (λ ((γ , γᴰ , γq≡q') , pᴰ) →
-          (×P.intro (γ , p'))
-          , ((Pᴰ.introᴰ (γᴰ , pᴰ))
-          , ΣPathP ((Q.⟨⟩⋆⟨ Q.⟨ C.⋆IdL _ ⟩⋆⟨⟩ ⟩ ∙ sym (Q.⋆Assoc _ _ _) ∙ Q.⟨ PathPΣ ×P.β .fst ⟩⋆⟨⟩ ∙ γq≡q')
-                   , (P.⟨⟩⋆⟨ P.⋆IdL _ ⟩ ∙ PathPΣ ×P.β .snd))))
-          -- section
-        , (λ ((γ , γᴰ , γq≡q') , pᴰ) → ≡-× (/Hom≡ Cᴰ Q (PathPΣ ×P.β .fst) {!Pᴰ.×β₁ᴰ!}) {!!})
-          -- retraction
-        , λ (γ,p , γᴰ,pᴰ , γ,p≡q',p') → {!/Hom≡ Cᴰ Q ? ?!}
-      where
-        module Q = PresheafNotation Q
-
-    -- this looks like an app but works out to be definitionally an identity
-    ×ᴰPᴰ/app : {Q : Presheaf C ℓQ} → Functor (Cᴰ / (P ⇒PshSmall Q)) (Cᴰ / Q)
-    ×ᴰPᴰ/app = _/Fᴰ_ {F = LRPsh→Functor P} Pᴰ.×ᴰPᴰ-Fᴰ idPshHom
-
-    -- surprisingly nasty, but nbd
-    ×ᴰPᴰ/app≅app∘×ᴰPᴰ : {Q : Presheaf C ℓQ} → NatIso ((Idᴰ /Fⱽ appPshSmall P Q) ∘F ×ᴰPᴰ) (×ᴰPᴰ/app {Q = Q})
-    ×ᴰPᴰ/app≅app∘×ᴰPᴰ{Q = Q} = /NatIso
-      (record { trans = natTrans (λ x → C.id) (λ f → idTrans Id .N-hom _) ; nIso = λ _ → idIsCatIso C })
-      (isosToNatIsoᴰ _ _ _ (λ _ → idᴰCatIsoᴰ Cᴰ) λ _ → idTrans (Id {C = ∫C Cᴰ}) .N-hom _)
-      λ (Γ , Γᴰ , f) →
-        Q.⟨ ×P.extensionality $ sym $ ΣPathP (
-          (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ PathPΣ ×P.β .fst ∙ C.⟨ refl ⟩⋆⟨ C.⋆IdL _ ⟩ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ PathPΣ ×P.β .fst ⟩⋆⟨ refl ⟩)
-        , (P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ PathPΣ ×P.β .snd ⟩ ∙ PathPΣ ×P.β .snd))
-          ⟩⋆⟨⟩
-        ∙ Q.⋆Assoc _ _ _
-      where module Q = PresheafNotation Q
-
-    module _ {Q : Presheaf C ℓQ} (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+    module _ (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
       ⇒ᴰPshSmall : Presheafᴰ (P ⇒PshSmall Q) Cᴰ ℓQᴰ
-      ⇒ᴰPshSmall = reindPsh ×ᴰPᴰ/app Qᴰ
+      ⇒ᴰPshSmall = reindPsh ×ᴰPᴰ Qᴰ
 
---   module _ {Q : Presheaf C ℓQ} (P : LRPresheaf C ℓP) (Pᴰ : LRᴰPresheafᴰ P Cᴰ ℓPᴰ) where
---     private
---       module Pᴰ = LRᴰPresheafᴰNotation P Cᴰ _ Pᴰ
---     ×ᴰPᴰ : Functor (Cᴰ / (P ⇒PshSmall Q)) (Cᴰ / Q)
---     ×ᴰPᴰ = _/Fᴰ_ {F = LRPsh→Functor P} Pᴰ.×ᴰPᴰ-Fᴰ idPshHom
 
---     module _ (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
---       ⇒ᴰPshSmall : Presheafᴰ (P ⇒PshSmall Q) Cᴰ ℓQᴰ
---       ⇒ᴰPshSmall = reindPsh ×ᴰPᴰ Qᴰ
+LROb : Category ℓC ℓC' → Type _
+LROb C = Σ C.ob (BinProductsWith C)
+  where module C = Category C
 
--- LROb : Category ℓC ℓC' → Type _
--- LROb C = Σ C.ob (BinProductsWith C)
---   where module C = Category C
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
 
--- module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
---   private
---     module C = Category C
---     module Cᴰ = Fibers Cᴰ
+  module _ ((A , _×A) : LROb C) where
+    isLRᴰObᴰ : Cᴰ.ob[ A ] → Type _
+    isLRᴰObᴰ Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
 
---   module _ ((A , _×A) : LROb C) where
---     isLRᴰObᴰ : Cᴰ.ob[ A ] → Type _
---     isLRᴰObᴰ Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
+    LRᴰObᴰ = Σ Cᴰ.ob[ A ] isLRᴰObᴰ
+    module _ ((Aᴰ , _×ᴰAᴰ): LRᴰObᴰ) where
+      ExponentialᴰSpec : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A
+        → Presheafᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) Cᴰ ℓCᴰ'
+      ExponentialᴰSpec {B} Bᴰ A⇒B = ⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])
 
---     LRᴰObᴰ = Σ Cᴰ.ob[ A ] isLRᴰObᴰ
---     module _ ((Aᴰ , _×ᴰAᴰ): LRᴰObᴰ) where
---       ExponentialᴰSpec : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A
---         → Presheafᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) Cᴰ ℓCᴰ'
---       ExponentialᴰSpec {B} Bᴰ A⇒B = ⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])
+      Exponentialᴰ : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A → Type _
+      Exponentialᴰ {B} Bᴰ A⇒B =
+        UniversalElementᴰ Cᴰ
+          (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
+          (ExponentialᴰSpec Bᴰ A⇒B)
+          A⇒B
 
---       Exponentialᴰ : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A → Type _
---       Exponentialᴰ {B} Bᴰ A⇒B =
---         UniversalElementᴰ Cᴰ
---           (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
---           (ExponentialᴰSpec Bᴰ A⇒B)
---           A⇒B
+      Exponentiableᴰ : Exponentiable C A _×A → Type _
+      Exponentiableᴰ A⇒_ = ∀ {B} Bᴰ → Exponentialᴰ {B = B} Bᴰ (A⇒ B)
 
---       Exponentiableᴰ : Exponentiable C A _×A → Type _
---       Exponentiableᴰ A⇒_ = ∀ {B} Bᴰ → Exponentialᴰ {B = B} Bᴰ (A⇒ B)
+  module _ (bp : BinProducts C) (bpᴰ : BinProductsᴰ Cᴰ bp) where
+    AllExponentiableᴰ : AllExponentiable C bp → Type _
+    AllExponentiableᴰ _⇒_ = ∀ {A} (Aᴰ : Cᴰ.ob[ A ])
+      → Exponentiableᴰ (A , (λ c → bp (c , A))) (Aᴰ , (λ Γᴰ → bpᴰ Γᴰ Aᴰ)) (A ⇒_)
 
---   module _ (bp : BinProducts C) (bpᴰ : BinProductsᴰ Cᴰ bp) where
---     AllExponentiableᴰ : AllExponentiable C bp → Type _
---     AllExponentiableᴰ _⇒_ = ∀ {A} (Aᴰ : Cᴰ.ob[ A ])
---       → Exponentiableᴰ (A , (λ c → bp (c , A))) (Aᴰ , (λ Γᴰ → bpᴰ Γᴰ Aᴰ)) (A ⇒_)
+-- Notations
+module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {(A , _×A) : LROb C}
+  {(Aᴰ , _×ᴰAᴰ) : LRᴰObᴰ Cᴰ (A , _×A)}
+  {B}{Bᴰ}
+  (A⇒B : Exponential C A B _×A)
+  (Aᴰ⇒ᴰBᴰ : Exponentialᴰ Cᴰ (A , _×A) (Aᴰ , _×ᴰAᴰ) Bᴰ A⇒B)
+  where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module -×A = BinProductsWithNotation _×A
+    module -×ᴰAᴰ = LRᴰPresheafᴰNotation (_ , _×A) Cᴰ _ (_ , _×ᴰAᴰ)
+    module A⇒B = ExponentialNotation {C = C} _×A A⇒B
+    module Aᴰ⇒BᴰPshᴰ = PresheafᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
+      (⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
+    module ueᴰ = UniversalElementᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) (⇒ᴰPshSmall ((C [-, A ]) , _×A) ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])) Aᴰ⇒ᴰBᴰ
+  _impr⋆ᴰ_ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+    {γ : C [ Δ , Γ ]}
+    {f : C [ (Γ ×A) .vertex , B ]}
+    (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+    (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+    → Cᴰ [ LRPsh→Functor (_ , _×A) ⟪ γ ⟫ C.⋆ f ][ Δᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
+  γᴰ impr⋆ᴰ fᴰ = -×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ γᴰ Cᴰ.⋆ᴰ fᴰ
 
--- -- Notations
--- module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   {(A , _×A) : LROb C}
---   {(Aᴰ , _×ᴰAᴰ) : LRᴰObᴰ Cᴰ (A , _×A)}
---   {B}{Bᴰ}
---   (A⇒B : Exponential C A B _×A)
---   (Aᴰ⇒ᴰBᴰ : Exponentialᴰ Cᴰ (A , _×A) (Aᴰ , _×ᴰAᴰ) Bᴰ A⇒B)
---   where
---   private
---     module C = Category C
---     module Cᴰ = Fibers Cᴰ
---     module -×A = BinProductsWithNotation _×A
---     module -×ᴰAᴰ = LRᴰPresheafᴰNotation (_ , _×A) Cᴰ _ (_ , _×ᴰAᴰ)
---     module A⇒B = ExponentialNotation {C = C} _×A A⇒B
---     module Aᴰ⇒BᴰPshᴰ = PresheafᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
---       (⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
---     module ueᴰ = UniversalElementᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) (⇒ᴰPshSmall ((C [-, A ]) , _×A) ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])) Aᴰ⇒ᴰBᴰ
---   _impr⋆ᴰ_ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
---     {γ : C [ Δ , Γ ]}
---     {f : C [ (Γ ×A) .vertex , B ]}
---     (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
---     (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
---     → Cᴰ [ LRPsh→Functor (_ , _×A) ⟪ γ ⟫ C.⋆ f ][ Δᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
---   γᴰ impr⋆ᴰ fᴰ = -×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ γᴰ Cᴰ.⋆ᴰ fᴰ
+  impr≡compositional⋆ᴰ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+    {γ : C [ Δ , Γ ]}
+    {f : C [ (Γ ×A) .vertex , B ]}
+    (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+    (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+    → (γᴰ impr⋆ᴰ fᴰ) Cᴰ.∫≡ (γᴰ Aᴰ⇒BᴰPshᴰ.⋆ᴰ fᴰ)
+  impr≡compositional⋆ᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {f} γᴰ fᴰ = Cᴰ.reind-filler _ _
 
---   impr≡compositional⋆ᴰ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
---     {γ : C [ Δ , Γ ]}
---     {f : C [ (Γ ×A) .vertex , B ]}
---     (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
---     (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
---     → (γᴰ impr⋆ᴰ fᴰ) Cᴰ.∫≡ (γᴰ Aᴰ⇒BᴰPshᴰ.⋆ᴰ fᴰ)
---   impr≡compositional⋆ᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {f} γᴰ fᴰ = Cᴰ.reind-filler _ _
+  λᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
+    → Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
+    → Cᴰ [ A⇒B.lda f ][ Γᴰ , Aᴰ⇒ᴰBᴰ .fst ]
+  λᴰ = Aᴰ⇒ᴰBᴰ .snd .snd _ _ .inv _
 
---   λᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
---     → Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
---     → Cᴰ [ A⇒B.lda f ][ Γᴰ , Aᴰ⇒ᴰBᴰ .fst ]
---   λᴰ = Aᴰ⇒ᴰBᴰ .snd .snd _ _ .inv _
+  appᴰ : Cᴰ [ A⇒B.app ][ Aᴰ⇒ᴰBᴰ .fst -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
+  appᴰ = Aᴰ⇒ᴰBᴰ .snd .fst
 
---   appᴰ : Cᴰ [ A⇒B.app ][ Aᴰ⇒ᴰBᴰ .fst -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
---   appᴰ = Aᴰ⇒ᴰBᴰ .snd .fst
+  ⇒βᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
+    → (fᴰ : Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+    → (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ (λᴰ fᴰ) Cᴰ.⋆ᴰ appᴰ) Cᴰ.∫≡ fᴰ
+  ⇒βᴰ fᴰ = impr≡compositional⋆ᴰ _ _ ∙ (Cᴰ.≡in $ ueᴰ.βᴰ fᴰ)
 
---   ⇒βᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
---     → (fᴰ : Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
---     → (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ (λᴰ fᴰ) Cᴰ.⋆ᴰ appᴰ) Cᴰ.∫≡ fᴰ
---   ⇒βᴰ fᴰ = impr≡compositional⋆ᴰ _ _ ∙ (Cᴰ.≡in $ ueᴰ.βᴰ fᴰ)
+  ⇒ηᴰ : ∀ {Γ}{Γᴰ}{f : C [ Γ , A⇒B.⇒ue.vertex ]}
+    → (fᴰ : Cᴰ [ f ][  Γᴰ , Aᴰ⇒ᴰBᴰ .fst ])
+    → fᴰ Cᴰ.∫≡ λᴰ (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ fᴰ Cᴰ.⋆ᴰ appᴰ)
+  ⇒ηᴰ fᴰ = (Cᴰ.≡in $ ueᴰ.ηᴰ fᴰ) ∙ ueᴰ.cong-introᴰ (sym $ impr≡compositional⋆ᴰ _ _)
 
---   ⇒ηᴰ : ∀ {Γ}{Γᴰ}{f : C [ Γ , A⇒B.⇒ue.vertex ]}
---     → (fᴰ : Cᴰ [ f ][  Γᴰ , Aᴰ⇒ᴰBᴰ .fst ])
---     → fᴰ Cᴰ.∫≡ λᴰ (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ fᴰ Cᴰ.⋆ᴰ appᴰ)
---   ⇒ηᴰ fᴰ = (Cᴰ.≡in $ ueᴰ.ηᴰ fᴰ) ∙ ueᴰ.cong-introᴰ (sym $ impr≡compositional⋆ᴰ _ _)
+module ExponentialsᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (bp : BinProducts C) (bpᴰ : BinProductsᴰ Cᴰ bp)
+  (_⇒_ : AllExponentiable C bp) (_⇒ᴰ_ : AllExponentiableᴰ Cᴰ bp bpᴰ _⇒_) where
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module ueᴰ {A}{B}{Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]} = ExponentialᴰNotation (A ⇒ B) (Aᴰ ⇒ᴰ Bᴰ)
 
--- module ExponentialsᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   (bp : BinProducts C) (bpᴰ : BinProductsᴰ Cᴰ bp)
---   (_⇒_ : AllExponentiable C bp) (_⇒ᴰ_ : AllExponentiableᴰ Cᴰ bp bpᴰ _⇒_) where
---   private
---     module Cᴰ = Categoryᴰ Cᴰ
---     module ueᴰ {A}{B}{Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]} = ExponentialᴰNotation (A ⇒ B) (Aᴰ ⇒ᴰ Bᴰ)
-
---   open ueᴰ public
+  open ueᴰ public

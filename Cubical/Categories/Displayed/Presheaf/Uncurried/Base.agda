@@ -103,21 +103,6 @@ _/'_ {C = C} Cᴰ P = ∫C (EqReindex.reindex Cᴰ (Fst {C = C}{Cᴰ = Element P
 -- _/'_ for everything...any downside to redefining / to be defined
 -- this way and refactoring everything?
 
-module _  {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) where
-  open Category
-  private
-    module Cᴰ = Fibers Cᴰ using (_∫≡_; rectify; ≡out)
-
-  /Hom≡ : ∀ {(Δ , Δᴰ , p) (Γ , Γᴰ , q) : ((Cᴰ / P) .ob)} →
-    {(γ , γᴰ , γq≡p) (γ' , γᴰ' , γ'q≡p) : (Cᴰ / P) [ (Δ , Δᴰ , p) , (Γ , Γᴰ , q) ]}
-    → γ ≡ γ'
-    → (γᴰ Cᴰ.∫≡ γᴰ')
-    → Path ((Cᴰ / P) [ (Δ , Δᴰ , p) , (Γ , Γᴰ , q) ]) (γ , γᴰ , γq≡p) (γ' , γᴰ' , γ'q≡p)
-  /Hom≡ γ≡γ' γᴰ≡γᴰ' = ΣPathP
-    (γ≡γ' ,
-    ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _)
-    (Cᴰ.rectify $ Cᴰ.≡out $ γᴰ≡γᴰ'))
-
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
@@ -136,7 +121,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE �
   (β : PshHet G Q R)
   where
   /Fᴰ-seq : (Gᴰ /Fᴰ β) ∘F (Fᴰ /Fᴰ α) ≡ ((Gᴰ ∘Fᴰ Fᴰ) /Fᴰ (α ⋆PshHet β))
-  /Fᴰ-seq = Functor≡ (λ _ → refl) (λ (f , fᴰ , f⋆p≡p') → /Hom≡ Eᴰ R refl refl)
+  /Fᴰ-seq = Functor≡ (λ _ → refl) (λ (f , fᴰ , f⋆p≡p') →
+    ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh R _ _) refl)) )
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -170,7 +156,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
     /NatTrans : NatTrans F G
     /NatTrans = natTrans
       (λ x → (N-ob α x) , ((αᴰ .N-obᴰ tt) , (αP' x)))
-      (λ f → /Hom≡ Cᴰ P (α .N-hom f) (Cᴰ.≡in $ αᴰ .N-homᴰ tt))
+      (λ f → ΣPathP ((N-hom α f) , ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .N-homᴰ tt)))
 
   module _ {F G : Functor D (Cᴰ / P)}
     (α : NatIso (Fst ∘F F) (Fst ∘F G))
@@ -191,9 +177,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
         isiso ( (α .nIso x .isIso.inv)
               , αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ
               , /NI-lem x)
-        (/Hom≡ Cᴰ P (α .nIso x .isIso.sec) (Cᴰ.≡in $ αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ))
-        (/Hom≡ Cᴰ P (α .nIso x .isIso.ret) (Cᴰ.≡in $ αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ))
-        }
+        (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ))))
+        (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))) }
 
 -- -- TODO:
 -- -- 1. /Fⱽ-seq

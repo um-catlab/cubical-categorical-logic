@@ -156,6 +156,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          (_ , (Cᴰ.idᴰ ×ⱽπ₂*Aᴰ.⋆π₂ⱽ))
           ∎)
 
+    {-# NO_POSITIVITY_CHECK #-}
     ⇒ⱽᴰ-square :
       NatIso {C = Cᴰ / (C [-, A⇒B .vertex ])}
              {D = Cᴰ / (C [-, B ])}

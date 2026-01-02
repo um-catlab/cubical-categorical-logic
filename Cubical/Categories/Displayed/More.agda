@@ -61,3 +61,25 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   invIsoⱽ : ∀ {a} {aᴰ aᴰ' : Cᴰ.ob[ a ]}
     → CatIsoⱽ aᴰ aᴰ' → CatIsoⱽ aᴰ' aᴰ
   invIsoⱽ {a}{aᴰ}{aᴰ'} f = f .snd .isIsoᴰ.invᴰ , isisoᴰ (f .fst) (f .snd .isIsoᴰ.retᴰ) (f .snd .isIsoᴰ.secᴰ)
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+  module _ {c c'} {α : CatIso C c c'} {cᴰ : Cᴰ.ob[ c ]} {cᴰ' : Cᴰ.ob[ c' ]}
+    (αᴰ : CatIsoᴰ Cᴰ α cᴰ cᴰ')
+    where
+    mkOpaquePathsCatIsoᴰ : CatIsoᴰ Cᴰ α cᴰ cᴰ'
+    mkOpaquePathsCatIsoᴰ .fst = αᴰ .fst
+    mkOpaquePathsCatIsoᴰ .snd .isIsoᴰ.invᴰ = αᴰ .snd .isIsoᴰ.invᴰ
+    mkOpaquePathsCatIsoᴰ .snd .isIsoᴰ.secᴰ = the-secᴰ
+      where
+      opaque
+        the-secᴰ : αᴰ .snd .isIsoᴰ.invᴰ Cᴰ.⋆ᴰ αᴰ .fst Cᴰ.≡[ α .snd .isIso.sec ] Cᴰ.idᴰ
+        the-secᴰ = αᴰ .snd .isIsoᴰ.secᴰ
+    mkOpaquePathsCatIsoᴰ .snd .isIsoᴰ.retᴰ = the-retᴰ
+      where
+      opaque
+        the-retᴰ : αᴰ .fst Cᴰ.⋆ᴰ αᴰ .snd .isIsoᴰ.invᴰ Cᴰ.≡[ α .snd .isIso.ret ] Cᴰ.idᴰ
+        the-retᴰ = αᴰ .snd .isIsoᴰ.retᴰ

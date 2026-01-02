@@ -180,64 +180,67 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
             ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _ _) ⟩
             ∙ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _ _)))
 
-      opaque
-        ⇒PshSmallⱽ-β : ∀ (αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ)
-          → (⇒PshSmallⱽ-introᴰ αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app ≡ αᴰ
-        ⇒PshSmallⱽ-β αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰpᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-           sym (Qᴰ.reind-filler _ _)
-          ∙ sym (∫PshHom αᴰ .N-hom _ _ _ _)
-          ∙ N-obᴰ⟨_⟩ αᴰ (×≡Snd-hSet R.isSetPsh
-            (Rᴰ.⟨⟩⋆⟨ sym $ Rᴰ.reind-filler _ _ ⟩ ∙ sym (Rᴰ.⋆Assoc _ _ _) ∙ Rᴰ.⟨ β₁LR _ _ ⟩⋆⟨⟩ ∙ Rᴰ.⋆IdL _)
-            (change-base {C = λ p → Pᴰ.p[ p ][ _ ]} (α .N-ob Γ) P.isSetPsh (R.⋆IdL r)
-              (sym (Pᴰ.reind-filler _ _ ) ∙ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩ ∙ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _ _))))
+      -- opaque
+      --   ⇒PshSmallⱽ-β : ∀ (αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ)
+      --     → (⇒PshSmallⱽ-introᴰ αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app ≡ αᴰ
+      --   ⇒PshSmallⱽ-β αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰpᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      --     {!!}
+      --     --  sym (Qᴰ.reind-filler _ _)
+      --     -- ∙ sym (∫PshHom αᴰ .N-hom _ _ ? ?)
+      --     -- ∙ ?
+      --     -- ∙ N-obᴰ⟨_⟩ αᴰ (×≡Snd-hSet R.isSetPsh
+      --     --   (Rᴰ.⟨⟩⋆⟨ sym $ Rᴰ.reind-filler _ _ ⟩ ∙ sym (Rᴰ.⋆Assoc _ _ _) ∙ Rᴰ.⟨ β₁LR _ _ ⟩⋆⟨⟩ ∙ Rᴰ.⋆IdL _)
+      --     --   (change-base {C = λ p → Pᴰ.p[ p ][ ? ]} (α .N-ob Γ) P.isSetPsh (R.⋆IdL r)
+      --     --     (sym (Pᴰ.reind-filler _ _ ) ∙ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩ ∙ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _ _))))
 
-        ⇒PshSmallⱽ-η : ∀ (αᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
-          → αᴰ ≡ ⇒PshSmallⱽ-introᴰ ((αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app)
-        ⇒PshSmallⱽ-η αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-          sym (Qᴰ.⋆IdL _)
-          ∙ Qᴰ.⟨
-              extensionalityLR
-                (Cᴰ.⋆IdL _ ∙ sym
-                (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ∙ sym (Cᴰ.reind-filler _ _) ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _)
-                ∙ Cᴰ.⟨ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ⟩ ∙ β₁LR _ _ ⟩⋆⟨⟩
-                ∙ Cᴰ.⋆IdL _))
-                (Pᴰ.⋆IdL _ ∙ sym (Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ sym (Pᴰ.reind-filler _ _) ⟩
-                ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ sym (Pᴰ.reind-filler _ _) ⟩
-                ∙ β₂LR _ _ ∙ sym (Pᴰ.reind-filler _ _) ∙ sym (Pᴰ.reind-filler _ _)))
-            ⟩⋆⟨⟩
-          ∙ Qᴰ.⋆Assoc _ _ _ ∙ Qᴰ.⋆Assoc _ _ _
-          ∙ Qᴰ.⟨⟩⋆⟨ sym $ ⇒≡-in $ sym $ sym (∫PshHom αᴰ .N-hom _ _ _ _) ∙ N-obᴰ⟨_⟩ αᴰ (Rᴰ.reind-filler _ _)  ⟩
-          ∙ Qᴰ.reind-filler _ _
+      --   ⇒PshSmallⱽ-η : ∀ (αᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
+      --     → αᴰ ≡ ⇒PshSmallⱽ-introᴰ ((αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app)
+      --   ⇒PshSmallⱽ-η αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      --     sym (Qᴰ.⋆IdL _)
+      --     ∙ Qᴰ.⟨
+      --         extensionalityLR
+      --           (Cᴰ.⋆IdL _ ∙ sym
+      --           (Cᴰ.⋆Assoc _ {!!} _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR {!!} {!!} ∙ sym (Cᴰ.reind-filler {!!} _) ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _)
+      --           ∙ Cᴰ.⟨ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR {!!} {!!} ⟩ ∙ β₁LR {!!} {!!} ⟩⋆⟨⟩
+      --           ∙ Cᴰ.⋆IdL _))
+      --           (Pᴰ.⋆IdL _ ∙ sym (Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ sym (Pᴰ.reind-filler {!!} _) ⟩
+      --           ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ sym (Pᴰ.reind-filler {!!} _) ⟩
+      --           ∙ β₂LR _ _ ∙ sym (Pᴰ.reind-filler {!!} _) ∙ sym (Pᴰ.reind-filler {!!} _)))
+      --       ⟩⋆⟨⟩
+      --     ∙ {!!}
+      --     -- ∙ Qᴰ.⋆Assoc _ _ _ ∙ Qᴰ.⋆Assoc _ _ _
+      --     -- ∙ Qᴰ.⟨⟩⋆⟨ sym $ ⇒≡-in $ sym $ sym (∫PshHom αᴰ .N-hom _ _ _ _) ∙ N-obᴰ⟨_⟩ αᴰ (Rᴰ.reind-filler _ _)  ⟩
+      --     -- ∙ Qᴰ.reind-filler _ _
 
-      ⇒PshSmallⱽ-UMPᴰ : Iso (PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ) (PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
-      ⇒PshSmallⱽ-UMPᴰ =
-        iso ⇒PshSmallⱽ-introᴰ ⇒PshSmallⱽ-introᴰ⁻
-          (λ αᴰ → sym $ ⇒PshSmallⱽ-η αᴰ)
-          ⇒PshSmallⱽ-β
+      -- ⇒PshSmallⱽ-UMPᴰ : Iso (PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ) (PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
+      -- ⇒PshSmallⱽ-UMPᴰ =
+      --   iso ⇒PshSmallⱽ-introᴰ ⇒PshSmallⱽ-introᴰ⁻
+      --     (λ αᴰ → sym $ ⇒PshSmallⱽ-η αᴰ)
+      --     ⇒PshSmallⱽ-β
 
-      opaque
-        ⇒PshSmallⱽ-introᴰ≡
-          : ∀ {αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ}{βᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ}
-          → αᴰ ≡ ⇒PshSmallⱽ-introᴰ⁻ βᴰ
-          → ⇒PshSmallⱽ-introᴰ αᴰ ≡ βᴰ
-        ⇒PshSmallⱽ-introᴰ≡ = isoFun≡ ⇒PshSmallⱽ-UMPᴰ
+    --   opaque
+    --     ⇒PshSmallⱽ-introᴰ≡
+    --       : ∀ {αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ}{βᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ}
+    --       → αᴰ ≡ ⇒PshSmallⱽ-introᴰ⁻ βᴰ
+    --       → ⇒PshSmallⱽ-introᴰ αᴰ ≡ βᴰ
+    --     ⇒PshSmallⱽ-introᴰ≡ = isoFun≡ ⇒PshSmallⱽ-UMPᴰ
 
-        ⇒PshSmallⱽ-ext : ∀ {αᴰ βᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ}
-          → ⇒PshSmallⱽ-introᴰ⁻ αᴰ ≡ ⇒PshSmallⱽ-introᴰ⁻ βᴰ
-          → αᴰ ≡ βᴰ
-        ⇒PshSmallⱽ-ext = isoInvInjective ⇒PshSmallⱽ-UMPᴰ _ _
+    --     ⇒PshSmallⱽ-ext : ∀ {αᴰ βᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ}
+    --       → ⇒PshSmallⱽ-introᴰ⁻ αᴰ ≡ ⇒PshSmallⱽ-introᴰ⁻ βᴰ
+    --       → αᴰ ≡ βᴰ
+    --     ⇒PshSmallⱽ-ext = isoInvInjective ⇒PshSmallⱽ-UMPᴰ _ _
 
-    module _ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ} where
-      private
-        module Rᴰ = PresheafᴰNotation Rᴰ
-      open LocallyRepresentableⱽNotation _ _×ⱽ_*Pᴰ
-      ⇒PshSmallⱽ-introⱽ :
-        PshHomⱽ (Rᴰ ×ⱽPsh Pᴰ) Qᴰ
-        → PshHomⱽ Rᴰ Pᴰ⇒Qᴰ
-      ⇒PshSmallⱽ-introⱽ α⟨rᴰ,pᴰ⟩ =
-        ⇒PshSmallⱽ-introᴰ ((idPshHomᴰ ×ⱽHom invPshIsoⱽ (reind-idIsoⱽ Pᴰ) .fst) ⋆PshHomⱽ α⟨rᴰ,pᴰ⟩)
+    -- module _ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ} where
+    --   private
+    --     module Rᴰ = PresheafᴰNotation Rᴰ
+    --   open LocallyRepresentableⱽNotation _ _×ⱽ_*Pᴰ
+    --   ⇒PshSmallⱽ-introⱽ :
+    --     PshHomⱽ (Rᴰ ×ⱽPsh Pᴰ) Qᴰ
+    --     → PshHomⱽ Rᴰ Pᴰ⇒Qᴰ
+    --   ⇒PshSmallⱽ-introⱽ α⟨rᴰ,pᴰ⟩ =
+    --     ⇒PshSmallⱽ-introᴰ ((idPshHomᴰ ×ⱽHom invPshIsoⱽ (reind-idIsoⱽ Pᴰ) .fst) ⋆PshHomⱽ α⟨rᴰ,pᴰ⟩)
 
-      ⇒PshSmallⱽ-UMPⱽ : Iso (PshHomⱽ (Rᴰ ×ⱽPsh Pᴰ) Qᴰ) (PshHomⱽ Rᴰ Pᴰ⇒Qᴰ)
-      ⇒PshSmallⱽ-UMPⱽ =
-        compIso (precomp⋆PshHomⱽᴰ-Iso (idPshIsoᴰ ×ⱽIso invPshIsoⱽ (reind-idIsoⱽ Pᴰ)))
-                ⇒PshSmallⱽ-UMPᴰ
+    --   ⇒PshSmallⱽ-UMPⱽ : Iso (PshHomⱽ (Rᴰ ×ⱽPsh Pᴰ) Qᴰ) (PshHomⱽ Rᴰ Pᴰ⇒Qᴰ)
+    --   ⇒PshSmallⱽ-UMPⱽ =
+    --     compIso (precomp⋆PshHomⱽᴰ-Iso (idPshIsoᴰ ×ⱽIso invPshIsoⱽ (reind-idIsoⱽ Pᴰ)))
+    --             ⇒PshSmallⱽ-UMPᴰ

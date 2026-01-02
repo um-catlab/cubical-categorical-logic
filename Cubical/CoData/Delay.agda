@@ -134,9 +134,9 @@ fold = ⊎rec (delay_ ∘S inl) (delay_ ∘S inr)
 d-iso : {X : Type ℓ} → Iso (Delay X) (X ⊎ (Delay X))
 d-iso .Iso.fun = unfold
 d-iso .Iso.inv = fold
-d-iso .Iso.rightInv (inl x) = refl
-d-iso .Iso.rightInv (inr x) = refl
-d-iso .Iso.leftInv d i .view with d .view
+d-iso .Iso.sec (inl x) = refl
+d-iso .Iso.sec (inr x) = refl
+d-iso .Iso.ret d i .view with d .view
 ... | inl x = inl x
 ... | inr x = inr x
 

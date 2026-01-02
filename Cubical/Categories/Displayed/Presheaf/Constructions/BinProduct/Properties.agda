@@ -114,8 +114,8 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
     ×ⱽPsh-UMPᴰ : Iso (PshHomᴰ α Pᴰ Qᴰ × PshHomᴰ α Pᴰ Rᴰ) (PshHomᴰ α Pᴰ (Qᴰ ×ⱽPsh Rᴰ))
     ×ⱽPsh-UMPᴰ .Iso.fun αᴰβᴰ = ×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)
     ×ⱽPsh-UMPᴰ .Iso.inv αᴰ = (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₁) , (αᴰ ⋆PshHomᴰⱽ ×ⱽ-π₂)
-    ×ⱽPsh-UMPᴰ .Iso.rightInv αᴰ = makePshHomᴰPath (funExt λ p → refl)
-    ×ⱽPsh-UMPᴰ .Iso.leftInv αᴰβᴰ = ΣPathP ((makePshHomᴰPath refl) , (makePshHomᴰPath refl))
+    ×ⱽPsh-UMPᴰ .Iso.sec αᴰ = makePshHomᴰPath (funExt λ p → refl)
+    ×ⱽPsh-UMPᴰ .Iso.ret αᴰβᴰ = ΣPathP ((makePshHomᴰPath refl) , (makePshHomᴰPath refl))
 
   module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}{Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
     where

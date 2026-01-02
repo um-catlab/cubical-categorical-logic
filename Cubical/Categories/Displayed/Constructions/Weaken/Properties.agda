@@ -6,6 +6,9 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Constructions.BinProduct as BP
+open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
@@ -55,3 +58,11 @@ module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') w
   weakenCartesianCategory .Cᴰ = weaken (C .Cat) (D .Cat)
   weakenCartesianCategory .termᴰ = termWeaken (C .term) (D .term)
   weakenCartesianCategory .bpᴰ = binprodWeaken (C .bp) (D .bp)
+
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  ×→∫wk : Functor (C ×C D) (∫C (weaken C D))
+  ×→∫wk = intro (BP.Fst C D) (introS (BP.Fst C D) (BP.Snd C D))
+
+  ∫wk→× : Functor (∫C (weaken C D)) (C ×C D)
+  ∫wk→× = TotalCat.Fst ,F introS⁻ TotalCat.Snd

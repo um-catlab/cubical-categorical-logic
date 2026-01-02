@@ -96,11 +96,11 @@ module _ {ℓP ℓQ ℓPᴰ ℓQᴰ ℓRᴰ}{C : Category ℓC ℓC'}{Cᴰ : Cat
     → Iso (PshHomᴰ α Pᴰ Qᴰ) (PshHomᴰ α Pᴰ Rᴰ)
   postcomp⋆PshHomᴰⱽ-Iso βⱽ .Iso.fun = _⋆PshHomᴰⱽ βⱽ .fst
   postcomp⋆PshHomᴰⱽ-Iso βⱽ .Iso.inv = _⋆PshHomᴰⱽ invPshIsoⱽ βⱽ .fst
-  postcomp⋆PshHomᴰⱽ-Iso βⱽ .Iso.rightInv αᴰ =
+  postcomp⋆PshHomᴰⱽ-Iso βⱽ .Iso.sec αᴰ =
     ⋆PshHomAssocᴰⱽⱽ _ _ _
     ∙ cong (αᴰ ⋆PshHomᴰⱽ_) (PshIsoⱽ→PshIsoⱽ' _ _ βⱽ .snd .snd .snd)
     ∙ ⋆PshHomIdRᴰⱽ αᴰ
-  postcomp⋆PshHomᴰⱽ-Iso βⱽ .Iso.leftInv αᴰ = ⋆PshHomAssocᴰⱽⱽ _ _ _
+  postcomp⋆PshHomᴰⱽ-Iso βⱽ .Iso.ret αᴰ = ⋆PshHomAssocᴰⱽⱽ _ _ _
     ∙ cong (αᴰ ⋆PshHomᴰⱽ_) (PshIsoⱽ→PshIsoⱽ' _ _ βⱽ .snd .snd .fst)
     ∙ ⋆PshHomIdRᴰⱽ αᴰ
 
@@ -166,8 +166,8 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓP
     ×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)
   PRESHEAFᴰ-BinProductsⱽ P Pᴰ,Qᴰ .universalⱽ .snd .fst αᴰβᴰ =
   -- TODO: figure out how to make this faster
-    ΣPathP (sym (⋆PshHomᴰⱽ≡ (×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)) (×ⱽ-π₁ {Pᴰ = Pᴰ,Qᴰ .fst}{Qᴰ = Pᴰ,Qᴰ .snd})) ∙ (cong fst $ ×ⱽPsh-UMPᴰ {Qᴰ = Pᴰ,Qᴰ .fst}{Rᴰ = Pᴰ,Qᴰ .snd} .leftInv (αᴰβᴰ .fst , αᴰβᴰ .snd))
-    , sym (⋆PshHomᴰⱽ≡ (×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)) (×ⱽ-π₂ {Pᴰ = Pᴰ,Qᴰ .fst}{Qᴰ = Pᴰ,Qᴰ .snd})) ∙ (cong snd $ ×ⱽPsh-UMPᴰ {Qᴰ = Pᴰ,Qᴰ .fst}{Rᴰ = Pᴰ,Qᴰ .snd} .leftInv (αᴰβᴰ .fst , αᴰβᴰ .snd) ))
+    ΣPathP (sym (⋆PshHomᴰⱽ≡ (×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)) (×ⱽ-π₁ {Pᴰ = Pᴰ,Qᴰ .fst}{Qᴰ = Pᴰ,Qᴰ .snd})) ∙ (cong fst $ ×ⱽPsh-UMPᴰ {Qᴰ = Pᴰ,Qᴰ .fst}{Rᴰ = Pᴰ,Qᴰ .snd} .ret (αᴰβᴰ .fst , αᴰβᴰ .snd))
+    , sym (⋆PshHomᴰⱽ≡ (×ⱽ-introᴰ (αᴰβᴰ .fst) (αᴰβᴰ .snd)) (×ⱽ-π₂ {Pᴰ = Pᴰ,Qᴰ .fst}{Qᴰ = Pᴰ,Qᴰ .snd})) ∙ (cong snd $ ×ⱽPsh-UMPᴰ {Qᴰ = Pᴰ,Qᴰ .fst}{Rᴰ = Pᴰ,Qᴰ .snd} .ret (αᴰβᴰ .fst , αᴰβᴰ .snd) ))
   PRESHEAFᴰ-BinProductsⱽ P Pᴰ,Qᴰ .universalⱽ .snd .snd αᴰ =
     isoFun≡ (×ⱽPsh-UMPᴰ {Qᴰ = Pᴰ,Qᴰ .fst} {Rᴰ = Pᴰ,Qᴰ .snd})
       (ΣPathP ((sym (⋆PshHomᴰⱽ≡ αᴰ _)) , (sym (⋆PshHomᴰⱽ≡ αᴰ _))))
@@ -181,11 +181,11 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓP
      (reind-introᴰ βαᴰ α*Pᴰ.⋆ᴰⱽ (idPshHomᴰ ⋆PshHomᴰ reind-π))
        ≡⟨ lem (reind-introᴰ βαᴰ) ⟩
      (reind-introᴰ βαᴰ ⋆PshHomᴰ reind-π)
-       ≡⟨ reind-UMP {α = β}{β = α} .leftInv βαᴰ ⟩
+       ≡⟨ reind-UMP {α = β}{β = α} .ret βαᴰ ⟩
      βαᴰ ∎)
     , (λ βᴰ →
       cong reind-introᴰ (lem βᴰ)
-      ∙ reind-UMP .rightInv βᴰ)
+      ∙ reind-UMP .sec βᴰ)
     where
       module α*Pᴰ = PresheafⱽNotation
         (reindYo {C = PRESHEAF C _}{Cᴰ = PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ} α (PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ [-][-, Pᴰ ]))

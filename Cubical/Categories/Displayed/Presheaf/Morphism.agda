@@ -308,18 +308,18 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         ≡ (fᴰ ⋆ᴰ eqToPshIso-obᴰ (p[_][_] , p≡Pp) pᴰ)
     eqToPshIso-homᴰ (_ , Eq.refl) (_ , Eq.refl) = refl
 
-    eqToPshIso-rightInv : ∀ ((p[_][_] , p≡Pp) : fun-ty) ((_⋆ᴰ_ , _) : hom-ty (p[_][_] , p≡Pp))
+    eqToPshIso-sec : ∀ ((p[_][_] , p≡Pp) : fun-ty) ((_⋆ᴰ_ , _) : hom-ty (p[_][_] , p≡Pp))
       → ∀ {x}{xᴰ}{p : P.p[ x ]}{qᴰ : p[ p ][ xᴰ ]}
       → eqToPshIso-obᴰ (p[_][_] , p≡Pp)
       (eqToPshIso-invᴰ (p[_][_] , p≡Pp) qᴰ)
       ≡ qᴰ
-    eqToPshIso-rightInv (_ , Eq.refl) (_ , Eq.refl) = refl
+    eqToPshIso-sec (_ , Eq.refl) (_ , Eq.refl) = refl
 
-    eqToPshIso-leftInv : ∀ ((p[_][_] , p≡Pp) : fun-ty) ((_⋆ᴰ_ , _) : hom-ty (p[_][_] , p≡Pp))
+    eqToPshIso-ret : ∀ ((p[_][_] , p≡Pp) : fun-ty) ((_⋆ᴰ_ , _) : hom-ty (p[_][_] , p≡Pp))
       → ∀ {x}{xᴰ}{p : P.p[ x ]}{pᴰ : Pᴰ.p[ p ][ xᴰ ]}
       → eqToPshIso-invᴰ (p[_][_] , p≡Pp) (eqToPshIso-obᴰ (p[_][_] , p≡Pp) pᴰ)
         ≡ pᴰ
-    eqToPshIso-leftInv (_ , Eq.refl) (_ , Eq.refl) = refl
+    eqToPshIso-ret (_ , Eq.refl) (_ , Eq.refl) = refl
 
   eqToPshHomⱽ : PresheafᴰEq Pᴰ Qᴰ → PshHomⱽ Pᴰ Qᴰ
   eqToPshHomⱽ Pᴰ≡Qᴰ .N-obᴰ = eqToPshIso-obᴰ (_ , Pᴰ≡Qᴰ .fst)
@@ -328,8 +328,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   eqToPshIsoⱽ : PresheafᴰEq Pᴰ Qᴰ → PshIsoⱽ Pᴰ Qᴰ
   eqToPshIsoⱽ Pᴰ≡Qᴰ .fst = eqToPshHomⱽ Pᴰ≡Qᴰ
   eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .inv p = eqToPshIso-invᴰ (_ , Pᴰ≡Qᴰ .fst)
-  eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .rightInv p qᴰ = eqToPshIso-rightInv (_ , Pᴰ≡Qᴰ .fst) (_ , Pᴰ≡Qᴰ .snd)
-  eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .leftInv p pᴰ = eqToPshIso-leftInv (_ , Pᴰ≡Qᴰ .fst) (_ , Pᴰ≡Qᴰ .snd)
+  eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .rightInv p qᴰ = eqToPshIso-sec (_ , Pᴰ≡Qᴰ .fst) (_ , Pᴰ≡Qᴰ .snd)
+  eqToPshIsoⱽ Pᴰ≡Qᴰ .snd .leftInv p pᴰ = eqToPshIso-ret (_ , Pᴰ≡Qᴰ .fst) (_ , Pᴰ≡Qᴰ .snd)
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -534,11 +534,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → Iso (PshHomᴰ β Qᴰ Rᴰ) (PshHomᴰ β Pᴰ Rᴰ)
   precomp⋆PshHomⱽᴰ-Iso αᴰ .Iso.fun βᴰ = αᴰ .fst ⋆PshHomⱽᴰ βᴰ
   precomp⋆PshHomⱽᴰ-Iso αᴰ .Iso.inv βᴰ = invPshIsoⱽ αᴰ .fst ⋆PshHomⱽᴰ βᴰ
-  precomp⋆PshHomⱽᴰ-Iso αᴰ .Iso.rightInv βᴰ =
+  precomp⋆PshHomⱽᴰ-Iso αᴰ .Iso.sec βᴰ =
     sym (⋆PshHomAssocⱽⱽᴰ _ _ _)
     ∙ cong (_⋆PshHomⱽᴰ βᴰ) (PshIsoⱽ→PshIsoⱽ' _ _ αᴰ .snd .snd .fst)
     ∙ ⋆PshHomIdLⱽᴰ βᴰ
-  precomp⋆PshHomⱽᴰ-Iso αᴰ .Iso.leftInv βᴰ = sym (⋆PshHomAssocⱽⱽᴰ _ _ _)
+  precomp⋆PshHomⱽᴰ-Iso αᴰ .Iso.ret βᴰ = sym (⋆PshHomAssocⱽⱽᴰ _ _ _)
     ∙ cong (_⋆PshHomⱽᴰ βᴰ) (PshIsoⱽ→PshIsoⱽ' _ _ αᴰ .snd .snd .snd)
     ∙ ⋆PshHomIdLⱽᴰ βᴰ
 
@@ -800,15 +800,15 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Pᴰ = PresheafᴰNotation Pᴰ
     module Qᴰ = PresheafᴰNotation Qᴰ
 
-  PshIsoᴰ→leftInvᴰ :
-    PshHomᴰPathP (αᴰ .fst ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) idPshHomᴰ (PshIso→leftInv α)
-  PshIsoᴰ→leftInvᴰ =
+  PshIsoᴰ→retᴰ :
+    PshHomᴰPathP (αᴰ .fst ⋆PshHomᴰ invPshIsoᴰ αᴰ .fst) idPshHomᴰ (PshIso→ret α)
+  PshIsoᴰ→retᴰ =
     makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} → funExt λ pᴰ →
       Pᴰ.rectify (αᴰ .snd .leftInv p pᴰ)
 
-  PshIsoᴰ→rightInvᴰ :
-    PshHomᴰPathP (invPshIsoᴰ αᴰ .fst ⋆PshHomᴰ αᴰ .fst) idPshHomᴰ (PshIso→rightInv α)
-  PshIsoᴰ→rightInvᴰ =
+  PshIsoᴰ→secᴰ :
+    PshHomᴰPathP (invPshIsoᴰ αᴰ .fst ⋆PshHomᴰ αᴰ .fst) idPshHomᴰ (PshIso→sec α)
+  PshIsoᴰ→secᴰ =
     makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{q} → funExt λ qᴰ →
       Qᴰ.rectify (αᴰ .snd .rightInv q qᴰ)
 

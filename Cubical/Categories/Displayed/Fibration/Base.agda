@@ -76,17 +76,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _ _  ⟩)
           ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.≡in f*yᴰ.βⱽ
           ∙ Cᴰ.⋆IdL _)
-        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $ f*yᴰ.∫ue.intro≡
-            (change-base {C = Cᴰ [_][ _ , _ ]} (C._⋆ f) C.isSetHom
-              (sym $ C.⋆IdL (f*yᴰ.∫ue.element .fst))
-              (Cⱽ.⋆IdL _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cⱽ.⟨⟩⋆⟨ sym $ Cⱽ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _ )))
+        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $ f*yᴰ.∫ue.intro≡ $ change-base {C = Cᴰ [_][ xᴰ , yᴰ ]} (C._⋆ f)
+          C.isSetHom ((sym $ C.⋆IdL (f*yᴰ.∫ue.element .fst)))
+          (Cⱽ.⋆IdL _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cⱽ.⟨⟩⋆⟨ sym $ Cⱽ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _)
+        )
 
     CartesianLiftF-fiber :
       ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]
     CartesianLiftF-fiber f =
       FunctorComprehension (Cⱽ.HomᴰProf f) (fibration→HomᴰRepr f)
 
-  -- Definition #2: This is the "textbook" compositional
-  -- definition. It suffers from very slow performance
-  CartesianLift' : {x y : C.ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
-  CartesianLift' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)
+  -- -- Definition #2: This is the "textbook" compositional
+  -- -- definition. It suffers from very slow performance
+  -- CartesianLift' : {x y : C.ob}(yᴰ : Cᴰ.ob[ y ]) (f : C [ x , y ]) → Type _
+  -- CartesianLift' yᴰ f = RightAdjointAtⱽ (Δ/C C Cᴰ) (_ , yᴰ , f)

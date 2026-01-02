@@ -28,7 +28,11 @@ open Functor
 module _ (C : Category ℓC ℓC')
          (D : Category ℓD ℓD') where
   open Functor
+  ×-op-commute : Functor ((C ×C D) ^op) ((C ^op) ×C (D ^op))
+  ×-op-commute = (Fst C D ^opF) ,F (Snd C D ^opF)
 
+  ×-op-commute⁻ : Functor ((C ^op) ×C (D ^op)) ((C ×C D) ^op)
+  ×-op-commute⁻ = introOp (recOp (Fst (C ^op) (D ^op)) ,F recOp (Snd (C ^op) (D ^op)))
   module _ (E : Category ℓE ℓE') where
     ×C-assoc⁻ : Functor ((C ×C D) ×C E) (C ×C (D ×C E))
     ×C-assoc⁻ .F-ob = λ z → z .fst .fst , z .fst .snd , z .snd

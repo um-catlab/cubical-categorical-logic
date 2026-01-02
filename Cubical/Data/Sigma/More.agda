@@ -42,9 +42,9 @@ FrobeniusReciprocity {B' = B'} f y .fun ((x , fx≡y) , p , q) =
   ((x , fx≡y) , p) , subst B' fx≡y q
 FrobeniusReciprocity {B' = B'} f y .inv (((x , fx≡y) , p) , q) =
   (x , fx≡y) , (p , subst B' (sym $ fx≡y) q)
-FrobeniusReciprocity {B' = B'} f y .rightInv (((x , fx≡y) , p) , q) =
+FrobeniusReciprocity {B' = B'} f y .sec (((x , fx≡y) , p) , q) =
   ΣPathP (refl , (substSubst⁻ B' fx≡y q))
-FrobeniusReciprocity {B' = B'} f y .leftInv ((x , fx≡y) , p , q) =
+FrobeniusReciprocity {B' = B'} f y .ret ((x , fx≡y) , p , q) =
   ΣPathP (refl , (ΣPathP (refl , (substSubst⁻ B' (sym $ fx≡y) q))))
 
 record Σω (A : Typeω) (B : A → Typeω) : Typeω where

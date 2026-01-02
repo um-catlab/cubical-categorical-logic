@@ -172,7 +172,7 @@ TSysMapisSet {S = S} {T} =
   isSetRetract
     (fun (TSysHomIsoΣ S T))
     (inv (TSysHomIsoΣ S T))
-    (leftInv (TSysHomIsoΣ S T))
+    (ret (TSysHomIsoΣ S T))
   (isSetΣ (isSet→ (T .state .snd))
   λ _ → isProp→isSet (isPropImplicitΠ λ _ → ≤-isProp {A = T .state}))
 

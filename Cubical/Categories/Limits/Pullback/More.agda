@@ -74,7 +74,7 @@ module _ (C : Category ℓ ℓ') where
       ∙ C.⟨ gπ₁≡f ⟩⋆⟨ refl ⟩
     isPullback→ΣIso Γ f .inv (h , hs₂≡fs₁) = (pullbackArrow f h (sym $ hs₂≡fs₁))
       , (sym $ pullbackArrowPr₁ C pb f h (sym $  hs₂≡fs₁))
-    isPullback→ΣIso Γ f .rightInv (h , hs₂≡fs₁) = ΣPathPProp (λ _ → C.isSetHom _ _) $
+    isPullback→ΣIso Γ f .sec (h , hs₂≡fs₁) = ΣPathPProp (λ _ → C.isSetHom _ _) $
       (sym $ pullbackArrowPr₂ C pb f h (sym $  hs₂≡fs₁))
-    isPullback→ΣIso Γ f .leftInv (g , gπ₁≡f) = ΣPathPProp (λ _ → C.isSetHom _ _) $
+    isPullback→ΣIso Γ f .ret (g , gπ₁≡f) = ΣPathPProp (λ _ → C.isSetHom _ _) $
       pullbackArrowUnique (sym gπ₁≡f) refl

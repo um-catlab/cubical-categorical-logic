@@ -69,5 +69,5 @@ module Cubical.Categories.Profunctor.Morphism where
 --   ProfHomIsoNT : Iso ProfHom ProfHomNT
 --   ProfHomIsoNT .fun = ProfHom→NT
 --   ProfHomIsoNT .inv = NT→ProfHom
---   ProfHomIsoNT .leftInv ph = ProfHom≡ _ _ refl
---   ProfHomIsoNT .rightInv α = makeNatTransPath refl
+--   ProfHomIsoNT .ret ph = ProfHom≡ _ _ refl
+--   ProfHomIsoNT .sec α = makeNatTransPath refl

@@ -117,10 +117,10 @@ module UniversalElementNotation {ℓo}{ℓh}
 
   opaque
     β : ∀ {c} → {p : P.p[ c ]} → (intro p P.⋆ element) ≡ p
-    β = universalIso _ .Iso.rightInv _
+    β = universalIso _ .Iso.sec _
 
     η : ∀ {c} → {f : C [ c , vertex ]} → f ≡ intro (f P.⋆ element)
-    η {f = f} = sym (universalIso _ .Iso.leftInv _)
+    η {f = f} = sym (universalIso _ .Iso.ret _)
 
     weak-η : C .id ≡ intro element
     weak-η = η ∙ intro⟨ P.⋆IdL _ ⟩
@@ -235,7 +235,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
     RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
       ( α⁻ Γ
       , subst motive
-          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong N-ob $ IsoYoRec P x .Iso.rightInv (α .trans)) _) _)
+          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong N-ob $ IsoYoRec P x .Iso.sec (α .trans)) _) _)
           (α .nIso Γ .snd))
       where
         α⁻ = (invPshIso α) .trans .N-ob
@@ -373,9 +373,9 @@ module _ {C : Category ℓc ℓc'}
     PshIso→PshHomPshIso .nIso R .fst β = β ⋆PshHom invPshIso α .trans
     PshIso→PshHomPshIso .nIso R .snd .fst β =
       ⋆PshHomAssoc _ _ _
-      ∙ cong (β ⋆PshHom_) (PshIso→rightInv α)
+      ∙ cong (β ⋆PshHom_) (PshIso→sec α)
       ∙ ⋆PshHomIdR β
     PshIso→PshHomPshIso .nIso R .snd .snd β =
       ⋆PshHomAssoc _ _ _
-      ∙ cong (β ⋆PshHom_) (PshIso→leftInv α)
+      ∙ cong (β ⋆PshHom_) (PshIso→ret α)
       ∙ ⋆PshHomIdR β

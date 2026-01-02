@@ -82,7 +82,7 @@ module _ {ℓ ℓ' : Level} where
   MonFunIsSet {X} {Y} issetY =
     let the-iso = MonFunIsoΣ X Y in
     isSetRetract
-      (Iso.fun the-iso) (Iso.inv the-iso) (Iso.leftInv the-iso)
+      (Iso.fun the-iso) (Iso.inv the-iso) (Iso.ret the-iso)
       (isSetΣSndProp
         (isSet→ issetY)
         (isPropIsMon {X} {Y}))

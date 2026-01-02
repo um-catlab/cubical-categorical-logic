@@ -97,6 +97,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module A⇒B = ExponentialNotation _×A A⇒B
       module ×ᴰAᴰ = LRᴰPresheafᴰNotation (_ , _×A) Cᴰ _ (_ , ×ᴰAᴰ)
       module ×ⱽπ₂*Aᴰ = LRⱽPresheafᴰNotation Cᴰ (_ , ×ⱽπ₂*Aᴰ)
+    {-# TERMINATING #-}
     ⇒ⱽᴰ-square-isoᴰ :
       ∀ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ])
       → CatIsoᴰ Cᴰ idCatIso
@@ -156,6 +157,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          (_ , (Cᴰ.idᴰ ×ⱽπ₂*Aᴰ.⋆π₂ⱽ))
           ∎)
 
+    {-# TERMINATING #-}
     ⇒ⱽᴰ-square :
       NatIso {C = Cᴰ / (C [-, A⇒B .vertex ])}
              {D = Cᴰ / (C [-, B ])}

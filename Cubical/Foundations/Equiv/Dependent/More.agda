@@ -79,10 +79,10 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
     module Q = hSetReasoning (B , isSetB) Q
 
   fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
-  fiberwiseIsoOver→IsoOver .inv = λ b q → f⁻ (inv isom b) .fst (subst Q (sym $ rightInv isom b) q)
+  fiberwiseIsoOver→IsoOver .inv = λ b q → f⁻ (inv isom b) .fst (subst Q (sym $ sec isom b) q)
   fiberwiseIsoOver→IsoOver .rightInv = λ b q →
-    f⁻ (inv isom b) .snd .fst (subst Q (λ i → rightInv isom b (~ i)) q)
-    ◁ symP (subst-filler (λ z → z) (λ i → Q (rightInv isom b (~ i))) q)
+    f⁻ (inv isom b) .snd .fst (subst Q (λ i → sec isom b (~ i)) q)
+    ◁ symP (subst-filler (λ z → z) (λ i → Q (sec isom b (~ i))) q)
   fiberwiseIsoOver→IsoOver .leftInv a p =
     P.Prectify $ P.≡out $
       f⁻cong∫~

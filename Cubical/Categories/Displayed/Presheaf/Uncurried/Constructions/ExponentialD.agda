@@ -158,7 +158,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       ⇒ᴰPshSmall : Presheafᴰ (P ⇒PshSmall Q) Cᴰ ℓQᴰ
       ⇒ᴰPshSmall = reindPsh ×ᴰPᴰ Qᴰ
 
-
 LROb : Category ℓC ℓC' → Type _
 LROb C = Σ C.ob (BinProductsWith C)
   where module C = Category C

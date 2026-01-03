@@ -42,15 +42,13 @@ record CartesianCategoryⱽ (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level)
 module _ {CC : CartesianCategory ℓC ℓC'}
          (CCᴰ : CartesianCategoryⱽ (CC .CartesianCategory.C) ℓCᴰ ℓCᴰ') where
   open CartesianCategory CC
-  open TerminalNotation term
   open CartesianCategoryⱽ CCᴰ
   open CartesianCategoryᴰ hiding (Cᴰ)
   private
     module bp = BinProductsNotation bp
   CartesianCategoryⱽ→CartesianCategoryᴰ : CartesianCategoryᴰ CC ℓCᴰ ℓCᴰ'
   CartesianCategoryⱽ→CartesianCategoryᴰ .CartesianCategoryᴰ.Cᴰ = Cᴰ
-  CartesianCategoryⱽ→CartesianCategoryᴰ .termᴰ =
-    termⱽ 𝟙ue.vertex ◁PshIsoⱽᴰ UnitPshᴰ≅UnitPshᴰ
+  CartesianCategoryⱽ→CartesianCategoryᴰ .termᴰ = termⱽ 𝟙ue.vertex ◁PshIsoⱽᴰ UnitPshᴰ≅UnitPshᴰ
   CartesianCategoryⱽ→CartesianCategoryᴰ .bpᴰ =
     BinProductsⱽ→BinProductsᴰ Cᴰ cartesianLifts bpⱽ bp
 

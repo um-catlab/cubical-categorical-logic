@@ -17,6 +17,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.Cartesian
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
@@ -33,7 +34,7 @@ open import Cubical.Categories.Bifunctor
 
 private
   variable
-    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓS : Level
+    ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓR ℓS : Level
 
 open Functor
 open PshHom
@@ -60,10 +61,41 @@ module _ {C : Category ℓ ℓ'} where
 LRPresheaf : ∀ (C : Category ℓ ℓ') (ℓP : Level) → Type _
 LRPresheaf C ℓP = Σ (Presheaf C ℓP) LocallyRepresentable
 
-LRPsh→Functor : ∀ {C : Category ℓ ℓ'}
-  ((P , _×P) : LRPresheaf C ℓP)
-  → Functor C C
-LRPsh→Functor (P , _×P) = FunctorComprehension (LRProf P) _×P
+module _ {C : Category ℓ ℓ'} ((P , _×P) : LRPresheaf C ℓP) where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+  open UniversalElementNotation
+  LRPsh→Functor : Functor C C
+  LRPsh→Functor = FunctorComprehension (LRProf P) _×P
+
+  πLRF : NatTrans LRPsh→Functor Id
+  πLRF .N-ob Γ = (Γ ×P) .element .fst
+  πLRF .N-hom {Δ}{Γ} γ = PathPΣ (β (Γ ×P)) .fst
+
+  -- something to do with Beck-Chevalley
+  πLRFCart : isCartesian πLRF
+  πLRFCart {Δ} {Γ} γ {Θ} γ,P δ γ,P⋆π≡δ⋆γ .fst .fst =
+    intro (Δ ×P) (δ , (γ,P P.⋆ (Γ ×P) .element .snd))
+  πLRFCart {Δ} {Γ} γ {Θ} γ,P δ γ,P⋆π≡δ⋆γ .fst .snd .fst = sym $ extensionality (Γ ×P) $ ΣPathP
+    ( C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ PathPΣ (β (Γ ×P)) .fst ⟩
+      ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ PathPΣ (β (Δ ×P)) .fst ⟩⋆⟨ refl ⟩
+      ∙ (sym γ,P⋆π≡δ⋆γ)
+    , P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ PathPΣ (β (Γ ×P)) .snd ⟩
+    ∙ PathPΣ (β (Δ ×P)) .snd
+    )
+  πLRFCart {Δ} {Γ} γ {Θ} γ,P δ γ,P⋆π≡δ⋆γ .fst .snd .snd = sym $ PathPΣ (β (Δ ×P)) .fst
+  πLRFCart {Δ} {Γ} γ {Θ} γ,P δ γ,P⋆π≡δ⋆γ .snd (δ~ , (γ,P≡δ~⋆⟨γ⟩ , δ≡δ~⋆π)) = ΣPathPProp (λ _ → isProp× (C.isSetHom _ _) (C.isSetHom _ _)) $
+    intro≡ (Δ ×P) (ΣPathP (δ≡δ~⋆π , (P.⟨ γ,P≡δ~⋆⟨γ⟩ ⟩⋆⟨⟩ ∙ P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ PathPΣ (β (Γ ×P)) .snd ⟩ )))
+
+  module _ {R : Presheaf C ℓR} where
+    private module R = PresheafNotation R
+    ⟪-⟫×P : PshHet LRPsh→Functor R (R ×Psh P)
+    ⟪-⟫×P .N-ob Γ r .fst = πLRF .N-ob Γ R.⋆ r
+    ⟪-⟫×P .N-ob Γ r .snd = (Γ ×P) .element .snd
+    ⟪-⟫×P .N-hom Δ Γ γ r = ΣPathP
+      ( (sym $ sym (R.⋆Assoc _ _ _) ∙ R.⟨ fst $ PathPΣ $ β $ Γ ×P ⟩⋆⟨⟩ ∙ R.⋆Assoc _ _ _)
+      , (sym $ snd $ PathPΣ $ β $ Γ ×P))
 
 LRPshIso→NatIso : ∀ {C : Category ℓ ℓ'}
   (P : LRPresheaf C ℓP)
@@ -93,8 +125,6 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) wh
       (λ c d → presLRCone .N-ob c)
       (λ c c' d → presLRCone .N-hom c c')
       λ c d d' (g , p) f → ΣPathP ((F .F-seq g f) , refl)
-
-
 
   module _ ((P , _×P) : LRPresheaf C ℓP) (Q : Presheaf D ℓQ)
     (α : PshHet F P Q)

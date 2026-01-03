@@ -35,6 +35,8 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     module R = Reasoning Cᴰ
   open Cᴰ public
 
+  infix 2 _∫≡_
+
   _∫≡_ :
     ∀ {x y}{f f' : C [ x , y ]}{xᴰ yᴰ}
     → Cᴰ [ f ][ xᴰ , yᴰ ]

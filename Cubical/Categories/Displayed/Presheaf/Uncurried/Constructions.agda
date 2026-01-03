@@ -117,6 +117,12 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
           → Iso (PshHomⱽ Rᴰ ∀PshLarge) (PshHomⱽ (wkPshᴰ Q ⟅ Rᴰ ⟆) PQᴰ)
         ∀PshLarge-UMP = ∀PshLarge.P⇒Large-UMP PQᴰ _
 
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+    where
+    _×ᴰPsh_ : (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+      → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
+    Pᴰ ×ᴰPsh Qᴰ = reindPshᴰNatTrans (π₁ P Q) Pᴰ ×ⱽPsh reindPshᴰNatTrans (π₂ P Q) Qᴰ
+
   module _ {P : Presheaf C ℓP}(Q : Presheaf C ℓQ)
     (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) where
     private

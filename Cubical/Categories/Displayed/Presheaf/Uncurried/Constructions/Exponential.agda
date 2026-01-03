@@ -242,6 +242,14 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       cong-introᴰ γᴰ≡γᴰ'⋆π₁ γpᴰ≡γᴰ'⋆π₂
       ∙ ηⱽ' γᴰ'
 
+    extensionalityᴰ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ γ'}{p : P.p[ Γ ]}
+      → {γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]}
+      → {γᴰ' : Cᴰ [ γ' ][ Δᴰ , Γᴰ ×ⱽ p * ]}
+      → (γᴰ ⋆π₁ⱽ Cᴰ.∫≡ γᴰ' ⋆π₁ⱽ)
+      → (γᴰ ⋆π₂ⱽ ∫≡ γᴰ' ⋆π₂ⱽ)
+      → γᴰ Cᴰ.∫≡ γᴰ'
+    extensionalityᴰ γᴰ1≡ γᴰ2≡ = (sym $ introᴰ≡ (sym $ γᴰ1≡) (sym $ γᴰ2≡)) ∙ ηⱽ' _
+
     asLR : LRPresheaf (Cᴰ / P) ℓPᴰ
     asLR = (Pᴰ .fst) , (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 module _
@@ -258,6 +266,11 @@ module _
     --     ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
   ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
   ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+
+  private
+    test-ob : ∀ ((Γ , Γᴰ , p) : (Cᴰ / P) .Category.ob) →
+      ×LRⱽPshᴰ .Functor.F-ob (Γ , Γᴰ , p) ≡ (Γ , ((Γᴰ ×ⱽPᴰ.×ⱽ p *) , p))
+    test-ob (Γ , Γᴰ , p) = refl
 
   -- -- this would be a preferable definition but it's very slow to typecheck and use. Why?
   -- ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
@@ -389,4 +402,3 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   Exponentialsⱽ : AllLRⱽ → Type _
   Exponentialsⱽ lrⱽ = ∀ {x} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Exponentialⱽ (xᴰ , lrⱽ xᴰ) yᴰ
-

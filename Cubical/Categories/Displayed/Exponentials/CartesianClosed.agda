@@ -30,9 +30,9 @@ private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
 
-open CartesianClosedCategory
+open CartesianClosedCategory hiding (_×_)
 open CartesianCategoryᴰ
-open CartesianCategory
+open CartesianCategory hiding (_×_)
 CartesianClosedCategoryᴰ : (CCC : CartesianClosedCategory ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) → Type _
 CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ' =
   Σ[ CCᴰ ∈ CartesianCategoryᴰ (CCC .CC) ℓCᴰ ℓCᴰ' ]

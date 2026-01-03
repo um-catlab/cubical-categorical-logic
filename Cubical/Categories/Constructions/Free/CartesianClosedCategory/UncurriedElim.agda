@@ -22,7 +22,7 @@ open import Cubical.Categories.Displayed.Base
 -- open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 -- open import Cubical.Categories.Displayed.Limits.Terminal
 -- open import Cubical.Categories.Displayed.Limits.CartesianD
-open import Cubical.Categories.Displayed.Limits.CartesianClosedD
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 -- open import Cubical.Categories.Displayed.Exponentials.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section

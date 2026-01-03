@@ -73,7 +73,7 @@ module _ (C : Category ℓ ℓ') (ℓS : Level) where
     )
 
   open CartesianCategory renaming (C to Cat)
-  open CartesianClosedCategory
+  open CartesianClosedCategory hiding (C)
   𝓟-CC : CartesianCategory _ _
   𝓟-CC .Cat = PresheafCategory C (ℓ-max ℓ (ℓ-max ℓ' ℓS))
   𝓟-CC .term = ⊤𝓟 _ _

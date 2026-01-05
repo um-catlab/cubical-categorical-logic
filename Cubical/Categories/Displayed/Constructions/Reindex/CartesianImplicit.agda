@@ -135,84 +135,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     -- why is this so slow?
     funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out $
       ΣPathP (refl ,
-      (Dᴰ.rectify
-        {a = F .F-ob Δ} {b = F .F-ob x}
-
-        {f = F .F-hom ((C ⋆ γ) f)}
-
-        {g = F .F-hom ((C ⋆ γ) f)}
-
-        {p = λ i →
-                fst
-                (PathPΣ
-                 (Dᴰ.cong-reind
-                  (λ i₁ →
-                     N-ob (symNatIso (reindexRepresentable-seq (π Dᴰ F) {f = f}) .trans)
-                     (Δ , Δᴰ , γ) .snd .snd i₁)
-                  (λ i₁ → F .F-seq γ f (~ i₁))
-                  (Dᴰ.⋆IdL
-                   ((D ⋆ F .F-hom γ) (F .F-hom f) ,
-                    snd
-                    ((Γᴰ ×ⱽ F-hom F f *xᴰ) .snd .trans .N-ob
-                     (F .F-ob Δ , Δᴰ , F .F-hom γ) fᴰ)))))
-                i}
-
-        {p' = λ i → F .F-hom ((C ⋆ γ) f)}
-
-        $
-        Dᴰ.≡out
-        {a = F .F-ob Δ} {b = F .F-ob x}
-        {f = F .F-hom ((C ⋆ γ) f)} {g = F .F-seq γ f (~ i1)}
-        {aᴰ = (reindex-π-/ Dᴰ F x ∘F (Idᴰ /Fⱽ yoRec (C [-, x ]) f)) .F-ob (Δ , Δᴰ , γ) .snd
-               .fst} {bᴰ = xᴰ}
-
-        {fᴰ = transp
-               (λ i →
-                  Categoryᴰ.Hom[ Dᴰ ][
-                  hcomp
-                  (doubleComp-faces
-                   (λ _ → (D ⋆ D .id) ((D ⋆ F .F-hom γ) (F-hom F f)))
-                   (λ i₁ →
-                      hcomp
-                      (doubleComp-faces
-                       (λ _ → (D ⋆ (D ⋆ D .id) (D .id)) (F .F-hom ((C ⋆ γ) f)))
-                       (λ i₂ → ⋆IdL D (F .F-hom ((C ⋆ γ) f)) i₂) i₁)
-                      ((D ⋆ ⋆IdL D (D .id) i₁) (F .F-hom ((C ⋆ γ) f))))
-                   i)
-                  (hcomp
-                   (doubleComp-faces
-                    (λ _ → (D ⋆ D .id) ((D ⋆ F .F-hom γ) (F-hom F f)))
-                    (λ i₁ → D .⋆Assoc (D .id) (D .id) (F .F-hom ((C ⋆ γ) f)) (~ i₁)) i)
-                   ((D ⋆ D .id)
-                    (hcomp
-                     (doubleComp-faces (λ _ → (D ⋆ D .id) (F .F-hom ((C ⋆ γ) f)))
-                      (F .F-seq γ f) (~ i))
-                     (⋆IdL D (F .F-hom ((C ⋆ γ) f)) (~ i)))))
-                  , Δᴰ ]
-                  xᴰ)
-               i0
-               ((Dᴰ Categoryᴰ.⋆ᴰ Categoryᴰ.idᴰ Dᴰ)
-                (snd
-                 ((Γᴰ ×ⱽ F-hom F f *xᴰ) .snd .trans .N-ob
-                  (F .F-ob Δ , Δᴰ , F .F-hom γ) fᴰ)))}
-
-
-        $
+      (Dᴰ.rectify {p' = λ i → F .F-hom ((C ⋆ γ) f)} $
+        Dᴰ.≡out $
         Dᴰ.cong-reind
-          {a = F .F-ob Δ} {b = F .F-ob x}
-          {f = (D ⋆ ∫C Dᴰ .id .fst) (F .F-seq γ f (~ i0))} {f' = F .F-seq γ f (~ i0)}
-          {g = F .F-hom ((C ⋆ γ) f)} {g' = F .F-seq γ f (~ i1)}
-          {aᴰ = (reindex-π-/ Dᴰ F x ∘F (Idᴰ /Fⱽ yoRec (C [-, x ]) f)) .F-ob _ .snd
-                 .fst} {bᴰ = xᴰ}
-          {fᴰ = (Dᴰ Categoryᴰ.⋆ᴰ Categoryᴰ.idᴰ Dᴰ)
-                 (snd
-                  ((Γᴰ ×ⱽ F-hom F f *xᴰ) .snd .trans .N-ob
-                   (F .F-ob Δ , Δᴰ , F .F-hom γ) fᴰ))}
-          {fᴰ' = snd
-                  ((Γᴰ ×ⱽ F-hom F f *xᴰ) .snd .trans .N-ob
-                   (F .F-ob Δ , Δᴰ , F .F-hom γ) fᴰ)}
           (λ i →
-             N-ob (symNatIso (reindexRepresentable-seq (π Dᴰ F) {f = f}) .trans)
+             N-ob (symNatIso (reindexRepresentable-seq (π Dᴰ F)) .trans)
                (Δ , Δᴰ , γ)
                .snd
              .snd i)

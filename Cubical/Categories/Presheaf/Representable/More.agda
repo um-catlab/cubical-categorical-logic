@@ -366,16 +366,23 @@ module _ {C : Category ℓc ℓc'}
       ⋆PshIso invPshIso (LiftPshIso Q (ℓ-max ℓp ℓq))
 
   module _ (α : PshIso P Q) where
+    PshIso→PshHomPshIso' : ∀ {ℓr} →
+      PshIso (PshHomPsh' {ℓp = ℓr} P) (PshHomPsh' Q)
+    PshIso→PshHomPshIso' .trans .N-ob R β = β ⋆PshHom' α .trans
+    PshIso→PshHomPshIso' .trans .N-hom _ _ _ _ = ⋆PshHomAssoc' _ _ _
+    PshIso→PshHomPshIso' .nIso R .fst β = β ⋆PshHom' invPshIso' α .trans
+    PshIso→PshHomPshIso' .nIso R .snd .fst β =
+      ⋆PshHomAssoc' _ _ _
+      ∙ cong (β ⋆PshHom'_) (PshIso→sec' α)
+      ∙ ⋆PshHomIdR' β
+    PshIso→PshHomPshIso' .nIso R .snd .snd β =
+      ⋆PshHomAssoc' _ _ _
+      ∙ cong (β ⋆PshHom'_) (PshIso→ret' α)
+      ∙ ⋆PshHomIdR' β
+
     PshIso→PshHomPshIso : ∀ {ℓr} →
       PshIso (PshHomPsh {ℓp = ℓr} P) (PshHomPsh Q)
-    PshIso→PshHomPshIso .trans .N-ob R β = β ⋆PshHom α .trans
-    PshIso→PshHomPshIso .trans .N-hom _ _ _ _ = ⋆PshHomAssoc _ _ _
-    PshIso→PshHomPshIso .nIso R .fst β = β ⋆PshHom invPshIso α .trans
-    PshIso→PshHomPshIso .nIso R .snd .fst β =
-      ⋆PshHomAssoc _ _ _
-      ∙ cong (β ⋆PshHom_) (PshIso→sec α)
-      ∙ ⋆PshHomIdR β
-    PshIso→PshHomPshIso .nIso R .snd .snd β =
-      ⋆PshHomAssoc _ _ _
-      ∙ cong (β ⋆PshHom_) (PshIso→ret α)
-      ∙ ⋆PshHomIdR β
+    PshIso→PshHomPshIso =
+      invPshIso (mkOpaquePathsPresheaf-PshIso (PshHomPsh' P))
+      ⋆PshIso PshIso→PshHomPshIso'
+      ⋆PshIso mkOpaquePathsPresheaf-PshIso (PshHomPsh' Q)

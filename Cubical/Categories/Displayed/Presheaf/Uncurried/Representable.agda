@@ -113,7 +113,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       universalⱽ : isPshIsoⱽ (Cᴰ [-][-, vertexⱽ ]) Pⱽ (yoRecⱽ Pⱽ elementⱽ)
 
     toPshIsoⱽ : PshIsoⱽ (Cᴰ [-][-, vertexⱽ ]) Pⱽ
-    toPshIsoⱽ = pshiso (yoRecⱽ Pⱽ elementⱽ) universalⱽ
+    toPshIsoⱽ = mkOpaquePathsPshIso (pshiso (yoRecⱽ Pⱽ elementⱽ) universalⱽ)
 
   Representableⱽ : Type _
   Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ

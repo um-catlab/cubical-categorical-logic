@@ -98,15 +98,32 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   isSetPshHom : isSet PshHom
   isSetPshHom = isOfHLevelRetractFromIso 2 PshHomΣIso isSetPshHomΣ
 
+open PshHom
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
+  (α : PshHom P Q) where
+  private
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+
+  mkOpaquePathsPshHom : PshHom P Q
+  mkOpaquePathsPshHom .N-ob = α .N-ob
+  mkOpaquePathsPshHom .N-hom c c' f p = opq
+    where
+    opaque
+      opq : α .N-ob c (f P.⋆ p) ≡  f Q.⋆ (α .N-ob c' p)
+      opq = α .N-hom c c' f p
+
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓp}
   where
   private
     module C = Category C
     module P = PresheafNotation P
     module Q = PresheafNotation Q
-  NatTrans→PshHom : NatTrans P Q → PshHom P Q
-  NatTrans→PshHom α .PshHom.N-ob = α .NatTrans.N-ob
-  NatTrans→PshHom α .PshHom.N-hom x y f = funExt⁻ (α .NatTrans.N-hom f)
+  NatTrans→PshHom' NatTrans→PshHom : NatTrans P Q → PshHom P Q
+  NatTrans→PshHom' α .PshHom.N-ob = α .NatTrans.N-ob
+  NatTrans→PshHom' α .PshHom.N-hom x y f = funExt⁻ (α .NatTrans.N-hom f)
+
+  NatTrans→PshHom α = mkOpaquePathsPshHom (NatTrans→PshHom' α)
 
   PshHom→NatTrans : PshHom P Q → NatTrans P Q
   PshHom→NatTrans α .NatTrans.N-ob = α .PshHom.N-ob
@@ -126,28 +143,43 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
   makePshHomPath {α} {β} N-ob≡ =
     isoFunInjective (PshHomΣIso P Q) α β (makePshHomΣPath N-ob≡)
 
+  module _ (α : PshHom P Q) where
+    mkOpaquePathsPshHom≡ : α ≡ mkOpaquePathsPshHom α
+    mkOpaquePathsPshHom≡ = makePshHomPath refl
+
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
-  idPshHom : PshHom P P
-  idPshHom .N-ob x z = z
-  idPshHom .N-hom x y f p = refl
+  idPshHom' idPshHom : PshHom P P
+  idPshHom' .N-ob x z = z
+  idPshHom' .N-hom x y f p = refl
+
+  idPshHom = mkOpaquePathsPshHom idPshHom'
 
 module _ {C : Category ℓc ℓc'} where
-  _⋆PshHom_ : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} →
+  _⋆PshHom'_ _⋆PshHom_ : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} →
     PshHom P Q → PshHom Q R → PshHom P R
-  (α ⋆PshHom β) .N-ob x p = β .N-ob x (α .N-ob x p)
-  (α ⋆PshHom β) .N-hom x y f p =
+  (α ⋆PshHom' β) .N-ob x p = β .N-ob x (α .N-ob x p)
+  (α ⋆PshHom' β) .N-hom x y f p =
     cong (β .N-ob _) (α .N-hom x y f p)
     ∙ β .N-hom x y f (α .N-ob y p)
+
+  infixr 9 _⋆PshHom'_
   infixr 9 _⋆PshHom_
 
-  _⋆PshHomNatTrans_ :
+  α ⋆PshHom β = mkOpaquePathsPshHom (α ⋆PshHom' β)
+
+  _⋆PshHomNatTrans'_ _⋆PshHomNatTrans_ :
     ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓq} →
       PshHom P Q → NatTrans Q R → PshHom P R
-  α ⋆PshHomNatTrans β = α ⋆PshHom NatTrans→PshHom β
-  _⋆NatTransPshHom_ :
+  α ⋆PshHomNatTrans' β = α ⋆PshHom NatTrans→PshHom β
+
+  α ⋆PshHomNatTrans β = mkOpaquePathsPshHom (α ⋆PshHomNatTrans' β)
+
+  _⋆NatTransPshHom'_ _⋆NatTransPshHom_ :
     ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓp}{R : Presheaf C ℓr} →
       NatTrans P Q → PshHom Q R → PshHom P R
-  α ⋆NatTransPshHom β = NatTrans→PshHom α ⋆PshHom β
+  α ⋆NatTransPshHom' β = NatTrans→PshHom' α ⋆PshHom' β
+
+  α ⋆NatTransPshHom β = mkOpaquePathsPshHom (α ⋆NatTransPshHom' β)
 
   module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{α : PshHom P Q} where
     id⋆α≡α : idPshHom {C = C} ⋆PshHom α ≡ α
@@ -155,13 +187,15 @@ module _ {C : Category ℓc ℓc'} where
 
 open Functor
 module _ {C : Category ℓc ℓc'} where
-  PshHomPsh :
+  PshHomPsh' PshHomPsh :
     ∀ (Q : Presheaf C ℓq) →
       Presheaf (PresheafCategory C ℓp) (ℓ-max (ℓ-max (ℓ-max ℓc ℓc') ℓq) ℓp)
-  PshHomPsh Q .F-ob P = (PshHom P Q) , (isSetPshHom _ _)
-  PshHomPsh Q .F-hom α β = α ⋆NatTransPshHom β
-  PshHomPsh Q .F-id = funExt (λ _ → makePshHomPath refl)
-  PshHomPsh Q .F-seq α α' = funExt λ _ → makePshHomPath refl
+  PshHomPsh' Q .F-ob P = (PshHom P Q) , (isSetPshHom _ _)
+  PshHomPsh' Q .F-hom α β = α ⋆NatTransPshHom' β
+  PshHomPsh' Q .F-id = funExt (λ _ → makePshHomPath refl)
+  PshHomPsh' Q .F-seq α α' = funExt λ _ → makePshHomPath refl
+
+  PshHomPsh Q = mkOpaquePathsPresheaf (PshHomPsh' Q)
 
   PshHomProf :
     Profunctor
@@ -221,13 +255,30 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
 open PshIso
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
+  (α : PshIso P Q) where
+
+  mkOpaquePathsPshIso : PshIso P Q
+  mkOpaquePathsPshIso .trans = mkOpaquePathsPshHom (α .trans)
+  mkOpaquePathsPshIso .nIso c .fst = α .nIso c .fst
+  mkOpaquePathsPshIso .nIso c .snd .fst q = opq
+    where
+    opaque
+      opq : α .trans .N-ob c (α .nIso c .fst q) ≡ q
+      opq = α .nIso c .snd .fst q
+  mkOpaquePathsPshIso .nIso c .snd .snd p = opq
+    where
+    opaque
+      opq : α .nIso c .fst (α .trans .N-ob c p) ≡ p
+      opq = α .nIso c .snd .snd p
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   where
   private
     module P = PresheafNotation P
     module Q = PresheafNotation Q
-  invPshIso : (α : PshIso P Q) → PshIso Q P
-  invPshIso α .trans .N-ob c = α .nIso c .fst
-  invPshIso α .trans .N-hom _ _ f q =
+  invPshIso' invPshIso : (α : PshIso P Q) → PshIso Q P
+  invPshIso' α .trans .N-ob c = α .nIso c .fst
+  invPshIso' α .trans .N-hom _ _ f q =
     sym (α .nIso _ .snd .snd _)
     ∙ cong (α .nIso _ .fst)
       (sym $
@@ -235,20 +286,24 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
         ∙ Q.⟨ refl ⟩⋆⟨ α .nIso _ .snd .fst _ ⟩
         ∙ (sym $ α .nIso _ .snd .fst _))
     ∙ α .nIso _ .snd .snd _
-  invPshIso α .nIso c .fst = α .trans .N-ob _
-  invPshIso α .nIso c .snd .fst = α .nIso _ .snd .snd
-  invPshIso α .nIso c .snd .snd = α .nIso _ .snd .fst
+  invPshIso' α .nIso c .fst = α .trans .N-ob _
+  invPshIso' α .nIso c .snd .fst = α .nIso _ .snd .snd
+  invPshIso' α .nIso c .snd .snd = α .nIso _ .snd .fst
+
+  invPshIso α = mkOpaquePathsPshIso (invPshIso' α)
 
   -- Convenient when we already have the iso on Types
-  Isos→PshIso : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
+  Isos→PshIso' Isos→PshIso : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
     → (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
       Iso.fun (isos x) (f P.⋆ p) ≡ f Q.⋆ (Iso.fun (isos y) p))
     → PshIso P Q
-  Isos→PshIso isos isos-areNat .trans .N-ob x = Iso.fun (isos x)
-  Isos→PshIso isos isos-areNat .trans .N-hom = isos-areNat
-  Isos→PshIso isos isos-areNat .nIso x .fst = Iso.inv (isos x)
-  Isos→PshIso isos isos-areNat .nIso x .snd .fst = Iso.sec (isos x)
-  Isos→PshIso isos isos-areNat .nIso x .snd .snd = Iso.ret (isos x)
+  Isos→PshIso' isos isos-areNat .trans .N-ob x = Iso.fun (isos x)
+  Isos→PshIso' isos isos-areNat .trans .N-hom = isos-areNat
+  Isos→PshIso' isos isos-areNat .nIso x .fst = Iso.inv (isos x)
+  Isos→PshIso' isos isos-areNat .nIso x .snd .fst = Iso.sec (isos x)
+  Isos→PshIso' isos isos-areNat .nIso x .snd .snd = Iso.ret (isos x)
+
+  Isos→PshIso isos isos-areNat = mkOpaquePathsPshIso (Isos→PshIso' isos isos-areNat)
 
   PshIso→Isos : PshIso P Q → ∀ x → Iso (P.p[ x ]) (Q.p[ x ])
   PshIso→Isos α = λ x →
@@ -263,19 +318,33 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   where
 
   -- TODO: make α, α⁻ explicit arguments
-  makePshIso : PshIso P Q
-  makePshIso .trans = α
-  makePshIso .nIso c .fst q = α⁻ .N-ob c q
-  makePshIso .nIso c .snd .fst q = funExt₂⁻ (cong N-ob sec) c q
-  makePshIso .nIso c .snd .snd p = funExt₂⁻ (cong N-ob ret) c p
+  makePshIso' makePshIso : PshIso P Q
+  makePshIso' .trans = α
+  makePshIso' .nIso c .fst q = α⁻ .N-ob c q
+  makePshIso' .nIso c .snd .fst q = funExt₂⁻ (cong N-ob sec) c q
+  makePshIso' .nIso c .snd .snd p = funExt₂⁻ (cong N-ob ret) c p
+
+  makePshIso = mkOpaquePathsPshIso makePshIso'
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   (α : PshIso P Q)
   where
 
+  PshIso→ret' : α .trans ⋆PshHom' invPshIso' α .trans ≡ idPshHom' {P = P}
+  PshIso→ret' =
+    makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom' {C = C} {P = P} .N-ob c p))
+
   PshIso→ret : α .trans ⋆PshHom invPshIso α .trans ≡ idPshHom {P = P}
   PshIso→ret =
     makePshHomPath (funExt₂ λ c p → α .nIso _ .snd .snd (idPshHom {C = C} {P = P} .N-ob c p))
+
+  PshIso→sec' :
+    Path
+      (PshHom Q Q)
+      (invPshIso' α .trans ⋆PshHom' α .trans)
+      idPshHom'
+  PshIso→sec' =
+    makePshHomPath (funExt₂ λ c p → α .nIso c .snd .fst p)
 
   PshIso→sec :
     Path
@@ -305,21 +374,25 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) whe
     module Q = PresheafNotation Q
   open isUnivalent
   open isIsoC
-  PshCatIso→PshIso : CatIso (PresheafCategory C ℓp) P Q → PshIso P Q
-  PshCatIso→PshIso α .trans .N-ob = α .fst .NatTrans.N-ob
-  PshCatIso→PshIso α .trans .N-hom x₁ y f p =
+  PshCatIso→PshIso' PshCatIso→PshIso : CatIso (PresheafCategory C ℓp) P Q → PshIso P Q
+  PshCatIso→PshIso' α .trans .N-ob = α .fst .NatTrans.N-ob
+  PshCatIso→PshIso' α .trans .N-hom x₁ y f p =
     funExt⁻ (α .fst .NatTrans.N-hom _) p
-  PshCatIso→PshIso α .nIso x .fst = NatTrans.N-ob (α .snd .inv) x
-  PshCatIso→PshIso α .nIso x .snd .fst =
+  PshCatIso→PshIso' α .nIso x .fst = NatTrans.N-ob (α .snd .inv) x
+  PshCatIso→PshIso' α .nIso x .snd .fst =
     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .sec) _)
-  PshCatIso→PshIso α .nIso x .snd .snd =
+  PshCatIso→PshIso' α .nIso x .snd .snd =
     funExt⁻ (funExt⁻ (cong NatTrans.N-ob $ α .snd .ret) _)
 
-  NatIso→PshIso : NatIso P Q → PshIso P Q
-  NatIso→PshIso α .trans = NatTrans→PshHom (α .NatIso.trans)
-  NatIso→PshIso α .nIso c .fst = α .NatIso.nIso c .inv
-  NatIso→PshIso α .nIso c .snd .fst q = funExt⁻ (α .NatIso.nIso c .sec) q
-  NatIso→PshIso α .nIso c .snd .snd p = funExt⁻ (α .NatIso.nIso c .ret) p
+  PshCatIso→PshIso α = mkOpaquePathsPshIso (PshCatIso→PshIso' α)
+
+  NatIso→PshIso' NatIso→PshIso : NatIso P Q → PshIso P Q
+  NatIso→PshIso' α .trans = NatTrans→PshHom (α .NatIso.trans)
+  NatIso→PshIso' α .nIso c .fst = α .NatIso.nIso c .inv
+  NatIso→PshIso' α .nIso c .snd .fst q = funExt⁻ (α .NatIso.nIso c .sec) q
+  NatIso→PshIso' α .nIso c .snd .snd p = funExt⁻ (α .NatIso.nIso c .ret) p
+
+  NatIso→PshIso α = mkOpaquePathsPshIso $ NatIso→PshIso' α
 
   PshIso→SETIso : PshIso P Q → ∀ x → CatIso (SET ℓp) (P .F-ob x) (Q .F-ob x)
   PshIso→SETIso α c .fst = α .trans .N-ob c
@@ -354,9 +427,11 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) whe
       Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET' (PshIso→SETIso α c) i ⟩
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
-  idPshIso : PshIso P P
-  idPshIso .trans = idPshHom
-  idPshIso .nIso _ = IsoToIsIso idIso
+  idPshIso' idPshIso : PshIso P P
+  idPshIso' .trans = idPshHom
+  idPshIso' .nIso _ = IsoToIsIso idIso
+
+  idPshIso = mkOpaquePathsPshIso idPshIso'
 
 module _ {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
@@ -367,16 +442,21 @@ module _ {C : Category ℓc ℓc'}
   seqIsPshIso {α}{β} αIsIso βIsIso x = IsoToIsIso $
     compIso (isIsoToIso (αIsIso x)) (isIsoToIso (βIsIso x))
 
-  _⋆PshIso_ : PshIso P Q → PshIso Q R → PshIso P R
-  (α ⋆PshIso β) .trans = α .trans ⋆PshHom β .trans
-  (α ⋆PshIso β) .nIso x =
+  _⋆PshIso'_ _⋆PshIso_ : PshIso P Q → PshIso Q R → PshIso P R
+  (α ⋆PshIso' β) .trans = α .trans ⋆PshHom β .trans
+  (α ⋆PshIso' β) .nIso x =
     IsoToIsIso $
       compIso (isIsoToIso (α .nIso x)) (isIsoToIso (β .nIso x))
+  infixr 9 _⋆PshIso'_
   infixr 9 _⋆PshIso_
 
+  α ⋆PshIso β = mkOpaquePathsPshIso (α ⋆PshIso' β)
+
 module _ {C : Category ℓc ℓc'}{P Q : Presheaf C ℓp} (path : P ≡ Q) where
-  pathToPshIso : PshIso P Q
-  pathToPshIso = PshCatIso→PshIso _ _ (pathToIso path)
+  pathToPshIso' pathToPshIso : PshIso P Q
+  pathToPshIso' = PshCatIso→PshIso _ _ (pathToIso path)
+
+  pathToPshIso = mkOpaquePathsPshIso pathToPshIso'
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}
   where
@@ -435,15 +515,28 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}
       PQ-hom : PQ-hom-ty PQ-ob
       PQ-hom = _ , eq-hom
 
-    eqToPshHom : PshHom P Q
-    eqToPshHom = record {
+    eqToPshHom' eqToPshHom : PshHom P Q
+    eqToPshHom' = record {
           N-ob = eqToPshIso-N-ob PQ-ob
         ; N-hom = eqToPshIso-N-hom PQ-ob PQ-hom }
 
-    eqToPshIso : PshIso P Q
-    eqToPshIso = record {
+    eqToPshHom = mkOpaquePathsPshHom eqToPshHom'
+
+    eqToPshIso' eqToPshIso : PshIso P Q
+    eqToPshIso' = record {
         trans = eqToPshHom
       ; nIso = eqToPshIso-nIso PQ-ob}
+
+    eqToPshIso = mkOpaquePathsPshIso eqToPshIso'
+
+
+module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
+  mkOpaquePathsPresheaf-PshIso' : PshIso P (mkOpaquePathsPresheaf P)
+  mkOpaquePathsPresheaf-PshIso' =
+    eqToPshIso (mkOpaquePathsPresheaf P) Eq.refl Eq.refl
+
+  mkOpaquePathsPresheaf-PshIso : PshIso P (mkOpaquePathsPresheaf P)
+  mkOpaquePathsPresheaf-PshIso = mkOpaquePathsPshIso mkOpaquePathsPresheaf-PshIso'
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} where
   pathToPshIsoRefl : pathToPshIso (refl {x = P}) ≡ idPshIso
@@ -459,17 +552,21 @@ module _
   {P : Presheaf D ℓp}
   {Q : Presheaf D ℓq}
   where
-  _∘ˡ_ : (α : PshHom P Q) (F : Functor C D)
+  _∘ˡ'_ _∘ˡ_ : (α : PshHom P Q) (F : Functor C D)
     → PshHom (P ∘F (F ^opF)) (Q ∘F (F ^opF))
-  (α ∘ˡ F) .N-ob x = α .N-ob (F ⟅ x ⟆)
-  (α ∘ˡ F) .N-hom x y f p = α .N-hom _ _ _ p
+  (α ∘ˡ' F) .N-ob x = α .N-ob (F ⟅ x ⟆)
+  (α ∘ˡ' F) .N-hom x y f p = α .N-hom _ _ _ p
 
-  _∘ˡⁱ_ : (α : PshIso P Q) (F : Functor C D)
+  α ∘ˡ F  = mkOpaquePathsPshHom (α ∘ˡ' F)
+
+  _∘ˡⁱ'_ _∘ˡⁱ_ : (α : PshIso P Q) (F : Functor C D)
     → PshIso (P ∘F (F ^opF)) (Q ∘F (F ^opF))
-  (α ∘ˡⁱ F) .trans = α .trans ∘ˡ F
-  (α ∘ˡⁱ F) .nIso x .fst = α .nIso _ .fst
-  (α ∘ˡⁱ F) .nIso x .snd .fst = α .nIso _ .snd .fst
-  (α ∘ˡⁱ F) .nIso x .snd .snd = α .nIso _ .snd .snd
+  (α ∘ˡⁱ' F) .trans = α .trans ∘ˡ F
+  (α ∘ˡⁱ' F) .nIso x .fst = α .nIso _ .fst
+  (α ∘ˡⁱ' F) .nIso x .snd .fst = α .nIso _ .snd .fst
+  (α ∘ˡⁱ' F) .nIso x .snd .snd = α .nIso _ .snd .snd
+
+  α ∘ˡⁱ F = mkOpaquePathsPshIso $ α ∘ˡⁱ' F
 
 module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp)
   where
@@ -484,8 +581,13 @@ module _
   {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
   (α : PshHom P Q)
   where
+  ⋆PshHomIdL' : idPshHom' {P = P} ⋆PshHom' α ≡ α
+  ⋆PshHomIdL' = makePshHomPath refl
   ⋆PshHomIdL : idPshHom {P = P} ⋆PshHom α ≡ α
   ⋆PshHomIdL = makePshHomPath refl
+
+  ⋆PshHomIdR' : α ⋆PshHom' idPshHom' ≡ α
+  ⋆PshHomIdR' = makePshHomPath refl
   ⋆PshHomIdR : α ⋆PshHom idPshHom ≡ α
   ⋆PshHomIdR = makePshHomPath refl
 
@@ -495,6 +597,13 @@ module _
   {R : Presheaf C ℓr} {S : Presheaf C ℓs}
   (α : PshHom P Q)(β : PshHom Q R)(γ : PshHom R S)
   where
+
+  ⋆PshHomAssoc' :
+    Path
+      (PshHom P S)
+      ((α ⋆PshHom' β) ⋆PshHom' γ)
+      (α ⋆PshHom' (β ⋆PshHom' γ))
+  ⋆PshHomAssoc' = makePshHomPath refl
 
   ⋆PshHomAssoc :
     Path
@@ -507,7 +616,18 @@ module _
   {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
 
-  postcomp⋆PshHom-Iso : (α : PshIso Q R) → Iso (PshHom P Q) (PshHom P R)
+  postcomp⋆PshHom-Iso' postcomp⋆PshHom-Iso : (α : PshIso Q R) → Iso (PshHom P Q) (PshHom P R)
+  postcomp⋆PshHom-Iso' α .Iso.fun β = β ⋆PshHom' α .trans
+  postcomp⋆PshHom-Iso' α .Iso.inv β = β ⋆PshHom' invPshIso' α .trans
+  postcomp⋆PshHom-Iso' α .Iso.sec β =
+    ⋆PshHomAssoc' _ _ _
+    ∙ cong (β ⋆PshHom'_) (PshIso→sec' α)
+    ∙ ⋆PshHomIdR' β
+  postcomp⋆PshHom-Iso' α .Iso.ret β =
+    ⋆PshHomAssoc' _ _ _
+    ∙ cong (β ⋆PshHom'_) (PshIso→ret' α)
+    ∙ ⋆PshHomIdR' β
+
   postcomp⋆PshHom-Iso α .Iso.fun β = β ⋆PshHom α .trans
   postcomp⋆PshHom-Iso α .Iso.inv β = β ⋆PshHom invPshIso α .trans
   postcomp⋆PshHom-Iso α .Iso.sec β =
@@ -519,7 +639,18 @@ module _
     ∙ cong (β ⋆PshHom_) (PshIso→ret α)
     ∙ ⋆PshHomIdR β
 
-  precomp⋆PshHom-Iso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
+  precomp⋆PshHom-Iso' precomp⋆PshHom-Iso : (α : PshIso P Q) → Iso (PshHom Q R) (PshHom P R)
+  precomp⋆PshHom-Iso' α .Iso.fun β = α .trans ⋆PshHom' β
+  precomp⋆PshHom-Iso' α .Iso.inv β = invPshIso' α .trans ⋆PshHom' β
+  precomp⋆PshHom-Iso' α .Iso.sec β =
+    sym (⋆PshHomAssoc' _ _ _)
+    ∙ cong (_⋆PshHom' β) (PshIso→ret' α)
+    ∙ ⋆PshHomIdL' β
+  precomp⋆PshHom-Iso' α .Iso.ret β =
+    sym (⋆PshHomAssoc' _ _ _)
+    ∙ cong (_⋆PshHom' β) (PshIso→sec' α)
+    ∙ ⋆PshHomIdL' β
+
   precomp⋆PshHom-Iso α .Iso.fun β = α .trans ⋆PshHom β
   precomp⋆PshHom-Iso α .Iso.inv β = invPshIso α .trans ⋆PshHom β
   precomp⋆PshHom-Iso α .Iso.sec β =
@@ -531,13 +662,16 @@ module _
     ∙ cong (_⋆PshHom β) (PshIso→sec α)
     ∙ ⋆PshHomIdL β
 
+
 module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} where
   module _ (α : PshHom P Q) (α' : singl (α .N-ob)) where
     α'-N-hom-ty : PshHom-N-hom-ty P Q (α' .fst)
     α'-N-hom-ty = subst (PshHom-N-hom-ty P Q) (α' .snd) (α .N-hom)
 
-    improvePshHom : PshHom P Q
-    improvePshHom = pshhom (α' .fst) α'-N-hom-ty
+    improvePshHom improvePshHom' : PshHom P Q
+    improvePshHom' = pshhom (α' .fst) α'-N-hom-ty
+
+    improvePshHom = mkOpaquePathsPshHom improvePshHom'
 
   module _ (α : PshIso P Q) (α' : singl (α .trans .N-ob)) (α⁻ : singl (invPshIso α .trans .N-ob)) where
     isInvα⁻ : ∀ (x : C .ob)
@@ -547,14 +681,19 @@ module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} w
         (α' .snd)
         (α⁻ .snd)
         (α .nIso x .snd)
-    improvePshIso : PshIso P Q
-    improvePshIso = pshiso (improvePshHom (α .trans) α') (λ x → (α⁻ .fst x) , isInvα⁻ x)
+
+    improvePshIso' improvePshIso : PshIso P Q
+    improvePshIso' = pshiso (improvePshHom (α .trans) α') (λ x → (α⁻ .fst x) , isInvα⁻ x)
+
+    improvePshIso = mkOpaquePathsPshIso improvePshIso'
 
 module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
-  yo≅PshHomPsh :
+  yo≅PshHomPsh' yo≅PshHomPsh :
     PshIso (yo {C = PresheafCategory C ℓp} P) (PshHomPsh {ℓp = ℓp} P)
-  yo≅PshHomPsh .trans .N-ob c = NatTrans→PshHom
-  yo≅PshHomPsh .trans .N-hom c c' f p = makePshHomPath refl
-  yo≅PshHomPsh .nIso Q .fst = PshHom→NatTrans
-  yo≅PshHomPsh .nIso Q .snd .fst _ = makePshHomPath refl
-  yo≅PshHomPsh .nIso Q .snd .snd _ = makeNatTransPath refl
+  yo≅PshHomPsh' .trans .N-ob c = NatTrans→PshHom
+  yo≅PshHomPsh' .trans .N-hom c c' f p = makePshHomPath refl
+  yo≅PshHomPsh' .nIso Q .fst = PshHom→NatTrans
+  yo≅PshHomPsh' .nIso Q .snd .fst _ = makePshHomPath refl
+  yo≅PshHomPsh' .nIso Q .snd .snd _ = makeNatTransPath refl
+
+  yo≅PshHomPsh = mkOpaquePathsPshIso yo≅PshHomPsh'

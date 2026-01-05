@@ -127,8 +127,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     module C = Category C
     module D = Category D
   -- TODO: this relies on definitional (C ×C D ^op) ^op ≡ (C ^op ×C D)
-  Relator→Psh : (P : C o-[ ℓP ]-* D) → Presheaf (C ×C D ^op) ℓP
-  Relator→Psh P = BifunctorToParFunctor P ∘F ((BP.Fst C (D ^op) ^opF) ,F recOp (BP.Snd C (D ^op)))
+  Relator→Psh' Relator→Psh : (P : C o-[ ℓP ]-* D) → Presheaf (C ×C D ^op) ℓP
+  Relator→Psh' P = BifunctorToParFunctor P ∘F ((BP.Fst C (D ^op) ^opF) ,F recOp (BP.Snd C (D ^op)))
+
+  Relator→Psh P = mkOpaquePathsPresheaf $ Relator→Psh' P
 
   RelatorHom : (P : C o-[ ℓP ]-* D) → (Q : C o-[ ℓQ ]-* D) → Type _
   RelatorHom P Q = PshHom (Relator→Psh P) (Relator→Psh Q)
@@ -144,18 +146,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     private
       module P = RelatorNotation P
       module Q = RelatorNotation Q
-    mkRelatorHom : (N-ob : ∀ c d → P.Het[ c , d ] → Q.Het[ c , d ])
+    mkRelatorHom' mkRelatorHom : (N-ob : ∀ c d → P.Het[ c , d ] → Q.Het[ c , d ])
       → (N-homL : ∀ c c' d (f : C.Hom[ c , c' ])(p : P.Het[ c' , d ])
         → N-ob c d (f P.⋆ᶜʳ p) ≡ (f Q.⋆ᶜʳ N-ob c' d p))
       → (N-homR : ∀ c d d' (p : P.Het[ c , d ])(g : D.Hom[ d , d' ])
         → N-ob c d' (p P.⋆ʳᶜ g) ≡ (N-ob c d p Q.⋆ʳᶜ g))
       → RelatorHom P Q
-    mkRelatorHom N-ob N-homL N-homR = pshhom (λ (c , d) → N-ob c d)
+    mkRelatorHom' N-ob N-homL N-homR = pshhom (λ (c , d) → N-ob c d)
       λ (c , d) (c' , d') (f , g) p →
         cong (N-ob c d) (sym $ funExt⁻ (P.Bif-LR-fuse f g) p)
         ∙ (N-homR c d' d (f P.⋆ᶜʳ p) g
         ∙ Q.⟨ N-homL c c' d' f p ⟩⋆ʳᶜ⟨ refl ⟩)
         ∙ funExt⁻ (Q.Bif-LR-fuse f g) (N-ob c' d' p)
+
+    mkRelatorHom N-ob N-homL N-homR = mkOpaquePathsPshHom $ mkRelatorHom' N-ob N-homL N-homR
 
     open PshHom
     natL : ∀ (α : RelatorHom P Q) {c c' d} (f : C.Hom[ c , c' ])(p : P.Het[ c' , d ])
@@ -172,32 +176,44 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       ∙ α .N-hom (c , d') (c , d) (C.id , g) p
       ∙ (sym $ funExt⁻ (Q .Bif-R×-agree g) _)
 
-    appL-Hom : RelatorHom P Q → ∀ c → PshHom (P.rappL c) (Q.rappL c)
-    appL-Hom α c .N-ob d = α .N-ob (c , d)
-    appL-Hom α c .N-hom _ _ f p = natR α p f
+    appL-Hom' appL-Hom : RelatorHom P Q → ∀ c → PshHom (P.rappL c) (Q.rappL c)
+    appL-Hom' α c .N-ob d = α .N-ob (c , d)
+    appL-Hom' α c .N-hom _ _ f p = natR α p f
+
+    appL-Hom α c = mkOpaquePathsPshHom $ appL-Hom' α c
 
     -- is there a way to get this for free from appL-Hom?
-    appR-Hom : RelatorHom P Q → ∀ d → PshHom (appR P d) (appR Q d)
-    appR-Hom α d .N-ob c = α .N-ob (c , d)
-    appR-Hom α d .N-hom _ _ = natL α
+    appR-Hom' appR-Hom : RelatorHom P Q → ∀ d → PshHom (appR P d) (appR Q d)
+    appR-Hom' α d .N-ob c = α .N-ob (c , d)
+    appR-Hom' α d .N-hom _ _ = natL α
+
+    appR-Hom α c = mkOpaquePathsPshHom $ appR-Hom' α c
+
   module _ {P : C o-[ ℓP ]-* D}{Q : C o-[ ℓQ ]-* D} where
     private
       module P = RelatorNotation P
       module Q = RelatorNotation Q
     open PshHom
     open PshIso
-    appL-Iso : RelatorIso P Q → ∀ c → PshIso (P.rappL c) (Q.rappL c)
-    appL-Iso α c = pshiso (appL-Hom (α .trans) c)
+    appL-Iso' appL-Iso : RelatorIso P Q → ∀ c → PshIso (P.rappL c) (Q.rappL c)
+    appL-Iso' α c = pshiso (appL-Hom (α .trans) c)
       (λ d → (α .nIso (c , d) .fst) ,
         ( α .nIso (c , d) .snd .fst
         , α .nIso (c , d) .snd .snd))
-    appR-Iso : RelatorIso P Q → ∀ c → PshIso (appR P c) (appR Q c)
-    appR-Iso α d = pshiso (appR-Hom (α .trans) d)
+
+    appL-Iso α c = mkOpaquePathsPshIso $ appL-Iso' α c
+
+    appR-Iso' appR-Iso : RelatorIso P Q → ∀ c → PshIso (appR P c) (appR Q c)
+    appR-Iso' α d = pshiso (appR-Hom (α .trans) d)
       (λ c → α .nIso (c , d) .fst , α .nIso (c , d) .snd .fst , α .nIso (c , d) .snd .snd)
 
+    appR-Iso α c = mkOpaquePathsPshIso $ appR-Iso' α c
+
   module _ {P : Profunctor D C ℓP}{Q : Profunctor D C ℓQ} where
-    app-ProfHom : ProfunctorHom P Q → ∀ x → PshHom (P ⟅ x ⟆) (Q ⟅ x ⟆)
-    app-ProfHom α x = pshhom (λ c → α .PshHom.N-ob (c , x)) (λ c c' f p → natL α f p)
+    app-ProfHom' app-ProfHom : ProfunctorHom P Q → ∀ x → PshHom (P ⟅ x ⟆) (Q ⟅ x ⟆)
+    app-ProfHom' α x = pshhom (λ c → α .PshHom.N-ob (c , x)) (λ c c' f p → natL α f p)
+
+    app-ProfHom α x = mkOpaquePathsPshHom $ app-ProfHom' α x
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {ℓR} where
   _[_,_]R : (R : C o-[ ℓR ]-* D) → C .ob → D .ob → Type ℓR

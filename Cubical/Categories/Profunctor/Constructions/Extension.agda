@@ -58,25 +58,27 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
       → ⟨ (ext P ⟅ Q ⟆) .F-ob d ⟩ ≡ ((CurryBifunctor P ⟅ d ⟆) ⊗ Q)
     test-ext P Q d = refl
 
-  ext-HomR :
+  ext-HomR' ext-HomR :
     {Q : Presheaf C ℓQ}
     {R : Presheaf C ℓR}
     (P : D o-[ ℓP ]-* C)
     (α : PshHom Q R)
     → PshHom (ext P ⟅ Q ⟆) (ext P ⟅ R ⟆)
-  ext-HomR {Q = Q}{R = R} P α = pshhom (λ d → idPshHom ⊗Hom α)
+  ext-HomR' {Q = Q}{R = R} P α = pshhom (λ d → idPshHom ⊗Hom α)
     λ d d' f → P⊗Q.ind (λ _ → P⊗R.isSet⊗ _ _) (λ _ _ → refl)
     where
       module P⊗Q = ext-⊗ P Q
       module P⊗R = ext-⊗ P R
 
-  ext-HomL : ∀
+  ext-HomR P α = mkOpaquePathsPshHom $ ext-HomR' P α
+
+  ext-HomL' ext-HomL : ∀
     {P : D o-[ ℓP ]-* C}
     {Q : D o-[ ℓQ ]-* C}
     (α : RelatorHom P Q)
     (R : Presheaf C ℓR)
     → PshHom (ext P ⟅ R ⟆) (ext Q ⟅ R ⟆)
-  ext-HomL {P = P}{Q = Q} α R = pshhom (λ d → (appL-Hom α d) ⊗Hom idPshHom)
+  ext-HomL' {P = P}{Q = Q} α R = pshhom (λ d → (appL-Hom α d) ⊗Hom idPshHom)
     λ d d' f →
       P⊗R.ind (λ _ → Q⊗R.isSet⊗ _ _) (λ p r → cong (Q⊗R._,⊗ _)
         (appR-Hom α _ .N-hom _ _ _ _))
@@ -84,14 +86,19 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
       module P⊗R = ext-⊗ P R using (ind)
       module Q⊗R = ext-⊗ Q R using (isSet⊗; _,⊗_)
 
-  ext-IsoL : ∀
+  ext-HomL P α = mkOpaquePathsPshHom $ ext-HomL' P α
+
+  ext-IsoL' ext-IsoL : ∀
     {P : D o-[ ℓP ]-* C}
     {Q : D o-[ ℓQ ]-* C}
     (α : RelatorIso P Q)
     (R : Presheaf C ℓR)
     → PshIso (ext P ⟅ R ⟆) (ext Q ⟅ R ⟆)
-  ext-IsoL {P = P}{Q = Q} α R =
-    Isos→PshIso (λ d → appL-Iso α d ⊗Iso idPshIso) (ext-HomL (α .trans) R .N-hom)
+  ext-IsoL' {P = P}{Q = Q} α R =
+    Isos→PshIso' (λ d → appL-Iso' α d ⊗Iso idPshIso')
+      (ext-HomL' (α .trans) R .N-hom)
+
+  ext-IsoL α R = mkOpaquePathsPshIso $ ext-IsoL' α R
 
   -- TODO: make this natural in Q
   CoContinuous : {ℓP : Level → Level}

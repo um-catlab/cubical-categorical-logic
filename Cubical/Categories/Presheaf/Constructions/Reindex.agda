@@ -68,51 +68,61 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   reindPshF F = precomposeF (SET _) (F ^opF)
 
   -- This is just whiskering
-  reindPshHom : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
+  reindPshHom' reindPshHom : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
     → (F : Functor C D) (α : PshHom P Q)
     → PshHom (reindPsh F P) (reindPsh F Q)
-  reindPshHom F α .N-ob c = α .N-ob _
-  reindPshHom F α .N-hom c c' f = α .N-hom _ _ _
+  reindPshHom' F α .N-ob c = α .N-ob _
+  reindPshHom' F α .N-hom c c' f = α .N-hom _ _ _
+
+  reindPshHom F α = mkOpaquePathsPshHom (reindPshHom' F α)
 
   -- TODO: This is a consequence of functoriality...
-  reindPshIso : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
+  reindPshIso' reindPshIso : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
     → (F : Functor C D) (α : PshIso P Q)
     → PshIso (reindPsh F P) (reindPsh F Q)
-  reindPshIso F α .trans = reindPshHom F (α .trans)
-  reindPshIso F α .nIso x .fst = α .nIso _ .fst
-  reindPshIso F α .nIso x .snd .fst = α .nIso _ .snd .fst
-  reindPshIso F α .nIso x .snd .snd = α .nIso _ .snd .snd
+  reindPshIso' F α .trans = reindPshHom F (α .trans)
+  reindPshIso' F α .nIso x .fst = α .nIso _ .fst
+  reindPshIso' F α .nIso x .snd .fst = α .nIso _ .snd .fst
+  reindPshIso' F α .nIso x .snd .snd = α .nIso _ .snd .snd
+
+  reindPshIso F α = mkOpaquePathsPshIso (reindPshIso' F α)
 
   -- this is right-whiskering
-  reindNatTransPsh :
+  reindNatTransPsh' reindNatTransPsh :
     {F G : Functor C D}
     → (α : NatTrans G F) (P : Presheaf D ℓP)
     → PshHom (reindPsh F P) (reindPsh G P)
-  reindNatTransPsh α P = pshhom (λ c p → α.N-ob c P.⋆ p) λ _ _ f p →
+  reindNatTransPsh' α P = pshhom (λ c p → α.N-ob c P.⋆ p) λ _ _ f p →
     sym (P.⋆Assoc _ _ _) ∙ P.⟨ sym $ α.N-hom f ⟩⋆⟨⟩ ∙ P.⋆Assoc _ _ _
     where
       module α = NatTrans α
       module P = PresheafNotation P
 
-  reindNatIsoPsh :
+  reindNatTransPsh α P = mkOpaquePathsPshHom (reindNatTransPsh' α P)
+
+  reindNatIsoPsh' reindNatIsoPsh :
     {F G : Functor C D}
     → (α : NatIso F G) (P : Presheaf D ℓP)
     → PshIso (reindPsh F P) (reindPsh G P)
-  reindNatIsoPsh α P .trans = reindNatTransPsh (symNatIso α .trans) P
-  reindNatIsoPsh α P .nIso x .fst = reindNatTransPsh (α .trans) P .N-ob _
-  reindNatIsoPsh α P .nIso x .snd =
+  reindNatIsoPsh' α P .trans = reindNatTransPsh (symNatIso α .trans) P
+  reindNatIsoPsh' α P .nIso x .fst = reindNatTransPsh (α .trans) P .N-ob _
+  reindNatIsoPsh' α P .nIso x .snd =
     (λ p → sym (P.⋆Assoc _ _ _) ∙ P.⟨ α .nIso x .isIsoC.sec ⟩⋆⟨⟩ ∙ P.⋆IdL p)
     , λ p → sym (P.⋆Assoc _ _ _) ∙ P.⟨ α .nIso x .isIsoC.ret ⟩⋆⟨⟩ ∙ P.⋆IdL p
     where
       module P = PresheafNotation P
 
+  reindNatIsoPsh α P = mkOpaquePathsPshIso (reindNatIsoPsh' α P)
+
   PshHet : (F : Functor C D) (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) → Type _
   PshHet F P Q = PshHom P (reindPsh F Q)
 
-  Functor→PshHet : (F : Functor C D) (c : C .ob)
+  Functor→PshHet' Functor→PshHet : (F : Functor C D) (c : C .ob)
     → PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
-  Functor→PshHet F c .N-ob _ = F .F-hom
-  Functor→PshHet F c .N-hom _ _ = F .F-seq
+  Functor→PshHet' F c .N-ob _ = F .F-hom
+  Functor→PshHet' F c .N-hom _ _ = F .F-seq
+
+  Functor→PshHet F c = mkOpaquePathsPshHom (Functor→PshHet' F c)
 
   -- This should not be in the reindex file. PshHet should go somewhere else
   module _ {F : Functor C D}{P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
@@ -190,11 +200,13 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
           (universalElementToTerminalElement C P ue')
 
 -- Functoriality of reindexing in F
-reindPshId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
+reindPshId≅' reindPshId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
   → PshIso P (reindPsh Id P)
-reindPshId≅ P = eqToPshIso (reindPsh Id P) Eq.refl Eq.refl
+reindPshId≅' P = eqToPshIso (reindPsh Id P) Eq.refl Eq.refl
 
-reindPsh∘F≅ :
+reindPshId≅ P = mkOpaquePathsPshIso (reindPshId≅' P)
+
+reindPsh∘F≅' reindPsh∘F≅ :
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
   {E : Category ℓE ℓE'}
@@ -202,9 +214,11 @@ reindPsh∘F≅ :
   (G : Functor D E)
   (P : Presheaf E ℓP)
   → PshIso (reindPsh F (reindPsh G P)) (reindPsh (G ∘F F) P)
-reindPsh∘F≅ F G P = eqToPshIso (reindPsh (G ∘F F) P) Eq.refl Eq.refl
+reindPsh∘F≅' F G P = eqToPshIso (reindPsh (G ∘F F) P) Eq.refl Eq.refl
 
-reindPsh-square :
+reindPsh∘F≅ F G P = mkOpaquePathsPshIso (reindPsh∘F≅' F G P)
+
+reindPsh-square' reindPsh-square :
   {B : Category ℓB ℓB'}
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
@@ -216,12 +230,14 @@ reindPsh-square :
   (P : Presheaf E ℓP)
   → (NatIso (G ∘F F) (K ∘F H))
   → PshIso (reindPsh F $ reindPsh G P) (reindPsh H $ reindPsh K P)
-reindPsh-square F G H K P GF≅KH =
+reindPsh-square' F G H K P GF≅KH =
   reindPsh∘F≅ F G P
   ⋆PshIso reindNatIsoPsh GF≅KH P
   ⋆PshIso (invPshIso $ reindPsh∘F≅ H K P)
 
-reindPsh-tri :
+reindPsh-square F G H K P GF≅KH = mkOpaquePathsPshIso (reindPsh-square' F G H K P GF≅KH)
+
+reindPsh-tri' reindPsh-tri :
   {B : Category ℓB ℓB'}
   {C : Category ℓC ℓC'}
   {D : Category ℓD ℓD'}
@@ -231,14 +247,18 @@ reindPsh-tri :
   (P : Presheaf D ℓP)
   → (NatIso (G ∘F F) H)
   → PshIso (reindPsh F $ reindPsh G P) (reindPsh H P)
-reindPsh-tri F G H P GF≅H = reindPsh∘F≅ F G P
+reindPsh-tri' F G H P GF≅H = reindPsh∘F≅ F G P
   ⋆PshIso reindNatIsoPsh GF≅H P
+
+reindPsh-tri F G H P GF≅H = mkOpaquePathsPshIso (reindPsh-tri' F G H P GF≅H)
 
 module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   where
-  PshHom→PshHet : PshHom P Q → PshHet Id P Q
-  PshHom→PshHet α = α ⋆PshHom reindPshId≅ Q .trans
+  PshHom→PshHet' PshHom→PshHet : PshHom P Q → PshHet Id P Q
+  PshHom→PshHet' α = α ⋆PshHom reindPshId≅ Q .trans
+  PshHom→PshHet α = mkOpaquePathsPshHom (PshHom→PshHet' α)
+
 module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} where
   idPshHet : PshHet Id P P
   idPshHet = PshHom→PshHet idPshHom
@@ -253,10 +273,10 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
 module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   -- reindPsh F (c ↦ P(c,d) ⊗[ d ] Q(d,*))
   -- ≅ b ↦ P(F b, d) ⊗[ d ] Q(d, *)
-  reindPsh-⊗ : (F : Functor B C) (P : Bifunctor (C ^op) D (SET ℓR)) (Q : Presheaf D ℓQ)
+  reindPsh-⊗' reindPsh-⊗ : (F : Functor B C) (P : Bifunctor (C ^op) D (SET ℓR)) (Q : Presheaf D ℓQ)
     → PshIso (reindPsh F (ext P ⟅ Q ⟆))
              (ext ((CurriedToBifunctorL (reindPshF F ∘F CurryBifunctorL P))) ⟅ Q ⟆)
-  reindPsh-⊗ F P Q = pshiso (pshhom
+  reindPsh-⊗' F P Q = pshiso (pshhom
     (λ b → P⊗Q.rec extF*PQ.isSetPsh F*P⊗Q._,⊗_ F*P⊗Q.swap)
     λ b b' f → P⊗Q.ind (λ _ → extF*PQ.isSetPsh _ _) (λ _ _ → refl))
     λ b → (F*P⊗Q.rec F*extPQ.isSetPsh P⊗Q._,⊗_ P⊗Q.swap)
@@ -270,15 +290,20 @@ module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD �
       module P⊗Q = ext-⊗ P Q
       module F*P⊗Q = ext-⊗ F*P Q
 
+  reindPsh-⊗ F P Q = mkOpaquePathsPshIso (reindPsh-⊗' F P Q)
+
   -- reindPsh F (c ↦ ∀[ d ] P(d,c) → Q(d,*))
   -- ≅ (b ↦ ∀[ d ] P(d,F b) → Q(d,*))
-  reindPsh-PshHom : (F : Functor B C) (P : Bifunctor (D ^op) C (SET ℓR)) (Q : Presheaf D ℓQ)
+  reindPsh-PshHom reindPsh-PshHom' : (F : Functor B C) (P : Bifunctor (D ^op) C (SET ℓR)) (Q : Presheaf D ℓQ)
     → PshIso (reindPsh F $ appR (PshHomBif ∘Fl (CurryBifunctorL P ^opF)) Q)
              (appR (PshHomBif ∘Fl ((CurryBifunctorL (P ∘Fr F)) ^opF) ) Q)
-  reindPsh-PshHom F P Q = pshiso (pshhom (λ b α → pshhom (α .N-ob) (α .N-hom)) λ _ _ f α → makePshHomPath refl)
+  reindPsh-PshHom' F P Q = pshiso (pshhom (λ b α → pshhom (α .N-ob) (α .N-hom)) λ _ _ f α → makePshHomPath refl)
     λ b → (λ β → pshhom (β .N-ob) (β .N-hom))
     , (λ α → makePshHomPath refl)
     , (λ β → makePshHomPath refl)
+
+  reindPsh-PshHom F P Q = mkOpaquePathsPshIso (reindPsh-PshHom' F P Q)
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   reindPshF-cocont : (F : Functor C D)
     → CoContinuous (reindPshF F)

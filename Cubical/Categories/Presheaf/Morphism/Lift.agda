@@ -55,10 +55,19 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) ℓq where
   LiftPshIso .nIso c .snd .snd _ = refl
 
 module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) {ℓq} {ℓr} where
+  PshHomPsh-LiftPshIso' :
+    PshIso
+      (PshHomPsh' {ℓp = ℓr} P)
+      (PshHomPsh' {ℓp = ℓr} (LiftPsh P ℓq))
+  PshHomPsh-LiftPshIso' =
+    Isos→PshIso' (λ Q → postcomp⋆PshHom-Iso' (LiftPshIso P ℓq))
+      (λ _ _ _ _ → ⋆PshHomAssoc' _ _ _)
+
   PshHomPsh-LiftPshIso :
     PshIso
       (PshHomPsh {ℓp = ℓr} P)
       (PshHomPsh {ℓp = ℓr} (LiftPsh P ℓq))
   PshHomPsh-LiftPshIso =
-    Isos→PshIso (λ Q → postcomp⋆PshHom-Iso (LiftPshIso P ℓq))
-      (λ _ _ _ _ → ⋆PshHomAssoc _ _ _)
+    (invPshIso $ mkOpaquePathsPresheaf-PshIso (PshHomPsh' P))
+    ⋆PshIso PshHomPsh-LiftPshIso'
+    ⋆PshIso mkOpaquePathsPresheaf-PshIso (PshHomPsh' (LiftPsh P ℓq))

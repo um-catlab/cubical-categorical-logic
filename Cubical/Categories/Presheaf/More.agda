@@ -99,3 +99,21 @@ module PresheafNotation {ℓo}{ℓh}
 
   isSetPsh : ∀ {x} → isSet (p[ x ])
   isSetPsh {x} = (P ⟅ x ⟆) .snd
+
+module _ {ℓo}{ℓh}{ℓp} {C : Category ℓo ℓh} (P : Presheaf C ℓp) where
+  private
+    module C = Category C
+
+  mkOpaquePathsPresheaf : Presheaf C ℓp
+  mkOpaquePathsPresheaf .F-ob = P .F-ob
+  mkOpaquePathsPresheaf .F-hom = P .F-hom
+  mkOpaquePathsPresheaf .F-id {x = c} = opq
+    where
+    opaque
+      opq : P .F-hom C.id ≡ (λ (z : P .F-ob c .fst) → z)
+      opq = P .F-id
+  mkOpaquePathsPresheaf .F-seq f g = opq
+    where
+    opaque
+      opq : P .F-hom (g C.⋆ f) ≡ λ z → P .F-hom g (P .F-hom f z)
+      opq = P .F-seq f g

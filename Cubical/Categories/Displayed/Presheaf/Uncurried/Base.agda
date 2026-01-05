@@ -282,7 +282,7 @@ module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
   reindPshᴰNatTrans : Presheafᴰ P Cᴰ ℓQᴰ
-  reindPshᴰNatTrans = reindPsh (Idᴰ /Fⱽ α) Qᴰ
+  reindPshᴰNatTrans = mkOpaquePathsPresheaf (reindPsh (Idᴰ /Fⱽ α) Qᴰ)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -310,7 +310,11 @@ module _
     module Q = PresheafNotation Q
     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
   reindPshᴰNatTrans-Path : PshIso (reindPshᴰNatTrans α Qᴰ) (reindPshᴰNatTrans β Qᴰ)
-  reindPshᴰNatTrans-Path = reindNatIsoPsh (pathToNatIso (cong₂ _/Fⱽ_ refl α≡β)) Qᴰ
+  reindPshᴰNatTrans-Path =
+    mkOpaquePathsPshIso $
+      (invPshIso $ mkOpaquePathsPresheaf-PshIso (reindPsh (Idᴰ /Fⱽ α) Qᴰ))
+      ⋆PshIso reindNatIsoPsh (pathToNatIso (cong₂ _/Fⱽ_ refl α≡β)) Qᴰ
+      ⋆PshIso mkOpaquePathsPresheaf-PshIso (reindPsh (Idᴰ /Fⱽ β) Qᴰ)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

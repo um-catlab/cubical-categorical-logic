@@ -201,219 +201,219 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         λ αⱽ → makePshHomPath $ funExt λ (Γ , Γᴰ , (p , q)) → funExt λ p≡q →
           sym (Rᴰ.rectify $ Rᴰ.≡out $ (Rᴰ.≡in $ (λ i → αⱽ .N-ob (Γ , (Γᴰ , (p , (p≡q (~ i))))) (λ j → p≡q ((~ i) ∧ j)))) ∙ Rᴰ.reind-filler _)
 
-  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
-    private
-      module Q = PresheafNotation Q
-      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
-    -- (∃α P)(q) = Σ[ p ] Pᴰ(p) × αp ≡ q
-    push : Presheafᴰ Q Cᴰ (ℓ-max ℓP (ℓ-max ℓPᴰ ℓQ))
-    push = ΣPsh P (reindPshᴰNatTrans (π₂ Q P) Pᴰ ×Psh reindPshᴰNatTrans (idPshHom ×PshHom α) (PathPsh Q))
+--   module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+--     private
+--       module Q = PresheafNotation Q
+--       module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+--     -- (∃α P)(q) = Σ[ p ] Pᴰ(p) × αp ≡ q
+--     push : Presheafᴰ Q Cᴰ (ℓ-max ℓP (ℓ-max ℓPᴰ ℓQ))
+--     push = ΣPsh P (reindPshᴰNatTrans (π₂ Q P) Pᴰ ×Psh reindPshᴰNatTrans (idPshHom ×PshHom α) (PathPsh Q))
 
-    -- Pᴰ ⊢ (∃α Pᴰ)[α]
-    -- ===============================
-    -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡q)[αp/q]
-    -- ===============================
-    -- Pᴰ(p) ⊢ Σ[ p' ] (Pᴰ(p') × αp'≡q)[αp/q]
-    -- ===============================
-    -- Pᴰ(p) ⊢ Σ[ p' ] Pᴰ(p')[αp/q] × αp'≡q[αp/q]
-    -- ===============================
-    -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡αp)
-    -- ===============================
-    -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡αp)
-    push-σ : PshHomᴰ α Pᴰ push
-    push-σ .N-ob (Γ , Γᴰ , p) pᴰ = p , (pᴰ , refl)
-    push-σ .N-hom _ _ (γ , Γᴰ , γ⋆p≡p') pᴰ = ΣPathP ((sym $ γ⋆p≡p') , (ΣPathPProp (λ _ → Q.isSetPsh _ _)
-      (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _))))
-  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
-    private
-      module Q = PresheafNotation Q
-      module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
-    -- TODO: less manual definition?
-    push-recⱽ : PshHomᴰ α Pᴰ Qᴰ → PshHomⱽ (push α Pᴰ) Qᴰ
-    push-recⱽ αᴰ .N-ob (Γ , Γᴰ , q) (p , pᴰ , q≡αp) = Qᴰ .F-hom ((C .id) , ((Categoryᴰ.idᴰ Cᴰ) , (Q.⋆IdL _ ∙ (sym $ q≡αp)))) $ αᴰ .N-ob (Γ , Γᴰ , p) pᴰ
-    push-recⱽ αᴰ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q'≡q) (p , pᴰ , q'≡αp) = Qᴰ.rectify $ Qᴰ.≡out $
-      Qᴰ.⋆ᴰ-reind _ _ _
-      ∙ Qᴰ.⟨⟩⋆⟨ (Qᴰ.≡in $ αᴰ .N-hom _ _ _ _) ∙ Qᴰ.⋆ᴰ-reind _ _ _ ⟩
-      ∙ sym (Qᴰ.⋆Assoc _ _ _)
-      ∙ Qᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ (sym $ Qᴰ.⋆IdL _) ∙ sym (Qᴰ.⋆ᴰ-reind Cᴰ.idᴰ _ (αᴰ .N-ob (Γ , Γᴰ , p) pᴰ)) ⟩
-      ∙ sym (Qᴰ.⋆ᴰ-reind γᴰ γ⋆q'≡q _)
+--     -- Pᴰ ⊢ (∃α Pᴰ)[α]
+--     -- ===============================
+--     -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡q)[αp/q]
+--     -- ===============================
+--     -- Pᴰ(p) ⊢ Σ[ p' ] (Pᴰ(p') × αp'≡q)[αp/q]
+--     -- ===============================
+--     -- Pᴰ(p) ⊢ Σ[ p' ] Pᴰ(p')[αp/q] × αp'≡q[αp/q]
+--     -- ===============================
+--     -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡αp)
+--     -- ===============================
+--     -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡αp)
+--     push-σ : PshHomᴰ α Pᴰ push
+--     push-σ .N-ob (Γ , Γᴰ , p) pᴰ = p , (pᴰ , refl)
+--     push-σ .N-hom _ _ (γ , Γᴰ , γ⋆p≡p') pᴰ = ΣPathP ((sym $ γ⋆p≡p') , (ΣPathPProp (λ _ → Q.isSetPsh _ _)
+--       (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _))))
+--   module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
+--     private
+--       module Q = PresheafNotation Q
+--       module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+--     -- TODO: less manual definition?
+--     push-recⱽ : PshHomᴰ α Pᴰ Qᴰ → PshHomⱽ (push α Pᴰ) Qᴰ
+--     push-recⱽ αᴰ .N-ob (Γ , Γᴰ , q) (p , pᴰ , q≡αp) = Qᴰ .F-hom ((C .id) , ((Categoryᴰ.idᴰ Cᴰ) , (Q.⋆IdL _ ∙ (sym $ q≡αp)))) $ αᴰ .N-ob (Γ , Γᴰ , p) pᴰ
+--     push-recⱽ αᴰ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q'≡q) (p , pᴰ , q'≡αp) = Qᴰ.rectify $ Qᴰ.≡out $
+--       Qᴰ.⋆ᴰ-reind _ _ _
+--       ∙ Qᴰ.⟨⟩⋆⟨ (Qᴰ.≡in $ αᴰ .N-hom _ _ _ _) ∙ Qᴰ.⋆ᴰ-reind _ _ _ ⟩
+--       ∙ sym (Qᴰ.⋆Assoc _ _ _)
+--       ∙ Qᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ (sym $ Qᴰ.⋆IdL _) ∙ sym (Qᴰ.⋆ᴰ-reind Cᴰ.idᴰ _ (αᴰ .N-ob (Γ , Γᴰ , p) pᴰ)) ⟩
+--       ∙ sym (Qᴰ.⋆ᴰ-reind γᴰ γ⋆q'≡q _)
 
-    push-UMP : Iso (PshHomⱽ (push α Pᴰ) Qᴰ) (PshHomᴰ α Pᴰ Qᴰ)
-    push-UMP = iso
-      (λ βⱽ → push-σ α Pᴰ ⋆PshHom reindPshHom (Idᴰ /Fⱽ α) βⱽ)
-      push-recⱽ
-      (λ βⱽ → makePshHomPath (funExt λ (Γ , Γᴰ , p) → funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.⋆ᴰ-reind _ _ _ ∙ Qᴰ.⋆IdL _))
-      (λ βⱽ → makePshHomPath (funExt λ (Γ , Γᴰ , q) → funExt (λ (p , pᴰ , q≡αp) → Qᴰ.rectify $ Qᴰ.≡out $
-        Qᴰ.⋆ᴰ-reind _ _ _ ∙ Qᴰ.⋆IdL _
-        ∙ ΣPathP (sym q≡αp , λ i → βⱽ .N-ob (Γ , (Γᴰ , q≡αp (~ i))) (p , pᴰ , λ j → q≡αp ((~ i) ∨ j))))))
+--     push-UMP : Iso (PshHomⱽ (push α Pᴰ) Qᴰ) (PshHomᴰ α Pᴰ Qᴰ)
+--     push-UMP = iso
+--       (λ βⱽ → push-σ α Pᴰ ⋆PshHom reindPshHom (Idᴰ /Fⱽ α) βⱽ)
+--       push-recⱽ
+--       (λ βⱽ → makePshHomPath (funExt λ (Γ , Γᴰ , p) → funExt λ pᴰ → Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.⋆ᴰ-reind _ _ _ ∙ Qᴰ.⋆IdL _))
+--       (λ βⱽ → makePshHomPath (funExt λ (Γ , Γᴰ , q) → funExt (λ (p , pᴰ , q≡αp) → Qᴰ.rectify $ Qᴰ.≡out $
+--         Qᴰ.⋆ᴰ-reind _ _ _ ∙ Qᴰ.⋆IdL _
+--         ∙ ΣPathP (sym q≡αp , λ i → βⱽ .N-ob (Γ , (Γᴰ , q≡αp (~ i))) (p , pᴰ , λ j → q≡αp ((~ i) ∨ j))))))
 
-  pushⱽ : ∀ (P : Presheaf C ℓP) {x} (p : ⟨ P ⟅ x ⟆ ⟩ )(Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ (ℓ-max ℓC' (ℓ-max ℓPᴰ ℓP))
-  pushⱽ P p Pⱽ = push (yoRec P p) Pⱽ
+--   pushⱽ : ∀ (P : Presheaf C ℓP) {x} (p : ⟨ P ⟅ x ⟆ ⟩ )(Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ (ℓ-max ℓC' (ℓ-max ℓPᴰ ℓP))
+--   pushⱽ P p Pⱽ = push (yoRec P p) Pⱽ
 
-  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}(α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
-    private
-      module P = PresheafNotation P
-      module Q = PresheafNotation Q
-      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
-      module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
-    -- ∃α (P × Q[α]) ⊢ ∃α P × Q
-    -- ------------------------
-    -- (P × Q[α]) ⊢ (∃αP × Q)[α]
-    -- =============================
-    -- (P × Q[α]) ⊢ ((∃αP)[α] × Q[α])
-    -- ------------------------------
-    -- P ⊢ ∃αP [α]      Q[α] ⊢ Q[α]
-    FrobeniusReciprocity-ptwise : ∀ ((Γ , Γᴰ , q) : (Cᴰ / Q) .ob) →
-      Iso (Σ[ p ∈ P.p[ Γ ] ] (Pᴰ.p[ p ][ Γᴰ ] × Qᴰ.p[ α .N-ob Γ p ][ Γᴰ ]) × (q ≡ α .N-ob Γ p))
-          ((Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (q ≡ α .N-ob Γ p)) × Qᴰ.p[ q ][ Γᴰ ])
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) =
-      compIso (compIso (Σ-cong-iso-snd (λ p → compIso Σ-swap-Iso (Σ-cong-iso-fst symIso))) $ invIso Σ-assoc-Iso) $
-      compIso (Type.FrobeniusReciprocity (α .N-ob Γ) q) $
-      Σ-cong-iso-fst (compIso Σ-assoc-Iso $ Σ-cong-iso-snd (λ p → compIso (Σ-cong-iso-fst symIso) Σ-swap-Iso) )
+--   module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}(α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+--     private
+--       module P = PresheafNotation P
+--       module Q = PresheafNotation Q
+--       module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+--       module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+--     -- ∃α (P × Q[α]) ⊢ ∃α P × Q
+--     -- ------------------------
+--     -- (P × Q[α]) ⊢ (∃αP × Q)[α]
+--     -- =============================
+--     -- (P × Q[α]) ⊢ ((∃αP)[α] × Q[α])
+--     -- ------------------------------
+--     -- P ⊢ ∃αP [α]      Q[α] ⊢ Q[α]
+--     FrobeniusReciprocity-ptwise : ∀ ((Γ , Γᴰ , q) : (Cᴰ / Q) .ob) →
+--       Iso (Σ[ p ∈ P.p[ Γ ] ] (Pᴰ.p[ p ][ Γᴰ ] × Qᴰ.p[ α .N-ob Γ p ][ Γᴰ ]) × (q ≡ α .N-ob Γ p))
+--           ((Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (q ≡ α .N-ob Γ p)) × Qᴰ.p[ q ][ Γᴰ ])
+--     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) =
+--       compIso (compIso (Σ-cong-iso-snd (λ p → compIso Σ-swap-Iso (Σ-cong-iso-fst symIso))) $ invIso Σ-assoc-Iso) $
+--       compIso (Type.FrobeniusReciprocity (α .N-ob Γ) q) $
+--       Σ-cong-iso-fst (compIso Σ-assoc-Iso $ Σ-cong-iso-snd (λ p → compIso (Σ-cong-iso-fst symIso) Σ-swap-Iso) )
 
-    FrobeniusReciprocity : PshIsoⱽ (push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)) (push α Pᴰ ×Psh Qᴰ)
-    FrobeniusReciprocity = Isos→PshIso FrobeniusReciprocity-ptwise
-      λ (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q') (p , (pᴰ , qᴰ) , q≡αp) →
-        ΣPathP ((ΣPathP (refl , refl)) , (Qᴰ.rectify $ Qᴰ.≡out $
-          sym (Qᴰ.reind-filler _)
-          ∙ Qᴰ.⋆ᴰ-reind _ _ _
-          ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩
-          ∙ sym (Qᴰ.⋆ᴰ-reind _ _ _)))
+--     FrobeniusReciprocity : PshIsoⱽ (push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)) (push α Pᴰ ×Psh Qᴰ)
+--     FrobeniusReciprocity = Isos→PshIso FrobeniusReciprocity-ptwise
+--       λ (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q') (p , (pᴰ , qᴰ) , q≡αp) →
+--         ΣPathP ((ΣPathP (refl , refl)) , (Qᴰ.rectify $ Qᴰ.≡out $
+--           sym (Qᴰ.reind-filler _)
+--           ∙ Qᴰ.⋆ᴰ-reind _ _ _
+--           ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩
+--           ∙ sym (Qᴰ.⋆ᴰ-reind _ _ _)))
 
-  module _
-    {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
-    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-    {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
-    (α : PshHom P Q)
-    (β : PshIsoⱽ Pᴰ Qᴰ)
-    where
-    -- just functoriality, derivable from functoriality of the components of push.
-    -- Probably wait until we port to locally small stuff
-    push-PshIsoⱽ : PshIsoⱽ (push α Pᴰ) (push α Qᴰ)
-    push-PshIsoⱽ = Isos→PshIso
-      (λ (Γ , Γᴰ , q) → Σ-cong-iso-snd (λ p → Σ-cong-iso-fst (PshIso→Isos β (Γ , (Γᴰ , p)))))
-      λ (Δ , Δᴰ , q)(Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q')(p , pᴰ , q'≡αp) → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh Q _ _)
-      (β .trans .N-hom _ _ _ _)))
+--   module _
+--     {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+--     {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+--     {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+--     (α : PshHom P Q)
+--     (β : PshIsoⱽ Pᴰ Qᴰ)
+--     where
+--     -- just functoriality, derivable from functoriality of the components of push.
+--     -- Probably wait until we port to locally small stuff
+--     push-PshIsoⱽ : PshIsoⱽ (push α Pᴰ) (push α Qᴰ)
+--     push-PshIsoⱽ = Isos→PshIso
+--       (λ (Γ , Γᴰ , q) → Σ-cong-iso-snd (λ p → Σ-cong-iso-fst (PshIso→Isos β (Γ , (Γᴰ , p)))))
+--       λ (Δ , Δᴰ , q)(Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q')(p , pᴰ , q'≡αp) → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh Q _ _)
+--       (β .trans .N-hom _ _ _ _)))
 
-  module _ {P : Presheaf C ℓP} where
-    private
-      module P = PresheafNotation P
+--   module _ {P : Presheaf C ℓP} where
+--     private
+--       module P = PresheafNotation P
 
-    push-repr : ∀ {x xᴰ p}
-      → PshIsoⱽ ((Cᴰ / P) [-, x , xᴰ , p ]) (pushⱽ P p (Cᴰ [-][-, xᴰ ]))
-    push-repr {x}{xᴰ}{p} = pshiso (pshhom (λ (Γ , Γᴰ , q) (γ , γᴰ , γ⋆p≡q) → γ , (γᴰ , (sym $ γ⋆p≡q)))
-      λ c c' f p → ΣPathP (refl , (ΣPathPProp (λ _ → P.isSetPsh _ _) (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _ _))))
-      λ (Γ , Γᴰ , q) → (λ (f , fᴰ , q≡f⋆p) → f , (fᴰ , (sym $ q≡f⋆p)))
-        , (λ _ → refl) , (λ _ → refl)
+--     push-repr : ∀ {x xᴰ p}
+--       → PshIsoⱽ ((Cᴰ / P) [-, x , xᴰ , p ]) (pushⱽ P p (Cᴰ [-][-, xᴰ ]))
+--     push-repr {x}{xᴰ}{p} = pshiso (pshhom (λ (Γ , Γᴰ , q) (γ , γᴰ , γ⋆p≡q) → γ , (γᴰ , (sym $ γ⋆p≡q)))
+--       λ c c' f p → ΣPathP (refl , (ΣPathPProp (λ _ → P.isSetPsh _ _) (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _ _))))
+--       λ (Γ , Γᴰ , q) → (λ (f , fᴰ , q≡f⋆p) → f , (fᴰ , (sym $ q≡f⋆p)))
+--         , (λ _ → refl) , (λ _ → refl)
 
-module _ {C : Category ℓC ℓC'} where
-  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
-    (α : PshHom P R)
-    (β : PshHom Q R)
-    where
-    Pullback : Presheaf C _
-    Pullback =
-      reindPsh (TotalCat.intro Id ttS) (PresheafᴰNotation.∫ (Unitᴰ C) (P ×Psh Q) (reindPshᴰNatTrans (α ×PshHom β) (PathPsh R)))
+-- module _ {C : Category ℓC ℓC'} where
+--   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+--     (α : PshHom P R)
+--     (β : PshHom Q R)
+--     where
+--     Pullback : Presheaf C _
+--     Pullback =
+--       reindPsh (TotalCat.intro Id ttS) (PresheafᴰNotation.∫ (Unitᴰ C) (P ×Psh Q) (reindPshᴰNatTrans (α ×PshHom β) (PathPsh R)))
 
-    private
-      module P = PresheafNotation P
-      module Q = PresheafNotation Q
-      module R = PresheafNotation R
-      module PB = PresheafNotation Pullback
-      test : ∀ x → PB.p[ x ] ≡ (Σ[ (p , q) ∈ P.p[ x ] × Q.p[ x ] ] α .N-ob x p ≡ β .N-ob x q)
-      test x = refl
+--     private
+--       module P = PresheafNotation P
+--       module Q = PresheafNotation Q
+--       module R = PresheafNotation R
+--       module PB = PresheafNotation Pullback
+--       test : ∀ x → PB.p[ x ] ≡ (Σ[ (p , q) ∈ P.p[ x ] × Q.p[ x ] ] α .N-ob x p ≡ β .N-ob x q)
+--       test x = refl
 
-    module _ {S : Presheaf C ℓS}
-      (α' : PshHom S Q) (β' : PshHom S P)
-      where
-      private
-        module S = PresheafNotation S
-      isPullbackSq : Type _
-      isPullbackSq =
-        Σ[ comm ∈ (α' ⋆PshHom β) ≡ (β' ⋆PshHom α) ]
-        ∀ Γ (q : Q.p[ Γ ]) → isIso {A = Σ[ s ∈ S.p[ Γ ] ] q ≡ α' .N-ob Γ s}{B = Σ[ p ∈ P.p[ Γ ] ] β .N-ob Γ q ≡ α .N-ob Γ p}
-        λ (s , α's≡q) → (β' .N-ob Γ s) , cong (β .N-ob Γ) α's≡q ∙ funExt₂⁻ (cong N-ob comm) Γ s
+--     module _ {S : Presheaf C ℓS}
+--       (α' : PshHom S Q) (β' : PshHom S P)
+--       where
+--       private
+--         module S = PresheafNotation S
+--       isPullbackSq : Type _
+--       isPullbackSq =
+--         Σ[ comm ∈ (α' ⋆PshHom β) ≡ (β' ⋆PshHom α) ]
+--         ∀ Γ (q : Q.p[ Γ ]) → isIso {A = Σ[ s ∈ S.p[ Γ ] ] q ≡ α' .N-ob Γ s}{B = Σ[ p ∈ P.p[ Γ ] ] β .N-ob Γ q ≡ α .N-ob Γ p}
+--         λ (s , α's≡q) → (β' .N-ob Γ s) , cong (β .N-ob Γ) α's≡q ∙ funExt₂⁻ (cong N-ob comm) Γ s
 
-      module _ ((_ , ispb) : isPullbackSq) {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)where
-        private
-          module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
-        BeckChevalley-ptwise : ∀ Γ Γᴰ (q : Q.p[ Γ ])
-          → Iso (Σ[ s ∈ S.p[ Γ ] ] Pᴰ.p[ β' .N-ob Γ s ][ Γᴰ ] × (q ≡ α' .N-ob Γ s))
-                (Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (β .N-ob Γ q ≡ α .N-ob Γ p))
-        BeckChevalley-ptwise Γ Γᴰ q =
-          compIso (invIso Σ-assoc-Iso) $
-          compIso Σ-assoc-swap-Iso $
-          compIso (Σ-cong-iso-fst (isIsoToIso (ispb Γ q))) $
-          compIso Σ-assoc-swap-Iso $
-          Σ-assoc-Iso
+--       module _ ((_ , ispb) : isPullbackSq) {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)where
+--         private
+--           module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+--         BeckChevalley-ptwise : ∀ Γ Γᴰ (q : Q.p[ Γ ])
+--           → Iso (Σ[ s ∈ S.p[ Γ ] ] Pᴰ.p[ β' .N-ob Γ s ][ Γᴰ ] × (q ≡ α' .N-ob Γ s))
+--                 (Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (β .N-ob Γ q ≡ α .N-ob Γ p))
+--         BeckChevalley-ptwise Γ Γᴰ q =
+--           compIso (invIso Σ-assoc-Iso) $
+--           compIso Σ-assoc-swap-Iso $
+--           compIso (Σ-cong-iso-fst (isIsoToIso (ispb Γ q))) $
+--           compIso Σ-assoc-swap-Iso $
+--           Σ-assoc-Iso
 
-        BeckChevalley : PshIsoⱽ (push α' (reindPshᴰNatTrans β' Pᴰ)) (reindPshᴰNatTrans β (push α Pᴰ))
-        BeckChevalley = Isos→PshIso (λ (Γ , Γᴰ , q) → BeckChevalley-ptwise Γ Γᴰ q)
-          λ (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q') (s , pᴰ , q'≡α's) →
-          ΣPathP ((β' .N-hom Δ Γ γ s) , ΣPathPProp (λ _ → R.isSetPsh _ _)
-          (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)))
+--         BeckChevalley : PshIsoⱽ (push α' (reindPshᴰNatTrans β' Pᴰ)) (reindPshᴰNatTrans β (push α Pᴰ))
+--         BeckChevalley = Isos→PshIso (λ (Γ , Γᴰ , q) → BeckChevalley-ptwise Γ Γᴰ q)
+--           λ (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q') (s , pᴰ , q'≡α's) →
+--           ΣPathP ((β' .N-hom Δ Γ γ s) , ΣPathPProp (λ _ → R.isSetPsh _ _)
+--           (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)))
 
-module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-  where
-  private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
-  open UniversalElementNotation
-  LocallyRepresentable∀ : Presheaf C ℓP → Type _
-  LocallyRepresentable∀ P = Σ[ _×P ∈ LocallyRepresentable P ]
-    (∀ {x}(xᴰ : Cᴰ.ob[ x ])
-    → Representableⱽ Cᴰ ((x ×P) .vertex)
-      (reindPshᴰNatTrans (yoRec (C [-, x ]) ((x ×P) .element .fst)) (Cᴰ [-][-, xᴰ ])))
-    -- aka "π₁ is Quadrable"
-  LR∀Presheaf : (ℓP : Level) → Type _
-  LR∀Presheaf ℓP = Σ (Presheaf C ℓP) LocallyRepresentable∀
+-- module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+--   where
+--   private
+--     module C = Category C
+--     module Cᴰ = Fibers Cᴰ
+--   open UniversalElementNotation
+--   LocallyRepresentable∀ : Presheaf C ℓP → Type _
+--   LocallyRepresentable∀ P = Σ[ _×P ∈ LocallyRepresentable P ]
+--     (∀ {x}(xᴰ : Cᴰ.ob[ x ])
+--     → Representableⱽ Cᴰ ((x ×P) .vertex)
+--       (reindPshᴰNatTrans (yoRec (C [-, x ]) ((x ×P) .element .fst)) (Cᴰ [-][-, xᴰ ])))
+--     -- aka "π₁ is Quadrable"
+--   LR∀Presheaf : (ℓP : Level) → Type _
+--   LR∀Presheaf ℓP = Σ (Presheaf C ℓP) LocallyRepresentable∀
 
-  module _ {P : Presheaf C ℓQ}((Q , _×Q , π₁*) : LR∀Presheaf ℓQ) where
-    private
-      module P = PresheafNotation P
-      module P×Q = PresheafNotation (P ×Psh Q)
-    LR∀-pullback : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
-      → isPullbackSq
-          (yoRec P p)
-          (π₁ P Q)
-          (yoRec (P ×Psh Q) (((Γ ×Q) .element .fst) P.⋆ p , (Γ ×Q) .element .snd))
-          (yoRec (C [-, Γ ]) ((Γ ×Q) .element .fst))
-    LR∀-pullback Γᴰ p .fst = yoInd P _ _ (P.⋆IdL _ ∙ P.⟨ sym $ C.⋆IdL _ ⟩⋆⟨⟩)
-    LR∀-pullback Γᴰ p .snd Δ (p' , q) .fst (γ , p'≡γ⋆p) =
-      intro (_ ×Q) (γ , q)
-      , ΣPathP ( (p'≡γ⋆p ∙ P.⟨ sym (PathPΣ (β (_ ×Q)) .fst) ⟩⋆⟨⟩) ∙ P.⋆Assoc _ _ _
-               , (sym $ PathPΣ (β (_ ×Q)) .snd))
-    LR∀-pullback Γᴰ p .snd Δ (p' , q) .snd .fst (γ , p'≡γ⋆p) = ΣPathPProp (λ - → P.isSetPsh _ _) (PathPΣ (β (_ ×Q)) .fst)
-    LR∀-pullback Γᴰ p .snd Δ (p' , q) .snd .snd (γ , p',q≡γ⋆π₁⋆p,γ⋆π₂) =
-      ΣPathPProp
-        (λ _ → P×Q.isSetPsh _ _)
-        (intro≡ (_ ×Q) (ΣPathP (refl , (PathPΣ p',q≡γ⋆π₁⋆p,γ⋆π₂ .snd))))
+--   module _ {P : Presheaf C ℓQ}((Q , _×Q , π₁*) : LR∀Presheaf ℓQ) where
+--     private
+--       module P = PresheafNotation P
+--       module P×Q = PresheafNotation (P ×Psh Q)
+--     LR∀-pullback : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
+--       → isPullbackSq
+--           (yoRec P p)
+--           (π₁ P Q)
+--           (yoRec (P ×Psh Q) (((Γ ×Q) .element .fst) P.⋆ p , (Γ ×Q) .element .snd))
+--           (yoRec (C [-, Γ ]) ((Γ ×Q) .element .fst))
+--     LR∀-pullback Γᴰ p .fst = yoInd P _ _ (P.⋆IdL _ ∙ P.⟨ sym $ C.⋆IdL _ ⟩⋆⟨⟩)
+--     LR∀-pullback Γᴰ p .snd Δ (p' , q) .fst (γ , p'≡γ⋆p) =
+--       intro (_ ×Q) (γ , q)
+--       , ΣPathP ( (p'≡γ⋆p ∙ P.⟨ sym (PathPΣ (β (_ ×Q)) .fst) ⟩⋆⟨⟩) ∙ P.⋆Assoc _ _ _
+--                , (sym $ PathPΣ (β (_ ×Q)) .snd))
+--     LR∀-pullback Γᴰ p .snd Δ (p' , q) .snd .fst (γ , p'≡γ⋆p) = ΣPathPProp (λ - → P.isSetPsh _ _) (PathPΣ (β (_ ×Q)) .fst)
+--     LR∀-pullback Γᴰ p .snd Δ (p' , q) .snd .snd (γ , p',q≡γ⋆π₁⋆p,γ⋆π₂) =
+--       ΣPathPProp
+--         (λ _ → P×Q.isSetPsh _ _)
+--         (intro≡ (_ ×Q) (ΣPathP (refl , (PathPΣ p',q≡γ⋆π₁⋆p,γ⋆π₂ .snd))))
 
-    LR∀-repr : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
-      → UniversalElement (Cᴰ / (P ×Psh Q)) (wkPshᴰ Q ⟅ (Cᴰ / P) [-, Γ , Γᴰ , p ] ⟆)
-    LR∀-repr {Γ} Γᴰ p = RepresentationPshIso→UniversalElement (wkPshᴰ Q ⟅ (Cᴰ / P) [-, _ , Γᴰ , p ] ⟆)
-      (((Γ ×Q) .vertex , (π₁* Γᴰ .fst , (((Γ ×Q) .element .fst P.⋆ p) , (Γ ×Q) .element .snd)))
-      ,
-      -- Cᴰ / P [-, Γ ×Q , π₁* Γᴰ , π₁⋆p , π₂ ]
-      push-repr
-      -- pushⱽ (π₁⋆p , π₂) Cᴰ [-][-, π₁* Γᴰ ]
-      ⋆PshIso push-PshIsoⱽ (yoRec (P ×Psh Q) (((Γ ×Q) .element .fst) P.⋆ p , (Γ ×Q) .element .snd)) ((π₁* Γᴰ) .snd)
-      -- pushⱽ (π₁⋆p , π₂) $ reindPshᴰNatTrans π₁ $ Cᴰ [-][-, Γᴰ ]
-      ⋆PshIso BeckChevalley (yoRec P p) (π₁ P Q) (yoRec (P ×Psh Q) (((Γ ×Q) .element .fst) P.⋆ p , (Γ ×Q) .element .snd)) (yoRec (C [-, Γ ]) ((Γ ×Q) .element .fst)) (LR∀-pullback Γᴰ p) (Cᴰ [-][-, Γᴰ ])
-      -- reindPshᴰNatTrans π₁ $ pushⱽ p $ Cᴰ [-][-, Γᴰ ]
-      ⋆PshIso reindPshIso (Idᴰ /Fⱽ π₁ P Q) (invPshIso push-repr)
-      -- reindPshᴰNatTrans π₁ $ (Cᴰ / P) [-, Γ , Γᴰ , p ]
-      )
+--     LR∀-repr : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (p : P.p[ Γ ])
+--       → UniversalElement (Cᴰ / (P ×Psh Q)) (wkPshᴰ Q ⟅ (Cᴰ / P) [-, Γ , Γᴰ , p ] ⟆)
+--     LR∀-repr {Γ} Γᴰ p = RepresentationPshIso→UniversalElement (wkPshᴰ Q ⟅ (Cᴰ / P) [-, _ , Γᴰ , p ] ⟆)
+--       (((Γ ×Q) .vertex , (π₁* Γᴰ .fst , (((Γ ×Q) .element .fst P.⋆ p) , (Γ ×Q) .element .snd)))
+--       ,
+--       -- Cᴰ / P [-, Γ ×Q , π₁* Γᴰ , π₁⋆p , π₂ ]
+--       push-repr
+--       -- pushⱽ (π₁⋆p , π₂) Cᴰ [-][-, π₁* Γᴰ ]
+--       ⋆PshIso push-PshIsoⱽ (yoRec (P ×Psh Q) (((Γ ×Q) .element .fst) P.⋆ p , (Γ ×Q) .element .snd)) ((π₁* Γᴰ) .snd)
+--       -- pushⱽ (π₁⋆p , π₂) $ reindPshᴰNatTrans π₁ $ Cᴰ [-][-, Γᴰ ]
+--       ⋆PshIso BeckChevalley (yoRec P p) (π₁ P Q) (yoRec (P ×Psh Q) (((Γ ×Q) .element .fst) P.⋆ p , (Γ ×Q) .element .snd)) (yoRec (C [-, Γ ]) ((Γ ×Q) .element .fst)) (LR∀-pullback Γᴰ p) (Cᴰ [-][-, Γᴰ ])
+--       -- reindPshᴰNatTrans π₁ $ pushⱽ p $ Cᴰ [-][-, Γᴰ ]
+--       ⋆PshIso reindPshIso (Idᴰ /Fⱽ π₁ P Q) (invPshIso push-repr)
+--       -- reindPshᴰNatTrans π₁ $ (Cᴰ / P) [-, Γ , Γᴰ , p ]
+--       )
 
-    private
-      module ∀PshSmall = P⇒Large-cocontinuous-repr {C = Cᴰ / P}{D = Cᴰ / (P ×Psh Q)} (wkPshᴰ Q) (wkPshᴰ-cocont Q) (λ (Γ , Γᴰ , p) → LR∀-repr Γᴰ p
-        ◁PshIso eqToPshIso (F-ob (wkPshᴰ Q ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) _) Eq.refl Eq.refl)
-    wkLR∀ : Functor (Cᴰ / P) (Cᴰ / (P ×Psh Q))
-    wkLR∀ = ∀PshSmall.P-F
+--     private
+--       module ∀PshSmall = P⇒Large-cocontinuous-repr {C = Cᴰ / P}{D = Cᴰ / (P ×Psh Q)} (wkPshᴰ Q) (wkPshᴰ-cocont Q) (λ (Γ , Γᴰ , p) → LR∀-repr Γᴰ p
+--         ◁PshIso eqToPshIso (F-ob (wkPshᴰ Q ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) _) Eq.refl Eq.refl)
+--     wkLR∀ : Functor (Cᴰ / P) (Cᴰ / (P ×Psh Q))
+--     wkLR∀ = ∀PshSmall.P-F
 
-    ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
-    ∀PshSmall = reindPsh wkLR∀
+--     ∀PshSmall : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) → Presheafᴰ P Cᴰ ℓPᴰ
+--     ∀PshSmall = reindPsh wkLR∀
 
-    -- ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
-    --   → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
-    -- ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _
+--     -- ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+--     --   → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
+--     -- ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _

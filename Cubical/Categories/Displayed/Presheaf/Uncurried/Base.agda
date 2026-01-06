@@ -98,6 +98,16 @@ Cᴰ / P = ∫C (Cᴰ ×ᴰ Element P)
 _/'_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
 _/'_ {C = C} Cᴰ P = ∫C (EqReindex.reindex Cᴰ (Fst {C = C}{Cᴰ = Element P}) Eq.refl λ _ _ → Eq.refl)
 
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Presheaf C ℓP} where
+  open Category
+  private
+    module Cᴰ = Fibers Cᴰ
+  Hom/≡ : ∀ {Δ3 Γ3 : (Cᴰ / P).ob}
+    {f g : (Cᴰ / P) [ Δ3 , Γ3 ]}
+    → (p2 : f .snd .fst Cᴰ.∫≡ g .snd .fst)
+    → f ≡ g
+  Hom/≡ p2 = ΣPathP (PathPΣ p2 .fst , ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) (Cᴰ.rectify $ Cᴰ.≡out $ p2))
+
 -- The Beck-Chevalley stuff in the universal quantifier lemmas have to
 -- do some annoying shuffling that wouldn't be necessary if we use
 -- _/'_ for everything...any downside to redefining / to be defined

@@ -112,7 +112,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     ⋆PshIsoⱽ reindPsh× (reindex-π-/ Dᴰ F Γ) (Dᴰ [-][-, Γᴰ ]) (reindPshᴰNatTrans (yoRec (D [-, F-ob F x ]) (F-hom F f)) Pᴰ)
     ⋆PshIsoⱽ
       ×PshIso (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F Γ Γᴰ))
-              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ (reindexRepresentable-seq (π Dᴰ F))))
+              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ
+                (reindexRepresentable-seq (π Dᴰ F))))
 
   LRⱽReindex : ∀ {x} → (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ)
     → LRⱽPresheafᴰ (C [-, x ]) (reindex Dᴰ F) ℓPᴰ
@@ -159,46 +160,25 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       strictPresLRⱽ→NatIso {Cᴰ = reindex Dᴰ F}{Dᴰ = Dᴰ}{P = C [-, x ]}{Q = D [-, F-ob F x ]}
         (reindex-π-/ {C = C}{D = D} Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
         (λ _ → Eq.refl)
-      -- this doesn't run out of memory with the LRPsh→Functor
-      -- definition but does for the "improved" version. I think this
-      -- is a type error with the improved version but it runs out of memory figuring that out...
       (λ (Γ , Γᴰ , f ) →
         ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ)
         , (Pᴰ.rectify $ Pᴰ.≡out $
           sym (Pᴰ.reind-filler _)
-          -- formal reind filler took a long time
-          ∙ Pᴰ.formal-reind-filler
-            (λ i → hcomp
-                                      (doubleComp-faces
-                                       (λ _ → (D ⋆ D .id) ((D ⋆ F .F-hom (C .id)) (F-hom F f)))
-                                       (λ i₁ →
-                                          hcomp
-                                          (doubleComp-faces
-                                           (λ _ → (D ⋆ (D ⋆ D .id) (D .id)) (F .F-hom ((C ⋆ C .id) f)))
-                                           (λ i₂ → ⋆IdL D (F .F-hom ((C ⋆ C .id) f)) i₂) i₁)
-                                          ((D ⋆ ⋆IdL D (D .id) i₁) (F .F-hom ((C ⋆ C .id) f))))
-                                       i)
-                                      (hcomp
-                                       (doubleComp-faces
-                                        (λ _ → (D ⋆ D .id) ((D ⋆ F .F-hom (C .id)) (F-hom F f)))
-                                        (λ i₁ →
-                                           D .⋆Assoc (D .id) (D .id) (F .F-hom ((C ⋆ C .id) f)) (~ i₁))
-                                        i)
-                                       ((D.⟨ refl ⟩⋆⟨ sym (F .F-seq ? ?) ∙ sym (D.⋆IdL ?) ⟩) i)))
-                                         _
+          -- this formal reind filler took a long time without the explicit argument. Why?
+          ∙ Pᴰ.formal-reind-filler (reindexRepresentable-seq (π Dᴰ F) .nIso (Γ , Pᴰ .snd Γᴰ (F-hom F f) .fst , id C) .isIso.inv .snd .snd) _
           ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ
           ∙ Pᴰ.reind-filler _)))
 
--- module _
---   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
---   (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ') (F : Functor C D)
---   where
---   private
---     module Dᴰ = CartesianCategoryⱽ Dᴰ using (Cᴰ; termⱽ; bpⱽ; cartesianLifts)
---   CartesianCategoryⱽReindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
---   CartesianCategoryⱽReindex =
---     cartesiancategoryⱽ
---       (reindex Dᴰ.Cᴰ F)
---       (TerminalsⱽReindex F Dᴰ.termⱽ)
---       (BinProductsⱽReindex F Dᴰ.bpⱽ)
---       (isFibrationReindex Dᴰ.Cᴰ F Dᴰ.cartesianLifts)
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ') (F : Functor C D)
+  where
+  private
+    module Dᴰ = CartesianCategoryⱽ Dᴰ using (Cᴰ; termⱽ; bpⱽ; cartesianLifts)
+  CartesianCategoryⱽReindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
+  CartesianCategoryⱽReindex =
+    cartesiancategoryⱽ
+      (reindex Dᴰ.Cᴰ F)
+      (TerminalsⱽReindex F Dᴰ.termⱽ)
+      (BinProductsⱽReindex F Dᴰ.bpⱽ)
+      (isFibrationReindex Dᴰ.Cᴰ F Dᴰ.cartesianLifts)

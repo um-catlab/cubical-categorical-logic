@@ -67,7 +67,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   (F : Functor C D) where
   private
-    module D = Category D using (isSetHom)
+    module D = Category D
     module Dᴰ = Fibers Dᴰ using (ob[_]; reind; reind-filler; rectify; ≡out; cong-reind; ⋆IdL)
 
   reindexTerminalⱽ : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
@@ -141,32 +141,53 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*xᴰ.cong-introᴰ refl (Dᴰ.cong-reind _ _ (Dᴰ.⋆IdL _)))
     where
       module ×ⱽ*xᴰ = LRⱽPresheafᴰNotation Dᴰ (_ , _×ⱽ_*xᴰ)
---   LRⱽObᴰReindex : ∀ {x} → LRⱽObᴰ Dᴰ (F ⟅ x ⟆) → LRⱽObᴰ (reindex Dᴰ F) x
---   LRⱽObᴰReindex {x} (Fxᴰ , _×ⱽ_*Fxᴰ) = Fxᴰ , isLRⱽObᴰReindex Fxᴰ _×ⱽ_*Fxᴰ
 
---   AllLRⱽReindex : AllLRⱽ Dᴰ → AllLRⱽ (reindex Dᴰ F)
---   AllLRⱽReindex allLRⱽ {x} xᴰ = LRⱽObᴰReindex (xᴰ , allLRⱽ xᴰ) .snd
+  LRⱽObᴰReindex : ∀ {x} → LRⱽObᴰ Dᴰ (F ⟅ x ⟆) → LRⱽObᴰ (reindex Dᴰ F) x
+  LRⱽObᴰReindex {x} (Fxᴰ , _×ⱽ_*Fxᴰ) = Fxᴰ , isLRⱽObᴰReindex Fxᴰ _×ⱽ_*Fxᴰ
 
---   module _ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ) where
---     private
---       module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ using (⟨_⟩⋆π₁ⱽ; ⟨_⟩⋆π₂ⱽ)
---       module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; reind-filler; formal-reind-filler)
---     reindex-×LRⱽPshᴰ-commute
---       : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
---                (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
---     reindex-×LRⱽPshᴰ-commute =
---       strictPresLRⱽ→NatIso (reindex-π-/ Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
---         (λ _ → Eq.refl)
---       -- this doesn't run out of memory with the LRPsh→Functor
---       -- definition but does for the "improved" version. I think this
---       -- is a type error with the improved version but it runs out of memory figuring that out...
---       (λ (Γ , Γᴰ , f ) → ΣPathP ((ΣPathP ((F .F-id) , (ΣPathPProp (λ _ → D.isSetHom _ _)
---         (Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ))))
---       , (Pᴰ.rectify $ Pᴰ.≡out $
---         sym (Pᴰ.reind-filler _)
---         ∙ (Pᴰ.formal-reind-filler _ _
---         ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ)
---         ∙ Pᴰ.reind-filler _)))
+  AllLRⱽReindex : AllLRⱽ Dᴰ → AllLRⱽ (reindex Dᴰ F)
+  AllLRⱽReindex allLRⱽ {x} xᴰ = LRⱽObᴰReindex (xᴰ , allLRⱽ xᴰ) .snd
+
+  module _ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ) where
+    private
+      module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ using (⟨_⟩⋆π₁ⱽ; ⟨_⟩⋆π₂ⱽ)
+      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; reind-filler; formal-reind-filler)
+    reindex-×LRⱽPshᴰ-commute
+      : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
+               (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
+    reindex-×LRⱽPshᴰ-commute =
+      strictPresLRⱽ→NatIso {Cᴰ = reindex Dᴰ F}{Dᴰ = Dᴰ}{P = C [-, x ]}{Q = D [-, F-ob F x ]}
+        (reindex-π-/ {C = C}{D = D} Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
+        (λ _ → Eq.refl)
+      -- this doesn't run out of memory with the LRPsh→Functor
+      -- definition but does for the "improved" version. I think this
+      -- is a type error with the improved version but it runs out of memory figuring that out...
+      (λ (Γ , Γᴰ , f ) →
+        ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ)
+        , (Pᴰ.rectify $ Pᴰ.≡out $
+          sym (Pᴰ.reind-filler _)
+          -- formal reind filler took a long time
+          ∙ Pᴰ.formal-reind-filler
+            (λ i → hcomp
+                                      (doubleComp-faces
+                                       (λ _ → (D ⋆ D .id) ((D ⋆ F .F-hom (C .id)) (F-hom F f)))
+                                       (λ i₁ →
+                                          hcomp
+                                          (doubleComp-faces
+                                           (λ _ → (D ⋆ (D ⋆ D .id) (D .id)) (F .F-hom ((C ⋆ C .id) f)))
+                                           (λ i₂ → ⋆IdL D (F .F-hom ((C ⋆ C .id) f)) i₂) i₁)
+                                          ((D ⋆ ⋆IdL D (D .id) i₁) (F .F-hom ((C ⋆ C .id) f))))
+                                       i)
+                                      (hcomp
+                                       (doubleComp-faces
+                                        (λ _ → (D ⋆ D .id) ((D ⋆ F .F-hom (C .id)) (F-hom F f)))
+                                        (λ i₁ →
+                                           D .⋆Assoc (D .id) (D .id) (F .F-hom ((C ⋆ C .id) f)) (~ i₁))
+                                        i)
+                                       ((D.⟨ refl ⟩⋆⟨ sym (F .F-seq ? ?) ∙ sym (D.⋆IdL ?) ⟩) i)))
+                                         _
+          ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ
+          ∙ Pᴰ.reind-filler _)))
 
 -- module _
 --   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

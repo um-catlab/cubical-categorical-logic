@@ -163,7 +163,7 @@ module _
   precomposeFᴰ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
   precomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
   precomposeFᴰ .F-idᴰ = makeNatTransPathᴰ Cᴰ Eᴰ (precomposeF E F .Functor.F-id) refl
-  precomposeFᴰ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ Cᴰ Eᴰ (precomposeF E F .Functor.F-seq _ _) refl
+  precomposeFᴰ .F-seqᴰ {f = f}{g = g} fᴰ gᴰ = makeNatTransPathᴰ Cᴰ Eᴰ (precomposeF E F .Functor.F-seq f g) refl
 
   postcomposeFᴰ : Functorᴰ (postcomposeF E F) (FUNCTORᴰ Eᴰ Cᴰ) (FUNCTORᴰ Eᴰ Dᴰ)
   postcomposeFᴰ .F-obᴰ Gᴰ = Fᴰ ∘Fᴰ Gᴰ

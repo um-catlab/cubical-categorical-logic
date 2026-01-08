@@ -1,4 +1,5 @@
 {-
+    module _ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ]) where
   This proof is very ugly/manual. There should be a cleaner representability-based proof.
 -}
 
@@ -55,7 +56,6 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Univer
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialVD.Helper
 
 private
   variable
@@ -107,12 +107,69 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     (cartesianLifts : isFibration Cᴰ)
     (×ⱽπ₂*Aᴰ : isLRⱽObᴰ Cᴰ (cartesianLifts Aᴰ (((A⇒B .vertex) ×A) .vertex) (((A⇒B .vertex) ×A) .element .snd) .fst))
     where
+
     private
       module cartesianLifts = FibrationNotation Cᴰ cartesianLifts
       module -×A = BinProductsWithNotation _×A
       module A⇒B = ExponentialNotation _×A A⇒B
       module ×ᴰAᴰ = LRᴰPresheafᴰNotation (_ , _×A) Cᴰ _ (_ , ×ᴰAᴰ)
       module ×ⱽπ₂*Aᴰ = LRⱽPresheafᴰNotation Cᴰ (_ , ×ⱽπ₂*Aᴰ)
+
+    module _ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ]) where
+      ⇒ⱽᴰ-square-to : Cᴰ.Hom[ C.id ][ (-×A.π₁ {Γ} cartesianLifts.* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((-×A.π₁ C.⋆ f) -×A.,p -×A.π₂) * , Γᴰ ×ᴰAᴰ.×ᴰPᴰ ]
+      ⇒ⱽᴰ-square-to =
+        Cᴰ.reind p (×ᴰAᴰ.introᴰ ((×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ) , (×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ)))
+        where
+        p : -×A.×ue.universal -×A.×ue.vertex .equiv-proof
+              (C.id C.⋆ -×A.×ue.element .fst ,
+              (C.id C.⋆
+                -×A.×ue.universal -×A.×ue.vertex .equiv-proof
+                (-×A.×ue.element .fst C.⋆ f , -×A.×ue.element .snd) .fst .fst)
+              C.⋆ -×A.×ue.element .snd)
+              .fst .fst
+              ≡ C.id
+        p = -×A.,p≡ refl (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ -×A.×β₂ ⟩)
+
+      ⇒ⱽᴰ-square-from : Cᴰ.Hom[ C.id ][ Γᴰ ×ᴰAᴰ.×ᴰPᴰ  , (-×A.π₁ {Γ} cartesianLifts.* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((-×A.π₁ C.⋆ f) -×A.,p -×A.π₂) * ]
+      ⇒ⱽᴰ-square-from =
+        ×ⱽπ₂*Aᴰ.introᴰ
+          (cartesianLifts.introᴰ (Cᴰ.reind p ×ᴰAᴰ.π₁ᴰ))
+          (cartesianLifts.introᴰ (Cᴰ.reind q ×ᴰAᴰ.π₂ᴰ))
+        where
+        p :  -×A.×ue.element {b = Γ} .fst ≡ C.id C.⋆ -×A.×ue.element .fst
+        p = sym $ C.⋆IdL (-×A.×ue.element .fst)
+
+        q : -×A.×ue.element .snd ≡
+          (C.id C.⋆
+            -×A.×ue.universal -×A.×ue.vertex .equiv-proof
+            (-×A.×ue.element .fst C.⋆ f , -×A.×ue.element .snd) .fst .fst)
+          C.⋆ -×A.×ue.element .snd
+        q = sym $ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ -×A.×β₂
+
+      opaque
+        ⇒ⱽᴰ-square-sec : (⇒ⱽᴰ-square-from Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to) Cᴰ.∫≡ Cᴰ.idᴰ
+        ⇒ⱽᴰ-square-sec = Cᴰ.⟨⟩⋆⟨ sym (Cᴰ.reind-filler _ _) ⟩ ∙ ×ᴰAᴰ.×-extensionalityᴰ
+          (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ} ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ (cartesianLifts.introᴰ _) ⟩⋆⟨⟩ ∙ cartesianLifts.βᴰ' _ ∙ sym (Cᴰ.reind-filler _ _) ∙ sym (Cᴰ.⋆IdL _))
+          -- something slow here...
+          (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ} ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
+          ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ (cartesianLifts.introᴰ _) _ ⟩⋆⟨⟩ ∙ (cartesianLifts.βᴰ' _ ∙ sym (Cᴰ.reind-filler _ _) ∙ (sym $ Cᴰ.⋆IdL _) ∙ Cᴰ.reind-filler _ _))
+
+        ⇒ⱽᴰ-square-ret : (⇒ⱽᴰ-square-to Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-from) Cᴰ.∫≡ Cᴰ.idᴰ
+        ⇒ⱽᴰ-square-ret = Cᴰ.⟨ sym (Cᴰ.reind-filler _ _) ⟩⋆⟨⟩ ∙ ×ⱽπ₂*Aᴰ.extensionalityᴰ
+          (×ⱽπ₂*Aᴰ.⋆π₁ⱽ-natural _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ' _ (cartesianLifts.introᴰ _) ⟩
+            ∙ cartesianLifts.extensionalityᴰ (C.⋆IdR _ ∙ -×A.×ue.intro≡ (ΣPathP (refl , (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ -×A.×β₂ ⟩))))
+                (cartesianLifts.⋆πⱽ-natural ∙ Cᴰ.⟨⟩⋆⟨ cartesianLifts.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ } ))
+          (×ⱽπ₂*Aᴰ.⋆π₂ⱽ-natural _ _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨⟩⋆⟨ ×ⱽπ₂*Aᴰ.β₂ⱽ' _ _ ⟩
+            ∙ cartesianLifts.extensionalityᴰ
+              ((sym $ (C.⋆IdL _ ∙ -×A.×ue.intro≡ (ΣPathP
+                (sym (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ -×A.×β₁ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ -×A.×β₁ ∙ C.⋆IdL _ ⟩⋆⟨ refl ⟩)
+                , (sym $ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ -×A.×β₂ ⟩ ∙ -×A.×β₂ ∙ C.⋆Assoc _ _ _ ∙ C.⋆IdL _ ∙ -×A.×β₂))))))
+              (cartesianLifts.⋆πⱽ-natural ∙ Cᴰ.⟨⟩⋆⟨ cartesianLifts.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩ ∙ Cᴰ.reind-filler _ _ ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ}))
+
+
+      ⇒ⱽᴰ-square-isoᴰ : CatIsoᴰ Cᴰ idCatIso ((-×A.π₁ {Γ} cartesianLifts.* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((-×A.π₁ C.⋆ f) -×A.,p -×A.π₂) *) (Γᴰ ×ᴰAᴰ.×ᴰPᴰ)
+      ⇒ⱽᴰ-square-isoᴰ = ⇒ⱽᴰ-square-to , isisoᴰ ⇒ⱽᴰ-square-from (Cᴰ.rectify $ Cᴰ.≡out $ ⇒ⱽᴰ-square-sec) (Cᴰ.rectify $ Cᴰ.≡out $ ⇒ⱽᴰ-square-ret)
+
     LHS-F RHS-F : Functor (Cᴰ / (C [-, A⇒B .vertex ])) (Cᴰ / (C [-, B ]))
     LHS-F = ((Idᴰ /Fⱽ yoRec (C [-, B ]) A⇒B.app) ∘F ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ Cᴰ (_ , ×ⱽπ₂*Aᴰ)) ∘F wkA Cᴰ A _×A (λ Γ Γᴰ → cartesianLifts Γᴰ _ _) A⇒B.⇒ue.vertex)
     RHS-F = (×ᴰPᴰ (_ , _×A) (_ , ×ᴰAᴰ) ∘F (Idᴰ /Fⱽ yoRec (reindPsh (LRPsh→Functor (_ , _×A)) (C [-, B ])) A⇒B.app))
@@ -122,9 +179,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         → ((γ , γᴰ , γg≡f) : ((Cᴰ / (C [-, A⇒B .vertex ]))) [ (Δ , Δᴰ , f) , (Γ , Γᴰ , g) ])
         → ((Fstⱽ Cᴰ (Element (C [-, B ]))
              ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd LHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _
-           Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to Aᴰ ×ᴰAᴰ A⇒B cartesianLifts ×ⱽπ₂*Aᴰ Γ Γᴰ g)
+           Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to Γ Γᴰ g)
           Cᴰ.∫≡
-          (⇒ⱽᴰ-square-isoᴰ Aᴰ ×ᴰAᴰ A⇒B cartesianLifts ×ⱽπ₂*Aᴰ Δ Δᴰ f .fst Cᴰ.⋆ᴰ
+          (⇒ⱽᴰ-square-isoᴰ Δ Δᴰ f .fst Cᴰ.⋆ᴰ
             (Fstⱽ Cᴰ (Element (C [-, B ]))
               ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd RHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _)
       ⇒ⱽᴰ-square-nat (Δ , Δᴰ , f) (Γ , Γᴰ , g) (γ , γᴰ , γg≡f) =
@@ -169,7 +226,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ⇒ⱽᴰ-square = /NatIso
       (record { trans = natTrans (λ x → C.id) λ f → C.⋆IdR _ ; nIso = λ _ → idCatIso .snd })
       (isosToNatIsoᴰ _ _ _
-        (λ {(Γ , Γᴰ , f)} _ → ⇒ⱽᴰ-square-isoᴰ Aᴰ ×ᴰAᴰ A⇒B cartesianLifts ×ⱽπ₂*Aᴰ Γ Γᴰ f)
+        (λ {(Γ , Γᴰ , f)} _ → ⇒ⱽᴰ-square-isoᴰ Γ Γᴰ f)
         λ {(Δ , Δᴰ , f) (Γ , Γᴰ , g) _ _ (γ , γᴰ , γg≡f)}  _ → ⇒ⱽᴰ-square-nat (Δ , Δᴰ , f) (Γ , Γᴰ , g) (γ , γᴰ , γg≡f)
             )
       λ (Γ , Γᴰ , f) → C.⋆IdL _

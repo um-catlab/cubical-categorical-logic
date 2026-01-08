@@ -134,7 +134,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     ((λ (Δ , Δᴰ , γ) γᴰ → (γᴰ ×ⱽ*xᴰ.⋆π₁ⱽ) -- making this explicit is negligible
       , Dᴰ.reind (sym $ F .F-seq γ f) (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
     funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out -- removing the second `ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out` is a big speedup
-                      
+
       $ Dᴰ.cong-reind _ _ -- making the first two args to cong-reind implicit is a noticable but smaller speedup
                       (Dᴰ.⋆IdL _))))
     ((λ (Δ , Δᴰ , γ) (γᴰ , γfᴰ) →

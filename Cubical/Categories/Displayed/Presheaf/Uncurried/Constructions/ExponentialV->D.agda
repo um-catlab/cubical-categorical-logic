@@ -7,9 +7,15 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Path
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
+open import Cubical.Data.Unit
 open import Cubical.Categories.Category.Base
+import Cubical.Categories.Bifunctor as Bif
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
@@ -20,6 +26,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Profunctor.General
+open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Constructions.Reindex
@@ -113,24 +120,47 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     opaque
       ⇒ⱽᴰ-square-nat : ((Δ , Δᴰ , f) (Γ , Γᴰ , g) : ((Cᴰ / (C [-, A⇒B .vertex ]))) .ob)
         → ((γ , γᴰ , γg≡f) : ((Cᴰ / (C [-, A⇒B .vertex ]))) [ (Δ , Δᴰ , f) , (Γ , Γᴰ , g) ])
-        → ((Fstⱽ Cᴰ (Element (C [-, B ])) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd LHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _ Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to Aᴰ ×ᴰAᴰ A⇒B cartesianLifts ×ⱽπ₂*Aᴰ Γ Γᴰ g)
-          Cᴰ.∫≡ (⇒ⱽᴰ-square-isoᴰ Aᴰ ×ᴰAᴰ A⇒B cartesianLifts ×ⱽπ₂*Aᴰ Δ Δᴰ f .fst Cᴰ.⋆ᴰ (Fstⱽ Cᴰ (Element (C [-, B ])) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd RHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _)
+        → ((Fstⱽ Cᴰ (Element (C [-, B ]))
+             ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd LHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _
+           Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to Aᴰ ×ᴰAᴰ A⇒B cartesianLifts ×ⱽπ₂*Aᴰ Γ Γᴰ g)
+          Cᴰ.∫≡
+          (⇒ⱽᴰ-square-isoᴰ Aᴰ ×ᴰAᴰ A⇒B cartesianLifts ×ⱽπ₂*Aᴰ Δ Δᴰ f .fst Cᴰ.⋆ᴰ
+            (Fstⱽ Cᴰ (Element (C [-, B ]))
+              ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd RHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _)
       ⇒ⱽᴰ-square-nat (Δ , Δᴰ , f) (Γ , Γᴰ , g) (γ , γᴰ , γg≡f) =
         Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _ _ ⟩
-              ∙ ×ᴰAᴰ.×-extensionalityᴰ
-                (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ} ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
-                ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ (Cᴰ.reind _ _) ∙ sym (Cᴰ.reind-filler _ _) ∙ sym (Cᴰ.reind-filler _ _) ⟩⋆⟨⟩
-                ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ cartesianLifts.βᴰ' _ ∙ sym (Cᴰ.reind-filler _ _) ⟩
-                ∙ ((sym $ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ᴰAᴰ.π₂ᴰ} ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×ᴰAᴰ.×β₁ᴰ {pᴰ = (×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ) } ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _)))
-                (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ} ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
-                ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ (Cᴰ.reind _ (Cᴰ.reind _ _)) _ ∙ sym (Cᴰ.reind-filler _ _) ∙ sym (Cᴰ.reind-filler _ _) ∙ sym (Cᴰ.reind-filler _ _) ∙ sym (Cᴰ.reind-filler _ _) ⟩⋆⟨⟩
-                ∙ ((sym $
-                  sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ᴰAᴰ.π₁ᴰ Cᴰ.⋆ᴰ γᴰ} ⟩
-                    ∙ Cᴰ.reind-filler _ _ ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = _ cartesianLifts.⋆πⱽ}
-                    ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _))
-                )
+        ∙ ×ᴰAᴰ.×-extensionalityᴰ
+            (Cᴰ.⋆Assoc _ _ _
+              ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ} ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ ×ⱽπ₂*Aᴰ.π₁ⱽ ⟩
+              ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+              ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ _ ⟩⋆⟨⟩
+              ∙ Cᴰ.⋆Assoc _ _ _
+              ∙ Cᴰ.⟨⟩⋆⟨ cartesianLifts.βᴰ' _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+              ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+              ∙ Cᴰ.⟨ (sym $ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _) ∙ (sym $ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ}) ⟩⋆⟨⟩
+              ∙ Cᴰ.⟨ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩ ⟩⋆⟨⟩
+              ∙ Cᴰ.⋆Assoc _ _ _
+              ∙ Cᴰ.⟨⟩⋆⟨ sym $ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ᴰAᴰ.π₂ᴰ} ⟩
+              ∙ (sym $ Cᴰ.⋆Assoc _ _ _))
+            ((sym $ Cᴰ.reind-filler _ _)
+              ∙ Cᴰ.⋆Assoc _ _ _
+              ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _
+                         ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ} ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ ×ⱽπ₂*Aᴰ.π₂ⱽ ⟩
+              ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+              ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _
+                     ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ _ _
+                     ∙ (sym $ Cᴰ.reind-filler _ _)
+                     ∙ (sym $ Cᴰ.reind-filler _ _)
+                     ⟩⋆⟨⟩
+              ∙ (sym $ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _)
+              ∙ (sym $ ×ᴰAᴰ.×β₂ᴰ)
+              ∙ (sym $ Cᴰ.reind-filler _ _)
               ∙ Cᴰ.⟨ Cᴰ.reind-filler _ _ ⟩⋆⟨⟩
-
+              ∙ Cᴰ.⟨⟩⋆⟨ (sym $ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ᴰAᴰ.π₁ᴰ Cᴰ.⋆ᴰ γᴰ})
+                         ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+              ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+              ∙ Cᴰ.reind-filler _ _
+            )
 
     ⇒ⱽᴰ-square :
       NatIso {C = Cᴰ / (C [-, A⇒B .vertex ])}

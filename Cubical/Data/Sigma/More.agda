@@ -34,18 +34,19 @@ module _ {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''} where
     compIso Σ-assoc-swap-Iso $
     Σ-assoc-Iso
 
-FrobeniusReciprocity :
-  ∀ (f : A → A') y
-  → Iso (Σ[ (x , _) ∈ fiber f y ] (B x) × B' (f x))
-        ((Σ[ (x , _) ∈ fiber f y ] B x) × B' y)
-FrobeniusReciprocity {B' = B'} f y .fun ((x , fx≡y) , p , q) =
-  ((x , fx≡y) , p) , subst B' fx≡y q
-FrobeniusReciprocity {B' = B'} f y .inv (((x , fx≡y) , p) , q) =
-  (x , fx≡y) , (p , subst B' (sym $ fx≡y) q)
-FrobeniusReciprocity {B' = B'} f y .sec (((x , fx≡y) , p) , q) =
-  ΣPathP (refl , (substSubst⁻ B' fx≡y q))
-FrobeniusReciprocity {B' = B'} f y .ret ((x , fx≡y) , p , q) =
-  ΣPathP (refl , (ΣPathP (refl , (substSubst⁻ B' (sym $ fx≡y) q))))
+opaque
+  FrobeniusReciprocity :
+    ∀ (f : A → A') y
+    → Iso (Σ[ (x , _) ∈ fiber f y ] (B x) × B' (f x))
+          ((Σ[ (x , _) ∈ fiber f y ] B x) × B' y)
+  FrobeniusReciprocity {B' = B'} f y .fun ((x , fx≡y) , p , q) =
+    ((x , fx≡y) , p) , subst B' fx≡y q
+  FrobeniusReciprocity {B' = B'} f y .inv (((x , fx≡y) , p) , q) =
+    (x , fx≡y) , (p , subst B' (sym $ fx≡y) q)
+  FrobeniusReciprocity {B' = B'} f y .sec (((x , fx≡y) , p) , q) =
+    ΣPathP (refl , (substSubst⁻ B' fx≡y q))
+  FrobeniusReciprocity {B' = B'} f y .ret ((x , fx≡y) , p , q) =
+    ΣPathP (refl , (ΣPathP (refl , (substSubst⁻ B' (sym $ fx≡y) q))))
 
 record Σω (A : Typeω) (B : A → Typeω) : Typeω where
   constructor _,_
@@ -72,4 +73,3 @@ mapω f a = liftω (f (a .lowerω))
 
 mapω' : {A : Type ℓ}{β : A → Level} (f : (a : A) → Type (β a)) (a : Liftω A) → Typeω
 mapω' f a = Liftω (f (a .lowerω))
-

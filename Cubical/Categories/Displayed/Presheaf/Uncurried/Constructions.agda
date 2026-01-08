@@ -266,19 +266,30 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     FrobeniusReciprocity-ptwise : ∀ ((Γ , Γᴰ , q) : (Cᴰ / Q) .ob) →
       Iso (Σ[ p ∈ P.p[ Γ ] ] (Pᴰ.p[ p ][ Γᴰ ] × Qᴰ.p[ α .N-ob Γ p ][ Γᴰ ]) × (q ≡ α .N-ob Γ p))
           ((Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (q ≡ α .N-ob Γ p)) × Qᴰ.p[ q ][ Γᴰ ])
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) =
-      compIso (compIso (Σ-cong-iso-snd (λ p → compIso Σ-swap-Iso (Σ-cong-iso-fst symIso))) $ invIso Σ-assoc-Iso) $
-      compIso (Type.FrobeniusReciprocity (α .N-ob Γ) q) $
-      Σ-cong-iso-fst (compIso Σ-assoc-Iso $ Σ-cong-iso-snd (λ p → compIso (Σ-cong-iso-fst symIso) Σ-swap-Iso) )
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .fun (p , (pᴰ , qᴰ) , q≡αΓp) = (p , pᴰ , q≡αΓp) , Qᴰ.reind (sym q≡αΓp) qᴰ
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .inv ((p , pᴰ , q≡αΓp), qᴰ) = p , ((pᴰ , (Qᴰ.reind q≡αΓp qᴰ)) , q≡αΓp)
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .sec ((p , pᴰ , q≡αΓp), qᴰ) = ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .ret (p , (pᴰ , qᴰ) , q≡αΓp) = ΣPathP (refl , ΣPathP ((ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))) , refl))
 
     FrobeniusReciprocity : PshIsoⱽ (push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)) (push α Pᴰ ×Psh Qᴰ)
-    FrobeniusReciprocity = Isos→PshIso FrobeniusReciprocity-ptwise
-      λ (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q') (p , (pᴰ , qᴰ) , q≡αp) →
-        ΣPathP ((ΣPathP (refl , refl)) , (Qᴰ.rectify $ Qᴰ.≡out $
-          sym (Qᴰ.reind-filler _)
-          ∙ Qᴰ.⋆ᴰ-reind _ _ _
-          ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩
-          ∙ sym (Qᴰ.⋆ᴰ-reind _ _ _)))
+    FrobeniusReciprocity = Isos→PshIso FrobeniusReciprocity-ptwise opq
+        where
+        opaque
+          opq : ∀ Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp →
+            (fun (FrobeniusReciprocity-ptwise Δ,Δᴰ,q)
+            ((push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ) PresheafNotation.⋆
+              γ,γᴰ,γ⋆q≡q')
+            p,⟨pᴰ,qᴰ⟩,q≡αp)
+            ≡
+            ((push α Pᴰ ×Psh Qᴰ) PresheafNotation.⋆ γ,γᴰ,γ⋆q≡q')
+            (fun (FrobeniusReciprocity-ptwise Γ,Γᴰ,q') p,⟨pᴰ,qᴰ⟩,q≡αp))
+
+          opq Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp =
+            ΣPathP ((ΣPathP (refl , refl)) , (Qᴰ.rectify $ Qᴰ.≡out $
+              sym (Qᴰ.reind-filler _)
+              ∙ Qᴰ.⋆ᴰ-reind _ _ _
+              ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩
+              ∙ sym (Qᴰ.⋆ᴰ-reind _ _ _)))
 
   module _
     {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

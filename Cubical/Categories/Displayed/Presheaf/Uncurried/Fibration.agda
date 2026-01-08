@@ -64,8 +64,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     introᴰ = f*yᴰ .snd .nIso (_ , _ , _) .fst
 
     _⋆πⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
-      → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
-      → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]
+        → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
+        → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]
     gᴰ ⋆πⱽ = f*yᴰ .snd .trans .N-ob (_ , _ , _) gᴰ
 
     πⱽ : Cᴰ [ C.id C.⋆ f ][ f*yᴰ .fst , yᴰ ]

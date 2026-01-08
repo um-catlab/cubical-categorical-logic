@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Instances.Functors.More where
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
@@ -72,8 +72,8 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     curryF .F-hom η .N-ob γ .N-hom ϕ = η .N-hom (Γ .id , ϕ)
     curryF .F-hom η .N-hom f =
       makeNatTransPath (funExt (λ (c : C .ob) → η .N-hom (f , C .id)))
-    curryF .F-id = makeNatTransPath (funExt λ (γ : Γ .ob) → refl)
-    curryF .F-seq η η' = makeNatTransPath (funExt λ (γ : Γ .ob) → refl)
+    curryF .F-id = makeNatTransPath (funExt λ (γ : Γ .ob) → makeNatTransPath refl)
+    curryF .F-seq η η' = makeNatTransPath (funExt λ (γ : Γ .ob) → makeNatTransPath refl)
 
     -- Preimage for the ESO proof
     -- i.e. an object in (FUNCTOR Γ (FUNCTOR C D)) that maps to λF
@@ -232,57 +232,57 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     open WeakInverse
     open NatIso
 
-    -- curryF is an equivalence. Done using η ε isos constructed explicitly.
-    -- most of the time, these are the identity
-    curryF-isEquivalence : WeakInverse curryF
-    curryF-isEquivalence =
-      record { invFunc = uncurryF ; η = η-iso ; ε = ε-iso } where
-      -- separate definition to sidestep Agda termination issue
-      η-trans : NatTrans 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩ (uncurryF ∘F curryF)
-      η-trans .N-ob F .N-ob (γ , c) = D .id
-      η-trans .N-ob F .N-hom {(γ₁ , c₁)} {(γ₂ , c₂)} (ϕ₁ , ϕ₂) =
-        (F .F-hom (ϕ₁ , ϕ₂)) ⋆⟨ D ⟩ D .id
-          ≡⟨ (λ i →
-            (F .F-hom ((Γ .⋆IdR ϕ₁) (~ i) , (C .⋆IdL ϕ₂) (~ i)) ⋆⟨ D ⟩ D .id)) ⟩
-        (F .F-hom ((ϕ₁ , C .id) ⋆⟨ Γ ×C C ⟩ (Γ .id , ϕ₂))) ⋆⟨ D ⟩ D .id
-          ≡⟨ (λ i → (F .F-seq (ϕ₁ , C .id) (Γ .id , ϕ₂)) (i) ⋆⟨ D ⟩ D .id) ⟩
-        (F .F-hom (ϕ₁ , C .id) ⋆⟨ D ⟩ F .F-hom (Γ .id , ϕ₂)) ⋆⟨ D ⟩ D .id
-          ≡⟨ solveCat! D ⟩
-        D .id ⋆⟨ D ⟩ ((uncurryF ∘F curryF) .F-ob F) .F-hom (ϕ₁ , ϕ₂)  ∎
-      η-trans .N-hom {F} {G} β =
-        makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
+    -- -- curryF is an equivalence. Done using η ε isos constructed explicitly.
+    -- -- most of the time, these are the identity
+    -- curryF-isEquivalence : WeakInverse curryF
+    -- curryF-isEquivalence =
+    --   record { invFunc = uncurryF ; η = η-iso ; ε = ε-iso } where
+    --   -- separate definition to sidestep Agda termination issue
+    --   η-trans : NatTrans 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩ (uncurryF ∘F curryF)
+    --   η-trans .N-ob F .N-ob (γ , c) = D .id
+    --   η-trans .N-ob F .N-hom {(γ₁ , c₁)} {(γ₂ , c₂)} (ϕ₁ , ϕ₂) =
+    --     (F .F-hom (ϕ₁ , ϕ₂)) ⋆⟨ D ⟩ D .id
+    --       ≡⟨ (λ i →
+    --         (F .F-hom ((Γ .⋆IdR ϕ₁) (~ i) , (C .⋆IdL ϕ₂) (~ i)) ⋆⟨ D ⟩ D .id)) ⟩
+    --     (F .F-hom ((ϕ₁ , C .id) ⋆⟨ Γ ×C C ⟩ (Γ .id , ϕ₂))) ⋆⟨ D ⟩ D .id
+    --       ≡⟨ (λ i → (F .F-seq (ϕ₁ , C .id) (Γ .id , ϕ₂)) (i) ⋆⟨ D ⟩ D .id) ⟩
+    --     (F .F-hom (ϕ₁ , C .id) ⋆⟨ D ⟩ F .F-hom (Γ .id , ϕ₂)) ⋆⟨ D ⟩ D .id
+    --       ≡⟨ solveCat! D ⟩
+    --     D .id ⋆⟨ D ⟩ ((uncurryF ∘F curryF) .F-ob F) .F-hom (ϕ₁ , ϕ₂)  ∎
+    --   η-trans .N-hom {F} {G} β =
+    --     makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
 
-      η-iso : NatIso 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩ (uncurryF ∘F curryF)
-      η-iso .trans = η-trans
+    --   η-iso : NatIso 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩ (uncurryF ∘F curryF)
+    --   η-iso .trans = η-trans
 
-      η-iso .nIso F .inv .N-ob (γ , c) = D .id
-      η-iso .nIso F .inv .N-hom {(γ₁ , c₁)} {(γ₂ , c₂)} (ϕ₁ , ϕ₂) =
-        ((uncurryF ∘F curryF) .F-ob F) .F-hom (ϕ₁ , ϕ₂) ⋆⟨ D ⟩ D .id
-          ≡⟨ solveCat! D ⟩
-        D .id ⋆⟨ D ⟩ ((uncurryF ∘F curryF) .F-ob F) .F-hom (ϕ₁ , ϕ₂)
-          ≡⟨ sym (η-iso .trans .N-ob F .N-hom (ϕ₁ , ϕ₂)) ⟩
-        (F .F-hom (ϕ₁ , ϕ₂)) ⋆⟨ D ⟩ D .id
-          ≡⟨ solveCat! D ⟩
-        D .id ⋆⟨ D ⟩ (F .F-hom (ϕ₁ , ϕ₂))  ∎
-      η-iso .nIso F .sec = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
-      η-iso .nIso F .ret = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
+    --   η-iso .nIso F .inv .N-ob (γ , c) = D .id
+    --   η-iso .nIso F .inv .N-hom {(γ₁ , c₁)} {(γ₂ , c₂)} (ϕ₁ , ϕ₂) =
+    --     ((uncurryF ∘F curryF) .F-ob F) .F-hom (ϕ₁ , ϕ₂) ⋆⟨ D ⟩ D .id
+    --       ≡⟨ solveCat! D ⟩
+    --     D .id ⋆⟨ D ⟩ ((uncurryF ∘F curryF) .F-ob F) .F-hom (ϕ₁ , ϕ₂)
+    --       ≡⟨ sym (η-iso .trans .N-ob F .N-hom (ϕ₁ , ϕ₂)) ⟩
+    --     (F .F-hom (ϕ₁ , ϕ₂)) ⋆⟨ D ⟩ D .id
+    --       ≡⟨ solveCat! D ⟩
+    --     D .id ⋆⟨ D ⟩ (F .F-hom (ϕ₁ , ϕ₂))  ∎
+    --   η-iso .nIso F .sec = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
+    --   η-iso .nIso F .ret = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
 
-      ε-iso : NatIso (curryF ∘F uncurryF) 𝟙⟨ FUNCTOR Γ (FUNCTOR C D) ⟩
-      ε-iso .trans .N-ob λF = curryF-ESO-morphism-preimage λF
-      ε-iso .trans .N-hom {λF} {λG} λβ = makeNatTransPath (funExt (λ γ →
-        makeNatTransPath (funExt (λ c →
-          -- TODO: For some reason this doesn't simplify to just solvecat...
-          (λβ .N-ob γ .N-ob c) ⋆⟨ D ⟩ D .id
-            ≡⟨ solveCat! D ⟩
-          D .id ⋆⟨ D ⟩ λβ .N-ob γ .N-ob c ∎ ))))
-      ε-iso .nIso = (λ λF → curryF-ESO-morphism-preimage-isIso λF)
+    --   ε-iso : NatIso (curryF ∘F uncurryF) 𝟙⟨ FUNCTOR Γ (FUNCTOR C D) ⟩
+    --   ε-iso .trans .N-ob λF = curryF-ESO-morphism-preimage λF
+    --   ε-iso .trans .N-hom {λF} {λG} λβ = makeNatTransPath (funExt (λ γ →
+    --     makeNatTransPath (funExt (λ c →
+    --       -- TODO: For some reason this doesn't simplify to just solvecat...
+    --       (λβ .N-ob γ .N-ob c) ⋆⟨ D ⟩ D .id
+    --         ≡⟨ solveCat! D ⟩
+    --       D .id ⋆⟨ D ⟩ λβ .N-ob γ .N-ob c ∎ ))))
+    --   ε-iso .nIso = (λ λF → curryF-ESO-morphism-preimage-isIso λF)
 
 
     open Cubical.Categories.Equivalence.Base._≃ᶜ_
 
-    curryEquivalence : FUNCTOR (Γ ×C C) D ≃ᶜ FUNCTOR Γ (FUNCTOR C D)
-    curryEquivalence .func = curryF
-    curryEquivalence ._≃ᶜ_.isEquiv = ∣ curryF-isEquivalence ∣₁
+    -- curryEquivalence : FUNCTOR (Γ ×C C) D ≃ᶜ FUNCTOR Γ (FUNCTOR C D)
+    -- curryEquivalence .func = curryF
+    -- curryEquivalence ._≃ᶜ_.isEquiv = ∣ curryF-isEquivalence ∣₁
 
     -- We also want a notion of currying out the left argument.
     -- We do this by composing
@@ -311,41 +311,41 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     swapArgs-inv .F-id = makeNatTransPath (funExt λ (γ , c) → refl)
     swapArgs-inv .F-seq η η' = makeNatTransPath (funExt λ (γ , c) → refl)
 
-    swapArgs-isEquivalence : WeakInverse swapArgs
-    swapArgs-isEquivalence =
-      record { invFunc = swapArgs-inv ; η = the-η ; ε = the-ε } where
-      η-morphisms : N-ob-Type 𝟙⟨ FUNCTOR (C ×C Γ) D ⟩
-                              (funcComp swapArgs-inv swapArgs)
-      η-morphisms F .N-ob γ = D .id
-      η-morphisms F .N-hom ϕ = solveCat! D
+    -- swapArgs-isEquivalence : WeakInverse swapArgs
+    -- swapArgs-isEquivalence =
+    --   record { invFunc = swapArgs-inv ; η = the-η ; ε = the-ε } where
+    --   η-morphisms : N-ob-Type 𝟙⟨ FUNCTOR (C ×C Γ) D ⟩
+    --                           (funcComp swapArgs-inv swapArgs)
+    --   η-morphisms F .N-ob γ = D .id
+    --   η-morphisms F .N-hom ϕ = solveCat! D
 
-      the-η : NatIso 𝟙⟨ FUNCTOR (C ×C Γ) D ⟩ (funcComp swapArgs-inv swapArgs)
-      the-η .trans .N-ob = η-morphisms
-      the-η .trans .N-hom α =
-        makeNatTransPath (funExt (λ (c , γ) → solveCat! D))
-      the-η .nIso F .inv .N-ob (c , γ) = D .id
-      the-η .nIso F .inv .N-hom (ψ , ϕ) = solveCat! D
-      the-η .nIso F .sec = makeNatTransPath (funExt (λ (c , γ) → solveCat! D))
-      the-η .nIso F .ret = makeNatTransPath (funExt (λ (c , γ) → solveCat! D))
+    --   the-η : NatIso 𝟙⟨ FUNCTOR (C ×C Γ) D ⟩ (funcComp swapArgs-inv swapArgs)
+    --   the-η .trans .N-ob = η-morphisms
+    --   the-η .trans .N-hom α =
+    --     makeNatTransPath (funExt (λ (c , γ) → solveCat! D))
+    --   the-η .nIso F .inv .N-ob (c , γ) = D .id
+    --   the-η .nIso F .inv .N-hom (ψ , ϕ) = solveCat! D
+    --   the-η .nIso F .sec = makeNatTransPath (funExt (λ (c , γ) → solveCat! D))
+    --   the-η .nIso F .ret = makeNatTransPath (funExt (λ (c , γ) → solveCat! D))
 
-      ε-morphisms : N-ob-Type (funcComp swapArgs swapArgs-inv)
-                              𝟙⟨ FUNCTOR (Γ ×C C) D ⟩
-      ε-morphisms F .N-ob c = D .id
-      ε-morphisms F .N-hom ψ = solveCat! D
+    --   ε-morphisms : N-ob-Type (funcComp swapArgs swapArgs-inv)
+    --                           𝟙⟨ FUNCTOR (Γ ×C C) D ⟩
+    --   ε-morphisms F .N-ob c = D .id
+    --   ε-morphisms F .N-hom ψ = solveCat! D
 
-      the-ε : NatIso (funcComp swapArgs swapArgs-inv) 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩
-      the-ε .trans .N-ob = ε-morphisms
-      the-ε .trans .N-hom α =
-        makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
-      the-ε .nIso F .inv .N-ob (γ , c) = D .id
-      the-ε .nIso F .inv .N-hom (φ , ψ) = solveCat! D
-      the-ε .nIso F .sec = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
-      the-ε .nIso F .ret = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
+    --   the-ε : NatIso (funcComp swapArgs swapArgs-inv) 𝟙⟨ FUNCTOR (Γ ×C C) D ⟩
+    --   the-ε .trans .N-ob = ε-morphisms
+    --   the-ε .trans .N-hom α =
+    --     makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
+    --   the-ε .nIso F .inv .N-ob (γ , c) = D .id
+    --   the-ε .nIso F .inv .N-hom (φ , ψ) = solveCat! D
+    --   the-ε .nIso F .sec = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
+    --   the-ε .nIso F .ret = makeNatTransPath (funExt (λ (γ , c) → solveCat! D))
 
     curryFl : Functor (FUNCTOR (C ×C Γ) D) (FUNCTOR Γ (FUNCTOR C D))
     curryFl = curryF ∘F swapArgs
 
 
-    curryFl-isEquivalence : WeakInverse curryFl
-    curryFl-isEquivalence =
-      isEquivalenceComp swapArgs-isEquivalence curryF-isEquivalence
+    -- curryFl-isEquivalence : WeakInverse curryFl
+    -- curryFl-isEquivalence =
+    --   isEquivalenceComp swapArgs-isEquivalence curryF-isEquivalence

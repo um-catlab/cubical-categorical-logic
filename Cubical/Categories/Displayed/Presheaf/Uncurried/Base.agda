@@ -62,7 +62,6 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
-open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
@@ -157,7 +156,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
   -- TODO: generalize to ×ᴰ
   module _ {F G : Functor D (Cᴰ / P)}
     (α : NatTrans (Fst ∘F F) (Fst ∘F G))
-    (αᴰ : NatTransᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
+    (αᴰ : NatTransᴰ α
+      (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F))
+      (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
     (αP : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd)
     where
     αP' : ∀ x → α .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd
@@ -173,22 +174,24 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
     (αᴰ : NatIsoᴰ α (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd F)) (Fstⱽ Cᴰ (Element P) ∘Fⱽᴰ (Unitᴰ.recᴰ (compSectionFunctor Snd G))))
     (αP : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd)
     where
-    αP'' : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd
-    αP'' = αP
+    -- αP'' : ∀ x → α .trans .N-ob x P.⋆ (G ⟅ x ⟆) .snd .snd ≡ (F ⟅ x ⟆) .snd .snd
+    -- αP'' = αP
 
-    /NI-lem : ∀ x
-      → P .F-hom (α .nIso x .isIso.inv) (F .F-ob x .snd .snd) ≡ G .F-ob x .snd .snd
-    /NI-lem x = (P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩ ∙ P.⋆IdL _
+
+    module _ x where
+      opaque
+        /NI-lem : P .F-hom (α .nIso x .isIso.inv) (F .F-ob x .snd .snd) ≡ G .F-ob x .snd .snd
+        /NI-lem = (P.⟨⟩⋆⟨ sym $ αP x ⟩ ∙ (sym $ P.⋆Assoc _ _ _)) ∙ P.⟨ α .nIso x .isIso.sec ⟩⋆⟨⟩ ∙ P.⋆IdL _
+        sec-lem : seq' (Cᴰ / P) (α .nIso x .isIso.inv , αᴰ .nIsoᴰ tt .isIsoᴰ.invᴰ , /NI-lem) (N-ob (/NatTrans (α .trans) (αᴰ .transᴰ) αP) x) ≡ id (Cᴰ / P)
+        sec-lem = Hom/≡ $ Cᴰ.≡in $ αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ
+        ret-lem : seq' (Cᴰ / P) (N-ob (/NatTrans (α .trans) (αᴰ .transᴰ) αP) x) (α .nIso x .isIso.inv , αᴰ .nIsoᴰ tt .isIsoᴰ.invᴰ , /NI-lem) ≡ id (Cᴰ / P)
+        ret-lem = Hom/≡ $ Cᴰ.≡in $ αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ
 
     /NatIso : NatIso F G
-    /NatIso =
-      record { trans = /NatTrans (α .trans) (αᴰ .transᴰ) αP''
-      ; nIso = λ x →
-        isiso ( (α .nIso x .isIso.inv)
-              , αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ
-              , /NI-lem x)
-        (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ))))
-        (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))) }
+    /NatIso .trans = /NatTrans (α .trans) (αᴰ .transᴰ) αP
+    /NatIso .nIso x = isiso ((α .nIso x .isIso.inv) , (αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ , /NI-lem x))
+      (sec-lem x)
+      (ret-lem x)
 
 -- -- TODO:
 -- -- 1. /Fⱽ-seq

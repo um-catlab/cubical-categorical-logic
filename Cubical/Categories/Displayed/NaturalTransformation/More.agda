@@ -30,14 +30,14 @@ open NatTransᴰ
 open isIso
 open isIsoᴰ
 
-
-
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   record NatIsoᴰ {F : Functor C D}{G : Functor C D}
     (α : NatIso F G)
     {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
     (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (Gᴰ : Functorᴰ G Cᴰ Dᴰ)
     : Type (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ (ℓ-max ℓCᴰ' ℓDᴰ')))) where
+    no-eta-equality
+    constructor natIsoᴰ
     private
       module Cᴰ = Fibers Cᴰ
       module Dᴰ = Fibers Dᴰ

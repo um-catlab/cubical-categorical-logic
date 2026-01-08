@@ -127,43 +127,41 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module A×B = UniversalElementNotation A×B
     open UniversalElementᴰNotation Cᴰ _ _ Aᴰ×ᴰBᴰ public
 
-
-    -- Is this necessary to be opaque?
     πᴰ₁ : Cᴰ [ ue.element .fst ][ Aᴰ×ᴰBᴰ .fst , Aᴰ ]
     πᴰ₁ = Aᴰ×ᴰBᴰ .snd .fst .fst
 
     πᴰ₂ : Cᴰ [ ue.element .snd ][ Aᴰ×ᴰBᴰ .fst , Bᴰ ]
     πᴰ₂ = Aᴰ×ᴰBᴰ .snd .fst .snd
 
-    opaque
-      ×βᴰ₁ : ∀ {Γ Γᴰ}
-        {f : C [ Γ , A ]}
-        {g : C [ Γ , B ]}
-        (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
-        (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
-        → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .fst ] fᴰ
-      ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-        Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
+    ×βᴰ₁ : ∀ {Γ Γᴰ}
+      {f : C [ Γ , A ]}
+      {g : C [ Γ , B ]}
+      (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
+      (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
+      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .fst ] fᴰ
+    ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+      Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
 
-      ×βᴰ₂ : ∀ {Γ Γᴰ}
-        {f : C [ Γ , A ]}
-        {g : C [ Γ , B ]}
-        (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
-        (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
-        → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .snd ] gᴰ
-      ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-        Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
+    ×βᴰ₂ : ∀ {Γ Γᴰ}
+      {f : C [ Γ , A ]}
+      {g : C [ Γ , B ]}
+      (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
+      (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
+      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .snd ] gᴰ
+    ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+      Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
 
-      ×ηᴰ : ∀ {Γ Γᴰ}
-        → {f : C [ Γ , A×B .vertex ]}
-        → (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ×ᴰBᴰ .fst ])
-        → fᴰ Cᴰ.≡[ A×B.η {f = f} ] introᴰ ((fᴰ Cᴰ.⋆ᴰ πᴰ₁) , (fᴰ Cᴰ.⋆ᴰ πᴰ₂))
-      ×ηᴰ {Γ} {Γᴰ} {f} fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-        Cᴰ.≡in (ηᴰ {f = f} fᴰ)
-        ∙ cong (∫PshIsoᴰ (asReprᴰ .snd) .nIso _ .fst)
-            (ΣPathPᴰ
+    ×ηᴰ : ∀ {Γ Γᴰ}
+      → {f : C [ Γ , A×B .vertex ]}
+      → (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ×ᴰBᴰ .fst ])
+      → fᴰ Cᴰ.≡[ A×B.η {f = f} ] introᴰ ((fᴰ Cᴰ.⋆ᴰ πᴰ₁) , (fᴰ Cᴰ.⋆ᴰ πᴰ₂))
+    ×ηᴰ {Γ} {Γᴰ} {f} fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+      Cᴰ.≡in (ηᴰ {f = f} fᴰ)
+      ∙ cong (∫PshIsoᴰ (asReprᴰ .snd) .nIso _ .fst)
+          (ΣPathPᴰ
               (sym $ Cᴰ.reind-filler _ _)
               (sym $ Cᴰ.reind-filler _ _))
+
   module BinProductsᴰNotation (bp : BinProducts C) (bpᴰ : BinProductsᴰ bp) where
     _×ᴰ_ : ∀ {A B} (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Cᴰ.ob[ bp (A , B) .vertex ]
     Aᴰ ×ᴰ Bᴰ = bpᴰ Aᴰ Bᴰ .fst

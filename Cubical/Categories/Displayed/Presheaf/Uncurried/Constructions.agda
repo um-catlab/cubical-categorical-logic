@@ -271,24 +271,24 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .sec ((p , pᴰ , q≡αΓp), qᴰ) = ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .ret (p , (pᴰ , qᴰ) , q≡αΓp) = ΣPathP (refl , ΣPathP ((ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))) , refl))
 
-    FrobeniusReciprocity : PshIsoⱽ (push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)) (push α Pᴰ ×Psh Qᴰ)
-    FrobeniusReciprocity = Isos→PshIso FrobeniusReciprocity-ptwise opq
-        where
-          opq : ∀ Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp →
-            (fun (FrobeniusReciprocity-ptwise Δ,Δᴰ,q)
-            ((push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ) PresheafNotation.⋆
-              γ,γᴰ,γ⋆q≡q')
-            p,⟨pᴰ,qᴰ⟩,q≡αp)
-            ≡
-            ((push α Pᴰ ×Psh Qᴰ) PresheafNotation.⋆ γ,γᴰ,γ⋆q≡q')
-            (fun (FrobeniusReciprocity-ptwise Γ,Γᴰ,q') p,⟨pᴰ,qᴰ⟩,q≡αp))
+    FrobeniusReciprocity-natural : ∀ Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp →
+      (fun (FrobeniusReciprocity-ptwise Δ,Δᴰ,q)
+      ((push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ) PresheafNotation.⋆
+        γ,γᴰ,γ⋆q≡q')
+      p,⟨pᴰ,qᴰ⟩,q≡αp)
+      ≡
+      ((push α Pᴰ ×Psh Qᴰ) PresheafNotation.⋆ γ,γᴰ,γ⋆q≡q')
+      (fun (FrobeniusReciprocity-ptwise Γ,Γᴰ,q') p,⟨pᴰ,qᴰ⟩,q≡αp))
 
-          opq Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp =
-            ΣPathP ((ΣPathP (refl , refl)) , (Qᴰ.rectify $ Qᴰ.≡out $
-              sym (Qᴰ.reind-filler _)
-              ∙ Qᴰ.⋆ᴰ-reind _ _ _
-              ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩
-              ∙ sym (Qᴰ.⋆ᴰ-reind _ _ _)))
+    FrobeniusReciprocity-natural Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp =
+      ΣPathP ((ΣPathP (refl , refl)) , (Qᴰ.rectify $ Qᴰ.≡out $
+        sym (Qᴰ.reind-filler _)
+        ∙ Qᴰ.⋆ᴰ-reind _ _ _
+        ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩
+        ∙ sym (Qᴰ.⋆ᴰ-reind _ _ _)))
+
+    FrobeniusReciprocity : PshIsoⱽ (push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)) (push α Pᴰ ×Psh Qᴰ)
+    FrobeniusReciprocity = Isos→PshIso FrobeniusReciprocity-ptwise FrobeniusReciprocity-natural
 
   module _
     {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

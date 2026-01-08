@@ -218,38 +218,37 @@ module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C �
       → Cᴰ [ LRPsh→Functor (_ , _×A) ⟪ γ ⟫ C.⋆ f ][ Δᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
     γᴰ impr⋆ᴰ fᴰ = -×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ γᴰ Cᴰ.⋆ᴰ fᴰ
 
-  opaque
     impr≡compositional⋆ᴰ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
-      {γ : C [ Δ , Γ ]}
-      {f : C [ (Γ ×A) .vertex , B ]}
-      (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
-      (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
-      → (γᴰ impr⋆ᴰ fᴰ) Cᴰ.∫≡ (γᴰ Aᴰ⇒BᴰPshᴰ.⋆ᴰ fᴰ)
+        {γ : C [ Δ , Γ ]}
+        {f : C [ (Γ ×A) .vertex , B ]}
+        (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+        (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+        → (γᴰ impr⋆ᴰ fᴰ) Cᴰ.∫≡ (γᴰ Aᴰ⇒BᴰPshᴰ.⋆ᴰ fᴰ)
     impr≡compositional⋆ᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {f} γᴰ fᴰ = Cᴰ.reind-filler _ _
 
     λᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
-      → Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
-      → Cᴰ [ A⇒B.lda f ][ Γᴰ , Aᴰ⇒ᴰBᴰ .fst ]
+        → Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
+        → Cᴰ [ A⇒B.lda f ][ Γᴰ , Aᴰ⇒ᴰBᴰ .fst ]
     λᴰ = ueᴰ.introᴰ
 
     cong-λᴰ : ∀ {Γ}{Γᴰ}{f g : C [ (Γ ×A) .vertex , B ]}
-      → {fᴰ : Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]}
-      → {gᴰ : Cᴰ [ g ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]}
-      → fᴰ Cᴰ.∫≡ gᴰ
-      → λᴰ fᴰ Cᴰ.∫≡ λᴰ gᴰ
+        → {fᴰ : Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]}
+        → {gᴰ : Cᴰ [ g ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]}
+        → fᴰ Cᴰ.∫≡ gᴰ
+        → λᴰ fᴰ Cᴰ.∫≡ λᴰ gᴰ
     cong-λᴰ fᴰ≡gᴰ = ueᴰ.cong-introᴰ fᴰ≡gᴰ
 
     appᴰ : Cᴰ [ A⇒B.app ][ Aᴰ⇒ᴰBᴰ .fst -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]
     appᴰ = ueᴰ.elementᴰ
 
     ⇒βᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
-      → (fᴰ : Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
-      → (-×ᴰAᴰ.introᴰ ((-×ᴰAᴰ.π₁ᴰ Cᴰ.⋆ᴰ λᴰ fᴰ) , -×ᴰAᴰ.π₂ᴰ) Cᴰ.⋆ᴰ appᴰ) Cᴰ.∫≡ fᴰ
+        → (fᴰ : Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
+        → (-×ᴰAᴰ.introᴰ ((-×ᴰAᴰ.π₁ᴰ Cᴰ.⋆ᴰ λᴰ fᴰ) , -×ᴰAᴰ.π₂ᴰ) Cᴰ.⋆ᴰ appᴰ) Cᴰ.∫≡ fᴰ
     ⇒βᴰ fᴰ = impr≡compositional⋆ᴰ _ _ ∙ (Cᴰ.≡in $ ueᴰ.βᴰ fᴰ)
 
     ⇒ηᴰ : ∀ {Γ}{Γᴰ}{f : C [ Γ , A⇒B.⇒ue.vertex ]}
-      → (fᴰ : Cᴰ [ f ][  Γᴰ , Aᴰ⇒ᴰBᴰ .fst ])
-      → fᴰ Cᴰ.∫≡ λᴰ (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ fᴰ Cᴰ.⋆ᴰ appᴰ)
+        → (fᴰ : Cᴰ [ f ][  Γᴰ , Aᴰ⇒ᴰBᴰ .fst ])
+        → fᴰ Cᴰ.∫≡ λᴰ (-×ᴰAᴰ.×ᴰPᴰ-Fᴰ .F-homᴰ fᴰ Cᴰ.⋆ᴰ appᴰ)
     ⇒ηᴰ fᴰ = (Cᴰ.≡in $ ueᴰ.ηᴰ fᴰ) ∙ ueᴰ.cong-introᴰ (sym $ impr≡compositional⋆ᴰ _ _)
 
 module ExponentialsᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

@@ -71,7 +71,7 @@ open PshIso
 open CartesianCategory
 
 module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
-  {Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ'}
+  (Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ')
   (F : CartesianFunctor CC (CD .C)) where
 
   ClosedⱽReindex : ClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
@@ -84,7 +84,7 @@ module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
       (CC .bp) (CD .bp) (F .snd) (Dᴰ .snd .snd .snd .snd)
 
 module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
-  {Dᴰ : CartesianClosedCategoryⱽ CD ℓDᴰ ℓDᴰ'}
+  (Dᴰ : CartesianClosedCategoryⱽ CD ℓDᴰ ℓDᴰ')
   (F : CartesianFunctor CC (CD .C)) where
   private
     module Dᴰ = CartesianClosedCategoryⱽ Dᴰ

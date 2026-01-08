@@ -128,11 +128,19 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     open UniversalElementᴰNotation Cᴰ _ _ Aᴰ×ᴰBᴰ public
 
     opaque
+      -- Is this necessary to be opaque?
       πᴰ₁ : Cᴰ [ ue.element .fst ][ Aᴰ×ᴰBᴰ .fst , Aᴰ ]
       πᴰ₁ = Aᴰ×ᴰBᴰ .snd .fst .fst
 
       πᴰ₂ : Cᴰ [ ue.element .snd ][ Aᴰ×ᴰBᴰ .fst , Bᴰ ]
       πᴰ₂ = Aᴰ×ᴰBᴰ .snd .fst .snd
+
+
+      πᴰ₁≡ : πᴰ₁ Cᴰ.∫≡ Aᴰ×ᴰBᴰ .snd .fst .fst
+      πᴰ₁≡ = refl
+
+      πᴰ₂≡ : πᴰ₂ Cᴰ.∫≡ Aᴰ×ᴰBᴰ .snd .fst .snd
+      πᴰ₂≡ = refl
 
       ×βᴰ₁ : ∀ {Γ Γᴰ}
         {f : C [ Γ , A ]}

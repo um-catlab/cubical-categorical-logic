@@ -33,5 +33,5 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') (E : Category ℓE 
   UNCURRY-BIFUNCTOR .F-hom α = natTrans
     (λ x → natTrans (λ y → (α ⟦ x ⟧) ⟦ y ⟧) ((α ⟦ x ⟧) .N-hom))
     λ f → makeNatTransPath (funExt λ y → funExt⁻ (cong N-ob (α .N-hom _)) _)
-  UNCURRY-BIFUNCTOR .F-id = makeNatTransPath refl
-  UNCURRY-BIFUNCTOR .F-seq α β = makeNatTransPath refl
+  UNCURRY-BIFUNCTOR .F-id = makeNatTransPath (funExt (λ x → makeNatTransPath refl))
+  UNCURRY-BIFUNCTOR .F-seq α β = makeNatTransPath (funExt (λ x → makeNatTransPath refl))

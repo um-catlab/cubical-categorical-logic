@@ -67,7 +67,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   (F : Functor C D) where
   private
-    module D = Category D using (isSetHom)
+    module D = Category D
     module Dᴰ = Fibers Dᴰ using (ob[_]; reind; reind-filler; rectify; ≡out; cong-reind; ⋆IdL)
 
   reindexTerminalⱽ : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
@@ -112,7 +112,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     ⋆PshIsoⱽ reindPsh× (reindex-π-/ Dᴰ F Γ) (Dᴰ [-][-, Γᴰ ]) (reindPshᴰNatTrans (yoRec (D [-, F-ob F x ]) (F-hom F f)) Pᴰ)
     ⋆PshIsoⱽ
       ×PshIso (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F Γ Γᴰ))
-              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ (reindexRepresentable-seq (π Dᴰ F))))
+              (reindPsh-square (reindex-π-/ Dᴰ F Γ) (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ Dᴰ F x) Pᴰ
+                (reindexRepresentable-seq (π Dᴰ F))))
 
   LRⱽReindex : ∀ {x} → (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ)
     → LRⱽPresheafᴰ (C [-, x ]) (reindex Dᴰ F) ℓPᴰ
@@ -130,57 +131,54 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, x ]) f) $
        invPshIso $
        reindexRepresentableIsoⱽ Dᴰ F x xᴰ))
-    ((λ (Δ , Δᴰ , γ) γᴰ → _ ,
-      Dᴰ.reind (sym $ F .F-seq γ f) (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
-    -- why is this so slow?
-    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out $
-      ΣPathP (refl ,
-      (Dᴰ.rectify $ Dᴰ.≡out $
-        Dᴰ.cong-reind (λ i →
-                         N-ob (symNatIso (reindexRepresentable-seq (π Dᴰ F)) .trans) _ .snd
-                         .snd i) (λ i → F .F-seq γ f (~ i)) (Dᴰ.⋆IdL _))))) )
+    ((λ (Δ , Δᴰ , γ) γᴰ → (γᴰ ×ⱽ*xᴰ.⋆π₁ⱽ) -- making this explicit is negligible
+      , Dᴰ.reind (sym $ F .F-seq γ f) (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
+    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out -- removing the second `ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out` is a big speedup
+                      
+      $ Dᴰ.cong-reind _ _ -- making the first two args to cong-reind implicit is a noticable but smaller speedup
+                      (Dᴰ.⋆IdL _))))
     ((λ (Δ , Δᴰ , γ) (γᴰ , γfᴰ) →
       ×ⱽ*xᴰ.introᴰ γᴰ (Dᴰ.reind (F .F-seq γ f) γfᴰ)) , funExt λ (Δ , Δᴰ , γ) → funExt λ (γᴰ , γfᴰ) →
       Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*xᴰ.cong-introᴰ refl (Dᴰ.cong-reind _ _ (Dᴰ.⋆IdL _)))
     where
       module ×ⱽ*xᴰ = LRⱽPresheafᴰNotation Dᴰ (_ , _×ⱽ_*xᴰ)
---   LRⱽObᴰReindex : ∀ {x} → LRⱽObᴰ Dᴰ (F ⟅ x ⟆) → LRⱽObᴰ (reindex Dᴰ F) x
---   LRⱽObᴰReindex {x} (Fxᴰ , _×ⱽ_*Fxᴰ) = Fxᴰ , isLRⱽObᴰReindex Fxᴰ _×ⱽ_*Fxᴰ
 
---   AllLRⱽReindex : AllLRⱽ Dᴰ → AllLRⱽ (reindex Dᴰ F)
---   AllLRⱽReindex allLRⱽ {x} xᴰ = LRⱽObᴰReindex (xᴰ , allLRⱽ xᴰ) .snd
+  LRⱽObᴰReindex : ∀ {x} → LRⱽObᴰ Dᴰ (F ⟅ x ⟆) → LRⱽObᴰ (reindex Dᴰ F) x
+  LRⱽObᴰReindex {x} (Fxᴰ , _×ⱽ_*Fxᴰ) = Fxᴰ , isLRⱽObᴰReindex Fxᴰ _×ⱽ_*Fxᴰ
 
---   module _ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ) where
---     private
---       module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ using (⟨_⟩⋆π₁ⱽ; ⟨_⟩⋆π₂ⱽ)
---       module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; reind-filler; formal-reind-filler)
---     reindex-×LRⱽPshᴰ-commute
---       : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
---                (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
---     reindex-×LRⱽPshᴰ-commute =
---       strictPresLRⱽ→NatIso (reindex-π-/ Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
---         (λ _ → Eq.refl)
---       -- this doesn't run out of memory with the LRPsh→Functor
---       -- definition but does for the "improved" version. I think this
---       -- is a type error with the improved version but it runs out of memory figuring that out...
---       (λ (Γ , Γᴰ , f ) → ΣPathP ((ΣPathP ((F .F-id) , (ΣPathPProp (λ _ → D.isSetHom _ _)
---         (Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ))))
---       , (Pᴰ.rectify $ Pᴰ.≡out $
---         sym (Pᴰ.reind-filler _)
---         ∙ (Pᴰ.formal-reind-filler _ _
---         ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ)
---         ∙ Pᴰ.reind-filler _)))
+  AllLRⱽReindex : AllLRⱽ Dᴰ → AllLRⱽ (reindex Dᴰ F)
+  AllLRⱽReindex allLRⱽ {x} xᴰ = LRⱽObᴰReindex (xᴰ , allLRⱽ xᴰ) .snd
 
--- module _
---   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
---   (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ') (F : Functor C D)
---   where
---   private
---     module Dᴰ = CartesianCategoryⱽ Dᴰ using (Cᴰ; termⱽ; bpⱽ; cartesianLifts)
---   CartesianCategoryⱽReindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
---   CartesianCategoryⱽReindex =
---     cartesiancategoryⱽ
---       (reindex Dᴰ.Cᴰ F)
---       (TerminalsⱽReindex F Dᴰ.termⱽ)
---       (BinProductsⱽReindex F Dᴰ.bpⱽ)
---       (isFibrationReindex Dᴰ.Cᴰ F Dᴰ.cartesianLifts)
+  module _ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ) where
+    private
+      module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ using (⟨_⟩⋆π₁ⱽ; ⟨_⟩⋆π₂ⱽ)
+      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; reind-filler; formal-reind-filler)
+    reindex-×LRⱽPshᴰ-commute
+      : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
+               (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
+    reindex-×LRⱽPshᴰ-commute =
+      strictPresLRⱽ→NatIso {Cᴰ = reindex Dᴰ F}{Dᴰ = Dᴰ}{P = C [-, x ]}{Q = D [-, F-ob F x ]}
+        (reindex-π-/ {C = C}{D = D} Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
+        (λ _ → Eq.refl)
+      (λ (Γ , Γᴰ , f ) →
+        ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ)
+        , (Pᴰ.rectify $ Pᴰ.≡out $
+          sym (Pᴰ.reind-filler _)
+          -- this formal reind filler took a long time without the explicit argument. Why?
+          ∙ Pᴰ.formal-reind-filler (reindexRepresentable-seq (π Dᴰ F) .nIso (Γ , Pᴰ .snd Γᴰ (F-hom F f) .fst , id C) .isIso.inv .snd .snd) _
+          ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ
+          ∙ Pᴰ.reind-filler _)))
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ') (F : Functor C D)
+  where
+  private
+    module Dᴰ = CartesianCategoryⱽ Dᴰ using (Cᴰ; termⱽ; bpⱽ; cartesianLifts)
+  CartesianCategoryⱽReindex : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
+  CartesianCategoryⱽReindex =
+    cartesiancategoryⱽ
+      (reindex Dᴰ.Cᴰ F)
+      (TerminalsⱽReindex F Dᴰ.termⱽ)
+      (BinProductsⱽReindex F Dᴰ.bpⱽ)
+      (isFibrationReindex Dᴰ.Cᴰ F Dᴰ.cartesianLifts)

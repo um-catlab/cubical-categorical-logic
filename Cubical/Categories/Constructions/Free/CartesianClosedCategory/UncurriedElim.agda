@@ -3,6 +3,7 @@
 module Cubical.Categories.Constructions.Free.CartesianClosedCategory.UncurriedElim where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Data.Unit
@@ -75,8 +76,10 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       elimHom (×η {Γ}{A}{B}{f} i) = Cᴰ.rectify {p' = ×η} (bpᴰ.×ηᴰ (elimHom f)) i
       elimHom eval = appᴰ
       elimHom (λ- e) = λᴰ (elimHom e)
-      elimHom (λβ e i) = Cᴰ.rectify {p' = λβ e} (Cᴰ.≡out $ ⇒βᴰ (elimHom e)) i
-      elimHom (λη e i) = Cᴰ.rectify {p' = λη e} (Cᴰ.≡out $ ⇒ηᴰ (elimHom e)) i
+      elimHom (λβ e i) =
+        Cᴰ.rectify {p' = λβ e} (Cᴰ.≡out $ Cᴰ.⟨ bpᴰ.cong-introᴰ (ΣPathPᴰ Cᴰ.⟨ bpᴰ.πᴰ₁≡ ⟩⋆⟨ refl ⟩ bpᴰ.πᴰ₂≡) ⟩⋆⟨ refl ⟩ ∙ ⇒βᴰ (elimHom e)) i
+      elimHom (λη e i) = Cᴰ.rectify {p' = λη e} (Cᴰ.≡out $ ⇒ηᴰ (elimHom e)
+        ∙ cong-λᴰ Cᴰ.⟨ bpᴰ.cong-introᴰ (ΣPathPᴰ Cᴰ.⟨ sym bpᴰ.πᴰ₁≡ ⟩⋆⟨⟩ (sym bpᴰ.πᴰ₂≡)) ⟩⋆⟨⟩) i
 
       elim : GlobalSection Cᴰ
       elim .F-obᴰ = elimOb ı-ob

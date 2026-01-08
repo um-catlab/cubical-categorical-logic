@@ -274,7 +274,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     FrobeniusReciprocity : PshIsoⱽ (push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ)) (push α Pᴰ ×Psh Qᴰ)
     FrobeniusReciprocity = Isos→PshIso FrobeniusReciprocity-ptwise opq
         where
-        opaque
           opq : ∀ Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp →
             (fun (FrobeniusReciprocity-ptwise Δ,Δᴰ,q)
             ((push α (Pᴰ ×Psh reindPshᴰNatTrans α Qᴰ) PresheafNotation.⋆

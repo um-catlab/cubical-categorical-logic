@@ -32,9 +32,6 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
--- open import Cubical.Categories.Displayed.Constructions.Reindex.Limits
---   as CartReindex
--- open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
 
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Base

@@ -20,11 +20,7 @@ open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver
 open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Base
 
 open import Cubical.Categories.Displayed.Base
--- open import Cubical.Categories.Displayed.Limits.BinProduct.Base
--- open import Cubical.Categories.Displayed.Limits.Terminal
--- open import Cubical.Categories.Displayed.Limits.CartesianD
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
--- open import Cubical.Categories.Displayed.Exponentials.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base

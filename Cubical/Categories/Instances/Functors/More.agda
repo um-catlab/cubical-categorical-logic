@@ -234,6 +234,7 @@ module _ (C : Category ℓC ℓC') (D : Category ℓD ℓD') where
     open WeakInverse
     open NatIso
 
+    -- TODO : remove slow usage of solveCat!
     -- curryF is an equivalence. Done using η ε isos constructed explicitly.
     -- most of the time, these are the identity
     -- curryF-isEquivalence : WeakInverse curryF

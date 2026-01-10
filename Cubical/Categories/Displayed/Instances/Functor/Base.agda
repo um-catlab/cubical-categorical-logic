@@ -122,7 +122,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     NatTransIsoᴰΣ .inv (ob , hom) .N-obᴰ = ob
     NatTransIsoᴰΣ .inv (ob , hom) .N-homᴰ = hom
     NatTransIsoᴰΣ .sec _ = refl
-    NatTransIsoᴰΣ .ret _ = refl
+    NatTransIsoᴰΣ .ret a = makeNatTransPathᴰ refl refl
 
     isSetNatTransᴰ : isSet (NatTransᴰ α Fᴰ Gᴰ)
     isSetNatTransᴰ = isSetRetract (NatTransIsoᴰΣ .fun)
@@ -162,8 +162,8 @@ module _
   precomposeFᴰ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰ Fᴰ
   precomposeFᴰ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
   precomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fᴰ .F-homᴰ fᴰ)
-  precomposeFᴰ .F-idᴰ = refl
-  precomposeFᴰ .F-seqᴰ fᴰ gᴰ = refl
+  precomposeFᴰ .F-idᴰ = makeNatTransPathᴰ Cᴰ Eᴰ (precomposeF E F .Functor.F-id) refl
+  precomposeFᴰ .F-seqᴰ {f = f}{g = g} fᴰ gᴰ = makeNatTransPathᴰ Cᴰ Eᴰ (precomposeF E F .Functor.F-seq f g) refl
 
   postcomposeFᴰ : Functorᴰ (postcomposeF E F) (FUNCTORᴰ Eᴰ Cᴰ) (FUNCTORᴰ Eᴰ Dᴰ)
   postcomposeFᴰ .F-obᴰ Gᴰ = Fᴰ ∘Fᴰ Gᴰ
@@ -187,8 +187,8 @@ module _
   precomposeFⱽ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰⱽ Fⱽ
   precomposeFⱽ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fⱽ .F-obᴰ xᴰ)
   precomposeFⱽ .F-homᴰ αᴰ .N-homᴰ fᴰ = αᴰ .N-homᴰ (Fⱽ .F-homᴰ fᴰ)
-  precomposeFⱽ .F-idᴰ = refl
-  precomposeFⱽ .F-seqᴰ _ _ = refl
+  precomposeFⱽ .F-idᴰ = makeNatTransPathᴰ Cᴰ Eᴰ refl refl
+  precomposeFⱽ .F-seqᴰ _ _ = makeNatTransPathᴰ Cᴰ Eᴰ refl refl
 
   import Cubical.Categories.Displayed.Reasoning Dᴰ as R
   postcomposeFⱽ : Functorⱽ (FUNCTORᴰ Eᴰ Cᴰ) (FUNCTORᴰ Eᴰ Dᴰ)

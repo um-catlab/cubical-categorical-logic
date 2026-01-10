@@ -3,8 +3,10 @@ module Cubical.Categories.Displayed.Presheaf.Constructions.Curry where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
@@ -40,7 +42,8 @@ open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
-
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Properties
 private
   variable
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
@@ -53,7 +56,9 @@ open Category
 open Functor
 open Functorᴰ
 open Iso
+open isIsoOver
 open PshHom
+open PshIso
 open PshHomᴰ
 
 module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
@@ -139,6 +144,12 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
     cong (αⱽ .N-ob (x , xᴰ , (f P.⋆ p))) (sym $ transportRefl (fᴰ Pᴰ.⋆ᴰ pᴰ))
     ∙ αⱽ .N-hom (x , xᴰ , f P.⋆ p) (y , yᴰ , p) (f , fᴰ , refl) pᴰ
 
+  Curry-recⱽ : PshHom Qᴰ' (UncurryPshᴰ P Cᴰ Pᴰ) → PshHomⱽ (CurryPshᴰ P Cᴰ Qᴰ') Pᴰ
+  Curry-recⱽ α .N-obᴰ x = α .N-ob _ x
+  Curry-recⱽ α .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
+    α .N-hom (x , xᴰ , f P.⋆ p) (y , yᴰ , p) (f , fᴰ , refl) pᴰ
+    ∙ transportRefl (fᴰ Pᴰ.⋆ᴰ N-ob α (y , yᴰ , p) pᴰ)
+
   Uncurry-recⱽ-Iso :
     Iso (Uncurried.PshHomⱽ (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ') (PshHomⱽ Pᴰ (CurryPshᴰ P Cᴰ Qᴰ'))
   Uncurry-recⱽ-Iso = iso Curry-introⱽ Uncurry-recⱽ
@@ -186,3 +197,43 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
     N-obᴰ⟨ α ⟩ (sym $ Pᴰ.reind-filler _ _)
     ∙ Qᴰ.≡in (α .N-homᴰ)
     ∙ Qᴰ.reind-filler _ _
+
+  -- TODO: Curry (Uncurry Qᴰ) ≅ Qᴰ
+  UncurryPshHomⱽ⁻ : PshHom (UncurryPshᴰ P Cᴰ Pᴰ) (UncurryPshᴰ P Cᴰ Qᴰ) → PshHomⱽ Pᴰ Qᴰ
+  UncurryPshHomⱽ⁻ αᴰ = Curry-introⱽ Pᴰ _ αᴰ ⋆PshHomⱽ Curry-recⱽ Qᴰ (UncurryPshᴰ P Cᴰ Qᴰ) idPshHom
+
+  UncurryPshIsoⱽ⁻ : PshIso (UncurryPshᴰ P Cᴰ Pᴰ) (UncurryPshᴰ P Cᴰ Qᴰ) → PshIsoⱽ Pᴰ Qᴰ
+  UncurryPshIsoⱽ⁻ αᴰ .fst = UncurryPshHomⱽ⁻ $ αᴰ .trans
+  UncurryPshIsoⱽ⁻ αᴰ .snd .inv = λ a → αᴰ .nIso (_ , _ , _) .fst
+  UncurryPshIsoⱽ⁻ αᴰ .snd .rightInv = λ b → αᴰ .nIso (_ , _ , b) .snd .fst
+  UncurryPshIsoⱽ⁻ αᴰ .snd .leftInv = λ a → αᴰ .nIso (_ , _ , a) .snd .snd
+
+module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (α : PshHom P Q)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+  where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  UncurryReind :
+    PshIso (UncurryPshᴰ P Cᴰ $ reind α Qᴰ)
+           (Uncurried.reindPshᴰNatTrans α $ UncurryPshᴰ Q Cᴰ Qᴰ)
+  UncurryReind .trans =
+    Uncurry-recᴰ (reind α Qᴰ) (UncurryPshᴰ Q Cᴰ Qᴰ) (reind-π ⋆PshHomᴰⱽ Curry-introⱽ Qᴰ (UncurryPshᴰ Q Cᴰ Qᴰ) idPshHom)
+  UncurryReind .nIso x = idIsIso
+
+module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (α : PshIso P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+  where
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
+  UncurryPshIsoᴰ⁻ :
+    PshIso (UncurryPshᴰ P Cᴰ Pᴰ) (Uncurried.reindPshᴰNatTrans (α .trans) $ UncurryPshᴰ Q Cᴰ Qᴰ)
+    → PshIsoᴰ α Pᴰ Qᴰ
+  UncurryPshIsoᴰ⁻ αᴰ =
+    UncurryPshIsoⱽ⁻ Pᴰ _ (αᴰ ⋆PshIso invPshIso (UncurryReind (α .trans) Qᴰ))
+    ⋆PshIsoⱽᴰ reindPshIsoPshIsoᴰ (pshiso (α .trans) (α .nIso)) Qᴰ

@@ -31,6 +31,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
@@ -81,6 +83,7 @@ private
 open Category
 open Functor
 open Functorᴰ
+open isIsoOver
 open NatTrans
 open NatTransᴰ
 open NatIso
@@ -94,6 +97,16 @@ Cᴰ / P = ∫C (Cᴰ ×ᴰ Element P)
 
 _/'_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
 _/'_ {C = C} Cᴰ P = ∫C (EqReindex.reindex Cᴰ (Fst {C = C}{Cᴰ = Element P}) Eq.refl λ _ _ → Eq.refl)
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Presheaf C ℓP} where
+  open Category
+  private
+    module Cᴰ = Fibers Cᴰ
+  Hom/≡ : ∀ {Δ3 Γ3 : (Cᴰ / P).ob}
+    {f g : (Cᴰ / P) [ Δ3 , Γ3 ]}
+    → (p2 : f .snd .fst Cᴰ.∫≡ g .snd .fst)
+    → f ≡ g
+  Hom/≡ p2 = ΣPathP (PathPΣ p2 .fst , ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) (Cᴰ.rectify $ Cᴰ.≡out $ p2))
 
 -- The Beck-Chevalley stuff in the universal quantifier lemmas have to
 -- do some annoying shuffling that wouldn't be necessary if we use
@@ -232,7 +245,6 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
       (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
   ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
 
-  -- TODO: make this ⋆ᴰ-reind
   ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
     → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)
   ⋆ᴰ-reind fᴰ f⋆p≡q pᴰ =
@@ -312,6 +324,18 @@ module _
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
+  (α : PshHom P Q)(β : PshHom Q R) (γ : PshHom P R) (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ) where
+  private
+    module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
+  reindPshᴰNatTrans-tri : (α ⋆PshHom β ≡ γ)
+    → PshIso (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ) (reindPshᴰNatTrans γ Rᴰ)
+  reindPshᴰNatTrans-tri αβ≡γ =
+    (invPshIso $ reindPshᴰNatTrans-seq α β Rᴰ)
+    ⋆PshIso reindPshᴰNatTrans-Path (α ⋆PshHom β) γ αβ≡γ Rᴰ
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {D : Category ℓD ℓD'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D}
   {P : Presheaf D ℓP}
@@ -329,6 +353,76 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   -- Constructing a fibration from its fibers and restrictions
   PshHomᴰ : Type _
   PshHomᴰ = PshHomⱽ Pᴰ (reindPshᴰNatTrans α Qᴰ)
+
+  FiberwisePshIsoᴰ : Type _
+  FiberwisePshIsoᴰ = PshIsoⱽ Pᴰ (reindPshᴰNatTrans α Qᴰ)
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  {α : PshHom P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
+  ∫PshHomᴰ : PshHomᴰ α Pᴰ Qᴰ → PshHom Pᴰ.∫ Qᴰ.∫
+  ∫PshHomᴰ αᴰ .N-ob (Γ , Γᴰ) (p , pᴰ) =
+    (α .N-ob Γ p) , (αᴰ .N-ob (Γ , Γᴰ , p) pᴰ)
+  ∫PshHomᴰ αᴰ .N-hom (Δ , Δᴰ) (Γ , Γᴰ) (γ , γᴰ) (p , pᴰ) =
+    (Qᴰ.≡in $ αᴰ .N-hom (Δ , Δᴰ , γ P.⋆ p) (Γ , Γᴰ , p) (γ , γᴰ , refl) pᴰ)
+    ∙ Qᴰ.⋆ᴰ-reind _ _ _
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ} where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ P Qᴰ
+
+  ∫PshHomⱽ : PshHomⱽ Pᴰ Qᴰ → PshHom Pᴰ.∫ Qᴰ.∫
+  ∫PshHomⱽ αⱽ = ∫PshHomᴰ (αⱽ ⋆PshHom invPshIso (reindPshᴰNatTrans-id idPshHom Qᴰ) .trans)
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  (α : PshIso P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+  isPshIsoᴰ : PshHomᴰ (α .trans) Pᴰ Qᴰ → Type _
+  isPshIsoᴰ αᴰ =
+    ∀ Γ Γᴰ → isIsoOver (PshIso→Isos α Γ) (Pᴰ.p[_][ Γᴰ ]) Qᴰ.p[_][ Γᴰ ]
+      λ p → αᴰ .N-ob (Γ , Γᴰ , p)
+
+  PshIsoᴰ : Type _
+  PshIsoᴰ =
+    Σ[ αᴰ ∈ PshHomᴰ (α .trans) Pᴰ Qᴰ ]
+    isPshIsoᴰ αᴰ
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
+  ∫PshIsoᴰ : PshIsoᴰ α Pᴰ Qᴰ → PshIso Pᴰ.∫ Qᴰ.∫
+  ∫PshIsoᴰ αᴰ = pshiso (∫PshHomᴰ (αᴰ .fst)) (λ (Γ , Γᴰ) → isIsoOver→isIsoΣ (αᴰ .snd Γ Γᴰ))
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -366,3 +460,24 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   infixr 9 _⋆PshHomⱽ_
   infixr 9 _⋆PshIsoⱽ_
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  {α : PshIso P Q}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
+  FiberwisePshIsoᴰ→PshIsoᴰ :
+    FiberwisePshIsoᴰ (α .trans) Pᴰ Qᴰ
+    → PshIsoᴰ α Pᴰ Qᴰ
+  FiberwisePshIsoᴰ→PshIsoᴰ αᴰ .fst = αᴰ .trans
+  FiberwisePshIsoᴰ→PshIsoᴰ αᴰ .snd Γ Γᴰ =
+    fiberwiseIsoOver→IsoOver
+      (λ p → αᴰ .trans .N-ob (Γ , Γᴰ , p))
+      (λ a → αᴰ .nIso (Γ , Γᴰ , a))
+      (PresheafNotation.isSetPsh P)
+      (PresheafNotation.isSetPsh Q)

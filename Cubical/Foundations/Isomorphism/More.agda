@@ -14,6 +14,9 @@ private
 
 open Iso
 
+idIsIso : isIso {A = A} λ x → x
+idIsIso = IsoToIsIso idIso
+
 isoFun≡ : ∀ {x y} → (f : Iso A B) → x ≡ f .inv y → f .fun x ≡ y
 isoFun≡ f x≡f⁻y = isoInvInjective f _ _ (f .ret _ ∙ x≡f⁻y)
 

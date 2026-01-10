@@ -129,6 +129,9 @@ module _ {C : Category ℓ ℓ'} where
       ⟩⋆⟨⟩)
     ⇒PshSmall≅⇒PshLarge .nIso Γ = IsoToIsIso (⇒PshSmallIso⇒PshLarge Γ)
 
+    appPshSmall : PshHom (((P , _×P) ⇒PshSmall Q) ×Psh P) Q
+    appPshSmall = (⇒PshSmall≅⇒PshLarge .trans ×PshHom idPshHom) ⋆PshHom appPshHom P Q
+
     -- TODO: fixup the definitions of λ/app for ⇒PshSmall if they have too many transports
     module _ {S : Presheaf C ℓS} where
       private

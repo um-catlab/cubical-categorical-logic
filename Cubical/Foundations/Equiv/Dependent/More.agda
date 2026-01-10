@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Transport
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.Equiv.Dependent
@@ -69,12 +70,40 @@ P ≃[ (f , ∃!f⁻b ) ] Q = Σ (mapOver f P Q) (isEquivᴰ {Q = Q} ∃!f⁻b)
 invEqᴰ : ∀ {eq} → P ≃[ eq ] Q → mapOver (invEq eq) Q P
 invEqᴰ eqᴰ = λ a z → eqᴰ .snd z .fst .fst
 
+module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso (f a)) (isSetA : isSet A) (isSetB : isSet B) where
+  private
+    isoover' : IsoOver (equivToIso (isoToEquiv isom)) P Q
+    isoover' = equivOver→IsoOver (isoToEquiv isom) f λ a → isIsoToIsEquiv (f⁻ a)
 
--- equivOver→isIsoOver :
---   {isom : Iso A B}
---   (f : mapOver (isom .fun) P Q)
---   → isEquivOver {P = P} {Q = Q} f
---   → isIsoOver isom P Q f
+    module P = hSetReasoning (A , isSetA) P
+    module Q = hSetReasoning (B , isSetB) Q
+
+  fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
+  fiberwiseIsoOver→IsoOver .inv = λ b q → f⁻ (inv isom b) .fst (subst Q (sym $ sec isom b) q)
+  fiberwiseIsoOver→IsoOver .rightInv = λ b q →
+    f⁻ (inv isom b) .snd .fst (subst Q (λ i → sec isom b (~ i)) q)
+    ◁ symP (subst-filler (λ z → z) (λ i → Q (sec isom b (~ i))) q)
+  fiberwiseIsoOver→IsoOver .leftInv a p =
+    P.Prectify $ P.≡out $
+      f⁻cong∫~
+        (sym (Q.reind-filler _) ∙ Q.reind-filler _ ∙ Q.reind-filler _ )
+      ∙ P.reind-filler _
+      ∙ P.≡in (isoover' .leftInv a p)
+    where
+      f⁻cong : ∀ {a a'}{q : Q (isom .fun a)}{q' : Q (isom .fun a')}
+        (a≡a' : a ≡ a')
+        → PathP (λ i → Q (fun isom (a≡a' i))) q q'
+        → PathP (λ i → P (a≡a' i)) (f⁻ a .fst q) (f⁻ a' .fst q')
+      f⁻cong a≡a' q≡q' = λ i → f⁻ (a≡a' i) .fst (q≡q' i)
+
+      f⁻cong∫~ : ∀ {a a'}{q : Q (isom .fun a)}{q' : Q (isom .fun a')}
+        → q Q.∫≡ q'
+        → (f⁻ a .fst q) P.∫≡ (f⁻ a' .fst q')
+      f⁻cong∫~ {a}{a'} q≡q' = P.≡in $
+        f⁻cong a≡a' (Q.Prectify $ Q.≡out q≡q')
+        where
+          a≡a' : a ≡ a'
+          a≡a' = isoFunInjective isom a a' (PathPΣ q≡q' .fst)
 -- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =
 --   isisoover (isoOver .inv) (isoOver .sec)
 --     λ a p → {!isoOver .ret a p!}

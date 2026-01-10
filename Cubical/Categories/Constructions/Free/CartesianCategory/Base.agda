@@ -71,7 +71,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
   |FreeCartesianCategory| .⋆Assoc = ⋆ₑAssoc
   |FreeCartesianCategory| .isSetHom = isSetExp
 
-  open CartesianCategory
+  open CartesianCategory using (C; term; bp)
   open UniversalElement
   FreeCartesianCategory : CartesianCategory _ _
   FreeCartesianCategory .C = |FreeCartesianCategory|

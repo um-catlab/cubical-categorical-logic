@@ -71,7 +71,7 @@ open PshIso
 open CartesianCategory
 
 module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
-  {Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ'}
+  (Dᴰ : ClosedCategoryⱽ CD ℓDᴰ ℓDᴰ')
   (F : CartesianFunctor CC (CD .C)) where
 
   ClosedⱽReindex : ClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
@@ -83,19 +83,14 @@ module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
     , hasUniversalQuantifiersReindex (F .fst) (Dᴰ .fst) (Dᴰ .snd .fst)
       (CC .bp) (CD .bp) (F .snd) (Dᴰ .snd .snd .snd .snd)
 
-
-
 module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
-  {Dᴰ : CartesianClosedCategoryⱽ CD ℓDᴰ ℓDᴰ'}
+  (Dᴰ : CartesianClosedCategoryⱽ CD ℓDᴰ ℓDᴰ')
   (F : CartesianFunctor CC (CD .C)) where
+  private
+    module Dᴰ = CartesianClosedCategoryⱽ Dᴰ
 
   CCCⱽReindex : CartesianClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
-  CCCⱽReindex
-    = (reindex (Dᴰ .fst) (F .fst))
-    , (isFibrationReindex (Dᴰ .fst) (F .fst) (Dᴰ .snd .fst))
-    , (TerminalsⱽReindex (F .fst) (Dᴰ .snd .snd .fst))
-    , (BinProductsⱽReindex (F .fst) (Dᴰ .snd .snd .snd .fst))
-    , (AllLRⱽReindex (F .fst) (Dᴰ .snd .snd .snd .snd .fst))
-    , (ExponentialsⱽReindex (F .fst) (Dᴰ .snd .snd .snd .snd .fst) (Dᴰ .snd .snd .snd .snd .snd .fst))
-    , (hasUniversalQuantifiersReindex (F .fst) (Dᴰ .fst) (Dᴰ .snd .fst)
-        (CC .bp) (CD .bp) (F .snd) (Dᴰ .snd .snd .snd .snd .snd .snd))
+  CCCⱽReindex .CartesianClosedCategoryⱽ.CCⱽ = CartesianCategoryⱽReindex Dᴰ.CCⱽ (F .fst)
+  CCCⱽReindex .CartesianClosedCategoryⱽ.lrⱽ = AllLRⱽReindex (F .fst) Dᴰ.lrⱽ
+  CCCⱽReindex .CartesianClosedCategoryⱽ.expⱽ = ExponentialsⱽReindex (F .fst) Dᴰ.lrⱽ Dᴰ.expⱽ
+  CCCⱽReindex .CartesianClosedCategoryⱽ.forallⱽ = hasUniversalQuantifiersReindex (F .fst) Dᴰ.Cᴰ Dᴰ.cartesianLifts (CC .bp) (CD .bp) (F .snd) Dᴰ.forallⱽ

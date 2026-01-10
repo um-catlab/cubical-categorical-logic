@@ -106,6 +106,33 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     ηᴰ = ∫ue.η
     weak-ηᴰ = ∫ue.weak-η
 
+  open UniversalElementᴰ
+  module _ {vᴰ} (αᴰ : PshIsoᴰ asPshIso (D [-][-, vᴰ ]) Pᴰ) where
+    private
+      module αᴰ = PshHomᴰ (αᴰ .fst)
+      module αᴰ⁻ = PshHomᴰ (invPshIsoᴰ αᴰ .fst)
+    fromPshIsoᴰ : UniversalElementᴰ
+    fromPshIsoᴰ .vertexᴰ = vᴰ
+    fromPshIsoᴰ .elementᴰ = Pᴰ.reind (P.⋆IdL _) (αᴰ.N-obᴰ D.idᴰ)
+    fromPshIsoᴰ .universalᴰ .inv = αᴰ .snd .inv
+    fromPshIsoᴰ .universalᴰ {x}{xᴰ} .rightInv p pᴰ = Pᴰ.rectify $ Pᴰ.≡out $
+      _ , αᴰ .snd .inv p pᴰ Pᴰ.⋆ᴰ Pᴰ.reind (P.⋆IdL element) (αᴰ.N-obᴰ D.idᴰ)
+        ≡⟨ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩ ⟩
+      _ , αᴰ .snd .inv p pᴰ Pᴰ.⋆ᴰ (αᴰ.N-obᴰ D.idᴰ)
+        ≡⟨ (sym $ αᴰ.N-hom _ _ _ _) ⟩
+      _ , (αᴰ.N-obᴰ (αᴰ .snd .inv p pᴰ D.⋆ᴰ D.idᴰ))
+        ≡⟨ αᴰ.N-obᴰ⟨ D.⋆IdR _ ⟩ ⟩
+      _ , αᴰ.N-obᴰ (αᴰ .snd .inv p pᴰ)
+        ≡⟨ Pᴰ.≡in $ αᴰ .snd .rightInv p pᴰ ⟩
+      _ , pᴰ ∎
+    fromPshIsoᴰ .universalᴰ {x}{xᴰ} .leftInv f fᴰ = D.rectify $ D.≡out $
+      _ , αᴰ .snd .inv _ (fᴰ Pᴰ.⋆ᴰ Pᴰ.reind (P.⋆IdL _) (αᴰ.N-obᴰ D.idᴰ))
+        ≡⟨ αᴰ⁻.N-obᴰ⟨ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ _ ⟩ ∙ sym (αᴰ.N-hom _ _ _ _) ∙ αᴰ.N-obᴰ⟨ D.⋆IdR _ ⟩ ⟩ ⟩
+      _ , αᴰ .snd .inv _ (αᴰ.N-obᴰ fᴰ)
+        ≡⟨ (D.≡in $ αᴰ .snd .leftInv f fᴰ) ⟩
+      _ , fᴰ
+        ∎
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          {P : Presheaf C ℓP} {ue : UniversalElement C P} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
          (ueᴰ : UniversalElementᴰ Cᴰ ue Pᴰ)

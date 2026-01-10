@@ -25,9 +25,9 @@ record CartesianCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-s
     bp   : BinProducts C
 
   -- potential performance issue
-  open Category C
-  open TerminalNotation term
-  open BinProductsNotation bp
+  open Category C public
+  open TerminalNotation term public
+  open BinProductsNotation bp public
 
   unitor-l : ∀ {a} → CatIso C (𝟙 × a) a
   unitor-l .fst = π₂

@@ -68,6 +68,13 @@ module _ {ℓ ℓ'} where
       (λ _ → idIso)
       (λ _ _ _ _ →
         funExt₂ (λ _ _ →
+        -- It would be nice if this was just SETᴰ.rectify/≡out/reind-filler,
+        -- but there are too many unresolved implict arguments when
+        -- attempting to use that interface.
+        -- Later in this file, the construction of Exponentials/Universal Quantifiers
+        -- is very slow. I believe if all of our proofs could use the
+        -- SETᴰ interface rather than the Xᴰ (or analogous) one, then some
+        -- of these issues with performance would be addressed
         Xᴰ.Prectify $ Xᴰ.≡out $
           (sym $ Xᴰ.reind-filler _) ∙ Xᴰ.reind-filler _))
       where
@@ -120,6 +127,8 @@ module _ {ℓ ℓ'} where
       where
       module Aᴰ = hSetReasoning A (λ a → ⟨ Aᴰ a ⟩)
 
+  -- Exponentialsⱽ and UniversalQuantifiers are slow. Filling in the arguments below with "transp ..."
+  -- mitigates some of the performance issues, but only so much
   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
   ExponentialsⱽSETᴰ {x = A} Aᴰ Bᴰ .fst a = (⟨ Aᴰ a ⟩ → ⟨ Bᴰ a ⟩) , isSet→ (Bᴰ a .snd)
   ExponentialsⱽSETᴰ {x = A} Aᴰ Bᴰ .snd =

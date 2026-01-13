@@ -140,17 +140,19 @@ module _ {ℓ ℓ'} where
             (λ _ → refl))
       (λ C C' g p →
         funExt₂ (λ u v →
-        Bᴰ.Prectify $ Bᴰ.≡out $
-          (sym $ Bᴰ.reind-filler λ i → g .snd .snd i (transp (λ j → fst (C .fst)) i u))
-          ∙ Bᴰ.≡in
-             {pth = refl}
-             (Bᴰ.Prectify $
-              cong (λ z → p (g .fst (transp (λ j → ⟨ C .fst ⟩) i0 u))
-                            (g .snd .fst (transp (λ j → ⟨ C .fst ⟩) i0 u)
-                                         (transp (λ j → ⟨ C .snd .fst (transp (λ _ → ⟨ C .fst ⟩) (~ j) u) ⟩) i0 (v .fst)))
-                            z)
-                (Aᴰ.Prectify $ Aᴰ.≡out $
-                  (sym $ Aᴰ.reind-filler λ i → g .snd .snd (~ i) (transp (λ j → fst (C .fst)) (~ i) u))
+        Bᴰ.Prectify
+          {e' = λ i → C .snd .snd u}
+          $ Bᴰ.≡out $
+          (sym $ Bᴰ.reind-filler _)
+          ∙ Bᴰ.≡in {pth = refl}
+             (cong₃ p
+                (refl {x = g .fst (transp (λ j → fst (C .fst)) i0 u)})
+                (refl {x = g .snd .fst (transp (λ j → fst (C .fst)) i0 u)
+                             (transp (λ j → fst (C .snd .fst (transp (λ j₁ → fst (C .fst)) (~ j) u))) i0 (v .fst))})
+                (Aᴰ.Prectify
+                  {e' = λ i → C' .snd .snd (g .fst (transp (λ j → fst (C .fst)) i0 u))}
+                   $ Aᴰ.≡out $
+                  (sym $ Aᴰ.reind-filler (λ i → g .snd .snd (~ i) (transp (λ j → fst (C .fst)) (~ i) u)))
                   ∙ Aᴰ.reind-filler (λ i → C .snd .snd (transp (λ j → fst (C .fst)) (~ i) u))
                   ∙ Aᴰ.reind-filler (λ i →
                                        C .snd .snd
@@ -167,12 +169,10 @@ module _ {ℓ ℓ'} where
                                         (transp (λ j → fst (C .fst)) i0
                                          (transp (λ j → fst (C .fst)) i0 u))))
                   ∙ Aᴰ.reind-filler _))
-          ∙ Bᴰ.reind-filler _)
-          )
+          ∙ Bᴰ.reind-filler _))
       where
       module Aᴰ = hSetReasoning A (λ a → ⟨ Aᴰ a ⟩)
       module Bᴰ = hSetReasoning A (λ a → ⟨ Bᴰ a ⟩)
-
 
 module _ {ℓ} {ℓ'} where
   private
@@ -198,26 +198,25 @@ module _ {ℓ} {ℓ'} where
                    (λ _ → refl)
                    (λ _ → refl))
         (λ C C' g p → funExt₂ λ u v →
+          let module C = hSetReasoning (C .fst) (λ c → ⟨ C .snd .fst c ⟩) in
           let module C' = hSetReasoning (C' .fst) (λ c → ⟨ C' .snd .fst c ⟩) in
-          Cᴰ.Prectify $ Cᴰ.≡out $
+          Cᴰ.Prectify
+            {e' = λ i → snd (C .snd) (fst u) , snd u}
+            $ Cᴰ.≡out $
             (sym $ Cᴰ.reind-filler (λ i → g .snd .snd i (transp (λ j → fst (C .fst)) i (fst u)) , transp (λ j → fst B) i (snd u)))
-            ∙ (Cᴰ.≡in {pth = refl} $ Cᴰ.Prectify $
-                 cong (λ z → p (g .fst (transp (λ j → C .fst .fst) i0 (u .fst))) z (transp (λ _ → ⟨ B ⟩) i0 (u .snd)))
-                   (C'.Prectify $ C'.≡out $
-                     (C'.≡in {pth = λ i → g .fst (transportRefl (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst)) (~ i))} $
-                       C'.Prectify $
-                       cong₂ (g .snd .fst)
-                         (sym $ transportRefl _)
-                         (transport-filler (λ i →
-                                              ⟨
-                                              C .snd .fst
-                                              (transportRefl (transp (λ j → ⟨ C .fst ⟩) (i0 ∨ i0) (fst u)) (~ i))
-                                              ⟩) (transp
-                                                  (λ j →
-                                                     ⟨ C .snd .fst (transp (λ j₁ → ⟨ C .fst ⟩) (i0 ∨ i0 ∨ ~ j) (fst u))
-                                                     ⟩)
-                                                  (i0 ∨ i0) v)))
-                     ∙ C'.reind-filler _))
+            ∙ (Cᴰ.≡in {pth = refl} $
+                  cong₃ p (refl {x = g .fst (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst))})
+                          (C'.Prectify {e' = λ i → g .fst (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
+                             C'.≡out $
+                              (C'.≡in {pth = λ i → g .fst (transportRefl (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst)) (~ i))} $
+                                cong₂ (g .snd .fst)
+                                  (sym $ transportRefl (transp (λ _ → fst (C .fst)) i0 (u .fst)))
+                                  (C.Prectify {e' = λ i →
+                                                       transp (λ _ → fst (C .fst)) (~ i)
+                                                       (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
+                                     C.≡out $ (sym $ C.reind-filler _) ∙ C.reind-filler _ ∙ C.reind-filler _ ))
+                              ∙ C'.reind-filler _)
+                          (refl {x = transp (λ _ → ⟨ B ⟩) i0 (u .snd)}))
             ∙ Cᴰ.reind-filler _
         )
         where

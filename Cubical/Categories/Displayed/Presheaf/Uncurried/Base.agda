@@ -190,9 +190,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
         (ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ))))
         (ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))) }
 
--- -- TODO:
--- -- 1. /Fⱽ-seq
--- -- 2. /Fⱽ-NatIso
+-- TODO:
+-- 1. /Fⱽ-seq
+-- 2. /Fⱽ-NatIso
 
 -- Interestingly, this one is at a lower universe level than Curried.Presheafᴰ
 -- Use modules to distinguish this from Curried.Presheafᴰ
@@ -441,6 +441,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   idPshHomⱽ : PshHomⱽ Pᴰ Pᴰ
   idPshHomⱽ = idPshHom
 
+  idPshHomᴰ : PshHomᴰ idPshHom Pᴰ Pᴰ
+  idPshHomᴰ = invPshIso (reindPshᴰNatTrans-id idPshHom Pᴰ) .trans
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
@@ -460,6 +463,31 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   infixr 9 _⋆PshHomⱽ_
   infixr 9 _⋆PshIsoⱽ_
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  {R : Presheaf C ℓR}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+  where
+  private
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+    module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
+
+  _⋆PshHomᴰ_ :
+    {α : PshHom P Q}
+    {β : PshHom Q R} →
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+    (βᴰ : PshHomᴰ β Qᴰ Rᴰ) →
+    PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ
+  (αᴰ ⋆PshHomᴰ βᴰ) =
+    αᴰ
+    ⋆PshHomⱽ reindPshHom (Idᴰ /Fⱽ _) βᴰ
+    ⋆PshHomⱽ invPshIso (reindPshᴰNatTrans-seq _ _ Rᴰ) .trans
+
+  infixr 9 _⋆PshHomᴰ_
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -481,3 +509,50 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (λ a → αᴰ .nIso (Γ , Γᴰ , a))
       (PresheafNotation.isSetPsh P)
       (PresheafNotation.isSetPsh Q)
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  where
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module P = PresheafNotation P
+
+  module _
+    {α β : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+    (βᴰ : PshHomᴰ β Pᴰ Qᴰ)
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+      module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
+    PshHomᴰPathP : α ≡ β → Type _
+    PshHomᴰPathP α≡β = PathP (λ i → PshHomᴰ (α≡β i) Pᴰ Qᴰ) αᴰ βᴰ
+
+    makePshHomᴰPathP :
+      (α≡β : α ≡ β) →
+      (PathP (λ i → ((x , xᴰ , p) : ob (Cᴰ / P)) → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α≡β i .N-ob x p ][ xᴰ ])
+          (αᴰ .N-ob) (βᴰ .N-ob)) →
+      PshHomᴰPathP α≡β
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-ob = αᴰ≡βᴰ i
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-hom c c' f p =
+      isSet→SquareP (λ j k → Qᴰ.isSetPshᴰ)
+        (αᴰ .N-hom c c' f p)
+        (βᴰ .N-hom c c' f p)
+        (λ j → αᴰ≡βᴰ j _ (Pᴰ .F-hom f p))
+        (λ j → Qᴰ .F-hom ((Idᴰ /Fⱽ α≡β j) .F-hom f) (αᴰ≡βᴰ j c' p))
+        i
+
+  module _
+    {α : PshHom P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {αᴰ βᴰ : PshHomᴰ α Pᴰ Qᴰ}
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+      module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
+    makePshHomᴰPath : (αᴰ .N-ob ≡ βᴰ .N-ob) → αᴰ ≡ βᴰ
+    makePshHomᴰPath = makePshHomᴰPathP αᴰ βᴰ (λ i → α)

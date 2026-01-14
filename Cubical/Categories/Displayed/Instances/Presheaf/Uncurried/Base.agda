@@ -35,7 +35,7 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
@@ -57,21 +57,25 @@ module _
   where
   private
     PSH = PRESHEAF C ℓP
-  PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP) _ _
-  PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
-  PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰ
-  PRESHEAFᴰ .idᴰ = idPshHomᴰ
-  PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰ_
-  PRESHEAFᴰ .⋆IdLᴰ {f = α} {yᴰ = Qᴰ} αᴰ =
-    makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
-    where
-    module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
-  PRESHEAFᴰ .⋆IdRᴰ {yᴰ = Qᴰ} _ =
-    makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
-    where
-    module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
-  PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Rᴰ} _ _ _ =
-    makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Rᴰ.rectify {e = refl} refl)
-    where
-    module Rᴰ = PresheafᴰNotation Cᴰ _ Rᴰ
-  PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _
+  opaque
+    unfolding unfoldPresheafᴰDefs
+    PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP)
+      (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) (ℓ-suc ℓPᴰ))
+      (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓPᴰ)
+    PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
+    PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰ
+    PRESHEAFᴰ .idᴰ = idPshHomᴰ
+    PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰ_
+    PRESHEAFᴰ .⋆IdLᴰ {f = α} {yᴰ = Qᴰ} αᴰ =
+      makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
+      where
+      module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
+    PRESHEAFᴰ .⋆IdRᴰ {yᴰ = Qᴰ} _ =
+      makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
+      where
+      module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
+    PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Rᴰ} _ _ _ =
+      makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Rᴰ.rectify {e = refl} refl)
+      where
+      module Rᴰ = PresheafᴰNotation Cᴰ _ Rᴰ
+    PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _

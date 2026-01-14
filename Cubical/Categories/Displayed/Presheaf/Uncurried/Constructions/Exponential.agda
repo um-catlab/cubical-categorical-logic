@@ -52,8 +52,11 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+import Cubical.Categories.Displayed.Presheaf.Constructions.Curry as Curry
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Push
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
@@ -87,22 +90,24 @@ module _
   LocallyRepresentableⱽ Pᴰ = ∀ {x} (xᴰ : Cᴰ.ob[ x ])(p : P.p[ x ])
     → Representableⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×Psh reindPshᴰNatTrans (yoRec P p) Pᴰ)
 
-  LocallyRepresentableⱽ→LocallyRepresentable : {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-    → LocallyRepresentableⱽ Pᴰ
-    → LocallyRepresentable Pᴰ
-  LocallyRepresentableⱽ→LocallyRepresentable {Pᴰ = Pᴰ} _×ⱽ_*Pᴰ (Γ , Γᴰ , p) =
-    RepresentationPshIso→UniversalElement (((Cᴰ / P) [-, Γ , Γᴰ , p ]) ×Psh Pᴰ)
-      ((_ , (Γᴰ ×ⱽ p *Pᴰ) .fst , p) ,
-      -- Cᴰ / P [-, Γ , (Γᴰ ×ⱽ p *Pᴰ) , p ]
-      push-repr
-      -- pushⱽ p (Cᴰ [-][-, (Γᴰ ×ⱽ p *Pᴰ) ])
-      ⋆PshIso push-PshIsoⱽ (yoRec P p) ((Γᴰ ×ⱽ p *Pᴰ) .snd)
-      -- pushⱽ p (Cᴰ [-][-, Γᴰ ] ×ⱽ (reindPshᴰNatTrans (yoRec p) Pᴰ))
-      ⋆PshIso FrobeniusReciprocity (yoRec P p) (Cᴰ [-][-, Γᴰ ]) Pᴰ
-      -- pushⱽ p (Cᴰ [-][-, Γᴰ ]) ×ⱽ Pᴰ
-      ⋆PshIso ×PshIso (invPshIso push-repr) idPshIso
-      -- (Cᴰ / P [-][-, Γ , Γᴰ , p ]) ×ⱽ Pᴰ
-      )
+  opaque
+    unfolding unfoldPushDefs
+    LocallyRepresentableⱽ→LocallyRepresentable : {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+      → LocallyRepresentableⱽ Pᴰ
+      → LocallyRepresentable Pᴰ
+    LocallyRepresentableⱽ→LocallyRepresentable {Pᴰ = Pᴰ} _×ⱽ_*Pᴰ (Γ , Γᴰ , p) =
+      RepresentationPshIso→UniversalElement (((Cᴰ / P) [-, Γ , Γᴰ , p ]) ×Psh Pᴰ)
+        ((_ , (Γᴰ ×ⱽ p *Pᴰ) .fst , p) ,
+        -- Cᴰ / P [-, Γ , (Γᴰ ×ⱽ p *Pᴰ) , p ]
+        push-repr
+        -- pushⱽ p (Cᴰ [-][-, (Γᴰ ×ⱽ p *Pᴰ) ])
+        ⋆PshIso push-PshIsoⱽ (yoRec P p) ((Γᴰ ×ⱽ p *Pᴰ) .snd)
+        -- pushⱽ p (Cᴰ [-][-, Γᴰ ] ×ⱽ (reindPshᴰNatTrans (yoRec p) Pᴰ))
+        ⋆PshIso FrobeniusReciprocity (yoRec P p) (Cᴰ [-][-, Γᴰ ]) Pᴰ
+        -- pushⱽ p (Cᴰ [-][-, Γᴰ ]) ×ⱽ Pᴰ
+        ⋆PshIso ×PshIso (invPshIso push-repr) idPshIso
+        -- (Cᴰ / P [-][-, Γ , Γᴰ , p ]) ×ⱽ Pᴰ
+        )
 
 LRⱽPresheafᴰ : {C : Category ℓC ℓC'}(P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) → Type _
 LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyRepresentableⱽ
@@ -117,31 +122,35 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
   _×ⱽ_* : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ Γ ]) → Cᴰ.ob[ Γ ]
   Γᴰ ×ⱽ p * = Pᴰ .snd Γᴰ p .fst
 
-  introᴰ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
-    → (γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ])
-    → p[ γ P.⋆ p ][ Δᴰ ]
-    → Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]
-  introᴰ {Δ} {Δᴰ} {Γ} {Γᴰ} {γ} {p} γᴰ γpᴰ = Pᴰ .snd Γᴰ p .snd .nIso (Δ , Δᴰ , γ) .fst
-    (γᴰ , γpᴰ)
+  opaque
+    unfolding unfoldElementDefs Curry.unfoldCurryDefs
 
-  _⋆π₁ⱽ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
-    → Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]
-    → Cᴰ [ γ ][ Δᴰ , Γᴰ ]
-  γᴰ ⋆π₁ⱽ = Pᴰ .snd _ _ .snd .trans .N-ob (_ , _ , _) γᴰ .fst
+    introᴰ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
+        → (γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ])
+        → p[ γ P.⋆ p ][ Δᴰ ]
+        → Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]
+    introᴰ {Δ} {Δᴰ} {Γ} {Γᴰ} {γ} {p} γᴰ γpᴰ = Pᴰ .snd Γᴰ p .snd .nIso (Δ , Δᴰ , γ) .fst
+        (γᴰ , γpᴰ)
+
+    _⋆π₁ⱽ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
+        → Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]
+        → Cᴰ [ γ ][ Δᴰ , Γᴰ ]
+    γᴰ ⋆π₁ⱽ = Pᴰ .snd _ _ .snd .trans .N-ob (_ , _ , _) γᴰ .fst
 
 
-  π₁ⱽ : ∀ {Γ Γᴰ p} → Cᴰ [ C.id {Γ} ][ Γᴰ ×ⱽ p * , Γᴰ ]
-  π₁ⱽ = Cᴰ.idᴰ ⋆π₁ⱽ
+    π₁ⱽ : ∀ {Γ Γᴰ p} → Cᴰ [ C.id {Γ} ][ Γᴰ ×ⱽ p * , Γᴰ ]
+    π₁ⱽ = Cᴰ.idᴰ ⋆π₁ⱽ
 
-  _⋆π₂ⱽ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
-    → Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]
-    → p[ γ P.⋆ p ][ Δᴰ ]
-  γᴰ ⋆π₂ⱽ = Pᴰ .snd _ _ .snd .trans .N-ob (_ , _ , _) γᴰ .snd
+    _⋆π₂ⱽ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
+        → Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ]
+        → p[ γ P.⋆ p ][ Δᴰ ]
+    γᴰ ⋆π₂ⱽ = Pᴰ .snd _ _ .snd .trans .N-ob (_ , _ , _) γᴰ .snd
 
-  π₂ⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{p} → p[ C.id P.⋆ p ][ Γᴰ ×ⱽ p * ]
-  π₂ⱽ = Cᴰ.idᴰ ⋆π₂ⱽ
+    π₂ⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{p} → p[ C.id P.⋆ p ][ Γᴰ ×ⱽ p * ]
+    π₂ⱽ = Cᴰ.idᴰ ⋆π₂ⱽ
 
   opaque
+    unfolding introᴰ
     congP-introᴰ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ γ'}{p : P.p[ Γ ]}
       {γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ]}
       {γᴰ' : Cᴰ.Hom[ γ' ][ Δᴰ , Γᴰ ]}
@@ -267,10 +276,10 @@ module _
   ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
   ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 
-  private
-    test-ob : ∀ ((Γ , Γᴰ , p) : (Cᴰ / P) .Category.ob) →
-      ×LRⱽPshᴰ .Functor.F-ob (Γ , Γᴰ , p) ≡ (Γ , ((Γᴰ ×ⱽPᴰ.×ⱽ p *) , p))
-    test-ob (Γ , Γᴰ , p) = refl
+  -- private
+  --   test-ob : ∀ ((Γ , Γᴰ , p) : (Cᴰ / P) .Category.ob) →
+  --     ×LRⱽPshᴰ .Functor.F-ob (Γ , Γᴰ , p) ≡ (Γ , ((Γᴰ ×ⱽPᴰ.×ⱽ p *) , p))
+  --   test-ob (Γ , Γᴰ , p) = refl
 
   -- -- this would be a preferable definition but it's very slow to typecheck and use. Why?
   -- ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)

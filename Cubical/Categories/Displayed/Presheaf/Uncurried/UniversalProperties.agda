@@ -7,6 +7,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.More
 
+open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
@@ -28,10 +29,12 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+import Cubical.Categories.Displayed.Presheaf.Constructions.Curry as Curry
 
 private
   variable
@@ -127,40 +130,50 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module A×B = UniversalElementNotation A×B
     open UniversalElementᴰNotation Cᴰ _ _ Aᴰ×ᴰBᴰ public
 
-    πᴰ₁ : Cᴰ [ ue.element .fst ][ Aᴰ×ᴰBᴰ .fst , Aᴰ ]
-    πᴰ₁ = Aᴰ×ᴰBᴰ .snd .fst .fst
+    opaque
+      unfolding Curry.unfoldCurryDefs unfoldReprDefs
+      pairᴰ : {Γ : C.ob} {Γᴰ : Cᴰ.ob[ Γ ]}
+              {(f , g) : (C [ Γ , A ]) × (C [ Γ , B ])} →
+              (Cᴰ [ f ][ Γᴰ , Aᴰ ]) × (Cᴰ [ g ][ Γᴰ , Bᴰ ]) →
+              Cᴰ [ A×B.intro (f , g) ][ Γᴰ , Aᴰ×ᴰBᴰ .fst ]
+      pairᴰ = introᴰ
 
-    πᴰ₂ : Cᴰ [ ue.element .snd ][ Aᴰ×ᴰBᴰ .fst , Bᴰ ]
-    πᴰ₂ = Aᴰ×ᴰBᴰ .snd .fst .snd
+      πᴰ₁ : Cᴰ [ ue.element .fst ][ Aᴰ×ᴰBᴰ .fst , Aᴰ ]
+      πᴰ₁ = Aᴰ×ᴰBᴰ .snd .fst .fst
 
-    ×βᴰ₁ : ∀ {Γ Γᴰ}
-      {f : C [ Γ , A ]}
-      {g : C [ Γ , B ]}
-      (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
-      (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
-      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .fst ] fᴰ
-    ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-      Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
+      πᴰ₂ : Cᴰ [ ue.element .snd ][ Aᴰ×ᴰBᴰ .fst , Bᴰ ]
+      πᴰ₂ = Aᴰ×ᴰBᴰ .snd .fst .snd
 
-    ×βᴰ₂ : ∀ {Γ Γᴰ}
-      {f : C [ Γ , A ]}
-      {g : C [ Γ , B ]}
-      (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
-      (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
-      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .snd ] gᴰ
-    ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-      Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
+      ×βᴰ₁ : ∀ {Γ Γᴰ}
+        {f : C [ Γ , A ]}
+        {g : C [ Γ , B ]}
+        (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
+        (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
+        → (pairᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁)
+           Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .fst ]
+           fᴰ
+      ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
 
-    ×ηᴰ : ∀ {Γ Γᴰ}
-      → {f : C [ Γ , A×B .vertex ]}
-      → (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ×ᴰBᴰ .fst ])
-      → fᴰ Cᴰ.≡[ A×B.η {f = f} ] introᴰ ((fᴰ Cᴰ.⋆ᴰ πᴰ₁) , (fᴰ Cᴰ.⋆ᴰ πᴰ₂))
-    ×ηᴰ {Γ} {Γᴰ} {f} fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-      Cᴰ.≡in (ηᴰ {f = f} fᴰ)
-      ∙ cong (∫PshIsoᴰ (asReprᴰ .snd) .nIso _ .fst)
-          (ΣPathPᴰ
-              (sym $ Cᴰ.reind-filler _ _)
-              (sym $ Cᴰ.reind-filler _ _))
+      ×βᴰ₂ : ∀ {Γ Γᴰ}
+        {f : C [ Γ , A ]}
+        {g : C [ Γ , B ]}
+        (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
+        (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
+        → (pairᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .snd ] gᴰ
+      ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.reind-filler _ _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
+
+      ×ηᴰ : ∀ {Γ Γᴰ}
+        → {f : C [ Γ , A×B .vertex ]}
+        → (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ×ᴰBᴰ .fst ])
+        → fᴰ Cᴰ.≡[ A×B.η {f = f} ] pairᴰ ((fᴰ Cᴰ.⋆ᴰ πᴰ₁) , (fᴰ Cᴰ.⋆ᴰ πᴰ₂))
+      ×ηᴰ {Γ} {Γᴰ} {f} fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.≡in (ηᴰ {f = f} fᴰ)
+        ∙ cong (∫PshIsoᴰ (asReprᴰ .snd) .nIso _ .fst)
+            (ΣPathPᴰ
+                (sym $ Cᴰ.reind-filler _ _)
+                (sym $ Cᴰ.reind-filler _ _))
 
   module BinProductsᴰNotation (bp : BinProducts C) (bpᴰ : BinProductsᴰ bp) where
     _×ᴰ_ : ∀ {A B} (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Cᴰ.ob[ bp (A , B) .vertex ]
@@ -170,3 +183,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module BPNotation {A : C.ob}{B : C.ob} {Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]}
         = BinProductᴰNotation (bp (A , B)) (bpᴰ Aᴰ Bᴰ)
     open BPNotation public
+
+opaque
+  unfolding BinProductᴰNotation.pairᴰ
+  unfoldBinProductᴰDefs : Unit
+  unfoldBinProductᴰDefs = tt

@@ -137,34 +137,39 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
     module Cᴰ = Fibers Cᴰ
     module π* {Γ} = QuadrableNotation Cᴰ (π* Γ)
 
-  wkF-ReprIso : ∀ Γ ((Δ , Δᴰ , γ) : ((Cᴰ / (C [-, Γ ])) .ob))
-    → PshIso ((Cᴰ / (C [-, F ⟅ Γ ⟆ ])) [-, F ⟅ Δ ⟆ , π* Δ Δᴰ .fst , F ⟪ γ ⟫ ]) (wkProf Cᴰ π Γ ⟅ Δ , Δᴰ , γ ⟆)
-  wkF-ReprIso Γ (Δ , Δᴰ , γ) = Isos→PshIso
-    (λ (Θ , Θᴰ , γ~) →
-      -- Σ[ δ~ ] Cᴰ.Hom[ δ~ ][ Θᴰ , π* Δᴰ ] × δ~⋆F⟪γ⟫≡γ~
-      compIso (invIso Σ-assoc-IsoR) $
-      compIso
-        (IsoOver→Iso
-        (isPullback→ΣIso C (CartesianNatTrans→PBSq (π , π-Cart) γ) Θ γ~)
-        (isoover
-          (λ (δ~ , δ~Fγ≡γ~) → π*._⋆πⱽ)
-          (λ (δ , δγ≡γ~π) δᴰ → π*.introᴰ (Cᴰ.reind (pullbackArrowPr₂ C (CartesianNatTrans→PBSq (π , π-Cart) γ) γ~ δ (sym $ δγ≡γ~π)) δᴰ))
-          (λ (δ , δγ≡γ~π) δᴰ → Cᴰ.rectify $ Cᴰ.≡out $
-            π*.βᴰ _
-            ∙ (sym $ Cᴰ.reind-filler _ _) )
-          λ (δ~ , δ~Fγ≡γ~) δ~ᴰ → Cᴰ.rectify $ Cᴰ.≡out $
-            π*.cong-introᴰ (Pullback.pullbackArrowUnique (CartesianNatTrans→PBSq (π , π-Cart) γ) (sym $ δ~Fγ≡γ~) refl) (sym $ Cᴰ.reind-filler _ _)
-            ∙ (sym $ π*.ηᴰ δ~ᴰ))
-                 ) $ Σ-assoc-IsoR
-      -- Σ[ δ ] Cᴰ.Hom[ δ ][ Θᴰ , Δᴰ ] × δ⋆γ≡γ~⋆π
-      )
-    λ (H , Hᴰ , γ~') (Θ , Θᴰ , γ~) (θ , θᴰ , θγ~≡γ~') (δ~ , δ~ᴰ , δ~Fγ≡γ~) →
-      ΣPathP (C.⋆Assoc θ δ~ _ , ΣPathPProp (λ _ → C.isSetHom _ _)
-      (Cᴰ.rectify $ Cᴰ.≡out $ π*.⋆πⱽ-natural))
+  opaque
+    unfolding unfoldElementDefs
+    wkF-ReprIso : ∀ Γ ((Δ , Δᴰ , γ) : ((Cᴰ / (C [-, Γ ])) .ob))
+        → PshIso ((Cᴰ / (C [-, F ⟅ Γ ⟆ ])) [-, F ⟅ Δ ⟆ , π* Δ Δᴰ .fst , toElt (C [-, F ⟅ Γ ⟆ ]) (F ⟪ fromElt (C [-, Γ ]) γ ⟫) ]) (wkProf Cᴰ π Γ ⟅ Δ , Δᴰ , γ ⟆)
+    wkF-ReprIso Γ (Δ , Δᴰ , γ) =
+      Isos→PshIso
+        (λ (Θ , Θᴰ , γ~) →
+        -- Σ[ δ~ ] Cᴰ.Hom[ δ~ ][ Θᴰ , π* Δᴰ ] × δ~⋆F⟪γ⟫≡γ~
+        compIso (invIso Σ-assoc-IsoR) $
+        compIso
+            (IsoOver→Iso
+            (isPullback→ΣIso C (CartesianNatTrans→PBSq (π , π-Cart) γ) Θ γ~)
+            (isoover
+            (λ (δ~ , δ~Fγ≡γ~) → π*._⋆πⱽ)
+            (λ (δ , δγ≡γ~π) δᴰ → π*.introᴰ (Cᴰ.reind (pullbackArrowPr₂ C (CartesianNatTrans→PBSq (π , π-Cart) γ) γ~ δ (sym $ δγ≡γ~π)) δᴰ))
+            (λ (δ , δγ≡γ~π) δᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+                π*.βᴰ _
+                ∙ (sym $ Cᴰ.reind-filler _ _) )
+            λ (δ~ , δ~Fγ≡γ~) δ~ᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+                π*.cong-introᴰ (Pullback.pullbackArrowUnique (CartesianNatTrans→PBSq (π , π-Cart) γ) (sym $ δ~Fγ≡γ~) refl) (sym $ Cᴰ.reind-filler _ _)
+                ∙ (sym $ π*.ηᴰ δ~ᴰ))
+                    ) $ Σ-assoc-IsoR
+        -- Σ[ δ ] Cᴰ.Hom[ δ ][ Θᴰ , Δᴰ ] × δ⋆γ≡γ~⋆π
+        )
+        λ (H , Hᴰ , γ~') (Θ , Θᴰ , γ~) (θ , θᴰ , θγ~≡γ~') (δ~ , δ~ᴰ , δ~Fγ≡γ~) →
+        ΣPathP (C.⋆Assoc θ δ~ _ , ΣPathPProp (λ _ → C.isSetHom _ _)
+        (Cᴰ.rectify $ Cᴰ.≡out $ π*.⋆πⱽ-natural))
 
-  wkF-UE : ∀ Γ → UniversalElements (wkProf Cᴰ π Γ)
-  wkF-UE Γ (Δ , Δᴰ , γ) = RepresentationPshIso→UniversalElement ((wkProf Cᴰ π Γ) .F-ob (Δ , Δᴰ , γ))
-    ((F ⟅ Δ ⟆ , π* Δ Δᴰ .fst , F ⟪ γ ⟫) , wkF-ReprIso Γ (Δ , Δᴰ , γ))
+  opaque
+    unfolding unfoldElementDefs
+    wkF-UE : ∀ Γ → UniversalElements (wkProf Cᴰ π Γ)
+    wkF-UE Γ (Δ , Δᴰ , γ) = RepresentationPshIso→UniversalElement ((wkProf Cᴰ π Γ) .F-ob (Δ , Δᴰ , γ))
+      ((F ⟅ Δ ⟆ , π* Δ Δᴰ .fst , F ⟪ γ ⟫) , wkF-ReprIso Γ (Δ , Δᴰ , γ))
 
   -- Could use FunctorComprehensionᴰ for this
   wkF-ugly : ∀ Γ → Functor (Cᴰ / (C [-, Γ ])) (Cᴰ / (C [-, F ⟅ Γ ⟆ ]))

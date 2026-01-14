@@ -23,8 +23,10 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+import Cubical.Categories.Displayed.Presheaf.Constructions.Curry as Curry
+open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 
 private
@@ -60,18 +62,21 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   -- TODO: more general RepresentableⱽNotation
 
   module CartesianLiftNotation {x y} {f : C [ x , y ]} {yᴰ : Cᴰ.ob[ y ]} (f*yᴰ : CartesianLift f yᴰ) where
-    introᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g} → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ] → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
-    introᴰ = f*yᴰ .snd .nIso (_ , _ , _) .fst
+    opaque
+      unfolding Curry.unfoldCurryDefs
+      introᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g} → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ] → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
+      introᴰ = f*yᴰ .snd .nIso (_ , _ , _) .fst
 
-    _⋆πⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
-        → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
-        → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]
-    gᴰ ⋆πⱽ = f*yᴰ .snd .trans .N-ob (_ , _ , _) gᴰ
+      _⋆πⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
+          → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
+          → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]
+      gᴰ ⋆πⱽ = f*yᴰ .snd .trans .N-ob (_ , _ , _) gᴰ
 
     πⱽ : Cᴰ [ C.id C.⋆ f ][ f*yᴰ .fst , yᴰ ]
     πⱽ = Cᴰ.idᴰ ⋆πⱽ
 
     opaque
+      unfolding Curry.unfoldCurryDefs introᴰ
       congP-introᴰ :
         ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g'}
           → {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]}

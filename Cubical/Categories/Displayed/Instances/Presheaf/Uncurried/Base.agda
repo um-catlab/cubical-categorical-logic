@@ -57,25 +57,36 @@ module _
   where
   private
     PSH = PRESHEAF C ℓP
-  opaque
-    unfolding unfoldPresheafᴰDefs
-    PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP)
-      (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) (ℓ-suc ℓPᴰ))
-      (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓPᴰ)
-    PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
-    PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰ
-    PRESHEAFᴰ .idᴰ = idPshHomᴰ
-    PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰ_
-    PRESHEAFᴰ .⋆IdLᴰ {f = α} {yᴰ = Qᴰ} αᴰ =
-      makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
-      where
-      module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
-    PRESHEAFᴰ .⋆IdRᴰ {yᴰ = Qᴰ} _ =
-      makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl)
-      where
-      module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
-    PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Rᴰ} _ _ _ =
-      makePshHomᴰPathP _ _ _ (funExt₂ λ _ _ → Rᴰ.rectify {e = refl} refl)
-      where
-      module Rᴰ = PresheafᴰNotation Cᴰ _ Rᴰ
-    PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _
+    module PSH = Category PSH
+
+  PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP)
+    (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) (ℓ-suc ℓPᴰ))
+    (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓPᴰ)
+  PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
+  PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰ
+  PRESHEAFᴰ .idᴰ = idPshHomᴰ
+  PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰ_
+  PRESHEAFᴰ .⋆IdLᴰ {f = α} {yᴰ = Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ opq
+    where
+    module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
+    opaque
+      unfolding unfoldPresheafᴰDefs
+      opq : makePshHomᴰPathP-Ty (idPshHomᴰ ⋆PshHomᴰ αᴰ) αᴰ (PSH.⋆IdL α)
+      opq = funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl
+  PRESHEAFᴰ .⋆IdRᴰ {f = α} {yᴰ = Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ opq
+    where
+    module Qᴰ = PresheafᴰNotation Cᴰ _ Qᴰ
+    opaque
+      unfolding unfoldPresheafᴰDefs
+      opq : makePshHomᴰPathP-Ty (αᴰ ⋆PshHomᴰ idPshHomᴰ) αᴰ (PSH.⋆IdR α)
+      opq = funExt₂ λ _ _ → Qᴰ.rectify {e = refl} refl
+  PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Rᴰ} αᴰ βᴰ γᴰ = makePshHomᴰPathP _ _ _ opq
+    where
+    module Rᴰ = PresheafᴰNotation Cᴰ _ Rᴰ
+    opaque
+      unfolding unfoldPresheafᴰDefs
+      opq : makePshHomᴰPathP-Ty ((αᴰ ⋆PshHomᴰ βᴰ) ⋆PshHomᴰ γᴰ)
+                                (αᴰ ⋆PshHomᴰ (βᴰ ⋆PshHomᴰ γᴰ))
+                                (PSH.⋆Assoc _ _ _)
+      opq = funExt₂ λ _ _ → Rᴰ.rectify {e = refl} refl
+  PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _

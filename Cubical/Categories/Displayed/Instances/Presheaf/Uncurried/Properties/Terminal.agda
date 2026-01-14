@@ -33,9 +33,10 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
+import Cubical.Categories.Displayed.Presheaf.Constructions.Curry as Curry
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
@@ -61,12 +62,25 @@ module _
     module PSHᴰ = Fibers PSHᴰ
 
   TerminalsⱽPSHᴰ : Terminalsⱽ PSHᴰ
-  TerminalsⱽPSHᴰ P .fst = Unit*Psh
-  TerminalsⱽPSHᴰ P .snd =
-    Isos→PshIso
-      (λ (Q , Qᴰ , α) →
-        iso (λ _ → tt)
-            {!!}
-            {!!}
-            {!!})
-      {!!}
+  TerminalsⱽPSHᴰ P =
+    UniversalElementⱽ'.REPRⱽ
+      (record {
+        vertexⱽ = Unit*Psh
+      ; elementⱽ = _
+      ; universalⱽ = λ x →
+          IsoToIsIso
+            (iso (λ _ → tt)
+                 (λ _ → the-intro x)
+                 (λ _ → refl)
+                 (the-intro≡ x)) })
+      where
+      module よ1 = PresheafNotation (PSHᴰ [-][-, Unit*Psh ])
+      opaque
+        unfolding unfoldPresheafᴰDefs Curry.unfoldCurryDefs
+        the-intro : (x : (PSHᴰ / (PRESHEAF C ℓP [-, P ])) .ob) → よ1.p[ x ]
+        the-intro (P , Pᴰ , α) = pshhom (λ c _ → tt*) (λ _ _ _ _ → refl)
+
+        the-intro≡ :
+          (x : (PSHᴰ / (PRESHEAF C ℓP [-, P ])) .ob) →
+          retract (λ _ → tt) (λ _ → the-intro x)
+        the-intro≡ _ _ = makePshHomPath refl

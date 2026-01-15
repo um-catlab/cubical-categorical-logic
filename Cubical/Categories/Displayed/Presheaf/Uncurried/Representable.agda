@@ -111,6 +111,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     module Cᴰ = Fibers Cᴰ
     module Pⱽ = PresheafᴰNotation Cᴰ (C [-, x ]) Pⱽ
 
+  Representableⱽ : Type _
+  Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
+
   record UniversalElementⱽ'
     : Type (ℓ-max ℓC $ ℓ-max ℓC' $ ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' $ ℓPᴰ) where
     field
@@ -121,8 +124,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     toPshIsoⱽ : PshIsoⱽ (Cᴰ [-][-, vertexⱽ ]) Pⱽ
     toPshIsoⱽ = pshiso (yoRecⱽ Pⱽ elementⱽ) universalⱽ
 
-  Representableⱽ : Type _
-  Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
+    REPRⱽ : Representableⱽ
+    REPRⱽ .fst = vertexⱽ
+    REPRⱽ .snd = toPshIsoⱽ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (P : Presheaf C ℓP) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where

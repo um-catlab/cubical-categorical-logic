@@ -134,6 +134,34 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     → p P≡[ e' ] q
   Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
 
+  opaque
+    congᴰ :
+      ∀ {ℓX}
+      {X : Type ℓX} →
+      {f : X → ⟨ A ⟩} →
+      (fᴰ : (x : X) → P (f x)) →
+      {x x' : X} →
+      (x≡x' : x ≡ x') →
+      fᴰ x ∫≡ fᴰ x'
+    congᴰ {f = f} fᴰ x≡x' i .fst = f (x≡x' i)
+    congᴰ {f = f} fᴰ x≡x' i .snd = fᴰ (x≡x' i)
+
+    cong₂ᴰ :
+      ∀ {ℓX}{ℓY}
+      {X : Type ℓX} →
+      {Y : X → Type ℓY} →
+      {f : (x : X) → Y x → ⟨ A ⟩} →
+      (fᴰ : (x : X) → (y : Y x) → P (f x y)) →
+      {x x' : X} →
+      {y : Y x} →
+      {y' : Y x'} →
+      (xy≡xy' : (x , y) ≡ (x' , y')) →
+      fᴰ x y ∫≡ fᴰ x' y'
+    cong₂ᴰ {f = f} fᴰ xy≡xy' i .fst =
+      f (xy≡xy' i .fst) (xy≡xy' i .snd)
+    cong₂ᴰ {f = f} fᴰ xy≡xy' i .snd =
+      fᴰ (xy≡xy' i .fst) (xy≡xy' i .snd)
+
 ΣPathPᴰ :
   ∀ {A : Type ℓ}{P : A → Type ℓ'}
   {B : Type ℓ''}{Q : B → Type ℓ'''}

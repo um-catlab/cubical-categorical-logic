@@ -9,14 +9,11 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Structure
-
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
+open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.BinProduct as BP
-open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Presheaf hiding (PshHom)
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -54,31 +51,17 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
     ElementStr .idᴰ = P.⋆IdL _
     ElementStr ._⋆ᴰ_ fy≡x gz≡y = P.⋆Assoc _ _ _ ∙ cong (_ P.⋆_) gz≡y ∙ fy≡x
     ElementStr .isPropHomᴰ = P.isSetPsh _ _
-  opaque
-    Element : Categoryᴰ C ℓP ℓP
-    Element = StructureOver→Catᴰ ElementStr
+  Element : Categoryᴰ C ℓP ℓP
+  Element = StructureOver→Catᴰ ElementStr
 
-    private
-      module Elt = Fibers Element
+  hasPropHomsElement : hasPropHoms Element
+  hasPropHomsElement = hasPropHomsStructureOver ElementStr
 
-    toElt : ∀ {c} → P.p[ c ] → Elt.ob[ c ]
-    toElt = λ z → z
-
-    fromElt : ∀ {c} → Elt.ob[ c ] → P.p[ c ]
-    fromElt = λ z → z
-
-    mkEltHom : ∀ {c c'} {f : C [ c , c' ]} {p q} →
-      (f P.⋆ q) ≡ p → Elt.Hom[ f ][ toElt p , toElt q ]
-    mkEltHom = λ z → z
-
-    hasPropHomsElement : hasPropHoms Element
-    hasPropHomsElement = hasPropHomsStructureOver ElementStr
-
-  -- private
-  --   module ∫Element = Category (∫C Element)
-  --   test-Element : ∀ x p y q
-  --     → ∫Element.Hom[ (x , p) , (y , q) ] ≡ fiber (P._⋆ q) p
-  --   test-Element x p y q = refl
+  private
+    module ∫Element = Category (∫C Element)
+    test-Element : ∀ x p y q
+      → ∫Element.Hom[ (x , p) , (y , q) ] ≡ fiber (P._⋆ q) p
+    test-Element x p y q = refl
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {P : Presheaf C ℓP}
@@ -86,12 +69,10 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {F : Functor C D}
   (α : PshHet F P Q)
   where
-  opaque
-    unfolding Element
-    PshHet→ElementFunctorᴰ : Functorᴰ F (Element P) (Element Q)
-    PshHet→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsElement Q)
-        (α .PshHom.N-ob _)
-        λ f⋆p≡p' → (sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _) f⋆p≡p'
+  PshHet→ElementFunctorᴰ : Functorᴰ F (Element P) (Element Q)
+  PshHet→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsElement Q)
+    (α .PshHom.N-ob _)
+    λ f⋆p≡p' → (sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _) f⋆p≡p'
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)
@@ -111,29 +92,22 @@ module _
   where
   private
     module Q = PresheafNotation Q
-  opaque
-    unfolding Element
-    reindPsh-intro : ∀ {P : Presheaf C ℓP}
-        → (Functorᴰ F (Element P) (Element Q))
-        → (Functorⱽ (Element P) (Element (reindPsh F Q)))
-    reindPsh-intro {P = P} Fᴰ = mkPropHomsFunctor (hasPropHomsElement $ reindPsh F Q)
-        (Fᴰ .F-obᴰ)
-        (Fᴰ .F-homᴰ)
+  reindPsh-intro : ∀ {P : Presheaf C ℓP}
+    → (Functorᴰ F (Element P) (Element Q))
+    → (Functorⱽ (Element P) (Element (reindPsh F Q)))
+  reindPsh-intro {P = P} Fᴰ = mkPropHomsFunctor (hasPropHomsElement $ reindPsh F Q)
+    (Fᴰ .F-obᴰ)
+    (Fᴰ .F-homᴰ)
 
-    reindPsh-π : Functorᴰ F (Element (reindPsh F Q)) (Element Q)
-    reindPsh-π = mkPropHomsFunctor (hasPropHomsElement Q) (λ {x} z → z) λ {x} {y} {f} {xᴰ} {yᴰ} z → z
+  reindPsh-π : Functorᴰ F (Element (reindPsh F Q)) (Element Q)
+  reindPsh-π = mkPropHomsFunctor (hasPropHomsElement Q) (λ {x} z → z) λ {x} {y} {f} {xᴰ} {yᴰ} z → z
 
-    reindPsh-UMPⱽ : ∀ {P : Presheaf C ℓP}
-        → Iso (Functorⱽ (Element P) (Element (reindPsh F Q)))
-            (Functorᴰ F (Element P) (Element Q))
-    reindPsh-UMPⱽ .fun = reindPsh-π ∘Fᴰⱽ_
-    reindPsh-UMPⱽ {P = P} .inv = reindPsh-intro {P = P}
-    reindPsh-UMPⱽ .sec Fⱽ = Functorᴰ≡ (λ _ → refl)
-        (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)
-    reindPsh-UMPⱽ .ret Fᴰ = Functorᴰ≡ (λ _ → refl)
-        (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)
-
-opaque
-  unfolding PshHet→ElementFunctorᴰ reindPsh-intro
-  unfoldElementDefs : Unit
-  unfoldElementDefs = tt
+  reindPsh-UMPⱽ : ∀ {P : Presheaf C ℓP}
+    → Iso (Functorⱽ (Element P) (Element (reindPsh F Q)))
+          (Functorᴰ F (Element P) (Element Q))
+  reindPsh-UMPⱽ .fun = reindPsh-π ∘Fᴰⱽ_
+  reindPsh-UMPⱽ {P = P} .inv = reindPsh-intro {P = P}
+  reindPsh-UMPⱽ .sec Fⱽ = Functorᴰ≡ (λ _ → refl)
+    (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)
+  reindPsh-UMPⱽ .ret Fᴰ = Functorᴰ≡ (λ _ → refl)
+    (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)

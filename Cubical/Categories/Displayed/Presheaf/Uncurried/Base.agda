@@ -422,7 +422,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
 
   ∫PshIsoᴰ : PshIsoᴰ α Pᴰ Qᴰ → PshIso Pᴰ.∫ Qᴰ.∫
-  ∫PshIsoᴰ αᴰ = pshiso (∫PshHomᴰ (αᴰ .fst)) (λ (Γ , Γᴰ) → isIsoOver→isIsoΣ (αᴰ .snd Γ Γᴰ))
+  ∫PshIsoᴰ αᴰ .trans = ∫PshHomᴰ (αᴰ .fst)
+  ∫PshIsoᴰ αᴰ .nIso (Γ , Γᴰ) = isIsoOver→isIsoΣ (αᴰ .snd Γ Γᴰ)
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

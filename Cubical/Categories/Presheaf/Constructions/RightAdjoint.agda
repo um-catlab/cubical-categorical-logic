@@ -63,18 +63,17 @@ module _
       module P⊗P⇒Q {d} = Tensor (CurryBifunctor P ⟅ d ⟆) (P F⇒Large Q)
       module P⊗P⇒Q' = PresheafNotation (ext P ⟅ P F⇒Large Q ⟆)
 
-    F⇒Large-app : PshHom (ext P ⟅ P F⇒Large Q ⟆) Q
-    F⇒Large-app = pshhom
-      app
-      app-natural
-      where
-        app : ∀ d → (appL P d ⊗ (P F⇒Large Q)) → Q.p[ d ]
-        app d = P⊗P⇒Q.rec Q.isSetPsh (λ p α → α .N-ob d p) λ _ _ _ → refl
+    private
+      app : ∀ d → (appL P d ⊗ (P F⇒Large Q)) → Q.p[ d ]
+      app d = P⊗P⇒Q.rec Q.isSetPsh (λ p α → α .N-ob d p) λ _ _ _ → refl
 
-        app-natural : ∀ d d' (f : D [ d , d' ]) (p : (appL P d' ⊗ (P F⇒Large Q)))
-          → app d (f P⊗P⇒Q'.⋆ p) ≡ (f Q.⋆ app d' p)
-        app-natural d d' f = P⊗P⇒Q.ind (λ _ → Q.isSetPsh _ _)
-          λ p q → q .N-hom d d' f p
+      app-natural : ∀ d d' (f : D [ d , d' ]) (p : (appL P d' ⊗ (P F⇒Large Q)))
+        → app d (f P⊗P⇒Q'.⋆ p) ≡ (f Q.⋆ app d' p)
+      app-natural d d' f = P⊗P⇒Q.ind (λ _ → Q.isSetPsh _ _)
+        λ p q → q .N-hom d d' f p
+    F⇒Large-app : PshHom (ext P ⟅ P F⇒Large Q ⟆) Q
+    F⇒Large-app .N-ob = app
+    F⇒Large-app .N-hom = app-natural
 
     module _ (R : Presheaf C ℓR) where
       private

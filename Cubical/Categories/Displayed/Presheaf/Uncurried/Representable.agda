@@ -89,7 +89,13 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     private
       module Pⱽ = PresheafᴰNotation Cᴰ _ Pⱽ
     yoRecⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
-    yoRecⱽ pⱽ = Uncurry-recⱽ (Cᴰ Curried.[-][-, _ ]) Pⱽ (Curried.yoRecⱽ (CurryPshᴰ (C [-, x ]) Cᴰ Pⱽ) pⱽ)
+    yoRecⱽ pⱽ .N-ob (Γ , Γᴰ , f) gᴰ = Pⱽ .F-hom (f , gᴰ , C.⋆IdR _) pⱽ
+    yoRecⱽ pⱽ .N-hom (Γ , Γᴰ , f) (Δ , Δᴰ , g) (h , hᴰ , h⋆g≡f) gᴰ =
+      congS (λ z → Pⱽ .F-hom z pⱽ)
+        (ΣPathP ((sym h⋆g≡f) ,
+                 (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _ _) ,
+                 isProp→PathP (λ _ → C.isSetHom _ _) _ _))))
+      ∙ funExt⁻ (Pⱽ .F-seq (g , gᴰ , C.⋆IdR g) (h , hᴰ , h⋆g≡f)) pⱽ
 
     yoRecⱽ-UMP :
       ∀ {xᴰ}

@@ -173,7 +173,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
     -- TODO: general isPropPsh
     Refl : PshHomᴰ ΔPshHom (UnitPsh {C = Cᴰ / P}) PathPsh
-    Refl = pshhom (λ _ _ → refl) (λ _ _ _ _ → P.isSetPsh _ _ _ _)
+    Refl .N-ob _ _ = refl
+    Refl .N-hom _ _ _ _ = P.isSetPsh _ _ _ _
 
     module _ {Rᴰ : Presheafᴰ (P ×Psh P) Cᴰ ℓRᴰ} where
       private
@@ -311,8 +312,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
     push-repr : ∀ {x xᴰ p}
       → PshIsoⱽ ((Cᴰ / P) [-, x , xᴰ , p ]) (pushⱽ P p (Cᴰ [-][-, xᴰ ]))
-    push-repr {x}{xᴰ}{p} = pshiso (pshhom (λ (Γ , Γᴰ , q) (γ , γᴰ , γ⋆p≡q) → γ , (γᴰ , (sym $ γ⋆p≡q)))
-      λ c c' f p → ΣPathP (refl , (ΣPathPProp (λ _ → P.isSetPsh _ _) (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _ _))))
+    push-repr {x} {xᴰ} {p} .trans .N-ob (Γ , Γᴰ , q) (γ , γᴰ , γ⋆p≡q) = γ , γᴰ , (sym γ⋆p≡q)
+    push-repr {x} {xᴰ} {p} .trans .N-hom _ _ _ _ =
+      ΣPathP (refl , (ΣPathPProp (λ _ → P.isSetPsh _ _) (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _ _)))
+    push-repr {x} {xᴰ} {p} .nIso =
       λ (Γ , Γᴰ , q) → (λ (f , fᴰ , q≡f⋆p) → f , (fᴰ , (sym $ q≡f⋆p)))
         , (λ _ → refl) , (λ _ → refl)
 

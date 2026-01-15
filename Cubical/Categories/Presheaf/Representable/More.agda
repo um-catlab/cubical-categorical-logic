@@ -322,7 +322,8 @@ module _ {C : Category ℓc ℓc'} where
     Yoneda .trans .N-ob c α = α .N-ob c C.id
     Yoneda .trans .N-hom c c' f α =
       cong (α .N-ob c) (C.⋆IdL f ∙ (sym $ C.⋆IdR f)) ∙ α .N-hom c c' f C.id
-    Yoneda .nIso c .fst p = pshhom (λ _ f → f P.⋆ p) (λ _ _ f g → P.⋆Assoc f g p)
+    Yoneda .nIso c .fst p .N-ob _ f = f P.⋆ p
+    Yoneda .nIso c .fst p .N-hom _ _ f g = P.⋆Assoc f g p
     Yoneda .nIso c .snd .fst p = P.⋆IdL p
     Yoneda .nIso c .snd .snd α = makePshHomPath (funExt λ c → funExt λ f →
       sym (α .N-hom _ _ f C.id)

@@ -150,8 +150,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
       → (N-homR : ∀ c d d' (p : P.Het[ c , d ])(g : D.Hom[ d , d' ])
         → N-ob c d' (p P.⋆ʳᶜ g) ≡ (N-ob c d p Q.⋆ʳᶜ g))
       → RelatorHom P Q
-    mkRelatorHom N-ob N-homL N-homR = pshhom (λ (c , d) → N-ob c d)
-      λ (c , d) (c' , d') (f , g) p →
+    mkRelatorHom N-ob N-homL N-homR .PshHom.N-ob (c , d) = N-ob c d
+    mkRelatorHom N-ob N-homL N-homR .PshHom.N-hom
+      (c , d) (c' , d') (f , g) p =
         cong (N-ob c d) (sym $ funExt⁻ (P.Bif-LR-fuse f g) p)
         ∙ (N-homR c d' d (f P.⋆ᶜʳ p) g
         ∙ Q.⟨ N-homL c c' d' f p ⟩⋆ʳᶜ⟨ refl ⟩)
@@ -187,17 +188,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     open PshHom
     open PshIso
     appL-Iso : RelatorIso P Q → ∀ c → PshIso (P.rappL c) (Q.rappL c)
-    appL-Iso α c = pshiso (appL-Hom (α .trans) c)
+    appL-Iso α c .trans = appL-Hom (α .trans) c
+    appL-Iso α c .nIso =
       (λ d → (α .nIso (c , d) .fst) ,
         ( α .nIso (c , d) .snd .fst
         , α .nIso (c , d) .snd .snd))
     appR-Iso : RelatorIso P Q → ∀ c → PshIso (appR P c) (appR Q c)
-    appR-Iso α d = pshiso (appR-Hom (α .trans) d)
-      (λ c → α .nIso (c , d) .fst , α .nIso (c , d) .snd .fst , α .nIso (c , d) .snd .snd)
+    appR-Iso α d .trans = appR-Hom (α .trans) d
+    appR-Iso α d .nIso =
+      λ c → α .nIso (c , d) .fst , α .nIso (c , d) .snd .fst , α .nIso (c , d) .snd .snd
 
   module _ {P : Profunctor D C ℓP}{Q : Profunctor D C ℓQ} where
     app-ProfHom : ProfunctorHom P Q → ∀ x → PshHom (P ⟅ x ⟆) (Q ⟅ x ⟆)
-    app-ProfHom α x = pshhom (λ c → α .PshHom.N-ob (c , x)) (λ c c' f p → natL α f p)
+    app-ProfHom α x .PshHom.N-ob c = α .PshHom.N-ob (c , x)
+    app-ProfHom α x .PshHom.N-hom c c' f p = natL α f p
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {ℓR} where
   _[_,_]R : (R : C o-[ ℓR ]-* D) → C .ob → D .ob → Type ℓR

@@ -157,9 +157,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
       -- (Σ[ q ] Pᴰ(p,q) ⊢ Rᴰ(p)) ≅ Pᴰ(p,q) ⊢ Rᴰ(p)
       ΣPsh-UMP : Iso (PshHomⱽ ΣPsh Rᴰ) (PshHomⱽ Pᴰ (wkPshᴰ Q ⟅ Rᴰ ⟆))
-      ΣPsh-UMP = iso (λ αⱽ → ΣPsh-σ ⋆PshHomⱽ reindPshHom (Idᴰ /Fⱽ π₁ P Q) αⱽ) ΣPsh-rec
-        (λ αⱽ → makePshHomPath $ funExt λ (x , xᴰ , p , q) → funExt λ pᴰ → refl)
-        λ αⱽ → makePshHomPath $ funExt λ (x , xᴰ , p) → funExt λ (q , pᴰ) → refl
+      ΣPsh-UMP .fun = λ αⱽ → ΣPsh-σ ⋆PshHomⱽ reindPshHom (Idᴰ /Fⱽ π₁ P Q) αⱽ
+      ΣPsh-UMP .inv = ΣPsh-rec
+      ΣPsh-UMP .sec = λ αⱽ → makePshHomPath $ funExt λ (x , xᴰ , p , q) → funExt λ pᴰ → refl
+      ΣPsh-UMP .ret = λ αⱽ → makePshHomPath $ funExt λ (x , xᴰ , p) → funExt λ (q , pᴰ) → refl
+
   module _ (P : Presheaf C ℓP) where
     private
       module P = PresheafNotation P
@@ -195,10 +197,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       -- =====================
       --   * ⊢ Qᴰ(p,p)
       PathPsh-UMP : Iso (PshHomⱽ PathPsh Rᴰ) (PshHomᴰ ΔPshHom UnitPsh Rᴰ)
-      PathPsh-UMP = iso
-        (λ αⱽ → Refl ⋆PshHom reindPshHom (Idᴰ /Fⱽ ΔPshHom) αⱽ)
-        PathPsh-rec
-        (λ αⱽ → makePshHomPath $ funExt λ (Γ , Γᴰ , p) → funExt λ _ → transportRefl _)
+      PathPsh-UMP .fun = λ αⱽ → Refl ⋆PshHom reindPshHom (Idᴰ /Fⱽ ΔPshHom) αⱽ
+      PathPsh-UMP .inv = PathPsh-rec
+      PathPsh-UMP .sec = λ αⱽ →
+        makePshHomPath $ funExt λ (Γ , Γᴰ , p) → funExt λ _ → Rᴰ.rectify $ Rᴰ.≡out $ sym $ Rᴰ.reind-filler _
+      PathPsh-UMP .ret =
         λ αⱽ → makePshHomPath $ funExt λ (Γ , Γᴰ , (p , q)) → funExt λ p≡q →
           sym (Rᴰ.rectify $ Rᴰ.≡out $ (Rᴰ.≡in $ (λ i → αⱽ .N-ob (Γ , (Γᴰ , (p , (p≡q (~ i))))) (λ j → p≡q ((~ i) ∧ j)))) ∙ Rᴰ.reind-filler _)
 

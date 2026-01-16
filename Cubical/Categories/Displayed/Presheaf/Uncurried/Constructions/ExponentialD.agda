@@ -106,7 +106,7 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
         {fᴰ,pᴰ : Cᴰ [ f,p ][ Γᴰ , Aᴰ ×ᴰPᴰ ]}
         → fᴰ,pᴰ Cᴰ.∫≡ ueᴰ.introᴰ (fᴰ,pᴰ Cᴰ.⋆ᴰ π₁ᴰ , fᴰ,pᴰ ⋆ᴰ π₂ᴰ)
       ×ηᴰ {f,p} {fᴰ,pᴰ} = ueᴰ.∫ηᴰ fᴰ,pᴰ ∙ ×-cong-introᴰ
-        (sym (Cᴰ.reind-filler _ _))
+        (sym (Cᴰ.reind-filler _))
         (⋆ᴰ-reind _ _ _)
 
       ×-introᴰ≡ : ∀ {f : C [ Γ , A ]}{p : P.p[ Γ ]}{f,p : C [ Γ , P .snd A .vertex ]}
@@ -127,7 +127,7 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
 
       module _ {f : C [ Γ , A ]} {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {p : P.p[ Γ ]} {pᴰ : p[ p ][ Γᴰ ]} where
         ×β₁ᴰ : (ueᴰ.introᴰ (fᴰ , pᴰ) Cᴰ.⋆ᴰ π₁ᴰ) Cᴰ.∫≡ fᴰ
-        ×β₁ᴰ = Cᴰ.reind-filler _ _ ∙ PathPᴰΣ (ueᴰ.∫βᴰ (fᴰ , pᴰ)) .fst
+        ×β₁ᴰ = Cᴰ.reind-filler _ ∙ PathPᴰΣ (ueᴰ.∫βᴰ (fᴰ , pᴰ)) .fst
 
         ×β₂ᴰ : (ueᴰ.introᴰ (fᴰ , pᴰ) ⋆ᴰ π₂ᴰ) ∫≡ pᴰ
         ×β₂ᴰ = sym (⋆ᴰ-reind _ _ _) ∙ PathPᴰΣ (ueᴰ.∫βᴰ (fᴰ , pᴰ)) .snd
@@ -224,7 +224,7 @@ module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C �
       (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
       (fᴰ : Cᴰ [ f ][ Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ])
       → (γᴰ impr⋆ᴰ fᴰ) Cᴰ.∫≡ (γᴰ Aᴰ⇒BᴰPshᴰ.⋆ᴰ fᴰ)
-  impr≡compositional⋆ᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {f} γᴰ fᴰ = Cᴰ.reind-filler _ _
+  impr≡compositional⋆ᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {f} γᴰ fᴰ = Cᴰ.reind-filler _
 
   λᴰ : ∀ {Γ}{Γᴰ}{f : C [ (Γ ×A) .vertex , B ]}
       → Cᴰ [ f ][  Γᴰ -×ᴰAᴰ.×ᴰPᴰ , Bᴰ ]

@@ -116,9 +116,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (_ , (γᴰ Cᴰ.⋆ᴰ gᴰ) ⋆πⱽ)
             (_ , γᴰ Cᴰ.⋆ᴰ (gᴰ ⋆πⱽ))
       ⋆πⱽ-natural {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {g} {γᴰ} {gᴰ} =
-        ⟨ Cᴰ.reind-filler _ _ ⟩⋆πⱽ
+        ⟨ Cᴰ.reind-filler _ ⟩⋆πⱽ
         ∙ (Cᴰ.≡in $ f*yᴰ .snd .trans .N-hom (Δ , (Δᴰ , (γ C.⋆ g))) (Γ , (Γᴰ , g)) (γ , (γᴰ , refl)) gᴰ)
-        ∙ (sym $ Cᴰ.reind-filler _ _)
+        ∙ (sym $ Cᴰ.reind-filler _)
 
 
       ⋆πⱽ≡⋆ᴰπⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
@@ -189,8 +189,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (g , introᴰ gfᴰ)
             (g' , gᴰ)
       introᴰ≡' g≡g' gfᴰ≡gᴰπⱽ =
-        introᴰ≡ (gfᴰ≡gᴰπⱽ ∙ ⟨ Cᴰ.reind-filler _ _ ⟩⋆πⱽ)
-        ∙ (sym $ Cᴰ.reind-filler (sym g≡g') _)
+        introᴰ≡ (gfᴰ≡gᴰπⱽ ∙ ⟨ Cᴰ.reind-filler _ ⟩⋆πⱽ)
+        ∙ (sym $ Cᴰ.reind-filler (sym g≡g'))
   CartesianLiftable : ∀ {y} (yᴰ : Cᴰ.ob[ y ])
     → Type _
   CartesianLiftable {y} yᴰ = ∀ {x} (f : C [ x , y ]) → CartesianLift f yᴰ
@@ -258,6 +258,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         cartLift-sq-filler g*yᴰ h*zᴰ kᴰ commutes
         Cᴰ.∫≡ cartLift-sq-filler g*yᴰ h*zᴰ k'ᴰ commutes'
       cartLift-sq-filler-cong = h*zᴰ.cong-introᴰ f≡f' $ Cᴰ.cong-reind _ _ Cᴰ.⟨⟩⋆⟨ kᴰ≡k'ᴰ ⟩
+
   --    f
   -- w --> x
   -- | g   | h
@@ -279,7 +280,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (_ , cartLift-sq-filler-gen g*yᴰ g*yᴰ Cᴰ.idᴰ commutes)
             (_ , Cᴰ.idᴰ)
       cartLift-sq-id id'≡id = g*yᴰ.introᴰ≡' id'≡id
-        (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)
+        (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
 
   module _ {w x y}{f : C [ w , x ]}{g : C [ w , y ]}{h : C [ x , y ]}
     {yᴰ : Cᴰ.ob[ y ]}
@@ -304,9 +305,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (f , cartLift-sq-filler-gen g*yᴰ h*yᴰ Cᴰ.idᴰ (C.⋆IdR _ ∙ tri))
       cartLift-tri-filler≡sq-filler =
         h*yᴰ.cong-introᴰ refl $
-          sym (Cᴰ.reind-filler _ _)
+          sym (Cᴰ.reind-filler _)
           ∙ sym (Cᴰ.⋆IdR (_ , g*yᴰ.πⱽ))
-          ∙ Cᴰ.reind-filler _ _
+          ∙ Cᴰ.reind-filler _
 
   --    f     f'
   -- w --> x --> x'
@@ -341,12 +342,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (ff'~ , cartLift-sq-filler-gen g*yᴰ h'*z'ᴰ (kᴰ Cᴰ.⋆ᴰ k'ᴰ) comm3)
             ((f C.⋆ f') , cartLift-sq-filler-gen g*yᴰ h*zᴰ kᴰ comm1 Cᴰ.⋆ᴰ cartLift-sq-filler-gen h*zᴰ h'*z'ᴰ k'ᴰ comm2)
       cartLift-sq-seq ff'~≡ff' = h'*z'ᴰ.introᴰ≡' ff'~≡ff'
-        (sym (Cᴰ.reind-filler _ _) ∙ (sym $
+        (sym (Cᴰ.reind-filler _) ∙ (sym $
           h'*z'ᴰ.⋆πⱽ-natural
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ h'*z'ᴰ.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ h'*z'ᴰ.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _) ⟩
           ∙ sym (Cᴰ.⋆Assoc _ _ _)
           ∙ Cᴰ.⟨
-              h*zᴰ.βᴰ' _ ∙ sym (Cᴰ.reind-filler _ _)
+              h*zᴰ.βᴰ' _ ∙ sym (Cᴰ.reind-filler _)
                ⟩⋆⟨⟩
           ∙ Cᴰ.⋆Assoc _ _ _))
 

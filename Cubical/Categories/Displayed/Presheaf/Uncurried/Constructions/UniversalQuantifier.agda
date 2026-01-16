@@ -151,9 +151,9 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
           (λ (δ , δγ≡γ~π) δᴰ → π*.introᴰ (Cᴰ.reind (pullbackArrowPr₂ C (CartesianNatTrans→PBSq (π , π-Cart) γ) γ~ δ (sym $ δγ≡γ~π)) δᴰ))
           (λ (δ , δγ≡γ~π) δᴰ → Cᴰ.rectify $ Cᴰ.≡out $
             π*.βᴰ _
-            ∙ (sym $ Cᴰ.reind-filler _ _) )
+            ∙ (sym $ Cᴰ.reind-filler _) )
           λ (δ~ , δ~Fγ≡γ~) δ~ᴰ → Cᴰ.rectify $ Cᴰ.≡out $
-            π*.cong-introᴰ (Pullback.pullbackArrowUnique (CartesianNatTrans→PBSq (π , π-Cart) γ) (sym $ δ~Fγ≡γ~) refl) (sym $ Cᴰ.reind-filler _ _)
+            π*.cong-introᴰ (Pullback.pullbackArrowUnique (CartesianNatTrans→PBSq (π , π-Cart) γ) (sym $ δ~Fγ≡γ~) refl) (sym $ Cᴰ.reind-filler _)
             ∙ (sym $ π*.ηᴰ δ~ᴰ))
                  ) $ Σ-assoc-IsoR
       -- Σ[ δ ] Cᴰ.Hom[ δ ][ Θᴰ , Δᴰ ] × δ⋆γ≡γ~⋆π

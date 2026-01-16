@@ -39,6 +39,7 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
+-- TODO make CatReindex use hSetReasoning
 
 private
   variable
@@ -74,16 +75,16 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     reindPathIsoⱽ .fst .PshHomᴰ.N-obᴰ = Qᴰ.reind (funExt⁻ (funExt⁻ (cong N-ob α≡β) _) _)
     reindPathIsoⱽ .fst .PshHomᴰ.N-homᴰ =
       Qᴰ.rectify $ Qᴰ.≡out $
-        (sym (Qᴰ.reind-filler _ _)
-        ∙ sym (Qᴰ.reind-filler _ _)
-        ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ _ ⟩)
-        ∙ Qᴰ.reind-filler _ _
+        (sym (Qᴰ.reind-filler _)
+        ∙ sym (Qᴰ.reind-filler _)
+        ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩)
+        ∙ Qᴰ.reind-filler _
     reindPathIsoⱽ .snd .isIsoOver.inv q =
       Qᴰ.reind ((funExt⁻ (funExt⁻ (cong N-ob (sym α≡β)) _) _))
     reindPathIsoⱽ .snd .isIsoOver.rightInv q qᴰ =
-      Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+      Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _
     reindPathIsoⱽ .snd .isIsoOver.leftInv q qᴰ =
-      Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _ ∙ Qᴰ.reind-filler _ _
+      Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _
 
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -95,7 +96,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Qᴰ = PresheafᴰNotation Qᴰ
   reind-π : PshHomᴰ α (reind α Qᴰ) Qᴰ
   reind-π .N-obᴰ = λ z → z
-  reind-π .N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _
+  reind-π .N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -111,7 +112,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → PshHomⱽ Pᴰ (reind α Qᴰ)
   reind-introⱽ α .N-obᴰ = α .N-obᴰ
   reind-introⱽ α .N-homᴰ =
-    Qᴰ.rectify $ Qᴰ.≡out $ (Qᴰ.≡in $ α .N-homᴰ) ∙ Qᴰ.reind-filler _ _
+    Qᴰ.rectify $ Qᴰ.≡out $ (Qᴰ.≡in $ α .N-homᴰ) ∙ Qᴰ.reind-filler _
 
   opaque
     reind-βⱽ :
@@ -120,7 +121,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         id⋆α≡α
     reind-βⱽ αᴰ =
       makePshHomᴰPathP _ _ _ λ {x}{xᴰ}{p} →
-        funExt λ pᴰ → Qᴰ.rectify {p = refl} refl
+        funExt λ pᴰ → Qᴰ.rectify {e = refl} refl
 
     reind-βⱽ' :
       (αᴰ : PshHomᴰ α Pᴰ Qᴰ) →
@@ -168,7 +169,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → PshHomᴰ α Pᴰ (reind β Rᴰ)
   reind-introᴰ αβᴰ .N-obᴰ = αβᴰ .N-obᴰ
   reind-introᴰ αβᴰ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
-    (∫PshHom αβᴰ .N-hom _ _ _ _) ∙ Rᴰ.reind-filler _ _
+    (∫PshHom αβᴰ .N-hom _ _ _ _) ∙ Rᴰ.reind-filler _
 
   opaque
     reind-βᴰ :
@@ -272,11 +273,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (λ a qᴰ → Pᴰ.reind (α .nIso _ .snd .snd a) $ αᴰ⁻ .fst .N-obᴰ qᴰ)
       (λ a p →
         Qᴰ.rectify $ Qᴰ.≡out $
-          Qᴰ.≡in (congP (λ i → αᴰ .fst .N-obᴰ) (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _ _))
+          Qᴰ.≡in (congP (λ i → αᴰ .fst .N-obᴰ) (Pᴰ.≡out $ sym $ Pᴰ.reind-filler _))
           ∙ (Qᴰ.≡in (αᴰ .snd .rightInv _ _)))
       (λ b q →
         Pᴰ.rectify $ Pᴰ.≡out $
-          (sym $ Pᴰ.reind-filler _ _)
+          (sym $ Pᴰ.reind-filler _)
           ∙ Pᴰ.≡in (αᴰ .snd .leftInv _ q))
     where
     αᴰ⁻ = invPshIsoᴰ αᴰ
@@ -299,7 +300,7 @@ module _
     → PshHetᴰ α Fᴰ Pᴰ (reind β Rᴰ)
   reind-introHet αβᴰ .N-obᴰ = αβᴰ .N-obᴰ
   reind-introHet αβᴰ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
-    ∫PshHom αβᴰ .N-hom _ _ _ _ ∙ Rᴰ.reind-filler _ _
+    ∫PshHom αβᴰ .N-hom _ _ _ _ ∙ Rᴰ.reind-filler _
 
 module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
@@ -327,16 +328,43 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Rᴰ = PresheafᴰNotation Rᴰ
+  opaque
+    unfolding hSetReasoning.reind
+    reind-seq-path :
+      {x y : ob C} {f : (C ^op) [ x , y ]}
+      {xᴰ : Categoryᴰ.ob[ Cᴰ ^opᴰ ] x} {yᴰ : Categoryᴰ.ob[ Cᴰ ^opᴰ ] y}
+      (fᴰ : (Cᴰ ^opᴰ) [ f ][ xᴰ , yᴰ ]) →
+      F-homᴰ (reind α (reind β Rᴰ)) fᴰ ≡
+      (λ p qᴰ →
+         hSetReasoning.reind (R .F-ob y) Rᴰ.p[_][ yᴰ ]
+         (λ i →
+            ((λ i₁ → β .N-ob y (α .N-hom y x f p i₁)) ∙
+             β .N-hom y x f (α .N-ob x p))
+            (~ i))
+         (fᴰ Rᴰ.⋆ᴰ qᴰ))
+    reind-seq-path fᴰ =
+        funExt λ p → funExt λ rᴰ →
+        Rᴰ.rectify $ Rᴰ.≡out $
+            sym (Rᴰ.reind-filler _ ∙ Rᴰ.reind-filler _)
+            ∙ Rᴰ.reind-filler _
+
+
   reind-seq : reind α (reind β Rᴰ) ≡ reind (α ⋆PshHom β) Rᴰ
-  reind-seq = Functorᴰ≡ (λ _ → refl) λ fᴰ → funExt λ p → funExt λ rᴰ →
-    Rᴰ.rectify $ Rᴰ.≡out $
-      sym (Rᴰ.reind-filler _ _ ∙ Rᴰ.reind-filler _ _)
-      ∙ Rᴰ.reind-filler _ _
+  reind-seq = Functorᴰ≡ (λ _ → refl) reind-seq-path
 
   reind-seqIsoⱽ : PshIsoⱽ (reind α (reind β Rᴰ)) (reind (α ⋆PshHom β) Rᴰ)
   reind-seqIsoⱽ .fst .PshHomᴰ.N-obᴰ = λ z → z
-  reind-seqIsoⱽ .fst .PshHomᴰ.N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $
-    sym (Rᴰ.reind-filler _ _ ∙ Rᴰ.reind-filler _ _) ∙ Rᴰ.reind-filler _ _
+  reind-seqIsoⱽ .fst .PshHomᴰ.N-homᴰ {f = f}{p = p}{fᴰ = fᴰ}{pᴰ = pᴰ} = opq
+    where
+    opaque
+      unfolding hSetReasoning.reind
+      opq :
+        (reind (α ⋆PshHom β) Rᴰ PresheafᴰNotation.≡[
+         (reind α (reind β Rᴰ) PresheafᴰNotation.⋆ᴰ fᴰ) pᴰ ]
+         (λ _ → (P PresheafNotation.⋆ f) p))
+        ((reind (α ⋆PshHom β) Rᴰ PresheafᴰNotation.⋆ᴰ fᴰ) pᴰ)
+      opq = Rᴰ.rectify $ Rᴰ.≡out $
+        sym (Rᴰ.reind-filler _ ∙ Rᴰ.reind-filler _) ∙ Rᴰ.reind-filler _
   reind-seqIsoⱽ .snd .isIsoOver.inv = λ a z → z
   reind-seqIsoⱽ .snd .isIsoOver.rightInv b q = refl
   reind-seqIsoⱽ .snd .isIsoOver.leftInv a p = refl
@@ -348,11 +376,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Pᴰ = PresheafᴰNotation Pᴰ
   reind-id : Pᴰ ≡ reind (idPshHom {P = P}) Pᴰ
   reind-id = Functorᴰ≡ (λ _ → refl)
-    (λ _ → funExt λ _ → funExt λ _ → Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _)
+    (λ _ → funExt λ _ → funExt λ _ → Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
 
   reind-idIsoⱽ : PshIsoⱽ Pᴰ (reind (idPshHom {P = P}) Pᴰ)
   reind-idIsoⱽ .fst .PshHomᴰ.N-obᴰ = λ z → z
-  reind-idIsoⱽ .fst .PshHomᴰ.N-homᴰ = Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _ _
+  reind-idIsoⱽ .fst .PshHomᴰ.N-homᴰ = Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _
   reind-idIsoⱽ .snd .isIsoOver.inv = λ a z → z
   reind-idIsoⱽ .snd .isIsoOver.rightInv b q = refl
   reind-idIsoⱽ .snd .isIsoOver.leftInv a p = refl
@@ -385,7 +413,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   reindPshIsoPshIsoᴰ : PshIsoᴰ α (reind (α .trans) Qᴰ) Qᴰ
   reindPshIsoPshIsoᴰ = mkPshIsoᴰEquivOver α (reind (α .trans) Qᴰ) Qᴰ
     (record { N-obᴰ = λ z → z
-            ; N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ _
+            ; N-homᴰ = Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _
             })
     (λ a → record { equiv-proof = strictContrFibers _ })
 
@@ -422,7 +450,18 @@ module _
     PshIsoⱽ (reindⱽFunc F (Dᴰ [-][-, xᴰ ]))
             (CatReindex Dᴰ F [-][-, xᴰ ])
   reindⱽFuncRepr .fst .N-obᴰ = λ z → z
-  reindⱽFuncRepr .fst .N-homᴰ = refl
+  -- This would be refl (with no unfolding) if CatReindex used hSetReasoning
+  reindⱽFuncRepr {x = x}{xᴰ = xᴰ} .fst .N-homᴰ {x = y}{xᴰ = yᴰ}{f = f}{p = p}{fᴰ = fᴰ}{pᴰ = pᴰ} = opq
+    where
+    opaque
+      unfolding hSetReasoning.reind
+      opq :
+        hSetReasoning.reind (Hom[ D , F-ob F y ] (F-ob F x) , D .isSetHom)
+        Dᴰ.Hom[_][ yᴰ , xᴰ ] (λ i → F .F-seq f p (~ i)) (fᴰ Dᴰ.⋆ᴰ pᴰ)
+        ≡
+        transp (λ i → Dᴰ.Hom[ F-seq F f p (~ i) ][ yᴰ , xᴰ ]) i0
+        (fᴰ Dᴰ.⋆ᴰ pᴰ)
+      opq = refl
   reindⱽFuncRepr .snd .inv = λ a z → z
   reindⱽFuncRepr .snd .rightInv _ _ = refl
   reindⱽFuncRepr .snd .leftInv _ _ = refl
@@ -446,13 +485,34 @@ module _
   reindUEⱽ ueⱽ .vertexⱽ = vertexⱽ ueⱽ
   reindUEⱽ ueⱽ .elementⱽ = Pⱽ.reind (sym $ F .F-id) (elementⱽ ueⱽ)
   reindUEⱽ ueⱽ .universalⱽ .fst = universalⱽ ueⱽ .fst
-  reindUEⱽ ueⱽ .universalⱽ .snd .fst pᴰ = (Pⱽ.rectify $ Pⱽ.≡out $
-    (sym (Pⱽ.reind-filler _ _) ∙ sym (Pⱽ.reind-filler _ _)
-      ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩ ∙ Pⱽ.reind-filler _ _))
-    ∙ βⱽ ueⱽ
-  reindUEⱽ ueⱽ .universalⱽ .snd .snd fᴰ =
-    cong (introᴰ ueⱽ) (Pⱽ.rectify $ Pⱽ.≡out $ sym (Pⱽ.reind-filler _ _) ∙ sym (Pⱽ.reind-filler _ _) ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩ ∙ Pⱽ.reind-filler _ _)
-    ∙ (sym $ ηⱽ ueⱽ)
+  reindUEⱽ ueⱽ .universalⱽ .snd .fst pᴰ = opq
+    where
+    opaque
+      unfolding hSetReasoning.reind
+      opq :
+        (reindⱽFunc F Pⱽ PresheafⱽNotation.⋆ᴰⱽ
+          universalⱽ ueⱽ .fst pᴰ)
+         (hSetReasoning.reind ((D [ F .F-ob x , F-ob F x ]) , D .isSetHom)
+          Pⱽ.p[_][ vertexⱽ ueⱽ ] (λ i → F .F-id (~ i)) (elementⱽ ueⱽ))
+         ≡ pᴰ
+      opq =
+        (Pⱽ.rectify $ Pⱽ.≡out $
+        (sym (Pⱽ.reind-filler _) ∙ sym (Pⱽ.reind-filler _)
+        ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ ⟩ ∙ Pⱽ.reind-filler _))
+        ∙ βⱽ ueⱽ
+  reindUEⱽ ueⱽ .universalⱽ .snd .snd fᴰ = opq
+    where
+    opaque
+      unfolding hSetReasoning.reind
+      opq :
+        universalⱽ ueⱽ .fst
+        ((reindⱽFunc F Pⱽ PresheafⱽNotation.⋆ᴰⱽ fᴰ)
+        (hSetReasoning.reind ((D [ F .F-ob x , F-ob F x ]) , D .isSetHom)
+        Pⱽ.p[_][ vertexⱽ ueⱽ ] (λ i → F .F-id (~ i)) (elementⱽ ueⱽ)))
+        ≡ fᴰ
+      opq =
+        cong (introᴰ ueⱽ) (Pⱽ.rectify $ Pⱽ.≡out $ sym (Pⱽ.reind-filler _) ∙ sym (Pⱽ.reind-filler _) ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ ⟩ ∙ Pⱽ.reind-filler _)
+        ∙ (sym $ ηⱽ ueⱽ)
 
 module _
   {C : Category ℓC ℓC'}

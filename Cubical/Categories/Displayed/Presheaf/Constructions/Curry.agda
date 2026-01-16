@@ -81,23 +81,23 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
     UncurryPshᴰ .F-hom {x = (x , xᴰ , p)}{y = (y , yᴰ , q)} (f , fᴰ , f⋆p≡q) pᴰ =
       Pᴰ.reind f⋆p≡q (fᴰ Pᴰ.⋆ᴰ pᴰ)
     UncurryPshᴰ .F-id = funExt (λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
-      sym (Pᴰ.reind-filler _ _) ∙ Pᴰ.⋆IdL _)
+      sym (Pᴰ.reind-filler _) ∙ Pᴰ.⋆IdL _)
     UncurryPshᴰ .F-seq (f , fᴰ , f⋆p≡q) (g , gᴰ , g⋆q≡r) = funExt λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
-      sym (Pᴰ.reind-filler _ _)
+      sym (Pᴰ.reind-filler _)
       ∙ Pᴰ.⋆Assoc _ _ _
-      ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ _ ⟩
-      ∙ Pᴰ.reind-filler _ _
+      ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ ⟩
+      ∙ Pᴰ.reind-filler _
 
   CurryPshᴰIso : Iso (Uncurried.Presheafᴰ P Cᴰ ℓPᴰ) (Presheafᴰ P Cᴰ ℓPᴰ)
   CurryPshᴰIso .fun = CurryPshᴰ
   CurryPshᴰIso .inv = UncurryPshᴰ
   CurryPshᴰIso .sec Pᴰ = Functorᴰ≡ (λ _ → refl)
     λ fᴰ → funExt λ p → funExt λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
-      sym $ Pᴰ.reind-filler _ _
+      sym $ Pᴰ.reind-filler _
     where module Pᴰ = PresheafᴰNotation Pᴰ
   CurryPshᴰIso .ret Pᴰ' = Functor≡ (λ _ → refl) λ (f , fᴰ , f⋆p≡q) → funExt λ pᴰ →
     Pᴰ'.rectify $ Pᴰ'.≡out $
-      sym (Pᴰ.reind-filler _ _)
+      sym (Pᴰ.reind-filler _)
       ∙ (Pᴰ'.≡in $ λ i → Pᴰ' .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ)
     where module Pᴰ = PresheafᴰNotation (CurryPshᴰ Pᴰ')
           module Pᴰ' = Uncurried.PresheafᴰNotation Cᴰ P Pᴰ'
@@ -117,7 +117,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{C�
   Uncurry-recᴰ : {α : PshHom P Q} → PshHomᴰ α Pᴰ (CurryPshᴰ Q Cᴰ Qᴰ') → Uncurried.PshHomᴰ α (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ'
   Uncurry-recᴰ αᴰ .N-ob = λ c → N-obᴰ αᴰ
   Uncurry-recᴰ αᴰ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , p) (γ , γᴰ , γ⋆p≡q) pᴰ = Qᴰ'.rectify $ Qᴰ'.≡out $
-    αᴰ.N-obᴰ⟨ sym $ Pᴰ.reind-filler _ _ ⟩
+    αᴰ.N-obᴰ⟨ sym $ Pᴰ.reind-filler _ ⟩
     ∙ αᴰ.N-hom _ _ _ _
     ∙ (sym $ Qᴰ'.⋆ᴰ-reind _ _ _)
     where module αᴰ = PshHomᴰ αᴰ
@@ -133,7 +133,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
   Uncurry-recⱽ : PshHomⱽ Pᴰ (CurryPshᴰ P Cᴰ Qᴰ') → Uncurried.PshHomⱽ (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ'
   Uncurry-recⱽ αⱽ .N-ob = λ c → N-obᴰ αⱽ
   Uncurry-recⱽ αⱽ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , p) (γ , γᴰ , γ⋆p≡q) pᴰ = Qᴰ'.rectify $ Qᴰ'.≡out $
-    cong (αⱽ.N-ob _) (sym $ Pᴰ.reind-filler _ _)
+    cong (αⱽ.N-ob _) (sym $ Pᴰ.reind-filler _)
     ∙ αⱽ.N-hom (Δ , Δᴰ) (Γ , Γᴰ) (γ , γᴰ) (p , pᴰ)
     ∙ (sym $ Qᴰ'.⋆ᴰ-reind _ _ _)
     where module αⱽ = PshHomᴰ αⱽ
@@ -141,14 +141,14 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
   Curry-introⱽ : Uncurried.PshHomⱽ (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ' → PshHomⱽ Pᴰ (CurryPshᴰ P Cᴰ Qᴰ')
   Curry-introⱽ αⱽ .N-obᴰ {x} {xᴰ} {p} pᴰ = αⱽ .N-ob (x , xᴰ , p) pᴰ
   Curry-introⱽ αⱽ .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
-    cong (αⱽ .N-ob (x , xᴰ , (f P.⋆ p))) (sym $ transportRefl (fᴰ Pᴰ.⋆ᴰ pᴰ))
+    cong (αⱽ .N-ob (x , xᴰ , (f P.⋆ p))) (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
     ∙ αⱽ .N-hom (x , xᴰ , f P.⋆ p) (y , yᴰ , p) (f , fᴰ , refl) pᴰ
 
   Curry-recⱽ : PshHom Qᴰ' (UncurryPshᴰ P Cᴰ Pᴰ) → PshHomⱽ (CurryPshᴰ P Cᴰ Qᴰ') Pᴰ
   Curry-recⱽ α .N-obᴰ x = α .N-ob _ x
   Curry-recⱽ α .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
     α .N-hom (x , xᴰ , f P.⋆ p) (y , yᴰ , p) (f , fᴰ , refl) pᴰ
-    ∙ transportRefl (fᴰ Pᴰ.⋆ᴰ N-ob α (y , yᴰ , p) pᴰ)
+    ∙ (sym $ Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
 
   Uncurry-recⱽ-Iso :
     Iso (Uncurried.PshHomⱽ (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ') (PshHomⱽ Pᴰ (CurryPshᴰ P Cᴰ Qᴰ'))
@@ -194,9 +194,9 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
   UncurryPshHomⱽ : PshHomⱽ Pᴰ Qᴰ → PshHom (UncurryPshᴰ P Cᴰ Pᴰ) (UncurryPshᴰ P Cᴰ Qᴰ)
   UncurryPshHomⱽ α .N-ob _ = α .N-obᴰ
   UncurryPshHomⱽ α .N-hom (x , xᴰ , f) (y , yᴰ , g) (h , hᴰ , h⋆g≡f) pᴰ = Qᴰ.rectify $ Qᴰ.≡out $
-    N-obᴰ⟨ α ⟩ (sym $ Pᴰ.reind-filler _ _)
+    N-obᴰ⟨ α ⟩ (sym $ Pᴰ.reind-filler _)
     ∙ Qᴰ.≡in (α .N-homᴰ)
-    ∙ Qᴰ.reind-filler _ _
+    ∙ Qᴰ.reind-filler _
 
   -- TODO: Curry (Uncurry Qᴰ) ≅ Qᴰ
   UncurryPshHomⱽ⁻ : PshHom (UncurryPshᴰ P Cᴰ Pᴰ) (UncurryPshᴰ P Cᴰ Qᴰ) → PshHomⱽ Pᴰ Qᴰ

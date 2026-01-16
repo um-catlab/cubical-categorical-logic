@@ -31,6 +31,8 @@ _≡[_]_ :
   → Type _
 x ≡[ p ] y = PathP (λ i → p i) x y
 
+infix 2 _≡[_]_
+
 congS₂ : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ}{A' : Type ℓ'}{B : Type ℓ''}{x y u v}
   (f : A → A' → B)
   (p : x ≡ y)
@@ -98,6 +100,8 @@ congS₂Bifunct f p q r s =
 module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
   _P≡[_]_ : ∀ {a b : ⟨ A ⟩} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
   p P≡[ a≡b ] q = p ≡[ cong P a≡b ] q
+
+  infix 2 _P≡[_]_
   private
     variable
       a b c : ⟨ A ⟩

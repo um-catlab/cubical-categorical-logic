@@ -194,20 +194,28 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)
     → Representableᴰ (ue .vertex , asPshIso ue)
     → UniversalElementᴰ ue
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ = (yᴰxᴰ≅Pᴰ .fst)
-    , ((Pᴰ.reind (P.⋆IdL _) (yᴰxᴰ≅Pᴰ .snd .fst .N-ob (ue .UniversalElement.vertex , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ))
-    , λ Γ Γᴰ → isisoover
-      (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv)
-      (λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .fst = yᴰxᴰ≅Pᴰ .fst
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .fst =
+    Pᴰ.reind abst (yᴰxᴰ≅Pᴰ .snd .fst .N-ob
+                    (UniversalElement.vertex ue , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ)
+    where
+    abstract
+      abst : (C.id P.⋆ element ue) ≡ element ue
+      abst = P.⋆IdL _
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv =
+    yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv =
+    λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
         Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩
         ∙ sym (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
         ∙ cong (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _) ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
-        ∙ Pᴰ.≡in (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv _ _))
+        ∙ Pᴰ.≡in (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv _ _)
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv =
       λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
         cong (invPshIso (∫PshIsoᴰ (yᴰxᴰ≅Pᴰ .snd)) .trans .N-ob _)
           (Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩ ∙ sym (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
           ∙ cong (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _) (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _))
-          ∙ (Cᴰ.≡in $ yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv _ _))
+          ∙ (Cᴰ.≡in $ yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv _ _)
 
   Representableⱽ→UniversalElementᴰ : (ue : UniversalElement C P)
     → Representableⱽ Cᴰ (ue .vertex) (reindPshᴰNatTrans (yoRec P (ue .element)) Pᴰ)

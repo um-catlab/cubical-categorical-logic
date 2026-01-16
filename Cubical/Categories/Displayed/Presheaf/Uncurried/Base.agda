@@ -239,11 +239,13 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
     → p[ p' ][ xᴰ ]
   formal-reind {p = p} p≡p' = Pᴰ .F-hom (C.id , Cᴰ.idᴰ , P.⋆IdL p ∙ p≡p')
 
-  ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
-    → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
-      (fᴰ ⋆ᴰ pᴰ)
-      (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
-  ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i = Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
+  opaque
+    ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
+      → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
+        (fᴰ ⋆ᴰ pᴰ)
+        (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+    ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i =
+      Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
 
   ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
     → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)

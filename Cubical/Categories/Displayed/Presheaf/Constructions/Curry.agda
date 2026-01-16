@@ -79,7 +79,12 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
     UncurryPshᴰ : Uncurried.Presheafᴰ P Cᴰ ℓPᴰ
     UncurryPshᴰ .F-ob (x , xᴰ , p) = Pᴰ .F-obᴰ xᴰ p
     UncurryPshᴰ .F-hom {x = (x , xᴰ , p)}{y = (y , yᴰ , q)} (f , fᴰ , f⋆p≡q) pᴰ =
-      Pᴰ.reind f⋆p≡q (fᴰ Pᴰ.⋆ᴰ pᴰ)
+      Pᴰ.reind abst (fᴰ Pᴰ.⋆ᴰ pᴰ)
+      where
+      abstract
+        abst : P .F-hom f p ≡ q
+        abst = f⋆p≡q
+
     UncurryPshᴰ .F-id = funExt (λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
       sym (Pᴰ.reind-filler _) ∙ Pᴰ.⋆IdL _)
     UncurryPshᴰ .F-seq (f , fᴰ , f⋆p≡q) (g , gᴰ , g⋆q≡r) = funExt λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $

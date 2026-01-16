@@ -117,7 +117,11 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   _⋆ⱽᴰ_ : ∀ {x xᴰ xᴰ'}{g}
      → Cᴰ [ C.id {x} ][ xᴰ , xᴰ' ] → p[ g ][ xᴰ' ]
      → p[ g ][ xᴰ ]
-  fⱽ ⋆ⱽᴰ gᴰ = reind (P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
+  _⋆ⱽᴰ_ {g = g} fⱽ gᴰ = reind abst (fⱽ ⋆ᴰ gᴰ)
+    where
+    abstract
+     abst : (C.id P.⋆ g) ≡ g
+     abst = P.⋆IdL _
 
   -- Should it just be fⱽ ≡ fⱽ' instead since that's more "vertical"?
   ⟨_⟩⋆ⱽᴰ⟨_⟩ :
@@ -231,7 +235,11 @@ module PresheafⱽNotation
   _⋆ᴰⱽ_ :
       Cᴰ [ f ][ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
       → p[ f ][ xᴰ ]
-  fᴰ ⋆ᴰⱽ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
+  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = reind abst (fᴰ ⋆ᴰ gⱽ)
+    where
+    abstract
+      abst : f C.⋆ C.id ≡ f
+      abst = C.⋆IdR _
 
   _⋆ⱽ_ :
     Cᴰ.v[ c ] [ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
@@ -241,7 +249,7 @@ module PresheafⱽNotation
   opaque
     ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
       → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
-    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = rectify $ ≡out $ reind-filler (C.⋆IdR _)
+    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = rectify $ ≡out $ reind-filler _
 
     ⋆Assocᴰᴰⱽ :
       ∀ (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ])(gᴰ : Cᴰ [ g ][ yᴰ , cᴰ ])(pⱽ : pⱽ[ cᴰ ])

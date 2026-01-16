@@ -120,7 +120,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       ⇒ⱽᴰ-square-to =
         Cᴰ.reind p (×ᴰAᴰ.introᴰ ((×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ) , (×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ)))
         where
-        p : -×A.×ue.universal -×A.×ue.vertex .equiv-proof
+        abstract
+          p : -×A.×ue.universal -×A.×ue.vertex .equiv-proof
               (C.id C.⋆ -×A.×ue.element .fst ,
               (C.id C.⋆
                 -×A.×ue.universal -×A.×ue.vertex .equiv-proof
@@ -128,7 +129,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
               C.⋆ -×A.×ue.element .snd)
               .fst .fst
               ≡ C.id
-        p = -×A.,p≡ refl (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ -×A.×β₂ ⟩)
+          p = -×A.,p≡ refl (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ -×A.×β₂ ⟩)
 
       ⇒ⱽᴰ-square-from : Cᴰ.Hom[ C.id ][ Γᴰ ×ᴰAᴰ.×ᴰPᴰ  , (-×A.π₁ {Γ} cartesianLifts.* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((-×A.π₁ C.⋆ f) -×A.,p -×A.π₂) * ]
       ⇒ⱽᴰ-square-from =
@@ -136,15 +137,16 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
           (cartesianLifts.introᴰ (Cᴰ.reind p ×ᴰAᴰ.π₁ᴰ))
           (cartesianLifts.introᴰ (Cᴰ.reind q ×ᴰAᴰ.π₂ᴰ))
         where
-        p :  -×A.×ue.element {b = Γ} .fst ≡ C.id C.⋆ -×A.×ue.element .fst
-        p = sym $ C.⋆IdL (-×A.×ue.element .fst)
+        abstract
+          p :  -×A.×ue.element {b = Γ} .fst ≡ C.id C.⋆ -×A.×ue.element .fst
+          p = sym $ C.⋆IdL (-×A.×ue.element .fst)
 
-        q : -×A.×ue.element .snd ≡
-          (C.id C.⋆
-            -×A.×ue.universal -×A.×ue.vertex .equiv-proof
-            (-×A.×ue.element .fst C.⋆ f , -×A.×ue.element .snd) .fst .fst)
-          C.⋆ -×A.×ue.element .snd
-        q = sym $ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ -×A.×β₂
+          q : -×A.×ue.element .snd ≡
+            (C.id C.⋆
+              -×A.×ue.universal -×A.×ue.vertex .equiv-proof
+              (-×A.×ue.element .fst C.⋆ f , -×A.×ue.element .snd) .fst .fst)
+            C.⋆ -×A.×ue.element .snd
+          q = sym $ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ -×A.×β₂
 
       opaque
         ⇒ⱽᴰ-square-sec : (⇒ⱽᴰ-square-from Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to) Cᴰ.∫≡ Cᴰ.idᴰ

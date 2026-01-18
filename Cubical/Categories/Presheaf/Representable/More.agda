@@ -232,15 +232,16 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
     RepresentationPshIso→UniversalElement .vertex = x
     RepresentationPshIso→UniversalElement .element =
       α .trans .N-ob _ C.id
-    RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
-      ( α⁻ Γ
-      , subst motive
-          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong N-ob $ IsoYoRec P x .Iso.sec (α .trans)) _) _)
-          (α .nIso Γ .snd))
+    RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv (α⁻ Γ , abst)
       where
         α⁻ = (invPshIso α) .trans .N-ob
         motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
         motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
+        abst : motive (P._⋆ element RepresentationPshIso→UniversalElement)
+        abst = subst motive
+          (funExt λ f →
+            sym $ funExt⁻ (funExt⁻ (cong N-ob $ IsoYoRec P x .Iso.sec (α .trans)) _) _)
+          (α .nIso Γ .snd)
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (P : Profunctor C D ℓp) where
   open Category

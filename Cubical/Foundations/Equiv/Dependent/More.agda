@@ -79,43 +79,30 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
     module Q = hSetReasoning (B , isSetB) Q
 
   fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
-  fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (Q.reind (sym $ sec isom b) q)
-  fiberwiseIsoOver→IsoOver .rightInv = λ b q →
-    f⁻ (inv isom b) .snd .fst (Q.reind _ q)
-    ◁ symP (Q.Prectify $ Q.≡out $ Q.reind-filler _)
-  fiberwiseIsoOver→IsoOver .leftInv a p = opq
+  fiberwiseIsoOver→IsoOver =
+    isisoover
+      (λ b q → f⁻ (inv isom b) .fst (Q.reind (abst b) q))
+      (λ b q →
+         Q.Prectify $ Q.≡out $
+           Q.≡in (f⁻ (inv isom b) .snd .fst (Q.reind (abst b) q))
+           ∙ (sym $ Q.reind-filler _))
+      (λ a p →
+         P.Prectify $ P.≡out $
+           P.cong₂ᴰ (λ u v → f⁻ u .fst v)
+             (ΣPathP (abst' a , (Q.Prectify $ Q.≡out $ sym $ Q.reind-filler _)))
+           ∙ P.≡in (f⁻ a .snd .snd p)
+      )
     where
-      f⁻cong : ∀ {a a'}{q : Q (isom .fun a)}{q' : Q (isom .fun a')}
-        (a≡a' : a ≡ a')
-        → PathP (λ i → Q (fun isom (a≡a' i))) q q'
-        → PathP (λ i → P (a≡a' i)) (f⁻ a .fst q) (f⁻ a' .fst q')
-      f⁻cong a≡a' q≡q' = λ i → f⁻ (a≡a' i) .fst (q≡q' i)
+    abstract
+      abst : ∀ b → b ≡ fun isom (inv isom b)
+      abst b = sym $ sec isom b
 
-      f⁻cong∫~ : ∀ {a a'}{q : Q (isom .fun a)}{q' : Q (isom .fun a')}
-        → q Q.∫≡ q'
-        → (f⁻ a .fst q) P.∫≡ (f⁻ a' .fst q')
-      f⁻cong∫~ {a}{a'} q≡q' = P.≡in $
-        f⁻cong a≡a' (Q.Prectify $ Q.≡out q≡q')
-        where
-          a≡a' : a ≡ a'
-          a≡a' = isoFunInjective isom a a' (PathPΣ q≡q' .fst)
+      abst' : ∀ a → inv isom (fun isom a) ≡ a
+      abst' a = ret isom a
 
-      opaque
-        unfolding hSetReasoning.reind
-        opq : PathP (λ i → P (ret isom a i))
-           (f⁻ (inv isom (fun isom a))
-             .fst (Q.reind (λ i → sec isom (fun isom a) (~ i)) (f a p)))
-             p
-        opq =
-            P.Prectify $ P.≡out $
-            f⁻cong∫~
-                (sym (Q.reind-filler _) ∙ Q.reind-filler _ ∙ Q.reind-filler _ )
-            ∙ P.reind-filler _
-            ∙ P.≡in (isoover' .leftInv a p)
-
--- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =
---   isisoover (isoOver .inv) (isoOver .sec)
---     λ a p → {!isoOver .ret a p!}
---   where
---     isoOver : IsoOver (equivToIso $ isoToEquiv isom) _ Q
---     isoOver = equivOver→IsoOver (isoToEquiv isom) f fEquiv
+-- -- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =
+-- --   isisoover (isoOver .inv) (isoOver .sec)
+-- --     λ a p → {!isoOver .ret a p!}
+-- --   where
+-- --     isoOver : IsoOver (equivToIso $ isoToEquiv isom) _ Q
+-- --     isoOver = equivOver→IsoOver (isoToEquiv isom) f fEquiv

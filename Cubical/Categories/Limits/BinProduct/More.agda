@@ -175,12 +175,42 @@ module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith 
   π₁CartNat .fst = π₁Nat
   π₁CartNat .snd {x} {y} f {d} p p₁ p₁f≡pπ₁ =
     uniqueExists (p₁ ,p (p C.⋆ π₂))
-      ((sym $ ,p-extensionality
-        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₁ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ ×β₁ ⟩⋆⟨ refl ⟩ ∙ (sym p₁f≡pπ₁))
-        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩ ∙ ×β₂))
-       , (sym ×β₁))
-      (λ _ → isProp× (C.isSetHom _ _) (C.isSetHom _ _))
-      λ p' (p≡p'⋆id×f , p₁≡p'π₁) → ,p≡ p₁≡p'π₁ (C.⟨ p≡p'⋆id×f ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩)
+      abst
+      abst'
+      abst''
+    where
+    abstract
+      abst : (p ≡
+            (bp x BinProductNotation.,p p₁)
+            (p C.⋆ BinProductNotation.π₂ (bp y))
+            C.⋆ F-hom ×aF f)
+            Ty.×
+            (p₁ ≡
+            (bp x BinProductNotation.,p p₁)
+            (p C.⋆ BinProductNotation.π₂ (bp y))
+            C.⋆ BinProductNotation.π₁ (bp x))
+      abst =
+        ((sym $ ,p-extensionality
+            (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₁ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ ×β₁ ⟩⋆⟨ refl ⟩ ∙ (sym p₁f≡pπ₁))
+            (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩ ∙ ×β₂))
+        , (sym ×β₁))
+
+      abst' :
+        (a' : C.Hom[ d , ×ue.vertex ]) →
+            isProp
+            ((p ≡ a' C.⋆ F-hom ×aF f) Ty.×
+            (p₁ ≡ a' C.⋆ BinProductNotation.π₁ (bp x)))
+      abst' = (λ _ → isProp× (C.isSetHom _ _) (C.isSetHom _ _))
+
+      abst'' :
+        (a' : C.Hom[ d , ×ue.vertex ]) →
+        (p ≡ a' C.⋆ F-hom ×aF f) Ty.×
+        (p₁ ≡ a' C.⋆ N-ob (π₁CartNat .fst) x) →
+        (bp x BinProductNotation.,p p₁)
+        (p C.⋆ BinProductNotation.π₂ (bp y))
+        ≡ a'
+      abst'' =
+        λ p' (p≡p'⋆id×f , p₁≡p'π₁) → ,p≡ p₁≡p'π₁ (C.⟨ p≡p'⋆id×f ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩)
 
 private
   variable

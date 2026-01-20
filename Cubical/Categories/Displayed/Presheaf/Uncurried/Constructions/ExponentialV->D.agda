@@ -2,8 +2,6 @@
     module _ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ]) where
   This proof is very ugly/manual. There should be a cleaner representability-based proof.
 -}
-
-
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D where
 
 open import Cubical.Foundations.Prelude

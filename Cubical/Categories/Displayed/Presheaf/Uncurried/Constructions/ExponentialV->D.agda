@@ -2,6 +2,7 @@
     module _ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ]) where
   This proof is very ugly/manual. There should be a cleaner representability-based proof.
 -}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D where
 
 open import Cubical.Foundations.Prelude
@@ -110,8 +111,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       module cartesianLifts = FibrationNotation Cᴰ cartesianLifts
       module -×A = BinProductsWithNotation _×A
       module A⇒B = ExponentialNotation _×A A⇒B
-      module ×ᴰAᴰ = LRᴰPresheafᴰNotation (_ , _×A) Cᴰ _ (_ , ×ᴰAᴰ)
-      module ×ⱽπ₂*Aᴰ = LRⱽPresheafᴰNotation Cᴰ (_ , ×ⱽπ₂*Aᴰ)
+      module ×ᴰAᴰ = LRᴰPresheafᴰNotation (C [-, A ] , _×A) Cᴰ ℓCᴰ' ((Cᴰ [-][-, Aᴰ ]) , ×ᴰAᴰ)
+      module ×ⱽπ₂*Aᴰ = LRⱽPresheafᴰNotation Cᴰ {P = C [-, -×A.×ue.vertex {b = A⇒B.vert} ]}
+        ((Cᴰ [-][-, cartesianLifts Aᴰ -×A.×ue.vertex (-×A.×ue.element .snd) .fst ]) , ×ⱽπ₂*Aᴰ)
 
     module _ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ]) where
       ⇒ⱽᴰ-square-to : Cᴰ.Hom[ C.id ][ (-×A.π₁ {Γ} cartesianLifts.* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((-×A.π₁ C.⋆ f) -×A.,p -×A.π₂) * , Γᴰ ×ᴰAᴰ.×ᴰPᴰ ]
@@ -150,23 +152,21 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
           Cᴰ.⟨⟩⋆⟨ sym (Cᴰ.reind-filler _) ⟩
           ∙ ×ᴰAᴰ.×-extensionalityᴰ
               (Cᴰ.⋆Assoc _ _ _
-              ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ}
-                        ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
-              ∙ sym (Cᴰ.⋆Assoc _ _ _)
-              ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ (cartesianLifts.introᴰ _) ⟩⋆⟨⟩
-              ∙ cartesianLifts.βᴰ' _ ∙ sym (Cᴰ.reind-filler _) ∙ sym (Cᴰ.⋆IdL _))
-
-          -- something slow here...
+                ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ {pᴰ = ×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ}
+                          ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
+                ∙ sym (Cᴰ.⋆Assoc _ _ _)
+                ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ (cartesianLifts.introᴰ _) ⟩⋆⟨⟩
+                ∙ cartesianLifts.βᴰ' _ ∙ sym (Cᴰ.reind-filler _) ∙ sym (Cᴰ.⋆IdL _))
               (sym (Cᴰ.reind-filler _)
-              ∙ Cᴰ.⋆Assoc _ _ _
-              ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _
-                        ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ}
-                        ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
-              ∙ sym (Cᴰ.⋆Assoc _ _ _)
-              ∙ Cᴰ.⟨ Cᴰ.reind-filler _
-                     ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ (cartesianLifts.introᴰ _) _ ⟩⋆⟨⟩
-              ∙ cartesianLifts.βᴰ' _
-              ∙ sym (Cᴰ.reind-filler _) ∙ (sym $ Cᴰ.⋆IdL _) ∙ Cᴰ.reind-filler _)
+                ∙ Cᴰ.⋆Assoc _ _ _
+                ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _
+                          ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ}
+                          ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
+                ∙ sym (Cᴰ.⋆Assoc _ _ _)
+                ∙ Cᴰ.⟨ Cᴰ.reind-filler _
+                      ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ (cartesianLifts.introᴰ _) _ ⟩⋆⟨⟩
+                ∙ cartesianLifts.βᴰ' _
+                ∙ sym (Cᴰ.reind-filler _) ∙ (sym $ Cᴰ.⋆IdL _) ∙ Cᴰ.reind-filler _)
 
         ⇒ⱽᴰ-square-ret : (⇒ⱽᴰ-square-to Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-from) Cᴰ.∫≡ Cᴰ.idᴰ
         ⇒ⱽᴰ-square-ret =
@@ -210,12 +210,14 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
               (Cᴰ.rectify $ Cᴰ.≡out $ ⇒ⱽᴰ-square-ret)
 
     LHS-F RHS-F : Functor (Cᴰ / (C [-, A⇒B .vertex ])) (Cᴰ / (C [-, B ]))
+
     LHS-F = (Idᴰ /Fⱽ yoRec (C [-, B ]) A⇒B.app)
-            ∘F ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ Cᴰ (_ , ×ⱽπ₂*Aᴰ)) -- 2 hcomps
-            -- ∘F {!!}
-            ∘F wkA Cᴰ A _×A (λ Γ Γᴰ → cartesianLifts Γᴰ _ _) A⇒B.⇒ue.vertex -- 12 hcomps
-    RHS-F = (×ᴰPᴰ (_ , _×A) (_ , ×ᴰAᴰ)
-            ∘F (Idᴰ /Fⱽ yoRec (reindPsh (LRPsh→Functor (_ , _×A)) (C [-, B ])) A⇒B.app))
+            ∘F ×LRⱽPshᴰ {P = C [-, -×A.×ue.vertex {b = A⇒B.vert} ]}
+                  (LRⱽObᴰ→LRⱽ Cᴰ (cartesianLifts Aᴰ -×A.×ue.vertex (-×A.×ue.element .snd) .fst , ×ⱽπ₂*Aᴰ))
+            ∘F wkA Cᴰ A _×A (λ Γ Γᴰ → cartesianLifts Γᴰ -×A.×ue.vertex -×A.π₁) A⇒B.vert
+
+    RHS-F = ×ᴰPᴰ {Q = C [-, B ]} ((C [-, A ]) , _×A) ((Cᴰ [-][-, Aᴰ ]) , ×ᴰAᴰ)
+            ∘F (Idᴰ /Fⱽ yoRec (reindPsh (LRPsh→Functor (C [-, A ] , _×A)) (C [-, B ])) A⇒B.app)
 
     opaque
       ⇒ⱽᴰ-square-nat : ((Δ , Δᴰ , f) (Γ , Γᴰ , g) : ((Cᴰ / (C [-, A⇒B .vertex ]))) .ob)
@@ -249,7 +251,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
             ((sym $ Cᴰ.reind-filler _)
               ∙ Cᴰ.⋆Assoc _ _ _
               ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _
-                         ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ} ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ ×ⱽπ₂*Aᴰ.π₂ⱽ ⟩
+                         ∙ ×ᴰAᴰ.×β₂ᴰ {fᴰ = ×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ}
+                         ∙ cartesianLifts.⋆πⱽ≡⋆ᴰπⱽ ×ⱽπ₂*Aᴰ.π₂ⱽ
+                         ⟩
               ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
               ∙ Cᴰ.⟨ Cᴰ.reind-filler _
                      ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ _ _

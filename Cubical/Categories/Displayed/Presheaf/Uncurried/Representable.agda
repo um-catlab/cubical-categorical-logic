@@ -281,3 +281,19 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ (C [-, x ]) Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
   (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (x : C .ob) where
+  private
+    module Cᴰ = Fibers Cᴰ
+  _⟨_⟩[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
+  _⟨_⟩[-][-,_] xᴰ .F-ob (Γ , Γᴰ , f) = ( Cᴰ [ f ][ Γᴰ , xᴰ ]) , Cᴰ.isSetHomᴰ
+  _⟨_⟩[-][-,_] xᴰ .F-hom {x = z , zᴰ , f}{y = y , yᴰ , g} (γ , γᴰ , γ⋆f≡g) fᴰ =
+    Cᴰ.reind γ⋆f≡g $ γᴰ Cᴰ.⋆ᴰ fᴰ
+  _⟨_⟩[-][-,_] xᴰ .F-id =
+    funExt λ fᴰ → Cᴰ.rectifyOut $ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdL _
+  _⟨_⟩[-][-,_] xᴰ .F-seq (γ , γᴰ , _) (σ , σᴰ , _) =
+    funExt λ fᴰ → Cᴰ.rectifyOut $
+      Cᴰ.reind-filler⁻ _
+      ∙ Cᴰ.⋆Assoc _ _ _
+      ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ⟩
+      ∙ Cᴰ.reind-filler _

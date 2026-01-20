@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Exponentials.Small where
 
 open import Cubical.Foundations.Prelude

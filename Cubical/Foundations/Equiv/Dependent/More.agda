@@ -81,24 +81,16 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
   fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
   fiberwiseIsoOver→IsoOver =
     isisoover
-      (λ b q → f⁻ (inv isom b) .fst (Q.reind (abst b) q))
+      (λ b q → f⁻ (inv isom b) .fst (Q.reind (sym $ sec isom b) q))
       (λ b q →
          Q.Prectify $ Q.≡out $
-           Q.≡in (f⁻ (inv isom b) .snd .fst (Q.reind (abst b) q))
+           Q.≡in (f⁻ (inv isom b) .snd .fst (Q.reind (sym $ sec isom b) q))
            ∙ (sym $ Q.reind-filler _))
       (λ a p →
          P.Prectify $ P.≡out $
            P.cong₂ᴰ (λ u v → f⁻ u .fst v)
-             (ΣPathP (abst' a , (Q.Prectify $ Q.≡out $ sym $ Q.reind-filler _)))
-           ∙ P.≡in (f⁻ a .snd .snd p)
-      )
-    where
-    abstract
-      abst : ∀ b → b ≡ fun isom (inv isom b)
-      abst b = sym $ sec isom b
-
-      abst' : ∀ a → inv isom (fun isom a) ≡ a
-      abst' a = ret isom a
+             (ΣPathP (ret isom a , (Q.Prectify $ Q.≡out $ sym $ Q.reind-filler _)))
+           ∙ P.≡in (f⁻ a .snd .snd p))
 
 -- -- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =
 -- --   isisoover (isoOver .inv) (isoOver .sec)

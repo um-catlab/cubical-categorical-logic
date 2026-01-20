@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 -- Product of two categories
 
 module Cubical.Categories.Constructions.BinProduct.More where

@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Displayed.Presheaf.Morphism where
 
 open import Cubical.Foundations.Prelude
@@ -602,7 +602,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       αᴰ .snd .leftInv p pᴰ
 
   opaque
-    unfolding hSetReasoning.reind
     PshIsoᴰ→PathP
         : ∀ (αᴰ : PshIsoᴰ α Pᴰ Qᴰ)
         → PathP (λ i → Presheafᴰ (PshIso→Path P Q α i) Cᴰ ℓPᴰ) Pᴰ Qᴰ

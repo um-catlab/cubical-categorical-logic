@@ -4,7 +4,7 @@
   over one or both of the projections.
 
 -}
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Displayed.Constructions.Comma where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 {--
  -- Functor Comprehension
  -- ======================

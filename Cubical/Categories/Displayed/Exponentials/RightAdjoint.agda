@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 {-
   Displayed and Vertical Exponentials
 

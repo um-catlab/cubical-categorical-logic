@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 {- TODO: split up this file into a bunch of individual construction files -}
 
 {-
@@ -184,11 +184,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       PathPsh-rec : PshHomᴰ ΔPshHom UnitPsh Rᴰ → PshHomⱽ PathPsh Rᴰ
       PathPsh-rec αⱽ .N-ob (x , xᴰ , p , q) p≡q =
         -- should I use formal-reind instead of reind?
-        Rᴰ.reind abst (αⱽ .N-ob (x , xᴰ , p) tt)
+        Rᴰ.reind pp≡pq (αⱽ .N-ob (x , xᴰ , p) tt)
         where
-        abstract
-          abst : (p , p) ≡ (p , q)
-          abst = ΣPathP (refl , p≡q)
+        pp≡pq : (p , p) ≡ (p , q)
+        pp≡pq = ΣPathP (refl , p≡q)
       PathPsh-rec αⱽ .N-hom (Δ , Δᴰ , (p , q)) (Γ , Γᴰ , (p' , q')) (γ , γᴰ , γ⋆p,γ⋆q≡p',q') p≡q =
         Rᴰ.rectify $ Rᴰ.≡out $
         (sym $ Rᴰ.reind-filler _)
@@ -276,17 +275,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       Iso (Σ[ p ∈ P.p[ Γ ] ] (Pᴰ.p[ p ][ Γᴰ ] × Qᴰ.p[ α .N-ob Γ p ][ Γᴰ ]) × (q ≡ α .N-ob Γ p))
           ((Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (q ≡ α .N-ob Γ p)) × Qᴰ.p[ q ][ Γᴰ ])
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .fun (p , (pᴰ , qᴰ) , q≡αΓp) =
-      (p , pᴰ , q≡αΓp) , Qᴰ.reind abst qᴰ
-      where
-      abstract
-        abst : α .N-ob Γ p  ≡ q
-        abst = sym q≡αΓp
+      (p , pᴰ , q≡αΓp) , Qᴰ.reind (sym q≡αΓp) qᴰ
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .inv ((p , pᴰ , q≡αΓp), qᴰ) =
-      p , ((pᴰ , (Qᴰ.reind abst qᴰ)) , q≡αΓp)
-      where
-      abstract
-        abst : q ≡ α .N-ob Γ p
-        abst = q≡αΓp
+      p , ((pᴰ , (Qᴰ.reind q≡αΓp qᴰ)) , q≡αΓp)
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .sec ((p , pᴰ , q≡αΓp), qᴰ) =
       ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .ret (p , (pᴰ , qᴰ) , q≡αΓp) =

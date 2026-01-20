@@ -5,7 +5,7 @@
     weakening. Should it?
 
 -}
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Displayed.Constructions.BinProduct.More where
 
 open import Cubical.Foundations.Prelude

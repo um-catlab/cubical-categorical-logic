@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration where
 
 open import Cubical.Foundations.Prelude
@@ -233,11 +232,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     -- the gen one is the most flexible, use it for theorems
     cartLift-sq-filler-gen : (commutes : (C.id C.⋆ g) C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*zᴰ .fst ]
     cartLift-sq-filler-gen commutes =
-      h*zᴰ.introᴰ (Cᴰ.reind abst (g*yᴰ.πⱽ Cᴰ.⋆ᴰ kᴰ))
-      where
-      abstract
-        abst : (C.id C.⋆ g) C.⋆ k ≡ f C.⋆ h
-        abst = commutes
+      h*zᴰ.introᴰ (Cᴰ.reind commutes (g*yᴰ.πⱽ Cᴰ.⋆ᴰ kᴰ))
 
     -- this one is the most convenient to use bc the extra id isn't there.
     cartLift-sq-filler : (commutes : g C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*zᴰ .fst ]
@@ -297,12 +292,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module h*yᴰ = CartesianLiftNotation h*yᴰ
     cartLift-tri-filler-gen : (commutes : C.id C.⋆ g ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*yᴰ .fst ]
     cartLift-tri-filler-gen commutes =
-      h*yᴰ.introᴰ (Cᴰ.reind abst g*yᴰ.πⱽ)
-      where
-      abstract
-        abst : C.id C.⋆ g ≡ f C.⋆ h
-        abst = commutes
-
+      h*yᴰ.introᴰ (Cᴰ.reind commutes g*yᴰ.πⱽ)
 
     cartLift-tri-filler : (commutes : g ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*yᴰ .fst ]
     cartLift-tri-filler commutes = cartLift-tri-filler-gen (C.⋆IdL g ∙ commutes)

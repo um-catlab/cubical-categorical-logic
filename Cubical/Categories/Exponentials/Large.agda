@@ -1,5 +1,5 @@
 -- NOTE : The implementation of Exponentials at Exponentials.Small is preferred
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Exponentials.Large where
 
 open import Cubical.Foundations.Prelude

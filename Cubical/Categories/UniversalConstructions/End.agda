@@ -1,7 +1,7 @@
 {-
   An end of an endo-profunctor F : C -[ ℓR ]-> C
 -}
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.UniversalConstructions.End where
 
 open import Cubical.Foundations.Prelude

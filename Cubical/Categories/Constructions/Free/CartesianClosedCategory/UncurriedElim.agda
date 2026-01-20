@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.Constructions.Free.CartesianClosedCategory.UncurriedElim where
 
 open import Cubical.Foundations.Prelude

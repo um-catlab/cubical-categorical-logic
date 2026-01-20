@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Constructions.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude

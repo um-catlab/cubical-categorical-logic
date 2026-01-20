@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 
 module Cubical.Categories.Limits.AsRepresentable.Cone where
 

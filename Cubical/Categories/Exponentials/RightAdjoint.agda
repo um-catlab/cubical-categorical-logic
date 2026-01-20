@@ -1,6 +1,6 @@
 -- NOTE : This implementation of Exponentials is
 -- deprecated, and the implementation at Exponentials.Small is preferred
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Exponentials.RightAdjoint where
 
 open import Cubical.Foundations.Prelude

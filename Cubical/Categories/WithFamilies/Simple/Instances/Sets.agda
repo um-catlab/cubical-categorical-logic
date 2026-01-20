@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.WithFamilies.Simple.Instances.Sets where
 
 open import Cubical.Foundations.Prelude

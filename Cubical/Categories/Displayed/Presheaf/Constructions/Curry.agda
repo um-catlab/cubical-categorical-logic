@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Displayed.Presheaf.Constructions.Curry where
 
 open import Cubical.Foundations.Prelude
@@ -79,11 +79,7 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
     UncurryPshᴰ : Uncurried.Presheafᴰ P Cᴰ ℓPᴰ
     UncurryPshᴰ .F-ob (x , xᴰ , p) = Pᴰ .F-obᴰ xᴰ p
     UncurryPshᴰ .F-hom {x = (x , xᴰ , p)}{y = (y , yᴰ , q)} (f , fᴰ , f⋆p≡q) pᴰ =
-      Pᴰ.reind abst (fᴰ Pᴰ.⋆ᴰ pᴰ)
-      where
-      abstract
-        abst : P .F-hom f p ≡ q
-        abst = f⋆p≡q
+      Pᴰ.reind f⋆p≡q (fᴰ Pᴰ.⋆ᴰ pᴰ)
 
     UncurryPshᴰ .F-id = funExt (λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
       sym (Pᴰ.reind-filler _) ∙ Pᴰ.⋆IdL _)

@@ -1,7 +1,7 @@
 {-
   Displayed exponential
 -}
-{-# OPTIONS --lossy-unification #-}
+
 
 -- This should probably be UniversalProperties.Exponential, not Constructions.Exponential
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD where

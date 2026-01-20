@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 {-- A globally small presheaf on a small category C
 -- is a contravariant functor from C to the category
 -- of sets *at a fixed universe level*

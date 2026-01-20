@@ -35,7 +35,7 @@
 -- meaning Qᴰ → wkF* Pᴰ ≅ (Id/π)*Qᴰ → Pᴰ
 -}
 
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier where
 
 open import Cubical.Foundations.Prelude
@@ -149,11 +149,10 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
           λ z → Cᴰ.Hom[ z .fst ][ Θᴰ , Δᴰ ]
       wkF-ReprIso-ptWiseIsoOver .IsoOver.fun (δ~ , δ~Fγ≡γ~) = π*._⋆πⱽ
       wkF-ReprIso-ptWiseIsoOver .IsoOver.inv (δ , δγ≡γ~π) δᴰ =
-        π*.introᴰ (Cᴰ.reind abst δᴰ)
+        π*.introᴰ (Cᴰ.reind p δᴰ)
         where
-        abstract
-          abst : δ ≡ Pullback.pullbackArrow pb γ~ δ (λ i → δγ≡γ~π (~ i)) C.⋆ N-ob π Δ
-          abst = pullbackArrowPr₂ C pb γ~ δ (sym $ δγ≡γ~π)
+        p : δ ≡ Pullback.pullbackArrow pb γ~ δ (λ i → δγ≡γ~π (~ i)) C.⋆ N-ob π Δ
+        p = pullbackArrowPr₂ C pb γ~ δ (sym $ δγ≡γ~π)
       wkF-ReprIso-ptWiseIsoOver .IsoOver.rightInv (δ , δγ≡γ~π) δᴰ =
         Cᴰ.rectify $ Cᴰ.≡out $ π*.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _)
       wkF-ReprIso-ptWiseIsoOver .IsoOver.leftInv (δ~ , δ~Fγ≡γ~) δ~ᴰ =

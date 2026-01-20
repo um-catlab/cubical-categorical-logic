@@ -24,7 +24,7 @@
 
 -}
 
-{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Base where
 
 open import Cubical.Foundations.Prelude
@@ -281,7 +281,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
   open PresheafNotation ∫ public
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
+  (P : Presheaf C ℓP)
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
   PshHomⱽ : Type _
@@ -293,8 +293,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
-  reindPshᴰNatTrans : Presheafᴰ P Cᴰ ℓQᴰ
-  reindPshᴰNatTrans = reindPsh (Idᴰ /Fⱽ α) Qᴰ
+  opaque
+    reindPshᴰNatTrans : Presheafᴰ P Cᴰ ℓQᴰ
+    reindPshᴰNatTrans = reindPsh (Idᴰ /Fⱽ α) Qᴰ
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -302,18 +303,25 @@ module _
   (α : PshHom P Q)(β : PshHom Q R) (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ) where
   private
     module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
-  reindPshᴰNatTrans-seq : PshIso (reindPshᴰNatTrans (α ⋆PshHom β) Rᴰ) (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ)
-  reindPshᴰNatTrans-seq = Isos→PshIso (λ _ → idIso) λ _ _ →
-    λ _ _ → Rᴰ.rectify $ Rᴰ.≡out $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
+  opaque
+    unfolding reindPshᴰNatTrans
+    reindPshᴰNatTrans-seq :
+      PshIso
+        (reindPshᴰNatTrans (α ⋆PshHom β) Rᴰ)
+        (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ)
+    reindPshᴰNatTrans-seq = Isos→PshIso (λ _ → idIso) λ _ _ →
+      λ _ _ → Rᴰ.rectify $ Rᴰ.≡out $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} (α : PshHom P P) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
   private
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
-  reindPshᴰNatTrans-id : PshIso (reindPshᴰNatTrans idPshHom Pᴰ) Pᴰ
-  reindPshᴰNatTrans-id = Isos→PshIso (λ _ → idIso) λ _ _ _ _ → Pᴰ.rectify $ Pᴰ.≡out $
-    Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
+  opaque
+    unfolding reindPshᴰNatTrans
+    reindPshᴰNatTrans-id : PshIso (reindPshᴰNatTrans {P = P} idPshHom Pᴰ) Pᴰ
+    reindPshᴰNatTrans-id = Isos→PshIso (λ _ → idIso) λ _ _ _ _ → Pᴰ.rectify $ Pᴰ.≡out $
+      Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -321,8 +329,10 @@ module _
   private
     module Q = PresheafNotation Q
     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
-  reindPshᴰNatTrans-Path : PshIso (reindPshᴰNatTrans α Qᴰ) (reindPshᴰNatTrans β Qᴰ)
-  reindPshᴰNatTrans-Path = reindNatIsoPsh (pathToNatIso (cong₂ _/Fⱽ_ refl α≡β)) Qᴰ
+  opaque
+    unfolding reindPshᴰNatTrans
+    reindPshᴰNatTrans-Path : PshIso (reindPshᴰNatTrans α Qᴰ) (reindPshᴰNatTrans β Qᴰ)
+    reindPshᴰNatTrans-Path = reindNatIsoPsh (pathToNatIso (cong₂ _/Fⱽ_ (refl {x = Idᴰ}) α≡β)) Qᴰ
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -330,11 +340,13 @@ module _
   (α : PshHom P Q)(β : PshHom Q R) (γ : PshHom P R) (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ) where
   private
     module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
-  reindPshᴰNatTrans-tri : (α ⋆PshHom β ≡ γ)
-    → PshIso (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ) (reindPshᴰNatTrans γ Rᴰ)
-  reindPshᴰNatTrans-tri αβ≡γ =
-    (invPshIso $ reindPshᴰNatTrans-seq α β Rᴰ)
-    ⋆PshIso reindPshᴰNatTrans-Path (α ⋆PshHom β) γ αβ≡γ Rᴰ
+  opaque
+    unfolding reindPshᴰNatTrans
+    reindPshᴰNatTrans-tri : (α ⋆PshHom β ≡ γ)
+      → PshIso (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ) (reindPshᴰNatTrans γ Rᴰ)
+    reindPshᴰNatTrans-tri αβ≡γ =
+      (invPshIso $ reindPshᴰNatTrans-seq α β Rᴰ)
+      ⋆PshIso reindPshᴰNatTrans-Path (α ⋆PshHom β) γ αβ≡γ Rᴰ
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -344,7 +356,7 @@ module _
   (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (Pᴰ : Presheafᴰ P Dᴰ ℓPᴰ)
   where
   reindPshᴰFunctor : Presheafᴰ (reindPsh F P) Cᴰ ℓPᴰ
-  reindPshᴰFunctor = reindPsh (Fᴰ /Fᴰ idPshHom) Pᴰ
+  reindPshᴰFunctor = reindPsh (Fᴰ /Fᴰ (idPshHom {P = reindPsh F P})) Pᴰ
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -354,10 +366,10 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
   -- Constructing a fibration from its fibers and restrictions
   PshHomᴰ : Type _
-  PshHomᴰ = PshHomⱽ Pᴰ (reindPshᴰNatTrans α Qᴰ)
+  PshHomᴰ = PshHomⱽ P Pᴰ (reindPshᴰNatTrans α Qᴰ)
 
   FiberwisePshIsoᴰ : Type _
-  FiberwisePshIsoᴰ = PshIsoⱽ Pᴰ (reindPshᴰNatTrans α Qᴰ)
+  FiberwisePshIsoᴰ = PshIsoⱽ P Pᴰ (reindPshᴰNatTrans α Qᴰ)
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -372,12 +384,14 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
 
-  ∫PshHomᴰ : PshHomᴰ α Pᴰ Qᴰ → PshHom Pᴰ.∫ Qᴰ.∫
-  ∫PshHomᴰ αᴰ .N-ob (Γ , Γᴰ) (p , pᴰ) =
-    (α .N-ob Γ p) , (αᴰ .N-ob (Γ , Γᴰ , p) pᴰ)
-  ∫PshHomᴰ αᴰ .N-hom (Δ , Δᴰ) (Γ , Γᴰ) (γ , γᴰ) (p , pᴰ) =
-    (Qᴰ.≡in $ αᴰ .N-hom (Δ , Δᴰ , γ P.⋆ p) (Γ , Γᴰ , p) (γ , γᴰ , refl) pᴰ)
-    ∙ Qᴰ.⋆ᴰ-reind _ _ _
+  opaque
+    unfolding reindPshᴰNatTrans
+    ∫PshHomᴰ : PshHomᴰ α Pᴰ Qᴰ → PshHom Pᴰ.∫ Qᴰ.∫
+    ∫PshHomᴰ αᴰ .N-ob (Γ , Γᴰ) (p , pᴰ) =
+      (α .N-ob Γ p) , (αᴰ .N-ob (Γ , Γᴰ , p) pᴰ)
+    ∫PshHomᴰ αᴰ .N-hom (Δ , Δᴰ) (Γ , Γᴰ) (γ , γᴰ) (p , pᴰ) =
+      (Qᴰ.≡in $ αᴰ .N-hom (Δ , Δᴰ , γ P.⋆ p) (Γ , Γᴰ , p) (γ , γᴰ , refl) pᴰ)
+      ∙ Qᴰ.⋆ᴰ-reind _ _ _
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -389,8 +403,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
     module Qᴰ = PresheafᴰNotation Cᴰ P Qᴰ
 
-  ∫PshHomⱽ : PshHomⱽ Pᴰ Qᴰ → PshHom Pᴰ.∫ Qᴰ.∫
-  ∫PshHomⱽ αⱽ = ∫PshHomᴰ (αⱽ ⋆PshHom invPshIso (reindPshᴰNatTrans-id idPshHom Qᴰ) .trans)
+  ∫PshHomⱽ : PshHomⱽ P Pᴰ Qᴰ → PshHom Pᴰ.∫ Qᴰ.∫
+  ∫PshHomⱽ αⱽ = ∫PshHomᴰ (αⱽ ⋆PshHom trans⁻ (reindPshᴰNatTrans-id idPshHom Qᴰ))
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -402,10 +416,17 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Cᴰ = Fibers Cᴰ
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+
   isPshIsoᴰ : PshHomᴰ (α .trans) Pᴰ Qᴰ → Type _
   isPshIsoᴰ αᴰ =
     ∀ Γ Γᴰ → isIsoOver (PshIso→Isos α Γ) (Pᴰ.p[_][ Γᴰ ]) Qᴰ.p[_][ Γᴰ ]
-      λ p → αᴰ .N-ob (Γ , Γᴰ , p)
+      λ p → the-N-ob (Γ , Γᴰ , p)
+      where
+      module α*Qᴰ = PresheafᴰNotation Cᴰ P (reindPshᴰNatTrans (α .trans) Qᴰ)
+      opaque
+        unfolding reindPshᴰNatTrans
+        the-N-ob : ((Γ , Γᴰ , p) : ob (Cᴰ / P)) → Pᴰ.p[ p ][ Γᴰ ] → Qᴰ.p[ α .trans .N-ob Γ p ][ Γᴰ ]
+        the-N-ob = αᴰ .N-ob
 
   PshIsoᴰ : Type _
   PshIsoᴰ =

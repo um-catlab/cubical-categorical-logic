@@ -20,7 +20,7 @@
 -- meaning Qᴰ → (×ⱽ* Aᴰ)*Pᴰ ≅ Qᴰ → Pᴰ ×ⱽ Cᴰ [-][-, Aᴰ ] ≅ (Qᴰ → Pᴰ) × (Qᴰ → Cᴰ [-][-, Aᴰ ])
 -}
 
-{-# OPTIONS --lossy-unification #-}
+
 
 -- This should probably be UniversalProperties.Exponential, not Constructions.Exponential
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential where

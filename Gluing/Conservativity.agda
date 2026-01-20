@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+
 module Gluing.Conservativity where
 
 open import Cubical.Foundations.Prelude

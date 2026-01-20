@@ -34,8 +34,6 @@
 --
 -- meaning Qᴰ → wkF* Pᴰ ≅ (Id/π)*Qᴰ → Pᴰ
 -}
-
-
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier where
 
 open import Cubical.Foundations.Prelude
@@ -192,7 +190,8 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
     {yᴰ : Cᴰ.ob[ y ]} →
     Cᴰ [ f ][ xᴰ , yᴰ ] →
     Cᴰ [ F .F-hom f ][ π* x xᴰ .fst , π* y yᴰ .fst ]
-  wkFᴰ-homᴰ {f = f} fᴰ = cartLift-sq-filler Cᴰ (π* _ _) (π* _ _) fᴰ (sym $ π .N-hom f)
+  wkFᴰ-homᴰ {x = x}{y = y}{f = f}{xᴰ = xᴰ}{yᴰ = yᴰ} fᴰ =
+    cartLift-sq-filler Cᴰ (π* x xᴰ) (π* y yᴰ) fᴰ (sym $ π .N-hom f)
 
   wkFᴰ : Functorᴰ F Cᴰ Cᴰ
   wkFᴰ .F-obᴰ {x = Γ} Γᴰ = π* Γ Γᴰ .fst
@@ -288,7 +287,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           ∙ (snd $ PathPΣ $ β $ P .snd y))))
 
       wkPsh : Functor (Cᴰ / R) (Cᴰ / (R ×Psh P .fst))
-      wkPsh = _/Fᴰ_ {F = LRPsh→Functor P} π*Fᴰ (⟪-⟫×P P)
+      wkPsh = _/Fᴰ_ {P = R} {F = LRPsh→Functor P} π*Fᴰ (⟪-⟫×P P)
 
       ∀Pshᴰ : (Pᴰ : Presheafᴰ (R ×Psh P .fst) Cᴰ ℓPᴰ) → Presheafᴰ R Cᴰ ℓPᴰ
       ∀Pshᴰ = reindPsh wkPsh

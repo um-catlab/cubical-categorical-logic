@@ -79,28 +79,32 @@ module _
       R.rectify (Fᴰ .F-seqᴰ fᴰ gᴰ)
 
   open Functor
-  -- This is preferable to reindF if the equalities are Refl.
-  reindF' : (G : Functor C D)
-            (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)
-            (GF-hom≡FF-hom :
-              Eq.HEq (Eq.ap (λ F-ob₁ → ∀ {x} {y}
-                         → C [ x , y ] → D [ F-ob₁ x , F-ob₁ y ])
-                         GF-ob≡FF-ob)
-                (F .F-hom)
-                (G .F-hom))
-          → Functorᴰ F Cᴰ Dᴰ
-          → Functorᴰ G Cᴰ Dᴰ
-  reindF' G GF-ob≡FF-ob GF-hom≡FF-hom Fᴰ = record
-    { F-obᴰ  = reindF'-ob Fᴰ GF-ob
-    ; F-homᴰ = reindF'-hom Fᴰ GF-ob GF-hom
-    ; F-idᴰ  = reindF'-id Fᴰ GF-ob GF-hom (G .F-id)
-    ; F-seqᴰ = reindF'-seq Fᴰ GF-ob GF-hom (G .F-seq)
-    } where
+
+  module _
+    (G : Functor C D)
+    (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)
+    (GF-hom≡FF-hom :
+      Eq.HEq (Eq.ap (λ F-ob₁ → ∀ {x} {y}
+                  → C [ x , y ] → D [ F-ob₁ x , F-ob₁ y ])
+                  GF-ob≡FF-ob)
+        (F .F-hom)
+        (G .F-hom))
+    (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
+    where
+
+    private
       GF-ob : GF-ob-ty
       GF-ob = _ , GF-ob≡FF-ob
 
       GF-hom : GF-hom-ty GF-ob
       GF-hom = _ , GF-hom≡FF-hom
+
+    -- This is preferable to reindF if the equalities are Refl.
+    reindF' : Functorᴰ G Cᴰ Dᴰ
+    reindF' .F-obᴰ  = reindF'-ob Fᴰ GF-ob
+    reindF' .F-homᴰ = reindF'-hom Fᴰ GF-ob GF-hom
+    reindF' .F-idᴰ  = reindF'-id Fᴰ GF-ob GF-hom (G .F-id)
+    reindF' .F-seqᴰ = reindF'-seq Fᴰ GF-ob GF-hom (G .F-seq)
 
   reindF'' : (G : Functor C D)
              (GF-ob≡FF-ob : F .F-ob Eq.≡ G .F-ob)

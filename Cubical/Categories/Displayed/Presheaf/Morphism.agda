@@ -1,4 +1,3 @@
-
 module Cubical.Categories.Displayed.Presheaf.Morphism where
 
 open import Cubical.Foundations.Prelude
@@ -8,6 +7,7 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
@@ -207,7 +207,6 @@ module _
       (∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p : P.p[ x ]} → αᴰ .N-obᴰ {x}{xᴰ}{p} ≡ βᴰ .N-obᴰ)
       → αᴰ ≡ βᴰ
     makePshHomᴰPath = makePshHomᴰPathP _ _ refl
-
 
 open PshHomᴰ
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -607,15 +606,16 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         → PathP (λ i → Presheafᴰ (PshIso→Path P Q α i) Cᴰ ℓPᴰ) Pᴰ Qᴰ
     PshIsoᴰ→PathP αᴰ =
         Functorᴰ≡
-        (λ xᴰ → CatIsoᴰ→P≡Q (PshIso→SETIso P Q α _) (PshIsoᴰ→SETᴰIsoᴰ αᴰ xᴰ))
-        λ {x = x}{xᴰ = xᴰ} fᴰ →
-            toPathP (funExt (λ q → funExt (λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-            sym (Qᴰ.reind-filler _)
-            ∙ cong (∫αᴰ .trans .N-ob _) Pᴰ.⟨ refl ⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
-            ∙ ∫αᴰ .trans .N-hom _ _ _ _
-            ∙ Qᴰ.⟨ refl ⟩⋆⟨ cong (∫αᴰ .trans .N-ob _) (cong (∫αᴰ .nIso _ .fst) (sym $ Qᴰ.reind-filler _))
-                    ∙ ∫αᴰ .nIso _ .snd .fst _ ⟩
-            )))
+          (λ {x = x} xᴰ → CatIsoᴰ→P≡Q (PshIso→SETIso P Q α x) (PshIsoᴰ→SETᴰIsoᴰ αᴰ xᴰ))
+          (λ {x = x}{y = y}{xᴰ = xᴰ}{yᴰ = yᴰ} fᴰ →
+            toPathP (funExt₂ λ q qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+              sym (Qᴰ.reind-filler _)
+              ∙ cong (∫αᴰ .trans .N-ob (y , yᴰ)) Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
+              ∙ ∫αᴰ .trans .N-hom _ _ _ _
+              ∙ Qᴰ.⟨ refl ⟩⋆⟨
+                  cong (∫αᴰ .trans .N-ob (x , xᴰ)) (cong (∫αᴰ .nIso (x , xᴰ) .fst) (sym $ Qᴰ.reind-filler _))
+                      ∙ ∫αᴰ .nIso (x , xᴰ) .snd .fst _ ⟩
+            ))
         where
         ∫αᴰ : PshIso (∫P Pᴰ) (∫P Qᴰ)
         ∫αᴰ = ∫PshIso αᴰ

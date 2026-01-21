@@ -120,11 +120,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       ⇒ⱽᴰ-square-to =
         Cᴰ.reind p (×ᴰAᴰ.introᴰ ((×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ) , (×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ)))
         where
-        abstract
-          p : -×A.×ue.universal -×A.×ue.vertex .equiv-proof
-              (C.id C.⋆ -×A.×ue.element .fst ,
-              (C.id C.⋆
-                -×A.×ue.universal -×A.×ue.vertex .equiv-proof
+        p : -×A.×ue.universal -×A.×ue.vertex .equiv-proof
+            (C.id C.⋆ -×A.×ue.element .fst ,
+            (C.id C.⋆
+              -×A.×ue.universal -×A.×ue.vertex .equiv-proof
                 (-×A.×ue.element .fst C.⋆ f , -×A.×ue.element .snd) .fst .fst)
               C.⋆ -×A.×ue.element .snd)
               .fst .fst
@@ -137,11 +136,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
           (cartesianLifts.introᴰ (Cᴰ.reind p ×ᴰAᴰ.π₁ᴰ))
           (cartesianLifts.introᴰ (Cᴰ.reind q ×ᴰAᴰ.π₂ᴰ))
         where
-        abstract
-          p :  -×A.×ue.element {b = Γ} .fst ≡ C.id C.⋆ -×A.×ue.element .fst
-          p = sym $ C.⋆IdL (-×A.×ue.element .fst)
+        p :  -×A.×ue.element {b = Γ} .fst ≡ C.id C.⋆ -×A.×ue.element .fst
+        p = sym $ C.⋆IdL (-×A.×ue.element .fst)
 
-          q : -×A.×ue.element .snd ≡
+        q : -×A.×ue.element .snd ≡
             (C.id C.⋆
               -×A.×ue.universal -×A.×ue.vertex .equiv-proof
               (-×A.×ue.element .fst C.⋆ f , -×A.×ue.element .snd) .fst .fst)

@@ -117,11 +117,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   _⋆ⱽᴰ_ : ∀ {x xᴰ xᴰ'}{g}
      → Cᴰ [ C.id {x} ][ xᴰ , xᴰ' ] → p[ g ][ xᴰ' ]
      → p[ g ][ xᴰ ]
-  _⋆ⱽᴰ_ {g = g} fⱽ gᴰ = reind abst (fⱽ ⋆ᴰ gᴰ)
-    where
-    abstract
-     abst : (C.id P.⋆ g) ≡ g
-     abst = P.⋆IdL _
+  _⋆ⱽᴰ_ {g = g} fⱽ gᴰ = reind (P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
 
   -- Should it just be fⱽ ≡ fⱽ' instead since that's more "vertical"?
   ⟨_⟩⋆ⱽᴰ⟨_⟩ :
@@ -235,11 +231,7 @@ module PresheafⱽNotation
   _⋆ᴰⱽ_ :
       Cᴰ [ f ][ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
       → p[ f ][ xᴰ ]
-  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = reind abst (fᴰ ⋆ᴰ gⱽ)
-    where
-    abstract
-      abst : f C.⋆ C.id ≡ f
-      abst = C.⋆IdR _
+  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
 
   _⋆ⱽ_ :
     Cᴰ.v[ c ] [ xᴰ , cᴰ ] → pⱽ[ cᴰ ]

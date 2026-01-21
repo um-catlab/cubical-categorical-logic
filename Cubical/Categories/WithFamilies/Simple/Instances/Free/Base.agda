@@ -214,7 +214,7 @@ module _ (Σ₀ : hGroupoid ℓ) where
       elimRenWkRen [] = M.termᴰ.extensionalityᴰ refl
       elimRenWkRen (x ∷ γ) =
         M.extᴰ.introᴰ≡ (ΣPathPᴰ (elimRenWkRen γ ∙ M.Cᴰ.⟨ refl ⟩⋆⟨ sym $ PathPᴰΣ M.extᴰ.βᴰ .fst ⟩ ∙ sym (M.Cᴰ.⋆Assoc _ _ _))
-                           (((sym $ M.Tmᴰ.reind-filler _ _) ∙ M.Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ M.extᴰ.βᴰ .snd ⟩) ∙ sym (M.Tmᴰ.⋆Assoc _ _ _)))
+                           (((sym $ M.Tmᴰ.reind-filler _) ∙ M.Tmᴰ.⟨⟩⋆⟨ sym $ PathPᴰΣ M.extᴰ.βᴰ .snd ⟩) ∙ sym (M.Tmᴰ.⋆Assoc _ _ _)))
 
       elimRen-Var : ∀ {Δ Γ A}
         → (γ : Renaming Δ Γ)
@@ -227,7 +227,7 @@ module _ (Σ₀ : hGroupoid ℓ) where
         elimRen-Var γ x
         ∙ M.Tmᴰ.⟨ sym $ PathPᴰΣ M.extᴰ.βᴰ .fst ⟩⋆⟨⟩
         ∙ M.Tmᴰ.⋆Assoc _ _ _
-        ∙ M.Tmᴰ.⟨⟩⋆⟨ M.Tmᴰ.reind-filler _ _ ⟩
+        ∙ M.Tmᴰ.⟨⟩⋆⟨ M.Tmᴰ.reind-filler _ ⟩
 
       elimRen-Id : ∀ Γ →
         Path (∫Cᴰ [ _ , _ ])

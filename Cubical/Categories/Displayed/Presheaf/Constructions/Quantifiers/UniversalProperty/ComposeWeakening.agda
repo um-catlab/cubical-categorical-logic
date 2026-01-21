@@ -100,84 +100,85 @@ module _
          private
            module αᴰ = PshHomᴰ αᴰ
 
-         ∀ⱽPsh-ηᴰ' : ∀ⱽPsh-introᴰ' Pⱽ (∀ⱽPsh-introᴰ⁻' Pⱽ αᴰ) ≡ αᴰ
-         ∀ⱽPsh-ηᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
-           Pⱽ.rectify $ Pⱽ.≡out $
-             (sym $ Pⱽ.reind-filler _ _)
-             ∙ (sym $ Pⱽ.reind-filler _ _)
-             ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.≡in αᴰ.N-homᴰ ⟩
-             ∙ (sym $ Pⱽ.⋆Assoc _ _ _)
-             ∙ Pⱽ.⟨ introᴰ-natural (π₁* _)
-                    ∙ introᴰ≡ (π₁* _)
-                        (change-base
-                             (C._⋆ bp.π₁)
-                             C.isSetHom
-                             ((sym $ bp.,p≡ refl refl)
-                              ∙ bp.,p≡
-                                  (C.⋆Assoc _ _ _
-                                  ∙ C.⟨ refl ⟩⋆⟨ bp.×β₁ ⟩
-                                  ∙ (sym $ C.⋆Assoc _ _ _)
-                                  ∙ C.⟨ bp.×β₁ ⟩⋆⟨ C.⋆IdL _ ⟩)
-                                  (C.⋆Assoc _ _ _
-                                  ∙ C.⟨ refl ⟩⋆⟨ bp.×β₂ ⟩
-                                  ∙ bp.×β₂
-                                  ∙ (sym $ C.⋆IdL _) )
-                              ∙ (sym $ C.⋆IdL _)) $
-                           (sym $ Cᴰ.reind-filler _ _)
-                           ∙ Cᴰ.⟨ refl ⟩⋆⟨
-                               (sym $ Cᴰ.reind-filler _ _)
-                               ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _
-                                    ⟩⋆⟨ refl ⟩ ⟩
-                           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-                           ∙ Cᴰ.⟨ βᴰ-πF* _ ⟩⋆⟨ refl ⟩
-                           ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
-                           ∙ Cᴰ.reind-filler _ _
-                           )
-                  ⟩⋆⟨⟩
-             ∙ Pⱽ.⋆IdL _
+       -- TODO update to handle opaque paths
+       --   ∀ⱽPsh-ηᴰ' : ∀ⱽPsh-introᴰ' Pⱽ (∀ⱽPsh-introᴰ⁻' Pⱽ αᴰ) ≡ αᴰ
+       --   ∀ⱽPsh-ηᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
+       --     Pⱽ.rectify $ Pⱽ.≡out $
+       --       (sym $ Pⱽ.reind-filler _ _)
+       --       ∙ (sym $ Pⱽ.reind-filler _ _)
+       --       ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.≡in αᴰ.N-homᴰ ⟩
+       --       ∙ (sym $ Pⱽ.⋆Assoc _ _ _)
+       --       ∙ Pⱽ.⟨ introᴰ-natural (π₁* _)
+       --              ∙ introᴰ≡ (π₁* _)
+       --                  (change-base
+       --                       (C._⋆ bp.π₁)
+       --                       C.isSetHom
+       --                       ((sym $ bp.,p≡ refl refl)
+       --                        ∙ bp.,p≡
+       --                            (C.⋆Assoc _ _ _
+       --                            ∙ C.⟨ refl ⟩⋆⟨ bp.×β₁ ⟩
+       --                            ∙ (sym $ C.⋆Assoc _ _ _)
+       --                            ∙ C.⟨ bp.×β₁ ⟩⋆⟨ C.⋆IdL _ ⟩)
+       --                            (C.⋆Assoc _ _ _
+       --                            ∙ C.⟨ refl ⟩⋆⟨ bp.×β₂ ⟩
+       --                            ∙ bp.×β₂
+       --                            ∙ (sym $ C.⋆IdL _) )
+       --                        ∙ (sym $ C.⋆IdL _)) $
+       --                     (sym $ Cᴰ.reind-filler _ _)
+       --                     ∙ Cᴰ.⟨ refl ⟩⋆⟨
+       --                         (sym $ Cᴰ.reind-filler _ _)
+       --                         ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _
+       --                              ⟩⋆⟨ refl ⟩ ⟩
+       --                     ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+       --                     ∙ Cᴰ.⟨ βᴰ-πF* _ ⟩⋆⟨ refl ⟩
+       --                     ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+       --                     ∙ Cᴰ.reind-filler _ _
+       --                     )
+       --            ⟩⋆⟨⟩
+       --       ∙ Pⱽ.⋆IdL _
 
-       module _
-         {α : PshHom Q (C [-, Γ ])}
-         (αᴰ : PshHomᴰ (mkProdPshHom Pⱽ α)
-                 (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
-         where
+       -- module _
+       --   {α : PshHom Q (C [-, Γ ])}
+       --   (αᴰ : PshHomᴰ (mkProdPshHom Pⱽ α)
+       --           (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
+       --   where
 
-         private
-           module αᴰ = PshHomᴰ αᴰ
+       --   private
+       --     module αᴰ = PshHomᴰ αᴰ
 
-         ∀ⱽPsh-βᴰ' : ∀ⱽPsh-introᴰ⁻' Pⱽ (∀ⱽPsh-introᴰ' Pⱽ αᴰ) ≡ αᴰ
-         ∀ⱽPsh-βᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
-           Pⱽ.rectify $ Pⱽ.≡out $
-             (sym $ Pⱽ.reind-filler _ _)
-             ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩
-             ∙ (sym $ Pⱽ.≡in αᴰ.N-homᴰ)
-             ∙ αᴰ.N-obᴰ⟨
-               change-base
-                 (π₁ Q (C [-, a ]) .N-ob c)
-                 Q.isSetPsh
-                 (ΣPathP (
-                   (sym $ Q.⋆Assoc _ _ _)
-                   ∙ Q.⟨ C.⟨ refl ⟩⋆⟨ C.⋆IdL _ ⟩ ∙ bp.×β₁ ⟩⋆⟨ refl ⟩
-                   ∙ Q.⋆IdL _ ,
-                   bp.×β₂
-                   ))
-                 $
-                 (sym $ Qᴰ.reind-filler _ _)
-                 ∙ (sym $ Qᴰ.⋆Assoc _ _ _)
-                 ∙ Qᴰ.⟨ (βᴰ-πF* _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨⟩
-                 ∙ Qᴰ.⋆IdL _
-               ⟩
+       --   ∀ⱽPsh-βᴰ' : ∀ⱽPsh-introᴰ⁻' Pⱽ (∀ⱽPsh-introᴰ' Pⱽ αᴰ) ≡ αᴰ
+       --   ∀ⱽPsh-βᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
+       --     Pⱽ.rectify $ Pⱽ.≡out $
+       --       (sym $ Pⱽ.reind-filler _ _)
+       --       ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩
+       --       ∙ (sym $ Pⱽ.≡in αᴰ.N-homᴰ)
+       --       ∙ αᴰ.N-obᴰ⟨
+       --         change-base
+       --           (π₁ Q (C [-, a ]) .N-ob c)
+       --           Q.isSetPsh
+       --           (ΣPathP (
+       --             (sym $ Q.⋆Assoc _ _ _)
+       --             ∙ Q.⟨ C.⟨ refl ⟩⋆⟨ C.⋆IdL _ ⟩ ∙ bp.×β₁ ⟩⋆⟨ refl ⟩
+       --             ∙ Q.⋆IdL _ ,
+       --             bp.×β₂
+       --             ))
+       --           $
+       --           (sym $ Qᴰ.reind-filler _ _)
+       --           ∙ (sym $ Qᴰ.⋆Assoc _ _ _)
+       --           ∙ Qᴰ.⟨ (βᴰ-πF* _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨⟩
+       --           ∙ Qᴰ.⋆IdL _
+       --         ⟩
 
-       module _ {α : PshHom Q (C [-, Γ ])} where
-         ∀Psh-UMPᴰ' :
-           Iso
-             (PshHomᴰ (mkProdPshHom Pⱽ α)
-               (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
-             (PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
-                Qᴰ (reindPshᴰFunctor weakenπFᴰ Pⱽ))
-         ∀Psh-UMPᴰ' =
-           iso
-             (∀ⱽPsh-introᴰ' Pⱽ)
-             (∀ⱽPsh-introᴰ⁻' Pⱽ)
-             ∀ⱽPsh-ηᴰ'
-             ∀ⱽPsh-βᴰ'
+       -- module _ {α : PshHom Q (C [-, Γ ])} where
+       --   ∀Psh-UMPᴰ' :
+       --     Iso
+       --       (PshHomᴰ (mkProdPshHom Pⱽ α)
+       --         (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
+       --       (PshHomᴰ (α ⋆PshHom Functor→PshHet bp.×aF Γ)
+       --          Qᴰ (reindPshᴰFunctor weakenπFᴰ Pⱽ))
+       --   ∀Psh-UMPᴰ' =
+       --     iso
+       --       (∀ⱽPsh-introᴰ' Pⱽ)
+       --       (∀ⱽPsh-introᴰ⁻' Pⱽ)
+       --       ∀ⱽPsh-ηᴰ'
+       --       ∀ⱽPsh-βᴰ'

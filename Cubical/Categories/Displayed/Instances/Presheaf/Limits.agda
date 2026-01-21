@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Instances.Presheaf.Limits where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
@@ -54,39 +55,41 @@ module _ (C : Category ℓC ℓC') (ℓS ℓSᴰ : Level) where
     TerminalsⱽPRESHEAFᴰ P .universalⱽ .snd .snd a =
       makeNatTransPathP refl refl refl
 
-    BinProductsⱽPRESHEAFᴰ : BinProductsⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
-    BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .vertexⱽ = ×𝓟 _ _ (Pᴰ , Pᴰ') .vertex
-    BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .elementⱽ =
-      (seqTrans (×𝓟 _ _ (Pᴰ , Pᴰ') .element .fst) (idTransᴰ _ _ _))
-      , (seqTrans (×𝓟 _ _ (Pᴰ , Pᴰ') .element .snd) (idTransᴰ _ _ _))
-    BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .universalⱽ .fst (id∘αᴰ , id∘αᴰ') =
-      natTrans
-      (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
-      λ (f , f-comm) → funExt λ q →
-      ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
-    BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .universalⱽ .snd .fst (id∘αᴰ , id∘αᴰ') =
-      ΣPathP
-       ( makeNatTransPath (sym (transport-filler _ _))
-       , makeNatTransPath (sym (transport-filler _ _)))
-    BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .universalⱽ {y = Q}{yᴰ = Qᴾ}{f = α}
-      .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
-      ΣPathP
-      ( fromPathP
-       (λ i → αᴰ .N-ob
-         (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
-         (transport-filler
-           (λ j →
-             Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q)
-               .fst)
-           q' (~ i)) .fst)
-      , fromPathP
-       (λ i → αᴰ .N-ob
-         (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
-         (transport-filler
-           (λ j →
-             Qᴾ .F-ob
-               (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst)
-           q' (~ i)) .snd)))
+    opaque
+      unfolding hSetReasoning.reind
+      BinProductsⱽPRESHEAFᴰ : BinProductsⱽ (PRESHEAFᴰ C ℓS ℓSᴰ)
+      BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .vertexⱽ = ×𝓟 _ _ (Pᴰ , Pᴰ') .vertex
+      BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .elementⱽ =
+        (seqTrans (×𝓟 _ _ (Pᴰ , Pᴰ') .element .fst) (idTransᴰ _ _ _))
+        , (seqTrans (×𝓟 _ _ (Pᴰ , Pᴰ') .element .snd) (idTransᴰ _ _ _))
+      BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .universalⱽ .fst (id∘αᴰ , id∘αᴰ') =
+        natTrans
+        (λ (x , x') q → ((id∘αᴰ ⟦ _ ⟧) q) , (id∘αᴰ' ⟦ _ ⟧) q)
+        λ (f , f-comm) → funExt λ q →
+        ΣPathP (funExt⁻ (id∘αᴰ .N-hom _) _ , funExt⁻ (id∘αᴰ' .N-hom _) _)
+      BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .universalⱽ .snd .fst (id∘αᴰ , id∘αᴰ') =
+        ΣPathP
+        ( makeNatTransPath (sym (transport-filler _ _))
+        , makeNatTransPath (sym (transport-filler _ _)))
+      BinProductsⱽPRESHEAFᴰ _ (Pᴰ , Pᴰ') .universalⱽ {y = Q}{yᴰ = Qᴾ}{f = α}
+        .snd .snd αᴰ = makeNatTransPath (funExt λ q → funExt λ q' →
+        ΣPathP
+        ( fromPathP
+        (λ i → αᴰ .N-ob
+          (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
+          (transport-filler
+            (λ j →
+              Qᴾ .F-ob (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q)
+                .fst)
+            q' (~ i)) .fst)
+        , fromPathP
+        (λ i → αᴰ .N-ob
+          (transport-filler (λ j → Σ (ob C) (λ c → fst (F-ob Q c))) q (~ i))
+          (transport-filler
+            (λ j →
+              Qᴾ .F-ob
+                (transp (λ j₁ → Σ (ob C) (λ c → fst (F-ob Q c))) (~ j) q) .fst)
+            q' (~ i)) .snd)))
   𝓟-CCⱽ : CartesianCategoryⱽ (PresheafCategory C ℓS) _ _
   𝓟-CCⱽ .CartesianCategoryⱽ.Cᴰ = (PRESHEAFᴰ C ℓS ℓSᴰ)
   𝓟-CCⱽ .CartesianCategoryⱽ.termⱽ = TerminalsⱽPRESHEAFᴰ

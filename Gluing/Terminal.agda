@@ -105,39 +105,40 @@ isSetCanonicalForm : ∀ {e} → isSet (CanonicalForm e)
 isSetCanonicalForm =
   isSet⊎ (isProp→isSet (isSetHom FQ _ _)) (isProp→isSet (isSetHom FQ _ _))
 
-canonicity : ∀ e → CanonicalForm e
-canonicity = λ exp → fixup (Canonicalize .F-homᴰ exp _ _)
-  where
-  pts = FQ [ 𝟙 ,-]
+-- TODO fix
+-- canonicity : ∀ e → CanonicalForm e
+-- canonicity = λ exp → fixup (Canonicalize .F-homᴰ exp _ _)
+--   where
+--   pts = FQ [ 𝟙 ,-]
 
-  Canonicalize : Section pts (SETᴰ _ _)
-  Canonicalize = elimLocal _ _ _ _
-    (TerminalsⱽSETᴰ _)
-    (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
-       ; b exp → CanonicalForm exp , isSetCanonicalForm
-       })
-    λ { f → λ ⟨⟩ _ → inr (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
-      ; t → λ ⟨⟩ _ → inl (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
-      ; d → λ x _ → tt* }
+--   Canonicalize : Section pts (SETᴰ _ _)
+--   Canonicalize = elimLocal _ _ _ _
+--     (TerminalsⱽSETᴰ _)
+--     (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
+--        ; b exp → CanonicalForm exp , isSetCanonicalForm
+--        })
+--     λ { f → λ ⟨⟩ _ → inr (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
+--       ; t → λ ⟨⟩ _ → inl (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
+--       ; d → λ x _ → tt* }
 
-  fixup : ∀ {e}
-        → ([t] ≡ (FQ .id ⋆⟨ FQ ⟩ e)) ⊎ ([f] ≡ (FQ .id ⋆⟨ FQ ⟩ e))
-        → CanonicalForm e
-  fixup =
-    Sum.elim (λ p → inl (p ∙ FQ .⋆IdL _))
-             (λ p → inr (p ∙ FQ .⋆IdL _))
+--   fixup : ∀ {e}
+--         → ([t] ≡ (FQ .id ⋆⟨ FQ ⟩ e)) ⊎ ([f] ≡ (FQ .id ⋆⟨ FQ ⟩ e))
+--         → CanonicalForm e
+--   fixup =
+--     Sum.elim (λ p → inl (p ∙ FQ .⋆IdL _))
+--              (λ p → inr (p ∙ FQ .⋆IdL _))
 
-canonicalFormUniq : ∀ e → isContr (CanonicalForm e)
-canonicalFormUniq exp = canonicity exp , Sum.elim canonical[t] canonical[f]
-  where
-  canonical[t] : ∀ {exp} p → canonicity exp ≡ inl p
-  canonical[t] p =
-    J (λ exp p → canonicity exp ≡ inl p)
-      (cong inl (FQ .isSetHom _ _ _ _))
-      p
+-- canonicalFormUniq : ∀ e → isContr (CanonicalForm e)
+-- canonicalFormUniq exp = canonicity exp , Sum.elim canonical[t] canonical[f]
+--   where
+--   canonical[t] : ∀ {exp} p → canonicity exp ≡ inl p
+--   canonical[t] p =
+--     J (λ exp p → canonicity exp ≡ inl p)
+--       (cong inl (FQ .isSetHom _ _ _ _))
+--       p
 
-  canonical[f] : ∀ {exp} p → canonicity exp ≡ inr p
-  canonical[f] p =
-    J (λ exp p → canonicity exp ≡ inr p)
-      (cong inr (FQ .isSetHom _ _ _ _))
-      p
+--   canonical[f] : ∀ {exp} p → canonicity exp ≡ inr p
+--   canonical[f] p =
+--     J (λ exp p → canonicity exp ≡ inr p)
+--       (cong inr (FQ .isSetHom _ _ _ _))
+--       p

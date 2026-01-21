@@ -1,6 +1,6 @@
 -- Judgemental model of CBPV
 -- no β/η laws for type connectives
-
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Categories.CBPV.Instances.Free where
 

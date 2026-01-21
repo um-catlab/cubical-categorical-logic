@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Comonad.Instances.Environment where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Gluing.CartesianCategory where
 
 open import Cubical.Foundations.Prelude

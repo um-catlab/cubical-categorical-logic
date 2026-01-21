@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.Representable.More where
 
 open import Cubical.Foundations.Prelude
@@ -175,7 +176,7 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C
   substUniversalElement elt ue≡elt = isPshIso→isUniversal P λ Γ → ue.intro
     , subst (λ e → section (P._⋆ e) ue.intro × retract (P._⋆ e) ue.intro)
        ue≡elt
-       (isUniversal→isPshIso P ue.universal Γ .snd)
+       (isUniversal→isPshIso _ ue.universal Γ .snd)
 
   private
     -- This doesn't hold definitionally if we implement substUniversalElement as a subst, instead there's a transport refl
@@ -231,16 +232,15 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
     RepresentationPshIso→UniversalElement .vertex = x
     RepresentationPshIso→UniversalElement .element =
       α .trans .N-ob _ C.id
-    RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv (α⁻ Γ , secRet)
+    RepresentationPshIso→UniversalElement .universal Γ = isIsoToIsEquiv
+      ( α⁻ Γ
+      , subst motive
+          (funExt λ f → sym $ funExt⁻ (funExt⁻ (cong N-ob $ IsoYoRec P x .Iso.sec (α .trans)) _) _)
+          (α .nIso Γ .snd))
       where
         α⁻ = (invPshIso α) .trans .N-ob
         motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
         motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
-        secRet : motive (P._⋆ element RepresentationPshIso→UniversalElement)
-        secRet = subst motive
-          (funExt λ f →
-            sym $ funExt⁻ (funExt⁻ (cong N-ob $ IsoYoRec P x .Iso.sec (α .trans)) _) _)
-          (α .nIso Γ .snd)
 
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (P : Profunctor C D ℓp) where
   open Category

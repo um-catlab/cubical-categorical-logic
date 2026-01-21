@@ -190,8 +190,8 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) where
   private
-    module P = PresheafNotation P
-    module Q = PresheafNotation Q
+    module P = PresheafNotation P using (p[_])
+    module Q = PresheafNotation Q using (p[_])
   PshIsoΣ : Type _
   PshIsoΣ = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
@@ -200,18 +200,6 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
     field
       trans : PshHom P Q
       nIso : isPshIso {P = P}{Q = Q} trans
-
-    trans⁻ : PshHom Q P
-    trans⁻ .N-ob c = nIso c .fst
-    trans⁻ .N-hom _ _ f q =
-      sym (nIso _ .snd .snd _)
-      ∙ cong (nIso _ .fst)
-        (sym $
-          (trans .N-hom _ _ _ _)
-          ∙ Q.⟨⟩⋆⟨ nIso _ .snd .fst _ ⟩
-          ∙ (sym $ nIso _ .snd .fst _)
-          )
-      ∙ nIso _ .snd .snd _
 
   PshIsoΣIso : Iso PshIso PshIsoΣ
   unquoteDef PshIsoΣIso = defineRecordIsoΣ PshIsoΣIso (quote (PshIso))
@@ -238,7 +226,15 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
     module P = PresheafNotation P
     module Q = PresheafNotation Q
   invPshIso : (α : PshIso P Q) → PshIso Q P
-  invPshIso α .trans = trans⁻ α
+  invPshIso α .trans .N-ob c = α .nIso c .fst
+  invPshIso α .trans .N-hom _ _ f q =
+    sym (α .nIso _ .snd .snd _)
+    ∙ cong (α .nIso _ .fst)
+      (sym $
+        α .trans .N-hom _ _ _ _
+        ∙ Q.⟨ refl ⟩⋆⟨ α .nIso _ .snd .fst _ ⟩
+        ∙ (sym $ α .nIso _ .snd .fst _))
+    ∙ α .nIso _ .snd .snd _
   invPshIso α .nIso c .fst = α .trans .N-ob _
   invPshIso α .nIso c .snd .fst = α .nIso _ .snd .snd
   invPshIso α .nIso c .snd .snd = α .nIso _ .snd .fst

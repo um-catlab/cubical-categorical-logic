@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Monoidal.Instances.Presheaf where
 
 open import Cubical.Foundations.HLevels

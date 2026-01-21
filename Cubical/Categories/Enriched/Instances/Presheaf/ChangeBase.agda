@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase where
 
 open import Cubical.Foundations.Prelude

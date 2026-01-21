@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Eq where
 
 open import Cubical.Foundations.Prelude

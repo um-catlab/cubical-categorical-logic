@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 
 module Cubical.Categories.Adjoint.UniversalElements where
 

@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 -- TODO: re-org this and upstream it
 module Cubical.Categories.Presheaf.More where
 

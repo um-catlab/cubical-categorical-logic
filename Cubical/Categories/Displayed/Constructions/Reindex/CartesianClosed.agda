@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Constructions.Reindex.CartesianClosed where
 
 open import Cubical.Foundations.Prelude

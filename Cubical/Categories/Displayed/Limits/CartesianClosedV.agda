@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Limits.CartesianClosedV where
 
 open import Cubical.Foundations.Prelude
@@ -61,25 +61,25 @@ record CartesianClosedCategoryᴰ (CCC : CartesianClosedCategory ℓC ℓC') (�
 
   open ExponentialsᴰNotation {C = C}{Cᴰ = Cᴰ} bp bpᴰ exps expᴰ public
 
--- module _ (CCC : CartesianClosedCategory ℓC ℓC') (CCCⱽ : CartesianClosedCategoryⱽ (CartesianClosedCategory.CC CCC) ℓCᴰ ℓCᴰ') where
---   open CartesianClosedCategoryⱽ CCCⱽ
---   open CartesianClosedCategoryᴰ hiding (Cᴰ)
---   open CartesianClosedCategory CCC
---   CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ : CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ'
---   CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .CCᴰ = CartesianCategoryⱽ→CartesianCategoryᴰ (CartesianClosedCategory.CC CCC) CCⱽ
---   CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .expᴰ {A} Aᴰ {B} Bᴰ =
---     Representableⱽ→UniversalElementᴰ Cᴰ _ (ExponentialᴰSpec Cᴰ _ _ _ (exps A B)) (exps A B)
---       (forallⱽ (expⱽ (cartesianLifts Aᴰ ((A ⇒ B) × A) π₂ .fst)
---                     (cartesianLifts Bᴰ ((A ⇒ B) × A) app .fst) .fst) .fst ,
---     -- Cᴰ [-][-, ∀A (π₂* Aᴰ ⇒ app* Bᴰ) ]
---     forallⱽ _ .snd
---     -- (wk A)* Cᴰ [-][-, π₂* Aᴰ ⇒ app* Bᴰ ]
---     ⋆PshIsoⱽ reindPshIso _ (expⱽ _ _ .snd ⋆PshIso
---     -- (wk A)* (-×ⱽ Aᴰ)* Cᴰ [-][-, app* Bᴰ ]
---       reindPshIso _ (cartesianLifts _ _ _ .snd))
---       ⋆PshIso (reindPsh∘F≅ _ _ _)
---     -- (wk A)* (-×ⱽ Aᴰ)* app* Cᴰ [-][-, Bᴰ ]
---     ⋆PshIsoⱽ reindPsh-square (×LRⱽPshᴰ _ ∘F wkA Cᴰ _ _ _ (⇒ue.vertex A B)) (Idᴰ /Fⱽ yoRec _ (⇒ue.element A B))
---       (Idᴰ /Fⱽ yoRec _ (⇒ue.element A B)) (×ᴰPᴰ _ _) (Cᴰ [-][-, Bᴰ ]) (⇒ⱽᴰ-square _ _ (exps A B) cartesianLifts _)
---     -- (A⇒B .repr)* (×ᴰAᴰ)* Cᴰ [-][-, Bᴰ ]
---     )
+module _ (CCC : CartesianClosedCategory ℓC ℓC') (CCCⱽ : CartesianClosedCategoryⱽ (CartesianClosedCategory.CC CCC) ℓCᴰ ℓCᴰ') where
+  open CartesianClosedCategoryⱽ CCCⱽ
+  open CartesianClosedCategoryᴰ hiding (Cᴰ)
+  open CartesianClosedCategory CCC
+  CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ : CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ'
+  CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .CCᴰ = CartesianCategoryⱽ→CartesianCategoryᴰ (CartesianClosedCategory.CC CCC) CCⱽ
+  CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .expᴰ {A} Aᴰ {B} Bᴰ =
+    Representableⱽ→UniversalElementᴰ Cᴰ _ (ExponentialᴰSpec Cᴰ _ _ _ (exps A B)) (exps A B)
+      (forallⱽ (expⱽ (cartesianLifts Aᴰ ((A ⇒ B) × A) π₂ .fst)
+                    (cartesianLifts Bᴰ ((A ⇒ B) × A) app .fst) .fst) .fst ,
+    -- Cᴰ [-][-, ∀A (π₂* Aᴰ ⇒ app* Bᴰ) ]
+    forallⱽ _ .snd
+    -- (wk A)* Cᴰ [-][-, π₂* Aᴰ ⇒ app* Bᴰ ]
+    ⋆PshIsoⱽ reindPshIso _ (expⱽ _ _ .snd ⋆PshIso
+    -- (wk A)* (-×ⱽ Aᴰ)* Cᴰ [-][-, app* Bᴰ ]
+      reindPshIso _ (cartesianLifts _ _ _ .snd))
+      ⋆PshIso (reindPsh∘F≅ _ _ _)
+    -- (wk A)* (-×ⱽ Aᴰ)* app* Cᴰ [-][-, Bᴰ ]
+    ⋆PshIsoⱽ reindPsh-square (×LRⱽPshᴰ _ ∘F wkA Cᴰ _ _ _ (⇒ue.vertex A B)) (Idᴰ /Fⱽ yoRec _ (⇒ue.element A B))
+      (Idᴰ /Fⱽ yoRec _ (⇒ue.element A B)) (×ᴰPᴰ _ _) (Cᴰ [-][-, Bᴰ ]) (⇒ⱽᴰ-square _ _ (exps A B) cartesianLifts _)
+    -- (A⇒B .repr)* (×ᴰAᴰ)* Cᴰ [-][-, Bᴰ ]
+    )

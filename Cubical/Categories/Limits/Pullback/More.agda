@@ -9,7 +9,7 @@
 
 -}
 
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Limits.Pullback.More where
 
 open import Cubical.Foundations.Prelude

@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 {--
  -- Displayed Functor Comprehension
  -- Construction of a Displayed Functor by defining displayed universal elements

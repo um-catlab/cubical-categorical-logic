@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 {- This file takes a long time to type check -}
 module Cubical.Categories.Displayed.Fibration.Base where
 

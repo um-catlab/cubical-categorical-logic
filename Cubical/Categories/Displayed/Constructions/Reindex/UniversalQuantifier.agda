@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 {-
   The projection reindex Dᴰ G → Dᴰ reflects universal quantifiers if G preserves the projections
 -}

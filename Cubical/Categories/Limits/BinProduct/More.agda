@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 {-
 
   This is one of several possible definitions of the binary product.
@@ -175,13 +175,12 @@ module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith 
   π₁CartNat .fst = π₁Nat
   π₁CartNat .snd {x} {y} f {d} p p₁ p₁f≡pπ₁ =
     uniqueExists (p₁ ,p (p C.⋆ π₂))
-        ((sym $ ,p-extensionality
-            (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₁ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ ×β₁ ⟩⋆⟨ refl ⟩ ∙ (sym p₁f≡pπ₁))
-            (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩ ∙ ×β₂))
-        , (sym ×β₁))
+      ((sym $ ,p-extensionality
+        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₁ ⟩ ∙ sym (C.⋆Assoc _ _ _) ∙ C.⟨ ×β₁ ⟩⋆⟨ refl ⟩ ∙ (sym p₁f≡pπ₁))
+        (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩ ∙ ×β₂))
+       , (sym ×β₁))
       (λ _ → isProp× (C.isSetHom _ _) (C.isSetHom _ _))
-      (λ p' (p≡p'⋆id×f , p₁≡p'π₁) →
-        ,p≡ p₁≡p'π₁ (C.⟨ p≡p'⋆id×f ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩))
+      λ p' (p≡p'⋆id×f , p₁≡p'π₁) → ,p≡ p₁≡p'π₁ (C.⟨ p≡p'⋆id×f ⟩⋆⟨ refl ⟩ ∙ C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×β₂ ⟩)
 
 private
   variable
@@ -237,9 +236,7 @@ module _ (F : Functor C D) where
     private
       module -×c = BinProductsWithNotation -×c
       module -×Fc = BinProductsWithNotation -×Fc
-      module F⟪-×c⟫ {Γ} =
-        BinProductNotation (isUniversal→UniversalElement (BinProductProf D ⟅ F ⟅ Γ ⟆ , F ⟅ c ⟆ ⟆)
-          (F⟨-×c⟩≅F⟨-⟩×Fc Γ))
+      module F⟪-×c⟫ {Γ} = BinProductNotation (isUniversal→UniversalElement _ (F⟨-×c⟩≅F⟨-⟩×Fc Γ))
     preservesProvidedBinProductsWith→NatIso
       : NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
     preservesProvidedBinProductsWith→NatIso =

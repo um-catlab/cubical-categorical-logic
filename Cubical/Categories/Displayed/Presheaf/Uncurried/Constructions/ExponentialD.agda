@@ -1,7 +1,7 @@
 {-
   Displayed exponential
 -}
-
+{-# OPTIONS --lossy-unification #-}
 
 -- This should probably be UniversalProperties.Exponential, not Constructions.Exponential
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD where
@@ -66,8 +66,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   module _ (P : LRPresheaf C ℓP) where
     isLRᴰ : (Pᴰ : Presheafᴰ (P .fst) Cᴰ ℓPᴰ) → Type _
     isLRᴰ Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])
-      → UniversalElementᴰ Cᴰ ((C [-, Γ ]) ×Psh P .fst)
-          ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh⟨ C [-, Γ ] ⟩⟨ P .fst ⟩ Pᴰ) (P .snd Γ)
+      → UniversalElementᴰ Cᴰ ((C [-, Γ ]) ×Psh P .fst) ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) (P .snd Γ)
 
 module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) where
   private
@@ -81,9 +80,7 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
     open PresheafᴰNotation Cᴰ (P .fst) (Pᴰ .fst) public
 
     private
-      module ueᴰ {Γ}{Γᴰ} =
-        UniversalElementᴰNotation Cᴰ ((C [-, Γ ]) ×Psh P .fst)
-          ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh⟨ C [-, Γ ] ⟩⟨ P .fst ⟩ Pᴰ .fst) {ue = P .snd Γ} (Pᴰ .snd {Γ} Γᴰ)
+      module ueᴰ {Γ}{Γᴰ} = UniversalElementᴰNotation Cᴰ _ _ (Pᴰ .snd {Γ} Γᴰ)
 
     open ueᴰ public
 
@@ -155,7 +152,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     private
       module Pᴰ = LRᴰPresheafᴰNotation P Cᴰ _ Pᴰ
     ×ᴰPᴰ : Functor (Cᴰ / (P ⇒PshSmall Q)) (Cᴰ / Q)
-    ×ᴰPᴰ = _/Fᴰ_ {Q = Q} {F = LRPsh→Functor P} Pᴰ.×ᴰPᴰ-Fᴰ idPshHom
+    ×ᴰPᴰ = _/Fᴰ_ {F = LRPsh→Functor P} Pᴰ.×ᴰPᴰ-Fᴰ idPshHom
 
     module _ (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
       ⇒ᴰPshSmall : Presheafᴰ (P ⇒PshSmall Q) Cᴰ ℓQᴰ
@@ -178,8 +175,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module _ ((Aᴰ , _×ᴰAᴰ): LRᴰObᴰ) where
       ExponentialᴰSpec : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A
         → Presheafᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) Cᴰ ℓCᴰ'
-      ExponentialᴰSpec {B} Bᴰ A⇒B =
-        ⇒ᴰPshSmall {Q = C [-, B ]} ((C [-, A ]) , _×A) ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])
+      ExponentialᴰSpec {B} Bᴰ A⇒B = ⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])
 
       Exponentialᴰ : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A → Type _
       Exponentialᴰ {B} Bᴰ A⇒B =
@@ -208,18 +204,11 @@ module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C �
     module C = Category C
     module Cᴰ = Fibers Cᴰ
     module -×A = BinProductsWithNotation _×A
-    module -×ᴰAᴰ = LRᴰPresheafᴰNotation (C [-, A ] , _×A) Cᴰ ℓCᴰ' (Cᴰ [-][-, Aᴰ ] , _×ᴰAᴰ)
+    module -×ᴰAᴰ = LRᴰPresheafᴰNotation (_ , _×A) Cᴰ _ (_ , _×ᴰAᴰ)
     module A⇒B = ExponentialNotation {C = C} _×A A⇒B
-    module Aᴰ⇒BᴰPshᴰ =
-      PresheafᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
-        (⇒ᴰPshSmall {Q = C [-, B ]} (C [-, A ] , _×A) ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
-    module ueᴰ =
-      UniversalElementᴰNotation Cᴰ
-        (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
-        (⇒ᴰPshSmall {Q = C [-, B ]}
-          ((C [-, A ]) , _×A) ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
-        {ue = A⇒B}
-        Aᴰ⇒ᴰBᴰ
+    module Aᴰ⇒BᴰPshᴰ = PresheafᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ]))
+      (⇒ᴰPshSmall _ ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ]))
+    module ueᴰ = UniversalElementᴰNotation Cᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) (⇒ᴰPshSmall ((C [-, A ]) , _×A) ((Cᴰ [-][-, Aᴰ ]) , _×ᴰAᴰ) (Cᴰ [-][-, Bᴰ ])) Aᴰ⇒ᴰBᴰ
 
   _impr⋆ᴰ_ : ∀ {Δ Γ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
     {γ : C [ Δ , Γ ]}
@@ -267,9 +256,6 @@ module ExponentialsᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C �
   (_⇒_ : AllExponentiable C bp) (_⇒ᴰ_ : AllExponentiableᴰ Cᴰ bp bpᴰ _⇒_) where
   private
     module Cᴰ = Categoryᴰ Cᴰ
-    module ueᴰ {A}{B}{Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]} =
-      ExponentialᴰNotation {Cᴰ = Cᴰ}
-        {A , (λ d → bp (d , A))}{Aᴰ , (λ {Γ} Γᴰ → bpᴰ Γᴰ Aᴰ)}
-        {B}{Bᴰ} (A ⇒ B) (Aᴰ ⇒ᴰ Bᴰ)
+    module ueᴰ {A}{B}{Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]} = ExponentialᴰNotation (A ⇒ B) (Aᴰ ⇒ᴰ Bᴰ)
 
   open ueᴰ public

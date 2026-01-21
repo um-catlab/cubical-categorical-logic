@@ -19,6 +19,9 @@
 --
 -- meaning Qᴰ → (×ⱽ* Aᴰ)*Pᴰ ≅ Qᴰ → Pᴰ ×ⱽ Cᴰ [-][-, Aᴰ ] ≅ (Qᴰ → Pᴰ) × (Qᴰ → Cᴰ [-][-, Aᴰ ])
 -}
+
+{-# OPTIONS --lossy-unification #-}
+
 -- This should probably be UniversalProperties.Exponential, not Constructions.Exponential
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential where
 
@@ -102,7 +105,7 @@ module _
       )
 
 LRⱽPresheafᴰ : {C : Category ℓC ℓC'}(P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) → Type _
-LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) (LocallyRepresentableⱽ {P = P})
+LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyRepresentableⱽ
 
 
 module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
@@ -173,7 +176,7 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ])
       → Path Cᴰ.Hom[ _ , _ ] (_ , (δᴰ Cᴰ.⋆ᴰ γᴰ) ⋆π₁ⱽ) (_ , δᴰ Cᴰ.⋆ᴰ (γᴰ ⋆π₁ⱽ))
     ⋆π₁ⱽ-natural {Θ} {Δ} {Γ} {Θᴰ} {Δᴰ} {Γᴰ} {δ} {γ} {p} δᴰ γᴰ =
-      ⟨ Cᴰ.reind-filler _ ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (λ i → δ C.⋆ γ)) _))
+      ⟨ Cᴰ.reind-filler refl ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (λ i → δ C.⋆ γ)) _))
       ∙ (sym $ Cᴰ.reind-filler _)
 
     β₁ⱽ' : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
@@ -248,8 +251,7 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
     extensionalityᴰ γᴰ1≡ γᴰ2≡ = (sym $ introᴰ≡ (sym $ γᴰ1≡) (sym $ γᴰ2≡)) ∙ ηⱽ' _
 
     asLR : LRPresheaf (Cᴰ / P) ℓPᴰ
-    asLR = (Pᴰ .fst) , (LocallyRepresentableⱽ→LocallyRepresentable {P = P} (Pᴰ .snd))
-
+    asLR = (Pᴰ .fst) , (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
@@ -258,19 +260,19 @@ module _
     module Cᴰ = Fibers Cᴰ
     module P = PresheafNotation P
     module Pᴰ = PresheafᴰNotation Cᴰ P (Pᴰ .fst)
-    module ×ⱽPᴰ = LRⱽPresheafᴰNotation Cᴰ {P = P} Pᴰ
-  --   -- module ⇒ⱽPshSmall = P⇒Large-cocontinuous-repr (-×Psh (Pᴰ .fst)) (-×Psh (Pᴰ .fst) -cocontinuous)
-  --   --   (λ Γ → LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) Γ
-  --   --     ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
+    module ×ⱽPᴰ = LRⱽPresheafᴰNotation Cᴰ Pᴰ
+    -- module ⇒ⱽPshSmall = P⇒Large-cocontinuous-repr (-×Psh (Pᴰ .fst)) (-×Psh (Pᴰ .fst) -cocontinuous)
+    --   (λ Γ → LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) Γ
+    --     ◁PshIso eqToPshIso (F-ob ((-×Psh Pᴰ .fst) ∘F (CurryBifunctorL $ HomBif (Cᴰ / P))) Γ) Eq.refl Eq.refl)
   ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
-  ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable {P = P} (Pᴰ .snd))
+  ×LRⱽPshᴰ = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
 
   private
     test-ob : ∀ ((Γ , Γᴰ , p) : (Cᴰ / P) .Category.ob) →
       ×LRⱽPshᴰ .Functor.F-ob (Γ , Γᴰ , p) ≡ (Γ , ((Γᴰ ×ⱽPᴰ.×ⱽ p *) , p))
     test-ob (Γ , Γᴰ , p) = refl
 
-  -- this would be a preferable definition but it's very slow to typecheck and use. Why?
+  -- -- this would be a preferable definition but it's very slow to typecheck and use. Why?
   -- ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
   -- ×LRⱽPshᴰ = improveF-hom ×LRⱽPshᴰ'
   --   (λ {(Δ , Δᴰ , f) (Γ , Γᴰ , f')} (γ , γᴰ , γf'≡f) →
@@ -305,9 +307,8 @@ module _
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : LRⱽPresheafᴰ P Cᴰ ℓQᴰ) where
-
-  ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ P (Pᴰ .fst) (Qᴰ .fst))
-    → NatIso (×LRⱽPshᴰ {P = P} Pᴰ) (×LRⱽPshᴰ {P = P} Qᴰ)
+  ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ (Pᴰ .fst) (Qᴰ .fst))
+    → NatIso (×LRⱽPshᴰ Pᴰ) (×LRⱽPshᴰ Qᴰ)
   ×LRⱽPshᴰ-Iso α = LRPshIso→NatIso _ _ α
 
 module _
@@ -318,15 +319,15 @@ module _
   (F : Functor (Cᴰ / P) (Dᴰ / Q))
   (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : LRⱽPresheafᴰ Q Dᴰ ℓQᴰ)
-  (αᴰ : PshHomⱽ P (Pᴰ .fst) (reindPsh F (Qᴰ .fst)))
+  (αᴰ : PshHomⱽ (Pᴰ .fst) (reindPsh F (Qᴰ .fst)))
   where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
     module D = Category D
     module Dᴰ = Fibers Dᴰ
-    module ×ⱽPᴰ = LRⱽPresheafᴰNotation Cᴰ {P = P} Pᴰ
-    module ×ⱽQᴰ = LRⱽPresheafᴰNotation Dᴰ {P = Q} Qᴰ
+    module ×ⱽPᴰ = LRⱽPresheafᴰNotation Cᴰ Pᴰ
+    module ×ⱽQᴰ = LRⱽPresheafᴰNotation Dᴰ Qᴰ
     module Qᴰ = PresheafᴰNotation Dᴰ Q (Qᴰ .fst)
     module F = Functor F
   open Category
@@ -334,10 +335,10 @@ module _
 
   strictPresLRⱽ→NatIso :
     (F⟅c×P⟆≡Fc×Q : (c : Category.ob (Cᴰ / P)) →
-      F ⟅ LocallyRepresentableⱽ→LocallyRepresentable {P = P} (Pᴰ .snd) c .vertex
+      F ⟅ LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex
       ⟆
       Eq.≡
-      LocallyRepresentableⱽ→LocallyRepresentable {P = Q} (Qᴰ .snd) (F ⟅ c ⟆)
+      LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
       .vertex)
     → (((c : Category.ob (Cᴰ / P)) →
       Eq.mixedHEq
@@ -346,20 +347,20 @@ module _
           ((Dᴰ / Q) [ Fc×Q , F ⟅ c ⟆ ]) × PresheafNotation.p[ Qᴰ .fst ] Fc×Q)
        (F⟅c×P⟆≡Fc×Q c))
       (F ⟪
-       LocallyRepresentableⱽ→LocallyRepresentable {P = P} (Pᴰ .snd) c .element
+       LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
        .fst
        ⟫
        ,
        αᴰ .N-ob
-       (LocallyRepresentableⱽ→LocallyRepresentable {P = P} (Pᴰ .snd) c .vertex)
-       (LocallyRepresentableⱽ→LocallyRepresentable {P = P} (Pᴰ .snd) c .element
+       (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .vertex)
+       (LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd) c .element
         .snd))
-      (LocallyRepresentableⱽ→LocallyRepresentable {P = Q} (Qᴰ .snd) (F ⟅ c ⟆)
+      (LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd) (F ⟅ c ⟆)
        .element)))
-    → NatIso ((×LRⱽPshᴰ {P = Q} Qᴰ) ∘F F) (F ∘F (×LRⱽPshᴰ {P = P} Pᴰ))
+    → NatIso ((×LRⱽPshᴰ Qᴰ) ∘F F) (F ∘F (×LRⱽPshᴰ Pᴰ))
   strictPresLRⱽ→NatIso F⟅c×P⟆≡Fc×Q F⟅π⟆≡π = strictPresLR→NatIso F
-    (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable {P = P} (Pᴰ .snd))
-    (Qᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable {P = Q} (Qᴰ .snd))
+    (Pᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Pᴰ .snd))
+    (Qᴰ .fst , LocallyRepresentableⱽ→LocallyRepresentable (Qᴰ .snd))
     αᴰ
     F⟅c×P⟆≡Fc×Q
     F⟅π⟆≡π
@@ -370,7 +371,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module Cᴰ = Fibers Cᴰ
 
   isLRⱽObᴰ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Type _
-  isLRⱽObᴰ {x} xᴰ = LocallyRepresentableⱽ {P = C [-, x ]} (Cᴰ [-][-, xᴰ ])
+  isLRⱽObᴰ {x} xᴰ = LocallyRepresentableⱽ (Cᴰ [-][-, xᴰ ])
 
   LRⱽObᴰ : ∀ (x : C.ob) → Type _
   LRⱽObᴰ x = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] isLRⱽObᴰ xᴰ
@@ -382,8 +383,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   AllLRⱽ = ∀ {x} xᴰ → isLRⱽObᴰ {x} xᴰ
 
   LargeExponentialⱽ : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
-  LargeExponentialⱽ {x} xᴰ yᴰ =
-    Representableⱽ Cᴰ x (_⇒ⱽPshLarge_ {P = C [-, x ]} (Cᴰ [-][-, xᴰ ]) (Cᴰ [-][-, yᴰ ]))
+  LargeExponentialⱽ {x} xᴰ yᴰ = Representableⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ⇒ⱽPshLarge (Cᴰ [-][-, yᴰ ]))
 
   LargeExponentialsⱽ : Type _
   LargeExponentialsⱽ = ∀ {x} xᴰ yᴰ → LargeExponentialⱽ {x} xᴰ yᴰ
@@ -391,7 +391,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   -- The one without the qualifier represents the *small* exponential
   Exponentialⱽ : ∀ {x} ((xᴰ , _×ⱽxᴰ) : LRⱽObᴰ x) (yᴰ : Cᴰ.ob[ x ]) → Type _
   Exponentialⱽ {x} xᴰ yᴰ =
-    Representableⱽ Cᴰ x (_⇒ⱽPshSmall_ {P = C [-, x ]} (LRⱽObᴰ→LRⱽ xᴰ) (Cᴰ [-][-, yᴰ ]))
+    Representableⱽ Cᴰ x (LRⱽObᴰ→LRⱽ xᴰ ⇒ⱽPshSmall (Cᴰ [-][-, yᴰ ]))
   -- TODO: make an explicit definition for the functor you get out of an LRⱽ
 
   BinProductsⱽ+Fibration→AllLRⱽ : BinProductsⱽ Cᴰ → isFibration Cᴰ

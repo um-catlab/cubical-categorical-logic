@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Properties where
 
 open import Cubical.Foundations.Prelude

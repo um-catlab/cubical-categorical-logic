@@ -1,4 +1,4 @@
-
+{-# OPTIONS --lossy-unification #-}
 {-
   Displayed and Vertical Exponentials of two objects
   defined by the representability of the

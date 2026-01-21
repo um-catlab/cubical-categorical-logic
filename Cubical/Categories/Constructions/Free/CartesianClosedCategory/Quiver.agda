@@ -1,3 +1,5 @@
+{-# OPTIONS --lossy-unification #-}
+
 module Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver where
 
 open import Cubical.Foundations.Prelude

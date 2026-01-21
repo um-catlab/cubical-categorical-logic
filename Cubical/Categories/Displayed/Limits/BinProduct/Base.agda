@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 
@@ -125,6 +126,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
       (fᴰ ,ⱽ fᴰ') = introᴰ (fᴰ , fᴰ')
 
       opaque
+        unfolding hSetReasoning.reind
         ,ⱽ≡ : ∀ {g}
           {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
           → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
@@ -134,8 +136,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
           → Path Cⱽ.Hom[ _ , _ ] (f , (fᴰ ,ⱽ fᴰ')) (g , gᴰ)
         ,ⱽ≡ fᴰ≡ fᴰ'≡ = ∫ue.intro≡ (ΣPathP (cong fst fᴰ≡ ∙ (sym $ C.⋆IdR _)
           , (ΣPathP
-          ( (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ≡ ∙ (sym $ Cⱽ.reind-filler _ _))
-          , (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ'≡ ∙ (sym $ Cⱽ.reind-filler _ _))))))
+          ( (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ≡ ∙ (sym $ Cⱽ.reind-filler _))
+          , (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ'≡ ∙ (sym $ Cⱽ.reind-filler _))))))
 
         ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
            → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}

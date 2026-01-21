@@ -132,12 +132,23 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       → p ∫≡ reind e p
     reind-filler e = ΣPathP (e , (subst-filler P e _))
 
+    reind-filler⁻ :
+      ∀ (e : a ≡ b)
+      → reind e p ∫≡ p
+    reind-filler⁻ e = sym $ reind-filler e
+
     -- This is the only part that requires the hSet stuff. Everything else is completely generic
     Prectify :
       ∀ {e e' : a ≡ b}
       → p P≡[ e ] q
       → p P≡[ e' ] q
     Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
+
+  rectifyOut :
+    ∀ {e' : a ≡ b}
+    (e : p ∫≡ q) →
+    p P≡[ e' ] q
+  rectifyOut e = Prectify $ ≡out $ e
 
   opaque
     congᴰ :

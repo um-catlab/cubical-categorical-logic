@@ -80,14 +80,14 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       elimHom (isSetExp f g p q i j) =
         isSetHomᴰ' Cᴰ (elimHom f) (elimHom g) (λ i → elimHom (p i)) (λ i → elimHom (q i)) i j
       elimHom !ₑ = termᴰ.introᴰ tt
-      elimHom (⊤η f i) = Cᴰ.rectify {p' = ⊤η f} (termᴰ.ηᴰ (elimHom f)) i
+      elimHom (⊤η f i) = Cᴰ.rectify {e' = ⊤η f} (termᴰ.ηᴰ (elimHom f)) i
       elimHom (π₁ {A}{B}) = bpᴰ.πᴰ₁
       elimHom (π₂ {A}{B}) = bpᴰ.πᴰ₂
       elimHom ⟨ f , g ⟩ = bpᴰ.introᴰ ((elimHom f) , (elimHom g))
       -- these rectifies are I think because universalElement is based on equiv not iso
-      elimHom (×β₁ {Γ}{A}{B}{f}{g} i) = Cᴰ.rectify {p' = ×β₁} (bpᴰ.×βᴰ₁ (elimHom f) (elimHom g)) i
-      elimHom (×β₂ {Γ}{A}{B}{f}{g} i) = Cᴰ.rectify {p' = ×β₂} (bpᴰ.×βᴰ₂ (elimHom f) (elimHom g)) i
-      elimHom (×η {Γ}{A}{B}{f} i) = Cᴰ.rectify {p' = ×η} (bpᴰ.×ηᴰ (elimHom f)) i
+      elimHom (×β₁ {Γ}{A}{B}{f}{g} i) = Cᴰ.rectify {e' = ×β₁} (bpᴰ.×βᴰ₁ (elimHom f) (elimHom g)) i
+      elimHom (×β₂ {Γ}{A}{B}{f}{g} i) = Cᴰ.rectify {e' = ×β₂} (bpᴰ.×βᴰ₂ (elimHom f) (elimHom g)) i
+      elimHom (×η {Γ}{A}{B}{f} i) = Cᴰ.rectify {e' = ×η} (bpᴰ.×ηᴰ (elimHom f)) i
 
       elim : GlobalSection Cᴰ
       elim .F-obᴰ = elimOb ı-ob

@@ -5,6 +5,7 @@
 module Cubical.Categories.Displayed.Constructions.Reindex.UniversalQuantifier where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 
@@ -12,12 +13,13 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Pullback
 open import Cubical.Categories.Limits.Pullback.More
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.NaturalTransformation.More
+open import Cubical.Categories.NaturalTransformation as NT
+open import Cubical.Categories.NaturalTransformation.More as NT
 open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Representable.More
@@ -28,10 +30,16 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base hiding (_[-][-,_])
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.Instances.Terminal as 𝟙ᴰ
+open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.Constructions.Reindex.Fibration
+open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
@@ -58,11 +66,11 @@ open isIso
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C C)
-  ((π , πCart) : CartesianNatTrans F Id) -- pat0
+  ((π , πCart) : CartesianNatTrans F Id)
   (F' : Functor D D)
-  ((π' , π'Cart) : CartesianNatTrans F' Id) -- pat1
+  ((π' , π'Cart) : CartesianNatTrans F' Id)
   (G : Functor C D)
-  ((swap , swapπ'≡Gπ) : preservesCartNatTrans G (π , πCart) (π' , π'Cart)) -- pat2
+  ((swap , swapπ'≡Gπ) : preservesCartNatTrans G (π , πCart) (π' , π'Cart))
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
   (cartLifts : isFibration Dᴰ)
   where
@@ -83,27 +91,55 @@ module _
     π'≡swap⁻Gπ Δ = invMoveL {C = D} (isIso→areInv (swap .nIso Δ)) (swapπ'≡Gπ Δ)
 
   module _ {Γ : C.ob} where
-    ∀F-commute-lemma : NatIso
-      (((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
-      ∘F wkF π'-Quant (G ⟅ Γ ⟆))
-      ∘F reindex-π-/ Dᴰ G Γ)
-      (reindex-π-/ Dᴰ G (F ⟅ Γ ⟆) ∘F wkF π-Quant Γ)
-    ∀F-commute-lemma =
-      (/NatIso (record { trans = natTrans (λ (Δ , _ , _) → symNatIso swap .trans ⟦ Δ ⟧) λ _ → symNatIso swap .trans .N-hom _
-                      ; nIso = λ _ → symNatIso swap .nIso _ })
-        (record { transᴰ = record { N-obᴰ = λ {(Δ , Δᴰ , _)} _ → cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ π'≡swap⁻Gπ Δ) -- todo: use tri-filler
-          ; N-homᴰ = λ {(Θ , Θᴰ , _)}{(Δ , Δᴰ , _)}{(δ , δᴰ , _)} _ → Dᴰ.rectify $ Dᴰ.≡out $
-            _ , (cartLifts.sq-filler δᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ _)
-              ≡⟨ cartLifts.sq-collapse _ _
-                ∙ cartLifts.cong-introᴰ (symNatIso swap .trans .N-hom δ) (Dᴰ.cong-reind _ _ Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdR (_ , δᴰ) ∙ sym (Dᴰ.⋆IdL (_ , δᴰ)) ⟩)
-                ∙ sym (cartLifts.sq-collapse _ _) ⟩
-            _ , cartLifts.sq-filler Dᴰ.idᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler δᴰ (sym $ (G ∘ʳ π) .N-hom δ)
-              ≡⟨ Dᴰ.⟨⟩⋆⟨ cartLifts.cong-introᴰ refl (Dᴰ.cong-reind _ _ (Dᴰ.⟨ cartLifts.⟨ Dᴰ.reind-filler _ _ ⟩⋆πⱽ ∙ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩ ∙ Dᴰ.reind-filler _ _ ∙ Dᴰ.reind-filler _ _)) ⟩ ⟩
-            _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ _)
-            ∎
-          } ; nIsoᴰ =
-          λ {(Δ , Δᴰ , γ)} _ →
-            isisoᴰ (cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ sym (swapπ'≡Gπ Δ)))
+    private
+      LHS-F = ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
+              ∘F wkF π'-Quant (G ⟅ Γ ⟆))
+              ∘F reindex-π-/ Dᴰ G Γ
+      RHS-F = reindex-π-/ Dᴰ G (F ⟅ Γ ⟆) ∘F wkF π-Quant Γ
+
+    opaque
+      unfolding hSetReasoning.reind
+      ∀F-commute-lemma : NatIso LHS-F RHS-F
+      ∀F-commute-lemma =
+        /NatIso the-ni the-niᴰ
+          (λ (_ , _ , γ) → sym $ symNatIso swap .trans .N-hom γ)
+        where
+        the-ni : NatIso (Fst ∘F LHS-F) (Fst ∘F RHS-F)
+        the-ni .trans .N-ob (Δ , _ , _) = symNatIso swap .trans ⟦ Δ ⟧
+        the-ni .trans .N-hom _ = symNatIso swap .trans .N-hom _
+        the-ni .nIso _ = symNatIso swap .nIso _
+
+        the-niᴰ :
+          NatIsoᴰ the-ni
+            (Fstⱽ Dᴰ (Element (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]))
+            ∘Fⱽᴰ 𝟙ᴰ.recᴰ (compSectionFunctor Snd LHS-F))
+            (Fstⱽ Dᴰ (Element (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]))
+            ∘Fⱽᴰ 𝟙ᴰ.recᴰ (compSectionFunctor Snd RHS-F))
+        the-niᴰ .NatIsoᴰ.transᴰ .NatTransᴰ.N-obᴰ {Δ , Δᴰ , _} _ =
+          -- todo: use tri-filler
+          cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ π'≡swap⁻Gπ Δ)
+        the-niᴰ .NatIsoᴰ.transᴰ .NatTransᴰ.N-homᴰ
+            {x = (Θ , Θᴰ , _)}{y = (Δ , Δᴰ , _)}{f = (δ , δᴰ , _)} _ =
+            Dᴰ.rectify $ Dᴰ.≡out $
+              _ , (cartLifts.sq-filler δᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ _)
+                ≡⟨ cartLifts.sq-collapse _ _
+                  ∙ cartLifts.cong-introᴰ (symNatIso swap .trans .N-hom δ)
+                       (Dᴰ.cong-reind _ _ Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdR (_ , δᴰ)
+                                                  ∙ sym (Dᴰ.⋆IdL (_ , δᴰ)) ⟩)
+                  ∙ sym (cartLifts.sq-collapse _ _) ⟩
+              _ ,
+              cartLifts.sq-filler Dᴰ.idᴰ _
+              Dᴰ.⋆ᴰ cartLifts.sq-filler δᴰ (sym $ (G ∘ʳ π) .N-hom δ)
+                ≡⟨ Dᴰ.⟨⟩⋆⟨ cartLifts.cong-introᴰ refl
+                            (Dᴰ.cong-reind _ _
+                            (Dᴰ.⟨ cartLifts.⟨ Dᴰ.reind-filler _ ⟩⋆πⱽ
+                             ∙ Dᴰ.reind-filler _ ⟩⋆⟨⟩
+                             ∙ Dᴰ.reind-filler _
+                             ∙ Dᴰ.reind-filler _)) ⟩ ⟩
+              _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ _)
+              ∎
+        the-niᴰ .NatIsoᴰ.nIsoᴰ {x = Δ , Δᴰ , γ} _ =
+          isisoᴰ (cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ sym (swapπ'≡Gπ Δ)))
             (Dᴰ.rectify $ Dᴰ.≡out $
               _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ cartLifts.sq-filler _ _) ≡⟨ cartLifts.sq-collapse _ _
                 ∙ cartLifts.cong-introᴰ (swap .nIso Δ .ret) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
@@ -111,8 +147,7 @@ module _
             (Dᴰ.rectify $ Dᴰ.≡out $
               cartLifts.sq-collapse _ _
               ∙ cartLifts.cong-introᴰ (swap .nIso Δ .sec) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
-              ∙ cartLifts.sq-id refl) })
-        λ (_ , _ , γ) → sym $ symNatIso swap .trans .N-hom γ)
+              ∙ cartLifts.sq-id refl)
 
   module _ {Γ : C.ob}(Aᴰ : Dᴰ.ob[ G ⟅ F ⟅ Γ ⟆ ⟆ ])
     (∀Aᴰ : ∀FOb {F = F'}{Cᴰ = Dᴰ} π'-Quant (swap .nIso Γ .inv cartLifts.* Aᴰ))

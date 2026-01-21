@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Constructions.Reindex.Cartesian where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
@@ -153,21 +154,24 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     private
       module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ using (⟨_⟩⋆π₁ⱽ; ⟨_⟩⋆π₂ⱽ)
       module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; reind-filler; formal-reind-filler)
-    reindex-×LRⱽPshᴰ-commute
-      : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
-               (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
-    reindex-×LRⱽPshᴰ-commute =
-      strictPresLRⱽ→NatIso {Cᴰ = reindex Dᴰ F}{Dᴰ = Dᴰ}{P = C [-, x ]}{Q = D [-, F-ob F x ]}
-        (reindex-π-/ {C = C}{D = D} Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
-        (λ _ → Eq.refl)
-      (λ (Γ , Γᴰ , f ) →
-        ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₁ⱽ)
-        , (Pᴰ.rectify $ Pᴰ.≡out $
-          sym (Pᴰ.reind-filler _)
-          -- this formal reind filler took a long time without the explicit argument. Why?
-          ∙ Pᴰ.formal-reind-filler (reindexRepresentable-seq (π Dᴰ F) .nIso (Γ , Pᴰ .snd Γᴰ (F-hom F f) .fst , id C) .isIso.inv .snd .snd) _
-          ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆π₂ⱽ
-          ∙ Pᴰ.reind-filler _)))
+
+    opaque
+      unfolding hSetReasoning.reind
+      reindex-×LRⱽPshᴰ-commute
+        : NatIso ((×LRⱽPshᴰ Pᴰ) ∘F reindex-π-/ Dᴰ F x)
+                (reindex-π-/ Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽReindex Pᴰ))
+      reindex-×LRⱽPshᴰ-commute =
+        strictPresLRⱽ→NatIso {Cᴰ = reindex Dᴰ F}{Dᴰ = Dᴰ}{P = C [-, x ]}{Q = D [-, F-ob F x ]}
+          (reindex-π-/ {C = C}{D = D} Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
+          (λ _ → Eq.refl)
+        (λ (Γ , Γᴰ , f ) →
+          ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ ⟩⋆π₁ⱽ)
+          , (Pᴰ.rectify $ Pᴰ.≡out $
+            sym (Pᴰ.reind-filler _)
+            -- this formal reind filler took a long time without the explicit argument. Why?
+            ∙ Pᴰ.formal-reind-filler (reindexRepresentable-seq (π Dᴰ F) .nIso (Γ , Pᴰ .snd Γᴰ (F-hom F f) .fst , id C) .isIso.inv .snd .snd) _
+            ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ ⟩⋆π₂ⱽ
+            ∙ Pᴰ.reind-filler _)))
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

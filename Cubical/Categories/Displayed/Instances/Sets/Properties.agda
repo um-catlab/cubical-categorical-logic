@@ -71,160 +71,88 @@ module _ {ℓ ℓ'} where
     (Y : hSet ℓ) →
     (f : ⟨ Y ⟩ → ⟨ X ⟩) →
     UniversalElementⱽ' (SETᴰ ℓ ℓ') Y
-      (reindPshᴰNatTrans {Q = (SET ℓ) [-, X ]}
-        (yoRec ((SET ℓ) [-, X ]) {c = Y} f)
-        ((SETᴰ ℓ ℓ') ⟨ X ⟩[-][-, Xᴰ ])
-        -- ((SETᴰ ℓ ℓ') _[-][-, Xᴰ ] (SETᴰ ℓ ℓ') {x = ?} )
-        )
+      (reindPshᴰNatTrans (yoRec ((SET ℓ) [-, X ]) {c = Y} f)
+      ((SETᴰ ℓ ℓ') ⟨ X ⟩[-][-, Xᴰ ]))
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .vertexⱽ y = Xᴰ (f y)
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .elementⱽ = λ _ z → z
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .fst =
     λ z → z
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .snd .fst γᴰ =
-    SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}{a = λ z → f (g z)}{b = λ z → f (g z)}
-      $
+    -- I think these should have better inference for implicits if hSet were either
+    -- 1. opaque, or
+    -- 2. a no-eta-equality record
+    --
+    -- TODO make a local wrapper around hSet to test that
+    SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ} $
       SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _
-    -- Zᴰ→Xᴰ.Prectify $ Zᴰ→Xᴰ.≡out $ sym $ Zᴰ→Xᴰ.reind-filler {!!}
-    -- where
-    -- module Zᴰ→Xᴰ = hSetReasoning
-    --              ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
-    --              (λ f → SETᴰ.Hom[_][_,_] {x = Z} {y = X} f Zᴰ Xᴰ)
-    --              -- (SETᴰ.Hom[_][ Zᴰ , Xᴰ ] {x = Z} {y = X})
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .snd .snd γᴰ =
-    {!!}
-    -- Zᴰ→Xᴰ.Prectify $ Zᴰ→Xᴰ.≡out $ sym $ Zᴰ→Xᴰ.reind-filler {!!}
-    -- where
-    -- module Zᴰ→Xᴰ = hSetReasoning
-    --              ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
-    --              SETᴰ.Hom[_][ Zᴰ , Xᴰ ]
+    SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ} $
+      SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _
 
--- --   isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
--- --   isFibrationSETᴰ Xᴰ Y f = REPRⱽ (isFibrationSETᴰueⱽ Xᴰ Y f)
+  isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
+  isFibrationSETᴰ Xᴰ Y f = REPRⱽ (isFibrationSETᴰueⱽ Xᴰ Y f)
 
--- --   private
--- --     module isFibrationSETᴰ = FibrationNotation (SETᴰ ℓ ℓ') isFibrationSETᴰ
+  private
+    module isFibrationSETᴰ = FibrationNotation (SETᴰ ℓ ℓ') isFibrationSETᴰ
 
--- --   TerminalsⱽSETᴰueⱽ :
--- --     (X : hSet ℓ) →
--- --     UniversalElementⱽ' (SETᴰ ℓ ℓ') X UnitPshᴰ
--- --   TerminalsⱽSETᴰueⱽ X .vertexⱽ _ = Unit* , isSetUnit*
--- --   TerminalsⱽSETᴰueⱽ X .elementⱽ = tt
--- --   TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .fst _ _ _ = tt*
--- --   TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .snd .fst = λ _ → refl
--- --   TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .snd .snd = λ _ → refl
+  TerminalsⱽSETᴰueⱽ :
+    (X : hSet ℓ) →
+    UniversalElementⱽ' (SETᴰ ℓ ℓ') X (UnitPshᴰ {P = (SET ℓ) [-, X ]})
+  TerminalsⱽSETᴰueⱽ X .vertexⱽ _ = Unit* , isSetUnit*
+  TerminalsⱽSETᴰueⱽ X .elementⱽ = tt
+  TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .fst _ _ _ = tt*
+  TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .snd .fst = λ _ → refl
+  TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .snd .snd = λ _ → refl
 
--- --   TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
--- --   TerminalsⱽSETᴰ X = REPRⱽ (TerminalsⱽSETᴰueⱽ X)
+  TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
+  TerminalsⱽSETᴰ X = REPRⱽ (TerminalsⱽSETᴰueⱽ X)
 
--- --   BinProductsⱽSETᴰueⱽ :
--- --     {X : hSet ℓ} →
--- --     (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
--- --     UniversalElementⱽ' (SETᴰ ℓ ℓ') X ((SETᴰ ℓ ℓ' [-][-, Xᴰ ]) ×Psh (SETᴰ ℓ ℓ' [-][-, Yᴰ ]))
--- --   BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = _ , isSet× (Xᴰ x .snd) (Yᴰ x .snd)
--- --   BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = (λ x z → z .fst) , (λ x z → z .snd)
--- --   BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ x .fst = λ z x₁ z₁ → z .fst x₁ z₁ , z .snd x₁ z₁
--- --   BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .fst (xᴰ , yᴰ) =
--- --     ΣPathP ((Zᴰ→Xᴰ.Prectify $ Zᴰ→Xᴰ.≡out $ sym $ Zᴰ→Xᴰ.reind-filler _) ,
--- --             (Zᴰ→Yᴰ.Prectify $ Zᴰ→Yᴰ.≡out $ sym $ Zᴰ→Yᴰ.reind-filler _))
--- --     where
--- --     module Zᴰ→Xᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
--- --                  SETᴰ.Hom[_][ Zᴰ , Xᴰ ]
--- --     module Zᴰ→Yᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
--- --                  SETᴰ.Hom[_][ Zᴰ , Yᴰ ]
--- --   BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd Zᴰ→XᴰYᴰ =
--- --     funExt₂ λ z zᴰ →
--- --       ΣPathP (
--- --         funExt₂⁻ (Zᴰ→Xᴰ.Prectify {e' = refl} $
--- --                     Zᴰ→Xᴰ.≡out $ sym $ Zᴰ→Xᴰ.reind-filler _) z zᴰ ,
--- --         funExt₂⁻ (Zᴰ→Yᴰ.Prectify {e' = refl} $
--- --                     Zᴰ→Yᴰ.≡out $ sym $ Zᴰ→Yᴰ.reind-filler _) z zᴰ)
--- --     where
--- --     module Zᴰ→Xᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
--- --                  SETᴰ.Hom[_][ Zᴰ , Xᴰ ]
--- --     module Zᴰ→Yᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
--- --                  SETᴰ.Hom[_][ Zᴰ , Yᴰ ]
--- --     module Zᴰ→Xᴰ×ⱽYᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
--- --                  SETᴰ.Hom[_][ Zᴰ , BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ ]
+  BinProductsⱽSETᴰueⱽ :
+    {X : hSet ℓ} →
+    (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+    UniversalElementⱽ' (SETᴰ ℓ ℓ') X
+      ((SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Xᴰ ]) ×Psh (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = _ , isSet× (Xᴰ x .snd) (Yᴰ x .snd)
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = (λ x z → z .fst) , (λ x z → z .snd)
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ x .fst = λ z x₁ z₁ → z .fst x₁ z₁ , z .snd x₁ z₁
+  BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .fst (xᴰ , yᴰ) =
+    ΣPathP ((SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} $
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) ,
+            (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} $
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _))
+  BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd Zᴰ→XᴰYᴰ =
+    funExt₂ λ z zᴰ →
+      ΣPathP (
+        funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}{e' = refl} $
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) z zᴰ ,
+        funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}{e' = refl} $
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _) z zᴰ)
 
--- --   BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
--- --   BinProductsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ)
+  BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
+  BinProductsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ)
 
--- --   open CartesianCategoryⱽ
--- --   SETᴰCCⱽ : CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
--- --   SETᴰCCⱽ .Cᴰ = SETᴰ ℓ ℓ'
--- --   SETᴰCCⱽ .termⱽ = TerminalsⱽSETᴰ
--- --   SETᴰCCⱽ .bpⱽ = BinProductsⱽSETᴰ
--- --   SETᴰCCⱽ .cartesianLifts = isFibrationSETᴰ
+  open CartesianCategoryⱽ
+  SETᴰCCⱽ : CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+  SETᴰCCⱽ .Cᴰ = SETᴰ ℓ ℓ'
+  SETᴰCCⱽ .termⱽ = TerminalsⱽSETᴰ
+  SETᴰCCⱽ .bpⱽ = BinProductsⱽSETᴰ
+  SETᴰCCⱽ .cartesianLifts = isFibrationSETᴰ
 
--- -- --   -- AllLRⱽSETᴰueⱽ :
--- -- --   --   {X Y : hSet ℓ} →
--- -- --   --   (Xᴰ : SETᴰ.ob[ X ]) →
--- -- --   --   (Yᴰ : SETᴰ.ob[ Y ]) →
--- -- --   --   (f : ⟨ Y ⟩ → ⟨ X ⟩) →
--- -- --   --   UniversalElementⱽ' (SETᴰ ℓ ℓ') Y
--- -- --   --     ((SETᴰ ℓ ℓ' [-][-, Yᴰ ]) ×Psh reindPshᴰNatTrans (yoRec _ f) (SETᴰ ℓ ℓ' [-][-, Xᴰ ]))
--- -- --   -- AllLRⱽSETᴰueⱽ {Y = Y} Xᴰ Yᴰ f .vertexⱽ y .fst =
--- -- --   --   ⟨ Yᴰ y ⟩ × ⟨ (isFibrationSETᴰ._*_ {x = Y} f Xᴰ) y ⟩
--- -- --   -- AllLRⱽSETᴰueⱽ {Y = Y} Xᴰ Yᴰ f .vertexⱽ y .snd =
--- -- --   --   isSet× (Yᴰ y .snd) ((isFibrationSETᴰ._*_ {x = Y} f Xᴰ) y .snd)
--- -- --   -- AllLRⱽSETᴰueⱽ Xᴰ Yᴰ f .elementⱽ = (λ x z → z .fst) , (λ x z → z .snd)
--- -- --   -- AllLRⱽSETᴰueⱽ Xᴰ Yᴰ f .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ → z .fst x z₁ , z .snd x z₁
--- -- --   -- AllLRⱽSETᴰueⱽ {X = X}{Y = Y} Xᴰ Yᴰ f .universalⱽ (Z , Zᴰ , _) .snd .fst (yᴰ , xᴰf) =
--- -- --   --   ΣPathP ((funExt₂ λ _ _ → Yᴰ.Prectify $ Yᴰ.≡out $
--- -- --   --              (sym $ Yᴰ.reind-filler _)
--- -- --   --              ∙ Yᴰ.cong₂ᴰ yᴰ (sym $ Zᴰ.reind-filler _)) ,
--- -- --   --           funExt₂ λ _ _ → Xᴰ.Prectify $ Xᴰ.≡out $
--- -- --   --              (sym $ Xᴰ.reind-filler _)
--- -- --   --              ∙ Xᴰ.cong₂ᴰ xᴰf (sym $ Zᴰ.reind-filler _))
--- -- --   --   where
--- -- --   --   module Xᴰ = hSetReasoning X (λ x → ⟨ Xᴰ x ⟩)
--- -- --   --   module Yᴰ = hSetReasoning Y (λ y → ⟨ Yᴰ y ⟩)
--- -- --   --   module Zᴰ = hSetReasoning Z (λ z → ⟨ Zᴰ z ⟩)
--- -- --   -- AllLRⱽSETᴰueⱽ {X = X}{Y = Y} Xᴰ Yᴰ f .universalⱽ (Z , Zᴰ , _) .snd .snd γᴰ =
--- -- --   --   funExt₂ λ _ _ →
--- -- --   --     ΣPathP ((Yᴰ.Prectify $ Yᴰ.≡out $ (sym $ Yᴰ.reind-filler _)
--- -- --   --              ∙ Yᴰ.cong₂ᴰ (λ u v → γᴰ u v .fst) (sym $ Zᴰ.reind-filler _)) ,
--- -- --   --             (Xᴰ.Prectify $ Xᴰ.≡out $ (sym $ Xᴰ.reind-filler _)
--- -- --   --             ∙ Xᴰ.cong₂ᴰ (λ u v → γᴰ u v .snd) (sym $ Zᴰ.reind-filler _)))
--- -- --   --   where
--- -- --   --   module Xᴰ = hSetReasoning X (λ x → ⟨ Xᴰ x ⟩)
--- -- --   --   module Yᴰ = hSetReasoning Y (λ y → ⟨ Yᴰ y ⟩)
--- -- --   --   module Zᴰ = hSetReasoning Z (λ z → ⟨ Zᴰ z ⟩)
+  AllLRⱽSETᴰ : AllLRⱽ (SETᴰ ℓ ℓ')
+  AllLRⱽSETᴰ =
+    BinProductsⱽ+Fibration→AllLRⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
 
--- --   AllLRⱽSETᴰ : AllLRⱽ (SETᴰ ℓ ℓ')
--- -- --   -- AllLRⱽSETᴰ Xᴰ Yᴰ f = REPRⱽ (AllLRⱽSETᴰueⱽ Xᴰ Yᴰ f)
--- --   AllLRⱽSETᴰ =
--- --     BinProductsⱽ+Fibration→AllLRⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
--- -- -- --     ⟨ Bᴰ b ⟩ × ⟨ (isFibrationSETᴰ._*_ {x = B} f Aᴰ) b ⟩ ,
--- -- -- --     isSet× (Bᴰ b .snd) ((isFibrationSETᴰ._*_ {x = B} f Aᴰ) b .snd)
--- -- -- --   AllLRⱽSETᴰ {x = A} Aᴰ {x = B} Bᴰ f .snd =
--- -- -- --     Isos→PshIso
--- -- -- --       (λ (C , Cᴰ , g) →
--- -- -- --         iso (λ z → (λ x z₁ → z x z₁ .fst) , (λ x z₁ → z x z₁ .snd))
--- -- -- --             (λ z x z₁ → z .fst x z₁ , z .snd x z₁)
--- -- -- --             (λ _ → refl)
--- -- -- --             λ _ → refl)
--- -- -- --       (λ _ _ _ _ → ΣPathP (refl , funExt₂ λ _ _ →
--- -- -- --         Aᴰ.Prectify $ Aᴰ.≡out $
--- -- -- --           (sym $ Aᴰ.reind-filler _) ∙ Aᴰ.reind-filler _))
--- -- -- --       where
--- -- -- --       module Aᴰ = hSetReasoning A (λ a → ⟨ Aᴰ a ⟩)
-
--- --   ExponentialsⱽSETᴰueⱽ :
--- --     {X : hSet ℓ} →
--- --     (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
--- --     UniversalElementⱽ' (SETᴰ ℓ ℓ') X
--- --       (LRⱽObᴰ→LRⱽ (SETᴰ ℓ ℓ')
--- --         (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall (SETᴰ ℓ ℓ' [-][-, Yᴰ ]))
--- --   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
--- --   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
--- --   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
--- --   ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
+--   ExponentialsⱽSETᴰueⱽ :
+--     {X : hSet ℓ} →
+--     (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+--     UniversalElementⱽ' (SETᴰ ℓ ℓ') X
+--       (LRⱽObᴰ→LRⱽ (SETᴰ ℓ ℓ')
+--         (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
+--   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
+--   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
+--   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
+--   ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
+--     ?
 -- --     -- Zᴰ→Xᴰ.Prectify $ Zᴰ→Xᴰ.≡out $
 -- --     Zᴰ×g*Xᴰ→Yᴰ.Prectify $ Zᴰ×g*Xᴰ→Yᴰ.≡out $
 -- --       (sym $ Zᴰ×g*Xᴰ→Yᴰ.reind-filler _)
@@ -235,162 +163,113 @@ module _ {ℓ ℓ'} where
 -- --             (funExt₂ λ z zᴰxᴰ → funExt₂⁻
 -- --                (Zᴰ×g*Xᴰ→Zᴰ.Prectify {e' = refl} $
 -- --                   Zᴰ×g*Xᴰ→Zᴰ.≡out $ sym $ Zᴰ×g*Xᴰ→Zᴰ.reind-filler _) z zᴰxᴰ) ,
--- --           {!!}))
+--   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
 
--- --     -- funExt₂ λ z zᴰ →
--- --     --   ΣPathP (
--- --     --     funExt₂⁻ (Zᴰ→Xᴰ.Prectify {e' = refl} $
--- --     --                 Zᴰ→Xᴰ.≡out $ sym $ Zᴰ→Xᴰ.reind-filler _) z zᴰ ,
--- --     --     funExt₂⁻ (Zᴰ→Yᴰ.Prectify {e' = refl} $
--- --     --                 Zᴰ→Yᴰ.≡out $ sym $ Zᴰ→Yᴰ.reind-filler _) z zᴰ)
-
--- --     -- funExt₂ λ z zᴰ → Yᴰ.Prectify $ Yᴰ.≡out $
--- --     --   (sym $ Yᴰ.reind-filler _)
--- --     --   ∙ {!!}
--- --     --   ∙ Yᴰ.cong₂ᴰ f
--- --     --       (×≡Snd-hSet (Z .snd)
--- --     --         ((sym $ Zᴰ.reind-filler _)
--- --     --         ∙ (sym $ Zᴰ.reind-filler _)
--- --     --         ∙ (sym $ Zᴰ.reind-filler _))
--- --     --         {!!})
--- --     where
--- --     -- module Xᴰ = hSetReasoning X (λ x → ⟨ Xᴰ x ⟩)
--- --     -- module Xᴰg = hSetReasoning Z (λ z → ⟨ Xᴰ (g z) ⟩)
--- --     module Yᴰ = hSetReasoning X (λ y → ⟨ Yᴰ y ⟩)
--- --     -- module Zᴰ = hSetReasoning Z (λ z → ⟨ Zᴰ z ⟩)
--- --     -- where
--- --     uTy = (x : fst Z) → Σ (Zᴰ x .fst) (λ _ → Xᴰ (g x) .fst) → ⟨ Zᴰ x ⟩
--- --     vTy = (x : fst Z) → Σ (Zᴰ x .fst) (λ _ → Xᴰ (g x) .fst) → ⟨ Xᴰ (g x) ⟩
-
--- --     -- module Zᴰ = hSetReasoning
--- --     --              ((⟨ Z ⟩ → ⟨ Z ⟩) , isSet→ (Z .snd))
--- --     --              {!!}
--- --     module Zᴰ→Zᴰ×g*Xᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ Z ⟩) , isSet→ (Z .snd))
--- --                  SETᴰ.Hom[_][
--- --                    Zᴰ ,
--- --                    (λ z → _ , isSet× (Zᴰ z .snd)
--- --                    ((isFibrationSETᴰ._*_ {x = Z} g Xᴰ) z .snd)) ]
--- --     module Zᴰ×g*Xᴰ→Zᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ Z ⟩) , isSet→ (Z .snd))
--- --                  SETᴰ.Hom[_][
--- --                    (λ z → _ , isSet× (Zᴰ z .snd)
--- --                    ((isFibrationSETᴰ._*_ {x = Z} g Xᴰ) z .snd)) ,
--- --                    Zᴰ ]
-
--- --     module Zᴰ×g*Xᴰ→Yᴰ = hSetReasoning
--- --                  ((⟨ Z ⟩ → ⟨ X ⟩) , isSet→ (X .snd))
--- --                  SETᴰ.Hom[_][
--- --                    (λ z → _ , isSet× (Zᴰ z .snd)
--- --                    ((isFibrationSETᴰ._*_ {x = Z} g Xᴰ) z .snd)) ,
--- --                    Yᴰ ]
--- --   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
-
--- --   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
--- --   ExponentialsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ)
-
-
--- -- --   -- Exponentialsⱽ and UniversalQuantifiers are slow. Filling in the arguments below with "transp ..."
--- -- --   -- mitigates some of the performance issues, but only so much
 -- -- --   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
--- -- --   ExponentialsⱽSETᴰ {x = A} Aᴰ Bᴰ .fst a = (⟨ Aᴰ a ⟩ → ⟨ Bᴰ a ⟩) , isSet→ (Bᴰ a .snd)
--- -- --   ExponentialsⱽSETᴰ {x = A} Aᴰ Bᴰ .snd =
--- -- --     Isos→PshIso
--- -- --       (λ (C , Cᴰ , g) →
--- -- --         iso (λ z x z₁ → z x (z₁ .fst) (z₁ .snd))
--- -- --             (λ z x z₁ z₂ → z x (z₁ , z₂))
--- -- --             (λ _ → refl)
--- -- --             (λ _ → refl))
--- -- --       (λ C C' g p →
--- -- --         funExt₂ (λ u v →
--- -- --           {!!}))
--- -- --         -- Bᴰ.Prectify
--- -- --         --   {e' = λ i → C .snd .snd u}
--- -- --         --   $ Bᴰ.≡out $
--- -- --         --   (sym $ Bᴰ.reind-filler _)
--- -- --         --   ∙ Bᴰ.≡in {pth = refl}
--- -- --         --      (cong₃ p
--- -- --         --         (refl {x = g .fst (transp (λ j → fst (C .fst)) i0 u)})
--- -- --         --         (refl {x = g .snd .fst (transp (λ j → fst (C .fst)) i0 u)
--- -- --         --                      (transp (λ j → fst (C .snd .fst (transp (λ j₁ → fst (C .fst)) (~ j) u))) i0 (v .fst))})
--- -- --         --         (Aᴰ.Prectify
--- -- --         --           {e' = λ i → C' .snd .snd (g .fst (transp (λ j → fst (C .fst)) i0 u))}
--- -- --         --            $ Aᴰ.≡out $
--- -- --         --           (sym $ Aᴰ.reind-filler (λ i → g .snd .snd (~ i) (transp (λ j → fst (C .fst)) (~ i) u)))
--- -- --         --           ∙ Aᴰ.reind-filler (λ i → C .snd .snd (transp (λ j → fst (C .fst)) (~ i) u))
--- -- --         --           ∙ Aᴰ.reind-filler (λ i →
--- -- --         --                                C .snd .snd
--- -- --         --                                (transp (λ j → fst (C .fst)) (~ i)
--- -- --         --                                 (transp (λ j → fst (C .fst)) i0 u)))
--- -- --         --           ∙ Aᴰ.reind-filler (λ i →
--- -- --         --                                C .snd .snd
--- -- --         --                                (transp (λ j → fst (C .fst)) (~ i)
--- -- --         --                                 (transp (λ j → fst (C .fst)) i0
--- -- --         --                                  (transp (λ j → fst (C .fst)) i0 u))))
--- -- --         --           ∙ Aᴰ.reind-filler (λ i →
--- -- --         --                                C .snd .snd
--- -- --         --                                (transp (λ j → fst (C .fst)) i
--- -- --         --                                 (transp (λ j → fst (C .fst)) i0
--- -- --         --                                  (transp (λ j → fst (C .fst)) i0 u))))
--- -- --         --           ∙ Aᴰ.reind-filler _))
--- -- --           -- ∙ Bᴰ.reind-filler _))
+-- -- --   ExponentialsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ)
 
--- -- --       where
--- -- --       module Aᴰ = hSetReasoning A (λ a → ⟨ Aᴰ a ⟩)
--- -- --       module Bᴰ = hSetReasoning A (λ a → ⟨ Bᴰ a ⟩)
 
--- -- -- -- -- module _ {ℓ} {ℓ'} where
--- -- -- -- --   private
--- -- -- -- --     module SET = Category (SET ℓ)
--- -- -- -- --     module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
--- -- -- -- --     bp = BinProductsSET {ℓSET = ℓ}
--- -- -- -- --     module bp = BinProductsNotation bp
--- -- -- -- --     module isFibrationSETᴰ = FibrationNotation (SETᴰ ℓ (ℓ-max ℓ ℓ')) isFibrationSETᴰ
--- -- -- -- --   module _ {A B : SET.ob} (Cᴰ : SETᴰ.ob[ A bp.× B ]) where
--- -- -- -- --     private
--- -- -- -- --       -×B = BinProducts→BinProductsWith (SET ℓ) B bp
--- -- -- -- --       module -×B = BinProductsWithNotation -×B
+-- -- -- --   -- Exponentialsⱽ and UniversalQuantifiers are slow. Filling in the arguments below with "transp ..."
+-- -- -- --   -- mitigates some of the performance issues, but only so much
+-- -- -- --   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
+-- -- -- --   ExponentialsⱽSETᴰ {x = A} Aᴰ Bᴰ .fst a = (⟨ Aᴰ a ⟩ → ⟨ Bᴰ a ⟩) , isSet→ (Bᴰ a .snd)
+-- -- -- --   ExponentialsⱽSETᴰ {x = A} Aᴰ Bᴰ .snd =
+-- -- -- --     Isos→PshIso
+-- -- -- --       (λ (C , Cᴰ , g) →
+-- -- -- --         iso (λ z x z₁ → z x (z₁ .fst) (z₁ .snd))
+-- -- -- --             (λ z x z₁ z₂ → z x (z₁ , z₂))
+-- -- -- --             (λ _ → refl)
+-- -- -- --             (λ _ → refl))
+-- -- -- --       (λ C C' g p →
+-- -- -- --         funExt₂ (λ u v →
+-- -- -- --           {!!}))
+-- -- -- --         -- Bᴰ.Prectify
+-- -- -- --         --   {e' = λ i → C .snd .snd u}
+-- -- -- --         --   $ Bᴰ.≡out $
+-- -- -- --         --   (sym $ Bᴰ.reind-filler _)
+-- -- -- --         --   ∙ Bᴰ.≡in {pth = refl}
+-- -- -- --         --      (cong₃ p
+-- -- -- --         --         (refl {x = g .fst (transp (λ j → fst (C .fst)) i0 u)})
+-- -- -- --         --         (refl {x = g .snd .fst (transp (λ j → fst (C .fst)) i0 u)
+-- -- -- --         --                      (transp (λ j → fst (C .snd .fst (transp (λ j₁ → fst (C .fst)) (~ j) u))) i0 (v .fst))})
+-- -- -- --         --         (Aᴰ.Prectify
+-- -- -- --         --           {e' = λ i → C' .snd .snd (g .fst (transp (λ j → fst (C .fst)) i0 u))}
+-- -- -- --         --            $ Aᴰ.≡out $
+-- -- -- --         --           (sym $ Aᴰ.reind-filler (λ i → g .snd .snd (~ i) (transp (λ j → fst (C .fst)) (~ i) u)))
+-- -- -- --         --           ∙ Aᴰ.reind-filler (λ i → C .snd .snd (transp (λ j → fst (C .fst)) (~ i) u))
+-- -- -- --         --           ∙ Aᴰ.reind-filler (λ i →
+-- -- -- --         --                                C .snd .snd
+-- -- -- --         --                                (transp (λ j → fst (C .fst)) (~ i)
+-- -- -- --         --                                 (transp (λ j → fst (C .fst)) i0 u)))
+-- -- -- --         --           ∙ Aᴰ.reind-filler (λ i →
+-- -- -- --         --                                C .snd .snd
+-- -- -- --         --                                (transp (λ j → fst (C .fst)) (~ i)
+-- -- -- --         --                                 (transp (λ j → fst (C .fst)) i0
+-- -- -- --         --                                  (transp (λ j → fst (C .fst)) i0 u))))
+-- -- -- --         --           ∙ Aᴰ.reind-filler (λ i →
+-- -- -- --         --                                C .snd .snd
+-- -- -- --         --                                (transp (λ j → fst (C .fst)) i
+-- -- -- --         --                                 (transp (λ j → fst (C .fst)) i0
+-- -- -- --         --                                  (transp (λ j → fst (C .fst)) i0 u))))
+-- -- -- --         --           ∙ Aᴰ.reind-filler _))
+-- -- -- --           -- ∙ Bᴰ.reind-filler _))
 
--- -- -- -- --     UniversalQuantifierSETᴰ :
--- -- -- -- --       UniversalQuantifier (SETᴰ ℓ (ℓ-max ℓ ℓ')) B -×B
--- -- -- -- --         (λ D Dᴰ → isFibrationSETᴰ Dᴰ -×B.×ue.vertex (-×B.π₁ {b = D}))
--- -- -- -- --         Cᴰ
--- -- -- -- --     UniversalQuantifierSETᴰ .fst a = (∀ (b : ⟨ B ⟩) → ⟨ Cᴰ (a , b) ⟩) , isSetΠ (λ _ → Cᴰ _ .snd)
--- -- -- -- --     UniversalQuantifierSETᴰ .snd =
--- -- -- -- --       Isos→PshIso
--- -- -- -- --         (λ _ → iso (λ z x₁ z₁ → z (fst x₁) z₁ (snd x₁))
--- -- -- -- --                    (λ z x₁ z₁ b → z (x₁ , b) z₁)
--- -- -- -- --                    (λ _ → refl)
--- -- -- -- --                    (λ _ → refl))
--- -- -- -- --         (λ C C' g p → funExt₂ λ u v →
--- -- -- -- --           let module C = hSetReasoning (C .fst) (λ c → ⟨ C .snd .fst c ⟩) in
--- -- -- -- --           let module C' = hSetReasoning (C' .fst) (λ c → ⟨ C' .snd .fst c ⟩) in
--- -- -- -- --           Cᴰ.Prectify
--- -- -- -- --             {e' = λ i → snd (C .snd) (fst u) , snd u}
--- -- -- -- --             $ Cᴰ.≡out $
--- -- -- -- --             (sym $ Cᴰ.reind-filler (λ i → g .snd .snd i (transp (λ j → fst (C .fst)) i (fst u)) , transp (λ j → fst B) i (snd u)))
--- -- -- -- --             ∙ (Cᴰ.≡in {pth = refl} $
--- -- -- -- --                   cong₃ p (refl {x = g .fst (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst))})
--- -- -- -- --                           (C'.Prectify {e' = λ i → g .fst (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
--- -- -- -- --                              C'.≡out $
--- -- -- -- --                               (C'.≡in {pth = λ i → g .fst (transportRefl (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst)) (~ i))} $
--- -- -- -- --                                 cong₂ (g .snd .fst)
--- -- -- -- --                                   (sym $ transportRefl (transp (λ _ → fst (C .fst)) i0 (u .fst)))
--- -- -- -- --                                   (C.Prectify {e' = λ i →
--- -- -- -- --                                                        transp (λ _ → fst (C .fst)) (~ i)
--- -- -- -- --                                                        (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
--- -- -- -- --                                      C.≡out $ (sym $ C.reind-filler _) ∙ C.reind-filler _ ∙ C.reind-filler _ ))
--- -- -- -- --                               ∙ C'.reind-filler _)
--- -- -- -- --                           (refl {x = transp (λ _ → ⟨ B ⟩) i0 (u .snd)}))
--- -- -- -- --             ∙ Cᴰ.reind-filler _
--- -- -- -- --         )
--- -- -- -- --         where
--- -- -- -- --         module Cᴰ = hSetReasoning (A bp.× B) (λ c → ⟨ Cᴰ c ⟩)
+-- -- -- --       where
+-- -- -- --       module Aᴰ = hSetReasoning A (λ a → ⟨ Aᴰ a ⟩)
+-- -- -- --       module Bᴰ = hSetReasoning A (λ a → ⟨ Bᴰ a ⟩)
 
--- -- -- -- --   open CartesianClosedCategoryⱽ
+-- -- -- -- -- -- module _ {ℓ} {ℓ'} where
+-- -- -- -- -- --   private
+-- -- -- -- -- --     module SET = Category (SET ℓ)
+-- -- -- -- -- --     module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
+-- -- -- -- -- --     bp = BinProductsSET {ℓSET = ℓ}
+-- -- -- -- -- --     module bp = BinProductsNotation bp
+-- -- -- -- -- --     module isFibrationSETᴰ = FibrationNotation (SETᴰ ℓ (ℓ-max ℓ ℓ')) isFibrationSETᴰ
+-- -- -- -- -- --   module _ {A B : SET.ob} (Cᴰ : SETᴰ.ob[ A bp.× B ]) where
+-- -- -- -- -- --     private
+-- -- -- -- -- --       -×B = BinProducts→BinProductsWith (SET ℓ) B bp
+-- -- -- -- -- --       module -×B = BinProductsWithNotation -×B
 
--- -- -- -- --   SETᴰCCCⱽ : CartesianClosedCategoryⱽ SETCC (ℓ-max ℓ (ℓ-suc (ℓ-max ℓ ℓ'))) (ℓ-max ℓ (ℓ-max ℓ ℓ'))
--- -- -- -- --   SETᴰCCCⱽ .CCⱽ = SETᴰCCⱽ
--- -- -- -- --   SETᴰCCCⱽ .lrⱽ = AllLRⱽSETᴰ
--- -- -- -- --   SETᴰCCCⱽ .expⱽ = ExponentialsⱽSETᴰ
--- -- -- -- --   SETᴰCCCⱽ .forallⱽ = UniversalQuantifierSETᴰ
+-- -- -- -- -- --     UniversalQuantifierSETᴰ :
+-- -- -- -- -- --       UniversalQuantifier (SETᴰ ℓ (ℓ-max ℓ ℓ')) B -×B
+-- -- -- -- -- --         (λ D Dᴰ → isFibrationSETᴰ Dᴰ -×B.×ue.vertex (-×B.π₁ {b = D}))
+-- -- -- -- -- --         Cᴰ
+-- -- -- -- -- --     UniversalQuantifierSETᴰ .fst a = (∀ (b : ⟨ B ⟩) → ⟨ Cᴰ (a , b) ⟩) , isSetΠ (λ _ → Cᴰ _ .snd)
+-- -- -- -- -- --     UniversalQuantifierSETᴰ .snd =
+-- -- -- -- -- --       Isos→PshIso
+-- -- -- -- -- --         (λ _ → iso (λ z x₁ z₁ → z (fst x₁) z₁ (snd x₁))
+-- -- -- -- -- --                    (λ z x₁ z₁ b → z (x₁ , b) z₁)
+-- -- -- -- -- --                    (λ _ → refl)
+-- -- -- -- -- --                    (λ _ → refl))
+-- -- -- -- -- --         (λ C C' g p → funExt₂ λ u v →
+-- -- -- -- -- --           let module C = hSetReasoning (C .fst) (λ c → ⟨ C .snd .fst c ⟩) in
+-- -- -- -- -- --           let module C' = hSetReasoning (C' .fst) (λ c → ⟨ C' .snd .fst c ⟩) in
+-- -- -- -- -- --           Cᴰ.Prectify
+-- -- -- -- -- --             {e' = λ i → snd (C .snd) (fst u) , snd u}
+-- -- -- -- -- --             $ Cᴰ.≡out $
+-- -- -- -- -- --             (sym $ Cᴰ.reind-filler (λ i → g .snd .snd i (transp (λ j → fst (C .fst)) i (fst u)) , transp (λ j → fst B) i (snd u)))
+-- -- -- -- -- --             ∙ (Cᴰ.≡in {pth = refl} $
+-- -- -- -- -- --                   cong₃ p (refl {x = g .fst (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst))})
+-- -- -- -- -- --                           (C'.Prectify {e' = λ i → g .fst (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
+-- -- -- -- -- --                              C'.≡out $
+-- -- -- -- -- --                               (C'.≡in {pth = λ i → g .fst (transportRefl (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst)) (~ i))} $
+-- -- -- -- -- --                                 cong₂ (g .snd .fst)
+-- -- -- -- -- --                                   (sym $ transportRefl (transp (λ _ → fst (C .fst)) i0 (u .fst)))
+-- -- -- -- -- --                                   (C.Prectify {e' = λ i →
+-- -- -- -- -- --                                                        transp (λ _ → fst (C .fst)) (~ i)
+-- -- -- -- -- --                                                        (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
+-- -- -- -- -- --                                      C.≡out $ (sym $ C.reind-filler _) ∙ C.reind-filler _ ∙ C.reind-filler _ ))
+-- -- -- -- -- --                               ∙ C'.reind-filler _)
+-- -- -- -- -- --                           (refl {x = transp (λ _ → ⟨ B ⟩) i0 (u .snd)}))
+-- -- -- -- -- --             ∙ Cᴰ.reind-filler _
+-- -- -- -- -- --         )
+-- -- -- -- -- --         where
+-- -- -- -- -- --         module Cᴰ = hSetReasoning (A bp.× B) (λ c → ⟨ Cᴰ c ⟩)
+
+-- -- -- -- -- --   open CartesianClosedCategoryⱽ
+
+-- -- -- -- -- --   SETᴰCCCⱽ : CartesianClosedCategoryⱽ SETCC (ℓ-max ℓ (ℓ-suc (ℓ-max ℓ ℓ'))) (ℓ-max ℓ (ℓ-max ℓ ℓ'))
+-- -- -- -- -- --   SETᴰCCCⱽ .CCⱽ = SETᴰCCⱽ
+-- -- -- -- -- --   SETᴰCCCⱽ .lrⱽ = AllLRⱽSETᴰ
+-- -- -- -- -- --   SETᴰCCCⱽ .expⱽ = ExponentialsⱽSETᴰ
+-- -- -- -- -- --   SETᴰCCCⱽ .forallⱽ = UniversalQuantifierSETᴰ

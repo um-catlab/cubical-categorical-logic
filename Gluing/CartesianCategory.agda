@@ -105,26 +105,27 @@ module _ where
     (isProp→isSet (FREECC.C .isSetHom [t] e))
     (isProp→isSet (FREECC.C .isSetHom [f] e))
 
-  canonicity : ∀ e → CanonicalForm e
-  canonicity e = fixup (Canonicalize .F-homᴰ e _ _)
-    where
-    pts = FREECC.C [ 𝟙 ,-]
-    Canonicalize : Section pts (SETᴰ _ _)
-    Canonicalize = elimLocal _ (SETᴰCartesianCategoryⱽ _ _)
-      (mkInterpᴰ
-        (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
-        (λ { t,f ⟨⟩ (lift tt) →
-          (inl (sym (FREECC.C .⋆IdL _)
-               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
-               ∙ sym (FREECC.C .⋆Assoc _ _ _)))
-          , inr (sym (FREECC.C .⋆IdL _)
-               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
-               ∙ sym (FREECC.C .⋆Assoc _ _ _))
-        }))
-    fixup : ∀{e'} →
-      ([t] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') ⊎
-      ([f] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') →
-      CanonicalForm e'
-    fixup {e'} = Sum.elim
-      (λ p → inl (p ∙ FREECC.C .⋆IdL e'))
-      (λ p → inr (p ∙ FREECC.C .⋆IdL e'))
+  -- TODO fix
+  -- canonicity : ∀ e → CanonicalForm e
+  -- canonicity e = fixup (Canonicalize .F-homᴰ e _ _)
+  --   where
+  --   pts = FREECC.C [ 𝟙 ,-]
+  --   Canonicalize : Section pts (SETᴰ _ _)
+  --   Canonicalize = elimLocal _ (SETᴰCartesianCategoryⱽ _ _)
+  --     (mkInterpᴰ
+  --       (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
+  --       (λ { t,f ⟨⟩ (lift tt) →
+  --         (inl (sym (FREECC.C .⋆IdL _)
+  --              ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
+  --              ∙ sym (FREECC.C .⋆Assoc _ _ _)))
+  --         , inr (sym (FREECC.C .⋆IdL _)
+  --              ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
+  --              ∙ sym (FREECC.C .⋆Assoc _ _ _))
+  --       }))
+  --   fixup : ∀{e'} →
+  --     ([t] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') ⊎
+  --     ([f] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') →
+  --     CanonicalForm e'
+  --   fixup {e'} = Sum.elim
+  --     (λ p → inl (p ∙ FREECC.C .⋆IdL e'))
+  --     (λ p → inr (p ∙ FREECC.C .⋆IdL e'))

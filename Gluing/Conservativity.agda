@@ -2,6 +2,7 @@
 module Gluing.Conservativity where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
@@ -39,6 +40,7 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Limits
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Presheaf.CartesianLift.Properties
 
 private
   variable ℓQ ℓQ' ℓC ℓC' : Level
@@ -148,6 +150,8 @@ module _ (Q : Quiver ℓQ ℓQ') where
   opaque
     unfolding
       isFibrationPRESHEAFᴰ
+      hSetReasoning.reind
+      ManualCartesianLift→CartesianLift
     ⊆-Full : isFull ⊆
     ⊆-Full o o' F[f] = ∣ f , p ∙ FREE-1,×.C .⋆IdL _ ∣₁
       where

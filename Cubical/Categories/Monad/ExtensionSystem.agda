@@ -253,7 +253,7 @@ module _ (C : Category ℓ ℓ') where
     (cong (M .snd .bind) ((C .⋆IdL) ((M .snd .η) {x})))
     ∙ (M .snd .bind-r)
   ExtensionSystem→Monad M .fst .F-seq {x} {y} {z} f g =
-    (cong (M .snd .bind) (((C .⋆Assoc) f g (M .snd .η {z}))))    
+    (cong (M .snd .bind) (((C .⋆Assoc) f g (M .snd .η {z}))))
     ∙ (cong
       (λ e → (M .snd .bind) (e ∘⟨ C ⟩ f))
       (sym ((M .snd .bind-l) {f = ((M .snd .η {z}) ∘⟨ C ⟩ g)}))
@@ -322,7 +322,7 @@ module _ (C : Category ℓ ℓ') where
             ((M .snd .bind) (C .id))
           )
         )
-        ∙ (cong 
+        ∙ (cong
           (λ e → (M .snd .bind) (e ∘⟨ C ⟩ (M .snd .η)))
           ((M .snd .bind-l) {f = C .id})
         )
@@ -346,7 +346,7 @@ module _ (C : Category ℓ ℓ') where
           ((M .snd .bind) (C .id))
         )
       )
-      ∙ (cong 
+      ∙ (cong
         (λ e → (M .snd .bind) (e ∘⟨ C ⟩ ((M .snd .bind) (C .id))))
         ((M .snd .bind-l) {f = C .id})
       )

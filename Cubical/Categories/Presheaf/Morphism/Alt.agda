@@ -91,6 +91,20 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
       N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
       N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
         N-ob c (f P.⋆ p) ≡ (f Q.⋆ N-ob c' p)
+  {-# INLINE pshhom #-}
+  
+  record StrictPshHom : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    no-eta-equality
+    constructor strictpshhom
+    field
+      N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
+      N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+        N-ob c (f P.⋆ p) Eq.≡ (f Q.⋆ N-ob c' p)
+  {-# INLINE strictpshhom #-}
+
+  StrictPshHom→PshHom : StrictPshHom → PshHom
+  StrictPshHom→PshHom α .PshHom.N-ob = α .StrictPshHom.N-ob
+  StrictPshHom→PshHom α .PshHom.N-hom c c' f p = Eq.eqToPath (α .StrictPshHom.N-hom c c' f p)
 
   PshHomΣIso : Iso PshHom PshHomΣ
   unquoteDef PshHomΣIso = defineRecordIsoΣ PshHomΣIso (quote (PshHom))

@@ -180,6 +180,20 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst)
       ∫ηᴰ fᴰ = Cᴰ.≡in $ ηᴰ fᴰ
 
+      extensionalityᴰ : ∀ {Γ Γᴰ}{f g : C [ Γ , ue.vertex ]}
+        → {fᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ]}
+        → {gᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ]}
+        → (fᴰ Pᴰ.⋆ᴰ elementᴰ) Pᴰ.∫≡ (gᴰ Pᴰ.⋆ᴰ elementᴰ)
+        → fᴰ Cᴰ.∫≡ gᴰ
+      extensionalityᴰ fᴰe≡gᴰe = ∫ηᴰ _ ∙ cong-introᴰ fᴰe≡gᴰe ∙ (sym $ ∫ηᴰ _)
+
+      introᴰ≡ : ∀ {Γ Γᴰ}{p : P.p[ Γ ]}{f : C [ Γ , ue.vertex ]}
+        → {pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
+        → {fᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ]}
+        → pᴰ Pᴰ.∫≡ fᴰ Pᴰ.⋆ᴰ elementᴰ
+        → introᴰ pᴰ Cᴰ.∫≡ fᴰ
+      introᴰ≡ p≡fe = cong-introᴰ p≡fe ∙ (sym $ ∫ηᴰ _)
+
   -- Could be more compositional but too lazy
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)
     → Representableᴰ (ue .vertex , asPshIso ue)

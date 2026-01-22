@@ -16,40 +16,42 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 
-open import Cubical.Categories.Displayed.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 
 open import Cubical.Categories.WithFamilies.Simple.Base
-open import Cubical.Categories.WithFamilies.Simple.Displayed
+-- open import Cubical.Categories.WithFamilies.Simple.Displayed
 
-open Category
+-- open Category
 
-private
-  variable
-    ℓC ℓC' ℓT ℓT' ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level
+-- private
+--   variable
+--     ℓC ℓC' ℓT ℓT' ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level
 
--- It's unclear to me if this is just as bad performance-wise as
--- making SCwF/SCwFᴰ into records
-module SCwFNotation (the-scwf : SCwF ℓC ℓC' ℓT ℓT') where
-  C = the-scwf .fst
-  Ty = the-scwf .snd .fst
-  Tm = the-scwf .snd .snd .fst
-  module Tm⟨_⟩ (A : Ty) = PresheafNotation (Tm A)
-  term = the-scwf .snd .snd .fst
-  ext = the-scwf .snd .snd .snd
+-- -- It's unclear to me if this is just as bad performance-wise as
+-- -- making SCwF/SCwFᴰ into records
+-- module SCwFNotation (the-scwf : SCwF ℓC ℓC' ℓT ℓT') where
+--   C = the-scwf .fst
+--   Ty = the-scwf .snd .fst
+--   Tm = the-scwf .snd .snd .fst
+--   module Tm⟨_⟩ (A : Ty) = PresheafNotation (Tm A)
+--   term = the-scwf .snd .snd .fst
+--   ext = the-scwf .snd .snd .snd
 
-module SCwFᴰNotation
-  {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}
-  (the-scwfᴰ : SCwFᴰ the-scwf ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
-  where
-  open SCwFNotation the-scwf public
-  Cᴰ = the-scwfᴰ .fst
-  module Cᴰ = Fibers Cᴰ
-  Tyᴰ = the-scwfᴰ .snd .fst
-  Tmᴰ = the-scwfᴰ .snd .snd .fst
-  module Tmᴰ {A : Ty}{Aᴰ : Tyᴰ A} = PresheafᴰNotation (Tmᴰ Aᴰ)
-  termᴰ = the-scwfᴰ .snd .snd .snd .fst
-  module termᴰ = UniversalElementᴰ termᴰ
-  extᴰ = the-scwfᴰ .snd .snd .snd .snd
-  module extᴰ {Γ}{A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : Tyᴰ A} =
-    UniversalElementᴰ (extᴰ Aᴰ Γᴰ)
+-- module SCwFᴰNotation
+--   {the-scwf : SCwF ℓC ℓC' ℓT ℓT'}
+--   (the-scwfᴰ : SCwFᴰ the-scwf ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ')
+--   where
+--   open SCwFNotation the-scwf public
+--   Cᴰ = the-scwfᴰ .fst
+--   module Cᴰ = Fibers Cᴰ
+--   Tyᴰ = the-scwfᴰ .snd .fst
+--   Tmᴰ = the-scwfᴰ .snd .snd .fst
+--   module Tmᴰ {A : Ty}{Aᴰ : Tyᴰ A} = PresheafᴰNotation Cᴰ (Tm A) (Tmᴰ Aᴰ)
+--   termᴰ = the-scwfᴰ .snd .snd .snd .fst
+--   module termᴰ = UniversalElementᴰNotation Cᴰ UnitPsh UnitPshᴰ termᴰ -- Cᴰ UnitPsh UnitPshᴰ termᴰ
+--   -- extᴰ = the-scwfᴰ .snd .snd .snd .snd
+--   -- module extᴰ {Γ}{A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : Tyᴰ A} =
+--   --   UniversalElementᴰNotation (extᴰ Aᴰ Γᴰ)
 

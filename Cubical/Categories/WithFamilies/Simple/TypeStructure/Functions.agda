@@ -16,7 +16,8 @@ private
   variable
     ℓC ℓC' ℓT ℓT' ℓD ℓD' ℓS ℓS' : Level
 
-module _ ((C , Ty , Tm , term , ext) : SCwF ℓC ℓC' ℓT ℓT') where
+module _ (S : SCwF ℓC ℓC' ℓT ℓT') where
+  open SCwF S
   FunType : (A B : Ty) → Type _
   FunType A B =
     Σ[ A⇒B ∈ Ty ]

@@ -55,7 +55,6 @@ open Functorᴰ
 open PshHom
 open PshIso
 open UniversalElementNotation
-open UniversalElementᴰNotation
 open isIsoOver
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
@@ -67,6 +66,12 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     isLRᴰ : (Pᴰ : Presheafᴰ (P .fst) Cᴰ ℓPᴰ) → Type _
     isLRᴰ Pᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])
       → UniversalElementᴰ Cᴰ ((C [-, Γ ]) ×Psh P .fst) ((Cᴰ [-][-, Γᴰ ]) ×ᴰPsh Pᴰ) (P .snd Γ)
+
+    module isLRᴰNotation {ℓPᴰ}{Pᴰ : Presheafᴰ (P .fst) Cᴰ ℓPᴰ} (×ᴰPᴰ : isLRᴰ Pᴰ) where
+      vertexᴰ : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) → Cᴰ.ob[ vertex (P .snd Γ) ]
+      vertexᴰ Γᴰ = UniversalElementᴰNotation.vertexᴰ Cᴰ _ _ (×ᴰPᴰ Γᴰ)
+      module _ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} where
+        open UniversalElementᴰNotation Cᴰ _ _ (×ᴰPᴰ Γᴰ) hiding (vertexᴰ) public
 
 module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) where
   private

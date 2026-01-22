@@ -24,6 +24,7 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Tensor
+open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Profunctor.Constructions.Extension
@@ -152,6 +153,10 @@ module _ {C : Category ℓ ℓ'} where
 
       _ : PshProd .Bif-homR P β .N-ob c ≡ λ (p , q) → p , β .N-ob c q
       _ = refl
+
+module _ {C : Category ℓ ℓ'} (P : Presheaf C ℓA) where
+  lUnit×PshIso : PshIso (UnitPsh ×Psh P) P
+  lUnit×PshIso = pshiso (π₂ _ _) (λ x → IsoToIsIso lUnit×Iso)
 
 module _ {C : Category ℓ ℓ'}{D : Category ℓD ℓD'}
   (F : Functor D C)

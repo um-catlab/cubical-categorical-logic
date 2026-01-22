@@ -111,12 +111,16 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
                  isProp→PathP (λ _ → C.isSetHom _ _) _ _))))
       ∙ funExt⁻ (Pⱽ .F-seq (g , gᴰ , C.⋆IdR g) (h , hᴰ , h⋆g≡f)) pⱽ
 
---     -- yoRecⱽ-UMP :
---     --   ∀ {xᴰ}
---     --   → Iso (PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ) (Pⱽ.p[ C.id ][ xᴰ ])
---     -- yoRecⱽ-UMP = compIso
---     --   (Uncurry-recⱽ-Iso (Cᴰ Curried.[-][-, _ ]) Pⱽ)
---     --   (Curried.yoRecⱽ-UMP (CurryPshᴰ (C [-, x ]) Cᴰ Pⱽ))
+    yoRecⱽ-UMP :
+      ∀ {xᴰ}
+      → Iso (PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ) (Pⱽ.p[ C.id ][ xᴰ ])
+    yoRecⱽ-UMP .fun α = α .N-ob _ Cᴰ.idᴰ
+    yoRecⱽ-UMP .inv = yoRecⱽ
+    yoRecⱽ-UMP .sec pⱽ = Pⱽ.rectifyOut (Pⱽ.formal-reind-filler _ _)
+    yoRecⱽ-UMP {xᴰ} .ret α = makePshHomPath (funExt (λ /ob@(Γ , Γᴰ , f) → funExt (λ fᴰ →
+      Pⱽ.rectifyOut $ (Pⱽ.⋆ᴰ-reind _ _ _) ∙ sym (∫PshHomⱽ α .N-hom _ _ _ _)
+        ∙ congN-obⱽ α ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _))))
+      where ∫α = ∫PshHomⱽ α
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where

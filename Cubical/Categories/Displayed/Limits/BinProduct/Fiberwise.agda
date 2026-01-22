@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
@@ -44,27 +45,26 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-  BinProductⱽ→BinProductFiber : ∀ {a} {aᴰ₁ aᴰ₂}
-    → BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂)
-    → BinProduct Cᴰ.v[ a ] (aᴰ₁ , aᴰ₂)
-  BinProductⱽ→BinProductFiber bpⱽ = record
-    { vertex = a₁×ⱽa₂.×ueⱽ.vertexⱽ
-    ; element = a₁×ⱽa₂.×ueⱽ.elementⱽ
-    ; universal = λ Γᴰ → isIsoToIsEquiv
-      ( a₁×ⱽa₂.×ueⱽ.introⱽ
-      , (λ f → a₁×ⱽa₂.×ueⱽ.Pshⱽ.rectify $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.≡out $
-        (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _ _)
-        ∙ a₁×ⱽa₂.×ueⱽ.βᴰ
-        )
-      , λ f → Cᴰ.rectify $ Cᴰ.≡out $
-        a₁×ⱽa₂.×ueⱽ.introᴰ≡ (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _ _)
-        )
-    } where
-    module a₁×ⱽa₂ = BinProductⱽNotation _ bpⱽ
-  BinProductsⱽ→BinProductsFibers :
-    ∀ {a} → BinProductsⱽ Cᴰ → BinProducts Cᴰ.v[ a ]
-  BinProductsⱽ→BinProductsFibers bpⱽ (aᴰ₁ , aᴰ₂) =
-    BinProductⱽ→BinProductFiber (bpⱽ _ (aᴰ₁ , aᴰ₂))
+
+  module _ {a} {aᴰ₁ aᴰ₂} (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂)) where
+    private
+      module a₁×ⱽa₂ = BinProductⱽNotation _ bpⱽ
+
+    opaque
+      unfolding hSetReasoning.reind
+      BinProductⱽ→BinProductFiber : BinProduct Cᴰ.v[ a ] (aᴰ₁ , aᴰ₂)
+      BinProductⱽ→BinProductFiber .vertex = a₁×ⱽa₂.×ueⱽ.vertexⱽ
+      BinProductⱽ→BinProductFiber .element = a₁×ⱽa₂.×ueⱽ.elementⱽ
+      BinProductⱽ→BinProductFiber .universal Γᴰ =
+        isIsoToIsEquiv
+            ( a₁×ⱽa₂.×ueⱽ.introⱽ
+            , (λ f → a₁×ⱽa₂.×ueⱽ.Pshⱽ.rectify $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.≡out $
+                (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _)
+                ∙ a₁×ⱽa₂.×ueⱽ.βᴰ
+                )
+            , λ f → Cᴰ.rectify $ Cᴰ.≡out $
+                a₁×ⱽa₂.×ueⱽ.introᴰ≡ (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _)
+                )
 
   -- TODO: prove that cartesian lifts preserves these binary products
   -- cartesianLift-preserves-BinProductFiber :
@@ -79,38 +79,38 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   --   , (λ (fⱽ₁ , fⱽ₂) → ΣPathP
   --       -- This part of the proof can probably be simplified
   --       ((Cᴰ.rectify $ Cᴰ.≡out $
-  --         (sym $ Cᴰ.reind-filler _ _)
+  --         (sym $ Cᴰ.reind-filler _)
   --         ∙ f*aᴰ₁.introL-natural
   --         ∙ f*aᴰ₁.introCL≡' (C.⋆IdL _)
-  --           ((sym $ Cᴰ.reind-filler _ _)
-  --           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+  --           ((sym $ Cᴰ.reind-filler _)
+  --           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩
   --           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
   --           ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩
-  --           ∙ Cᴰ.reind-filler _ _
+  --           ∙ Cᴰ.reind-filler _
   --           ∙ bpⱽ.∫×βⱽ₁))
   --       , (Cᴰ.rectify $ Cᴰ.≡out $
-  --         (sym $ Cᴰ.reind-filler _ _)
+  --         (sym $ Cᴰ.reind-filler _)
   --         ∙ f*aᴰ₂.introCL-natural
   --         ∙ f*aᴰ₂.introCL≡' (C.⋆IdL _)
-  --           ((sym $ Cᴰ.reind-filler _ _)
-  --           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+  --           ((sym $ Cᴰ.reind-filler _)
+  --           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩
   --           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
   --           ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩
-  --           ∙ Cᴰ.reind-filler _ _
+  --           ∙ Cᴰ.reind-filler _
   --           ∙ bpⱽ.∫×βⱽ₂))
   --       ))
   --   , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
   --         f*×.introCL≡ (bpⱽ.,ⱽ≡
-  --           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+  --           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
   --             ∙ Cᴰ.⋆Assoc _ _ _
-  --             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₁.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+  --             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₁.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩
   --             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-  --             ∙ Cᴰ.reind-filler _ _)
-  --           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
+  --             ∙ Cᴰ.reind-filler _)
+  --           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
   --             ∙ Cᴰ.⋆Assoc _ _ _
-  --             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₂.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _ _) ⟩
+  --             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₂.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩
   --             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-  --             ∙ Cᴰ.reind-filler _ _))
+  --             ∙ Cᴰ.reind-filler _))
   --     )
   --   where
   --   module f*× = CartesianLift (isFib (vertexⱽ bpⱽ) f)

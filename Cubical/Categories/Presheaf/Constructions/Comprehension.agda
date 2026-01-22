@@ -51,11 +51,11 @@ module _ {C : Category ℓ ℓ'} where
         (_ Pᴰ.⋆ᴰ pᴰ)
     Comprehension Γ p .F-id = funExt (λ (γ , q) → ΣPathP ((C.⋆IdL _) ,
       (Pᴰ.rectify $ Pᴰ.≡out $
-        sym (Pᴰ.reind-filler _ _)
+        sym (Pᴰ.reind-filler _)
         ∙ Pᴰ.⋆IdL _)))
     Comprehension Γ p .F-seq f g = funExt λ (γ , q) → ΣPathP (C.⋆Assoc _ _ _
       , (Pᴰ.rectify $ Pᴰ.≡out $
-        sym (Pᴰ.reind-filler _ _)
+        sym (Pᴰ.reind-filler _)
         ∙ Pᴰ.⋆Assoc _ _ _
-        ∙ Pᴰ.⟨ refl ⟩⋆⟨ Pᴰ.reind-filler _ _ ⟩
-        ∙ Pᴰ.reind-filler _ _))
+        ∙ Pᴰ.⟨ refl ⟩⋆⟨ Pᴰ.reind-filler _ ⟩
+        ∙ Pᴰ.reind-filler _))

@@ -9,6 +9,7 @@
 module Cubical.Categories.Constructions.Fiber where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
@@ -20,9 +21,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 
 open import Cubical.Categories.Displayed.Base
-import Cubical.Categories.Displayed.Reasoning as Reasoning
 import Cubical.Categories.More as CatReasoning
-
 
 private
   variable
@@ -32,17 +31,12 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   private
     module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
-    module R = Reasoning Cᴰ
+    module R {a b : C.ob} {aᴰ : Cᴰ.ob[ a ]}{bᴰ : Cᴰ.ob[ b ]} =
+      hSetReasoning (C [ a , b ] , C.isSetHom) Cᴰ.Hom[_][ aᴰ , bᴰ ]
+      renaming
+        (Prectify to rectify) hiding (_P≡[_]_)
+    module ∫Cᴰ = Category (∫C Cᴰ)
   open Cᴰ public
-
-  infix 2 _∫≡_
-
-  _∫≡_ :
-    ∀ {x y}{f f' : C [ x , y ]}{xᴰ yᴰ}
-    → Cᴰ [ f ][ xᴰ , yᴰ ]
-    → Cᴰ [ f' ][ xᴰ , yᴰ ]
-    → Type _
-  fᴰ ∫≡ f'ᴰ = Path R.Hom[ _ , _ ] (_ , fᴰ) (_ , f'ᴰ)
 
   v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
   v[ x ] .Category.ob = ob[ x ]
@@ -50,16 +44,16 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   v[ x ] .Category.id = idᴰ
   v[ x ] .Category._⋆_ fⱽ gⱽ = R.reind (C.⋆IdL _) (fⱽ ⋆ᴰ gⱽ)
   v[ x ] .Category.⋆IdL fⱽ =
-    R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdL _
+    R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
   v[ x ] .Category.⋆IdR fⱽ =
-    R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdR _
+    R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
   v[ x ] .Category.⋆Assoc fⱽ gⱽ hⱽ =
     R.rectify $ R.≡out $
-      (sym $ R.reind-filler _ _)
-      ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-      ∙ R.⋆Assoc _ _ _
-      ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
-      ∙ R.reind-filler _ _
+      (sym $ R.reind-filler _)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
+      ∙ R.reind-filler _
   v[ x ] .Category.isSetHom = isSetHomᴰ
 
   idⱽ : ∀ {x xᴰ} → v[ x ] [ xᴰ , xᴰ ]
@@ -90,65 +84,59 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   isSetHomⱽ = isSetHomᴰ
 
   _⋆ᴰⱽ_ : Hom[ f ][ xᴰ , yᴰ ] → v[ y ] [ yᴰ , yᴰ' ] → Hom[ f ][ xᴰ , yᴰ' ]
-  fᴰ ⋆ᴰⱽ gⱽ = R.reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
-
+  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = R.reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
   ⋆IdLᴰⱽ : idᴰ ⋆ᴰⱽ fⱽ ≡ fⱽ
-  ⋆IdLᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdL _
+  ⋆IdLᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
 
   ⋆IdRᴰⱽ : fᴰ ⋆ᴰⱽ idⱽ ≡ fᴰ
-  ⋆IdRᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdR _
+  ⋆IdRᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
 
   ⋆Assocᴰⱽⱽ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰⱽ hⱽ ≡ (fᴰ ⋆ᴰⱽ (gⱽ ⋆ⱽ hⱽ))
   ⋆Assocᴰⱽⱽ = R.rectify $ R.≡out $
-      (sym $ R.reind-filler _ _)
-      ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-      ∙ R.⋆Assoc _ _ _
-      ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
-      ∙ R.reind-filler _ _
+      (sym $ R.reind-filler _)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
+      ∙ R.reind-filler _
 
   _⋆ⱽᴰ_ : v[ x ] [ xᴰ , xᴰ' ] → Hom[ f ][ xᴰ' , yᴰ ] → Hom[ f ][ xᴰ , yᴰ ]
-  gⱽ ⋆ⱽᴰ fᴰ = R.reind (C.⋆IdL _) (gⱽ ⋆ᴰ fᴰ)
+  _⋆ⱽᴰ_ {f = f} gⱽ fᴰ = R.reind (C.⋆IdL _) (gⱽ ⋆ᴰ fᴰ)
 
   ⋆IdLⱽᴰ : ∀ (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idⱽ ⋆ⱽᴰ fᴰ ≡ fᴰ
-  ⋆IdLⱽᴰ fᴰ = R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdL _
+  ⋆IdLⱽᴰ fᴰ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
 
   ⋆IdRⱽᴰ : ∀ (fⱽ : v[ x ] [ xᴰ , xᴰ' ]) → fⱽ ⋆ⱽᴰ idᴰ ≡ fⱽ
-  ⋆IdRⱽᴰ fⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _ _) ∙ R.⋆IdR _
+  ⋆IdRⱽᴰ fⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
 
   ⋆Assocⱽⱽᴰ : (fⱽ ⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ ≡ (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ))
   ⋆Assocⱽⱽᴰ = R.rectify $ R.≡out $
-      (sym $ R.reind-filler _ _)
-      ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-      ∙ R.⋆Assoc _ _ _
-      ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
-      ∙ R.reind-filler _ _
+      (sym $ R.reind-filler _)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
+      ∙ R.reind-filler _
 
   ⋆Assocⱽᴰⱽ : (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰⱽ hⱽ ≡ (fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰⱽ hⱽ))
   ⋆Assocⱽᴰⱽ = R.rectify $ R.≡out $
-      (sym $ R.reind-filler _ _)
-      ∙ R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-      ∙ R.⋆Assoc _ _ _
-      ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
-      ∙ R.reind-filler _ _
+      (sym $ R.reind-filler _)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
+      ∙ R.reind-filler _
 
   ⋆Assocᴰⱽᴰ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ ≡ (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
   ⋆Assocᴰⱽᴰ = R.rectify $ R.≡out $
-    R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-    ∙ R.⋆Assoc _ _ _
-    ∙ R.⟨ refl ⟩⋆⟨ R.reind-filler _ _ ⟩
+    ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+    ∙ ∫Cᴰ.⋆Assoc _ _ _
+    ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
 
-  ⋆Assocⱽᴰᴰ :
-    Path R.Hom[ _ , _ ]
-     (_ , (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ)
-     (_ , fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
+  ⋆Assocⱽᴰᴰ : ((fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ) R.∫≡ (fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
   ⋆Assocⱽᴰᴰ =
-    R.⟨ sym $ R.reind-filler _ _ ⟩⋆⟨ refl ⟩
-    ∙ R.⋆Assoc _ _ _ ∙ R.reind-filler _ _
+    ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+    ∙ ∫Cᴰ.⋆Assoc _ _ _
+    ∙ R.reind-filler _
 
-  ∫⋆Assocᴰⱽᴰ :
-    Path R.Hom[ _ , _ ]
-      (f C.⋆ h , (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ)
-      (f C.⋆ h , fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
+  ∫⋆Assocᴰⱽᴰ : ((fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ) R.∫≡ (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
   ∫⋆Assocᴰⱽᴰ = R.≡in ⋆Assocᴰⱽᴰ
 
   open NatTrans
@@ -166,7 +154,9 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     sym $ ⋆Assocᴰⱽⱽ)
 
   open R public
+  open ∫Cᴰ public
   open CatReasoning.Reasoning (∫C Cᴰ) public
+
 
   ⟨_⟩⋆ⱽᴰ⟨_⟩
     : Path Hom[ _ , _ ] (_ , fⱽ) (_ , fⱽ')
@@ -174,7 +164,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     → Path Hom[ _ , _ ]
         (_ , fⱽ ⋆ⱽᴰ gᴰ)
         (_ , fⱽ' ⋆ⱽᴰ gᴰ')
-  ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ gᴰ≡gᴰ' ⟩ = sym (reind-filler _ _) ∙ ⟨ fⱽ≡fⱽ' ⟩⋆⟨ gᴰ≡gᴰ' ⟩ ∙ reind-filler _ _
+  ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ gᴰ≡gᴰ' ⟩ = sym (reind-filler _) ∙ ⟨ fⱽ≡fⱽ' ⟩⋆⟨ gᴰ≡gᴰ' ⟩ ∙ reind-filler _
 
   ⟨⟩⋆ⱽᴰ⟨_⟩
     : Path Hom[ _ , _ ] (_ , gᴰ) (_ , gᴰ')
@@ -195,13 +185,9 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       {fᴰ' : Cᴰ [ f' ][ aᴰ , bᴰ ]}
       (p : f ≡ g)
       (p' : f' ≡ g')
-    → Path R.Hom[ _ , _ ]
-        (f , fᴰ)
-        (f' , fᴰ')
-    → Path R.Hom[ _ , _ ]
-        (g , reind p fᴰ)
-        (g' , reind p' fᴰ')
-  cong-reind p p' fᴰ≡fᴰ' = sym (reind-filler _ _) ∙ fᴰ≡fᴰ' ∙ reind-filler _ _
+    → fᴰ ∫≡ fᴰ'
+    → reind p fᴰ ∫≡ reind p' fᴰ'
+  cong-reind p p' fᴰ≡fᴰ' = sym (reind-filler _) ∙ fᴰ≡fᴰ' ∙ reind-filler _
 
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

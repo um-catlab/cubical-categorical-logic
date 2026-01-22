@@ -31,6 +31,8 @@ _≡[_]_ :
   → Type _
 x ≡[ p ] y = PathP (λ i → p i) x y
 
+infix 2 _≡[_]_
+
 congS₂ : ∀ {ℓ ℓ' ℓ''} {A : Type ℓ}{A' : Type ℓ'}{B : Type ℓ''}{x y u v}
   (f : A → A' → B)
   (p : x ≡ y)
@@ -98,6 +100,8 @@ congS₂Bifunct f p q r s =
 module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
   _P≡[_]_ : ∀ {a b : ⟨ A ⟩} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
   p P≡[ a≡b ] q = p ≡[ cong P a≡b ] q
+
+  infix 2 _P≡[_]_
   private
     variable
       a b c : ⟨ A ⟩
@@ -119,20 +123,60 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     → p P≡[ fst $ PathPΣ e ] q
   ≡out e = snd $ PathPΣ e
 
-  reind : (a ≡ b) → P a → P b
-  reind e p = subst P e p
+  opaque
+    reind : (a ≡ b) → P a → P b
+    reind e p = subst P e p
 
-  reind-filler :
-    ∀ (e : a ≡ b)
-    → p ∫≡ reind e p
-  reind-filler e = ΣPathP (e , (subst-filler P e _))
+    reind-filler :
+      ∀ (e : a ≡ b)
+      → p ∫≡ reind e p
+    reind-filler e = ΣPathP (e , (subst-filler P e _))
 
-  -- This is the only part that requires the hSet stuff. Everything else is completely generic
-  Prectify :
-    ∀ {e e' : a ≡ b}
-    → p P≡[ e ] q
-    → p P≡[ e' ] q
-  Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
+    reind-filler⁻ :
+      ∀ (e : a ≡ b)
+      → reind e p ∫≡ p
+    reind-filler⁻ e = sym $ reind-filler e
+
+    -- This is the only part that requires the hSet stuff. Everything else is completely generic
+    Prectify :
+      ∀ {e e' : a ≡ b}
+      → p P≡[ e ] q
+      → p P≡[ e' ] q
+    Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
+
+  rectifyOut :
+    ∀ {e' : a ≡ b}
+    (e : p ∫≡ q) →
+    p P≡[ e' ] q
+  rectifyOut e = Prectify $ ≡out $ e
+
+  opaque
+    congᴰ :
+      ∀ {ℓX}
+      {X : Type ℓX} →
+      {f : X → ⟨ A ⟩} →
+      (fᴰ : (x : X) → P (f x)) →
+      {x x' : X} →
+      (x≡x' : x ≡ x') →
+      fᴰ x ∫≡ fᴰ x'
+    congᴰ {f = f} fᴰ x≡x' i .fst = f (x≡x' i)
+    congᴰ {f = f} fᴰ x≡x' i .snd = fᴰ (x≡x' i)
+
+    cong₂ᴰ :
+      ∀ {ℓX}{ℓY}
+      {X : Type ℓX} →
+      {Y : X → Type ℓY} →
+      {f : (x : X) → Y x → ⟨ A ⟩} →
+      (fᴰ : (x : X) → (y : Y x) → P (f x y)) →
+      {x x' : X} →
+      {y : Y x} →
+      {y' : Y x'} →
+      (xy≡xy' : (x , y) ≡ (x' , y')) →
+      fᴰ x y ∫≡ fᴰ x' y'
+    cong₂ᴰ {f = f} fᴰ xy≡xy' i .fst =
+      f (xy≡xy' i .fst) (xy≡xy' i .snd)
+    cong₂ᴰ {f = f} fᴰ xy≡xy' i .snd =
+      fᴰ (xy≡xy' i .fst) (xy≡xy' i .snd)
 
 ΣPathPᴰ :
   ∀ {A : Type ℓ}{P : A → Type ℓ'}

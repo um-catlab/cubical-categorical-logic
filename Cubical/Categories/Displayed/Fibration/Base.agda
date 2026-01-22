@@ -67,19 +67,22 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module _ {x}{y}(f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) where
       private
         module f*yᴰ = UniversalElementⱽ (isFib yᴰ f)
-      fibration→HomᴰRepr :
-        UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
-      fibration→HomᴰRepr .UniversalElement.vertex = f*yᴰ.vertexⱽ
-      fibration→HomᴰRepr .UniversalElement.element =
-        Cⱽ.reind (C.⋆IdL f) f*yᴰ.elementⱽ
-      fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv ((λ fᴰ → f*yᴰ.introᴰ (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
-        , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _ _  ⟩)
-          ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.reind-filler _ _ ∙ Cᴰ.≡in f*yᴰ.βⱽ
-          ∙ Cᴰ.⋆IdL _)
-        , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $ f*yᴰ.∫ue.intro≡ $ change-base {C = Cᴰ [_][ xᴰ , yᴰ ]} (C._⋆ f)
-          C.isSetHom ((sym $ C.⋆IdL (f*yᴰ.∫ue.element .fst)))
-          (Cⱽ.⋆IdL _ ∙ sym (Cᴰ.reind-filler _ _) ∙ Cⱽ.⟨⟩⋆⟨ sym $ Cⱽ.reind-filler _ _ ⟩ ∙ Cᴰ.reind-filler _ _)
-        )
+
+      opaque
+        unfolding hSetReasoning.reind
+        fibration→HomᴰRepr :
+          UniversalElement Cⱽ.v[ x ] (Cⱽ.HomᴰProf f ⟅ yᴰ ⟆)
+        fibration→HomᴰRepr .UniversalElement.vertex = f*yᴰ.vertexⱽ
+        fibration→HomᴰRepr .UniversalElement.element =
+          Cⱽ.reind (C.⋆IdL f) f*yᴰ.elementⱽ
+        fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv ((λ fᴰ → f*yᴰ.introᴰ (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
+          , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _  ⟩)
+            ∙ Cᴰ.reind-filler _ ∙ Cᴰ.reind-filler _ ∙ Cᴰ.≡in f*yᴰ.βⱽ
+            ∙ Cᴰ.⋆IdL _)
+          , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $ f*yᴰ.∫ue.intro≡ $ change-base {C = Cᴰ [_][ xᴰ , yᴰ ]} (C._⋆ f)
+            C.isSetHom ((sym $ C.⋆IdL (f*yᴰ.∫ue.element .fst)))
+            (Cⱽ.⋆IdL _ ∙ sym (Cᴰ.reind-filler _) ∙ Cⱽ.⟨⟩⋆⟨ sym $ Cⱽ.reind-filler _ ⟩ ∙ Cᴰ.reind-filler _)
+          )
 
     CartesianLiftF-fiber :
       ∀ {x}{y} (f : C [ x , y ]) → Functor Cⱽ.v[ y ] Cⱽ.v[ x ]

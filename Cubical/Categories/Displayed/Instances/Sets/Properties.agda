@@ -37,348 +37,201 @@ open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Constructions.Fiber hiding (fiber)
 
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Presheaf
-open import Cubical.Categories.Displayed.Presheaf.CartesianLift
-  using () renaming (CartesianLift to PshᴰCartesianLift)
-open import Cubical.Categories.Displayed.Limits.CartesianV
-open import Cubical.Categories.Displayed.Limits.BinProduct
-open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
-open import Cubical.Categories.Displayed.Limits.Terminal
-open import Cubical.Categories.Displayed.Exponentials.Base
-open import Cubical.Categories.Displayed.Quantifiers
+  hiding (_[-][-,_])
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Limits.CartesianV'
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 
 private
   variable
     ℓ ℓ' ℓ'' ℓ''' : Level
     ℓC ℓC' ℓD ℓD' : Level
 
-open UniversalElementᴰ
-open UniversalElementⱽ
 open Categoryᴰ
 open Category
 open isIsoOver
+open PshIso
+open PshHom
+open UniversalElementⱽ'
 
-isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
-isFibrationSETᴰ Q f .vertexⱽ a = Q (f a)
-isFibrationSETᴰ Q f .elementⱽ _ q = q
-isFibrationSETᴰ Q f .universalⱽ .fst = λ z → z
-isFibrationSETᴰ Q f .universalⱽ .snd .fst b =
-  transportRefl _ ∙ transportRefl _
-isFibrationSETᴰ Q f .universalⱽ .snd .snd a =
-  transportRefl _ ∙ transportRefl _
-
-TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
-TerminalsⱽSETᴰ A .vertexⱽ a = Unit* , isSetUnit*
-TerminalsⱽSETᴰ A .elementⱽ = tt
-TerminalsⱽSETᴰ A .universalⱽ .fst = λ _ x _ → tt*
-TerminalsⱽSETᴰ A .universalⱽ .snd .fst b = refl
-TerminalsⱽSETᴰ A .universalⱽ .snd .snd a = refl
-
-BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
-BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .vertexⱽ a =
-  (⟨ Aᴰ₁ a ⟩ × ⟨ Aᴰ₂ a ⟩) , (isSet× (Aᴰ₁ a .snd) (Aᴰ₂ a .snd))
-BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .elementⱽ = (λ _ → fst) , (λ _ → snd)
-BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .universalⱽ .fst x x₁ x₂ =
-  x .fst x₁ x₂ , x .snd x₁ x₂
-BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .universalⱽ .snd .fst b =
-  sym $ transport-filler _ _
--- the transports here are caused by the fact that vertical
--- composition is defined using reindexing :/ the only way to avoid
--- this would be to "fatten" the definition of displayed categories to
--- include the "redundant" vertical and heterogeneous compositions
--- then in the case of nice examples like SETᴰ (and possibly
--- PRESHEAFᴰ) we would get that there is no transport required
-BinProductsⱽSETᴰ A (Aᴰ₁ , Aᴰ₂) .universalⱽ {y = B} {yᴰ = Bᴰ} {f} .snd .snd a =
-  funExt₂ λ b bᴰ →
-  ΣPathP
-   ( fromPathP (λ i → a
-       (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
-       (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
-         bᴰ (~ i)) .fst)
-   , fromPathP
-     (λ i → a
-       (transport-filler (λ _ → ⟨ B ⟩) b (~ i))
-       (transport-filler (λ j₂ → fst (Bᴰ (transp (λ j₁ → fst B) (~ j₂) b)))
-         bᴰ (~ i)) .snd))
-
-SETᴰCartesianCategoryⱽ :
-  ∀ ℓ ℓ' → CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.Cᴰ =
-  SETᴰ ℓ ℓ'
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.termⱽ =
-  TerminalsⱽSETᴰ
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.bpⱽ =
-  BinProductsⱽSETᴰ
-SETᴰCartesianCategoryⱽ ℓ ℓ' .CartesianCategoryⱽ.cartesianLifts =
-  isFibrationSETᴰ
-
-module _ {ℓ} {ℓ'} where
-  private
-    module SETᴰ = Fibers (SETᴰ ℓ ℓ')
-
-    bp : (A : SET ℓ .ob) → BinProducts SETᴰ.v[ A ]
-    bp A = BinProductsⱽ→BinProductsFibers (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ
-
-    bpw : {A : SET ℓ .ob} → (Aᴰ : SETᴰ.ob[ A ]) →
-      BinProductsWith SETᴰ.v[ A ] Aᴰ
-    bpw {A = A} Aᴰ Aᴰ' = bp A (Aᴰ' , Aᴰ)
-
-  open UniversalElement
-
-  -- This isn't strictly necessary to build ExponentialsⱽSETᴰ
-  -- We only need the vertex and element, however because the existing
-  -- proof in ExponentialsⱽSETᴰ .becomes-universal uses β from this structure
-  -- we are keeping this construction for now
-  FiberExponentialSETᴰ : (A : SET ℓ .ob) → (Aᴰ Aᴰ' : SETᴰ.ob[ A ]) →
-    Exponential SETᴰ.v[ A ] Aᴰ Aᴰ' (bpw Aᴰ)
-  FiberExponentialSETᴰ A Aᴰ Aᴰ' .vertex a .fst = ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩
-  FiberExponentialSETᴰ A Aᴰ Aᴰ' .vertex a .snd = isSet→ (str (Aᴰ' a))
-  FiberExponentialSETᴰ A Aᴰ Aᴰ' .element a (f , aᴰ) = f aᴰ
-  FiberExponentialSETᴰ A Aᴰ Aᴰ' .universal Aᴰ'' =
-    isIsoToIsEquiv (
-      (λ f a aᴰ'' aᴰ → f a (aᴰ'' , aᴰ)) ,
-      (λ f → fromPathP
-        (λ i → transport-filler
-          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ × ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩)
-          f (~ i))),
-      (λ f  → fromPathP
-        (λ i → transport-filler
-          (λ j → (a : ⟨ A ⟩) → ⟨ Aᴰ'' a ⟩ → ⟨ Aᴰ a ⟩ → ⟨ Aᴰ' a ⟩)
-          f (~ i))))
-
-  private
-    module _ (A : SET ℓ .ob)(Aᴰ Aᴰ' : SETᴰ.ob[ A ]) where
-      module FibExp = ExponentialNotation (bpw Aᴰ) (FiberExponentialSETᴰ A Aᴰ Aᴰ')
-
--- This is really slow
-ExponentialsⱽSETᴰ :
-  Exponentialsⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
-ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .fst = ⟨ P a ⟩ → ⟨ Q a ⟩
-ExponentialsⱽSETᴰ {c = A} P Q .vertexⱽ a .snd = isSet→ (Q a .snd)
-ExponentialsⱽSETᴰ {c = A} P Q .elementⱽ a x = x .fst (x .snd)
-ExponentialsⱽSETᴰ {c = A} P Q .universalⱽ .fst f γ γᴰ p = f γ (γᴰ , p)
-ExponentialsⱽSETᴰ {ℓ}{ℓ'}{A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .fst fᴰ =
-  funExt λ γ → funExt λ γᴰ →
-  -- nasty. avoidable?
-  -- Disgusting, but filling all these paths in helps performance
-  Q.Prectify $ Q.≡out $ sym $
-    cong₂fᴰ
-      (Γᴰ.reind-filler (λ i → transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0 ∨ ~ i) γ)
-        ∙ Γᴰ.reind-filler λ i → transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0 ∨ ~ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ))
-      (P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) γ))
-        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ)))
-        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
-        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
-        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
-        ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
-        ∙ P.reind-filler (λ i → PresheafNotation.⋆IdL (SET ℓ [-, A ]) ((SET ℓ [-, A ]) .Functor.F-hom f (id (SET ℓ))) i (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ)))
-        ∙ P.reind-filler λ i → ⋆IdL (SET ℓ) f (i0 ∨ ~ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0 ∨ ~ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ)))
-      ∙ Q.reind-filler (λ i → ⋆IdL (SET ℓ) f i (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i) (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i0) γ)))
-      ∙ Q.reind-filler λ i → ⋆IdR (SET ℓ) f i (transp (λ j → ⟨ Γ ⟩) (i0 ∨ i) γ)
-  where
-    ⟨P⟩ ⟨Q⟩ : ⟨ A ⟩ → Type _
-    ⟨Q⟩ a = ⟨ Q a ⟩
-    ⟨P⟩ a = ⟨ P a ⟩
-    ⟨Γᴰ⟩ : ⟨ Γ ⟩ → Type _
-    ⟨Γᴰ⟩ γ = ⟨ Γᴰ γ ⟩
-    module P = hSetReasoning A ⟨P⟩
-    module Q = hSetReasoning A ⟨Q⟩
-    module Γᴰ = hSetReasoning Γ ⟨Γᴰ⟩
-
-    cong₂fᴰ :
-      ∀ {γ γ'}{γᴰ γᴰ'}{p p'}
-        (γᴰ≡γᴰ' : Path (Σ ⟨ Γ ⟩ ⟨Γᴰ⟩) (γ , γᴰ) (γ' , γᴰ'))
-      → (p≡p' : Path (Σ ⟨ A ⟩ ⟨P⟩) (f γ , p) (f γ' , p'))
-      → Path (Σ ⟨ A ⟩ ⟨Q⟩) (f γ , fᴰ γ (γᴰ , p)) (f γ' , fᴰ γ' (γᴰ' , p'))
-    cong₂fᴰ γᴰ≡γᴰ' p≡p' i = (f (γᴰ≡γᴰ' i .fst)) , (fᴰ (γᴰ≡γᴰ' i .fst) ((γᴰ≡γᴰ' i .snd)
-      , (P.Prectify {e = cong fst p≡p'}{e' = cong f $ cong fst γᴰ≡γᴰ'}(λ j → p≡p' j .snd) i)))
-
-ExponentialsⱽSETᴰ {ℓ} {ℓ'} {c = A} P Q .universalⱽ {Γ} {Γᴰ} {f} .snd .snd fᴰ =
-  funExt λ γ → funExt λ γᴰ → funExt λ p →
-  Q.Prectify $ Q.≡out $ sym $
-    cong₃fᴰ
-      (Γᴰ.reind-filler (λ i → transp (λ j → fst Γ) (~ i) γ)
-      ∙ Γᴰ.reind-filler λ i → transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ))
-      (P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) γ))
-      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ)))
-      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
-      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
-      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ)))))
-      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 (transp (λ j → fst Γ) i0 γ))))
-      ∙ P.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 γ)))
-      ∙ P.reind-filler λ i → f (transp (λ j → fst Γ) (~ i) (transp (λ j → fst Γ) i0 γ)))
-    ∙ Q.reind-filler (λ i → f (transp (λ j → fst Γ) i (transp (λ j → fst Γ) i0 γ)))
-    ∙ Q.reind-filler λ i → f (transp (λ j → fst Γ) i γ)
-  where
-    ⟨P⟩ ⟨Q⟩ : ⟨ A ⟩ → Type _
-    ⟨Q⟩ a = ⟨ Q a ⟩
-    ⟨P⟩ a = ⟨ P a ⟩
-    ⟨Γᴰ⟩ : ⟨ Γ ⟩ → Type _
-    ⟨Γᴰ⟩ γ = ⟨ Γᴰ γ ⟩
-    module P = hSetReasoning A ⟨P⟩
-    module Q = hSetReasoning A ⟨Q⟩
-    module Γᴰ = hSetReasoning Γ ⟨Γᴰ⟩
-
-    cong₃fᴰ :
-      ∀ {γ γ'}{γᴰ γᴰ'}{p p'}
-        (γᴰ≡γᴰ' : Path (Σ ⟨ Γ ⟩ ⟨Γᴰ⟩) (γ , γᴰ) (γ' , γᴰ'))
-      → (p≡p' : Path (Σ ⟨ A ⟩ ⟨P⟩) (f γ , p) (f γ' , p'))
-      → Path (Σ ⟨ A ⟩ ⟨Q⟩) (f γ , fᴰ γ γᴰ p) (f γ' , fᴰ γ' γᴰ' p')
-    cong₃fᴰ γᴰ≡γᴰ' p≡p' i .fst = (f (γᴰ≡γᴰ' i .fst))
-    cong₃fᴰ γᴰ≡γᴰ' p≡p' i .snd =
-      fᴰ _ ((γᴰ≡γᴰ' i .snd))
-        ((P.Prectify {e = cong fst p≡p'}{e' = cong f $ cong fst γᴰ≡γᴰ'}(λ j → p≡p' j .snd) i))
-
-module _ {ℓ} {ℓ'} where
+module _ {ℓ ℓ'} where
   private
     module SET = Category (SET ℓ)
-    module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
-    bp = BinProductsSET {ℓSET = ℓ}
-    module bp = BinProductsNotation bp
-  module _ {A B : SET.ob} (C : SETᴰ.ob[ A bp.× B ]) where
-    private
-      -×B = BinProducts→BinProductsWith (SET ℓ) B bp
-      module -×B = BinProductsWithNotation -×B
+    module SETᴰ = Fibers (SETᴰ ℓ ℓ')
 
-    UniversalQuantifierSETᴰ :
-      UniversalQuantifier -×B (λ D → isFibrationSETᴰ D fst) C
-    UniversalQuantifierSETᴰ .vertexⱽ a .fst =
-      ∀ (b : ⟨ B ⟩) → ⟨ C (a , b) ⟩
-    UniversalQuantifierSETᴰ .vertexⱽ a .snd =
-      isSetΠ (λ _ → str (C _))
-    UniversalQuantifierSETᴰ .elementⱽ (a , b) c = c b
-    UniversalQuantifierSETᴰ .universalⱽ .fst fᴰ d dᴰ b =
-      fᴰ (d , b) dᴰ
-    UniversalQuantifierSETᴰ .universalⱽ {y = D} {yᴰ = Dᴰ} {f = f} .snd .fst fᴰ =
-      funExt₂ $ λ (d , b) dᴰ →
-        C.Prectify $ C.≡out $ sym $
-          cong₂fᴰ
-            (sym $
-              (λ i → transp (λ _ → ⟨ B ⟩) i
-                      (transp (λ _ → ⟨ B ⟩) i0
-                        (transp (λ _ → ⟨ B ⟩) i0 b)))
-              ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
-                        (transp (λ _ → ⟨ B ⟩) i0 b))
-              ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
-            (Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) d)
-              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 d))
-              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d)))
-              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
-              ∙ Dᴰ.reind-filler λ i → transp (λ i₁ → D .fst) i (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
-          ∙ C.reind-filler _
-          ∙ C.reind-filler _
-          ∙ C.reind-filler _
-      where
-      ⟨C⟩ : ⟨ A bp.× B ⟩ → Type _
-      ⟨C⟩ ab = ⟨ C ab ⟩
+  isFibrationSETᴰueⱽ :
+    {X : hSet ℓ} →
+    (Xᴰ : SETᴰ.ob[ X ]) →
+    (Y : hSet ℓ) →
+    (f : ⟨ Y ⟩ → ⟨ X ⟩) →
+    UniversalElementⱽ' (SETᴰ ℓ ℓ') Y
+      (reindPshᴰNatTrans (yoRec ((SET ℓ) [-, X ]) f)
+      ((SETᴰ ℓ ℓ') [-][-, Xᴰ ]))
+  isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .vertexⱽ y = Xᴰ (f y)
+  isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .elementⱽ = λ _ z → z
+  isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .fst =
+    λ z → z
+  isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .snd .fst γᴰ =
+    -- I think these should have better inference for implicits if hSet were either
+    -- 1. opaque, or
+    -- 2. a no-eta-equality record
+    --
+    -- TODO make a local wrapper around hSet to test that
+    SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ} $
+      SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _
+  isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .snd .snd γᴰ =
+    SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ} $
+      SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _
 
-      ⟨Dᴰ⟩ : ⟨ D ⟩ → Type _
-      ⟨Dᴰ⟩ d = ⟨ Dᴰ d ⟩
+  isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
+  isFibrationSETᴰ Xᴰ Y f = REPRⱽ (isFibrationSETᴰueⱽ Xᴰ Y f)
 
-      module C = hSetReasoning (A bp.× B) ⟨C⟩
-      module Dᴰ = hSetReasoning D ⟨Dᴰ⟩
+  private
+    module isFibrationSETᴰ = FibrationNotation (SETᴰ ℓ ℓ') isFibrationSETᴰ
 
-      cong₂fᴰ : ∀ {b b'} {d d'} {dᴰ dᴰ'} →
-        (b≡b' : b ≡ b') →
-        (dᴰ≡dᴰ' : (d , dᴰ) ≡ (d' , dᴰ')) →
-        Path (Σ ⟨ A bp.× B ⟩ ⟨C⟩)
-         ((f d , b) , fᴰ (d , b) dᴰ)
-         ((f d' , b') , fᴰ (d' , b') dᴰ')
-      cong₂fᴰ b≡b' dᴰ≡dᴰ' i =
-        ((f (dᴰ≡dᴰ' i .fst)) , (b≡b' i)) ,
-        (fᴰ (dᴰ≡dᴰ' i .fst , (b≡b' i)) (dᴰ≡dᴰ' i .snd))
+  TerminalsⱽSETᴰueⱽ :
+    (X : hSet ℓ) →
+    UniversalElementⱽ' (SETᴰ ℓ ℓ') X UnitPshᴰ
+  TerminalsⱽSETᴰueⱽ X .vertexⱽ _ = Unit* , isSetUnit*
+  TerminalsⱽSETᴰueⱽ X .elementⱽ = tt
+  TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .fst _ _ _ = tt*
+  TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .snd .fst = λ _ → refl
+  TerminalsⱽSETᴰueⱽ X .universalⱽ (A , Aᴰ , f) .snd .snd = λ _ → refl
 
-    UniversalQuantifierSETᴰ .universalⱽ {y = D} {yᴰ = Dᴰ} {f = f} .snd .snd fᴰ =
-      funExt₃ λ d dᴰ b →
-        C.Prectify $ C.≡out $ sym $
-          cong₃fᴰ
-            (sym $
-              (λ i → transp (λ _ → ⟨ B ⟩) i
-                      (transp (λ _ → ⟨ B ⟩) i0
-                        (transp (λ _ → ⟨ B ⟩) i0 b)))
-              ∙ (λ i → transp (λ _ → ⟨ B ⟩) i
-                        (transp (λ _ → ⟨ B ⟩) i0 b))
-              ∙ λ i → transp (λ _ → ⟨ B ⟩) i b)
-            (Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) d)
-              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 d))
-              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d)))
-              ∙ Dᴰ.reind-filler (λ i → transp (λ i₁ → D .fst) (~ i) (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
-              ∙ Dᴰ.reind-filler λ i → transp (λ i₁ → D .fst) i (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 (transp (λ i₁ → D .fst) i0 d))))
-          ∙ C.reind-filler _
-          ∙ C.reind-filler _
-          ∙ C.reind-filler _
-      where
-      ⟨C⟩ : ⟨ A bp.× B ⟩ → Type _
-      ⟨C⟩ ab = ⟨ C ab ⟩
+  TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
+  TerminalsⱽSETᴰ X = REPRⱽ (TerminalsⱽSETᴰueⱽ X)
 
-      ⟨Dᴰ⟩ : ⟨ D ⟩ → Type _
-      ⟨Dᴰ⟩ d = ⟨ Dᴰ d ⟩
+  BinProductsⱽSETᴰueⱽ :
+    {X : hSet ℓ} →
+    (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+    UniversalElementⱽ' (SETᴰ ℓ ℓ') X
+      ((SETᴰ ℓ ℓ' [-][-, Xᴰ ]) ×Psh (SETᴰ ℓ ℓ' [-][-, Yᴰ ]))
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = _ , isSet× (Xᴰ x .snd) (Yᴰ x .snd)
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = (λ x z → z .fst) , (λ x z → z .snd)
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ x .fst = λ z x₁ z₁ → z .fst x₁ z₁ , z .snd x₁ z₁
+  BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .fst (xᴰ , yᴰ) =
+    ΣPathP ((SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} $
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) ,
+            (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} $
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _))
+  BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd Zᴰ→XᴰYᴰ =
+    funExt₂ λ z zᴰ →
+      ΣPathP (
+        funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}{e' = refl} $
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) z zᴰ ,
+        funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}{e' = refl} $
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _) z zᴰ)
 
-      module C = hSetReasoning (A bp.× B) ⟨C⟩
-      module Dᴰ = hSetReasoning D ⟨Dᴰ⟩
+  BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
+  BinProductsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ)
 
-      cong₃fᴰ : ∀ {b b'} {d d'} {dᴰ dᴰ'} →
-        (b≡b' : b ≡ b') →
-        (dᴰ≡dᴰ' : (d , dᴰ) ≡ (d' , dᴰ')) →
-        Path (Σ ⟨ A bp.× B ⟩ ⟨C⟩)
-         ((f d , b) , fᴰ d  dᴰ b)
-         ((f d' , b') , fᴰ d' dᴰ' b')
-      cong₃fᴰ b≡b' dᴰ≡dᴰ' i =
-        ((f (dᴰ≡dᴰ' i .fst)) , (b≡b' i)) ,
-        (fᴰ (dᴰ≡dᴰ' i .fst) (dᴰ≡dᴰ' i .snd) (b≡b' i))
+  open CartesianCategoryⱽ
+  SETᴰCCⱽ : CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+  SETᴰCCⱽ .Cᴰ = SETᴰ ℓ ℓ'
+  SETᴰCCⱽ .termⱽ = TerminalsⱽSETᴰ
+  SETᴰCCⱽ .bpⱽ = BinProductsⱽSETᴰ
+  SETᴰCCⱽ .cartesianLifts = isFibrationSETᴰ
 
+  AllLRⱽSETᴰ : AllLRⱽ (SETᴰ ℓ ℓ')
+  AllLRⱽSETᴰ =
+    BinProductsⱽ+Fibration→AllLRⱽ (SETᴰ ℓ ℓ') BinProductsⱽSETᴰ isFibrationSETᴰ
 
--- TODO
--- I think you need an extra assumption on F to make this construction work
---
--- We're given f : Δ → Γ
--- δ : Δ such that f δ ≡ π (fib .fst) with fib.fst : F Γ
--- and we need to construct some element in F Δ
---
--- In the product case, this is easy because the fst is δ and the snd is fib.fst.snd
--- but we cannot construct this abstractly. So I think in generality we may
--- only be able to build a concrete quantifier in SETᴰ when F is a limit or smth
--- module _
---   (F : Functor (SET ℓ) (SET ℓ))
---   (πF : NatTrans F Id)
---   {ℓ'}
---   where
+  -- NOTE: Here and below have not yet been fixed subject to making reind opaque
+  -- The fixes to the first path in ExponentialsⱽSETᴰ are somewhat scaffolded but
+  -- not complete.
+  -- UniversalQuantifierSETᴰ hasn't been touched yet
+  --
+  -- ExponentialsⱽSETᴰueⱽ :
+  --   {X : hSet ℓ} →
+  --   (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+  --   UniversalElementⱽ' (SETᴰ ℓ ℓ') X
+  --     (LRⱽObᴰ→LRⱽ (SETᴰ ℓ ℓ')
+  --       (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
+  -- ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
+  --   SETᴰ.rectifyOut $
+  --     SETᴰ.reind-filler⁻ _
+  --     ∙ SETᴰ.congᴰ (λ (u : uTy) z zᴰ → f z (u z zᴰ))
+  --         (funExt₂ λ z zᴰ →
+  --           ΣPathP ((funExt₂⁻ (SETᴰ.rectifyOut $ SETᴰ.reind-filler⁻ _) z zᴰ) ,
+  --                    funExt₂⁻ (SETᴰ.rectifyOut $
+  --                      -- This is what's slow
+  --                      -- Ideas for fixes
+  --                      -- 1. fill in arguments
+  --                      -- 2. Avoid the funExt's here by writing a helper for reasoning
+  --                      --    about products in SETᴰ
+  --                      -- 3. Try to refactor using formal reinds such that there is
+  --                      --    at most one reind. That is, so we need not encounter
+  --                      --    reind _ (reind _ (reind _ ...))
+  --                      --
+  --                      --    Hypothesis:
+  --                      --      the slowness isn't actually from computing big paths,
+  --                      --      rather its the unification of the implicit arguments
+  --                      --      to each of these reind fillers. If this is true, then
+  --                      --      we may mitigate the slowness here by removing nested
+  --                      --      reindexings
+  --                       SETᴰ.reind-filler⁻ _
+  --                      ∙ SETᴰ.reind-filler⁻ _
+  --                      ∙ SETᴰ.reind-filler⁻ _
+  --                      ∙ SETᴰ.reind-filler⁻ _)
+  --                      z zᴰ))
+  --     where
+  --     g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
+  --     uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
 
---   private
---     module SET = Category (SET ℓ)
---     module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
+  -- ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
+  -- ExponentialsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ)
 
---   open Functor
---   open UniversalElement
---   open UniversalElementⱽ
+-- -- -- -- --     UniversalQuantifierSETᴰ :
+-- -- -- -- --       UniversalQuantifier (SETᴰ ℓ (ℓ-max ℓ ℓ')) B -×B
+-- -- -- -- --         (λ D Dᴰ → isFibrationSETᴰ Dᴰ -×B.×ue.vertex (-×B.π₁ {b = D}))
+-- -- -- -- --         Cᴰ
+-- -- -- -- --     UniversalQuantifierSETᴰ .fst a = (∀ (b : ⟨ B ⟩) → ⟨ Cᴰ (a , b) ⟩) , isSetΠ (λ _ → Cᴰ _ .snd)
+-- -- -- -- --     UniversalQuantifierSETᴰ .snd =
+-- -- -- -- --       Isos→PshIso
+-- -- -- -- --         (λ _ → iso (λ z x₁ z₁ → z (fst x₁) z₁ (snd x₁))
+-- -- -- -- --                    (λ z x₁ z₁ b → z (x₁ , b) z₁)
+-- -- -- -- --                    (λ _ → refl)
+-- -- -- -- --                    (λ _ → refl))
+-- -- -- -- --         (λ C C' g p → funExt₂ λ u v →
+-- -- -- -- --           let module C = hSetReasoning (C .fst) (λ c → ⟨ C .snd .fst c ⟩) in
+-- -- -- -- --           let module C' = hSetReasoning (C' .fst) (λ c → ⟨ C' .snd .fst c ⟩) in
+-- -- -- -- --           Cᴰ.Prectify
+-- -- -- -- --             {e' = λ i → snd (C .snd) (fst u) , snd u}
+-- -- -- -- --             $ Cᴰ.≡out $
+-- -- -- -- --             (sym $ Cᴰ.reind-filler (λ i → g .snd .snd i (transp (λ j → fst (C .fst)) i (fst u)) , transp (λ j → fst B) i (snd u)))
+-- -- -- -- --             ∙ (Cᴰ.≡in {pth = refl} $
+-- -- -- -- --                   cong₃ p (refl {x = g .fst (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst))})
+-- -- -- -- --                           (C'.Prectify {e' = λ i → g .fst (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
+-- -- -- -- --                              C'.≡out $
+-- -- -- -- --                               (C'.≡in {pth = λ i → g .fst (transportRefl (transp (λ _ → ⟨ C .fst ⟩) i0 (u .fst)) (~ i))} $
+-- -- -- -- --                                 cong₂ (g .snd .fst)
+-- -- -- -- --                                   (sym $ transportRefl (transp (λ _ → fst (C .fst)) i0 (u .fst)))
+-- -- -- -- --                                   (C.Prectify {e' = λ i →
+-- -- -- -- --                                                        transp (λ _ → fst (C .fst)) (~ i)
+-- -- -- -- --                                                        (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
+-- -- -- -- --                                      C.≡out $ (sym $ C.reind-filler _) ∙ C.reind-filler _ ∙ C.reind-filler _ ))
+-- -- -- -- --                               ∙ C'.reind-filler _)
+-- -- -- -- --                           (refl {x = transp (λ _ → ⟨ B ⟩) i0 (u .snd)}))
+-- -- -- -- --             ∙ Cᴰ.reind-filler _
+-- -- -- -- --         )
+-- -- -- -- --         where
+-- -- -- -- --         module Cᴰ = hSetReasoning (A bp.× B) (λ c → ⟨ Cᴰ c ⟩)
 
---   module _
---     (πF* : {Γ : SET.ob} → (Γᴰ : SETᴰ.ob[ Γ ]) →
---       CartesianLift (SETᴰ ℓ (ℓ-max ℓ ℓ')) Γᴰ (πF ⟦ Γ ⟧))
---     where
+-- -- -- -- --   open CartesianClosedCategoryⱽ
 
---     module _ {Γ : SET.ob} (Γᴰ : SETᴰ.ob[ F ⟅ Γ ⟆ ]) where
---       UniversalQuantifierFSETᴰ : UniversalQuantifierF F πF πF* Γᴰ
---       UniversalQuantifierFSETᴰ .vertexⱽ γ .fst =
---         ∀ (fib : fiber (πF ⟦ Γ ⟧) γ) → ⟨ Γᴰ (fib .fst) ⟩
---       UniversalQuantifierFSETᴰ .vertexⱽ γ .snd =
---         isSetΠ (λ fib → str (Γᴰ (fib .fst)))
---       UniversalQuantifierFSETᴰ .elementⱽ Fγ f =
---         subst (λ z → ⟨ Γᴰ z ⟩) (funExt⁻ (sym $ F .F-id) Fγ)
---           (πF* (UniversalQuantifierFSETᴰ .vertexⱽ) .elementⱽ Fγ f
---             (Fγ , refl))
---       UniversalQuantifierFSETᴰ .universalⱽ {y = Δ} {yᴰ = Δᴰ} {f = f} .fst fᴰ δ δᴰ fib =
---         {!!}
---         -- subst (λ z → ⟨ Γᴰ z ⟩) (fibf .snd) $
---         --   fᴰ (fibf .fst) δᴰ'
---         where
---         fibf : fiber (F ⟪ f ⟫) (fib .fst)
---         -- fibf .fst = F .F-hom (λ z → δ) (fib .fst)
---         fibf .fst = {!!}
---         fibf .snd = {!!}
-
---         δᴰ' : ⟨ (πF* Δᴰ .vertexⱽ) (fibf .fst) ⟩
---         δᴰ' = {!πF* Δᴰ .elementⱽ!}
---       UniversalQuantifierFSETᴰ .universalⱽ .snd = {!!}
+-- -- -- -- --   SETᴰCCCⱽ : CartesianClosedCategoryⱽ SETCC (ℓ-max ℓ (ℓ-suc (ℓ-max ℓ ℓ'))) (ℓ-max ℓ (ℓ-max ℓ ℓ'))
+-- -- -- -- --   SETᴰCCCⱽ .CCⱽ = SETᴰCCⱽ
+-- -- -- -- --   SETᴰCCCⱽ .lrⱽ = AllLRⱽSETᴰ
+-- -- -- -- --   SETᴰCCCⱽ .expⱽ = ExponentialsⱽSETᴰ
+-- -- -- -- --   SETᴰCCCⱽ .forallⱽ = UniversalQuantifierSETᴰ

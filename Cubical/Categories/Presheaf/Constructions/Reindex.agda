@@ -88,8 +88,13 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     {F G : Functor C D}
     → (α : NatTrans G F) (P : Presheaf D ℓP)
     → PshHom (reindPsh F P) (reindPsh G P)
-  reindNatTransPsh α P = pshhom (λ c p → α.N-ob c P.⋆ p) λ _ _ f p →
-    sym (P.⋆Assoc _ _ _) ∙ P.⟨ sym $ α.N-hom f ⟩⋆⟨⟩ ∙ P.⋆Assoc _ _ _
+  reindNatTransPsh α P .N-ob = λ c p → α.N-ob c P.⋆ p
+    where
+      module α = NatTrans α
+      module P = PresheafNotation P
+  reindNatTransPsh α P .N-hom =
+    λ _ _ f p →
+      sym (P.⋆Assoc _ _ _) ∙ P.⟨ sym $ α.N-hom f ⟩⋆⟨⟩ ∙ P.⋆Assoc _ _ _
     where
       module α = NatTrans α
       module P = PresheafNotation P
@@ -251,18 +256,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   α ⋆PshHet β = α ⋆PshHom reindPshHom F β ⋆PshHom reindPsh∘F≅ F G R .trans
 
 module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
-  -- reindPsh F (c ↦ P(c,d) ⊗[ d ] Q(d,*))
-  -- ≅ b ↦ P(F b, d) ⊗[ d ] Q(d, *)
-  reindPsh-⊗ : (F : Functor B C) (P : Bifunctor (C ^op) D (SET ℓR)) (Q : Presheaf D ℓQ)
-    → PshIso (reindPsh F (ext P ⟅ Q ⟆))
-             (ext ((CurriedToBifunctorL (reindPshF F ∘F CurryBifunctorL P))) ⟅ Q ⟆)
-  reindPsh-⊗ F P Q = pshiso (pshhom
-    (λ b → P⊗Q.rec extF*PQ.isSetPsh F*P⊗Q._,⊗_ F*P⊗Q.swap)
-    λ b b' f → P⊗Q.ind (λ _ → extF*PQ.isSetPsh _ _) (λ _ _ → refl))
-    λ b → (F*P⊗Q.rec F*extPQ.isSetPsh P⊗Q._,⊗_ P⊗Q.swap)
-    , F*P⊗Q.ind (λ _ → extF*PQ.isSetPsh _ _) (λ _ _ → refl)
-    , P⊗Q.ind (λ _ → extPQ.isSetPsh _ _) λ _ _ → refl
-    where
+
+  module _ (F : Functor B C) (P : Bifunctor (C ^op) D (SET ℓR)) (Q : Presheaf D ℓQ) where
+    private
       F*P = CurriedToBifunctorL (reindPshF F ∘F CurryBifunctorL P)
       module F*extPQ = PresheafNotation (reindPsh F (ext P ⟅ Q ⟆))
       module extPQ = PresheafNotation (ext P ⟅ Q ⟆)
@@ -270,18 +266,41 @@ module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD �
       module P⊗Q = ext-⊗ P Q
       module F*P⊗Q = ext-⊗ F*P Q
 
-  -- reindPsh F (c ↦ ∀[ d ] P(d,c) → Q(d,*))
-  -- ≅ (b ↦ ∀[ d ] P(d,F b) → Q(d,*))
-  reindPsh-PshHom : (F : Functor B C) (P : Bifunctor (D ^op) C (SET ℓR)) (Q : Presheaf D ℓQ)
-    → PshIso (reindPsh F $ appR (PshHomBif ∘Fl (CurryBifunctorL P ^opF)) Q)
+    -- reindPsh F (c ↦ P(c,d) ⊗[ d ] Q(d,*))
+    -- ≅ b ↦ P(F b, d) ⊗[ d ] Q(d, *)
+    reindPsh-⊗ :
+      PshIso (reindPsh F (ext P ⟅ Q ⟆))
+             (ext ((CurriedToBifunctorL (reindPshF F ∘F CurryBifunctorL P))) ⟅ Q ⟆)
+    reindPsh-⊗ .trans .N-ob = λ b → P⊗Q.rec extF*PQ.isSetPsh F*P⊗Q._,⊗_ F*P⊗Q.swap
+    reindPsh-⊗ .trans .N-hom = λ b b' f → P⊗Q.ind (λ _ → extF*PQ.isSetPsh _ _) (λ _ _ → refl)
+    reindPsh-⊗ .nIso =
+      λ b → (F*P⊗Q.rec F*extPQ.isSetPsh P⊗Q._,⊗_ P⊗Q.swap)
+      , F*P⊗Q.ind (λ _ → extF*PQ.isSetPsh _ _) (λ _ _ → refl)
+      , P⊗Q.ind (λ _ → extPQ.isSetPsh _ _) λ _ _ → refl
+
+  module _ (F : Functor B C) (P : Bifunctor (D ^op) C (SET ℓR)) (Q : Presheaf D ℓQ) where
+    -- reindPsh F (c ↦ ∀[ d ] P(d,c) → Q(d,*))
+    -- ≅ (b ↦ ∀[ d ] P(d,F b) → Q(d,*))
+    reindPsh-PshHom :
+      PshIso (reindPsh F $ appR (PshHomBif ∘Fl (CurryBifunctorL P ^opF)) Q)
              (appR (PshHomBif ∘Fl ((CurryBifunctorL (P ∘Fr F)) ^opF) ) Q)
-  reindPsh-PshHom F P Q = pshiso (pshhom (λ b α → pshhom (α .N-ob) (α .N-hom)) λ _ _ f α → makePshHomPath refl)
-    λ b → (λ β → pshhom (β .N-ob) (β .N-hom))
-    , (λ α → makePshHomPath refl)
-    , (λ β → makePshHomPath refl)
+    reindPsh-PshHom .trans .N-ob b α .N-ob = α .N-ob
+    reindPsh-PshHom .trans .N-ob b α .N-hom = α .N-hom
+    reindPsh-PshHom .trans .N-hom = λ _ _ f α → makePshHomPath refl
+    reindPsh-PshHom .nIso b =
+      the-psh-hom ,
+      (λ _ → makePshHomPath refl) ,
+      (λ _ → makePshHomPath refl)
+      where
+      the-psh-hom :
+        PshHom (appR (compR P F) b)
+        Q →
+        PshHom (appR P (F-ob F b)) Q
+      the-psh-hom β .N-ob = β .N-ob
+      the-psh-hom β .N-hom = β .N-hom
+
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
-  reindPshF-cocont : (F : Functor C D)
-    → CoContinuous (reindPshF F)
+  reindPshF-cocont : (F : Functor C D) → CoContinuous (reindPshF F)
   reindPshF-cocont F Q =
     -- F* Q
     reindPshIso F (CoYoneda Q)

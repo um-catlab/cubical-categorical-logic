@@ -197,12 +197,13 @@ module _ (F : Functor C D) where
   preservesBinProdWithCones : ∀ c
     → ProfunctorHom (ProdWithAProf C c)
       (reindPshF F ∘F ProdWithAProf D (F ⟅ c ⟆) ∘F F)
-  preservesBinProdWithCones c =
-    pshhom
-      (λ c₁ x → preservesBinProdCones _ _ .N-ob (c₁ .fst) x)
-      λ (c1 , c2) (c1' , c2') (f1 , f2) (g1 , g2) → ΣPathP
-        ( (F .F-seq _ _ ∙ D.⟨ F .F-seq f1 g1 ⟩⋆⟨ refl ⟩)
-        , F .F-seq f1 g2)
+  preservesBinProdWithCones c .N-ob c' x =
+    preservesBinProdCones _ _ .N-ob (c' .fst) x
+  preservesBinProdWithCones c .N-hom
+    (c1 , c2) (c1' , c2') (f1 , f2) (g1 , g2) =
+      ΣPathP
+          ( (F .F-seq _ _ ∙ D.⟨ F .F-seq f1 g1 ⟩⋆⟨ refl ⟩)
+          , F .F-seq f1 g2)
 
   preservesBinProduct : ∀ {c c'} → BinProduct C (c , c') → Type _
   preservesBinProduct = preservesUniversalElement (preservesBinProdCones _ _)

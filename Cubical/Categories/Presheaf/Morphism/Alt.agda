@@ -537,7 +537,8 @@ module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} w
     α'-N-hom-ty = subst (PshHom-N-hom-ty P Q) (α' .snd) (α .N-hom)
 
     improvePshHom : PshHom P Q
-    improvePshHom = pshhom (α' .fst) α'-N-hom-ty
+    improvePshHom .N-ob =  α' .fst
+    improvePshHom .N-hom =  α'-N-hom-ty
 
   module _ (α : PshIso P Q) (α' : singl (α .trans .N-ob)) (α⁻ : singl (invPshIso α .trans .N-ob)) where
     isInvα⁻ : ∀ (x : C .ob)
@@ -548,7 +549,8 @@ module _ {C : Category ℓc ℓc'} {P : Presheaf C ℓp} {Q : Presheaf C ℓq} w
         (α⁻ .snd)
         (α .nIso x .snd)
     improvePshIso : PshIso P Q
-    improvePshIso = pshiso (improvePshHom (α .trans) α') (λ x → (α⁻ .fst x) , isInvα⁻ x)
+    improvePshIso .trans = improvePshHom (α .trans) α'
+    improvePshIso .nIso x = (α⁻ .fst x) , isInvα⁻ x
 
 module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   yo≅PshHomPsh :

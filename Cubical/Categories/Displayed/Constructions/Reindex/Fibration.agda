@@ -94,12 +94,12 @@ module _
     improvePshIso (reindexCartesianLift' {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ .snd)
       ((λ (Γ , Γᴰ , g) F⟪g⟫ᴰ → Dᴰ.reind (sym $ F .F-seq g f) (F⟪g⟫ᴰ F⟪f⟫*Fyᴰ.⋆πⱽ))
       , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪g⟫ᴰ →
-        Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _ _)
+        Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _)
         ∙ Dᴰ.⋆IdL _
-        ∙ Dᴰ.reind-filler _ _)
+        ∙ Dᴰ.reind-filler _)
       ((λ (Γ , Γᴰ , g) F⟪gf⟫ᴰ → F⟪f⟫*Fyᴰ.introᴰ (Dᴰ.reind (F .F-seq g f) F⟪gf⟫ᴰ))
       , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪gf⟫ᴰ → Dᴰ.rectify $ Dᴰ.≡out $
-        F⟪f⟫*Fyᴰ.cong-introᴰ refl (sym (Dᴰ.reind-filler _ _) ∙ Dᴰ.⋆IdL _ ∙ Dᴰ.reind-filler _ _))
+        F⟪f⟫*Fyᴰ.cong-introᴰ refl (sym (Dᴰ.reind-filler _) ∙ Dᴰ.⋆IdL _ ∙ Dᴰ.reind-filler _))
     where
       module F⟪f⟫*Fyᴰ = CartesianLiftNotation Dᴰ F⟪f⟫*Fyᴰ
 

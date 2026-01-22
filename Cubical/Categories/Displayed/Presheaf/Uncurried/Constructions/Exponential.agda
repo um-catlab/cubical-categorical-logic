@@ -176,8 +176,8 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ])
       → Path Cᴰ.Hom[ _ , _ ] (_ , (δᴰ Cᴰ.⋆ᴰ γᴰ) ⋆π₁ⱽ) (_ , δᴰ Cᴰ.⋆ᴰ (γᴰ ⋆π₁ⱽ))
     ⋆π₁ⱽ-natural {Θ} {Δ} {Γ} {Θᴰ} {Δᴰ} {Γᴰ} {δ} {γ} {p} δᴰ γᴰ =
-      ⟨ Cᴰ.reind-filler refl (δᴰ Cᴰ.⋆ᴰ γᴰ) ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (λ i → δ C.⋆ γ)) _))
-      ∙ (sym $ Cᴰ.reind-filler _ _)
+      ⟨ Cᴰ.reind-filler refl ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (λ i → δ C.⋆ γ)) _))
+      ∙ (sym $ Cᴰ.reind-filler _)
 
     β₁ⱽ' : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
       → (γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ])
@@ -205,7 +205,7 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ])
       → ((δᴰ Cᴰ.⋆ᴰ γᴰ) ⋆π₂ⱽ) ∫≡ (δᴰ ⋆ᴰ (γᴰ ⋆π₂ⱽ))
     ⋆π₂ⱽ-natural {Θ} {Δ} {Γ} {Θᴰ} {Δᴰ} {Γᴰ} {δ} {γ} {p} δᴰ γᴰ =
-      ⟨ Cᴰ.reind-filler _ _ ⟩⋆π₂ⱽ
+      ⟨ Cᴰ.reind-filler _ ⟩⋆π₂ⱽ
       ∙ (≡in $ (PathPΣ (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , refl) _)) .snd)
       ∙ ⋆ᴰ-reind _ _ _
 
@@ -279,7 +279,7 @@ module _
   --     (γ , (×ⱽPᴰ.introᴰ (Cᴰ.reind (C.⋆IdL γ) (×ⱽPᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ)) (Pᴰ.reind (P.⋆IdL _ ∙ sym γf'≡f) ×ⱽPᴰ.π₂ⱽ) , γf'≡f)) ,
   --     (ΣPathP ((C.⋆IdL _) , ΣPathPProp (λ _ → P.isSetPsh _ _)
   --       (Cᴰ.rectify $ Cᴰ.≡out $
-  --         ×ⱽPᴰ.cong-introᴰ (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.cong-reind _ _ refl)
+  --         ×ⱽPᴰ.cong-introᴰ (sym (Cᴰ.reind-filler _) ∙ Cᴰ.cong-reind _ _ refl)
   --         (sym (Pᴰ.reind-filler _) ∙ sym (Pᴰ.reind-filler _) ∙ sym (Pᴰ.reind-filler _) ∙ (sym (Pᴰ.reind-filler _))
   --         ∙ Pᴰ.reind-filler _)))))
 

@@ -40,5 +40,6 @@ private
 SET : (ℓ : Level) → SCwF (ℓ-suc ℓ) ℓ (ℓ-suc ℓ) ℓ
 SET ℓ = CartesianCategory→SCwF (SETCC {ℓ})
 
-SETⱽ : (ℓ ℓᴰ : Level) → SCwFⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ) (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
-SETⱽ ℓ ℓᴰ = CartesianCategoryⱽ→SCwFⱽ {C = SETCC} (SETᴰCartesianCategoryⱽ ℓ ℓᴰ)
+-- TODO make SCwFⱽ use CartesianV'
+-- SETⱽ : (ℓ ℓᴰ : Level) → SCwFⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ) (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
+-- SETⱽ ℓ ℓᴰ = CartesianCategoryⱽ→SCwFⱽ {C = SETCC} (SETᴰCartesianCategoryⱽ ℓ ℓᴰ)

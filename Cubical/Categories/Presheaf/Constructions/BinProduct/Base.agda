@@ -163,24 +163,38 @@ module _ {C : Category ℓ ℓ'}{D : Category ℓD ℓD'}
   reindPsh× .nIso x .snd .snd a = refl
 
 module _ {C : Category ℓ ℓ'}{D : Category ℓD ℓD'} where
-  -- (R(d,c) ⊗[ c ] Q(c,*)) × P(d,*) ≅ (R(d,c) × P(d,*)) ⊗[ c ] Q(c,*)
-  ⊗×-comm : (R : Bifunctor (D ^op) C (SET ℓR)) (P : Presheaf D ℓP) (Q : Presheaf C ℓQ)
-    → PshIso ((ext R ⟅ Q ⟆) ×Psh P) (ext (CurriedToBifunctorL ((-×Psh P) ∘F CurryBifunctorL R)) ⟅ Q ⟆)
-  ⊗×-comm R P Q = pshiso (pshhom
-    (λ d → uncurry (R⊗Q.rec (isSet→ extR×PQ.isSetPsh)
-      (λ r q p → (r , p) R×P⊗Q.,⊗ q) (λ r f q → funExt λ p → R×P⊗Q.swap (r , p) f q)))
-    λ c c' f → uncurry (R⊗Q.ind (λ _ → isPropΠ (λ _ → extR×PQ.isSetPsh _ _))
-      (λ r q p → refl)))
-    λ d → (R×P⊗Q.rec extRQ×P.isSetPsh (λ (r , p) q → (r R⊗Q.,⊗ q) , p) λ (r , p) f q → ΣPathP ((R⊗Q.swap r f q) , refl))
-    , R×P⊗Q.ind (λ _ → extR×PQ.isSetPsh _ _) (λ _ _ → refl)
-    , uncurry (R⊗Q.ind (λ _ → isPropΠ (λ _ → extRQ×P.isSetPsh _ _)) λ _ _ _ → refl)
-    where
+
+  module _
+    (R : Bifunctor (D ^op) C (SET ℓR))
+    (P : Presheaf D ℓP)
+    (Q : Presheaf C ℓQ) where
+
+    private
       module extRQ = PresheafNotation (ext R ⟅ Q ⟆)
       module extRQ×P = PresheafNotation ((ext R ⟅ Q ⟆) ×Psh P)
       module R⊗Q = ext-⊗ R Q
       module R×P⊗Q = ext-⊗ (CurriedToBifunctorL ((-×Psh P) ∘F CurryBifunctorL R)) Q
       module extR×PQ = PresheafNotation (ext (CurriedToBifunctorL ((-×Psh P) ∘F CurryBifunctorL R)) ⟅ Q ⟆)
       module P = PresheafNotation P
+
+    -- (R(d,c) ⊗[ c ] Q(c,*)) × P(d,*) ≅ (R(d,c) × P(d,*)) ⊗[ c ] Q(c,*)
+    ⊗×-comm :
+      PshIso
+        ((ext R ⟅ Q ⟆) ×Psh P)
+        (ext (CurriedToBifunctorL ((-×Psh P) ∘F CurryBifunctorL R)) ⟅ Q ⟆)
+    ⊗×-comm .trans .N-ob d =
+      uncurry
+        (R⊗Q.rec (isSet→ extR×PQ.isSetPsh)
+          (λ r q p → (r , p) R×P⊗Q.,⊗ q)
+          (λ r f q → funExt λ p → R×P⊗Q.swap (r , p) f q))
+    ⊗×-comm .trans .N-hom c c' f =
+      uncurry
+        (R⊗Q.ind (λ _ → isPropΠ (λ _ → extR×PQ.isSetPsh _ _))
+                 (λ r q p → refl))
+    ⊗×-comm .nIso d =
+      (R×P⊗Q.rec extRQ×P.isSetPsh (λ (r , p) q → (r R⊗Q.,⊗ q) , p) λ (r , p) f q → ΣPathP ((R⊗Q.swap r f q) , refl))
+      , R×P⊗Q.ind (λ _ → extR×PQ.isSetPsh _ _) (λ _ _ → refl)
+      , uncurry (R⊗Q.ind (λ _ → isPropΠ (λ _ → extRQ×P.isSetPsh _ _)) λ _ _ _ → refl)
 
 module _ {C : Category ℓ ℓ'} where
   private

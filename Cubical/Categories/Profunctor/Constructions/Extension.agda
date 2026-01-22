@@ -64,8 +64,9 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
     (P : D o-[ ℓP ]-* C)
     (α : PshHom Q R)
     → PshHom (ext P ⟅ Q ⟆) (ext P ⟅ R ⟆)
-  ext-HomR {Q = Q}{R = R} P α = pshhom (λ d → idPshHom ⊗Hom α)
-    λ d d' f → P⊗Q.ind (λ _ → P⊗R.isSet⊗ _ _) (λ _ _ → refl)
+  ext-HomR {Q = Q} {R = R} P α .N-ob d = idPshHom ⊗Hom α
+  ext-HomR {Q = Q} {R = R} P α .N-hom d d' f =
+    P⊗Q.ind (λ _ → P⊗R.isSet⊗ _ _) (λ _ _ → refl)
     where
       module P⊗Q = ext-⊗ P Q
       module P⊗R = ext-⊗ P R
@@ -76,8 +77,9 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
     (α : RelatorHom P Q)
     (R : Presheaf C ℓR)
     → PshHom (ext P ⟅ R ⟆) (ext Q ⟅ R ⟆)
-  ext-HomL {P = P}{Q = Q} α R = pshhom (λ d → (appL-Hom α d) ⊗Hom idPshHom)
-    λ d d' f →
+  ext-HomL {P = P}{Q = Q} α R .N-ob d =
+    (appL-Hom α d) ⊗Hom idPshHom
+  ext-HomL {P = P}{Q = Q} α R .N-hom d d' f =
       P⊗R.ind (λ _ → Q⊗R.isSet⊗ _ _) (λ p r → cong (Q⊗R._,⊗ _)
         (appR-Hom α _ .N-hom _ _ _ _))
     where

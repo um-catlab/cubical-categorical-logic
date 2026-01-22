@@ -1,6 +1,7 @@
 module Cubical.Categories.Displayed.Presheaf.Constructions.Lift.Properties where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv.Base
@@ -103,11 +104,14 @@ module _{C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
   {α : PshHom P Q} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
   where
-  reindLiftEq : PresheafᴰEq (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
-  reindLiftEq = Eq.refl , Eq.refl
 
-  reindLift : reind α (LiftPshᴰ Qᴰ ℓ') ≡ LiftPshᴰ (reind α Qᴰ) ℓ'
-  reindLift = Functorᴰ≡ (λ xᴰ → refl) (λ _ → refl)
+  opaque
+    unfolding hSetReasoning.reind
+    reindLiftEq : PresheafᴰEq (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
+    reindLiftEq = Eq.refl , Eq.refl
+
+    reindLift : reind α (LiftPshᴰ Qᴰ ℓ') ≡ LiftPshᴰ (reind α Qᴰ) ℓ'
+    reindLift = Functorᴰ≡ (λ xᴰ → refl) (λ _ → refl)
 
   reindLiftIsoⱽ : PshIsoⱽ (reind α (LiftPshᴰ Qᴰ ℓ')) (LiftPshᴰ (reind α Qᴰ) ℓ')
   reindLiftIsoⱽ = eqToPshIsoⱽ reindLiftEq

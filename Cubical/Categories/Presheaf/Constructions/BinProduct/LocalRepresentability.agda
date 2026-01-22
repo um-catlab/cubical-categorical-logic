@@ -117,8 +117,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) wh
     where
     presLRCone : ∀ {x : C.ob}
       → PshHom ((C [-, x ]) ×Psh P) (reindPsh F ((D [-, F ⟅ x ⟆ ]) ×Psh Q))
-    presLRCone = pshhom (λ c (f , p) → (F ⟪ f ⟫) , (α .N-ob _ p))
-      λ _ _ f (g , p) → ΣPathP ((F .F-seq f g) , (α .N-hom _ _ f p))
+    presLRCone .N-ob = λ c (f , p) → (F ⟪ f ⟫) , (α .N-ob _ p)
+    presLRCone .N-hom = λ _ _ f (g , p) → ΣPathP ((F .F-seq f g) , (α .N-hom _ _ f p))
 
     presLRCone-Nat : ProfunctorHom (LRProf P) (reindPshF F ∘F LRProf Q ∘F F)
     presLRCone-Nat = mkRelatorHom

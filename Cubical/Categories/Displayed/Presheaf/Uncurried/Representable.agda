@@ -39,8 +39,6 @@ open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 import Cubical.Categories.Displayed.Presheaf.Base as Curried
   hiding (Presheafᴰ; Presheafⱽ; module PresheafᴰNotation)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Constructions.Curry
-import Cubical.Categories.Displayed.Presheaf.Representable as Curried
 
 private
   variable
@@ -64,13 +62,23 @@ module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓC
   private
     module Cᴰ = Fibers Cᴰ
   _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
-  _[-][-,_] xᴰ = UncurryPshᴰ (C [-, x ]) Cᴰ (Cᴰ Curried.[-][-, xᴰ ])
+  _[-][-,_] xᴰ .F-ob (Γ , Γᴰ , f) = ( Cᴰ [ f ][ Γᴰ , xᴰ ]) , Cᴰ.isSetHomᴰ
+  _[-][-,_] xᴰ .F-hom {x = z , zᴰ , f}{y = y , yᴰ , g} (γ , γᴰ , γ⋆f≡g) fᴰ =
+    Cᴰ.reind γ⋆f≡g $ γᴰ Cᴰ.⋆ᴰ fᴰ
+  _[-][-,_] xᴰ .F-id =
+    funExt λ fᴰ → Cᴰ.rectifyOut $ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdL _
+  _[-][-,_] xᴰ .F-seq (γ , γᴰ , _) (σ , σᴰ , _) =
+    funExt λ fᴰ → Cᴰ.rectifyOut $
+      Cᴰ.reind-filler⁻ _
+      ∙ Cᴰ.⋆Assoc _ _ _
+      ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ⟩
+      ∙ Cᴰ.reind-filler _
 
   ∫Repr-iso : ∀ {xᴰ}
     → PshIso (PresheafᴰNotation.∫ Cᴰ (C [-, x ]) (_[-][-,_] xᴰ))
              ((∫C Cᴰ) [-, x , xᴰ ])
   ∫Repr-iso {xᴰ} .trans .N-ob (y , yᴰ) (f , fᴰ) = f , fᴰ
-  ∫Repr-iso {xᴰ} .trans .N-hom = λ _ _ _ _ → sym $ Cᴰ.reind-filler _ _
+  ∫Repr-iso {xᴰ} .trans .N-hom = λ _ _ _ _ → sym $ Cᴰ.reind-filler _
   ∫Repr-iso {xᴰ} .nIso (y , yᴰ) .fst (f , fᴰ) = f , fᴰ
   ∫Repr-iso {xᴰ} .nIso (y , yᴰ) .snd .fst _ = refl
   ∫Repr-iso {xᴰ} .nIso (y , yᴰ) .snd .snd _ = refl
@@ -82,21 +90,37 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   module _ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
     private
       module P = PresheafNotation P
-      module Pᴰ = PresheafᴰNotation Cᴰ _ Pᴰ
+      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
     yoRecᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]} (pᴰ : Pᴰ.p[ p ][ xᴰ ]) → PshHomᴰ (yoRec P p) (Cᴰ [-][-, xᴰ ]) Pᴰ
-    yoRecᴰ pᴰ = Uncurry-recᴰ (Cᴰ Curried.[-][-, _ ]) Pᴰ (Curried.yoRecᴰ (CurryPshᴰ P Cᴰ Pᴰ) pᴰ)
+    yoRecᴰ pᴰ .N-ob (Γ , Γᴰ , f) fᴰ = fᴰ Pᴰ.⋆ᴰ pᴰ
+    yoRecᴰ pᴰ .N-hom _ _ _ _ =
+      Pᴰ.rectifyOut $
+        Pᴰ.⟨ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩
+        ∙ Pᴰ.⋆Assocᴰ _ _ _
+        ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
+
   module _ {x : C .ob} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
     private
-      module Pⱽ = PresheafᴰNotation Cᴰ _ Pⱽ
+      module Pⱽ = PresheafᴰNotation Cᴰ (C [-, x ]) Pⱽ
     yoRecⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
-    yoRecⱽ pⱽ = Uncurry-recⱽ (Cᴰ Curried.[-][-, _ ]) Pⱽ (Curried.yoRecⱽ (CurryPshᴰ (C [-, x ]) Cᴰ Pⱽ) pⱽ)
+    yoRecⱽ pⱽ .N-ob (Γ , Γᴰ , f) gᴰ = Pⱽ .F-hom (f , gᴰ , C.⋆IdR _) pⱽ
+    yoRecⱽ pⱽ .N-hom (Γ , Γᴰ , f) (Δ , Δᴰ , g) (h , hᴰ , h⋆g≡f) gᴰ =
+      congS (λ z → Pⱽ .F-hom z pⱽ)
+        (ΣPathP ((sym h⋆g≡f) ,
+                 (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _) ,
+                 isProp→PathP (λ _ → C.isSetHom _ _) _ _))))
+      ∙ funExt⁻ (Pⱽ .F-seq (g , gᴰ , C.⋆IdR g) (h , hᴰ , h⋆g≡f)) pⱽ
 
     yoRecⱽ-UMP :
       ∀ {xᴰ}
       → Iso (PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ) (Pⱽ.p[ C.id ][ xᴰ ])
-    yoRecⱽ-UMP = compIso
-      (Uncurry-recⱽ-Iso (Cᴰ Curried.[-][-, _ ]) Pⱽ)
-      (Curried.yoRecⱽ-UMP (CurryPshᴰ (C [-, x ]) Cᴰ Pⱽ))
+    yoRecⱽ-UMP .fun α = α .N-ob _ Cᴰ.idᴰ
+    yoRecⱽ-UMP .inv = yoRecⱽ
+    yoRecⱽ-UMP .sec pⱽ = Pⱽ.rectifyOut (Pⱽ.formal-reind-filler _ _)
+    yoRecⱽ-UMP {xᴰ} .ret α = makePshHomPath (funExt (λ /ob@(Γ , Γᴰ , f) → funExt (λ fᴰ →
+      Pⱽ.rectifyOut $ (Pⱽ.⋆ᴰ-reind _ _ _) ∙ sym (∫PshHomⱽ α .N-hom _ _ _ _)
+        ∙ congN-obⱽ α ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _))))
+      where ∫α = ∫PshHomⱽ α
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (x : C .Category.ob) (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
@@ -105,18 +129,23 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     module Cᴰ = Fibers Cᴰ
     module Pⱽ = PresheafᴰNotation Cᴰ (C [-, x ]) Pⱽ
 
+  Representableⱽ : Type _
+  Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
+
   record UniversalElementⱽ'
     : Type (ℓ-max ℓC $ ℓ-max ℓC' $ ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' $ ℓPᴰ) where
     field
       vertexⱽ : Cᴰ.ob[ x ]
       elementⱽ : Pⱽ.p[ C.id ][ vertexⱽ ]
-      universalⱽ : isPshIsoⱽ (Cᴰ [-][-, vertexⱽ ]) Pⱽ (yoRecⱽ Pⱽ elementⱽ)
+      universalⱽ : isPshIsoⱽ {P = C [-, x ]} (Cᴰ [-][-, vertexⱽ ]) Pⱽ (yoRecⱽ Pⱽ elementⱽ)
 
     toPshIsoⱽ : PshIsoⱽ (Cᴰ [-][-, vertexⱽ ]) Pⱽ
-    toPshIsoⱽ = pshiso (yoRecⱽ Pⱽ elementⱽ) universalⱽ
+    toPshIsoⱽ .trans = yoRecⱽ Pⱽ elementⱽ
+    toPshIsoⱽ .nIso = universalⱽ
 
-  Representableⱽ : Type _
-  Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
+    REPRⱽ : Representableⱽ
+    REPRⱽ .fst = vertexⱽ
+    REPRⱽ .snd = toPshIsoⱽ
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (P : Presheaf C ℓP) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
@@ -128,7 +157,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   open UniversalElementNotation
 
   isUniversalᴰ : ∀ (ue : UniversalElement C P) {vᴰ} (eᴰ : Pᴰ.p[ ue .element ][ vᴰ ]) → Type _
-  isUniversalᴰ ue eᴰ = isPshIsoᴰ (asPshIso ue) (Cᴰ [-][-, _ ]) Pᴰ (yoRecᴰ Pᴰ eᴰ)
+  isUniversalᴰ ue {vᴰ = vᴰ} eᴰ = isPshIsoᴰ (asPshIso ue) (Cᴰ [-][-, vᴰ ]) Pᴰ (yoRecᴰ {P = P} Pᴰ eᴰ)
 
   UniversalElementᴰ : UniversalElement C P → Type _
   UniversalElementᴰ ue =
@@ -143,7 +172,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     vertexᴰ = ueᴰ .fst
     elementᴰ = ueᴰ .snd .fst
     asReprᴰ : Representableᴰ (ue .vertex , asPshIso ue)
-    asReprᴰ = (ueᴰ .fst) , ((yoRecᴰ Pᴰ (ueᴰ .snd .fst)) , (ueᴰ .snd .snd))
+    asReprᴰ = vertexᴰ , (yoRecᴰ {P = P} Pᴰ  elementᴰ) , (ueᴰ .snd .snd)
 
     introᴰ : ∀ {Γ Γᴰ}
         → {p : P.p[ Γ ]}
@@ -184,25 +213,34 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)
     → Representableᴰ (ue .vertex , asPshIso ue)
     → UniversalElementᴰ ue
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ = (yᴰxᴰ≅Pᴰ .fst)
-    , ((Pᴰ.reind (P.⋆IdL _) (yᴰxᴰ≅Pᴰ .snd .fst .N-ob (ue .UniversalElement.vertex , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ))
-    , λ Γ Γᴰ → isisoover
-      (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv)
-      (λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .fst = yᴰxᴰ≅Pᴰ .fst
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .fst =
+    Pᴰ.reind (P.⋆IdL (UniversalElement.element ue))
+             (yᴰxᴰ≅Pᴰ .snd .fst .N-ob
+               (UniversalElement.vertex ue , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ)
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv =
+    yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv =
+    λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
         Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩
-        ∙ sym (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
-        ∙ cong (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _) ((sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _)
-        ∙ Pᴰ.≡in (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv _ _))
+        ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
+        ∙ cong (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _)
+                 ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
+        ∙ Pᴰ.≡in (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv _ _)
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv =
       λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
-        cong (invPshIso (∫PshIsoᴰ (yᴰxᴰ≅Pᴰ .snd)) .trans .N-ob _)
-          (Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩ ∙ sym (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
-          ∙ cong (∫PshHomᴰ (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _) (sym (Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdR _))
-          ∙ (Cᴰ.≡in $ yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv _ _))
+        cong (invPshIso (∫PshIsoᴰ {α = yoRecIso {P = P} ue} (yᴰxᴰ≅Pᴰ .snd)) .trans .N-ob _)
+          (Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
+                    ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
+          ∙ cong (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _)
+                   (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _))
+          ∙ (Cᴰ.≡in $ yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv _ _)
 
   Representableⱽ→UniversalElementᴰ : (ue : UniversalElement C P)
     → Representableⱽ Cᴰ (ue .vertex) (reindPshᴰNatTrans (yoRec P (ue .element)) Pᴰ)
     → UniversalElementᴰ ue
-  Representableⱽ→UniversalElementᴰ ue reprⱽ = Representableᴰ→UniversalElementᴰOverUE ue (reprⱽ .fst , FiberwisePshIsoᴰ→PshIsoᴰ (reprⱽ .snd))
+  Representableⱽ→UniversalElementᴰ ue reprⱽ =
+    Representableᴰ→UniversalElementᴰOverUE ue (reprⱽ .fst , FiberwisePshIsoᴰ→PshIsoᴰ (reprⱽ .snd))
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -215,9 +253,9 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     → PshHomⱽ (Cᴰ [-][-, xᴰ ]) (reindPsh (Fᴰ /FᴰYo x) (Dᴰ [-][-, Fᴰ .F-obᴰ xᴰ ]))
   Functorᴰ→PshHetᴰ xᴰ .N-ob (Γ , Γᴰ , f) fᴰ = Fᴰ .F-homᴰ fᴰ
   Functorᴰ→PshHetᴰ xᴰ .N-hom (Δ , Δᴰ , f) (Γ , Γᴰ , f') (γ , γᴰ , γf≡f') f'ᴰ = Dᴰ.rectify $ Dᴰ.≡out $
-    cong (∫F Fᴰ .F-hom) (sym $ Cᴰ.reind-filler _ _)
+    cong (∫F Fᴰ .F-hom) (sym $ Cᴰ.reind-filler _)
     ∙ ∫F Fᴰ .F-seq _ _
-    ∙ Dᴰ.reind-filler _ _
+    ∙ Dᴰ.reind-filler _
 
   FFFunctorᴰ→PshIsoᴰ : ∀ {x} (xᴰ : Cᴰ.ob[ x ])
     → FullyFaithfulᴰ Fᴰ → PshIsoⱽ (Cᴰ [-][-, xᴰ ]) (reindPsh (Fᴰ /FᴰYo x) (Dᴰ [-][-, Fᴰ .F-obᴰ xᴰ ]))
@@ -246,3 +284,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
   (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (x : C .ob) where
+  private
+    module Cᴰ = Fibers Cᴰ
+  _⟨_⟩[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
+  _⟨_⟩[-][-,_] xᴰ = Cᴰ [-][-, xᴰ ]

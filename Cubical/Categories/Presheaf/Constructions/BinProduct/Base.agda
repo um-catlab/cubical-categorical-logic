@@ -10,6 +10,8 @@ open import Cubical.Foundations.Structure
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
+open import Cubical.HITs.PathEq
+open import Cubical.HITs.Join
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -70,6 +72,14 @@ module _ {C : Category ℓ ℓ'} where
     testPshProd P Q = refl
 
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
+    π₁Strict : PshHom' (P ×Psh Q) P
+    π₁Strict .PshHom'.N-ob _ = fst
+    π₁Strict .PshHom'.N-hom _ _ _ _ = inr Eq.refl
+
+    π₂Strict : PshHom' (P ×Psh Q) Q
+    π₂Strict .PshHom'.N-ob _ = snd
+    π₂Strict .PshHom'.N-hom _ _ _ _ = inr Eq.refl
+
     π₁ : PshHom (P ×Psh Q) P
     π₁ .N-ob _ = fst
     π₁ .N-hom _ _ _ _ = refl

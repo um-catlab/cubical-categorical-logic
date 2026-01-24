@@ -14,8 +14,10 @@ open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
+
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
+open import Cubical.HITs.PathEq
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
@@ -91,6 +93,14 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
       N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
       N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
         N-ob c (f P.⋆ p) ≡ (f Q.⋆ N-ob c' p)
+
+  record PshHom' : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    no-eta-equality
+    constructor pshhom
+    field
+      N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
+      N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+        PathEq (N-ob c (f P.⋆ p)) (f Q.⋆ N-ob c' p)
 
   PshHomΣIso : Iso PshHom PshHomΣ
   unquoteDef PshHomΣIso = defineRecordIsoΣ PshHomΣIso (quote (PshHom))

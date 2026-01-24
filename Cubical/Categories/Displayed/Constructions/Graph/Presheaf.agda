@@ -9,8 +9,13 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Data.Sigma
 open import Cubical.Foundations.Structure
+
+open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
+open import Cubical.HITs.Join
+open import Cubical.HITs.PathEq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Constructions.BinProduct as BP
@@ -31,7 +36,7 @@ open import Cubical.Categories.Displayed.HLevels.More
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓS : Level
+    ℓ ℓC ℓC' ℓD ℓD' ℓP ℓQ ℓS : Level
 
 open Category
 open StructureOver
@@ -51,11 +56,40 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
     ElementStr .idᴰ = P.⋆IdL _
     ElementStr ._⋆ᴰ_ fy≡x gz≡y = P.⋆Assoc _ _ _ ∙ cong (_ P.⋆_) gz≡y ∙ fy≡x
     ElementStr .isPropHomᴰ = P.isSetPsh _ _
+
   Element : Categoryᴰ C ℓP ℓP
   Element = StructureOver→Catᴰ ElementStr
 
+  RedundElementStr : StructureOver C _ _
+  RedundElementStr .ob[_] = P.p[_]
+  RedundElementStr .Hom[_][_,_] f p q = PathEq (f P.⋆ q) p
+  RedundElementStr .idᴰ = inl (P.⋆IdL _)
+  RedundElementStr ._⋆ᴰ_ fyᴰ≡xᴰ gzᴰ≡yᴰ =
+    inl (P.⋆Assoc _ _ _ ∙ P.⟨⟩⋆⟨ PathEq→Path P.isSetPsh gzᴰ≡yᴰ ⟩ ∙ PathEq→Path P.isSetPsh fyᴰ≡xᴰ)
+  RedundElementStr .isPropHomᴰ = isPropPathEq P.isSetPsh
+
+  RedundElement : Categoryᴰ C ℓP ℓP
+  RedundElement = StructureOver→Catᴰ RedundElementStr
+
+  EqElementStr : StructureOver C _ _
+  EqElementStr .ob[_] = P.p[_]
+  EqElementStr .Hom[_][_,_] f p q = (f P.⋆ q) Eq.≡ p
+  EqElementStr .idᴰ = Eq.pathToEq (P.⋆IdL _)
+  EqElementStr ._⋆ᴰ_ Eq.refl Eq.refl = Eq.pathToEq (P.⋆Assoc _ _ _)
+  EqElementStr .isPropHomᴰ = Eq.isSet→isSetEq P.isSetPsh
+
+  EqElement : Categoryᴰ C ℓP ℓP
+  EqElement = StructureOver→Catᴰ EqElementStr
+
+
   hasPropHomsElement : hasPropHoms Element
   hasPropHomsElement = hasPropHomsStructureOver ElementStr
+
+  hasPropHomsRedundElement : hasPropHoms RedundElement
+  hasPropHomsRedundElement = hasPropHomsStructureOver RedundElementStr
+
+  hasPropHomsEqElement : hasPropHoms EqElement
+  hasPropHomsEqElement = hasPropHomsStructureOver EqElementStr
 
   private
     module ∫Element = Category (∫C Element)
@@ -86,6 +120,15 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) (
     module α = PshHom α
   PshHom→ElementFunctorⱽ : Functorⱽ (Element P) (Element Q)
   PshHom→ElementFunctorⱽ = PshHet→ElementFunctorᴰ (α ⋆PshHom reindPshId≅ Q .trans)
+
+module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) (α : PshHomEq P Q) where
+  private
+    module α = PshHomEq α
+  PshHom→EqElementFunctorⱽ :
+    Functorⱽ (EqElement P) (EqElement Q)
+  PshHom→EqElementFunctorⱽ = mkPropHomsFunctor (hasPropHomsEqElement Q)
+    (α.N-ob _)
+    λ { Eq.refl → Eq.sym $ α.N-hom _ _ _ _ }
 
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) (Q : Presheaf D ℓQ)

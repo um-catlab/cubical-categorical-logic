@@ -123,6 +123,35 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
     Pᴰ ×ᴰPsh Qᴰ = reindPshᴰNatTrans (π₁ P Q) Pᴰ ×ⱽPsh reindPshᴰNatTrans (π₂ P Q) Qᴰ
 
+    module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+      private
+        module P = PresheafNotation P
+        module Q = PresheafNotation Q
+        module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+        module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+        module Pᴰ×ᴰQᴰ = PresheafᴰNotation Cᴰ (P ×Psh Q) (Pᴰ ×ᴰPsh Qᴰ)
+        -- this is a deficiency of the current definition of uncurried
+        -- displayed presheaves. There doesn't seem to be any way to
+        -- make this refl
+        test×ᴰPsh : ∀ {Γ x}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}
+          (p : P.p[ x ])(q : Q.p[ x ])
+          (f : C [ Γ , x ])
+          (fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ])
+          (pᴰ : Pᴰ.p[ p ][ xᴰ ])(qᴰ : Qᴰ.p[ q ][ xᴰ ])
+          → (fᴰ Pᴰ×ᴰQᴰ.⋆ᴰ (pᴰ , qᴰ)) ≡ ((fᴰ Pᴰ.⋆ᴰ pᴰ) , (fᴰ Qᴰ.⋆ᴰ qᴰ))
+        test×ᴰPsh p q f fᴰ pᴰ qᴰ =
+          -- these paths are *not* refl
+          ΣPathP ( (Pᴰ.rectifyOut $ Pᴰ.⋆ᴰ-reind _ (λ i →
+                                                     hcomp (doubleComp-faces (λ _ → F-hom P f p) (λ i₁ → F-hom P f p) i)
+                                                     (hcomp
+                                                      (doubleComp-faces (λ _ → F-hom P f p) (λ _ → P .F-hom f p) (~ i))
+                                                      (F-hom P f p))) _)
+                 , (Qᴰ.rectifyOut $ Qᴰ.⋆ᴰ-reind _ (λ i →
+                                                     hcomp (doubleComp-faces (λ _ → F-hom Q f q) (λ i₁ → F-hom Q f q) i)
+                                                     (hcomp
+                                                      (doubleComp-faces (λ _ → F-hom Q f q) (λ _ → Q .F-hom f q) (~ i))
+                                                      (F-hom Q f q))) _))
+
   module _ {P : Presheaf C ℓP}(Q : Presheaf C ℓQ)
     (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) where
     private

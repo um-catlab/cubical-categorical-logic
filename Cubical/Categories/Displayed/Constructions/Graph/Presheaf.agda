@@ -121,15 +121,6 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) (
   PshHom→ElementFunctorⱽ : Functorⱽ (Element P) (Element Q)
   PshHom→ElementFunctorⱽ = PshHet→ElementFunctorᴰ (α ⋆PshHom reindPshId≅ Q .trans)
 
-module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) (α : PshHomEq P Q) where
-  private
-    module α = PshHomEq α
-  PshHom→EqElementFunctorⱽ :
-    Functorⱽ (EqElement P) (EqElement Q)
-  PshHom→EqElementFunctorⱽ = mkPropHomsFunctor (hasPropHomsEqElement Q)
-    (α.N-ob _)
-    λ { Eq.refl → Eq.sym $ α.N-hom _ _ _ _ }
-
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) (Q : Presheaf D ℓQ)
   where

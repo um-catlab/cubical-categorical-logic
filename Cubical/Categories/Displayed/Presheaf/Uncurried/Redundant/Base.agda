@@ -264,6 +264,8 @@ module _
       module Pᴰ = PresheafᴰNotation Pᴰ
       module Qᴰ = PresheafᴰNotation Qᴰ
       module Pᴰ×ᴰQᴰ = PresheafᴰNotation (Pᴰ ×ᴰPsh Qᴰ)
+      -- this was my original motivation: to make this be refl.
+      -- compare test×ᴰPsh in Displayed.Presheaf.Uncurried.Constructions
       test×ᴰPsh : ∀ {Γ x}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}
         (p : P.p[ x ])(q : Q.p[ x ])
         (f : C [ Γ , x ])

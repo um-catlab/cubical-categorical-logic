@@ -90,7 +90,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
 
   reind⟨_⟩⟨_⟩ : ∀ {x : C.ob} {f g : P.p[ x ]}{xᴰ}
       {fᴰ fᴰ' : p[ f ][ xᴰ ]}
-      (f≡g : f ≡ g)
+      (f≡g : f ≡w g)
     → Path p[ _ ]
         (f , fᴰ)
         (f , fᴰ')
@@ -117,7 +117,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   _⋆ⱽᴰ_ : ∀ {x xᴰ xᴰ'}{g}
      → Cᴰ [ C.id {x} ][ xᴰ , xᴰ' ] → p[ g ][ xᴰ' ]
      → p[ g ][ xᴰ ]
-  _⋆ⱽᴰ_ {g = g} fⱽ gᴰ = reind (P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
+  _⋆ⱽᴰ_ {g = g} fⱽ gᴰ = reind (wrap $ P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
 
   -- Should it just be fⱽ ≡ fⱽ' instead since that's more "vertical"?
   ⟨_⟩⋆ⱽᴰ⟨_⟩ :
@@ -190,7 +190,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
         → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ)
         (λ {qᴰ} idᴰ⋆ᴰpᴰ≡qᴰ →
           rectify $ ≡out $
-            sym (⋆IdL _) ∙ ⟨ Cᴰ.reind-filler _ ⟩⋆⟨⟩ ∙ idᴰ⋆ᴰpᴰ≡qᴰ)
+            sym (⋆IdL _) ∙ ⟨ Cᴰ.reind-filler (Cᴰ.wrap (λ i → C.id)) ⟩⋆⟨⟩ ∙ idᴰ⋆ᴰpᴰ≡qᴰ)
 
       fromPathPPshᴰ
         : ∀ {x xᴰ yᴰ}{p q : P.p[ x ]}{p≡q : p ≡ q}
@@ -202,7 +202,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       fromPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{q}{p≡q}{pᴰ} = J (λ yᴰ xᴰ≡yᴰ →  ∀ {qᴰ : p[ q ][ yᴰ ]}
         → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ
         → Path (p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst ⋆ᴰ pᴰ) (_ , qᴰ))
-        λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
+        λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler (Cᴰ.wrap (λ i → C.id)) ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
           ∙ ⋆IdL _
 
 -- A vertical presheaf is a displayed presheaf over a representable
@@ -231,7 +231,7 @@ module PresheafⱽNotation
   _⋆ᴰⱽ_ :
       Cᴰ [ f ][ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
       → p[ f ][ xᴰ ]
-  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
+  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = reind (wrap $ C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
 
   _⋆ⱽ_ :
     Cᴰ.v[ c ] [ xᴰ , cᴰ ] → pⱽ[ cᴰ ]

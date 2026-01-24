@@ -109,6 +109,14 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       pth qth : a ≡ b
   infix 2 _∫≡_
 
+  record WrappedPath (a a' : ⟨ A ⟩) : Type ℓ where
+    no-eta-equality
+    constructor wrap
+    field
+      path : a ≡ a'
+  _≡w_ : (a a' : ⟨ A ⟩) → Type ℓ
+  _≡w_ = WrappedPath
+
   _∫≡_ : ∀ {a b}(p : P a)(q : P b) → Type (ℓ-max ℓ ℓ')
   p ∫≡ q = Path (Σ ⟨ A ⟩ P) (_ , p) (_ , q)
 
@@ -123,17 +131,18 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     → p P≡[ fst $ PathPΣ e ] q
   ≡out e = snd $ PathPΣ e
 
+  open WrappedPath
   opaque
-    reind : (a ≡ b) → P a → P b
-    reind e p = subst P e p
+    reind : a ≡w b → P a → P b
+    reind e p = subst P (e .path) p
 
     reind-filler :
-      ∀ (e : a ≡ b)
+      ∀ (e : a ≡w b)
       → p ∫≡ reind e p
-    reind-filler e = ΣPathP (e , (subst-filler P e _))
+    reind-filler e = ΣPathP (e .path , (subst-filler P (e .path) _))
 
     reind-filler⁻ :
-      ∀ (e : a ≡ b)
+      ∀ (e : a ≡w b)
       → reind e p ∫≡ p
     reind-filler⁻ e = sym $ reind-filler e
 
@@ -145,9 +154,9 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
 
   rectifyOut :
-    ∀ {e' : a ≡ b}
+    ∀ {e' : a ≡w b}
     (e : p ∫≡ q) →
-    p P≡[ e' ] q
+    p P≡[ e' .path ] q
   rectifyOut e = Prectify $ ≡out $ e
 
   opaque

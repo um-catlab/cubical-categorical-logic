@@ -184,7 +184,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       PathPsh-rec : PshHomᴰ ΔPshHom UnitPsh Rᴰ → PshHomⱽ PathPsh Rᴰ
       PathPsh-rec αⱽ .N-ob (x , xᴰ , p , q) p≡q =
         -- should I use formal-reind instead of reind?
-        Rᴰ.reind (ΣPathP (refl , p≡q)) (αⱽ .N-ob (x , xᴰ , p) tt)
+        Rᴰ.reind (Rᴰ.wrap $ ΣPathP (refl , p≡q)) (αⱽ .N-ob (x , xᴰ , p) tt)
       PathPsh-rec αⱽ .N-hom (Δ , Δᴰ , (p , q)) (Γ , Γᴰ , (p' , q')) (γ , γᴰ , γ⋆p,γ⋆q≡p',q') p≡q = Rᴰ.rectify $ Rᴰ.≡out $
         (sym $ Rᴰ.reind-filler _)
         ∙ Rᴰ.≡in (αⱽ .N-hom _ _  (γ , (γᴰ , (PathPΣ γ⋆p,γ⋆q≡p',q' .fst))) tt)
@@ -270,8 +270,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     FrobeniusReciprocity-ptwise : ∀ ((Γ , Γᴰ , q) : (Cᴰ / Q) .ob) →
       Iso (Σ[ p ∈ P.p[ Γ ] ] (Pᴰ.p[ p ][ Γᴰ ] × Qᴰ.p[ α .N-ob Γ p ][ Γᴰ ]) × (q ≡ α .N-ob Γ p))
           ((Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (q ≡ α .N-ob Γ p)) × Qᴰ.p[ q ][ Γᴰ ])
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .fun (p , (pᴰ , qᴰ) , q≡αΓp) = (p , pᴰ , q≡αΓp) , Qᴰ.reind (sym q≡αΓp) qᴰ
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .inv ((p , pᴰ , q≡αΓp), qᴰ) = p , ((pᴰ , (Qᴰ.reind q≡αΓp qᴰ)) , q≡αΓp)
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .fun (p , (pᴰ , qᴰ) , q≡αΓp) = (p , pᴰ , q≡αΓp) , Qᴰ.reind (Qᴰ.wrap $ sym q≡αΓp) qᴰ
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .inv ((p , pᴰ , q≡αΓp), qᴰ) = p , ((pᴰ , (Qᴰ.reind (Qᴰ.wrap q≡αΓp) qᴰ)) , q≡αΓp)
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .sec ((p , pᴰ , q≡αΓp), qᴰ) = ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))
     FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .ret (p , (pᴰ , qᴰ) , q≡αΓp) = ΣPathP (refl , ΣPathP ((ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))) , refl))
 

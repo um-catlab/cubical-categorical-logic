@@ -47,9 +47,8 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Instances.Functor.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
+import Cubical.Categories.Displayed.Instances.Sets.Base as Setᴰ
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
@@ -247,6 +246,16 @@ module _
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} where
+  UnitⱽPsh : Presheafᴰ P Cᴰ ℓ-zero
+  UnitⱽPsh = UnitPsh
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  UnitᴰPsh : Presheafᴰ UnitPsh Cᴰ ℓ-zero
+  UnitᴰPsh = UnitPsh
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} where
   _×ⱽPsh_ : Presheafᴰ P Cᴰ ℓPᴰ → Presheafᴰ P Cᴰ ℓQᴰ → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
   _×ⱽPsh_ = _×Psh_
 module _
@@ -273,3 +282,47 @@ module _
         (pᴰ : Pᴰ.p[ p ][ xᴰ ])(qᴰ : Qᴰ.p[ q ][ xᴰ ])
         → (fᴰ Pᴰ×ᴰQᴰ.⋆ᴰ (pᴰ , qᴰ)) ≡ ((fᴰ Pᴰ.⋆ᴰ pᴰ) , (fᴰ Qᴰ.⋆ᴰ qᴰ))
       test×ᴰPsh p q f fᴰ pᴰ qᴰ = refl
+
+module _ {C : Category ℓC ℓC'} {x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module Cᴰ = Fibers Cᴰ
+  _[-][-,_] : (xᴰ : Cᴰ.ob[ x ]) → Presheafᴰ (C [-, x ]) Cᴰ ℓCᴰ'
+  _[-][-,_] xᴰ = UncurryPshᴰ (Cᴰ Setᴰ.[-][-, xᴰ ])
+
+module _ {C : Category ℓC ℓC'} (x : C .ob) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module Cᴰ = Fibers Cᴰ
+  Presheafⱽ : (ℓPᴰ : Level) → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
+  Presheafⱽ = Presheafᴰ (C [-, x ]) Cᴰ
+
+module _ {C : Category ℓC ℓC'} {x : C .ob} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module Pⱽ = PresheafᴰNotation Pⱽ
+  -- UniversalElementⱽ : Type {!!}
+  -- UniversalElementⱽ = Σ[ v ∈ Cᴰ.ob[ x ] ] Σ[ e ∈ Pⱽ.p[ C.id ][ v ] ] ?
+
+  Reprⱽ : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓPᴰ)
+  Reprⱽ = Σ[ v ∈ Cᴰ.ob[ x ] ] PshIso' (Cᴰ [-][-, v  ]) Pⱽ
+
+EqAssoc : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+EqAssoc C = ∀ {w x y z} (f : C [ w , x ])(g : C [ x , y ])(h : C [ y , z ]) → (f C.⋆ g) C.⋆ h Eq.≡ (f C.⋆ (g C.⋆ h))
+  where module C = Category C
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+  Terminalsⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+  Terminalsⱽ = ∀ (x : C.ob) → Reprⱽ (UnitⱽPsh {Cᴰ = Cᴰ}{P = C [-, x ]})
+
+  BinProductsⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+  BinProductsⱽ = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Reprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
+
+  Fibration : EqAssoc C → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+  Fibration C⋆Assoc = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Reprⱽ (reindᴰRedundPshHom (⋆f f) (Cᴰ [-][-, yᴰ ]))
+    where
+      ⋆f : ∀ {x y} (f : C [ x , y ]) → PshHom' (C [-, x ]) (C [-, y ])
+      ⋆f f .PshHom'.N-ob c = C._⋆ f
+      ⋆f f .PshHom'.N-hom c c' δ γ = inr (C⋆Assoc δ γ f)

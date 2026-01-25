@@ -18,6 +18,7 @@ open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 open import Cubical.HITs.PathEq
+open import Cubical.HITs.Join
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
@@ -141,6 +142,10 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshHom .N-ob x z = z
   idPshHom .N-hom x y f p = refl
 
+  idPshHom' : PshHom' P P
+  idPshHom' .PshHom'.N-ob = λ c z → z
+  idPshHom' .PshHom'.N-hom = λ c c' f p → inr Eq.refl
+
 module _ {C : Category ℓc ℓc'} where
   _⋆PshHom_ : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} →
     PshHom P Q → PshHom Q R → PshHom P R
@@ -200,8 +205,8 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) where
   private
-    module P = PresheafNotation P using (p[_])
-    module Q = PresheafNotation Q using (p[_])
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
   PshIsoΣ : Type _
   PshIsoΣ = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
@@ -227,6 +232,14 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
     funExt (λ x₁ → cong lift (α .nIso x .snd .fst (x₁ .lower)) )
   PshIso→PshIsoLift α .NatIso.nIso x .isIsoC.ret =
     funExt (λ x₁ → cong lift (α .nIso x .snd .snd (x₁ .lower)))
+
+  record PshIso' : Type (ℓ-max (ℓ-max ℓp ℓq) (ℓ-max ℓc ℓc')) where
+    no-eta-equality
+    field
+      isos : ∀ c → Iso P.p[ c ] Q.p[ c ]
+      nat  : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ])
+        → PathEq (isos c .Iso.fun (f P.⋆ p))
+                 (f Q.⋆ isos c' .Iso.fun p)
 
 open PshIso
 
@@ -367,6 +380,10 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshIso : PshIso P P
   idPshIso .trans = idPshHom
   idPshIso .nIso _ = IsoToIsIso idIso
+
+  idPshIso' : PshIso' P P
+  idPshIso' .PshIso'.isos = λ _ → idIso
+  idPshIso' .PshIso'.nat = idPshHom' {P = P} .PshHom'.N-hom
 
 module _ {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where

@@ -151,10 +151,14 @@ module _ {ℓ ℓ'} where
   BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = SETᴰπ₁ⱽ Xᴰ Yᴰ , SETᴰπ₂ⱽ Xᴰ Yᴰ
   BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ x .fst = λ z x₁ z₁ → z .fst x₁ z₁ , z .snd x₁ z₁
   BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .fst (xᴰ , yᴰ) =
-    ΣPathP ((SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}{e' = SETᴰ.wrap refl} $
-               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) ,
-            (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}{e' = SETᴰ.wrap refl} $
-               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _))
+    -- this hole now normalizes to a term that uses
+    -- `Cubical.Categories.Displayed.Presheaf.Uncurried.Representable.lem`
+    -- rather than `SETᴰ.wrap`
+    {!!}
+    -- ΣPathP ((SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}{e' = SETᴰ.wrap refl} $
+    --            SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) ,
+    --         (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}{e' = SETᴰ.wrap refl} $
+    --            SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _))
   BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd Zᴰ→XᴰYᴰ =
     SETᴰ×ⱽHelper Xᴰ Yᴰ Zᴰ _ Zᴰ→XᴰYᴰ (SETᴰ.reind-filler⁻ _) (SETᴰ.reind-filler⁻ _)
 
@@ -177,18 +181,18 @@ module _ {ℓ ℓ'} where
   -- not complete.
   -- UniversalQuantifierSETᴰ hasn't been touched yet
   --
-  ExponentialsⱽSETᴰueⱽ :
-    {X : hSet ℓ} →
-    (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
-    UniversalElementⱽ' (SETᴰ ℓ ℓ') X
-      (LRⱽObᴰ→LRⱽ (SETᴰ ℓ ℓ')
-        (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
-  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
-  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
-  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
-  ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
-    -- Goals here mention paths wrapped in the SETᴰ.wrap constructor
-    {!!}
+  -- ExponentialsⱽSETᴰueⱽ :
+  --   {X : hSet ℓ} →
+  --   (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+  --   UniversalElementⱽ' (SETᴰ ℓ ℓ') X
+  --     (LRⱽObᴰ→LRⱽ (SETᴰ ℓ ℓ')
+  --       (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
+  -- ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
+  --   -- Goals here mention paths wrapped in the SETᴰ.wrap constructor
+  --   {!!}
 
     -- SETᴰ.rectifyOut {e' = SETᴰ.wrap refl} $
     --   SETᴰ.reind-filler⁻ _
@@ -210,10 +214,10 @@ module _ {ℓ ℓ'} where
     --                    ∙ SETᴰ.reind-filler⁻ _
     --                    ∙ SETᴰ.reind-filler⁻ _)
     --                    z zᴰ))
-      where
-      g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
-      uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
-  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
+      -- where
+      -- g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
+      -- uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
+  -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
 
 --   -- ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
 --   -- ExponentialsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ)

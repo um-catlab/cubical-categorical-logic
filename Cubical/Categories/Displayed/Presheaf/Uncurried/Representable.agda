@@ -64,7 +64,11 @@ module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓC
   _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
   _[-][-,_] xᴰ .F-ob (Γ , Γᴰ , f) = ( Cᴰ [ f ][ Γᴰ , xᴰ ]) , Cᴰ.isSetHomᴰ
   _[-][-,_] xᴰ .F-hom {x = z , zᴰ , f}{y = y , yᴰ , g} (γ , γᴰ , γ⋆f≡g) fᴰ =
-    Cᴰ.reind (Cᴰ.wrap $ γ⋆f≡g) $ γᴰ Cᴰ.⋆ᴰ fᴰ
+    Cᴰ.reind lem $ γᴰ Cᴰ.⋆ᴰ fᴰ
+    where
+      lem : hSetReasoning.WrappedPath (C [ y , x ] , isSetHom C)
+        Cᴰ.Hom[_][ yᴰ , xᴰ ] ((C ⋆ γ) f) g
+      lem .hSetReasoning.WrappedPath.path = γ⋆f≡g
   _[-][-,_] xᴰ .F-id =
     funExt λ fᴰ → Cᴰ.rectifyOut {e' = Cᴰ.wrap refl} $ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdL _
   _[-][-,_] xᴰ .F-seq (γ , γᴰ , _) (σ , σᴰ , _) =

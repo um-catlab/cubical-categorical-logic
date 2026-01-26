@@ -114,6 +114,7 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     constructor wrap
     field
       path : a ≡ a'
+  {-# INLINE wrap #-}
   _≡w_ : (a a' : ⟨ A ⟩) → Type ℓ
   _≡w_ = WrappedPath
 

@@ -110,10 +110,10 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
   infix 2 _∫≡_
 
   record WrappedPath (a a' : ⟨ A ⟩) : Type ℓ where
-    no-eta-equality
     constructor wrap
     field
       path : a ≡ a'
+  -- remove this to see a difference
   {-# INLINE wrap #-}
   _≡w_ : (a a' : ⟨ A ⟩) → Type ℓ
   _≡w_ = WrappedPath

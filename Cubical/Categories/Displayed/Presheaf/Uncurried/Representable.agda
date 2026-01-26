@@ -60,15 +60,19 @@ open isIsoOver
 
 module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
+    module C = Category C
     module Cᴰ = Fibers Cᴰ
+  repr-wrappedpath : ∀ {xᴰ : Cᴰ.ob[ x ]}{z3@(z , zᴰ , f) y3@(y , yᴰ , g) : (Cᴰ / (C [-, x ])) .ob} (/ob@(γ , Γᴰ , γ⋆f≡g) : (Cᴰ / (C [-, x ])) [ y3 , z3 ]) → hSetReasoning.WrappedPath ((C [ y , x ]) , C .isSetHom) Cᴰ.Hom[_][ yᴰ , xᴰ ] (γ C.⋆ f) g
+  repr-wrappedpath = λ /ob → Cᴰ.wrap (/ob .snd .snd)
+
   _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
   _[-][-,_] xᴰ .F-ob (Γ , Γᴰ , f) = ( Cᴰ [ f ][ Γᴰ , xᴰ ]) , Cᴰ.isSetHomᴰ
-  _[-][-,_] xᴰ .F-hom {x = z , zᴰ , f}{y = y , yᴰ , g} (γ , γᴰ , γ⋆f≡g) fᴰ =
-    Cᴰ.reind lem $ γᴰ Cᴰ.⋆ᴰ fᴰ
-    where
-      lem : hSetReasoning.WrappedPath (C [ y , x ] , isSetHom C)
-        Cᴰ.Hom[_][ yᴰ , xᴰ ] ((C ⋆ γ) f) g
-      lem .hSetReasoning.WrappedPath.path = γ⋆f≡g
+  _[-][-,_] xᴰ .F-hom {x = z3@(z , zᴰ , f)}{y = y3@(y , yᴰ , g)} γ3@(γ , γᴰ , γ⋆f≡g) fᴰ =
+    Cᴰ.reind (repr-wrappedpath (γ , γᴰ , γ⋆f≡g)) $ γᴰ Cᴰ.⋆ᴰ fᴰ
+    -- where
+    --   lem : hSetReasoning.WrappedPath (C [ y , x ] , isSetHom C)
+    --     Cᴰ.Hom[_][ yᴰ , xᴰ ] (γ C.⋆ f) g
+    --   lem .hSetReasoning.WrappedPath.path = {!γ3!}
   _[-][-,_] xᴰ .F-id =
     funExt λ fᴰ → Cᴰ.rectifyOut {e' = Cᴰ.wrap refl} $ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdL _
   _[-][-,_] xᴰ .F-seq (γ , γᴰ , _) (σ , σᴰ , _) =

@@ -148,7 +148,7 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
           λ z → Cᴰ.Hom[ z .fst ][ Θᴰ , Δᴰ ]
       wkF-ReprIso-ptWiseIsoOver .IsoOver.fun (δ~ , δ~Fγ≡γ~) = π*._⋆πⱽ
       wkF-ReprIso-ptWiseIsoOver .IsoOver.inv (δ , δγ≡γ~π) δᴰ =
-        π*.introᴰ (Cᴰ.reind (Cᴰ.wrap $ pullbackArrowPr₂ C pb γ~ δ (sym $ δγ≡γ~π)) δᴰ)
+        π*.introᴰ (Cᴰ.reind (wrap $ pullbackArrowPr₂ C pb γ~ δ (sym $ δγ≡γ~π)) δᴰ)
       wkF-ReprIso-ptWiseIsoOver .IsoOver.rightInv (δ , δγ≡γ~π) δᴰ =
         Cᴰ.rectify $ Cᴰ.≡out $ π*.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _)
       wkF-ReprIso-ptWiseIsoOver .IsoOver.leftInv (δ~ , δ~Fγ≡γ~) δ~ᴰ =
@@ -157,23 +157,45 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
             ∙ (sym $ π*.ηᴰ δ~ᴰ)
 
       wkF-ReprIso-ptWise :
-        Iso (Σ[ f ∈ C.Hom[ Θ , F .F-ob Δ ] ] Cᴰ.Hom[ f ][ Θᴰ , π* Δ Δᴰ .fst ] × (f C.⋆ F ⟪ γ ⟫ ≡ γ~))
-            (Σ[ f ∈ C.Hom[ Θ , Δ ] ] Cᴰ.Hom[ f ][ Θᴰ , Δᴰ ] × (f C.⋆ γ ≡ γ~ C.⋆ π .N-ob Γ))
+        Iso (Σ[ f ∈ C.Hom[ Θ , F .F-ob Δ ] ] Cᴰ.Hom[ f ][ Θᴰ , π* Δ Δᴰ .fst ] × ((f C.⋆ F ⟪ γ ⟫) ≡w γ~))
+            (Σ[ f ∈ C.Hom[ Θ , Δ ] ] Cᴰ.Hom[ f ][ Θᴰ , Δᴰ ] × ((f C.⋆ γ) ≡w (γ~ C.⋆ π .N-ob Γ)))
       wkF-ReprIso-ptWise =
+        (Σ[ f ∈ C.Hom[ Θ , F .F-ob Δ ] ]
+          Cᴰ.Hom[ f ][ Θᴰ , π* Δ Δᴰ .fst ] × ((f C.⋆ F ⟪ γ ⟫) ≡w γ~))
+          Iso⟨ invIso Σ-assoc-IsoR ⟩
+        (Σ[ (f , _) ∈ (Σ[ f ∈ (C.Hom[ Θ , F .F-ob Δ ]) ] ((f C.⋆ F ⟪ γ ⟫) ≡w γ~)) ]
+          Cᴰ.Hom[ f ][ Θᴰ , π* Δ Δᴰ .fst ])
+          Iso⟨ Σ-cong-iso (invIso $ fiber≅fiberw (λ z → z C.⋆ F-hom F γ) γ~) (λ _ → idIso) ⟩
+        (Σ[ (f , _) ∈ (Σ[ f ∈ (C.Hom[ Θ , F .F-ob Δ ]) ] ((f C.⋆ F ⟪ γ ⟫) ≡ γ~)) ]
+          Cᴰ.Hom[ f ][ Θᴰ , π* Δ Δᴰ .fst ])
+          Iso⟨ IsoOver→Iso
+            (isPullback→ΣIso C (CartesianNatTrans→PBSq (π , π-Cart) γ) Θ γ~)
+            wkF-ReprIso-ptWiseIsoOver
+            ⟩
+        (Σ[ (f , _) ∈ (Σ[ f ∈ (C.Hom[ Θ ,  Δ ]) ] ((f C.⋆ γ) ≡ (γ~ C.⋆ π .N-ob Γ))) ]
+          Cᴰ.Hom[ f ][ Θᴰ , Δᴰ ])
+          Iso⟨ Σ-cong-iso (fiber≅fiberw _ _) (λ _ → idIso) ⟩
+        (Σ[ (f , _) ∈ (Σ[ f ∈ (C.Hom[ Θ ,  Δ ]) ] ((f C.⋆ γ) ≡w (γ~ C.⋆ π .N-ob Γ))) ]
+          Cᴰ.Hom[ f ][ Θᴰ , Δᴰ ])
+          Iso⟨ Σ-assoc-IsoR ⟩
+        (Σ[ f ∈ C.Hom[ Θ , Δ ] ]
+          Cᴰ.Hom[ f ][ Θᴰ , Δᴰ ] × ((f C.⋆ γ) ≡w (γ~ C.⋆ π .N-ob Γ)))
+        ∎Iso
             -- Σ[ δ~ ] Cᴰ.Hom[ δ~ ][ Θᴰ , π* Δᴰ ] × δ~⋆F⟪γ⟫≡γ~
-            compIso (invIso Σ-assoc-IsoR) $
-            compIso
-              (IsoOver→Iso
-              (isPullback→ΣIso C (CartesianNatTrans→PBSq (π , π-Cart) γ) Θ γ~)
-              wkF-ReprIso-ptWiseIsoOver)
-              $ Σ-assoc-IsoR
+            -- compIso (invIso Σ-assoc-IsoR) $
+            -- compIso
+            --   (IsoOver→Iso
+            --   (isPullback→ΣIso C (CartesianNatTrans→PBSq (π , π-Cart) γ) Θ γ~)
+            --   wkF-ReprIso-ptWiseIsoOver)
+            --   $ Σ-assoc-IsoR
             -- Σ[ δ ] Cᴰ.Hom[ δ ][ Θᴰ , Δᴰ ] × δ⋆γ≡γ~⋆π
 
     wkF-ReprIso :
       PshIso ((Cᴰ / (C [-, F ⟅ Γ ⟆ ])) [-, F ⟅ Δ ⟆ , π* Δ Δᴰ .fst , F ⟪ γ ⟫ ]) (wkProf Cᴰ π Γ ⟅ Δ , Δᴰ , γ ⟆)
-    wkF-ReprIso = Isos→PshIso wkF-ReprIso-ptWise
+    wkF-ReprIso =
+      Isos→PshIso wkF-ReprIso-ptWise
       λ (H , Hᴰ , γ~') (Θ , Θᴰ , γ~) (θ , θᴰ , θγ~≡γ~') (δ~ , δ~ᴰ , δ~Fγ≡γ~) →
-        ΣPathP (C.⋆Assoc θ δ~ _ , ΣPathPProp (λ _ → C.isSetHom _ _)
+        ΣPathP (C.⋆Assoc θ δ~ _ , ΣPathPProp (λ _ → hasPropHomsElement (C [-, Γ ]) _ _ _)
         (Cᴰ.rectify $ Cᴰ.≡out $ π*.⋆πⱽ-natural))
 
   wkF-UE : ∀ Γ → UniversalElements (wkProf Cᴰ π Γ)

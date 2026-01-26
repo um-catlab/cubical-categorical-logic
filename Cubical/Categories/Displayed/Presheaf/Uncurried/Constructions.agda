@@ -132,9 +132,13 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     ΣPsh : Presheafᴰ P Cᴰ (ℓ-max ℓQ ℓPᴰ)
     ΣPsh .F-ob (Γ , Γᴰ , p) .fst = Σ[ q ∈ Q.p[ Γ ] ] Pᴰ.p[ p , q ][ Γᴰ ]
     ΣPsh .F-ob (Γ , Γᴰ , p) .snd = isSetΣ (Q .F-ob Γ .snd) (λ x → Pᴰ .F-ob (Γ , Γᴰ , p , x) .snd)
-    ΣPsh .F-hom (γ , γᴰ , γ⋆p≡p') (q , pᴰ) = (γ Q.⋆ q) , Pᴰ .F-hom (γ , (γᴰ , (ΣPathP (γ⋆p≡p' , refl)))) pᴰ
-    ΣPsh .F-id = funExt λ (q , pᴰ) → ΣPathP ((Q.⋆IdL q) , (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ Pᴰ.⋆IdL _))
-    ΣPsh .F-seq _ _ = funExt λ (q , pᴰ) → ΣPathP (Q.⋆Assoc _ _ _ , (Pᴰ.rectify $ Pᴰ.≡out $
+    ΣPsh .F-hom (γ , γᴰ , γ⋆p≡p') (q , pᴰ) .fst = γ Q.⋆ q
+    ΣPsh .F-hom (γ , γᴰ , γ⋆p≡p') (q , pᴰ) .snd =
+      Pᴰ .F-hom (γ , γᴰ , wrap (ΣPathP ((γ⋆p≡p' .WrappedPath.path) , refl))) pᴰ
+    ΣPsh .F-id =
+      funExt λ (q , pᴰ) → ΣPathP ((Q.⋆IdL q) , (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ Pᴰ.⋆IdL _))
+    ΣPsh .F-seq _ _ =
+      funExt λ (q , pᴰ) → ΣPathP (Q.⋆Assoc _ _ _ , (Pᴰ.rectify $ Pᴰ.≡out $
       Pᴰ.⋆ᴰ-reind _ _ _ ∙ Pᴰ.⋆Assoc _ _ _
       ∙ Pᴰ.⟨⟩⋆⟨ sym (Pᴰ.⋆ᴰ-reind _ _ _) ⟩
       ∙ sym (Pᴰ.⋆ᴰ-reind _ _ _)))
@@ -142,7 +146,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     ΣPsh-σ : PshHomⱽ Pᴰ (wkPshᴰ Q ⟅ ΣPsh ⟆)
     ΣPsh-σ .N-ob (x , xᴰ , (p , q)) pᴰ = q , pᴰ
     ΣPsh-σ .N-hom (x , xᴰ , (p , q)) (x' , xᴰ' , (p' , q')) (f , fᴰ , f⋆p,f⋆q≡p',q') pᴰ =
-      ΣPathP (((sym $ PathPΣ f⋆p,f⋆q≡p',q' .snd )) , (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ sym (Pᴰ.⋆ᴰ-reind _ _ _)))
+      ΣPathP (((sym $ PathPΣ (f⋆p,f⋆q≡p',q' .WrappedPath.path) .snd )) , (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ sym (Pᴰ.⋆ᴰ-reind _ _ _)))
 
     -- TODO: reindΣ
     -- (p ↦ Σ[ q ] Pᴰ(p,q))[α] = Σ[ q ] Pᴰ(α(p), q)
@@ -168,7 +172,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     PathPsh' : Functor ((∫C (Element (P ×Psh P))) ^op) (PROP ℓP)
     PathPsh' = mkFunctor (PROP _) hasPropHomsPROP (λ (_ , p , p') → (p ≡ p') , P.isSetPsh p p')
       λ {(x , p , p')} {(y , q , q')} (f , fp,fp'≡q,q') p≡p' →
-        (sym $ PathPΣ fp,fp'≡q,q' .fst) ∙ cong (f P.⋆_) p≡p' ∙ PathPΣ fp,fp'≡q,q' .snd
+        (sym $ PathPΣ (fp,fp'≡q,q' .WrappedPath.path) .fst) ∙ cong (f P.⋆_) p≡p' ∙ PathPΣ (fp,fp'≡q,q' .WrappedPath.path) .snd
 
     PathPsh : Presheafᴰ (P ×Psh P) Cᴰ ℓP
     PathPsh = PROP→SET ∘F PathPsh' ∘F (∫F {F = Id} (Sndⱽ Cᴰ (Element (P ×Psh P))) ^opF)
@@ -184,10 +188,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       PathPsh-rec : PshHomᴰ ΔPshHom UnitPsh Rᴰ → PshHomⱽ PathPsh Rᴰ
       PathPsh-rec αⱽ .N-ob (x , xᴰ , p , q) p≡q =
         -- should I use formal-reind instead of reind?
-        Rᴰ.reind (Rᴰ.wrap $ ΣPathP (refl , p≡q)) (αⱽ .N-ob (x , xᴰ , p) tt)
+        Rᴰ.reind (wrap $ ΣPathP (refl , p≡q)) (αⱽ .N-ob (x , xᴰ , p) tt)
       PathPsh-rec αⱽ .N-hom (Δ , Δᴰ , (p , q)) (Γ , Γᴰ , (p' , q')) (γ , γᴰ , γ⋆p,γ⋆q≡p',q') p≡q = Rᴰ.rectify $ Rᴰ.≡out $
         (sym $ Rᴰ.reind-filler _)
-        ∙ Rᴰ.≡in (αⱽ .N-hom _ _  (γ , (γᴰ , (PathPΣ γ⋆p,γ⋆q≡p',q' .fst))) tt)
+        ∙ Rᴰ.≡in (αⱽ .N-hom _ _  (γ , (γᴰ , (wrap $ PathPΣ (γ⋆p,γ⋆q≡p',q' .WrappedPath.path) .fst))) tt)
         ∙ Rᴰ.⋆ᴰ-reind _ _ _
         ∙ Rᴰ.⟨⟩⋆⟨ Rᴰ.reind-filler _ ⟩
         ∙ sym (Rᴰ.⋆ᴰ-reind _ _ _)
@@ -226,7 +230,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     -- Pᴰ(p) ⊢ (Σ[ p' ] Pᴰ(p') × αp'≡αp)
     push-σ : PshHomᴰ α Pᴰ push
     push-σ .N-ob (Γ , Γᴰ , p) pᴰ = p , (pᴰ , refl)
-    push-σ .N-hom _ _ (γ , Γᴰ , γ⋆p≡p') pᴰ = ΣPathP ((sym $ γ⋆p≡p') , (ΣPathPProp (λ _ → Q.isSetPsh _ _)
+    push-σ .N-hom _ _ (γ , Γᴰ , γ⋆p≡p') pᴰ = ΣPathP ((sym $ γ⋆p≡p' .WrappedPath.path) , (ΣPathPProp (λ _ → Q.isSetPsh _ _)
       (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _))))
   module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} (α : PshHom P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} where
     private
@@ -234,13 +238,13 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
     -- TODO: less manual definition?
     push-recⱽ : PshHomᴰ α Pᴰ Qᴰ → PshHomⱽ (push α Pᴰ) Qᴰ
-    push-recⱽ αᴰ .N-ob (Γ , Γᴰ , q) (p , pᴰ , q≡αp) = Qᴰ .F-hom ((C .id) , ((Categoryᴰ.idᴰ Cᴰ) , (Q.⋆IdL _ ∙ (sym $ q≡αp)))) $ αᴰ .N-ob (Γ , Γᴰ , p) pᴰ
+    push-recⱽ αᴰ .N-ob (Γ , Γᴰ , q) (p , pᴰ , q≡αp) = Qᴰ .F-hom ((C .id) , ((Categoryᴰ.idᴰ Cᴰ) , (wrap $ Q.⋆IdL _ ∙ (sym $ q≡αp)))) $ αᴰ .N-ob (Γ , Γᴰ , p) pᴰ
     push-recⱽ αᴰ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , q') (γ , γᴰ , γ⋆q'≡q) (p , pᴰ , q'≡αp) = Qᴰ.rectify $ Qᴰ.≡out $
       Qᴰ.⋆ᴰ-reind _ _ _
       ∙ Qᴰ.⟨⟩⋆⟨ (Qᴰ.≡in $ αᴰ .N-hom _ _ _ _) ∙ Qᴰ.⋆ᴰ-reind _ _ _ ⟩
       ∙ sym (Qᴰ.⋆Assoc _ _ _)
       ∙ Qᴰ.⟨ Cᴰ.⋆IdL _ ⟩⋆⟨ (sym $ Qᴰ.⋆IdL _) ∙ sym (Qᴰ.⋆ᴰ-reind Cᴰ.idᴰ _ (αᴰ .N-ob (Γ , Γᴰ , p) pᴰ)) ⟩
-      ∙ sym (Qᴰ.⋆ᴰ-reind γᴰ γ⋆q'≡q _)
+      ∙ sym (Qᴰ.⋆ᴰ-reind γᴰ (γ⋆q'≡q .WrappedPath.path) _)
 
     push-UMP : Iso (PshHomⱽ (push α Pᴰ) Qᴰ) (PshHomᴰ α Pᴰ Qᴰ)
     push-UMP = iso
@@ -270,10 +274,17 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     FrobeniusReciprocity-ptwise : ∀ ((Γ , Γᴰ , q) : (Cᴰ / Q) .ob) →
       Iso (Σ[ p ∈ P.p[ Γ ] ] (Pᴰ.p[ p ][ Γᴰ ] × Qᴰ.p[ α .N-ob Γ p ][ Γᴰ ]) × (q ≡ α .N-ob Γ p))
           ((Σ[ p ∈ P.p[ Γ ] ] Pᴰ.p[ p ][ Γᴰ ] × (q ≡ α .N-ob Γ p)) × Qᴰ.p[ q ][ Γᴰ ])
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .fun (p , (pᴰ , qᴰ) , q≡αΓp) = (p , pᴰ , q≡αΓp) , Qᴰ.reind (Qᴰ.wrap $ sym q≡αΓp) qᴰ
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .inv ((p , pᴰ , q≡αΓp), qᴰ) = p , ((pᴰ , (Qᴰ.reind (Qᴰ.wrap q≡αΓp) qᴰ)) , q≡αΓp)
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .sec ((p , pᴰ , q≡αΓp), qᴰ) = ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))
-    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .ret (p , (pᴰ , qᴰ) , q≡αΓp) = ΣPathP (refl , ΣPathP ((ΣPathP (refl , (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))) , refl))
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .fun (p , (pᴰ , qᴰ) , q≡αΓp) =
+      (p , pᴰ , q≡αΓp) , Qᴰ.reind (wrap $ sym q≡αΓp) qᴰ
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .inv ((p , pᴰ , q≡αΓp), qᴰ) =
+      p , ((pᴰ , (Qᴰ.reind (wrap q≡αΓp) qᴰ)) , q≡αΓp)
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .sec ((p , pᴰ , q≡αΓp), qᴰ) =
+      ΣPathP (refl ,
+       (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))
+    FrobeniusReciprocity-ptwise (Γ , Γᴰ , q) .ret (p , (pᴰ , qᴰ) , q≡αΓp) =
+      ΣPathP (refl ,
+        ΣPathP ((ΣPathP (refl ,
+          (Qᴰ.rectify $ Qᴰ.≡out $ sym $ Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _))) , refl))
 
     FrobeniusReciprocity-natural : ∀ Δ,Δᴰ,q Γ,Γᴰ,q' γ,γᴰ,γ⋆q≡q' p,⟨pᴰ,qᴰ⟩,q≡αp →
       (fun (FrobeniusReciprocity-ptwise Δ,Δᴰ,q)
@@ -315,11 +326,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
     push-repr : ∀ {x xᴰ p}
       → PshIsoⱽ ((Cᴰ / P) [-, x , xᴰ , p ]) (pushⱽ P p (Cᴰ [-][-, xᴰ ]))
-    push-repr {x} {xᴰ} {p} .trans .N-ob (Γ , Γᴰ , q) (γ , γᴰ , γ⋆p≡q) = γ , γᴰ , (sym γ⋆p≡q)
+    push-repr {x} {xᴰ} {p} .trans .N-ob (Γ , Γᴰ , q) (γ , γᴰ , γ⋆p≡q) = γ , γᴰ , (sym (γ⋆p≡q .WrappedPath.path))
     push-repr {x} {xᴰ} {p} .trans .N-hom _ _ _ _ =
       ΣPathP (refl , (ΣPathPProp (λ _ → P.isSetPsh _ _) (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _)))
     push-repr {x} {xᴰ} {p} .nIso =
-      λ (Γ , Γᴰ , q) → (λ (f , fᴰ , q≡f⋆p) → f , (fᴰ , (sym $ q≡f⋆p)))
+      λ (Γ , Γᴰ , q) → (λ (f , fᴰ , q≡f⋆p) → f , (fᴰ , wrap (sym q≡f⋆p)))
         , (λ _ → refl) , (λ _ → refl)
 
 module _ {C : Category ℓC ℓC'} where

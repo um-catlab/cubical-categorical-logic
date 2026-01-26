@@ -26,6 +26,7 @@
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More using (wrap)
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Equality as Eq
@@ -111,7 +112,7 @@ LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyReprese
 module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
   private
     module C = Category C using (id; _⋆_; ob; ⋆IdL)
-    module Cᴰ = Fibers Cᴰ using (wrap; ob[_]; Hom[_][_,_]; ⋆IdR; Hom[_,_]; idᴰ; _≡[_]_; _∫≡_; ≡in; ≡out; rectify; _⋆ᴰ_; reind; reind-filler)
+    module Cᴰ = Fibers Cᴰ using (ob[_]; Hom[_][_,_]; ⋆IdR; Hom[_,_]; idᴰ; _≡[_]_; _∫≡_; ≡in; ≡out; rectify; _⋆ᴰ_; reind; reind-filler)
     module P = PresheafNotation P using (p[_]; _⋆_)
   open PresheafᴰNotation Cᴰ P (Pᴰ .fst)
   _×ⱽ_* : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ Γ ]) → Cᴰ.ob[ Γ ]
@@ -176,7 +177,7 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ])
       → Path Cᴰ.Hom[ _ , _ ] (_ , (δᴰ Cᴰ.⋆ᴰ γᴰ) ⋆π₁ⱽ) (_ , δᴰ Cᴰ.⋆ᴰ (γᴰ ⋆π₁ⱽ))
     ⋆π₁ⱽ-natural {Θ} {Δ} {Γ} {Θᴰ} {Δᴰ} {Γᴰ} {δ} {γ} {p} δᴰ γᴰ =
-      ⟨ Cᴰ.reind-filler _ ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (λ i → δ C.⋆ γ)) _))
+      ⟨ Cᴰ.reind-filler _ ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (wrap $ λ i → δ C.⋆ γ)) _))
       ∙ (sym $ Cᴰ.reind-filler _)
 
     β₁ⱽ' : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
@@ -206,7 +207,7 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       → ((δᴰ Cᴰ.⋆ᴰ γᴰ) ⋆π₂ⱽ) ∫≡ (δᴰ ⋆ᴰ (γᴰ ⋆π₂ⱽ))
     ⋆π₂ⱽ-natural {Θ} {Δ} {Γ} {Θᴰ} {Δᴰ} {Γᴰ} {δ} {γ} {p} δᴰ γᴰ =
       ⟨ Cᴰ.reind-filler _ ⟩⋆π₂ⱽ
-      ∙ (≡in $ (PathPΣ (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , refl) _)) .snd)
+      ∙ (≡in $ (PathPΣ (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , wrap refl) _)) .snd)
       ∙ ⋆ᴰ-reind _ _ _
 
     β₂ⱽ' : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}

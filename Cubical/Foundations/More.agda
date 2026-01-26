@@ -1,6 +1,8 @@
 module Cubical.Foundations.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
@@ -96,6 +98,33 @@ congS₂Bifunct f p q r s =
   ∙ sym (assoc _ _ _)
   ∙ cong₂ _∙_ refl (sym (cong₂Funct' f _ _))
 
+
+
+record WrappedPath (A : Type ℓ) (a a' : A) : Type ℓ where
+  constructor wrap
+  field
+    path : a ≡ a'
+-- remove this to see a difference
+{-# INLINE wrap #-}
+_≡w_ : {A : Type ℓ} → (a a' : A) → Type ℓ
+_≡w_ {A = A} = WrappedPath A
+
+infix 4 _≡w_
+
+fiberw : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
+fiberw {A = A} f y = Σ[ x ∈ A ] f x ≡w y
+
+module _ {A : Type ℓ} {a a' : A} where
+  Path≅WrappedPath : Iso (a ≡ a') (a ≡w a')
+  Path≅WrappedPath .Iso.fun = λ z → wrap z
+  Path≅WrappedPath .Iso.inv = λ z → z .WrappedPath.path
+  Path≅WrappedPath .Iso.sec b i .WrappedPath.path = b .WrappedPath.path
+  Path≅WrappedPath .Iso.ret = λ _ → refl
+
+module _ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) where
+  fiber≅fiberw : Iso (fiber f y) (fiberw f y)
+  fiber≅fiberw = Σ-cong-iso idIso λ a → Path≅WrappedPath
+
 -- Reasoning about a dependent type that is indexed by an hSet
 module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
   _P≡[_]_ : ∀ {a b : ⟨ A ⟩} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
@@ -108,19 +137,8 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       p q r : P a
       pth qth : a ≡ b
   infix 2 _∫≡_
-
-  record WrappedPath (a a' : ⟨ A ⟩) : Type ℓ where
-    constructor wrap
-    field
-      path : a ≡ a'
-  -- remove this to see a difference
-  {-# INLINE wrap #-}
-  _≡w_ : (a a' : ⟨ A ⟩) → Type ℓ
-  _≡w_ = WrappedPath
-
   _∫≡_ : ∀ {a b}(p : P a)(q : P b) → Type (ℓ-max ℓ ℓ')
   p ∫≡ q = Path (Σ ⟨ A ⟩ P) (_ , p) (_ , q)
-
 
   ≡in :
     p P≡[ pth ] q

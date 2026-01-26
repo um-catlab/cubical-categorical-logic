@@ -106,7 +106,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Pr
     {f g : (Cᴰ / P) [ Δ3 , Γ3 ]}
     → (p2 : f .snd .fst Cᴰ.∫≡ g .snd .fst)
     → f ≡ g
-  Hom/≡ p2 = ΣPathP (PathPΣ p2 .fst , ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) (Cᴰ.rectify $ Cᴰ.≡out $ p2))
+  Hom/≡ p2 = ΣPathP (PathPΣ p2 .fst , ΣPathPProp (λ _ → hasPropHomsElement P _ _ _) (Cᴰ.rectify $ Cᴰ.≡out $ p2))
 
 -- The Beck-Chevalley stuff in the universal quantifier lemmas have to
 -- do some annoying shuffling that wouldn't be necessary if we use
@@ -132,7 +132,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE �
   where
   /Fᴰ-seq : (Gᴰ /Fᴰ β) ∘F (Fᴰ /Fᴰ α) ≡ ((Gᴰ ∘Fᴰ Fᴰ) /Fᴰ (α ⋆PshHet β))
   /Fᴰ-seq = Functor≡ (λ _ → refl) (λ (f , fᴰ , f⋆p≡p') →
-    ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh R _ _) refl)) )
+    ΣPathP (refl , (ΣPathPProp (λ _ → hasPropHomsElement R _ _ _) refl)) )
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -166,9 +166,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
     αP' = αP
 
     /NatTrans : NatTrans F G
-    /NatTrans .N-ob = λ x → (N-ob α x) , ((αᴰ .N-obᴰ tt) , (αP' x))
-    /NatTrans .N-hom =
-      λ f → ΣPathP ((N-hom α f) , ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .N-homᴰ tt))
+    /NatTrans .N-ob x .fst = α .N-ob x
+    /NatTrans .N-ob x .snd .fst = αᴰ .N-obᴰ tt
+    /NatTrans .N-ob x .snd .snd .WrappedPath.path = αP' x
+    /NatTrans .N-hom f =
+      ΣPathP ((N-hom α f) , ΣPathPProp (λ _ → hasPropHomsElement P _ _ _) (αᴰ .N-homᴰ tt))
 
   module _ {F G : Functor D (Cᴰ / P)}
     (α : NatIso (Fst ∘F F) (Fst ∘F G))
@@ -188,11 +190,11 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{D : Ca
     /NatIso .trans = /NatTrans (α .trans) (αᴰ .transᴰ) αP''
     /NatIso .nIso x .isIso.inv .fst = α .nIso x .isIso.inv
     /NatIso .nIso x .isIso.inv .snd .fst = αᴰ .NatIsoᴰ.nIsoᴰ tt .isIsoᴰ.invᴰ
-    /NatIso .nIso x .isIso.inv .snd .snd = /NI-lem x
+    /NatIso .nIso x .isIso.inv .snd .snd .WrappedPath.path = /NI-lem x
     /NatIso .nIso x .isIso.sec =
-      ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ)))
+      ΣPathP ((α .nIso x .isIso.sec) , (ΣPathPProp (λ _ → hasPropHomsElement P _ _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.secᴰ)))
     /NatIso .nIso x .isIso.ret =
-      ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → P.isSetPsh _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))
+      ΣPathP ((α .nIso x .isIso.ret) , (ΣPathPProp (λ _ → hasPropHomsElement P _ _ _) (αᴰ .nIsoᴰ tt .isIsoᴰ.retᴰ)))
 
 -- -- TODO:
 -- -- 1. /Fⱽ-seq
@@ -237,33 +239,39 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
 
   _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p} (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (pᴰ : p[ p ][ yᴰ ])
     → p[ f P.⋆ p ][ xᴰ ]
-  fᴰ ⋆ᴰ pᴰ = Pᴰ .F-hom (_ , fᴰ , refl) pᴰ
+  fᴰ ⋆ᴰ pᴰ = Pᴰ .F-hom (_ , fᴰ , wrap refl) pᴰ
+
+  formal-reind-wrappedPath : ∀ {x}{p p' : P.p[ x ]}(p≡p' : p ≡ p')
+    → (C.id P.⋆ p) ≡w p'
+  formal-reind-wrappedPath {p = p} p≡p' .WrappedPath.path = P.⋆IdL p ∙ p≡p'
 
   formal-reind : ∀ {x xᴰ}{p p' : P.p[ x ]}(p≡p' : p ≡ p')(pᴰ : p[ p ][ xᴰ ])
     → p[ p' ][ xᴰ ]
-  formal-reind {p = p} p≡p' = Pᴰ .F-hom (C.id , Cᴰ.idᴰ , P.⋆IdL p ∙ p≡p')
+  formal-reind {p = p} p≡p' =
+    Pᴰ .F-hom (C.id , Cᴰ.idᴰ , formal-reind-wrappedPath p≡p')
 
   opaque
+    -- TODO probably don't want to just wrap here
     ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
       → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , f⋆p≡q i ) ⟩)
         (fᴰ ⋆ᴰ pᴰ)
-        (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+        (Pᴰ .F-hom (f , fᴰ , wrap f⋆p≡q) pᴰ)
     ⋆ᴰ-reindᴰ {x}{y}{xᴰ}{yᴰ} {f = f}{p}{q} fᴰ f⋆p≡q pᴰ i =
-      Pᴰ .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ
+      Pᴰ .F-hom (f , fᴰ , (wrap $ λ j → f⋆p≡q (i ∧ j))) pᴰ
 
   ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : f P.⋆ p ≡ q) (pᴰ : p[ p ][ yᴰ ])
-    → Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)
+    → Pᴰ .F-hom (f , fᴰ , wrap f⋆p≡q) pᴰ ∫≡ (fᴰ ⋆ᴰ pᴰ)
   ⋆ᴰ-reind fᴰ f⋆p≡q pᴰ =
     sym $ ≡in $ ⋆ᴰ-reindᴰ fᴰ f⋆p≡q pᴰ
 
   ⋆IdLᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]}(pᴰ : p[ p ][ xᴰ ])
-    → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , refl {x = C.id P.⋆ p}) pᴰ) ∫≡ pᴰ
+    → (Pᴰ .F-hom (C.id , Cᴰ.idᴰ , (wrap $ refl {x = C.id P.⋆ p})) pᴰ) ∫≡ pᴰ
   ⋆IdLᴰ {x}{xᴰ}{p} pᴰ =
     (sym $ ⋆ᴰ-reind Cᴰ.idᴰ _ pᴰ)
     ∙ (≡in $ funExt⁻ (Pᴰ .F-id) pᴰ)
 
   formal-reind-filler : ∀ {x xᴰ}{p q : P.p[ x ]}(id⋆p≡q : C.id P.⋆ p ≡ q) (pᴰ : p[ p ][ xᴰ ])
-    → Pᴰ .F-hom (C.id , Cᴰ.idᴰ , id⋆p≡q) pᴰ ∫≡ pᴰ
+    → Pᴰ .F-hom (C.id , Cᴰ.idᴰ , wrap id⋆p≡q) pᴰ ∫≡ pᴰ
   formal-reind-filler {x} {xᴰ} {p} {q} id⋆p≡q pᴰ = ⋆ᴰ-reind Cᴰ.idᴰ id⋆p≡q pᴰ ∙ ⋆IdLᴰ pᴰ
 
   ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
@@ -273,7 +281,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
     → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
   ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
     (sym $ ⋆ᴰ-reind (fᴰ Cᴰ.⋆ᴰ gᴰ) _ pᴰ)
-    ∙ ≡in (funExt⁻ (Pᴰ .F-seq (g , gᴰ , refl) (f , fᴰ , refl)) pᴰ)
+    ∙ ≡in (funExt⁻ (Pᴰ .F-seq (g , gᴰ , wrap refl) (f , fᴰ , wrap refl)) pᴰ)
 
   ∫ : Presheaf (∫C Cᴰ) (ℓ-max ℓP ℓPᴰ)
   ∫ .F-ob (x , xᴰ) .fst = Σ[ p ∈ _ ] p[ p ][ xᴰ ]
@@ -380,7 +388,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   ∫PshHomᴰ αᴰ .N-ob (Γ , Γᴰ) (p , pᴰ) =
     (α .N-ob Γ p) , (αᴰ .N-ob (Γ , Γᴰ , p) pᴰ)
   ∫PshHomᴰ αᴰ .N-hom (Δ , Δᴰ) (Γ , Γᴰ) (γ , γᴰ) (p , pᴰ) =
-    (Qᴰ.≡in $ αᴰ .N-hom (Δ , Δᴰ , γ P.⋆ p) (Γ , Γᴰ , p) (γ , γᴰ , refl) pᴰ)
+    (Qᴰ.≡in $ αᴰ .N-hom (Δ , Δᴰ , γ P.⋆ p) (Γ , Γᴰ , p) (γ , γᴰ , wrap refl) pᴰ)
     ∙ Qᴰ.⋆ᴰ-reind _ _ _
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

@@ -2,6 +2,7 @@
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
@@ -117,7 +118,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (_ , γᴰ Cᴰ.⋆ᴰ (gᴰ ⋆πⱽ))
       ⋆πⱽ-natural {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {g} {γᴰ} {gᴰ} =
         ⟨ Cᴰ.reind-filler _ ⟩⋆πⱽ
-        ∙ (Cᴰ.≡in $ f*yᴰ .snd .trans .N-hom (Δ , (Δᴰ , (γ C.⋆ g))) (Γ , (Γᴰ , g)) (γ , (γᴰ , refl)) gᴰ)
+        ∙ (Cᴰ.≡in $ f*yᴰ .snd .trans .N-hom (Δ , (Δᴰ , (γ C.⋆ g))) (Γ , (Γᴰ , g)) (γ , (γᴰ , wrap refl)) gᴰ)
         ∙ (sym $ Cᴰ.reind-filler _)
 
 
@@ -190,7 +191,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (g' , gᴰ)
       introᴰ≡' g≡g' gfᴰ≡gᴰπⱽ =
         introᴰ≡ (gfᴰ≡gᴰπⱽ ∙ ⟨ Cᴰ.reind-filler _ ⟩⋆πⱽ)
-        ∙ (sym $ Cᴰ.reind-filler (Cᴰ.wrap $ sym g≡g'))
+        ∙ (sym $ Cᴰ.reind-filler (wrap $ sym g≡g'))
   CartesianLiftable : ∀ {y} (yᴰ : Cᴰ.ob[ y ])
     → Type _
   CartesianLiftable {y} yᴰ = ∀ {x} (f : C [ x , y ]) → CartesianLift f yᴰ
@@ -233,7 +234,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     -- the gen one is the most flexible, use it for theorems
     cartLift-sq-filler-gen : (commutes : (C.id C.⋆ g) C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*zᴰ .fst ]
     cartLift-sq-filler-gen commutes =
-      h*zᴰ.introᴰ (Cᴰ.reind (Cᴰ.wrap commutes) (g*yᴰ.πⱽ Cᴰ.⋆ᴰ kᴰ))
+      h*zᴰ.introᴰ (Cᴰ.reind (wrap commutes) (g*yᴰ.πⱽ Cᴰ.⋆ᴰ kᴰ))
 
     -- this one is the most convenient to use bc the extra id isn't there.
     cartLift-sq-filler : (commutes : g C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*zᴰ .fst ]
@@ -293,7 +294,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module h*yᴰ = CartesianLiftNotation h*yᴰ
     cartLift-tri-filler-gen : (commutes : C.id C.⋆ g ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*yᴰ .fst ]
     cartLift-tri-filler-gen commutes =
-      h*yᴰ.introᴰ (Cᴰ.reind (Cᴰ.wrap commutes) g*yᴰ.πⱽ)
+      h*yᴰ.introᴰ (Cᴰ.reind (wrap commutes) g*yᴰ.πⱽ)
 
     cartLift-tri-filler : (commutes : g ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*yᴰ .fst ]
     cartLift-tri-filler commutes = cartLift-tri-filler-gen (C.⋆IdL g ∙ commutes)

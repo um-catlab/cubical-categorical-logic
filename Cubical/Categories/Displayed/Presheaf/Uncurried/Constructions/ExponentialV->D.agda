@@ -7,6 +7,7 @@
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
@@ -118,7 +119,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module _ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ]) where
       ⇒ⱽᴰ-square-to : Cᴰ.Hom[ C.id ][ (-×A.π₁ {Γ} cartesianLifts.* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((-×A.π₁ C.⋆ f) -×A.,p -×A.π₂) * , Γᴰ ×ᴰAᴰ.×ᴰPᴰ ]
       ⇒ⱽᴰ-square-to =
-        Cᴰ.reind (Cᴰ.wrap p) (×ᴰAᴰ.introᴰ ((×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ) , (×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ)))
+        Cᴰ.reind (wrap p) (×ᴰAᴰ.introᴰ ((×ⱽπ₂*Aᴰ.π₁ⱽ cartesianLifts.⋆πⱽ) , (×ⱽπ₂*Aᴰ.π₂ⱽ cartesianLifts.⋆πⱽ)))
         where
         p : -×A.×ue.universal -×A.×ue.vertex .equiv-proof
             (C.id C.⋆ -×A.×ue.element .fst ,
@@ -133,8 +134,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       ⇒ⱽᴰ-square-from : Cᴰ.Hom[ C.id ][ Γᴰ ×ᴰAᴰ.×ᴰPᴰ  , (-×A.π₁ {Γ} cartesianLifts.* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((-×A.π₁ C.⋆ f) -×A.,p -×A.π₂) * ]
       ⇒ⱽᴰ-square-from =
         ×ⱽπ₂*Aᴰ.introᴰ
-          (cartesianLifts.introᴰ (Cᴰ.reind (Cᴰ.wrap p) ×ᴰAᴰ.π₁ᴰ))
-          (cartesianLifts.introᴰ (Cᴰ.reind (Cᴰ.wrap q) ×ᴰAᴰ.π₂ᴰ))
+          (cartesianLifts.introᴰ (Cᴰ.reind (wrap p) ×ᴰAᴰ.π₁ᴰ))
+          (cartesianLifts.introᴰ (Cᴰ.reind (wrap q) ×ᴰAᴰ.π₂ᴰ))
         where
         p :  -×A.×ue.element {b = Γ} .fst ≡ C.id C.⋆ -×A.×ue.element .fst
         p = sym $ C.⋆IdL (-×A.×ue.element .fst)

@@ -42,7 +42,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   v[ x ] .Category.ob = ob[ x ]
   v[ x ] .Category.Hom[_,_] = Hom[ C.id ][_,_]
   v[ x ] .Category.id = idᴰ
-  v[ x ] .Category._⋆_ fⱽ gⱽ = R.reind (R.wrap $ C.⋆IdL _) (fⱽ ⋆ᴰ gⱽ)
+  v[ x ] .Category._⋆_ fⱽ gⱽ = R.reind (wrap $ C.⋆IdL _) (fⱽ ⋆ᴰ gⱽ)
   v[ x ] .Category.⋆IdL fⱽ =
     R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
   v[ x ] .Category.⋆IdR fⱽ =
@@ -84,7 +84,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   isSetHomⱽ = isSetHomᴰ
 
   _⋆ᴰⱽ_ : Hom[ f ][ xᴰ , yᴰ ] → v[ y ] [ yᴰ , yᴰ' ] → Hom[ f ][ xᴰ , yᴰ' ]
-  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = R.reind (R.wrap $ C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
+  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = R.reind (wrap $ C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
   ⋆IdLᴰⱽ : idᴰ ⋆ᴰⱽ fⱽ ≡ fⱽ
   ⋆IdLᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
 
@@ -100,7 +100,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       ∙ R.reind-filler _
 
   _⋆ⱽᴰ_ : v[ x ] [ xᴰ , xᴰ' ] → Hom[ f ][ xᴰ' , yᴰ ] → Hom[ f ][ xᴰ , yᴰ ]
-  _⋆ⱽᴰ_ {f = f} gⱽ fᴰ = R.reind (R.wrap $ C.⋆IdL _) (gⱽ ⋆ᴰ fᴰ)
+  _⋆ⱽᴰ_ {f = f} gⱽ fᴰ = R.reind (wrap $ C.⋆IdL _) (gⱽ ⋆ᴰ fᴰ)
 
   ⋆IdLⱽᴰ : ∀ (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idⱽ ⋆ⱽᴰ fᴰ ≡ fᴰ
   ⋆IdLⱽᴰ fᴰ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
@@ -182,7 +182,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   cong-reind : ∀ {a b : C.ob} {f f' g g' : C [ a , b ]}{aᴰ bᴰ}
       {fᴰ : Cᴰ [ f ][ aᴰ , bᴰ ]}
       {fᴰ' : Cᴰ [ f' ][ aᴰ , bᴰ ]}
-      (p : f R.≡w g)
+      (p : f ≡w g)
       (p' : f' ≡w g')
     → fᴰ ∫≡ fᴰ'
     → reind p fᴰ ∫≡ reind p' fᴰ'

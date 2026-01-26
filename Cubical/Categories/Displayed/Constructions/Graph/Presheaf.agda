@@ -5,6 +5,7 @@
 module Cubical.Categories.Displayed.Constructions.Graph.Presheaf where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -47,21 +48,23 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
     ElementStr : StructureOver C _ _
     ElementStr .ob[_] = P.p[_]
     -- this version lines up definitionally with fiber. See test-Element below
-    ElementStr .Hom[_][_,_] f p q = (f P.⋆ q) ≡ p
-    ElementStr .idᴰ = P.⋆IdL _
-    ElementStr ._⋆ᴰ_ fy≡x gz≡y = P.⋆Assoc _ _ _ ∙ cong (_ P.⋆_) gz≡y ∙ fy≡x
-    ElementStr .isPropHomᴰ = P.isSetPsh _ _
+    ElementStr .Hom[_][_,_] f p q = (f P.⋆ q) ≡w p
+    ElementStr .idᴰ .WrappedPath.path = P.⋆IdL _
+    ElementStr ._⋆ᴰ_ fy≡x gz≡y .WrappedPath.path =
+      P.⋆Assoc _ _ _ ∙ cong (_ P.⋆_) (gz≡y .WrappedPath.path) ∙ fy≡x .WrappedPath.path
+    ElementStr .isPropHomᴰ x y i .WrappedPath.path =
+      P.isSetPsh _ _ (x .WrappedPath.path) (y .WrappedPath.path) i
   Element : Categoryᴰ C ℓP ℓP
   Element = StructureOver→Catᴰ ElementStr
 
   hasPropHomsElement : hasPropHoms Element
   hasPropHomsElement = hasPropHomsStructureOver ElementStr
 
-  private
-    module ∫Element = Category (∫C Element)
-    test-Element : ∀ x p y q
-      → ∫Element.Hom[ (x , p) , (y , q) ] ≡ fiber (P._⋆ q) p
-    test-Element x p y q = refl
+  -- private
+  --   module ∫Element = Category (∫C Element)
+  --   test-Element : ∀ x p y q
+  --     → ∫Element.Hom[ (x , p) , (y , q) ] ≡ fiber (P._⋆ q) p
+  --   test-Element x p y q = refl
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {P : Presheaf C ℓP}
@@ -72,7 +75,8 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   PshHet→ElementFunctorᴰ : Functorᴰ F (Element P) (Element Q)
   PshHet→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsElement Q)
     (α .PshHom.N-ob _)
-    λ f⋆p≡p' → (sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _) f⋆p≡p'
+    λ f⋆p≡p' → wrap ((sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _)
+                       (f⋆p≡p' .WrappedPath.path))
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)
@@ -108,6 +112,6 @@ module _
   reindPsh-UMPⱽ .fun = reindPsh-π ∘Fᴰⱽ_
   reindPsh-UMPⱽ {P = P} .inv = reindPsh-intro {P = P}
   reindPsh-UMPⱽ .sec Fⱽ = Functorᴰ≡ (λ _ → refl)
-    (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)
+    (λ _ → propHomsFiller (Element Q) (hasPropHomsElement Q) _ _ _)
   reindPsh-UMPⱽ .ret Fᴰ = Functorᴰ≡ (λ _ → refl)
-    (λ _ → propHomsFiller (Element Q) (λ _ → λ _ _ → Q.isSetPsh _ _) _ _ _)
+    (λ _ → propHomsFiller (Element Q) (hasPropHomsElement Q) _ _ _)

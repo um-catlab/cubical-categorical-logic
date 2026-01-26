@@ -190,7 +190,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
         → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ)
         (λ {qᴰ} idᴰ⋆ᴰpᴰ≡qᴰ →
           rectify $ ≡out $
-            sym (⋆IdL _) ∙ ⟨ Cᴰ.reind-filler (Cᴰ.wrap (λ i → C.id)) ⟩⋆⟨⟩ ∙ idᴰ⋆ᴰpᴰ≡qᴰ)
+            sym (⋆IdL _) ∙ ⟨ Cᴰ.reind-filler (wrap (λ i → C.id)) ⟩⋆⟨⟩ ∙ idᴰ⋆ᴰpᴰ≡qᴰ)
 
       fromPathPPshᴰ
         : ∀ {x xᴰ yᴰ}{p q : P.p[ x ]}{p≡q : p ≡ q}
@@ -202,7 +202,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       fromPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{q}{p≡q}{pᴰ} = J (λ yᴰ xᴰ≡yᴰ →  ∀ {qᴰ : p[ q ][ yᴰ ]}
         → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ
         → Path (p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst ⋆ᴰ pᴰ) (_ , qᴰ))
-        λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler (Cᴰ.wrap (λ i → C.id)) ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
+        λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler (wrap (λ i → C.id)) ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
           ∙ ⋆IdL _
 
 -- A vertical presheaf is a displayed presheaf over a representable

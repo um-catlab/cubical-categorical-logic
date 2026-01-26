@@ -3,6 +3,7 @@
 module Cubical.Categories.Presheaf.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -10,7 +11,9 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport hiding (pathToIso)
+
 open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal
@@ -71,6 +74,7 @@ module PresheafNotation {ℓo}{ℓh}
        where
   private
     module C = Category C
+
   p[_] : C.ob → Type ℓp
   p[ x ] = ⟨ P ⟅ x ⟆ ⟩
 

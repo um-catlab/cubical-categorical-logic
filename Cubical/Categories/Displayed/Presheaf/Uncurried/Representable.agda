@@ -62,21 +62,22 @@ module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓC
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-  repr-wrappedpath : ∀ {xᴰ : Cᴰ.ob[ x ]}{z3@(z , zᴰ , f) y3@(y , yᴰ , g) : (Cᴰ / (C [-, x ])) .ob} (/ob@(γ , Γᴰ , γ⋆f≡g) : (Cᴰ / (C [-, x ])) [ y3 , z3 ]) → hSetReasoning.WrappedPath ((C [ y , x ]) , C .isSetHom) Cᴰ.Hom[_][ yᴰ , xᴰ ] (γ C.⋆ f) g
-  repr-wrappedpath = λ /ob → Cᴰ.wrap (/ob .snd .snd)
+  -- repr-wrappedpath :
+  --   ∀ {xᴰ : Cᴰ.ob[ x ]}
+  --   {z3@(z , zᴰ , f) y3@(y , yᴰ , g) : (Cᴰ / (C [-, x ])) .ob}
+  --   (/ob@(γ , Γᴰ , γ⋆f≡g) : (Cᴰ / (C [-, x ])) [ y3 , z3 ]) →
+  --     (γ C.⋆ f) ≡w g
+  -- repr-wrappedpath /ob = /ob .snd .snd
+  -- λ /ob → wrap (/ob .snd .snd)
 
   _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
   _[-][-,_] xᴰ .F-ob (Γ , Γᴰ , f) = ( Cᴰ [ f ][ Γᴰ , xᴰ ]) , Cᴰ.isSetHomᴰ
   _[-][-,_] xᴰ .F-hom {x = z3@(z , zᴰ , f)}{y = y3@(y , yᴰ , g)} γ3@(γ , γᴰ , γ⋆f≡g) fᴰ =
-    Cᴰ.reind (repr-wrappedpath (γ , γᴰ , γ⋆f≡g)) $ γᴰ Cᴰ.⋆ᴰ fᴰ
-    -- where
-    --   lem : hSetReasoning.WrappedPath (C [ y , x ] , isSetHom C)
-    --     Cᴰ.Hom[_][ yᴰ , xᴰ ] (γ C.⋆ f) g
-    --   lem .hSetReasoning.WrappedPath.path = {!γ3!}
+    Cᴰ.reind γ⋆f≡g $ γᴰ Cᴰ.⋆ᴰ fᴰ
   _[-][-,_] xᴰ .F-id =
-    funExt λ fᴰ → Cᴰ.rectifyOut {e' = Cᴰ.wrap refl} $ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdL _
+    funExt λ fᴰ → Cᴰ.rectifyOut {e' = wrap refl} $ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdL _
   _[-][-,_] xᴰ .F-seq (γ , γᴰ , _) (σ , σᴰ , _) =
-    funExt λ fᴰ → Cᴰ.rectifyOut {e' = Cᴰ.wrap refl} $
+    funExt λ fᴰ → Cᴰ.rectifyOut {e' = wrap refl} $
       Cᴰ.reind-filler⁻ _
       ∙ Cᴰ.⋆Assoc _ _ _
       ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ⟩
@@ -102,7 +103,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     yoRecᴰ : ∀ {x}{xᴰ}{p : P.p[ x ]} (pᴰ : Pᴰ.p[ p ][ xᴰ ]) → PshHomᴰ (yoRec P p) (Cᴰ [-][-, xᴰ ]) Pᴰ
     yoRecᴰ pᴰ .N-ob (Γ , Γᴰ , f) fᴰ = fᴰ Pᴰ.⋆ᴰ pᴰ
     yoRecᴰ pᴰ .N-hom _ _ _ _ =
-      Pᴰ.rectifyOut {e' = Pᴰ.wrap refl} $
+      Pᴰ.rectifyOut {e' = wrap refl} $
         Pᴰ.⟨ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩
         ∙ Pᴰ.⋆Assocᴰ _ _ _
         ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
@@ -111,22 +112,22 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     private
       module Pⱽ = PresheafᴰNotation Cᴰ (C [-, x ]) Pⱽ
     yoRecⱽ : ∀ {xᴰ} → Pⱽ.p[ C.id ][ xᴰ ] → PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
-    yoRecⱽ pⱽ .N-ob (Γ , Γᴰ , f) gᴰ = Pⱽ .F-hom (f , gᴰ , C.⋆IdR _) pⱽ
+    yoRecⱽ pⱽ .N-ob (Γ , Γᴰ , f) gᴰ = Pⱽ .F-hom (f , gᴰ , wrap (C.⋆IdR _)) pⱽ
     yoRecⱽ pⱽ .N-hom (Γ , Γᴰ , f) (Δ , Δᴰ , g) (h , hᴰ , h⋆g≡f) gᴰ =
       congS (λ z → Pⱽ .F-hom z pⱽ)
-        (ΣPathP ((sym h⋆g≡f) ,
+        (ΣPathP ((sym $ h⋆g≡f .WrappedPath.path) ,
                  (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _) ,
-                 isProp→PathP (λ _ → C.isSetHom _ _) _ _))))
-      ∙ funExt⁻ (Pⱽ .F-seq (g , gᴰ , C.⋆IdR g) (h , hᴰ , h⋆g≡f)) pⱽ
+                 isProp→PathP (λ _ → hasPropHomsElement (C [-, x ]) _ _ _) _ _))))
+      ∙ funExt⁻ (Pⱽ .F-seq (g , gᴰ , wrap (C.⋆IdR g)) (h , hᴰ , h⋆g≡f)) pⱽ
 
     yoRecⱽ-UMP :
       ∀ {xᴰ}
       → Iso (PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ) (Pⱽ.p[ C.id ][ xᴰ ])
     yoRecⱽ-UMP .fun α = α .N-ob _ Cᴰ.idᴰ
     yoRecⱽ-UMP .inv = yoRecⱽ
-    yoRecⱽ-UMP .sec pⱽ = Pⱽ.rectifyOut {e' = Pⱽ.wrap refl} (Pⱽ.formal-reind-filler _ _)
+    yoRecⱽ-UMP .sec pⱽ = Pⱽ.rectifyOut {e' = wrap refl} (Pⱽ.formal-reind-filler _ _)
     yoRecⱽ-UMP {xᴰ} .ret α = makePshHomPath (funExt (λ /ob@(Γ , Γᴰ , f) → funExt (λ fᴰ →
-      Pⱽ.rectifyOut {e' = Pⱽ.wrap refl} $ (Pⱽ.⋆ᴰ-reind _ _ _) ∙ sym (∫PshHomⱽ α .N-hom _ _ _ _)
+      Pⱽ.rectifyOut {e' = wrap refl} $ (Pⱽ.⋆ᴰ-reind _ _ _) ∙ sym (∫PshHomⱽ α .N-hom _ _ _ _)
         ∙ congN-obⱽ α ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _))))
       where ∫α = ∫PshHomⱽ α
 
@@ -223,7 +224,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     → UniversalElementᴰ ue
   Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .fst = yᴰxᴰ≅Pᴰ .fst
   Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .fst =
-    Pᴰ.reind (Pᴰ.wrap $ P.⋆IdL (UniversalElement.element ue))
+    Pᴰ.reind (wrap $ P.⋆IdL (UniversalElement.element ue))
              (yᴰxᴰ≅Pᴰ .snd .fst .N-ob
                (UniversalElement.vertex ue , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ)
   Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv =

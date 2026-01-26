@@ -79,7 +79,7 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
     module Q = hSetReasoning (B , isSetB) Q
 
   fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
-  fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (Q.reind (Q.wrap $ sym $ sec isom b) q)
+  fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (Q.reind (wrap $ sym $ sec isom b) q)
   fiberwiseIsoOver→IsoOver .rightInv = λ b q →
     f⁻ (inv isom b) .snd .fst (Q.reind _ q)
     ◁ symP (Q.Prectify $ Q.≡out $ Q.reind-filler _)
@@ -104,21 +104,21 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
         unfolding hSetReasoning.reind
         opq : PathP (λ i → P (ret isom a i))
            (f⁻ (inv isom (fun isom a))
-             .fst (Q.reind (Q.wrap $ sym $ sec isom (fun isom a)) (f a p)))
+             .fst (Q.reind (wrap $ sym $ sec isom (fun isom a)) (f a p)))
              p
         opq =
-            P.rectifyOut {e' = P.wrap (λ i → ret isom a i)} $
+            P.rectifyOut {e' = wrap (λ i → ret isom a i)} $
             f⁻cong∫~
-               (Q.reind-filler⁻ (Q.wrap (λ i → sec isom (fun isom a) (~ i)))
-               ∙ Q.reind-filler (Q.wrap
+               (Q.reind-filler⁻ (wrap (λ i → sec isom (fun isom a) (~ i)))
+               ∙ Q.reind-filler (wrap
                                   (λ i →
                                      transp (λ j → B) (~ i) (fun (equivToIso (isoToEquiv isom)) a)))
-               ∙ Q.reind-filler (Q.wrap
+               ∙ Q.reind-filler (wrap
                                   (λ i →
                                      sec isom
                                      (transp (λ j → B) (i0 ∨ i0) (fun (equivToIso (isoToEquiv isom)) a))
                                      (~ i))))
-            ∙ P.reind-filler (P.wrap (λ i →
+            ∙ P.reind-filler (wrap (λ i →
                                          inv isom
                                          (transp (λ j → B) (i0 ∨ i) (fun (equivToIso (isoToEquiv isom)) a))))
             ∙ P.≡in (isoover' .leftInv a p)

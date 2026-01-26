@@ -2,6 +2,7 @@
 module Cubical.Categories.Presheaf.Constructions.Comprehension where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
@@ -47,7 +48,7 @@ module _ {C : Category ℓ ℓ'} where
       Σ[ γ ∈ C [ Δ , Γ ] ] Pᴰ.p[ γ P.⋆ p ][ _ ]
     Comprehension Γ p .F-ob Δ .snd = isSetΣ C.isSetHom (λ _ → Pᴰ.isSetPshᴰ)
     Comprehension Γ p .F-hom δ (γ , pᴰ) =
-      (δ C.⋆ γ) , Pᴰ.reind (Pᴰ.wrap $ sym $ P.⋆Assoc _ _ _)
+      (δ C.⋆ γ) , Pᴰ.reind (wrap $ sym $ P.⋆Assoc _ _ _)
         (_ Pᴰ.⋆ᴰ pᴰ)
     Comprehension Γ p .F-id = funExt (λ (γ , q) → ΣPathP ((C.⋆IdL _) ,
       (Pᴰ.rectify $ Pᴰ.≡out $

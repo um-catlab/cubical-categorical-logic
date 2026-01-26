@@ -187,23 +187,32 @@ module _ {ℓ ℓ'} where
   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
   ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
+    -- Goals here mention paths wrapped in the SETᴰ.wrap constructor
     {!!}
+
     -- SETᴰ.rectifyOut {e' = SETᴰ.wrap refl} $
     --   SETᴰ.reind-filler⁻ _
     --   ∙ SETᴰ.congᴰ (λ (u : uTy) z zᴰ → f z (u z zᴰ))
     --      (SETᴰ×ⱽHelper Zᴰ g*Xᴰ (Zᴰ ×ⱽSETᴰ g*Xᴰ) _ _ (SETᴰ.reind-filler⁻ _)
-    --         {!!})
-    --       -- (funExt₂ λ z zᴰ →
-    --       --   ΣPathP ((funExt₂⁻ (SETᴰ.rectifyOut {e' = SETᴰ.wrap refl} $ SETᴰ.reind-filler⁻ _) z zᴰ) ,
-    --       --            funExt₂⁻ (SETᴰ.rectifyOut {e' = SETᴰ.wrap refl} $
-    --       --               SETᴰ.reind-filler⁻ _
-    --       --              ∙ SETᴰ.reind-filler⁻ _
-    --       --              ∙ SETᴰ.reind-filler⁻ (SETᴰ.wrap {!refl!})
-    --       --              ∙ SETᴰ.reind-filler⁻ (SETᴰ.wrap refl))
-    --       --              z zᴰ))
-    --   where
-    --   g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
-    --   uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
+    --         -- Can't apply this reind-filler⁻ because "X ≢ Z"
+    --         ({!SETᴰ.reind-filler⁻ _!}
+    --         ∙ {!!}))
+
+    -- SETᴰ.rectifyOut {e' = SETᴰ.wrap refl} $
+    --   SETᴰ.reind-filler⁻ _
+    --   ∙ SETᴰ.congᴰ (λ (u : uTy) z zᴰ → f z (u z zᴰ))
+    --       (funExt₂ λ z zᴰ →
+    --         -- same issue with X ≢ Z arises when trying to resolve arguments below
+    --         ΣPathP ((funExt₂⁻ (SETᴰ.rectifyOut {e' = {!!}} $ SETᴰ.reind-filler⁻ _) z zᴰ) ,
+    --                  funExt₂⁻ (SETᴰ.rectifyOut {bᴰ = ?} {e' = {!!}} $
+    --                     SETᴰ.reind-filler⁻ _
+    --                    ∙ SETᴰ.reind-filler⁻ _
+    --                    ∙ SETᴰ.reind-filler⁻ _
+    --                    ∙ SETᴰ.reind-filler⁻ _)
+    --                    z zᴰ))
+      where
+      g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
+      uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
   ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
 
 --   -- ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ

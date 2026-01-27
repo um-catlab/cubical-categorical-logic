@@ -138,6 +138,27 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
     (α ⋆NT β) .NatTrans.N-natL = {!!}
     (α ⋆NT β) .NatTrans.N-natR = {!!}
 
+module _ (C : Category ℓC ℓC')(D : Category ℓD ℓD') where
+  private
+    module C = Category C
+    module D = Category D
+  FUNCTOR : Category (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD') (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓD) ℓD')
+  FUNCTOR .Category.ob = Functor C D
+  FUNCTOR .Category.Hom[_,_] = NatTrans
+  FUNCTOR .Category.id = idNT
+  FUNCTOR .Category._⋆_ = _⋆NT_
+  FUNCTOR .Category.⋆IdL = {!!}
+  FUNCTOR .Category.⋆IdR = {!!}
+  FUNCTOR .Category.⋆Assoc = {!!}
+  FUNCTOR .Category.isSetHom = {!!}
+
+
+module _ (C : Category ℓC ℓC')(D : Category ℓD ℓD') where
+  RedundFUNCTOR : Category (ℓ-max (ℓ-max (ℓ-max ℓC (ℓ-max ℓC ℓC')) ℓD) ℓD') (ℓ-max (ℓ-max (ℓ-max ℓC (ℓ-max ℓC ℓC')) ℓD) ℓD')
+  RedundFUNCTOR = FUNCTOR (Cat+SynId C) D
+
+-- CurryBifunctor : 
+
 -- Homomorphism of profunctors
 RedundNatTrans : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F G : Functor C D) → Type _
 RedundNatTrans {C = C}{D = D} F G = NatTrans (rec C F) (rec C G)

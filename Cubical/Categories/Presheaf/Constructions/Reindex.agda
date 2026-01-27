@@ -114,6 +114,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   PshHet : (F : Functor C D) (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) → Type _
   PshHet F P Q = PshHom P (reindPsh F Q)
 
+  PshHet' : (F : Functor C D) (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) → Type _
+  PshHet' F P Q = PshHom' P (reindPsh F Q)
+
   Functor→PshHet : (F : Functor C D) (c : C .ob)
     → PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
   Functor→PshHet F c .N-ob _ = F .F-hom

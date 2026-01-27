@@ -14,7 +14,8 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
-open import Cubical.HITs.Join
+open import Cubical.HITs.Join as Join
+open import Cubical.HITs.Join.More as Join
 open import Cubical.HITs.PathEq
 
 open import Cubical.Categories.Category.Base
@@ -107,6 +108,19 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   PshHet→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsElement Q)
     (α .PshHom.N-ob _)
     λ f⋆p≡p' → (sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _) f⋆p≡p'
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf D ℓQ}
+  {F : Functor C D}
+  (α : PshHet' F P Q)
+  where
+  PshHet'→ElementFunctorᴰ : Functorᴰ F (RedundElement P) (RedundElement Q)
+  PshHet'→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsRedundElement Q)
+    (λ {x} → α .PshHom'.N-ob x)
+    (elimPropBoth (PresheafNotation.isSetPsh P) (λ _ → isPropPathEq (PresheafNotation.isSetPsh Q))
+      (λ f⋆p≡p' → inl ((sym $ PathEq→Path (Q .F-ob (F-ob (F ^opF) _) .snd) (α .PshHom'.N-hom _ _ _ _)) ∙ cong (α .PshHom'.N-ob _) f⋆p≡p'))
+      (λ { Eq.refl → symPE (Q .F-ob (F .F-ob _) .snd) (α .PshHom'.N-hom _ _ _ _) }))
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)

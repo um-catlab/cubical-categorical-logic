@@ -78,6 +78,15 @@ open PshIso
 _/_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
 Cᴰ / P = ∫C (Cᴰ ×ᴰ RedundElement P)
 
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  {F : Functor C D}
+  where
+  _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHet' F P Q)
+    → Functor (Cᴰ / P) (Dᴰ / Q)
+  Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHet'→ElementFunctorᴰ α)
+
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Presheaf C ℓP} where
   open Category
   private

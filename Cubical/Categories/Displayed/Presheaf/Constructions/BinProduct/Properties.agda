@@ -197,16 +197,16 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   PshProdⱽ≡ᴰ = Functorᴰ≡
     (λ Aᴰ → funExt λ (p , q) → ΣPathPProp (λ _ → isPropIsSet) refl)
     λ fᴰ → funExt λ (p , q) → funExt λ (pᴰ , qᴰ) → ΣPathP $
-      (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
-      , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _)
+      (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler)
+      , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler)
 
   -- This one is only Eq.refl on objects, would need a corresponding eqToPshIsoⱽ' like reindF''
   PshProdⱽ≅ᴰ :
     PshIsoⱽ (Pᴰ ×ᴰPsh Qᴰ) (reind (π₁ P Q) Pᴰ ×ⱽPsh reind (π₂ P Q) Qᴰ)
   PshProdⱽ≅ᴰ .fst .N-obᴰ x = x
   PshProdⱽ≅ᴰ .fst .N-homᴰ =
-    ΣPathP ( (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
-           , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _))
+    ΣPathP ( (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler)
+           , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler))
   PshProdⱽ≅ᴰ .snd .inv _ x = x
   PshProdⱽ≅ᴰ .snd .rightInv _ _ = refl
   PshProdⱽ≅ᴰ .snd .leftInv _ _ = refl

@@ -81,7 +81,7 @@ module _ {M : MonoidalCategory ℓC ℓC'}
           (λ { (p , q) → isoLift (p P.⊗ᴰ q) (invIso (NatIsoAt G.μ-Iso _)) .f*cᴰ
             })
           λ { {f , g}(fᴰ , gᴰ) →
-            PR.reind (cong₂ N._⋆_ refl (G.μ .N-hom _) ∙ sym (N.⋆Assoc _ _ _)
+            PR.reind {e = cong₂ N._⋆_ refl (G.μ .N-hom _) ∙ sym (N.⋆Assoc _ _ _)
               ∙ cong₂ N._⋆_ (G.μ-isIso _ .sec) refl ∙ N.⋆IdL _)
             (isoLift _ _ .π P.⋆ᴰ ((fᴰ P.⊗ₕᴰ gᴰ) P.⋆ᴰ isoLift _ _ .σ)) }
         MP .αᴰ⟨_,_,_⟩ p q r = PR.reind

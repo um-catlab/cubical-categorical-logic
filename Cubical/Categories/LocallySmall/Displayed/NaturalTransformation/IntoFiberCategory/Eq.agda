@@ -98,12 +98,12 @@ module FunctorEqᴰDefs
     Functorᴰ→FunctorEqᴰ Fᴰ .F-idᴰ =
       F-idᴰ Fᴰ
       ∙ ΣPathP (fib→fibEq Eᴰ D-⋆ _ .F-id ,
-        (Dᴰᴰ.rectify $ Dᴰᴰ.≡out $ sym $ Dᴰᴰ.reind-filler _ _))
+        (Dᴰᴰ.rectify $ Dᴰᴰ.≡out $ sym $ Dᴰᴰ.reind-filler))
     Functorᴰ→FunctorEqᴰ Fᴰ .F-seqᴰ _ _ =
       F-seqᴰ Fᴰ _ _
       ∙ ΣPathP (fib→fibEq Eᴰ D-⋆ _ .F-seq _ _ ,
         (Dᴰᴰ.rectify $ Dᴰᴰ.≡out $
-          (sym $ Dᴰᴰ.reind-filler _ _)
+          (sym $ Dᴰᴰ.reind-filler)
           ∙ Dᴰᴰ.reindEq-pathFiller _ _))
 
     FunctorEqᴰ→Functorᴰ :
@@ -115,10 +115,10 @@ module FunctorEqᴰDefs
     FunctorEqᴰ→Functorᴰ Fᴰ .F-idᴰ =
       F-idᴰ Fᴰ
       ∙ ΣPathP (fibEq→fib Eᴰ D-⋆ _ .F-id ,
-        (Dᴰᴰ.rectify $ Dᴰᴰ.≡out $ Dᴰᴰ.reind-filler _ _))
+        (Dᴰᴰ.rectify $ Dᴰᴰ.≡out $ Dᴰᴰ.reind-filler))
     FunctorEqᴰ→Functorᴰ Fᴰ .F-seqᴰ _ _ =
       F-seqᴰ Fᴰ _ _
       ∙ ΣPathP (fibEq→fib Eᴰ D-⋆ _ .F-seq _ _ ,
         (Dᴰᴰ.rectify $ Dᴰᴰ.≡out $
           (sym $ Dᴰᴰ.reindEq-pathFiller _ _)
-          ∙ Dᴰᴰ.reind-filler _ _))
+          ∙ Dᴰᴰ.reind-filler _))

@@ -95,9 +95,9 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
         (f , fᴰ)
         (f , fᴰ')
     → Path p[ _ ]
-        (g , reind f≡g fᴰ)
-        (g , reind f≡g fᴰ')
-  reind⟨ f≡g ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind f≡g) (rectify (≡out fᴰ≡fᴰ')))
+        (g , reind {e = f≡g} fᴰ)
+        (g , reind {e = f≡g} fᴰ')
+  reind⟨ f≡g ⟩⟨ fᴰ≡fᴰ' ⟩ = ≡in (cong (reind {e = f≡g}) (rectify (≡out fᴰ≡fᴰ')))
 
   _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{g}
      → Cᴰ [ f ][ xᴰ , yᴰ ] → p[ g ][ yᴰ ]
@@ -117,7 +117,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   _⋆ⱽᴰ_ : ∀ {x xᴰ xᴰ'}{g}
      → Cᴰ [ C.id {x} ][ xᴰ , xᴰ' ] → p[ g ][ xᴰ' ]
      → p[ g ][ xᴰ ]
-  _⋆ⱽᴰ_ {g = g} fⱽ gᴰ = reind (P.⋆IdL _) (fⱽ ⋆ᴰ gᴰ)
+  _⋆ⱽᴰ_ {g = g} fⱽ gᴰ = reind {e = P.⋆IdL _} (fⱽ ⋆ᴰ gᴰ)
 
   -- Should it just be fⱽ ≡ fⱽ' instead since that's more "vertical"?
   ⟨_⟩⋆ⱽᴰ⟨_⟩ :
@@ -137,9 +137,9 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
             (_ , ((fᴰ Cᴰ.⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ))
             (_ , (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ)))
     ⋆Assocᴰⱽᴰ fᴰ gⱽ hᴰ =
-      ⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
+      ⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩
       ∙ ⋆Assoc _ _ _
-      ∙ ⟨ refl ⟩⋆⟨ reind-filler _ ⟩
+      ∙ ⟨ refl ⟩⋆⟨ reind-filler ⟩
 
     ⋆Assocⱽⱽᴰ : ∀ {x}{h : P.p[ x ]}{xᴰ xᴰ' xᴰ''}
         (fⱽ : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]) (gⱽ : Cᴰ.v[ x ] [ xᴰ' , xᴰ'' ]) (hᴰ : p[ h ][ xᴰ'' ])
@@ -147,11 +147,11 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
             (_ , ((fⱽ Cᴰ.⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ))
             (_ , (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ)))
     ⋆Assocⱽⱽᴰ fⱽ gⱽ hᴰ =
-      (sym $ reind-filler _) ∙
-      ⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨⟩
+      (sym $ reind-filler) ∙
+      ⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨⟩
       ∙ ⋆Assoc _ _ _
-      ∙ ⟨⟩⋆⟨ reind-filler _ ⟩
-      ∙ reind-filler _
+      ∙ ⟨⟩⋆⟨ reind-filler ⟩
+      ∙ reind-filler
 
     ⋆Assocⱽᴰᴰ : ∀ {x y} {g : C [ x , y ]}  {h : P.p[ y ]} {xᴰ xᴰ' yᴰ}
       (fⱽ : Cᴰ.v[ x ] [ xᴰ , xᴰ' ]) (gᴰ : Cᴰ [ g ][ xᴰ' , yᴰ ]) (hᴰ : p[ h ][ yᴰ ])
@@ -159,21 +159,21 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
           (_ , (fⱽ Cᴰ.⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ)
           (_ , fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
     ⋆Assocⱽᴰᴰ fⱽ gᴰ hᴰ =
-      ⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨⟩
+      ⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨⟩
       ∙ ⋆Assoc _ _ _
-      ∙ reind-filler _
+      ∙ reind-filler
 
     ⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}
       → (gᴰ : p[ g ][ xᴰ ])
       → Cᴰ.idᴰ ⋆ⱽᴰ gᴰ ≡ gᴰ
-    ⋆ⱽIdL gᴰ = rectify $ ≡out $ (sym $ reind-filler _) ∙ ⋆IdL _
+    ⋆ⱽIdL gᴰ = rectify $ ≡out $ (sym $ reind-filler) ∙ ⋆IdL _
 
     ∫⋆ⱽIdL : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{g}
       → (gᴰ : p[ g ][ xᴰ ])
       → Path p[ _ ]
           (_ , Cᴰ.idᴰ ⋆ⱽᴰ gᴰ)
           (_ , gᴰ)
-    ∫⋆ⱽIdL gᴰ = sym (reind-filler _) ∙ ⋆IdL _
+    ∫⋆ⱽIdL gᴰ = sym (reind-filler) ∙ ⋆IdL _
 
     opaque
       unfolding hSetReasoning.reind
@@ -190,7 +190,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
         → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ)
         (λ {qᴰ} idᴰ⋆ᴰpᴰ≡qᴰ →
           rectify $ ≡out $
-            sym (⋆IdL _) ∙ ⟨ Cᴰ.reind-filler _ ⟩⋆⟨⟩ ∙ idᴰ⋆ᴰpᴰ≡qᴰ)
+            sym (⋆IdL _) ∙ ⟨ Cᴰ.reind-filler ⟩⋆⟨⟩ ∙ idᴰ⋆ᴰpᴰ≡qᴰ)
 
       fromPathPPshᴰ
         : ∀ {x xᴰ yᴰ}{p q : P.p[ x ]}{p≡q : p ≡ q}
@@ -202,7 +202,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
       fromPathPPshᴰ {x}{xᴰ}{yᴰ}{p}{q}{p≡q}{pᴰ} = J (λ yᴰ xᴰ≡yᴰ →  ∀ {qᴰ : p[ q ][ yᴰ ]}
         → PathP (λ i → p[ p≡q i ][ xᴰ≡yᴰ i ]) pᴰ qᴰ
         → Path (p[ _ ]) (_ , pathToCatIsoⱽ Cᴰ (sym xᴰ≡yᴰ) .fst ⋆ᴰ pᴰ) (_ , qᴰ))
-        λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
+        λ pᴰ≡qᴰ → ⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨ ≡in pᴰ≡qᴰ ⟩
           ∙ ⋆IdL _
 
 -- A vertical presheaf is a displayed presheaf over a representable
@@ -231,7 +231,7 @@ module PresheafⱽNotation
   _⋆ᴰⱽ_ :
       Cᴰ [ f ][ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
       → p[ f ][ xᴰ ]
-  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
+  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = reind {e = C.⋆IdR _} (fᴰ ⋆ᴰ gⱽ)
 
   _⋆ⱽ_ :
     Cᴰ.v[ c ] [ xᴰ , cᴰ ] → pⱽ[ cᴰ ]
@@ -241,15 +241,15 @@ module PresheafⱽNotation
   opaque
     ⋆ᴰid≡⋆ᴰⱽ : ∀ (fᴰ : Cᴰ [ f ][ xᴰ , cᴰ ]) (gⱽ : pⱽ[ cᴰ ])
       → fᴰ ⋆ᴰ gⱽ ≡[ C.⋆IdR f ] fᴰ ⋆ᴰⱽ gⱽ
-    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = rectify $ ≡out $ reind-filler _
+    ⋆ᴰid≡⋆ᴰⱽ fᴰ gⱽ = rectify $ ≡out $ reind-filler
 
     ⋆Assocᴰᴰⱽ :
       ∀ (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ])(gᴰ : Cᴰ [ g ][ yᴰ , cᴰ ])(pⱽ : pⱽ[ cᴰ ])
       → (fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰⱽ pⱽ ≡ fᴰ ⋆ᴰ (gᴰ ⋆ᴰⱽ pⱽ)
     ⋆Assocᴰᴰⱽ fᴰ gᴰ pⱽ = rectify $ ≡out $
-      sym (reind-filler _)
+      sym (reind-filler)
       ∙ ⋆Assoc _ _ _
-      ∙ ⟨⟩⋆⟨ reind-filler _ ⟩
+      ∙ ⟨⟩⋆⟨ reind-filler ⟩
 
 module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}

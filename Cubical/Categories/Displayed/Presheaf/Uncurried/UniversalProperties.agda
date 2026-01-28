@@ -140,7 +140,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
       → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .fst ] fᴰ
     ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-      Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
+      Cᴰ.reind-filler ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
 
     ×βᴰ₂ : ∀ {Γ Γᴰ}
       {f : C [ Γ , A ]}
@@ -149,7 +149,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
       → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .snd ] gᴰ
     ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-      Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
+      Cᴰ.reind-filler ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
 
     ×ηᴰ : ∀ {Γ Γᴰ}
       → {f : C [ Γ , A×B .vertex ]}
@@ -159,8 +159,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       Cᴰ.≡in (ηᴰ {f = f} fᴰ)
       ∙ cong (∫PshIsoᴰ (asReprᴰ .snd) .nIso _ .fst)
           (ΣPathPᴰ
-              (sym $ Cᴰ.reind-filler _)
-              (sym $ Cᴰ.reind-filler _))
+              (sym $ Cᴰ.reind-filler)
+              (sym $ Cᴰ.reind-filler))
 
   module BinProductsᴰNotation (bp : BinProducts C) (bpᴰ : BinProductsᴰ bp) where
     _×ᴰ_ : ∀ {A B} (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Cᴰ.ob[ bp (A , B) .vertex ]

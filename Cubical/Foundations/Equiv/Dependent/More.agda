@@ -79,10 +79,10 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
     module Q = hSetReasoning (B , isSetB) Q
 
   fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
-  fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (Q.reind (sym $ sec isom b) q)
+  fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (Q.reind {e = sym $ sec isom b} q)
   fiberwiseIsoOver→IsoOver .rightInv = λ b q →
-    f⁻ (inv isom b) .snd .fst (Q.reind _ q)
-    ◁ symP (Q.Prectify $ Q.≡out $ Q.reind-filler _)
+    f⁻ (inv isom b) .snd .fst (Q.reind q)
+    ◁ symP (Q.Prectify $ Q.≡out $ Q.reind-filler)
   fiberwiseIsoOver→IsoOver .leftInv a p = opq
     where
       f⁻cong : ∀ {a a'}{q : Q (isom .fun a)}{q' : Q (isom .fun a')}
@@ -104,13 +104,13 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
         unfolding hSetReasoning.reind
         opq : PathP (λ i → P (ret isom a i))
            (f⁻ (inv isom (fun isom a))
-             .fst (Q.reind (λ i → sec isom (fun isom a) (~ i)) (f a p)))
+             .fst (Q.reind {e = λ i → sec isom (fun isom a) (~ i)} (f a p)))
              p
         opq =
             P.Prectify $ P.≡out $
             f⁻cong∫~
-                (sym (Q.reind-filler _) ∙ Q.reind-filler _ ∙ Q.reind-filler _ )
-            ∙ P.reind-filler _
+                (sym (Q.reind-filler) ∙ Q.reind-filler ∙ Q.reind-filler )
+            ∙ P.reind-filler
             ∙ P.≡in (isoover' .leftInv a p)
 
 -- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =

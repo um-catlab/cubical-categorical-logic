@@ -98,7 +98,7 @@ module _
     introπF*⟨ γ≡γ' ⟩⟨ γᴰ≡γᴰ' ⟩ i = introπF* (γᴰ≡γᴰ' i)
 
     π-πF* : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) → Cᴰ [ πF ⟦ Γ ⟧ ][ vertexⱽ (πF* Γᴰ) , Γᴰ ]
-    π-πF* Γᴰ = Cᴰ.reind (C.⋆IdL _) $ πF* Γᴰ .elementⱽ
+    π-πF* Γᴰ = Cᴰ.reind {e = C.⋆IdL _} $ πF* Γᴰ .elementⱽ
 
     opaque
       unfolding hSetReasoning.reind
@@ -109,9 +109,9 @@ module _
         → introπF* γᴰ Cᴰ.⋆ᴰ π-πF* Γᴰ ≡ γᴰ
       β-πF* {Γᴰ = Γᴰ} γᴰ =
         Cᴰ.rectify $ Cᴰ.≡out $
-          Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ ⟩
-          ∙ Cᴰ.reind-filler _
-          ∙ Cᴰ.reind-filler _
+          Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler ⟩
+          ∙ Cᴰ.reind-filler
+          ∙ Cᴰ.reind-filler
           ∙ Cᴰ.≡in (βⱽ (πF* Γᴰ) {pᴰ = γᴰ})
 
       βᴰ-πF* :
@@ -123,8 +123,8 @@ module _
             (_ , introπF* γᴰ Cᴰ.⋆ᴰ πF* Γᴰ .elementⱽ)
             (_ , γᴰ)
       βᴰ-πF* γᴰ =
-        Cᴰ.reind-filler _
-        ∙ Cᴰ.reind-filler _
+        Cᴰ.reind-filler
+        ∙ Cᴰ.reind-filler
         ∙ Cᴰ.≡in (βⱽ (πF* _) {pᴰ = γᴰ})
 
     open NatTrans
@@ -132,44 +132,44 @@ module _
     weakenπFᴰ : Functorᴰ F Cᴰ Cᴰ
     weakenπFᴰ .F-obᴰ Γᴰ = πF* Γᴰ .vertexⱽ
     weakenπFᴰ .F-homᴰ {f = γ} {xᴰ = Γᴰ} {yᴰ = Δᴰ} γᴰ =
-      introπF* (Cᴰ.reind (sym $ πF .N-hom γ) $ (π-πF* Γᴰ Cᴰ.⋆ᴰ γᴰ))
+      introπF* (Cᴰ.reind {e = sym $ πF .N-hom γ} $ (π-πF* Γᴰ Cᴰ.⋆ᴰ γᴰ))
     weakenπFᴰ .F-idᴰ {xᴰ = Γᴰ} =
         introπF*⟨ F .F-id  ⟩⟨
           Cᴰ.rectify $ Cᴰ.≡out $
-            (sym $ Cᴰ.reind-filler _)
+            (sym $ Cᴰ.reind-filler)
             ∙ Cᴰ.⋆IdR _
-            ∙ (sym $ Cᴰ.reind-filler _)
+            ∙ (sym $ Cᴰ.reind-filler)
         ⟩
           ▷ (sym $ weak-ηⱽ (πF* Γᴰ))
     weakenπFᴰ .F-seqᴰ γᴰ δᴰ =
       introπF*⟨ F .F-seq _ _ ⟩⟨
         Cᴰ.rectify $ Cᴰ.≡out $
-          (sym $ Cᴰ.reind-filler _)
-          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
+          (sym $ Cᴰ.reind-filler)
+          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩
           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ Cᴰ.⟨ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
-               ∙ Cᴰ.reind-filler _
-               ∙ (Cᴰ.≡in $ sym $ β-πF* (Cᴰ.reind (sym $ πF .N-hom _) (π-πF* _ Cᴰ.⋆ᴰ γᴰ)))
+          ∙ Cᴰ.⟨ Cᴰ.⟨ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩
+               ∙ Cᴰ.reind-filler
+               ∙ (Cᴰ.≡in $ sym $ β-πF* (Cᴰ.reind {e = sym $ πF .N-hom _} (π-πF* _ Cᴰ.⋆ᴰ γᴰ)))
                ⟩⋆⟨ refl ⟩
           ∙ (Cᴰ.⋆Assoc _ _ _)
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ ⟩
-          ∙ Cᴰ.reind-filler _
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler ⟩
+          ∙ Cᴰ.reind-filler
       ⟩ ▷ (Cᴰ.rectify $ Cᴰ.≡out $ sym $ introᴰ-natural (πF* _))
 
     opaque
       unfolding hSetReasoning.reind
       weakenπFNatTransᴰ : NatTransᴰ πF weakenπFᴰ 𝟙ᴰ⟨ Cᴰ ⟩
       weakenπFNatTransᴰ .NatTransᴰ.N-obᴰ Γᴰ =
-        Cᴰ.reind (C.⋆IdL _) $ πF* Γᴰ .elementⱽ
+        Cᴰ.reind {e = C.⋆IdL _} $ πF* Γᴰ .elementⱽ
       weakenπFNatTransᴰ .NatTransᴰ.N-homᴰ fᴰ =
         Cᴰ.rectify $ Cᴰ.≡out $
-          Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ ⟩
-          ∙ Cᴰ.reind-filler _
-          ∙ Cᴰ.reind-filler _
+          Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler ⟩
+          ∙ Cᴰ.reind-filler
+          ∙ Cᴰ.reind-filler
           ∙ (Cᴰ.≡in $ βⱽ (πF* _))
-          ∙ (sym $ Cᴰ.reind-filler _)
-          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
-          ∙ Cᴰ.⟨ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
+          ∙ (sym $ Cᴰ.reind-filler)
+          ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩
+          ∙ Cᴰ.⟨ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩
 
     module _ (P : Presheaf C ℓP) where
       private
@@ -283,11 +283,11 @@ module _
 --                 (sym bp.×β₂
 --                 ∙ C.⟨ refl ⟩⋆⟨ sym bp.×β₂ ⟩
 --                 ∙ (sym $ C.⋆Assoc _ _ _))) $
---               (introπF* (Cᴰ.reind (sym bp.×β₁) $ Cᴰ.idᴰ) Pⱽ.⋆ᴰ αᴰ.N-obᴰ qᴰ)
+--               (introπF* (Cᴰ.reind {e = sym bp.×β₁} $ Cᴰ.idᴰ) Pⱽ.⋆ᴰ αᴰ.N-obᴰ qᴰ)
 --           ∀ⱽPsh-introᴰ⁻' .N-homᴰ =
 --             Pⱽ.rectify $ Pⱽ.≡out $
---               (sym $ Pⱽ.reind-filler _)
---               ∙ Pⱽ.⟨⟩⋆⟨ αᴰ.N-obᴰ⟨(sym $ Qᴰ.reind-filler _)⟩ ⟩
+--               (sym $ Pⱽ.reind-filler)
+--               ∙ Pⱽ.⟨⟩⋆⟨ αᴰ.N-obᴰ⟨(sym $ Qᴰ.reind-filler)⟩ ⟩
 --               ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.≡in αᴰ.N-homᴰ ⟩
 --               ∙ (sym $ Pⱽ.⋆Assoc _ _ _)
 --               ∙ Pⱽ.⟨
@@ -309,22 +309,22 @@ module _
 --                         ∙ C.⟨ refl ⟩⋆⟨ sym $ bp.×β₂ ⟩
 --                         ∙ (sym $ C.⋆Assoc _ _ _))
 --                       ∙ (sym $ C.⋆IdR _)) $
---                       (sym $ Cᴰ.reind-filler _)
---                       ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler _)
---                                         ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩ ⟩
+--                       (sym $ Cᴰ.reind-filler)
+--                       ∙ Cᴰ.⟨ refl ⟩⋆⟨ (sym $ Cᴰ.reind-filler)
+--                                         ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩ ⟩
 --                       ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
 --                       ∙ Cᴰ.⟨ βᴰ-πF* _ ⟩⋆⟨ refl ⟩
---                       ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
+--                       ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩
 --                       ∙ Cᴰ.⋆IdL _
 --                       ∙ (sym $ Cᴰ.⋆IdR _)
---                       ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ ⟩
---                       ∙ Cᴰ.reind-filler _
+--                       ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler ⟩
+--                       ∙ Cᴰ.reind-filler
 --                       ∙ (sym $ βᴰ-πF* _)
---                       ∙ Cᴰ.reind-filler _)
+--                       ∙ Cᴰ.reind-filler)
 --                 ⟩⋆⟨⟩
 --               ∙ Pⱽ.⟨ sym $ introᴰ-natural (π₁* _) ⟩⋆⟨⟩
 --               ∙ Pⱽ.⋆Assoc _ _ _
---               ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.reind-filler _ ⟩
+--               ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.reind-filler ⟩
 
 --       module _
 --         {Q : Presheaf C ℓQ}
@@ -373,7 +373,7 @@ module _
 -- --               elementⱽ (π₁* _) Qᴰ.⋆ᴰ qᴰ
 -- --         ∀ⱽPsh-introᴰ' .N-homᴰ =
 -- --           Pⱽ.rectify $ Pⱽ.≡out $
--- --             (sym $ Pⱽ.reind-filler _)
+-- --             (sym $ Pⱽ.reind-filler)
 -- --             ∙ αᴰ.N-obᴰ⟨
 -- --                 change-base _ Q.isSetPsh
 -- --                   -- TODO this ΣPathP can probably be simplified
@@ -384,14 +384,14 @@ module _
 -- --                            ∙ C.⟨ refl ⟩⋆⟨ sym $ C.⋆IdL _ ⟩ ⟩⋆⟨⟩
 -- --                      ∙ (Q.⋆Assoc _ _ _)) ,
 -- --                     sym bp.×β₂))
--- --                   (Qᴰ.⟨ Cᴰ.reind-filler _ ⟩⋆⟨⟩
+-- --                   (Qᴰ.⟨ Cᴰ.reind-filler ⟩⋆⟨⟩
 -- --                   ∙ (sym $ Qᴰ.⋆Assoc _ _ _)
--- --                   ∙ Qᴰ.⟨ Cᴰ.reind-filler _ ∙ (sym $ βᴰ-πF* _) ⟩⋆⟨⟩
+-- --                   ∙ Qᴰ.⟨ Cᴰ.reind-filler ∙ (sym $ βᴰ-πF* _) ⟩⋆⟨⟩
 -- --                   ∙ Qᴰ.⋆Assoc _ _ _
--- --                   ∙ Qᴰ.reind-filler _)
+-- --                   ∙ Qᴰ.reind-filler)
 -- --                ⟩
 -- --             ∙ Pⱽ.≡in (αᴰ .N-homᴰ)
--- --             ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.reind-filler _ ⟩
+-- --             ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.reind-filler ⟩
 
 -- --         ∀ⱽPsh-introᴰ : PshHomᴰ α Qᴰ ∀ⱽPsh
 -- --         ∀ⱽPsh-introᴰ = reind-introᴰ ∀ⱽPsh-introᴰ'

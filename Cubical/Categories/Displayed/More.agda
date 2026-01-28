@@ -45,9 +45,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   CatIsoⱽ→CatIso isoⱽ .fst = isoⱽ .fst
   CatIsoⱽ→CatIso isoⱽ .snd .isIso.inv = isoⱽ .snd .isIsoᴰ.invᴰ
   CatIsoⱽ→CatIso isoⱽ .snd .isIso.sec = Cᴰ.rectify $ Cᴰ.≡out $
-    sym (Cᴰ.reind-filler _) ∙ (Cᴰ.≡in $ isoⱽ .snd .isIsoᴰ.secᴰ)
+    sym (Cᴰ.reind-filler) ∙ (Cᴰ.≡in $ isoⱽ .snd .isIsoᴰ.secᴰ)
   CatIsoⱽ→CatIso isoⱽ .snd .isIso.ret = Cᴰ.rectify $ Cᴰ.≡out $
-    sym (Cᴰ.reind-filler _) ∙ (Cᴰ.≡in $ isoⱽ .snd .isIsoᴰ.retᴰ)
+    sym (Cᴰ.reind-filler) ∙ (Cᴰ.≡in $ isoⱽ .snd .isIsoᴰ.retᴰ)
 
   ∫CatIso : ∀ {a b aᴰ bᴰ}
     → (iso : CatIso C a b)

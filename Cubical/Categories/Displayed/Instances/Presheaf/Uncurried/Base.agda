@@ -102,7 +102,7 @@ module _
     Rs@(R , Rᴰ , β) Ss@(S , Sᴰ , γ) δs@(δ , δᴰ , δ≡) ϕᴰ =
       PSHᴰ.rectifyOut $
         {!!}
-        ∙ PSHᴰ.reind-filler _
+        ∙ PSHᴰ.reind-filler
 
   isFibrationPRESHEAFᴰ : isFibration PRESHEAFᴰ
   isFibrationPRESHEAFᴰ {x = P} Pᴰ Q α .fst = reindPshᴰNatTrans α Pᴰ

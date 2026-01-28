@@ -56,10 +56,10 @@ module _ where
     _[-][-,_] cᴰ .F-hom (f , fᴰ , the-≡) gᴰ =
       Cᴰ.reind the-≡ (fᴰ Cᴰ.⋆ᴰ gᴰ)
     _[-][-,_] cᴰ .F-id = funExt λ gᴰ →
-      Cᴰ.rectify $ Cᴰ.≡out $ (sym $ Cᴰ.reind-filler _ _) ∙ Cᴰ.⋆IdLᴰ _
+      Cᴰ.rectify $ Cᴰ.≡out $ (sym $ Cᴰ.reind-filler) ∙ Cᴰ.⋆IdLᴰ _
     _[-][-,_] cᴰ .F-seq (f , fᴰ , the-≡) (g , gᴰ , the-≡') = funExt λ gᴰ →
       Cᴰ.rectify $ Cᴰ.≡out $
-        (sym $ Cᴰ.reind-filler _ _)
+        (sym $ Cᴰ.reind-filler)
         ∙ Cᴰ.⋆Assocᴰ _ _ _
-        ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ _ ⟩
-        ∙ Cᴰ.reind-filler _ _
+        ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ⟩
+        ∙ Cᴰ.reind-filler _

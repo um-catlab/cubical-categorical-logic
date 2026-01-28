@@ -105,31 +105,31 @@ module _
         (λ c → Dobᴰ (F.F-ob c))
         λ c c' → DHom-ℓᴰ (F.F-ob c) (F.F-ob c')
     reindex .Hom[_][_,_] f xᴰ yᴰ = Dᴰ.Hom[ F.F-hom f ][ xᴰ , yᴰ ]
-    reindex .idᴰ = Dᴰ.reind (sym F.F-id) Dᴰ.idᴰ
-    reindex ._⋆ᴰ_ fᴰ gᴰ = Dᴰ.reind (sym $ F.F-seq _ _) (fᴰ Dᴰ.⋆ᴰ gᴰ)
+    reindex .idᴰ = Dᴰ.reind {e = sym F.F-id} Dᴰ.idᴰ
+    reindex ._⋆ᴰ_ fᴰ gᴰ = Dᴰ.reind {e = sym $ F.F-seq _ _} (fᴰ Dᴰ.⋆ᴰ gᴰ)
     reindex .⋆IdLᴰ fᴰ =
       ΣPathP (
         (C.⋆IdL _) ,
         (Dᴰ.rectify $ Dᴰ.≡out $
-          (sym $ Dᴰ.reind-filler _ _)
-          ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
+          (sym $ Dᴰ.reind-filler)
+          ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ ⟩⋆⟨⟩
           ∙ Dᴰ.⋆IdLᴰ _))
     reindex .⋆IdRᴰ fᴰ =
       ΣPathP (
         (C.⋆IdR _) ,
         (Dᴰ.rectify $ Dᴰ.≡out $
-          (sym $ Dᴰ.reind-filler _ _)
-          ∙ Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
+          (sym $ Dᴰ.reind-filler)
+          ∙ Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
           ∙ Dᴰ.⋆IdRᴰ _))
     reindex .⋆Assocᴰ fᴰ gᴰ hᴰ =
       ΣPathP (
         (C.⋆Assoc _ _ _) ,
         (Dᴰ.rectify $ Dᴰ.≡out $
-          (sym $ Dᴰ.reind-filler _ _)
-          ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
+          (sym $ Dᴰ.reind-filler)
+          ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ ⟩⋆⟨⟩
           ∙ Dᴰ.⋆Assocᴰ _ _ _
-          ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩
-          ∙ Dᴰ.reind-filler _ _
+          ∙ Dᴰ.⟨⟩⋆⟨ Dᴰ.reind-filler _ ⟩
+          ∙ Dᴰ.reind-filler _
           ))
     reindex .isSetHomᴰ = Dᴰ.isSetHomᴰ
 
@@ -140,11 +140,11 @@ module _
     π .F-idᴰ =
       ΣPathP (
         F.F-id ,
-        (Dᴰ.rectify $ Dᴰ.≡out $ sym $ Dᴰ.reind-filler _ _))
+        (Dᴰ.rectify $ Dᴰ.≡out $ sym $ Dᴰ.reind-filler))
     π .F-seqᴰ _ _ =
       ΣPathP (
         F.F-seq _ _ ,
-        (Dᴰ.rectify $ Dᴰ.≡out $ sym $ Dᴰ.reind-filler _ _))
+        (Dᴰ.rectify $ Dᴰ.≡out $ sym $ Dᴰ.reind-filler))
 
     module _
       (F-id' : {x : Cob} → D .id {x = F.F-ob x} Eq.≡ F.F-hom (C .id))
@@ -243,10 +243,10 @@ module _
     π' : Functorᴰ F reindex' Dᴰ
     π' .F-obᴰ = λ z → z
     π' .F-homᴰ (Ff , p , fᴰ) = Dᴰ.reind p fᴰ
-    π' .F-idᴰ = sym $ Dᴰ.reind-filler _ _
+    π' .F-idᴰ = sym $ Dᴰ.reind-filler _
     π' .F-seqᴰ _ _ =
-      (sym $ Dᴰ.reind-filler _ _)
-      ∙ Dᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩
+      (sym $ Dᴰ.reind-filler)
+      ∙ Dᴰ.⟨ Dᴰ.reind-filler _ ⟩⋆⟨ Dᴰ.reind-filler _ ⟩
 
 module _
   {C : Category Cob CHom-ℓ}
@@ -277,12 +277,12 @@ module _
       reindex→reindexEq .F-idᴰ =
         ΣPathP (refl ,
           (Dᴰ.rectify $ Dᴰ.≡out $
-            (sym $ Dᴰ.reind-filler _ _)
+            (sym $ Dᴰ.reind-filler)
             ∙ Dᴰ.reindEq-pathFiller F-id' Dᴰ.idᴰ))
       reindex→reindexEq .F-seqᴰ {f = f}{g = g} fᴰ gᴰ =
         ΣPathP (refl ,
           (Dᴰ.rectify $ Dᴰ.≡out $
-            (sym $ Dᴰ.reind-filler _ _)
+            (sym $ Dᴰ.reind-filler)
             ∙ Dᴰ.reindEq-pathFiller _ _))
 
       reindexEq→reindex :
@@ -293,12 +293,12 @@ module _
         ΣPathP (refl ,
           (Dᴰ.rectify $ Dᴰ.≡out $
            (sym $ Dᴰ.reindEq-pathFiller _ _)
-            ∙ Dᴰ.reind-filler _ _))
+            ∙ Dᴰ.reind-filler _))
       reindexEq→reindex .F-seqᴰ {f = f}{g = g} fᴰ gᴰ =
         ΣPathP (refl ,
           (Dᴰ.rectify $ Dᴰ.≡out $
            (sym $ Dᴰ.reindEq-pathFiller _ _)
-            ∙ Dᴰ.reind-filler _ _))
+            ∙ Dᴰ.reind-filler _))
 
 module _
   {C : Category Cob CHom-ℓ}

@@ -102,10 +102,10 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
     CatIsoⱽ→CatIsoFiber fⱽ .CatIso.fun = fⱽ .CatIsoᴰ.funᴰ
     CatIsoⱽ→CatIsoFiber fⱽ .CatIso.inv = fⱽ .CatIsoᴰ.invᴰ
     CatIsoⱽ→CatIsoFiber fⱽ .CatIso.sec = Cᴰ.rectify $ Cᴰ.≡out $
-      sym (Cᴰ.reind-filler _ _)
+      sym (Cᴰ.reind-filler)
       ∙ fⱽ .CatIsoᴰ.secᴰ
-      ∙ Cᴰ.reind-filler _ _
+      ∙ Cᴰ.reind-filler _
     CatIsoⱽ→CatIsoFiber fⱽ .CatIso.ret = Cᴰ.rectify $ Cᴰ.≡out $
-      sym (Cᴰ.reind-filler _ _)
+      sym (Cᴰ.reind-filler)
       ∙ fⱽ .CatIsoᴰ.retᴰ
-      ∙ Cᴰ.reind-filler _ _
+      ∙ Cᴰ.reind-filler _

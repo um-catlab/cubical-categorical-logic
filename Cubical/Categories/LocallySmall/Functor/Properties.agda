@@ -26,8 +26,8 @@ module _
    σ : (c : Cob) → Functor Cᴰ.v[ c ] Cᴰ.∫C
    σ c .F-ob = λ z → c , z
    σ c .F-hom = λ z → Category.id C , z
-   σ c .F-id = sym $ Cᴰ.reind-filler _ _
-   σ c .F-seq f g = sym $ Cᴰ.reind-filler _ _
+   σ c .F-id = sym $ Cᴰ.reind-filler _
+   σ c .F-seq f g = sym $ Cᴰ.reind-filler _
 
 module _ where
   open CategoryVariables

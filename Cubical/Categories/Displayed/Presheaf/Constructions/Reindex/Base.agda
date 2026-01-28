@@ -65,15 +65,15 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     reind : Presheafᴰ P Cᴰ ℓQᴰ
     reind .F-obᴰ {x} xᴰ p = Qᴰ .F-obᴰ xᴰ (α .N-ob x p)
     reind .F-homᴰ {y} {x} {f} {yᴰ} {xᴰ} fᴰ p qᴰ =
-      Qᴰ.reind (sym $ α .N-hom _ _ _ _) (fᴰ Qᴰ.⋆ᴰ qᴰ)
+      Qᴰ.reind {e = sym $ α .N-hom _ _ _ _} (fᴰ Qᴰ.⋆ᴰ qᴰ)
     reind .F-idᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-      (sym $ Qᴰ.reind-filler _)
+      (sym $ Qᴰ.reind-filler)
       ∙ Qᴰ.⋆IdL _
     reind .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-      (sym $ Qᴰ.reind-filler _)
+      (sym $ Qᴰ.reind-filler)
       ∙ Qᴰ.⋆Assoc _ _ _
-      ∙ Qᴰ.⟨ refl ⟩⋆⟨ Qᴰ.reind-filler _ ⟩
-      ∙ Qᴰ.reind-filler _
+      ∙ Qᴰ.⟨ refl ⟩⋆⟨ Qᴰ.reind-filler ⟩
+      ∙ Qᴰ.reind-filler
 
   module _ {Q : Presheaf C ℓQ} where
     private

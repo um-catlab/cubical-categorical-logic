@@ -85,10 +85,10 @@ module _ {ℓ ℓ'} where
     --
     -- TODO make a local wrapper around hSet to test that
     SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ} $
-      SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _
+      SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .snd .snd γᴰ =
     SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ} $
-      SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _
+      SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}
 
   isFibrationSETᴰ : isFibration (SETᴰ ℓ ℓ')
   isFibrationSETᴰ Xᴰ Y f = REPRⱽ (isFibrationSETᴰueⱽ Xᴰ Y f)
@@ -118,16 +118,16 @@ module _ {ℓ ℓ'} where
   BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ x .fst = λ z x₁ z₁ → z .fst x₁ z₁ , z .snd x₁ z₁
   BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .fst (xᴰ , yᴰ) =
     ΣPathP ((SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} $
-               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) ,
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}) ,
             (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} $
-               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _))
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}))
   BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd Zᴰ→XᴰYᴰ =
     funExt₂ λ z zᴰ →
       ΣPathP (
         funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}{e' = refl} $
-                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) z zᴰ ,
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}) z zᴰ ,
         funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}{e' = refl} $
-                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _) z zᴰ)
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}) z zᴰ)
 
   BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
   BinProductsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ)
@@ -159,10 +159,10 @@ module _ {ℓ ℓ'} where
   -- ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
   -- ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
   --   SETᴰ.rectifyOut $
-  --     SETᴰ.reind-filler⁻ _
+  --     SETᴰ.reind-filler⁻
   --     ∙ SETᴰ.congᴰ (λ (u : uTy) z zᴰ → f z (u z zᴰ))
   --         (funExt₂ λ z zᴰ →
-  --           ΣPathP ((funExt₂⁻ (SETᴰ.rectifyOut $ SETᴰ.reind-filler⁻ _) z zᴰ) ,
+  --           ΣPathP ((funExt₂⁻ (SETᴰ.rectifyOut $ SETᴰ.reind-filler⁻) z zᴰ) ,
   --                    funExt₂⁻ (SETᴰ.rectifyOut $
   --                      -- This is what's slow
   --                      -- Ideas for fixes
@@ -179,10 +179,10 @@ module _ {ℓ ℓ'} where
   --                      --      to each of these reind fillers. If this is true, then
   --                      --      we may mitigate the slowness here by removing nested
   --                      --      reindexings
-  --                       SETᴰ.reind-filler⁻ _
-  --                      ∙ SETᴰ.reind-filler⁻ _
-  --                      ∙ SETᴰ.reind-filler⁻ _
-  --                      ∙ SETᴰ.reind-filler⁻ _)
+  --                       SETᴰ.reind-filler⁻
+  --                      ∙ SETᴰ.reind-filler⁻
+  --                      ∙ SETᴰ.reind-filler⁻
+  --                      ∙ SETᴰ.reind-filler⁻)
   --                      z zᴰ))
   --     where
   --     g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
@@ -220,10 +220,10 @@ module _ {ℓ ℓ'} where
 -- -- -- -- --                                   (C.Prectify {e' = λ i →
 -- -- -- -- --                                                        transp (λ _ → fst (C .fst)) (~ i)
 -- -- -- -- --                                                        (transp (λ _ → fst (C .fst)) i0 (u .fst))} $
--- -- -- -- --                                      C.≡out $ (sym $ C.reind-filler _) ∙ C.reind-filler _ ∙ C.reind-filler _ ))
--- -- -- -- --                               ∙ C'.reind-filler _)
+-- -- -- -- --                                      C.≡out $ (sym $ C.reind-filler) ∙ C.reind-filler ∙ C.reind-filler ))
+-- -- -- -- --                               ∙ C'.reind-filler)
 -- -- -- -- --                           (refl {x = transp (λ _ → ⟨ B ⟩) i0 (u .snd)}))
--- -- -- -- --             ∙ Cᴰ.reind-filler _
+-- -- -- -- --             ∙ Cᴰ.reind-filler
 -- -- -- -- --         )
 -- -- -- -- --         where
 -- -- -- -- --         module Cᴰ = hSetReasoning (A bp.× B) (λ c → ⟨ Cᴰ c ⟩)

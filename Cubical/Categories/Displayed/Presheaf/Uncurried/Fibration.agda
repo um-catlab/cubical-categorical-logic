@@ -116,9 +116,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (_ , (γᴰ Cᴰ.⋆ᴰ gᴰ) ⋆πⱽ)
             (_ , γᴰ Cᴰ.⋆ᴰ (gᴰ ⋆πⱽ))
       ⋆πⱽ-natural {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {g} {γᴰ} {gᴰ} =
-        ⟨ Cᴰ.reind-filler _ ⟩⋆πⱽ
+        ⟨ Cᴰ.reind-filler ⟩⋆πⱽ
         ∙ (Cᴰ.≡in $ f*yᴰ .snd .trans .N-hom (Δ , (Δᴰ , (γ C.⋆ g))) (Γ , (Γᴰ , g)) (γ , (γᴰ , refl)) gᴰ)
-        ∙ (sym $ Cᴰ.reind-filler _)
+        ∙ (sym $ Cᴰ.reind-filler)
 
 
       ⋆πⱽ≡⋆ᴰπⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
@@ -189,8 +189,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (g , introᴰ gfᴰ)
             (g' , gᴰ)
       introᴰ≡' g≡g' gfᴰ≡gᴰπⱽ =
-        introᴰ≡ (gfᴰ≡gᴰπⱽ ∙ ⟨ Cᴰ.reind-filler _ ⟩⋆πⱽ)
-        ∙ (sym $ Cᴰ.reind-filler (sym g≡g'))
+        introᴰ≡ (gfᴰ≡gᴰπⱽ ∙ ⟨ Cᴰ.reind-filler ⟩⋆πⱽ)
+        ∙ (sym $ Cᴰ.reind-filler {e = sym g≡g'})
   CartesianLiftable : ∀ {y} (yᴰ : Cᴰ.ob[ y ])
     → Type _
   CartesianLiftable {y} yᴰ = ∀ {x} (f : C [ x , y ]) → CartesianLift f yᴰ
@@ -233,7 +233,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     -- the gen one is the most flexible, use it for theorems
     cartLift-sq-filler-gen : (commutes : (C.id C.⋆ g) C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*zᴰ .fst ]
     cartLift-sq-filler-gen commutes =
-      h*zᴰ.introᴰ (Cᴰ.reind commutes (g*yᴰ.πⱽ Cᴰ.⋆ᴰ kᴰ))
+      h*zᴰ.introᴰ (Cᴰ.reind {e = commutes} (g*yᴰ.πⱽ Cᴰ.⋆ᴰ kᴰ))
 
     -- this one is the most convenient to use bc the extra id isn't there.
     cartLift-sq-filler : (commutes : g C.⋆ k ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*zᴰ .fst ]
@@ -281,7 +281,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (_ , cartLift-sq-filler-gen g*yᴰ g*yᴰ Cᴰ.idᴰ commutes)
             (_ , Cᴰ.idᴰ)
       cartLift-sq-id id'≡id = g*yᴰ.introᴰ≡' id'≡id
-        (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
+        (sym (Cᴰ.reind-filler) ∙ Cᴰ.⋆IdR _)
 
   module _ {w x y}{f : C [ w , x ]}{g : C [ w , y ]}{h : C [ x , y ]}
     {yᴰ : Cᴰ.ob[ y ]}
@@ -293,7 +293,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module h*yᴰ = CartesianLiftNotation h*yᴰ
     cartLift-tri-filler-gen : (commutes : C.id C.⋆ g ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*yᴰ .fst ]
     cartLift-tri-filler-gen commutes =
-      h*yᴰ.introᴰ (Cᴰ.reind commutes g*yᴰ.πⱽ)
+      h*yᴰ.introᴰ (Cᴰ.reind {e = commutes} g*yᴰ.πⱽ)
 
     cartLift-tri-filler : (commutes : g ≡ f C.⋆ h) → Cᴰ [ f ][ g*yᴰ .fst , h*yᴰ .fst ]
     cartLift-tri-filler commutes = cartLift-tri-filler-gen (C.⋆IdL g ∙ commutes)
@@ -307,9 +307,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (f , cartLift-sq-filler-gen g*yᴰ h*yᴰ Cᴰ.idᴰ (C.⋆IdR _ ∙ tri))
       cartLift-tri-filler≡sq-filler =
         h*yᴰ.cong-introᴰ refl $
-          sym (Cᴰ.reind-filler _)
+          sym (Cᴰ.reind-filler)
           ∙ sym (Cᴰ.⋆IdR (_ , g*yᴰ.πⱽ))
-          ∙ Cᴰ.reind-filler _
+          ∙ Cᴰ.reind-filler
 
   --    f     f'
   -- w --> x --> x'
@@ -344,12 +344,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (ff'~ , cartLift-sq-filler-gen g*yᴰ h'*z'ᴰ (kᴰ Cᴰ.⋆ᴰ k'ᴰ) comm3)
             ((f C.⋆ f') , cartLift-sq-filler-gen g*yᴰ h*zᴰ kᴰ comm1 Cᴰ.⋆ᴰ cartLift-sq-filler-gen h*zᴰ h'*z'ᴰ k'ᴰ comm2)
       cartLift-sq-seq ff'~≡ff' = h'*z'ᴰ.introᴰ≡' ff'~≡ff'
-        (sym (Cᴰ.reind-filler _) ∙ (sym $
+        (sym (Cᴰ.reind-filler) ∙ (sym $
           h'*z'ᴰ.⋆πⱽ-natural
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ h'*z'ᴰ.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _) ⟩
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ h'*z'ᴰ.βᴰ _ ∙ (sym $ Cᴰ.reind-filler) ⟩
           ∙ sym (Cᴰ.⋆Assoc _ _ _)
           ∙ Cᴰ.⟨
-              h*zᴰ.βᴰ' _ ∙ sym (Cᴰ.reind-filler _)
+              h*zᴰ.βᴰ' _ ∙ sym (Cᴰ.reind-filler)
                ⟩⋆⟨⟩
           ∙ Cᴰ.⋆Assoc _ _ _))
 

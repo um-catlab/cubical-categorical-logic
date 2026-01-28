@@ -170,7 +170,7 @@ open UniversalElementⱽ
 --           (∀ⱽDᴰ.weakenπFᴰ ∘Fᴰ Fᴰ)
 --       Fᴰ-weakening-NatTransᴰ .NatTransᴰ.N-obᴰ xᴰ =
 --         ∀ⱽDᴰ.introπF* $
---           Dᴰ.reind (cong (F .F-hom) (C.⋆IdL _) ∙ (sym -×Fc.×β₁)) $
+--           Dᴰ.reind {e = cong (F .F-hom) (C.⋆IdL _) ∙ (sym -×Fc.×β₁)} $
 --             Fᴰ .F-homᴰ (elementⱽ (π₁*C xᴰ))
 --       Fᴰ-weakening-NatTransᴰ .NatTransᴰ.N-homᴰ fᴰ =
 --         Dᴰ.rectify $ Dᴰ.≡out $
@@ -195,22 +195,22 @@ open UniversalElementⱽ
 --                   ∙ D.⟨ refl ⟩⋆⟨ sym -×Fc.×β₂ ⟩
 --                   ∙ (sym $ D.⋆Assoc _ _ _))
 --                 ∙ (sym $ D.⋆IdR _))
---                 ((sym $ Dᴰ.reind-filler _)
---                 ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
+--                 ((sym $ Dᴰ.reind-filler)
+--                 ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler ⟩
 --                 ∙ (sym $ ∫.∫F Fᴰ .F-seq _ _)
 --                 ∙ cong (∫.∫F Fᴰ .F-hom)
 --                     (∀ⱽCᴰ.βᴰ-πF* _
---                     ∙ (sym $ Cᴰ.reind-filler _)
---                     ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩ )
+--                     ∙ (sym $ Cᴰ.reind-filler)
+--                     ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler ⟩⋆⟨ refl ⟩ )
 --                 ∙ ∫.∫F Fᴰ .F-seq _ _
---                 ∙ Dᴰ.⟨ Dᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
+--                 ∙ Dᴰ.⟨ Dᴰ.reind-filler ⟩⋆⟨ refl ⟩
 --                 ∙ Dᴰ.⟨ sym (∀ⱽDᴰ.βᴰ-πF* _) ⟩⋆⟨ refl ⟩
 --                 ∙ Dᴰ.⋆Assoc _ _ _
---                 ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.⟨ Dᴰ.reind-filler _ ⟩⋆⟨ refl ⟩ ∙ Dᴰ.reind-filler _ ⟩
---                 ∙ Dᴰ.reind-filler _
+--                 ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.⟨ Dᴰ.reind-filler ⟩⋆⟨ refl ⟩ ∙ Dᴰ.reind-filler ⟩
+--                 ∙ Dᴰ.reind-filler
 --                 ∙ sym (∀ⱽDᴰ.βᴰ-πF* _)
 --                 ∙ Dᴰ.⟨ sym (introᴰ-natural (π₁*D _)) ⟩⋆⟨ refl ⟩
---                 ∙ Dᴰ.reind-filler _))
+--                 ∙ Dᴰ.reind-filler))
 
 --       Fᴰ-weakening-isNatIsoᴰ-Ty : Type _
 --       Fᴰ-weakening-isNatIsoᴰ-Ty =

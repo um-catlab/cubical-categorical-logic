@@ -611,10 +611,10 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         (λ xᴰ → CatIsoᴰ→P≡Q (PshIso→SETIso P Q α _) (PshIsoᴰ→SETᴰIsoᴰ αᴰ xᴰ))
         λ {x = x}{xᴰ = xᴰ} fᴰ →
             toPathP (funExt (λ q → funExt (λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
-            sym (Qᴰ.reind-filler _)
-            ∙ cong (∫αᴰ .trans .N-ob _) Pᴰ.⟨ refl ⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
+            sym (Qᴰ.reind-filler)
+            ∙ cong (∫αᴰ .trans .N-ob _) Pᴰ.⟨ refl ⟩⋆⟨ (sym $ Pᴰ.reind-filler) ⟩
             ∙ ∫αᴰ .trans .N-hom _ _ _ _
-            ∙ Qᴰ.⟨ refl ⟩⋆⟨ cong (∫αᴰ .trans .N-ob _) (cong (∫αᴰ .nIso _ .fst) (sym $ Qᴰ.reind-filler _))
+            ∙ Qᴰ.⟨ refl ⟩⋆⟨ cong (∫αᴰ .trans .N-ob _) (cong (∫αᴰ .nIso _ .fst) (sym $ Qᴰ.reind-filler))
                     ∙ ∫αᴰ .nIso _ .snd .fst _ ⟩
             )))
         where
@@ -710,13 +710,13 @@ module _ {C : Category ℓC ℓC'}
         -- a path of PshHoms
         PshHomPathPshHomᴰ : PshHomᴰ β Pᴰ Qᴰ
         PshHomPathPshHomᴰ .N-obᴰ {x = x} {p = p} pᴰ =
-          Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
+          Qᴰ.reind {e = funExt₂⁻ (λ i → α≡β i .N-ob) x p} $
             αᴰ .N-obᴰ pᴰ
         PshHomPathPshHomᴰ .N-homᴰ =
           Qᴰ.rectify $ Qᴰ.≡out $
-            (sym $ Qᴰ.reind-filler _)
+            (sym $ Qᴰ.reind-filler)
             ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
-            ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩
+            ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler ⟩
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}

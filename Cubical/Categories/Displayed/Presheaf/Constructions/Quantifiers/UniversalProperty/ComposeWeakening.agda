@@ -104,8 +104,8 @@ module _
        --   ∀ⱽPsh-ηᴰ' : ∀ⱽPsh-introᴰ' Pⱽ (∀ⱽPsh-introᴰ⁻' Pⱽ αᴰ) ≡ αᴰ
        --   ∀ⱽPsh-ηᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
        --     Pⱽ.rectify $ Pⱽ.≡out $
-       --       (sym $ Pⱽ.reind-filler _ _)
-       --       ∙ (sym $ Pⱽ.reind-filler _ _)
+       --       (sym $ Pⱽ.reind-filler)
+       --       ∙ (sym $ Pⱽ.reind-filler)
        --       ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.≡in αᴰ.N-homᴰ ⟩
        --       ∙ (sym $ Pⱽ.⋆Assoc _ _ _)
        --       ∙ Pⱽ.⟨ introᴰ-natural (π₁* _)
@@ -124,15 +124,15 @@ module _
        --                            ∙ bp.×β₂
        --                            ∙ (sym $ C.⋆IdL _) )
        --                        ∙ (sym $ C.⋆IdL _)) $
-       --                     (sym $ Cᴰ.reind-filler _ _)
+       --                     (sym $ Cᴰ.reind-filler)
        --                     ∙ Cᴰ.⟨ refl ⟩⋆⟨
-       --                         (sym $ Cᴰ.reind-filler _ _)
-       --                         ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _
+       --                         (sym $ Cᴰ.reind-filler)
+       --                         ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _
        --                              ⟩⋆⟨ refl ⟩ ⟩
        --                     ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
        --                     ∙ Cᴰ.⟨ βᴰ-πF* _ ⟩⋆⟨ refl ⟩
-       --                     ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ _ ⟩⋆⟨ refl ⟩
-       --                     ∙ Cᴰ.reind-filler _ _
+       --                     ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
+       --                     ∙ Cᴰ.reind-filler _
        --                     )
        --            ⟩⋆⟨⟩
        --       ∙ Pⱽ.⋆IdL _
@@ -149,8 +149,8 @@ module _
        --   ∀ⱽPsh-βᴰ' : ∀ⱽPsh-introᴰ⁻' Pⱽ (∀ⱽPsh-introᴰ' Pⱽ αᴰ) ≡ αᴰ
        --   ∀ⱽPsh-βᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
        --     Pⱽ.rectify $ Pⱽ.≡out $
-       --       (sym $ Pⱽ.reind-filler _ _)
-       --       ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩
+       --       (sym $ Pⱽ.reind-filler)
+       --       ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ ⟩
        --       ∙ (sym $ Pⱽ.≡in αᴰ.N-homᴰ)
        --       ∙ αᴰ.N-obᴰ⟨
        --         change-base
@@ -163,9 +163,9 @@ module _
        --             bp.×β₂
        --             ))
        --           $
-       --           (sym $ Qᴰ.reind-filler _ _)
+       --           (sym $ Qᴰ.reind-filler)
        --           ∙ (sym $ Qᴰ.⋆Assoc _ _ _)
-       --           ∙ Qᴰ.⟨ (βᴰ-πF* _) ∙ (sym $ Cᴰ.reind-filler _ _) ⟩⋆⟨⟩
+       --           ∙ Qᴰ.⟨ (βᴰ-πF* _) ∙ (sym $ Cᴰ.reind-filler) ⟩⋆⟨⟩
        --           ∙ Qᴰ.⋆IdL _
        --         ⟩
 

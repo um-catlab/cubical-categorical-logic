@@ -72,11 +72,11 @@ module _
   postcomposeF .F-obᴰ G = Fv Fᴰ _ ∘F G
   postcomposeF .F-homᴰ α .NatTransEᴰ.N-ob c = Fᴰ.F-homᴰ (α .NatTransDᴰ.N-ob c)
   postcomposeF .F-homᴰ {xᴰ = G}{yᴰ = H} α .NatTransEᴰ.N-hom f =
-      Eᴰ.⟨ sym $ Eᴰ.reind-filler _ _ ⟩⋆⟨⟩
+      Eᴰ.⟨ sym $ Eᴰ.reind-filler _ ⟩⋆⟨⟩
       ∙ (sym $ Fᴰ.F-seqᴰ _ _)
       ∙ Fᴰ.F-homᴰ⟨ NatTransDᴰ.N-hom α f ⟩
       ∙ Fᴰ.F-seqᴰ _ _
-      ∙ Eᴰ.⟨⟩⋆⟨ Eᴰ.reind-filler _ _ ⟩
+      ∙ Eᴰ.⟨⟩⋆⟨ Eᴰ.reind-filler _ ⟩
   postcomposeF .F-idᴰ =
     FuncEᴰ.makeNatTransPath F.F-id λ _ → Fᴰ.F-idᴰ
   postcomposeF .F-seqᴰ _ _ =

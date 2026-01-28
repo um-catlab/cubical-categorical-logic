@@ -47,15 +47,15 @@ module _ {C : Category ℓ ℓ'} where
       Σ[ γ ∈ C [ Δ , Γ ] ] Pᴰ.p[ γ P.⋆ p ][ _ ]
     Comprehension Γ p .F-ob Δ .snd = isSetΣ C.isSetHom (λ _ → Pᴰ.isSetPshᴰ)
     Comprehension Γ p .F-hom δ (γ , pᴰ) =
-      (δ C.⋆ γ) , Pᴰ.reind (sym $ P.⋆Assoc _ _ _)
+      (δ C.⋆ γ) , Pᴰ.reind {e = sym $ P.⋆Assoc _ _ _}
         (_ Pᴰ.⋆ᴰ pᴰ)
     Comprehension Γ p .F-id = funExt (λ (γ , q) → ΣPathP ((C.⋆IdL _) ,
       (Pᴰ.rectify $ Pᴰ.≡out $
-        sym (Pᴰ.reind-filler _)
+        sym (Pᴰ.reind-filler)
         ∙ Pᴰ.⋆IdL _)))
     Comprehension Γ p .F-seq f g = funExt λ (γ , q) → ΣPathP (C.⋆Assoc _ _ _
       , (Pᴰ.rectify $ Pᴰ.≡out $
-        sym (Pᴰ.reind-filler _)
+        sym (Pᴰ.reind-filler)
         ∙ Pᴰ.⋆Assoc _ _ _
-        ∙ Pᴰ.⟨ refl ⟩⋆⟨ Pᴰ.reind-filler _ ⟩
-        ∙ Pᴰ.reind-filler _))
+        ∙ Pᴰ.⟨ refl ⟩⋆⟨ Pᴰ.reind-filler ⟩
+        ∙ Pᴰ.reind-filler))

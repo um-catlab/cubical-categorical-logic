@@ -176,8 +176,8 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ])
       → Path Cᴰ.Hom[ _ , _ ] (_ , (δᴰ Cᴰ.⋆ᴰ γᴰ) ⋆π₁ⱽ) (_ , δᴰ Cᴰ.⋆ᴰ (γᴰ ⋆π₁ⱽ))
     ⋆π₁ⱽ-natural {Θ} {Δ} {Γ} {Θᴰ} {Δᴰ} {Γᴰ} {δ} {γ} {p} δᴰ γᴰ =
-      ⟨ Cᴰ.reind-filler refl ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (λ i → δ C.⋆ γ)) _))
-      ∙ (sym $ Cᴰ.reind-filler _)
+      ⟨ Cᴰ.reind-filler ⟩⋆π₁ⱽ ∙ Cᴰ.≡in (cong fst (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , (λ i → δ C.⋆ γ)) _))
+      ∙ (sym $ Cᴰ.reind-filler)
 
     β₁ⱽ' : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
       → (γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ])
@@ -205,7 +205,7 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
       → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ×ⱽ p * ])
       → ((δᴰ Cᴰ.⋆ᴰ γᴰ) ⋆π₂ⱽ) ∫≡ (δᴰ ⋆ᴰ (γᴰ ⋆π₂ⱽ))
     ⋆π₂ⱽ-natural {Θ} {Δ} {Γ} {Θᴰ} {Δᴰ} {Γᴰ} {δ} {γ} {p} δᴰ γᴰ =
-      ⟨ Cᴰ.reind-filler _ ⟩⋆π₂ⱽ
+      ⟨ Cᴰ.reind-filler ⟩⋆π₂ⱽ
       ∙ (≡in $ (PathPΣ (Pᴰ .snd Γᴰ p .snd .trans .N-hom _ _ (δ , δᴰ , refl) _)) .snd)
       ∙ ⋆ᴰ-reind _ _ _
 
@@ -276,12 +276,12 @@ module _
   -- ×LRⱽPshᴰ : Functor (Cᴰ / P) (Cᴰ / P)
   -- ×LRⱽPshᴰ = improveF-hom ×LRⱽPshᴰ'
   --   (λ {(Δ , Δᴰ , f) (Γ , Γᴰ , f')} (γ , γᴰ , γf'≡f) →
-  --     (γ , (×ⱽPᴰ.introᴰ (Cᴰ.reind (C.⋆IdL γ) (×ⱽPᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ)) (Pᴰ.reind (P.⋆IdL _ ∙ sym γf'≡f) ×ⱽPᴰ.π₂ⱽ) , γf'≡f)) ,
+  --     (γ , (×ⱽPᴰ.introᴰ (Cᴰ.reind {e = C.⋆IdL γ} (×ⱽPᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ)) (Pᴰ.reind {e = P.⋆IdL _ ∙ sym γf'≡f} ×ⱽPᴰ.π₂ⱽ) , γf'≡f)) ,
   --     (ΣPathP ((C.⋆IdL _) , ΣPathPProp (λ _ → P.isSetPsh _ _)
   --       (Cᴰ.rectify $ Cᴰ.≡out $
-  --         ×ⱽPᴰ.cong-introᴰ (sym (Cᴰ.reind-filler _) ∙ Cᴰ.cong-reind _ _ refl)
-  --         (sym (Pᴰ.reind-filler _) ∙ sym (Pᴰ.reind-filler _) ∙ sym (Pᴰ.reind-filler _) ∙ (sym (Pᴰ.reind-filler _))
-  --         ∙ Pᴰ.reind-filler _)))))
+  --         ×ⱽPᴰ.cong-introᴰ (sym (Cᴰ.reind-filler) ∙ Cᴰ.cong-reind _ refl)
+  --         (sym (Pᴰ.reind-filler) ∙ sym (Pᴰ.reind-filler) ∙ sym (Pᴰ.reind-filler) ∙ (sym (Pᴰ.reind-filler))
+  --         ∙ Pᴰ.reind-filler)))))
 
   -- ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F : NatIso ×LRⱽPshᴰ ⇒ⱽPshSmall.P-F
   -- ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F = record { trans = natTrans (λ x → (Cᴰ / P) .id)

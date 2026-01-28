@@ -53,10 +53,10 @@ module _
     fib→fibEq .Functor.F-hom = λ z → z
     fib→fibEq .Functor.F-id =
       Cᴰ.rectify $ Cᴰ.≡out $
-        sym $ Cᴰ.reind-filler _ _
+        sym $ Cᴰ.reind-filler _
     fib→fibEq .Functor.F-seq {x = x}{y = y}{z = z} f g =
       Cᴰ.rectify $ Cᴰ.≡out $
-        (sym $ Cᴰ.reind-filler _ _)
+        (sym $ Cᴰ.reind-filler)
         ∙ Cᴰ.reindEq-pathFiller _ _
 
     -- fib→fibEq introduces a transport when acting on composition
@@ -74,11 +74,11 @@ module _
     fibEq→fib .Functor.F-ob = λ z → z
     fibEq→fib .Functor.F-hom = λ z → z
     fibEq→fib .Functor.F-id =
-      Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _ _
+      Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _
     fibEq→fib .Functor.F-seq f g =
       Cᴰ.rectify $ Cᴰ.≡out $
         (sym $ Cᴰ.reindEq-pathFiller _ _)
-        ∙ Cᴰ.reind-filler _ _
+        ∙ Cᴰ.reind-filler _
 
     -- fibEq→fib is an Eq.transport on morphisms, which is very
     -- nice definitionally when C-⋆ is Eq.refl

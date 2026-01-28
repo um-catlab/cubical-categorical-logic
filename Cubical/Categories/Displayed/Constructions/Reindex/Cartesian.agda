@@ -133,13 +133,13 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
        invPshIso $
        reindexRepresentableIsoⱽ Dᴰ F x xᴰ))
     ((λ (Δ , Δᴰ , γ) γᴰ → (γᴰ ×ⱽ*xᴰ.⋆π₁ⱽ) -- making this explicit is negligible
-      , Dᴰ.reind (sym $ F .F-seq γ f) (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
+      , Dᴰ.reind {e = sym $ F .F-seq γ f} (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
     funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out -- removing the second `ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out` is a big speedup
 
       $ Dᴰ.cong-reind _ _ -- making the first two args to cong-reind implicit is a noticable but smaller speedup
                       (Dᴰ.⋆IdL _))))
     ((λ (Δ , Δᴰ , γ) (γᴰ , γfᴰ) →
-      ×ⱽ*xᴰ.introᴰ γᴰ (Dᴰ.reind (F .F-seq γ f) γfᴰ)) , funExt λ (Δ , Δᴰ , γ) → funExt λ (γᴰ , γfᴰ) →
+      ×ⱽ*xᴰ.introᴰ γᴰ (Dᴰ.reind {e = F .F-seq γ f} γfᴰ)) , funExt λ (Δ , Δᴰ , γ) → funExt λ (γᴰ , γfᴰ) →
       Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*xᴰ.cong-introᴰ refl (Dᴰ.cong-reind _ _ (Dᴰ.⋆IdL _)))
     where
       module ×ⱽ*xᴰ = LRⱽPresheafᴰNotation Dᴰ (_ , _×ⱽ_*xᴰ)
@@ -165,13 +165,13 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
           (reindex-π-/ {C = C}{D = D} Dᴰ F x) (LRⱽReindex Pᴰ) Pᴰ idPshHom
           (λ _ → Eq.refl)
         (λ (Γ , Γᴰ , f ) →
-          ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ ⟩⋆π₁ⱽ)
+          ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler ⟩⋆π₁ⱽ)
           , (Pᴰ.rectify $ Pᴰ.≡out $
-            sym (Pᴰ.reind-filler _)
+            sym (Pᴰ.reind-filler)
             -- this formal reind filler took a long time without the explicit argument. Why?
             ∙ Pᴰ.formal-reind-filler (reindexRepresentable-seq (π Dᴰ F) .nIso (Γ , Pᴰ .snd Γᴰ (F-hom F f) .fst , id C) .isIso.inv .snd .snd) _
-            ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ ⟩⋆π₂ⱽ
-            ∙ Pᴰ.reind-filler _)))
+            ∙ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler ⟩⋆π₂ⱽ
+            ∙ Pᴰ.reind-filler)))
 
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}

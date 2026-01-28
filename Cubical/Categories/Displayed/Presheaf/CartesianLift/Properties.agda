@@ -60,21 +60,21 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       CartesianLift→ManualCartesianLift : ManualCL.CartesianLift p Pᴰ
       CartesianLift→ManualCartesianLift .p*Pᴰ = cL.vertexⱽ
       CartesianLift→ManualCartesianLift .π =
-        Pᴰ.reind (funExt⁻ (P .F-id) p) $ cL.elementⱽ
+        Pᴰ.reind {e = funExt⁻ (P .F-id) p} $ cL.elementⱽ
       CartesianLift→ManualCartesianLift .isCartesian .fst pᴰ =
         cL.introᴰ pᴰ
       CartesianLift→ManualCartesianLift .isCartesian .snd .fst pᴰ =
         Pᴰ.rectify $ Pᴰ.≡out $
-          Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩
-          ∙ Pᴰ.reind-filler _
-          ∙ Pᴰ.reind-filler _
+          Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler ⟩
+          ∙ Pᴰ.reind-filler
+          ∙ Pᴰ.reind-filler
           ∙ Pᴰ.≡in cL.βⱽ
       CartesianLift→ManualCartesianLift .isCartesian .snd .snd pᴰ =
         cong (cL.universalⱽ .fst)
           (Pᴰ.rectify $ Pᴰ.≡out $
-            Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩
-            ∙ Pᴰ.reind-filler _
-            ∙ Pᴰ.reind-filler _
+            Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler ⟩
+            ∙ Pᴰ.reind-filler
+            ∙ Pᴰ.reind-filler
           ) ∙
         cL.universalⱽ .snd .snd pᴰ
 
@@ -96,7 +96,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         subst
           motive
           (funExt (λ fᴰ → Pᴰ.rectify $ Pᴰ.≡out $
-            Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.⋆IdL _ ⟩ ∙ Pᴰ.reind-filler _ ∙ Pᴰ.reind-filler _))
+            Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.⋆IdL _ ⟩ ∙ Pᴰ.reind-filler ∙ Pᴰ.reind-filler))
           (McL.isCartesian .snd)
         where
           motive : (Cᴰ [ f ][ yᴰ , McL.p*Pᴰ ]

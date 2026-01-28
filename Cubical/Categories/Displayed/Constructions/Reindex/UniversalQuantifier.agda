@@ -132,10 +132,10 @@ module _
               Dᴰ.⋆ᴰ cartLifts.sq-filler δᴰ (sym $ (G ∘ʳ π) .N-hom δ)
                 ≡⟨ Dᴰ.⟨⟩⋆⟨ cartLifts.cong-introᴰ refl
                             (Dᴰ.cong-reind _ _
-                            (Dᴰ.⟨ cartLifts.⟨ Dᴰ.reind-filler _ ⟩⋆πⱽ
-                             ∙ Dᴰ.reind-filler _ ⟩⋆⟨⟩
-                             ∙ Dᴰ.reind-filler _
-                             ∙ Dᴰ.reind-filler _)) ⟩ ⟩
+                            (Dᴰ.⟨ cartLifts.⟨ Dᴰ.reind-filler ⟩⋆πⱽ
+                             ∙ Dᴰ.reind-filler ⟩⋆⟨⟩
+                             ∙ Dᴰ.reind-filler
+                             ∙ Dᴰ.reind-filler)) ⟩ ⟩
               _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ _)
               ∎
         the-niᴰ .NatIsoᴰ.nIsoᴰ {x = Δ , Δᴰ , γ} _ =

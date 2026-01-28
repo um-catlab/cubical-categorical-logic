@@ -133,15 +133,15 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   isFibrationReind p .p*Pᴰ = isFibQᴰ.p*Pᴰ (α .N-ob _ p)
   isFibrationReind p .π = isFibQᴰ.π
   isFibrationReind p .isCartesian .fst qᴰ =
-    isFibQᴰ.intro $ Qᴰ.reind (α .N-hom _ _ _ p) qᴰ
+    isFibQᴰ.intro $ Qᴰ.reind {e = α .N-hom _ _ _ p} qᴰ
   isFibrationReind p .isCartesian .snd .fst qᴰ =
     Qᴰ.rectify $ Qᴰ.≡out $
-      sym (Qᴰ.reind-filler _)
+      sym (Qᴰ.reind-filler)
       ∙ isFibQᴰ.β
-      ∙ (sym $ Qᴰ.reind-filler _)
+      ∙ (sym $ Qᴰ.reind-filler)
   isFibrationReind p .isCartesian .snd .snd gᴰ =
     Cᴰ.rectify $ Cᴰ.≡out $ isFibQᴰ.intro≡ $ sym $
-      Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _
+      Qᴰ.reind-filler ∙ Qᴰ.reind-filler
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
          (F : Functor C D)

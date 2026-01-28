@@ -94,17 +94,17 @@ module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   Fv .F-hom fᴰ = Dᴰ.reind F.F-id $ Fᴰ.F-homᴰ fᴰ
   Fv .F-id =
     Dᴰ.rectify $ Dᴰ.≡out $
-      (sym $ Dᴰ.reind-filler _ _)
-      ∙ Fᴰ.F-hom⟨ sym $ Cᴰ.reind-filler _ _ ⟩
+      (sym $ Dᴰ.reind-filler)
+      ∙ Fᴰ.F-hom⟨ sym $ Cᴰ.reind-filler _ ⟩
       ∙ Fᴰ.F-idᴰ
-      ∙ Dᴰ.reind-filler _ _
+      ∙ Dᴰ.reind-filler _
   Fv .F-seq fᴰ gᴰ =
     Dᴰ.rectify $ Dᴰ.≡out $
-      (sym $ Dᴰ.reind-filler _ _)
-      ∙ Fᴰ.F-homᴰ⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
+      (sym $ Dᴰ.reind-filler)
+      ∙ Fᴰ.F-homᴰ⟨ (sym $ Cᴰ.reind-filler) ⟩
       ∙ Fᴰ.F-seqᴰ _ _
-      ∙ Dᴰ.⟨ Dᴰ.reind-filler _ _ ⟩⋆⟨ Dᴰ.reind-filler _ _ ⟩
-      ∙ Dᴰ.reind-filler _ _
+      ∙ Dᴰ.⟨ Dᴰ.reind-filler _ ⟩⋆⟨ Dᴰ.reind-filler _ ⟩
+      ∙ Dᴰ.reind-filler _
 
 module _ where
   open CategoryᴰVariables

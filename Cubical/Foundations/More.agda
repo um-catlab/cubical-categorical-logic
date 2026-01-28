@@ -96,6 +96,12 @@ congS₂Bifunct f p q r s =
   ∙ sym (assoc _ _ _)
   ∙ cong₂ _∙_ refl (sym (cong₂Funct' f _ _))
 
+record hSet' ℓ : Type (ℓ-suc ℓ) where
+  no-eta-equality
+  field
+    ty : Type ℓ
+    is-set : isSet ty
+
 -- Reasoning about a dependent type that is indexed by an hSet
 module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
   _P≡[_]_ : ∀ {a b : ⟨ A ⟩} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
@@ -124,30 +130,20 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
   ≡out e = snd $ PathPΣ e
 
   opaque
-    reind : (a ≡ b) → P a → P b
-    reind e p = subst P e p
+    reind : ∀ {e : a ≡ b} → P a → P b
+    reind {e = e} p = subst P e p
 
-    reind-filler :
-      ∀ (e : a ≡ b)
-      → p ∫≡ reind e p
-    reind-filler e = ΣPathP (e , (subst-filler P e _))
+    reind-filler : ∀ {e : a ≡ b} → p ∫≡ reind {e = e} p
+    reind-filler {e = e} = ΣPathP (e , (subst-filler P e _))
 
-    reind-filler⁻ :
-      ∀ (e : a ≡ b)
-      → reind e p ∫≡ p
-    reind-filler⁻ e = sym $ reind-filler e
+    reind-filler⁻ : ∀ {e : a ≡ b} → reind {e = e} p ∫≡ p
+    reind-filler⁻ {e = e} = sym $ reind-filler {e = e}
 
     -- This is the only part that requires the hSet stuff. Everything else is completely generic
-    Prectify :
-      ∀ {e e' : a ≡ b}
-      → p P≡[ e ] q
-      → p P≡[ e' ] q
+    Prectify : ∀ {e e' : a ≡ b} → p P≡[ e ] q → p P≡[ e' ] q
     Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
 
-  rectifyOut :
-    ∀ {e' : a ≡ b}
-    (e : p ∫≡ q) →
-    p P≡[ e' ] q
+  rectifyOut : ∀ {e' : a ≡ b} (e : p ∫≡ q) → p P≡[ e' ] q
   rectifyOut e = Prectify $ ≡out $ e
 
   opaque

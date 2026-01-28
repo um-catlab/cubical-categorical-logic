@@ -36,9 +36,9 @@ module _
   ConstantSection .Section.F-obᴰ = λ d → d
   ConstantSection .Section.F-homᴰ = λ f → f
   ConstantSection .Section.F-idᴰ =
-    sym $ Cᴰ.reind-filler _ _
+    sym $ Cᴰ.reind-filler _
   ConstantSection .Section.F-seqᴰ _ _ =
-    sym $ Cᴰ.reind-filler _ _
+    sym $ Cᴰ.reind-filler _
 
   module _ (C-⋆ : ∀ {x} → C.id C.⋆ C.id Eq.≡ C.id {x}) where
     ConstantSectionEq : Section {D = fibEq Cᴰ C-⋆ c} (Constant c) Cᴰ

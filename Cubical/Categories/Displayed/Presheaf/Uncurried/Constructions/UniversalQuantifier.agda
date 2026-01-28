@@ -148,12 +148,12 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
           λ z → Cᴰ.Hom[ z .fst ][ Θᴰ , Δᴰ ]
       wkF-ReprIso-ptWiseIsoOver .IsoOver.fun (δ~ , δ~Fγ≡γ~) = π*._⋆πⱽ
       wkF-ReprIso-ptWiseIsoOver .IsoOver.inv (δ , δγ≡γ~π) δᴰ =
-        π*.introᴰ (Cᴰ.reind (pullbackArrowPr₂ C pb γ~ δ (sym $ δγ≡γ~π)) δᴰ)
+        π*.introᴰ (Cᴰ.reind {e = pullbackArrowPr₂ C pb γ~ δ (sym $ δγ≡γ~π)} δᴰ)
       wkF-ReprIso-ptWiseIsoOver .IsoOver.rightInv (δ , δγ≡γ~π) δᴰ =
-        Cᴰ.rectify $ Cᴰ.≡out $ π*.βᴰ _ ∙ (sym $ Cᴰ.reind-filler _)
+        Cᴰ.rectify $ Cᴰ.≡out $ π*.βᴰ _ ∙ (sym $ Cᴰ.reind-filler)
       wkF-ReprIso-ptWiseIsoOver .IsoOver.leftInv (δ~ , δ~Fγ≡γ~) δ~ᴰ =
         Cᴰ.rectify $ Cᴰ.≡out $
-          π*.cong-introᴰ (Pullback.pullbackArrowUnique (CartesianNatTrans→PBSq (π , π-Cart) γ) (sym $ δ~Fγ≡γ~) refl) (sym $ Cᴰ.reind-filler _)
+          π*.cong-introᴰ (Pullback.pullbackArrowUnique (CartesianNatTrans→PBSq (π , π-Cart) γ) (sym $ δ~Fγ≡γ~) refl) (sym $ Cᴰ.reind-filler)
             ∙ (sym $ π*.ηᴰ δ~ᴰ)
 
       wkF-ReprIso-ptWise :

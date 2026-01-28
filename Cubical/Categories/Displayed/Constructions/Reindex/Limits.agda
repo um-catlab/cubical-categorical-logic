@@ -88,33 +88,33 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         preservesBinProductⱽ : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
         preservesBinProductⱽ .vertexⱽ = vbp .vertexⱽ
         preservesBinProductⱽ .elementⱽ .fst =
-          Dᴰ.reind (sym $ F .F-id) $ vbp .elementⱽ .fst
+          Dᴰ.reind {e = sym $ F .F-id} $ vbp .elementⱽ .fst
         preservesBinProductⱽ .elementⱽ .snd =
-          Dᴰ.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
+          Dᴰ.reind {e = sym $ F .F-id} $ vbp .elementⱽ .snd
         preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
         preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
           ( (Dᴰ.rectify $ Dᴰ.≡out $
-            (sym $ Dᴰ.reind-filler _)
-            ∙ (sym $ Dᴰ.reind-filler _)
-            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
-            ∙ Dᴰ.reind-filler _
+            (sym $ Dᴰ.reind-filler)
+            ∙ (sym $ Dᴰ.reind-filler)
+            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler ⟩
+            ∙ Dᴰ.reind-filler
             ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₁)
           , (Dᴰ.rectify $ Dᴰ.≡out $
-            (sym $ Dᴰ.reind-filler _)
-            ∙ (sym $ Dᴰ.reind-filler _)
-            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
-            ∙ Dᴰ.reind-filler _
+            (sym $ Dᴰ.reind-filler)
+            ∙ (sym $ Dᴰ.reind-filler)
+            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler ⟩
+            ∙ Dᴰ.reind-filler
             ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₂))
         preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = Dᴰ.rectify $ Dᴰ.≡out $
           Fcᴰ∧Fcᴰ'.,ⱽ≡
-            (sym (Dᴰ.reind-filler _)
-            ∙ sym (Dᴰ.reind-filler _)
-            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
-            ∙ Dᴰ.reind-filler _)
-            (sym (Dᴰ.reind-filler _)
-            ∙ sym (Dᴰ.reind-filler _)
-            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
-            ∙ Dᴰ.reind-filler _)
+            (sym (Dᴰ.reind-filler)
+            ∙ sym (Dᴰ.reind-filler)
+            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler ⟩
+            ∙ Dᴰ.reind-filler)
+            (sym (Dᴰ.reind-filler)
+            ∙ sym (Dᴰ.reind-filler)
+            ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler ⟩
+            ∙ Dᴰ.reind-filler)
 
     BinProductⱽReindex : BinProductⱽ (Base.reindex Dᴰ F) (Fcᴰ , Fcᴰ')
     BinProductⱽReindex =

@@ -42,18 +42,18 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   v[ x ] .Category.ob = ob[ x ]
   v[ x ] .Category.Hom[_,_] = Hom[ C.id ][_,_]
   v[ x ] .Category.id = idᴰ
-  v[ x ] .Category._⋆_ fⱽ gⱽ = R.reind (C.⋆IdL _) (fⱽ ⋆ᴰ gⱽ)
+  v[ x ] .Category._⋆_ fⱽ gⱽ = R.reind {e = C.⋆IdL _} (fⱽ ⋆ᴰ gⱽ)
   v[ x ] .Category.⋆IdL fⱽ =
-    R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+    R.rectify $ R.≡out $ (sym $ R.reind-filler) ∙ ∫Cᴰ.⋆IdL _
   v[ x ] .Category.⋆IdR fⱽ =
-    R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+    R.rectify $ R.≡out $ (sym $ R.reind-filler) ∙ ∫Cᴰ.⋆IdR _
   v[ x ] .Category.⋆Assoc fⱽ gⱽ hⱽ =
     R.rectify $ R.≡out $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      (sym $ R.reind-filler)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler ⟩
+      ∙ R.reind-filler
   v[ x ] .Category.isSetHom = isSetHomᴰ
 
   idⱽ : ∀ {x xᴰ} → v[ x ] [ xᴰ , xᴰ ]
@@ -84,57 +84,57 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   isSetHomⱽ = isSetHomᴰ
 
   _⋆ᴰⱽ_ : Hom[ f ][ xᴰ , yᴰ ] → v[ y ] [ yᴰ , yᴰ' ] → Hom[ f ][ xᴰ , yᴰ' ]
-  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = R.reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
+  _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = R.reind {e = C.⋆IdR _} (fᴰ ⋆ᴰ gⱽ)
   ⋆IdLᴰⱽ : idᴰ ⋆ᴰⱽ fⱽ ≡ fⱽ
-  ⋆IdLᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+  ⋆IdLᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler) ∙ ∫Cᴰ.⋆IdL _
 
   ⋆IdRᴰⱽ : fᴰ ⋆ᴰⱽ idⱽ ≡ fᴰ
-  ⋆IdRᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+  ⋆IdRᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler) ∙ ∫Cᴰ.⋆IdR _
 
   ⋆Assocᴰⱽⱽ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰⱽ hⱽ ≡ (fᴰ ⋆ᴰⱽ (gⱽ ⋆ⱽ hⱽ))
   ⋆Assocᴰⱽⱽ = R.rectify $ R.≡out $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      (sym $ R.reind-filler)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler ⟩
+      ∙ R.reind-filler
 
   _⋆ⱽᴰ_ : v[ x ] [ xᴰ , xᴰ' ] → Hom[ f ][ xᴰ' , yᴰ ] → Hom[ f ][ xᴰ , yᴰ ]
-  _⋆ⱽᴰ_ {f = f} gⱽ fᴰ = R.reind (C.⋆IdL _) (gⱽ ⋆ᴰ fᴰ)
+  _⋆ⱽᴰ_ {f = f} gⱽ fᴰ = R.reind {e = C.⋆IdL _} (gⱽ ⋆ᴰ fᴰ)
 
   ⋆IdLⱽᴰ : ∀ (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idⱽ ⋆ⱽᴰ fᴰ ≡ fᴰ
-  ⋆IdLⱽᴰ fᴰ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+  ⋆IdLⱽᴰ fᴰ = R.rectify $ R.≡out $ (sym $ R.reind-filler) ∙ ∫Cᴰ.⋆IdL _
 
   ⋆IdRⱽᴰ : ∀ (fⱽ : v[ x ] [ xᴰ , xᴰ' ]) → fⱽ ⋆ⱽᴰ idᴰ ≡ fⱽ
-  ⋆IdRⱽᴰ fⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+  ⋆IdRⱽᴰ fⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler) ∙ ∫Cᴰ.⋆IdR _
 
   ⋆Assocⱽⱽᴰ : (fⱽ ⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ ≡ (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ))
   ⋆Assocⱽⱽᴰ = R.rectify $ R.≡out $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      (sym $ R.reind-filler)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler ⟩
+      ∙ R.reind-filler
 
   ⋆Assocⱽᴰⱽ : (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰⱽ hⱽ ≡ (fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰⱽ hⱽ))
   ⋆Assocⱽᴰⱽ = R.rectify $ R.≡out $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      (sym $ R.reind-filler)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler ⟩
+      ∙ R.reind-filler
 
   ⋆Assocᴰⱽᴰ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ ≡ (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
   ⋆Assocᴰⱽᴰ = R.rectify $ R.≡out $
-    ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+    ∫Cᴰ.⟨ sym $ R.reind-filler ⟩⋆⟨ refl ⟩
     ∙ ∫Cᴰ.⋆Assoc _ _ _
-    ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
+    ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler ⟩
 
   ⋆Assocⱽᴰᴰ : ((fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰ hᴰ) R.∫≡ (fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰ hᴰ))
   ⋆Assocⱽᴰᴰ =
-    ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+    ∫Cᴰ.⟨ sym $ R.reind-filler ⟩⋆⟨ refl ⟩
     ∙ ∫Cᴰ.⋆Assoc _ _ _
-    ∙ R.reind-filler _
+    ∙ R.reind-filler
 
   ∫⋆Assocᴰⱽᴰ : ((fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ) R.∫≡ (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
   ∫⋆Assocᴰⱽᴰ = R.≡in ⋆Assocᴰⱽᴰ
@@ -164,7 +164,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     → Path Hom[ _ , _ ]
         (_ , fⱽ ⋆ⱽᴰ gᴰ)
         (_ , fⱽ' ⋆ⱽᴰ gᴰ')
-  ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ gᴰ≡gᴰ' ⟩ = sym (reind-filler _) ∙ ⟨ fⱽ≡fⱽ' ⟩⋆⟨ gᴰ≡gᴰ' ⟩ ∙ reind-filler _
+  ⟨ fⱽ≡fⱽ' ⟩⋆ⱽᴰ⟨ gᴰ≡gᴰ' ⟩ = reind-filler⁻ ∙ ⟨ fⱽ≡fⱽ' ⟩⋆⟨ gᴰ≡gᴰ' ⟩ ∙ reind-filler
 
   ⟨⟩⋆ⱽᴰ⟨_⟩
     : Path Hom[ _ , _ ] (_ , gᴰ) (_ , gᴰ')
@@ -186,8 +186,8 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       (p : f ≡ g)
       (p' : f' ≡ g')
     → fᴰ ∫≡ fᴰ'
-    → reind p fᴰ ∫≡ reind p' fᴰ'
-  cong-reind p p' fᴰ≡fᴰ' = sym (reind-filler _) ∙ fᴰ≡fᴰ' ∙ reind-filler _
+    → reind {e = p} fᴰ ∫≡ reind {e = p'} fᴰ'
+  cong-reind p p' fᴰ≡fᴰ' = reind-filler⁻ ∙ fᴰ≡fᴰ' ∙ reind-filler
 
 module _ {C : Category ℓC ℓC'}
          (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

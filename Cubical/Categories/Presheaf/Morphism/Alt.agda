@@ -155,6 +155,26 @@ module _ {C : Category ℓc ℓc'} where
     ∙ β .N-hom x y f (α .N-ob y p)
   infixr 9 _⋆PshHom_
 
+  module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
+    private
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+      module R = PresheafNotation R
+    _⋆PshHom'_ : PshHom' P Q → PshHom' Q R → PshHom' P R
+    (α ⋆PshHom' β) .PshHom'.N-ob c p = β .PshHom'.N-ob c (α .PshHom'.N-ob c p)
+    (α ⋆PshHom' β) .PshHom'.N-hom c c' f p =
+      epSubst Q.isSetPsh goal1 (symPE Q.isSetPsh $ α .PshHom'.N-hom c c' f p) $
+      epSubst R.isSetPsh goal2 (symPE R.isSetPsh $ β .PshHom'.N-hom c c' f _) (inr Eq.refl)
+      where
+      goal1 : ∀ (αfp : Q.p[ c ]) → Type _
+      goal1 αfp = PathEq
+        (β .PshHom'.N-ob c αfp)
+        (f R.⋆ (β .PshHom'.N-ob c' (α .PshHom'.N-ob c' p)))
+      goal2 : ∀ (βfα : R.p[ c ] ) → Type _
+      goal2 βfα = PathEq
+        βfα
+        ((f R.⋆ (β .PshHom'.N-ob c' (α .PshHom'.N-ob c' p))))
+
   _⋆PshHomNatTrans_ :
     ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓq} →
       PshHom P Q → NatTrans Q R → PshHom P R
@@ -233,6 +253,11 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   PshIso→PshIsoLift α .NatIso.nIso x .isIsoC.ret =
     funExt (λ x₁ → cong lift (α .nIso x .snd .snd (x₁ .lower)))
 
+  record isPshIso' (α : PshHom' P Q ) : Type (ℓ-max ℓc (ℓ-max ℓp ℓq)) where
+    no-eta-equality
+    field
+      nIso : ∀ c → isIso (α .PshHom'.N-ob c)
+
   record PshIso' : Type (ℓ-max (ℓ-max ℓp ℓq) (ℓ-max ℓc ℓc')) where
     no-eta-equality
     field
@@ -240,6 +265,12 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
       nat  : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ])
         → PathEq (isos c .Iso.fun (f P.⋆ p))
                  (f Q.⋆ isos c' .Iso.fun p)
+    toPshHom' : PshHom' P Q
+    toPshHom' .PshHom'.N-ob = λ c → isos c .Iso.fun 
+    toPshHom' .PshHom'.N-hom = nat
+
+    PshIso'ToIsPshIso' : isPshIso' toPshHom'
+    PshIso'ToIsPshIso' .isPshIso'.nIso c = IsoToIsIso (isos c)
 
 open PshIso
 

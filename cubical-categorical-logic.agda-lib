@@ -1,4 +1,5 @@
 name: cubical-categorical-logic
 include: .
 depend: cubical
-flags: --cubical --postfix-projections --guardedness --safe
+flags: --cubical --postfix-projections --guardedness --allow-unsolved-metas
+

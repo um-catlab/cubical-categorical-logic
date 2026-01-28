@@ -23,6 +23,7 @@ open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
+import Cubical.HITs.Join as Join
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Bifunctor
@@ -201,6 +202,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 reindPshId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
   → PshIso P (reindPsh Id P)
 reindPshId≅ P = eqToPshIso (reindPsh Id P) Eq.refl Eq.refl
+
+reindPshId≅' :  {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
+  → PshIso' P (reindPsh Id P)
+reindPshId≅' P .PshIso'.isos = λ _ → idIso
+reindPshId≅' P .PshIso'.nat = λ _ _ _ _ → Join.inr Eq.refl
 
 reindPsh∘F≅ :
   {C : Category ℓC ℓC'}

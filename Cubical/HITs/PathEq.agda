@@ -9,6 +9,7 @@
 -}
 module Cubical.HITs.PathEq where
 
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
@@ -44,8 +45,24 @@ module _ {X : Type ℓ} (isSetX : isSet X) where
     (λ p → p)
     Eq.eqToPath
 
+  PathEq→Eq : (p : PathEq x x') → x Eq.≡ x'
+  PathEq→Eq = Join.elimProp (λ _ → Eq.isSet→isSetEq isSetX)
+    Eq.pathToEq
+    λ y → y
+
   PathEq→Path→PathEq : (p : PathEq x x') → PathEq x x'
   PathEq→Path→PathEq p = inl (PathEq→Path p)
+
+  -- elimEq : {M : (p : PathEq x x') → Type ℓ''}
+  --   → (∀ p → M (inr p))
+  --   → (∀ p → M p)
+  -- elimEq {M = M} Meq = Join.elim
+  --   (λ path → subst M (sym (push path (Eq.pathToEq path))) (Meq (Eq.pathToEq path)))
+  --   Meq
+  --   λ { path eq →
+  --     {!!}
+  --     ▷ ({!!} ≡⟨ {!!} ⟩ Meq eq ∎)
+  --   }
 
   elimPropPath : {M : (p : PathEq x x') → Type ℓ''}
     → (∀ p → isProp (M p))
@@ -72,3 +89,9 @@ module _ {X : Type ℓ} (isSetX : isSet X) where
     → ∀ p → M p
   elimPropBoth {M = M} isPropM Mp Meq =
     Join.elimProp isPropM Mp Meq
+
+  epSubst : ∀ {x x' : X} (B : X → Type ℓ') → PathEq x x' → B x → B x'
+  epSubst {x = x} {x'} B = Join.elim (subst B) (Eq.transport B)
+    (λ { p Eq.refl → funExt (λ b → sym $ Prectify (subst-filler (λ z → z) (λ i → B (p i)) (Eq.transport B Eq.refl b))) })
+    where
+      open hSetReasoning (X , isSetX) B

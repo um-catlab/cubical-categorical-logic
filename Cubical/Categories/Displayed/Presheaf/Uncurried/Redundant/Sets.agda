@@ -87,8 +87,23 @@ SetᴰBPⱽ {x = X} P Q .snd .PshIso'.isos c .Iso.inv f x xᴰ .fst = f .fst x x
 SetᴰBPⱽ {x = X} P Q .snd .PshIso'.isos c .Iso.inv f x xᴰ .snd = f .snd x xᴰ
 SetᴰBPⱽ {x = X} P Q .snd .PshIso'.isos c .Iso.sec f = refl
 SetᴰBPⱽ {x = X} P Q .snd .PshIso'.isos c .Iso.ret f = refl
-SetᴰBPⱽ {x = X} P Q .snd .PshIso'.nat c c' = Hom/-elim (λ f fᴰ → elimPropEq (isSet→ (X .snd)) (λ _ → isPropΠ (λ _ → isPropPathEq (isSet× (isSetΠ λ _ → isSet→ (P _ .snd)) ((isSetΠ λ _ → isSet→ (Q _ .snd)))))) (λ { Eq.refl →
-  λ g → inr Eq.refl }))
+SetᴰBPⱽ {x = X} P Q .snd .PshIso'.nat c c' = Hom/-elim (λ f fᴰ →
+  elimPropEq (isSet→ (X .snd))
+   (λ _ →
+      isPropΠ
+      (λ _ →
+         isPropPathEq
+         (isSet× (isSetΠ (λ _ → isSet→ (P _ .snd)))
+          (isSetΠ (λ _ → isSet→ (Q _ .snd))))))
+   λ { Eq.refl → λ g → inr Eq.refl })
+
+SetᴰBPⱽUE : BinProductsⱽUE (SETᴰ ℓ ℓᴰ) λ {x} {y} f → Eq.refl
+SetᴰBPⱽUE {ℓ} {ℓᴰ} {X} P Q .UEⱽ.v x .fst = ⟨ P x ⟩ × ⟨ Q x ⟩
+SetᴰBPⱽUE {ℓ} {ℓᴰ} {X} P Q .UEⱽ.v x .snd = isSet× (P x .snd) (Q x .snd)
+SetᴰBPⱽUE {ℓ} {ℓᴰ} {X} P Q .UEⱽ.e = (λ x z → z .fst) , (λ x z → z .snd)
+SetᴰBPⱽUE {ℓ} {ℓᴰ} {X} P Q .UEⱽ.universal .isPshIso'.nIso c .fst = λ z x z₁ → z .fst x z₁ , z .snd x z₁
+SetᴰBPⱽUE {ℓ} {ℓᴰ} {X} P Q .UEⱽ.universal .isPshIso'.nIso c .snd .fst b = refl
+SetᴰBPⱽUE {ℓ} {ℓᴰ} {X} P Q .UEⱽ.universal .isPshIso'.nIso c .snd .snd a = refl
 
 SetᴰFibration : Fibration (SETᴰ ℓ ℓᴰ) λ f g h → Eq.refl
 SetᴰFibration {ℓ} {ℓᴰ} {X} {Y} f Q .fst x = Q (f x)
@@ -97,3 +112,50 @@ SetᴰFibration {ℓ} {ℓᴰ} {X} {Y} f Q .snd .PshIso'.nat (Δ , Δᴰ , γ) (
   (isSet→ (X .snd))
   (λ _ → isPropΠ (λ _ → isPropPathEq (isSetΠ (λ _ → isSet→ (Q _ .snd)))))
   λ { Eq.refl → λ q → inr Eq.refl }
+
+SetᴰFibration' : Fibration (SETᴰ ℓ ℓᴰ) λ f g h → Eq.refl
+SetᴰFibration' {ℓ}{ℓᴰ} f yᴰ = UEⱽ→Reprⱽ (reindᴰRedundPshHom (yoRecHom (SETᴰ _ ℓᴰ) (λ f₁ g h → Eq.refl) f)
+                                 (SETᴰ _ _ [-][-, yᴰ ])) (λ {x = x₁} {y = y₁} f₁ → Eq.refl)
+   fibUE
+  where
+    fibUE : UEⱽ
+      (reindᴰRedundPshHom
+       (yoRecHom (SETᴰ _ ℓᴰ) (λ f₁ g h → Eq.refl) f)
+       (SETᴰ _ _ [-][-, yᴰ ]))
+      (λ {x = x₁} {y = y₁} f₁ → Eq.refl)
+    fibUE .UEⱽ.v = λ z → yᴰ (f z)
+    fibUE .UEⱽ.e = λ x₁ z → z
+    fibUE .UEⱽ.universal .isPshIso'.nIso c = IsoToIsIso idIso
+
+module _ {X : SET ℓ .ob}(P : SETᴰ ℓ ℓᴰ .Categoryᴰ.ob[_] X) where
+  SetᴰLRⱽ : LRⱽ (SETᴰ ℓ ℓᴰ) (λ {w} {x} {y} {z} f g h → Eq.refl) P
+  SetᴰLRⱽ {Γ} Γᴰ f = UEⱽ→Reprⱽ _ (λ {x} {y} f₁ → Eq.refl) lrⱽue
+    where
+      lrⱽue :   UEⱽ ((SETᴰ ℓ ℓᴰ [-][-, Γᴰ ]) ×ⱽPsh
+         reindᴰRedundPshHom
+         (yoRecHom (SETᴰ ℓ ℓᴰ) (λ {w} {x} {y} {z} f₁ g h → Eq.refl) f)
+         (SETᴰ ℓ ℓᴰ [-][-, P ]))
+        (λ {x} {y} f₁ → Eq.refl)
+      lrⱽue .UEⱽ.v γ .fst = ⟨ Γᴰ γ ⟩ × ⟨ P (f γ) ⟩
+      lrⱽue .UEⱽ.v γ .snd = isSet× (Γᴰ γ .snd) (P (f γ) .snd)
+      lrⱽue .UEⱽ.e = (λ x z → z .fst) , (λ x z → z .snd)
+      lrⱽue .UEⱽ.universal .isPshIso'.nIso c .fst = λ z x z₁ → z .fst x z₁ , z .snd x z₁
+      lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .fst b = refl
+      lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .snd a = refl
+
+
+  SETᴰExpsⱽ : Exponentialsⱽ (SETᴰ ℓ ℓᴰ) (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl) P SetᴰLRⱽ
+  SETᴰExpsⱽ Q = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) expUE
+    where
+      expUE : UEⱽ
+        (reindPsh
+         (LRⱽF (SETᴰ ℓ ℓᴰ) (λ {w} {x} {y} {z} f g h → Eq.refl)
+          (λ {x} {y} f → Eq.refl) P SetᴰLRⱽ)
+         (SETᴰ ℓ ℓᴰ [-][-, Q ]))
+        (λ {x} {y} f → Eq.refl)
+      expUE .UEⱽ.v x .fst = ⟨ P x ⟩ → ⟨ Q x ⟩
+      expUE .UEⱽ.v x .snd = isSet→ (Q x .snd)
+      expUE .UEⱽ.e = λ x z → z .fst (z .snd)
+      expUE .UEⱽ.universal .isPshIso'.nIso c .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
+      expUE .UEⱽ.universal .isPshIso'.nIso c .snd .fst b = refl
+      expUE .UEⱽ.universal .isPshIso'.nIso c .snd .snd a = refl

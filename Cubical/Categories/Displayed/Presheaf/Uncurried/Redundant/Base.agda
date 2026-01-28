@@ -199,7 +199,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Cᴰ : Categoryᴰ C �
     UncurryPshᴰ .F-ob ob/@(Γ , Γᴰ , p) = Pᴰ .F-obᴰ Γᴰ p
     UncurryPshᴰ .F-hom = Hom/-rec λ γ γᴰ → Join.elim
       (λ tri pᴰ → Pᴰ.reind tri (γᴰ Pᴰ.⋆ᴰ pᴰ))
-      (λ { Eq.refl → γᴰ Pᴰ.⋆ᴰ_ })
+      (λ { Eq.refl pᴰ → γᴰ Pᴰ.⋆ᴰ pᴰ })
       λ { tri Eq.refl → funExt λ pᴰ → Pᴰ.rectifyOut $ sym $ Pᴰ.reind-filler _ }
     UncurryPshᴰ .F-id {x} = funExt λ pᴰ → Pᴰ.rectifyOut $
       (sym $ Pᴰ.reind-filler _)
@@ -230,6 +230,14 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Cᴰ : Categoryᴰ C �
   CurryPshᴰIso .Iso.ret Pᴰ = Functor≡ (λ _ → refl)
     (Hom/-elim (λ γ γᴰ → elimPropEq P.isSetPsh (λ _ → isSet→ Pᴰ.isSetPshᴰ _ _) λ { Eq.refl → refl }))
     where module Pᴰ = PresheafᴰNotation Pᴰ
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  where
+  module _ (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHom' P Q) where
+    _/Fⱽ_ :  Functor (Cᴰ / P) (Dᴰ / Q)
+    _/Fⱽ_ = Fᴰ /Fᴰ (α ⋆PshHom' (PshIso'.toPshHom' $ reindPshId≅' Q))
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -271,6 +279,7 @@ module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Q : Presheaf C ℓQ} where
+  -- This is why we Eq
   _×ᴰPsh_ : Presheafᴰ P Cᴰ ℓPᴰ → Presheafᴰ Q Cᴰ ℓQᴰ → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
   Pᴰ ×ᴰPsh Qᴰ = reindᴰRedundPshHom (π₁Strict P Q) Pᴰ ×ⱽPsh reindᴰRedundPshHom (π₂Strict P Q) Qᴰ
 
@@ -304,20 +313,51 @@ module _ {C : Category ℓC ℓC'} (x : C .ob) (Cᴰ : Categoryᴰ C ℓCᴰ ℓ
   Presheafⱽ : (ℓPᴰ : Level) → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
   Presheafⱽ = Presheafᴰ (C [-, x ]) Cᴰ
 
+EqAssoc : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+EqAssoc C = ∀ {w x y z} (f : C [ w , x ])(g : C [ x , y ])(h : C [ y , z ]) → (f C.⋆ g) C.⋆ h Eq.≡ (f C.⋆ (g C.⋆ h))
+  where module C = Category C
+
+EqIdR : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+EqIdR C = ∀ {x y} (f : C [ x , y ]) → f C.⋆ C.id Eq.≡ f
+  where module C = Category C
+
+EqIdL : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+EqIdL C = ∀ {x y} (f : C [ x , y ]) → C.id C.⋆ f Eq.≡ f
+  where module C = Category C
+
 module _ {C : Category ℓC ℓC'} {x : C .ob} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
     module Pⱽ = PresheafᴰNotation Pⱽ
-  -- UniversalElementⱽ : Type {!!}
-  -- UniversalElementⱽ = Σ[ v ∈ Cᴰ.ob[ x ] ] Σ[ e ∈ Pⱽ.p[ C.id ][ v ] ] ?
+
+  -- TODO: universal element
 
   Reprⱽ : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓPᴰ)
   Reprⱽ = Σ[ v ∈ Cᴰ.ob[ x ] ] PshIso' (Cᴰ [-][-, v  ]) Pⱽ
+  module _ (C⋆IdR : EqIdR C) where
+    yoRecⱽ : ∀ {xᴰ}
+      → Pⱽ.p[ C.id ][ xᴰ ]
+      → PshHom' (Cᴰ [-][-, xᴰ ]) Pⱽ
+    yoRecⱽ pⱽ .PshHom'.N-ob ob/@(Γ , Γᴰ , f) fᴰ = Pⱽ .F-hom (f , fᴰ , inr (C⋆IdR f)) pⱽ
+    yoRecⱽ pⱽ .PshHom'.N-hom Δ3 Γ3 = Hom/-elim (λ γ γᴰ → elimPropPath {!!} {!!}
+      λ tri pᴰ → inl (Pⱽ.rectifyOut $ {!Pⱽ.⟨ ? ⟩⋆⟨⟩ ∙ ?!}))
 
-EqAssoc : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
-EqAssoc C = ∀ {w x y z} (f : C [ w , x ])(g : C [ x , y ])(h : C [ y , z ]) → (f C.⋆ g) C.⋆ h Eq.≡ (f C.⋆ (g C.⋆ h))
-  where module C = Category C
+    record UEⱽ : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') ℓPᴰ)) where
+      no-eta-equality
+      field
+        v : Cᴰ.ob[ x ]
+        e : Pⱽ.p[ C.id ][ v ]
+        universal : isPshIso' (Cᴰ [-][-, v ]) Pⱽ (yoRecⱽ e)
+
+    open UEⱽ
+    UEⱽ→Reprⱽ : UEⱽ → Reprⱽ
+    UEⱽ→Reprⱽ ueⱽ .fst = ueⱽ .v
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIso'.isos ob/@(Γ , Γᴰ , f) .Iso.fun = λ z → Pⱽ .F-hom (f , z , inr (C⋆IdR f)) (ueⱽ .e)
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIso'.isos ob/@(Γ , Γᴰ , f) .Iso.inv = ueⱽ .universal .isPshIso'.nIso (Γ , Γᴰ , f) .fst
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIso'.isos ob/@(Γ , Γᴰ , f) .Iso.sec = ueⱽ .universal .isPshIso'.nIso (Γ , Γᴰ , f) .snd .fst
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIso'.isos ob/@(Γ , Γᴰ , f) .Iso.ret = ueⱽ .universal .isPshIso'.nIso (Γ , Γᴰ , f) .snd .snd
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIso'.nat = yoRecⱽ (ueⱽ .e) .PshHom'.N-hom
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
@@ -329,9 +369,47 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductsⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
   BinProductsⱽ = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Reprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
 
-  Fibration : EqAssoc C → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
-  Fibration C⋆Assoc = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Reprⱽ (reindᴰRedundPshHom (⋆f f) (Cᴰ [-][-, yᴰ ]))
-    where
-      ⋆f : ∀ {x y} (f : C [ x , y ]) → PshHom' (C [-, x ]) (C [-, y ])
-      ⋆f f .PshHom'.N-ob c = C._⋆ f
-      ⋆f f .PshHom'.N-hom c c' δ γ = inr (C⋆Assoc δ γ f)
+  module _ (C⋆IdR : EqIdR C) where
+    BinProductsⱽUE : Type _
+    BinProductsⱽUE = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → UEⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])) C⋆IdR
+
+  module _ (C⋆Assoc : EqAssoc C) where
+    yoRecHom : ∀ {x y} (f : C [ x , y ]) → PshHom' (C [-, x ]) (C [-, y ])
+    yoRecHom f .PshHom'.N-ob c = C._⋆ f
+    yoRecHom f .PshHom'.N-hom c c' δ γ = inr (C⋆Assoc δ γ f)
+
+    Fibration : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+    Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Reprⱽ (reindᴰRedundPshHom (yoRecHom f) (Cᴰ [-][-, yᴰ ]))
+
+    LRⱽ : {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) → Type _
+    LRⱽ {x} xᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , x ])
+      → Reprⱽ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh reindᴰRedundPshHom (yoRecHom f) (Cᴰ [-][-, xᴰ ]))
+
+    module _ (C⋆IdL : EqIdL C) {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) (_×ⱽ_*xᴰ : LRⱽ xᴰ) where
+
+      LRⱽFⱽ : Functorⱽ (Cᴰ ×ᴰ RedundElement (C [-, x ])) Cᴰ
+      LRⱽFⱽ .F-obᴰ {Γ} ob/@(Γᴰ , f) = (Γᴰ ×ⱽ f *xᴰ) .fst
+      LRⱽFⱽ .F-homᴰ {Δ} {Γ} {γ} {(Δᴰ , g)} {Γᴰ , f} = curryIso .Iso.inv
+        λ γᴰ →
+        -- λ b → (Γᴰ ×ⱽ f *xᴰ) .snd .PshIso'.isos (Δ , F-obᴰ LRⱽFⱽ (Δᴰ , g) , γ) .Iso.inv ({!!} , {!!})
+        Join.elim
+        (λ tri → {!!})
+        (λ { Eq.refl → (Γᴰ ×ⱽ f *xᴰ) .snd .PshIso'.isos (_ , ((Δᴰ ×ⱽ (γ C.⋆ f) *xᴰ) .fst , γ)) .Iso.inv
+          (Eq.transport (λ id⋆γ → Cᴰ [ id⋆γ ][ (Δᴰ ×ⱽ (γ C.⋆ f) *xᴰ) .fst , Γᴰ ]) (C⋆IdL γ) ((Δᴰ ×ⱽ (γ C.⋆ f) *xᴰ) .snd .PshIso'.isos (Δ , (Δᴰ ×ⱽ (γ C.⋆ f) *xᴰ) .fst , C.id) .Iso.fun Cᴰ.idᴰ .fst Cᴰ.⋆ᴰ γᴰ)
+          , (
+          (Eq.transport (λ idγf → Cᴰ [ idγf ][ (Δᴰ ×ⱽ (γ C.⋆ f) *xᴰ) .fst , xᴰ ])) (C⋆IdL (γ C.⋆ f))
+            $ (Δᴰ ×ⱽ (γ C.⋆ f) *xᴰ) .snd .PshIso'.isos (Δ , (Δᴰ ×ⱽ (γ C.⋆ f) *xᴰ) .fst , C.id) .Iso.fun Cᴰ.idᴰ .snd)) })
+        {!!}
+      LRⱽFⱽ .F-idᴰ = {!!}
+      LRⱽFⱽ .F-seqᴰ = {!!}
+
+      LRⱽF : Functor (Cᴰ / (C [-, x ])) (Cᴰ / (C [-, x ]))
+      LRⱽF = ∫F {F = Id} (LRⱽFⱽ ,Fⱽ (Sndⱽ Cᴰ (RedundElement (C [-, x ]))))
+
+      Exponentialsⱽ : Type _
+      Exponentialsⱽ = ∀ (yᴰ : Cᴰ.ob[ x ]) → Reprⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ]))
+
+      ExponentialsⱽUE : (C⋆IdR : EqIdR C)  → Type _
+      ExponentialsⱽUE C⋆IdR = ∀ (yᴰ : Cᴰ.ob[ x ]) → UEⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ])) C⋆IdR
+
+  -- module _ 

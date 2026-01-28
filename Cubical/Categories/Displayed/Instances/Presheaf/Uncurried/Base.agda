@@ -33,13 +33,18 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
-open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Limits.CartesianV'
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
+
 
 open Category
 open Functor
@@ -75,3 +80,33 @@ module _
     where
     module Rᴰ = PresheafᴰNotation Cᴰ _ Rᴰ
   PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _
+
+  private
+    PSHᴰ = PRESHEAFᴰ
+    module PSHᴰ = Fibers PRESHEAFᴰ
+
+  isFibrationPRESHEAFᴰPointwise :
+    ∀ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Q : Presheaf C ℓP) (α : PshHom Q P) →
+    PointwiseIso {P = PRESHEAFᴰ [-][-, reindPshᴰNatTrans α Pᴰ ]}
+      {Q = reindPsh (Idᴰ /Fⱽ yoRec (PRESHEAF C ℓP [-, P ]) α) (PRESHEAFᴰ [-][-, Pᴰ ])}
+  isFibrationPRESHEAFᴰPointwise {P = P} Pᴰ Q α Rs@(R , Rᴰ , β) =
+    PshHomⱽ Rᴰ (reindPshᴰNatTrans β (reindPshᴰNatTrans α Pᴰ))
+      Iso⟨ invIso $ PshIso→Isos (PshIso→PshHomPshIso ((reindPshᴰNatTrans-seq β α Pᴰ))) Rᴰ ⟩
+    PshHomⱽ Rᴰ (reindPshᴰNatTrans (β ⋆PshHom α) Pᴰ)
+    ∎Iso
+
+  isFibrationPRESHEAFᴰnatural :
+    ∀ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Q : Presheaf C ℓP) (α : PshHom Q P) →
+    PointwiseIsoNat (isFibrationPRESHEAFᴰPointwise Pᴰ Q α)
+  isFibrationPRESHEAFᴰnatural {P = P} Pᴰ Q α
+    Rs@(R , Rᴰ , β) Ss@(S , Sᴰ , γ) δs@(δ , δᴰ , δ≡) ϕᴰ =
+      PSHᴰ.rectifyOut $
+        {!!}
+        ∙ PSHᴰ.reind-filler _
+
+  isFibrationPRESHEAFᴰ : isFibration PRESHEAFᴰ
+  isFibrationPRESHEAFᴰ {x = P} Pᴰ Q α .fst = reindPshᴰNatTrans α Pᴰ
+  isFibrationPRESHEAFᴰ {x = P} Pᴰ Q α .snd =
+    Isos→PshIso
+      (isFibrationPRESHEAFᴰPointwise Pᴰ Q α)
+      (isFibrationPRESHEAFᴰnatural Pᴰ Q α)

@@ -239,11 +239,16 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   invPshIso α .nIso c .snd .fst = α .nIso _ .snd .snd
   invPshIso α .nIso c .snd .snd = α .nIso _ .snd .fst
 
-  -- Convenient when we already have the iso on Types
-  Isos→PshIso : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
-    → (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
+  PointwiseIso : Type _
+  PointwiseIso = ∀ x → Iso (P.p[ x ]) (Q.p[ x ])
+
+  PointwiseIsoNat : PointwiseIso → Type _
+  PointwiseIsoNat isos =
+    (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →
       Iso.fun (isos x) (f P.⋆ p) ≡ f Q.⋆ (Iso.fun (isos y) p))
-    → PshIso P Q
+
+  -- Convenient when we already have the iso on Types
+  Isos→PshIso : (isos : PointwiseIso) → PointwiseIsoNat isos → PshIso P Q
   Isos→PshIso isos isos-areNat .trans .N-ob x = Iso.fun (isos x)
   Isos→PshIso isos isos-areNat .trans .N-hom = isos-areNat
   Isos→PshIso isos isos-areNat .nIso x .fst = Iso.inv (isos x)

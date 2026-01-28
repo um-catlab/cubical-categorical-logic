@@ -233,12 +233,35 @@ module _ {ℓ ℓ'} where
          )
       where
       g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
-
       uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
-  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
+  ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .snd f =
+    SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ ⇒ⱽSETᴰ Yᴰ} $
+      SETᴰ.≡in {pth = refl}
+        (SETᴰ.rectify {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ ⇒ⱽSETᴰ Yᴰ}{e = refl} $
+          funExt₂ λ z zᴰ → funExt λ xᴰ →
+            funExt₂⁻ (SETᴰ.rectifyOut {e' = refl} $ SETᴰ.reind-filler⁻ _) z (zᴰ , xᴰ))
+      ∙ SETᴰ.cong₂ᴰ (λ (u : uTy) (v : vTy) z zᴰ xᴰ → f z (u z (zᴰ , xᴰ)) (v z (zᴰ , xᴰ)))
+          (ΣPathP (
+            (SETᴰ.rectifyOut $ SETᴰ.reind-filler⁻ _) ,
+            (SETᴰ.rectifyOut {b = Z} {e' = refl} $
+              (change-base (λ h x → g (h x)) (isSet→ (X .snd))
+                 refl
+                 (SETᴰ.reind-filler⁻ _
+                 ∙ SETᴰ.reind-filler⁻ _
+                 ∙ SETᴰ.reind-filler⁻ _
+                 ∙ change-base⁻ (λ h x → g (h x)) {x = (λ x → x) , _}{y = (λ x → x) , _}
+                     (SETᴰ.reind-filler⁻ _)
+                 )))))
 
---   -- ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
---   -- ExponentialsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ)
+      where
+      g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
+      g*Yᴰ = isFibrationSETᴰ._*_ {x = Z} g Yᴰ
+
+      uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩
+      vTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Xᴰ (g z) ⟩
+
+  ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
+  ExponentialsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ)
 
 -- -- -- -- -- --     UniversalQuantifierSETᴰ :
 -- -- -- -- -- --       UniversalQuantifier (SETᴰ ℓ (ℓ-max ℓ ℓ')) B -×B

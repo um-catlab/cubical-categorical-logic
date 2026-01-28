@@ -79,11 +79,6 @@ module _ {ℓ ℓ'} where
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .fst =
     λ z → z
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .snd .fst γᴰ =
-    -- I think these should have better inference for implicits if hSet were either
-    -- 1. opaque, or
-    -- 2. a no-eta-equality record
-    --
-    -- TODO make a local wrapper around hSet to test that
     SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ}{e' = refl} $
       SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _
   isFibrationSETᴰueⱽ {X = X} Xᴰ Y f .universalⱽ (Z , Zᴰ , g) .snd .snd γᴰ =
@@ -181,33 +176,6 @@ module _ {ℓ ℓ'} where
   _⇒ⱽSETᴰ_ : {X : hSet ℓ} → (Xᴰ Yᴰ : SETᴰ.ob[ X ]) → SETᴰ.ob[ X ]
   Xᴰ ⇒ⱽSETᴰ Yᴰ = λ x → ((⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd))
 
-  -- ExponentialsⱽSETᴰ-ptWise :
-  --   {X : hSet ℓ} (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
-  --   ∀ ((Z , Zᴰ , g) : (SETᴰ ℓ ℓ' / (SET ℓ [-, X ])) .ob) →
-  --   Iso
-  --     (SETᴰ ℓ ℓ' [ g ][ Zᴰ , Xᴰ ⇒ⱽSETᴰ Yᴰ ])
-  --     (SETᴰ ℓ ℓ' [ g ][ Zᴰ ×ⱽSETᴰ (g isFibrationSETᴰ.* Xᴰ) , Yᴰ ])
-  -- ExponentialsⱽSETᴰ-ptWise Xᴰ Yᴰ (Z , Zᴰ , g) .Iso.fun = λ z x z₁ → z x (z₁ .fst) (z₁ .snd)
-  -- ExponentialsⱽSETᴰ-ptWise Xᴰ Yᴰ (Z , Zᴰ , g) .Iso.inv = λ z x z₁ z₂ → z x (z₁ , z₂)
-  -- ExponentialsⱽSETᴰ-ptWise Xᴰ Yᴰ (Z , Zᴰ , g) .Iso.sec = λ _ → refl
-  -- ExponentialsⱽSETᴰ-ptWise Xᴰ Yᴰ (Z , Zᴰ , g) .Iso.ret = λ _ → refl
-
-  -- ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
-  -- ExponentialsⱽSETᴰ {x = X} Xᴰ Yᴰ .fst = Xᴰ ⇒ⱽSETᴰ Yᴰ
-  -- ExponentialsⱽSETᴰ {x = X} Xᴰ Yᴰ .snd =
-  --   Isos→PshIso
-  --     (ExponentialsⱽSETᴰ-ptWise Xᴰ Yᴰ)
-  --     (λ _ _ _ _ →
-  --       SETᴰ.rectifyOut $
-  --         SETᴰ.reind-filler⁻ _
-  --         ∙ {!!}
-  --         ∙ {!reind-filler _!})
-
-  -- NOTE: Here and below have not yet been fixed subject to making reind opaque
-  -- The fixes to the first path in ExponentialsⱽSETᴰ are somewhat scaffolded but
-  -- not complete.
-  -- UniversalQuantifierSETᴰ hasn't been touched yet
-  --
   ExponentialsⱽSETᴰueⱽ :
     {X : hSet ℓ} →
     (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
@@ -236,6 +204,8 @@ module _ {ℓ ℓ'} where
       uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
   ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .snd f =
     SETᴰ.rectifyOut {a = Z}{b = X} {aᴰ = Zᴰ}{bᴰ = Xᴰ ⇒ⱽSETᴰ Yᴰ} $
+      -- -- Why can't I just use a simple SETᴰ.reind-filler⁻ here?
+      -- -- or a change-base
       SETᴰ.≡in {pth = refl}
         (SETᴰ.rectify {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ ⇒ⱽSETᴰ Yᴰ}{e = refl} $
           funExt₂ λ z zᴰ → funExt λ xᴰ →
@@ -262,6 +232,48 @@ module _ {ℓ ℓ'} where
 
   ExponentialsⱽSETᴰ : Exponentialsⱽ (SETᴰ ℓ ℓ') AllLRⱽSETᴰ
   ExponentialsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ)
+
+module _ {ℓ ℓ'} where
+  private
+    module SET = Category (SET ℓ)
+    module SETᴰ = Fibers (SETᴰ ℓ (ℓ-max ℓ ℓ'))
+    module ×SET = BinProductsNotation {ℓ' = ℓ} BinProductsSET
+    module isFibrationSETᴰ = FibrationNotation (SETᴰ ℓ (ℓ-max ℓ ℓ')) isFibrationSETᴰ
+
+  module _
+    (X Y : hSet ℓ)
+    (Yᴰ : SETᴰ.ob[ Y ×SET.× X ])
+    where
+    private
+      -×X = BinProducts→BinProductsWith (SET ℓ) X BinProductsSET
+      module -×X = BinProductsWithNotation -×X
+      quads : (Γ : hSet ℓ) → Quadrable (SETᴰ ℓ (ℓ-max ℓ ℓ')) {y = Γ} (-×X.π₁ {b = Γ})
+      quads = (λ Y Yᴰ → isFibrationSETᴰ Yᴰ (Y ×SET.× X) (×SET.π₁ {a = Y}{b = X}))
+
+    ∀SETᴰ : SETᴰ.ob[ Y ]
+    ∀SETᴰ y = (∀ (x : ⟨ X ⟩) → ⟨ Yᴰ (y , x) ⟩) , isSetΠ λ x → Yᴰ (y , x) .snd
+
+    UniversalQuantifierSETᴰueⱽ :
+      UniversalElementⱽ' (SETᴰ ℓ (ℓ-max ℓ ℓ')) Y
+        (reindPsh (wkF (π₁Quant (SETᴰ ℓ (ℓ-max ℓ ℓ')) X -×X quads) Y)
+           (SETᴰ ℓ (ℓ-max ℓ ℓ') [-][-, Yᴰ ]))
+    UniversalQuantifierSETᴰueⱽ .vertexⱽ = ∀SETᴰ
+    UniversalQuantifierSETᴰueⱽ .elementⱽ (y , x) f = f x
+    UniversalQuantifierSETᴰueⱽ .universalⱽ (Z , Zᴰ , g) .fst f z zᴰ x = f (z , x) zᴰ
+    UniversalQuantifierSETᴰueⱽ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
+      SETᴰ.rectifyOut {a = Z ×SET.× X}{b = Y ×SET.× X}{aᴰ = π₁*Zᴰ}{bᴰ = Yᴰ}{e' = refl} $
+        SETᴰ.reind-filler⁻ _
+        ∙ change-base ? ? ? ?
+      where
+      π₁*Zᴰ = isFibrationSETᴰ._*_ {x = Z ×SET.× X} (-×X.π₁ {b = Z}) Zᴰ
+      π₁*∀ = isFibrationSETᴰ._*_ {x = Y ×SET.× X} (-×X.π₁ {b = Y}) ∀SETᴰ
+      uTy = ((z , x) : ⟨ Z ⟩ × ⟨ X ⟩) → ⟨ Zᴰ z ⟩ → ⟨ Zᴰ z ⟩
+    UniversalQuantifierSETᴰueⱽ .universalⱽ (Z , Zᴰ , g) .snd .snd f = {!!}
+
+    UniversalQuantifierSETᴰ :
+      UniversalQuantifier (SETᴰ ℓ (ℓ-max ℓ ℓ')) X -×X quads Yᴰ
+    UniversalQuantifierSETᴰ = REPRⱽ UniversalQuantifierSETᴰueⱽ
+
 
 -- -- -- -- -- --     UniversalQuantifierSETᴰ :
 -- -- -- -- -- --       UniversalQuantifier (SETᴰ ℓ (ℓ-max ℓ ℓ')) B -×B

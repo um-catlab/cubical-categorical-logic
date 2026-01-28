@@ -9,6 +9,7 @@ open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
 
 private
   variable
@@ -122,6 +123,9 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     (e : p ∫≡ q)
     → p P≡[ fst $ PathPΣ e ] q
   ≡out e = snd $ PathPΣ e
+
+  reindEq : (a Eq.≡ b) → P a → P b
+  reindEq = Eq.transport P
 
   opaque
     reind : (a ≡ b) → P a → P b

@@ -26,6 +26,7 @@ open import Cubical.HITs.Join as Join
 open import Cubical.HITs.Join.More as Join
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
@@ -412,4 +413,31 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       ExponentialsⱽUE : (C⋆IdR : EqIdR C)  → Type _
       ExponentialsⱽUE C⋆IdR = ∀ (yᴰ : Cᴰ.ob[ x ]) → UEⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ])) C⋆IdR
 
-  -- module _ 
+  module _ (C⋆IdL : EqIdL C)(C⋆Assoc : EqAssoc C){x}(bp : BinProductsWith C x) (isFib : Fibration C⋆Assoc) where
+    private
+      module bp = BinProductsWithNotation bp
+
+    module _ (π₁NatEq : ∀ {Δ Γ} (γ : C [ Δ , Γ ]) → bp.×aF ⟪ γ ⟫ C.⋆ bp.π₁ Eq.≡ bp.π₁ C.⋆ γ) where
+      π1*F : Functorᴰ bp.×aF Cᴰ Cᴰ
+      π1*F .F-obᴰ {Γ} Γᴰ = isFib bp.π₁ Γᴰ .fst
+      -- γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]
+      -- -----------------------
+      -- π1*.π ⋆ γᴰ : Cᴰ [ (π₁ ⋆ γ , π₂) ⋆ π₁ ][ π₁* Δᴰ , Γᴰ ]
+      -- -----------------------
+      -- π₁*-intro : Cᴰ [ (π₁ ⋆ γ , π₂) ][ π₁* Δᴰ , π₁* Γᴰ ]
+      π1*F .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ = isFib bp.π₁ Γᴰ .snd .PshIso'.isos _ .Iso.inv
+        (Cᴰ.reindEq (Eq.sym $ π₁NatEq γ) (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) (isFib (bp.×ue.element .fst) Δᴰ .snd .PshIso'.isos
+                                                            (bp.×ue.vertex , isFib (bp.×ue.element .fst) Δᴰ .fst , C.id) .Iso.fun Cᴰ.idᴰ) Cᴰ.⋆ᴰ γᴰ))
+      π1*F .F-idᴰ = {!!}
+      π1*F .F-seqᴰ = {!!}
+      module _ (×aF-seq : ∀ {Θ}{Δ}{Γ}(δ : C [ Θ , Δ ])(γ : C [ Δ , Γ ]) → bp.×aF ⟪ δ C.⋆ γ ⟫ Eq.≡ (bp.×aF ⟪ δ ⟫ C.⋆ bp.×aF ⟪ γ ⟫)) where
+        module _ Γ where
+          wkPshHet' : PshHet' bp.×aF (C [-, Γ ]) (C [-, Γ bp.×a ])
+          wkPshHet' .PshHom'.N-ob = λ Δ γ → (bp.π₁ C.⋆ γ) bp.,p bp.π₂
+          wkPshHet' .PshHom'.N-hom Θ Δ δ γ = inr (×aF-seq δ γ)
+
+          wkF : Functor (Cᴰ / (C [-, Γ ])) (Cᴰ / (C [-, Γ bp.×a ]))
+          wkF = π1*F /Fᴰ wkPshHet'
+
+        UniversalQuantifiers : Type _
+        UniversalQuantifiers = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) → Reprⱽ (reindPsh (wkF Γ) (Cᴰ [-][-, Γᴰ ]))

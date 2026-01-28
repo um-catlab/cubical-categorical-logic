@@ -26,6 +26,7 @@ open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -143,7 +144,6 @@ module _ {X : SET ℓ .ob}(P : SETᴰ ℓ ℓᴰ .Categoryᴰ.ob[_] X) where
       lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .fst b = refl
       lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .snd a = refl
 
-
   SETᴰExpsⱽ : Exponentialsⱽ (SETᴰ ℓ ℓᴰ) (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl) P SetᴰLRⱽ
   SETᴰExpsⱽ Q = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) expUE
     where
@@ -159,3 +159,27 @@ module _ {X : SET ℓ .ob}(P : SETᴰ ℓ ℓᴰ .Categoryᴰ.ob[_] X) where
       expUE .UEⱽ.universal .isPshIso'.nIso c .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
       expUE .UEⱽ.universal .isPshIso'.nIso c .snd .fst b = refl
       expUE .UEⱽ.universal .isPshIso'.nIso c .snd .snd a = refl
+
+module _ {X : SET ℓ .ob} where
+  SETUniversalQuantifiers : UniversalQuantifiers (SETᴰ ℓ ℓ) (λ {x} {y} f → Eq.refl) (λ {w} {x} {y} {z} f g h → Eq.refl)
+    {x = X}
+    (λ c → BinProductsSET (c , X))
+    SetᴰFibration'
+    (λ {Δ} {Γ} γ → Eq.refl)
+    λ {Θ} {Δ} {Γ} δ γ → Eq.refl
+  SETUniversalQuantifiers {Γ = Y} Q = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) ∀ue
+    where
+      ∀ue : UEⱽ
+        (reindPsh
+         (wkF (SETᴰ ℓ ℓ) (λ {x} {y} f → Eq.refl)
+          (λ {w} {x} {y} {z} f g h → Eq.refl) (λ c → BinProductsSET (c , X))
+          SetᴰFibration' (λ {Δ} {Γ} γ → Eq.refl)
+          (λ {Θ} {Δ} {Γ} δ γ → Eq.refl) Y)
+         (SETᴰ ℓ ℓ [-][-, Q ]))
+        (λ {x} {y} f → Eq.refl)
+      ∀ue .UEⱽ.v y .fst = ∀ x → ⟨ Q (y , x) ⟩
+      ∀ue .UEⱽ.v y .snd = isSetΠ (λ x → Q (y , x) .snd)
+      ∀ue .UEⱽ.e = λ x z → z (snd x)
+      ∀ue .UEⱽ.universal .isPshIso'.nIso c .fst = λ z x z₁ x₁ → z (x , x₁) z₁
+      ∀ue .UEⱽ.universal .isPshIso'.nIso c .snd .fst b = refl
+      ∀ue .UEⱽ.universal .isPshIso'.nIso c .snd .snd a = refl

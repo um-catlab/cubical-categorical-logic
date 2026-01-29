@@ -72,6 +72,8 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
   RedundElement : Categoryᴰ C ℓP ℓP
   RedundElement = StructureOver→Catᴰ RedundElementStr
 
+  -- Should we ask for a strict presheaf here?
+  -- This can be better if the presheaf is strict
   EqElementStr : StructureOver C _ _
   EqElementStr .ob[_] = P.p[_]
   EqElementStr .Hom[_][_,_] f p q = (f P.⋆ q) Eq.≡ p
@@ -121,6 +123,20 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     (elimPropBoth (PresheafNotation.isSetPsh P) (λ _ → isPropPathEq (PresheafNotation.isSetPsh Q))
       (λ f⋆p≡p' → inl ((sym $ PathEq→Path (Q .F-ob (F-ob (F ^opF) _) .snd) (α .PshHom'.N-hom _ _ _ _)) ∙ cong (α .PshHom'.N-ob _) f⋆p≡p'))
       (λ { Eq.refl → symPE (Q .F-ob (F .F-ob _) .snd) (α .PshHom'.N-hom _ _ _ _) }))
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf D ℓQ}
+  {F : Functor C D}
+  (α : PshHetEq F P Q)
+  where
+  private
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  PshHetEq→ElementFunctorᴰ : Functorᴰ F (EqElement P) (EqElement Q)
+  PshHetEq→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsEqElement Q)
+    (λ {x} → α .PshHomEq.N-ob x)
+    λ {x}{y}{f}{p}{q} fq≡p → α .PshHomEq.N-hom x y f q p fq≡p
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)

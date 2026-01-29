@@ -11,6 +11,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
+import Cubical.Data.Equality as Eq
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Reflection.RecordEquiv
 
@@ -73,6 +74,15 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
     → p ≡ α .N-ob _ C.id
     → yoRec p ≡ α
   yoRec≡ = isoFun≡ (IsoYoRec _)
+
+  PshAssocEq : Type _
+  PshAssocEq = ∀ {c c' c''} (f : C [ c , c' ])(g : C [ c' , c'' ])(p : P.p[ c'' ])(f⋆g : C [ c , c'' ])
+    → (f C.⋆ g) Eq.≡ f⋆g
+    → f P.⋆ (g P.⋆ p) Eq.≡ f⋆g P.⋆ p
+
+  yoRecEq : PshAssocEq → ∀ {c} → P.p[ c ] → PshHomEq (C [-, c ]) P
+  yoRecEq PshAssocEq p .PshHomEq.N-ob Γ f = f P.⋆ p
+  yoRecEq PshAssocEq {c} p .PshHomEq.N-hom c' c'' f g = PshAssocEq f g p
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq)(α : PshHom P Q) where
   private

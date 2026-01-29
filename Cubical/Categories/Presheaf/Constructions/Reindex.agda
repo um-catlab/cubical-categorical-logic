@@ -118,6 +118,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   PshHet' : (F : Functor C D) (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) → Type _
   PshHet' F P Q = PshHom' P (reindPsh F Q)
 
+  PshHetEq : (F : Functor C D) (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) → Type _
+  PshHetEq F P Q = PshHomEq P (reindPsh F Q)
+
   Functor→PshHet : (F : Functor C D) (c : C .ob)
     → PshHet F (C [-, c ]) (D [-, F ⟅ c ⟆ ])
   Functor→PshHet F c .N-ob _ = F .F-hom
@@ -202,6 +205,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 reindPshId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
   → PshIso P (reindPsh Id P)
 reindPshId≅ P = eqToPshIso (reindPsh Id P) Eq.refl Eq.refl
+
+reindPshEqId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
+  → PshIsoEq P (reindPsh Id P)
+reindPshEqId≅ P .PshIsoEq.isos = λ _ → idIso
+reindPshEqId≅ P .PshIsoEq.nat = λ c c' f p' p z → z
 
 reindPshId≅' :  {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
   → PshIso' P (reindPsh Id P)

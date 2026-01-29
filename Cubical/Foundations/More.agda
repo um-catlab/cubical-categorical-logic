@@ -97,22 +97,20 @@ congS₂Bifunct f p q r s =
   ∙ sym (assoc _ _ _)
   ∙ cong₂ _∙_ refl (sym (cong₂Funct' f _ _))
 
--- Reasoning about a dependent type that is indexed by an hSet
-module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
-  _P≡[_]_ : ∀ {a b : ⟨ A ⟩} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
+module depReasoning {A : Type ℓ} (P : A → Type ℓ') where
+  _P≡[_]_ : ∀ {a b : A} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
   p P≡[ a≡b ] q = p ≡[ cong P a≡b ] q
 
   infix 2 _P≡[_]_
   private
     variable
-      a b c : ⟨ A ⟩
+      a b c : A
       p q r : P a
       pth qth : a ≡ b
   infix 2 _∫≡_
 
   _∫≡_ : ∀ {a b}(p : P a)(q : P b) → Type (ℓ-max ℓ ℓ')
-  p ∫≡ q = Path (Σ ⟨ A ⟩ P) (_ , p) (_ , q)
-
+  p ∫≡ q = Path (Σ A P) (_ , p) (_ , q)
 
   ≡in :
     p P≡[ pth ] q
@@ -126,8 +124,20 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
 
   reindEq : (a Eq.≡ b) → P a → P b
   reindEq = Eq.transport P
-
+  reindEq-filler :
+    ∀ (e : a Eq.≡ b) → p ∫≡ reindEq e p
+  reindEq-filler Eq.refl = refl
   opaque
+    reindEqOpaque : (a Eq.≡ b) → P a → P b
+    reindEqOpaque = Eq.transport P
+
+    reindEqOpaque≡reindEq : (e : a Eq.≡ b) → reindEq e p ≡ reindEqOpaque e p
+    reindEqOpaque≡reindEq e = refl
+
+    reindEqOpaque-filler :
+      ∀ (e : a Eq.≡ b) → p ∫≡ reindEqOpaque e p
+    reindEqOpaque-filler Eq.refl = refl
+
     reind : (a ≡ b) → P a → P b
     reind e p = subst P e p
 
@@ -140,25 +150,10 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       ∀ (e : a ≡ b)
       → reind e p ∫≡ p
     reind-filler⁻ e = sym $ reind-filler e
-
-    -- This is the only part that requires the hSet stuff. Everything else is completely generic
-    Prectify :
-      ∀ {e e' : a ≡ b}
-      → p P≡[ e ] q
-      → p P≡[ e' ] q
-    Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
-
-  rectifyOut :
-    ∀ {e' : a ≡ b}
-    (e : p ∫≡ q) →
-    p P≡[ e' ] q
-  rectifyOut e = Prectify $ ≡out $ e
-
-  opaque
     congᴰ :
       ∀ {ℓX}
       {X : Type ℓX} →
-      {f : X → ⟨ A ⟩} →
+      {f : X → A} →
       (fᴰ : (x : X) → P (f x)) →
       {x x' : X} →
       (x≡x' : x ≡ x') →
@@ -170,7 +165,7 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       ∀ {ℓX}{ℓY}
       {X : Type ℓX} →
       {Y : X → Type ℓY} →
-      {f : (x : X) → Y x → ⟨ A ⟩} →
+      {f : (x : X) → Y x → A} →
       (fᴰ : (x : X) → (y : Y x) → P (f x y)) →
       {x x' : X} →
       {y : Y x} →
@@ -181,6 +176,28 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       f (xy≡xy' i .fst) (xy≡xy' i .snd)
     cong₂ᴰ {f = f} fᴰ xy≡xy' i .snd =
       fᴰ (xy≡xy' i .fst) (xy≡xy' i .snd)
+
+-- Reasoning about a dependent type that is indexed by an hSet
+module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
+  private
+    variable
+      a b c : ⟨ A ⟩
+      p q r : P a
+      pth qth : a ≡ b
+  open depReasoning P public
+
+  opaque
+    -- This is the only part that requires the hSet stuff. Everything else is completely generic
+    Prectify :
+      ∀ {e e' : a ≡ b}
+      → p P≡[ e ] q
+      → p P≡[ e' ] q
+    Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
+  rectifyOut :
+    ∀ {e' : a ≡ b}
+    (e : p ∫≡ q) →
+    p P≡[ e' ] q
+  rectifyOut e = Prectify $ ≡out $ e
 
 ΣPathPᴰ :
   ∀ {A : Type ℓ}{P : A → Type ℓ'}

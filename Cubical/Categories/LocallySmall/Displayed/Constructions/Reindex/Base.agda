@@ -94,7 +94,7 @@ module _
 
   module _ (Dᴰ : Categoryᴰ D Dobᴰ DHom-ℓᴰ) where
     private
-      module Dᴰ = Categoryᴰ Dᴰ
+      module Dᴰ = Fibers Dᴰ
     -- This definition of reindexing is the most straightforward to
     -- define, but the use of reind on morphisms
     -- makes it sometimes inconvenient for defining

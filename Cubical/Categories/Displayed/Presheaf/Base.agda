@@ -83,7 +83,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
   isSetPshᴰ {x} {p} {xᴰ} = Pᴰ .F-obᴰ xᴰ p .snd
 
   module pReasoning {x}{xᴰ : Cᴰ.ob[ x ]} =
-    hSetReasoning (P .F-ob x) p[_][ xᴰ ]
+    hSetReasoning (hset' (P .F-ob x .fst) (P .F-ob x .snd)) p[_][ xᴰ ]
   open pReasoning renaming (_P≡[_]_ to _≡[_]_; Prectify to rectify) public
 
   open PresheafNotation (∫P Pᴰ) public

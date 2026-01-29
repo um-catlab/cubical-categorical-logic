@@ -75,8 +75,8 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
     isoover' : IsoOver (equivToIso (isoToEquiv isom)) P Q
     isoover' = equivOver→IsoOver (isoToEquiv isom) f λ a → isIsoToIsEquiv (f⁻ a)
 
-    module P = hSetReasoning (A , isSetA) P
-    module Q = hSetReasoning (B , isSetB) Q
+    module P = hSetReasoning (hset' A isSetA) P
+    module Q = hSetReasoning (hset' B isSetB) Q
 
   fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
   fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (Q.reind {e = sym $ sec isom b} q)

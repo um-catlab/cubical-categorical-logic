@@ -232,7 +232,8 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
   isSetPshᴰ : ∀ {x}{p : P.p[ x ]}{xᴰ} → isSet p[ p ][ xᴰ ]
   isSetPshᴰ = Pᴰ .F-ob _ .snd
 
-  module pReasoning {x}{xᴰ : Cᴰ.ob[ x ]} = hSetReasoning (P .F-ob x) p[_][ xᴰ ]
+  module pReasoning {x}{xᴰ : Cᴰ.ob[ x ]} =
+    hSetReasoning (hset' (P .F-ob x .fst) (P .F-ob x .snd)) p[_][ xᴰ ]
   open pReasoning renaming (_P≡[_]_ to _≡[_]_; Prectify to rectify) public
 
   _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p} (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (pᴰ : p[ p ][ yᴰ ])

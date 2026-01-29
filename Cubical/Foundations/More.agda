@@ -98,25 +98,29 @@ congS₂Bifunct f p q r s =
 
 record hSet' ℓ : Type (ℓ-suc ℓ) where
   no-eta-equality
+  constructor hset'
   field
     ty : Type ℓ
     is-set : isSet ty
+{-# INLINE hset' #-}
+
+open hSet'
 
 -- Reasoning about a dependent type that is indexed by an hSet
-module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
-  _P≡[_]_ : ∀ {a b : ⟨ A ⟩} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
+module hSetReasoning (A : hSet' ℓ) (P : A .ty → Type ℓ') where
+  _P≡[_]_ : ∀ {a b : A .ty} (p : P a) → (a≡b : a ≡ b) → (q : P b) → Type _
   p P≡[ a≡b ] q = p ≡[ cong P a≡b ] q
 
   infix 2 _P≡[_]_
   private
     variable
-      a b c : ⟨ A ⟩
+      a b c : A .ty
       p q r : P a
       pth qth : a ≡ b
   infix 2 _∫≡_
 
   _∫≡_ : ∀ {a b}(p : P a)(q : P b) → Type (ℓ-max ℓ ℓ')
-  p ∫≡ q = Path (Σ ⟨ A ⟩ P) (_ , p) (_ , q)
+  p ∫≡ q = Path (Σ (A .ty) P) (_ , p) (_ , q)
 
 
   ≡in :
@@ -141,7 +145,7 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
 
     -- This is the only part that requires the hSet stuff. Everything else is completely generic
     Prectify : ∀ {e e' : a ≡ b} → p P≡[ e ] q → p P≡[ e' ] q
-    Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .snd _ _ _ _)
+    Prectify {p = p}{q = q} = subst (p P≡[_] q) (A .is-set _ _ _ _)
 
   rectifyOut : ∀ {e' : a ≡ b} (e : p ∫≡ q) → p P≡[ e' ] q
   rectifyOut e = Prectify $ ≡out $ e
@@ -150,7 +154,7 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
     congᴰ :
       ∀ {ℓX}
       {X : Type ℓX} →
-      {f : X → ⟨ A ⟩} →
+      {f : X → A .ty} →
       (fᴰ : (x : X) → P (f x)) →
       {x x' : X} →
       (x≡x' : x ≡ x') →
@@ -162,7 +166,7 @@ module hSetReasoning (A : hSet ℓ) (P : ⟨ A ⟩ → Type ℓ') where
       ∀ {ℓX}{ℓY}
       {X : Type ℓX} →
       {Y : X → Type ℓY} →
-      {f : (x : X) → Y x → ⟨ A ⟩} →
+      {f : (x : X) → Y x → A .ty} →
       (fᴰ : (x : X) → (y : Y x) → P (f x y)) →
       {x x' : X} →
       {y : Y x} →

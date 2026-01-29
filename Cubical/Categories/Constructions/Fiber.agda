@@ -32,7 +32,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
     module R {a b : C.ob} {aᴰ : Cᴰ.ob[ a ]}{bᴰ : Cᴰ.ob[ b ]} =
-      hSetReasoning (C [ a , b ] , C.isSetHom) Cᴰ.Hom[_][ aᴰ , bᴰ ]
+      hSetReasoning (hset' (C [ a , b ]) C.isSetHom) Cᴰ.Hom[_][ aᴰ , bᴰ ]
       renaming
         (Prectify to rectify) hiding (_P≡[_]_)
     module ∫Cᴰ = Category (∫C Cᴰ)

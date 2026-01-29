@@ -53,7 +53,7 @@ open import Cubical.Categories.Displayed.BinProduct
 -- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 -- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 -- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
-open import Cubical.Categories.Displayed.Limits.CartesianClosedV
+-- open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
@@ -114,14 +114,14 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
   private
     module P = PresheafNotation P
     module Q = PresheafNotation Q
-  makePshHomStrictΣPath : ∀ {α β : PshHomStrictΣ P Q} → α .fst ≡ β .fst
-   → α ≡ β
-  makePshHomStrictΣPath = ΣPathPProp (isPropN-hom P Q)
+  -- makePshHomStrictΣPath : ∀ {α β : PshHomStrictΣ P Q} → α .fst ≡ β .fst
+  --  → α ≡ β
+  -- makePshHomStrictΣPath = ΣPathPProp (isPropN-hom P Q)
 
-  makePshHomStrictPath : ∀ {α β : PshHomStrict P Q} → α .N-ob ≡ β .N-ob
-   → α ≡ β
-  makePshHomStrictPath {α} {β} N-ob≡ =
-    isoFunInjective (PshHomStrictΣIso P Q) α β (makePshHomStrictΣPath N-ob≡)
+  -- makePshHomStrictPath : ∀ {α β : PshHomStrict P Q} → α .N-ob ≡ β .N-ob
+  --  → α ≡ β
+  -- makePshHomStrictPath {α} {β} N-ob≡ =
+  --   isoFunInjective (PshHomStrictΣIso P Q) α β (makePshHomStrictΣPath N-ob≡)
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
 
@@ -194,10 +194,10 @@ module _
       ΣPathP ((α .N-hom c c' f p r r≡) , (β .N-hom c c' f p r r≡))
 
     ×Pshβ₁Strict : ×PshIntroStrict ⋆PshHomStrict π₁ P Q ≡ α
-    ×Pshβ₁Strict = makePshHomStrictPath refl
+    ×Pshβ₁Strict = refl
 
     ×Pshβ₂Strict : ×PshIntroStrict ⋆PshHomStrict π₂ P Q ≡ β
-    ×Pshβ₂Strict = makePshHomStrictPath refl
+    ×Pshβ₂Strict = refl
 
   ΔPshHomStrict : {P : Presheaf C ℓp} → PshHomStrict P (P ×Psh P)
   ΔPshHomStrict = ×PshIntroStrict idPshHomStrict idPshHomStrict
@@ -207,8 +207,8 @@ module _
       Iso (PshHomStrict R (P ×Psh Q)) (PshHomStrict R P × PshHomStrict R Q)
     ×PshStrict-UMP .Iso.fun α = (α ⋆PshHomStrict π₁ P Q) , (α ⋆PshHomStrict π₂ P Q)
     ×PshStrict-UMP .Iso.inv (α , β) = ×PshIntroStrict α β
-    ×PshStrict-UMP .Iso.sec (α , β) = ΣPathP ((×Pshβ₁Strict α β) , (×Pshβ₂Strict α β))
-    ×PshStrict-UMP .Iso.ret α = makePshHomStrictPath refl
+    ×PshStrict-UMP .Iso.sec (α , β) = refl
+    ×PshStrict-UMP .ret α = refl
 
 open Category
 module _ (C : Category ℓC ℓC') (ℓP : Level) where
@@ -230,7 +230,7 @@ module _ (C : Category ℓC ℓC') (ℓP : Level) where
   Cartesian-PRESHEAF .CartesianCategory.term .universal R =
     isoToIsEquiv
       (iso (λ _ → tt) (λ _ → Unit*Psh-introStrict)
-         (λ _ → refl) (λ _ → makePshHomStrictPath refl))
+         (λ _ → refl) (λ _ → refl))
   Cartesian-PRESHEAF .CartesianCategory.bp (P , Q) .vertex = P ×Psh Q
   Cartesian-PRESHEAF .CartesianCategory.bp (P , Q) .element =
     (π₁ P Q) , (π₂ P Q)
@@ -285,9 +285,19 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (α : PshHomStrict P Q)
   (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
   -- Constructing a fibration from its fibers and restrictions
-
   _*Strict_ : Presheafᴰ P Cᴰ ℓQᴰ
   _*Strict_ = reindPsh (Idᴰ /FⱽStrict α) Qᴰ
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+  (α : PshHomStrict P Q)
+  (β : PshHomStrict Qᴰ Rᴰ)
+  where
+  _*StrictF_ : PshHomStrict (α *Strict Qᴰ) (α *Strict Rᴰ)
+  _*StrictF_ = {!!}
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -296,7 +306,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
   where
-
   PshHomᴰStrict : Type _
   PshHomᴰStrict = PshHomStrict Pᴰ (α *Strict Qᴰ)
 
@@ -306,58 +315,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Pᴰ = PresheafᴰNotation Pᴰ
+  -- this should in principle be Q→reindPshIdQ but it doesn't work out
+  -- definitionally. Possibly because of no-eta-equality
   idPshHomᴰStrict : PshHomᴰStrict idPshHomStrict Pᴰ Pᴰ
   idPshHomᴰStrict .N-ob = λ c z → z
-  idPshHomᴰStrict .N-hom c3 c3' f3 p3 p3' pᴰ≡ =
-    Hom/-elim
-      (λ γ γᴰ →
-        elimPropPath (P .F-ob (c3 .fst) .snd) (λ _ → Pᴰ.isSetPshᴰ _ _)
-          (λ p≡ → {!!})) f3
-    -- (Pᴰ.rectifyOut $ Pᴰ.⋆ᴰ-reind _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _))
-    -- (Pᴰ.rectifyOut $ (sym $ Pᴰ.⋆ᴰ-reind _) ∙ {!!}) ∙ pᴰ≡
-
--- module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
---   {P : Presheaf C ℓP}
---   {Q : Presheaf C ℓQ}
---   {R : Presheaf C ℓR}
---   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
---   {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
---   {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
---   {α : PshHomStrict P Q}
---   {β : PshHomStrict Q R}
---   where
---   private
---     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
---     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
---     module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
-
---   _⋆PshHomᴰStrict_ :
---     (αᴰ : PshHomᴰStrict α Pᴰ Qᴰ)
---     (βᴰ : PshHomᴰStrict β Qᴰ Rᴰ) →
---     PshHomᴰStrict (α ⋆PshHomStrict β) Pᴰ Rᴰ
---   (αᴰ ⋆PshHomᴰStrict βᴰ) .N-ob (c , cᴰ , p) pᴰ =
---     βᴰ .N-ob (c , cᴰ , α .N-ob c p) (αᴰ .N-ob (c , cᴰ , p) pᴰ)
---   (αᴰ ⋆PshHomᴰStrict βᴰ) .N-hom (c , cᴰ , p) (c' , cᴰ' , p') (f , fᴰ , f≡)
---     pᴰ pᴰ' f⋆pᴰ≡pᴰ' =
---     (Rᴰ.rectifyOut $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _))
---     ∙ βᴰ .N-hom _ _ _ _ _
---        (αᴰ .N-hom (c , cᴰ , p) (c' , cᴰ' , p') (f , fᴰ , f≡) pᴰ pᴰ' f⋆pᴰ≡pᴰ')
-
---   infixr 9 _⋆PshHomᴰStrict_
-
--- module _
---   (C : Category ℓC ℓC')
---   (ℓP ℓPᴰ : Level)
---   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
---   where
---   private
---     PSH = PRESHEAF C ℓP
---   PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP) _ _
---   PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
---   PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰStrict
---   PRESHEAFᴰ .idᴰ = idPshHomᴰStrict
---   PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰStrict_
---   PRESHEAFᴰ .⋆IdLᴰ _ = makePshHomStrictPath refl
---   PRESHEAFᴰ .⋆IdRᴰ _ = makePshHomStrictPath refl
---   PRESHEAFᴰ .⋆Assocᴰ _ _ _ = makePshHomStrictPath refl
---   PRESHEAFᴰ .isSetHomᴰ = isSetPshHomStrict _ _
+  idPshHomᴰStrict .N-hom c c' = Hom/-elim λ γ γᴰ → elimPropPath {!!} {!!} $ λ tri pᴰ' pᴰ γᴰpᴰ'≡pᴰ → γᴰpᴰ'≡pᴰ 

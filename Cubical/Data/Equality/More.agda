@@ -33,6 +33,7 @@ open import Cubical.Foundations.Isomorphism
            ; isoToEquiv to isoPathToEquivPath
            )
 open import Cubical.Data.Equality
+open import Cubical.Data.Sigma hiding (_≡_; ≡-×)
 
 private
  variable
@@ -60,3 +61,9 @@ J₂ : ∀ {a a' : A} {b b' : B} →
   (M : (a' : A) (b' : B) (p : a ≡ a') (q : b ≡ b') → Type ℓ) →
   M a b refl refl → (p : a ≡ a') → (q : b ≡ b') → M a' b' p q
 J₂ M m refl refl = m
+
+≡-× : {A : Type ℓ}{B : Type ℓ'}{ab ab' : A × B}
+  → ab .fst ≡ ab' .fst
+  → ab .snd ≡ ab' .snd
+  → ab ≡ ab'
+≡-× refl refl = refl

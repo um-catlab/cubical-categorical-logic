@@ -328,6 +328,24 @@ module _ {C : Category ℓC ℓC'} {x : C .ob} {Cᴰ : Categoryᴰ C ℓCᴰ ℓ
     UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.isos ob/@(Γ , Γᴰ , f) .Iso.ret = ueⱽ .universal .isPshIsoEq.nIso (Γ , Γᴰ , f) .snd .snd
     UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.nat = yoRecⱽ (ueⱽ .e) .PshHomEq.N-hom
 
+
+
+module _ {C : Category ℓC ℓC'} {x : C .ob} (bp : BinProductsWith C x) where
+  private
+    module C = Category C
+    module bp = BinProductsWithNotation bp
+  π₁NatEq : Type _
+  π₁NatEq = ∀ {Δ Γ} (γ : C [ Δ , Γ ]) → bp.×aF ⟪ γ ⟫ C.⋆ bp.π₁ Eq.≡ bp.π₁ C.⋆ γ
+
+  ×aF-seq : Type _
+  ×aF-seq = ∀ {Θ}{Δ}{Γ}(δ : C [ Θ , Δ ])(γ : C [ Δ , Γ ]) → bp.×aF ⟪ δ C.⋆ γ ⟫ Eq.≡ (bp.×aF ⟪ δ ⟫ C.⋆ bp.×aF ⟪ γ ⟫)
+
+module _ {C : Category ℓC ℓC'} (bp : BinProducts C) where
+  Allπ₁NatEq : Type _
+  Allπ₁NatEq = ∀ x → π₁NatEq {x = x} (λ c → bp (c , x))
+  All×aF-seq : Type _
+  All×aF-seq = ∀ x → ×aF-seq {x = x} (λ c → bp (c , x))
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
@@ -351,6 +369,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     LRⱽ {x} xᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , x ])
       → Reprⱽ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh (yoRecEq _ (C⋆Assoc x) f *Presheafᴰ (Cᴰ [-][-, xᴰ ])))
 
+    AllLRⱽ : Type _
+    AllLRⱽ = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → LRⱽ xᴰ
+
+    BPⱽ+Fibration→AllLRⱽ : BinProductsⱽ → Fibration → AllLRⱽ
+    BPⱽ+Fibration→AllLRⱽ _×ⱽ_ _*_ xᴰ Γᴰ f .fst = (Γᴰ ×ⱽ (f * xᴰ) .fst) .fst
+    BPⱽ+Fibration→AllLRⱽ _×ⱽ_ _*_ xᴰ Γᴰ f .snd =
+      -- One of these things has a transport, but which one(!)
+      (Γᴰ ×ⱽ (f * xᴰ) .fst) .snd
+      ⋆PshIsoEq ×PshIsoEq idPshIsoEq ((f * xᴰ) .snd)
+
     module _ (C⋆IdL : EqIdL C) {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) (_×ⱽ_*xᴰ : LRⱽ xᴰ) where
       LRⱽFⱽ : Functorⱽ (Cᴰ ×ᴰ EqElement (C [-, x ])) Cᴰ
       LRⱽFⱽ .F-obᴰ ob/@(Γᴰ , f) = (Γᴰ ×ⱽ f *xᴰ) .fst
@@ -372,17 +400,18 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       LRⱽF : Functor (Cᴰ / (C [-, x ])) (Cᴰ / (C [-, x ]))
       LRⱽF = ∫F {F = Id} (LRⱽFⱽ ,Fⱽ (Sndⱽ Cᴰ (EqElement (C [-, x ]))))
 
-      Exponentialsⱽ : Type _
-      Exponentialsⱽ = ∀ (yᴰ : Cᴰ.ob[ x ]) → Reprⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ]))
+      Exponentiatingⱽ : Type _
+      Exponentiatingⱽ = ∀ (yᴰ : Cᴰ.ob[ x ]) → Reprⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ]))
 
-      ExponentialsⱽUE : (C⋆IdR : EqIdR C)  → Type _
-      ExponentialsⱽUE C⋆IdR = ∀ (yᴰ : Cᴰ.ob[ x ]) → UEⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ])) C⋆IdR
-
-  module _ (C⋆IdL : EqIdL C)(C⋆Assoc : ReprEqAssoc C){x}(bp : BinProductsWith C x) (isFib : Fibration C⋆Assoc) where
+      ExponentiatingⱽUE : (C⋆IdR : EqIdR C)  → Type _
+      ExponentiatingⱽUE C⋆IdR = ∀ (yᴰ : Cᴰ.ob[ x ]) → UEⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ])) C⋆IdR
+    Exponentialsⱽ : (C⋆IdL : EqIdL C) → AllLRⱽ → Type _
+    Exponentialsⱽ C⋆IdL allLRⱽ = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Exponentiatingⱽ C⋆IdL xᴰ (allLRⱽ xᴰ)
+  module _ (C⋆IdL : EqIdL C)(C⋆Assoc : ReprEqAssoc C) (isFib : Fibration C⋆Assoc) x (bp : BinProductsWith C x) where
     private
       module bp = BinProductsWithNotation bp
 
-    module _ (π₁NatEq : ∀ {Δ Γ} (γ : C [ Δ , Γ ]) → bp.×aF ⟪ γ ⟫ C.⋆ bp.π₁ Eq.≡ bp.π₁ C.⋆ γ) where
+    module _ (π₁NatEqC : π₁NatEq bp) where
       π1*F : Functorᴰ bp.×aF Cᴰ Cᴰ
       π1*F .F-obᴰ {Γ} Γᴰ = isFib bp.π₁ Γᴰ .fst
 --       -- γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]
@@ -391,19 +420,31 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 --       -- -----------------------
 --       -- π₁*-intro : Cᴰ [ (π₁ ⋆ γ , π₂) ][ π₁* Δᴰ , π₁* Γᴰ ]
       π1*F .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ = isFib bp.π₁ Γᴰ .snd .PshIsoEq.isos _ .Iso.inv
-        (Cᴰ.reindEq (Eq.sym $ π₁NatEq γ) (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) (isFib (bp.×ue.element .fst) Δᴰ .snd .PshIsoEq.isos
+        (Cᴰ.reindEq (Eq.sym $ π₁NatEqC γ) (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) (isFib (bp.×ue.element .fst) Δᴰ .snd .PshIsoEq.isos
                                                             (bp.×ue.vertex , isFib (bp.×ue.element .fst) Δᴰ .fst , C.id) .Iso.fun Cᴰ.idᴰ) Cᴰ.⋆ᴰ γᴰ))
       π1*F .F-idᴰ = {!!}
       π1*F .F-seqᴰ = {!!}
-      module _ (×aF-seq : ∀ {Θ}{Δ}{Γ}(δ : C [ Θ , Δ ])(γ : C [ Δ , Γ ])
-             → bp.×aF ⟪ δ C.⋆ γ ⟫ Eq.≡ (bp.×aF ⟪ δ ⟫ C.⋆ bp.×aF ⟪ γ ⟫)) where
+      module _ (×aF-seqC : ×aF-seq bp) where
         module _ Γ where
           wkPshHetEq : PshHetEq bp.×aF (C [-, Γ ]) (C [-, Γ bp.×a ])
           wkPshHetEq .PshHomEq.N-ob = λ Δ γ → (bp.π₁ C.⋆ γ) bp.,p bp.π₂
-          wkPshHetEq .PshHomEq.N-hom Θ Δ δ γ p Eq.refl = Eq.sym $ ×aF-seq δ γ
+          wkPshHetEq .PshHomEq.N-hom Θ Δ δ γ p Eq.refl = Eq.sym $ ×aF-seqC δ γ
 
           wkF : Functor (Cᴰ / (C [-, Γ ])) (Cᴰ / (C [-, Γ bp.×a ]))
           wkF = π1*F /Fᴰ wkPshHetEq
 
-        UniversalQuantifiers : Type _
-        UniversalQuantifiers = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) → Reprⱽ (reindPsh (wkF Γ) (Cᴰ [-][-, Γᴰ ]))
+        UniversallyQuantifiable : Type _
+        UniversallyQuantifiable = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) → Reprⱽ (reindPsh (wkF Γ) (Cᴰ [-][-, Γᴰ ]))
+  module _ (C⋆IdL : EqIdL C)(C⋆Assoc : ReprEqAssoc C) (isFib : Fibration C⋆Assoc) (bp : BinProducts C) (π₁NatEqC : Allπ₁NatEq bp)(×aF-F-homC : All×aF-seq bp) where
+    UniversalQuantifiers : Type _
+    UniversalQuantifiers = ∀ x → UniversallyQuantifiable C⋆IdL C⋆Assoc isFib x (λ c → bp (c , x)) (π₁NatEqC x) (×aF-F-homC x)
+
+module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  isCartesianⱽ : Type _
+  isCartesianⱽ = Σ[ termsⱽ ∈ Terminalsⱽ Cᴰ ] Σ[ bpⱽ ∈ BinProductsⱽ Cᴰ ] Fibration Cᴰ ⋆AssocC
+
+  isCartesianClosedⱽ : (⋆IdLC : EqIdL C) (bp : BinProducts C) (π₁NatEqC : Allπ₁NatEq bp)(×aF-F-homC : All×aF-seq bp) → Type _
+  isCartesianClosedⱽ ⋆IdLC bp π₁NatEqC ×aF-F-homC =
+    Σ[ (termsⱽ , bpⱽ , cartLifts) ∈ isCartesianⱽ ]
+    Exponentialsⱽ Cᴰ ⋆AssocC ⋆IdLC (BPⱽ+Fibration→AllLRⱽ Cᴰ ⋆AssocC bpⱽ cartLifts)
+    × UniversalQuantifiers Cᴰ ⋆IdLC ⋆AssocC cartLifts bp π₁NatEqC ×aF-F-homC

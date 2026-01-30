@@ -17,6 +17,7 @@ open import Cubical.Reflection.RecordEquiv.More
 
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 open import Cubical.HITs.PathEq
 open import Cubical.HITs.Join
 
@@ -117,6 +118,26 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   isSetPshHom : isSet PshHom
   isSetPshHom = isOfHLevelRetractFromIso 2 PshHomΣIso isSetPshHomΣ
 
+  isPropN-HomEq : ∀ (α : (x : ob C) → P.p[ x ] → Q.p[ x ]) → isProp (∀ c c' (f : C [ c , c' ]) (p' : P.p[ c' ]) (p : P.p[ c ]) →
+        f P.⋆ p' Eq.≡ p
+        → (f Q.⋆ α c' p') Eq.≡ (α c p))
+  isPropN-HomEq α = isPropΠ (λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isProp→ (Eq.isSet→isSetEq Q.isSetPsh))
+
+  PshHomEqΣ = Σ[ α ∈ (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) ]
+    ∀ c c' (f : C [ c , c' ]) (p' : P.p[ c' ]) (p : P.p[ c ]) →
+        f P.⋆ p' Eq.≡ p
+        → (f Q.⋆ α c' p') Eq.≡ (α c p)
+
+  PshHomEqΣIso : Iso PshHomEq PshHomEqΣ
+  unquoteDef PshHomEqΣIso = defineRecordIsoΣ PshHomEqΣIso (quote (PshHomEq))
+
+  
+
+  isSetPshHomEq : isSet PshHomEq
+  isSetPshHomEq = isOfHLevelRetractFromIso 2 PshHomEqΣIso
+    (isSetΣ (isSetΠ λ _ → isSetΠ λ _ → Q.isSetPsh) λ α →
+      isProp→isSet (isPropN-HomEq α))
+
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓp}
   where
   private
@@ -144,6 +165,10 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
    → α ≡ β
   makePshHomPath {α} {β} N-ob≡ =
     isoFunInjective (PshHomΣIso P Q) α β (makePshHomΣPath N-ob≡)
+
+  makePshHomEqPath : ∀ {α β : PshHomEq P Q} → α .PshHomEq.N-ob ≡ β .PshHomEq.N-ob
+   → α ≡ β
+  makePshHomEqPath ob≡ = isoFunInjective (PshHomEqΣIso P Q) _ _ (ΣPathPProp (isPropN-HomEq P Q) ob≡)
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshHom : PshHom P P
@@ -456,6 +481,10 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshIso' .PshIso'.isos = λ _ → idIso
   idPshIso' .PshIso'.nat = idPshHom' {P = P} .PshHom'.N-hom
 
+  idPshIsoEq : PshIsoEq P P
+  idPshIsoEq .PshIsoEq.isos = λ _ → idIso
+  idPshIsoEq .PshIsoEq.nat = idPshHomEq {P = P} .PshHomEq.N-hom
+
 module _ {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
   seqIsPshIso : ∀ {α : PshHom P Q}{β : PshHom Q R}
@@ -471,6 +500,13 @@ module _ {C : Category ℓc ℓc'}
     IsoToIsIso $
       compIso (isIsoToIso (α .nIso x)) (isIsoToIso (β .nIso x))
   infixr 9 _⋆PshIso_
+
+  _⋆PshIsoEq_ : PshIsoEq P Q → PshIsoEq Q R → PshIsoEq P R
+  (α ⋆PshIsoEq β) .PshIsoEq.isos c = compIso (α .PshIsoEq.isos c) (β .PshIsoEq.isos c)
+  (α ⋆PshIsoEq β) .PshIsoEq.nat = λ c c' f p' p z →
+                                     β .PshIsoEq.nat c c' f (Iso.fun (α .PshIsoEq.isos c') p')
+                                     (Iso.fun (α .PshIsoEq.isos c) p) (α .PshIsoEq.nat c c' f p' p z)
+  infixr 9 _⋆PshIsoEq_
 
 module _ {C : Category ℓc ℓc'}{P Q : Presheaf C ℓp} (path : P ≡ Q) where
   pathToPshIso : PshIso P Q
@@ -603,6 +639,29 @@ module _
 
 module _
   {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  (α : PshHomEq P Q)
+  where
+  ⋆PshHomEqIdL : idPshHomEq {P = P} ⋆PshHomEq α ≡ α
+  ⋆PshHomEqIdL = refl
+  ⋆PshHomEqIdR : α ⋆PshHomEq idPshHomEq ≡ α
+  ⋆PshHomEqIdR = refl
+
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  {R : Presheaf C ℓr} {S : Presheaf C ℓs}
+  (α : PshHomEq P Q)(β : PshHomEq Q R)(γ : PshHomEq R S)
+  where
+  ⋆PshHomEqAssoc :
+    Path
+      (PshHomEq P S)
+      ((α ⋆PshHomEq β) ⋆PshHomEq γ)
+      (α ⋆PshHomEq (β ⋆PshHomEq γ))
+  ⋆PshHomEqAssoc = refl
+
+module _
+  {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
 
   postcomp⋆PshHom-Iso : (α : PshIso Q R) → Iso (PshHom P Q) (PshHom P R)
@@ -658,3 +717,13 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   yo≅PshHomPsh .nIso Q .fst = PshHom→NatTrans
   yo≅PshHomPsh .nIso Q .snd .fst _ = makePshHomPath refl
   yo≅PshHomPsh .nIso Q .snd .snd _ = makeNatTransPath refl
+
+PRESHEAFEQ : (C : Category ℓc ℓc') (ℓp : Level) → Category (ℓ-max (ℓ-max ℓc ℓc') (ℓ-suc ℓp)) (ℓ-max (ℓ-max ℓc ℓc') ℓp)
+PRESHEAFEQ C ℓP .ob = Presheaf C ℓP
+PRESHEAFEQ C ℓP .Hom[_,_] = PshHomEq
+PRESHEAFEQ C ℓP .id = idPshHomEq
+PRESHEAFEQ C ℓP ._⋆_ = _⋆PshHomEq_
+PRESHEAFEQ C ℓP .⋆IdL = ⋆PshHomEqIdL
+PRESHEAFEQ C ℓP .⋆IdR = ⋆PshHomEqIdR
+PRESHEAFEQ C ℓP .⋆Assoc = ⋆PshHomEqAssoc
+PRESHEAFEQ C ℓP .isSetHom = isSetPshHomEq _ _

@@ -1,5 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Redundant.PresheafStrictHom where
+-- TODO still need better name
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -32,7 +33,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Morphism.Alt using (PshIso')
+open import Cubical.Categories.Presheaf.Morphism.Alt using (isPshIso' ; PshIso')
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable.More
@@ -140,6 +141,7 @@ module _ {C : Category ℓc ℓc'} where
         module P = PresheafNotation P
         module Q = PresheafNotation Q
         module R = PresheafNotation R
+    infixr 9 _⋆PshHomStrict_
 
 module _
   {C : Category ℓc ℓc'}
@@ -308,6 +310,23 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Q : Presheaf C ℓQ}
   (α : PshHomStrict P Q)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+  (Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ)
+  where
+  *Strict×ⱽ→×ⱽ*Strict :
+    PshHomStrict (α *Strict (Qᴰ ×ⱽPsh Rᴰ)) ((α *Strict Qᴰ) ×ⱽPsh (α *Strict Rᴰ))
+  *Strict×ⱽ→×ⱽ*Strict = pshhom (λ c z → z) (λ c c' f p' p z → z)
+
+  ×ⱽ*Strict→*Strict×ⱽ :
+    PshHomStrict
+      ((α *Strict Qᴰ) ×ⱽPsh (α *Strict Rᴰ))
+      (α *Strict (Qᴰ ×ⱽPsh Rᴰ))
+  ×ⱽ*Strict→*Strict×ⱽ = pshhom (λ c z → z) (λ c c' f p' p z → z)
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  (α : PshHomStrict P Q)
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
   where
@@ -399,7 +418,7 @@ module _
   PSHᴰBPⱽ Pᴰ Qᴰ .snd .PshIso'.isos (R , Rᴰ , α) .fun βᴰ .snd =
     βᴰ ⋆PshHomStrict (α *StrictF π₂ Pᴰ Qᴰ)
   PSHᴰBPⱽ Pᴰ Qᴰ .snd .PshIso'.isos (R , Rᴰ , α) .inv (αᴰ , βᴰ) =
-    ×PshIntroStrict αᴰ βᴰ ⋆PshHomStrict pshhom (λ c z → z) (λ c c' f p' p z → z)
+    ×PshIntroStrict αᴰ βᴰ ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ α Pᴰ Qᴰ
   PSHᴰBPⱽ Pᴰ Qᴰ .snd .PshIso'.isos (R , Rᴰ , α) .sec (αᴰ , βᴰ) =
     ΣPathP $ makePshHomStrictPath refl , makePshHomStrictPath refl
   PSHᴰBPⱽ Pᴰ Qᴰ .snd .PshIso'.isos (R , Rᴰ , α) .ret αᴰ = makePshHomStrictPath refl
@@ -407,7 +426,8 @@ module _
     Hom/-elim (λ γ γᴰ → elimPropEq PSH.isSetHom
       (λ _ → isPropΠ λ _ → isPropPathEq (isSet× PSHᴰ.isSetHomᴰ PSHᴰ.isSetHomᴰ))
       (λ where
-        -- using ΣPath gives a nontermination error
+        -- using ΣPath gives a nontermination error, but using a explicit path
+        -- variable doesn't
         -- Can probably reorganize this to avoid mentioning these implicits
         Eq.refl αᴰ →
           inl (λ i →
@@ -466,3 +486,48 @@ module _
         λ where Eq.refl _ → inl (makePshHomStrictPath refl)
    where
    module Pᴰ = PresheafᴰNotation Pᴰ
+
+  module _ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+
+    PSHᴰLRⱽ : LRⱽ PRESHEAFᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) Pᴰ
+    PSHᴰLRⱽ {Γ = Q} Qᴰ α = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) lrⱽue
+      where
+        module Qᴰ = PresheafᴰNotation Qᴰ
+
+        lrⱽue : UEⱽ
+                 ((PRESHEAFᴰ [-][-, Qᴰ ]) ×ⱽPsh
+                  reindᴰRedundPshHom
+                  (yoRecHom PRESHEAFᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) α)
+                  (PRESHEAFᴰ [-][-, Pᴰ ]))
+                 (λ {x} {y} f → Eq.refl)
+        lrⱽue .UEⱽ.v = Qᴰ ×ⱽPsh (α *Strict Pᴰ)
+        lrⱽue .UEⱽ.e .fst .N-ob = λ c z → z .fst
+        lrⱽue .UEⱽ.e .fst .N-hom c c' =
+          Hom/-elim (λ γ γᴰ →
+            elimPropEq (Q .F-ob (c .fst) .snd)
+              (λ _ → isPropΠ3 λ _ _ _ → Qᴰ.isSetPshᴰ _ _)
+              -- Weird parser behavior forbids these line breaks.
+              --   I've encountered this issue before with "λ where" syntax
+              --
+              -- (λ where Eq.refl _ _ u →
+              --   (Qᴰ.rectifyOut $ (sym $ Qᴰ.⋆ᴰ-reind _) ∙ Qᴰ.⋆ᴰ-reind _) ∙ cong fst u))
+              -- or
+              -- (λ where Eq.refl _ _ u → (Qᴰ.rectifyOut $
+              --    (sym $ Qᴰ.⋆ᴰ-reind _) ∙ Qᴰ.⋆ᴰ-reind _) ∙ cong fst u))
+              (λ where Eq.refl _ _ u → (Qᴰ.rectifyOut $ (sym $ Qᴰ.⋆ᴰ-reind _) ∙ Qᴰ.⋆ᴰ-reind _) ∙ cong fst u))
+        lrⱽue .UEⱽ.e .snd .N-ob = λ c z → z .snd
+        lrⱽue .UEⱽ.e .snd .N-hom c c' =
+          Hom/-elim (λ γ γᴰ →
+            elimPropEq (Q .F-ob (c .fst) .snd)
+              (λ _ → isPropΠ3 λ _ _ _ → Pᴰ.isSetPshᴰ _ _)
+              (λ where Eq.refl _ _ u → (Pᴰ.rectifyOut $ (sym $ Pᴰ.⋆ᴰ-reind _) ∙ Pᴰ.⋆ᴰ-reind _) ∙ cong snd u))
+        lrⱽue .UEⱽ.universal .isPshIso'.nIso _ .fst (αᴰ , βᴰ) =
+          ×PshIntroStrict αᴰ βᴰ
+          ⋆PshHomStrict ×PshIntroStrict
+             (π₁ _ _)
+             -- TODO maps bw (α ⋆ β) * Pᴰ <-> β*α* Pᴰ
+             (π₂ _ _ ⋆PshHomStrict pshhom (λ c₁ z → z) {!!})
+          ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ _ _ _
+        lrⱽue .UEⱽ.universal .isPshIso'.nIso _ .snd = {!!}

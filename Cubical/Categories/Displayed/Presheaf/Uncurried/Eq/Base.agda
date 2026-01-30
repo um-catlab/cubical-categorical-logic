@@ -197,23 +197,20 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Cᴰ : Categoryᴰ C �
     UncurryPshᴰ .F-seq f/@(δ , δᴰ , Eq.refl) g/@(γ , γᴰ , Eq.refl) = funExt λ pᴰ → Pᴰ.rectifyOut $
       (sym (Pᴰ.reindEq-filler (Eq.pathToEq $ P.⋆Assoc _ _ _)) ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reindEq-filler _ ⟩) ∙ Pᴰ.reindEq-filler _
 
---   module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
---     private
---       module Pᴰ = PresheafᴰNotation Pᴰ
---     CurryPshᴰ : Curried.Presheafᴰ P Cᴰ ℓPᴰ
---     CurryPshᴰ .F-obᴰ {Γ} Γᴰ p = Pᴰ .F-ob (Γ , Γᴰ , p)
---     CurryPshᴰ .F-homᴰ γᴰ p pᴰ = Pᴰ .F-hom (_ , (γᴰ , inr Eq.refl)) pᴰ
---     CurryPshᴰ .F-idᴰ = funExt (λ p → funExt (λ pᴰ → Pᴰ.rectifyOut $ Pᴰ.⋆IdL _))
---     CurryPshᴰ .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ pᴰ →
---       Pᴰ.rectifyOut $ Pᴰ.⋆Assoc _ _ _
+  module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+    CurryPshᴰ : Curried.Presheafᴰ P Cᴰ ℓPᴰ
+    CurryPshᴰ .F-obᴰ {Γ} Γᴰ p = Pᴰ .F-ob (Γ , Γᴰ , p)
+    CurryPshᴰ .F-homᴰ γᴰ p pᴰ = γᴰ Pᴰ.⋆ᴰ pᴰ
+    CurryPshᴰ .F-idᴰ = funExt λ p → funExt λ pᴰ → Pᴰ.rectifyOut $ Pᴰ.⋆IdL _
+    CurryPshᴰ .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ pᴰ → Pᴰ.rectifyOut $ Pᴰ.⋆Assoc _ _ _
 
---   CurryPshᴰIso : Iso (Presheafᴰ P Cᴰ ℓPᴰ) (Curried.Presheafᴰ P Cᴰ ℓPᴰ)
---   CurryPshᴰIso .Iso.fun = CurryPshᴰ
---   CurryPshᴰIso .Iso.inv = UncurryPshᴰ
---   CurryPshᴰIso .Iso.sec Pᴰ = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
---   CurryPshᴰIso .Iso.ret Pᴰ = Functor≡ (λ _ → refl)
---     (Hom/-elim (λ γ γᴰ → elimPropEq P.isSetPsh (λ _ → isSet→ Pᴰ.isSetPshᴰ _ _) λ { Eq.refl → refl }))
---     where module Pᴰ = PresheafᴰNotation Pᴰ
+  CurryPshᴰIso : Iso (Presheafᴰ P Cᴰ ℓPᴰ) (Curried.Presheafᴰ P Cᴰ ℓPᴰ)
+  CurryPshᴰIso .Iso.fun = CurryPshᴰ
+  CurryPshᴰIso .Iso.inv = UncurryPshᴰ
+  CurryPshᴰIso .Iso.sec Pᴰ = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
+  CurryPshᴰIso .Iso.ret Pᴰ = Functor≡ (λ _ → refl) λ { (_ , _ , Eq.refl ) → refl }
 
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}

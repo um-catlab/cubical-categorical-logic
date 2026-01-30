@@ -84,7 +84,6 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
   EqElement : Categoryᴰ C ℓP ℓP
   EqElement = StructureOver→Catᴰ EqElementStr
 
-
   hasPropHomsElement : hasPropHoms Element
   hasPropHomsElement = hasPropHomsStructureOver ElementStr
 
@@ -99,6 +98,12 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
     test-Element : ∀ x p y q
       → ∫Element.Hom[ (x , p) , (y , q) ] ≡ fiber (P._⋆ q) p
     test-Element x p y q = refl
+
+  Element→EqElement : Functorⱽ Element EqElement
+  Element→EqElement = mkPropHomsFunctor (hasPropHomsStructureOver EqElementStr) (λ {x} z → z) Eq.pathToEq
+
+  EqElement→Element : Functorⱽ EqElement Element
+  EqElement→Element = mkPropHomsFunctor (hasPropHomsStructureOver ElementStr) (λ {x} z → z) Eq.eqToPath
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {P : Presheaf C ℓP}

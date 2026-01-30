@@ -141,6 +141,11 @@ module depReasoning {A : Type ℓ} (P : A → Type ℓ') where
     reind : (a ≡ b) → P a → P b
     reind e p = subst P e p
 
+    reind-reveal :
+      ∀ (e : a ≡ b)
+      → subst P e p ∫≡ reind e p
+    reind-reveal e = refl
+
     reind-filler :
       ∀ (e : a ≡ b)
       → p ∫≡ reind e p
@@ -150,6 +155,16 @@ module depReasoning {A : Type ℓ} (P : A → Type ℓ') where
       ∀ (e : a ≡ b)
       → reind e p ∫≡ p
     reind-filler⁻ e = sym $ reind-filler e
+
+    reind-revealed-filler :
+      ∀ (e : a ≡ b)
+      → p ∫≡ subst P e p
+    reind-revealed-filler = reind-filler
+
+    reind-revealed-filler⁻ :
+      ∀ (e : a ≡ b)
+      → subst P e p ∫≡ p
+    reind-revealed-filler⁻ = reind-filler⁻
     congᴰ :
       ∀ {ℓX}
       {X : Type ℓX} →

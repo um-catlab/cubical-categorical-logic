@@ -3,7 +3,7 @@
   Uncurried Presheaves using EqElement
 -}
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion where
+module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -52,7 +52,7 @@ open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
 import Cubical.Categories.Displayed.Presheaf.Base as Curried
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Base as Path
-
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable as Path
 private
   variable
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
@@ -74,3 +74,22 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C �
 
   PathPresheafᴰ→EqPresheafᴰ : Path.Presheafᴰ P Cᴰ ℓPᴰ → Presheafᴰ P Cᴰ ℓPᴰ
   PathPresheafᴰ→EqPresheafᴰ = reindPsh Eq/→Path/
+
+  module _ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ} (α : PshIsoEq Pᴰ Qᴰ) where
+    EqPshIsoⱽ→PathPshIsoⱽ : Path.PshIsoⱽ (EqPresheafᴰ→PathPresheafᴰ Pᴰ) (EqPresheafᴰ→PathPresheafᴰ Qᴰ)
+    EqPshIsoⱽ→PathPshIsoⱽ .PshIso.trans .PshHom.N-ob = _
+    EqPshIsoⱽ→PathPshIsoⱽ .PshIso.trans .PshHom.N-hom c c' f p = sym $ Eq.eqToPath (α .PshIsoEq.nat c c' (Functor.F-hom (Path/→Eq/ ^opF) f) p ((EqPresheafᴰ→PathPresheafᴰ Pᴰ PresheafNotation.⋆ f) p) Eq.refl)
+    EqPshIsoⱽ→PathPshIsoⱽ .PshIso.nIso x = IsoToIsIso (α .PshIsoEq.isos (Functor.F-ob (Path/→Eq/ ^opF) x))
+
+module _ {C : Category ℓC ℓC'} {x} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  private
+    module Cᴰ = Fibers Cᴰ
+  Representable≅ : ∀ {xᴰ} → Path.PshIsoⱽ (EqPresheafᴰ→PathPresheafᴰ (C [-, x ]) Cᴰ (Cᴰ [-][-, xᴰ ])) (Cᴰ Path.[-][-, xᴰ ])
+  Representable≅ .PshIso.trans .PshHom.N-ob = λ c z → z
+  Representable≅ .PshIso.trans .PshHom.N-hom c c' (γ , γᴰ , tri) δᴰ = Cᴰ.rectifyOut $
+    (Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.reind-revealed-filler⁻ _) ∙ Cᴰ.reind-filler _
+  Representable≅ .PshIso.nIso x = IsoToIsIso idIso
+
+  EqReprⱽ→PathReprⱽ : (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) → Reprⱽ Pⱽ → Path.Representableⱽ Cᴰ x (EqPresheafᴰ→PathPresheafᴰ (C [-, x ]) Cᴰ Pⱽ)
+  EqReprⱽ→PathReprⱽ Pⱽ reprⱽ .fst = reprⱽ .fst
+  EqReprⱽ→PathReprⱽ Pⱽ reprⱽ .snd = Path.invPshIsoⱽ Representable≅ Path.⋆PshIsoⱽ EqPshIsoⱽ→PathPshIsoⱽ (C [-, x ]) Cᴰ (reprⱽ .snd)

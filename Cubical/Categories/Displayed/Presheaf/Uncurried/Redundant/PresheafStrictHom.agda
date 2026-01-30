@@ -39,6 +39,7 @@ open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLif
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Yoneda
@@ -522,6 +523,9 @@ module _
       expUE : ExponentialsⱽUE PRESHEAFᴰ
         (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl)
         Pᴰ PSHᴰLRⱽ (λ {x} {y} f → Eq.refl)
-      expUE Qᴰ .UEⱽ.v = reindPsh {!!} Qᴰ
+      -- TODO need a version of LRPsh→Functor that uses UEⱽ instead
+      -- of UniversalElement
+      -- or, cast UEⱽ to UniversalElement
+      expUE Qᴰ .UEⱽ.v = reindPsh (LRPsh→Functor (Pᴰ , (λ Rᴰ → {!!}))) Qᴰ
       expUE Qᴰ .UEⱽ.e = {!!}
       expUE Qᴰ .UEⱽ.universal = {!!}

@@ -514,3 +514,14 @@ module _
           ΣPathP (makePshHomStrictPath refl , makePshHomStrictPath refl)
         lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .snd _ =
           makePshHomStrictPath refl
+
+    PSHᴰExpsⱽ : Exponentialsⱽ PRESHEAFᴰ
+      (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl) Pᴰ PSHᴰLRⱽ
+    PSHᴰExpsⱽ Qᴰ = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) (expUE Qᴰ)
+      where
+      expUE : ExponentialsⱽUE PRESHEAFᴰ
+        (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl)
+        Pᴰ PSHᴰLRⱽ (λ {x} {y} f → Eq.refl)
+      expUE Qᴰ .UEⱽ.v = reindPsh {!!} Qᴰ
+      expUE Qᴰ .UEⱽ.e = {!!}
+      expUE Qᴰ .UEⱽ.universal = {!!}

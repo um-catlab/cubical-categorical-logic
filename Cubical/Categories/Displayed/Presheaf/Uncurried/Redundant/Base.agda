@@ -380,7 +380,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     yoRecHom f .PshHom'.N-hom c c' δ γ = inr (C⋆Assoc δ γ f)
 
     Fibration : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
-    Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Reprⱽ (reindᴰRedundPshHom (yoRecHom f) (Cᴰ [-][-, yᴰ ]))
+    Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) →
+      Reprⱽ (reindᴰRedundPshHom (yoRecHom f) (Cᴰ [-][-, yᴰ ]))
+
+    module _ (C⋆IdR : EqIdR C) where
+      FibrationUE : Type _
+      FibrationUE = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) →
+        UEⱽ (reindᴰRedundPshHom (yoRecHom f) (Cᴰ [-][-, yᴰ ])) C⋆IdR
 
     LRⱽ : {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) → Type _
     LRⱽ {x} xᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , x ])

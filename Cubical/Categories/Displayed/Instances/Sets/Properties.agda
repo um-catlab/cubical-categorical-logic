@@ -235,3 +235,9 @@ module _ {ℓ ℓ'} where
 -- -- -- -- --   SETᴰCCCⱽ .lrⱽ = AllLRⱽSETᴰ
 -- -- -- -- --   SETᴰCCCⱽ .expⱽ = ExponentialsⱽSETᴰ
 -- -- -- -- --   SETᴰCCCⱽ .forallⱽ = UniversalQuantifierSETᴰ
+
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Sets as EqSets
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
+
+EqSETᴰCCⱽ : CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
+EqSETᴰCCⱽ = EqCCⱽ→CCⱽ EqSets.SetAssoc (SETᴰ _ _) EqSets.isCartesianⱽSETᴰ

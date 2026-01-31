@@ -21,5 +21,5 @@ record ×Quiver ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
     ob : Type ℓ
     Q : ProductQuiver ob ℓ'
   open ProductQuiver Q public
-  Ob : Type ℓ
+  Expr : Type ℓ
   Expr = ProdExpr ob

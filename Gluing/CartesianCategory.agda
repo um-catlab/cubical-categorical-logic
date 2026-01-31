@@ -111,7 +111,7 @@ module _ where
     where
     pts = FREECC.C [ 𝟙 ,-]
     Canonicalize : Section pts (SETᴰ _ _)
-    Canonicalize = elimLocal QUIVER pts SETᴰCCⱽ
+    Canonicalize = elimLocal QUIVER pts EqSETᴰCCⱽ
       (mkInterpᴰ
         (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
         (λ { t,f ⟨⟩ (lift tt) →

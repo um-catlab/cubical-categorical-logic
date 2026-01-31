@@ -59,7 +59,6 @@ module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') w
   weakenCartesianCategory .termᴰ = termWeaken (C .term) (D .term)
   weakenCartesianCategory .bpᴰ = binprodWeaken (C .bp) (D .bp)
 
-
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   ×→∫wk : Functor (C ×C D) (∫C (weaken C D))
   ×→∫wk = intro (BP.Fst C D) (introS (BP.Fst C D) (BP.Snd C D))

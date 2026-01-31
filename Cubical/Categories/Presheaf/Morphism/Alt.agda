@@ -131,7 +131,7 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   PshHomEqΣIso : Iso PshHomEq PshHomEqΣ
   unquoteDef PshHomEqΣIso = defineRecordIsoΣ PshHomEqΣIso (quote (PshHomEq))
 
-  
+
 
   isSetPshHomEq : isSet PshHomEq
   isSetPshHomEq = isOfHLevelRetractFromIso 2 PshHomEqΣIso

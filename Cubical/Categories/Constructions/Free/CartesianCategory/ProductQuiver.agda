@@ -16,11 +16,10 @@ module _ (ob : Type ℓ) where
       dom : mor → ProdExpr
       cod : mor → ProdExpr
 
-×Quiver : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
-×Quiver ℓ ℓ' = Σ[ ob ∈ Type ℓ ] ProductQuiver ob ℓ'
-
-module ×QuiverNotation (Q : ×Quiver ℓ ℓ') where
-  open ProductQuiver
-  Ob = ProdExpr (Q .fst)
-  Dom = Q .snd .dom
-  Cod = Q .snd .cod
+record ×Quiver ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+  field
+    ob : Type ℓ
+    Q : ProductQuiver ob ℓ'
+  open ProductQuiver Q public
+  Ob : Type ℓ
+  Expr = ProdExpr ob

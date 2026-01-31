@@ -32,12 +32,11 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
-open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
+open import Cubical.Categories.Displayed.Constructions.Weaken.UncurriedProperties
 
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
-  hiding (elim; elimLocal; Interpᴰ)
 open import Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
-
 
 private
   variable
@@ -48,7 +47,7 @@ open PshHom
 open PshIso
 
 module _ (Q : ×Quiver ℓQ ℓQ') where
-  private module Q = ×QuiverNotation Q
+  private module Q = ×Quiver Q
   module _
     (CCᴰ : CartesianCategoryᴰ (FreeCartesianCategory Q) ℓCᴰ ℓCᴰ')
     where
@@ -65,7 +64,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       field
         ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]
         ı-hom : ∀ e
-          → Cᴰ.Hom[ ↑ₑ e ][ elimOb ı-ob (Q.Dom e) , elimOb ı-ob (Q.Cod e) ]
+          → Cᴰ.Hom[ ↑ₑ e ][ elimOb ı-ob (Q.dom e) , elimOb ı-ob (Q.cod e) ]
 
     module _ (ı : Interpᴰ) where
       open Interpᴰ ı
@@ -111,4 +110,10 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     elimLocal : (ı : Interpᴰ elimLocalMotive) → Section F Cᴰ
     elimLocal ı = GlobalSectionReindex→Section Cᴰ F (elim elimLocalMotive ı)
 
-  -- TODO: recursor, induction principle
+  module _ (CC : CartesianCategory ℓC ℓC') where
+    private
+      wkC = weakenCartesianCategory (FreeCartesianCategory Q) CC
+    -- TODO: rec preserves finite products, should follow from
+    -- properties of weaken/elim preserved displayed fin products
+    rec : (ı : Interpᴰ wkC) → Functor (|FreeCartesianCategory| Q) (CC .CartesianCategory.C)
+    rec ı = introS⁻ (elim wkC ı)

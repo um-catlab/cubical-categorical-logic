@@ -73,8 +73,8 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} (Cᴰ : Categoryᴰ C �
   private
     module C = Category C
     module P = PresheafNotation P
-    module Cᴰ = Fibers Cᴰ    
-    
+    module Cᴰ = Fibers Cᴰ
+
   EqUnitⱽ≅PathUnitⱽ : Path.PshIsoⱽ (EqPresheafᴰ→PathPresheafᴰ P Cᴰ UnitⱽPsh) Path.UnitPshᴰ
   EqUnitⱽ≅PathUnitⱽ = reindPsh-Unit (Path/→Eq/ P Cᴰ)
 
@@ -87,7 +87,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} (Cᴰ : Categoryᴰ C �
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
-    module Cᴰ = Fibers Cᴰ    
+    module Cᴰ = Fibers Cᴰ
   fibrationNatIso : ∀ {Γ x} (⋆AssocC : ReprEqAssoc C) (f : C [ Γ , x ])
     → NatIso {C = Cᴰ Path./ (C [-, Γ ])}{D = Cᴰ / (C [-, x ])}
              (((Idᴰ /Fⱽ yoRecEq (C [-, x ]) (⋆AssocC x) f) ∘F Path/→Eq/ (C [-, Γ ]) Cᴰ))

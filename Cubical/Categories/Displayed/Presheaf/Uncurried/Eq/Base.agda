@@ -18,6 +18,7 @@ open import Cubical.Foundations.HLevels.More
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
@@ -82,17 +83,17 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     → Functor (Cᴰ / P) (Dᴰ / Q)
   Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHetEq→ElementFunctorᴰ α)
 
--- module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Presheaf C ℓP} where
---   open Category
---   private
---     module Cᴰ = Fibers Cᴰ
---     module P = PresheafNotation P
---   Hom/≡ : ∀ {Δ3 Γ3 : (Cᴰ / P).ob}
---     {f g : (Cᴰ / P) [ Δ3 , Γ3 ]}
---     → (p2 : f .snd .fst Cᴰ.∫≡ g .snd .fst)
---     → f ≡ g
---   Hom/≡ p2 = ΣPathP ((PathPΣ p2 .fst) , (ΣPathPProp (λ _ → isPropPathEq P.isSetPsh)
---     (PathPΣ p2 .snd)))
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Presheaf C ℓP} where
+  open Category
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+  Hom/≡ : ∀ {Δ3 Γ3 : (Cᴰ / P).ob}
+    {f g : (Cᴰ / P) [ Δ3 , Γ3 ]}
+    → (p2 : f .snd .fst Cᴰ.∫≡ g .snd .fst)
+    → f ≡ g
+  Hom/≡ p2 = ΣPathP ((PathPΣ p2 .fst) , (ΣPathPProp (λ _ → Eq.isSet→isSetEq P.isSetPsh)
+    (PathPΣ p2 .snd)))
 
 --   Hom/-elim : ∀ {Δ3@(Δ , Δᴰ , γp) Γ3@(Γ , Γᴰ , p) : (Cᴰ / P) .ob} {M : (f3 : (Cᴰ / P) [ Δ3 , Γ3 ]) → Type ℓ}
 --     → (split : (γ : C [ Δ , Γ ])

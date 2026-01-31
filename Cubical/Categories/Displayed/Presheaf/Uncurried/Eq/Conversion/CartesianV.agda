@@ -68,18 +68,45 @@ private
     ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
     ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
+
+module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Cᴰ = Fibers Cᴰ    
+    
+  EqUnitⱽ≅PathUnitⱽ : Path.PshIsoⱽ (EqPresheafᴰ→PathPresheafᴰ P Cᴰ UnitⱽPsh) Path.UnitPshᴰ
+  EqUnitⱽ≅PathUnitⱽ = reindPsh-Unit (Path/→Eq/ P Cᴰ)
+
+  -- reindPsh F (Pᴰ ×ⱽPsh Qᴰ) ≅ reindPsh F Pᴰ ×ⱽPsh reindPsh F Qᴰ
+  Eq×ⱽ≅Path×ⱽ : ∀ {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+    → Path.PshIsoⱽ (EqPresheafᴰ→PathPresheafᴰ P Cᴰ (Pᴰ ×ⱽPsh Qᴰ))
+                   (EqPresheafᴰ→PathPresheafᴰ P Cᴰ Pᴰ Path.×ⱽPsh EqPresheafᴰ→PathPresheafᴰ P Cᴰ Qᴰ)
+  Eq×ⱽ≅Path×ⱽ = reindPsh× (Path/→Eq/ P Cᴰ) _ _
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ    
+  fibrationNatIso : ∀ {Γ x} (⋆AssocC : ReprEqAssoc C) (f : C [ Γ , x ])
+    → NatIso {C = Cᴰ Path./ (C [-, Γ ])}{D = Cᴰ / (C [-, x ])}
+             (((Idᴰ /Fⱽ yoRecEq (C [-, x ]) (⋆AssocC x) f) ∘F Path/→Eq/ (C [-, Γ ]) Cᴰ))
+             ((Path/→Eq/ (C [-, x ]) Cᴰ ∘F (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f)))
+  fibrationNatIso {Γ}{x} ⋆AssocC f = isosToNatIso
+    (λ obPath/@(Δ , Δᴰ , g) → idCatIso)
+    λ Θ3 Δ3 morPath@(δ , δᴰ , δg≡h) → Hom/≡ $ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _)
+
 module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   EqCCⱽ→CCⱽ : isCartesianⱽ ⋆AssocC Cᴰ → Path.CartesianCategoryⱽ C ℓCᴰ ℓCᴰ'
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.Cᴰ = Cᴰ
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.termⱽ x =
     EqReprⱽ→PathReprⱽ UnitⱽPsh (cartⱽCᴰ .fst x)
-    Path.◁PshIsoⱽ {!!}
+    Path.◁PshIsoⱽ EqUnitⱽ≅PathUnitⱽ Cᴰ
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.bpⱽ xᴰ yᴰ =
     EqReprⱽ→PathReprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])) (cartⱽCᴰ .snd .fst xᴰ yᴰ)
-    Path.◁PshIsoⱽ {!!}
-  EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.cartesianLifts xᴰ x p =
-    EqReprⱽ→PathReprⱽ _ (cartⱽCᴰ .snd .snd p xᴰ)
-    Path.◁PshIsoⱽ {!!}
-    
-    -- {!EqReprⱽ→PathReprⱽ _ ?
-    -- Path.◁PshIsoⱽ !}
+    Path.◁PshIsoⱽ Eq×ⱽ≅Path×ⱽ Cᴰ
+    Path.⋆PshIsoⱽ ×PshIso Representable≅ Representable≅
+  EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.cartesianLifts {x = x} xᴰ Γ f =
+    EqReprⱽ→PathReprⱽ _ (cartⱽCᴰ .snd .snd f xᴰ)
+    Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (C [-, Γ ]) Cᴰ) (Idᴰ /Fⱽ yoRecEq (C [-, x ]) (⋆AssocC x) f) (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) (Path/→Eq/ (C [-, x ]) Cᴰ) (Cᴰ [-][-, xᴰ ]) (fibrationNatIso Cᴰ ⋆AssocC f)
+    Path.⋆PshIsoⱽ reindPshIso (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) Representable≅

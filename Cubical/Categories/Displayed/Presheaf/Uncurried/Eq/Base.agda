@@ -370,6 +370,38 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     LRⱽ {x} xᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , x ])
       → Reprⱽ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh (yoRecEq _ (C⋆Assoc x) f *Presheafᴰ (Cᴰ [-][-, xᴰ ])))
 
+    module LRⱽNotation {x}{xᴰ} (xᴰLRⱽ : LRⱽ {x = x} xᴰ) where
+      module _ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]} where
+        π₁ⱽ : Cᴰ [ C.id ][ xᴰLRⱽ Γᴰ f .fst , Γᴰ ]
+        π₁ⱽ = Iso.fun
+               (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Γ , xᴰLRⱽ Γᴰ f .fst , C.id))
+               Cᴰ.idᴰ .fst
+
+        π₂ⱽ : Cᴰ [ C.id C.⋆ f ][ xᴰLRⱽ Γᴰ f .fst , xᴰ ]
+        π₂ⱽ = Iso.fun
+               (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Γ , xᴰLRⱽ Γᴰ f .fst , C.id))
+               Cᴰ.idᴰ .snd
+
+        module _ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , Γ ]} (γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ])(fᴰ : Cᴰ [ γ C.⋆ f ][ Δᴰ , xᴰ ]) where
+          _,pⱽ_ : Cᴰ [ γ ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]
+          _,pⱽ_ = xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos _ .Iso.inv (γᴰ , fᴰ)
+
+          β₁ⱽ : _,pⱽ_ Cᴰ.⋆ᴰ π₁ⱽ Cᴰ.∫≡ γᴰ
+          β₁ⱽ = {!!}
+
+          β₂ⱽ : _,pⱽ_ Cᴰ.⋆ᴰ π₂ⱽ Cᴰ.∫≡ fᴰ
+          β₂ⱽ = {!!}
+
+        module _ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{γ γ' : C [ Δ , Γ ]}
+          {pᴰ : Cᴰ [ γ ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]}
+          {qᴰ : Cᴰ [ γ' ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]}
+          where
+          extensionalityᴰ
+            : pᴰ Cᴰ.⋆ᴰ π₁ⱽ Cᴰ.∫≡ qᴰ Cᴰ.⋆ᴰ π₁ⱽ
+            → pᴰ Cᴰ.⋆ᴰ π₂ⱽ Cᴰ.∫≡ qᴰ Cᴰ.⋆ᴰ π₂ⱽ
+            → pᴰ Cᴰ.∫≡ qᴰ
+          extensionalityᴰ = {!!}
+
     AllLRⱽ : Type _
     AllLRⱽ = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → LRⱽ xᴰ
 
@@ -381,18 +413,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       ⋆PshIsoEq ×PshIsoEq idPshIsoEq ((f * xᴰ) .snd)
 
     module _ (C⋆IdL : EqIdL C) {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) (_×ⱽ_*xᴰ : LRⱽ xᴰ) where
+      private
+        module LRⱽxᴰ = LRⱽNotation _×ⱽ_*xᴰ
       LRⱽFⱽ : Functorⱽ (Cᴰ ×ᴰ EqElement (C [-, x ])) Cᴰ
       LRⱽFⱽ .F-obᴰ ob/@(Γᴰ , f) = (Γᴰ ×ⱽ f *xᴰ) .fst
-      LRⱽFⱽ .F-homᴰ {Δ} {Γ} {γ} {(Δᴰ , g)} {Γᴰ , f} (γᴰ , Eq.refl) =
-        (Γᴰ ×ⱽ f *xᴰ) .snd .PshIsoEq.isos _ .Iso.inv
-          ( Cᴰ.reindEq (C⋆IdL γ) (Iso.fun
-                             ((Δᴰ ×ⱽ (C [-, x ]) .F-hom γ f *xᴰ) .snd .PshIsoEq.isos
-                              (Δ , F-obᴰ LRⱽFⱽ (Δᴰ , (C [-, x ]) .F-hom γ f) , C.id))
-                             Cᴰ.idᴰ .fst Cᴰ.⋆ᴰ γᴰ)
-          , Cᴰ.reindEq (C⋆IdL (γ C.⋆ f)) (Iso.fun
-                             ((Δᴰ ×ⱽ (C [-, x ]) .F-hom γ f *xᴰ) .snd .PshIsoEq.isos
-                              (Δ , (Δᴰ ×ⱽ (C [-, x ]) .F-hom γ f *xᴰ) .fst , C.id))
-                             Cᴰ.idᴰ .snd))
+      LRⱽFⱽ .F-homᴰ {Δ} {Γ} {γ} {(Δᴰ , g)} {Γᴰ , f} (γᴰ , tri) =
+        Cᴰ.reindEq (C⋆IdL γ) (LRⱽxᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ) LRⱽxᴰ.,pⱽ (Cᴰ.reindEq (Eq.sym tri) $ Cᴰ.reindEq (C⋆IdL g) LRⱽxᴰ.π₂ⱽ) 
       LRⱽFⱽ .F-idᴰ = {!!}
       LRⱽFⱽ .F-seqᴰ = {!!}
 

@@ -312,3 +312,12 @@ isSet→Square :
   (p : a ≡ c) (q : b ≡ d) (r : a ≡ b) (s : c ≡ d)
   → Square r s p q
 isSet→Square isSetA p q r s = compPath→Square (isSetA _ _ _ _)
+
+infixr 5 _⊔ℓ_
+_⊔ℓ_ : Level → Level → Level
+_⊔ℓ_ = ℓ-max
+
+module _ (ℓ ℓ' ℓ'' : Level) where
+  private
+    test : ℓ-max (ℓ-max ℓ ℓ') ℓ'' ≡ ℓ ⊔ℓ ℓ' ⊔ℓ ℓ''
+    test = refl

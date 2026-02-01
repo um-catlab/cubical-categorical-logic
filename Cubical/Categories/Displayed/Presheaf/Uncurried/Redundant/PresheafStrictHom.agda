@@ -3,6 +3,7 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.Redundant.PresheafStrictH
 -- TODO still need better name
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
@@ -10,6 +11,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport hiding (pathToIso)
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
@@ -30,10 +32,13 @@ open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Bifunctor
+open import Cubical.Categories.Exponentials
 open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Morphism.Alt using (isPshIso' ; PshIso')
+open import Cubical.Categories.Presheaf.Morphism.Alt using
+  (isPshIso' ; PshIso' ; PshHom ; _⋆NatTransPshHom_ ; _⋆PshHom_)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable.More
@@ -42,6 +47,7 @@ open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
 open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More
@@ -125,6 +131,22 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
    → α ≡ β
   makePshHomStrictPath {α} {β} N-ob≡ =
     isoFunInjective (PshHomStrictΣIso P Q) α β (makePshHomStrictΣPath N-ob≡)
+
+-- module _
+--   {C : Category ℓc ℓc'}
+--   {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+--   where
+
+--   module _ (α : PshHom P Q) where
+--     PshHom→PshHomStrict : PshHomStrict P Q
+--     PshHom→PshHomStrict .N-ob = α .PshHom.N-ob
+--     PshHom→PshHomStrict .N-hom c c' f p p' e =
+--       sym (α .PshHom.N-hom _ _ f p) ∙ cong (α .PshHom.N-ob c) e
+
+--   module _ (α : PshHomStrict P Q) where
+--     PshHomStrict→PshHom : PshHom P Q
+--     PshHomStrict→PshHom .PshHom.N-ob = α .N-ob
+--     PshHomStrict→PshHom .PshHom.N-hom c c' f p = sym $ α .N-hom c c' f p (P .F-hom f p) refl
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
 
@@ -214,6 +236,7 @@ module _
     ×PshStrict-UMP .Iso.sec (α , β) = refl
     ×PshStrict-UMP .ret α = refl
 
+
 open Category
 module _ (C : Category ℓC ℓC') (ℓP : Level) where
   PRESHEAF : Category _ _
@@ -240,6 +263,100 @@ module _ (C : Category ℓC ℓC') (ℓP : Level) where
     (π₁ P Q) , (π₂ P Q)
   Cartesian-PRESHEAF .CartesianCategory.bp (P , Q) .universal R =
     isoToIsEquiv (×PshStrict-UMP P Q)
+
+module _ {C : Category ℓC ℓC'} where
+  PshHomStrictPsh :
+    ∀ (Q : Presheaf C ℓQ) →
+        Presheaf (PRESHEAF C ℓP) (ℓC ⊔ℓ ℓC' ⊔ℓ ℓQ ⊔ℓ ℓP)
+  PshHomStrictPsh Q .F-ob P = (PshHomStrict P Q) , (isSetPshHomStrict _ _)
+  PshHomStrictPsh Q .F-hom = _⋆PshHomStrict_
+  PshHomStrictPsh Q .F-id = funExt (λ _ → makePshHomStrictPath refl)
+  PshHomStrictPsh Q .F-seq α α' = funExt λ _ → makePshHomStrictPath refl
+
+module _ {C : Category ℓ ℓ'} where
+  open Functor
+  private
+    module C = Category C
+
+  YOStrict : Functor C (PRESHEAF C ℓ')
+  YOStrict .F-ob = yo
+  YOStrict .F-hom f .N-ob c g = g C.⋆ f
+  YOStrict .F-hom f .N-hom c c' g p' p e = (sym $ C.⋆Assoc _ _ _) ∙ cong₂ C._⋆_ e refl
+  YOStrict .F-id = makePshHomStrictPath (funExt₂ λ _ _ → C.⋆IdR _)
+  YOStrict .F-seq _ _ = makePshHomStrictPath (funExt₂ λ _ _ → sym $ C.⋆Assoc _ _ _)
+
+-- module _ {C : Category ℓ ℓ'} where
+--   private
+--     module C = Category C
+--   PshProd' : Functor
+--     (PresheafCategory C ℓA ×C PresheafCategory C ℓB)
+--     (PresheafCategory C (ℓ-max ℓA ℓB))
+--   PshProd' = (postcomposeF _ ×Sets ∘F ,F-functor)
+
+--   PshProd : Bifunctor (PresheafCategory C ℓA) (PresheafCategory C ℓB)
+--                       (PresheafCategory C (ℓ-max ℓA ℓB))
+--   PshProd = ParFunctorToBifunctor PshProd'
+
+module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
+  _⇒PshLargeStrict_ : Presheaf C (ℓC ⊔ℓ ℓQ ⊔ℓ ℓC' ⊔ℓ ℓP)
+  _⇒PshLargeStrict_ = PshHomStrictPsh Q ∘F ((-×P ∘F YOStrict) ^opF)
+    where
+    -×P : Functor (PRESHEAF C ℓC') (PRESHEAF C (ℓC' ⊔ℓ ℓP))
+    -×P .F-ob R = R ×Psh P
+    -×P .F-hom α = ×PshIntroStrict (π₁ _ _ ⋆PshHomStrict α) (π₂ _ _)
+    -×P .F-id = makePshHomStrictPath refl
+    -×P .F-seq _ _ = makePshHomStrictPath refl
+
+module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+
+  appPshHomStrict : PshHomStrict ((P ⇒PshLargeStrict Q) ×Psh P) Q
+  appPshHomStrict .N-ob c (α , p) = α .N-ob c (C.id , p)
+  appPshHomStrict .N-hom c c' f (α , p) (β , p') e =
+    α .N-hom c c' f (C.id , p) (f , f P.⋆ p) (ΣPathP (C.⋆IdR f , refl))
+    ∙ cong (λ x → α .N-ob c (x , f P.⋆ p)) (sym (C.⋆IdL f))
+    ∙ cong (λ γ → γ .N-ob c (C.id , f P.⋆ p)) (cong fst e)
+    ∙ cong (λ x → β .N-ob c (C.id , x)) (cong snd e)
+
+  module _ {R : Presheaf C ℓR} where
+    private
+      module R = PresheafNotation R
+
+    λPshHomStrict : PshHomStrict (R ×Psh P) Q → PshHomStrict R (P ⇒PshLargeStrict Q)
+    λPshHomStrict γ .N-ob c r .N-ob d (f , p) = γ .N-ob d (f R.⋆ r , p)
+    λPshHomStrict γ .N-ob c r .N-hom e d g (f' , p') (f , p) eq =
+      γ .N-hom e d g (f' R.⋆ r , p') (f R.⋆ r , p)
+        (ΣPathP ((sym $ R.⋆Assoc _ _ _) ∙ R.⟨ cong fst eq ⟩⋆⟨⟩ , cong snd eq))
+    λPshHomStrict γ .N-hom d c' h s' s eq =
+      makePshHomStrictPath
+      (funExt₂ λ e (f , p) →
+        cong (λ x → γ .N-ob e (x , p))
+          (R.⋆Assoc _ _ _ ∙ R.⟨⟩⋆⟨ eq ⟩))
+
+    ⇒PshLargeStrict-UMP : Iso (PshHomStrict R (P ⇒PshLargeStrict Q))
+                              (PshHomStrict (R ×Psh P) Q)
+    ⇒PshLargeStrict-UMP .Iso.fun α =
+      ×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P) ⋆PshHomStrict appPshHomStrict
+    ⇒PshLargeStrict-UMP .Iso.inv = λPshHomStrict
+    ⇒PshLargeStrict-UMP .Iso.sec γ = makePshHomStrictPath
+      (funExt₂ λ c (r , p) → cong (λ x → γ .N-ob c (x , p)) (R.⋆IdL r))
+    ⇒PshLargeStrict-UMP .Iso.ret α = makePshHomStrictPath
+      (funExt₂ λ c r → makePshHomStrictPath
+        (funExt₂ λ d (f , p) →
+          sym (cong (λ x → α .N-ob c r .N-ob d (x , p)) (sym (C.⋆IdL f))
+          ∙ funExt⁻ (funExt⁻ (cong N-ob (α .N-hom d c f r (f R.⋆ r) refl)) d) (C.id , p))))
+
+module _ (C : Category ℓC ℓC') (ℓP : Level) where
+  Exp-PRESHEAF :
+    AllExponentiable (PRESHEAF C (ℓC ⊔ℓ ℓC' ⊔ℓ ℓP))
+      (Cartesian-PRESHEAF C (ℓC ⊔ℓ ℓC' ⊔ℓ ℓP) .CartesianCategory.bp)
+  Exp-PRESHEAF P Q .UniversalElement.vertex = P ⇒PshLargeStrict Q
+  Exp-PRESHEAF P Q .UniversalElement.element = appPshHomStrict P Q
+  Exp-PRESHEAF P Q .UniversalElement.universal R =
+    isoToIsEquiv (⇒PshLargeStrict-UMP P Q)
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   PshHetStrict : (F : Functor C D) (P : Presheaf C ℓP) (Q : Presheaf D ℓQ) → Type _
@@ -377,155 +494,189 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       (α *Strict (Qᴰ ×ⱽPsh Rᴰ))
   ×ⱽ*Strict→*Strict×ⱽ = pshhom (λ c z → z) (λ c c' f p' p z → z)
 
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  {Q : Presheaf C ℓQ}
-  (α : PshHomStrict P Q)
-  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
-  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-  where
-  PshHomᴰStrict : Type _
-  PshHomᴰStrict = PshHomStrict Pᴰ (α *Strict Qᴰ)
+  -- *Strict⇒ⱽ→⇒ⱽ*Strict :
+  --   PshHomStrict
+  --     (α *Strict (Qᴰ ⇒PshLargeStrict Rᴰ))
+  --     ((α *Strict Qᴰ) ⇒PshLargeStrict (α *Strict Rᴰ))
+  -- *Strict⇒ⱽ→⇒ⱽ*Strict = {!!}
 
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  where
-  private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-  idPshHomᴰStrict : PshHomᴰStrict idPshHomStrict Pᴰ Pᴰ
-  idPshHomᴰStrict = *StrictIdIntro Pᴰ
+  ⇒ⱽ*Strict→*Strict⇒ⱽ :
+    PshHomStrict
+      ((α *Strict Qᴰ) ⇒PshLargeStrict (α *Strict Rᴰ))
+      (α *Strict (Qᴰ ⇒PshLargeStrict Rᴰ))
+  ⇒ⱽ*Strict→*Strict⇒ⱽ =
+    {!!}
+  -- .N-ob (Q , Qᴰ , β) αᴰ .N-ob (R , Rᴰ , γ) βᴰ = {!!}
+  -- ⇒ⱽ*Strict→*Strict⇒ⱽ .N-ob (Q , Qᴰ , β) αᴰ .N-hom = {!!}
+  -- ⇒ⱽ*Strict→*Strict⇒ⱽ .N-hom = {!!}
 
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  {P : Presheaf C ℓP}
-  {Q : Presheaf C ℓQ}
-  {R : Presheaf C ℓR}
-  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
-  {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
-  {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
-  {α : PshHomStrict P Q}
-  {β : PshHomStrict Q R}
-  where
-  private
-    module Pᴰ = PresheafᴰNotation Pᴰ
-    module Qᴰ = PresheafᴰNotation Qᴰ
-    module Rᴰ = PresheafᴰNotation Rᴰ
+-- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {P : Presheaf C ℓP}
+--   {Q : Presheaf C ℓQ}
+--   (α : PshHomStrict P Q)
+--   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+--   (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+--   where
+--   PshHomᴰStrict : Type _
+--   PshHomᴰStrict = PshHomStrict Pᴰ (α *Strict Qᴰ)
 
-  _⋆PshHomᴰStrict_ :
-    (αᴰ : PshHomᴰStrict α Pᴰ Qᴰ)
-    (βᴰ : PshHomᴰStrict β Qᴰ Rᴰ) →
-    PshHomᴰStrict (α ⋆PshHomStrict β) Pᴰ Rᴰ
-  αᴰ ⋆PshHomᴰStrict βᴰ =
-    αᴰ
-    ⋆PshHomStrict (α *StrictF βᴰ)
-    ⋆PshHomStrict *StrictSeqIntro
+-- module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {P : Presheaf C ℓP}
+--   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+--   where
+--   private
+--     module Pᴰ = PresheafᴰNotation Pᴰ
+--   idPshHomᴰStrict : PshHomᴰStrict idPshHomStrict Pᴰ Pᴰ
+--   idPshHomᴰStrict = *StrictIdIntro Pᴰ
 
-  infixr 9 _⋆PshHomᴰStrict_
+-- module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+--   {P : Presheaf C ℓP}
+--   {Q : Presheaf C ℓQ}
+--   {R : Presheaf C ℓR}
+--   {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+--   {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+--   {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+--   {α : PshHomStrict P Q}
+--   {β : PshHomStrict Q R}
+--   where
+--   private
+--     module Pᴰ = PresheafᴰNotation Pᴰ
+--     module Qᴰ = PresheafᴰNotation Qᴰ
+--     module Rᴰ = PresheafᴰNotation Rᴰ
 
-module _
-  (C : Category ℓC ℓC')
-  (ℓP ℓPᴰ : Level)
-  (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-  where
-  private
-    PSH = PRESHEAF C ℓP
-    module PSH = Category PSH
-    module Cᴰ = Fibers Cᴰ
-  PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP) _ _
-  PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
-  PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰStrict
-  PRESHEAFᴰ .idᴰ = idPshHomᴰStrict
-  PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰStrict_
-  PRESHEAFᴰ .⋆IdLᴰ _ = makePshHomStrictPath refl
-  PRESHEAFᴰ .⋆IdRᴰ _ = makePshHomStrictPath refl
-  PRESHEAFᴰ .⋆Assocᴰ _ _ _ = makePshHomStrictPath refl
-  PRESHEAFᴰ .isSetHomᴰ = isSetPshHomStrict _ _
-  private
-    module PSHᴰ = Fibers PRESHEAFᴰ
+--   _⋆PshHomᴰStrict_ :
+--     (αᴰ : PshHomᴰStrict α Pᴰ Qᴰ)
+--     (βᴰ : PshHomᴰStrict β Qᴰ Rᴰ) →
+--     PshHomᴰStrict (α ⋆PshHomStrict β) Pᴰ Rᴰ
+--   αᴰ ⋆PshHomᴰStrict βᴰ =
+--     αᴰ
+--     ⋆PshHomStrict (α *StrictF βᴰ)
+--     ⋆PshHomStrict *StrictSeqIntro
 
-  PSHᴰTerminalsⱽ : Terminalsⱽ PRESHEAFᴰ
-  PSHᴰTerminalsⱽ P .fst = Unit*Psh
-  PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .fun αᴰ = tt
-  PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .inv _ .N-ob = λ c _ → tt*
-  PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .inv _ .N-hom = λ _ _ _ _ _ _ → refl
-  PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .sec _ = refl
-  PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .ret _ = makePshHomStrictPath refl
-  PSHᴰTerminalsⱽ P .snd .PshIso'.nat _ _ _ _ = inr Eq.refl
+--   infixr 9 _⋆PshHomᴰStrict_
 
-  PSHᴰBPⱽ : BinProductsⱽ PRESHEAFᴰ
-  PSHᴰBPⱽ Pᴰ Qᴰ =
-    UEⱽ→Reprⱽ _ (λ {x = x₁} {y} f → Eq.refl) (record {
-        v = Pᴰ ×ⱽPsh Qᴰ
-      ; e = π₁ _ _ ⋆PshHomStrict *StrictIdIntro Pᴰ ,
-            π₂ _ _ ⋆PshHomStrict *StrictIdIntro Qᴰ
-      ; universal = record {
-        nIso = λ c →
-          (λ (αᴰ , βᴰ) → ×PshIntroStrict αᴰ βᴰ ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ (c .snd .snd) Pᴰ Qᴰ) ,
-          (λ _ → ΣPathP (makePshHomStrictPath refl , makePshHomStrictPath refl)) ,
-          λ _ → makePshHomStrictPath refl
-          } })
+-- module _
+--   (C : Category ℓC ℓC')
+--   (ℓP : Level)
+--   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+--   (ℓPᴰ : Level)
+--   where
+--   private
+--     PSH = PRESHEAF C ℓP
+--     module PSH = Category PSH
+--     module Cᴰ = Fibers Cᴰ
+--   PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP) _ _
+--   PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
+--   PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰStrict
+--   PRESHEAFᴰ .idᴰ = idPshHomᴰStrict
+--   PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰStrict_
+--   PRESHEAFᴰ .⋆IdLᴰ _ = makePshHomStrictPath refl
+--   PRESHEAFᴰ .⋆IdRᴰ _ = makePshHomStrictPath refl
+--   PRESHEAFᴰ .⋆Assocᴰ _ _ _ = makePshHomStrictPath refl
+--   PRESHEAFᴰ .isSetHomᴰ = isSetPshHomStrict _ _
+--   private
+--     module PSHᴰ = Fibers PRESHEAFᴰ
 
-  -- Slow, broke
-  -- Something about using the record constructor inline vs hiding behind coprojections?
-  -- Or is it about more annotations?
-  -- PSHᴰFibration : Fibration PRESHEAFᴰ λ f g h → Eq.refl
-  -- PSHᴰFibration α Pᴰ = UEⱽ→Reprⱽ _ (λ {x = x₁} {y = y₁} f → Eq.refl)
-  --   (record {
-  --     v = α *Strict Pᴰ
-  --   ; e = idPshHomStrict
-  --   ; universal = {!!} })
+--   PSHᴰTerminalsⱽ : Terminalsⱽ PRESHEAFᴰ
+--   PSHᴰTerminalsⱽ P .fst = Unit*Psh
+--   PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .fun αᴰ = tt
+--   PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .inv _ .N-ob = λ c _ → tt*
+--   PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .inv _ .N-hom = λ _ _ _ _ _ _ → refl
+--   PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .sec _ = refl
+--   PSHᴰTerminalsⱽ P .snd .PshIso'.isos (Q , Qᴰ , α) .ret _ = makePshHomStrictPath refl
+--   PSHᴰTerminalsⱽ P .snd .PshIso'.nat _ _ _ _ = inr Eq.refl
 
-  -- Fast, woke
-  PSHᴰFibrationUE : FibrationUE PRESHEAFᴰ (λ f g h → Eq.refl) λ {x} {y} f → Eq.refl
-  PSHᴰFibrationUE α Pᴰ .UEⱽ.v = α *Strict Pᴰ
-  PSHᴰFibrationUE α Pᴰ .UEⱽ.e = idPshHomStrict
-  PSHᴰFibrationUE α Pᴰ .UEⱽ.universal .isPshIso'.nIso _ .fst βᴰ =
-    βᴰ ⋆PshHomStrict *StrictSeqIntro⁻
-  PSHᴰFibrationUE α Pᴰ .UEⱽ.universal .isPshIso'.nIso _ .snd .fst _ =
-    makePshHomStrictPath refl
-  PSHᴰFibrationUE α Pᴰ .UEⱽ.universal .isPshIso'.nIso _ .snd .snd _ =
-    makePshHomStrictPath refl
+--   PSHᴰBPⱽ : BinProductsⱽ PRESHEAFᴰ
+--   PSHᴰBPⱽ Pᴰ Qᴰ =
+--     UEⱽ→Reprⱽ _ (λ {x = x₁} {y} f → Eq.refl) (record {
+--         v = Pᴰ ×ⱽPsh Qᴰ
+--       ; e = π₁ _ _ ⋆PshHomStrict *StrictIdIntro Pᴰ ,
+--             π₂ _ _ ⋆PshHomStrict *StrictIdIntro Qᴰ
+--       ; universal = record {
+--         nIso = λ c →
+--           (λ (αᴰ , βᴰ) → ×PshIntroStrict αᴰ βᴰ ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ (c .snd .snd) Pᴰ Qᴰ) ,
+--           (λ _ → ΣPathP (makePshHomStrictPath refl , makePshHomStrictPath refl)) ,
+--           λ _ → makePshHomStrictPath refl
+--           } })
 
-  PSHᴰFibration : Fibration PRESHEAFᴰ (λ f g h → Eq.refl)
-  PSHᴰFibration α Pᴰ = UEⱽ→Reprⱽ _ (λ {x = x₁} {y = y₁} f → Eq.refl) (PSHᴰFibrationUE α Pᴰ)
+--   -- Slow, broke
+--   -- Something about using the record constructor inline vs hiding behind coprojections?
+--   -- Or is it about more annotations?
+--   -- PSHᴰFibration : Fibration PRESHEAFᴰ λ f g h → Eq.refl
+--   -- PSHᴰFibration α Pᴰ = UEⱽ→Reprⱽ _ (λ {x = x₁} {y = y₁} f → Eq.refl)
+--   --   (record {
+--   --     v = α *Strict Pᴰ
+--   --   ; e = idPshHomStrict
+--   --   ; universal = {!!} })
 
-  module _ {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
-    private
-      module Pᴰ = PresheafᴰNotation Pᴰ
+--   -- Fast, woke
+--   PSHᴰFibrationUE : FibrationUE PRESHEAFᴰ (λ f g h → Eq.refl) λ {x} {y} f → Eq.refl
+--   PSHᴰFibrationUE α Pᴰ .UEⱽ.v = α *Strict Pᴰ
+--   PSHᴰFibrationUE α Pᴰ .UEⱽ.e = idPshHomStrict
+--   PSHᴰFibrationUE α Pᴰ .UEⱽ.universal .isPshIso'.nIso _ .fst βᴰ =
+--     βᴰ ⋆PshHomStrict *StrictSeqIntro⁻
+--   PSHᴰFibrationUE α Pᴰ .UEⱽ.universal .isPshIso'.nIso _ .snd .fst _ =
+--     makePshHomStrictPath refl
+--   PSHᴰFibrationUE α Pᴰ .UEⱽ.universal .isPshIso'.nIso _ .snd .snd _ =
+--     makePshHomStrictPath refl
 
-    PSHᴰLRⱽ : LRⱽ PRESHEAFᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) Pᴰ
-    PSHᴰLRⱽ {Γ = Q} Qᴰ α = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) lrⱽue
-      where
-        module Qᴰ = PresheafᴰNotation Qᴰ
+--   PSHᴰFibration : Fibration PRESHEAFᴰ (λ f g h → Eq.refl)
+--   PSHᴰFibration α Pᴰ = UEⱽ→Reprⱽ _ (λ {x = x₁} {y = y₁} f → Eq.refl) (PSHᴰFibrationUE α Pᴰ)
 
-        lrⱽue : UEⱽ
-                 ((PRESHEAFᴰ [-][-, Qᴰ ]) ×ⱽPsh
-                  reindᴰRedundPshHom
-                  (yoRecHom PRESHEAFᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) α)
-                  (PRESHEAFᴰ [-][-, Pᴰ ]))
-                 (λ {x} {y} f → Eq.refl)
-        lrⱽue .UEⱽ.v = Qᴰ ×ⱽPsh (α *Strict Pᴰ)
-        lrⱽue .UEⱽ.e .fst = π₁ _ _ ⋆PshHomStrict *StrictIdIntro Qᴰ
-        lrⱽue .UEⱽ.e .snd = π₂ _ _
-        lrⱽue .UEⱽ.universal .isPshIso'.nIso c .fst (αᴰ , βᴰ) =
-          ×PshIntroStrict αᴰ βᴰ
-          ⋆PshHomStrict ×PshIntroStrict (π₁ _ _) (π₂ _ _ ⋆PshHomStrict *StrictSeqIntro⁻)
-          ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ (c .snd .snd) Qᴰ (α *Strict Pᴰ)
-        lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .fst _ =
-          ΣPathP (makePshHomStrictPath refl , makePshHomStrictPath refl)
-        lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .snd _ =
-          makePshHomStrictPath refl
+-- module _
+--   (C : Category ℓC ℓC')
+--   (ℓP : Level)
+--   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+--   (ℓPᴰ : Level)
+--   where
+--   private
+--      the-ℓ = ℓC ⊔ℓ ℓC' ⊔ℓ ℓP
+--      the-ℓᴰ = the-ℓ ⊔ℓ ℓCᴰ ⊔ℓ ℓCᴰ' ⊔ℓ ℓPᴰ
+--      PSHᴰ = PRESHEAFᴰ C the-ℓ Cᴰ the-ℓᴰ
+--      module PSHᴰ = Fibers PSHᴰ
+--   module _ {P : Presheaf C the-ℓ} (Pᴰ : Presheafᴰ P Cᴰ the-ℓᴰ) where
+--     private
+--       module Pᴰ = PresheafᴰNotation Pᴰ
 
-    PSHᴰExpsⱽ : Exponentialsⱽ PRESHEAFᴰ
-      (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl) Pᴰ PSHᴰLRⱽ
-    PSHᴰExpsⱽ Qᴰ = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) (expUE Qᴰ)
-      where
-      expUE : ExponentialsⱽUE PRESHEAFᴰ
-        (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl)
-        Pᴰ PSHᴰLRⱽ (λ {x} {y} f → Eq.refl)
-      -- TODO need a version of LRPsh→Functor that uses UEⱽ instead
-      -- of UniversalElement
-      -- or, cast UEⱽ to UniversalElement
-      expUE Qᴰ .UEⱽ.v = reindPsh (LRPsh→Functor (Pᴰ , (λ Rᴰ → {!!}))) Qᴰ
-      expUE Qᴰ .UEⱽ.e = {!!}
-      expUE Qᴰ .UEⱽ.universal = {!!}
+--     PSHᴰLRⱽ : LRⱽ PSHᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) Pᴰ
+--     PSHᴰLRⱽ {Γ = Q} Qᴰ α = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) lrⱽue
+--       where
+--         module Qᴰ = PresheafᴰNotation Qᴰ
+
+--         lrⱽue : UEⱽ
+--                  ((PSHᴰ [-][-, Qᴰ ]) ×ⱽPsh
+--                   reindᴰRedundPshHom
+--                   (yoRecHom PSHᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) α)
+--                   (PSHᴰ [-][-, Pᴰ ]))
+--                  (λ {x} {y} f → Eq.refl)
+--         lrⱽue .UEⱽ.v = Qᴰ ×ⱽPsh (α *Strict Pᴰ)
+--         lrⱽue .UEⱽ.e .fst = π₁ _ _ ⋆PshHomStrict *StrictIdIntro Qᴰ
+--         lrⱽue .UEⱽ.e .snd = π₂ _ _
+--         lrⱽue .UEⱽ.universal .isPshIso'.nIso c .fst (αᴰ , βᴰ) =
+--           ×PshIntroStrict αᴰ βᴰ
+--           ⋆PshHomStrict ×PshIntroStrict (π₁ _ _) (π₂ _ _ ⋆PshHomStrict *StrictSeqIntro⁻)
+--           ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ (c .snd .snd) Qᴰ (α *Strict Pᴰ)
+--         lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .fst _ =
+--           ΣPathP (makePshHomStrictPath refl , makePshHomStrictPath refl)
+--         lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .snd _ =
+--           makePshHomStrictPath refl
+
+--     PSHᴰExpsⱽ : Exponentialsⱽ PSHᴰ
+--       (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl) Pᴰ PSHᴰLRⱽ
+--     PSHᴰExpsⱽ Qᴰ = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) (expUE Qᴰ)
+--       where
+--       expUE : ExponentialsⱽUE PSHᴰ
+--         (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl)
+--         Pᴰ PSHᴰLRⱽ (λ {x} {y} f → Eq.refl)
+--       expUE Qᴰ .UEⱽ.v = Pᴰ ⇒PshLargeStrict Qᴰ
+--       expUE Qᴰ .UEⱽ.e =
+--         ×PshIntroStrict (π₁ _ _) (π₂ _ _ ⋆PshHomStrict *StrictIdIntro⁻ Pᴰ)
+--         ⋆PshHomStrict appPshHomStrict Pᴰ Qᴰ
+--         ⋆PshHomStrict *StrictIdIntro Qᴰ
+--       expUE Qᴰ .UEⱽ.universal .isPshIso'.nIso (R , Rᴰ , α) .fst αᴰ =
+--         λPshHomStrict (α *Strict Pᴰ) (α *Strict Qᴰ) αᴰ
+--         ⋆PshHomStrict ⇒ⱽ*Strict→*Strict⇒ⱽ α Pᴰ Qᴰ
+--       expUE Qᴰ .UEⱽ.universal .isPshIso'.nIso (R , Rᴰ , α) .snd .fst _ =
+--         {!!}
+--       expUE Qᴰ .UEⱽ.universal .isPshIso'.nIso (R , Rᴰ , α) .snd .snd _ =
+--         {!!}

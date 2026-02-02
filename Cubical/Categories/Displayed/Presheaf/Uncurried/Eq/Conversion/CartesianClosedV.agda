@@ -55,6 +55,8 @@ import Cubical.Categories.Displayed.Presheaf.Uncurried.Base as Path
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable as Path
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions as Path
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential as Path
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier as Path
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration as Path
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
@@ -71,11 +73,11 @@ private
 
 -- Cleanest formulation of this theorem is that for *any* proofs of Eq.LRⱽ xᴰ and Path.LRⱽ xᴰ, that we get the right kind of square
 
-module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') {x} where
+module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
     module Cᴰ = Fibers Cᴰ
-  module _ (xᴰ : Cᴰ.ob[ x ]) (xᴰLRⱽEq : LRⱽ Cᴰ ⋆AssocC xᴰ) (xᴰLRⱽPath : Path.isLRⱽObᴰ Cᴰ xᴰ) where
+  module _ {x} (xᴰ : Cᴰ.ob[ x ]) (xᴰLRⱽEq : LRⱽ Cᴰ ⋆AssocC xᴰ) (xᴰLRⱽPath : Path.isLRⱽObᴰ Cᴰ xᴰ) where
     private
       module LRⱽPath = Path.LRⱽPresheafᴰNotation Cᴰ ((Cᴰ Path.[-][-, xᴰ ]) , xᴰLRⱽPath)
       module LRⱽEq = LRⱽNotation Cᴰ ⋆AssocC xᴰLRⱽEq
@@ -135,6 +137,60 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
           ∙ Cᴰ.⟨ refl ⟩⋆⟨ LRⱽPath.β₂ⱽ' _ _ ∙ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reind-filler⁻ _ ⟩
           ∙ Cᴰ.reind-filler _ -- scary
           ∙ LRⱽPath.β₂ⱽ _ _)))
+  module _
+    (bp : BinProducts C)
+    (cartLifts : Fibration Cᴰ ⋆AssocC)
+    (π₁NatEqC : Allπ₁NatEq bp)
+    (×aF-seqC : All×aF-seq bp)
+    {Γ A : C.ob}
+    where
+    private
+      module bp = BinProductsNotation bp
+    module _ (π₁Quadrable : ∀ Γ → Path.Quadrable Cᴰ (BinProductsWithNotation.π₁ (λ Γ₂ → bp (Γ₂ , A)))) (Aᴰ : Cᴰ.ob[ Γ bp.× A ]) where
+      private
+        module fibEq = FibrationNotation Cᴰ ⋆AssocC cartLifts
+        module π₁* {Γ} = Path.QuadrableNotation Cᴰ (π₁Quadrable Γ)
+
+      wkF-Path/→Eq/-square-iso : ∀ Δ3 → CatIso
+        (Cᴰ /
+         (C [-, ((λ Γ₁ → bp (Γ₁ , A)) BinProductsWithNotation.×a) Γ ]))
+        ((wkF Cᴰ ⋆IdLC ⋆AssocC cartLifts A (λ Γ₁ → bp (Γ₁ , A))
+          (π₁NatEqC A) (×aF-seqC A) Γ
+          ∘F Path/→Eq/ (C [-, Γ ]) Cᴰ)
+         ⟅ Δ3 ⟆)
+        ((Path/→Eq/ (C [-, Γ bp.× A ]) Cᴰ ∘F
+          Path.wkF (Path.π₁Quant Cᴰ A (λ Γ₁ → bp (Γ₁ , A)) π₁Quadrable) Γ)
+         ⟅ Δ3 ⟆)
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .fst .fst = C.id
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .fst .snd .fst = π₁*.introᴰ fibEq.πⱽ
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .fst .snd .snd = ⋆IdLC _
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.inv .fst = C.id
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.inv .snd .fst = fibEq.introᴰ π₁*.πⱽ
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.inv .snd .snd = ⋆IdLC _
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.sec = Hom/≡ (π₁*.extensionalityᴰ (C.⋆IdL _) $
+        π₁*.⋆πⱽ-natural
+        ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ⟩
+        ∙ fibEq.βᴰ)
+      wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.ret = Hom/≡ (fibEq.extensionalityᴰ (C.⋆IdL _) $
+        Cᴰ.⋆Assoc _ _ _
+        ∙ Cᴰ.⟨⟩⋆⟨ fibEq.βᴰ ⟩
+        ∙ π₁*.βᴰ' _
+        ∙ (sym $ Cᴰ.⋆IdL _))
+
+      wkF-Path/→Eq/-square :
+        NatIso (wkF Cᴰ ⋆IdLC ⋆AssocC cartLifts A (λ Γ → bp (Γ , A)) (π₁NatEqC A) (×aF-seqC A) Γ ∘F Path/→Eq/ (C [-, Γ ]) Cᴰ)
+               (Path/→Eq/ (C [-, Γ bp.× A ]) Cᴰ ∘F Path.wkF (Path.π₁Quant Cᴰ A ((λ Γ → bp (Γ , A))) π₁Quadrable) Γ)
+      wkF-Path/→Eq/-square = isosToNatIso wkF-Path/→Eq/-square-iso
+        λ Θ3 Δ3 δ3@(δ , δᴰ , tri) →
+          Hom/≡ (π₁*.extensionalityᴰ (C.⋆IdR _ ∙ sym (C.⋆IdL _))
+            (π₁*.⋆πⱽ-natural
+            ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ⟩
+            ∙ fibEq.βᴰ
+            ∙ Cᴰ.reindEq-filler⁻ ((Eq.sym $ π₁NatEqC A δ))
+            ∙ Cᴰ.⟨ Cᴰ.reindEq-filler⁻ (⋆IdLC _) ⟩⋆⟨⟩
+            ∙ sym (π₁*.⋆πⱽ-natural
+            ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ∙ Cᴰ.reind-filler⁻ _ ⟩
+            ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ π₁*.βᴰ' _ ⟩⋆⟨⟩)))
 
 module _ (CCC : CartesianClosedCategory ℓC ℓC') where
   private
@@ -154,11 +210,15 @@ module _ (CCC : CartesianClosedCategory ℓC ℓC') where
                                            ((EqCCⱽ→CCⱽ ⋆AssocC Cᴰ (isCCCⱽ .fst)) .Path.CartesianCategoryⱽ.cartesianLifts)
     EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.expⱽ {x} xᴰ yᴰ =
       EqReprⱽ→PathReprⱽ _ (isCCCⱽ .snd .fst xᴰ yᴰ)
-      -- reindPsh Path/→Eq/ $ reindPsh (Eq.×LRⱽ xᴰ) $ Cᴰ Eq.[-][-, yᴰ ] 
+      -- reindPsh Path/→Eq/ $ reindPsh (Eq.×LRⱽ xᴰ) $ Cᴰ Eq.[-][-, yᴰ ]
       Path.◁PshIsoⱽ reindPsh-square _ _ _ _ _ (×LRⱽ-Path/→Eq/-square ⋆AssocC ⋆IdLC _ xᴰ _ _)
       Path.⋆PshIsoⱽ reindPshIso (Path.×LRⱽPshᴰ
                                   (Path.LRⱽObᴰ→LRⱽ
                                    (Path.CartesianCategoryⱽ.Cᴰ
                                     (Path.CartesianClosedCategoryⱽ.CCⱽ (EqCCCⱽ→CCCⱽ isCCCⱽ)))
                                    (xᴰ , Path.CartesianClosedCategoryⱽ.lrⱽ (EqCCCⱽ→CCCⱽ isCCCⱽ) xᴰ))) Representable≅
-    EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.forallⱽ = {!!}
+    EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.forallⱽ {Γ} {A} Aᴰ =
+      EqReprⱽ→PathReprⱽ _ (isCCCⱽ .snd .snd A Aᴰ)
+      Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (CCC.C [-, Γ ]) Cᴰ) _ _ (Path/→Eq/ (CCC.C [-, Γ CCC.× A ]) Cᴰ) _
+        (wkF-Path/→Eq/-square ⋆AssocC ⋆IdLC Cᴰ CCC.bp (isCCCⱽ .fst .snd .snd) π₁NatEqC ×aF-seqC _ (isCCCⱽ .fst .fst (Γ CCC.× A) .fst))
+      Path.⋆PshIsoⱽ reindPshIso _ Representable≅

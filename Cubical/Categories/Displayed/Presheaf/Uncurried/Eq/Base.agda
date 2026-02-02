@@ -366,6 +366,28 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ])
       → Reprⱽ (yoRecEq (C [-, y ]) (C⋆Assoc y) f *Presheafᴰ (Cᴰ [-][-, yᴰ ]))
 
+    module FibrationNotation (cartLifts : Fibration) where
+      _*_ : ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Cᴰ.ob[ x ]
+      f * yᴰ = cartLifts f yᴰ .fst
+      module _ {x y} {f : C [ x , y ]}{yᴰ : Cᴰ.ob[ y ]} where
+        πⱽ : Cᴰ [ C.id C.⋆ f ][ f * yᴰ , yᴰ ]
+        πⱽ = Iso.fun (cartLifts f yᴰ .snd .PshIsoEq.isos (x , cartLifts f yᴰ .fst , C.id)) Cᴰ.idᴰ
+        module _ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g : C [ Γ , x ]} where
+          introᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ] → Cᴰ [ g ][ Γᴰ , f * yᴰ ]
+          introᴰ = Iso.inv (cartLifts f yᴰ .snd .PshIsoEq.isos (Γ , Γᴰ , g))
+
+          βᴰ : {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ] }
+            → introᴰ gfᴰ Cᴰ.⋆ᴰ πⱽ Cᴰ.∫≡ gfᴰ
+          βᴰ = {!!}
+
+        extensionalityᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g' : C [ Γ , x ]}
+          {gᴰ : Cᴰ [ g ][ Γᴰ , f * yᴰ ]}
+          {gᴰ' : Cᴰ [ g' ][ Γᴰ , f * yᴰ ]}
+          → g ≡ g'
+          → gᴰ Cᴰ.⋆ᴰ πⱽ Cᴰ.∫≡ gᴰ' Cᴰ.⋆ᴰ πⱽ
+          → gᴰ Cᴰ.∫≡ gᴰ'
+        extensionalityᴰ = {!!}
+
     LRⱽ : {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) → Type _
     LRⱽ {x} xᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , x ])
       → Reprⱽ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh (yoRecEq _ (C⋆Assoc x) f *Presheafᴰ (Cᴰ [-][-, xᴰ ])))
@@ -418,7 +440,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       LRⱽFⱽ : Functorⱽ (Cᴰ ×ᴰ EqElement (C [-, x ])) Cᴰ
       LRⱽFⱽ .F-obᴰ ob/@(Γᴰ , f) = (Γᴰ ×ⱽ f *xᴰ) .fst
       LRⱽFⱽ .F-homᴰ {Δ} {Γ} {γ} {(Δᴰ , g)} {Γᴰ , f} (γᴰ , tri) =
-        Cᴰ.reindEq (C⋆IdL γ) (LRⱽxᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ) LRⱽxᴰ.,pⱽ (Cᴰ.reindEq (Eq.sym tri) $ Cᴰ.reindEq (C⋆IdL g) LRⱽxᴰ.π₂ⱽ) 
+        Cᴰ.reindEq (C⋆IdL γ) (LRⱽxᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ) LRⱽxᴰ.,pⱽ (Cᴰ.reindEq (Eq.sym tri) $ Cᴰ.reindEq (C⋆IdL g) LRⱽxᴰ.π₂ⱽ)
       LRⱽFⱽ .F-idᴰ = {!!}
       LRⱽFⱽ .F-seqᴰ = {!!}
 
@@ -437,6 +459,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   module _ (C⋆IdL : EqIdL C)(C⋆Assoc : ReprEqAssoc C) (isFib : Fibration C⋆Assoc) x (bp : BinProductsWith C x) where
     private
       module bp = BinProductsWithNotation bp
+      module fib = FibrationNotation C⋆Assoc isFib
 
     module _ (π₁NatEqC : π₁NatEq bp) where
       π1*F : Functorᴰ bp.×aF Cᴰ Cᴰ
@@ -446,9 +469,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 --       -- π1*.π ⋆ γᴰ : Cᴰ [ (π₁ ⋆ γ , π₂) ⋆ π₁ ][ π₁* Δᴰ , Γᴰ ]
 --       -- -----------------------
 --       -- π₁*-intro : Cᴰ [ (π₁ ⋆ γ , π₂) ][ π₁* Δᴰ , π₁* Γᴰ ]
-      π1*F .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ = isFib bp.π₁ Γᴰ .snd .PshIsoEq.isos _ .Iso.inv
-        (Cᴰ.reindEq (Eq.sym $ π₁NatEqC γ) (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) (isFib (bp.×ue.element .fst) Δᴰ .snd .PshIsoEq.isos
-                                                            (bp.×ue.vertex , isFib (bp.×ue.element .fst) Δᴰ .fst , C.id) .Iso.fun Cᴰ.idᴰ) Cᴰ.⋆ᴰ γᴰ))
+      π1*F .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ =
+        fib.introᴰ (Cᴰ.reindEq (Eq.sym $ π₁NatEqC γ) $ (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) fib.πⱽ Cᴰ.⋆ᴰ γᴰ))
       π1*F .F-idᴰ = {!!}
       π1*F .F-seqᴰ = {!!}
       module _ (×aF-seqC : ×aF-seq bp) where

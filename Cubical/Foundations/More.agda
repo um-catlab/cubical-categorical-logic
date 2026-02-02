@@ -127,6 +127,10 @@ module depReasoning {A : Type ℓ} (P : A → Type ℓ') where
   reindEq-filler :
     ∀ (e : a Eq.≡ b) → p ∫≡ reindEq e p
   reindEq-filler Eq.refl = refl
+  reindEq-filler⁻ :
+    ∀ (e : a Eq.≡ b) → reindEq e p ∫≡ p
+  reindEq-filler⁻ Eq.refl = refl
+
   opaque
     reindEqOpaque : (a Eq.≡ b) → P a → P b
     reindEqOpaque = Eq.transport P

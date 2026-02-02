@@ -14,6 +14,7 @@ open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
@@ -22,8 +23,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Limits.CartesianV'
--- open import Cubical.Categories.Displayed.Limits.BinProduct
--- open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
@@ -72,3 +72,20 @@ module _ (C : CartesianCategory ℓC ℓC') (D : CartesianCategory ℓD ℓD') w
   weakenCartesianCategory .Cᴰ = weaken (C .Cat) (D .Cat)
   weakenCartesianCategory .termᴰ = termWeaken (C .term) (D .term)
   weakenCartesianCategory .bpᴰ = binprodWeaken (C .bp) (D .bp)
+
+module _ (C : CartesianClosedCategory ℓC ℓC') (D : CartesianClosedCategory ℓD ℓD') where
+  private
+    module C = CartesianClosedCategory C
+    module D = CartesianClosedCategory D
+    module wkD = Fibers (weaken C.C D.C)
+
+  open CartesianClosedCategoryᴰ
+  weakenCCC : CartesianClosedCategoryᴰ C ℓD ℓD'
+  weakenCCC .CCᴰ = weakenCartesianCategory C.CC D.CC
+  weakenCCC .expᴰ Aᴰ Bᴰ .fst = D.⇒ue.vertex Aᴰ Bᴰ
+  weakenCCC .expᴰ Aᴰ Bᴰ .snd .fst = D.⇒ue.element Aᴰ Bᴰ
+  weakenCCC .expᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .inv _ f⟨x⟩ = D.lda f⟨x⟩
+  weakenCCC .expᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .rightInv f⟨x⟩C f⟨x⟩D =
+    (wkD.rectifyOut {e' = refl} $ wkD.reind-filler⁻ _) ∙ D.⇒ue.β _ _
+  weakenCCC .expᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .leftInv fC fD = D.⇒ue.intro≡ _ _ $
+    wkD.rectifyOut {e' = refl} $ wkD.reind-filler⁻ _

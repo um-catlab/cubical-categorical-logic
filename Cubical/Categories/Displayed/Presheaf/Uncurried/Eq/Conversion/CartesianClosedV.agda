@@ -17,7 +17,7 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Limits.CartesianClosed.Base
+open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
@@ -192,16 +192,16 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
             ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ∙ Cᴰ.reind-filler⁻ _ ⟩
             ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ π₁*.βᴰ' _ ⟩⋆⟨⟩)))
 
-module _ (CCC : CartesianClosedCategory ℓC ℓC') where
+module _ (CC : CartesianCategory ℓC ℓC') where
   private
-    module CCC = CartesianClosedCategory CCC
-  module _ (⋆AssocC : ReprEqAssoc CCC.C)
-           (⋆IdLC : EqIdL CCC.C)
-           (π₁NatEqC : Allπ₁NatEq CCC.bp)
-           (×aF-seqC : All×aF-seq CCC.bp)
-           (Cᴰ : Categoryᴰ CCC.C ℓCᴰ ℓCᴰ') where
-    EqCCCⱽ→CCCⱽ : isCartesianClosedⱽ {C = CCC.C} ⋆AssocC Cᴰ ⋆IdLC CCC.bp π₁NatEqC ×aF-seqC
-      → Path.CartesianClosedCategoryⱽ CCC.CC ℓCᴰ ℓCᴰ'
+    module CC = CartesianCategory CC
+  module _ (⋆AssocC : ReprEqAssoc CC.C)
+           (⋆IdLC : EqIdL CC.C)
+           (π₁NatEqC : Allπ₁NatEq CC.bp)
+           (×aF-seqC : All×aF-seq CC.bp)
+           (Cᴰ : Categoryᴰ CC.C ℓCᴰ ℓCᴰ') where
+    EqCCCⱽ→CCCⱽ : isCartesianClosedⱽ {C = CC.C} ⋆AssocC Cᴰ ⋆IdLC CC.bp π₁NatEqC ×aF-seqC
+      → Path.CartesianClosedCategoryⱽ CC ℓCᴰ ℓCᴰ'
     EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.CCⱽ = EqCCⱽ→CCⱽ ⋆AssocC Cᴰ (isCCCⱽ .fst)
     EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.lrⱽ =
       Path.BinProductsⱽ+Fibration→AllLRⱽ (Path.CartesianCategoryⱽ.Cᴰ
@@ -219,6 +219,6 @@ module _ (CCC : CartesianClosedCategory ℓC ℓC') where
                                    (xᴰ , Path.CartesianClosedCategoryⱽ.lrⱽ (EqCCCⱽ→CCCⱽ isCCCⱽ) xᴰ))) Representable≅
     EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.forallⱽ {Γ} {A} Aᴰ =
       EqReprⱽ→PathReprⱽ _ (isCCCⱽ .snd .snd A Aᴰ)
-      Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (CCC.C [-, Γ ]) Cᴰ) _ _ (Path/→Eq/ (CCC.C [-, Γ CCC.× A ]) Cᴰ) _
-        (wkF-Path/→Eq/-square ⋆AssocC ⋆IdLC Cᴰ CCC.bp (isCCCⱽ .fst .snd .snd) π₁NatEqC ×aF-seqC _ (isCCCⱽ .fst .fst (Γ CCC.× A) .fst))
+      Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (CC.C [-, Γ ]) Cᴰ) _ _ (Path/→Eq/ (CC.C [-, Γ CC.× A ]) Cᴰ) _
+        (wkF-Path/→Eq/-square ⋆AssocC ⋆IdLC Cᴰ CC.bp (isCCCⱽ .fst .snd .snd) π₁NatEqC ×aF-seqC _ (isCCCⱽ .fst .fst (Γ CC.× A) .fst))
       Path.⋆PshIsoⱽ reindPshIso _ Representable≅

@@ -238,6 +238,11 @@ module _ {ℓ ℓ'} where
 
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Sets as EqSets
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
 
 EqSETᴰCCⱽ : CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
 EqSETᴰCCⱽ = EqCCⱽ→CCⱽ EqSets.SetAssoc (SETᴰ _ _) EqSets.isCartesianⱽSETᴰ
+
+EqSETᴰCCCⱽ : CartesianClosedCategoryⱽ SETCC (ℓ-max ℓ (ℓ-suc ℓ)) (ℓ-max ℓ ℓ)
+EqSETᴰCCCⱽ {ℓ = ℓ} = EqCCCⱽ→CCCⱽ SETCC EqSets.SetAssoc EqSets.SetIdL EqSets.Setπ₁NatEq EqSets.Set×aF-seq (SETᴰ ℓ ℓ) EqSets.isCCCⱽSETᴰ
+

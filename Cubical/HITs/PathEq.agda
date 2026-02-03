@@ -95,3 +95,24 @@ module _ {X : Type ℓ} (isSetX : isSet X) where
     (λ { p Eq.refl → funExt (λ b → sym $ Prectify (subst-filler (λ z → z) (λ i → B (p i)) (Eq.transport B Eq.refl b))) })
     where
       open hSetReasoning (X , isSetX) B
+
+
+module _ {X : Type ℓ}{Y : Type ℓ'} {x x' : X}{y y' : Y}
+  (isSetX : isSet X) (isSetY : isSet Y)
+  (px : PathEq x x') (py : PathEq y y')
+  where
+
+  PathEq× : PathEq (x , y) (x' , y')
+  PathEq× = elimPropBoth isSetX
+    (λ px → isPropPE×)
+    (λ x≡x' → elimPropBoth isSetY (λ _ → isPropPE×)
+      (λ y≡y' → inl (≡-× x≡x' y≡y'))
+      (λ where Eq.refl → inl (≡-× x≡x' refl)) py)
+    (λ {Eq.refl → elimPropBoth isSetY (λ _ → isPropPE×)
+      (λ y≡y' → inl (≡-× refl y≡y'))
+      (λ where Eq.refl → inr Eq.refl)
+      py})
+    px
+    where
+    isPropPE× : isProp (PathEq (x , y) (x' , y'))
+    isPropPE× = isPropPathEq (isSet× isSetX isSetY)

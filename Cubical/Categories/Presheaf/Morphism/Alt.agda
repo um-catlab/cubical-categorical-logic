@@ -358,6 +358,24 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   invPshIso α .nIso c .snd .fst = α .nIso _ .snd .snd
   invPshIso α .nIso c .snd .snd = α .nIso _ .snd .fst
 
+  -- PshIsoEq version of invPshIso
+  invPshIsoEq : PshIsoEq P Q → PshIsoEq Q P
+  invPshIsoEq α .PshIsoEq.isos c = invIso (α .PshIsoEq.isos c)
+  invPshIsoEq α .PshIsoEq.nat c c' f q' q e =
+    -- e : f Q.⋆ q' Eq.≡ q
+    -- Goal: (f P.⋆ inv c' q') Eq.≡ (inv c q)
+    -- Strategy: apply fun c to both sides, show they're equal, use isoFunInjective
+    Eq.pathToEq $ isoFunInjective (α .PshIsoEq.isos c) _ _ $
+      -- fun c (f P.⋆ inv c' q') ≡ fun c (inv c q)
+      -- = f Q.⋆ fun c' (inv c' q') by naturality (sym)
+      Eq.eqToPath (Eq.sym (α .PshIsoEq.nat c c' f _ _ Eq.refl))
+      -- = f Q.⋆ q' by sec c'
+      ∙ Q.⟨ refl ⟩⋆⟨ α .PshIsoEq.isos c' .Iso.sec q' ⟩
+      -- = q by e
+      ∙ Eq.eqToPath e
+      -- = fun c (inv c q) by sym (sec c)
+      ∙ sym (α .PshIsoEq.isos c .Iso.sec q)
+
   -- Convenient when we already have the iso on Types
   Isos→PshIso : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
     → (∀ x y (f : C [ x , y ]) (p : P.p[ y ]) →

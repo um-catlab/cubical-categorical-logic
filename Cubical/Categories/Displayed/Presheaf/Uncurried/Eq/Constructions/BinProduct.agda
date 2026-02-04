@@ -86,26 +86,32 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     {P : Presheaf C ℓP}
     {Q : Presheaf C ℓQ}
     (α : PshHomStrict P Q)
+    (Pᴰ : Presheafᴰ Q Cᴰ ℓPᴰ)
     (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
-    (Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ)
     where
-    *↑-×-commute : PshIsoEq (α *↑ (Qᴰ ×ⱽPsh Rᴰ)) ((α *↑ Qᴰ) ×ⱽPsh (α *↑ Rᴰ))
-    *↑-×-commute .PshIsoEq.isos (c , cᴰ , p) = idIso
-    *↑-×-commute .PshIsoEq.nat = λ c c' f p' p z → z
+    *↑-×-commute' : PshIsoEq (α *↑ (Pᴰ ×ⱽPsh Qᴰ)) ((α *↑ Pᴰ) ×ⱽPsh (α *↑ Qᴰ))
+    *↑-×-commute' .PshIsoEq.isos (c , cᴰ , p) = idIso
+    *↑-×-commute' .PshIsoEq.nat = λ c c' f p' p z → z
 
+  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+    (α : PshHomStrict P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) (Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ)
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    where
+    *↑-×-commute : Iso (PshHomEq Pᴰ (α *↑ (Qᴰ ×ⱽPsh Rᴰ))) (PshHomEq Pᴰ ((α *↑ Qᴰ) ×ⱽPsh (α *↑ Rᴰ)))
+    *↑-×-commute = postcompPshIsoEq (*↑-×-commute' _ _ _)
 
-  PSHᴰBPⱽ : BinProductsⱽ (PRESHEAFᴰ Cᴰ {!!} {!!})
-  PSHᴰBPⱽ Pᴰ Qᴰ = {!!}
-    -- UEⱽ→Reprⱽ _ (λ {x = x₁} {y} f → Eq.refl) (record {
-    --     v = Pᴰ ×ⱽPsh Qᴰ
-    --   ; e = π₁ _ _ ⋆PshHomStrict *StrictIdIntro Pᴰ ,
-    --         π₂ _ _ ⋆PshHomStrict *StrictIdIntro Qᴰ
-    --   ; universal = record {
-    --     nIso = λ c →
-    --       (λ (αᴰ , βᴰ) → ×PshIntroStrict αᴰ βᴰ ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ (c .snd .snd) Pᴰ Qᴰ) ,
-    --       (λ _ → ΣPathP (makePshHomStrictPath refl , makePshHomStrictPath refl)) ,
-    --       λ _ → makePshHomStrictPath refl
-    --       } })
+  module _ {ℓP ℓPᴰ : Level} where
+    PSHᴰBPⱽ : BinProductsⱽ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ)
+    PSHᴰBPⱽ Pᴰ Qᴰ .fst = Pᴰ ×ⱽPsh Qᴰ
+    PSHᴰBPⱽ Pᴰ Qᴰ .snd .PshIsoEq.isos (R , Rᴰ , α) =
+      PshHomEq Rᴰ (α *↑ (Pᴰ ×ⱽPsh Qᴰ))
+        Iso⟨ *↑-×-commute α Pᴰ Qᴰ ⟩
+      PshHomEq Rᴰ ((α *↑ Pᴰ) ×ⱽPsh (α *↑ Qᴰ))
+        Iso⟨ ×PshEq-UMP (α *↑ Pᴰ) (α *↑ Qᴰ) ⟩
+      (PshHomᴰ α Rᴰ Pᴰ) × (PshHomᴰ α Rᴰ Qᴰ)
+      ∎Iso
+    PSHᴰBPⱽ Pᴰ Qᴰ .snd .PshIsoEq.nat _ _ (_ , _ , Eq.refl) _ _ Eq.refl =
+      Eq.pathToEq (ΣPathP (makePshHomEqPath refl , makePshHomEqPath refl))
 
 -- -- -- -- -- -- --   ×ⱽ*Strict→*Strict×ⱽ :
 -- -- -- -- -- -- --     PshHomStrict

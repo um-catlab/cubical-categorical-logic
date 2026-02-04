@@ -14,6 +14,7 @@ open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
+open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
@@ -615,3 +616,32 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     PRESHEAFᴰ .⋆IdRᴰ _ = makePshHomEqPath refl
     PRESHEAFᴰ .⋆Assocᴰ _ _ _ = makePshHomEqPath refl
     PRESHEAFᴰ .isSetHomᴰ = isSetPshHomEq _ (_ *↑ _)
+
+-- Postcomposition with a PshIsoEq gives an iso on PshHomEq sets
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+  where
+
+  postcompPshIsoEq : PshIsoEq Qᴰ Rᴰ → Iso (PshHomEq Pᴰ Qᴰ) (PshHomEq Pᴰ Rᴰ)
+  postcompPshIsoEq ϕ .Iso.fun αᴰ = αᴰ ⋆PshHomEq PshIsoEq.toPshHomEq ϕ
+  postcompPshIsoEq ϕ .Iso.inv βᴰ = βᴰ ⋆PshHomEq PshIsoEq.toPshHomEq (invPshIsoEq ϕ)
+  postcompPshIsoEq ϕ .Iso.sec βᴰ = makePshHomEqPath (funExt₂ λ c p →
+    ϕ .PshIsoEq.isos c .Iso.sec (βᴰ .N-ob c p))
+  postcompPshIsoEq ϕ .Iso.ret αᴰ = makePshHomEqPath (funExt₂ λ c p →
+    ϕ .PshIsoEq.isos c .Iso.ret (αᴰ .N-ob c p))
+
+-- Naturality: postcompPshIsoEq commutes with precomposition
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+  {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
+  {Sᴰ : Presheafᴰ P Cᴰ ℓPᴰ'}
+  where
+
+  postcompPshIsoEq-natural : (iso : PshIsoEq Qᴰ Rᴰ) (αᴰ : PshHomEq Sᴰ Pᴰ) (βᴰ : PshHomEq Pᴰ Qᴰ) →
+    Iso.fun (postcompPshIsoEq iso) (αᴰ ⋆PshHomEq βᴰ) ≡ αᴰ ⋆PshHomEq Iso.fun (postcompPshIsoEq iso) βᴰ
+  postcompPshIsoEq-natural _ αᴰ βᴰ = makePshHomEqPath refl

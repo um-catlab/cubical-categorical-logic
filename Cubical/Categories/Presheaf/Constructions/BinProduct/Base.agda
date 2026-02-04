@@ -134,6 +134,9 @@ module _ {C : Category ℓ ℓ'} where
     ×Pshβ₁Eq : ×PshIntroEq ⋆PshHomEq π₁Eq P Q ≡ α
     ×Pshβ₁Eq = makePshHomEqPath refl
 
+    ×Pshβ₂Eq : ×PshIntroEq ⋆PshHomEq π₂Eq P Q ≡ β
+    ×Pshβ₂Eq = makePshHomEqPath refl
+
   ΔPshHom : {P : Presheaf C ℓA} → PshHom P (P ×Psh P)
   ΔPshHom = ×PshIntro idPshHom idPshHom
 
@@ -146,6 +149,12 @@ module _ {C : Category ℓ ℓ'} where
     ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
     ×Psh-UMP .Iso.sec (α , β) = ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
     ×Psh-UMP .Iso.ret α = makePshHomPath refl
+
+    ×PshEq-UMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHomEq R (P ×Psh Q)) (PshHomEq R P × PshHomEq R Q)
+    ×PshEq-UMP .Iso.fun α = (α ⋆PshHomEq π₁Eq P Q) , (α ⋆PshHomEq π₂Eq P Q)
+    ×PshEq-UMP .Iso.inv (α , β) = ×PshIntroEq α β
+    ×PshEq-UMP .Iso.sec (α , β) = ΣPathP ((×Pshβ₁Eq α β) , (×Pshβ₂Eq α β))
+    ×PshEq-UMP .Iso.ret α = makePshHomEqPath refl
 
   module _
     {P : Presheaf C ℓA}

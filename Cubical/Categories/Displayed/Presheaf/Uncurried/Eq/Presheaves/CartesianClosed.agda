@@ -96,13 +96,31 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       ∎Iso
   PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.nat = {!!}
 
+  ∀Pshᴰ : {P : Presheaf C ℓPSHᴰ}{Q : Presheaf C ℓPSHᴰ} → (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPSHᴰ) → Presheafᴰ P Cᴰ ℓPSHᴰ
+  ∀Pshᴰ {P = P}{Q = Q} Pᴰ =
+    reindPsh (reindPshFStrict (Idᴰ /Fⱽ π₁Eq P Q) ∘F YOStrict) ((PRESHEAF (Cᴰ / (P ×Psh Q)) _ [-, Pᴰ ]))
+
   PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL PSHAssoc PSHᴰFibration PSHBP PSHπ₁NatEq PSH×aF-seq
-  PSHᴰ∀ = {!!}
+  -- Pᴰ : Pshᴰ (P × Q)
+  -- -----------------
+  -- (∀Q Pᴰ) (Γ , Γᴰ , p) = PshHom ? Pᴰ
+  PSHᴰ∀ Q {P} Pᴰ .fst = ∀Pshᴰ Pᴰ
+
+  PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.isos (R , Rᴰ , α) =
+    PshHom Rᴰ (α *Strict ∀Pshᴰ Pᴰ)
+      Iso⟨ Push⊣* (PshHomStrict→Eq α) Rᴰ (∀Pshᴰ Pᴰ) ⟩
+    PshHom (α PushStrict Rᴰ) (∀Pshᴰ Pᴰ)
+      Iso⟨ invIso {!!} ⟩
+    PshHom (π₁ P Q *Strict α PushStrict Rᴰ) Pᴰ
+      -- Beck Chevalley
+      Iso⟨ precomp⋆PshHom-Iso (BeckChevalley α Rᴰ) ⟩
+    PshHom (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) PushStrict (π₁ R Q) *Strict Rᴰ) Pᴰ
+      Iso⟨ invIso $ Push⊣* _ _ _ ⟩
+    PshHom (π₁ R Q *Strict Rᴰ) (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) *Strict Pᴰ)
+      ∎Iso
+  PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.nat = {!!}
 
   isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL  PSHBP PSHπ₁NatEq PSH×aF-seq
   isCartesianClosedⱽPSHᴰ .fst = isCartesianⱽPSHᴰ
   isCartesianClosedⱽPSHᴰ .snd .fst = PSHᴰExponentials
-  isCartesianClosedⱽPSHᴰ .snd .snd = {!!}
-  -- isCartesianⱽPSHᴰ .fst = PSHᴰTerminalsⱽ
-  -- isCartesianⱽPSHᴰ .snd .fst = PSHᴰBPⱽ
-  -- isCartesianⱽPSHᴰ .snd .snd = PSHᴰFibration
+  isCartesianClosedⱽPSHᴰ .snd .snd = PSHᴰ∀

@@ -118,12 +118,16 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   _*Strict_ : (α : PshHomStrict P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) → Presheafᴰ P Cᴰ ℓQᴰ
   α *Strict Qᴰ = PshHomStrict→Eq α * Qᴰ
 
+  infixr 10 _*_
+  infixr 10 _*Strict_
+
   private
     module P = PresheafNotation P
     module Q = PresheafNotation Q
   module _ (α : PshHomEq P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
     private
       module Pᴰ = PresheafᴰNotation Pᴰ
+    infixr 10 _Push_
     _Push_ : Presheafᴰ Q Cᴰ (ℓ-max (ℓ-max ℓP ℓQ) ℓPᴰ)
     _Push_ .F-ob (Γ , Γᴰ , q) .fst = Σ[ p ∈ P.p[ Γ ] ] (q Eq.≡ α .N-ob Γ p) × Pᴰ.p[ p ][ Γᴰ ]
     _Push_ .F-ob (Γ , Γᴰ , q) .snd = isSetΣ P.isSetPsh λ p → isSet× (isProp→isSet (Eq.isSet→isSetEq Q.isSetPsh)) Pᴰ.isSetPshᴰ
@@ -132,6 +136,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     _Push_ .F-id = {!!}
     _Push_ .F-seq = {!!}
   module _  where
+    infixr 10 _PushStrict_
     _PushStrict_ : (α : PshHomStrict P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Presheafᴰ Q Cᴰ (ℓ-max (ℓ-max ℓP ℓQ) ℓPᴰ)
     α PushStrict Pᴰ = PshHomStrict→Eq α Push Pᴰ
   module _ (α : PshHomEq P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
@@ -162,6 +167,22 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   FrobeniusReciprocity .PshIso.nIso (Γ , Γᴰ , q) .snd .snd (p , Eq.refl , (pᴰ , qᴰ)) = refl
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {R : Presheaf C ℓR}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  (α : PshHomStrict R P)
+  (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ)
+  where
+  BeckChevalley :
+    PshIso (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) PushStrict π₁ R Q *Strict Rᴰ)
+           (π₁ P Q *Strict α PushStrict Rᴰ)
+  BeckChevalley .PshIso.trans .N-ob (Γ , Γᴰ , p , q) ((r , q') , (Eq.refl , rᴰ)) = r , (Eq.refl , rᴰ)
+  BeckChevalley .PshIso.trans .N-hom = {!!}
+  BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .fst (r , Eq.refl , rᴰ) = (r , q) , Eq.refl , rᴰ
+  BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .snd .fst (r , Eq.refl , rᴰ) = refl
+  BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .snd .snd ((r , q') , (Eq.refl , rᴰ)) = refl
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Q : Presheaf C ℓQ}
   {Pᴰ : Presheafᴰ Q Cᴰ ℓPᴰ}
@@ -186,9 +207,6 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Pᴰ = PresheafᴰNotation Pᴰ
-  -- (idPshHom *Strict) has a universal property:
-  -- PshHom Pᴰ (idPshHom *Strict Qᴰ) ≅ PshHom Pᴰ Qᴰ
-
   idPshHomᴰ : PshHomᴰ idPshHomStrict Pᴰ Pᴰ
   idPshHomᴰ .N-ob = λ c z → z
   idPshHomᴰ .N-hom c c' f p = Pᴰ.rectifyOut $ sym (Pᴰ.⋆ᴰ-reind _) ∙ Pᴰ.⋆ᴰ-reind _

@@ -1,7 +1,3 @@
-{-
-
-  Uncurried Presheaves using EqElement
--}
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Base where
 

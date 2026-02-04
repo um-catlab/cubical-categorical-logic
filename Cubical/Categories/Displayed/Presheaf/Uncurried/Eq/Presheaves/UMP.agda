@@ -39,7 +39,7 @@ open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLif
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Constructions.Reindex
-open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
+open import Cubical.Categories.Presheaf.Constructions.BinProduct as BP hiding (π₁ ; π₂)
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Yoneda
 
@@ -71,6 +71,7 @@ open NatTrans
 open Categoryᴰ
 open PshHomStrict
 open PshHom
+open PshIso
 
 private
   variable
@@ -86,7 +87,7 @@ module _ {C : Category ℓC ℓC'} where
 
   PSHAssoc : ReprEqAssoc (PRESHEAF C ℓP)
   PSHAssoc _ f g h f⋆g Eq.refl = Eq.refl
-  
+
   PSHBP : BinProducts (PRESHEAF C ℓP)
   PSHBP (P , Q) .UniversalElement.vertex = P ×Psh Q
   PSHBP (P , Q) .UniversalElement.element = π₁ P Q , π₂ P Q
@@ -101,11 +102,37 @@ module _ {C : Category ℓC ℓC'} where
 
   -- Unit→*Unit
 
-  module _ {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  module _ {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{ℓP}{ℓPᴰ} where
+    PSHᴰTerminalsⱽ : Terminalsⱽ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ)
+    PSHᴰTerminalsⱽ P = UEⱽ→Reprⱽ UnitⱽPsh PSHIdR termⱽ
+      where
+        termⱽ : UEⱽ UnitⱽPsh PSHIdR
+        termⱽ .UEⱽ.v = Unit*Psh
+        termⱽ .UEⱽ.e = tt
+        termⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .fst tt =
+          Unit*Psh-intro ⋆PshHom invPshIso (reindPsh-Unit* _) .trans
+        termⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .fst _ = refl
+        termⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .snd αᴰ = makePshHomPath refl
+
+    PSHᴰBPⱽ : BinProductsⱽ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ)
+    PSHᴰBPⱽ {x = P} Pᴰ Qᴰ = UEⱽ→Reprⱽ _ PSHIdR bpⱽ where
+      bpⱽ : UEⱽ ((PRESHEAFᴰ Cᴰ ℓP ℓPᴰ [-][-, Pᴰ ]) ×ⱽPsh (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ [-][-, Qᴰ ])) PSHIdR
+      bpⱽ .UEⱽ.v = Pᴰ ×Psh Qᴰ
+      bpⱽ .UEⱽ.e = (BP.π₁ Pᴰ Qᴰ ⋆PshHom idPshHomᴰ) , BP.π₂ Pᴰ Qᴰ ⋆PshHom idPshHomᴰ
+      bpⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .fst (αᴰP , αᴰQ) = ×PshIntro αᴰP αᴰQ ⋆PshHom invPshIso (reindPsh× _ Pᴰ Qᴰ) .trans
+      bpⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .fst αᴰ@(αᴰP , αᴰQ) = ≡-× (makePshHomPath refl) (makePshHomPath refl)
+      bpⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .snd αᴰ× = makePshHomPath refl
+
+    PSHᴰFibration : Fibration (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ) PSHAssoc
+    PSHᴰFibration {x = P}{y = Q} α Qᴰ = UEⱽ→Reprⱽ _ PSHIdR fib where
+      fib : UEⱽ (yoRecEq (PRESHEAF C ℓP [-, Q ]) (PSHAssoc Q) α *Presheafᴰ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ [-][-, Qᴰ ])) PSHIdR
+      fib .UEⱽ.v = α *Strict Qᴰ
+      fib .UEⱽ.e = idPshHom
+      fib .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , β) .fst βᴰ = βᴰ ⋆PshHom *Strict-seq⁻ β α
+      fib .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , β) .snd .fst βᴰ = makePshHomPath refl
+      fib .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , β) .snd .snd βᴰ = makePshHomPath refl
+
     isCartesianⱽPSHᴰ : isCartesianⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ)
-    isCartesianⱽPSHᴰ .fst P = UEⱽ→Reprⱽ UnitⱽPsh PSHIdR (record { v = Unit*Psh ; e = tt ; universal = record { nIso = λ c →
-      (λ { tt → Unit*Psh-intro ⋆PshHom {!!} })
-      , {!!}
-      , {!!}
-      } })
-    isCartesianⱽPSHᴰ .snd = {!!}
+    isCartesianⱽPSHᴰ .fst = PSHᴰTerminalsⱽ
+    isCartesianⱽPSHᴰ .snd .fst = PSHᴰBPⱽ
+    isCartesianⱽPSHᴰ .snd .snd = PSHᴰFibration

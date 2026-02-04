@@ -119,6 +119,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Pᴰ = PresheafᴰNotation Pᴰ
+  -- (idPshHom *Strict) has a universal property:
+  -- PshHom Pᴰ (idPshHom *Strict Qᴰ) ≅ PshHom Pᴰ Qᴰ
+
   idPshHomᴰ : PshHomᴰ idPshHomStrict Pᴰ Pᴰ
   idPshHomᴰ .N-ob = λ c z → z
   idPshHomᴰ .N-hom c c' f p = Pᴰ.rectifyOut $ sym (Pᴰ.⋆ᴰ-reind _) ∙ Pᴰ.⋆ᴰ-reind _
@@ -136,6 +139,11 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   *Strict-seq : PshHom (α *Strict (β *Strict Rᴰ)) ((α ⋆PshHomStrict β) *Strict Rᴰ)
   *Strict-seq .N-ob = λ c z → z
   *Strict-seq .N-hom c c' (γ , γᴰ , Eq.refl) p = Rᴰ.rectifyOut $
+    sym (Rᴰ.⋆ᴰ-reind _) ∙ Rᴰ.⋆ᴰ-reind _
+
+  *Strict-seq⁻ : PshHom ((α ⋆PshHomStrict β) *Strict Rᴰ) (α *Strict (β *Strict Rᴰ))
+  *Strict-seq⁻ .N-ob = λ c z → z
+  *Strict-seq⁻ .N-hom c c' (γ , γᴰ , Eq.refl) p = Rᴰ.rectifyOut $
     sym (Rᴰ.⋆ᴰ-reind _) ∙ Rᴰ.⋆ᴰ-reind _
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

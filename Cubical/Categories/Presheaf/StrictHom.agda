@@ -264,6 +264,12 @@ module _
     ×Pshβ₂Strict : ×PshIntroStrict ⋆PshHomStrict π₂ P Q ≡ β
     ×Pshβ₂Strict = refl
 
+  module _ {P : Presheaf C ℓp} {Q : Presheaf C ℓq} {R : Presheaf C ℓr} {S : Presheaf C ℓs}
+    (α : PshHomStrict R P) (β : PshHomStrict S Q)
+    where
+    _×PshHomStrict_ : PshHomStrict (R ×Psh S) (P ×Psh Q)
+    _×PshHomStrict_ = ×PshIntroStrict (π₁ _ _ ⋆PshHomStrict α) (π₂ _ _ ⋆PshHomStrict β)
+
   ΔPshHomStrict : {P : Presheaf C ℓp} → PshHomStrict P (P ×Psh P)
   ΔPshHomStrict = ×PshIntroStrict idPshHomStrict idPshHomStrict
 
@@ -420,11 +426,3 @@ module _ {C : Category ℓC ℓC'} {Q : Presheaf C ℓQ} where
   -- Both of these solved for with auto
   Q→reindPshIdQ .N-ob = λ c z → z
   Q→reindPshIdQ .N-hom = λ c c' f p' p z → z
-
-module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
-  reindPshFStrict : (F : Functor C D) → Functor (PRESHEAF D ℓQ) (PRESHEAF C ℓQ)
-  reindPshFStrict F .F-ob = reindPsh F
-  reindPshFStrict F .F-hom α .N-ob = λ c → α .N-ob (F ⟅ c ⟆)
-  reindPshFStrict F .F-hom α .N-hom = λ c c' f → α .N-hom _ _ (F ⟪ f ⟫)
-  reindPshFStrict F .F-id = refl
-  reindPshFStrict F .F-seq _ _ = refl

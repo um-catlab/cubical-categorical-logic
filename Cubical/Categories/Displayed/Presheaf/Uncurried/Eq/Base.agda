@@ -21,6 +21,7 @@ import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Category.Base
+open import Cubical.Categories.HLevels
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.More
@@ -29,14 +30,17 @@ open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Props
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable hiding (Elements)
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.StrictHom
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
@@ -497,3 +501,117 @@ module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C) (Cᴰ : Category�
     Σ[ (termsⱽ , bpⱽ , cartLifts) ∈ isCartesianⱽ ]
     Exponentialsⱽ Cᴰ ⋆AssocC ⋆IdLC (BPⱽ+Fibration→AllLRⱽ Cᴰ ⋆AssocC bpⱽ cartLifts)
     × UniversalQuantifiers Cᴰ ⋆IdLC ⋆AssocC cartLifts bp π₁NatEqC ×aF-F-homC
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf D ℓQ}
+  {F : Functor C D}
+  (α : PshHetStrict F P Q)
+  where
+  PshHet→ElementFunctorᴰStrict : Functorᴰ F (EqElement P) (EqElement Q)
+  PshHet→ElementFunctorᴰStrict =
+    mkPropHomsFunctor (hasPropHomsEqElement Q)
+      (λ {x} → α .PshHomStrict.N-ob x)
+      λ {Eq.refl → Eq.pathToEq $ α .PshHomStrict.N-hom _ _ _ _ (P .F-hom _ _) refl}
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  {F : Functor C D}
+  where
+  _/FᴰStrict_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHetStrict F P Q) → Functor (Cᴰ / P) (Dᴰ / Q)
+  Fᴰ /FᴰStrict α = ∫F {F = F} (Fᴰ ×ᴰF PshHet→ElementFunctorᴰStrict α)
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  where
+  module _ (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHomStrict P Q) where
+    _/FⱽStrict_ :  Functor (Cᴰ / P) (Dᴰ / Q)
+    _/FⱽStrict_ = Fᴰ /FᴰStrict (α ⋆PshHomStrict Q→reindPshIdQ)
+
+open PshHomEq
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+
+  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+    (α : PshHomStrict Q P) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+    where
+    _*↑_ : Presheafᴰ Q Cᴰ ℓPᴰ
+    _*↑_ = reindPsh (Idᴰ /FⱽStrict α) Pᴰ
+
+  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+    (α : PshHomStrict P Q)
+    (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+    (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+    where
+    PshHomᴰ : Type _
+    PshHomᴰ = PshHomEq Pᴰ (α *↑ Qᴰ)
+
+  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} {Rᴰ : Presheafᴰ Q Cᴰ ℓRᴰ}
+    (α : PshHomStrict P Q) (βᴰ : PshHomEq Qᴰ Rᴰ) where
+    private
+      module Rᴰ = PresheafᴰNotation Rᴰ
+
+    _*↑F_ : PshHomEq (α *↑ Qᴰ) (α *↑ Rᴰ)
+    _*↑F_ .N-ob = λ c → βᴰ .N-ob (F-ob ((Idᴰ /FⱽStrict α) ^opF) c)
+    _*↑F_ .N-hom _ _ (_ , _ , Eq.refl) _ _ Eq.refl = βᴰ .N-hom _ _ _ _ _ Eq.refl
+
+  module _ {P : Presheaf C ℓP} {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+    *↑Id≅ : PshIsoEq Pᴰ (idPshHomStrict *↑ Pᴰ)
+    *↑Id≅ .PshIsoEq.isos (Q , Qᴰ , α) = idIso
+    *↑Id≅ .PshIsoEq.nat _ _ (_ , _ , Eq.refl) _ _ Eq.refl =
+      Eq.pathToEq (Pᴰ.rectifyOut $ sym $ Pᴰ.⋆ᴰ-reind _)
+
+    *↑IdIntro : PshHomEq Pᴰ (idPshHomStrict *↑ Pᴰ)
+    *↑IdIntro = PshIsoEq.toPshHomEq *↑Id≅
+
+  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {R : Presheaf C ℓR}
+    (α : PshHomStrict P Q) (β : PshHomStrict Q R) {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ} where
+
+    private
+      module Rᴰ = PresheafᴰNotation Rᴰ
+    *↑Seq≅ : PshIsoEq (α *↑ (β *↑ Rᴰ)) ((α ⋆PshHomStrict β) *↑ Rᴰ)
+    *↑Seq≅ .PshIsoEq.isos _ = idIso
+    *↑Seq≅ .PshIsoEq.nat _ _ (_ , _ , Eq.refl) _ _ Eq.refl =
+      Eq.pathToEq (Rᴰ.rectifyOut $ (sym $ Rᴰ.⋆ᴰ-reind _) ∙ Rᴰ.⋆ᴰ-reind _)
+
+    *↑SeqIntro : PshHomEq (α *↑ (β *↑ Rᴰ)) ((α ⋆PshHomStrict β) *↑ Rᴰ)
+    *↑SeqIntro = PshIsoEq.toPshHomEq *↑Seq≅
+
+  module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {R : Presheaf C ℓR}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ} {Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ}
+    {α : PshHomStrict P Q} {β : PshHomStrict Q R} where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+      module Rᴰ = PresheafᴰNotation Rᴰ
+
+    _⋆PshHomᴰ_ :
+      (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+      (βᴰ : PshHomᴰ β Qᴰ Rᴰ) →
+      PshHomᴰ (α ⋆PshHomStrict β) Pᴰ Rᴰ
+    αᴰ ⋆PshHomᴰ βᴰ =
+      αᴰ
+      ⋆PshHomEq (α *↑F βᴰ)
+      ⋆PshHomEq *↑SeqIntro α β
+
+    infixr 9 _⋆PshHomᴰ_
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  open Categoryᴰ
+  module _ (ℓP : Level) (ℓPᴰ : Level) where
+    private
+      PSH = PRESHEAF C ℓP
+      module PSH = Category PSH
+      module Cᴰ = Fibers Cᴰ
+    PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP) _ _
+    PRESHEAFᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
+    PRESHEAFᴰ .Hom[_][_,_] = PshHomᴰ
+    PRESHEAFᴰ .idᴰ = *↑IdIntro
+    PRESHEAFᴰ ._⋆ᴰ_ = _⋆PshHomᴰ_
+    PRESHEAFᴰ .⋆IdLᴰ _ = makePshHomEqPath refl
+    PRESHEAFᴰ .⋆IdRᴰ _ = makePshHomEqPath refl
+    PRESHEAFᴰ .⋆Assocᴰ _ _ _ = makePshHomEqPath refl
+    PRESHEAFᴰ .isSetHomᴰ = isSetPshHomEq _ (_ *↑ _)

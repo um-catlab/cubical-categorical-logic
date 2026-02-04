@@ -137,6 +137,9 @@ module _ {C : Category ℓ ℓ'} where
   ΔPshHom : {P : Presheaf C ℓA} → PshHom P (P ×Psh P)
   ΔPshHom = ×PshIntro idPshHom idPshHom
 
+  ΔPshHomEq : {P : Presheaf C ℓA} → PshHomEq P (P ×Psh P)
+  ΔPshHomEq = ×PshIntroEq idPshHomEq idPshHomEq
+
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
     ×Psh-UMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHom R (P ×Psh Q)) (PshHom R P × PshHom R Q)
     ×Psh-UMP .Iso.fun α = (α ⋆PshHom π₁ P Q) , (α ⋆PshHom π₂ P Q)

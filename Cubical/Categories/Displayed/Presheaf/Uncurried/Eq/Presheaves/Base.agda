@@ -8,6 +8,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
+open import Cubical.Functions.FunExtEquiv
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Transport hiding (pathToIso)
 
@@ -17,9 +18,7 @@ open import Cubical.Reflection.RecordEquiv.More
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
-
-open import Cubical.HITs.PathEq
-open import Cubical.HITs.Join
+import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal
@@ -70,11 +69,33 @@ open NatTrans
 open Categoryᴰ
 open PshHomStrict
 open PshHom
+open PshHomEq
 
 private
   variable
     ℓ ℓ' ℓP ℓQ ℓR ℓS ℓS' ℓS'' : Level
     ℓC ℓC' ℓD ℓD' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' ℓPᴰ ℓQᴰ ℓRᴰ : Level
+module _ {C : Category ℓC ℓC'} where
+  PSHIdR : EqIdR (PRESHEAF C ℓP)
+  PSHIdR = λ f → Eq.refl
+
+  PSHIdL : EqIdL (PRESHEAF C ℓP)
+  PSHIdL = λ f → Eq.refl
+
+  PSHAssoc : ReprEqAssoc (PRESHEAF C ℓP)
+  PSHAssoc _ f g h f⋆g Eq.refl = Eq.refl
+
+  PSHBP : BinProducts (PRESHEAF C ℓP)
+  PSHBP (P , Q) .UniversalElement.vertex = P ×Psh Q
+  PSHBP (P , Q) .UniversalElement.element = π₁ P Q , π₂ P Q
+  PSHBP (P , Q) .UniversalElement.universal R = isIsoToIsEquiv
+    ( (λ x → ×PshIntroStrict (x .fst) (x .snd)) , ((λ _ → refl) , (λ _ → refl)))
+
+  PSHπ₁NatEq : Allπ₁NatEq {C = PRESHEAF C ℓP} PSHBP
+  PSHπ₁NatEq X γ = Eq.refl
+
+  PSH×aF-seq : All×aF-seq {C = PRESHEAF C ℓP} PSHBP
+  PSH×aF-seq X δ γ = Eq.refl
 
 module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}
@@ -91,8 +112,54 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   {Q : Presheaf C ℓQ}
   where
+  _*_ : (α : PshHomEq P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) → Presheafᴰ P Cᴰ ℓQᴰ
+  α * Qᴰ = reindPsh (Idᴰ /Fⱽ α) Qᴰ
+
   _*Strict_ : (α : PshHomStrict P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) → Presheafᴰ P Cᴰ ℓQᴰ
-  α *Strict Qᴰ = reindPsh (Idᴰ /Fⱽ PshHomStrict→Eq α) Qᴰ
+  α *Strict Qᴰ = PshHomStrict→Eq α * Qᴰ
+
+  private
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
+  module _ (α : PshHomEq P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+    _Push_ : Presheafᴰ Q Cᴰ (ℓ-max (ℓ-max ℓP ℓQ) ℓPᴰ)
+    _Push_ .F-ob (Γ , Γᴰ , q) .fst = Σ[ p ∈ P.p[ Γ ] ] (q Eq.≡ α .N-ob Γ p) × Pᴰ.p[ p ][ Γᴰ ]
+    _Push_ .F-ob (Γ , Γᴰ , q) .snd = isSetΣ P.isSetPsh λ p → isSet× (isProp→isSet (Eq.isSet→isSetEq Q.isSetPsh)) Pᴰ.isSetPshᴰ
+    _Push_ .F-hom (γ , γᴰ , Eq.refl) (p , Eq.refl , pᴰ) =
+      (γ P.⋆ p) , (α .N-hom _ _ γ p (γ P.⋆ p) Eq.refl , (γᴰ Pᴰ.⋆ᴰ pᴰ))
+    _Push_ .F-id = {!!}
+    _Push_ .F-seq = {!!}
+  module _  where
+    _PushStrict_ : (α : PshHomStrict P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Presheafᴰ Q Cᴰ (ℓ-max (ℓ-max ℓP ℓQ) ℓPᴰ)
+    α PushStrict Pᴰ = PshHomStrict→Eq α Push Pᴰ
+  module _ (α : PshHomEq P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+    Push⊣* : Iso (PshHom Pᴰ (α * Qᴰ)) (PshHom (α Push Pᴰ) Qᴰ)
+    Push⊣* .fun αᴰ .N-ob (Γ , Γᴰ , q) (p , Eq.refl , pᴰ) = αᴰ .N-ob (Γ , Γᴰ , p) pᴰ
+    Push⊣* .fun αᴰ .N-hom = {!!}
+    Push⊣* .inv βⱽ .N-ob (Γ , Γᴰ , p) pᴰ = βⱽ .N-ob (Γ , Γᴰ , α .N-ob Γ p) (p , Eq.refl , pᴰ)
+    Push⊣* .inv βⱽ .N-hom = {!!}
+    Push⊣* .sec βⱽ = makePshHomPath (funExt₂ λ { (Γ , Γᴰ , q) (p , Eq.refl , pᴰ ) → refl })
+    Push⊣* .ret αᴰ = makePshHomPath refl
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf C ℓQ}
+  (α : PshHomEq P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+  where
+  FrobeniusReciprocity : PshIso (α Push (Pᴰ ×Psh (α * Qᴰ))) ((α Push Pᴰ) ×Psh Qᴰ)
+  FrobeniusReciprocity .PshIso.trans .N-ob (Γ , Γᴰ , q) (p , Eq.refl , (pᴰ , qᴰ)) =
+    (p , Eq.refl , pᴰ) , qᴰ
+    -- need some J here
+  FrobeniusReciprocity .PshIso.trans .N-hom _ _ (γ , γᴰ , Eq.refl) (p , Eq.refl , (pᴰ , qᴰ)) =
+    ΣPathP ({!!} , {!!})
+  FrobeniusReciprocity .PshIso.nIso (Γ , Γᴰ , q) .fst ((p , Eq.refl , pᴰ) , qᴰ) =
+    (p , Eq.refl , pᴰ , qᴰ)
+  FrobeniusReciprocity .PshIso.nIso (Γ , Γᴰ , q) .snd .fst ((p , Eq.refl , pᴰ) , qᴰ) = refl
+  FrobeniusReciprocity .PshIso.nIso (Γ , Γᴰ , q) .snd .snd (p , Eq.refl , (pᴰ , qᴰ)) = refl
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

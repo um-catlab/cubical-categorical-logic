@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian where
+module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.CartesianClosed where
 -- TODO still need better name
 
 open import Cubical.Foundations.Prelude
@@ -40,6 +40,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.BinProduct as BP hiding (π₁ ; π₂)
+open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Yoneda
 
@@ -61,8 +62,8 @@ open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian
 open import Cubical.Categories.Presheaf.StrictHom
-
 
 open Functor
 open Iso
@@ -78,37 +79,30 @@ private
     ℓ ℓ' ℓP ℓQ ℓR ℓS ℓS' ℓS'' : Level
     ℓC ℓC' ℓD ℓD' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' ℓPᴰ ℓQᴰ ℓRᴰ : Level
 
-module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{ℓP}{ℓPᴰ} where
-  PSHᴰTerminalsⱽ : Terminalsⱽ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ)
-  PSHᴰTerminalsⱽ P = UEⱽ→Reprⱽ UnitⱽPsh PSHIdR termⱽ
-    where
-      termⱽ : UEⱽ UnitⱽPsh PSHIdR
-      termⱽ .UEⱽ.v = Unit*Psh
-      termⱽ .UEⱽ.e = tt
-      termⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .fst tt =
-        Unit*Psh-intro ⋆PshHom invPshIso (reindPsh-Unit* _) .trans
-      termⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .fst _ = refl
-      termⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .snd αᴰ = makePshHomPath refl
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
+  ℓPSHᴰ = ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')
+  PSHᴰExponentials : Exponentialsⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHIdL (BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHᴰBPⱽ PSHᴰFibration)
+  PSHᴰExponentials {x = P} Pᴰ Qᴰ .fst = Pᴰ ⇒PshLarge Qᴰ
+  PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.isos R3@(R , Rᴰ , α) =
+    PshHom Rᴰ (α *Strict (Pᴰ ⇒PshLarge Qᴰ))
+      Iso⟨ Push⊣* (PshHomStrict→Eq α) Rᴰ (Pᴰ ⇒PshLarge Qᴰ) ⟩
+    PshHom (α PushStrict Rᴰ) (Pᴰ ⇒PshLarge Qᴰ)
+      Iso⟨ ⇒PshLarge-UMP Pᴰ Qᴰ ⟩
+    PshHom (((α PushStrict Rᴰ)) ×Psh Pᴰ) Qᴰ
+      Iso⟨ precomp⋆PshHom-Iso (FrobeniusReciprocity (PshHomStrict→Eq α) Rᴰ Pᴰ) ⟩
+    PshHom (α PushStrict (Rᴰ ×Psh (α *Strict Pᴰ))) Qᴰ
+      Iso⟨ invIso (Push⊣* (PshHomStrict→Eq α) (Rᴰ ×Psh (α *Strict Pᴰ)) Qᴰ) ⟩
+    PshHom (Rᴰ ×Psh (α *Strict Pᴰ)) (α *Strict Qᴰ)
+      ∎Iso
+  PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.nat = {!!}
 
-  PSHᴰBPⱽ : BinProductsⱽ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ)
-  PSHᴰBPⱽ {x = P} Pᴰ Qᴰ = UEⱽ→Reprⱽ _ PSHIdR bpⱽ where
-    bpⱽ : UEⱽ ((PRESHEAFᴰ Cᴰ ℓP ℓPᴰ [-][-, Pᴰ ]) ×ⱽPsh (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ [-][-, Qᴰ ])) PSHIdR
-    bpⱽ .UEⱽ.v = Pᴰ ×Psh Qᴰ
-    bpⱽ .UEⱽ.e = (BP.π₁ Pᴰ Qᴰ ⋆PshHom idPshHomᴰ) , BP.π₂ Pᴰ Qᴰ ⋆PshHom idPshHomᴰ
-    bpⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .fst (αᴰP , αᴰQ) = ×PshIntro αᴰP αᴰQ ⋆PshHom invPshIso (reindPsh× _ Pᴰ Qᴰ) .trans
-    bpⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .fst αᴰ@(αᴰP , αᴰQ) = ≡-× (makePshHomPath refl) (makePshHomPath refl)
-    bpⱽ .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , α) .snd .snd αᴰ× = makePshHomPath refl
+  PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL PSHAssoc PSHᴰFibration PSHBP PSHπ₁NatEq PSH×aF-seq
+  PSHᴰ∀ = {!!}
 
-  PSHᴰFibration : Fibration (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ) PSHAssoc
-  PSHᴰFibration {x = P}{y = Q} α Qᴰ = UEⱽ→Reprⱽ _ PSHIdR fib where
-    fib : UEⱽ (yoRecEq (PRESHEAF C ℓP [-, Q ]) (PSHAssoc Q) α *Presheafᴰ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ [-][-, Qᴰ ])) PSHIdR
-    fib .UEⱽ.v = α *Strict Qᴰ
-    fib .UEⱽ.e = idPshHom
-    fib .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , β) .fst βᴰ = βᴰ ⋆PshHom *Strict-seq⁻ β α
-    fib .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , β) .snd .fst βᴰ = makePshHomPath refl
-    fib .UEⱽ.universal .isPshIsoEq.nIso (R , Rᴰ , β) .snd .snd βᴰ = makePshHomPath refl
-
-  isCartesianⱽPSHᴰ : isCartesianⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ)
-  isCartesianⱽPSHᴰ .fst = PSHᴰTerminalsⱽ
-  isCartesianⱽPSHᴰ .snd .fst = PSHᴰBPⱽ
-  isCartesianⱽPSHᴰ .snd .snd = PSHᴰFibration
+  isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL  PSHBP PSHπ₁NatEq PSH×aF-seq
+  isCartesianClosedⱽPSHᴰ .fst = isCartesianⱽPSHᴰ
+  isCartesianClosedⱽPSHᴰ .snd .fst = PSHᴰExponentials
+  isCartesianClosedⱽPSHᴰ .snd .snd = {!!}
+  -- isCartesianⱽPSHᴰ .fst = PSHᴰTerminalsⱽ
+  -- isCartesianⱽPSHᴰ .snd .fst = PSHᴰBPⱽ
+  -- isCartesianⱽPSHᴰ .snd .snd = PSHᴰFibration

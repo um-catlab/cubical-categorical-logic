@@ -94,10 +94,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       Iso⟨ invIso (Push⊣* (PshHomStrict→Eq α) (Rᴰ ×Psh (α *Strict Pᴰ)) Qᴰ) ⟩
     PshHom (Rᴰ ×Psh (α *Strict Pᴰ)) (α *Strict Qᴰ)
       ∎Iso
-  PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.nat = {!!}
-
-  -- PshHom[-,-*_]
-  -- PshHom[-Push-,_]
+  PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.nat
+    S3@(S , Sᴰ , .(α ⋆PshHomStrict β)) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p ._ Eq.refl =
+    Eq.pathToEq (makePshHomPath refl)
 
   PSHᴰExponentials' : Exponentialsⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHIdL (BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHᴰBPⱽ PSHᴰFibration)
   PSHᴰExponentials' {x = P} Pᴰ Qᴰ .fst = Pᴰ ⇒PshLarge Qᴰ
@@ -108,11 +107,17 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
     -- PshHom[ α Push R , Pᴰ ⇒ Qᴰ ]
     reindPsh PushF (PSHHOMCAT (Cᴰ / P) ℓPSHᴰ [-, Pᴰ ⇒PshLarge Qᴰ ])
       PshIsoEq⟨ {!!} ⟩
-    reindPsh
-     (LRⱽF (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc (λ f → Eq.refl) Pᴰ
-      (BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHᴰBPⱽ
-       PSHᴰFibration Pᴰ))
-     (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ [-][-, Qᴰ ])
+    -- PshHom[ (α Push R) ×ⱽ Pᴰ , Qᴰ ]
+    {!!}
+      PshIsoEq⟨ {!!} ⟩
+    -- PshHom[ (α Push (R ×ⱽ (α * Pᴰ))) , Qᴰ ]
+    {!!}
+      PshIsoEq⟨ {!!} ⟩
+    -- PshHom[ R ×ⱽ (α * Pᴰ) , α * Qᴰ ]
+    {!!}
+      PshIsoEq⟨ {!!} ⟩
+    -- Definitional stuff
+    reindPsh (LRⱽF (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc (λ f → Eq.refl) Pᴰ (BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHᴰBPⱽ PSHᴰFibration Pᴰ)) (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ [-][-, Qᴰ ])
       ∎PshIsoEq
 
   ∀Pshᴰ : {P : Presheaf C ℓPSHᴰ}{Q : Presheaf C ℓPSHᴰ} → (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPSHᴰ) → Presheafᴰ P Cᴰ ℓPSHᴰ

@@ -635,6 +635,21 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   postcompPshIsoEq ϕ .Iso.ret αᴰ = makePshHomEqPath (funExt₂ λ c p →
     ϕ .PshIsoEq.isos c .Iso.ret (αᴰ .N-ob c p))
 
+module _ {C : Category ℓC ℓC'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {R : Presheaf C ℓR}
+  (α : PshIsoEq P Q)
+  where
+  open PshIsoEq
+
+  open Iso
+  precompPshIsoEq : Iso (PshHomEq Q R) (PshHomEq P R)
+  precompPshIsoEq .fun β = toPshHomEq α ⋆PshHomEq β
+  precompPshIsoEq .inv γ = toPshHomEq (invPshIsoEq α) ⋆PshHomEq γ
+  precompPshIsoEq .sec γ =
+    makePshHomEqPath (funExt₂ λ c p → cong (γ .N-ob c) (ret (α .isos c) p))
+  precompPshIsoEq .ret β =
+    makePshHomEqPath (funExt₂ λ c p → cong (β .N-ob c) (sec (α .isos c) p))
+
 -- Naturality: postcompPshIsoEq commutes with precomposition
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

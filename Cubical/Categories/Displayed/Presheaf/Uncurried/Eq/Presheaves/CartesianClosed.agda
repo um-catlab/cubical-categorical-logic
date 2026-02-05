@@ -60,7 +60,7 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base hiding (PshHomᴰ ; _⋆PshHomᴰ_ ; PRESHEAFᴰ)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian
 open import Cubical.Categories.Presheaf.StrictHom

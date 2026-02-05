@@ -426,3 +426,11 @@ module _ {C : Category ℓC ℓC'} {Q : Presheaf C ℓQ} where
   -- Both of these solved for with auto
   Q→reindPshIdQ .N-ob = λ c z → z
   Q→reindPshIdQ .N-hom = λ c c' f p' p z → z
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  reindPshFStrict : (F : Functor C D) → Functor (PRESHEAF D ℓQ) (PRESHEAF C ℓQ)
+  reindPshFStrict F .F-ob = reindPsh F
+  reindPshFStrict F .F-hom α .N-ob = λ c → α .N-ob (F ⟅ c ⟆)
+  reindPshFStrict F .F-hom α .N-hom = λ c c' f → α .N-hom _ _ (F ⟪ f ⟫)
+  reindPshFStrict F .F-id = refl
+  reindPshFStrict F .F-seq _ _ = refl

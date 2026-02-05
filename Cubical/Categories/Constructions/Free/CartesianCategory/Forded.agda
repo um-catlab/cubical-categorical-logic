@@ -6,6 +6,7 @@
 module Cubical.Categories.Constructions.Free.CartesianCategory.Forded where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
@@ -13,10 +14,13 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.Data.Unit
+open import Cubical.Data.Quiver.Base
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.UnderlyingGraph
+open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
@@ -212,3 +216,5 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
 
     rec : (ı : ElimInterpᴰ wkC) → Functor |FreeCartesianCategory| (CC .CartesianCategory.C)
     rec ı = introS⁻ (elim wkC ı)
+
+  -- TODO uniqueness of product preserving functors out of FreeCC

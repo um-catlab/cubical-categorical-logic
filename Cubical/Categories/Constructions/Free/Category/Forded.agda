@@ -133,3 +133,13 @@ module _ (Q : Quiver ℓg ℓg') where
 
     rec : Functor FreeCat C
     rec = Wk.introS⁻ (elim (weaken FreeCat C) ıᴰ)
+
+  -- Elimination principle also implies the uniqueness principle,
+  -- i.e., η law for functors out of the free category
+  module _
+    {C : Category ℓC ℓC'}
+    (F G : Functor FreeCat C)
+    (agree-on-gen : Interpᴰ (compGrHomHetQG (Functor→GraphHom (F BP.,F G)) η) (PathC C))
+    where
+    FreeCatFunctor≡ : F ≡ G
+    FreeCatFunctor≡ = PathReflection (elimLocal (PathC C) _ agree-on-gen)

@@ -329,6 +329,10 @@ module _ {C : Category ℓ ℓ'} where
   YOStrict .F-id = makePshHomStrictPath (funExt₂ λ _ _ → C.⋆IdR _)
   YOStrict .F-seq _ _ = makePshHomStrictPath (funExt₂ λ _ _ → sym $ C.⋆Assoc _ _ _)
 
+  isFaithfulYOStrict : isFaithful YOStrict
+  isFaithfulYOStrict x y f g p =
+    (sym $ C.⋆IdL f) ∙ (λ i → p i .N-ob x C.id)  ∙ C.⋆IdL g
+
 -- module _ {C : Category ℓ ℓ'} where
 --   private
 --     module C = Category C

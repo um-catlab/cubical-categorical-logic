@@ -3,6 +3,7 @@
   Uncurried Presheaves using EqElement
 -}
 {-# OPTIONS --lossy-unification #-}
+{-# OPTIONS -W noUnsupportedIndexedMatch #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base where
 
 open import Cubical.Foundations.Prelude
@@ -617,6 +618,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     PRESHEAFᴰ .⋆Assocᴰ _ _ _ = makePshHomEqPath refl
     PRESHEAFᴰ .isSetHomᴰ = isSetPshHomEq _ (_ *↑ _)
 
+-- TODO put elsewhere
 -- Postcomposition with a PshIsoEq gives an iso on PshHomEq sets
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
@@ -645,3 +647,71 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   postcompPshIsoEq-natural : (iso : PshIsoEq Qᴰ Rᴰ) (αᴰ : PshHomEq Sᴰ Pᴰ) (βᴰ : PshHomEq Pᴰ Qᴰ) →
     Iso.fun (postcompPshIsoEq iso) (αᴰ ⋆PshHomEq βᴰ) ≡ αᴰ ⋆PshHomEq Iso.fun (postcompPshIsoEq iso) βᴰ
   postcompPshIsoEq-natural _ αᴰ βᴰ = makePshHomEqPath refl
+
+-- TODO put elsewhere
+module _ {C : Category ℓC ℓC'} where
+  module _ (Q : Presheaf C ℓQ) {ℓP} where
+    PshHomEqPsh : Presheaf (PRESHEAFEQ C ℓP) (ℓC ⊔ℓ ℓC' ⊔ℓ ℓQ ⊔ℓ ℓP)
+    PshHomEqPsh .F-ob P = PshHomEq P Q , isSetPshHomEq P Q
+    PshHomEqPsh .F-hom = _⋆PshHomEq_
+    PshHomEqPsh .F-id = refl
+    PshHomEqPsh .F-seq = λ _ _ → refl
+
+  open Functor
+  private
+    module C = Category C
+
+  YOEq : Functor C (PRESHEAFEQ C ℓC')
+  YOEq .F-ob = C [-,_]
+  YOEq .F-hom f .N-ob c g = g C.⋆ f
+  YOEq .F-hom f .N-hom _ _ _ _ _ Eq.refl = Eq.sym $ Eq.pathToEq $ C.⋆Assoc _ _ _
+  YOEq .F-id = makePshHomEqPath (funExt₂ λ _ _ → C.⋆IdR _)
+  YOEq .F-seq _ _ = makePshHomEqPath (funExt₂ λ _ _ → sym $ C.⋆Assoc _ _ _)
+
+  module _ (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
+    _⇒PshLargeEq_ : Presheaf C (ℓC ⊔ℓ ℓC' ⊔ℓ ℓQ ⊔ℓ ℓC' ⊔ℓ ℓP)
+    _⇒PshLargeEq_ = PshHomEqPsh Q ∘F ((-×P ∘F YOEq) ^opF)
+      where
+      -×P : Functor (PRESHEAFEQ C ℓC') (PRESHEAFEQ C (ℓC' ⊔ℓ ℓP))
+      -×P .F-ob R = R ×Psh P
+      -×P .F-hom α = ×PshIntroEq (π₁Eq _ _ ⋆PshHomEq α) (π₂Eq _ _)
+      -×P .F-id = makePshHomEqPath refl
+      -×P .F-seq _ _ = makePshHomEqPath refl
+
+  module _ (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
+    private
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+
+    appPshHomEq : PshHomEq ((P ⇒PshLargeEq Q) ×Psh P) Q
+    appPshHomEq .N-ob c (α , p) = α .N-ob c (C.id , p)
+    appPshHomEq .N-hom c c' f (α , p) (β , p') Eq.refl =
+      Eq.pathToEq $
+      Eq.eqToPath (α .N-hom c c' f (C.id , p) (f , f P.⋆ p)
+        (Eq.pathToEq (ΣPathP ((C.⋆IdR _) , refl))))
+      ∙ cong₂ (λ u v → α .N-ob c (u , v)) (sym $ C.⋆IdL _) refl
+
+    module _ {R : Presheaf C ℓR} where
+      private
+        module R = PresheafNotation R
+
+      λPshHomEq : PshHomEq (R ×Psh P) Q → PshHomEq R (P ⇒PshLargeEq Q)
+      λPshHomEq γ .N-ob c r .N-ob d (f , p) = γ .N-ob d (f R.⋆ r , p)
+      λPshHomEq γ .N-ob c r .N-hom e d g (f' , p') (f , p) Eq.refl =
+         γ .N-hom e d g _ _ (Eq.pathToEq $ ΣPathP ((sym $ R.⋆Assoc _ _ _) , refl))
+      λPshHomEq γ .N-hom d c' h s' s Eq.refl =
+        Eq.pathToEq $ makePshHomEqPath (funExt₂ λ _ _ →
+          cong₂ (λ u v → γ .N-ob _ (u , v)) (R.⋆Assoc _ _ _) refl)
+
+      ⇒PshLargeEq-UMP : Iso (PshHomEq R (P ⇒PshLargeEq Q))
+                            (PshHomEq (R ×Psh P) Q)
+      ⇒PshLargeEq-UMP .Iso.fun α = (α ×PshHomEq idPshHomEq) ⋆PshHomEq appPshHomEq
+      ⇒PshLargeEq-UMP .Iso.inv = λPshHomEq
+      ⇒PshLargeEq-UMP .Iso.sec α =
+        makePshHomEqPath (funExt₂ λ _ _ → cong (α .N-ob _)
+          (ΣPathP (R.⋆IdL _ , refl)))
+      ⇒PshLargeEq-UMP .Iso.ret α =
+        makePshHomEqPath (funExt₂ λ c r →
+          makePshHomEqPath (funExt₂ λ d (f , p) →
+            sym (cong (λ x → α .N-ob c r .N-ob d (x , p)) (sym (C.⋆IdL f))
+            ∙ funExt⁻ (funExt⁻ (cong N-ob (Eq.eqToPath (α .N-hom d c f r (f R.⋆ r) Eq.refl))) d) (C.id , p))))

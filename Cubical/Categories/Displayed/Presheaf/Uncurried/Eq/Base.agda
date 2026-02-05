@@ -601,6 +601,11 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
     infixr 9 _⋆PshHomᴰ_
 
+-- TODO put somewhere else
+module _ {C : Category ℓC ℓC'} {ℓP} where
+  PSHReprEqAssoc : ReprEqAssoc (PRESHEAF C ℓP)
+  PSHReprEqAssoc _ _ _ _ _ Eq.refl = Eq.refl
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   open Categoryᴰ
   module _ (ℓP : Level) (ℓPᴰ : Level) where

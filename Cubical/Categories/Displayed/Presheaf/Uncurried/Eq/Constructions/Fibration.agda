@@ -82,7 +82,7 @@ open PshHomEq
 open PshIso
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {ℓP ℓPᴰ : Level} where
-  PSHᴰFibration : Fibration (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ) λ _ _ _ _ _ → λ {Eq.refl → Eq.refl}
+  PSHᴰFibration : Fibration (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ) PSHReprEqAssoc
   PSHᴰFibration α Pᴰ .fst = α *↑ Pᴰ
   PSHᴰFibration α Pᴰ .snd .PshIsoEq.isos (Q , Qᴰ , β) =
     PshHomEq Qᴰ (β *↑ (α *↑ Pᴰ))

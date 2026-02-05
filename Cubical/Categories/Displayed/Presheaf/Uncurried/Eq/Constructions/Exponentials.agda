@@ -61,6 +61,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Constructions.Eq
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Constructions.Push
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Constructions.BinProduct
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Constructions.Fibration
 
 private
   variable
@@ -105,71 +106,27 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       PshHomEq Pᴰ ((α *↑ Qᴰ) ⇒PshLargeEq (α *↑ Rᴰ))
       ∎Iso
 
+  module _ {ℓP ℓPᴰ : Level}{P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+    PSHᴰLRⱽ : LRⱽ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ) PSHReprEqAssoc Pᴰ
+    PSHᴰLRⱽ = BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ) PSHReprEqAssoc PSHᴰBPⱽ PSHᴰFibration Pᴰ
 
--- -- -- -- -- -- -- -- module _
--- -- -- -- -- -- -- --   (C : Category ℓC ℓC')
--- -- -- -- -- -- -- --   (ℓP : Level)
--- -- -- -- -- -- -- --   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
--- -- -- -- -- -- -- --   (ℓPᴰ : Level)
--- -- -- -- -- -- -- --   where
--- -- -- -- -- -- -- --   private
--- -- -- -- -- -- -- --      the-ℓ = ℓC ⊔ℓ ℓC' ⊔ℓ ℓP
--- -- -- -- -- -- -- --      the-ℓᴰ = the-ℓ ⊔ℓ ℓCᴰ ⊔ℓ ℓCᴰ' ⊔ℓ ℓPᴰ
--- -- -- -- -- -- -- --      PSHᴰ = PRESHEAFᴰ C the-ℓ Cᴰ the-ℓᴰ
--- -- -- -- -- -- -- --      module PSHᴰ = Fibers PSHᴰ
--- -- -- -- -- -- -- --   module _ {P : Presheaf C the-ℓ} (Pᴰ : Presheafᴰ P Cᴰ the-ℓᴰ) where
--- -- -- -- -- -- -- --     private
--- -- -- -- -- -- -- --       module Pᴰ = PresheafᴰNotation Pᴰ
-
--- -- -- -- -- -- -- --     PSHᴰLRⱽ : LRⱽ PSHᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) Pᴰ
--- -- -- -- -- -- -- --     PSHᴰLRⱽ {Γ = Q} Qᴰ α = UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) lrⱽue
--- -- -- -- -- -- -- --       where
--- -- -- -- -- -- -- --         module Qᴰ = PresheafᴰNotation Qᴰ
-
--- -- -- -- -- -- -- --         lrⱽue : UEⱽ
--- -- -- -- -- -- -- --                  ((PSHᴰ [-][-, Qᴰ ]) ×ⱽPsh
--- -- -- -- -- -- -- --                   reindᴰRedundPshHom
--- -- -- -- -- -- -- --                   (yoRecHom PSHᴰ (λ {w} {x} {y} {z} f g h → Eq.refl) α)
--- -- -- -- -- -- -- --                   (PSHᴰ [-][-, Pᴰ ]))
--- -- -- -- -- -- -- --                  (λ {x} {y} f → Eq.refl)
--- -- -- -- -- -- -- --         lrⱽue .UEⱽ.v = Qᴰ ×ⱽPsh (α *Strict Pᴰ)
--- -- -- -- -- -- -- --         lrⱽue .UEⱽ.e .fst = π₁ _ _ ⋆PshHomStrict *StrictIdIntro Qᴰ
--- -- -- -- -- -- -- --         lrⱽue .UEⱽ.e .snd = π₂ _ _
--- -- -- -- -- -- -- --         lrⱽue .UEⱽ.universal .isPshIso'.nIso c .fst (αᴰ , βᴰ) =
--- -- -- -- -- -- -- --           ×PshIntroStrict αᴰ βᴰ
--- -- -- -- -- -- -- --           ⋆PshHomStrict ×PshIntroStrict (π₁ _ _) (π₂ _ _ ⋆PshHomStrict *StrictSeqIntro⁻)
--- -- -- -- -- -- -- --           ⋆PshHomStrict ×ⱽ*Strict→*Strict×ⱽ (c .snd .snd) Qᴰ (α *Strict Pᴰ)
--- -- -- -- -- -- -- --         lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .fst _ =
--- -- -- -- -- -- -- --           ΣPathP (makePshHomStrictPath refl , makePshHomStrictPath refl)
--- -- -- -- -- -- -- --         lrⱽue .UEⱽ.universal .isPshIso'.nIso c .snd .snd _ =
--- -- -- -- -- -- -- --           makePshHomStrictPath refl
-
--- -- -- -- -- -- -- --     -- PSHᴰExpsⱽ : Exponentialsⱽ PSHᴰ
--- -- -- -- -- -- -- --     --   (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl) Pᴰ PSHᴰLRⱽ
--- -- -- -- -- -- -- --     -- PSHᴰExpsⱽ Qᴰ =
--- -- -- -- -- -- -- --     --   ?
--- -- -- -- -- -- -- --       -- UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) (expUE Qᴰ)
--- -- -- -- -- -- -- --       -- where
--- -- -- -- -- -- -- --       -- expUE : ExponentialsⱽUE PSHᴰ
--- -- -- -- -- -- -- --       --   (λ {w} {x} {y} {z} f g h → Eq.refl) (λ {x} {y} f → Eq.refl)
--- -- -- -- -- -- -- --       --   Pᴰ PSHᴰLRⱽ (λ {x} {y} f → Eq.refl)
--- -- -- -- -- -- -- --       -- expUE Qᴰ .UEⱽ.v = Pᴰ ⇒PshLargeStrict Qᴰ
--- -- -- -- -- -- -- --       -- -- Pᴰ⇒Qᴰ × Id*Pᴰ → Id*Qᴰ
--- -- -- -- -- -- -- --       -- expUE Qᴰ .UEⱽ.e =
--- -- -- -- -- -- -- --       --   {!!}
--- -- -- -- -- -- -- --       --   -- ×PshIntroStrict (π₁ _ _) (π₂ _ _ ⋆PshHomStrict *StrictIdIntro⁻ Pᴰ)
--- -- -- -- -- -- -- --       --   -- ⋆PshHomStrict appPshHomStrict Pᴰ Qᴰ
--- -- -- -- -- -- -- --       --   -- ⋆PshHomStrict *StrictIdIntro Qᴰ
--- -- -- -- -- -- -- --       -- expUE Qᴰ .UEⱽ.universal .isPshIso'.nIso (R , Rᴰ , α) .fst αᴰ =
--- -- -- -- -- -- -- --       --   {!!}
--- -- -- -- -- -- -- --       --   -- λPshHomStrict (α *Strict Pᴰ) (α *Strict Qᴰ) αᴰ
--- -- -- -- -- -- -- --       --   -- ⋆PshHomStrict ⇒ⱽ*Strict→*Strict⇒ⱽ α Pᴰ Qᴰ
--- -- -- -- -- -- -- --       -- expUE Qᴰ .UEⱽ.universal .isPshIso'.nIso (R , Rᴰ , α) .snd .fst αᴰ =
--- -- -- -- -- -- -- --       --   {!!}
--- -- -- -- -- -- -- --       --   -- makePshHomStrictPath (funExt₂ λ u v →
--- -- -- -- -- -- -- --       --   --   Qᴰ.rectifyOut $ {!!} ∙ {!!})
--- -- -- -- -- -- -- --       --   -- where module Qᴰ = PresheafᴰNotation Qᴰ
--- -- -- -- -- -- -- --       -- expUE Qᴰ .UEⱽ.universal .isPshIso'.nIso (R , Rᴰ , α) .snd .snd αᴰ =
--- -- -- -- -- -- -- --       --   {!!}
--- -- -- -- -- -- -- --       --   -- makePshHomStrictPath {!!}
--- -- -- -- -- -- -- --       --   -- where module Qᴰ = PresheafᴰNotation Qᴰ
+  module _ {ℓP ℓPᴰ} where
+    private
+       the-ℓ = ℓC ⊔ℓ ℓC' ⊔ℓ ℓP
+       the-ℓᴰ = the-ℓ ⊔ℓ ℓCᴰ ⊔ℓ ℓCᴰ' ⊔ℓ ℓPᴰ
+    PSHᴰExpsⱽ : Exponentialsⱽ (PRESHEAFᴰ Cᴰ the-ℓ the-ℓᴰ) PSHReprEqAssoc
+                  (λ {x} {y} f → Eq.refl) PSHᴰLRⱽ
+    PSHᴰExpsⱽ {x = P} Pᴰ Qᴰ .fst = Pᴰ ⇒PshLargeEq Qᴰ
+    PSHᴰExpsⱽ {x = P} Pᴰ Qᴰ .snd .PshIsoEq.isos (R , Rᴰ , α) =
+      PshHomEq Rᴰ (α *↑ (Pᴰ ⇒PshLargeEq Qᴰ))
+        Iso⟨ invIso $ *↓-UMP α ⟩
+      PshHomEq (α *↓ Rᴰ) (Pᴰ ⇒PshLargeEq Qᴰ)
+        Iso⟨ ⇒PshLargeEq-UMP Pᴰ Qᴰ ⟩
+      PshHomEq ((α *↓ Rᴰ) ×Psh Pᴰ) Qᴰ
+        Iso⟨ precompPshIsoEq (FrobeniusReciprocity α Rᴰ Pᴰ) ⟩
+      PshHomEq (α *↓ (Rᴰ ×Psh (α *↑ Pᴰ))) Qᴰ
+        Iso⟨ *↓-UMP α ⟩
+      PshHomEq (Rᴰ ×Psh (α *↑ Pᴰ)) (α *↑ Qᴰ)
+      ∎Iso
+    PSHᴰExpsⱽ {x = P} Pᴰ Qᴰ .snd .PshIsoEq.nat _ _ (_ , _ , Eq.refl) _ _ Eq.refl =
+      Eq.pathToEq $ makePshHomEqPath (funExt₂ λ _ _ → refl)

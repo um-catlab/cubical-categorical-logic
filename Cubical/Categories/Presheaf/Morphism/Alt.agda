@@ -526,6 +526,18 @@ module _ {C : Category ℓc ℓc'}
                                      (Iso.fun (α .PshIsoEq.isos c) p) (α .PshIsoEq.nat c c' f p' p z)
   infixr 9 _⋆PshIsoEq_
 
+module _ {C : Category ℓc ℓc'} where
+  -- Helpful notation
+  _PshIsoEq⟨_⟩_ : ∀ {Q : Presheaf C ℓq} {R : Presheaf C ℓr} (P : Presheaf C ℓp)
+    → PshIsoEq P Q → PshIsoEq Q R → PshIsoEq P R
+  _ PshIsoEq⟨ f ⟩ g = f ⋆PshIsoEq g
+
+  _∎PshIsoEq : ∀ (P : Presheaf C ℓp) → PshIsoEq P P
+  P ∎PshIsoEq = idPshIsoEq {P = P}
+
+  infixr  0 _PshIsoEq⟨_⟩_
+  infix   1 _∎PshIsoEq
+
 module _ {C : Category ℓc ℓc'}{P Q : Presheaf C ℓp} (path : P ≡ Q) where
   pathToPshIso : PshIso P Q
   pathToPshIso = PshCatIso→PshIso _ _ (pathToIso path)
@@ -735,6 +747,16 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   yo≅PshHomPsh .nIso Q .fst = PshHom→NatTrans
   yo≅PshHomPsh .nIso Q .snd .fst _ = makePshHomPath refl
   yo≅PshHomPsh .nIso Q .snd .snd _ = makeNatTransPath refl
+
+PSHHOMCAT : (C : Category ℓc ℓc') (ℓp : Level) → Category (ℓ-max (ℓ-max ℓc ℓc') (ℓ-suc ℓp)) (ℓ-max (ℓ-max ℓc ℓc') ℓp)
+PSHHOMCAT C ℓp .ob = Presheaf C ℓp
+PSHHOMCAT C ℓp .Hom[_,_] = PshHom
+PSHHOMCAT C ℓp .id = idPshHom
+PSHHOMCAT C ℓp ._⋆_ = _⋆PshHom_
+PSHHOMCAT C ℓp .⋆IdL = λ α → makePshHomPath refl
+PSHHOMCAT C ℓp .⋆IdR = λ α → makePshHomPath refl
+PSHHOMCAT C ℓp .⋆Assoc = λ α β γ → makePshHomPath refl
+PSHHOMCAT C ℓp .isSetHom = isSetPshHom _ _
 
 PRESHEAFEQ : (C : Category ℓc ℓc') (ℓp : Level) → Category (ℓ-max (ℓ-max ℓc ℓc') (ℓ-suc ℓp)) (ℓ-max (ℓ-max ℓc ℓc') ℓp)
 PRESHEAFEQ C ℓP .ob = Presheaf C ℓP

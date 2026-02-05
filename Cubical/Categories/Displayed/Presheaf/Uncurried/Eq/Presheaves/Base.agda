@@ -267,3 +267,31 @@ module _
   PRESHEAFᴰ .⋆Assocᴰ αᴰ βᴰ γᴰ = makePshHomPath
     (refl {x = ((αᴰ ⋆PshHomᴰ βᴰ) ⋆PshHomᴰ γᴰ) .N-ob})
   PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _
+
+module _
+  {C : Category ℓC ℓC'}
+  (P : Presheaf C ℓP)
+  (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+  (ℓPᴰ : Level)
+  where
+  PRESHEAFⱽ : Category (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
+                       (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓCᴰ) ℓCᴰ') ℓPᴰ)
+  PRESHEAFⱽ = PSHHOMCAT (Cᴰ / P) ℓPᴰ
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  where
+  PushF : {P : Presheaf C ℓP} → Functor (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ / (PRESHEAF C ℓP [-, P ])) (PSHHOMCAT (Cᴰ / P) (ℓ-max ℓP ℓPᴰ))
+  PushF .F-ob (R , Rᴰ , α) = α PushStrict Rᴰ
+  PushF .F-hom {x = S , Sᴰ , _} {y = R , Rᴰ , α} (β , βᴰ , Eq.refl) .N-ob (Γ , Γᴰ , p) (s , Eq.refl , sᴰ) =
+    (β .N-ob Γ s) , (Eq.refl , (βᴰ .N-ob (Γ , Γᴰ , s) sᴰ))
+  PushF .F-hom {x = S , Sᴰ , _} {y = R , Rᴰ , α} (r , rᴰ , Eq.refl) .N-hom = {!!}
+  PushF .F-id = {!!}
+  PushF .F-seq = {!!}
+
+  ℓPushF = ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')
+  module _ {P : Presheaf C ℓPushF} {Pᴰ : Presheaf (Cᴰ / P) ℓPushF} where
+    PushF⊣* :
+      PshIsoEq (PRESHEAFᴰ Cᴰ ℓPushF ℓPushF [-][-, Pᴰ ])
+               (reindPsh PushF (PRESHEAFⱽ P Cᴰ ℓPushF [-, Pᴰ ]))
+    PushF⊣* .PshIsoEq.isos (R , Rᴰ , α) = Push⊣* (PshHomStrict→Eq α) Rᴰ Pᴰ
+    PushF⊣* .PshIsoEq.nat = {!!}
+

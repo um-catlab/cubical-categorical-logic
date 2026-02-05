@@ -96,6 +96,25 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       ∎Iso
   PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.nat = {!!}
 
+  -- PshHom[-,-*_]
+  -- PshHom[-Push-,_]
+
+  PSHᴰExponentials' : Exponentialsⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHIdL (BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHᴰBPⱽ PSHᴰFibration)
+  PSHᴰExponentials' {x = P} Pᴰ Qᴰ .fst = Pᴰ ⇒PshLarge Qᴰ
+  PSHᴰExponentials' {x = P} Pᴰ Qᴰ .snd =
+    (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ [-][-, Pᴰ ⇒PshLarge Qᴰ ])
+    -- PshHom[ R , α * (Pᴰ ⇒ Qᴰ) ]
+      PshIsoEq⟨ PushF⊣* ⟩
+    -- PshHom[ α Push R , Pᴰ ⇒ Qᴰ ]
+    reindPsh PushF (PSHHOMCAT (Cᴰ / P) ℓPSHᴰ [-, Pᴰ ⇒PshLarge Qᴰ ])
+      PshIsoEq⟨ {!!} ⟩
+    reindPsh
+     (LRⱽF (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc (λ f → Eq.refl) Pᴰ
+      (BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHᴰBPⱽ
+       PSHᴰFibration Pᴰ))
+     (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ [-][-, Qᴰ ])
+      ∎PshIsoEq
+
   ∀Pshᴰ : {P : Presheaf C ℓPSHᴰ}{Q : Presheaf C ℓPSHᴰ} → (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPSHᴰ) → Presheafᴰ P Cᴰ ℓPSHᴰ
   ∀Pshᴰ {P = P}{Q = Q} Pᴰ =
     reindPsh (reindPshFStrict (Idᴰ /Fⱽ π₁Eq P Q) ∘F YOStrict) ((PRESHEAF (Cᴰ / (P ×Psh Q)) _ [-, Pᴰ ]))

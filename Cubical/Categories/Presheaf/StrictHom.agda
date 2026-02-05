@@ -44,6 +44,7 @@ open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
 open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Yoneda
 
@@ -438,3 +439,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   reindPshFStrict F .F-hom α .N-hom = λ c c' f → α .N-hom _ _ (F ⟪ f ⟫)
   reindPshFStrict F .F-id = refl
   reindPshFStrict F .F-seq _ _ = refl
+
+module _ (C : Category ℓC ℓC') (ℓP : Level) where
+  CCC-PRESHEAF : CartesianClosedCategory _ _
+  CCC-PRESHEAF .CartesianClosedCategory.CC = Cartesian-PRESHEAF C (ℓP ⊔ℓ ℓC' ⊔ℓ ℓC)
+  CCC-PRESHEAF .CartesianClosedCategory.exps P Q = Exp-PRESHEAF C ℓP P Q

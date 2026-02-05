@@ -46,13 +46,6 @@ open Section
 open PshHomStrict
 open PshHom
 
--- Convert a Quiver to a ×Quiver where all objects are atoms
-Quiver→×Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×Quiver ℓ ℓ'
-Quiver→×Quiver Q .×Quiver.ob = Q .fst
-Quiver→×Quiver Q .×Quiver.Q .ProductQuiver.mor = Q .snd .QuiverOver.mor
-Quiver→×Quiver Q .×Quiver.Q .ProductQuiver.dom = ↑_ ∘S Q .snd .QuiverOver.dom
-Quiver→×Quiver Q .×Quiver.Q .ProductQuiver.cod = ↑_ ∘S Q .snd .QuiverOver.cod
-
 module _ (Q : Quiver ℓQ ℓQ') where
   private module Q = QuiverOver (Q .snd)
 

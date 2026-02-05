@@ -153,7 +153,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       elimOb (A ⇒ B) = expᴰ (elimOb A) (elimOb B) .fst
 
     record ElimInterpᴰ : Type (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-max ℓCᴰ ℓCᴰ')) where
-      constructor interpᴰ
+      constructor mkElimInterpᴰ
       field
         ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]
         ı-hom : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elimOb ı-ob (Q.dom e) , elimOb ı-ob (Q.cod e) ]

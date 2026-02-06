@@ -45,6 +45,7 @@ open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
+open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Yoneda
 
@@ -294,20 +295,23 @@ module _ (C : Category ℓC ℓC') (ℓP : Level) where
   PRESHEAF .⋆Assoc = λ _ _ _ → refl
   PRESHEAF .isSetHom = isSetPshHomStrict _ _
 
-  open UniversalElementNotation
-  Cartesian-PRESHEAF : CartesianCategory _ _
-  Cartesian-PRESHEAF .CartesianCategory.C = PRESHEAF
-  Cartesian-PRESHEAF .CartesianCategory.term .vertex = Unit*Psh
-  Cartesian-PRESHEAF .CartesianCategory.term .element = tt
-  Cartesian-PRESHEAF .CartesianCategory.term .universal R =
+  PSH1 : Terminal' PRESHEAF
+  PSH1 .UniversalElement.vertex = Unit*Psh
+  PSH1 .UniversalElement.element = tt
+  PSH1 .UniversalElement.universal _ =
     isoToIsEquiv
       (iso (λ _ → tt) (λ _ → Unit*Psh-introStrict)
          (λ _ → refl) (λ _ → refl))
-  Cartesian-PRESHEAF .CartesianCategory.bp (P , Q) .vertex = P ×Psh Q
-  Cartesian-PRESHEAF .CartesianCategory.bp (P , Q) .element =
-    (π₁ P Q) , (π₂ P Q)
-  Cartesian-PRESHEAF .CartesianCategory.bp (P , Q) .universal R =
-    isoToIsEquiv (×PshStrict-UMP P Q)
+
+  PSHBP : BinProducts PRESHEAF
+  PSHBP (P , Q) .UniversalElement.vertex = P ×Psh Q
+  PSHBP (P , Q) .UniversalElement.element = π₁ P Q , π₂ P Q
+  PSHBP (P , Q) .UniversalElement.universal R = isoToIsEquiv (×PshStrict-UMP P Q)
+
+  Cartesian-PRESHEAF : CartesianCategory _ _
+  Cartesian-PRESHEAF .CartesianCategory.C = PRESHEAF
+  Cartesian-PRESHEAF .CartesianCategory.term = PSH1
+  Cartesian-PRESHEAF .CartesianCategory.bp = PSHBP
 
 module _ {C : Category ℓC ℓC'} where
   PshHomStrictPsh :

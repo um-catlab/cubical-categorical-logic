@@ -85,16 +85,10 @@ module _ {C : Category ℓC ℓC'} where
   PSHAssoc : ReprEqAssoc (PRESHEAF C ℓP)
   PSHAssoc _ f g h f⋆g Eq.refl = Eq.refl
 
-  PSHBP : BinProducts (PRESHEAF C ℓP)
-  PSHBP (P , Q) .UniversalElement.vertex = P ×Psh Q
-  PSHBP (P , Q) .UniversalElement.element = π₁ P Q , π₂ P Q
-  PSHBP (P , Q) .UniversalElement.universal R = isIsoToIsEquiv
-    ( (λ x → ×PshIntroStrict (x .fst) (x .snd)) , ((λ _ → refl) , (λ _ → refl)))
-
-  PSHπ₁NatEq : Allπ₁NatEq {C = PRESHEAF C ℓP} PSHBP
+  PSHπ₁NatEq : Allπ₁NatEq {C = PRESHEAF C ℓP} (PSHBP C ℓP)
   PSHπ₁NatEq X γ = Eq.refl
 
-  PSH×aF-seq : All×aF-seq {C = PRESHEAF C ℓP} PSHBP
+  PSH×aF-seq : All×aF-seq {C = PRESHEAF C ℓP} (PSHBP C ℓP)
   PSH×aF-seq X δ γ = Eq.refl
 
 module _ {C : Category ℓC ℓC'}
@@ -294,4 +288,3 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
                (reindPsh PushF (PRESHEAFⱽ P Cᴰ ℓPushF [-, Pᴰ ]))
     PushF⊣* .PshIsoEq.isos (R , Rᴰ , α) = Push⊣* (PshHomStrict→Eq α) Rᴰ Pᴰ
     PushF⊣* .PshIsoEq.nat = {!!}
-

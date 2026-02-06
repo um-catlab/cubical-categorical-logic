@@ -40,6 +40,7 @@ open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.BinProduct as BP hiding (π₁ ; π₂)
 open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More
@@ -50,17 +51,15 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
--- open import Cubical.Categories.Displayed.Limits.CartesianClosedV
+import Cubical.Categories.Displayed.Limits.CartesianV' as Path
+import Cubical.Categories.Displayed.Limits.CartesianClosedV as Path
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base hiding (PshHomᴰ ; _⋆PshHomᴰ_ ; PRESHEAFᴰ)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
 open import Cubical.Categories.Presheaf.StrictHom
 
 open Category
@@ -117,7 +116,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
 
     ∀Pshᴰ-app : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPSHᴰ) → PshHom (π₁ P Q *Strict (∀Pshᴰ Pᴰ)) Pᴰ
     ∀Pshᴰ-app Pᴰ .N-ob (Γ , Γᴰ , p , q) pᴰ = pᴰ .N-ob (Γ , Γᴰ , p , q) (C.id , Cᴰ.idᴰ , (Eq.pathToEq (P.⋆IdL p)))
-    ∀Pshᴰ-app Pᴰ .N-hom = {!!}
+    ∀Pshᴰ-app Pᴰ .N-hom c c' (u , v , Eq.refl) α = {!!}
 
     module _ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ} (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPSHᴰ) where
       private
@@ -143,7 +142,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       ∀Pshᴰ-UMP .sec = {!!}
       ∀Pshᴰ-UMP .ret = {!!}
 
-  PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL PSHAssoc PSHᴰFibration PSHBP PSHπ₁NatEq PSH×aF-seq
+  PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL PSHAssoc PSHᴰFibration
+    (PSHBP C ℓPSHᴰ)
+    PSHπ₁NatEq PSH×aF-seq
   -- Pᴰ : Pshᴰ (P × Q)
   -- -----------------
   -- (∀Q Pᴰ) (Γ , Γᴰ , p) = PshHom ? Pᴰ
@@ -163,9 +164,16 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       ∎Iso
   PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.nat S3@(S , Sᴰ , _) R3@(R , Rᴰ , β)
     (α , αᴰ , Eq.refl) p _ Eq.refl =
-    Eq.pathToEq (makePshHomPath (funExt₂ λ (Γ , Γᴰ , (s , q)) sᴰ → refl))
+    {!!}
+    -- slow
+    -- Eq.pathToEq (makePshHomPath (funExt₂ λ (Γ , Γᴰ , (s , q)) sᴰ → refl))
 
-  isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL  PSHBP PSHπ₁NatEq PSH×aF-seq
+  isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
+    (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq
   isCartesianClosedⱽPSHᴰ .fst = isCartesianⱽPSHᴰ
   isCartesianClosedⱽPSHᴰ .snd .fst = PSHᴰExponentials
   isCartesianClosedⱽPSHᴰ .snd .snd = PSHᴰ∀
+
+  CCCⱽPSHᴰ : Path.CartesianClosedCategoryⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) _ _
+  CCCⱽPSHᴰ = EqCCCⱽ→CCCⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) PSHAssoc PSHIdL PSHπ₁NatEq PSH×aF-seq
+    (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) isCartesianClosedⱽPSHᴰ

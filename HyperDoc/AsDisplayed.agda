@@ -31,3 +31,36 @@ module convert
   Cᴰ .⋆IdRᴰ fᴰ = toPathP (isProp≤ _ fᴰ)
   Cᴰ .⋆Assocᴰ _ _ _ = toPathP (isProp≤ _ _)
   Cᴰ .isSetHomᴰ = isProp→isSet isProp≤ 
+
+{-
+  Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) (SETᴰ ℓS ℓV ) 
+  Oᴰ .F-obᴰ (P , Q) o = ⟨ Rel P Q o ⟩ , isProp→isSet (Rel P Q o .snd)
+  Oᴰ .F-homᴰ {(v , c)}{(v' , c')}{(f , g)}{(P , Q)}{(P' , Q')}(v'P'≤f*P' , c'Q'≤g*Q) o = RelMono v'P'≤f*P' c'Q'≤g*Q
+  Oᴰ .F-idᴰ {(v , c)}{(P , Q)} = 
+    -- agda being garbage at figuring out implicits
+    ≡out
+      (SETᴰ ℓS ℓV)
+      {a = O .F-ob (v , c)}
+      {b = O .F-ob (v , c)}
+      {f = λ z → O .F-hom (id V , id C) z}
+      {g = λ z → z}
+      {λ o → ⟨ Rel P Q o ⟩ , isProp→isSet (Rel P Q o .snd)}
+      {λ o → ⟨ Rel P Q o ⟩ , isProp→isSet (Rel P Q o .snd)}
+      {fᴰ =  (λ o → RelMono (idᴰ ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ){x = v , c}{p = P , Q} .fst) (idᴰ ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ){x = v , c}{p = P , Q} .snd))}
+      {(λ x z → z)} 
+      (ΣPathP (O .F-id , toPathP (funExt λ o → funExt λ r → Rel P Q o .snd _ r)))
+  
+  Oᴰ .F-seqᴰ {(v , c)}{(v' , c')}{(v'' , c'')}{(f , g)}{(f' , g')}{(P , Q)}{(P' , Q')}{(P'' , Q'')} fᴰ gᴰ =  
+    -- agda being garbage at figuring out implicits
+    ≡out 
+      (SETᴰ ℓS ℓV)
+      {a = O .F-ob (v , c)}
+      {b = O .F-ob (v'' , c'')}
+      {f = O .F-hom (f' ⋆⟨ V ⟩ f , g ⋆⟨ C ⟩ g')}
+      {g = λ z → O .F-hom (f' , g') (O .F-hom (f , g) z)}
+      {λ o → ⟨ Rel P Q o ⟩ , isProp→isSet (Rel P Q o .snd)}
+      {λ o → ⟨ Rel P'' Q'' o ⟩ , isProp→isSet (Rel P'' Q'' o .snd)}
+      {fᴰ = (λ o → RelMono ((((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) ⋆ᴰ fᴰ) gᴰ .fst) ((((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) ⋆ᴰ fᴰ) gᴰ .snd))} 
+      (ΣPathP (O .F-seq _ _ , toPathP (funExt λ o → funExt λ r → Rel P'' Q'' (O .F-hom (f' , g') (O .F-hom (f , g) o)) .snd _ _ )))
+
+-}

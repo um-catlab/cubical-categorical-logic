@@ -38,8 +38,9 @@ module _
         ∀ {v v' c c' o}{P : LV.F∣ v ∣}{ P' : LV.F∣ v' ∣}{Q : LC.F∣ c ∣}{Q' : LC.F∣ c' ∣} → 
         {f : V [ v' , v ]} → 
         {g : C [ c , c' ]} → 
-        (P≤ : v' LV.◂ P' ≤ LV.f* f P )
-        (Q≤ : c' LC.◂ Q' ≤ LC.f* g Q ) 
+        (P≤ : v' LV.◂ P' ≤ LV.f* f P ) -- pull back
+        --(Q≤ : c' LC.◂ LC.f* g Q ≤ Q' ) -- push forward, easy instantiate but wrong
+        (Q≤ : c' LC.◂ Q' ≤ LC.f* g Q ) -- works for displayed profunctor proof
         (R : ⟨ Rel P Q o ⟩ ) → 
         ⟨ Rel P' Q' (O .F-hom (f , g ) o) ⟩ 
       

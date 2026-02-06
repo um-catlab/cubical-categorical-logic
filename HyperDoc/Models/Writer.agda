@@ -68,6 +68,45 @@ module _
     open IsEMAlgebra
     open import Cubical.HITs.PropositionalTruncation.Base
 
+    push' = push {M = M}{c}{c'}
+
+    elem-c : ⟨ c .fst .carrier ⟩ 
+    elem-c = o (f x)
+
+    g' = g .carrierHom
+
+    g⟨c⟩ : ⟨ c' . fst .carrier ⟩ 
+    g⟨c⟩ = g' elem-c
+
+    have : elem-c ∈ Q .fst 
+    have = OT (f x) (VT x P'x)
+
+    have' : g⟨c⟩ ∈ push' g Q .fst 
+    have' = ∣ (elem-c , ε , have , sym (funExt⁻ (str-η (c' .snd)) (g' elem-c))) ∣₁
+
+
+    mono : {!   !} 
+    mono = {! pushMono {M = M}{c}{c'} g  !}
+
+    lemma : c' CL.◂ push' g Q ≤ Q' 
+    lemma x y = goal where 
+
+      have'' : x ∈ push' g Q .fst
+      have'' = y 
+
+      goal : x ∈ Q' .fst 
+      goal = 
+        rec 
+          (Q' .fst x .snd) 
+          (λ{(q , r , s , t) → {! OT ? !}}) 
+          y
+
+    wrong : c' CL.◂ Q' ≤ push' g Q 
+    wrong = CT
+
+    goal : g⟨c⟩ ∈ Q' .fst
+    goal = lemma g⟨c⟩ have'
+{-
     have : x ∈ VL.f* f P
     have = VT x P'x
 
@@ -80,6 +119,14 @@ module _
     inClosed : g .carrierHom (o (f x)) ∈ push {M = M}{c}{c'} g Q .fst
     inClosed = ∣ closedElem ∣₁
 
+    _ : c' CL.◂ Q' ≤ push {M = M}{c}{c'} g Q 
+    _ = CT
+    mon : {!  pushMono {M = M} {c}{c'} g {Q}{Q} !}
+    mon = pushMono {M = M} {c}{c'} g {Q}{Q}
+    
     goal : (g .carrierHom (o (f x))) ∈ Q' .fst
-    goal = {! CT (g .carrierHom (o (f x))) inClosed  !}
+    goal = {!   !}
+    -- this works if we use the wrong variance in RelMono
+    --goal = CT (g .carrierHom (o (f x))) inClosed
 
+-}

@@ -117,12 +117,17 @@ module _ {ℓS : Level}{M : Monoid ℓS} where
 
   pushMono :  {A B : ob EM} (f : EM [ A , B ]){P Q : subAlg A} → 
     A ◂ P ≤EM Q → B ◂ push {A} {B} f P ≤EM push {A}{B} f Q
-  pushMono = {! subAlgPo A .fst  !} 
-
+  pushMono f prf b pushP = 
+    map (λ (a , m , Pa , b≡ ) → ((a , m , prf a Pa , b≡  ))) pushP
+  open import Cubical.Functions.Logic
   pushid : {A : ob EM} → push {A}{A}  (EM .id {A}) ≡ (POSET (ℓ-suc ℓS) ℓS) .id {subAlgPo A} .f
-  pushid {A} = funExt λ x → 
-    ΣPathP ((funExt (λ a → {! x  .fst a  !})) , 
-      toPathP (isPropclosure A (x .fst) _ (snd x)))
+  pushid {A} = funExt λ P → 
+    ΣPathP 
+      ( (funExt λ b → 
+        ⇔toPath 
+          (λ prf → rec (P .fst b .snd) (λ (a , w , Pa , b≡ ) → {!P   !}) prf) 
+          λ Pb → ∣ (b , ε , Pb , funExt⁻ (sym (str-η (A .snd))) b) ∣₁  )
+      , toPathP (isPropclosure A (P .fst) _ (snd P)))
 
   pushseq : {A B C : ob EM}(f : EM [ A , B ])(g : EM [ B , C ]) → 
     push {A}{C} ((EM ⋆ f) g) 

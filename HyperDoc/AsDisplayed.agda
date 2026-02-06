@@ -1,5 +1,7 @@
 module HyperDoc.AsDisplayed where 
 
+open import Cubical.Data.Sigma 
+
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure 
@@ -11,11 +13,23 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Posets.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.BinProduct 
+open import Cubical.Categories.Displayed.Instances.Sets
+open import Cubical.Categories.Displayed.Reasoning
 
 open import HyperDoc.Syntax
+open import HyperDoc.CBPVLogic
+open import HyperDoc.CBPVModel
+open import HyperDoc.Lib
 
+open Category
 open Categoryᴰ
+open Functorᴰ
+open Functor
 
+-- demonstrating that our proof irrelevant model 
+-- lines up with the proof relevant version
 module convert 
   {ℓ ℓ' ℓP ℓP' : Level}{C : Category ℓ ℓ'}
   (F : Functor (C ^op) (POSET ℓP ℓP')) where 
@@ -32,7 +46,26 @@ module convert
   Cᴰ .⋆Assocᴰ _ _ _ = toPathP (isProp≤ _ _)
   Cᴰ .isSetHomᴰ = isProp→isSet isProp≤ 
 
-{-
+module _ 
+  {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' ℓR : Level}
+  (M : Model ℓV ℓV' ℓC ℓC' ℓS)
+  (L : CBPVLogic M ) where 
+
+  open Model M 
+  open CBPVLogic L
+
+  Vᴰ : Categoryᴰ V ℓV ℓV 
+  Vᴰ = convert.Cᴰ HL
+
+  Cᴰ : Categoryᴰ C ℓV ℓV 
+  Cᴰ = Cᴰ^op^op (Pred ^opᴰ) where 
+    open convert {C = C ^op} (HC ∘F from^op^op) renaming(Cᴰ to Pred)
+
+  module VL = HDSyntax HL
+  module CL = HDSyntax {C = C ^op} (HC ∘F from^op^op) 
+
+  open ORelFunctor ORel
+
   Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) (SETᴰ ℓS ℓV ) 
   Oᴰ .F-obᴰ (P , Q) o = ⟨ Rel P Q o ⟩ , isProp→isSet (Rel P Q o .snd)
   Oᴰ .F-homᴰ {(v , c)}{(v' , c')}{(f , g)}{(P , Q)}{(P' , Q')}(v'P'≤f*P' , c'Q'≤g*Q) o = RelMono v'P'≤f*P' c'Q'≤g*Q
@@ -62,5 +95,3 @@ module convert
       {λ o → ⟨ Rel P'' Q'' o ⟩ , isProp→isSet (Rel P'' Q'' o .snd)}
       {fᴰ = (λ o → RelMono ((((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) ⋆ᴰ fᴰ) gᴰ .fst) ((((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) ⋆ᴰ fᴰ) gᴰ .snd))} 
       (ΣPathP (O .F-seq _ _ , toPathP (funExt λ o → funExt λ r → Rel P'' Q'' (O .F-hom (f' , g') (O .F-hom (f , g) o)) .snd _ _ )))
-
--}

@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Quiver.Base
@@ -33,7 +34,7 @@ import Cubical.Categories.Displayed.Instances.Terminal.Base as Unitᴰ
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
   hiding (PRESHEAFᴰ)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base as PshBase
-  using (PRESHEAFᴰ; PSHAssoc; PSHIdL; PSHπ₁NatEq; PSH×aF-seq; PSHBP)
+  using (PRESHEAFᴰ; PSHAssoc; PSHIdL; PSHπ₁NatEq; PSH×aF-seq)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.CartesianClosed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
@@ -114,84 +115,85 @@ module _ (Q : Quiver ℓQ ℓQ') where
     PSH-CC : CartesianCategory (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)
     PSH-CC = Cartesian-PRESHEAF FREE ℓ
 
-
-    RA : ReprEqAssoc (CartesianCategory.C PSH-CC)
-    RA = {!!}
-
-    IL : EqIdL (CartesianCategory.C PSH-CC)
-    IL = {!!}
-
-    ANE : Allπ₁NatEq (CartesianCategory.bp PSH-CC)
-    ANE = {!!}
-
-    AaFS : All×aF-seq (CartesianCategory.bp PSH-CC)
-    AaFS = {!!}
-
-    PSHᴰCartesianⱽEq : isCartesianⱽ {!!} PSHᴰ
+    PSHᴰCartesianⱽEq : isCartesianⱽ PSHAssoc PSHᴰ
     PSHᴰCartesianⱽEq = isCartesianⱽPSHᴰ
 
     PSHᴰCartesianⱽ : V'.CartesianCategoryⱽ (PRESHEAF FREE ℓ) _ _
-    PSHᴰCartesianⱽ = EqCCⱽ→CCⱽ {!!} PSHᴰ PSHᴰCartesianⱽEq
+    PSHᴰCartesianⱽ = EqCCⱽ→CCⱽ PSHAssoc PSHᴰ PSHᴰCartesianⱽEq
 
     PSHᴰCᴰ : Categoryᴰ (PRESHEAF FREE ℓ) _ _
     PSHᴰCᴰ = V'.CartesianCategoryⱽ.Cᴰ PSHᴰCartesianⱽ
 
-
-    isCCCPSHᴰ : isCartesianClosedⱽ {!!} PSHᴰ {!!} (CartesianCategory.bp PSH-CC) {!!} {!!}
-    isCCCPSHᴰ .fst = PSHᴰCartesianⱽEq
-    isCCCPSHᴰ .snd .fst = PSHᴰExponentials
-    isCCCPSHᴰ .snd .snd = {!PSHᴰ∀!}
-
-    -- Why is this slow?
-    -- Something about the Eq assumptions not aligning with those from isCartesianClosedⱽPSHᴰ?
-    PSHᴰCartesianClosedⱽ : CartesianClosedCategoryⱽ PSH-CC _ _
-    PSHᴰCartesianClosedⱽ = EqCCCⱽ→CCCⱽ PSH-CC {!!} {!!} {!!} {!!} PSHᴰ isCCCPSHᴰ
-      -- EqCCCⱽ→CCCⱽ PSH-CC PSHAssoc PSHIdL PSHπ₁NatEq PSH×aF-seq PSHᴰ isCartesianClosedⱽPSHᴰ
+    PSHᴰCartesianClosedⱽ : CartesianClosedCategoryⱽ PSH-CC
+      (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)
+    PSHᴰCartesianClosedⱽ = CCCⱽPSHᴰ {Cᴰ = FREEᴰ}
 
     -- nerve preserves products because the universal property of products in
     -- FREE-1,×,⇒.C transfers pointwise to the presheaf category
     nerve-pres-bp : preservesProvidedBinProducts nerve (FREE-1,×,⇒.CC .CartesianCategory.bp)
-    nerve-pres-bp A B Γ = {!!}
-    -- {!FREE-1,×,⇒.CC .CartesianCategory.bp (A , B) .UniversalElement.universal ?!}
-      -- FREE-1,×,⇒.CC .CartesianCategory.bp (A , B) .UniversalElement.universal ?
+    nerve-pres-bp A B Γ = isoToIsEquiv the-iso
+      where
+      open Iso
+      module bp = BinProductNotation (FREE-1,×,⇒.CC .CartesianCategory.bp (A , B))
+      pairHom : PshHomStrict Γ (nerve ⟅ A ⟆) → PshHomStrict Γ (nerve ⟅ B ⟆)
+              → PshHomStrict Γ (nerve ⟅ bp.vert ⟆)
+      pairHom α β .N-ob c x = α .N-ob c x bp.,p β .N-ob c x
+      pairHom α β .N-hom c c' f x' x eq =
+        sym (bp.,p≡
+          (sym (α .N-hom c c' f x' x eq)
+           ∙ cong (λ g → ⊆ ⟪ f ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ g) (sym bp.×β₁)
+           ∙ sym (FREE-1,×,⇒.C .⋆Assoc _ _ _))
+          (sym (β .N-hom c c' f x' x eq)
+           ∙ cong (λ g → ⊆ ⟪ f ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ g) (sym bp.×β₂)
+           ∙ sym (FREE-1,×,⇒.C .⋆Assoc _ _ _)))
 
-  -- S : Section nerve PSHᴰCᴰ
-  -- S = FCCC.elimLocal ×⇒Q (nerve , nerve-pres-bp) PSHᴰCartesianClosedⱽ
-  --      (mkElimInterpᴰ OB HOM)
-  --   where
-  --   OB : (o : Q .fst) → PSHᴰ.ob[ nerve ⟅ ⊆ ⟅ o ⟆ ⟆ ]
-  --   OB o .F-ob (o' , _ , f) =
-  --     (Σ[ g ∈ FREE [ o' , o ] ] ⊆ ⟪ g ⟫ ≡ f) ,
-  --     isSetΣ (FREE .isSetHom)
-  --       (λ _ → isSet→isGroupoid (FREE-1,×,⇒.C .isSetHom) _ _)
-  --   OB o .F-hom {x = o' , _ , f} {y = o'' , _ , f'} (h , _ , eq) (g , p) =
-  --     h FREE.⋆ g ,
-  --     ⊆ .F-seq h g ∙ cong (λ x → ⊆ ⟪ h ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ x) p ∙ Eq.eqToPath eq
-  --   OB o .F-id = funExt λ (g , p) → ΣPathP (FREE .⋆IdL _ ,
-  --     isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
-  --   OB o .F-seq _ _ = funExt λ _ → ΣPathP (FREE .⋆Assoc _ _ _ ,
-  --     isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
+      the-iso : Iso (PshHomStrict Γ (nerve ⟅ bp.vert ⟆))
+                    (PshHomStrict Γ (nerve ⟅ A ⟆) × PshHomStrict Γ (nerve ⟅ B ⟆))
+      the-iso .fun f = f ⋆PshHomStrict nerve ⟪ bp.π₁ ⟫ , f ⋆PshHomStrict nerve ⟪ bp.π₂ ⟫
+      the-iso .inv (α , β) = pairHom α β
+      the-iso .sec (α , β) = ΣPathP
+        ( makePshHomStrictPath (funExt₂ λ c x → bp.×β₁)
+        , makePshHomStrictPath (funExt₂ λ c x → bp.×β₂))
+      the-iso .ret f = makePshHomStrictPath (funExt₂ λ c x →
+        bp.,p-extensionality bp.×β₁ bp.×β₂)
 
-  --   HOM : (e : Q.mor) →
-  --     PSHᴰ.Hom[ nerve ⟪ ⊆ ⟪ FC.⇑ Q e ⟫ ⟫ ][ OB (Q.dom e) , OB (Q.cod e) ]
-  --   HOM e .N-ob (o , _ , f) (g , p) =
-  --     FC.⇑ Q e ∘⟨ FREE ⟩ g ,
-  --     ⊆ .F-seq g (FC.⇑ Q e) ∙ cong (λ x → x ⋆⟨ FREE-1,×,⇒.C ⟩ ⊆ ⟪ FC.⇑ Q e ⟫) p
-  --   HOM e .N-hom (o , _ , f) (o' , _ , f') (h , _ , eq) (g , p) =
-  --     ΣPathP (FREE .⋆Assoc _ _ _ ,
-  --       isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
+  S : Section nerve PSHᴰCᴰ
+  S = FCCC.elimLocal ×⇒Q (nerve , nerve-pres-bp) PSHᴰCartesianClosedⱽ
+       (mkElimInterpᴰ OB HOM)
+    where
+    OB : (o : Q .fst) → PSHᴰ.ob[ nerve ⟅ ⊆ ⟅ o ⟆ ⟆ ]
+    OB o .F-ob (o' , _ , f) =
+      (Σ[ g ∈ FREE [ o' , o ] ] ⊆ ⟪ g ⟫ ≡ f) ,
+      isSetΣ (FREE .isSetHom)
+        (λ _ → isSet→isGroupoid (FREE-1,×,⇒.C .isSetHom) _ _)
+    OB o .F-hom {x = o' , _ , f} {y = o'' , _ , f'} (h , _ , eq) (g , p) =
+      h FREE.⋆ g ,
+      ⊆ .F-seq h g ∙ cong (λ x → ⊆ ⟪ h ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ x) p ∙ Eq.eqToPath eq
+    OB o .F-id = funExt λ (g , p) → ΣPathP (FREE .⋆IdL _ ,
+      isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
+    OB o .F-seq _ _ = funExt λ _ → ΣPathP (FREE .⋆Assoc _ _ _ ,
+      isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
 
-  -- ⊆-Full : isFull ⊆
-  -- ⊆-Full o o' f[o→o'] = ∣ g , q ∙ FREE-1,×,⇒.C .⋆IdL _ ∣₁
-  --   where
-  --   witness : Σ[ g ∈ FREE [ o , o' ] ] ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.C .id ⋆⟨ FREE-1,×,⇒.C ⟩ f[o→o']
-  --   witness = (S .F-homᴰ f[o→o'] .N-ob (o , tt , FREE-1,×,⇒.C .id)) (FREE .id , refl)
+    HOM : (e : Q.mor) →
+      PSHᴰ.Hom[ nerve ⟪ ⊆ ⟪ FC.⇑ Q e ⟫ ⟫ ][ OB (Q.dom e) , OB (Q.cod e) ]
+    HOM e .N-ob (o , _ , f) (g , p) =
+      FC.⇑ Q e ∘⟨ FREE ⟩ g ,
+      ⊆ .F-seq g (FC.⇑ Q e) ∙ cong (λ x → x ⋆⟨ FREE-1,×,⇒.C ⟩ ⊆ ⟪ FC.⇑ Q e ⟫) p
+    HOM e .N-hom (o , _ , f) (o' , _ , f') (h , _ , eq) (g , p) =
+      ΣPathP (FREE .⋆Assoc _ _ _ ,
+        isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
 
-  --   g : FREE [ o , o' ]
-  --   g = witness .fst
+  ⊆-Full : isFull ⊆
+  ⊆-Full o o' f[o→o'] = ∣ g , q ∙ FREE-1,×,⇒.C .⋆IdL _ ∣₁
+    where
+    witness : Σ[ g ∈ FREE [ o , o' ] ] ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.C .id ⋆⟨ FREE-1,×,⇒.C ⟩ f[o→o']
+    witness = (S .F-homᴰ f[o→o'] .N-ob (o , tt , FREE-1,×,⇒.C .id)) (FREE .id , refl)
 
-  --   q : ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.C .id ⋆⟨ FREE-1,×,⇒.C ⟩ f[o→o']
-  --   q = witness .snd
+    g : FREE [ o , o' ]
+    g = witness .fst
 
-  -- ⊆-FullyFaithful : isFullyFaithful ⊆
-  -- ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful
+    q : ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.C .id ⋆⟨ FREE-1,×,⇒.C ⟩ f[o→o']
+    q = witness .snd
+
+  ⊆-FullyFaithful : isFullyFaithful ⊆
+  ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

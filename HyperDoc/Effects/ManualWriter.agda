@@ -49,6 +49,28 @@ module Writer (Char : hSet ℓS) where
   WRITERALG ℓ .⋆Assoc {w = B''} σ ϕ Ψ = WriterHom≡ {B' = B'' .fst} (B'' .snd) refl
   WRITERALG ℓ .isSetHom {y = B'} = isSetΣ (isSet→ (B' .snd)) λ _ → isProp→isSet (isPropΠ (λ _ → isPropΠ (λ _ → B' .snd _ _)))
 
+  data |FreeWriterAlg| (X : Type ℓ) : Type (ℓ-max ℓ ℓS) where
+    ret : X → |FreeWriterAlg| X
+    c* : ⟨ Char ⟩ → |FreeWriterAlg| X → |FreeWriterAlg| X
+
+  FreeWriterAlg : (X : Type ℓ) → WriterAlg (ℓ-max ℓ ℓS)
+  FreeWriterAlg X .fst = |FreeWriterAlg| X
+  FreeWriterAlg X .snd = c*
+
+  module _ {X : Type ℓ} (B : WriterAlg ℓ')
+    (f : X → B .fst)
+    where
+    |ext| : |FreeWriterAlg| X → B .fst
+    |ext| (ret x) = f x
+    |ext| (c* c t) = B .snd c (|ext| t)
+
+    ext : WriterHom (FreeWriterAlg X) B
+    ext .fst = |ext|
+    ext .snd c (ret x) = refl
+    ext .snd c (c* x b) = refl
+
+    -- Universal property: ext is inverse to pre-composition with ret
+
   -- A subalgebra is a congruence relation
   -- this is without any hlevel restriction for better inference
   SubAlg : (B : WriterAlg ℓ) → (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓS ℓ) (ℓ-suc ℓ'))

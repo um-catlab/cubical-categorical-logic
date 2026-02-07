@@ -49,6 +49,7 @@ module Writer (Char : hSet ℓS) where
   WRITERALG ℓ .⋆Assoc {w = B''} σ ϕ Ψ = WriterHom≡ {B' = B'' .fst} (B'' .snd) refl
   WRITERALG ℓ .isSetHom {y = B'} = isSetΣ (isSet→ (B' .snd)) λ _ → isProp→isSet (isPropΠ (λ _ → isPropΠ (λ _ → B' .snd _ _)))
 
+  -- Note: this is equivalent to List ⟨ Char ⟩ × X
   data |FreeWriterAlg| (X : Type ℓ) : Type (ℓ-max ℓ ℓS) where
     ret : X → |FreeWriterAlg| X
     c* : ⟨ Char ⟩ → |FreeWriterAlg| X → |FreeWriterAlg| X

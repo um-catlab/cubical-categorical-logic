@@ -1,0 +1,60 @@
+module HyperDoc.Effects.ManualWriter where 
+
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Structure 
+
+open import Cubical.Data.Sigma
+
+open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Sets
+
+private
+  variable ℓS ℓ ℓ' ℓ'' : Level
+module Writer (A : hSet ℓS) where
+  WriterAlg : ∀ ℓ → Type (ℓ-max ℓS (ℓ-suc ℓ))
+  WriterAlg ℓ = Σ[ X ∈ Type ℓ ] (⟨ A ⟩ → X → X)
+
+  WriterHom : WriterAlg ℓ → WriterAlg ℓ' → Type (ℓ-max (ℓ-max ℓS ℓ) ℓ')
+  WriterHom B B' = Σ[ f ∈ (B .fst → B' .fst) ]
+    (∀ a b → B' .snd a (f b) ≡ f (B .snd a b))
+
+  WriterHom≡ : {B : WriterAlg ℓ}{B' : WriterAlg ℓ'}
+    → {ϕ ψ : WriterHom B B'}
+    → isSet (B' .fst)
+    → ϕ .fst ≡ ψ .fst → ϕ ≡ ψ
+  WriterHom≡ isSetB' x = ΣPathPProp (λ _ → isPropΠ (λ _ → isPropΠ (λ _ → isSetB' _ _)))
+    x
+
+  idHom : {B : WriterAlg ℓ} → WriterHom B B
+  idHom .fst = λ z → z
+  idHom .snd = λ _ _ → refl
+
+  _⋆Hom_ : {B : WriterAlg ℓ}{B' : WriterAlg ℓ'}{B'' : WriterAlg ℓ''}
+    (ϕ : WriterHom B B') (ψ : WriterHom B' B'')
+    → WriterHom B B''
+  (ϕ ⋆Hom ψ) .fst = λ z → ψ .fst (ϕ .fst z)
+  (ϕ ⋆Hom ψ) .snd a b = ψ .snd a (ϕ .fst b) ∙ cong (ψ .fst) (ϕ .snd a b)
+
+  open Category
+  WRITERALG : ∀ ℓ → Category (ℓ-max ℓS (ℓ-suc ℓ)) (ℓ-max ℓS ℓ)
+  WRITERALG ℓ .ob = Σ[ B ∈ WriterAlg ℓ ] isSet (B .fst)
+  WRITERALG ℓ .Hom[_,_] (B , _) (B' , _) = WriterHom B B'
+  WRITERALG ℓ .id = idHom
+  WRITERALG ℓ ._⋆_ {y = (B' , _)}{z = (B'' , _)} = _⋆Hom_ {B' = B'}{B'' = B''}
+  WRITERALG ℓ .⋆IdL {y = B'} ϕ = WriterHom≡ {B' = B' .fst} (B' .snd) refl
+  WRITERALG ℓ .⋆IdR {y = B'} ϕ = WriterHom≡ {B' = B' .fst} (B' .snd) refl
+  WRITERALG ℓ .⋆Assoc {w = B''} σ ϕ Ψ = WriterHom≡ {B' = B'' .fst} (B'' .snd) refl
+  WRITERALG ℓ .isSetHom {y = B'} = isSetΣ (isSet→ (B' .snd)) λ _ → isProp→isSet (isPropΠ (λ _ → isPropΠ (λ _ → B' .snd _ _)))
+
+  -- A subalgebra is a congruence relation
+  -- this is without any hlevel restriction for better inference
+  SubAlg : (B : WriterAlg ℓ) → (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓS ℓ) (ℓ-suc ℓ'))
+  SubAlg B ℓ' = Σ[ Q ∈ ((B .fst) → Type ℓ') ]
+    (∀ a b → Q b → Q (B .snd a b))
+
+  module _ {B : WriterAlg ℓ}{B' : WriterAlg ℓ'} where
+    pull : (ϕ : WriterHom B B') (Q : SubAlg B' ℓ'') → SubAlg B ℓ''
+    pull ϕ Q .fst b = Q .fst (ϕ .fst b)
+    pull ϕ Q .snd a b Q⟨ϕb⟩ = subst (Q .fst) (ϕ .snd a b) (Q .snd a (ϕ .fst b) Q⟨ϕb⟩)

@@ -295,10 +295,11 @@ term .universal Γ =
   }
 
 scwf : SCwF _ _ _ _
-scwf .fst = SCat
-scwf .snd .fst = VTy
-scwf .snd .snd .fst = vTm
-scwf .snd .snd .snd = term , λ A Γ →
+scwf .SCwF.C = SCat
+scwf .SCwF.Ty = VTy
+scwf .SCwF.Tm = vTm
+scwf .SCwF.term = term
+scwf .SCwF.comprehension A Γ =
   representationToUniversalElement _ _
   ((A ∷ Γ) ,
   (PshIso→PshIsoLift _ _ (NatIso→PshIso _ _ (comprehension Γ A))))

@@ -21,17 +21,25 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.Representable.More
 
 open Category
 
 private
   variable
     ℓC ℓC' ℓT ℓT' ℓD ℓD' ℓS ℓS' : Level
-SCwF : (ℓC ℓC' ℓT ℓT' : Level) → Type _
-SCwF ℓC ℓC' ℓT ℓT' =
-  Σ[ C ∈ Category ℓC ℓC' ]
-  Σ[ Ty ∈ Type ℓT ]
-  Σ[ Tm ∈ (Ty → Presheaf C ℓT') ]
-  Terminal' C ×
-  -- "Simple comprehension"
-  (∀ A → LocallyRepresentable (Tm A))
+record SCwF (ℓC ℓC' ℓT ℓT' : Level) : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓT ℓT'))) where
+  no-eta-equality
+  field
+    C : Category ℓC ℓC'
+    Ty : Type ℓT
+    Tm : Ty → Presheaf C ℓT'
+    term : Terminal' C
+    -- "Simple comprehension"
+    comprehension : ∀ A → LocallyRepresentable (Tm A)
+  module C = Category C
+  module Tm⟨_⟩ (A : Ty) = PresheafNotation (Tm A)
+  module term = TerminalNotation term
+  ext = comprehension
+  module ext (Γ : C.ob)(A : Ty) = UniversalElementNotation (ext A Γ)

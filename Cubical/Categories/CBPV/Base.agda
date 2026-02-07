@@ -29,7 +29,7 @@ record CBPVModel (ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level) :
   where
   field
     Scwf : SCwF ℓC ℓC' ℓVTy ℓVTm
-  C = Scwf .fst
+  C = Scwf .SCwF.C
   V = PshMon.𝓟Mon C ℓCTm
   field
     Stacks : EnrichedCategory V ℓCTy

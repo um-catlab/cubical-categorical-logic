@@ -42,11 +42,11 @@ module _ (CC : CartesianCategory ℓC ℓC') where
   private
     module CC = CartesianCategory CC
   CartesianCategory→SCwF : SCwF ℓC ℓC' ℓC ℓC'
-  CartesianCategory→SCwF .fst = CC.C
-  CartesianCategory→SCwF .snd .fst = CC.C .ob
-  CartesianCategory→SCwF .snd .snd .fst = CC.C [-,_]
-  CartesianCategory→SCwF .snd .snd .snd .fst = CC.term
-  CartesianCategory→SCwF .snd .snd .snd .snd x y = CC.bp (y , x)
+  CartesianCategory→SCwF .SCwF.C = CC.C
+  CartesianCategory→SCwF .SCwF.Ty = CC.C .ob
+  CartesianCategory→SCwF .SCwF.Tm = CC.C [-,_]
+  CartesianCategory→SCwF .SCwF.term = CC.term
+  CartesianCategory→SCwF .SCwF.comprehension x y = CC.bp (y , x)
 
 module _
   {C : CartesianCategory ℓC ℓC'}
@@ -55,11 +55,11 @@ module _
   private
     module Cᴰ = CartesianCategoryᴰ Cᴰ
   CartesianCategoryᴰ→SCwFᴰ : SCwFᴰ (CartesianCategory→SCwF C) ℓCᴰ ℓCᴰ' ℓCᴰ ℓCᴰ'
-  CartesianCategoryᴰ→SCwFᴰ .fst = Cᴰ.Cᴰ
-  CartesianCategoryᴰ→SCwFᴰ .snd .fst = Cᴰ.Cᴰ.ob[_]
-  CartesianCategoryᴰ→SCwFᴰ .snd .snd .fst = Cᴰ.Cᴰ [-][-,_]
-  CartesianCategoryᴰ→SCwFᴰ .snd .snd .snd .fst = Cᴰ.termᴰ
-  CartesianCategoryᴰ→SCwFᴰ .snd .snd .snd .snd Γᴰ Aᴰ = Cᴰ.bpᴰ (Aᴰ , Γᴰ)
+  CartesianCategoryᴰ→SCwFᴰ .SCwFᴰ.Cᴰ = Cᴰ.Cᴰ
+  CartesianCategoryᴰ→SCwFᴰ .SCwFᴰ.Tyᴰ = Cᴰ.Cᴰ.ob[_]
+  CartesianCategoryᴰ→SCwFᴰ .SCwFᴰ.Tmᴰ = Cᴰ.Cᴰ [-][-,_]
+  CartesianCategoryᴰ→SCwFᴰ .SCwFᴰ.termᴰ = Cᴰ.termᴰ
+  CartesianCategoryᴰ→SCwFᴰ .SCwFᴰ.comprehensionᴰ Γᴰ Aᴰ = Cᴰ.bpᴰ (Aᴰ , Γᴰ)
 
 module _
   {C : CartesianCategory ℓC ℓC'}
@@ -68,10 +68,10 @@ module _
   private
     module Cⱽ = CartesianCategoryⱽ Cⱽ
   CartesianCategoryⱽ→SCwFⱽ : SCwFⱽ (CartesianCategory→SCwF C) ℓCᴰ ℓCᴰ' ℓCᴰ ℓCᴰ'
-  CartesianCategoryⱽ→SCwFⱽ .fst = Cⱽ.Cᴰ
-  CartesianCategoryⱽ→SCwFⱽ .snd .fst = Cⱽ.Cᴰ.ob[_]
-  CartesianCategoryⱽ→SCwFⱽ .snd .snd .fst = Cⱽ.Cᴰ [-][-,_]
-  CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .fst = Cⱽ.termⱽ
-  CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .snd .fst = Cⱽ.cartesianLifts
-  CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .snd .snd .fst = Cⱽ.bpⱽ
-  CartesianCategoryⱽ→SCwFⱽ .snd .snd .snd .snd .snd .snd = Cⱽ.cartesianLifts
+  CartesianCategoryⱽ→SCwFⱽ .SCwFⱽ.Cᴰ = Cⱽ.Cᴰ
+  CartesianCategoryⱽ→SCwFⱽ .SCwFⱽ.Tyᴰ = Cⱽ.Cᴰ.ob[_]
+  CartesianCategoryⱽ→SCwFⱽ .SCwFⱽ.Tmᴰ = Cⱽ.Cᴰ [-][-,_]
+  CartesianCategoryⱽ→SCwFⱽ .SCwFⱽ.terminalsⱽ = Cⱽ.termⱽ
+  CartesianCategoryⱽ→SCwFⱽ .SCwFⱽ.isFib = Cⱽ.cartesianLifts
+  CartesianCategoryⱽ→SCwFⱽ .SCwFⱽ.binProductsⱽ = Cⱽ.bpⱽ
+  CartesianCategoryⱽ→SCwFⱽ .SCwFⱽ.TmᴰFib = Cⱽ.cartesianLifts

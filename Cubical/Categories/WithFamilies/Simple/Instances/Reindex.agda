@@ -27,11 +27,12 @@ private
 
 module _ {C : SCwF ℓC ℓC' ℓT ℓT'}{D : SCwF ℓD ℓD' ℓS ℓS'}
          (F : PreFunctor C D) (Dᴰ : SCwFⱽ D ℓDᴰ ℓDᴰ' ℓSᴰ ℓSᴰ') where
+  private module Dᴰ = SCwFⱽ Dᴰ
   reindex : SCwFⱽ C ℓDᴰ ℓDᴰ' ℓSᴰ ℓSᴰ'
-  reindex .fst = Categoryᴰ.reindex (Dᴰ .fst) (F .fst)
-  reindex .snd .fst A = Dᴰ .snd .fst (F .snd .fst A)
-  reindex .snd .snd .fst Aᴰ = Presheafᴰ.reindHet (F .snd .snd) (Dᴰ .snd .snd .fst Aᴰ)
-  reindex .snd .snd .snd .fst = Categoryᴰ.TerminalsⱽReindex (Dᴰ .snd .snd .snd .fst)
-  reindex .snd .snd .snd .snd .fst = Categoryᴰ.isFibrationReindex _ (Dᴰ .snd .snd .snd .snd .fst)
-  reindex .snd .snd .snd .snd .snd .fst = Categoryᴰ.BinProductsⱽReindex (Dᴰ .snd .snd .snd .snd .snd .fst)
-  reindex .snd .snd .snd .snd .snd .snd Aᴰ = isFibrationReindHet (F .snd .snd) (Dᴰ .snd .snd .snd .snd .snd .snd Aᴰ)
+  reindex .SCwFⱽ.Cᴰ = Categoryᴰ.reindex Dᴰ.Cᴰ (F .fst)
+  reindex .SCwFⱽ.Tyᴰ A = Dᴰ.Tyᴰ (F .snd .fst A)
+  reindex .SCwFⱽ.Tmᴰ Aᴰ = Presheafᴰ.reindHet (F .snd .snd) (Dᴰ.Tmᴰ Aᴰ)
+  reindex .SCwFⱽ.terminalsⱽ = Categoryᴰ.TerminalsⱽReindex Dᴰ.terminalsⱽ
+  reindex .SCwFⱽ.isFib = Categoryᴰ.isFibrationReindex _ Dᴰ.isFib
+  reindex .SCwFⱽ.binProductsⱽ = Categoryᴰ.BinProductsⱽReindex Dᴰ.binProductsⱽ
+  reindex .SCwFⱽ.TmᴰFib Aᴰ = isFibrationReindHet (F .snd .snd) (Dᴰ.TmᴰFib Aᴰ)

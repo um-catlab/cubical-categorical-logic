@@ -18,9 +18,12 @@ private
     ℓC ℓC' ℓT ℓT' ℓD ℓD' ℓS ℓS' : Level
 
 module _ (C : SCwF ℓC ℓC' ℓT ℓT')(D : SCwF ℓD ℓD' ℓS ℓS') where
+  private
+    module C = SCwF C
+    module D = SCwF D
   -- A PreFunctor is not required to preserve the terminal ctx or comprehensions
   PreFunctor : Type _
   PreFunctor =
-    Σ[ F ∈ Functor (C .fst) (D .fst) ]
-    Σ[ F-ty ∈ (C .snd .fst → D .snd .fst) ]
-    ∀ {A} → PshHet F (C .snd .snd .fst A) (D .snd .snd .fst (F-ty A))
+    Σ[ F ∈ Functor C.C D.C ]
+    Σ[ F-ty ∈ (C.Ty → D.Ty) ]
+    ∀ {A} → PshHet F (C.Tm A) (D.Tm (F-ty A))

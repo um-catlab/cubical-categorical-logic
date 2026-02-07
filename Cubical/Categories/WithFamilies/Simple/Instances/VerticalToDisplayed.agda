@@ -24,13 +24,14 @@ private
     ℓC ℓC' ℓT ℓT' ℓD ℓD' ℓS ℓS' ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ' : Level
 
 module _ {C : SCwF ℓC ℓC' ℓT ℓT'} {Cᴰ : SCwFⱽ C ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ'} where
+  open SCwFⱽ Cᴰ renaming (Cᴰ to theCᴰ; Tyᴰ to theTyᴰ; Tmᴰ to theTmᴰ)
   SCwFⱽ→SCwFᴰ : SCwFᴰ C ℓCᴰ ℓCᴰ' ℓTᴰ ℓTᴰ'
-  SCwFⱽ→SCwFᴰ .fst = Cᴰ .fst
-  SCwFⱽ→SCwFᴰ .snd .fst = Cᴰ .snd .fst
-  SCwFⱽ→SCwFᴰ .snd .snd .fst = Cᴰ .snd .snd .fst
-  SCwFⱽ→SCwFᴰ .snd .snd .snd .fst = Terminalⱽ→Terminalᴰ _ (Cᴰ .snd .snd .snd .fst _)
-  SCwFⱽ→SCwFᴰ .snd .snd .snd .snd Aᴰ Γᴰ =
+  SCwFⱽ→SCwFᴰ .SCwFᴰ.Cᴰ = theCᴰ
+  SCwFⱽ→SCwFᴰ .SCwFᴰ.Tyᴰ = theTyᴰ
+  SCwFⱽ→SCwFᴰ .SCwFᴰ.Tmᴰ = theTmᴰ
+  SCwFⱽ→SCwFᴰ .SCwFᴰ.termᴰ = Terminalⱽ→Terminalᴰ _ (terminalsⱽ _)
+  SCwFⱽ→SCwFᴰ .SCwFᴰ.comprehensionᴰ Aᴰ Γᴰ =
     ×ⱽRepr+π*→×ᴰRepr _
-      (Cᴰ .snd .snd .snd .snd .fst _ _)
-      (Cᴰ .snd .snd .snd .snd .snd .snd _ _)
-      (Cᴰ .snd .snd .snd .snd .snd .fst _ _)
+      (isFib _ _)
+      (TmᴰFib _ _)
+      (binProductsⱽ _ _)

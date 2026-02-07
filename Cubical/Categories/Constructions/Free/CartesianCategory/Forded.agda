@@ -284,8 +284,9 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         isUniv Γ Γᴰ .leftInv u v =
           isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
       CCCᴰF,G-IsoC .CartesianCategoryᴰ.bpᴰ {A = A}{B = B} f g =
-        (((F×.π₁ D.⋆ f .fst) G×.,p (F×.π₂ D.⋆ g .fst)) , {!!}) , {!!} , {!!}
+        F×≅G× , ((sym G×.×β₁ , tt) , (sym G×.×β₂ , tt)) , isUniv
         where
+        module FCC× = BinProductNotation (FreeCartesianCategory .bp (A , B))
         F× = preservesUniversalElement→UniversalElement
               (preservesBinProdCones F A B)
               (FreeCartesianCategory .bp (A , B)) (F-bp A B)
@@ -294,6 +295,74 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
               (FreeCartesianCategory .bp (A , B)) (G-bp A B)
         module F× = BinProductNotation F×
         module G× = BinProductNotation G×
+
+        forward = (F×.π₁ D.⋆ f .fst) G×.,p (F×.π₂ D.⋆ g .fst)
+        backward = (G×.π₁ D.⋆ f .snd .isIso.inv) F×.,p (G×.π₂ D.⋆ g .snd .isIso.inv)
+
+        F×≅G× : CatIso D _ _
+        F×≅G× .fst = forward
+        F×≅G× .snd .isIso.inv = backward
+        F×≅G× .snd .isIso.sec = G×.,p-extensionality
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ G×.×β₁ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ F×.×β₁ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ f .snd .isIso.sec ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ G×.×β₂ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ F×.×β₂ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ g .snd .isIso.sec ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+        F×≅G× .snd .isIso.ret = F×.,p-extensionality
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ F×.×β₁ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ G×.×β₁ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ f .snd .isIso.ret ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ F×.×β₂ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ G×.×β₂ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ g .snd .isIso.ret ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+
+        isUniv : isUniversalᴰ F,G-IsoC _ _
+          (FreeCartesianCategory .bp (A , B))
+          ((sym G×.×β₁ , tt) , (sym G×.×β₂ , tt))
+        isUniv Γ Γᴰ .inv (u₁ , u₂) ((sq₁ , _) , (sq₂ , _)) .fst =
+          G×.,p-extensionality
+            (D.⋆Assoc _ _ _
+            ∙ D.⟨ refl ⟩⋆⟨ G×.×β₁ ⟩
+            ∙ sym (D.⋆Assoc _ _ _)
+            ∙ D.⟨ sym (F .F-seq _ _) ∙ cong (F .F-hom) FCC×.×β₁ ⟩⋆⟨ refl ⟩
+            ∙ sq₁
+            ∙ D.⟨ refl ⟩⋆⟨ sym (cong (G .F-hom) FCC×.×β₁) ∙ G .F-seq _ _ ⟩
+            ∙ sym (D.⋆Assoc _ _ _))
+            (D.⋆Assoc _ _ _
+            ∙ D.⟨ refl ⟩⋆⟨ G×.×β₂ ⟩
+            ∙ sym (D.⋆Assoc _ _ _)
+            ∙ D.⟨ sym (F .F-seq _ _) ∙ cong (F .F-hom) FCC×.×β₂ ⟩⋆⟨ refl ⟩
+            ∙ sq₂
+            ∙ D.⟨ refl ⟩⋆⟨ sym (cong (G .F-hom) FCC×.×β₂) ∙ G .F-seq _ _ ⟩
+            ∙ sym (D.⋆Assoc _ _ _))
+        isUniv Γ Γᴰ .inv _ _ .snd = tt
+        isUniv Γ Γᴰ .rightInv _ _ =
+          isProp→PathP (λ _ → isProp×
+            (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)
+            (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)) _ _
+        isUniv Γ Γᴰ .leftInv _ _ =
+          isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
 
       -- TODO this should decompose into a general principle where
       -- sections of (reindexed) IsoCommaᴰ give isos. Then the

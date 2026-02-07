@@ -12,13 +12,14 @@ open import Cubical.Categories.Instances.Sets
 
 private
   variable ℓS ℓ ℓ' ℓ'' : Level
-module Writer (A : hSet ℓS) where
+
+module Writer (Char : hSet ℓS) where
   WriterAlg : ∀ ℓ → Type (ℓ-max ℓS (ℓ-suc ℓ))
-  WriterAlg ℓ = Σ[ X ∈ Type ℓ ] (⟨ A ⟩ → X → X)
+  WriterAlg ℓ = Σ[ X ∈ Type ℓ ] (⟨ Char ⟩ → X → X)
 
   WriterHom : WriterAlg ℓ → WriterAlg ℓ' → Type (ℓ-max (ℓ-max ℓS ℓ) ℓ')
   WriterHom B B' = Σ[ f ∈ (B .fst → B' .fst) ]
-    (∀ a b → B' .snd a (f b) ≡ f (B .snd a b))
+    (∀ c b → B' .snd c (f b) ≡ f (B .snd c b))
 
   WriterHom≡ : {B : WriterAlg ℓ}{B' : WriterAlg ℓ'}
     → {ϕ ψ : WriterHom B B'}
@@ -35,7 +36,7 @@ module Writer (A : hSet ℓS) where
     (ϕ : WriterHom B B') (ψ : WriterHom B' B'')
     → WriterHom B B''
   (ϕ ⋆Hom ψ) .fst = λ z → ψ .fst (ϕ .fst z)
-  (ϕ ⋆Hom ψ) .snd a b = ψ .snd a (ϕ .fst b) ∙ cong (ψ .fst) (ϕ .snd a b)
+  (ϕ ⋆Hom ψ) .snd c b = ψ .snd c (ϕ .fst b) ∙ cong (ψ .fst) (ϕ .snd c b)
 
   open Category
   WRITERALG : ∀ ℓ → Category (ℓ-max ℓS (ℓ-suc ℓ)) (ℓ-max ℓS ℓ)
@@ -52,9 +53,18 @@ module Writer (A : hSet ℓS) where
   -- this is without any hlevel restriction for better inference
   SubAlg : (B : WriterAlg ℓ) → (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓS ℓ) (ℓ-suc ℓ'))
   SubAlg B ℓ' = Σ[ Q ∈ ((B .fst) → Type ℓ') ]
-    (∀ a b → Q b → Q (B .snd a b))
+    (∀ c b → Q b → Q (B .snd c b))
 
   module _ {B : WriterAlg ℓ}{B' : WriterAlg ℓ'} where
     pull : (ϕ : WriterHom B B') (Q : SubAlg B' ℓ'') → SubAlg B ℓ''
     pull ϕ Q .fst b = Q .fst (ϕ .fst b)
-    pull ϕ Q .snd a b Q⟨ϕb⟩ = subst (Q .fst) (ϕ .snd a b) (Q .snd a (ϕ .fst b) Q⟨ϕb⟩)
+    pull ϕ Q .snd c b Q⟨ϕb⟩ = subst (Q .fst) (ϕ .snd c b) (Q .snd c (ϕ .fst b) Q⟨ϕb⟩)
+
+  module _ {Char : Type ℓ}{B : WriterAlg ℓ'}  where
+    module _ (f : Char → B .fst) (P : Char → Type ℓ'') where
+      -- Note: this type is equivalent to
+      -- |push| b = Σ[ a ∈ A ] Σ[ cs ∈ List Char ] b ≡ cs * (f a) where * is the extension of B .snd to lists
+      data |push| : B .fst → Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓS))) where
+        ret∈ : ∀ a → P a → |push| (f a)
+        c*-cong : ∀ c b → |push| b → |push| (B .snd c b)
+        -- add a squash if you want it to be a Prop

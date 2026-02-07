@@ -9,6 +9,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Path
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
@@ -19,23 +20,34 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.UnderlyingGraph
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Limits.Terminal.More
+open import Cubical.Categories.Limits.Terminal as Term
+open import Cubical.Categories.Limits.Terminal.More as Term
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Constructions.Reindex
+
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
+open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Section.Base as Cat
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Constructions.Weaken.UncurriedProperties
+open import Cubical.Categories.Displayed.Instances.Path as PathCat
+  using (PathC; PathReflection)
+open import Cubical.Categories.Displayed.Instances.Path.Displayed as PathC
+  using (PathCᴰ)
+open import Cubical.Categories.Displayed.BinProduct
 
 open import
   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
@@ -46,6 +58,7 @@ private
 
 open Category
 open Section
+open Functor
 open UniversalElement
 
 module _ (Q : ×Quiver ℓQ ℓQ') where
@@ -217,4 +230,81 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     rec : (ı : ElimInterpᴰ wkC) → Functor |FreeCartesianCategory| (CC .CartesianCategory.C)
     rec ı = introS⁻ (elim wkC ı)
 
-  -- TODO uniqueness of product preserving functors out of FreeCC
+    -- rec is a cartesian functor: it strictly preserves binary products,
+    -- so the target category's universal property directly applies.
+    recCartesian : (ı : ElimInterpᴰ wkC)
+      → CartesianFunctor FreeCartesianCategory (CC .CartesianCategory.C)
+    recCartesian ı = rec ı , λ c c' →
+      CC .bp (rec ı .F-ob c , rec ı .F-ob c') .universal
+
+    -- Cartesian functors out of the FreeCartesianCategory
+    -- are naturally isomorphic to each other
+    module _
+      {D : Category ℓD ℓD'}
+      ((F , F-bp) (G , G-bp) : CartesianFunctor FreeCartesianCategory D)
+
+      -- shouldn't this be part of the definition of CartesianFunctor
+      -- i.e. preserves finite prods, not just binary
+      (F-1 : Term.preservesTerminal |FreeCartesianCategory| D F)
+      (G-1 : Term.preservesTerminal |FreeCartesianCategory| D G)
+      where
+      private
+        F,G-IsoC : Categoryᴰ |FreeCartesianCategory| _ _
+        F,G-IsoC = Reindex.reindex (IsoCommaᴰ F G) (Δ |FreeCartesianCategory|)
+        module D = Category D
+
+      open isIsoOver
+
+      CCCᴰF,G-IsoC : CartesianCategoryᴰ FreeCartesianCategory _ _
+      CCCᴰF,G-IsoC .CartesianCategoryᴰ.Cᴰ = F,G-IsoC
+      CCCᴰF,G-IsoC .CartesianCategoryᴰ.termᴰ =
+        F⊤≅G⊤ , _ , isUniv
+        where
+        F⊤ : Terminal D
+        F⊤ = _ , F-1 (Terminal'ToTerminal $ FreeCartesianCategory .term)
+
+        F⊤' = terminalToUniversalElement F⊤
+
+        G⊤ : Terminal D
+        G⊤ = _ , G-1 (Terminal'ToTerminal $ FreeCartesianCategory .term)
+
+        G⊤' = terminalToUniversalElement G⊤
+
+        module F⊤ = TerminalNotation F⊤'
+        module G⊤ = TerminalNotation G⊤'
+
+        F⊤≅G⊤ : CatIso D (F ⟅ ⊤ ⟆) (G ⟅ ⊤ ⟆)
+        F⊤≅G⊤ = terminalToIso D F⊤ G⊤
+
+        isUniv : isUniversalᴰ F,G-IsoC _ _
+          (FreeCartesianCategory .term) tt
+        isUniv Γ Γᴰ .inv _ _ .fst = G⊤.𝟙extensionality
+        isUniv Γ Γᴰ .inv _ _ .snd = _
+        isUniv Γ Γᴰ .rightInv = λ _ _ → refl
+        isUniv Γ Γᴰ .leftInv u v =
+          isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
+      CCCᴰF,G-IsoC .CartesianCategoryᴰ.bpᴰ {A = A}{B = B} f g =
+        (((F×.π₁ D.⋆ f .fst) G×.,p (F×.π₂ D.⋆ g .fst)) , {!!}) , {!!} , {!!}
+        where
+        F× = preservesUniversalElement→UniversalElement
+              (preservesBinProdCones F A B)
+              (FreeCartesianCategory .bp (A , B)) (F-bp A B)
+        G× = preservesUniversalElement→UniversalElement
+              (preservesBinProdCones G A B)
+              (FreeCartesianCategory .bp (A , B)) (G-bp A B)
+        module F× = BinProductNotation F×
+        module G× = BinProductNotation G×
+
+      -- TODO this should decompose into a general principle where
+      -- sections of (reindexed) IsoCommaᴰ give isos. Then the
+      -- iso in the category of functors gives a nat iso
+      module _ (ı : ElimInterpᴰ CCCᴰF,G-IsoC) where
+        private S = elim CCCᴰF,G-IsoC ı
+        FreeCartesianCatFunctor≅ : NatIso F G
+        FreeCartesianCatFunctor≅ .NatIso.trans .NatTrans.N-ob x = S .F-obᴰ x .fst
+        FreeCartesianCatFunctor≅ .NatIso.trans .NatTrans.N-hom f = S .F-homᴰ f .fst
+        FreeCartesianCatFunctor≅ .NatIso.nIso x = S .F-obᴰ x .snd
+
+        module _ (isUnivD : isUnivalent D) where
+          FreeCartesianCatFunctor≡ : F ≡ G
+          FreeCartesianCatFunctor≡ = NatIsoToPath isUnivD FreeCartesianCatFunctor≅

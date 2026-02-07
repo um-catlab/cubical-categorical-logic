@@ -62,6 +62,37 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
       the-iso .ret f = makePshHomStrictPath (funExt₂ λ c x →
         bp.,p-extensionality bp.×β₁ bp.×β₂)
 
+-- YOStrict preserves binary products (special case of Nerve-pres-bp
+-- with the identity functor, since Nerve Id ≡ YOStrict by computation)
+module _ {C : Category ℓC ℓC'} (bps : BinProducts C) where
+  YOStrict-pres-bp : preservesProvidedBinProducts (YOStrict {C = C}) bps
+  YOStrict-pres-bp A B Γ = isoToIsEquiv the-iso
+    where
+    open Iso
+    module bp = BinProductNotation (bps (A , B))
+
+    pairHom : PshHomStrict Γ (YOStrict ⟅ A ⟆) → PshHomStrict Γ (YOStrict ⟅ B ⟆)
+            → PshHomStrict Γ (YOStrict ⟅ bp.vert ⟆)
+    pairHom α β .N-ob c x = α .N-ob c x bp.,p β .N-ob c x
+    pairHom α β .N-hom c c' f x' x eq =
+      sym (bp.,p≡
+        (sym (α .N-hom c c' f x' x eq)
+         ∙ cong (λ g → f ⋆⟨ C ⟩ g) (sym bp.×β₁)
+         ∙ sym (C .⋆Assoc _ _ _))
+        (sym (β .N-hom c c' f x' x eq)
+         ∙ cong (λ g → f ⋆⟨ C ⟩ g) (sym bp.×β₂)
+         ∙ sym (C .⋆Assoc _ _ _)))
+
+    the-iso : Iso (PshHomStrict Γ (YOStrict ⟅ bp.vert ⟆))
+                  (PshHomStrict Γ (YOStrict ⟅ A ⟆) × PshHomStrict Γ (YOStrict ⟅ B ⟆))
+    the-iso .fun f = f ⋆PshHomStrict YOStrict ⟪ bp.π₁ ⟫ , f ⋆PshHomStrict YOStrict ⟪ bp.π₂ ⟫
+    the-iso .inv (α , β) = pairHom α β
+    the-iso .sec (α , β) = ΣPathP
+      ( makePshHomStrictPath (funExt₂ λ c x → bp.×β₁)
+      , makePshHomStrictPath (funExt₂ λ c x → bp.×β₂))
+    the-iso .ret f = makePshHomStrictPath (funExt₂ λ c x →
+      bp.,p-extensionality bp.×β₁ bp.×β₂)
+
 -- When D is a cartesian category, the nerve is a cartesian functor
 module _ {C : Category ℓC ℓC'} {D : CartesianCategory ℓD ℓD'} (F : Functor C (D .CartesianCategory.C)) where
   private

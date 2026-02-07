@@ -35,6 +35,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartes
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
+open import Cubical.Categories.Presheaf.Nerve using (Nerve)
 
 private
   variable ℓQ ℓQ' : Level
@@ -76,22 +77,11 @@ module _ (Q : Quiver ℓQ ℓQ') where
   commutes = FreeCatFunctor≡ Q _ _
     (record { _$gᴰ_ = λ _ → refl ; _<$g>ᴰ_ = λ _ → refl })
 
-  comp-Faithful : isFaithful (extension ∘F ⊆)
-  comp-Faithful = subst isFaithful commutes isFaithfulYOStrict
-
-  -- TODO move this
-  module _ {ℓA ℓA' ℓB ℓB' ℓC ℓC'}
-    {A : Category ℓA ℓA'}{B : Category ℓB ℓB'}{C : Category ℓC ℓC'}
-    (F : Functor A B)(G : Functor B C) where
-    isFaithful-GF→isFaithful-F : isFaithful (G ∘F F) → isFaithful F
-    isFaithful-GF→isFaithful-F faith x y f g p =
-      faith x y f g (congS (λ Ff → G ⟪ Ff ⟫) p)
-
   ⊆-Faithful : isFaithful ⊆
-  ⊆-Faithful = isFaithful-GF→isFaithful-F ⊆ extension comp-Faithful
+  ⊆-Faithful = isFaithful-YOStrict-factor commutes
 
   nerve : Functor FREE-1,×.C (PRESHEAF FREE ℓ)
-  nerve = reindPshFStrict ⊆ ∘F YOStrict
+  nerve = Nerve ⊆
 
   private
     FREEᴰ : Categoryᴰ FREE ℓ-zero ℓ-zero

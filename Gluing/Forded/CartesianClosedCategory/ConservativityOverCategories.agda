@@ -42,6 +42,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Cartes
   using (EqCCCⱽ→CCCⱽ)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
+open import Cubical.Categories.Presheaf.Nerve using (Nerve; Nerve-pres-bp)
 open import Cubical.Categories.Limits.BinProduct.More
 
 private
@@ -87,22 +88,11 @@ module _ (Q : Quiver ℓQ ℓQ') where
   commutes = FreeCatFunctor≡ Q _ _
     (record { _$gᴰ_ = λ _ → refl ; _<$g>ᴰ_ = λ _ → refl })
 
-  comp-Faithful : isFaithful (extension ∘F ⊆)
-  comp-Faithful = subst isFaithful commutes isFaithfulYOStrict
-
-  -- TODO move this
-  module _ {ℓA ℓA' ℓB ℓB' ℓC ℓC'}
-    {A : Category ℓA ℓA'}{B : Category ℓB ℓB'}{C : Category ℓC ℓC'}
-    (F : Functor A B)(G : Functor B C) where
-    isFaithful-GF→isFaithful-F : isFaithful (G ∘F F) → isFaithful F
-    isFaithful-GF→isFaithful-F faith x y f g p =
-      faith x y f g (congS (λ Ff → G ⟪ Ff ⟫) p)
-
   ⊆-Faithful : isFaithful ⊆
-  ⊆-Faithful = isFaithful-GF→isFaithful-F ⊆ extension comp-Faithful
+  ⊆-Faithful = isFaithful-YOStrict-factor commutes
 
   nerve : Functor FREE-1,×,⇒.C (PRESHEAF FREE ℓ)
-  nerve = reindPshFStrict ⊆ ∘F YOStrict
+  nerve = Nerve ⊆
 
   private
     FREEᴰ : Categoryᴰ FREE ℓ-zero ℓ-zero
@@ -128,34 +118,8 @@ module _ (Q : Quiver ℓQ ℓQ') where
       (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)
     PSHᴰCartesianClosedⱽ = CCCⱽPSHᴰ {Cᴰ = FREEᴰ}
 
-    -- nerve preserves products because the universal property of products in
-    -- FREE-1,×,⇒.C transfers pointwise to the presheaf category
     nerve-pres-bp : preservesProvidedBinProducts nerve (FREE-1,×,⇒.CC .CartesianCategory.bp)
-    nerve-pres-bp A B Γ = isoToIsEquiv the-iso
-      where
-      open Iso
-      module bp = BinProductNotation (FREE-1,×,⇒.CC .CartesianCategory.bp (A , B))
-      pairHom : PshHomStrict Γ (nerve ⟅ A ⟆) → PshHomStrict Γ (nerve ⟅ B ⟆)
-              → PshHomStrict Γ (nerve ⟅ bp.vert ⟆)
-      pairHom α β .N-ob c x = α .N-ob c x bp.,p β .N-ob c x
-      pairHom α β .N-hom c c' f x' x eq =
-        sym (bp.,p≡
-          (sym (α .N-hom c c' f x' x eq)
-           ∙ cong (λ g → ⊆ ⟪ f ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ g) (sym bp.×β₁)
-           ∙ sym (FREE-1,×,⇒.C .⋆Assoc _ _ _))
-          (sym (β .N-hom c c' f x' x eq)
-           ∙ cong (λ g → ⊆ ⟪ f ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ g) (sym bp.×β₂)
-           ∙ sym (FREE-1,×,⇒.C .⋆Assoc _ _ _)))
-
-      the-iso : Iso (PshHomStrict Γ (nerve ⟅ bp.vert ⟆))
-                    (PshHomStrict Γ (nerve ⟅ A ⟆) × PshHomStrict Γ (nerve ⟅ B ⟆))
-      the-iso .fun f = f ⋆PshHomStrict nerve ⟪ bp.π₁ ⟫ , f ⋆PshHomStrict nerve ⟪ bp.π₂ ⟫
-      the-iso .inv (α , β) = pairHom α β
-      the-iso .sec (α , β) = ΣPathP
-        ( makePshHomStrictPath (funExt₂ λ c x → bp.×β₁)
-        , makePshHomStrictPath (funExt₂ λ c x → bp.×β₂))
-      the-iso .ret f = makePshHomStrictPath (funExt₂ λ c x →
-        bp.,p-extensionality bp.×β₁ bp.×β₂)
+    nerve-pres-bp = Nerve-pres-bp ⊆ (FREE-1,×,⇒.CC .CartesianCategory.bp)
 
   S : Section nerve PSHᴰCᴰ
   S = FCCC.elimLocal ×⇒Q (nerve , nerve-pres-bp) PSHᴰCartesianClosedⱽ

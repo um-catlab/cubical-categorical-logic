@@ -46,6 +46,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Cartes
   using (EqCCCⱽ→CCCⱽ)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
+open import Cubical.Categories.Presheaf.Nerve using (Nerve; Nerve-pres-bp)
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base using (_×Psh_)
 open import Cubical.Categories.Limits.BinProduct.More
 
@@ -80,10 +81,6 @@ module _ (Q : Quiver ℓQ ℓQ') where
     module FREE-1,×,⇒ = CartesianClosedCategory FREE-1,×,⇒
     ℓ = ℓ-max ℓQ ℓQ'
 
---   ı : FC.Interp Q FREE-1,×,⇒.C
---   ı .HetQG._$g_ = ↑_
---   ı .HetQG._<$g>_ = FCCC.↑ₑ ×⇒Q
-
   ⊆ : Functor FREE-1,×.C FREE-1,×,⇒.C
   ⊆ = FCC.rec ×Q FREE-1,×,⇒.CC
     (mkElimInterpᴰ (λ o → CCCExpr.↑ o) (λ f → FCCC.↑ₑ ×⇒Q f))
@@ -93,70 +90,18 @@ module _ (Q : Quiver ℓQ ℓQ') where
     (mkElimInterpᴰ (λ o → YOStrict ⟅ ProdExpr.↑ o ⟆)
                    (λ f → YOStrict ⟪ FCC.↑ₑ ×Q f ⟫))
 
-  -- Both YOStrict and extension ∘F ⊆ agree on generators by construction.
-  -- We prove this using the uniqueness property of product-preserving functors
-  -- out of the free cartesian category.
-  --
-  -- Key insight: Two product-preserving functors F, G : FreeCC → D are equal
-  -- if they agree on base objects and base morphisms. This follows from the
-  -- universal property of the free cartesian category.
+  -- TODO uniqueness of cartesian functors out of FREE-1,×
+  -- using preservation of products by ⊆ and extension
+  -- then using univalence of the presheaf category to get
+  -- a path from the iso given by the recursor
   commutes : YOStrict ≡ extension ∘F ⊆
-  commutes = Functor≡ F-ob≡ F-hom≡ where
-    module PSH = Category (PRESHEAF FREE-1,×.C ℓ)
-
-    -- Object equality by recursion on ProdExpr
-    -- Both YOStrict and (extension ∘F ⊆) preserve products strictly
-    F-ob≡ : ∀ o → YOStrict ⟅ o ⟆ ≡ extension ⟅ ⊆ ⟅ o ⟆ ⟆
-    F-ob≡ (ProdExpr.↑ x) = refl  -- agree on generators by definition
-    F-ob≡ ProdExpr.⊤ = refl      -- both preserve terminal
-    F-ob≡ (l ProdExpr.× r) = cong₂ _×Psh_ (F-ob≡ l) (F-ob≡ r)  -- both preserve products
-
-    -- Morphism equality by recursion on Exp
-    -- Since hom-types are sets, use isSet→SquareP for HIT path constructors
-    F-hom≡ : ∀ {A B} (f : FREE-1,×.C [ A , B ]) →
-      PathP (λ i → PSH.Hom[ F-ob≡ A i , F-ob≡ B i ])
-            (YOStrict ⟪ f ⟫) (extension ⟪ ⊆ ⟪ f ⟫ ⟫)
-    -- Base case: generators
-    F-hom≡ (genₑ t Eq.refl Eq.refl) = refl
-    -- Category structure
-    F-hom≡ (idₑ Eq.refl) = refl
-    F-hom≡ (f ⋆ₑ g) =
-      compPathP' {B = λ i → PSH.Hom[ F-ob≡ _ i , F-ob≡ _ i ]} (F-hom≡ f) (F-hom≡ g)
-    F-hom≡ (⋆ₑIdL f i) = isSet→SquareP (λ _ _ → PSH.isSetHom) _ _ _ _ i
-    F-hom≡ (⋆ₑIdR f i) = isSet→SquareP (λ _ _ → PSH.isSetHom) _ _ _ _ i
-    F-hom≡ (⋆ₑAssoc f g h i) = isSet→SquareP (λ _ _ → PSH.isSetHom) _ _ _ _ i
-    F-hom≡ (isSetExp f g p q i j) = isSet→SquareP
-      (λ _ _ → isOfHLevelPathP' 2 PSH.isSetHom _ _)
-      (λ k → F-hom≡ (p k)) (λ k → F-hom≡ (q k))
-      (λ k → F-hom≡ f) (λ k → F-hom≡ g) i j
-    -- Terminal structure
-    F-hom≡ (!ₑ Eq.refl) = refl
-    F-hom≡ (⊤η Eq.refl t i) = isSet→SquareP (λ _ _ → PSH.isSetHom) _ _ _ _ i
-    -- Product structure
-    F-hom≡ (π₁ Eq.refl Eq.refl) = refl
-    F-hom≡ (π₂ Eq.refl Eq.refl) = refl
-    F-hom≡ (⟨ f , g ⟩ Eq.refl) =
-      cong₂ ×PshIntroStrict (F-hom≡ f) (F-hom≡ g)
-    F-hom≡ (×β₁ i) = isSet→SquareP (λ _ _ → PSH.isSetHom) _ _ _ _ i
-    F-hom≡ (×β₂ i) = isSet→SquareP (λ _ _ → PSH.isSetHom) _ _ _ _ i
-    F-hom≡ (×η Eq.refl t i) = isSet→SquareP (λ _ _ → PSH.isSetHom) _ _ _ _ i
-
-  comp-Faithful : isFaithful (extension ∘F ⊆)
-  comp-Faithful = subst isFaithful commutes isFaithfulYOStrict
-
-  -- TODO move this
-  module _ {ℓA ℓA' ℓB ℓB' ℓC ℓC'}
-    {A : Category ℓA ℓA'}{B : Category ℓB ℓB'}{C : Category ℓC ℓC'}
-    (F : Functor A B)(G : Functor B C) where
-    isFaithful-GF→isFaithful-F : isFaithful (G ∘F F) → isFaithful F
-    isFaithful-GF→isFaithful-F faith x y f g p =
-      faith x y f g (congS (λ Ff → G ⟪ Ff ⟫) p)
+  commutes = {!!}
 
   ⊆-Faithful : isFaithful ⊆
-  ⊆-Faithful = isFaithful-GF→isFaithful-F ⊆ extension comp-Faithful
+  ⊆-Faithful = isFaithful-YOStrict-factor commutes
 
   nerve : Functor FREE-1,×,⇒.C (PRESHEAF FREE-1,×.C ℓ)
-  nerve = reindPshFStrict ⊆ ∘F YOStrict
+  nerve = Nerve ⊆
 
   private
     FREE-1,×ᴰ : Categoryᴰ FREE-1,×.C ℓ-zero ℓ-zero
@@ -182,34 +127,8 @@ module _ (Q : Quiver ℓQ ℓQ') where
       (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)
     PSHᴰCartesianClosedⱽ = CCCⱽPSHᴰ {Cᴰ = FREE-1,×ᴰ}
 
-    -- nerve preserves products because the universal property of products in
-    -- FREE-1,×,⇒.C transfers pointwise to the presheaf category
     nerve-pres-bp : preservesProvidedBinProducts nerve (FREE-1,×,⇒.CC .CartesianCategory.bp)
-    nerve-pres-bp A B Γ = isoToIsEquiv the-iso
-      where
-      open Iso
-      module bp = BinProductNotation (FREE-1,×,⇒.CC .CartesianCategory.bp (A , B))
-      pairHom : PshHomStrict Γ (nerve ⟅ A ⟆) → PshHomStrict Γ (nerve ⟅ B ⟆)
-              → PshHomStrict Γ (nerve ⟅ bp.vert ⟆)
-      pairHom α β .N-ob c x = α .N-ob c x bp.,p β .N-ob c x
-      pairHom α β .N-hom c c' f x' x eq =
-        sym (bp.,p≡
-          (sym (α .N-hom c c' f x' x eq)
-           ∙ cong (λ g → ⊆ ⟪ f ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ g) (sym bp.×β₁)
-           ∙ sym (FREE-1,×,⇒.C .⋆Assoc _ _ _))
-          (sym (β .N-hom c c' f x' x eq)
-           ∙ cong (λ g → ⊆ ⟪ f ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ g) (sym bp.×β₂)
-           ∙ sym (FREE-1,×,⇒.C .⋆Assoc _ _ _)))
-
-      the-iso : Iso (PshHomStrict Γ (nerve ⟅ bp.vert ⟆))
-                    (PshHomStrict Γ (nerve ⟅ A ⟆) × PshHomStrict Γ (nerve ⟅ B ⟆))
-      the-iso .fun f = f ⋆PshHomStrict nerve ⟪ bp.π₁ ⟫ , f ⋆PshHomStrict nerve ⟪ bp.π₂ ⟫
-      the-iso .inv (α , β) = pairHom α β
-      the-iso .sec (α , β) = ΣPathP
-        ( makePshHomStrictPath (funExt₂ λ c x → bp.×β₁)
-        , makePshHomStrictPath (funExt₂ λ c x → bp.×β₂))
-      the-iso .ret f = makePshHomStrictPath (funExt₂ λ c x →
-        bp.,p-extensionality bp.×β₁ bp.×β₂)
+    nerve-pres-bp = Nerve-pres-bp ⊆ (FREE-1,×,⇒.CC .CartesianCategory.bp)
 
   -- Displayed presheaf tracking fullness witnesses for base objects
   OB : (o : Q .fst) → PSHᴰ.ob[ nerve ⟅ ⊆ ⟅ ProdExpr.↑ o ⟆ ⟆ ]

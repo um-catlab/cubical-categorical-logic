@@ -338,6 +338,15 @@ module _ {C : Category ℓ ℓ'} where
   isFaithfulYOStrict x y f g p =
     (sym $ C.⋆IdL f) ∙ (λ i → p i .N-ob x C.id)  ∙ C.⋆IdL g
 
+  -- If YOStrict factors as G ∘F F, then F is faithful
+  module _ {D : Category ℓD ℓD'}
+    {F : Functor C D}{G : Functor D (PRESHEAF C ℓ')}
+    (YO≡GF : YOStrict ≡ G ∘F F) where
+    isFaithful-YOStrict-factor : isFaithful F
+    isFaithful-YOStrict-factor x y f g p =
+      subst isFaithful YO≡GF isFaithfulYOStrict x y f g
+        (congS (G .F-hom) p)
+
 -- module _ {C : Category ℓ ℓ'} where
 --   private
 --     module C = Category C

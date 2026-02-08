@@ -1,9 +1,12 @@
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.List
+open import Cubical.Data.List renaming (map to lmap ; rec to lrec)
 open import Cubical.Foundations.Prelude
-
+open import Cubical.Functions.Logic 
+open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.HITs.PropositionalTruncation.Properties
 open import Cubical.Categories.Category 
 open import Cubical.Categories.Functor
+open import Cubical.Foundations.Structure 
 
 open import Cubical.Categories.Displayed.Base
 
@@ -16,7 +19,13 @@ levels : List Level → Level
 levels = foldr ℓ-max ℓ-zero
 
 ℓsuc : List Level → List Level 
-ℓsuc = map ℓ-suc
+ℓsuc = lmap ℓ-suc
+
+propBind : {ℓ ℓ' : Level} {A : Type ℓ}{B : Type ℓ'} → ∥ A ∥₁ → (A → ∥ B ∥₁) → ∥ B ∥₁ 
+propBind M f = rec squash₁ f M
+
+propBind' : {ℓ ℓ' : Level} {A : Type ℓ}{B : Type ℓ'} → ⟨ ∥ A ∥ₚ ⟩ → (A → ⟨ ∥ B ∥ₚ ⟩ ) → ⟨ ∥ B ∥ₚ ⟩
+propBind' M f = propBind M f
 
 to^op^op : {ℓ ℓ' : Level}{C : Category ℓ ℓ'}  → Functor C (C ^op ^op) 
 to^op^op .F-ob = λ z → z

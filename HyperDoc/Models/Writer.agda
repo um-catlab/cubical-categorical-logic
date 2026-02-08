@@ -60,7 +60,36 @@ module _
   CBPVWriteLogic .HC = CL
   CBPVWriteLogic .ORel .Rel {v}{c} P Q o = P ⊆ (Q .fst ∘S o) , ⊆-isProp P ((Q .fst ∘S o)) 
   CBPVWriteLogic .ORel .RelMono {v}{v'}{c}{c'}{o}{P}{P'}{Q}{Q'}{f}{g} VT CT OT x P'x = goal where 
+    open MonoidStr (M .snd)
+
+    -- need to defing the strongest post here?
+
+    g' = g .carrierHom
     
+    elem-c : ⟨ c .fst .carrier ⟩ 
+    elem-c = o (f x)
+
+    g⟨c⟩ : ⟨ c' . fst .carrier ⟩ 
+    g⟨c⟩ = g' elem-c
+
+    have : elem-c ∈ Q .fst 
+    have = OT (f x) (VT x P'x)
+    
+    --module lft  = OpLift {c .fst}{!   !}
+
+    _ = {! CL .F-hom g   !}
+
+    _ = {! Q .snd elem-c ε have !}
+
+    _ = {! CT g⟨c⟩   !}
+    
+    -- fst (Q' .fst (g .carrierHom (o (f x))))
+    check : (g .carrierHom) (c .fst .str (ε , elem-c)) ≡ c' .fst .str (ε · ε , g⟨c⟩ )
+    check = funExt⁻ (g .strHom) (ε , elem-c)
+    goal : g⟨c⟩ ∈ Q' .fst
+    goal = subst (λ h → h ∈ Q' .fst) {!  check!} {! ?  !}
+    
+    {-
     open MonoidStr (M .snd)
     open import Cubical.Categories.Monad.ExtensionSystem hiding (push)
     open ExtensionSystemFor (W' .snd)
@@ -106,6 +135,8 @@ module _
 
     goal : g⟨c⟩ ∈ Q' .fst
     goal = lemma g⟨c⟩ have'
+
+   -} 
 {-
     have : x ∈ VL.f* f P
     have = VT x P'x

@@ -45,7 +45,6 @@ module _ {ℓS : Level}{M : Monoid ℓS} where
   
   open Writer {M = M}
 
-
   module _ (Alg : ob EM) where 
     open Algebra (Alg .fst) renaming (str to α)
 
@@ -69,9 +68,18 @@ module _ {ℓS : Level}{M : Monoid ℓS} where
   subAlgPo A .fst .snd .isPreorder .is-refl P = ⊆-refl (P .fst)
   subAlgPo A .fst .snd .isPreorder .is-trans P Q R = ⊆-trans (P .fst) (Q .fst) (R .fst)
   -- this follows from antisym in ℙ
-  subAlgPo A .snd = {!   !}
+  subAlgPo A .snd = {!!}
 
   open Algebra renaming (str to α)
+  -- pullback of sub-algebras
+  module _ 
+    {A B : ob EM} 
+    (f : EM [ A , B ])
+    (Q : subAlg B) where 
+    pull : subAlg A
+    pull .fst x = Q .fst (f .carrierHom x)
+    pull .snd s = {!!}
+
   -- pushforward, op-cartesian lift
 
   module OpLift

@@ -4,6 +4,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure 
 
+open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
+open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Categories.Instances.Posets.Base
 open import Cubical.Categories.Category 
 open import Cubical.Categories.Constructions.BinProduct
@@ -17,12 +19,40 @@ open import HyperDoc.Lib
 
 open Functor
 
+record Logic 
+  {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP'  : Level}
+  (M : Model ℓV ℓV' ℓC ℓC' ℓS) : Type (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ ℓ-suc ℓP ∷ ℓ-suc ℓP' ∷ [])) where 
+  open Model M
+  field 
+    VH : Functor (V ^op) (POSET ℓP ℓP')
+    CH : Functor (C ^op) (POSET ℓP ℓP')
+
+module _ 
+  {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' ℓR : Level}
+  {M : Model ℓV ℓV' ℓC ℓC' ℓS }
+  (L : Logic {ℓP = ℓP}{ℓP'} M) where 
+
+  open Model M
+  open Logic L
+
+  module VL = HDSyntax VH 
+  module CL = HDSyntax CH 
+
+  HasUF⊣ : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓV ℓC) ℓS) ℓP) ℓP')
+  HasUF⊣ = ∀{A}{B} → (f : O[ A , B ]) → 
+    Σ[ f→  ∈ MonFun (VH .F-ob A .fst) (CH .F-ob B .fst) ] 
+    Σ[ f←  ∈ MonFun (CH .F-ob B .fst) (VH .F-ob A .fst) ] 
+    (f→ ⊣ f←)
+
+
+{-
 module _ 
   {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' ℓR : Level}
   (M : Model ℓV ℓV' ℓC ℓC' ℓS)
   where
   
   open Model M
+
 
   -- this is the data of a displayed profunctor in our setting (proof irrelevant)
   record ORelFunctor 
@@ -47,14 +77,4 @@ module _
     Rel[_][_,_] : ∀{v c} → ⟨ O ⟅ (v , c) ⟆ ⟩ → LV.F∣ v ∣ → LC.F∣ c ∣ → hProp ℓR
     Rel[_][_,_] o P Q = Rel P Q o
 
-
--- The data of two displayed categories and a displayed profunctor
--- (proof irrelevant)
-record CBPVLogic 
-  {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' ℓR : Level}
-  (M : Model ℓV ℓV' ℓC ℓC' ℓS) : Type (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ ℓ-suc ℓP ∷ ℓ-suc ℓP' ∷ ℓ-suc ℓR ∷ [])) where 
-  open Model M
-  field 
-    HL : Functor (V ^op) (POSET ℓP ℓP')
-    HC : Functor C (POSET ℓP ℓP')
-    ORel : ORelFunctor  {ℓR = ℓR} M HL HC 
+-}

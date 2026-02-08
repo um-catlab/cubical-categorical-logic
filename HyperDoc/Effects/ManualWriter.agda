@@ -5,13 +5,21 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure 
 
 open import Cubical.Data.Sigma
+open import Cubical.Relation.Binary.Preorder
+open import Cubical.Functions.Logic
+open import Cubical.Foundations.Powerset
+
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Posets.Base
+open import Cubical.HITs.PropositionalTruncation.Base
+
+open PreorderStr
 
 private
-  variable ℓS ℓ ℓ' ℓ'' : Level
+  variable ℓS ℓ ℓ' ℓ''  : Level
 
 module Writer (Char : hSet ℓS) where
   WriterAlg : ∀ ℓ → Type (ℓ-max ℓS (ℓ-suc ℓ))
@@ -74,14 +82,14 @@ module Writer (Char : hSet ℓS) where
 
   -- A subalgebra is a congruence relation
   -- this is without any hlevel restriction for better inference
-  SubAlg : (B : WriterAlg ℓ) → (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓS ℓ) (ℓ-suc ℓ'))
+  {-SubAlg : (B : WriterAlg ℓ) → (ℓ' : Level) → Type (ℓ-max (ℓ-max ℓS ℓ) (ℓ-suc ℓ'))
   SubAlg B ℓ' = Σ[ Q ∈ ((B .fst) → Type ℓ') ]
-    (∀ c b → Q b → Q (B .snd c b))
-
+    (∀ c b → Q b → Q (B .snd c b)) -}
+{-
   module _ {B : WriterAlg ℓ}{B' : WriterAlg ℓ'} where
     pull : (ϕ : WriterHom B B') (Q : SubAlg B' ℓ'') → SubAlg B ℓ''
     pull ϕ Q .fst b = Q .fst (ϕ .fst b)
-    pull ϕ Q .snd c b Q⟨ϕb⟩ = subst (Q .fst) (ϕ .snd c b) (Q .snd c (ϕ .fst b) Q⟨ϕb⟩)
+    pull ϕ Q .snd c b Q⟨ϕb⟩ = subst (Q .fst) (ϕ .snd c b) (Q .snd c (ϕ .fst b) Q⟨ϕb⟩) -}
 
   module _ {Char : Type ℓ}{B : WriterAlg ℓ'}  where
     module _ (f : Char → B .fst) (P : Char → Type ℓ'') where
@@ -91,3 +99,31 @@ module Writer (Char : hSet ℓS) where
         ret∈ : ∀ a → P a → |push| (f a)
         c*-cong : ∀ c b → |push| b → |push| (B .snd c b)
         -- add a squash if you want it to be a Prop
+
+  Closed : (A : WriterAlg ℓ) → ℙ ⟨ A ⟩ → Type (ℓ-max ℓS ℓ)
+  Closed A P = (w : ⟨ Char ⟩)(a : A .fst) → a ∈ P → A .snd w a ∈ P
+
+  isPropClosed : (A : WriterAlg ℓ) → (P : ℙ (A .fst)) → isProp (Closed A P) 
+  isPropClosed A P p q = funExt λ w → funExt λ a → funExt λ Pa → P (A .snd w a) .snd (p w a Pa) (q w a Pa)
+
+  SubAlg : (A : WriterAlg ℓ) → Type (ℓ-max ℓS (ℓ-suc ℓ))
+  SubAlg A = Σ[ P ∈ ℙ (A .fst) ] Closed A P
+
+  module _ {B B' : WriterAlg ℓ} where
+    pull : (ϕ : WriterHom B B') (Q : SubAlg B') → SubAlg B
+    pull ϕ Q .fst b = Q .fst (ϕ .fst b)
+    pull ϕ Q .snd c b Q⟨ϕb⟩ = substₚ (Q .fst) ∣ (ϕ .snd c b) ∣₁  (Q .snd c (ϕ .fst b) Q⟨ϕb⟩)
+
+    subAlg≡ : {X Y : SubAlg B} → (X .fst ≡ Y .fst) → X ≡ Y
+    subAlg≡ {X}{Y} prf = ΣPathP (prf , toPathP (isPropClosed B (Y .fst) _ (Y .snd))) 
+
+    subAlg≡' : {X Y : SubAlg B} → ((b : B .fst) → ⟨ X .fst b ⇔ Y .fst b ⟩) → X ≡ Y
+    subAlg≡' {X}{Y} prf = subAlg≡ (funExt λ b → ⇔toPath (prf b .fst)  (prf b .snd)) 
+
+  subAlgPo : ob (WRITERALG ℓ) → ob (POSET  (ℓ-max ℓS (ℓ-suc ℓ)) ℓ ) 
+  subAlgPo A .fst .fst = SubAlg (A .fst)
+  subAlgPo A .fst .snd ._≤_ P Q = P .fst ⊆ Q .fst
+  subAlgPo A .fst .snd .isPreorder .IsPreorder.is-prop-valued P Q = ⊆-isProp (P .fst)(Q .fst)
+  subAlgPo A .fst .snd .isPreorder .IsPreorder.is-refl P = ⊆-refl (P .fst)
+  subAlgPo A .fst .snd .isPreorder .IsPreorder.is-trans P Q R = ⊆-trans (P .fst) (Q .fst) (R .fst)
+  subAlgPo A .snd = {!   !}

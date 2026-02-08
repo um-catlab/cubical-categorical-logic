@@ -4,6 +4,8 @@
 
 module HyperDoc.Connectives.Connectives where
 
+open import Cubical.Data.Sigma hiding (_∧_;_∨_)
+
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude hiding (_∧_;_∨_)
 open import Cubical.Foundations.Structure 
@@ -16,7 +18,7 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 
 
 open Category
-
+open Functor
 
 module L∨⊤ where 
 
@@ -46,7 +48,12 @@ module L∨⊤ where
       f-top : f Hx.top ≡ Hy.top
       f-or : (x x' : X) → f (x Hx.∨ x') ≡  (f x) Hy.∨ (f x')
 
-module L× where
+  -- this could be parameterized by structure
+  Has∨⊤ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
+  Has∨⊤ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
+
+
+module L∧ where
 
   record HA {ℓ ℓ'} (P : ob (POSET ℓ ℓ')) : Type (ℓ-max ℓ ℓ') where 
     
@@ -69,3 +76,6 @@ module L× where
     open MonFun F
     field 
       f-and : (x x' : X) → f (x Hx.∧ x') ≡  (f x) Hy.∧ (f x')
+
+  Has∧ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
+  Has∧ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))

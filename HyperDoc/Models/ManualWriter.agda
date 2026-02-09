@@ -192,11 +192,3 @@ module _
   hasUF⊣ o .snd .snd .adjIff {P}{Q} .sec b = ⊆-isProp P (λ a → Q .fst (o a))  _ b 
 
   hasUF⊣ o .snd .snd .adjIff {P}{Q} .ret' a = ⊆-isProp (pushₚ o P) (Q .fst) _ a
-
-
-  module OpLift
-    {X Y : ob (WRITERALG ℓS)}
-    (f : (WRITERALG ℓS) [ X , Y ])
-    (X' : SubAlg (X .fst)) where
-
-

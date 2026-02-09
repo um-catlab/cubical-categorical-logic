@@ -12,6 +12,8 @@ open import Cubical.Functions.Logic
 open import Cubical.Foundations.Powerset
 open import Cubical.Foundations.Function
 
+open import Cubical.HITs.PropositionalTruncation renaming (rec to trec ; map to tmap)
+
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.FunctorAlgebras 
@@ -29,6 +31,8 @@ open import HyperDoc.Syntax
 -- open import HyperDoc.Logics.WriterMonadAlg
 open import HyperDoc.Lib
 open import HyperDoc.Effects.ManualWriter
+open import HyperDoc.Connectives.Connectives
+import Cubical.Data.Equality as Eq 
 
 open Algebra
 open AlgebraHom
@@ -37,6 +41,7 @@ open Functor
 open Model
 open Logic
 open _⊣_
+open MonFun
 open Iso renaming (ret to ret')
 
 module _ 
@@ -44,6 +49,7 @@ module _
   {M : hSet ℓS} where
 
   open Writer M
+ -- open |push|
 
   U : Functor (WRITERALG ℓS) (SET ℓS) 
   U .F-ob A = (A .fst .fst) , (A .snd)
@@ -56,6 +62,9 @@ module _
   F .F-hom {X}{Y} f = ext (FreeWriterAlg ⟨ Y ⟩) λ x → ret (f x)
   F .F-id = WriterHom≡ {!   !} {! refl  !} -- up
   F .F-seq = {!   !}
+
+  𝓥 = SET ℓS 
+  𝓒 = WRITERALG ℓS 
 
   CBPVWrite : Model  (ℓ-suc ℓS) ℓS (ℓ-suc ℓS) ℓS ℓS
   CBPVWrite .V = SET ℓS
@@ -108,42 +117,86 @@ module _
   hasC× B B' .snd .PshIso.nIso B'' .snd .fst b = ΣPathP ((WriterHom≡ (B .snd) refl) , WriterHom≡  (B' .snd) refl)
   hasC× B B' .snd .PshIso.nIso B'' .snd .snd a = WriterHom≡ (isSet× (B .snd) (B' .snd)) refl
 
+  CL : Functor (WRITERALG ℓS ^op) (POSET (ℓ-suc ℓS) ℓS )
+  CL .F-ob = subAlgPo
+  CL .F-hom f .f = pull f
+  CL .F-hom f .isMon = λ z x₂ → z (f .fst x₂)
+  CL .F-id {B} = eqMon _ _ (funExt λ X → subAlg≡ {B' = B .fst} refl )
+  CL .F-seq f g = eqMon _ _ (funExt λ X → subAlg≡ {B' = {!   !}} refl)
 
-  open MonFun
-  CH' : Functor (WRITERALG ℓS ^op) (POSET (ℓ-suc ℓS) ℓS )
-  CH' .F-ob = subAlgPo
-  CH' .F-hom f .f = pull f
-  CH' .F-hom f .isMon = λ z x₂ → z (f .fst x₂)
-  CH' .F-id {B} = eqMon _ _ (funExt λ X → subAlg≡ {B' = B .fst} refl )
-  CH' .F-seq f g = eqMon _ _ (funExt λ X → subAlg≡ {B' = {!   !}} refl)
+  -- just factor through Set's logic ?
+
+  -- VH : Functor (SET ℓS ^op) (POSET (ℓ-suc ℓS) ℓS) 
+  -- VH = Pred {ℓS}{ℓP}{ℓP'}
+
+  -- CH : Functor (WRITERALG ℓS ^op) (POSET (ℓ-suc ℓS) ℓS)
+  -- CH = VH ∘F (U ^opF) 
+
+  -- the codomains don't align
+  -- one maps into posets of the form Σ[ P ∈ Pred X ] closed P 
+  -- and the other maps into just Pred X
+
+  VL : Functor (SET ℓS ^op) (POSET (ℓ-suc ℓS) ℓS) 
+  VL = Pred {ℓS}{ℓP}{ℓP'}
 
   CBPVLogic : Logic CBPVWrite 
-  CBPVLogic .VH = Pred {ℓS}{ℓP}{ℓP'}
-  CBPVLogic .CH = Pred {ℓS}{ℓP}{ℓP'} ∘F (U ^opF) -- just factor through Set's logic
-    -- CH'
+  CBPVLogic .VH = VL
+  CBPVLogic .CH = CL
 
-{-
+  -- this should just be inherited from Set in some nice way
+  Alg∧ : L∧.Has∧ CL
+  Alg∧ .fst B .L∧.HA._∧_ (P , clP)(Q , clQ) = (P ∩ Q) , λ w a (Pa , Qa) → (clP w a  Pa) , (clQ w a Qa)
+  Alg∧ .fst B .L∧.HA.and-intro f g x Px = (f x Px) , (g x Px)
+  Alg∧ .fst B .L∧.HA.and-elim1 f x Px = f x Px .fst
+  Alg∧ .fst B .L∧.HA.and-elim2 f x Px = f x Px .snd
+  Alg∧ .snd f .L∧.HAHom.f-and  B B' = refl
+
+  -- direct image 
+  direct : ∀{A : ob 𝓥}{B : ob 𝓒} → (o : (SET ℓS) [ A , U .F-ob B ]) → ℙ ⟨ A ⟩ → ℙ ⟨ B .fst  ⟩ 
+  direct {A} {B} o P b = ∥ (Σ[ a ∈ ⟨ A ⟩ ] (a ∈ P ) × (b ≡ o a) ) ∥ₚ
+
+  push :  ∀{A : ob 𝓥}{B : ob 𝓒} → (o : (SET ℓS) [ A , U .F-ob B ]) → ℙ ⟨ A ⟩ → ⟨ B .fst ⟩ → Type ℓS
+  push {A}{B} o P b = Gen{ℓS = ℓS} {A = M}{(B .fst .fst) , (B .snd)} (B .fst .snd) (direct {A}{B} o P) b 
+
+  pushₚ :  ∀{A : ob 𝓥}{B : ob 𝓒} → (o : (SET ℓS) [ A , U .F-ob B ]) → ℙ ⟨ A ⟩ → ℙ ⟨ B .fst  ⟩ 
+  pushₚ {A}{B} o P b = ∥ push {A} {B} o P b  ∥ₚ
+
+
+  to : ∀{A : ob 𝓥}{B : ob 𝓒} → (o : (SET ℓS) [ A , U .F-ob B ]) → MonFun (VL .F-ob A .fst) (CL .F-ob B .fst) 
+  to {A} {B} o .f P .fst = pushₚ {A = A }{B}o P 
+  to {A} {B} o .f P .snd w b = tmap (step w b) 
+  to {A} {B} o .isMon {P}{Q} P⊆Q b = 
+    tmap (λ g → 
+      Gen-elim 
+        (λ b _ → push o Q b)  
+        (λ b' b'∈direct → base b' (tmap (λ (a , a∈P , b'≡ ) → a  , P⊆Q a a∈P , b'≡) b'∈direct)) 
+        (λ a b' g g' → step a b' g') 
+        b 
+        g)
+
   hasUF⊣ : HasUF⊣ CBPVLogic 
-  hasUF⊣ o .fst .f P = {! ∣push∣   !} , {!   !}
-  hasUF⊣ o .fst .isMon = {!   !}
-  hasUF⊣ o .snd .fst .f B = B .fst ∘S o
-  hasUF⊣ o .snd .fst .isMon X≤Y a = X≤Y (o a)
-  hasUF⊣ o .snd .snd .adjIff .fun = {!   !}
-  hasUF⊣ o .snd .snd .adjIff .inv = {!   !}
-  hasUF⊣ o .snd .snd .adjIff .sec = {!   !}
-  hasUF⊣ o .snd .snd .adjIff .ret' = {!   !}
--}
-  open import HyperDoc.Connectives.Connectives
-  open L∨⊤ using (Has∨⊤)
-  open L∧ using (Has∧)
+  hasUF⊣ o .fst = to o 
+  hasUF⊣ o .snd .fst .f P a = P .fst (o a)
+  hasUF⊣ o .snd .fst .isMon P a = P (o a)
+  hasUF⊣ o .snd .snd .adjIff {P}{Q} .fun pushP a a∈P = pushP (o a) ∣ (base (o a) ∣ a , a∈P , refl ∣₁) ∣₁
+  hasUF⊣ o .snd .snd .adjIff {P}{Q} .inv  P⊆Q b = trec (∈-isProp (λ z → Q .fst b) b) λ p → 
+    Gen-elim 
+      (λ b₁ _ → b₁ ∈ Q .fst) 
+      ((λ b → 
+        trec 
+          (Q .fst b .snd) 
+          (λ (a , a∈P , b≡) → subst (λ h → h ∈ Q .fst) (sym b≡) (P⊆Q a a∈P)))) 
+      (λ a b g → Q .snd a b) 
+      b 
+      p
+  hasUF⊣ o .snd .snd .adjIff {P}{Q} .sec b = ⊆-isProp P (λ a → Q .fst (o a))  _ b 
 
-  -- shoud really define ∧ ∨ ⊤ ... on the Powerset type
-  -- logical instructure inherited from Pred hyperdoc on SetPred
-  -- just use U?
-  has∧ : Has∧ CH'
-  has∧ .fst B .L∧.HA._∧_ X Y = (λ b → {! X .fst  !} ⊓  {!   !}) , {! B .fst .fst  !}
-  has∧ .fst B .L∧.HA.and-intro = {!   !}
-  has∧ .fst B .L∧.HA.and-elim1 = {!   !}
-  has∧ .fst B .L∧.HA.and-elim2 = {!   !}
-  has∧ .snd = {!   !}
+  hasUF⊣ o .snd .snd .adjIff {P}{Q} .ret' a = ⊆-isProp (pushₚ o P) (Q .fst) _ a
+
+
+  module OpLift
+    {X Y : ob (WRITERALG ℓS)}
+    (f : (WRITERALG ℓS) [ X , Y ])
+    (X' : SubAlg (X .fst)) where
+
 

@@ -9,6 +9,7 @@ open import Cubical.Relation.Binary.Preorder
 open import Cubical.Functions.Logic
 open import Cubical.Foundations.Powerset
 
+import Cubical.Data.Equality as Eq 
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -92,12 +93,12 @@ module Writer (Char : hSet ℓS) where
     pull ϕ Q .snd c b Q⟨ϕb⟩ = subst (Q .fst) (ϕ .snd c b) (Q .snd c (ϕ .fst b) Q⟨ϕb⟩) -}
 
   module _ {Char : Type ℓ}{B : WriterAlg ℓ'}  where
-    module _ (f : Char → B .fst) (P : Char → Type ℓ'') where
+    module _ (f : Char → B .fst) (P : Char → hProp ℓ'') where
       -- Note: this type is equivalent to
       -- |push| b = Σ[ a ∈ A ] Σ[ cs ∈ List Char ] b ≡ cs * (f a) where * is the extension of B .snd to lists
       data |push| : B .fst → Type (ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓ'' ℓS))) where
-        ret∈ : ∀ a → P a → |push| (f a)
-        c*-cong : ∀ c b → |push| b → |push| (B .snd c b)
+        ret∈ : ∀ a a' → ⟨ P a ⟩  → a' Eq.≡ (f a) → |push| a'
+        c*-cong : ∀ c b b' → |push| b →  (B .snd c b) Eq.≡ b' → |push| b'
         -- add a squash if you want it to be a Prop
 
   Closed : (A : WriterAlg ℓ) → ℙ ⟨ A ⟩ → Type (ℓ-max ℓS ℓ)

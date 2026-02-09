@@ -2,13 +2,18 @@
 module HyperDoc.Logics.SetPred where
 
 open import Agda.Builtin.Cubical.Equiv
+open import Cubical.Data.Empty
+open import Cubical.Data.Unit
+open import Cubical.HITs.PropositionalTruncation renaming (rec to trec)
+open import Cubical.Data.Sum
+
 open import Cubical.Relation.Binary.Preorder
 open import Cubical.Relation.Binary.Base
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure 
 open import Cubical.Foundations.Powerset
-
+open import Cubical.Functions.Logic hiding (⊥)
 
 open import Cubical.Categories.Category hiding (isUnivalent)
 open import Cubical.Categories.Constructions.BinProduct
@@ -16,6 +21,8 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Posets.Base
 open import Cubical.Categories.Instances.Preorders.Monotone
+
+open import HyperDoc.Connectives.Connectives
 
 open BinaryRelation
 open Category
@@ -46,3 +53,37 @@ module _
   Pred .F-hom f .isMon = λ z x₂ → z (f x₂)
   Pred .F-id = eqMon _ _ refl
   Pred .F-seq _ _ = eqMon _ _ refl
+
+  -- generalize these to any category with an internal heyting algebra 
+  module _ {X : hSet ℓS} where 
+
+    ⊤ₓ : ℙ ⟨ X ⟩ 
+    ⊤ₓ _ = ⊤
+
+    ⊥ₓ : ℙ ⟨ X ⟩
+    ⊥ₓ _ = ⊥* , λ ()
+
+    _∩_ : ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩
+    _∩_ P Q x = P x ⊓ Q x
+
+    _∪_ : ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩ 
+    _∪_ P Q x = P x ⊔ Q x 
+
+
+  has∨⊤ : L∨⊤.Has∨⊤ Pred
+  has∨⊤ .fst X .L∨⊤.HA.top = ⊤ₓ {X}
+  has∨⊤ .fst X .L∨⊤.HA._∨_ = _∪_ {X}
+  has∨⊤ .fst X .L∨⊤.HA.top-top x Px = tt*
+  has∨⊤ .fst X .L∨⊤.HA.or_intro_l x Px = ∣ _⊎_.inl Px ∣₁
+  has∨⊤ .fst X .L∨⊤.HA.or_intro_r x Qx = ∣ _⊎_.inr Qx ∣₁
+  has∨⊤ .fst X .L∨⊤.HA.or_elim {P}{Q}{R} f g  x = trec (R x .snd) λ { (_⊎_.inl Px) → f x Px
+                                                                    ; (_⊎_.inr Qx) → g x Qx} 
+  has∨⊤ .snd f .L∨⊤.HAHom.f-top = refl
+  has∨⊤ .snd f .L∨⊤.HAHom.f-or _ _ = refl
+
+  has∧ : L∧.Has∧ Pred 
+  has∧ .fst X .L∧.HA._∧_ = _∩_ {X}
+  has∧ .fst X .L∧.HA.and-intro f g x Px = (f x Px) , (g x Px)
+  has∧ .fst X .L∧.HA.and-elim1 f x Px = f x  Px .fst
+  has∧ .fst X .L∧.HA.and-elim2 f x Px = f x Px .snd
+  has∧ .snd f .L∧.HAHom.f-and _ _ = refl

@@ -1,7 +1,9 @@
 open import Cubical.Foundations.HLevels
+open import Cubical.Data.Sigma
 open import Cubical.Data.List renaming (map to lmap ; rec to lrec)
 open import Cubical.Foundations.Prelude
 open import Cubical.Functions.Logic 
+open import Cubical.Foundations.Powerset
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.HITs.PropositionalTruncation.Properties
 open import Cubical.Categories.Category 
@@ -50,3 +52,44 @@ Cᴰ^op^op Cᴰ .⋆IdLᴰ = Cᴰ .⋆IdLᴰ
 Cᴰ^op^op Cᴰ .⋆IdRᴰ = Cᴰ .⋆IdRᴰ
 Cᴰ^op^op Cᴰ .⋆Assocᴰ = Cᴰ .⋆Assocᴰ
 Cᴰ^op^op Cᴰ .isSetHomᴰ = Cᴰ .isSetHomᴰ
+
+
+-- will need this again for operational stuff
+module _ {ℓS : Level} where 
+  data Gen {A B : hSet ℓS}(f : ⟨ A ⟩ → ⟨ B ⟩ → ⟨ B ⟩ )(P : ℙ ⟨ B ⟩) : ⟨ B ⟩ → Type ℓS where
+    base  : ∀ (b) → b ∈ P → Gen f P b
+    step  : ∀ (a : ⟨ A ⟩)(b : ⟨ B ⟩) → Gen {A}{B} f P b → Gen f P (f a b)
+
+
+  Gen-rec :
+    ∀ {A B : hSet ℓS}{ℓS' : Level} {X : Type ℓS'}{f : ⟨ A ⟩ → ⟨ B ⟩ → ⟨ B ⟩}{P : ℙ ⟨ B ⟩} →
+    -- base case
+    (baseC : ∀ (b) → b ∈ P → X) →
+    -- step case
+    (stepC : ∀ (a : ⟨ A ⟩)(b : ⟨ B ⟩) → X → X) →
+    ∀ {b} → Gen {A}{B} f P b → X 
+  Gen-rec baseC stepC (base b b∈P) = baseC b b∈P
+  Gen-rec baseC stepC (step a b x∈Gen) = stepC a b (Gen-rec baseC stepC x∈Gen)
+
+  Gen-elim :
+    ∀ {A B : hSet ℓS}
+      {f : ⟨ A ⟩ → ⟨ B ⟩ → ⟨ B ⟩}
+      {P : ℙ ⟨ B ⟩}
+      {ℓS' : Level} 
+      (X : ∀ b → Gen{A}{B} f P b → Type ℓS') →
+
+      -- base case
+      (baseC :
+        ∀ b (p : b ∈ P) →
+        X b (base b p)) →
+
+      -- step case
+      (stepC :
+        ∀ (a : ⟨ A ⟩)(b : ⟨ B ⟩)
+          (g : Gen f P b) →
+        X b g →
+        X (f a b) (step a b g)) →
+
+      ∀ b (g : Gen f P b) → X b g
+  Gen-elim X baseC stepC b (base b' b'∈P ) = baseC b' b'∈P
+  Gen-elim {f = f} X baseC stepC b (step a b' b'∈Gen) = stepC a b' b'∈Gen  (Gen-elim X baseC stepC b' b'∈Gen)

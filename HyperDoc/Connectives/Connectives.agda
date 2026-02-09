@@ -79,3 +79,8 @@ module L∧ where
 
   Has∧ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
   Has∧ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
+
+  Preserve∧ : ∀{ℓC ℓC' ℓD ℓD' ℓP ℓP'}{C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{L : Functor (C ^op) (POSET ℓP ℓP')}
+   →  (F : Functor D C) →  Has∧ L → Has∧ (L ∘F (F ^opF)) 
+  Preserve∧ {L = L} F prf .fst c = prf .fst (F-ob (F ^opF) c)
+  Preserve∧ {L = L} F prf .snd f = prf .snd (F-hom (F ^opF) f)

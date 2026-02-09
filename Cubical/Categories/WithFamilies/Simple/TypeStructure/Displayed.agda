@@ -51,7 +51,8 @@ module _ (S : SCwF ℓC ℓC' ℓT ℓT')(Sᴰ : SCwFᴰ S ℓCᴰ ℓCᴰ' ℓT
   AllTmReprᴰ Aᴰ .snd .snd Γ Γᴰ .rightInv M Mᴰ =
     Sᴰ.Tmᴰ.rectifyOut $
       {!!}
-  AllTmReprᴰ Aᴰ .snd .snd Γ Γᴰ .leftInv γ γᴰ = Sᴰ.Cᴰ.rectifyOut $ {!Sᴰ.comprehensionᴰ.ue.intro≡ ?!}
+  AllTmReprᴰ Aᴰ .snd .snd Γ Γᴰ .leftInv γ γᴰ = Sᴰ.Cᴰ.rectifyOut $ Sᴰ.comprehensionᴰ.intro≡
+    {!!}
 
   -- AllTmRepr A .vertex = S.ext.vertex S.term.𝟙 A
   -- AllTmRepr A .element = S.ext.element S.term.𝟙ue.vertex A .snd

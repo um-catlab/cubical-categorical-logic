@@ -5,6 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
@@ -312,6 +313,77 @@ module _ (C : Category ℓC ℓC') (ℓP : Level) where
   Cartesian-PRESHEAF .CartesianCategory.C = PRESHEAF
   Cartesian-PRESHEAF .CartesianCategory.term = PSH1
   Cartesian-PRESHEAF .CartesianCategory.bp = PSHBP
+
+  private
+    open isIsoC renaming (inv to invC)
+
+    toNT : ∀ {P Q : Presheaf C ℓP} → PshHomStrict P Q → NatTrans P Q
+    toNT α .NatTrans.N-ob = α .N-ob
+    toNT α .NatTrans.N-hom f = funExt λ a → sym (α .N-hom _ _ f a _ refl)
+
+    fromNT : ∀ {P Q : Presheaf C ℓP} → NatTrans P Q → PshHomStrict P Q
+    fromNT α .N-ob = α .NatTrans.N-ob
+    fromNT α .N-hom c c' f p' p e =
+      sym (funExt⁻ (α .NatTrans.N-hom f) p') ∙ cong (α .NatTrans.N-ob _) e
+
+    PRESHEAFIso→NatIso : ∀ {P Q : Presheaf C ℓP} →
+      CatIso PRESHEAF P Q → NatIso P Q
+    PRESHEAFIso→NatIso ci .trans = toNT (ci .fst)
+    PRESHEAFIso→NatIso ci .nIso x .invC = ci .snd .invC .N-ob x
+    PRESHEAFIso→NatIso ci .nIso x .sec = funExt⁻ (cong N-ob (ci .snd .sec)) x
+    PRESHEAFIso→NatIso ci .nIso x .ret = funExt⁻ (cong N-ob (ci .snd .ret)) x
+
+    NatIso→PRESHEAFIso : ∀ {P Q : Presheaf C ℓP} →
+      NatIso P Q → CatIso PRESHEAF P Q
+    NatIso→PRESHEAFIso ni = theFwd , isIsoFwd
+      where
+        theFwd : PshHomStrict _ _
+        theFwd = fromNT (ni .trans)
+
+        theIso : isPshIsoStrict theFwd
+        theIso x = ni .nIso x .invC ,
+          (λ b → funExt⁻ (ni .nIso x .sec) b) ,
+          (λ a → funExt⁻ (ni .nIso x .ret) a)
+
+        theInv : PshHomStrict _ _
+        theInv = invPshIsoStrict (pshiso theFwd theIso) .PshIsoStrict.trans
+
+        isIsoFwd : isIsoC PRESHEAF theFwd
+        isIsoFwd .invC = theInv
+        isIsoFwd .sec =
+          makePshHomStrictPath (funExt₂ λ c q → theIso c .snd .fst q)
+        isIsoFwd .ret =
+          makePshHomStrictPath (funExt₂ λ c p → theIso c .snd .snd p)
+
+    Iso-PRESHEAFIso-NatIso : ∀ {P Q : Presheaf C ℓP} →
+      Iso (CatIso PRESHEAF P Q) (NatIso P Q)
+    Iso-PRESHEAFIso-NatIso .fun = PRESHEAFIso→NatIso
+    Iso-PRESHEAFIso-NatIso .inv = NatIso→PRESHEAFIso
+    Iso-PRESHEAFIso-NatIso .sec ni = NatIso≡ refl
+    Iso-PRESHEAFIso-NatIso .ret ci = CatIso≡ _ ci (makePshHomStrictPath refl)
+
+    PRESHEAFIso≃NatIso : ∀ {P Q : Presheaf C ℓP} →
+      CatIso PRESHEAF P Q ≃ NatIso P Q
+    PRESHEAFIso≃NatIso = isoToEquiv Iso-PRESHEAFIso-NatIso
+
+    Path→PRESHEAFIso→NatIso : ∀ {P Q : Presheaf C ℓP} → (p : P ≡ Q) →
+      pathToNatIso p ≡ PRESHEAFIso→NatIso (pathToIso p)
+    Path→PRESHEAFIso→NatIso {P = P} =
+      J (λ _ p → pathToNatIso p ≡ PRESHEAFIso→NatIso (pathToIso p))
+        (NatIso≡ refl-helper)
+      where
+        refl-helper : _
+        refl-helper i x =
+          ((λ i → pathToIso-refl {C = SET ℓP} {x = P .F-ob x} i .fst)
+          ∙ (λ i → pathToIso-refl {C = PRESHEAF} {x = P} (~ i) .fst .N-ob x)) i
+
+  isUnivalentPRESHEAF : isUnivalent PRESHEAF
+  isUnivalentPRESHEAF .isUnivalent.univ P Q =
+    isEquiv[equivFunA≃B∘f]→isEquiv[f] _ PRESHEAFIso≃NatIso
+      (subst isEquiv (λ i p → Path→PRESHEAFIso→NatIso p i)
+        (Path≃NatIso isUnivalentSET .snd))
+
+    -- isEquiv[equivFunA≃B∘f]→isEquiv[f] pathToIso {!!} {!!}
 
 module _ {C : Category ℓC ℓC'} where
   PshHomStrictPsh :

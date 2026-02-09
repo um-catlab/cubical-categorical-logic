@@ -16,9 +16,13 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Functors.More
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
+open import Cubical.Categories.Limits.Terminal as Term
+open import Cubical.Categories.Limits.Terminal.More as Term
 
 open import Cubical.Categories.Constructions.Free.Category.Forded as FC
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Forded as FCC
@@ -46,7 +50,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Cartes
   using (EqCCCⱽ→CCCⱽ)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
-open import Cubical.Categories.Presheaf.Nerve using (Nerve; Nerve-pres-bp)
+open import Cubical.Categories.Presheaf.Nerve
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base using (_×Psh_)
 open import Cubical.Categories.Limits.BinProduct.More
 
@@ -90,15 +94,48 @@ module _ (Q : Quiver ℓQ ℓQ') where
     (mkElimInterpᴰ (λ o → YOStrict ⟅ ProdExpr.↑ o ⟆)
                    (λ f → YOStrict ⟪ FCC.↑ₑ ×Q f ⟫))
 
-  -- TODO uniqueness of cartesian functors out of FREE-1,×
-  -- using preservation of products by ⊆ and extension
-  -- then using univalence of the presheaf category to get
-  -- a path from the iso given by the recursor
-  commutes : YOStrict ≡ extension ∘F ⊆
-  commutes = {!!}
+  YO≅ext⊆ : NatIso YOStrict (extension ∘F ⊆)
+  YO≅ext⊆ = FreeCartesianCatFunctor≅ ×Q FREE-1,×
+      (YOStrict , YOStrict-pres-bp FREE-1,×.bp)
+      (extension ∘F ⊆ , ext-⊆-bp)
+      yo-pres-terminal
+      ext-⊆-pres-terminal
+      (mkElimInterpᴰ (λ o → PRESHEAF FREE-1,×.C _ .Category.id , idCatIso .snd) (λ e → refl , tt))
+    where
+    PSH-bp = Cartesian-PRESHEAF FREE-1,×.C (ℓ-max ℓQ ℓQ') .CartesianCategory.bp
+
+    ext-⊆-bp : preservesProvidedBinProducts (extension ∘F ⊆)
+      FREE-1,×.bp
+    ext-⊆-bp c c' =
+      PSH-bp ((extension ∘F ⊆) .F-ob c , (extension ∘F ⊆) .F-ob c') .UniversalElement.universal
+
+    FCC⊤ : Terminal FREE-1,×.C
+    FCC⊤ = Terminal'ToTerminal (FreeCartesianCategory ×Q .CartesianCategory.term)
+
+    yo-pres-terminal : preservesTerminal FREE-1,×.C (PRESHEAF FREE-1,×.C _) YOStrict
+    yo-pres-terminal = preserveOnePreservesAll FREE-1,×.C (PRESHEAF FREE-1,×.C _) YOStrict FCC⊤
+      λ P → theHom P , unique P
+      where
+      module FCC⊤ = TerminalNotation (terminalToUniversalElement FCC⊤)
+      theHom : ∀ P → PshHomStrict P (YOStrict ⟅ FCC⊤ .fst ⟆)
+      theHom P .N-ob c _ = FCC⊤.!t
+      theHom P .N-hom c c' f p' p e = FCC⊤.𝟙extensionality
+      unique : ∀ P → (f : PshHomStrict P (YOStrict ⟅ FCC⊤ .fst ⟆)) → theHom P ≡ f
+      unique P f = makePshHomStrictPath (funExt₂ λ c p → FCC⊤.𝟙extensionality)
+
+    ext-⊆-pres-terminal : preservesTerminal FREE-1,×.C (PRESHEAF FREE-1,×.C _) (extension ∘F ⊆)
+    ext-⊆-pres-terminal = preserveOnePreservesAll FREE-1,×.C (PRESHEAF FREE-1,×.C _) (extension ∘F ⊆) FCC⊤
+      λ P → theHom P , unique P
+      where
+      theHom : ∀ P → PshHomStrict P ((extension ∘F ⊆) ⟅ FCC⊤ .fst ⟆)
+      theHom P .N-ob c _ = tt*
+      theHom P .N-hom c c' f p' p e = refl
+      unique : ∀ P → (f : PshHomStrict P ((extension ∘F ⊆) ⟅ FCC⊤ .fst ⟆)) → theHom P ≡ f
+      unique P f = makePshHomStrictPath (funExt₂ λ c p → refl)
 
   ⊆-Faithful : isFaithful ⊆
-  ⊆-Faithful = isFaithful-YOStrict-factor commutes
+  ⊆-Faithful =
+    isFaithful-GF→isFaithful-F ⊆ extension (isFaithful≅ (symNatIso YO≅ext⊆) isFaithfulYOStrict)
 
   nerve : Functor FREE-1,×,⇒.C (PRESHEAF FREE-1,×.C ℓ)
   nerve = Nerve ⊆

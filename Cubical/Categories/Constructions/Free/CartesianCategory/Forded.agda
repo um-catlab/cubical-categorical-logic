@@ -20,7 +20,6 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.UnderlyingGraph
 open import Cubical.Categories.Constructions.BinProduct
@@ -38,6 +37,7 @@ open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Section.Base as Cat
+open import Cubical.Categories.Displayed.Limits.CartesianSection
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
@@ -176,36 +176,12 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
       elim .F-idᴰ = refl
       elim .F-seqᴰ = λ _ _ → refl
 
-      -- elim strictly preserves the terminal object:
-      -- F-obᴰ maps ⊤ to the displayed terminal vertex
-      elimPreservesTerminal : elim .F-obᴰ ⊤ ≡ termᴰ .fst
-      elimPreservesTerminal = refl
-
-      -- F-homᴰ maps the terminal morphism !ₑ' to the displayed intro
-      elimPreservesTerminalMor : ∀ {Γ} →
-        elim .F-homᴰ (!ₑ' {Γ}) ≡ termᴰ.introᴰ tt
-      elimPreservesTerminalMor = refl
-
-      -- elim strictly preserves binary products:
-      -- F-obᴰ maps A × B to the displayed product vertex
-      elimPreservesBinProducts : ∀ A B →
-        elim .F-obᴰ (A × B) ≡ bpᴰ (elim .F-obᴰ A) (elim .F-obᴰ B) .fst
-      elimPreservesBinProducts A B = refl
-
-      -- F-homᴰ maps π₁' to the displayed first projection
-      elimPreservesπ₁ : ∀ {A B} →
-        elim .F-homᴰ (π₁' {A} {B}) ≡ bpᴰ.πᴰ₁
-      elimPreservesπ₁ = refl
-
-      -- F-homᴰ maps π₂' to the displayed second projection
-      elimPreservesπ₂ : ∀ {A B} →
-        elim .F-homᴰ (π₂' {A} {B}) ≡ bpᴰ.πᴰ₂
-      elimPreservesπ₂ = refl
-
-      -- F-homᴰ maps pairing to the displayed pairing
-      elimPreservesPairing : ∀ {Γ A B} (f : Exp Γ A) (g : Exp Γ B) →
-        elim .F-homᴰ (⟨ f , g ⟩') ≡ bpᴰ.introᴰ (elimHom f , elimHom g)
-      elimPreservesPairing f g = refl
+      -- elim is a cartesian section: it strictly preserves
+      -- the terminal object and binary products
+      elimCartesian : CartesianSection CCᴰ
+      elimCartesian .CartesianSection.section = elim
+      elimCartesian .CartesianSection.F-obᴰ-⊤ = refl
+      elimCartesian .CartesianSection.F-obᴰ-× _ _ = refl
 
   -- Local elimination
   module _
@@ -230,8 +206,8 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     rec : (ı : ElimInterpᴰ wkC) → Functor |FreeCartesianCategory| (CC .CartesianCategory.C)
     rec ı = introS⁻ (elim wkC ı)
 
-    -- rec is a cartesian functor: it strictly preserves binary products,
-    -- so the target category's universal property directly applies.
+    -- rec is a cartesian functor: this follows from
+    -- elimCartesian strictly preserving binary products.
     recCartesian : (ı : ElimInterpᴰ wkC)
       → CartesianFunctor FreeCartesianCategory (CC .CartesianCategory.C)
     recCartesian ı = rec ı , λ c c' →
@@ -364,16 +340,13 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         isUniv Γ Γᴰ .leftInv _ _ =
           isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
 
-      -- TODO this should decompose into a general principle where
-      -- sections of (reindexed) IsoCommaᴰ give isos. Then the
-      -- iso in the category of functors gives a nat iso
-      module _ (ı : ElimInterpᴰ CCCᴰF,G-IsoC) where
-        private S = elim CCCᴰF,G-IsoC ı
-        FreeCartesianCatFunctor≅ : NatIso F G
-        FreeCartesianCatFunctor≅ .NatIso.trans .NatTrans.N-ob x = S .F-obᴰ x .fst
-        FreeCartesianCatFunctor≅ .NatIso.trans .NatTrans.N-hom f = S .F-homᴰ f .fst
-        FreeCartesianCatFunctor≅ .NatIso.nIso x = S .F-obᴰ x .snd
+      -- A global section of the IsoComma gives a natural isomorphism
+      sectionToNatIso : GlobalSection F,G-IsoC → NatIso F G
+      sectionToNatIso S .NatIso.trans .NatTrans.N-ob x = S .F-obᴰ x .fst
+      sectionToNatIso S .NatIso.trans .NatTrans.N-hom f = S .F-homᴰ f .fst
+      sectionToNatIso S .NatIso.nIso x = S .F-obᴰ x .snd
 
-        module _ (isUnivD : isUnivalent D) where
-          FreeCartesianCatFunctor≡ : F ≡ G
-          FreeCartesianCatFunctor≡ = NatIsoToPath isUnivD FreeCartesianCatFunctor≅
+      module _ (ı : ElimInterpᴰ CCCᴰF,G-IsoC) where
+        FreeCartesianCatFunctor≅ : NatIso F G
+        FreeCartesianCatFunctor≅ =
+          sectionToNatIso (elimCartesian CCCᴰF,G-IsoC ı .CartesianSection.section)

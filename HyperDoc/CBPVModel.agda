@@ -40,11 +40,37 @@ record Model (ℓV ℓV' ℓC ℓC' ℓS : Level) : Type (levels (ℓsuc (ℓV �
   O[_,_] : ob V → ob C → Type ℓS
   O[_,_] v c = ⟨ O .F-ob (v , c)⟩
 
+  -- really need to find those bifunctor/profunctor combinators
+  -- these are all used to constuct the recursor/eliminator for the free model
+
   lcomp : ∀{v v' c} → V [ v , v' ] → O[ v' , c ] → O[ v , c ] 
   lcomp f o = O .F-hom (f , (C .id)) o
 
-  rcomp : ∀{v c c'} → O[ v , c ] → C [ c , c' ] → O[ v , c' ] 
-  rcomp o g = O .F-hom ((V .id) , g) o
+  rcomp : ∀{v c c'} → C [ c , c' ] → O[ v , c ] → O[ v , c' ] 
+  rcomp g o = O .F-hom ((V .id) , g) o
+
+  lcompId : ∀{v c}{M : O[ v , c ]} → lcomp (V .id) M ≡ M
+  lcompId {v}{c}{M} = funExt⁻ (O .F-id) M
+
+  rcompId : ∀{v c}{M : O[ v , c ]} → rcomp (C .id) M ≡ M
+  rcompId {v}{c}{M} = funExt⁻ (O .F-id) M
+
+  rcompSeq : ∀ {v c c' c''}{S : C [ c , c' ]}{S' : C [ c' , c'' ]}{M : O[ v , c ]} → 
+    rcomp  S' (rcomp S M) ≡ rcomp (S ⋆⟨ C ⟩ S') M
+  rcompSeq {S = S}{S'}{M} =  funExt⁻ (sym (O .F-seq (V .id , S) (V .id , S'))) M ∙ cong₂ (O .F-hom) (cong₂ _,_ (V .⋆IdL _) refl) refl
+
+  lcompSeq : ∀ {v v' v'' c }{W : V [ v , v' ]}{Y : V [ v' , v'' ]}{M : O[ v'' , c ]} → 
+    lcomp  W (lcomp Y M) ≡ lcomp (W ⋆⟨ V ⟩ Y) M
+  lcompSeq {W = W}{Y}{M}= funExt⁻ (sym (O .F-seq (Y , C .id) (W , C .id))) M ∙ cong₂ (O .F-hom) (cong₂ _,_ refl (C .⋆IdL _)) refl
+
+  lrSeq : ∀ {A A' B B'}{W : V [ A , A' ]}{M : O[ A' , B ]}{S : C [ B , B' ]} → 
+    lcomp W (rcomp S M) ≡ rcomp S (lcomp W M)
+  lrSeq {W = W}{M}{S} = 
+    funExt⁻ (sym (O .F-seq _ _)) M  
+    ∙ cong₂ (O .F-hom ) (cong₂ _,_ (V .⋆IdR _ ∙ sym (V .⋆IdL _)) (C .⋆IdR _ ∙ sym (C .⋆IdL _))) refl 
+    ∙ funExt⁻ (O .F-seq _ _ ) M
+
+
   
 
 module _

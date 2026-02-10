@@ -26,7 +26,13 @@ record Logic
   field 
     VH : Functor (V ^op) (POSET ℓP ℓP')
     CH : Functor (C ^op) (POSET ℓP ℓP')
+    pushV : ∀{A}{B} → (f : O[ A , B ]) →  MonFun (VH .F-ob A .fst) (CH .F-ob B .fst)
+    pullC : ∀{A}{B} → (f : O[ A , B ]) →  MonFun (CH .F-ob B .fst) (VH .F-ob A .fst)
+    pushPullAdj :  ∀{A}{B}{o} → pushV {A}{B} o ⊣ pullC o  
+    -- + coherence condition for pull with VH and CH
 
+
+{-
 module _ 
   {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' ℓR : Level}
   {M : Model ℓV ℓV' ℓC ℓC' ℓS }
@@ -43,7 +49,7 @@ module _
     Σ[ f→  ∈ MonFun (VH .F-ob A .fst) (CH .F-ob B .fst) ] 
     Σ[ f←  ∈ MonFun (CH .F-ob B .fst) (VH .F-ob A .fst) ] 
     (f→ ⊣ f←)
-
+-}
 
 {-
 module _ 

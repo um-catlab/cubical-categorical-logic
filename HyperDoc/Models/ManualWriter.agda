@@ -20,6 +20,7 @@ open import Cubical.Categories.Instances.FunctorAlgebras
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Posets.Base
 
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Instances.Preorders.Monotone hiding (_≤X_ ; _≤Y_)
 open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
@@ -39,6 +40,7 @@ open AlgebraHom
 open Category
 open Functor
 open Model
+open NatTrans
 open Logic
 open _⊣_
 open MonFun
@@ -49,27 +51,14 @@ module _
   {M : hSet ℓS} where
 
   open Writer M
- -- open |push|
-
-  U : Functor (WRITERALG ℓS) (SET ℓS) 
-  U .F-ob A = (A .fst .fst) , (A .snd)
-  U .F-hom f = f .fst
-  U .F-id = refl
-  U .F-seq _ _ = refl
-
-  F : Functor (SET ℓS) (WRITERALG ℓS) 
-  F .F-ob X = FreeWriterAlg ⟨ X ⟩ , {!   !}
-  F .F-hom {X}{Y} f = ext (FreeWriterAlg ⟨ Y ⟩) λ x → ret (f x)
-  F .F-id = WriterHom≡ {!   !} {! refl  !} -- up
-  F .F-seq = {!   !}
-
+ 
   𝓥 = SET ℓS 
   𝓒 = WRITERALG ℓS 
 
   CBPVWrite : Model  (ℓ-suc ℓS) ℓS (ℓ-suc ℓS) ℓS ℓS
   CBPVWrite .V = SET ℓS
   CBPVWrite .C = WRITERALG ℓS
-  CBPVWrite .O .F-ob (A , B) = (SET ℓS) [ A , U .F-ob B ] , isSetHom (SET ℓS) {A}{U .F-ob B} 
+  CBPVWrite .O .F-ob (A , B) = (SET ℓS) [ A , (B .fst .fst , B .snd) ] , isSetHom (SET ℓS) {A}{(B .fst .fst , B .snd)} 
   CBPVWrite .O .F-hom (f , g) h x = g .fst (h (f x)) 
   CBPVWrite .O .F-id = refl
   CBPVWrite .O .F-seq _ _ = refl
@@ -84,7 +73,31 @@ module _
   hasV+ A A' .snd .PshIso.nIso B .snd .fst (f , g) = ΣPathP (refl , refl)
   hasV+ A A' .snd .PshIso.nIso B .snd .snd f = funExt λ { (_⊎_.inl x) → refl
                                                         ; (_⊎_.inr x) → refl }
-    
+
+  hasUTy : HasUTy CBPVWrite 
+  hasUTy B .fst = B .fst .fst , B .snd
+  hasUTy B .snd .PshIso.trans .PshHom.N-ob A f = f
+  hasUTy B .snd .PshIso.trans .PshHom.N-hom _ _ _ _  = refl
+  hasUTy B .snd .PshIso.nIso A .fst f = f
+  hasUTy B .snd .PshIso.nIso A .snd .fst _ = refl
+  hasUTy B .snd .PshIso.nIso A .snd .snd _ = refl
+
+  U : Functor (WRITERALG ℓS) (SET ℓS) 
+  U = Ucomp CBPVWrite hasUTy
+
+  hasFTy : HasFTy CBPVWrite 
+  hasFTy A .fst = (FreeWriterAlg ⟨ A ⟩) , {!   !}
+  hasFTy A .snd .PshIso.trans .PshHom.N-ob B (f , fhom) a = f (ret a)
+  hasFTy A .snd .PshIso.trans .PshHom.N-hom B B' f (g , ghom) = refl
+  hasFTy A .snd .PshIso.nIso B .fst f = ext (B .fst) f
+  hasFTy A .snd .PshIso.nIso B .snd .fst b = refl
+  hasFTy A .snd .PshIso.nIso B .snd .snd a = {!  refl !}
+    -- ext (B .fst) (λ a₁ → a .fst (ret a₁)) ≡ a 
+    -- provable
+
+  F : Functor (SET ℓS)  (WRITERALG ℓS)
+  F = Fcomp CBPVWrite hasFTy
+  
   has⊤ : HasV⊤ CBPVWrite 
   has⊤ .fst .fst = Unit*
   has⊤ .fst .snd = isSetUnit*
@@ -94,35 +107,21 @@ module _
   has⊤ .snd .PshIso.nIso A .snd .fst tt* = refl
   has⊤ .snd .PshIso.nIso A .snd .snd _ = refl
 
-  hasUTy : HasUTy CBPVWrite 
-  hasUTy .fst = U
-  hasUTy .snd B .PshIso.trans .PshHom.N-ob A f = f
-  hasUTy .snd B .PshIso.trans .PshHom.N-hom _ _ _ _ = refl
-  hasUTy .snd B .PshIso.nIso A .fst f b = f b
-  hasUTy .snd B .PshIso.nIso A .snd .fst b = refl
-  hasUTy .snd B .PshIso.nIso A .snd .snd a = refl
-
-  hasFTy : HasFTy CBPVWrite
-  hasFTy .fst = F
-  hasFTy .snd A .PshIso.trans .PshHom.N-ob B f = {!  ext  !} , {!   !} -- ? f = {! e  !} , {!   !}
-  hasFTy .snd A .PshIso.trans .PshHom.N-hom = {!   !}
-  hasFTy .snd A .PshIso.nIso = {!   !}
-
   hasC× : HasC× CBPVWrite
   hasC× B B' .fst .fst = (B .fst .fst × B' .fst .fst) , λ m (b , b') → (B .fst .snd m b) , B' .fst .snd m b'
   hasC× B B' .fst .snd = isSet× (B .snd) (B' .snd)
-  hasC× B B' .snd .PshIso.trans .PshHom.N-ob B'' f = ((λ b' → f .fst b' .fst) , λ c b'' → {!   !}) , (λ b'' → f .fst b'' .snd) , {!   !}
-  hasC× B B' .snd .PshIso.trans .PshHom.N-hom C C' f p = {!   !}
-  hasC× B B' .snd .PshIso.nIso B'' .fst f = (λ p → f .fst .fst p , f .snd .fst p) , {!   !}
-  hasC× B B' .snd .PshIso.nIso B'' .snd .fst b = ΣPathP ((WriterHom≡ (B .snd) refl) , WriterHom≡  (B' .snd) refl)
-  hasC× B B' .snd .PshIso.nIso B'' .snd .snd a = WriterHom≡ (isSet× (B .snd) (B' .snd)) refl
+  hasC× B B' .snd .PshIso.trans .PshHom.N-ob B'' f = ((λ b' → f .fst b' .fst) , λ c b''  → cong fst (f .snd c b'')) , (λ b'' → f .fst b'' .snd) , λ c b''  → cong snd (f .snd c b'')
+  hasC× B B' .snd .PshIso.trans .PshHom.N-hom C C' f p = ΣPathP ((WriterHom≡ {B' = B .fst}(B .snd) refl) , WriterHom≡ {B' = B' .fst}(B' .snd) refl)
+  hasC× B B' .snd .PshIso.nIso B'' .fst (f , g) = (λ p → f .fst p , g .fst p) , λ c b → ΣPathP (f .snd c b , g .snd c b)
+  hasC× B B' .snd .PshIso.nIso B'' .snd .fst b = ΣPathP ((WriterHom≡ {B' = B .fst}(B .snd) refl) , WriterHom≡ {B' = B' .fst} (B' .snd) refl)
+  hasC× B B' .snd .PshIso.nIso B'' .snd .snd a = WriterHom≡ {B' = B  .fst .fst × B' .fst .fst , λ w (b , b') → B .fst .snd w b , B' .fst .snd w b'} (isSet× (B .snd) (B' .snd)) refl
 
   CL : Functor (WRITERALG ℓS ^op) (POSET (ℓ-suc ℓS) ℓS )
   CL .F-ob = subAlgPo
   CL .F-hom f .f = pull f
   CL .F-hom f .isMon = λ z x₂ → z (f .fst x₂)
   CL .F-id {B} = eqMon _ _ (funExt λ X → subAlg≡ {B' = B .fst} refl )
-  CL .F-seq f g = eqMon _ _ (funExt λ X → subAlg≡ {B' = {!   !}} refl)
+  CL .F-seq {X}{Y}{Z} f g = eqMon _ _ (funExt λ W → subAlg≡ {B' = _} refl)
 
   -- just factor through Set's logic ?
 
@@ -139,18 +138,6 @@ module _
   VL : Functor (SET ℓS ^op) (POSET (ℓ-suc ℓS) ℓS) 
   VL = Pred {ℓS}{ℓP}{ℓP'}
 
-  CBPVLogic : Logic CBPVWrite 
-  CBPVLogic .VH = VL
-  CBPVLogic .CH = CL
-
-  -- this should just be inherited from Set in some nice way
-  Alg∧ : L∧.Has∧ CL
-  Alg∧ .fst B .L∧.HA._∧_ (P , clP)(Q , clQ) = (P ∩ Q) , λ w a (Pa , Qa) → (clP w a  Pa) , (clQ w a Qa)
-  Alg∧ .fst B .L∧.HA.and-intro f g x Px = (f x Px) , (g x Px)
-  Alg∧ .fst B .L∧.HA.and-elim1 f x Px = f x Px .fst
-  Alg∧ .fst B .L∧.HA.and-elim2 f x Px = f x Px .snd
-  Alg∧ .snd f .L∧.HAHom.f-and  B B' = refl
-
   -- direct image 
   direct : ∀{A : ob 𝓥}{B : ob 𝓒} → (o : (SET ℓS) [ A , U .F-ob B ]) → ℙ ⟨ A ⟩ → ℙ ⟨ B .fst  ⟩ 
   direct {A} {B} o P b = ∥ (Σ[ a ∈ ⟨ A ⟩ ] (a ∈ P ) × (b ≡ o a) ) ∥ₚ
@@ -161,25 +148,23 @@ module _
   pushₚ :  ∀{A : ob 𝓥}{B : ob 𝓒} → (o : (SET ℓS) [ A , U .F-ob B ]) → ℙ ⟨ A ⟩ → ℙ ⟨ B .fst  ⟩ 
   pushₚ {A}{B} o P b = ∥ push {A} {B} o P b  ∥ₚ
 
-
-  to : ∀{A : ob 𝓥}{B : ob 𝓒} → (o : (SET ℓS) [ A , U .F-ob B ]) → MonFun (VL .F-ob A .fst) (CL .F-ob B .fst) 
-  to {A} {B} o .f P .fst = pushₚ {A = A }{B}o P 
-  to {A} {B} o .f P .snd w b = tmap (step w b) 
-  to {A} {B} o .isMon {P}{Q} P⊆Q b = 
+  CBPVLogic : Logic CBPVWrite 
+  CBPVLogic .VH = VL
+  CBPVLogic .CH = CL
+  CBPVLogic .pushV {A} {B} o .f P .fst = pushₚ {A = A }{B}o P
+  CBPVLogic .pushV {A} {B} o .f P .snd w b = tmap (step w b)
+  CBPVLogic .pushV {A} {B} o .isMon {P}{Q} P⊆Q b = 
     tmap (λ g → 
       Gen-elim 
-        (λ b _ → push o Q b)  
+        (λ b _ → push {A = A} o Q b)  
         (λ b' b'∈direct → base b' (tmap (λ (a , a∈P , b'≡ ) → a  , P⊆Q a a∈P , b'≡) b'∈direct)) 
         (λ a b' g g' → step a b' g') 
         b 
         g)
-
-  hasUF⊣ : HasUF⊣ CBPVLogic 
-  hasUF⊣ o .fst = to o 
-  hasUF⊣ o .snd .fst .f P a = P .fst (o a)
-  hasUF⊣ o .snd .fst .isMon P a = P (o a)
-  hasUF⊣ o .snd .snd .adjIff {P}{Q} .fun pushP a a∈P = pushP (o a) ∣ (base (o a) ∣ a , a∈P , refl ∣₁) ∣₁
-  hasUF⊣ o .snd .snd .adjIff {P}{Q} .inv  P⊆Q b = trec (∈-isProp (λ z → Q .fst b) b) λ p → 
+  CBPVLogic .pullC {A} {B} o .f P a = P .fst (o a)
+  CBPVLogic .pullC {A} {B} o .isMon P a = P (o a)
+  CBPVLogic .pushPullAdj {o = o} .adjIff {P} {Q} .fun pushP a a∈P = pushP (o a) ∣ (base (o a) ∣ a , a∈P , refl ∣₁) ∣₁
+  CBPVLogic .pushPullAdj {o = o} .adjIff {P} {Q} .inv P⊆Q b = trec (∈-isProp (λ z → Q .fst b) b) λ p → 
     Gen-elim 
       (λ b₁ _ → b₁ ∈ Q .fst) 
       ((λ b → 
@@ -189,6 +174,14 @@ module _
       (λ a b g → Q .snd a b) 
       b 
       p
-  hasUF⊣ o .snd .snd .adjIff {P}{Q} .sec b = ⊆-isProp P (λ a → Q .fst (o a))  _ b 
+  CBPVLogic .pushPullAdj {o = o} .adjIff {P} {Q} .sec b = ⊆-isProp P (λ a → Q .fst (o a))  _ b 
+  CBPVLogic .pushPullAdj {A}{_}{o} .adjIff {P} {Q} .ret' a = ⊆-isProp (pushₚ {A = A} o P) (Q .fst) _ a
 
-  hasUF⊣ o .snd .snd .adjIff {P}{Q} .ret' a = ⊆-isProp (pushₚ o P) (Q .fst) _ a
+
+  -- this should just be inherited from Set in some nice way
+  Alg∧ : L∧.Has∧ CL
+  Alg∧ .fst B .L∧.HA._∧_ (P , clP)(Q , clQ) = (P ∩ Q) , λ w a (Pa , Qa) → (clP w a  Pa) , (clQ w a Qa)
+  Alg∧ .fst B .L∧.HA.and-intro f g x Px = (f x Px) , (g x Px)
+  Alg∧ .fst B .L∧.HA.and-elim1 f x Px = f x Px .fst
+  Alg∧ .fst B .L∧.HA.and-elim2 f x Px = f x Px .snd
+  Alg∧ .snd f .L∧.HAHom.f-and  B B' = refl

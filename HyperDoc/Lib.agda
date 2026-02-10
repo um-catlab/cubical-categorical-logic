@@ -9,9 +9,12 @@ open import Cubical.HITs.PropositionalTruncation.Properties
 open import Cubical.Categories.Category 
 open import Cubical.Categories.Functor
 open import Cubical.Foundations.Structure 
-
+open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
 
+open Category
 open Categoryᴰ
 open Functor
 
@@ -40,6 +43,7 @@ from^op^op .F-ob = λ z → z
 from^op^op .F-hom = λ z → z
 from^op^op .F-id = refl
 from^op^op .F-seq _ _ = refl
+
 
 Cᴰ^op^op : {ℓ ℓ' ℓD ℓD' : Level}{C : Category ℓ ℓ'}
   → Categoryᴰ (C ^op ^op) ℓD ℓD'
@@ -93,3 +97,17 @@ module _ {ℓS : Level} where
       ∀ b (g : Gen f P b) → X b g
   Gen-elim X baseC stepC b (base b' b'∈P ) = baseC b' b'∈P
   Gen-elim {f = f} X baseC stepC b (step a b' b'∈Gen) = stepC a b' b'∈Gen  (Gen-elim X baseC stepC b' b'∈Gen)
+
+
+open import Cubical.Categories.Presheaf.Representable hiding (Representation)
+module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
+  -- Note this PshIso uses PshHom
+  -- vs the one here
+  -- Cubical.Categories.Presheaf.Representable
+  -- uses NatIso with Lifts
+  -- TODO fix?
+  Representation : Type (ℓ-max (ℓ-max ℓo ℓh) ℓp)
+  Representation =  Σ[ A ∈ C .ob ] PshIso (C [-, A ]) P
+
+  reprToUniversalElement : Representation → UniversalElement C P 
+  reprToUniversalElement (A , pISo) = representationToUniversalElement C P (A , PshIso→PshIsoLift  (C [-, A ]) P pISo)

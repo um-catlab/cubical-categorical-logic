@@ -15,6 +15,7 @@ open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 
 open import Cubical.HITs.PathEq
 open import Cubical.HITs.Join
@@ -116,7 +117,10 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
 
     ∀Pshᴰ-app : (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPSHᴰ) → PshHom (π₁ P Q *Strict (∀Pshᴰ Pᴰ)) Pᴰ
     ∀Pshᴰ-app Pᴰ .N-ob (Γ , Γᴰ , p , q) pᴰ = pᴰ .N-ob (Γ , Γᴰ , p , q) (C.id , Cᴰ.idᴰ , (Eq.pathToEq (P.⋆IdL p)))
-    ∀Pshᴰ-app Pᴰ .N-hom c c' (u , v , Eq.refl) α = {!!}
+    ∀Pshᴰ-app Pᴰ .N-hom c c' (u , v , e) α =
+      (sym $ α .N-hom _ _ _ _ _ (ΣPathP (C.⋆IdR u ∙ sym (C.⋆IdL u) ,
+            ΣPathPProp (λ _ → Eq.isSet→isSetEq P.isSetPsh)
+              (Cᴰ.rectifyOut $ Cᴰ.⋆IdR (u , v) ∙ sym (Cᴰ.⋆IdL (u , v))))))
 
     module _ {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ} (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPSHᴰ) where
       private
@@ -128,19 +132,39 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       ∀Pshᴰ-Λ-N-ob α Γ3@(Γ , Γᴰ , p) rᴰ .N-ob (Δ , Δᴰ , p' , q) (γ , γᴰ , p'γ≡p) =
         -- Need a Pᴰ.p[ Δᴰ ][ (p , q) ]
         α .N-ob _ (Rᴰ.reindEq p'γ≡p $ (γᴰ Rᴰ.⋆ᴰ rᴰ))
-      ∀Pshᴰ-Λ-N-ob α Γ3 rᴰ .N-hom = {!!}
+      ∀Pshᴰ-Λ-N-ob α Γ3 rᴰ .N-hom c c' (_ , _ , Eq.refl)  (_ , _ , Eq.refl)
+        (_ , _ , e) p =
+        Pᴰ.rectifyOut $
+          Pᴰ.≡in (sym $ α .N-hom _ _ _ _)
+          ∙ (Pᴰ.≡in $ cong (α .N-ob _)
+              (Rᴰ.rectifyOut $ (sym (Rᴰ.⋆ᴰ-reind _)
+                ∙ sym (Rᴰ.⋆Assoc _ _ _)
+                ∙ Rᴰ.⟨ ΣPathP ((cong fst p) , (λ i → p i .snd .fst)) ⟩⋆⟨⟩) ∙ Rᴰ.reindEq-filler e))
+        where module Pᴰ = PresheafᴰNotation Pᴰ
 
       ∀Pshᴰ-Λ : PshHom (π₁ P Q *Strict Rᴰ) Pᴰ → PshHom Rᴰ (∀Pshᴰ Pᴰ)
       ∀Pshᴰ-Λ α .N-ob (Γ , Γᴰ , p) rᴰ = ∀Pshᴰ-Λ-N-ob α (Γ , Γᴰ , p) rᴰ
       -- .N-ob (Δ , Δᴰ , _ , q) (γ , γᴰ , Eq.refl) = {!!}
       -- ∀Pshᴰ-Λ α .N-ob (Γ , Γᴰ , p) rᴰ .N-hom = {!!}
-      ∀Pshᴰ-Λ α .N-hom = {!!}
+      ∀Pshᴰ-Λ α .N-hom c c' f rᴰ =
+        makePshHomStrictPath (funExt₂ λ _ _ → cong (α .N-ob _)
+          (Rᴰ.rectifyOut $ Rᴰ.reindEq-filler⁻ _
+            ∙ Rᴰ.⟨⟩⋆⟨ sym $ Rᴰ.⋆ᴰ-reind _ ⟩
+            ∙ sym (Rᴰ.⋆Assoc _ _ _)
+            ∙ Rᴰ.reindEq-filler _))
 
       ∀Pshᴰ-UMP : Iso (PshHom Rᴰ (∀Pshᴰ Pᴰ)) (PshHom (π₁ P Q *Strict Rᴰ) Pᴰ)
       ∀Pshᴰ-UMP .fun α∀ = (π₁ P Q *StrictF α∀) ⋆PshHom ∀Pshᴰ-app Pᴰ
       ∀Pshᴰ-UMP .inv = ∀Pshᴰ-Λ
-      ∀Pshᴰ-UMP .sec = {!!}
-      ∀Pshᴰ-UMP .ret = {!!}
+      ∀Pshᴰ-UMP .sec α =
+        makePshHomPath (funExt₂ λ { (Γ , Γᴰ , p , q) rᴰ →
+          cong (α .N-ob _) (Rᴰ.rectifyOut (Rᴰ.reindEq-filler⁻ _ ∙ Rᴰ.⋆IdLᴰ))
+          })
+      ∀Pshᴰ-UMP .ret α∀ =
+        makePshHomPath (funExt₂ λ { (Γ , Γᴰ , p) rᴰ →
+        makePshHomStrictPath (funExt₂ λ { (Δ , Δᴰ , p' , q) (γ , γᴰ , Eq.refl) →
+          {!!}
+          }) })
 
   PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL PSHAssoc PSHᴰFibration
     (PSHBP C ℓPSHᴰ)
@@ -164,9 +188,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       ∎Iso
   PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.nat S3@(S , Sᴰ , _) R3@(R , Rᴰ , β)
     (α , αᴰ , Eq.refl) p _ Eq.refl =
-    {!!}
-    -- slow
-    -- Eq.pathToEq (makePshHomPath (funExt₂ λ (Γ , Γᴰ , (s , q)) sᴰ → refl))
+    Eq.pathToEq (makePshHomPath (funExt₂ λ (Γ , Γᴰ , (s , q)) sᴰ → refl))
 
   isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
     (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq

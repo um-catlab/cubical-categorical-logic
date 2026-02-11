@@ -242,6 +242,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableⱽ→UniversalElementᴰ ue reprⱽ =
     Representableᴰ→UniversalElementᴰOverUE ue (reprⱽ .fst , FiberwisePshIsoᴰ→PshIsoᴰ (reprⱽ .snd))
 
+  UniversalElementᴰ→PshIsoᴰ :
+    (ue : UniversalElement C P) (ueᴰ : UniversalElementᴰ ue)
+    → PshIsoᴰ (asPshIso ue) (Cᴰ [-][-, ueᴰ .fst ]) Pᴰ
+  UniversalElementᴰ→PshIsoᴰ ue ueᴰ = yoRecᴰ {P = P} Pᴰ (ueᴰ .snd .fst) , (ueᴰ .snd .snd)
+
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D} (Fᴰ : Functorᴰ F Cᴰ Dᴰ)

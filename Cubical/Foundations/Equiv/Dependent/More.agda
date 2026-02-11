@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.HalfAdjoint
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Transport
 open import Cubical.Data.Sigma
@@ -113,9 +114,14 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
             ∙ P.reind-filler _
             ∙ P.≡in (isoover' .leftInv a p)
 
--- equivOver→isIsoOver {Q = Q}{isom = isom} f fEquiv =
---   isisoover (isoOver .inv) (isoOver .sec)
---     λ a p → {!isoOver .ret a p!}
---   where
---     isoOver : IsoOver (equivToIso $ isoToEquiv isom) _ Q
---     isoOver = equivOver→IsoOver (isoToEquiv isom) f fEquiv
+module _ {isom : Iso A B} (isomᴰ : IsoOver isom P Q) (isSetA : isSet A) (isSetB : isSet B) where
+  private
+    module P = hSetReasoning (A , isSetA) P
+    module Q = hSetReasoning (B , isSetB) Q
+  IsoOver→fiberwiseIsoOver : ∀ a → isIso (isomᴰ .fun a)
+  IsoOver→fiberwiseIsoOver a .fst q = P.reind (ret isom a) $ isomᴰ .inv (isom .fun a) q
+  IsoOver→fiberwiseIsoOver a .snd .fst q⟨fa⟩ = Q.rectifyOut $
+    isoFun≡ (IsoOver→Iso isom isomᴰ) (P.reind-filler⁻ _)
+  IsoOver→fiberwiseIsoOver a .snd .snd p⟨a⟩ = P.rectifyOut $
+    P.reind-filler⁻ _
+    ∙ P.≡in (isomᴰ .leftInv a p⟨a⟩)

@@ -74,11 +74,18 @@ module _
   reindexRepresentableIsoⱽ x Fxᴰ =
     FFFunctorᴰ→PshIsoᴰ (π Dᴰ F) Fxᴰ (π-FFᴰ Dᴰ F)
 
+  module _ (x : C.ob) (Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ) (ueⱽ : Representableⱽ Dᴰ (F ⟅ x ⟆) Qᴰ) where
+    reindexReflectsUMPⱽ : Representableⱽ (reindex Dᴰ F) x (reindPsh (reindex-π-/ x) Qᴰ)
+    reindexReflectsUMPⱽ .fst = ueⱽ .fst
+    reindexReflectsUMPⱽ .snd =
+      reindexRepresentableIsoⱽ x (ueⱽ .fst)
+      ⋆PshIso reindPshIso (reindex-π-/ x) (ueⱽ .snd)
+
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (P : Presheaf C ℓP) (Q : Presheaf D ℓQ)
   (F : Functor C D) (FP : PshHet F P Q)
-  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ)
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
   where
   private
     module C = Category C
@@ -91,6 +98,7 @@ module _
     private
       module ue = UniversalElementNotation ue
     -- will result in unnecessary compositions with id
+
     reflect-UMP-square : NatIso
       ((Idᴰ /Fⱽ yoRec Q (FP .N-ob ue.vertex ue.element)) ∘F reindex-π-/ Dᴰ F ue.vertex)
       ((π Dᴰ F /Fᴰ FP) ∘F (Idᴰ /Fⱽ yoRec P ue.element))
@@ -103,18 +111,21 @@ module _
     reflect-UMP-square .nIso (x , Fxᴰ , f) .isIso.inv .snd .snd = Q.⋆IdL _ ∙ sym (FP .N-hom _ _ _ _)
     reflect-UMP-square .nIso (x , Fxᴰ , f) .isIso.sec = Hom/≡ (Dᴰ.⋆IdL _)
     reflect-UMP-square .nIso (x , Fxᴰ , f) .isIso.ret = Hom/≡ (Dᴰ.⋆IdL _)
-
-    reindex-reflects-UMP :
-      UniversalElementᴰ Dᴰ Q Qᴰ (preservesUniversalElement→UniversalElement FP ue FP-pres-ue)
-      → UniversalElementᴰ (reindex Dᴰ F) P (reindPsh (π Dᴰ F /Fᴰ FP) Qᴰ) ue
-    reindex-reflects-UMP ueᴰ = Representableᴰ→UniversalElementᴰOverUE (reindex Dᴰ F) P (reindPsh (π Dᴰ F /Fᴰ FP) Qᴰ) ue
-      (ueᴰ .fst
-      , (FiberwisePshIsoᴰ→PshIsoᴰ $
-        -- reindex Dᴰ F [-][-, ueᴰ .fst ]
-        reindexRepresentableIsoⱽ Dᴰ F (ue .UniversalElement.vertex) (ueᴰ .fst)
-        -- reind (reindex-π-/ Dᴰ F ue.vertex) $ Dᴰ [-][-, ueᴰ .fst ]
-        ⋆PshIso reindPshIso (reindex-π-/ Dᴰ F (ue .UniversalElement.vertex)) (PshIsoᴰ→FiberwisePshIsoᴰ (UniversalElementᴰ→PshIsoᴰ Dᴰ Q Qᴰ _ ueᴰ))
-        -- reind (reindex-π-/ Dᴰ F ue.vertex) $ reindPsh (yoRec (FP $ ueᴰ .element)) Qᴰ
-        ⋆PshIso reindPsh-square _ _ _ _ _ reflect-UMP-square
-        -- reind (yoRec ue.element) $ reindPsh (π Dᴰ F /Fᴰ FP) Qᴰ
-        ))
+    module _ (Qᴰ : Presheafᴰ Q Dᴰ ℓQᴰ) where
+      -- NOTE: this is a generalization of
+      -- reindex-reflects-UMPⱽ but it uses reindex-reflects-UMPⱽ in
+      -- its implementation
+      reindex-reflects-UMPᴰ :
+        UniversalElementᴰ Dᴰ Q Qᴰ (preservesUniversalElement→UniversalElement FP ue FP-pres-ue)
+        → UniversalElementᴰ (reindex Dᴰ F) P (reindPsh (π Dᴰ F /Fᴰ FP) Qᴰ) ue
+      reindex-reflects-UMPᴰ ueᴰ = Representableᴰ→UniversalElementᴰOverUE (reindex Dᴰ F) P (reindPsh (π Dᴰ F /Fᴰ FP) Qᴰ) ue
+        (ueᴰ .fst
+        , (FiberwisePshIsoᴰ→PshIsoᴰ $
+          -- reindex Dᴰ F [-][-, ueᴰ .fst ]
+          reindexRepresentableIsoⱽ Dᴰ F (ue .UniversalElement.vertex) (ueᴰ .fst)
+          -- reind (reindex-π-/ Dᴰ F ue.vertex) $ Dᴰ [-][-, ueᴰ .fst ]
+          ⋆PshIso reindPshIso (reindex-π-/ Dᴰ F (ue .UniversalElement.vertex)) (PshIsoᴰ→FiberwisePshIsoᴰ (UniversalElementᴰ→PshIsoᴰ Dᴰ Q Qᴰ _ ueᴰ))
+          -- reind (reindex-π-/ Dᴰ F ue.vertex) $ reindPsh (yoRec (FP $ ueᴰ .element)) Qᴰ
+          ⋆PshIso reindPsh-square _ _ _ _ _ reflect-UMP-square
+          -- reind (yoRec ue.element) $ reindPsh (π Dᴰ F /Fᴰ FP) Qᴰ
+          ))

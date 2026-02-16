@@ -57,7 +57,7 @@ import Cubical.Categories.Displayed.Limits.CartesianClosedV as Path
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base hiding (PshHomᴰ ; _⋆PshHomᴰ_ ; PRESHEAFᴰ)
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
@@ -154,48 +154,49 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
             ∙ Rᴰ.reindEq-filler _))
 
       ∀Pshᴰ-UMP : Iso (PshHom Rᴰ (∀Pshᴰ Pᴰ)) (PshHom (π₁ P Q *Strict Rᴰ) Pᴰ)
-      ∀Pshᴰ-UMP .fun α∀ = (π₁ P Q *StrictF α∀) ⋆PshHom ∀Pshᴰ-app Pᴰ
-      ∀Pshᴰ-UMP .inv = ∀Pshᴰ-Λ
-      ∀Pshᴰ-UMP .sec α =
-        makePshHomPath (funExt₂ λ { (Γ , Γᴰ , p , q) rᴰ →
-          cong (α .N-ob _) (Rᴰ.rectifyOut (Rᴰ.reindEq-filler⁻ _ ∙ Rᴰ.⋆IdLᴰ))
-          })
-      ∀Pshᴰ-UMP .ret α∀ =
-        makePshHomPath (funExt₂ λ { (Γ , Γᴰ , p) rᴰ →
-        makePshHomStrictPath (funExt₂ λ { (Δ , Δᴰ , p' , q) (γ , γᴰ , Eq.refl) →
-          {!!}
-          }) })
+      ∀Pshᴰ-UMP = {!!}
+      -- ∀Pshᴰ-UMP .fun α∀ = (π₁ P Q *StrictF α∀) ⋆PshHom ∀Pshᴰ-app Pᴰ
+      -- ∀Pshᴰ-UMP .inv = ∀Pshᴰ-Λ
+      -- ∀Pshᴰ-UMP .sec α = {!!}
+      --   -- makePshHomPath (funExt₂ λ { (Γ , Γᴰ , p , q) rᴰ →
+      --   --   cong (α .N-ob _) (Rᴰ.rectifyOut (Rᴰ.reindEq-filler⁻ _ ∙ Rᴰ.⋆IdLᴰ))
+      --   --   })
+      -- ∀Pshᴰ-UMP .ret α∀ = {!!}
+      --   -- makePshHomPath (funExt₂ λ { (Γ , Γᴰ , p) rᴰ →
+      --   -- makePshHomStrictPath (funExt₂ λ { (Δ , Δᴰ , p' , q) (γ , γᴰ , Eq.refl) →
+      --   --   {!!}
+      --   --   }) })
 
-  PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL PSHAssoc PSHᴰFibration
-    (PSHBP C ℓPSHᴰ)
-    PSHπ₁NatEq PSH×aF-seq
-  -- Pᴰ : Pshᴰ (P × Q)
-  -- -----------------
-  -- (∀Q Pᴰ) (Γ , Γᴰ , p) = PshHom ? Pᴰ
-  PSHᴰ∀ Q {P} Pᴰ .fst = ∀Pshᴰ Pᴰ
+  -- PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL PSHAssoc PSHᴰFibration
+  --   (PSHBP C ℓPSHᴰ)
+  --   PSHπ₁NatEq PSH×aF-seq
+  -- -- Pᴰ : Pshᴰ (P × Q)
+  -- -- -----------------
+  -- -- (∀Q Pᴰ) (Γ , Γᴰ , p) = PshHom ? Pᴰ
+  -- PSHᴰ∀ Q {P} Pᴰ .fst = ∀Pshᴰ Pᴰ
 
-  PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.isos (R , Rᴰ , α) =
-    PshHom Rᴰ (α *Strict ∀Pshᴰ Pᴰ)
-      Iso⟨ Push⊣* (PshHomStrict→Eq α) Rᴰ (∀Pshᴰ Pᴰ) ⟩
-    PshHom (α PushStrict Rᴰ) (∀Pshᴰ Pᴰ)
-      Iso⟨ ∀Pshᴰ-UMP Pᴰ ⟩
-    PshHom (π₁ P Q *Strict α PushStrict Rᴰ) Pᴰ
-      -- Beck Chevalley
-      Iso⟨ precomp⋆PshHom-Iso (BeckChevalley α Rᴰ) ⟩
-    PshHom (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) PushStrict (π₁ R Q) *Strict Rᴰ) Pᴰ
-      Iso⟨ invIso $ Push⊣* _ _ _ ⟩
-    PshHom (π₁ R Q *Strict Rᴰ) (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) *Strict Pᴰ)
-      ∎Iso
-  PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.nat S3@(S , Sᴰ , _) R3@(R , Rᴰ , β)
-    (α , αᴰ , Eq.refl) p _ Eq.refl =
-    Eq.pathToEq (makePshHomPath (funExt₂ λ (Γ , Γᴰ , (s , q)) sᴰ → refl))
+  -- PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.isos (R , Rᴰ , α) =
+  --   PshHom Rᴰ (α *Strict ∀Pshᴰ Pᴰ)
+  --     Iso⟨ Push⊣* (PshHomStrict→Eq α) Rᴰ (∀Pshᴰ Pᴰ) ⟩
+  --   PshHom (α PushStrict Rᴰ) (∀Pshᴰ Pᴰ)
+  --     Iso⟨ ∀Pshᴰ-UMP Pᴰ ⟩
+  --   PshHom (π₁ P Q *Strict α PushStrict Rᴰ) Pᴰ
+  --     -- Beck Chevalley
+  --     Iso⟨ precomp⋆PshHom-Iso (BeckChevalley α Rᴰ) ⟩
+  --   PshHom (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) PushStrict (π₁ R Q) *Strict Rᴰ) Pᴰ
+  --     Iso⟨ invIso $ Push⊣* _ _ _ ⟩
+  --   PshHom (π₁ R Q *Strict Rᴰ) (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) *Strict Pᴰ)
+  --     ∎Iso
+  -- PSHᴰ∀ Q {P} Pᴰ .snd .PshIsoEq.nat S3@(S , Sᴰ , _) R3@(R , Rᴰ , β)
+  --   (α , αᴰ , Eq.refl) p _ Eq.refl =
+  --   Eq.pathToEq (makePshHomPath (funExt₂ λ (Γ , Γᴰ , (s , q)) sᴰ → refl))
 
-  isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
-    (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq
-  isCartesianClosedⱽPSHᴰ .fst = isCartesianⱽPSHᴰ
-  isCartesianClosedⱽPSHᴰ .snd .fst = PSHᴰExponentials
-  isCartesianClosedⱽPSHᴰ .snd .snd = PSHᴰ∀
+  -- isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
+  --   (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq
+  -- isCartesianClosedⱽPSHᴰ .fst = isCartesianⱽPSHᴰ
+  -- isCartesianClosedⱽPSHᴰ .snd .fst = PSHᴰExponentials
+  -- isCartesianClosedⱽPSHᴰ .snd .snd = PSHᴰ∀
 
-  CCCⱽPSHᴰ : Path.CartesianClosedCategoryⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) _ _
-  CCCⱽPSHᴰ = EqCCCⱽ→CCCⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) PSHAssoc PSHIdL PSHπ₁NatEq PSH×aF-seq
-    (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) isCartesianClosedⱽPSHᴰ
+  -- CCCⱽPSHᴰ : Path.CartesianClosedCategoryⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) _ _
+  -- CCCⱽPSHᴰ = EqCCCⱽ→CCCⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) PSHAssoc PSHIdL PSHπ₁NatEq PSH×aF-seq
+  --   (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) isCartesianClosedⱽPSHᴰ

@@ -36,14 +36,16 @@ open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt using
-  (isPshIso' ; PshIso' ; PshHom ; _⋆NatTransPshHom_ ; _⋆PshHom_)
+  (isPshIso' ; PshIso' ; PshHom ; _⋆NatTransPshHom_ ; _⋆PshHom_ ; PshIso)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Constructions.Tensor
 open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
+open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
@@ -176,21 +178,31 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
       theNIso : isPshIsoStrict theTrans
       theNIso x = inv (isos x) , sec (isos x) , ret (isos x)
 
--- module _
---   {C : Category ℓc ℓc'}
---   {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
---   where
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  where
 
---   module _ (α : PshHom P Q) where
---     PshHom→PshHomStrict : PshHomStrict P Q
---     PshHom→PshHomStrict .N-ob = α .PshHom.N-ob
---     PshHom→PshHomStrict .N-hom c c' f p p' e =
---       sym (α .PshHom.N-hom _ _ f p) ∙ cong (α .PshHom.N-ob c) e
+  module _ (α : PshHom P Q) where
+    PshHom→PshHomStrict : PshHomStrict P Q
+    PshHom→PshHomStrict .N-ob = α .PshHom.N-ob
+    PshHom→PshHomStrict .N-hom c c' f p p' e =
+      sym (α .PshHom.N-hom _ _ f p) ∙ cong (α .PshHom.N-ob c) e
 
---   module _ (α : PshHomStrict P Q) where
---     PshHomStrict→PshHom : PshHom P Q
---     PshHomStrict→PshHom .PshHom.N-ob = α .N-ob
---     PshHomStrict→PshHom .PshHom.N-hom c c' f p = sym $ α .N-hom c c' f p (P .F-hom f p) refl
+  module _ (α : PshIso P Q) where
+    PshIso→PshIsoStrict : PshIsoStrict P Q
+    PshIso→PshIsoStrict .PshIsoStrict.trans = PshHom→PshHomStrict (α .PshIso.trans)
+    PshIso→PshIsoStrict .PshIsoStrict.nIso = α .PshIso.nIso
+
+  module _ (α : PshHomStrict P Q) where
+    PshHomStrict→PshHom : PshHom P Q
+    PshHomStrict→PshHom .PshHom.N-ob = α .N-ob
+    PshHomStrict→PshHom .PshHom.N-hom c c' f p = sym $ α .N-hom c c' f p (P .F-hom f p) refl
+
+  module _ (α : PshIsoStrict P Q) where
+    PshIsoStrict→PshIso : PshIso P Q
+    PshIsoStrict→PshIso .PshIso.trans = PshHomStrict→PshHom (PshIsoStrict.trans α)
+    PshIsoStrict→PshIso .PshIso.nIso = PshIsoStrict.nIso α
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshHomStrict : PshHomStrict P P
@@ -419,18 +431,6 @@ module _ {C : Category ℓ ℓ'} where
       subst isFaithful YO≡GF isFaithfulYOStrict x y f g
         (congS (G .F-hom) p)
 
--- module _ {C : Category ℓ ℓ'} where
---   private
---     module C = Category C
---   PshProd' : Functor
---     (PresheafCategory C ℓA ×C PresheafCategory C ℓB)
---     (PresheafCategory C (ℓ-max ℓA ℓB))
---   PshProd' = (postcomposeF _ ×Sets ∘F ,F-functor)
-
---   PshProd : Bifunctor (PresheafCategory C ℓA) (PresheafCategory C ℓB)
---                       (PresheafCategory C (ℓ-max ℓA ℓB))
---   PshProd = ParFunctorToBifunctor PshProd'
-
 module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
   _⇒PshLargeStrict_ : Presheaf C (ℓC ⊔ℓ ℓQ ⊔ℓ ℓC' ⊔ℓ ℓP)
   _⇒PshLargeStrict_ = PshHomStrictPsh Q ∘F ((-×P ∘F YOStrict) ^opF)
@@ -529,3 +529,118 @@ module _ (C : Category ℓC ℓC') (ℓP : Level) where
   CCC-PRESHEAF : CartesianClosedCategory _ _
   CCC-PRESHEAF .CartesianClosedCategory.CC = Cartesian-PRESHEAF C (ℓP ⊔ℓ ℓC' ⊔ℓ ℓC)
   CCC-PRESHEAF .CartesianClosedCategory.exps P Q = Exp-PRESHEAF C ℓP P Q
+
+module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
+  private
+    module C = Category C
+    module P = PresheafNotation P
+  -- Universe-polymorphic Yoneda recursion principle
+  yoRecStrict : ∀ {c} → P.p[ c ] → PshHomStrict (C [-, c ]) P
+  yoRecStrict p .PshHomStrict.N-ob _ = P._⋆ p
+  yoRecStrict p .PshHomStrict.N-hom _ _ _ _ _ f⋆p'≡p = sym (P.⋆Assoc _ _ _) ∙ P.⟨ f⋆p'≡p ⟩⋆⟨⟩
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{ℓP : Level} where
+  -- It frustrating that PRESHEAF isn't literally a functor category
+  -- As a middle ground, it would be nice if we had COPRESHEAF as a primitive, and
+  -- then derived PRESHEAF as copresheaves on the opposite category
+  -- This should avoid some OpOp nonsense
+  CurryBifunctor' : Bifunctor C (D ^op) (SET ℓP) → Functor C (PRESHEAF D ℓP)
+  CurryBifunctor' F .F-ob c = appL F c
+  CurryBifunctor' F .F-hom f .N-ob d = Bifunctor.Bif-homL F f d
+  CurryBifunctor' F .F-hom f .N-hom c c' g p p' e =
+    sym (funExt⁻ (Bif-RL-commute F f g) p) ∙ cong (Bifunctor.Bif-homL F f c) e
+  CurryBifunctor' F .F-id = makePshHomStrictPath (funExt λ _ → F .Bifunctor.Bif-L-id)
+  CurryBifunctor' F .F-seq f g = makePshHomStrictPath (funExt λ _ → F .Bifunctor.Bif-L-seq f g)
+
+module _ {C : Category ℓC ℓC'} where
+  module _ {P : Functor C (SET ℓP)} {Q : Functor (C ^op) (SET ℓQ)} {ℓP' ℓQ'}
+           {P' : Functor C (SET ℓP')} {Q' : Functor (C ^op) (SET ℓQ')}
+           (α : PshHomStrict (P ∘F fromOpOp) (P' ∘F fromOpOp)) (β : PshHomStrict Q Q')
+           where
+    private
+      module P⊗Q = Tensor P Q
+      module P'⊗Q' = Tensor P' Q'
+    _⊗PshHomStrict_ : P ⊗ Q → P' ⊗ Q'
+    _⊗PshHomStrict_ = P⊗Q.rec P'⊗Q'.isSet⊗ (λ {x} p q → α .N-ob x p P'⊗Q'.,⊗ β .N-ob x q)
+      λ p f r → cong (_ P'⊗Q'.,⊗_) (sym (β .N-hom _ _ f r (F-hom Q f $ r) refl))
+                ∙ P'⊗Q'.swap _ f _
+                ∙ cong (P'⊗Q'._,⊗ _) (α .N-hom _ _ f p (F-hom P f $ p) refl)
+
+module _ {C : Category ℓC ℓC'} {ℓP ℓQ} where
+  ⊗-BifStrict : Bifunctor (PRESHEAF (C ^op) ℓP) (PRESHEAF C ℓQ) (SET _)
+  ⊗-BifStrict = mkBifunctorPar ⊗-ParBifStrict
+    where
+    ⊗-ParBifStrict : BifunctorPar _ _ _
+    ⊗-ParBifStrict .BifunctorPar.Bif-ob P Q = (P ∘F toOpOp) ⊗ Q , isSet⊗
+    ⊗-ParBifStrict .BifunctorPar.Bif-hom× α β =
+      pshhom (α .N-ob) (α .N-hom) ⊗PshHomStrict β
+    ⊗-ParBifStrict .BifunctorPar.Bif-×-id {c = S}{d = R} =
+      funExt (ind (S ∘F toOpOp) R (λ pq → isSet⊗ _ _) λ _ _ → refl)
+    ⊗-ParBifStrict .BifunctorPar.Bif-×-seq {c = S} {d = R} _ _ _ _ =
+      funExt (ind (S ∘F toOpOp) R (λ pq → isSet⊗ _ _) λ _ _ → refl)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} where
+  module ext-⊗ {ℓP}{ℓQ} (P : Bifunctor (D ^op) C (SET ℓP)) (Q : Presheaf C ℓQ){d} =
+    Tensor (F-ob (CurryBifunctor' (compR P fromOpOp)) d ∘F toOpOp) Q
+
+  extStrict : D o-[ ℓP ]-* C
+    → Functor (PRESHEAF C ℓ)
+              (PRESHEAF D (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓ))
+  extStrict P = CurryBifunctor' $ Sym $ ⊗-BifStrict ∘Fl CurryBifunctor' (P ∘Fr fromOpOp)
+  private
+    -- Less nice than with PresheafCategory becaues of OpOp stuff
+    test-ext : ∀ (P : D o-[ ℓP ]-* C) (Q : Presheaf C ℓQ) d
+      → ⟨ (extStrict P ⟅ Q ⟆) .F-ob d ⟩ ≡
+        ((F-ob (CurryBifunctor' (compR P fromOpOp)) d ∘F toOpOp) ⊗ Q)
+    test-ext P Q d = refl
+
+  extStrict-HomR :
+    {Q : Presheaf C ℓQ}
+    {R : Presheaf C ℓR}
+    (P : D o-[ ℓP ]-* C)
+    (α : PshHomStrict Q R)
+    → PshHomStrict (extStrict P ⟅ Q ⟆) (extStrict P ⟅ R ⟆)
+  extStrict-HomR {Q = Q} {R = R} P α .N-ob _ = idPshHomStrict ⊗PshHomStrict α
+  extStrict-HomR {Q = Q} {R = R} P α .N-hom c c' f p p' e =
+    ?
+    ∙ cong (idPshHomStrict ⊗PshHomStrict α) e
+    where
+      module P⊗Q = ext-⊗ P Q
+      module P⊗R = ext-⊗ P R
+
+-- -- --   ext-HomL : ∀
+-- -- --     {P : D o-[ ℓP ]-* C}
+-- -- --     {Q : D o-[ ℓQ ]-* C}
+-- -- --     (α : RelatorHom P Q)
+-- -- --     (R : Presheaf C ℓR)
+-- -- --     → PshHom (ext P ⟅ R ⟆) (ext Q ⟅ R ⟆)
+-- -- --   ext-HomL {P = P}{Q = Q} α R .N-ob d =
+-- -- --     (appL-Hom α d) ⊗Hom idPshHom
+-- -- --   ext-HomL {P = P}{Q = Q} α R .N-hom d d' f =
+-- -- --       P⊗R.ind (λ _ → Q⊗R.isSet⊗ _ _) (λ p r → cong (Q⊗R._,⊗ _)
+-- -- --         (appR-Hom α _ .N-hom _ _ _ _))
+-- -- --     where
+-- -- --       module P⊗R = ext-⊗ P R using (ind)
+-- -- --       module Q⊗R = ext-⊗ Q R using (isSet⊗; _,⊗_)
+
+-- -- --   ext-IsoL : ∀
+-- -- --     {P : D o-[ ℓP ]-* C}
+-- -- --     {Q : D o-[ ℓQ ]-* C}
+-- -- --     (α : RelatorIso P Q)
+-- -- --     (R : Presheaf C ℓR)
+-- -- --     → PshIso (ext P ⟅ R ⟆) (ext Q ⟅ R ⟆)
+-- -- --   ext-IsoL {P = P}{Q = Q} α R =
+-- -- --     Isos→PshIso (λ d → appL-Iso α d ⊗Iso idPshIso) (ext-HomL (α .trans) R .N-hom)
+
+-- -- --   -- TODO: make this natural in Q
+-- -- --   CoContinuous : {ℓP : Level → Level}
+-- -- --     (P : ∀ {ℓ} → Functor (PresheafCategory C ℓ) (PresheafCategory D (ℓP ℓ)))
+-- -- --     → Typeω
+-- -- --   CoContinuous P = ∀ {ℓ} (Q : Presheaf C ℓ)
+-- -- --     → PshIso (P ⟅ Q ⟆) (ext (CurriedToBifunctorL (P ∘F CurryBifunctorL (HomBif C))) ⟅ Q ⟆)
+
+-- -- -- module _ {C : Category ℓC ℓC'} where
+-- -- --   private
+-- -- --     test-ext' : ∀ (Q : Presheaf C ℓQ) →
+-- -- --       ext (HomBif C) ⟅ Q ⟆ ≡ ◇ Q
+-- -- --     test-ext' Q = refl

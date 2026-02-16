@@ -11,6 +11,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.BinProduct.More
@@ -23,6 +24,7 @@ open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
@@ -83,21 +85,18 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductᴰ'Spec : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
     → Presheafⱽ (A×B .vertex) Cᴰ _
   BinProductᴰ'Spec {A}{B} A×B Aᴰ Bᴰ =
-    (reindPshᴰNatTrans (yoRec (C [-, A ]) (A×B .element .fst)) (Cᴰ [-][-, Aᴰ ])
-    ×ⱽPsh reindPshᴰNatTrans (yoRec (C [-, B ]) (A×B .element .snd)) (Cᴰ [-][-, Bᴰ ]))
+    reindPshᴰNatTrans (yoRec (C [-, A ]) (A×B .element .fst)) (Cᴰ [-][-, Aᴰ ]) ×ⱽPsh
+    reindPshᴰNatTrans (yoRec (C [-, B ]) (A×B .element .snd)) (Cᴰ [-][-, Bᴰ ])
 
   BinProductᴰ' : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
-  BinProductᴰ' {A}{B} A×B Aᴰ Bᴰ = Representableⱽ Cᴰ (A×B .vertex)
-    (reindPshᴰNatTrans (yoRec (C [-, A ]) (A×B .element .fst)) (Cᴰ [-][-, Aᴰ ])
-    ×ⱽPsh reindPshᴰNatTrans (yoRec (C [-, B ]) (A×B .element .snd)) (Cᴰ [-][-, Bᴰ ]))
+  BinProductᴰ' {A}{B} A×B Aᴰ Bᴰ = Representableⱽ Cᴰ (A×B .vertex) (BinProductᴰ'Spec A×B Aᴰ Bᴰ)
 
   BinProductᴰSpec : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
     → Presheafᴰ ((C [-, A ]) ×Psh (C [-, B ])) Cᴰ (ℓ-max ℓCᴰ' ℓCᴰ')
-  BinProductᴰSpec {A}{B} A×B Aᴰ Bᴰ = (Cᴰ [-][-, Aᴰ ]) ×ᴰPsh (Cᴰ [-][-, Bᴰ ])
+  BinProductᴰSpec {A}{B} A×B Aᴰ Bᴰ = (Cᴰ [-][-, Aᴰ ]) ×ᴰPshStrict (Cᴰ [-][-, Bᴰ ])
 
   BinProductᴰ : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
-  BinProductᴰ {A}{B} A×B Aᴰ Bᴰ =
-    UniversalElementᴰ Cᴰ _ ((Cᴰ [-][-, Aᴰ ]) ×ᴰPsh (Cᴰ [-][-, Bᴰ ])) A×B
+  BinProductᴰ {A}{B} A×B Aᴰ Bᴰ = UniversalElementᴰ Cᴰ _ (BinProductᴰSpec A×B Aᴰ Bᴰ) A×B
 
   BinProductsᴰ : (bp : BinProducts C) → Type _
   BinProductsᴰ bp = ∀ {A B} (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → BinProductᴰ (bp (A , B)) Aᴰ Bᴰ
@@ -108,19 +107,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         (BinProductᴰ'Spec bp Aᴰ Bᴰ)
         (BinProductᴰSpec bp Aᴰ Bᴰ)
   BinProductᴰ'Spec≅BinProductᴰSpec {A} {B} bp Aᴰ Bᴰ =
-    -- yoRec π₁ * (Cᴰ [-][-, Aᴰ ]) × yoRec π₂ * (Cᴰ [-][-, Bᴰ ])
-    invPshIso (×PshIso (reindPshᴰNatTrans-tri _ _ _ _ (sym $ yoRec≡ _ (sym $ C.⋆IdL _))) (reindPshᴰNatTrans-tri _ _ _ _ (sym $ yoRec≡ _ (sym $ C.⋆IdL _))))
-    --
-    ⋆PshIso (invPshIso $ reindPsh× (Idᴰ /Fⱽ asPshIso bp .trans) (reindPshᴰNatTrans (π₁ (C [-, A ]) (C [-, B ])) (Cᴰ [-][-, Aᴰ ])) (reindPshᴰNatTrans (π₂ (C [-, A ]) (C [-, B ])) (Cᴰ [-][-, Bᴰ ])))
-    -- yoRec (π₁ , π₂) * (π₁* (Cᴰ [-][-, Aᴰ ]) × π₂* (Cᴰ [-][-, Bᴰ ]))
+    Isos→PshIso (λ _ → idIso) λ _ _ _ (aᴰ , bᴰ) →
+      ΣPathP ( Cᴰ.rectifyOut (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reind-filler _)
+             , Cᴰ.rectifyOut (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reind-filler _))
 
   BinProductⱽ→ᴰ : ∀ {A B} (bp : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
     → BinProductᴰ' bp Aᴰ Bᴰ
     → BinProductᴰ bp Aᴰ Bᴰ
   BinProductⱽ→ᴰ bp Aᴰ Bᴰ (Aᴰ×ᴰBᴰ , repr) =
-    Representableⱽ→UniversalElementᴰ Cᴰ ((C [-, _ ]) ×Psh (C [-, _ ])) ((Cᴰ [-][-, Aᴰ ]) ×ᴰPsh (Cᴰ [-][-, Bᴰ ])) bp
-    (Aᴰ×ᴰBᴰ , repr
-    ⋆PshIsoⱽ BinProductᴰ'Spec≅BinProductᴰSpec bp Aᴰ Bᴰ)
+    Representableⱽ→UniversalElementᴰ Cᴰ ((C [-, _ ]) ×Psh (C [-, _ ]))
+      ((Cᴰ [-][-, Aᴰ ]) ×ᴰPshStrict (Cᴰ [-][-, Bᴰ ])) bp
+      (Aᴰ×ᴰBᴰ , repr ⋆PshIsoⱽ BinProductᴰ'Spec≅BinProductᴰSpec bp Aᴰ Bᴰ)
 
   module BinProductᴰNotation {A B Aᴰ Bᴰ} (A×B : BinProduct C (A , B)) (Aᴰ×ᴰBᴰ : BinProductᴰ A×B Aᴰ Bᴰ) where
     private

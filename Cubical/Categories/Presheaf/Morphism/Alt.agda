@@ -527,16 +527,17 @@ module _ {C : Category ℓc ℓc'}
   infixr 9 _⋆PshIsoEq_
 
 module _ {C : Category ℓc ℓc'} where
-  -- Helpful notation
-  _PshIsoEq⟨_⟩_ : ∀ {Q : Presheaf C ℓq} {R : Presheaf C ℓr} (P : Presheaf C ℓp)
-    → PshIsoEq P Q → PshIsoEq Q R → PshIsoEq P R
-  _ PshIsoEq⟨ f ⟩ g = f ⋆PshIsoEq g
+  step-PshIso : ∀ (P : Presheaf C ℓp) {Q : Presheaf C ℓq} {R : Presheaf C ℓr}
+    → PshIso Q R → PshIso P Q → PshIso P R
+  step-PshIso _ g f = f ⋆PshIso g
 
-  _∎PshIsoEq : ∀ (P : Presheaf C ℓp) → PshIsoEq P P
-  P ∎PshIsoEq = idPshIsoEq {P = P}
+  infixr  2 step-PshIso
+  syntax step-PshIso P Q f = P PshIso⟨ f ⟩ Q
 
-  infixr  0 _PshIsoEq⟨_⟩_
-  infix   1 _∎PshIsoEq
+  _∎PshIso : ∀ (P : Presheaf C ℓp) → PshIso P P
+  P ∎PshIso = idPshIso {P = P}
+
+  infix   3 _∎PshIso
 
 module _ {C : Category ℓc ℓc'}{P Q : Presheaf C ℓp} (path : P ≡ Q) where
   pathToPshIso : PshIso P Q

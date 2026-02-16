@@ -23,6 +23,7 @@ open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Presheaf hiding (PshHom)
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Instances.Sets
@@ -115,6 +116,17 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   PshHet→ElementFunctorᴰ = mkPropHomsFunctor (hasPropHomsElement Q)
     (α .PshHom.N-ob _)
     λ f⋆p≡p' → (sym $ α .PshHom.N-hom _ _ _ _) ∙ cong (α .PshHom.N-ob _) f⋆p≡p'
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {P : Presheaf C ℓP}
+  {Q : Presheaf D ℓQ}
+  {F : Functor C D}
+  (α : PshHetStrict F P Q)
+  where
+  PshHet→ElementFunctorᴰStrict : Functorᴰ F (Element P) (Element Q)
+  PshHet→ElementFunctorᴰStrict =
+    mkPropHomsFunctor (hasPropHomsElement Q)
+      (λ {x} → α .PshHomStrict.N-ob x) (α .PshHomStrict.N-hom _ _ _ _ _)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {P : Presheaf C ℓP}

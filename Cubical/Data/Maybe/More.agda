@@ -5,7 +5,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
 
-open import Cubical.Relation.Binary.Base
+-- open import Cubical.Relation.Binary.Base
 open import Cubical.Relation.Binary.Preorder
 
 open import Cubical.Data.Empty renaming (elim to ⊥elim)

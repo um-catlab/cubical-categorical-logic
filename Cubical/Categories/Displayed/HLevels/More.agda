@@ -4,15 +4,15 @@
 module Cubical.Categories.Displayed.HLevels.More where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.More
+-- open import Cubical.Categories.Functor
+-- open import Cubical.Categories.Functors.More
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Section.Base
+-- open import Cubical.Categories.Displayed.Functor
+-- open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Reasoning as Reasoning
 

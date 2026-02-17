@@ -1,9 +1,7 @@
 module Cubical.Categories.Displayed.Instances.Sets.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Univalence.Dependent
@@ -22,7 +20,6 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
-open import Cubical.Categories.Displayed.Univalence
 
 private
   variable

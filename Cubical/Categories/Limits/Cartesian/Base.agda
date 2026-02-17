@@ -2,8 +2,8 @@ module Cubical.Categories.Limits.Cartesian.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Data.Sigma hiding (_×_)
-open import Cubical.Data.Unit
+-- open import Cubical.Data.Sigma hiding (_×_)
+-- open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor

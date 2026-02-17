@@ -252,7 +252,8 @@ plug B B' =
   adjL _ _  (
     natTrans 
       (λ Γ (k , m) → k [ m ]∙) 
-      (λ γ → funExt λ (k , m) → sym subPlugDist))
+      (λ γ → funExt λ (k , m) → sym subPlugDist)) 
+      -- ((k [ γ ]k) [ m [ γ ]c ]∙) ≡ ((k [ m ]∙) [ γ ]c)
 
 cTm : EnrichedFunctor 𝓟Mon stacks selfSCat
 cTm .F-ob = cTm'
@@ -280,7 +281,7 @@ cTm .F-seq = helper _ _ (
   ((k' ∘k k) [ ids ]k) [ m ]∙
 
   or equivalently
-  
+
   k' [ k [ m ]∙ ]∙ ≡
   (k' ∘k k) [ m ]∙
 -}

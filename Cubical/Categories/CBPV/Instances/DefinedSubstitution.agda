@@ -1,6 +1,8 @@
 {-# OPTIONS -WnoUnsupportedIndexedMatch #-}
 {-# OPTIONS --lossy-unification #-}
 
+{-# OPTIONS --allow-unsolved-metas #-}
+
 module Cubical.Categories.CBPV.Instances.DefinedSubstitution where
 
 open import Cubical.Foundations.HLevels
@@ -388,17 +390,9 @@ mutual
       (subc⋆ g f m) 
       (cong₂ subc s⟨ refl ⟩∷⟨ wksubliftsub g f ⟩ refl ∙ subc⋆ (liftSub g) (liftSub f) n)
 
-subvAssoc : {Γ Δ Θ : Ctx}{A : VTy} → (f : Sub[ Δ , Γ ]) (g : Sub[ Θ , Δ ]) →
-  subv (g ⋆Sub f) ≡ (λ (v : Γ ⊢v A) → subv g (subv f v))
-subvAssoc f g = funExt (λ v → subv⋆ g f v)
-
-subcAssoc : {Γ Δ Θ : Ctx}{B : CTy} →(f : Sub[ Δ , Γ ]) (g : Sub[ Θ , Δ ]) →
-  subc (g ⋆Sub f) ≡ (λ (m : Γ ⊢c B) → subc g (subc f m))
-subcAssoc f g = funExt (λ v → subc⋆ g f v)
-
 subcAssocLift : {Γ Δ Θ : Ctx}{B : CTy}{A : VTy} →(f : Sub[ Δ , Γ ]) (g : Sub[ Θ , Δ ]) →
   subc (liftSub (g ⋆Sub f)) ≡ (λ (m : (A ∷ Γ) ⊢c B) → subc (liftSub g) (subc (liftSub f) m))
-subcAssocLift f g = cong subc s⟨ refl ⟩∷⟨ wksubliftsub _ _ ⟩ ∙ subcAssoc _ _ 
+subcAssocLift f g = cong subc s⟨ refl ⟩∷⟨ wksubliftsub _ _ ⟩ ∙ funExt (subc⋆ _ _ )
 
 subk⋆ : ∀ {Γ Δ Θ : Ctx}{B B' : CTy} → (g : Sub[ Θ , Δ ]) (f : Sub[ Δ , Γ ])(k : Γ ◂ B ⊢k B') → 
   subk g (subk f k) ≡ subk (g ⋆Sub f) k 
@@ -419,7 +413,7 @@ subk⋆ g f (x←∙:M k m) = cong₂ x←∙:M (subk⋆ g f k) (funExt⁻ (sym 
 ⋆Sub⋆Assoc : ∀ (f : Sub[ ξ , Θ ]) (g : Sub[ Θ , Δ ]) (h : Sub[ Δ , Γ ]) →
   ((f ⋆Sub g) ⋆Sub h) ≡ (f ⋆Sub (g ⋆Sub h))
 ⋆Sub⋆Assoc _ _ [] = refl
-⋆Sub⋆Assoc f g (_∷_ {A} y h) = s⟨ funExt⁻ (subvAssoc g f) y ⟩∷⟨ ⋆Sub⋆Assoc _ _ _ ⟩
+⋆Sub⋆Assoc f g (_∷_ {A} y h) = s⟨ subv⋆ f g y ⟩∷⟨ ⋆Sub⋆Assoc _ _ _ ⟩
 
 open import Cubical.Categories.CBPV.Base
 open import Cubical.Categories.WithFamilies.Simple.Base
@@ -512,7 +506,7 @@ cTm' : ob stacks → ob selfSCat
 cTm' B .F-ob Γ = (Γ ⊢c B) , isSetComp
 cTm' B .F-hom = subc
 cTm' B .F-id = funExt subcId
-cTm' B .F-seq f g = subcAssoc f g
+cTm' B .F-seq f g = funExt (subc⋆ g f)
 
 plug' : {Γ : Ctx}{B B' : CTy} → Γ ◂ B ⊢k B' → Γ ⊢c B → Γ ⊢c B' 
 plug' varc m = m
@@ -529,7 +523,7 @@ plugsubk {k' = x←∙:M k' x} = cong₂ bind plugsubk refl
 plugsubc : {Γ Δ Θ : Ctx}{B B' : CTy}{m : Δ ⊢c B}{ρ : Sub[ Δ , Γ ]}{γ : Sub[ Θ , Δ ]}{k : Γ ◂ B ⊢k B'} → 
   plug' (subk (γ ⋆Sub ρ) k) (subc γ m) ≡ subc γ (plug' (subk ρ k) m)
 plugsubc {k = varc} = refl
-plugsubc {k = ∙V v k} = cong₂ app plugsubc (funExt⁻ (subvAssoc _ _) v)
+plugsubc {k = ∙V v k} = cong₂ app plugsubc (subv⋆ _ _ v)
 plugsubc {k = x←∙:M k m} = cong₂ bind plugsubc (funExt⁻ (subcAssocLift _ _) m)
 
 plug : (B B' : ob stacks) → 𝓟[ stacks[ B , B' ] , self[ cTm' B , cTm' B' ] ]
@@ -556,3 +550,90 @@ CBPVDefSubst : CBPVModel _ _ _ _ _ _
 CBPVDefSubst .fst  = scwf
 CBPVDefSubst .snd .fst = stacks
 CBPVDefSubst .snd .snd = cTm
+
+
+---0data rel {B : CTy} : · ⊢c B → · ⊢c B → Type where 
+--  β-lam : {m : (A :: ⌜dot rel (app (lam {!   !}) {!   !}) {!   !} 
+
+open import Cubical.Relation.Nullary
+
+data Term' : {B : CTy} → · ⊢c B → Type where 
+  t-ret : {A : VTy}{v : · ⊢v A} → Term' (ret v)
+  t-lam : {A : VTy}{m : (A ∷ ·) ⊢c B} → Term' (lam m)
+
+isTerm : {B : CTy} → (m : · ⊢c B) → Dec (Term' m) 
+isTerm (ret x) = yes t-ret
+isTerm (force x) = no λ ()
+isTerm (lam m) = yes t-lam
+isTerm (app m x) = no λ ()
+isTerm (rec× x m) = no λ ()
+isTerm (bind m m₁) = no λ ()
+
+Term : CTy → Type 
+Term B = Σ[ m ∈ · ⊢c B ] Term' m
+
+Red : CTy → Type 
+Red B = Σ[ m ∈ · ⊢c B ] ¬ Term' m
+
+State : CTy → Type 
+State B = Term B ⊎ Red B
+
+toComp : {B : CTy} → State B → · ⊢c B
+toComp (inl x) = x .fst
+toComp (inr x) = x .fst
+
+fromComp : {B : CTy} → · ⊢c B → State B 
+fromComp m with isTerm m 
+... | yes p = inl (m , p)
+... | no ¬p = inr (m , ¬p)
+
+
+
+open import Cubical.Data.Empty renaming(elim to ⊥-elim)
+
+{-
+step : {B : CTy} → · ⊢c B → · ⊢c B 
+step (ret v) = ret v
+step (force (thunk m)) = m
+step (lam m) = lam m
+step (app (lam m) v) = {!   !}
+
+step (app (force x) v) = app (step (force x)) v
+step (app (app m x) v) = {!   !}
+step (app (rec× x m) v) = {!   !}
+step (app (bind m m₁) v) = {!   !}
+step (rec× v m) = {!   !}
+step (bind m n) = {!   !}
+-}
+
+red' : {B : CTy} → Red B → State B
+red' (ret x , p) = ⊥-elim (p t-ret)
+  -- inl ((ret x) , t-ret)
+red' (force (thunk x) , p) with isTerm x 
+... | yes p₁ = inl (x , p₁)
+... | no ¬p = inr (x , ¬p)
+
+red' (lam t , p) = inl (lam t , t-lam)
+red' (app t x , p) = {!   !}
+red' (rec× x t , p) = {!   !}
+red' (bind t t₁ , p)  with isTerm t 
+red' (bind (ret x) t , p) | yes p₁ = inl (subc (x ∷ []) t , {!   !}) 
+... | no ¬p = {!   !}
+
+step' : {B : CTy} → State B → State B
+step' (inl x) = inl x
+step' (inr x) = red' x
+
+
+
+{-
+red : {B : CTy} → Red B → · ⊢c B 
+red (ret x , p) = ⊥-elim (p t-ret)
+red (force (thunk m) , p) = m
+red (lam m , p) = ⊥-elim (p t-lam)
+red (app (lam m) v , p) = subc (v ∷ []) m
+red (app m v , p) with red ({! m  !} , {!   !}) 
+... | x = {!   !}
+red (rec× v m , p) = {!   !}
+red (bind m n , p) = {!   !}
+-}

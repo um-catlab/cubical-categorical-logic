@@ -126,10 +126,10 @@ CoAlg : ob (SET ℓ) → Category (ℓ-suc ℓ) ℓ
 CoAlg R = AlgebrasCategory (StateFun R ^opF) ^op
 
 unfold : {X : Type ℓ} → Delay X → X ⊎ (Delay X)
-unfold d = ⊎rec inl inr (d .view)
+unfold = view
 
 fold : {X : Type ℓ} → X ⊎ (Delay X) → Delay X
-fold = ⊎rec (delay_ ∘S inl) (delay_ ∘S inr)
+fold = delay_
 
 d-iso : {X : Type ℓ} → Iso (Delay X) (X ⊎ (Delay X))
 d-iso .Iso.fun = unfold

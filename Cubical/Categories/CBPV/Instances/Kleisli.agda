@@ -57,11 +57,12 @@ module _ {ℓ : Level}(M : ExtensionSystem (SET ℓ)) where
 
   stacks : (B B' : ob E) → 
     𝓟[ E[ B , B' ] , self[ computations B , computations B' ] ]
-  stacks B B' .N-ob Γ (lift k) .N-ob Δ (γ , lift m) = 
-    lift λ Δ∙ → bind (k (γ Δ∙)) (m Δ∙)
-  stacks B B' .N-ob Γ (lift k) .N-hom Δ Θ γ (δ , lift m)= refl
-  stacks B B' .N-hom γ = 
-    funExt λ _ → makePshHomPath (funExt λ _ → funExt λ _ → refl)
+  stacks B B' = adjL _ _ (
+    natTrans 
+      (λ X (k , m) → lift λ x → bind (k .lower x) (m .lower x)) 
+      λ f → funExt λ _ → cong lift refl ) 
+    -- this could just be refl
+    -- but Agda can't figure that out...... WHY
 
   cTm : EnrichedFunctor ((PshMon.𝓟Mon (SET ℓ) ℓ)) E (self (SET ℓ) ℓ) 
   cTm .F-ob = computations

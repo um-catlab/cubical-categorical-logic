@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module Cubical.Categories.Instances.TransitionSystem where
 
 open import Cubical.Foundations.Function
@@ -23,6 +24,251 @@ private
   variable
     ℓ : Level
 
+record TSystem (ℓ : Level) : Type(ℓ-suc ℓ) where
+  field
+    term : hSet ℓ
+    redex : hSet ℓ 
+  state : hSet ℓ 
+  state = ⟨ term ⟩ ⊎ ⟨ redex ⟩ , isSet⊎ (term .snd) (redex .snd) 
+
+  field 
+    red : ⟨ redex ⟩ → ⟨ state ⟩ 
+
+  step : ⟨ state ⟩ → ⟨ term ⟩ ⊎ ⟨ state ⟩ 
+  step = map⊎ (idfun _) red 
+
+  open import Cubical.Data.Nat
+
+  stepn : ℕ → ⟨ state ⟩ → ⟨ state ⟩
+  stepn zero s = s
+  stepn (suc n) = rec⊎ inl λ r → stepn n (inr r)
+
+  _↦*_ : (s t : ⟨ state ⟩) → hProp ℓ
+  _↦*_ s t = (Σ[ n ∈ ℕ ] stepn n s ≡ t) , {!   !}
+
+open TSystem
+open import Cubical.Data.Unit
+open import Cubical.Data.Empty
+
+_≤_ : {ℓ : Level}{A B : Set ℓ} → (A ⊎ B) → (A ⊎ B) →  Set ℓ 
+inl t ≤ _ = Unit*
+inr r ≤ inl t' = ⊥*
+inr r ≤ inr r' = r ≡ r'
+-- not an ordering on state, but an ordering on ⟨ term ⟩ ⊎ ⟨ state ⟩ 
+
+
+module _ (S T : TSystem ℓ) where
+  record TSystem[_,_] : Type ℓ where
+    field
+      s-map : ⟨ state S ⟩ → ⟨ state T ⟩ 
+
+    laxTy : ⟨ state S ⟩ → Type ℓ 
+    laxTy s = 
+      rec⊎ 
+        (λ _ → Unit*) 
+        (λ rs → 
+          rec⊎ 
+            (λ _ → ⊥*) 
+            (λ rt → s-map (red S rs) ≡ red T rt) 
+            (s-map (inr rs))) 
+        s    
+    field 
+      lax : (s : ⟨ state S ⟩) → laxTy s
+         -- (λ r → inr (s-map (red S r)) ≡ step T (s-map (inr r))) s
+
+
+
+  TSystemHomSigma : Type ℓ
+  TSystemHomSigma =
+    Σ[ s-map ∈ (⟨ state S ⟩ → ⟨ state T ⟩) ]
+    ((s : ⟨ state S ⟩) → 
+        rec⊎ 
+          (λ _ → Unit*) 
+          (λ rs → 
+          rec⊎ 
+            (λ _ → ⊥*) 
+            (λ rt → s-map (red S rs) ≡ red T rt) 
+            (s-map (inr rs)))
+          s)
+
+        
+  TSysHomIsoΣ : Iso (TSystem[_,_]) (TSystemHomSigma)
+  unquoteDef TSysHomIsoΣ =
+    defineRecordIsoΣ TSysHomIsoΣ (quote (TSystem[_,_]))
+
+open TSystem[_,_]
+
+TSysMap≡ : {S T : TSystem ℓ}{f g : TSystem[ S , T ]} →
+  f .s-map ≡ g .s-map → f ≡ g
+TSysMap≡ {S = S}{T}{f}{g} p = 
+  isoFunInjective 
+    (TSysHomIsoΣ S T) 
+    f 
+    g 
+    (ΣPathP (p , funExt λ {(inl x) → refl
+                         ; (inr x) → toPathP {! isSet⊎ ? ? ? ? ? ?!}}))
+
+idSysHom : {S : TSystem ℓ} → TSystem[ S , S ]
+idSysHom {S} .s-map x = x
+idSysHom {S = S} .lax (inl x) = tt*
+idSysHom {S = S} .lax (inr x) = refl
+
+_∘TS_ : {S T R : TSystem ℓ} →
+  TSystem[ S , T ] → TSystem[ T , R ] → TSystem[ S , R ]
+(f ∘TS g) .s-map = g .s-map ∘S f .s-map
+(f ∘TS g) .lax (inl x) = tt*
+(f ∘TS g) .lax (inr x) = {!   !}
+
+TSysCat : {ℓ : Level} → Category (ℓ-suc ℓ) ℓ
+TSysCat .ob = TSystem _
+TSysCat .Hom[_,_] = TSystem[_,_]
+TSysCat .id = idSysHom
+TSysCat ._⋆_ = _∘TS_
+TSysCat .⋆IdL = {!   !}
+TSysCat .⋆IdR = {!   !}
+TSysCat .⋆Assoc = {!   !}
+TSysCat .isSetHom = {!   !}
+
+{-
+  TSystemHomSigma : Type ℓ
+  TSystemHomSigma =
+    Σ[ s-map ∈ (⟨ state S ⟩ → ⟨ state T ⟩) ]
+    ((s : ⟨ state S ⟩) → 
+        rec⊎ 
+          (λ _ → Unit*) 
+          (λ r → inr (s-map (red S r)) ≡ step T (s-map (inr r))) s)
+
+  TSysHomIsoΣ : Iso (TSystem[_,_]) (TSystemHomSigma)
+  unquoteDef TSysHomIsoΣ =
+    defineRecordIsoΣ TSysHomIsoΣ (quote (TSystem[_,_]))
+    
+open TSystem[_,_]
+
+
+TSysMap≡ : {S T : TSystem ℓ}{f g : TSystem[ S , T ]} →
+  f .s-map ≡ g .s-map → f ≡ g
+TSysMap≡ {S = S}{T}{f}{g} p = 
+  isoFunInjective 
+    (TSysHomIsoΣ S T) 
+    f 
+    g 
+    (ΣPathP (p , funExt λ {(inl x) → refl
+                         ; (inr x) → toPathP 
+                          (isSet⊎ (T . term .snd) (state T .snd)  _ _ _ _)}))
+
+TSysMapisSet : {S T : TSystem ℓ} → isSet (TSystem[ S , T ])
+TSysMapisSet {S = S} {T} =
+  isSetRetract
+    (fun (TSysHomIsoΣ S T))
+    (inv (TSysHomIsoΣ S T))
+    (leftInv (TSysHomIsoΣ S T))
+    (isSetΣ (isSet→ (state T .snd)) λ f →  
+      isProp→isSet (isPropΠ λ {(inl x) → isPropUnit*
+                             ; (inr x) → isSet⊎ (T .term .snd) (state T .snd) _ _ }))
+    
+idSysHom : {S : TSystem ℓ} → TSystem[ S , S ]
+idSysHom {S} .s-map x = x
+idSysHom {S = S} .lax (inl x) = tt*
+idSysHom {S = S} .lax (inr x) = refl
+
+match : {S : TSystem ℓ} → (s : ⟨ state S ⟩) → 
+  (Σ[ t ∈ ⟨ S .term ⟩ ] (step S s ≡ inl t)) 
+  ⊎ (Σ[ s' ∈ ⟨ state S ⟩ ] step S s ≡ inr s')
+match {S = S} s with step S s
+... | inl x = inl (x , refl)
+... | inr x = inr (x , refl)
+
+_∘TS_ : {S T R : TSystem ℓ} →
+  TSystem[ S , T ] → TSystem[ T , R ] → TSystem[ S , R ]
+
+(f ∘TS g) .s-map = g .s-map ∘S f .s-map
+(f ∘TS g) .lax (inl x) = tt*
+(_∘TS_){S = S}{T}{R} f g .lax (inr Sr) with match (f .s-map (inr Sr))
+... | inl (t-term , p) = {!   !}
+... | inr (t , p) = {!   !}
+
+-}
+
+
+
+
+
+{-
+= goal where 
+
+  have1 : inr (f .s-map (red S x)) ≡ step T (f .s-map (inr x)) 
+  have1 = f .lax (inr x)
+
+  have2 : {!g .lax (f .s-map (inr x))!}
+  have2 = g .lax (f .s-map (inr x))
+
+  goal : inr (g .s-map (f .s-map (red S x))) 
+    ≡ step R (g .s-map (f .s-map (inr x)))
+  goal = {!   !}
+
+-}
+
+
+    --sSetΠ λ {(inl x) → isSetUnit*
+     --                                               ; (inr x) → {!   !}})
+   {-} (isSetΣ (isSet→ (T .state .snd)) λ _ → 
+    isSetΣ (isSet→ (isSet⊎ (T .term .snd) (T .state .snd))) 
+    λ _ → isProp→isSet (isPropImplicitΠ  λ _ → 
+    isSet⊎ (T .term .snd) (T .state .snd) _ _)) -}
+
+
+
+   -- (ΣPathP (p , ΣPathP (q , implicitFunExt λ {_} → 
+   -- toPathP (isSet⊎ (T .term .snd) (T .state .snd) _ _  _ _))))
+{-
+-- t-map is not used 
+module _ (S T : TSystem ℓ) where
+  record TSystem[_,_] : Type ℓ where
+    field
+      s-map : ⟨ state S ⟩ → ⟨ state T ⟩ 
+      t-map : ⟨ term S ⟩ → ⟨ term T ⟩  
+      lax : {s : ⟨ state S ⟩} → 
+         map⊎ t-map s-map (step S s) ≤ step T (s-map s) 
+
+    -- proofs 
+    case1 : {t : ⟨ term S ⟩} → lax {inl t} ≡ tt* 
+    case1 = refl
+
+    type : {r : ⟨ redex S ⟩} → inr (s-map (red S r)) ≤ step T (s-map (inr r)) 
+    type {r} = lax{inr r} 
+
+    --case2' : {r : ⟨ redex S ⟩}{t' : ⟨ term T ⟩} → {!  lax {inr r} !} 
+   --  case2' = {!   !} 
+
+    -- s = inr r   
+    -- s is a redex and therefore MUST step
+    -- s-map (inr r) = inl t'  
+    -- s-map maps into a terminal, so T does NOT step
+    -- false
+    case2 : {r : ⟨ redex S ⟩}{t' : ⟨ term T ⟩} → 
+      inr (s-map (red S r)) ≤ step T (inl t') ≡ ⊥* 
+    case2 = refl
+
+    -- s = inr r 
+    -- s is a redex and therefore MUST step
+    -- s-map (inr r) = inr r' 
+    -- s-map maps into a redex, so T MUST step
+    case3 : {r : ⟨ redex S ⟩}{r' : ⟨ redex T ⟩} → 
+      inr (s-map (red S r)) ≤ step T (inr r') 
+      ≡ ((s-map (red S r) ≡ (red T r'))) 
+      -- s-map (red S r) ≡ (red T (s-map r))
+    case3 = refl
+
+    _ : {r' : ⟨ redex T ⟩}→ step T (inr r') ≡ inr (red T r')
+    _ = refl
+
+-}
+    
+
+
+
+
+{-
 record TSystem (ℓ : Level) : Type(ℓ-suc ℓ) where
   field
     state : hSet ℓ
@@ -156,3 +402,65 @@ TSysCat .⋆Assoc {x = S} f g h = TSysMap≡ refl (funExt goal) where
   ... | inl x = refl
   ... | inr x = refl
 TSysCat .isSetHom = TSysMapisSet
+-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+{-
+record TSystem (ℓ : Level) : Type(ℓ-suc ℓ) where
+  field
+    term : hSet ℓ 
+    redex : hSet ℓ 
+    red : ⟨ redex ⟩ → ⟨ term ⟩ ⊎ ⟨ redex ⟩ 
+
+  state : hSet ℓ 
+  state = (⟨ term ⟩ ⊎ ⟨ redex ⟩) , isSet⊎ (term .snd) (redex .snd)
+
+  step : ⟨ state ⟩ → ⟨ state ⟩ 
+  step = rec⊎ inl red
+
+  step' : ⟨ state ⟩ → ⟨ term ⟩ ⊎ ⟨ state ⟩ 
+  step' = rec⊎ inl λ r → map⊎ (λ x → x) inr (red r) 
+
+open TSystem
+open import Cubical.Data.Unit
+open import Cubical.Data.Empty
+
+_≤_ : {ℓ : Level}{S : TSystem ℓ} → ⟨ state S ⟩ → ⟨ state S ⟩ → Set ℓ 
+inl t ≤ _ = Unit*
+inr r ≤ inl t' = ⊥*
+inr r ≤ inr r' = r ≡ r'
+
+module _ (S T : TSystem ℓ) where
+  record TSystem[_,_] : Type ℓ where
+    field
+      s-map : ⟨ state S ⟩ → ⟨ state T ⟩
+      lax : {s : ⟨ state S ⟩} → 
+        rec⊎ (λ _ → Unit*) (λ r → _≤_{ℓ}{T}  (s-map (red S r)) (step T (s-map s))) s
+       
+        _≤_{ℓ}{T} 
+          (rec⊎ (λ s-term → {!   !}) {!   !} s) 
+          (step T ((s-map s))) 
+        
+   --   t-map : ⟨ S . term ⟩ → ⟨ T . term ⟩ 
+    --  r-map : ⟨ S . redex ⟩ → ⟨ T . redex ⟩  
+
+    s-map :  ⟨ state S ⟩ → ⟨ state T ⟩
+  --  s-map = map⊎ t-map r-map
+
+    field 
+      lax : {s : ⟨ state S ⟩} → 
+        _≤_{ℓ}{T} 
+          (s-map (step S s)) 
+          (step T ((s-map s))) 
+-}

@@ -48,28 +48,32 @@ module _ (ℓ : Level) where
 
   computations : ob E → ob selfSet
   computations S .F-ob Γ = 
-    (⟨ Γ ⟩ → Lift ⟨ S .state ⟩) , 
-    isSet→ (isOfHLevelLift 2 (S .state .snd))
+    (⟨ Γ ⟩ → Lift ⟨ state S ⟩) , 
+    isSet→ (isOfHLevelLift 2 (state S .snd))
   computations S .F-hom γ m = m ∘S γ
   computations S .F-id = refl
   computations S .F-seq _ _ = refl
 
   stackhom : (X Y : ob E) → 
     V[ E[ X , Y ] , self[ computations X , computations Y ] ]
-  stackhom X Y .N-ob Γ (lift k) = 
-    pshhom 
-      (λ Δ (γ , m) Δ∙ → lift (k (γ Δ∙) .smap ((m Δ∙) .lower))) 
-      λ _ _ _ _  → refl
-  stackhom X Y .N-hom _ = funExt λ _ → makePshHomPath refl
+  stackhom X Y = adjL _ _ (
+    natTrans 
+      (λ Γ (lift tsys , s) Γ∙ → lift (tsys Γ∙ .s-map (s Γ∙ .lower)) )
+      λ f → funExt λ _ → funExt λ _ → refl)
 
   cTm : EnrichedFunctor V E selfSet
   cTm .F-ob = computations
   cTm .F-hom {X}{Y} = stackhom X Y
   cTm .F-id = 
-    makeNatTransPath (funExt λ Γ → funExt λ tt → makePshHomPath refl)
+    helper _ _ (
+      makeNatTransPath (funExt λ Γ → funExt λ (tt* , s) → funExt λ Γ∙ → refl))
+    --makeNatTransPath (funExt λ Γ → funExt λ tt → makePshHomPath refl)
   cTm .F-seq = 
-    makeNatTransPath (funExt λ Γ → funExt λ (k , k') → makePshHomPath refl)
-
+    helper _ _ (
+      makeNatTransPath (funExt λ Γ → funExt λ ((lift tsys , lift tsys'), s) → 
+        funExt λ Γ∙ → refl)
+    )
+   -- makeNatTransPath (funExt λ Γ → funExt λ (k , k') → makePshHomPath refl)
 
   TSystemModel : CBPVModel _ _ _ _ _ _
   TSystemModel .fst = SETScwf ℓ

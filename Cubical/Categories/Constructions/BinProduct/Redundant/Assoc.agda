@@ -2,14 +2,14 @@
 
 module Cubical.Categories.Constructions.BinProduct.Redundant.Assoc where
 
-open import Cubical.Foundations.Prelude
+-- open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base hiding (Id)
-open import Cubical.Categories.Instances.Functors.Redundant
-open import Cubical.Categories.Instances.Functors.Redundant.Bifunctor
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Data.Graph.Base
-open import Cubical.Data.Sum as Sum hiding (rec)
+-- open import Cubical.Categories.Instances.Functors.Redundant
+-- open import Cubical.Categories.Instances.Functors.Redundant.Bifunctor
+-- open import Cubical.Categories.NaturalTransformation
+-- open import Cubical.Data.Graph.Base
+-- open import Cubical.Data.Sum as Sum hiding (rec)
 open import Cubical.Data.Sigma
 
 import Cubical.Categories.Constructions.BinProduct.Redundant.Assoc.ToRight
@@ -19,7 +19,7 @@ import Cubical.Categories.Constructions.BinProduct.Redundant.Assoc.ToLeft
 open import Cubical.Categories.Constructions.BinProduct.Redundant.Base as BP
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec)
-open import Cubical.Categories.Constructions.Presented as Presented
+-- open import Cubical.Categories.Constructions.Presented as Presented
 open import Cubical.Categories.Bifunctor
 
 private

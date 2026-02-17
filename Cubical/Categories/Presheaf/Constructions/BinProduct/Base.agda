@@ -5,24 +5,18 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Structure
 
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
-open import Cubical.Data.Unit
-open import Cubical.HITs.PathEq
 open import Cubical.HITs.Join
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.BinProduct.More
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Presheaf.Base
@@ -32,7 +26,6 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Profunctor.Constructions.Extension
 open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Yoneda.More
 
 private
   variable

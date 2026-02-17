@@ -2,7 +2,7 @@
 module Cubical.Categories.Displayed.Instances.Presheaf.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma

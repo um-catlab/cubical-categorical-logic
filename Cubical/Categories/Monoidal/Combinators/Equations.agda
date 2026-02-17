@@ -4,12 +4,12 @@ open import Cubical.Categories.Monoidal.Base
 module Cubical.Categories.Monoidal.Combinators.Equations
   where
 
-open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.NaturalTransformation.More hiding (α)
+-- open import Cubical.Categories.NaturalTransformation
+-- open import Cubical.Categories.Constructions.BinProduct
+-- open import Cubical.Categories.NaturalTransformation.More hiding (α)
 open import Cubical.Categories.Monoidal.Functor
 import Cubical.Categories.Monoidal.Combinators.Base as Combinators
 open import Cubical.Categories.Constructions.Free.Monoidal.Base

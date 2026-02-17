@@ -16,7 +16,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Exponentials
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Presheaf.Base
+-- open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Coend

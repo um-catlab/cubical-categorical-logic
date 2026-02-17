@@ -1,7 +1,7 @@
 module Cubical.Categories.DistributiveLaw.ComonadOverMonad.BiKleisli.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
+-- open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation

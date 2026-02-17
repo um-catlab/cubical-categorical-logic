@@ -2,21 +2,13 @@
 module Cubical.Categories.Constructions.Free.CartesianCategory.CurriedElim where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Data.Sigma hiding (_×_)
-open import Cubical.Data.Unit
 
 open import
   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
@@ -28,10 +20,8 @@ open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.Limits
   as CartReindex
-open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
 
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Base

@@ -2,7 +2,7 @@
 module Cubical.Categories.Constructions.Coproduct where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Path
+-- open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 

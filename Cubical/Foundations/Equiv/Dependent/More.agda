@@ -3,11 +3,11 @@ module Cubical.Foundations.Equiv.Dependent.More where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.Equiv.HalfAdjoint
+-- open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.More
-open import Cubical.Foundations.Transport
+-- open import Cubical.Foundations.Transport
 open import Cubical.Data.Sigma
 open import Cubical.Foundations.Equiv.Dependent
 

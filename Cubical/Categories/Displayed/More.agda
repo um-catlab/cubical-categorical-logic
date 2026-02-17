@@ -2,14 +2,11 @@ module Cubical.Categories.Displayed.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
--- open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
--- open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
--- open import Cubical.Categories.Functor
 open import Cubical.Categories.Displayed.Base
 
 private

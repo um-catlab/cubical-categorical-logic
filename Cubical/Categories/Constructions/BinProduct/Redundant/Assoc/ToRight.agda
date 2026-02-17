@@ -8,9 +8,6 @@ open import Cubical.Categories.Functor.Base hiding (Id)
 open import Cubical.Categories.Instances.Functors.Redundant
 open import Cubical.Categories.Instances.Functors.Redundant.Bifunctor
 open import Cubical.Categories.NaturalTransformation
--- open import Cubical.Data.Graph.Base
--- open import Cubical.Data.Sum as Sum hiding (rec)
--- open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Constructions.BinProduct.Redundant.Base as BP
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free

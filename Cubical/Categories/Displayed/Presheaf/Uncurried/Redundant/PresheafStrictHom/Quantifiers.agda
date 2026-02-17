@@ -63,12 +63,7 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions using
 --   (∀PshLarge)
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
--- open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 

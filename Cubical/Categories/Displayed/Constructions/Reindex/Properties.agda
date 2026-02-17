@@ -24,8 +24,6 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Fibration.Base
--- open import Cubical.Categories.Displayed.Presheaf
--- open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 
 private
   variable

@@ -1,12 +1,8 @@
 module Cubical.Categories.Displayed.Instances.Terminal.More where
 
 open import Cubical.Foundations.Prelude
--- open import Cubical.Foundations.HLevels
--- open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Categories.Category.Base
--- open import Cubical.Categories.Functor
--- open import Cubical.Categories.Instances.Terminal
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Instances.Terminal as Terminal

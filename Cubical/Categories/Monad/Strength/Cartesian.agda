@@ -3,23 +3,9 @@
 {- Unfortunately this is very slow but lossy unification breaks it -}
 module Cubical.Categories.Monad.Strength.Cartesian where
 
--- open import Cubical.Foundations.Prelude
--- open import Cubical.Categories.Category hiding (isIso)
--- open import Cubical.Categories.Constructions.BinProduct
--- open import Cubical.Categories.Functor
--- open import Cubical.Categories.NaturalTransformation
--- open import Cubical.Categories.Monad.Base
--- open import Cubical.Categories.Comonad.Base
--- open import Cubical.Categories.Comonad.Instances.Environment
--- open import Cubical.Categories.Limits.BinProduct
--- open import Cubical.Categories.Limits.BinProduct.More
--- open import Cubical.Categories.DistributiveLaw.ComonadOverMonad.Base
 --open import
 -- Cubical.Categories.DistributiveLaw.ComonadOverMonad.BiKleisli.Base
--- open import Cubical.Categories.Monad.Kleisli
 
--- open import Cubical.Tactics.FunctorSolver.Reflection
--- open import Cubical.Tactics.CategorySolver.Reflection
 
 -- private
 --   variable

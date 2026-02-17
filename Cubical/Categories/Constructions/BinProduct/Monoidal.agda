@@ -4,16 +4,13 @@ module Cubical.Categories.Constructions.BinProduct.Monoidal where
 
 import Cubical.Categories.Constructions.BinProduct as BP
 
--- open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
--- open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Monoidal
 open import Cubical.Categories.Monoidal.Functor
 open import Cubical.Categories.NaturalTransformation
--- open import Cubical.Categories.Instances.Functors.More
 
 private
   variable

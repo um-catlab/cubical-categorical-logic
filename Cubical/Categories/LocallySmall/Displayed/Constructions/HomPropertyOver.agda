@@ -9,17 +9,14 @@
 module Cubical.Categories.LocallySmall.Displayed.Constructions.HomPropertyOver where
 
 open import Cubical.Foundations.Prelude
--- open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Unit
--- open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Category.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
--- open import Cubical.Categories.LocallySmall.Displayed.HLevels
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.StructureOver.Base
 
 

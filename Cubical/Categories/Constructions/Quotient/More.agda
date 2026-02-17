@@ -3,10 +3,6 @@
 module Cubical.Categories.Constructions.Quotient.More where
 
 open import Cubical.Categories.Category.Base
--- open import Cubical.Categories.Functor.Base
--- open import Cubical.Categories.Limits.Terminal
--- open import Cubical.Categories.Limits.Initial
--- open import Cubical.Foundations.HLevels
 import      Cubical.Data.Equality as Eq
 open import Cubical.Foundations.Prelude
 open import Cubical.HITs.SetQuotients as SetQuotients

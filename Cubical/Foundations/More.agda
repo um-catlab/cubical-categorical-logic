@@ -6,7 +6,6 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws hiding (cong₂Funct)
 open import Cubical.Foundations.Path
--- open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq

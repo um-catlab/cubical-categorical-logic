@@ -29,7 +29,6 @@ module Cubical.Categories.FunctorComprehension.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
--- open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
@@ -38,7 +37,6 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
--- open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Profunctor.General

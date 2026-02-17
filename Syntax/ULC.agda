@@ -5,11 +5,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Data.Nat
 open import Cubical.Data.Fin
 open import Cubical.Data.Empty
--- open import Cubical.Data.Sigma
 open import Cubical.Data.Sum
--- open import Cubical.Data.Unit
 open import Cubical.Data.W.Indexed
--- open import Cubical.Functions.FunExtEquiv
 
 record Sig ℓ : Type (ℓ-suc ℓ) where
   field

@@ -8,7 +8,6 @@ open import Cubical.Foundations.HLevels.More
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 import Cubical.Data.Equality as Eq
--- import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables.Base

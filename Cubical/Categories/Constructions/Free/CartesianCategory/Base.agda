@@ -2,7 +2,6 @@
 module Cubical.Categories.Constructions.Free.CartesianCategory.Base where
 
 open import Cubical.Foundations.Prelude
--- open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma hiding (_×_)
@@ -12,10 +11,7 @@ open import
   Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.Cartesian.Base
--- open import Cubical.Categories.Limits.Terminal.More
--- open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
--- open import Cubical.Categories.Presheaf.More
 
 private
   variable

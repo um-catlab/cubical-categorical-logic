@@ -12,7 +12,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 
--- open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor

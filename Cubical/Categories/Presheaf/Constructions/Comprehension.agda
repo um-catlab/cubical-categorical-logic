@@ -13,9 +13,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 
--- open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
--- open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Terminal.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 

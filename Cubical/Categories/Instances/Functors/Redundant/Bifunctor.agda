@@ -3,15 +3,11 @@
 module Cubical.Categories.Instances.Functors.Redundant.Bifunctor where
 
 open import Cubical.Foundations.Prelude
--- open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Instances.Functors.Redundant
 open import Cubical.Categories.NaturalTransformation.Base
--- open import Cubical.Categories.NaturalTransformation.More
--- open import Cubical.Categories.NaturalTransformation.Properties
--- open import Cubical.Data.Sigma
 
 private
   variable

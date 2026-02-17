@@ -9,7 +9,6 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More
 
--- open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
@@ -20,7 +19,6 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
--- open import Cubical.Categories.Yoneda.More
 
 private
   variable

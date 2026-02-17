@@ -2,16 +2,12 @@ module Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken.Properties
 
 open import Cubical.Foundations.Prelude
 
--- import Cubical.Data.Equality as Eq
--- import Cubical.Data.Equality.More as Eq
--- open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Functor.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
--- open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken.Base
 open import Cubical.Categories.LocallySmall.Variables.Category
 

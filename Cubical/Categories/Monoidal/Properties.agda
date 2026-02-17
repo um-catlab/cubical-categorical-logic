@@ -6,7 +6,6 @@ open import Cubical.Categories.HLevels
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor.Base
--- open import Cubical.Categories.Morphism
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Foundations.Prelude

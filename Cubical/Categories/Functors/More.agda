@@ -3,21 +3,13 @@ module Cubical.Categories.Functors.More where
 
 open import Cubical.Foundations.Prelude
 import Cubical.Data.Equality as Eq
--- open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
--- open import Cubical.Categories.Isomorphism.More
--- open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
--- open import Cubical.Categories.Functor.Compose
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
--- open import Cubical.Foundations.Equiv
--- open import Cubical.Foundations.Equiv.Properties
--- open import Cubical.Functions.Embedding
--- open import Cubical.HITs.PropositionalTruncation as Prop
 
 private
   variable

@@ -1,13 +1,6 @@
 -- The graph of a profunctor
 module Cubical.Categories.Constructions.Graph where
 
--- open import Cubical.Categories.Category
--- open import Cubical.Categories.Functor
--- open import Cubical.Foundations.Prelude hiding (Square)
--- open import Cubical.Foundations.Function
--- open import Cubical.Foundations.HLevels
--- open import Cubical.Data.Sigma
--- open import Cubical.Categories.Profunctor.General
 
 -- private
 --   variable

@@ -16,7 +16,6 @@ open import Cubical.Foundations.Prelude
            ; isProp    to isPropPath
            ; isSet    to isSetPath
            )
--- open import Cubical.Foundations.Equiv
   renaming ( fiber     to fiberPath
            ; isEquiv   to isEquivPath
            ; _≃_       to EquivPath
@@ -25,7 +24,6 @@ open import Cubical.Foundations.Prelude
            )
   hiding   ( equivCtr
            ; equivIsEquiv )
--- open import Cubical.Foundations.Isomorphism
   using ()
   renaming ( Iso to IsoPath
            ; iso to isoPath

@@ -1,17 +1,10 @@
 module Cubical.Categories.LocallySmall.Bifunctor.Base where
 
 open import Cubical.Foundations.Prelude
--- open import Cubical.Foundations.Equiv
--- open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
--- open import Cubical.Foundations.HLevels
--- open import Cubical.Foundations.HLevels.More
 
--- open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
--- open import Cubical.Data.Unit
 
--- open import Cubical.Reflection.RecordEquiv.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables

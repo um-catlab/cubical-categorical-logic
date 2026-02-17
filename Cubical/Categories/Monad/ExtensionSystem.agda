@@ -13,10 +13,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 open import Cubical.Categories.NaturalTransformation.Base
--- open import Cubical.Categories.NaturalTransformation.Properties
 open import Cubical.Categories.NaturalTransformation.More
--- open import Cubical.Categories.Functors.HomFunctor
--- open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Categories.Monad.Base
 

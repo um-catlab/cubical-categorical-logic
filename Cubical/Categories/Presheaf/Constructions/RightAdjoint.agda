@@ -6,22 +6,16 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Tensor
-open import Cubical.Categories.Presheaf.StrictHom
-open import Cubical.Categories.Yoneda.More
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Relator

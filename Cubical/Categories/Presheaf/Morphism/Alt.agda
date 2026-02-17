@@ -12,7 +12,6 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Functions.FunExtEquiv
 
-open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
 
 open import Cubical.Data.Sigma
@@ -24,16 +23,13 @@ open import Cubical.HITs.Join
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Limits
 open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
-open import Cubical.Categories.Presheaf.Constructions.Lift
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Yoneda

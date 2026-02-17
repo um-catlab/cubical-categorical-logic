@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Unit
 
-open import Cubical.Categories.Bifunctor
+-- open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Category
 open import Cubical.Categories.Enriched.Functors.Base
 open import Cubical.Categories.Enriched.Instances.Presheaf.Self
@@ -14,7 +14,7 @@ open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Presheaf
+-- open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
 

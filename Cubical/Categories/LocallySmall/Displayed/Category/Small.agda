@@ -1,9 +1,9 @@
 module Cubical.Categories.LocallySmall.Displayed.Category.Small where
 
-open import Cubical.Foundations.Prelude
+-- open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.More
+-- open import Cubical.Foundations.HLevels.More
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More

@@ -71,7 +71,8 @@ record Model (ℓV ℓV' ℓC ℓC' ℓS : Level) : Type (levels (ℓsuc (ℓV �
     ∙ funExt⁻ (O .F-seq _ _ ) M
 
 
-  
+
+    
 
 module _
   {ℓV ℓV' ℓC ℓC' ℓS : Level}
@@ -130,7 +131,7 @@ module _
   HasC× = (B B' : ob C) → Representation C ((C [-, B ]) ×Psh (C [-, B' ]))
 
   TypeStructure : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓV ℓV') ℓC) ℓC') ℓS) 
-  TypeStructure = HasV⊤ × HasV+ × HasUTy × HasFTy × HasC×
+  TypeStructure = HasV⊤ × HasUTy × HasFTy 
 
 
 ModelWithTypeStructure : (ℓV ℓV' ℓC ℓC' ℓS : Level) → Type (levels (ℓsuc (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ [])))
@@ -150,9 +151,16 @@ record ModelMorphism (ℓVS ℓV'S ℓCS ℓC'S ℓSS ℓVT ℓV'T ℓCT ℓC'T 
     FO : PshHom (M.O ∘F from^op^op) (N.O ∘F ((FV ^opF) ×F FC) ∘F from^op^op)
 
 
+idModelMorphism : {ℓV ℓV' ℓC ℓC' ℓS : Level}(M : Model ℓV ℓV' ℓC ℓC' ℓS) → 
+  ModelMorphism _ _ _ _ _ _ _ _ _ _ M M 
+idModelMorphism M .ModelMorphism.FV = Id
+idModelMorphism M .ModelMorphism.FC = Id
+idModelMorphism M .ModelMorphism.FO .PshHom.N-ob = λ c z → z
+idModelMorphism M .ModelMorphism.FO .PshHom.N-hom _ _ _ _ = refl
+
 module TypeSyntax 
   {ℓV ℓV' ℓC ℓC' ℓS : Level}
-  ((M , V⊤ , V+ , UTy , FTy , C×) : ModelWithTypeStructure ℓV ℓV' ℓC ℓC' ℓS) where 
+  ((M , V⊤  , UTy , FTy ) : ModelWithTypeStructure ℓV ℓV' ℓC ℓC' ℓS) where 
   
   open Model M
   open PshIso
@@ -167,9 +175,10 @@ module TypeSyntax
   ⊤η : {A : ob V}{t :  V [ A , ⊤ ]}  → tt ≡ t
   ⊤η {A} {t} = V⊤ .snd .nIso A .snd .snd t
 
+{-}
   _+_ : ob V → ob V → ob V 
   _+_ A A' = V+ A A' .fst
-
+-}
 
 
   U : ob C → ob V 
@@ -178,6 +187,10 @@ module TypeSyntax
   thunk : {A : ob V}{B : ob C} → O[ A , B ] → V [ A , U B ] 
   thunk {A}{B} = UTy B .snd .nIso A .fst 
 
+  force : {B : ob C} → O[ U B , B ]
+  force {B} = UTy B .snd .trans .N-ob (U B) (V .id)
+
+{-}
   force : {A : ob V}{B : ob C} →  V [ A , U B ] → O[ A , B ]
   force {A}{B} = UTy B .snd .trans .N-ob A
 
@@ -186,6 +199,7 @@ module TypeSyntax
 
   Uη : {A : ob V}{B : ob C}{V : V [ A , U B ]} → thunk (force V) ≡ V
   Uη {A}{B}{V} = UTy  B .snd .nIso A .snd .snd  V
+  -}
 
 {-
 
@@ -196,7 +210,7 @@ module TypeSyntax
   coprod A A' .snd .nIso B .fst (M , N) = case M N
   coprod A A' .snd .nIso B .snd .fst (M , N) = ΣPathP (+β₁ , +β₂)
   coprod A A' .snd .nIso B .snd .snd p = +η
-  -}
+  
   σ₁ : {A A' : ob V}{B : ob C} →
      O[ A + A' , B ] → O[ A , B ]
   σ₁ {A} {A'} {B} x = V+ A A' .snd .trans .N-ob B x .fst
@@ -227,15 +241,20 @@ module TypeSyntax
       {N : O[ A' , B ]} → σ₂ (case+ M N) ≡ N
   +β₂ {A}{A'}{B}{M}{N}  = cong snd (V+ A A' .snd .nIso B .snd .fst (M , N))
     -- V+ A A' .snd .nIso B .s
-
+-}
   F : ob V → ob C
   F = Fcomp M FTy .F-ob
 
 
-  ret : {A : ob V}{B : ob C} →
+  bind : {A : ob V}{B : ob C} →
         O[ A , B ] → C [ F A , B ]
-  ret {A}{B} = FTy A .snd .nIso B .fst
+  bind {A}{B} = FTy A .snd .nIso B .fst
 
+  ret : {A : ob V} → 
+    O[ A , F A ]
+  ret {A} = FTy  A .snd .trans .N-ob (F A) (C .id) 
+  --  UTy B .snd .trans .N-ob A
+{-}
   bind : {A : ob V} {B : ob C} →
        C [ F A , B ] → O[ A , B ]
   bind {A} {B} M = FTy A .snd .trans .N-ob B  M
@@ -246,7 +265,9 @@ module TypeSyntax
 
   Fβ : {A : ob V}{B : ob C}{M : O[ A , B ]} → bind (ret M) ≡ M 
   Fβ {A}{B}{M} = FTy  A .snd .nIso B .snd .fst  M
+  -}
 
+{-}
   _&_ : ob C → ob C → ob C
   B & B' = C× B B' .fst
   
@@ -287,4 +308,4 @@ module TypeSyntax
     ⟨ π₁ M ,, π₂ M ⟩ ≡ M
   &η {B}{B'}{B''}{M} = C× B' B'' .snd .nIso B .snd .snd M
 
-
+-}

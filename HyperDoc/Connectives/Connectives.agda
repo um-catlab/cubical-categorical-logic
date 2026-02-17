@@ -20,7 +20,7 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 open Category
 open Functor
 
-module L∨⊤ where 
+module L⊤ where 
 
   record HA {ℓ ℓ'} (P : ob (POSET ℓ ℓ')) : Type (ℓ-max ℓ ℓ') where 
     
@@ -30,14 +30,14 @@ module L∨⊤ where
     open PreorderStr (P .fst .snd) renaming (_≤_ to _⊢_)
     field 
       top : X
-      _∨_ : X → X → X 
+   --   _∨_ : X → X → X 
 
       top-top : {P : X} → P ⊢ top
-
+{-}
       or_intro_l : {P Q : X} →  P ⊢ P ∨ Q
       or_intro_r : {P Q : X} →  Q ⊢ P ∨ Q
       or_elim : {P Q R : X} →  (P ⊢ R) → (Q ⊢ R) → P ∨ Q ⊢ R
-
+-}
       
   record HAHom {ℓ ℓ'}{P Q  : ob (POSET ℓ ℓ')}(F : MonFun (P .fst) (Q .fst))(Hx : HA P)(Hy : HA Q) : Type ℓ where 
     module Hx = HA {ℓ} Hx
@@ -46,11 +46,11 @@ module L∨⊤ where
     open MonFun F
     field 
       f-top : f Hx.top ≡ Hy.top
-      f-or : (x x' : X) → f (x Hx.∨ x') ≡  (f x) Hy.∨ (f x')
+    --  f-or : (x x' : X) → f (x Hx.∨ x') ≡  (f x) Hy.∨ (f x')
 
   -- this could be parameterized by structure
-  Has∨⊤ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
-  Has∨⊤ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
+  Has⊤ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
+  Has⊤ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
 
 
 module L∧ where

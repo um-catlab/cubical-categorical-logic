@@ -1,12 +1,24 @@
 module HyperDoc.Section where
 
+open import Cubical.Data.List using (_∷_ ; [])
+
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure 
 
+open import Cubical.Categories.Category 
+open import Cubical.Categories.Functor
+open import Cubical.Categories.Instances.Posets
+
 open import HyperDoc.CBPVModel
 open import HyperDoc.CBPVLogic
+open import HyperDoc.Syntax
+open import HyperDoc.Lib
 
+open Category
+open Functor 
+
+{-}
 module _ 
     {ℓVS ℓV'S ℓCS ℓC'S ℓSS ℓVT ℓV'T ℓCT ℓC'T ℓST ℓP ℓP' : Level}
     {M : Model ℓVS ℓV'S ℓCS ℓC'S ℓSS}
@@ -14,40 +26,35 @@ module _
     (F : ModelMorphism _ _ _ _ _ _ _ _ _ _ M N) 
     (LN : Logic {ℓP = ℓP}{ℓP'} N)where
 
-    module M = Model M 
-    module N = Model N
+    open ModelMorphism F
+    private 
+      module M = Model M 
+      module N = Model N
+      module L = Logic LN
+      module VH' = HDSyntax (L.VH ∘F (FV ^opF))
+      module CH' = HDSyntax (L.CH ∘F (FC ^opF))
 
-    record Section : Type {!   !} where 
+
+    -- unfolding of Section on a converted hyperdoc
+    -- dropping id and seq
+    record Section : Type (levels (ℓVS ∷ ℓV'S ∷ ℓCS ∷ ℓC'S ∷ ℓSS ∷ ℓVT ∷ ℓV'T ∷ ℓCT ∷ ℓC'T ∷ ℓST ∷ ℓP ∷ ℓP' ∷ [])) where 
       field 
-        Vob : {!   !}
+        DobV : (v : M.V .ob) → VH'.F∣ v ∣ 
+        DhomV : {v v' : M.V .ob }(f : M.V [ v , v' ]) → 
+          v VH'.◂ DobV v ≤ VH'.f* f (DobV v')
 
+        DobC : (c : M.C .ob) → CH'.F∣ c ∣ 
+        DhomC : {c c' : M.C .ob }(f : M.C [ c , c' ]) → 
+          c CH'.◂ DobC c ≤ CH'.f* f (DobC c')
 
-  --   (Nᴰ : DisplayedModel _ _ ℓVD ℓVD' _ _  ℓCD ℓCD' _ ℓSD N) where
-{- 
+        -- hrm.. 
 
+module _ 
+  {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' : Level}
+  {M : Model ℓV ℓV' ℓC ℓC' ℓS}
+  (L : Logic {ℓP = ℓP}{ℓP'} M)
+  where
 
-module _ {C : Category ℓC ℓC'}
-         {D : Category ℓD ℓD'}
-         (F : Functor D C)
-         (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
-         where
-  private
-    module C = Category C
-    module D = Category D
-    module Cᴰ = Categoryᴰ Cᴰ
-    module F = Functor F
-
-  -- Section without a qualifier means *local* section.
-  record Section : Type (ℓ-max (ℓ-max ℓC ℓC')
-                        (ℓ-max (ℓ-max ℓD ℓD')
-                        (ℓ-max ℓCᴰ ℓCᴰ')))
-    where
-    field
-      F-obᴰ  : ∀ d → Cᴰ.ob[ F ⟅ d ⟆ ]
-      F-homᴰ : ∀ {d d'} (f : D.Hom[ d , d' ])
-        → Cᴰ.Hom[ F ⟪ f ⟫ ][ F-obᴰ d , F-obᴰ d' ]
-      F-idᴰ : ∀ {d} → F-homᴰ (D.id {d}) Cᴰ.≡[ F .F-id ] Cᴰ.idᴰ
-      F-seqᴰ : ∀ {d d' d''}
-            → (f : D.Hom[ d , d' ])(g : D.Hom[ d' , d'' ])
-            → F-homᴰ (f D.⋆ g) Cᴰ.≡[ F .F-seq f g ] F-homᴰ f Cᴰ.⋆ᴰ F-homᴰ g
--}
+  GlobalSection : Type (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ ℓP ∷ ℓP' ∷ []))
+  GlobalSection = Section {M = M}{M} (idModelMorphism M) L
+  -}

@@ -1,3 +1,4 @@
+{-# OPTIONS --type-in-type #-}
 module HyperDoc.Models.ManualWriter where 
 
 open import Cubical.Data.Sigma
@@ -151,6 +152,11 @@ module _
   CBPVLogic : Logic CBPVWrite 
   CBPVLogic .VH = VL
   CBPVLogic .CH = CL
+  CBPVLogic .Sq .N-ob (A , B) o .f (Q , clQ) a = Q (o a)
+  CBPVLogic .Sq .N-ob (A , B) o .isMon Q a = Q (o a)
+  CBPVLogic .Sq .N-hom f = refl
+  
+  {-}
   CBPVLogic .pushV {A} {B} o .f P .fst = pushₚ {A = A }{B}o P
   CBPVLogic .pushV {A} {B} o .f P .snd w b = tmap (step w b)
   CBPVLogic .pushV {A} {B} o .isMon {P}{Q} P⊆Q b = 
@@ -176,7 +182,7 @@ module _
       p
   CBPVLogic .pushPullAdj {o = o} .adjIff {P} {Q} .sec b = ⊆-isProp P (λ a → Q .fst (o a))  _ b 
   CBPVLogic .pushPullAdj {A}{_}{o} .adjIff {P} {Q} .ret' a = ⊆-isProp (pushₚ {A = A} o P) (Q .fst) _ a
-
+-}
 
   -- this should just be inherited from Set in some nice way
   Alg∧ : L∧.Has∧ CL

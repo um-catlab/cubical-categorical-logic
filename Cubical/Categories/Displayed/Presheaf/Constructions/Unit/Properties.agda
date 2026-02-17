@@ -1,7 +1,6 @@
 module Cubical.Categories.Displayed.Presheaf.Constructions.Unit.Properties where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
@@ -11,7 +10,6 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -23,7 +21,6 @@ open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor
 open import Cubical.Categories.Displayed.Presheaf.Morphism
-open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Section
 open import Cubical.Categories.Displayed.Section
 

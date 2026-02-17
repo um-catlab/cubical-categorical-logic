@@ -34,13 +34,10 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Constructions.Reindex
@@ -50,8 +47,6 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration

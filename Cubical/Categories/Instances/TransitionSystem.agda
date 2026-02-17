@@ -1,6 +1,5 @@
 module Cubical.Categories.Instances.TransitionSystem where
 
-open import Cubical.Foundations.Equiv.Base
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -12,12 +11,9 @@ open import Cubical.Data.Maybe renaming (rec to mrec)
 open import Cubical.Data.Maybe.More
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum renaming (rec to rec⊎)
-open import Cubical.Data.Unit
 
 open import Cubical.Relation.Nullary
 
-open import Cubical.Reflection.Base
-open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
 
 open import Cubical.Categories.Category

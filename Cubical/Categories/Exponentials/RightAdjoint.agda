@@ -14,7 +14,7 @@ import Cubical.Categories.Constructions.BinProduct.Redundant.Base as Redundant
 import Cubical.Categories.Constructions.BinProduct as Separate
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
-open import Cubical.Categories.Instances.Sets
+-- open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Presheaf.More

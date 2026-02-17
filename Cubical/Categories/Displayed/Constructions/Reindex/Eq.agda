@@ -4,19 +4,19 @@
 module Cubical.Categories.Displayed.Constructions.Reindex.Eq where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
+-- open import Cubical.Foundations.HLevels
+-- open import Cubical.Data.Sigma
 import      Cubical.Data.Equality as Eq
-import      Cubical.Data.Equality.Conversion as Eq
+-- import      Cubical.Data.Equality.Conversion as Eq
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
+-- open import Cubical.Categories.Constructions.BinProduct
   renaming (Fst to FstBP ; Snd to SndBP)
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Constructions.TotalCategory
+-- open import Cubical.Categories.Displayed.Constructions.TotalCategory
   hiding (introF; introS)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
   hiding (intro)

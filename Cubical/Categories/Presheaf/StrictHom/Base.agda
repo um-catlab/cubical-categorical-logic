@@ -36,7 +36,7 @@ open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt using
-  (isPshIso' ; PshIso' ; PshHom ; _⋆NatTransPshHom_ ; _⋆PshHom_ ; PshIso)
+  (isPshIso' ; PshIso' ; PshHom ; _⋆NatTransPshHom_ ; _⋆PshHom_ ; PshIso ; makePshHomPath)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
 open import Cubical.Categories.Presheaf.Representable.More
@@ -203,6 +203,12 @@ module _
     PshIsoStrict→PshIso : PshIso P Q
     PshIsoStrict→PshIso .PshIso.trans = PshHomStrict→PshHom (PshIsoStrict.trans α)
     PshIsoStrict→PshIso .PshIso.nIso = PshIsoStrict.nIso α
+
+  PshHom≅PshHomStrict : Iso (PshHom P Q) (PshHomStrict P Q)
+  PshHom≅PshHomStrict .fun = PshHom→PshHomStrict
+  PshHom≅PshHomStrict .inv = PshHomStrict→PshHom
+  PshHom≅PshHomStrict .sec β = makePshHomStrictPath refl
+  PshHom≅PshHomStrict .ret α = makePshHomPath refl
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshHomStrict : PshHomStrict P P

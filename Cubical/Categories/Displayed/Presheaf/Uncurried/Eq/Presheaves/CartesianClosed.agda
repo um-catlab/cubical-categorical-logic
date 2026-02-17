@@ -123,12 +123,30 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
     PSHIdL PSHAssoc PSHᴰFibration (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq
   PSHᴰ∀ P Qᴰ .fst = ∀Q.P⇒Large Qᴰ
   PSHᴰ∀ P Qᴰ .snd .PshIsoEq.isos R3@(R , Rᴰ , α) =
-    -- Need PshHom here not PshHomStrict. Have to rework the UMP
     PshHom Rᴰ (α *Strict PSHᴰ∀ P Qᴰ .fst)
-      Iso⟨ {!!} ⟩
-    PshHom {!∀F ⟅ ? ⟆!} ({!!} *Strict Qᴰ)
+      Iso⟨ Push⊣* (PshHomStrict→Eq α) Rᴰ (∀Q.P⇒Large Qᴰ) ⟩
+    PshHom (PshHomStrict→Eq α Push Rᴰ) (∀Q.P⇒Large Qᴰ)
+      Iso⟨ PshHom≅PshHomStrict ⟩
+    PshHomStrict (PshHomStrict→Eq α Push Rᴰ) (∀Q.P⇒Large Qᴰ)
+      Iso⟨ ∀Q.P⇒Large-UMP Qᴰ (PshHomStrict→Eq α Push Rᴰ) ⟩
+    PshHomStrict (∀F ⟅ PshHomStrict→Eq α Push Rᴰ ⟆) Qᴰ
+      Iso⟨ invIso PshHom≅PshHomStrict ⟩
+    PshHom (∀F ⟅ PshHomStrict→Eq α Push Rᴰ ⟆) Qᴰ
+      -- Need to relate (PshHomStrict→Eq ...) Push
+      -- and PshStrict
+      Iso⟨ precomp⋆PshHom-Iso {!BeckChevalley α Rᴰ!} ⟩
+    PshHom
+     (PshHomStrict→Eq
+      (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P))
+      Push π₁ R P *Strict Rᴰ) Qᴰ
+      Iso⟨ invIso (Push⊣* (PshHomStrict→Eq
+         (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P)))
+           (π₁ R P *Strict Rᴰ) Qᴰ) ⟩
+    PshHom (π₁ R _ *Strict Rᴰ)
+           (×PshIntroStrict (π₁ R _ ⋆PshHomStrict α) (π₂ R _) *Strict Qᴰ)
     ∎Iso
-  PSHᴰ∀ P Qᴰ .snd .PshIsoEq.nat = {!!}
+  PSHᴰ∀ P Qᴰ .snd .PshIsoEq.nat
+    S3@(S , Sᴰ , .(α ⋆PshHomStrict β)) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p ._ Eq.refl = {!!}
 
   -- -- -- isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
   -- -- --   (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq

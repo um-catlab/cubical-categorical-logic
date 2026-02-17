@@ -4,7 +4,6 @@ module Cubical.Categories.Displayed.Profunctor where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 import Cubical.Categories.Constructions.TotalCategory as TotalCat

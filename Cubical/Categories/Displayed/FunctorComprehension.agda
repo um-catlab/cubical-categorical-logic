@@ -6,7 +6,7 @@
 module Cubical.Categories.Displayed.FunctorComprehension where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Equality as Eq
@@ -14,9 +14,9 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Presheaf.More
+-- open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.FunctorComprehension
-open import Cubical.Categories.Yoneda
+-- open import Cubical.Categories.Yoneda
 
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
 

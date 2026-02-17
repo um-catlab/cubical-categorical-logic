@@ -9,15 +9,15 @@ module Cubical.Categories.Monad.Strength.Cartesian.ExtensionSystem where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
+-- open import Cubical.Categories.Functor renaming (𝟙⟨_⟩ to funcId)
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Limits.Terminal
-open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Comonad.Instances.Environment
-open import Cubical.Categories.Monad.ExtensionSystem as Monad
+-- open import Cubical.Categories.Limits.Terminal
+-- open import Cubical.Categories.Limits.Terminal.More
+-- open import Cubical.Categories.Limits.Cartesian.Base
+-- open import Cubical.Categories.Comonad.Instances.Environment
+-- open import Cubical.Categories.Monad.ExtensionSystem as Monad
 
-open import Cubical.Tactics.CategorySolver.Reflection
+-- open import Cubical.Tactics.CategorySolver.Reflection
 
 private
   variable

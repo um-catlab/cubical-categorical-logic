@@ -132,9 +132,23 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
     PshHomStrict (∀F ⟅ PshHomStrict→Eq α Push Rᴰ ⟆) Qᴰ
       Iso⟨ invIso PshHom≅PshHomStrict ⟩
     PshHom (∀F ⟅ PshHomStrict→Eq α Push Rᴰ ⟆) Qᴰ
-      -- Need to relate (PshHomStrict→Eq ...) Push
+      -- This is a bit hacky, but it works. The following iso is
+      -- morally BeckChevalley, but then we need conversions
+      -- between the PshHom(Strict|Eq) interfaces
+      --
+      -- The right way to do this would be to create lemmas
+      -- that build an iso between PshHomStrict→Eq acting on Push
       -- and PshStrict
-      Iso⟨ precomp⋆PshHom-Iso {!BeckChevalley α Rᴰ!} ⟩
+      Iso⟨ precomp⋆PshHom-Iso
+        (eqToPshIso _ Eq.refl Eq.refl
+        ⋆PshIso BeckChevalley α Rᴰ
+        ⋆PshIso eqToPshIso _ Eq.refl
+          (Eq.pathToEq (implicitFunExt (λ {x} → implicitFunExt λ {y} →
+            funExt₂ λ u v → α*Rᴰ.rectifyOut $
+              α*Rᴰ.reind-revealed-filler⁻ _
+              ∙ α*Rᴰ.⟨⟩⋆⟨ α*Rᴰ.reind-revealed-filler⁻ _ ⟩
+              ∙ sym (α*Rᴰ.⋆ᴰ-reind _) ∙ α*Rᴰ.⋆ᴰ-reind _
+              )))) ⟩
     PshHom
      (PshHomStrict→Eq
       (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P))
@@ -145,15 +159,20 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
     PshHom (π₁ R _ *Strict Rᴰ)
            (×PshIntroStrict (π₁ R _ ⋆PshHomStrict α) (π₂ R _) *Strict Qᴰ)
     ∎Iso
+    where
+    module α*Rᴰ = PresheafᴰNotation (PshHomStrict→Eq α Push Rᴰ)
+    module Rᴰ = PresheafᴰNotation Rᴰ
   PSHᴰ∀ P Qᴰ .snd .PshIsoEq.nat
-    S3@(S , Sᴰ , .(α ⋆PshHomStrict β)) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p ._ Eq.refl = {!!}
+    S3@(S , Sᴰ , γ) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p _ Eq.refl =
+      Eq.pathToEq (makePshHomPath refl)
+    where module Qᴰ = PresheafᴰNotation Qᴰ
 
-  -- -- -- isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
-  -- -- --   (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq
-  -- -- -- isCartesianClosedⱽPSHᴰ .fst = isCartesianⱽPSHᴰ
-  -- -- -- isCartesianClosedⱽPSHᴰ .snd .fst = PSHᴰExponentials
-  -- -- -- isCartesianClosedⱽPSHᴰ .snd .snd = PSHᴰ∀
+  isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
+    (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq
+  isCartesianClosedⱽPSHᴰ .fst = isCartesianⱽPSHᴰ
+  isCartesianClosedⱽPSHᴰ .snd .fst = PSHᴰExponentials
+  isCartesianClosedⱽPSHᴰ .snd .snd = PSHᴰ∀
 
-  -- -- -- -- CCCⱽPSHᴰ : Path.CartesianClosedCategoryⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) _ _
-  -- -- -- -- CCCⱽPSHᴰ = EqCCCⱽ→CCCⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) PSHAssoc PSHIdL PSHπ₁NatEq PSH×aF-seq
-  -- -- -- --   (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) isCartesianClosedⱽPSHᴰ
+  CCCⱽPSHᴰ : Path.CartesianClosedCategoryⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) _ _
+  CCCⱽPSHᴰ = EqCCCⱽ→CCCⱽ (Cartesian-PRESHEAF C ℓPSHᴰ) PSHAssoc PSHIdL PSHπ₁NatEq PSH×aF-seq
+    (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) isCartesianClosedⱽPSHᴰ

@@ -3,7 +3,7 @@ module Cubical.Categories.Displayed.Instances.Functor.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-import Cubical.Data.Equality as Eq
+-- import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor

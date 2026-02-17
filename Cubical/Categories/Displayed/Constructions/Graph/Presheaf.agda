@@ -6,20 +6,15 @@ module Cubical.Categories.Displayed.Constructions.Graph.Presheaf where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
 open import Cubical.HITs.Join as Join
-open import Cubical.HITs.Join.More as Join
 open import Cubical.HITs.PathEq
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Presheaf hiding (PshHom)
 open import Cubical.Categories.Presheaf.Morphism.Alt

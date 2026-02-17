@@ -13,14 +13,14 @@ open import Cubical.Categories.Category
 -- open import Cubical.Categories.Functor.Base
 -- open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Instances.Sets
--- open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Presheaf.Base
+-- open import Cubical.Categories.Functors.HomFunctor
+-- open import Cubical.Categories.Presheaf.Base
 
-open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Yoneda
+-- open import Cubical.Categories.Instances.Sets.More
+-- open import Cubical.Categories.Yoneda
 
 private
   variable

@@ -1,6 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian where
--- TODO still need better name
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -51,18 +50,12 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
--- open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base
 open import Cubical.Categories.Presheaf.StrictHom
-
 
 open Functor
 open Iso

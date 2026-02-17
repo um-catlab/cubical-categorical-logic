@@ -50,17 +50,11 @@ open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
--- open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
--- open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 open import Cubical.Categories.Presheaf.StrictHom
-
 
 open Functor
 open Iso
@@ -125,20 +119,38 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     _Push_ : Presheafᴰ Q Cᴰ (ℓ-max (ℓ-max ℓP ℓQ) ℓPᴰ)
     _Push_ .F-ob (Γ , Γᴰ , q) .fst = Σ[ p ∈ P.p[ Γ ] ] (q Eq.≡ α .N-ob Γ p) × Pᴰ.p[ p ][ Γᴰ ]
     _Push_ .F-ob (Γ , Γᴰ , q) .snd = isSetΣ P.isSetPsh λ p → isSet× (isProp→isSet (Eq.isSet→isSetEq Q.isSetPsh)) Pᴰ.isSetPshᴰ
-    _Push_ .F-hom (γ , γᴰ , Eq.refl) (p , Eq.refl , pᴰ) =
-      (γ P.⋆ p) , (α .N-hom _ _ γ p (γ P.⋆ p) Eq.refl , (γᴰ Pᴰ.⋆ᴰ pᴰ))
-    _Push_ .F-id = {!!}
-    _Push_ .F-seq = {!!}
+    _Push_ .F-hom (γ , γᴰ , e) (p , e' , pᴰ) =
+      (γ P.⋆ p) ,
+      (Eq.sym e Eq.∙ Eq.ap (γ Q.⋆_) e') Eq.∙ α .N-hom _ _ γ p (γ P.⋆ p) Eq.refl , (γᴰ Pᴰ.⋆ᴰ pᴰ )
+    _Push_ .F-id = funExt λ _ →
+      ΣPathP (P.⋆IdL _ ,
+      ΣPathP ((isProp→PathP (λ _ → Eq.isSet→isSetEq Q.isSetPsh) _ _) ,
+      (Pᴰ.rectifyOut (Pᴰ.⋆IdL _))))
+    _Push_ .F-seq (_ , _ , Eq.refl) (_ , _ , Eq.refl) = funExt λ _ →
+      ΣPathP ((P.⋆Assoc _ _ _) ,
+        (ΣPathP (isProp→PathP (λ _ → Eq.isSet→isSetEq Q.isSetPsh) _ _ ,
+        (Pᴰ.rectifyOut $ Pᴰ.⋆Assoc _ _ _))))
+
   module _  where
     infixr 10 _PushStrict_
     _PushStrict_ : (α : PshHomStrict P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) → Presheafᴰ Q Cᴰ (ℓ-max (ℓ-max ℓP ℓQ) ℓPᴰ)
     α PushStrict Pᴰ = PshHomStrict→Eq α Push Pᴰ
   module _ (α : PshHomEq P Q) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
     Push⊣* : Iso (PshHom Pᴰ (α * Qᴰ)) (PshHom (α Push Pᴰ) Qᴰ)
-    Push⊣* .fun αᴰ .N-ob (Γ , Γᴰ , q) (p , Eq.refl , pᴰ) = αᴰ .N-ob (Γ , Γᴰ , p) pᴰ
-    Push⊣* .fun αᴰ .N-hom = {!!}
+    Push⊣* .fun αᴰ .N-ob (Γ , Γᴰ , q) (p , e , pᴰ) =
+      Qᴰ.reindEq (Eq.sym e) $ αᴰ .N-ob (Γ , Γᴰ , p) pᴰ
+    Push⊣* .fun αᴰ .N-hom _ _ (_ , _ , Eq.refl) (_ , Eq.refl , _) =
+      Qᴰ.rectifyOut $ Qᴰ.reindEq-filler⁻ _ ∙ (Qᴰ.≡in $ αᴰ .N-hom _ _ _ _) ∙ (sym $ Qᴰ.⋆ᴰ-reind _)
     Push⊣* .inv βⱽ .N-ob (Γ , Γᴰ , p) pᴰ = βⱽ .N-ob (Γ , Γᴰ , α .N-ob Γ p) (p , Eq.refl , pᴰ)
-    Push⊣* .inv βⱽ .N-hom = {!!}
+    Push⊣* .inv βⱽ .N-hom _ _ (_ , _ , Eq.refl) e =
+      cong (βⱽ .N-ob _)
+        (ΣPathP (refl , ΣPathP ((isProp→PathP (λ _ → Eq.isSet→isSetEq Q.isSetPsh) _ _) , refl)))
+      ∙ βⱽ .N-hom _ _ (_ , _ , α .N-hom _ _ _ _ _ Eq.refl ) (_ , Eq.refl , e)
+      ∙ Qᴰ.rectifyOut ((sym $ Qᴰ.⋆ᴰ-reind (α .N-hom _ _ _ _ _ Eq.refl)) ∙ Qᴰ.⋆ᴰ-reind _)
     Push⊣* .sec βⱽ = makePshHomPath (funExt₂ λ { (Γ , Γᴰ , q) (p , Eq.refl , pᴰ ) → refl })
     Push⊣* .ret αᴰ = makePshHomPath refl
 
@@ -149,12 +161,14 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
   where
+  private
+    module Qᴰ = PresheafᴰNotation Qᴰ
+
   FrobeniusReciprocity : PshIso (α Push (Pᴰ ×Psh (α * Qᴰ))) ((α Push Pᴰ) ×Psh Qᴰ)
-  FrobeniusReciprocity .PshIso.trans .N-ob (Γ , Γᴰ , q) (p , Eq.refl , (pᴰ , qᴰ)) =
-    (p , Eq.refl , pᴰ) , qᴰ
-    -- need some J here
+  FrobeniusReciprocity .PshIso.trans .N-ob (Γ , Γᴰ , q) (p , e , (pᴰ , qᴰ)) =
+    (p , e , pᴰ) , Qᴰ.reindEq (Eq.sym e) qᴰ
   FrobeniusReciprocity .PshIso.trans .N-hom _ _ (γ , γᴰ , Eq.refl) (p , Eq.refl , (pᴰ , qᴰ)) =
-    ΣPathP ({!!} , {!!})
+    ΣPathP (refl , (Qᴰ.rectifyOut $ Qᴰ.reindEq-filler⁻ _ ∙ (sym $ Qᴰ.⋆ᴰ-reind _)))
   FrobeniusReciprocity .PshIso.nIso (Γ , Γᴰ , q) .fst ((p , Eq.refl , pᴰ) , qᴰ) =
     (p , Eq.refl , pᴰ , qᴰ)
   FrobeniusReciprocity .PshIso.nIso (Γ , Γᴰ , q) .snd .fst ((p , Eq.refl , pᴰ) , qᴰ) = refl
@@ -167,11 +181,18 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (α : PshHomStrict R P)
   (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ)
   where
+  private
+    module P = PresheafNotation P
+    module Rᴰ = PresheafᴰNotation Rᴰ
+
   BeckChevalley :
     PshIso (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) PushStrict π₁ R Q *Strict Rᴰ)
            (π₁ P Q *Strict α PushStrict Rᴰ)
-  BeckChevalley .PshIso.trans .N-ob (Γ , Γᴰ , p , q) ((r , q') , (Eq.refl , rᴰ)) = r , (Eq.refl , rᴰ)
-  BeckChevalley .PshIso.trans .N-hom = {!!}
+  BeckChevalley .PshIso.trans .N-ob (Γ , Γᴰ , p , q) ((r , q') , (e , rᴰ)) =
+    r , (Eq.ap fst e , rᴰ)
+  BeckChevalley .PshIso.trans .N-hom c c' (_ , _ , Eq.refl) _ =
+    ΣPathP (refl , (ΣPathP ((isProp→PathP (λ _ → Eq.isSet→isSetEq P.isSetPsh) _ _) ,
+      (Rᴰ.rectifyOut $ sym $ Rᴰ.⋆ᴰ-reind _))))
   BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .fst (r , Eq.refl , rᴰ) = (r , q) , Eq.refl , rᴰ
   BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .snd .fst (r , Eq.refl , rᴰ) = refl
   BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .snd .snd ((r , q') , (Eq.refl , rᴰ)) = refl
@@ -275,11 +296,27 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   PushF : {P : Presheaf C ℓP} → Functor (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ / (PRESHEAF C ℓP [-, P ])) (PSHHOMCAT (Cᴰ / P) (ℓ-max ℓP ℓPᴰ))
   PushF .F-ob (R , Rᴰ , α) = α PushStrict Rᴰ
-  PushF .F-hom {x = S , Sᴰ , _} {y = R , Rᴰ , α} (β , βᴰ , Eq.refl) .N-ob (Γ , Γᴰ , p) (s , Eq.refl , sᴰ) =
-    (β .N-ob Γ s) , (Eq.refl , (βᴰ .N-ob (Γ , Γᴰ , s) sᴰ))
-  PushF .F-hom {x = S , Sᴰ , _} {y = R , Rᴰ , α} (r , rᴰ , Eq.refl) .N-hom = {!!}
-  PushF .F-id = {!!}
-  PushF .F-seq = {!!}
+  PushF .F-hom {x = S , Sᴰ , _} {y = R , Rᴰ , α}
+    (β , βᴰ , e) .N-ob (Γ , Γᴰ , p) (s , e' , sᴰ) =
+      β .N-ob Γ s , (e' Eq.∙ Eq.ap (λ z → z .N-ob Γ s) (Eq.sym e)) , (βᴰ .N-ob (Γ , Γᴰ , s) sᴰ)
+  PushF {P = P} .F-hom {x = S , Sᴰ , _} {y = R , Rᴰ , α} (r , rᴰ , Eq.refl) .N-hom
+    c c' (_ , _ , Eq.refl) (_ , Eq.refl , _) =
+      ΣPathP ((sym $ r .N-hom _ _ _ _ _ refl) ,
+        (ΣPathP (isProp→PathP (λ _ → Eq.isSet→isSetEq P.isSetPsh) _ _ ,
+          (Rᴰ.rectifyOut $ (Rᴰ.≡in $ rᴰ .N-hom _ _ _ _) ∙ (sym $ Rᴰ.⋆ᴰ-reind _)))))
+    where
+    module P = PresheafNotation P
+    module Rᴰ = PresheafᴰNotation Rᴰ
+  PushF {P = P} .F-id = makePshHomPath (funExt₂ λ { _ (_ , Eq.refl , _) →
+    ΣPathP (refl , ΣPathP (isProp→PathP (λ _ → Eq.isSet→isSetEq P.isSetPsh) _ _ , refl))
+    })
+   where module P = PresheafNotation P
+
+  PushF {P = P} .F-seq (_ , _ , Eq.refl) (_ , _ , Eq.refl) =
+    makePshHomPath (funExt₂ λ { _ (_ , Eq.refl , _) →
+    ΣPathP (refl , ΣPathP (isProp→PathP (λ _ → Eq.isSet→isSetEq P.isSetPsh) _ _ , refl))
+    })
+   where module P = PresheafNotation P
 
   ℓPushF = ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')
   module _ {P : Presheaf C ℓPushF} {Pᴰ : Presheaf (Cᴰ / P) ℓPushF} where
@@ -287,4 +324,5 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
       PshIsoEq (PRESHEAFᴰ Cᴰ ℓPushF ℓPushF [-][-, Pᴰ ])
                (reindPsh PushF (PRESHEAFⱽ P Cᴰ ℓPushF [-, Pᴰ ]))
     PushF⊣* .PshIsoEq.isos (R , Rᴰ , α) = Push⊣* (PshHomStrict→Eq α) Rᴰ Pᴰ
-    PushF⊣* .PshIsoEq.nat = {!!}
+    PushF⊣* .PshIsoEq.nat _ _ (_ , _ , Eq.refl) _ _ Eq.refl =
+      Eq.pathToEq $ makePshHomPath (funExt₂ λ { _ (_ , Eq.refl , _) → refl})

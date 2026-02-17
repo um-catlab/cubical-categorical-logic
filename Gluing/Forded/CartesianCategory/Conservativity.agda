@@ -2,10 +2,7 @@
 module Gluing.Forded.CartesianCategory.Conservativity where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
-open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Quiver.Base
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -14,7 +11,6 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Cartesian.Base
 
 open import Cubical.Categories.Constructions.Free.Category.Forded as FC

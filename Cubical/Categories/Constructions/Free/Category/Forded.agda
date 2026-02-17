@@ -5,19 +5,19 @@
 module Cubical.Categories.Constructions.Free.Category.Forded where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Isomorphism
+-- open import Cubical.Foundations.Path
+-- open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Sigma
+-- open import Cubical.Data.Sigma
 open import Cubical.Data.Quiver.Base as Quiver
-open import Cubical.Data.Graph.Base as Graph
+-- open import Cubical.Data.Graph.Base as Graph
 open import Cubical.Data.Graph.Displayed as Graph hiding (Section)
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation
+-- open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 open import Cubical.Categories.Displayed.Base

@@ -90,27 +90,6 @@ private
     ℓ ℓ' ℓs ℓr ℓc ℓc' ℓp ℓq ℓP ℓQ ℓR ℓS ℓS' ℓS'' : Level
     ℓC ℓC' ℓD ℓD' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' ℓPᴰ ℓQᴰ ℓRᴰ : Level
 
--- Helper: precomposing with a PshIsoStrict gives an Iso on hom sets
-module _ {C : Category ℓC ℓC'}
-  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {R : Presheaf C ℓR}
-  (isoᴾᴼ : PshIsoStrict P Q)
-  where
-  private
-    f = isoᴾᴼ .trans
-    g = invPshIsoStrict isoᴾᴼ .trans
-    sec' : ∀ c q → f .N-ob c (g .N-ob c q) ≡ q
-    sec' c = isoᴾᴼ .nIso c .snd .fst
-    ret' : ∀ c p → g .N-ob c (f .N-ob c p) ≡ p
-    ret' c = isoᴾᴼ .nIso c .snd .snd
-
-  precompPshIsoStrict : Iso (PshHomStrict Q R) (PshHomStrict P R)
-  precompPshIsoStrict .fun β = f ⋆PshHomStrict β
-  precompPshIsoStrict .inv γ = g ⋆PshHomStrict γ
-  precompPshIsoStrict .sec γ = makePshHomStrictPath
-    (funExt₂ λ c p → cong (γ .N-ob c) (ret' c p))
-  precompPshIsoStrict .ret β = makePshHomStrictPath
-    (funExt₂ λ c q → cong (β .N-ob c) (sec' c q))
-
 -- Pullback squares in the strict setting
 module _ {C : Category ℓC ℓC'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}

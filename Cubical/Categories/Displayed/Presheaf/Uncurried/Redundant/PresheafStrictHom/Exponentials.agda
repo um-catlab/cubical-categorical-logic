@@ -88,31 +88,6 @@ private
     ℓ ℓ' ℓs ℓr ℓc ℓc' ℓp ℓq ℓP ℓQ ℓR ℓS ℓS' ℓS'' : Level
     ℓC ℓC' ℓD ℓD' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' ℓPᴰ ℓQᴰ ℓRᴰ : Level
 
--- Helper: precomposing with a PshIsoStrict gives an Iso on hom sets
--- For iso P ≅ Q, we get Iso (Hom Q R) (Hom P R) by precomposition
-module _ {C : Category ℓC ℓC'}
-  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {R : Presheaf C ℓR}
-  (isoᴾᴼ : PshIsoStrict P Q)
-  where
-  private
-    -- f : P → Q, g : Q → P, with f ∘ g = id_Q (sec) and g ∘ f = id_P (ret)
-    f = isoᴾᴼ .trans
-    g = invPshIsoStrict isoᴾᴼ .trans
-    sec' : ∀ c q → f .N-ob c (g .N-ob c q) ≡ q
-    sec' c = isoᴾᴼ .nIso c .snd .fst
-    ret' : ∀ c p → g .N-ob c (f .N-ob c p) ≡ p
-    ret' c = isoᴾᴼ .nIso c .snd .snd
-
-  precompPshIsoStrict : Iso (PshHomStrict Q R) (PshHomStrict P R)
-  precompPshIsoStrict .fun β = f ⋆PshHomStrict β
-  precompPshIsoStrict .inv γ = g ⋆PshHomStrict γ
-  -- sec: fun (inv γ) = f ⋆ (g ⋆ γ), at p: γ(g(f(p))) = γ(ret'(p)) ≡ γ(p)
-  precompPshIsoStrict .sec γ = makePshHomStrictPath
-    (funExt₂ λ c p → cong (γ .N-ob c) (ret' c p))
-  -- ret: inv (fun β) = g ⋆ (f ⋆ β), at q: β(f(g(q))) = β(sec'(q)) ≡ β(q)
-  precompPshIsoStrict .ret β = makePshHomStrictPath
-    (funExt₂ λ c q → cong (β .N-ob c) (sec' c q))
-
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
   (α : PshHomStrict P Q)

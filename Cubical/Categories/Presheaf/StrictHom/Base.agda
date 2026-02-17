@@ -221,6 +221,23 @@ module _ {C : Category ℓc ℓc'} where
         module R = PresheafNotation R
     infixr 9 _⋆PshHomStrict_
 
+module _ {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
+  open PshIsoStrict
+
+  _⋆PshIsoStrict_ : PshIsoStrict P Q → PshIsoStrict Q R → PshIsoStrict P R
+  (α ⋆PshIsoStrict β) .trans = α .trans ⋆PshHomStrict β .trans
+  (α ⋆PshIsoStrict β) .nIso x =
+    IsoToIsIso $
+      compIso (isIsoToIso (α .nIso x)) (isIsoToIso (β .nIso x))
+  infixr 9 _⋆PshIsoStrict_
+
+module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
+  open PshIsoStrict
+  idPshIsoStrict : PshIsoStrict P P
+  idPshIsoStrict .trans = idPshHomStrict
+  idPshIsoStrict .nIso _ = IsoToIsIso idIso
+
 module _
   {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
@@ -364,6 +381,21 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   reindPshFStrict F .F-id = refl
   reindPshFStrict F .F-seq _ _ = refl
 
+  reindPshHomStrict : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
+    → (F : Functor C D) (α : PshHomStrict P Q)
+    → PshHomStrict (reindPsh F P) (reindPsh F Q)
+  reindPshHomStrict F α .N-ob c = α .N-ob _
+  reindPshHomStrict F α .N-hom c c' f = α .N-hom _ _ _
+
+  open PshIsoStrict
+  reindPshIsoStrict : {P : Presheaf D ℓP}{Q : Presheaf D ℓQ}
+    → (F : Functor C D) (α : PshIsoStrict P Q)
+    → PshIsoStrict (reindPsh F P) (reindPsh F Q)
+  reindPshIsoStrict F α .trans = reindPshHomStrict F (α .trans)
+  reindPshIsoStrict F α .nIso x .fst = α .nIso _ .fst
+  reindPshIsoStrict F α .nIso x .snd .fst = α .nIso _ .snd .fst
+  reindPshIsoStrict F α .nIso x .snd .snd = α .nIso _ .snd .snd
+
 module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
   private
     module C = Category C
@@ -372,3 +404,37 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) where
   yoRecStrict : ∀ {c} → P.p[ c ] → PshHomStrict (C [-, c ]) P
   yoRecStrict p .PshHomStrict.N-ob _ = P._⋆ p
   yoRecStrict p .PshHomStrict.N-hom _ _ _ _ _ f⋆p'≡p = sym (P.⋆Assoc _ _ _) ∙ P.⟨ f⋆p'≡p ⟩⋆⟨⟩
+
+-- Helper: precomposing with a PshIsoStrict gives an Iso on hom sets
+module _ {C : Category ℓC ℓC'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} {R : Presheaf C ℓR}
+  (isoᴾᴼ : PshIsoStrict P Q)
+  where
+  private
+    f = isoᴾᴼ .PshIsoStrict.trans
+    g = invPshIsoStrict isoᴾᴼ .PshIsoStrict.trans
+    sec' : ∀ c q → f .N-ob c (g .N-ob c q) ≡ q
+    sec' c = isoᴾᴼ .PshIsoStrict.nIso c .snd .fst
+    ret' : ∀ c p → g .N-ob c (f .N-ob c p) ≡ p
+    ret' c = isoᴾᴼ .PshIsoStrict.nIso c .snd .snd
+
+  precompPshIsoStrict : Iso (PshHomStrict Q R) (PshHomStrict P R)
+  precompPshIsoStrict .fun β = f ⋆PshHomStrict β
+  precompPshIsoStrict .inv γ = g ⋆PshHomStrict γ
+  precompPshIsoStrict .sec γ = makePshHomStrictPath
+    (funExt₂ λ c p → cong (γ .N-ob c) (ret' c p))
+  precompPshIsoStrict .ret β = makePshHomStrictPath
+    (funExt₂ λ c q → cong (β .N-ob c) (sec' c q))
+
+module _ {C : Category ℓc ℓc'} where
+  step-PshIsoStrict : ∀ (P : Presheaf C ℓp) {Q : Presheaf C ℓq} {R : Presheaf C ℓr}
+    → PshIsoStrict Q R → PshIsoStrict P Q → PshIsoStrict P R
+  step-PshIsoStrict _ g f = f ⋆PshIsoStrict g
+
+  infixr  2 step-PshIsoStrict
+  syntax step-PshIsoStrict P Q f = P PshIsoStrict⟨ f ⟩ Q
+
+  _∎PshIsoStrict : ∀ (P : Presheaf C ℓp) → PshIsoStrict P P
+  P ∎PshIsoStrict = idPshIsoStrict {P = P}
+
+  infix   3 _∎PshIsoStrict

@@ -257,3 +257,58 @@ module _ {C : Category ℓC ℓC'} where
     test-ext' : ∀ (Q : Presheaf C ℓQ) →
       extStrict (HomBif C) ⟅ Q ⟆ ≡ ◇Strict Q
     test-ext' Q = refl
+
+  module _ (P : Presheaf C ℓP) where
+    private
+      module P = PresheafNotation P
+      module ◇P = PresheafNotation (◇Strict P)
+      module ◇P⊗ = ext-⊗ (HomBif C) P
+    CoYonedaStrict : PshIsoStrict P (◇Strict P)
+    CoYonedaStrict .trans .N-ob x p = id C ◇P⊗.,⊗ p
+    CoYonedaStrict .trans .N-hom c c' f p' p e =
+      cong₂ ◇P⊗._,⊗_ (C .⋆IdR _ ∙ (sym $ C .⋆IdL _)) refl
+      ∙ (sym $ ◇P⊗.swap (id C) f p')
+      ∙ cong₂ ◇P⊗._,⊗_ refl e
+    CoYonedaStrict .nIso x = ◇P→P , ◇P-rt , P.⋆IdL
+      where
+        ◇P→P : ◇P.p[ x ] → P.p[ x ]
+        ◇P→P = ◇P⊗.rec P.isSetPsh P._⋆_ λ f g q → sym $ P.⋆Assoc f g q
+
+        ◇P-rt : section (λ p → C .id ◇P⊗.,⊗ p) ◇P→P
+        ◇P-rt = ◇P⊗.ind (λ f⊗p → isSet⊗ _ _)
+          λ f p → ◇P⊗.swap _ _ _ ∙ cong (◇P⊗._,⊗ p) (C .⋆IdL f)
+
+module _ {B : Category ℓ ℓ'} {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  module _ (F : Functor B C) (P : C o-[ ℓP ]-* D) (Q : Presheaf D ℓQ) where
+    private
+      F*P = CurriedToBifunctorLStrict (reindPshFStrict F ∘F CurryBifunctorL' P)
+      module P⊗Q {b} = ext-⊗ P Q {F .F-ob b}
+      module F*P⊗Q {b} = ext-⊗ F*P Q {b}
+    reindPsh-⊗Strict :
+      PshIsoStrict (reindPsh F (extStrict P ⟅ Q ⟆)) (extStrict F*P ⟅ Q ⟆)
+    reindPsh-⊗Strict .trans .N-ob b =
+      P⊗Q.rec F*P⊗Q.isSet⊗ F*P⊗Q._,⊗_ F*P⊗Q.swap
+    reindPsh-⊗Strict .trans .N-hom b b' f p p' e =
+      P⊗Q.ind {A = λ p' →
+        (extStrict F*P ⟅ Q ⟆ PresheafNotation.⋆ f)
+         (trans reindPsh-⊗Strict .N-ob b' p')
+         ≡ trans reindPsh-⊗Strict .N-ob b
+           ((reindPsh F (extStrict P ⟅ Q ⟆) PresheafNotation.⋆ f) p')}
+      (λ _ → F*P⊗Q.isSet⊗ _ _)
+      (λ pp q → refl)
+      p
+      ∙ cong (P⊗Q.rec F*P⊗Q.isSet⊗ F*P⊗Q._,⊗_ F*P⊗Q.swap) e
+    reindPsh-⊗Strict .nIso b =
+      F*P⊗Q.rec P⊗Q.isSet⊗ P⊗Q._,⊗_ P⊗Q.swap
+      , F*P⊗Q.ind (λ _ → F*P⊗Q.isSet⊗ _ _) (λ _ _ → refl)
+      , P⊗Q.ind (λ _ → P⊗Q.isSet⊗ _ _) (λ _ _ → refl)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  reindPshFStrict-cocont : (F : Functor C D) → CoContinuous (reindPshFStrict F)
+  reindPshFStrict-cocont F Q =
+    reindPshFStrict F ⟅ Q ⟆
+      PshIsoStrict⟨ reindPshIsoStrict F (CoYonedaStrict Q) ⟩
+    reindPshFStrict F ⟅ ◇Strict Q ⟆
+      PshIsoStrict⟨ reindPsh-⊗Strict F (HomBif D) Q ⟩
+    extStrict _ ⟅ Q ⟆
+    ∎PshIsoStrict

@@ -13,23 +13,17 @@
 module Cubical.Categories.Displayed.Instances.Arrow.Monoidal where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.NaturalTransformation.More
 import      Cubical.Categories.Constructions.BinProduct as BP
 open import Cubical.Categories.Constructions.BinProduct.Monoidal
 open import Cubical.Categories.Monoidal
 open import Cubical.Categories.Monoidal.Functor
 
-open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Monoidal.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Monoidal
 import Cubical.Categories.Displayed.Instances.Arrow.Base as Arrow

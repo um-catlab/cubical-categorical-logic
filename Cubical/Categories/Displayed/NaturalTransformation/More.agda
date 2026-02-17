@@ -2,7 +2,7 @@ module Cubical.Categories.Displayed.NaturalTransformation.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.More
+-- open import Cubical.Foundations.More
 
 open import Cubical.Data.Sigma
 

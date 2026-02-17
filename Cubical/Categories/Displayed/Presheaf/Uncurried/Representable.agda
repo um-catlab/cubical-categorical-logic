@@ -2,18 +2,11 @@
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Representable where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
-open import Cubical.Foundations.HLevels.More
 
-open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
-import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
@@ -31,11 +24,6 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Instances.Functor.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base as Curried hiding (_[-][-,_])
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 
 private

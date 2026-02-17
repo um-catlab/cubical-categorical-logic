@@ -8,7 +8,6 @@ open import Cubical.Foundations.Structure
 
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Equality.More
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor

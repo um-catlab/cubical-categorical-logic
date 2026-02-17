@@ -4,27 +4,27 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.UniversalConstructions.End where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv hiding (fiber)
-open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.Prelude
+-- open import Cubical.Foundations.Equiv hiding (fiber)
+-- open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
+-- open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Functors
+-- open import Cubical.Categories.Instances.Sets
+-- open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Constructions.Bifunctors
 open import Cubical.Categories.Constructions.BinProduct.Redundant as Tensor
 open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Profunctor.General
+-- open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
 open import Cubical.Categories.Profunctor.Hom
-open import Cubical.Categories.Profunctor.Homomorphism.Unary
-open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
+-- open import Cubical.Categories.Profunctor.Homomorphism.Unary
+-- open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
 open import Cubical.Categories.Bifunctor as Redundant
-open import Cubical.Categories.UniversalConstructions.WeightedLimit
+-- open import Cubical.Categories.UniversalConstructions.WeightedLimit
 
 
 private

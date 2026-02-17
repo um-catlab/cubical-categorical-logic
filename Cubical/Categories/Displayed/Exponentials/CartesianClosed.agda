@@ -1,29 +1,16 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Exponentials.CartesianClosed where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
-open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Exponentials
 
-open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Adjoint.More
-open import Cubical.Categories.Displayed.Constructions.Slice
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Exponentials.Base
-open import Cubical.Categories.Displayed.Fibration
-open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.CartesianD
 open import Cubical.Categories.Displayed.Limits.CartesianV
-open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Quantifiers
 
 private

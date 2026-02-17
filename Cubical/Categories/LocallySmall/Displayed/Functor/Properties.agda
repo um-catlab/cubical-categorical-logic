@@ -2,20 +2,20 @@ module Cubical.Categories.LocallySmall.Displayed.Functor.Properties where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.More
+-- open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.HLevels.More
 
-open import Cubical.Data.Sigma
+-- open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
-open import Cubical.Categories.LocallySmall.Category.Small
+-- open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables.Category
 open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Functor.Properties
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
-open import Cubical.Categories.LocallySmall.Displayed.Category.Small
+-- open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base

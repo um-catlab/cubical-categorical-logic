@@ -16,9 +16,6 @@ open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
 
-open import Cubical.HITs.PathEq
-open import Cubical.HITs.Join
-
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Constructions.Lift
@@ -66,7 +63,6 @@ open import Cubical.Categories.Profunctor.StrictHom.Base
 open import Cubical.Categories.Profunctor.StrictHom.Constructions.Extension
 open import Cubical.Categories.Presheaf.Constructions.RightAdjoint
 open import Cubical.Categories.Profunctor.Relator
-open import Cubical.Categories.Bifunctor
 
 open Category
 open Functor
@@ -88,6 +84,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
     module C = Category C
     module Cᴰ = Fibers Cᴰ
   ℓPSHᴰ = ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')
+  module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} where
+
   PSHᴰExponentials : Exponentialsⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHIdL (BPⱽ+Fibration→AllLRⱽ (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHAssoc PSHᴰBPⱽ PSHᴰFibration)
   PSHᴰExponentials {x = P} Pᴰ Qᴰ .fst = Pᴰ ⇒PshLarge Qᴰ
   PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.isos R3@(R , Rᴰ , α) =
@@ -103,7 +101,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       ∎Iso
   PSHᴰExponentials {x = P} Pᴰ Qᴰ .snd .PshIsoEq.nat
     S3@(S , Sᴰ , .(α ⋆PshHomStrict β)) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p ._ Eq.refl =
-    Eq.pathToEq (makePshHomPath refl) -- this refl could use an annotation
+    Eq.pathToEq (makePshHomPath refl)
 
   -- Quantifiers
   module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} where
@@ -132,25 +130,19 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       Iso⟨ invIso PshHom≅PshHomStrict ⟩
     PshHom (π₁Eq Γ P * (PshHomStrict→Eq α Push Rᴰ)) Qᴰ
       Iso⟨ precomp⋆PshHom-Iso $ BeckChevalley α Rᴰ ⟩
-    PshHom
-     (PshHomStrict→Eq (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P))
-       Push π₁ R P
-       *Strict Rᴰ)
-     Qᴰ
-
-      Iso⟨ invIso (Push⊣* (PshHomStrict→Eq
-         (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P)))
-           (π₁ R P *Strict Rᴰ) Qᴰ) ⟩
+    PshHom ((×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P))
+           PushStrict π₁ R P *Strict Rᴰ)
+           Qᴰ
+      Iso⟨ invIso (Push⊣* _ _ _) ⟩
     PshHom (π₁ R _ *Strict Rᴰ)
            (×PshIntroStrict (π₁ R _ ⋆PshHomStrict α) (π₂ R _) *Strict Qᴰ)
-    ∎Iso
+      ∎Iso
     where
     module Γ = PresheafNotation Γ
     module α*Rᴰ = PresheafᴰNotation (PshHomStrict→Eq α Push Rᴰ)
     module Rᴰ = PresheafᴰNotation Rᴰ
   PSHᴰ∀ P Qᴰ .snd .PshIsoEq.nat
     S3@(S , Sᴰ , γ) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p _ Eq.refl =
-    -- This refl is very slow, can we get an annotation?
       Eq.pathToEq $ makePshHomPath refl
     where module Qᴰ = PresheafᴰNotation Qᴰ
 

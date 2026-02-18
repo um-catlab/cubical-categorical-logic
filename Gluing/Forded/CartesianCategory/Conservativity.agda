@@ -28,7 +28,6 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Limits.CartesianV' as V'
 import Cubical.Categories.Displayed.Instances.Terminal.Base as Unitᴰ
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
-  hiding (PRESHEAFᴰ)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base as PshBase
   using (PRESHEAFᴰ; PSHAssoc)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian

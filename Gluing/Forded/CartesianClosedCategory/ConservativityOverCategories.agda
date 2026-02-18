@@ -32,10 +32,10 @@ open import Cubical.Categories.Displayed.Limits.CartesianV' as V'
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 import Cubical.Categories.Displayed.Instances.Terminal.Base as Unitᴰ
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base as PshBase
+open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Base as PshBase
   using (PRESHEAFᴰ; PSHAssoc; PSHIdL; PSHπ₁NatEq; PSH×aF-seq)
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.CartesianClosed
+open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Cartesian
+open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.CartesianClosed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
   using (EqCCCⱽ→CCCⱽ)

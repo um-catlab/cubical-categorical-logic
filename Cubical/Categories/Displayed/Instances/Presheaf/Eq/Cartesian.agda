@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Cartesian where
+module Cubical.Categories.Displayed.Instances.Presheaf.Eq.Cartesian where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -54,7 +54,7 @@ open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base
+open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Base
 open import Cubical.Categories.Presheaf.StrictHom
 
 open Functor

@@ -1,6 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Presheaves.Base where
--- TODO still need better name
+module Cubical.Categories.Displayed.Instances.Presheaf.Eq.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

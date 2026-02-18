@@ -7,6 +7,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Quiver.Base
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
@@ -64,11 +65,12 @@ module _ where
   dom t,f = ⊤
   cod t,f = (↑ ans) × (↑ ans)
 
+  open QuiverOver
   QUIVER : ×Quiver _ _
   QUIVER .×Quiver.ob = OB
-  QUIVER .×Quiver.Q .ProductQuiver.mor = MOR
-  QUIVER .×Quiver.Q .ProductQuiver.dom = dom
-  QUIVER .×Quiver.Q .ProductQuiver.cod = cod
+  QUIVER .×Quiver.Q .mor = MOR
+  QUIVER .×Quiver.Q .dom = dom
+  QUIVER .×Quiver.Q .cod = cod
 
   private module Q = ×Quiver QUIVER
 

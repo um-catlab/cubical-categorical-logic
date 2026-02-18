@@ -12,6 +12,7 @@ open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Sigma
+open import Cubical.Data.Quiver.Base
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
@@ -41,11 +42,12 @@ module _ where
   data MOR : Type ℓ-zero where
     t,f : MOR
 
+  open QuiverOver
   QUIVER : FreeCCC.×⇒Quiver _ _
   QUIVER .×⇒Quiver.ob = OB
-  QUIVER .×⇒Quiver.mor = MOR
-  QUIVER .×⇒Quiver.dom t,f = ⊤
-  QUIVER .×⇒Quiver.cod t,f = ⊤ ⇒ ((↑ ans) FreeCCC.× (↑ ans))
+  QUIVER .×⇒Quiver.Q .mor = MOR
+  QUIVER .×⇒Quiver.Q .dom t,f = ⊤
+  QUIVER .×⇒Quiver.Q .cod t,f = ⊤ ⇒ ((↑ ans) FreeCCC.× (↑ ans))
 
   discreteOB : Discrete OB
   discreteOB = sectionDiscrete {A = ℕ}

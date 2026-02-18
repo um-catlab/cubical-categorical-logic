@@ -122,7 +122,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
   PSHᴰ∀ : UniversalQuantifiers (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ)
     PSHIdL PSHAssoc PSHᴰFibration (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq
   PSHᴰ∀ P Qᴰ .fst = ∀Q.P⇒Large Qᴰ
-  PSHᴰ∀ P Qᴰ .snd .PshIsoEq.isos R3@(R , Rᴰ , α) =
+  PSHᴰ∀ P {Γ = Γ} Qᴰ .snd .PshIsoEq.isos R3@(R , Rᴰ , α) =
     PshHom Rᴰ (α *Strict PSHᴰ∀ P Qᴰ .fst)
       Iso⟨ Push⊣* (PshHomStrict→Eq α) Rᴰ (∀Q.P⇒Large Qᴰ) ⟩
     PshHom (PshHomStrict→Eq α Push Rᴰ) (∀Q.P⇒Large Qᴰ)
@@ -139,15 +139,18 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       -- The right way to do this would be to create lemmas
       -- that build an iso between PshHomStrict→Eq acting on Push
       -- and PshStrict
+      --
+      -- This gets pretty slow
       Iso⟨ precomp⋆PshHom-Iso
         (eqToPshIso _ Eq.refl Eq.refl
         ⋆PshIso BeckChevalley α Rᴰ
         ⋆PshIso eqToPshIso _ Eq.refl
           (Eq.pathToEq (implicitFunExt (λ {x} → implicitFunExt λ {y} →
-            funExt₂ λ u v → α*Rᴰ.rectifyOut $
-              α*Rᴰ.reind-revealed-filler⁻ _
-              ∙ α*Rᴰ.⟨⟩⋆⟨ α*Rᴰ.reind-revealed-filler⁻ _ ⟩
-              ∙ sym (α*Rᴰ.⋆ᴰ-reind _) ∙ α*Rᴰ.⋆ᴰ-reind _
+            funExt₂ λ { (_ , _ , Eq.refl) (_ , Eq.refl , _) →
+                ΣPathP (refl ,
+                ΣPathP (isProp→PathP (λ _ → Eq.isSet→isSetEq Γ.isSetPsh) _ _ , refl)
+                )
+              }
               )))) ⟩
     PshHom
      (PshHomStrict→Eq
@@ -160,6 +163,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
            (×PshIntroStrict (π₁ R _ ⋆PshHomStrict α) (π₂ R _) *Strict Qᴰ)
     ∎Iso
     where
+    module Γ = PresheafNotation Γ
     module α*Rᴰ = PresheafᴰNotation (PshHomStrict→Eq α Push Rᴰ)
     module Rᴰ = PresheafᴰNotation Rᴰ
   PSHᴰ∀ P Qᴰ .snd .PshIsoEq.nat

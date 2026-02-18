@@ -107,15 +107,14 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
 
   -- Quantifiers
   module _ {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} where
-    private
-      SliceF : Functor (Cᴰ / (P ×Psh Q)) (Cᴰ / P)
-      SliceF = (Idᴰ /Fⱽ pshhom (λ c z → z .fst) (λ { _ _ _ _ _ Eq.refl → Eq.refl }))
+    /π₁ : Functor (Cᴰ / (P ×Psh Q)) (Cᴰ / P)
+    /π₁ = (Idᴰ /Fⱽ π₁Eq P Q)
 
     ∀F : Functor (PRESHEAF (Cᴰ / P) ℓPᴰ) (PRESHEAF (Cᴰ / (P ×Psh Q)) ℓPᴰ)
-    ∀F = reindPshFStrict SliceF
+    ∀F = reindPshFStrict /π₁
 
     ∀F-cocont : CoContinuous ∀F
-    ∀F-cocont = reindPshFStrict-cocont SliceF
+    ∀F-cocont = reindPshFStrict-cocont /π₁
 
     module ∀Q = P⇒LargeStrict-cocontinuous ∀F ∀F-cocont
 
@@ -131,31 +130,14 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
       Iso⟨ ∀Q.P⇒Large-UMP Qᴰ (PshHomStrict→Eq α Push Rᴰ) ⟩
     PshHomStrict (∀F ⟅ PshHomStrict→Eq α Push Rᴰ ⟆) Qᴰ
       Iso⟨ invIso PshHom≅PshHomStrict ⟩
-    PshHom (∀F ⟅ PshHomStrict→Eq α Push Rᴰ ⟆) Qᴰ
-      -- This is a bit hacky, but it works. The following iso is
-      -- morally BeckChevalley, but then we need conversions
-      -- between the PshHom(Strict|Eq) interfaces
-      --
-      -- The right way to do this would be to create lemmas
-      -- that build an iso between PshHomStrict→Eq acting on Push
-      -- and PshStrict
-      --
-      -- This gets pretty slow
-      Iso⟨ precomp⋆PshHom-Iso
-        (eqToPshIso _ Eq.refl Eq.refl
-        ⋆PshIso BeckChevalley α Rᴰ
-        ⋆PshIso eqToPshIso _ Eq.refl
-          (Eq.pathToEq (implicitFunExt (λ {x} → implicitFunExt λ {y} →
-            funExt₂ λ { (_ , _ , Eq.refl) (_ , Eq.refl , _) →
-                ΣPathP (refl ,
-                ΣPathP (isProp→PathP (λ _ → Eq.isSet→isSetEq Γ.isSetPsh) _ _ , refl)
-                )
-              }
-              )))) ⟩
+    PshHom (π₁Eq Γ P * (PshHomStrict→Eq α Push Rᴰ)) Qᴰ
+      Iso⟨ precomp⋆PshHom-Iso $ BeckChevalley α Rᴰ ⟩
     PshHom
-     (PshHomStrict→Eq
-      (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P))
-      Push π₁ R P *Strict Rᴰ) Qᴰ
+     (PshHomStrict→Eq (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P))
+       Push π₁ R P
+       *Strict Rᴰ)
+     Qᴰ
+
       Iso⟨ invIso (Push⊣* (PshHomStrict→Eq
          (×PshIntroStrict (π₁ R P ⋆PshHomStrict α) (π₂ R P)))
            (π₁ R P *Strict Rᴰ) Qᴰ) ⟩
@@ -168,7 +150,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
     module Rᴰ = PresheafᴰNotation Rᴰ
   PSHᴰ∀ P Qᴰ .snd .PshIsoEq.nat
     S3@(S , Sᴰ , γ) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p _ Eq.refl =
-      Eq.pathToEq (makePshHomPath refl)
+    -- This refl is very slow, can we get an annotation?
+      Eq.pathToEq $ makePshHomPath refl
     where module Qᴰ = PresheafᴰNotation Qᴰ
 
   isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL

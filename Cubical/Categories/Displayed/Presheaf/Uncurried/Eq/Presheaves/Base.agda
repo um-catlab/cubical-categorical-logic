@@ -186,13 +186,12 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Rᴰ = PresheafᴰNotation Rᴰ
 
   BeckChevalley :
-    PshIso (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) PushStrict π₁ R Q *Strict Rᴰ)
-           (π₁ P Q *Strict α PushStrict Rᴰ)
-  BeckChevalley .PshIso.trans .N-ob (Γ , Γᴰ , p , q) ((r , q') , (e , rᴰ)) =
-    r , (Eq.ap fst e , rᴰ)
-  BeckChevalley .PshIso.trans .N-hom c c' (_ , _ , Eq.refl) _ =
-    ΣPathP (refl , (ΣPathP ((isProp→PathP (λ _ → Eq.isSet→isSetEq P.isSetPsh) _ _) ,
-      (Rᴰ.rectifyOut $ sym $ Rᴰ.⋆ᴰ-reind _))))
+    PshIso
+      (×PshIntroStrict (π₁ R Q ⋆PshHomStrict α) (π₂ R Q) PushStrict π₁ R Q *Strict Rᴰ)
+      (π₁Eq P Q * α PushStrict Rᴰ)
+  BeckChevalley .PshIso.trans .N-ob (Γ , Γᴰ , p , q) ((r , q') , (e , rᴰ)) = r , (Eq.ap fst e , rᴰ)
+  BeckChevalley .PshIso.trans .N-hom c c' (_ , _ , Eq.refl) p =
+    ΣPathP (refl , ×≡Prop' (Eq.isSet→isSetEq P.isSetPsh) (Rᴰ.rectifyOut $ sym $ Rᴰ.⋆ᴰ-reind _))
   BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .fst (r , Eq.refl , rᴰ) = (r , q) , Eq.refl , rᴰ
   BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .snd .fst (r , Eq.refl , rᴰ) = refl
   BeckChevalley .PshIso.nIso (Γ , Γᴰ , p , q) .snd .snd ((r , q') , (Eq.refl , rᴰ)) = refl

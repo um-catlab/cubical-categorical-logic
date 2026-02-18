@@ -11,6 +11,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Instances.Terminal as Terminal
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Fibration.Base
 
@@ -39,3 +40,10 @@ module _ {C : Category ℓC ℓC'} where
   --     refl
   --     (λ _ → isSetUnit _ _)
   --     λ _ _ → refl
+
+module _ {C : Category ℓC ℓC'} where
+  Unitᴰ^op→^opᴰ : Functorⱽ (Unitᴰ (C ^op)) (Unitᴰ C ^opᴰ)
+  Unitᴰ^op→^opᴰ .F-obᴰ = λ _ → tt
+  Unitᴰ^op→^opᴰ .F-homᴰ = λ _ → tt
+  Unitᴰ^op→^opᴰ .F-idᴰ = refl
+  Unitᴰ^op→^opᴰ .F-seqᴰ = λ _ _ → refl

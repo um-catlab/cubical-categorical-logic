@@ -60,7 +60,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
        hasContrHoms→isUniversalᴰ Γ Γᴰ .leftInv f fᴰ =
          isProp→PathP (λ _ → isContr→isProp (hasContrHom _ Γᴰ vᴰ)) _ fᴰ
 
-       hasContrHoms+propFibersᴰ→UEᴰ : UniversalElementᴰ Cᴰ P Pᴰ ue
-       hasContrHoms+propFibersᴰ→UEᴰ .fst = vᴰ
-       hasContrHoms+propFibersᴰ→UEᴰ .snd .fst = eᴰ
-       hasContrHoms+propFibersᴰ→UEᴰ .snd .snd = hasContrHoms→isUniversalᴰ
+       hasContrHoms+propValuedPshᴰ→UEᴰ : UniversalElementᴰ Cᴰ P Pᴰ ue
+       hasContrHoms+propValuedPshᴰ→UEᴰ .fst = vᴰ
+       hasContrHoms+propValuedPshᴰ→UEᴰ .snd .fst = eᴰ
+       hasContrHoms+propValuedPshᴰ→UEᴰ .snd .snd = hasContrHoms→isUniversalᴰ

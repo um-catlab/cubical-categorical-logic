@@ -44,14 +44,14 @@ module _ (C : Category ℓC ℓC') (P : C .Category.ob → Type ℓP) where
     → P (term .vertex)
     → Terminalᴰ Pᴰ term
   PropertyOverTerminalᴰ term p =
-    hasContrHoms+propFibersᴰ→UEᴰ Pᴰ (hasContrHomsPropertyOver C P)
+    hasContrHoms+propValuedPshᴰ→UEᴰ Pᴰ (hasContrHomsPropertyOver C P)
       {Pᴰ = UnitPshᴰ {P = UnitPsh}} (λ _ → isPropUnit) term {vᴰ = p} _
 
   PropertyOverBinProductsᴰ : (bp : BinProducts C)
     → (∀ {A B} → P A → P B → P (bp (A , B) .vertex))
     → BinProductsᴰ Pᴰ bp
   PropertyOverBinProductsᴰ bp p× {A = A} {B = B} pA pB =
-    hasContrHoms+propFibersᴰ→UEᴰ Pᴰ (hasContrHomsPropertyOver C P)
+    hasContrHoms+propValuedPshᴰ→UEᴰ Pᴰ (hasContrHomsPropertyOver C P)
       {Pᴰ =  _×ᴰPshStrict_ {P = C [-, A ]} {Q = C [-, B ]} (Pᴰ [-][-, pA ]) (Pᴰ [-][-, pB ])}
       (λ _ → isProp× isPropUnit isPropUnit)
       (bp (A , B))

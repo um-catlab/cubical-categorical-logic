@@ -14,18 +14,18 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver hiding (Expr)
+open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver
 
 private
   variable
     ℓQ ℓQ' ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
 
 module _ (Q : ×⇒Quiver ℓQ ℓQ') where
-  private module Q = ×⇒QuiverNotation Q
+  private module Q = ×⇒Quiver Q
 
-  data Expr : Q.Ob → Q.Ob → Type (ℓ-max ℓQ ℓQ') where
+  data Expr : Q.obExpr → Q.obExpr → Type (ℓ-max ℓQ ℓQ') where
     -- Freely added Category structure
-    ↑ₑ_ : ∀ t → Expr (Q.Dom t) (Q.Cod t)
+    ↑ₑ_ : ∀ t → Expr (Q.dom t) (Q.cod t)
     idₑ : ∀{Γ} → Expr Γ Γ
     _⋆ₑ_ : ∀{Γ Γ' Γ''}(δ : Expr Γ Γ') → (δ' : Expr Γ' Γ'') →  Expr Γ Γ''
     ⋆ₑIdL : ∀{Γ Δ}(δ : Expr Γ Δ) → idₑ ⋆ₑ δ ≡ δ
@@ -56,7 +56,7 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
 
   FreeCartesianClosedCategory : CartesianClosedCategory _ _
   -- The CartesianCategory structure is copied from Free/CartesianCategory
-  FreeCartesianClosedCategory .CC .C .ob = Q.Ob
+  FreeCartesianClosedCategory .CC .C .ob = Q.obExpr
   FreeCartesianClosedCategory .CC .C .Hom[_,_] = Expr
   FreeCartesianClosedCategory .CC .C .id = idₑ
   FreeCartesianClosedCategory .CC .C ._⋆_ = _⋆ₑ_

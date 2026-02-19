@@ -40,3 +40,9 @@ reindPsh-Unit : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (F : Functor C D)
   → PshIso (reindPsh F UnitPsh) UnitPsh
 reindPsh-Unit F = eqToPshIso UnitPsh Eq.refl Eq.refl
+
+reindPsh-Unit* : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  (F : Functor C D)
+  → PshIso (reindPsh F Unit*Psh) (Unit*Psh {ℓ'' = ℓ})
+reindPsh-Unit* F = eqToPshIso Unit*Psh Eq.refl Eq.refl
+

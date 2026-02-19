@@ -10,13 +10,14 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver hiding (Expr)
+open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver
 open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Base
 
 open import Cubical.Categories.Displayed.Base
@@ -25,6 +26,8 @@ open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.CartesianClosed
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
+open import Cubical.Categories.Displayed.Constructions.Weaken.UncurriedProperties
 
 
 private
@@ -34,7 +37,9 @@ private
 open Section
 
 module _ (Q : ×⇒Quiver ℓQ ℓQ') where
-  private module Q = ×⇒QuiverNotation Q
+  private
+    module Q = ×⇒Quiver Q
+    module FreeCCC = CartesianClosedCategory (FreeCartesianClosedCategory Q)
 
   module _ (CCCᴰ : CartesianClosedCategoryᴰ (FreeCartesianClosedCategory Q) ℓCᴰ ℓCᴰ') where
     open CartesianClosedCategoryᴰ CCCᴰ
@@ -47,9 +52,10 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       elimOb (A ⇒ B) = expᴰ (elimOb A) (elimOb B) .fst
 
     record Interpᴰ : Type (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-max ℓCᴰ ℓCᴰ')) where
+      constructor interpᴰ
       field
         ı-ob : ∀ o → Cᴰ.ob[ ↑ o ]
-        ı-hom : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elimOb ı-ob (Q.Dom e) , elimOb ı-ob (Q.Cod e) ]
+        ı-hom : ∀ e → Cᴰ.Hom[ ↑ₑ e ][ elimOb ı-ob (Q.dom e) , elimOb ı-ob (Q.cod e) ]
 
     module _ (ı : Interpᴰ) where
       open Interpᴰ ı
@@ -97,3 +103,9 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
 
     elimLocal : (ı : Interpᴰ elimLocalMotive) → Section (F .fst) (CCCⱽ .CartesianClosedCategoryⱽ.Cᴰ)
     elimLocal ı = GlobalSectionReindex→Section _ _ (elim elimLocalMotive ı)
+  module _ (CCC : CartesianClosedCategory ℓC ℓC') where
+    private
+      wkC = weakenCCC (FreeCartesianClosedCategory Q) CCC
+      module CCC = CartesianClosedCategory CCC
+    rec : (ı : Interpᴰ wkC) → Functor FreeCCC.C CCC.C
+    rec ı = introS⁻ (elim wkC ı)

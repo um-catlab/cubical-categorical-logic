@@ -123,3 +123,26 @@ module _ {C : Category ℓC ℓC'}
       (sym (ret .trans .N-hom f)
       ∙ cong₂ (seq' C) (cong (F⁻ .F-hom) F⟪f⟫≡F⟪g⟫) refl
       ∙ ret .trans .N-hom g)
+
+module _ {ℓA ℓA' ℓB ℓB' : Level}
+  {A : Category ℓA ℓA'}{B : Category ℓB ℓB'}
+  {C : Category ℓC ℓC'}
+  (F : Functor A B)(G : Functor B C) where
+  isFaithful-GF→isFaithful-F : isFaithful (G ∘F F) → isFaithful F
+  isFaithful-GF→isFaithful-F faith x y f g p =
+    faith x y f g (congS (λ Ff → G ⟪ Ff ⟫) p)
+
+module _ {ℓA ℓA' ℓB ℓB' : Level}
+  {A : Category ℓA ℓA'}{B : Category ℓB ℓB'}
+  {F G : Functor A B}
+  (α : NatIso F G)
+  where
+  private
+    module A = Category A
+    module B = Category B
+  isFaithful≅ : isFaithful G → isFaithful F
+  isFaithful≅ faith x y f g p =
+    faith x y f g
+      (NatIso.sqLR α
+      ∙ cong₂ B._⋆_ (cong₂ B._⋆_ refl p) refl
+      ∙ sym (NatIso.sqLR α))

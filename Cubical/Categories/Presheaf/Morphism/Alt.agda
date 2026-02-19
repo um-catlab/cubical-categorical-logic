@@ -14,8 +14,12 @@ open import Cubical.Functions.FunExtEquiv
 
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Reflection.RecordEquiv.More
+
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
+open import Cubical.HITs.PathEq
+open import Cubical.HITs.Join
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Constructions.Elements
@@ -92,11 +96,47 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
       N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
         N-ob c (f P.⋆ p) ≡ (f Q.⋆ N-ob c' p)
 
+  record PshHom' : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    no-eta-equality
+    constructor pshhom
+    field
+      N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
+      N-hom : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ]) →
+        PathEq (N-ob c (f P.⋆ p)) (f Q.⋆ N-ob c' p)
+
+  record PshHomEq : Type (ℓ-max (ℓ-max ℓc ℓc') (ℓ-max ℓp ℓq)) where
+    constructor pshhom
+    field
+      N-ob : ∀ (c : C.ob) → P.p[ c ] → Q.p[ c ]
+      N-hom : ∀ c c' (f : C [ c , c' ]) (p' : P.p[ c' ]) (p : P.p[ c ]) →
+        f P.⋆ p' Eq.≡ p                      -- Element P [ f ][ p' , p ]
+        → (f Q.⋆ N-ob c' p') Eq.≡ (N-ob c p) -- Element Q [ f ][ α p' , α p ]
+
   PshHomΣIso : Iso PshHom PshHomΣ
   unquoteDef PshHomΣIso = defineRecordIsoΣ PshHomΣIso (quote (PshHom))
 
   isSetPshHom : isSet PshHom
   isSetPshHom = isOfHLevelRetractFromIso 2 PshHomΣIso isSetPshHomΣ
+
+  isPropN-HomEq : ∀ (α : (x : ob C) → P.p[ x ] → Q.p[ x ]) → isProp (∀ c c' (f : C [ c , c' ]) (p' : P.p[ c' ]) (p : P.p[ c ]) →
+        f P.⋆ p' Eq.≡ p
+        → (f Q.⋆ α c' p') Eq.≡ (α c p))
+  isPropN-HomEq α = isPropΠ (λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isPropΠ λ _ → isProp→ (Eq.isSet→isSetEq Q.isSetPsh))
+
+  PshHomEqΣ = Σ[ α ∈ (∀ (x : C.ob) → P.p[ x ] → Q.p[ x ]) ]
+    ∀ c c' (f : C [ c , c' ]) (p' : P.p[ c' ]) (p : P.p[ c ]) →
+        f P.⋆ p' Eq.≡ p
+        → (f Q.⋆ α c' p') Eq.≡ (α c p)
+
+  PshHomEqΣIso : Iso PshHomEq PshHomEqΣ
+  unquoteDef PshHomEqΣIso = defineRecordIsoΣ PshHomEqΣIso (quote (PshHomEq))
+
+
+
+  isSetPshHomEq : isSet PshHomEq
+  isSetPshHomEq = isOfHLevelRetractFromIso 2 PshHomEqΣIso
+    (isSetΣ (isSetΠ λ _ → isSetΠ λ _ → Q.isSetPsh) λ α →
+      isProp→isSet (isPropN-HomEq α))
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓp}
   where
@@ -126,10 +166,22 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
   makePshHomPath {α} {β} N-ob≡ =
     isoFunInjective (PshHomΣIso P Q) α β (makePshHomΣPath N-ob≡)
 
+  makePshHomEqPath : ∀ {α β : PshHomEq P Q} → α .PshHomEq.N-ob ≡ β .PshHomEq.N-ob
+   → α ≡ β
+  makePshHomEqPath ob≡ = isoFunInjective (PshHomEqΣIso P Q) _ _ (ΣPathPProp (isPropN-HomEq P Q) ob≡)
+
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshHom : PshHom P P
   idPshHom .N-ob x z = z
   idPshHom .N-hom x y f p = refl
+
+  idPshHom' : PshHom' P P
+  idPshHom' .PshHom'.N-ob = λ c z → z
+  idPshHom' .PshHom'.N-hom = λ c c' f p → inr Eq.refl
+
+  idPshHomEq : PshHomEq P P
+  idPshHomEq .PshHomEq.N-ob = λ c z → z
+  idPshHomEq .PshHomEq.N-hom = λ c c' f p' p z → z
 
 module _ {C : Category ℓc ℓc'} where
   _⋆PshHom_ : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} →
@@ -139,6 +191,35 @@ module _ {C : Category ℓc ℓc'} where
     cong (β .N-ob _) (α .N-hom x y f p)
     ∙ β .N-hom x y f (α .N-ob y p)
   infixr 9 _⋆PshHom_
+
+  _⋆PshHomEq_ : ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} →
+    PshHomEq P Q → PshHomEq Q R → PshHomEq P R
+  (α ⋆PshHomEq β) .PshHomEq.N-ob = λ c z → β .PshHomEq.N-ob c (α .PshHomEq.N-ob c z)
+  (α ⋆PshHomEq β) .PshHomEq.N-hom = λ c c' f p' p z →
+                                       β .PshHomEq.N-hom c c' f (α .PshHomEq.N-ob c' p')
+                                       (α .PshHomEq.N-ob c p) (α .PshHomEq.N-hom c c' f p' p z)
+  infixr 9 _⋆PshHomEq_
+
+
+  module _ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
+    private
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+      module R = PresheafNotation R
+    _⋆PshHom'_ : PshHom' P Q → PshHom' Q R → PshHom' P R
+    (α ⋆PshHom' β) .PshHom'.N-ob c p = β .PshHom'.N-ob c (α .PshHom'.N-ob c p)
+    (α ⋆PshHom' β) .PshHom'.N-hom c c' f p =
+      epSubst Q.isSetPsh goal1 (symPE Q.isSetPsh $ α .PshHom'.N-hom c c' f p) $
+      epSubst R.isSetPsh goal2 (symPE R.isSetPsh $ β .PshHom'.N-hom c c' f _) (inr Eq.refl)
+      where
+      goal1 : ∀ (αfp : Q.p[ c ]) → Type _
+      goal1 αfp = PathEq
+        (β .PshHom'.N-ob c αfp)
+        (f R.⋆ (β .PshHom'.N-ob c' (α .PshHom'.N-ob c' p)))
+      goal2 : ∀ (βfα : R.p[ c ] ) → Type _
+      goal2 βfα = PathEq
+        βfα
+        ((f R.⋆ (β .PshHom'.N-ob c' (α .PshHom'.N-ob c' p))))
 
   _⋆PshHomNatTrans_ :
     ∀ {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓq} →
@@ -190,8 +271,8 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
 
 module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) where
   private
-    module P = PresheafNotation P using (p[_])
-    module Q = PresheafNotation Q using (p[_])
+    module P = PresheafNotation P
+    module Q = PresheafNotation Q
   PshIsoΣ : Type _
   PshIsoΣ = Σ[ α ∈ PshHom P Q ] isPshIso {P = P}{Q = Q} α
 
@@ -218,6 +299,44 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
   PshIso→PshIsoLift α .NatIso.nIso x .isIsoC.ret =
     funExt (λ x₁ → cong lift (α .nIso x .snd .snd (x₁ .lower)))
 
+  record isPshIso' (α : PshHom' P Q ) : Type (ℓ-max ℓc (ℓ-max ℓp ℓq)) where
+    no-eta-equality
+    field
+      nIso : ∀ c → isIso (α .PshHom'.N-ob c)
+
+  record isPshIsoEq (α : PshHomEq P Q ) : Type (ℓ-max ℓc (ℓ-max ℓp ℓq)) where
+    no-eta-equality
+    field
+      nIso : ∀ c → isIso (α .PshHomEq.N-ob c)
+
+  record PshIso' : Type (ℓ-max (ℓ-max ℓp ℓq) (ℓ-max ℓc ℓc')) where
+    no-eta-equality
+    field
+      isos : ∀ c → Iso P.p[ c ] Q.p[ c ]
+      nat  : ∀ c c' (f : C [ c , c' ]) (p : P.p[ c' ])
+        → PathEq (isos c .Iso.fun (f P.⋆ p))
+                 (f Q.⋆ isos c' .Iso.fun p)
+    toPshHom' : PshHom' P Q
+    toPshHom' .PshHom'.N-ob = λ c → isos c .Iso.fun
+    toPshHom' .PshHom'.N-hom = nat
+
+    PshIso'ToIsPshIso' : isPshIso' toPshHom'
+    PshIso'ToIsPshIso' .isPshIso'.nIso c = IsoToIsIso (isos c)
+
+  record PshIsoEq : Type (ℓ-max (ℓ-max ℓp ℓq) (ℓ-max ℓc ℓc')) where
+    no-eta-equality
+    field
+      isos : ∀ c → Iso P.p[ c ] Q.p[ c ]
+      nat : ∀ c c' (f : C [ c , c' ]) (p' : P.p[ c' ]) (p : P.p[ c ]) →
+        f P.⋆ p' Eq.≡ p
+        → (f Q.⋆ isos c' .Iso.fun p') Eq.≡ (isos c .Iso.fun p)
+    toPshHomEq : PshHomEq P Q
+    toPshHomEq .PshHomEq.N-ob = λ c → isos c .Iso.fun
+    toPshHomEq .PshHomEq.N-hom = nat
+
+    PshIsoEqToIsPshIsoEq : isPshIsoEq toPshHomEq
+    PshIsoEqToIsPshIsoEq .isPshIsoEq.nIso c = IsoToIsIso (isos c)
+
 open PshIso
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
@@ -238,6 +357,24 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq}
   invPshIso α .nIso c .fst = α .trans .N-ob _
   invPshIso α .nIso c .snd .fst = α .nIso _ .snd .snd
   invPshIso α .nIso c .snd .snd = α .nIso _ .snd .fst
+
+  -- PshIsoEq version of invPshIso
+  invPshIsoEq : PshIsoEq P Q → PshIsoEq Q P
+  invPshIsoEq α .PshIsoEq.isos c = invIso (α .PshIsoEq.isos c)
+  invPshIsoEq α .PshIsoEq.nat c c' f q' q e =
+    -- e : f Q.⋆ q' Eq.≡ q
+    -- Goal: (f P.⋆ inv c' q') Eq.≡ (inv c q)
+    -- Strategy: apply fun c to both sides, show they're equal, use isoFunInjective
+    Eq.pathToEq $ isoFunInjective (α .PshIsoEq.isos c) _ _ $
+      -- fun c (f P.⋆ inv c' q') ≡ fun c (inv c q)
+      -- = f Q.⋆ fun c' (inv c' q') by naturality (sym)
+      Eq.eqToPath (Eq.sym (α .PshIsoEq.nat c c' f _ _ Eq.refl))
+      -- = f Q.⋆ q' by sec c'
+      ∙ Q.⟨ refl ⟩⋆⟨ α .PshIsoEq.isos c' .Iso.sec q' ⟩
+      -- = q by e
+      ∙ Eq.eqToPath e
+      -- = fun c (inv c q) by sym (sec c)
+      ∙ sym (α .PshIsoEq.isos c .Iso.sec q)
 
   -- Convenient when we already have the iso on Types
   Isos→PshIso : (isos : ∀ x → Iso (P.p[ x ]) (Q.p[ x ]))
@@ -358,6 +495,14 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
   idPshIso .trans = idPshHom
   idPshIso .nIso _ = IsoToIsIso idIso
 
+  idPshIso' : PshIso' P P
+  idPshIso' .PshIso'.isos = λ _ → idIso
+  idPshIso' .PshIso'.nat = idPshHom' {P = P} .PshHom'.N-hom
+
+  idPshIsoEq : PshIsoEq P P
+  idPshIsoEq .PshIsoEq.isos = λ _ → idIso
+  idPshIsoEq .PshIsoEq.nat = idPshHomEq {P = P} .PshHomEq.N-hom
+
 module _ {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
   seqIsPshIso : ∀ {α : PshHom P Q}{β : PshHom Q R}
@@ -373,6 +518,26 @@ module _ {C : Category ℓc ℓc'}
     IsoToIsIso $
       compIso (isIsoToIso (α .nIso x)) (isIsoToIso (β .nIso x))
   infixr 9 _⋆PshIso_
+
+  _⋆PshIsoEq_ : PshIsoEq P Q → PshIsoEq Q R → PshIsoEq P R
+  (α ⋆PshIsoEq β) .PshIsoEq.isos c = compIso (α .PshIsoEq.isos c) (β .PshIsoEq.isos c)
+  (α ⋆PshIsoEq β) .PshIsoEq.nat = λ c c' f p' p z →
+                                     β .PshIsoEq.nat c c' f (Iso.fun (α .PshIsoEq.isos c') p')
+                                     (Iso.fun (α .PshIsoEq.isos c) p) (α .PshIsoEq.nat c c' f p' p z)
+  infixr 9 _⋆PshIsoEq_
+
+module _ {C : Category ℓc ℓc'} where
+  step-PshIso : ∀ (P : Presheaf C ℓp) {Q : Presheaf C ℓq} {R : Presheaf C ℓr}
+    → PshIso Q R → PshIso P Q → PshIso P R
+  step-PshIso _ g f = f ⋆PshIso g
+
+  infixr  2 step-PshIso
+  syntax step-PshIso P Q f = P PshIso⟨ f ⟩ Q
+
+  _∎PshIso : ∀ (P : Presheaf C ℓp) → PshIso P P
+  P ∎PshIso = idPshIso {P = P}
+
+  infix   3 _∎PshIso
 
 module _ {C : Category ℓc ℓc'}{P Q : Presheaf C ℓp} (path : P ≡ Q) where
   pathToPshIso : PshIso P Q
@@ -505,6 +670,29 @@ module _
 
 module _
   {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  (α : PshHomEq P Q)
+  where
+  ⋆PshHomEqIdL : idPshHomEq {P = P} ⋆PshHomEq α ≡ α
+  ⋆PshHomEqIdL = refl
+  ⋆PshHomEqIdR : α ⋆PshHomEq idPshHomEq ≡ α
+  ⋆PshHomEqIdR = refl
+
+module _
+  {C : Category ℓc ℓc'}
+  {P : Presheaf C ℓp} {Q : Presheaf C ℓq}
+  {R : Presheaf C ℓr} {S : Presheaf C ℓs}
+  (α : PshHomEq P Q)(β : PshHomEq Q R)(γ : PshHomEq R S)
+  where
+  ⋆PshHomEqAssoc :
+    Path
+      (PshHomEq P S)
+      ((α ⋆PshHomEq β) ⋆PshHomEq γ)
+      (α ⋆PshHomEq (β ⋆PshHomEq γ))
+  ⋆PshHomEqAssoc = refl
+
+module _
+  {C : Category ℓc ℓc'}
   {P : Presheaf C ℓp}{Q : Presheaf C ℓq}{R : Presheaf C ℓr} where
 
   postcomp⋆PshHom-Iso : (α : PshIso Q R) → Iso (PshHom P Q) (PshHom P R)
@@ -560,3 +748,23 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
   yo≅PshHomPsh .nIso Q .fst = PshHom→NatTrans
   yo≅PshHomPsh .nIso Q .snd .fst _ = makePshHomPath refl
   yo≅PshHomPsh .nIso Q .snd .snd _ = makeNatTransPath refl
+
+PSHHOMCAT : (C : Category ℓc ℓc') (ℓp : Level) → Category (ℓ-max (ℓ-max ℓc ℓc') (ℓ-suc ℓp)) (ℓ-max (ℓ-max ℓc ℓc') ℓp)
+PSHHOMCAT C ℓp .ob = Presheaf C ℓp
+PSHHOMCAT C ℓp .Hom[_,_] = PshHom
+PSHHOMCAT C ℓp .id = idPshHom
+PSHHOMCAT C ℓp ._⋆_ = _⋆PshHom_
+PSHHOMCAT C ℓp .⋆IdL = λ α → makePshHomPath refl
+PSHHOMCAT C ℓp .⋆IdR = λ α → makePshHomPath refl
+PSHHOMCAT C ℓp .⋆Assoc = λ α β γ → makePshHomPath refl
+PSHHOMCAT C ℓp .isSetHom = isSetPshHom _ _
+
+PRESHEAFEQ : (C : Category ℓc ℓc') (ℓp : Level) → Category (ℓ-max (ℓ-max ℓc ℓc') (ℓ-suc ℓp)) (ℓ-max (ℓ-max ℓc ℓc') ℓp)
+PRESHEAFEQ C ℓP .ob = Presheaf C ℓP
+PRESHEAFEQ C ℓP .Hom[_,_] = PshHomEq
+PRESHEAFEQ C ℓP .id = idPshHomEq
+PRESHEAFEQ C ℓP ._⋆_ = _⋆PshHomEq_
+PRESHEAFEQ C ℓP .⋆IdL = ⋆PshHomEqIdL
+PRESHEAFEQ C ℓP .⋆IdR = ⋆PshHomEqIdR
+PRESHEAFEQ C ℓP .⋆Assoc = ⋆PshHomEqAssoc
+PRESHEAFEQ C ℓP .isSetHom = isSetPshHomEq _ _

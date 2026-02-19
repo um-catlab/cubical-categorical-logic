@@ -1,0 +1,547 @@
+{-
+
+  Uncurried Presheaves using EqElement
+-}
+{-# OPTIONS --lossy-unification #-}
+{-# OPTIONS -W noUnsupportedIndexedMatch #-}
+module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
+open import Cubical.Foundations.HLevels.More
+open import Cubical.Functions.FunExtEquiv
+
+open import Cubical.Data.Unit
+open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
+
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.HLevels
+open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functors.More
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
+open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Props
+open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Representable hiding (Elements)
+open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Presheaf.More
+open import Cubical.Categories.Presheaf.StrictHom
+
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.NaturalTransformation.More
+open import Cubical.Categories.Displayed.BinProduct
+open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
+import Cubical.Categories.Displayed.Instances.Sets.Base as Setᴰ
+open import Cubical.Categories.Displayed.BinProduct
+open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
+import Cubical.Categories.Displayed.Presheaf.Base as Curried
+
+private
+  variable
+    ℓ ℓ' ℓᴰ ℓᴰ' : Level
+    ℓA ℓB ℓAᴰ ℓBᴰ : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
+    ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
+    ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
+    ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
+
+open Category
+open Functor
+open Functorᴰ
+open isIsoOver
+open NatTrans
+open NatTransᴰ
+open NatIso
+open NatIsoᴰ
+open PshHom
+open PshIso
+
+_/_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
+Cᴰ / P = ∫C (Cᴰ ×ᴰ EqElement P)
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}
+  {F : Functor C D}
+  where
+  _/Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Dᴰ) → (α : PshHetEq F P Q)
+    → Functor (Cᴰ / P) (Dᴰ / Q)
+  Fᴰ /Fᴰ α = ∫F {F = F} (Fᴰ ×ᴰF PshHetEq→ElementFunctorᴰ α)
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Presheaf C ℓP} where
+  open Category
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+  Hom/≡ : ∀ {Δ3 Γ3 : (Cᴰ / P).ob}
+    {f g : (Cᴰ / P) [ Δ3 , Γ3 ]}
+    → (p2 : f .snd .fst Cᴰ.∫≡ g .snd .fst)
+    → f ≡ g
+  Hom/≡ p2 = ΣPathP ((PathPΣ p2 .fst) , (ΣPathPProp (λ _ → Eq.isSet→isSetEq P.isSetPsh)
+    (PathPΣ p2 .snd)))
+
+Presheafᴰ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+           → (ℓPᴰ : Level)
+           → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
+Presheafᴰ {ℓP = ℓP} P Cᴰ ℓPᴰ = Presheaf (Cᴰ / P) ℓPᴰ
+
+module PresheafᴰNotation
+  {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+  infixr 9 _⋆ᴰ_
+
+  p[_][_] : ∀ {x} → P.p[ x ] → Cᴰ.ob[ x ] → Type ℓPᴰ
+  p[ f ][ xᴰ ] = ⟨ Pᴰ .F-ob (_ , xᴰ , f) ⟩
+
+  isSetPshᴰ : ∀ {x}{p : P.p[ x ]}{xᴰ} → isSet p[ p ][ xᴰ ]
+  isSetPshᴰ {x} {p} {xᴰ} = Pᴰ .F-ob (x , xᴰ , p) .snd
+  module _ {x}{xᴰ : Cᴰ.ob[ x ]} where
+    open hSetReasoning (P .F-ob x) p[_][ xᴰ ] renaming (_P≡[_]_ to _≡[_]_; Prectify to rectify) public
+
+  _⋆ᴰ_ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p} (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (pᴰ : p[ p ][ yᴰ ])
+    → p[ f P.⋆ p ][ xᴰ ]
+  fᴰ ⋆ᴰ pᴰ = Pᴰ .F-hom (_ , fᴰ , Eq.refl) pᴰ
+
+  opaque
+    ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : (f P.⋆ p) Eq.≡ q) (pᴰ : p[ p ][ yᴰ ])
+      → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , Eq.eqToPath f⋆p≡q i ) ⟩)
+        (fᴰ ⋆ᴰ pᴰ)
+        (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+    ⋆ᴰ-reindᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {q} fᴰ Eq.refl pᴰ = refl
+  ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}{fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : p[ p ][ yᴰ ]}
+    → (f⋆p≡q : (f P.⋆ p) Eq.≡ q)
+    → (fᴰ ⋆ᴰ pᴰ) ∫≡ (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+  ⋆ᴰ-reind f⋆p≡q = ≡in $ ⋆ᴰ-reindᴰ _ f⋆p≡q _
+
+  ⋆IdLᴰ :
+    ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p}
+    {pᴰ : p[ p ][ xᴰ ]}
+    → Cᴰ.idᴰ ⋆ᴰ pᴰ ∫≡ pᴰ
+  ⋆IdLᴰ = ⋆ᴰ-reind _ ∙ (≡in $ funExt⁻ (Pᴰ .F-id) _)
+
+  ⋆Assocᴰ : ∀ {x y z}{xᴰ yᴰ zᴰ}{f : C [ z , y ]}{g : C [ y , x ]}{p : P.p[ x ]}
+    (fᴰ : Cᴰ [ f ][ zᴰ , yᴰ ])
+    (gᴰ : Cᴰ [ g ][ yᴰ , xᴰ ])
+    (pᴰ : p[ p ][ xᴰ ])
+    → ((fᴰ Cᴰ.⋆ᴰ gᴰ) ⋆ᴰ pᴰ) ∫≡ (fᴰ ⋆ᴰ gᴰ ⋆ᴰ pᴰ)
+  ⋆Assocᴰ {x} {y} {z} {xᴰ} {yᴰ} {zᴰ} {f} {g} {p} fᴰ gᴰ pᴰ =
+    (⋆ᴰ-reind _)
+    ∙ ≡in (funExt⁻ (Pᴰ .F-seq (g , gᴰ , _) (f , fᴰ , _)) pᴰ)
+
+  formal-reind-filler :
+    ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p q}
+    {pᴰ : p[ p ][ xᴰ ]}
+    (pf : (P .F-hom (C .id) p) Eq.≡ q)
+    → pᴰ ∫≡ Pᴰ .F-hom (_ , Cᴰ.idᴰ , pf) pᴰ
+  formal-reind-filler pf = (sym $ ⋆IdLᴰ) ∙ ⋆ᴰ-reind pf
+
+  ∫ : Presheaf (∫C Cᴰ) (ℓ-max ℓP ℓPᴰ)
+  ∫ .F-ob (x , xᴰ) .fst = Σ _ p[_][ xᴰ ]
+  ∫ .F-ob (x , xᴰ) .snd = isSetΣ P.isSetPsh (λ _ → isSetPshᴰ)
+  ∫ .F-hom (f , fᴰ) (p , pᴰ) = _ , fᴰ ⋆ᴰ pᴰ
+  ∫ .F-id = funExt λ _ → ⋆IdLᴰ
+  ∫ .F-seq f g = funExt λ _ → ⋆Assocᴰ _ _ _
+
+  open PresheafNotation ∫ public
+
+module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  private
+    module P = PresheafNotation P
+  module _ (Pᴰ : Curried.Presheafᴰ P Cᴰ ℓPᴰ) where
+    private
+      module Pᴰ = Curried.PresheafᴰNotation Pᴰ
+    UncurryPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ
+    UncurryPshᴰ .F-ob ob/@(Γ , Γᴰ , p) = Pᴰ .F-obᴰ Γᴰ p
+    UncurryPshᴰ .F-hom hom/@(γ , γᴰ , tri) pᴰ = Pᴰ.reindEq tri (γᴰ Pᴰ.⋆ᴰ pᴰ)
+    UncurryPshᴰ .F-id {x = x} = funExt (λ pᴰ → Pᴰ.rectifyOut $
+      sym (Pᴰ.reindEq-filler (Eq.pathToEq $ P.⋆IdL _))
+      ∙ Pᴰ.⋆IdL _)
+    UncurryPshᴰ .F-seq f/@(δ , δᴰ , Eq.refl) g/@(γ , γᴰ , Eq.refl) = funExt λ pᴰ → Pᴰ.rectifyOut $
+      (sym (Pᴰ.reindEq-filler (Eq.pathToEq $ P.⋆Assoc _ _ _)) ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reindEq-filler _ ⟩) ∙ Pᴰ.reindEq-filler _
+
+  module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+    CurryPshᴰ : Curried.Presheafᴰ P Cᴰ ℓPᴰ
+    CurryPshᴰ .F-obᴰ {Γ} Γᴰ p = Pᴰ .F-ob (Γ , Γᴰ , p)
+    CurryPshᴰ .F-homᴰ γᴰ p pᴰ = γᴰ Pᴰ.⋆ᴰ pᴰ
+    CurryPshᴰ .F-idᴰ = funExt λ p → funExt λ pᴰ → Pᴰ.rectifyOut $ Pᴰ.⋆IdL _
+    CurryPshᴰ .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ pᴰ → Pᴰ.rectifyOut $ Pᴰ.⋆Assoc _ _ _
+
+  CurryPshᴰIso : Iso (Presheafᴰ P Cᴰ ℓPᴰ) (Curried.Presheafᴰ P Cᴰ ℓPᴰ)
+  CurryPshᴰIso .Iso.fun = CurryPshᴰ
+  CurryPshᴰIso .Iso.inv = UncurryPshᴰ
+  CurryPshᴰIso .Iso.sec Pᴰ = Functorᴰ≡ (λ _ → refl) (λ _ → refl)
+  CurryPshᴰIso .Iso.ret Pᴰ = Functor≡ (λ _ → refl) λ { (_ , _ , Eq.refl ) → refl }
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  where
+  module _ (Fᴰ : Functorⱽ Cᴰ Dᴰ) (α : PshHomEq P Q) where
+    _/Fⱽ_ :  Functor (Cᴰ / P) (Dᴰ / Q)
+    _/Fⱽ_ = Fᴰ /Fᴰ (α ⋆PshHomEq (PshIsoEq.toPshHomEq $ reindPshEqId≅ Q))
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+  where
+  _*Presheafᴰ_ : (α : PshHomEq P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) → Presheafᴰ P Cᴰ ℓQᴰ
+  α *Presheafᴰ Qᴰ = reindPsh (Idᴰ /Fⱽ α) Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} where
+  UnitⱽPsh : Presheafᴰ P Cᴰ ℓ-zero
+  UnitⱽPsh = UnitPsh
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
+  UnitᴰPsh : Presheafᴰ UnitPsh Cᴰ ℓ-zero
+  UnitᴰPsh = UnitPsh
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} where
+  _×ⱽPsh_ : Presheafᴰ P Cᴰ ℓPᴰ → Presheafᴰ P Cᴰ ℓQᴰ → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
+  _×ⱽPsh_ = _×Psh_
+
+module _ {C : Category ℓC ℓC'} {x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module Cᴰ = Fibers Cᴰ
+  _[-][-,_] : (xᴰ : Cᴰ.ob[ x ]) → Presheafᴰ (C [-, x ]) Cᴰ ℓCᴰ'
+  _[-][-,_] xᴰ = UncurryPshᴰ (Cᴰ Setᴰ.[-][-, xᴰ ])
+
+module _ {C : Category ℓC ℓC'} (x : C .ob) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module Cᴰ = Fibers Cᴰ
+  Presheafⱽ : (ℓPᴰ : Level) → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
+  Presheafⱽ = Presheafᴰ (C [-, x ]) Cᴰ
+
+EqAssoc : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+EqAssoc C = ∀ {w x y z} (f : C [ w , x ])(g : C [ x , y ])(h : C [ y , z ]) → (f C.⋆ g) C.⋆ h Eq.≡ (f C.⋆ (g C.⋆ h))
+  where module C = Category C
+
+ReprEqAssoc : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+ReprEqAssoc C = ∀ x → PshAssocEq (C [-, x ])
+
+EqIdR : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+EqIdR C = ∀ {x y} (f : C [ x , y ]) → f C.⋆ C.id Eq.≡ f
+  where module C = Category C
+
+EqIdL : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
+EqIdL C = ∀ {x y} (f : C [ x , y ]) → C.id C.⋆ f Eq.≡ f
+  where module C = Category C
+
+module _ {C : Category ℓC ℓC'} {x : C .ob} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ) where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module Pⱽ = PresheafᴰNotation Pⱽ
+
+  Reprⱽ : Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓPᴰ)
+  Reprⱽ = Σ[ v ∈ Cᴰ.ob[ x ] ] PshIsoEq (Cᴰ [-][-, v  ]) Pⱽ
+  module _ (C⋆IdR : EqIdR C) where
+    yoRecⱽ : ∀ {xᴰ}
+      → Pⱽ.p[ C.id ][ xᴰ ]
+      → PshHomEq (Cᴰ [-][-, xᴰ ]) Pⱽ
+    -- there are two choices here: we can either eliminate C⋆IdR f ourselves or pass it to Pⱽ to do so.
+    yoRecⱽ pⱽ .PshHomEq.N-ob ob/@(Γ , Γᴰ , f) fᴰ = Pⱽ .F-hom (f , fᴰ , C⋆IdR f) pⱽ
+    -- opaque reindEq stuck on Eq.refl noooo
+    yoRecⱽ pⱽ .PshHomEq.N-hom Δ3 Γ3 f@(γ , γᴰ , Eq.refl) p' p Eq.refl =
+      Eq.pathToEq (Pⱽ.rectifyOut $ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.⋆ᴰ-reind _ ⟩ ∙ (sym $ Pⱽ.⋆Assoc _ _ _) ∙ Pⱽ.⋆ᴰ-reind _)
+
+    record UEⱽ : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') ℓPᴰ)) where
+      no-eta-equality
+      field
+        v : Cᴰ.ob[ x ]
+        e : Pⱽ.p[ C.id ][ v ]
+        universal : isPshIsoEq (Cᴰ [-][-, v ]) Pⱽ (yoRecⱽ e)
+
+    open UEⱽ
+    UEⱽ→Reprⱽ : UEⱽ → Reprⱽ
+    UEⱽ→Reprⱽ ueⱽ .fst = ueⱽ .v
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.isos ob/@(Γ , Γᴰ , f) .Iso.fun = λ z → Pⱽ .F-hom (f , z , C⋆IdR f) (ueⱽ .e)
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.isos ob/@(Γ , Γᴰ , f) .Iso.inv = ueⱽ .universal .isPshIsoEq.nIso (Γ , Γᴰ , f) .fst
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.isos ob/@(Γ , Γᴰ , f) .Iso.sec = ueⱽ .universal .isPshIsoEq.nIso (Γ , Γᴰ , f) .snd .fst
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.isos ob/@(Γ , Γᴰ , f) .Iso.ret = ueⱽ .universal .isPshIsoEq.nIso (Γ , Γᴰ , f) .snd .snd
+    UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.nat = yoRecⱽ (ueⱽ .e) .PshHomEq.N-hom
+
+
+
+module _ {C : Category ℓC ℓC'} {x : C .ob} (bp : BinProductsWith C x) where
+  private
+    module C = Category C
+    module bp = BinProductsWithNotation bp
+  π₁NatEq : Type _
+  π₁NatEq = ∀ {Δ Γ} (γ : C [ Δ , Γ ]) → bp.×aF ⟪ γ ⟫ C.⋆ bp.π₁ Eq.≡ bp.π₁ C.⋆ γ
+
+  ×aF-seq : Type _
+  ×aF-seq = ∀ {Θ}{Δ}{Γ}(δ : C [ Θ , Δ ])(γ : C [ Δ , Γ ]) → bp.×aF ⟪ δ C.⋆ γ ⟫ Eq.≡ (bp.×aF ⟪ δ ⟫ C.⋆ bp.×aF ⟪ γ ⟫)
+
+module _ {C : Category ℓC ℓC'} (bp : BinProducts C) where
+  Allπ₁NatEq : Type _
+  Allπ₁NatEq = ∀ x → π₁NatEq {x = x} (λ c → bp (c , x))
+  All×aF-seq : Type _
+  All×aF-seq = ∀ x → ×aF-seq {x = x} (λ c → bp (c , x))
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+  Terminalsⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+  Terminalsⱽ = ∀ (x : C.ob) → Reprⱽ (UnitⱽPsh {Cᴰ = Cᴰ}{P = C [-, x ]})
+
+  BinProductsⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+  BinProductsⱽ = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Reprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
+
+  module _ (C⋆IdR : EqIdR C) where
+    BinProductsⱽUE : Type _
+    BinProductsⱽUE = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → UEⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])) C⋆IdR
+
+  module _ (C⋆Assoc : ReprEqAssoc C) where
+    Fibration : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
+    Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ])
+      → Reprⱽ (yoRecEq (C [-, y ]) (C⋆Assoc y) f *Presheafᴰ (Cᴰ [-][-, yᴰ ]))
+
+    module FibrationNotation (cartLifts : Fibration) where
+      _*_ : ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Cᴰ.ob[ x ]
+      f * yᴰ = cartLifts f yᴰ .fst
+      module _ {x y} {f : C [ x , y ]}{yᴰ : Cᴰ.ob[ y ]} where
+        πⱽ : Cᴰ [ C.id C.⋆ f ][ f * yᴰ , yᴰ ]
+        πⱽ = Iso.fun (cartLifts f yᴰ .snd .PshIsoEq.isos (x , cartLifts f yᴰ .fst , C.id)) Cᴰ.idᴰ
+        module _ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g : C [ Γ , x ]} where
+          introᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ] → Cᴰ [ g ][ Γᴰ , f * yᴰ ]
+          introᴰ = Iso.inv (cartLifts f yᴰ .snd .PshIsoEq.isos (Γ , Γᴰ , g))
+
+          βᴰ : {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ] }
+            → introᴰ gfᴰ Cᴰ.⋆ᴰ πⱽ Cᴰ.∫≡ gfᴰ
+          βᴰ {gfᴰ} =
+            Cᴰ.reindEq-filler _
+            ∙ Cᴰ.≡in (Eq.eqToPath (cartLifts f yᴰ .snd .PshIsoEq.nat (Γ , Γᴰ , g)
+              (x , cartLifts f yᴰ .fst , C.id)
+              (g , Iso.inv (cartLifts f yᴰ .snd .PshIsoEq.isos (Γ , Γᴰ , g)) gfᴰ , Eq.pathToEq (C.⋆IdR _))
+                     Cᴰ.idᴰ (((Cᴰ [-][-, cartLifts f yᴰ .fst ]) PresheafNotation.⋆
+                               (g ,
+                                Iso.inv (cartLifts f yᴰ .snd .PshIsoEq.isos (Γ , Γᴰ , g)) gfᴰ ,
+                                Eq.pathToEq (C.⋆IdR g)))
+                              Cᴰ.idᴰ) Eq.refl))
+            ∙ Cᴰ.≡in (cong (Iso.fun (cartLifts f yᴰ .snd .PshIsoEq.isos (Γ , Γᴰ , g)))
+                 (Cᴰ.rectifyOut $ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.⋆IdR _))
+            ∙ Cᴰ.≡in (Iso.sec (cartLifts f yᴰ .snd .PshIsoEq.isos (Γ , Γᴰ , g)) gfᴰ)
+
+        extensionalityᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g' : C [ Γ , x ]}
+          {gᴰ : Cᴰ [ g ][ Γᴰ , f * yᴰ ]}
+          {gᴰ' : Cᴰ [ g' ][ Γᴰ , f * yᴰ ]}
+          → g ≡ g'
+          → gᴰ Cᴰ.⋆ᴰ πⱽ Cᴰ.∫≡ gᴰ' Cᴰ.⋆ᴰ πⱽ
+          → gᴰ Cᴰ.∫≡ gᴰ'
+        extensionalityᴰ {gᴰ = gᴰ} {gᴰ' = gᴰ'} g≡ gᴰ⋆π≡ =
+          Cᴰ.≡in (sym (Iso.ret isoG gᴰ))
+          ∙ Cᴰ.≡in (λ i → Iso.inv (cartLifts f yᴰ .snd .PshIsoEq.isos (_ , _ , g≡ i)) (mid i))
+          ∙ Cᴰ.≡in (Iso.ret isoG' gᴰ')
+          where
+          isoG = cartLifts f yᴰ .snd .PshIsoEq.isos _
+          isoG' = cartLifts f yᴰ .snd .PshIsoEq.isos _
+          mid = Cᴰ.rectifyOut {e' = cong (λ h → h C.⋆ f) g≡}
+            (sym (βᴰ {gfᴰ = Iso.fun isoG gᴰ})
+            ∙ Cᴰ.≡in (cong (λ z → z Cᴰ.⋆ᴰ πⱽ) (Iso.ret isoG gᴰ))
+            ∙ gᴰ⋆π≡
+            ∙ Cᴰ.≡in (sym (cong (λ z → z Cᴰ.⋆ᴰ πⱽ) (Iso.ret isoG' gᴰ')))
+            ∙ βᴰ {gfᴰ = Iso.fun isoG' gᴰ'})
+
+    LRⱽ : {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) → Type _
+    LRⱽ {x} xᴰ = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , x ])
+      → Reprⱽ ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh (yoRecEq _ (C⋆Assoc x) f *Presheafᴰ (Cᴰ [-][-, xᴰ ])))
+
+    module LRⱽNotation {x}{xᴰ} (xᴰLRⱽ : LRⱽ {x = x} xᴰ) where
+      module _ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]} where
+        π₁ⱽ : Cᴰ [ C.id ][ xᴰLRⱽ Γᴰ f .fst , Γᴰ ]
+        π₁ⱽ = Iso.fun
+               (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Γ , xᴰLRⱽ Γᴰ f .fst , C.id))
+               Cᴰ.idᴰ .fst
+
+        π₂ⱽ : Cᴰ [ C.id C.⋆ f ][ xᴰLRⱽ Γᴰ f .fst , xᴰ ]
+        π₂ⱽ = Iso.fun
+               (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Γ , xᴰLRⱽ Γᴰ f .fst , C.id))
+               Cᴰ.idᴰ .snd
+
+        module _ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{γ : C [ Δ , Γ ]} (γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ])(fᴰ : Cᴰ [ γ C.⋆ f ][ Δᴰ , xᴰ ]) where
+          _,pⱽ_ : Cᴰ [ γ ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]
+          _,pⱽ_ = xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos _ .Iso.inv (γᴰ , fᴰ)
+
+          β₁ⱽ : _,pⱽ_ Cᴰ.⋆ᴰ π₁ⱽ Cᴰ.∫≡ γᴰ
+          β₁ⱽ =
+            Cᴰ.reindEq-filler (Eq.pathToEq _)
+            ∙ Cᴰ.≡in (cong fst (Eq.eqToPath (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.nat (Δ , Δᴰ , γ)
+              (Γ , xᴰLRⱽ Γᴰ f .fst , C.id)
+              (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR _))
+                     Cᴰ.idᴰ (((Cᴰ [-][-, xᴰLRⱽ Γᴰ f .fst ]) PresheafNotation.⋆
+                               (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR γ)))
+                              Cᴰ.idᴰ) Eq.refl)))
+            ∙ Cᴰ.≡in (cong (λ z → Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) z .fst)
+                 (Cᴰ.rectifyOut $ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.⋆IdR _))
+            ∙ Cᴰ.≡in (cong fst (Iso.sec (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) (γᴰ , fᴰ)))
+
+          β₂ⱽ : _,pⱽ_ Cᴰ.⋆ᴰ π₂ⱽ Cᴰ.∫≡ fᴰ
+          β₂ⱽ =
+            Cᴰ.reindEq-filler _
+            ∙ Cᴰ.≡in (cong snd (Eq.eqToPath (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.nat (Δ , Δᴰ , γ)
+              (Γ , xᴰLRⱽ Γᴰ f .fst , C.id)
+              (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR _))
+                     Cᴰ.idᴰ (((Cᴰ [-][-, xᴰLRⱽ Γᴰ f .fst ]) PresheafNotation.⋆
+                               (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR γ)))
+                              Cᴰ.idᴰ) Eq.refl)))
+            ∙ Cᴰ.≡in (cong (λ z → Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) z .snd)
+                 (Cᴰ.rectifyOut $ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.⋆IdR _))
+            ∙ Cᴰ.≡in (cong snd (Iso.sec (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) (γᴰ , fᴰ)))
+
+        module _ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{γ γ' : C [ Δ , Γ ]}
+          {pᴰ : Cᴰ [ γ ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]}
+          {qᴰ : Cᴰ [ γ' ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]}
+          where
+          extensionalityᴰ
+            : pᴰ Cᴰ.⋆ᴰ π₁ⱽ Cᴰ.∫≡ qᴰ Cᴰ.⋆ᴰ π₁ⱽ
+            → pᴰ Cᴰ.⋆ᴰ π₂ⱽ Cᴰ.∫≡ qᴰ Cᴰ.⋆ᴰ π₂ⱽ
+            → pᴰ Cᴰ.∫≡ qᴰ
+          extensionalityᴰ p⋆π₁≡ p⋆π₂≡ =
+            Cᴰ.≡in (sym (Iso.ret isoP pᴰ))
+            ∙ Cᴰ.≡in (λ i → Iso.inv (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ≡ i)) (mid₁ i , mid₂ i))
+            ∙ Cᴰ.≡in (Iso.ret isoQ qᴰ)
+            where
+              isoP = xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)
+              isoQ = xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ')
+              γ≡ : γ ≡ γ'
+              γ≡ = sym (C.⋆IdR γ) ∙ PathPΣ p⋆π₁≡ .fst ∙ C.⋆IdR γ'
+              β₁f : ∀ {h} (rᴰ : Cᴰ [ h ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ])
+                → Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , h)) rᴰ .fst Cᴰ.∫≡ rᴰ Cᴰ.⋆ᴰ π₁ⱽ
+              β₁f rᴰ = sym (β₁ⱽ (Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , _)) rᴰ .fst) (Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , _)) rᴰ .snd))
+                ∙ Cᴰ.≡in (cong (Cᴰ._⋆ᴰ π₁ⱽ) (Iso.ret (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , _)) rᴰ))
+              β₂f : ∀ {h} (rᴰ : Cᴰ [ h ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ])
+                → Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , h)) rᴰ .snd Cᴰ.∫≡ rᴰ Cᴰ.⋆ᴰ π₂ⱽ
+              β₂f rᴰ = sym (β₂ⱽ (Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , _)) rᴰ .fst) (Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , _)) rᴰ .snd))
+                ∙ Cᴰ.≡in (cong (Cᴰ._⋆ᴰ π₂ⱽ) (Iso.ret (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , _)) rᴰ))
+              mid₁ : PathP (λ i → Cᴰ.Hom[ γ≡ i ][ Δᴰ , Γᴰ ])
+                       (Iso.fun isoP pᴰ .fst) (Iso.fun isoQ qᴰ .fst)
+              mid₁ = Cᴰ.rectifyOut (β₁f pᴰ ∙ p⋆π₁≡ ∙ sym (β₁f qᴰ))
+              mid₂ : PathP (λ i → Cᴰ [ γ≡ i C.⋆ f ][ Δᴰ , xᴰ ])
+                       (Iso.fun isoP pᴰ .snd) (Iso.fun isoQ qᴰ .snd)
+              mid₂ = Cᴰ.rectifyOut (β₂f pᴰ ∙ p⋆π₂≡ ∙ sym (β₂f qᴰ))
+
+    AllLRⱽ : Type _
+    AllLRⱽ = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → LRⱽ xᴰ
+
+    BPⱽ+Fibration→AllLRⱽ : BinProductsⱽ → Fibration → AllLRⱽ
+    BPⱽ+Fibration→AllLRⱽ _×ⱽ_ _*_ xᴰ Γᴰ f .fst = (Γᴰ ×ⱽ (f * xᴰ) .fst) .fst
+    BPⱽ+Fibration→AllLRⱽ _×ⱽ_ _*_ xᴰ Γᴰ f .snd =
+      -- One of these things has a transport, but which one(!)
+      (Γᴰ ×ⱽ (f * xᴰ) .fst) .snd
+      ⋆PshIsoEq ×PshIsoEq idPshIsoEq ((f * xᴰ) .snd)
+
+    module _ (C⋆IdL : EqIdL C) {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) (_×ⱽ_*xᴰ : LRⱽ xᴰ) where
+      private
+        module LRⱽxᴰ = LRⱽNotation _×ⱽ_*xᴰ
+      LRⱽFⱽ : Functorⱽ (Cᴰ ×ᴰ EqElement (C [-, x ])) Cᴰ
+      LRⱽFⱽ .F-obᴰ ob/@(Γᴰ , f) = (Γᴰ ×ⱽ f *xᴰ) .fst
+      LRⱽFⱽ .F-homᴰ {Δ} {Γ} {γ} {(Δᴰ , g)} {Γᴰ , f} (γᴰ , tri) =
+        Cᴰ.reindEq (C⋆IdL γ) (LRⱽxᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ) LRⱽxᴰ.,pⱽ (Cᴰ.reindEq (Eq.sym tri) $ Cᴰ.reindEq (C⋆IdL g) LRⱽxᴰ.π₂ⱽ)
+      LRⱽFⱽ .F-idᴰ = Cᴰ.rectifyOut $ LRⱽxᴰ.extensionalityᴰ
+        (LRⱽxᴰ.β₁ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _))
+        (LRⱽxᴰ.β₂ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ sym (Cᴰ.⋆IdL _))
+      LRⱽFⱽ .F-seqᴰ {f = δ}{g = γ}{xᴰ = Θᴰ , h}{yᴰ = Δᴰ , g}{zᴰ = Γᴰ , f} (γᴰ₁ , tri₁) (γᴰ₂ , tri₂) = Cᴰ.rectifyOut $ LRⱽxᴰ.extensionalityᴰ
+        (LRⱽxᴰ.β₁ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ sym (Cᴰ.⋆Assoc _ _ _)
+         ∙ Cᴰ.⟨ Cᴰ.reindEq-filler _ ∙ sym (LRⱽxᴰ.β₁ⱽ _ _) ⟩⋆⟨⟩
+         ∙ Cᴰ.⋆Assoc _ _ _
+         ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reindEq-filler (C⋆IdL γ) ∙ sym (LRⱽxᴰ.β₁ⱽ _ _) ⟩
+         ∙ sym (Cᴰ.⋆Assoc _ _ _)
+         )
+        (LRⱽxᴰ.β₂ⱽ _ _ ∙ (Cᴰ.reindEq-filler⁻ _) ∙ Cᴰ.reindEq-filler _
+         ∙ sym (LRⱽxᴰ.β₂ⱽ _ _)
+         ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reindEq-filler (C⋆IdL g) ∙ Cᴰ.reindEq-filler (Eq.sym tri₂) ∙ sym (LRⱽxᴰ.β₂ⱽ _ _) ⟩
+         ∙ sym (Cᴰ.⋆Assoc _ _ _))
+
+      -- Technically this could be implemented as bp.×aF but I'm not sure if it would be as nice definitionally.
+      -- TODO: experiment and see if we can make bp.×aF compute nicely
+      LRⱽF : Functor (Cᴰ / (C [-, x ])) (Cᴰ / (C [-, x ]))
+      LRⱽF = ∫F {F = Id} (LRⱽFⱽ ,Fⱽ (Sndⱽ Cᴰ (EqElement (C [-, x ]))))
+
+      Exponentiatingⱽ : Type _
+      Exponentiatingⱽ = ∀ (yᴰ : Cᴰ.ob[ x ]) → Reprⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ]))
+
+      ExponentiatingⱽUE : (C⋆IdR : EqIdR C)  → Type _
+      ExponentiatingⱽUE C⋆IdR = ∀ (yᴰ : Cᴰ.ob[ x ]) → UEⱽ (reindPsh LRⱽF (Cᴰ [-][-, yᴰ ])) C⋆IdR
+    Exponentialsⱽ : (C⋆IdL : EqIdL C) → AllLRⱽ → Type _
+    Exponentialsⱽ C⋆IdL allLRⱽ = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Exponentiatingⱽ C⋆IdL xᴰ (allLRⱽ xᴰ)
+  module _ (C⋆IdL : EqIdL C)(C⋆Assoc : ReprEqAssoc C) (isFib : Fibration C⋆Assoc) x (bp : BinProductsWith C x) where
+    private
+      module bp = BinProductsWithNotation bp
+      module fib = FibrationNotation C⋆Assoc isFib
+
+    module _ (π₁NatEqC : π₁NatEq bp) where
+      π1*F : Functorᴰ bp.×aF Cᴰ Cᴰ
+      π1*F .F-obᴰ {Γ} Γᴰ = isFib bp.π₁ Γᴰ .fst
+--       -- γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]
+--       -- -----------------------
+--       -- π1*.π ⋆ γᴰ : Cᴰ [ (π₁ ⋆ γ , π₂) ⋆ π₁ ][ π₁* Δᴰ , Γᴰ ]
+--       -- -----------------------
+--       -- π₁*-intro : Cᴰ [ (π₁ ⋆ γ , π₂) ][ π₁* Δᴰ , π₁* Γᴰ ]
+      π1*F .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ =
+        fib.introᴰ (Cᴰ.reindEq (Eq.sym $ π₁NatEqC γ) $ (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) fib.πⱽ Cᴰ.⋆ᴰ γᴰ))
+      π1*F .F-idᴰ = Cᴰ.rectifyOut $ fib.extensionalityᴰ (bp.×aF .F-id)
+        (fib.βᴰ ∙ Cᴰ.reindEq-filler⁻ _ ∙ Cᴰ.⋆IdR _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ sym (Cᴰ.⋆IdL _))
+      π1*F .F-seqᴰ _ _ = Cᴰ.rectifyOut $ fib.extensionalityᴰ (bp.×aF .F-seq _ _)
+        (fib.βᴰ
+         ∙ Cᴰ.reindEq-filler⁻ (Eq.sym (π₁NatEqC _))
+         ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
+         ∙ Cᴰ.⟨ Cᴰ.reindEq-filler (Eq.sym (π₁NatEqC _)) ∙ sym fib.βᴰ ⟩⋆⟨⟩
+         ∙ Cᴰ.⋆Assoc _ _ _
+         ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.⟨ Cᴰ.reindEq-filler (C⋆IdL _) ⟩⋆⟨⟩ ∙ Cᴰ.reindEq-filler (Eq.sym (π₁NatEqC _)) ∙ sym fib.βᴰ ⟩
+         ∙ sym (Cᴰ.⋆Assoc _ _ _))
+      module _ (×aF-seqC : ×aF-seq bp) where
+        module _ Γ where
+          wkPshHetEq : PshHetEq bp.×aF (C [-, Γ ]) (C [-, Γ bp.×a ])
+          wkPshHetEq .PshHomEq.N-ob = λ Δ γ → (bp.π₁ C.⋆ γ) bp.,p bp.π₂
+          wkPshHetEq .PshHomEq.N-hom Θ Δ δ γ p Eq.refl = Eq.sym $ ×aF-seqC δ γ
+
+          wkF : Functor (Cᴰ / (C [-, Γ ])) (Cᴰ / (C [-, Γ bp.×a ]))
+          wkF = π1*F /Fᴰ wkPshHetEq
+
+        UniversallyQuantifiable : Type _
+        UniversallyQuantifiable = ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ bp.×a ]) → Reprⱽ (reindPsh (wkF Γ) (Cᴰ [-][-, Γᴰ ]))
+  module _ (C⋆IdL : EqIdL C)(C⋆Assoc : ReprEqAssoc C) (isFib : Fibration C⋆Assoc) (bp : BinProducts C) (π₁NatEqC : Allπ₁NatEq bp)(×aF-F-homC : All×aF-seq bp) where
+    UniversalQuantifiers : Type _
+    UniversalQuantifiers = ∀ x → UniversallyQuantifiable C⋆IdL C⋆Assoc isFib x (λ c → bp (c , x)) (π₁NatEqC x) (×aF-F-homC x)
+
+module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  isCartesianⱽ : Type _
+  isCartesianⱽ = Σ[ termsⱽ ∈ Terminalsⱽ Cᴰ ] Σ[ bpⱽ ∈ BinProductsⱽ Cᴰ ] Fibration Cᴰ ⋆AssocC
+
+  isCartesianClosedⱽ : (⋆IdLC : EqIdL C) (bp : BinProducts C) (π₁NatEqC : Allπ₁NatEq bp)(×aF-F-homC : All×aF-seq bp) → Type _
+  isCartesianClosedⱽ ⋆IdLC bp π₁NatEqC ×aF-F-homC =
+    Σ[ (termsⱽ , bpⱽ , cartLifts) ∈ isCartesianⱽ ]
+    Exponentialsⱽ Cᴰ ⋆AssocC ⋆IdLC (BPⱽ+Fibration→AllLRⱽ Cᴰ ⋆AssocC bpⱽ cartLifts)
+    × UniversalQuantifiers Cᴰ ⋆IdLC ⋆AssocC cartLifts bp π₁NatEqC ×aF-F-homC

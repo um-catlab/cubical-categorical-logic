@@ -20,7 +20,7 @@ open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Base
 
 private
   variable
@@ -108,4 +108,3 @@ opaque
     → ∀ b
     → transport (λ i → ⟨ CatIsoToPath isUnivalentSET' f (~ i) ⟩) b ≡ f .snd .isIso.inv b
   ~univSet'β f b = cong (f .snd .isIso.inv) (transportRefl _)
-

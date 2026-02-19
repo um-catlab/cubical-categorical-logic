@@ -7,10 +7,12 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Properties
 open import Cubical.Data.Bool
 open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Quiver.Base
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Free.CartesianCategory.Base as Law
+open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
+open import Cubical.Categories.Constructions.Free.CartesianCategory.UncurriedElim as FreeCC
 open import
     Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Limits.Cartesian.Base
@@ -64,12 +66,12 @@ module _ where
   cod t,f = (↑ ans) × (↑ ans)
 
   QUIVER : ×Quiver _ _
-  QUIVER .fst = OB
-  QUIVER .snd .ProductQuiver.mor = MOR
-  QUIVER .snd .ProductQuiver.dom = dom
-  QUIVER .snd .ProductQuiver.cod = cod
+  QUIVER .×Quiver.ob = OB
+  QUIVER .×Quiver.Q .QuiverOver.mor = MOR
+  QUIVER .×Quiver.Q .QuiverOver.dom = dom
+  QUIVER .×Quiver.Q .QuiverOver.cod = cod
 
-  private module Q = ×QuiverNotation QUIVER
+  private module Q = ×Quiver QUIVER
 
   FREECC : CartesianCategory _ _
   FREECC = FreeCartesianCategory QUIVER
@@ -90,7 +92,7 @@ module _ where
   [t]≠[f] p = true≢false (cong n p)
     where
     sem : Functor (FREECC.C) (SET ℓ-zero)
-    sem = Law.rec _
+    sem = FreeCC.rec _
       SETCC
       (mkInterpᴰ (λ { ans → Bool , isSetBool })
                  (λ { t,f (lift tt) → true , false }))
@@ -105,27 +107,26 @@ module _ where
     (isProp→isSet (FREECC.C .isSetHom [t] e))
     (isProp→isSet (FREECC.C .isSetHom [f] e))
 
-  -- TODO fix
-  -- canonicity : ∀ e → CanonicalForm e
-  -- canonicity e = fixup (Canonicalize .F-homᴰ e _ _)
-  --   where
-  --   pts = FREECC.C [ 𝟙 ,-]
-  --   Canonicalize : Section pts (SETᴰ _ _)
-  --   Canonicalize = elimLocal _ (SETᴰCartesianCategoryⱽ _ _)
-  --     (mkInterpᴰ
-  --       (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
-  --       (λ { t,f ⟨⟩ (lift tt) →
-  --         (inl (sym (FREECC.C .⋆IdL _)
-  --              ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
-  --              ∙ sym (FREECC.C .⋆Assoc _ _ _)))
-  --         , inr (sym (FREECC.C .⋆IdL _)
-  --              ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
-  --              ∙ sym (FREECC.C .⋆Assoc _ _ _))
-  --       }))
-  --   fixup : ∀{e'} →
-  --     ([t] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') ⊎
-  --     ([f] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') →
-  --     CanonicalForm e'
-  --   fixup {e'} = Sum.elim
-  --     (λ p → inl (p ∙ FREECC.C .⋆IdL e'))
-  --     (λ p → inr (p ∙ FREECC.C .⋆IdL e'))
+  canonicity : ∀ e → CanonicalForm e
+  canonicity e = fixup (Canonicalize .F-homᴰ e _ _)
+    where
+    pts = FREECC.C [ 𝟙 ,-]
+    Canonicalize : Section pts (SETᴰ _ _)
+    Canonicalize = elimLocal QUIVER pts EqSETᴰCCⱽ
+      (mkInterpᴰ
+        (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
+        (λ { t,f ⟨⟩ (lift tt) →
+          (inl (sym (FREECC.C .⋆IdL _)
+               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
+               ∙ sym (FREECC.C .⋆Assoc _ _ _)))
+          , inr (sym (FREECC.C .⋆IdL _)
+               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
+               ∙ sym (FREECC.C .⋆Assoc _ _ _))
+        }))
+    fixup : ∀{e'} →
+      ([t] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') ⊎
+      ([f] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') →
+      CanonicalForm e'
+    fixup {e'} = Sum.elim
+      (λ p → inl (p ∙ FREECC.C .⋆IdL e'))
+      (λ p → inr (p ∙ FREECC.C .⋆IdL e'))

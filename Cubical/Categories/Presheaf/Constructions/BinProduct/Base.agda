@@ -8,8 +8,12 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sigma.More
 open import Cubical.Data.Unit
+open import Cubical.HITs.PathEq
+open import Cubical.HITs.Join
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -70,6 +74,14 @@ module _ {C : Category ℓ ℓ'} where
     testPshProd P Q = refl
 
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
+    π₁Strict : PshHom' (P ×Psh Q) P
+    π₁Strict .PshHom'.N-ob _ = fst
+    π₁Strict .PshHom'.N-hom _ _ _ _ = inr Eq.refl
+
+    π₂Strict : PshHom' (P ×Psh Q) Q
+    π₂Strict .PshHom'.N-ob _ = snd
+    π₂Strict .PshHom'.N-hom _ _ _ _ = inr Eq.refl
+
     π₁ : PshHom (P ×Psh Q) P
     π₁ .N-ob _ = fst
     π₁ .N-hom _ _ _ _ = refl
@@ -77,6 +89,14 @@ module _ {C : Category ℓ ℓ'} where
     π₂ : PshHom (P ×Psh Q) Q
     π₂ .N-ob _ = snd
     π₂ .N-hom _ _ _ _ = refl
+
+    π₁Eq : PshHomEq (P ×Psh Q) P
+    π₁Eq .PshHomEq.N-ob _ = fst
+    π₁Eq .PshHomEq.N-hom _ _ _ _ _ Eq.refl = Eq.refl
+
+    π₂Eq : PshHomEq (P ×Psh Q) Q
+    π₂Eq .PshHomEq.N-ob _ = snd
+    π₂Eq .PshHomEq.N-hom _ _ _ _ _ Eq.refl = Eq.refl
 
   module _
     {P : Presheaf C ℓA}
@@ -96,8 +116,32 @@ module _ {C : Category ℓ ℓ'} where
     ×Pshβ₂ : ×PshIntro ⋆PshHom π₂ P Q ≡ β
     ×Pshβ₂ = makePshHomPath refl
 
+  module _
+    {P : Presheaf C ℓA}
+    {Q : Presheaf C ℓB}
+    {R : Presheaf C ℓA'}
+    (α : PshHomEq R P)
+    (β : PshHomEq R Q)
+    where
+    private
+      module P = PresheafNotation P
+      module Q = PresheafNotation Q
+    ×PshIntroEq : PshHomEq R (P ×Psh Q)
+    ×PshIntroEq .PshHomEq.N-ob = λ c z → α .PshHomEq.N-ob c z , β .PshHomEq.N-ob c z
+    ×PshIntroEq .PshHomEq.N-hom _ _ f r' r f⋆r'≡r =
+      Eq.≡-× (α .PshHomEq.N-hom _ _ f r' r f⋆r'≡r) (β .PshHomEq.N-hom _ _ f r' r f⋆r'≡r)
+
+    ×Pshβ₁Eq : ×PshIntroEq ⋆PshHomEq π₁Eq P Q ≡ α
+    ×Pshβ₁Eq = makePshHomEqPath refl
+
+    ×Pshβ₂Eq : ×PshIntroEq ⋆PshHomEq π₂Eq P Q ≡ β
+    ×Pshβ₂Eq = makePshHomEqPath refl
+
   ΔPshHom : {P : Presheaf C ℓA} → PshHom P (P ×Psh P)
   ΔPshHom = ×PshIntro idPshHom idPshHom
+
+  ΔPshHomEq : {P : Presheaf C ℓA} → PshHomEq P (P ×Psh P)
+  ΔPshHomEq = ×PshIntroEq idPshHomEq idPshHomEq
 
   module _ (P : Presheaf C ℓA)(Q : Presheaf C ℓB) where
     ×Psh-UMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHom R (P ×Psh Q)) (PshHom R P × PshHom R Q)
@@ -105,6 +149,12 @@ module _ {C : Category ℓ ℓ'} where
     ×Psh-UMP .Iso.inv (α , β) = ×PshIntro α β
     ×Psh-UMP .Iso.sec (α , β) = ΣPathP ((×Pshβ₁ α β) , (×Pshβ₂ α β))
     ×Psh-UMP .Iso.ret α = makePshHomPath refl
+
+    ×PshEq-UMP : ∀ {R : Presheaf C ℓA'} → Iso (PshHomEq R (P ×Psh Q)) (PshHomEq R P × PshHomEq R Q)
+    ×PshEq-UMP .Iso.fun α = (α ⋆PshHomEq π₁Eq P Q) , (α ⋆PshHomEq π₂Eq P Q)
+    ×PshEq-UMP .Iso.inv (α , β) = ×PshIntroEq α β
+    ×PshEq-UMP .Iso.sec (α , β) = ΣPathP ((×Pshβ₁Eq α β) , (×Pshβ₂Eq α β))
+    ×PshEq-UMP .Iso.ret α = makePshHomEqPath refl
 
   module _
     {P : Presheaf C ℓA}
@@ -114,6 +164,8 @@ module _ {C : Category ℓ ℓ'} where
     where
     _×PshHom_ : PshHom P P' → PshHom Q Q' → PshHom (P ×Psh Q) (P' ×Psh Q')
     α ×PshHom β = ×PshIntro (π₁ P Q ⋆PshHom α) (π₂ P Q ⋆PshHom β)
+    _×PshHomEq_ : PshHomEq P P' → PshHomEq Q Q' → PshHomEq (P ×Psh Q) (P' ×Psh Q')
+    α ×PshHomEq β = ×PshIntroEq (π₁Eq P Q ⋆PshHomEq α) (π₂Eq P Q ⋆PshHomEq β)
   module _
     {P : Presheaf C ℓA}
     {P' : Presheaf C ℓA'}
@@ -136,6 +188,18 @@ module _ {C : Category ℓ ℓ'} where
         (PIso .nIso c .snd .snd (b .fst))
         (QIso .nIso c .snd .snd (b .snd))
 
+  module _
+    {P : Presheaf C ℓA}
+    {P' : Presheaf C ℓA'}
+    {Q : Presheaf C ℓB}
+    {Q' : Presheaf C ℓB'}
+    (PIso : PshIsoEq P P')
+    (QIso : PshIsoEq Q Q')
+    where
+    ×PshIsoEq : PshIsoEq (P ×Psh Q) (P' ×Psh Q')
+    ×PshIsoEq .PshIsoEq.isos c = ×-cong-Iso (PIso .PshIsoEq.isos c) (QIso .PshIsoEq.isos c)
+    ×PshIsoEq .PshIsoEq.nat =
+      (PshIsoEq.toPshHomEq PIso ×PshHomEq PshIsoEq.toPshHomEq QIso) .PshHomEq.N-hom
   private
     open Category
     open Bifunctor

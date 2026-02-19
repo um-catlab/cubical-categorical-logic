@@ -20,6 +20,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions.Tensor
+open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Yoneda.More
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Profunctor.General
@@ -137,6 +138,22 @@ module _
       P⇒Large-UMP : Iso (PshHom R (P⇒Large Q)) (PshHom (P ⟅ R ⟆) Q)
       P⇒Large-UMP = compIso (F⇒Large-UMP P-bif Q R)
         (precomp⋆PshHom-Iso (P-cocontinuous R))
+
+  -- module P⇒LargeStrict-cocontinuous {ℓP : Level → Level}
+  --   (P : ∀ {ℓ} → Functor (PRESHEAF C ℓ) (PRESHEAF D (ℓP ℓ)))
+  --   (P-cocontinuous : CoContinuous P)
+  --   where
+  --   private
+  --     P-bif : D o-[ ℓP ℓC' ]-* C
+  --     P-bif = CurriedToBifunctorL (P ∘F CurryBifunctorL (HomBif C))
+
+  --   P⇒Large : Presheaf D ℓQ → Presheaf C (ℓ-max (ℓ-max (ℓ-max ℓD ℓD') (ℓP ℓC')) ℓQ)
+  --   P⇒Large Q = P-bif F⇒Large Q
+
+  --   module _ (Q : Presheaf D ℓQ)(R : Presheaf C ℓR) where
+  --     P⇒Large-UMP : Iso (PshHom R (P⇒Large Q)) (PshHom (P ⟅ R ⟆) Q)
+  --     P⇒Large-UMP = compIso (F⇒Large-UMP P-bif Q R)
+  --       (precomp⋆PshHom-Iso (P-cocontinuous R))
 
   -- This is the most common situation:
   -- - We have a functor P on presheaves that is cocontinuous

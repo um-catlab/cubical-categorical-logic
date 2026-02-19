@@ -3,26 +3,29 @@
 module Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Data.Quiver.Base
 
 private variable ℓ ℓ' : Level
 
 module _ (ob : Type ℓ) where
-  data Expr : Type ℓ where
-    ↑_ : ob → Expr
-    _×_ : Expr → Expr → Expr
-    ⊤ : Expr
-    _⇒_ : Expr → Expr → Expr
-  record Quiver ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-    field
-      mor : Type ℓ'
-      dom : mor → Expr
-      cod : mor → Expr
+  data CCCExpr : Type ℓ where
+    ↑_ : ob → CCCExpr
+    _×_ : CCCExpr → CCCExpr → CCCExpr
+    ⊤ : CCCExpr
+    _⇒_ : CCCExpr → CCCExpr → CCCExpr
 
-×⇒Quiver : ∀ ℓ ℓ' → Type _
-×⇒Quiver ℓ ℓ' = Σ[ ob ∈ Type ℓ ] Quiver ob ℓ'
+record ×⇒Quiver ℓ ℓ' : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
+  field
+    ob : Type ℓ
+    Q : QuiverOver (CCCExpr ob) ℓ'
+  open QuiverOver Q public
+  obExpr : Type ℓ
+  obExpr = CCCExpr ob
+  open CCCExpr obExpr public
 
-module ×⇒QuiverNotation (Q : ×⇒Quiver ℓ ℓ') where
-  open Quiver
-  Ob = Expr (Q .fst)
-  Dom = Q .snd .dom
-  Cod = Q .snd .cod
+Quiver→×⇒Quiver : ∀{ℓ ℓ' : Level} → Quiver ℓ ℓ' → ×⇒Quiver ℓ ℓ'
+Quiver→×⇒Quiver Q .×⇒Quiver.ob = Q .fst
+Quiver→×⇒Quiver Q .×⇒Quiver.Q .QuiverOver.mor = Q .snd .QuiverOver.mor
+Quiver→×⇒Quiver Q .×⇒Quiver.Q .QuiverOver.dom = ↑_ ∘S Q .snd .QuiverOver.dom
+Quiver→×⇒Quiver Q .×⇒Quiver.Q .QuiverOver.cod = ↑_ ∘S Q .snd .QuiverOver.cod

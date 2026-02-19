@@ -18,7 +18,7 @@ open _×ω_
 private
   variable
     ℓ ℓ' ℓ'' : Level
-    A A' : Type ℓ
+    A A' A1 A1' A2 A2' : Type ℓ
     B B' : (a : A) → Type ℓ
     C : (a : A) (b : B a) → Type ℓ
 
@@ -27,6 +27,14 @@ change-contractum : (p : ∃![ x₀ ∈ A ] B x₀) → singl (p .fst .fst)
 change-contractum {B = B} ((x₀ , p₀) , contr) (x , x₀≡x) =
   (x , subst B x₀≡x p₀)
   , (λ yq → ΣPathP ((sym x₀≡x) , symP (subst-filler B x₀≡x p₀)) ∙ contr yq)
+
+×-cong-Iso : Iso A1 A1'
+  → Iso A2 A2'
+  → Iso (A1 × A2) (A1' × A2')
+×-cong-Iso A1≅A1' A2≅A2' .fun = λ z → fun A1≅A1' (z .fst) , fun A2≅A2' (z .snd)
+×-cong-Iso A1≅A1' A2≅A2' .inv = λ z → inv A1≅A1' (z .fst) , inv A2≅A2' (z .snd)
+×-cong-Iso A1≅A1' A2≅A2' .sec b = ≡-× (sec A1≅A1' (b .fst)) (sec A2≅A2' (b .snd))
+×-cong-Iso A1≅A1' A2≅A2' .ret a = ≡-× (ret A1≅A1' (a .fst)) (ret A2≅A2' (a .snd))
 
 module _ {A : Type ℓ} {B : A → Type ℓ'} {C : A → Type ℓ''} where
   Σ-assoc-IsoR : Iso (Σ[ (a , _) ∈ Σ A C ] B a) (Σ[ a ∈ A ] B a × C a)

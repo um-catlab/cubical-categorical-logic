@@ -48,6 +48,7 @@ open import Cubical.Categories.Presheaf.Constructions hiding (ΣPsh)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable hiding (Elements)
 open import Cubical.Categories.Presheaf.Representable.More
+import Cubical.Categories.Presheaf.StrictHom as Strict
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions.RightAdjoint
 open import Cubical.Categories.Profunctor.Constructions.Extension
@@ -122,6 +123,64 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     _×ᴰPsh_ : (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
       → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
     Pᴰ ×ᴰPsh Qᴰ = reindPshᴰNatTrans (π₁ P Q) Pᴰ ×ⱽPsh reindPshᴰNatTrans (π₂ P Q) Qᴰ
+
+    -- These should be definable compositionally if we use a different
+    -- version of PshHet→ElementFunctorᴰ that takes in a PshHomStrict
+    π₁/ : Functor (Cᴰ / (P ×Psh Q)) (Cᴰ / P)
+    π₁/ .F-ob x = (x .fst) , ((x .snd .fst) , (x .snd .snd .fst))
+    π₁/ .F-hom x = (x .fst) , ((x .snd .fst) , PathPΣ (x .snd .snd) .fst)
+    π₁/ .F-id = Hom/≡ refl
+    π₁/ .F-seq _ _ = Hom/≡ refl
+
+    π₂/ : Functor (Cᴰ / (P ×Psh Q)) (Cᴰ / Q)
+    π₂/ .F-ob x = x .fst , x .snd .fst , x .snd .snd .snd
+    π₂/ .F-hom x = (x .fst) , ((x .snd .fst) , (PathPΣ (x .snd .snd) .snd))
+    π₂/ .F-id = Hom/≡ refl
+    π₂/ .F-seq _ _ = Hom/≡ refl
+
+    _×ᴰPshStrict_ : (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+      → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
+    Pᴰ ×ᴰPshStrict Qᴰ = reindPshᴰNatTransStrict (Strict.π₁ P Q) Pᴰ ×ⱽPsh
+                        reindPshᴰNatTransStrict (Strict.π₂ P Q) Qᴰ
+
+    module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+      private
+        module P = PresheafNotation P
+        module Q = PresheafNotation Q
+        module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+        module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
+        module Pᴰ×ᴰQᴰ = PresheafᴰNotation Cᴰ (P ×Psh Q) (Pᴰ ×ᴰPsh Qᴰ)
+        module Pᴰ×ᴰStrictQᴰ = PresheafᴰNotation Cᴰ (P ×Psh Q) (Pᴰ ×ᴰPshStrict Qᴰ)
+        -- this is a deficiency of the current definition of uncurried
+        -- displayed presheaves. There doesn't seem to be any way to
+        -- make this refl
+        test×ᴰPsh : ∀ {Γ x}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}
+          (p : P.p[ x ])(q : Q.p[ x ])
+          (f : C [ Γ , x ])
+          (fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ])
+          (pᴰ : Pᴰ.p[ p ][ xᴰ ])(qᴰ : Qᴰ.p[ q ][ xᴰ ])
+          → (fᴰ Pᴰ×ᴰQᴰ.⋆ᴰ (pᴰ , qᴰ)) ≡ ((fᴰ Pᴰ.⋆ᴰ pᴰ) , (fᴰ Qᴰ.⋆ᴰ qᴰ))
+        test×ᴰPsh p q f fᴰ pᴰ qᴰ =
+          -- these paths are *not* refl
+          ΣPathP ( (Pᴰ.rectifyOut $ Pᴰ.⋆ᴰ-reind _ (λ i →
+                                                     hcomp (doubleComp-faces (λ _ → F-hom P f p) (λ i₁ → F-hom P f p) i)
+                                                     (hcomp
+                                                      (doubleComp-faces (λ _ → F-hom P f p) (λ _ → P .F-hom f p) (~ i))
+                                                      (F-hom P f p))) _)
+                 , (Qᴰ.rectifyOut $ Qᴰ.⋆ᴰ-reind _ (λ i →
+                                                     hcomp (doubleComp-faces (λ _ → F-hom Q f q) (λ i₁ → F-hom Q f q) i)
+                                                     (hcomp
+                                                      (doubleComp-faces (λ _ → F-hom Q f q) (λ _ → Q .F-hom f q) (~ i))
+                                                      (F-hom Q f q))) _))
+
+        -- apparently the deficiency is not with the definition of curried displayed presheaves but instead with the definition of reindPshᴰNatTrans
+        test×ᴰPshStrict : ∀ {Γ x}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}
+          (p : P.p[ x ])(q : Q.p[ x ])
+          (f : C [ Γ , x ])
+          (fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ])
+          (pᴰ : Pᴰ.p[ p ][ xᴰ ])(qᴰ : Qᴰ.p[ q ][ xᴰ ])
+          → (fᴰ Pᴰ×ᴰStrictQᴰ.⋆ᴰ (pᴰ , qᴰ)) ≡ ((fᴰ Pᴰ.⋆ᴰ pᴰ) , (fᴰ Qᴰ.⋆ᴰ qᴰ))
+        test×ᴰPshStrict p q f fᴰ pᴰ qᴰ = refl
 
   module _ {P : Presheaf C ℓP}(Q : Presheaf C ℓQ)
     (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) where

@@ -15,6 +15,7 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
   hiding (introF; introS)
 open import Cubical.Categories.Constructions.TotalCategory as TotalCat
@@ -109,6 +110,9 @@ module EqReindex
   -- are given by Eq.refl.
   reindex : Categoryᴰ C ℓDᴰ ℓDᴰ'
   reindex = redefine-id⋆ F*Dᴰ singId singSeq
+
+  hasPropHomsReindex : hasPropHoms Dᴰ → hasPropHoms reindex
+  hasPropHomsReindex = λ z {c} {c'} f → z (F-hom F f)
 
   open Functorᴰ
   -- There's probably an easier way to do this using sing'

@@ -2,7 +2,10 @@
 module Cubical.Categories.Displayed.Functor.More where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base hiding (isIso)
 open import Cubical.Categories.Constructions.Fiber
@@ -12,8 +15,11 @@ import      Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+
+open import Cubical.Reflection.RecordEquiv.More
 
 private
   variable
@@ -193,3 +199,65 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
   FullyFaithfulᴰ : Type _
   FullyFaithfulᴰ = ∀ {x y}(f : C [ x , y ])(xᴰ : Cᴰ.ob[ x ])(yᴰ : Cᴰ.ob[ y ])
     → isIso {A = Cᴰ.Hom[ f ][ xᴰ , yᴰ ]}{B = Dᴰ.Hom[ F ⟪ f ⟫ ][ Fᴰ.F-obᴰ xᴰ , Fᴰ.F-obᴰ yᴰ ]} Fᴰ.F-homᴰ
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  where
+  open Category
+  open Functor
+  open Functorᴰ
+  private
+    module C = Category C
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Dᴰ = Categoryᴰ Dᴰ
+
+  FunctorᴰΣ : Type _
+  FunctorᴰΣ =
+    Σ[ F-obᴰ ∈ ({x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ]) ]
+    Σ[ F-homᴰ ∈ ({x y : C .ob} {f : C [ x , y ]}
+      {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+      → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ]) ]
+    Σ[ F-idᴰ ∈ ({x : C .ob} {xᴰ : Cᴰ.ob[ x ]}
+      → PathP (λ i → Dᴰ.Hom[ F .F-id i ][ F-obᴰ xᴰ , F-obᴰ xᴰ ])
+          (F-homᴰ (Cᴰ.idᴰ {p = xᴰ})) (Dᴰ.idᴰ {p = F-obᴰ xᴰ})) ]
+    ({x y z : C .ob} {f : C [ x , y ]} {g : C [ y , z ]}
+      {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]} {zᴰ : Cᴰ.ob[ z ]}
+      (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gᴰ : Cᴰ [ g ][ yᴰ , zᴰ ])
+      → PathP (λ i → Dᴰ.Hom[ F .F-seq f g i ][ F-obᴰ xᴰ , F-obᴰ zᴰ ])
+          (F-homᴰ (fᴰ Cᴰ.⋆ᴰ gᴰ)) (F-homᴰ fᴰ Dᴰ.⋆ᴰ F-homᴰ gᴰ))
+
+  FunctorᴰΣIso : Iso (Functorᴰ F Cᴰ Dᴰ) FunctorᴰΣ
+  unquoteDef FunctorᴰΣIso = defineRecordIsoΣ FunctorᴰΣIso (quote Functorᴰ)
+
+  isSetFunctorᴰ : isSet FunctorᴰΣ → isSet (Functorᴰ F Cᴰ Dᴰ)
+  isSetFunctorᴰ = isOfHLevelRetractFromIso 2 FunctorᴰΣIso
+
+  module _ (propHoms : hasPropHoms Dᴰ) where
+    isPropF-homᴰΣ :
+      (F-obᴰ : {x : C.ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
+      → isProp
+      ({x y : C .ob} {f : C [ x , y ]}
+        {xᴰ : Cᴰ.ob[ x ]} {yᴰ : Cᴰ.ob[ y ]}
+        → Cᴰ [ f ][ xᴰ , yᴰ ] → Dᴰ [ F .F-hom f ][ F-obᴰ xᴰ , F-obᴰ yᴰ ])
+    isPropF-homᴰΣ F-obᴰ = isPropImplicitΠ λ x → isPropImplicitΠ λ y →
+      isPropImplicitΠ λ f → isPropImplicitΠ λ xᴰ → isPropImplicitΠ λ yᴰ →
+      isPropΠ λ _ → propHoms (F .F-hom f) (F-obᴰ xᴰ) (F-obᴰ yᴰ)
+
+    isSetFunctorᴰΣPropHoms :
+      isSet ({x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
+      → isSet FunctorᴰΣ
+    isSetFunctorᴰΣPropHoms isSetOb = isSetΣSndProp isSetOb λ F-obᴰ →
+      isPropΣ (isPropF-homᴰΣ F-obᴰ) λ F-homᴰ →
+      isPropΣ
+        (isPropImplicitΠ λ x → isPropImplicitΠ λ xᴰ →
+          isOfHLevelPathP' 1 Dᴰ.isSetHomᴰ _ _)
+        (λ _ → isPropImplicitΠ λ x → isPropImplicitΠ λ y → isPropImplicitΠ λ z →
+          isPropImplicitΠ λ f → isPropImplicitΠ λ g →
+          isPropImplicitΠ λ xᴰ → isPropImplicitΠ λ yᴰ → isPropImplicitΠ λ zᴰ →
+          isPropΠ2 λ fᴰ gᴰ → isOfHLevelPathP' 1 Dᴰ.isSetHomᴰ _ _)
+
+    isSetFunctorᴰPropHoms :
+      isSet ({x : C .ob} → Cᴰ.ob[ x ] → Dᴰ.ob[ F .F-ob x ])
+      → isSet (Functorᴰ F Cᴰ Dᴰ)
+    isSetFunctorᴰPropHoms isSetOb =
+      isSetFunctorᴰ (isSetFunctorᴰΣPropHoms isSetOb)

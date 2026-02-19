@@ -216,6 +216,8 @@ module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C 
     β₂ⱽ' {Δ} {Δᴰ} {Γ} {Γᴰ} {γ} {p} γᴰ γpᴰ =
       ≡in $ snd $ PathPΣ (Pᴰ .snd Γᴰ p .snd .nIso (Δ , Δᴰ , γ) .snd .fst (γᴰ , γpᴰ))
 
+    -- Because this is the presheaf composition ⋆ᴰ we get a reind on
+    -- the left here yuck
     β₂ⱽ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{γ}{p : P.p[ Γ ]}
       → (γᴰ : Cᴰ.Hom[ γ ][ Δᴰ , Γᴰ ])
       → (γpᴰ : p[ γ P.⋆ p ][ Δᴰ ])

@@ -36,8 +36,6 @@ open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base as Curried hiding (_[-][-,_])
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
-import Cubical.Categories.Displayed.Presheaf.Base as Curried
-  hiding (Presheafᴰ; Presheafⱽ; module PresheafᴰNotation)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 
 private
@@ -284,6 +282,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
   (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))
+  infix 8 _◁PshIsoⱽ_
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (x : C .ob) where
   private

@@ -14,8 +14,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
-open import Cubical.HITs.Join as Join
-open import Cubical.HITs.Join.More as Join
+open import Cubical.HITs.Join
 open import Cubical.HITs.PathEq
 
 open import Cubical.Categories.Category.Base

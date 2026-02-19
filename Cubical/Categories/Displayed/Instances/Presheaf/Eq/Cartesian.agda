@@ -17,9 +17,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
 
-open import Cubical.HITs.PathEq
-open import Cubical.HITs.Join
-
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Constructions.Lift

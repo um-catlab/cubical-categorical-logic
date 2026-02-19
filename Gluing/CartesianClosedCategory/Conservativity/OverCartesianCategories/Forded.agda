@@ -202,36 +202,38 @@ module _ (Q : Quiver ℓQ ℓQ') where
     mkElem l Γ (g FREE-1,×.⋆ FCC.π₁' ×Q) , mkElem r Γ (g FREE-1,×.⋆ FCC.π₂' ×Q)
 
   private
-    FullProp : ×Q.Expr → Type _
-    FullProp y =
+    RetrTy : ×Q.Expr → Type _
+    RetrTy y =
       ∀ x → (f : FREE-1,×,⇒.C [ ⊆ ⟅ x ⟆ , ⊆ ⟅ y ⟆ ]) →
-        ∃[ g ∈ FREE-1,×.C [ x , y ] ] ⊆ ⟪ g ⟫ ≡ f
+        Σ[ g ∈ FREE-1,×.C [ x , y ] ] ⊆ ⟪ g ⟫ ≡ f
 
-    FullPropCCᴰ : CartesianCategoryᴰ FREE-1,× _ _
-    FullPropCCᴰ = CartesianPropertyOver FullProp
-      (λ o f → ∣ FCC.!ₑ' ×Q , sym (FCCC.⊤η Eq.refl f) ∣₁)
-      (λ {A}{B} fullA fullB o f →
-        rec2 squash₁
-          (λ (g₁ , p₁) (g₂ , p₂) →
-            ∣ (FCC.⟨_,_⟩' ×Q) g₁ g₂ ,
-              cong₂ (FCCC.⟨_,_⟩' ×⇒Q) p₁ p₂
-              ∙ sym (FCCC.×η Eq.refl f) ∣₁)
-          (fullA o (f FREE-1,×,⇒.⋆ FCCC.π₁' ×⇒Q))
-          (fullB o (f FREE-1,×,⇒.⋆ FCCC.π₂' ×⇒Q)))
+    RetrTyCCᴰ : CartesianCategoryᴰ FREE-1,× _ _
+    RetrTyCCᴰ = CartesianPropertyOver RetrTy
+      retr⊤
+      (retr× _ _)
+      where
+        retr⊤ : RetrTy FREE-1,×.𝟙ue.vertex
+        retr⊤ o f = FCC.!ₑ' ×Q , sym (FCCC.⊤η Eq.refl f)
+        retr× : (A B : FREE-1,×.ob) → RetrTy A → RetrTy B → RetrTy (FREE-1,×.×ue.vertex A B)
+        retr× A B fullA fullB o f =
+          FCC.⟨_,_⟩' ×Q (fullAf1 .fst) (fullBf2 .fst)
+          , cong₂ (FCCC.⟨_,_⟩' ×⇒Q) (fullAf1 .snd) (fullBf2 .snd) ∙ sym (FCCC.×η Eq.refl f)
+          where
+            fullAf1 = fullA o (f FREE-1,×,⇒.⋆ FCCC.π₁' ×⇒Q)
+            fullBf2 = fullB o (f FREE-1,×,⇒.⋆ FCCC.π₂' ×⇒Q)
 
-    fullSection : GlobalSection (PropertyOver FREE-1,×.C FullProp)
-    fullSection = FCC.elim ×Q FullPropCCᴰ
+    fullSection : GlobalSection (PropertyOver FREE-1,×.C RetrTy)
+    fullSection = FCC.elim ×Q RetrTyCCᴰ
       (mkElimInterpᴰ baseFullness (λ _ → tt))
       where
-      baseFullness : ∀ y → FullProp (ProdExpr.↑ y)
-      baseFullness y o f =
-        ∣ witness .fst , witness .snd ∙ FREE-1,×,⇒.⋆IdL _ ∣₁
+      baseFullness : ∀ y → RetrTy (ProdExpr.↑ y)
+      baseFullness y o f = (witness .fst) , (witness .snd ∙ FREE-1,×,⇒.⋆IdL _)
         where
         elem = mkElem o o FREE-1,×.id
         witness = S .F-homᴰ f .N-ob (o , tt , FREE-1,×,⇒.id) elem
 
   ⊆-Full : isFull ⊆
-  ⊆-Full x y f = fullSection .F-obᴰ y x f
+  ⊆-Full x y f = ∣ (fullSection .F-obᴰ y x f) ∣₁
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
   ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

@@ -1,9 +1,7 @@
 module Cubical.Categories.LocallySmall.Constructions.Total.Properties where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 
-open import Cubical.Data.Unit
 open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
@@ -12,7 +10,6 @@ open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
-open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 

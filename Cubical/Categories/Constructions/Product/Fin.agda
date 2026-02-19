@@ -2,14 +2,6 @@
 module Cubical.Categories.Constructions.Product.Fin where
 
 
--- open import Cubical.Foundations.HLevels
--- open import Cubical.Foundations.Prelude
--- open import Cubical.Data.Sigma
--- open import Cubical.Data.Nat
--- open import Cubical.Data.List
--- open import Cubical.Data.List.Dependent
--- open import Cubical.Data.Fin
--- open import Cubical.Categories.Category.Base
 
 -- private
 --   variable

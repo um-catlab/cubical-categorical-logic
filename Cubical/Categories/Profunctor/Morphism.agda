@@ -1,19 +1,6 @@
 module Cubical.Categories.Profunctor.Morphism where
 
--- open import Cubical.Foundations.Prelude hiding (Path)
--- open import Cubical.Foundations.Structure
--- open import Cubical.Foundations.HLevels
--- open import Cubical.Foundations.Isomorphism
--- open import Cubical.Categories.Category
--- open import Cubical.Categories.Functor
--- open import Cubical.Categories.Constructions.BinProduct
--- open import Cubical.Categories.NaturalTransformation
--- open import Cubical.Categories.Profunctor.General
--- open import Cubical.Data.Sigma
--- open import Cubical.Reflection.RecordEquiv
 
--- open import Cubical.Categories.Instances.Sets
--- open import Cubical.Categories.Instances.Sets.More
 
 -- private
 --   variable

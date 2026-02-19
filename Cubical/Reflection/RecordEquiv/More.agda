@@ -6,15 +6,11 @@ Solution by @cmcmA20
 {-# OPTIONS --no-exact-split #-}
 module Cubical.Reflection.RecordEquiv.More where
 
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Data.List as List
 open import Cubical.Data.Nat
-open import Cubical.Data.Maybe as Maybe
 open import Cubical.Data.Sigma
 
-open import Agda.Builtin.String
 import Agda.Builtin.Reflection as R
 open import Cubical.Reflection.Base
 

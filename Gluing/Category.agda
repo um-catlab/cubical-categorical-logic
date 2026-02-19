@@ -18,10 +18,8 @@ open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Sets.More
 
 private
   variable

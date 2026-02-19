@@ -12,37 +12,20 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Profunctor.Relator where
 
-open import Cubical.Reflection.RecordEquiv
 
-open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Bifunctor as Bif
-open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Constructions.BinProduct as BP
-open import Cubical.Categories.Constructions.BinProduct.More
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Functors.Constant
-open import Cubical.Categories.Functors.More
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Instances.Functors.More
 
 private
   variable

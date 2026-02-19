@@ -30,25 +30,19 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
-open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.TotalCategory as ∫
 open import Cubical.Categories.Limits.Terminal.More hiding (preservesTerminal)
-open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Section

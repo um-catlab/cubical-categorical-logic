@@ -4,9 +4,7 @@
 
 module Cubical.Categories.CBPV.Instances.Free where
 
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Structure
 
 open import Cubical.Data.List
 open import Cubical.Data.Sigma

@@ -2,11 +2,8 @@ module Cubical.Data.Sigma.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.HalfAdjoint
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Prod using (_×ω_; _,_)

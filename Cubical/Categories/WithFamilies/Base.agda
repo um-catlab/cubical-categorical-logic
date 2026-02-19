@@ -7,20 +7,13 @@
 -}
 module Cubical.Categories.WithFamilies.Base where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions
 
 open import Cubical.Categories.Displayed.Presheaf

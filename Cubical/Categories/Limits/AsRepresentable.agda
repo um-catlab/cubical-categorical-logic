@@ -2,23 +2,14 @@
 module Cubical.Categories.Limits.AsRepresentable where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
 open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Functors.HomFunctor
 open import Cubical.Categories.Bifunctor as Bif
-open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.FunctorComprehension
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.Morphism
 open import Cubical.Categories.Adjoint.UniversalElements
 
-open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Profunctor.General
 
 private

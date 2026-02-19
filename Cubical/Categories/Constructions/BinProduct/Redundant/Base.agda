@@ -8,10 +8,6 @@ module Cubical.Categories.Constructions.BinProduct.Redundant.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base hiding (Id)
-open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Data.Graph.Base
-open import Cubical.Data.Sum as Sum hiding (rec)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Quiver.Base
 

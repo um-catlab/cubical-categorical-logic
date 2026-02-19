@@ -3,31 +3,19 @@ module Cubical.Categories.Displayed.Limits.CartesianClosedV where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation hiding (_⇒_)
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
-open import Cubical.Categories.Exponentials.Small
-open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Constructions.BinProduct.LocalRepresentability
 open import Cubical.Categories.Presheaf.Constructions.Reindex
-open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
-open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 

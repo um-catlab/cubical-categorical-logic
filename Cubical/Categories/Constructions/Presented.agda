@@ -2,11 +2,7 @@
 
 module Cubical.Categories.Constructions.Presented where
 
-open import Cubical.Categories.Morphism
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.HLevels
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base hiding (Id)
 open import Cubical.Categories.NaturalTransformation hiding (_⟦_⟧)
@@ -16,12 +12,10 @@ open import Cubical.HITs.SetQuotients as SetQuotient
 
 open import Cubical.Categories.Constructions.Quotient as CatQuotient
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Weaken
-open import Cubical.Categories.Constructions.Free.Category.Quiver as Free
   hiding (rec; elim)
 open import Cubical.Categories.Constructions.Quotient.More as CatQuotient
   hiding (elim)
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.Weaken.Base
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Section.Base
 

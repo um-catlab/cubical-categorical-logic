@@ -10,7 +10,6 @@ open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 

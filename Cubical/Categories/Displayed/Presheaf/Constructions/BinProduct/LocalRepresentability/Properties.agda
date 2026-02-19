@@ -4,10 +4,8 @@ module Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.LocalRepre
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
@@ -17,17 +15,12 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section
-open import Cubical.Categories.Displayed.Bifunctor
-import Cubical.Categories.Displayed.Constructions.Reindex.Base as ReindCatᴰ
-open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Base
@@ -36,11 +29,8 @@ open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Local
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
-open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Section
-open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 
 private
   variable

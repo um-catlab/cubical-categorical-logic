@@ -2,14 +2,10 @@
 module Cubical.Categories.Instances.Preorders.Monotone where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Function hiding (_$_)
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Relation.Binary.Base
-open import Cubical.Reflection.Base
-open import Cubical.Reflection.RecordEquiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Relation.Binary.Preorder

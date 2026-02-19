@@ -3,20 +3,13 @@
 module Cubical.Categories.Constructions.Free.Monoidal.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma hiding (_×_)
-import Cubical.Data.Sigma as Σ
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct hiding (_,F_; _×F_)
-open import Cubical.Categories.Constructions.BinProduct.Monoidal
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Functor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.Free.Category hiding (ε)
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
@@ -26,7 +19,6 @@ open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Monoidal.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Monoidal
   as Monoidal
 open import Cubical.Categories.Displayed.Constructions.Weaken.Monoidal
 import Cubical.Categories.Displayed.Constructions.Weaken as Wk

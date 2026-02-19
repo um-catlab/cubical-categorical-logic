@@ -14,7 +14,6 @@ open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory.
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
-open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Properties
 

@@ -4,34 +4,23 @@ module Cubical.Categories.Displayed.Constructions.Reindex.Limits where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
-open import Cubical.Foundations.Transport
 
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Constructions.Fiber
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
   hiding (π; reindex)
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.Displayed.Constructions.Reindex.CurriedFibration
-open import Cubical.Categories.Displayed.Limits.CartesianD
 open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
-import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex

@@ -4,7 +4,6 @@ module Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function
 
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
@@ -12,7 +11,6 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Instances.Level
 
@@ -24,9 +22,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken.Properties
 
 open Category
 open Categoryᴰ

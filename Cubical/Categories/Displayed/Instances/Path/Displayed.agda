@@ -19,7 +19,6 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.StructureOver
 

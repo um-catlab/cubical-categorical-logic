@@ -5,15 +5,12 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.Monoidal.Enriched
 open import Cubical.Categories.Monoidal.Instances.Presheaf
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Morphism.Alt

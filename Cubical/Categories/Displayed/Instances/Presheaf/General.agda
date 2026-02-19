@@ -2,29 +2,20 @@
 module Cubical.Categories.Displayed.Instances.Presheaf.General where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More
 
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Exponentials.Small
 open import Cubical.Categories.Displayed.Fibration.Base
-open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.BinProduct
@@ -34,7 +25,6 @@ open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Lift
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
-open import Cubical.Categories.Displayed.Presheaf.Constructions.Exponential
 
 private
   variable ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level

@@ -8,14 +8,11 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-import Cubical.Categories.LocallySmall.Functor.Base as LocallySmallF
-open import Cubical.Categories.LocallySmall.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Variables
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
-open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObjects
 import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ

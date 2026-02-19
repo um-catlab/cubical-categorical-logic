@@ -6,14 +6,10 @@ open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.Monad.Base
 import Cubical.Categories.Monad.ExtensionSystem as MES
 open import Cubical.Categories.Comonad.ExtensionSystem
 open import Cubical.Categories.Limits.BinProduct.More
 
-open import Cubical.Categories.DistributiveLaw.ComonadOverMonad.Base
-open import Cubical.Tactics.FunctorSolver.Reflection
 private
   variable
     ℓ ℓ' : Level

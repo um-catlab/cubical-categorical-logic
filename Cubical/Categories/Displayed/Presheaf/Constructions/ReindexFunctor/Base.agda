@@ -2,35 +2,17 @@
 module Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.More
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Dependent
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.More
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Isomorphism.More
-open import Cubical.Foundations.Structure
 
-open import Cubical.Reflection.RecordEquiv.More
 
-import Cubical.Data.Equality as Eq
-open import Cubical.Data.Prod.Base hiding (_×_)
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category hiding (isIso)
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
   using (NatTrans ; NatIso ; idTrans)
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.TotalCategory
-open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Reindex
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base

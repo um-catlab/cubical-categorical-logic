@@ -1,7 +1,5 @@
 module Cubical.Categories.LocallySmall.Displayed.Section.Bisection where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 
@@ -11,10 +9,7 @@ open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
-open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
-open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 
 open Category
 open Categoryᴰ

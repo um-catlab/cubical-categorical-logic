@@ -18,13 +18,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv hiding (fiber)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.Relator
-open import Cubical.Categories.Profunctor.Hom
 open import Cubical.Categories.Profunctor.Homomorphism.Unary
 open import Cubical.Categories.Profunctor.Homomorphism.Bilinear
 import Cubical.Categories.Displayed.Base as Fiberless

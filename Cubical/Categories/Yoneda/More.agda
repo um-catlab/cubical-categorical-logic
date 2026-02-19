@@ -2,25 +2,25 @@ module Cubical.Categories.Yoneda.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Univalence using (ua)
+-- open import Cubical.Foundations.HLevels
+-- open import Cubical.Foundations.Univalence using (ua)
 open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
-open import Cubical.Data.Sigma
-open import Cubical.Foundations.Equiv
-open import Cubical.HITs.PropositionalTruncation
+-- open import Cubical.Data.Sigma
+-- open import Cubical.Foundations.Equiv
+-- open import Cubical.HITs.PropositionalTruncation
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Constructions.Lift
+-- open import Cubical.Categories.Functor.Base
+-- open import Cubical.Categories.Constructions.Lift
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Presheaf.Base
+-- open import Cubical.Categories.Functors.HomFunctor
+-- open import Cubical.Categories.Presheaf.Base
 
-open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Yoneda
+-- open import Cubical.Categories.Instances.Sets.More
+-- open import Cubical.Categories.Yoneda
 
 private
   variable

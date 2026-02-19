@@ -9,7 +9,6 @@
 module Cubical.Categories.Displayed.Instances.Arrow.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
 open import Cubical.Data.Unit
 import      Cubical.Data.Equality as Eq
 
@@ -20,8 +19,6 @@ open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.PropertyOver

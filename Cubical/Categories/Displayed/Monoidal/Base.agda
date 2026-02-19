@@ -5,10 +5,6 @@ module Cubical.Categories.Displayed.Monoidal.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Monoidal.Base
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Morphism
-open import Cubical.Categories.NaturalTransformation.Base
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels

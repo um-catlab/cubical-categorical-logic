@@ -5,7 +5,6 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
 
-import Cubical.Categories.Category as Small
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.NaturalTransformation.Small
 open import Cubical.Categories.LocallySmall.Category.Small

@@ -7,29 +7,16 @@
 -}
 module Cubical.Categories.Displayed.Exponentials.Small where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
 open import Cubical.Categories.Exponentials
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Adjoint.More
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
-open import Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise
-open import Cubical.Categories.Displayed.BinProduct hiding (_×ᴰ_)
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct

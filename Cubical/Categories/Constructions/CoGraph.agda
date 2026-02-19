@@ -2,19 +2,6 @@
 {-# OPTIONS -W noUnsupportedIndexedMatch #-}
 module Cubical.Categories.Constructions.CoGraph where
 
--- open import Cubical.Categories.Category
--- open import Cubical.Categories.Functor
--- open import Cubical.Categories.Constructions.BinProduct
--- open import Cubical.Foundations.Prelude hiding (Square)
--- open import Cubical.Foundations.Structure
--- open import Cubical.Foundations.Function
--- open import Cubical.Foundations.HLevels
--- open import Cubical.Data.Empty as Empty
--- open import Cubical.Data.Sigma
--- open import Cubical.Data.Sum
--- open import Cubical.Categories.Profunctor.General
--- open import Cubical.Categories.Functors.HomFunctor
--- open import Cubical.Categories.Profunctor.Morphism
 
 -- private
 --   variable

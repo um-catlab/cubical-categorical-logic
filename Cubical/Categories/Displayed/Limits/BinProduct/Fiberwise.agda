@@ -3,31 +3,17 @@ module Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.More
-open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Adjoint.More
-open import Cubical.Categories.Displayed.Constructions.Slice
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
-import Cubical.Categories.Displayed.Fibration.Base as CatFib
-open import Cubical.Categories.Displayed.Presheaf.CartesianLift
-import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 

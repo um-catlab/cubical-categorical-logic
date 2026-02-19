@@ -3,11 +3,8 @@ module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
@@ -22,17 +19,11 @@ open import Cubical.Categories.LocallySmall.Constructions.BinProduct
   renaming (π₁ to ×Cπ₁ ; π₂ to ×Cπ₂)
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Functor
-open import Cubical.Categories.LocallySmall.Functor.Constant
 open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
-open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
-open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Section.Base
-open import Cubical.Categories.LocallySmall.Displayed.Section.Bisection
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base

@@ -2,25 +2,18 @@
 module Cubical.Categories.Displayed.Limits.CartesianV where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Limits.BinProduct.Base
 open import Cubical.Categories.Displayed.Limits.BinProduct.Properties
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.CartesianD
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-import Cubical.Categories.Displayed.Presheaf.CartesianLift as PshFib
 open import Cubical.Categories.Displayed.Presheaf.Constructions
 open import Cubical.Categories.Displayed.Presheaf
 

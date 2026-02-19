@@ -3,30 +3,16 @@
 module Cubical.Categories.Presheaf.More where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Transport hiding (pathToIso)
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Limits.Terminal
-open import Cubical.Categories.Constructions.Lift
-open import Cubical.Categories.Constructions.Elements
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation hiding (_∘ˡ_; _∘ˡⁱ_)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.Properties renaming (PshIso to PshIsoLift)
-open import Cubical.Categories.Yoneda
 
-open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Isomorphism.More
 
 open Functor
 open Iso

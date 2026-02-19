@@ -20,8 +20,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
-open import Cubical.HITs.Join as Join
-open import Cubical.HITs.Join.More as Join hiding (elim; elimProp)
+open import Cubical.HITs.Join as Join hiding (elim; elimProp)
 private
   variable
     ℓ ℓ' ℓ'' : Level

@@ -3,6 +3,7 @@ module Gluing.CartesianClosedCategory.Conservativity.OverCartesianCategories.For
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -24,6 +25,7 @@ open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal as Term
 open import Cubical.Categories.Limits.Terminal.More as Term
 
+open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Constructions.Free.Category.Forded as FC
 open import Cubical.Categories.Constructions.Free.CartesianCategory.Forded as FCC
 open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Forded as FCCC
@@ -40,6 +42,7 @@ open import Cubical.Categories.Displayed.Limits.CartesianV' as V'
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 import Cubical.Categories.Displayed.Instances.Terminal.Base as Unitᴰ
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
+open import Cubical.Categories.Displayed.Instances.Arrow.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Base as PshBase
   using (PRESHEAFᴰ; PSHAssoc; PSHIdL; PSHπ₁NatEq; PSH×aF-seq)
 open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Cartesian
@@ -47,6 +50,7 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.CartesianClosed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
   using (EqCCCⱽ→CCCⱽ)
+open import Cubical.Categories.Displayed.Instances.Fullness.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Presheaf.Nerve
@@ -194,10 +198,6 @@ module _ (Q : Quiver ℓQ ℓQ') where
   S = FCCC.elimLocal ×⇒Q (nerve , nerve-pres-bp) PSHᴰCartesianClosedⱽ
        (mkElimInterpᴰ OB HOM)
 
-  -- Identity elements in the displayed presheaf for each base object
-  idElemOB : (x : Q .fst) → ⟨ OB x .F-ob (ProdExpr.↑ x , tt , FREE-1,×,⇒.id) ⟩
-  idElemOB x = FREE-1,×.id , refl
-
   -- Helper: construct element of S .F-obᴰ for any expression at a point given by a CC morphism
   -- This is needed to handle product domains
   mkElem : (o Γ : ×Q.Expr) (g : FREE-1,×.C [ Γ , o ])
@@ -207,51 +207,38 @@ module _ (Q : Quiver ℓQ ℓQ') where
   mkElem (l ProdExpr.× r) Γ g =
     mkElem l Γ (g FREE-1,×.⋆ FCC.π₁' ×Q) , mkElem r Γ (g FREE-1,×.⋆ FCC.π₂' ×Q)
 
-  -- Fullness proof: recursion on the codomain structure
-  -- Uses the FCC constructors which are parameterized by ×Q = Quiver→×Quiver Q
-  ⊆-Full : isFull ⊆
-  -- Codomain is terminal: unique morphism (by terminal η in the free CC)
-  ⊆-Full o ProdExpr.⊤ f[o→o'] =
-    ∣ ((!ₑ Eq.refl) , sym (FCCC.⊤η Eq.refl f[o→o'] )) ∣₁
-  -- Codomain is base object
-  ⊆-Full (ProdExpr.↑ x) (ProdExpr.↑ y) f[o→o'] =
-    ∣ g , q ∙ FREE-1,×,⇒.C .⋆IdL _ ∣₁
+  baseFullness : ∀ y → FullnessProperty ⊆ (ProdExpr.↑ y)
+  baseFullness y o f =
+    ∣ witness .fst , witness .snd ∙ FREE-1,×,⇒.⋆IdL _ ∣₁
     where
-    witness : Σ[ g ∈ FREE-1,×.C [ ProdExpr.↑ x , ProdExpr.↑ y ] ]
-                 ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.id FREE-1,×,⇒.⋆ f[o→o']
-    witness = S .F-homᴰ f[o→o'] .N-ob
-                (ProdExpr.↑ x , tt , FREE-1,×,⇒.id) (idElemOB x)
-    g = witness .fst
-    q = witness .snd
-  ⊆-Full ProdExpr.⊤ (ProdExpr.↑ y) f[o→o'] =
-    ∣ g , q ∙ FREE-1,×,⇒.C .⋆IdL _ ∣₁
-    where
-    witness : Σ[ g ∈ FREE-1,×.C [ ProdExpr.⊤ , ProdExpr.↑ y ] ]
-                 ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.id FREE-1,×,⇒.⋆ f[o→o']
-    witness = S .F-homᴰ f[o→o'] .N-ob
-                (ProdExpr.⊤ , tt , FREE-1,×,⇒.id) tt*
-    g = witness .fst
-    q = witness .snd
-  ⊆-Full (l ProdExpr.× r) (ProdExpr.↑ y) f[o→o'] =
-    ∣ g , q ∙ FREE-1,×,⇒.C .⋆IdL _ ∣₁
-    where
-    elem : ⟨ S .F-obᴰ (⊆ ⟅ l ProdExpr.× r ⟆) .F-ob ((l ProdExpr.× r) , tt , FREE-1,×,⇒.id) ⟩
-    elem = mkElem (l ProdExpr.× r) (l ProdExpr.× r) FREE-1,×.id
+    elem = mkElem o o FREE-1,×.id
+    witness : Σ[ g ∈ FREE-1,×.C [ o , ProdExpr.↑ y ] ]
+                 ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.id FREE-1,×,⇒.⋆ f
+    witness = S .F-homᴰ f .N-ob (o , tt , FREE-1,×,⇒.id) elem
 
-    witness : Σ[ g ∈ FREE-1,×.C [ l ProdExpr.× r , ProdExpr.↑ y ] ]
-                 ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.id FREE-1,×,⇒.⋆ f[o→o']
-    witness = S .F-homᴰ f[o→o'] .N-ob ((l ProdExpr.× r) , tt , FREE-1,×,⇒.id) elem
-    g = witness .fst
-    q = witness .snd
-  -- Codomain is product: decompose using projections and use η
-  ⊆-Full o (o'₁ ProdExpr.× o'₂) f[o→o'] =
+  CartesianFullnessOver : CartesianCategoryᴰ FREE-1,× _ _
+  CartesianFullnessOver .CartesianCategoryᴰ.Cᴰ = FullnessOver ⊆
+  CartesianFullnessOver .CartesianCategoryᴰ.termᴰ .fst o f =
+    ∣ FCC.!ₑ' ×Q , sym (FCCC.⊤η Eq.refl f) ∣₁
+  CartesianFullnessOver .CartesianCategoryᴰ.termᴰ .snd .fst = _
+  CartesianFullnessOver .CartesianCategoryᴰ.termᴰ .snd .snd =
+    λ _ _ → isisoover (λ a _ → tt) (λ _ _ → refl) (λ _ _ → refl)
+  CartesianFullnessOver .CartesianCategoryᴰ.bpᴰ fullA fullB .fst o f =
     rec2 squash₁
       (λ (g₁ , p₁) (g₂ , p₂) →
         ∣ (FCC.⟨_,_⟩' ×Q) g₁ g₂ ,
           cong₂ (FCCC.⟨_,_⟩' ×⇒Q) p₁ p₂
-          ∙ sym (FCCC.×η Eq.refl f[o→o']) ∣₁)
-      (⊆-Full o o'₁ (f[o→o'] FREE-1,×,⇒.⋆ FCCC.π₁' ×⇒Q))
-      (⊆-Full o o'₂ (f[o→o'] FREE-1,×,⇒.⋆ FCCC.π₂' ×⇒Q))
+          ∙ sym (FCCC.×η Eq.refl f) ∣₁)
+      (fullA o (f FREE-1,×,⇒.⋆ FCCC.π₁' ×⇒Q))
+      (fullB o (f FREE-1,×,⇒.⋆ FCCC.π₂' ×⇒Q))
+  CartesianFullnessOver .CartesianCategoryᴰ.bpᴰ _ _ .snd .fst = _
+  CartesianFullnessOver .CartesianCategoryᴰ.bpᴰ _ _ .snd .snd =
+    λ _ _ → isisoover (λ a _ → tt) (λ _ _ → refl) (λ _ _ → refl)
+
+  ⊆-Full : isFull ⊆
+  ⊆-Full = FullnessReflection ⊆
+    (FCC.elim ×Q CartesianFullnessOver
+      (mkElimInterpᴰ baseFullness (λ _ → tt)))
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
   ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

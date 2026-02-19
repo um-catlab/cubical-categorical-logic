@@ -154,14 +154,8 @@ module _ (Q : Quiver ℓQ ℓQ') where
     PSH-CC : CartesianCategory (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)
     PSH-CC = Cartesian-PRESHEAF FREE-1,×.C ℓ
 
-    PSHᴰCartesianⱽEq : isCartesianⱽ PSHAssoc PSHᴰ
-    PSHᴰCartesianⱽEq = isCartesianⱽPSHᴰ
-
-    PSHᴰCartesianⱽ : V'.CartesianCategoryⱽ (PRESHEAF FREE-1,×.C ℓ) _ _
-    PSHᴰCartesianⱽ = EqCCⱽ→CCⱽ PSHAssoc PSHᴰ PSHᴰCartesianⱽEq
-
     PSHᴰCᴰ : Categoryᴰ (PRESHEAF FREE-1,×.C ℓ) _ _
-    PSHᴰCᴰ = V'.CartesianCategoryⱽ.Cᴰ PSHᴰCartesianⱽ
+    PSHᴰCᴰ = V'.CartesianCategoryⱽ.Cᴰ (EqCCⱽ→CCⱽ PSHAssoc PSHᴰ isCartesianⱽPSHᴰ)
 
     PSHᴰCartesianClosedⱽ : CartesianClosedCategoryⱽ PSH-CC
       (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)

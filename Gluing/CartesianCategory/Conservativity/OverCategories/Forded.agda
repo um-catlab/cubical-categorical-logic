@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Gluing.Forded.CartesianCategory.Conservativity where
+module Gluing.CartesianCategory.Conservativity.OverCategories.Forded where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

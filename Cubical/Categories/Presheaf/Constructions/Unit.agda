@@ -11,6 +11,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 private
@@ -46,3 +47,9 @@ reindPsh-Unit* : {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   → PshIso (reindPsh F Unit*Psh) (Unit*Psh {ℓ'' = ℓ})
 reindPsh-Unit* F = eqToPshIso Unit*Psh Eq.refl Eq.refl
 
+module _ {C : Category ℓ ℓ'} (P : Presheaf C ℓP) where
+  Unit× : PshIso (UnitPsh ×Psh P) P
+  Unit× .PshIso.trans = π₂ UnitPsh P
+  Unit× .PshIso.nIso x .fst = λ z → tt , z
+  Unit× .PshIso.nIso x .snd .fst = λ _ → refl
+  Unit× .PshIso.nIso x .snd .snd = λ _ → refl

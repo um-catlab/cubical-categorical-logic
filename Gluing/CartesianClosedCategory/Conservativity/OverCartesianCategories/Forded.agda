@@ -2,8 +2,6 @@
 module Gluing.CartesianClosedCategory.Conservativity.OverCartesianCategories.Forded where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -50,7 +48,9 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.CartesianClosed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
   using (EqCCCⱽ→CCCⱽ)
-open import Cubical.Categories.Displayed.Instances.Fullness.Base
+open import Cubical.Categories.Displayed.Constructions.PropertyOver
+open import Cubical.Categories.Displayed.Constructions.PropertyOver.Cartesian
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Presheaf.Nerve
@@ -201,38 +201,37 @@ module _ (Q : Quiver ℓQ ℓQ') where
   mkElem (l ProdExpr.× r) Γ g =
     mkElem l Γ (g FREE-1,×.⋆ FCC.π₁' ×Q) , mkElem r Γ (g FREE-1,×.⋆ FCC.π₂' ×Q)
 
-  baseFullness : ∀ y → FullnessProperty ⊆ (ProdExpr.↑ y)
-  baseFullness y o f =
-    ∣ witness .fst , witness .snd ∙ FREE-1,×,⇒.⋆IdL _ ∣₁
-    where
-    elem = mkElem o o FREE-1,×.id
-    witness : Σ[ g ∈ FREE-1,×.C [ o , ProdExpr.↑ y ] ]
-                 ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.id FREE-1,×,⇒.⋆ f
-    witness = S .F-homᴰ f .N-ob (o , tt , FREE-1,×,⇒.id) elem
+  private
+    FullProp : ×Q.Expr → Type _
+    FullProp y =
+      ∀ x → (f : FREE-1,×,⇒.C [ ⊆ ⟅ x ⟆ , ⊆ ⟅ y ⟆ ]) →
+        ∃[ g ∈ FREE-1,×.C [ x , y ] ] ⊆ ⟪ g ⟫ ≡ f
 
-  CartesianFullnessOver : CartesianCategoryᴰ FREE-1,× _ _
-  CartesianFullnessOver .CartesianCategoryᴰ.Cᴰ = FullnessOver ⊆
-  CartesianFullnessOver .CartesianCategoryᴰ.termᴰ .fst o f =
-    ∣ FCC.!ₑ' ×Q , sym (FCCC.⊤η Eq.refl f) ∣₁
-  CartesianFullnessOver .CartesianCategoryᴰ.termᴰ .snd .fst = _
-  CartesianFullnessOver .CartesianCategoryᴰ.termᴰ .snd .snd =
-    λ _ _ → isisoover (λ a _ → tt) (λ _ _ → refl) (λ _ _ → refl)
-  CartesianFullnessOver .CartesianCategoryᴰ.bpᴰ fullA fullB .fst o f =
-    rec2 squash₁
-      (λ (g₁ , p₁) (g₂ , p₂) →
-        ∣ (FCC.⟨_,_⟩' ×Q) g₁ g₂ ,
-          cong₂ (FCCC.⟨_,_⟩' ×⇒Q) p₁ p₂
-          ∙ sym (FCCC.×η Eq.refl f) ∣₁)
-      (fullA o (f FREE-1,×,⇒.⋆ FCCC.π₁' ×⇒Q))
-      (fullB o (f FREE-1,×,⇒.⋆ FCCC.π₂' ×⇒Q))
-  CartesianFullnessOver .CartesianCategoryᴰ.bpᴰ _ _ .snd .fst = _
-  CartesianFullnessOver .CartesianCategoryᴰ.bpᴰ _ _ .snd .snd =
-    λ _ _ → isisoover (λ a _ → tt) (λ _ _ → refl) (λ _ _ → refl)
+    FullPropCCᴰ : CartesianCategoryᴰ FREE-1,× _ _
+    FullPropCCᴰ = CartesianPropertyOver FullProp
+      (λ o f → ∣ FCC.!ₑ' ×Q , sym (FCCC.⊤η Eq.refl f) ∣₁)
+      (λ {A}{B} fullA fullB o f →
+        rec2 squash₁
+          (λ (g₁ , p₁) (g₂ , p₂) →
+            ∣ (FCC.⟨_,_⟩' ×Q) g₁ g₂ ,
+              cong₂ (FCCC.⟨_,_⟩' ×⇒Q) p₁ p₂
+              ∙ sym (FCCC.×η Eq.refl f) ∣₁)
+          (fullA o (f FREE-1,×,⇒.⋆ FCCC.π₁' ×⇒Q))
+          (fullB o (f FREE-1,×,⇒.⋆ FCCC.π₂' ×⇒Q)))
+
+    fullSection : GlobalSection (PropertyOver FREE-1,×.C FullProp)
+    fullSection = FCC.elim ×Q FullPropCCᴰ
+      (mkElimInterpᴰ baseFullness (λ _ → tt))
+      where
+      baseFullness : ∀ y → FullProp (ProdExpr.↑ y)
+      baseFullness y o f =
+        ∣ witness .fst , witness .snd ∙ FREE-1,×,⇒.⋆IdL _ ∣₁
+        where
+        elem = mkElem o o FREE-1,×.id
+        witness = S .F-homᴰ f .N-ob (o , tt , FREE-1,×,⇒.id) elem
 
   ⊆-Full : isFull ⊆
-  ⊆-Full = FullnessReflection ⊆
-    (FCC.elim ×Q CartesianFullnessOver
-      (mkElimInterpᴰ baseFullness (λ _ → tt)))
+  ⊆-Full x y f = fullSection .F-obᴰ y x f
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
   ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

@@ -39,6 +39,8 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.CartesianClosed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
   using (EqCCCⱽ→CCCⱽ)
+open import Cubical.Categories.Displayed.Constructions.PropertyOver
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Presheaf.Nerve using (Nerve; Nerve-pres-bp)
@@ -140,17 +142,20 @@ module _ (Q : Quiver ℓQ ℓQ') where
       ΣPathP (FREE .⋆Assoc _ _ _ ,
         isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
 
+  private
+    FullProp : FREE .ob → Type _
+    FullProp o' =
+      ∀ o → (f : FREE-1,×,⇒.C [ ⊆ ⟅ o ⟆ , ⊆ ⟅ o' ⟆ ]) →
+        ∃[ g ∈ FREE [ o , o' ] ] ⊆ ⟪ g ⟫ ≡ f
+
+    fullSection : GlobalSection (PropertyOver FREE FullProp)
+    fullSection =
+      mkContrHomsSection (hasContrHomsPropertyOver FREE FullProp) λ o' o f →
+        let witness = S .F-homᴰ f .N-ob (o , tt , FREE-1,×,⇒.C .id) (FREE .id , refl)
+        in ∣ witness .fst , witness .snd ∙ FREE-1,×,⇒.C .⋆IdL _ ∣₁
+
   ⊆-Full : isFull ⊆
-  ⊆-Full o o' f[o→o'] = ∣ g , q ∙ FREE-1,×,⇒.C .⋆IdL _ ∣₁
-    where
-    witness : Σ[ g ∈ FREE [ o , o' ] ] ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.C .id ⋆⟨ FREE-1,×,⇒.C ⟩ f[o→o']
-    witness = (S .F-homᴰ f[o→o'] .N-ob (o , tt , FREE-1,×,⇒.C .id)) (FREE .id , refl)
-
-    g : FREE [ o , o' ]
-    g = witness .fst
-
-    q : ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.C .id ⋆⟨ FREE-1,×,⇒.C ⟩ f[o→o']
-    q = witness .snd
+  ⊆-Full x y f = fullSection .F-obᴰ y x f
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
   ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

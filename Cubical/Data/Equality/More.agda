@@ -1,35 +1,13 @@
 module Cubical.Data.Equality.More where
 
 open import Cubical.Foundations.Prelude
-  hiding (_≡_ ; step-≡ ; _∎ ; isPropIsContr)
-  renaming ( refl      to reflPath
-           ; transport to transportPath
-           ; J         to JPath
-           ; JRefl     to JPathRefl
-           ; sym       to symPath
-           ; _∙_       to compPath
-           ; cong      to congPath
-           ; subst     to substPath
-           ; substRefl to substPathReflPath
-           ; funExt    to funExtPath
-           ; isContr   to isContrPath
-           ; isProp    to isPropPath
-           ; isSet    to isSetPath
+  renaming ( subst  to substPath
+           ; isProp to isPropPath
+           ; isSet  to isSetPath
            )
-  renaming ( fiber     to fiberPath
-           ; isEquiv   to isEquivPath
-           ; _≃_       to EquivPath
-           ; equivFun  to equivFunPath
-           ; isPropIsEquiv to isPropIsEquivPath
-           )
-  hiding   ( equivCtr
-           ; equivIsEquiv )
-  using ()
-  renaming ( Iso to IsoPath
-           ; iso to isoPath
-           ; isoToPath to isoPathToPath
-           ; isoToEquiv to isoPathToEquivPath
-           )
+  hiding ( refl ; transport ; J ; JRefl ; sym ; _∙_ ; cong
+         ; substRefl ; funExt ; isContr ; isPropIsContr
+         ; _≡_ ; step-≡ ; _∎ )
 open import Cubical.Data.Equality
 open import Cubical.Data.Sigma hiding (_≡_; ≡-×)
 

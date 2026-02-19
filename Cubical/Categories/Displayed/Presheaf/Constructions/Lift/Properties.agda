@@ -17,7 +17,6 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Lift.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
-  renaming (π to Reindexπ; reindex to CatReindex)
 
 private
   variable

@@ -12,7 +12,6 @@ open import Cubical.HITs.SetQuotients as SetQuotient
 
 open import Cubical.Categories.Constructions.Quotient as CatQuotient
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Weaken
-  hiding (rec; elim)
 open import Cubical.Categories.Constructions.Quotient.More as CatQuotient
   hiding (elim)
 open import Cubical.Categories.Displayed.Base

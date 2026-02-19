@@ -14,7 +14,6 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Base
-  renaming (π to Reindexπ; reindex to CatReindex)
 
 private
   variable

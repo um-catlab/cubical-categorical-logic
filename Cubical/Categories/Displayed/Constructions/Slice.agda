@@ -9,14 +9,11 @@ module Cubical.Categories.Displayed.Constructions.Slice where
 
 open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
-  as TotalCatᴰ hiding (introF)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Displayed.Base as Disp
-  hiding (introF)
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
   hiding (introF)
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
-  hiding (introF)
 private
   variable
     ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' : Level

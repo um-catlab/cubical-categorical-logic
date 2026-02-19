@@ -98,6 +98,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductᴰ : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
   BinProductᴰ {A}{B} A×B Aᴰ Bᴰ = UniversalElementᴰ Cᴰ _ (BinProductᴰSpec A×B Aᴰ Bᴰ) A×B
 
+  BinProductsWithᴰ : ∀ {A} (-×A : BinProductsWith C A) (Aᴰ : Cᴰ.ob[ A ]) → Type _
+  BinProductsWithᴰ -×A Aᴰ = ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → BinProductᴰ (-×A B) Bᴰ Aᴰ
+
   BinProductsᴰ : (bp : BinProducts C) → Type _
   BinProductsᴰ bp = ∀ {A B} (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → BinProductᴰ (bp (A , B)) Aᴰ Bᴰ
 

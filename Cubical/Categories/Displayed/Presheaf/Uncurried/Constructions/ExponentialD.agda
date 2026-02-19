@@ -85,7 +85,8 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
     π₂ᴰ {Γ} {Γᴰ} = Pᴰ .snd {Γ} Γᴰ .snd .fst .snd
 
     module _ {Γ A}{Γᴰ : Cᴰ.ob[ Γ ]}{Aᴰ : Cᴰ.ob[ A ]} where
-      ×-cong-introᴰ : ∀ {f f' : C [ Γ , A ]}{p p' : P.p[ Γ ]}{fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]}{fᴰ' : Cᴰ [ f' ][ Γᴰ , Aᴰ ]}
+      ×-cong-introᴰ : ∀ {f f' : C [ Γ , A ]}{p p' : P.p[ Γ ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]}{fᴰ' : Cᴰ [ f' ][ Γᴰ , Aᴰ ]}
         {pᴰ : p[ p ][ Γᴰ ]}
         {pᴰ' : p[ p' ][ Γᴰ ]}
         → fᴰ Cᴰ.∫≡ fᴰ'

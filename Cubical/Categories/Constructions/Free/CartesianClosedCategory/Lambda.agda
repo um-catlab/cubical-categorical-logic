@@ -32,6 +32,7 @@ open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 
 private
   variable
@@ -172,23 +173,24 @@ module _ (Base : Type ℓ) where
         (SINGLE (A [⇒] B)
         ⋆PshIso invPshIso (EXPONENTIAL' A B)
         ⋆PshIso reindPshIso _ (invPshIso (SINGLE B))))
-    
-    -- Universal property:
-    --   LAMBDA should be the initial "category with types"
-    --   such that types are closed under exponentials in this way
+
     module _ (Cᴰ : Categoryᴰ LAMBDA ℓCᴰ ℓCᴰ')
-      (termᴰ : Terminalᴰ Cᴰ TERMINALCTX)
       where
       private
         module Cᴰ = Categoryᴰ Cᴰ
-      module _ (ı : (A : Base) → Cᴰ.ob[ [ (↑ A) ] ]) where
+      module _
+        (termᴰ : Terminalᴰ Cᴰ TERMINALCTX)
+        (bpᴰ : ∀ {A} (Aᴰ : Cᴰ.ob[ [ A ] ]) → BinProductsWithᴰ Cᴰ (EXTENSION-× A) Aᴰ)
+        (⇒ᴰ : ∀ {A B} (Aᴰ : Cᴰ.ob[ [ A ] ])(Bᴰ : Cᴰ.ob[ [ B ] ])
+          → Exponentialᴰ Cᴰ ([ A ] , EXTENSION-× A) (Aᴰ , bpᴰ Aᴰ) Bᴰ (EXPONENTIALS A B))
+        (ı : (A : Base) → Cᴰ.ob[ [ (↑ A) ] ]) where
         elimCtx : ∀ Γ → Cᴰ.ob[ Γ ]
         elimOb : ∀ A → Cᴰ.ob[ [ A ] ]
         elimCtx [] = termᴰ .fst -- Need Terminalᴰ
-        elimCtx (x ∷ Γ) = {!!} -- Need BinProductsWithᴰ
+        elimCtx (A ∷ Γ) = bpᴰ (elimOb A) (elimCtx Γ) .fst
 
         elimOb (↑ x) = ı x
-        elimOb (A [⇒] B) = {!!} -- Need Exponentialᴰ
+        elimOb (A [⇒] B) = ⇒ᴰ (elimOb A) (elimOb B) .fst
 
         elimSubst : ∀ {Δ Γ} (γ : Subst Δ Γ) → Cᴰ.Hom[ γ ][ elimCtx Δ , elimCtx Γ ]
         elimSubst {Δ} {Γ} idS = Cᴰ.idᴰ
@@ -205,8 +207,8 @@ module _ (Base : Type ℓ) where
         elimSubst {Δ} {Γ} (∷η γ i) = {!!}
 
         elimTm : ∀ {Γ A} (M : Tm Γ A)
-          → Cᴰ.Hom[ {!!} ][ elimCtx Γ , elimCtx [ A ] ]
-        elimTm = {!!}
+          → Cᴰ.Hom[ M ∷ [] ][ elimCtx Γ , elimCtx [ A ] ]
+        elimTm M = {!!}
 
         elim : GlobalSection Cᴰ
         elim .F-obᴰ = elimCtx

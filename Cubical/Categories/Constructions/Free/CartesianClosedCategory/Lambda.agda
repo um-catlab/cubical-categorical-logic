@@ -192,26 +192,41 @@ module _ (Base : Type ℓ) where
         elimOb (↑ x) = ı x
         elimOb (A [⇒] B) = ⇒ᴰ (elimOb A) (elimOb B) .fst
 
-        elimSubst : ∀ {Δ Γ} (γ : Subst Δ Γ) → Cᴰ.Hom[ γ ][ elimCtx Δ , elimCtx Γ ]
-        elimSubst {Δ} {Γ} idS = Cᴰ.idᴰ
-        elimSubst {Δ} {Γ} (seqS γ γ₁) = elimSubst γ Cᴰ.⋆ᴰ elimSubst γ₁
-        elimSubst {Δ} {Γ} (seqAssoc γ γ₁ γ₂ i) = {!!}
-        elimSubst {Δ} {Γ} (seqIdL γ i) = {!!}
-        elimSubst {Δ} {Γ} (seqIdR γ i) = {!!}
-        elimSubst {Δ} {Γ} (isSetSubst γ γ₁ x y i i₁) = {!!}
-        elimSubst {Δ} {Γ} [] = {!!}
-        elimSubst {Δ} {Γ} ([]η γ i) = {!!}
-        elimSubst {Δ} {Γ} (M ∷ γ) = {!!}
-        elimSubst {Δ} {Γ} wk = {!!}
-        elimSubst {Δ} {Γ} (wkβ M γ i) = {!!}
-        elimSubst {Δ} {Γ} (∷η γ i) = {!!}
+        module _ (ıf : ∀ {A} (f : Constant A) → Cᴰ.Hom[ constant f ∷ [] ][ elimCtx [] , elimOb A ]) where
 
-        elimTm : ∀ {Γ A} (M : Tm Γ A)
-          → Cᴰ.Hom[ M ∷ [] ][ elimCtx Γ , elimCtx [ A ] ]
-        elimTm M = {!!}
+          elimSubst : ∀ {Δ Γ} (γ : Subst Δ Γ) → Cᴰ.Hom[ γ ][ elimCtx Δ , elimCtx Γ ]
+          elimTm : ∀ {Γ A} (M : Tm Γ A)
+            → Cᴰ.Hom[ M ∷ [] ][ elimCtx Γ , elimOb A ]
 
-        elim : GlobalSection Cᴰ
-        elim .F-obᴰ = elimCtx
-        elim .F-homᴰ = elimSubst
-        elim .F-idᴰ = refl
-        elim .F-seqᴰ f g = refl
+          elimSubst {Δ} {Γ} idS = Cᴰ.idᴰ
+          elimSubst {Δ} {Γ} (seqS γ γ₁) = elimSubst γ Cᴰ.⋆ᴰ elimSubst γ₁
+          elimSubst {Δ} {Γ} (seqAssoc γ γ₁ γ₂ i) = {!!}
+          elimSubst {Δ} {Γ} (seqIdL γ i) = {!!}
+          elimSubst {Δ} {Γ} (seqIdR γ i) = {!!}
+          elimSubst {Δ} {Γ} (isSetSubst γ γ₁ x y i i₁) = {!!}
+          elimSubst {Δ} {Γ} [] = {!!}
+          elimSubst {Δ} {Γ} ([]η γ i) = {!!}
+          elimSubst {Δ} {Γ} (M ∷ γ) = {!!}
+          elimSubst {Δ} {Γ} wk = bpᴰ (elimOb _) (elimCtx Γ) .snd .fst .fst
+          elimSubst {Δ} {Γ} (wkβ M γ i) = {!!}
+          elimSubst {Δ} {Γ} (∷η γ i) = {!!}
+
+          elimTm (constant f) = ıf f
+          elimTm (sbst γ M) = {!!}
+          elimTm (sbstAssoc δ γ M i) = {!!}
+          elimTm (sbstIdL M i) = {!!}
+          elimTm (isSetTm Γ A M M₁ x y i i₁) = {!!}
+          elimTm var = bpᴰ (elimOb _) (elimCtx _) .snd .fst .snd
+          elimTm (varβ M δ i) = {!!}
+          elimTm ([app] M M₁) = {!!}
+          elimTm ([λ] M) = {!!}
+          elimTm ([λ]-natural γ M i) = {!!}
+          elimTm ([app]-natural γ M M₁ i) = {!!}
+          elimTm ([⇒]β M i) = {!!}
+          elimTm ([⇒]η M i) = {!!}
+
+          elim : GlobalSection Cᴰ
+          elim .F-obᴰ = elimCtx
+          elim .F-homᴰ = elimSubst
+          elim .F-idᴰ = refl
+          elim .F-seqᴰ f g = refl

@@ -4,97 +4,83 @@
 <a id="106" class="Comment">{- Unfortunately this is very slow but lossy unification breaks it -}</a>
 <a id="176" class="Keyword">module</a> <a id="183" href="Cubical.Categories.Monad.Strength.Cartesian.html" class="Module">Cubical.Categories.Monad.Strength.Cartesian</a> <a id="227" class="Keyword">where</a>
 
-<a id="234" class="Comment">-- open import Cubical.Foundations.Prelude</a>
-<a id="277" class="Comment">-- open import Cubical.Categories.Category hiding (isIso)</a>
-<a id="335" class="Comment">-- open import Cubical.Categories.Constructions.BinProduct</a>
-<a id="394" class="Comment">-- open import Cubical.Categories.Functor</a>
-<a id="436" class="Comment">-- open import Cubical.Categories.NaturalTransformation</a>
-<a id="492" class="Comment">-- open import Cubical.Categories.Monad.Base</a>
-<a id="537" class="Comment">-- open import Cubical.Categories.Comonad.Base</a>
-<a id="584" class="Comment">-- open import Cubical.Categories.Comonad.Instances.Environment</a>
-<a id="648" class="Comment">-- open import Cubical.Categories.Limits.BinProduct</a>
-<a id="700" class="Comment">-- open import Cubical.Categories.Limits.BinProduct.More</a>
-<a id="757" class="Comment">-- open import Cubical.Categories.DistributiveLaw.ComonadOverMonad.Base</a>
-<a id="829" class="Comment">--open import</a>
-<a id="843" class="Comment">-- Cubical.Categories.DistributiveLaw.ComonadOverMonad.BiKleisli.Base</a>
-<a id="913" class="Comment">-- open import Cubical.Categories.Monad.Kleisli</a>
+<a id="234" class="Comment">--open import</a>
+<a id="248" class="Comment">-- Cubical.Categories.DistributiveLaw.ComonadOverMonad.BiKleisli.Base</a>
 
-<a id="962" class="Comment">-- open import Cubical.Tactics.FunctorSolver.Reflection</a>
-<a id="1018" class="Comment">-- open import Cubical.Tactics.CategorySolver.Reflection</a>
 
-<a id="1076" class="Comment">-- private</a>
-<a id="1087" class="Comment">--   variable</a>
-<a id="1101" class="Comment">--     ℓ ℓ&#39; : Level</a>
+<a id="320" class="Comment">-- private</a>
+<a id="331" class="Comment">--   variable</a>
+<a id="345" class="Comment">--     ℓ ℓ&#39; : Level</a>
 
-<a id="1122" class="Comment">-- module _ {C : Category ℓ ℓ&#39;} (bp : BinProducts C) (T : Monad C) where</a>
-<a id="1195" class="Comment">--   open Notation C bp</a>
-<a id="1219" class="Comment">--   open NatTrans</a>
-<a id="1238" class="Comment">--   StrengthTrans : Type _</a>
-<a id="1266" class="Comment">--   StrengthTrans = NatTrans (×pF ∘F (Id {C = C} ×F T .fst)) (T .fst ∘F ×pF)</a>
-<a id="1344" class="Comment">--   open Category C</a>
-<a id="1365" class="Comment">--   open Functor</a>
+<a id="366" class="Comment">-- module _ {C : Category ℓ ℓ&#39;} (bp : BinProducts C) (T : Monad C) where</a>
+<a id="439" class="Comment">--   open Notation C bp</a>
+<a id="463" class="Comment">--   open NatTrans</a>
+<a id="482" class="Comment">--   StrengthTrans : Type _</a>
+<a id="510" class="Comment">--   StrengthTrans = NatTrans (×pF ∘F (Id {C = C} ×F T .fst)) (T .fst ∘F ×pF)</a>
+<a id="588" class="Comment">--   open Category C</a>
+<a id="609" class="Comment">--   open Functor</a>
 
-<a id="1384" class="Comment">--   Env&#39; : ob → Comonad C</a>
-<a id="1411" class="Comment">--   Env&#39; Γ = Env Γ (bp Γ)</a>
+<a id="628" class="Comment">--   Env&#39; : ob → Comonad C</a>
+<a id="655" class="Comment">--   Env&#39; Γ = Env Γ (bp Γ)</a>
 
-<a id="1439" class="Comment">--   fix-Γ : ∀ Γ → StrengthTrans →</a>
-<a id="1474" class="Comment">--     NatTrans (Env&#39; Γ .fst ∘F T .fst) ((T .fst) ∘F Env&#39; Γ .fst)</a>
-<a id="1540" class="Comment">--   fix-Γ Γ σ .N-ob x = σ ⟦ Γ , x ⟧</a>
-<a id="1577" class="Comment">--   -- This is the downside of removing the id in ×pF</a>
-<a id="1632" class="Comment">--   fix-Γ Γ σ .N-hom f =</a>
-<a id="1658" class="Comment">--     cong₂ _⋆_ (sym (×pF-with-agrees Γ)) refl ∙</a>
-<a id="1708" class="Comment">--       σ .N-hom _ ∙ cong₂ _⋆_ refl (cong (T .fst ⟪_⟫) (×pF-with-agrees Γ))</a>
+<a id="683" class="Comment">--   fix-Γ : ∀ Γ → StrengthTrans →</a>
+<a id="718" class="Comment">--     NatTrans (Env&#39; Γ .fst ∘F T .fst) ((T .fst) ∘F Env&#39; Γ .fst)</a>
+<a id="784" class="Comment">--   fix-Γ Γ σ .N-ob x = σ ⟦ Γ , x ⟧</a>
+<a id="821" class="Comment">--   -- This is the downside of removing the id in ×pF</a>
+<a id="876" class="Comment">--   fix-Γ Γ σ .N-hom f =</a>
+<a id="902" class="Comment">--     cong₂ _⋆_ (sym (×pF-with-agrees Γ)) refl ∙</a>
+<a id="952" class="Comment">--       σ .N-hom _ ∙ cong₂ _⋆_ refl (cong (T .fst ⟪_⟫) (×pF-with-agrees Γ))</a>
 
-<a id="1786" class="Comment">--   Strength : Type _</a>
-<a id="1809" class="Comment">--   Strength =</a>
-<a id="1825" class="Comment">--     Σ[ σ ∈ StrengthTrans ]</a>
-<a id="1855" class="Comment">--     ∀ Γ → IsDistributiveLaw (Env&#39; Γ) T (fix-Γ Γ σ)</a>
+<a id="1030" class="Comment">--   Strength : Type _</a>
+<a id="1053" class="Comment">--   Strength =</a>
+<a id="1069" class="Comment">--     Σ[ σ ∈ StrengthTrans ]</a>
+<a id="1099" class="Comment">--     ∀ Γ → IsDistributiveLaw (Env&#39; Γ) T (fix-Γ Γ σ)</a>
 
-<a id="1910" class="Comment">--   module _ (σ : Strength) where</a>
-<a id="1945" class="Comment">--     open IsMonad (T .snd)</a>
-<a id="1974" class="Comment">--     open IsComonad</a>
-<a id="1996" class="Comment">--     open IsDistributiveLaw</a>
-<a id="2026" class="Comment">--     strength-law : (Γ : ob) → DistributiveLaw (Env&#39; Γ) T</a>
-<a id="2086" class="Comment">--     strength-law Γ = (fix-Γ Γ (σ .fst)) , (σ .snd Γ)</a>
+<a id="1154" class="Comment">--   module _ (σ : Strength) where</a>
+<a id="1189" class="Comment">--     open IsMonad (T .snd)</a>
+<a id="1218" class="Comment">--     open IsComonad</a>
+<a id="1240" class="Comment">--     open IsDistributiveLaw</a>
+<a id="1270" class="Comment">--     strength-law : (Γ : ob) → DistributiveLaw (Env&#39; Γ) T</a>
+<a id="1330" class="Comment">--     strength-law Γ = (fix-Γ Γ (σ .fst)) , (σ .snd Γ)</a>
 
-<a id="2143" class="Comment">--     change-of-base : ∀ {Δ Γ} (γ : Hom[ Δ , Γ ]) →</a>
-<a id="2196" class="Comment">--       ComonadMorphism (strength-law Γ) (strength-law Δ)</a>
-<a id="2255" class="Comment">--     change-of-base γ .fst = push bp γ</a>
-<a id="2296" class="Comment">--     change-of-base γ .snd = makeNatTransPath (funExt (λ x →</a>
-<a id="2359" class="Comment">--       (cong₂ _∘_ refl (cong₂ _×p_ refl (sym (T .fst .F-id))))</a>
-<a id="2424" class="Comment">--       ∙ σ .fst .N-hom _ -- this doesn&#39;t work with --lossy-unification</a>
-<a id="2497" class="Comment">--       ))</a>
+<a id="1387" class="Comment">--     change-of-base : ∀ {Δ Γ} (γ : Hom[ Δ , Γ ]) →</a>
+<a id="1440" class="Comment">--       ComonadMorphism (strength-law Γ) (strength-law Δ)</a>
+<a id="1499" class="Comment">--     change-of-base γ .fst = push bp γ</a>
+<a id="1540" class="Comment">--     change-of-base γ .snd = makeNatTransPath (funExt (λ x →</a>
+<a id="1603" class="Comment">--       (cong₂ _∘_ refl (cong₂ _×p_ refl (sym (T .fst .F-id))))</a>
+<a id="1668" class="Comment">--       ∙ σ .fst .N-hom _ -- this doesn&#39;t work with --lossy-unification</a>
+<a id="1741" class="Comment">--       ))</a>
 
-<a id="2510" class="Comment">--     IndexedKleisli : ∀ (Γ : ob) → Category _ _</a>
-<a id="2560" class="Comment">--     IndexedKleisli Γ = BiKleisli (Env&#39; Γ) T (strength-law Γ)</a>
+<a id="1754" class="Comment">--     IndexedKleisli : ∀ (Γ : ob) → Category _ _</a>
+<a id="1804" class="Comment">--     IndexedKleisli Γ = BiKleisli (Env&#39; Γ) T (strength-law Γ)</a>
 
-<a id="2625" class="Comment">--     -- I suppose this actually works for any comonad...</a>
-<a id="2684" class="Comment">--     wkF : (Γ : ob) → Functor (Kleisli T) (IndexedKleisli Γ)</a>
-<a id="2747" class="Comment">--     wkF Γ .F-ob x = x</a>
-<a id="2772" class="Comment">--     wkF Γ .F-hom f = f ∘ Env&#39; Γ .snd .ε ⟦ _ ⟧ -- π₂ is the counit of Env&#39;!</a>
-<a id="2850" class="Comment">--     wkF Γ .F-id = refl</a>
-<a id="2876" class="Comment">--     wkF Γ .F-seq {x}{y}{z}f g =</a>
-<a id="2911" class="Comment">--       -- μ ∘ T g ∘ f ∘ π₂</a>
-<a id="2940" class="Comment">--       sym (⋆Assoc _ _ _)</a>
-<a id="2968" class="Comment">--       -- μ ∘ T g ∘ π₂ ∘ (π₁ , f ∘ π₂)</a>
-<a id="3009" class="Comment">--       ∙ cong₂ _∘_ refl</a>
-<a id="3035" class="Comment">--         (sym ×β₂ ∙ (cong₂ _⋆_ refl (sym ((ε-law (strength-law Γ .snd))))))</a>
-<a id="3113" class="Comment">--       ∙ lem0</a>
-<a id="3129" class="Comment">--       -- μ ∘ T g ∘ T π₂ ∘ σ ∘ (π₁ , f ∘ π₂)</a>
-<a id="3176" class="Comment">--       -- μ ∘ T (g ∘ π₂) ∘ σ ∘ (π₁ , f ∘ π₂)</a>
-<a id="3223" class="Comment">--       ∙ cong₂ _∘_ refl</a>
-<a id="3249" class="Comment">--         ((cong₂ _∘_ refl (cong₂ _,p_ (sym ×β₁) (sym (⋆IdL _) ∙</a>
-<a id="3315" class="Comment">--           cong₂ _∘_ refl (sym ×β₂) ∙ ⋆Assoc _ _ _) ∙ sym ,p-natural)))</a>
-<a id="3389" class="Comment">--       -- μ ∘ T (g ∘ π₂) ∘ σ ∘ (π₁ ,p f ∘ π₂ ∘ π₂ ) ∘ (π₁ , id)</a>
-<a id="3455" class="Comment">--       where</a>
-<a id="3470" class="Comment">--         lem0 : ((μ ⟦ _ ⟧ ∘ (T .fst ⟪ g ⟫)) ∘</a>
-<a id="3518" class="Comment">--           (T .fst ⟪ Env&#39; Γ .snd .ε ⟦ _ ⟧ ⟫ ∘ σ .fst ⟦ _ ⟧) ∘</a>
-<a id="3582" class="Comment">--           (π₁ ,p (f ∘ π₂)))</a>
-<a id="3613" class="Comment">--                ≡ (bp Γ (F-ob (T .fst) y)</a>
-<a id="3657" class="Comment">--                  .BinProduct.univProp (bp Γ x .BinProduct.binProdPr₁)</a>
-<a id="3730" class="Comment">--                    (bp Γ x .BinProduct.binProdPr₂ ⋆ f)</a>
-<a id="3788" class="Comment">--                    .fst .fst ⋆ N-ob (σ .fst) (Γ , y)) ⋆ F-hom (T .fst)</a>
-<a id="3862" class="Comment">--               (bp Γ y .BinProduct.binProdPr₂ ⋆ g) ⋆ N-ob</a>
-<a id="3922" class="Comment">--               (IsMonad.μ (T .snd)) z</a>
-<a id="3962" class="Comment">--         lem0 = solveFunctor! C C (T .fst)</a>
+<a id="1869" class="Comment">--     -- I suppose this actually works for any comonad...</a>
+<a id="1928" class="Comment">--     wkF : (Γ : ob) → Functor (Kleisli T) (IndexedKleisli Γ)</a>
+<a id="1991" class="Comment">--     wkF Γ .F-ob x = x</a>
+<a id="2016" class="Comment">--     wkF Γ .F-hom f = f ∘ Env&#39; Γ .snd .ε ⟦ _ ⟧ -- π₂ is the counit of Env&#39;!</a>
+<a id="2094" class="Comment">--     wkF Γ .F-id = refl</a>
+<a id="2120" class="Comment">--     wkF Γ .F-seq {x}{y}{z}f g =</a>
+<a id="2155" class="Comment">--       -- μ ∘ T g ∘ f ∘ π₂</a>
+<a id="2184" class="Comment">--       sym (⋆Assoc _ _ _)</a>
+<a id="2212" class="Comment">--       -- μ ∘ T g ∘ π₂ ∘ (π₁ , f ∘ π₂)</a>
+<a id="2253" class="Comment">--       ∙ cong₂ _∘_ refl</a>
+<a id="2279" class="Comment">--         (sym ×β₂ ∙ (cong₂ _⋆_ refl (sym ((ε-law (strength-law Γ .snd))))))</a>
+<a id="2357" class="Comment">--       ∙ lem0</a>
+<a id="2373" class="Comment">--       -- μ ∘ T g ∘ T π₂ ∘ σ ∘ (π₁ , f ∘ π₂)</a>
+<a id="2420" class="Comment">--       -- μ ∘ T (g ∘ π₂) ∘ σ ∘ (π₁ , f ∘ π₂)</a>
+<a id="2467" class="Comment">--       ∙ cong₂ _∘_ refl</a>
+<a id="2493" class="Comment">--         ((cong₂ _∘_ refl (cong₂ _,p_ (sym ×β₁) (sym (⋆IdL _) ∙</a>
+<a id="2559" class="Comment">--           cong₂ _∘_ refl (sym ×β₂) ∙ ⋆Assoc _ _ _) ∙ sym ,p-natural)))</a>
+<a id="2633" class="Comment">--       -- μ ∘ T (g ∘ π₂) ∘ σ ∘ (π₁ ,p f ∘ π₂ ∘ π₂ ) ∘ (π₁ , id)</a>
+<a id="2699" class="Comment">--       where</a>
+<a id="2714" class="Comment">--         lem0 : ((μ ⟦ _ ⟧ ∘ (T .fst ⟪ g ⟫)) ∘</a>
+<a id="2762" class="Comment">--           (T .fst ⟪ Env&#39; Γ .snd .ε ⟦ _ ⟧ ⟫ ∘ σ .fst ⟦ _ ⟧) ∘</a>
+<a id="2826" class="Comment">--           (π₁ ,p (f ∘ π₂)))</a>
+<a id="2857" class="Comment">--                ≡ (bp Γ (F-ob (T .fst) y)</a>
+<a id="2901" class="Comment">--                  .BinProduct.univProp (bp Γ x .BinProduct.binProdPr₁)</a>
+<a id="2974" class="Comment">--                    (bp Γ x .BinProduct.binProdPr₂ ⋆ f)</a>
+<a id="3032" class="Comment">--                    .fst .fst ⋆ N-ob (σ .fst) (Γ , y)) ⋆ F-hom (T .fst)</a>
+<a id="3106" class="Comment">--               (bp Γ y .BinProduct.binProdPr₂ ⋆ g) ⋆ N-ob</a>
+<a id="3166" class="Comment">--               (IsMonad.μ (T .snd)) z</a>
+<a id="3206" class="Comment">--         lem0 = solveFunctor! C C (T .fst)</a>
 </pre></body></html>

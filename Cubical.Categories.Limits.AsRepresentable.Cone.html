@@ -3,26 +3,14 @@
 
 <a id="38" class="Keyword">module</a> <a id="45" href="Cubical.Categories.Limits.AsRepresentable.Cone.html" class="Module">Cubical.Categories.Limits.AsRepresentable.Cone</a> <a id="92" class="Keyword">where</a>
 
-<a id="99" class="Comment">-- open import Cubical.Foundations.Prelude</a>
-<a id="142" class="Comment">-- open import Cubical.Categories.Category renaming (isIso to isIsoC)</a>
-<a id="212" class="Comment">-- open import Cubical.Categories.Constructions.BinProduct</a>
-<a id="271" class="Comment">-- open import Cubical.Categories.Functor.Base</a>
-<a id="318" class="Comment">-- open import Cubical.Categories.NaturalTransformation.Base</a>
-<a id="379" class="Comment">-- open import Cubical.Categories.NaturalTransformation.Properties</a>
-<a id="446" class="Comment">-- open import Cubical.Categories.Instances.Functors</a>
-<a id="499" class="Comment">-- open import Cubical.Categories.Functors.HomFunctor</a>
-<a id="553" class="Comment">-- open import Cubical.Categories.Functors.Constant</a>
-<a id="605" class="Comment">-- open import Cubical.Categories.Presheaf.Representable</a>
-
-<a id="663" class="Comment">-- open import Cubical.Categories.Instances.Functors.More</a>
-<a id="721" class="Comment">-- open import Cubical.Categories.Profunctor.General</a>
 
 
-<a id="776" class="Comment">-- module _ {ℓj}{ℓj&#39;}{ℓc}{ℓc&#39;}(J : Category ℓj ℓj&#39;)(C : Category ℓc ℓc&#39;) where</a>
-<a id="855" class="Comment">--   -- In point-wise notation</a>
-<a id="886" class="Comment">--   -- CONE c D = NatTrans (J -&gt; Set) (Konst c) D</a>
-<a id="937" class="Comment">--   CONE : (FUNCTOR J C) *-[ ℓ-max (ℓ-max ℓj ℓj&#39;) ℓc&#39; ]-o C</a>
-<a id="998" class="Comment">--   CONE = HomFunctor (FUNCTOR J C) ∘F</a>
-<a id="1038" class="Comment">--          ((_^opF {C = C}{D = FUNCTOR J C}</a>
-<a id="1083" class="Comment">--            (λF J C (Fst C J))) ×F Id {C = FUNCTOR J C})</a>
+
+<a id="102" class="Comment">-- module _ {ℓj}{ℓj&#39;}{ℓc}{ℓc&#39;}(J : Category ℓj ℓj&#39;)(C : Category ℓc ℓc&#39;) where</a>
+<a id="181" class="Comment">--   -- In point-wise notation</a>
+<a id="212" class="Comment">--   -- CONE c D = NatTrans (J -&gt; Set) (Konst c) D</a>
+<a id="263" class="Comment">--   CONE : (FUNCTOR J C) *-[ ℓ-max (ℓ-max ℓj ℓj&#39;) ℓc&#39; ]-o C</a>
+<a id="324" class="Comment">--   CONE = HomFunctor (FUNCTOR J C) ∘F</a>
+<a id="364" class="Comment">--          ((_^opF {C = C}{D = FUNCTOR J C}</a>
+<a id="409" class="Comment">--            (λF J C (Fst C J))) ×F Id {C = FUNCTOR J C})</a>
 </pre></body></html>

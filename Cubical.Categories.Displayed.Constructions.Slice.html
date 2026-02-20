@@ -8,107 +8,84 @@
 
 <a id="99" class="Keyword">module</a> <a id="106" href="Cubical.Categories.Displayed.Constructions.Slice.html" class="Module">Cubical.Categories.Displayed.Constructions.Slice</a> <a id="155" class="Keyword">where</a>
 
-<a id="162" class="Keyword">open</a> <a id="167" class="Keyword">import</a> <a id="174" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
-<a id="202" class="Keyword">open</a> <a id="207" class="Keyword">import</a> <a id="214" href="Cubical.Foundations.HLevels.html" class="Module">Cubical.Foundations.HLevels</a>
-<a id="242" class="Keyword">open</a> <a id="247" class="Keyword">import</a> <a id="254" href="Cubical.Data.Sigma.html" class="Module">Cubical.Data.Sigma</a>
-<a id="273" class="Keyword">open</a> <a id="278" class="Keyword">import</a> <a id="285" href="Cubical.Data.Unit.html" class="Module">Cubical.Data.Unit</a>
-<a id="303" class="Keyword">import</a>      <a id="315" href="Cubical.Data.Equality.html" class="Module">Cubical.Data.Equality</a> <a id="337" class="Symbol">as</a> <a id="340" class="Module">Eq</a>
-<a id="343" class="Keyword">open</a> <a id="348" class="Keyword">import</a> <a id="355" href="Cubical.Categories.Category.Base.html" class="Module">Cubical.Categories.Category.Base</a>
-<a id="388" class="Keyword">open</a> <a id="393" class="Keyword">import</a> <a id="400" href="Cubical.Categories.Morphism.html" class="Module">Cubical.Categories.Morphism</a>
-<a id="428" class="Keyword">open</a> <a id="433" class="Keyword">import</a> <a id="440" href="Cubical.Categories.NaturalTransformation.html" class="Module">Cubical.Categories.NaturalTransformation</a>
-<a id="481" class="Keyword">open</a> <a id="486" class="Keyword">import</a> <a id="493" href="Cubical.Categories.Constructions.TotalCategory.html" class="Module">Cubical.Categories.Constructions.TotalCategory</a> <a id="540" class="Symbol">as</a> <a id="543" class="Module">TotalCat</a>
-<a id="552" class="Keyword">open</a> <a id="557" class="Keyword">import</a> <a id="564" href="Cubical.Categories.Displayed.Constructions.PropertyOver.html" class="Module">Cubical.Categories.Displayed.Constructions.PropertyOver</a>
-<a id="620" class="Keyword">open</a> <a id="625" class="Keyword">import</a> <a id="632" href="Cubical.Categories.Displayed.Constructions.TotalCategory.html" class="Module">Cubical.Categories.Displayed.Constructions.TotalCategory</a>
-  <a id="691" class="Symbol">as</a> <a id="694" class="Module">TotalCatᴰ</a> <a id="704" class="Keyword">hiding</a> <a id="711" class="Symbol">(</a><a id="712" href="Cubical.Categories.Displayed.Constructions.TotalCategory.html#3970" class="Function">introF</a><a id="718" class="Symbol">)</a>
-<a id="720" class="Keyword">open</a> <a id="725" class="Keyword">import</a> <a id="732" href="Cubical.Categories.Constructions.BinProduct.html" class="Module">Cubical.Categories.Constructions.BinProduct</a> <a id="776" class="Symbol">as</a> <a id="779" class="Module">BP</a>
-<a id="782" class="Keyword">open</a> <a id="787" class="Keyword">import</a> <a id="794" href="Cubical.Categories.Constructions.BinProduct.More.html" class="Module">Cubical.Categories.Constructions.BinProduct.More</a> <a id="843" class="Symbol">as</a> <a id="846" class="Module">BP</a>
-<a id="849" class="Keyword">open</a> <a id="854" class="Keyword">import</a> <a id="861" href="Cubical.Categories.Functor.Base.html" class="Module">Cubical.Categories.Functor.Base</a>
-<a id="893" class="Keyword">open</a> <a id="898" class="Keyword">import</a> <a id="905" href="Cubical.Categories.Displayed.Base.html" class="Module">Cubical.Categories.Displayed.Base</a> <a id="939" class="Symbol">as</a> <a id="942" class="Module">Disp</a>
-<a id="947" class="Keyword">open</a> <a id="952" class="Keyword">import</a> <a id="959" href="Cubical.Categories.Displayed.Constructions.Weaken.Base.html" class="Module">Cubical.Categories.Displayed.Constructions.Weaken.Base</a> <a id="1014" class="Symbol">as</a> <a id="1017" class="Module">Wk</a>
-  <a id="1022" class="Keyword">hiding</a> <a id="1029" class="Symbol">(</a><a id="1030" href="Cubical.Categories.Displayed.Constructions.Weaken.Base.html#1892" class="Function">introF</a><a id="1036" class="Symbol">)</a>
-<a id="1038" class="Keyword">open</a> <a id="1043" class="Keyword">import</a> <a id="1050" href="Cubical.Categories.Displayed.Constructions.Reindex.Eq.html" class="Module">Cubical.Categories.Displayed.Constructions.Reindex.Eq</a> <a id="1104" class="Symbol">as</a> <a id="1107" class="Module">Reindex</a>
-<a id="1115" class="Keyword">open</a> <a id="1120" class="Keyword">import</a> <a id="1127" href="Cubical.Categories.Displayed.BinProduct.html" class="Module">Cubical.Categories.Displayed.BinProduct</a>
-<a id="1167" class="Keyword">open</a> <a id="1172" class="Keyword">import</a> <a id="1179" href="Cubical.Categories.Displayed.Constructions.BinProduct.More.html" class="Module">Cubical.Categories.Displayed.Constructions.BinProduct.More</a> <a id="1238" class="Symbol">as</a> <a id="1241" class="Module">BPᴰ</a>
-  <a id="1247" class="Keyword">hiding</a> <a id="1254" class="Symbol">(</a><a id="1255" href="Cubical.Categories.Displayed.Constructions.BinProduct.More.html#4857" class="Function">introF</a><a id="1261" class="Symbol">)</a>
-<a id="1263" class="Keyword">open</a> <a id="1268" class="Keyword">import</a> <a id="1275" href="Cubical.Categories.Displayed.Functor.html" class="Module">Cubical.Categories.Displayed.Functor</a>
-<a id="1312" class="Keyword">open</a> <a id="1317" class="Keyword">import</a> <a id="1324" href="Cubical.Categories.Displayed.Functor.More.html" class="Module">Cubical.Categories.Displayed.Functor.More</a>
-<a id="1366" class="Keyword">open</a> <a id="1371" class="Keyword">import</a> <a id="1378" href="Cubical.Categories.Displayed.Instances.Arrow.html" class="Module">Cubical.Categories.Displayed.Instances.Arrow</a>
-<a id="1423" class="Keyword">open</a> <a id="1428" class="Keyword">import</a> <a id="1435" href="Cubical.Categories.Displayed.Instances.Terminal.html" class="Module">Cubical.Categories.Displayed.Instances.Terminal</a> <a id="1483" class="Symbol">as</a> <a id="1486" class="Module">Unitᴰ</a>
-  <a id="1494" class="Keyword">hiding</a> <a id="1501" class="Symbol">(</a><a id="1502" href="Cubical.Categories.Displayed.Instances.Terminal.Properties.html#1101" class="Function">introF</a><a id="1508" class="Symbol">)</a>
-<a id="1510" class="Keyword">open</a> <a id="1515" class="Keyword">import</a> <a id="1522" href="Cubical.Categories.Displayed.HLevels.html" class="Module">Cubical.Categories.Displayed.HLevels</a>
-<a id="1559" class="Keyword">open</a> <a id="1564" class="Keyword">import</a> <a id="1571" href="Cubical.Categories.Displayed.Reasoning.html" class="Module">Cubical.Categories.Displayed.Reasoning</a>
-<a id="1610" class="Keyword">open</a> <a id="1615" class="Keyword">import</a> <a id="1622" href="Cubical.Categories.Displayed.Section.Base.html" class="Module">Cubical.Categories.Displayed.Section.Base</a>
-<a id="1664" class="Keyword">private</a>
-  <a id="1674" class="Keyword">variable</a>
-    <a id="1687" href="Cubical.Categories.Displayed.Constructions.Slice.html#1687" class="Generalizable">ℓC</a> <a id="1690" href="Cubical.Categories.Displayed.Constructions.Slice.html#1690" class="Generalizable">ℓC&#39;</a> <a id="1694" href="Cubical.Categories.Displayed.Constructions.Slice.html#1694" class="Generalizable">ℓCᴰ</a> <a id="1698" href="Cubical.Categories.Displayed.Constructions.Slice.html#1698" class="Generalizable">ℓCᴰ&#39;</a> <a id="1703" href="Cubical.Categories.Displayed.Constructions.Slice.html#1703" class="Generalizable">ℓD</a> <a id="1706" href="Cubical.Categories.Displayed.Constructions.Slice.html#1706" class="Generalizable">ℓD&#39;</a> <a id="1710" href="Cubical.Categories.Displayed.Constructions.Slice.html#1710" class="Generalizable">ℓDᴰ</a> <a id="1714" href="Cubical.Categories.Displayed.Constructions.Slice.html#1714" class="Generalizable">ℓDᴰ&#39;</a> <a id="1719" class="Symbol">:</a> <a id="1721" href="Agda.Primitive.html#742" class="Postulate">Level</a>
+<a id="162" class="Keyword">open</a> <a id="167" class="Keyword">import</a> <a id="174" href="Cubical.Data.Sigma.html" class="Module">Cubical.Data.Sigma</a>
+<a id="193" class="Keyword">open</a> <a id="198" class="Keyword">import</a> <a id="205" href="Cubical.Categories.Category.Base.html" class="Module">Cubical.Categories.Category.Base</a>
+<a id="238" class="Keyword">open</a> <a id="243" class="Keyword">import</a> <a id="250" href="Cubical.Categories.Functor.Base.html" class="Module">Cubical.Categories.Functor.Base</a>
+<a id="282" class="Keyword">open</a> <a id="287" class="Keyword">import</a> <a id="294" href="Cubical.Categories.Displayed.Base.html" class="Module">Cubical.Categories.Displayed.Base</a> <a id="328" class="Symbol">as</a> <a id="331" class="Module">Disp</a>
+<a id="336" class="Keyword">open</a> <a id="341" class="Keyword">import</a> <a id="348" href="Cubical.Categories.Displayed.Constructions.BinProduct.More.html" class="Module">Cubical.Categories.Displayed.Constructions.BinProduct.More</a> <a id="407" class="Symbol">as</a> <a id="410" class="Module">BPᴰ</a>
+  <a id="416" class="Keyword">hiding</a> <a id="423" class="Symbol">(</a><a id="424" href="Cubical.Categories.Displayed.Constructions.BinProduct.More.html#4776" class="Function">introF</a><a id="430" class="Symbol">)</a>
+<a id="432" class="Keyword">open</a> <a id="437" class="Keyword">import</a> <a id="444" href="Cubical.Categories.Displayed.Instances.Terminal.html" class="Module">Cubical.Categories.Displayed.Instances.Terminal</a> <a id="492" class="Symbol">as</a> <a id="495" class="Module">Unitᴰ</a>
+<a id="501" class="Keyword">private</a>
+  <a id="511" class="Keyword">variable</a>
+    <a id="524" href="Cubical.Categories.Displayed.Constructions.Slice.html#524" class="Generalizable">ℓC</a> <a id="527" href="Cubical.Categories.Displayed.Constructions.Slice.html#527" class="Generalizable">ℓC&#39;</a> <a id="531" href="Cubical.Categories.Displayed.Constructions.Slice.html#531" class="Generalizable">ℓCᴰ</a> <a id="535" href="Cubical.Categories.Displayed.Constructions.Slice.html#535" class="Generalizable">ℓCᴰ&#39;</a> <a id="540" href="Cubical.Categories.Displayed.Constructions.Slice.html#540" class="Generalizable">ℓD</a> <a id="543" href="Cubical.Categories.Displayed.Constructions.Slice.html#543" class="Generalizable">ℓD&#39;</a> <a id="547" href="Cubical.Categories.Displayed.Constructions.Slice.html#547" class="Generalizable">ℓDᴰ</a> <a id="551" href="Cubical.Categories.Displayed.Constructions.Slice.html#551" class="Generalizable">ℓDᴰ&#39;</a> <a id="556" class="Symbol">:</a> <a id="558" href="Agda.Primitive.html#742" class="Postulate">Level</a>
 
-<a id="1728" class="Keyword">open</a> <a id="1733" href="Cubical.Categories.Category.Base.html#311" class="Module">Category</a>
-<a id="1742" class="Keyword">open</a> <a id="1747" href="Cubical.Categories.Displayed.Base.html#370" class="Module">Categoryᴰ</a>
-<a id="1757" class="Keyword">open</a> <a id="1762" href="Cubical.Categories.Functor.Base.html#418" class="Module">Functor</a>
+<a id="565" class="Keyword">open</a> <a id="570" href="Cubical.Categories.Category.Base.html#311" class="Module">Category</a>
+<a id="579" class="Keyword">open</a> <a id="584" href="Cubical.Categories.Displayed.Base.html#370" class="Module">Categoryᴰ</a>
+<a id="594" class="Keyword">open</a> <a id="599" href="Cubical.Categories.Functor.Base.html#418" class="Module">Functor</a>
 
-<a id="1771" class="Comment">-- Do we actually need this?</a>
-<a id="1800" class="Comment">-- module _ (C : Category ℓC ℓC&#39;) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ&#39;) where</a>
-<a id="1868" class="Comment">--   private module Slice = EqReindex Cᴰ {!!} {!!} {!!} -- Eq.refl (λ _ _ → Eq.refl)</a>
-<a id="1953" class="Comment">--   -- See test below for the intuitive definition</a>
-<a id="2005" class="Comment">--   _/C_ : Categoryᴰ C _ _</a>
-<a id="2033" class="Comment">--   _/C_ = ∫Cᴰ (weaken C C) ({!!} ×ᴰ {!!}) -- (Cᴰ&#39; ×ᴰ Arrow C)</a>
-<a id="2097" class="Comment">--     where Cᴰ&#39; = Slice.reindex</a>
+<a id="608" class="Comment">-- Do we actually need this?</a>
+<a id="637" class="Comment">-- module _ (C : Category ℓC ℓC&#39;) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ&#39;) where</a>
+<a id="705" class="Comment">--   private module Slice = EqReindex Cᴰ {!!} {!!} {!!} -- Eq.refl (λ _ _ → Eq.refl)</a>
+<a id="790" class="Comment">--   -- See test below for the intuitive definition</a>
+<a id="842" class="Comment">--   _/C_ : Categoryᴰ C _ _</a>
+<a id="870" class="Comment">--   _/C_ = ∫Cᴰ (weaken C C) ({!!} ×ᴰ {!!}) -- (Cᴰ&#39; ×ᴰ Arrow C)</a>
+<a id="934" class="Comment">--     where Cᴰ&#39; = Slice.reindex</a>
 
-<a id="2131" class="Comment">--   module _ {D : Category ℓD ℓD&#39;}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ&#39;}</a>
-<a id="2194" class="Comment">--     {F : Functor D C}</a>
-<a id="2219" class="Comment">--     (Fᴰ₁ : Functor D C)</a>
-<a id="2246" class="Comment">--     (Fᴰ₂ : Functorᴰ Fᴰ₁ Dᴰ Cᴰ)</a>
-<a id="2280" class="Comment">--     (Fᴰ₃ : F ⇒ Fᴰ₁)</a>
-<a id="2303" class="Comment">--     where</a>
-<a id="2316" class="Comment">--     -- NOTE: this is not the most general introduction rule possible.</a>
-<a id="2389" class="Comment">--     -- A more general version would allow Fᴰ₁ to depend on Dᴰ as well.</a>
-<a id="2463" class="Comment">--     introF : Functorᴰ F Dᴰ _/C_</a>
-<a id="2498" class="Comment">--     introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁)</a>
-<a id="2553" class="Comment">--       (BPᴰ.introS _</a>
-<a id="2576" class="Comment">--         (Slice.introS _ (reindS&#39; (Eq.refl , Eq.refl) (TotalCat.elim Fᴰ₂)))</a>
-<a id="2654" class="Comment">--         (reindS&#39; (Eq.refl , Eq.refl)</a>
-<a id="2694" class="Comment">--           (compSectionFunctor (arrIntroS {F1 = F} {F2 = Fᴰ₁} Fᴰ₃)</a>
-<a id="2763" class="Comment">--             (TotalCat.Fst {Cᴰ = Dᴰ}))))</a>
+<a id="968" class="Comment">--   module _ {D : Category ℓD ℓD&#39;}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ&#39;}</a>
+<a id="1031" class="Comment">--     {F : Functor D C}</a>
+<a id="1056" class="Comment">--     (Fᴰ₁ : Functor D C)</a>
+<a id="1083" class="Comment">--     (Fᴰ₂ : Functorᴰ Fᴰ₁ Dᴰ Cᴰ)</a>
+<a id="1117" class="Comment">--     (Fᴰ₃ : F ⇒ Fᴰ₁)</a>
+<a id="1140" class="Comment">--     where</a>
+<a id="1153" class="Comment">--     -- NOTE: this is not the most general introduction rule possible.</a>
+<a id="1226" class="Comment">--     -- A more general version would allow Fᴰ₁ to depend on Dᴰ as well.</a>
+<a id="1300" class="Comment">--     introF : Functorᴰ F Dᴰ _/C_</a>
+<a id="1335" class="Comment">--     introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁)</a>
+<a id="1390" class="Comment">--       (BPᴰ.introS _</a>
+<a id="1413" class="Comment">--         (Slice.introS _ (reindS&#39; (Eq.refl , Eq.refl) (TotalCat.elim Fᴰ₂)))</a>
+<a id="1491" class="Comment">--         (reindS&#39; (Eq.refl , Eq.refl)</a>
+<a id="1531" class="Comment">--           (compSectionFunctor (arrIntroS {F1 = F} {F2 = Fᴰ₁} Fᴰ₃)</a>
+<a id="1600" class="Comment">--             (TotalCat.Fst {Cᴰ = Dᴰ}))))</a>
 
-<a id="2807" class="Comment">--   private</a>
-<a id="2820" class="Comment">--     open Category</a>
-<a id="2841" class="Comment">--     open Categoryᴰ</a>
-<a id="2863" class="Comment">--     test : ∀ {c} → _/C_ .ob[_] c ≡ (Σ[ c&#39; ∈ C .ob ] Cᴰ .ob[_] c&#39; × C [ c , c&#39; ])</a>
-<a id="2947" class="Comment">--     test = refl</a>
+<a id="1644" class="Comment">--   private</a>
+<a id="1657" class="Comment">--     open Category</a>
+<a id="1678" class="Comment">--     open Categoryᴰ</a>
+<a id="1700" class="Comment">--     test : ∀ {c} → _/C_ .ob[_] c ≡ (Σ[ c&#39; ∈ C .ob ] Cᴰ .ob[_] c&#39; × C [ c , c&#39; ])</a>
+<a id="1784" class="Comment">--     test = refl</a>
 
-<a id="2967" class="Comment">--   Δ/C : Functorᴰ Id Cᴰ _/C_</a>
-<a id="2998" class="Comment">--   Δ/C = introF Id 𝟙ᴰ⟨ Cᴰ ⟩ (idTrans Id)</a>
+<a id="1804" class="Comment">--   Δ/C : Functorᴰ Id Cᴰ _/C_</a>
+<a id="1835" class="Comment">--   Δ/C = introF Id 𝟙ᴰ⟨ Cᴰ ⟩ (idTrans Id)</a>
 
-<a id="3042" class="Comment">--   private</a>
-<a id="3055" class="Comment">--     open Functorᴰ</a>
-<a id="3076" class="Comment">--     _ : ∀ c (cᴰ : Cᴰ .ob[_] c) → Δ/C .F-obᴰ cᴰ ≡ (c , (cᴰ , C .id))</a>
-<a id="3147" class="Comment">--     _ = λ c cᴰ → refl</a>
+<a id="1879" class="Comment">--   private</a>
+<a id="1892" class="Comment">--     open Functorᴰ</a>
+<a id="1913" class="Comment">--     _ : ∀ c (cᴰ : Cᴰ .ob[_] c) → Δ/C .F-obᴰ cᴰ ≡ (c , (cᴰ , C .id))</a>
+<a id="1984" class="Comment">--     _ = λ c cᴰ → refl</a>
 
-<a id="3173" class="Comment">-- -- module _ {C : Category ℓC ℓC&#39;} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ&#39;}</a>
-<a id="3238" class="Comment">-- --   {D : Category ℓD ℓD&#39;} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ&#39;}</a>
-<a id="3296" class="Comment">-- --   {F : Functor C D}</a>
-<a id="3322" class="Comment">-- --   (Fᴰ₁ : Functor C D)</a>
-<a id="3350" class="Comment">-- --   where</a>
-<a id="3364" class="Comment">-- --   introF : Functorᴰ F Cᴰ (D /C Dᴰ)</a>
-<a id="3405" class="Comment">-- --   introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁) {!Slice.introS!}</a>
+<a id="2010" class="Comment">-- -- module _ {C : Category ℓC ℓC&#39;} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ&#39;}</a>
+<a id="2075" class="Comment">-- --   {D : Category ℓD ℓD&#39;} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ&#39;}</a>
+<a id="2133" class="Comment">-- --   {F : Functor C D}</a>
+<a id="2159" class="Comment">-- --   (Fᴰ₁ : Functor C D)</a>
+<a id="2187" class="Comment">-- --   where</a>
+<a id="2201" class="Comment">-- --   introF : Functorᴰ F Cᴰ (D /C Dᴰ)</a>
+<a id="2242" class="Comment">-- --   introF = TotalCatᴰ.introF _ _ (Wk.introF F Fᴰ₁) {!Slice.introS!}</a>
 
-<a id="3479" class="Comment">-- module _ (C : Category ℓC ℓC&#39;) where</a>
-<a id="3519" class="Comment">--   -- Slices .ob[ c ] = Σ[ c&#39; ∈ C .ob] C [ c&#39; , c ]</a>
-<a id="3573" class="Comment">--   Slices : Categoryᴰ C (ℓ-max ℓC ℓC&#39;) (ℓ-max ℓC&#39; ℓC&#39;)</a>
-<a id="3630" class="Comment">--   Slices = ∫Cᴰ (weaken C C) (Arrow C)</a>
+<a id="2316" class="Comment">-- module _ (C : Category ℓC ℓC&#39;) where</a>
+<a id="2356" class="Comment">--   -- Slices .ob[ c ] = Σ[ c&#39; ∈ C .ob] C [ c&#39; , c ]</a>
+<a id="2410" class="Comment">--   Slices : Categoryᴰ C (ℓ-max ℓC ℓC&#39;) (ℓ-max ℓC&#39; ℓC&#39;)</a>
+<a id="2467" class="Comment">--   Slices = ∫Cᴰ (weaken C C) (Arrow C)</a>
 
-<a id="3672" class="Comment">--   private</a>
-<a id="3685" class="Comment">--     open Category</a>
-<a id="3706" class="Comment">--     open Categoryᴰ</a>
-<a id="3728" class="Comment">--     test : ∀ {c} → Slices .ob[_] c ≡ (Σ[ c&#39; ∈ C .ob ] C [ c , c&#39; ])</a>
-<a id="3799" class="Comment">--     test = refl</a>
+<a id="2509" class="Comment">--   private</a>
+<a id="2522" class="Comment">--     open Category</a>
+<a id="2543" class="Comment">--     open Categoryᴰ</a>
+<a id="2565" class="Comment">--     test : ∀ {c} → Slices .ob[_] c ≡ (Σ[ c&#39; ∈ C .ob ] C [ c , c&#39; ])</a>
+<a id="2636" class="Comment">--     test = refl</a>
 
-<a id="3819" class="Comment">--   Subobjects : Categoryᴰ C _ _</a>
-<a id="3853" class="Comment">--   Subobjects = ∫Cᴰ (weaken C C) (Mono C)</a>
-<a id="3897" class="Comment">--   private</a>
-<a id="3910" class="Comment">--     open Category</a>
-<a id="3931" class="Comment">--     open Categoryᴰ</a>
-<a id="3953" class="Comment">--     test&#39; : ∀ {c} → Subobjects .ob[_] c</a>
-<a id="3996" class="Comment">--       ≡ (Σ[ c&#39; ∈ C .ob ] Σ[ f ∈ C [ c , c&#39; ] ] isMonic C f)</a>
-<a id="4059" class="Comment">--     test&#39; = refl</a>
+<a id="2656" class="Comment">--   Subobjects : Categoryᴰ C _ _</a>
+<a id="2690" class="Comment">--   Subobjects = ∫Cᴰ (weaken C C) (Mono C)</a>
+<a id="2734" class="Comment">--   private</a>
+<a id="2747" class="Comment">--     open Category</a>
+<a id="2768" class="Comment">--     open Categoryᴰ</a>
+<a id="2790" class="Comment">--     test&#39; : ∀ {c} → Subobjects .ob[_] c</a>
+<a id="2833" class="Comment">--       ≡ (Σ[ c&#39; ∈ C .ob ] Σ[ f ∈ C [ c , c&#39; ] ] isMonic C f)</a>
+<a id="2896" class="Comment">--     test&#39; = refl</a>
 </pre></body></html>

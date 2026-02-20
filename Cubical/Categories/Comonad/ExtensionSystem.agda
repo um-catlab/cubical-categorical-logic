@@ -8,12 +8,7 @@ module Cubical.Categories.Comonad.ExtensionSystem where
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Monad.Base
 import Cubical.Categories.Monad.ExtensionSystem as MES
 
 private

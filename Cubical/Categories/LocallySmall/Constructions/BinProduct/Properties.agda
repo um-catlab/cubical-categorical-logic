@@ -1,14 +1,10 @@
 module Cubical.Categories.LocallySmall.Constructions.BinProduct.Properties where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
-open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base

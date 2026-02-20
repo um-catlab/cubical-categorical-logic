@@ -3,10 +3,6 @@ module Cubical.Categories.Displayed.Instances.Presheaf.Limits where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -14,20 +10,15 @@ open import Cubical.Data.Unit
 open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.Elements
-open import Cubical.Categories.Limits.Terminal
-open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Presheaf.CCC
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Reasoning
 open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Presheaf hiding (PRESHEAFᴰ)
-open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Properties
 

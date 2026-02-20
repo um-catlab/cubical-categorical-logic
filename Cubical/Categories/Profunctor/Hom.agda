@@ -2,24 +2,16 @@
 module Cubical.Categories.Profunctor.Hom where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Structure
 open import Cubical.Categories.Category
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Functors.More
-open import Cubical.Categories.Instances.Functors.More
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.Relators
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
-open import Cubical.Categories.Profunctor.Homomorphism.Unary
-open import Cubical.Categories.Bifunctor as Bif
 
 private
   variable

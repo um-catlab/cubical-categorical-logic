@@ -2,17 +2,13 @@
 
 module Cubical.Categories.Monoidal.Dual where
 
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
-open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More hiding (α)
-open import Cubical.Categories.Instances.Functors.More
 open import Cubical.Categories.Constructions.BinProduct as BP
 
 private

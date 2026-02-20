@@ -1,17 +1,8 @@
 module Cubical.Categories.LocallySmall.Functor.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Dependent
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.More
-open import Cubical.Foundations.Isomorphism hiding (isIso)
-open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
-open import Cubical.Data.Unit
 
 import Cubical.Categories.Category as Small
 import Cubical.Categories.Functor as SmallF
@@ -20,7 +11,6 @@ open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
 open import Cubical.Categories.LocallySmall.Variables
 
-open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 
 open CatIso
 

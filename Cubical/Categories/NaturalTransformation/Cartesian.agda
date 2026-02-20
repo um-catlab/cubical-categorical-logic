@@ -3,24 +3,12 @@
 
 module Cubical.Categories.NaturalTransformation.Cartesian where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
-import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Functor.Equality
-open import Cubical.Categories.Functor.Properties
-open import Cubical.Categories.Morphism
-open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
 open import Cubical.Categories.Limits.Pullback
 
-open import Cubical.Categories.Instances.Functors
 
 private
   variable

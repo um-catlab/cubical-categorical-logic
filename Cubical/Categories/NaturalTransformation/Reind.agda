@@ -1,23 +1,13 @@
 
 module Cubical.Categories.NaturalTransformation.Reind where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Univalence
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism renaming (iso to iIso)
 open import Cubical.Data.Sigma
-import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Equality
-open import Cubical.Categories.Functor.Properties
 open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Morphism
-open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.NaturalTransformation.Properties
 
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Arrow
 

@@ -3,7 +3,6 @@ module Cubical.Categories.Constructions.Free.CategoryWithTerminal where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
@@ -22,7 +21,6 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Weaken as Wk
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Constructions.Reindex.Limits as Reindex
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 
 private

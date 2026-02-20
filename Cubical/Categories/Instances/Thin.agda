@@ -1,19 +1,10 @@
 module Cubical.Categories.Instances.Thin where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Properties
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 
-open import Cubical.Data.Unit
-open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.HLevels
-open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
 
 private
   variable ℓ ℓ' : Level

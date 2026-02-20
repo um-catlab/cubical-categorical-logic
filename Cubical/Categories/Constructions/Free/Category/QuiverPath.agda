@@ -7,28 +7,18 @@ module Cubical.Categories.Constructions.Free.Category.QuiverPath where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
-open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Quiver.Base as Quiver
 open import Cubical.Data.Graph.Base as Graph
-open import Cubical.Data.Graph.Displayed as Graph hiding (Section)
 open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂)
 import Cubical.HITs.SetTruncation as Trunc
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct as BP
-open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Displayed.Instances.Path
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
-open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 
 open import Cubical.Categories.Displayed.Section.Base as Cat
 open import Cubical.Categories.Constructions.Free.Category.Quiver using (Interp; Interpᴰ)

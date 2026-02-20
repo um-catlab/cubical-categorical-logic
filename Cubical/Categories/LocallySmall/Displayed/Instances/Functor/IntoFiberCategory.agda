@@ -2,35 +2,22 @@
 module Cubical.Categories.LocallySmall.Displayed.Instances.Functor.IntoFiberCategory where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.More
-open import Cubical.Foundations.Isomorphism hiding (isIso)
 
 import Cubical.Data.Equality as Eq
-open import Cubical.Data.Unit
-open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
-open import Cubical.Reflection.RecordEquiv.More
 
-import Cubical.Categories.Category as Small
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
-open import Cubical.Categories.LocallySmall.Instances.Unit
 open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 import Cubical.Categories.LocallySmall.Functor as LocallySmallF
-open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
-open import Cubical.Categories.LocallySmall.Instances.Indiscrete
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Constructions.ChangeOfObjects
 
 open import Cubical.Categories.LocallySmall.Displayed.Category
 import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObjects
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Base
 open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Eq

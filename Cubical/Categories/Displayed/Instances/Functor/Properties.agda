@@ -1,21 +1,16 @@
 module Cubical.Categories.Displayed.Instances.Functor.Properties where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation.Base
-open import Cubical.Categories.Bifunctor
-open import Cubical.Categories.Constructions.BinProduct
 import Cubical.Categories.Constructions.TotalCategory as ∫
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 

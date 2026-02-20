@@ -2,10 +2,7 @@ module Cubical.Categories.LocallySmall.Displayed.Functor.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.More
 
-open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
 import Cubical.Categories.Category as Small

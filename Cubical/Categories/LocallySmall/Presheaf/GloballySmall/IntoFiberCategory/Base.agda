@@ -9,16 +9,12 @@
 module Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCategory.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.More
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
 
-import Cubical.Categories.Category.Base as SmallCat
 import Cubical.Categories.Presheaf.Base as SmallPsh
 import Cubical.Categories.Presheaf.More as SmallPsh
 import Cubical.Categories.Presheaf.Morphism.Alt as SmallPsh
@@ -36,13 +32,9 @@ open import Cubical.Categories.LocallySmall.Functor.Constant
 open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
-open import Cubical.Categories.LocallySmall.Displayed.Category.Small
-open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObjects
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
 
 open Σω
 open Liftω

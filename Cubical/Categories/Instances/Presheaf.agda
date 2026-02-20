@@ -1,16 +1,12 @@
 module Cubical.Categories.Instances.Presheaf where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Constructions.BinProduct

@@ -9,7 +9,6 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma
-import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
@@ -26,7 +25,6 @@ open import Cubical.Categories.Displayed.More
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Properties
 open import Cubical.Categories.Displayed.Presheaf.Morphism

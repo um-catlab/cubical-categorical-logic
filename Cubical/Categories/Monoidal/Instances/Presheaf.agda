@@ -1,8 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Monoidal.Instances.Presheaf where
 
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Data.Unit
@@ -16,10 +14,6 @@ open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.Constructions.BinProduct
-open import Cubical.Categories.Presheaf.Constructions.Exponential
-open import Cubical.Categories.Presheaf.Constructions.Reindex
-open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open Bifunctor

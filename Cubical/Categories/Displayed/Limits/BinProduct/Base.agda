@@ -4,22 +4,15 @@ module Cubical.Categories.Displayed.Limits.BinProduct.Base where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma as Σ hiding (_×_)
-import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Constructions.TotalCategory
-open import Cubical.Categories.Presheaf
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Instances.Sets
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.BinProduct as BP

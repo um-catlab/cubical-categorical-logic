@@ -1,21 +1,15 @@
 module Cubical.Categories.Limits.Terminal.More where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
-open import Cubical.HITs.PropositionalTruncation.Base
-open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.Constant
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Limits.Terminal
-open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 

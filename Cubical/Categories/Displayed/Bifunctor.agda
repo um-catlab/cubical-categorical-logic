@@ -6,20 +6,15 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd; Sym)
 import Cubical.Categories.Constructions.TotalCategory as ∫
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Bifunctor
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Instances.Functor
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 
-open import Cubical.Data.Sigma
 
 private
   variable

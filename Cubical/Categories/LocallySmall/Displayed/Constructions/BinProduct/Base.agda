@@ -8,7 +8,6 @@ open import Cubical.Foundations.Function
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sigma.More
-open import Cubical.Data.Prod using (_×ω_; _,_)
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
@@ -22,7 +21,6 @@ open import Cubical.Categories.LocallySmall.Constructions.Total.Properties as To
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
-open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
 open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObjects

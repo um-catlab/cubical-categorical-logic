@@ -1,12 +1,8 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Properties where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
-open import Cubical.Foundations.Structure
 
 import Cubical.Data.Equality as Eq
-open import Cubical.Data.Equality.More
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -14,19 +10,14 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Section
 import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Functor
 open import Cubical.Categories.Displayed.Presheaf.Base
-open import Cubical.Categories.Displayed.Presheaf.Morphism
 
 private
   variable

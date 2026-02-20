@@ -2,32 +2,22 @@
 module Cubical.Categories.Displayed.Presheaf.CartesianLift.Manual where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.More
-open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
 
-import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions
-import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 
 private
   variable

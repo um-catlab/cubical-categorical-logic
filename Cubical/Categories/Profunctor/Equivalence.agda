@@ -4,40 +4,12 @@
 
 module Cubical.Categories.Profunctor.Equivalence where
 {-
-open import Cubical.Categories.Profunctor.General
 
-open import Cubical.Reflection.RecordEquiv
 
-open import Cubical.Foundations.Prelude hiding (Path)
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Path
-open import Cubical.Foundations.Function renaming (_∘_ to _∘f_)
-open import Cubical.Foundations.Isomorphism
 
-open import Cubical.Data.Graph.Base
-open import Cubical.Data.Graph.Path
-open import Cubical.Data.Sigma.Properties
 
-open import Cubical.Categories.Category
-open import Cubical.Categories.Functor
-open import Cubical.Categories.Bifunctor.Base
-open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.Elements
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Functors.Constant
-open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Limits.Terminal
 
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Instances.Functors.More
-open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.Presheaf.More
 
-open import Cubical.Tactics.CategorySolver.Reflection
-open import Cubical.Tactics.FunctorSolver.Reflection
 
 
 

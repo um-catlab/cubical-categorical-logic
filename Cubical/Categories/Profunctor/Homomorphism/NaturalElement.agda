@@ -8,8 +8,6 @@ module Cubical.Categories.Profunctor.Homomorphism.NaturalElement where
 
 open import Cubical.Reflection.RecordEquiv
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 

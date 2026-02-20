@@ -2,9 +2,7 @@
 
 module Multicategory.Planar where
 
--- open import Cubical.Foundations.Prelude
 
--- open import Context
 -- private
 --   variable
 --     ℓo ℓh ℓ ℓ' ℓ'' : Level

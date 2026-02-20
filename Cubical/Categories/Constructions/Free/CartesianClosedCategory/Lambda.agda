@@ -1,3 +1,15 @@
+{-
+  Lambda-calculus like syntax
+
+  Based on "category with display objects" variant of SCwF: a category with display objects is a category with a type of "display objects" which are a type of codes for objects of the category such that the category is closed under products with display objects.
+
+  The idea is that the objects of the category are contexts and the display objects are types. Each type A can be interpreted as a singleton context x: A
+  A terminal object represents the empty context.
+  Product Γ × A is the context extension Γ ,x: A
+
+  Terms and substitutions are unified into one sort, with the lambda terms being the substitutions with output x: A.
+
+-}
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Constructions.Free.CartesianClosedCategory.Lambda where
 
@@ -37,6 +49,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 
 private
@@ -55,128 +68,68 @@ module _ (Base : Type ℓ) where
     ↑ : Base → Ty
     _[⇒]_ : Ty → Ty → Ty
 
+  data Ctx : Type ℓ where
+    [] : Ctx
+    x: : Ty → Ctx
+    _,x:_ : Ctx → Ty → Ctx
+
   module _ (Constant : Ty → Type ℓ') where
-
-    Ctx = List Ty
-
-    data Subst : (Δ : Ctx) (Γ : Ctx) → Type (ℓ-max ℓ ℓ')
-    data Tm : (Γ : Ctx) (A : Ty) → Type (ℓ-max ℓ ℓ')
-    var' : ∀ {Γ A} → Tm (A ∷ Γ) A
-    sbst' : ∀ {Δ Γ A} → (γ : Subst Δ Γ) (M : Tm Γ A) → Tm Δ A
-    data Subst where
-      idS  : ∀ {Γ} → Subst Γ Γ
-      seqS : ∀ {Γ Δ Θ} (δ : Subst Γ Δ) (θ : Subst Δ Θ) → Subst Γ Θ
-      seqAssoc : ∀ {Γ Δ Θ H} (γ : Subst H Γ)(δ : Subst Γ Δ)(θ : Subst Δ Θ)
+    data Tm : (Δ Γ : Ctx) → Type (ℓ-max ℓ ℓ') where
+      idS  : ∀ {Γ} → Tm Γ Γ
+      seqS : ∀ {Γ Δ Θ} (δ : Tm Γ Δ) (θ : Tm Δ Θ) → Tm Γ Θ
+      seqAssoc : ∀ {Γ Δ Θ H} (γ : Tm H Γ)(δ : Tm Γ Δ)(θ : Tm Δ Θ)
         → seqS (seqS γ δ) θ ≡ seqS γ (seqS δ θ)
-      seqIdL :  ∀ {Γ Δ} (δ : Subst Γ Δ)
+      seqIdL :  ∀ {Γ Δ} (δ : Tm Γ Δ)
         → seqS idS δ ≡ δ
-      seqIdR :  ∀ {Γ Δ} (δ : Subst Γ Δ)
+      seqIdR :  ∀ {Γ Δ} (δ : Tm Γ Δ)
         → seqS δ idS ≡ δ
-      isSetSubst : ∀ {Γ Δ} → isSet (Subst Γ Δ)
+      isSetTm : ∀ {Γ Δ} → isSet (Tm Γ Δ)
 
-      -- terminal object
-      [] : ∀ {Γ} → Subst Γ []
-      []η : ∀ {Γ} (δ : Subst Γ []) → δ ≡ []
+      [] : ∀ {Γ} → Tm Γ []
+      []η : ∀ {Γ} (δ : Tm Γ []) → δ ≡ []
 
-      -- comprehension object
-      _,,_ : ∀ {Γ Δ A} (M : Tm Γ A) (δ : Subst Γ Δ) → Subst Γ (A ∷ Δ)
-      wk : ∀ {Γ A} → Subst (A ∷ Γ) Γ
-      wkβ : ∀ {Γ Δ A} (M : Tm Γ A) (δ : Subst Γ Δ)
-        → seqS (M ,, δ) wk ≡ δ
-      ,,η : ∀ {Γ Δ A} (δ,M : Subst Γ (A ∷ Δ))
-        → δ,M ≡ (sbst' δ,M var' ,, seqS δ,M wk)
-    data Tm where
-      -- generators
-      constant : ∀ {A} → (f : Constant A) → Tm [] A
-
-      -- presheaf structure
-      sbst : ∀ {Δ Γ A} → (γ : Subst Δ Γ) (M : Tm Γ A) → Tm Δ A
-      sbstAssoc : ∀ {Θ Δ Γ A} (δ : Subst Θ Δ) (γ : Subst Δ Γ) (M : Tm Γ A)
-        → sbst (seqS δ γ) M ≡ sbst δ (sbst γ M)
-      sbstIdL : ∀ {Γ A} → (M : Tm Γ A)
-        → sbst idS M ≡ M
-      isSetTm : ∀ Γ A → isSet (Tm Γ A)
-
-      -- comprehension π2
-      var : ∀ {Γ A} → Tm (A ∷ Γ) A
-      varβ : ∀ {Γ Δ A} (M : Tm Γ A) (δ : Subst Γ Δ)
-        → sbst (M ,, δ) var ≡ M
+      -- closed under products by types
+      _,,_ : ∀ {Δ Γ A} → Tm Δ Γ → Tm Δ (x: A) → Tm Δ (Γ ,x: A)
+      wk : ∀ {Γ A} → Tm (Γ ,x: A) Γ
+      var : ∀ {Γ A} → Tm (Γ ,x: A) (x: A)
+      wkβ : ∀ {Δ Γ A}{γ : Tm Δ Γ}{M : Tm Δ (x: A)} → seqS (γ ,, M) wk ≡ γ
+      varβ : ∀ {Δ Γ A}{γ : Tm Δ Γ}{M : Tm Δ (x: A)} → seqS (γ ,, M) var ≡ M
+      ,,η : ∀ {Δ Γ A} (γ,M : Tm Δ (Γ ,x: A)) → γ,M ≡ (seqS γ,M wk ,, seqS γ,M var)
 
       -- function types
-      [app] : ∀ {Γ A B} → Tm Γ (A [⇒] B) → Tm Γ A → Tm Γ B
-      [λ]   : ∀ {Γ A B} → Tm (A ∷ Γ) B → Tm Γ (A [⇒] B)
-
-      -- natural
-      [λ]-natural : ∀ {Δ Γ A B}
-        (γ : Subst Δ Γ)(M : Tm (A ∷ Γ) B)
-        → [λ] (sbst (var ,, seqS wk γ) M) ≡ sbst γ ([λ] M)
-      -- isomorphism
-      [⇒]β : ∀ {Γ A B}
-        → (M : Tm (A ∷ Γ) B)
-        → [app] (sbst wk ([λ] M)) var ≡ M
-      [⇒]η : ∀ {Γ A B}
-        → (M : Tm Γ (A [⇒] B))
-        → [λ] ([app] (sbst wk M) var) ≡ M
-
-    var' = var
-    sbst' = sbst
+      [app] : ∀ {A B} → Tm (x: (A [⇒] B) ,x: A) (x: B)
+      [λ]   : ∀ {Γ A B} → Tm (Γ ,x: A) (x: B) → Tm Γ (x: (A [⇒] B))
+      ⇒η : ∀ {Γ A B} (M : Tm Γ (x: (A [⇒] B))) → M ≡ [λ] (seqS (seqS wk M ,, var) [app])
+      ⇒β : ∀ {Γ A B} (M : Tm (Γ ,x: A) (x: B)) → seqS (seqS wk ([λ] M) ,, var) [app] ≡ M
 
     LAMBDA : Category ℓ (ℓ-max ℓ ℓ')
     LAMBDA .ob = Ctx
-    LAMBDA .Hom[_,_] = Subst
+    LAMBDA .Hom[_,_] = Tm
     LAMBDA .id = idS
     LAMBDA ._⋆_ = seqS
     LAMBDA .⋆IdL = seqIdL
     LAMBDA .⋆IdR = seqIdR
     LAMBDA .⋆Assoc = seqAssoc
-    LAMBDA .isSetHom = isSetSubst
-
-    TM : ∀ A → Presheaf LAMBDA (ℓ-max ℓ ℓ')
-    TM A .F-ob Γ .fst = Tm Γ A
-    TM A .F-ob Γ .snd = isSetRetract {B = Subst Γ [ A ]} (λ M → M ,, []) (λ z → sbst z var) (λ M → varβ M []) isSetSubst
-    TM A .F-hom = sbst
-    TM A .F-id = funExt sbstIdL
-    TM A .F-seq δ γ = funExt (sbstAssoc γ δ)
+    LAMBDA .isSetHom = isSetTm
 
     TERMINALCTX : Terminal' LAMBDA
     TERMINALCTX .vertex = []
     TERMINALCTX .element = tt
     TERMINALCTX .universal Γ = isIsoToIsEquiv
-      ((λ z → []) , ((λ _ → refl) , (λ γ⊤ → sym ([]η _))))
+      ((λ z → []) , ((λ _ → refl) , (λ γ⊤ → (sym $ []η _))))
 
-    EXTENSION : ∀ Γ A → UniversalElement LAMBDA ((LAMBDA [-, Γ ]) ×Psh TM A)
-    EXTENSION Γ A .vertex = A ∷ Γ
-    EXTENSION Γ A .element = wk , var
-    EXTENSION Γ A .universal Δ = isIsoToIsEquiv
-      ( (λ (γ , M) → M ,, γ)
-      , (λ (γ , M) → ≡-× (wkβ M γ) (varβ M γ))
-      , (λ γ,M → sym (,,η γ,M)))
+    EXTENSION : ∀ A → BinProductsWith LAMBDA (x: A)
+    EXTENSION A Γ .vertex = Γ ,x: A
+    EXTENSION A Γ .element = wk , var
+    EXTENSION A Γ .universal Δ = isIsoToIsEquiv
+      ( (λ (γ , M) → γ ,, M)
+      , (λ (γ , M) → ≡-× wkβ varβ)
+      , λ γ,M → sym $ ,,η γ,M)
 
-    SINGLE : ∀ A → PshIso (LAMBDA [-, [ A ] ]) (TM A)
-    SINGLE A = yoRecIso (EXTENSION [] A)
-      ⋆PshIso ×PshIso (yoRecIso TERMINALCTX) idPshIso
-      ⋆PshIso Unit× (TM A)
-
-    EXTENSION-× : ∀ A → BinProductsWith LAMBDA [ A ]
-    EXTENSION-× A Γ =
-      EXTENSION Γ A
-      ◁PshIso (×PshIso idPshIso (invPshIso $ SINGLE A)
-      ⋆PshIso eqToPshIso _ Eq.refl Eq.refl)
-
-    EXPONENTIAL' : ∀ A B → PshIso ((_ , (EXTENSION-× A)) ⇒PshSmall TM B) (TM (A [⇒] B))
-    EXPONENTIAL' A B .PshIso.trans .PshHom.N-ob Γ = [λ]
-    EXPONENTIAL' A B .PshIso.trans .PshHom.N-hom Δ Γ γ M =
-      cong [λ] (cong₂ sbst (λ i → varβ var [] i ,, seqS wk γ) refl) ∙ [λ]-natural γ M
-    EXPONENTIAL' A B .PshIso.nIso Γ .fst M = [app] (sbst wk M) var
-    EXPONENTIAL' A B .PshIso.nIso Γ .snd .fst M = [⇒]η M
-    EXPONENTIAL' A B .PshIso.nIso Γ .snd .snd M = [⇒]β M
-
-    EXPONENTIALS : ∀ A B → Exponential LAMBDA [ A ] [ B ] (EXTENSION-× A)
-    EXPONENTIALS A B = RepresentationPshIso→UniversalElement _
-      ( [ A [⇒] B ] ,
-        (SINGLE (A [⇒] B)
-        ⋆PshIso invPshIso (EXPONENTIAL' A B)
-        ⋆PshIso reindPshIso _ (invPshIso (SINGLE B))))
+    EXPONENTIALS : ∀ A B → Exponential LAMBDA (x: A) (x: B) (EXTENSION A)
+    EXPONENTIALS A B .vertex = x: (A [⇒] B)
+    EXPONENTIALS A B .element = [app]
+    EXPONENTIALS A B .universal Γ = isIsoToIsEquiv ( [λ] , ⇒β , (λ _ → sym $ ⇒η _))
 
     module _ (Cᴰ : Categoryᴰ LAMBDA ℓCᴰ ℓCᴰ')
       where
@@ -184,62 +137,48 @@ module _ (Base : Type ℓ) where
         module Cᴰ = Fibers Cᴰ
       module _
         (termᴰ : Terminalᴰ Cᴰ TERMINALCTX)
-        (bpᴰ : ∀ {A} (Aᴰ : Cᴰ.ob[ [ A ] ]) → BinProductsWithᴰ Cᴰ (EXTENSION-× A) Aᴰ)
-        (⇒ᴰ : ∀ {A B} (Aᴰ : Cᴰ.ob[ [ A ] ])(Bᴰ : Cᴰ.ob[ [ B ] ])
-          → Exponentialᴰ Cᴰ ([ A ] , EXTENSION-× A) (Aᴰ , bpᴰ Aᴰ) Bᴰ (EXPONENTIALS A B))
-        (ı : (A : Base) → Cᴰ.ob[ [ (↑ A) ] ]) where
+        (bpᴰ : ∀ {A} (Aᴰ : Cᴰ.ob[ x: A ]) → BinProductsWithᴰ Cᴰ (EXTENSION A) Aᴰ)
+        (⇒ᴰ : ∀ {A B} (Aᴰ : Cᴰ.ob[ x: A ])(Bᴰ : Cᴰ.ob[ x: B ])
+          → Exponentialᴰ Cᴰ (x: A , EXTENSION A) (Aᴰ , bpᴰ Aᴰ) Bᴰ (EXPONENTIALS A B))
+        (ı : (A : Base) → Cᴰ.ob[ x: (↑ A) ]) where
         private
-          module bpᴰ {Γ A}(Γᴰ : Cᴰ.ob[ Γ ])(Aᴰ : Cᴰ.ob[ [ A ] ]) = BinProductᴰNotation Cᴰ (EXTENSION-× A Γ) (bpᴰ Aᴰ Γᴰ)
-          module ⇒ᴰ {A B} (Aᴰ : Cᴰ.ob[ [ A ] ])(Bᴰ : Cᴰ.ob[ [ B ] ]) = ExponentialᴰNotation (EXPONENTIALS A B) (⇒ᴰ Aᴰ Bᴰ)
-          module EXTENSION {Γ : Ctx}{A : Ty} = BinProductNotation (EXTENSION-× A Γ)
-        elimCtx : ∀ Γ → Cᴰ.ob[ Γ ]
-        elimOb : ∀ A → Cᴰ.ob[ [ A ] ]
-        elimCtx [] = termᴰ .fst -- Need Terminalᴰ
-        elimCtx (A ∷ Γ) = bpᴰ (elimOb A) (elimCtx Γ) .fst
+          module termᴰ = UniversalElementᴰNotation Cᴰ _ _ termᴰ
+          module bpᴰ {Γ A}(Γᴰ : Cᴰ.ob[ Γ ])(Aᴰ : Cᴰ.ob[ x: A ]) = BinProductᴰNotation Cᴰ (EXTENSION A Γ) (bpᴰ Aᴰ Γᴰ)
+          module ⇒ᴰ {A B} (Aᴰ : Cᴰ.ob[ x: A ])(Bᴰ : Cᴰ.ob[ x: B ]) = ExponentialᴰNotation (EXPONENTIALS A B) (⇒ᴰ Aᴰ Bᴰ)
+          module EXTENSION {Γ : Ctx}{A : Ty} = BinProductNotation (EXTENSION A Γ)
 
-        elimOb (↑ x) = ı x
+        elimCtx : ∀ Γ → Cᴰ.ob[ Γ ]
+        elimOb : ∀ A → Cᴰ.ob[ x: A ]
+        elimCtx [] = termᴰ .fst
+        elimCtx (x: A) = elimOb A
+        elimCtx (Γ ,x: A) = bpᴰ (elimOb A) (elimCtx Γ) .fst
+
+        elimOb (↑ X) = ı X
         elimOb (A [⇒] B) = ⇒ᴰ (elimOb A) (elimOb B) .fst
 
-        module _ (ıf : ∀ {A} (f : Constant A) → Cᴰ.Hom[ constant f ,, [] ][ elimCtx [] , elimOb A ]) where
+        elimTm : ∀ {Δ Γ} → (M : Tm Δ Γ) → Cᴰ.Hom[ M ][ elimCtx Δ , elimCtx Γ ]
+        elimTm idS = Cᴰ.idᴰ
+        elimTm (seqS M N) = elimTm M Cᴰ.⋆ᴰ elimTm N
+        elimTm (seqAssoc M M₁ M₂ i) = Cᴰ.⋆Assocᴰ (elimTm M) (elimTm M₁) (elimTm M₂) i
+        elimTm (seqIdL M i) = Cᴰ.⋆IdLᴰ (elimTm M) i
+        elimTm (seqIdR M i) = Cᴰ.⋆IdRᴰ (elimTm M) i
+        elimTm (isSetTm M N p q i j) = isSetHomᴰ' Cᴰ (elimTm M) (elimTm N) (cong elimTm p) (cong elimTm q) i j
+        elimTm [] = termᴰ .snd .snd _ (elimCtx _) .isIsoOver.inv tt tt
+        elimTm ([]η M i) = Cᴰ.rectify {e' = []η M} (termᴰ.ηᴰ (elimTm M)) i
+        elimTm (γ ,, M) = bpᴰ.introᴰ _ _ (elimTm γ , elimTm M)
+        elimTm wk = bpᴰ.πᴰ₁ _ _
+        elimTm var = bpᴰ.πᴰ₂ _ _
+        elimTm (wkβ i) = Cᴰ.rectify {e' = wkβ} (bpᴰ.×βᴰ₁ _ _ (elimTm _) (elimTm _)) i
+        elimTm (varβ i) = Cᴰ.rectify {e' = varβ} (bpᴰ.×βᴰ₂ _ _ (elimTm _) (elimTm _)) i
+        elimTm (,,η M i) = Cᴰ.rectify {e' = ,,η M} (bpᴰ.×ηᴰ (elimCtx _) (elimOb _) (elimTm M)) i
+        elimTm [app] = ⇒ᴰ.appᴰ (elimOb _) (elimOb _)
+        elimTm ([λ] M) = ⇒ᴰ.λᴰ _ _ (elimTm M)
 
-          elimSubst : ∀ {Δ Γ} (γ : Subst Δ Γ) → Cᴰ.Hom[ γ ][ elimCtx Δ , elimCtx Γ ]
-          elimTm : ∀ {Γ A} (M : Tm Γ A)
-            → Cᴰ.Hom[ M ,, [] ][ elimCtx Γ , elimOb A ]
+        elimTm (⇒β M i) = Cᴰ.rectify {e' = ⇒β M} (Cᴰ.≡out $ ⇒ᴰ.⇒βᴰ _ _ (elimTm M)) i
+        elimTm (⇒η M i) = Cᴰ.rectify {e' = ⇒η M} (Cᴰ.≡out $ ⇒ᴰ.⇒ηᴰ _ _ (elimTm M)) i
 
-          elimSubst {Δ} {Γ} idS = Cᴰ.idᴰ
-          elimSubst {Δ} {Γ} (seqS γ γ₁) = elimSubst γ Cᴰ.⋆ᴰ elimSubst γ₁
-          elimSubst {Δ} {Γ} (seqAssoc γ γ₁ γ₂ i) =
-            Cᴰ.⋆Assocᴰ (elimSubst γ) (elimSubst γ₁) (elimSubst γ₂) i
-          elimSubst {Δ} {Γ} (seqIdL γ i) = Cᴰ.⋆IdLᴰ (elimSubst γ) i
-          elimSubst {Δ} {Γ} (seqIdR γ i) = Cᴰ.⋆IdRᴰ (elimSubst γ) i
-          elimSubst {Δ} {Γ} (isSetSubst γ γ' p q i j) =
-            isSetHomᴰ' Cᴰ (elimSubst γ) (elimSubst γ') (λ i → elimSubst (p i)) (λ i → elimSubst (q i)) i j
-          elimSubst {Δ} {Γ} [] = termᴰ .snd .snd Δ (elimCtx Δ) .isIsoOver.inv tt tt
-          elimSubst {Δ} {Γ} ([]η γ i) = {!!}
-          elimSubst {Δ} {_} (_,,_ {.Δ}{Γ}{A} M γ) =
-            Cᴰ.reind (cong₂ _,,_ (varβ M []) refl) (bpᴰ.introᴰ (elimCtx Γ) (elimOb A) ((elimSubst γ) , (elimTm M))) 
-          elimSubst {Δ} {Γ} wk = bpᴰ (elimOb _) (elimCtx Γ) .snd .fst .fst
-          elimSubst {Δ} {Γ} (wkβ M γ i) = {!!}
-          elimSubst {Δ} {Γ} (,,η γ i) = {!!}
-
-          elimTm (constant f) = ıf f
-          elimTm (sbst γ M) = Cᴰ.reind
-            (sym (invPshIso (UniversalElementNotation.asPshIso (EXTENSION _ _)) .trans .N-hom _ _ _ _) ∙ cong (sbst γ M ,,_) ([]η _))
-            (elimSubst γ Cᴰ.⋆ᴰ elimTm M)
-          elimTm (sbstAssoc δ γ M i) = {!!}
-          elimTm (sbstIdL M i) = {!!}
-          elimTm var = bpᴰ (elimOb _) (elimCtx _) .snd .fst .snd
-          elimTm (varβ M δ i) = {!!}
-          elimTm ([app] {Γ}{A}{B} M V) = Cᴰ.reind
-            (sym $ {!EXTENSION.×ue.intro≡!})
-            (bpᴰ.introᴰ (⇒ᴰ (elimOb A) (elimOb B) .fst) (elimOb A) ((elimTm M) , (elimTm V)) Cᴰ.⋆ᴰ ⇒ᴰ.appᴰ (elimOb A) (elimOb B))
-          elimTm ([λ] M) = Cᴰ.reind (cong (_,, []) (cong [λ] (varβ _ _))) (⇒ᴰ.λᴰ (elimOb _) (elimOb _) (elimTm M))
-          elimTm ([λ]-natural γ M i) = {!!}
-          elimTm ([⇒]β M i) = {!!}
-          elimTm ([⇒]η M i) = {!!}
-
-          elim : GlobalSection Cᴰ
-          elim .F-obᴰ = elimCtx
-          elim .F-homᴰ = elimSubst
-          elim .F-idᴰ = refl
-          elim .F-seqᴰ f g = refl
+        elim : GlobalSection Cᴰ
+        elim .F-obᴰ = elimCtx
+        elim .F-homᴰ = elimTm
+        elim .F-idᴰ = refl
+        elim .F-seqᴰ = λ _ _ → refl

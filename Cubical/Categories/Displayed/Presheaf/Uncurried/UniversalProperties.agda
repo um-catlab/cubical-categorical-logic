@@ -167,3 +167,28 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module BPNotation {A : C.ob}{B : C.ob} {Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]}
         = BinProductᴰNotation (bp (A , B)) (bpᴰ Aᴰ Bᴰ)
     open BPNotation public
+
+module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    Cᴰop = Cᴰ ^opᴰ
+    module Cᴰop = Fibers Cᴰop
+
+  Initialⱽ : ∀ (x : C.ob) → Type _
+  Initialⱽ x = Terminalⱽ Cᴰop x
+
+  Initialsⱽ : Type _
+  Initialsⱽ = Terminalsⱽ Cᴰop
+
+  BinCoProductⱽ : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
+  BinCoProductⱽ = BinProductⱽ Cᴰop
+
+  BinCoProductsWithⱽ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Type _
+  BinCoProductsWithⱽ = BinProductsWithⱽ Cᴰop
+
+  BinCoProductsⱽ : Type _
+  BinCoProductsⱽ = BinProductsⱽ Cᴰop
+
+  BinProductᴰ'Spec : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
+    → Presheafⱽ (A×B .vertex) Cᴰ _

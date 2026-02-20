@@ -255,3 +255,68 @@ module _ (F : Functor C D) where
       (∀ Γ → (swap .trans ⟦ Γ ⟧ D.⋆ -×Fc.π₁) ≡ F ⟪ -×c.π₁ ⟫)
     preservesProvidedBinProductsWith→preservesCartNatTrans = preservesProvidedBinProductsWith→NatIso
       , (λ Γ → -×Fc.×β₁)
+
+module _ (C : Category ℓ ℓ') where
+  private
+    Cop = C ^op
+
+  BinCoProduct : ∀ (cc' : (C ⊗ C) .ob) → Type _
+  BinCoProduct cc' = BinProduct Cop cc'
+
+  BinCoProducts : Type _
+  BinCoProducts = BinProducts Cop
+
+  module _ (c : C .ob) where
+    BinCoProductsWith : Type (ℓ-max ℓ ℓ')
+    BinCoProductsWith = BinProductsWith Cop c
+
+    BinCoProducts→BinCoProductsWith : BinCoProducts → BinCoProductsWith
+    BinCoProducts→BinCoProductsWith = BinProducts→BinProductsWith Cop c
+
+  module _ (bcp : BinCoProducts) where
+    BinCoProductF : Functor (C R.×C C) C
+    BinCoProductF =
+      fromOpOp ∘F (BinProductF Cop bcp ^opF) ∘F R.×-op-commute⁻
+      ∘F R.rec C C (R.ηBif ((C ^op) ^op) ((C ^op) ^op) ∘Flr (toOpOp , toOpOp))
+
+    BinCoProductBif : Bifunctor C C C
+    BinCoProductBif =
+      fromOpOp
+      ∘Fb ((BinProductBif Cop bcp ^opBif) ∘Flr (toOpOp , toOpOp))
+
+    BinCoProductF' : Functor (C ×C C) C
+    BinCoProductF' = fromOpOp ∘F (BinProductF' Cop bcp ^opF)
+      ∘F (((Fst C C ^opF) ,F (Snd C C ^opF)) ^opF) ∘F toOpOp
+
+  module _ {a} (bcp : BinCoProductsWith a) where
+    BinCoProductWithF : Functor C C
+    BinCoProductWithF = fromOpOp ∘F (BinProductWithF Cop bcp ^opF) ∘F toOpOp
+
+module _ {ℓ ℓ'} where
+  module BinCoProductNotation {C : Category ℓ ℓ'} {a b} (bcp : BinCoProduct C (a , b)) =
+    BinProductNotation bcp renaming
+        (π₁ to σ₁ ; π₂ to σ₂ ; _,p_ to [_,p_]
+       ; ⟨_⟩,p⟨_⟩ to [⟨_⟩,p⟨_⟩]
+       ; module ×ue to +ue)
+
+  module BinCoProductsNotation {C : Category ℓ ℓ'} (bcp : BinCoProducts C) where
+    private
+      module C = Category C
+
+    _+_ : C.ob → C.ob → C.ob
+    a + b = BinProductNotation.vert  (bcp (a , b))
+    module _ {a b : C.ob} where
+      open BinCoProductNotation (bcp (a , b)) hiding (vert; module +ue) public
+    module +ue (a b : C .ob) = BinCoProductNotation.+ue (bcp (a , b))
+
+    +F' : Functor (C R.×C C) C
+    +F' = BinCoProductF C bcp
+
+    +Bif : Bifunctor C C C
+    +Bif = BinCoProductBif C bcp
+
+    +F : Functor (C ×C C) C
+    +F = BifunctorToParFunctor +Bif
+
+    _+p_ : ∀ {a b c d} → C [ a , b ] → C [ c , d ] → C [ a + c , b + d ]
+    f +p g = +Bif ⟪ f , g ⟫×

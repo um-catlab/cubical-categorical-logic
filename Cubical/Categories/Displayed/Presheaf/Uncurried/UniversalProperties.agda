@@ -181,6 +181,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   Initialsⱽ : Type _
   Initialsⱽ = Terminalsⱽ Cᴰop
 
+  Initialᴰ : ∀ (init : Terminal' (C ^op)) → Type _
+  Initialᴰ = Terminalᴰ Cᴰop
+
   BinCoProductⱽ : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
   BinCoProductⱽ = BinProductⱽ Cᴰop
 

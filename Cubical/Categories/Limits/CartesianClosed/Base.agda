@@ -2,7 +2,6 @@ module Cubical.Categories.Limits.CartesianClosed.Base where
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Exponentials
-open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal
 

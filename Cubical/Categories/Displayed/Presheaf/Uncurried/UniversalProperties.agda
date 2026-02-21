@@ -190,5 +190,26 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinCoProductsⱽ : Type _
   BinCoProductsⱽ = BinProductsⱽ Cᴰop
 
-  BinProductᴰ'Spec : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
-    → Presheafⱽ (A×B .vertex) Cᴰ _
+  BinCoProductᴰ' : ∀ {A B} →
+    (A+B : BinCoProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
+  BinCoProductᴰ' = BinProductᴰ' Cᴰop
+
+  BinCoProductᴰ : ∀ {A B} → (A+B : BinCoProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
+  BinCoProductᴰ = BinProductᴰ Cᴰop
+
+  BinCoProductsᴰ : (bcp : BinCoProducts C) → Type _
+  BinCoProductsᴰ = BinProductsᴰ Cᴰop
+
+  BinCoproductⱽ→ᴰ : ∀ {A B} (bcp : BinCoProduct C (A , B))
+    (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
+    → BinCoProductᴰ' bcp Aᴰ Bᴰ
+    → BinCoProductᴰ bcp Aᴰ Bᴰ
+  BinCoproductⱽ→ᴰ = BinProductⱽ→ᴰ Cᴰop
+
+  module BinCoProductᴰNotation {A B Aᴰ Bᴰ} (A+B : BinCoProduct C (A , B))
+    (Aᴰ+ᴰBᴰ : BinCoProductᴰ A+B Aᴰ Bᴰ) =
+    BinProductᴰNotation Cᴰop A+B Aᴰ+ᴰBᴰ renaming
+      (πᴰ₁ to σᴰ₁ ; πᴰ₂ to σᴰ₂)
+
+  module BinCoProductsᴰNotation (bcp : BinCoProducts C) (bcpᴰ : BinCoProductsᴰ bcp)
+    = BinProductsᴰNotation Cᴰop bcp bcpᴰ renaming (_×ᴰ_ to _+ᴰ_)

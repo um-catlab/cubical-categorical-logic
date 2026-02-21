@@ -295,28 +295,14 @@ module _ (C : Category ℓ ℓ') where
 module _ {ℓ ℓ'} where
   module BinCoProductNotation {C : Category ℓ ℓ'} {a b} (bcp : BinCoProduct C (a , b)) =
     BinProductNotation bcp renaming
-        (π₁ to σ₁ ; π₂ to σ₂ ; _,p_ to [_,p_]
-       ; ⟨_⟩,p⟨_⟩ to [⟨_⟩,p⟨_⟩]
-       ; module ×ue to +ue)
+        (π₁ to σ₁ ; π₂ to σ₂ ; _,p_ to [_,p_] ; ⟨_⟩,p⟨_⟩ to [⟨_⟩,p⟨_⟩] ; module ×ue to +ue ;
+        ,p-extensionality to [-,p-]-extensionality ; ,p≡ to [-,p-]≡ ; ×β₁ to +β₁ ; ×β₂ to +β₂)
 
   module BinCoProductsNotation {C : Category ℓ ℓ'} (bcp : BinCoProducts C) where
     private
-      module C = Category C
-
-    _+_ : C.ob → C.ob → C.ob
-    a + b = BinProductNotation.vert  (bcp (a , b))
-    module _ {a b : C.ob} where
+      module bp' = BinProductsNotation bcp using (_×_ ; ×F' ; ×Bif ; ×F ; _×p_)
+      module bp = bp' renaming
+        (_×_ to _+_ ; ×F' to +F' ; ×Bif to +Bif ; ×F to +F ; _×p_ to _+p_)
+    open bp public
+    module _ {a b : C .ob} where
       open BinCoProductNotation (bcp (a , b)) hiding (vert; module +ue) public
-    module +ue (a b : C .ob) = BinCoProductNotation.+ue (bcp (a , b))
-
-    +F' : Functor (C R.×C C) C
-    +F' = BinCoProductF C bcp
-
-    +Bif : Bifunctor C C C
-    +Bif = BinCoProductBif C bcp
-
-    +F : Functor (C ×C C) C
-    +F = BifunctorToParFunctor +Bif
-
-    _+p_ : ∀ {a b c d} → C [ a , b ] → C [ c , d ] → C [ a + c , b + d ]
-    f +p g = +Bif ⟪ f , g ⟫×

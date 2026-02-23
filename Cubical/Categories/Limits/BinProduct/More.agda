@@ -10,6 +10,7 @@ module Cubical.Categories.Limits.BinProduct.More where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
@@ -80,6 +81,19 @@ module _ (C : Category ℓ ℓ') where
 
     BinProductF' : Functor (C ×C C) C
     BinProductF' = BifunctorToParFunctor BinProductBif
+
+
+  module _ {a b} (a×b : BinProduct (a , b)) where
+    SwapBinProduct : BinProduct (b , a)
+    SwapBinProduct = a×b ◁PshIso swap
+      where
+      -- TODO put this somewhere more general
+      -- Could be cleaner using Sym
+      swap : ∀ {a b} → PshIso (BinProductProf ⟅ (a , b) ⟆) (BinProductProf ⟅ (b , a) ⟆)
+      swap = Isos→PshIso
+        (λ c → iso (λ z → z .snd , z .fst) (λ z → z .snd , z .fst)
+                   (λ _ → refl) λ _ → refl)
+        λ _ _ _ _ → refl
 
   module _ {a} (bp : BinProductsWith a) where
     BinProductWithF : Functor C C

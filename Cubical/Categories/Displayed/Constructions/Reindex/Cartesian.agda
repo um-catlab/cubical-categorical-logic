@@ -72,30 +72,20 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     module Dᴰ = Fibers Dᴰ using (ob[_]; reind; reind-filler; rectify; ≡out; cong-reind; ⋆IdL)
 
   reindexTerminalⱽ : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
-  reindexTerminalⱽ x 𝟙ⱽ = (𝟙ⱽ .fst) ,
-    -- reindex Dᴰ F [-][-, 𝟙ⱽ ]
-    (reindexRepresentableIsoⱽ Dᴰ F _ _
-    -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, 𝟙ⱽ ]
-    ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (𝟙ⱽ .snd)
-    -- reindPsh (reindex-π-/ Dᴰ F x) $ UnitPshᴰ
-    ⋆PshIsoⱽ reindPsh-Unit (reindex-π-/ Dᴰ F x))
-    -- UnitPshᴰ
+  reindexTerminalⱽ x 𝟙ⱽ =
+    reindexReflectsUMPⱽ Dᴰ F x UnitPshᴰ 𝟙ⱽ
+    ◁PshIsoⱽ reindPsh-Unit (reindex-π-/ Dᴰ F x)
   TerminalsⱽReindex : Terminalsⱽ Dᴰ → Terminalsⱽ (reindex Dᴰ F)
   TerminalsⱽReindex 𝟙ⱽs x = reindexTerminalⱽ x (𝟙ⱽs (F ⟅ x ⟆))
 
   reindexBinProductⱽ : ∀ {x} (Fxᴰ Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
     → BinProductⱽ Dᴰ Fxᴰ Fyᴰ
     → BinProductⱽ (reindex Dᴰ F) Fxᴰ Fyᴰ
-  reindexBinProductⱽ {x} Fxᴰ Fyᴰ Fxᴰ∧Fyᴰ = Fxᴰ∧Fyᴰ .fst ,
-    -- reindex Dᴰ F [-][-, Fxᴰ ∧ Fyᴰ ]
-    (reindexRepresentableIsoⱽ Dᴰ F x (Fxᴰ∧Fyᴰ .fst)
-    -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fxᴰ ∧ Fyᴰ ]
-    ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (Fxᴰ∧Fyᴰ .snd)
-    -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fxᴰ ] × Dᴰ [-][-, Fyᴰ ]
-    ⋆PshIsoⱽ reindPsh× (reindex-π-/ Dᴰ F x) (Dᴰ [-][-, Fxᴰ ]) (Dᴰ [-][-, Fyᴰ ])
-    -- (reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fxᴰ ]) × (reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, Fyᴰ ])
-    ⋆PshIsoⱽ ×PshIso (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fxᴰ)) (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fyᴰ)))
-    -- (reindex Dᴰ F [-][-, Fxᴰ ]) × (reindex Dᴰ F [-][-, Fyᴰ ])
+  reindexBinProductⱽ {x} Fxᴰ Fyᴰ Fxᴰ∧Fyᴰ =
+    reindexReflectsUMPⱽ Dᴰ F x ((Dᴰ [-][-, Fxᴰ ]) ×ⱽPsh (Dᴰ [-][-, Fyᴰ ])) Fxᴰ∧Fyᴰ
+    ◁PshIsoⱽ (reindPsh× (reindex-π-/ Dᴰ F x) (Dᴰ [-][-, Fxᴰ ]) (Dᴰ [-][-, Fyᴰ ])
+              ⋆PshIsoⱽ ×PshIso (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fxᴰ))
+                               (invPshIso (reindexRepresentableIsoⱽ Dᴰ F x Fyᴰ)))
 
   BinProductsⱽReindex : BinProductsⱽ Dᴰ → BinProductsⱽ (reindex Dᴰ F)
   BinProductsⱽReindex bpⱽs Fxᴰ Fyᴰ = reindexBinProductⱽ Fxᴰ Fyᴰ (bpⱽs Fxᴰ Fyᴰ)

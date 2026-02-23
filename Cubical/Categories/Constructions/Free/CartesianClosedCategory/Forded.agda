@@ -34,7 +34,7 @@ open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Limits.CartesianSection
 open import Cubical.Categories.Displayed.Limits.CartesianClosedSection
-open import Cubical.Categories.Displayed.Constructions.Comma
+open import Cubical.Categories.Displayed.Instances.Arrow.Limits
 open import Cubical.Categories.Displayed.Section.Base as Cat
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
@@ -149,7 +149,6 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
   FreeCartesianClosedCategory .exps Δ Θ .universal Γ = isIsoToIsEquiv
     (lam' , (λ t → λβ Eq.refl t) , (λ t → sym $ λη Eq.refl t))
 
-  -- Elimination principle
   private
     module FreeCCC = CartesianClosedCategory FreeCartesianClosedCategory
 
@@ -202,55 +201,6 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       elim .F-idᴰ = refl
       elim .F-seqᴰ = λ _ _ → refl
 
-      -- elim strictly preserves the terminal object:
-      -- F-obᴰ maps ⊤ to the displayed terminal vertex
-      elimPreservesTerminal : elim .F-obᴰ ⊤ ≡ termᴰ .fst
-      elimPreservesTerminal = refl
-
-      -- F-homᴰ maps the terminal morphism !ₑ' to the displayed intro
-      elimPreservesTerminalMor : ∀ {Γ} →
-        elim .F-homᴰ (!ₑ' {Γ}) ≡ termᴰ.introᴰ tt
-      elimPreservesTerminalMor = refl
-
-      -- elim strictly preserves binary products:
-      -- F-obᴰ maps A × B to the displayed product vertex
-      elimPreservesBinProducts : ∀ A B →
-        elim .F-obᴰ (A × B) ≡ bpᴰ (elim .F-obᴰ A) (elim .F-obᴰ B) .fst
-      elimPreservesBinProducts A B = refl
-
-      -- F-homᴰ maps π₁' to the displayed first projection
-      elimPreservesπ₁ : ∀ {A B} →
-        elim .F-homᴰ (π₁' {A} {B}) ≡ bpᴰ.πᴰ₁
-      elimPreservesπ₁ = refl
-
-      -- F-homᴰ maps π₂' to the displayed second projection
-      elimPreservesπ₂ : ∀ {A B} →
-        elim .F-homᴰ (π₂' {A} {B}) ≡ bpᴰ.πᴰ₂
-      elimPreservesπ₂ = refl
-
-      -- F-homᴰ maps pairing to the displayed pairing
-      elimPreservesPairing : ∀ {Γ A B} (f : Expr Γ A) (g : Expr Γ B) →
-        elim .F-homᴰ (⟨ f , g ⟩') ≡ bpᴰ.introᴰ (elimHom f , elimHom g)
-      elimPreservesPairing f g = refl
-
-      -- elim strictly preserves exponentials:
-      -- F-obᴰ maps A ⇒ B to the displayed exponential vertex
-      elimPreservesExp : ∀ A B →
-        elim .F-obᴰ (A ⇒ B) ≡ expᴰ (elim .F-obᴰ A) (elim .F-obᴰ B) .fst
-      elimPreservesExp A B = refl
-
-      -- F-homᴰ maps eval' to the displayed application
-      elimPreservesEval : ∀ {A B} →
-        elim .F-homᴰ (eval' {A} {B}) ≡ appᴰ
-      elimPreservesEval = refl
-
-      -- F-homᴰ maps lam' to the displayed lambda abstraction
-      elimPreservesLam : ∀ {Γ A B} (e : Expr (Γ × A) B) →
-        elim .F-homᴰ (lam' e) ≡ λᴰ (elimHom e)
-      elimPreservesLam e = refl
-
-      -- elim is a cartesian closed section: it strictly preserves
-      -- the terminal object, binary products, and exponentials
       elimCartesianClosed : CartesianClosedSection CCCᴰ
       elimCartesianClosed .CartesianClosedSection.cartesianSection
         .CartesianSection.section = elim
@@ -260,7 +210,6 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
         .CartesianSection.F-obᴰ-× _ _ = refl
       elimCartesianClosed .CartesianClosedSection.F-obᴰ-⇒ _ _ = refl
 
-  -- Local elimination
   module _
     {D : CartesianCategory ℓD ℓD'}
     (F : CartesianFunctor (FreeCartesianClosedCategory .CC) (D .C))
@@ -274,7 +223,6 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
     elimLocal : (ı : ElimInterpᴰ elimLocalMotive) → Section (F .fst) (CCCⱽ .CartesianClosedCategoryⱽ.Cᴰ)
     elimLocal ı = GlobalSectionReindex→Section _ _ (elim elimLocalMotive ı)
 
-  -- Recursion (non-dependent functors)
   module _ (CCC : CartesianClosedCategory ℓC ℓC') where
     private
       wkC = weakenCCC FreeCartesianClosedCategory CCC
@@ -283,7 +231,6 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
     rec : (ı : ElimInterpᴰ wkC) → Functor FreeCCC.C CCC.C
     rec ı = introS⁻ (elim wkC ı)
 
-    -- rec is a cartesian functor
     recCartesian : (ı : ElimInterpᴰ wkC)
       → CartesianFunctor (FreeCartesianClosedCategory .CC) CCC.C
     recCartesian ı = rec ı , λ c c' →
@@ -306,152 +253,41 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
              → (D ._⋆_ (F ⟪ lam' h ⟫) (⇒-iso f g .fst))
                ≡ (D ._⋆_ (γ .fst) (G ⟪ lam' h ⟫)))
     where
-    private
-      F,G-IsoC : Categoryᴰ |FreeCartesianClosedCategory| _ _
-      F,G-IsoC = Reindex.reindex (IsoCommaᴰ F G) (Δ |FreeCartesianClosedCategory|)
-      module D = Category D
-
-    open isIsoOver
-
-    CCᴰF,G-IsoC : CartesianCategoryᴰ (FreeCartesianClosedCategory .CC) _ _
-    CCᴰF,G-IsoC .CartesianCategoryᴰ.Cᴰ = F,G-IsoC
-    CCᴰF,G-IsoC .CartesianCategoryᴰ.termᴰ =
-      F⊤≅G⊤ , _ , isUniv
-      where
-      F⊤ : Terminal D
-      F⊤ = _ , F-1 (Terminal'ToTerminal $ FreeCartesianClosedCategory .CC .term)
-
-      F⊤' = terminalToUniversalElement F⊤
-
-      G⊤ : Terminal D
-      G⊤ = _ , G-1 (Terminal'ToTerminal $ FreeCartesianClosedCategory .CC .term)
-
-      G⊤' = terminalToUniversalElement G⊤
-
-      module F⊤ = TerminalNotation F⊤'
-      module G⊤ = TerminalNotation G⊤'
-
-      F⊤≅G⊤ : CatIso D (F ⟅ ⊤ ⟆) (G ⟅ ⊤ ⟆)
-      F⊤≅G⊤ = terminalToIso D F⊤ G⊤
-
-      isUniv : isUniversalᴰ F,G-IsoC _ _
-        (FreeCartesianClosedCategory .CC .term) tt
-      isUniv Γ Γᴰ .inv _ _ .fst = G⊤.𝟙extensionality
-      isUniv Γ Γᴰ .inv _ _ .snd = _
-      isUniv Γ Γᴰ .rightInv = λ _ _ → refl
-      isUniv Γ Γᴰ .leftInv u v =
-        isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
-    CCᴰF,G-IsoC .CartesianCategoryᴰ.bpᴰ {A = A}{B = B} f g =
-      F×≅G× , ((sym G×.×β₁ , tt) , (sym G×.×β₂ , tt)) , isUniv
-      where
-      module FCC× = BinProductNotation
-        (FreeCartesianClosedCategory .CC .bp (A , B))
-      F× = preservesUniversalElement→UniversalElement
-            (preservesBinProdCones F A B)
-            (FreeCartesianClosedCategory .CC .bp (A , B)) (F-bp A B)
-      G× = preservesUniversalElement→UniversalElement
-            (preservesBinProdCones G A B)
-            (FreeCartesianClosedCategory .CC .bp (A , B)) (G-bp A B)
-      module F× = BinProductNotation F×
-      module G× = BinProductNotation G×
-
-      forward = (F×.π₁ D.⋆ f .fst) G×.,p (F×.π₂ D.⋆ g .fst)
-      backward = (G×.π₁ D.⋆ f .snd .isIso.inv) F×.,p
-                 (G×.π₂ D.⋆ g .snd .isIso.inv)
-
-      F×≅G× : CatIso D _ _
-      F×≅G× .fst = forward
-      F×≅G× .snd .isIso.inv = backward
-      F×≅G× .snd .isIso.sec = G×.,p-extensionality
-        (D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ G×.×β₁ ⟩
-        ∙ sym (D.⋆Assoc _ _ _)
-        ∙ D.⟨ F×.×β₁ ⟩⋆⟨ refl ⟩
-        ∙ D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ f .snd .isIso.sec ⟩
-        ∙ D.⋆IdR _
-        ∙ sym (D.⋆IdL _))
-        (D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ G×.×β₂ ⟩
-        ∙ sym (D.⋆Assoc _ _ _)
-        ∙ D.⟨ F×.×β₂ ⟩⋆⟨ refl ⟩
-        ∙ D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ g .snd .isIso.sec ⟩
-        ∙ D.⋆IdR _
-        ∙ sym (D.⋆IdL _))
-      F×≅G× .snd .isIso.ret = F×.,p-extensionality
-        (D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ F×.×β₁ ⟩
-        ∙ sym (D.⋆Assoc _ _ _)
-        ∙ D.⟨ G×.×β₁ ⟩⋆⟨ refl ⟩
-        ∙ D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ f .snd .isIso.ret ⟩
-        ∙ D.⋆IdR _
-        ∙ sym (D.⋆IdL _))
-        (D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ F×.×β₂ ⟩
-        ∙ sym (D.⋆Assoc _ _ _)
-        ∙ D.⟨ G×.×β₂ ⟩⋆⟨ refl ⟩
-        ∙ D.⋆Assoc _ _ _
-        ∙ D.⟨ refl ⟩⋆⟨ g .snd .isIso.ret ⟩
-        ∙ D.⋆IdR _
-        ∙ sym (D.⋆IdL _))
-
-      isUniv : isUniversalᴰ F,G-IsoC _ _
-        (FreeCartesianClosedCategory .CC .bp (A , B))
-        ((sym G×.×β₁ , tt) , (sym G×.×β₂ , tt))
-      isUniv Γ Γᴰ .inv (u₁ , u₂) ((sq₁ , _) , (sq₂ , _)) .fst =
-        G×.,p-extensionality
-          (D.⋆Assoc _ _ _
-          ∙ D.⟨ refl ⟩⋆⟨ G×.×β₁ ⟩
-          ∙ sym (D.⋆Assoc _ _ _)
-          ∙ D.⟨ sym (F .F-seq _ _) ∙ cong (F .F-hom) FCC×.×β₁ ⟩⋆⟨ refl ⟩
-          ∙ sq₁
-          ∙ D.⟨ refl ⟩⋆⟨ sym (cong (G .F-hom) FCC×.×β₁) ∙ G .F-seq _ _ ⟩
-          ∙ sym (D.⋆Assoc _ _ _))
-          (D.⋆Assoc _ _ _
-          ∙ D.⟨ refl ⟩⋆⟨ G×.×β₂ ⟩
-          ∙ sym (D.⋆Assoc _ _ _)
-          ∙ D.⟨ sym (F .F-seq _ _) ∙ cong (F .F-hom) FCC×.×β₂ ⟩⋆⟨ refl ⟩
-          ∙ sq₂
-          ∙ D.⟨ refl ⟩⋆⟨ sym (cong (G .F-hom) FCC×.×β₂) ∙ G .F-seq _ _ ⟩
-          ∙ sym (D.⋆Assoc _ _ _))
-      isUniv Γ Γᴰ .inv _ _ .snd = tt
-      isUniv Γ Γᴰ .rightInv _ _ =
-        isProp→PathP (λ _ → isProp×
-          (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)
-          (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)) _ _
-      isUniv Γ Γᴰ .leftInv _ _ =
-        isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
+    open IsoCommaStructure F G
+    private module D = Category D
 
     module _
       (⇒-eval : ∀ {A B} (f : CatIso D (F ⟅ A ⟆) (G ⟅ A ⟆))
                          (g : CatIso D (F ⟅ B ⟆) (G ⟅ B ⟆))
                → F ⟪ eval' ⟫ D.⋆ g .fst
-                 ≡ CCᴰF,G-IsoC .CartesianCategoryᴰ.bpᴰ
+                 ≡ IsoCommaBinProductsᴰ
+                     (FreeCartesianClosedCategory .CC .bp) F-bp G-bp
                      (⇒-iso f g) f .fst .fst
                    D.⋆ G ⟪ eval' ⟫)
       where
 
-      CCCᴰF,G-IsoC : CartesianClosedCategoryᴰ FreeCartesianClosedCategory _ _
-      CCCᴰF,G-IsoC .CartesianClosedCategoryᴰ.CCᴰ = CCᴰF,G-IsoC
-      CCCᴰF,G-IsoC .CartesianClosedCategoryᴰ.expᴰ {A = A} f {B = B} g =
-        ⇒-iso f g , (⇒-eval f g , tt) , isUniv
-        where
-        isUniv : isUniversalᴰ F,G-IsoC _ _
-          (FreeCartesianClosedCategory .exps A B) (⇒-eval f g , tt)
-        isUniv Γ Γᴰ .inv u uᴰ .fst = ⇒-lam f g Γᴰ u
-        isUniv Γ Γᴰ .inv _ _ .snd = tt
-        isUniv Γ Γᴰ .rightInv _ _ =
-          isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
-        isUniv Γ Γᴰ .leftInv _ _ =
-          isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
-
-      -- A global section of the IsoComma gives a natural isomorphism
-      sectionToNatIso : GlobalSection F,G-IsoC → NatIso F G
-      sectionToNatIso S .NatIso.trans .NatTrans.N-ob x = S .F-obᴰ x .fst
-      sectionToNatIso S .NatIso.trans .NatTrans.N-hom f = S .F-homᴰ f .fst
-      sectionToNatIso S .NatIso.nIso x = S .F-obᴰ x .snd
+      private
+        CCCᴰF,G-IsoC : CartesianClosedCategoryᴰ FreeCartesianClosedCategory _ _
+        CCCᴰF,G-IsoC .CartesianClosedCategoryᴰ.CCᴰ
+          .CartesianCategoryᴰ.Cᴰ = IsoCommaᴰΔ
+        CCCᴰF,G-IsoC .CartesianClosedCategoryᴰ.CCᴰ
+          .CartesianCategoryᴰ.termᴰ =
+          IsoCommaTerminalᴰ (FreeCartesianClosedCategory .CC .term) F-1 G-1
+        CCCᴰF,G-IsoC .CartesianClosedCategoryᴰ.CCᴰ
+          .CartesianCategoryᴰ.bpᴰ =
+          IsoCommaBinProductsᴰ (FreeCartesianClosedCategory .CC .bp) F-bp G-bp
+        CCCᴰF,G-IsoC .CartesianClosedCategoryᴰ.expᴰ
+          {A = A} f {B = B} g =
+          ⇒-iso f g , (⇒-eval f g , tt) , isUniv
+          where
+          isUniv : isUniversalᴰ IsoCommaᴰΔ _ _
+            (FreeCCC.exps A B) (⇒-eval f g , tt)
+          isUniv Γ Γᴰ .inv u uᴰ .fst = ⇒-lam f g Γᴰ u
+          isUniv Γ Γᴰ .inv _ _ .snd = tt
+          isUniv Γ Γᴰ .rightInv _ _ =
+            isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
+          isUniv Γ Γᴰ .leftInv _ _ =
+            isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
 
       module _ (ı : ElimInterpᴰ CCCᴰF,G-IsoC) where
         FreeCCCFunctor≅ : NatIso F G

@@ -167,15 +167,50 @@ module _ (D : Category ℓD ℓD') where
         ⇒Iso : CatIso D (a exp.⇒ b) (c exp.⇒ d)
         ⇒Iso = preserveIsosF {F = ⇒F a} g ⋆CatIso a⇒d≅c⇒d
           where
+
+          p : ∀ {x} →
+            bp.×F ⟪ D.id {x = x} , f .snd .inv ⟫ D.⋆ bp.×F ⟪ D.id , f .fst ⟫ ≡ D.id
+          p = (sym $ bp.×F .F-seq _ _)
+              ∙ cong (bp.×F .F-hom) (ΣPathP ((D.⋆IdL _) , (f .snd .sec)))
+              ∙ bp.×F .F-id
+
+          q : ∀ {x} →
+            bp.×F ⟪ D.id {x = x} , f .fst ⟫ D.⋆ bp.×F ⟪ D.id , f .snd .inv ⟫ ≡ D.id
+          q = (sym $ bp.×F .F-seq _ _)
+              ∙ cong (bp.×F .F-hom) (ΣPathP ((D.⋆IdL _) , (f .snd .ret)))
+              ∙ bp.×F .F-id
+
           a⇒F≅c⇒F : NatIso (⇒F a) (⇒F c)
           a⇒F≅c⇒F = FunctorComprehension-NatIso (ExpProf a) (ExpProf c) (exp a) (exp c)
                       (Isos→PshIso (λ _ → iso (λ x → bp.×F ⟪ D.id , f .snd .inv ⟫ D.⋆ x)
                                               (λ x → bp.×F ⟪ D.id , f .fst ⟫ D.⋆ x)
                                               (λ x → sym (D.⋆Assoc _ _ _)
-                                                     ∙ D.⟨ {!!} ⟩⋆⟨ refl ⟩
+                                                     ∙ D.⟨ p ⟩⋆⟨ refl ⟩
                                                      ∙ D.⋆IdL _)
-                                              {!!})
-                                   λ _ _ _ _ → {!!})
+                                              (λ x → sym (D.⋆Assoc _ _ _)
+                                                     ∙ D.⟨ q ⟩⋆⟨ refl ⟩
+                                                     ∙ D.⋆IdL _))
+                                   (λ x y g p →
+                                     (sym $ D.⋆Assoc _ _ _)
+                                      ∙ D.⟨ (sym $ D.⋆Assoc _ _ _)
+                                            ∙ D.⟨ bp.,p-extensionality
+                                                    (D.⋆Assoc _ _ _
+                                                    ∙ D.⟨ refl ⟩⋆⟨ bp.×β₁ ⟩
+                                                    ∙ sym (D.⋆Assoc _ _ _)
+                                                    ∙ D.⟨ bp.×β₁ ∙ D.⋆IdR _ ⟩⋆⟨ refl ⟩
+                                                    ∙ sym bp.×β₁
+                                                    ∙ D.⟨ refl ⟩⋆⟨ (sym $ D.⋆IdR _)
+                                                                   ∙ sym bp.×β₁ ⟩
+                                                    ∙ (sym $ D.⋆Assoc _ _ _))
+                                                    (D.⋆Assoc _ _ _
+                                                    ∙ D.⟨ refl ⟩⋆⟨ bp.×β₂ ⟩
+                                                    ∙ bp.×β₂
+                                                    ∙ D.⟨ sym bp.×β₂ ⟩⋆⟨ refl ⟩
+                                                    ∙ D.⋆Assoc _ _ _
+                                                    ∙ D.⟨ refl ⟩⋆⟨ sym bp.×β₂ ⟩
+                                                    ∙ (sym $ D.⋆Assoc _ _ _))
+                                                ⟩⋆⟨ refl ⟩
+                                            ∙ D.⋆Assoc _ _ _ ⟩⋆⟨ refl ⟩))
 
           a⇒d≅c⇒d : CatIso D (a exp.⇒ d) (c exp.⇒ d)
           a⇒d≅c⇒d = _ , (a⇒F≅c⇒F .NatIso.nIso d)

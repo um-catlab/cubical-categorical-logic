@@ -41,6 +41,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.LocalRepresentability
 open import Cubical.Categories.Profunctor.General
 
@@ -51,12 +52,18 @@ open import Cubical.Categories.Displayed.Constructions.Comma
 open import Cubical.Categories.Displayed.Constructions.Weaken
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Arrow.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 import Cubical.Categories.Displayed.Limits.BinProduct.Base as BP
-import Cubical.Categories.Displayed.Limits.Terminal as Term
+import Cubical.Categories.Displayed.Limits.Terminal as Termᴰ
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
 
 private
   variable
@@ -78,7 +85,7 @@ module _ (D : Category ℓD ℓD') where
 
     -- TODO should probably have and use ∫ue for UniversalElementᴰ for uncurried presheaves
     term×term : Terminal' (∫C (weaken D D))
-    term×term = Term.TerminalᴰNotation.∫term (weaken D D) (termWeaken term term)
+    term×term = Termᴰ.TerminalᴰNotation.∫term (weaken D D) (termWeaken term term)
 
     Iso∫wkTerminalᴰ : Terminalᴰ (Iso∫wk D) term×term
     Iso∫wkTerminalᴰ .fst = D.id , isiso D.id (D.⋆IdL D.id) (D.⋆IdL D.id)
@@ -97,14 +104,12 @@ module _ (D : Category ℓD ℓD') where
         module -×b = BinProductsWithNotation (BinProducts→BinProductsWith D b bp)
         module c×- = BinProductsWithNotation
           (BinProducts→BinProductsWith D c (λ (x , y) → SwapBinProduct D (bp (y , x))))
+      -- TODO move to BinProducts.More
       ×Iso : CatIso D (a bp.× b) (c bp.× d)
       ×Iso = preserveIsosF {F = -×b.×aF} f
              ⋆CatIso preserveIsosF {F = c×-.×aF} g
 
-    bp×bp : BinProducts (∫C (weaken D D))
-    bp×bp = BP.BinProductsᴰNotation.∫bp (binprodWeaken bp bp)
-
-    Iso∫wkBinProductsᴰ : BinProductsᴰ (Iso∫wk D) bp×bp
+    Iso∫wkBinProductsᴰ : BinProductsᴰ (Iso∫wk D) (bp×bp bp bp)
     Iso∫wkBinProductsᴰ {A = (a , c)}{B = (b , d)} f g =
       ×Iso f g ,
       ((sym c×b.×β₁
@@ -121,7 +126,7 @@ module _ (D : Category ℓD ℓD') where
       module c×d = BinProductNotation (bp (c , d))
       module c×b = BinProductNotation (bp (c , b))
 
-      isUniv : isUniversalᴰ (Iso∫wk D) _ _ (bp×bp _) _
+      isUniv : isUniversalᴰ (Iso∫wk D) _ _ (bp×bp bp bp _) _
       isUniv Γ Γᴰ .inv _ ((sq₁ , _) , (sq₂ , _)) .fst =
         c×d.,p-extensionality
           (D.⋆Assoc _ _ _
@@ -155,6 +160,7 @@ module _ (D : Category ℓD ℓD') where
           module a⇒b = ExponentialNotation (λ d₁ → bp (d₁ , a)) (exp a b)
           module c⇒d = ExponentialNotation (λ d₁ → bp (d₁ , c)) (exp c d)
 
+        -- TODO move this into the Exponentials.Small
         ExpProf : D.ob → Profunctor D D _
         ExpProf x .F-ob d = (D [-, d ]) ∘F (LRPsh→Functor ((D [-, x ]) , (λ d₁ → bp (d₁ , x))) ^opF)
         ExpProf x .F-hom f = natTrans (λ x₁ z → z D.⋆ f) λ _ → funExt λ _ → D.⋆Assoc _ _ _
@@ -215,124 +221,81 @@ module _ (D : Category ℓD ℓD') where
           a⇒d≅c⇒d : CatIso D (a exp.⇒ d) (c exp.⇒ d)
           a⇒d≅c⇒d = _ , (a⇒F≅c⇒F .NatIso.nIso d)
 
---         ⇒Iso .fst = exp.lda $ (D.id bp.×p f .snd .inv) D.⋆ exp.app D.⋆ g .fst
---         ⇒Iso .snd .inv = exp.lda $ (D.id bp.×p f .fst) D.⋆ exp.app D.⋆ g .snd .inv
---         ⇒Iso .snd .sec =
---           c⇒d.⇒ue.extensionality
---             (_ D.⋆ c⇒d.app
---               ≡⟨ D.⟨ {!!} ⟩⋆⟨ refl ⟩ ∙ D.⋆Assoc _ _ _ ⟩
---             (⇒Iso .snd .inv bp.×p D.id) D.⋆ (⇒Iso .fst bp.×p D.id) D.⋆ c⇒d.app
---               ≡⟨ D.⟨ refl ⟩⋆⟨ D.⟨ {!!} ⟩⋆⟨ refl ⟩ ∙ c⇒d.⇒ue.β ⟩ ⟩
---             (⇒Iso .snd .inv bp.×p D.id) D.⋆ ((D.id bp.×p f .snd .inv) D.⋆ exp.app D.⋆ g .fst)
---               ≡⟨ {!!} ⟩
---             (D.id bp.×p f .snd .inv) D.⋆ ((⇒Iso .snd .inv bp.×p D.id) D.⋆ exp.app) D.⋆ g .fst
---               ≡⟨ D.⟨ refl ⟩⋆⟨ D.⟨
---                  D.⟨ bp.,p-extensionality {!!} {!!}
---                  ⟩⋆⟨ refl ⟩ ∙ a⇒b.⇒ue.β ⟩⋆⟨ refl ⟩ ⟩ ⟩
---             (D.id bp.×p f .snd .inv) D.⋆ ((D.id bp.×p f .fst) D.⋆ exp.app D.⋆ g .snd .inv) D.⋆ g .fst
---               ≡⟨ (sym $ D.⋆Assoc _ _ _)
---                   ∙ D.⟨ (sym $ D.⋆Assoc _ _ _)
---                   ∙ D.⟨ {!!} ⟩⋆⟨ refl ⟩
---                   ∙ (sym $ D.⋆Assoc _ _ _) ⟩⋆⟨ refl ⟩
---                   ∙ D.⋆Assoc _ _ _ ∙ D.⋆Assoc _ _ _ ⟩
---             (D.id bp.×p (f .snd .inv D.⋆ f .fst)) D.⋆ c⇒d.app D.⋆ (g .snd .inv D.⋆ g .fst)
---               ≡⟨ ((λ i → (D.id bp.×p f .snd .sec i) D.⋆ c⇒d.app D.⋆ g .snd .sec i)) ⟩
---             (D.id bp.×p D.id) D.⋆ c⇒d.app D.⋆ D.id
---               ≡⟨ (sym $ D.⋆Assoc _ _ _) ∙ D.⋆IdR _
---                 ∙ D.⟨ bp.,p-extensionality
---                         ({!!} ∙ {!!} ∙ {!!})
---                         ({!!} ∙ {!!} ∙ {!!})
---                     ⟩⋆⟨ refl ⟩ ⟩
---            ((bp.π₁ D.⋆ D.id) bp.,p bp.π₂) D.⋆ c⇒d.app
---              ∎)
---         ⇒Iso .snd .ret = {!!}
+      -- Iso∫wkExponentialsᴰ : AllExponentiableᴰ (Iso∫wk D) (bp×bp bp bp)
+      --   Iso∫wkBinProductsᴰ (exp×exp bp bp exp exp)
+      -- Iso∫wkExponentialsᴰ {A = (a , b)} f {B = (c , d)} g =
+      --   ⇒Iso f g ,
+      --   (? , tt) ,
+      --   isUniv
+      --   where
 
+      --   isUniv : isUniversalᴰ (Iso∫wk D) _ _ (exp×exp bp bp exp exp _ _) _
+      --   isUniv Γ Γᴰ .inv _ (pᴰ , _) .fst = {!1!}
+      --   isUniv Γ Γᴰ .inv _ _ .snd = tt
+      --   isUniv Γ Γᴰ .rightInv _ _ =
+      --     isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
+      --   isUniv Γ Γᴰ .leftInv _ _ =
+      --     isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
 
--- -- module _ (D : Category ℓD ℓD') where
--- --   private
--- --     module D = Category D
--- --   module _ (bcp : BinCoProducts D) where
--- --     private
--- --       module bcp = BinCoProductsNotation bcp
+-- module IsoCommaStructure {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+--   (F G : Functor C D) where
+--   private
+--     module D = Category D
+--     module C = Category C
+--     FG : Functor C (∫C (weaken D D))
+--     FG = ×→∫wk ∘F (F ,F G)
 
--- --     bcp×bcp' : BinProducts (∫C (weaken (D ^op) (D ^op)))
--- --     bcp×bcp' = bp×bp (D ^op) bcp
+--   IsoCommaᴰΔ : Categoryᴰ C ℓD' ℓD'
+--   IsoCommaᴰΔ = Reindex.reindex (Iso∫wk D) FG
 
--- --     bcp×bcp : BinCoProducts (∫C (weaken D D))
--- --     bcp×bcp x .vertex = bcp×bcp' x .vertex
--- --     bcp×bcp x .element = bcp×bcp' x .element
--- --     bcp×bcp x .universal = bcp×bcp' x .universal
+--   sectionToNatIso : GlobalSection IsoCommaᴰΔ → F ≅ᶜ G
+--   sectionToNatIso s = record
+--     { trans = natTrans (λ c → sect.F-obᴰ c .fst)
+--                        (λ f → sect.F-homᴰ f .fst)
+--     ; nIso = λ c → sect.F-obᴰ c .snd
+--     }
+--     where module sect = Section (GlobalSectionReindex→Section _ _ s)
 
--- --     Iso∫wkBinCoProductsᴰ' : BinProductsᴰ (Iso∫wk (D ^op)) bcp×bcp'
--- --     Iso∫wkBinCoProductsᴰ' = Iso∫wkBinProductsᴰ (D ^op) bcp
+--   module _ (termC : Terminal' C)
+--            (F-1 : Term.preservesTerminal C D F)
+--            (G-1 : Term.preservesTerminal C D G) where
 
--- --     Iso∫wkBinCoProductsᴰ : BinCoProductsᴰ (Iso∫wk D) bcp×bcp
--- --     Iso∫wkBinCoProductsᴰ x y =
--- --       (isobcpᴰ .fst .fst , isiso (isobcpᴰ .fst .snd .inv)
--- --                                  (isobcpᴰ .fst .snd .ret)
--- --                                  (isobcpᴰ .fst .snd .sec)) ,
--- --       (((sym $ isobcpᴰ .snd .fst .fst .fst) , _) ,
--- --        ((sym $ isobcpᴰ .snd .fst .snd .fst) , _)) ,
--- --       isUniv
--- --       where
--- --       isobcpᴰ =
--- --         Iso∫wkBinCoProductsᴰ'
--- --           (x .fst , isiso (x .snd .inv) (x .snd .ret) (x .snd .sec))
--- --           (y .fst , isiso (y .snd .inv) (y .snd .ret) (y .snd .sec))
--- --       isUniv : _
--- --       isUniv Γ Γᴰ .inv a ((sq₁ , _) , (sq₂ , _)) .fst =
--- --         sym $ isobcpᴰ .snd .snd (Γ .snd , Γ .fst)
--- --           (Γᴰ .fst , isiso (Γᴰ .snd .inv) (Γᴰ .snd .ret) (Γᴰ .snd .sec))
--- --           .inv ((a .fst .snd , a .fst .fst) , a .snd .snd , a .snd .fst)
--- --           ((sym sq₁ , _) , (sym sq₂ , _))
--- --           .fst
--- --         where
--- --         module u+v = BinCoProductNotation (bcp Γ)
--- --       isUniv Γ Γᴰ .inv _ _ .snd = tt
--- --       isUniv Γ Γᴰ .rightInv _ _ =
--- --         isProp→PathP (λ _ → isProp×
--- --           (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)
--- --           (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)) _ _
--- --       isUniv Γ Γᴰ .leftInv _ _ =
--- --         isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
+--     private
+--       FG-1 : Term.preservesTerminal C (∫C (weaken D D)) FG
+--       FG-1 = {!!}
 
--- --   module _ (init : Initial' D) where
--- --     init×init' : Terminal' (∫C (weaken (D ^op) (D ^op)))
--- --     init×init' = term×term (D ^op) init
+--     -- reindex-reflects-UMPᴰ doesn't work directly
+--     -- need to think onwhat lemma wouldbe needed
+--     IsoCommaTerminalᴰ : Terminalᴰ IsoCommaᴰΔ termC
+--     IsoCommaTerminalᴰ =
+--       reindex-reflects-UMPᴰ {!!} {!!} {!!} {!!} {!!} {!!} {!!}
+--       -- (pshhom (λ _ _ → _) (λ _ _ _ _ → refl))
+--       -- (Iso∫wk D) termC
+--       -- (λ _ → isoToIsEquiv (iso (λ _ → tt)
+--       --                     (λ _ → F-1 (Terminal'ToTerminal termC) _ .fst ,
+--       --                            G-1 (Terminal'ToTerminal termC) _ .fst)
+--       --                     (λ _ → refl)
+--       --                     (λ a → ΣPathP
+--       --                       ((F-1 (vertex termC ,
+--       --                          Terminal'ToTerminal termC .snd) _ .snd (a .fst)) ,
+--       --                        (G-1 (vertex termC ,
+--       --                          Terminal'ToTerminal termC .snd) _ .snd (a .snd))))))
+--       {!!} {!Iso∫wkTerminalᴰ ? ? !}
 
--- --     init×init : Initial' (∫C (weaken D D))
--- --     init×init .vertex = init×init' .vertex
--- --     init×init .element = init×init' .element
--- --     init×init .universal = init×init' .universal
+--   -- module _ (bpC : BinProducts C)
+--   --          (F-bp : preservesProvidedBinProducts F bpC)
+--   --          (G-bp : preservesProvidedBinProducts G bpC) where
+--   --   IsoCommaBinProductsᴰ : BinProductsᴰ IsoCommaᴰΔ bpC
+--   --   IsoCommaBinProductsᴰ = {!!}
 
--- --     Iso∫wkInitialᴰ' : Terminalᴰ (Iso∫wk (D ^op)) init×init'
--- --     Iso∫wkInitialᴰ' = Iso∫wkTerminalᴰ (D ^op) init
+--   -- module _ (initC : Initial' C)
+--   --          (F-0 : isTerminal (D ^op) (F .F-ob (initC .vertex)))
+--   --          (G-0 : isTerminal (D ^op) (G .F-ob (initC .vertex))) where
+--   --   IsoCommaInitialᴰ : Initialᴰ IsoCommaᴰΔ initC
+--   --   IsoCommaInitialᴰ = {!!}
 
--- --     private
--- --       module ⊥D = TerminalNotation init
-
--- --     Iso∫wkInitialᴰ : Initialᴰ (Iso∫wk D) init×init
--- --     Iso∫wkInitialᴰ =
--- --       (Iso∫wkInitialᴰ' .fst .fst , isiso (Iso∫wkInitialᴰ' .fst .snd .inv)
--- --                                          (Iso∫wkInitialᴰ' .fst .snd .ret)
--- --                                          (Iso∫wkInitialᴰ' .fst .snd .sec)) ,
--- --       _ ,
--- --       isUniv
--- --       where
--- --       isUniv : _
--- --       isUniv Γ Γᴰ .inv _ _ .fst = ⊥D.𝟙extensionality
--- --       isUniv Γ Γᴰ .inv _ _ .snd = tt
--- --       isUniv Γ Γᴰ .rightInv = λ _ _ → refl
--- --       isUniv Γ Γᴰ .leftInv _ _ =
--- --         isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
-
--- --   -- -- -- -- -- module _ (term : Terminal' D) (bp : BinProducts D) where
--- --   -- -- -- -- --   CC-D×D : CartesianCategory _ _
--- --   -- -- -- -- --   CC-D×D .CartesianCategory.C = D ×C D
--- --   -- -- -- -- --   CC-D×D .CartesianCategory.term = term×term term
--- --   -- -- -- -- --   CC-D×D .CartesianCategory.bp = bp×bp bp
-
--- --   -- -- -- -- --   IsoCartesianCategoryᴰ : CartesianCategoryᴰ CC-D×D _ _
--- --   -- -- -- -- --   IsoCartesianCategoryᴰ .CartesianCategoryᴰ.Cᴰ = Iso D
--- --   -- -- -- -- --   IsoCartesianCategoryᴰ .CartesianCategoryᴰ.termᴰ = IsoTerminalᴰ term
--- --   -- -- -- -- --   IsoCartesianCategoryᴰ .CartesianCategoryᴰ.bpᴰ = IsoBinProductsᴰ bp
+--   -- module _ (bcpC : BinCoProducts C)
+--   --          (F-cp : preservesProvidedBinProducts (Functor→Functorᴼᵖ F) bcpC)
+--   --          (G-cp : preservesProvidedBinProducts (Functor→Functorᴼᵖ G) bcpC) where
+--   --   IsoCommaBinCoProductsᴰ : BinCoProductsᴰ IsoCommaᴰΔ bcpC
+--   --   IsoCommaBinCoProductsᴰ = {!!}

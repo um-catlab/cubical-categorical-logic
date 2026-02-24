@@ -131,3 +131,30 @@ module _
           ⋆PshIso reindPshIso (reindex-π-/ Dᴰ F (ue .UniversalElement.vertex)) (PshIsoᴰ→FiberwisePshIsoᴰ (UniversalElementᴰ→PshIsoᴰ Dᴰ Q Qᴰ _ ueᴰ))
           ⋆PshIso reindPsh-square _ _ _ _ _ reflect-UMP-square
           ))
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (P : Presheaf C ℓP) (Q : Presheaf D ℓQ)
+  (F : Functor C D)
+  -- (FP : PshHet F P Q)
+  (termC : Terminal' C)
+  (F-1 : preservesUniversalElement {D = D} {F = F} {Q = UnitPsh}
+           (pshhom (λ _ x → x) (λ _ _ _ _ → refl)) termC)
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (Termᴰ : ∀ termD → Terminalᴰ Dᴰ termD)
+  where
+  private
+    module C = Category C
+    module D = Category D
+    module Q = PresheafNotation Q
+    module Dᴰ = Fibers Dᴰ
+    module F = Functor F
+
+  ReindexTerminalᴰ : Terminalᴰ (reindex Dᴰ F) termC
+  ReindexTerminalᴰ =
+    reindex-reflects-UMPᴰ UnitPsh UnitPsh F
+    (pshhom (λ _ _ → _) (λ _ _ _ _ → refl))
+    Dᴰ termC
+    F-1 UnitPshᴰ
+    (Termᴰ (preservesUniversalElement→UniversalElement
+      (pshhom (λ _ _ → _) (λ _ _ _ _ → refl)) termC F-1))

@@ -69,31 +69,184 @@ module convert
   Cᴰ .isSetHomᴰ = isProp→isSet isProp≤ 
 
 
-module _ 
+module Modelᴰ 
   {ℓV ℓV' ℓC ℓC' ℓP ℓP' : Level}
-  (M : Model ℓV ℓV' ℓC ℓC' (ℓ-max ℓV ℓV) )
-  (L : Logic {ℓV }{ℓV'} M) where 
+  (M : Model ℓV ℓV' ℓC ℓC' (ℓ-max ℓP ℓP') )
+  (L : Logic {ℓP = ℓP} {ℓP'} M) where 
+
   open Model M 
   open Logic L
   
-  Vᴰ : Categoryᴰ V ℓV ℓV 
+  Vᴰ : Categoryᴰ V ℓP ℓP' 
   Vᴰ = convert.Cᴰ VH
 
-  Cᴰ : Categoryᴰ C ℓV ℓV 
+  Cᴰ : Categoryᴰ C ℓP ℓP' 
   Cᴰ = convert.Cᴰ CH
   
   module VL = HDSyntax VH 
   module CL = HDSyntax CH 
 
-  Oᴰ :  Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) (SETᴰ ℓV ℓV )
+  Oᴰ :  Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) (SETᴰ (ℓ-max ℓP ℓP') ℓP'  )
   Oᴰ .F-obᴰ {(A , B)}(P , Q) o = (A VL.◂ P ≤ (Sq .N-ob (A , B) o .fun Q) ), isProp→isSet VL.isProp≤ 
   Oᴰ .F-homᴰ {(A , B)}{(A' , B')}{(f , g)}{(P , Q)}{(P' , Q')}(P'≤f*P , Q≤g*Q' ) o  P≤o*Q = 
-    VL.seq  P'≤f*P (VL.seq (VL.mon* f P≤o*Q) (VL.seq (VL.mon* f (Sq .N-ob (A , B) o .isMon  Q≤g*Q')) ?))
-    -- (VL.eqTo≤ (cong (λ h → h .fun Q') {! λ i →  sym (Sq .N-hom (f , g) i o)   !})))) 
-
-    -- foo = {! funExt⁻ (Sq .N-hom (f , g )) o _ .isMon _ !}
+    VL.seq  P'≤f*P (
+    VL.seq (VL.mon* f P≤o*Q) (
+    VL.seq (VL.mon* f (pull o .isMon  Q≤g*Q')) (
+    VL.eqTo≤ (sym (cong(λ h → h .fun Q') (funExt⁻ (Sq .N-hom (f , g)) o))))))
   Oᴰ .F-idᴰ = toPathP (funExt λ _ → funExt λ _ → VL.isProp≤ _ _)
   Oᴰ .F-seqᴰ _ _ = toPathP (funExt λ _ → funExt λ _ → VL.isProp≤ _ _)
+
+  open import Cubical.Categories.Displayed.Bifunctor
+  open import Cubical.Categories.Bifunctor
+
+  OᴰBif : Bifunctorᴰ (ParFunctorToBifunctor O) (Vᴰ ^opᴰ) Cᴰ (SETᴰ (ℓ-max ℓP ℓP') ℓP')
+  OᴰBif = ParFunctorᴰToBifunctorᴰ Oᴰ
+
+  module _ 
+    (⊤ : L⊤.Has⊤ VH)
+    (V⊤ : HasV⊤  M) where
+
+    open L⊤.HA 
+    open L⊤.HAHom
+
+    Vterm : Terminal' V
+    Vterm .vertex = V⊤ .fst
+    Vterm .element = tt
+    Vterm .universal A .equiv-proof tt = {!   !}
+    
+    Vᴰtermⱽ : Terminalsⱽ Vᴰ
+    Vᴰtermⱽ c .UniversalElementⱽ.vertexⱽ = top (⊤ .fst c)
+    Vᴰtermⱽ c .UniversalElementⱽ.elementⱽ = tt
+    Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ {y = c'}{f = f} .fst tt = VL.seq (top-top (⊤ .fst c')) (VL.eqTo≤ (sym (f-top (⊤ .snd f) )))
+    Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .fst tt = refl
+    Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .snd a = VL.isProp≤ _ a
+
+    Vᴰtermᴰ : Terminalᴰ Vᴰ Vterm 
+    Vᴰtermᴰ = Terminalⱽ→Terminalᴰ Vᴰ (Vᴰtermⱽ (TerminalNotation.𝟙 Vterm))
+{-}
+
+  open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+  --O[-,_] : (c : ob C) → Functor (V ^op) (SET ℓS)
+  --O[-,_] c = O ∘F linj _ _ c
+  Oᴰ[-,_] : {B : ob C}(bᴰ : ob[ Cᴰ ] B) → Functorᴰ O[-, B ] (Vᴰ ^opᴰ) (SETᴰ ℓV ℓV)
+  Oᴰ[-,_] bᴰ = Oᴰ ∘Fᴰ linjᴰ _ _ bᴰ
+  -- testing 
+  --open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+  open import Cubical.Categories.Displayed.Presheaf.Morphism
+  open import Cubical.Categories.Presheaf.Morphism.Alt
+  open import Cubical.Categories.Presheaf.Base
+  open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base hiding(π₁ ; π₂)
+  open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Base
+
+
+  -- computation products in base 
+  hasComp : Type _ 
+  hasComp = ∀(B B' : ob C) → Σ[ B&B' ∈ ob C ] PshIso O[-, B&B' ] (O[-, B ] ×Psh O[-, B' ])
+
+  hasCompᴰ : hasComp → Type _ 
+  hasCompᴰ prod = ∀(B B' : ob C)(bᴰ : ob[ Cᴰ ] B)(bᴰ' : ob[ Cᴰ ] B') → 
+    Σ[ b&b' ∈ ob[ Cᴰ ] (prod B  B' .fst) ] 
+      PshIsoᴰ (prod B B' .snd) (Oᴰ[-,  b&b' ] ) (Oᴰ[-, bᴰ ] ×ᴰPsh Oᴰ[-, bᴰ' ])
+    
+  -- so what do we need in the hyperdoctrine to satisfy this ^ 
+
+  module _ 
+    (prod : hasComp)
+    (and : L∧.Has∧ CH ) where
+    open PshIso
+    open PshHom
+    open import Cubical.Foundations.Equiv.Dependent
+    open isIsoOver
+
+    _&_ : ob C → ob C → ob C
+    _&_ B B' = prod B B' .fst
+
+    cπ₁ : ∀{A B B'} → (M : O[ A , B & B' ]) → O[ A , B ]
+    cπ₁ {A}{B}{B'} M = prod B B' .snd .trans .N-ob A M .fst
+
+    cπ₂ : ∀{A B B'} → (M : O[ A , B & B' ]) → O[ A , B' ]
+    cπ₂ {A}{B}{B'} M = prod B B' .snd .trans .N-ob A M .snd
+
+    kπ₁ : ∀{B B'} → C [ B & B' , B ] 
+    kπ₁ = {!   !}
+
+    〈_,_〉 : ∀{A B B'} → O[ A , B ] → O[ A , B' ] → O[ A , B & B' ]
+    〈_,_〉 {A}{B}{B'} M N = prod B B' .snd .nIso A .fst (M , N)
+
+    -- the vertical product
+    --_⋀_ : ∀{B} → ob[ Cᴰ ] B → ob[ Cᴰ ] B → ob[ Cᴰ ] B
+    --_⋀_ {B} P Q = and .fst B .L∧.HA._∧_ P Q
+
+    -- we don't have binary products in C
+    -- so we can't make displayed products in Cᴰ
+
+
+    module _ 
+      (_⋀_ : ∀{B B'} → ob[ Cᴰ ] B →  ob[ Cᴰ ] B' → ob[ Cᴰ ] (B & B'))
+      (to : ∀{A B B' aᴰ bᴰ bᴰ'} → (M : O[ A , B & B' ]) → 
+        A VL.◂ aᴰ ≤ pull  M .fun (bᴰ ⋀ bᴰ') → (A VL.◂ aᴰ ≤  pull (cπ₁ M) .fun bᴰ) × (A VL.◂ aᴰ ≤ pull (cπ₂  M) .fun bᴰ'))
+      (fro : ∀{A B B' aᴰ bᴰ bᴰ'} → (M : O[ A , B ])(N : O[ A , B' ]) → (A VL.◂ aᴰ ≤ pull M .fun bᴰ) × (A VL.◂ aᴰ ≤ pull N .fun bᴰ') 
+        → A VL.◂ aᴰ ≤ pull 〈 M , N 〉 .fun (bᴰ ⋀ bᴰ')) where 
+
+
+      disp : hasCompᴰ prod 
+      disp B B' bᴰ bᴰ' .fst = (bᴰ ⋀ bᴰ')
+      disp B B' bᴰ bᴰ' .snd .fst .PshHomᴰ.N-obᴰ {A}{aᴰ} {A⊢B&B'} A≤B&B' = to A⊢B&B' A≤B&B'
+      disp B B' bᴰ bᴰ' .snd .fst .PshHomᴰ.N-homᴰ = toPathP (ΣPathP ((VL.isProp≤  _ _) , (VL.isProp≤  _ _)))
+      disp B B' bᴰ bᴰ' .snd .snd .inv (M , N ) (p1 , p2) = fro M N (p1 , p2)
+      disp B B' bᴰ bᴰ' .snd .snd .rightInv b q = toPathP (ΣPathP (VL.isProp≤  _ _ , VL.isProp≤  _ _))
+      disp B B' bᴰ bᴰ' .snd .snd .leftInv a p = toPathP (VL.isProp≤  _ _)
+      -- (bᴰ ⋀ bᴰ') , {! d !} , {!   !}
+
+    _ = {!   !}
+
+-}
+
+{-}
+  module Modelᴰstruct
+    ((V⊤  , UTy , FTy ) : TypeStructure  M)
+    (⊤ : L⊤.Has⊤ VH) where 
+
+    open L⊤.HA 
+    open L⊤.HAHom
+
+    open TypeSyntax (M , V⊤  , UTy , FTy ) renaming(⊤ to ⊤ty ; tt to tterm)
+
+
+    Vterm : Terminal' V
+    Vterm .vertex = ⊤ty
+    Vterm .element = tt
+    Vterm .universal A .equiv-proof tt = {!   !}
+
+    open import  Cubical.Categories.Limits.Terminal.More
+    open TerminalNotation Vterm
+    -- _ = {! !t !}
+
+    --  Cubical.Categories.Limits.Terminal.More
+
+    Vᴰtermⱽ : Terminalsⱽ Vᴰ
+    Vᴰtermⱽ c .UniversalElementⱽ.vertexⱽ = top (⊤ .fst c)
+    Vᴰtermⱽ c .UniversalElementⱽ.elementⱽ = tt
+    Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ {y = c'}{f = f} .fst tt = VL.seq (top-top (⊤ .fst c')) (VL.eqTo≤ (sym (f-top (⊤ .snd f) )))
+    Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .fst tt = refl
+    Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .snd a = VL.isProp≤ _ a
+
+    Vᴰtermᴰ : Terminalᴰ Vᴰ Vterm 
+    Vᴰtermᴰ = Terminalⱽ→Terminalᴰ Vᴰ (Vᴰtermⱽ (TerminalNotation.𝟙 Vterm))
+
+
+
+  {-}
+  Vᴰtermⱽ : Terminalsⱽ Vᴰ
+  Vᴰtermⱽ c .UniversalElementⱽ.vertexⱽ = top (⊤ .fst c)
+  Vᴰtermⱽ c .UniversalElementⱽ.elementⱽ = tt
+  Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ {y = c'}{f = f} .fst tt = LV.seq (top-top (⊤ .fst c')) (LV.eqTo≤ (sym (f-top (⊤ .snd f) )))
+  Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .fst tt = refl
+  Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .snd a = LV.isProp≤ _ a
+  -}
+
+  -}
+
   
 {-
 

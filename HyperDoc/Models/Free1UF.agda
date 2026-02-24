@@ -1,4 +1,5 @@
   {-# OPTIONS --allow-unsolved-metas #-}
+  {-# OPTIONS --type-in-type #-}
   module HyperDoc.Models.Free1UF where 
 
   -- Free model with 
@@ -21,6 +22,12 @@
   open import Cubical.Categories.Instances.Sets
   open import Cubical.Categories.Presheaf.Morphism.Alt
   open import Cubical.Categories.Instances.Preorders.Monotone
+  open import Cubical.Categories.Displayed.Section.Base
+  open import Cubical.Categories.Displayed.Base
+  open import Cubical.Categories.Displayed.Limits.Terminal
+  open import Cubical.Categories.Displayed.Functor
+  open import Cubical.Categories.NaturalTransformation.Base
+
 
   open import HyperDoc.Lib
   open import HyperDoc.CBPVModel
@@ -30,10 +37,13 @@
   open import HyperDoc.Connectives.Connectives
 
   open Category
+  open Categoryᴰ
   open Functor
+  open Functorᴰ
   open PshHom
   open PshIso
   open PreorderStr
+  open NatTrans
 
   record Raw (ℓV ℓV' ℓC ℓC' ℓS : Level) : Type (levels (ℓsuc (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ []))) where 
     field 
@@ -277,7 +287,7 @@
           vterm tt = Syn.tt
           vterm (oneη {A}{V} i) = Syn.⊤η  {A = vty A}{t = vterm V} i
           vterm (thunk x) = Syn.thunk (cterm x)
-          vterm (Uη {A}{B}{V} i) = {!   !} -- Syn.Uη {vty A}{cty B}{vterm V} i
+          vterm (Uη {A}{B}{V} i) = Syn.Uη {vty A}{cty B}{vterm V} i
           vterm (isSet⊢v V W x y i i₁) = M.V .isSetHom (vterm V) (vterm W) (cong vterm x) (cong vterm y)  i i₁
 
           kterm : ∀{B B'} → B ⊢k B' →  M.C .Hom[_,_] (cty B) (cty B')
@@ -296,14 +306,14 @@
           cterm (incOb {A}{B} M) = interpO A B (incOb M)
           cterm (subC V M) = M.lcomp (vterm V) (cterm M)
           cterm (plug S M) = M.rcomp (kterm S) (cterm M)
-          cterm (Fβ i) = {!   !}
+          cterm (Fβ {A}{B}{M} i) = {!   !}
           cterm force = Syn.force
-          cterm (Uβ i) = {!   !}
+          cterm (Uβ {A}{B}{M} i) = Syn.Uβ {vty A}{cty B}{cterm M} i
           cterm (plugId {A}{B}{M} i) = M.rcompId {vty A}{cty B}{cterm M} i 
           cterm (subCId {A}{B}{M} i) = M.lcompId {vty A}{cty B}{cterm M} i
           cterm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = M.rcompSeq {vty A }{cty B}{cty B'}{cty B''}{kterm S}{kterm S'}{cterm M} i
           cterm (subDist {A}{A'}{A''}{B}{V}{V'}{M} i) = M.lcompSeq {vty A }{vty A'}{vty A''}{cty B}{vterm V}{vterm V'}{cterm M} i
-          cterm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = {!   !} -- M.lrSeq {vty A}{vty A'}{cty B}{cty B'}{vterm V}{cterm M}{kterm S} 
+          cterm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) =  M.lrSeq {vty A}{vty A'}{cty B}{cty B'}{vterm V}{cterm M}{kterm S} i
           cterm beep = interpBeep
           cterm (isSet⊢c {A}{B}M N x y i j) = 
             (SET ℓSS) .isSetHom 
@@ -330,122 +340,231 @@
         M-rec .FO .N-hom (A , B)(A' , B') (f , g) h = {!   !}
           -- funExt⁻ (sym (M.O .F-seq _ _)) _ ∙ cong₂ (M.O .F-hom) (ΣPathP ((M.V .⋆IdR _) , M.C .⋆IdR _)) refl
 
-
-  {-}
-  module _ 
-    {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' : Level}
-    {R : Raw ℓV ℓV' ℓC ℓC' ℓS}
-    where
-
-    open FreeModel R renaming (M to Free) hiding (V ; C ; O)
-    open Syntax R
-
-    private 
-      module Free = Model Free
--}
-      {-
-        Poset -> thin Category 
-
-        then initiality..?
-
-        section is the "wrong" abstraction here
-      -}
-{-}
     module _ 
-      (L : Logic Free)
-      ((∨⊤ , ∧) : WithConnectives L) where 
-      open Logic L
-      open Section
+      {ℓV ℓV' ℓC ℓC' ℓP ℓP'  : Level} 
+      {R : Raw ℓV ℓV' ℓC ℓC' (ℓ-max ℓP ℓP')} where 
+            
+            
+      open FreeModel R renaming (M to Free)
 
-      module LV = HDSyntax VH
-      module LC = HDSyntax CH
-      
-      open L∨⊤.HA renaming (_∨_ to or)
-      open L∧.HA renaming (_∧_ to and)
-      open MonFun renaming(f to fun)
+      module _
+        (L : Logic Free) 
+        (Top : L⊤.Has⊤ (Logic.VH L))
+        (push : hasPush L)
+        where 
 
-      mutual 
-        dobv : (v : VTy) → LV.F∣ v ∣
-        dobv (inV x) = {! _⋁_ !}
-      {- dobv (A + A') = or (∨⊤ .fst (A + A')) sub {! LV.f* (σ₁ ?)  !} where 
-          have : LV.F∣ A ∣
-          have = dobv A
+        open import HyperDoc.AsDisplayed
 
-          _ = {! σ₁  !}
+        open Logic L
+        
+        open Syntax R --  hiding (F)
 
-          sub : LV.F∣ A + A' ∣ 
-          sub = {! L!} -}
-        dobv one = top (∨⊤ .fst one)
-        dobv (U B) = pull (force var) .fun (dobc B)
+        open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+        module LV = HDSyntax VH
+        module LC = HDSyntax CH
 
-        dobc : (c : CTy) → LC.F∣ c ∣
-        dobc (inC x) = {!   !}
-        dobc (B & B') = 
-          and (∧ .fst (B & B')) 
-            (LC.f* (π₁ hole) (dobc B)) 
-            (LC.f* (π₂ hole) (dobc B')) 
-        dobc (F A) = push (bind hole) .fun (dobv A)
 
-      mutual 
-        vproof : ∀{A A'} → (f : A ⊢v A') → A LV.◂ dobv A ≤ LV.f* f (dobv A') 
-        vproof (incVal x) = {!   !}
-        vproof (subV V W) = LV.seq* V W (vproof V) (vproof W)
-        vproof var = LV.f*id' (IsPreorder.is-refl (isPreorder (VH .F-ob _ .fst .snd)) (dobv _))
-        vproof {A}{A'} (subVIdl V i) = LV.isProp≤ {A}{dobv A}{LV.f* (subVIdl V i) (dobv A')} {!   !} {! vproof V  !} i
-        vproof (subVIdr V i) = {!   !}
-        vproof (subVAssoc V V₁ V₂ i) = {!   !}
-        vproof {A} tt = {!   !} --  top-top (∨⊤ .fst A) -- VH .F-hom tt .fun (dobv one)
-        vproof (oneη i) = {!   !}
-        vproof (thunk x) = {!   !}
-        vproof (Uη i) = {!   !}
-        vproof (isSet⊢v V V₁ x y i i₁) = {!   !}
+        open Model Free
+        open Modelᴰ Free L
+        open Modelᴰstruct (terminal , utype , ftype) Top
+        open TerminalᴰNotation _ Vᴰtermᴰ
+        open import Cubical.Categories.Limits.Terminal.More
+        open TerminalNotation Vterm
 
-        kproof : ∀{B B'} → (f : B ⊢k B') → B LC.◂ dobc B ≤ LC.f* f (dobc B')
-        kproof (incComp x) = {!   !}
-        kproof (kcomp M M₁) = {!   !}
-        kproof hole = {!   !}
-        kproof (kcompIdl M i) = {!   !}
-        kproof (kcompIdr M i) = {!   !}
-        kproof (kcompAssoc M M₁ M₂ i) = {!   !}
-        kproof (ret x) = {!   !}
-        kproof (Fη i) = {!   !}
-        kproof (M ,, M₁) = {!   !}
-        kproof (π₁ M) = {!   !}
-        kproof (π₂ M) = {!   !}
-        kproof (&β₁ i) = {!   !}
-        kproof (&β₂ i) = {!   !}
-        kproof (&η i) = {!   !}
-        kproof (isSet⊢k M M₁ x y i i₁) = {!   !} 
+        open TerminalⱽNotation Vᴰ one (Vᴰtermⱽ one)
+        
 
-      M-elim : GlobalSection {M = Free} L 
-      M-elim .DobV = dobv
-      M-elim .DhomV f = vproof f
-      M-elim .DobC = dobc
-      M-elim .DhomC = {!   !}
+        -- ? Vᴰtermⱽ
 
-      
-  
-  {-
-    eliminator.. 
-      Given a Model M 
-      and a logic L over M 
 
-      we can construct the free model Morphism
-        free : Free → M   
-  -}
-  {-
-  record ModelSection 
-    {ℓVS ℓV'S ℓCS ℓC'S ℓSS ℓVT ℓV'T ℓCT ℓC'T ℓST ℓVD ℓVD'  ℓCD ℓCD' ℓSD : Level}
-    {M : Model ℓVS ℓV'S ℓCS ℓC'S ℓSS}
-    {N : Model ℓVT ℓV'T ℓCT ℓC'T ℓST}
-    (F : ModelMorphism _ _ _ _ _ _ _ _ _ _ M N) : Type {!   !} where
-    -- (Nᴰ : DisplayedModel _ _ ℓVD ℓVD' _ _  ℓCD ℓCD' _ ℓSD N) : Type _ where 
-    --open ModelMorphism F 
-   -- open DisplayedModel Nᴰ
-    field 
-   --   SV : Section FV Vᴰ
-   --   SC : Section FC Cᴰ
-      -- SO 
-      -}
 
-      -}
+
+        mutual 
+          lvty : (A : VTy) → ob[ Vᴰ ] A
+          lvty (inV x) = {!   !}
+          lvty one = 𝟙ᴰ
+          lvty (U B) = pull force .MonFun.f (lcty B)
+
+          lcty : (B : CTy) → ob[ Cᴰ ] B
+          lcty (inC x) = {!   !}
+          lcty (F A) = push ret .fst .MonFun.f (lvty A)
+
+        mutual 
+          lsubC : ∀ {A A' B}→ (t : (Model.V Free) .Hom[_,_] A A' )(M : O[ A' , B ]) → A LV.◂ lvty A ≤ pull (subC t M) .MonFun.f (lcty B)
+          lsubC {A}{A'}{B} V M  = VL.seq (lvtm V) (VL.seq (VL.mon* V (lctm M)) (VL.eqTo≤ ((cong (λ h → h .MonFun.f (lcty B)) (sym (cong pull (cong₂ subC refl (sym plugId)) ∙ pullLComp V M))))))
+
+          lthunk : ∀ {A  B}→ (M : O[ A , B ]) → Hom[ Vᴰ ][ thunk M , lvty A ] (pull force .MonFun.f (lcty B))
+          lthunk {A}{B} M = LV.seq (lctm M) (LV.eqTo≤ ((cong (λ h → h .MonFun.f (lcty B))) (cong pull (sym Uβ ∙ cong₂ subC refl (sym plugId)) ∙ pullLComp (thunk M) force)))
+
+          {-# TERMINATING #-} -- WHY
+          lvtm : {A A' : VTy} → (f : A ⊢v A') → Hom[ Vᴰ ][ f , lvty A ] (lvty A')
+          -- (VH .F-ob A .fst .snd ≤ lvty A) (VH .F-hom f .MonFun.f (lvty A'))
+          lvtm (incVal x) = {!   !}
+          lvtm (subV f g) = Categoryᴰ._⋆ᴰ_  Vᴰ (lvtm f) (lvtm g)
+          lvtm var = Categoryᴰ.idᴰ Vᴰ 
+          lvtm (subVIdl f i) = Categoryᴰ.⋆IdLᴰ Vᴰ  (lvtm f) i
+          lvtm (subVIdr f i) = Categoryᴰ.⋆IdRᴰ Vᴰ  (lvtm f) i
+          lvtm (subVAssoc f g h i) = Categoryᴰ.⋆Assocᴰ Vᴰ  (lvtm f) (lvtm g) (lvtm h) i
+          lvtm (tt {A}) = !tⱽ tt (lvty A)
+          lvtm (oneη {A}{V} i) = VL.eq*PathP (oneη {A}{V}) (!tⱽ tt (lvty A)) (lvtm V) i
+            -- VL.eq*PathP (oneη {A}{V}) (!tⱽ tt (lvty A)) (lvtm V) i
+          lvtm (thunk {A}{B} M) = lthunk M
+           --  LV.seq (lctm M) (LV.eqTo≤ ((cong (λ h → h .MonFun.f (lcty B))) (cong pull (sym Uβ ∙ cong₂ subC refl (sym plugId)) ∙ pullLComp (thunk M) force)))
+            {-goal where 
+
+            have : A LV.◂ lvty A ≤ pull M .MonFun.f (lcty B)
+            have = lctm M
+
+            have' : pull M ≡ MonComp (pull force) (VH .F-hom (thunk M))
+            have' = cong pull (sym Uβ ∙ cong₂ subC refl (sym plugId)) ∙ pullLComp (thunk M) force
+
+            goal : A LV.◂ lvty A ≤ LV.f* (thunk M) (pull force .MonFun.f (lcty B))
+            goal = LV.seq have (LV.eqTo≤ ((cong (λ h → h .MonFun.f (lcty B))) have'))
+            -}
+
+          lvtm (Uη {A}{B}{V} i) = isProp→PathP {B = λ i → Hom[ Vᴰ ][ Uη i , lvty A ] (pull force .MonFun.f (lcty B))}(λ i₁ →
+                  IsPreorder.is-prop-valued (isPreorder (VH .F-ob A .fst .snd))
+                  (lvty A) (HDSyntax.f* VH (Uη i₁) (pull force .MonFun.f (lcty B)))) (lthunk (subC' V force')) (lvtm V) i 
+          {-
+          
+          Hom[ Vᴰ ][ Uη i , lvty A ] (pull force .MonFun.f (lcty B))
+———— Boundary (wanted) —————————————————————————————————————
+i = i0 ⊢ lthunk (subC' V force')
+i = i1 ⊢ lvtm V
+          -}
+            --.≡out {fᴰ = lvtm (Uη {A}{B}{V} i)}{gᴰ = lvtm V} (ΣPathP ({! refl  !} , {!   !})) i --  VL.eq*PathP (Uη {A}{B}{V})  {! lsubC {A} V ? !} (lvtm V) i
+            {-}
+             isProp→PathP {B = λ i → Hom[ Vᴰ ][ Uη i , lvty A ] (pull force .MonFun.f (lcty B))}(λ i₁ →
+                  IsPreorder.is-prop-valued (isPreorder (VH .F-ob A .fst .snd))
+                  (lvty A) (HDSyntax.f* VH (Uη i₁) (pull force .MonFun.f (lcty B)))) {! lthunk ?  !} (lvtm V) i 
+                  -}
+            {-}
+            VL.eq*PathP 
+              (Uη {A}{B}{V}) 
+              (transport wtf (lvtm V)) 
+              -- (LV.seq (lctm (subC V {! force  !})) (LV.isProp≤ {!   !} {!   !} i))
+              -- (LV.seq (lctm (subC' V force')) (LV.eqTo≤ ((cong (λ h → h .MonFun.f (lcty B))) (cong pull (sym Uβ ∙ cong₂ subC refl (sym plugId)) ∙ pullLComp (thunk (subC' V force')) force)))) 
+              (lvtm V) 
+              i where 
+
+            wtf : (VH .F-ob A .fst .snd ≤ lvty A)
+              (VH .F-hom V .MonFun.f
+              (N-ob Sq (U B , B) force .MonFun.f (lcty B)))
+              ≡
+              (VH .F-ob A .fst .snd ≤ lvty A)
+              (VH .F-hom (thunk (subC V force)) .MonFun.f
+              (N-ob Sq (U B , B) force .MonFun.f (lcty B))) 
+            wtf i = {! d !}-}
+              
+
+          lvtm (isSet⊢v f f₁ x y i j) = {! VL.isProp  !}
+
+          lktm : {B B' : CTy} → (S : B ⊢k B') → Hom[ Cᴰ  ][ S , lcty B ] (lcty B')
+          lktm (incComp x) = {!   !}
+          lktm (kcomp S S') = Categoryᴰ._⋆ᴰ_ Cᴰ (lktm S) (lktm S')
+          lktm hole = Categoryᴰ.idᴰ Cᴰ
+          lktm (kcompIdl S i) = Categoryᴰ.⋆IdLᴰ Cᴰ (lktm S) i
+          lktm (kcompIdr S i) = Categoryᴰ.⋆IdRᴰ Cᴰ (lktm S) i
+          lktm (kcompAssoc S S₁ S₂ i) = Categoryᴰ.⋆Assocᴰ Cᴰ (lktm S) (lktm S₁) (lktm S₂) i
+          lktm (bind {A}{B} M) = goal where 
+
+            have : pull M ≡ MonComp (CH .F-hom (bind M)) (pull ret)
+            have = cong (λ h → Sq .N-ob (A , B) h ) (sym subCId ∙ cong₂ subC refl Fβ) ∙ pullRComp (bind M) ret
+
+            goal' : A LV.◂ lvty A ≤ pull ret .MonFun.f (CL.f* (bind M) (lcty B))
+            goal' = LV.seq (lctm M) (LV.eqTo≤ (cong (λ h → h .MonFun.f (lcty B)) have))
+
+            goal : (F A) CL.◂ push ret .fst .MonFun.f (lvty A) ≤ CL.f* (bind M) (lcty B)
+            goal = pullToPush L push ret goal'
+
+          lktm (Fη {A}{B}{S} i) = 
+            LC.eq*PathP 
+              (Fη {A}{B}{S}) 
+              (lktm S) 
+              _ 
+              i
+          lktm (isSet⊢k S S₁ x y i i₁) = {! Model.lcomp Free V M  !}
+
+          lctm : {A : VTy}{B : CTy} → (M : A ⊢c B) → A LV.◂ lvty A ≤ pull M  .MonFun.f (lcty B) 
+          lctm (ret {A}) = pushToPull L push ret LC.id⊢
+
+          lctm (incOb x) = {!   !}
+          lctm (subC {A}{A'}{B} V M) = lsubC V M where 
+            alt : A LV.◂ lvty A ≤ pull (Model.O Free .F-hom (V , hole) M) .MonFun.f {!   !}
+            alt = Oᴰ  .F-homᴰ  {f = V , hole}(lvtm V , CL.id⊢) M {! lctm M  !}
+
+          --   VL.seq (lvtm V) (VL.seq (VL.mon* V (lctm M)) (VL.eqTo≤ ((cong (λ h → h .MonFun.f (lcty B)) (sym (cong pull (cong₂ subC refl (sym plugId)) ∙ pullLComp V M))))))
+            {-goal where 
+
+            have : A VL.◂ lvty A ≤ VL.f* V (lvty A') 
+            have = lvtm V
+
+            have' : A' VL.◂ lvty A' ≤ pull M .MonFun.f (lcty B) 
+            have' = lctm M
+
+            have'' : pull (subC V M) ≡ MonComp (pull M) (VH .F-hom V)
+            have'' = cong pull (cong₂ subC refl (sym plugId)) ∙ pullLComp V M
+            
+            goal : A VL.◂ lvty A ≤ pull (subC V M) .MonFun.f (lcty B)
+            goal = VL.seq have (VL.seq (VL.mon* V have') (VL.eqTo≤ ((cong (λ h → h .MonFun.f (lcty B)) (sym have'')))))
+-}
+          lctm (plug {A}{B}{B'} S M) = goal where 
+            alt : A LV.◂ VH .F-hom var .MonFun.f (lvty A) ≤ pull (subC var (plug S M)) .MonFun.f (lcty B')
+            --N-ob Sq (A , B') (Model.O Free .F-hom (var , S) M) .MonFun.f
+            --   (lcty B')
+            atl = Oᴰ  .F-homᴰ {f = var , S} (VL.id⊢ , lktm S) M (lctm M)
+
+            have : A LV.◂ lvty A ≤ pull M .MonFun.f (lcty B)
+            have = lctm  M
+
+            have' : B CL.◂ lcty B ≤ CL.f* S (lcty B') 
+            have' = lktm S
+
+            have'' : pull M .MonFun.f (CL.f* S (lcty B')) ≡ pull (plug S M) .MonFun.f (lcty B')
+            have'' = 
+              cong (λ h → h .MonFun.f (lcty B')) 
+                (sym (cong (λ h → Sq .N-ob (A , B') h) (sym subCId) ∙ pullRComp S M))
+
+            goal : A VL.◂ lvty A ≤ pull (plug S M) .MonFun.f (lcty B')
+            goal = VL.seq have (VL.seq (pull M .MonFun.isMon have') (VL.eqTo≤ have''))
+          lctm (Fβ i) = {!   !}
+          lctm (force {B}) = LV.id⊢
+            -- IsPreorder.is-refl (isPreorder (VH .F-ob (U _) .fst .snd)) (lvty (U _))
+          lctm (Uβ i) = {!  VL.eq*PathP ? ? ? i  !}
+          lctm (plugId i) = {! VL.eq*PathP ? ? ? i !}
+            -- plug hole M ≡ M
+          lctm (subCId {A}{B}{M} i) =
+            
+              isProp→PathP 
+                {B = λ i → A LV.◂ lvty A ≤ pull (subCId i) .MonFun.f (lcty B)} 
+                (λ i₁ →
+                     IsPreorder.is-prop-valued (isPreorder (VH .F-ob A .fst .snd))
+                     (lvty A) (pull (subCId i₁) .MonFun.f (lcty B))) 
+                (lsubC var M)
+                (lctm M) 
+                i 
+                
+          lctm (plugDist i) = {! d !}
+          lctm (subDist i) = {!   !}
+          lctm (plugSub i) = {!   !}
+          lctm beep = {!   !}
+          lctm (isSet⊢c M M₁ x y i i₁) = {!   !}
+
+
+        SV : Section Id (Modelᴰ.Vᴰ Free L) 
+        SV .Section.F-obᴰ = lvty
+        SV .Section.F-homᴰ = lvtm
+        SV .Section.F-idᴰ = VL.isProp≤  _ _
+        SV .Section.F-seqᴰ _ _ = VL.isProp≤  _ _
+
+        SC : Section Id (Modelᴰ.Cᴰ Free L) 
+        SC .Section.F-obᴰ = lcty
+        SC .Section.F-homᴰ = lktm
+        SC .Section.F-idᴰ = CL.isProp≤  _ _
+        SC .Section.F-seqᴰ _ _ = CL.isProp≤  _ _
+
+        M-elim : MSection {M = Free}{Free} (idModelMorphism Free) L
+        M-elim .fst = SV
+        M-elim .snd .fst = SC
+        M-elim .snd .snd = lctm
+

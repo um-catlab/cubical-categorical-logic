@@ -33,44 +33,32 @@
   open PshHom
   open PshIso
   open PreorderStr
-
-  record Raw (ℓV ℓV' ℓC ℓC' ℓS : Level) : Type (levels (ℓsuc (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ []))) where 
-    field 
-      VG : Graph ℓV ℓV' 
-      CG : Graph ℓC ℓC' 
-      OF : VG .Node → CG .Node → Type ℓS
+  open MonFun renaming (f to fun)
 
   module Syntax
-    {ℓV ℓV' ℓC ℓC' ℓS : Level }
-    (R : Raw ℓV ℓV' ℓC ℓC' ℓS) where
-
-    open Raw R 
+    {ℓV ℓV' ℓC ℓC' ℓS : Level } where
 
     mutual 
       data VTy : Type (levels (ℓV ∷ ℓC ∷ [])) where 
-        inV : VG .Node → VTy
-       -- _+_ : VTy → VTy → VTy
         one : VTy 
+        _+_ : VTy → VTy → VTy
         U : CTy → VTy 
 
       data CTy : Type (levels (ℓV ∷ ℓC ∷ [])) where
-        inC : CG .Node →  CTy
         _&_ : CTy → CTy → CTy 
         F : VTy → CTy    
 
     data _⊢v_ : (A A' : VTy) → Type (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ []))
     data _⊢c_ : (A : VTy)(B : CTy) → Type (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ []))
     data _⊢k_ : (B B' : CTy) → Type (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ []))
-
-    force' :  ∀{A B} → A ⊢v U B → A ⊢c B
+    force' :  ∀{B} → U B ⊢c B
     hole' : ∀ {B} → B ⊢k B
     kcomp' : ∀ {B B' B''} → B ⊢k B' → B' ⊢k B'' → B ⊢k B''
-    ret' : ∀{A B} → A ⊢c B → F A ⊢k B
+    ret' : ∀{A } → A ⊢c F A
+    bind' : ∀{A B} → A ⊢c B → F A ⊢k B
+    subC' : ∀ {A A' B} → A ⊢v A' → A' ⊢c B → A ⊢c B
 
     data _⊢v_   where
-      -- include generators
-      incVal : ∀{A A'} → VG .Edge A A' → inV A ⊢v inV A'
-
       -- category 
       subV : ∀ {A A' A''} → A ⊢v A' → A' ⊢v A'' → A ⊢v A''
       var : ∀ {A} → A ⊢v A
@@ -78,44 +66,22 @@
       subVIdr : ∀ {A A'} → (V : A ⊢v A') → subV V (var {A'}) ≡ V
       subVAssoc : ∀ {A₁ A₂ A₃ A₄}(V : A₁ ⊢v A₂)(W : A₂ ⊢v A₃)(Y : A₃ ⊢v A₄) → 
         subV (subV V W) Y ≡ subV V (subV W Y)
+      isSet⊢v : ∀{A A'} → isSet (A ⊢v A')
 
-      -- type structure
+      -- 1
       tt : ∀{A} → A ⊢v one
       oneη : ∀{A}{V : A ⊢v one} → tt ≡ V
 
+      -- U
       thunk : ∀{A B} → A ⊢c B → A ⊢v U B
-      Uη : ∀{A B}{V : A ⊢v U B} → thunk (force' V) ≡ V
+      Uη : ∀{A B}{V : A ⊢v U B} →  thunk (subC' V force') ≡ V
 
-      isSet⊢v : ∀{A A'} → isSet (A ⊢v A')
 
 
     data _⊢c_ where 
-      incOb : ∀{A B} → OF A B → inV A ⊢c inC B
-      
+      -- profunctor      
       subC : ∀ {A A' B} → A ⊢v A' → A' ⊢c B → A ⊢c B
       plug : ∀ {A B B'} → B ⊢k B' → A ⊢c B → A ⊢c B'
-
-    
-      bind : ∀ {A B} → F A ⊢k B → A ⊢c B
-
-      Fβ : ∀{A B}{M : A ⊢c B} →  bind (ret' M) ≡ M
-      force : ∀{A B} → A ⊢v U B → A ⊢c B
-      -- UB ⊢c B
-      -- universal element avoids having to add law to prove naturality
-      -- see ccc 
-      -- idea is because it comes from composition
-
-      Uβ : ∀ {A B} → {M : A ⊢c B} → force (thunk M) ≡ M
-{-}
-      case : ∀{A A' B} → A ⊢c B → A' ⊢c B  → (A + A') ⊢c B 
-      σ₁ : ∀{A A' B} → (A + A') ⊢c B → A ⊢c B
-      σ₂ : ∀{A A' B} → (A + A') ⊢c B → A' ⊢c B
-
-      +β₁ : ∀{A A' B}{M : A ⊢c B}{N : A' ⊢c B} → σ₁ (case M N) ≡ M 
-      +β₂ : ∀{A A' B}{M : A ⊢c B}{N : A' ⊢c B} → σ₂ (case M N) ≡ N
-      +η : ∀{A A' B}{P : (A + A') ⊢c B} → case (σ₁ P) (σ₂ P) ≡ P -}
-
-      -- interaction laws (profunctor action)
       plugId : ∀ {A B}{M : A ⊢c B} → plug (hole' {B}) M ≡ M
       subCId : ∀ {A B}{M : A ⊢c B} → subC (var {A}) M ≡ M
       plugDist : ∀ {A B B' B''}{S : B ⊢k B'}{S' : B' ⊢k B''}{M : A ⊢c B} → --rcomp
@@ -124,14 +90,48 @@
         subC V (subC V' M) ≡ subC (subV V V') M
       plugSub : ∀ {A A' B B'}{V : A ⊢v A'}{M : A' ⊢c B}{S : B ⊢k B'} → 
         subC V (plug S M) ≡ plug S (subC V M)
-
       isSet⊢c : ∀{A B} → isSet (A ⊢c B)
+
+      -- &
+      _,,_ : ∀{A B B'} → A ⊢c B → A ⊢c B' → A ⊢c (B & B')
+      π₁ :  ∀{A B B'} → A ⊢c (B & B') → A ⊢c B
+      π₂ : ∀{A B B'} → A ⊢c (B & B') → A ⊢c B'
+
+      &β₁ : ∀{A B B'}{M : A ⊢c B}{N : A ⊢c B'} → π₁ (M ,, N) ≡ M
+      &β₂ : ∀{A B B'}{M : A ⊢c B}{N : A ⊢c B'} → π₂ (M ,, N) ≡ N
+      &η : ∀{A B B'}{P : A  ⊢c (B & B')} → (π₁ P ,, π₂ P) ≡ P
+
+      π₁Sub : ∀{A A' B B'}{V : A ⊢v A'}{p : A' ⊢c (B & B')} 
+        →  π₁ (subC V p) ≡ subC V (π₁ p)
+      π₂Sub : ∀{A A' B B'}{V : A ⊢v A'}{p : A' ⊢c (B & B')} 
+        →  π₂ (subC V p) ≡ subC V (π₂ p)
+
+      -- +
+      σ₁ : ∀ {A A' B} → (A + A') ⊢c B → (A ⊢c B) 
+      σ₂ : ∀ {A A' B} → (A + A') ⊢c B → (A' ⊢c B) 
+      case : ∀ {A A' B} → (A ⊢c B) → (A' ⊢c B) → (A + A') ⊢c B
+
+      +β₁ : ∀{A A' B}{M : A ⊢c B}{N : A' ⊢c B} → σ₁ (case M N) ≡ M
+      +β₂ : ∀{A A' B}{M : A ⊢c B}{N : A' ⊢c B} → σ₂ (case M N) ≡ N
+      +η : ∀{A A' B}{P : (A + A') ⊢c B} → case (σ₁ P) (σ₂ P) ≡ P 
+
+      σ₁Sub : ∀{A A' B B'}{S : B ⊢k B'}{p : (A + A') ⊢c B} → σ₁ (plug S p) ≡ plug S (σ₁ p)
+      σ₂Sub : ∀{A A' B B'}{S : B ⊢k B'}{p : (A + A') ⊢c B} → σ₂ (plug S p) ≡ plug S (σ₂ p)
+
+      -- F
+      ret : ∀{A } → A ⊢c F A
+      Fβ : ∀{A B}{M : A ⊢c B} → M ≡ plug (bind' M) ret
+
+      -- U
+      force : ∀{B} → U B ⊢c B
+      Uβ : ∀ {A B} → {M : A ⊢c B} → subC (thunk M) force ≡ M
+
+      -- just encode effect
+      beep : one ⊢c F one
 
     force' = force
 
     data _⊢k_ where 
-      incComp : ∀{B B'} → CG .Edge B B' → inC B ⊢k inC B'
-
       -- category 
       kcomp : ∀ {B B' B''} → B ⊢k B' → B' ⊢k B'' → B ⊢k B''
       hole : ∀ {B} → B ⊢k B
@@ -139,30 +139,23 @@
       kcompIdr : ∀ {B B'} → (M : B ⊢k B') → kcomp M (hole {B'}) ≡ M
       kcompAssoc : ∀ {B₁ B₂ B₃ B₄}(M : B₁ ⊢k B₂)(N : B₂ ⊢k B₃)(P : B₃ ⊢k B₄) → 
         kcomp(kcomp M N) P ≡  kcomp M (kcomp N P)
-
-      -- type structure 
-      ret : ∀{A B} → A ⊢c B → F A ⊢k B
-      Fη : ∀ {A B}{S : F A ⊢k B} → ret (bind S) ≡ S
-
-      _,,_ : ∀{B B' B''} → B ⊢k B' → B ⊢k B'' → B ⊢k (B' & B'')
-      π₁ :  ∀{B B' B''} → B ⊢k (B' & B'') → B ⊢k B'
-      π₂ : ∀{B B' B''} → B ⊢k (B' & B'') → B ⊢k B''
-
-      &β₁ : ∀{B B' B''}{M : B ⊢k B'}{N : B ⊢k B''} → π₁ (M ,, N) ≡ M
-      &β₂ : ∀{B B' B''}{M : B ⊢k B'}{N : B ⊢k B''} → π₂ (M ,, N) ≡ N
-      &η : ∀{B B' B''}{P : B  ⊢k (B' & B'')} → (π₁ P ,, π₂ P) ≡ P
-
       isSet⊢k : ∀{B B'} → isSet (B ⊢k B')
+
+      -- F
+      bind : ∀{A B} → A ⊢c B → F A ⊢k B
+      Fη : ∀ {A B}{S : F A ⊢k B} → S ≡ bind (plug S ret)
 
     hole' = hole
     kcomp' = kcomp
     ret' = ret
+    bind' = bind
+    subC' = subC
+
 
   module FreeModel 
-    {ℓV ℓV' ℓC ℓC' ℓS : Level }
-    (R : Raw ℓV ℓV' ℓC ℓC' ℓS) where 
+    {ℓV ℓV' ℓC ℓC' ℓS : Level } where 
 
-    open Syntax R
+    open Syntax {ℓV}{ℓV'}{ℓC}{ℓC'}{ℓS}
 
     V : Category (ℓ-max ℓV ℓC) (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ []))
     V .ob = VTy
@@ -206,291 +199,254 @@
     terminal .snd .nIso A .snd .fst tt* = refl
     terminal .snd .nIso A .snd .snd V = oneη
 
-{-
-    coprod : HasV+ M 
-    coprod  A A' .fst = A + A'
-    coprod A A' .snd .trans .N-ob B p = (σ₁ p) , (σ₂ p)
-    coprod A A' .snd .trans .N-hom B B' S p = ΣPathP ({!   !} , {!   !})
-    coprod A A' .snd .nIso B .fst (M , N) = case M N
-    coprod A A' .snd .nIso B .snd .fst (M , N) = ΣPathP (+β₁ , +β₂)
-    coprod A A' .snd .nIso B .snd .snd p = +η
--}
     utype : HasUTy M
     utype B .fst = U B
-    utype B .snd .trans .N-ob A = force
-    utype B .snd .trans .N-hom A A' V W = {!   !}
-      -- ({!   !} ∙ sym plugId) ∙ sym plugSub 
-    -- ∙ cong₂ subC refl (sym plugId)
-    {-
-          subDist : ∀ {A A' A'' B}{V : A ⊢v A'}{V' : A' ⊢v A''}{M : A'' ⊢c B} → --lcomp
-        subC V (subC V' M) ≡ subC (subV V V') M
-      -}
+    utype B .snd .trans .N-ob A V = subC V force
+    utype B .snd .trans .N-hom A A' V W = sym subDist ∙ cong₂ subC refl (sym plugId)
     utype B .snd .nIso A .fst = thunk
     utype B .snd .nIso A .snd .fst M = Uβ
     utype B .snd .nIso A .snd .snd V = Uη
 
     ftype : HasFTy M 
     ftype A .fst = F A
-    ftype A .snd .trans .N-ob B = bind
-    ftype A .snd .trans .N-hom B B' S S' = {!    !} ∙ sym subCId
-    ftype A .snd .nIso B .fst = ret
-    ftype A .snd .nIso B .snd .fst M = Fβ
-    ftype A .snd .nIso B .snd .snd S = Fη
+    ftype A .snd .trans .N-ob B S = plug S ret
+    ftype A .snd .trans .N-hom B B' S S' = sym plugDist ∙ sym subCId
+    ftype A .snd .nIso B .fst = bind
+    ftype A .snd .nIso B .snd .fst M = sym Fβ
+    ftype A .snd .nIso B .snd .snd S = sym Fη
 
-    products : HasC× M 
+    coproducts : HasV+ M 
+    coproducts A A' .fst = A + A'
+    coproducts A A' .snd .trans .N-ob B P = σ₁ P , σ₂ P
+    coproducts A A' .snd .trans .N-hom B B' S p = 
+      ΣPathP (
+        cong σ₁ subCId ∙ σ₁Sub ∙ sym subCId , 
+        cong σ₂ subCId ∙ σ₂Sub ∙ sym subCId)
+    coproducts A A' .snd .nIso B .fst (M , N) = case M N
+    coproducts A A' .snd .nIso B .snd .fst (M , N) = ΣPathP (+β₁ , +β₂)
+    coproducts A A' .snd .nIso B .snd .snd P = +η
+
+    products : HasO× M
     products B B' .fst = B & B'
-    products B B' .snd .trans .N-ob B'' P = (π₁ P) , (π₂ P)
-    products B B' .snd .trans .N-hom C C' S P = ΣPathP ({!   !} , {!   !})
-    products B B' .snd .nIso B'' .fst (S , S') = S ,, S'
-    products B B' .snd .nIso B'' .snd .fst (S , S') = ΣPathP (&β₁ , &β₂)
-    products B B' .snd .nIso B'' .snd .snd P = &η
+    products B B' .snd .trans .N-ob A P = π₁ P , π₂ P
+    products B B' .snd .trans .N-hom A A' V p = 
+      ΣPathP (
+        (cong (λ h → π₁ (subC V h)) plugId 
+          ∙  π₁Sub 
+          ∙ cong₂ subC refl (sym plugId)) , 
+        (cong (λ h → π₂ (subC V h)) plugId 
+          ∙  π₂Sub 
+          ∙ cong₂ subC refl (sym plugId)))
+    products B B' .snd .nIso A .fst (M , N) = M ,, N
+    products B B' .snd .nIso A .snd .fst (M , N) = ΣPathP (&β₁ , &β₂)
+    products B B' .snd .nIso A .snd .snd P = &η
 
-  module Interp where 
-
-
-  module Initiality where 
-
-    asGraph : ∀{ℓ ℓ'} → Category ℓ ℓ' → Graph ℓ ℓ' 
-    asGraph C = record { Node = C .ob ; Edge = C .Hom[_,_] }
-
-    record ModelInterpretation
-      {ℓVS ℓV'S ℓCS ℓC'S ℓSS ℓVT ℓV'T ℓCT ℓC'T ℓST : Level}
-      (R : Raw ℓVS ℓV'S ℓCS ℓC'S ℓSS)
-      (M : Model ℓVT ℓV'T ℓCT ℓC'T ℓST )
-      : Type (levels (ℓsuc (ℓVS ∷ ℓV'S ∷ ℓCS ∷ ℓC'S ∷ ℓSS ∷ ℓVT ∷ ℓV'T ∷ ℓCT ∷ ℓC'T ∷ ℓST ∷ []))) where
-      open Raw R
-      
-      open Syntax R
-      open GraphHom
-      private
-        module M = Model M
-      field 
-        interpV : GraphHom VG (asGraph M.V)
-        interpC : GraphHom CG (asGraph M.C)
-        interpO : ∀ (A : VG .Node)(B : CG .Node) → inV A ⊢c inC B → ⟨ M.O .F-ob ((interpV $g A) , (interpC $g B) ) ⟩ 
-
-
-    module _     
-      {ℓVS ℓV'S ℓCS ℓC'S ℓSS ℓVT ℓV'T ℓCT ℓC'T ℓST : Level}
-      {R : Raw ℓVS ℓV'S ℓCS ℓC'S ℓSS}
-      {(M , V⊤  , UTy , FTy , C×) : ModelWithTypeStructure ℓVS ℓV'S ℓCS ℓC'S ℓSS}
-      (interp : ModelInterpretation R M) where
-
-      open FreeModel R renaming (M to Free) hiding (V ; C ; O)
-      open ModelMorphism 
-      open Syntax R
-      open ModelInterpretation interp
-
-      private 
-        module Free = Model Free
-        module M = Model M
-        module Syn = TypeSyntax (M , V⊤  , UTy , FTy , C×) 
-
-
-      mutual 
-        vty : VTy → M.V .ob
-        vty (inV N) = interpV $g  N
-        -- vty (A + A') = vty A Syn.+ vty A'
-        vty one = Syn.⊤
-        vty (U B) = Syn.U (cty B)
-
-        cty : CTy → M.C .ob
-        cty (inC N) = interpC $g N
-        cty (B & B') = cty B Syn.& cty B' 
-        cty (F A) = Syn.F (vty A) 
-
-      mutual 
-        vterm : ∀{A A'} → A ⊢v A' →  M.V .Hom[_,_] (vty A) (vty A') 
-        vterm (incVal V) = interpV <$g> V
-        vterm (subV V W) = vterm V ⋆⟨ M.V ⟩ vterm W
-        vterm (var {A = A})  = M.V .id {vty A}
-        vterm (subVIdl V i) = M.V .⋆IdL (vterm V) i
-        vterm (subVIdr V i) = M.V .⋆IdR (vterm V) i
-        vterm (subVAssoc V W Y i) = M.V .⋆Assoc (vterm V) (vterm W) (vterm Y)  i
-        vterm tt = Syn.tt
-        vterm (oneη {A}{V} i) = Syn.⊤η  {A = vty A}{t = vterm V} i
-        vterm (thunk M) = Syn.thunk (cterm M)
-        vterm (Uη {A}{B}{V} i) = Syn.Uη {vty A}{cty B}{vterm V} i
-        vterm (isSet⊢v V W x y i i₁) = M.V .isSetHom (vterm V) (vterm W) (cong vterm x) (cong vterm y)  i i₁
-
-        kterm : ∀{B B'} → B ⊢k B' →  M.C .Hom[_,_] (cty B) (cty B')
-        kterm (incComp M) = interpC <$g> M
-        kterm (kcomp S S') = kterm S ⋆⟨ M.C ⟩ kterm S'
-        kterm (hole {B}) = M.C .id {cty B}
-        kterm (kcompIdl S i) = M.C .⋆IdL (kterm S) i
-        kterm (kcompIdr S i) = M.C .⋆IdR (kterm S) i
-        kterm (kcompAssoc S R T i) = M.C .⋆Assoc (kterm S) (kterm R) (kterm T)  i
-        kterm (ret V) = Syn.ret (cterm V)
-        kterm (Fη {A}{B}{M} i) =  Syn.Fη {vty A}{cty B}{kterm M} i
-        kterm (S ,, S') = Syn.⟨ kterm S ,, kterm S' ⟩
-        kterm (π₁ S) = Syn.π₁ (kterm S)
-        kterm (π₂ S) = Syn.π₂ (kterm S)
-        kterm (&β₁ {B}{B'}{B''}{M}{N} i) = Syn.&β₁ {cty B}{cty B'}{cty B''}{kterm M}{kterm N} i
-        kterm (&β₂ {B}{B'}{B''}{M}{N} i) = Syn.&β₂ {cty B}{cty B'}{cty B''}{kterm M}{kterm N} i
-        kterm (&η {B}{B'}{B''}{P} i) = Syn.&η {cty B}{cty B'}{cty B''}{kterm P} i
-        kterm (isSet⊢k S S' x y i i₁) = M.C .isSetHom (kterm S) (kterm S') (cong kterm x) (cong kterm y)  i i₁ 
-
-        cterm : {A : VTy}{B : CTy}(M : A ⊢c B) → ⟨ M.O .F-ob ((vty A) , (cty B)) ⟩
-        cterm (incOb {A}{B} M) = interpO A B (incOb M)
-        cterm (subC V M) = M.lcomp (vterm V) (cterm M)
-        cterm (plug S M) = M.rcomp (kterm S) (cterm M)
-        cterm (bind S) = Syn.bind (kterm S)
-        cterm (Fβ {A}{B}{M} i) = Syn.Fβ {vty A}{cty B}{cterm M} i
-        cterm (force V) = Syn.force (vterm V)
-        cterm (Uβ {A}{B}{M} i) = Syn.Uβ {vty A}{cty B}{cterm M} i
-        {-}
-        cterm (case M N) = Syn.case+  (cterm M) (cterm N)
-        cterm (σ₁ M) = Syn.σ₁ (cterm M)
-        cterm (σ₂ M) = Syn.σ₂ (cterm M)
-        cterm (+β₁ {A}{A'}{B}{M}{N} i) = Syn.+β₁ {vty A}{vty A'}{cty B}{cterm M}{cterm N} i
-        cterm (+β₂ {A}{A'}{B}{M}{N} i) = Syn.+β₂ {vty A}{vty A'}{cty B}{cterm M}{cterm N} i
-        cterm (+η {A}{A'}{B}{M} i) = Syn.+η {vty A}{vty A'}{cty B}{cterm M} i
-        -}
-        cterm (plugId {A}{B}{M} i) = M.rcompId {vty A}{cty B}{cterm M} i 
-        cterm (subCId {A}{B}{M} i) = M.lcompId {vty A}{cty B}{cterm M} i
-        cterm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = M.rcompSeq {vty A }{cty B}{cty B'}{cty B''}{kterm S}{kterm S'}{cterm M} i
-        cterm (subDist {A}{A'}{A''}{B}{V}{V'}{M} i) = M.lcompSeq {vty A }{vty A'}{vty A''}{cty B}{vterm V}{vterm V'}{cterm M} i
-        cterm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = M.lrSeq {vty A}{vty A'}{cty B}{cty B'}{vterm V}{cterm M}{kterm S} i
-        cterm (isSet⊢c {A}{B}M N x y i j) = 
-          (SET ℓSS) .isSetHom 
-            {M.O .F-ob (vty A , cty B)}
-            {M.O .F-ob (vty A , cty B)}
-            (λ x → cterm M) 
-            (λ x → cterm N) 
-            (funExt (λ _ → cong cterm x)) 
-            (funExt (λ _ → cong cterm y)) 
-            i j (cterm M)
-
-      M-rec : ModelMorphism _ _ _ _ _ _ _ _ _ _  Free M 
-      M-rec .FV .F-ob = vty
-      M-rec .FV .F-hom = vterm
-      M-rec .FV .F-id = refl
-      M-rec .FV .F-seq _ _ = refl
-
-      M-rec .FC .F-ob = cty
-      M-rec .FC .F-hom = kterm
-      M-rec .FC .F-id = refl
-      M-rec .FC .F-seq _ _ = refl
-
-      M-rec .FO .N-ob (A , B) M = cterm M
-      M-rec .FO .N-hom (A , B)(A' , B') (f , g) h = 
-        funExt⁻ (sym (M.O .F-seq _ _)) _ ∙ cong₂ (M.O .F-hom) (ΣPathP ((M.V .⋆IdR _) , M.C .⋆IdR _)) refl
-
-  
-  module _ 
-    {ℓV ℓV' ℓC ℓC' ℓS ℓP ℓP' : Level}
-    {R : Raw ℓV ℓV' ℓC ℓC' ℓS}
-    where
-
-    open FreeModel R renaming (M to Free) hiding (V ; C ; O)
-    open Syntax R
-
-    private 
-      module Free = Model Free
-
-      {-
-        Poset -> thin Category 
-
-        then initiality..?
-
-        section is the "wrong" abstraction here
-      -}
-{-}
     module _ 
-      (L : Logic Free)
-      ((∨⊤ , ∧) : WithConnectives L) where 
-      open Logic L
-      open Section
+      (L : Logic {ℓP = ℓV}{(ℓ-max (ℓ-max (ℓ-max ℓV' ℓC) ℓC') ℓS)} M)
+      (Top : L⊤.Has⊤ (Logic.VH L))
+      (prod : Products.has⋀ L products)
+      (push : hasPush L) where 
 
-      module LV = HDSyntax VH
-      module LC = HDSyntax CH
-      
-      open L∨⊤.HA renaming (_∨_ to or)
-      open L∧.HA renaming (_∧_ to and)
-      open MonFun renaming(f to fun)
+      open import Cubical.Categories.Displayed.Section
+      open import HyperDoc.AsDisplayed
+      open import Cubical.Categories.NaturalTransformation
+      open import Cubical.Categories.Displayed.Base
+      open import Cubical.Categories.Displayed.Functor
+      open import Cubical.Categories.Displayed.BinProduct
+      open import Cubical.Categories.Displayed.Instances.Sets
+      open import Cubical.Categories.Displayed.Bifunctor
+      open import Cubical.Categories.Bifunctor
+      open import Cubical.Categories.Limits.Terminal.More
+      open import Cubical.Categories.Displayed.Limits.Terminal
 
-      mutual 
-        dobv : (v : VTy) → LV.F∣ v ∣
-        dobv (inV x) = {! _⋁_ !}
-      {- dobv (A + A') = or (∨⊤ .fst (A + A')) sub {! LV.f* (σ₁ ?)  !} where 
-          have : LV.F∣ A ∣
-          have = dobv A
 
-          _ = {! σ₁  !}
+      open Categoryᴰ
+      open Functorᴰ
+      open NatTrans
+      open Bifunctorᴰ
 
-          sub : LV.F∣ A + A' ∣ 
-          sub = {! L!} -}
-        dobv one = top (∨⊤ .fst one)
-        dobv (U B) = pull (force var) .fun (dobc B)
+      open Logic L  
+      private 
+        module LV = HDSyntax VH
+        module LC = HDSyntax CH
 
-        dobc : (c : CTy) → LC.F∣ c ∣
-        dobc (inC x) = {!   !}
-        dobc (B & B') = 
-          and (∧ .fst (B & B')) 
-            (LC.f* (π₁ hole) (dobc B)) 
-            (LC.f* (π₂ hole) (dobc B')) 
-        dobc (F A) = push (bind hole) .fun (dobv A)
+      open Modelᴰ M L
 
-      mutual 
-        vproof : ∀{A A'} → (f : A ⊢v A') → A LV.◂ dobv A ≤ LV.f* f (dobv A') 
-        vproof (incVal x) = {!   !}
-        vproof (subV V W) = LV.seq* V W (vproof V) (vproof W)
-        vproof var = LV.f*id' (IsPreorder.is-refl (isPreorder (VH .F-ob _ .fst .snd)) (dobv _))
-        vproof {A}{A'} (subVIdl V i) = LV.isProp≤ {A}{dobv A}{LV.f* (subVIdl V i) (dobv A')} {!   !} {! vproof V  !} i
-        vproof (subVIdr V i) = {!   !}
-        vproof (subVAssoc V V₁ V₂ i) = {!   !}
-        vproof {A} tt = {!   !} --  top-top (∨⊤ .fst A) -- VH .F-hom tt .fun (dobv one)
-        vproof (oneη i) = {!   !}
-        vproof (thunk x) = {!   !}
-        vproof (Uη i) = {!   !}
-        vproof (isSet⊢v V V₁ x y i i₁) = {!   !}
+      open Products L products
+      open HAO
 
-        kproof : ∀{B B'} → (f : B ⊢k B') → B LC.◂ dobc B ≤ LC.f* f (dobc B')
-        kproof (incComp x) = {!   !}
-        kproof (kcomp M M₁) = {!   !}
-        kproof hole = {!   !}
-        kproof (kcompIdl M i) = {!   !}
-        kproof (kcompIdr M i) = {!   !}
-        kproof (kcompAssoc M M₁ M₂ i) = {!   !}
-        kproof (ret x) = {!   !}
-        kproof (Fη i) = {!   !}
-        kproof (M ,, M₁) = {!   !}
-        kproof (π₁ M) = {!   !}
-        kproof (π₂ M) = {!   !}
-        kproof (&β₁ i) = {!   !}
-        kproof (&β₂ i) = {!   !}
-        kproof (&η i) = {!   !}
-        kproof (isSet⊢k M M₁ x y i i₁) = {!   !} 
+      open TerminalⱽNotation Vᴰ one (Vᴰtermⱽ Top terminal one) 
 
-      M-elim : GlobalSection {M = Free} L 
-      M-elim .DobV = dobv
-      M-elim .DhomV f = vproof f
-      M-elim .DobC = dobc
-      M-elim .DhomC = {!   !}
 
-      
-  
-  {-
-    eliminator.. 
-      Given a Model M 
-      and a logic L over M 
+      mutual
+        vty : (A : VTy) → LV.F∣ A ∣
+        vty one = 𝟙ⱽ
+        vty (A + A') = {!   !}
+        vty (U B) = pull force $ (cty B)
 
-      we can construct the free model Morphism
-        free : Free → M   
-  -}
-  {-
-  record ModelSection 
-    {ℓVS ℓV'S ℓCS ℓC'S ℓSS ℓVT ℓV'T ℓCT ℓC'T ℓST ℓVD ℓVD'  ℓCD ℓCD' ℓSD : Level}
-    {M : Model ℓVS ℓV'S ℓCS ℓC'S ℓSS}
-    {N : Model ℓVT ℓV'T ℓCT ℓC'T ℓST}
-    (F : ModelMorphism _ _ _ _ _ _ _ _ _ _ M N) : Type {!   !} where
-    -- (Nᴰ : DisplayedModel _ _ ℓVD ℓVD' _ _  ℓCD ℓCD' _ ℓSD N) : Type _ where 
-    --open ModelMorphism F 
-   -- open DisplayedModel Nᴰ
-    field 
-   --   SV : Section FV Vᴰ
-   --   SC : Section FC Cᴰ
-      -- SO 
-      -}
+        cty : (B : CTy) → LC.F∣ B ∣
+        cty (B & B') = _⋀_ (prod B B') (cty B) (cty B')
+        cty (F A) = push ret .fst $ (vty A)
 
-      -}
+      mutual
+
+        vtm-thunk : ∀ {A  B} → (M : A ⊢c B) →  A LV.◂ vty A ≤ LV.f* (thunk M) (pull force $ cty B) 
+        vtm-thunk {A}{B} M = LV.seq (ctm M) (LV.eqTo≤  ((cong (λ h → h $ (cty B))) ((cong pull (sym Uβ ∙ cong₂ subC refl (sym plugId))) ∙ pullLComp (thunk M) force)))
+
+        vtm : {A A' : VTy} → (V : A ⊢v A') → A LV.◂ vty A ≤ LV.f* V (vty A')
+        vtm (subV V₁ V₂) = Vᴰ ._⋆ᴰ_  (vtm V₁) (vtm V₂)
+        vtm var = Vᴰ .idᴰ
+        vtm (subVIdl V i) = Vᴰ .⋆IdLᴰ (vtm V) i
+        vtm (subVIdr V i) = Vᴰ .⋆IdRᴰ (vtm V) i
+        vtm (subVAssoc V₁ V₂ V₃ i) = Vᴰ .⋆Assocᴰ (vtm V₁) (vtm V₂) (vtm V₃) i
+        vtm (isSet⊢v {A}{A'} V₁ V₂ x y i j) = {!   !} -- Vᴰ .isSetHomᴰ {! vtm V₁ !} {!   !} {!  x !} {!   !} i j
+        
+        vtm (tt {A}) = !tⱽ tt (vty A)
+        vtm (oneη {A}{V} i) = VL.eq*PathP (oneη {A}{V}) (!tⱽ tt (vty A)) (vtm V) i
+        vtm (thunk M) = vtm-thunk M
+        vtm (Uη {A}{B}{V} i) = 
+          isProp→PathP 
+            ((λ i → LV.isProp≤{q = LV.f* (Uη i) (pull force $ cty B)})) 
+            (vtm-thunk (subC' V force')) 
+            (vtm V) 
+            i
+
+        ktm-bind : ∀ {A  B} → (M : A ⊢c B) → F A LC.◂ push ret .fst $ vty A ≤ LC.f* (bind M) (cty B)
+        ktm-bind {A}{B}M = pullToPush L push ret (LV.seq (ctm M) (LV.eqTo≤ (cong (λ h → h .MonFun.f (cty B)) (cong (λ h → Sq .N-ob (A , B) h ) (sym subCId ∙ cong₂ subC refl Fβ) ∙ pullRComp (bind M) ret))))
+        
+        ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
+        ktm (kcomp S S₁) = Cᴰ ._⋆ᴰ_  (ktm S) (ktm S₁)
+        ktm hole = Cᴰ .idᴰ
+        ktm (kcompIdl S i) = Cᴰ .⋆IdLᴰ (ktm S) i
+        ktm (kcompIdr S i) = Cᴰ .⋆IdRᴰ (ktm S) i
+        ktm (kcompAssoc S S₁ S₂ i) = Cᴰ .⋆Assocᴰ (ktm S) (ktm S₁) (ktm S₂) i
+        ktm (isSet⊢k S S₁ x y i i₁) = {!   !}
+        ktm (bind M) = ktm-bind M
+        ktm (Fη {A}{B}{S} i) = 
+          isProp→PathP 
+            ((λ i → LC.isProp≤{q =  LC.f* (Fη i) (cty B)})) 
+            (ktm S)
+            (ktm-bind (plug S ret))
+            i
+
+        ctm-subC : ∀{A A' B}(V : A ⊢v A')(M : A' ⊢c B) →  A LV.◂ vty A ≤ (pull (subC V M) $ cty B)
+        ctm-subC {A}{A'}{B} V M = subst (λ h → A LV.◂ vty A ≤ (pull h $ cty B)) (cong₂ subC refl plugId) have where 
+          have : A LV.◂ vty A ≤ (pull (subC V (plug hole M)) $ cty B)
+          have = OᴰBif .Bif-homLᴰ (vtm V) (cty B) M (ctm M)
+
+        ctm-plug : ∀{A B B'}(S : B ⊢k B')(M : A ⊢c B) → A LV.◂ vty A ≤ (pull (plug S M) $ cty B')
+        ctm-plug {A}{B}{B'} S M = subst (λ h → A LV.◂ vty A ≤ (pull h $ cty B')) subCId have where 
+          have : A LV.◂ vty A ≤ (pull (subC var (plug S M)) $ cty B')
+          have = OᴰBif .Bif-homRᴰ (vty A) (ktm S) M (ctm M)
+
+        {-# TERMINATING #-}
+        -- Idk why.. but this termination pragma is needed for plugDist
+        -- which is just showing that the PathP is a prop.. 
+        -- there should be NO interesting recursion in the proof of equality
+        ctm : ∀{A B} → (M : A ⊢c B) → A LV.◂ vty A ≤ (pull M $ cty B)
+        ctm (subC {A}{A'}{B} V M) = ctm-subC V M
+        ctm (plug {A}{B}{B'} S M) = ctm-plug S M
+        ctm (plugId {A}{B}{M} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (plugId i) $ cty B)})
+            (ctm-plug hole M) 
+            (ctm M) 
+            i
+        ctm (subCId {A}{B}{M} i) = 
+          isProp→PathP  
+            (λ i → LV.isProp≤{q = (pull (subCId i) $ cty B)}) 
+            (ctm-subC var M)
+            (ctm M) 
+            i
+        ctm (plugDist {A}{A'}{B}{B'}{S}{S'}{M} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (plugDist i) $ cty B')}) 
+            (ctm-plug S' (plug S M)) 
+            (ctm-plug (kcomp' S S') M)
+            i
+        ctm (subDist {A}{A'}{A''}{B}{V}{V'}{M} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (subDist i) $ cty B)}) 
+            (ctm-subC V (subC V' M)) 
+            (ctm-subC (subV V V') M)
+            i
+        ctm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) =           
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (plugSub i) $ cty B')}) 
+            (ctm-subC V (plug S M)) 
+            (ctm-plug S (subC V M))
+            i
+        ctm (isSet⊢c M₁ M₂ x y i i₁) = {!   !}
+        ctm (M ,, M') = ⋀-intro (prod _ _) (ctm M) (ctm M')
+        ctm (π₁ M) = ⋀-elim1 (prod _ _) (ctm M)
+        ctm (π₂ M) = ⋀-elim2 (prod _ _) (ctm M)
+        ctm (&β₁ {A}{B}{B'}{M}{N} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (&β₁ i) $ cty B)}) 
+            (⋀-elim1 (prod B B') (⋀-intro (prod B B') (ctm M) (ctm N)))
+            (ctm M)
+            i
+        ctm (&β₂ {A}{B}{B'}{M}{N} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (&β₂ i) $ cty B')}) 
+            (⋀-elim2 (prod B B') (⋀-intro (prod B B') (ctm M) (ctm N)))
+            (ctm N)
+            i
+        ctm (&η {A}{B}{B'}{P} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (&η i) $ (prod B B' ⋀ cty B) (cty B'))}) 
+            (⋀-intro (prod B B') (⋀-elim1 (prod B B') (ctm P)) (⋀-elim2 (prod B B') (ctm P)))
+            (ctm P)
+            i
+        ctm (π₁Sub {A}{A'}{B}{B'}{V}{P} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (π₁Sub i) $ cty B)}) 
+            (⋀-elim1 (prod B B') (ctm-subC V P))
+            (ctm-subC V (_⊢c_.π₁ P))
+            i
+        ctm (π₂Sub {A}{A'}{B}{B'}{V}{P} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (π₂Sub i) $ cty B')}) 
+            (⋀-elim2 (prod B B') (ctm-subC V P))
+            (ctm-subC V (_⊢c_.π₂ P))
+            i 
+        ctm (σ₁ M) = {!   !}
+        ctm (σ₂ M) = {!   !}
+        ctm (case M M') = {!   !}
+        ctm (+β₁ i) = {!   !}
+        ctm (+β₂ i) = {!   !}
+        ctm (+η i) = {!   !}
+        ctm (σ₁Sub i) = {!   !}
+        ctm (σ₂Sub i) = {!   !}
+        ctm ret = pushToPull L push ret LC.id⊢
+        ctm (Fβ {A}{B}{M} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (Fβ i) $ cty B)}) 
+            (ctm M) 
+            (ctm-plug (bind' M) ret)
+            i
+        ctm force = LV.id⊢
+        ctm (Uβ {A}{B}{M} i) = 
+          isProp→PathP 
+            ((λ i → LV.isProp≤{q = (pull (Uβ i) $ cty B)})) 
+            (ctm-subC (thunk M) force) 
+            (ctm M) 
+            i
+        ctm beep = {!   !}
+
+      SV : Section Id (Modelᴰ.Vᴰ M L)
+      SV .Section.F-obᴰ = vty
+      SV .Section.F-homᴰ = vtm
+      SV .Section.F-idᴰ = LV.isProp≤ _ _
+      SV .Section.F-seqᴰ _ _ = LV.isProp≤ _ _
+
+      SC : Section Id (Modelᴰ.Cᴰ M L) 
+      SC .Section.F-obᴰ = cty
+      SC .Section.F-homᴰ = ktm
+      SC .Section.F-idᴰ = LC.isProp≤ _ _
+      SC .Section.F-seqᴰ _ _ = LC.isProp≤ _ _
+
+      M-elim : MSection {M = M}{M} (idModelMorphism M) L 
+      M-elim .fst = SV
+      M-elim .snd .fst = SC
+      M-elim .snd .snd = ctm

@@ -3,6 +3,7 @@ module HyperDoc.Effects.ManualWriter where
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure 
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 open import Cubical.Relation.Binary.Preorder
@@ -78,6 +79,20 @@ module Writer (Char : hSet ℓS) where
     ext .fst = |ext|
     ext .snd c (ret x) = refl
     ext .snd c (c* x b) = refl
+
+  extUP :  {X : hSet ℓ} → idHom {B = FreeWriterAlg (X .fst)} ≡ ext (FreeWriterAlg (X .fst)) ret
+  extUP {X = X} = WriterHom≡  {!   !} (funExt prf) where 
+    prf : (x : |FreeWriterAlg| (X .fst)) → x ≡ |ext| (FreeWriterAlg (X .fst)) ret x
+    prf (ret x) = refl
+    prf (c* x x₁) = cong₂ c* refl (prf x₁)
+
+
+  extExt : {X : Type ℓ}{B : ob (WRITERALG ℓ')}{f g : X → B .fst .fst} → 
+    f ≡ g → ext (B .fst) f ≡ ext (B .fst) g 
+  extExt {X = X}{B}{f}{g} p = WriterHom≡  {B' = B .fst}(B .snd) (funExt prf) where 
+    prf : (x : |FreeWriterAlg| X) → |ext| (B .fst) f x ≡ |ext| (B .fst) g x 
+    prf (ret x) = funExt⁻ p x
+    prf (c* x x₁) i = |ext| (B .fst) (p i) (c* x x₁) 
 
     -- Universal property: ext is inverse to pre-composition with ret
 

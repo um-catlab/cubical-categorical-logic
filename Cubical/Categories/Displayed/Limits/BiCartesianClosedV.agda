@@ -48,3 +48,38 @@ record BiCartesianClosedCategoryᴰ
     bcpᴰ  : BinCoProductsᴰ Cᴰ sums
 
   open BinCoProductsᴰNotation Cᴰ sums bcpᴰ public
+
+module _ (BCCC : BiCartesianClosedCategory ℓC ℓC')
+  (BCCCⱽ : BiCartesianClosedCategoryⱽ
+    (BCCC .BiCartesianClosedCategory.CCC .CartesianClosedCategory.CC)
+    ℓCᴰ ℓCᴰ') where
+  open BiCartesianClosedCategoryⱽ BCCCⱽ
+  open BiCartesianClosedCategory BCCC
+  private
+    -- Build the "op" CartesianCategory: (C ^op, init, sums)
+    CC^op : CartesianCategory _ _
+    CC^op .CartesianCategory.C = C ^op
+    CC^op .CartesianCategory.term = init
+    CC^op .CartesianCategory.bp = sums
+
+    -- Build the "op" vertical cartesian structure from the BiCCC vertical data
+    CCⱽ^op : CartesianCategoryⱽ (C ^op) ℓCᴰ ℓCᴰ'
+    CCⱽ^op .CartesianCategoryⱽ.Cᴰ = Cᴰ ^opᴰ
+    CCⱽ^op .CartesianCategoryⱽ.termⱽ = initⱽ
+    CCⱽ^op .CartesianCategoryⱽ.bpⱽ = bcpⱽ
+    CCⱽ^op .CartesianCategoryⱽ.cartesianLifts = opcartesianLifts
+
+    -- Apply the existing ⱽ→ᴰ conversion on the op side
+    CCᴰ^op : CartesianCategoryᴰ CC^op ℓCᴰ ℓCᴰ'
+    CCᴰ^op = CartesianCategoryⱽ→CartesianCategoryᴰ CC^op CCⱽ^op
+
+  open BiCartesianClosedCategoryᴰ
+
+  BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ :
+    BiCartesianClosedCategoryᴰ BCCC ℓCᴰ ℓCᴰ'
+  BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ .CCCᴰ =
+    CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ CCC CCCⱽ
+  BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ .initᴰ =
+    CCᴰ^op .CartesianCategoryᴰ.termᴰ
+  BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ .bcpᴰ =
+    CCᴰ^op .CartesianCategoryᴰ.bpᴰ

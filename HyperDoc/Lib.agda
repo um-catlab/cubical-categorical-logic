@@ -13,10 +13,12 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 
 open Category
 open Categoryᴰ
 open Functor
+open Functorᴰ
 
 module HyperDoc.Lib where 
 
@@ -44,6 +46,12 @@ from^op^op .F-hom = λ z → z
 from^op^op .F-id = refl
 from^op^op .F-seq _ _ = refl
 
+from^opᴰ^opᴰ : {ℓ ℓ' ℓD ℓD' : Level}{C : Category ℓ ℓ'}{Cᴰ : Categoryᴰ C ℓD ℓD'}
+  → Functorᴰ from^op^op (Cᴰ ^opᴰ ^opᴰ) Cᴰ 
+from^opᴰ^opᴰ .F-obᴰ = λ z → z
+from^opᴰ^opᴰ .F-homᴰ = λ z → z
+from^opᴰ^opᴰ .F-idᴰ = refl
+from^opᴰ^opᴰ .F-seqᴰ _ _ = refl
 
 Cᴰ^op^op : {ℓ ℓ' ℓD ℓD' : Level}{C : Category ℓ ℓ'}
   → Categoryᴰ (C ^op ^op) ℓD ℓD'

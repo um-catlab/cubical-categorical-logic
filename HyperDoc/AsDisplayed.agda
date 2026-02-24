@@ -102,6 +102,67 @@ module Modelᴰ
   OᴰBif : Bifunctorᴰ (ParFunctorToBifunctor O) (Vᴰ ^opᴰ) Cᴰ (SETᴰ (ℓ-max ℓP ℓP') ℓP')
   OᴰBif = ParFunctorᴰToBifunctorᴰ Oᴰ
 
+{-}
+  module Coproducts (cprod : HasO+ M) where 
+    open import Cubical.Categories.Presheaf.Morphism.Alt
+    open import Cubical.Categories.Displayed.Presheaf.Morphism
+    open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+    open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Base
+    open import Cubical.Foundations.Equiv.Dependent
+    open isIsoOver
+    open PshIso
+    open PshHom
+
+    _+_ : ob V → ob V → ob V 
+    _+_ A A' = cprod A A' .fst
+
+    σ₁ : ∀{A A' B} → (M : O[ A + A' , B ]) → O[ A , B ]
+    σ₁ {A}{A'}{B} M = cprod A A' .snd .trans .N-ob B M .fst
+
+    σ₂ : ∀{A A' B} → (M : O[ A + A' , B ]) → O[ A' , B ]
+    σ₂ {A}{A'}{B} M = cprod A A' .snd .trans .N-ob B M .snd
+
+    case : ∀{A A' B} → O[ A , B ] → O[ A' , B ] → O[ A + A' , B ]
+    case {A}{A'}{B} M N = cprod A A' .snd .nIso B .fst (M , N)
+
+    Oᴰ[_,-] : {A : ob V}(aᴰ : ob[ Vᴰ ] A) → Functorᴰ O[ A ,-] Cᴰ (SETᴰ (ℓ-max ℓP ℓP') ℓP') 
+    Oᴰ[_,-] aᴰ = Oᴰ ∘Fᴰ rinjᴰ _ _ aᴰ
+
+    hasCompᴰ : Type _ 
+    hasCompᴰ = ∀(A A' : ob V)(aᴰ : ob[ Vᴰ ] A)(aᴰ' : ob[ Vᴰ ] A') → 
+      Σ[ a+a' ∈ ob[ Vᴰ ] (A + A') ] 
+        PshIsoᴰ (cprod A A' .snd) (Oᴰ[ a+a' ,-] ∘Fᴰ from^opᴰ^opᴰ) ((Oᴰ[ aᴰ ,-] ∘Fᴰ from^opᴰ^opᴰ) ×ᴰPsh (Oᴰ[ aᴰ' ,-] ∘Fᴰ from^opᴰ^opᴰ)) 
+
+
+    module _
+      (_⋁_ : ∀{A A'} → ob[ Vᴰ ] A →  ob[ Vᴰ ] A' → ob[ Vᴰ ] (A + A'))
+      (σ₁ᴰ : ∀{A A' B aᴰ aᴰ' bᴰ} → (M : O[ A + A' , B  ]) → 
+        (A + A') VL.◂ aᴰ ⋁ aᴰ' ≤ (pull M $ bᴰ)  → 
+        A VL.◂ aᴰ ≤ (pull (σ₁ M) $ bᴰ))
+      (σ₂ᴰ : ∀{A A' B aᴰ aᴰ' bᴰ} → (M : O[ A + A' , B  ]) → 
+        (A + A') VL.◂ aᴰ ⋁ aᴰ' ≤ (pull M $ bᴰ)  → 
+        A' VL.◂ aᴰ' ≤ (pull (σ₂ M) $ bᴰ))
+      (caseᴰ : ∀{A A' B aᴰ aᴰ' bᴰ} → (M : O[ A  , B  ]) → (N : O[ A' , B  ])
+         → A  VL.◂ aᴰ ≤  (pull M $ bᴰ) 
+        → A' VL.◂  aᴰ' ≤  (pull N $ bᴰ) 
+        → (A + A') VL.◂ aᴰ ⋁ aᴰ' ≤  (pull (case M N) $ bᴰ) ) where 
+
+
+      poke : hasCompᴰ
+      poke A A' aᴰ aᴰ' .fst = aᴰ ⋁ aᴰ'
+      poke A A' aᴰ aᴰ' .snd .fst .PshHomᴰ.N-obᴰ {B}{bᴰ} {A+A'⊢B} A+A'≤B = σ₁ᴰ A+A'⊢B A+A'≤B , σ₂ᴰ A+A'⊢B A+A'≤B
+      poke A A' aᴰ aᴰ' .snd .fst .PshHomᴰ.N-homᴰ = toPathP (ΣPathP ((VL.isProp≤  _ _) , (VL.isProp≤  _ _))) 
+      poke A A' aᴰ aᴰ' .snd .snd .inv (M , N) (p1 , p2) = caseᴰ M N p1 p2
+      poke A A' aᴰ aᴰ' .snd .snd .rightInv _ _  = toPathP (ΣPathP (VL.isProp≤  _ _ , VL.isProp≤  _ _))
+      poke A A' aᴰ aᴰ' .snd .snd .leftInv _ _  = toPathP (VL.isProp≤  _ _)
+        --  (Oᴰ[-,  b&b' ] ) (Oᴰ[-, bᴰ ] ×ᴰPsh Oᴰ[-, bᴰ' ])
+
+    {-
+      HasO+ : Type (ℓ-max (ℓ-max (ℓ-max ℓV ℓC) ℓC') ℓS) 
+  HasO+  = (A A' : ob V) → Σ[ A+A' ∈ ob V ] PshIso (O[ A+A' ,-] ∘F from^op^op) ((O[ A ,-] ∘F from^op^op) ×Psh (O[ A' ,-] ∘F from^op^op))
+    -}
+  -}
+
   module _ 
     (⊤ : L⊤.Has⊤ VH)
     (V⊤ : HasV⊤  M) where
@@ -113,7 +174,7 @@ module Modelᴰ
     Vterm .vertex = V⊤ .fst
     Vterm .element = tt
     Vterm .universal A .equiv-proof tt = {!   !}
-    
+
     Vᴰtermⱽ : Terminalsⱽ Vᴰ
     Vᴰtermⱽ c .UniversalElementⱽ.vertexⱽ = top (⊤ .fst c)
     Vᴰtermⱽ c .UniversalElementⱽ.elementⱽ = tt

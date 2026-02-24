@@ -215,7 +215,7 @@
     ftype A .snd .nIso B .snd .fst M = sym Fβ
     ftype A .snd .nIso B .snd .snd S = sym Fη
 
-    coproducts : HasV+ M 
+    coproducts : HasO+ M 
     coproducts A A' .fst = A + A'
     coproducts A A' .snd .trans .N-ob B P = σ₁ P , σ₂ P
     coproducts A A' .snd .trans .N-hom B B' S p = 
@@ -245,6 +245,7 @@
       (L : Logic {ℓP = ℓV}{(ℓ-max (ℓ-max (ℓ-max ℓV' ℓC) ℓC') ℓS)} M)
       (Top : L⊤.Has⊤ (Logic.VH L))
       (prod : Products.has⋀ L products)
+      (cprod : Coproducts.has⋁ L coproducts)
       (push : hasPush L) where 
 
       open import Cubical.Categories.Displayed.Section
@@ -264,24 +265,24 @@
       open Functorᴰ
       open NatTrans
       open Bifunctorᴰ
-
       open Logic L  
+
       private 
         module LV = HDSyntax VH
         module LC = HDSyntax CH
 
       open Modelᴰ M L
-
       open Products L products
-      open HAO
-
+      open O⋀
+      open Coproducts L coproducts
+      open O⋁
       open TerminalⱽNotation Vᴰ one (Vᴰtermⱽ Top terminal one) 
 
 
       mutual
         vty : (A : VTy) → LV.F∣ A ∣
         vty one = 𝟙ⱽ
-        vty (A + A') = {!   !}
+        vty (A + A') = _⋁_ (cprod A A') (vty A) (vty A')
         vty (U B) = pull force $ (cty B)
 
         cty : (B : CTy) → LC.F∣ B ∣
@@ -410,14 +411,41 @@
             (⋀-elim2 (prod B B') (ctm-subC V P))
             (ctm-subC V (_⊢c_.π₂ P))
             i 
-        ctm (σ₁ M) = {!   !}
-        ctm (σ₂ M) = {!   !}
-        ctm (case M M') = {!   !}
-        ctm (+β₁ i) = {!   !}
-        ctm (+β₂ i) = {!   !}
-        ctm (+η i) = {!   !}
-        ctm (σ₁Sub i) = {!   !}
-        ctm (σ₂Sub i) = {!   !}
+
+        -- no exists?
+        ctm (σ₁ M) = ⋁-elim1 (cprod _ _) (ctm M)
+        ctm (σ₂ M) = ⋁-elim2 (cprod _ _) (ctm M)
+        ctm (case M M') = ⋁-intro (cprod _ _) (ctm M) (ctm M')
+        ctm (+β₁ {A}{A'}{B}{M}{N} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (+β₁ i) $ cty B)}) 
+            (⋁-elim1 (cprod A A') (⋁-intro (cprod A A') (ctm M) (ctm N)))
+            (ctm M)
+            i
+        ctm (+β₂ {A}{A'}{B}{M}{N} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (+β₂ i) $ cty B)}) 
+            (⋁-elim2 (cprod A A') (⋁-intro (cprod A A') (ctm M) (ctm N)))
+            (ctm N)
+            i
+        ctm (+η {A}{A'}{B}{P} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (+η i) $ cty B)}) 
+            (⋁-intro (cprod A A') (⋁-elim1 (cprod A A') (ctm P)) (⋁-elim2 (cprod A A') (ctm P)))
+            (ctm P)
+            i
+        ctm (σ₁Sub {A}{A'}{B}{B'}{S}{P} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (σ₁Sub i) $ cty B')}) 
+            (⋁-elim1 (cprod A A') (ctm-plug S P))
+            (ctm-plug S (_⊢c_.σ₁ P))
+            i
+        ctm (σ₂Sub {A}{A'}{B}{B'}{S}{P} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (σ₂Sub i) $ cty B')}) 
+            (⋁-elim2 (cprod A A') (ctm-plug S P))
+            (ctm-plug S (_⊢c_.σ₂ P))
+            i
         ctm ret = pushToPull L push ret LC.id⊢
         ctm (Fβ {A}{B}{M} i) = 
           isProp→PathP 

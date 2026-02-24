@@ -101,7 +101,7 @@ module _
     -}
     -- If C has products and F
     -- then this should be derivable
-    record HAO (B B' : ob M.C): Type {!   !} where 
+    record O⋀ (B B' : ob M.C) : Type {!   !} where 
       field 
         _⋀_ : CL.F∣ B ∣ → CL.F∣ B' ∣ → CL.F∣ B & B' ∣
 
@@ -122,8 +122,48 @@ module _
           A VL.◂ P ≤ L.pull 〈 M , N 〉 .fun (Q ⋀ R)
 
     has⋀ : Type _ 
-    has⋀ = (B B' : ob M.C) → HAO B B'
+    has⋀ = (B B' : ob M.C) → O⋀ B B'
 
+  -- dont need existentials.?
+  module Coproducts (cprod : HasO+ M) where 
+    open import Cubical.Categories.Presheaf.Morphism.Alt
+    open PshIso
+    open PshHom
+
+    _+_ : ob M.V → ob M.V → ob M.V 
+    _+_ A A' = cprod A A' .fst
+
+    σ₁ : ∀{A A' B} → (M : M.O[ A + A' , B ]) → M.O[ A , B ]
+    σ₁ {A}{A'}{B} M = cprod A A' .snd .trans .N-ob B M .fst
+
+    σ₂ : ∀{A A' B} → (M : M.O[ A + A' , B ]) → M.O[ A' , B ]
+    σ₂ {A}{A'}{B} M = cprod A A' .snd .trans .N-ob B M .snd
+
+    case : ∀{A A' B} → M.O[ A , B ] → M.O[ A' , B ] → M.O[ A + A' , B ]
+    case {A}{A'}{B} M N = cprod A A' .snd .nIso B .fst (M , N)
+
+    record O⋁ (A A' : ob M.V): Type _ where 
+      field 
+        _⋁_ : VL.F∣ A ∣ → VL.F∣ A' ∣ → VL.F∣ A + A' ∣
+
+        ⋁-intro : ∀{B P Q R } → 
+          {M : M.O[ A  , B  ]}{N : M.O[ A' , B  ]} → 
+          A  VL.◂ P ≤  (L.pull M $ R) → 
+          A' VL.◂ Q ≤  (L.pull N $ R) → 
+          ------------------------------
+         (A + A') VL.◂ (P ⋁ Q) ≤  (L.pull (case M N) $ R)
+
+        ⋁-elim1 : ∀{B P Q R }{M : M.O[ A + A'  , B  ]} → 
+          (A + A') VL.◂ (P ⋁ Q) ≤  (L.pull M $ R) → 
+          ------------------------------
+          A VL.◂ P ≤ (L.pull (σ₁ M) $ R)
+
+        ⋁-elim2 : ∀{B P Q R }{M : M.O[ A + A'  , B  ]} → 
+          (A + A') VL.◂ (P ⋁ Q) ≤  (L.pull M $ R) → 
+          ------------------------------
+          A' VL.◂ Q ≤ (L.pull (σ₂ M) $ R)
+    has⋁ : Type _ 
+    has⋁ = (A A' : ob M.V) → O⋁ A A'
 
   hasPush : Type (ℓ-max (ℓ-max (ℓ-max ℓV ℓC) ℓP) ℓP') 
   hasPush = 

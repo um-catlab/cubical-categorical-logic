@@ -36,7 +36,9 @@ open import Cubical.Categories.Displayed.Instances.Arrow.Limits
 open import Cubical.Categories.Displayed.Section.Base as Cat
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
+open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Constructions.Reindex.CartesianClosed
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Constructions.Weaken.UncurriedProperties
@@ -265,6 +267,87 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
         .CartesianClosedSection.F-obᴰ-⇒ _ _ = refl
       elimBiCartesianClosed .BiCartesianClosedSection.F-obᴰ-⊥ = refl
       elimBiCartesianClosed .BiCartesianClosedSection.F-obᴰ-+ _ _ = refl
+
+  module _
+    {D : CartesianCategory ℓD ℓD'}
+    (F : CartesianFunctor (FreeBiCartesianClosedCategory .CCC .CC) (D .CartesianCategory.C))
+    (BCCCⱽ : BiCartesianClosedCategoryⱽ D ℓCᴰ ℓCᴰ')
+    where
+    private
+      module BCCCⱽ' = BiCartesianClosedCategoryⱽ BCCCⱽ
+      module D' = CartesianCategory D
+
+      -- Simpler opposite functor avoiding toOpOp overhead in ^opF
+      F-op : Functor (FreeBCCC.C ^op) (D'.C ^op)
+      F-op .F-ob = F .fst .F-ob
+      F-op .F-hom = F .fst .F-hom
+      F-op .F-id = F .fst .F-id
+      F-op .F-seq f g = F .fst .F-seq g f
+
+      -- With F-op, reindex (Cᴰ ^opᴰ) F-op ≡ (reindex Cᴰ F) ^opᴰ
+      -- holds with all constant fields.
+      LHS = Reindex.reindex (BCCCⱽ'.Cᴰ ^opᴰ) F-op
+      RHS = (Reindex.reindex BCCCⱽ'.Cᴰ (F .fst)) ^opᴰ
+
+      isSetHomᴰD = BCCCⱽ'.Cᴰ .Categoryᴰ.isSetHomᴰ
+      module C₀^op = Category (FreeBCCC.C ^op)
+
+      reindex-^opᴰ : LHS ≡ RHS
+      reindex-^opᴰ i .Categoryᴰ.ob[_] = LHS .Categoryᴰ.ob[_]
+      reindex-^opᴰ i .Categoryᴰ.Hom[_][_,_] = LHS .Categoryᴰ.Hom[_][_,_]
+      reindex-^opᴰ i .Categoryᴰ.idᴰ = LHS .Categoryᴰ.idᴰ
+      reindex-^opᴰ i .Categoryᴰ._⋆ᴰ_ = LHS .Categoryᴰ._⋆ᴰ_
+      reindex-^opᴰ i .Categoryᴰ.⋆IdLᴰ {f = f} {xᴰ = xᴰ} {yᴰ = yᴰ} fᴰ =
+        isOfHLevelPathP' {A = A⋆IdL} 1
+          (λ j → BCCCⱽ'.Cᴰ .Categoryᴰ.isSetHomᴰ
+            {f = F .fst .F-hom (C₀^op.⋆IdL f j)} {xᴰ = yᴰ} {yᴰ = xᴰ})
+          (LHS .Categoryᴰ.⋆IdLᴰ fᴰ) (RHS .Categoryᴰ.⋆IdLᴰ fᴰ) i
+        where A⋆IdL = λ j → BCCCⱽ'.Cᴰ .Categoryᴰ.Hom[_][_,_]
+                (F .fst .F-hom (C₀^op.⋆IdL f j)) yᴰ xᴰ
+      reindex-^opᴰ i .Categoryᴰ.⋆IdRᴰ {f = f} {xᴰ = xᴰ} {yᴰ = yᴰ} fᴰ =
+        isOfHLevelPathP' {A = A⋆IdR} 1
+          (λ j → BCCCⱽ'.Cᴰ .Categoryᴰ.isSetHomᴰ
+            {f = F .fst .F-hom (C₀^op.⋆IdR f j)} {xᴰ = yᴰ} {yᴰ = xᴰ})
+          (LHS .Categoryᴰ.⋆IdRᴰ fᴰ) (RHS .Categoryᴰ.⋆IdRᴰ fᴰ) i
+        where A⋆IdR = λ j → BCCCⱽ'.Cᴰ .Categoryᴰ.Hom[_][_,_]
+                (F .fst .F-hom (C₀^op.⋆IdR f j)) yᴰ xᴰ
+      reindex-^opᴰ i .Categoryᴰ.⋆Assocᴰ
+        {f = f} {g = g} {h = h} {xᴰ = xᴰ} {wᴰ = wᴰ} fᴰ gᴰ hᴰ =
+        isOfHLevelPathP' {A = A⋆Assoc} 1
+          (λ j → BCCCⱽ'.Cᴰ .Categoryᴰ.isSetHomᴰ
+            {f = F .fst .F-hom (C₀^op.⋆Assoc f g h j)} {xᴰ = wᴰ} {yᴰ = xᴰ})
+          (LHS .Categoryᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ)
+          (RHS .Categoryᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ) i
+        where A⋆Assoc = λ j → BCCCⱽ'.Cᴰ .Categoryᴰ.Hom[_][_,_]
+                (F .fst .F-hom (C₀^op.⋆Assoc f g h j)) wᴰ xᴰ
+      reindex-^opᴰ i .Categoryᴰ.isSetHomᴰ = LHS .Categoryᴰ.isSetHomᴰ
+
+      -- CartesianCategoryⱽ on the op side of D
+      opDⱽ : CartesianCategoryⱽ (D'.C ^op) _ _
+      opDⱽ .CartesianCategoryⱽ.Cᴰ = BCCCⱽ'.Cᴰ ^opᴰ
+      opDⱽ .CartesianCategoryⱽ.termⱽ = BCCCⱽ'.initⱽ
+      opDⱽ .CartesianCategoryⱽ.bpⱽ = BCCCⱽ'.bcpⱽ
+      opDⱽ .CartesianCategoryⱽ.cartesianLifts = BCCCⱽ'.opcartesianLifts
+
+      -- Reindex along F-op
+      reindexedOpⱽ = CartesianCategoryⱽReindex opDⱽ F-op
+
+      reindexedBCCCⱽ : BiCartesianClosedCategoryⱽ FreeBCCC.CC _ _
+      reindexedBCCCⱽ .BiCartesianClosedCategoryⱽ.CCCⱽ = CCCⱽReindex BCCCⱽ'.CCCⱽ F
+      reindexedBCCCⱽ .BiCartesianClosedCategoryⱽ.initⱽ =
+        subst Initialsⱽ reindex-^opᴰ (reindexedOpⱽ .CartesianCategoryⱽ.termⱽ)
+      reindexedBCCCⱽ .BiCartesianClosedCategoryⱽ.bcpⱽ =
+        subst BinCoProductsⱽ reindex-^opᴰ (reindexedOpⱽ .CartesianCategoryⱽ.bpⱽ)
+      reindexedBCCCⱽ .BiCartesianClosedCategoryⱽ.opcartesianLifts =
+        subst isFibration reindex-^opᴰ (reindexedOpⱽ .CartesianCategoryⱽ.cartesianLifts)
+
+    elimLocalMotive : BiCartesianClosedCategoryᴰ FreeBiCartesianClosedCategory _ _
+    elimLocalMotive = BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ
+      FreeBiCartesianClosedCategory reindexedBCCCⱽ
+
+    elimLocal : (ı : ElimInterpᴰ elimLocalMotive)
+      → Section (F .fst) (BCCCⱽ'.Cᴰ)
+    elimLocal ı = GlobalSectionReindex→Section _ _ (elim elimLocalMotive ı)
 
   module _ (BCCC : BiCartesianClosedCategory ℓC ℓC') where
     private

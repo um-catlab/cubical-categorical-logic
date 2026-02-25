@@ -36,7 +36,6 @@ open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Constructions.Comma
-open import Cubical.Categories.Displayed.Instances.Arrow.Limits
 open import Cubical.Categories.Displayed.Section.Base as Cat
 open import Cubical.Categories.Displayed.Limits.CartesianSection
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
@@ -219,17 +218,133 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     module _
       {D : Category ℓD ℓD'}
       ((F , F-bp) (G , G-bp) : CartesianFunctor FreeCartesianCategory D)
+
+      -- shouldn't this be part of the definition of CartesianFunctor
+      -- i.e. preserves finite prods, not just binary
       (F-1 : Term.preservesTerminal |FreeCartesianCategory| D F)
       (G-1 : Term.preservesTerminal |FreeCartesianCategory| D G)
       where
-      open IsoCommaStructure F G
+      private
+        F,G-IsoC : Categoryᴰ |FreeCartesianCategory| _ _
+        F,G-IsoC = Reindex.reindex (IsoCommaᴰ F G) (Δ |FreeCartesianCategory|)
+        module D = Category D
+
+      open isIsoOver
 
       CCCᴰF,G-IsoC : CartesianCategoryᴰ FreeCartesianCategory _ _
-      CCCᴰF,G-IsoC .CartesianCategoryᴰ.Cᴰ = IsoCommaᴰΔ
+      CCCᴰF,G-IsoC .CartesianCategoryᴰ.Cᴰ = F,G-IsoC
       CCCᴰF,G-IsoC .CartesianCategoryᴰ.termᴰ =
-        IsoCommaTerminalᴰ (FreeCartesianCategory .term) F-1 G-1
-      CCCᴰF,G-IsoC .CartesianCategoryᴰ.bpᴰ =
-        IsoCommaBinProductsᴰ (FreeCartesianCategory .bp) F-bp G-bp
+        F⊤≅G⊤ , _ , isUniv
+        where
+        F⊤ : Terminal D
+        F⊤ = _ , F-1 (Terminal'ToTerminal $ FreeCartesianCategory .term)
+
+        F⊤' = terminalToUniversalElement F⊤
+
+        G⊤ : Terminal D
+        G⊤ = _ , G-1 (Terminal'ToTerminal $ FreeCartesianCategory .term)
+
+        G⊤' = terminalToUniversalElement G⊤
+
+        module F⊤ = TerminalNotation F⊤'
+        module G⊤ = TerminalNotation G⊤'
+
+        F⊤≅G⊤ : CatIso D (F ⟅ ⊤ ⟆) (G ⟅ ⊤ ⟆)
+        F⊤≅G⊤ = terminalToIso D F⊤ G⊤
+
+        isUniv : isUniversalᴰ F,G-IsoC _ _
+          (FreeCartesianCategory .term) tt
+        isUniv Γ Γᴰ .inv _ _ .fst = G⊤.𝟙extensionality
+        isUniv Γ Γᴰ .inv _ _ .snd = _
+        isUniv Γ Γᴰ .rightInv = λ _ _ → refl
+        isUniv Γ Γᴰ .leftInv u v =
+          isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
+      CCCᴰF,G-IsoC .CartesianCategoryᴰ.bpᴰ {A = A}{B = B} f g =
+        F×≅G× , ((sym G×.×β₁ , tt) , (sym G×.×β₂ , tt)) , isUniv
+        where
+        module FCC× = BinProductNotation (FreeCartesianCategory .bp (A , B))
+        F× = preservesUniversalElement→UniversalElement
+              (preservesBinProdCones F A B)
+              (FreeCartesianCategory .bp (A , B)) (F-bp A B)
+        G× = preservesUniversalElement→UniversalElement
+              (preservesBinProdCones G A B)
+              (FreeCartesianCategory .bp (A , B)) (G-bp A B)
+        module F× = BinProductNotation F×
+        module G× = BinProductNotation G×
+
+        forward = (F×.π₁ D.⋆ f .fst) G×.,p (F×.π₂ D.⋆ g .fst)
+        backward = (G×.π₁ D.⋆ f .snd .isIso.inv) F×.,p (G×.π₂ D.⋆ g .snd .isIso.inv)
+
+        F×≅G× : CatIso D _ _
+        F×≅G× .fst = forward
+        F×≅G× .snd .isIso.inv = backward
+        F×≅G× .snd .isIso.sec = G×.,p-extensionality
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ G×.×β₁ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ F×.×β₁ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ f .snd .isIso.sec ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ G×.×β₂ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ F×.×β₂ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ g .snd .isIso.sec ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+        F×≅G× .snd .isIso.ret = F×.,p-extensionality
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ F×.×β₁ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ G×.×β₁ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ f .snd .isIso.ret ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+          (D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ F×.×β₂ ⟩
+          ∙ sym (D.⋆Assoc _ _ _)
+          ∙ D.⟨ G×.×β₂ ⟩⋆⟨ refl ⟩
+          ∙ D.⋆Assoc _ _ _
+          ∙ D.⟨ refl ⟩⋆⟨ g .snd .isIso.ret ⟩
+          ∙ D.⋆IdR _
+          ∙ sym (D.⋆IdL _))
+
+        isUniv : isUniversalᴰ F,G-IsoC _ _
+          (FreeCartesianCategory .bp (A , B))
+          ((sym G×.×β₁ , tt) , (sym G×.×β₂ , tt))
+        isUniv Γ Γᴰ .inv (u₁ , u₂) ((sq₁ , _) , (sq₂ , _)) .fst =
+          G×.,p-extensionality
+            (D.⋆Assoc _ _ _
+            ∙ D.⟨ refl ⟩⋆⟨ G×.×β₁ ⟩
+            ∙ sym (D.⋆Assoc _ _ _)
+            ∙ D.⟨ sym (F .F-seq _ _) ∙ cong (F .F-hom) FCC×.×β₁ ⟩⋆⟨ refl ⟩
+            ∙ sq₁
+            ∙ D.⟨ refl ⟩⋆⟨ sym (cong (G .F-hom) FCC×.×β₁) ∙ G .F-seq _ _ ⟩
+            ∙ sym (D.⋆Assoc _ _ _))
+            (D.⋆Assoc _ _ _
+            ∙ D.⟨ refl ⟩⋆⟨ G×.×β₂ ⟩
+            ∙ sym (D.⋆Assoc _ _ _)
+            ∙ D.⟨ sym (F .F-seq _ _) ∙ cong (F .F-hom) FCC×.×β₂ ⟩⋆⟨ refl ⟩
+            ∙ sq₂
+            ∙ D.⟨ refl ⟩⋆⟨ sym (cong (G .F-hom) FCC×.×β₂) ∙ G .F-seq _ _ ⟩
+            ∙ sym (D.⋆Assoc _ _ _))
+        isUniv Γ Γᴰ .inv _ _ .snd = tt
+        isUniv Γ Γᴰ .rightInv _ _ =
+          isProp→PathP (λ _ → isProp×
+            (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)
+            (isPropΣ (D.isSetHom _ _) λ _ → isPropUnit)) _ _
+        isUniv Γ Γᴰ .leftInv _ _ =
+          isProp→PathP (λ _ → isPropΣ (D.isSetHom _ _) λ _ → isPropUnit) _ _
+
+      -- A global section of the IsoComma gives a natural isomorphism
+      sectionToNatIso : GlobalSection F,G-IsoC → NatIso F G
+      sectionToNatIso S .NatIso.trans .NatTrans.N-ob x = S .F-obᴰ x .fst
+      sectionToNatIso S .NatIso.trans .NatTrans.N-hom f = S .F-homᴰ f .fst
+      sectionToNatIso S .NatIso.nIso x = S .F-obᴰ x .snd
 
       module _ (ı : ElimInterpᴰ CCCᴰF,G-IsoC) where
         FreeCartesianCatFunctor≅ : NatIso F G

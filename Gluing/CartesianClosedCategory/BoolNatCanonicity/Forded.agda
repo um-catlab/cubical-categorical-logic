@@ -95,7 +95,7 @@ module _ where
   private
     S : Section (FREECCC.C [ ⊤ ,-]) (SETᴰ ℓ-zero ℓ-zero)
     S = FreeCCC.elimLocal ×⇒QUIVER
-      (PtsCartesian FREECCC.CC ⊤)
+      (CorepCartesian FREECCC.CC ⊤)
       EqSETᴰCCCⱽ (mkElimInterpᴰ
       (λ { bool e → CanonicalFormBool e ; nat e → CanonicalFormNat e })
       λ { tr e _ → inl (cong₂ _⋆ₑ_ (⊤→⊤IsId FREECCC.term e) refl

@@ -92,7 +92,7 @@ module _ where
   private
     S : Section (FREEBICCC.C [ ⊤ ,-]) (SETᴰ ℓ-zero ℓ-zero)
     S = FreeBiCCC.elimLocal +×⇒QUIVER
-      (PtsCartesian FREEBICCC.CC ⊤)
+      (CorepCartesian FREEBICCC.CC ⊤)
       EqSETᴰBCCCⱽ (mkElimInterpᴰ
       (λ { bool e → CanonicalFormBool e ; nat e → CanonicalFormNat e })
       λ { tr e _ → inl (cong₂ _⋆ₑ_ (⊤→⊤IsId FREEBICCC.term e) refl

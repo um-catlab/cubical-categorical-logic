@@ -14,11 +14,10 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Limits.BinProduct.More
 
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Limits.Cartesian.More public
 
 open Category
 open Section
@@ -44,19 +43,6 @@ module _
 
   ⊤→⊤IsId : ∀ (e : C [ 𝟙 , 𝟙 ]) → e ≡ C .id
   ⊤→⊤IsId _ = 𝟙extensionality
-
-module _
-  (CC : CartesianCategory ℓC ℓC')
-  (base : CC .CartesianCategory.C .ob)
-  where
-  open CartesianCategory CC
-
-  PtsCartesian : CartesianFunctor CC (SET ℓC')
-  PtsCartesian .fst = C [ base ,-]
-  PtsCartesian .snd c c' X = isIsoToIsEquiv
-    ((λ (f , g) x → f x ,p g x)
-    , (λ _ → ΣPathP ((funExt λ _ → ×β₁) , (funExt λ _ → ×β₂)))
-    , λ _ → funExt λ _ → ,p≡ refl refl)
 
 module BoolIso
   {ℓ} {[bool] : Type ℓ}

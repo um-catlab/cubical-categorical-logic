@@ -44,6 +44,24 @@ module _
   ⊤→⊤IsId : ∀ (e : C [ 𝟙 , 𝟙 ]) → e ≡ C .id
   ⊤→⊤IsId _ = 𝟙extensionality
 
+module CanonicalFormIso
+  {ℓ ℓ'} {[A] : Type ℓ} {A : Type ℓ'}
+  (⌈_⌉ : A → [A])
+  (eval : [A] → A)
+  (sec : ∀ a → eval ⌈ a ⌉ ≡ a)
+  (surj : ∀ e → fiber ⌈_⌉ e)
+  where
+
+  canonicity : Iso [A] A
+  canonicity .Iso.fun = eval
+  canonicity .Iso.inv = ⌈_⌉
+  canonicity .Iso.sec = sec
+  canonicity .Iso.ret [a] =
+    cong ⌈_⌉ (cong eval (sym p) ∙ sec m) ∙ p
+    where
+    m = surj [a] .fst
+    p = surj [a] .snd
+
 module BoolIso
   {ℓ} {[bool] : Type ℓ}
   ([t] [f] : [bool])
@@ -59,14 +77,11 @@ module BoolIso
     fromBool false = [f]
 
   canonicity-bool : Iso [bool] Bool
-  canonicity-bool .Iso.fun = eval
-  canonicity-bool .Iso.inv = fromBool
-  canonicity-bool .Iso.sec = λ { true → eval-t ; false → eval-f }
-  canonicity-bool .Iso.ret e =
-    Sum.elim {C = λ _ → fromBool (eval e) ≡ e}
-      (λ p → cong (λ x → fromBool (eval x)) p ∙ cong fromBool eval-t ∙ sym p)
-      (λ q → cong (λ x → fromBool (eval x)) q ∙ cong fromBool eval-f ∙ sym q)
-      (canonicalize-bool e)
+  canonicity-bool = CanonicalFormIso.canonicity fromBool eval
+    (λ { true → eval-t ; false → eval-f })
+    (λ e → Sum.elim {C = λ _ → fiber fromBool e}
+      (λ p → true , sym p) (λ q → false , sym q)
+      (canonicalize-bool e))
 
 module NatIso
   {ℓ} {[nat] : Type ℓ}
@@ -77,11 +92,5 @@ module NatIso
   where
 
   canonicity-nat : Iso [nat] ℕ
-  canonicity-nat .Iso.fun = eval
-  canonicity-nat .Iso.inv = numeral
-  canonicity-nat .Iso.sec = eval-numeral
-  canonicity-nat .Iso.ret [n] =
-    cong numeral (cong eval (sym p) ∙ eval-numeral m) ∙ p
-    where
-    m = canonicalize-nat [n] .fst
-    p = canonicalize-nat [n] .snd
+  canonicity-nat =
+    CanonicalFormIso.canonicity numeral eval eval-numeral canonicalize-nat

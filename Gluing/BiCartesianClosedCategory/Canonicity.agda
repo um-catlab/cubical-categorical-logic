@@ -17,6 +17,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Limits.Terminal.More
 
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
@@ -46,9 +47,6 @@ module _ (+×⇒Q : +×⇒Quiver ℓQ ℓQ') where
   private
     module FREE = BiCartesianClosedCategory FREE
 
-  wkSET : {ℓ : Level} → BiCartesianClosedCategoryᴰ _ _ _
-  wkSET {ℓ} = weakenBCCC (FreeBiCartesianClosedCategory +×⇒Q) (SETBiCCC {ℓ})
-
   Pts : Functor FREE.C (SET (ℓ-max ℓQ ℓQ'))
   Pts = FREE.C [ ⊤ ,-]
 
@@ -64,6 +62,10 @@ module _ (+×⇒Q : +×⇒Quiver ℓQ ℓQ') where
   CanonicalFormMotive =
     FreeBiCCC.elimLocalMotive +×⇒Q PtsCartesian EqSETᴰBCCCⱽ
 
+  ⊤→⊤IsId : ∀ (e : FREE.Hom[ ⊤ , ⊤ ]) → e ≡ idₑ Eq.refl
+  ⊤→⊤IsId e = !⊤.𝟙extensionality
+    where module !⊤ = TerminalNotation FREE.term
+
   module _
     (cf : FreeBiCCC.ElimInterpᴰ +×⇒Q CanonicalFormMotive)
     where
@@ -71,7 +73,18 @@ module _ (+×⇒Q : +×⇒Quiver ℓQ ℓQ') where
     canonicalizeSection : Section Pts (SETᴰ (ℓ-max ℓQ ℓQ') (ℓ-max ℓQ ℓQ'))
     canonicalizeSection = FreeBiCCC.elimLocal +×⇒Q PtsCartesian EqSETᴰBCCCⱽ cf
 
-    canonicalize :
-      ∀ {o} → (e : FREE.C [ ⊤ , ↑ o ]) →
-      (ElimInterpᴰ.ı-ob cf o ((Pts ⟪ e ⟫) (idₑ Eq.refl))) .fst
-    canonicalize e = canonicalizeSection .F-homᴰ e _ _
+    canonicalize' :
+      ∀ {o} → (e : FREE.C [ ⊤ , o ]) →
+      fst
+       (elimOb +×⇒Q (elimLocalMotive +×⇒Q PtsCartesian EqSETᴰBCCCⱽ)
+                    (ElimInterpᴰ.ı-ob cf) o (F-hom Pts e (idₑ Eq.refl)))
+    canonicalize' e = canonicalizeSection .F-homᴰ e _ _
+
+    canonicalize : ∀ {o} → (e : FREE.C [ ⊤ , o ]) →
+      fst
+       (elimOb +×⇒Q (elimLocalMotive +×⇒Q PtsCartesian EqSETᴰBCCCⱽ)
+                    (ElimInterpᴰ.ı-ob cf) o e)
+    canonicalize {o} e =
+      subst (λ e →  fst (elimOb +×⇒Q (elimLocalMotive +×⇒Q PtsCartesian EqSETᴰBCCCⱽ)
+                    (ElimInterpᴰ.ı-ob cf) o e))
+            (FREE.⋆IdL _) (canonicalize' e)

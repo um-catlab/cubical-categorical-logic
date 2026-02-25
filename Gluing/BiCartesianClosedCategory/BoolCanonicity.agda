@@ -58,22 +58,11 @@ module _ where
     ((e ≡ [t]) ⊎ (e ≡ [f])) ,
     isSet⊎ (isProp→isSet (FREEBICCC.isSetHom _ _)) (isProp→isSet (FREEBICCC.isSetHom _ _))
 
-  ⊤→⊤IsId : ∀ (e : FREEBICCC.Hom[ ⊤ , ⊤ ]) → e ≡ idₑ Eq.refl
-  ⊤→⊤IsId e = !⊤.𝟙extensionality
-    where module !⊤ = TerminalNotation FREEBICCC.term
-
-  canonicalize-bool' : ∀ (e : FREEBICCC.C [ ⊤ , ↑ ans ]) →
-    ⟨ CanonicalFormBool (idₑ Eq.refl ⋆ₑ e) ⟩
-  canonicalize-bool' =
-    canonicalize +×⇒QUIVER
-    (mkElimInterpᴰ
-      (λ { ans e → CanonicalFormBool e })
-      λ {tr e _ → inl (cong₂ _⋆ₑ_ (⊤→⊤IsId e) refl ∙ FREEBICCC.⋆IdL _)
-       ; fl e _ → inr (cong₂ _⋆ₑ_ (⊤→⊤IsId e) refl ∙ FREEBICCC.⋆IdL _)})
-
   canonicalize-bool : ∀ (e : FREEBICCC.C [ ⊤ , ↑ ans ]) → ⟨ CanonicalFormBool e ⟩
-  canonicalize-bool e =
-    subst (λ z → CanonicalFormBool z .fst) (FREEBICCC.⋆IdL _) (canonicalize-bool' e)
+  canonicalize-bool = canonicalize +×⇒QUIVER (mkElimInterpᴰ
+      (λ { ans e → CanonicalFormBool e })
+      λ {tr e _ → inl (cong₂ _⋆ₑ_ (⊤→⊤IsId +×⇒QUIVER e) refl ∙ FREEBICCC.⋆IdL _)
+       ; fl e _ → inr (cong₂ _⋆ₑ_ (⊤→⊤IsId +×⇒QUIVER e) refl ∙ FREEBICCC.⋆IdL _)})
 
   canonicity : Iso (FREEBICCC.C [ ⊤ , ↑ ans ]) Bool
   canonicity .Iso.fun e = Sum.rec (λ _ → true) (λ _ → false) (canonicalize-bool e)

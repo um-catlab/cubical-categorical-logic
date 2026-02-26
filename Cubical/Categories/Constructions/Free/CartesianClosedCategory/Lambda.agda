@@ -19,6 +19,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.HLevels.More
+open import Cubical.Foundations.More
 
 import Cubical.Data.Equality as Eq
 open import Cubical.Data.Unit
@@ -276,13 +277,33 @@ module Lambda⇒/≈
         -- TODO: because QuoFunctor strictly preserves extension and exponentials,
         -- the TERMINALᴰ, BPᴰ and EXPᴰ can all be reindexed to be over LAMBDA, and we can thus define an eliminator into Quo*Cᴰ
           Quo*termᴰ : Terminalᴰ Quo*Cᴰ TERMINALCTX
-          Quo*termᴰ = {!!}
+          Quo*termᴰ .fst = termᴰ .fst
+          Quo*termᴰ .snd .fst = termᴰ.ue.element
+          Quo*termᴰ .snd .snd Γ Γᴰ .isIsoOver.inv tt tt = termᴰ.introᴰ tt
+          -- β
+          Quo*termᴰ .snd .snd Γ Γᴰ .isIsoOver.rightInv = λ _ _ → refl
+            -- λ b q →
+            --                                                 termᴰ .snd .snd (TERMINAL≈ .vertex) (termᴰ .fst)
+            --                                                 .isIsoOver.rightInv termᴰ.ue.element termᴰ.ue.element
+          Quo*termᴰ .snd .snd Γ Γᴰ .isIsoOver.leftInv a p = Cᴰ.rectifyOut (sym $ termᴰ.∫ηᴰ _)
 
           Quo*bpᴰ : {A : Ty} (Aᴰ : Quo*Cᴰ.ob[ x: A ]) → BinProductsWithᴰ Quo*Cᴰ (EXTENSION A) Aᴰ
-          Quo*bpᴰ = {!!}
+          Quo*bpᴰ Aᴰ Bᴰ .fst = bpᴰ Aᴰ Bᴰ .fst
+          Quo*bpᴰ Aᴰ Bᴰ .snd .fst = bpᴰ Aᴰ Bᴰ .snd .fst
+          Quo*bpᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.inv a x = bpᴰ.introᴰ Bᴰ Aᴰ x
+          Quo*bpᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.rightInv b q =
+            {!!}
+            -- ΣPathP
+            -- ( (Cᴰ.rectifyOut ({!Cᴰ.reind-filler⁻ _ ∙ _!} ∙ Cᴰ.≡in (bpᴰ.×βᴰ₁ _ _ (fst q) (q .snd))))
+            -- , {!!})
+          Quo*bpᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.leftInv = {!!}
 
           Quo*⇒ᴰ : {A B : Ty} (Aᴰ : Quo*Cᴰ.ob[ x: A ]) (Bᴰ : Quo*Cᴰ.ob[ x: B ]) → Exponentialᴰ Quo*Cᴰ (x: A , EXTENSION A) (Aᴰ , Quo*bpᴰ Aᴰ) Bᴰ (EXPONENTIALS A B)
-          Quo*⇒ᴰ = {!!}
+          Quo*⇒ᴰ Aᴰ Bᴰ .fst = ⇒ᴰ Aᴰ Bᴰ .fst
+          Quo*⇒ᴰ Aᴰ Bᴰ .snd .fst = ⇒ᴰ Aᴰ Bᴰ .snd .fst
+          Quo*⇒ᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.inv a = ⇒ᴰ.λᴰ Aᴰ Bᴰ
+          Quo*⇒ᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.rightInv = {!!}
+          Quo*⇒ᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.leftInv = {!!}
           module _ (ı-const : {A : Ty} (f : Constant A) → Quo*Cᴰ.Hom[ gen f ][ termᴰ .fst , elimOb Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı A ])-- need to get an interpretation of the constants here
             where
 
@@ -290,9 +311,24 @@ module Lambda⇒/≈
             unQuoElim = elim Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı ı-const
 
             module _ (ı-ax : ∀ {A M N} → (eq : Axiom {A} M N) → unQuoElim .F-homᴰ M Cᴰ.≡[ eq/ M N (ax eq) ] unQuoElim .F-homᴰ N) where
+              elimQuoHomᴰ : ∀ {Γ A} (M N : Tm Γ A) (M≈N : M ≈ N) → unQuoElim .F-homᴰ M Cᴰ.∫≡ unQuoElim .F-homᴰ N
+              elimQuoHomᴰ M N (refl≈ γ) = refl
+              elimQuoHomᴰ _ _ (⋆≈ M≈N M'≈N') =
+                Cᴰ.reind-revealed-filler⁻ _
+                ∙ Cᴰ.⟨ elimQuoHomᴰ _ _ M≈N ⟩⋆⟨ elimQuoHomᴰ _ _ M'≈N' ⟩
+                ∙ Cᴰ.reind-revealed-filler _
+              elimQuoHomᴰ M N ([λ]≈ M≈N) =
+                ⇒ᴰ.cong-λᴰ (elimOb Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı _) (elimOb Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı _) (elimQuoHomᴰ _ _ M≈N)
+              elimQuoHomᴰ M N (,x=≈ γ≈γ' M≈M') =
+                bpᴰ.cong-introᴰ _ _
+                  (λ i → (elimQuoHomᴰ _ _ γ≈γ' i .fst , elimQuoHomᴰ _ _ M≈M' i .fst)
+                        , (elimQuoHomᴰ _ _ γ≈γ' i .snd , elimQuoHomᴰ _ _ M≈M' i .snd))
+              elimQuoHomᴰ M N (ax x) = Cᴰ.≡in (ı-ax x)
+
               elimQuo : GlobalSection Cᴰ
               elimQuo .F-obᴰ = elimCtx Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı
-              elimQuo .F-homᴰ = {!!}
-              elimQuo .F-idᴰ = {!!}
-              elimQuo .F-seqᴰ = {!!}
+              elimQuo .F-homᴰ = Quo.elim (λ _ → Cᴰ.isSetHomᴰ) (unQuoElim .F-homᴰ) λ M N M≈N → Cᴰ.rectifyOut $ elimQuoHomᴰ M N M≈N
+              elimQuo .F-idᴰ = Cᴰ.rectifyOut (Cᴰ.reind-revealed-filler⁻ _)
+              elimQuo .F-seqᴰ = Quo.elimProp2 (λ γ≈ M≈ → Cᴰ.isSetHomᴰ _ _) $
+                λ γ M → Cᴰ.rectifyOut $ Cᴰ.reind-revealed-filler⁻ _
 

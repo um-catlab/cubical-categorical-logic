@@ -54,6 +54,18 @@ Set in [cubical-categorical-logic.agda-lib](cubical-categorical-logic.agda-lib):
 
 For complex categorical constructions (adjunctions, universal elements, presheaf operations), **always normalize goal types** rather than trying to manually unfold definitions. Unnormalized goals often have many layers of abstraction (`RightAdjointProf`, `precomposeF`, `YO`, etc.) that obscure the concrete type. Use `./scripts/agda-goals.sh <file.agda>` or Agda's `C-c C-,` (in Emacs/VS Code) with normalization to see what the goal actually computes to.
 
+## Incremental Development with Holes
+
+When implementing new definitions or proofs, **work incrementally using Agda holes (`{!!}`)** rather than trying to write complete code in one shot:
+
+1. **Sketch the structure first**: write the top-level definition with `{!!}` holes for non-trivial subterms.
+2. **Type-check the skeleton**: run `agda --no-main <file.agda>` to confirm the overall structure is well-typed.
+3. **Query goal types**: run `./scripts/agda-goals.sh <file.agda>` to see normalized types for each hole.
+4. **Fill holes one at a time**: replace each `{!!}` with concrete code, re-checking after each step.
+5. **Repeat**: if filling a hole requires complex subterms, introduce new holes and iterate.
+
+This approach avoids wasting time on type errors deep inside a large term. It also leverages Agda's type inference to reveal what is actually needed at each point, which is especially valuable when working with universe levels, implicit arguments, and deeply nested categorical abstractions.
+
 ## Cubical Library Dependency
 
 This project depends on the [agda/cubical](https://github.com/agda/cubical) library. The exact pinned commit is in `.github/workflows/main.yml` under the `CUBICAL_COMMIT` env var. When you need to look up cubical library API (e.g., field names, function signatures), read the source at that commit rather than guessing.

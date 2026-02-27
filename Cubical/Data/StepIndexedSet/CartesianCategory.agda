@@ -67,11 +67,9 @@ Terminalω+SET .universal Y+ = isIsoToIsEquiv
       (makeωHomPath {Y = 𝟙-ωType _}
         (λ _ → isSetUnit*) refl)))
 
--- Binary product of ω+Types
+-- Binary product ωType (no setness needed)
 
-module _ (A B : ω+Type ℓ)
-         (Aset : isωSet (ω+Type.Xfin A))
-         (Bset : isωSet (ω+Type.Xfin B)) where
+module _ (A B : ω+Type ℓ) where
   private
     module A = ω+Type A
     module B = ω+Type B
@@ -80,22 +78,31 @@ module _ (A B : ω+Type ℓ)
   ×-ωType .ωType.Xᵢ i = A.Xᵢ i × B.Xᵢ i
   ×-ωType .ωType.πᵢ i (a , b) = A.πᵢ i a , B.πᵢ i b
 
+-- Binary product ω+Type (setness needed for limit proof)
+
+module _ (A B : ω+Type ℓ)
+         (Aset : isωSet (ω+Type.Xfin A))
+         (Bset : isωSet (ω+Type.Xfin B)) where
   private
-    ×-set : isωSet ×-ωType
+    module A = ω+Type A
+    module B = ω+Type B
+
+    ×-set : isωSet (×-ωType A B)
     ×-set i = isSet× (Aset i) (Bset i)
 
-    make×ChainPath : {c d : ωChain ×-ωType}
+    make×ChainPath : {c d : ωChain (×-ωType A B)}
       → c .ωChain.xᵢ ≡ d .ωChain.xᵢ → c ≡ d
     make×ChainPath {c} {d} p i .ωChain.xᵢ = p i
     make×ChainPath {c} {d} p i .ωChain.xᵢ-nat j =
       isProp→PathP
         (λ i → ×-set j
-          (×-ωType .ωType.πᵢ j (p i (suc j)))
+          (×-ωType A B .ωType.πᵢ j
+            (p i (suc j)))
           (p i j))
         (c .ωChain.xᵢ-nat j) (d .ωChain.xᵢ-nat j) i
 
   ×-ω+Type : ω+Type ℓ
-  ×-ω+Type .ω+Type.Xfin = ×-ωType
+  ×-ω+Type .ω+Type.Xfin = ×-ωType A B
   ×-ω+Type .ω+Type.Xω = A.Xω × B.Xω
   ×-ω+Type .ω+Type.π (a , b) .ωChain.xᵢ i =
     A.π a .ωChain.xᵢ i , B.π b .ωChain.xᵢ i

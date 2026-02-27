@@ -122,10 +122,9 @@ module _ (A B : ω+Type ℓ)
     ( untruncω+Hom
     , sec-chain
     , (λ f → makeω+HomPath Bset
-        (makeωHomPath Bset
-          (funExt
-            (truncωHom-top A.Xfin B.Xfin
-              (f .ω+Hom.fFin))))))
+        (funExt
+          (truncωHom-top A.Xfin B.Xfin
+            (f .ω+Hom.fFin)))))
     where
     untruncω+Hom :
       ωChain (Exp-ωType A.Xfin B.Xfin) → ω+Hom A B
@@ -285,16 +284,14 @@ Exponentiableω+SET (A , Aset) (B , Bset)
   .universal (Y+ , Yset) = isIsoToIsEquiv
     ( (λ g → λ-ω+Hom A B Aset Bset Yset g)
     , (λ g → makeω+HomPath Bset
-        (makeωHomPath Bset
-          (funExt λ n → funExt λ (y , a) →
-            funExt⁻
-              (curry-fᵢ-top A B Aset Bset Yset g n y)
-              a)))
+        (funExt λ n → funExt λ (y , a) →
+          funExt⁻
+            (curry-fᵢ-top A B Aset Bset Yset g n y)
+            a))
     , (λ f → makeω+HomPath
         (isSetωHom≤ A B Bset)
-        (makeωHomPath (isSetωHom≤ A B Bset)
-          (funExt λ n → funExt λ y →
-            λ-η f n y))))
+        (funExt λ n → funExt λ y →
+          λ-η f n y)))
     where
     λ-η : (f : ω+Hom Y+ (Exp-ω+Type A B Bset))
       → ∀ n y

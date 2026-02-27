@@ -223,9 +223,11 @@ module _ {X : ω+Type ℓ} {Y : ω+Type ℓ'} where
             ∙ sym (g .ω+Hom.fω-nat i x)))
 
   makeω+HomPath : isωSet Y.Xfin → {f g : ω+Hom X Y}
-    → f .ω+Hom.fFin ≡ g .ω+Hom.fFin
+    → f .ω+Hom.fᵢ ≡ g .ω+Hom.fᵢ
     → f ≡ g
-  makeω+HomPath Yset {f} {g} fFin≡ = path where
+  makeω+HomPath Yset {f} {g} fᵢ≡ = path where
+    fFin≡ : f .ω+Hom.fFin ≡ g .ω+Hom.fFin
+    fFin≡ = makeωHomPath Yset fᵢ≡
     fω≡ : f .ω+Hom.fω ≡ g .ω+Hom.fω
     fω≡ = fFin→fω≡ Yset {f = f}{g = g} fFin≡
     nat≡ : PathP (λ i → ∀ j x →
@@ -242,7 +244,8 @@ module _ {X : ω+Type ℓ} {Y : ω+Type ℓ'} where
   isEmbedding-ω+Hom-fFin : isωSet Y.Xfin
     → isEmbedding (ω+Hom.fFin {X = X} {Y = Y})
   isEmbedding-ω+Hom-fFin Yset =
-    injEmbedding (isSetωHom Yset) (λ p → makeω+HomPath Yset p)
+    injEmbedding (isSetωHom Yset)
+      (λ p → makeω+HomPath Yset (cong ωHom.fᵢ p))
 
   isSetω+Hom : isωSet Y.Xfin → isSet X.Xω → isSet Y.Xω → isSet (ω+Hom X Y)
   isSetω+Hom Yset XωSet YωSet = isOfHLevelRetractFromIso 2 ω+HomΣIso
@@ -277,9 +280,9 @@ module _ {X : ω+Type ℓ} {Y : ω+Type ℓ'} where
 ω+SET ℓ .Hom[_,_] (X , _) (Y , _) = ω+Hom X Y
 ω+SET ℓ .id {x = _ , Xset} = ω+Hom-id _
 ω+SET ℓ ._⋆_ f g = ω+Hom-comp f g
-ω+SET ℓ .⋆IdL {x = _ , Xset} {y = _ , Yset} f = makeω+HomPath Yset (makeωHomPath Yset refl)
-ω+SET ℓ .⋆IdR {x = _ , Xset} {y = _ , Yset} f = makeω+HomPath Yset (makeωHomPath Yset refl)
-ω+SET ℓ .⋆Assoc {x = _ , Xset} {y = _ , Yset} {z = _ , Zset} {w = _ , Wset} f g h = makeω+HomPath Wset (makeωHomPath Wset refl)
+ω+SET ℓ .⋆IdL {x = _ , Xset} {y = _ , Yset} f = makeω+HomPath Yset refl
+ω+SET ℓ .⋆IdR {x = _ , Xset} {y = _ , Yset} f = makeω+HomPath Yset refl
+ω+SET ℓ .⋆Assoc {x = _ , Xset} {y = _ , Yset} {z = _ , Zset} {w = _ , Wset} f g h = makeω+HomPath Wset refl
 ω+SET ℓ .isSetHom {x = _ , Xset} {y = _ , Yset} =
   Embedding-into-hLevel→hLevel 1
     (ω+Hom.fFin , isEmbedding-ω+Hom-fFin Yset)
@@ -341,4 +344,4 @@ module _ {X : ωType ℓ}{Y : ω+Type ℓ'} where
 ωCHAIN X .UniversalElement.universal Y+ = isIsoToIsEquiv
   ( ωChainω+Type-rec
   , (λ b → makeωHomPath (Y+ .snd) refl)
-  , (λ a → makeω+HomPath (Y+ .snd) (makeωHomPath (Y+ .snd) refl)))
+  , (λ a → makeω+HomPath (Y+ .snd) refl))

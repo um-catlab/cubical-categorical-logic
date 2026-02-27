@@ -64,8 +64,7 @@ Terminalω+SET .universal Y+ = isIsoToIsEquiv
   , (λ _ → refl)
   , (λ a → makeω+HomPath {Y = 𝟙-ω+Type _}
       (λ _ → isSetUnit*)
-      (makeωHomPath {Y = 𝟙-ωType _}
-        (λ _ → isSetUnit*) refl)))
+      refl))
 
 -- Binary product ωType (no setness needed)
 
@@ -158,14 +157,11 @@ BinProductsω+SET {ℓ} ((A , Aset) , (B , Bset)) .universal Y+ =
   isIsoToIsEquiv
     ( (λ (f , g) → pair-ω+Hom A B Aset Bset f g)
     , (λ (f , g) → ΣPathP
-        ( makeω+HomPath {Y = A} Aset
-            (makeωHomPath Aset refl)
-        , makeω+HomPath {Y = B} Bset
-            (makeωHomPath Bset refl)))
+        ( makeω+HomPath {Y = A} Aset refl
+        , makeω+HomPath {Y = B} Bset refl))
     , (λ a → makeω+HomPath {Y = ×-ω+Type A B Aset Bset}
         (λ i → isSet× (Aset i) (Bset i))
-        (makeωHomPath (λ i → isSet× (Aset i) (Bset i))
-          refl)))
+        refl))
 
 -- Assembly
 

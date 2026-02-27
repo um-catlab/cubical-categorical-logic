@@ -102,6 +102,8 @@ module Modelᴰ
   OᴰBif : Bifunctorᴰ (ParFunctorToBifunctor O) (Vᴰ ^opᴰ) Cᴰ (SETᴰ (ℓ-max ℓP ℓP') ℓP')
   OᴰBif = ParFunctorᴰToBifunctorᴰ Oᴰ
 
+
+
 {-}
   module Coproducts (cprod : HasO+ M) where 
     open import Cubical.Categories.Presheaf.Morphism.Alt

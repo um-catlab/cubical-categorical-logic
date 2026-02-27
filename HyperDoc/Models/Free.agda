@@ -1,3 +1,4 @@
+  {-# OPTIONS --type-in-type #-}
   module HyperDoc.Models.Free where 
 
   -- Free model with 
@@ -14,7 +15,7 @@
   open import Cubical.Data.Graph.Base 
   open import Cubical.Relation.Binary.Preorder
 
-  open import Cubical.Categories.Category 
+  open import Cubical.Categories.Category hiding (isUnivalent)
   open import Cubical.Categories.Functor
   open import Cubical.Categories.Constructions.BinProduct
   open import Cubical.Categories.Instances.Sets
@@ -474,7 +475,77 @@
       SC .Section.F-idᴰ = LC.isProp≤ _ _
       SC .Section.F-seqᴰ _ _ = LC.isProp≤ _ _
 
-      M-elim : MSection {M = M}{M} (idModelMorphism M) L 
+      M-elim : MGlobalSection L
       M-elim .fst = SV
       M-elim .snd .fst = SC
       M-elim .snd .snd = ctm
+
+
+    open import HyperDoc.AsDisplayed
+
+  -- (L : Logic {ℓP = ℓV}{(ℓ-max (ℓ-max (ℓ-max ℓV' ℓC) ℓC') ℓS)} M)
+    module _ 
+      {ℓVT ℓV'T ℓCT ℓC'T ℓPT ℓP'T : Level}
+      {N : Model ℓVT ℓV'T ℓCT ℓC'T (ℓ-max ℓPT ℓP'T)}
+      (L : Logic {ℓP = ℓVT}{_} N) 
+      (hasO× : HasO× N)
+      (has⊤ : L⊤.Has⊤ (Logic.VH L) )
+      (has⋀ :  Products.has⋀ L hasO× )
+      (F : ModelMorphism 
+          (ℓ-max ℓV ℓC) 
+          (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ [])) 
+          (ℓ-max ℓV ℓC) 
+          (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ [])) 
+          (levels (ℓV ∷ ℓV' ∷ ℓC ∷ ℓC' ∷ ℓS ∷ [])) 
+          ℓVT ℓV'T ℓCT ℓC'T (ℓ-max ℓPT ℓP'T) M N ) where 
+      
+      open import Cubical.Categories.Displayed.Section.Base
+      open import Cubical.Categories.NaturalTransformation
+      open import Cubical.Categories.Displayed.Constructions.Reindex.Base renaming (reindex to reindexᴰ)
+      open NatTrans
+
+      open ModelMorphism F
+      open Modelᴰ N L
+
+      LM : Logic M 
+      LM = reindex F L
+
+      module LMHV = HDSyntax (Logic.VH LM)
+      module LMHC = HDSyntax (Logic.CH LM)
+
+      pres⊤ :  L⊤.Has⊤ (Logic.VH LM)
+      pres⊤ .fst c = has⊤ .fst (F-ob (FV ^opF) c)
+      pres⊤ .snd f = has⊤ .snd (F-hom (FV ^opF) f)
+
+      pres⋀ : Products.has⋀ LM products
+      pres⋀ B B' .Products.O⋀._⋀_ P Q = {! has⋀ ? ? .Products.O⋀._⋀_ ? ? !}
+      pres⋀ B B' .Products.O⋀.⋀-elim1 = {!   !}
+      pres⋀ B B' .Products.O⋀.⋀-elim2 = {!   !}
+      pres⋀ B B' .Products.O⋀.⋀-intro = {!   !}
+
+      -- need to show reindexing preserves type structure
+      have : MGlobalSection LM
+      have = M-elim LM pres⊤ pres⋀ {!   !} {!   !}
+
+
+      FSV : Section FV Vᴰ
+      FSV = GlobalSectionReindex→Section Vᴰ FV convert where 
+        convert : GlobalSection (reindexᴰ Vᴰ FV)
+        convert .Section.F-obᴰ = have .fst .Section.F-obᴰ
+        convert .Section.F-homᴰ = have .fst .Section.F-homᴰ
+        convert .Section.F-idᴰ = LMHV.isProp≤ _ _
+        convert .Section.F-seqᴰ _ _ = LMHV.isProp≤ _ _ 
+
+      FSC : Section FC Cᴰ 
+      FSC = GlobalSectionReindex→Section Cᴰ FC convert where 
+        convert : GlobalSection (reindexᴰ Cᴰ FC)
+        convert .Section.F-obᴰ = have .snd .fst .Section.F-obᴰ
+        convert .Section.F-homᴰ = have .snd .fst .Section.F-homᴰ
+        convert .Section.F-idᴰ = LMHC.isProp≤ _ _
+        convert .Section.F-seqᴰ _ _ = LMHC.isProp≤ _ _ 
+
+      M-elim-local : MSection F L
+      M-elim-local .fst = FSV
+      M-elim-local .snd .fst = FSC
+      M-elim-local .snd .snd = have .snd .snd
+

@@ -68,7 +68,10 @@ module L∧ where
       and-elim1 : {P Q R : X} → P ⊢ Q ∧ R → P ⊢ Q 
       and-elim2 : {P Q R : X} → P ⊢ Q ∧ R → P ⊢ R
 
-      
+    and-mono : {P Q R S : X} → P ⊢ R → Q ⊢ S → (P ∧ Q) ⊢ (R ∧ S)
+    and-mono {P'}{Q}{R}{S} p q = 
+      and-intro {P' ∧ Q} (is-trans _ _ _ (and-elim1 (is-refl (P' ∧ Q))) p ) (is-trans _ _ _ (and-elim2 (is-refl (P' ∧ Q))) q)  
+    
   record HAHom {ℓ ℓ'}{P Q  : ob (POSET ℓ ℓ')}(F : MonFun (P .fst) (Q .fst))(Hx : HA P)(Hy : HA Q) : Type ℓ where 
     module Hx = HA {ℓ} Hx
     module Hy = HA {ℓ} Hy

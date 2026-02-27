@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 module HyperDoc.CBPVLogic where 
 
 open import Cubical.Data.Sigma
@@ -61,6 +62,31 @@ record Logic
   pullRComp :  ∀ {A B B'}(S : C [ B , B' ])(M : O[ A , B ]) → 
     pull (rcomp S M) ≡ MonComp (CH .F-hom S) (pull M)
   pullRComp S M = pullComp (V .id) S M ∙ cong₂ MonComp refl (VH .F-id)
+
+module _ 
+  {ℓVS ℓV'S ℓCS ℓC'S ℓP ℓP' ℓVT ℓV'T ℓCT ℓC'T  : Level}
+  {M : Model ℓVS ℓV'S ℓCS ℓC'S (ℓ-max ℓP ℓP')}
+  {N : Model ℓVT ℓV'T ℓCT ℓC'T (ℓ-max ℓP ℓP')}
+  (F : ModelMorphism _ _ _ _ _ _ _ _ _ _ M N )
+  (L : Logic {ℓP = ℓP}{ℓP'} N) where 
+  open import Cubical.Categories.Presheaf.Morphism.Alt
+
+  open ModelMorphism F
+
+  -- annoying mix of variances and NatTrans/PshHom
+  -- fix this
+  -- Logic uses Sq : NatTrans
+  -- ModelMorphism uses FO : PshHom
+  reindex : Logic {ℓP = ℓP}{ℓP'} M
+  reindex .Logic.VH = Logic.VH L ∘F (FV ^opF)
+  reindex .Logic.CH = Logic.CH L ∘F (FC ^opF)
+  reindex .Logic.Sq .N-ob x x₁ = N-ob (Logic.Sq L)
+    (F-ob FV (F-ob (Fst (Model.V M ^op) (Model.C M)) x) ,
+     F-ob FC (F-ob to^op^op (F-ob (Snd (Model.V M ^op) (Model.C M)) x)))
+    (FO .PshHom.N-ob x x₁)
+  reindex .Logic.Sq .N-hom f = funExt λ r → {! funExt⁻ (Logic.Sq L .N-hom ?) ?   !}
+  
+
 
 module _ 
   {ℓV ℓV' ℓC ℓC'  ℓP ℓP'  : Level}

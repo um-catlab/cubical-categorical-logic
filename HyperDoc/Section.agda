@@ -35,7 +35,7 @@ module _
     {ℓVS ℓV'S ℓCS ℓC'S  ℓVT ℓV'T ℓCT ℓC'T  ℓP ℓP' : Level}
     {M : Model ℓVS ℓV'S ℓCS ℓC'S (ℓ-max ℓP ℓP')}
     {N : Model ℓVT ℓV'T ℓCT ℓC'T (ℓ-max ℓP ℓP')}
-    (F : ModelMorphism _ _ _ _ _ _ _ _ _ _ M N) 
+    (F : ModelMorphism ℓVS ℓV'S ℓCS ℓC'S (ℓ-max ℓP ℓP') ℓVT ℓV'T ℓCT ℓC'T (ℓ-max ℓP ℓP') M N) 
     (LN : Logic {ℓP = ℓP}{ℓP'} N)where
 
     open ModelMorphism F
@@ -56,7 +56,7 @@ module _
         module SV = Section SV 
         module SC = Section SC
 
-      SectionO : Type _ 
+      SectionO : Type (ℓ-max (ℓ-max (ℓ-max ℓVS ℓCS) ℓP) ℓP')
       SectionO = 
         ∀ 
           {A : ob M.V}
@@ -64,8 +64,14 @@ module _
           (M : M.O .F-ob (A , B) .fst) → 
         Oᴰ .F-obᴰ {FV .F-ob A , FC .F-ob B} (SV.F-obᴰ A , SC.F-obᴰ B) (FO .N-ob (A , B) M) .fst
 
-    MSection : Type _ 
+    MSection : Type _
     MSection = Σ[ SV ∈ Section FV Vᴰ ] Σ[ SC ∈ Section FC Cᴰ ] SectionO SV SC
+
+MGlobalSection : {ℓV ℓV' ℓC ℓC'  ℓP ℓP' : Level}{M : Model ℓV ℓV' ℓC ℓC' (ℓ-max ℓP ℓP') }(L : Logic {ℓP = ℓP}{ℓP'} M) → Type _ 
+MGlobalSection {M = M} L = MSection (idModelMorphism M) L
+
+module KungFoo where 
+
 
 {-}
     module _ where 

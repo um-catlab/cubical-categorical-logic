@@ -58,13 +58,14 @@ For complex categorical constructions (adjunctions, universal elements, presheaf
 
 When implementing new definitions or proofs, **work incrementally using Agda holes (`{!!}`)** rather than trying to write complete code in one shot:
 
-1. **Sketch the structure first**: write the top-level definition with `{!!}` holes for non-trivial subterms.
-2. **Type-check the skeleton**: run `agda --no-main <file.agda>` to confirm the overall structure is well-typed.
-3. **Query goal types**: run `./scripts/agda-goals.sh <file.agda>` to see normalized types for each hole.
-4. **Fill holes one at a time**: replace each `{!!}` with concrete code, re-checking after each step.
+1. Create files and module skeletons with top-level definitions and type signatures, leaving `{!!}` holes for all non-trivial terms.
+2. Type-check the skeleton to confirm the overall structure is correct.
+3. Query normalized goal types for each hole to understand what is needed.
+4. Fill holes one at a time, re-checking after each step. This allows you to leverage Agda's type inference and error messages to guide your implementation, especially when working with complex categorical abstractions and universe levels.
 5. **Repeat**: if filling a hole requires complex subterms, introduce new holes and iterate.
 
-This approach avoids wasting time on type errors deep inside a large term. It also leverages Agda's type inference to reveal what is actually needed at each point, which is especially valuable when working with universe levels, implicit arguments, and deeply nested categorical abstractions.
+This approach helps you to make steady progress rather than doing excessive planning and filling up your context too quickly. It also allows you to discover necessary lemmas and definitions organically as you go, rather than trying to anticipate everything upfront.
+It also leverages Agda's type inference to reveal what is actually needed at each point, which is especially valuable when working with deeply nested categorical abstractions.
 
 ## Cubical Library Dependency
 

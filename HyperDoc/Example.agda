@@ -613,7 +613,7 @@ module HyperDoc.Example where
       opM = N-ob FO (A , B) .carmap (M.O .F-ob (A , B) .interp op args)
 
       have : F-ob (FV ^opF) A VH.◂ P ≤ (L.pull opN  $ Q)
-      have = L.pullOp op (λ z → N-ob FO (A , B) .carmap (args z)) P Q  _
+      have = L.pullOp op (λ z → N-ob FO (A , B) .carmap (args z)) P Q dargs
 
       subgoal' : opN ≡ opM
       subgoal' = sym (N-ob FO (A , B) .pres  op args )
@@ -738,6 +738,28 @@ module HyperDoc.Example where
 
   CBPVGlobalSection :  {Σ : Signature}{M : CBPVModel Σ} → Logic M → Type 
   CBPVGlobalSection L = ModelSection.CBPVSection idCBPVMorphism L
+
+  module Reconstruct 
+    {Σ : Signature}
+    {M : CBPVModel Σ}
+    {L : Logic M}
+    (GS : CBPVGlobalSection L) 
+    where 
+
+    open CBPVModel M 
+    open Logic L 
+    open Section
+    open ConvertLogic M L
+    open import Cubical.Categories.Constructions.TotalCategory
+
+    TotalModel : CBPVModel Σ 
+    TotalModel .CBPVModel.V = ∫C Vᴰ
+    TotalModel .CBPVModel.C = ∫C Cᴰ
+    TotalModel .CBPVModel.O = {!   !}
+
+
+    GSFun : CBPVMorphism M {!  ∫C ? !} 
+    GSFun = {!   !}
 
   module Recursor (Σ : Signature)(M : CBPVModel Σ) where 
     open Syntax Σ
@@ -1047,63 +1069,98 @@ module HyperDoc.Example where
     Σb .Op = Boop
     Σb .arity boop = 1
 
-    open import HyperDoc.Effects.ManualWriter
-
-    open Writer (Boop , {!   !})
-
     M : CBPVModel Σb
     M .CBPVModel.V = SET _
-    M .CBPVModel.C = WRITERALG _
-    M .CBPVModel.O .F-ob (A , B) .Carrier = (SET _)[ A , (B .fst .fst , B .snd) ] , (SET _) .isSetHom
-    M .CBPVModel.O .F-ob (A , B) .interp boop arg a = B .fst .snd boop (arg zero a)
-    M .CBPVModel.O .F-hom (f , h) .carmap g = λ z → h .fst (g (f z))
-    M .CBPVModel.O .F-hom (f , h) .pres boop arg = funExt λ x → sym (h .snd boop (arg zero (f x)))
+    M .CBPVModel.C = ALG Σb
+    M .CBPVModel.O .F-ob (A , B) .Carrier = (SET _)[ A , B .Carrier ] , (SET _) .isSetHom
+    M .CBPVModel.O .F-ob (A , B) .interp boop arg a = B .interp boop λ x → arg x a
+    M .CBPVModel.O .F-hom (f , h) .carmap g = λ z → h .carmap (g (f z))
+    M .CBPVModel.O .F-hom (f , h) .pres boop arg = funExt λ a → h .pres boop λ x → arg x (f a)
     M .CBPVModel.O .F-id = AlgHom≡ refl
     M .CBPVModel.O .F-seq _ _ = AlgHom≡ refl
 
+    module M' = CBPVModel M
+    
     open import HyperDoc.Logics.SetPred
+    open import Cubical.Foundations.Powerset
+    open import Cubical.Functions.Logic hiding(⊥)
+    
+    SubAlg : {Σ : Signature} → Alg Σ → Type
+    SubAlg {Σ} A = Σ[ P ∈ ℙ ⟨ Carrier A ⟩  ] 
+      ((op : Op Σ) → (args : Fin (arity Σ op) → 
+        Σ[ a ∈ ⟨ Carrier A ⟩ ] a ∈ P ) → interp A op (λ i → args i .fst) ∈ P)
 
-    CH' : Functor (WRITERALG ℓ-zero ^op) (POSET ℓ-zero ℓ-zero)
+
+    subAlgPo : ob (ALG Σb) → ob (POSET  _ _) 
+    subAlgPo A .fst .fst = SubAlg A
+    subAlgPo A .fst .snd ._≤_ P Q = P .fst ⊆ Q .fst
+    subAlgPo A .fst .snd .isPreorder .IsPreorder.is-prop-valued P Q = ⊆-isProp (P .fst)(Q .fst)
+    subAlgPo A .fst .snd .isPreorder .IsPreorder.is-refl P = ⊆-refl (P .fst)
+    subAlgPo A .fst .snd .isPreorder .IsPreorder.is-trans P Q R = ⊆-trans (P .fst) (Q .fst) (R .fst)
+    -- this follows from antisym in ℙ
+    subAlgPo A .snd = {!!}
+
+
+    CH' : Functor ((ALG Σb) ^op) (POSET ℓ-zero ℓ-zero)
     CH' .F-ob = subAlgPo
-    CH' .F-hom f .MonFun.f = Writer.pull (Boop , {!   !}) f
-    CH' .F-hom f .MonFun.isMon = λ z x₂ → z (f .fst x₂)
-    CH' .F-id {B} = eqMon _ _ (funExt λ X → subAlg≡ {B' = B .fst} refl )
-    CH' .F-seq  {X}{Y}{Z} f g = eqMon _ _ (funExt λ W → subAlg≡ {B' = _} refl)
-
+    CH' .F-hom f .MonFun.f (P , clP) .fst a = P (f .carmap a)
+    CH' .F-hom f .MonFun.f (P , clP) .snd = {!   !}
+    CH' .F-hom f .MonFun.isMon = λ z x₂ → z (f .carmap x₂)
+    CH' .F-id = eqMon _ _ {!   !}
+    CH' .F-seq = {!   !}
+ 
     L : Logic M 
     L .Logic.VH = Pred
     L .Logic.CH = CH'
     L .Logic.Sq .N-ob (A , B) M .MonFun.f (Q , clQ) a = Q (M a)
     L .Logic.Sq .N-ob (A , B) M .MonFun.isMon Q a = Q (M a)
     L .Logic.Sq .N-hom f = refl
-    L .Logic.pullOp {A}{B} boop arg P Q prf a Pa = goal where 
-      have : fst (Q .fst (arg zero a)) 
-      have = prf zero a Pa
-      -- use the fact Q is closed
-      goal : fst (Q .fst (B .fst .snd boop (arg zero a)))
-      goal = Q .snd boop (arg zero a) have
+    L .Logic.pullOp boop arg P Q prf a Pa = Q .snd boop (λ z → arg z a , prf z a Pa)
 
     open SyntacticModel Σb
     open import Cubical.Data.Bool
     open Syntax Σb
+
     module Syn =  CBPVModel SynModel
 
-    -- open CBPVModel SynModel
-    
+    data FreeOn (S : Signature)(X : Type) : Type where 
+      inc : X → FreeOn S X
+      ops : (o : Op S) → (Fin (arity S o) → FreeOn S X) → FreeOn S X
+
+    FreeAlg : (Σ : Signature)(X : Type) → Alg Σ 
+    FreeAlg Σ X .Carrier = FreeOn Σ X , {!   !}
+    FreeAlg Σ X .interp = ops
+
+    FreeAlgMorphism' : {Σ : Signature}{X : Type}{M : Alg Σ} → 
+      (X → ⟨ M .Carrier ⟩ ) → 
+      FreeOn Σ X → ⟨ M .Carrier ⟩  
+    FreeAlgMorphism' {Σ} {X} {M} f (inc x) = f x
+    FreeAlgMorphism' {Σ} {X} {M} f (ops o args) = 
+      M .interp o (λ arg → FreeAlgMorphism' {Σ}{X}{M} f (args arg))
+
+    FreeAlgMorphism : {Σ : Signature}{X : Type}{M : Alg Σ} → 
+      (X → ⟨ M  .Carrier ⟩ ) → 
+      (ALG Σ)[ FreeAlg Σ X , M ] 
+    FreeAlgMorphism {Σ}{X}{M} gen .carmap = FreeAlgMorphism' {Σ}{X}{M} gen
+    FreeAlgMorphism gen .pres _ _ = refl
+ 
+
+    FreeAlgMorphism! : {Σ : Signature}{X : Type}{M : Alg Σ} → 
+      {f g : (ALG Σ)[ FreeAlg Σ X , M ]} → 
+      (∀ x → f .carmap (inc x) ≡ g .carmap (inc x)) → 
+      f ≡ g
+    FreeAlgMorphism! {Σ}{X}{M}{f}{g} prf = AlgHom≡ (funExt goal) where 
+      goal : (x : FreeOn Σ X) → f .carmap x ≡ g .carmap x 
+      goal (inc x) = prf x
+      goal (ops o x) = f .pres o x ∙ (λ i → interp M  o (λ a → goal (x a) i)) ∙ sym (g .pres o x)
+
+    -- Global Section
     F : CBPVMorphism SynModel M 
-    F .CBPVMorphism.FV = (V [ 𝟙 ,-])
-    F .CBPVMorphism.FC = {!   !} 
-    F .CBPVMorphism.FO = {!   !}
-    {-}
-    F .CBPVMorphism.FC .F-ob B = FreeWriterAlg Syn.O'[ 𝟙 , B  ] , {!   !}
-    F .CBPVMorphism.FC .F-hom {B}{B'} S = {!   !} -- ext (FreeWriterAlg Syn.O'[ 𝟙 , B'  ]) λ M → ret (plug S M)
-    F .CBPVMorphism.FC .F-id = {!   !} --- cong₂ ext refl (funExt λ M → cong ret plugId) ∙ sym extUP
-    F .CBPVMorphism.FC .F-seq S S' = {!   !} -- yes
-    F .CBPVMorphism.FO .N-ob (A , B) .carmap (ops A₁ B₁ boop arg) V = c* boop (ret {!   !} ) --(subC V (arg zero)))
-    F .CBPVMorphism.FO .N-ob (A , B) .carmap M V =  {!  c* boop ? !} -- ret (subC V M)
-    F .CBPVMorphism.FO .N-ob (A , B) .pres boop  arg = {!   !} -- funExt λ V → {!   !} -- cong ret (opsSub V boop arg) ∙ {!  !}
-    F .CBPVMorphism.FO .N-hom (V , S)= {!   !} -- AlgHom≡ (funExt λ M → funExt λ W → cong ret (plugSub ∙ cong₂ plug refl subDist))
--}
+    F .CBPVMorphism.FV = V [ 𝟙 ,-]
+    F .CBPVMorphism.FC = Syn.O[ 𝟙 ,-]
+    F .CBPVMorphism.FO .N-ob (A , B) .carmap M V = subC V M
+    F .CBPVMorphism.FO .N-ob (A , B) .pres boop arg = funExt λ V → opsSub V boop arg
+    F .CBPVMorphism.FO .N-hom (V , S) = AlgHom≡ (funExt λ M → funExt λ W → plugSub ∙ cong₂ plug refl (subDist ∙ sym subCId))
 
     open import Cubical.Functions.Logic
     
@@ -1123,20 +1180,18 @@ module HyperDoc.Example where
 
     int : InterpGen (LM F) (pres⊤ F) 
     int .InterpGen.interpAns .fst = {!   !}
-    int .InterpGen.interpAns .snd = {!   !}
+    int .InterpGen.interpAns .snd boop arg = {!   !}
     int .InterpGen.interpYes = {!   !}
     int .InterpGen.interpNo = {!   !}
-{-}
-    foo : ModelSection.CBPVSection F L
-    foo = M-elim-local F int
--- HDF∣ Pred ∣ ((V [ 𝟙 ,-]) ⟅ ?20 ⟆)
-    ex : HDF∣ Pred ∣ ((V [ 𝟙 ,-]) ⟅ U Ans ⟆)
-    ex = foo .fst .Section.F-obᴰ (U Ans)
 
-    ex' : {!   !} 
-    ex' = {! foo .fst .Section.F-homᴰ    !}
+    module M = CBPVModel M
+    open import Cubical.Foundations.Isomorphism
+    open CBPVMorphism F
 
--}
+    theoremV : Iso (Syn.V [ 𝟙 , U Ans ]) Bool 
+    theoremV = {!   !} 
 
+    theoremC : Iso ⟨ Syn.O[ 𝟙 , Ans ] .Carrier ⟩ (FreeOn Σb Bool)
+    theoremC = {!   !}
 
 

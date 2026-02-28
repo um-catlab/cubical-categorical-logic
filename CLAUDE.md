@@ -1,0 +1,103 @@
+# Cubical Categorical Logic — Agent Guidelines
+
+## Project Overview
+
+Cubical Agda library formalizing categorical logic for programming language semantics. Extends [agda/cubical](https://github.com/agda/cubical). Four top-level modules: `Cubical/`, `Gluing/`, `Multicategory/`, `Syntax/`.
+
+## Build and Test
+
+```sh
+make test          # Full CI check: whitespace + Everything files + type-check
+make check         # Generate Everything files, then agda TestEverything.agda
+make fix-whitespace # Auto-fix trailing whitespace
+make clean         # Remove .agdai and Everything.agda files
+```
+
+To type-check a single file: `agda --no-main <file.agda>`
+
+To query normalized goal types for holes: `./scripts/agda-goals.sh <file.agda>`
+
+Performance profiling: `./agda-perf.sh <file.agda>`
+
+## Agda Flags
+
+Set in [cubical-categorical-logic.agda-lib](cubical-categorical-logic.agda-lib):
+`--cubical --postfix-projections --guardedness -WnoUnsupportedIndexedMatch`
+
+## Code Style
+
+- **80-column line limit** — enforced by `check-line-lengths.sh`
+- **No trailing whitespace** — enforced by `fix-whitespace`
+- **File header**: every `.agda` file starts with a `{- ... -}` block comment describing its contents
+- **Module path = file path**: `module Cubical.Categories.Bifunctor where` lives at `Cubical/Categories/Bifunctor.agda`
+
+## Agda Conventions
+
+- **Postfix projections**: `C .ob`, `f .ω+Hom.fFin`, not `ob C`
+- **`no-eta-equality`** on record declarations (performance)
+- **Universe polymorphism**: declare level variables in `private variable` blocks:
+  ```agda
+  private variable ℓ ℓ' ℓ'' : Level
+  ```
+- **Record Iso via reflection**: use `defineRecordIsoΣ` from `Cubical.Reflection.RecordEquiv.More` to derive `Iso MyRecord MyRecordΣ`
+- **Equality combinators**: define `makeXPath` helpers using `isoFunInjective` + `ΣPathPProp` for records with prop fields
+- **`open` pattern**: `open Category`, `open Functor` etc. to bring record fields into scope; use `module C = Category C` for local aliases
+
+## Naming Conventions
+
+- Unicode throughout: `⋆` (composition), `ᴰ` (displayed), `πᵢ`, `Xω`, subscript numerals
+- Displayed categories: suffix `ᴰ` — `Categoryᴰ`, `idᴰ`, `_⋆ᴰ_`, `Hom[_][_,_]`
+- Mixfix operators: `Hom[_,_]`, `ob[_]`, `F-ob`, `F-hom`, `F-id`, `F-seq`
+- Identity/composition: `id`, `_⋆_` (diagrammatic order, `f ⋆ g` = "f then g")
+
+## Working with Goals
+
+For complex categorical constructions (adjunctions, universal elements, presheaf operations), **always normalize goal types** rather than trying to manually unfold definitions. Unnormalized goals often have many layers of abstraction (`RightAdjointProf`, `precomposeF`, `YO`, etc.) that obscure the concrete type. Use `./scripts/agda-goals.sh <file.agda>` or Agda's `C-c C-,` (in Emacs/VS Code) with normalization to see what the goal actually computes to.
+
+## Incremental Development with Holes
+
+When implementing new definitions or proofs, **work incrementally using Agda holes (`{!!}`)** rather than trying to write complete code in one shot:
+
+1. Create initial files before thinking through all details. Don't even worry about getting the right imports or definitions down. Start by making the file.
+2. Write down the top-level definitions and type signatures, leaving `{!!}` holes for all non-trivial terms. Don't get ahead of yourself by writing down many definitions at once. Break your task down into small steps and don't wait to discover all lemmas or definitions upfront. If you know how to implement one of the definitions, write it down and get it working without thinking about all of the rest of the definitions you will need later. This allows you to make steady progress and discover necessary lemmas and definitions organically as you go, rather than trying to anticipate everything upfront.
+2. Type-check the skeleton to confirm the overall structure is correct.
+3. Query normalized goal types for each hole to understand what is needed.
+4. Fill holes one at a time, re-checking after each step. This allows you to leverage Agda's type inference and error messages to guide your implementation, especially when working with complex categorical abstractions and universe levels.
+5. **Repeat**: if filling a hole requires complex subterms, introduce new holes and iterate.
+
+This approach helps you to make steady progress rather than doing excessive planning and filling up your context too quickly. It also allows you to discover necessary lemmas and definitions organically as you go, rather than trying to anticipate everything upfront.
+It also leverages Agda's type inference to reveal what is actually needed at each point, which is especially valuable when working with deeply nested categorical abstractions.
+
+## Cubical Library Dependency
+
+This project depends on the [agda/cubical](https://github.com/agda/cubical) library. The exact pinned commit is in `.github/workflows/main.yml` under the `CUBICAL_COMMIT` env var. When you need to look up cubical library API (e.g., field names, function signatures), read the source at that commit rather than guessing.
+
+## Cubical Library API Notes
+
+These are common sources of agent errors:
+- `Iso` fields: `.fun`, `.inv`, `.sec` (section), `.ret` (retract) — NOT `rightInv`/`leftInv`
+- `Category` fields: `.ob`, `.Hom[_,_]`, `.id`, `._⋆_`, `.⋆IdL`, `.⋆IdR`, `.⋆Assoc`, `.isSetHom`
+- `isEmbedding→Inj` needs explicit `{f = ...}` when `f` can't be inferred
+- `isProp→PathP` is the key tool for filling in propositional fields in dependent paths
+
+## Import Grouping
+
+1. `Cubical.Foundations.*` (Prelude, HLevels, Isomorphism, Equiv, Function, Structure)
+2. `Cubical.Functions.*` (Embedding, etc.)
+3. `Cubical.Data.*` (Nat, Sigma, Unit, etc.)
+4. `Cubical.Reflection.*`
+5. `Cubical.Categories.*` (from cubical library)
+6. Project-local imports
+
+## Architecture
+
+- `Cubical/Categories/` — core categorical infrastructure: categories, functors, natural transformations, adjunctions, displayed categories, presheaves, monoidal categories
+- `Cubical/Categories/Displayed/` — displayed (fibered) categories, the central organizational pattern
+- `Gluing/` — gluing constructions for logical relations and conservativity proofs
+- `Syntax/` — syntax of type theories (e.g., untyped lambda calculus)
+- `Multicategory/` — planar multicategories
+- `Everything.agda` files are **auto-generated** by `Everythings.hs` — never edit manually
+
+## Protected Files
+
+Do not modify files in `scripts/` without explicit user approval. These are stable utility scripts.

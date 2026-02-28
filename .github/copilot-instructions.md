@@ -58,7 +58,8 @@ For complex categorical constructions (adjunctions, universal elements, presheaf
 
 When implementing new definitions or proofs, **work incrementally using Agda holes (`{!!}`)** rather than trying to write complete code in one shot:
 
-1. Create files and module skeletons with top-level definitions and type signatures, leaving `{!!}` holes for all non-trivial terms.
+1. Create initial files before thinking through all details. Don't even worry about getting the right imports or definitions down. Start by making the file.
+2. Write down the top-level definitions and type signatures, leaving `{!!}` holes for all non-trivial terms. Don't get ahead of yourself by writing down many definitions at once. Break your task down into small steps and don't wait to discover all lemmas or definitions upfront. If you know how to implement one of the definitions, write it down and get it working without thinking about all of the rest of the definitions you will need later. This allows you to make steady progress and discover necessary lemmas and definitions organically as you go, rather than trying to anticipate everything upfront.
 2. Type-check the skeleton to confirm the overall structure is correct.
 3. Query normalized goal types for each hole to understand what is needed.
 4. Fill holes one at a time, re-checking after each step. This allows you to leverage Agda's type inference and error messages to guide your implementation, especially when working with complex categorical abstractions and universe levels.

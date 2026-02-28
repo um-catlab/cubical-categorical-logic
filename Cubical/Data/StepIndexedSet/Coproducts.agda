@@ -31,7 +31,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 
-open import Cubical.Data.StepIndexedSet
+open import Cubical.Data.StepIndexedSet.Base
 
 open Category
 open UniversalElement

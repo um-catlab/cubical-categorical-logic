@@ -12,7 +12,7 @@
   5. Limit condition: X∞ is the limit of the chain
 
 -}
-module Cubical.Data.StepIndexedSet where
+module Cubical.Data.StepIndexedSet.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -80,10 +80,7 @@ record ωChain (X : ωType ℓ) : Type ℓ where
 
 -- This may seem redundant because the type of ωChains is always
 -- available to use as a choice, but often we can have a much simpler
--- definition of Xfin.
-
--- This choice is unique up to equivalence, but allowing us to pick it
--- means we can choose a definitionally nicer choice than th
+-- definition of Xω.
 record ω+Type ℓ : Type (ℓ-suc ℓ) where
   field
     Xfin : ωType ℓ

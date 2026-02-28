@@ -29,7 +29,7 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Exponentials
 
-open import Cubical.Data.StepIndexedSet
+open import Cubical.Data.StepIndexedSet.Base
 open import Cubical.Data.StepIndexedSet.CartesianCategory
 
 open Category

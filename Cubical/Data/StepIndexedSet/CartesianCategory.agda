@@ -23,7 +23,7 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.Base
 
-open import Cubical.Data.StepIndexedSet
+open import Cubical.Data.StepIndexedSet.Base
 
 open Category
 open UniversalElement

@@ -25,7 +25,7 @@ open import Cubical.Data.Nat
 open import Cubical.Data.Unit renaming (Unit to ⊤)
 open import Cubical.Data.Unit.Properties
   using (isSetUnit*)
-open import Cubical.Data.StepIndexedSet
+open import Cubical.Data.StepIndexedSet.Base
 open import Cubical.Data.StepIndexedSet.CartesianClosedCategory
 
 open import Cubical.Categories.Category.Base

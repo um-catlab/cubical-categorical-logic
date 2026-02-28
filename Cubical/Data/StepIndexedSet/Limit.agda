@@ -18,7 +18,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 
 open import Cubical.Data.Nat
-open import Cubical.Data.StepIndexedSet
+open import Cubical.Data.StepIndexedSet.Base
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base

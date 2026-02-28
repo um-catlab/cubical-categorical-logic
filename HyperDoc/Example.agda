@@ -305,6 +305,35 @@ module HyperDoc.Example where
     lrcomp : ∀{v v' c c'} → V [ v' , v ] → C [ c , c' ] → (ALG Σ) [ O[ v , c ] , O[ v' , c' ] ]
     lrcomp V S = O .F-hom (V , S)
 
+    lcompId : ∀{v c}{M : O'[ v , c ]} → lcomp (V .id) .carmap M ≡ M
+    lcompId {v}{c}{M} i = O .F-id  i .carmap M 
+      
+    rcompId : ∀{v c}{M : O'[ v , c ]} → rcomp (C .id) .carmap M ≡ M
+    rcompId {v}{c}{M} i = O .F-id  i .carmap M 
+
+    rcompSeq : ∀ {v c c' c''}{S : C [ c , c' ]}{S' : C [ c' , c'' ]}{M : O'[ v , c ]} → 
+      rcomp  S' .carmap (rcomp S .carmap M) ≡ rcomp (S ⋆⟨ C ⟩ S') .carmap M
+    rcompSeq {S = S}{S'}{M} = {!   !} ∙ {! O .F-seq (V .id , (C ⋆ S) S')  !}
+    --cong (λ h → h .carmap M ) {! cong₂ (O .F-hom) (cong₂ _,_ (V .⋆IdL _) refl)  !}
+    {-
+    
+
+  rcompSeq : ∀ {v c c' c''}{S : C [ c , c' ]}{S' : C [ c' , c'' ]}{M : O[ v , c ]} → 
+    rcomp  S' (rcomp S M) ≡ rcomp (S ⋆⟨ C ⟩ S') M
+  rcompSeq {S = S}{S'}{M} =  funExt⁻ (sym (O .F-seq (V .id , S) (V .id , S'))) M ∙ cong₂ (O .F-hom) (cong₂ _,_ (V .⋆IdL _) refl) refl
+
+  lcompSeq : ∀ {v v' v'' c }{W : V [ v , v' ]}{Y : V [ v' , v'' ]}{M : O[ v'' , c ]} → 
+    lcomp  W (lcomp Y M) ≡ lcomp (W ⋆⟨ V ⟩ Y) M
+  lcompSeq {W = W}{Y}{M}= funExt⁻ (sym (O .F-seq (Y , C .id) (W , C .id))) M ∙ cong₂ (O .F-hom) (cong₂ _,_ refl (C .⋆IdL _)) refl
+
+  lrSeq : ∀ {A A' B B'}{W : V [ A , A' ]}{M : O[ A' , B ]}{S : C [ B , B' ]} → 
+    lcomp W (rcomp S M) ≡ rcomp S (lcomp W M)
+  lrSeq {W = W}{M}{S} = 
+    funExt⁻ (sym (O .F-seq _ _)) M  
+    ∙ cong₂ (O .F-hom ) (cong₂ _,_ (V .⋆IdR _ ∙ sym (V .⋆IdL _)) (C .⋆IdR _ ∙ sym (C .⋆IdL _))) refl 
+    ∙ funExt⁻ (O .F-seq _ _ ) M
+    -}
+
 
   record CBPVMorphism {Σ : Signature} (M N : CBPVModel Σ) : Type where
     private 
@@ -535,23 +564,66 @@ module HyperDoc.Example where
     (F : CBPVMorphism M N)
     (L : Logic N) where 
 
+    private 
+      module M = CBPVModel M
+      module N = CBPVModel N
+      module L = Logic L
+
+
     open CBPVMorphism F
 
-    reindex : Logic M 
-    reindex .Logic.VH = Logic.VH L ∘F (FV ^opF)
-    reindex .Logic.CH = Logic.CH L ∘F (FC ^opF)
-    reindex .Logic.Sq = seqTrans (FORGET ∘ʳ FO) (seqTrans F-assocl (seqTrans (Logic.Sq L ∘ˡ ((FV ^opF) ×F FC)) dumb)) where 
+    VH' : Functor (M.V ^op) (POSET ℓ-zero ℓ-zero) 
+    VH' = L.VH ∘F (FV ^opF)
+
+    CH' : Functor (M.C ^op) (POSET ℓ-zero ℓ-zero) 
+    CH' = L.CH ∘F (FC ^opF)
+
+    Sq' : NatTrans 
+      (FORGET ∘F M.O)  
+      (Hom^op ∘F (VH' ×F ((CH' ^opF) ∘F to^op^op)))
+    Sq' = 
+      seqTrans (FORGET ∘ʳ FO) (
+      seqTrans F-assocl (
+      seqTrans (L.Sq ∘ˡ ((FV ^opF) ×F FC)) 
+      dumb ))  where 
 
       dumb : NatTrans
-            ((Hom^op ∘F (Logic.VH L ×F ((Logic.CH L ^opF) ∘F to^op^op))) ∘F
-            ((FV ^opF) ×F FC))
-            (Hom^op ∘F
-            ((Logic.VH L ∘F (FV ^opF)) ×F
-              (((Logic.CH L ∘F (FC ^opF)) ^opF) ∘F to^op^op)))
+        ((Hom^op ∘F (L.VH ×F ((L.CH ^opF) ∘F to^op^op))) ∘F ((FV ^opF) ×F FC))
+        (Hom^op ∘F ((L.VH ∘F (FV ^opF)) ×F (((L.CH ∘F (FC ^opF)) ^opF) ∘F to^op^op)))
       dumb .N-ob x z = z
       dumb .N-hom f = refl
 
-    reindex .Logic.pullOp op args P Q dargs = {!   !}
+    reindex : Logic M 
+    reindex .Logic.VH = VH'
+    reindex .Logic.CH = CH'
+    reindex .Logic.Sq = Sq'
+    reindex .Logic.pullOp {A}{B} op args P Q dargs = goal where 
+      private 
+        module VH' = HDSyntax VH'
+        module VH = HDSyntax L.VH
+        
+      pull : {A : M.V .ob}{B : M.C .ob}(M' : M.O'[ A , B ])  
+        → MonFun (CH' .F-ob  B .fst) (VH' .F-ob A .fst) 
+      pull {A} {B} M = Sq' .N-ob (A , B) M
+
+      opN : N.O'[ F-ob (FV ^opF) A , F-ob (FC ^opF) B ] 
+      opN = N.O .F-ob ((F-ob (FV ^opF) A) , (F-ob (FC ^opF) B)) .interp op (λ z → N-ob FO (A , B) .carmap (args z))
+
+      opM : N.O'[ F-ob (FV ^opF) A , F-ob (FC ^opF) B ]
+      opM = N-ob FO (A , B) .carmap (M.O .F-ob (A , B) .interp op args)
+
+      have : F-ob (FV ^opF) A VH.◂ P ≤ (L.pull opN  $ Q)
+      have = L.pullOp op (λ z → N-ob FO (A , B) .carmap (args z)) P Q  _
+
+      subgoal' : opN ≡ opM
+      subgoal' = sym (N-ob FO (A , B) .pres  op args )
+
+      subgoal : L.pull opN ≡ pull (M.O[ A , B ] .interp op args)
+      subgoal = cong L.pull subgoal'
+
+      goal : A VH'.◂ P ≤ (pull (M.O[ A , B ] .interp op args) $ Q)
+      goal = VH'.seq have (VH'.eqTo≤ ((cong (λ h → MonFun.f h Q ) subgoal)))
+
 
   module Convert {C : Category _ _} (F : Functor (C ^op) (POSET _ _ )) where 
     open HDSyntax F  
@@ -667,6 +739,70 @@ module HyperDoc.Example where
   CBPVGlobalSection :  {Σ : Signature}{M : CBPVModel Σ} → Logic M → Type 
   CBPVGlobalSection L = ModelSection.CBPVSection idCBPVMorphism L
 
+  module Recursor (Σ : Signature)(M : CBPVModel Σ) where 
+    open Syntax Σ
+    open SyntacticModel Σ
+    module M = CBPVModel M
+
+    vty : VTy → ob M.V 
+    vty 𝟙 = {!   !}
+    vty (U x) = {!   !}
+
+    cty : CTy → ob M.C 
+    cty Ans = {!   !}
+
+    vtm : {A A' : VTy} → A ⊢v A' → M.V [ vty A , vty A' ]
+    vtm (subV V V') = M.V ._⋆_ (vtm V) (vtm V')
+    vtm var = M.V .id
+    vtm (subVIdl V i) = M.V .⋆IdL (vtm V) i
+    vtm (subVIdr V i) =  M.V .⋆IdR (vtm V) i
+    vtm (subVAssoc V₁ V₂ V₃ i) =  M.V .⋆Assoc (vtm V₁) (vtm V₂) (vtm V₃) i 
+    vtm (isSet⊢v V₁ V₂ x y i j) = M.V .isSetHom (vtm V₁) (vtm V₂) (cong vtm x) (cong vtm y) i j
+    vtm (thunk M) = {!   !}
+    vtm (Uη i) = {!   !}
+    vtm tt = {!   !}
+    vtm (η𝟙 V₁ i) = {!   !}
+
+    ktm : {B B' : CTy} → B ⊢k B' → M.C [ cty B , cty B' ]
+    ktm (kcomp S S') = M.C ._⋆_ (ktm S) (ktm S')
+    ktm hole = M.C .id
+    ktm (kcompIdl S i) = M.C .⋆IdL (ktm S) i
+    ktm (kcompIdr S i) = M.C .⋆IdR (ktm S) i
+    ktm (kcompAssoc S S₁ S₂ i) = M.C .⋆Assoc (ktm S) (ktm S₁) (ktm S₂) i
+    ktm (isSet⊢k S S' x y i j) =  M.C .isSetHom (ktm S) (ktm S') (cong ktm x) (cong ktm y) i j
+
+    ctm' : {A : VTy}{B : CTy} → A ⊢c B → M.O'[ vty A , cty B ]
+    ctm' (subC V M) = M.lcomp (vtm V) .carmap (ctm' M)
+    ctm' (plug S M) = M.rcomp (ktm S) .carmap (ctm' M)
+    ctm' (plugId {A}{B}{M} i) = M.lcompId {vty A}{cty B}{ctm' M} i
+    ctm' (subCId {A}{B}{M} i) = M.rcompId {vty A}{cty B}{ctm' M} i
+    ctm' (plugDist i) = {!   !}
+    ctm' (subDist i) = {!   !}
+    ctm' (plugSub i) = {!   !}
+    ctm' (isSet⊢c M M₁ x y i i₁) = {!   !}
+    ctm' (ops A B op args) = M.O[ vty A , cty B ] .interp op λ x → ctm' (args x)
+    ctm' (opsSub V₁ op args i) = {!   !}
+    ctm' (opsPlug S op args i) = {!   !}
+    ctm' force = {!   !}
+    ctm' yes = {!   !}
+    ctm' no = {!   !}
+    ctm' (Uβ i) = {!   !}
+     
+    ctm : {A : VTy}{B : CTy} → AlgHom (FreeCompAlg A B) M.O[ vty A , cty B ]
+    ctm {A}{B} .carmap = ctm' {A}{B} 
+    ctm .pres op args = {!   !}
+
+    M-rec : CBPVMorphism SynModel M 
+    M-rec .CBPVMorphism.FV .F-ob = vty
+    M-rec .CBPVMorphism.FV .F-hom = vtm
+    M-rec .CBPVMorphism.FV .F-id = refl
+    M-rec .CBPVMorphism.FV .F-seq _ _ = refl
+    M-rec .CBPVMorphism.FC .F-ob = cty
+    M-rec .CBPVMorphism.FC .F-hom = ktm
+    M-rec .CBPVMorphism.FC .F-id = refl 
+    M-rec .CBPVMorphism.FC .F-seq _ _ = refl
+    M-rec .CBPVMorphism.FO .N-ob (A , B) = ctm {A}{B}
+    M-rec .CBPVMorphism.FO .N-hom _ = AlgHom≡ (funExt λ M → {!   !})
 
   module Eliminator (Σ : Signature) where 
     open Syntax Σ
@@ -956,14 +1092,18 @@ module HyperDoc.Example where
     
     F : CBPVMorphism SynModel M 
     F .CBPVMorphism.FV = (V [ 𝟙 ,-])
+    F .CBPVMorphism.FC = {!   !} 
+    F .CBPVMorphism.FO = {!   !}
+    {-}
     F .CBPVMorphism.FC .F-ob B = FreeWriterAlg Syn.O'[ 𝟙 , B  ] , {!   !}
-    F .CBPVMorphism.FC .F-hom {B}{B'} S = ext (FreeWriterAlg Syn.O'[ 𝟙 , B'  ]) λ M → ret (plug S M)
-    F .CBPVMorphism.FC .F-id = cong₂ ext refl (funExt λ M → cong ret plugId) ∙ sym extUP
+    F .CBPVMorphism.FC .F-hom {B}{B'} S = {!   !} -- ext (FreeWriterAlg Syn.O'[ 𝟙 , B'  ]) λ M → ret (plug S M)
+    F .CBPVMorphism.FC .F-id = {!   !} --- cong₂ ext refl (funExt λ M → cong ret plugId) ∙ sym extUP
     F .CBPVMorphism.FC .F-seq S S' = {!   !} -- yes
-    F .CBPVMorphism.FO .N-ob (A , B) .carmap M V = ret (subC V M)
-    F .CBPVMorphism.FO .N-ob (A , B) .pres boop  arg = funExt λ V → cong ret (opsSub V boop arg) ∙ {!  !}
-    F .CBPVMorphism.FO .N-hom (V , S)= AlgHom≡ (funExt λ M → funExt λ W → cong ret (plugSub ∙ cong₂ plug refl subDist))
-
+    F .CBPVMorphism.FO .N-ob (A , B) .carmap (ops A₁ B₁ boop arg) V = c* boop (ret {!   !} ) --(subC V (arg zero)))
+    F .CBPVMorphism.FO .N-ob (A , B) .carmap M V =  {!  c* boop ? !} -- ret (subC V M)
+    F .CBPVMorphism.FO .N-ob (A , B) .pres boop  arg = {!   !} -- funExt λ V → {!   !} -- cong ret (opsSub V boop arg) ∙ {!  !}
+    F .CBPVMorphism.FO .N-hom (V , S)= {!   !} -- AlgHom≡ (funExt λ M → funExt λ W → cong ret (plugSub ∙ cong₂ plug refl subDist))
+-}
 
     open import Cubical.Functions.Logic
     
@@ -982,20 +1122,21 @@ module HyperDoc.Example where
     open LocalElim Σb M L top' unit 
 
     int : InterpGen (LM F) (pres⊤ F) 
-    int .InterpGen.interpAns = {!   !}
+    int .InterpGen.interpAns .fst = {!   !}
+    int .InterpGen.interpAns .snd = {!   !}
     int .InterpGen.interpYes = {!   !}
     int .InterpGen.interpNo = {!   !}
-
+{-}
     foo : ModelSection.CBPVSection F L
     foo = M-elim-local F int
--- HDSyntax.F∣ Pred ∣ ((V [ 𝟙 ,-]) ⟅ ?20 ⟆)
-    ex : HDSyntax.F∣ Pred ∣ ((V [ 𝟙 ,-]) ⟅ U Ans ⟆)
+-- HDF∣ Pred ∣ ((V [ 𝟙 ,-]) ⟅ ?20 ⟆)
+    ex : HDF∣ Pred ∣ ((V [ 𝟙 ,-]) ⟅ U Ans ⟆)
     ex = foo .fst .Section.F-obᴰ (U Ans)
 
-    ex' : ? 
-    ex' = ?
+    ex' : {!   !} 
+    ex' = {! foo .fst .Section.F-homᴰ    !}
 
-
+-}
 
 
 

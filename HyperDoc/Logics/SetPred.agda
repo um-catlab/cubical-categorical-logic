@@ -69,6 +69,7 @@ module _
     _∪_ : ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩ 
     _∪_ P Q x = P x ⊔ Q x 
 
+{-}
 
   has∨⊤ : L∨⊤.Has∨⊤ Pred
   has∨⊤ .fst X .L∨⊤.HA.top = ⊤ₓ {X}
@@ -80,6 +81,7 @@ module _
                                                                     ; (_⊎_.inr Qx) → g x Qx} 
   has∨⊤ .snd f .L∨⊤.HAHom.f-top = refl
   has∨⊤ .snd f .L∨⊤.HAHom.f-or _ _ = refl
+  -}
 
   has∧ : L∧.Has∧ Pred 
   has∧ .fst X .L∧.HA._∧_ = _∩_ {X}

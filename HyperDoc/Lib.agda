@@ -13,10 +13,12 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 
 open Category
 open Categoryᴰ
 open Functor
+open Functorᴰ
 
 module HyperDoc.Lib where 
 
@@ -44,6 +46,12 @@ from^op^op .F-hom = λ z → z
 from^op^op .F-id = refl
 from^op^op .F-seq _ _ = refl
 
+from^opᴰ^opᴰ : {ℓ ℓ' ℓD ℓD' : Level}{C : Category ℓ ℓ'}{Cᴰ : Categoryᴰ C ℓD ℓD'}
+  → Functorᴰ from^op^op (Cᴰ ^opᴰ ^opᴰ) Cᴰ 
+from^opᴰ^opᴰ .F-obᴰ = λ z → z
+from^opᴰ^opᴰ .F-homᴰ = λ z → z
+from^opᴰ^opᴰ .F-idᴰ = refl
+from^opᴰ^opᴰ .F-seqᴰ _ _ = refl
 
 Cᴰ^op^op : {ℓ ℓ' ℓD ℓD' : Level}{C : Category ℓ ℓ'}
   → Categoryᴰ (C ^op ^op) ℓD ℓD'
@@ -57,6 +65,22 @@ Cᴰ^op^op Cᴰ .⋆IdRᴰ = Cᴰ .⋆IdRᴰ
 Cᴰ^op^op Cᴰ .⋆Assocᴰ = Cᴰ .⋆Assocᴰ
 Cᴰ^op^op Cᴰ .isSetHomᴰ = Cᴰ .isSetHomᴰ
 
+module _ {ℓ ℓ' ℓ'' : Level}
+    {B C D E : Category ℓ ℓ'}
+    {F : Functor B C} {G : Functor C D} {H : Functor D E}
+    where 
+  open import Cubical.Categories.NaturalTransformation
+  open NatTrans
+
+  F-assocl : {F : Functor B C} {G : Functor C D} {H : Functor D E}
+        →  NatTrans (H ∘F (G ∘F F)) ((H ∘F G) ∘F F)
+  F-assocl .N-ob = λ x → E .id
+  F-assocl .N-hom f = E .⋆IdR _ ∙ sym (E .⋆IdL _)
+
+  F-assocr : {F : Functor B C} {G : Functor C D} {H : Functor D E}
+        →  NatTrans ((H ∘F G) ∘F F) (H ∘F (G ∘F F)) 
+  F-assocr .N-ob = λ x → E .id
+  F-assocr .N-hom f = E .⋆IdR _ ∙ sym (E .⋆IdL _)
 
 -- will need this again for operational stuff
 module _ {ℓS : Level} where 

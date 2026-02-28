@@ -62,6 +62,26 @@ module HDSyntax
   mon* : ∀{x y xᴰ x'ᴰ}(f : C [ y , x ]) → x ◂ xᴰ ≤ x'ᴰ → y ◂ f* f xᴰ ≤ f* f x'ᴰ 
   mon* f = F .F-hom f .MonFun.isMon
 
+  cast : ∀{x y yᴰ xᴰ }{f g : C [ y , x ]} →  
+    f ≡ g →  
+    y ◂ yᴰ ≤ f* f xᴰ → 
+    y ◂ yᴰ ≤ f* g xᴰ
+  cast {x}{y} {yᴰ}{xᴰ}{f}{g} p prf = subst  (λ v → y ◂ yᴰ ≤ f* v xᴰ) p prf
+
+  eq* : ∀{x y yᴰ xᴰ }{f g : C [ y , x ]} →  
+    f ≡ g →  
+    y ◂ yᴰ ≤ f* f xᴰ ≡ 
+    y ◂ yᴰ ≤ f* g xᴰ
+  eq* {x}{y} {yᴰ}{xᴰ}{f}{g} p i = y ◂ yᴰ ≤ f* (p i) xᴰ
+
+  eq*PathP : ∀{x y yᴰ xᴰ }{f g : C [ y , x ]} → 
+    (p : f ≡ g) → 
+    (lhs : y ◂ yᴰ ≤ f* f xᴰ) → 
+    (rhs : y ◂ yᴰ ≤ f* g xᴰ) → 
+    PathP (λ i → y ◂ yᴰ ≤ f* (p i) xᴰ) lhs rhs
+  eq*PathP p l r = toPathP (isProp≤ _ r)
+  _ = {!   !}
+
   seq* : ∀ {x y z xᴰ yᴰ zᴰ}(f : C [ x , y ])(g : C [ y , z ]) → 
     x ◂ xᴰ ≤ f* f yᴰ → y ◂ yᴰ ≤ f* g zᴰ → x ◂ xᴰ ≤ f* ((C ⋆ f) g) zᴰ 
   seq* {zᴰ = zᴰ} f g p q = seq (seq p (mon* f q)) (eqTo≤ λ i → sym (F .F-seq g f) i .MonFun.f zᴰ)

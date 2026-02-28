@@ -1,3 +1,4 @@
+{-# OPTIONS --type-in-type #-}
 module HyperDoc.Models.ManualWriter where 
 
 open import Cubical.Data.Sigma
@@ -63,6 +64,18 @@ module _
   CBPVWrite .O .F-id = refl
   CBPVWrite .O .F-seq _ _ = refl
 
+  hasO+ : HasO+ CBPVWrite
+  hasO+ A A' .fst .fst = ⟨ A ⟩ ⊎ ⟨ A' ⟩
+  hasO+ A A' .fst .snd = isSet⊎  (A .snd) (A' .snd)
+  hasO+ A A' .snd .PshIso.trans .PshHom.N-ob B f = (λ z → f (_⊎_.inl z)) , λ z → f (_⊎_.inr z)
+  hasO+ A A' .snd .PshIso.trans .PshHom.N-hom B B' f g = refl
+  hasO+ A A' .snd .PshIso.nIso B .fst (f , g) (_⊎_.inl x) = f x
+  hasO+ A A' .snd .PshIso.nIso B .fst (f , g) (_⊎_.inr x) = g x
+  hasO+ A A' .snd .PshIso.nIso B .snd .fst (f , g) = ΣPathP (refl , refl)
+  hasO+ A A' .snd .PshIso.nIso B .snd .snd f = funExt λ { (_⊎_.inl x) → refl
+                                                        ; (_⊎_.inr x) → refl }
+
+{-}
   hasV+ : HasV+ CBPVWrite 
   hasV+ A A' .fst .fst = ⟨ A ⟩ ⊎ ⟨ A' ⟩
   hasV+ A A' .fst .snd = isSet⊎  (A .snd) (A' .snd)
@@ -73,6 +86,7 @@ module _
   hasV+ A A' .snd .PshIso.nIso B .snd .fst (f , g) = ΣPathP (refl , refl)
   hasV+ A A' .snd .PshIso.nIso B .snd .snd f = funExt λ { (_⊎_.inl x) → refl
                                                         ; (_⊎_.inr x) → refl }
+-}
 
   hasUTy : HasUTy CBPVWrite 
   hasUTy B .fst = B .fst .fst , B .snd
@@ -116,9 +130,19 @@ module _
   hasC× B B' .snd .PshIso.nIso B'' .snd .fst b = ΣPathP ((WriterHom≡ {B' = B .fst}(B .snd) refl) , WriterHom≡ {B' = B' .fst} (B' .snd) refl)
   hasC× B B' .snd .PshIso.nIso B'' .snd .snd a = WriterHom≡ {B' = B  .fst .fst × B' .fst .fst , λ w (b , b') → B .fst .snd w b , B' .fst .snd w b'} (isSet× (B .snd) (B' .snd)) refl
 
+
+  hasO× : HasO× CBPVWrite 
+  hasO× B B' .fst .fst = (B .fst .fst × B' .fst .fst) , λ m (b , b') → (B .fst .snd m b) , B' .fst .snd m b'
+  hasO× B B' .fst .snd = isSet× (B .snd) (B' .snd)
+  hasO× B B' .snd .PshIso.trans .PshHom.N-ob B'' f = (λ z → f z .fst) , λ z → f z .snd
+  hasO× B B' .snd .PshIso.trans .PshHom.N-hom C C' f p = ΣPathP (refl , refl)
+  hasO× B B' .snd .PshIso.nIso B'' .fst (f , g) = λ z → f z , g z
+  hasO× B B' .snd .PshIso.nIso B'' .snd .fst _ = ΣPathP (refl , refl)
+  hasO× B B' .snd .PshIso.nIso B'' .snd .snd _ = refl
+
   CL : Functor (WRITERALG ℓS ^op) (POSET (ℓ-suc ℓS) ℓS )
   CL .F-ob = subAlgPo
-  CL .F-hom f .f = pull f
+  CL .F-hom f .f = Writer.pull M f 
   CL .F-hom f .isMon = λ z x₂ → z (f .fst x₂)
   CL .F-id {B} = eqMon _ _ (funExt λ X → subAlg≡ {B' = B .fst} refl )
   CL .F-seq {X}{Y}{Z} f g = eqMon _ _ (funExt λ W → subAlg≡ {B' = _} refl)
@@ -151,6 +175,33 @@ module _
   CBPVLogic : Logic CBPVWrite 
   CBPVLogic .VH = VL
   CBPVLogic .CH = CL
+  CBPVLogic .Sq .N-ob (A , B) o .f (Q , clQ) a = Q (o a)
+  CBPVLogic .Sq .N-ob (A , B) o .isMon Q a = Q (o a)
+  CBPVLogic .Sq .N-hom f = refl
+
+  open Coproducts CBPVLogic hasO+
+  open O⋁
+
+  prf : has⋁
+  (prf A A' Coproducts.O⋁.⋁ P) Q (_⊎_.inl x) = P x
+  (prf A A' Coproducts.O⋁.⋁ P) Q (_⊎_.inr x) = Q x
+  prf A A' .Coproducts.O⋁.⋁-intro f g (_⊎_.inl x) = f x
+  prf A A' .Coproducts.O⋁.⋁-intro f g (_⊎_.inr x) = g x
+  prf A A' .Coproducts.O⋁.⋁-elim1 f a Pa = f (_⊎_.inl a) Pa
+  prf A A' .Coproducts.O⋁.⋁-elim2 f a' Qa' = f (_⊎_.inr a') Qa'
+
+  open Products CBPVLogic hasO×
+  open O⋀
+
+  prf' : has⋀ 
+  (prf' B B' Products.O⋀.⋀ P) Q = (λ (b , b') → P .fst b ⊓ Q .fst b') , λ w a z → P .snd w (a .fst) (z .fst) , Q .snd w (a .snd) (z .snd)
+  prf' B B' .Products.O⋀.⋀-elim1 = λ z x z₁ → z x z₁ .fst
+  prf' B B' .Products.O⋀.⋀-elim2 = λ z x z₁ → z x z₁ .snd
+  prf' B B' .Products.O⋀.⋀-intro = λ z z₁ x z₂ → z x z₂ , z₁ x z₂
+
+
+  
+  {-}
   CBPVLogic .pushV {A} {B} o .f P .fst = pushₚ {A = A }{B}o P
   CBPVLogic .pushV {A} {B} o .f P .snd w b = tmap (step w b)
   CBPVLogic .pushV {A} {B} o .isMon {P}{Q} P⊆Q b = 
@@ -176,7 +227,7 @@ module _
       p
   CBPVLogic .pushPullAdj {o = o} .adjIff {P} {Q} .sec b = ⊆-isProp P (λ a → Q .fst (o a))  _ b 
   CBPVLogic .pushPullAdj {A}{_}{o} .adjIff {P} {Q} .ret' a = ⊆-isProp (pushₚ {A = A} o P) (Q .fst) _ a
-
+-}
 
   -- this should just be inherited from Set in some nice way
   Alg∧ : L∧.Has∧ CL

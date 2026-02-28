@@ -178,6 +178,7 @@ module HyperDoc.Algebras where
   open Equation
   open Model
 
+
   -- ah.. but can you ever construct an element of this type?
   -- only if the signature has a nullay operation
   -- see FreeOn .. which equips a set X with this structure
@@ -558,7 +559,7 @@ module HyperDoc.Algebras where
     subAlg≡ {X}{Y} prf = ΣPathP (prf , toPathP (isPropClosed B (Y .fst) _ (Y .snd))) 
 
     subAlg≡' : {X Y : SubAlg B} → ((b : B .fst) → ⟨ X .fst b ⇔ Y .fst b ⟩) → X ≡ Y
-    subAlg≡' {X}{Y} prf = subAlg≡ (funExt λ b → ⇔toPath (prf b .fst)  (prf b .snd)) 
+    -- subAlg≡' {X}{Y} prf = subAlg≡ (funExt λ b → ⇔toPath (prf b .fst)  (prf b .snd)) 5
 
   subAlgPo : ob (WRITERALG ℓ) → ob (POSET  (ℓ-max ℓS (ℓ-suc ℓ)) ℓ ) 
   subAlgPo A .fst .fst = SubAlg (A .fst)
@@ -618,11 +619,14 @@ module HyperDoc.Algebras where
   sub {T} {C} .F-id = {!   !}
   sub {T} {C} .F-seq = {!   !}
   
+  -- do we really want a natural transformation..? 
+  -- this does not appear to be the correct structure
   record Logic {T : Theory}(M : CBPVModel T) : Type where 
     open CBPVModel M
     field 
       VH : Functor (V ^op) (POSETALG T)
       CH : Functor (C ^op) (POSETALGCL T)
+      -- do we really want this to land in algebras..?
       Sq : NatTrans O ( glue T ∘F ((VH  ×F ((FullInclusion (POSETALG T) _ ^opF) ∘F (CH ^opF) ∘F to^op^op))))
 
   open import HyperDoc.Logics.SetPred
@@ -658,6 +662,7 @@ module HyperDoc.Algebras where
   test .F-seq = {!   !}
 
   -- more interesting example... 
+  -- no.. 
   open import HyperDoc.Models.ManualWriter using (CL ;  𝓒 )
   test' : Functor ( 𝓒  ^op) (POSETALGCL boopTheory)
   test' .F-ob B .fst .fst = Pred .F-ob  ((B .fst .fst) , {!   !})
@@ -666,10 +671,21 @@ module HyperDoc.Algebras where
       { f = λ z z₁ → fst (z .fst z₁) , z .fst z₁ .snd
       ; isMon = λ {x} {y} z → z .fst
       }
-  test' .F-ob B .snd = {!   !}
+  test' .F-ob B .snd = {! subAlgPo  !} , (λ tt args → {!   !})
   test' .F-hom = {!   !}
   test' .F-id = {!   !}
   test' .F-seq = {!   !}
+
+{-}
+  testL : Logic {boopTheory} {!   !}
+  testL .Logic.VH = test
+  testL .Logic.CH = test'
+  testL .Logic.Sq .N-ob (A , B) .carmap M .mfun = {!   !}
+  testL .Logic.Sq .N-ob (A , B) .carmap M .isMon = {!   !}
+  testL .Logic.Sq .N-ob M .pres tt arg = eqMon _ _ {!   !}
+  testL .Logic.Sq .N-hom = {!   !} 
+  -}
+
    {-}
   subAlgPo : ob (WRITERALG ℓ) → ob (POSET  (ℓ-max ℓS (ℓ-suc ℓ)) ℓ ) 
   subAlgPo A .fst .fst = SubAlg (A .fst)

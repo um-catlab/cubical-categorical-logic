@@ -65,6 +65,22 @@ Cᴰ^op^op Cᴰ .⋆IdRᴰ = Cᴰ .⋆IdRᴰ
 Cᴰ^op^op Cᴰ .⋆Assocᴰ = Cᴰ .⋆Assocᴰ
 Cᴰ^op^op Cᴰ .isSetHomᴰ = Cᴰ .isSetHomᴰ
 
+module _ {ℓ ℓ' ℓ'' : Level}
+    {B C D E : Category ℓ ℓ'}
+    {F : Functor B C} {G : Functor C D} {H : Functor D E}
+    where 
+  open import Cubical.Categories.NaturalTransformation
+  open NatTrans
+
+  F-assocl : {F : Functor B C} {G : Functor C D} {H : Functor D E}
+        →  NatTrans (H ∘F (G ∘F F)) ((H ∘F G) ∘F F)
+  F-assocl .N-ob = λ x → E .id
+  F-assocl .N-hom f = E .⋆IdR _ ∙ sym (E .⋆IdL _)
+
+  F-assocr : {F : Functor B C} {G : Functor C D} {H : Functor D E}
+        →  NatTrans ((H ∘F G) ∘F F) (H ∘F (G ∘F F)) 
+  F-assocr .N-ob = λ x → E .id
+  F-assocr .N-hom f = E .⋆IdR _ ∙ sym (E .⋆IdL _)
 
 -- will need this again for operational stuff
 module _ {ℓS : Level} where 

@@ -1083,7 +1083,7 @@ module HyperDoc.Example where
     
     open import HyperDoc.Logics.SetPred
     open import Cubical.Foundations.Powerset
-    open import Cubical.Functions.Logic hiding(⊥)
+    open import Cubical.Functions.Logic hiding(⊥ ; inl ; inr)
     
     SubAlg : {Σ : Signature} → Alg Σ → Type
     SubAlg {Σ} A = Σ[ P ∈ ℙ ⟨ Carrier A ⟩  ] 
@@ -1162,8 +1162,6 @@ module HyperDoc.Example where
     F .CBPVMorphism.FO .N-ob (A , B) .pres boop arg = funExt λ V → opsSub V boop arg
     F .CBPVMorphism.FO .N-hom (V , S) = AlgHom≡ (funExt λ M → funExt λ W → plugSub ∙ cong₂ plug refl (subDist ∙ sym subCId))
 
-    open import Cubical.Functions.Logic
-    
     top' : L⊤.Has⊤ Pred
     top' .fst X = record { top = λ x → ⊤ ; top-top = λ {P} x _ → tt* }
     top' .snd f .L⊤.HAHom.f-top = refl
@@ -1178,20 +1176,51 @@ module HyperDoc.Example where
 
     open LocalElim Σb M L top' unit 
 
+    open import Cubical.Data.Sum
+    open import Cubical.HITs.PropositionalTruncation.Base
+    open import Cubical.HITs.PropositionalTruncation.Properties renaming (rec to hrec ; map to hmap)
+        
+    boop' : 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
+    boop' M = ops 𝟙 Ans boop λ {zero  → M}
+
+    bebop : ℕ → 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
+    bebop zero M = M
+    bebop (suc n) M = boop' (bebop n M)
+
+    property' : 𝟙  ⊢c Ans → Type 
+    property' M = Σ[ n ∈ ℕ ] ((M ≡ bebop n yes) ⊎ (M ≡ bebop n no))
+
+    property : ℙ (𝟙  ⊢c Ans)
+    property M = ∥ property' M ∥₁ , squash₁
+
+    closed : (M : 𝟙 ⊢c Ans ) → M ∈ property → boop' M ∈ property 
+    closed M = hmap goal where 
+      goal : property' M → property' (boop' M)
+      goal (n , inl x) = (suc n) , (inl (cong boop' x))
+      goal (n , inr x) = (suc n) , (inr (cong boop' x))
+
     int : InterpGen (LM F) (pres⊤ F) 
-    int .InterpGen.interpAns .fst = {!   !}
-    int .InterpGen.interpAns .snd boop arg = {!   !}
-    int .InterpGen.interpYes = {!   !}
-    int .InterpGen.interpNo = {!   !}
+    int .InterpGen.interpAns .fst = property
+    int .InterpGen.interpAns .snd boop M =  goal where 
+      have : 𝟙 ⊢c Ans 
+      have = M zero .fst 
 
-    module M = CBPVModel M
-    open import Cubical.Foundations.Isomorphism
-    open CBPVMorphism F
+      have' : have ∈ property 
+      have' = M zero .snd
 
-    theoremV : Iso (Syn.V [ 𝟙 , U Ans ]) Bool 
-    theoremV = {!   !} 
+      dumb : ops 𝟙 Ans boop (λ i → M i .fst) ≡ boop' have
+      dumb = cong (λ h → ops 𝟙 Ans boop h) (funExt λ {zero → refl})
 
-    theoremC : Iso ⟨ Syn.O[ 𝟙 , Ans ] .Carrier ⟩ (FreeOn Σb Bool)
-    theoremC = {!   !}
+      goal : ops 𝟙 Ans boop (λ i → M i .fst) ∈ property 
+      goal = subst (λ x → x ∈ property) (sym dumb) (closed have have')
+    int .InterpGen.interpYes V tt* = ∣ (0 , (inl (cong₂ subC (sym (η𝟙 V) ∙ η𝟙 var) refl ∙ subCId))) ∣₁
+    int .InterpGen.interpNo V tt* = ∣ (0 , (inr (cong₂ subC (sym (η𝟙 V) ∙ η𝟙 var) refl ∙ subCId))) ∣₁
 
+    open ModelSection F L 
+    open Section
 
+    induct : CBPVSection
+    induct = M-elim-local F int
+
+    theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ bebop n yes) ⊎ (M ≡ bebop n no)))  ∥₁ 
+    theorem M = subst (λ h → h ∈ property) subCId (induct .snd .snd M var tt*)

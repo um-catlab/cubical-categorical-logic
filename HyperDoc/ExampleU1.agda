@@ -45,7 +45,7 @@ module HyperDoc.ExampleU1 where
   open import Cubical.Categories.Bifunctor
   open import Cubical.Data.Sum
   open import Cubical.HITs.PropositionalTruncation.Base
-  open import Cubical.HITs.PropositionalTruncation.Properties renaming (rec to hrec ; map to hmap)
+  open import Cubical.HITs.PropositionalTruncation.Properties renaming (rec to hrec ; map to hmap ; map2 to hmap2)
   open import HyperDoc.Logics.SetPred
   open import Cubical.Foundations.Powerset
   open import Cubical.Functions.Logic hiding(⊥ ; inl ; inr)
@@ -1217,28 +1217,60 @@ module HyperDoc.ExampleU1 where
     open Syntax ΣSt
     open SyntacticModel ΣSt
 
+    Free : Type
+    Free = FreeOn ΣSt (𝟙  ⊢c Ans)
+
+    conv : Free → 𝟙  ⊢c Ans
+    conv (inc yes) = yes
+    conv (inc no) = no
+    conv (ops get args) = ops 𝟙 Ans get λ a → conv (args a)
+    conv (ops set0 arg) = ops 𝟙 Ans set0 λ a → conv (arg a)
+    conv (ops set1 arg) = ops 𝟙 Ans set1 λ a → conv (arg a)
+
     property' : 𝟙  ⊢c Ans → Type 
-    property' M = {!   !}
-      -- Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n yes) ⊎ (M ≡ boopⁿ n no))
+    property' M = M ≡ conv (inc M)
 
     property : ℙ (𝟙  ⊢c Ans)
     property M = ∥ property' M ∥₁ , squash₁
 
     closed : Cong {ΣSt} {Syn.O[ 𝟙 , Ans ]} property
-    closed = {!   !}
+    closed get args = goal where 
+      t1 : 𝟙  ⊢c Ans 
+      t1 = args zero .fst
+
+      t1∈ : t1 ∈ property
+      t1∈ = args zero .snd
+
+      t2 : 𝟙  ⊢c Ans 
+      t2 = args one .fst
+
+      t2∈ : t2 ∈ property
+      t2∈ = args one .snd
+      
+      get' : 𝟙  ⊢c Ans  → 𝟙  ⊢c Ans  → 𝟙  ⊢c Ans 
+      get' M N = interp Syn.O[ 𝟙 , Ans ] get λ { zero → M
+                                                ; (suc d) → N}
+
+      goal : interp Syn.O[ 𝟙 , Ans ] get (λ i → args i .fst) ∈ property
+      goal = hmap2 (λ t1≡ t2≡ → {! λ i → ? !}) t1∈ t2∈
+
+    closed set0 args = {!   !}
+    closed set1 args = {!   !}
 
     yes∈ : yes ∈ property 
-    yes∈ = {!   !}
+    yes∈ = ∣ refl ∣₁
 
     no∈ : no ∈ property 
-    no∈ = {!   !}
+    no∈ = ∣ refl ∣₁
 
     int : InterpGen (LE.LM Cl) (LE.pres⊤ Cl)
     int .InterpGen.interpAns .fst = property
     int .InterpGen.interpAns .snd = closed
-    int .InterpGen.interpYes V tt* = ?
-      -- subst (λ h → h ∈ property ) {!   !} yes∈
-    int .InterpGen.interpNo V tt* = {!   !}
+    int .InterpGen.interpYes V tt* =  subst (λ h → h ∈ property ) (sym subCId ∙ sym (cong₂ subC (sym (η𝟙 V) ∙ η𝟙 var) refl)) yes∈
+    int .InterpGen.interpNo V tt* = subst (λ h → h ∈ property ) (sym subCId ∙ sym (cong₂ subC (sym (η𝟙 V) ∙ η𝟙 var) refl)) no∈
 
     StateLR : MS.CBPVSection 
     StateLR = LR int
+
+    theorem : ∀ (M : 𝟙  ⊢c Ans) → ∥ M ≡ conv (inc M) ∥₁ 
+    theorem M = subst (λ h → h ∈ property) subCId (StateLR .snd .snd M var tt*)

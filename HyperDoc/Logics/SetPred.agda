@@ -82,6 +82,9 @@ module _
   has∨⊤ .snd f .L∨⊤.HAHom.f-top = refl
   has∨⊤ .snd f .L∨⊤.HAHom.f-or _ _ = refl
   -}
+  has⊤ : L⊤.Has⊤ Pred
+  has⊤  .fst X = record { top = λ x → ⊤ ; top-top = λ {P} x _ → tt* }
+  has⊤  .snd f .L⊤.HAHom.f-top = refl
 
   has∧ : L∧.Has∧ Pred 
   has∧ .fst X .L∧.HA._∧_ = _∩_ {X}

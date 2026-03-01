@@ -1,1 +1,0 @@
-module HyperDoc.AlgLogic where 

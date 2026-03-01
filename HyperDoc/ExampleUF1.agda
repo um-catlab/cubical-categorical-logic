@@ -44,6 +44,8 @@ module HyperDoc.ExampleUF1 where
   open import Cubical.Categories.Displayed.Bifunctor
   open import Cubical.Categories.Bifunctor
   open import Cubical.Data.Sum
+  open import Cubical.Foundations.Powerset
+  open import Cubical.Functions.Logic hiding(⊥ ; inl ; inr)
   open import Cubical.HITs.PropositionalTruncation.Base
   open import Cubical.HITs.PropositionalTruncation.Properties renaming (rec to hrec ; map to hmap)
   open PreorderStr
@@ -210,6 +212,60 @@ module HyperDoc.ExampleUF1 where
   ALG S .⋆IdR _ = AlgHom≡ refl
   ALG S .⋆Assoc _ _ _ = AlgHom≡ refl
   ALG S .isSetHom = {!   !}
+
+  Cong : {Σ : Signature}{A : Alg Σ} → ℙ ⟨ Carrier A ⟩  → Type 
+  Cong {Σ}{A} P = (op : Op Σ)(args : Fin (arity Σ op) → Σ[ a ∈ ⟨ Carrier A ⟩ ] a ∈ P ) → 
+    interp A op (λ i → args i .fst) ∈ P
+
+  isPropCong : {Σ : Signature}{A : Alg Σ} → (P : ℙ ⟨ Carrier A ⟩) → isProp (Cong {Σ}{A} P) 
+  isPropCong {Σ}{A} P = 
+    isPropΠ  λ op → 
+    isPropΠ λ args → 
+    ∈-isProp P (interp A op (λ i → args i .fst))
+  
+  _⊃⊂_ : {X : Type} → (P Q :  ℙ X) → Type
+  _⊃⊂_ P Q = (P ⊆ Q) × (Q ⊆ P)
+
+  SubAlg : {Σ : Signature} → Alg Σ → Type
+  SubAlg {Σ} A = Σ[ P ∈ ℙ ⟨ Carrier A ⟩  ] (Cong {Σ}{A} P)
+
+  SubAlg≡ : {Σ : Signature}{A : Alg Σ}→ (P Q : SubAlg A) → (P .fst) ⊃⊂ (Q .fst) →  P ≡ Q
+  SubAlg≡ {Σ}{A} P Q prf = 
+    ΣPathP (funExt (λ a → ⇔toPath (prf .fst a) (prf .snd a)) , 
+    toPathP (isPropCong {Σ}{A} (Q .fst) _ _))
+
+  subAlgPo : {Σ : Signature} → ob (ALG Σ) → ob (POSET  _ _) 
+  subAlgPo A .fst .fst = SubAlg A
+  subAlgPo A .fst .snd ._≤_ P Q = P .fst ⊆ Q .fst
+  subAlgPo A .fst .snd .isPreorder .IsPreorder.is-prop-valued P Q = ⊆-isProp (P .fst)(Q .fst)
+  subAlgPo A .fst .snd .isPreorder .IsPreorder.is-refl P = ⊆-refl (P .fst)
+  subAlgPo A .fst .snd .isPreorder .IsPreorder.is-trans P Q R = ⊆-trans (P .fst) (Q .fst) (R .fst)
+  -- this follows from antisym in ℙ
+  subAlgPo A .snd = {!!}
+
+  AlgPred : (Σ : Signature) →  Functor ((ALG Σ) ^op) (POSET ℓ-zero ℓ-zero)
+  AlgPred Σ .F-ob = subAlgPo
+  AlgPred Σ .F-hom f .MonFun.f (P , clP) .fst a = P (f .carmap a)
+  AlgPred Σ .F-hom {B}{B'} f .MonFun.f (P , clP) .snd op args = goal where 
+    have : f .carmap (interp B' op λ a → args a .fst) ≡ interp B op (λ a → f .carmap (args a .fst))
+    have = f .pres op  λ a → args a .fst
+
+    have' : interp B op (λ i → f .carmap (args i .fst)) ∈ P
+    have' = clP  op λ z → f .carmap (args z .fst) , args z .snd
+
+    goal : interp B' op (λ i → args i .fst) ∈ (λ a → P (f .carmap a))
+    goal = subst (λ h → h ∈ P) (sym have) have'
+
+  AlgPred Σ .F-hom f .MonFun.isMon = λ z x₂ → z (f .carmap x₂)
+  AlgPred Σ .F-id {B} = 
+    eqMon _ _ (funExt λ P → 
+    SubAlg≡ {Σ}{B} 
+      _ _ 
+      ((λ x z → z) , λ x z → z))
+  AlgPred Σ .F-seq {B}{B'}{B''} f g = 
+    eqMon _ _ (funExt λ P → 
+    SubAlg≡ {Σ}{B''} _ _ 
+    ((λ x z → z) , λ x z → z))
 
   data FreeOn (S : Signature)(X : Type) : Type where 
     inc : X → FreeOn S X
@@ -1143,7 +1199,7 @@ module HyperDoc.ExampleUF1 where
         M-elim-local .snd .snd = M-elim' .snd .snd
 
 
-
+{-
   module BoopExample where 
 
     data Boop : Type where 
@@ -1329,4 +1385,5 @@ module HyperDoc.ExampleUF1 where
     theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n yes) ⊎ (M ≡ boopⁿ n no))) ∥₁ 
     theorem M = subst (λ h → h ∈ property) subCId (LR .snd .snd M var tt*)
 
+-}
 -}

@@ -1182,12 +1182,12 @@ module HyperDoc.Example where
     boop' : 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
     boop' M = ops 𝟙 Ans boop λ {zero  → M}
 
-    bebop : ℕ → 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
-    bebop zero M = M
-    bebop (suc n) M = boop' (bebop n M)
+    boopⁿ : ℕ → 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
+    boopⁿ zero M = M
+    boopⁿ (suc n) M = boop' (boopⁿ n M)
 
     property' : 𝟙  ⊢c Ans → Type 
-    property' M = Σ[ n ∈ ℕ ] ((M ≡ bebop n yes) ⊎ (M ≡ bebop n no))
+    property' M = Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n yes) ⊎ (M ≡ boopⁿ n no))
 
     property : ℙ (𝟙  ⊢c Ans)
     property M = ∥ property' M ∥₁ , squash₁
@@ -1221,5 +1221,5 @@ module HyperDoc.Example where
     LR : CBPVSection
     LR = M-elim-local F int
 
-    theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ bebop n yes) ⊎ (M ≡ bebop n no))) ∥₁ 
+    theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n yes) ⊎ (M ≡ boopⁿ n no))) ∥₁ 
     theorem M = subst (λ h → h ∈ property) subCId (LR .snd .snd M var tt*)

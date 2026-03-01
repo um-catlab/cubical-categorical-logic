@@ -43,6 +43,9 @@ module HyperDoc.Example where
   open import Cubical.Categories.Displayed.Constructions.Reindex.Base renaming (reindex to reindexᴰ)
   open import Cubical.Categories.Displayed.Bifunctor
   open import Cubical.Categories.Bifunctor
+  open import Cubical.Data.Sum
+  open import Cubical.HITs.PropositionalTruncation.Base
+  open import Cubical.HITs.PropositionalTruncation.Properties renaming (rec to hrec ; map to hmap)
   open PreorderStr
   open Category
   open Functor
@@ -207,6 +210,38 @@ module HyperDoc.Example where
   ALG S .⋆IdR _ = AlgHom≡ refl
   ALG S .⋆Assoc _ _ _ = AlgHom≡ refl
   ALG S .isSetHom = {!   !}
+
+  data FreeOn (S : Signature)(X : Type) : Type where 
+    inc : X → FreeOn S X
+    ops : (o : Op S) → (Fin (arity S o) → FreeOn S X) → FreeOn S X
+
+  FreeAlg : (Σ : Signature)(X : Type) → Alg Σ 
+  FreeAlg Σ X .Carrier = FreeOn Σ X , {!   !}
+  FreeAlg Σ X .interp = ops
+
+  FreeAlgMorphism' : {Σ : Signature}{X : Type}{M : Alg Σ} → 
+    (X → ⟨ M .Carrier ⟩ ) → 
+    FreeOn Σ X → ⟨ M .Carrier ⟩  
+  FreeAlgMorphism' {Σ} {X} {M} f (inc x) = f x
+  FreeAlgMorphism' {Σ} {X} {M} f (ops o args) = 
+    M .interp o (λ arg → FreeAlgMorphism' {Σ}{X}{M} f (args arg))
+
+  FreeAlgMorphism : {Σ : Signature}{X : Type}{M : Alg Σ} → 
+    (X → ⟨ M  .Carrier ⟩ ) → 
+    (ALG Σ)[ FreeAlg Σ X , M ] 
+  FreeAlgMorphism {Σ}{X}{M} gen .carmap = FreeAlgMorphism' {Σ}{X}{M} gen
+  FreeAlgMorphism gen .pres _ _ = refl
+
+
+  FreeAlgMorphism! : {Σ : Signature}{X : Type}{M : Alg Σ} → 
+    {f g : (ALG Σ)[ FreeAlg Σ X , M ]} → 
+    (∀ x → f .carmap (inc x) ≡ g .carmap (inc x)) → 
+    f ≡ g
+  FreeAlgMorphism! {Σ}{X}{M}{f}{g} prf = AlgHom≡ (funExt goal) where 
+    goal : (x : FreeOn Σ X) → f .carmap x ≡ g .carmap x 
+    goal (inc x) = prf x
+    goal (ops o x) = f .pres o x ∙ (λ i → interp M  o (λ a → goal (x a) i)) ∙ sym (g .pres o x)
+
 
   FORGET : {T : Signature} → Functor (ALG T) (SET _) 
   FORGET {T} .F-ob M = M .Carrier 
@@ -761,6 +796,7 @@ module HyperDoc.Example where
     GSFun : CBPVMorphism M {!  ∫C ? !} 
     GSFun = {!   !}
 
+{- get from elim
   module Recursor (Σ : Signature)(M : CBPVModel Σ) where 
     open Syntax Σ
     open SyntacticModel Σ
@@ -825,7 +861,7 @@ module HyperDoc.Example where
     M-rec .CBPVMorphism.FC .F-seq _ _ = refl
     M-rec .CBPVMorphism.FO .N-ob (A , B) = ctm {A}{B}
     M-rec .CBPVMorphism.FO .N-hom _ = AlgHom≡ (funExt λ M → {!   !})
-
+-}
   module Eliminator (Σ : Signature) where 
     open Syntax Σ
     open SyntacticModel Σ
@@ -1118,41 +1154,8 @@ module HyperDoc.Example where
     L .Logic.pullOp boop arg P Q prf a Pa = Q .snd boop (λ z → arg z a , prf z a Pa)
 
     open SyntacticModel Σb
-    open import Cubical.Data.Bool
     open Syntax Σb
-
     module Syn =  CBPVModel SynModel
-
-    data FreeOn (S : Signature)(X : Type) : Type where 
-      inc : X → FreeOn S X
-      ops : (o : Op S) → (Fin (arity S o) → FreeOn S X) → FreeOn S X
-
-    FreeAlg : (Σ : Signature)(X : Type) → Alg Σ 
-    FreeAlg Σ X .Carrier = FreeOn Σ X , {!   !}
-    FreeAlg Σ X .interp = ops
-
-    FreeAlgMorphism' : {Σ : Signature}{X : Type}{M : Alg Σ} → 
-      (X → ⟨ M .Carrier ⟩ ) → 
-      FreeOn Σ X → ⟨ M .Carrier ⟩  
-    FreeAlgMorphism' {Σ} {X} {M} f (inc x) = f x
-    FreeAlgMorphism' {Σ} {X} {M} f (ops o args) = 
-      M .interp o (λ arg → FreeAlgMorphism' {Σ}{X}{M} f (args arg))
-
-    FreeAlgMorphism : {Σ : Signature}{X : Type}{M : Alg Σ} → 
-      (X → ⟨ M  .Carrier ⟩ ) → 
-      (ALG Σ)[ FreeAlg Σ X , M ] 
-    FreeAlgMorphism {Σ}{X}{M} gen .carmap = FreeAlgMorphism' {Σ}{X}{M} gen
-    FreeAlgMorphism gen .pres _ _ = refl
- 
-
-    FreeAlgMorphism! : {Σ : Signature}{X : Type}{M : Alg Σ} → 
-      {f g : (ALG Σ)[ FreeAlg Σ X , M ]} → 
-      (∀ x → f .carmap (inc x) ≡ g .carmap (inc x)) → 
-      f ≡ g
-    FreeAlgMorphism! {Σ}{X}{M}{f}{g} prf = AlgHom≡ (funExt goal) where 
-      goal : (x : FreeOn Σ X) → f .carmap x ≡ g .carmap x 
-      goal (inc x) = prf x
-      goal (ops o x) = f .pres o x ∙ (λ i → interp M  o (λ a → goal (x a) i)) ∙ sym (g .pres o x)
 
     -- Global Section
     F : CBPVMorphism SynModel M 
@@ -1175,10 +1178,6 @@ module HyperDoc.Example where
     unit .snd .nIso x .snd .snd a  = funExt λ x₁ i → tt
 
     open LocalElim Σb M L top' unit 
-
-    open import Cubical.Data.Sum
-    open import Cubical.HITs.PropositionalTruncation.Base
-    open import Cubical.HITs.PropositionalTruncation.Properties renaming (rec to hrec ; map to hmap)
         
     boop' : 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
     boop' M = ops 𝟙 Ans boop λ {zero  → M}
@@ -1219,8 +1218,8 @@ module HyperDoc.Example where
     open ModelSection F L 
     open Section
 
-    induct : CBPVSection
-    induct = M-elim-local F int
+    LR : CBPVSection
+    LR = M-elim-local F int
 
-    theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ bebop n yes) ⊎ (M ≡ bebop n no)))  ∥₁ 
-    theorem M = subst (λ h → h ∈ property) subCId (induct .snd .snd M var tt*)
+    theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ bebop n yes) ⊎ (M ≡ bebop n no))) ∥₁ 
+    theorem M = subst (λ h → h ∈ property) subCId (LR .snd .snd M var tt*)

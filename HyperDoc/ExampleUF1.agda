@@ -3,7 +3,7 @@
 -- do not read for your own sanity.. 
 -- im using this as a blackboard to check my paper math
 
-module HyperDoc.Example where 
+module HyperDoc.ExampleUF1 where 
 
   open import Cubical.Foundations.Prelude hiding (_∧_)
   open import Cubical.Foundations.HLevels
@@ -401,15 +401,19 @@ module HyperDoc.Example where
     HasUTy : Type 
     HasUTy = (B : ob C) → Representation V (FORGET ∘F O[-, B ])
 
+    HasFTy : Type 
+    HasFTy = (A : ob V) → Representation (C ^op) (FORGET ∘F O[ A ,-] ∘F from^op^op)
+
   module Syntax (Σ : Signature) where 
 
     mutual 
       data VTy : Type where 
         𝟙 : VTy
         U : CTy → VTy
+        Ans : VTy
 
       data CTy : Type where 
-        Ans : CTy
+        F : VTy → CTy
 
     data _⊢v_ : (A A' : VTy) → Type 
     data _⊢c_ : (A : VTy)(B : CTy) → Type 
@@ -417,6 +421,8 @@ module HyperDoc.Example where
 
     subC' : ∀ {A A' B} → A ⊢v A' → A' ⊢c B → A ⊢c B
     force' :  ∀{B} → U B ⊢c B
+    plug' : ∀ {A B B'} → B ⊢k B' → A ⊢c B → A ⊢c B'
+    ret' : {A : VTy} → A ⊢c F A
 
     data _⊢v_  where
       -- category 
@@ -433,6 +439,9 @@ module HyperDoc.Example where
       Uη : ∀{A B}{V : A ⊢v U B} →  thunk (subC' V force') ≡ V
       tt : ∀{A} → A ⊢v 𝟙
       η𝟙 : ∀{A} → (V : A ⊢v 𝟙) → tt ≡ V
+      
+      yes : 𝟙 ⊢v Ans 
+      no : 𝟙 ⊢v Ans 
 
     data _⊢k_ where
       -- category 
@@ -443,6 +452,10 @@ module HyperDoc.Example where
       kcompAssoc : ∀ {B₁ B₂ B₃ B₄}(M : B₁ ⊢k B₂)(N : B₂ ⊢k B₃)(P : B₃ ⊢k B₄) → 
         kcomp(kcomp M N) P ≡  kcomp M (kcomp N P)
       isSet⊢k : ∀{B B'} → isSet (B ⊢k B')
+
+      -- type structure
+      bind : {A : VTy}{B : CTy} → A ⊢c B → F A ⊢k B
+      Fη : ∀ {A B}{S : F A ⊢k B} → bind (plug' S ret') ≡ S
 
     data _⊢c_ where 
       -- profunctor      
@@ -469,13 +482,18 @@ module HyperDoc.Example where
         plug S (ops  A B op args) ≡ ops A B' op (λ x → plug S (args x))
 
       -- type structure
-      force : {B : CTy} → U B ⊢c B      
-      yes : 𝟙 ⊢c Ans 
-      no : 𝟙 ⊢c Ans 
+      force : {B : CTy} → U B ⊢c B    
       Uβ : ∀ {A B} → {M : A ⊢c B} → subC (thunk M) force ≡ M
+
+      ret : {A : VTy} → A ⊢c F A
+      Fβ : ∀{A B}{M : A ⊢c B} →  plug (bind M) ret ≡ M
+
 
     subC' = subC
     force' = force
+    plug' = plug
+    ret' = ret
+
 
   module SyntacticModel (Σ : Signature)  where 
     open Syntax Σ
@@ -534,6 +552,14 @@ module HyperDoc.Example where
     hasUTy B .snd .nIso A .snd .fst M = Uβ
     hasUTy B .snd .nIso A .snd .snd V = Uη
 
+    hasFTy : HasFTy 
+    hasFTy A .fst = F A
+    hasFTy A .snd .trans .N-ob B S = plug S ret
+    hasFTy A .snd .trans .N-hom B B' S S' = sym plugDist ∙ cong₂ plug refl (sym subCId)
+    hasFTy A .snd .nIso B .fst = bind
+    hasFTy A .snd .nIso B .snd .fst M = Fβ
+    hasFTy A .snd .nIso B .snd .snd S = Fη
+
 
   Hom^op :  Functor ((POSET _ _) ×C (POSET _ _)^op) (SET _)
   Hom^op .F-ob (P , Q) = (POSET _ _) [ Q , P ] , (POSET _ _) .isSetHom
@@ -579,6 +605,58 @@ module HyperDoc.Example where
     pullRComp S M = pullComp (V .id) S M ∙ cong₂ MonComp refl (VH .F-id)
 
 
+  module LogicStructure 
+    {Σ : Signature} 
+    {M : CBPVModel Σ}
+    (L : Logic M) where 
+
+    open CBPVModel M 
+    open Logic L
+
+    private 
+      module VL = HDSyntax VH 
+      module CL = HDSyntax CH 
+
+    HasPush : Type
+    HasPush = 
+      ∀ {A : V .ob}
+        {B : C .ob} → 
+        (M : O'[ A , B ]) → 
+        HasLeftAdj (pull M)
+  
+    module PushSyntax (pp : HasPush) where 
+      open import Cubical.Foundations.Isomorphism
+      open Iso
+      open _⊣_ 
+      pushToPull : 
+        ∀ {A : V .ob}
+        {B : C .ob}
+        (M : O'[ A , B ])
+        {P : VL.F∣ A ∣}
+        {Q : CL.F∣ B ∣}→ 
+        B CL.◂ pp M .fst .MonFun.f P ≤ Q  → 
+        A VL.◂ P ≤ pull M .MonFun.f Q
+      pushToPull M  = adjIff (pp M .snd) .fun 
+
+      pullToPush : 
+        ∀ {A : V .ob}
+        {B : C .ob}
+        (M : O'[ A , B ])
+        {P : VL.F∣ A ∣}
+        {Q : CL.F∣ B ∣}→ 
+        A VL.◂ P ≤ pull M .MonFun.f Q → 
+        B CL.◂ pp M .fst .MonFun.f P ≤ Q 
+      pullToPush M  = adjIff (pp M .snd) .inv 
+
+      pullPush :       
+        ∀ {A : V .ob}
+        {B : C .ob}
+        (M : O'[ A , B ])
+        {Q : CL.F∣ B ∣}
+        → A VL.◂ pull M .MonFun.f Q ≤ pull M .MonFun.f Q
+      pullPush M = pushToPull M (pullToPush M VL.id⊢)
+        
+
   record InterpGen {Σ : Signature} 
       (L : Logic (SyntacticModel.SynModel Σ))
       (⊤ : L⊤.Has⊤ (Logic.VH L)): Type where 
@@ -589,9 +667,9 @@ module HyperDoc.Example where
       module LV = HDSyntax VH 
       module LC = HDSyntax CH 
     field 
-      interpAns : LC.F∣ Ans ∣
-      interpYes : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ (pull yes $ interpAns)
-      interpNo : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ (pull no $ interpAns)
+      interpAns : LV.F∣ Ans ∣
+      interpYes : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ LV.f* yes interpAns
+      interpNo : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ LV.f* no interpAns
 
   module Reindex
     {Σ : Signature} 
@@ -796,72 +874,6 @@ module HyperDoc.Example where
     GSFun : CBPVMorphism M {!  ∫C ? !} 
     GSFun = {!   !}
 
-{- get from elim
-  module Recursor (Σ : Signature)(M : CBPVModel Σ) where 
-    open Syntax Σ
-    open SyntacticModel Σ
-    module M = CBPVModel M
-
-    vty : VTy → ob M.V 
-    vty 𝟙 = {!   !}
-    vty (U x) = {!   !}
-
-    cty : CTy → ob M.C 
-    cty Ans = {!   !}
-
-    vtm : {A A' : VTy} → A ⊢v A' → M.V [ vty A , vty A' ]
-    vtm (subV V V') = M.V ._⋆_ (vtm V) (vtm V')
-    vtm var = M.V .id
-    vtm (subVIdl V i) = M.V .⋆IdL (vtm V) i
-    vtm (subVIdr V i) =  M.V .⋆IdR (vtm V) i
-    vtm (subVAssoc V₁ V₂ V₃ i) =  M.V .⋆Assoc (vtm V₁) (vtm V₂) (vtm V₃) i 
-    vtm (isSet⊢v V₁ V₂ x y i j) = M.V .isSetHom (vtm V₁) (vtm V₂) (cong vtm x) (cong vtm y) i j
-    vtm (thunk M) = {!   !}
-    vtm (Uη i) = {!   !}
-    vtm tt = {!   !}
-    vtm (η𝟙 V₁ i) = {!   !}
-
-    ktm : {B B' : CTy} → B ⊢k B' → M.C [ cty B , cty B' ]
-    ktm (kcomp S S') = M.C ._⋆_ (ktm S) (ktm S')
-    ktm hole = M.C .id
-    ktm (kcompIdl S i) = M.C .⋆IdL (ktm S) i
-    ktm (kcompIdr S i) = M.C .⋆IdR (ktm S) i
-    ktm (kcompAssoc S S₁ S₂ i) = M.C .⋆Assoc (ktm S) (ktm S₁) (ktm S₂) i
-    ktm (isSet⊢k S S' x y i j) =  M.C .isSetHom (ktm S) (ktm S') (cong ktm x) (cong ktm y) i j
-
-    ctm' : {A : VTy}{B : CTy} → A ⊢c B → M.O'[ vty A , cty B ]
-    ctm' (subC V M) = M.lcomp (vtm V) .carmap (ctm' M)
-    ctm' (plug S M) = M.rcomp (ktm S) .carmap (ctm' M)
-    ctm' (plugId {A}{B}{M} i) = M.lcompId {vty A}{cty B}{ctm' M} i
-    ctm' (subCId {A}{B}{M} i) = M.rcompId {vty A}{cty B}{ctm' M} i
-    ctm' (plugDist i) = {!   !}
-    ctm' (subDist i) = {!   !}
-    ctm' (plugSub i) = {!   !}
-    ctm' (isSet⊢c M M₁ x y i i₁) = {!   !}
-    ctm' (ops A B op args) = M.O[ vty A , cty B ] .interp op λ x → ctm' (args x)
-    ctm' (opsSub V₁ op args i) = {!   !}
-    ctm' (opsPlug S op args i) = {!   !}
-    ctm' force = {!   !}
-    ctm' yes = {!   !}
-    ctm' no = {!   !}
-    ctm' (Uβ i) = {!   !}
-     
-    ctm : {A : VTy}{B : CTy} → AlgHom (FreeCompAlg A B) M.O[ vty A , cty B ]
-    ctm {A}{B} .carmap = ctm' {A}{B} 
-    ctm .pres op args = {!   !}
-
-    M-rec : CBPVMorphism SynModel M 
-    M-rec .CBPVMorphism.FV .F-ob = vty
-    M-rec .CBPVMorphism.FV .F-hom = vtm
-    M-rec .CBPVMorphism.FV .F-id = refl
-    M-rec .CBPVMorphism.FV .F-seq _ _ = refl
-    M-rec .CBPVMorphism.FC .F-ob = cty
-    M-rec .CBPVMorphism.FC .F-hom = ktm
-    M-rec .CBPVMorphism.FC .F-id = refl 
-    M-rec .CBPVMorphism.FC .F-seq _ _ = refl
-    M-rec .CBPVMorphism.FO .N-ob (A , B) = ctm {A}{B}
-    M-rec .CBPVMorphism.FO .N-hom _ = AlgHom≡ (funExt λ M → {!   !})
--}
   module Eliminator (Σ : Signature) where 
     open Syntax Σ
     open SyntacticModel Σ
@@ -874,25 +886,29 @@ module HyperDoc.Example where
       module LV = HDSyntax VH
       module LC = HDSyntax CH
       open TypeStructure SynModel
+      open LogicStructure L
         
 
       module _ 
         (⊤ : L⊤.Has⊤ VH)
         (V⊤ : HasV𝟙 )
+        (push : HasPush)
         (interpGen : InterpGen L ⊤ )
          where
 
         open L⊤.HA 
+        open PushSyntax push
         
         open InterpGen interpGen
         
         mutual
           vty : (A : VTy) → LV.F∣ A ∣
           vty 𝟙 = top (⊤ .fst 𝟙)
+          vty Ans = interpAns
           vty (U B) = pull force $ cty B
 
           cty : (B : CTy) → LC.F∣ B ∣
-          cty Ans = interpAns
+          cty (F A) = push ret .fst $  vty A
 
 
         mutual
@@ -925,6 +941,8 @@ module HyperDoc.Example where
               (cong vtm x) (cong vtm y) 
               (isSet⊢v V V' x y) i j
 
+          vtm (yes) = interpYes 
+          vtm (no) = interpNo  
           vtm (thunk M) = vtm-thunk M
           vtm (Uη {A}{B}{V} i) = 
             isProp→PathP 
@@ -938,7 +956,17 @@ module HyperDoc.Example where
               (LV.seq (top-top (⊤ .fst _)) (LV.eqTo≤ (sym (L⊤.HAHom.f-top (⊤ .snd tt))))) 
               (vtm V) 
               i
-      
+
+          ktm-bind : ∀ {A  B} → (M : A ⊢c B) → F A LC.◂ push ret .fst $ vty A ≤ LC.f* (bind M) (cty B)
+          ktm-bind {A}{B} M = 
+            pullToPush ret (
+              LV.seq (ctm M) (
+              LV.eqTo≤ goal)) where 
+
+              goal  : MonFun.f (pull M) (cty B) ≡ pull ret .MonFun.f (LC.f* (bind M) (cty B))
+              goal = cong (λ h → N-ob Sq (A , B) h .MonFun.f (cty B)) (sym Fβ ∙ cong₂ plug refl (sym subCId)) 
+                ∙  (cong (λ h → h .MonFun.f (cty B))) (pullRComp (bind M) ret)
+          
 
           ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
           ktm (kcomp S S') = Cᴰ ._⋆ᴰ_  (ktm S) (ktm S')
@@ -953,6 +981,14 @@ module HyperDoc.Example where
               (cong ktm x) (cong ktm y) 
               (isSet⊢k S S' x y) i j
 
+          ktm (bind M) = ktm-bind M
+          ktm (Fη {A}{B}{S} i) = 
+            isProp→PathP 
+              (λ i → LC.isProp≤{p = push ret .fst $ vty A} {q = LC.f* (Fη i) (cty B)})
+              (ktm-bind (plug S ret'))
+              (ktm S)
+              i
+          
           {-# TERMINATING #-}
           -- Idk why.. but this termination pragma is needed for plugDist
           -- which is just showing that the PathP is a prop.. 
@@ -1012,13 +1048,18 @@ module HyperDoc.Example where
               (pullOp op (λ x → plug S (args x)) (vty A) (cty B')(λ x → ctm-plug S (args x)))
               i
           ctm force = LV.id⊢
-          ctm yes = interpYes
-          ctm no = interpNo
           ctm (Uβ {A}{B}{M} i) = 
             isProp→PathP 
               ((λ i → LV.isProp≤{q = (pull (Uβ i) $ cty B)})) 
               (ctm-subC (thunk M) force) 
               (ctm M) 
+              i
+          ctm ret = pushToPull ret LC.id⊢
+          ctm (Fβ {A}{B}{M} i) = 
+            isProp→PathP 
+              (λ i → LV.isProp≤{q = (pull (Fβ i) $ cty B)}) 
+              (ctm-plug (bind M) ret) 
+              (ctm M)
               i
 
         SV : Section Id Vᴰ 
@@ -1043,7 +1084,8 @@ module HyperDoc.Example where
     (N : CBPVModel Σ)
     (L : Logic N)
     (⊤ : L⊤.Has⊤ (Logic.VH L))
-    (V⊤ : TypeStructure.HasV𝟙 N) where
+    (V⊤ : TypeStructure.HasV𝟙 N)
+    (push : LogicStructure.HasPush L) where
 
     open Syntax Σ
     open SyntacticModel Σ
@@ -1054,13 +1096,13 @@ module HyperDoc.Example where
       open ModelSection
       open CBPVMorphism F
       open TypeStructure
-
       open ConvertLogic N L
 
       LM : Logic SynModel
       LM = reindex
 
       open Eliminator Σ 
+      open LogicStructure 
             
       module LMHV = HDSyntax (Logic.VH LM)
       module LMHC = HDSyntax (Logic.CH LM)
@@ -1069,10 +1111,15 @@ module HyperDoc.Example where
       pres⊤ .fst = λ c → ⊤ .fst (F-ob (FV ^opF) c)
       pres⊤ .snd = λ f → ⊤ .snd (F-hom (FV ^opF) f)
 
+      presPush : HasPush LM
+      presPush M = 
+        (push (N-ob FO (_ , _) .carmap M) .fst) ,
+         push (N-ob FO (_ , _) .carmap M) .snd
+
       module _ (interp : InterpGen LM pres⊤) where
 
         M-elim' : CBPVGlobalSection LM
-        M-elim' = M-elim LM pres⊤ (SyntacticModel.has𝟙 Σ) interp
+        M-elim' = M-elim LM pres⊤ (SyntacticModel.has𝟙 Σ) presPush interp
         
         FSV : Section FV Vᴰ
         FSV = GlobalSectionReindex→Section Vᴰ FV convert where 
@@ -1094,6 +1141,7 @@ module HyperDoc.Example where
         M-elim-local .fst = FSV
         M-elim-local .snd .fst = FSC
         M-elim-local .snd .snd = M-elim' .snd .snd
+
 
 
   module BoopExample where 
@@ -1158,12 +1206,12 @@ module HyperDoc.Example where
     module Syn =  CBPVModel SynModel
 
     -- Global Section
-    F : CBPVMorphism SynModel M 
-    F .CBPVMorphism.FV = V [ 𝟙 ,-]
-    F .CBPVMorphism.FC = Syn.O[ 𝟙 ,-]
-    F .CBPVMorphism.FO .N-ob (A , B) .carmap M V = subC V M
-    F .CBPVMorphism.FO .N-ob (A , B) .pres boop arg = funExt λ V → opsSub V boop arg
-    F .CBPVMorphism.FO .N-hom (V , S) = AlgHom≡ (funExt λ M → funExt λ W → plugSub ∙ cong₂ plug refl (subDist ∙ sym subCId))
+    F' : CBPVMorphism SynModel M 
+    F' .CBPVMorphism.FV = V [ 𝟙 ,-]
+    F' .CBPVMorphism.FC = Syn.O[ 𝟙 ,-]
+    F' .CBPVMorphism.FO .N-ob (A , B) .carmap M V = subC V M
+    F' .CBPVMorphism.FO .N-ob (A , B) .pres boop arg = funExt λ V → opsSub V boop arg
+    F' .CBPVMorphism.FO .N-hom (V , S) = AlgHom≡ (funExt λ M → funExt λ W → plugSub ∙ cong₂ plug refl (subDist ∙ sym subCId))
 
     top' : L⊤.Has⊤ Pred
     top' .fst X = record { top = λ x → ⊤ ; top-top = λ {P} x _ → tt* }
@@ -1177,8 +1225,65 @@ module HyperDoc.Example where
     unit .snd .nIso x .snd .fst tt = refl
     unit .snd .nIso x .snd .snd a  = funExt λ x₁ i → tt
 
-    open LocalElim Σb M L top' unit 
-        
+    open LogicStructure L
+    open import Cubical.Foundations.Isomorphism
+    {-
+      data Gen {A B : hSet ℓS}(f : ⟨ A ⟩ → ⟨ B ⟩ → ⟨ B ⟩ )(P : ℙ ⟨ B ⟩) : ⟨ B ⟩ → Type ℓS where
+    base  : ∀ (b) → b ∈ P → Gen f P b
+    step  : ∀ (a : ⟨ A ⟩)(b : ⟨ B ⟩) → Gen {A}{B} f P b → Gen f P (f a b)
+    -}
+    _ = Gen
+
+
+    boop' : {B : M'.C .ob} → ⟨ B .Carrier ⟩ → ⟨ B .Carrier ⟩
+    boop' {B} b = interp B boop λ x → b
+
+
+    data Push {A : M'.V .ob}{B : M'.C .ob}(M : M'.O'[ A , B ])(P : ℙ ⟨ A ⟩) : ⟨ B .Carrier ⟩ → Type where
+      img : (b : ⟨ B .Carrier ⟩ ) → Σ[ a ∈ ⟨ A ⟩ ] ((M a ≡ b) × (a ∈ P)) → Push M P b
+      algCl : (b : ⟨ B .Carrier ⟩ ) → Push M P b → Push M P (boop' {B} b)
+      -- prop : (b : ⟨ B .Carrier ⟩ ) → isProp (Push M P b)
+
+    push : {A : M'.V .ob}{B : M'.C .ob} → (M'.O'[ A , B ]) 
+      → ℙ ⟨ A ⟩ → SubAlg B 
+    push {A} {B} M P .fst b = ∥  Push M P b  ∥ₚ
+    push {A} {B} M P .snd boop arg = propBind' (arg zero .snd) λ x → ∣ (algCl (arg zero .fst) x) ∣₁
+
+    hasPush : HasPush 
+    hasPush M .fst .MonFun.f = push M
+    hasPush M .fst .MonFun.isMon {x = P}{P'} P≤P' b P*b = hmap (λ z → b)  P*b
+    hasPush M .snd ._⊣_.adjIff .Iso.fun = λ z x₁ z₁ → z (M x₁) ∣ M x₁ ∣₁
+    hasPush M .snd ._⊣_.adjIff .Iso.inv = {!   !}
+    hasPush M .snd ._⊣_.adjIff .Iso.sec d = {!   !}
+    hasPush M .snd ._⊣_.adjIff .Iso.ret = {!   !}
+
+
+    open LocalElim Σb M L top' unit hasPush
+
+
+    int : InterpGen (LM F') (pres⊤ F')
+    int .InterpGen.interpAns V = ∥ (V ≡ yes) ⊎ (V ≡ no) ∥ₚ
+    int .InterpGen.interpYes V tt* = ∣ (inl (cong₂ subV (sym (η𝟙 V) ∙ η𝟙 var) refl ∙ subVIdl yes)) ∣₁
+    int .InterpGen.interpNo V tt* = ∣ (inr (cong₂ subV (sym (η𝟙 V) ∙ η𝟙 var) refl ∙ subVIdl no)) ∣₁
+
+    open ModelSection F' L 
+    open Section
+
+    LR : CBPVSection
+    LR = M-elim-local F' int
+
+
+    theoremV : ∀ (V : 𝟙 ⊢v Ans) → ∥  (V ≡ yes) ⊎ (V ≡ no) ∥₁
+    theoremV V = subst2 (λ h h' → ∥  (h ≡ yes) ⊎ (h' ≡ no) ∥₁ ) (subVIdl _) (subVIdl _) (LR .fst .F-homᴰ V var tt*)
+
+    theoremC : ∀ (M : 𝟙 ⊢c F Ans) → {!   !} 
+    theoremC M = {!  LR .snd .snd M var tt* !} where 
+      have : {! Unit !}
+      have = LR .snd .snd M var tt*
+
+-- LR .fst .F-homᴰ V var tt*
+
+        {-}
     boop' : 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
     boop' M = ops 𝟙 Ans boop λ {zero  → M}
 
@@ -1223,3 +1328,5 @@ module HyperDoc.Example where
 
     theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n yes) ⊎ (M ≡ boopⁿ n no))) ∥₁ 
     theorem M = subst (λ h → h ∈ property) subCId (LR .snd .snd M var tt*)
+
+-}

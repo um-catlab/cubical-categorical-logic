@@ -46,7 +46,8 @@ module HyperDoc.Examples.U1 where
     open Syntax Σb
     open SyntacticModel Σb using (SynModel)
     module Syn = CBPVModel SynModel
-    open AlgLog Σb using (AlgLogic ; CL ; unit)
+    open AlgLog Σb 
+    open U1
     open LocalElim Σb (AlgModel Σb) AlgLogic has⊤ unit using (M-elim-local ; LM ; pres⊤)
     open ModelSection CL AlgLogic using (CBPVSection)  
 
@@ -112,34 +113,34 @@ module HyperDoc.Examples.U1 where
     open Syntax ΣSt
     open SyntacticModel ΣSt using (SynModel)
     module Syn = CBPVModel SynModel
-    open AlgLog ΣSt using (AlgLogic ; CL ; unit)
+    open AlgLog ΣSt 
+    open U1
     open LocalElim ΣSt (AlgModel ΣSt) AlgLogic has⊤ unit using (M-elim-local ; LM ; pres⊤)
     open ModelSection CL AlgLogic using (CBPVSection)  
 
     Free : Type
     Free = FreeOn ΣSt (𝟙 ⊢c Ans)
 
-
     property' : 𝟙  ⊢c Ans → Type 
-    property' M = ?
+    property' M = {!   !}
 
     property : ℙ (𝟙  ⊢c Ans)
     property M = ∥ property' M ∥₁ , squash₁
 
     closed : Cong {ΣSt} {Syn.O[ 𝟙 , Ans ]} property
-    closed = ?
+    closed = {!   !}
 
     yes∈ : yes ∈ property 
-    yes∈ = ?
+    yes∈ = {!   !}
 
     no∈ : no ∈ property 
-    no∈ = ?
+    no∈ = {!   !}
 
     int : InterpGen (LM CL) (pres⊤ CL)
     int .InterpGen.interpAns .fst = property
     int .InterpGen.interpAns .snd = closed
-    int .InterpGen.interpYes V tt* =  ?
-    int .InterpGen.interpNo V tt* = ?
+    int .InterpGen.interpYes V tt* =  {!   !}
+    int .InterpGen.interpNo V tt* = {!   !}
 
     StateLR : CBPVSection 
     StateLR = M-elim-local CL int 

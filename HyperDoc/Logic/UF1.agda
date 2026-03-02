@@ -2,7 +2,7 @@
 -- fix level issues
 -- reorder imports, etc
 
-module HyperDoc.Logic.U1 where 
+module HyperDoc.Logic.UF1 where 
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -12,40 +12,45 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base renaming (reindex to reindexᴰ)
 
+open import Cubical.Categories.Category
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Functor 
 open import Cubical.Categories.Instances.Preorders.Monotone
+open import Cubical.Categories.NaturalTransformation
 
 open import HyperDoc.Algebra.Algebra
-open import HyperDoc.CBPV.Syntax.U1
+open import HyperDoc.CBPV.Syntax.UF1
 open import HyperDoc.CBPV.Model.Base
 open import HyperDoc.Syntax
 open import HyperDoc.Logic.Base
+open import HyperDoc.Logic.Structure
 open import HyperDoc.Connectives.Connectives
 open import HyperDoc.CBPV.TypeStructure
 
+open AlgHom
 open AlgHomᴰ
 open Bifunctorᴰ
 open Categoryᴰ
+open Category
 open Functor
+open NatTrans
 
 module _ {Σ : Signature} where
   open SyntacticModel Σ  
 
   record InterpGen 
-        (L : Logic SynModel)
-        (⊤ : L⊤.Has⊤ (Logic.VH L)): Type where 
-      open Logic L
-      open Syntax Σ 
-      open L⊤.HA 
-      private
-        module LV = HDSyntax VH 
-        module LC = HDSyntax CH 
-      field 
-        interpAns : LC.F∣ Ans ∣
-        interpYes : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ (pull yes $ interpAns)
-        interpNo : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ (pull no $ interpAns)
-
+      (L : Logic (SyntacticModel.SynModel Σ))
+      (⊤ : L⊤.Has⊤ (Logic.VH L)): Type where 
+    open Logic L
+    open Syntax Σ 
+    open L⊤.HA 
+    private
+      module LV = HDSyntax VH 
+      module LC = HDSyntax CH 
+    field 
+      interpAns : LV.F∣ Ans ∣
+      interpYes : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ LV.f* yes interpAns
+      interpNo : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ LV.f* no interpAns
 
 module Eliminator (Σ : Signature) where 
   open Syntax Σ
@@ -59,25 +64,29 @@ module Eliminator (Σ : Signature) where
     module LV = HDSyntax VH
     module LC = HDSyntax CH
     open TypeStructure SynModel
+    open Push L
       
 
     module _ 
       (⊤ : L⊤.Has⊤ VH)
       (V⊤ : HasV𝟙 )
+      (push : HasPush)
       (interpGen : InterpGen L ⊤ )
         where
 
       open L⊤.HA 
+      open PushSyntax push
       
       open InterpGen interpGen
       
       mutual
         vty : (A : VTy) → LV.F∣ A ∣
         vty 𝟙 = top (⊤ .fst 𝟙)
+        vty Ans = interpAns
         vty (U B) = pull force $ cty B
 
         cty : (B : CTy) → LC.F∣ B ∣
-        cty Ans = interpAns
+        cty (F A) = push ret .fst $  vty A
 
 
       mutual
@@ -110,6 +119,8 @@ module Eliminator (Σ : Signature) where
             (cong vtm x) (cong vtm y) 
             (isSet⊢v V V' x y) i j
 
+        vtm (yes) = interpYes 
+        vtm (no) = interpNo  
         vtm (thunk M) = vtm-thunk M
         vtm (Uη {A}{B}{V} i) = 
           isProp→PathP 
@@ -123,7 +134,17 @@ module Eliminator (Σ : Signature) where
             (LV.seq (top-top (⊤ .fst _)) (LV.eqTo≤ (sym (L⊤.HAHom.f-top (⊤ .snd tt))))) 
             (vtm V) 
             i
-    
+
+        ktm-bind : ∀ {A  B} → (M : A ⊢c B) → F A LC.◂ push ret .fst $ vty A ≤ LC.f* (bind M) (cty B)
+        ktm-bind {A}{B} M = 
+          pullToPush ret (
+            LV.seq (ctm M) (
+            LV.eqTo≤ goal)) where 
+
+            goal  : MonFun.f (pull M) (cty B) ≡ pull ret .MonFun.f (LC.f* (bind M) (cty B))
+            goal = cong (λ h → N-ob Sq (A , B) h .MonFun.f (cty B)) (sym Fβ ∙ cong₂ plug refl (sym subCId)) 
+              ∙  (cong (λ h → h .MonFun.f (cty B))) (pullRComp (bind M) ret)
+        
 
         ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
         ktm (kcomp S S') = Cᴰ ._⋆ᴰ_  (ktm S) (ktm S')
@@ -138,6 +159,14 @@ module Eliminator (Σ : Signature) where
             (cong ktm x) (cong ktm y) 
             (isSet⊢k S S' x y) i j
 
+        ktm (bind M) = ktm-bind M
+        ktm (Fη {A}{B}{S} i) = 
+          isProp→PathP 
+            (λ i → LC.isProp≤{p = push ret .fst $ vty A} {q = LC.f* (Fη i) (cty B)})
+            (ktm-bind (plug S ret'))
+            (ktm S)
+            i
+        
         {-# TERMINATING #-}
         -- Idk why.. but this termination pragma is needed for plugDist
         -- which is just showing that the PathP is a prop.. 
@@ -197,13 +226,18 @@ module Eliminator (Σ : Signature) where
             (pullOp op (λ x → plug S (args x)) (vty A) (cty B')(λ x → ctm-plug S (args x)))
             i
         ctm force = LV.id⊢
-        ctm yes = interpYes
-        ctm no = interpNo
         ctm (Uβ {A}{B}{M} i) = 
           isProp→PathP 
             ((λ i → LV.isProp≤{q = (pull (Uβ i) $ cty B)})) 
             (ctm-subC (thunk M) force) 
             (ctm M) 
+            i
+        ctm ret = pushToPull ret LC.id⊢
+        ctm (Fβ {A}{B}{M} i) = 
+          isProp→PathP 
+            (λ i → LV.isProp≤{q = (pull (Fβ i) $ cty B)}) 
+            (ctm-plug (bind M) ret) 
+            (ctm M)
             i
 
       SV : Section Id Vᴰ 
@@ -228,7 +262,8 @@ module LocalElim
   (N : CBPVModel Σ)
   (L : Logic N)
   (⊤ : L⊤.Has⊤ (Logic.VH L))
-  (V⊤ : TypeStructure.HasV𝟙 N) where
+  (V⊤ : TypeStructure.HasV𝟙 N)
+  (push : Push.HasPush L) where
 
   open Syntax Σ
   open SyntacticModel Σ
@@ -239,13 +274,13 @@ module LocalElim
     open ModelSection
     open CBPVMorphism F
     open TypeStructure
-
     open ConvertLogic N L
 
     LM : Logic SynModel
     LM = reindex
 
     open Eliminator Σ 
+    open Push
           
     module LMHV = HDSyntax (Logic.VH LM)
     module LMHC = HDSyntax (Logic.CH LM)
@@ -254,10 +289,15 @@ module LocalElim
     pres⊤ .fst = λ c → ⊤ .fst (F-ob (FV ^opF) c)
     pres⊤ .snd = λ f → ⊤ .snd (F-hom (FV ^opF) f)
 
+    presPush : HasPush LM
+    presPush M = 
+      (push (N-ob FO (_ , _) .carmap M) .fst) ,
+        push (N-ob FO (_ , _) .carmap M) .snd
+
     module _ (interp : InterpGen LM pres⊤) where
 
       M-elim' : CBPVGlobalSection LM
-      M-elim' = M-elim LM pres⊤ (SyntacticModel.has𝟙 Σ) interp
+      M-elim' = M-elim LM pres⊤ (SyntacticModel.has𝟙 Σ) presPush interp
       
       FSV : Section FV Vᴰ
       FSV = GlobalSectionReindex→Section Vᴰ FV convert where 

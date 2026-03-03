@@ -196,7 +196,7 @@ module HyperDoc.Examples.UF1 where
 {-
 
     thing : (asm : (M : 𝟙 ⊢c F Ans) → Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n (return yes)) ⊎ (M ≡ boopⁿ n (return no)))) → 
-      Iso (𝟙 ⊢c F Ans) (ℕ × Bool) 
+      Iso (𝟙 ⊢c F Ans) (ℕ × Bool) -- or  (FreeOn Σb Bool)
     thing asm .fun M = let (n , prf) = (asm M) in n , rec⊎ (λ _ → true) (λ _ → false) prf
     thing asm .inv (n , b) = if b then boopⁿ n (return yes) else boopⁿ n (return no)
     thing asm .sec = {!   !} -- this bit is more annoying

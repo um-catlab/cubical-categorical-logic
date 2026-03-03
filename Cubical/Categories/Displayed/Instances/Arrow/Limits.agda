@@ -3,8 +3,7 @@
   Displayed categorical structure on Iso D over D × D.
 
   The category Iso D (from Arrow/Base.agda) has displayed terminal,
-  products, initial, and coproducts. These are purely D-internal
-  constructions independent of any functors F, G.
+  products, initial, and coproducts if D does.
 
   Also provides IsoComma constructions: given functors F, G : C → D,
   the IsoComma displayed category (reindexing of Iso D along F × G)

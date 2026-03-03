@@ -19,7 +19,6 @@ private
 record BiCartesianClosedCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   field
     CCC : CartesianClosedCategory ℓ ℓ'
-  -- potential performance issue
   open CartesianClosedCategory CCC public
   field
     sums : BinCoProducts C

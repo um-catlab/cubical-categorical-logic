@@ -11,7 +11,6 @@ open import Cubical.Foundations.Prelude
 record CartesianClosedCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   field
     CC : CartesianCategory ℓ ℓ'
-  -- potential performance issue
   open CartesianCategory CC public
   field
     exps : AllExponentiable C bp

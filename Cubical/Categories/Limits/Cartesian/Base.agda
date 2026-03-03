@@ -22,7 +22,6 @@ record CartesianCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-s
     term : Terminal' C
     bp   : BinProducts C
 
-  -- potential performance issue
   open Category C public
   open TerminalNotation term public
   open BinProductsNotation bp public

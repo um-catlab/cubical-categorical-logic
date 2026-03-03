@@ -285,10 +285,12 @@ module _ where
          ∙ ⋆ₑIdL (uncurry' e))
       ∙ sym (λη Eq.refl e)
 
-  canonicity-⇒ :
+  -- Using canonicity we can get a baby version of normalzation
+  -- for any fixed domain and codomain
+  ⊤+⊤→nat-normalize :
     Iso (FREEBICCC.Hom[ ⊤ , (⊤ + ⊤) ⇒ (↑ nat) ])
         (ℕ Sigma.× ℕ)
-  canonicity-⇒ = CanonicalFormIso.canonicity
+  ⊤+⊤→nat-normalize = CanonicalFormIso.canonicity
     inv⇒
     (λ e → ⟦-⟧SET .F-hom e tt* (inl tt*) ,
             ⟦-⟧SET .F-hom e tt* (inr tt*))

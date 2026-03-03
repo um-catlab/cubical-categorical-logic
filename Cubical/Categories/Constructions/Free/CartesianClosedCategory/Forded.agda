@@ -91,9 +91,10 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
            (⟨ π₁ Eq.refl Eq.refl ⋆ₑ lam t Eq.refl , π₂ Eq.refl Eq.refl ⟩ Eq.refl
             ⋆ₑ eval Eq.refl Eq.refl)
          ≡ Eq.transport (λ X → Expr X B) pA t
-    -- Lambda eta: B = Δ ⇒ Θ, need to transport t to use in body
-    λη : ∀ {Δ Θ} (pB : (Δ ⇒ Θ) Eq.≡ B) (t : Expr A B)
-       → t ≡ lam (⟨ π₁ Eq.refl Eq.refl ⋆ₑ Eq.transport (Expr A) (Eq.sym pB) t
+    -- Lambda eta: B = Δ ⇒ Θ, need to transport result to B
+    λη : ∀ {Δ Θ} (pB : (Δ ⇒ Θ) Eq.≡ B) (t : Expr A (Δ ⇒ Θ))
+       → Eq.transport (Expr A) pB t
+         ≡ lam (⟨ π₁ Eq.refl Eq.refl ⋆ₑ t
                   , π₂ Eq.refl Eq.refl ⟩ Eq.refl
                ⋆ₑ eval Eq.refl Eq.refl) pB
 

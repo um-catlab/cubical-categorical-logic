@@ -2,8 +2,9 @@ module Gluing.Canonicity where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv using (fiber)
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat
@@ -53,14 +54,7 @@ module CanonicalFormIso
   where
 
   canonicity : Iso [A] A
-  canonicity .Iso.fun = eval
-  canonicity .Iso.inv = ⌈_⌉
-  canonicity .Iso.sec = sec
-  canonicity .Iso.ret [a] =
-    cong ⌈_⌉ (cong eval (sym p) ∙ sec m) ∙ p
-    where
-    m = surj [a] .fst
-    p = surj [a] .snd
+  canonicity = section+surjection→Iso eval ⌈_⌉ sec surj
 
 module BoolIso
   {ℓ} {[bool] : Type ℓ}

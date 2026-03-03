@@ -32,3 +32,12 @@ isPropIsIsoSet {f} isSetA isSetB f⁻ f⁻' =
     (funExt (λ b → isoFunInjective (isIsoToIso f⁻) _ _
       (f⁻ .snd .fst b ∙ sym (f⁻' .snd .fst b))))
 
+section+surjection→Iso : (f : A → B) (g : B → A)
+  → section f g → (∀ a → fiber g a) → Iso A B
+section+surjection→Iso f g sec surj .fun = f
+section+surjection→Iso f g sec surj .inv = g
+section+surjection→Iso f g sec surj .sec = sec
+section+surjection→Iso f g sec surj .ret a =
+  cong g (cong f (sym p) ∙ sec m) ∙ p
+  where m = surj a .fst ; p = surj a .snd
+

@@ -90,7 +90,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       , (λ _ → refl)
       , λ _ → sym $ ∫ue.η)
 
-
     𝟙extensionalityᴰ : ∀ {cc'} {f g : (∫C Cᴰ) [ cc' , (𝟙 , 𝟙ᴰ) ]} → f ≡ g
     𝟙extensionalityᴰ = UniversalElementNotation.extensionality ∫term refl
 

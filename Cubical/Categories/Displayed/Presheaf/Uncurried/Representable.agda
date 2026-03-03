@@ -36,6 +36,8 @@ open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base as Curried hiding (_[-][-,_])
 open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+import Cubical.Categories.Displayed.Presheaf.Base as Curried
+  hiding (Presheafᴰ; Presheafⱽ; module PresheafᴰNotation)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 
 private
@@ -239,6 +241,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     → UniversalElementᴰ ue
   Representableⱽ→UniversalElementᴰ ue reprⱽ =
     Representableᴰ→UniversalElementᴰOverUE ue (reprⱽ .fst , FiberwisePshIsoᴰ→PshIsoᴰ (reprⱽ .snd))
+
+  UniversalElementᴰ→PshIsoᴰ :
+    (ue : UniversalElement C P) (ueᴰ : UniversalElementᴰ ue)
+    → PshIsoᴰ (asPshIso ue) (Cᴰ [-][-, ueᴰ .fst ]) Pᴰ
+  UniversalElementᴰ→PshIsoᴰ ue ueᴰ = yoRecᴰ {P = P} Pᴰ (ueᴰ .snd .fst) , (ueᴰ .snd .snd)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

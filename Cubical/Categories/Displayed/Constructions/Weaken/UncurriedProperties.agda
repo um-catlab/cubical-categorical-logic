@@ -15,6 +15,7 @@ open import Cubical.Categories.Constructions.TotalCategory as TotalCat
 open import Cubical.Categories.Constructions.Fiber
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
+open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
@@ -24,6 +25,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
+open import Cubical.Categories.Displayed.Limits.BiCartesianClosedV
 open import Cubical.Categories.Displayed.Constructions.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
@@ -89,3 +91,15 @@ module _ (C : CartesianClosedCategory ℓC ℓC') (D : CartesianClosedCategory �
     (wkD.rectifyOut {e' = refl} $ wkD.reind-filler⁻ _) ∙ D.⇒ue.β _ _
   weakenCCC .expᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .leftInv fC fD = D.⇒ue.intro≡ _ _ $
     wkD.rectifyOut {e' = refl} $ wkD.reind-filler⁻ _
+
+module _ (C : BiCartesianClosedCategory ℓC ℓC')
+         (D : BiCartesianClosedCategory ℓD ℓD') where
+  private
+    module C = BiCartesianClosedCategory C
+    module D = BiCartesianClosedCategory D
+
+  open BiCartesianClosedCategoryᴰ
+  weakenBCCC : BiCartesianClosedCategoryᴰ C ℓD ℓD'
+  weakenBCCC .CCCᴰ = weakenCCC C.CCC D.CCC
+  weakenBCCC .initᴰ = termWeaken C.init D.init
+  weakenBCCC .bcpᴰ = binprodWeaken C.sums D.sums

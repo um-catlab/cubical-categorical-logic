@@ -23,6 +23,9 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Constructions.Graph
 open import Cubical.Categories.Displayed.Constructions.PropertyOver
 open import Cubical.Categories.Displayed.Constructions.TotalCategory
+open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
+open import Cubical.Categories.Displayed.Constructions.Weaken.Base
+open import Cubical.Categories.Displayed.Constructions.Weaken.Properties
 open import Cubical.Categories.Constructions.TotalCategory hiding (Fst; Snd)
 open import Cubical.Categories.Bifunctor hiding (Fst; Snd)
 
@@ -36,6 +39,9 @@ open Functor
 module _ (C : Category ℓC ℓC') where
   Arrow : Categoryᴰ (C ×C C) ℓC' ℓC'
   Arrow = Graph (HomBif C)
+
+  Arrow∫wk : Categoryᴰ (∫C (weaken C C)) ℓC' ℓC'
+  Arrow∫wk = EqReindex.reindex Arrow ∫wk→× Eq.refl λ _ _ → Eq.refl
 
   hasPropHomsArrow : hasPropHoms Arrow
   hasPropHomsArrow = hasPropHomsGraph (HomBif C)
@@ -54,6 +60,9 @@ module _ (C : Category ℓC ℓC') where
 
   Iso : Categoryᴰ (C ×C C) ℓC' ℓC'
   Iso = ∫Cᴰ Arrow IsIso
+
+  Iso∫wk : Categoryᴰ (∫C (weaken C C)) ℓC' ℓC'
+  Iso∫wk = EqReindex.reindex Iso ∫wk→× Eq.refl λ _ _ → Eq.refl
 
   hasPropHomsIso : hasPropHoms Iso
   hasPropHomsIso =

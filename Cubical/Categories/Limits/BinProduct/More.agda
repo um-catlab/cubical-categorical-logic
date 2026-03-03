@@ -10,10 +10,12 @@ module Cubical.Categories.Limits.BinProduct.More where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Constructions.BinProduct
 import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
 open import Cubical.Categories.Functor
@@ -80,6 +82,19 @@ module _ (C : Category ℓ ℓ') where
 
     BinProductF' : Functor (C ×C C) C
     BinProductF' = BifunctorToParFunctor BinProductBif
+
+
+  module _ {a b} (a×b : BinProduct (a , b)) where
+    SwapBinProduct : BinProduct (b , a)
+    SwapBinProduct = a×b ◁PshIso swap
+      where
+      -- TODO put this somewhere more general
+      -- Could be cleaner using Sym
+      swap : ∀ {a b} → PshIso (BinProductProf ⟅ (a , b) ⟆) (BinProductProf ⟅ (b , a) ⟆)
+      swap = Isos→PshIso
+        (λ c → iso (λ z → z .snd , z .fst) (λ z → z .snd , z .fst)
+                   (λ _ → refl) λ _ → refl)
+        λ _ _ _ _ → refl
 
   module _ {a} (bp : BinProductsWith a) where
     BinProductWithF : Functor C C
@@ -255,3 +270,68 @@ module _ (F : Functor C D) where
       (∀ Γ → (swap .trans ⟦ Γ ⟧ D.⋆ -×Fc.π₁) ≡ F ⟪ -×c.π₁ ⟫)
     preservesProvidedBinProductsWith→preservesCartNatTrans = preservesProvidedBinProductsWith→NatIso
       , (λ Γ → -×Fc.×β₁)
+
+module _ (C : Category ℓ ℓ') where
+  private
+    Cop = C ^op
+
+  BinCoProduct : ∀ (cc' : (C ⊗ C) .ob) → Type _
+  BinCoProduct cc' = BinProduct Cop cc'
+
+  BinCoProducts : Type _
+  BinCoProducts = BinProducts Cop
+
+  module _ (c : C .ob) where
+    BinCoProductsWith : Type (ℓ-max ℓ ℓ')
+    BinCoProductsWith = BinProductsWith Cop c
+
+    BinCoProducts→BinCoProductsWith : BinCoProducts → BinCoProductsWith
+    BinCoProducts→BinCoProductsWith = BinProducts→BinProductsWith Cop c
+
+  module _ (bcp : BinCoProducts) where
+    BinCoProductF : Functor (C R.×C C) C
+    BinCoProductF =
+      fromOpOp ∘F (BinProductF Cop bcp ^opF) ∘F R.×-op-commute⁻
+      ∘F R.rec C C (R.ηBif ((C ^op) ^op) ((C ^op) ^op) ∘Flr (toOpOp , toOpOp))
+
+    BinCoProductBif : Bifunctor C C C
+    BinCoProductBif =
+      fromOpOp
+      ∘Fb ((BinProductBif Cop bcp ^opBif) ∘Flr (toOpOp , toOpOp))
+
+    BinCoProductF' : Functor (C ×C C) C
+    BinCoProductF' = fromOpOp ∘F (BinProductF' Cop bcp ^opF)
+      ∘F (((Fst C C ^opF) ,F (Snd C C ^opF)) ^opF) ∘F toOpOp
+
+  module _ {a} (bcp : BinCoProductsWith a) where
+    BinCoProductWithF : Functor C C
+    BinCoProductWithF = fromOpOp ∘F (BinProductWithF Cop bcp ^opF) ∘F toOpOp
+
+module _ {ℓ ℓ'} where
+  module BinCoProductNotation {C : Category ℓ ℓ'} {a b} (bcp : BinCoProduct C (a , b)) =
+    BinProductNotation bcp renaming
+        (π₁ to σ₁ ; π₂ to σ₂ ; _,p_ to [_,p_] ; ⟨_⟩,p⟨_⟩ to [⟨_⟩,p⟨_⟩] ; module ×ue to +ue ;
+        ,p-extensionality to [-,p-]-extensionality ; ,p≡ to [-,p-]≡ ; ×β₁ to +β₁ ; ×β₂ to +β₂)
+
+  module BinCoProductsNotation {C : Category ℓ ℓ'} (bcp : BinCoProducts C) where
+    private
+      module bp' = BinProductsNotation bcp using (_×_ ; ×F' ; ×Bif ; ×F ; _×p_)
+      module bp = bp' renaming
+        (_×_ to _+_ ; ×F' to +F' ; ×Bif to +Bif ; ×F to +F ; _×p_ to _+p_)
+    open bp public
+    module _ {a b : C .ob} where
+      open BinCoProductNotation (bcp (a , b)) hiding (vert; module +ue) public
+
+module _ (C : Category ℓ ℓ') where
+  private
+    module C = Category C
+  module _ (bp : BinProducts C) where
+    private
+      module bp = BinProductsNotation bp
+    module _ {a b c d : C.ob} (f : CatIso C a c) (g : CatIso C b d) where
+      private
+        module -×b = BinProductsWithNotation (BinProducts→BinProductsWith C b bp)
+        module c×- = BinProductsWithNotation
+          (BinProducts→BinProductsWith C c (λ (x , y) → SwapBinProduct C (bp (y , x))))
+      ×Iso : CatIso C (a bp.× b) (c bp.× d)
+      ×Iso = ⋆Iso (preserveIsosF {F = -×b.×aF} f) (preserveIsosF {F = c×-.×aF} g)

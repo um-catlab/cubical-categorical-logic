@@ -8,6 +8,8 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
 
 open import Cubical.HITs.SetCoequalizer as SetCoeq
@@ -20,6 +22,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Coend
 open import Cubical.Categories.Limits.CartesianClosed.Base
+open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 
@@ -37,6 +40,11 @@ TerminalSET .universal X .equiv-proof y = uniqueExists
   (isPropUnit tt tt)
   (λ _ p' q' → isSetUnit tt tt p' q')
   (λ _ _ → funExt λ _ → isPropUnit* tt* tt*)
+
+InitialSET : Initial' (SET ℓ)
+InitialSET .vertex = ⊥* , λ ()
+InitialSET .element = _
+InitialSET .universal A = isoToIsEquiv (iso (λ _ → tt) (λ z ()) (λ _ → refl) (λ a → funExt λ ()))
 
 module _ {C : Category ℓC ℓC'}
   (F : Bifunctor (C ^op) C (SET (ℓ-max ℓC ℓC')))
@@ -90,6 +98,15 @@ module _ {ℓSET : Level} where
       ((λ z → (h z) .fst) , λ z → (h z) .snd) (f , g))
     λ h p i z → (sym p) i .fst z , (sym p) i .snd z
 
+  BinCoProductsSET : BinCoProducts (SET ℓSET)
+  BinCoProductsSET (X , Y) .vertex = _ , isSet⊎ (X .snd) (Y .snd)
+  BinCoProductsSET (X , Y) .element = inl , inr
+  BinCoProductsSET (X , Y) .universal Z =
+    isoToIsEquiv (iso _ (λ (f , g) → Sum.rec f g) (λ _ → refl)
+          (λ h → funExt (Sum.elim
+                          {C = λ x → Sum.rec (λ z → h (inl z)) (λ z → h (inr z)) x ≡ h x}
+                          (λ _ → refl) (λ _ → refl))))
+
 module _ {ℓSET : Level} where
   ExponentialsSET : AllExponentiable (SET ℓSET) (BinProductsSET)
   ExponentialsSET X Y .vertex = (SET ℓSET)[ X , Y ] , isSet→ (Y .snd)
@@ -108,3 +125,8 @@ module _ {ℓSET : Level} where
   SETCCC : CartesianClosedCategory (ℓ-suc ℓSET) ℓSET
   SETCCC .CartesianClosedCategory.CC = SETCC
   SETCCC .CartesianClosedCategory.exps = ExponentialsSET
+
+  SETBiCCC : BiCartesianClosedCategory (ℓ-suc ℓSET) ℓSET
+  SETBiCCC .BiCartesianClosedCategory.CCC = SETCCC
+  SETBiCCC .BiCartesianClosedCategory.sums = BinCoProductsSET
+  SETBiCCC .BiCartesianClosedCategory.init = InitialSET

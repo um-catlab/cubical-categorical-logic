@@ -12,6 +12,10 @@ open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
 
 open import Cubical.Data.Unit
+open import Cubical.Data.Empty renaming (rec to ⊥-rec) hiding (elim)
+open import Cubical.Data.Empty.Properties
+open import Cubical.Data.Sum.Base renaming (rec to ⊎-rec; elim to ⊎-elim)
+open import Cubical.Data.Sum.Properties
 open import Cubical.Data.Sigma
 import Cubical.Data.Equality as Eq
 
@@ -82,6 +86,12 @@ Setπ₁NatEq X γ = Eq.refl
 Set×aF-seq : All×aF-seq {C = SET ℓ} BinProductsSET
 Set×aF-seq X δ γ = Eq.refl
 
+SetAssoc^op : ReprEqAssoc (SET ℓ ^op)
+SetAssoc^op x f g p f⋆g Eq.refl = Eq.refl
+
+SetIdR^op : EqIdR (SET ℓ ^op)
+SetIdR^op = λ f → Eq.refl
+
 SetᴰTerminalsⱽ : Terminalsⱽ (SETᴰ ℓ ℓᴰ)
 SetᴰTerminalsⱽ X .fst x .fst = Unit*
 SetᴰTerminalsⱽ X .fst x .snd = isSetUnit*
@@ -90,6 +100,32 @@ SetᴰTerminalsⱽ X .snd .PshIsoEq.isos c .Iso.inv = λ _ x _ → tt*
 SetᴰTerminalsⱽ X .snd .PshIsoEq.isos c .Iso.sec b = refl
 SetᴰTerminalsⱽ X .snd .PshIsoEq.isos c .Iso.ret a = refl
 SetᴰTerminalsⱽ X .snd .PshIsoEq.nat c c' f p' p x = Eq.refl
+
+SetᴰTerminalsⱽ^op : Terminalsⱽ ((SETᴰ ℓ ℓᴰ) ^opᴰ)
+SetᴰTerminalsⱽ^op X .fst x .fst = ⊥*
+SetᴰTerminalsⱽ^op X .fst x .snd = isProp→isSet isProp⊥*
+SetᴰTerminalsⱽ^op X .snd .PshIsoEq.isos c .Iso.fun = λ _ → tt
+SetᴰTerminalsⱽ^op X .snd .PshIsoEq.isos c .Iso.inv = λ _ x ()
+SetᴰTerminalsⱽ^op X .snd .PshIsoEq.isos c .Iso.sec b = refl
+SetᴰTerminalsⱽ^op X .snd .PshIsoEq.isos c .Iso.ret a =
+  isContr→isProp (isContrΠ λ _ → isContrΠ⊥*) _ a
+SetᴰTerminalsⱽ^op X .snd .PshIsoEq.nat c c' f p' p x = Eq.refl
+
+private
+  ⊎-η : ∀ {ℓa ℓb ℓc} {A : Type ℓa} {B : Type ℓb} {C : Type ℓc}
+       → (f : A ⊎ B → C) → ⊎-rec (λ a → f (inl a)) (λ b → f (inr b)) ≡ f
+  ⊎-η f = funExt λ { (inl a) → refl ; (inr b) → refl }
+
+SetᴰBPⱽ^op : BinProductsⱽ ((SETᴰ ℓ ℓᴰ) ^opᴰ)
+SetᴰBPⱽ^op {x = X} P Q = UEⱽ→Reprⱽ _ SetIdR^op ueⱽ
+  where
+    ueⱽ : UEⱽ (((SETᴰ _ _ ^opᴰ) [-][-, P ]) ×ⱽPsh ((SETᴰ _ _ ^opᴰ) [-][-, Q ])) SetIdR^op
+    ueⱽ .UEⱽ.v x .fst = ⟨ P x ⟩ ⊎ ⟨ Q x ⟩
+    ueⱽ .UEⱽ.v x .snd = isSet⊎ (P x .snd) (Q x .snd)
+    ueⱽ .UEⱽ.e = (λ x → inl) , (λ x → inr)
+    ueⱽ .UEⱽ.universal .isPshIsoEq.nIso (Z , R , x⟨z⟩) .fst (p , q) x = ⊎-rec (p x) (q x)
+    ueⱽ .UEⱽ.universal .isPshIsoEq.nIso c .snd .fst b = refl
+    ueⱽ .UEⱽ.universal .isPshIsoEq.nIso c .snd .snd a = funExt λ x → ⊎-η (a x)
 
 SetᴰBPⱽ : BinProductsⱽ (SETᴰ ℓ ℓᴰ)
 SetᴰBPⱽ {x = X} P Q = UEⱽ→Reprⱽ _ SetIdR ueⱽ
@@ -110,6 +146,28 @@ SetᴰFibration {ℓ} {ℓᴰ} {X} {Y} f Q = UEⱽ→Reprⱽ _ SetIdR fibUE
     fibUE .UEⱽ.e x q = q
     fibUE .UEⱽ.universal .isPshIsoEq.nIso (Z , R , x⟨z⟩) = IsoToIsIso idIso
 
+SetᴰFibration^op : Fibration ((SETᴰ ℓ ℓ) ^opᴰ) SetAssoc^op
+SetᴰFibration^op {ℓ} {X} {Y} f Qᴰ = UEⱽ→Reprⱽ _ SetIdR^op fibUE
+  where
+    fibUE : UEⱽ (yoRecEq ((SET ℓ ^op) [-, Y ]) (SetAssoc^op Y) f
+              *Presheafᴰ (((SETᴰ ℓ ℓ) ^opᴰ) [-][-, Qᴰ ])) SetIdR^op
+    fibUE .UEⱽ.v x .fst = Σ[ y ∈ ⟨ Y ⟩ ] (f y ≡ x) × ⟨ Qᴰ y ⟩
+    fibUE .UEⱽ.v x .snd =
+      isSetΣ (Y .snd) λ y → isSet× (isProp→isSet (X .snd _ _)) (Qᴰ y .snd)
+    fibUE .UEⱽ.e y qᴰ = y , refl , qᴰ
+    fibUE .UEⱽ.universal .isPshIsoEq.nIso (Z , Rᴰ , g) .fst h x (y , p , qᴰ) =
+      subst (λ x' → ⟨ Rᴰ (g x') ⟩) p (h y qᴰ)
+    fibUE .UEⱽ.universal .isPshIsoEq.nIso (Z , Rᴰ , g) .snd .fst h =
+      funExt λ x → funExt λ p → transportRefl (h x p)
+    fibUE .UEⱽ.universal .isPshIsoEq.nIso (Z , Rᴰ , g) .snd .snd k =
+      funExt λ x → funExt λ { (y , p , qᴰ) →
+        J (λ x' p' → subst (λ x'' → ⟨ Rᴰ (g x'') ⟩) p' (k (f y) (y , refl , qᴰ))
+                    ≡ k x' (y , p' , qᴰ))
+          (transportRefl _) p }
+
+isCartesianⱽSETᴰ^op : isCartesianⱽ SetAssoc^op ((SETᴰ ℓ ℓ) ^opᴰ)
+isCartesianⱽSETᴰ^op = SetᴰTerminalsⱽ^op , (SetᴰBPⱽ^op , SetᴰFibration^op)
+
 isCartesianⱽSETᴰ : isCartesianⱽ SetAssoc (SETᴰ ℓ ℓᴰ)
 isCartesianⱽSETᴰ = SetᴰTerminalsⱽ , (SetᴰBPⱽ , SetᴰFibration)
 
@@ -128,7 +186,8 @@ SETᴰExpsⱽ {ℓ} {ℓᴰ} {X} P Q  = UEⱽ→Reprⱽ _ SetIdR expUE
       expUE .UEⱽ.universal .isPshIsoEq.nIso (Z , R , x⟨z⟩) .snd .fst b = refl
       expUE .UEⱽ.universal .isPshIsoEq.nIso (Z , R , x⟨z⟩) .snd .snd a = refl
 
-SETᴰ∀ : UniversalQuantifiers (SETᴰ ℓ ℓ) SetIdL SetAssoc (isCartesianⱽSETᴰ .snd .snd) BinProductsSET Setπ₁NatEq Set×aF-seq
+SETᴰ∀ : UniversalQuantifiers (SETᴰ ℓ ℓ) SetIdL SetAssoc (isCartesianⱽSETᴰ .snd .snd)
+  BinProductsSET Setπ₁NatEq Set×aF-seq
 SETᴰ∀ {ℓ} X {Y} P = UEⱽ→Reprⱽ _ SetIdR ueⱽ
   where
     ueⱽ : UEⱽ (reindPsh

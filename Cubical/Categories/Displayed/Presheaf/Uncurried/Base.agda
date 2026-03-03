@@ -574,7 +574,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   where
   private
     module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Q = PresheafNotation Q
     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
 
   FiberwisePshIsoᴰ→PshIsoᴰ :
@@ -585,8 +587,18 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     fiberwiseIsoOver→IsoOver
       (λ p → αᴰ .trans .N-ob (Γ , Γᴰ , p))
       (λ a → αᴰ .nIso (Γ , Γᴰ , a))
-      (PresheafNotation.isSetPsh P)
-      (PresheafNotation.isSetPsh Q)
+      P.isSetPsh
+      Q.isSetPsh
+
+  PshIsoᴰ→FiberwisePshIsoᴰ :
+    PshIsoᴰ α Pᴰ Qᴰ
+    → FiberwisePshIsoᴰ (α .trans) Pᴰ Qᴰ
+  PshIsoᴰ→FiberwisePshIsoᴰ αᴰ .trans = αᴰ .fst
+  PshIsoᴰ→FiberwisePshIsoᴰ αᴰ .nIso (Γ , Γᴰ , p) =
+    IsoOver→fiberwiseIsoOver
+      (isIsoOver→IsoOver (αᴰ .snd Γ Γᴰ))
+      P.isSetPsh Q.isSetPsh
+      p
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}

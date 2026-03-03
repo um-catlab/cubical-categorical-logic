@@ -61,3 +61,18 @@ module _ {C : Category ℓC ℓC'} where
   ⋆InvsFlipSq⁻ e f p = ⋆InvLMove⁻ e
     ( sym (⋆InvRMove⁻ f (sym p))
     ∙ C .⋆Assoc _ _ _)
+
+module _ {C : Category ℓC ℓC'} where
+  private
+    module C = Category C
+
+  step-CatIso : (a : C.ob) {b c : C.ob} → CatIso C b c → CatIso C a b → CatIso C a c
+  step-CatIso _ g f = ⋆Iso f g
+
+  infixr  2 step-CatIso
+  syntax step-CatIso a b f = a CatIso⟨ f ⟩ b
+
+  _∎CatIso : ∀ (c : C.ob) → CatIso C c c
+  c ∎CatIso = idCatIso
+
+  infix   3 _∎CatIso

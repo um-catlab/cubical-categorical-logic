@@ -57,29 +57,28 @@ record CBPVModel (Σ : Signature) : Type where
     
   rcompId : ∀{v c}{M : O'[ v , c ]} → rcomp (C .id) .carmap M ≡ M
   rcompId {v}{c}{M} i = O .F-id  i .carmap M 
-{-
-  
+
+  lcompSeq : ∀ {v v' v'' c }{W : V [ v , v' ]}{Y : V [ v' , v'' ]}{M : O'[ v'' , c ]} → 
+    lcomp  W .carmap (lcomp Y .carmap M) ≡ lcomp (W ⋆⟨ V ⟩ Y) .carmap M
+  lcompSeq {W = W}{Y}{M} = 
+    funExt⁻ (cong carmap (sym (O .F-seq (Y , C .id) (W , C .id)))) M 
+    ∙ cong (λ h → O .F-hom ((V ⋆ W) Y , h ) .carmap M ) (C .⋆IdL _)
+
   rcompSeq : ∀ {v c c' c''}{S : C [ c , c' ]}{S' : C [ c' , c'' ]}{M : O'[ v , c ]} → 
     rcomp  S' .carmap (rcomp S .carmap M) ≡ rcomp (S ⋆⟨ C ⟩ S') .carmap M
-  rcompSeq {S = S}{S'}{M} = {!   !} ∙ {! O .F-seq (V .id , (C ⋆ S) S')  !}
-  --cong (λ h → h .carmap M ) {! cong₂ (O .F-hom) (cong₂ _,_ (V .⋆IdL _) refl)  !}
-  
+  rcompSeq {S = S}{S'}{M} = 
+    funExt⁻ (cong carmap (sym (O .F-seq (V .id , S) (V .id , S')))) M  
+    ∙ cong (λ h → O .F-hom (h , (C ⋆ S) S') .carmap M) (V .⋆IdL _) 
 
-rcompSeq : ∀ {v c c' c''}{S : C [ c , c' ]}{S' : C [ c' , c'' ]}{M : O[ v , c ]} → 
-  rcomp  S' (rcomp S M) ≡ rcomp (S ⋆⟨ C ⟩ S') M
-rcompSeq {S = S}{S'}{M} =  funExt⁻ (sym (O .F-seq (V .id , S) (V .id , S'))) M ∙ cong₂ (O .F-hom) (cong₂ _,_ (V .⋆IdL _) refl) refl
-
-lcompSeq : ∀ {v v' v'' c }{W : V [ v , v' ]}{Y : V [ v' , v'' ]}{M : O[ v'' , c ]} → 
-  lcomp  W (lcomp Y M) ≡ lcomp (W ⋆⟨ V ⟩ Y) M
-lcompSeq {W = W}{Y}{M}= funExt⁻ (sym (O .F-seq (Y , C .id) (W , C .id))) M ∙ cong₂ (O .F-hom) (cong₂ _,_ refl (C .⋆IdL _)) refl
-
-lrSeq : ∀ {A A' B B'}{W : V [ A , A' ]}{M : O[ A' , B ]}{S : C [ B , B' ]} → 
-  lcomp W (rcomp S M) ≡ rcomp S (lcomp W M)
-lrSeq {W = W}{M}{S} = 
-  funExt⁻ (sym (O .F-seq _ _)) M  
-  ∙ cong₂ (O .F-hom ) (cong₂ _,_ (V .⋆IdR _ ∙ sym (V .⋆IdL _)) (C .⋆IdR _ ∙ sym (C .⋆IdL _))) refl 
-  ∙ funExt⁻ (O .F-seq _ _ ) M
-  -}
+  lrSeq : ∀ {A A' B B'}{W : V [ A , A' ]}{M : O'[ A' , B ]}{S : C [ B , B' ]} → 
+    lcomp W .carmap (rcomp S .carmap M) ≡ rcomp S .carmap (lcomp W .carmap M)
+  lrSeq {W = W}{M}{S} = 
+      funExt⁻ (cong carmap (sym (O .F-seq _ _))) M 
+      ∙ cong₂ 
+          (λ h h' → carmap (O .F-hom (h , h')) M) 
+          (V .⋆IdR _ ∙ sym (V .⋆IdL _)) 
+          (C .⋆IdR _ ∙ sym (C .⋆IdL _)) 
+      ∙ funExt⁻ (cong carmap (O .F-seq _ _)) M
 
 
 

@@ -268,11 +268,17 @@ FreeAlgMorphism! {Σ}{X}{M}{f}{g} prf = AlgHom≡ (funExt goal) where
   goal (ops o x) = f .pres o x ∙ (λ i → interp M  o (λ a → goal (x a) i)) ∙ sym (g .pres o x)
 
 
-FORGET : {T : Signature} → Functor (ALG T) (SET _) 
-FORGET {T} .F-ob M = M .Carrier 
-FORGET {T} .F-hom f = f .carmap
-FORGET {T} .F-id = refl
-FORGET {T} .F-seq _ _ = refl
+FORGET : {Σ : Signature} → Functor (ALG Σ) (SET _) 
+FORGET {Σ} .F-ob M = M .Carrier 
+FORGET {Σ} .F-hom f = f .carmap
+FORGET {Σ} .F-id = refl
+FORGET {Σ} .F-seq _ _ = refl
+
+FREE : {Σ : Signature} → Functor (SET _)  (ALG Σ) 
+FREE {Σ} .F-ob X = FreeAlg Σ ⟨ X ⟩
+FREE {Σ} .F-hom f = FreeAlgMorphism λ z → inc (f z)
+FREE {Σ} .F-id = FreeAlgMorphism! λ _ → refl
+FREE {Σ} .F-seq _ _  = FreeAlgMorphism! λ _ → refl
 
 record Algᴰ {Σ : Signature}(A : Alg Σ) : Type where 
   field 

@@ -253,13 +253,52 @@ module Reconstruct
   open Section
   open ConvertLogic M L
   open import Cubical.Categories.Constructions.TotalCategory
+  open HyperDoc.Algebra.Algebra
+  open Alg
+
+  open import Cubical.Data.Sigma hiding (Σ)
+
+  ΣALG : Functor (∫C ALGᴰ) (ALG Σ) 
+  ΣALG .F-ob (A , Aᴰ) .Carrier = (Σ[ a ∈ A .Carrier .fst ] Aᴰ .Carrierᴰ a .fst) , isSetΣ (A .Carrier .snd) λ a → Aᴰ .Carrierᴰ a .snd
+  ΣALG .F-ob (A , Aᴰ) .interp op args = A .interp op (λ z → args z .fst) , Aᴰ .interpᴰ op (λ z → args z .fst) λ x → args x .snd
+  ΣALG .F-hom {A , Aᴰ} {A' , A'ᴰ} (f , fᴰ) .carmap = λ z → f .carmap (z .fst) , fᴰ .carmapᴰ (z .fst) (z .snd)
+  ΣALG .F-hom {A , Aᴰ} {A' , A'ᴰ} (f , fᴰ) .pres op args = ΣPathP (f .pres op (λ z → args z .fst) , fᴰ .presᴰ op (λ z → args z .fst) λ x → args x .snd)
+  ΣALG .F-id = AlgHom≡ refl
+  ΣALG .F-seq f g = AlgHom≡ refl
+
+  conv : Functor ((∫C Vᴰ ^op) ×C ∫C Cᴰ) (∫C ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ))
+  conv .F-ob ((A , Aᴰ),(B , Bᴰ)) = (A , B) , Aᴰ , Bᴰ 
+  conv .F-hom = λ z → (z .fst .fst , z .snd .fst) , z .fst .snd , z .snd .snd
+  conv .F-id = refl
+  conv .F-seq _ _ = refl
 
   TotalModel : CBPVModel Σ 
   TotalModel .CBPVModel.V = ∫C Vᴰ
   TotalModel .CBPVModel.C = ∫C Cᴰ
-  TotalModel .CBPVModel.O = {!   !}
+  TotalModel .CBPVModel.O = ΣALG ∘F ∫F (Oᴰ) ∘F conv
 
+  π : CBPVMorphism TotalModel M 
+  π .CBPVMorphism.FV .F-ob = λ z → z .fst
+  π .CBPVMorphism.FV .F-hom = λ z → z .fst
+  π .CBPVMorphism.FV .F-id = refl
+  π .CBPVMorphism.FV .F-seq _ _ = refl
+  π .CBPVMorphism.FC .F-ob = λ z → z .fst
+  π .CBPVMorphism.FC .F-hom = λ z → z .fst
+  π .CBPVMorphism.FC .F-id = refl
+  π .CBPVMorphism.FC .F-seq _ _ = refl
+  π .CBPVMorphism.FO .N-ob x .carmap = λ z → z .fst
+  π .CBPVMorphism.FO .N-ob x .pres op args = refl
+  π .CBPVMorphism.FO .N-hom f = AlgHom≡  (funExt λ x → refl)
 
-  GSFun : CBPVMorphism M {!  ∫C ? !} 
-  GSFun = {!   !}
-
+  GSFun : CBPVMorphism M TotalModel
+  GSFun .CBPVMorphism.FV .F-ob A = A , F-obᴰ (GS .fst) A 
+  GSFun .CBPVMorphism.FV .F-hom V = V , (F-homᴰ (GS .fst) V)
+  GSFun .CBPVMorphism.FV .F-id = ΣPathP (refl , VL.isProp≤ _ _)
+  GSFun .CBPVMorphism.FV .F-seq _ _  = ΣPathP (refl , VL.isProp≤  _ _)
+  GSFun .CBPVMorphism.FC .F-ob B = B , F-obᴰ (GS .snd .fst) B
+  GSFun .CBPVMorphism.FC .F-hom S = S , (F-homᴰ (GS .snd .fst) S)
+  GSFun .CBPVMorphism.FC .F-id = ΣPathP (refl , CL.isProp≤ _ _)
+  GSFun .CBPVMorphism.FC .F-seq _ _  = ΣPathP (refl , CL.isProp≤  _ _)
+  GSFun .CBPVMorphism.FO .N-ob (A , B) .carmap M = M , GS .snd .snd M
+  GSFun .CBPVMorphism.FO .N-ob (A , B) .pres op args = ΣPathP (refl , VL.isProp≤ _ _)
+  GSFun .CBPVMorphism.FO .N-hom (V , S) = AlgHom≡ (funExt λ M → ΣPathP (refl , VL.isProp≤ _ _))

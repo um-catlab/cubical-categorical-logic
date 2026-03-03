@@ -15,6 +15,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor 
 open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
+open import Cubical.Categories.NaturalTransformation
 
 open import HyperDoc.Algebra.Algebra
 open import HyperDoc.CBPV.Model.Base
@@ -184,3 +185,103 @@ module SyntacticModel (Σ : Signature)  where
   hasFTy A .snd .nIso B .fst = bind
   hasFTy A .snd .nIso B .snd .fst M = Fβ
   hasFTy A .snd .nIso B .snd .snd S = Fη
+
+module Recursor {Σ : Signature} (M : CBPVModel Σ)where 
+  open Syntax Σ 
+  open SyntacticModel Σ using (SynModel)
+  open CBPVModel
+  open TypeStructure M
+  module M = CBPVModel M
+
+
+  module _ (hasV𝟙 : HasV𝟙)(hasUTy : HasUTy)(hasFTy : HasFTy) where 
+    module Usyn = USyntax hasUTy
+    module 𝟙syn = 𝟙Syntax hasV𝟙
+    module Fsyn = FSyntax hasFTy
+
+    record InterpGen : Type where 
+      field  
+        interp-Ans : M.V .ob
+        interp-yes interp-no : M.V [ 𝟙syn.𝟙 , interp-Ans ]
+
+    module _ (int : InterpGen) where 
+      open InterpGen int
+
+      mutual
+        vty : V SynModel .ob → V M .ob
+        vty 𝟙 = 𝟙syn.𝟙
+        vty (U B) = Usyn.U (cty B)
+        vty Ans = interp-Ans
+
+        cty : C SynModel .ob → C M .ob 
+        cty (F A) = Fsyn.F (vty A)
+
+      mutual
+        vtm : ∀{A A'} → V SynModel [ A , A' ] → V M [ vty A , vty A' ]
+        vtm (subV V₁ V₂) = (V M ⋆ vtm V₁) (vtm V₂)
+        vtm var = V M .id
+        vtm (subVIdl V₁ i) = V M .⋆IdL (vtm V₁) i
+        vtm (subVIdr V₁ i) =  V M .⋆IdR (vtm V₁) i
+        vtm (subVAssoc V₁ V₂ V₃ i) = V M .⋆Assoc (vtm V₁) (vtm V₂) (vtm V₃) i
+        vtm (isSet⊢v V₁ V₂ x y i i₁) = V M .isSetHom (vtm V₁) (vtm V₂) (cong vtm x) (cong vtm y) i i₁
+        vtm (thunk M) = Usyn.thunk (ctm M)
+        vtm (Uη {A}{B}{V} i) = Usyn.Uη {vty A}{cty B}{vtm V} i
+        vtm tt = 𝟙syn.tt
+        vtm (η𝟙 {A} V i) = 𝟙syn.𝟙η {vty A}{vtm V} i
+        vtm yes = interp-yes
+        vtm no = interp-no
+
+        ktm : ∀{B B'} →  C SynModel [ B , B' ] → C M [ cty B , cty B' ]
+        ktm (kcomp S S₁) = (C M ⋆ ktm S) (ktm S₁)
+        ktm hole = C M .id
+        ktm (kcompIdl S i) = C M .⋆IdL (ktm S) i
+        ktm (kcompIdr S i) = C M .⋆IdR (ktm S) i
+        ktm (kcompAssoc S S₁ S₂ i) = C M .⋆Assoc (ktm S) (ktm S₁) (ktm S₂) i
+        ktm (isSet⊢k S S₁ x y i i₁) = C M .isSetHom (ktm S) (ktm S₁) (cong ktm x) (cong ktm y) i i₁
+        ktm (bind {A}{B} M) = Fsyn.bind {vty A}{cty B} (ctm M)
+        ktm (Fη {A}{B} {S} i) = Fsyn.Fη {vty A}{cty B}{ktm S} i
+
+
+        ctm : ∀{A B} → A ⊢c B → fst (F-ob (O M) (vty A , cty B) .Alg.Carrier)
+        ctm (subC V N) = M.lcomp (vtm V) .carmap (ctm N)
+        ctm (plug S N) = M.rcomp (ktm S) .carmap (ctm N)
+        ctm (plugId {A}{B}{M} i) = M.lcompId {vty A}{cty B}{ctm M} i
+        ctm (subCId {A}{B}{M} i) = M.rcompId {vty A}{cty B}{ctm M} i
+        ctm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = M.rcompSeq {vty A}{cty B}{cty B'}{cty B''}{ktm S}{ktm S'}{ctm M} i
+        ctm (subDist {A}{A'}{A''}{B}{V}{V'}{M} i) = M.lcompSeq {vty A}{vty A'}{vty A''}{cty B}{vtm V}{vtm V'}{ctm M} i
+        ctm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = M.lrSeq {vty A}{vty A'}{cty B}{cty B'}{vtm V}{ctm M}{ktm S} i
+        ctm (isSet⊢c M M₁ x y i i₁) = {! M.O .F-hom ? .carmap ?   !}
+        ctm (ops A B op args) = M.O .F-ob ((vty A) , (cty B)) .interp op λ a → ctm{A}{B} (args a)
+        ctm (opsSub V op args i) = {! M.O .F-ob ?  .interp  !}
+        ctm (opsPlug S op args i) = {!   !}
+        ctm force = Usyn.force
+        ctm (Uβ {A}{B}{M} i) = Usyn.Uβ {vty A}{cty B}{ctm M} i
+        ctm ret = Fsyn.ret
+        ctm (Fβ {A}{B}{M} i) = Fsyn.Fβ {vty A}{cty B}{ctm M} i
+   
+
+      FV : Functor (V SynModel) (V M)
+      FV .F-ob = vty
+      FV .F-hom = vtm
+      FV .F-id = refl
+      FV .F-seq _ _ = refl
+
+
+      FC : Functor (C SynModel) (C M)
+      FC .F-ob = cty
+      FC .F-hom = ktm
+      FC .F-id = refl
+      FC .F-seq _ _ = refl
+
+      FO : NatTrans (O SynModel) (O M ∘F ((FV ^opF) ×F FC))
+      FO .NatTrans.N-ob (A , B) .AlgHom.carmap = ctm {A}{B}
+      FO .NatTrans.N-ob (A , B) .AlgHom.pres op args = refl
+      FO .NatTrans.N-hom f = 
+        AlgHom≡ (funExt λ N → 
+        funExt⁻ (cong carmap (sym (O M .F-seq (vtm (f .fst) , M.C .id) (M.V .id , ktm (f .snd)) ))) (ctm N) 
+        ∙  cong₂ (λ h h' → F-hom M.O (h , h') .carmap (ctm N)) (M.V .⋆IdL _) (M.C .⋆IdL _))
+      
+      M-rec : CBPVMorphism SynModel M 
+      M-rec .CBPVMorphism.FV = FV
+      M-rec .CBPVMorphism.FC = FC
+      M-rec .CBPVMorphism.FO = FO

@@ -60,7 +60,6 @@ module Eliminator (Σ : Signature) where
     module LC = HDSyntax CH
     open TypeStructure SynModel
       
-
     module _ 
       (⊤ : L⊤.Has⊤ VH)
       (V⊤ : HasV𝟙 )
@@ -279,3 +278,49 @@ module LocalElim
       M-elim-local .fst = FSV
       M-elim-local .snd .fst = FSC
       M-elim-local .snd .snd = M-elim' .snd .snd
+{-
+getting the recursor from the eliminator when using Logic as a parameter.. 
+.. doesnt work the same way
+module Recursor {Σ : Signature} (M : CBPVModel Σ)where 
+  open Syntax Σ 
+  open SyntacticModel Σ using (SynModel)
+  open Section
+  open CBPVModel
+  
+  open import Cubical.Categories.Category
+  open import Cubical.Categories.Instances.Posets.Base
+  open import Cubical.Relation.Binary.Preorder
+  open Eliminator Σ
+
+  open Category
+
+-- we can get a functor into the target category truncated to a poset
+  -- no.. 
+  hack : Category _ _ → ob (POSET _ _ ) 
+  hack C .fst .fst = C .ob
+  hack C .fst .snd .PreorderStr._≤_ A B = C [ A , B ] 
+  hack C .fst .snd .PreorderStr.isPreorder .IsPreorder.is-prop-valued = {!   !}
+  hack C .fst .snd .PreorderStr.isPreorder .IsPreorder.is-refl = {!   !}
+  hack C .fst .snd .PreorderStr.isPreorder .IsPreorder.is-trans = {!   !}
+  hack C .snd = {!   !}
+
+  hm : Logic SynModel 
+  hm .Logic.VH = {!   !}
+  hm .Logic.CH = {!   !}
+  hm .Logic.Sq = {!   !}
+  hm .Logic.pullOp = {!   !}
+
+  _ : {!   !}
+  _ = M-elim {!   !} {!   !} {!   !} {!   !}
+
+  M-recV : Functor (SynModel .V) (M .V) 
+  M-recV = {!   !}
+  
+  M-rec : CBPVMorphism SynModel M
+  M-rec = {! M-elim'  !}
+
+{-
+    rec : (ı : Interpᴰ wkC) → Functor |FreeCartesianCategory| (CC .C)
+    rec ı = introS⁻ (elim wkC ı)
+-}
+-}

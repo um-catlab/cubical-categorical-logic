@@ -49,7 +49,6 @@ module HyperDoc.Examples.UF1 where
   open NatTrans
   open Signature
   open Theory
-  open Equation
 
   module BoopExample where 
 

@@ -15,16 +15,17 @@ module HyperDoc.Examples.U1 where
   open import Cubical.HITs.PropositionalTruncation.Base
   open import Cubical.HITs.PropositionalTruncation.Properties renaming (rec to hrec ; map to hmap ; map2 to hmap2)
 
-  open import HyperDoc.Connectives.Connectives
-  open import HyperDoc.Algebra.Algebra
-  open import HyperDoc.CBPV.Model.Algebra using (AlgModel)
+  open import HyperDoc.Algebra.Algebra hiding (Model)
+  open import HyperDoc.CBPV.Model.Algebra
   open import HyperDoc.CBPV.Model.Base
   open import HyperDoc.CBPV.Syntax.U1
   open import HyperDoc.CBPV.TypeStructure
+  open import HyperDoc.Connectives.Connectives
+  open import HyperDoc.Lib
   open import HyperDoc.Logic.Base
-  open import HyperDoc.Logic.U1 
+  open import HyperDoc.Logic.U1
+  open import HyperDoc.Logics.Algebra
   open import HyperDoc.Logics.SetPred
-  open import HyperDoc.Logics.Algebra 
 
   open Alg
   open AlgHom
@@ -32,8 +33,7 @@ module HyperDoc.Examples.U1 where
   open Algᴰ
   open Signature
   open Theory
-  open Equation
-  open Model
+
 
   module BoopExample where     
     data Boop : Type where 
@@ -43,12 +43,13 @@ module HyperDoc.Examples.U1 where
     Σb .Op = Boop
     Σb .arity boop = 1
 
-    open Syntax Σb
-    open SyntacticModel Σb using (SynModel)
+    open Syntax Σb 
+    open SyntacticModel Σb using (SynModel ; FreeCompAlg)
     module Syn = CBPVModel SynModel
     open AlgLog Σb 
     open U1
-    open LocalElim Σb (AlgModel Σb) AlgLogic has⊤ unit using (M-elim-local ; LM ; pres⊤)
+    open Model Σb 
+    open LocalElim Σb AlgModel AlgLogic has⊤ hasV𝟙 using (M-elim-local ; LM ; pres⊤)
     open ModelSection CL AlgLogic using (CBPVSection)  
 
     boop' : 𝟙 ⊢c Ans → 𝟙 ⊢c Ans 
@@ -98,6 +99,7 @@ module HyperDoc.Examples.U1 where
     theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n yes) ⊎ (M ≡ boopⁿ n no))) ∥₁ 
     theorem M = subst (λ h → h ∈ property) subCId (BoopLR .snd  .snd M var tt*)
     
+
   module StateExample where 
 
     data StateOp : Type where 
@@ -110,12 +112,13 @@ module HyperDoc.Examples.U1 where
     ΣSt .arity set0 = 1
     ΣSt .arity set1 = 1
     
-    open Syntax ΣSt
-    open SyntacticModel ΣSt using (SynModel)
+    open Syntax ΣSt 
+    open SyntacticModel ΣSt using (SynModel ; FreeCompAlg)
     module Syn = CBPVModel SynModel
     open AlgLog ΣSt 
     open U1
-    open LocalElim ΣSt (AlgModel ΣSt) AlgLogic has⊤ unit using (M-elim-local ; LM ; pres⊤)
+    open Model ΣSt 
+    open LocalElim ΣSt AlgModel AlgLogic has⊤ hasV𝟙 using (M-elim-local ; LM ; pres⊤)
     open ModelSection CL AlgLogic using (CBPVSection)  
 
     Free : Type

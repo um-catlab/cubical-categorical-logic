@@ -121,9 +121,9 @@ module HyperDoc.Examples.UF1 where
                      ; (ops o x) → true}) p
 
 
-    theoremV : ∥ Iso (𝟙 ⊢v Ans) Bool ∥₁
-    theoremV = 
-      hmap theoremV' 
+    ClosedVal : ∥ Iso (𝟙 ⊢v Ans) Bool ∥₁
+    ClosedVal = 
+      hmap ClosedVal' 
       (choice 
         (λ _ → isProp⊎ (isSet⊢v _ _) (isSet⊢v _ _) 
         λ p q → yes≠no (sym p ∙ q)) 
@@ -137,25 +137,25 @@ module HyperDoc.Examples.UF1 where
             (subVIdl _) 
             (BoopLR .fst .F-homᴰ V var tt*)
 
-        theoremV' : (asm  : ∀ (V : 𝟙 ⊢v Ans) → (V ≡ yes) ⊎ (V ≡ no)) → Iso (𝟙 ⊢v Ans) Bool
-        theoremV' asm .fun V = rec⊎  (λ _ → true) (λ _ → false) (asm V)
-        theoremV' asm .inv b = if b then yes else no
-        theoremV' asm .sec false with (asm no)
+        ClosedVal' : (asm  : ∀ (V : 𝟙 ⊢v Ans) → (V ≡ yes) ⊎ (V ≡ no)) → Iso (𝟙 ⊢v Ans) Bool
+        ClosedVal' asm .fun V = rec⊎  (λ _ → true) (λ _ → false) (asm V)
+        ClosedVal' asm .inv b = if b then yes else no
+        ClosedVal' asm .sec false with (asm no)
         ... | inl x = elim⊥  {A = λ _ → true ≡ false} (yes≠no (sym x))
         ... | inr x = refl
-        theoremV' asm .sec true with (asm yes)
+        ClosedVal' asm .sec true with (asm yes)
         ... | inl x = refl
         ... | inr x = elim⊥  {A = λ _ → false ≡ true} (yes≠no x)
-        theoremV' asm .Iso.ret V with (asm V) 
+        ClosedVal' asm .Iso.ret V with (asm V) 
         ... | inl x = sym x
         ... | inr x = sym x
 
-    theoremC :  
+    ClosedComp :  
       (M : 𝟙 ⊢c F Ans) → 
       ∥ Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n (return yes)) ⊎ (M ≡ boopⁿ n (return no))) ∥₁
-    theoremC M = 
+    ClosedComp M = 
       hmap 
-        (theoremC' M)  
+        (ClosedComp' M)  
         (subst (λ h →  ∥  DI h ∥₁) 
         subCId 
         have) where 
@@ -168,11 +168,11 @@ module HyperDoc.Examples.UF1 where
           (λ V → subC V ret)  
           property
 
-      theoremC' : 
+      ClosedComp' : 
         (M : 𝟙 ⊢c F Ans) → 
         DI M  → 
         Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n (return yes)) ⊎ (M ≡ boopⁿ n (return no)))
-      theoremC' = 
+      ClosedComp' = 
         DICong-elim _ _ _ _ 
           (λ M _ → Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n (return yes)) ⊎ (M ≡ boopⁿ n (return no)))) 
           (λ M V eq' prf → 0 , 

@@ -22,7 +22,7 @@ open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Category.More
+open import Cubical.Categories.Isomorphism.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
@@ -109,19 +109,10 @@ module _ (D : Category ℓD ℓD') where
   module _ (bp : BinProducts D) where
     private
       module bp = BinProductsNotation bp
-    module _ {a b c d : D.ob} (f : CatIso D a c) (g : CatIso D b d) where
-      private
-        module -×b = BinProductsWithNotation (BinProducts→BinProductsWith D b bp)
-        module c×- = BinProductsWithNotation
-          (BinProducts→BinProductsWith D c (λ (x , y) → SwapBinProduct D (bp (y , x))))
-      -- TODO move to BinProducts.More
-      ×Iso : CatIso D (a bp.× b) (c bp.× d)
-      ×Iso = preserveIsosF {F = -×b.×aF} f
-             ⋆CatIso preserveIsosF {F = c×-.×aF} g
 
     Iso∫wkBinProductsᴰ : BinProductsᴰ (Iso∫wk D) (bp×bp bp bp)
     Iso∫wkBinProductsᴰ {A = (a , c)}{B = (b , d)} f g =
-      ×Iso f g ,
+      ×Iso D bp f g ,
       ((sym c×b.×β₁
         ∙ D.⟨ refl ⟩⋆⟨ sym c×d.×β₁ ⟩
         ∙ sym (D.⋆Assoc _ _ _) , _) ,
@@ -165,71 +156,6 @@ module _ (D : Category ℓD ℓD') where
     module _ (exp : AllExponentiable D bp) where
       private
         module exp = ExponentialsNotation bp exp
-      module _ {a b c d : D.ob} (f : CatIso D a c) (g : CatIso D b d) where
-        private
-          module a⇒b = ExponentialNotation (λ d₁ → bp (d₁ , a)) (exp a b)
-          module c⇒d = ExponentialNotation (λ d₁ → bp (d₁ , c)) (exp c d)
-
-        -- TODO move this into the Exponentials.Small
-        ExpProf : D.ob → Profunctor D D _
-        ExpProf x .F-ob d = (D [-, d ]) ∘F (LRPsh→Functor ((D [-, x ]) , (λ d₁ → bp (d₁ , x))) ^opF)
-        ExpProf x .F-hom f = natTrans (λ x₁ z → z D.⋆ f) λ _ → funExt λ _ → D.⋆Assoc _ _ _
-        ExpProf x .F-id = makeNatTransPath (funExt₂ λ _ _ → D.⋆IdR _)
-        ExpProf x .F-seq _ _ = makeNatTransPath (funExt₂ λ _ _ → sym $ D.⋆Assoc _ _ _)
-
-        ⇒F : D.ob → Functor D D
-        ⇒F x = FunctorComprehension (ExpProf x) (exp x)
-
-        ⇒Iso : CatIso D (a exp.⇒ b) (c exp.⇒ d)
-        ⇒Iso = preserveIsosF {F = ⇒F a} g ⋆CatIso a⇒d≅c⇒d
-          where
-
-          p : ∀ {x} →
-            bp.×F ⟪ D.id {x = x} , f .snd .inv ⟫ D.⋆ bp.×F ⟪ D.id , f .fst ⟫ ≡ D.id
-          p = (sym $ bp.×F .F-seq _ _)
-              ∙ cong (bp.×F .F-hom) (ΣPathP ((D.⋆IdL _) , (f .snd .sec)))
-              ∙ bp.×F .F-id
-
-          q : ∀ {x} →
-            bp.×F ⟪ D.id {x = x} , f .fst ⟫ D.⋆ bp.×F ⟪ D.id , f .snd .inv ⟫ ≡ D.id
-          q = (sym $ bp.×F .F-seq _ _)
-              ∙ cong (bp.×F .F-hom) (ΣPathP ((D.⋆IdL _) , (f .snd .ret)))
-              ∙ bp.×F .F-id
-
-          a⇒F≅c⇒F : NatIso (⇒F a) (⇒F c)
-          a⇒F≅c⇒F = FunctorComprehension-NatIso (ExpProf a) (ExpProf c) (exp a) (exp c)
-                      (Isos→PshIso (λ _ → iso (λ x → bp.×F ⟪ D.id , f .snd .inv ⟫ D.⋆ x)
-                                              (λ x → bp.×F ⟪ D.id , f .fst ⟫ D.⋆ x)
-                                              (λ x → sym (D.⋆Assoc _ _ _)
-                                                     ∙ D.⟨ p ⟩⋆⟨ refl ⟩
-                                                     ∙ D.⋆IdL _)
-                                              (λ x → sym (D.⋆Assoc _ _ _)
-                                                     ∙ D.⟨ q ⟩⋆⟨ refl ⟩
-                                                     ∙ D.⋆IdL _))
-                                   (λ x y g p →
-                                     (sym $ D.⋆Assoc _ _ _)
-                                      ∙ D.⟨ (sym $ D.⋆Assoc _ _ _)
-                                            ∙ D.⟨ bp.,p-extensionality
-                                                    (D.⋆Assoc _ _ _
-                                                    ∙ D.⟨ refl ⟩⋆⟨ bp.×β₁ ⟩
-                                                    ∙ sym (D.⋆Assoc _ _ _)
-                                                    ∙ D.⟨ bp.×β₁ ∙ D.⋆IdR _ ⟩⋆⟨ refl ⟩
-                                                    ∙ sym bp.×β₁
-                                                    ∙ D.⟨ refl ⟩⋆⟨ (sym $ D.⋆IdR _)
-                                                                   ∙ sym bp.×β₁ ⟩
-                                                    ∙ (sym $ D.⋆Assoc _ _ _))
-                                                    (D.⋆Assoc _ _ _
-                                                    ∙ D.⟨ refl ⟩⋆⟨ bp.×β₂ ⟩
-                                                    ∙ bp.×β₂
-                                                    ∙ D.⟨ sym bp.×β₂ ⟩⋆⟨ refl ⟩
-                                                    ∙ D.⋆Assoc _ _ _
-                                                    ∙ D.⟨ refl ⟩⋆⟨ sym bp.×β₂ ⟩
-                                                    ∙ (sym $ D.⋆Assoc _ _ _))
-                                                ⟩⋆⟨ refl ⟩
-                                            ∙ D.⋆Assoc _ _ _ ⟩⋆⟨ refl ⟩))
-
-          a⇒d≅c⇒d : CatIso D (a exp.⇒ d) (c exp.⇒ d)
-          a⇒d≅c⇒d = _ , (a⇒F≅c⇒F .NatIso.nIso d)
 
       -- Iso∫wkExponentialsᴰ : AllExponentiableᴰ (Iso∫wk D) (bp×bp bp bp)
       --   Iso∫wkBinProductsᴰ (exp×exp bp bp exp exp)

@@ -15,6 +15,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Constructions.BinProduct
 import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
 open import Cubical.Categories.Functor
@@ -320,3 +321,17 @@ module _ {ℓ ℓ'} where
     open bp public
     module _ {a b : C .ob} where
       open BinCoProductNotation (bcp (a , b)) hiding (vert; module +ue) public
+
+module _ (C : Category ℓ ℓ') where
+  private
+    module C = Category C
+  module _ (bp : BinProducts C) where
+    private
+      module bp = BinProductsNotation bp
+    module _ {a b c d : C.ob} (f : CatIso C a c) (g : CatIso C b d) where
+      private
+        module -×b = BinProductsWithNotation (BinProducts→BinProductsWith C b bp)
+        module c×- = BinProductsWithNotation
+          (BinProducts→BinProductsWith C c (λ (x , y) → SwapBinProduct C (bp (y , x))))
+      ×Iso : CatIso C (a bp.× b) (c bp.× d)
+      ×Iso = ⋆Iso (preserveIsosF {F = -×b.×aF} f) (preserveIsosF {F = c×-.×aF} g)

@@ -33,8 +33,8 @@ module _ (C : Category ℓC ℓC')(D : Category ℓD ℓD') where
     ⊎Ob = C .ob Sum.⊎ D .ob
 
     Hom⊎ : ⊎Ob → ⊎Ob → Type (ℓ-max ℓC' ℓD')
-    Hom⊎ (inl c) (inl c') = Lift {j = ℓD'} $ C [ c , c' ]
-    Hom⊎ (inr d) (inr d') = Lift {j = ℓC'} $ D [ d , d' ]
+    Hom⊎ (inl c) (inl c') = Lift ℓD' $ C [ c , c' ]
+    Hom⊎ (inr d) (inr d') = Lift ℓC' $ D [ d , d' ]
     Hom⊎ (inl c) (inr d') = ⊥*
     Hom⊎ (inr d) (inl c') = ⊥*
 

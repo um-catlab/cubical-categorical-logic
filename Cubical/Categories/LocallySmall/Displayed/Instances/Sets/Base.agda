@@ -20,9 +20,9 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.SmallDisplayedFibers
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Weaken
 
 open Category
 open Categoryᴰ

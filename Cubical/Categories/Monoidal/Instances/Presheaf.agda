@@ -7,7 +7,7 @@ open import Cubical.Data.Unit
 
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Monoidal.Base

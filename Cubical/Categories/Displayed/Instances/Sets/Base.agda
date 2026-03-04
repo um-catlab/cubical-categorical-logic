@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More

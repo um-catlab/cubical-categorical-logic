@@ -17,7 +17,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.Terminal.More renaming (preservesTerminal to funcPreservesTerminal)
 open import Cubical.Categories.Presheaf

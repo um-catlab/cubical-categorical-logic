@@ -19,8 +19,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Fiber hiding (fiber)
-open import Cubical.Categories.Constructions.TotalCategory using (∫C)
+open import Cubical.Categories.Instances.Fiber hiding (fiber)
+open import Cubical.Categories.Instances.TotalCategory using (∫C)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Presheaf

@@ -12,7 +12,7 @@ open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Reindex.Base
 
 open Functor
 module _ {C : Category Cob CHom-ℓ} {D : Category Dob DHom-ℓ} (d : Dob) where

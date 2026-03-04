@@ -11,7 +11,7 @@ open import Cubical.Data.Sigma hiding (_×_)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Exponentials
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 
 open import Cubical.Categories.Displayed.Base

@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Instances.Elements
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Constructions.Lift

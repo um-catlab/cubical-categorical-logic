@@ -9,7 +9,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Indiscrete
+open import Cubical.Categories.Instances.Indiscrete
 
 private
   variable

@@ -22,13 +22,13 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
-open import Cubical.Categories.Displayed.Constructions.Weaken.UncurriedProperties
+open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
-open import Cubical.Categories.Constructions.Free.BiCartesianClosedCategory.Forded as FreeBiCCC
+open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded as FreeBiCCC
   renaming ([_,_] to [_,+_])
-open import Cubical.Categories.Constructions.Free.BiCartesianClosedCategory.Quiver
+open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 
 open import Gluing.Canonicity
 

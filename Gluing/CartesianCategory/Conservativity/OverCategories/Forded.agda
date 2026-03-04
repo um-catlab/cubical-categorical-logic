@@ -17,10 +17,10 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Cartesian.Base
 
-open import Cubical.Categories.Constructions.Free.Category.Forded as FC
-open import Cubical.Categories.Constructions.Free.CartesianCategory.Forded as FCC
+open import Cubical.Categories.Instances.Free.Category.Forded as FC
+open import Cubical.Categories.Instances.Free.CartesianCategory.Forded as FCC
 open import
-  Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
+  Cubical.Categories.Instances.Free.CartesianCategory.ProductQuiver
   hiding (_×_)
 
 open import Cubical.Categories.Displayed.Base

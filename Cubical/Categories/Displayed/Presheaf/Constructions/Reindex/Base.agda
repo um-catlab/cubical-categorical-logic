@@ -6,7 +6,7 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -18,7 +18,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
 
 private

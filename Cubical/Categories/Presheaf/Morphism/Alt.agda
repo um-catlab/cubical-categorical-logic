@@ -21,7 +21,7 @@ open import Cubical.HITs.PathEq
 open import Cubical.HITs.Join
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Instances.Elements
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More

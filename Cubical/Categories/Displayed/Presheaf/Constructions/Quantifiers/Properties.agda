@@ -16,8 +16,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Yoneda
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory.Base as ∫
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory.Base as ∫
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -39,9 +39,9 @@ open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Adjoint.More
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
-open import Cubical.Categories.Displayed.Constructions.Reindex.Limits
+open import Cubical.Categories.Displayed.Instances.Reindex.Base as Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Properties
+open import Cubical.Categories.Displayed.Instances.Reindex.Limits
 open import Cubical.Categories.Displayed.Fibration.Base
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex

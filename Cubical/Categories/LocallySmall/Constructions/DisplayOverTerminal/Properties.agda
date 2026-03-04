@@ -15,7 +15,7 @@ open import Cubical.Categories.LocallySmall.Constructions.DisplayOverTerminal.Ba
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Reindex.Base
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Properties
 

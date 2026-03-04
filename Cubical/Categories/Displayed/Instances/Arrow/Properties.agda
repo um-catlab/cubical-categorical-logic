@@ -12,8 +12,8 @@ open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
-open import Cubical.Categories.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Graph
+open import Cubical.Categories.Instances.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Graph
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Displayed.Fibration.TwoSided
 open import Cubical.Categories.Displayed.Fibration.IsoFibration

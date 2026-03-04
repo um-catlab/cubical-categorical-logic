@@ -24,7 +24,7 @@ open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCateg
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base
 

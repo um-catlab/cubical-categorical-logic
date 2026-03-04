@@ -16,8 +16,8 @@ open import Cubical.Data.Sigma as Ty hiding (_×_)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
-open import Cubical.Categories.Constructions.BinProduct
-import Cubical.Categories.Constructions.BinProduct.Redundant.Base as R
+open import Cubical.Categories.Instances.BinProduct
+import Cubical.Categories.Instances.BinProduct.Redundant.Base as R
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation

@@ -9,7 +9,7 @@ open import Cubical.Foundations.Isomorphism
 
 open import Cubical.Categories.Category.Base hiding (isIso)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Presheaf
 
 open import Cubical.Categories.Displayed.Base

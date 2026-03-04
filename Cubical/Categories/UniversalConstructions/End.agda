@@ -9,8 +9,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Bifunctors
-open import Cubical.Categories.Constructions.BinProduct.Redundant as Tensor
+open import Cubical.Categories.Instances.Bifunctors
+open import Cubical.Categories.Instances.BinProduct.Redundant as Tensor
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Profunctor.Homomorphism.NaturalElement
 open import Cubical.Categories.Profunctor.Hom

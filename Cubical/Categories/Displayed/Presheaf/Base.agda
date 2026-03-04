@@ -11,7 +11,7 @@ open import Cubical.Data.Equality.More
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
@@ -21,9 +21,9 @@ open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
-import Cubical.Categories.Constructions.TotalCategory as TotalCat
-import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+import Cubical.Categories.Instances.TotalCategory as TotalCat
+import Cubical.Categories.Instances.TotalCategory.More as TotalCat
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Functor

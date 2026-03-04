@@ -22,7 +22,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd; Sym)
+open import Cubical.Categories.Instances.BinProduct hiding (Fst; Snd; Sym)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 

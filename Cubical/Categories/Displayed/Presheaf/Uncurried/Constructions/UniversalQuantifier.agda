@@ -67,10 +67,10 @@ open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Functors.Constant.More
 open import Cubical.Categories.FunctorComprehension.Base
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.BinProduct.More
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory as TotalCat hiding (intro)
+open import Cubical.Categories.Instances.BinProduct
+open import Cubical.Categories.Instances.BinProduct.More
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory as TotalCat hiding (intro)
 open import Cubical.Categories.HLevels
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Props
@@ -92,8 +92,8 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Terminal
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable

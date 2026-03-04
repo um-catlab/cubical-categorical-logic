@@ -8,7 +8,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base hiding (isIso)
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Functor
 import      Cubical.Data.Equality as Eq
 import      Cubical.Data.Equality.More as Eq
@@ -16,7 +16,7 @@ import      Cubical.Data.Equality.More as Eq
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Constructions.Weaken.Base
+open import Cubical.Categories.Displayed.Instances.Weaken.Base
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 
 open import Cubical.Reflection.RecordEquiv.More

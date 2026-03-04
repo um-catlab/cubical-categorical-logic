@@ -8,7 +8,7 @@ open import Cubical.Data.Sigma.More
 import Cubical.Categories.Category as Small
 import Cubical.Categories.Functor as SmallF
 import Cubical.Categories.Displayed.Base as Smallᴰ
-import Cubical.Categories.Constructions.Fiber as Smallᴰ
+import Cubical.Categories.Instances.Fiber as Smallᴰ
 import Cubical.Categories.Displayed.Functor as SmallFᴰ
 
 open import Cubical.Categories.LocallySmall.Category.Base

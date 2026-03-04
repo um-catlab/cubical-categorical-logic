@@ -20,10 +20,10 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 
-open import Cubical.Categories.Constructions.Free.Category.Forded as FC
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Forded as FCCC
+open import Cubical.Categories.Instances.Free.Category.Forded as FC
+open import Cubical.Categories.Instances.Free.CartesianClosedCategory.Forded as FCCC
 open import
-  Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver
+  Cubical.Categories.Instances.Free.CartesianClosedCategory.Quiver
   hiding (_×_)
 
 open import Cubical.Categories.Displayed.Base
@@ -39,7 +39,7 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.CartesianClosed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
   using (EqCCCⱽ→CCCⱽ)
-open import Cubical.Categories.Displayed.Constructions.PropertyOver
+open import Cubical.Categories.Displayed.Instances.PropertyOver
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom

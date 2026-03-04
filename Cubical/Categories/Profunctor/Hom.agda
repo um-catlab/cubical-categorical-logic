@@ -6,7 +6,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Categories.Category
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Relators
+open import Cubical.Categories.Instances.Relators
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Relator

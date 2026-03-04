@@ -5,7 +5,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 

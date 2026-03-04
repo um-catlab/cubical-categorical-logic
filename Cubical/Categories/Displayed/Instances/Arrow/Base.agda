@@ -15,18 +15,18 @@ import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.Graph
-open import Cubical.Categories.Displayed.Constructions.PropertyOver
-open import Cubical.Categories.Displayed.Constructions.TotalCategory
-open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
-open import Cubical.Categories.Displayed.Constructions.Weaken.Base
-open import Cubical.Categories.Displayed.Constructions.Weaken.Properties
-open import Cubical.Categories.Constructions.TotalCategory hiding (Fst; Snd)
+open import Cubical.Categories.Displayed.Instances.Graph
+open import Cubical.Categories.Displayed.Instances.PropertyOver
+open import Cubical.Categories.Displayed.Instances.TotalCategory
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Weaken.Base
+open import Cubical.Categories.Displayed.Instances.Weaken.Properties
+open import Cubical.Categories.Instances.TotalCategory hiding (Fst; Snd)
 open import Cubical.Categories.Bifunctor hiding (Fst; Snd)
 
 private

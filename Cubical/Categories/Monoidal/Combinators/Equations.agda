@@ -8,8 +8,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Monoidal.Functor
 import Cubical.Categories.Monoidal.Combinators.Base as Combinators
-open import Cubical.Categories.Constructions.Free.Monoidal.Base
-open import Cubical.Categories.Constructions.Free.Monoidal.Coherence
+open import Cubical.Categories.Instances.Free.Monoidal.Base
+open import Cubical.Categories.Instances.Free.Monoidal.Coherence
 open import Cubical.Data.SumFin
 
 open Category

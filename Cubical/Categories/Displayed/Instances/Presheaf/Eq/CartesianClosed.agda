@@ -18,10 +18,10 @@ import Cubical.Data.Equality.More as Eq
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal
-open import Cubical.Categories.Constructions.Lift
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory.Base
-open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Instances.Lift
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory.Base
+open import Cubical.Categories.Instances.Elements
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Functor.Base
@@ -50,8 +50,8 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 import Cubical.Categories.Displayed.Limits.CartesianV' as Path
 import Cubical.Categories.Displayed.Limits.CartesianClosedV as Path
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Base

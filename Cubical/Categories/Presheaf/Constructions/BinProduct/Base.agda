@@ -20,8 +20,8 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.BinProduct.More
+open import Cubical.Categories.Instances.BinProduct
+open import Cubical.Categories.Instances.BinProduct.More
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More

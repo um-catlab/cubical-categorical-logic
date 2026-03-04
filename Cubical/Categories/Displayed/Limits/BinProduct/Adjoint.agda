@@ -10,7 +10,7 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.Adjoint
 open import Cubical.Categories.Presheaf.Representable
@@ -18,7 +18,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.BinProduct as BP
 open import Cubical.Categories.Displayed.Adjoint.More
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf
 open import Cubical.Categories.Displayed.Profunctor
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning

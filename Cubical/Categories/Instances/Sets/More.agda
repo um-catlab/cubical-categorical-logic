@@ -18,7 +18,7 @@ open import Cubical.Categories.Category renaming (pathToIso to catPathToIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.Presheaf.Base
 

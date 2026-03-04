@@ -6,8 +6,8 @@ open import Cubical.Foundations.Function
 
 
 open import Cubical.Categories.Category
-import Cubical.Categories.Constructions.TotalCategory as TotalCat
-import Cubical.Categories.Constructions.TotalCategory.More as TotalCat
+import Cubical.Categories.Instances.TotalCategory as TotalCat
+import Cubical.Categories.Instances.TotalCategory.More as TotalCat
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt

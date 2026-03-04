@@ -17,7 +17,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
-open import Cubical.Categories.Constructions.Free.Category.Forded as Free
+open import Cubical.Categories.Instances.Free.Category.Forded as Free
 
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base

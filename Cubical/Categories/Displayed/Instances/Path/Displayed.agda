@@ -14,13 +14,13 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.TotalCategory as TotalCategory
+open import Cubical.Categories.Instances.TotalCategory as TotalCategory
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More as BPᴰ
+open import Cubical.Categories.Displayed.Instances.BinProduct.More as BPᴰ
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.StructureOver
+open import Cubical.Categories.Displayed.Instances.StructureOver
 
 private
   variable

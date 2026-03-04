@@ -6,13 +6,13 @@ open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Quiver.Base as Quiver
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Power
+open import Cubical.Categories.Instances.Power
 open import Cubical.Categories.Functor renaming (Id to IdF)
 open import Cubical.Categories.Instances.Sets
 
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Constructions.Free.Category.Quiver as FreeCat
-open import Cubical.Categories.Constructions.Free.Functor.AltPresented
+open import Cubical.Categories.Instances.Free.Category.Quiver as FreeCat
+open import Cubical.Categories.Instances.Free.Functor.AltPresented
 
 private
   variable

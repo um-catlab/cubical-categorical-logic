@@ -4,7 +4,7 @@ module Cubical.Categories.Monoidal.Functor where
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Isomorphism
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More

@@ -27,9 +27,9 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver as FreeCCC
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Base as FreeCCC
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.UncurriedElim as FreeCCC
+open import Cubical.Categories.Instances.Free.CartesianClosedCategory.Quiver as FreeCCC
+open import Cubical.Categories.Instances.Free.CartesianClosedCategory.Base as FreeCCC
+open import Cubical.Categories.Instances.Free.CartesianClosedCategory.UncurriedElim as FreeCCC
 
 open import Gluing.Canonicity
 

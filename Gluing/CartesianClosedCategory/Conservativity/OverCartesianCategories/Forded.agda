@@ -23,15 +23,15 @@ open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal as Term
 open import Cubical.Categories.Limits.Terminal.More as Term
 
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.Free.Category.Forded as FC
-open import Cubical.Categories.Constructions.Free.CartesianCategory.Forded as FCC
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Forded as FCCC
+open import Cubical.Categories.Instances.BinProduct
+open import Cubical.Categories.Instances.Free.Category.Forded as FC
+open import Cubical.Categories.Instances.Free.CartesianCategory.Forded as FCC
+open import Cubical.Categories.Instances.Free.CartesianClosedCategory.Forded as FCCC
 open import
-  Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
+  Cubical.Categories.Instances.Free.CartesianCategory.ProductQuiver
   hiding (_×_)
 open import
-  Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver
+  Cubical.Categories.Instances.Free.CartesianClosedCategory.Quiver
   hiding (_×_)
 
 open import Cubical.Categories.Displayed.Base
@@ -48,8 +48,8 @@ open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.CartesianClosed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
   using (EqCCCⱽ→CCCⱽ)
-open import Cubical.Categories.Displayed.Constructions.PropertyOver
-open import Cubical.Categories.Displayed.Constructions.PropertyOver.Cartesian
+open import Cubical.Categories.Displayed.Instances.PropertyOver
+open import Cubical.Categories.Displayed.Instances.PropertyOver.Cartesian
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom

@@ -1,0 +1,107 @@
+{-# OPTIONS --lossy-unification #-}
+module Cubical.Categories.Displayed.Instances.Reindex.Fibration where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels.More
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Transport
+
+import Cubical.Data.Equality as Eq
+open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
+
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.More
+open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation.More
+open import Cubical.Categories.NaturalTransformation.Reind
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Limits.Terminal.More
+open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Presheaf
+open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Presheaf.Constructions.Reindex
+open import Cubical.Categories.Presheaf.Constructions.Unit
+open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.FunctorComprehension.Base
+
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.BinProduct
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Properties
+open import Cubical.Categories.Displayed.Instances.Reindex.UniversalProperties
+open import Cubical.Categories.Displayed.HLevels
+import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+
+private
+  variable
+    ℓB ℓB' ℓBᴰ ℓBᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' ℓD ℓD' ℓDᴰ ℓDᴰ' ℓE ℓE' ℓEᴰ ℓEᴰ' ℓP ℓPᴰ ℓQ ℓQᴰ : Level
+
+open Category
+open Functor
+open Functorᴰ
+open NatTrans
+open NatIso
+open PshHom
+open PshIso
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
+  where
+  private
+    module C = Category C
+    module D = Category D
+    module Dᴰ = Fibers Dᴰ
+    module F = Functor F
+
+  -- This is the compositional definition, below we "improve" the definitional behavior
+  reindexCartesianLift' : ∀ {x y}(f : C [ x , y ])(Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    → CartesianLift Dᴰ (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift (reindex Dᴰ F) f Fyᴰ
+  reindexCartesianLift' {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ = (F⟪f⟫*Fyᴰ .fst)
+    , reindexRepresentableIsoⱽ Dᴰ F _ _
+      -- reindPsh (reindex-π-/ Dᴰ F x) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
+      ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ F x) (F⟪f⟫*Fyᴰ .snd)
+      -- reindPsh (reindex-π-/ Dᴰ F x) $ reindPsh (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
+      ⋆PshIsoⱽ reindPsh-square (reindex-π-/ Dᴰ F x) (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f)) (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ Dᴰ F y) (Dᴰ [-][-, Fyᴰ ]) (reindexRepresentable-seq (π Dᴰ F))
+      -- reindPsh (Idᴰ /Fⱽ yoRec (C [-, y ]) f) $ reindPsh (π Dᴰ F /Fᴰ Functor→PshHet F y) $ Dᴰ [-][-, F⟪f⟫*Fyᴰ ]
+      ⋆PshIsoⱽ (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ F y Fyᴰ)))
+      -- reindPsh (Idᴰ /Fⱽ yoRec (C [-, y ]) f) $ reindex Dᴰ F [-][-, F⟪f⟫*Fyᴰ ]
+
+  reindexCartesianLift : ∀ {x y}(f : C [ x , y ])(Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    → CartesianLift Dᴰ (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift (reindex Dᴰ F) f Fyᴰ
+  reindexCartesianLift {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ = (F⟪f⟫*Fyᴰ .fst) ,
+    improvePshIso (reindexCartesianLift' {x}{y} f Fyᴰ F⟪f⟫*Fyᴰ .snd)
+      ((λ (Γ , Γᴰ , g) F⟪g⟫ᴰ → Dᴰ.reind (sym $ F .F-seq g f) (F⟪g⟫ᴰ F⟪f⟫*Fyᴰ.⋆πⱽ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪g⟫ᴰ →
+        Dᴰ.rectify $ Dᴰ.≡out $ sym (Dᴰ.reind-filler _)
+        ∙ Dᴰ.⋆IdL _
+        ∙ Dᴰ.reind-filler _)
+      ((λ (Γ , Γᴰ , g) F⟪gf⟫ᴰ → F⟪f⟫*Fyᴰ.introᴰ (Dᴰ.reind (F .F-seq g f) F⟪gf⟫ᴰ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ F⟪gf⟫ᴰ → Dᴰ.rectify $ Dᴰ.≡out $
+        F⟪f⟫*Fyᴰ.cong-introᴰ refl (sym (Dᴰ.reind-filler _) ∙ Dᴰ.⋆IdL _ ∙ Dᴰ.reind-filler _))
+    where
+      module F⟪f⟫*Fyᴰ = CartesianLiftNotation Dᴰ F⟪f⟫*Fyᴰ
+
+  isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
+  isFibrationReindex isFibDᴰ {y} Fyᴰ x f = reindexCartesianLift f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))

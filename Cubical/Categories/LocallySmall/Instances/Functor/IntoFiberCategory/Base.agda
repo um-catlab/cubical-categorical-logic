@@ -14,7 +14,7 @@ open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.ChangeOfObjects
+open import Cubical.Categories.LocallySmall.Displayed.Instances.ChangeOfObjects
 import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ
 
 open Category

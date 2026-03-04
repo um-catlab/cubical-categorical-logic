@@ -11,10 +11,10 @@ open import Cubical.Data.Quiver.Base
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Free.CartesianCategory.Base
-open import Cubical.Categories.Constructions.Free.CartesianCategory.UncurriedElim as FreeCC
+open import Cubical.Categories.Instances.Free.CartesianCategory.Base
+open import Cubical.Categories.Instances.Free.CartesianCategory.UncurriedElim as FreeCC
 open import
-    Cubical.Categories.Constructions.Free.CartesianCategory.ProductQuiver
+    Cubical.Categories.Instances.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
@@ -25,7 +25,7 @@ open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.Displayed.Instances.Reindex.Properties
 
 open import Cubical.Tactics.CategorySolver.Reflection
 

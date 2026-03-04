@@ -26,7 +26,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.SmallDisplayedFib
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ
 import Cubical.Categories.LocallySmall.Displayed.Functor.Properties as LocallySmallFᴰ
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
 
 open Category
 open Categoryᴰ

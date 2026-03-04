@@ -18,14 +18,14 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-import      Cubical.Categories.Constructions.BinProduct as BP
-open import Cubical.Categories.Constructions.BinProduct.Monoidal
+import      Cubical.Categories.Instances.BinProduct as BP
+open import Cubical.Categories.Instances.BinProduct.Monoidal
 open import Cubical.Categories.Monoidal
 open import Cubical.Categories.Monoidal.Functor
 
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Monoidal.Base
-open import Cubical.Categories.Displayed.Constructions.Reindex.Monoidal
+open import Cubical.Categories.Displayed.Instances.Reindex.Monoidal
 import Cubical.Categories.Displayed.Instances.Arrow.Base as Arrow
 open import Cubical.Categories.Displayed.Instances.Arrow.Properties
 

@@ -6,9 +6,9 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
-open import Cubical.Categories.Constructions.BinProduct.Redundant.Base as Prod
+open import Cubical.Categories.Instances.BinProduct.Redundant.Base as Prod
 open import Cubical.Categories.Bifunctor as Bif
-open import Cubical.Categories.Constructions.BinProduct.Redundant.Assoc
+open import Cubical.Categories.Instances.BinProduct.Redundant.Assoc
 
 private
   variable

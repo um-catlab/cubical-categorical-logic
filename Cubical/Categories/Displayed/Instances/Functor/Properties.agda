@@ -7,7 +7,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
 open import Cubical.Categories.NaturalTransformation.Base
-import Cubical.Categories.Constructions.TotalCategory as ∫
+import Cubical.Categories.Instances.TotalCategory as ∫
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor

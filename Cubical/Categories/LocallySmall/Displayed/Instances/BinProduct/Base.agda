@@ -15,9 +15,9 @@ open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
 open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCategory
-open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base
-open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Properties
-open import Cubical.Categories.LocallySmall.Constructions.Total.Properties as TotalCat
+open import Cubical.Categories.LocallySmall.Instances.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Instances.BinProduct.Properties
+open import Cubical.Categories.LocallySmall.Instances.Total.Properties as TotalCat
 
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small

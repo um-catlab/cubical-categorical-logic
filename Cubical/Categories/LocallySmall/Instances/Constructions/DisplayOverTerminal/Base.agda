@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Constructions.DisplayOverTerminal.Base where
+module Cubical.Categories.LocallySmall.Instances.DisplayOverTerminal.Base where
 
 open import Cubical.Foundations.Function
 

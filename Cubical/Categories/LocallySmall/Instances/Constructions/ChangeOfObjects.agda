@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Constructions.ChangeOfObjects where
+module Cubical.Categories.LocallySmall.Instances.ChangeOfObjects where
 
 open import Cubical.Foundations.Prelude
 

@@ -10,7 +10,7 @@ open import Cubical.Data.Sigma.More
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.LocallySmall.Category.Base
-open import Cubical.Categories.LocallySmall.Constructions.DisplayOverTerminal.Base
+open import Cubical.Categories.LocallySmall.Instances.DisplayOverTerminal.Base
 open import Cubical.Categories.LocallySmall.Instances.Unit
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor.Base

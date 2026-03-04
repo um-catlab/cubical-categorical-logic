@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Constructions.Total.Properties where
+module Cubical.Categories.LocallySmall.Instances.Total.Properties where
 
 open import Cubical.Foundations.Prelude
 

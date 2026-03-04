@@ -1,4 +1,4 @@
-module Cubical.Categories.LocallySmall.Constructions.BinProduct.Properties where
+module Cubical.Categories.LocallySmall.Instances.BinProduct.Properties where
 
 
 open import Cubical.Data.Sigma
@@ -7,7 +7,7 @@ open import Cubical.Data.Sigma.More
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Functor
-open import Cubical.Categories.LocallySmall.Constructions.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Instances.BinProduct.Base
 
 open Category
 open Σω

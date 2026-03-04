@@ -8,7 +8,7 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables
-open import Cubical.Categories.LocallySmall.Constructions.BinProduct
+open import Cubical.Categories.LocallySmall.Instances.BinProduct
 open import Cubical.Categories.LocallySmall.Functor.Base
 
 

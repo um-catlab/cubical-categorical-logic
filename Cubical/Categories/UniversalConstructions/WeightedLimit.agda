@@ -29,5 +29,5 @@ module _ {C : Category ℓC ℓC'} {K : Category ℓK ℓK'}
   -- c → lim^W_k c⟨k⟩ =~ W → C [ c , c⟨k⟩ ]
   WeightedLimitSpec : Functor (C ^op) (SET _)
   WeightedLimitSpec =
-    (FUNCTOR K (SET (ℓ-max ℓC' ℓS)) [ LiftF {ℓS}{ℓC'} ∘F W ,-])
-    ∘F λFr _ _ (LiftF {ℓC'}{ℓS} ∘F HomFunctor C ∘F (Id {C = C ^op} ×F c⟨k⟩))
+    (FUNCTOR K (SET (ℓ-max ℓC' ℓS)) [ LiftF ℓC' ∘F W ,-])
+    ∘F λFr _ _ (LiftF ℓS ∘F HomFunctor C ∘F (Id {C = C ^op} ×F c⟨k⟩))

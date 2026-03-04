@@ -105,11 +105,11 @@ module UniversalElementNotation {ℓo}{ℓh}
   REPR : Representation C P
   REPR = universalElementToRepresentation C P ue
 
-  unIntroNT : NatTrans (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
-                       (LiftF {ℓ' = ℓh} ∘F P)
+  unIntroNT : NatTrans (LiftF ℓp ∘F (C [-, vertex ]))
+                       (LiftF ℓh ∘F P)
   unIntroNT = REPR .snd .NatIso.trans
 
-  introNI : NatIso (LiftF {ℓ' = ℓh} ∘F P) (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
+  introNI : NatIso (LiftF ℓh ∘F P) (LiftF ℓp ∘F (C [-, vertex ]))
   introNI = symNatIso (REPR .snd)
 
   universalIso : ∀ (c : C .ob) → Iso (C [ c , vertex ]) ⟨ P ⟅ c ⟆ ⟩

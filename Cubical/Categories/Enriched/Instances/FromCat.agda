@@ -28,7 +28,7 @@ module _ (C : Category ℓ ℓ') where
 
   -- set indexed hom
   iHom : (c c' : ob C) → ob PM.𝓟
-  iHom c c' = LiftF ∘F ((SET _) [-, (C [ c , c' ]) , C .isSetHom ])
+  iHom c c' = LiftF (ℓ-suc ℓ') ∘F ((SET _) [-, (C [ c , c' ]) , C .isSetHom ])
 
   id' : {c : ob C} → PM.𝓟 [ PM.𝟙 , iHom c c ]
   id' {c} .N-ob _ tt* = lift (λ _ → C .id)

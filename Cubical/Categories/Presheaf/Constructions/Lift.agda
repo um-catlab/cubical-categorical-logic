@@ -13,4 +13,4 @@ private
     ℓ ℓ' ℓA ℓB ℓA' ℓB' ℓP ℓQ ℓS : Level
 
 LiftPsh : ∀ {C : Category ℓ ℓ'} (P : Presheaf C ℓA) (ℓ'' : Level) → Presheaf C (ℓ-max ℓA ℓ'')
-LiftPsh P ℓ'' = LiftF {ℓ' = ℓ''} ∘F P
+LiftPsh P ℓ'' = LiftF ℓ'' ∘F P

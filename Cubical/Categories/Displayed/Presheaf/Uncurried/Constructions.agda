@@ -88,7 +88,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     module Cᴰ = Fibers Cᴰ
   module _ {P : Presheaf C ℓP} where
     LiftPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ → (ℓPᴰ' : Level) → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓPᴰ')
-    LiftPshᴰ Pᴰ ℓPᴰ' = LiftF {ℓ' = ℓPᴰ'} ∘F Pᴰ
+    LiftPshᴰ Pᴰ ℓPᴰ' = LiftF ℓPᴰ' ∘F Pᴰ
 
     UnitPshᴰ : Presheafᴰ P Cᴰ ℓ-zero
     UnitPshᴰ = UnitPsh

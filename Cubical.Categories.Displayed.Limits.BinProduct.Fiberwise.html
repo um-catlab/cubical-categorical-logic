@@ -9,106 +9,106 @@
 <a id="277" class="Keyword">open</a> <a id="282" class="Keyword">import</a> <a id="289" href="Cubical.Foundations.Function.html" class="Module">Cubical.Foundations.Function</a>
 
 <a id="319" class="Keyword">open</a> <a id="324" class="Keyword">import</a> <a id="331" href="Cubical.Categories.Category.Base.html" class="Module">Cubical.Categories.Category.Base</a>
-<a id="364" class="Keyword">open</a> <a id="369" class="Keyword">import</a> <a id="376" href="Cubical.Categories.Constructions.Fiber.html" class="Module">Cubical.Categories.Constructions.Fiber</a>
-<a id="415" class="Keyword">open</a> <a id="420" class="Keyword">import</a> <a id="427" href="Cubical.Categories.Limits.BinProduct.More.html" class="Module">Cubical.Categories.Limits.BinProduct.More</a>
-<a id="469" class="Keyword">open</a> <a id="474" class="Keyword">import</a> <a id="481" href="Cubical.Categories.Presheaf.html" class="Module">Cubical.Categories.Presheaf</a>
+<a id="364" class="Keyword">open</a> <a id="369" class="Keyword">import</a> <a id="376" href="Cubical.Categories.Instances.Fiber.html" class="Module">Cubical.Categories.Instances.Fiber</a>
+<a id="411" class="Keyword">open</a> <a id="416" class="Keyword">import</a> <a id="423" href="Cubical.Categories.Limits.BinProduct.More.html" class="Module">Cubical.Categories.Limits.BinProduct.More</a>
+<a id="465" class="Keyword">open</a> <a id="470" class="Keyword">import</a> <a id="477" href="Cubical.Categories.Presheaf.html" class="Module">Cubical.Categories.Presheaf</a>
 
-<a id="510" class="Keyword">open</a> <a id="515" class="Keyword">import</a> <a id="522" href="Cubical.Categories.Displayed.Base.html" class="Module">Cubical.Categories.Displayed.Base</a>
-<a id="556" class="Keyword">open</a> <a id="561" class="Keyword">import</a> <a id="568" href="Cubical.Categories.Displayed.Presheaf.html" class="Module">Cubical.Categories.Displayed.Presheaf</a>
+<a id="506" class="Keyword">open</a> <a id="511" class="Keyword">import</a> <a id="518" href="Cubical.Categories.Displayed.Base.html" class="Module">Cubical.Categories.Displayed.Base</a>
+<a id="552" class="Keyword">open</a> <a id="557" class="Keyword">import</a> <a id="564" href="Cubical.Categories.Displayed.Presheaf.html" class="Module">Cubical.Categories.Displayed.Presheaf</a>
 
-<a id="607" class="Keyword">open</a> <a id="612" class="Keyword">import</a> <a id="619" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html" class="Module">Cubical.Categories.Displayed.Limits.BinProduct.Base</a>
+<a id="603" class="Keyword">open</a> <a id="608" class="Keyword">import</a> <a id="615" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html" class="Module">Cubical.Categories.Displayed.Limits.BinProduct.Base</a>
 
-<a id="672" class="Keyword">private</a>
-  <a id="682" class="Keyword">variable</a>
-    <a id="695" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#695" class="Generalizable">ℓC</a> <a id="698" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#698" class="Generalizable">ℓC&#39;</a> <a id="702" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#702" class="Generalizable">ℓCᴰ</a> <a id="706" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#706" class="Generalizable">ℓCᴰ&#39;</a> <a id="711" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#711" class="Generalizable">ℓD</a> <a id="714" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#714" class="Generalizable">ℓD&#39;</a> <a id="718" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#718" class="Generalizable">ℓDᴰ</a> <a id="722" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#722" class="Generalizable">ℓDᴰ&#39;</a> <a id="727" class="Symbol">:</a> <a id="729" href="Agda.Primitive.html#742" class="Postulate">Level</a>
+<a id="668" class="Keyword">private</a>
+  <a id="678" class="Keyword">variable</a>
+    <a id="691" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#691" class="Generalizable">ℓC</a> <a id="694" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#694" class="Generalizable">ℓC&#39;</a> <a id="698" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#698" class="Generalizable">ℓCᴰ</a> <a id="702" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#702" class="Generalizable">ℓCᴰ&#39;</a> <a id="707" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#707" class="Generalizable">ℓD</a> <a id="710" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#710" class="Generalizable">ℓD&#39;</a> <a id="714" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#714" class="Generalizable">ℓDᴰ</a> <a id="718" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#718" class="Generalizable">ℓDᴰ&#39;</a> <a id="723" class="Symbol">:</a> <a id="725" href="Agda.Primitive.html#742" class="Postulate">Level</a>
 
-<a id="736" class="Keyword">open</a> <a id="741" href="Cubical.Categories.Category.Base.html#311" class="Module">Category</a>
-<a id="750" class="Keyword">open</a> <a id="755" href="Cubical.Categories.Presheaf.Representable.html#2859" class="Module">UniversalElement</a>
-<a id="772" class="Keyword">open</a> <a id="777" href="Cubical.Categories.Displayed.Presheaf.Representable.html#2600" class="Module">UniversalElementᴰ</a>
-<a id="795" class="Keyword">open</a> <a id="800" href="Cubical.Categories.Displayed.Presheaf.Representable.html#12993" class="Module">UniversalElementⱽ</a>
-<a id="818" class="Keyword">open</a> <a id="823" href="Cubical.Foundations.Equiv.Dependent.html#2412" class="Module">isIsoOver</a>
+<a id="732" class="Keyword">open</a> <a id="737" href="Cubical.Categories.Category.Base.html#311" class="Module">Category</a>
+<a id="746" class="Keyword">open</a> <a id="751" href="Cubical.Categories.Presheaf.Representable.html#2851" class="Module">UniversalElement</a>
+<a id="768" class="Keyword">open</a> <a id="773" href="Cubical.Categories.Displayed.Presheaf.Representable.html#2592" class="Module">UniversalElementᴰ</a>
+<a id="791" class="Keyword">open</a> <a id="796" href="Cubical.Categories.Displayed.Presheaf.Representable.html#12985" class="Module">UniversalElementⱽ</a>
+<a id="814" class="Keyword">open</a> <a id="819" href="Cubical.Foundations.Equiv.Dependent.html#2412" class="Module">isIsoOver</a>
 
-<a id="834" class="Keyword">module</a> <a id="841" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#841" class="Module">_</a> <a id="843" class="Symbol">{</a><a id="844" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#844" class="Bound">C</a> <a id="846" class="Symbol">:</a> <a id="848" href="Cubical.Categories.Category.Base.html#311" class="Record">Category</a> <a id="857" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#695" class="Generalizable">ℓC</a> <a id="860" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#698" class="Generalizable">ℓC&#39;</a><a id="863" class="Symbol">}(</a><a id="865" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#865" class="Bound">Cᴰ</a> <a id="868" class="Symbol">:</a> <a id="870" href="Cubical.Categories.Displayed.Base.html#370" class="Record">Categoryᴰ</a> <a id="880" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#844" class="Bound">C</a> <a id="882" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#702" class="Generalizable">ℓCᴰ</a> <a id="886" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#706" class="Generalizable">ℓCᴰ&#39;</a><a id="890" class="Symbol">)</a> <a id="892" class="Keyword">where</a>
-  <a id="900" class="Keyword">private</a>
-    <a id="912" class="Keyword">module</a> <a id="919" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#919" class="Module">C</a> <a id="921" class="Symbol">=</a> <a id="923" href="Cubical.Categories.Category.Base.html#311" class="Module">Category</a> <a id="932" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#844" class="Bound">C</a>
-    <a id="938" class="Keyword">module</a> <a id="945" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#945" class="Module">Cᴰ</a> <a id="948" class="Symbol">=</a> <a id="950" href="Cubical.Categories.Constructions.Fiber.html#796" class="Module">Fibers</a> <a id="957" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#865" class="Bound">Cᴰ</a>
+<a id="830" class="Keyword">module</a> <a id="837" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#837" class="Module">_</a> <a id="839" class="Symbol">{</a><a id="840" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#840" class="Bound">C</a> <a id="842" class="Symbol">:</a> <a id="844" href="Cubical.Categories.Category.Base.html#311" class="Record">Category</a> <a id="853" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#691" class="Generalizable">ℓC</a> <a id="856" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#694" class="Generalizable">ℓC&#39;</a><a id="859" class="Symbol">}(</a><a id="861" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#861" class="Bound">Cᴰ</a> <a id="864" class="Symbol">:</a> <a id="866" href="Cubical.Categories.Displayed.Base.html#370" class="Record">Categoryᴰ</a> <a id="876" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#840" class="Bound">C</a> <a id="878" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#698" class="Generalizable">ℓCᴰ</a> <a id="882" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#702" class="Generalizable">ℓCᴰ&#39;</a><a id="886" class="Symbol">)</a> <a id="888" class="Keyword">where</a>
+  <a id="896" class="Keyword">private</a>
+    <a id="908" class="Keyword">module</a> <a id="915" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#915" class="Module">C</a> <a id="917" class="Symbol">=</a> <a id="919" href="Cubical.Categories.Category.Base.html#311" class="Module">Category</a> <a id="928" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#840" class="Bound">C</a>
+    <a id="934" class="Keyword">module</a> <a id="941" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#941" class="Module">Cᴰ</a> <a id="944" class="Symbol">=</a> <a id="946" href="Cubical.Categories.Instances.Fiber.html#788" class="Module">Fibers</a> <a id="953" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#861" class="Bound">Cᴰ</a>
 
-  <a id="963" class="Keyword">module</a> <a id="970" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#970" class="Module">_</a> <a id="972" class="Symbol">{</a><a id="973" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#973" class="Bound">a</a><a id="974" class="Symbol">}</a> <a id="976" class="Symbol">{</a><a id="977" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#977" class="Bound">aᴰ₁</a> <a id="981" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#981" class="Bound">aᴰ₂</a><a id="984" class="Symbol">}</a> <a id="986" class="Symbol">(</a><a id="987" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#987" class="Bound">bpⱽ</a> <a id="991" class="Symbol">:</a> <a id="993" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html#2876" class="Function">BinProductⱽ</a> <a id="1005" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#865" class="Bound">Cᴰ</a> <a id="1008" class="Symbol">(</a><a id="1009" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#977" class="Bound">aᴰ₁</a> <a id="1013" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1015" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#981" class="Bound">aᴰ₂</a><a id="1018" class="Symbol">))</a> <a id="1021" class="Keyword">where</a>
-    <a id="1031" class="Keyword">private</a>
-      <a id="1045" class="Keyword">module</a> <a id="1052" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1052" class="Module">a₁×ⱽa₂</a> <a id="1059" class="Symbol">=</a> <a id="1061" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html#3235" class="Module">BinProductⱽNotation</a> <a id="1081" class="Symbol">_</a> <a id="1083" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#987" class="Bound">bpⱽ</a>
+  <a id="959" class="Keyword">module</a> <a id="966" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#966" class="Module">_</a> <a id="968" class="Symbol">{</a><a id="969" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#969" class="Bound">a</a><a id="970" class="Symbol">}</a> <a id="972" class="Symbol">{</a><a id="973" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#973" class="Bound">aᴰ₁</a> <a id="977" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#977" class="Bound">aᴰ₂</a><a id="980" class="Symbol">}</a> <a id="982" class="Symbol">(</a><a id="983" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#983" class="Bound">bpⱽ</a> <a id="987" class="Symbol">:</a> <a id="989" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html#2864" class="Function">BinProductⱽ</a> <a id="1001" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#861" class="Bound">Cᴰ</a> <a id="1004" class="Symbol">(</a><a id="1005" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#973" class="Bound">aᴰ₁</a> <a id="1009" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1011" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#977" class="Bound">aᴰ₂</a><a id="1014" class="Symbol">))</a> <a id="1017" class="Keyword">where</a>
+    <a id="1027" class="Keyword">private</a>
+      <a id="1041" class="Keyword">module</a> <a id="1048" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1048" class="Module">a₁×ⱽa₂</a> <a id="1055" class="Symbol">=</a> <a id="1057" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html#3223" class="Module">BinProductⱽNotation</a> <a id="1077" class="Symbol">_</a> <a id="1079" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#983" class="Bound">bpⱽ</a>
 
-    <a id="1092" class="Keyword">opaque</a>
-      <a id="1105" class="Keyword">unfolding</a> <a id="1115" href="Cubical.Foundations.More.html#4342" class="Function">hSetReasoning.reind</a>
-      <a id="1141" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1141" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1169" class="Symbol">:</a> <a id="1171" href="Cubical.Categories.Limits.BinProduct.More.html#1736" class="Function">BinProduct</a> <a id="1182" href="Cubical.Categories.Constructions.Fiber.html#1171" class="Function Operator">Cᴰ.v[</a> <a id="1188" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#973" class="Bound">a</a> <a id="1190" href="Cubical.Categories.Constructions.Fiber.html#1171" class="Function Operator">]</a> <a id="1192" class="Symbol">(</a><a id="1193" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#977" class="Bound">aᴰ₁</a> <a id="1197" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1199" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#981" class="Bound">aᴰ₂</a><a id="1202" class="Symbol">)</a>
-      <a id="1210" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1141" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1238" class="Symbol">.</a><a id="1239" href="Cubical.Categories.Presheaf.Representable.html#2930" class="Field">vertex</a> <a id="1246" class="Symbol">=</a> <a id="1248" href="Cubical.Categories.Displayed.Presheaf.Representable.html#13096" class="Field">a₁×ⱽa₂.×ueⱽ.vertexⱽ</a>
-      <a id="1274" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1141" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1302" class="Symbol">.</a><a id="1303" href="Cubical.Categories.Presheaf.Representable.html#2951" class="Field">element</a> <a id="1311" class="Symbol">=</a> <a id="1313" href="Cubical.Categories.Displayed.Presheaf.Representable.html#13123" class="Field">a₁×ⱽa₂.×ueⱽ.elementⱽ</a>
-      <a id="1340" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1141" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1368" class="Symbol">.</a><a id="1369" href="Cubical.Categories.Presheaf.Representable.html#2987" class="Field">universal</a> <a id="1379" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1379" class="Bound">Γᴰ</a> <a id="1382" class="Symbol">=</a>
-        <a id="1392" href="Cubical.Foundations.Isomorphism.html#3527" class="Function">isIsoToIsEquiv</a>
-            <a id="1419" class="Symbol">(</a> <a id="1421" href="Cubical.Categories.Displayed.Presheaf.Representable.html#13979" class="Function">a₁×ⱽa₂.×ueⱽ.introⱽ</a>
-            <a id="1452" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1454" class="Symbol">(λ</a> <a id="1457" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1457" class="Bound">f</a> <a id="1459" class="Symbol">→</a> <a id="1461" href="Cubical.Categories.Displayed.Presheaf.Base.html#3097" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.rectify</a> <a id="1486" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1488" href="Cubical.Foundations.More.html#3692" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.≡out</a> <a id="1510" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a>
-                <a id="1528" class="Symbol">(</a><a id="1529" href="Cubical.Foundations.Prelude.html#945" class="Function">sym</a> <a id="1533" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1535" href="Cubical.Foundations.More.html#4502" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler</a> <a id="1565" class="Symbol">_)</a>
-                <a id="1584" href="Cubical.Foundations.Prelude.html#5184" class="Function Operator">∙</a> <a id="1586" href="Cubical.Categories.Displayed.Presheaf.Representable.html#3620" class="Function">a₁×ⱽa₂.×ueⱽ.βᴰ</a>
-                <a id="1617" class="Symbol">)</a>
-            <a id="1631" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1633" class="Symbol">λ</a> <a id="1635" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1635" class="Bound">f</a> <a id="1637" class="Symbol">→</a> <a id="1639" href="Cubical.Categories.Constructions.Fiber.html#1091" class="Function">Cᴰ.rectify</a> <a id="1650" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1652" href="Cubical.Foundations.More.html#3692" class="Function">Cᴰ.≡out</a> <a id="1660" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a>
-                <a id="1678" href="Cubical.Categories.Displayed.Presheaf.Representable.html#3515" class="Function">a₁×ⱽa₂.×ueⱽ.introᴰ≡</a> <a id="1698" class="Symbol">(</a><a id="1699" href="Cubical.Foundations.Prelude.html#945" class="Function">sym</a> <a id="1703" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1705" href="Cubical.Foundations.More.html#4502" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler</a> <a id="1735" class="Symbol">_)</a>
-                <a id="1754" class="Symbol">)</a>
+    <a id="1088" class="Keyword">opaque</a>
+      <a id="1101" class="Keyword">unfolding</a> <a id="1111" href="Cubical.Foundations.More.html#4342" class="Function">hSetReasoning.reind</a>
+      <a id="1137" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1137" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1165" class="Symbol">:</a> <a id="1167" href="Cubical.Categories.Limits.BinProduct.More.html#1728" class="Function">BinProduct</a> <a id="1178" href="Cubical.Categories.Instances.Fiber.html#1163" class="Function Operator">Cᴰ.v[</a> <a id="1184" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#969" class="Bound">a</a> <a id="1186" href="Cubical.Categories.Instances.Fiber.html#1163" class="Function Operator">]</a> <a id="1188" class="Symbol">(</a><a id="1189" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#973" class="Bound">aᴰ₁</a> <a id="1193" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1195" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#977" class="Bound">aᴰ₂</a><a id="1198" class="Symbol">)</a>
+      <a id="1206" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1137" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1234" class="Symbol">.</a><a id="1235" href="Cubical.Categories.Presheaf.Representable.html#2922" class="Field">vertex</a> <a id="1242" class="Symbol">=</a> <a id="1244" href="Cubical.Categories.Displayed.Presheaf.Representable.html#13088" class="Field">a₁×ⱽa₂.×ueⱽ.vertexⱽ</a>
+      <a id="1270" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1137" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1298" class="Symbol">.</a><a id="1299" href="Cubical.Categories.Presheaf.Representable.html#2943" class="Field">element</a> <a id="1307" class="Symbol">=</a> <a id="1309" href="Cubical.Categories.Displayed.Presheaf.Representable.html#13115" class="Field">a₁×ⱽa₂.×ueⱽ.elementⱽ</a>
+      <a id="1336" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1137" class="Function">BinProductⱽ→BinProductFiber</a> <a id="1364" class="Symbol">.</a><a id="1365" href="Cubical.Categories.Presheaf.Representable.html#2979" class="Field">universal</a> <a id="1375" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1375" class="Bound">Γᴰ</a> <a id="1378" class="Symbol">=</a>
+        <a id="1388" href="Cubical.Foundations.Isomorphism.html#3527" class="Function">isIsoToIsEquiv</a>
+            <a id="1415" class="Symbol">(</a> <a id="1417" href="Cubical.Categories.Displayed.Presheaf.Representable.html#13971" class="Function">a₁×ⱽa₂.×ueⱽ.introⱽ</a>
+            <a id="1448" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1450" class="Symbol">(λ</a> <a id="1453" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1453" class="Bound">f</a> <a id="1455" class="Symbol">→</a> <a id="1457" href="Cubical.Categories.Displayed.Presheaf.Base.html#3081" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.rectify</a> <a id="1482" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1484" href="Cubical.Foundations.More.html#3692" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.≡out</a> <a id="1506" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a>
+                <a id="1524" class="Symbol">(</a><a id="1525" href="Cubical.Foundations.Prelude.html#945" class="Function">sym</a> <a id="1529" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1531" href="Cubical.Foundations.More.html#4502" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler</a> <a id="1561" class="Symbol">_)</a>
+                <a id="1580" href="Cubical.Foundations.Prelude.html#5184" class="Function Operator">∙</a> <a id="1582" href="Cubical.Categories.Displayed.Presheaf.Representable.html#3612" class="Function">a₁×ⱽa₂.×ueⱽ.βᴰ</a>
+                <a id="1613" class="Symbol">)</a>
+            <a id="1627" href="Agda.Builtin.Sigma.html#235" class="InductiveConstructor Operator">,</a> <a id="1629" class="Symbol">λ</a> <a id="1631" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1631" class="Bound">f</a> <a id="1633" class="Symbol">→</a> <a id="1635" href="Cubical.Categories.Instances.Fiber.html#1083" class="Function">Cᴰ.rectify</a> <a id="1646" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1648" href="Cubical.Foundations.More.html#3692" class="Function">Cᴰ.≡out</a> <a id="1656" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a>
+                <a id="1674" href="Cubical.Categories.Displayed.Presheaf.Representable.html#3507" class="Function">a₁×ⱽa₂.×ueⱽ.introᴰ≡</a> <a id="1694" class="Symbol">(</a><a id="1695" href="Cubical.Foundations.Prelude.html#945" class="Function">sym</a> <a id="1699" href="Cubical.Foundations.Function.html#767" class="Function Operator">$</a> <a id="1701" href="Cubical.Foundations.More.html#4502" class="Function">a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler</a> <a id="1731" class="Symbol">_)</a>
+                <a id="1750" class="Symbol">)</a>
 
-  <a id="1759" class="Comment">-- TODO: prove that cartesian lifts preserves these binary products</a>
-  <a id="1829" class="Comment">-- cartesianLift-preserves-BinProductFiber :</a>
-  <a id="1876" class="Comment">--   ∀ {a b aᴰ₁ aᴰ₂}</a>
-  <a id="1899" class="Comment">--   → (isFib : isFibration Cᴰ)</a>
-  <a id="1933" class="Comment">--   → (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂))</a>
-  <a id="1977" class="Comment">--   → (f : C [ b , a ])</a>
-  <a id="2004" class="Comment">--   → preservesBinProduct (CatFib.CartesianLiftF-fiber Cᴰ isFib f)</a>
-  <a id="2074" class="Comment">--     (BinProductⱽ→BinProductFiber bpⱽ)</a>
-  <a id="2117" class="Comment">-- cartesianLift-preserves-BinProductFiber {b = b}{aᴰ₁}{aᴰ₂} isFib bpⱽ f bᴰ = isIsoToIsEquiv</a>
-  <a id="2212" class="Comment">--   ( (λ (fⱽ₁ , fⱽ₂) → f*×.intro (bpⱽ.×ueⱽ.introᴰ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))</a>
-  <a id="2311" class="Comment">--   , (λ (fⱽ₁ , fⱽ₂) → ΣPathP</a>
-  <a id="2344" class="Comment">--       -- This part of the proof can probably be simplified</a>
-  <a id="2408" class="Comment">--       ((Cᴰ.rectify $ Cᴰ.≡out $</a>
-  <a id="2444" class="Comment">--         (sym $ Cᴰ.reind-filler _)</a>
-  <a id="2483" class="Comment">--         ∙ f*aᴰ₁.introL-natural</a>
-  <a id="2519" class="Comment">--         ∙ f*aᴰ₁.introCL≡&#39; (C.⋆IdL _)</a>
-  <a id="2561" class="Comment">--           ((sym $ Cᴰ.reind-filler _)</a>
-  <a id="2603" class="Comment">--           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
-  <a id="2674" class="Comment">--           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
-  <a id="2715" class="Comment">--           ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩</a>
-  <a id="2756" class="Comment">--           ∙ Cᴰ.reind-filler _</a>
-  <a id="2791" class="Comment">--           ∙ bpⱽ.∫×βⱽ₁))</a>
-  <a id="2820" class="Comment">--       , (Cᴰ.rectify $ Cᴰ.≡out $</a>
-  <a id="2857" class="Comment">--         (sym $ Cᴰ.reind-filler _)</a>
-  <a id="2896" class="Comment">--         ∙ f*aᴰ₂.introCL-natural</a>
-  <a id="2933" class="Comment">--         ∙ f*aᴰ₂.introCL≡&#39; (C.⋆IdL _)</a>
-  <a id="2975" class="Comment">--           ((sym $ Cᴰ.reind-filler _)</a>
-  <a id="3017" class="Comment">--           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
-  <a id="3088" class="Comment">--           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
-  <a id="3129" class="Comment">--           ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩</a>
-  <a id="3170" class="Comment">--           ∙ Cᴰ.reind-filler _</a>
-  <a id="3205" class="Comment">--           ∙ bpⱽ.∫×βⱽ₂))</a>
-  <a id="3234" class="Comment">--       ))</a>
-  <a id="3248" class="Comment">--   , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $</a>
-  <a id="3287" class="Comment">--         f*×.introCL≡ (bpⱽ.,ⱽ≡</a>
-  <a id="3322" class="Comment">--           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩</a>
-  <a id="3378" class="Comment">--             ∙ Cᴰ.⋆Assoc _ _ _</a>
-  <a id="3413" class="Comment">--             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₁.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
-  <a id="3498" class="Comment">--             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
-  <a id="3541" class="Comment">--             ∙ Cᴰ.reind-filler _)</a>
-  <a id="3579" class="Comment">--           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩</a>
-  <a id="3635" class="Comment">--             ∙ Cᴰ.⋆Assoc _ _ _</a>
-  <a id="3670" class="Comment">--             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₂.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
-  <a id="3755" class="Comment">--             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
-  <a id="3798" class="Comment">--             ∙ Cᴰ.reind-filler _))</a>
-  <a id="3837" class="Comment">--     )</a>
-  <a id="3848" class="Comment">--   where</a>
-  <a id="3861" class="Comment">--   module f*× = CartesianLift (isFib (vertexⱽ bpⱽ) f)</a>
-  <a id="3919" class="Comment">--   module f*aᴰ₁ = CartesianLift (isFib aᴰ₁ f)</a>
-  <a id="3969" class="Comment">--   module f*aᴰ₂ = CartesianLift (isFib aᴰ₂ f)</a>
-  <a id="4019" class="Comment">--   module bpⱽ = BinProductⱽNotation _ bpⱽ</a>
-  <a id="4065" class="Comment">--   module f*⟨aᴰ₁×aᴰ₂⟩ = PresheafNotation (BinProductProf Cᴰ.v[ b ] ⟅ f*aᴰ₁.p*Pᴰ , f*aᴰ₂.p*Pᴰ ⟆)</a>
+  <a id="1755" class="Comment">-- TODO: prove that cartesian lifts preserves these binary products</a>
+  <a id="1825" class="Comment">-- cartesianLift-preserves-BinProductFiber :</a>
+  <a id="1872" class="Comment">--   ∀ {a b aᴰ₁ aᴰ₂}</a>
+  <a id="1895" class="Comment">--   → (isFib : isFibration Cᴰ)</a>
+  <a id="1929" class="Comment">--   → (bpⱽ : BinProductⱽ Cᴰ (aᴰ₁ , aᴰ₂))</a>
+  <a id="1973" class="Comment">--   → (f : C [ b , a ])</a>
+  <a id="2000" class="Comment">--   → preservesBinProduct (CatFib.CartesianLiftF-fiber Cᴰ isFib f)</a>
+  <a id="2070" class="Comment">--     (BinProductⱽ→BinProductFiber bpⱽ)</a>
+  <a id="2113" class="Comment">-- cartesianLift-preserves-BinProductFiber {b = b}{aᴰ₁}{aᴰ₂} isFib bpⱽ f bᴰ = isIsoToIsEquiv</a>
+  <a id="2208" class="Comment">--   ( (λ (fⱽ₁ , fⱽ₂) → f*×.intro (bpⱽ.×ueⱽ.introᴰ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))</a>
+  <a id="2307" class="Comment">--   , (λ (fⱽ₁ , fⱽ₂) → ΣPathP</a>
+  <a id="2340" class="Comment">--       -- This part of the proof can probably be simplified</a>
+  <a id="2404" class="Comment">--       ((Cᴰ.rectify $ Cᴰ.≡out $</a>
+  <a id="2440" class="Comment">--         (sym $ Cᴰ.reind-filler _)</a>
+  <a id="2479" class="Comment">--         ∙ f*aᴰ₁.introL-natural</a>
+  <a id="2515" class="Comment">--         ∙ f*aᴰ₁.introCL≡&#39; (C.⋆IdL _)</a>
+  <a id="2557" class="Comment">--           ((sym $ Cᴰ.reind-filler _)</a>
+  <a id="2599" class="Comment">--           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
+  <a id="2670" class="Comment">--           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
+  <a id="2711" class="Comment">--           ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩</a>
+  <a id="2752" class="Comment">--           ∙ Cᴰ.reind-filler _</a>
+  <a id="2787" class="Comment">--           ∙ bpⱽ.∫×βⱽ₁))</a>
+  <a id="2816" class="Comment">--       , (Cᴰ.rectify $ Cᴰ.≡out $</a>
+  <a id="2853" class="Comment">--         (sym $ Cᴰ.reind-filler _)</a>
+  <a id="2892" class="Comment">--         ∙ f*aᴰ₂.introCL-natural</a>
+  <a id="2929" class="Comment">--         ∙ f*aᴰ₂.introCL≡&#39; (C.⋆IdL _)</a>
+  <a id="2971" class="Comment">--           ((sym $ Cᴰ.reind-filler _)</a>
+  <a id="3013" class="Comment">--           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
+  <a id="3084" class="Comment">--           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
+  <a id="3125" class="Comment">--           ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩</a>
+  <a id="3166" class="Comment">--           ∙ Cᴰ.reind-filler _</a>
+  <a id="3201" class="Comment">--           ∙ bpⱽ.∫×βⱽ₂))</a>
+  <a id="3230" class="Comment">--       ))</a>
+  <a id="3244" class="Comment">--   , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $</a>
+  <a id="3283" class="Comment">--         f*×.introCL≡ (bpⱽ.,ⱽ≡</a>
+  <a id="3318" class="Comment">--           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩</a>
+  <a id="3374" class="Comment">--             ∙ Cᴰ.⋆Assoc _ _ _</a>
+  <a id="3409" class="Comment">--             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₁.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
+  <a id="3494" class="Comment">--             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
+  <a id="3537" class="Comment">--             ∙ Cᴰ.reind-filler _)</a>
+  <a id="3575" class="Comment">--           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩</a>
+  <a id="3631" class="Comment">--             ∙ Cᴰ.⋆Assoc _ _ _</a>
+  <a id="3666" class="Comment">--             ∙ Cᴰ.⟨ refl ⟩⋆⟨ f*aᴰ₂.βCL ∙ Cᴰ.⋆IdL _ ∙ (sym $ Cᴰ.reind-filler _) ⟩</a>
+  <a id="3751" class="Comment">--             ∙ (sym $ Cᴰ.⋆Assoc _ _ _)</a>
+  <a id="3794" class="Comment">--             ∙ Cᴰ.reind-filler _))</a>
+  <a id="3833" class="Comment">--     )</a>
+  <a id="3844" class="Comment">--   where</a>
+  <a id="3857" class="Comment">--   module f*× = CartesianLift (isFib (vertexⱽ bpⱽ) f)</a>
+  <a id="3915" class="Comment">--   module f*aᴰ₁ = CartesianLift (isFib aᴰ₁ f)</a>
+  <a id="3965" class="Comment">--   module f*aᴰ₂ = CartesianLift (isFib aᴰ₂ f)</a>
+  <a id="4015" class="Comment">--   module bpⱽ = BinProductⱽNotation _ bpⱽ</a>
+  <a id="4061" class="Comment">--   module f*⟨aᴰ₁×aᴰ₂⟩ = PresheafNotation (BinProductProf Cᴰ.v[ b ] ⟅ f*aᴰ₁.p*Pᴰ , f*aᴰ₂.p*Pᴰ ⟆)</a>
 
-  <a id="4166" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4166" class="Function">BinProductsWithⱽ→BinProductsWithFiber</a> <a id="4204" class="Symbol">:</a> <a id="4206" class="Symbol">∀</a> <a id="4208" class="Symbol">{</a><a id="4209" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4209" class="Bound">a</a><a id="4210" class="Symbol">}</a> <a id="4212" class="Symbol">{</a><a id="4213" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4213" class="Bound">aᴰ</a><a id="4215" class="Symbol">}</a>
-    <a id="4221" class="Symbol">→</a> <a id="4223" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html#3111" class="Function">BinProductsWithⱽ</a> <a id="4240" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#865" class="Bound">Cᴰ</a> <a id="4243" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4213" class="Bound">aᴰ</a>
-    <a id="4250" class="Symbol">→</a> <a id="4252" href="Cubical.Categories.Limits.BinProduct.More.html#2065" class="Function">BinProductsWith</a> <a id="4268" href="Cubical.Categories.Constructions.Fiber.html#1171" class="Function Operator">Cᴰ.v[</a> <a id="4274" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4209" class="Bound">a</a> <a id="4276" href="Cubical.Categories.Constructions.Fiber.html#1171" class="Function Operator">]</a> <a id="4278" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4213" class="Bound">aᴰ</a>
-  <a id="4283" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4166" class="Function">BinProductsWithⱽ→BinProductsWithFiber</a> <a id="4321" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4321" class="Bound">-×ⱽaᴰ</a> <a id="4327" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4327" class="Bound">aᴰ&#39;</a> <a id="4331" class="Symbol">=</a>
-    <a id="4337" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1141" class="Function">BinProductⱽ→BinProductFiber</a> <a id="4365" class="Symbol">(</a><a id="4366" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4321" class="Bound">-×ⱽaᴰ</a> <a id="4372" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4327" class="Bound">aᴰ&#39;</a><a id="4375" class="Symbol">)</a>
+  <a id="4162" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4162" class="Function">BinProductsWithⱽ→BinProductsWithFiber</a> <a id="4200" class="Symbol">:</a> <a id="4202" class="Symbol">∀</a> <a id="4204" class="Symbol">{</a><a id="4205" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4205" class="Bound">a</a><a id="4206" class="Symbol">}</a> <a id="4208" class="Symbol">{</a><a id="4209" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4209" class="Bound">aᴰ</a><a id="4211" class="Symbol">}</a>
+    <a id="4217" class="Symbol">→</a> <a id="4219" href="Cubical.Categories.Displayed.Limits.BinProduct.Base.html#3099" class="Function">BinProductsWithⱽ</a> <a id="4236" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#861" class="Bound">Cᴰ</a> <a id="4239" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4209" class="Bound">aᴰ</a>
+    <a id="4246" class="Symbol">→</a> <a id="4248" href="Cubical.Categories.Limits.BinProduct.More.html#2057" class="Function">BinProductsWith</a> <a id="4264" href="Cubical.Categories.Instances.Fiber.html#1163" class="Function Operator">Cᴰ.v[</a> <a id="4270" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4205" class="Bound">a</a> <a id="4272" href="Cubical.Categories.Instances.Fiber.html#1163" class="Function Operator">]</a> <a id="4274" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4209" class="Bound">aᴰ</a>
+  <a id="4279" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4162" class="Function">BinProductsWithⱽ→BinProductsWithFiber</a> <a id="4317" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4317" class="Bound">-×ⱽaᴰ</a> <a id="4323" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4323" class="Bound">aᴰ&#39;</a> <a id="4327" class="Symbol">=</a>
+    <a id="4333" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#1137" class="Function">BinProductⱽ→BinProductFiber</a> <a id="4361" class="Symbol">(</a><a id="4362" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4317" class="Bound">-×ⱽaᴰ</a> <a id="4368" href="Cubical.Categories.Displayed.Limits.BinProduct.Fiberwise.html#4323" class="Bound">aᴰ&#39;</a><a id="4371" class="Symbol">)</a>
 </pre></body></html>

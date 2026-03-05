@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html><head><meta charset="utf-8"><title>Cubical.Categories.Instances.ChangeOfObjects</title><link rel="stylesheet" href="Agda.css"></head><body><pre class="Agda"><a id="1" class="Comment">{-
+
+  Given a category C and a function X → C .ob, make a new category
+  whose objects are X and morphisms are given by C.
+
+  This is useful for cleaning up compositional constructions that end
+  up with useless data in the objects like X × 1.
+
+-}</a>
+<a id="249" class="Keyword">module</a> <a id="256" href="Cubical.Categories.Instances.ChangeOfObjects.html" class="Module">Cubical.Categories.Instances.ChangeOfObjects</a> <a id="301" class="Keyword">where</a>
+
+<a id="308" class="Keyword">open</a> <a id="313" class="Keyword">import</a> <a id="320" href="Cubical.Foundations.Prelude.html" class="Module">Cubical.Foundations.Prelude</a>
+<a id="348" class="Keyword">open</a> <a id="353" class="Keyword">import</a> <a id="360" href="Cubical.Foundations.Equiv.html" class="Module">Cubical.Foundations.Equiv</a>
+<a id="386" class="Keyword">open</a> <a id="391" class="Keyword">import</a> <a id="398" href="Cubical.Foundations.Equiv.Properties.html" class="Module">Cubical.Foundations.Equiv.Properties</a>
+<a id="435" class="Keyword">open</a> <a id="440" class="Keyword">import</a> <a id="447" href="Cubical.Functions.Embedding.html" class="Module">Cubical.Functions.Embedding</a>
+<a id="475" class="Keyword">open</a> <a id="480" class="Keyword">import</a> <a id="487" href="Cubical.Data.Sigma.html" class="Module">Cubical.Data.Sigma</a>
+<a id="506" class="Keyword">open</a> <a id="511" class="Keyword">import</a> <a id="518" href="Cubical.HITs.PropositionalTruncation.html" class="Module">Cubical.HITs.PropositionalTruncation</a> <a id="555" class="Symbol">as</a> <a id="558" class="Module">PropTrunc</a>
+
+<a id="569" class="Keyword">open</a> <a id="574" class="Keyword">import</a> <a id="581" href="Cubical.Categories.Category.html" class="Module">Cubical.Categories.Category</a>
+<a id="609" class="Keyword">open</a> <a id="614" class="Keyword">import</a> <a id="621" href="Cubical.Categories.Functor.html" class="Module">Cubical.Categories.Functor</a>
+<a id="648" class="Keyword">open</a> <a id="653" class="Keyword">import</a> <a id="660" href="Cubical.Categories.Instances.FullSubcategory.html" class="Module">Cubical.Categories.Instances.FullSubcategory</a>
+
+<a id="706" class="Keyword">private</a>
+  <a id="716" class="Keyword">variable</a>
+    <a id="729" href="Cubical.Categories.Instances.ChangeOfObjects.html#729" class="Generalizable">ℓC</a> <a id="732" href="Cubical.Categories.Instances.ChangeOfObjects.html#732" class="Generalizable">ℓC&#39;</a> <a id="736" href="Cubical.Categories.Instances.ChangeOfObjects.html#736" class="Generalizable">ℓD</a> <a id="739" href="Cubical.Categories.Instances.ChangeOfObjects.html#739" class="Generalizable">ℓD&#39;</a> <a id="743" href="Cubical.Categories.Instances.ChangeOfObjects.html#743" class="Generalizable">ℓX</a> <a id="746" class="Symbol">:</a> <a id="748" href="Agda.Primitive.html#742" class="Postulate">Level</a>
+
+
+<a id="756" class="Keyword">open</a> <a id="761" href="Cubical.Categories.Category.Base.html#311" class="Module">Category</a>
+<a id="770" class="Keyword">open</a> <a id="775" href="Cubical.Categories.Functor.Base.html#418" class="Module">Functor</a>
+
+<a id="784" class="Keyword">module</a> <a id="791" href="Cubical.Categories.Instances.ChangeOfObjects.html#791" class="Module">_</a>
+  <a id="795" class="Symbol">{</a><a id="796" href="Cubical.Categories.Instances.ChangeOfObjects.html#796" class="Bound">X</a> <a id="798" class="Symbol">:</a> <a id="800" href="Agda.Primitive.html#388" class="Primitive">Type</a> <a id="805" href="Cubical.Categories.Instances.ChangeOfObjects.html#743" class="Generalizable">ℓX</a><a id="807" class="Symbol">}</a>
+  <a id="811" class="Symbol">(</a><a id="812" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="814" class="Symbol">:</a> <a id="816" href="Cubical.Categories.Category.Base.html#311" class="Record">Category</a> <a id="825" href="Cubical.Categories.Instances.ChangeOfObjects.html#729" class="Generalizable">ℓC</a> <a id="828" href="Cubical.Categories.Instances.ChangeOfObjects.html#732" class="Generalizable">ℓC&#39;</a><a id="831" class="Symbol">)</a>
+  <a id="835" class="Symbol">(</a><a id="836" href="Cubical.Categories.Instances.ChangeOfObjects.html#836" class="Bound">F</a> <a id="838" class="Symbol">:</a> <a id="840" href="Cubical.Categories.Instances.ChangeOfObjects.html#796" class="Bound">X</a> <a id="842" class="Symbol">→</a> <a id="844" class="Symbol">(</a><a id="845" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="847" class="Symbol">.</a><a id="848" href="Cubical.Categories.Category.Base.html#437" class="Field">ob</a><a id="850" class="Symbol">))</a> <a id="853" class="Keyword">where</a>
+
+  <a id="862" class="Comment">-- This can&#39;t be defined as the FullImage of a functor out of the</a>
+  <a id="930" class="Comment">-- discrete category unless X is a hGroupoid</a>
+  <a id="977" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="993" class="Symbol">:</a> <a id="995" href="Cubical.Categories.Category.Base.html#311" class="Record">Category</a> <a id="1004" href="Cubical.Categories.Instances.ChangeOfObjects.html#805" class="Bound">ℓX</a> <a id="1007" href="Cubical.Categories.Instances.ChangeOfObjects.html#828" class="Bound">ℓC&#39;</a>
+  <a id="1013" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1029" class="Symbol">.</a><a id="1030" href="Cubical.Categories.Category.Base.html#437" class="Field">ob</a> <a id="1033" class="Symbol">=</a> <a id="1035" href="Cubical.Categories.Instances.ChangeOfObjects.html#796" class="Bound">X</a>
+  <a id="1039" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1055" class="Symbol">.</a><a id="1056" href="Cubical.Categories.Category.Base.html#453" class="Field Operator">Hom[_,_]</a> <a id="1065" href="Cubical.Categories.Instances.ChangeOfObjects.html#1065" class="Bound">x</a> <a id="1067" href="Cubical.Categories.Instances.ChangeOfObjects.html#1067" class="Bound">y</a> <a id="1069" class="Symbol">=</a> <a id="1071" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="1073" href="Cubical.Categories.Category.Base.html#1218" class="Function Operator">[</a> <a id="1075" href="Cubical.Categories.Instances.ChangeOfObjects.html#836" class="Bound">F</a> <a id="1077" href="Cubical.Categories.Instances.ChangeOfObjects.html#1065" class="Bound">x</a> <a id="1079" href="Cubical.Categories.Category.Base.html#1218" class="Function Operator">,</a> <a id="1081" href="Cubical.Categories.Instances.ChangeOfObjects.html#836" class="Bound">F</a> <a id="1083" href="Cubical.Categories.Instances.ChangeOfObjects.html#1067" class="Bound">y</a> <a id="1085" href="Cubical.Categories.Category.Base.html#1218" class="Function Operator">]</a>
+  <a id="1089" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1105" class="Symbol">.</a><a id="1106" href="Cubical.Categories.Category.Base.html#486" class="Field">id</a> <a id="1109" class="Symbol">=</a> <a id="1111" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="1113" class="Symbol">.</a><a id="1114" href="Cubical.Categories.Category.Base.html#486" class="Field">id</a>
+  <a id="1119" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1135" class="Symbol">.</a><a id="1136" href="Cubical.Categories.Category.Base.html#518" class="Field Operator">_⋆_</a> <a id="1140" class="Symbol">=</a> <a id="1142" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="1144" class="Symbol">.</a><a id="1145" href="Cubical.Categories.Category.Base.html#518" class="Field Operator">_⋆_</a>
+  <a id="1151" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1167" class="Symbol">.</a><a id="1168" href="Cubical.Categories.Category.Base.html#592" class="Field">⋆IdL</a> <a id="1173" class="Symbol">=</a> <a id="1175" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="1177" class="Symbol">.</a><a id="1178" href="Cubical.Categories.Category.Base.html#592" class="Field">⋆IdL</a>
+  <a id="1185" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1201" class="Symbol">.</a><a id="1202" href="Cubical.Categories.Category.Base.html#643" class="Field">⋆IdR</a> <a id="1207" class="Symbol">=</a> <a id="1209" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="1211" class="Symbol">.</a><a id="1212" href="Cubical.Categories.Category.Base.html#643" class="Field">⋆IdR</a>
+  <a id="1219" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1235" class="Symbol">.</a><a id="1236" href="Cubical.Categories.Category.Base.html#694" class="Field">⋆Assoc</a> <a id="1243" class="Symbol">=</a> <a id="1245" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="1247" class="Symbol">.</a><a id="1248" href="Cubical.Categories.Category.Base.html#694" class="Field">⋆Assoc</a>
+  <a id="1257" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1273" class="Symbol">.</a><a id="1274" href="Cubical.Categories.Category.Base.html#815" class="Field">isSetHom</a> <a id="1283" class="Symbol">=</a> <a id="1285" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a> <a id="1287" class="Symbol">.</a><a id="1288" href="Cubical.Categories.Category.Base.html#815" class="Field">isSetHom</a>
+
+  <a id="1300" href="Cubical.Categories.Instances.ChangeOfObjects.html#1300" class="Function">π</a> <a id="1302" class="Symbol">:</a> <a id="1304" href="Cubical.Categories.Functor.Base.html#418" class="Record">Functor</a> <a id="1312" href="Cubical.Categories.Instances.ChangeOfObjects.html#977" class="Function">ChangeOfObjects</a> <a id="1328" href="Cubical.Categories.Instances.ChangeOfObjects.html#812" class="Bound">C</a>
+  <a id="1332" href="Cubical.Categories.Instances.ChangeOfObjects.html#1300" class="Function">π</a> <a id="1334" class="Symbol">.</a><a id="1335" href="Cubical.Categories.Functor.Base.html#578" class="Field">F-ob</a> <a id="1340" class="Symbol">=</a> <a id="1342" href="Cubical.Categories.Instances.ChangeOfObjects.html#836" class="Bound">F</a>
+  <a id="1346" href="Cubical.Categories.Instances.ChangeOfObjects.html#1300" class="Function">π</a> <a id="1348" class="Symbol">.</a><a id="1349" href="Cubical.Categories.Functor.Base.html#604" class="Field">F-hom</a> <a id="1355" class="Symbol">=</a> <a id="1357" class="Symbol">λ</a> <a id="1359" href="Cubical.Categories.Instances.ChangeOfObjects.html#1359" class="Bound">z</a> <a id="1361" class="Symbol">→</a> <a id="1363" href="Cubical.Categories.Instances.ChangeOfObjects.html#1359" class="Bound">z</a>
+  <a id="1367" href="Cubical.Categories.Instances.ChangeOfObjects.html#1300" class="Function">π</a> <a id="1369" class="Symbol">.</a><a id="1370" href="Cubical.Categories.Functor.Base.html#668" class="Field">F-id</a> <a id="1375" class="Symbol">=</a> <a id="1377" href="Cubical.Foundations.Prelude.html#892" class="Function">refl</a>
+  <a id="1384" href="Cubical.Categories.Instances.ChangeOfObjects.html#1300" class="Function">π</a> <a id="1386" class="Symbol">.</a><a id="1387" href="Cubical.Categories.Functor.Base.html#729" class="Field">F-seq</a> <a id="1393" class="Symbol">_</a> <a id="1395" class="Symbol">_</a> <a id="1397" class="Symbol">=</a> <a id="1399" href="Cubical.Foundations.Prelude.html#892" class="Function">refl</a>
+
+  <a id="1407" class="Comment">-- the following is the right corecursion principle but I didn&#39;t</a>
+  <a id="1474" class="Comment">-- bother to finish it bc transport and I haven&#39;t needed it yet.</a>
+  <a id="1541" class="Comment">-- If GF in this case is refl, it&#39;s easier to η expand anyway.</a>
+  <a id="1606" class="Comment">-- corec : ∀ {D : Category ℓD ℓD&#39;}</a>
+  <a id="1643" class="Comment">--   → (G : Functor D C)</a>
+  <a id="1670" class="Comment">--   → (Go : D .ob → X)</a>
+  <a id="1696" class="Comment">--   → (G .F-ob ≡ λ d → F (Go d))</a>
+  <a id="1732" class="Comment">--   → Functor D ChangeOfObjects</a>
+  <a id="1767" class="Comment">-- corec G Go GF .F-ob = Go</a>
+  <a id="1797" class="Comment">-- corec G Go GF .F-hom {x}{y} f =</a>
+  <a id="1834" class="Comment">--   transport (λ i → C [ GF i x , GF i y ]) (G .F-hom f)</a>
+  <a id="1894" class="Comment">-- corec G Go GF .F-id = {!!}</a>
+  <a id="1926" class="Comment">-- corec G Go GF .F-seq = {!!}</a>
+</pre></body></html>

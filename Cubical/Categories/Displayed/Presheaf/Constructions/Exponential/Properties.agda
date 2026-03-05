@@ -17,8 +17,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory using (∫C)
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory using (∫C)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
@@ -29,10 +29,10 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Bifunctor
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Functor.Base

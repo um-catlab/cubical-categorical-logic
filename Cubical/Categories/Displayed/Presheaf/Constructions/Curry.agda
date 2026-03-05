@@ -17,8 +17,8 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions
@@ -38,10 +38,10 @@ open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Morphism
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Base as Uncurried
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
-open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
+open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Properties
 private

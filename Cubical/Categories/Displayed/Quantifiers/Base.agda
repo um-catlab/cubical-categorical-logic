@@ -4,7 +4,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable

@@ -9,7 +9,7 @@ open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Monoidal.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More hiding (α)
-open import Cubical.Categories.Constructions.BinProduct as BP
+open import Cubical.Categories.Instances.BinProduct as BP
 
 private
   variable

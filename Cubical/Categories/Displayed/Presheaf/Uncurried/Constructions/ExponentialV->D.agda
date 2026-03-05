@@ -22,10 +22,10 @@ open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Exponentials.Small
 
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Constructions.TotalCategory as TotalCat
+open import Cubical.Categories.Instances.TotalCategory as TotalCat
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Profunctor.Relator
 open import Cubical.Categories.Presheaf.Base
@@ -45,9 +45,9 @@ open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
-open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential

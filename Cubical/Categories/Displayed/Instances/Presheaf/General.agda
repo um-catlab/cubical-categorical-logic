@@ -10,7 +10,7 @@ open import Cubical.Foundations.More
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 

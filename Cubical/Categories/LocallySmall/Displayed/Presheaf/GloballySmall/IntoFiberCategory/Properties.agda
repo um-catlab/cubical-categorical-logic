@@ -21,7 +21,7 @@ import Cubical.Categories.Functor.Base as SmallFunctor
 import Cubical.Categories.Displayed.Functor as SmallFunctorᴰ
 import Cubical.Categories.Instances.Sets as SmallCatSets
 import Cubical.Categories.Displayed.Instances.Sets as SmallCatᴰSetsᴰ
-import Cubical.Categories.Constructions.Fiber as SmallCatFiber
+import Cubical.Categories.Instances.Fiber as SmallCatFiber
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Category.Small
@@ -38,9 +38,9 @@ open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor.IntoFiberCategory
 open import Cubical.Categories.LocallySmall.Displayed.Section.Base
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Total
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Total
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Weaken
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Base
 
 open import Cubical.Categories.LocallySmall.Displayed.Presheaf.GloballySmall.IntoFiberCategory.Base

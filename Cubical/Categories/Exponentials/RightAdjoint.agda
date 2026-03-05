@@ -10,8 +10,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Adjoint.2Var
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Bifunctor
-import Cubical.Categories.Constructions.BinProduct.Redundant.Base as Redundant
-import Cubical.Categories.Constructions.BinProduct as Separate
+import Cubical.Categories.Instances.BinProduct.Redundant.Base as Redundant
+import Cubical.Categories.Instances.BinProduct as Separate
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Limits.BinProduct.More

@@ -6,8 +6,8 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.BinProduct hiding (Fst; Snd; Sym)
-import Cubical.Categories.Constructions.TotalCategory as ∫
+open import Cubical.Categories.Instances.BinProduct hiding (Fst; Snd; Sym)
+import Cubical.Categories.Instances.TotalCategory as ∫
 open import Cubical.Categories.Bifunctor
 
 open import Cubical.Categories.Displayed.Base

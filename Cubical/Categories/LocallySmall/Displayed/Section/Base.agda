@@ -41,7 +41,7 @@
        F
 
    Can be implemented as a Section (see
-   Displayed.Constructions.TotalCategory)
+   Displayed.Instances.TotalCategory)
 
             Cᴰ
           ↗ |

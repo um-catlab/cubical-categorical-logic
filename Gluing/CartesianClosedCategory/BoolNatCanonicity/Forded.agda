@@ -28,8 +28,8 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Quiver as FreeCCC
-open import Cubical.Categories.Constructions.Free.CartesianClosedCategory.Forded as FreeCCC
+open import Cubical.Categories.Instances.Free.CartesianClosedCategory.Quiver as FreeCCC
+open import Cubical.Categories.Instances.Free.CartesianClosedCategory.Forded as FreeCCC
 
 open import Gluing.Canonicity
 

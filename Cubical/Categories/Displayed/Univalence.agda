@@ -8,7 +8,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.Transport hiding (pathToIso)
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Displayed.Base
 
 private

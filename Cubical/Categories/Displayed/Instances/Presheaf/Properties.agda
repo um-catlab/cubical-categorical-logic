@@ -12,8 +12,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.Elements
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Elements
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Presheaf.CCC

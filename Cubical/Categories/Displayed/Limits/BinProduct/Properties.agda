@@ -7,7 +7,7 @@ open import Cubical.Foundations.Function
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Constructions

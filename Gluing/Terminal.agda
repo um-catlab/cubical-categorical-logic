@@ -14,7 +14,7 @@ open import Cubical.Relation.Nullary hiding (⟪_⟫)
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.Free.CategoryWithTerminal as Free
+open import Cubical.Categories.Instances.Free.CategoryWithTerminal as Free
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Base

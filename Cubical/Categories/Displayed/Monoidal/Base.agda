@@ -13,7 +13,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
 
 private
   variable

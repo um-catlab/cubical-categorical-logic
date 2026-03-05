@@ -35,7 +35,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
-open import Cubical.Categories.Constructions.TotalCategory as ∫
+open import Cubical.Categories.Instances.TotalCategory as ∫
 open import Cubical.Categories.Limits.Terminal.More hiding (preservesTerminal)
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Representable

@@ -6,7 +6,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Instances.Functors
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Equivalence.Base
 open import Cubical.Categories.Category
 

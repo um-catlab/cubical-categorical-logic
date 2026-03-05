@@ -34,7 +34,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Exponentials
 
-open import Cubical.Categories.Constructions.Fiber hiding (fiber)
+open import Cubical.Categories.Instances.Fiber hiding (fiber)
 
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base

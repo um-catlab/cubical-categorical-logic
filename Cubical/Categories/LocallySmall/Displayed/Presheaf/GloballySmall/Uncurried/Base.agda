@@ -14,8 +14,8 @@ open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCate
 open import Cubical.Categories.LocallySmall.Functor
 
 open import Cubical.Categories.LocallySmall.Displayed.Category
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Graph.Presheaf.GloballySmall.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Graph.Presheaf.GloballySmall.Base
 
 open Σω
 open Liftω

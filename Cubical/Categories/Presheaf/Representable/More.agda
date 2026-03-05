@@ -16,8 +16,8 @@ open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.Reflection.RecordEquiv
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
-open import Cubical.Categories.Constructions.Elements
-open import Cubical.Categories.Constructions.Opposite
+open import Cubical.Categories.Instances.Elements
+open import Cubical.Categories.Instances.Opposite
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Functors
@@ -105,11 +105,11 @@ module UniversalElementNotation {ℓo}{ℓh}
   REPR : Representation C P
   REPR = universalElementToRepresentation C P ue
 
-  unIntroNT : NatTrans (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
-                       (LiftF {ℓ' = ℓh} ∘F P)
+  unIntroNT : NatTrans (LiftF ℓp ∘F (C [-, vertex ]))
+                       (LiftF ℓh ∘F P)
   unIntroNT = REPR .snd .NatIso.trans
 
-  introNI : NatIso (LiftF {ℓ' = ℓh} ∘F P) (LiftF {ℓ' = ℓp} ∘F (C [-, vertex ]))
+  introNI : NatIso (LiftF ℓh ∘F P) (LiftF ℓp ∘F (C [-, vertex ]))
   introNI = symNatIso (REPR .snd)
 
   universalIso : ∀ (c : C .ob) → Iso (C [ c , vertex ]) ⟨ P ⟅ c ⟆ ⟩

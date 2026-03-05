@@ -24,7 +24,7 @@ open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Limits.BinProduct.More
 
 open import Cubical.Categories.Displayed.Base

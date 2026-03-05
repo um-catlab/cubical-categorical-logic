@@ -5,7 +5,7 @@ module Cubical.Categories.Displayed.Presheaf.CartesianLift.Base where
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category hiding (isIso)
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt

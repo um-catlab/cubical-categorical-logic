@@ -12,7 +12,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal.More

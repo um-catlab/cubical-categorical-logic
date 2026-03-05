@@ -29,8 +29,8 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Props
 open import Cubical.Categories.Presheaf.Base
@@ -52,9 +52,9 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 import Cubical.Categories.Displayed.Instances.Sets.Base as Setᴰ
 open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
-open import Cubical.Categories.Displayed.Constructions.Graph.Presheaf
-open import Cubical.Categories.Displayed.Constructions.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq
 import Cubical.Categories.Displayed.Presheaf.Base as Curried
 
 private

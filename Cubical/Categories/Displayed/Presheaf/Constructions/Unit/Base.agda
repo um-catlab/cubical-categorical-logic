@@ -5,7 +5,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Presheaf.Base
 
 open import Cubical.Categories.Displayed.Base

@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma.More
 
 open import Cubical.Categories.LocallySmall.Category.Base
 open import Cubical.Categories.LocallySmall.Variables
-open import Cubical.Categories.LocallySmall.Constructions.BinProduct
+open import Cubical.Categories.LocallySmall.Instances.BinProduct
 open import Cubical.Categories.LocallySmall.Functor.Base
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 
@@ -18,7 +18,7 @@ open import Cubical.Categories.LocallySmall.Displayed.Category.Small
 open import Cubical.Categories.LocallySmall.Displayed.Category.Properties
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
 
 open CatIso
 open CatIsoᴰ

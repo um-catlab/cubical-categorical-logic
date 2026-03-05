@@ -7,7 +7,7 @@ open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.NaturalTransformation.Properties
 open import Cubical.Categories.Functors.HomFunctor
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 
 private
   variable

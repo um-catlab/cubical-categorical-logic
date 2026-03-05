@@ -15,7 +15,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.FunctorComprehension
 
-import Cubical.Categories.Constructions.TotalCategory as TotalCat
+import Cubical.Categories.Instances.TotalCategory as TotalCat
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor

@@ -11,7 +11,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.Elements
+open import Cubical.Categories.Instances.Elements
 open import Cubical.Categories.Presheaf.CCC
 
 open import Cubical.Categories.Displayed.Base

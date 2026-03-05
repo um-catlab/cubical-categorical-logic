@@ -4,7 +4,7 @@ module Cubical.Categories.Displayed.Limits.CartesianV' where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.Constructions.Fiber
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
 open import Cubical.Categories.Presheaf.Representable

@@ -228,7 +228,7 @@ module _ (C : Category Cob CHom-ℓ) where
             (_ , reind q gᴰ)
       reind-cong p q fᴰ≡gᴰ = sym (reind-filler _ _) ∙ fᴰ≡gᴰ ∙ reind-filler _ _
 
-    -- TODO move to LocallySmall.Constructions?
+    -- TODO move to LocallySmall.Instances?
     ∫C : Category (Σω[ x ∈ Cob ] ob[ x ]) _
     ∫C .Hom[_,_] = ∫Hom[_,_]
     ∫C .id = _ , idᴰ

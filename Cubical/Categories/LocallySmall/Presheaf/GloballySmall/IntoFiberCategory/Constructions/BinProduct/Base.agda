@@ -15,7 +15,7 @@ open import Cubical.Categories.LocallySmall.Presheaf.GloballySmall.IntoFiberCate
 open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Instances.Level
 open import Cubical.Categories.LocallySmall.Instances.Functor.IntoFiberCategory
-open import Cubical.Categories.LocallySmall.Constructions.BinProduct
+open import Cubical.Categories.LocallySmall.Instances.BinProduct
   renaming (π₁ to ×Cπ₁ ; π₂ to ×Cπ₂)
 open import Cubical.Categories.LocallySmall.Bifunctor.Base
 open import Cubical.Categories.LocallySmall.Functor
@@ -24,7 +24,7 @@ open import Cubical.Categories.LocallySmall.NaturalTransformation.IntoFiberCateg
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.Instances.Sets.Base
 open import Cubical.Categories.LocallySmall.Displayed.Bifunctor.Base
 

@@ -3,11 +3,11 @@ module Cubical.Categories.Instances.Posets.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category hiding (isUnivalent)
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Constructions.StructureOver
+open import Cubical.Categories.Displayed.Instances.StructureOver
 
 open import Cubical.Relation.Binary.Preorder
 

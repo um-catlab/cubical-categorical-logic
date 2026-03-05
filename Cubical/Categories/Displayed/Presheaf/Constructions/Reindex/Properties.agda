@@ -28,7 +28,7 @@ open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Reindex.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.ReindexFunctor.Base
 open import Cubical.Categories.Displayed.Presheaf.Morphism
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
   renaming (π to Reindexπ; reindex to CatReindex)
 -- TODO make CatReindex use hSetReasoning
 

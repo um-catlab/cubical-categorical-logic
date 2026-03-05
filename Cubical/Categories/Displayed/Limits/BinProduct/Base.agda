@@ -9,8 +9,8 @@ open import Cubical.Data.Sigma as Σ hiding (_×_)
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Constructions.Fiber
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
@@ -20,7 +20,7 @@ open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.FunctorComprehension
-open import Cubical.Categories.Displayed.Constructions.BinProduct.More
+open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Presheaf.Base
 open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Presheaf.Properties

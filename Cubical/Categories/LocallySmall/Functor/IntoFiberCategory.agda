@@ -13,8 +13,8 @@ open import Cubical.Categories.LocallySmall.Variables
 open import Cubical.Categories.LocallySmall.Displayed.Category.Base
 open import Cubical.Categories.LocallySmall.Displayed.Category.Notation
 open import Cubical.Categories.LocallySmall.Displayed.Category.Small
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Base
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Reindex.Properties
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Reindex.Properties
 
 open Category
 open Categoryᴰ

@@ -20,8 +20,8 @@ open import Cubical.Categories.LocallySmall.Displayed.Instances.Functor.IntoFibe
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Base using (_∘Fᴰ_)
 import Cubical.Categories.LocallySmall.Displayed.Functor.Base as LocallySmallFᴰ
 open import Cubical.Categories.LocallySmall.Displayed.Functor.Properties using (_^opFᴰ)
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.Weaken
-open import Cubical.Categories.LocallySmall.Displayed.Constructions.BinProduct.Base
+open import Cubical.Categories.LocallySmall.Displayed.Instances.Weaken
+open import Cubical.Categories.LocallySmall.Displayed.Instances.BinProduct.Base
 open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Base
 open import Cubical.Categories.LocallySmall.Displayed.NaturalTransformation.IntoFiberCategory.Eq
 

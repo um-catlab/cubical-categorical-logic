@@ -9,8 +9,8 @@ import      Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.BinProduct.More
+open import Cubical.Categories.Instances.BinProduct
+open import Cubical.Categories.Instances.BinProduct.More
 open import Cubical.Categories.NaturalTransformation.More hiding (α)
 open import Cubical.Categories.NaturalTransformation.Reind
 

@@ -5,7 +5,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Functor.Equality
-open import Cubical.Categories.Constructions.BinProduct
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.NaturalTransformation.Base
 
 open import Cubical.Categories.Displayed.Section.Base

@@ -26,8 +26,8 @@ open import Cubical.Categories.Isomorphism.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Constructions.BinProduct
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.BinProduct
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Morphism
 open import Cubical.Categories.Isomorphism
 open import Cubical.Categories.Limits.Terminal as Term
@@ -47,11 +47,11 @@ open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Constructions.Comma
-open import Cubical.Categories.Displayed.Constructions.Weaken
-open import Cubical.Categories.Displayed.Constructions.Reindex.Base as Reindex
-open import Cubical.Categories.Displayed.Constructions.Reindex.Properties
-open import Cubical.Categories.Displayed.Constructions.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Instances.Comma
+open import Cubical.Categories.Displayed.Instances.Weaken
+open import Cubical.Categories.Displayed.Instances.Reindex.Base as Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.Properties
+open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Arrow.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Limits.CartesianV'
@@ -62,7 +62,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Expone
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
-open import Cubical.Categories.Displayed.Constructions.Reindex.UniversalProperties
+open import Cubical.Categories.Displayed.Instances.Reindex.UniversalProperties
 
 private
   variable

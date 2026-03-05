@@ -9,7 +9,7 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Constructions.TotalCategory
+open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
@@ -85,7 +85,7 @@ _[-][-,_] {C = C} D {c} d .F-idᴰ i g gᴰ = Categoryᴰ.⋆IdLᴰ D gᴰ i
 _[-][-,_] {C = C} D {c} d .F-seqᴰ fᴰ gᴰ i h hᴰ = Categoryᴰ.⋆Assocᴰ D gᴰ fᴰ hᴰ i
 
 LiftFᴰ : ∀ ℓ'' → Functorⱽ (SETᴰ ℓ ℓ') (SETᴰ ℓ (ℓ-max ℓ' ℓ''))
-LiftFᴰ ℓ'' .F-obᴰ P a = Lift {j = ℓ''} ⟨ P a ⟩ , isOfHLevelLift 2 (P a .snd)
+LiftFᴰ ℓ'' .F-obᴰ P a = Lift ℓ'' ⟨ P a ⟩ , isOfHLevelLift 2 (P a .snd)
 LiftFᴰ ℓ'' .F-homᴰ f a p = lift (f a (p .lower))
 LiftFᴰ ℓ'' .F-idᴰ = refl
 LiftFᴰ ℓ'' .F-seqᴰ fᴰ gᴰ = refl

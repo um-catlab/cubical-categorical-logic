@@ -32,9 +32,9 @@ module Model (Σ : Signature) where
   AlgModel .V = SET _
   AlgModel .C = ALG Σ
   AlgModel .O .F-ob (A , B) .Carrier = (SET _)[ A , B .Carrier ] , (SET _) .isSetHom
-  AlgModel .O .F-ob (A , B) .interp op args = λ z → B .interp op (λ z₁ → args z₁ z)
-  AlgModel .O .F-hom (f , h) .carmap g = λ z → h .carmap (g (f z))
-  AlgModel .O .F-hom (f , h) .pres op args = funExt λ a → h .pres op λ z₁ → args z₁ (f a)
+  AlgModel .O .F-ob (A , B) .interp op args = λ a → B .interp op (λ x → args x a)
+  AlgModel .O .F-hom (f , h) .carmap g a = h .carmap (g (f a))
+  AlgModel .O .F-hom (f , h) .pres op args = funExt λ a → h .pres op λ x → args x (f a)
   AlgModel .O .F-id = AlgHom≡ refl
   AlgModel .O .F-seq _ _ = AlgHom≡ refl
 

@@ -34,7 +34,6 @@ module HyperDoc.Examples.U1 where
   open Signature
   open Theory
 
-
   module BoopExample where     
     data Boop : Type where 
       boop : Boop

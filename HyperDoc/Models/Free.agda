@@ -518,7 +518,7 @@
       pres⊤ .snd f = has⊤ .snd (F-hom (FV ^opF) f)
 
       pres⋀ : Products.has⋀ LM products
-      pres⋀ B B' .Products.O⋀._⋀_ P Q = {! has⋀ ? ? .Products.O⋀._⋀_ ? ? !}
+      pres⋀ B B' .Products.O⋀._⋀_ P Q = {!   !} -- {! has⋀ ? ? .Products.O⋀._⋀_ ? ? !}
       pres⋀ B B' .Products.O⋀.⋀-elim1 = {!   !}
       pres⋀ B B' .Products.O⋀.⋀-elim2 = {!   !}
       pres⋀ B B' .Products.O⋀.⋀-intro = {!   !}

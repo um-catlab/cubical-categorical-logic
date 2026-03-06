@@ -6,9 +6,13 @@ open import Cubical.Functions.Logic
 open import Cubical.Foundations.Powerset
 open import Cubical.HITs.PropositionalTruncation.Base
 open import Cubical.HITs.PropositionalTruncation.Properties
+open import Cubical.Relation.Binary.Preorder
+open import Cubical.Categories.Instances.Preorders.Monotone
+open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint 
 open import Cubical.Categories.Category 
 open import Cubical.Categories.Functor
 open import Cubical.Foundations.Structure 
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Instances.Sets
@@ -125,6 +129,38 @@ module _ {ℓS : Level} where
   Gen-elim X baseC stepC b (base b' b'∈P ) = baseC b' b'∈P
   Gen-elim {f = f} X baseC stepC b (step a b' b'∈Gen) = stepC a b' b'∈Gen  (Gen-elim X baseC stepC b' b'∈Gen)
 
+
+module AdjSyntax {ℓ ℓ' : Level} {X Y : Preorder ℓ ℓ'}{R : MonFun Y X} (adj : HasLeftAdj R) where 
+  L : MonFun X Y 
+  L = adj .fst 
+
+  open MonFun
+
+  open _⊣_ (adj .snd) 
+  open Iso 
+  private
+    module 𝕏 = PreorderStr (X .snd)
+    module 𝕐 = PreorderStr (Y .snd)
+    module Xpre = IsPreorder (𝕏.isPreorder)
+    module Ypre = IsPreorder (𝕐.isPreorder)
+
+  LtoR : ∀ {x y} → L $ x 𝕐.≤ y → x 𝕏.≤ (R $ y)
+  LtoR = fun adjIff
+
+  RtoL : ∀ {x y} → x 𝕏.≤ (R $ y) → L $ x 𝕐.≤ y 
+  RtoL = inv adjIff
+
+  LMon : ∀ {x x'} →  x 𝕏.≤  x' → L $ x 𝕐.≤ (L $ x') 
+  LMon = L .isMon 
+
+  RMon : ∀ {y y'} →  y 𝕐.≤  y' → R $ y 𝕏.≤ (R $ y') 
+  RMon = R .isMon 
+
+  unit : ∀ {x} → x 𝕏.≤ (R $ (L $ x))
+  unit {x} = LtoR (Ypre.is-refl (L $ x))
+
+  counit : ∀ {y} → (L $ (R $ y)) 𝕐.≤ y
+  counit {y} = RtoL (Xpre.is-refl (R $ y))
 
 open import Cubical.Categories.Presheaf.Representable hiding (Representation)
 module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where

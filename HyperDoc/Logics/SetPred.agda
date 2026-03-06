@@ -92,3 +92,21 @@ module _
   has∧ .fst X .L∧.HA.and-elim1 f x Px = f x  Px .fst
   has∧ .fst X .L∧.HA.and-elim2 f x Px = f x Px .snd
   has∧ .snd f .L∧.HAHom.f-and _ _ = refl
+
+  has∨ : L∨.Has∨ Pred 
+  has∨ .fst X .L∨.HA._∨_ = _∪_ {X}
+  has∨ .fst X .L∨.HA.or-intro1 f x x∈P = ∣ _⊎_.inl (f x x∈P) ∣₁ 
+  has∨ .fst X .L∨.HA.or-intro2 f x x∈Q = ∣ _⊎_.inr (f x x∈Q) ∣₁ 
+  has∨ .fst X .L∨.HA.or-elim {P}{Q}{R} f g x = trec (∈-isProp P x ) λ {(_⊎_.inl x∈Q ) → f x x∈Q
+                                                                    ; (_⊎_.inr x∈R) → g x x∈R}                                        
+  has∨ .snd f .L∨.HAHom.f-or _ _ = refl
+
+  open import Cubical.Foundations.Isomorphism
+  open import Cubical.Data.Sigma
+  ⊎Distrib : {X Y : hSet ℓS} → Iso (ℙ (⟨ X ⟩ ⊎ ⟨ Y ⟩  )) (ℙ ⟨ X ⟩ ×  ℙ ⟨ Y ⟩)
+  ⊎Distrib {X} {Y} .Iso.fun P = (λ z → P (_⊎_.inl z)) , λ z → P (_⊎_.inr z)
+  ⊎Distrib {X} {Y} .Iso.inv (P , Q) (_⊎_.inl x) = P x
+  ⊎Distrib {X} {Y} .Iso.inv (P , Q) (_⊎_.inr y) = Q y
+  ⊎Distrib {X} {Y} .Iso.sec b = ΣPathP (refl , refl)
+  ⊎Distrib {X} {Y} .Iso.ret a = funExt λ {(_⊎_.inl x) → refl
+                                   ; (_⊎_.inr x) → refl}

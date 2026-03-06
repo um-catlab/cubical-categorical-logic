@@ -3,7 +3,8 @@
 -- reorder imports, etc
 
 module HyperDoc.CBPV.Model.Base where
-
+open import Cubical.Data.Sum
+open import Cubical.Data.Empty
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
@@ -79,6 +80,34 @@ record CBPVModel (Σ : Signature) : Type where
           (V .⋆IdR _ ∙ sym (V .⋆IdL _)) 
           (C .⋆IdR _ ∙ sym (C .⋆IdL _)) 
       ∙ funExt⁻ (cong carmap (O .F-seq _ _)) M
+
+  Collage : Category _ _ 
+  Collage  .ob = ob V ⊎ ob C
+  Hom[ Collage  , inl v ] (inl v') = V [ v , v' ]
+  Hom[ Collage  , inl v ] (inr c) = O'[ v , c ] 
+  Hom[ Collage  , inr c ] (inl v) = ⊥
+  Hom[ Collage  , inr c ] (inr c') = C [ c , c' ]
+  Collage .id {inl x} = V .id
+  Collage .id {inr x} = C .id
+  _⋆_ (Collage) {inl x} {inl x₁} {inl x₂} f g = (V ⋆ f) g 
+  _⋆_ (Collage) {inl x} {inl x₁} {inr x₂} f g = lcomp f .carmap g
+  _⋆_ Collage {inl x} {inr x₁} {inr x₂} f g = rcomp g  .carmap f
+  _⋆_ Collage {inr x} {inr x₁} {inr x₂} f g = (C ⋆ f) g
+  Collage .⋆IdL {inl x} {inl x₁} f = V .⋆IdL f
+  Collage .⋆IdL {inl x} {inr x₁} f = lcompId
+  Collage .⋆IdL {inr x} {inr x₁} f = C .⋆IdL f
+  Collage .⋆IdR {inl x} {inl x₁} f = V .⋆IdR f
+  Collage .⋆IdR {inl x} {inr x₁} f = rcompId
+  Collage .⋆IdR {inr x} {inr x₁} f = C .⋆IdR f
+  Collage .⋆Assoc {inl x} {inl x₁} {inl x₂} {inl x₃} f g h = V .⋆Assoc f g h
+  Collage .⋆Assoc {inl x} {inl x₁} {inl x₂} {inr x₃} f g h = sym lcompSeq
+  Collage .⋆Assoc {inl x} {inl x₁} {inr x₂} {inr x₃} f g h = sym lrSeq
+  Collage .⋆Assoc {inl x} {inr x₁} {inr x₂} {inr x₃} f g h = rcompSeq
+  Collage .⋆Assoc {inr x} {inr x₁} {inr x₂} {inr x₃} f g h = C .⋆Assoc f g h
+  Collage .isSetHom {inl x} {inl x₁} = V. isSetHom
+  Collage .isSetHom {inl x} {inr x₁} = O .F-ob (x , x₁) .Carrier .snd
+  Collage .isSetHom {inr x} {inl x₁} ()
+  Collage .isSetHom {inr x} {inr x₁} = C .isSetHom
 
 
 

@@ -1,1 +1,0 @@
-module HyperDoc.Connectives.AsDisplayed where 

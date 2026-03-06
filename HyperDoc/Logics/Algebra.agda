@@ -61,6 +61,7 @@ module AlgLog (Σ : Signature) where
     private 
       module Syn = CBPVModel SynModel
 
+    -- TOOD why is this here? move
     -- Global Section Functor
     CL : CBPVMorphism SynModel AlgModel
     CL .CBPVMorphism.FV = Syn.V [ 𝟙 ,-]

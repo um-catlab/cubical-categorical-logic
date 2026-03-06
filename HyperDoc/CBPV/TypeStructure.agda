@@ -3,6 +3,7 @@
 -- reorder imports, etc
 module HyperDoc.CBPV.TypeStructure where
 
+open import Cubical.Data.Sum
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Bifunctor
@@ -12,12 +13,14 @@ open import Cubical.Categories.FunctorComprehension.Base
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Profunctor.General 
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
+open import Cubical.Categories.Instances.Sets
+
 {-
 open import Cubical.Categories.Category 
 open import Cubical.Categories.Constructions.BinProduct 
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension.Base 
-open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
 open import Cubical.Categories.Presheaf.Constructions.Unit
@@ -47,6 +50,16 @@ module TypeStructure {Σ : Signature} (M : CBPVModel Σ)  where
 
   HasFTy : Type 
   HasFTy = (A : ob V) → Representation (C ^op) (FORGET ∘F O[ A ,-] ∘F from^op^op)
+
+  HasO× : Type 
+  HasO× = (B B' : ob C) → Representation Collage ((Collage [-, inr B ]) ×Psh (Collage [-, inr B' ]))
+
+  HasO+ : Type
+  HasO+  = (A A' : ob V) → Σ[ A+A' ∈ V .ob ] PshIso (((Collage ^op) [-, inl A+A' ])) (((Collage ^op) [-, inl A ]) ×Psh ((Collage ^op) [-, inl A' ]))
+  -- Representation (Collage ^op) (((Collage ^op) [-, inl A ]) ×Psh ((Collage ^op) [-, inl A' ]))
+
+  HasV+ : Type
+  HasV+  = (A A' : ob V) → Representation (V ^op) (((V ^op) [-, A ]) ×Psh ((V ^op) [-, A' ]))
 
   module 𝟙Syntax (hasV𝟙 : HasV𝟙) where 
     𝟙 : ob V 
@@ -152,3 +165,17 @@ module TypeStructure {Σ : Signature} (M : CBPVModel Σ)  where
 
     Fβ : ∀{A B}{M : O'[ A , B ]} → rcomp (bind M) .carmap ret ≡ M
     Fβ {A}{B}{M} = retSub (bind M) ∙ Fβ'
+
+  module +Syntax (hasO+ : HasO+) where 
+
+    _+_ : ob V → ob V → ob V 
+    _+_ A A' = hasO+ A A' .fst
+
+    σ₁ : {A A' : ob V} → V [ A , A + A' ]
+    σ₁ {A}{A'} = hasO+ A A' .snd .trans .N-ob (inl (A + A')) (V .id) .fst
+
+    σ₂ : {A A' : ob V} → V [ A' , A + A' ]
+    σ₂ {A}{A'} = hasO+ A A' .snd .trans .N-ob (inl (A + A')) (V .id) .snd
+
+    caseV : {A A' A'' : ob V} → V [ A , A'' ] → V [ A' , A'' ] → V [ A + A' , A'' ] 
+    caseV {A}{A'}{A''} f g = hasO+ A A' .snd .nIso (inl A'') .fst (f , g)

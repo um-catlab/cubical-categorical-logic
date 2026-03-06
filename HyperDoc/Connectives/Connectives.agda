@@ -51,7 +51,11 @@ module L⊤ where
   -- this could be parameterized by structure
   Has⊤ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
   Has⊤ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
-
+  
+  Preserve⊤ : ∀{ℓC ℓC' ℓD ℓD' ℓP ℓP'}{C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{L : Functor (C ^op) (POSET ℓP ℓP')}
+   →  (F : Functor D C) →  Has⊤ L → Has⊤ (L ∘F (F ^opF)) 
+  Preserve⊤ F prf .fst d = prf .fst (F-ob (F ^opF) d) -- prf .fst (F-ob (F ^opF) d)
+  Preserve⊤ F prf .snd f = ?
 
 module L∧ where
 
@@ -87,3 +91,43 @@ module L∧ where
    →  (F : Functor D C) →  Has∧ L → Has∧ (L ∘F (F ^opF)) 
   Preserve∧ {L = L} F prf .fst c = prf .fst (F-ob (F ^opF) c)
   Preserve∧ {L = L} F prf .snd f = prf .snd (F-hom (F ^opF) f)
+
+module L∨ where
+
+  record HA {ℓ ℓ'} (P : ob (POSET ℓ ℓ')) : Type (ℓ-max ℓ ℓ') where 
+    
+    X : Type ℓ
+    X = P .fst .fst
+
+    open PreorderStr (P .fst .snd) renaming (_≤_ to _⊢_)
+    field 
+      _∨_ : X → X → X 
+      or-intro1 : {P Q R : X} → P ⊢ Q → P ⊢ (Q ∨ R) 
+      or-intro2 : {P Q R : X} → P ⊢ R → P ⊢ (Q ∨ R) 
+      or-elim : {P Q R : X} → Q ⊢ P → R ⊢ P → Q ∨ R ⊢ P 
+
+      {-and-intro : {P Q R : X} → P ⊢ Q → P ⊢ R → P ⊢ (Q ∧ R) 
+      and-elim1 : {P Q R : X} → P ⊢ Q ∧ R → P ⊢ Q 
+      and-elim2 : {P Q R : X} → P ⊢ Q ∧ R → P ⊢ R 
+
+    and-mono : {P Q R S : X} → P ⊢ R → Q ⊢ S → (P ∧ Q) ⊢ (R ∧ S)
+    and-mono {P'}{Q}{R}{S} p q = 
+      and-intro {P' ∧ Q} (is-trans _ _ _ (and-elim1 (is-refl (P' ∧ Q))) p ) (is-trans _ _ _ (and-elim2 (is-refl (P' ∧ Q))) q)  
+    -}
+  record HAHom {ℓ ℓ'}{P Q  : ob (POSET ℓ ℓ')}(F : MonFun (P .fst) (Q .fst))(Hx : HA P)(Hy : HA Q) : Type ℓ where 
+    module Hx = HA {ℓ} Hx
+    module Hy = HA {ℓ} Hy
+    X = P .fst .fst
+    open MonFun F
+    field 
+      f-or : (x x' : X) → f (x Hx.∨ x') ≡  (f x) Hy.∨ (f x')
+
+
+  Has∨ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
+  Has∨ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
+
+  Preserve∨ : ∀{ℓC ℓC' ℓD ℓD' ℓP ℓP'}{C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{L : Functor (C ^op) (POSET ℓP ℓP')}
+   →  (F : Functor D C) →  Has∨ L → Has∨ (L ∘F (F ^opF)) 
+  Preserve∨ {L = L} F prf .fst c = prf .fst (F-ob (F ^opF) c)
+  Preserve∨ {L = L} F prf .snd f = prf .snd (F-hom (F ^opF) f)
+  

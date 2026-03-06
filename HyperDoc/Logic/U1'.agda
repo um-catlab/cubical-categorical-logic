@@ -2,7 +2,10 @@
 -- fix level issues
 -- reorder imports, etc
 
-module HyperDoc.Logic.U1 where 
+-- parameterize this by 
+-- hasPropHoms
+
+module HyperDoc.Logic.U1' where 
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -12,6 +15,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Displayed.Constructions.Reindex.Base renaming (reindex to reindexᴰ)
 
+open import Cubical.Categories.Category
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Functor 
 open import Cubical.Categories.Instances.Preorders.Monotone
@@ -27,6 +31,7 @@ open import HyperDoc.CBPV.TypeStructure
 open AlgHomᴰ
 open Bifunctorᴰ
 open Categoryᴰ
+open Category
 open Functor
 
 module _ {Σ : Signature} where
@@ -47,11 +52,84 @@ module _ {Σ : Signature} where
         interpNo : 𝟙 LV.◂ top (⊤ .fst 𝟙) ≤ (pull no $ interpAns)
 
 
+
+open import Cubical.Categories.Displayed.HLevels
+_ = hasPropHoms
 module Eliminator (Σ : Signature) where 
   open Syntax Σ
   open SyntacticModel Σ
   open Section
-  
+  open CBPVModelᴰ
+
+
+  module _ 
+    (Mᴰ : CBPVModelᴰ SynModel)
+    (vPropHom : hasPropHoms (Mᴰ .Vᴰ))
+    (cPropHom : hasPropHoms (Mᴰ .Cᴰ)) where 
+    
+    module Vᴰ = Categoryᴰ (Mᴰ .Vᴰ)
+    module Cᴰ = Categoryᴰ (Mᴰ .Cᴰ)
+
+    _  = mkPropHomsFunctor
+
+    vty : (A : VTy) → Vᴰ.ob[ A ]
+    vty 𝟙 = {!   !}
+    vty (U x) = {!   !}
+
+    cty : (B : CTy) → Cᴰ.ob[ B ]
+    cty Ans = {!   !}
+
+    vtm : {A A' : VTy} (f : V [ A , A' ]) → Mᴰ .Vᴰ [ f ][ vty A , vty A' ]
+    vtm (subV f f₁) = vtm f Vᴰ.⋆ᴰ vtm f₁
+    vtm var = Vᴰ.idᴰ
+    vtm (subVIdl V i) = Vᴰ.⋆IdLᴰ (vtm V) i
+    vtm (subVIdr V i) = Vᴰ.⋆IdRᴰ (vtm V) i
+    vtm (subVAssoc V₁ V₂ V₃ i) = Vᴰ.⋆Assocᴰ (vtm V₁) (vtm V₂) (vtm V₃) i
+    vtm (isSet⊢v V V' x y i j) = 
+        isOfHLevel→isOfHLevelDep 2 
+          (λ x → Vᴰ.isSetHomᴰ) 
+          (vtm V) (vtm V') 
+          (cong vtm x) (cong vtm y) 
+          (isSet⊢v V V' x y) i j
+    vtm (thunk M) = {!   !}
+    vtm (Uη i) = {!   !}
+    vtm tt = {!   !}
+    vtm (η𝟙 f i) = {!   !}
+
+{-
+        vtm (subVIdl V i) = Vᴰ .⋆IdLᴰ (vtm V) i
+        vtm (subVIdr V i) = Vᴰ .⋆IdRᴰ (vtm V) i
+        vtm (subVAssoc V₁ V₂ V₃ i) = Vᴰ .⋆Assocᴰ (vtm V₁) (vtm V₂) (vtm V₃) i
+        vtm (isSet⊢v V V' x y i j) = 
+          isOfHLevel→isOfHLevelDep 2 
+            (λ x → Vᴰ .isSetHomᴰ) 
+            (vtm V) (vtm V') 
+            (cong vtm x) (cong vtm y) 
+            (isSet⊢v V V' x y) i j
+
+-}
+    ktm : {B B' : CTy} (f : C [ B , B' ]) → Mᴰ .Cᴰ [ f ][ cty B , cty B' ]
+    ktm (kcomp S S') = Cᴰ._⋆ᴰ_  (ktm S) (ktm S')
+    ktm hole = Cᴰ.idᴰ
+    ktm (kcompIdl S i) = Cᴰ.⋆IdLᴰ (ktm S) i
+    ktm (kcompIdr S i) = Cᴰ.⋆IdRᴰ (ktm S) i
+    ktm (kcompAssoc S₁ S₂ S₃ i) = Cᴰ.⋆Assocᴰ (ktm S₁) (ktm S₂) (ktm S₃) i
+    ktm (isSet⊢k S S' x y i j) = 
+      isOfHLevel→isOfHLevelDep 2 
+        (λ x → Cᴰ.isSetHomᴰ) 
+        (ktm S) (ktm S') 
+        (cong ktm x) (cong ktm y) 
+        (isSet⊢k S S' x y) i j
+
+
+    SV : Section Id (Mᴰ .Vᴰ)
+    SV = mkPropHomsSection {F = Id} {Dᴰ = Mᴰ .Vᴰ} vPropHom vty vtm 
+
+    SC : Section Id (Mᴰ .Cᴰ) 
+    SC = mkPropHomsSection {F = Id} {Dᴰ = Mᴰ .Cᴰ} cPropHom cty ktm
+
+    
+  {-}
   module _ (L : Logic SynModel) where
 
     open ConvertLogic SynModel L
@@ -95,7 +173,6 @@ module Eliminator (Σ : Signature) where
         ctm-plug {A}{B}{B'} S M = subst (λ h → A LV.◂ vty A ≤ (pull h $ cty B')) (cong₂ plug refl subCId) have where 
           have : A LV.◂ vty A ≤ (pull (plug S (subC var M)) $ cty B') 
           have = OᴰBif .Bif-homRᴰ (vty A) (ktm S) .carmapᴰ M (ctm M)
-        open import Cubical.Categories.Displayed.HLevels.More
 
         vtm : {A A' : VTy} → (V : A ⊢v A') → A LV.◂ vty A ≤ LV.f* V (vty A')
         vtm (subV V V') = Vᴰ ._⋆ᴰ_  (vtm V) (vtm V')
@@ -111,12 +188,12 @@ module Eliminator (Σ : Signature) where
             (isSet⊢v V V' x y) i j
 
         vtm (thunk M) = vtm-thunk M
-        vtm (Uη {A}{B}{V} i) =  
+        vtm (Uη {A}{B}{V} i) = 
           isProp→PathP 
             ((λ i → LV.isProp≤{q = LV.f* (Uη i) (pull force $ cty B)})) 
             (vtm-thunk (subC' V force')) 
             (vtm V) 
-            i 
+            i
         vtm tt = LV.seq (top-top (⊤ .fst _)) (LV.eqTo≤ (sym (L⊤.HAHom.f-top (⊤ .snd tt))))
         vtm (η𝟙 {A} V i) = 
           VL.eq*PathP (η𝟙 {A} V) 
@@ -152,7 +229,6 @@ module Eliminator (Σ : Signature) where
             (ctm-plug hole M) 
             (ctm M) 
             i
-            
         ctm (subCId {A}{B}{M} i) = 
           isProp→PathP  
             (λ i → LV.isProp≤{q = (pull (subCId i) $ cty B)}) 
@@ -207,6 +283,7 @@ module Eliminator (Σ : Signature) where
             (ctm M) 
             i
 
+      _ = mkPropHomsSection
       SV : Section Id Vᴰ 
       SV .F-obᴰ = vty
       SV .F-homᴰ = vtm
@@ -280,49 +357,5 @@ module LocalElim
       M-elim-local .fst = FSV
       M-elim-local .snd .fst = FSC
       M-elim-local .snd .snd = M-elim' .snd .snd
-{-
-getting the recursor from the eliminator when using Logic as a parameter.. 
-.. doesnt work the same way
-module Recursor {Σ : Signature} (M : CBPVModel Σ)where 
-  open Syntax Σ 
-  open SyntacticModel Σ using (SynModel)
-  open Section
-  open CBPVModel
-  
-  open import Cubical.Categories.Category
-  open import Cubical.Categories.Instances.Posets.Base
-  open import Cubical.Relation.Binary.Preorder
-  open Eliminator Σ
 
-  open Category
-
--- we can get a functor into the target category truncated to a poset
-  -- no.. 
-  hack : Category _ _ → ob (POSET _ _ ) 
-  hack C .fst .fst = C .ob
-  hack C .fst .snd .PreorderStr._≤_ A B = C [ A , B ] 
-  hack C .fst .snd .PreorderStr.isPreorder .IsPreorder.is-prop-valued = {!   !}
-  hack C .fst .snd .PreorderStr.isPreorder .IsPreorder.is-refl = {!   !}
-  hack C .fst .snd .PreorderStr.isPreorder .IsPreorder.is-trans = {!   !}
-  hack C .snd = {!   !}
-
-  hm : Logic SynModel 
-  hm .Logic.VH = {!   !}
-  hm .Logic.CH = {!   !}
-  hm .Logic.Sq = {!   !}
-  hm .Logic.pullOp = {!   !}
-
-  _ : {!   !}
-  _ = M-elim {!   !} {!   !} {!   !} {!   !}
-
-  M-recV : Functor (SynModel .V) (M .V) 
-  M-recV = {!   !}
-  
-  M-rec : CBPVMorphism SynModel M
-  M-rec = {! M-elim'  !}
-
-{-
-    rec : (ı : Interpᴰ wkC) → Functor |FreeCartesianCategory| (CC .C)
-    rec ı = introS⁻ (elim wkC ı)
--}
 -}

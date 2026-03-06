@@ -47,6 +47,10 @@ module HDSyntax
   f*id' : {c : ob C}{p q : F∣ c ∣} → c ◂ p ≤ q → c ◂ p ≤ f* (C .id) q 
   f*id' {c}{p}{q} t = subst (λ h → c ◂ p ≤ h) (sym f*id) t
 
+  f*seq : {c c' c'' : ob C}{f : C [ c , c' ]}{g : C [ c' , c'' ]}{p : F∣ c'' ∣} → 
+     f* ((C ⋆ f) g) p ≡ f* f (f* g p)
+  f*seq {f = f}{g}{p} = cong (λ h → h .MonFun.f p ) (F. F-seq g f)
+
   id⊢ : {c : ob C}{p : F∣ c ∣} → c ◂ p ≤ p 
   id⊢ {c}{p} = IsPreorder.is-refl (isPreorder (F .F-ob c .fst .snd)) p
 
@@ -80,7 +84,6 @@ module HDSyntax
     (rhs : y ◂ yᴰ ≤ f* g xᴰ) → 
     PathP (λ i → y ◂ yᴰ ≤ f* (p i) xᴰ) lhs rhs
   eq*PathP p l r = toPathP (isProp≤ _ r)
-  _ = {!   !}
 
   seq* : ∀ {x y z xᴰ yᴰ zᴰ}(f : C [ x , y ])(g : C [ y , z ]) → 
     x ◂ xᴰ ≤ f* f yᴰ → y ◂ yᴰ ≤ f* g zᴰ → x ◂ xᴰ ≤ f* ((C ⋆ f) g) zᴰ 

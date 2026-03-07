@@ -14,8 +14,8 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Powerset
 open import Cubical.Functions.Logic
-open import  Cubical.HITs.PropositionalTruncation.Base
-open import  Cubical.HITs.PropositionalTruncation.Properties
+open import Cubical.HITs.PropositionalTruncation.Base
+open import Cubical.HITs.PropositionalTruncation.Properties
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor

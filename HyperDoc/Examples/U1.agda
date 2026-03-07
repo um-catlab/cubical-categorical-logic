@@ -96,7 +96,7 @@ module HyperDoc.Examples.U1 where
     BoopLR  = M-elim-local CL int 
 
     theorem : ∀ (M : 𝟙 ⊢c Ans) → ∥ (Σ[ n ∈ ℕ ] ((M ≡ boopⁿ n yes) ⊎ (M ≡ boopⁿ n no))) ∥₁ 
-    theorem M = subst (λ h → h ∈ property) subCId (BoopLR .snd  .snd M var tt*)
+    theorem M = subst (λ h → h ∈ property) subCId (BoopLR .snd .snd M var tt*)
     
 
   module StateExample where 

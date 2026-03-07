@@ -26,6 +26,10 @@ open Functorᴰ
 
 module HyperDoc.Lib where 
 
+-- \<->
+_↔_ : Type → Type → Type 
+_↔_ X Y = (X → Y) × (Y → X)
+
 levels : List Level → Level 
 levels = foldr ℓ-max ℓ-zero
 

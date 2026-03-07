@@ -175,7 +175,8 @@ module Modelᴰ
     Vterm : Terminal' V
     Vterm .vertex = V⊤ .fst
     Vterm .element = tt
-    Vterm .universal A .equiv-proof tt = {!   !}
+    Vterm .universal A .equiv-proof tt .fst = {!   !} , {!   !}
+    Vterm .universal A .equiv-proof tt .snd = {!   !}
 
     Vᴰtermⱽ : Terminalsⱽ Vᴰ
     Vᴰtermⱽ c .UniversalElementⱽ.vertexⱽ = top (⊤ .fst c)
@@ -184,8 +185,19 @@ module Modelᴰ
     Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .fst tt = refl
     Vᴰtermⱽ c .UniversalElementⱽ.universalⱽ .snd .snd a = VL.isProp≤ _ a
 
+    open import Cubical.Foundations.Equiv.Dependent
     Vᴰtermᴰ : Terminalᴰ Vᴰ Vterm 
-    Vᴰtermᴰ = Terminalⱽ→Terminalᴰ Vᴰ (Vᴰtermⱽ (TerminalNotation.𝟙 Vterm))
+    Vᴰtermᴰ .UniversalElementᴰ.vertexᴰ = top (⊤ .fst (Vterm .vertex))
+    Vᴰtermᴰ .UniversalElementᴰ.elementᴰ = tt
+    Vᴰtermᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.inv = {!   !}
+    Vᴰtermᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.rightInv = {!   !}
+    Vᴰtermᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.leftInv = {!   !}
+      -- Terminalⱽ→Terminalᴰ Vᴰ (Vᴰtermⱽ (TerminalNotation.𝟙 Vterm))
+
+    Cᴰbpⱽ : BinProductsⱽ Cᴰ 
+    Cᴰbpⱽ x (P , Q) .UniversalElementⱽ.vertexⱽ = P
+    Cᴰbpⱽ x (P , Q) .UniversalElementⱽ.elementⱽ = {!   !}
+    Cᴰbpⱽ x (P , Q) .UniversalElementⱽ.universalⱽ = {!   !}
 {-}
 
   open import Cubical.Categories.Displayed.Constructions.BinProduct.More

@@ -530,8 +530,6 @@ module LocalElim
       (push (N-ob FO (_ , _) .carmap M) .fst) ,
         push (N-ob FO (_ , _) .carmap M) .snd
 
-
-
     M-elim' : CBPVGlobalSection LM
     M-elim' = 
       M-elim 

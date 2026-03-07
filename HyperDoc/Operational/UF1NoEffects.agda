@@ -363,38 +363,20 @@ module StateMachineLogic where
   open import Cubical.Categories.Instances.Posets.Base
   open import Cubical.Relation.Binary.Preorder
   open PreorderStr
+  open import Cubical.Foundations.Powerset
+  open TSystem
+  open TSystem[_,_]
+  open import Cubical.Data.Nat
+  open import Cubical.Categories.NaturalTransformation
 
 
   {-
-Cong : {Σ : Signature}{A : Alg Σ} → ℙ ⟨ Carrier A ⟩  → Type 
-Cong {Σ}{A} P = (op : Op Σ)(args : Fin (arity Σ op) → Σ[ a ∈ ⟨ Carrier A ⟩ ] a ∈ P ) → 
-  interp A op (λ i → args i .fst) ∈ P
-
-isPropCong : {Σ : Signature}{A : Alg Σ} → (P : ℙ ⟨ Carrier A ⟩) → isProp (Cong {Σ}{A} P) 
-isPropCong {Σ}{A} P = 
-  isPropΠ  λ op → 
-  isPropΠ λ args → 
-  ∈-isProp P (interp A op (λ i → args i .fst))
-
-_⊃⊂_ : {X : Type} → (P Q :  ℙ X) → Type
-_⊃⊂_ P Q = (P ⊆ Q) × (Q ⊆ P)
-
-SubAlg : {Σ : Signature} → Alg Σ → Type
-SubAlg {Σ} A = Σ[ P ∈ ℙ ⟨ Carrier A ⟩  ] (Cong {Σ}{A} P)
 
 SubAlg≡ : {Σ : Signature}{A : Alg Σ}→ (P Q : SubAlg A) → (P .fst) ⊃⊂ (Q .fst) →  P ≡ Q
 SubAlg≡ {Σ}{A} P Q prf = 
   ΣPathP (funExt (λ a → ⇔toPath (prf .fst a) (prf .snd a)) , 
   toPathP (isPropCong {Σ}{A} (Q .fst) _ _))
 
-subAlgPo : {Σ : Signature} → ob (ALG Σ) → ob (POSET  _ _) 
-subAlgPo A .fst .fst = SubAlg A
-subAlgPo A .fst .snd ._≤_ P Q = P .fst ⊆ Q .fst
-subAlgPo A .fst .snd .isPreorder .IsPreorder.is-prop-valued P Q = ⊆-isProp (P .fst)(Q .fst)
-subAlgPo A .fst .snd .isPreorder .IsPreorder.is-refl P = ⊆-refl (P .fst)
-subAlgPo A .fst .snd .isPreorder .IsPreorder.is-trans P Q R = ⊆-trans (P .fst) (Q .fst) (R .fst)
--- this follows from antisym in ℙ
-subAlgPo A .snd = {!!}
     -}
 
 
@@ -405,25 +387,41 @@ subAlgPo A .snd = {!!}
 
     now ..?
       - I don't have any operations atm.. 
-      - but do predicates need to be closed under reduction?
+      - we discused predicates being closed under antireduction (Jan 15)
+        but.. is this sufficient to preserve ops?
   -}
-  
+
+  open CBPVModel TSystemModel
+  AntiRedCl : {B : ob C} → ℙ ⟨ state B ⟩ → Type 
+  AntiRedCl {B} P = (s t : ⟨ state B ⟩) → ( (_↦*_ B s t ) × ⟨ P t ⟩) → ⟨ P s ⟩
+
+  TSysProp : TSystem _ → Type 
+  TSysProp S = Σ[ P ∈ ℙ ⟨ state S ⟩  ] AntiRedCl {S} P
+
   TSysPo : TSystem ℓ-zero → POSET ℓ-zero ℓ-zero .ob
-  TSysPo s .fst .fst = {!   !}
-  TSysPo s .fst .snd .PreorderStr._≤_ = {!   !}
-  TSysPo s .fst .snd .isPreorder .IsPreorder.is-prop-valued = {!   !}
-  TSysPo s .fst .snd .isPreorder .IsPreorder.is-refl = {!   !}
-  TSysPo s .fst .snd .isPreorder .IsPreorder.is-trans = {!   !}
-  TSysPo s .snd = {!   !}
+  TSysPo S .fst .fst = TSysProp S
+  TSysPo S .fst .snd .PreorderStr._≤_ P Q = P .fst ⊆ Q .fst
+  TSysPo S .fst .snd .isPreorder .IsPreorder.is-prop-valued P Q = ⊆-isProp (P .fst)(Q .fst)
+  TSysPo S .fst .snd .isPreorder .IsPreorder.is-refl P = ⊆-refl (P .fst)
+  TSysPo S .fst .snd .isPreorder .IsPreorder.is-trans P Q R = ⊆-trans (P .fst) (Q .fst) (R .fst)
+  TSysPo S .snd = {!   !}
+
+  TSysPropMap : {S T : ob C} → (f : TSystem[ T , S ]) → TSysProp S → TSysProp T
+  TSysPropMap f P .fst t = P .fst (f .s-map t)
+    -- λ z → P .fst (f .TSystem[_,_].s-map z)
+  TSysPropMap f P .snd t t' (( n , t↦*t') , Pft') = P .snd (f .s-map t) (f .s-map t') ((1 , {!   !}) , Pft')
 
   CH' : Functor (TSysCat ^op) (POSET ℓ-zero ℓ-zero)
   CH' .F-ob = TSysPo
-  CH' .F-hom = {!   !}
-  CH' .F-id = {!   !}
+  CH' .F-hom f .MonFun.f = TSysPropMap f
+  CH' .F-hom f .MonFun.isMon = λ z x₂ → z (f .s-map x₂)
+  CH' .F-id = eqMon _ _ {! refl  !}
   CH' .F-seq = {!   !}
 
   L : Logic TSystemModel 
   L .Logic.VH = Pred
   L .Logic.CH = CH'
-  L .Logic.Sq = {!   !}
-  L .Logic.pullOp = {!   !}
+  L .Logic.Sq .NatTrans.N-ob (A , B) f .MonFun.f Q a = Q .fst (f a)
+  L .Logic.Sq .NatTrans.N-ob (A , B) f .MonFun.isMon = λ z x₁ → z (f x₁)
+  L .Logic.Sq .NatTrans.N-hom {(A , B)}{(A' , B')} (V , S) = {!   !}
+  L .Logic.pullOp ()

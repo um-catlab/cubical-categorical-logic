@@ -43,8 +43,8 @@ record TSystem (ℓ : Level) : Type(ℓ-suc ℓ) where
   stepn zero s = s
   stepn (suc n) = rec⊎ inl λ r → stepn n (inr r)
 
-  _↦*_ : (s t : ⟨ state ⟩) → hProp ℓ
-  _↦*_ s t = (Σ[ n ∈ ℕ ] stepn n s ≡ t) , {!   !}
+  _↦*_ : (s t : ⟨ state ⟩) → Type _ 
+  _↦*_ s t = (Σ[ n ∈ ℕ ] stepn n s ≡ t) 
 
 open TSystem
 open import Cubical.Data.Unit

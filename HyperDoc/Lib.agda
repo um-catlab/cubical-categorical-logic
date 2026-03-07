@@ -30,6 +30,9 @@ module HyperDoc.Lib where
 _↔_ : Type → Type → Type 
 _↔_ X Y = (X → Y) × (Y → X)
 
+_⊃⊂_ : {X : Type} → (P Q :  ℙ X) → Type
+_⊃⊂_ P Q = (P ⊆ Q) × (Q ⊆ P)
+
 levels : List Level → Level 
 levels = foldr ℓ-max ℓ-zero
 

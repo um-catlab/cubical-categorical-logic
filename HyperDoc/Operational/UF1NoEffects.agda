@@ -689,6 +689,7 @@ module Example where
   open import Cubical.Foundations.Powerset
   open import Cubical.Categories.Instances.Preorders.Monotone
   open MonFun
+  open import HyperDoc.Operational.TransitionSystem
 
   open LocalElim TSystemModel L has⊤ hasV𝟙 hasPush
   
@@ -705,12 +706,24 @@ module Example where
   LR : CBPVSection GL L 
   LR = M-elim-local GL int
 
-  theorem : {A : VTy} → (M : 𝟙 ⊢c F A) → {!   !}
-  theorem {A} M = {! var ∈
+
+  open TSystem (StateMachine (F Ans))
+  -- this notion of transition machine sucks to work with "on this side"
+  -- its nicer for the maps into delay.. which we don't care about.. 
+  retYes : ⟨ state ⟩ 
+  retYes = inl ((ret (subV var yes)) , retTerm (subV var yes))
+
+  retNo : ⟨ state ⟩ 
+  retNo = inl ((ret (subV var no)) , retTerm (subV var no))
+
+  theorem :  (M : 𝟙 ⊢c F Ans) → ∥ (classify M ↦* retYes) ⊎ (classify M ↦* retNo) ∥₁
+  theorem M = {! var ∈
       f (Logic.pull L (N-ob (CBPVMorphism.FO GL) (𝟙 , F A) .carmap M))
       (F-obᴰ (LR .snd .fst) (F A))!} where 
     have : M ∈ {!   !}
     have = LR .snd .snd M var tt*
+
+
 
     {-
 

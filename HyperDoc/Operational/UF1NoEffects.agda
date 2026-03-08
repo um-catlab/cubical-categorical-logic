@@ -706,6 +706,7 @@ module Example where
   LR : CBPVSection GL L 
   LR = M-elim-local GL int
 
+  open SyntacticModel
 
   open TSystem (StateMachine (F Ans))
   -- this notion of transition machine sucks to work with "on this side"
@@ -717,27 +718,18 @@ module Example where
   retNo = inl ((ret (subV var no)) , retTerm (subV var no))
 
   theorem :  (M : 𝟙 ⊢c F Ans) → ∥ (classify M ↦* retYes) ⊎ (classify M ↦* retNo) ∥₁
-  theorem M = {! var ∈
-      f (Logic.pull L (N-ob (CBPVMorphism.FO GL) (𝟙 , F A) .carmap M))
-      (F-obᴰ (LR .snd .fst) (F A))!} where 
-    have : M ∈ {!   !}
-    have = LR .snd .snd M var tt*
+  theorem M = hrec squash₁ convert have where 
 
+    DI : ℙ ⟨ state ⟩
+    DI = DirectImage (((𝟙 ⊢v Ans)) , Syn.V .isSetHom)  (StateMachine (F Ans)) (λ V → inl (ret V , retTerm V)) property
 
+    have : (classify M) ∈ DI
+    have = subst (λ h → (classify h) ∈ DI) (subCId _)  (LR .snd .snd M var tt*)
 
-    {-
-
-    ∥
-DirectImage' ((𝟙 ⊢v A) , ?3) (StateMachine (F A))
-(λ V → inl (ret V , retTerm V))
-(vty (Reindex.reindex GL L) (pres⊤ GL) SyntacticModel.hasV𝟙
- (λ M₁ →
-    hasPush
-    (λ V →
-       map⊎ (λ prf → subC V M₁ , prf) (λ prf → subC V M₁ , prf)
-       (classify' (subC V M₁))))
- int A)
-(map⊎ (λ prf → subC var M , prf) (λ prf → subC var M , prf)
- (classify' (subC var M)))
-∥₁
-      -}
+    convert : DirectImage' ((𝟙 ⊢v Ans) , Syn.V .isSetHom) (StateMachine (F Ans))
+      (λ V₁ → inl (ret V₁ , retTerm V₁)) property (classify M) → ∥ (classify M ↦* retYes) ⊎ (classify M ↦* retNo) ∥₁
+    convert (base _ V M↦*retV V∈property) = 
+      -- truncate the fact that things are terminal
+      hmap (λ {(inl V≡yes) → inl (subst (λ h → classify M ↦* h) (cong inl (ΣPathP ((cong ret V≡yes) , toPathP {!   !}))) M↦*retV)
+              ; (inr V≡no) → inr (subst (λ h → classify M ↦* h) (cong inl (ΣPathP ((cong ret V≡no) , toPathP {!   !}))) M↦*retV)}) 
+            V∈property

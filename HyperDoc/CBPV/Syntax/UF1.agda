@@ -65,6 +65,7 @@ module Syntax (Σ : Signature) where
     tt : ∀{A} → A ⊢v 𝟙
     η𝟙 : ∀{A} → (V : A ⊢v 𝟙) → tt ≡ V
     
+    -- what..? should be A
     yes : 𝟙 ⊢v Ans 
     no : 𝟙 ⊢v Ans 
 

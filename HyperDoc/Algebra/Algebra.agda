@@ -25,6 +25,8 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Base
 
+open import HyperDoc.Lib
+
 open Category
 open Categoryᴰ
 open Functor
@@ -192,8 +194,7 @@ isPropCong {Σ}{A} P =
   isPropΠ λ args → 
   ∈-isProp P (interp A op (λ i → args i .fst))
 
-_⊃⊂_ : {X : Type} → (P Q :  ℙ X) → Type
-_⊃⊂_ P Q = (P ⊆ Q) × (Q ⊆ P)
+
 
 SubAlg : {Σ : Signature} → Alg Σ → Type
 SubAlg {Σ} A = Σ[ P ∈ ℙ ⟨ Carrier A ⟩  ] (Cong {Σ}{A} P)

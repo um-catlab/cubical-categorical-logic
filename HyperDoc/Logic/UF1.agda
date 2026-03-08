@@ -88,7 +88,7 @@ module Eliminator (Σ : Signature) where
         cty : (B : CTy) → LC.F∣ B ∣
         cty (F A) = push ret .fst $  vty A
 
-
+    
       mutual
         vtm-thunk : ∀ {A  B} → (M : A ⊢c B) →  A LV.◂ vty A ≤ LV.f* (thunk M) (pull force $ cty B) 
         vtm-thunk {A}{B} M = 

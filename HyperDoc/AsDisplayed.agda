@@ -196,7 +196,7 @@ module Modelᴰ
 
     Cᴰbpⱽ : BinProductsⱽ Cᴰ 
     Cᴰbpⱽ x (P , Q) .UniversalElementⱽ.vertexⱽ = P
-    Cᴰbpⱽ x (P , Q) .UniversalElementⱽ.elementⱽ = {!   !}
+    Cᴰbpⱽ x (P , Q) .UniversalElementⱽ.elementⱽ = {!   !} , {!   !}
     Cᴰbpⱽ x (P , Q) .UniversalElementⱽ.universalⱽ = {!   !}
 {-}
 

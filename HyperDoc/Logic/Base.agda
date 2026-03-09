@@ -4,6 +4,7 @@
 module HyperDoc.Logic.Base where
 
 open import Cubical.Data.FinData
+open import Cubical.Data.Sum
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -203,8 +204,82 @@ module ConvertLogic
   Mᴰ .CBPVModelᴰ.Cᴰ = Cᴰ
   Mᴰ .CBPVModelᴰ.Oᴰ = Oᴰ
 
-  -- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+  open CBPVModelᴰ Mᴰ
 
+    -- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+  open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+  open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+  open import Cubical.Categories.Presheaf.More
+  open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+  open import Cubical.Categories.Presheaf.Representable.More
+  open import Cubical.Relation.Binary.Preorder
+  open PreorderStr
+
+  -- cartesian lifts over obliques
+  -- except the displayed collage forgets the algebra structure on obliques..
+  ForgetfulObliqueLifts : Type 
+  ForgetfulObliqueLifts = {x y : Collage .ob} (f : Collage [ x , y ]) (yᴰ : ob[ Collageᴰ ] y) → CartesianLift  Collageᴰ {x}{y} f yᴰ 
+
+  hasForgetfulObliqueLifts : ForgetfulObliqueLifts
+  hasForgetfulObliqueLifts {inl A} {inl A'} f yᴰ .fst = VH .F-hom f .fun yᴰ
+  hasForgetfulObliqueLifts {inl A} {inr x} M yᴰ .fst = pull M $ yᴰ
+  hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .fst = CH .F-hom f .fun yᴰ
+
+  hasForgetfulObliqueLifts {inl A} {inl A'} f yᴰ .snd .PshIso.trans .PshHom.N-ob (inl A'' , PA'' , A''→A) prf = 
+    VL.seq prf (VL.eqTo≤ (cong (λ h → h $ yᴰ) (sym (VH .F-seq _ _))))
+  hasForgetfulObliqueLifts {inl A} {inl A'} f yᴰ .snd .PshIso.trans .PshHom.N-hom (inl x , snd₁) (inl x₁ , snd₂) f' p = VL.isProp≤ _ _ 
+  hasForgetfulObliqueLifts {inl A} {inl A'} f yᴰ .snd .PshIso.nIso (inl A'' , PA'' , A''→A) .fst prf = 
+    VL.seq prf (VL.eqTo≤ ((cong (λ h → h $ yᴰ) (VH .F-seq _ _))))
+  hasForgetfulObliqueLifts {inl A} {inl A'} f yᴰ .snd .PshIso.nIso (inl A'' , PA'' , A''→A) .snd .fst b = VL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inl A} {inl A'} f yᴰ .snd .PshIso.nIso (inl A'' , PA'' , A''→A) .snd .snd a = VL.isProp≤ _ _
+
+  hasForgetfulObliqueLifts {inl A} {inr B} M yᴰ .snd .PshIso.trans .PshHom.N-ob (inl A' , PA' , V) prf = 
+    VL.seq prf (VL.eqTo≤ (cong (λ h → h $ yᴰ) (sym ( pullLComp V M)))) 
+  hasForgetfulObliqueLifts {inl A} {inr B} f yᴰ .snd .PshIso.trans .PshHom.N-hom (inl x , snd₁) (inl x₁ , snd₂) f' p = VL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inl A} {inr B} M yᴰ .snd .PshIso.nIso (inl A' , PA' , V) .fst prf = 
+    VL.seq prf (VL.eqTo≤ ((cong (λ h → h $ yᴰ) (pullLComp V M)) ∙ cong {x = pull M} (λ h → fun (VH .F-hom V) (fun h yᴰ)) refl))
+  hasForgetfulObliqueLifts {inl A} {inr B} f yᴰ .snd .PshIso.nIso (inl A' , PA' , A'→A) .snd .fst b = VL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inl A} {inr B} f yᴰ .snd .PshIso.nIso (inl A' , PA' , A'→A) .snd .snd a = VL.isProp≤ _ _
+  
+  hasForgetfulObliqueLifts {inr B} {inr B'} M yᴰ .snd .PshIso.trans .PshHom.N-ob (inl B'' , PB'' , S) prf = 
+    VL.seq prf (VL.eqTo≤ (cong (λ h → h $ yᴰ) (sym ( pullRComp M S)) ) )
+  hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.trans .PshHom.N-hom (inr x , snd₁) (inr x₁ , snd₂) f' p = CL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inr B} {inr B'} M yᴰ .snd .PshIso.nIso (inl B'' , PB'' , S) .fst prf = 
+    VL.seq prf (VL.eqTo≤ ((cong (λ h → h $ yᴰ) (pullRComp M S)) ∙ cong {x = CH .F-hom M}(λ h → fun (N-ob Sq (B'' , B) S) (fun (h) yᴰ)) refl ))
+  hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.nIso (inl B'' , PB'' , B''→B) .snd .fst b = VL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.nIso (inl B'' , PB'' , B''→B) .snd .snd a = VL.isProp≤ _ _
+
+  hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.trans .PshHom.N-ob (inr B'' , PB'' , S) prf = 
+    CL.seq prf ((CL.eqTo≤ (cong (λ h → h $ yᴰ) (sym (CH .F-seq _ _)))))
+  hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.trans .PshHom.N-hom (inl x , snd₁) c' f' p = VL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.trans .PshHom.N-hom (inr x , snd₁) c' f' p = CL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inr x₁} {inr x₂} M yᴰ .snd .PshIso.nIso (inr B'' , fst₁ , S) .fst prf = 
+    CL.seq prf (CL.eqTo≤ ((cong (λ h → h $ yᴰ) (CH .F-seq _ _))))
+  hasForgetfulObliqueLifts {inr x} {inr x₁} f yᴰ .snd .PshIso.nIso (inr x₂ , fst₁ , snd₁) .snd .fst b = CL.isProp≤ _ _
+  hasForgetfulObliqueLifts {inr x} {inr x₁} f yᴰ .snd .PshIso.nIso (inr x₂ , fst₁ , snd₁) .snd .snd a = CL.isProp≤ _ _
+  --hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.nIso x = ?
+
+{-
+
+
+Incomplete pattern matching for hasForgetfulObliqueLifts. Missing
+cases:
+
+  hasForgetfulObliqueLifts {inr x₁} {inr x₂} f yᴰ .snd .PshIso.nIso
+    (inr x₃ , fst₁ , snd₁)
+    .fst
+    x
+  hasForgetfulObliqueLifts {inr x} {inr x₁} f yᴰ .snd .PshIso.nIso
+    (inr x₂ , fst₁ , snd₁)
+    .snd
+    .fst
+    b
+  hasForgetfulObliqueLifts {inr x} {inr x₁} f yᴰ .snd .PshIso.nIso
+    (inr x₂ , fst₁ , snd₁)
+    .snd
+    .snd
+    a
+-}
 module ModelSection 
   {Σ : Signature}
   {M N : CBPVModel Σ}

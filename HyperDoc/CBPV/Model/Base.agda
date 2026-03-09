@@ -16,7 +16,8 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-
+open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Constructions.BinProduct.More
 
 open import HyperDoc.Algebra.Algebra
 
@@ -126,11 +127,55 @@ idCBPVMorphism .CBPVMorphism.FC = Id
 idCBPVMorphism .CBPVMorphism.FO .N-ob x = idHom
 idCBPVMorphism .CBPVMorphism.FO .N-hom f = AlgHom≡ refl
 
-
-
 record CBPVModelᴰ {Σ : Signature}(M : CBPVModel Σ) : Type where 
   open CBPVModel M
   field 
     Vᴰ : Categoryᴰ V _ _ 
     Cᴰ : Categoryᴰ C _ _ 
     Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) (ALGᴰ {Σ})
+  
+  open Categoryᴰ
+  open Functorᴰ
+  open Algᴰ
+  open AlgHomᴰ
+  -- stop remaking bifunctor combinators
+  Oᴰ[_,-] : {A : ob V}(aᴰ : ob[ Vᴰ ] A) → Functorᴰ O[ A ,-] Cᴰ (ALGᴰ {Σ}) 
+  Oᴰ[_,-] aᴰ = Oᴰ ∘Fᴰ rinjᴰ _ _ aᴰ
+
+  Oᴰ[-,_] : {B : ob C}(bᴰ : ob[ Cᴰ ] B) → Functorᴰ O[-, B ] (Vᴰ ^opᴰ) (ALGᴰ {Σ}) 
+  Oᴰ[-,_] bᴰ = Oᴰ ∘Fᴰ linjᴰ _ _ bᴰ 
+
+  Oᴰ[_,_] : {A : ob V}{B : ob C} → (aᴰ : ob[ Vᴰ ] A) → (bᴰ : ob[ Cᴰ ] B) →  ob[ (ALGᴰ {Σ}) ] (O .F-ob (A  , B)) 
+  Oᴰ[_,_] {A}{B} aᴰ bᴰ  = Oᴰ .F-obᴰ {(A , B)} (aᴰ , bᴰ)
+
+  O'ᴰ[_][_,_] : {A : ob V}{B : ob C} → (M : ⟨ O .F-ob (A , B) .Carrier ⟩) → (aᴰ : ob[ Vᴰ ] A) → (bᴰ : ob[ Cᴰ ] B) → Type 
+  O'ᴰ[_][_,_] {A}{B} M aᴰ bᴰ  = Oᴰ .F-obᴰ {(A , B)} (aᴰ , bᴰ) .Carrierᴰ M .fst
+
+  lcompᴰ : ∀ {A A' B aᴰ a'ᴰ bᴰ}{f : V [ A , A' ]} → (fᵈ : Hom[ Vᴰ ][ f , aᴰ ] a'ᴰ) →  Hom[ (ALGᴰ {Σ}) ][ lcomp f , Oᴰ[ a'ᴰ , bᴰ ] ] Oᴰ[ aᴰ , bᴰ ]
+  lcompᴰ {f = f} fᴰ = Oᴰ .F-homᴰ {f = (f , C .id)} (fᴰ , Cᴰ .idᴰ)
+
+  rcompᴰ : ∀ {A B B' aᴰ bᴰ b'ᴰ}{f : C [ B , B' ]} → (fᵈ : Hom[ Cᴰ ][ f , bᴰ ] b'ᴰ) →  Hom[ (ALGᴰ {Σ}) ][ rcomp f , Oᴰ[ aᴰ , bᴰ ] ] Oᴰ[ aᴰ , b'ᴰ ]
+  rcompᴰ {f = f} fᴰ = Oᴰ .F-homᴰ {f = (V .id , f)} (Vᴰ .idᴰ , fᴰ)
+
+  lrcompᴰ : ∀ {A A' B B' aᴰ a'ᴰ bᴰ b'ᴰ}{f : V [ A' , A ]}{g : C [ B , B' ]} → 
+    (fᵈ : Hom[ Vᴰ ][ f , aᴰ ] a'ᴰ)(gᵈ : Hom[ Cᴰ ][ g , bᴰ ] b'ᴰ) →  
+    Hom[ (ALGᴰ {Σ}) ][ lrcomp f g , Oᴰ[ a'ᴰ , bᴰ ] ] Oᴰ[ aᴰ , b'ᴰ ]
+  lrcompᴰ {f = f}{g} fᴰ gᴰ = Oᴰ .F-homᴰ {f = (f , g)} (fᴰ , gᴰ)
+
+  Collageᴰ : Categoryᴰ Collage _ _
+  Collageᴰ .ob[_] (inl A) = Vᴰ .ob[_] A
+  Collageᴰ .ob[_] (inr B) = Cᴰ .ob[_] B
+  Hom[_][_,_] Collageᴰ {inl A} {inl A'} = Vᴰ .Hom[_][_,_]
+  Hom[_][_,_] Collageᴰ {inl A} {inr B} M aᴰ bᴰ = Oᴰ .F-obᴰ {(A , B)} (aᴰ , bᴰ) .Carrierᴰ M .fst
+  Hom[_][_,_] Collageᴰ {inr B} {inl A} ()
+  Hom[_][_,_] Collageᴰ {inr B} {inr B'} = Cᴰ .Hom[_][_,_]
+  Collageᴰ .idᴰ {inl x} = Vᴰ .idᴰ
+  Collageᴰ .idᴰ {inr x} = Cᴰ .idᴰ
+  _⋆ᴰ_ Collageᴰ {inl A} {inl A'} {inl A''} = Vᴰ ._⋆ᴰ_
+  _⋆ᴰ_ Collageᴰ {inl A} {inl A'} {inr B} {f}{g} fᴰ Mᴰ = lcompᴰ fᴰ .carmapᴰ g Mᴰ
+  _⋆ᴰ_ Collageᴰ {inl A} {inr B} {inr B'} {f}{g} Mᴰ gᴰ = rcompᴰ gᴰ .carmapᴰ f Mᴰ
+  _⋆ᴰ_ Collageᴰ {inr B} {inr B'} {inr B''} = Cᴰ ._⋆ᴰ_
+  Collageᴰ .⋆IdLᴰ = {!   !}
+  Collageᴰ .⋆IdRᴰ = {!   !}
+  Collageᴰ .⋆Assocᴰ = {!   !}
+  Collageᴰ .isSetHomᴰ = {!   !}

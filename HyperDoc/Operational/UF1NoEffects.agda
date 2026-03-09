@@ -175,7 +175,6 @@ module Syntax where
     ... | inr M' = inr (atBind {M = force M}{N} M')
     classify' (force (thunk M)) = inr (atHole forceThunk) 
 
-
     State : CTy → Type 
     State B = Terminal B ⊎ RedexInCtx B 
 
@@ -487,8 +486,10 @@ module Eliminator where
     module LV = HDSyntax VH
     module LC = HDSyntax CH
     open TypeStructure SynModel
+    open CBPVModelᴰ Mᴰ using (Collageᴰ)
     open Push L
-
+    open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+    open CartesianLiftNotation
     module _ 
       (⊤ : L⊤.Has⊤ VH)
       (V⊤ : HasV𝟙 )
@@ -522,8 +523,14 @@ module Eliminator where
               (vty A) ≤A M^* (cty B)
             which we have by IH
         -}
-        vtm (thunk M) = LV.seq (ctm M) {!   !}
+        vtm (thunk {A}{B} M) = LV.seq (ctm M) {!  !} where 
+          have : CartesianLift Collageᴰ (thunk M) (cty B)
+          have = hasForgetfulObliqueLifts (thunk M) (cty B)
+          -- uhm .. excuse me?
+          have' : ⊥
+          have' = introᴰ Collageᴰ have  (ctm M)
         -- need M^*(cty B) ≤A (force (thunk M))^* (cty B)
+        -- so.. just ask for it as a parameter?
    
 
         ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
@@ -712,10 +719,10 @@ module Example where
   -- this notion of transition machine sucks to work with "on this side"
   -- its nicer for the maps into delay.. which we don't care about.. 
   retYes : ⟨ state ⟩ 
-  retYes = inl ((ret (subV var yes)) , retTerm (subV var yes))
+  retYes = inl ((ret yes) , retTerm yes)
 
   retNo : ⟨ state ⟩ 
-  retNo = inl ((ret (subV var no)) , retTerm (subV var no))
+  retNo = inl ((ret no) , retTerm no)
 
   theorem :  (M : 𝟙 ⊢c F Ans) → ∥ (classify M ↦* retYes) ⊎ (classify M ↦* retNo) ∥₁
   theorem M = hrec squash₁ convert have where 

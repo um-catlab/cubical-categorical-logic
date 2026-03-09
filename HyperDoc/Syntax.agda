@@ -60,6 +60,9 @@ module HDSyntax
   eqTo≤ : {c : ob C}{p q : F∣ c ∣}(prf : p ≡ q) → c ◂ p ≤ q 
   eqTo≤ {c} {p}{q}  prf = subst (λ h → c ◂ p ≤ h) prf (id' c p) 
 
+  eqMonTo≤ : {c : ob C}{p : F∣ c ∣}{f g : poset [ F .F-ob c , F .F-ob c ]}(prf : f ≡ g) → c ◂ f $ p ≤ (g $ p) -- c ◂ f* f p ≤ f* g p 
+  eqMonTo≤ {c} {p}{q}  prf = eqTo≤ (cong₂ MonFun.f prf refl)
+
   seq : {c : ob C}{p q r : F∣ c ∣} → c ◂ p ≤  q → c ◂ q ≤ r → c ◂ p ≤ r
   seq {c} f g = IsPreorder.is-trans (isPreorder (F .F-ob c .fst .snd)) _ _ _  f g
 

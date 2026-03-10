@@ -163,6 +163,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     isLRᴰObᴰ Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
 
     LRᴰObᴰ = Σ Cᴰ.ob[ A ] isLRᴰObᴰ
+
     module _ ((Aᴰ , _×ᴰAᴰ): LRᴰObᴰ) where
       ExponentialᴰSpec : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A
         → Presheafᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) Cᴰ ℓCᴰ'

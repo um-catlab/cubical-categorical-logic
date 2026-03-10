@@ -124,20 +124,6 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
     Pᴰ ×ᴰPsh Qᴰ = reindPshᴰNatTrans (π₁ P Q) Pᴰ ×ⱽPsh reindPshᴰNatTrans (π₂ P Q) Qᴰ
 
-    -- These should be definable compositionally if we use a different
-    -- version of PshHet→ElementFunctorᴰ that takes in a PshHomStrict
-    π₁/ : Functor (Cᴰ / (P ×Psh Q)) (Cᴰ / P)
-    π₁/ .F-ob x = (x .fst) , ((x .snd .fst) , (x .snd .snd .fst))
-    π₁/ .F-hom x = (x .fst) , ((x .snd .fst) , PathPΣ (x .snd .snd) .fst)
-    π₁/ .F-id = Hom/≡ refl
-    π₁/ .F-seq _ _ = Hom/≡ refl
-
-    π₂/ : Functor (Cᴰ / (P ×Psh Q)) (Cᴰ / Q)
-    π₂/ .F-ob x = x .fst , x .snd .fst , x .snd .snd .snd
-    π₂/ .F-hom x = (x .fst) , ((x .snd .fst) , (PathPΣ (x .snd .snd) .snd))
-    π₂/ .F-id = Hom/≡ refl
-    π₂/ .F-seq _ _ = Hom/≡ refl
-
     _×ᴰPshStrict_ : (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
       → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
     Pᴰ ×ᴰPshStrict Qᴰ = reindPshᴰNatTransStrict (Strict.π₁ P Q) Pᴰ ×ⱽPsh

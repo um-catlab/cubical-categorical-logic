@@ -70,7 +70,7 @@ open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
 
 private
   variable

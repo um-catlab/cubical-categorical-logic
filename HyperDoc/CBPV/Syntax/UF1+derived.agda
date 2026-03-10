@@ -4,7 +4,7 @@
 
 -- NOTE: this is not the usual notion of value coproduct in CBPV
 -- We have Complex Values
-module HyperDoc.CBPV.Syntax.UF1+ where 
+module HyperDoc.CBPV.Syntax.UF1+derived where 
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Unit
@@ -76,6 +76,7 @@ module Syntax (Σ : Signature) where
     +β₁ : ∀{A A' A''}{V : A ⊢v A''}{W : A' ⊢v A''} → subV σ₁ (caseV V W) ≡ V  
     +β₂ : ∀{A A' A''}{V : A ⊢v A''}{W : A' ⊢v A''} → subV σ₂ (caseV V W) ≡ W 
     +ηV : ∀{A A' A''}{V : (A + A') ⊢v A''} → caseV (subV σ₁ V) (subV σ₂ V) ≡ V 
+    +ηC : ∀{A A' B}{M : (A + A') ⊢c B} → caseV (thunk (subC' σ₁ M)) (thunk (subC' σ₂ M)) ≡ thunk M
 
   data _⊢k_ where
     -- category 
@@ -122,16 +123,13 @@ module Syntax (Σ : Signature) where
     ret : {A : VTy} → A ⊢c F A
     Fβ : ∀{A B}{M : A ⊢c B} →  plug (bind M) ret ≡ M
 
-    caseC : ∀ {A A' B} → (A ⊢c B) → (A' ⊢c B) → (A + A') ⊢c B 
-    +βc₁ : ∀ {A A' B}{M : A ⊢c B}{N : A' ⊢c B} →  subC σ₁ (caseC M N) ≡ M
-    +βc₂ : ∀ {A A' B}{M : A ⊢c B}{N : A' ⊢c B} →  subC σ₂ (caseC M N) ≡ N
-    +ηc : ∀ {A A' B}{M : (A + A') ⊢c B} → caseC (subC σ₁ M) (subC σ₂ M) ≡ M
-
-
   subC' = subC
   force' = force
   plug' = plug
   ret' = ret
+
+  --caseC : ∀ {A A' B} → (A ⊢c B) → (A' ⊢c B) → (A + A') ⊢c B 
+  --caseC {A}{A'}{B} c1 c2 = subC (caseV (thunk c1) (thunk c2)) force
 
 
 module SyntacticModel (Σ : Signature)  where 
@@ -220,6 +218,8 @@ module SyntacticModel (Σ : Signature)  where
   hasO+ A A' .snd .nIso (inl A'') .fst (V , W) = caseV V W
   hasO+ A A' .snd .nIso (inl A'') .snd .fst (V , W) = ΣPathP (+β₁ , +β₂)
   hasO+ A A' .snd .nIso (inl A'') .snd .snd (V) = +ηV
-  hasO+ A A' .snd .nIso (inr B) .fst (M , N) = caseC M N 
-  hasO+ A A' .snd .nIso (inr B) .snd .fst (M , N) = ΣPathP ( +βc₁ , +βc₂ )
-  hasO+ A A' .snd .nIso (inr B) .snd .snd M = +ηc 
+  hasO+ A A' .snd .nIso (inr B) .fst (M , N) = subC (caseV (thunk M) (thunk N)) force
+  hasO+ A A' .snd .nIso (inr B) .snd .fst (M , N) = ΣPathP (
+      subDist ∙ cong₂ subC +β₁ refl ∙ Uβ , 
+      subDist ∙ cong₂ subC +β₂ refl ∙ Uβ)
+  hasO+ A A' .snd .nIso (inr B) .snd .snd M = cong₂ subC +ηC refl ∙ Uβ 

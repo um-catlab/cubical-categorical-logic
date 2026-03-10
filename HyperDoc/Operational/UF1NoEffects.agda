@@ -494,7 +494,10 @@ module Eliminator where
       (⊤ : L⊤.Has⊤ VH)
       (V⊤ : HasV𝟙 )
       (push : HasPush)
-      (interpGen : InterpGen L) where 
+      (interpGen : InterpGen L)
+      -- this should live in the definition of Logic or its type structure (Operational Logic)
+      (asm : {A : VTy}{B : CTy}(M : A ⊢c B)(Q : LC.F∣ B ∣) →  
+        A LV.◂ pull M $ Q ≤ (pull (force (thunk M)) $ Q) ) where 
       
       open L⊤.HA 
       open PushSyntax push
@@ -515,40 +518,66 @@ module Eliminator where
         vtm tt = LV.seq (top-top (⊤ .fst _)) (LV.eqTo≤ (sym (L⊤.HAHom.f-top (⊤ .snd tt))))
         vtm yes = interpYes
         vtm no = interpNo
-        {-
-          issue : A LV.◂ vty A ≤ LV.f* (thunk M) (pull (force var) $ cty B)
-            this is equivalent to 
-              (vty A) ≤A (force (thunk M))^* (cty B)
-            in the denotational model, we use the β rule to reduce this to 
-              (vty A) ≤A M^* (cty B)
-            which we have by IH
-        -}
-        vtm (thunk {A}{B} M) = LV.seq (ctm M) {!  !} where 
+        vtm (thunk {A}{B} M) = goal where 
+
+          subgoal : A LV.◂  (pull M $ cty B) ≤ (pull (force (thunk M)) $ cty B)
+          subgoal = asm M (cty B)
+
+          goal : A LV.◂ vty A ≤ LV.f* (thunk M) (pull (force var) $ cty B)
+          goal = 
+            LV.seq (LV.seq (ctm M) subgoal) 
+            (LV.eqTo≤ (cong (λ h → h $ (cty B)) (pullLComp (thunk M) (force var))))
+
+          {-
           have : CartesianLift Collageᴰ (thunk M) (cty B)
           have = hasForgetfulObliqueLifts (thunk M) (cty B)
           -- uhm .. excuse me?
+          -- ??????
           have' : ⊥
           have' = introᴰ Collageᴰ have  (ctm M)
-        -- need M^*(cty B) ≤A (force (thunk M))^* (cty B)
-        -- so.. just ask for it as a parameter?
-   
+          -}
 
         ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
         ktm hole = Cᴰ .idᴰ
-        ktm (bindk S M) = {!   !}
+        ktm (bindk {A}{B}{B'} S M) = goal where 
+          ih1 : A LV.◂ vty A ≤ (pull M $ cty B') 
+          ih1 = ctm M
 
+          ih2 : B LC.◂ cty B ≤ LC.f* S (push (ret var) .fst $ vty A) 
+          ih2 = ktm S
+
+          -- missing beta rules
+          -- bindC (ret V) M => subC V M 
+          -- plug (bindk hole M) (ret var) := bindC (ret var) M ≡ M
+
+          goal : B LC.◂ cty B ≤ LC.f* (bindk S M) (cty B') 
+          goal = 
+            LC.seq 
+              ih2 
+              {!   !}
+          
         ctm : ∀{A B} → (M : A ⊢c B) → A LV.◂ vty A ≤ (pull M $ cty B)
-        ctm (ret V) = {!   !}
-        ctm (bindC M N) = {!   !}
-        {-
-          this used to be id... 
-          when we pulled back by force instead of force var
-          now we n.t.s. 
+        ctm (ret {A}{A'} V) = LV.seq (vtm V) goal where 
+          
+          have : pull (ret V) ≡ MonComp (pull (ret var)) (VH .F-hom V)
+          have  = pullLComp V (ret var)
 
-          (force var)^* (cty B) ≤A (force V)^* (cty B)
+          goal : A LV.◂ LV.f* V (vty A') ≤ ((pull (ret V)) $ (push (ret var) .fst $ vty A')) 
+          goal = {!   !}
+        ctm (bindC {A}{A'}{B} M N) = goal where 
 
-        -}
-        ctm (force V) = LV.seq (vtm V) {!   !}
+          ih1 : A LV.◂ vty A ≤ (pull M $ (push (ret var) .fst $ vty A')) 
+          ih1 = ctm M
+
+          ih2 : A' LV.◂ vty A' ≤ (pull N $ cty B) 
+          ih2 = ctm N
+
+          goal : A LV.◂ vty A ≤ (pull (bindC M N) $ cty B) 
+          goal = {!   !}
+
+        ctm (force {A}{B} V) = goal where 
+          goal : A LV.◂ vty A ≤ (pull (force V) $ cty B)
+          goal = LV.seq (vtm V)(LV.eqTo≤ (cong (λ h → h $ (cty B)) (sym (pullLComp V (force var)))))
 
       SV : Section Id Vᴰ 
       SV .F-obᴰ = vty
@@ -567,51 +596,6 @@ module Eliminator where
       M-elim .snd .fst = SC
       M-elim .snd .snd = ctm
 
-{-
-
-      mutual
-        vty : (A : VTy) → LV.F∣ A ∣
-        vty 𝟙 = top (⊤ .fst 𝟙)
-        vty Ans = interpAns
-        vty (U B) = pull force $ cty B
-
-        cty : (B : CTy) → LC.F∣ B ∣
-        cty (F A) = push ret .fst $  vty A
-    
-      mutual
-        vtm-thunk : ∀ {A  B} → (M : A ⊢c B) →  A LV.◂ vty A ≤ LV.f* (thunk M) (pull force $ cty B) 
-        vtm-thunk {A}{B} M = 
-          LV.seq (ctm M) (
-          LV.eqTo≤ (cong (λ h → MonFun.f (pull h) (cty B)) (sym Uβ ∙ sym plugId)
-            ∙ cong (λ h → h .MonFun.f (cty B)) (pullLComp (thunk M) force))) 
-
-        vtm : {A A' : VTy} → (V : A ⊢v A') → A LV.◂ vty A ≤ LV.f* V (vty A')
-        vtm var = Vᴰ .idᴰ
-        vtm (yes) = interpYes 
-        vtm (no) = interpNo  
-        vtm (thunk M) = vtm-thunk M
-        vtm tt = LV.seq (top-top (⊤ .fst _)) (LV.eqTo≤ (sym (L⊤.HAHom.f-top (⊤ .snd tt))))
-
-        ktm-bind : ∀ {A  B} → (M : A ⊢c B) → F A LC.◂ push ret .fst $ vty A ≤ LC.f* (bind M) (cty B)
-        ktm-bind {A}{B} M = 
-          pullToPush ret (
-            LV.seq (ctm M) (
-            LV.eqTo≤ goal)) where 
-
-            goal  : MonFun.f (pull M) (cty B) ≡ pull ret .MonFun.f (LC.f* (bind M) (cty B))
-            goal = cong (λ h → N-ob Sq (A , B) h .MonFun.f (cty B)) (sym Fβ ∙ cong₂ plug refl (sym subCId)) 
-              ∙  (cong (λ h → h .MonFun.f (cty B))) (pullRComp (bind M) ret)
-        
-
-        ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
-        ktm hole = Cᴰ .idᴰ
-        ktm (bind M) = ktm-bind M
-
-        ctm : ∀{A B} → (M : A ⊢c B) → A LV.◂ vty A ≤ (pull M $ cty B)
-        ctm force = LV.id⊢
-        ctm ret = pushToPull ret LC.id⊢
-
--}
 open import HyperDoc.Logic.Base
 open import HyperDoc.Connectives.Connectives
 open import HyperDoc.Logic.Structure
@@ -662,7 +646,7 @@ module LocalElim
 
     module _ (interp : InterpGen LM) where
       M-elim' : CBPVGlobalSection LM
-      M-elim' = M-elim LM pres⊤ hasV𝟙 presPush interp
+      M-elim' = M-elim LM pres⊤ hasV𝟙 presPush interp {!   !}
 
       FSV : Section FV Vᴰ
       FSV = GlobalSectionReindex→Section Vᴰ FV convert where 

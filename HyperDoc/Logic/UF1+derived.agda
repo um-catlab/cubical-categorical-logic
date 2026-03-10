@@ -2,7 +2,7 @@
 -- fix level issues
 -- reorder imports, etc
 
-module HyperDoc.Logic.UF1+ where 
+module HyperDoc.Logic.UF1+derived where 
 
 open import Cubical.Data.Sigma using (ΣPathP)
 
@@ -24,7 +24,7 @@ open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
 open import Cubical.Categories.Instances.Posets.Base
 
 open import HyperDoc.Algebra.Algebra
-open import HyperDoc.CBPV.Syntax.UF1+
+open import HyperDoc.CBPV.Syntax.UF1+derived
 open import HyperDoc.CBPV.Model.Base
 open import HyperDoc.Syntax
 open import HyperDoc.Lib
@@ -226,7 +226,12 @@ module Eliminator (Σ : Signature) where
               (⋁ᴰ-elim (⋁ᴰ-intro₁ Vᴰ.⋆ᴰ vtm V) (⋁ᴰ-intro₂ Vᴰ.⋆ᴰ vtm V))
               (vtm V)
               i
-
+          vtm (+ηC {A}{A'}{B}{M} i) = 
+            isProp→PathP 
+              (λ i → LV.isProp≤{p = vty A ⋁ᴰ vty A' }{q =  LV.f* (+ηC i) (pull force $ cty B)})
+              (⋁ᴰ-elim (vtm-thunk (subC' σ₁ M)) (vtm-thunk (subC' σ₂ M)))
+              (vtm-thunk M)
+              i
 
           ktm-bind : ∀ {A  B} → (M : A ⊢c B) → F A LC.◂ hasPush ret .fst $ vty A ≤ LC.f* (bind M) (cty B)
           ktm-bind {A}{B} M = 
@@ -332,10 +337,6 @@ module Eliminator (Σ : Signature) where
               (ctm-plug (bind M) ret) 
               (ctm M)
               i
-          ctm (caseC M N) = {!   !} 
-          ctm (+βc₁ {A}{A'}{B}{M}{N} i) = {!   !}
-          ctm (+βc₂ {A}{A'}{B}{M}{N} i) = {!   !}
-          ctm (+ηc {A}{A'}{B}{M} i) = {!   !}
 
         SV : Section Id Vᴰ 
         SV .F-obᴰ = vty

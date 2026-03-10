@@ -98,6 +98,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductᴰ : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
   BinProductᴰ {A}{B} A×B Aᴰ Bᴰ = UniversalElementᴰ Cᴰ _ (BinProductᴰSpec A×B Aᴰ Bᴰ) A×B
 
+  BinProductsWithᴰ : ∀ {A} (-×A : BinProductsWith C A) (Aᴰ : Cᴰ.ob[ A ]) → Type _
+  BinProductsWithᴰ -×A Aᴰ = ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → BinProductᴰ (-×A B) Bᴰ Aᴰ
+
   BinProductsᴰ : (bp : BinProducts C) → Type _
   BinProductsᴰ bp = ∀ {A B} (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → BinProductᴰ (bp (A , B)) Aᴰ Bᴰ
 
@@ -167,52 +170,3 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module BPNotation {A : C.ob}{B : C.ob} {Aᴰ : Cᴰ.ob[ A ]}{Bᴰ : Cᴰ.ob[ B ]}
         = BinProductᴰNotation (bp (A , B)) (bpᴰ Aᴰ Bᴰ)
     open BPNotation public
-
-module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
-  private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
-    Cᴰop = Cᴰ ^opᴰ
-    module Cᴰop = Fibers Cᴰop
-
-  Initialⱽ : ∀ (x : C.ob) → Type _
-  Initialⱽ x = Terminalⱽ Cᴰop x
-
-  Initialsⱽ : Type _
-  Initialsⱽ = Terminalsⱽ Cᴰop
-
-  Initialᴰ : ∀ (init : Terminal' (C ^op)) → Type _
-  Initialᴰ = Terminalᴰ Cᴰop
-
-  BinCoProductⱽ : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
-  BinCoProductⱽ = BinProductⱽ Cᴰop
-
-  BinCoProductsWithⱽ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Type _
-  BinCoProductsWithⱽ = BinProductsWithⱽ Cᴰop
-
-  BinCoProductsⱽ : Type _
-  BinCoProductsⱽ = BinProductsⱽ Cᴰop
-
-  BinCoProductᴰ' : ∀ {A B} →
-    (A+B : BinCoProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
-  BinCoProductᴰ' = BinProductᴰ' Cᴰop
-
-  BinCoProductᴰ : ∀ {A B} → (A+B : BinCoProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ]) → Type _
-  BinCoProductᴰ = BinProductᴰ Cᴰop
-
-  BinCoProductsᴰ : (bcp : BinCoProducts C) → Type _
-  BinCoProductsᴰ = BinProductsᴰ Cᴰop
-
-  BinCoproductⱽ→ᴰ : ∀ {A B} (bcp : BinCoProduct C (A , B))
-    (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
-    → BinCoProductᴰ' bcp Aᴰ Bᴰ
-    → BinCoProductᴰ bcp Aᴰ Bᴰ
-  BinCoproductⱽ→ᴰ = BinProductⱽ→ᴰ Cᴰop
-
-  module BinCoProductᴰNotation {A B Aᴰ Bᴰ} (A+B : BinCoProduct C (A , B))
-    (Aᴰ+ᴰBᴰ : BinCoProductᴰ A+B Aᴰ Bᴰ) =
-    BinProductᴰNotation Cᴰop A+B Aᴰ+ᴰBᴰ renaming
-      (πᴰ₁ to σᴰ₁ ; πᴰ₂ to σᴰ₂)
-
-  module BinCoProductsᴰNotation (bcp : BinCoProducts C) (bcpᴰ : BinCoProductsᴰ bcp)
-    = BinProductsᴰNotation Cᴰop bcp bcpᴰ renaming (_×ᴰ_ to _+ᴰ_)

@@ -12,7 +12,7 @@ open import Cubical.Categories.Limits.Terminal
 open import Cubical.Categories.Presheaf.Constructions
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
-
+open import Cubical.Categories.Presheaf.Morphism.Alt
 
 private
   variable
@@ -35,6 +35,14 @@ preserveOnePreservesAll C D F One D-preserves-One One' =
 
 Terminal' :  ∀ (C : Category ℓc ℓc') → Type (ℓ-max ℓc ℓc')
 Terminal' C = UniversalElement C UnitPsh
+
+preservesTerminal' : ∀ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'}
+                  → Functor C D
+                  → (One : Terminal' C) → Type _
+preservesTerminal' F term =
+  preservesUniversalElement {F = F}{Q = UnitPsh}
+    (invPshIso (reindPsh-Unit F) .PshIso.trans)
+    term
 
 terminalToUniversalElement : ∀ {C : Category ℓc ℓc'} (One : Terminal C)
   → Terminal' C

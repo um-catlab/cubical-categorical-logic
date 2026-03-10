@@ -23,7 +23,7 @@ open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Graph
 open import Cubical.Categories.Displayed.Instances.PropertyOver
 open import Cubical.Categories.Displayed.Instances.TotalCategory
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
 open import Cubical.Categories.Displayed.Instances.Weaken.Base
 open import Cubical.Categories.Displayed.Instances.Weaken.Properties
 open import Cubical.Categories.Instances.TotalCategory hiding (Fst; Snd)

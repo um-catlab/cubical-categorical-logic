@@ -163,6 +163,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     isLRᴰObᴰ Aᴰ = isLRᴰ ((C [-, A ]) , _×A) (Cᴰ [-][-, Aᴰ ])
 
     LRᴰObᴰ = Σ Cᴰ.ob[ A ] isLRᴰObᴰ
+
     module _ ((Aᴰ , _×ᴰAᴰ): LRᴰObᴰ) where
       ExponentialᴰSpec : ∀ {B} (Bᴰ : Cᴰ.ob[ B ]) → Exponential C A B _×A
         → Presheafᴰ (((C [-, A ]) , _×A) ⇒PshSmall (C [-, B ])) Cᴰ ℓCᴰ'
@@ -182,6 +183,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     AllExponentiableᴰ : AllExponentiable C bp → Type _
     AllExponentiableᴰ _⇒_ = ∀ {A} (Aᴰ : Cᴰ.ob[ A ])
       → Exponentiableᴰ (A , (λ c → bp (c , A))) (Aᴰ , (λ Γᴰ → bpᴰ Γᴰ Aᴰ)) (A ⇒_)
+
+  LargeExponentialᴰSpec : ∀ {}
 
 -- Notations
 module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

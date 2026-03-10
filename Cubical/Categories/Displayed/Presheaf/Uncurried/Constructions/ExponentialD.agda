@@ -184,8 +184,6 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     AllExponentiableᴰ _⇒_ = ∀ {A} (Aᴰ : Cᴰ.ob[ A ])
       → Exponentiableᴰ (A , (λ c → bp (c , A))) (Aᴰ , (λ Γᴰ → bpᴰ Γᴰ Aᴰ)) (A ⇒_)
 
-  LargeExponentialᴰSpec : ∀ {}
-
 -- Notations
 module ExponentialᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {(A , _×A) : LROb C}

@@ -169,27 +169,25 @@ module EqReindexProperties
         (reindPsh-square _ _ _ _ _ reflectsBP-square₂
           ⋆PshIso reindPshIso _ (invPshIso (reindexRepresentableIsoⱽ _ _))))
 
-  -- Here things get a bit dicey.
-  --
-  -- To even say what it means to preserve an exponential, we need to preserve bpA
-  module _ {A B}
-    (bpA : BinProductsWith C A) (B^A : Small.Exponential C A B bpA)
-    (bpFA : BinProductsWith D (F ⟅ A ⟆))
-    where
-    module _
-      (F⟅bpA⟆ : preservesProvidedBinProductsWith F bpA)
-      where
-      private
-        module bpA {Γ} = UniversalElementNotation (bpA Γ)
-        module bpFA {Δ} = UniversalElementNotation (bpFA Δ)
-        module FbpA {Γ} = UniversalElementNotation
-          (record { vertex = _ ; element = _ ; universal = F⟅bpA⟆ Γ })
-      module _ {Aᴰ Bᴰ}{bpAᴰ : isLRᴰObᴰ reindex (A , bpA) Aᴰ}
-        where
-        reflectsExponentialᴰ
-          : Exponentialᴰ Dᴰ (F ⟅ A ⟆ , bpFA) (Aᴰ , {!!}) Bᴰ {!!}
-          → Exponentialᴰ reindex (A , bpA) (Aᴰ , {!!}) Bᴰ B^A
-        reflectsExponentialᴰ = {!!}
+  -- TODO: figure out the right way to do this
+  -- module _ {A B}
+  --   (bpA : BinProductsWith C A) (B^A : Small.Exponential C A B bpA)
+  --   (bpFA : BinProductsWith D (F ⟅ A ⟆))
+  --   where
+  --   module _
+  --     (F⟅bpA⟆ : preservesProvidedBinProductsWith F bpA)
+  --     where
+  --     private
+  --       module bpA {Γ} = UniversalElementNotation (bpA Γ)
+  --       module bpFA {Δ} = UniversalElementNotation (bpFA Δ)
+  --       module FbpA {Γ} = UniversalElementNotation
+  --         (record { vertex = _ ; element = _ ; universal = F⟅bpA⟆ Γ })
+  --     module _ {Aᴰ Bᴰ}{bpAᴰ : isLRᴰObᴰ reindex (A , bpA) Aᴰ}
+  --       where
+  --       reflectsExponentialᴰ
+  --         : Exponentialᴰ Dᴰ (F ⟅ A ⟆ , bpFA) (Aᴰ , {!!}) Bᴰ {!!}
+  --         → Exponentialᴰ reindex (A , bpA) (Aᴰ , {!!}) Bᴰ B^A
+  --       reflectsExponentialᴰ = {!!}
 
       -- -- TODO: find another place for this
       -- preservesApps :

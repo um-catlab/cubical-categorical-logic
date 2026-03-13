@@ -63,14 +63,16 @@ open isIso
 -- G : C → D
 -- swap : GF≅F'G
 -- swap ⋆ π' ≡ G ⟪ π ⟫
+
 module _
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C C)
-  ((π , πCart) : CartesianNatTrans F Id)
+  (π : NatTrans F Id)
   (F' : Functor D D)
-  ((π' , π'Cart) : CartesianNatTrans F' Id)
+  (π' : NatTrans F' Id)
   (G : Functor C D)
-  ((swap , swapπ'≡Gπ) : preservesCartNatTrans G (π , πCart) (π' , π'Cart))
+  (swap : NatIso (G ∘F F) (F' ∘F G))
+  (swapπ'≡Gπ : (∀ Γ → (swap .trans ⟦ Γ ⟧ ⋆⟨ D ⟩ π' ⟦ G ⟅ Γ ⟆ ⟧) ≡ G ⟪ π ⟦ Γ ⟧ ⟫))
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
   (cartLifts : isFibration Dᴰ)
   where
@@ -80,11 +82,11 @@ module _
     module D = Category D
     module Dᴰ = Fibers Dᴰ
     module cartLifts = FibrationNotation Dᴰ cartLifts
-    π-Quant : QuantTrans F (reindex Dᴰ G)
-    π-Quant = π , (πCart , ((λ x yᴰ → reindexCartesianLift Dᴰ G (π ⟦ x ⟧) yᴰ
-                          (cartLifts yᴰ (G ⟅ F ⟅ x ⟆ ⟆) (G ⟪ π ⟦ x ⟧ ⟫)))))
-    π'-Quant : QuantTrans F' Dᴰ
-    π'-Quant = (π' , (π'Cart , λ x yᴰ → cartLifts yᴰ (F' ⟅ x ⟆) (π' ⟦ x ⟧)))
+    π-Quad : QuadrableTrans F Id (reindex Dᴰ G)
+    π-Quad = π , ((λ x yᴰ → reindexCartesianLift Dᴰ G (π ⟦ x ⟧) yᴰ
+                          (cartLifts yᴰ (G ⟅ F ⟅ x ⟆ ⟆) (G ⟪ π ⟦ x ⟧ ⟫))))
+    π'-Quad : QuadrableTrans F' Id Dᴰ
+    π'-Quad = (π' , λ x yᴰ → cartLifts yᴰ (F' ⟅ x ⟆) (π' ⟦ x ⟧))
 
   opaque
     π'≡swap⁻Gπ : ∀ Δ → π' ⟦ G ⟅ Δ ⟆ ⟧ ≡ swap .nIso Δ .inv D.⋆ G ⟪ π ⟦ Δ ⟧ ⟫
@@ -93,9 +95,9 @@ module _
   module _ {Γ : C.ob} where
     private
       LHS-F = ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
-              ∘F wkF π'-Quant (G ⟅ Γ ⟆))
+              ∘F wkF π'-Quad (G ⟅ Γ ⟆))
               ∘F reindex-π-/ Dᴰ G Γ
-      RHS-F = reindex-π-/ Dᴰ G (F ⟅ Γ ⟆) ∘F wkF π-Quant Γ
+      RHS-F = reindex-π-/ Dᴰ G (F ⟅ Γ ⟆) ∘F wkF π-Quad Γ
 
     opaque
       unfolding hSetReasoning.reind
@@ -150,9 +152,9 @@ module _
               ∙ cartLifts.sq-id refl)
 
   module _ {Γ : C.ob}(Aᴰ : Dᴰ.ob[ G ⟅ F ⟅ Γ ⟆ ⟆ ])
-    (∀Aᴰ : ∀FOb {F = F'}{Cᴰ = Dᴰ} π'-Quant (swap .nIso Γ .inv cartLifts.* Aᴰ))
+    (∀Aᴰ : ∀FOb {F = F'}{Cᴰ = Dᴰ} π'-Quad (swap .nIso Γ .inv cartLifts.* Aᴰ))
     where
-    reflects∀Fs : ∀FOb π-Quant Aᴰ
+    reflects∀Fs : ∀FOb π-Quad Aᴰ
     reflects∀Fs .fst = ∀Aᴰ .fst
     reflects∀Fs .snd =
       -- reindex Dᴰ G [-][-, ∀Aᴰ .fst ]
@@ -162,14 +164,14 @@ module _
       ⋆PshIsoⱽ reindPshIso (reindex-π-/ Dᴰ G Γ)
         (∀Aᴰ .snd
         ⋆PshIsoⱽ (reindPshIso _ $ cartLifts Aᴰ (F' ⟅ G ⟅ Γ ⟆ ⟆) (swap .nIso Γ .inv) .snd)
-        ⋆PshIsoⱽ reindPsh∘F≅ (wkF π'-Quant (G ⟅ Γ ⟆)) (Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv)) (Dᴰ [-][-, Aᴰ ]))
-      -- reindexPsh (G , Id , G-hom) $ reindPsh (wkF π'-Quant $ G ⟅ Γ ⟆) $ reindPsh (Id , Id , swap Γ) $ Dᴰ [-][-, Aᴰ ]
+        ⋆PshIsoⱽ reindPsh∘F≅ (wkF π'-Quad (G ⟅ Γ ⟆)) (Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv)) (Dᴰ [-][-, Aᴰ ]))
+      -- reindexPsh (G , Id , G-hom) $ reindPsh (wkF π'-Quad $ G ⟅ Γ ⟆) $ reindPsh (Id , Id , swap Γ) $ Dᴰ [-][-, Aᴰ ]
       ⋆PshIsoⱽ reindPsh-square
-        (reindex-π-/ Dᴰ G Γ) ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv)) ∘F wkF π'-Quant (G ⟅ Γ ⟆))
-        (wkF π-Quant Γ) (reindex-π-/ Dᴰ G (Functor.F-ob F Γ)) (Dᴰ [-][-, Aᴰ ])
+        (reindex-π-/ Dᴰ G Γ) ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv)) ∘F wkF π'-Quad (G ⟅ Γ ⟆))
+        (wkF π-Quad Γ) (reindex-π-/ Dᴰ G (Functor.F-ob F Γ)) (Dᴰ [-][-, Aᴰ ])
         ∀F-commute-lemma
       -- reindPsh (wk G ⟅ Γ ⟆) $ reindPsh (G , Id , G-hom) $ Dᴰ [-][-, Aᴰ ]
-      ⋆PshIsoⱽ reindPshIso (wkF π-Quant Γ) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ G (F ⟅ Γ ⟆) Aᴰ))
+      ⋆PshIsoⱽ reindPshIso (wkF π-Quad Γ) (invPshIsoⱽ (reindexRepresentableIsoⱽ Dᴰ G (F ⟅ Γ ⟆) Aᴰ))
       -- reindPsh (wk G ⟅ Γ ⟆) $ reindex Dᴰ G [-][-, Aᴰ ]
 
 open Category
@@ -198,7 +200,7 @@ module _
         (swap .fst .nIso Γ .inv cartLifts.* Aᴰ))
       → UniversalQuantifier (reindex Dᴰ G) A -×A (λ Δ Δᴰ → reindexCartesianLift Dᴰ G -×A.π₁ Δᴰ (cartLifts Δᴰ (F-ob G -×A.×ue.vertex) (F-hom G -×A.π₁))) Aᴰ
     reflectsUniversalQuantifiers =
-      reflects∀Fs -×A.×aF -×A.π₁CartNat -×GA.×aF -×GA.π₁CartNat G swap Dᴰ cartLifts
+      reflects∀Fs -×A.×aF -×A.π₁Nat -×GA.×aF -×GA.π₁Nat G (swap .fst) (swap .snd) Dᴰ cartLifts
 
   module _
     (bpC : BinProducts C)

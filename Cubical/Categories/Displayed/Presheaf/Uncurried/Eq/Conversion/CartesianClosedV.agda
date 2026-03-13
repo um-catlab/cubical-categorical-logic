@@ -159,7 +159,7 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
           ∘F Path/→Eq/ (C [-, Γ ]) Cᴰ)
          ⟅ Δ3 ⟆)
         ((Path/→Eq/ (C [-, Γ bp.× A ]) Cᴰ ∘F
-          Path.wkF (Path.π₁Quant Cᴰ A (λ Γ₁ → bp (Γ₁ , A)) π₁Quadrable) Γ)
+          Path.wkF (Path.π₁Quadrable Cᴰ A (λ Γ → bp (Γ , A)) π₁Quadrable) Γ)
          ⟅ Δ3 ⟆)
       wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .fst .fst = C.id
       wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .fst .snd .fst = π₁*.introᴰ fibEq.πⱽ
@@ -179,7 +179,7 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
 
       wkF-Path/→Eq/-square :
         NatIso (wkF Cᴰ ⋆IdLC ⋆AssocC cartLifts A (λ Γ → bp (Γ , A)) (π₁NatEqC A) (×aF-seqC A) Γ ∘F Path/→Eq/ (C [-, Γ ]) Cᴰ)
-               (Path/→Eq/ (C [-, Γ bp.× A ]) Cᴰ ∘F Path.wkF (Path.π₁Quant Cᴰ A ((λ Γ → bp (Γ , A))) π₁Quadrable) Γ)
+               (Path/→Eq/ (C [-, Γ bp.× A ]) Cᴰ ∘F Path.wkF (Path.π₁Quadrable Cᴰ A ((λ Γ → bp (Γ , A))) π₁Quadrable) Γ)
       wkF-Path/→Eq/-square = isosToNatIso wkF-Path/→Eq/-square-iso
         λ Θ3 Δ3 δ3@(δ , δᴰ , tri) →
           Hom/≡ (π₁*.extensionalityᴰ (C.⋆IdR _ ∙ sym (C.⋆IdL _))

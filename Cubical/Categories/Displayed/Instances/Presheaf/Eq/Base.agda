@@ -55,6 +55,7 @@ open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 open import Cubical.Categories.Presheaf.StrictHom
 
+open Category
 open Functor
 open Iso
 open NatIso
@@ -258,6 +259,55 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → PshHomᴰ (α ⋆PshHomStrict β) Pᴰ Rᴰ
   αᴰ ⋆PshHomᴰ βᴰ = αᴰ ⋆PshHom (α *StrictF βᴰ) ⋆PshHom *Strict-seq α β
 
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  where
+
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module P = PresheafNotation P
+
+  module _
+    {α β : PshHomStrict P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    (αᴰ : PshHomᴰ α Pᴰ Qᴰ)
+    (βᴰ : PshHomᴰ β Pᴰ Qᴰ)
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
+    PshHomᴰPathP : α ≡ β → Type _
+    PshHomᴰPathP α≡β = PathP (λ i → PshHomᴰ (α≡β i) Pᴰ Qᴰ) αᴰ βᴰ
+
+    makePshHomᴰPathP :
+      (α≡β : α ≡ β) →
+      (PathP (λ i → ((x , xᴰ , p) : ob (Cᴰ / P)) → Pᴰ.p[ p ][ xᴰ ] → Qᴰ.p[ α≡β i .N-ob x p ][ xᴰ ])
+          (αᴰ .N-ob) (βᴰ .N-ob)) →
+      PshHomᴰPathP α≡β
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-ob = αᴰ≡βᴰ i
+    makePshHomᴰPathP α≡β αᴰ≡βᴰ i .N-hom c c' f p =
+      isSet→SquareP (λ j k → Qᴰ.isSetPshᴰ)
+      ((αᴰ .N-hom c c' f p))
+      ((βᴰ .N-hom c c' f p))
+      ((λ j → αᴰ≡βᴰ j _ (Pᴰ .F-hom f p)))
+      (λ j → (α≡β j *Strict Qᴰ) .F-hom f (αᴰ≡βᴰ j c' p))
+      i
+
+  module _
+    {α : PshHomStrict P Q}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ} {Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ}
+    {αᴰ βᴰ : PshHomᴰ α Pᴰ Qᴰ}
+    where
+    private
+      module Pᴰ = PresheafᴰNotation Pᴰ
+      module Qᴰ = PresheafᴰNotation Qᴰ
+
+    makePshHomᴰPath : (αᴰ .N-ob ≡ βᴰ .N-ob) → αᴰ ≡ βᴰ
+    makePshHomᴰPath = makePshHomᴰPathP αᴰ βᴰ (λ i → α)
+
 module _
   {C : Category ℓC ℓC'}
   (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
@@ -272,13 +322,12 @@ module _
   -- Think on that
   PRESHEAFᴰ : Categoryᴰ (PRESHEAF C ℓP) _ _
   PRESHEAFᴰ .ob[_] P = Presheaf (Cᴰ / P) ℓPᴰ
-  PRESHEAFᴰ .Hom[_][_,_] α P Q = PshHom P (α *Strict Q)
+  PRESHEAFᴰ .Hom[_][_,_] α P Q = PshHomᴰ α P Q
   PRESHEAFᴰ .idᴰ = idPshHomᴰ
   PRESHEAFᴰ ._⋆ᴰ_ {f = α}{g = β} αᴰ βᴰ = αᴰ ⋆PshHomᴰ βᴰ
-  PRESHEAFᴰ .⋆IdLᴰ {x = P}{xᴰ = Pᴰ}αᴰ = makePshHomPath (refl {x = αᴰ .N-ob})
-  PRESHEAFᴰ .⋆IdRᴰ αᴰ = makePshHomPath (refl {x = αᴰ .N-ob})
-  PRESHEAFᴰ .⋆Assocᴰ αᴰ βᴰ γᴰ = makePshHomPath
-    (refl {x = ((αᴰ ⋆PshHomᴰ βᴰ) ⋆PshHomᴰ γᴰ) .N-ob})
+  PRESHEAFᴰ .⋆IdLᴰ {x = P}{xᴰ = Pᴰ} αᴰ = makePshHomᴰPathP _ _ _ refl
+  PRESHEAFᴰ .⋆IdRᴰ αᴰ = makePshHomᴰPathP _ _ _ refl
+  PRESHEAFᴰ .⋆Assocᴰ αᴰ βᴰ γᴰ = makePshHomᴰPathP _ _ _ refl
   PRESHEAFᴰ .isSetHomᴰ = isSetPshHom _ _
 
 module _

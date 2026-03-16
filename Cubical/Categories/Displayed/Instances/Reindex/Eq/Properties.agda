@@ -29,6 +29,8 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.Presheaf.Constructions.BinProduct.LocalRepresentability
+open import Cubical.Categories.Presheaf.Constructions.Exponential
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
@@ -133,7 +135,7 @@ module EqReindexProperties
       → Terminalᴰ reindex term
     reflectsTerminalᴰ F⟅term⟆ termᴰ = reflectsUEᴰ _ term F⟅term⟆ termᴰ ◁UEᴰⱽ
       reindPsh-Unit _
-    
+
   module _ {A B Aᴰ Bᴰ} (bp : BinProduct C (A , B)) where
     reflectsBP-square₁ : NatIso
       ((Idᴰ /FⱽStrict StrictHom.π₁ (D [-, F-ob F A ]) (D [-, F-ob F B ]))
@@ -156,7 +158,7 @@ module EqReindexProperties
     reflectsBP-square₂ .NatIso.nIso x .isIso.inv = D.id , Dᴰ.idᴰ , D.⋆IdL _
     reflectsBP-square₂ .NatIso.nIso x .isIso.sec = Hom/≡ (Dᴰ.⋆IdL _)
     reflectsBP-square₂ .NatIso.nIso x .isIso.ret = Hom/≡ (Dᴰ.⋆IdL _)
-  
+
     reflectsBPᴰ :
       (F⟅bp⟆ : preservesBinProduct F bp)
       → BinProductᴰ Dᴰ (becomesUniversal→UniversalElement (preservesBinProdCones F A B) F⟅bp⟆) Aᴰ Bᴰ
@@ -169,55 +171,68 @@ module EqReindexProperties
         (reindPsh-square _ _ _ _ _ reflectsBP-square₂
           ⋆PshIso reindPshIso _ (invPshIso (reindexRepresentableIsoⱽ _ _))))
 
-  -- TODO: figure out the right way to do this
-  -- module _ {A B}
-  --   (bpA : BinProductsWith C A) (B^A : Small.Exponential C A B bpA)
-  --   (bpFA : BinProductsWith D (F ⟅ A ⟆))
-  --   where
-  --   module _
-  --     (F⟅bpA⟆ : preservesProvidedBinProductsWith F bpA)
-  --     where
-  --     private
-  --       module bpA {Γ} = UniversalElementNotation (bpA Γ)
-  --       module bpFA {Δ} = UniversalElementNotation (bpFA Δ)
-  --       module FbpA {Γ} = UniversalElementNotation
-  --         (record { vertex = _ ; element = _ ; universal = F⟅bpA⟆ Γ })
-  --     module _ {Aᴰ Bᴰ}{bpAᴰ : isLRᴰObᴰ reindex (A , bpA) Aᴰ}
-  --       where
-  --       reflectsExponentialᴰ
-  --         : Exponentialᴰ Dᴰ (F ⟅ A ⟆ , bpFA) (Aᴰ , {!!}) Bᴰ {!!}
-  --         → Exponentialᴰ reindex (A , bpA) (Aᴰ , {!!}) Bᴰ B^A
-  --       reflectsExponentialᴰ = {!!}
+  module _ {A B}
+    (bpA : BinProductsWith C A) (B^A : Small.Exponential C A B bpA)
+    (bpFA : BinProductsWith D (F ⟅ A ⟆))
+    (F⟅bpA⟆ : preservesProvidedBinProductsWith F bpA)
+    where
+    private
+      -×A = LRPsh→Functor ((C [-, A ]) , bpA)
+      -×FA = LRPsh→Functor ((D [-, F ⟅ A ⟆ ]) , bpFA)
 
-      -- -- TODO: find another place for this
-      -- preservesApps :
-      --   PshHet F (((C [-, A ]) , bpA) ⇒PshSmall (C [-, B ]))
-      --   ((D [-, F ⟅ A ⟆ ]) ⇒PshLarge (D [-, F ⟅ B ⟆ ]))
-      -- preservesApps .PshHom.N-ob Γ b⟨γ,a⟩ .PshHom.N-ob Δ (γ , a) =
-      --   FbpA.intro (γ , a) D.⋆ F ⟪ b⟨γ,a⟩ ⟫ 
-      -- preservesApps .PshHom.N-ob Γ b⟨γ,a⟩ .PshHom.N-hom Δ' Δ δ (γ , a) =
-      --   D.⟨ sym $ FbpA.intro-natural ⟩⋆⟨ refl ⟩ ∙ D.⋆Assoc _ _ _
-      -- preservesApps .PshHom.N-hom Γ' Γ γ bf⟨γ,a⟩ = makePshHomPath (funExt (λ Δ → funExt (λ γ',a →
-      --   D.⟨ refl ⟩⋆⟨ F .F-seq _ _ ⟩
-      --   ∙ sym (D.⋆Assoc _ _ _)
-      --   ∙ D.⟨ sym (FbpA.intro≡ (≡-×
-      --     (D.⟨ sym $ cong fst FbpA.β ⟩⋆⟨ refl ⟩ ∙ D.⋆Assoc _ _ _
-      --     ∙ D.⟨ refl ⟩⋆⟨
-      --       sym (F .F-seq _ _) ∙ cong (F .F-hom) (sym $ cong fst (bpA.β)) ∙ F .F-seq _ _ ⟩
-      --     ∙ sym (D.⋆Assoc _ _ _))
-      --     (sym (D.⋆Assoc _ _ _ ∙ D.⟨ refl ⟩⋆⟨ sym (F .F-seq _ _) ∙ cong (F .F-hom) (cong snd bpA.β) ⟩ ∙ cong snd FbpA.β))))
-      --       ⟩⋆⟨ refl ⟩ )))
+    -- Comparison morphism between the two products of (F Γ, F A):
+    --   bpFA (F Γ)  (vertex: bpFA(FΓ).vertex)
+    --   F(bpA Γ)    (vertex: F(bpA Γ .vertex))
+    module F×_ {Γ} = BinProductNotation
+      (becomesUniversal→UniversalElement (preservesBinProdCones F Γ A) (F⟅bpA⟆ Γ))
+    module D×_ {Γ} = BinProductNotation (bpFA (F ⟅ Γ ⟆))
 
-      -- module _
-      --   (F⟅B^A⟆ : becomesUniversal {C = C}{F = F}
-      --     {P = ((C [-, A ]) , bpA) ⇒PshSmall (C [-, B ])}
-      --     {Q = (D [-, F ⟅ A ⟆ ]) ⇒PshLarge (D [-, (F ⟅ B ⟆) ])}
-      --     preservesApps (B^A .vertex) (B^A .element))
-      --   {Aᴰ Bᴰ}
-      --   where
-      -- -- Ugh
-      --   reflectsExpᴰ :
-      --     (bpAᴰ : ∀ {Γ Γᴰ} → BinProductᴰ Dᴰ (record { vertex = _ ; element = _ ; universal = F⟅bpA⟆ Γ }) Γᴰ Aᴰ)
-      --     → {!!}
-      --     → Exponentialᴰ reindex (A , bpA) (Aᴰ , (λ {Γ} Γᴰ → reflectsBPᴰ (bpA Γ) (F⟅bpA⟆ Γ) bpAᴰ)) Bᴰ B^A
-      --   reflectsExpᴰ = {!!}
+    module _
+      -- Strict equality on objects: F preserves product vertices
+      (F×-ob≡ : ∀ Γ → F ⟅ -×A .F-ob Γ ⟆ Eq.≡ -×FA .F-ob (F ⟅ Γ ⟆))
+      -- Strict naturality: the full N-hom condition (with Eq.transport).
+      -- When F×-ob≡ = λ _ → Eq.refl, transports vanish and this becomes
+      -- F ⟪ -×A .F-hom γ ⋆ e ⟫ Eq.≡ -×FA .F-hom (F ⟪ γ ⟫) ⋆ F ⟪ e ⟫
+      (F×-nat≡ : ∀ {Δ Γ} (γ : C [ Δ , Γ ]) (e : C [ -×A .F-ob Γ , B ]) →
+        Eq.transport (λ x → D [ x , F ⟅ B ⟆ ]) (F×-ob≡ Δ)
+          (F ⟪ -×A .F-hom γ ⋆⟨ C ⟩ e ⟫)
+        Eq.≡ (_⋆_ D (-×FA .F-hom (F ⟪ γ ⟫))
+          (Eq.transport (λ x → D [ x , F ⟅ B ⟆ ]) (F×-ob≡ Γ)
+            (F ⟪ e ⟫))))
+      where
+
+      preservesExpCones : PshHet F
+        (((C [-, A ]) , bpA) ⇒PshSmall (C [-, B ]))
+        (((D [-, F ⟅ A ⟆ ]) , bpFA) ⇒PshSmall (D [-, F ⟅ B ⟆ ]))
+      preservesExpCones .PshHom.N-ob Γ e =
+        Eq.transport (λ x → D [ x , F ⟅ B ⟆ ]) (F×-ob≡ Γ) (F ⟪ e ⟫)
+      preservesExpCones .PshHom.N-hom Δ Γ γ e =
+        Eq.eqToPath (F×-nat≡ γ e)
+
+      module _ {Aᴰ Bᴰ}
+        (bpAᴰ-D : isLRᴰObᴰ Dᴰ (F ⟅ A ⟆ , bpFA) Aᴰ)
+        (bpAᴰ : isLRᴰObᴰ reindex (A , bpA) Aᴰ)
+        where
+        private
+          ×ᴰPᴰ-D = ×ᴰPᴰ {Q = D [-, F ⟅ B ⟆ ]}
+            ((D [-, F ⟅ A ⟆ ]) , bpFA) ((Dᴰ [-][-, Aᴰ ]) , bpAᴰ-D)
+          ×ᴰPᴰ-R = ×ᴰPᴰ {Q = C [-, B ]}
+            ((C [-, A ]) , bpA) ((reindex [-][-, Aᴰ ]) , bpAᴰ)
+
+        -- The square relating the two product functors.
+        -- When F×-ob≡ = Eq.refl and bpAᴰ .fst = bpAᴰ-D .fst judgmentally,
+        -- this is the identity NatIso: (D.id , Dᴰ.idᴰ , D.⋆IdL _) etc.
+        module _
+          (reflectsExp-square : NatIso
+              (×ᴰPᴰ-D ∘F (forgetReindex /Fᴰ preservesExpCones))
+              ((forgetReindex/F B) ∘F ×ᴰPᴰ-R))
+          where
+          reflectsExponentialᴰ
+            : (F⟅B^A⟆ : preservesUniversalElement preservesExpCones B^A)
+            → Exponentialᴰ Dᴰ (F ⟅ A ⟆ , bpFA) (Aᴰ , bpAᴰ-D) Bᴰ
+                (becomesUniversal→UniversalElement preservesExpCones F⟅B^A⟆)
+            → Exponentialᴰ reindex (A , bpA) (Aᴰ , bpAᴰ) Bᴰ B^A
+          reflectsExponentialᴰ F⟅B^A⟆ expᴰ =
+            reflectsUEᴰ preservesExpCones B^A F⟅B^A⟆ expᴰ ◁UEᴰⱽ
+              (reindPsh-square _ _ _ _ _ reflectsExp-square
+              ⋆PshIso reindPshIso _ (invPshIso (reindexRepresentableIsoⱽ _ _)))

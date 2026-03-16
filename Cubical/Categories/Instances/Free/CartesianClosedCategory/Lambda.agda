@@ -47,10 +47,12 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.CartesianClosed.Base
 
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base using (Hom/≡)
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
@@ -280,41 +282,45 @@ module Lambda⇒/≈
           Quo*termᴰ : Terminalᴰ Quo*Cᴰ TERMINALCTX
           Quo*termᴰ = reindexCᴰ.reflectsTerminalᴰ (TERMINAL≈ .universal) termᴰ
 
-          -- 
+          --
           Quo*bpᴰ : {A : Ty} (Aᴰ : Quo*Cᴰ.ob[ x: A ]) → BinProductsWithᴰ Quo*Cᴰ (EXTENSION A) Aᴰ
           Quo*bpᴰ {A} Aᴰ {B} Bᴰ = reindexCᴰ.reflectsBPᴰ (EXTENSION A B) (EXTENSION≈ A B .universal) (bpᴰ Aᴰ Bᴰ)
 
-          -- Quo*⇒ᴰ : {A B : Ty} (Aᴰ : Quo*Cᴰ.ob[ x: A ]) (Bᴰ : Quo*Cᴰ.ob[ x: B ])
-          --   → Exponentialᴰ Quo*Cᴰ (x: A , EXTENSION A) (Aᴰ , Quo*bpᴰ Aᴰ) Bᴰ (EXPONENTIALS A B)
-          -- Quo*⇒ᴰ {A} {B} Aᴰ Bᴰ .fst = ⇒ᴰ Aᴰ Bᴰ .fst
-          -- Quo*⇒ᴰ {A} {B} Aᴰ Bᴰ .snd .fst = ⇒ᴰ Aᴰ Bᴰ .snd .fst
-          -- Quo*⇒ᴰ {A} {B} Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.inv a x = ⇒ᴰ.λᴰ Aᴰ Bᴰ x
-          -- Quo*⇒ᴰ {A} {B} Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.rightInv b q = Quo*Cᴰ.rectifyOut
-          --   {!!}
-          -- Quo*⇒ᴰ {A} {B} Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.leftInv = {!!}
-          -- -- Quo*⇒ᴰ Aᴰ Bᴰ = ?
-          -- -- --   = ⇒ᴰ Aᴰ Bᴰ .fst
-          -- -- -- Quo*⇒ᴰ Aᴰ Bᴰ .snd .fst = ⇒ᴰ Aᴰ Bᴰ .snd .fst
-          -- -- -- Quo*⇒ᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.inv a = ⇒ᴰ.λᴰ Aᴰ Bᴰ
-          -- -- -- Quo*⇒ᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.rightInv = {!!}
-          -- -- -- Quo*⇒ᴰ Aᴰ Bᴰ .snd .snd Γ Γᴰ .isIsoOver.leftInv = {!!}
-          -- -- module _ (ı-const : {A : Ty} (f : Constant A) → Quo*Cᴰ.Hom[ gen f ][ termᴰ .fst , elimOb Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı A ])-- need to get an interpretation of the constants here
-          -- --   where
+          Quo*⇒ᴰ : {A B : Ty} (Aᴰ : Quo*Cᴰ.ob[ x: A ]) (Bᴰ : Quo*Cᴰ.ob[ x: B ])
+            → Exponentialᴰ Quo*Cᴰ (x: A , EXTENSION A) (Aᴰ , Quo*bpᴰ Aᴰ) Bᴰ (EXPONENTIALS A B)
+          Quo*⇒ᴰ {A} {B} Aᴰ Bᴰ = reindexCᴰ.reflectsExponentialᴰ
+            (EXTENSION A) (EXPONENTIALS A B) (EXTENSION≈ A)
+            (λ Γ → EXTENSION≈ A Γ .universal)
+            (λ _ → Eq.refl) (λ _ _ → Eq.refl)
+            (bpᴰ Aᴰ) (Quo*bpᴰ Aᴰ)
+            (record { trans = natTrans (λ x → [ idS ] , (Cᴰ.idᴰ , LAMBDA/≈ .⋆IdL _))
+              λ {c} {c'} → λ f → Hom/≡ {!!}
+              ; nIso = {!!} })
+            -- (record { trans = record
+            --   { N-ob = λ x → _ .id , Cᴰ.idᴰ , _ .⋆IdL _
+            --   ; N-hom = λ f3 → Hom/≡ (Cᴰ.⋆IdR _ ∙ (sym $ Cᴰ.⋆IdL _)) }
+            -- ; nIso = λ x → record
+            --   { inv = _ .id , Cᴰ.idᴰ , _ .⋆IdL _
+            --   ; sec = Hom/≡ (Cᴰ.⋆IdL _)
+            --   ; ret = Hom/≡ (Cᴰ.⋆IdL _) } })
+            (EXPONENTIALS≈ A B .universal)
+            (⇒ᴰ Aᴰ Bᴰ)
 
-          -- --   unQuoElim : GlobalSection Quo*Cᴰ
-          -- --   unQuoElim = elim Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı ı-const
+          -- module _ (ı-const : {A : Ty} (f : Constant A) → Quo*Cᴰ.Hom[ gen f ][ termᴰ .fst , elimOb Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı A ]) where
 
-          -- --   module _ (ı-ax : ∀ {A M N} → (eq : Axiom {A} M N) → unQuoElim .F-homᴰ M Cᴰ.≡[ eq/ M N (ax eq) ] unQuoElim .F-homᴰ N) where
-          -- --     elimQuoHomᴰ : ∀ {Γ A} (M N : Tm Γ A) (M≈N : M ≈ N) → unQuoElim .F-homᴰ M Cᴰ.∫≡ unQuoElim .F-homᴰ N
-          -- --     elimQuoHomᴰ M N (refl≈ γ) = refl
-          -- --     elimQuoHomᴰ _ _ (⋆≈ M≈N M'≈N') = Cᴰ.⟨ elimQuoHomᴰ _ _ M≈N ⟩⋆⟨ elimQuoHomᴰ _ _ M'≈N' ⟩
-          -- --     elimQuoHomᴰ M N ([λ]≈ M≈N) = ⇒ᴰ.cong-λᴰ _ _ (elimQuoHomᴰ _ _ M≈N)
-          -- --     elimQuoHomᴰ M N (,x=≈ γ≈γ' M≈M') = bpᴰ.cong-introᴰ _ _ (ΣPathPᴰ (elimQuoHomᴰ _ _ γ≈γ') (elimQuoHomᴰ _ _ M≈M'))
-          -- --     elimQuoHomᴰ M N (ax x) = Cᴰ.≡in (ı-ax x)
+          --   unQuoElim : GlobalSection Quo*Cᴰ
+          --   unQuoElim = elim Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı ı-const
 
-          -- --     elimQuo : GlobalSection Cᴰ
-          -- --     elimQuo .F-obᴰ = elimCtx Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı
-          -- --     elimQuo .F-homᴰ = Quo.elim (λ _ → Cᴰ.isSetHomᴰ) (unQuoElim .F-homᴰ) λ M N M≈N → Cᴰ.rectifyOut $ elimQuoHomᴰ M N M≈N
-          -- --     elimQuo .F-idᴰ = refl
-          -- --     elimQuo .F-seqᴰ = Quo.elimProp2 (λ γ≈ M≈ → Cᴰ.isSetHomᴰ _ _) $ λ γ M → refl
+          --   module _ (ı-ax : ∀ {A M N} → (eq : Axiom {A} M N) → unQuoElim .F-homᴰ M Cᴰ.≡[ eq/ M N (ax eq) ] unQuoElim .F-homᴰ N) where
+          --     elimQuoHomᴰ : ∀ {Γ A} (M N : Tm Γ A) (M≈N : M ≈ N) → unQuoElim .F-homᴰ M Cᴰ.∫≡ unQuoElim .F-homᴰ N
+          --     elimQuoHomᴰ M N (refl≈ γ) = refl
+          --     elimQuoHomᴰ _ _ (⋆≈ M≈N M'≈N') = Cᴰ.⟨ elimQuoHomᴰ _ _ M≈N ⟩⋆⟨ elimQuoHomᴰ _ _ M'≈N' ⟩
+          --     elimQuoHomᴰ M N ([λ]≈ M≈N) = ⇒ᴰ.cong-λᴰ _ _ (elimQuoHomᴰ _ _ M≈N)
+          --     elimQuoHomᴰ M N (,x=≈ γ≈γ' M≈M') = bpᴰ.cong-introᴰ _ _ (ΣPathPᴰ (elimQuoHomᴰ _ _ γ≈γ') (elimQuoHomᴰ _ _ M≈M'))
+          --     elimQuoHomᴰ M N (ax x) = Cᴰ.≡in (ı-ax x)
 
+          --     elimQuo : GlobalSection Cᴰ
+          --     elimQuo .F-obᴰ = elimCtx Quo*Cᴰ Quo*termᴰ Quo*bpᴰ Quo*⇒ᴰ ı
+          --     elimQuo .F-homᴰ = Quo.elim (λ _ → Cᴰ.isSetHomᴰ) (unQuoElim .F-homᴰ) λ M N M≈N → Cᴰ.rectifyOut $ elimQuoHomᴰ M N M≈N
+          --     elimQuo .F-idᴰ = refl
+          --     elimQuo .F-seqᴰ = Quo.elimProp2 (λ γ≈ M≈ → Cᴰ.isSetHomᴰ _ _) $ λ γ M → refl

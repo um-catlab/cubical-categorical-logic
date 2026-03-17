@@ -48,16 +48,25 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.CartesianClosed.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Instances.Reindex.CartesianClosed
+open import Cubical.Categories.Displayed.Instances.Reindex.Exponential
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
+open import Cubical.Categories.Displayed.Instances.Reindex.UniversalQuantifier
+open import Cubical.Categories.Displayed.Limits.CartesianV'
+open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓCᴰ ℓCᴰ' : Level
+    ℓ ℓ' ℓ'' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
 
 open Category
 open Functor
@@ -112,6 +121,9 @@ module Lambda⇒
     -- constants
     gen : ∀ {A} (f : Constant A) → Tm [] (x: A)
 
+  [APP] : ∀ {Γ A B} → Tm Γ (x: (A [⇒] B)) → Tm Γ (x: A) → Tm Γ (x: B)
+  [APP] M N = seqS (M ,x= N) [app]
+
   LAMBDA : Category ℓ (ℓ-max ℓ ℓ')
   LAMBDA .ob = Ctx
   LAMBDA .Hom[_,_] = Tm
@@ -121,6 +133,7 @@ module Lambda⇒
   LAMBDA .⋆IdR = seqIdR
   LAMBDA .⋆Assoc = seqAssoc
   LAMBDA .isSetHom = isSetTm
+  module LAMBDA = Category LAMBDA
 
   TERMINALCTX : Terminal' LAMBDA
   TERMINALCTX .vertex = []
@@ -193,6 +206,43 @@ module Lambda⇒
         elim .F-homᴰ = elimTm
         elim .F-idᴰ = refl
         elim .F-seqᴰ = λ _ _ → refl
+
+  module _ (D : CartesianCategory ℓD ℓD')
+    (F : Functor LAMBDA (D .CartesianCategory.C))
+    (F-× : ∀ A → preservesProvidedBinProductsWith F (EXTENSION A))
+    (CCCⱽ : CartesianClosedCategoryⱽ D ℓCᴰ ℓCᴰ')
+    where
+    private
+      module CCCⱽ = CartesianClosedCategoryⱽ CCCⱽ
+      F*Termᴰ : Terminalᴰ (reindex CCCⱽ.Cᴰ F) TERMINALCTX
+      F*Termᴰ = (Terminalⱽ→ᴰ (reindex CCCⱽ.Cᴰ F) _ (TerminalsⱽReindex F CCCⱽ.termⱽ []))
+
+      F*BPᴰ : {A : Ty} (Aᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: A) ]) → BinProductsWithᴰ (reindex CCCⱽ.Cᴰ F) (EXTENSION A) Aᴰ
+      F*BPᴰ {A = A} Aᴰ Bᴰ = BinProductⱽ+π*→ᴰ (reindex CCCⱽ.Cᴰ F) _ Bᴰ Aᴰ
+        (reindexCartesianLift CCCⱽ.Cᴰ F wk  Bᴰ (CCCⱽ.cartesianLifts Bᴰ _ (F-hom F wk)))
+        (reindexCartesianLift CCCⱽ.Cᴰ F var Aᴰ (CCCⱽ.cartesianLifts Aᴰ _ (F-hom F var)))
+        (reindexBinProductⱽ F _ _ (CCCⱽ.bpⱽ _ _))
+
+      F*Expᴰ : {A B : Ty} (Aᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: A) ])
+        (Bᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: B) ]) →
+        Exponentialᴰ (reindex CCCⱽ.Cᴰ F) (x: A , EXTENSION A)
+        (Aᴰ , F*BPᴰ Aᴰ) Bᴰ (EXPONENTIALS A B)
+      F*Expᴰ {A}{B} Aᴰ Bᴰ = ∀+Expⱽ+lifts⇒Expᴰ
+        (reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
+        (isLRⱽObᴰReindex _ _ (CCCⱽ.lrⱽ _))
+        (reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
+        (reindexExponentialⱽ _ _ _ (CCCⱽ.expⱽ _ _))
+        (λ _ _ → reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
+        (reflectsUniversalQuantifiers _ _ CCCⱽ.cartesianLifts (EXTENSION A) (λ c → D .CartesianCategory.bp (c , F-ob F (x: A))) (F-× A) _ (CCCⱽ.forallⱽ _))
+
+    elimLocal :
+      (ıOb : (A : Base) → CCCⱽ.Cᴰ.ob[ F  .F-ob (x: (↑ A)) ])
+      → ({A : Ty} (f : Constant A) →
+        CCCⱽ.Cᴰ.Hom[ F-hom F (gen f) ][ F*Termᴰ .fst ,
+        elimOb (reindex CCCⱽ.Cᴰ F) F*Termᴰ F*BPᴰ F*Expᴰ ıOb A ])
+      → Section F CCCⱽ.Cᴰ
+    elimLocal ıOb ıHom = GlobalSectionReindex→Section _ _
+      (elim (reindex CCCⱽ.Cᴰ F) F*Termᴰ F*BPᴰ F*Expᴰ ıOb ıHom)
 
 module Lambda⇒/≈
   (Base : Type ℓ)
@@ -280,7 +330,7 @@ module Lambda⇒/≈
           Quo*termᴰ : Terminalᴰ Quo*Cᴰ TERMINALCTX
           Quo*termᴰ = reindexCᴰ.reflectsTerminalᴰ (TERMINAL≈ .universal) termᴰ
 
-          -- 
+          --
           Quo*bpᴰ : {A : Ty} (Aᴰ : Quo*Cᴰ.ob[ x: A ]) → BinProductsWithᴰ Quo*Cᴰ (EXTENSION A) Aᴰ
           Quo*bpᴰ {A} Aᴰ {B} Bᴰ = reindexCᴰ.reflectsBPᴰ (EXTENSION A B) (EXTENSION≈ A B .universal) (bpᴰ Aᴰ Bᴰ)
 

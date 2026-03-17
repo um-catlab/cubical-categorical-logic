@@ -133,7 +133,7 @@ module EqReindexProperties
       → Terminalᴰ reindex term
     reflectsTerminalᴰ F⟅term⟆ termᴰ = reflectsUEᴰ _ term F⟅term⟆ termᴰ ◁UEᴰⱽ
       reindPsh-Unit _
-    
+
   module _ {A B Aᴰ Bᴰ} (bp : BinProduct C (A , B)) where
     reflectsBP-square₁ : NatIso
       ((Idᴰ /FⱽStrict StrictHom.π₁ (D [-, F-ob F A ]) (D [-, F-ob F B ]))
@@ -156,7 +156,7 @@ module EqReindexProperties
     reflectsBP-square₂ .NatIso.nIso x .isIso.inv = D.id , Dᴰ.idᴰ , D.⋆IdL _
     reflectsBP-square₂ .NatIso.nIso x .isIso.sec = Hom/≡ (Dᴰ.⋆IdL _)
     reflectsBP-square₂ .NatIso.nIso x .isIso.ret = Hom/≡ (Dᴰ.⋆IdL _)
-  
+
     reflectsBPᴰ :
       (F⟅bp⟆ : preservesBinProduct F bp)
       → BinProductᴰ Dᴰ (becomesUniversal→UniversalElement (preservesBinProdCones F A B) F⟅bp⟆) Aᴰ Bᴰ
@@ -194,7 +194,7 @@ module EqReindexProperties
       --   PshHet F (((C [-, A ]) , bpA) ⇒PshSmall (C [-, B ]))
       --   ((D [-, F ⟅ A ⟆ ]) ⇒PshLarge (D [-, F ⟅ B ⟆ ]))
       -- preservesApps .PshHom.N-ob Γ b⟨γ,a⟩ .PshHom.N-ob Δ (γ , a) =
-      --   FbpA.intro (γ , a) D.⋆ F ⟪ b⟨γ,a⟩ ⟫ 
+      --   FbpA.intro (γ , a) D.⋆ F ⟪ b⟨γ,a⟩ ⟫
       -- preservesApps .PshHom.N-ob Γ b⟨γ,a⟩ .PshHom.N-hom Δ' Δ δ (γ , a) =
       --   D.⟨ sym $ FbpA.intro-natural ⟩⋆⟨ refl ⟩ ∙ D.⋆Assoc _ _ _
       -- preservesApps .PshHom.N-hom Γ' Γ γ bf⟨γ,a⟩ = makePshHomPath (funExt (λ Δ → funExt (λ γ',a →

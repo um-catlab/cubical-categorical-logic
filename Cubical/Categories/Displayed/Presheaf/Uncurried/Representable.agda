@@ -301,7 +301,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {ue : UniversalElement C P}
   {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
   where
-  _◁UEᴰⱽ_ : UniversalElementᴰ Cᴰ P Pᴰ ue → PshIsoⱽ Pᴰ Qᴰ → UniversalElementᴰ Cᴰ P Qᴰ ue 
+  _◁UEᴰⱽ_ : UniversalElementᴰ Cᴰ P Pᴰ ue → PshIsoⱽ Pᴰ Qᴰ → UniversalElementᴰ Cᴰ P Qᴰ ue
   ueᴰ ◁UEᴰⱽ β = Representableⱽ→UniversalElementᴰ Cᴰ P Qᴰ ue
     ((ueᴰ .fst) , (UniversalElementᴰ→FiberwisePshIsoᴰ Cᴰ P Pᴰ ue ueᴰ ⋆PshIsoⱽ reindPshIso _ β))
   infix 8 _◁UEᴰⱽ_

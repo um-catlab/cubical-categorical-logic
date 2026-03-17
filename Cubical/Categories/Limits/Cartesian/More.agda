@@ -30,7 +30,7 @@ module _
     ((λ f,g x → f,g .fst x ,p f,g .snd x)
     , (λ _ → ≡-× (funExt λ _ → ×β₁) (funExt λ _ → ×β₂))
     , (λ _ → funExt λ _ → ,p≡ refl refl))
-  
+
 module _
   (CC : CartesianCategory ℓ ℓ')
   (base : CC .CartesianCategory.C .ob)

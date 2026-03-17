@@ -3,7 +3,7 @@
 -}
 
 {-# OPTIONS --lossy-unification #-}
-module Gluing.Lambda.BoolNatCanonicity.Base where
+module Gluing.Lambda.BoolNatCanonicity.ArrowOnly where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure hiding (⟨_⟩)
@@ -25,15 +25,14 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Limits.Cartesian.More
 
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
 
-open import Cubical.Categories.Instances.Free.CartesianClosedCategory.Lambda
-
-open import Gluing.Canonicity
+open import Cubical.Categories.Instances.Free.Lambda.ArrowOnly
 
 open Category
 open Functor
@@ -53,9 +52,6 @@ module _ where
   module Lam[b,n] = Lambda⇒ OB FunSym
   open Lam[b,n]
 
-  -- private
-  --   FREECCC = FreeCartesianClosedCategory ×⇒QUIVER
-  --   module FREECCC = CartesianClosedCategory FREECCC
   [bool] = Tm [] (x: (↑ bool))
   [nat] = Tm [] (x: (↑ nat))
   [tr] [fl] : [bool]

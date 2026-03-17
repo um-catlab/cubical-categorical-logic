@@ -109,16 +109,16 @@ module _ where
     CAN .F-homᴰ M  LAMBDA.id _ .snd ∙ LAMBDA.⋆IdL _
   can-bool .Iso.ret = Bool.elim refl refl
 
-  -- This doesn't currently work but this is an indexed inductive so
-  -- not sure if it will work once we have updated to the fix of
-  -- https://github.com/agda/agda/issues/7139
-  can-nat-suc : ∀ n →
-    CAN .F-homᴰ ＂ suc n ＂ℕ idS tt* .fst ≡ suc (CAN .F-homᴰ ＂ n ＂ℕ idS tt* .fst)
-  can-nat-suc n = {!refl!}
+  -- -- This doesn't currently work but this is an indexed inductive so
+  -- -- not sure if it will work once we have updated to the fix of
+  -- -- https://github.com/agda/agda/issues/7139
+  -- can-nat-suc : ∀ n →
+  --   CAN .F-homᴰ ＂ suc n ＂ℕ idS tt* .fst ≡ suc (CAN .F-homᴰ ＂ n ＂ℕ idS tt* .fst)
+  -- can-nat-suc n = {!refl!}
 
-  can-nat : Iso ℕ (Tm [] (x: (↑ nat)))
-  can-nat .Iso.fun = quoteCan
-  can-nat .Iso.inv M = CAN .F-homᴰ M  LAMBDA.id _ .fst
-  can-nat .Iso.sec M = CAN .F-homᴰ M  LAMBDA.id _ .snd ∙ LAMBDA.⋆IdL _
-  can-nat .Iso.ret = Nat.elim refl
-    (λ n ret-n → {!!} ∙ cong suc ret-n)
+  -- can-nat : Iso ℕ (Tm [] (x: (↑ nat)))
+  -- can-nat .Iso.fun = quoteCan
+  -- can-nat .Iso.inv M = CAN .F-homᴰ M  LAMBDA.id _ .fst
+  -- can-nat .Iso.sec M = CAN .F-homᴰ M  LAMBDA.id _ .snd ∙ LAMBDA.⋆IdL _
+  -- can-nat .Iso.ret = Nat.elim refl
+  --   (λ n ret-n → {!!} ∙ cong suc ret-n)

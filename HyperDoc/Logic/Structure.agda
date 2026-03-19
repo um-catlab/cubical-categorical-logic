@@ -9,6 +9,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
 open import Cubical.Categories.Instances.Preorders.Monotone
 
@@ -18,6 +19,7 @@ open import HyperDoc.Logic.Base
 open import HyperDoc.Syntax
 
 open Category
+open Functor
 
 module Push
   {Σ : Signature} 
@@ -70,3 +72,19 @@ module Push
       → A VL.◂ pull M .MonFun.f Q ≤ pull M .MonFun.f Q
     pullPush M = pushToPull M (pullToPush M VL.id⊢)
       
+module VPush   
+  {Σ : Signature} 
+  {M : CBPVModel Σ}
+  (L : Logic M) where 
+
+  open CBPVModel M 
+  open Logic L
+
+  private 
+    module VL = HDSyntax VH 
+
+  HasVPush : Type
+  HasVPush = 
+    ∀ {A A' : V .ob}
+      (f : V [ A , A' ]) → 
+      HasLeftAdj (VH .F-hom f)

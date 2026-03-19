@@ -1,5 +1,6 @@
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum renaming (rec to  ⊎rec ; map to ⊎map)
 open import Cubical.Data.List renaming (map to lmap ; rec to lrec ; elim to lelim)
 open import Cubical.Foundations.Prelude
 open import Cubical.Functions.Logic 
@@ -42,8 +43,19 @@ levels = foldr ℓ-max ℓ-zero
 propBind : {ℓ ℓ' : Level} {A : Type ℓ}{B : Type ℓ'} → ∥ A ∥₁ → (A → ∥ B ∥₁) → ∥ B ∥₁ 
 propBind M f = rec squash₁ f M
 
-choice : {ℓ ℓ' : Level}{A : Type ℓ}{B : A → Type ℓ'} → (safe : (a : A) → isProp (B a)) → ((a : A) → ∥ ( B a) ∥₁) → ∥ ((a : A) → B a) ∥₁ 
+flatten : {A : Type} → ∥ ∥ A ∥₁ ∥₁ → ∥ A ∥₁ 
+flatten {A} = rec squash₁ λ x → x
+
+choice : {ℓ ℓ' : Level}{A : Type ℓ}{B : A → Type ℓ'} → 
+  (safe : (a : A) → isProp (B a)) → 
+  ((a : A) → ∥ ( B a) ∥₁) → 
+  ∥ ((a : A) → B a) ∥₁ 
 choice {A = A}{B} safe f = ∣ (λ a → rec (safe a) (λ z → z) (f a)) ∣₁
+
+merge : {A B : Type} → 
+  (∥ ∥ A ∥₁ ⊎ ∥ B ∥₁ ∥₁ ) → 
+  ∥ A ⊎ B ∥₁  
+merge {A}{B} prf = propBind prf (⊎rec (map _⊎_.inl)  (map _⊎_.inr))
 
 propBind' : {ℓ ℓ' : Level} {A : Type ℓ}{B : Type ℓ'} → ⟨ ∥ A ∥ₚ ⟩ → (A → ⟨ ∥ B ∥ₚ ⟩ ) → ⟨ ∥ B ∥ₚ ⟩
 propBind' M f = propBind M f

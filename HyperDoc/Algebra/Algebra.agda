@@ -19,6 +19,7 @@ open import Cubical.Data.Nat
 open import Cubical.Relation.Binary.Preorder
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Constructions.FullSubcategory 
 open import Cubical.Categories.Instances.Posets.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Preorders.Monotone
@@ -125,17 +126,17 @@ eval A (app o args) ρ =
 
 ------------------------------------------------------------------------
 -- 9. Satisfaction of an equation
-
+open Equation
 satisfies :
   {Σ : Signature} →
   (A : Alg Σ) →
   Equation Σ →
   Set
 satisfies A e = 
-  ∀ (ρ : Fin (Equation.ctx e) → ⟨ Carrier A ⟩ ) →
-    eval A (Equation.lhs e) ρ
+  ∀ (ρ : Fin (ctx e) → ⟨ Carrier A ⟩ ) →
+    eval A (lhs e) ρ
       ≡
-    eval A (Equation.rhs e) ρ
+    eval A (rhs e) ρ
 
 ------------------------------------------------------------------------
 -- 10. Model of a theory
@@ -183,6 +184,11 @@ ALG S .⋆IdL _ = AlgHom≡ refl
 ALG S .⋆IdR _ = AlgHom≡ refl
 ALG S .⋆Assoc _ _ _ = AlgHom≡ refl
 ALG S .isSetHom = {!   !}
+
+MOD : Theory → Category _ _ 
+MOD T = FullSubcategory (ALG Sig) 
+    λ A → (e : Eq) → satisfies A (ax e) where 
+  open Theory T
 
 Cong : {Σ : Signature}{A : Alg Σ} → ℙ ⟨ Carrier A ⟩  → Type 
 Cong {Σ}{A} P = (op : Op Σ)(args : Fin (arity Σ op) → Σ[ a ∈ ⟨ Carrier A ⟩ ] a ∈ P ) → 
@@ -237,6 +243,9 @@ AlgPred Σ .F-seq {B}{B'}{B''} f g =
   SubAlg≡ {Σ}{B''} _ _ 
   ((λ x z → z) , λ x z → z))
 
+ModPred : (T : Theory) → Functor ((MOD T) ^op) (POSET ℓ-zero ℓ-zero)
+ModPred T = AlgPred (T .Theory.Sig) ∘F (FullInclusion _ _ ^opF)
+
 data FreeOn (S : Signature)(X : Type) : Type where 
   inc : X → FreeOn S X
   ops : (o : Op S) → (Fin (arity S o) → FreeOn S X) → FreeOn S X
@@ -258,7 +267,18 @@ FreeAlgMorphism : {Σ : Signature}{X : Type}{M : Alg Σ} →
 FreeAlgMorphism {Σ}{X}{M} gen .carmap = FreeAlgMorphism' {Σ}{X}{M} gen
 FreeAlgMorphism gen .pres _ _ = refl
 
+{-}
+FreeAlgMorphism!' : {Σ : Signature}{X : Type}{M : Alg Σ} → 
+  {f g : FreeOn Σ X → ⟨ M .Carrier ⟩  } → 
+  (∀ x → f (inc x) ≡ g (inc x)) → 
+  f ≡ g
+FreeAlgMorphism!' {Σ}{X}{M}{f}{g} prf = funExt {!   !} where 
+  goal : (x : FreeOn Σ X) → f x ≡ g  x 
+  goal (inc x) = prf x
+  goal (ops o x) = {!   !}
+    -- f .pres o x ∙ (λ i → interp M  o (λ a → goal (x a) i)) ∙ sym (g .pres o x)
 
+-}
 FreeAlgMorphism! : {Σ : Signature}{X : Type}{M : Alg Σ} → 
   {f g : (ALG Σ)[ FreeAlg Σ X , M ]} → 
   (∀ x → f .carmap (inc x) ≡ g .carmap (inc x)) → 
@@ -290,6 +310,53 @@ record Algᴰ {Σ : Signature}(A : Alg Σ) : Type where
       (dargs : (x : Fin (arity Σ op)) → ⟨ Carrierᴰ (args x) ⟩) → 
       ⟨ Carrierᴰ (A .interp op args) ⟩
 open Algᴰ 
+
+module Modᴰ
+  {Σ : Signature}
+  (A : Alg Σ)
+  (Aᴰ : Algᴰ A) where 
+
+  soundᴰ : Type 
+  soundᴰ = {!   !}
+
+{-
+eval :
+  {Σ : Signature} →
+  (A : Alg Σ) →
+  {n : ℕ} →
+  Term Σ n →
+  (Fin n → ⟨ Carrier A ⟩ ) →
+  ⟨ Carrier A ⟩ 
+eval A (var i) ρ = ρ i
+eval A (app o args) ρ =
+  interp A o (λ j → eval A (args j) ρ)
+
+------------------------------------------------------------------------
+-- 9. Satisfaction of an equation
+open Equation
+satisfies :
+  {Σ : Signature} →
+  (A : Alg Σ) →
+  Equation Σ →
+  Set
+satisfies A e = 
+  ∀ (ρ : Fin (ctx e) → ⟨ Carrier A ⟩ ) →
+    eval A (lhs e) ρ
+      ≡
+    eval A (rhs e) ρ
+
+------------------------------------------------------------------------
+-- 10. Model of a theory
+
+record Model (T : Theory) : Set₁ where
+  field
+    alg   : Alg (Theory.Sig T)
+    sound :
+      (e : Theory.Eq T) →
+      satisfies alg (Theory.ax T e)
+
+-}
+
 
 record AlgHomᴰ {Sig : Signature} {M N : Alg Sig}(hom : AlgHom M N )(Mᴰ : Algᴰ  M)(Nᴰ : Algᴰ  N) : Type where 
   field 

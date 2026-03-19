@@ -175,7 +175,11 @@ record CBPVModelᴰ {Σ : Signature}(M : CBPVModel Σ) : Type where
   _⋆ᴰ_ Collageᴰ {inl A} {inl A'} {inr B} {f}{g} fᴰ Mᴰ = lcompᴰ fᴰ .carmapᴰ g Mᴰ
   _⋆ᴰ_ Collageᴰ {inl A} {inr B} {inr B'} {f}{g} Mᴰ gᴰ = rcompᴰ gᴰ .carmapᴰ f Mᴰ
   _⋆ᴰ_ Collageᴰ {inr B} {inr B'} {inr B''} = Cᴰ ._⋆ᴰ_
-  Collageᴰ .⋆IdLᴰ = {!   !}
-  Collageᴰ .⋆IdRᴰ = {!   !}
+  Collageᴰ .⋆IdLᴰ {inl x} {inl x₁} = Vᴰ .⋆IdLᴰ
+  Collageᴰ .⋆IdLᴰ {inl x} {inr x₁} = {!   !}
+  Collageᴰ .⋆IdLᴰ {inr x} {inr x₁} = Cᴰ .⋆IdLᴰ
+  Collageᴰ .⋆IdRᴰ {inl x} {inl x₁} = Vᴰ .⋆IdRᴰ
+  Collageᴰ .⋆IdRᴰ {inl x} {inr x₁} = {!   !}
+  Collageᴰ .⋆IdRᴰ {inr x} {inr x₁} = Cᴰ .⋆IdRᴰ
   Collageᴰ .⋆Assocᴰ = {!   !}
   Collageᴰ .isSetHomᴰ = {!   !}

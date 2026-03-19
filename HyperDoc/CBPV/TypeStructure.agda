@@ -16,19 +16,6 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
 open import Cubical.Categories.Instances.Sets
 
-{-
-open import Cubical.Categories.Category 
-open import Cubical.Categories.Constructions.BinProduct 
-open import Cubical.Categories.Functor
-open import Cubical.Categories.FunctorComprehension.Base 
-open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Presheaf.Constructions.BinProduct hiding (π₁ ; π₂)
-open import Cubical.Categories.Presheaf.Constructions.Unit
-open import Cubical.Categories.Presheaf.Representable.More
-open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Profunctor.General
-
--}
 open import HyperDoc.Algebra.Algebra
 open import HyperDoc.CBPV.Model.Base
 open import HyperDoc.Lib
@@ -51,12 +38,25 @@ module TypeStructure {Σ : Signature} (M : CBPVModel Σ)  where
   HasFTy : Type 
   HasFTy = (A : ob V) → Representation (C ^op) (FORGET ∘F O[ A ,-] ∘F from^op^op)
 
-  HasO× : Type 
-  HasO× = (B B' : ob C) → Representation Collage ((Collage [-, inr B ]) ×Psh (Collage [-, inr B' ]))
-
   HasO+ : Type
-  HasO+  = (A A' : ob V) → Σ[ A+A' ∈ V .ob ] PshIso (((Collage ^op) [-, inl A+A' ])) (((Collage ^op) [-, inl A ]) ×Psh ((Collage ^op) [-, inl A' ]))
-  -- Representation (Collage ^op) (((Collage ^op) [-, inl A ]) ×Psh ((Collage ^op) [-, inl A' ]))
+  HasO+ = (A A' : ob V) → 
+    Σ[ A+A' ∈ V .ob ] 
+      PshIso 
+        (((Collage ^op) [-, inl A+A' ])) 
+        (((Collage ^op) [-, inl A ]) ×Psh ((Collage ^op) [-, inl A' ]))
+    
+  HasO& : Type
+  HasO& = (B B' : ob C) → 
+    Σ[ B&B' ∈ C .ob ] 
+      PshIso 
+        (((Collage) [-, inr B&B' ])) 
+        (((Collage) [-, inr B ]) ×Psh ((Collage) [-, inr B' ]))
+
+  HasC& : Type
+  HasC& = (B B' : ob C) → Representation C ((C [-, B ]) ×Psh (C [-, B' ])) 
+
+  HasV× : Type
+  HasV× = (A A' : ob V) → Representation V ((V [-, A ]) ×Psh (V [-, A' ])) 
 
   HasV+ : Type
   HasV+  = (A A' : ob V) → Representation (V ^op) (((V ^op) [-, A ]) ×Psh ((V ^op) [-, A' ]))
@@ -171,11 +171,76 @@ module TypeStructure {Σ : Signature} (M : CBPVModel Σ)  where
     _+_ : ob V → ob V → ob V 
     _+_ A A' = hasO+ A A' .fst
 
+    σ₁' : {A A' A'' : ob V} → V [ A + A' , A'' ] →  V [ A , A'' ]
+    σ₁' {A}{A'}{A''} f = hasO+ A A' .snd .trans .N-ob (inl A'') f .fst
+
     σ₁ : {A A' : ob V} → V [ A , A + A' ]
-    σ₁ {A}{A'} = hasO+ A A' .snd .trans .N-ob (inl (A + A')) (V .id) .fst
+    σ₁ {A}{A'} = σ₁' (V .id)
+
+    σ₁Sub : {A A' A'' : ob V} → (f : V [ A + A' , A'' ]) →  σ₁' f ≡ σ₁ ⋆⟨ V ⟩ f
+    σ₁Sub {A}{A'}{A''} f = 
+      (cong σ₁' (sym ( V .⋆IdL f )) ) ∙ 
+      cong fst (hasO+ A A' .snd .trans .N-hom (inl A'') (inl (A + A')) f (V .id))
+
+    σ₁c : {A A' : ob V}{B : ob C} → O'[ A + A' , B ] → O'[ A , B ]
+    σ₁c {A}{A'}{B} f = hasO+ A A' .snd .trans .N-ob (inr B) f .fst
+
+    σ₁cSub : {A A' : ob V}{B : ob C} → (f : O'[ A + A' , B ]) → σ₁c f ≡ lcomp σ₁ .carmap f
+    σ₁cSub  {A}{A'}{B} f = cong σ₁c (sym lcompId) ∙ have where 
+      have : σ₁c (lcomp (V .id) .carmap f) ≡ lcomp σ₁ .carmap f 
+      have = cong fst (hasO+ A A' .snd .trans .N-hom (inr B)(inl (A + A')) f (V .id))
+
+    σ₂' : {A A' A'' : ob V} → V [ A + A' , A'' ] →  V [ A' , A'' ]
+    σ₂' {A}{A'}{A''} f = hasO+ A A' .snd .trans .N-ob (inl A'') f .snd
 
     σ₂ : {A A' : ob V} → V [ A' , A + A' ]
-    σ₂ {A}{A'} = hasO+ A A' .snd .trans .N-ob (inl (A + A')) (V .id) .snd
+    σ₂ {A}{A'} = σ₂' (V .id)
+
+    σ₂Sub : {A A' A'' : ob V} → (f : V [ A + A' , A'' ]) →  σ₂' f ≡ σ₂ ⋆⟨ V ⟩ f
+    σ₂Sub {A}{A'}{A''} f = {!   !}
+
+    σ₂c : {A A' : ob V}{B : ob C} → O'[ A + A' , B ] → O'[ A' , B ]
+    σ₂c {A}{A'}{B} f = hasO+ A A' .snd .trans .N-ob (inr B) f .snd
+
+    σ₂cSub : {A A' : ob V}{B : ob C} → (f : O'[ A + A' , B ]) → σ₂c f ≡ lcomp σ₂ .carmap f
+    σ₂cSub  {A}{A'}{B} f = cong σ₂c (sym lcompId) ∙ have where 
+      have : σ₂c (lcomp (V .id) .carmap f) ≡ lcomp σ₂ .carmap f 
+      have = cong snd (hasO+ A A' .snd .trans .N-hom (inr B)(inl (A + A')) f (V .id))
+
 
     caseV : {A A' A'' : ob V} → V [ A , A'' ] → V [ A' , A'' ] → V [ A + A' , A'' ] 
     caseV {A}{A'}{A''} f g = hasO+ A A' .snd .nIso (inl A'') .fst (f , g)
+
+    caseC : {A A' : ob V}{B : ob C} → O'[ A , B ] → O'[ A' , B ] → O'[ A + A' , B ] 
+    caseC {A}{A'}{B} f g = hasO+ A A' .snd .nIso (inr B) .fst (f , g)
+
+    caseCSub : {A A' : ob V}{B : ob C} → (f : O'[ A , B ]) → (g : O'[ A' , B ]) → caseC f g ≡ lcomp (caseV {!   !} {!   !}) .carmap {!   !}
+    caseCSub {A}{A'}{B} f g = invPshIso  (hasO+ A A' .snd) .trans .N-hom {!   !} {!   !} {!   !} {!   !} 
+    
+    +β : {A A' A'' : ob V} → (f : V [ A , A'' ]) → (g : V [ A' , A'' ]) → (σ₁' (caseV f g) , σ₂' (caseV f g)) ≡ (f , g)
+    +β {A}{A'}{A''} f g = hasO+ A A' .snd .nIso (inl A'') .snd .fst (f , g)
+
+    +β₁' : {A A' A'' : ob V} → (f : V [ A , A'' ]) → (g : V [ A' , A'' ]) → σ₁' (caseV f g) ≡ f
+    +β₁' {A}{A'}{A''} f g = cong fst (+β f g)
+
+    +β₁ : {A A' A'' : ob V} → (f : V [ A , A'' ]) → (g : V [ A' , A'' ]) → σ₁ ⋆⟨ V ⟩ caseV f g ≡ f
+    +β₁ {A}{A'}{A''} f g = sym (σ₁Sub (caseV f g)) ∙ +β₁' f g
+
+    +β₂' : {A A' A'' : ob V} → (f : V [ A , A'' ]) → (g : V [ A' , A'' ]) → σ₂' (caseV f g) ≡ g
+    +β₂' {A}{A'}{A''} f g = cong snd (+β f g)
+
+    +β₂ : {A A' A'' : ob V} → (f : V [ A , A'' ]) → (g : V [ A' , A'' ]) → σ₂ ⋆⟨ V ⟩ caseV f g ≡ g
+    +β₂ {A}{A'}{A''} f g = sym (σ₂Sub (caseV f g)) ∙ +β₂' f g
+
+    +βc : {A A' : ob V}{B : ob C} → (f : O'[ A , B ]) → (g : O'[ A' , B ]) → (σ₁c (caseC f g) , σ₂c (caseC f g)) ≡ (f , g)
+    +βc {A}{A'}{B} f g = hasO+ A A' .snd .nIso (inr B)  .snd .fst (f , g)
+
+    +βc₁ : {A A' : ob V}{B : ob C} → (f : O'[ A , B ])(g : O'[ A' , B ]) → σ₁c (caseC f g) ≡ f 
+    +βc₁ {A}{A'}{B} f g = cong fst (+βc f g )
+
+    +βc₂ : {A A' : ob V}{B : ob C} → (f : O'[ A , B ])(g : O'[ A' , B ]) → σ₂c (caseC f g) ≡ g 
+    +βc₂ {A}{A'}{B} f g = cong snd (+βc f g )
+
+
+    +η : {A A' A'' : ob V} → (f : V [ A + A' , A'' ]) → caseV (σ₁' f) (σ₂' f) ≡ f   
+    +η {A}{A'}{A''} f = hasO+ A A' .snd .nIso (inl A'') .snd .snd f

@@ -6,7 +6,7 @@ module HyperDoc.Logic.Base where
 open import Cubical.Data.FinData
 open import Cubical.Data.Sum
 
-open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Prelude hiding(_▷_)
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
@@ -14,7 +14,7 @@ open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Bifunctor
+open import Cubical.Categories.Displayed.Bifunctor 
 open import Cubical.Categories.Displayed.BinProduct 
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
@@ -84,6 +84,112 @@ record Logic {Σ : Signature} (M : CBPVModel Σ) : Type _ where
     pull (rcomp S .carmap M) ≡ MonComp (CH .F-hom S) (pull M)
   pullRComp S M = pullComp (V .id) S M ∙ cong₂ MonComp refl (VH .F-id)
 
+open import Cubical.Data.Nat hiding (_+_)
+open import Cubical.Data.Nat.Order hiding(isProp≤)
+open import Cubical.Categories.Constructions.BinProduct renaming (Fst to Fst')
+ω : Category _ _ 
+ω .ob = ℕ
+ω .Hom[_,_] = _≤_
+ω .id = 0 , refl
+ω ._⋆_ = ≤-trans
+ω .⋆IdL p = {!   !}
+ω .⋆IdR = {!   !}
+ω .⋆Assoc = {!   !}
+ω .isSetHom = {! ×C  !}
+
+
+record StepIndexedLogic {Σ : Signature} (M : CBPVModel Σ) : Type _ where 
+  open CBPVModel M
+  field 
+    VH : Functor ((V ×C ω) ^op) (POSET _ _)
+    CH : Functor ((C ×C ω) ^op) (POSET _ _)
+    Sq : NatTrans 
+          (FORGET ∘F O ∘F (((Fst' _ _) ^opF) ×F Fst' _ _)) 
+          (Hom^op ∘F (VH ×F ((CH ^opF) ∘F to^op^op)))
+
+module LogicToSILogic
+  {Σ : Signature} 
+  {M : CBPVModel Σ}
+  (L : Logic M) where 
+
+  module L = Logic L
+  open import Cubical.Relation.Binary.Preorder
+  open PreorderStr renaming(_≤_ to _≤P_)
+  open import Cubical.Data.Sigma
+  open import HyperDoc.Connectives.Connectives
+
+
+  DownClosed : {P : POSET ℓ-zero ℓ-zero .ob} → (ℕ → P .fst .fst) → Type
+  DownClosed {P} f = (∀ (n m : ℕ) → m ≤ n → _≤P_ (P .fst .snd) (f n) (f m))
+
+  isPropDownClosed :  {P : POSET ℓ-zero ℓ-zero .ob} → (f : ℕ → P .fst .fst) → 
+    isProp (DownClosed {P} f)
+  isPropDownClosed {P} f = 
+    isPropΠ λ n → isPropΠ λ m → isProp→ 
+      (IsPreorder.is-prop-valued (isPreorder (P .fst .snd)) (f n) (f m))
+
+  siProp : POSET ℓ-zero ℓ-zero .ob → Type 
+  siProp P = Σ[ f ∈ (ℕ → P .fst .fst) ] DownClosed {P} f
+
+  siProp≡ : {P : POSET ℓ-zero ℓ-zero .ob}{p q : siProp P} → 
+    p .fst ≡ q .fst → p ≡ q
+  siProp≡ {P}{p}{q} prf = ΣPathP (prf , toPathP (isPropDownClosed {P} (prf i1) _ _))
+
+  MonPo : POSET ℓ-zero ℓ-zero .ob → POSET ℓ-zero ℓ-zero .ob 
+  MonPo P .fst .fst = siProp P
+  MonPo P .fst .snd .PreorderStr._≤_ p q  = (n : ℕ) → _≤P_ (P .fst .snd) (p .fst n) (q .fst n)
+  MonPo P .fst .snd .isPreorder .IsPreorder.is-prop-valued p q = isPropΠ λ x → IsPreorder.is-prop-valued (isPreorder (P .fst .snd)) (p .fst x)
+    (q .fst x)
+  MonPo P .fst .snd .isPreorder .IsPreorder.is-refl = λ a n → IsPreorder.is-refl (isPreorder (P .fst .snd)) (a .fst n)
+  MonPo P .fst .snd .isPreorder .IsPreorder.is-trans = λ a b c z z₁ n →
+      IsPreorder.is-trans (isPreorder (P .fst .snd)) (a .fst n)
+      (b .fst n) (c .fst n) (z n) (z₁ n)
+  MonPo P .snd = {!   !}
+
+  StepIndex : Functor (POSET _ _ )(POSET _ _ )
+  -- exponentiate with ω^op
+  StepIndex .F-ob = MonPo
+  StepIndex .F-hom f .MonFun.f = λ z →
+      (λ z₁ → f .MonFun.f (z .fst z₁)) ,
+      (λ n m z₁ → f .MonFun.isMon (z .snd n m z₁))
+  StepIndex .F-hom f .MonFun.isMon = {!   !}
+  StepIndex .F-id = {!   !}
+  StepIndex .F-seq = {!   !}
+
+
+  module later
+    {C : Category _ _ }
+    (H : Functor (C ^op) (POSET _ _))
+    (⊤ : L⊤.Has⊤ H) where
+    _▷_ : (c : ob C) → siProp (H .F-ob  c) → siProp (H .F-ob c) 
+    (c ▷ p) .fst zero = L⊤.HA.top (⊤ .fst c)
+    (c ▷ p) .fst (suc n) = p .fst n
+    (c ▷ p) .snd n m x = {! n  !}
+
+  SIL : Logic M 
+  SIL .Logic.VH .F-ob A = MonPo (L.VH .F-ob A)
+  SIL .Logic.VH .F-hom f .MonFun.f (P , dcl) = 
+    (λ n → L.VH .F-hom f .MonFun.f (P n)) , 
+    λ n m z → L.VH .F-hom f .MonFun.isMon (dcl n m z)
+  SIL .Logic.VH .F-hom f .MonFun.isMon x≤y n = 
+    L.VH .F-hom f .MonFun.isMon (x≤y n)
+  SIL .Logic.VH .F-id = eqMon _ _ (funExt λ p → siProp≡ (funExt λ n → {!   !})) -- yes
+  SIL .Logic.VH .F-seq f g = eqMon _ _ (funExt λ p → siProp≡ (funExt λ n → {!   !})) --yes
+  SIL .Logic.CH .F-ob B = MonPo (L.CH .F-ob B)
+  SIL .Logic.CH .F-hom f .MonFun.f (P , dcl) = 
+    (λ n → L.CH .F-hom f .MonFun.f (P n)) , 
+    λ n m z → L.CH .F-hom f .MonFun.isMon (dcl n m z)
+  SIL .Logic.CH .F-hom f .MonFun.isMon x≤y n = 
+    L.CH .F-hom f .MonFun.isMon (x≤y n)
+  SIL .Logic.CH .F-id = eqMon _ _ (funExt λ p → siProp≡ (funExt λ n → {!   !})) -- yes
+  SIL .Logic.CH .F-seq f g = eqMon _ _ (funExt λ p → siProp≡ (funExt λ n → {!   !})) --yes
+  SIL .Logic.Sq .N-ob (A , B) M .MonFun.f = λ z →
+      (λ z₁ → N-ob L.Sq (A , B) M .MonFun.f (z .fst z₁)) ,
+      (λ n m z₁ → N-ob L.Sq (A , B) M .MonFun.isMon (z .snd n m z₁))
+  SIL .Logic.Sq .N-ob (A , B) M .MonFun.isMon = 
+    λ z n → N-ob L.Sq (A , B) M .MonFun.isMon (z n)
+  SIL .Logic.Sq .N-hom (V , S) = funExt λ M → {! funExt⁻ (L.Sq .N-hom (V , S)) M ∙ ?  !}
+  SIL .Logic.pullOp op args P Q dargs = λ n → L.pullOp op args (P .fst n) (Q .fst n) (λ x → dargs x n)
 
 module Reindex
   {Σ : Signature} 
@@ -204,7 +310,7 @@ module ConvertLogic
   Mᴰ .CBPVModelᴰ.Cᴰ = Cᴰ
   Mᴰ .CBPVModelᴰ.Oᴰ = Oᴰ
 
-  open CBPVModelᴰ Mᴰ
+  open CBPVModelᴰ Mᴰ hiding (Vᴰ ; Cᴰ ; Oᴰ)
 
     -- open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
   open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
@@ -214,6 +320,162 @@ module ConvertLogic
   open import Cubical.Categories.Presheaf.Representable.More
   open import Cubical.Relation.Binary.Preorder
   open PreorderStr
+
+  open import HyperDoc.CBPV.TypeStructure
+  open import HyperDoc.CBPV.DisplayedTypeStructure
+
+  open TypeStructure M
+  open import HyperDoc.Connectives.Connectives
+  open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
+  module test
+    (hasO+ : HasO+)
+    (V∨ : L∨.Has∨ VH) where 
+          
+    open DisplayedCoproducts hasO+ Mᴰ
+
+    open +Syntax hasO+
+          
+    open L∨.HA renaming (_∨_ to _⋁_)
+    module _ 
+      (opLiftσ₁ : ((A A' : ob V) → HasLeftAdj (VH .F-hom (σ₁ {A}{A'}))))
+      (opLiftσ₂ : ((A A' : ob V) → HasLeftAdj (VH .F-hom (σ₂ {A}{A'})))) where 
+
+      _⋁ⱽ_ : {A : ob V} → Vᴰ .ob[_] A → Vᴰ .ob[_] A → Vᴰ .ob[_] A 
+      _⋁ⱽ_ {A} = _⋁_  (V∨ .fst  A)
+
+      ⋁ⱽ-intro₁ : {A  : ob V}{P Q : Vᴰ .ob[_] A} → 
+        A VL.◂ P ≤ (P ⋁ⱽ Q)
+      ⋁ⱽ-intro₁ {A}{P}{Q} = (or-intro1 (V∨ .fst A) {P = P}{P}{Q}VL.id⊢)
+
+      ⋁ⱽ-intro₂ : {A  : ob V}{P Q : Vᴰ .ob[_] A} → 
+        A VL.◂ Q ≤ (P ⋁ⱽ Q)
+      ⋁ⱽ-intro₂ {A}{P}{Q} = (or-intro2 (V∨ .fst A) {P = Q}{P}{Q}VL.id⊢)
+
+
+      ⋁ⱽ-elim : {A  : ob V}{P R Q : Vᴰ .ob[_] A} → 
+        A VL.◂ P ≤ R  → 
+        A VL.◂ Q ≤ R  →
+        A VL.◂ (P ⋁ⱽ Q) ≤ R 
+      ⋁ⱽ-elim {A} = or-elim (V∨ .fst A)
+
+      _⋁ᴰ_ : {A A' : ob V} → Vᴰ .ob[_] A → Vᴰ .ob[_] A' → Vᴰ .ob[_] (A + A')  
+      _⋁ᴰ_ {A}{A'} P Q = 
+          _⋁_ 
+            (V∨ .fst (A + A')) 
+            (opLiftσ₁ A A' .fst $ P) 
+            (opLiftσ₂ A A' .fst $ Q)
+          
+      proj₁ : {A A' : ob V}{P : Vᴰ .ob[_] A}{Q : Vᴰ .ob[_] A' }{R : Vᴰ .ob[_] (A + A') } → 
+        (A + A') VL.◂ P ⋁ᴰ Q ≤ R → 
+        (A + A') VL.◂ (opLiftσ₁ A A' .fst $ P) ≤ R
+      proj₁ prf = VL.seq ⋁ⱽ-intro₁ prf
+      
+      ⋁ᴰ-intro₁ : {A A' : ob V}{P : Vᴰ .ob[_] A}{Q : Vᴰ .ob[_] A' } → 
+        Vᴰ .Hom[_][_,_] σ₁ P  (P ⋁ᴰ Q)
+      ⋁ᴰ-intro₁ {A}{A'}{P}{Q}= LtoR ⋁ⱽ-intro₁ where 
+        open AdjSyntax (opLiftσ₁ A A')
+
+      ⋁ᴰ-intro₁' : {A A' A'' : ob V} 
+        {P : Vᴰ .ob[_] A}{Q : Vᴰ .ob[_] A' }{R : Vᴰ .ob[_] A'' }
+        {f : V [ A + A' , A'' ]} → 
+        Vᴰ .Hom[_][_,_] f (P ⋁ᴰ Q) R → 
+        Vᴰ .Hom[_][_,_] (σ₁' f) P R 
+      ⋁ᴰ-intro₁' {A}{A'}{A''}{P}{Q}{R}{f} prf = goal where 
+        open AdjSyntax (opLiftσ₁ A A') 
+
+        have : A VL.◂ P ≤ VL.f* (σ₁ ⋆⟨ V ⟩ f) R
+        have = VL.seq (LtoR (proj₁ prf)) (VL.eqTo≤ (sym  VL.f*seq))
+
+        goal : A VL.◂ P ≤ VL.f* (σ₁' f) R
+        goal = VL.seq have (VL.eqTo≤ (cong (λ h → (VH .F-hom h) $ R) (sym(σ₁Sub f))))
+
+      ⋁ᴰ-intro₂ : {A A' : ob V}{P : Vᴰ .ob[_] A}{Q : Vᴰ .ob[_] A' } → 
+        Vᴰ .Hom[_][_,_] σ₂  Q  (P ⋁ᴰ Q)
+      ⋁ᴰ-intro₂ {A}{A'}{P}{Q} = LtoR ⋁ⱽ-intro₂ where 
+        open AdjSyntax (opLiftσ₂ A A')
+
+      ⋁ᴰ-elim : {A A' A'' : ob V}{P : Vᴰ .ob[_] A}{Q : Vᴰ .ob[_] A'}{R : Vᴰ .ob[_] A'' }
+        {f : V [ A , A'' ]}{g : V [ A' , A'' ]} → 
+        Vᴰ .Hom[_][_,_]  f  P  R  → 
+        Vᴰ .Hom[_][_,_] g  Q  R  → 
+        Vᴰ .Hom[_][_,_] (caseV f g)  (P ⋁ᴰ Q)   R 
+      ⋁ᴰ-elim {A}{A'}{A''}{P}{Q}{R}{f}{g} prf₁ prf₂ = goal where 
+        module adj₁ = AdjSyntax (opLiftσ₁ A A')
+        module adj₂ = AdjSyntax (opLiftσ₂ A A')
+
+        have : A VL.◂ P  ≤ VL.f* σ₁ (VL.f* (caseV f g) R)
+        have = VL.seq prf₁ (VL.eqTo≤  (cong (λ h → VL.f* h R) (sym (+β₁ f g)) ∙ VL.f*seq))
+
+        have' : A' VL.◂ Q  ≤ VL.f* σ₂ (VL.f* (caseV f g) R)
+        have' = VL.seq prf₂ (VL.eqTo≤ (cong (λ h → VL.f* h R) (sym (+β₂ f g)) ∙ VL.f*seq))
+
+        goal : (A + A') VL.◂ P ⋁ᴰ Q ≤ VL.f* (caseV f g) R
+        goal = 
+          ⋁ⱽ-elim {A + A'}{adj₁.L $ P}{VL.f* (caseV f g) R}{adj₂.L $ Q} 
+            (adj₁.RtoL have) 
+            (adj₂.RtoL have')
+
+      open import Cubical.Categories.Displayed.Presheaf.Morphism
+      open PshHomᴰ
+      open import Cubical.Foundations.Equiv.Dependent
+      open import Cubical.Data.Sigma
+      hasOᴰ+ : HasOᴰ+ 
+      hasOᴰ+ P Q .fst = P ⋁ᴰ Q
+      hasOᴰ+ {A}{A'} P Q .snd .fst .N-obᴰ {inl A''}{R}{f} prf = ⋁ᴰ-intro₁' prf , {!   !}
+      hasOᴰ+ {A}{A'} P Q .snd .fst .N-obᴰ {inr B}{R}{f} prf = goal , {!   !} where 
+        open AdjSyntax (opLiftσ₁ A A')
+        _ : O'[ A + A' , B ]
+        _ = f 
+        have : (A + A') VL.◂ P ⋁ᴰ Q ≤ (pull f $ R) 
+        have = prf
+
+        have' : A VL.◂ (pull (σ₁c f) $ R) ≤ ((pull (lcomp σ₁ .carmap f) $ R))
+        have' = VL.eqTo≤ (cong (λ h → (pull h $ R))  (σ₁cSub f))
+
+        have''  : A VL.◂  ((pull (lcomp σ₁ .carmap f) $ R)) ≤ VL.f* σ₁ (pull f $ R) 
+        have'' = VL.eqTo≤ (cong (λ h → h $ R) (pullLComp σ₁ f))
+
+        sub : A VL.◂ P ≤ VL.f* σ₁ (pull f $ R)
+        sub  = LtoR (proj₁ have)
+        
+        goal : A VL.◂ P ≤ (pull (σ₁c f) $ R)
+        goal = VL.seq (LtoR (proj₁ have)) 
+                (VL.eqTo≤ (sym (cong (λ h → h $ R) (pullLComp σ₁ f)) ∙ sym (cong (λ h → (pull h $ R))  (σ₁cSub f))) )
+      hasOᴰ+ P Q .snd .fst .N-homᴰ {inl x} {inl x₁} = toPathP (ΣPathP (VL.isProp≤ _ _ , VL.isProp≤ _ _)) 
+      hasOᴰ+ P Q .snd .fst .N-homᴰ {inr x} {inl x₁} = toPathP (ΣPathP (VL.isProp≤ _ _ , VL.isProp≤ _ _))
+      hasOᴰ+ P Q .snd .fst .N-homᴰ {inr x} {inr x₁} = toPathP (ΣPathP (VL.isProp≤ _ _ , VL.isProp≤ _ _)) 
+      hasOᴰ+ P Q .snd .snd {inl x} {R} .isIsoOver.inv (f , g) (prf , prf') = ⋁ᴰ-elim prf prf'
+      hasOᴰ+ {A}{A'} P Q .snd .snd {inr B} {R} .isIsoOver.inv (f , g) (prf , prf') = goal where 
+        module adj₁ = AdjSyntax (opLiftσ₁ A A')
+        module adj₂ = AdjSyntax (opLiftσ₂ A A')
+
+        _ : A VL.◂ P ≤ ((pull f) $ R)
+        _ = prf
+
+        eq1 : VL.f* σ₁ (pull (caseC f g) $ R) ≡ pull f $ R
+        eq1 = cong (λ h → h $ R) (sym (pullLComp σ₁ (caseC f g))) 
+          ∙ cong (λ h → pull h $ R) (sym  (σ₁cSub _ )∙ +βc₁ f g)
+
+        eq2 : VL.f* σ₂ (pull (caseC f g) $ R) ≡ pull g $ R
+        eq2 = cong (λ h → h $ R) (sym (pullLComp σ₂ (caseC f g))) 
+          ∙ cong (λ h → pull h $ R) (sym  (σ₂cSub _ )∙ +βc₂ f g)
+
+        goal : (A + A') VL.◂ P ⋁ᴰ Q ≤ (pull (caseC f g) $ R)
+        goal = 
+          ⋁ⱽ-elim {A + A'}{fun adj₁.L P}  
+            (adj₁.RtoL (VL.seq prf (VL.eqTo≤ (sym eq1)))) 
+            (adj₂.RtoL (VL.seq prf' (VL.eqTo≤ (sym eq2))))
+
+      hasOᴰ+ P Q .snd .snd {inl x} {R} .isIsoOver.rightInv (f , g)(prf , prf') = 
+        toPathP (ΣPathP ((VL.isProp≤ _ _) , (VL.isProp≤ _ _)))
+      hasOᴰ+ P Q .snd .snd {inr x} {R} .isIsoOver.rightInv (f , g)(prf , prf') = 
+        toPathP (ΣPathP ((VL.isProp≤ _ _) , (VL.isProp≤ _ _)))
+      hasOᴰ+ P Q .snd .snd {inl x} {R} .isIsoOver.leftInv f prf = 
+        toPathP (VL.isProp≤ _ _)
+      hasOᴰ+ P Q .snd .snd {inr x} {R} .isIsoOver.leftInv f prf = 
+        toPathP (VL.isProp≤ _ _)
+
+
 
   -- cartesian lifts over obliques
   -- except the displayed collage forgets the algebra structure on obliques..
@@ -259,27 +521,6 @@ module ConvertLogic
   hasForgetfulObliqueLifts {inr x} {inr x₁} f yᴰ .snd .PshIso.nIso (inr x₂ , fst₁ , snd₁) .snd .snd a = CL.isProp≤ _ _
   --hasForgetfulObliqueLifts {inr B} {inr B'} f yᴰ .snd .PshIso.nIso x = ?
 
-{-
-
-
-Incomplete pattern matching for hasForgetfulObliqueLifts. Missing
-cases:
-
-  hasForgetfulObliqueLifts {inr x₁} {inr x₂} f yᴰ .snd .PshIso.nIso
-    (inr x₃ , fst₁ , snd₁)
-    .fst
-    x
-  hasForgetfulObliqueLifts {inr x} {inr x₁} f yᴰ .snd .PshIso.nIso
-    (inr x₂ , fst₁ , snd₁)
-    .snd
-    .fst
-    b
-  hasForgetfulObliqueLifts {inr x} {inr x₁} f yᴰ .snd .PshIso.nIso
-    (inr x₂ , fst₁ , snd₁)
-    .snd
-    .snd
-    a
--}
 module ModelSection 
   {Σ : Signature}
   {M N : CBPVModel Σ}

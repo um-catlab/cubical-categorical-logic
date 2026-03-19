@@ -452,7 +452,7 @@ module StateMachineLogic where
   hasPush M .snd ._⊣_.adjIff {P}{Q} .sec b = ⊆-isProp  P (λ x → Q .fst  (M x)) _ b
   hasPush {A}{B} M .snd ._⊣_.adjIff {P}{Q} .ret a = ⊆-isProp  (DirectImage A B M P) (Q .fst) _ a
 
--- attempt the eliminator, heres where things go arwy 
+-- attempt the eliminator, heres where things go awry 
 module Eliminator where 
   open import Cubical.Categories.Displayed.Base
   open import Cubical.Categories.Displayed.Section
@@ -721,6 +721,14 @@ module Example where
       (λ V₁ → inl (ret V₁ , retTerm V₁)) property (classify M) → ∥ (classify M ↦* retYes) ⊎ (classify M ↦* retNo) ∥₁
     convert (base _ V M↦*retV V∈property) = 
       -- truncate the fact that things are terminal
-      hmap (λ {(inl V≡yes) → inl (subst (λ h → classify M ↦* h) (cong inl (ΣPathP ((cong ret V≡yes) , toPathP {!   !}))) M↦*retV)
-              ; (inr V≡no) → inr (subst (λ h → classify M ↦* h) (cong inl (ΣPathP ((cong ret V≡no) , toPathP {!   !}))) M↦*retV)}) 
+      hmap (λ {(inl V≡yes) → 
+                  inl (
+                    subst 
+                      (λ h → classify M ↦* h) 
+                      (cong inl (ΣPathP ((cong ret V≡yes) , toPathP {!   !}))) M↦*retV)
+              ; (inr V≡no) → 
+                  inr (
+                    subst 
+                      (λ h → classify M ↦* h) 
+                      (cong inl (ΣPathP ((cong ret V≡no) , toPathP {!   !}))) M↦*retV)}) 
             V∈property

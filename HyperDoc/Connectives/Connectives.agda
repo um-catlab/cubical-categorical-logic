@@ -55,7 +55,7 @@ module L⊤ where
   Preserve⊤ : ∀{ℓC ℓC' ℓD ℓD' ℓP ℓP'}{C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{L : Functor (C ^op) (POSET ℓP ℓP')}
    →  (F : Functor D C) →  Has⊤ L → Has⊤ (L ∘F (F ^opF)) 
   Preserve⊤ F prf .fst d = prf .fst (F-ob (F ^opF) d) -- prf .fst (F-ob (F ^opF) d)
-  Preserve⊤ F prf .snd f = ?
+  Preserve⊤ F prf .snd f = {!   !}
 
 module L∧ where
 

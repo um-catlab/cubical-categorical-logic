@@ -150,6 +150,34 @@
         Theorem .snd .isIso.sec = FreeCompAlgMorphism! λ a → cong₂ subC (cong (λ h → gen .fst h) (gen .snd .fst a)) refl
         Theorem .snd .isIso.ret = FreeAlgMorphism! λ x → cong inc (gen .snd .fst x)
 
+      finType : ℕ → VTy 
+      finType zero = 𝟙
+      finType (suc n) = 𝟙 + finType n
+
+      semFinType : ℕ → Type 
+      semFinType zero = Unit
+      semFinType (suc n) = Unit ⊎ semFinType n
+
+      fromFin : (n : ℕ) → ⟨ F.FV .F-ob (finType n) ⟩ → 𝟙 ⊢v finType n
+      fromFin zero tt = var
+      fromFin (suc n) (inl tt) = σ₁
+      fromFin (suc n) (inr x) = subV (fromFin n x) σ₂
+
+      foo : (n : ℕ) → Cubical.Foundations.Isomorphism.section vrec (fromFin n) 
+      foo zero tt = refl
+      foo (suc n) (inl tt) = refl
+      foo (suc n) (inr x) = cong inr (foo n x)
+
+      ClassifyFin : (n : ℕ)(V : 𝟙 ⊢v (𝟙 + (finType n))) → (V ≡ σ₁) ⊎ (Σ[ V' ∈ 𝟙 ⊢v (finType n) ] V ≡ subV V' σ₂)
+      ClassifyFin n V = {!   !}
+
+      finIso : (n : ℕ) → Generators (finType n) 
+      finIso n .fst = fromFin n
+      finIso n .snd .fst = foo n
+      finIso zero .snd .snd V = sym (η𝟙 _) ∙ η𝟙 V
+      finIso (suc n) .snd .snd V with (ClassifyFin n V)
+      ... | inl x = subst (λ h → fromFin (suc n) (vrec h) ≡ h ) (sym x) refl
+      ... | inr (V' , prf) = subst (λ h → fromFin (suc n) (vrec h) ≡ h ) {!   !} {! prf  !} ∙ {!   !}
 
       -- example for Bool (Unit ⊎ Unit)
       ClassifyBool : ∀ (V : 𝟙 ⊢v (𝟙 + 𝟙)) → (V ≡ σ₁) ⊎ (V ≡ σ₂) 

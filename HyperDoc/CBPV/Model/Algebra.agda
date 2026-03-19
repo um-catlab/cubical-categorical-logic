@@ -14,7 +14,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
 
-open import HyperDoc.Algebra.Algebra hiding (Model)
+open import HyperDoc.Algebra.Algebra renaming (Model to ModelDUH)
 open import HyperDoc.CBPV.Model.Base
 open import HyperDoc.CBPV.TypeStructure
 
@@ -27,6 +27,56 @@ open NatTrans
 open PshIso
 open PshHom
 
+module Model' (T : Theory) where 
+  open import Cubical.Categories.Constructions.BinProduct
+
+  record CBPVModel' (T : Theory) : Type where 
+    field 
+      V : Category _ _ 
+      C : Category _ _ 
+      O : Functor ((V ^op) ×C C) (MOD T)
+  open CBPVModel'
+  open import Cubical.Data.Nat
+  open import Cubical.Data.FinData
+  open import Cubical.Foundations.Structure
+
+  FunAlg : {Σ : Signature} → Type → Alg Σ → Alg Σ
+  FunAlg A B .Carrier = (A → ⟨ B .Carrier ⟩) , {!   !}
+  FunAlg A B .interp op args a = B .interp op (λ i → args i a)
+
+  evalFun :
+    {Σ : Signature}
+    {A : Type}
+    {B : Alg Σ}
+    {n : ℕ}
+    (t : Term Σ n)
+    (env : (Fin n → (A → ⟨ B .Carrier ⟩)))
+    (a : A)
+    →
+    eval (FunAlg A B) t env a
+    ≡
+    eval B t (λ i → env i a)
+  evalFun (var x) γ a = refl
+  evalFun {Σ}{A}{B}{n}(app o x) γ a i = 
+    B .interp o λ z → evalFun{Σ}{A}{B}{n} (x z) γ  a i
+
+  open Equation
+  open Theory
+  open ModelDUH
+  AlgModel : CBPVModel' T
+  AlgModel .V = SET _
+  AlgModel .C = MOD T
+  AlgModel .O .F-ob (A , B) .fst = FunAlg (A .fst) (B .fst)
+  AlgModel .O .F-ob (A , B) .snd e env =
+    funExt λ a → 
+      evalFun (lhs (ax T e)) env a 
+      ∙ B .snd e (λ i → env i a) 
+      ∙ sym (evalFun (rhs (ax T e)) env a)
+
+  AlgModel .O .F-hom (f , h) .carmap g a = h .carmap (g (f a))
+  AlgModel .O .F-hom (f , h) .pres op args = funExt λ a → h .pres op λ x → args x (f a)
+  AlgModel .O .F-id = AlgHom≡ refl
+  AlgModel .O .F-seq _ _ = AlgHom≡ refl
 module Model (Σ : Signature) where 
   AlgModel : CBPVModel Σ
   AlgModel .V = SET _
@@ -63,3 +113,20 @@ module Model (Σ : Signature) where
   hasFTy A .snd .nIso B .fst f = FreeAlgMorphism f
   hasFTy A .snd .nIso B .snd .fst b = refl
   hasFTy A .snd .nIso B .snd .snd a = FreeAlgMorphism! λ _ → refl
+
+  open import Cubical.Data.Sum
+  hasO+ : HasO+ 
+  hasO+ A A' .fst = (A .fst ⊎ A' .fst) , isSet⊎ (A .snd) (A' .snd)
+  hasO+ A A' .snd .trans .N-ob (inl A'') = λ z → (λ z₁ → z (inl z₁)) , (λ z₁ → z (inr z₁))
+  hasO+ A A' .snd .trans .N-ob (inr B) = λ z → (λ z₁ → z (inl z₁)) , (λ z₁ → z (inr z₁))
+  hasO+ A A' .snd .trans .N-hom (inl x) (inl x₁) f p = refl
+  hasO+ A A' .snd .trans .N-hom (inr x) (inl x₁) f p = refl
+  hasO+ A A' .snd .trans .N-hom (inr x) (inr x₁) f p = refl
+  hasO+ A A' .snd .nIso (inl x) .fst (f  , g) = rec f g
+  hasO+ A A' .snd .nIso (inl x) .snd .fst b = refl
+  hasO+ A A' .snd .nIso (inl x) .snd .snd f = funExt λ {(inl x) → refl
+                                                      ; (inr x) → refl}
+  hasO+ A A' .snd .nIso (inr x) .fst (f , g)= rec f g
+  hasO+ A A' .snd .nIso (inr x) .snd .fst b = refl
+  hasO+ A A' .snd .nIso (inr x) .snd .snd f = funExt λ {(inl x) → refl
+                                                      ; (inr x) → refl}

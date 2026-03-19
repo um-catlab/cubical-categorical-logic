@@ -4,7 +4,7 @@
 
 -- NOTE: this is not the usual notion of value coproduct in CBPV
 -- We have Complex Values
-module HyperDoc.CBPV.Syntax.UF1+derived where 
+module HyperDoc.CBPV.Syntax.UF1+&x where 
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Unit
@@ -39,10 +39,11 @@ module Syntax (Σ : Signature) where
     data VTy : Type where 
       𝟙 : VTy
       U : CTy → VTy
-      _+_ : VTy → VTy → VTy
+      _+_ _X_ : VTy → VTy → VTy
 
     data CTy : Type where 
       F : VTy → CTy
+      _&_ : CTy → CTy → CTy
 
   data _⊢v_ : (A A' : VTy) → Type 
   data _⊢c_ : (A : VTy)(B : CTy) → Type 
@@ -76,7 +77,6 @@ module Syntax (Σ : Signature) where
     +β₁ : ∀{A A' A''}{V : A ⊢v A''}{W : A' ⊢v A''} → subV σ₁ (caseV V W) ≡ V  
     +β₂ : ∀{A A' A''}{V : A ⊢v A''}{W : A' ⊢v A''} → subV σ₂ (caseV V W) ≡ W 
     +ηV : ∀{A A' A''}{V : (A + A') ⊢v A''} → caseV (subV σ₁ V) (subV σ₂ V) ≡ V 
-    +ηC : ∀{A A' B}{M : (A + A') ⊢c B} → caseV (thunk (subC' σ₁ M)) (thunk (subC' σ₂ M)) ≡ thunk M
 
   data _⊢k_ where
     -- category 
@@ -91,6 +91,11 @@ module Syntax (Σ : Signature) where
     -- type structure
     bind : {A : VTy}{B : CTy} → A ⊢c B → F A ⊢k B
     Fη : ∀ {A B}{S : F A ⊢k B} → bind (plug' S ret') ≡ S
+
+    π₁ : ∀{B B'} → (B & B') ⊢k B
+    π₂ : ∀{B B'} → (B & B') ⊢k B'
+    ⟨_,_⟩k : ∀{B B' B''} → B'' ⊢k B → B'' ⊢k B' → B'' ⊢k (B & B')
+
 
   data _⊢c_ where 
     -- profunctor      
@@ -123,13 +128,19 @@ module Syntax (Σ : Signature) where
     ret : {A : VTy} → A ⊢c F A
     Fβ : ∀{A B}{M : A ⊢c B} →  plug (bind M) ret ≡ M
 
+    caseC : ∀ {A A' B} → (A ⊢c B) → (A' ⊢c B) → (A + A') ⊢c B 
+    +βc₁ : ∀ {A A' B}{M : A ⊢c B}{N : A' ⊢c B} →  subC σ₁ (caseC M N) ≡ M
+    +βc₂ : ∀ {A A' B}{M : A ⊢c B}{N : A' ⊢c B} →  subC σ₂ (caseC M N) ≡ N
+    +ηc : ∀ {A A' B}{M : (A + A') ⊢c B} → caseC (subC σ₁ M) (subC σ₂ M) ≡ M
+
+    ⟨_,_⟩c : ∀{A B B' } → A ⊢c B → A ⊢c B' → A ⊢c (B & B')
+  
+
+
   subC' = subC
   force' = force
   plug' = plug
   ret' = ret
-
-  --caseC : ∀ {A A' B} → (A ⊢c B) → (A' ⊢c B) → (A + A') ⊢c B 
-  --caseC {A}{A'}{B} c1 c2 = subC (caseV (thunk c1) (thunk c2)) force
 
 
 module SyntacticModel (Σ : Signature)  where 
@@ -218,104 +229,30 @@ module SyntacticModel (Σ : Signature)  where
   hasO+ A A' .snd .nIso (inl A'') .fst (V , W) = caseV V W
   hasO+ A A' .snd .nIso (inl A'') .snd .fst (V , W) = ΣPathP (+β₁ , +β₂)
   hasO+ A A' .snd .nIso (inl A'') .snd .snd (V) = +ηV
-  hasO+ A A' .snd .nIso (inr B) .fst (M , N) = subC (caseV (thunk M) (thunk N)) force
-  hasO+ A A' .snd .nIso (inr B) .snd .fst (M , N) = ΣPathP (
-      subDist ∙ cong₂ subC +β₁ refl ∙ Uβ , 
-      subDist ∙ cong₂ subC +β₂ refl ∙ Uβ)
-  hasO+ A A' .snd .nIso (inr B) .snd .snd M = cong₂ subC +ηC refl ∙ Uβ 
+  hasO+ A A' .snd .nIso (inr B) .fst (M , N) = caseC M N 
+  hasO+ A A' .snd .nIso (inr B) .snd .fst (M , N) = ΣPathP ( +βc₁ , +βc₂ )
+  hasO+ A A' .snd .nIso (inr B) .snd .snd M = +ηc 
 
-
-module Recursor {Σ : Signature} (M : CBPVModel Σ)where 
-  open Syntax Σ 
-  open SyntacticModel Σ using (SynModel)
-  open CBPVModel
-  open TypeStructure M
-  module M = CBPVModel M
-
-  module _ (hasV𝟙 : HasV𝟙)(hasUTy : HasUTy)(hasFTy : HasFTy)(hasO+ : HasO+) where 
-    module Usyn = USyntax hasUTy
-    module 𝟙syn = 𝟙Syntax hasV𝟙
-    module Fsyn = FSyntax hasFTy
-    module +syn = +Syntax hasO+
-
-    mutual
-      vty : V SynModel .ob → V M .ob
-      vty 𝟙 = 𝟙syn.𝟙
-      vty (U B) = Usyn.U (cty B)
-      vty (A + A') = +syn._+_ (vty A) (vty A')
-
-      cty : C SynModel .ob → C M .ob 
-      cty (F A) = Fsyn.F (vty A)
-
-    mutual
-      vtm : ∀{A A'} → V SynModel [ A , A' ] → V M [ vty A , vty A' ]
-      vtm (subV V₁ V₂) = (V M ⋆ vtm V₁) (vtm V₂)
-      vtm var = V M .id
-      vtm (subVIdl V₁ i) = V M .⋆IdL (vtm V₁) i
-      vtm (subVIdr V₁ i) =  V M .⋆IdR (vtm V₁) i
-      vtm (subVAssoc V₁ V₂ V₃ i) = V M .⋆Assoc (vtm V₁) (vtm V₂) (vtm V₃) i
-      vtm (isSet⊢v V₁ V₂ x y i i₁) = V M .isSetHom (vtm V₁) (vtm V₂) (cong vtm x) (cong vtm y) i i₁
-      vtm (thunk M) = Usyn.thunk (ctm M)
-      vtm (Uη {A}{B}{V} i) = Usyn.Uη {vty A}{cty B}{vtm V} i
-      vtm tt = 𝟙syn.tt
-      vtm (η𝟙 {A} V i) = 𝟙syn.𝟙η {vty A}{vtm V} i
-      vtm (σ₁ {A}{A'}) = +syn.σ₁ {vty A}{vty A'}
-      vtm (σ₂ {A}{A'}) = +syn.σ₂ {vty A}{vty A'}
-      vtm (caseV V W) = +syn.caseV (vtm V) (vtm W)
-      vtm (+β₁ i) = {!   !}
-      vtm (+β₂ i) = {!   !}
-      vtm (+ηV i) = {!   !}
-      vtm (+ηC i) = {!   !}
-
-      ktm : ∀{B B'} →  C SynModel [ B , B' ] → C M [ cty B , cty B' ]
-      ktm (kcomp S S₁) = (C M ⋆ ktm S) (ktm S₁)
-      ktm hole = C M .id
-      ktm (kcompIdl S i) = C M .⋆IdL (ktm S) i
-      ktm (kcompIdr S i) = C M .⋆IdR (ktm S) i
-      ktm (kcompAssoc S S₁ S₂ i) = C M .⋆Assoc (ktm S) (ktm S₁) (ktm S₂) i
-      ktm (isSet⊢k S S₁ x y i i₁) = C M .isSetHom (ktm S) (ktm S₁) (cong ktm x) (cong ktm y) i i₁
-      ktm (bind {A}{B} M) = Fsyn.bind {vty A}{cty B} (ctm M)
-      ktm (Fη {A}{B} {S} i) = Fsyn.Fη {vty A}{cty B}{ktm S} i
-
-
-      ctm : ∀{A B} → A ⊢c B → fst (F-ob (O M) (vty A , cty B) .Alg.Carrier)
-      ctm (subC V N) = M.lcomp (vtm V) .carmap (ctm N)
-      ctm (plug S N) = M.rcomp (ktm S) .carmap (ctm N)
-      ctm (plugId {A}{B}{M} i) = M.lcompId {vty A}{cty B}{ctm M} i
-      ctm (subCId {A}{B}{M} i) = M.rcompId {vty A}{cty B}{ctm M} i
-      ctm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = M.rcompSeq {vty A}{cty B}{cty B'}{cty B''}{ktm S}{ktm S'}{ctm M} i
-      ctm (subDist {A}{A'}{A''}{B}{V}{V'}{M} i) = M.lcompSeq {vty A}{vty A'}{vty A''}{cty B}{vtm V}{vtm V'}{ctm M} i
-      ctm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = M.lrSeq {vty A}{vty A'}{cty B}{cty B'}{vtm V}{ctm M}{ktm S} i
-      ctm (isSet⊢c M M₁ x y i i₁) = {! M.O .F-hom ? .carmap ?   !}
-      ctm (ops A B op args) = M.O .F-ob ((vty A) , (cty B)) .interp op λ a → ctm{A}{B} (args a)
-      ctm (opsSub V op args i) = {! M.O .F-ob ?  .interp  !}
-      ctm (opsPlug S op args i) = {!   !}
-      ctm force = Usyn.force
-      ctm (Uβ {A}{B}{M} i) = Usyn.Uβ {vty A}{cty B}{ctm M} i
-      ctm ret = Fsyn.ret
-      ctm (Fβ {A}{B}{M} i) = Fsyn.Fβ {vty A}{cty B}{ctm M} i
-  
-    FV : Functor (V SynModel) (V M)
-    FV .F-ob = vty
-    FV .F-hom = vtm
-    FV .F-id = refl
-    FV .F-seq _ _ = refl
-
-    FC : Functor (C SynModel) (C M)
-    FC .F-ob = cty
-    FC .F-hom = ktm
-    FC .F-id = refl
-    FC .F-seq _ _ = refl
-
-    FO : NatTrans (O SynModel) (O M ∘F ((FV ^opF) ×F FC))
-    FO .NatTrans.N-ob (A , B) .AlgHom.carmap = ctm {A}{B}
-    FO .NatTrans.N-ob (A , B) .AlgHom.pres op args = refl
-    FO .NatTrans.N-hom f = 
-      AlgHom≡ (funExt λ N → 
-      funExt⁻ (cong carmap (sym (O M .F-seq (vtm (f .fst) , M.C .id) (M.V .id , ktm (f .snd)) ))) (ctm N) 
-      ∙  cong₂ (λ h h' → F-hom M.O (h , h') .carmap (ctm N)) (M.V .⋆IdL _) (M.C .⋆IdL _))
-    
-    M-rec : CBPVMorphism SynModel M 
-    M-rec .CBPVMorphism.FV = FV
-    M-rec .CBPVMorphism.FC = FC
-    M-rec .CBPVMorphism.FO = FO
+  hasO& : HasO&
+  hasO& B B' .fst = B & B'
+  hasO& B B' .snd .trans .N-ob (inl A) p = plug π₁ p , plug π₂ p
+  hasO& B B' .snd .trans .N-ob (inr B'') p = kcomp p π₁ , kcomp p π₂
+  hasO& B B' .snd .trans .N-hom (inl x) (inl x₁) V M = 
+    ΣPathP 
+      (((cong₂ plug refl plugId ∙ sym plugSub) ∙ sym plugId) , 
+      ((cong₂ plug refl plugId ∙ sym plugSub) ∙ sym plugId))
+  hasO& B B' .snd .trans .N-hom (inl x) (inr x₁) M S = 
+    ΣPathP 
+      ((plugDist) , 
+      plugDist)
+  hasO& B B' .snd .trans .N-hom (inr x) (inl x₁) () 
+  hasO& B B' .snd .trans .N-hom (inr x) (inr x₁) S S' = 
+    ΣPathP 
+      ((kcompAssoc _ _ _) , 
+      (kcompAssoc _ _ _))
+  hasO& B B' .snd .nIso (inl A) .fst (M , N) =  plug ⟨ bind M , bind N ⟩k ret
+  hasO& B B' .snd .nIso (inl A) .snd .fst (M , N) = ΣPathP ({!   !} , {!   !})
+  hasO& B B' .snd .nIso (inl A) .snd .snd M = {! Fβ ∙ ?   !}
+  hasO& B B' .snd .nIso (inr B'') .fst (S , S') = ⟨ S , S' ⟩k
+  hasO& B B' .snd .nIso (inr B'') .snd .fst (S , S') = {!   !}
+  hasO& B B' .snd .nIso (inr B'') .snd .snd S = {!   !}

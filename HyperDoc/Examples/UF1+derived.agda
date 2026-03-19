@@ -72,6 +72,7 @@
       open import Cubical.Relation.Binary.Preorder
       open PreorderStr
 
+      -- move this
       hasVPush : HasVPush
       hasVPush {A}{A'} f .fst .MonFun.f P a' = ∥ (Σ[ a ∈ ⟨ A ⟩  ]  (f a ≡ a') × ⟨ P a ⟩) ∥ₚ
       hasVPush {A}{A'} f .fst .MonFun.isMon x≤y a' = hmap λ z → z .fst , z .snd .fst , x≤y (z .fst) (z .snd .snd)
@@ -92,48 +93,67 @@
 
       module F = CBPVMorphism (M-rec hasV𝟙 hasUTy hasFTy hasO+)
 
-      toFree : ALG Σ' [ FreeCompAlg 𝟙 (F(𝟙 + 𝟙)) , FreeAlg Σ' Bool ]
-      toFree = 
-        F.FO .N-ob (𝟙 , F(𝟙 + 𝟙)) 
-        ⋆⟨ ALG Σ' ⟩ record { carmap = λ f → f tt ; pres = λ op args → refl } 
-        ⋆⟨ ALG Σ' ⟩ FreeAlgMorphism λ { (inl x) → inc true ; (inr x) → inc false}
+      vrec : {A : VTy} → 𝟙 ⊢v A → ⟨ F.FV .F-ob A ⟩ 
+      vrec {A} V = F.FV .F-hom V tt
 
-      toTerm : ALG Σ' [ FreeAlg Σ' Bool , FreeCompAlg 𝟙 (F (𝟙 + 𝟙)) ]
-      toTerm = FreeAlgMorphism λ { false → subC σ₂ ret
-                                  ; true → subC σ₁ ret}
+      Generators : VTy → Type
+      Generators A = Cubical.Foundations.Isomorphism.isIso (vrec {A})
+   
+      module _ {A : VTy}(gen : Generators A) where 
 
-      property : 𝟙 ⊢v (𝟙 + 𝟙) → hProp  _ 
-      property V =   
-            ∥ 
-              ∥ Σ[ a ∈ (𝟙 ⊢v 𝟙) ] (subV a σ₁ ≡ V) × Lift Unit ∥₁ 
-                ⊎ 
-              ∥ Σ[ a ∈ (𝟙 ⊢v 𝟙) ] (subV a σ₂ ≡ V) × Lift Unit ∥₁ 
-            ∥₁ , squash₁
+        semA : Type 
+        semA = ⟨ F.FV .F-ob A ⟩
 
-      -- ret*property
-      DI :  𝟙 ⊢c F (𝟙 + 𝟙) → Type 
-      DI = 
-        UF1+.DirectImageCong' 
-          ((𝟙 ⊢v (𝟙 + 𝟙)) , isSet⊢v) 
-          (FreeCompAlg 𝟙 (F (𝟙 + 𝟙))) 
-          (λ V → subC V ret)  
-          property
+        return : {A : VTy} → 𝟙 ⊢v A → 𝟙 ⊢c F A 
+        return V = subC V ret
 
-      boolToTerm : Bool → 𝟙 ⊢c F (𝟙 + 𝟙)
-      boolToTerm false = subC σ₂ ret
-      boolToTerm true = subC σ₁ ret
+        toTerm : ALG Σ' [ FreeAlg Σ' semA , FreeCompAlg 𝟙 (F A) ]
+        toTerm = FreeAlgMorphism λ a → return (gen .fst a) 
 
-      σ₁≠σ₂ : σ₁ {𝟙}{𝟙} ≡ σ₂ {𝟙}{𝟙} → Cubical.Data.Empty.Base.⊥
-      σ₁≠σ₂ p = inl≠inr (cong have p) where 
-        have : 𝟙 ⊢v (𝟙 + 𝟙) → Unit ⊎ Unit
-        have V = F.FV .F-hom V tt 
+        toFree : ALG Σ' [ FreeCompAlg 𝟙 (F A) , FreeAlg Σ' semA ]
+        toFree = 
+          F.FO .N-ob (𝟙 , F A) 
+          ⋆⟨ ALG Σ' ⟩ record { carmap = λ f → f tt ; pres = λ op args → refl } 
+          ⋆⟨ ALG Σ' ⟩ FreeAlgMorphism inc
 
-        inl≠inr : {A : Type}{a : A} → inl a ≡ inr a → Cubical.Data.Empty.Base.⊥ 
-        inl≠inr {A} p with ⊎Path.encode _ _ p 
-        ... | ()
+        FreeCompAlgMorphism! : {M : Alg Σ'}{f g : (ALG Σ')[ FreeCompAlg 𝟙 (F A) , M ]} → 
+          (∀ a → f .carmap (return (gen .fst a)) ≡ g .carmap (return (gen .fst a))) → f ≡ g 
+        FreeCompAlgMorphism! {M}{f}{g} prf = AlgHom≡ (funExt goal) where 
 
-      ClosedVal : ∀ (V : 𝟙 ⊢v (𝟙 + 𝟙)) → (V ≡ σ₁) ⊎ (V ≡ σ₂) 
-      ClosedVal V = 
+          -- ret*property
+          DI : 𝟙 ⊢c F A → Type 
+          DI = 
+            UF1+.DirectImageCong' 
+              ((𝟙 ⊢v A) , isSet⊢v) 
+              (FreeCompAlg 𝟙 (F A)) 
+              return
+              (LR .fst .F-obᴰ A)
+
+          sub : (M : 𝟙 ⊢c F A)(V : 𝟙 ⊢v A)(eq' : subC V ret ≡ M)(prf : V ∈ LR .fst .F-obᴰ A) → 
+            f .carmap M ≡ g .carmap M 
+          sub M V eq' _ = subst (λ h → f .carmap h ≡ g .carmap h) (cong₂ subC (gen .snd .snd V) refl ∙ eq') (prf (vrec V))
+
+          goal : (M : 𝟙 ⊢c F A) → f .carmap M ≡ g .carmap M 
+          goal M' = 
+            hrec 
+              (M .Carrier .snd _ _)  
+              (DICong-elim _ _ _ _ 
+                (λ M _ →  f .carmap M ≡ g .carmap M) 
+                sub 
+                (λ op args dargs mot → f .pres op args ∙ (λ i → interp M op λ x → mot x i) ∙ sym (g .pres op args)) 
+                M')  
+              (subst (λ h → ∥ DI h ∥₁) subCId (LR .snd .snd M' var tt*))
+
+        Theorem : CatIso (ALG Σ')(FreeAlg Σ' semA) (FreeCompAlg 𝟙 (F A))  
+        Theorem .fst = toTerm
+        Theorem .snd .isIso.inv = toFree
+        Theorem .snd .isIso.sec = FreeCompAlgMorphism! λ a → cong₂ subC (cong (λ h → gen .fst h) (gen .snd .fst a)) refl
+        Theorem .snd .isIso.ret = FreeAlgMorphism! λ x → cong inc (gen .snd .fst x)
+
+
+      -- example for Bool (Unit ⊎ Unit)
+      ClassifyBool : ∀ (V : 𝟙 ⊢v (𝟙 + 𝟙)) → (V ≡ σ₁) ⊎ (V ≡ σ₂) 
+      ClassifyBool V = 
         hrec 
           (isProp⊎ 
             (isSet⊢v _ _) 
@@ -141,6 +161,15 @@
             λ p q → σ₁≠σ₂ (sym p ∙ q)) 
           (λ z → z) 
           goal' where
+
+        σ₁≠σ₂ : σ₁ {𝟙}{𝟙} ≡ σ₂ {𝟙}{𝟙} → Cubical.Data.Empty.Base.⊥
+        σ₁≠σ₂ p = inl≠inr (cong have p) where 
+          have : 𝟙 ⊢v (𝟙 + 𝟙) → Unit ⊎ Unit
+          have V = F.FV .F-hom V tt 
+
+          inl≠inr : {A : Type}{a : A} → inl a ≡ inr a → Cubical.Data.Empty.Base.⊥ 
+          inl≠inr {A} p with ⊎Path.encode _ _ p 
+          ... | ()
 
         conv : (Σ[ a ∈ (𝟙 ⊢v 𝟙) ] (subV a σ₁ ≡ subV var V) × Lift Unit) → (V ≡ σ₁)
         conv (a , prf , tt*) = (sym (subVIdl _) ∙ sym prf ∙ cong₂ subV (sym (η𝟙 a) ∙ η𝟙 (var)) refl) ∙ subVIdl _ 
@@ -150,66 +179,18 @@
 
         goal' : ∥ (V ≡ σ₁) ⊎ (V ≡ σ₂) ∥₁
         goal' = hmap (map⊎ conv conv') (merge (LR .fst .F-homᴰ V var tt*))
-
-      FreeCompAlgMorphism! : {M : Alg Σ'}{f g : (ALG Σ')[ FreeCompAlg 𝟙 (F (𝟙 + 𝟙)) , M ]} → 
-        (∀ x → f .carmap (boolToTerm x) ≡ g .carmap (boolToTerm x)) → f ≡ g 
-      FreeCompAlgMorphism! {M}{f}{g} prf = AlgHom≡ (funExt goal) where 
-
-        sub : (M : 𝟙 ⊢c F( 𝟙 + 𝟙))(V : 𝟙 ⊢v (𝟙 + 𝟙))(eq' : subC V ret ≡ M)(prf : V ∈ property) → 
-          f .carmap M ≡ g .carmap M 
-        sub M V eq' _ with (ClosedVal V)
-        ... | inl x = subst (λ h → f .carmap h ≡ g .carmap h) (cong₂ subC (sym x) refl ∙ eq') (prf true)
-        ... | inr x = subst (λ h → f .carmap h ≡ g .carmap h) (cong₂ subC (sym x) refl ∙ eq') (prf false) 
-        
-        goal : (M : 𝟙 ⊢c F( 𝟙 + 𝟙)) → f .carmap M ≡ g .carmap M 
-        goal M' = hrec (M .Carrier .snd _ _)  (
-          DICong-elim _ _ _ _ 
-            (λ M _ →  f .carmap M ≡ g .carmap M) 
-            sub
-            (λ op args dargs mot → f .pres op args ∙ (λ i → interp M op λ x → mot x i) ∙ sym (g .pres op args)) 
-            M') 
-          ((subst (λ h → ∥ DI h ∥₁) subCId (LR .snd .snd M' var tt*)))
-
-
-      Theorem : CatIso (ALG Σ')(FreeAlg Σ' Bool) (FreeCompAlg 𝟙 (F (𝟙 + 𝟙)))  
-      Theorem .fst = toTerm
-      Theorem .snd .isIso.inv = toFree
-      Theorem .snd .isIso.sec = FreeCompAlgMorphism! λ {false → refl
-                                                  ; true → refl}
-      Theorem .snd .isIso.ret = FreeAlgMorphism! λ {false → refl
-                                              ; true → refl} 
-
-{-                                     
-
-      toTerm' : FreeOn Σ' Bool → 𝟙 ⊢c F(𝟙 + 𝟙) 
-      toTerm' = toTerm .carmap
-
-      toTermIsSurjection : isSurjection toTerm' 
-      toTermIsSurjection M = hrec squash₁ (λ d → 
-        DICong-elim _ _ _ _ 
-          (λ M _ → ∃[ x ∈ FreeOn Σ' Bool ] toTerm' x ≡ M ) 
-          (λ M V eq' p → hmap (λ { (inl (_ , prf , _)) → (inc true) , (cong₂ subC ((sym (subVIdl _) ∙ cong₂ subV (sym (η𝟙 _) ∙ η𝟙 _) refl) ∙ prf) refl ∙ eq')
-                                  ; (inr (_ , prf , _)) → (inc false) , ((cong₂ subC ((sym (subVIdl _) ∙ cong₂ subV (sym (η𝟙 _) ∙ η𝟙 _) refl) ∙ prf) refl ∙ eq'))}) (merge p) )
-          (λ op args dargs mots → recFin squash₁ (λ ih → ∣ ((ops op (λ x → ih x .fst)) , (cong (λ h → ops 𝟙 (F (𝟙 + 𝟙)) op h) (funExt (λ x → ih x .snd)))) ∣₁) mots) 
-          M 
-          d) 
-          (subst (λ h → ∥ DI h ∥₁) subCId (LR .snd .snd M var tt*))
       
-      lem : {x : FreeOn Σ' Bool} → toFree .carmap (toTerm' x) ≡ x
-      lem {inc false} = refl
-      lem {inc true} = refl
-      lem {ops op args} i = ops op λ x → lem {args x} i
+      fromBool : Unit ⊎ Unit → 𝟙 ⊢v (𝟙 + 𝟙) 
+      fromBool (inl _) = σ₁
+      fromBool (inr _) = σ₂ 
 
-      toTermIsEmbedding : isEmbedding toTerm' 
-      toTermIsEmbedding  = injEmbedding isSet⊢c goal where 
-        goal : {w x : FreeOn Σ' Bool} → toTerm' w ≡ toTerm' x → w ≡ x 
-        goal {w}{x} prf = sym (lem{w}) ∙ cong (λ h → toFree .carmap h) prf  ∙ lem{x}
+      boolIso : Generators (𝟙 + 𝟙) 
+      boolIso .fst = fromBool
+      boolIso .snd .fst (inl x) = refl
+      boolIso .snd .fst (inr x) = refl
+      boolIso .snd .snd V with (ClassifyBool V)
+      ... | inl x = subst (λ h → fromBool (vrec h) ≡ h ) (sym x) refl
+      ... | inr x = subst (λ h → fromBool (vrec h) ≡ h ) (sym x) refl
 
-      Theorem' : Iso (FreeOn Σ' Bool) (𝟙 ⊢c F (𝟙 + 𝟙)) 
-      Theorem' = 
-        equivToIso (
-          toTerm' , 
-          isEmbedding×isSurjection→isEquiv 
-            (toTermIsEmbedding  , toTermIsSurjection))
-
--}
+      Corollary : CatIso (ALG Σ')(FreeAlg Σ' (Unit ⊎ Unit)) (FreeCompAlg 𝟙 (F (𝟙 + 𝟙))) 
+      Corollary = Theorem boolIso

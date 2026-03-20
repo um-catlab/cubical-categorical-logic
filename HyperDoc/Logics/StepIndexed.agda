@@ -23,6 +23,7 @@ open import HyperDoc.CBPV.Model.Base
 open import HyperDoc.Connectives.Connectives
 open import HyperDoc.Logic.Base
 open import HyperDoc.Syntax 
+open import HyperDoc.CBPV.TypeStructure
 
 open Category
 open Functor
@@ -127,6 +128,26 @@ module Later
     goal : H' .F-hom f .fun ((▷ ▷-str c) (P , ↓clP)) .fst ≡ ▷' (H' .F-hom f .fun (P , ↓clP)) .fst 
     goal = funExt λ { zero → has⊤ .snd f .f-top
                     ; (suc n) → refl}
+  
+
+module HasVΘᴰ 
+  {Σ : Signature} 
+  {M : CBPVModel Σ}
+  (L : Logic M)
+  (hasδ : TypeStructure.Hasδ M)
+  (has▷ : L▷.Has▷ (Logic.VH L)) where
+
+  module M = CBPVModel M
+  module L = Logic L
+  module later =  L▷.LaterStr
+  open HDSyntax L.VH
+  open TypeStructure.USyntax M (hasδ .fst)
+
+  δ : {B : M.C .ob} → M.V [ U B , U B ]
+  δ {B} = hasδ .snd B
+    
+  HasΘᴰ : Type
+  HasΘᴰ = {B : M.C .ob}{P : F∣ U B ∣} → U B ◂ later.▷_ (has▷ .snd .fst (U B)) P ≤ f* (δ{B}) P
 
 module LogicToSILogic
   {Σ : Signature} 
@@ -134,6 +155,7 @@ module LogicToSILogic
   (L : Logic M) where 
 
   module L = Logic L
+  module M = CBPVModel M
 
   SIL : Logic M 
   SIL .Logic.VH = StepIndex ∘F L.VH
@@ -149,6 +171,43 @@ module LogicToSILogic
   SIL .Logic.pullOp op args P Q dargs n = 
     L.pullOp op args (P .fst n) (Q .fst n) (λ x → dargs x n)
 
+{-}
+  module ▷V (has⊤V : L⊤.Has⊤ L.VH)where 
+    open Later L.VH has⊤V
+    open L▷
+
+    ▷VH : Has▷ (SIL .Logic.VH)
+    ▷VH = has▷
+
+    open import HyperDoc.CBPV.TypeStructure
+    module HasVΘᴰ 
+     (hasδ : TypeStructure.Hasδ M) where
+
+
+      open HDSyntax (SIL .Logic.VH)
+      open TypeStructure.USyntax M (hasδ .fst)
+
+      δ : {B : M.C .ob} → M.V [ U B , U B ]
+      δ {B} = hasδ .snd B
+
+      HasΘᴰ : Type
+      HasΘᴰ = {B : M.C .ob}{P : F∣ U B ∣} → U B ◂ ▷' P ≤ f* (δ{B}) P
+
+
+      ⊤ : {A : M.V .ob} → L.F∣ A ∣
+      ⊤ {A} = L⊤.HA.top (has⊤V .fst A)
+
+      Θᴰ : {B : M.C .ob}{P : F∣ U B ∣} → 
+        U B ◂ ▷' P ≤ f* (δ{B}) P
+
+      Θᴰ {B} {P , ↓clP} zero = goal where 
+
+        goal : U B L.◂ ⊤ ≤ L.f* (δ{B}) (P 0) 
+        goal = {!  ↓clP 0 !}
+
+      Θᴰ {B} {P , ↓clP} (suc n) = {!L.f* (δ{B}) (P 0)    !}
+          
+-}
 
 
 {-

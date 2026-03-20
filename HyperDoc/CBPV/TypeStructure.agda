@@ -35,6 +35,9 @@ module TypeStructure {Σ : Signature} (M : CBPVModel Σ)  where
   HasUTy : Type 
   HasUTy = (B : ob C) → Representation V (FORGET ∘F O[-, B ])
 
+  Hasδ : Type 
+  Hasδ = Σ[ Uty ∈ HasUTy ] ((B : ob C) → V [ Uty B .fst , Uty B .fst ])
+
   HasFTy : Type 
   HasFTy = (A : ob V) → Representation (C ^op) (FORGET ∘F O[ A ,-] ∘F from^op^op)
 

@@ -2,7 +2,7 @@
 -- fix level issues
 -- reorder imports, etc
 
-module HyperDoc.CBPV.Syntax.U1Rec where
+module HyperDoc.CBPV.Syntax.GU1 where
 
 open import Cubical.Data.FinData
 open import Cubical.Data.Unit
@@ -31,16 +31,12 @@ open PshIso
 open Signature
 
 module Syntax (Σ : Signature) where 
-{-}
-  Σδ : Signature
-  Σδ .Op = Unit ⊎ Σ .Op
-  Σδ .arity (inl tt) = 1
-  Σδ .arity (inr op) = Σ .arity op
--}
+
   mutual 
     data VTy : Type where 
       𝟙 : VTy
       U : CTy → VTy
+      ▷ : VTy → VTy
 
     data CTy : Type where 
       Ans : CTy
@@ -67,16 +63,8 @@ module Syntax (Σ : Signature) where
     Uη : ∀{A B}{V : A ⊢v U B} →  thunk (subC' V force') ≡ V
     tt : ∀{A} → A ⊢v 𝟙
     η𝟙 : ∀{A} → (V : A ⊢v 𝟙) → tt ≡ V
+    next : ∀{A : VTy} → A ⊢v ▷ A
 
-    δ : ∀{B} → U B ⊢v U B
-    fix : ∀ {B} → U B ⊢v U B → 𝟙 ⊢v U B 
-    unfold : ∀ {B}{V : U B ⊢v U B} → fix V ≡ subV (subV (fix V) δ) V
-  ex : 𝟙 ⊢v U Ans 
-  ex = fix var
-  p : ex ≡ subV (subV (subV (subV (fix var) δ) var) δ) var
-  p = unfold ∙ cong (λ h → subV (subV h δ) var ) unfold
-  _ : ex ≡ subV (subV (fix var) δ) δ 
-  _ = p ∙ subVIdr _ ∙ cong₂ subV (subVIdr _) refl
   data _⊢k_ where
     -- category 
     kcomp : ∀ {B B' B''} → B ⊢k B' → B' ⊢k B'' → B ⊢k B''
@@ -118,15 +106,18 @@ module Syntax (Σ : Signature) where
     Uβ : ∀ {A B} → {M : A ⊢c B} → subC (thunk M) force ≡ M
 
     -- recursion 
-   {-} δ : ∀ {A B} → A ⊢c B → A ⊢c B
-    fix : {B : CTy} → U B ⊢c B → 𝟙 ⊢c B
-    unfold : {B : CTy}{M : U B ⊢c B} → 
-      fix M ≡ subC (thunk (δ (fix M))) M
-      -- subC (thunk (ops 𝟙 B (inl tt) λ x → fix M)) M 
--}
+    fix : {B : CTy} → ▷ (U B) ⊢c B → 𝟙 ⊢c B
+    unfold : {B : CTy}{M : ▷ (U B) ⊢c B} → 
+      fix M ≡ subC (subV (thunk (fix M)) next) M
+
   subC' = subC
   force' = force
 
+  prog : 𝟙 ⊢c Ans
+  prog = fix (subC tt yes)
+
+  _ : prog ≡ subC (subV (thunk prog) next) (subC tt yes) 
+  _ = unfold
 module SyntacticModel (Σ : Signature)  where 
   open Syntax Σ
 

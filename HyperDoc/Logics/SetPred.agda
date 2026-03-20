@@ -69,19 +69,6 @@ module _
     _∪_ : ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩ → ℙ ⟨ X ⟩ 
     _∪_ P Q x = P x ⊔ Q x 
 
-{-}
-
-  has∨⊤ : L∨⊤.Has∨⊤ Pred
-  has∨⊤ .fst X .L∨⊤.HA.top = ⊤ₓ {X}
-  has∨⊤ .fst X .L∨⊤.HA._∨_ = _∪_ {X}
-  has∨⊤ .fst X .L∨⊤.HA.top-top x Px = tt*
-  has∨⊤ .fst X .L∨⊤.HA.or_intro_l x Px = ∣ _⊎_.inl Px ∣₁
-  has∨⊤ .fst X .L∨⊤.HA.or_intro_r x Qx = ∣ _⊎_.inr Qx ∣₁
-  has∨⊤ .fst X .L∨⊤.HA.or_elim {P}{Q}{R} f g  x = trec (R x .snd) λ { (_⊎_.inl Px) → f x Px
-                                                                    ; (_⊎_.inr Qx) → g x Qx} 
-  has∨⊤ .snd f .L∨⊤.HAHom.f-top = refl
-  has∨⊤ .snd f .L∨⊤.HAHom.f-or _ _ = refl
-  -}
   has⊤ : L⊤.Has⊤ Pred
   has⊤  .fst X = record { top = λ x → ⊤ ; top-top = λ {P} x _ → tt* }
   has⊤  .snd f .L⊤.HAHom.f-top = refl

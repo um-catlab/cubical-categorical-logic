@@ -40,6 +40,7 @@ module _ {C : Category ℓC ℓC'}
     module C = Category C
     module Cᴰ = Categoryᴰ Cᴰ
 
+  -- TODO: this is an anti-pattern. This should all be passed as a big record rather than a ton of arguments
   module _ (idᴰ' : singl {A = ∀ {x} {p : Cᴰ.ob[ x ]} → Cᴰ.Hom[ C.id ][ p , p ]}
                          Cᴰ.idᴰ)
            (⋆ᴰ' : singl {A = ∀ {x y z} {f : C.Hom[ x , y ]} {g : C.Hom[ y , z ]}

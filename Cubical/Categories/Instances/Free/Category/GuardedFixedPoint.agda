@@ -6,6 +6,8 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 
+open import Cubical.Data.Bool as Bool hiding (elim)
+open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Data.Quiver.Base as Quiver
 open import Cubical.Data.Graph.Base as Graph
@@ -68,6 +70,10 @@ data Exp : Ob → Ob → Type where
   [fix]-gfix : ∀ {B} (M : Exp B B)
     → [fix] M ≡ ([fix] M ⋆ₑ ([δ] ⋆ₑ M))
 
+quoteBool : Bool → Exp [1] [RetBool]
+quoteBool false = [fls]
+quoteBool true = [tru]
+
 EXP : Category ℓ-zero ℓ-zero
 EXP .ob = Ob
 EXP .Hom[_,_] = Exp
@@ -77,6 +83,8 @@ EXP .⋆IdL = ⋆ₑIdL
 EXP .⋆IdR = ⋆ₑIdR
 EXP .⋆Assoc = ⋆ₑAssoc
 EXP .isSetHom = isSetExp
+
+
 
 [1]-TERMINAL : Terminal' EXP
 [1]-TERMINAL .vertex = [1]
@@ -147,10 +155,12 @@ module _ (Cᴰ : Categoryᴰ EXP ℓCᴰ ℓCᴰ') (1ᴰ : Terminalᴰ Cᴰ [1]-
 open import Cubical.Data.Nat as Nat hiding (elim)
 import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.TotalCategory
-open import Cubical.Categories.Displayed.Instances.PropertyOver
+open import Cubical.Categories.Instances.TotalCategory as TotalCat hiding (elim)
+open import Cubical.Categories.Displayed.Instances.PropertyOver as PropertyOver
 open import Cubical.Categories.Displayed.Instances.TotalCategory
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.HLevels
 
 ℕType ωType ωSet : (ℓ : Level) → Type _
 ℕType ℓ = ℕ → Type ℓ
@@ -206,22 +216,54 @@ module ωSETᴰ {ℓ}{ℓ'} = Fibers (ωSETᴰ ℓ ℓ')
 
 -- Delay X ≅ X ⊎ (▷ Delay X)
 data |Delay| (X : ωType ℓ) : ℕ → Type ℓ where
+  -- terminated, "inl"
   done : ∀ {n} → X .fst n → |Delay| X n
+  -- still running, but ran out of fuel
   Ω0 : |Delay| X 0
+  -- still running, more fuel in the tank
   |Θ|  : ∀ {n} → |Delay| X n → |Delay| X (suc n)
 
 Delay : ωType ℓ → ωType ℓ
 Delay X .fst = |Delay| X
-Delay X .snd = {!!}
+Delay X .snd n (done x) = done (X .snd n x)
+Delay X .snd n (|Θ| d) = d
+
+Δ : Type ℓ → ωType ℓ
+Δ X .fst = λ z → X
+Δ X .snd = λ i z → z
 
 module _ {X : ωType ℓ} where
-  gfix : ωHom (▷ X) X → ωHom ω1 X
-  gfix f .fst = Nat.elim
-    (λ z → f .fst zero tt*)
-    (λ n z _ → f .fst (suc n) (z tt))
-  gfix f .snd = Nat.elim
-    (λ _ _ _ → f .snd zero _ tt* refl)
-    λ n ih _ _ _ → f .snd (suc n) _ _ (ih tt tt refl)
+  retDelay : ωHom X (Delay X)
+  retDelay .fst n = done
+  retDelay .snd n x x' pf i = done (pf i)
+
+  next : ωHom X (▷ X)
+  next .fst = (▷ X) .snd
+  next .snd zero _ _ _ i = tt*
+  next .snd (suc n) x x' pf i = X .snd n (pf i)
+
+  module _ (f : ωHom (▷ X) X) where
+    |gfix| : ∀ n → X .fst n
+    |gfix| zero = f .fst zero tt*
+    |gfix| (suc n) = f .fst (suc n) (|gfix| n)
+
+    |gfix|-nat : ∀ n → X .snd n (f .fst (suc n) (|gfix| n)) ≡ |gfix| n
+    |gfix|-nat zero = f .snd zero (|gfix| zero) tt* refl
+    |gfix|-nat (suc n) = f .snd (suc n) (|gfix| (suc n)) (|gfix| n) (|gfix|-nat n)
+
+    gfix : ωHom ω1 X
+    gfix .fst = λ { n tt → |gfix| n }
+    gfix .snd n _ _ _ = |gfix|-nat n
+
+    gfix-fixed-fst : ∀ n → |gfix| n ≡ f .fst n (next .fst n (|gfix| n))
+    gfix-fixed-fst zero = refl
+    gfix-fixed-fst (suc n) = cong (f .fst (suc n))
+      (gfix-fixed-fst n ∙ sym (f .snd n (|gfix| n) (next .fst n (|gfix| n)) refl))
+
+module _ (X : ωSet ℓ) (f : ωHom (▷ (X .fst)) (X .fst)) where
+  gfix-fixed : gfix f ≡ _ω⋆_ {Z = X .fst} (gfix f) (_ω⋆_ {Z = X .fst} next f)
+  gfix-fixed = ΣPathPProp (λ _ → isPropΠ4 λ _ _ _ _ → X .snd _ _ _)
+    (funExt (λ n → funExt λ { tt → gfix-fixed-fst f n }))
 
 δSET : Category _ _
 δSET = ∫C (PropertyOver (SET ℓ-zero) (λ X → ⟨ X ⟩ → ⟨ X ⟩))
@@ -230,3 +272,47 @@ module _ {X : ωType ℓ} where
 θωSetᴰ = ∫Cᴰ (EqReindex.reindex (ωSETᴰ _ ℓ-zero) Fst Eq.refl λ _ _ → Eq.refl)
   (PropertyOver _ λ ((X , δ) , Xᴰ) → ∀ x → ωHom (▷ (Xᴰ x .fst)) (Xᴰ (δ x) .fst))
 
+-- Free θωSetᴰ
+-- pushforward
+module _ {V : Type ℓ}{X : Type ℓ'} (ret : V → X) (δ : X → X) (Vᴰ : V → ωType ℓᴰ) where
+  -- TODO: prove |Delayᴰ| is a set, assuming V and X are sets
+  data |Delayᴰ| : (x : X) → ℕ → Type (ℓ-max ℓ (ℓ-max ℓ' ℓᴰ)) where
+    terminates : ∀ {v n} → Vᴰ v .fst n → |Delayᴰ| (ret v) n
+    timeout : ∀ {x}                → |Delayᴰ| (δ x) 0
+    steps : ∀ {x n} → |Delayᴰ| x n → |Delayᴰ| (δ x) (suc n)
+
+  π-Delayᴰ : ∀ {x} n → |Delayᴰ| x (suc n) → |Delayᴰ| x n
+  π-Delayᴰ n (terminates x) = terminates (Vᴰ _ .snd n x)
+  π-Delayᴰ zero (steps d) = timeout
+  π-Delayᴰ (suc n) (steps d) = steps (π-Delayᴰ n d)
+
+  Delayᴰ : X → ωType _
+  Delayᴰ x .fst n = |Delayᴰ| x n
+  Delayᴰ x .snd = π-Delayᴰ
+
+  θᴰ : ∀ x → ωHom (▷ (Delayᴰ x)) (Delayᴰ (δ x))
+  θᴰ x .fst zero (lift tt) = timeout
+  θᴰ x .fst (suc n)        = steps
+  θᴰ x .snd zero _ _ _ = refl
+  θᴰ x .snd (suc n) d⟨sn⟩ d⟨n⟩ πd⟨sn⟩≡d⟨n⟩ i = steps (πd⟨sn⟩≡d⟨n⟩ i)
+
+Γ : Functor EXP δSET
+Γ = TotalCat.intro
+  (EXP [ [1] ,-])
+  (mkContrHomsSection (λ _ _ _ → isContrUnit)
+  λ A → _⋆ₑ [δ])
+
+GL : Categoryᴰ EXP _ _
+GL = reindex θωSetᴰ Γ
+
+GuardedCanonicitySection : GlobalSection GL
+GuardedCanonicitySection = elim GL
+  {!!} -- TODO: reindex a terminalᴰ
+  ((λ x → (Delayᴰ {V = Bool} quoteBool (_⋆ₑ [δ]) (λ _ → ω1) x) , {!!}) , θᴰ quoteBool (_⋆ₑ [δ]) (λ _ → ω1))
+  ((λ e → {!!}) , _)
+  {!!}
+  {!!}
+  {!!}
+  {!!}
+  {!!}
+  {!!}

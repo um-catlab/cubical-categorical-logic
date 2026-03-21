@@ -20,6 +20,7 @@ open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Limits.Terminal as Term
 open import Cubical.Categories.Limits.Terminal.More as Term
 open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
@@ -30,12 +31,14 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓg ℓg' ℓh ℓh' ℓj ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' : Level
+    ℓc ℓc' ℓd ℓd' ℓg ℓg' ℓh ℓh' ℓj ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' : Level
     ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
 
 open Category
 open Categoryᴰ
+open Functor
 open UniversalElement
+open PshIso
 
 data Ob : Type where
   [RetBool] [1] : Ob
@@ -55,15 +58,15 @@ data Exp : Ob → Ob → Type where
 
   -- [RetBool] contains constants
   [tru] [fls] : Exp [1] [RetBool]
-  [ifthen_else_] : ∀ {B}
-    → Exp [1] B
-    → Exp [1] B
-    → Exp [RetBool] B
+  -- [ifthen_else_] : ∀ {B}
+  --   → Exp [1] B
+  --   → Exp [1] B
+  --   → Exp [RetBool] B
 
   -- delay/step/pay/fuel
   [δ] : ∀ {B} → Exp B B
-  [ite-δ] : ∀ {B} {M1 M2 : Exp [1] B}
-    → [δ] ⋆ₑ [ifthen M1 else M2 ] ≡ [ifthen M1 else M2 ] ⋆ₑ [δ]
+  -- [ite-δ] : ∀ {B} {M1 M2 : Exp [1] B}
+  --   → [δ] ⋆ₑ [ifthen M1 else M2 ] ≡ [ifthen M1 else M2 ] ⋆ₑ [δ]
 
   -- guarded fixed points
   [fix] : ∀ {B} → Exp B B → Exp [1] B
@@ -84,8 +87,6 @@ EXP .⋆IdR = ⋆ₑIdR
 EXP .⋆Assoc = ⋆ₑAssoc
 EXP .isSetHom = isSetExp
 
-
-
 [1]-TERMINAL : Terminal' EXP
 [1]-TERMINAL .vertex = [1]
 [1]-TERMINAL .element = tt
@@ -93,6 +94,9 @@ EXP .isSetHom = isSetExp
   ( (λ z → []ₑ)
   , (λ _ → refl)
   , (λ _ → sym 1ηₑ))
+
+module EXP where
+  open Category EXP public
 
 module _ (Cᴰ : Categoryᴰ EXP ℓCᴰ ℓCᴰ') (1ᴰ : Terminalᴰ Cᴰ [1]-TERMINAL)
   where
@@ -105,19 +109,19 @@ module _ (Cᴰ : Categoryᴰ EXP ℓCᴰ ℓCᴰ') (1ᴰ : Terminalᴰ Cᴰ [1]-
     (⟦RetBool⟧ : Cᴰ.ob[ [RetBool] ])
     ([truᴰ] : Cᴰ.Hom[ [tru] ][ 1ᴰ .fst , ⟦RetBool⟧ ])
     ([flsᴰ] : Cᴰ.Hom[ [fls] ][ 1ᴰ .fst , ⟦RetBool⟧ ])
-    ([ifᴰthen_else_] : ∀ {B} {Bᴰ : Cᴰ.ob[ B ]}
-      {M1 M2 : Exp [1] B}
-      → Cᴰ.Hom[ M1 ][ 1ᴰ .fst , Bᴰ ]
-      → Cᴰ.Hom[ M2 ][ 1ᴰ .fst , Bᴰ ]
-      → Cᴰ.Hom[ [ifthen M1 else M2 ] ][ ⟦RetBool⟧ , Bᴰ ]
-      )
+    -- ([ifᴰthen_else_] : ∀ {B} {Bᴰ : Cᴰ.ob[ B ]}
+    --   {M1 M2 : Exp [1] B}
+    --   → Cᴰ.Hom[ M1 ][ 1ᴰ .fst , Bᴰ ]
+    --   → Cᴰ.Hom[ M2 ][ 1ᴰ .fst , Bᴰ ]
+    --   → Cᴰ.Hom[ [ifthen M1 else M2 ] ][ ⟦RetBool⟧ , Bᴰ ]
+    --   )
     (δᴰ : ∀ {B}{Bᴰ : Cᴰ.ob[ B ]} → Cᴰ.Hom[ [δ] ][ Bᴰ , Bᴰ ])
-    (δᴰ-ifᴰ : ∀ {B} {Bᴰ : Cᴰ.ob[ B ]}
-      {M1 M2 : Exp [1] B}
-      → (M1ᴰ : Cᴰ.Hom[ M1 ][ 1ᴰ .fst , Bᴰ ])
-      → (M2ᴰ : Cᴰ.Hom[ M2 ][ 1ᴰ .fst , Bᴰ ])
-      → (δᴰ Cᴰ.⋆ᴰ [ifᴰthen M1ᴰ else M2ᴰ ]) Cᴰ.≡[ [ite-δ] ] [ifᴰthen M1ᴰ else M2ᴰ ] Cᴰ.⋆ᴰ δᴰ
-      )
+    -- (δᴰ-ifᴰ : ∀ {B} {Bᴰ : Cᴰ.ob[ B ]}
+    --   {M1 M2 : Exp [1] B}
+    --   → (M1ᴰ : Cᴰ.Hom[ M1 ][ 1ᴰ .fst , Bᴰ ])
+    --   → (M2ᴰ : Cᴰ.Hom[ M2 ][ 1ᴰ .fst , Bᴰ ])
+    --   → (δᴰ Cᴰ.⋆ᴰ [ifᴰthen M1ᴰ else M2ᴰ ]) Cᴰ.≡[ [ite-δ] ] [ifᴰthen M1ᴰ else M2ᴰ ] Cᴰ.⋆ᴰ δᴰ
+    --   )
     (fixᴰ : ∀ {B}{Bᴰ : Cᴰ.ob[ B ]}{M : Exp B B}
       → (Mᴰ : Cᴰ.Hom[ M ][ Bᴰ , Bᴰ ])
       → Cᴰ.Hom[ [fix] M ][ 1ᴰ .fst , Bᴰ ])
@@ -140,9 +144,9 @@ module _ (Cᴰ : Categoryᴰ EXP ℓCᴰ ℓCᴰ') (1ᴰ : Terminalᴰ Cᴰ [1]-
     elimHom (1ηₑ {M = M} i) = Cᴰ.rectify {e' = 1ηₑ} (1ᴰ.ηᴰ (elimHom M)) i
     elimHom [tru] = [truᴰ]
     elimHom [fls] = [flsᴰ]
-    elimHom [ifthen M else M₁ ] = [ifᴰthen elimHom M else elimHom M₁ ]
+    -- elimHom [ifthen M else M₁ ] = [ifᴰthen elimHom M else elimHom M₁ ]
     elimHom [δ] = δᴰ
-    elimHom ([ite-δ] {M1 = M1}{M2 = M2} i) = δᴰ-ifᴰ (elimHom M1) (elimHom M2) i
+    -- elimHom ([ite-δ] {M1 = M1}{M2 = M2} i) = δᴰ-ifᴰ (elimHom M1) (elimHom M2) i
     elimHom ([fix] M) = fixᴰ (elimHom M)
     elimHom ([fix]-gfix M i) = [fix]-gfixᴰ (elimHom M) i
 
@@ -155,12 +159,15 @@ module _ (Cᴰ : Categoryᴰ EXP ℓCᴰ ℓCᴰ') (1ᴰ : Terminalᴰ Cᴰ [1]-
 open import Cubical.Data.Nat as Nat hiding (elim)
 import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.TotalCategory as TotalCat hiding (elim)
+open import Cubical.Categories.Instances.TotalCategory as TotalCat hiding (elim; recᴰ)
 open import Cubical.Categories.Displayed.Instances.PropertyOver as PropertyOver
 open import Cubical.Categories.Displayed.Instances.TotalCategory
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq
 open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 
 ℕType ωType ωSet : (ℓ : Level) → Type _
 ℕType ℓ = ℕ → Type ℓ
@@ -180,12 +187,12 @@ open import Cubical.Categories.Displayed.HLevels
 ωId X .fst = λ n z → z
 ωId X .snd = λ n x y z → z
 
-_ω⋆_ : {X : ωType ℓ}{Y : ωType ℓ'}{Z : ωType ℓ''}
+ω⋆ : {X : ωType ℓ}{Y : ωType ℓ'}{Z : ωType ℓ''}
   → ωHom X Y
   → ωHom Y Z
   → ωHom X Z
-(f ω⋆ g) .fst = λ n z → g .fst n (f .fst n z)
-_ω⋆_ {X = X}{Y = Y}{Z = Z} f g .snd n x z Zπgf≡z = g .snd n (f .fst (suc n) x) (f .fst n z) (f .snd n x z Zπgf≡z)
+ω⋆ f g .fst = λ n z → g .fst n (f .fst n z)
+ω⋆ {X = X}{Y = Y}{Z = Z} f g .snd n x z Zπgf≡z = g .snd n (f .fst (suc n) x) (f .fst n z) (f .snd n x z Zπgf≡z)
 
 -- TODO: generalize this to an arbitrary Family displayed category/fibration
 ωSETᴰ : ∀ ℓ ℓ' → Categoryᴰ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
@@ -193,7 +200,7 @@ _ω⋆_ {X = X}{Y = Y}{Z = Z} f g .snd n x z Zπgf≡z = g .snd n (f .fst (suc n
 ωSETᴰ ℓ ℓ' .Hom[_][_,_] f Xᴰ Yᴰ = ∀ x → ωHom (Xᴰ x .fst) (Yᴰ (f x) .fst)
 ωSETᴰ ℓ ℓ' .idᴰ = λ x → ωId _
 ωSETᴰ ℓ ℓ' ._⋆ᴰ_ {f = f}{g}{xᴰ = xᴰ}{yᴰ}{zᴰ} fᴰ gᴰ x =
-  _ω⋆_ {X = xᴰ x .fst}{Y = yᴰ (f x) .fst}{Z = zᴰ (g (f x)) .fst}
+  ω⋆ {X = xᴰ x .fst}{Y = yᴰ (f x) .fst}{Z = zᴰ (g (f x)) .fst}
     (fᴰ x)
     (gᴰ (f x))
 ωSETᴰ ℓ ℓ' .⋆IdLᴰ = λ _ → refl
@@ -210,33 +217,21 @@ module ωSETᴰ {ℓ}{ℓ'} = Fibers (ωSETᴰ ℓ ℓ')
 ▷ X .snd zero x = tt*
 ▷ X .snd (suc i) x = X .snd i x
 
+Δ : (X : Type ℓ) → ωType ℓ
+Δ X .fst _ = X
+Δ X .snd _ x = x
+
 ω1 : ωType _
-ω1 .fst _ = Unit
-ω1 .snd _ _ = tt
+ω1 = Δ Unit
 
--- Delay X ≅ X ⊎ (▷ Delay X)
-data |Delay| (X : ωType ℓ) : ℕ → Type ℓ where
-  -- terminated, "inl"
-  done : ∀ {n} → X .fst n → |Delay| X n
-  -- still running, but ran out of fuel
-  Ω0 : |Delay| X 0
-  -- still running, more fuel in the tank
-  |Θ|  : ∀ {n} → |Delay| X n → |Delay| X (suc n)
+ω1-const : ∀ {X : ωType ℓ}{Y : Type ℓ'} (y : Y) → ωHom X (Δ Y)
+ω1-const y .fst _ _ = y
+ω1-const y .snd _ _ _ _ _ = y
 
-Delay : ωType ℓ → ωType ℓ
-Delay X .fst = |Delay| X
-Delay X .snd n (done x) = done (X .snd n x)
-Delay X .snd n (|Θ| d) = d
-
-Δ : Type ℓ → ωType ℓ
-Δ X .fst = λ z → X
-Δ X .snd = λ i z → z
+ω1-intro : ∀ {X : ωType ℓ} → ωHom X ω1
+ω1-intro = ω1-const tt
 
 module _ {X : ωType ℓ} where
-  retDelay : ωHom X (Delay X)
-  retDelay .fst n = done
-  retDelay .snd n x x' pf i = done (pf i)
-
   next : ωHom X (▷ X)
   next .fst = (▷ X) .snd
   next .snd zero _ _ _ i = tt*
@@ -261,7 +256,7 @@ module _ {X : ωType ℓ} where
       (gfix-fixed-fst n ∙ sym (f .snd n (|gfix| n) (next .fst n (|gfix| n)) refl))
 
 module _ (X : ωSet ℓ) (f : ωHom (▷ (X .fst)) (X .fst)) where
-  gfix-fixed : gfix f ≡ _ω⋆_ {Z = X .fst} (gfix f) (_ω⋆_ {Z = X .fst} next f)
+  gfix-fixed : gfix f ≡ ω⋆ {Z = X .fst} (gfix f) (ω⋆ {Z = X .fst} next f)
   gfix-fixed = ΣPathPProp (λ _ → isPropΠ4 λ _ _ _ _ → X .snd _ _ _)
     (funExt (λ n → funExt λ { tt → gfix-fixed-fst f n }))
 
@@ -272,14 +267,29 @@ module _ (X : ωSet ℓ) (f : ωHom (▷ (X .fst)) (X .fst)) where
 θωSetᴰ = ∫Cᴰ (EqReindex.reindex (ωSETᴰ _ ℓ-zero) Fst Eq.refl λ _ _ → Eq.refl)
   (PropertyOver _ λ ((X , δ) , Xᴰ) → ∀ x → ωHom (▷ (Xᴰ x .fst)) (Xᴰ (δ x) .fst))
 
+1ⱽθωSetᴰ : ∀ X → Terminalⱽ θωSetᴰ X
+1ⱽθωSetᴰ X .fst = (λ x → ω1 , (λ _ → isSetUnit)) , λ _ → ω1-intro
+1ⱽθωSetᴰ X .snd .trans = yoRecⱽ _ _
+1ⱽθωSetᴰ X .snd .nIso Xᴰ .fst _ = (λ _ → ω1-intro) , _
+1ⱽθωSetᴰ X .snd .nIso Xᴰ .snd .fst _ = refl
+-- This one relies on a lot of eta equality
+1ⱽθωSetᴰ X .snd .nIso Xᴰ .snd .snd _ = refl
+
 -- Free θωSetᴰ
 -- pushforward
-module _ {V : Type ℓ}{X : Type ℓ'} (ret : V → X) (δ : X → X) (Vᴰ : V → ωType ℓᴰ) where
+-- TODO: named module here
+module Delayᴰ {V : Type ℓ}{X : Type ℓ'} (ret : V → X) (δ : X → X) (Vᴰ : V → ωType ℓᴰ) where
   -- TODO: prove |Delayᴰ| is a set, assuming V and X are sets
+  --
+  -- Universal property: ret_* Vᴰ
   data |Delayᴰ| : (x : X) → ℕ → Type (ℓ-max ℓ (ℓ-max ℓ' ℓᴰ)) where
     terminates : ∀ {v n} → Vᴰ v .fst n → |Delayᴰ| (ret v) n
     timeout : ∀ {x}                → |Delayᴰ| (δ x) 0
     steps : ∀ {x n} → |Delayᴰ| x n → |Delayᴰ| (δ x) (suc n)
+
+  -- IW tree
+  isSet|Delayᴰ| : ∀ x n → isSet (|Delayᴰ| x n)
+  isSet|Delayᴰ| = {!!}
 
   π-Delayᴰ : ∀ {x} n → |Delayᴰ| x (suc n) → |Delayᴰ| x n
   π-Delayᴰ n (terminates x) = terminates (Vᴰ _ .snd n x)
@@ -296,6 +306,38 @@ module _ {V : Type ℓ}{X : Type ℓ'} (ret : V → X) (δ : X → X) (Vᴰ : V 
   θᴰ x .snd zero _ _ _ = refl
   θᴰ x .snd (suc n) d⟨sn⟩ d⟨n⟩ πd⟨sn⟩≡d⟨n⟩ i = steps (πd⟨sn⟩≡d⟨n⟩ i)
 
+  -- Universal element
+  retᴰ : ∀ v → ωHom (Vᴰ v) (Delayᴰ (ret v))
+  retᴰ v .fst n = terminates
+  retᴰ v .snd n vᴰ vᴰ' pf i = terminates (pf i)
+
+  module _ (Xᴰ : X → ωType ℓᴰ'')
+    (⟦retᴰ⟧ : ∀ v → ωHom (Vᴰ v) (Xᴰ (ret v)))
+    (⟦θᴰ⟧ : ∀ x → ωHom (▷ (Xᴰ x)) (Xᴰ (δ x)))
+    where
+    recᴰ-fst : ∀ n x → |Delayᴰ| x n → Xᴰ x .fst n
+    recᴰ-fst n x (terminates vᴰ) = ⟦retᴰ⟧ _ .fst n vᴰ
+    recᴰ-fst n x timeout = ⟦θᴰ⟧ _ .fst 0 tt*
+    recᴰ-fst .(suc n) .(δ x) (steps {x = x}{n = n} d) =
+      ⟦θᴰ⟧ x .fst (suc n) (recᴰ-fst n x d)
+
+    recᴰ-snd : ∀ (n : ℕ) x (d : |Delayᴰ| x (suc n)) (d' : |Delayᴰ| x n) →
+      π-Delayᴰ n d ≡ d' →
+      Xᴰ x .snd n (recᴰ-fst (suc n) x d) ≡ recᴰ-fst n x d'
+    recᴰ-snd n .(ret v) (terminates {v = v} vᴰ) dn pf =
+      ⟦retᴰ⟧ v .snd n vᴰ (Vᴰ v .snd n vᴰ) refl
+      ∙ λ i → recᴰ-fst n (ret v) (pf i)
+    recᴰ-snd zero x (steps dsn) dn pf =
+      ⟦θᴰ⟧ _ .snd zero _ tt* refl
+      ∙ λ i → recᴰ-fst 0 (δ _) (pf i)
+    recᴰ-snd (suc n) x (steps dsn) dn pf =
+      ⟦θᴰ⟧ _ .snd (suc n) _ _ (recᴰ-snd n _ dsn _ refl)
+      ∙ λ i → recᴰ-fst _ (δ _) (pf i)
+
+    recᴰ : ∀ d → ωHom (Delayᴰ d) (Xᴰ d)
+    recᴰ d .fst n = recᴰ-fst n d
+    recᴰ d .snd n = recᴰ-snd n d
+
 Γ : Functor EXP δSET
 Γ = TotalCat.intro
   (EXP [ [1] ,-])
@@ -305,14 +347,36 @@ module _ {V : Type ℓ}{X : Type ℓ'} (ret : V → X) (δ : X → X) (Vᴰ : V 
 GL : Categoryᴰ EXP _ _
 GL = reindex θωSetᴰ Γ
 
+1ᴰGL : Terminalᴰ GL [1]-TERMINAL
+1ᴰGL = Terminalⱽ→ᴰ GL [1]-TERMINAL (reindexTerminalⱽ Γ (vertex [1]-TERMINAL) (1ⱽθωSetᴰ _))
+
 GuardedCanonicitySection : GlobalSection GL
 GuardedCanonicitySection = elim GL
-  {!!} -- TODO: reindex a terminalᴰ
-  ((λ x → (Delayᴰ {V = Bool} quoteBool (_⋆ₑ [δ]) (λ _ → ω1) x) , {!!}) , θᴰ quoteBool (_⋆ₑ [δ]) (λ _ → ω1))
-  ((λ e → {!!}) , _)
+  1ᴰGL
+  ((λ x → (Delayᴰ x) , isSet|Delayᴰ| x) , θᴰ)
+  ((λ e → bool-gen true e) , _)
+  ((λ e → bool-gen false e) , _)
+  -- if then else
+  -- (λ {Bᴰ = Bᴰ}{M1 = M1}{M2 = M2} M1ᴰ M2ᴰ →
+  --   recᴰ (λ M → Bᴰ .fst (M ⋆ₑ [ifthen _ else _ ]) .fst)
+  --     (λ { false → {!!} ; true → {!!} }) -- M1ᴰ and  M2ᴰ, up to subst
+  --     (λ M → {!!} ) -- θᴰ, up to subst
+  --   , tt)
+  -- ω⋆ {Z = Bᴰ .fst (γ ⋆ₑ [δ]) .fst} {!!} {!!}
+  (λ {B}{Bᴰ} → (λ γ → ω⋆ {Z = Bᴰ .fst (γ ⋆ₑ [δ]) .fst} next (Bᴰ .snd γ) ) , _)
+  (λ {B} {Bᴰ} {M} Mᴰ → (λ γ → subst (λ fixMγ → ωHom ω1 (Bᴰ .fst fixMγ .fst)) (can-lem γ ([fix] M))
+    (gfix (ω⋆ {Y = Bᴰ .fst _ .fst}{Z = Bᴰ .fst _ .fst}
+      (Bᴰ .snd ([fix] M))
+      (subst (λ fixMδ → ωHom ((Bᴰ .fst (F-ob Γ B .snd ([fix] M)) .fst)) (Bᴰ .fst fixMδ .fst))
+        (EXP.⋆Assoc ([fix] M) [δ] M ∙ (sym $ [fix]-gfix M))
+        (Mᴰ .fst ([fix] M ⋆ₑ [δ])))))) , _)
   {!!}
-  {!!}
-  {!!}
-  {!!}
-  {!!}
-  {!!}
+  where
+    can-lem : ∀ {B} (γ : Exp [1] [1]) (M : Exp [1] B) → M ≡ γ ⋆ₑ M
+    can-lem γ M = sym (EXP.⋆IdL _) ∙ EXP.⟨ 1ηₑ ∙ sym 1ηₑ ⟩⋆⟨ refl ⟩
+    open Delayᴰ {V = Bool} quoteBool (_⋆ₑ [δ]) (λ M → ω1)
+    bool-gen : ∀ b e → ωHom ω1 (Delayᴰ (e ⋆ₑ quoteBool b))
+    bool-gen b e = subst (λ M → ωHom ω1 (Delayᴰ M))
+      (can-lem e (quoteBool b))
+      -- (sym (EXP.⋆IdL _) ∙ EXP.⟨ 1ηₑ ∙ sym 1ηₑ ⟩⋆⟨ refl ⟩)
+      (retᴰ b)

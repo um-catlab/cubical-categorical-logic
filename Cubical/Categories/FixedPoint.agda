@@ -24,6 +24,10 @@ module _ {ℓ ℓ'} (C : Category ℓ ℓ') (𝟙 : C .ob) where
   -- TODO: A fixed-point is a diagram so it is preserved by all
   -- functors
 
+module _ {ℓ ℓ'} (C : Category ℓ ℓ') (x : C .ob) where
+  id-fixed-point : fixed-point C x (C .id {x})
+  id-fixed-point = (id C) , (⋆IdL C (id C))
+
 module _ {ℓC ℓC' ℓD ℓD'}
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {𝟙 x : C .ob} {f : C [ x , x ]}

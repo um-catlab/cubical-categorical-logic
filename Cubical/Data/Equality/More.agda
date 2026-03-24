@@ -54,6 +54,15 @@ isSet→isSetEq : isSetPath A → {a a' : A} → isPropPath (a ≡ a')
 isSet→isSetEq isSetA {a = a} {a' = a'} =
   substPath isPropPath PathPathEq (isSetA a a')
 
+isSet→isSetEqFiber : ∀ {f : A → B}{x}
+  → isSetPath A
+  → isSetPath B
+  → isSetPath (fiber f x)
+isSet→isSetEqFiber isSetA isSetB = isSetΣ isSetA (λ _ → isProp→isSet (isSet→isSetEq isSetB))
+  where
+    open import Cubical.Data.Sigma
+    open import Cubical.Foundations.HLevels
+
 ap₂ : (f : A → B → C) {a a' : A} {b b' : B} → a ≡ a' → b ≡ b' → f a b ≡ f a' b'
 ap₂ f refl refl = refl
 

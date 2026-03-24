@@ -23,7 +23,10 @@ open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
-open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
+open import Cubical.Categories.Displayed.Instances.Reindex.Properties
 
 open Category
 open Functor
@@ -51,6 +54,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   fixed-pointⱽ : (y : C.ob) (𝟙ⱽ : Cᴰ.ob[ y ]) {xⱽ : Cᴰ.ob[ y ]} →
                   Cᴰ.v[ y ] [ xⱽ , xⱽ ] → Type ℓCᴰ'
   fixed-pointⱽ = λ (y : C .ob) → fixed-point Cᴰ.v[ y ]
+
+  -- TODO: this is probably a way better definition to use in practice bc of the lack of reind
+  fixed-pointⱽ' : (y : C.ob) (𝟙ⱽ : Cᴰ.ob[ y ]) {xⱽ : Cᴰ.ob[ y ]} →
+                  Cᴰ.v[ y ] [ xⱽ , xⱽ ] → Type ℓCᴰ'
+  fixed-pointⱽ' y = fixed-pointᴰ (id-fixed-point C y)
+
+  module _ (y : C.ob) (𝟙ⱽ : Cᴰ.ob[ y ]) {xⱽ : Cᴰ.ob[ y ]} (fⱽ : Cᴰ.v[ y ] [ xⱽ , xⱽ ]) where
+    fixed-pointⱽ'→ⱽ : fixed-pointⱽ' y 𝟙ⱽ fⱽ → fixed-pointⱽ y 𝟙ⱽ fⱽ
+    fixed-pointⱽ'→ⱽ fpⱽ' .fst = fpⱽ' .fst
+    fixed-pointⱽ'→ⱽ fpⱽ' .snd = Cᴰ.rectifyOut (Cᴰ.reind-filler⁻ _ ∙ (Cᴰ.≡in $ fpⱽ' .snd))
 
   -- Theorem: To construct a displayed fixed point it is
   -- sufficient to have a vertical fixed point for a cartesian
@@ -120,23 +133,23 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --
 -- Maybe possible to generalize to where ▷ⱽ is displayed over ▷ in the
 -- base (with the current being the trivial case where ▷ = Id)
-module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
-  (▷ⱽ : Functorⱽ Cᴰ Cᴰ)
-  (next : NatTransᴰ (idTrans Id) Idᴰ ▷ⱽ)
-  (termⱽ : Terminalsⱽ Cᴰ)
-  where
-  private
-    module C = Category C
-    module Cᴰ = Fibers Cᴰ
 
-  guarded-fixed-pointsⱽ : Type _
-  guarded-fixed-pointsⱽ =
-    ∀ {A : C.ob} {Aᴰ : Cᴰ.ob[ A ]} (f : Cᴰ.v[ A ] [ ▷ⱽ .F-obᴰ Aᴰ , Aᴰ ])
-      → fixed-pointⱽ Cᴰ A (termⱽ A .fst) (next .N-obᴰ Aᴰ Cᴰ.⋆ⱽ f)
+record GuardedLogic (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
+  field
+    Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
+    ▷ⱽ : Functorⱽ Cᴰ Cᴰ
+    next : NatTransᴰ (idTrans Id) Idᴰ ▷ⱽ
+    isFibCᴰ : isFibration Cᴰ
+    termⱽ : Terminalsⱽ Cᴰ
+  module C = Category C
+  module Cᴰ = Fibers Cᴰ
+
+  field
+    gfpⱽ :
+      ∀ {A : C.ob} {Aᴰ : Cᴰ.ob[ A ]} (f : Cᴰ.v[ A ] [ ▷ⱽ .F-obᴰ Aᴰ , Aᴰ ])
+        → fixed-pointⱽ Cᴰ A (termⱽ A .fst) (next .N-obᴰ Aᴰ Cᴰ.⋆ⱽ f)
 
   module _
-    (isFibCᴰ : isFibration Cᴰ)
-    (gfixⱽ : guarded-fixed-pointsⱽ)
     𝟙 A Aᴰ
     (δ : C [ A , A ])
     (M : C [ A , A ])
@@ -164,4 +177,35 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
             ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ∙ sym (Cᴰ.⋆IdL _) ∙ sym (isFibCᴰ.βᴰ _) ⟩ ∙ sym isFibCᴰ.⋆πⱽ-natural
             -- (next ⋆ᴰ introⱽ _) ⋆πⱽ
             ))))
-        (gfixⱽ ((isFibCᴰ.introⱽ (Cᴰ.reind (C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ gfix⟨M⟩ .snd) (▷ⱽ .F-homᴰ isFibCᴰ.πⱽ Cᴰ.⋆ᴰ (θᴰ Cᴰ.⋆ᴰ Mᴰ)))))))
+        (gfpⱽ ((isFibCᴰ.introⱽ (Cᴰ.reind (C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ gfix⟨M⟩ .snd) (▷ⱽ .F-homᴰ isFibCᴰ.πⱽ Cᴰ.⋆ᴰ (θᴰ Cᴰ.⋆ᴰ Mᴰ)))))))
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) (Dᴰ : GuardedLogic D ℓDᴰ ℓDᴰ') where
+  private
+    module Dᴰ = GuardedLogic Dᴰ
+    module F*Dᴰ = Fibers (reindex Dᴰ.Cᴰ F)
+  open GuardedLogic
+  reindexGuardedLogic : GuardedLogic C ℓDᴰ ℓDᴰ'
+  reindexGuardedLogic .Cᴰ = reindex Dᴰ.Cᴰ F
+  reindexGuardedLogic .▷ⱽ =
+    introFⱽ (Dᴰ.▷ⱽ ∘Fⱽᴰ π Dᴰ.Cᴰ F)
+  -- TODO: generalize?
+  reindexGuardedLogic .next .N-obᴰ xᴰ = Dᴰ.Cᴰ.reind (sym (F .F-id)) $ Dᴰ.next .N-obᴰ xᴰ
+  reindexGuardedLogic .next .N-homᴰ fᴰ =
+    Dᴰ.Cᴰ.rectifyOut (Dᴰ.Cᴰ.reind-revealed-filler⁻ _ ∙ Dᴰ.Cᴰ.⟨⟩⋆⟨ Dᴰ.Cᴰ.reind-filler⁻ _ ⟩
+      ∙ ∫NT Dᴰ.next .N-hom _ ∙ Dᴰ.Cᴰ.⟨ Dᴰ.Cᴰ.reind-filler _ ⟩⋆⟨⟩
+      ∙ Dᴰ.Cᴰ.reind-revealed-filler _)
+  reindexGuardedLogic .isFibCᴰ =
+    -- TODO: Why is this so slow
+    isFibrationReindex {C = C}{D = D} Dᴰ.Cᴰ F Dᴰ.isFibCᴰ
+  reindexGuardedLogic .termⱽ = TerminalsⱽReindex F Dᴰ.termⱽ
+  reindexGuardedLogic .gfpⱽ {A} {Aᴰ} f = reindexFixed-pointⱽ Dᴰ.Cᴰ F
+    (subst
+      (fixed-pointⱽ Dᴰ.Cᴰ (F ⟅ A ⟆)
+       (TerminalsⱽReindex F Dᴰ.termⱽ A .fst))
+      (Dᴰ.Cᴰ.rectifyOut (Dᴰ.Cᴰ.reind-filler⁻ _
+        ∙ Dᴰ.Cᴰ.⟨⟩⋆⟨ Dᴰ.Cᴰ.reind-filler⁻ _ ⟩
+        ∙ Dᴰ.Cᴰ.⟨ Dᴰ.Cᴰ.reind-filler _ ⟩⋆⟨⟩
+        ∙ Dᴰ.Cᴰ.reind-revealed-filler _
+        ∙ change-base⁻ {C = Dᴰ.Cᴰ.Hom[_][ Aᴰ , Aᴰ ]} (F .F-hom) (F*Dᴰ.reind-filler _)
+        ∙ Dᴰ.Cᴰ.reind-filler _))
+      (Dᴰ.gfpⱽ (Dᴰ.Cᴰ.reind (F .F-id) f)))

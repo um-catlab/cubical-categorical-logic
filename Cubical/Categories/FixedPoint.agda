@@ -21,9 +21,6 @@ module _ {ℓ ℓ'} (C : Category ℓ ℓ') (𝟙 : C .ob) where
   fixed-point : {x : C .ob} → C [ x , x ] → Type _
   fixed-point {x} f = Σ[ fix⟨f⟩ ∈ C [ 𝟙 , x ] ] (fix⟨f⟩ C.⋆ f) ≡ fix⟨f⟩
 
-  -- TODO: A fixed-point is a diagram so it is preserved by all
-  -- functors
-
 module _ {ℓ ℓ'} (C : Category ℓ ℓ') (x : C .ob) where
   id-fixed-point : fixed-point C x (C .id {x})
   id-fixed-point = (id C) , (⋆IdL C (id C))

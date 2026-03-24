@@ -269,8 +269,6 @@ module ωSETᴰ {ℓ}{ℓ'} where
   ((funExt (λ { zero → refl ; (suc n) → refl }))
   , (funExt (λ { zero → refl ; (suc n) → refl }))))
 
--- ▷-ωSet : {X : ωSet ℓ}
-
 Δ : (X : Type ℓ) → ωType ℓ
 Δ X .fst _ = X
 Δ X .snd _ x = x

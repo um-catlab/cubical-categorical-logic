@@ -84,6 +84,11 @@ record Logic {Σ : Signature} (M : CBPVModel Σ) : Type _ where
     pull (rcomp S .carmap M) ≡ MonComp (CH .F-hom S) (pull M)
   pullRComp S M = pullComp (V .id) S M ∙ cong₂ MonComp refl (VH .F-id)
 
+  V*M*→VM* : ∀ {A A' B}{V : V [ A , A' ]}{M : O'[ A' , B ]}{Q : CL.F∣ B ∣}  → A VL.◂ VL.f* V (pull M $ Q) ≤ (pull (lcomp V .carmap M) $ Q) 
+  V*M*→VM* = VL.eqTo≤ (cong₂ MonFun.f (sym (pullLComp _ _ )) refl)
+
+  VM*→V*M*  : ∀ {A A' B}{V : V [ A , A' ]}{M : O'[ A' , B ]}{Q : CL.F∣ B ∣} →  A VL.◂ (pull (lcomp V .carmap M) $ Q) ≤ VL.f* V (pull M $ Q)
+  VM*→V*M* = VL.eqTo≤ (cong₂ MonFun.f (pullLComp _ _ ) refl)
 
 module Reindex
   {Σ : Signature} 

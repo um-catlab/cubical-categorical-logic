@@ -554,7 +554,7 @@ module Eliminator where
           goal = 
             LC.seq 
               ih2 
-              {!   !}
+              {!  asm !}
           
         ctm : ∀{A B} → (M : A ⊢c B) → A LV.◂ vty A ≤ (pull M $ cty B)
         ctm (ret {A}{A'} V) = LV.seq (vtm V) goal where 

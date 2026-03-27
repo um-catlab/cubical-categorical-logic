@@ -47,6 +47,14 @@ private
 ≤V-trans {l} {r} {v3} x x₁ = tt
 ≤V-trans {r} {r} {v3} x x₁ = x₁
 
+≤V-r-⊤ : ∀ v → ≤Vertex v r
+≤V-r-⊤ l = tt
+≤V-r-⊤ r = tt
+
+≤V-l-⊥ : ∀ v → ≤Vertex l v
+≤V-l-⊥ l = tt
+≤V-l-⊥ r = tt
+
 WalkingArrow : Category ℓ-zero ℓ-zero
 WalkingArrow .ob = Vertex
 WalkingArrow .Hom[_,_] v1 v2 = Prop→Type (≤Vertex v1 v2)

@@ -20,13 +20,16 @@
 -- meaning Qᴰ → (×ⱽ* Aᴰ)*Pᴰ ≅ Qᴰ → Pᴰ ×ⱽ Cᴰ [-][-, Aᴰ ] ≅ (Qᴰ → Pᴰ) × (Qᴰ → Cᴰ [-][-, Aᴰ ])
 -}
 
-{-# OPTIONS --lossy-unification #-}
+{-# OPTIONS --lossy-unification --allow-unsolved-metas #-}
 
 -- This should probably be UniversalProperties.Exponential, not Constructions.Exponential
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
+open import Cubical.Foundations.Equiv.Properties
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
 
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
@@ -82,6 +85,11 @@ module _
   LocallyRepresentableⱽ Pᴰ = ∀ {x} (xᴰ : Cᴰ.ob[ x ])(p : P.p[ x ])
     → Representableⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×Psh reindPshᴰNatTrans (yoRec P p) Pᴰ)
 
+  LocallyRepresentableⱽ-Equiv : Presheafᴰ P Cᴰ ℓPᴰ → Type _
+  LocallyRepresentableⱽ-Equiv Pᴰ = ∀ {x} (xᴰ : Cᴰ.ob[ x ])(p : P.p[ x ])
+    → UniversalElementⱽ'-Equiv Cᴰ x
+        ((Cᴰ [-][-, xᴰ ]) ×Psh reindPshᴰNatTrans (yoRec P p) Pᴰ)
+
   LocallyRepresentableⱽ→LocallyRepresentable : {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
     → LocallyRepresentableⱽ Pᴰ
     → LocallyRepresentable Pᴰ
@@ -99,9 +107,34 @@ module _
       -- (Cᴰ / P [-][-, Γ , Γᴰ , p ]) ×ⱽ Pᴰ
       )
 
+  open UniversalElementⱽ'-Equiv
+  LocallyRepresentableⱽ-Equiv→LocallyRepresentable : {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    → LocallyRepresentableⱽ-Equiv Pᴰ
+    → LocallyRepresentable Pᴰ
+  LocallyRepresentableⱽ-Equiv→LocallyRepresentable {Pᴰ = Pᴰ} LRⱽ (Γ , Γᴰ , p) =
+    RepresentationPsh≃→UniversalElement (((Cᴰ / P) [-, Γ , Γᴰ , p ]) ×Psh Pᴰ)
+      ((_ , LRⱽ Γᴰ p .vertexⱽ , p) ,
+      push-repr .trans
+      ⋆PshHom push-PshHomⱽ (yoRec P p) fwdⱽ
+      ⋆PshHom FrobeniusReciprocity (yoRec P p) (Cᴰ [-][-, Γᴰ ]) Pᴰ .trans
+      ⋆PshHom (invPshIso push-repr .trans ×PshHom idPshHom)
+      , λ (Δ , Δᴰ , q) → equivIsEquiv
+          (isoToEquiv (PshIso→Isos push-repr (Δ , Δᴰ , q))
+          ∙ₑ Σ-cong-equiv-snd (λ γ →
+                ≃-× (_ , LRⱽ Γᴰ p .universalⱽ (Δ , Δᴰ , γ)) (idEquiv _))
+          ∙ₑ isoToEquiv (FrobeniusReciprocity-ptwise (yoRec P p) (Cᴰ [-][-, Γᴰ ]) Pᴰ (Δ , Δᴰ , q))
+          ∙ₑ ≃-× (isoToEquiv (PshIso→Isos (invPshIso push-repr) (Δ , Δᴰ , q))) (idEquiv _))
+      )
+    where
+      fwdⱽ = yoRecⱽ
+        ((Cᴰ [-][-, Γᴰ ]) ×Psh reindPshᴰNatTrans (yoRec P p) Pᴰ)
+        (LRⱽ Γᴰ p .elementⱽ)
+
 LRⱽPresheafᴰ : {C : Category ℓC ℓC'}(P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) → Type _
 LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyRepresentableⱽ
 
+LRⱽPresheafᴰ-Equiv : {C : Category ℓC ℓC'}(P : Presheaf C ℓP) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓPᴰ : Level) → Type _
+LRⱽPresheafᴰ-Equiv P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyRepresentableⱽ-Equiv
 
 module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
   private
@@ -303,6 +336,18 @@ module _
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ-Equiv P Cᴰ ℓPᴰ) where
+
+  ×LRⱽPshᴰ-Equiv : Functor (Cᴰ / P) (Cᴰ / P)
+  ×LRⱽPshᴰ-Equiv = LRPsh→Functor (Pᴰ .fst , LocallyRepresentableⱽ-Equiv→LocallyRepresentable (Pᴰ .snd))
+
+  module _ (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
+
+    _⇒ⱽPshSmall-Equiv_ : Presheafᴰ P Cᴰ ℓQᴰ
+    _⇒ⱽPshSmall-Equiv_ = reindPsh ×LRⱽPshᴰ-Equiv Qᴰ
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : LRⱽPresheafᴰ P Cᴰ ℓQᴰ) where
   ×LRⱽPshᴰ-Iso : (α : PshIsoⱽ (Pᴰ .fst) (Qᴰ .fst))
     → NatIso (×LRⱽPshᴰ Pᴰ) (×LRⱽPshᴰ Qᴰ)
@@ -399,3 +444,61 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   Exponentialsⱽ : AllLRⱽ → Type _
   Exponentialsⱽ lrⱽ = ∀ {x} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Exponentialⱽ (xᴰ , lrⱽ xᴰ) yᴰ
+
+  isLRⱽObᴰ-Equiv : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → Type _
+  isLRⱽObᴰ-Equiv {x} xᴰ = LocallyRepresentableⱽ-Equiv (Cᴰ [-][-, xᴰ ])
+
+  LRⱽObᴰ-Equiv : ∀ (x : C.ob) → Type _
+  LRⱽObᴰ-Equiv x = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] isLRⱽObᴰ-Equiv xᴰ
+
+  LRⱽObᴰ-Equiv→LRⱽ-Equiv : ∀ {x} → (xᴰ : LRⱽObᴰ-Equiv x) → LRⱽPresheafᴰ-Equiv (C [-, x ]) Cᴰ _
+  LRⱽObᴰ-Equiv→LRⱽ-Equiv xᴰ = (Cᴰ [-][-, xᴰ .fst ]) , (xᴰ .snd)
+
+  AllLRⱽ-Equiv : Type _
+  AllLRⱽ-Equiv = ∀ {x} xᴰ → isLRⱽObᴰ-Equiv {x} xᴰ
+
+  Exponentialⱽ-Equiv : ∀ {x} ((xᴰ , _×ⱽxᴰ) : LRⱽObᴰ-Equiv x) (yᴰ : Cᴰ.ob[ x ]) → Type _
+  Exponentialⱽ-Equiv {x} xᴰ yᴰ =
+    UniversalElementⱽ'-Equiv Cᴰ x (LRⱽObᴰ-Equiv→LRⱽ-Equiv xᴰ ⇒ⱽPshSmall-Equiv (Cᴰ [-][-, yᴰ ]))
+
+  Exponentialsⱽ-Equiv : AllLRⱽ-Equiv → Type _
+  Exponentialsⱽ-Equiv lrⱽ = ∀ {x} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Exponentialⱽ-Equiv (xᴰ , lrⱽ xᴰ) yᴰ
+
+  open UniversalElementⱽ'-Equiv
+  opaque
+    BPF→AllLRⱽ-univ :
+      (bpⱽ : BinProductsⱽ-Equiv Cᴰ) (lifts : isFibration-Equiv Cᴰ)
+      {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) {Γ : C.ob} (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , x ])
+      → let fib = lifts xᴰ _ f
+            bp = bpⱽ Γᴰ (fib .vertexⱽ)
+        in isPshEquivⱽ {P = C [-, Γ ]}
+             (Cᴰ [-][-, bp .vertexⱽ ])
+             ((Cᴰ [-][-, Γᴰ ]) ×Psh
+               reindPshᴰNatTrans (yoRec (C [-, x ]) f) (Cᴰ [-][-, xᴰ ]))
+             (yoRecⱽ _
+               ((bp .elementⱽ .fst) ,
+                (bp .elementⱽ .snd Cᴰ.⋆ᴰ (Cᴰ.reind (C.⋆IdL _) $ fib .elementⱽ))))
+    BPF→AllLRⱽ-univ bpⱽ lifts xᴰ Γᴰ f (Δ , Δᴰ , g) =
+      {!isEquivPreComp!}
+      -- equivIsEquiv $
+      --   (yoRecⱽ
+      --     ((Cᴰ [-][-, Γᴰ ]) ×ⱽPsh (Cᴰ [-][-, lifts xᴰ _ f .vertexⱽ ]))
+      --     (bpⱽ Γᴰ (lifts xᴰ _ f .vertexⱽ) .elementⱽ) .N-ob (Δ , Δᴰ , g)
+      --     , bpⱽ Γᴰ (lifts xᴰ _ f .vertexⱽ) .universalⱽ (Δ , Δᴰ , g))
+      --   ∙ₑ ≃-× (idEquiv _) {!!}
+      --   (_ , bp .universalⱽ (Δ , Δᴰ , g))
+      --   ∙ₑ ≃-× (idEquiv _) (_ , fib .universalⱽ (Δ , Δᴰ , g))
+      -- where
+      --   fib = lifts xᴰ _ f
+      --   bp = bpⱽ Γᴰ (fib .vertexⱽ)
+
+  BinProductsⱽ+Fibration→AllLRⱽ-Equiv : BinProductsⱽ-Equiv Cᴰ → isFibration-Equiv Cᴰ
+    → AllLRⱽ-Equiv
+  BinProductsⱽ+Fibration→AllLRⱽ-Equiv bpⱽ lifts {x} xᴰ {Γ} Γᴰ f .vertexⱽ =
+    bpⱽ Γᴰ (lifts xᴰ _ f .vertexⱽ) .vertexⱽ
+  BinProductsⱽ+Fibration→AllLRⱽ-Equiv bpⱽ lifts {x} xᴰ {Γ} Γᴰ f .elementⱽ =
+    (bpⱽ Γᴰ (lifts xᴰ _ f .vertexⱽ) .elementⱽ .fst) ,
+    (bpⱽ Γᴰ (lifts xᴰ _ f .vertexⱽ) .elementⱽ .snd
+      Cᴰ.⋆ᴰ (Cᴰ.reind (C.⋆IdL _) $ lifts xᴰ _ f .elementⱽ))
+  BinProductsⱽ+Fibration→AllLRⱽ-Equiv bpⱽ lifts {x} xᴰ {Γ} Γᴰ f .universalⱽ =
+    BPF→AllLRⱽ-univ bpⱽ lifts xᴰ Γᴰ f

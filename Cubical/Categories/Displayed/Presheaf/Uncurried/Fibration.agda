@@ -43,7 +43,7 @@ module _ {C : Category ℓC ℓC'}(P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓ
 
   CartesianLiftPsh-Equiv : ∀ {x} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (p : P.p[ x ])
     → Type _
-  CartesianLiftPsh-Equiv {x = x} Pᴰ p = UniversalElementⱽ'-Equiv Cᴰ x (reindPshᴰNatTrans (yoRec P p) Pᴰ)
+  CartesianLiftPsh-Equiv {x = x} Pᴰ p = RepresentationPsh≃ⱽ Cᴰ x (reindPshᴰNatTrans (yoRec P p) Pᴰ)
 
   isFibrationPshᴰ-Equiv : Presheafᴰ P Cᴰ ℓPᴰ → Type _
   isFibrationPshᴰ-Equiv Pᴰ = ∀ x (p : P.p[ x ]) → CartesianLiftPsh-Equiv Pᴰ p

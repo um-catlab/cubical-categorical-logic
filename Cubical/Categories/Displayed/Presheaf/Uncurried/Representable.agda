@@ -133,6 +133,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableⱽ : Type _
   Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
 
+  RepresentationPsh≃ⱽ : Type _
+  RepresentationPsh≃ⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] Psh≃ⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
+
   record UniversalElementⱽ'
     : Type (ℓ-max ℓC $ ℓ-max ℓC' $ ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' $ ℓPᴰ) where
     field
@@ -161,6 +164,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     toUniversalElementⱽ' .UniversalElementⱽ'.elementⱽ = elementⱽ
     toUniversalElementⱽ' .UniversalElementⱽ'.universalⱽ ob =
       isEquivToIsIso _ (universalⱽ ob)
+
+  UEⱽ'-Equiv→RepPsh≃ⱽ : UniversalElementⱽ'-Equiv → RepresentationPsh≃ⱽ
+  UEⱽ'-Equiv→RepPsh≃ⱽ ue = ue .UniversalElementⱽ'-Equiv.vertexⱽ ,
+    yoRecⱽ Pⱽ (ue .UniversalElementⱽ'-Equiv.elementⱽ) ,
+    ue .UniversalElementⱽ'-Equiv.universalⱽ
 
   fromRepresentableⱽ : Representableⱽ → UniversalElementⱽ'-Equiv
   fromRepresentableⱽ (xᴰ , α) .UniversalElementⱽ'-Equiv.vertexⱽ = xᴰ
@@ -313,6 +321,10 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
   (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))
   infix 8 _◁PshIsoⱽ_
+
+  _◁Psh≃ⱽ_ : RepresentationPsh≃ⱽ Cᴰ x Pⱽ → Psh≃ⱽ Pⱽ Qⱽ → RepresentationPsh≃ⱽ Cᴰ x Qⱽ
+  (xᴰ , α) ◁Psh≃ⱽ β = (xᴰ , α ⋆Psh≃ β)
+  infix 8 _◁Psh≃ⱽ_
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (x : C .ob) where
   private

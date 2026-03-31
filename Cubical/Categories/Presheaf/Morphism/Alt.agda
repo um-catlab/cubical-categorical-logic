@@ -494,6 +494,9 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓp) whe
       Pc≡Qc c i = ⟨ CatIsoToPath isUnivalentSET' (PshIso→SETIso α c) i ⟩
 
 module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}where
+  idPsh≃ : Psh≃ P P
+  idPsh≃ = idPshHom , λ _ → idIsEquiv _
+
   idPshIso : PshIso P P
   idPshIso .trans = idPshHom
   idPshIso .nIso _ = IsoToIsIso idIso
@@ -514,6 +517,11 @@ module _ {C : Category ℓc ℓc'}
     → isPshIso {P = P}{Q = R} (α ⋆PshHom β)
   seqIsPshIso {α}{β} αIsIso βIsIso x = IsoToIsIso $
     compIso (isIsoToIso (αIsIso x)) (isIsoToIso (βIsIso x))
+
+  _⋆Psh≃_ : Psh≃ P Q → Psh≃ Q R → Psh≃ P R
+  (α , eα) ⋆Psh≃ (β , eβ) =
+    α ⋆PshHom β , λ x → snd (compEquiv (α .N-ob x , eα x) (β .N-ob x , eβ x))
+  infixr 9 _⋆Psh≃_
 
   _⋆PshIso_ : PshIso P Q → PshIso Q R → PshIso P R
   (α ⋆PshIso β) .trans = α .trans ⋆PshHom β .trans

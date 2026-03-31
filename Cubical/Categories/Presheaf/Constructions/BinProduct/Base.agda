@@ -2,6 +2,7 @@
 module Cubical.Categories.Presheaf.Constructions.BinProduct.Base where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -187,6 +188,19 @@ module _ {C : Category ℓ ℓ'} where
       cong₂ _,_
         (PIso .nIso c .snd .snd (b .fst))
         (QIso .nIso c .snd .snd (b .snd))
+
+  module _
+    {P : Presheaf C ℓA}
+    {P' : Presheaf C ℓA'}
+    {Q : Presheaf C ℓB}
+    {Q' : Presheaf C ℓB'}
+    (Peq : Psh≃ P P')
+    (Qeq : Psh≃ Q Q')
+    where
+    ×Psh≃ : Psh≃ (P ×Psh Q) (P' ×Psh Q')
+    ×Psh≃ = (Peq .fst ×PshHom Qeq .fst)
+           , λ x → snd (≃-× (Peq .fst .N-ob x , Peq .snd x)
+                             (Qeq .fst .N-ob x , Qeq .snd x))
 
   module _
     {P : Presheaf C ℓA}

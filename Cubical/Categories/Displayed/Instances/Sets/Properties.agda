@@ -112,6 +112,12 @@ module _ {ℓ ℓ'} where
   TerminalsⱽSETᴰ : Terminalsⱽ (SETᴰ ℓ ℓ')
   TerminalsⱽSETᴰ X = REPRⱽ (TerminalsⱽSETᴰueⱽ X)
 
+  -- Products using equivs
+  -- This doesn't need to be opaque because
+  -- equivReind can (and should) be transparent
+  -- takes too long to rebuild so I'm not doing that rn
+  --
+  -- This is the minimal litmus test for usage of equivs for vertical univprops
   opaque
     unfolding equivReind
     BinProductsⱽSETᴰueⱽ-Equiv :
@@ -124,11 +130,39 @@ module _ {ℓ ℓ'} where
     BinProductsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .elementⱽ =
       (λ x z → z .fst) , (λ x z → z .snd)
     BinProductsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .universalⱽ (A , B , f) =
+      -- I think reasoning chains like this could be made nicer
+      -- currently I convert from an isEquiv obligation to an Equiv (≃) obligation
+      -- This change in interface throws out some inference of the goals
+      --
+      -- This doesn't need to decompose into β + extensionality, it
+      -- does both at once using equivalence reasoning principles
       equivIsEquiv $
         equivΠCod (λ _ → Σ-Π-≃)
         ∙ₑ Σ-Π-≃
         ∙ₑ ≃-× (equivReind {B = λ g → (z : ⟨ A ⟩) → ⟨ B z ⟩ → Xᴰ (g z) .fst} (SET.⋆IdR f))
                 (equivReind {B = λ g → (z : ⟨ A ⟩) → ⟨ B z ⟩ → Yᴰ (g z) .fst} (SET.⋆IdR f))
+
+  -- Using Isos
+  BinProductsⱽSETᴰueⱽ :
+    {X : hSet ℓ} →
+    (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+    UniversalElementⱽ' (SETᴰ ℓ ℓ') X
+      ((SETᴰ ℓ ℓ' [-][-, Xᴰ ]) ×Psh (SETᴰ ℓ ℓ' [-][-, Yᴰ ]))
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = _ , isSet× (Xᴰ x .snd) (Yᴰ x .snd)
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = (λ x z → z .fst) , (λ x z → z .snd)
+  BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ x .fst = λ z x₁ z₁ → z .fst x₁ z₁ , z .snd x₁ z₁
+  BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .fst (xᴰ , yᴰ) =
+    ΣPathP ((SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} $
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) ,
+            (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} $
+               SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _))
+  BinProductsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd Zᴰ→XᴰYᴰ =
+    funExt₂ λ z zᴰ →
+      ΣPathP (
+        funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ}{e' = refl} $
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Xᴰ} _) z zᴰ ,
+        funExt₂⁻ (SETᴰ.rectifyOut {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ}{e' = refl} $
+                    SETᴰ.reind-filler⁻ {a = Z}{b = X}{aᴰ = Zᴰ}{bᴰ = Yᴰ} _) z zᴰ)
 
 --   BinProductsⱽSETᴰueⱽ :
 --     {X : hSet ℓ} →
@@ -138,8 +172,8 @@ module _ {ℓ ℓ'} where
 --   BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ =
 --     toUniversalElementⱽ' (BinProductsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ)
 
---   BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
---   BinProductsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ)
+  BinProductsⱽSETᴰ : BinProductsⱽ (SETᴰ ℓ ℓ')
+  BinProductsⱽSETᴰ Xᴰ Yᴰ = REPRⱽ (BinProductsⱽSETᴰueⱽ Xᴰ Yᴰ)
 
 --   open CartesianCategoryⱽ
 --   SETᴰCCⱽ : CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
@@ -148,22 +182,149 @@ module _ {ℓ ℓ'} where
 --   SETᴰCCⱽ .bpⱽ = BinProductsⱽSETᴰ
 --   SETᴰCCⱽ .cartesianLifts = isFibrationSETᴰ
 
---   AllLRⱽSETᴰ : AllLRⱽ-Equiv (SETᴰ ℓ ℓ')
---   AllLRⱽSETᴰ =
---     BinProductsⱽ+Fibration→AllLRⱽ-Equiv (SETᴰ ℓ ℓ')
---       BinProductsⱽSETᴰueⱽ-Equiv isFibrationSETᴰueⱽ-Equiv
+  AllLRⱽSETᴰ : AllLRⱽ (SETᴰ ℓ ℓ')
+  AllLRⱽSETᴰ =
+    BinProductsⱽ+Fibration→AllLRⱽ (SETᴰ ℓ ℓ')
+      BinProductsⱽSETᴰ isFibrationSETᴰ
 
---   ExponentialsⱽSETᴰueⱽ-Equiv :
---     {X : hSet ℓ} →
---     (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
---     UniversalElementⱽ'-Equiv (SETᴰ ℓ ℓ') X
---       (LRⱽObᴰ-Equiv→LRⱽ-Equiv (SETᴰ ℓ ℓ')
---         (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall-Equiv (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
---   ExponentialsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .vertexⱽ x =
---     (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
---   ExponentialsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
---   ExponentialsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , f) =
---     {!!}
+  -- Exponentials with equivalences
+  ExponentialsⱽSETᴰueⱽ-Equiv :
+    {X : hSet ℓ} →
+    (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+    UniversalElementⱽ'-Equiv (SETᴰ ℓ ℓ') X
+      (LRⱽObᴰ→LRⱽ(SETᴰ ℓ ℓ')
+        (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
+  ExponentialsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .vertexⱽ x =
+    (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
+  ExponentialsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
+  ExponentialsⱽSETᴰueⱽ-Equiv Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , f) =
+    -- The real test is to see if this can be defined at all
+    -- Goal is 64 lines fully normalized (shown below)
+    {!!}
+
+    -- First attempt: Annoyingly this approach of using ≃ to give an isEquiv throws
+    -- out all useful information for the goal, so it's not clear how to make
+    -- progress when using equivReind
+    -- equivIsEquiv $ equivReind {!!}
+
+    -- Looking at the goal,
+    -- I would hope to be able to invoke equivReind or isEquivReind a handful of times
+    --
+    -- The goal is nearly identical to the β proof for the iso approach shown below,
+    -- except instead of showing that we have a composite that equals the identity,
+    -- we have an obligation to show that the map is an equivalence.
+    -- Perhaps these obligations are too similar to allow this approach to be
+    -- meaningfully different than the other one
+    --
+    -- The goal
+    --
+    -- isEquiv
+    -- (λ gᴰ →
+    --    depReasoning.reind
+    --    (λ section₁ →
+    --       (x : fst Z) →
+    --       Σ (Zᴰ x .fst) (λ _ → Xᴰ (f x) .fst) → fst (Yᴰ (section₁ x)))
+    --    (λ i →
+    --       hcomp
+    --       (λ i₁ .o →
+    --          transp (λ i₂ → Z .fst → X .fst) i₁
+    --          (primPOr (~ i) i (λ ._ x → f x) (λ ._ → f) _))
+    --       (transp (λ i₁ → Z .fst → X .fst) i0
+    --        (hcomp
+    --         (doubleComp-faces (λ _ x → f x)
+    --          (λ i₁ →
+    --             hcomp (doubleComp-faces (λ _ x → f x) (λ i₂ x → f x) i₁)
+    --             (λ x → f x))
+    --          i)
+    --         (λ x → f x))))
+    --    (λ x p →
+    --       gᴰ x
+    --       (depReasoning.reind
+    --        (λ section₁ →
+    --           (x₁ : fst Z) →
+    --           Σ (Zᴰ x₁ .fst) (λ _ → Xᴰ (f x₁) .fst) → fst (Zᴰ (section₁ x₁)))
+    --        (λ _ x₁ → x₁) (λ x₁ p₁ → p₁ .fst) x p)
+    --       (isEquivReind
+    --        (λ i →
+    --           hcomp (doubleComp-faces (λ _ x₁ → f x₁) (λ i₁ x₁ → f x₁) i)
+    --           (hcomp (doubleComp-faces (λ _ x₁ → f x₁) (λ _ x₁ → f x₁) (~ i))
+    --            (λ x₁ → f x₁)))
+    --        .equiv-proof
+    --        (depReasoning.reind
+    --         (λ section₁ →
+    --            (x₁ : fst Z) →
+    --            Σ (Zᴰ x₁ .fst) (λ _ → Xᴰ (f x₁) .fst) → fst (Xᴰ (section₁ x₁)))
+    --         (λ i →
+    --            hcomp
+    --            (doubleComp-faces (λ _ x₁ → f x₁)
+    --             (λ i₁ →
+    --                hcomp (doubleComp-faces (λ _ x₁ → f x₁) (λ i₂ x₁ → f x₁) i₁)
+    --                (λ x₁ → f x₁))
+    --             (~ i))
+    --            (λ x₁ → f x₁))
+    --         (depReasoning.reind
+    --          (λ section₁ →
+    --             (x₁ : fst Z) →
+    --             Σ (Zᴰ x₁ .fst) (λ _ → Xᴰ (f x₁) .fst) → fst (Xᴰ (section₁ x₁)))
+    --          (λ i x₁ → f x₁)
+    --          (depReasoning.reind
+    --           (λ section₁ →
+    --              (x₁ : fst Z) →
+    --              Σ (Zᴰ x₁ .fst) (λ _ → Xᴰ (f x₁) .fst) → fst (Xᴰ (section₁ x₁)))
+    --           (λ i →
+    --              hcomp (doubleComp-faces (λ _ x₁ → f x₁) (λ i₁ x₁ → f x₁) i)
+    --              (hcomp (doubleComp-faces (λ _ x₁ → f x₁) (λ _ x₁ → f x₁) (~ i))
+    --               (λ x₁ → f x₁)))
+    --           (λ x₁ p₁ →
+    --              depReasoning.reind
+    --              (λ section₁ →
+    --                 (x₂ : fst Z) →
+    --                 Σ (Zᴰ x₂ .fst) (λ _ → Xᴰ (f x₂) .fst) → fst (Xᴰ (f (section₁ x₂))))
+    --              (λ _ x₂ → x₂) (λ x₂ p₂ → p₂ .snd) x₁ p₁))))
+    --        .fst .fst x p)))
+
+  -- Exponentials with isos
+  ExponentialsⱽSETᴰueⱽ :
+    {X : hSet ℓ} →
+    (Xᴰ Yᴰ : SETᴰ.ob[ X ]) →
+    UniversalElementⱽ' (SETᴰ ℓ ℓ') X
+      (LRⱽObᴰ→LRⱽ (SETᴰ ℓ ℓ')
+        (Xᴰ , AllLRⱽSETᴰ Xᴰ) ⇒ⱽPshSmall (SETᴰ ℓ ℓ' ⟨ X ⟩[-][-, Yᴰ ]))
+  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .vertexⱽ x = (⟨ Xᴰ x ⟩ → ⟨ Yᴰ x ⟩) , isSet→ (Yᴰ x .snd)
+  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .elementⱽ = λ x z → z .fst (z .snd)
+  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .fst = λ z x z₁ z₂ → z x (z₁ , z₂)
+  ExponentialsⱽSETᴰueⱽ {X = X} Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , g) .snd .fst f =
+    {!!}
+    -- SETᴰ.rectifyOut $
+    --   SETᴰ.reind-filler⁻ _
+    --   ∙ SETᴰ.congᴰ (λ (u : uTy) z zᴰ → f z (u z zᴰ))
+    --       (funExt₂ λ z zᴰ →
+    --         ΣPathP ((funExt₂⁻ (SETᴰ.rectifyOut $ SETᴰ.reind-filler⁻ _) z zᴰ) ,
+    --                  funExt₂⁻ (SETᴰ.rectifyOut $
+    --                    -- This is what's slow
+    --                    -- Ideas for fixes
+    --                    -- 1. fill in arguments
+    --                    -- 2. Avoid the funExt's here by writing a helper for reasoning
+    --                    --    about products in SETᴰ
+    --                    -- 3. Try to refactor using formal reinds such that there is
+    --                    --    at most one reind. That is, so we need not encounter
+    --                    --    reind _ (reind _ (reind _ ...))
+    --                    --
+    --                    --    Hypothesis:
+    --                    --      the slowness isn't actually from computing big paths,
+    --                    --      rather its the unification of the implicit arguments
+    --                    --      to each of these reind fillers. If this is true, then
+    --                    --      we may mitigate the slowness here by removing nested
+    --                    --      reindexings
+    --                     SETᴰ.reind-filler⁻ _
+    --                    ∙ SETᴰ.reind-filler⁻ _
+    --                    ∙ SETᴰ.reind-filler⁻ _
+    --                    ∙ SETᴰ.reind-filler⁻ _)
+    --                    z zᴰ))
+    --   where
+    --   g*Xᴰ = isFibrationSETᴰ._*_ {x = Z} g Xᴰ
+    --   uTy = (z : ⟨ Z ⟩) → (⟨ Zᴰ z ⟩ × ⟨ Xᴰ (g z) ⟩) → ⟨ Zᴰ z ⟩ × ⟨ g*Xᴰ z ⟩
+  ExponentialsⱽSETᴰueⱽ Xᴰ Yᴰ .universalⱽ (Z , Zᴰ , _) .snd .snd = {!!}
 
 --   ExponentialsⱽSETᴰueⱽ :
 --     {X : hSet ℓ} →

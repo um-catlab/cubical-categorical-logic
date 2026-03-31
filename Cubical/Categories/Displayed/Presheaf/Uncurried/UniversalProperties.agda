@@ -83,7 +83,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductsⱽ = ∀ {x} xᴰ yᴰ → BinProductⱽ {x} xᴰ yᴰ
 
   BinProductⱽ-Equiv : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
-  BinProductⱽ-Equiv {x} xᴰ yᴰ = UniversalElementⱽ'-Equiv Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
+  BinProductⱽ-Equiv {x} xᴰ yᴰ = RepresentationPsh≃ⱽ Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
 
   BinProductsⱽ-Equiv : Type _
   BinProductsⱽ-Equiv = ∀ {x} xᴰ yᴰ → BinProductⱽ-Equiv {x} xᴰ yᴰ

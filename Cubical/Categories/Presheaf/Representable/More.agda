@@ -252,6 +252,17 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp) where
         motive : (C [ Γ , x ] → P.p[ Γ ]) → Type _
         motive intro⁻ = section intro⁻ (α⁻ Γ) × retract intro⁻ (α⁻ Γ)
 
+  RepresentationPsh≃ : Type _
+  RepresentationPsh≃ = Σ[ x ∈ C.ob ] Psh≃ (C [-, x ]) P
+
+  module _ ((x , α , isEquivα) : RepresentationPsh≃) where
+    RepresentationPsh≃→UniversalElement : UniversalElement C P
+    RepresentationPsh≃→UniversalElement .vertex = x
+    RepresentationPsh≃→UniversalElement .element = α .N-ob _ C.id
+    RepresentationPsh≃→UniversalElement .universal Γ =
+      subst (λ β → isEquiv (β .N-ob Γ))
+        (sym $ IsoYoRec P x .Iso.sec α) (isEquivα Γ)
+
 module _ {C : Category ℓc ℓc'}{D : Category ℓd ℓd'} (P : Profunctor C D ℓp) where
   open Category
   AllRepresentable : Type (ℓ-max (ℓ-max (ℓ-max ℓc ℓd) ℓd') ℓp)

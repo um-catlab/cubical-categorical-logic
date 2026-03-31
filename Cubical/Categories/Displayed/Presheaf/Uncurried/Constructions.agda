@@ -368,6 +368,18 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       λ (Δ , Δᴰ , q)(Γ , Γᴰ , q') (γ , γᴰ , γ⋆q≡q')(p , pᴰ , q'≡αp) → ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh Q _ _)
       (β .trans .N-hom _ _ _ _)))
 
+  module _
+    {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+    (α : PshHom P Q)
+    (β : PshHomⱽ Pᴰ Qᴰ)
+    where
+    push-PshHomⱽ : PshHom (push α Pᴰ) (push α Qᴰ)
+    push-PshHomⱽ .N-ob (Γ , Γᴰ , q) (p , pᴰ , q≡αp) = p , β .N-ob (Γ , (Γᴰ , p)) pᴰ , q≡αp
+    push-PshHomⱽ .N-hom _ _ _ _ = ΣPathP (refl , (ΣPathPProp (λ _ → PresheafNotation.isSetPsh Q _ _)
+      (β .N-hom _ _ _ _)))
+
   module _ {P : Presheaf C ℓP} where
     private
       module P = PresheafNotation P

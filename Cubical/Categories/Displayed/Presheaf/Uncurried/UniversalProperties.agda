@@ -82,6 +82,12 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   BinProductsⱽ : Type _
   BinProductsⱽ = ∀ {x} xᴰ yᴰ → BinProductⱽ {x} xᴰ yᴰ
 
+  BinProductⱽ-Equiv : ∀ {x} → (xᴰ yᴰ : Cᴰ.ob[ x ]) → Type _
+  BinProductⱽ-Equiv {x} xᴰ yᴰ = UniversalElementⱽ'-Equiv Cᴰ x ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
+
+  BinProductsⱽ-Equiv : Type _
+  BinProductsⱽ-Equiv = ∀ {x} xᴰ yᴰ → BinProductⱽ-Equiv {x} xᴰ yᴰ
+
   BinProductᴰ'Spec : ∀ {A B} → (A×B : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
     → Presheafⱽ (A×B .vertex) Cᴰ _
   BinProductᴰ'Spec {A}{B} A×B Aᴰ Bᴰ =

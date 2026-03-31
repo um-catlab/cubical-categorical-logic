@@ -2,6 +2,8 @@ module Cubical.Foundations.More where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Equiv using (isEquiv; _≃_)
+open import Cubical.Foundations.Transport using (substEquiv)
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.GroupoidLaws hiding (cong₂Funct)
@@ -168,6 +170,13 @@ module depReasoning {A : Type ℓ} (P : A → Type ℓ') where
       ∀ (e : a ≡ b)
       → subst P e p ∫≡ p
     reind-revealed-filler⁻ = reind-filler⁻
+
+    isEquivReind : (e : a ≡ b) → isEquiv (reind e)
+    isEquivReind e = substEquiv P e .snd
+
+    equivReind : (e : a ≡ b) → P a ≃ P b
+    equivReind e = reind e , isEquivReind e
+
     congᴰ :
       ∀ {ℓX}
       {X : Type ℓX} →

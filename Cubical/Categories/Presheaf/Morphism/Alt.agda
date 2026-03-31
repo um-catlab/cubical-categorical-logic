@@ -6,6 +6,7 @@ open import Cubical.Foundations.More
 open import Cubical.Foundations.Transport hiding (pathToIso)
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Isomorphism.More
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
@@ -262,6 +263,9 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp}{Q : Presheaf C ℓq} whe
   isPshIso : PshHom P Q → Type _
   isPshIso α = ∀ x → isIso (α .N-ob x)
 
+  isPshEquiv : PshHom P Q → Type _
+  isPshEquiv α = ∀ x → isEquiv (α .N-ob x)
+
   isPropIsPshIso : ∀ {α} → isProp (isPshIso α)
   isPropIsPshIso = isPropΠ λ _ → isPropIsIsoSet (P .F-ob _ .snd) (Q .F-ob _ .snd)
 
@@ -280,6 +284,9 @@ module _ {C : Category ℓc ℓc'}(P : Presheaf C ℓp)(Q : Presheaf C ℓq) whe
 
   PshIsoΣIso : Iso PshIso PshIsoΣ
   unquoteDef PshIsoΣIso = defineRecordIsoΣ PshIsoΣIso (quote (PshIso))
+
+  Psh≃ : Type _
+  Psh≃ = Σ[ α ∈ PshHom P Q ] isPshEquiv {P = P}{Q = Q} α
 
   open PshIso
 

@@ -7,6 +7,7 @@ open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
@@ -146,6 +147,28 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     REPRⱽ : Representableⱽ
     REPRⱽ .fst = vertexⱽ
     REPRⱽ .snd = toPshIsoⱽ
+
+  record UniversalElementⱽ'-Equiv
+    : Type (ℓ-max ℓC $ ℓ-max ℓC' $ ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' $ ℓPᴰ) where
+    field
+      vertexⱽ : Cᴰ.ob[ x ]
+      elementⱽ : Pⱽ.p[ C.id ][ vertexⱽ ]
+      universalⱽ : isPshEquivⱽ {P = C [-, x ]} (Cᴰ [-][-, vertexⱽ ]) Pⱽ
+                     (yoRecⱽ Pⱽ elementⱽ)
+
+    toUniversalElementⱽ' : UniversalElementⱽ'
+    toUniversalElementⱽ' .UniversalElementⱽ'.vertexⱽ = vertexⱽ
+    toUniversalElementⱽ' .UniversalElementⱽ'.elementⱽ = elementⱽ
+    toUniversalElementⱽ' .UniversalElementⱽ'.universalⱽ ob =
+      isEquivToIsIso _ (universalⱽ ob)
+
+  fromRepresentableⱽ : Representableⱽ → UniversalElementⱽ'-Equiv
+  fromRepresentableⱽ (xᴰ , α) .UniversalElementⱽ'-Equiv.vertexⱽ = xᴰ
+  fromRepresentableⱽ (xᴰ , α) .UniversalElementⱽ'-Equiv.elementⱽ = α .trans .N-ob _ Cᴰ.idᴰ
+  fromRepresentableⱽ (xᴰ , α) .UniversalElementⱽ'-Equiv.universalⱽ ob =
+    subst (λ β → isEquiv (β .N-ob ob))
+      (sym $ yoRecⱽ-UMP Pⱽ .ret (α .trans))
+      (isIsoToIsEquiv (α .nIso ob))
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (P : Presheaf C ℓP) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where

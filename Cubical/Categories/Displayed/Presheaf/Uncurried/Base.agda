@@ -295,6 +295,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   PshIsoⱽ : Type _
   PshIsoⱽ = PshIso Pᴰ Qᴰ
 
+  Psh≃ⱽ : Type _
+  Psh≃ⱽ = Psh≃ Pᴰ Qᴰ
+
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
@@ -508,6 +511,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
   isPshIsoⱽ : PshHomⱽ Pᴰ Qᴰ → Type _
   isPshIsoⱽ = isPshIso
+
+  isPshEquivⱽ : PshHomⱽ Pᴰ Qᴰ → Type _
+  isPshEquivⱽ = isPshEquiv
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

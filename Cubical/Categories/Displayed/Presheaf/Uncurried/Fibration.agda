@@ -41,6 +41,13 @@ module _ {C : Category ℓC ℓC'}(P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓ
   isFibrationPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ → Type _
   isFibrationPshᴰ Pᴰ = ∀ x (p : P.p[ x ]) → CartesianLiftPsh Pᴰ p
 
+  CartesianLiftPsh-Equiv : ∀ {x} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (p : P.p[ x ])
+    → Type _
+  CartesianLiftPsh-Equiv {x = x} Pᴰ p = UniversalElementⱽ'-Equiv Cᴰ x (reindPshᴰNatTrans (yoRec P p) Pᴰ)
+
+  isFibrationPshᴰ-Equiv : Presheafᴰ P Cᴰ ℓPᴰ → Type _
+  isFibrationPshᴰ-Equiv Pᴰ = ∀ x (p : P.p[ x ]) → CartesianLiftPsh-Equiv Pᴰ p
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module C = Category C
@@ -194,6 +201,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   isFibration : Type _
   isFibration = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibrationPshᴰ (C [-, x ]) Cᴰ (Cᴰ [-][-, xᴰ ])
+
+  isFibration-Equiv : Type _
+  isFibration-Equiv = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibrationPshᴰ-Equiv (C [-, x ]) Cᴰ (Cᴰ [-][-, xᴰ ])
 
   -- Given a commuting square like this in C
   --    f

@@ -125,7 +125,8 @@ data CTy where
   _[→]_ : VTy → CTy → CTy
 data VCtx where
   · : VCtx
-  _,:_ : VCtx → VTy → VCtx
+  x: : VTy → VCtx
+  _++_ : VCtx → VCtx → VCtx
 data CCtx where
   ∙ : CCtx
   ∙: : CTy → CCtx
@@ -157,22 +158,59 @@ data Tm : (s ≤S s') → Ob s → Ob s' → Type ℓ-zero where
   ·I : Tm _ Γ ·
   ·η : ∀ (γ : Tm _ Γ ·) → γ ≡ ·I
 
-  _,=_ : (γ : Tm _ Γ Γ') (M : Tm _ Γ A) → Tm _ Γ (Γ' ,: A)
-  wk : Tm _ (Γ ,: A) Γ
-  var : Tm _ (Γ ,: A) A
-  wkβ : (γ : Tm _ Γ Γ') (M : Tm _ Γ A) → seqS (γ ,= M) wk ≡ γ
-  varβ : (γ : Tm _ Γ Γ') (M : Tm _ Γ A) → seqS (γ ,= M) var ≡ M
-  ,:η : (γ,M : Tm _ Γ (Γ' ,: A)) → γ,M ≡ (seqS γ,M wk ,= seqS γ,M var)
+  -- Γ → x: A ≅ Γ → A
+  -- x: A → A
+  var : Tm _ (x: A) A
+  x= : Tm _ Γ A → Tm _ Γ (x: A)
+  -- TODO: β/η
 
-  -- -- How to axiomatize ⊘? Some variation on actegories?
-  -- ⊘wk : Tm _ ((Γ ,: A) ⊘ Δ) (Γ ⊘ Δ)
-  -- ⊘Δ : Tm _ ((Γ ,: A) ⊘ Δ) (Γ ⊘ Δ)
-  -- _⊘Tm_ :
-  --   Tm _ Γ Γ'
-  --   → Tm _ Δ Δ'
-  --   → Tm _ (Γ ⊘ Δ) (Γ' ⊘ Δ')
+  -- Γ'' → Γ ++ Γ' ≅ (Γ'' → Γ) × (Γ'' → Γ')
+  wk1 : Tm _ (Γ ++ Γ') Γ
+  wk2 : Tm _ (Γ ++ Γ') Γ'
+  _++S_ : Tm _ Γ'' Γ → Tm _ Γ'' Γ' → Tm _ Γ'' (Γ ++ Γ')
+  -- TODO: β/η
 
-  [λ] : Tm _ ((· ,: A) ⊘ Δ) B → Tm _ Δ (A [→] B)
-  [app] : Tm _ ((· ,: A) ⊘ ∙: (A [→] B)) B
+  -- (x: (A [⊗] A')) ≅ (x: A) ++ (x: A')
+  pair : Tm _ ((x: A) ++ (x: A')) (A [⊗] A')
+  split : Tm _ (x: (A [⊗] A')) X → Tm _ ((x: A) ++ (x: A')) X
+  -- TODO: β/η
+
+  -- No UMP for ∙ but Γ ⊘ ∙ does
+  -- Tm _ (Γ ⊘ ∙) Y ≅ Tm _ Γ Y
+  ,∙ : Tm _ Γ (Γ ⊘ ∙)
+  pm∙ : {X : Ob s}{s≤ : 𝓒Ctx ≤S s} → Tm _ Γ X → Tm s≤ (Γ ⊘ ∙) X
+  -- β/η
+
+  -- X → ∙: B ≅ X → B
+  hole : Tm _ (∙: B) B
+  ∙= : {X : Ob s}{s≤ : s ≤S 𝓒Ctx} → Tm (≤S-trans s≤ tt) X B
+    → Tm s≤ X (∙: B)
+  -- TODO: β/η
+
+  -- How to axiomatize ⊘? Action of the monoidal category 𝓥Ctx on 𝓒Ctx
+  -- bifunctoriality
+  _⊘s_ : Tm _ Γ Γ' → Tm _ Δ Δ' → Tm _ (Γ ⊘ Δ) (Γ' ⊘ Δ')
+  ⊘s-id : idS ⊘s idS ≡ idS {X = Γ ⊘ Δ}
+  ⊘s-seq : ∀ {γ γ' δ δ'}
+    → (seqS {X = Γ}{X' = Γ'}{X'' = Γ''} γ γ') ⊘s (seqS {X = Δ}{X' = Δ'}{X'' = Δ''} δ δ') ≡ seqS (γ ⊘s δ) (γ' ⊘s δ')
+  ⊘λ : Tm _ (· ⊘ Δ) Δ
+  ⊘λ⁻ : Tm _ Δ (· ⊘ Δ)
+  -- TODO: ⊘λ isIso
+
+  ⊘μ : Tm _ ((Γ ++ Γ') ⊘ Δ) (Γ ⊘ (Γ' ⊘ Δ))
+  ⊘μ⁻ : Tm _ (Γ ⊘ (Γ' ⊘ Δ)) ((Γ ++ Γ') ⊘ Δ)
+  -- TODO ⊘μ isIso
+
+  -- TODO: triangle and pentagon laws...
+
+  -- Assume
+  -- Tm _ Δ (A [→] B) ≅ Tm _ (x: A ⊘ Δ) B
+  -- Derive
+  -- Tm _ Γ (A [→] B)
+  -- ≅ Tm _ (Γ ⊘ ∙) (A [→] B)
+  -- ≅ Tm _ (x:A ⊘ (Γ ⊘ ∙)) B
+  -- ≅ Tm _ ((Γ ++ x: A) ⊘ ∙) B
+  -- ≅ Tm _ (Γ ++ x: A) B
+  [app] : Tm _ ((x: A) ⊘ (∙: (A [→] B))) B
+  [λ] : Tm _ ((x: A) ⊘ Δ) B → Tm _ Δ (A [→] B)
   -- TODO: βη
-  -- [→β] : ∀ (M : Tm _ ((· ,: A) ⊘ Δ) B) → seqS ({!!} ⊘Tm {!!}) [app] ≡ M

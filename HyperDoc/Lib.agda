@@ -52,6 +52,11 @@ choice : {ℓ ℓ' : Level}{A : Type ℓ}{B : A → Type ℓ'} →
   ∥ ((a : A) → B a) ∥₁ 
 choice {A = A}{B} safe f = ∣ (λ a → rec (safe a) (λ z → z) (f a)) ∣₁
 
+existsΣ : {ℓ ℓ' : Level}{A : Type ℓ}{B : A → Type ℓ'} → 
+  (Σ[ a ∈ A ] ∥ ( B a) ∥₁) → 
+  ∥ Σ[ a ∈ A ] B a ∥₁ 
+existsΣ {A = A}{B} p = map (λ z → p .fst , z) (p .snd)
+
 merge : {A B : Type} → 
   (∥ ∥ A ∥₁ ⊎ ∥ B ∥₁ ∥₁ ) → 
   ∥ A ⊎ B ∥₁  

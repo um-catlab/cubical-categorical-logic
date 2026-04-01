@@ -47,6 +47,9 @@ module TypeStructure {Σ : Signature} (M : CBPVModel Σ)  where
       PshIso 
         (((Collage ^op) [-, inl A+A' ])) 
         (((Collage ^op) [-, inl A ]) ×Psh ((Collage ^op) [-, inl A' ]))
+
+  Has⊕ : Type 
+  Has⊕ = (B B' : ob C) → Representation (C ^op) (((C ^op) [-, B ]) ×Psh ((C ^op) [-, B' ]))
     
   HasO& : Type
   HasO& = (B B' : ob C) → 

@@ -98,6 +98,19 @@
 
       Generators : VTy → Type
       Generators A = Cubical.Foundations.Isomorphism.isIso (vrec {A})
+
+
+      toFree' : {A : VTy} → ALG Σ' [ FreeCompAlg 𝟙 (F A) , FreeAlg Σ' ⟨ F.FV .F-ob A ⟩ ]
+      toFree' {A} = 
+        F.FO .N-ob (𝟙 , F A) 
+        ⋆⟨ ALG Σ' ⟩ record { carmap = λ f → f tt ; pres = λ op args → refl } 
+        -- ⋆⟨ ALG Σ' ⟩ FreeAlgMorphism inc
+
+      term : 𝟙 ⊢v (𝟙 + (𝟙 + 𝟙)) 
+      term = subV σ₁ σ₂
+
+      -- 〚 term 〛 = inc (inr (inl tt))
+      _ = toFree' {𝟙 + (𝟙 + 𝟙)} .carmap (subC term ret)
    
       module _ {A : VTy}(gen : Generators A) where 
 
@@ -114,7 +127,9 @@
         toFree = 
           F.FO .N-ob (𝟙 , F A) 
           ⋆⟨ ALG Σ' ⟩ record { carmap = λ f → f tt ; pres = λ op args → refl } 
-          ⋆⟨ ALG Σ' ⟩ FreeAlgMorphism inc
+          -- ⋆⟨ ALG Σ' ⟩ FreeAlgMorphism inc
+
+        _ = {! toFree .carmap (subC σ₁ ret)  !}
 
         FreeCompAlgMorphism! : {M : Alg Σ'}{f g : (ALG Σ')[ FreeCompAlg 𝟙 (F A) , M ]} → 
           (∀ a → f .carmap (return (gen .fst a)) ≡ g .carmap (return (gen .fst a))) → f ≡ g 
@@ -140,7 +155,7 @@
               (DICong-elim _ _ _ _ 
                 (λ M _ →  f .carmap M ≡ g .carmap M) 
                 sub 
-                (λ op args dargs mot → f .pres op args ∙ (λ i → interp M op λ x → mot x i) ∙ sym (g .pres op args)) 
+                (λ op args dargs mot →  f .pres op args ∙ (λ i → interp M op λ x → mot x i) ∙ sym (g .pres op args)) 
                 M')  
               (subst (λ h → ∥ DI h ∥₁) subCId (LR .snd .snd M' var tt*))
 
@@ -148,7 +163,8 @@
         Theorem .fst = toTerm
         Theorem .snd .isIso.inv = toFree
         Theorem .snd .isIso.sec = FreeCompAlgMorphism! λ a → cong₂ subC (cong (λ h → gen .fst h) (gen .snd .fst a)) refl
-        Theorem .snd .isIso.ret = FreeAlgMorphism! λ x → cong inc (gen .snd .fst x)
+        Theorem .snd .isIso.ret = FreeAlgMorphism! λ x → cong inc {!   !}
+        -- (gen .snd .fst x)
 
       finType : ℕ → VTy 
       finType zero = 𝟙

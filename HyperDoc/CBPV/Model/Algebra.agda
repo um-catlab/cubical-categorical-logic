@@ -4,9 +4,12 @@
 module HyperDoc.CBPV.Model.Algebra where 
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma 
 open import Cubical.Data.Unit
+open import Cubical.Data.FinData hiding (rec)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor 
@@ -130,3 +133,65 @@ module Model (Σ : Signature) where
   hasO+ A A' .snd .nIso (inr x) .snd .fst b = refl
   hasO+ A A' .snd .nIso (inr x) .snd .snd f = funExt λ {(inl x) → refl
                                                       ; (inr x) → refl}
+                                                      
+  open Signature
+  module _  {Σ : Signature} where 
+    data _⨁'_ (B B' : Alg Σ) : Type where
+      in₁ : ⟨ B .Carrier ⟩ → B ⨁' B'
+      in₂ : ⟨ B' .Carrier ⟩ → B ⨁' B'
+      ⊕op : (op : Op Σ)(args : Fin (arity Σ op) → B ⨁' B') → B ⨁' B'
+      coh₁ : (op : Op Σ)(args : Fin (arity Σ op) → ⟨ B .Carrier ⟩ ) → 
+         ⊕op op  (λ a → in₁ (args a)) ≡ in₁ (B .interp op args)  
+      coh₂ : (op : Op Σ)(args : Fin (arity Σ op) → ⟨ B' .Carrier ⟩ ) → 
+         ⊕op op  (λ a → in₂ (args a)) ≡ in₂ (B' .interp op args)  
+
+    _⨁_ : Alg Σ → Alg Σ → Alg Σ 
+    (B ⨁ B') .Carrier = B ⨁' B' , {!   !}
+    (B ⨁ B') .interp = ⊕op
+
+    elim⨁ : {B B' C : Alg Σ} → 
+      (AlgHom B C) → 
+      (AlgHom B' C) →  
+      B ⨁' B' →  ⟨ C .Carrier ⟩ 
+    elim⨁ {B} {B'} {C} f g (in₁ x) = f .carmap x
+    elim⨁ {B} {B'} {C} f g (in₂ x) = g .carmap x
+    elim⨁ {B} {B'} {C} f g (⊕op op args) = C .interp op λ a → elim⨁ {B}{B'}{C} f g (args a)
+    elim⨁ {B} {B'} {C} f g (coh₁ op args i) = sym (f .pres op args) i
+    elim⨁ {B} {B'} {C} f g (coh₂ op args i) = sym (g .pres op args) i
+
+
+    ⨁case' : ∀ {B B' C} → AlgHom (B ⨁ B') C → AlgHom B C × AlgHom B' C 
+    ⨁case' h .fst .carmap b = h .carmap (in₁ b)
+    ⨁case' h .fst .pres op args = cong (λ x → h .carmap x) (sym (coh₁ op args)) ∙ h .pres op λ a → in₁ (args a)
+    ⨁case' h .snd .carmap b' = h .carmap (in₂ b')
+    ⨁case' h .snd .pres op args = cong (λ x → h .carmap x) (sym (coh₂ op args)) ∙ h .pres op λ a → in₂ (args a)
+
+    ⨁case : ∀ {B B' C} → AlgHom B C × AlgHom B' C → AlgHom (B ⨁ B') C 
+    ⨁case (f , g) .carmap = elim⨁ f g
+    ⨁case (f , g) .pres op args = refl
+
+  has⊕ : Has⊕ 
+  has⊕ B B' .fst = B ⨁ B'
+  has⊕ B B' .snd .trans .N-ob C = ⨁case'
+  has⊕ B B' .snd .trans .N-hom _ _ h p = ΣPathP ((AlgHom≡ refl) , AlgHom≡ refl)
+  has⊕ B B' .snd .nIso C .fst = ⨁case
+  has⊕ B B' .snd .nIso C .snd .fst (f , g) = ΣPathP ((AlgHom≡ refl) , AlgHom≡ refl)
+  has⊕ B B' .snd .nIso C .snd .snd h = AlgHom≡ (funExt goal) where 
+    goal : (x : B ⨁' B') → elim⨁ (⨁case' h .fst) (⨁case' h .snd) x ≡ h .carmap x
+    goal (in₁ x) = refl
+    goal (in₂ x) = refl
+    goal (⊕op op args) = cong (λ h → C .interp op h ) (funExt (λ a → goal (args a))) ∙ sym (h .pres op args)
+    goal (coh₁ op args i) = {!   !}
+      -- isProp→PathP {!   !} {!   !} {!   !} i
+      {-
+      ((λ i₁ → h .carmap (coh₁ op args (~ i₁))) ∙
+       h .pres op (λ a → in₁ (args a)))
+      (~ i)
+      ≡ h .carmap (coh₁ op args i)
+———— Boundary (wanted) —————————————————————————————————————
+i = i0 ⊢ (λ i₁ →
+            C .interp op (funExt (λ a _ → h .carmap (in₁ (args a))) i₁))
+         ∙ (λ i₁ → h .pres op (λ a → in₁ (args a)) (~ i₁))
+i = i1 ⊢ λ i₁ → h .carmap (in₁ (B .interp op args))
+        -}
+    goal (coh₂ op args i) = {!   !}

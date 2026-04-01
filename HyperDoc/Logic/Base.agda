@@ -24,6 +24,7 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Morphism.Alt hiding (_∘ˡ_)
+open import Cubical.Categories.Functors.HomFunctor
 
 open import HyperDoc.Algebra.Algebra
 open import HyperDoc.CBPV.Model.Base
@@ -42,10 +43,13 @@ open NatTrans
 open Signature
 
 Hom^op :  Functor ((POSET _ _) ×C (POSET _ _)^op) (SET _)
-Hom^op .F-ob (P , Q) = (POSET _ _) [ Q , P ] , (POSET _ _) .isSetHom
+Hom^op  = (HomFunctor _) ∘F Cubical.Categories.Constructions.BinProduct.Sym
+  
+{-.F-ob (P , Q) = (POSET _ _) [ Q , P ] , (POSET _ _) .isSetHom
 Hom^op .F-hom {(A , B)}{(A' , B')} (f , g) h = MonComp g (MonComp h f)
 Hom^op .F-id = funExt λ _ → eqMon _ _ refl
 Hom^op .F-seq _ _ = funExt λ _ → eqMon _ _ refl
+-}
 
 record Logic {Σ : Signature} (M : CBPVModel Σ) : Type _ where 
   open CBPVModel M
@@ -53,7 +57,7 @@ record Logic {Σ : Signature} (M : CBPVModel Σ) : Type _ where
     VH : Functor (V ^op) (POSET _ _)
     CH : Functor (C ^op) (POSET _ _)
     Sq : NatTrans (FORGET ∘F O) (Hom^op ∘F (VH ×F ((CH ^opF) ∘F to^op^op)))
-
+  
   private 
     module VL = HDSyntax VH
     module CL = HDSyntax CH

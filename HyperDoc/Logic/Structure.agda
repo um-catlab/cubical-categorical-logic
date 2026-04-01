@@ -72,6 +72,7 @@ module Push
       → A VL.◂ pull M .MonFun.f Q ≤ pull M .MonFun.f Q
     pullPush M = pushToPull M (pullToPush M VL.id⊢)
       
+-- ∃
 module VPush   
   {Σ : Signature} 
   {M : CBPVModel Σ}
@@ -88,3 +89,21 @@ module VPush
     ∀ {A A' : V .ob}
       (f : V [ A , A' ]) → 
       HasLeftAdj (VH .F-hom f)
+
+-- ∃
+module CPush   
+  {Σ : Signature} 
+  {M : CBPVModel Σ}
+  (L : Logic M) where 
+
+  open CBPVModel M 
+  open Logic L
+
+  private 
+    module CL = HDSyntax CH 
+
+  HasCPush : Type
+  HasCPush = 
+    ∀ {B B' : C .ob}
+      (f : C [ B , B' ]) → 
+      HasLeftAdj (CH .F-hom f)

@@ -56,6 +56,118 @@ module AlgLog (Σ : Signature) where
   AlgLogic .Logic.Sq .N-hom f = refl
   AlgLogic .Logic.pullOp op args P Q prf a Pa = Q .snd op (λ z → args z a , prf z a Pa)
 
+  module _  (Σ : Signature) where 
+    open import HyperDoc.Connectives.Connectives
+
+    Ahas⊤ : L⊤.Has⊤ (AlgPred Σ)
+    Ahas⊤ .fst A .L⊤.HA.top .fst x = ⊤
+    Ahas⊤ .fst A .L⊤.HA.top .snd op args = tt*
+    Ahas⊤ .fst A .L⊤.HA.top-top = λ x _ → tt*
+    Ahas⊤ .snd f .L⊤.HAHom.f-top = SubAlg≡ _ _ ((λ x _ → tt*) , (λ x _ → tt*))
+
+    Ahas∧ : L∧.Has∧  (AlgPred Σ)
+    (Ahas∧ .fst c L∧.HA.∧ P) Q .fst = P .fst ∩ Q .fst
+    (Ahas∧ .fst c L∧.HA.∧ P) Q .snd op args = P .snd op (λ z → args z .fst , args z .snd .fst) ,
+      Q .snd op (λ z → args z .fst , args z .snd .snd)
+    Ahas∧ .fst c .L∧.HA.and-intro = λ z z₁ x z₂ → z x z₂ , z₁ x z₂
+    Ahas∧ .fst c .L∧.HA.and-elim1 = λ z x z₁ → z x z₁ .fst
+    Ahas∧ .fst c .L∧.HA.and-elim2 = λ z x z₁ → z x z₁ .snd
+    Ahas∧ .snd f .L∧.HAHom.f-and P Q  = SubAlg≡ _ _ ((λ x z → z) , (λ x z → z))
+
+    
+    open Signature
+    data _⨁p'_ {A : Alg Σ}(P Q : SubAlg A) : ⟨ A .Carrier ⟩ → Type where 
+      in₁ : ∀ (a : ⟨ A .Carrier ⟩) → a ∈ P .fst → _⨁p'_ P Q a
+      in₂ : ∀ (a : ⟨ A .Carrier ⟩) → a ∈ Q .fst → _⨁p'_ P Q a
+      ⊕op : (op : Op Σ)(args : Fin (arity Σ op) →  Σ[ a ∈ ⟨ A .Carrier ⟩ ]  ∥ _⨁p'_ {A} P Q a ∥₁) → 
+        _⨁p'_ P Q (A .interp op λ a → args a .fst)
+
+
+    _⨁p_ : {A : Alg Σ}(P Q : SubAlg A) → SubAlg A 
+    _⨁p_ {A} P Q .fst a = ∥ _⨁p'_ {A} P Q a ∥ₚ
+    _⨁p_ {A} P Q .snd op args = recFin squash₁ (λ z → ∣ ⊕op op (λ z₁ → args z₁ .fst , args z₁ .snd) ∣₁) λ a → args a .snd
+      -- ∣ ⊕op op (λ a → {!  args a !}) ∣₁
+
+    -- This should be safe
+    {-# TERMINATING #-}
+    ⨁pelim : {A : Alg Σ}{P Q R : SubAlg A} → 
+      (∀ (a : ⟨ A .Carrier ⟩) → a ∈ Q .fst → a ∈ P .fst) → 
+      (∀ (a : ⟨ A .Carrier ⟩) → a ∈ R .fst → a ∈ P .fst) → 
+      (∀ (a : ⟨ A .Carrier ⟩) →  ∥ (_⨁p'_{A} Q R) a ∥₁ → a ∈ P .fst) 
+    ⨁pelim {A}{P}{Q}{R} f g a x = rec (∈-isProp (λ z → z) (P .fst a)) (goal a) x where 
+
+      goal : ∀ (a : ⟨ A .Carrier ⟩) → (_⨁p'_ {A} Q R) a → a ∈ P .fst
+      goal _ (in₁ a x) = f a x
+      goal _ (in₂ a x) = g a x
+      goal _ (⊕op op args) = P .snd op args' where
+
+        args' : Fin (arity Σ op) → Σ[ a ∈ ⟨ Carrier A ⟩ ] (a ∈ P .fst)
+        args' x .fst = args x .fst
+        args' x .snd = rec (∈-isProp (λ z → z) (P .fst (args x .fst))) (goal (args x .fst)) (args x .snd)
+    
+    -- same issue, 
+    {-# TERMINATING #-}
+    Ahas∨ : L∨.Has∨ (AlgPred Σ)
+    Ahas∨ .fst A .L∨.HA._∨_ P Q = _⨁p_ {A} P Q
+    Ahas∨ .fst A .L∨.HA.or-intro1 f a Pa = ∣ (in₁ a (f a Pa)) ∣₁
+    Ahas∨ .fst A .L∨.HA.or-intro2 f a Pa = ∣ (in₂ a (f a Pa)) ∣₁
+    Ahas∨ .fst A .L∨.HA.or-elim = ⨁pelim {A}
+    Ahas∨ .snd {A}{A'} h .L∨.HAHom.f-or P Q = 
+        SubAlg≡ {Σ}{A'} _ _ 
+          ((λ a'  → map (goal1 a')) , 
+          λ a' → map (goal2 a') ) where 
+
+            -- cant match on indexed inductive where index is of form (f b) 
+            goal1 : ∀(a' : ⟨ A' .Carrier ⟩) →  (P ⨁p' Q) (h .carmap a') → (AlgPred Σ .F-hom h .MonFun.f P ⨁p' AlgPred Σ .F-hom h .MonFun.f Q) a' 
+            goal1 a' x = {!  x !}
+
+            goal2 : ∀(a' : ⟨ A' .Carrier ⟩) →  (AlgPred Σ .F-hom h .MonFun.f P ⨁p' AlgPred Σ .F-hom h .MonFun.f Q) a' → (P ⨁p' Q) (h .carmap a') 
+            goal2 a' (in₁ a x) = in₁ (h .carmap a') x
+            goal2 a' (in₂ a x) = in₂ (h .carmap a') x
+            goal2 a' (⊕op op args) = subst  
+              ((_⨁p'_ {A} P Q))  (sym (h .pres op λ a → args a .fst)) (⊕op op λ x → (h .carmap (args x .fst)) , rec squash₁ (λ p → ∣ (goal2 (args x .fst) p) ∣₁) (args x .snd))
+
+    open CPush (AlgLogic)
+    open VPush (AlgLogic)
+    open import Cubical.Relation.Binary.Preorder
+    open IsPreorder
+    open PreorderStr
+    open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
+
+
+    ∃f' : {A A' : hSet _ } → (f : ⟨ A ⟩ → ⟨ A' ⟩ ) → ℙ ⟨ A ⟩ → ℙ ⟨ A' ⟩ 
+    ∃f' {A}{A'} f P a' = ∥ (Σ[ a ∈ ⟨ A ⟩  ]  (f a ≡ a') × ⟨ P a ⟩) ∥ₚ
+
+    hasVPush : HasVPush
+    hasVPush {A}{A'} f .fst .MonFun.f = ∃f' {A}{A'} f
+    hasVPush {A}{A'} f .fst .MonFun.isMon x≤y a' = map λ z → z .fst , z .snd .fst , x≤y (z .fst) (z .snd .snd)
+    hasVPush f .snd ._⊣_.adjIff {P}{Q} .fun prf a Pa = prf (f a) ∣ (a , (refl , Pa)) ∣₁
+    hasVPush f .snd ._⊣_.adjIff {P}{Q} .inv prf a' = rec (Q a' .snd) λ {(a , eqn , Pa) → subst (λ h → h ∈ Q) eqn (prf a  Pa)}
+    hasVPush {A}{A'} f .snd ._⊣_.adjIff {P}{Q} .sec b = pred  A .fst .snd .is-prop-valued P (Pred .F-hom {A'}{A} f $ Q)  _ _ 
+    hasVPush {A}{A'} f .snd ._⊣_.adjIff {P}{Q} .ret a = pred  A' .fst .snd .is-prop-valued (λ x → _ , squash₁) Q   _ _
+
+
+    ∃f : {Σ : Signature} {B B' : Alg Σ} → (f : ALG Σ [ B , B' ] ) → SubAlg B → SubAlg B' 
+    ∃f {Σ}{B}{B'} f P .fst = ∃f' {B .Carrier}{B' .Carrier} (f .carmap) (P .fst)
+    ∃f {Σ}{B}{B'} f P .snd op args = goal where 
+
+
+      goal : interp B' op (λ i → args i .fst) ∈  ∃f' {B .Carrier}{B' .Carrier} (f .carmap) (P .fst)
+      goal = recFin squash₁ 
+        (λ x → 
+          ∣ ((B .interp op (λ z → x z .snd .fst)) ,   -- x z .fst ≡ args z .fst ,   this is true 
+            f .pres op (λ z → x z .snd .fst) ∙ cong (λ h → interp B' op h) (funExt (λ z → x z .snd .snd .fst ∙ {!   !})) , 
+            P .snd op λ z → x z .snd .fst , x z .snd .snd .snd) ∣₁) 
+        (λ x → existsΣ (args x))
+
+    hasCPush : HasCPush
+    hasCPush {B}{B'} f .fst .MonFun.f = ∃f {_}{B}{B'} f
+    hasCPush f .fst .MonFun.isMon x≤y b' = map λ z → z .fst , z .snd .fst , x≤y (z .fst) (z .snd .snd)
+    hasCPush {B} {B'} f .snd ._⊣_.adjIff {P} {Q} .fun prf b Pb = prf (f .carmap b) ∣ (b , (refl , Pb)) ∣₁
+    hasCPush {B} {B'} f .snd ._⊣_.adjIff {P} {Q} .inv prf a' = rec (∈-isProp (λ z → z) (Q .fst a') ) λ {(b , eqn , Pb) → subst (λ h → h ∈ Q .fst) eqn  (prf b Pb)}
+    hasCPush {B} {B'} f .snd ._⊣_.adjIff {P} {Q} .sec b = subAlgPo B .fst .snd .is-prop-valued P {!   !} _ _
+    hasCPush {B} {B'} f .snd ._⊣_.adjIff {P} {Q} .ret a = subAlgPo B' .fst .snd .is-prop-valued (∃f f P) Q  _ _
+
   module U1 where 
     open SyntaxU1.SyntacticModel Σ using (SynModel)
     open SyntaxU1.Syntax Σ 

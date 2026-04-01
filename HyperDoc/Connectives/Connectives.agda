@@ -20,6 +20,32 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 open Category
 open Functor
 
+
+module L⊥ where 
+
+  record HA {ℓ ℓ'} (P : ob (POSET ℓ ℓ')) : Type (ℓ-max ℓ ℓ') where 
+    
+    X : Type ℓ
+    X = P .fst .fst
+
+    open PreorderStr (P .fst .snd) renaming (_≤_ to _⊢_)
+    field 
+      bot : X
+      explode : {P : X} → bot ⊢ P
+
+  record HAHom {ℓ ℓ'}{P Q  : ob (POSET ℓ ℓ')}(F : MonFun (P .fst) (Q .fst))(Hx : HA P)(Hy : HA Q) : Type ℓ where 
+    module Hx = HA {ℓ} Hx
+    module Hy = HA {ℓ} Hy
+    X = P .fst .fst
+    open MonFun F
+    field 
+      f-top : f Hx.bot ≡ Hy.bot
+
+  -- this could be parameterized by structure
+  Has⊥ :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
+  Has⊥ {C = C} F = Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
+  
+
 module L⊤ where 
 
   record HA {ℓ ℓ'} (P : ob (POSET ℓ ℓ')) : Type (ℓ-max ℓ ℓ') where 

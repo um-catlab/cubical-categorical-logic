@@ -9,6 +9,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma 
 open import Cubical.Data.Unit
+open import Cubical.Data.Empty hiding (rec)
 open import Cubical.Data.FinData hiding (rec)
 
 open import Cubical.Categories.Category
@@ -101,6 +102,21 @@ module Model (Σ : Signature) where
   hasV𝟙 .snd .nIso x .snd .fst tt = refl
   hasV𝟙 .snd .nIso x .snd .snd a  = funExt λ x₁ i → tt
 
+  hasV𝟘 : HasV𝟘 
+  hasV𝟘 .fst = ⊥ , λ()
+  hasV𝟘 .snd .trans .N-ob _ _ = tt
+  hasV𝟘 .snd .trans .N-hom _ _ _ _ = refl
+  hasV𝟘 .snd .nIso A .fst _ ()
+  hasV𝟘 .snd .nIso A .snd = (λ {tt → refl}) , λ a → funExt λ ()
+
+  hasC𝟘 : HasC𝟘 
+  hasC𝟘 .fst .Carrier = (FreeOn Σ ⊥) , {!   !}
+  hasC𝟘 .fst .interp = ops
+  hasC𝟘 .snd .trans .N-ob B = λ _ → tt
+  hasC𝟘 .snd .trans .N-hom _ _ _ _ = refl
+  hasC𝟘 .snd .nIso B .fst tt = FreeAlgMorphism λ ()
+  hasC𝟘 .snd .nIso B .snd = (λ {tt → refl}) , λ x → FreeAlgMorphism! λ ()
+
   hasUTy : HasUTy 
   hasUTy B .fst = FORGET .F-ob B
   hasUTy B .snd .trans .N-ob = λ c z → z
@@ -133,7 +149,7 @@ module Model (Σ : Signature) where
   hasO+ A A' .snd .nIso (inr x) .snd .fst b = refl
   hasO+ A A' .snd .nIso (inr x) .snd .snd f = funExt λ {(inl x) → refl
                                                       ; (inr x) → refl}
-                                                      
+
   open Signature
   module _  {Σ : Signature} where 
     data _⨁'_ (B B' : Alg Σ) : Type where

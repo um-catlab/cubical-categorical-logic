@@ -37,11 +37,12 @@ module Syntax (Σ : Signature) where
 
   mutual 
     data VTy : Type where 
-      𝟙 : VTy
+      𝟙 𝟘 : VTy
       U : CTy → VTy
       _+_ : VTy → VTy → VTy
 
     data CTy : Type where 
+      ⊥c : CTy
       F : VTy → CTy
       _⊕_ : CTy → CTy → CTy
 
@@ -70,6 +71,9 @@ module Syntax (Σ : Signature) where
 
     tt : ∀{A} → A ⊢v 𝟙
     η𝟙 : ∀{A} → (V : A ⊢v 𝟙) → tt ≡ V
+
+    !V : ∀{A} → 𝟘 ⊢v A
+    η𝟘 : ∀{A} → (V : 𝟘 ⊢v A) → !V ≡ V
 
     σ₁ : ∀ {A A'} → A ⊢v (A + A')
     σ₂ : ∀ {A A'} → A' ⊢v (A + A') 
@@ -199,6 +203,14 @@ module SyntacticModel (Σ : Signature)  where
   has𝟙 .snd .nIso A .fst tt = tt
   has𝟙 .snd .nIso A .snd .fst tt = refl
   has𝟙 .snd .nIso A .snd .snd = η𝟙
+
+  has𝟘 : HasV𝟘 
+  has𝟘 .fst = 𝟘
+  has𝟘 .snd .trans .N-ob = λ c _ → tt
+  has𝟘 .snd .trans .N-hom _ _ _ _ = refl
+  has𝟘 .snd .nIso A .fst tt = !V
+  has𝟘 .snd .nIso A .snd .fst tt = refl
+  has𝟘 .snd .nIso A .snd .snd = η𝟘
 
   hasUTy : HasUTy
   hasUTy B .fst = U B

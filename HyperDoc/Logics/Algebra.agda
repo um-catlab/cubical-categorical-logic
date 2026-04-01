@@ -7,6 +7,7 @@ module HyperDoc.Logics.Algebra where
 open import Cubical.Data.Sigma 
 open import Cubical.Data.Unit
 open import Cubical.Data.FinData hiding (rec ; elim ; eq)
+open import Cubical.Data.Nat
 
 open import Cubical.Foundations.Prelude 
 open import Cubical.Foundations.HLevels
@@ -65,6 +66,25 @@ module AlgLog (Σ : Signature) where
     Ahas⊤ .fst A .L⊤.HA.top-top = λ x _ → tt*
     Ahas⊤ .snd f .L⊤.HAHom.f-top = SubAlg≡ _ _ ((λ x _ → tt*) , (λ x _ → tt*))
 
+    has⊥ : L⊥.Has⊥ Pred
+    has⊥ .fst A .L⊥.HA.bot a = ⊥
+    has⊥ .fst A .L⊥.HA.explode _ ()
+    has⊥ .snd f .L⊥.HAHom.f-top = refl
+
+    open Signature
+
+    data Triv : Type where 
+      triv : (op : Op Σ)(args : Fin (arity Σ op) → ∥ Triv ∥₁) → Triv
+
+    Ahas⊥ : L⊥.Has⊥ (AlgPred Σ)
+    Ahas⊥ .fst A .L⊥.HA.bot .fst a = ⊥
+    Ahas⊥ .fst A .L⊥.HA.bot .snd op args with (arity Σ op) 
+    -- uhm..
+    ... | zero = {!   !}
+    ... | suc x = args (fromℕ x) .snd
+    Ahas⊥ .fst A .L⊥.HA.explode _ ()
+    Ahas⊥ .snd f .L⊥.HAHom.f-top =  SubAlg≡ _ _ ((λ x ()) , λ x ())
+
     Ahas∧ : L∧.Has∧  (AlgPred Σ)
     (Ahas∧ .fst c L∧.HA.∧ P) Q .fst = P .fst ∩ Q .fst
     (Ahas∧ .fst c L∧.HA.∧ P) Q .snd op args = P .snd op (λ z → args z .fst , args z .snd .fst) ,
@@ -75,7 +95,6 @@ module AlgLog (Σ : Signature) where
     Ahas∧ .snd f .L∧.HAHom.f-and P Q  = SubAlg≡ _ _ ((λ x z → z) , (λ x z → z))
 
     
-    open Signature
     data _⨁p'_ {A : Alg Σ}(P Q : SubAlg A) : ⟨ A .Carrier ⟩ → Type where 
       in₁ : ∀ (a : ⟨ A .Carrier ⟩) → a ∈ P .fst → _⨁p'_ P Q a
       in₂ : ∀ (a : ⟨ A .Carrier ⟩) → a ∈ Q .fst → _⨁p'_ P Q a

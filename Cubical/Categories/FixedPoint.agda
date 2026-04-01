@@ -22,8 +22,14 @@ module _ {ℓ ℓ'} (C : Category ℓ ℓ') (𝟙 : C .ob) where
   fixed-point {x} f = Σ[ fix⟨f⟩ ∈ C [ 𝟙 , x ] ] (fix⟨f⟩ C.⋆ f) ≡ fix⟨f⟩
 
 module _ {ℓ ℓ'} (C : Category ℓ ℓ') (x : C .ob) where
+  private
+    module C = Category C
   id-fixed-point : fixed-point C x (C .id {x})
   id-fixed-point = (id C) , (⋆IdL C (id C))
+
+  id~-fixed-point : (f : singl (C .id {x})) → fixed-point C x (f .fst)
+  id~-fixed-point f .fst = f .fst
+  id~-fixed-point f .snd = C.⟨ sym (f .snd) ⟩⋆⟨ refl ⟩ ∙ C.⋆IdL _
 
 module _ {ℓC ℓC' ℓD ℓD'}
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
@@ -38,3 +44,4 @@ module _ {ℓC ℓC' ℓD ℓD'}
   F-hom-fixed-point fix⟨f⟩ .fst = F .Functor.F-hom (fix⟨f⟩ .fst)
   F-hom-fixed-point fix⟨f⟩ .snd = sym (F .F-seq _ _)
     ∙ cong (F .F-hom) (fix⟨f⟩ .snd)
+

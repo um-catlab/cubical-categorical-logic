@@ -1,4 +1,3 @@
-
 module Cubical.Categories.Functors.More where
 
 open import Cubical.Foundations.Prelude

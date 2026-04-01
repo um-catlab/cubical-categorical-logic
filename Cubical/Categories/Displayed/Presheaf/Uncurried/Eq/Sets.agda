@@ -1,3 +1,4 @@
+-- This has absolutely no justifiable reason to be in this directory
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Sets where
 

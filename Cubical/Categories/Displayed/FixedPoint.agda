@@ -10,6 +10,8 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.More
 
+import Cubical.Data.Equality as Eq
+
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Fiber
@@ -55,10 +57,29 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
                   Cᴰ.v[ y ] [ xⱽ , xⱽ ] → Type ℓCᴰ'
   fixed-pointⱽ = λ (y : C .ob) → fixed-point Cᴰ.v[ y ]
 
+  module _ (EqId⋆ : ∀ {x} → C.id {x} C.⋆ C.id Eq.≡ C.id) (y : C.ob) (𝟙ⱽ : Cᴰ.ob[ y ]) {xⱽ : Cᴰ.ob[ y ]}
+    (fⱽ : Cᴰ.v[ y ] [ xⱽ , xⱽ ]) where
+    fixed-pointⱽEq : Type _
+    fixed-pointⱽEq = fixed-point (Cᴰ.Eqv[ EqId⋆ ] y) 𝟙ⱽ fⱽ
+
+    fixed-pointⱽEq→ⱽ : fixed-pointⱽEq → fixed-pointⱽ y 𝟙ⱽ fⱽ
+    fixed-pointⱽEq→ⱽ fix⟨fⱽ⟩ .fst = fix⟨fⱽ⟩ .fst
+    fixed-pointⱽEq→ⱽ fix⟨fⱽ⟩ .snd = Cᴰ.rectifyOut
+      (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reindEq-filler _ ∙ Cᴰ.≡in (fix⟨fⱽ⟩ .snd))
+
   -- TODO: this is probably a way better definition to use in practice bc of the lack of reind
   fixed-pointⱽ' : (y : C.ob) (𝟙ⱽ : Cᴰ.ob[ y ]) {xⱽ : Cᴰ.ob[ y ]} →
                   Cᴰ.v[ y ] [ xⱽ , xⱽ ] → Type ℓCᴰ'
   fixed-pointⱽ' y = fixed-pointᴰ (id-fixed-point C y)
+
+  -- -- TODO: is this one even better?
+  -- module _ (y : C.ob) (𝟙ⱽ : Cᴰ.ob[ y ]) {xⱽ : Cᴰ.ob[ y ]} (id~ : singl (C .id {x = y})) (fⱽ : Cᴰ.Hom[ id~ .fst ][ xⱽ , xⱽ ]) where
+  --   fixed-pointⱽ'' : Type ℓCᴰ'
+  --   fixed-pointⱽ'' = fixed-pointᴰ (id~-fixed-point C y id~) 𝟙ⱽ fⱽ
+
+  --   fixed-pointⱽ''→ⱽ : fixed-pointⱽ y 𝟙 fⱽ
+  --   fixed-pointⱽ''→ⱽ = ?
+
 
   module _ (y : C.ob) (𝟙ⱽ : Cᴰ.ob[ y ]) {xⱽ : Cᴰ.ob[ y ]} (fⱽ : Cᴰ.v[ y ] [ xⱽ , xⱽ ]) where
     fixed-pointⱽ'→ⱽ : fixed-pointⱽ' y 𝟙ⱽ fⱽ → fixed-pointⱽ y 𝟙ⱽ fⱽ
@@ -133,7 +154,6 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
 --
 -- Maybe possible to generalize to where ▷ⱽ is displayed over ▷ in the
 -- base (with the current being the trivial case where ▷ = Id)
-
 record GuardedLogic (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type (ℓ-suc (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ'))) where
   field
     Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'
@@ -146,6 +166,7 @@ record GuardedLogic (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type 
 
   field
     gfpⱽ :
+    -- ⋆ⱽ here is killing me
       ∀ {A : C.ob} {Aᴰ : Cᴰ.ob[ A ]} (f : Cᴰ.v[ A ] [ ▷ⱽ .F-obᴰ Aᴰ , Aᴰ ])
         → fixed-pointⱽ Cᴰ A (termⱽ A .fst) (next .N-obᴰ Aᴰ Cᴰ.⋆ⱽ f)
 
@@ -196,7 +217,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) (D
       ∙ Dᴰ.Cᴰ.reind-revealed-filler _)
   reindexGuardedLogic .isFibCᴰ =
     -- TODO: Why is this so slow
-    isFibrationReindex {C = C}{D = D} Dᴰ.Cᴰ F Dᴰ.isFibCᴰ
+    isFibrationReindex {ℓC = ℓC}{ℓC' = ℓC'}{ℓD = ℓD}{ℓD' = ℓD'}{C = C}{D = D} Dᴰ.Cᴰ F Dᴰ.isFibCᴰ
   reindexGuardedLogic .termⱽ = TerminalsⱽReindex F Dᴰ.termⱽ
   reindexGuardedLogic .gfpⱽ {A} {Aᴰ} f = reindexFixed-pointⱽ Dᴰ.Cᴰ F
     (subst

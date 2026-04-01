@@ -12,6 +12,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Function
 
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
@@ -36,6 +37,22 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
         (Prectify to rectify) hiding (_P≡[_]_)
     module ∫Cᴰ = Category (∫C Cᴰ)
   open Cᴰ public
+
+  module _ (EqId⋆ : ∀ {x} → C.id {x} C.⋆ C.id {x} Eq.≡ C.id) where
+    Eqv[_] : C.ob → Category ℓCᴰ ℓCᴰ'
+    Eqv[ x ] .Category.ob = ob[ x ]
+    Eqv[ x ] .Category.Hom[_,_] = Hom[ C.id ][_,_]
+    Eqv[ x ] .Category.id = idᴰ
+    Eqv[ x ] .Category._⋆_ fⱽ gⱽ = R.reindEq EqId⋆ (fⱽ ⋆ᴰ gⱽ)
+    Eqv[ x ] .Category.⋆IdL fⱽ = R.rectifyOut (R.reindEq-filler⁻ _ ∙ ∫Cᴰ.⋆IdL _)
+    Eqv[ x ] .Category.⋆IdR fⱽ = R.rectifyOut (R.reindEq-filler⁻ _ ∙ ∫Cᴰ.⋆IdR _)
+    Eqv[ x ] .Category.⋆Assoc fⱽ gⱽ hⱽ = R.rectifyOut
+      (R.reindEq-filler⁻ _
+      ∙ ∫Cᴰ.⟨ R.reindEq-filler⁻ _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc (_ , fⱽ) (_ , gⱽ) (_ , hⱽ)
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reindEq-filler _ ⟩
+      ∙ R.reindEq-filler _)
+    Eqv[ x ] .Category.isSetHom = isSetHomᴰ
 
   v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
   v[ x ] .Category.ob = ob[ x ]

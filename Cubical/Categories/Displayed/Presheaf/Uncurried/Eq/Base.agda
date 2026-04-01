@@ -249,6 +249,7 @@ EqAssoc C = ∀ {w x y z} (f : C [ w , x ])(g : C [ x , y ])(h : C [ y , z ]) �
 ReprEqAssoc : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
 ReprEqAssoc C = ∀ x → PshAssocEq (C [-, x ])
 
+-- Absolutely no reason for this to be here
 EqIdR : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
 EqIdR C = ∀ {x y} (f : C [ x , y ]) → f C.⋆ C.id Eq.≡ f
   where module C = Category C
@@ -324,6 +325,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     BinProductsⱽUE = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → UEⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])) C⋆IdR
 
   module _ (C⋆Assoc : ReprEqAssoc C) where
+    -- TODO: should be called isFibration
     Fibration : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
     Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ])
       → Reprⱽ (yoRecEq (C [-, y ]) (C⋆Assoc y) f *Presheafᴰ (Cᴰ [-][-, yᴰ ]))

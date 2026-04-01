@@ -1,5 +1,4 @@
 -- Would be nice to have some kind of abstract nonsense reason for all of these...
---
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Instances.Family.EqProperties where
 
@@ -80,11 +79,6 @@ open NatIsoᴰ
 open PshHom
 open PshIso
 
--- TODO:
---
--- The fiber of Fam C over Unit is definitionally isomorphic to C, and
--- the vertical universal properties in that fiber are equivalent to
--- the ordinary biCCC ones
 module _ {ℓ} (C : Category ℓC ℓC') where
   private
     module C = Category C

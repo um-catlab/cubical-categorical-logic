@@ -75,11 +75,11 @@ module AlgLog (Σ : Signature) where
 
     data Triv : Type where 
       triv : (op : Op Σ)(args : Fin (arity Σ op) → ∥ Triv ∥₁) → Triv
-
+  
     Ahas⊥ : L⊥.Has⊥ (AlgPred Σ)
     Ahas⊥ .fst A .L⊥.HA.bot .fst a = ⊥
     Ahas⊥ .fst A .L⊥.HA.bot .snd op args with (arity Σ op) 
-    -- uhm..
+    -- can't construct ⊥ from nothing
     ... | zero = {!   !}
     ... | suc x = args (fromℕ x) .snd
     Ahas⊥ .fst A .L⊥.HA.explode _ ()
@@ -260,6 +260,19 @@ module AlgLog (Σ : Signature) where
 
     DirectImageCong : (A : V .ob)(B : C .ob)(M : O'[ A , B ])(P : ℙ ⟨ A ⟩) → ℙ ⟨ B .Carrier ⟩
     DirectImageCong A B M P b = ∥ DirectImageCong' A B M P b ∥ₚ
+
+{-
+    open import HyperDoc.Connectives.Connectives
+    data botp (B : C .ob): ⟨ B .Carrier ⟩ → Type where 
+      base : ∀ {b} → ⟨ ⊥ ⟩ → botp B b
+      step : 
+
+    Ahas⊥' : L⊥.Has⊥ (AlgPred Σ)
+    Ahas⊥' .fst B .L⊥.HA.bot .fst b = ∥  botp B b ∥ₚ
+    Ahas⊥' .fst B .L⊥.HA.bot .snd = {!   !}
+    Ahas⊥' .fst B .L⊥.HA.explode = {!   !}
+    Ahas⊥' .snd = {!   !}
+    -}
 
     push' : {A : V .ob}{B : C .ob}→ 
       (M : O'[ A , B ]) →  

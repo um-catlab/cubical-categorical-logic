@@ -11,18 +11,22 @@ private
 
 open Category
 
-ThinCategory :
-  (A : Type ℓ)
-  (_≤_ : A → A → Type ℓ')
-  (rfl : ∀ {a} → a ≤ a)
-  (trans : ∀ {a b c} → a ≤ b → b ≤ c → a ≤ c)
-  (isProp≤ : ∀ {a b} → isProp (a ≤ b))
-  → Category ℓ ℓ'
-ThinCategory A _≤_ rfl trans isProp≤ .ob = A
-ThinCategory A _≤_ rfl trans isProp≤ .Hom[_,_] = _≤_
-ThinCategory A _≤_ rfl trans isProp≤ .id = rfl
-ThinCategory A _≤_ rfl trans isProp≤ ._⋆_ = trans
-ThinCategory A _≤_ rfl trans isProp≤ .⋆IdL _ = isProp≤ _ _
-ThinCategory A _≤_ rfl trans isProp≤ .⋆IdR _ = isProp≤ _ _
-ThinCategory A _≤_ rfl trans isProp≤ .⋆Assoc _ _ _ = isProp≤ _ _
-ThinCategory A _≤_ rfl trans isProp≤ .isSetHom = isProp→isSet $ isProp≤
+record Preorder ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+  field
+    ob : Type ℓ
+    _≤_ : ob → ob → Type ℓ'
+    rfl : ∀ {a} → a ≤ a
+    trans : ∀ {a b c} → a ≤ b → b ≤ c → a ≤ c
+    isProp≤ : ∀ {a b} → isProp (a ≤ b)
+
+module _ (P : Preorder ℓ ℓ') where
+  private module P = Preorder P
+  ThinCategory : Category ℓ ℓ'
+  ThinCategory .ob = P.ob
+  ThinCategory .Hom[_,_] = P._≤_
+  ThinCategory .id = P.rfl
+  ThinCategory ._⋆_ = P.trans
+  ThinCategory .⋆IdL = λ f → P.isProp≤ _ _
+  ThinCategory .⋆IdR = λ f → P.isProp≤ _ _
+  ThinCategory .⋆Assoc = λ f g h → P.isProp≤ _ _
+  ThinCategory .isSetHom = isProp→isSet $ P.isProp≤

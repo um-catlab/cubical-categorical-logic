@@ -170,6 +170,10 @@ module BinProductsNotation {C : Category ℓ ℓ'} (bp : BinProducts C) where
   π₁Nat .NatTrans.N-ob _ = π₁
   π₁Nat .NatTrans.N-hom _ = ×β₁
 
+  π₂Nat : BinProductF' C bp ⇒ Snd C C
+  π₂Nat .N-ob _ = π₂
+  π₂Nat .N-hom _ = ×β₂
+
 module BinProductsWithNotation {C : Category ℓ ℓ'}{a} (bp : BinProductsWith C a) where
   _×a : C .ob → C .ob
   b ×a  = BinProductNotation.vert (bp b)

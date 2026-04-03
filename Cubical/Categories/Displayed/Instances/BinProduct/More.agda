@@ -188,6 +188,14 @@ private
 open Functorᴰ
 
 module _ {F : Functor C C'} {G : Functor C D'} where
+  _,S_ : (Fᴰ : Section F Cᴰ') → (Gᴰ : Section G Dᴰ')
+    → Section (F ,F G) (Cᴰ' ×Cᴰ Dᴰ')
+  (Fᴰ ,S Gᴰ) .Section.F-obᴰ = λ d → Fᴰ .Section.F-obᴰ d , Gᴰ .Section.F-obᴰ d
+  (Fᴰ ,S Gᴰ) .Section.F-homᴰ = λ f → Fᴰ .Section.F-homᴰ f , Gᴰ .Section.F-homᴰ f
+  (Fᴰ ,S Gᴰ) .Section.F-idᴰ = ΣPathP (Fᴰ .Section.F-idᴰ , Gᴰ .Section.F-idᴰ)
+  (Fᴰ ,S Gᴰ) .Section.F-seqᴰ f g = ΣPathP (Fᴰ .Section.F-seqᴰ f g , Gᴰ .Section.F-seqᴰ f g)
+
+module _ {F : Functor C C'} {G : Functor C D'} where
   _,Fᴰ_ : (Fᴰ : Functorᴰ F Cᴰ Cᴰ') → (Gᴰ : Functorᴰ G Cᴰ Dᴰ')
     → Functorᴰ (F ,F G) Cᴰ (Cᴰ' ×Cᴰ Dᴰ')
   (Fᴰ ,Fᴰ Gᴰ) .F-obᴰ x = F-obᴰ Fᴰ x , F-obᴰ Gᴰ x

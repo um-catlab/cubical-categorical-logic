@@ -31,6 +31,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base as Curried hiding (_[-][-,_])
@@ -163,6 +164,19 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   UniversalElementᴰ ue =
     Σ[ vᴰ ∈ _ ] Σ[ eᴰ ∈ Pᴰ.p[ ue .element ][ vᴰ ] ] isUniversalᴰ ue eᴰ
 
+  UniversalElementᴰProp : UniversalElement C P → Type _
+  UniversalElementᴰProp ue = Σ[ vᴰ ∈ _ ] Σ[ eᴰ ∈ Pᴰ.p[ ue .element ][ vᴰ ] ]
+    ∀ x → ⟨ Pᴰ .F-ob x ⟩ → Cᴰ.Hom[ ue.intro (x .snd .snd) ][ x .snd .fst , vᴰ ]
+    where module ue = UniversalElementNotation ue
+
+  UEᴰProp→UEᴰ : (ue : UniversalElement C P) → hasPropHoms Cᴰ → hasPropHets Pᴰ
+    → UniversalElementᴰProp ue → UniversalElementᴰ ue
+  UEᴰProp→UEᴰ ue propCᴰ propPᴰ ueᴰ .fst = ueᴰ .fst
+  UEᴰProp→UEᴰ ue propCᴰ propPᴰ ueᴰ .snd .fst = ueᴰ .snd .fst
+  UEᴰProp→UEᴰ ue propCᴰ propPᴰ ueᴰ .snd .snd Γ Γᴰ .inv = λ a → ueᴰ .snd .snd (Γ , Γᴰ , a)
+  UEᴰProp→UEᴰ ue propCᴰ propPᴰ ueᴰ .snd .snd Γ Γᴰ .rightInv = λ _ _ → isProp→PathP (λ i → propPᴰ) _ _
+  UEᴰProp→UEᴰ ue propCᴰ propPᴰ ueᴰ .snd .snd Γ Γᴰ .leftInv = λ _ _ → isProp→PathP (λ i → propCᴰ _ _ _) _ _
+
   Representableᴰ : (RepresentationPshIso P) → Type _
   Representableᴰ (x , yx≅P) =
     Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoᴰ yx≅P (Cᴰ [-][-, xᴰ ]) Pᴰ
@@ -208,6 +222,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         → (fᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ])
         → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst)
       ∫ηᴰ fᴰ = Cᴰ.≡in $ ηᴰ fᴰ
+
+      ∫extensionalityᴰ : ∀ {Γ Γᴰ}{f f' : C [ Γ , ue.vertex ]}
+        → {fᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ]}
+        → {fᴰ' : Cᴰ [ f' ][ Γᴰ , ueᴰ .fst ]}
+        → (fᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst) Pᴰ.∫≡ (fᴰ' Pᴰ.⋆ᴰ ueᴰ .snd .fst)
+        → fᴰ Cᴰ.∫≡ fᴰ'
+      ∫extensionalityᴰ x = ∫ηᴰ _ ∙ cong-introᴰ x ∙ (sym $ ∫ηᴰ _)
 
   -- Could be more compositional but too lazy
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)

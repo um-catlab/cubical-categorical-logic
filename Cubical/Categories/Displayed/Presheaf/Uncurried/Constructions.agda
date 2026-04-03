@@ -99,6 +99,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       _⇒ⱽPshLarge_ : Presheafᴰ P Cᴰ (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓP) ℓPᴰ) ℓQᴰ)
       _⇒ⱽPshLarge_ = Pᴰ ⇒PshLarge Qᴰ
 
+    hasPropHetsUnitᴰ : hasPropHets UnitPshᴰ
+    hasPropHetsUnitᴰ = isPropUnit
+
     -- TODO: rename: This is not weakening, wkLR∀ is.
     wkPshᴰ : (Q : Presheaf C ℓQ) → Functor (PresheafᴰCategory P Cᴰ ℓPᴰ) (PresheafᴰCategory (P ×Psh Q) Cᴰ ℓPᴰ)
     wkPshᴰ Q = reindPshF (Idᴰ /Fⱽ π₁ P Q)

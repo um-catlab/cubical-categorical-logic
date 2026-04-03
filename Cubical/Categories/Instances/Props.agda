@@ -17,11 +17,15 @@ private
 
 open Functor
 
+PROP-Preorder : ∀ ℓ → Preorder (ℓ-suc ℓ) ℓ
+PROP-Preorder ℓ .Preorder.ob = hProp ℓ
+PROP-Preorder ℓ .Preorder._≤_ = λ X Y → ⟨ X ⟩ → ⟨ Y ⟩
+PROP-Preorder ℓ .Preorder.rfl = λ z → z
+PROP-Preorder ℓ .Preorder.trans = λ z z₁ z₂ → z₁ (z z₂)
+PROP-Preorder ℓ .Preorder.isProp≤ {b = Y} = isPropΠ λ _ → Y .snd
+
 PROP : ∀ ℓ → Category (ℓ-suc ℓ) ℓ
-PROP ℓ = ThinCategory (hProp ℓ) (λ P Q → ⟨ P ⟩ → ⟨ Q ⟩)
-  (λ {a} z → z)
-  (λ {a} {b} {c} z z₁ z₂ → z₁ (z z₂))
-  λ {b = Q} → isProp→ (Q .snd)
+PROP ℓ = ThinCategory (PROP-Preorder ℓ)
 
 hasPropHomsPROP : hasPropHoms (PROP ℓ)
 hasPropHomsPROP {y = Q} = isProp→ (Q .snd)

@@ -646,3 +646,12 @@ module _
 
     makePshHomᴰPath : (αᴰ .N-ob ≡ βᴰ .N-ob) → αᴰ ≡ βᴰ
     makePshHomᴰPath = makePshHomᴰPathP αᴰ βᴰ (λ i → α)
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  where
+  private
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+  hasPropHets : Type _
+  hasPropHets = ∀ {x3} → isProp ⟨ Pᴰ .F-ob x3 ⟩

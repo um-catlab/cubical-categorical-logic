@@ -10,6 +10,8 @@ open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Transport
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 open import Cubical.Foundations.Equiv.Dependent
 
 private
@@ -22,6 +24,37 @@ private
 open Iso
 open IsoOver
 open isIsoOver
+
+mapOver-fiber mapOver-fiber-shuffle : (f : A → B) (P : A → Type ℓP) (Q : B → Type ℓQ)
+  → Type _
+mapOver-fiber f P Q = ∀ b → (Σ[ a⁻ ∈ fiber f b ] P (a⁻ .fst)) → Q b
+
+mapOver-fiber-shuffle f P Q = ∀ a → P a → (∀ (fa : singl (f a)) → Q (fa .fst))
+
+mapOver-eqFiber : (f : A → B) (P : A → Type ℓP) (Q : B → Type ℓQ)
+  → Type _
+mapOver-eqFiber f P Q = ∀ b → (Σ[ a⁻ ∈ Eq.fiber f b ] P (a⁻ .fst)) → Q b
+
+module _ (f : A → B) (P : A → Type ℓP) (Q : B → Type ℓQ) where
+  mapOver-fiber≅mapOver-fiber-shuffle : Iso (mapOver-fiber f P Q) (mapOver-fiber-shuffle f P Q)
+  mapOver-fiber≅mapOver-fiber-shuffle .fun fᴰ a p fa = fᴰ (fa .fst) ((a , fa .snd) , p)
+  mapOver-fiber≅mapOver-fiber-shuffle .inv fᴰ b (a∈f⁻b , P⟨a⟩) = fᴰ (a∈f⁻b .fst) P⟨a⟩ (b , a∈f⁻b .snd)
+  mapOver-fiber≅mapOver-fiber-shuffle .sec = λ _ → refl
+  mapOver-fiber≅mapOver-fiber-shuffle .ret = λ _ → refl
+
+  mapOver-fiber≅mapOver : Iso (mapOver-fiber f P Q) (mapOver f P Q)
+  mapOver-fiber≅mapOver = compIso mapOver-fiber≅mapOver-fiber-shuffle
+    (equivToIso (equivΠCod (λ a → equivΠCod (λ p → Π-contractDom (isContrSingl (f a))))))
+
+  mapOver-EqFiber≅mapOver-fiber-shuffle : Iso (mapOver-eqFiber f P Q) (∀ a → P a → (∀ (fa : Eq.singl (f a)) → Q (fa .fst)))
+  mapOver-EqFiber≅mapOver-fiber-shuffle .fun fᴰ a p fa = fᴰ (fa .fst) ((a , fa .snd) , p)
+  mapOver-EqFiber≅mapOver-fiber-shuffle .inv fᴰ b (a∈f⁻b , P⟨a⟩) = fᴰ (a∈f⁻b .fst) P⟨a⟩ (b , a∈f⁻b .snd)
+  mapOver-EqFiber≅mapOver-fiber-shuffle .sec = λ _ → refl
+  mapOver-EqFiber≅mapOver-fiber-shuffle .ret = λ _ → refl
+  mapOver-eqFiber≅mapOver : Iso (mapOver-eqFiber f P Q) (mapOver f P Q)
+  mapOver-eqFiber≅mapOver = compIso
+    mapOver-EqFiber≅mapOver-fiber-shuffle
+    (equivToIso (equivΠCod (λ a → equivΠCod (λ p → Π-contractDom Eq.isContrSingl))))
 
 module _ {isom : Iso A B} {fun : mapOver (isom .fun) P Q} where
   isIsoOver→isIsoΣ :

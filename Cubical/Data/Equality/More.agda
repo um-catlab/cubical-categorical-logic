@@ -1,7 +1,7 @@
 module Cubical.Data.Equality.More where
 
 open import Cubical.Foundations.Prelude
-  hiding (_≡_ ; step-≡ ; _∎ ; isPropIsContr)
+  hiding (_≡_ ; step-≡ ; _∎ ; isPropIsContr; singl; isContrSingl)
   renaming ( refl      to reflPath
            ; transport to transportPath
            ; J         to JPath
@@ -42,6 +42,10 @@ private
   B : Type b
   C : Type c
   x y z : A
+
+isContrSingl : isContrPath (singl {A = A} x)
+isContrSingl {x = x} .pr₁ = x , refl
+isContrSingl {x = x} .pr₂ = λ { (y , refl) → reflPath }
 
 mixedHEq : {A0 A1 : Type ℓ} (Aeq : A0 ≡ A1) (a0 : A0)(a1 : A1) → Type _
 mixedHEq Aeq a0 a1 = Path _ (transport (λ A → A) Aeq a0) a1

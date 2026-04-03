@@ -9,6 +9,8 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Functions.FunExtEquiv
 
+open import Cubical.HITs.PropositionalTruncation
+
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
@@ -16,6 +18,7 @@ import Cubical.Data.Equality as Eq
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.TotalCategory as ∫
+open import Cubical.Categories.Instances.Sets
 
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.StrictHom
@@ -79,7 +82,17 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
       the-iso .ret f = makePshHomStrictPath (funExt₂ λ c x →
         bp.,p-extensionality bp.×β₁ bp.×β₂)
 
-  NerveᴰOb : ∀ c → Presheaf (Unitᴰ C / ((Nerve ∘F F) ⟅ c ⟆)) (ℓ-max ℓC' ℓD')
+  -- How to think of a displayed presheaf?
+  -- It's a proof-relevant version of a pre-composition-closed subset.
+
+  -- In this case, we are defining an invariant on morphisms
+  -- of the form D [ F- , F c ]
+  --
+  -- The property is that they are in the image of F ⟪_⟫
+
+  -- This is (obviously) closed under precomposition with morphisms F
+  -- ⟪ f ⟫ by functoriality
+  NerveᴰOb : ∀ c → Presheafᴰ ((Nerve ∘F F) ⟅ c ⟆) (Unitᴰ C) ((ℓ-max ℓC' ℓD'))
   NerveᴰOb c .F-ob (c' , _ , f) .fst = fiber (F .F-hom) f
   NerveᴰOb c .F-ob (c' , _ , f) .snd = isSetΣ (isSetHom C) (λ f → isProp→isSet (isSetHom D _ _))
   -- f : C [ c , c' ]
@@ -94,17 +107,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
   NerveᴰOb c .F-seq f g = funExt λ F⁻h →
     ΣPathPProp (λ a → D.isSetHom _ _) (C.⋆Assoc (g .fst) (f .fst) (F⁻h .fst))
 
-  -- This section proves that for every morphism f : C [ c , c' ] ,
-  -- pre-composition and post-composition with F ⟪ f ⟫ preserves the
-  -- property of being in the image of F⟪_⟫.
+  -- The functoriality of this section says that the action
+  -- post-composition with a morphism F ⟪ f ⟫ preserves the property of
+  -- being in the image of F ⟪_⟫ (also by functoriality of F).
   Nerveᴰ : Section (Nerve ∘F F) (PRESHEAFᴰ (Unitᴰ C) ℓD' (ℓ-max ℓC' ℓD'))
-  Nerveᴰ .Section.F-obᴰ c = NerveᴰOb c
-  Nerveᴰ .Section.F-homᴰ f .PshHom.N-ob (c , _ , g) F⁻g =
-    (F⁻g .fst C.⋆ f) , F .F-seq _ _ ∙ D.⟨ F⁻g .snd ⟩⋆⟨ refl ⟩
-  Nerveᴰ .Section.F-homᴰ f .PshHom.N-hom c c' f₁ p = ΣPathPProp (λ a → D.isSetHom _ _)
-    (C.⋆Assoc (f₁ .fst) (p .fst) f)
-  Nerveᴰ .Section.F-idᴰ = makePshHomᴰPathP _ _ _ (funExt (λ (c , _ , g) → funExt (λ F⁻g → ΣPathPProp (λ a → D.isSetHom (F .F-hom a) g) (C.⋆IdR (F⁻g .fst)))))
-  Nerveᴰ .Section.F-seqᴰ f g = makePshHomᴰPathP _ _ _ (funExt λ _ → funExt λ _ →
+  Nerveᴰ .F-obᴰ = NerveᴰOb
+  Nerveᴰ .F-homᴰ f .N-ob (c , _ , g) F⁻g .fst = F⁻g .fst C.⋆ f
+  Nerveᴰ .F-homᴰ f .N-ob (c , _ , g) F⁻g .snd =
+    F .F-seq _ _ ∙ D.⟨ F⁻g .snd ⟩⋆⟨ refl ⟩
+  Nerveᴰ .F-homᴰ f .N-hom _ _ (g , _) (h , _) = ΣPathPProp (λ a → D.isSetHom _ _)
+    (C.⋆Assoc g h f)
+  Nerveᴰ .F-idᴰ = makePshHomᴰPathP _ _ _ (funExt (λ (c , _ , g) → funExt (λ F⁻g →
+    ΣPathPProp (λ a → D.isSetHom (F .F-hom a) g) (C.⋆IdR (F⁻g .fst)))))
+  Nerveᴰ .F-seqᴰ f g = makePshHomᴰPathP _ _ _ (funExt λ _ → funExt λ _ →
     ΣPathPProp (λ _ → D.isSetHom _ _) (sym (C.⋆Assoc _ _ _)))
 
   -- The Nerveᴰ is faithful basically by a Yoneda argument and the
@@ -118,6 +133,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
     Nerveᴰ .F-homᴰ g .N-ob (x , tt , D.id) (C.id , F .F-id) .fst
       ≡⟨ C.⋆IdL _ ⟩
     g ∎
+
+  -- The following looks like it's provable because it looks
+  -- Yoneda-ish but it's not, it's nerveish.
+  
+  -- α is a PshHom (D [ F⟅-⟆ , x ]) (D [ F⟅-⟆ , y ])
+  -- αᴰ is a PshHomᴰ α (Nerveᴰ x) (Nerveᴰ y)
+  -- Nerveᴰ-full : isFull (intro (Nerve ∘F F) Nerveᴰ)
+  -- Nerveᴰ-full x y (α , αᴰ) =
+  --   ∣ (αᴰ .N-ob (x , tt , D.id) (C.id , F .F-id) .fst)
+  --   , ΣPathP ((makePshHomStrictPath (funExt (λ Γ → funExt (λ f →
+  --     D.⟨ refl ⟩⋆⟨ αᴰ .N-ob (x , tt , D.id) (C.id , F .F-id) .snd ⟩
+  --     ∙ {!α .N-hom!})))) -- stuck here because you don't know f is in the image of F⟪_⟫
+  --   , {!!}) ∣₁
 
   -- The interesting thing is that we can use Nerveᴰ to prove that F
   -- is fully faithful.
@@ -137,8 +165,11 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
   -- F and so they are in the image of F themselves because id is and
   -- g = id ⋆ g.
   module _
+    -- technically the universe levels don't have to line up this
+    -- closely but at least in the conservativity proofs they do so
+    -- w/e
     (S : Section Nerve (PRESHEAFᴰ (Unitᴰ C) ℓD' (ℓ-max ℓC' ℓD')))
-    -- we should weaken this to a natiso/pshiso
+    -- we should weaken this to a natiso
     (SF≡Nerveᴰ : compSectionFunctor S F ≡ Nerveᴰ)
     where
     -- Firstly, this implies that F is faithful because S ∘ F is faithful
@@ -160,11 +191,16 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D) w
       Ng = subst {A = Section (Nerve ∘F F) ((PRESHEAFᴰ (Unitᴰ C) ℓD' (ℓ-max ℓC' ℓD')))}
         {x = compSectionFunctor S F}
         {y = Nerveᴰ}
-        (λ SF → ⟨ SF .F-obᴰ c .F-ob (c , tt , D.id) ⟩ → ⟨ SF .F-obᴰ c' .F-ob (c , tt , D.id D.⋆ g) ⟩) SF≡Nerveᴰ (S .F-homᴰ g .N-ob (c , tt , D.id))
+        (λ SF → ⟨ SF .F-obᴰ c .F-ob (c , tt , D.id) ⟩ → ⟨ SF .F-obᴰ c' .F-ob (c , tt , D.id D.⋆ g) ⟩)
+        SF≡Nerveᴰ
+        (S .F-homᴰ g .N-ob (c , tt , D.id))
 
     isFullF : isFull F
-    isFullF x y F[f] = Eq.∣ F⁻[f]' .fst , F⁻[f]' .snd ∙ D.⋆IdL F[f] ∣₁ where
+    isFullF x y F[f] = ∣ F⁻[f]' .fst , F⁻[f]' .snd ∙ D.⋆IdL F[f] ∣₁ where
       F⁻[f]' = Ng F[f] (C.id , F .F-id)
+
+    isFullyFaithfulF : isFullyFaithful F
+    isFullyFaithfulF = isFull+Faithful→isFullyFaithful {F = F} isFullF F-faithful
 
 -- YOStrict preserves binary products (special case of Nerve-pres-bp
 -- with the identity functor, since Nerve Id ≡ YOStrict by computation)

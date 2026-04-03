@@ -192,6 +192,9 @@ module _ (Q : Quiver ℓQ ℓQ') where
   S = FCCC.elimLocal ×⇒Q (nerve , nerve-pres-bp) PSHᴰCartesianClosedⱽ
        (mkElimInterpᴰ OB HOM)
 
+  postulate
+    foo : compSectionFunctor S ⊆ ≡ Nerveᴰ ⊆
+
   -- Helper: construct element of S .F-obᴰ for any expression at a point given by a CC morphism
   -- This is needed to handle product domains
   mkElem : (o Γ : ×Q.Expr) (g : FREE-1,×.C [ Γ , o ])
@@ -236,4 +239,5 @@ module _ (Q : Quiver ℓQ ℓQ') where
   ⊆-Full x y f = ∣ (fullSection .F-obᴰ y x f) ∣₁
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
-  ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful
+  ⊆-FullyFaithful = isFullyFaithfulF ⊆ S foo
+    -- isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

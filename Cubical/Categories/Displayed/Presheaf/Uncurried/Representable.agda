@@ -65,6 +65,7 @@ module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓC
   _[-][-,_] : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
   _[-][-,_] xᴰ .F-ob (Γ , Γᴰ , f) = ( Cᴰ [ f ][ Γᴰ , xᴰ ]) , Cᴰ.isSetHomᴰ
   _[-][-,_] xᴰ .F-hom {x = z , zᴰ , f}{y = y , yᴰ , g} (γ , γᴰ , γ⋆f≡g) fᴰ =
+    -- This is the root of all evil
     Cᴰ.reind γ⋆f≡g $ γᴰ Cᴰ.⋆ᴰ fᴰ
   _[-][-,_] xᴰ .F-id =
     funExt λ fᴰ → Cᴰ.rectifyOut $ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdL _

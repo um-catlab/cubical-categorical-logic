@@ -154,9 +154,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
         module Pᴰ×ᴰQᴰ = PresheafᴰNotation Cᴰ (P ×Psh Q) (Pᴰ ×ᴰPsh Qᴰ)
         module Pᴰ×ᴰStrictQᴰ = PresheafᴰNotation Cᴰ (P ×Psh Q) (Pᴰ ×ᴰPshStrict Qᴰ)
-        -- this is a deficiency of the current definition of uncurried
-        -- displayed presheaves. There doesn't seem to be any way to
-        -- make this refl
+        -- ×ᴰPsh is a bad definition because the following is not refl
         test×ᴰPsh : ∀ {Γ x}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}
           (p : P.p[ x ])(q : Q.p[ x ])
           (f : C [ Γ , x ])
@@ -176,7 +174,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
                                                       (doubleComp-faces (λ _ → F-hom Q f q) (λ _ → Q .F-hom f q) (~ i))
                                                       (F-hom Q f q))) _))
 
-        -- apparently the deficiency is not with the definition of curried displayed presheaves but instead with the definition of reindPshᴰNatTrans
+        -- apparently the deficiency is not with the definition of
+        -- curried displayed presheaves but instead with the
+        -- definition of reindPshᴰNatTrans
         test×ᴰPshStrict : ∀ {Γ x}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}
           (p : P.p[ x ])(q : Q.p[ x ])
           (f : C [ Γ , x ])

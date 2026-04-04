@@ -129,12 +129,12 @@ module PresheafᴰNotation
     → p[ f P.⋆ p ][ xᴰ ]
   fᴰ ⋆ᴰ pᴰ = Pᴰ .F-hom (_ , fᴰ , Eq.refl) pᴰ
 
-  opaque
-    ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : (f P.⋆ p) Eq.≡ q) (pᴰ : p[ p ][ yᴰ ])
-      → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , Eq.eqToPath f⋆p≡q i ) ⟩)
-        (fᴰ ⋆ᴰ pᴰ)
-        (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
-    ⋆ᴰ-reindᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {q} fᴰ Eq.refl pᴰ = refl
+  ⋆ᴰ-reindᴰ : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}(fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (f⋆p≡q : (f P.⋆ p) Eq.≡ q) (pᴰ : p[ p ][ yᴰ ])
+    → PathP (λ i → ⟨ Pᴰ .F-ob (x , xᴰ , Eq.eqToPath f⋆p≡q i ) ⟩)
+      (fᴰ ⋆ᴰ pᴰ)
+      (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
+  ⋆ᴰ-reindᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {q} fᴰ Eq.refl pᴰ = refl
+
   ⋆ᴰ-reind : ∀ {x y xᴰ yᴰ}{f : C [ x , y ]}{p q}{fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]}{pᴰ : p[ p ][ yᴰ ]}
     → (f⋆p≡q : (f P.⋆ p) Eq.≡ q)
     → (fᴰ ⋆ᴰ pᴰ) ∫≡ (Pᴰ .F-hom (f , fᴰ , f⋆p≡q) pᴰ)
@@ -155,6 +155,7 @@ module PresheafᴰNotation
     (⋆ᴰ-reind _)
     ∙ ≡in (funExt⁻ (Pᴰ .F-seq (g , gᴰ , _) (f , fᴰ , _)) pᴰ)
 
+  -- I think formal reinds are an anti-pattern. You
   formal-reind-filler :
     ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{p q}
     {pᴰ : p[ p ][ xᴰ ]}
@@ -307,6 +308,20 @@ module _ {C : Category ℓC ℓC'}{P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C ℓ
     ∫ηᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f : C [ Γ , ue.vertex ]}{fᴰ : Cᴰ [ f ][ Γᴰ , vᴰ ]}
       → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ eᴰ)
     ∫ηᴰ = Cᴰ.≡in ηᴰ
+
+    cong-introᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
+      {p : P.p[ Γ ]} {pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
+      {p' : P.p[ Γ ]} {pᴰ' : Pᴰ.p[ p' ][ Γᴰ ]}
+      → pᴰ Pᴰ.∫≡ pᴰ'
+      → introᴰ pᴰ Cᴰ.∫≡ introᴰ pᴰ'
+    cong-introᴰ pf = λ i → ue.intro (pf i .fst) , introᴰ (pf i .snd)
+
+    introᴰ≡ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}
+      {p : P.p[ Γ ]} {pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
+      {f : C [ Γ , ue.vertex ]}{fᴰ : Cᴰ [ f ][ Γᴰ , vᴰ ]}
+      → pᴰ Pᴰ.∫≡ (fᴰ Pᴰ.⋆ᴰ eᴰ)
+      → introᴰ pᴰ Cᴰ.∫≡ fᴰ
+    introᴰ≡ pf = cong-introᴰ pf ∙ sym ∫ηᴰ
 
 module _ {C : Category ℓC ℓC'} (x : C .ob) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private

@@ -139,11 +139,11 @@ module BinProductNotation {C : Category ℓ ℓ'} {a b} (bp : BinProduct C (a , 
       → f ≡ g
     ,p-extensionality f≡g1 f≡g2 = extensionality (ΣPathP (f≡g1 , f≡g2))
 
-    ×β₁ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₁ ≡ f
-    ×β₁ = cong fst β
+  ×β₁ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₁ ≡ f
+  ×β₁ = cong fst β
 
-    ×β₂ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₂ ≡ g
-    ×β₂ = cong snd β
+  ×β₂ : ∀ {Γ}{f : C [ Γ , a ]}{g} → (f ,p g) C.⋆ π₂ ≡ g
+  ×β₂ = cong snd β
 
 module BinProductsNotation {C : Category ℓ ℓ'} (bp : BinProducts C) where
   private

@@ -75,7 +75,9 @@ open NatTransᴰ
 open NatIso
 open NatIsoᴰ
 open PshHom
+open PshHomEq
 open PshIso
+open PshIsoEq
 
 _/_ : {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (P : Presheaf C ℓP) → Category _ _
 Cᴰ / P = ∫C (Cᴰ ×ᴰ EqElement P)
@@ -230,11 +232,81 @@ module _
   _×ⱽPsh_ : Presheafᴰ P Cᴰ ℓPᴰ → Presheafᴰ P Cᴰ ℓQᴰ → Presheafᴰ P Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
   _×ⱽPsh_ = _×Psh_
 
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} where
+  -- TODO: is π₁Eq/π₂Eq a disaster here?
+  _×ᴰPsh_ : Presheafᴰ P Cᴰ ℓPᴰ → Presheafᴰ Q Cᴰ ℓQᴰ → Presheafᴰ (P ×Psh Q) Cᴰ (ℓ-max ℓPᴰ ℓQᴰ)
+  Pᴰ ×ᴰPsh Qᴰ = reindPsh (Idᴰ /Fⱽ π₁Eq P Q) Pᴰ ×Psh reindPsh (Idᴰ /Fⱽ π₂Eq P Q) Qᴰ
+
 module _ {C : Category ℓC ℓC'} {x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Fibers Cᴰ
   _[-][-,_] : (xᴰ : Cᴰ.ob[ x ]) → Presheafᴰ (C [-, x ]) Cᴰ ℓCᴰ'
   _[-][-,_] xᴰ = UncurryPshᴰ (Cᴰ Setᴰ.[-][-, xᴰ ])
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  (α : PshHomEq P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+  where
+  PshHomᴰ : Type _
+  PshHomᴰ = PshHomEq Pᴰ (α *Presheafᴰ Qᴰ)
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  (α : PshIsoEq P Q)
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ)
+  where
+  private
+    module Pᴰ = PresheafᴰNotation Pᴰ
+    module Qᴰ = PresheafᴰNotation Qᴰ
+  isPshIsoᴰ : PshHomᴰ (toPshHomEq α) Pᴰ Qᴰ → Type _
+  isPshIsoᴰ αᴰ = ∀ x xᴰ → isIsoOver (α .isos x) Pᴰ.p[_][ xᴰ ] Qᴰ.p[_][ xᴰ ] λ a → αᴰ .N-ob (x , xᴰ , a)
+
+  PshIsoᴰ : Type _
+  PshIsoᴰ = Σ[ αᴰ ∈ PshHomᴰ (toPshHomEq α) Pᴰ Qᴰ ] isPshIsoᴰ αᴰ
+
+module _ {C : Category ℓC ℓC'}{P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}(assocEq : PshAssocEq P) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Pᴰ
+
+  yoRecᴰ : ∀ {x}{xᴰ : Cᴰ.ob[ x ]}{e} → (eᴰ : Pᴰ.p[ e ][ xᴰ ]) → PshHomᴰ (yoRecEq P assocEq e) (Cᴰ [-][-, xᴰ ]) Pᴰ
+  yoRecᴰ eᴰ .N-ob _ = Pᴰ._⋆ᴰ eᴰ
+  yoRecᴰ eᴰ .N-hom c c' (fst₁ , fst₂ , Eq.refl) p' p Eq.refl = Eq.pathToEq
+    (Pᴰ.rectifyOut ((sym $ Pᴰ.⋆ᴰ-reind _) ∙ sym (Pᴰ.⋆Assoc _ _ _)))
+
+  record UEᴰ (ue : UniversalElement C P) : Type ((ℓ-max (ℓ-max ℓC ℓC') (ℓ-max (ℓ-max ℓCᴰ ℓCᴰ') (ℓ-max ℓP ℓPᴰ)))) where
+    no-eta-equality
+    module ue = UniversalElementNotation ue
+    field
+      vᴰ : Cᴰ.ob[ ue.vertex ]
+      eᴰ : Pᴰ.p[ ue.element ][ vᴰ ]
+      universal : isPshIsoᴰ (yoRecIsoEq ue assocEq) (Cᴰ [-][-, vᴰ ]) Pᴰ (yoRecᴰ eᴰ)
+
+    introᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{p : P.p[ Γ ]} → Pᴰ.p[ p ][ Γᴰ ] → Cᴰ [ ue.intro p ][ Γᴰ , vᴰ ]
+    introᴰ {Γ} {Γᴰ} {p} pᴰ = universal Γ Γᴰ .inv p pᴰ
+
+    βᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{p : P.p[ Γ ]} {pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
+      → (introᴰ pᴰ Pᴰ.⋆ᴰ eᴰ) Pᴰ.≡[ ue.β ] pᴰ
+    βᴰ {Γ} {Γᴰ} {p} {pᴰ} = universal Γ Γᴰ .rightInv p pᴰ
+
+    ∫βᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{p : P.p[ Γ ]} {pᴰ : Pᴰ.p[ p ][ Γᴰ ]}
+      → (introᴰ pᴰ Pᴰ.⋆ᴰ eᴰ) Pᴰ.∫≡ pᴰ
+    ∫βᴰ = Pᴰ.≡in βᴰ
+
+    ηᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f : C [ Γ , ue.vertex ]}{fᴰ : Cᴰ [ f ][ Γᴰ , vᴰ ]}
+      → fᴰ Cᴰ.≡[ ue.η ] introᴰ (fᴰ Pᴰ.⋆ᴰ eᴰ)
+    ηᴰ {Γ} {Γᴰ} {f} {fᴰ} = symP $ universal Γ Γᴰ .leftInv f fᴰ
+
+    ∫ηᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f : C [ Γ , ue.vertex ]}{fᴰ : Cᴰ [ f ][ Γᴰ , vᴰ ]}
+      → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ eᴰ)
+    ∫ηᴰ = Cᴰ.≡in ηᴰ
 
 module _ {C : Category ℓC ℓC'} (x : C .ob) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
@@ -242,6 +314,7 @@ module _ {C : Category ℓC ℓC'} (x : C .ob) (Cᴰ : Categoryᴰ C ℓCᴰ ℓ
   Presheafⱽ : (ℓPᴰ : Level) → Type (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') (ℓ-suc ℓPᴰ))
   Presheafⱽ = Presheafᴰ (C [-, x ]) Cᴰ
 
+-- TODO: move these to a more basic file
 EqAssoc : (C : Category ℓC ℓC') → Type (ℓ-max ℓC ℓC')
 EqAssoc C = ∀ {w x y z} (f : C [ w , x ])(g : C [ x , y ])(h : C [ y , z ]) → (f C.⋆ g) C.⋆ h Eq.≡ (f C.⋆ (g C.⋆ h))
   where module C = Category C
@@ -291,8 +364,6 @@ module _ {C : Category ℓC ℓC'} {x : C .ob} {Cᴰ : Categoryᴰ C ℓCᴰ ℓ
     UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.isos ob/@(Γ , Γᴰ , f) .Iso.ret = ueⱽ .universal .isPshIsoEq.nIso (Γ , Γᴰ , f) .snd .snd
     UEⱽ→Reprⱽ ueⱽ .snd .PshIsoEq.nat = yoRecⱽ (ueⱽ .e) .PshHomEq.N-hom
 
-
-
 module _ {C : Category ℓC ℓC'} {x : C .ob} (bp : BinProductsWith C x) where
   private
     module C = Category C
@@ -318,6 +389,46 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   BinProductsⱽ : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
   BinProductsⱽ = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → Reprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
+
+  BinProductsᴰ : BinProducts C → Type _
+  BinProductsᴰ bp = ∀ {x y : C.ob} (xᴰ : Cᴰ.ob[ x ])(yᴰ : Cᴰ.ob[ y ])
+    → UEᴰ (PshAssocEq-fromPath _) ((Cᴰ [-][-, xᴰ ]) ×ᴰPsh (Cᴰ [-][-, yᴰ ])) (bp (x , y))
+
+  module BinProductsᴰNotation (bp : BinProducts C) (bpᴰ : BinProductsᴰ bp) where
+    private
+      module bpᴰ {x}{y}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]} = UEᴰ (bpᴰ xᴰ yᴰ)
+    module bp = BinProductsNotation bp
+    open bpᴰ hiding (vᴰ) public
+    vᴰ : ∀ {x}{y}(xᴰ : Cᴰ.ob[ x ])(yᴰ : Cᴰ.ob[ y ]) → Cᴰ.ob[ x bp.× y ]
+    vᴰ = λ xᴰ yᴰ → bpᴰ xᴰ yᴰ .UEᴰ.vᴰ
+
+    ×β₁ᴰ : ∀ {Γ}{x}{y}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+      {f g}
+      {fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ]}
+      {gᴰ : Cᴰ [ g ][ Γᴰ , yᴰ ]}
+      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ bpᴰ.eᴰ .fst) Cᴰ.≡[ bp.×β₁ ] fᴰ
+    ×β₁ᴰ {yᴰ = yᴰ}{fᴰ = fᴰ}{gᴰ = gᴰ} i =
+      βᴰ {yᴰ = yᴰ}{pᴰ = fᴰ , gᴰ} i .fst
+    ∫×β₁ᴰ : ∀ {Γ}{x}{y}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+      {f g}
+      {fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ]}
+      {gᴰ : Cᴰ [ g ][ Γᴰ , yᴰ ]}
+      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ bpᴰ.eᴰ .fst) Cᴰ.∫≡ fᴰ
+    ∫×β₁ᴰ = Cᴰ.≡in ×β₁ᴰ
+
+    ×β₂ᴰ : ∀ {Γ}{x}{y}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+      {f g}
+      {fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ]}
+      {gᴰ : Cᴰ [ g ][ Γᴰ , yᴰ ]}
+      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ bpᴰ.eᴰ .snd) Cᴰ.≡[ bp.×β₂ ] gᴰ
+    ×β₂ᴰ {yᴰ = yᴰ}{fᴰ = fᴰ}{gᴰ = gᴰ} i =
+      βᴰ {yᴰ = yᴰ}{pᴰ = fᴰ , gᴰ} i .snd
+    ∫×β₂ᴰ : ∀ {Γ}{x}{y}{Γᴰ : Cᴰ.ob[ Γ ]}{xᴰ : Cᴰ.ob[ x ]}{yᴰ : Cᴰ.ob[ y ]}
+      {f g}
+      {fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ]}
+      {gᴰ : Cᴰ [ g ][ Γᴰ , yᴰ ]}
+      → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ bpᴰ.eᴰ .snd) Cᴰ.∫≡ gᴰ
+    ∫×β₂ᴰ = Cᴰ.≡in ×β₂ᴰ
 
   module _ (C⋆IdR : EqIdR C) where
     BinProductsⱽUE : Type _

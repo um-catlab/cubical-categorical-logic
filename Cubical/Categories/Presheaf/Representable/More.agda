@@ -80,6 +80,9 @@ module _ {C : Category ℓc ℓc'} (P : Presheaf C ℓp) where
     → (f C.⋆ g) Eq.≡ f⋆g
     → f P.⋆ (g P.⋆ p) Eq.≡ f⋆g P.⋆ p
 
+  PshAssocEq-fromPath : PshAssocEq
+  PshAssocEq-fromPath f g p f⋆g Eq.refl = Eq.pathToEq (sym $ P.⋆Assoc _ _ _)
+
   yoRecEq : PshAssocEq → ∀ {c} → P.p[ c ] → PshHomEq (C [-, c ]) P
   yoRecEq PshAssocEq p .PshHomEq.N-ob Γ f = f P.⋆ p
   yoRecEq PshAssocEq {c} p .PshHomEq.N-hom c' c'' f g = PshAssocEq f g p
@@ -179,6 +182,12 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C
   yoRecIso : PshIso (C [-, ue.vertex ]) P
   yoRecIso = record { trans = yoRec P ue.element
                     ; nIso = UniversalElement→yoRecIsIso }
+
+  yoRecIsoEq : PshAssocEq P → PshIsoEq (C [-, ue.vertex ]) P
+  yoRecIsoEq assP = record
+    { isos = λ c → iso (α .PshHomEq.N-ob c) ue.intro (λ b → ue.β) (λ f → sym ue.η)
+    ; nat = α .PshHomEq.N-hom } where
+    α = yoRecEq P assP ue.element
 
   substUniversalElement : (elt : P.p[ ue.vertex ])
     → ue.element ≡ elt

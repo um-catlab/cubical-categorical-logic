@@ -105,9 +105,7 @@ module _ where
     CAN .F-homᴰ M  LAMBDA.id _ .snd ∙ LAMBDA.⋆IdL _
   can-bool .Iso.ret = Bool.elim refl refl
 
-  -- -- This doesn't currently work but this is an indexed inductive so
-  -- -- not sure if it will work once we have updated to the fix of
-  -- -- https://github.com/agda/agda/issues/7139
+  -- -- This doesn't currently work, and it is quite slow
   -- can-nat-suc : ∀ n →
   --   CAN .F-homᴰ ＂ suc n ＂ℕ idS tt* .fst ≡ suc (CAN .F-homᴰ ＂ n ＂ℕ idS tt* .fst)
   -- can-nat-suc n = {!refl!}

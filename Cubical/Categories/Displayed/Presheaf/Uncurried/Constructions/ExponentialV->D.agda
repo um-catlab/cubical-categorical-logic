@@ -164,7 +164,7 @@ module _
       ⇒ⱽᴰ-square-isoᴰ .snd .retᴰ = Cᴰ.rectifyOut ⇒ⱽᴰ-square-ret
 
     LHS-F RHS-F : Functor (Cᴰ / (C [-, A⇒B .vertex ])) (Cᴰ / (C [-, B ]))
-    LHS-F = ((Idᴰ /Fⱽ yoRec (C [-, B ]) (element A⇒B)) ∘F ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ Cᴰ (Aᴰ[π₂] .fst , Aᴰ[π₂]-lrⱽ))) ∘F wkF (π₁Quant Cᴰ A ×A π₁-Quadrable) (vertex A⇒B)
+    LHS-F = ((Idᴰ /Fⱽ yoRec (C [-, B ]) (element A⇒B)) ∘F ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ Cᴰ (Aᴰ[π₂] .fst , Aᴰ[π₂]-lrⱽ))) ∘F wkF (π₁Quadrable Cᴰ A ×A π₁-Quadrable) (vertex A⇒B)
     RHS-F = (×ᴰPᴰ ((C [-, A ]) , ×A) ((Cᴰ [-][-, Aᴰ ]) , ×Aᴰ) ∘F (Idᴰ /Fⱽ yoRec (((C [-, A ]) , ×A) ⇒PshSmall (C [-, B ])) (element A⇒B)))
 
     module _

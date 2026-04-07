@@ -204,30 +204,71 @@ Sys A B .TSystem.red = red' A B
 step' : (A : VTy)(B : CTy) → A ⊢c B → Maybe (A ⊢c B) 
 step' A B (ret x) = nothing
 step' A B (bind (ret V) M) = just (subC V M)
-step' A B (bind (bind M M') N) with step' _ _ (bind M M') 
+step' A B (bind M N) with step' _ _ M
 ... | nothing = nothing
-... | just M'' = just (bind M'' N)
-step' A B (bind (force V) M) with (step' _ _ (force V)) 
-... | nothing = nothing
-... | just N = just (bind N M)
+... | just M' = just (bind M' N)
+step' A B (force (thunk V)) = just V 
 -- a stuck term
 step' A B (force var) = nothing
-step' A B (force (thunk V)) = just V 
 
 Sys : (A : VTy)(B : CTy) → TSystem _ 
 Sys A B .TSystem.state = (A ⊢c B) , {!   !}
 Sys A B .TSystem.trans = step' A B
 
 open TSystem[_,_]
+import      Cubical.Data.Equality as Eq
+data _↦_  : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where   
+  Fβ :  ∀{A A' B} →  {V : A ⊢v A'}{M : A' ⊢c B}{N : A ⊢c B} →  
+    Eq._≡_ N (subC V M) → 
+    bind (ret V) M ↦ N  
+
+  Uβ : ∀ {A B} {M : A ⊢c B} → force (thunk M) ↦ M
+
+  bcong : ∀ {A A' B} {M M' : A ⊢c F A'}{N : A' ⊢c B}  →  M ↦ M' → bind M N ↦ bind M' N 
+
+lemma : ∀ {A B B'} → {M N : A ⊢c B} (S : B ⊢k B') → M ↦ N  → plug S M ↦ plug S N 
+lemma {A} {B} {B'} {M} {N} hole (Fβ Eq.refl) = Fβ Eq.refl
+lemma {A} {B} {B'} {M} {N} (bindk S x) (Fβ Eq.refl) = bcong (lemma S (Fβ Eq.refl))
+lemma {A} {B} {B'} {M} {N} hole Uβ = Uβ
+lemma {A} {B} {B'} {M} {N} (bindk S x) Uβ = bcong (lemma S Uβ)
+lemma {A} {B} {B'} {M} {N} hole (bcong prf) = lemma (bindk hole _) prf
+lemma {A} {B} {B'} {M} {N} (bindk S x) (bcong prf) = bcong (lemma S (lemma (bindk hole _) prf))
+
+lemma' : ∀ {A A' B } → {M N : A ⊢c B} (V : A' ⊢v A) → M ↦ N  → subC V M ↦ subC V N
+lemma' {A} {A'} {B} {M} {N} var (Fβ{V = V'}{M'} Eq.refl) = subst (λ h → bind (ret (subV var V')) M' ↦ h) (sym (subDist var V' M')) (Fβ Eq.refl)
+lemma' {A} {A'} {B} {M} {N} var Uβ = Uβ
+lemma' {A} {A'} {B} {M} {N} var (bcong prf) = bcong (lemma' var prf)
+lemma' {A} {A'} {B} {M} {N} tt (Fβ{V = V'}{M'} Eq.refl) = subst (λ h → bind (ret (subV tt V')) M' ↦ h) (sym (subDist tt V' M')) (Fβ Eq.refl)
+lemma' {A} {A'} {B} {M} {N} tt Uβ = Uβ
+lemma' {A} {A'} {B} {M} {N} tt (bcong prf) = bcong (lemma' tt prf)
+lemma' {A} {A'} {B} {M} {N} yes (Fβ{V = V'}{M'} Eq.refl) = subst (λ h → bind (ret (subV yes V')) M' ↦ h) (sym (subDist yes V' M')) (Fβ Eq.refl) 
+lemma' {A} {A'} {B} {M} {N} yes Uβ = Uβ
+lemma' {A} {A'} {B} {M} {N} yes (bcong prf) = bcong (lemma' yes prf)
+lemma' {A} {A'} {B} {M} {N} no (Fβ{V = V'}{M'} Eq.refl) = subst (λ h → bind (ret (subV no V')) M' ↦ h) (sym (subDist no V' M')) (Fβ Eq.refl)
+lemma' {A} {A'} {B} {M} {N} no Uβ = Uβ
+lemma' {A} {A'} {B} {M} {N} no (bcong prf) = bcong (lemma' no prf)
+lemma' {A} {A'} {B} {M} {N} (thunk x) (Fβ{V = V'}{M'} Eq.refl) = subst (λ h → bind (ret (subV (thunk x) V')) M' ↦ h) (sym (subDist (thunk x) V' M')) (Fβ Eq.refl)
+lemma' {A} {A'} {B} {M} {N} (thunk x) Uβ = Uβ
+lemma' {A} {A'} {B} {M} {N} (thunk x) (bcong prf) = bcong (lemma' (thunk x) prf)
+
+cor : ∀ {A A' B B'} → {M N : A ⊢c B}(V : A' ⊢v A)(S : B ⊢k B') → M ↦ N → subC V (plug S M) ↦ subC V (plug S N) 
+cor {A}{A'}{B}{B'}{M}{N} V S prf = lemma' {A} {A'}{B'} {plug S M}{plug S N} V (lemma S prf)
+
+
+open TSystem
 
 SysHom : ∀ {A A' B B'} → A' ⊢v A → B ⊢k B' → TSystem[ Sys A B , Sys A' B' ]
 SysHom V S .tmap M = subC V (plug S M)
-SysHom V S .comm {ret x} = tt*
+SysHom {A}{A'}{B}{B'} V S .comm {M} with canStep? (Sys A B) M
+... | inl x = {!  reflcanStep? !}
+... | inr x = {!   !}
+{- {ret x} = tt*
 SysHom V S .comm {bind s s₁} with step' _ _ s 
 ... | nothing = {!   !}
 ... | just x = {!   !}
 SysHom V S .comm {force var} = tt*
 SysHom V S .comm {force (thunk w)} = {!   !}
+ -}
 
 Syn : CBPVModel 
 Syn .CBPVModel.V = V
@@ -238,3 +279,23 @@ Syn .CBPVModel.O .F-id = TSysMap≡ (funExt λ M → subCId _)
 Syn .CBPVModel.O .F-seq (V , S) (V' , S')= 
   TSysMap≡ (funExt λ M → sym (subDist V' _ _ ) 
   ∙ cong₂ subC refl (cong₂ subC refl (sym (plugDist S S' M))  ∙ plugSub V _ S'))
+
+
+SetModel : CBPVModel 
+SetModel .CBPVModel.V = SET _
+SetModel .CBPVModel.C = TSysCat
+SetModel .CBPVModel.O .F-ob (A , B) .state = (⟨ A ⟩ → ⟨ B .state ⟩) , {!   !}
+SetModel .CBPVModel.O .F-ob (A , B) .trans = just
+SetModel .CBPVModel.O .F-hom = {!   !}
+SetModel .CBPVModel.O .F-id = {!   !}
+SetModel .CBPVModel.O .F-seq = {!   !}
+
+open import Cubical.Categories.NaturalTransformation
+open CBPVModel using (O[_,-])
+
+GS : CBPVMorphism Syn SetModel 
+GS .CBPVMorphism.FV = V [ 𝟙 ,-]
+GS .CBPVMorphism.FC = O[_,-] Syn 𝟙
+GS .CBPVMorphism.FO .NatTrans.N-ob (A , B) .tmap M V = ?
+GS .CBPVMorphism.FO .NatTrans.N-ob (A , B) .comm = {!   !}
+GS .CBPVMorphism.FO .NatTrans.N-hom = {!   !}

@@ -52,14 +52,18 @@ record TSystem (ℓ : Level) : Type(ℓ-suc ℓ) where
   isterm : ⟨ state ⟩ → Type _
   isterm s = trans s ≡ nothing
 
+  _↦_ : ⟨ state ⟩ → ⟨ state ⟩ → Type _ 
+  _↦_ s s' = trans s ≡ just s'
+  
   canStep : ⟨ state ⟩ → Type _
-  canStep s = Σ ⟨ state ⟩ λ s' → trans s ≡ just s'
+  canStep s = Σ[ s' ∈ ⟨ state ⟩ ] s ↦ s'
+
 
   steps : Type _
   steps = Σ ⟨ state ⟩ canStep
 
   term : Type _
-  term = Σ ⟨ state ⟩ isterm
+  term = fiber trans nothing
 
   eq-term : {t1 t2 : term} → fst t1 ≡ fst t2 → t1 ≡ t2
   eq-term p = ΣPathP (p , toPathP (isSetMaybe {A = state} _ _ _ _))
@@ -125,6 +129,12 @@ module _ (S T : TSystem ℓ) where
       comm : {s : ⟨ S .state ⟩ } →
         (map-Maybe tmap (S .trans s)) ≤ (T .trans (tmap s))
 
+  record TSystem[_,_]' : Type ℓ where
+    field
+      tmap : ⟨ S .state ⟩  → ⟨ T .state ⟩
+      comm : {(s , s' , _) : steps S } →
+        just (tmap s') ≡ (T .trans (tmap s))
+
   TSystemHomSigma : Type ℓ
   TSystemHomSigma =
     Σ (⟨ S .state ⟩  → ⟨ T .state ⟩)
@@ -168,15 +178,14 @@ TSysMap≡ {S = S}{T}{f}{g} p =
     (Σ≡Prop (λ f → isPropImplicitΠ λ _ → ≤-isProp{A = T .state}) p)
 
 TSysMapisSet : {S T : TSystem ℓ} → isSet (TSystem[ S , T ])
-TSysMapisSet {S = S} {T} = {!   !} 
-{-}
+TSysMapisSet {S = S} {T} = 
   isSetRetract
     (fun (TSysHomIsoΣ S T))
     (inv (TSysHomIsoΣ S T))
-    (leftInv (TSysHomIsoΣ S T))
+    ((TSysHomIsoΣ S T) .ret) 
   (isSetΣ (isSet→ (T .state .snd))
   λ _ → isProp→isSet (isPropImplicitΠ λ _ → ≤-isProp {A = T .state}))
- -}
+ 
 idSysHom : {S : TSystem ℓ} → TSystem[ S , S ]
 idSysHom .tmap s = s
 idSysHom {S = S} .comm {s} =
@@ -201,3 +210,55 @@ TSysCat .⋆IdL _ =  TSysMap≡ refl
 TSysCat .⋆IdR _ =  TSysMap≡ refl
 TSysCat .⋆Assoc _ _ _ = TSysMap≡ refl
 TSysCat .isSetHom = TSysMapisSet
+
+open import Cubical.Categories.Displayed.Instances.Sets
+open import Cubical.Categories.Displayed.Base
+
+Maybeᴰ : {X : Type _} → (X → hSet _) → Maybe X → hSet _ 
+Maybeᴰ P nothing = Unit , isSetUnit
+Maybeᴰ P (just x) = P x
+
+record TSystemᴰ (S : TSystem _) : Type _  where
+  module S = TSystem S
+  field
+    stateᴰ : ⟨ S.state ⟩ → hSet _
+    transᴰ : (SETᴰ _ _)[ S.trans ][ stateᴰ , Maybeᴰ stateᴰ ]
+      
+
+  _↦ᴰ_ : {(s , s' , s↦s') : S.steps} → (P : ⟨ stateᴰ s ⟩ ) → (Q : ⟨ stateᴰ s' ⟩ )→ Type 
+  _↦ᴰ_ {(s , s' , s↦s')} P Q = PathP (λ i → ⟨ Maybeᴰ stateᴰ (s↦s' i) ⟩) (transᴰ s P) Q
+
+
+open TSystemᴰ
+record TSysᴰ[_][_,_] {S T : TSystem _}(f : Hom[ TSysCat , S ] T)(P : TSystemᴰ S)(Q : TSystemᴰ T) : Type _ where 
+  field
+    tmapᴰ : (SETᴰ _ _)[ f .tmap ][ P .stateᴰ , Q .stateᴰ ]
+
+      {-
+  _↦_ : ⟨ state ⟩ → ⟨ state ⟩ → Type _ 
+  _↦_ s s' = trans s ≡ just s'
+  
+  canStep : ⟨ state ⟩ → Type _
+  canStep s = Σ[ s' ∈ ⟨ state ⟩ ] s ↦ s'
+
+
+  record TSystem[_,_]' : Type ℓ where
+    field
+      tmap : ⟨ S .state ⟩  → ⟨ T .state ⟩
+      comm : {(s , s' , _) : steps S } →
+        just (tmap s') ≡ (T .trans (tmap s))
+
+      -}
+
+open Categoryᴰ 
+
+TSysCatᴰ : Categoryᴰ TSysCat _ _ 
+ob[ TSysCatᴰ ] = TSystemᴰ
+TSysCatᴰ .Hom[_][_,_] {S}{T} f P Q = TSysᴰ[ f ][ P , Q ]
+  --  Σ[ f ∈ (SETᴰ _ _)[ f .tmap ][ P .stateᴰ , Q .stateᴰ  ] ] {!   !}
+TSysCatᴰ .idᴰ = {!   !}
+TSysCatᴰ ._⋆ᴰ_ = {!   !}
+TSysCatᴰ .⋆IdLᴰ = {!   !}
+TSysCatᴰ .⋆IdRᴰ = {!   !}
+TSysCatᴰ .⋆Assocᴰ = {!   !}
+TSysCatᴰ .isSetHomᴰ = {!   !}

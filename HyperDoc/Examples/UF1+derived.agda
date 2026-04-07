@@ -73,14 +73,14 @@
       open PreorderStr
 
       -- move this
-      hasVPush : HasVPush
+      {- hasVPush : HasVPush
       hasVPush {A}{A'} f .fst .MonFun.f P a' = ∥ (Σ[ a ∈ ⟨ A ⟩  ]  (f a ≡ a') × ⟨ P a ⟩) ∥ₚ
       hasVPush {A}{A'} f .fst .MonFun.isMon x≤y a' = hmap λ z → z .fst , z .snd .fst , x≤y (z .fst) (z .snd .snd)
       hasVPush f .snd ._⊣_.adjIff {P}{Q} .fun prf a Pa = prf (f a) ∣ (a , (refl , Pa)) ∣₁
       hasVPush f .snd ._⊣_.adjIff {P}{Q} .inv prf a' = hrec (Q a' .snd) λ {(a , eqn , Pa) → subst (λ h → h ∈ Q) eqn (prf a  Pa)}
       hasVPush {A}{A'} f .snd ._⊣_.adjIff {P}{Q} .sec b = pred  A .fst .snd .is-prop-valued P (Pred .F-hom {A'}{A} f $ Q)  _ _ 
       hasVPush {A}{A'} f .snd ._⊣_.adjIff {P}{Q} .retract a = pred  A' .fst .snd .is-prop-valued (λ x → _ , squash₁) Q   _ _
-
+-}
       open LocalElim Σ' AlgModel AlgLogic has⊤ has∨ hasV𝟙 hasPush hasVPush 
       open ModelSection CL AlgLogic using (CBPVSection)  
       open Section

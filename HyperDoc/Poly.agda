@@ -9,7 +9,7 @@ open import Cubical.Data.Sum renaming (map to ⊎map ; rec to ⊎rec)
 open import Cubical.Data.FinData 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Structure hiding(str)
 
 -- open import Cubical.Categories.Presheaf.Properties 
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -33,17 +33,132 @@ record FinPoly (ℓ : Level) : Type (ℓ-suc ℓ) where
     pos : ℕ 
     dir : Fin pos → hSet ℓ
 
+
+⦅_⦆' : {ℓ  : Level} → FinPoly ℓ  → Type ℓ → Type ℓ 
+⦅ pos ◂ dir ⦆' X  = Σ[ x ∈ Fin pos ] (⟨ dir x ⟩ → X )
+
 ⦅_⦆ : {ℓ  : Level} → FinPoly ℓ  → hSet ℓ → hSet ℓ 
 ⦅ pos ◂ dir ⦆ X .fst = Σ[ x ∈ Fin pos ] (⟨ dir x ⟩ → ⟨ X ⟩)
 ⦅ pos ◂ dir ⦆ X .snd = {!   !}
-  -- (Σ[ p ∈ ⟨ pos ⟩  ] ((⟨ dir p ⟩ → ⟨ X ⟩ ))) , isSetΣ (pos .snd) λ _ → isSet→ (X .snd)
+  -- Σ[ p ∈ ⟨ pos ⟩  ] ((⟨ dir p ⟩ → ⟨ X ⟩ ))) , isSetΣ (pos .snd) λ _ → isSet→ (X .snd)
 
+data μ (p : FinPoly _) : Type where 
+  inF : ⦅ p ⦆' (μ p) → μ p
+
+data FreeOn (p : FinPoly _ )(X : Type) : Type where 
+  var : X → FreeOn p X
+  inF : ⦅ p ⦆' (FreeOn p X) → FreeOn p X
+
+-- https://github.com/um-catlab/cbpv-functorial-opsem/blob/main/agda/code-samples/gsos.agda
+  
 -- Y ↦ Σ(i ∈ I) SET[ Xᵢ , Y ]
 den : {ℓ  : Level} → FinPoly ℓ → Functor (SET ℓ) (SET ℓ) 
 den P .F-ob X = ⦅ P ⦆ X
 den P .F-hom f (n , d) = n , λ z → f (d z)
 den P .F-id = refl
 den P .F-seq _ _ = refl
+
+
+open import Cubical.Categories.Instances.FunctorAlgebras
+open import Cubical.Categories.Limits.Initial 
+open import Cubical.Data.Sigma 
+open Algebra
+open AlgebraHom
+
+module InitVar (p : FinPoly _)  where
+  Sig = den p
+
+  AlgΣ : Category _ _ 
+  AlgΣ = AlgebrasCategory Sig
+
+  IAlg : Type → ob AlgΣ 
+  IAlg n .Algebra.carrier = (FreeOn p n) , {!   !}
+  IAlg n .Algebra.str = inF
+
+
+
+  {-# TERMINATING #-}
+  Irec : {A : ob AlgΣ} → (X : Type)(γ : X → ⟨ A .carrier ⟩ ) → FreeOn p X → ⟨ A .carrier ⟩ 
+  Irec {A} X γ (var x) = γ x
+  Irec {A} X γ (inF x) = A .str (den p .F-hom (Irec {A} X γ) x)
+
+  IHom : {A : ob AlgΣ} → (X : Type)(γ : X → ⟨ A .carrier ⟩ ) →  AlgΣ [ IAlg X , A ] 
+  IHom {A} X γ .carrierHom = Irec {A} X γ
+  IHom {A} X γ .strHom = refl
+
+  Init :  Initial AlgΣ 
+  Init .fst .carrier = {!   !}
+  Init .fst .str = {!   !}
+  Init .snd = {!   !}
+
+module Init (p : FinPoly _)  where 
+  Sig = den p
+
+  AlgΣ : Category _ _ 
+  AlgΣ = AlgebrasCategory Sig
+
+  IAlg : ob AlgΣ 
+  IAlg .Algebra.carrier = ((μ p)) , {!   !}
+  IAlg .Algebra.str = inF
+
+  {-# TERMINATING #-}
+  Irec : {A : ob AlgΣ} → μ p → ⟨ A .carrier ⟩ 
+  Irec {A} (inF x) = A .str (den p .F-hom (Irec {A}) x)
+
+  IHom : {A : ob AlgΣ} →  AlgΣ [ IAlg , A ] 
+  IHom {A} .carrierHom = Irec {A}
+  IHom {A} .strHom = refl
+
+  Init : Initial AlgΣ 
+  Init .fst .Algebra.carrier = (μ p) , {!   !}
+  Init .fst .Algebra.str = inF
+  Init .snd A = IHom {A} , λ f → AlgebraHom≡ _ (funExt (goal f)) where 
+    goal : (f : AlgΣ [ Init .fst , A ]) → (x : μ p) → Irec {A} x ≡ carrierHom f x
+    goal f (inF x) = cong (λ  h → A .str h ) (ΣPathP (refl , funExt λ e → goal f (x .snd e))) ∙ sym (funExt⁻ (f .strHom) x) 
+
+
+module example where 
+  -- bialgebra
+  st : FinPoly _  
+  st .FinPoly.pos = 4
+  st .FinPoly.dir zero = Fin 2 , isSetFin
+  st .FinPoly.dir one = (Fin 1) , isSetFin
+  st .FinPoly.dir two = (Fin 1) , isSetFin
+  -- dead const
+  st .FinPoly.dir three = (Fin 0) , isSetFin
+
+
+  open Init st
+
+  StΣ : Functor (SET _) (SET _) 
+  StΣ = den st
+
+  StAlg : Category _ _ 
+  StAlg = AlgΣ
+
+  sexp = ⟨ Init .fst .carrier ⟩
+
+
+  get : sexp → sexp → sexp  
+  get m n  = inF (zero , λ {zero → m
+                          ; one → n })
+
+  set0 : sexp → sexp 
+  set0 m = inF (one , (λ _ → m))
+
+  set1 : sexp → sexp 
+  set1 m = inF (two , (λ _ → m))
+
+  done : sexp 
+  done = inF (three , (λ ()))
+
+  e : sexp 
+  e = get (set1 done) done
+
+
+
+
+
 
 -- yoneda embedding in SET^op
 Yo : {ℓ : Level} → hSet ℓ  → Functor (SET ℓ) (SET ℓ)
@@ -83,6 +198,10 @@ VarRepr .snd = {!   !}
 _⊕_ : FinPoly ℓ-zero → FinPoly ℓ-zero → FinPoly ℓ-zero
 (n ◂ dir) ⊕ (m ◂ dir') = (n + m) ◂ λ x → ⊎rec dir dir' (match n m x)
 
+open FinProdChar
+
+_⊗_ : FinPoly ℓ-zero → FinPoly ℓ-zero → FinPoly ℓ-zero
+(n ◂ dir) ⊗ (m ◂ dir₁) = {! n * m  !} ◂ {!   !}
 {-
   A Presheaf F : C^op → Set is representable if it is naturally isomorphic to the 
   yoneda embedding
@@ -175,7 +294,7 @@ module DiscreteGeneralized where
   ∇n {C = C} d = C .id
 
   LC : Category _ _ 
-  LC = ?
+  LC = {!   !}
 
 {-}
 ProdF : Functor (SET ℓ-zero) (SET ℓ-zero )

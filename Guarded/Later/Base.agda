@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --rewriting --guarded #-}
 {-# OPTIONS --allow-unsolved-metas #-}
 
-module Guarded.Later where
+module Guarded.Later.Base where
 
 -- | This file is adapted from the supplementary material for the
 -- | paper https://doi.org/10.1145/3372885.3373814, originally written
@@ -90,4 +90,3 @@ postulate
 
 postulate
   force-beta : ∀ {A : Set l} (x : A) → force (λ k _ → x) ≣ λ k → x
-

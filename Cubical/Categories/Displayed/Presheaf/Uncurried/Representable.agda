@@ -247,6 +247,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     → PshIsoᴰ (asPshIso ue) (Cᴰ [-][-, ueᴰ .fst ]) Pᴰ
   UniversalElementᴰ→PshIsoᴰ ue ueᴰ = yoRecᴰ {P = P} Pᴰ (ueᴰ .snd .fst) , (ueᴰ .snd .snd)
 
+  UniversalElementᴰ→FiberwisePshIsoᴰ :
+    (ue : UniversalElement C P) (ueᴰ : UniversalElementᴰ ue)
+    → FiberwisePshIsoᴰ (asPshIso ue .trans) (Cᴰ [-][-, ueᴰ .fst ]) Pᴰ
+  UniversalElementᴰ→FiberwisePshIsoᴰ ue ueᴰ = PshIsoᴰ→FiberwisePshIsoᴰ (UniversalElementᴰ→PshIsoᴰ ue ueᴰ)
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
   {F : Functor C D} (Fᴰ : Functorᴰ F Cᴰ Dᴰ)
@@ -290,6 +294,17 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   _◁PshIsoⱽ_ : Representableⱽ Cᴰ x Pⱽ → PshIsoⱽ Pⱽ Qⱽ → Representableⱽ Cᴰ x Qⱽ
   (xᴰ , α) ◁PshIsoⱽ β = (xᴰ , (α ⋆PshIso β))
   infix 8 _◁PshIsoⱽ_
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {ue : UniversalElement C P}
+  {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+  where
+  _◁UEᴰⱽ_ : UniversalElementᴰ Cᴰ P Pᴰ ue → PshIsoⱽ Pᴰ Qᴰ → UniversalElementᴰ Cᴰ P Qᴰ ue
+  ueᴰ ◁UEᴰⱽ β = Representableⱽ→UniversalElementᴰ Cᴰ P Qᴰ ue
+    ((ueᴰ .fst) , (UniversalElementᴰ→FiberwisePshIsoᴰ Cᴰ P Pᴰ ue ueᴰ ⋆PshIsoⱽ reindPshIso _ β))
+  infix 8 _◁UEᴰⱽ_
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (x : C .ob) where
   private

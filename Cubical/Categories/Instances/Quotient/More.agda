@@ -11,7 +11,7 @@ open import Cubical.HITs.SetQuotients as SetQuotients
 open import Cubical.Categories.Instances.Quotient
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
 
 private
   variable

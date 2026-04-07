@@ -2,21 +2,31 @@
 module Cubical.Categories.Displayed.Limits.CartesianClosedV where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
 
+open import Cubical.Categories.Category
+open import Cubical.Categories.Exponentials.Small
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.Base
+open import Cubical.Categories.Limits.Cartesian.More
 open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Presheaf.Representable
 
+open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 
 private
@@ -56,18 +66,10 @@ module _ (CCC : CartesianClosedCategory ℓC ℓC') (CCCⱽ : CartesianClosedCat
   CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ : CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ'
   CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .CCᴰ = CartesianCategoryⱽ→CartesianCategoryᴰ (CartesianClosedCategory.CC CCC) CCⱽ
   CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ .expᴰ {A} Aᴰ {B} Bᴰ =
-    Representableⱽ→UniversalElementᴰ Cᴰ _ (ExponentialᴰSpec Cᴰ _ _ _ (exps A B)) (exps A B)
-      (forallⱽ (expⱽ (cartesianLifts Aᴰ ((A ⇒ B) × A) π₂ .fst)
-                    (cartesianLifts Bᴰ ((A ⇒ B) × A) app .fst) .fst) .fst ,
-    -- Cᴰ [-][-, ∀A (π₂* Aᴰ ⇒ app* Bᴰ) ]
-    forallⱽ _ .snd
-    -- (wk A)* Cᴰ [-][-, π₂* Aᴰ ⇒ app* Bᴰ ]
-    ⋆PshIsoⱽ reindPshIso _ (expⱽ _ _ .snd ⋆PshIso
-    -- (wk A)* (-×ⱽ Aᴰ)* Cᴰ [-][-, app* Bᴰ ]
-      reindPshIso _ (cartesianLifts _ _ _ .snd))
-      ⋆PshIso (reindPsh∘F≅ _ _ _)
-    -- (wk A)* (-×ⱽ Aᴰ)* app* Cᴰ [-][-, Bᴰ ]
-    ⋆PshIsoⱽ reindPsh-square (×LRⱽPshᴰ _ ∘F wkA Cᴰ _ _ _ (⇒ue.vertex A B)) (Idᴰ /Fⱽ yoRec _ (⇒ue.element A B))
-      (Idᴰ /Fⱽ yoRec _ (⇒ue.element A B)) (×ᴰPᴰ _ _) (Cᴰ [-][-, Bᴰ ]) (⇒ⱽᴰ-square _ _ (exps A B) cartesianLifts _)
-    -- (A⇒B .repr)* (×ᴰAᴰ)* Cᴰ [-][-, Bᴰ ]
-    )
+    ∀+Expⱽ+lifts⇒Expᴰ
+      (cartesianLifts Aᴰ ((A ⇒ B) × A) π₂)
+      (lrⱽ _)
+      (cartesianLifts Bᴰ ((A ⇒ B) × A) app)
+      (expⱽ _ _)
+      (λ _ _ → cartesianLifts _ _ _)
+      (forallⱽ _)

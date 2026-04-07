@@ -11,12 +11,25 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 
 private
   variable
     ℓ ℓ' : Level
 
 open Category
+
+module _
+  (C : Category ℓ ℓ')
+  {Γ A B}
+  (A×B : BinProduct C (A , B))
+  where
+  open BinProductNotation A×B
+  CorepCartesian-at : preservesUniversalElement {F = C [ Γ ,-]} (preservesBinProdCones (C [ Γ ,-]) A B) A×B
+  CorepCartesian-at X = isIsoToIsEquiv
+    ((λ f,g x → f,g .fst x ,p f,g .snd x)
+    , (λ _ → ≡-× (funExt λ _ → ×β₁) (funExt λ _ → ×β₂))
+    , (λ _ → funExt λ _ → ,p≡ refl refl))
 
 module _
   (CC : CartesianCategory ℓ ℓ')
@@ -26,7 +39,4 @@ module _
 
   CorepCartesian : CartesianFunctor CC (SET ℓ')
   CorepCartesian .fst = C [ base ,-]
-  CorepCartesian .snd c c' X = isIsoToIsEquiv
-    ((λ (f , g) x → f x ,p g x)
-    , (λ _ → ΣPathP ((funExt λ _ → ×β₁) , (funExt λ _ → ×β₂)))
-    , λ _ → funExt λ _ → ,p≡ refl refl)
+  CorepCartesian .snd c c' = CorepCartesian-at C (bp (c , c'))

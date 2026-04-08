@@ -217,6 +217,7 @@ Sys A B .TSystem.trans = step' A B
 
 open TSystem[_,_]
 import      Cubical.Data.Equality as Eq
+open import Cubical.Relation.Nullary
 data _↦_  : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where   
   Fβ :  ∀{A A' B} →  {V : A ⊢v A'}{M : A' ⊢c B}{N : A ⊢c B} →  
     Eq._≡_ N (subC V M) → 
@@ -225,6 +226,17 @@ data _↦_  : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where
   Uβ : ∀ {A B} {M : A ⊢c B} → force (thunk M) ↦ M
 
   bcong : ∀ {A A' B} {M M' : A ⊢c F A'}{N : A' ⊢c B}  →  M ↦ M' → bind M N ↦ bind M' N 
+
+
+↦Functional : {A : VTy}{B : CTy} (M : A ⊢c B) → Dec (∃![ N ∈ A ⊢c B ] (M ↦ N))
+↦Functional {A} {B} (ret x) = no λ {(() , _)}
+↦Functional {A} {B} (bind (ret V) M) = yes ((subC V M , Fβ Eq.refl) , λ {(M' , Fβ Eq.refl) → refl })
+↦Functional {A} {B} (bind (bind M M₂) M₁) = {!   !}
+↦Functional {A} {B} (bind (force V) M) with ↦Functional {_} {_} (force V)
+... | yes ((N , fV↦N) , uniq) = yes ((bind N M , bcong fV↦N) , λ {(fst₁ , bcong snd₁) → ΣPathP ((cong₂ bind (cong fst (uniq (_ , snd₁))) refl) , λ i → bcong (uniq (_ , snd₁) i .snd))})
+... | no ¬p = no λ { ((N , FV↦N), uniq) → ¬p (({!(bind (force V) M)   !} , {!   !}) , {!   !})}
+↦Functional {A} {B} (force var) = no λ {(() , _)}
+↦Functional {A} {B} (force (thunk M)) = yes ((M , Uβ) , λ {(_ , Uβ) → refl})
 
 lemma : ∀ {A B B'} → {M N : A ⊢c B} (S : B ⊢k B') → M ↦ N  → plug S M ↦ plug S N 
 lemma {A} {B} {B'} {M} {N} hole (Fβ Eq.refl) = Fβ Eq.refl
@@ -296,6 +308,6 @@ open CBPVModel using (O[_,-])
 GS : CBPVMorphism Syn SetModel 
 GS .CBPVMorphism.FV = V [ 𝟙 ,-]
 GS .CBPVMorphism.FC = O[_,-] Syn 𝟙
-GS .CBPVMorphism.FO .NatTrans.N-ob (A , B) .tmap M V = ?
+GS .CBPVMorphism.FO .NatTrans.N-ob (A , B) .tmap M V = {!   !}
 GS .CBPVMorphism.FO .NatTrans.N-ob (A , B) .comm = {!   !}
 GS .CBPVMorphism.FO .NatTrans.N-hom = {!   !}

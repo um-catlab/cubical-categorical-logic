@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module HyperDoc.Operational.Model where
+module HyperDoc.Operational.ModelAlt where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -15,7 +15,6 @@ open import HyperDoc.Operational.TransitionSystemAltAlt
 
 open Category
 open Functor
--- open TSystem 
 record CBPVModel : Type where 
   field 
     V : Category _ _ 
@@ -29,8 +28,19 @@ record CBPVModel : Type where
   O[_,_] v c = O .F-ob (v , c)
 
   O'[_,_] : ob V → ob C → Type 
-  O'[_,_] v c = ?
-    -- ⟨  O .F-ob (v , c)  .state ⟩ 
+  O'[_,_] v c = O .F-ob (v , c) .fst
+
+open import Cubical.Categories.Instances.Sets
+
+SetModel : CBPVModel
+SetModel .CBPVModel.V = SET _
+SetModel .CBPVModel.C = TSysCat
+SetModel .CBPVModel.O .F-ob (X , (S , R)) .fst = ⟨ X ⟩ → S 
+SetModel .CBPVModel.O .F-ob (X , (S , R)) .snd P Q =  (x : ⟨ X ⟩ ) → R (P x) (Q x)
+SetModel .CBPVModel.O .F-hom (f , g) .fst h z = g .fst (h (f z))
+SetModel .CBPVModel.O .F-hom (f , g) .snd h z = g .snd (h (f z))
+SetModel .CBPVModel.O .F-id = refl
+SetModel .CBPVModel.O .F-seq _ _ = refl
 
 
 record CBPVMorphism (M N : CBPVModel) : Type where
@@ -51,7 +61,7 @@ record CBPVModelᴰ (M : CBPVModel) : Type where
   field 
     Vᴰ : Categoryᴰ M.V _ _
     Cᴰ : Categoryᴰ M.C _ _
-    Oᴰ : Functorᴰ M.O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) ? --  TSysCatᴰ 
+    Oᴰ : Functorᴰ M.O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) {!   !}
 
 open import Cubical.Categories.Instances.Posets.Base
 open import Cubical.Categories.Instances.Preorders.Monotone
@@ -69,8 +79,8 @@ Hom^op .F-seq _ _ = funExt λ _ → eqMon _ _ refl
 -}
 
 FORGET : Functor (TSysCat) (SET _) 
-FORGET .F-ob S = state  S
-FORGET .F-hom f = f .TSystem[_,_].tmap
+FORGET .F-ob S = (S .fst) , {!   !}
+FORGET .F-hom f x = f .fst x
 FORGET .F-id = refl
 FORGET .F-seq _ _ = refl
 
@@ -126,38 +136,17 @@ module ConvertLogic
   open import Cubical.Data.Unit
   open import Cubical.Categories.Displayed.Instances.Sets
   open MonFun renaming (f to fun)
-
+  
   Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) TSysCatᴰ
-  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .TSystemᴰ.stateᴰ M = A VL.◂ P ≤ (pull M $ Q) , isProp→isSet VL.isProp≤
-  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .TSystemᴰ.transᴰ M prf with (O[ A , B ] .trans M)  
-  ... | nothing = tt
-  ... | just M' = goal where
-    have : O'[ A , B ] 
-    have = M
-
-    have' : A VL.◂ P ≤ (pull M $ Q)
-    have' = prf
-
-    goal : A VL.◂ P ≤ (pull M' $ Q)
-    goal = {!   !} 
-    
-  Oᴰ .Functorᴰ.F-homᴰ (Vᴰ , Sᴰ) .TSysᴰ[_][_,_].tmapᴰ = {!   !}
+  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .fst M = A VL.◂ P ≤ (pull M $ Q)
+  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .snd {M}{M'} M↦M' P≤M*Q P≤M'*Q = A VL.◂ pull M' $ Q ≤ (pull M $ Q)
+  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .fst M P≤MQ = 
+    VL.seq  P'≤VP (
+    VL.seq (VL.mon* V P≤MQ)  (
+    VL.seq (VL.mon* V (pull M .isMon  Q≤SQ')) (
+    VL.eqTo≤ (sym (cong(λ h → h .fun Q') (funExt⁻ (Sq .N-hom (V , S)) M))))))
+  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .snd {M}{M'} P≤MQ P≤M'Q M'Q≤MQ = 
+    {!   !}
   Oᴰ .Functorᴰ.F-idᴰ = {!   !}
   Oᴰ .Functorᴰ.F-seqᴰ = {!   !}
 
-  {- 
-  open MonFun renaming (f to fun)
-
-  Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) (ALGᴰ {Σ})
-  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .Carrierᴰ M = A VL.◂ P ≤ (pull M $ Q) , isProp→isSet VL.isProp≤
-  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .interpᴰ op args dargs = pullOp op args P Q dargs 
-  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {f , g} {P , Q} {P' , Q'} (P'≤f*P , Q≤g*Q') .carmapᴰ h P≤h*Q = 
-    VL.seq  P'≤f*P (
-    VL.seq (VL.mon* f P≤h*Q)  (
-    VL.seq (VL.mon* f (pull h .isMon  Q≤g*Q')) (
-    VL.eqTo≤ (sym (cong(λ h → h .fun Q') (funExt⁻ (Sq .N-hom (f , g)) h))))))
-  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {f , g} {P , Q} {P' , Q'} (P'≤f*P , Q≤g*Q') .presᴰ op args dargs = toPathP (VL.isProp≤ _ _)
-  Oᴰ .Functorᴰ.F-idᴰ = toPathP (AlgHomᴰ≡Prop λ _ → VL.isProp≤)
-  Oᴰ .Functorᴰ.F-seqᴰ _ _ = toPathP (AlgHomᴰ≡Prop λ _ → VL.isProp≤)
-
-  -}

@@ -375,7 +375,7 @@ module LocalElim
       goal = also where 
         also : F-ob (FV ^opF) (U B) VL.◂ ▷ P ≤ VL.f* (FV .F-hom δ) P
         -- LMHV.f* δ P 
-        also = {! LMHV.f* δ P   !}
+        also = VL.seq {! have {F-ob (FC ^opF) B}{?}  !} {!   !}
 
     module _ (interp : InterpGen LM pres⊤) where
       

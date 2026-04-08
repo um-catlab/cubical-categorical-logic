@@ -28,8 +28,9 @@ open import Cubical.Categories.Instances.Preorders.Base
 open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Constructions.FullSubcategory 
-
+open import Cubical.Categories.Displayed.Base
 open Category
+open Categoryᴰ
 open Functor
 open Iso
 
@@ -43,7 +44,6 @@ isFin (S , R) = (s : S) → Σ[ n ∈ ℕ ] Iso (Σ[ s' ∈ S ] R s s') (Fin n)
 TSHom :  TS → TS → Type _ 
 TSHom (A , A↦) (B , B↦)  = Σ[ f ∈ (A → B) ] (∀{a a'} → A↦ a a' → B↦ (f a) (f a'))
 
-
 TSysCat : Category _ _ 
 TSysCat .ob = TS
 TSysCat .Hom[_,_] = TSHom 
@@ -54,9 +54,63 @@ TSysCat .⋆IdR _ = refl
 TSysCat .⋆Assoc _ _ _ = refl
 TSysCat .isSetHom = {!   !} 
 
+antiTSᴰ : TS → Type _ 
+antiTSᴰ (S , R) = Σ[ P ∈ (S → Type _) ] (∀ {s s'} → R s s' → P s' → P s)
+
+antiTSHomᴰ : {S T : TS} → TSHom S T → antiTSᴰ S → antiTSᴰ T → Type _ 
+antiTSHomᴰ {S}{T} f P Q = 
+  Σ[ fᴰ ∈ ((s : S .fst) →  P .fst s → Q .fst (f .fst s))  ] 
+    ({s s' : S .fst}{sRs' : S .snd s s'}(Ps' : P .fst s') → 
+    {! P .snd ? ?  !} → 
+   --  →
+    {!  Q .snd (f .snd sRs') (fᴰ s' Ps') !})
+
+antiTSysCatᴰ : Categoryᴰ TSysCat _ _ 
+ob[ antiTSysCatᴰ ] = antiTSᴰ
+antiTSysCatᴰ .Hom[_][_,_] = antiTSHomᴰ
+antiTSysCatᴰ .idᴰ .fst s Ps = Ps
+antiTSysCatᴰ .idᴰ .snd = {!   !}
+antiTSysCatᴰ ._⋆ᴰ_ = {!   !}
+antiTSysCatᴰ .⋆IdLᴰ = {!   !}
+antiTSysCatᴰ .⋆IdRᴰ = {!   !}
+antiTSysCatᴰ .⋆Assocᴰ = {!   !}
+antiTSysCatᴰ .isSetHomᴰ = {!   !}
+
+TSᴰ : TS → Type _ 
+TSᴰ (S , R) = Σ[ P ∈ (S → Type _) ] (∀ {s s'} → R s s' → P s → P s' → Type)
+
+TSHomᴰ : {S T : TS} → TSHom S T → TSᴰ S → TSᴰ T → Type _ 
+TSHomᴰ {S}{T} f P Q = 
+  Σ[ fᴰ ∈ ((s : S .fst) → P .fst s → Q .fst (f .fst s)) ] 
+    ({s s' : S .fst}{sRs' : S .snd s s'}(Ps : P .fst s)(Ps' : P .fst s') → 
+    P .snd sRs' Ps Ps' → Q .snd (f .snd sRs') (fᴰ s Ps) (fᴰ s' Ps'))
+
+TSysCatᴰ : Categoryᴰ TSysCat _ _ 
+ob[ TSysCatᴰ ] = TSᴰ
+TSysCatᴰ .Hom[_][_,_] = TSHomᴰ
+TSysCatᴰ .idᴰ .fst s Ps = Ps
+TSysCatᴰ .idᴰ .snd Ps Ps' PsRPs' = PsRPs'
+(TSysCatᴰ ._⋆ᴰ_ {X}{Y}{Z}{f}{g}{Xᴰ}{Yᴰ}{Zᴰ} (fᴰ , Rᴰ)) (gᴰ , R'ᴰ) .fst s Xs = gᴰ (f .fst s) (fᴰ s Xs)
+(TSysCatᴰ ._⋆ᴰ_ {X}{Y}{Z}{f}{g}{Xᴰ}{Yᴰ}{Zᴰ} (fᴰ , Rᴰ)) (gᴰ , R'ᴰ) .snd Xs Xs' XsRXs' = 
+  R'ᴰ (fᴰ _ Xs) (fᴰ _ Xs') (Rᴰ Xs Xs' XsRXs')
+TSysCatᴰ .⋆IdLᴰ _ = ΣPathP (refl , refl)
+TSysCatᴰ .⋆IdRᴰ _ = ΣPathP (refl , refl)
+TSysCatᴰ .⋆Assocᴰ _ _ _ = ΣPathP (refl , refl)
+TSysCatᴰ .isSetHomᴰ = {!   !}
+
+∫TS : (S : TS) → TSᴰ S → TS 
+∫TS (S , R) (Sᴰ , Rᴰ) .fst = Σ S Sᴰ
+∫TS (S , R) (Sᴰ , Rᴰ) .snd (s , sᴰ)(s' , s'ᴰ)= Σ[ sRs' ∈ R s s' ]  Rᴰ sRs' sᴰ s'ᴰ
+
+∫TSHom : {S T : TS}{P : TSᴰ S}{Q : TSᴰ T} (f : TSHom S T) → TSHomᴰ {S}{T} f P Q → TSHom (∫TS S P) (∫TS T Q) 
+∫TSHom {S} {T} {P} {Q} (f , fpres) (fᴰ , fᵈpres) .fst = 
+  λ z → f (z .fst) , fᴰ (z .fst) (z .snd)
+∫TSHom {S} {T} {P} {Q} (f , fpres) (fᴰ , fᵈpres) .snd {a}{a'} = 
+  λ z → fpres (z .fst) , fᵈpres (a .snd) (a' .snd)  (z .snd)
+
 TSysFinCat : Category _ _ 
 TSysFinCat = FullSubcategory TSysCat isFin
-
+{-}
 
 data NatEx : Type where
   num : ℕ → NatEx 
@@ -82,7 +136,7 @@ ex .snd (num x) .snd .inv ()
 ex .snd (num x) .snd .sec ()
 ex .snd (num x) .snd .ret ()
 ex .snd (plus s s₁) = {!  !}
-
+-}
 {-
 -- labeled transition system
 TS : Type → Type _

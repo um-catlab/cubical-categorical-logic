@@ -57,7 +57,7 @@ data _⊢k_ where
     kcomp(kcomp M N) P ≡  kcomp M (kcomp N P)
   isSet⊢k : ∀{B B'} → isSet (B ⊢k B')
 
-  bindk : ∀{A B B'} → B ⊢k F A → A ⊢c B' → B ⊢k B'
+  bind : {A : VTy}{B : CTy} → A ⊢c B → F A ⊢k B
 
 data _⊢c_ where 
   -- profunctor      
@@ -75,7 +75,6 @@ data _⊢c_ where
 
   -- type structure
   ret : ∀{A A'} → A ⊢v A' → A ⊢c F A'
-  bind : ∀{A A' B} → A ⊢c F A' → A' ⊢c B → A ⊢c B
   force : ∀{A B} →  A ⊢v U B → A ⊢c B   
 
 subC' = subC
@@ -83,30 +82,23 @@ subC' = subC
 import  Cubical.Data.Equality as Eq
 
 data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where 
-  Fβ : ∀{A A' B} → {V : A ⊢v A'}{M : A' ⊢c B}{N : A ⊢c B} →  
-    Eq._≡_ N (subC V M) → 
-    bind (ret V) M ↦ N  
+  Fβ : ∀{A A' B}{V : A ⊢v A'}{M : A' ⊢c B} → 
+    ------------------------------------
+    plug (bind M) (ret V) ↦ (subC V M)
 
-  Uβ : ∀ {A B} {M : A ⊢c B} → force (thunk M) ↦ M
-
-  bind-cong : ∀ {A A' B} {M M' : A ⊢c F A'}{N : A' ⊢c B}  →  
-    M ↦ M' → 
-    -------
-    bind M N ↦ bind M' N 
+  Uβ : ∀ {A B} {M : A ⊢c B} → 
+    ---------------------
+    force (thunk M) ↦ M
   
-  subC-cong : ∀ {A A' B M M' }{Msub M'sub : A' ⊢c B}{V : A' ⊢v A}  →  
+  subC-cong : ∀ {A A' B}{V : A' ⊢v A}{M M' : A ⊢c B}  →  
     M ↦ M' → 
-    Msub Eq.≡ subC V M → 
-    M'sub Eq.≡ subC V M' → 
     --------- 
-    Msub ↦ M'sub
+    subC V M  ↦ subC V M'
 
-  plug-cong : ∀ {A B B' M M' }{Mplug M'plug : A ⊢c B'}{S : B ⊢k B'}  →  
+  plug-cong : ∀ {A B B'}{S : B ⊢k B'}{M M' : A ⊢c B}  →  
     M ↦ M' → 
-    Mplug Eq.≡ plug S M → 
-    M'plug Eq.≡ plug S M' → 
     --------- 
-    Mplug ↦ M'plug
+    plug S M ↦ plug S M'
 
   isProp↦ : ∀ {A B} {M M' : A ⊢c B} → isProp (M ↦ M')
 
@@ -141,7 +133,7 @@ open import Cubical.Data.Sigma
 O :  Functor ((V ^op) ×C C) TSysCat
 O .F-ob (A , B) = TSys A B
 O .F-hom (V , S) .fst M = subC V (plug S M)
-O .F-hom (V , S) .snd {M}{M'} M↦M' = subC-cong (plug-cong M↦M' Eq.refl Eq.refl) Eq.refl Eq.refl
+O .F-hom (V , S) .snd {M}{M'} M↦M' = subC-cong (plug-cong M↦M')
 O .F-id = Σ≡Prop (λ f → isPropImplicitΠ  λ M → isPropImplicitΠ  λ M' → isProp→ isProp↦) 
   (funExt λ M → subCId ∙ plugId)
 O .F-seq (V , S)(V' , S') = 
@@ -166,7 +158,7 @@ CL : CBPVMorphism Syn SetModel
 CL .CBPVMorphism.FV = V [ 𝟙 ,-]
 CL .CBPVMorphism.FC = O[_,-] Syn 𝟙
 CL .CBPVMorphism.FO .N-ob (A , B) .fst M V = subC V M
-CL .CBPVMorphism.FO .N-ob (A , B) .snd {M}{M'} M↦M' V = subC-cong M↦M' Eq.refl Eq.refl
+CL .CBPVMorphism.FO .N-ob (A , B) .snd {M}{M'} M↦M' V = subC-cong M↦M' 
 CL .CBPVMorphism.FO .N-hom {A , B}{A' , B'} (V , S) = 
   ΣPathP ((funExt λ M → funExt λ V' → (subDist ∙ plugSub) ∙ sym subCId) ,
      toPathP (implicitFunExt λ {N} → implicitFunExt λ {N'} → funExt λ N↦N' → funExt λ V' → isProp↦ _ _))
@@ -251,7 +243,7 @@ module hrm (L : Logic Syn) where
     ctm (plugSub i) = {!   !}
     ctm (isSet⊢c M M₁ x y i i₁) = {!   !}
     ctm (ret x) = {!   !}
-    ctm (bind M M₁) = {!   !}
+    --ctm (bind M M₁) = {!   !}
     ctm (force x) = {!   !}
 
   GS : CBPVGlobalSection L 

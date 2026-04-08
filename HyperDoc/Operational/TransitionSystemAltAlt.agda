@@ -96,7 +96,7 @@ TSysCatᴰ .idᴰ .snd Ps Ps' PsRPs' = PsRPs'
 TSysCatᴰ .⋆IdLᴰ _ = ΣPathP (refl , refl)
 TSysCatᴰ .⋆IdRᴰ _ = ΣPathP (refl , refl)
 TSysCatᴰ .⋆Assocᴰ _ _ _ = ΣPathP (refl , refl)
-TSysCatᴰ .isSetHomᴰ = {!   !}
+TSysCatᴰ .isSetHomᴰ = ?
 
 ∫TS : (S : TS) → TSᴰ S → TS 
 ∫TS (S , R) (Sᴰ , Rᴰ) .fst = Σ S Sᴰ

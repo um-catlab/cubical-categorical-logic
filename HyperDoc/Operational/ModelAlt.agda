@@ -30,15 +30,56 @@ record CBPVModel : Type where
   O'[_,_] : ob V → ob C → Type 
   O'[_,_] v c = O .F-ob (v , c) .fst
 
+  _↦O_ : ∀{A B} (M M' : O'[ A , B ]) → Type 
+  _↦O_ {A}{B} M M' = O .F-ob (A , B) .snd M M'
+
+
+  lcomp : ∀{v v' c} → V [ v , v' ] → (TSysCat) [ O[ v' , c ] , O[ v , c ] ]
+  lcomp f = O .F-hom (f , (C .id))
+
+  rcomp : ∀{v c c'} → C [ c , c' ] → (TSysCat) [ O[ v , c ] , O[ v , c' ] ]
+  rcomp g = O .F-hom ((V .id) , g)
+
+  lrcomp : ∀{v v' c c'} → V [ v' , v ] → C [ c , c' ] → (TSysCat) [ O[ v , c ] , O[ v' , c' ] ]
+  lrcomp V S = O .F-hom (V , S)
+
+  lcompId : ∀{v c}{M : O'[ v , c ]} → lcomp (V .id) .fst M ≡ M
+  lcompId {v}{c}{M} i = O .F-id  i .fst M 
+    
+  rcompId : ∀{v c}{M : O'[ v , c ]} → rcomp (C .id) .fst M ≡ M
+  rcompId {v}{c}{M} i = O .F-id  i .fst M 
+
+  lcompSeq : ∀ {v v' v'' c }{W : V [ v , v' ]}{Y : V [ v' , v'' ]}{M : O'[ v'' , c ]} → 
+    lcomp  W .fst (lcomp Y .fst M) ≡ lcomp (W ⋆⟨ V ⟩ Y) .fst M
+  lcompSeq {W = W}{Y}{M} = 
+    funExt⁻ (cong fst (sym (O .F-seq (Y , C .id) (W , C .id)))) M 
+    ∙ cong (λ h → O .F-hom ((V ⋆ W) Y , h ) .fst M ) (C .⋆IdL _)
+
+  rcompSeq : ∀ {v c c' c''}{S : C [ c , c' ]}{S' : C [ c' , c'' ]}{M : O'[ v , c ]} → 
+    rcomp  S' .fst (rcomp S .fst M) ≡ rcomp (S ⋆⟨ C ⟩ S') .fst M
+  rcompSeq {S = S}{S'}{M} = 
+    funExt⁻ (cong fst (sym (O .F-seq (V .id , S) (V .id , S')))) M  
+    ∙ cong (λ h → O .F-hom (h , (C ⋆ S) S') .fst M) (V .⋆IdL _) 
+
+  lrSeq : ∀ {A A' B B'}{W : V [ A , A' ]}{M : O'[ A' , B ]}{S : C [ B , B' ]} → 
+    lcomp W .fst (rcomp S .fst M) ≡ rcomp S .fst (lcomp W .fst M)
+  lrSeq {W = W}{M}{S} = 
+      funExt⁻ (cong fst (sym (O .F-seq _ _))) M 
+      ∙ cong₂ 
+          (λ h h' → fst (O .F-hom (h , h')) M) 
+          (V .⋆IdR _ ∙ sym (V .⋆IdL _)) 
+          (C .⋆IdR _ ∙ sym (C .⋆IdL _)) 
+      ∙ funExt⁻ (cong fst (O .F-seq _ _)) M
+
 open import Cubical.Categories.Instances.Sets
 
 SetModel : CBPVModel
 SetModel .CBPVModel.V = SET _
 SetModel .CBPVModel.C = TSysCat
 SetModel .CBPVModel.O .F-ob (X , (S , R)) .fst = ⟨ X ⟩ → S 
-SetModel .CBPVModel.O .F-ob (X , (S , R)) .snd P Q =  (x : ⟨ X ⟩ ) → R (P x) (Q x)
-SetModel .CBPVModel.O .F-hom (f , g) .fst h z = g .fst (h (f z))
-SetModel .CBPVModel.O .F-hom (f , g) .snd h z = g .snd (h (f z))
+SetModel .CBPVModel.O .F-ob (X , (S , R)) .snd f g =  (x : ⟨ X ⟩ ) → R (f x) (g x)
+SetModel .CBPVModel.O .F-hom {X , S} {Y , T} (f , g) .fst h y = g .fst (h (f y))
+SetModel .CBPVModel.O .F-hom {X , S} {Y , T} (f , g) .snd {h}{h'} hRh' y = g .snd (hRh' (f y))
 SetModel .CBPVModel.O .F-id = refl
 SetModel .CBPVModel.O .F-seq _ _ = refl
 
@@ -100,6 +141,84 @@ record Logic (M : CBPVModel ) : Type _ where
   pull : {A : V .ob}{B : C .ob}(M : O'[ A , B ])  
     → MonFun (F-ob CH B .fst) (F-ob VH A .fst)
   pull {A} {B} M = Sq .N-ob (A , B) M
+  
+  field 
+    antiRed : {A : V .ob}{B : C .ob}{Q : CL.F∣ B ∣}{M M' : O'[ A , B ]} → 
+      M ↦O M' → 
+      ----------------------------------
+      A VL.◂ pull M' $ Q ≤ (pull M $ Q) 
+
+
+  pullComp : ∀ {A A' B B'}(V : V [ A' , A ])(S : C [ B , B' ])(M : O'[ A , B ]) → 
+    pull (lrcomp V S .fst M) ≡ MonComp (CH .F-hom S) (MonComp (pull M) (VH .F-hom V))
+  pullComp V S M = funExt⁻ (Sq .N-hom (V , S)) M
+
+  pullLComp : ∀ {A A' B}(V : V [ A' , A ])(M : O'[ A , B ]) → 
+    pull (lcomp V .fst M) ≡ MonComp (pull M) (VH .F-hom V)
+  pullLComp V M = pullComp V (C .id) M  ∙ cong (λ h → MonComp h (MonComp (pull M) (VH .F-hom V))) (CH .F-id)
+
+  pullRComp :  ∀ {A B B'}(S : C [ B , B' ])(M : O'[ A , B ]) → 
+    pull (rcomp S .fst M) ≡ MonComp (CH .F-hom S) (pull M)
+  pullRComp S M = pullComp (V .id) S M ∙ cong₂ MonComp refl (VH .F-id)
+
+  V*M*→VM* : ∀ {A A' B}{V : V [ A , A' ]}{M : O'[ A' , B ]}{Q : CL.F∣ B ∣}  → A VL.◂ VL.f* V (pull M $ Q) ≤ (pull (lcomp V .fst M) $ Q) 
+  V*M*→VM* = VL.eqTo≤ (cong₂ MonFun.f (sym (pullLComp _ _ )) refl)
+
+  VM*→V*M*  : ∀ {A A' B}{V : V [ A , A' ]}{M : O'[ A' , B ]}{Q : CL.F∣ B ∣} →  A VL.◂ (pull (lcomp V .fst M) $ Q) ≤ VL.f* V (pull M $ Q)
+  VM*→V*M* = VL.eqTo≤ (cong₂ MonFun.f (pullLComp _ _ ) refl)
+
+open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
+open import Cubical.Categories.Instances.Preorders.Monotone
+module Push
+  {M : CBPVModel}
+  (L : Logic M) where 
+
+  open CBPVModel M 
+  open Logic L
+
+  private 
+    module VL = HDSyntax VH 
+    module CL = HDSyntax CH 
+
+  HasPush : Type
+  HasPush = 
+    ∀ {A : V .ob}
+      {B : C .ob} → 
+      (M : O'[ A , B ]) → 
+      HasLeftAdj (pull M)
+
+  module PushSyntax (pp : HasPush) where 
+    open import Cubical.Foundations.Isomorphism
+    open Iso
+    open _⊣_ 
+    pushToPull : 
+      ∀ {A : V .ob}
+      {B : C .ob}
+      (M : O'[ A , B ])
+      {P : VL.F∣ A ∣}
+      {Q : CL.F∣ B ∣}→ 
+      B CL.◂ pp M .fst .MonFun.f P ≤ Q  → 
+      A VL.◂ P ≤ pull M .MonFun.f Q
+    pushToPull M  = adjIff (pp M .snd) .fun 
+
+    pullToPush : 
+      ∀ {A : V .ob}
+      {B : C .ob}
+      (M : O'[ A , B ])
+      {P : VL.F∣ A ∣}
+      {Q : CL.F∣ B ∣}→ 
+      A VL.◂ P ≤ pull M .MonFun.f Q → 
+      B CL.◂ pp M .fst .MonFun.f P ≤ Q 
+    pullToPush M  = adjIff (pp M .snd) .inv 
+
+    pullPush :       
+      ∀ {A : V .ob}
+      {B : C .ob}
+      (M : O'[ A , B ])
+      {Q : CL.F∣ B ∣}
+      → A VL.◂ pull M .MonFun.f Q ≤ pull M .MonFun.f Q
+    pullPush M = pushToPull M (pullToPush M VL.id⊢)
+      
 
 open Categoryᴰ
 module Convert {C : Category _ _} (F : Functor (C ^op) (POSET _ _ )) where 
@@ -137,9 +256,37 @@ module ConvertLogic
   open import Cubical.Categories.Displayed.Instances.Sets
   open MonFun renaming (f to fun)
   
+
+  Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) antiTSysCatᴰ
+  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .fst M = A VL.◂ P ≤ (pull M $ Q)
+  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .snd {M} {M'} M↦M' P≤M'*Q = VL.seq P≤M'*Q (antiRed M↦M')
+  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .fst M P≤MQ = 
+    VL.seq  P'≤VP (
+    VL.seq (VL.mon* V P≤MQ)  (
+    VL.seq (VL.mon* V (pull M .isMon  Q≤SQ')) (
+    VL.eqTo≤ (sym (cong(λ h → h .fun Q') (funExt⁻ (Sq .N-hom (V , S)) M))))))
+  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .snd _ _ = VL.isProp≤ _ _
+  Oᴰ .Functorᴰ.F-idᴰ = toPathP (antiTSHomᴰ≡ (funExt λ x₁ → funExt λ x₂ → VL.isProp≤ _ _))
+  Oᴰ .Functorᴰ.F-seqᴰ _ _ =  toPathP (antiTSHomᴰ≡ (funExt λ x₁ → funExt λ x₂ → VL.isProp≤ _ _))
+{-
+  Oᴰ .Functorᴰ.F-idᴰ = toPathP (AlgHomᴰ≡Prop λ _ → VL.isProp≤)
+  Oᴰ .Functorᴰ.F-seqᴰ _ _ = toPathP (AlgHomᴰ≡Prop λ _ → VL.isProp≤)
+-}
+  {-
   Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) TSysCatᴰ
   Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .fst M = A VL.◂ P ≤ (pull M $ Q)
-  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .snd {M}{M'} M↦M' P≤M*Q P≤M'*Q = A VL.◂ pull M' $ Q ≤ (pull M $ Q)
+  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .snd {M}{M'} M↦M' P≤M*Q P≤M'*Q = {! antiRed  !}
+  {-
+    if instead.. 
+      given 
+        M↦M'
+        P≤M'*Q 
+      and asked to show
+        P≤M*Q 
+      we could to so using antireduction 
+        P ≤ M'*Q ≤ M*Q 
+
+  -}
   Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .fst M P≤MQ = 
     VL.seq  P'≤VP (
     VL.seq (VL.mon* V P≤MQ)  (
@@ -150,3 +297,4 @@ module ConvertLogic
   Oᴰ .Functorᴰ.F-idᴰ = {!   !}
   Oᴰ .Functorᴰ.F-seqᴰ = {!   !}
 
+-}

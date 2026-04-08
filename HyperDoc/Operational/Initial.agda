@@ -76,6 +76,8 @@ data _⊢c_ where
   -- type structure
   ret : ∀{A A'} → A ⊢v A' → A ⊢c F A'
   force : ∀{A B} →  A ⊢v U B → A ⊢c B   
+  force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
+    subC V (force W) ≡ force (subV V W)
 
 subC' = subC
 
@@ -211,48 +213,128 @@ module ModelSection
 CBPVGlobalSection : {M : CBPVModel } → Logic M → Type 
 CBPVGlobalSection L = ModelSection.CBPVSection idCBPVMorphism L
 open import Cubical.Categories.Instances.Preorders.Monotone
-
+open NatTrans 
 open MonFun
 module hrm (L : Logic Syn) where 
   open Logic L
   module LV = HDSyntax VH
   module LC = HDSyntax CH
 
-  mutual 
-    vty : (A : VTy) → LV.F∣ A ∣ 
-    vty 𝟙 = {!   !}
-    vty Ans = {!   !}
-    vty (U B) = pull (force var) $ cty B
+  open Push L
 
-    cty : (B : CTy) → LC.F∣ B ∣
-    cty = {!   !} 
+  module _ (hasPush : HasPush) where 
+    open PushSyntax hasPush
 
-    vtm : {A A' : VTy} → (V : A ⊢v A') → A LV.◂ vty A ≤ LV.f* V (vty A')
-    vtm = {!   !}
+    mutual 
+      vty : (A : VTy) → LV.F∣ A ∣ 
+      vty 𝟙 = {!   !}
+      vty Ans = {!   !}
+      vty (U B) = pull (force var) $ cty B
 
-    ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
-    ktm S = {!   !}
+      cty : (B : CTy) → LC.F∣ B ∣
+      cty (F A) = hasPush (ret var) .fst $  vty A 
 
-    ctm : ∀{A B} → (M : A ⊢c B) → A LV.◂ vty A ≤ (pull M $ cty B)
-    ctm (subC x M) = {!   !}
-    ctm (plug x M) = {!   !}
-    ctm (plugId i) = {!   !}
-    ctm (subCId i) = {!   !}
-    ctm (plugDist i) = {!   !}
-    ctm (subDist i) = {!   !}
-    ctm (plugSub i) = {!   !}
-    ctm (isSet⊢c M M₁ x y i i₁) = {!   !}
-    ctm (ret x) = {!   !}
-    --ctm (bind M M₁) = {!   !}
-    ctm (force x) = {!   !}
+  {-
+        vtm-thunk : ∀ {A  B} → (M : A ⊢c B) →  A LV.◂ vty A ≤ LV.f* (thunk M) (pull force $ cty B) 
+          vtm-thunk {A}{B} M = 
+            LV.seq (ctm M) (
+            LV.eqTo≤ (cong (λ h → MonFun.f (pull h) (cty B)) (sym Uβ ∙ sym plugId)
+              ∙ cong (λ h → h .MonFun.f (cty B)) (pullLComp (thunk M) force))) 
 
-  GS : CBPVGlobalSection L 
-  GS .fst .Section.F-obᴰ = vty
-  GS .fst .Section.F-homᴰ = vtm
-  GS .fst .Section.F-idᴰ = LV.isProp≤ _ _
-  GS .fst .Section.F-seqᴰ _ _ = LV.isProp≤ _ _
-  GS .snd .fst .Section.F-obᴰ = cty
-  GS .snd .fst .Section.F-homᴰ = ktm
-  GS .snd .fst .Section.F-idᴰ = LC.isProp≤ _ _
-  GS .snd .fst .Section.F-seqᴰ _ _ = LC.isProp≤ _ _
-  GS .snd .snd = ctm
+  data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where 
+    Fβ : ∀{A A' B}{V : A ⊢v A'}{M : A' ⊢c B} → 
+      ------------------------------------
+      plug (bind M) (ret V) ↦ (subC V M)
+
+    Uβ : ∀ {A B} {M : A ⊢c B} → 
+      ---------------------
+      force (thunk M) ↦ M
+    
+    subC-cong : ∀ {A A' B}{V : A' ⊢v A}{M M' : A ⊢c B}  →  
+      M ↦ M' → 
+      --------- 
+      subC V M  ↦ subC V M'
+
+    plug-cong : ∀ {A B B'}{S : B ⊢k B'}{M M' : A ⊢c B}  →  
+      M ↦ M' → 
+      --------- 
+      plug S M ↦ plug S M'
+
+    isProp↦ : ∀ {A B} {M M' : A ⊢c B} → isProp (M ↦ M')
+
+
+    -}
+      vtm : {A A' : VTy} → (V : A ⊢v A') → A LV.◂ vty A ≤ LV.f* V (vty A')
+      vtm (subV V₁ V₂) = {!   !}
+      vtm var = {!   !}
+      vtm (subVIdl V₁ i) = {!   !}
+      vtm (subVIdr V₁ i) = {!   !}
+      vtm (subVAssoc V₁ V₂ V₃ i) = {!   !}
+      vtm (isSet⊢v V₁ V₂ x y i i₁) = {!   !}
+      vtm tt = {!   !}
+      vtm yes = {!   !}
+      vtm no = {!   !}
+      vtm (thunk {A}{B} M) = goal where 
+
+        have : A LV.◂ vty A ≤ (pull (force (thunk M)) $ cty B) 
+        have = LV.seq (ctm M) (antiRed Uβ)
+
+        wat : force (thunk M) ≡ subC (thunk M) (plug hole (force var)) 
+        wat = (cong force (sym (subVIdr _)) ∙ sym force-sub) ∙ cong₂ subC refl (sym plugId)
+        
+        goal : A LV.◂ vty A ≤ LV.f* (thunk M) (pull (force var) $ cty B) 
+        goal = LV.seq (LV.seq have (LV.eqTo≤ (cong (λ h → f (pull h) (cty B)) wat))) VM*→V*M*
+
+      ktm : {B B' : CTy} → (S : B ⊢k B') → B LC.◂ cty B ≤ LC.f* S (cty B')
+      ktm (kcomp S S₁) = {!   !}
+      ktm hole = {!   !}
+      ktm (kcompIdl S i) = {!   !}
+      ktm (kcompIdr S i) = {!   !}
+      ktm (kcompAssoc S S₁ S₂ i) = {!   !}
+      ktm (isSet⊢k S S₁ x y i i₁) = {!   !}
+      ktm (bind {A}{B} M) = {!   !} where 
+
+        have : A LV.◂ vty A ≤ ((pull (plug (bind M) (ret var)) $ cty B)) 
+        have = LV.seq (LV.seq (ctm M) (LV.eqTo≤ (cong (λ h → f (pull h) (cty B)) (sym  subCId)))) (antiRed Fβ)
+
+        sub : A LV.◂ vty A ≤ pull (ret var) .f (LC.f* (bind M) (cty B))
+        sub = LV.seq have (LV.eqTo≤ {!  !})
+        
+        goal : F A LC.◂ hasPush (ret var) .fst $ vty A ≤ LC.f* (bind M) (cty B) 
+        goal = pullToPush (ret var) sub
+
+      ctm : ∀{A B} → (M : A ⊢c B) → A LV.◂ vty A ≤ (pull M $ cty B)
+      ctm (subC x M) = {!   !}
+      ctm (plug x M) = {!   !}
+      ctm (plugId i) = {!   !}
+      ctm (subCId i) = {!   !}
+      ctm (plugDist i) = {!   !}
+      ctm (subDist i) = {!   !}
+      ctm (plugSub i) = {!   !}
+      ctm (isSet⊢c M M₁ x y i i₁) = {!   !}
+      ctm (ret {A} {A'} V) = {! pushToPull  !} where 
+        have : A LV.◂ vty A ≤ LV.f* V (vty A') 
+        have = vtm V
+
+        goal : A LV.◂ vty A ≤ (pull (ret V) $ (hasPush (ret var) .fst $ vty A')) 
+        goal = {!   !}
+      --ctm (bind M M₁) = {!   !}
+      ctm (force {A}{B} V) = goal where 
+        have : A LV.◂ vty A ≤ LV.f* V (pull (force var) $ cty B) 
+        have = vtm V
+
+        -- subC V (force var) ≡ force V 
+        -- hrm
+        goal : A LV.◂ vty A ≤ (pull (force V) $ cty B) 
+        goal = LV.seq have (LV.seq V*M*→VM* (LV.eqTo≤ (cong (λ h → f (pull h) (cty B)) (cong₂ subC refl plugId ∙ force-sub ∙ cong force (subVIdr _)))))
+
+    GS : CBPVGlobalSection L 
+    GS .fst .Section.F-obᴰ = vty
+    GS .fst .Section.F-homᴰ = vtm
+    GS .fst .Section.F-idᴰ = LV.isProp≤ _ _
+    GS .fst .Section.F-seqᴰ _ _ = LV.isProp≤ _ _
+    GS .snd .fst .Section.F-obᴰ = cty
+    GS .snd .fst .Section.F-homᴰ = ktm
+    GS .snd .fst .Section.F-idᴰ = LC.isProp≤ _ _
+    GS .snd .fst .Section.F-seqᴰ _ _ = LC.isProp≤ _ _
+    GS .snd .snd = ctm

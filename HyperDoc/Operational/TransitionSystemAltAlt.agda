@@ -60,20 +60,23 @@ antiTSᴰ (S , R) = Σ[ P ∈ (S → Type _) ] (∀ {s s'} → R s s' → P s' �
 antiTSHomᴰ : {S T : TS} → TSHom S T → antiTSᴰ S → antiTSᴰ T → Type _ 
 antiTSHomᴰ {S}{T} f P Q = 
   Σ[ fᴰ ∈ ((s : S .fst) →  P .fst s → Q .fst (f .fst s))  ] 
-    ({s s' : S .fst}{sRs' : S .snd s s'}(Ps' : P .fst s') → 
-    {! P .snd ? ?  !} → 
-   --  →
-    {!  Q .snd (f .snd sRs') (fᴰ s' Ps') !})
+    (∀ {s s'} (sRs' : S .snd s s') (Ps' : P .fst s') →
+                   fᴰ s (P .snd sRs' Ps') ≡ Q .snd (f .snd sRs') (fᴰ s' Ps'))
+
+antiTSHomᴰ≡ :  {S T : TS}{f : TSHom S T}{P : antiTSᴰ S}{Q : antiTSᴰ T}{fᴰ gᴰ : antiTSHomᴰ f P Q} → fᴰ .fst ≡ gᴰ .fst → fᴰ ≡ gᴰ
+antiTSHomᴰ≡  prf = ΣPathP (prf , (toPathP {!  snd gᴰ !}))
+  -- Σ≡Prop (λ x x₁ y → isPropImplicitΠ (λ x₂ x₃ y₁  → isPropImplicitΠ (λ x₄ x₅ y₂  → isPropΠ2 (λ x₆ y₃ x₇ y₄  → {!  !}) _ _) _ _) _  _) prf
 
 antiTSysCatᴰ : Categoryᴰ TSysCat _ _ 
 ob[ antiTSysCatᴰ ] = antiTSᴰ
 antiTSysCatᴰ .Hom[_][_,_] = antiTSHomᴰ
 antiTSysCatᴰ .idᴰ .fst s Ps = Ps
-antiTSysCatᴰ .idᴰ .snd = {!   !}
-antiTSysCatᴰ ._⋆ᴰ_ = {!   !}
-antiTSysCatᴰ .⋆IdLᴰ = {!   !}
-antiTSysCatᴰ .⋆IdRᴰ = {!   !}
-antiTSysCatᴰ .⋆Assocᴰ = {!   !}
+antiTSysCatᴰ .idᴰ .snd _ _ = refl
+_⋆ᴰ_ antiTSysCatᴰ {X} {Y} {Z} {f} {g} {Xᴰ} {Yᴰ} {Zᴰ} (fᴰ , presf) (gᴰ , presg) .fst x Xᴰx = gᴰ (f .fst x) (fᴰ x Xᴰx)
+_⋆ᴰ_ antiTSysCatᴰ {X} {Y} {Z} {f} {g} {Xᴰ} {Yᴰ} {Zᴰ} (fᴰ , presf) (gᴰ , presg) .snd {x}{x'} xRx' Xᴰx' = cong (λ h → gᴰ (f .fst x)  h) (presf   _ _) ∙ presg _ _
+antiTSysCatᴰ .⋆IdLᴰ _ = antiTSHomᴰ≡ refl
+antiTSysCatᴰ .⋆IdRᴰ _ = antiTSHomᴰ≡ refl
+antiTSysCatᴰ .⋆Assocᴰ _ _  _ = antiTSHomᴰ≡ refl
 antiTSysCatᴰ .isSetHomᴰ = {!   !}
 
 TSᴰ : TS → Type _ 
@@ -96,7 +99,7 @@ TSysCatᴰ .idᴰ .snd Ps Ps' PsRPs' = PsRPs'
 TSysCatᴰ .⋆IdLᴰ _ = ΣPathP (refl , refl)
 TSysCatᴰ .⋆IdRᴰ _ = ΣPathP (refl , refl)
 TSysCatᴰ .⋆Assocᴰ _ _ _ = ΣPathP (refl , refl)
-TSysCatᴰ .isSetHomᴰ = ?
+TSysCatᴰ .isSetHomᴰ = {!   !}
 
 ∫TS : (S : TS) → TSᴰ S → TS 
 ∫TS (S , R) (Sᴰ , Rᴰ) .fst = Σ S Sᴰ

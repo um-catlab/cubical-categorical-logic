@@ -88,7 +88,8 @@ checkRoot = do
                                             "check-line-lengths.sh",
                                             "cubical-categorical-logic.agda-lib",
                                             "fix-whitespace.yaml",
-                                            "Makefile"]) sub_dirs'
+                                            "Makefile",
+                                            "result"]) sub_dirs'
   imported <- getImported ["TestEverything"]
   let missing_files = fmap (\dir -> ["Everything",dir]) sub_dirs \\ imported
   if null missing_files then pure ()
@@ -137,7 +138,8 @@ main = do
                                             "check-line-lengths.sh",
                                             "cubical-categorical-logic.agda-lib",
                                             "fix-whitespace.yaml",
-                                            "Makefile"]) all_dirs'
+                                            "Makefile",
+                                            "result"]) all_dirs'
   args <- getArgs
   case args of
     "check":dirs -> checkEverythings [] dirs

@@ -92,7 +92,7 @@ checkRoot = do
   imported <- getImported ["TestEverything"]
   let missing_files = fmap (\dir -> ["Everything",dir]) sub_dirs \\ imported
   if null missing_files then pure ()
-  else do putStrLn "Found some Everything.agda's which are not imported in README.agda:"
+  else do putStrLn "Found some Everything.agda's which are not imported in TestEverything.agda:"
           forM_ missing_files (putStrLn . (" " ++) . showFP '.')
           exitFailure
 

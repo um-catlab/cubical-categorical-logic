@@ -11,3 +11,7 @@ Everything.agda
 *.prof
 /.DS_Store
 /output/
+
+# Nix
+result
+.direnv/

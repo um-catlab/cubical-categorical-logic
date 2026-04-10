@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Function
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as Sum
@@ -17,7 +18,7 @@ open import Cubical.HITs.SetCoequalizer as SetCoeq
 open import Cubical.Categories.Category
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Exponentials
-open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Sets hiding (PullbacksSET)
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Coend
@@ -26,6 +27,7 @@ open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.IndexedProduct.Base
+open import Cubical.Categories.Limits.Pullback.Alt
 
 private
   variable ℓ ℓC ℓC' : Level
@@ -140,3 +142,23 @@ module _ {ℓSET : Level} where
   SETBiCCC .BiCartesianClosedCategory.CCC = SETCCC
   SETBiCCC .BiCartesianClosedCategory.sums = BinCoProductsSET
   SETBiCCC .BiCartesianClosedCategory.init = InitialSET
+
+module _ {ℓSET : Level} where
+  PullbacksSET : Pullbacks (SET ℓSET)
+  PullbacksSET {l = l}{r = r} f g .vertex .fst .fst =
+    Σ[ (x , y) ∈ ⟨ l ⟩ × ⟨ r ⟩ ] f x ≡ g y
+  PullbacksSET {l = l}{m = m}{r = r} f g .vertex .fst .snd =
+    isSetΣ (isSet× (l .snd) (r .snd)) λ _ → isProp→isSet (m .snd _ _)
+  PullbacksSET f g .vertex .snd ((x , y) , e) = f x
+  PullbacksSET f g .element .fst .fst ((x , y) , e) = x
+  PullbacksSET f g .element .fst .snd = refl
+  PullbacksSET f g .element .snd .fst ((x , y) , e) = y
+  PullbacksSET f g .element .snd .snd = funExt λ ((x , y) , e) → sym e
+  PullbacksSET {m = m} f g .universal (u , h) =
+    isIsoToIsEquiv $
+      (λ x → (λ z → (x .fst .fst z , x .snd .fst z) ,
+                    funExt⁻ (x .fst .snd ∙ (sym (x .snd .snd))) z) , (x .fst .snd)) ,
+      (λ _ → ΣPathP ((ΣPathPProp (λ _ → isSet→ (m .snd) _ _) refl) ,
+                    (ΣPathPProp (λ _ → isSet→ (m .snd) _ _) refl))) ,
+      (λ _ → ΣPathP ((funExt λ _ → ΣPathPProp (λ _ → m .snd _ _) refl) ,
+                    isProp→PathP (λ _ → isSet→ (m .snd) _ _) _ _))

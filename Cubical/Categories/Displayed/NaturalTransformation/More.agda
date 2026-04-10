@@ -8,6 +8,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Functors.More
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Categories.Instances.TotalCategory
@@ -30,6 +31,12 @@ open isIso
 open isIsoᴰ
 
 
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
+  NatTransⱽ : {F : Functor C D}
+    {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+    (Fᴰ : Functorᴰ F Cᴰ Dᴰ) (Gᴰ : Functorᴰ F Cᴰ Dᴰ)
+    → Type _
+  NatTransⱽ Fᴰ Gᴰ = NatTransᴰ (idTrans _) Fᴰ Gᴰ
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
   record NatIsoᴰ {F : Functor C D}{G : Functor C D}
@@ -278,7 +285,6 @@ module _
 
   private
     module Dᴰ = Fibers Dᴰ
-
   _⋆NatTransᴰ_ : ∀ {F G H : Functor C D} →
     {Fᴰ : Functorᴰ F Cᴰ Dᴰ}
     {Gᴰ : Functorᴰ G Cᴰ Dᴰ}
@@ -340,3 +346,4 @@ module _
   ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .invᴰ = Eᴰ.idᴰ
   ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .secᴰ = Eᴰ.⋆IdLᴰ (∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .invᴰ)
   ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .retᴰ = Eᴰ.⋆IdLᴰ (∘Fᴰ-^opFᴰ-NatIsoᴰ .transᴰ .N-obᴰ xᴰ)
+

@@ -52,6 +52,8 @@ import Cubical.Categories.Displayed.Limits.CartesianV' as Path
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Base as Path
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable as Path
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions as Path
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration as Path
+import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties as Path
 
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Base
 
@@ -93,16 +95,23 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     λ Θ3 Δ3 morPath@(δ , δᴰ , δg≡h) → Hom/≡ $ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _)
 
 module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  EqTerminalsⱽ→Terminalsⱽ : Terminalsⱽ Cᴰ → Path.Terminalsⱽ Cᴰ
+  EqTerminalsⱽ→Terminalsⱽ termsⱽ x =
+    EqReprⱽ→PathReprⱽ UnitⱽPsh (termsⱽ x)
+    Path.◁PshIsoⱽ EqUnitⱽ≅PathUnitⱽ Cᴰ
+
+  EqFibration→Fibration : Fibration Cᴰ ⋆AssocC → Path.isFibration Cᴰ
+  EqFibration→Fibration isFib {x} xᴰ Γ f = EqReprⱽ→PathReprⱽ _ (isFib f xᴰ)
+    Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (C [-, Γ ]) Cᴰ) (Idᴰ /Fⱽ yoRecEq (C [-, x ]) (⋆AssocC x) f) (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) (Path/→Eq/ (C [-, x ]) Cᴰ) (Cᴰ [-][-, xᴰ ]) (fibrationNatIso Cᴰ ⋆AssocC f)
+    Path.⋆PshIsoⱽ reindPshIso (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) Representable≅
+
+
   EqCCⱽ→CCⱽ : isCartesianⱽ ⋆AssocC Cᴰ → Path.CartesianCategoryⱽ C ℓCᴰ ℓCᴰ'
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.Cᴰ = Cᴰ
-  EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.termⱽ x =
-    EqReprⱽ→PathReprⱽ UnitⱽPsh (cartⱽCᴰ .fst x)
-    Path.◁PshIsoⱽ EqUnitⱽ≅PathUnitⱽ Cᴰ
+  EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.termⱽ = EqTerminalsⱽ→Terminalsⱽ (cartⱽCᴰ .fst)
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.bpⱽ xᴰ yᴰ =
     EqReprⱽ→PathReprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])) (cartⱽCᴰ .snd .fst xᴰ yᴰ)
     Path.◁PshIsoⱽ Eq×ⱽ≅Path×ⱽ Cᴰ
     Path.⋆PshIsoⱽ ×PshIso Representable≅ Representable≅
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.cartesianLifts {x = x} xᴰ Γ f =
-    EqReprⱽ→PathReprⱽ _ (cartⱽCᴰ .snd .snd f xᴰ)
-    Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (C [-, Γ ]) Cᴰ) (Idᴰ /Fⱽ yoRecEq (C [-, x ]) (⋆AssocC x) f) (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) (Path/→Eq/ (C [-, x ]) Cᴰ) (Cᴰ [-][-, xᴰ ]) (fibrationNatIso Cᴰ ⋆AssocC f)
-    Path.⋆PshIsoⱽ reindPshIso (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) Representable≅
+    EqFibration→Fibration (cartⱽCᴰ .snd .snd) xᴰ Γ f

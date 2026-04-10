@@ -25,6 +25,7 @@ open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Limits.IndexedProduct.Base
 
 private
   variable ℓ ℓC ℓC' : Level
@@ -106,6 +107,15 @@ module _ {ℓSET : Level} where
           (λ h → funExt (Sum.elim
                           {C = λ x → Sum.rec (λ z → h (inl z)) (λ z → h (inr z)) x ≡ h x}
                           (λ _ → refl) (λ _ → refl))))
+
+module _ {ℓ ℓSET : Level} (X : Type ℓ) where
+  IxProductsSET : (Xs : X → hSet (ℓ-max ℓ ℓSET)) → ΠTy (SET (ℓ-max ℓ ℓSET)) Xs
+  IxProductsSET Xs .vertex .fst = ∀ x → Xs x .fst
+  IxProductsSET Xs .vertex .snd = isSetΠ (λ x → Xs x .snd)
+  IxProductsSET Xs .element x f = f x
+  IxProductsSET Xs .universal Γ = isIsoToIsEquiv
+    ( (λ z z₁ x → z x z₁)
+    , ((λ b → refl) , λ _ → refl))
 
 module _ {ℓSET : Level} where
   ExponentialsSET : AllExponentiable (SET ℓSET) (BinProductsSET)

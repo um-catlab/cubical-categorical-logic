@@ -55,6 +55,9 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     introᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g} → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ] → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
     introᴰ = f*yᴰ .snd .nIso (_ , _ , _) .fst
 
+    introⱽ : ∀ {xᴰ : Cᴰ.ob[ x ]} → Cᴰ [ f ][ xᴰ , yᴰ ] → Cᴰ.v[ x ] [ xᴰ , f*yᴰ .fst ]
+    introⱽ = λ z → f*yᴰ .snd .nIso (x , _ , C.id) .fst (Cᴰ.idᴰ Cᴰ.⋆ᴰ z)
+
     _⋆πⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
         → Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]
         → Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]
@@ -62,6 +65,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
     πⱽ : Cᴰ [ C.id C.⋆ f ][ f*yᴰ .fst , yᴰ ]
     πⱽ = Cᴰ.idᴰ ⋆πⱽ
+
+    _⋆ⱽπⱽ : ∀ {xᴰ : Cᴰ.ob[ x ]}
+        → Cᴰ.v[ x ] [ xᴰ , f*yᴰ .fst ]
+        → Cᴰ [ f ][ xᴰ , yᴰ ]
+    gⱽ ⋆ⱽπⱽ = Cᴰ.reind (C.⋆IdL f) (gⱽ ⋆πⱽ)
 
     opaque
       congP-introᴰ :

@@ -66,6 +66,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   Terminalᴰ : ∀ (term : Terminal' C) → Type _
   Terminalᴰ = UniversalElementᴰ Cᴰ UnitPsh UnitPshᴰ
 
+  module TerminalᴰNotation {term : Terminal' C} (termᴰ : Terminalᴰ term) = UniversalElementᴰNotation Cᴰ _ _ termᴰ
+
   Terminalⱽ→ᴰ : ∀ (term : Terminal' C) → Terminalⱽ (term .vertex) → Terminalᴰ term
   Terminalⱽ→ᴰ term termⱽ = Representableⱽ→UniversalElementᴰ Cᴰ UnitPsh UnitPshᴰ term
     (termⱽ .fst , termⱽ .snd ⋆PshIso (invPshIso $ reindPsh-Unit _))

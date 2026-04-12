@@ -6,13 +6,15 @@ module HyperDoc.Poly where
 open import Cubical.Data.Nat
 open import Cubical.Data.Unit 
 open import Cubical.Data.Sum renaming (map to ⊎map ; rec to ⊎rec)
-open import Cubical.Data.FinData 
+open import Cubical.Data.FinData hiding (snotz)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure hiding(str)
 
 -- open import Cubical.Categories.Presheaf.Properties 
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf hiding (PshIso ; Representation)
+--open import Cubical.Categories.Instances.Presheaf
 open import HyperDoc.Lib 
 open import Cubical.Categories.NaturalTransformation
 open NatTrans
@@ -21,11 +23,303 @@ open PshHom
 open import Cubical.Categories.Category 
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
-
+open import Cubical.Categories.Yoneda 
+open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Instances.Functors
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Categories.Bifunctor
+--open import Cubical.Categories.Presheaf.CCC 
+open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
 -- open import HyperDoc.FinDataUP
 open Category
 open Functor
 open FinSumChar renaming (inv to match)
+
+open Iso
+open import Cubical.Categories.Limits.Cartesian.Base
+module hoas (CC : CartesianCategory _ _ )where 
+
+  open CartesianCategory CC renaming (_×_ to _×bp_)
+  PshC : Category _ _ 
+  PshC = PresheafCategory C _
+  -- open BinProductsNotation bp renaming (_×_ to _×bp_)
+
+  _ext_ : (A : ob PshC)(X : ob C) → ob PshC 
+  (A ext X) .F-ob Y = A .F-ob (X ×bp Y)
+  (A ext X) .F-hom {Y}{Z} f = A .F-hom (C .id ×p f)
+  (A ext X) .F-id = cong (λ h → A .F-hom h) {! ×Bif .  !} ∙ A .F-id
+  (A ext X) .F-seq = {!   !}
+
+  -- this is not the usual exponential of presheaves ?
+  _⇒Psh_ : ob PshC → ob PshC → ob PshC 
+  (A ⇒Psh B) .F-ob X = PshC [ A , B ext X ] , isSetHom PshC
+  (A ⇒Psh B) .F-hom {X} {Y} f n .N-ob Z Az = B .F-hom (f ×p C .id) (n .N-ob Z Az)
+  (A ⇒Psh B) .F-hom {X} {Y} f n .N-hom {Z}{W} g = funExt λ Az → {!   !}
+  (A ⇒Psh B) .F-id = {!   !}
+  (A ⇒Psh B) .F-seq = {!   !}
+
+  --app : {A B : ob PshC} → PshC [ (A ⇒Psh B) ×Psh A , B ] 
+ --- app {A} {B} .N-ob X (n , Ax) = B .F-hom {!   !} (n .N-ob X Ax)
+  --app {A} {B} .N-hom = {!   !}
+
+  --open import Cubical.Data.Nat
+  open import Cubical.Data.Sigma
+
+  open import Cubical.HITs.PropositionalTruncation renaming (rec to ∥rec∥; map to ∥map∥)
+  -- https://github.com/niccoloveltri/final-pfin/blob/main/Pfin/AsFreeJoinSemilattice.agda
+  data Pfin {ℓ} (A : Type ℓ) : Type ℓ where
+    ø     : Pfin A
+    η     : A → Pfin A
+    _∪_   : Pfin A → Pfin A → Pfin A
+    com  : ∀ x y → x ∪ y ≡ y ∪ x
+    ass : ∀ x y z → x ∪ (y ∪ z) ≡ (x ∪ y) ∪ z
+    idem  : ∀ x → x ∪ x ≡ x
+    nr  : ∀ x → x ∪ ø ≡ x
+    trunc : isSet (Pfin A)
+
+  open import Cubical.Functions.Logic renaming (⊥ to ⊥ₚ ; inl to inlₚ ; inr to inrₚ) 
+
+  -- not possible to eliminate into hSet..(⊎ not idempotent)
+  _∈ₛ_ : ∀{A : Type} → A → Pfin A → hProp _
+  x ∈ₛ ø = ⊥ₚ
+  x ∈ₛ η y = x ≡ₚ y
+  x ∈ₛ (s₁ ∪ s₂) = (x ∈ₛ s₁) ⊔ (x ∈ₛ s₂)
+  x ∈ₛ com s₁ s₂ i =
+    ⇔toPath {_} {x ∈ₛ s₁ ⊔ x ∈ₛ s₂} {x ∈ₛ s₂ ⊔ x ∈ₛ s₁}
+      (∥map∥ λ { (inl m) → inr m ; (inr m) → inl m})
+      (∥map∥ λ { (inl m) → inr m ; (inr m) → inl m})
+      i
+  x ∈ₛ ass s₁ s₂ s₃ i = 
+    ⇔toPath {_} {x ∈ₛ s₁ ⊔ x ∈ₛ s₂ ⊔ x ∈ₛ s₃} {(x ∈ₛ s₁ ⊔ x ∈ₛ s₂) ⊔ x ∈ₛ s₃} {!   !} {!   !} 
+      {-(∥rec∥ ? λ { (inl m) → inl (inl m)
+                              ; (inr m) → ∥map∥ (⊎map inr (λ y → y)) m})
+      (∥rec∥ ? λ { (inl m) → ∥map∥ (⊎map(λ y → y) inl) m
+                              ; (inr m) → inr (inr m)}) -}
+      i
+  x ∈ₛ idem s i =
+    ⇔toPath {_} {x ∈ₛ s ⊔ x ∈ₛ s} {x ∈ₛ s}
+      (∥rec∥ (isProp⟨⟩ (x ∈ₛ s)) (λ { (inl m) → m ; (inr m) → m }))
+      ((λ x → ∣ inl x ∣₁)) 
+      i
+  x ∈ₛ nr s i = 
+    ⇔toPath {_} {x ∈ₛ s ⊔ ⊥ₚ} {x ∈ₛ s}
+    (∥rec∥ (isProp⟨⟩ (x ∈ₛ s)) (λ { (inl m) → m ; (inr ()) }))
+    (λ x → ∣ inl x ∣₁) 
+    i
+  x ∈ₛ trunc s₁ s₂ p q i j =
+    isSetHProp (x ∈ₛ s₁) (x ∈ₛ s₂) (cong (x ∈ₛ_) p) (cong (x ∈ₛ_) q) i j
+  
+
+  module _ {ℓ}{A B : Type ℓ} (Bset : isSet B)
+          (bø : B) (bη : A → B)
+          (_b∪_ : B → B → B)
+          (bcom  : ∀ x y → x b∪ y ≡ y b∪ x)
+          (bass : ∀ x y z → x b∪ (y b∪ z) ≡ (x b∪ y) b∪ z)
+          (bidem  : ∀ x → x b∪ x ≡ x)
+          (bnr  : ∀ x → x b∪ bø ≡ x) where
+
+    recPfin : Pfin A → B
+    recPfin ø = bø
+    recPfin (η x) = bη x
+    recPfin (s ∪ s₁) = (recPfin s) b∪ (recPfin s₁)
+    recPfin (com s s₁ i) = bcom (recPfin s) (recPfin s₁) i
+    recPfin (ass s s₁ s₂ i) = bass (recPfin s) (recPfin s₁) (recPfin s₂) i
+    recPfin (idem s i) = bidem (recPfin s) i
+    recPfin (nr s i) = bnr (recPfin s) i
+    recPfin (trunc s s₁ x y i i₁) =
+      Bset (recPfin s) (recPfin s₁)
+          (\ j → recPfin (x j)) (\ j → recPfin (y j))
+          i i₁
+
+  open import Cubical.Data.Empty 
+
+  _∈_ :  {X : Type} → X → Pfin X → Type
+  _∈_ x Γ = ⟨ x ∈ₛ Γ ⟩
+
+  _∉_ :  {X : Type} → X → Pfin X → Type
+  _∉_ x Γ = x ∈ Γ → ⊥
+
+
+  fresh' : Pfin ℕ → ℕ 
+  fresh' X = 1 + 
+    (recPfin 
+      isSetℕ 
+      0 
+      (max 0) 
+      max 
+      maxComm 
+      {!   !} -- yes, (x y z : ℕ) → max x (max y z) ≡ max (max x y) z
+      {!   !} -- yes, (x : ℕ) → max x x ≡ x
+      (λ { zero → refl
+         ; (suc n) → refl})
+      X) 
+
+  _ : fresh' (η 5 ∪ η 7)  ≡ 8
+  _ = refl
+
+  lem : {Γ Δ : Pfin ℕ}{n : ℕ} → n ∉ (Γ ∪ Δ) → n ∉ Γ 
+  lem = {!   !}
+
+  lem' : {Γ Δ : Pfin ℕ}{n : ℕ} → n ∉ (Δ ∪ Γ) → n ∉ Γ 
+  lem' {Γ}{Δ}{n} prf = lem (subst (λ h → n ∉ h) (com _ _) prf)
+
+
+  isFresh' : (Γ : Pfin ℕ) → fresh' Γ ∉ Γ  
+  isFresh' (η zero) prf = ∥rec∥ (λ()) snotz prf
+  isFresh' (η (suc x)) prf =  ∥rec∥ (λ()) sucn≠n prf
+  isFresh' (Γ ∪ Γ') prf = ∥rec∥ (λ()) {!   !} prf -- recursive call is not strictly smaller
+   --  ∥rec∥ (λ()) (⊎rec (lem (isFresh' (Γ ∪ Γ'))) (lem' (isFresh' (Γ ∪ Γ')))) prf
+  isFresh' (com Γ Γ₁ i) prf = {!   !}
+  isFresh' (ass Γ Γ₁ Γ₂ i) prf = {!   !}
+  isFresh' (idem Γ i) prf = {!   !}
+  isFresh' (nr Γ i) prf = {!   !}
+  isFresh' (trunc Γ Γ₁ x y i i₁) prf = {!   !}
+
+  module _ 
+      (Var : Type)
+      (fresh : Pfin Var → Var)  
+      (isFresh : (Γ : Pfin Var) → fresh Γ ∉ Γ)
+      where
+
+ --   open import Cubical.Foundations.Powerset
+    open import Cubical.Categories.Displayed.Constructions.HomPropertyOver
+    open import Cubical.Categories.Constructions.TotalCategory
+
+
+    data Tm (V : Pfin Var) : Type where 
+      var : (v : Var) → v ∈ V → Tm V 
+      app : Tm V → Tm V → Tm V
+      lam : (Var → Tm V) → Tm V
+
+    varSub : Pfin Var → Pfin Var → Type
+    varSub X Y = (v : Var) → v ∈ Y → Σ Var λ v' → v' ∈ X
+
+    Rename : Category _ _ 
+    Rename .ob = Pfin Var
+    Rename .Hom[_,_] = varSub
+    Rename .id {X} v v∈X = v , v∈X
+    Rename ._⋆_ {X}{Y}{Z} δ γ v v∈Z = δ (γ v v∈Z .fst) (γ v v∈Z .snd)
+    Rename .⋆IdL _ = refl
+    Rename .⋆IdR _ = refl
+    Rename .⋆Assoc _ _ _ = refl
+    Rename .isSetHom = {!   !}
+
+    tmSub : Pfin Var → Pfin Var → Type 
+    tmSub Δ Γ = (x : Var) → x ∈ Γ → Tm Δ
+
+    substitution : {Γ Δ : Pfin Var} → tmSub Δ Γ → Tm Γ → Tm Δ 
+    substitution {Γ} {Δ} γ (var v x) = γ v x
+    substitution {Γ} {Δ} γ (app t t') = app (substitution γ t) (substitution γ t')
+    substitution {Γ} {Δ} γ (lam f) = lam λ x → substitution γ (f x)
+    
+    subId : {Γ : Pfin Var}{t : Tm Γ} → substitution {Γ}{Γ} var t ≡ t 
+    subId {Γ} {var v x} = refl
+    subId {Γ} {app t t₁} = cong₂ app subId subId
+    subId {Γ} {lam x} = cong lam (funExt λ y → subId) 
+    
+    SubstCat : Category _ _ 
+    SubstCat .ob = Pfin Var
+    SubstCat .Hom[_,_] = tmSub
+    SubstCat .id {Γ} x x∈Γ = var x x∈Γ
+    SubstCat ._⋆_ {Θ}{Δ}{Γ} δ γ x x∈Γ = substitution δ (γ x x∈Γ)
+    SubstCat .⋆IdL {Δ}{Γ} γ = funExt λ x → funExt λ x∈Γ → subId 
+    SubstCat .⋆IdR {Δ}{Γ} γ = refl
+    SubstCat .⋆Assoc = {!   !}
+    SubstCat .isSetHom = {!   !}
+
+
+    --_⨄_ : Pfin Var → Pfin Var → Pfin Var 
+    --_⨄_ Γ Δ = {!   !}
+
+
+
+    Ren' : HomPropertyOver SubstCat _
+    HomPropertyOver.Hom[ Ren' ][-,-] {Δ}{Γ} γ = (x : Var)(x∈Γ : x ∈ Γ) → Σ[ y ∈ Var ] Σ[ y∈Δ ∈ (y ∈ Δ) ] γ x x∈Γ ≡ var y y∈Δ
+    Ren' .HomPropertyOver.isPropHomᴰ = {!   !}
+    Ren' .HomPropertyOver.idᴰ {Γ} x x∈Γ = x , (x∈Γ , refl)
+    Ren' .HomPropertyOver._⋆ᴰ_ {Θ}{Δ}{Γ} γ δ isvar isvar' x x∈Γ = {!  !} , ({!   !} , {!   !})
+
+    Ren : Category _ _ 
+    Ren = ∫C (HomPropertyOver→Catᴰ Ren')
+
+    PshVar : Category _ _ 
+    PshVar = PresheafCategory Ren _
+
+    pVar : ob PshVar 
+    pVar .F-ob (Γ , _) = (Σ[ x ∈ Var ] (x ∈ Γ)) , {!   !}
+    pVar .F-hom = λ z z₁ →
+        z .snd (z₁ .fst) (z₁ .snd) .fst ,
+        z .snd (z₁ .fst) (z₁ .snd) .snd .fst
+    pVar .F-id = refl
+    pVar .F-seq _ _ = refl
+
+    pTm : ob PshVar 
+    pTm .F-ob (Γ , _) = (Tm Γ) , {!   !}
+    pTm .F-hom (γ , _) t = substitution γ t
+    pTm .F-id = funExt λ _ → subId
+    pTm .F-seq γ δ = funExt λ t → {!   !}
+
+    papp : PshVar [ pTm ×Psh pTm , pTm ] 
+    papp .N-ob (Γ , _) (t , t') = app t t'
+    papp .N-hom _ = refl
+
+    plam : PshVar [ {!   !} , pTm ] 
+    plam = {!   !}
+
+    ext : Pfin Var → Pfin Var
+    ext Γ = Γ ∪ η (fresh Γ)
+    
+    -- can't define, isProp (Tm (ext (Δ .fst)))
+    extMap : {Γ Δ : ob Ren} → Ren [ Δ , Γ ] → Ren [ (ext (Δ .fst) , tt) , (ext (Γ .fst) , tt) ]
+    extMap γ .fst x = ∥rec∥  {!   !} (⊎rec (λ x∈Γ → {!   !}) λ xfresh → {! var  !})
+    extMap γ .snd = {!   !}
+
+    pext : ob PshVar → ob PshVar  
+    pext A .F-ob (Γ , _ ) = A .F-ob (ext Γ , tt)
+    pext A .F-hom {Γ}{Δ} γ = A .F-hom (extMap γ)
+    pext A .F-id = {!   !}
+    pext A .F-seq = {!   !}
+
+
+
+
+    {-
+  _ext_ : (A : ob PshC)(X : ob C) → ob PshC 
+  (A ext X) .F-ob Y = A .F-ob (X ×bp Y)
+  (A ext X) .F-hom {Y}{Z} f = A .F-hom (C .id ×p f)
+  (A ext X) .F-id = cong (λ h → A .F-hom h) {! ×Bif .  !} ∙ A .F-id
+  (A ext X) .F-seq = {!   !}
+
+  -- this is not the usual exponential of presheaves ?
+  _⇒Psh_ : ob PshC → ob PshC → ob PshC 
+  (A ⇒Psh B) .F-ob X = PshC [ A , B ext X ] , isSetHom PshC
+  (A ⇒Psh B) .F-hom {X} {Y} f n .N-ob Z Az = B .F-hom (f ×p C .id) (n .N-ob Z Az)
+  (A ⇒Psh B) .F-hom {X} {Y} f n .N-hom {Z}{W} g = funExt λ Az → {!   !}
+  (A ⇒Psh B) .F-id = {!   !}
+  (A ⇒Psh B) .F-seq = {!   !}
+    -}
+
+{-
+    substitution : Pfin Var → Pfin Var → Type
+    substitution X Y = (y : Var) → y ∈ Y → Tm X
+    
+    SubCat : Category _ _ 
+    SubCat .ob = Pfin Var
+    SubCat .Hom[_,_] = substitution
+    SubCat .id {X} v v∈X = var v v∈X
+    SubCat ._⋆_ {X}{Y}{Z} δ γ v v∈Z = δ v {! γ v  !}
+    SubCat .⋆IdL = {!   !}
+    SubCat .⋆IdR = {!   !}
+    SubCat .⋆Assoc = {!   !}
+    SubCat .isSetHom = {!   !}
+-}
+  -- if Var := Nat 
+  -- adequacy is lost (we've broken into the meta lanuage since we can define a function Var → Tm Var via pattern matching on ℕ)
+  -- solution in Higher-order abstract syntax in Coq
+  -- well define well formed terms where Var := Nat 
+
+
+
 
 record FinPoly (ℓ : Level) : Type (ℓ-suc ℓ) where 
   constructor _◂_ 
@@ -86,10 +380,11 @@ module InitVar (p : FinPoly _)  where
   IHom {A} X γ .carrierHom = Irec {A} X γ
   IHom {A} X γ .strHom = refl
 
-  Init :  Initial AlgΣ 
-  Init .fst .carrier = {!   !}
-  Init .fst .str = {!   !}
-  Init .snd = {!   !}
+  Init :  (X : Type) → Initial AlgΣ 
+  Init X .fst .carrier = FreeOn p X , {!   !}
+  Init X .fst .str = inF
+  Init X .snd A .fst = IHom {A} X {!   !}
+  Init X .snd A .snd = {!   !}
 
 module Init (p : FinPoly _)  where 
   Sig = den p

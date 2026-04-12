@@ -177,6 +177,282 @@ idCBPVMorphism {M} .CBPVMorphism.FC = Id
 idCBPVMorphism {M} .CBPVMorphism.FO .N-ob = λ x → (λ z → z) , (λ {a} {a'} z → z)
 idCBPVMorphism {M} .CBPVMorphism.FO .N-hom _ = refl
 
+open import Cubical.Categories.Displayed.Base
+open Categoryᴰ
+
+module CBPVSection 
+  {M N : CBPVModel} 
+  {F : CBPVMorphism M N}
+  {Nᴰ : CBPVModelᴰ N}
+    where
+
+  private
+    module Nᴰ = CBPVModelᴰ Nᴰ 
+    module F = CBPVMorphism F 
+    module M = CBPVModel M
+    module N = CBPVModel N 
+
+  module _ 
+    (SV : Section F.FV Nᴰ.Vᴰ)
+    (SC : Section F.FC Nᴰ.Cᴰ) where 
+    private
+      module SV = Section SV 
+      module SC = Section SC 
+
+
+    record SectionNat : Type where 
+      field 
+        N-obᴰ : {A : ob M.V}{B : ob M.C} → (M : M.O'[ A , B ]) → Nᴰ.Oᴰ'[ F.FO .N-ob _ .fst M ][ SV.F-obᴰ A , SC.F-obᴰ B ]
+        -- needs to be a tsystem morphism, maps rel to displayed rel
+        N-obᴰRel :{A : ob M.V}{B : ob M.C}{M M' : M.O'[ A , B ]}{M↦M' : M._↦O_ M M' } → 
+          Nᴰ.Oᴰ .F-obᴰ (SV.F-obᴰ A , SC.F-obᴰ B) .snd (N-ob F.FO (A , B) .snd M↦M') (N-obᴰ M) (N-obᴰ M')
+
+        -- ^ map into a displayed transition system
+        -- naturality, morphism component 
+        N-homᴰ : {A A' : ob M.V}{B B' : ob M.C}(V : M.V [ A' , A ])(S : M.C [ B , B' ])(M : M.O'[ A , B ]) →  
+          PathP  
+            (λ i → F-obᴰ Nᴰ.Oᴰ (SV.F-obᴰ A' , SC.F-obᴰ B') .fst (N-hom F.FO (V , S) i .fst M)) 
+            (N-obᴰ  (M.O .F-hom (V , S) .fst M)) 
+            (F-homᴰ Nᴰ.Oᴰ (SV.F-homᴰ V , SC.F-homᴰ S) .fst (N-ob F.FO (A , B) .fst M) (N-obᴰ M))
+        -- naturality, relation component
+        -- this is .. yuck
+        N-homᴰRel : {A A' : ob M.V}{B B' : ob M.C}(V : M.V [ A' , A ])(S : M.C [ B , B' ])  → 
+          PathP 
+            (λ i → 
+              {M M' : M.O .F-ob (A , B) .fst} → 
+              M._↦O_ M M'  → 
+              Σ (Nᴰ.M.O .F-ob (F.FV .F-ob A' , F.FC .F-ob B') .snd (N-hom F.FO (V , S) i .fst M) (N-hom F.FO (V , S) i .fst M')) 
+                λ sRs' → F-obᴰ Nᴰ.Oᴰ (SV.F-obᴰ A' , SC.F-obᴰ B') .snd sRs' (N-homᴰ V S M i) (N-homᴰ V S M' i))
+             (λ M↦M' → (N-ob F.FO (A' , B') .snd (M.O .F-hom (V , S) .snd  M↦M' )) , N-obᴰRel)
+              λ {M}{M'} M↦M' → Nᴰ.M.O .F-hom (F.FV .F-hom V , F.FC .F-hom S) .snd ((N-ob F.FO (A , B) .snd M↦M')) , 
+                      F-homᴰ Nᴰ.Oᴰ (SV.F-homᴰ V , SC.F-homᴰ S) .snd (N-obᴰ M) (N-obᴰ M') N-obᴰRel 
+  CBPVSection : Type 
+  CBPVSection = 
+    Σ[ SV ∈  Section F.FV Nᴰ.Vᴰ ] 
+    Σ[ SC ∈  Section F.FC Nᴰ.Cᴰ ]  
+    SectionNat SV SC
+
+CBPVGlobalSection : (M : CBPVModel) → CBPVModelᴰ M →  Type 
+CBPVGlobalSection M Mᴰ = CBPVSection.CBPVSection {M}{M}{idCBPVMorphism} {Mᴰ}
+
+-- Should be able to construct a total model, and then define a map into it
+
+
+module TotalConstruction'
+  (M N : CBPVModel)
+  (F : CBPVMorphism M N)
+  (Nᴰ : CBPVModelᴰ N) where
+  open import Cubical.Categories.Constructions.TotalCategory
+  open import Cubical.Categories.Displayed.BinProduct
+
+  module M = CBPVModel M 
+  module N = CBPVModel N 
+  module F = CBPVMorphism F
+  module Nᴰ = CBPVModelᴰ Nᴰ
+
+  ΣTSys : Functor (∫C TSysCatᴰ) (TSysCat)
+  ΣTSys .F-ob (S , Sᴰ) = ∫TS S Sᴰ
+  ΣTSys .F-hom {S , Sᴰ}{T , Tᴰ} (f , fᴰ) = ∫TSHom {S}{T}{Sᴰ}{Tᴰ} f  fᴰ 
+  ΣTSys .F-id = refl
+  ΣTSys .F-seq _ _ = refl
+
+  conv : Functor ((∫C Nᴰ.Vᴰ ^op) ×C ∫C Nᴰ.Cᴰ) (∫C ((Nᴰ.Vᴰ ^opᴰ) ×Cᴰ Nᴰ.Cᴰ))
+  conv .F-ob ((A , Aᴰ),(B , Bᴰ)) = (A , B) , Aᴰ , Bᴰ 
+  conv .F-hom = λ z → (z .fst .fst , z .snd .fst) , z .fst .snd , z .snd .snd
+  conv .F-id = refl
+  conv .F-seq _ _ = refl
+
+  TotalModel : CBPVModel 
+  TotalModel .CBPVModel.V = ∫C Nᴰ.Vᴰ
+  TotalModel .CBPVModel.C = ∫C Nᴰ.Cᴰ
+  TotalModel .CBPVModel.O = ΣTSys ∘F ∫F (Nᴰ.Oᴰ) ∘F conv
+
+  open CBPVSection {M}{N}{F} {Nᴰ}
+
+  module _   (S : CBPVSection )  where 
+    SO = S .snd .snd 
+    module SV = Section (S .fst)
+    module SC = Section (S .snd .fst)
+
+    map : CBPVMorphism M TotalModel 
+    map .CBPVMorphism.FV .F-ob A = (F.FV .F-ob A) , SV.F-obᴰ A
+    map .CBPVMorphism.FV .F-hom f = (F.FV .F-hom f) , SV.F-homᴰ f
+    map .CBPVMorphism.FV .F-id = ΣPathP ((F.FV .F-id) , SV.F-idᴰ)
+    map .CBPVMorphism.FV .F-seq _ _ = ΣPathP ((F.FV .F-seq _ _) , (SV.F-seqᴰ _ _))
+    map .CBPVMorphism.FC .F-ob A = (F.FC .F-ob A) , SC.F-obᴰ A
+    map .CBPVMorphism.FC .F-hom f = (F.FC .F-hom f) , SC.F-homᴰ f
+    map .CBPVMorphism.FC .F-id = ΣPathP ((F.FC .F-id) , SC.F-idᴰ)
+    map .CBPVMorphism.FC .F-seq _ _ = ΣPathP ((F.FC .F-seq _ _) , (SC.F-seqᴰ _ _))
+    {-NatTrans M.O ((ΣTSys ∘F ∫F Nᴰ.Oᴰ ∘F conv) ∘F ((CBPVMorphism.FV map ^opF) ×F CBPVMorphism.FC map)) -} 
+    -- components are transition system morphisms 
+    -- α_{A , B} : TSysCat [ M.O .F-ob (A , B) , ((ΣTSys ∘F ∫F Nᴰ.Oᴰ ∘F conv) ∘F ((CBPVMorphism.FV map ^opF) ×F CBPVMorphism.FC map)) .F-ob (A , B) ]
+    map .CBPVMorphism.FO .N-ob (A , B).fst M = (N-ob F.FO (A , B) .fst M) , CBPVSection.SectionNat.N-obᴰ (S .snd .snd) M
+    map .CBPVMorphism.FO .N-ob (A , B) .snd {M}{M'} M↦M' = N-ob F.FO (A , B) .snd M↦M' , SO .SectionNat.N-obᴰRel {M↦M' = M↦M'}
+    -- naturality is equality of transition system morphisms
+    -- transition system mophisms are not some function with structure 
+    -- where equality of morphisms is determined by equality of the underlying maps
+    -- Transition systems are defined to be proof relevant relations.. 
+    map .CBPVMorphism.FO .N-hom {A , B}{A' , B'}(V , S) = 
+      ΣPathP ((funExt (λ M → 
+        ΣPathP (
+            (λ i → (F.FO .N-hom (V , S)) i  .fst M) , 
+            CBPVSection.SectionNat.N-homᴰ SO V S M))) , 
+        -- could be blown away if we have prop valued relations
+        CBPVSection.SectionNat.N-homᴰRel SO V S) 
+
+
+module TotalConstruction
+  (M : CBPVModel)
+  (Mᴰ : CBPVModelᴰ M) where
+  open import Cubical.Categories.Constructions.TotalCategory
+  open import Cubical.Categories.Displayed.BinProduct
+
+  open CBPVModel M 
+  open CBPVModelᴰ Mᴰ
+
+
+  conv : Functor ((∫C Vᴰ ^op) ×C ∫C Cᴰ) (∫C ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ))
+  conv .F-ob ((A , Aᴰ),(B , Bᴰ)) = (A , B) , Aᴰ , Bᴰ 
+  conv .F-hom = λ z → (z .fst .fst , z .snd .fst) , z .fst .snd , z .snd .snd
+  conv .F-id = refl
+  conv .F-seq _ _ = refl
+
+  ΣTSys : Functor (∫C TSysCatᴰ) (TSysCat)
+  ΣTSys .F-ob (S , Sᴰ) = ∫TS S Sᴰ
+  ΣTSys .F-hom {S , Sᴰ}{T , Tᴰ} (f , fᴰ) = ∫TSHom {S}{T}{Sᴰ}{Tᴰ} f  fᴰ 
+  ΣTSys .F-id = refl
+  ΣTSys .F-seq _ _ = refl
+
+  TotalModel : CBPVModel 
+  TotalModel .CBPVModel.V = ∫C Vᴰ
+  TotalModel .CBPVModel.C = ∫C Cᴰ
+  TotalModel .CBPVModel.O = ΣTSys ∘F ∫F (Oᴰ) ∘F conv
+
+  module _   (S : CBPVGlobalSection M Mᴰ)  where 
+    SO = S .snd .snd 
+    module SV = Section (S .fst)
+    module SC = Section (S .snd .fst)
+    open CBPVSection {M}{M}{idCBPVMorphism} {Mᴰ}
+
+    GSFun : CBPVMorphism M TotalModel 
+    GSFun .CBPVMorphism.FV .F-ob A = A , (SV.F-obᴰ A)
+    GSFun .CBPVMorphism.FV .F-hom f = f , (SV.F-homᴰ f)
+    GSFun .CBPVMorphism.FV .F-id = ΣPathP (refl , SV.F-idᴰ)
+    GSFun .CBPVMorphism.FV .F-seq f g = ΣPathP (refl , (SV.F-seqᴰ f g))
+    GSFun .CBPVMorphism.FC .F-ob B = B , (SC.F-obᴰ B)
+    GSFun .CBPVMorphism.FC .F-hom f = f , (SC.F-homᴰ f)
+    GSFun .CBPVMorphism.FC .F-id = ΣPathP (refl , SC.F-idᴰ)
+    GSFun .CBPVMorphism.FC .F-seq f g = ΣPathP (refl , (SC.F-seqᴰ f g))
+    GSFun .CBPVMorphism.FO .N-ob (A , B) .fst M = M , SO .SectionNat.N-obᴰ M
+    GSFun .CBPVMorphism.FO .N-ob (A , B) .snd {M}{M'} M↦M' = M↦M' , SO .SectionNat.N-obᴰRel {M↦M' = M↦M'}
+    GSFun .CBPVMorphism.FO .N-hom {A , B}{A' , B'}(V , S) = ΣPathP ({!   !} , {!   !})
+      --ΣPathP (funExt 
+    --   (λ M → 
+      --    ΣPathP ({!   !} , {!   !})) ,  
+            -- this part is tricky.. if our transition system relations are prop valued relations.. things are easy
+      --     {!  !})
+
+module Elim (Synᴰ : CBPVModelᴰ Syn ) where 
+  open CBPVModelᴰ Synᴰ
+  open import Cubical.Categories.Displayed.Bifunctor
+  open import Cubical.Categories.Bifunctor
+
+  open Bifunctorᴰ OᴰBif
+
+  mutual 
+    vty : (A : VTy) → ob[ Vᴰ ] A
+    vty 𝟙 = {!   !}
+    vty Ans = {!   !}
+    vty (U B) = {!   !}
+
+    cty : (B : CTy) → ob[ Cᴰ ] B
+    cty (F A) = {!   !}
+
+    vtm : {A A' : VTy} → (f : Hom[ V , A ] A') → Hom[ Vᴰ ][ f  , vty A ] (vty A')
+    vtm (subV f f₁) = (Vᴰ ⋆ᴰ vtm f) (vtm f₁)
+    vtm var = idᴰ Vᴰ
+    vtm (subVIdl f i) = Vᴰ .⋆IdLᴰ (vtm f) i
+    vtm (subVIdr f i) = Vᴰ .⋆IdRᴰ (vtm f) i
+    vtm (subVAssoc f f₁ f₂ i) = Vᴰ .⋆Assocᴰ (vtm f) (vtm f₁) (vtm f₂)  i
+    vtm (isSet⊢v f f₁ x y i i₁) = Vᴰ .isSetHomᴰ {! vtm f  !} {!   !} {!   !} {!   !} i i₁
+    vtm tt = {!   !}
+    vtm yes = {!   !}
+    vtm no = {!   !}
+    vtm (thunk x) = {!   !}
+
+    ctm-sub : {A A' : VTy}{B : CTy} → (V : A' ⊢v A)(M : A ⊢c B) → Oᴰ'[ subC V M  ][ vty A' , cty B ]
+    ctm-sub {A}{A'}{B} V M = subst (λ h → F-obᴰ Oᴰ (vty A' , cty B) .fst h) (cong₂ subC refl plugId) (Bif-homLᴰ{f = V} (vtm V) (cty B) .fst M (ctm M))
+
+    ctm-plug : {A : VTy}{B B' : CTy} → (S : B ⊢k B')(M : A ⊢c B) → Oᴰ'[ plug S M  ][ vty A , cty B' ]
+    ctm-plug {A}{A'}{B} S M = subst (λ h → F-obᴰ Oᴰ (vty A , cty B) .fst h) subCId (Bif-homRᴰ  (vty A) (ktm S) .fst M (ctm M))
+    
+    ctm : {A : VTy}{B : CTy} → (M : A ⊢c B) → Oᴰ'[ M ][ vty A , cty B ]
+    ctm {A}{B} (subC V M) = ctm-sub V M 
+    ctm {A}{B} (plug S M) = ctm-plug S M 
+    ctm (plugId i) = {!   !}
+    ctm (subCId i) = {!   !}
+    ctm (plugDist i) = {!   !}
+    ctm (subDist i) = {!   !}
+    ctm (plugSub i) = {!   !}
+    ctm (isSet⊢c f f₁ x y i i₁) = {!   !}
+    ctm (ret x) = {!   !}
+    ctm (force x) = {!   !}
+    ctm (force-sub i) = {!   !}
+
+    -- this is just some opaque type.. 
+    -- impossible!, unless you give me the answer for all parameters! 
+    
+    ctmRel : {A : VTy}{B : CTy}{M M' : A ⊢c B}(M↦M' : M M.↦O M') → OᴰRel[ M↦M' ][ ctm M , ctm M' ]
+    -- F-obᴰ Oᴰ (vty A , cty B) .snd M↦M' (ctm M) (ctm M')
+    ctmRel (Fβ{A}{A'}{B}{V}{M}) = {!   !} -- OᴰRel[ Fβ ][ ctm-plug (bind M) (ret V) , ctm-sub V M ]  Exactly!. but this is forward reduction.. not anti reduction.., anti is used above
+    ctmRel {A} {B} {M} {M'} Uβ = {!   !} -- ctmRel M↦M'
+    ctmRel (subC-cong {A}{A'}{B}{V}{M}{M'} M↦M') = subst {!   !} {!   !} have where 
+      have : Bif-obᴰ (vty A') (cty B) .snd
+        (Bifunctor.Bif-homL (ParFunctorToBifunctor M.O) V B .snd M↦M')
+        (Bif-homLᴰ (vtm V) (cty B) .fst M (ctm M))
+        (Bif-homLᴰ (vtm V) (cty B) .fst M' (ctm M')) 
+      have = Bif-homLᴰ{f = V} (vtm V) (cty B) .snd {M}{M'}{M↦M'} (ctm M) (ctm M') (ctmRel M↦M')
+    -- {! Bif-homLᴰ{f = V} (vtm V) (cty B) .snd {M}{M'}{M↦M'} ? ? ? !} -- OᴰRel[ subC-cong M↦M' ][ ctm-sub V₁ M₁ , ctm-sub V₁ M'' ] given OᴰRel[ M↦M' ][ ctm M₁ , ctm M'' ]
+    ctmRel {A} {B} {M} {M'} (plug-cong M↦M') = {!  Oᴰ .F-homᴰ ? .snd  ? ?  ? !}
+    ctmRel {A} {B} {M} {M'} (isProp↦ M↦M' M↦M'' i) = {!   !}
+    -- essentially 
+    module _ (no : VTy → Type) where 
+      hopeless : no 𝟙 
+      hopeless = {!  !}
+      -- unless you give me the answer for all VTy! 
+
+
+    ktm : {B B' : CTy} → (f : Hom[ C , B ] B') → Hom[ Cᴰ ][ f  , cty B ] (cty B')
+    ktm (kcomp g g₁) = (Cᴰ ⋆ᴰ ktm g) (ktm g₁)
+    ktm hole = idᴰ Cᴰ
+    ktm (kcompIdl g i) = Cᴰ .⋆IdLᴰ (ktm g) i
+    ktm (kcompIdr g i) = Cᴰ .⋆IdRᴰ (ktm g) i
+    ktm (kcompAssoc g g₁ g₂ i) = Cᴰ .⋆Assocᴰ (ktm g) (ktm g₁) (ktm g₂)  i
+    ktm (isSet⊢k g g₁ x y i i₁) = {!   !}
+    ktm (bind x) = {!   !}
+
+  SV : Section Id Vᴰ 
+  SV .Section.F-obᴰ = vty
+  SV .Section.F-homᴰ = vtm
+  SV .Section.F-idᴰ = {!   !}
+  SV .Section.F-seqᴰ = {!   !}
+
+  SC : Section Id Cᴰ 
+  SC .Section.F-obᴰ = cty
+  SC .Section.F-homᴰ = ktm
+  SC .Section.F-idᴰ = {!   !}
+  SC .Section.F-seqᴰ = {!   !}
+
+  open CBPVSection {Syn}{Syn}{idCBPVMorphism}{Synᴰ}
+  SO : SectionNat SV SC
+  SO .CBPVSection.SectionNat.N-obᴰ = ctm
+  SO .CBPVSection.SectionNat.N-obᴰRel {A}{B}{M}{M'}{M↦M'} = ctmRel M↦M'
+  SO .CBPVSection.SectionNat.N-homᴰ = {!   !}
+  SO .CBPVSection.SectionNat.N-homᴰRel = {!   !}
+
+
+
+{-
 module ModelSection 
   {M N : CBPVModel }
   (F : CBPVMorphism M N)
@@ -322,9 +598,7 @@ module hrm (L : Logic Syn) where
       ctm (force {A}{B} V) = goal where 
         have : A LV.◂ vty A ≤ LV.f* V (pull (force var) $ cty B) 
         have = vtm V
-
-        -- subC V (force var) ≡ force V 
-        -- hrm
+        
         goal : A LV.◂ vty A ≤ (pull (force V) $ cty B) 
         goal = LV.seq have (LV.seq V*M*→VM* (LV.eqTo≤ (cong (λ h → f (pull h) (cty B)) (cong₂ subC refl plugId ∙ force-sub ∙ cong force (subVIdr _)))))
 
@@ -338,3 +612,4 @@ module hrm (L : Logic Syn) where
     GS .snd .fst .Section.F-idᴰ = LC.isProp≤ _ _
     GS .snd .fst .Section.F-seqᴰ _ _ = LC.isProp≤ _ _
     GS .snd .snd = ctm
+-}

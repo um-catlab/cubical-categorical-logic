@@ -10,7 +10,8 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-
+open import Cubical.Categories.Displayed.Bifunctor
+open import Cubical.Categories.Bifunctor
 open import HyperDoc.Operational.TransitionSystemAltAlt
 
 open Category
@@ -96,13 +97,40 @@ record CBPVMorphism (M N : CBPVModel) : Type where
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor 
 open import Cubical.Categories.Displayed.BinProduct 
-
+open Functorᴰ
+open Categoryᴰ
 record CBPVModelᴰ (M : CBPVModel) : Type where 
   module M = CBPVModel M
   field 
     Vᴰ : Categoryᴰ M.V _ _
     Cᴰ : Categoryᴰ M.C _ _
-    Oᴰ : Functorᴰ M.O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) {!   !}
+    Oᴰ : Functorᴰ M.O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) TSysCatᴰ
+
+  Oᴰ[_,_] : {A : ob M.V}{B : ob M.C}→  Vᴰ .ob[_] A → Cᴰ .ob[_] B → ob[ TSysCatᴰ ] M.O[ A , B ]
+  Oᴰ[_,_] Aᴰ Bᴰ = Oᴰ .F-obᴰ (Aᴰ , Bᴰ ) 
+
+  Oᴰ'[_][_,_] : {A : ob M.V}{B : ob M.C}→ M.O'[ A , B ] →  Vᴰ .ob[_] A → Cᴰ .ob[_] B → Type
+  Oᴰ'[_][_,_] M Aᴰ Bᴰ = Oᴰ .F-obᴰ (Aᴰ , Bᴰ ) .fst M
+
+  OᴰBif : Bifunctorᴰ (ParFunctorToBifunctor M.O) (Vᴰ ^opᴰ) Cᴰ TSysCatᴰ
+  OᴰBif = ParFunctorᴰToBifunctorᴰ Oᴰ
+
+  OᴰRel[_][_,_] : {A : ob M.V}{Aᴰ : Vᴰ .ob[_] A}{B : ob M.C}{Bᴰ : Cᴰ .ob[_] B}{M M' : M.O'[ A , B ]} → M._↦O_ M M'  →  Oᴰ'[ M ][ Aᴰ , Bᴰ ] → Oᴰ'[ M' ][ Aᴰ , Bᴰ ] → Type
+  OᴰRel[_][_,_] {A}{Aᴰ}{B}{Bᴰ}{M}{M'} MRM' P Q  = Oᴰ .F-obᴰ (Aᴰ , Bᴰ )  .snd  MRM' P Q
+
+  lcompᴰ : ∀ {A A' B aᴰ a'ᴰ bᴰ}{f : M.V [ A , A' ]} → (fᴰ : Hom[ Vᴰ ][ f , aᴰ ] a'ᴰ) →  Hom[ TSysCatᴰ ][ M.lcomp f , Oᴰ[ a'ᴰ , bᴰ ] ] Oᴰ[ aᴰ , bᴰ ] 
+  lcompᴰ {f = f} fᴰ = Oᴰ .F-homᴰ {f = (f , M.C .id)} (fᴰ , Cᴰ .idᴰ)
+  {-
+    lcompᴰ : ∀ {A A' B aᴰ a'ᴰ bᴰ}{f : V [ A , A' ]} → (fᵈ : Hom[ Vᴰ ][ f , aᴰ ] a'ᴰ) →  Hom[ (ALGᴰ {Σ}) ][ lcomp f , Oᴰ[ a'ᴰ , bᴰ ] ] Oᴰ[ aᴰ , bᴰ ]
+  lcompᴰ {f = f} fᴰ = Oᴰ .F-homᴰ {f = (f , C .id)} (fᴰ , Cᴰ .idᴰ)
+
+  rcompᴰ : ∀ {A B B' aᴰ bᴰ b'ᴰ}{f : C [ B , B' ]} → (fᵈ : Hom[ Cᴰ ][ f , bᴰ ] b'ᴰ) →  Hom[ (ALGᴰ {Σ}) ][ rcomp f , Oᴰ[ aᴰ , bᴰ ] ] Oᴰ[ aᴰ , b'ᴰ ]
+  rcompᴰ {f = f} fᴰ = Oᴰ .F-homᴰ {f = (V .id , f)} (Vᴰ .idᴰ , fᴰ)
+
+
+    Oᴰ[_,_] : {A : ob V}{B : ob C} → (aᴰ : ob[ Vᴰ ] A) → (bᴰ : ob[ Cᴰ ] B) →  ob[ (ALGᴰ {Σ}) ] (O .F-ob (A  , B)) 
+  Oᴰ[_,_] {A}{B} aᴰ bᴰ  = Oᴰ .F-obᴰ {(A , B)} (aᴰ , bᴰ)
+    -}
 
 open import Cubical.Categories.Instances.Posets.Base
 open import Cubical.Categories.Instances.Preorders.Monotone
@@ -257,6 +285,44 @@ module ConvertLogic
   open MonFun renaming (f to fun)
   
 
+  open import Cubical.Data.Sigma
+  
+  Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) TSysCatᴰ
+  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .fst M = A VL.◂ P ≤ (pull M $ Q)
+  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .snd {M}{M'} M↦M' P≤M*Q P≤M'*Q = A VL.◂ pull M' $ Q ≤ (pull M $ Q)
+    {- exactly the same goal -} 
+     --A VL.◂ P ≤ (pull M' $ Q) → 
+     ------------------------
+     --A VL.◂ P ≤ (pull M $ Q)
+
+  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .fst M P≤MQ = 
+    VL.seq  P'≤VP (
+    VL.seq (VL.mon* V P≤MQ)  (
+    VL.seq (VL.mon* V (pull M .isMon  Q≤SQ')) (
+    VL.eqTo≤ (sym (cong(λ h → h .fun Q') (funExt⁻ (Sq .N-hom (V , S)) M))))))
+  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .snd {M}{M'} P≤MQ P≤M'Q M'Q≤MQ = goal where 
+    goal : A' VL.◂ pull (O .F-hom (V , S) .fst M') $ Q' ≤ (pull (O .F-hom (V , S) .fst M) $ Q') 
+    goal = {!   !}
+
+
+  {- tran P'≤VM'SQ' = {!   !} where 
+    have : A VL.◂ P ≤ (pull M $ Q) 
+    have = P≤MQ -- OR ... tran P≤M'Q 
+
+    goal : A' VL.◂ P' ≤ (pull (O .F-hom (V , S) .fst M) $ Q') 
+    goal = VL.seq P'≤VM'SQ' {!   !}
+-}
+  -- M'Q≤MQ = 
+    -- prove 
+    -- A' | (VM'S)*Q' ⊢ (VMS)*Q'
+    -- (VL.mon* V M'Q≤MQ)
+  Oᴰ .Functorᴰ.F-idᴰ {A , B} {P , Q}= {! TSHomᴰProp≡ ? (VL.isProp≤ )  !}
+    -- toPathP (ΣPathP ((funExt λ x₁ → funExt λ x₂ → VL.isProp≤ _ _) , {!   !}))
+  Oᴰ .Functorᴰ.F-seqᴰ = {!   !}
+
+
+{-
+-- no, don't bake in antireduction
   Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) antiTSysCatᴰ
   Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .fst M = A VL.◂ P ≤ (pull M $ Q)
   Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .snd {M} {M'} M↦M' P≤M'*Q = VL.seq P≤M'*Q (antiRed M↦M')
@@ -268,33 +334,4 @@ module ConvertLogic
   Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .snd _ _ = VL.isProp≤ _ _
   Oᴰ .Functorᴰ.F-idᴰ = toPathP (antiTSHomᴰ≡ (funExt λ x₁ → funExt λ x₂ → VL.isProp≤ _ _))
   Oᴰ .Functorᴰ.F-seqᴰ _ _ =  toPathP (antiTSHomᴰ≡ (funExt λ x₁ → funExt λ x₂ → VL.isProp≤ _ _))
-{-
-  Oᴰ .Functorᴰ.F-idᴰ = toPathP (AlgHomᴰ≡Prop λ _ → VL.isProp≤)
-  Oᴰ .Functorᴰ.F-seqᴰ _ _ = toPathP (AlgHomᴰ≡Prop λ _ → VL.isProp≤)
--}
-  {-
-  Oᴰ : Functorᴰ O ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ) TSysCatᴰ
-  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .fst M = A VL.◂ P ≤ (pull M $ Q)
-  Oᴰ .Functorᴰ.F-obᴰ {A , B} (P , Q) .snd {M}{M'} M↦M' P≤M*Q P≤M'*Q = {! antiRed  !}
-  {-
-    if instead.. 
-      given 
-        M↦M'
-        P≤M'*Q 
-      and asked to show
-        P≤M*Q 
-      we could to so using antireduction 
-        P ≤ M'*Q ≤ M*Q 
-
   -}
-  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .fst M P≤MQ = 
-    VL.seq  P'≤VP (
-    VL.seq (VL.mon* V P≤MQ)  (
-    VL.seq (VL.mon* V (pull M .isMon  Q≤SQ')) (
-    VL.eqTo≤ (sym (cong(λ h → h .fun Q') (funExt⁻ (Sq .N-hom (V , S)) M))))))
-  Oᴰ .Functorᴰ.F-homᴰ {A , B} {A' , B'} {V , S} {P , Q} {P' , Q'} (P'≤VP , Q≤SQ') .snd {M}{M'} P≤MQ P≤M'Q M'Q≤MQ = 
-    {!   !}
-  Oᴰ .Functorᴰ.F-idᴰ = {!   !}
-  Oᴰ .Functorᴰ.F-seqᴰ = {!   !}
-
--}

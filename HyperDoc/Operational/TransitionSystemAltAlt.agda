@@ -44,6 +44,10 @@ isFin (S , R) = (s : S) → Σ[ n ∈ ℕ ] Iso (Σ[ s' ∈ S ] R s s') (Fin n)
 TSHom :  TS → TS → Type _ 
 TSHom (A , A↦) (B , B↦)  = Σ[ f ∈ (A → B) ] (∀{a a'} → A↦ a a' → B↦ (f a) (f a'))
 
+-- only if the relations in TS are valued in Prop
+TSHom≡ : {S T : TS}{f g : TSHom S T} → f .fst ≡ g .fst → f ≡ g 
+TSHom≡ {S}{T}{f}{g} prf = ΣPathP (prf , {!   !})
+
 TSysCat : Category _ _ 
 TSysCat .ob = TS
 TSysCat .Hom[_,_] = TSHom 
@@ -87,6 +91,11 @@ TSHomᴰ {S}{T} f P Q =
   Σ[ fᴰ ∈ ((s : S .fst) → P .fst s → Q .fst (f .fst s)) ] 
     ({s s' : S .fst}{sRs' : S .snd s s'}(Ps : P .fst s)(Ps' : P .fst s') → 
     P .snd sRs' Ps Ps' → Q .snd (f .snd sRs') (fᴰ s Ps) (fᴰ s' Ps'))
+
+TSHomᴰProp≡ : {S T : TS}{f : TSHom S T}{P : TSᴰ S}{Q : TSᴰ T}{fᴰ gᴰ : TSHomᴰ f P Q}  → 
+  fᴰ .fst ≡ gᴰ .fst → ({t t' : T .fst}{tRTt' : T .snd t t'}{Qt : Q .fst t}{Qt' : Q .fst t'} →  isProp (Q .snd {t}{t'}tRTt'  Qt Qt')) → fᴰ ≡ gᴰ 
+TSHomᴰProp≡ {S} {T} {f} {P} {Q} {fᴰ} {gᴰ} prf Qprop = ΣPathP (prf , toPathP (implicitFunExt (implicitFunExt (implicitFunExt (funExt λ x → funExt λ y → funExt λ z → Qprop  _ _)))))
+
 
 TSysCatᴰ : Categoryᴰ TSysCat _ _ 
 ob[ TSysCatᴰ ] = TSᴰ

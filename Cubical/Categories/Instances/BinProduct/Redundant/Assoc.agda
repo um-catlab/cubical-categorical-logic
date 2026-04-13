@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.Instances.BinProduct.Redundant.Assoc where
 
 open import Cubical.Categories.Category.Base

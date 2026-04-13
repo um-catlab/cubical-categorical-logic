@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.Adjoint.UniversalElements where
 
 open import Cubical.Foundations.Prelude

@@ -79,11 +79,8 @@ module _ (C : Category ℓ ℓ') where
     module C = Category C
 
   module _ (m : C.ob) where
-    Sliceᴰ : Categoryᴰ C _ _
-    Sliceᴰ = Element (C [-, m ])
-
     Slice : Category _ _
-    Slice = ∫C Sliceᴰ
+    Slice = ∫C (Element (C [-, m ]))
 
     _/_ : Category _ _
     _/_ = Slice

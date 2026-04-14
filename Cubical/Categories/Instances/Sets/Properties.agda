@@ -12,6 +12,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
+import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 
 open import Cubical.HITs.SetCoequalizer as SetCoeq
 
@@ -162,3 +164,22 @@ module _ {ℓSET : Level} where
                     (ΣPathPProp (λ _ → isSet→ (m .snd) _ _) refl))) ,
       (λ _ → ΣPathP ((funExt λ _ → ΣPathPProp (λ _ → m .snd _ _) refl) ,
                     isProp→PathP (λ _ → isSet→ (m .snd) _ _) _ _))
+
+  PullbacksSET' : Pullbacks (SET ℓSET)
+  PullbacksSET' {l = l}{r = r} f g .vertex .fst .fst =
+    Σ[ (x , y) ∈ ⟨ l ⟩ × ⟨ r ⟩ ] f x Eq.≡ g y
+  PullbacksSET' {l = l}{m = m}{r = r} f g .vertex .fst .snd =
+    isSetΣ (isSet× (l .snd) (r .snd)) λ _ → isProp→isSet (Eq.isSet→isSetEq (m .snd))
+  PullbacksSET' f g .vertex .snd ((x , y) , e) = f x
+  PullbacksSET' f g .element .fst .fst ((x , y) , e) = x
+  PullbacksSET' f g .element .fst .snd = refl
+  PullbacksSET' f g .element .snd .fst ((x , y) , e) = y
+  PullbacksSET' f g .element .snd .snd = funExt λ ((x , y) , e) → sym $ Eq.eqToPath e
+  PullbacksSET' {m = m} f g .universal (u , h) =
+    isIsoToIsEquiv $
+      (λ x → (λ z → (x .fst .fst z , x .snd .fst z) ,
+                    Eq.pathToEq (funExt⁻ (x .fst .snd ∙ (sym (x .snd .snd))) z)) , (x .fst .snd)) ,
+      (λ _ → ΣPathP ((ΣPathPProp (λ _ → isSet→ (m .snd) _ _) refl) ,
+                     (ΣPathPProp (λ _ → isSet→ (m .snd) _ _) refl))) ,
+      λ _ → ΣPathP ((funExt λ _ → ΣPathPProp (λ _ → Eq.isSet→isSetEq (m .snd)) refl) ,
+                     isProp→PathP (λ _ → isSet→ (m .snd) _ _) _ _)

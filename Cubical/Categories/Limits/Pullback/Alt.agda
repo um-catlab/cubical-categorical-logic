@@ -1,6 +1,9 @@
 {-# OPTIONS --lossy-unification #-}
--- A definition of pullbacks bootstapped using
--- products in a slice category
+-- This file provides an alternative and equivalent definition
+-- to the pullbacks presented in Cubical.Limits.Pullback
+--
+-- The main difference is that here pullbacks are constructed
+-- compositionally from other notions
 --
 -- A pullback of f : l → m and g : r → m is usually presented
 -- as the universal object pb making the following diagram commute
@@ -14,37 +17,15 @@
 --        l  --------> m
 --              f
 --
--- This universal property can be stated directly,
--- as in Cubical.Categories.Limits.Pullback where a pullback is
--- described with a record spelling out each part of the above
--- diagram
--- record Pullback (cspn : Cospan) : Type (ℓ-max ℓ ℓ') where
---   field
---     pbOb  : ob
---     pbPr₁ : C [ pbOb , cspn .l ]
---     pbPr₂ : C [ pbOb , cspn .r ]
---     pbCommutes : pbPr₁ ⋆ cspn .s₁ ≡ pbPr₂ ⋆ cspn .s₂
---     univProp : isPullback cspn pbPr₁ pbPr₂ pbCommutes
+-- If you stop and stare, it turns out this is precisely the same
+-- data as a binary product in the slice category C / m
 --
--- Likewise, the definition of the slice category found in
--- Cubical.Categories.Instances.Slice defines manual record types
--- to describe the objects and morphisms in the slice category
+-- To this end, we define C / m by taking the total category
+-- of the category of elements for C [-, m ] and then
+-- define pullbacks in this file to be products in C / m
 --
--- Although it is straightforward to define these data, it is
--- verbose and overly concrete. Instead, we can provide a
--- characterization of the slice category C / c as the total category
--- of the category of elements for C [-, c ]
--- C / c := ∫C (Element (C [-, c ])
---
--- With this definition of C / c, we may then give a description of
--- pullbacks as a derived notion. That is, pullbacks in C between
--- f : l → m and g : r → m correspond precisely to binary products in C / m
---
--- Because this description reuses existing definitons, there is really
--- no new work necessary for decsribing pullbacks. Instead, the PullbackNotation
--- module on C is really only re-exporting the interface of the BinProductNotation
--- module on C / c .
---
+-- We describe pullbacks in C via a PullbackNotation module
+-- which re-exports the interface of the BinProductNotation in (C / m)
 --
 -- Given a morphism f : y → x, we may readily define a post-composition
 -- functor PostComposeWithF : (C / y) → (C / x). The existence of pullbacks

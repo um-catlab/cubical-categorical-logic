@@ -28,7 +28,7 @@ open import Cubical.Categories.Functors.HomFunctor
 
 open import HyperDoc.Algebra.Algebra
 open import HyperDoc.CBPV.Model.Base
-open import HyperDoc.Lib
+open import HyperDoc.Lib hiding (trans)
 open import HyperDoc.Syntax
 
 open Alg

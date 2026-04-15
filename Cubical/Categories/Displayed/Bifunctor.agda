@@ -26,6 +26,103 @@ private
     ℓ ℓ' ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
     ℓᴰ ℓᴰ' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' ℓEᴰ ℓEᴰ' : Level
 
+-- thank you slop machine
+module _ 
+    {C : Category ℓC ℓC'}
+    {D : Category ℓD ℓD'}
+    {E : Category ℓE ℓE'} where
+  open BifunctorSep
+  open Categoryᴰ
+  record BifunctorSepᴰ
+    (F : BifunctorSep C D E)
+    (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+    (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+    (Eᴰ : Categoryᴰ E ℓEᴰ ℓEᴰ') : 
+      Type (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓD (ℓ-max ℓD' (ℓ-max ℓE (ℓ-max ℓE'
+            (ℓ-max ℓCᴰ (ℓ-max ℓCᴰ' (ℓ-max ℓDᴰ (ℓ-max ℓDᴰ'
+            (ℓ-max ℓEᴰ ℓEᴰ'))))))))))) where
+
+    no-eta-equality
+
+    private
+      module C = Category C
+      module D = Category D
+      module E = Category E
+      module Cᴰ = Categoryᴰ Cᴰ
+      module Dᴰ = Categoryᴰ Dᴰ
+      module Eᴰ = Categoryᴰ Eᴰ
+      module F = BifunctorSep F
+
+    field
+      Bif-obᴰ :
+        ∀ {c d}
+        → Cᴰ.ob[ c ]
+        → Dᴰ.ob[ d ]
+        → Eᴰ.ob[ F .Bif-ob c d ]
+
+      Bif-homLᴰ :
+        ∀ {c c'} {f : C [ c , c' ]}
+          {cᴰ cᴰ'} (fᴰ : Cᴰ [ f ][ cᴰ , cᴰ' ])
+          {d} (dᴰ : Dᴰ.ob[ d ])
+          → Eᴰ [ F .Bif-homL f d ][ Bif-obᴰ cᴰ dᴰ , Bif-obᴰ cᴰ' dᴰ ]
+
+      Bif-L-idᴰ :
+        ∀ {c d}{cᴰ}{dᴰ}
+        → Bif-homLᴰ (Cᴰ.idᴰ {p = cᴰ}) dᴰ
+            Eᴰ.≡[ F .Bif-L-id {c}{d} ]
+          Eᴰ.idᴰ
+
+      Bif-L-seqᴰ :
+        ∀ {c c' c'' d}
+          {f : C [ c , c' ]}{f' : C [ c' , c'' ]}
+          {cᴰ cᴰ' cᴰ''}{dᴰ : Dᴰ .ob[_] d}
+          (fᴰ : Cᴰ [ f ][ cᴰ , cᴰ' ])
+          (fᴰ' : Cᴰ [ f' ][ cᴰ' , cᴰ'' ])
+        → Bif-homLᴰ (fᴰ Cᴰ.⋆ᴰ fᴰ') dᴰ
+            Eᴰ.≡[ F .Bif-L-seq f f' ]
+          (Bif-homLᴰ fᴰ dᴰ Eᴰ.⋆ᴰ Bif-homLᴰ fᴰ' dᴰ)
+
+      Bif-homRᴰ :
+        ∀ {d d'} {g : D [ d , d' ]}
+          {dᴰ dᴰ'} (gᴰ : Dᴰ [ g ][ dᴰ , dᴰ' ])
+          {c} (cᴰ : Cᴰ.ob[ c ])
+        → Eᴰ [ F .Bif-homR c g ][ Bif-obᴰ cᴰ dᴰ , Bif-obᴰ cᴰ dᴰ' ]
+
+      Bif-R-idᴰ :
+        ∀ {c d}{cᴰ}{dᴰ}
+        → Bif-homRᴰ (Dᴰ.idᴰ {p = dᴰ}) cᴰ
+            Eᴰ.≡[ F .Bif-R-id {c}{d} ]
+          Eᴰ.idᴰ
+
+      Bif-R-seqᴰ :
+        ∀ {c d d' d''}
+          {g : D [ d , d' ]}{g' : D [ d' , d'' ]}
+          {cᴰ : Cᴰ .ob[_] c}{dᴰ dᴰ' dᴰ''}
+          (gᴰ : Dᴰ [ g ][ dᴰ , dᴰ' ])
+          (gᴰ' : Dᴰ [ g' ][ dᴰ' , dᴰ'' ])
+        → Bif-homRᴰ (gᴰ Dᴰ.⋆ᴰ gᴰ') cᴰ
+            Eᴰ.≡[ F .Bif-R-seq g g' ]
+          (Bif-homRᴰ gᴰ cᴰ Eᴰ.⋆ᴰ Bif-homRᴰ gᴰ' cᴰ)
+
+    Bif-homᴰ : ∀ {c c' d d'}
+          {f : C [ c , c' ]}{g : D [ d , d' ]}
+          {cᴰ cᴰ'}{dᴰ dᴰ'}
+          (fᴰ : Cᴰ [ f ][ cᴰ , cᴰ' ])
+          (gᴰ : Dᴰ [ g ][ dᴰ , dᴰ' ]) → 
+          Eᴰ.Hom[  F.Bif-homL f d E.⋆ F.Bif-homR c' g  ][ Bif-obᴰ cᴰ dᴰ , Bif-obᴰ cᴰ' dᴰ' ] 
+    Bif-homᴰ {cᴰ' = cᴰ'}{dᴰ  = dᴰ}fᴰ gᴰ = Bif-homLᴰ fᴰ dᴰ Eᴰ.⋆ᴰ  Bif-homRᴰ gᴰ cᴰ'
+    field 
+      SepBif-RL-commuteᴰ :
+        ∀ {c c' d d'}
+          {f : C [ c , c' ]}{g : D [ d , d' ]}
+          {cᴰ cᴰ'}{dᴰ dᴰ'}
+          (fᴰ : Cᴰ [ f ][ cᴰ , cᴰ' ])
+          (gᴰ : Dᴰ [ g ][ dᴰ , dᴰ' ])
+        → (Bif-homRᴰ gᴰ cᴰ Eᴰ.⋆ᴰ Bif-homLᴰ fᴰ dᴰ')
+            Eᴰ.≡[ F .SepBif-RL-commute f g ]
+          (Bif-homLᴰ fᴰ dᴰ Eᴰ.⋆ᴰ Bif-homRᴰ gᴰ cᴰ')
+
+
 module _ {C : Category ℓC ℓC'}
          {D : Category ℓD ℓD'}
          {E : Category ℓE ℓE'} where

@@ -1,8 +1,7 @@
 {-# OPTIONS --type-in-type #-}
-
 module HyperDoc.Operational.Initial where
 
-open import Cubical.Data.Maybe
+open import Cubical.Data.Sigma
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -11,6 +10,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Categories.Category
 open import Cubical.Categories.Constructions.BinProduct
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Bifunctor
 
 
 open Category
@@ -75,9 +75,10 @@ data _⊢c_ where
 
   -- type structure
   ret : ∀{A A'} → A ⊢v A' → A ⊢c F A'
-  force : ∀{A B} →  A ⊢v U B → A ⊢c B   
-  force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
-    subC V (force W) ≡ force (subV V W)
+  force : ∀{B} →  U B ⊢c B  
+  -- force : ∀{A B} →  A ⊢v U B → A ⊢c B   
+  --force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
+  --  subC V (force W) ≡ force (subV V W)
 
 subC' = subC
 
@@ -90,7 +91,7 @@ data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where
 
   Uβ : ∀ {A B} {M : A ⊢c B} → 
     ---------------------
-    force (thunk M) ↦ M
+    subC (thunk M) force ↦ M
   
   subC-cong : ∀ {A A' B}{V : A' ⊢v A}{M M' : A ⊢c B}  →  
     M ↦ M' → 
@@ -102,7 +103,297 @@ data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where
     --------- 
     plug S M ↦ plug S M'
 
-  isProp↦ : ∀ {A B} {M M' : A ⊢c B} → isProp (M ↦ M')
+  -- Profunctor laws below
+
+  subC-cong-id : ∀ {A B}{M M' : A ⊢c B}{M↦M' : M ↦ M'} → 
+    PathP 
+      (λ i → subCId {M = M} i ↦ subCId {M = M'} i) 
+      (subC-cong {V = var} M↦M') 
+      M↦M'  
+
+  subC-cong-seq : ∀ {A A' A'' B}{V : A'' ⊢v A'}{V' : A' ⊢v A}{M M' : A ⊢c B}{M↦M' : M ↦ M'}  → 
+    PathP 
+      (λ i → sym (subDist {V = V}{V'}{M})i ↦ sym (subDist {V = V}{V'}{M'}) i) 
+      (subC-cong {V = subV V V'} M↦M') 
+      (subC-cong {V = V} (subC-cong {V = V'} M↦M'))
+
+  plug-cong-id :  ∀ {A B}{M M' : A ⊢c B}{M↦M' : M ↦ M'} → 
+    PathP 
+      (λ i → plugId {M = M} i ↦ plugId {M = M'} i) 
+      (plug-cong {S = hole} M↦M') 
+      M↦M'  
+
+  plug-cong-seq : ∀ {A B B' B''}{S : B ⊢k B'}{S' : B' ⊢k B''}{M M' : A ⊢c B}{M↦M' : M ↦ M'}  → 
+    PathP 
+      (λ i → sym (plugDist {S = S}{S'}{M})i ↦ sym (plugDist {S = S}{S'}{M'}) i) 
+      (plug-cong {S = kcomp S S'} M↦M') 
+      (plug-cong {S = S'} (plug-cong {S = S} M↦M'))
+
+  plug-subC-cong : ∀ {A A' B B'}{V : A' ⊢v A}{S : B ⊢k B'}{M M' : A ⊢c B}{M↦M' : M ↦ M'}  →
+    PathP 
+      (λ i → plugSub {V = V}{M}{S} i  ↦ plugSub {V = V}{M'}{S}i)
+      (subC-cong {V = V} (plug-cong {S = S} M↦M'))
+      (plug-cong {S = S} (subC-cong {V = V} M↦M')) 
+
+
+  isSet↦ : ∀ {A B} {M M' : A ⊢c B} → isSet (M ↦ M')
+  -- Prop is problematic in the eliminator.. 
+  -- just add the rules .. 
+  -- isProp↦ : ∀ {A B} {M M' : A ⊢c B} → isProp (M ↦ M')
+
+
+open import HyperDoc.Operational.Model
+open import HyperDoc.Operational.Graph
+
+
+
+V : Category ℓ-zero ℓ-zero
+V .ob = VTy
+V .Hom[_,_] = _⊢v_
+V .id = var
+V ._⋆_ = subV
+V .⋆IdL = subVIdl
+V .⋆IdR = subVIdr
+V .⋆Assoc = subVAssoc
+V .isSetHom = isSet⊢v
+
+C : Category ℓ-zero ℓ-zero 
+C .ob = CTy
+C .Hom[_,_] = _⊢k_
+C .id = hole
+C ._⋆_ = kcomp
+C .⋆IdL = kcompIdl
+C .⋆IdR = kcompIdr
+C .⋆Assoc = kcompAssoc
+C .isSetHom = isSet⊢k
+
+
+compGraph : VTy → CTy → ob (GRAPH ℓ-zero ℓ-zero ) 
+compGraph A B .fst = (A ⊢c B) , isSet⊢c
+compGraph A B .snd M M' = (M ↦ M') , isSet↦
+
+
+module no {A B B'}{S : B ⊢k B'}{M M' : A ⊢c B}{e : M ↦ M'} where  
+
+  prf : M ↦ M' 
+  prf = subst2 (λ h h' →  h ↦ h' ) plugId plugId (plug-cong {S = hole} e)
+
+  prf' : M ↦ M' 
+  prf' = subst2 (λ h h' →  h ↦ h' ) subCId subCId (subC-cong {V = var} e)
+
+-- cant prove isProp↦
+-- ex)   M↦M' ≡ plug-cong {hole} M↦M' ≡ subC-cong {var}  M↦M'
+
+{-}
+pcompGraph : VTy → CTy → ob (pGRAPH ℓ-zero ℓ-zero ) 
+pcompGraph A B .fst = compGraph A B
+pcompGraph A B .snd M M' = isProp↦
+-}
+
+open BifunctorSep
+{-
+O : BifunctorSep (V ^op) C (pGRAPH ℓ-zero ℓ-zero) 
+O .Bif-ob A B = compGraph A B
+O .Bif-homL V B .fst M = subC V M
+O .Bif-homL V B .snd = subC-cong
+O .Bif-L-id {A}{B} = pGraphHom≡  {G = compGraph A B}{compGraph A B} (funExt λ M → subCId)
+O .Bif-L-seq {A}{A'}{A''}{B} V V' = pGraphHom≡  {G = compGraph A B }{compGraph A'' B } (funExt λ M → sym subDist)
+O .Bif-homR A S .fst M = plug S M
+O .Bif-homR A S .snd = plug-cong
+O .Bif-R-id {A}{B}=  pGraphHom≡  {G = compGraph A B}{compGraph A B} (funExt λ M → plugId)
+O .Bif-R-seq {A}{B}{B'}{B''}S S' = pGraphHom≡  {G = compGraph A B }{compGraph A B'' } (funExt λ M → sym plugDist)
+O .SepBif-RL-commute {A}{A'}{B}{B'} V S = pGraphHom≡ {G = compGraph A B }{compGraph A' B'} (funExt λ M → plugSub)
+
+-}
+O : BifunctorSep (V ^op) C (GRAPH ℓ-zero ℓ-zero) 
+O .Bif-ob A B = compGraph A B
+O .Bif-homL V B .fst M = subC V M
+O .Bif-homL V B .snd = subC-cong
+O .Bif-L-id {A} {B} i .fst M = subCId i
+O .Bif-L-id {A} {B} i .snd M↦M' = subC-cong-id {M↦M' = M↦M'} i
+O .Bif-L-seq {A} {A'} {A''} {B} V V' i .fst M = sym (subDist {V = V'}{V}) i
+O .Bif-L-seq {A} {A'} {A''} {B} V V' i .snd {M}{M'} M↦M' = subC-cong-seq {M↦M' = M↦M'}  i
+O .Bif-homR A S .fst M = plug S M
+O .Bif-homR A S .snd = plug-cong
+O .Bif-R-id {A} {B} i .fst M = plugId i
+O .Bif-R-id {A} {B} i .snd  M↦M' = plug-cong-id {M↦M' = M↦M'} i
+O .Bif-R-seq {A} {B} {B'} {B''} S S' i .fst M = sym (plugDist {S = S}{S'}) i
+O .Bif-R-seq {A} {B} {B'} {B''} S S' i .snd {M}{M'} M↦M' = plug-cong-seq  {M↦M' = M↦M'}  i
+O .SepBif-RL-commute {A} {A'} {B} {B'} V S i .fst M = plugSub {V = V}{M}{S} i
+O .SepBif-RL-commute {A} {A'} {B} {B'} V S i .snd {M}{M'} M↦M' = plug-subC-cong {M↦M' = M↦M'} i
+
+Syn : CBPVModel ℓ-zero ℓ-zero ℓ-zero ℓ-zero ℓ-zero ℓ-zero 
+Syn .fst = V
+Syn .snd .fst = C
+Syn .snd .snd = O
+
+
+{-
+open import Cubical.Relation.Binary.Preorder
+open import HyperDoc.Lib
+open PreorderStr
+open IsPreorder 
+
+
+ABPre : VTy → CTy → Preorder _ _
+ABPre A B .fst = A ⊢c B
+ABPre A B .snd ._≤_ = RTC _↦_
+-- can this be inherited if R is prop valued?
+ABPre A B .snd .isPreorder .is-prop-valued = {! Rel  !} 
+ABPre A B .snd .isPreorder .is-refl M = ref
+ABPre A B .snd .isPreorder .is-trans M N P = trans
+
+open import Cubical.Relation.Binary.Base
+RGraph' : Type 
+RGraph' = 
+  Σ[ S ∈ hSet _ ] 
+  Σ[ R ∈ (⟨ S ⟩ → ⟨ S ⟩ → hSet _) ] 
+  ((s : ⟨ S ⟩) → {! ⟨ R s s ⟩    !})
+
+-- exactly the notion of transition system
+-- except we have a reflexive transition
+record RGraph : Type where 
+  field 
+    Car : Type 
+    _R_ : Car → Car → Type 
+    Rid : {x : Car} → x R x
+
+-- exactly the notion of transition system morphism 
+-- except we need to preserve id 
+-- Q : is preservation of identity compatible with our notion of reduction ..?
+record Relator (H G : RGraph) : Type where 
+  private 
+    module H = RGraph H 
+    module G = RGraph G 
+  field 
+    Fv : H.Car → G.Car
+    Fe : {x y : H.Car} → x H.R y → Fv x G.R Fv y
+    -- this is the identity extension principle! 
+    Fid : {x : H.Car} → Fe (H.Rid {x}) ≡ G.Rid{Fv x}
+    
+RG : Category _ _ 
+RG .ob = RGraph
+RG .Hom[_,_] = Relator
+RG .id = {!   !}
+RG ._⋆_ = {!   !}
+RG .⋆IdL = {!   !}
+RG .⋆IdR = {!   !}
+RG .⋆Assoc = {!   !}
+RG .isSetHom = {!   !}
+
+
+
+-- RG has pointwise products
+
+
+open import Cubical.Data.Graph.Base 
+module _
+  {ℓ ℓ' : Level}
+  (G : Graph ℓ ℓ') where 
+
+  -- The reflexive graph.. ?
+  -- Reynolds
+  data _⊢_ : G .Node → G .Node → Type (ℓ-max ℓ ℓ') where  
+    var : {X : G .Node} → X ⊢ X
+
+    app : {X Y Z : G .Node} →
+      G .Edge X Y →
+      Z ⊢ X →
+      Z ⊢ Y
+
+  sub : {X Y Z : G .Node} → X ⊢ Y → Y ⊢ Z → X ⊢ Z
+  sub m var = m
+  sub m (app x n) = app x (sub m n)
+
+  idl : {X Y : G .Node} → (f : X ⊢ Y) → sub var f ≡ f
+  idl var = refl
+  idl (app x f) = cong₂ app refl (idl f)
+
+  assoc : {X Y Z W : G .Node}(f : X ⊢ Y) (g : Y ⊢ Z) (h : Z ⊢ W) →
+    sub (sub f g) h ≡ sub f (sub g h)
+  assoc f g var = refl
+  assoc f g (app x h) = cong₂ app refl (assoc f g h)
+
+  FreeCat : Category ℓ (ℓ-max ℓ ℓ')
+  FreeCat .ob = G .Node
+  FreeCat .Hom[_,_] = _⊢_
+  FreeCat .id = var
+  FreeCat ._⋆_ = sub
+  FreeCat .⋆IdL = idl
+  FreeCat .⋆IdR _ = refl
+  FreeCat .⋆Assoc = assoc
+  FreeCat .isSetHom = {!   !} -- requires hLevel restriction on Nodes and Edges
+
+-- hom category.. 
+{-
+  For each A, B
+  - O[A , B] : Algebra
+  - O[A , B] : TSystem 
+    which is a set 
+      A ⊢c B 
+      paired with a relation _↦_ : A ⊢c B → A ⊢c B → Type 
+    BUT
+      if the relation _↦_ is prop valued, 
+        we can take the reflexive transitive closure and get
+        O[ A , B ] : Preorder 
+      OR if the relation _↦_ is set valued 
+        we can view (A ⊢c B, _↦_) as a Graph 
+        and yield the Free Category for that graph, giving 
+        O[ A , B ] : Category 
+
+  There is some kind of 2-categorical structure here ...
+
+  What if.. Instead of Category.. 
+  we mapped into Reflexive Graphs.. 
+    Given a one step relation _↦_ : A ⊢c B → A ⊢c B → Type ..
+      We can give a relflexive closure on it.. 
+      which turns it into a reflexive graph
+
+
+-}
+
+G↦ : VTy → CTy → Graph _ _ 
+G↦ A B .Node = A ⊢c B
+G↦ A B .Edge = _↦_
+
+Free : VTy → CTy → Category _ _ 
+Free A B = FreeCat (G↦ A B)
+
+thing : {A : VTy}{B B' : CTy}{M M' : A ⊢c B} → (S : B ⊢k B') → Free  A B [ M , M' ] → Free  A B' [ plug S M , plug S M' ] 
+thing S var = var
+thing S (app M↦M' M''↦*M) = app (plug-cong M↦M') (thing S M''↦*M)
+
+plugFun : {A : VTy}{B B' : CTy} → B ⊢k B' → Functor (Free A B) (Free A B') 
+plugFun S .F-ob M = plug S M
+plugFun {A}{B}{B'} S .F-hom {M} {M'} = thing S
+plugFun S .F-id = refl
+plugFun {A}{B}{B'} S .F-seq {M}{M'}{M''} = goal M M' M'' where 
+  goal : (M M' M'' : A  ⊢c B) (f : Free  A B [ M , M' ]) (g : Free  A B [ M' , M'' ]) →
+    thing S (seq' (Free  A B) f g) ≡ seq' (Free  A B') (thing S f) (thing S g)
+  goal M M' M'' f var = refl
+  goal M M' M'' f (app  x g) = cong (λ h → app (plug-cong x) h )  (goal _ _ _ f g)
+
+
+ABRGraph : VTy → CTy → RGraph 
+ABRGraph A B .RGraph.Car = A ⊢c B
+ABRGraph A B .RGraph._R_ = RC _↦_
+ABRGraph A B .RGraph.Rid = ref
+
+{-
+  So we have 
+     O[ A , B ] : RGraph 
+
+  so what.. 
+  Can we use Reynolds Program ?
+
+  What about a profunctor 
+    O : V^op × C → RGRAPH
+
+  would such a thing be useful ..?
+
+
+-}
+
 
 
 V : Category ℓ-zero ℓ-zero
@@ -131,13 +422,24 @@ TSys : VTy → CTy → ob TSysCat
 TSys A B .fst = A ⊢c B
 TSys A B .snd = _↦_ {A}{B}
 
+
+OR : Functor (V ^op ×C C) RG 
+OR .F-ob (A , B) = ABRGraph A B
+OR .F-hom (V , S) .Relator.Fv M = subC V (plug S M)
+OR .F-hom (V , S) .Relator.Fe {M} {M'} (base M↦M') = base (subC-cong (plug-cong M↦M'))
+OR .F-hom (V , S) .Relator.Fe {M} {M'} ref = ref
+OR .F-hom (V , S) .Relator.Fid = refl
+OR .F-id = {!   !}
+OR .F-seq = {!   !}
+
 open import Cubical.Data.Sigma 
 O :  Functor ((V ^op) ×C C) TSysCat
 O .F-ob (A , B) = TSys A B
 O .F-hom (V , S) .fst M = subC V (plug S M)
 O .F-hom (V , S) .snd {M}{M'} M↦M' = subC-cong (plug-cong M↦M')
-O .F-id = Σ≡Prop (λ f → isPropImplicitΠ  λ M → isPropImplicitΠ  λ M' → isProp→ isProp↦) 
-  (funExt λ M → subCId ∙ plugId)
+O .F-id = ΣPathP ((funExt λ M → subCId ∙ plugId) , {!   !})
+  -- Σ≡Prop (λ f → isPropImplicitΠ  λ M → isPropImplicitΠ  λ M' → isProp→ isProp↦) 
+  -- (funExt λ M → subCId ∙ plugId)
 O .F-seq (V , S)(V' , S') = 
   Σ≡Prop (λ f → isPropImplicitΠ  λ M → isPropImplicitΠ  λ M' → isProp→ isProp↦)  
     (funExt (λ M → sym (subDist )  ∙ cong₂ subC refl (cong₂ subC refl (sym plugDist) ∙  plugSub)))
@@ -170,187 +472,6 @@ open import HyperDoc.Syntax
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Functor 
 open Functorᴰ
-
-idCBPVMorphism : {M : CBPVModel} → CBPVMorphism M M 
-idCBPVMorphism {M} .CBPVMorphism.FV = Id
-idCBPVMorphism {M} .CBPVMorphism.FC = Id
-idCBPVMorphism {M} .CBPVMorphism.FO .N-ob = λ x → (λ z → z) , (λ {a} {a'} z → z)
-idCBPVMorphism {M} .CBPVMorphism.FO .N-hom _ = refl
-
-open import Cubical.Categories.Displayed.Base
-open Categoryᴰ
-
-module CBPVSection 
-  {M N : CBPVModel} 
-  {F : CBPVMorphism M N}
-  {Nᴰ : CBPVModelᴰ N}
-    where
-
-  private
-    module Nᴰ = CBPVModelᴰ Nᴰ 
-    module F = CBPVMorphism F 
-    module M = CBPVModel M
-    module N = CBPVModel N 
-
-  module _ 
-    (SV : Section F.FV Nᴰ.Vᴰ)
-    (SC : Section F.FC Nᴰ.Cᴰ) where 
-    private
-      module SV = Section SV 
-      module SC = Section SC 
-
-
-    record SectionNat : Type where 
-      field 
-        N-obᴰ : {A : ob M.V}{B : ob M.C} → (M : M.O'[ A , B ]) → Nᴰ.Oᴰ'[ F.FO .N-ob _ .fst M ][ SV.F-obᴰ A , SC.F-obᴰ B ]
-        -- needs to be a tsystem morphism, maps rel to displayed rel
-        N-obᴰRel :{A : ob M.V}{B : ob M.C}{M M' : M.O'[ A , B ]}{M↦M' : M._↦O_ M M' } → 
-          Nᴰ.Oᴰ .F-obᴰ (SV.F-obᴰ A , SC.F-obᴰ B) .snd (N-ob F.FO (A , B) .snd M↦M') (N-obᴰ M) (N-obᴰ M')
-
-        -- ^ map into a displayed transition system
-        -- naturality, morphism component 
-        N-homᴰ : {A A' : ob M.V}{B B' : ob M.C}(V : M.V [ A' , A ])(S : M.C [ B , B' ])(M : M.O'[ A , B ]) →  
-          PathP  
-            (λ i → F-obᴰ Nᴰ.Oᴰ (SV.F-obᴰ A' , SC.F-obᴰ B') .fst (N-hom F.FO (V , S) i .fst M)) 
-            (N-obᴰ  (M.O .F-hom (V , S) .fst M)) 
-            (F-homᴰ Nᴰ.Oᴰ (SV.F-homᴰ V , SC.F-homᴰ S) .fst (N-ob F.FO (A , B) .fst M) (N-obᴰ M))
-        -- naturality, relation component
-        -- this is .. yuck
-        N-homᴰRel : {A A' : ob M.V}{B B' : ob M.C}(V : M.V [ A' , A ])(S : M.C [ B , B' ])  → 
-          PathP 
-            (λ i → 
-              {M M' : M.O .F-ob (A , B) .fst} → 
-              M._↦O_ M M'  → 
-              Σ (Nᴰ.M.O .F-ob (F.FV .F-ob A' , F.FC .F-ob B') .snd (N-hom F.FO (V , S) i .fst M) (N-hom F.FO (V , S) i .fst M')) 
-                λ sRs' → F-obᴰ Nᴰ.Oᴰ (SV.F-obᴰ A' , SC.F-obᴰ B') .snd sRs' (N-homᴰ V S M i) (N-homᴰ V S M' i))
-             (λ M↦M' → (N-ob F.FO (A' , B') .snd (M.O .F-hom (V , S) .snd  M↦M' )) , N-obᴰRel)
-              λ {M}{M'} M↦M' → Nᴰ.M.O .F-hom (F.FV .F-hom V , F.FC .F-hom S) .snd ((N-ob F.FO (A , B) .snd M↦M')) , 
-                      F-homᴰ Nᴰ.Oᴰ (SV.F-homᴰ V , SC.F-homᴰ S) .snd (N-obᴰ M) (N-obᴰ M') N-obᴰRel 
-  CBPVSection : Type 
-  CBPVSection = 
-    Σ[ SV ∈  Section F.FV Nᴰ.Vᴰ ] 
-    Σ[ SC ∈  Section F.FC Nᴰ.Cᴰ ]  
-    SectionNat SV SC
-
-CBPVGlobalSection : (M : CBPVModel) → CBPVModelᴰ M →  Type 
-CBPVGlobalSection M Mᴰ = CBPVSection.CBPVSection {M}{M}{idCBPVMorphism} {Mᴰ}
-
--- Should be able to construct a total model, and then define a map into it
-
-
-module TotalConstruction'
-  (M N : CBPVModel)
-  (F : CBPVMorphism M N)
-  (Nᴰ : CBPVModelᴰ N) where
-  open import Cubical.Categories.Constructions.TotalCategory
-  open import Cubical.Categories.Displayed.BinProduct
-
-  module M = CBPVModel M 
-  module N = CBPVModel N 
-  module F = CBPVMorphism F
-  module Nᴰ = CBPVModelᴰ Nᴰ
-
-  ΣTSys : Functor (∫C TSysCatᴰ) (TSysCat)
-  ΣTSys .F-ob (S , Sᴰ) = ∫TS S Sᴰ
-  ΣTSys .F-hom {S , Sᴰ}{T , Tᴰ} (f , fᴰ) = ∫TSHom {S}{T}{Sᴰ}{Tᴰ} f  fᴰ 
-  ΣTSys .F-id = refl
-  ΣTSys .F-seq _ _ = refl
-
-  conv : Functor ((∫C Nᴰ.Vᴰ ^op) ×C ∫C Nᴰ.Cᴰ) (∫C ((Nᴰ.Vᴰ ^opᴰ) ×Cᴰ Nᴰ.Cᴰ))
-  conv .F-ob ((A , Aᴰ),(B , Bᴰ)) = (A , B) , Aᴰ , Bᴰ 
-  conv .F-hom = λ z → (z .fst .fst , z .snd .fst) , z .fst .snd , z .snd .snd
-  conv .F-id = refl
-  conv .F-seq _ _ = refl
-
-  TotalModel : CBPVModel 
-  TotalModel .CBPVModel.V = ∫C Nᴰ.Vᴰ
-  TotalModel .CBPVModel.C = ∫C Nᴰ.Cᴰ
-  TotalModel .CBPVModel.O = ΣTSys ∘F ∫F (Nᴰ.Oᴰ) ∘F conv
-
-  open CBPVSection {M}{N}{F} {Nᴰ}
-
-  module _   (S : CBPVSection )  where 
-    SO = S .snd .snd 
-    module SV = Section (S .fst)
-    module SC = Section (S .snd .fst)
-
-    map : CBPVMorphism M TotalModel 
-    map .CBPVMorphism.FV .F-ob A = (F.FV .F-ob A) , SV.F-obᴰ A
-    map .CBPVMorphism.FV .F-hom f = (F.FV .F-hom f) , SV.F-homᴰ f
-    map .CBPVMorphism.FV .F-id = ΣPathP ((F.FV .F-id) , SV.F-idᴰ)
-    map .CBPVMorphism.FV .F-seq _ _ = ΣPathP ((F.FV .F-seq _ _) , (SV.F-seqᴰ _ _))
-    map .CBPVMorphism.FC .F-ob A = (F.FC .F-ob A) , SC.F-obᴰ A
-    map .CBPVMorphism.FC .F-hom f = (F.FC .F-hom f) , SC.F-homᴰ f
-    map .CBPVMorphism.FC .F-id = ΣPathP ((F.FC .F-id) , SC.F-idᴰ)
-    map .CBPVMorphism.FC .F-seq _ _ = ΣPathP ((F.FC .F-seq _ _) , (SC.F-seqᴰ _ _))
-    {-NatTrans M.O ((ΣTSys ∘F ∫F Nᴰ.Oᴰ ∘F conv) ∘F ((CBPVMorphism.FV map ^opF) ×F CBPVMorphism.FC map)) -} 
-    -- components are transition system morphisms 
-    -- α_{A , B} : TSysCat [ M.O .F-ob (A , B) , ((ΣTSys ∘F ∫F Nᴰ.Oᴰ ∘F conv) ∘F ((CBPVMorphism.FV map ^opF) ×F CBPVMorphism.FC map)) .F-ob (A , B) ]
-    map .CBPVMorphism.FO .N-ob (A , B).fst M = (N-ob F.FO (A , B) .fst M) , CBPVSection.SectionNat.N-obᴰ (S .snd .snd) M
-    map .CBPVMorphism.FO .N-ob (A , B) .snd {M}{M'} M↦M' = N-ob F.FO (A , B) .snd M↦M' , SO .SectionNat.N-obᴰRel {M↦M' = M↦M'}
-    -- naturality is equality of transition system morphisms
-    -- transition system mophisms are not some function with structure 
-    -- where equality of morphisms is determined by equality of the underlying maps
-    -- Transition systems are defined to be proof relevant relations.. 
-    map .CBPVMorphism.FO .N-hom {A , B}{A' , B'}(V , S) = 
-      ΣPathP ((funExt (λ M → 
-        ΣPathP (
-            (λ i → (F.FO .N-hom (V , S)) i  .fst M) , 
-            CBPVSection.SectionNat.N-homᴰ SO V S M))) , 
-        -- could be blown away if we have prop valued relations
-        CBPVSection.SectionNat.N-homᴰRel SO V S) 
-
-
-module TotalConstruction
-  (M : CBPVModel)
-  (Mᴰ : CBPVModelᴰ M) where
-  open import Cubical.Categories.Constructions.TotalCategory
-  open import Cubical.Categories.Displayed.BinProduct
-
-  open CBPVModel M 
-  open CBPVModelᴰ Mᴰ
-
-
-  conv : Functor ((∫C Vᴰ ^op) ×C ∫C Cᴰ) (∫C ((Vᴰ ^opᴰ) ×Cᴰ Cᴰ))
-  conv .F-ob ((A , Aᴰ),(B , Bᴰ)) = (A , B) , Aᴰ , Bᴰ 
-  conv .F-hom = λ z → (z .fst .fst , z .snd .fst) , z .fst .snd , z .snd .snd
-  conv .F-id = refl
-  conv .F-seq _ _ = refl
-
-  ΣTSys : Functor (∫C TSysCatᴰ) (TSysCat)
-  ΣTSys .F-ob (S , Sᴰ) = ∫TS S Sᴰ
-  ΣTSys .F-hom {S , Sᴰ}{T , Tᴰ} (f , fᴰ) = ∫TSHom {S}{T}{Sᴰ}{Tᴰ} f  fᴰ 
-  ΣTSys .F-id = refl
-  ΣTSys .F-seq _ _ = refl
-
-  TotalModel : CBPVModel 
-  TotalModel .CBPVModel.V = ∫C Vᴰ
-  TotalModel .CBPVModel.C = ∫C Cᴰ
-  TotalModel .CBPVModel.O = ΣTSys ∘F ∫F (Oᴰ) ∘F conv
-
-  module _   (S : CBPVGlobalSection M Mᴰ)  where 
-    SO = S .snd .snd 
-    module SV = Section (S .fst)
-    module SC = Section (S .snd .fst)
-    open CBPVSection {M}{M}{idCBPVMorphism} {Mᴰ}
-
-    GSFun : CBPVMorphism M TotalModel 
-    GSFun .CBPVMorphism.FV .F-ob A = A , (SV.F-obᴰ A)
-    GSFun .CBPVMorphism.FV .F-hom f = f , (SV.F-homᴰ f)
-    GSFun .CBPVMorphism.FV .F-id = ΣPathP (refl , SV.F-idᴰ)
-    GSFun .CBPVMorphism.FV .F-seq f g = ΣPathP (refl , (SV.F-seqᴰ f g))
-    GSFun .CBPVMorphism.FC .F-ob B = B , (SC.F-obᴰ B)
-    GSFun .CBPVMorphism.FC .F-hom f = f , (SC.F-homᴰ f)
-    GSFun .CBPVMorphism.FC .F-id = ΣPathP (refl , SC.F-idᴰ)
-    GSFun .CBPVMorphism.FC .F-seq f g = ΣPathP (refl , (SC.F-seqᴰ f g))
-    GSFun .CBPVMorphism.FO .N-ob (A , B) .fst M = M , SO .SectionNat.N-obᴰ M
-    GSFun .CBPVMorphism.FO .N-ob (A , B) .snd {M}{M'} M↦M' = M↦M' , SO .SectionNat.N-obᴰRel {M↦M' = M↦M'}
-    GSFun .CBPVMorphism.FO .N-hom {A , B}{A' , B'}(V , S) = ΣPathP ({!   !} , {!   !})
-      --ΣPathP (funExt 
-    --   (λ M → 
-      --    ΣPathP ({!   !} , {!   !})) ,  
-            -- this part is tricky.. if our transition system relations are prop valued relations.. things are easy
-      --     {!  !})
 
 module Elim (Synᴰ : CBPVModelᴰ Syn ) where 
   open CBPVModelᴰ Synᴰ
@@ -612,4 +733,6 @@ module hrm (L : Logic Syn) where
     GS .snd .fst .Section.F-idᴰ = LC.isProp≤ _ _
     GS .snd .fst .Section.F-seqᴰ _ _ = LC.isProp≤ _ _
     GS .snd .snd = ctm
+-}
+
 -}

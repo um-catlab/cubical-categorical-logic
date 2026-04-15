@@ -74,7 +74,8 @@ data _⊢c_ where
   isSet⊢c : ∀{A B} → isSet (A ⊢c B)
 
   -- type structure
-  ret : ∀{A A'} → A ⊢v A' → A ⊢c F A'
+  -- ret : ∀{A A'} → A ⊢v A' → A ⊢c F A'
+  ret : ∀{A} → A ⊢c F A
   force : ∀{B} →  U B ⊢c B  
   -- force : ∀{A B} →  A ⊢v U B → A ⊢c B   
   --force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
@@ -85,9 +86,9 @@ subC' = subC
 import  Cubical.Data.Equality as Eq
 
 data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where 
-  Fβ : ∀{A A' B}{V : A ⊢v A'}{M : A' ⊢c B} → 
+  Fβ : ∀{A B}{M : A ⊢c B} → 
     ------------------------------------
-    plug (bind M) (ret V) ↦ (subC V M)
+    plug (bind M) ret ↦ M
 
   Uβ : ∀ {A B} {M : A ⊢c B} → 
     ---------------------

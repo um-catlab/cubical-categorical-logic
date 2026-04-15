@@ -49,31 +49,37 @@ module Elim
   -- needed assumptions 
   module _
     (𝟙ᴰ : ob[ Vᴰ ] 𝟙)
+    (Ansᴰ : ob[ Vᴰ ] Ans)
+    -- Q: if these were not forgetfull ..?
     (lifts : ForgetfulObliqueLifts)
     (oplifts : ForgetfulObliqueOpLifts)  where 
 
     mutual 
       vty : (A : VTy) → ob[ Vᴰ ] A 
       vty 𝟙 = 𝟙ᴰ
-      vty Ans = {!   !}
+      vty Ans = Ansᴰ
       vty (U B) = lifts force (cty B) .fst 
 
       cty : (B : CTy) → ob[ Cᴰ ] B 
-      cty (F A) = oplifts (ret var) (vty A) .fst
+      cty (F A) = oplifts ret (vty A) .fst
 
     module _  
       (𝟙elem : ∀{A} → Vᴰ .Hom[_][_,_] tt (vty A) 𝟙ᴰ )
+      (yesᴰ : ∀{A} → Hom[ Vᴰ ][ yes , vty A ] (vty Ans))
+      (noᴰ : ∀{A} → Hom[ Vᴰ ][ no , vty A ] (vty Ans))
+      -- Q: .. why do we have a map between displayed nodes.. 
+      -- and an edge between them ..
       (anti-F : 
-        ∀ {A A' : VTy}{B : CTy}{V : A' ⊢v A}{M : A ⊢c B}
-          {P' : Vᴰ .ob[_] A'}{Q : Cᴰ .ob[_] B} → 
-            Nodeᴰ[ subC V M ][ P' , Q ] →
+        ∀ {A : VTy}{B : CTy}{M : A ⊢c B}
+          {P : Vᴰ .ob[_] A}{Q : Cᴰ .ob[_] B} → 
+            Nodeᴰ[ M ][ P , Q ] →
           --------------------------------- 
-            Nodeᴰ[ plug (bind M) (ret V) ][ P' , Q ])
+            Nodeᴰ[ plug (bind M) ret ][ P , Q ])
       (Fβ-fwd :
-        ∀ {A A' : VTy}{B : CTy}{V : A' ⊢v A}{M : A ⊢c B}
-        {P' : Vᴰ .ob[_] A'}{Q : Cᴰ .ob[_] B}
-        (fᴰ : Nodeᴰ[ plug (bind M) (ret V) ][ P' , Q ])
-        (gᴰ : Nodeᴰ[ subC V M ][ P' , Q ]) → 
+        ∀ {A : VTy}{B : CTy}{M : A ⊢c B}
+        {P : Vᴰ .ob[_] A}{Q : Cᴰ .ob[_] B}
+        (fᴰ : Nodeᴰ[ plug (bind M) ret ][ P , Q ])
+        (gᴰ : Nodeᴰ[ M ][ P , Q ]) → 
         Edgeᴰ[ Fβ ][ fᴰ , gᴰ ])
       (anti-U : 
         ∀ {A : VTy}{B : CTy}{M : A ⊢c B}
@@ -101,21 +107,14 @@ module Elim
             (vtm V₁) (vtm V₂) (cong vtm x) (cong vtm y) (isSet⊢v V₁ V₂ x y) i j
 
         vtm tt = 𝟙elem
-        vtm yes = {!   !}
-        vtm no = {!   !}
+        vtm yes = yesᴰ
+        vtm no = noᴰ
         vtm (thunk {A}{B} M) = goal where 
 
           open CartesianLiftNotation Collageᴰ (lifts force (cty B))
 
-          have : Oᴰ'[ M ][ vty A , cty B ] 
-          have = ctm M
-
-          sub : Oᴰ'[ subC (thunk M) force ][ vty A , cty B ]
-          sub = anti-U have
-
           goal : Vᴰ [ thunk M ][ vty A , vty (U B) ] 
-          goal = introᴰ {inl A}{vty A}{thunk M} sub
-
+          goal = introᴰ {inl A}{vty A}{thunk M} (anti-U (ctm M))
 
         -- for readability
         ctm-subC : {A A' : VTy}{B : CTy} → (V : A' ⊢v A)(M : A ⊢c B) → Oᴰ'[ subC V M ][ vty A' , cty B ] 
@@ -140,22 +139,16 @@ module Elim
           (λ M → Oᴰ .Bif-obᴰ {A}{B} (vty A)(cty B) .fst M .snd) 
           (ctm M) (ctm M₁) (cong ctm x) (cong ctm y) (isSet⊢c M M₁ x y) i i₁
   
-        ctm (ret {A}{A'} V) = goal where 
+        ctm (ret {A}) = goal where 
+          open CartesianLiftNotation (Collageᴰ ^opᴰ) (oplifts ret (vty A))
 
-          open CartesianLiftNotation (Collageᴰ ^opᴰ) (oplifts (ret var) (vty A'))
+          have : Nodeᴰ[ plug hole ret ][ vty A , oplifts ret (vty A) .fst  ]
+          have = πⱽ
+          -- Q: .. is subst really the right thing to do here..
+          -- or are we missing something fundamental ..?
+          goal : Nodeᴰ[ ret ][ vty A , oplifts ret (vty A) .fst ]
+          goal = subst (λ h → Nodeᴰ[ h ][ vty A , oplifts ret (vty A) .fst ]) plugId have
 
-          have : Hom[ Vᴰ ][ V , vty A ] (vty A')
-          have = vtm V
-
-          wat : Oᴰ'[ ret var ][ vty A' , oplifts (ret var) (vty A') .fst ] 
-          wat =  subst (λ h → Oᴰ'[ h ][ vty A' , oplifts (ret var) (vty A') .fst ]) plugId πⱽ 
-
-
-          sub : Oᴰ'[ (subC V (ret var)) ][ vty A , oplifts (ret var) (vty A') .fst ] 
-          sub = Oᴰ .Bif-homLᴰ have (cty (F A')) .fst (ret var) wat
-
-          goal : Oᴰ'[ ret V ][ vty A , oplifts (ret var) (vty A') .fst ] 
-          goal = {!   !} -- subst with sub 
         ctm (force {B}) = goal where 
           open CartesianLiftNotation Collageᴰ (lifts force (cty B))
 
@@ -169,9 +162,9 @@ module Elim
         ctmRel : {A : VTy}{B : CTy}{M M' : A ⊢c B}
           (M↦M' : M ↦ M') → Edgeᴰ[ M↦M' ][ ctm M , ctm M' ]
 
-        ctmRel (Fβ {A}{A'}{B}{V}{M}) = goal where 
-          goal : Fβ ◂ ctm-plug (bind M) (ret V) ↦Oᴰ ctm-subC V M 
-          goal = Fβ-fwd (ctm-plug (bind M) (ret V)) (ctm-subC V M)
+        ctmRel (Fβ {A}{B}{M}) = goal where 
+          goal : Fβ ◂ ctm-plug (bind M) ret ↦Oᴰ ctm M
+          goal = Fβ-fwd (ctm-plug (bind M) ret) (ctm M)
         ctmRel (Uβ {A}{B}{M}) = goal where 
           goal : Uβ ◂ ctm-subC (thunk M) force ↦Oᴰ ctm M
           goal = Uβ-fwd (ctm-subC (thunk M) force) (ctm M)
@@ -209,21 +202,10 @@ module Elim
             (ktm S) (ktm S₁) (cong ktm x) (cong ktm y) (isSet⊢k S S₁ x y) i j
 
         ktm (bind {A}{B} M) = goal where 
+          open CartesianLiftNotation (Collageᴰ ^opᴰ) (oplifts ret (vty A))
 
-          open CartesianLiftNotation (Collageᴰ ^opᴰ) (oplifts (ret var) (vty A))
-
-          have : Oᴰ'[ M ][ vty A , cty B ]
-          have = ctm M
-
-          have' : Oᴰ'[ subC var M ][ vty A , cty B ]
-          have' = subst (λ h →  Oᴰ'[ h ][ vty A , cty B ]) (sym subCId) have
-
-
-          sub : Oᴰ'[ (plug (bind M) (ret var)) ][ vty A , cty B ]
-          sub = anti-F have'
-
-          goal : Hom[ Cᴰ ][ bind M , oplifts (ret var) (vty A) .fst ] (cty B)
-          goal = introᴰ {inr B}{cty B}{g = bind M}  sub
+          goal : Hom[ Cᴰ ][ bind M , oplifts ret (vty A) .fst ] (cty B)
+          goal = introᴰ {inr B}{cty B}{bind M}(anti-F (ctm M))
 
         SV : Section Id Vᴰ 
         SV .Section.F-obᴰ = vty

@@ -26,7 +26,6 @@ open Functorᴰ
 open Section
 open NatTrans
 
-
 module _ {ℓV ℓV' ℓC ℓC' ℓG ℓG' ℓVᴰ ℓVᴰ' ℓCᴰ ℓCᴰ' ℓGᴰ ℓGᴰ' : Level}
   {M N : CBPVModel ℓV ℓV' ℓC ℓC' ℓG ℓG'}
   {F : CBPVMorphism M N } 
@@ -43,10 +42,7 @@ module _ {ℓV ℓV' ℓC ℓC' ℓG ℓG' ℓVᴰ ℓVᴰ' ℓCᴰ ℓCᴰ' ℓ
 
     open BifunctorSepᴰ Nᴰ.Oᴰ
 
-
-
-
-    record SectionNat : Type {!   !} where 
+    record SectionNat : Type _ where 
       field  
         -- needs to be a Graph homomorphism, 
         F-Node : {A : ob M.V}{B : ob M.C}→ 
@@ -67,7 +63,7 @@ module _ {ℓV ℓV' ℓC ℓC' ℓG ℓG' ℓVᴰ ℓVᴰ' ℓCᴰ ℓCᴰ' ℓ
             (F-Edge (M.OPar .F-hom (V , S) .snd n↦n')) 
             (Bif-homᴰ (SV .F-homᴰ V)(SC .F-homᴰ S) .snd (F-Node n) (F-Node n') (F-Edge n↦n')) 
 
-  CBPVSection : Type {!   !}
+  CBPVSection : Type _
   CBPVSection = 
     Σ[ SV ∈  Section F.FV Nᴰ.Vᴰ ] 
     Σ[ SC ∈  Section F.FC Nᴰ.Cᴰ ]  

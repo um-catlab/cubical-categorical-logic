@@ -201,6 +201,60 @@ private
     C D E C' D' E' : Category ℓ ℓ'
     Cᴰ Dᴰ Eᴰ Cᴰ' Dᴰ' Eᴰ' : Categoryᴰ C ℓ ℓ'
 
+open Bifunctorᴰ
+BifunctorSepᴰ→Bifunctorᴰ
+  : {F : BifunctorSep C D E}
+  (Fᴰ : BifunctorSepᴰ F Cᴰ Dᴰ Eᴰ)
+  → Bifunctorᴰ (mkBifunctorSep F) Cᴰ Dᴰ Eᴰ
+
+-- object / actions
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-obᴰ = Fᴰ .BifunctorSepᴰ.Bif-obᴰ
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-homLᴰ = Fᴰ .BifunctorSepᴰ.Bif-homLᴰ
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-homRᴰ g gᴰ = Fᴰ .BifunctorSepᴰ.Bif-homRᴰ gᴰ g 
+
+-- parallel action = derived composite
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-hom×ᴰ fᴰ gᴰ = Bif-homᴰ fᴰ gᴰ where  
+  open BifunctorSepᴰ Fᴰ
+
+-- identity
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-×-idᴰ {c} {d} {cᴰ} {dᴰ} = {!   !}
+  {-Eᴰ.rectify $ Eᴰ.≡out $
+    -- expand × into L ⋆ R, then use L-id and R-id
+    (Eᴰ.≡in (Fᴰ .Bif-L-idᴰ {c = c}{d = d}{cᴰ = cᴰ}{dᴰ = dᴰ}))
+    ∙
+    (Eᴰ.≡in (Fᴰ .Bif-R-idᴰ {c = c}{d = d}{cᴰ = cᴰ}{dᴰ = dᴰ})) -}
+
+-- composition (interchange is the key step)
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-×-seqᴰ
+  {c}{c'}{c''}{d}{d'}{d''}
+  {cᴰ}{cᴰ'}{cᴰ''}{dᴰ}{dᴰ'}{dᴰ''}
+  fᴰ fᴰ' gᴰ gᴰ' = {!   !}
+{-  Eᴰ.rectify $ Eᴰ.≡out $
+    -- reassociate + push middle past using RL-commute
+    (Eᴰ.≡in (Fᴰ .Bif-L-seqᴰ fᴰ fᴰ'))
+    ∙
+    (Eᴰ.≡in (Fᴰ .SepBif-RL-commuteᴰ fᴰ' gᴰ))
+    ∙
+    (Eᴰ.≡in (Fᴰ .Bif-R-seqᴰ gᴰ gᴰ')) -}
+
+-- agreement: L = × with id on right
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-L×-agreeᴰ
+  {c}{c'}{d}{cᴰ}{cᴰ'}{dᴰ} fᴰ = {!   !}
+ {- Eᴰ.rectify $ Eᴰ.≡out $
+    -- unfold × and cancel the right identity
+    (Eᴰ.≡in (λ i → Fᴰ .Bif-homLᴰ fᴰ dᴰ))
+    ∙
+    (Eᴰ.≡in (sym (Fᴰ .Bif-R-idᴰ))) -}
+
+-- agreement: R = × with id on left
+BifunctorSepᴰ→Bifunctorᴰ Fᴰ .Bif-R×-agreeᴰ
+  {c}{d}{d'}{cᴰ}{dᴰ}{dᴰ'} gᴰ = {!   !}
+ {-  Eᴰ.rectify $ Eᴰ.≡out $
+    -- unfold × and cancel the left identity
+    (Eᴰ.≡in (sym (Fᴰ .Bif-L-idᴰ)))
+    ∙
+    (Eᴰ.≡in (λ i → Fᴰ .Bif-homRᴰ gᴰ cᴰ)) -}
+
 module _ {F : Bifunctor C D E} (Fᴰ : Bifunctorᴰ F Cᴰ Dᴰ Eᴰ) where
   private
     module Eᴰ = Reasoning Eᴰ

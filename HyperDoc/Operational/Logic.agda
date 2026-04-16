@@ -38,12 +38,6 @@ module _
   Hom^op : {ℓL : Level } →  Functor ((POSET ℓL ℓL) ×C (POSET ℓL ℓL)^op) (SET ℓL )
   Hom^op = (HomFunctor _) ∘F Sym
 
-  FORGET : {ℓG ℓG' : Level } → Functor (GRAPH ℓG ℓG') (SET ℓG) 
-  FORGET .F-ob G = G  .fst
-  FORGET .F-hom f = f .fst
-  FORGET .F-id = refl
-  FORGET .F-seq _ _ = refl
-
   CBPVLogic : (ℓL : Level  ) →  Type _ 
   CBPVLogic ℓL  = 
     Σ[ LV ∈ Functor (V ^op) (POSET ℓL ℓL) ] 

@@ -51,14 +51,46 @@ Sem .snd .snd .Bif-R-id = refl
 Sem .snd .snd .Bif-R-seq _ _ = refl
 Sem .snd .snd .SepBif-RL-commute _ _ = refl
 
+open import Cubical.Data.Empty
+open import HyperDoc.Operational.TypeStructure
+open import Cubical.Categories.Presheaf.Morphism.Alt
+open PshHom
+open TypeStructure Sem 
+
+-- these seem trivial
+-- uhm.. what..?
+semHasUTy : HasUTy 
+semHasUTy .TypeStructure.HasUTy.wkrep (N , E) .fst = N
+-- force ; idPshHom
+semHasUTy .TypeStructure.HasUTy.wkrep (N , E) .snd .fst .N-ob A f = f
+semHasUTy .TypeStructure.HasUTy.wkrep (N , E) .snd .fst .N-hom A A' V f = refl
+-- thunk ; idPshHom
+semHasUTy .TypeStructure.HasUTy.wkrep (N , E) .snd .snd .N-ob A f = f
+semHasUTy .TypeStructure.HasUTy.wkrep (N , E) .snd .snd .N-hom A A' V f = refl
+semHasUTy .TypeStructure.HasUTy.Fβ {A}{N , E}{M} a = goal where 
+  goal : ⟨ E (M a) (M a) ⟩ 
+  goal = {!   !}
+
+semHasFTy : HasFTy 
+semHasFTy .TypeStructure.HasFTy.wkrep A .fst = A , λ a a' → ⊥ , λ()
+semHasFTy .TypeStructure.HasFTy.wkrep A .snd .fst .N-ob G = fst
+semHasFTy .TypeStructure.HasFTy.wkrep A .snd .fst .N-hom G G' h p = refl
+semHasFTy .TypeStructure.HasFTy.wkrep A .snd .snd .N-ob G f = f , (λ ())
+semHasFTy .TypeStructure.HasFTy.wkrep A .snd .snd .N-hom G G' h p = ΣPathP (refl , {!   !})
+semHasFTy .TypeStructure.HasFTy.FU {A}{N , E}{M} a = goal where 
+  goal : ⟨ E (M a) (M a) ⟩ 
+  goal = {!   !}
+
 CL : CBPVMorphism Syn Sem 
 CL .fst = V [ 𝟙 ,-]
 CL .snd .fst = appL (mkBifunctorSep O) 𝟙
 CL .snd .snd .N-ob (A , B) .fst M V = subC V M
 CL .snd .snd .N-ob (A , B) .snd {M}{M'} M↦M' V = subC-cong M↦M'
 CL .snd .snd .N-hom (V , S) = 
-  ΣPathP ((funExt (λ M → funExt λ V' → plugSub ∙ cong₂ plug refl subDist)) , 
-  toPathP (implicitFunExt (implicitFunExt (funExt λ _ → funExt λ V' → isProp↦ _ _))) ) 
+    ΣPathP ((funExt (λ M → funExt λ V' → plugSub ∙ cong₂ plug refl subDist)) , 
+    implicitFunExt (implicitFunExt (funExt λ _ → funExt λ V' → λ i → {! plug-subC-cong {M↦M' = ?} i  !})))
+  {-ΣPathP ((funExt (λ M → funExt λ V' → plugSub ∙ cong₂ plug refl subDist)) , 
+  toPathP (implicitFunExt (implicitFunExt (funExt λ _ → funExt λ V' → isProp↦ _ _))) ) -}
   
 Grᴰ : {A : hSet _}{G : Graph _ _ } → 
   (SETᴰ _ _ .ob[_] A) → (Graphᴰ _ _ G) → Graphᴰ _ _  (Gr A G)

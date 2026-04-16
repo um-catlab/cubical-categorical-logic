@@ -55,6 +55,12 @@ module CBPVModelSyntax
   O[_,_] : ob V → ob C → ob (GRAPH ℓG ℓG') 
   O[_,_] A B = O .Bif-ob A  B
 
+  O[-,_] : ob C → Functor (V ^op) (GRAPH _ _ ) 
+  O[-,_] = appR (mkBifunctorSep O)
+
+  O[_,-] : ob V → Functor C (GRAPH _ _ ) 
+  O[_,-] = appL (mkBifunctorSep O)
+
   
 
   O'[_,_] : ob V → ob C → Type ℓG
@@ -170,6 +176,12 @@ module CBPVModelᴰSyntax
   Oᴰ'[_][_,_] : {A : ob V}{B : ob C} → (O'[ A , B ])→ (Vᴰ .ob[_] A) → (Cᴰ .ob[_] B) → Type ℓGᴰ 
   Oᴰ'[_][_,_] {A}{B}M Aᴰ Bᴰ = Bif-obᴰ Aᴰ Bᴰ .fst M .fst
 
+  O[-][-,_] : {B : ob C} → Cᴰ .ob[_] B → Functorᴰ (appR (mkBifunctorSep O) B) (Vᴰ ^opᴰ)(GRAPHᴰ _ _ _ _ ) 
+  O[-][-,_] = appRᴰ (BifunctorSepᴰ→Bifunctorᴰ Oᴰ) 
+
+  O[-][_,-] : {A : ob V} → Vᴰ .ob[_] A → Functorᴰ (appL (mkBifunctorSep O) A) (Cᴰ)(GRAPHᴰ _ _ _ _ ) 
+  O[-][_,-] = appLᴰ (BifunctorSepᴰ→Bifunctorᴰ Oᴰ) 
+
   Nodeᴰ[_][_,_] : {A : ob V}{B : ob C} → (O'[ A , B ])→ (Vᴰ .ob[_] A) → (Cᴰ .ob[_] B) → Type ℓGᴰ 
   Nodeᴰ[_][_,_] = Oᴰ'[_][_,_]
 
@@ -194,7 +206,7 @@ module CBPVModelᴰSyntax
   Collageᴰ .ob[_] (inl A) = Vᴰ .ob[_] A
   Collageᴰ .ob[_] (inr B) = Cᴰ .ob[_] B
   Hom[_][_,_] Collageᴰ {inl A} {inl A'} = Vᴰ .Hom[_][_,_]
-  Hom[_][_,_] Collageᴰ {inl A} {inr B} M aᴰ bᴰ = Oᴰ'[ M ][ aᴰ , bᴰ ] 
+  Hom[_][_,_] Collageᴰ {inl A} {inr B} M aᴰ bᴰ = Nodeᴰ[ M ][ aᴰ , bᴰ ] 
   Hom[_][_,_] Collageᴰ {inr B} {inl A} ()
   Hom[_][_,_] Collageᴰ {inr B} {inr B'} = Cᴰ .Hom[_][_,_]
   Collageᴰ .idᴰ {inl x} = Vᴰ .idᴰ

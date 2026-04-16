@@ -8,11 +8,14 @@ open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Constructions.FullSubcategory 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Instances.Sets
 
 open Category
 open Categoryᴰ
+open Functor
 
 {- 
   could have used these.. but they are not using hLevels
@@ -42,6 +45,11 @@ GRAPH ℓ ℓ' .isSetHom {G}{H}=
   isSetΣ (isSet→ (H .fst .snd)) 
     λ f → isSetImplicitΠ2 λ n n' → isSet→ (H .snd (f n) (f n') .snd)
 
+FORGET : Functor (GRAPH _ _) (SET _) 
+FORGET .F-ob = fst
+FORGET .F-hom = fst
+FORGET .F-id = refl
+FORGET .F-seq _ _ = refl
 {-
   we can define Functors 
     GRAPH → RGRAPH 
@@ -133,6 +141,15 @@ GRAPHᴰ ℓ ℓ' ℓᴰ ℓᴰ' .isSetHomᴰ {G}{H}{f}{Gᴰ}{Hᴰ} =
   λ fᴰ → isSetImplicitΠ3 λ n n' e → isSetΠ2 λ nᴰ nᴰ' → isSet→ 
   (Hᴰ .snd (f .snd e) (fᴰ n nᴰ) (fᴰ n' nᴰ') .snd)
 
+open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.Instances.Sets 
+open Functorᴰ
+
+FORGETᴰ : Functorᴰ FORGET (GRAPHᴰ _ _ _ _ ) (SETᴰ _ _ )
+FORGETᴰ .F-obᴰ = fst
+FORGETᴰ .F-homᴰ = fst
+FORGETᴰ .F-idᴰ = refl
+FORGETᴰ .F-seqᴰ _ _ = refl
 
 pGRAPHᴰ : (ℓ ℓ' ℓᴰ ℓᴰ' : Level) → 
   Categoryᴰ (pGRAPH ℓ ℓ' ) 

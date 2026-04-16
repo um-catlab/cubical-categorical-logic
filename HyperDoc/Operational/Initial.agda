@@ -86,7 +86,6 @@ subC' = subC
 import  Cubical.Data.Equality as Eq
 
 -- Q... what about things like (subC var M) ↦ M 
--- .. we just have these by naturality and subst?
 data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where 
   Fβ : ∀{A B}{M : A ⊢c B} → 
     ------------------------------------

@@ -44,7 +44,8 @@ module Elim
   open CBPVModelᴰSyntax Synᴰ
   open CBPVModelSyntax Syn hiding (V ; C ; O)
 
-  -- needed assumptions 
+  -- needed assumptions
+  -- TODO, specify displayed type structures
   module _
     (𝟙ᴰ : ob[ Vᴰ ] 𝟙)
     (Ansᴰ : ob[ Vᴰ ] Ans)

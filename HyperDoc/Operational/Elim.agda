@@ -44,8 +44,6 @@ module Elim
   open CBPVModelᴰSyntax Synᴰ
   open CBPVModelSyntax Syn hiding (V ; C ; O)
 
-
-
   -- needed assumptions 
   module _
     (𝟙ᴰ : ob[ Vᴰ ] 𝟙)
@@ -67,8 +65,19 @@ module Elim
       (𝟙elem : ∀{A} → Vᴰ .Hom[_][_,_] tt (vty A) 𝟙ᴰ )
       (yesᴰ : ∀{A} → Hom[ Vᴰ ][ yes , vty A ] (vty Ans))
       (noᴰ : ∀{A} → Hom[ Vᴰ ][ no , vty A ] (vty Ans))
-      -- Q: .. why do we have a map between displayed nodes.. 
-      -- and an edge between them ..
+      {- Q: .. why do we have a map between displayed nodes.. 
+          and an edge between them ..
+         A: The map between displayed nodes is due to the fact that
+         - We no longer have an equation Fβ : plug (bind M) ret ≡ M in the base 
+           that we can use with subst.
+            ex.
+              subst (λ h →  Nodeᴰ[ h ][ P , Q ]) (sym Fβ) prf
+            Is there a better way to capture this assumption in the model? 
+        - We assumed edge  
+            plug (bind M) ret ↦ M 
+          in the base, and we need its displayed counterpart 
+          to construct a total model
+      -}
       (anti-F : 
         ∀ {A : VTy}{B : CTy}{M : A ⊢c B}
           {P : Vᴰ .ob[_] A}{Q : Cᴰ .ob[_] B} → 
@@ -116,7 +125,7 @@ module Elim
           goal : Vᴰ [ thunk M ][ vty A , vty (U B) ] 
           goal = introᴰ {inl A}{vty A}{thunk M} (anti-U (ctm M))
 
-        -- for readability
+        -- for goal readability
         ctm-subC : {A A' : VTy}{B : CTy} → (V : A' ⊢v A)(M : A ⊢c B) → Oᴰ'[ subC V M ][ vty A' , cty B ] 
         ctm-subC {A}{A'}{B} V M = Oᴰ .Bif-homLᴰ (vtm V) (cty B) .fst M (ctm M)
 
@@ -200,7 +209,6 @@ module Elim
           isOfHLevel→isOfHLevelDep 2 
             (λ x → Cᴰ .isSetHomᴰ) 
             (ktm S) (ktm S₁) (cong ktm x) (cong ktm y) (isSet⊢k S S₁ x y) i j
-
         ktm (bind {A}{B} M) = goal where 
           open CartesianLiftNotation (Collageᴰ ^opᴰ) (oplifts ret (vty A))
 

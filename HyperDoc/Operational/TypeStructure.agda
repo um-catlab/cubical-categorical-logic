@@ -87,11 +87,11 @@ module DisplayedTypeStructure
   open HasUTy
 
 -- wtf.. typechecking was fine until this.. (specifically inserting FORGETᴰ)
-  record HasUTyᴰ (hasUTy : HasUTy) : Type where 
+  {-record HasUTyᴰ (hasUTy : HasUTy) : Type where 
     field 
       weakrepᴰ : {B : ob C}(Bᴰ : Cᴰ .ob[_] B) → 
         WkRepresentationᴰ (hasUTy .wkrep B) Vᴰ (FORGETᴰ ∘Fᴰ O[-][-, Bᴰ ])
-    
+    -}
   
 
 

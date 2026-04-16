@@ -63,7 +63,8 @@ module _
   TotalModel : CBPVModel (ℓ-max ℓV ℓVᴰ) (ℓ-max ℓV' ℓVᴰ') (ℓ-max ℓC ℓCᴰ) (ℓ-max ℓC' ℓCᴰ) (ℓ-max ℓG ℓGᴰ) (ℓ-max ℓG' ℓGᴰ') 
   TotalModel .fst = ∫C Nᴰ.Vᴰ
   TotalModel .snd .fst = ∫C Nᴰ.Cᴰ
-  TotalModel .snd .snd =  {!  ParFunctorToBifunctor ? !}
+  TotalModel .snd .snd =  {!  !}
+    -- annoying bifunctor conversions.. to AND from..  
     -- ΣGraph ∘F ∫F (Nᴰ.Oᴰ) ∘F conv
   module _ 
     (S : CBPVSection {F = F}{Nᴰ}) where 

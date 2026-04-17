@@ -234,42 +234,24 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open PshHom
 open TypeStructure Syn
 
-open HasUTy
+open WkRepresentation
+open import Cubical.Categories.NaturalTransformation
+open NatTrans
 
 hasUTy : HasUTy 
-hasUTy .wkrep B .fst = VTy.U B
-hasUTy .wkrep B .snd .fst .N-ob A V = subC V _⊢c_.force
-hasUTy .wkrep B .snd .fst .N-hom A A' V V' = sym subDist
-hasUTy .wkrep B .snd .snd .N-ob A M = _⊢v_.thunk M
-hasUTy .wkrep B .snd .snd .N-hom A A' V M = {!   !}
--- Q: What is the trick to get away without having to specify this ?
--- thunk (subC V M) ≡ subV V (thunk M) 
-hasUTy .TypeStructure.HasUTy.Fβ {A}{B}{M} = {!   !} where 
-  have : subC (_⊢v_.thunk M) _⊢c_.force ↦ M
-  have = _↦_.Uβ {A}{B}{M}
-
-  {-
-    the trivial substitution is inserted here..
-
-    force : {B : ob C} → O'[ U B , B ]
-    force {B} = wkrep B .snd .fst .N-ob (U B) (V .id)
-
-    .. and I should be able to derive something like this using just ↦ ...
-
-  -}
-  dumb : subC (_⊢v_.thunk M) (subC var _⊢c_.force) ↦ M 
-  dumb = subst (λ h → subC (_⊢v_.thunk M) h ↦ M ) (sym subCId) have
-
+hasUTy B .rep = U B
+hasUTy B .fwd .N-ob A V = subC V force
+hasUTy B .fwd .N-hom V = funExt λ V' → sym subDist
+hasUTy B .bkwd = thunk
+hasUTy B .wkretract M = Uβ
 
 hasFTy : HasFTy 
-hasFTy .TypeStructure.HasFTy.wkrep A .fst = CTy.F A
-hasFTy .TypeStructure.HasFTy.wkrep A .snd .fst .N-ob B S = plug S ret
-hasFTy .TypeStructure.HasFTy.wkrep A .snd .fst .N-hom B B' S S' = sym plugDist
-hasFTy .TypeStructure.HasFTy.wkrep A .snd .snd .N-ob B M = bind M
-hasFTy .TypeStructure.HasFTy.wkrep A .snd .snd .N-hom = {!   !}
-hasFTy .TypeStructure.HasFTy.FU {A}{B}{M} = goal where 
-  goal : plug (bind M) (plug hole ret) ↦ M 
-  goal = {!   !}
+hasFTy A .rep = F A
+hasFTy A .fwd .N-ob B S = plug S ret
+hasFTy A .fwd .N-hom S = funExt λ S' → sym plugDist
+hasFTy A .bkwd = bind
+hasFTy A .wkretract M = Fβ
+
 
 {-
 hasUTy : HasUTy 

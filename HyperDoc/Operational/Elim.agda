@@ -44,8 +44,11 @@ module Elim
   open CBPVModelᴰSyntax Synᴰ
   open CBPVModelSyntax Syn hiding (V ; C ; O)
 
+  -- dumb displayed model 
+  -- 
+
   -- needed assumptions
-  -- TODO, specify displayed type structures
+  -- TODO, specify as displayed type structures
   module _
     (𝟙ᴰ : ob[ Vᴰ ] 𝟙)
     (Ansᴰ : ob[ Vᴰ ] Ans)
@@ -211,6 +214,7 @@ module Elim
             (λ x → Cᴰ .isSetHomᴰ) 
             (ktm S) (ktm S₁) (cong ktm x) (cong ktm y) (isSet⊢k S S₁ x y) i j
         ktm (bind {A}{B} M) = goal where 
+          -- don't 
           open CartesianLiftNotation (Collageᴰ ^opᴰ) (oplifts ret (vty A))
 
           goal : Hom[ Cᴰ ][ bind M , oplifts ret (vty A) .fst ] (cty B)

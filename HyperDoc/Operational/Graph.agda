@@ -50,6 +50,14 @@ FORGET .F-ob = fst
 FORGET .F-hom = fst
 FORGET .F-id = refl
 FORGET .F-seq _ _ = refl
+
+open import Cubical.Data.Empty 
+
+FREE : Functor (SET _ ) (GRAPH _ _)
+FREE .F-ob X = X , (λ x ×' → ⊥ , λ())
+FREE .F-hom f = f , λ bot → bot
+FREE .F-id = refl
+FREE .F-seq _ _ = refl
 {-
   we can define Functors 
     GRAPH → RGRAPH 
@@ -144,13 +152,13 @@ GRAPHᴰ ℓ ℓ' ℓᴰ ℓᴰ' .isSetHomᴰ {G}{H}{f}{Gᴰ}{Hᴰ} =
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets 
 open Functorᴰ
-{-} debugging performance
+
 FORGETᴰ : Functorᴰ FORGET (GRAPHᴰ _ _ _ _ ) (SETᴰ _ _ )
 FORGETᴰ .F-obᴰ = fst
 FORGETᴰ .F-homᴰ = fst
 FORGETᴰ .F-idᴰ = refl
 FORGETᴰ .F-seqᴰ _ _ = refl
--}
+
 pGRAPHᴰ : (ℓ ℓ' ℓᴰ ℓᴰ' : Level) → 
   Categoryᴰ (pGRAPH ℓ ℓ' ) 
     (ℓ-max (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓᴰ)) (ℓ-suc ℓᴰ')) 

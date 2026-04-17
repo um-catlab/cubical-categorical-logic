@@ -77,6 +77,32 @@ module _ (C : Category ℓC ℓC') where
   elimProp3 isPropM MHom = elimProp2 (λ f g → isPropΠ2 (λ x₁ → isPropM f g))
     (λ f g → elimProp (λ {y = y₁} → isPropM (semHom f) (semHom g)) (λ {y = y₁} → MHom f g))
 
+  -- elim2 : ∀ {x}
+  --   → {M : ∀ y (f : ExtraIdHom x y) z (g : ExtraIdHom y z) → Type ℓ}
+  --   → (Midid : M x (synId Eq.refl) x (synId Eq.refl))
+  --   → (Midhom : ∀ z g → M x (synId Eq.refl) z (semHom g))
+  --   → (Mhomid : ∀ y f → M y (semHom f) y (synId Eq.refl))
+  --   → (Mhomhom : ∀ y f z g → M y (semHom f) z (semHom g))
+  --   → PathP (λ i → M x (synId≡id Eq.refl i) x (synId≡id Eq.refl i))
+  --       Midid
+  --       (Mhomhom x (C .id) x (C .id))
+  --   → (∀ z g →
+  --     PathP (λ i → M x (synId≡id Eq.refl i) z (semHom g))
+  --       (Midhom z g)
+  --       (Mhomhom x (C .id) z g) )
+  --   → (∀ y f →
+  --     PathP (λ i → M y (semHom f) y (synId≡id Eq.refl i))
+  --       (Mhomid y f)
+  --       (Mhomhom y f y (C .id)))
+  --   → ∀ y f z g → M y f z g
+  -- elim2 Midid Midhom Mhomid Mhomhom Midid≡ Midhom≡ Mhomid≡ =
+  --   elim (elim Midid (λ {y} → Midhom y) {!!})
+  --     (λ f → {!!})
+  --     (funExt₂ (elimProp {!!} {!!}))
+  --   -- elim Midhom
+  --   --   (λ f → elim (Mhomid _ (semHom f)) (λ {y = y₁} → Mhomhom _ f y₁) (Mhomid≡ _ f))
+  --   --   (funExt₂ (elimProp {!!} λ {y} → Midhom≡ y))
+
   ⋆ExtraId : ∀ {x} → ∀ y → ExtraIdHom x y → ∀ z → ExtraIdHom y z → ExtraIdHom x z
   ⋆ExtraId = elim (λ z z₁ → z₁) (λ f → elim (semHom f) (λ g → semHom (f ⋆⟨ C ⟩ g)) (cong semHom $ sym $ C .⋆IdR f))
     (funExt₂ (elimProp (λ _ → isSetExtraIdHom _ _)

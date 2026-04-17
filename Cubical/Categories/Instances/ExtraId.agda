@@ -52,14 +52,23 @@ module _ (C : Category ℓC ℓC') where
       lemma = elim (sym $ synId≡id Eq.refl) (λ f → refl)
         (λ i j → synId≡id Eq.refl (i ∨ ~ j))
 
+
+  elimPropBoth : ∀ {x}
+    → {M : ∀ y → ExtraIdHom x y → Type ℓ}
+    → (∀ {y} f → isProp (M y f))
+    → (Mid : M _ (synId Eq.refl))
+    → (MHom : ∀ {y} (f : C [ x , y ]) → M _ (semHom f))
+    → ∀ y f → M y f
+  elimPropBoth {ℓ}{x}{M} isPropM Mid MHom = elim Mid MHom (isProp→PathP (λ i → isPropM (synId≡id Eq.refl i)) Mid (MHom (C .id)))
+
   elimProp : ∀ {x}
     → {M : ∀ y → ExtraIdHom x y → Type ℓ}
     → (∀ {y} f → isProp (M y f))
     → (MHom : ∀ {y} (f : C [ x , y ]) → M _ (semHom f))
     → ∀ y f → M y f
-  elimProp {ℓ}{x}{M} isPropM MHom = elim (subst (M x) (sym (synId≡id Eq.refl)) (MHom (C .id)))
+  elimProp {ℓ}{x}{M} isPropM MHom = elimPropBoth isPropM
+    (subst (M x) (sym (synId≡id Eq.refl)) (MHom (C .id)))
     MHom
-    (isProp→PathP (λ i → isPropM (synId≡id Eq.refl i)) _ _)
 
   elimProp2 : ∀ {x}
     → {M : ∀ y (f : ExtraIdHom x y) z (g : ExtraIdHom y z) → Type ℓ}
@@ -149,3 +158,24 @@ module _ (C : Category ℓC ℓC') where
 
   π : Functor ExtraId C
   π = recF Id
+
+  -- Nota bene: composition F ∘F π is equivalent to recF F but has
+  -- different definitional behavior.
+  --
+  -- recF F preserves the syntactic identity definitionally recF F (ExtraId C .id) ≡ D .id
+  -- whereas (F ∘F π) (ExtraId C .id) ≡ F ⟪ C .id ⟫
+  private
+    module _ {D : Category ℓD ℓD'} (F : Functor C D) where
+      ∘π≡recF : (F ∘F π) ≡ recF F
+      ∘π≡recF = Functor≡ (λ _ → refl) (lem _) where
+        lem : ∀ {c} c' (f : ExtraId [ c , c' ]) →
+          F-hom (F ∘F π) f ≡ recF-hom F c c' f
+        lem = elimProp (λ f → D .isSetHom _ _) λ _ → refl
+
+      ∘π≡recF-bad : ∀ {x} → (F ∘F π) .F-hom (synId {x = x} Eq.refl) ≡ recF F .F-hom (synId Eq.refl)
+      ∘π≡recF-bad = F .F-id
+
+
+-- P Q over X and I have ∀ x → P x
+-- and I have ∀ x → P x → Q x
+-- then we're done right?

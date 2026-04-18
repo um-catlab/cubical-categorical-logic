@@ -271,7 +271,8 @@ module hoas (CC : CartesianCategory _ _ )where
     
     -- can't define, isProp (Tm (ext (Δ .fst)))
     extMap : {Γ Δ : ob Ren} → Ren [ Δ , Γ ] → Ren [ (ext (Δ .fst) , tt) , (ext (Γ .fst) , tt) ]
-    extMap γ .fst x = ∥rec∥  {!   !} (⊎rec (λ x∈Γ → {!   !}) λ xfresh → {! var  !})
+    extMap γ .fst x = ?
+      --  ∥rec∥  {!   !} (⊎rec (λ x∈Γ → {!   !}) λ xfresh → {! var  !})
     extMap γ .snd = {!   !}
 
     pext : ob PshVar → ob PshVar  

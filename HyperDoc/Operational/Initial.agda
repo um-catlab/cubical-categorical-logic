@@ -76,10 +76,10 @@ data _⊢c_ where
   -- type structure
   -- ret : ∀{A A'} → A ⊢v A' → A ⊢c F A'
   ret : ∀{A} → A ⊢c F A
-  force : ∀{B} →  U B ⊢c B  
-  -- force : ∀{A B} →  A ⊢v U B → A ⊢c B   
-  --force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
-  --  subC V (force W) ≡ force (subV V W)
+  -- force : ∀{B} →  U B ⊢c B  
+  force : ∀{A B} →  A ⊢v U B → A ⊢c B   
+  force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
+    force (subV V W) ≡ subC V (force W) 
 
 subC' = subC
 
@@ -93,7 +93,7 @@ data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where
 
   Uβ : ∀ {A B} {M : A ⊢c B} → 
     ---------------------
-    subC (thunk M) force ↦ M
+    force (thunk M) ↦ M
   
   subC-cong : ∀ {A A' B}{V : A' ⊢v A}{M M' : A ⊢c B}  →  
     M ↦ M' → 
@@ -240,10 +240,14 @@ open NatTrans
 
 hasUTy : HasUTy 
 hasUTy B .rep = U B
-hasUTy B .fwd .N-ob A V = subC V force
-hasUTy B .fwd .N-hom V = funExt λ V' → sym subDist
+hasUTy B .fwd .N-ob A V = force V
+  -- subC V force
+hasUTy B .fwd .N-hom V = funExt λ V' → force-sub
+  -- funExt λ V' → sym subDist
 hasUTy B .bkwd = thunk
+  -- thunk
 hasUTy B .wkretract M = Uβ
+  -- Uβ
 
 hasFTy : HasFTy 
 hasFTy A .rep = F A
@@ -360,7 +364,7 @@ module _
   FreeCat .⋆IdR _ = refl
   FreeCat .⋆Assoc = assoc
   FreeCat .isSetHom = {!   !} -- requires hLevel restriction on Nodes and Edges
-
+{-
 -- hom category.. 
 {-
   For each A, B
@@ -416,7 +420,7 @@ ABRGraph A B .RGraph.Car = A ⊢c B
 ABRGraph A B .RGraph._R_ = RC _↦_
 ABRGraph A B .RGraph.Rid = ref
 
-{-
+
   So we have 
      O[ A , B ] : RGraph 
 

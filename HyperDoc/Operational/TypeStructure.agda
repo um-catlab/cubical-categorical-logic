@@ -34,24 +34,7 @@ open import Cubical.Foundations.Isomorphism
 open PshHom
 open Functorᴰ
 open NatTrans
-
--- representation up to beta
--- retraction up to reduction
---  ret : f ⋆⟨ C ⟩ inv ≡ C .id
-
-GraphRetract : {X : hSet _}{G : Graph _ _ } → 
-  (⟨ X ⟩ → ⟨ G .fst ⟩) → (⟨ G .fst ⟩ → ⟨ X ⟩ ) → Type _ 
-GraphRetract {X}{G} f inv = (n : ⟨ G .fst ⟩) → ⟨ G .snd (f (inv n)) n ⟩ 
-
-
-hasGraphRetract : {!   !}
-hasGraphRetract = {!   !}
-
-record isGraphRetract (C : Category _ _){x y : C .ob}(f : C [ x , y ]) : Type _ where
-  constructor isiso
-  field
-    inv : C [ y , x ]
-    ret : f ⋆⟨ C ⟩ inv ≡ C .id
+open NatTransᴰ
 
 record WkRepresentation
   (C : Category _ _ ) 
@@ -90,40 +73,109 @@ record WkRepresentationᴰ
     Edge {c} n n' = ⟨ Functor.F-ob P c .snd n n' ⟩
 
     Edgeᴰ : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n n' : Node c}
-      (e : Edge n n')→ (Nodeᴰ cᴰ n) →  (Nodeᴰ cᴰ n')→ Type 
+      (e : Edge n n')→ (Nodeᴰ cᴰ n) → (Nodeᴰ cᴰ n')→ Type 
     Edgeᴰ {c}{cᴰ}{n}{n'} e nᴰ n'ᴰ = ⟨ Pᴰ .F-obᴰ {c} cᴰ .snd {n}{n'} e nᴰ n'ᴰ ⟩
 
   field 
     repᴰ : Cᴰ .ob[_] rep
-    fwd : NatTransᴰ fwd (Cᴰ [-][-, repᴰ ]) (FORGETᴰ ∘Fᴰ Pᴰ)
-    bkwd : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n : Node c} → Nodeᴰ cᴰ n → 
+    fwdᴰ : NatTransᴰ fwd (Cᴰ [-][-, repᴰ ]) (FORGETᴰ ∘Fᴰ Pᴰ)
+    bkwdᴰ : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n : Node c} → Nodeᴰ cᴰ n → 
       Cᴰ [ bkwd {c} n ][ cᴰ , repᴰ ] 
-    wkretractᴰ : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n n' : Node c} → 
-      (e : Edge n n')(nᴰ : Nodeᴰ cᴰ n)(n'ᴰ : Nodeᴰ cᴰ n') → 
-      Edgeᴰ e nᴰ n'ᴰ
+    wkretractᴰ : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n : Node c}(nᴰ : Nodeᴰ cᴰ n) → 
+      Edgeᴰ (wkretract {c} n) (fwdᴰ .N-obᴰ cᴰ (bkwd n) (bkwdᴰ nᴰ)) nᴰ
     
-
 module TypeStructure (M : CBPVModel _ _ _ _ _ _ )  where 
   open CBPVModelSyntax M
-
+  open WkRepresentation
 
   HasUTy : Type 
   HasUTy = (B : ob C) → WkRepresentation V O[-, B ]
 
+
+  module UTySyntax (hasUTy : HasUTy) where  
+    U : ob C → ob V 
+    U B = hasUTy B .rep
+
+    force : {A : ob V}{B : ob C} → V [ A , U B ] → O'[ A , B ] 
+    force {A}{B} = hasUTy B .fwd .N-ob A
+
+    thunk : {A : ob V}{B : ob C} → O'[ A , B ] → V [ A , U B ]
+    thunk {A}{B} = hasUTy B .bkwd {A}
+
+    Uβ : {A : ob V}{B : ob C} → (M : O'[ A , B ]) → Edge[ force (thunk M) , M ]
+    Uβ {A}{B} M = hasUTy B .wkretract {A} M 
+
   HasFTy : Type 
   HasFTy = (A : ob V) → WkRepresentation (C ^op) (O[ A ,-] ∘F from^op^op) 
 
-module DisplayedTypeStructure 
-  {M : CBPVModel _ _ _ _ _ _ }
-  {Mᴰ : CBPVModelᴰ M _ _ _ _ _ _ } where  
+  module FTySyntax (hasFTy : HasFTy) where 
+    F : ob V → ob C 
+    F A = hasFTy A .rep 
+
+    bind : {A : ob V}{B : ob C} → C [ F A , B ] → O'[ A , B ]
+    bind {A}{B} = hasFTy A .fwd .N-ob B
+
+    ret : {A : ob V}{B : ob C} → O'[ A , B ] → C [ F A , B ]
+    ret {A}{B} = hasFTy A .bkwd
+
+    Fβ : {A : ob V}{B : ob C} → (M : O'[ A , B ]) → Edge[ bind (ret M) , M ] 
+    Fβ {A}{B} = hasFTy A .wkretract
+
+module TypeStructureᴰ
+  {M : CBPVModel _ _ _ _ _ _ }-----------
+  (Mᴰ : CBPVModelᴰ M _ _ _ _ _ _ ) where  
 
   open TypeStructure M
   open CBPVModelSyntax M 
   open CBPVModelᴰSyntax Mᴰ
+  open WkRepresentation
+  open WkRepresentationᴰ
+
 
   HasUTyᴰ : HasUTy → Type 
   HasUTyᴰ hasUTy = {B : ob C}(Bᴰ : Cᴰ .ob[_] B) → 
     WkRepresentationᴰ {V}{O[-, B ]} (hasUTy B) Vᴰ O[-][-, Bᴰ ]
+
+  module UTySyntaxᴰ 
+    {hasUTy : HasUTy}
+    (hasUTyᴰ : HasUTyᴰ hasUTy) where 
+
+    open UTySyntax hasUTy 
+
+    Uᴰ : {B : ob C} → Cᴰ .ob[_] B → Vᴰ .ob[_] (U B)
+    Uᴰ {B} Bᴰ = hasUTyᴰ Bᴰ .repᴰ
+
+    forceᴰ :{A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{V' : V [ A , U B ]} → 
+       Vᴰ [ V' ][ Aᴰ , Uᴰ Bᴰ ] → Oᴰ'[ force V' ][ Aᴰ , Bᴰ ]  
+    forceᴰ{A}{B}{Aᴰ}{Bᴰ}{f} fᴰ = hasUTyᴰ Bᴰ .fwdᴰ .N-obᴰ {A} Aᴰ f fᴰ
+
+    thunkᴰ :{A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]} → 
+      Oᴰ'[ M ][ Aᴰ , Bᴰ ] → Vᴰ [ thunk M ][ Aᴰ , Uᴰ Bᴰ ]  
+    thunkᴰ{A}{B}{Aᴰ}{Bᴰ}{M} Mᴰ = hasUTyᴰ Bᴰ .bkwdᴰ {A}{Aᴰ}{M} Mᴰ
+
+    Uβᴰ : {A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]} →  
+      (Mᴰ : Oᴰ'[ M ][ Aᴰ , Bᴰ ]) → Edgeᴰ[ Uβ M ][ forceᴰ (thunkᴰ Mᴰ) , Mᴰ ]
+    Uβᴰ {Bᴰ = Bᴰ} = hasUTyᴰ Bᴰ .wkretractᴰ
+
+  HasFTyᴰ : HasFTy → Type 
+  HasFTyᴰ hasFTy = {A : ob V}(Aᴰ : Vᴰ .ob[_] A) →
+    WkRepresentationᴰ {C ^op} {O[ A ,-] ∘F from^op^op} 
+      (hasFTy A) (Cᴰ ^opᴰ) (O[-][ Aᴰ ,-] ∘Fᴰ from^opᴰ^opᴰ) 
+
+
+  module FTySyntaxᴰ 
+    {hasFTy : HasFTy}
+    (hasFTyᴰ : HasFTyᴰ hasFTy) where
+
+    open FTySyntax hasFTy 
+
+    Fᴰ : {A : ob V} → Vᴰ .ob[_] A → Cᴰ .ob[_] (F A)
+    Fᴰ {A} Aᴰ = hasFTyᴰ Aᴰ .repᴰ
+
+    bindᴰ :{A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{S : C [ F A , B ]} → 
+       Cᴰ [ S ][ Fᴰ Aᴰ , Bᴰ ] → Oᴰ'[ bind S ][ Aᴰ , Bᴰ ]  
+    bindᴰ{A}{B}{Aᴰ}{Bᴰ}{f} fᴰ = hasFTyᴰ Aᴰ .fwdᴰ .N-obᴰ {B} Bᴰ f fᴰ
+
 
 
 

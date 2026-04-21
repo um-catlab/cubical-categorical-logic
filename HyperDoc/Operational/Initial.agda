@@ -20,6 +20,7 @@ mutual
   data VTy : Type where 
     𝟙 Ans : VTy
     U : CTy → VTy 
+    _⊗_ _⊕_ : VTy → VTy → VTy 
 
   data CTy : Type where 
     F : VTy → CTy
@@ -42,10 +43,18 @@ data _⊢v_  where
 
   -- type structure
   tt : ∀{A} → A ⊢v 𝟙
+  subtt : ∀ {A A'} {V : A ⊢v A'} → tt ≡ subV V tt
+
   yes : ∀{A} → A ⊢v Ans 
   no : ∀{A} → A ⊢v Ans 
   thunk : ∀{A B} → A ⊢c B → A ⊢v U B
 
+  σ₁ : ∀ {A A'} → A ⊢v (A ⊕ A')
+  σ₂ : ∀ {A A'} → A' ⊢v (A ⊕ A') 
+
+  _,p_ : ∀ {A A' A''} → A ⊢v A' → A ⊢v A'' → A ⊢v (A' ⊗ A'')
+  sub,p : ∀ {X Y Z Z'} {V : X ⊢v Y}{W : Y ⊢v Z}{W' : Y ⊢v Z'} → 
+    (subV V W ,p subV V W') ≡ subV V (W ,p W')
 
 data _⊢k_ where
   -- category 
@@ -74,26 +83,43 @@ data _⊢c_ where
   isSet⊢c : ∀{A B} → isSet (A ⊢c B)
 
   -- type structure
-  -- ret : ∀{A A'} → A ⊢v A' → A ⊢c F A'
-  ret : ∀{A} → A ⊢c F A
+  ret : ∀{A B} → F A ⊢k B → A ⊢c B
+  ret-sub : ∀ {A B B'}{S : B ⊢k B'}{S' : F A ⊢k B} → 
+    ret (kcomp S' S) ≡ plug S (ret S')
+  -- ret : ∀{A} → A ⊢c F A
   -- force : ∀{B} →  U B ⊢c B  
   force : ∀{A B} →  A ⊢v U B → A ⊢c B   
   force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
     force (subV V W) ≡ subC V (force W) 
 
+
+  match : ∀ {A A' B} → (A ⊢c B) → (A' ⊢c B) → (A ⊕ A') ⊢c B
+  plugmatch : ∀ {A A' B B'}{S : B ⊢k B'}{M : A ⊢c B}{N : A' ⊢c B} → 
+    match (plug S M) (plug S N) ≡ plug S (match M N)
+
 subC' = subC
+
+rec× : ∀ {Γ A A' B} → Γ ⊢v (A ⊗ A') → (A ⊗ A') ⊢c B → Γ ⊢c B 
+rec× p m = subC p m
 
 import  Cubical.Data.Equality as Eq
 
 -- Q... what about things like (subC var M) ↦ M 
+-- what about congruence rules ? (derivable from substituition rules and subC plug congruence) 
 data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where 
   Fβ : ∀{A B}{M : A ⊢c B} → 
     ------------------------------------
-    plug (bind M) ret ↦ M
+    ret (bind M)  ↦ M
 
   Uβ : ∀ {A B} {M : A ⊢c B} → 
     ---------------------
     force (thunk M) ↦ M
+
+  +β₁ : ∀ {A A' B}{M : A ⊢c B}{N : A' ⊢c B} →  
+    subC σ₁ (match M N) ↦ M
+
+  +β₂ : ∀ {A A' B}{M : A ⊢c B}{N : A' ⊢c B} →  
+    subC σ₂ (match M N) ↦ N
   
   subC-cong : ∀ {A A' B}{V : A' ⊢v A}{M M' : A ⊢c B}  →  
     M ↦ M' → 
@@ -106,7 +132,7 @@ data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where
     plug S M ↦ plug S M'
 
   -- Profunctor laws below
-
+{-
   subC-cong-id : ∀ {A B}{M M' : A ⊢c B}{M↦M' : M ↦ M'} → 
     PathP 
       (λ i → subCId {M = M} i ↦ subCId {M = M'} i) 
@@ -139,10 +165,15 @@ data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where
 
 
   isSet↦ : ∀ {A B} {M M' : A ⊢c B} → isSet (M ↦ M')
+  -}
   -- Prop is problematic in the eliminator.. 
   -- just add the rules .. 
-  -- isProp↦ : ∀ {A B} {M M' : A ⊢c B} → isProp (M ↦ M')
+  isProp↦ : ∀ {A B} {M M' : A ⊢c B} → isProp (M ↦ M')
 
+
+-- subC (V ,p V') M ↦ subC (V ,p V') M
+--huh : ∀ {Γ A A' B}{V : Γ ⊢v A}{V' : Γ  ⊢v A'}{M : (A ⊗ A') ⊢c B} → rec× (V ,p V') M ↦ subC ((V ,p V')) M 
+--huh = {!   !}
 
 open import HyperDoc.Operational.Model
 open import HyperDoc.Operational.Graph
@@ -172,7 +203,7 @@ C .isSetHom = isSet⊢k
 
 compGraph : VTy → CTy → ob (GRAPH ℓ-zero ℓ-zero ) 
 compGraph A B .fst = (A ⊢c B) , isSet⊢c
-compGraph A B .snd M M' = (M ↦ M') , isSet↦
+compGraph A B .snd M M' = (M ↦ M') , isProp→isSet isProp↦
 
 
 module no {A B B'}{S : B ⊢k B'}{M M' : A ⊢c B}{e : M ↦ M'} where  
@@ -193,6 +224,17 @@ pcompGraph A B .snd M M' = isProp↦
 -}
 
 open BifunctorSep
+O : BifunctorSep (V ^op) C (GRAPH ℓ-zero ℓ-zero) 
+O .Bif-ob = compGraph
+O .Bif-homL V B .fst = subC V 
+O .Bif-homL V B .snd = subC-cong
+O .Bif-L-id = Σ≡Prop (λ f → isPropImplicitΠ2 λ n n' → isProp→ isProp↦) (funExt λ _ → subCId)
+O .Bif-L-seq V V' = Σ≡Prop (λ f → isPropImplicitΠ2 λ n n' → isProp→ isProp↦) (funExt λ M → sym subDist)
+O .Bif-homR A S .fst = plug S
+O .Bif-homR A S .snd = plug-cong
+O .Bif-R-id = Σ≡Prop (λ f → isPropImplicitΠ2 λ n n' → isProp→ isProp↦) (funExt λ _ → plugId)
+O .Bif-R-seq S S' = Σ≡Prop (λ f → isPropImplicitΠ2 λ n n' → isProp→ isProp↦)  (funExt λ _ → sym plugDist)
+O .SepBif-RL-commute V S = Σ≡Prop (λ f → isPropImplicitΠ2 λ n n' → isProp→ isProp↦)  (funExt λ _ → plugSub)
 {-
 O : BifunctorSep (V ^op) C (pGRAPH ℓ-zero ℓ-zero) 
 O .Bif-ob A B = compGraph A B
@@ -207,6 +249,7 @@ O .Bif-R-seq {A}{B}{B'}{B''}S S' = pGraphHom≡  {G = compGraph A B }{compGraph 
 O .SepBif-RL-commute {A}{A'}{B}{B'} V S = pGraphHom≡ {G = compGraph A B }{compGraph A' B'} (funExt λ M → plugSub)
 
 -}
+{-
 O : BifunctorSep (V ^op) C (GRAPH ℓ-zero ℓ-zero) 
 O .Bif-ob A B = compGraph A B
 O .Bif-homL V B .fst M = subC V M
@@ -223,7 +266,7 @@ O .Bif-R-seq {A} {B} {B'} {B''} S S' i .fst M = sym (plugDist {S = S}{S'}) i
 O .Bif-R-seq {A} {B} {B'} {B''} S S' i .snd {M}{M'} M↦M' = plug-cong-seq  {M↦M' = M↦M'}  i
 O .SepBif-RL-commute {A} {A'} {B} {B'} V S i .fst M = plugSub {V = V}{M}{S} i
 O .SepBif-RL-commute {A} {A'} {B} {B'} V S i .snd {M}{M'} M↦M' = plug-subC-cong {M↦M' = M↦M'} i
-
+-}
 Syn : CBPVModel ℓ-zero ℓ-zero ℓ-zero ℓ-zero ℓ-zero ℓ-zero 
 Syn .fst = V
 Syn .snd .fst = C
@@ -237,25 +280,60 @@ open TypeStructure Syn
 open WkRepresentation
 open import Cubical.Categories.NaturalTransformation
 open NatTrans
+open import Cubical.Data.Unit
+
+has𝟙 : Has𝟙 
+has𝟙 .fst = 𝟙
+has𝟙 .snd .N-ob A tt = tt
+has𝟙 .snd .N-hom V = funExt λ {tt → subtt}
+
+has× : Has× 
+has× A A' .fst = A ⊗ A'
+has× A A' .snd .N-ob A'' (V , V') = V ,p V'
+has× A A' .snd .N-hom V = funExt λ (W , W') → sub,p
+
+has+ : Has+ 
+has+ A A' .TypeStructure.Has+'.A+A' = A ⊕ A'
+has+ A A' .TypeStructure.Has+'.match .N-ob B (M , N) = match M N
+has+ A A' .TypeStructure.Has+'.match .N-hom S = funExt λ (M , N) → plugmatch
+has+ A A' .TypeStructure.Has+'.σ₁ = σ₁
+  -- subC σ₁
+has+ A A' .TypeStructure.Has+'.σ₂ = σ₂
+has+ A A' .TypeStructure.Has+'.+β₁ M N = +β₁
+has+ A A' .TypeStructure.Has+'.+β₂ M N = +β₂
 
 hasUTy : HasUTy 
 hasUTy B .rep = U B
-hasUTy B .fwd .N-ob A V = force V
-  -- subC V force
+hasUTy B .fwd .N-ob A = force
 hasUTy B .fwd .N-hom V = funExt λ V' → force-sub
-  -- funExt λ V' → sym subDist
 hasUTy B .bkwd = thunk
-  -- thunk
 hasUTy B .wkretract M = Uβ
-  -- Uβ
 
+hasFTy : HasFTy 
+hasFTy A .rep = F A
+hasFTy A .fwd .N-ob B = ret
+hasFTy A .fwd .N-hom {B}{B'}S = funExt λ S' → ret-sub
+hasFTy A .bkwd = bind
+hasFTy A .wkretract M = Fβ
+
+
+
+{-
+has𝟙 : Has𝟙 
+has𝟙 .rep = 𝟙
+has𝟙 .fwd .N-ob A V = tt
+has𝟙 .fwd .N-hom _ = refl
+has𝟙 .bkwd tt = tt
+has𝟙 .wkretract tt = {!   !} -- construct ⊥, impossible!
+-}
+{-
 hasFTy : HasFTy 
 hasFTy A .rep = F A
 hasFTy A .fwd .N-ob B S = plug S ret
 hasFTy A .fwd .N-hom S = funExt λ S' → sym plugDist
 hasFTy A .bkwd = bind
 hasFTy A .wkretract M = Fβ
-
+-}
 
 {-
 hasUTy : HasUTy 

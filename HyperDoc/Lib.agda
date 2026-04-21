@@ -28,9 +28,10 @@ open Functorᴰ
 module HyperDoc.Lib where 
 
 
-
+{-
 -- this has to exist somewhere 
 open import Cubical.Relation.Binary.Base
+
 
 data RTC {ℓ : Level}{X : Type ℓ }(R : Rel X X ℓ): Rel X X ℓ where 
   base : {x y : X} → R x y → RTC R x y
@@ -40,6 +41,7 @@ data RTC {ℓ : Level}{X : Type ℓ }(R : Rel X X ℓ): Rel X X ℓ where
 data RC {ℓ : Level}{X : Type ℓ }(R : Rel X X ℓ): Rel X X ℓ where 
   base : {x y : X} → R x y → RC R x y
   ref : {x : X} → RC R x x 
+  -}
 
 -- \<->
 _↔_ : Type → Type → Type 

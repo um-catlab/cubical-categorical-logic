@@ -15,11 +15,13 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Posets.Base
 open import Cubical.Relation.Binary.Preorder 
 open import Cubical.Categories.Instances.Preorders.Monotone
+open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
 
+open import HyperDoc.Syntax
 
 open Category
 open Functor
-
+open MonFun renaming (f to fun)
 
 module L⊥ where 
 
@@ -76,6 +78,26 @@ module L⊤ where
   Preserve⊤ F prf .snd f = prf .snd (F-hom (F ^opF) f)
 
 module L∧ where
+
+  {-
+  field
+    _⊗_ :
+      ∀ {A A' : ob C}
+      (P  : F∣ A ∣)
+      (P' : F∣ A' ∣) →
+      F∣ (A × A') ∣
+
+      ⊗-β :
+      ∀ {X A A'}
+      (f1 : C [ X , A ])
+      (f2 : C [ X , A' ])
+      (P : F∣ A ∣)
+      (P' : F∣ A' ∣) →
+      F-hom (pair f1 f2)
+        (P ⊗ P')
+      ≡
+      (F-hom f1 P) ∧ (F-hom f2 P')
+  -}
 
   record HA {ℓ ℓ'} (P : ob (POSET ℓ ℓ')) : Type (ℓ-max ℓ ℓ') where 
     
@@ -141,7 +163,29 @@ module L∨ where
   Preserve∨ {L = L} F prf .fst c = prf .fst (F-ob (F ^opF) c)
   Preserve∨ {L = L} F prf .snd f = prf .snd (F-hom (F ^opF) f)
   
+module L∃ where 
 
+  Has∃ : ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP') 
+  Has∃ {C = C} F = {A A' : ob C}(f : C [ A , A' ]) → HasLeftAdj (F .F-hom f)
+
+  module ∃Syntax
+    {ℓC ℓC' ℓP ℓP' : Level}
+    {C : Category ℓC ℓC'}
+    {L : Functor (C ^op) (POSET ℓP ℓP')}
+    (has∃ : Has∃ L) where
+
+    open HDSyntax L
+
+
+    ∃f : {c c' : ob C}{f : C [ c , c' ]} → F∣ c ∣  → F∣ c' ∣ 
+    ∃f {c}{c'}{f} = has∃ f .fst .fun
+
+ {- HasPush : Type
+  HasPush = 
+    ∀ {A : V .ob}
+      {B : C .ob} → 
+      (M : O'[ A , B ]) → 
+      HasLeftAdj (pull M) -}
 module L▷ where 
     
   {-

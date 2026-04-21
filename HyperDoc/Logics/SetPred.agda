@@ -88,6 +88,26 @@ module _
                                                                     ; (_⊎_.inr x∈R) → g x x∈R}                                        
   has∨ .snd f .L∨.HAHom.f-or _ _ = refl
 
+  open import Cubical.HITs.PropositionalTruncation.Base
+  open import Cubical.HITs.PropositionalTruncation.Properties
+    renaming (rec to hrec ; map to hmap ; map2 to hmap2 ; elim to helim)
+  open import Cubical.Categories.Instances.Preorders.Monotone
+  open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
+  open import Cubical.Relation.Binary.Preorder
+  open PreorderStr
+  open import Cubical.Foundations.Isomorphism hiding (section ; retract)
+  open Iso
+  open _⊣_
+  open import Cubical.Data.Sigma 
+  has∃ : L∃.Has∃ Pred
+  has∃ {A} {A'} f .fst .MonFun.f  P a' = ∥ (Σ[ a ∈ ⟨ A ⟩  ]  (f a ≡ a') × ⟨ P a ⟩) ∥ₚ
+  has∃ {A} {A'} f .fst .isMon x≤y a' = hmap λ z → z .fst , z .snd .fst , x≤y (z .fst) (z .snd .snd)
+  has∃ {A} {A'} f .snd .adjIff .fun prf a Pa = prf (f a) ∣ (a , (refl , Pa)) ∣₁
+  has∃ {A} {A'} f .snd .adjIff {P}{Q} .inv prf a' = hrec (Q a' .snd) λ {(a , eqn , Pa) → subst (λ h → h ∈ Q) eqn (prf a  Pa)}
+  has∃ {A} {A'} f .snd .adjIff {P}{Q} .sec b = pred  A .fst .snd .is-prop-valued P (Pred .F-hom {A'}{A} f $ Q)  _ _ 
+  has∃ {A} {A'} f .snd .adjIff {P}{Q} .ret a = pred  A' .fst .snd .is-prop-valued (λ x → _ , squash₁) Q   _ _
+
+
   open import Cubical.Foundations.Isomorphism
   open import Cubical.Data.Sigma
   ⊎Distrib : {X Y : hSet ℓS} → Iso (ℙ (⟨ X ⟩ ⊎ ⟨ Y ⟩  )) (ℙ ⟨ X ⟩ ×  ℙ ⟨ Y ⟩)

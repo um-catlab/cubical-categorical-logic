@@ -27,10 +27,25 @@ open Functor
 Graph : (ℓ ℓ' : Level) → Type _
 Graph ℓ ℓ' = Σ[ S ∈ hSet ℓ ] (⟨ S ⟩ → ⟨ S ⟩ → hSet ℓ') 
 
+RGraph : (ℓ ℓ' : Level) → Type _
+RGraph  ℓ ℓ' = Σ[ G ∈ Graph ℓ ℓ' ] ((n : ⟨ G .fst ⟩) → ⟨ G .snd n n ⟩)
+
 GraphHom : {ℓ ℓ' : Level}→ (G H : Graph ℓ ℓ') → Type _ 
 GraphHom (N , E) (N' , E') = 
   Σ[ f ∈ (⟨ N ⟩ → ⟨ N' ⟩) ] 
     ({n n' : ⟨ N ⟩} → ⟨ E n n' ⟩ → ⟨ E' (f n) (f n') ⟩)
+
+{- 
+    Fv : G.Car → H.Car
+    Fe : {x y : G.Car} → x G.R y → Fv x H.R Fv y
+    -- this is the identity extension principle! 
+    Fid : {x : G.Car} → Fe (G.Rid {x}) ≡ H.Rid{Fv x}
+-}
+Relator : {ℓ ℓ' : Level}→ (G H : RGraph ℓ ℓ') → Type _ 
+Relator G H = Σ[ h ∈ GraphHom (G .fst) (H .fst) ] ({n : ⟨ G .fst .fst ⟩} → h .snd (G .snd n) ≡ H .snd (h .fst  n))
+
+Relator≡ :{ℓ ℓ' : Level}{G H : RGraph ℓ ℓ'}(f g : Relator G H) → f .fst ≡ g .fst → f ≡ g 
+Relator≡ {G = G}{H} f g  prf = Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _) prf
 
 GRAPH : (ℓ ℓ' : Level) → Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-max ℓ ℓ') 
 GRAPH ℓ ℓ' .ob = Graph ℓ ℓ'
@@ -38,12 +53,42 @@ GRAPH ℓ ℓ' .Hom[_,_] = GraphHom
 GRAPH ℓ ℓ' .id = (λ z → z) , (λ {n} {n'} z → z)
 GRAPH ℓ ℓ' ._⋆_ = λ f g →
     (λ z₁ → g .fst (f .fst z₁)) , (λ {n} {n'} z₁ → g .snd (f .snd z₁))
-GRAPH ℓ ℓ' .⋆IdL _ = refl 
+GRAPH ℓ ℓ' .⋆IdL _ = refl
 GRAPH ℓ ℓ' .⋆IdR _ = refl
 GRAPH ℓ ℓ' .⋆Assoc _ _ _ = refl
 GRAPH ℓ ℓ' .isSetHom {G}{H}= 
   isSetΣ (isSet→ (H .fst .snd)) 
     λ f → isSetImplicitΠ2 λ n n' → isSet→ (H .snd (f n) (f n') .snd)
+
+idRelator : {ℓ ℓ' : Level}{G : RGraph ℓ ℓ'} → Relator G G 
+idRelator {G = G} .fst .fst n = n
+idRelator {G = G} .fst .snd e = e
+idRelator {G = G} .snd = refl
+
+seqRelator : {ℓ ℓ' : Level}{G H J : RGraph ℓ ℓ'} → Relator G H → Relator H J → Relator G J 
+seqRelator f g .fst .fst n = g .fst .fst (f .fst .fst n)
+seqRelator f g .fst .snd e = g .fst .snd (f .fst .snd e)
+seqRelator {G = G}{H}{J} f g .snd {n} = goal where 
+
+  have : f .fst .snd (G .snd n) ≡ H .snd (f .fst .fst n)
+  have = f .snd {n}
+
+  have' : g .fst .snd (H .snd (f .fst .fst n)) ≡ J .snd (g .fst .fst (f .fst .fst n)) 
+  have' = g .snd {f .fst .fst n}
+  
+  goal : g .fst .snd (f .fst .snd (G .snd n)) ≡ J .snd (g .fst .fst (f .fst .fst n))
+  goal = cong (λ h → g .fst .snd h ) have ∙ have'
+
+RGRAPH : (ℓ ℓ' : Level) → Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-max ℓ ℓ') 
+RGRAPH ℓ ℓ' .ob = RGraph ℓ ℓ'
+RGRAPH ℓ ℓ' .Hom[_,_] = Relator
+RGRAPH ℓ ℓ' .id {G} = idRelator {G = G} 
+RGRAPH ℓ ℓ' ._⋆_ {G}{H}{J} f g = seqRelator {G = G}{H}{J} f g
+RGRAPH ℓ ℓ' .⋆IdL {G}{H} f = Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _)  refl
+RGRAPH ℓ ℓ' .⋆IdR {G}{H} f = Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _)  refl
+RGRAPH ℓ ℓ' .⋆Assoc {G}{H}{J}{K} f g h = Σ≡Prop (λ x → isPropImplicitΠ λ n → K .fst .snd _ _ .snd _ _)  refl
+RGRAPH ℓ ℓ' .isSetHom {G}{H} = isSetΣ (isSetΣ (isSet→ (H .fst .fst .snd)) λ f → isSetImplicitΠ2 λ n n' → isSet→  (H .fst .snd (f n) (f n') .snd)) 
+  λ _ → isSetImplicitΠ λ _ → isProp→isSet (H .fst .snd _ _ .snd _ _)
 
 FORGET : Functor (GRAPH _ _) (SET _) 
 FORGET .F-ob = fst
@@ -110,6 +155,8 @@ module _ {ℓ ℓ' : Level}((N , E) : ob (GRAPH ℓ ℓ')) where
 pGRAPH : (ℓ ℓ' : Level) → Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-max ℓ ℓ') 
 pGRAPH ℓ ℓ' = FullSubcategory (GRAPH ℓ ℓ') 
   λ {(N , E) → (n n' : ⟨ N ⟩ ) → isProp ⟨ E n n' ⟩}
+
+
 
 pGraphHom≡ : {ℓ ℓ' : Level}{G H : ob (pGRAPH ℓ ℓ')}{f g : (pGRAPH ℓ ℓ') [ G , H ]} 
   → f .fst ≡ g .fst → f ≡ g 

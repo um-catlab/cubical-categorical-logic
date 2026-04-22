@@ -18,7 +18,8 @@ open Functor
 
 mutual 
   data VTy : Type where 
-    𝟙 Ans : VTy
+    𝟙 : VTy
+    -- Ans : VTy
     U : CTy → VTy 
     _⊗_ _⊕_ : VTy → VTy → VTy 
 
@@ -45,8 +46,8 @@ data _⊢v_  where
   tt : ∀{A} → A ⊢v 𝟙
   subtt : ∀ {A A'} {V : A ⊢v A'} → tt ≡ subV V tt
 
-  yes : ∀{A} → A ⊢v Ans 
-  no : ∀{A} → A ⊢v Ans 
+  --yes : ∀{A} → A ⊢v Ans 
+  --no : ∀{A} → A ⊢v Ans 
   thunk : ∀{A B} → A ⊢c B → A ⊢v U B
 
   σ₁ : ∀ {A A'} → A ⊢v (A ⊕ A')
@@ -281,6 +282,9 @@ open WkRepresentation
 open import Cubical.Categories.NaturalTransformation
 open NatTrans
 open import Cubical.Data.Unit
+
+--hasAns : HasAns 
+--hasAns = Ans , λ A → yes , no
 
 has𝟙 : Has𝟙 
 has𝟙 .fst = 𝟙

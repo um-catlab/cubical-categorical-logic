@@ -115,7 +115,10 @@ FREE .F-seq _ _ = refl
         of a graph with prop edges
 -}
 
-module _ {ℓ ℓ' : Level}((N , E) : ob (GRAPH ℓ ℓ')) where 
+module _ {ℓ ℓ' : Level}(G : ob (GRAPH ℓ ℓ')) where 
+
+  N = G .fst 
+  E = G .snd 
   
   -- For notes on this implementation of RTC, see 
   -- Shulman - Categorical logic from a categorical point of view
@@ -142,6 +145,13 @@ module _ {ℓ ℓ' : Level}((N , E) : ob (GRAPH ℓ ℓ')) where
 
   -- could prove this
   -- module _ (isSet⊢ : (n n' : ⟨ N ⟩) → isSet (n ⊢ n') ) where 
+
+  RTCGraph : ob (GRAPH ℓ (ℓ-max ℓ ℓ'))
+  RTCGraph .fst = N
+  RTCGraph .snd n n' = (n ⊢ n') , {!   !}
+
+
+
   FreeCat : Category ℓ (ℓ-max ℓ ℓ')
   FreeCat .ob = ⟨ N ⟩
   FreeCat .Hom[_,_] = _⊢_
@@ -151,6 +161,50 @@ module _ {ℓ ℓ' : Level}((N , E) : ob (GRAPH ℓ ℓ')) where
   FreeCat .⋆IdR _ = refl
   FreeCat .⋆Assoc = sub-assoc
   FreeCat .isSetHom = {!   !}
+
+RTCGraphHom : {G H : ob (GRAPH _ _)} → (GRAPH _ _ ) [ G , H ] → (GRAPH _ _)[ RTCGraph G , RTCGraph H ] 
+RTCGraphHom {G} {H} f .fst e = f .fst e
+RTCGraphHom {G} {H} f .snd {n}{n'} = go where 
+  go : {n n' : ⟨ G .fst ⟩} → (G ⊢ n) n'  → (H ⊢ f .fst n) (f .fst n') 
+  go ref = ref
+  go (tran x e) = tran (f .snd x) (go e)
+
+open import Cubical.Categories.Instances.Preorders.Base
+open import Cubical.Categories.Instances.Preorders.Monotone
+open import Cubical.Relation.Binary.Preorder renaming (Preorder to Preorder')
+open MonFun renaming (f to fun)
+open PreorderStr
+open  IsPreorder
+
+graphToPre : Graph _ _ → ob (PREORDER _ _) 
+graphToPre G .fst .fst = G .fst .fst
+graphToPre G .fst .snd ._≤_ = _⊢_ G
+graphToPre G .fst .snd .isPreorder .is-prop-valued = {!   !}
+graphToPre G .fst .snd .isPreorder .is-refl _ = ref
+graphToPre G .fst .snd .isPreorder .is-trans _ _ _ = sub G
+graphToPre G .snd = G .fst .snd
+
+graphToPreHom : {G H : Graph _ _ } → (GRAPH _ _ )[ G , H ] → (PREORDER _ _ )[ graphToPre G , graphToPre H ] 
+graphToPreHom {G} {H} h .fun = h .fst
+graphToPreHom {G} {H} h .isMon ref = ref
+graphToPreHom {G} {H} h .isMon {n}{n'} = go where 
+  go : {n n' : ⟨ G .fst ⟩} → (G ⊢ n) n'  → (H ⊢ h .fst n) (h .fst n') 
+  go ref = ref
+  go (tran x e) = tran (h .snd x) (go e)
+
+RTCGraphF : Functor (GRAPH _ _) (PREORDER _ _) 
+RTCGraphF .F-ob = graphToPre
+RTCGraphF .F-hom = graphToPreHom
+RTCGraphF .F-id = eqMon _ _  refl
+RTCGraphF .F-seq _ _ = eqMon _ _ refl
+
+{-
+RTCGraphF' : Functor (GRAPH _ _) (GRAPH _ _) 
+RTCGraphF' .F-ob = RTCGraph
+RTCGraphF' .F-hom = RTCGraphHom 
+RTCGraphF' .F-id = ΣPathP (refl , implicitFunExt (implicitFunExt (funExt {!   !}))) 
+RTCGraphF' .F-seq = {!   !}
+-}
 
 pGRAPH : (ℓ ℓ' : Level) → Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-max ℓ ℓ') 
 pGRAPH ℓ ℓ' = FullSubcategory (GRAPH ℓ ℓ') 

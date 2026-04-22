@@ -38,13 +38,7 @@ module _
   
   Hom^op : {ℓL : Level } →  Functor ((POSET ℓL ℓL) ×C (POSET ℓL ℓL)^op) (SET ℓL )
   Hom^op = (HomFunctor _) ∘F Sym
-{-
-  CBPVLogic' : (ℓL : Level  ) →  Type _ 
-  CBPVLogic' ℓL  = 
-    Σ[ LV ∈ Functor (V ^op) (POSET ℓL ℓL) ] 
-    Σ[ LC ∈ Functor (C ^op) (POSET ℓL ℓL) ] 
-    (NatTrans (FORGET ∘F OPar) (Hom^op  ∘F (LV ×F ((LC ^opF) ∘F to^op^op ))))
--}
+
   record CBPVLogic : Type where 
     field 
       LV : Functor (V ^op) (POSET _ _)
@@ -160,7 +154,7 @@ module Convert {C : Category _ _} (F : Functor (C ^op) (POSET _ _ )) where
 module ConvertLogic 
   {ℓV ℓV' ℓC ℓC' ℓG ℓG' ℓL : Level}
   {M : CBPVModel ℓV ℓV' ℓC ℓC' ℓG ℓG'}
-  {L : CBPVLogic M } where
+  (L : CBPVLogic M ) where
  --  (LR : CBPVRelLogic' L) where 
 
   open import HyperDoc.Syntax
@@ -206,7 +200,7 @@ module ConvertLogic
 
 module LogicStruct 
   {M : CBPVModel _ _ _ _ _ _ }
-  {L : CBPVLogic M} where 
+  (L : CBPVLogic M) where 
   open import HyperDoc.Operational.TypeStructure
 
   open TypeStructure M
@@ -225,11 +219,223 @@ module LogicStruct
   Has𝟙ᴸ : Type 
   Has𝟙ᴸ = L⊤.Has⊤ LV
 
+  -- TODO
   Has×ᴸ : Type 
   Has×ᴸ = L∧.Has∧ LV × L∃.Has∃ LV
 
   Has+ᴸ : Type 
   Has+ᴸ = L∨.Has∨ LV × L∃.Has∃ LV 
+
+module LogicalToDisplayed 
+  {M : CBPVModel _ _ _ _ _ _ }
+  (L : CBPVLogic M) where 
+
+  open ConvertLogic  L
+  open LogicStruct L
+  open CBPVLogic L
+  open CBPVModelSyntax M
+
+  open import Cubical.Categories.Displayed.Base
+  open Categoryᴰ
+
+  open import HyperDoc.Operational.TypeStructure
+  open TypeStructureᴰ Mᴰ
+  open TypeStructure M
+  open import Cubical.Categories.Displayed.NaturalTransformation
+  open NatTransᴰ
+  open import Cubical.Data.Unit
+  open import HyperDoc.Connectives.Connectives 
+  open Has+' 
+  open import Cubical.Categories.Instances.Preorders.Monotone
+  open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
+
+  open MonFun renaming (f to fun)
+
+  module 𝟙TyDep (has𝟙 : Has𝟙)(has𝟙ᴸ : Has𝟙ᴸ) where 
+    open L⊤
+    open HA 
+    has𝟙ᴰ : Has𝟙ᴰ has𝟙 
+    has𝟙ᴰ .fst = top (has𝟙ᴸ .fst (has𝟙 .fst))
+    has𝟙ᴰ .snd .N-obᴰ {A} P tt tt = goal where 
+      goal : A LV.◂ P ≤ LV.f* (N-ob (has𝟙 .snd) A tt) (has𝟙ᴰ .fst)
+      goal = LV.seq (top-top (has𝟙ᴸ .fst A)) {! has𝟙ᴸ .snd  !} -- use preservation of top by reindexing
+    has𝟙ᴰ .snd .N-homᴰ {A}{A'}{V}{P}{P'} P'≤VP = toPathP (funExt λ _ → funExt λ _ → LV.isProp≤ _ _)
+
+  module ×TyDep (has× : Has×)((has×ᴸ , has∃ᴸ) : Has×ᴸ) where 
+
+    open ×TySyntax has× 
+    open L∧ 
+    open L∃ 
+    open ∃Syntax {L = LV} has∃ᴸ
+    open HA renaming (_∧_ to _∧ⱽ_)
+
+    δ : {A : ob V} → V [ A , A ⊗ A ] 
+    δ {A} = V .id ,p V .id
+
+    _⋀ⱽ_ : {A : ob V} → LV.F∣ A ∣ → LV.F∣ A ∣ → LV.F∣ A ∣ 
+    _⋀ⱽ_ {A} = has×ᴸ .fst A ._∧ⱽ_
+
+    _⋀ᴰ_ : {A A' : ob V} → LV.F∣ A ∣ → LV.F∣ A' ∣ → LV.F∣ A ⊗ A' ∣ 
+    _⋀ᴰ_ {A}{A'} P P' = LV.f* (δ{A ⊗ A'}) {!   !} where 
+      -- ∃f {f = hrm}  (LV.f* hrm {!   !} ⋀ⱽ {!   !})  where 
+
+      hrm : V [ (A ⊗ A') ⊗ (A ⊗ A') , A ⊗ A' ] 
+      hrm =  {! ∃f {f = δ{A}}!}    
+
+      -- ∃f ({!  P !} ⋀ⱽ P')
+      -- LV.f* {! ∃f ?!} P ⋀ⱽ LV.f* {!  _,p_ !} P'
+      -- we don't have these maps .. V [ A ⊗ A' , A ] , V [ A ⊗ A' , A' ]
+    -- need the other LR defintion using exists and eq 
+
+    has×ᴰ : Has×ᴰ has× 
+    has×ᴰ {A} {A'} P P' .fst = P ⋀ᴰ P'
+    has×ᴰ {A} {A'} P P' .snd .N-obᴰ {A''} P'' (V , W) (P''≤VP , P''≤WP') = {!   !}
+    has×ᴰ {A} {A'} P P' .snd .N-homᴰ {X}{Y}{V}{Xᴰ}{Yᴰ} Yᴰ≤VXᴰ = toPathP (funExt λ _ → funExt λ _ → LV.isProp≤ _ _)
+
+
+  module +TyDep (has+ : Has+)((has+ᴸ , has∃ᴸ ) : Has+ᴸ ) where 
+
+    --open +TySyntax has+
+    open L∨
+    open L∃ 
+    open ∃Syntax {L = LV} has∃ᴸ
+    open HA renaming (_∨_ to _∨ⱽ_)
+
+
+    _⋁ⱽ_ : {A : ob V} → LV.F∣ A ∣ → LV.F∣ A ∣ →   LV.F∣ A ∣
+    _⋁ⱽ_ {A} = _∨ⱽ_ {P = LV .F-ob A}(has+ᴸ .fst A) 
+
+    ⋁ⱽ-intro₁ : {A  : ob V}{P Q : Vᴰ .ob[_] A} → 
+      A LV.◂ P ≤ (P ⋁ⱽ Q)
+    ⋁ⱽ-intro₁ {A}{P}{Q} = or-intro1 ((has+ᴸ .fst A)) {P = P}{P}{Q} LV.id⊢
+
+    ⋁ⱽ-intro₂  : {A  : ob V}{P Q : Vᴰ .ob[_] A} → 
+      A LV.◂ P ≤ (Q ⋁ⱽ P)
+    ⋁ⱽ-intro₂ {A}{P}{Q} = or-intro2 ((has+ᴸ .fst A)) {P = P}{Q}{P} LV.id⊢
+
+
+    ⋁ⱽ-elim : {A  : ob V}{P R Q : Vᴰ .ob[_] A} → 
+      A LV.◂ P ≤ R  → 
+      A LV.◂ Q ≤ R  →
+      A LV.◂ (P ⋁ⱽ Q) ≤ R 
+    ⋁ⱽ-elim {A} = or-elim  (has+ᴸ .fst A)
+
+    _⋀ᴰ_ : {A A' : ob V} → LV.F∣ A ∣ → LV.F∣ A' ∣ → LV.F∣ A+A' (has+ A A') ∣ 
+    _⋀ᴰ_ {A}{A'} P P' = ∃f {f = σ₁ ((has+ A A'))} P ⋁ⱽ ∃f {f = σ₂ ((has+ A A'))} P'
+
+    has+ᴰ : Has+ᴰ has+
+    has+ᴰ Aᴰ A'ᴰ .TypeStructureᴰ.Has+'ᴰ.Aᴰ+A'ᴰ = Aᴰ ⋀ᴰ A'ᴰ
+    has+ᴰ {A}{A'} Aᴰ A'ᴰ .TypeStructureᴰ.Has+'ᴰ.matchᴰ .N-obᴰ {B} Bᴰ (M , N) (Aᴰ≤MBᴰ , A'ᴰ≤NBᴰ)  = goal where 
+      module adj₁ =  AdjSyntax (has∃ᴸ (σ₁ (has+ A A')))
+      module adj₂ =  AdjSyntax (has∃ᴸ (σ₂ (has+ A A')))
+
+      sub1 : A LV.◂  Aᴰ ≤ LV.f* (σ₁ (has+ A A')) (pull (match (has+ A A') .N-ob B (M , N)) $ Bᴰ) 
+      sub1 = LV.seq Aᴰ≤MBᴰ (LV.seq (antired (+β₁ (has+ A A') M N)) VM*→V*M*)
+
+      sub2 : A' LV.◂  A'ᴰ ≤ LV.f* (σ₂ (has+ A A')) (pull (match (has+ A A') .N-ob B (M , N)) $ Bᴰ) 
+      sub2 = LV.seq A'ᴰ≤NBᴰ (LV.seq (antired (+β₂ (has+ A A') M N)) VM*→V*M*)
+
+      goal : (A+A' (has+ A A')) LV.◂ Aᴰ ⋀ᴰ A'ᴰ ≤ (pull (match ((has+ A A')) .N-ob  B (M , N)) $ Bᴰ)
+      goal =  ⋁ⱽ-elim {TypeStructure.Has+'.A+A' (has+ A A')}{fun adj₁.L Aᴰ}{fun (pull (N-ob (TypeStructure.Has+'.match (has+ A A')) B (M , N)))
+        Bᴰ}{fun adj₂.L A'ᴰ} (adj₁.RtoL sub1) (adj₂.RtoL sub2)
+    has+ᴰ Aᴰ A'ᴰ .TypeStructureᴰ.Has+'ᴰ.matchᴰ .N-homᴰ _ = funExt λ _ → funExt λ _ → toPathP (LV.isProp≤ _ _)
+    has+ᴰ {A}{A'} Aᴰ A'ᴰ .TypeStructureᴰ.Has+'ᴰ.σ₁ᴰ = goal where 
+      open AdjSyntax (has∃ᴸ (σ₁ (has+ A A')))
+      goal : A LV.◂ Aᴰ ≤ LV.f* (σ₁ (has+ A A'))  (Aᴰ ⋀ᴰ A'ᴰ) 
+      goal = LtoR ⋁ⱽ-intro₁
+    has+ᴰ {A}{A'} Aᴰ A'ᴰ .TypeStructureᴰ.Has+'ᴰ.σ₂ᴰ = goal where 
+      open AdjSyntax (has∃ᴸ (σ₂ (has+ A A')))
+      goal : A' LV.◂ A'ᴰ ≤ LV.f* (σ₂ (has+ A A')) (Aᴰ ⋀ᴰ A'ᴰ) 
+      goal = LtoR ⋁ⱽ-intro₂
+    has+ᴰ {A}{A'} Aᴰ A'ᴰ .TypeStructureᴰ.Has+'ᴰ.+β₁ᴰ {B}{Bᴰ}{M}{M'}{e} Aᴰ≤MBᴰ A'ᴰ≤M'Bᴰ = tt
+      -- edge-1 {! anti !} _ Aᴰ≤MBᴰ
+    has+ᴰ {A}{A'} Aᴰ A'ᴰ .TypeStructureᴰ.Has+'ᴰ.+β₂ᴰ {B}{Bᴰ}{M}{M'}{e} Aᴰ≤MBᴰ A'ᴰ≤M'Bᴰ = tt
+
+  module UTyDep (hasUTy : HasUTy) where 
+
+    open UTySyntax hasUTy
+    {- holes dispatched with naturality
+        force (subV V W) ≡ subC V (force W) -}
+    hasUTyᴰ : HasUTyᴰ hasUTy
+    hasUTyᴰ Bᴰ .WkRepresentationᴰ.repᴰ = pull (force (V .id)) $ Bᴰ
+    hasUTyᴰ {B} Q .WkRepresentationᴰ.fwdᴰ .N-obᴰ {A} P V P≤!VQ = LV.seq P≤!VQ (LV.seq V*M*→VM* {!   !}) -- pull (subC V (force id)) ≡ pull (force V)
+    hasUTyᴰ Bᴰ .WkRepresentationᴰ.fwdᴰ .N-homᴰ _ = toPathP (funExt λ x → funExt λ y → LV.isProp≤  _ _)
+    hasUTyᴰ {B} Q .WkRepresentationᴰ.bkwdᴰ {A}{P} {M} P≤MQ = LV.seq P≤MQ (LV.seq (LV.seq (antired (Uβ M)) (LV.eqTo≤ {!   !})) VM*→V*M*)  -- pull (force (thunk M)) ≡ pull (subC (thunk M) (force id))
+    hasUTyᴰ {B} Q .WkRepresentationᴰ.wkretractᴰ {A}{P}{M} P≤MQ = tt
+
+  
+  module FTyDep (hasFTy : HasFTy) (hasFTyᴸ : HasFTyᴸ) where
+    open FTySyntax hasFTy 
+
+    hasFTyᴰ : HasFTyᴰ hasFTy 
+    hasFTyᴰ Aᴰ .WkRepresentationᴰ.repᴰ = hasFTyᴸ (ret (C .id)) .fst $ Aᴰ
+    hasFTyᴰ {A} Aᴰ .WkRepresentationᴰ.fwdᴰ .N-obᴰ {B} Bᴰ S FᴰAᴰ≤retAᴰ = goal where 
+      open AdjSyntax (hasFTyᴸ  (ret (C .id))) 
+      goal : A  LV.◂ Aᴰ ≤ (pull (ret S) $ Bᴰ) 
+      goal = LV.seq (LtoR FᴰAᴰ≤retAᴰ) (LV.eqTo≤ {!   !}) -- fun (pull (ret (C .id))) (LC.f* S Bᴰ) ≡ fun (pull (ret S)) Bᴰ
+    hasFTyᴰ Aᴰ .WkRepresentationᴰ.fwdᴰ .N-homᴰ _ = toPathP (funExt λ x → funExt λ y → LV.isProp≤  _ _)
+    hasFTyᴰ {A} Aᴰ .WkRepresentationᴰ.bkwdᴰ {B}{Bᴰ}{M} Aᴰ≤MBᴰ = goal where 
+      open AdjSyntax (hasFTyᴸ  (ret (C .id))) 
+      goal : F A  LC.◂ hasFTyᴸ (ret (C .id)) .fst $ Aᴰ ≤ LC.f* (bind M) Bᴰ 
+      goal = RtoL (LV.seq Aᴰ≤MBᴰ (LV.seq (antired (subst (λ h → Edge[ h , M ]) {!   !}  (Fβ M))) MS*→M*S*))
+    hasFTyᴰ Aᴰ .WkRepresentationᴰ.wkretractᴰ e = tt 
+
+
+
+module Reindex
+  {M N : CBPVModel _ _ _ _  _ _ }
+  (F : CBPVMorphism M N)
+  (L : CBPVLogic N) where 
+  open import HyperDoc.Operational.TypeStructure
+  private 
+    module M = CBPVModelSyntax M
+    module N = CBPVModelSyntax N
+    module F = CBPVMorphismSyntax F 
+    module L = CBPVLogic L
+    module TSM = TypeStructure M
+    module TSN = TypeStructure N
+
+
+  open CBPVMorphismSyntax F
+
+  LV' : Functor (M.V ^op) (POSET ℓ-zero ℓ-zero) 
+  LV' = L.LV ∘F (FV ^opF)
+
+  LC' : Functor (M.C ^op) (POSET ℓ-zero ℓ-zero) 
+  LC' = L.LC ∘F (FC ^opF)
+
+  LSq' : NatTrans (FORGET ∘F M.OPar) (Hom^op M ∘F (LV' ×F ((LC' ^opF) ∘F to^op^op)))
+  LSq' = seqTrans (FORGET ∘ʳ FO) (seqTrans (F-assocl {F = (F.FV  ^opF) ×F F.FC}{N.OPar}{FORGET}) (seqTrans (L.LSq ∘ˡ ((FV ^opF) ×F FC)) dumb)) where 
+    dumb : 
+      NatTrans
+      ((Hom^op N ∘F (L.LV ×F ((L.LC ^opF) ∘F to^op^op))) ∘F
+      ((FV ^opF) ×F FC))
+      (Hom^op M ∘F (LV' ×F ((LC' ^opF) ∘F to^op^op)))
+    dumb .N-ob x z = z
+    dumb .N-hom _ = refl
+
+  reindex : CBPVLogic M 
+  reindex .CBPVLogic.LV = LV'
+  reindex .CBPVLogic.LC = LC'
+  reindex .CBPVLogic.LSq = LSq'
+  reindex .CBPVLogic.antired e = L.antired (N-ob (F .snd .snd) (_ , _) .snd e)
+
+  module L' = CBPVLogic reindex
+
+  module LS = LogicStruct L 
+  module LS' = LogicStruct reindex
+
+  pres𝟙ᴸ  : LS.Has𝟙ᴸ → LS'.Has𝟙ᴸ
+  pres𝟙ᴸ has𝟙ᴸ = (λ c → has𝟙ᴸ .fst (F-ob (FV ^opF) c)) ,
+    (λ {c} {c'} f → has𝟙ᴸ .snd (F-hom (FV ^opF) f))
+  
+  pres+ᴸ  : LS.Has+ᴸ → LS'.Has+ᴸ
+  pres+ᴸ has+ᴸ = ((λ c → has+ᴸ .fst .fst (F-ob (FV ^opF) c)) ,
+     (λ {c} {c'} f → has+ᴸ .fst .snd (F-hom (FV ^opF) f)))
+    , (λ {A} {A'} f → has+ᴸ .snd (F-hom (FV ^opF) f))
+
+  presFTyᴸ  : LS.HasFTyᴸ → LS'.HasFTyᴸ
+  presFTyᴸ hasFTyᴸ {A}{B} M = hasFTyᴸ (N-ob F-assocl (A , B) (N-ob (FORGET ∘ʳ FO) (A , B) M))
 
 
 {-}

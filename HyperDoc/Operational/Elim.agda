@@ -55,7 +55,7 @@ module Elim
   -- needed assumptions
   -- TODO, specify as displayed type structures
   module _
-    (Ansᴰ : ob[ Vᴰ ] Ans)
+   --  (hasAnsᴰ : HasAnsᴰ hasAns)
     (has𝟙ᴰ : Has𝟙ᴰ has𝟙)
     (has×ᴰ : Has×ᴰ has×)
     (has+ᴰ : Has+ᴰ has+)
@@ -72,7 +72,7 @@ module Elim
     mutual 
       vty : (A : VTy) → ob[ Vᴰ ] A 
       vty 𝟙 = has𝟙ᴰ .fst
-      vty Ans = Ansᴰ
+     --  vty Ans = hasAnsᴰ .fst
       vty (U B) = Uᴰ (cty B) 
       vty (A ⊗ A₁) = has×ᴰ (vty A) (vty A₁)  .fst
       vty (A ⊕ A₁) = has+ᴰ (vty A) (vty A₁) .Aᴰ+A'ᴰ
@@ -80,156 +80,238 @@ module Elim
       cty : (B : CTy) → ob[ Cᴰ ] B 
       cty (F A) = Fᴰ (vty A) 
 
-    module _  
-      (yesᴰ : ∀{A} → Hom[ Vᴰ ][ yes , vty A ] (vty Ans))
-      (noᴰ : ∀{A} → Hom[ Vᴰ ][ no , vty A ] (vty Ans)) where 
+    mutual 
+      vtm : {A A' : VTy} → (f : Hom[ V , A ] A') → Hom[ Vᴰ ][ f  , vty A ] (vty A')
+      vtm (subV V₁ V₂) = (Vᴰ ⋆ᴰ vtm V₁) (vtm V₂)
+      vtm var = idᴰ Vᴰ
+      vtm (subVIdl V i) = Vᴰ .⋆IdLᴰ (vtm V) i
+      vtm (subVIdr V i) = Vᴰ .⋆IdRᴰ (vtm V) i
+      vtm (subVAssoc V₁ V₂ V₃ i) = Vᴰ .⋆Assocᴰ (vtm V₁) (vtm V₂) (vtm V₃) i
+      vtm (isSet⊢v V₁ V₂ x y i j) = 
+        isOfHLevel→isOfHLevelDep 2 
+          (λ x → Vᴰ .isSetHomᴰ) 
+          (vtm V₁) (vtm V₂) (cong vtm x) (cong vtm y) (isSet⊢v V₁ V₂ x y) i j
 
-      mutual 
-        vtm : {A A' : VTy} → (f : Hom[ V , A ] A') → Hom[ Vᴰ ][ f  , vty A ] (vty A')
-        vtm (subV V₁ V₂) = (Vᴰ ⋆ᴰ vtm V₁) (vtm V₂)
-        vtm var = idᴰ Vᴰ
-        vtm (subVIdl V i) = Vᴰ .⋆IdLᴰ (vtm V) i
-        vtm (subVIdr V i) = Vᴰ .⋆IdRᴰ (vtm V) i
-        vtm (subVAssoc V₁ V₂ V₃ i) = Vᴰ .⋆Assocᴰ (vtm V₁) (vtm V₂) (vtm V₃) i
-        vtm (isSet⊢v V₁ V₂ x y i j) = 
-          isOfHLevel→isOfHLevelDep 2 
-            (λ x → Vᴰ .isSetHomᴰ) 
-            (vtm V₁) (vtm V₂) (cong vtm x) (cong vtm y) (isSet⊢v V₁ V₂ x y) i j
+      vtm (tt {A}) = has𝟙ᴰ .snd .N-obᴰ (vty A) tt tt
+     --  vtm yes = hasAnsᴰ .snd (vty _) .fst
+     --  vtm no = hasAnsᴰ .snd (vty _) .snd
+      vtm (thunk M) = thunkᴰ (ctm M)
+      vtm (subtt {A}{A'}{V} i) = has𝟙ᴰ .snd .N-homᴰ (vtm V) i tt tt
+      vtm (σ₁ {A}{A'})= has+ᴰ (vty A) (vty A') .σ₁ᴰ
+      vtm (σ₂ {A}{A'}) = has+ᴰ (vty A) (vty A') .σ₂ᴰ
+      vtm (_,p_ {A}{A'}{A''} V V') = has×ᴰ (vty A') (vty A'') .snd .N-obᴰ {A} (vty A) (V , V') (vtm V , vtm V')
+      vtm (sub,p i) = {!   !}
 
-        vtm (tt {A}) = has𝟙ᴰ .snd .N-obᴰ (vty A) tt tt
-        vtm yes = yesᴰ
-        vtm no = noᴰ
-        vtm (thunk M) = thunkᴰ (ctm M)
-        vtm (subtt {A}{A'}{V} i) = has𝟙ᴰ .snd .N-homᴰ (vtm V) i tt tt
-        vtm (σ₁ {A}{A'})= has+ᴰ (vty A) (vty A') .σ₁ᴰ
-        vtm (σ₂ {A}{A'}) = has+ᴰ (vty A) (vty A') .σ₂ᴰ
-        vtm (_,p_ {A}{A'}{A''} V V') = has×ᴰ (vty A') (vty A'') .snd .N-obᴰ {A} (vty A) (V , V') (vtm V , vtm V')
-        vtm (sub,p i) = {!   !}
+      -- for goal readability
+      ctm-subC : {A A' : VTy}{B : CTy} → (V : A' ⊢v A)(M : A ⊢c B) → Oᴰ'[ subC V M ][ vty A' , cty B ] 
+      ctm-subC {A}{A'}{B} V M = Oᴰ .Bif-homLᴰ (vtm V) (cty B) .fst M (ctm M)
 
-        -- for goal readability
-        ctm-subC : {A A' : VTy}{B : CTy} → (V : A' ⊢v A)(M : A ⊢c B) → Oᴰ'[ subC V M ][ vty A' , cty B ] 
-        ctm-subC {A}{A'}{B} V M = Oᴰ .Bif-homLᴰ (vtm V) (cty B) .fst M (ctm M)
+      ctm-plug : {A : VTy}{B B' : CTy} → (S : B ⊢k B')(M : A ⊢c B) → Oᴰ'[ plug S M ][ vty A , cty B' ] 
+      ctm-plug {A}{B}{B'} S M = Oᴰ .Bif-homRᴰ (ktm S)(vty A) .fst M (ctm M)
 
-        ctm-plug : {A : VTy}{B B' : CTy} → (S : B ⊢k B')(M : A ⊢c B) → Oᴰ'[ plug S M ][ vty A , cty B' ] 
-        ctm-plug {A}{B}{B'} S M = Oᴰ .Bif-homRᴰ (ktm S)(vty A) .fst M (ctm M)
+      ctm : {A : VTy}{B : CTy} → (M : A ⊢c B) → Nodeᴰ[ M ][ vty A , cty B ]
+      ctm (subC V M) = ctm-subC V M 
+      ctm (plug S M) = ctm-plug S M
+      ctm (plugId {A}{B}{M} i) = Oᴰ .Bif-R-idᴰ i .fst M (ctm M)
+      ctm (subCId {A}{B}{M} i) = Oᴰ .Bif-L-idᴰ i .fst M (ctm M)
+      ctm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = 
+        Oᴰ .Bif-R-seqᴰ (ktm S) (ktm S') (~ i) .fst M (ctm M)
+      ctm (subDist {A}{A'}{A''}{B} {V}{V'}{M} i) = 
+        Oᴰ .Bif-L-seqᴰ (vtm V') (vtm V) (~ i) .fst M (ctm M)
+      ctm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = 
+        Oᴰ .SepBif-RL-commuteᴰ (vtm V) (ktm S) i .fst M (ctm M)
+      ctm (isSet⊢c {A}{B} M M₁ x y i i₁) = 
+        isOfHLevel→isOfHLevelDep 2 {Node[ A , B ]} {λ M → Nodeᴰ[ M ][ (vty A) , (cty B) ]}
+        (λ M → Oᴰ .Bif-obᴰ {A}{B} (vty A)(cty B) .fst M .snd) 
+        (ctm M) (ctm M₁) (cong ctm x) (cong ctm y) (isSet⊢c M M₁ x y) i i₁
 
-        ctm : {A : VTy}{B : CTy} → (M : A ⊢c B) → Nodeᴰ[ M ][ vty A , cty B ]
-        ctm (subC V M) = ctm-subC V M 
-        ctm (plug S M) = ctm-plug S M
-        ctm (plugId {A}{B}{M} i) = Oᴰ .Bif-R-idᴰ i .fst M (ctm M)
-        ctm (subCId {A}{B}{M} i) = Oᴰ .Bif-L-idᴰ i .fst M (ctm M)
-        ctm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = 
-          Oᴰ .Bif-R-seqᴰ (ktm S) (ktm S') (~ i) .fst M (ctm M)
-        ctm (subDist {A}{A'}{A''}{B} {V}{V'}{M} i) = 
-          Oᴰ .Bif-L-seqᴰ (vtm V') (vtm V) (~ i) .fst M (ctm M)
-        ctm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = 
-          Oᴰ .SepBif-RL-commuteᴰ (vtm V) (ktm S) i .fst M (ctm M)
-        ctm (isSet⊢c {A}{B} M M₁ x y i i₁) = 
-          isOfHLevel→isOfHLevelDep 2 {Node[ A , B ]} {λ M → Nodeᴰ[ M ][ (vty A) , (cty B) ]}
-          (λ M → Oᴰ .Bif-obᴰ {A}{B} (vty A)(cty B) .fst M .snd) 
-          (ctm M) (ctm M₁) (cong ctm x) (cong ctm y) (isSet⊢c M M₁ x y) i i₁
-  
-        ctm (ret S) = retᴰ (ktm S) 
-        ctm (ret-sub {A}{B}{B'}{S}{S'} i) = 
-          hasFTyᴰ (vty A) .fwdᴰ .N-homᴰ (ktm S) i S' (ktm S')
-          -- subst (λ h → Nodeᴰ[ h ][ vty A , hasFTyᴰ (vty A) .repᴰ ] ) plugId have where 
-          --have : Nodeᴰ[ plug hole ret ][ vty A , hasFTyᴰ (vty A) .repᴰ ] 
-          --have = hasFTyᴰ (vty A) .fwdᴰ .N-obᴰ (cty (F A)) (C .id) (Cᴰ .idᴰ) 
+      ctm (ret S) = retᴰ (ktm S) 
+      ctm (ret-sub {A}{B}{B'}{S}{S'} i) = 
+        hasFTyᴰ (vty A) .fwdᴰ .N-homᴰ (ktm S) i S' (ktm S')
+        -- subst (λ h → Nodeᴰ[ h ][ vty A , hasFTyᴰ (vty A) .repᴰ ] ) plugId have where 
+        --have : Nodeᴰ[ plug hole ret ][ vty A , hasFTyᴰ (vty A) .repᴰ ] 
+        --have = hasFTyᴰ (vty A) .fwdᴰ .N-obᴰ (cty (F A)) (C .id) (Cᴰ .idᴰ) 
 
-        ctm (force V) = forceᴰ (vtm V)
-        ctm (force-sub {A}{A'}{B}{V}{W} i) = 
-          hasUTyᴰ (cty B) .fwdᴰ .N-homᴰ (vtm V) i W (vtm W)
-        ctm (match {A}{A'}{B} M M') = has+ᴰ (vty A) (vty A') .matchᴰ .N-obᴰ {B} (cty B) (M , M') (ctm M , ctm M')
-        ctm (plugmatch i) = {!   !}
-          
-          -- subst (λ h → Nodeᴰ[ h ][ hasUTyᴰ (cty B) .repᴰ , cty B ] ) subCId have where 
-          
-          -- have : Nodeᴰ[ subC var force ][ Uᴰ (cty B) , cty B ] 
-          -- have = forceᴰ (Vᴰ .idᴰ)
+      ctm (force V) = forceᴰ (vtm V)
+      ctm (force-sub {A}{A'}{B}{V}{W} i) = 
+        hasUTyᴰ (cty B) .fwdᴰ .N-homᴰ (vtm V) i W (vtm W)
+      ctm (match {A}{A'}{B} M M') = has+ᴰ (vty A) (vty A') .matchᴰ .N-obᴰ {B} (cty B) (M , M') (ctm M , ctm M')
+      ctm (plugmatch i) = {!   !}
+        
+        -- subst (λ h → Nodeᴰ[ h ][ hasUTyᴰ (cty B) .repᴰ , cty B ] ) subCId have where 
+        
+        -- have : Nodeᴰ[ subC var force ][ Uᴰ (cty B) , cty B ] 
+        -- have = forceᴰ (Vᴰ .idᴰ)
 
-        open import HyperDoc.Operational.Graph
-        ctmRel : {A : VTy}{B : CTy}{M M' : A ⊢c B}
-          (M↦M' : M ↦ M') → Edgeᴰ[ M↦M' ][ ctm M , ctm M' ]
-        ctmRel (Fβ {A}{B}{M = M}) = {!   !} where 
-          _ : hasFTyᴰ (vty A) .bkwdᴰ (ctm M) ≡  ktm (bind M) 
-          _ = {!   !}
-        -- hasFTyᴰ (vty A) .bkwdᴰ (ctm M) != ktm (bind M) 
-          _ = {!  ktm (bind M) !} -- normalized hasFTyᴰ (vty A) .bkwdᴰ (ctm M)
-          goal =  Fβᴰ (ctm M)
-        ctmRel (Uβ {M = M}) =  Uβᴰ (ctm M) 
-         {-} have : Edgeᴰ[ Uβ ][ forceᴰ (thunkᴰ (ctm M)) , ctm M ] 
-          have = Uβᴰ (ctm M)
+      open import HyperDoc.Operational.Graph
+      ctmRel : {A : VTy}{B : CTy}{M M' : A ⊢c B}
+        (M↦M' : M ↦ M') → Edgeᴰ[ M↦M' ][ ctm M , ctm M' ]
+      ctmRel (Fβ {A}{B}{M = M}) = {!   !} where 
+        _ : hasFTyᴰ (vty A) .bkwdᴰ (ctm M) ≡  ktm (bind M) 
+        _ = {!   !}
+      -- hasFTyᴰ (vty A) .bkwdᴰ (ctm M) != ktm (bind M) 
+        _ = {!  ktm (bind M) !} -- normalized hasFTyᴰ (vty A) .bkwdᴰ (ctm M)
+        goal =  Fβᴰ (ctm M)
+      ctmRel (Uβ {M = M}) =  Uβᴰ (ctm M) 
+      {-} have : Edgeᴰ[ Uβ ][ forceᴰ (thunkᴰ (ctm M)) , ctm M ] 
+        have = Uβᴰ (ctm M)
 
-          sub' : forceᴰ (thunkᴰ (ctm M)) ≡ Oᴰ .Bif-homLᴰ (vtm (thunk M)) _ .fst _ (ctm force) 
-          -- ctm-subC (thunk M) force
-          sub' = {!   !}
+        sub' : forceᴰ (thunkᴰ (ctm M)) ≡ Oᴰ .Bif-homLᴰ (vtm (thunk M)) _ .fst _ (ctm force) 
+        -- ctm-subC (thunk M) force
+        sub' = {!   !}
 
-          goal : Edgeᴰ[ Uβ ][ ctm-subC (thunk M) force , ctm M ] 
-          goal = subst (λ h → Edgeᴰ[ Uβ ][ h , ctm M ] ) sub' have
+        goal : Edgeᴰ[ Uβ ][ ctm-subC (thunk M) force , ctm M ] 
+        goal = subst (λ h → Edgeᴰ[ Uβ ][ h , ctm M ] ) sub' have
 -}
-          {-}
-          _ = {! ctm-subC (thunk M) force  !}
-          _ :  Edgeᴰ[ wkretract (hasUTy B) (subC (thunk M) force) ][ hasUTyᴰ (cty B) .fwdᴰ .N-obᴰ (vty A)
-            (bkwd (hasUTy B) (subC (thunk M) force))
-            (hasUTyᴰ (cty B) .bkwdᴰ (ctm (subC (thunk M) force))) , ctm (subC (thunk M) force) ]
-          _ = hasUTyᴰ (cty B) .wkretractᴰ {A}{vty A}{subC (thunk M) force}(ctm (subC (thunk M) force))-}
-        ctmRel (subC-cong {A}{A'}{B}{V}{M}{M'} M↦M') = 
-          Oᴰ .Bif-homLᴰ (vtm V) (cty B) .snd (ctm M) (ctm M') (ctmRel M↦M') 
-        ctmRel (plug-cong {A}{B}{B'}{S}{M}{M'} M↦M') = 
-          Oᴰ .Bif-homRᴰ (ktm S) (vty A) .snd (ctm M) (ctm M') (ctmRel M↦M')
-        ctmRel (+β₁ {A}{A'}{B}{M}{M'})  = has+ᴰ (vty A) (vty A') .+β₁ᴰ {B}{cty B}{M}{M'}{+β₁} (ctm M) (ctm M')
-        ctmRel (+β₂ {A}{A'}{B}{M}{M'})  = has+ᴰ (vty A) (vty A') .+β₂ᴰ {B}{cty B}{M}{M'}{+β₂} (ctm M) (ctm M')
-        ctmRel (isProp↦ a b  i) = {!   !}
+        {-}
+        _ = {! ctm-subC (thunk M) force  !}
+        _ :  Edgeᴰ[ wkretract (hasUTy B) (subC (thunk M) force) ][ hasUTyᴰ (cty B) .fwdᴰ .N-obᴰ (vty A)
+          (bkwd (hasUTy B) (subC (thunk M) force))
+          (hasUTyᴰ (cty B) .bkwdᴰ (ctm (subC (thunk M) force))) , ctm (subC (thunk M) force) ]
+        _ = hasUTyᴰ (cty B) .wkretractᴰ {A}{vty A}{subC (thunk M) force}(ctm (subC (thunk M) force))-}
+      ctmRel (subC-cong {A}{A'}{B}{V}{M}{M'} M↦M') = 
+        Oᴰ .Bif-homLᴰ (vtm V) (cty B) .snd (ctm M) (ctm M') (ctmRel M↦M') 
+      ctmRel (plug-cong {A}{B}{B'}{S}{M}{M'} M↦M') = 
+        Oᴰ .Bif-homRᴰ (ktm S) (vty A) .snd (ctm M) (ctm M') (ctmRel M↦M')
+      ctmRel (+β₁ {A}{A'}{B}{M}{M'})  = has+ᴰ (vty A) (vty A') .+β₁ᴰ {B}{cty B}{M}{M'}{+β₁} (ctm M) (ctm M')
+      ctmRel (+β₂ {A}{A'}{B}{M}{M'})  = has+ᴰ (vty A) (vty A') .+β₂ᴰ {B}{cty B}{M}{M'}{+β₂} (ctm M) (ctm M')
+      ctmRel (isProp↦ a b  i) = {!   !}
 
-        ktm : {B B' : CTy} → (f : Hom[ C , B ] B') → Hom[ Cᴰ ][ f  , cty B ] (cty B')
-        ktm (kcomp S S₁) = (Cᴰ ⋆ᴰ ktm S) (ktm S₁)
-        ktm hole = idᴰ Cᴰ
-        ktm (kcompIdl S i) = Cᴰ .⋆IdLᴰ (ktm S) i
-        ktm (kcompIdr S i) = Cᴰ .⋆IdRᴰ (ktm S) i
-        ktm (kcompAssoc S S₁ S₂ i) = Cᴰ .⋆Assocᴰ (ktm S) (ktm S₁) (ktm S₂)  i
-        ktm (isSet⊢k S S₁ x y i j) = 
-          isOfHLevel→isOfHLevelDep 2 
-            (λ x → Cᴰ .isSetHomᴰ) 
-            (ktm S) (ktm S₁) (cong ktm x) (cong ktm y) (isSet⊢k S S₁ x y) i j
-        ktm (bind {A}{B} M) = hasFTyᴰ (vty A) .bkwdᴰ (ctm M)
-        
-           -- bindᴰ (ctm M)
-        
-        SV : Section Id Vᴰ 
-        SV .Section.F-obᴰ = vty
-        SV .Section.F-homᴰ = vtm
-        SV .Section.F-idᴰ = refl
-        SV .Section.F-seqᴰ _ _ = refl
+      ktm : {B B' : CTy} → (f : Hom[ C , B ] B') → Hom[ Cᴰ ][ f  , cty B ] (cty B')
+      ktm (kcomp S S₁) = (Cᴰ ⋆ᴰ ktm S) (ktm S₁)
+      ktm hole = idᴰ Cᴰ
+      ktm (kcompIdl S i) = Cᴰ .⋆IdLᴰ (ktm S) i
+      ktm (kcompIdr S i) = Cᴰ .⋆IdRᴰ (ktm S) i
+      ktm (kcompAssoc S S₁ S₂ i) = Cᴰ .⋆Assocᴰ (ktm S) (ktm S₁) (ktm S₂)  i
+      ktm (isSet⊢k S S₁ x y i j) = 
+        isOfHLevel→isOfHLevelDep 2 
+          (λ x → Cᴰ .isSetHomᴰ) 
+          (ktm S) (ktm S₁) (cong ktm x) (cong ktm y) (isSet⊢k S S₁ x y) i j
+      ktm (bind {A}{B} M) = hasFTyᴰ (vty A) .bkwdᴰ (ctm M)
+      
+        -- bindᴰ (ctm M)
+      
+      SV : Section Id Vᴰ 
+      SV .Section.F-obᴰ = vty
+      SV .Section.F-homᴰ = vtm
+      SV .Section.F-idᴰ = refl
+      SV .Section.F-seqᴰ _ _ = refl
 
-        SC : Section Id Cᴰ 
-        SC .Section.F-obᴰ = cty
-        SC .Section.F-homᴰ = ktm
-        SC .Section.F-idᴰ = refl
-        SC .Section.F-seqᴰ _ _ = refl
+      SC : Section Id Cᴰ 
+      SC .Section.F-obᴰ = cty
+      SC .Section.F-homᴰ = ktm
+      SC .Section.F-idᴰ = refl
+      SC .Section.F-seqᴰ _ _ = refl
 
-        SO : SectionNat {F = idModelMorphsim Syn}{Nᴰ = Synᴰ} SV SC
-        SO .SectionNat.F-Node = ctm
-        SO .SectionNat.F-Edge = ctmRel
-        SO .SectionNat.F-Node-nat V S M = refl
-        SO .SectionNat.F-Edge-nat V S M M' M↦M' = refl
+      SO : SectionNat {F = idModelMorphsim Syn}{Nᴰ = Synᴰ} SV SC
+      SO .SectionNat.F-Node = ctm
+      SO .SectionNat.F-Edge = ctmRel
+      SO .SectionNat.F-Node-nat V S M = refl
+      SO .SectionNat.F-Edge-nat V S M M' M↦M' = refl
 
-        Elim : CBPVSection {F = idModelMorphsim Syn}{Synᴰ} 
-        Elim .fst = SV
-        Elim .snd .fst = SC
-        Elim .snd .snd = SO
+      Elim : CBPVSection {F = idModelMorphsim Syn}{Synᴰ} 
+      Elim .fst = SV
+      Elim .snd .fst = SC
+      Elim .snd .snd = SO
 
+
+module LocalElimLogic 
+  {N : CBPVModel _ _ _ _ _ _ }
+  (L : CBPVLogic N)
+  (LHas𝟙ᴸ : LogicStruct.Has𝟙ᴸ L)
+  (LHas+ᴸ : LogicStruct.Has+ᴸ L)
+  (LHasFTyᴸ : LogicStruct.HasFTyᴸ L) where 
+
+  open Elim
+  open HyperDoc.Operational.Initial
+  open TypeStructureᴰ
+  open import Cubical.Categories.Displayed.Constructions.Reindex.Base renaming (reindex to reindexᴰ)
+  open import HyperDoc.Syntax
+  -- open ConvertLogic L
+
+  module _ (F : CBPVMorphism Syn N) where
+
+    open Reindex F L 
+    L' : CBPVLogic Syn 
+    L' = reindex 
+
+    module LMHV = HDSyntax (CBPVLogic.LV L')
+    module LMHC = HDSyntax (CBPVLogic.LC L')
+    open LogicalToDisplayed L'
+
+    Synᴰ : CBPVModelᴰ Syn _ _ _ _ _ _ 
+    Synᴰ = ConvertLogic.Mᴰ L'
+
+    -- this is just UTyDep.hasUTyᴰ hasUTy, 
+    dumb : HasUTyᴰ Synᴰ hasUTy
+    dumb Bᴰ .WkRepresentationᴰ.repᴰ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.repᴰ
+    dumb Bᴰ .WkRepresentationᴰ.fwdᴰ .N-obᴰ xᴰ x x₁ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.fwdᴰ .N-obᴰ xᴰ x x₁
+    dumb Bᴰ .WkRepresentationᴰ.fwdᴰ .N-homᴰ fᴰ i x y = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.fwdᴰ .N-homᴰ fᴰ i x y
+    dumb Bᴰ .WkRepresentationᴰ.bkwdᴰ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.bkwdᴰ
+    dumb Bᴰ .WkRepresentationᴰ.wkretractᴰ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.wkretractᴰ
+
+    GlobalElim : CBPVSection {F = idModelMorphsim Syn}{Synᴰ} 
+    GlobalElim = 
+      Elim 
+        Synᴰ 
+        (𝟙TyDep.has𝟙ᴰ has𝟙 (pres𝟙ᴸ LHas𝟙ᴸ)) 
+        (×TyDep.has×ᴰ has× {!   !}) 
+        (+TyDep.has+ᴰ has+ (pres+ᴸ LHas+ᴸ)) 
+        dumb --  (UTyDep.hasUTyᴰ hasUTy) -- jfc, good luck waiting for the type checker to finish
+        (FTyDep.hasFTyᴰ hasFTy (presFTyᴸ LHasFTyᴸ)) 
+
+
+    LocalElim : CBPVSection {F = F}{ConvertLogic.Mᴰ L}
+    LocalElim .fst = 
+      GlobalSectionReindex→Section 
+        (CBPVModelᴰSyntax.Vᴰ (ConvertLogic.Mᴰ L)) 
+        (CBPVMorphismSyntax.FV F) 
+        conv where 
+
+        conv : GlobalSection
+          (reindexᴰ (CBPVModelᴰSyntax.Vᴰ (ConvertLogic.Mᴰ L))
+          (CBPVMorphismSyntax.FV F))
+        conv  .Section.F-obᴰ = GlobalElim .fst .Section.F-obᴰ
+        conv  .Section.F-homᴰ = GlobalElim .fst .Section.F-homᴰ
+        conv  .Section.F-idᴰ = toPathP (LMHV.isProp≤  _ _)
+        conv  .Section.F-seqᴰ _ _ = toPathP (LMHV.isProp≤  _ _)
+
+    LocalElim .snd .fst = 
+      GlobalSectionReindex→Section 
+        (CBPVModelᴰSyntax.Cᴰ (ConvertLogic.Mᴰ L)) 
+        (CBPVMorphismSyntax.FC F) 
+        conv where 
+
+        conv : GlobalSection
+          (reindexᴰ (CBPVModelᴰSyntax.Cᴰ (ConvertLogic.Mᴰ L))
+          (CBPVMorphismSyntax.FC F))
+        conv  .Section.F-obᴰ = GlobalElim .snd .fst .Section.F-obᴰ
+        conv  .Section.F-homᴰ = GlobalElim .snd .fst .Section.F-homᴰ
+        conv  .Section.F-idᴰ = toPathP (LMHC.isProp≤ _ _)
+        conv  .Section.F-seqᴰ _ _ = toPathP (LMHC.isProp≤ _ _)
+    LocalElim .snd .snd .SectionNat.F-Node {A}{B} M = GlobalElim .snd .snd .SectionNat.F-Node M
+    LocalElim .snd .snd .SectionNat.F-Edge n↦n' = tt
+    LocalElim .snd .snd .SectionNat.F-Node-nat V S M = toPathP ((LMHV.isProp≤ _ _))
+    LocalElim .snd .snd .SectionNat.F-Edge-nat V S M M' e = toPathP (isPropUnit _ _) 
+{-
 module LocalElim 
   {N : CBPVModel _ _ _ _ _ _ }
   (Nᴰ : CBPVModelᴰ N _ _ _ _ _ _ ) where 
   open Elim
   open HyperDoc.Operational.Initial
+  open import Cubical.Categories.Displayed.Constructions.Reindex.Base renaming (reindex to reindexᴰ)
 
   module _ (F : CBPVMorphism Syn N) where
     open CBPVMorphismSyntax F
-    
+    open CBPVModelᴰSyntax Nᴰ
 
+    Synᴰ : CBPVModelᴰ Syn _ _ _ _ _ _ 
+    Synᴰ .fst = reindexᴰ Vᴰ FV
+    Synᴰ .snd .fst = reindexᴰ Cᴰ FC
+    Synᴰ .snd .snd = {!   !}
+    
     GS : CBPVSection {F = idModelMorphsim Syn} {{!   !}}
-    GS = Elim {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !}
+    GS = Elim Synᴰ {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !}
 
     VS : Section (CBPVMorphismSyntax.FV F) (CBPVModelᴰSyntax.Vᴰ Nᴰ) 
     VS = {! GlobalSectionReindex→Section  !}
@@ -242,72 +324,10 @@ module LocalElim
     LocalElim .snd .fst = CS
     LocalElim .snd .snd = {!   !}  
 
-{-
-module LocalElim 
-  (N : CBPVModel)
-  (L : Logic N) where
 
-  open Syntax Σ
-  open SyntacticModel Σ
-
-  module _ (F : CBPVMorphism SynModel N) where
-    
-    open Reindex F L 
-    open ModelSection
-    open CBPVMorphism F
-    open TypeStructure
-    open ConvertLogic N L
-
-    LM : Logic SynModel
-    LM = reindex
-
-    open Eliminator Σ 
-    open Push
-          
-    module LMHV = HDSyntax (Logic.VH LM)
-    module LMHC = HDSyntax (Logic.CH LM)
-
-    pres⊤ : L⊤.Has⊤ (Logic.VH LM) 
-    pres⊤ .fst = λ c → ⊤ .fst (F-ob (FV ^opF) c)
-    pres⊤ .snd = λ f → ⊤ .snd (F-hom (FV ^opF) f)
-
-    presPush : HasPush LM
-    presPush M = 
-      (push (N-ob FO (_ , _) .carmap M) .fst) ,
-        push (N-ob FO (_ , _) .carmap M) .snd
-
-    M-elim' : CBPVGlobalSection LM
-    M-elim' = 
-      M-elim 
-        LM 
-        pres⊤ 
-        (L∨.Preserve∨ {L = Logic.VH L} FV ∨) 
-        (SyntacticModel.has𝟙 Σ) 
-        presPush 
-        (λ {A} {A'} f₁ → vpush (F-hom (FV ^opF) f₁))
-        (SyntacticModel.hasO+ Σ) 
-    
-    FSV : Section FV Vᴰ
-    FSV = GlobalSectionReindex→Section Vᴰ FV convert where 
-      convert : GlobalSection (reindexᴰ Vᴰ FV)
-      convert .Section.F-obᴰ = M-elim' .fst .Section.F-obᴰ
-      convert .Section.F-homᴰ = M-elim' .fst .Section.F-homᴰ
-      convert .Section.F-idᴰ = LMHV.isProp≤ _ _
-      convert .Section.F-seqᴰ _ _ = LMHV.isProp≤ _ _
-
-    FSC : Section FC Cᴰ 
-    FSC = GlobalSectionReindex→Section Cᴰ FC convert where 
-      convert : GlobalSection (reindexᴰ Cᴰ FC)
-      convert .Section.F-obᴰ = M-elim' .snd .fst .Section.F-obᴰ
-      convert .Section.F-homᴰ = M-elim' .snd .fst .Section.F-homᴰ
-      convert .Section.F-idᴰ = LMHC.isProp≤ _ _
-      convert .Section.F-seqᴰ _ _ = LMHC.isProp≤ _ _ 
-
-    M-elim-local : CBPVSection F L 
-    M-elim-local .fst = FSV
-    M-elim-local .snd .fst = FSC
-    M-elim-local .snd .snd = M-elim' .snd .snd
 -}
+
+
         {-
 module Elim 
   { ℓVᴰ ℓVᴰ' ℓCᴰ ℓCᴰ' ℓGᴰ ℓGᴰ' : Level}

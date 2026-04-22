@@ -101,6 +101,8 @@ module TypeStructure (M : CBPVModel _ _ _ _ _ _ )  where
   -- Has𝟙 : Type 
   -- Has𝟙 = WkRepresentation V (FREE ∘F Constant _ _  (Unit , isSetUnit))
 
+  HasAns : Type 
+  HasAns = Σ[ Ans ∈ ob V ] ((A : ob V) → (V [ A , Ans ]) × (V [ A , Ans ]))
   -- No elim, no reduction
   Has𝟙 : Type 
   Has𝟙 = Σ[ 𝟙 ∈ ob V ]  NatTrans ( Constant _ _  (Unit , isSetUnit)) (V [-, 𝟙 ]) 
@@ -207,6 +209,12 @@ module TypeStructureᴰ
   Constantᴰ .F-idᴰ = refl
   Constantᴰ .F-seqᴰ _ _ = refl
 
+{- 
+      (yesᴰ : ∀{A} → Hom[ Vᴰ ][ yes , vty A ] (vty Ans))
+      (noᴰ : ∀{A} → Hom[ Vᴰ ][ no , vty A ] (vty Ans)) 
+-}
+  HasAnsᴰ : HasAns → Type -- ob[ Vᴰ ] Ans
+  HasAnsᴰ hasAns = Σ[ Ansᴰ ∈ Vᴰ .ob[_] (hasAns .fst) ] ({A : ob V}(Aᴰ : Vᴰ .ob[_] A)  → (Vᴰ [ hasAns .snd A .fst ][ Aᴰ , Ansᴰ ]) × (Vᴰ [ hasAns .snd A .snd ][ Aᴰ , Ansᴰ ]))
 
   Has𝟙ᴰ : Has𝟙 → Type 
   Has𝟙ᴰ has𝟙 = Σ[ 𝟙ᴰ ∈ Vᴰ .ob[_] (has𝟙 .fst) ] NatTransᴰ (has𝟙 .snd) Constantᴰ (Vᴰ [-][-, 𝟙ᴰ ])

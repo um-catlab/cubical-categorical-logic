@@ -59,6 +59,12 @@ module _
       → MonFun (F-ob LC B .fst) (F-ob LV A .fst)
     pull {A} {B} M = LSq .N-ob (A , B) M
 
+    field 
+      antired : ∀ {A B Q}{M M' : O'[ A , B ]} → 
+        Edge[ M , M' ] → 
+        A LV.◂ (pull M' $ Q) ≤ (pull M $ Q)
+
+
     pullComp : ∀ {A A' B B'}(V : V [ A' , A ])(S : C [ B , B' ])(M : O'[ A , B ]) → 
       pull (OPar .F-hom (V , S) .fst M) ≡ MonComp (LC .F-hom S) (MonComp (pull M) (LV .F-hom V))
     pullComp V S M = funExt⁻ (LSq .N-hom (V , S)) M
@@ -109,16 +115,203 @@ module _
       A LV.◂ P ≤ (pull (O .Bif-homR _ S .fst M) $ Q')
     proofRcomp  {M = M}P≤MQ Q≤SQ' = LV.seq P≤MQ (LV.seq (pull M .MonFun.isMon  Q≤SQ') M*S*→MS*)
 
+{-}
+record CBPVRelLogic' {ℓV ℓV' ℓC ℓC' ℓG ℓG' : Level}
+    {M : CBPVModel ℓV ℓV' ℓC ℓC' ℓG ℓG'}
+    (L : CBPVLogic M): Type where 
+  open CBPVModelSyntax M 
+  open CBPVLogic L 
+  field 
+    antired : ∀ {A B P Q}{M M' : O'[ A , B ]} → 
+      Edge[ M , M' ] → 
+      A LV.◂ P ≤ (pull M' $ Q) → 
+      ---------------------------
+      A LV.◂ P ≤ (pull M $ Q)
+    antiredCompL : ∀ {A A' B P P' Q}{V : V [ A' , A ]}{M M' : O'[ A , B ]}
+      (M↦M' : Edge[ M , M' ])
+      (P'≤VP : A' LV.◂ P' ≤ LV.f* V P)
+      (P≤MQ : A LV.◂ P ≤ (pull M $ Q))
+      (P≤M'Q : A LV.◂ P ≤ (pull M' $ Q)) → 
+      antired (O .Bif-homL V B .snd M↦M') (proofLcomp P'≤VP P≤M'Q) ≡ proofLcomp P'≤VP P≤MQ
+
+-}
+    {-
+    (antired (M₁ .snd .snd .Bif-homL V B .snd M↦M')
+ (proofLcomp P'≤VP P≤M'Q)
+ ≡ proofLcomp P'≤VP P≤MQ)
+    -}
+
+module Convert {C : Category _ _} (F : Functor (C ^op) (POSET _ _ )) where 
+  open import HyperDoc.Syntax
+  open import Cubical.Categories.Displayed.Base 
+  open Categoryᴰ
+  open HDSyntax F  
+
+  Cᴰ : Categoryᴰ C _ _ 
+  ob[ Cᴰ ] = F∣_∣
+  Cᴰ .Hom[_][_,_] {x}{y} f Fx Fy = x ◂ Fx ≤ f* f Fy
+  Cᴰ .idᴰ = eqTo≤  (sym f*id)
+  Cᴰ ._⋆ᴰ_ {f = f} {g} = seq* f g
+  Cᴰ .⋆IdLᴰ fᴰ = toPathP (isProp≤ _ fᴰ)
+  Cᴰ .⋆IdRᴰ fᴰ = toPathP (isProp≤ _ fᴰ)
+  Cᴰ .⋆Assocᴰ _ _ _ = toPathP (isProp≤ _ _)
+  Cᴰ .isSetHomᴰ = isProp→isSet isProp≤ 
+    
+module ConvertLogic 
+  {ℓV ℓV' ℓC ℓC' ℓG ℓG' ℓL : Level}
+  {M : CBPVModel ℓV ℓV' ℓC ℓC' ℓG ℓG'}
+  {L : CBPVLogic M } where
+ --  (LR : CBPVRelLogic' L) where 
+
+  open import HyperDoc.Syntax
+  open import Cubical.Categories.Displayed.Base 
+  open import Cubical.Categories.Displayed.Functor
+  open import Cubical.Categories.Displayed.BinProduct
+  open import Cubical.Categories.Bifunctor
+
+  open Bifunctor
+  open Categoryᴰ
+  open Functorᴰ
+  open CBPVLogic L
+  -- open CBPVRelLogic' LR 
+
+
+  Vᴰ = Convert.Cᴰ (LV)
+  Cᴰ = Convert.Cᴰ (LC)
+
+    
+  open CBPVModelSyntax M
+  open import Cubical.Data.Unit
+
+  open MonFun renaming (f to fun)
+  open BifunctorSepᴰ
+  Oᴰ : BifunctorSepᴰ (M .snd .snd) (Vᴰ ^opᴰ) Cᴰ (GRAPHᴰ _ _ _ _ )
+  Oᴰ .Bif-obᴰ {A} {B} P Q .fst M = (A LV.◂ P ≤ (pull M $ Q)) , isProp→isSet LV.isProp≤ 
+  -- do we need any interesting displayed edge relation?
+  Oᴰ .Bif-obᴰ _ _ .snd _ _ _  = Unit , isSetUnit
+  Oᴰ .Bif-homLᴰ P'≤VP Q .fst M P≤MQ = proofLcomp P'≤VP P≤MQ
+  Oᴰ .Bif-homLᴰ _ _  .snd _ _ _  = tt
+  Oᴰ .Bif-L-idᴰ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → isPropUnit) (funExt λ _ → funExt λ _ → LV.isProp≤ _ _))
+  Oᴰ .Bif-L-seqᴰ _ _ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → isPropUnit) (funExt λ _ → funExt λ _ → LV.isProp≤ _ _))
+  Oᴰ .Bif-homRᴰ Q≤SQ' _ .fst _ P≤MQ = proofRcomp P≤MQ Q≤SQ' 
+  Oᴰ .Bif-homRᴰ _ _ .snd _ _ _  = tt
+  Oᴰ .Bif-R-idᴰ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → isPropUnit) (funExt λ _ → funExt λ _ → LV.isProp≤ _ _))
+  Oᴰ .Bif-R-seqᴰ _ _ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → isPropUnit) (funExt λ _ → funExt λ _ → LV.isProp≤ _ _))
+  Oᴰ .SepBif-RL-commuteᴰ _ _ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → isPropUnit) (funExt λ _ → funExt λ _ → LV.isProp≤ _ _))
+
+  Mᴰ : CBPVModelᴰ M  _ _ _ _ _ _ 
+  Mᴰ .fst = Vᴰ
+  Mᴰ .snd .fst = Cᴰ
+  Mᴰ .snd .snd = Oᴰ
+
+module LogicStruct 
+  {M : CBPVModel _ _ _ _ _ _ }
+  {L : CBPVLogic M} where 
+  open import HyperDoc.Operational.TypeStructure
+
+  open TypeStructure M
+  open CBPVLogic L
+  open CBPVModelSyntax M
+  open import HyperDoc.Connectives.Connectives
+  open import Cubical.Categories.Instances.Preorders.Monotone
+  open import Cubical.Categories.Instances.Preorders.Monotone.Adjoint
+
+  open MonFun renaming (f to fun)
+
+  HasFTyᴸ : Type 
+  HasFTyᴸ = 
+    ({A : ob V}{B : ob C}(M : O'[ A , B ]) → HasLeftAdj (pull M)) 
+
+  Has𝟙ᴸ : Type 
+  Has𝟙ᴸ = L⊤.Has⊤ LV
+
+  Has×ᴸ : Type 
+  Has×ᴸ = L∧.Has∧ LV × L∃.Has∃ LV
+
+  Has+ᴸ : Type 
+  Has+ᴸ = L∨.Has∨ LV × L∃.Has∃ LV 
+
+
+{-}
+  test : {X : hProp _}{x y : ⟨ X ⟩}(p q : x ≡ y) → p ≡ q 
+  test {X}{x}{y} p q  = 
+    sym (isProp→isContrPath (X .snd) x y .snd p) ∙ isProp→isContrPath (X .snd) x y  .snd q
+
+  Oᴰ : BifunctorSepᴰ (M .snd .snd) (Vᴰ ^opᴰ) Cᴰ (GRAPHᴰ _ _ _ _ )
+  Oᴰ .Bif-obᴰ {A} {B} P Q .fst M = (A LV.◂ P ≤ (pull M $ Q)) , isProp→isSet LV.isProp≤ 
+  -- Graph of antired
+  Oᴰ .Bif-obᴰ {A} {B} P Q .snd {M}{M'} M↦M' P≤MQ P≤M'Q =
+     (antired M↦M' P≤M'Q ≡ P≤MQ) , isProp→isSet λ x y  → test {X = (A LV.◂ P ≤ (pull M $ Q)) , LV.isProp≤} x y
+     -- test {X = {!   !}} x y
+  Oᴰ .Bif-homLᴰ {A} {A'} {V} {P} {P'} P'≤VP {B} Q .fst M P≤MQ = proofLcomp P'≤VP P≤MQ
+  Oᴰ .Bif-homLᴰ {A} {A'} {V} {P} {P'} P'≤VP {B} Q .snd {M}{M'}{M↦M'} P≤MQ P≤M'Q lrel = 
+    {!   isProp→isContrPath LV.isProp≤  _ _  .snd lrel !}
+  Oᴰ .Bif-L-idᴰ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → test {X = _ , LV.isProp≤}) ((funExt λ _ → funExt λ _ → LV.isProp≤ _ _)))
+  Oᴰ .Bif-L-seqᴰ _ _ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → test {X = _ , LV.isProp≤}) ((funExt λ _ → funExt λ _ → LV.isProp≤ _ _)))
+  Oᴰ .Bif-homRᴰ = {!   !}
+  Oᴰ .Bif-R-idᴰ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → test {X = _ , LV.isProp≤}) ((funExt λ _ → funExt λ _ → LV.isProp≤ _ _)))
+  Oᴰ .Bif-R-seqᴰ _ _ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → test {X = _ , LV.isProp≤}) ((funExt λ _ → funExt λ _ → LV.isProp≤ _ _)))
+  Oᴰ .SepBif-RL-commuteᴰ _ _ = toPathP (Σ≡Prop (λ x → isPropImplicitΠ3 λ _ _ _ → isPropΠ3 λ _ _ _ → test {X = _ , LV.isProp≤}) ((funExt λ _ → funExt λ _ → LV.isProp≤ _ _)))
+
+  -}
+
+ {-} {-}
+  Fib : {A : ob V}{B : ob C}(M : O'[ A , B ]) → Type 
+  Fib {A}{B} M = Σ[ P ∈ LV.F∣ A ∣ ] Σ[ Q ∈ LC.F∣ B ∣ ] (A LV.◂ P ≤ (pull M $ Q))
+  -}
+  open import Cubical.Categories.Displayed.Base
+  open Categoryᴰ
+  open import Cubical.Categories.Instances.Preorders.Base
+  open import Cubical.Relation.Binary.Preorder
+  open PreorderStr -}
+  -- a local fibration
+  {-}
+  Fib :  (A : ob V)(B : ob C) → Functor ((FreeCat O[ A , B ]) ^op) (PREORDER  _ _) 
+  Fib A B .F-ob M .fst .fst = Σ[ P ∈ LV.F∣ A ∣ ] Σ[ Q ∈ LC.F∣ B ∣ ] (A LV.◂ P ≤ (pull M $ Q))
+  Fib A B .F-ob M .fst .snd ._≤_ (P , Q , φ)(P' , Q' , ψ) = 
+    Σ[ P≤P' ∈ A LV.◂ P ≤ P' ]  
+    Σ[ Q'≤Q ∈ B LC.◂ Q' ≤ Q ] {! LV.seq ? ?   !}
+  Fib A B .F-ob M .fst .snd .isPreorder = {!   !}
+  Fib A B .F-ob M .snd = {!   !}
+  Fib A B .F-hom = {!   !}
+  Fib A B .F-id = {!   !}
+  Fib A B .F-seq = {!   !}
+  -}
+  {-}
+  Fib :  (A : ob V)(B : ob C) → Categoryᴰ (FreeCat O[ A , B ]) _ _ 
+  ob[ Fib A B ] M = Σ[ P ∈ LV.F∣ A ∣ ] Σ[ Q ∈ LC.F∣ B ∣ ] (A LV.◂ P ≤ (pull M $ Q))
+  Fib A B .Hom[_][_,_] {M}{M'} M↦M'  (P , Q , φ)(P' , Q' , ψ) = {!   !}
+  Fib A B .idᴰ = {!   !}
+  Fib A B ._⋆ᴰ_ = {!   !}
+  Fib A B .⋆IdLᴰ = {!   !}
+  Fib A B .⋆IdRᴰ = {!   !}
+  Fib A B .⋆Assocᴰ = {!   !}
+  Fib A B .isSetHomᴰ = {!   !} -}
+
+{-
 record CBPVRelLogic {ℓV ℓV' ℓC ℓC' ℓG ℓG' : Level}
     {M : CBPVModel ℓV ℓV' ℓC ℓC' ℓG ℓG'}
     (L : CBPVLogic M): Type where 
   open CBPVModelSyntax M 
   open CBPVLogic L 
   field 
-    LRel : ∀ {A B P Q}{M M' : O'[ A , B ]} → ⟨ O .Bif-ob A B .snd M M' ⟩ → 
+    --- graph of a reindexing operation
+    {-
+        reindex :
+      ∀ {A B}
+        {M M' : O'[ A , B ]}
+      → Edge[ M , M' ]
+      → Fib M' → Fib M
+
+    reindex-mon :
+      ∀ {e φ φ'}
+      → φ ≤Fib φ'
+      → reindex e φ ≤Fib reindex e φ'
+    -}
+    LRel : ∀ {A B P Q}{M M' : O'[ A , B ]} → Edge[ M , M' ] → 
       A LV.◂ P ≤ (pull M $ Q) → A LV.◂ P ≤ (pull M' $ Q) → hProp _
 
-  Rel[_][_,_]  : ∀ {A B P Q}{M M' : O'[ A , B ]} → ⟨ O .Bif-ob A B .snd M M' ⟩ → 
+  Rel[_][_,_]  : ∀ {A B P Q}{M M' : O'[ A , B ]} → Edge[ M , M' ] → 
     A LV.◂ P ≤ (pull M $ Q) → A LV.◂ P ≤ (pull M' $ Q) → Type 
   Rel[_][_,_] e φ ψ = ⟨ LRel e φ ψ ⟩ 
   
@@ -808,5 +1001,6 @@ module Convert {C : Category _ _} (F : Functor (C ^op) (POSET _ _ )) where
   Cᴰ .⋆Assocᴰ _ _ _ = toPathP (isProp≤ _ _)
   Cᴰ .isSetHomᴰ = isProp→isSet isProp≤ 
 
+-}
 -}
 -}

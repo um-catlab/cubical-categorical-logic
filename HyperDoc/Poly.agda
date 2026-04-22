@@ -164,7 +164,7 @@ module hoas (CC : CartesianCategory _ _ )where
   lem' {Γ}{Δ}{n} prf = lem (subst (λ h → n ∉ h) (com _ _) prf)
 
 
-  isFresh' : (Γ : Pfin ℕ) → fresh' Γ ∉ Γ  
+  isFresh' : (Γ : Pfin ℕ) → fresh' Γ ∉ Γ  in Var
   isFresh' (η zero) prf = ∥rec∥ (λ()) snotz prf
   isFresh' (η (suc x)) prf =  ∥rec∥ (λ()) sucn≠n prf
   isFresh' (Γ ∪ Γ') prf = ∥rec∥ (λ()) {!   !} prf -- recursive call is not strictly smaller
@@ -271,7 +271,7 @@ module hoas (CC : CartesianCategory _ _ )where
     
     -- can't define, isProp (Tm (ext (Δ .fst)))
     extMap : {Γ Δ : ob Ren} → Ren [ Δ , Γ ] → Ren [ (ext (Δ .fst) , tt) , (ext (Γ .fst) , tt) ]
-    extMap γ .fst x = ?
+    extMap γ .fst x = {!   !}
       --  ∥rec∥  {!   !} (⊎rec (λ x∈Γ → {!   !}) λ xfresh → {! var  !})
     extMap γ .snd = {!   !}
 

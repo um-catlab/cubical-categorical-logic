@@ -82,7 +82,7 @@ data _⊢c_ where
     subC V (plug S M) ≡ plug S (subC V M)
   isSet⊢c : ∀{A B} → isSet (A ⊢c B)
 
-  -- type structure
+  -- type structuref
   ret : ∀{A B} → F A ⊢k B → A ⊢c B
   ret-sub : ∀ {A B B'}{S : B ⊢k B'}{S' : F A ⊢k B} → 
     ret (kcomp S' S) ≡ plug S (ret S')

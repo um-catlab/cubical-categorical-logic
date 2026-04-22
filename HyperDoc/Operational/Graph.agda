@@ -141,16 +141,16 @@ module _ {ℓ ℓ' : Level}((N , E) : ob (GRAPH ℓ ℓ')) where
   sub-assoc f g (tran x h) = cong₂ tran refl (sub-assoc f g h)
 
   -- could prove this
-  module _ (isSet⊢ : (n n' : ⟨ N ⟩) → isSet (n ⊢ n') ) where 
-    FreeCat : Category ℓ (ℓ-max ℓ ℓ')
-    FreeCat .ob = ⟨ N ⟩
-    FreeCat .Hom[_,_] = _⊢_
-    FreeCat .id = ref
-    FreeCat ._⋆_ = sub
-    FreeCat .⋆IdL = sub-idl
-    FreeCat .⋆IdR _ = refl
-    FreeCat .⋆Assoc = sub-assoc
-    FreeCat .isSetHom = isSet⊢ _ _
+  -- module _ (isSet⊢ : (n n' : ⟨ N ⟩) → isSet (n ⊢ n') ) where 
+  FreeCat : Category ℓ (ℓ-max ℓ ℓ')
+  FreeCat .ob = ⟨ N ⟩
+  FreeCat .Hom[_,_] = _⊢_
+  FreeCat .id = ref
+  FreeCat ._⋆_ = sub
+  FreeCat .⋆IdL = sub-idl
+  FreeCat .⋆IdR _ = refl
+  FreeCat .⋆Assoc = sub-assoc
+  FreeCat .isSetHom = {!   !}
 
 pGRAPH : (ℓ ℓ' : Level) → Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-max ℓ ℓ') 
 pGRAPH ℓ ℓ' = FullSubcategory (GRAPH ℓ ℓ') 

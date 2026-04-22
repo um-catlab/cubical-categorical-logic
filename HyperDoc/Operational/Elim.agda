@@ -221,11 +221,15 @@ module Elim
 module LocalElim 
   {N : CBPVModel _ _ _ _ _ _ }
   (Nᴰ : CBPVModelᴰ N _ _ _ _ _ _ ) where 
-
+  open Elim
   open HyperDoc.Operational.Initial
 
   module _ (F : CBPVMorphism Syn N) where
     open CBPVMorphismSyntax F
+    
+
+    GS : CBPVSection {F = idModelMorphsim Syn} {{!   !}}
+    GS = Elim {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !} {!   !}
 
     VS : Section (CBPVMorphismSyntax.FV F) (CBPVModelᴰSyntax.Vᴰ Nᴰ) 
     VS = {! GlobalSectionReindex→Section  !}

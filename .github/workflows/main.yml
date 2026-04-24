@@ -38,14 +38,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
-
       - name: Cache Nix store
         uses: nix-community/cache-nix-action@v6
         with:
           primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
 
       - name: Cache library _build
         uses: actions/cache@v5

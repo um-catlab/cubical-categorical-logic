@@ -36,9 +36,11 @@ fix-whitespace:
 check-whitespace:
 	$(FIX_WHITESPACE) --check
 
-# .PHONY : listings
-# listings: $(wildcard Cubical/**/*.agda)
-# 	$(AGDA) -i. -isrc --html TestEverything.agda -v0
+.PHONY : listings
+listings:
+	./generate-everything.sh > Everything.agda
+	$(AGDA) Everything.agda -i. -isrc --html -vhtml:0
+	cp -f html/Everything.html html/index.html
 
 .PHONY : clean
 clean:

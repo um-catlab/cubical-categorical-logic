@@ -1,4 +1,5 @@
 /_build/
+/Everything.agda
 *.auctex-auto
 *.aux
 *.log

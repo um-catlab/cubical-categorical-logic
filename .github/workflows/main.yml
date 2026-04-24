@@ -39,18 +39,24 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
+        uses: nixbuild/nix-quick-install-action@v34
         with:
-          determinate: false
-          planner: linux
-          start-daemon: false
+          nix_conf: |
+            experimental-features = nix-command flakes
+            keep-env-derivations = true
+            keep-outputs = true
 
-      - name: Cache Nix store
-        uses: nix-community/cache-nix-action@v6
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@v7
         with:
-          primary-key: nix-${{ runner.os }}-${{ hashFiles('flake.nix', 'flake.lock') }}
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
           restore-prefixes-first-match: nix-${{ runner.os }}-
-          skip-restore-on-hit-primary-key: false
+          gc-max-store-size-linux: 3G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
 
       - name: Cache library _build
         uses: actions/cache@v5
@@ -61,10 +67,13 @@ jobs:
             ccl-build-${{ runner.os }}-${{ hashFiles('flake.lock') }}-
             ccl-build-${{ runner.os }}-
 
+      - name: Prime Nix shell
+        run: nix develop --profile .nix-dev-profile --command true
+
       - name: Check whitespace
         run: nix develop --command fix-whitespace --check
 
-      - name: Typecheck library
+      - name: Typecheck Cubical Categorical Logic
         run: nix develop --command make check
 
       - name: Htmlize

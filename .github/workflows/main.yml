@@ -40,6 +40,10 @@ jobs:
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
+        with:
+          determinate: false
+          planner: linux
+          start-daemon: false
 
       - name: Cache Nix store
         uses: nix-community/cache-nix-action@v6

@@ -4,14 +4,7 @@ AGDA_EXEC?=$(AGDA_BIN) $(AGDA_FLAGS)
 FIX_WHITESPACE?=fix-whitespace
 RTS_OPTIONS=+RTS -M16G -RTS
 AGDA=$(AGDA_EXEC) $(RTS_OPTIONS)
-RUNHASKELL?=runhaskell
 
-# Finds all .agda files in the current directory and subdirectories
-FIND_AGDA_FILES = find . -name "*.agda"
-AGDA_FILES = $(shell $(FIND_AGDA_FILES))
-
-# The targets are the .agdai files corresponding to the .agda files
-AGDAI_FILES = $(AGDA_FILES:.agda=.agdai)
 .PHONY : all
 all : build
 
@@ -25,8 +18,6 @@ test : check-whitespace check
 .PHONY : check
 check:
 	$(AGDA) --build-library
-
-# checking and fixing whitespace
 
 .PHONY : fix-whitespace
 fix-whitespace:

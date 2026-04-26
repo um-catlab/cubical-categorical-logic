@@ -74,7 +74,7 @@ jobs:
         run: nix develop --command fix-whitespace --check
 
       - name: Typecheck Cubical Categorical Logic
-        run: nix develop --command make check
+        run: nix develop --command make check AGDA_FLAGS="-j4"
 
       - name: Htmlize
         if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'workflow_dispatch'

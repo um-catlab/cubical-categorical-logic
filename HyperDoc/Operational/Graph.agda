@@ -30,10 +30,14 @@ Graph ℓ ℓ' = Σ[ S ∈ hSet ℓ ] (⟨ S ⟩ → ⟨ S ⟩ → hSet ℓ')
 RGraph : (ℓ ℓ' : Level) → Type _
 RGraph  ℓ ℓ' = Σ[ G ∈ Graph ℓ ℓ' ] ((n : ⟨ G .fst ⟩) → ⟨ G .snd n n ⟩)
 
+
+isGraphHom : {ℓ ℓ' : Level}{G H : Graph ℓ ℓ'} → (⟨ G .fst ⟩ → ⟨ H .fst ⟩) → Type _ 
+isGraphHom {G = N , E} {N' , E'} f = {n n' : ⟨ N ⟩} → ⟨ E n n' ⟩ → ⟨ E' (f n) (f n') ⟩
+
 GraphHom : {ℓ ℓ' : Level}→ (G H : Graph ℓ ℓ') → Type _ 
 GraphHom (N , E) (N' , E') = 
   Σ[ f ∈ (⟨ N ⟩ → ⟨ N' ⟩) ] 
-    ({n n' : ⟨ N ⟩} → ⟨ E n n' ⟩ → ⟨ E' (f n) (f n') ⟩)
+    isGraphHom {G = N , E} {N' , E'} f
 
 {- 
     Fv : G.Car → H.Car

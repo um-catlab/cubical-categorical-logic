@@ -1,7 +1,8 @@
 {-# OPTIONS --type-in-type #-}
-module HyperDoc.Operational.Logic where 
+module HyperDoc.Operational.Effects.Logic where 
 
 open import Cubical.Data.Sigma
+open import Cubical.Data.FinData
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -19,19 +20,23 @@ open import Cubical.Categories.Displayed.Bifunctor
 open import Cubical.Categories.Bifunctor hiding (Sym)
 
 
-open import HyperDoc.Operational.Model 
-open import HyperDoc.Operational.Graph
+open import HyperDoc.Operational.Effects.Model 
+open import HyperDoc.Operational.Graph hiding (FORGET)
 open import HyperDoc.Lib
 open import HyperDoc.Syntax
-
+open import HyperDoc.Algebra.Algebra hiding (FORGET)
+open import HyperDoc.Operational.Effects.AlgGraph
+ 
 open BifunctorSep
 open Category 
 open Functor 
 open NatTrans 
+open Signature
+open AlgGraph
 
 module _ 
-  {ℓV ℓV' ℓC ℓC' ℓG ℓG' : Level}
-  (M : CBPVModel ℓV ℓV' ℓC ℓC' ℓG ℓG') where
+  {Sig : Signature}
+  (M : CBPVModel Sig) where
 
   open CBPVModelSyntax M
 
@@ -43,8 +48,7 @@ module _
     field 
       LV : Functor (V ^op) (POSET _ _)
       LC : Functor (C ^op) (POSET _ _)
-      LSq : NatTrans (FORGET ∘F OPar) (Hom^op  ∘F (LV ×F ((LC ^opF) ∘F to^op^op )))
-
+      LSq : NatTrans (FORGET Sig ∘F OPar) (Hom^op  ∘F (LV ×F ((LC ^opF) ∘F to^op^op )))
 
     module LV = HDSyntax LV
     module LC = HDSyntax LC
@@ -58,6 +62,14 @@ module _
         Edge[ M , M' ] → 
         A LV.◂ (pull M' $ Q) ≤ (pull M $ Q)
 
+      pullOp : 
+        {A : V .ob}{B : C .ob}
+        (op : Op Sig)
+        (args : (Fin (arity Sig op) → O'[ A , B ]))
+        (P : LV.F∣ A ∣)(Q : LC.F∣ B ∣)
+        (dargs : (x : Fin (arity Sig op)) → A LV.◂ P ≤ (pull (args x) $ Q))→ 
+        A LV.◂ P ≤ (pull (interp op args) $ Q) 
+
 
     pullComp : ∀ {A A' B B'}(V : V [ A' , A ])(S : C [ B , B' ])(M : O'[ A , B ]) → 
       pull (OPar .F-hom (V , S) .fst M) ≡ MonComp (LC .F-hom S) (MonComp (pull M) (LV .F-hom V))
@@ -65,7 +77,8 @@ module _
 
     pullLComp : ∀ {A A' B}(V : V [ A' , A ])(M : O'[ A , B ]) → 
       pull (O .Bif-homL V B .fst M) ≡ MonComp (pull M) (LV .F-hom V)
-    pullLComp V M = {!   pullComp V (C .id) M ∙ cong
+    pullLComp V M = {!   pullComp V (C .id) M
+  ∙ cong
       (λ h → MonComp h (MonComp (pull M) (LV .F-hom V)))
       (LC .F-id)  !}
       -- pullComp V (C .id) M  ∙ cong (λ h → MonComp h (MonComp (pull M) (LV .F-hom V))) (LC .F-id)
@@ -108,6 +121,7 @@ module _
       A LV.◂ P ≤ (pull (O .Bif-homR _ S .fst M) $ Q')
     proofRcomp  {M = M}P≤MQ Q≤SQ' = LV.seq P≤MQ (LV.seq (pull M .MonFun.isMon  Q≤SQ') M*S*→MS*)
 
+{-
 {-}
 record CBPVRelLogic' {ℓV ℓV' ℓC ℓC' ℓG ℓG' : Level}
     {M : CBPVModel ℓV ℓV' ℓC ℓC' ℓG ℓG'}
@@ -1206,6 +1220,7 @@ module Convert {C : Category _ _} (F : Functor (C ^op) (POSET _ _ )) where
   Cᴰ .⋆Assocᴰ _ _ _ = toPathP (isProp≤ _ _)
   Cᴰ .isSetHomᴰ = isProp→isSet isProp≤ 
 
+-}
 -}
 -}
 -}

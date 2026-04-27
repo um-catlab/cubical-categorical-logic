@@ -42,7 +42,7 @@ LR : CBPVSection {F = CL}{ConvertLogic.Mᴰ SemLog}
 LR = LocalElim CL
 
 𝟚 : VTy 
-𝟚 = 𝟙 ⊕ 𝟙
+𝟚 = 𝟙 ⊕ 𝟙{! CL  .fst .F-hom V var  !} 
 
 Tsys = CL .snd .fst .F-ob (F 𝟚)
 _↦*_ = Tsys .fst .snd ._≤_
@@ -58,7 +58,7 @@ ret' V = subC V (ret hole)
 
 -- use recursor into Set model to define this 
 lemma : (V : 𝟙 ⊢v 𝟙) → ∥ V ≡ tt ∥₁ 
-lemma V = ?
+lemma V = {!   !}
 
 theorem : (M : 𝟙 ⊢c F 𝟚) → ∥ (M ↦* ret' true) ⊎ (M ↦* ret' false) ∥₁ 
 theorem M = hrec squash₁ convert have where 

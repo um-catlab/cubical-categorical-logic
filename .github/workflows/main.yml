@@ -1,10 +1,6 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches:
       - main
@@ -17,193 +13,72 @@ on:
     paths-ignore:
       - 'README.org'
       - 'Notes/*'
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-########################################################################
-## CONFIGURATION
-##
-## See SETTINGS for the most important configuration variable: AGDA_BRANCH.
-## It has to be defined as a build step because it is potentially branch
-## dependent.
-##
-## As for the rest:
-##
-## Basically do not touch GHC_VERSION and CABAL_VERSION as long as
-## they aren't a problem in the build. If you have time to waste, it
-## could be worth investigating whether newer versions of ghc produce
-## more efficient Agda executable and could cut down the build time.
-## Just be aware that actions are flaky and small variations are to be
-## expected.
-##
-## The CABAL_INSTALL variable only passes `-O1` optimisations to ghc
-## because github actions cannot currently handle a build using `-O2`.
-## To be experimented with again in the future to see if things have
-## gotten better.
-##
-########################################################################
-
-########################################################################
-## SETTINGS
-##
-## AGDA_BRANCH picks the branch of Agda to use to build the library.
-## It doesn't really track the branch, so you have to drop caches to
-## get a new branch version if it changes. This will be fixed in the
-## next PR.
-########################################################################
-
-env:
-  AGDA_BRANCH: v2.8.0
-  GHC_VERSION: 9.10.2
-  CABAL_VERSION: 3.12.1.0
-  CABAL_INSTALL: cabal install --overwrite-policy=always --ghc-options='-O1 +RTS -M6G -RTS'
-  CUBICAL_COMMIT : 2d159b4d0155e98c037cff05330733ed5bbd2f71
-  CACHE_PATHS: |
-    ~/.cabal/packages
-    ~/.cabal/store
-    ~/.cabal/bin
-    ~/.agda
-    ~/cubical
-
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# Dependencies pinned in flake.lock
+# Bump with `nix flake update` locally and commit the lock;
+# or edit the lock file directly
+#
+# Dependencies saved in nix store and cached
+#
+# cubical-categorical-logic builds are cached and need only
+# rebuild changed files
+#
+# Can check well-formedness of this workflow locally with act or actionlint
+#   nix run nixpkgs#actionlint
+#   nix run nixpkgs#act -- -j build --dryrun
 jobs:
-  compile-agda:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pages: write
       id-token: write
     steps:
-      - name: Install cabal
-        uses: haskell-actions/setup@v2
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Nix
+        uses: nixbuild/nix-quick-install-action@v34
         with:
-          ghc-version: ${{ env.GHC_VERSION }}
-          cabal-version: ${{ env.CABAL_VERSION }}
-          cabal-update: true
+          nix_conf: |
+            experimental-features = nix-command flakes
+            keep-env-derivations = true
+            keep-outputs = true
 
-      - name: Restore external dependencies cache
-        uses: actions/cache/restore@v3
-        id: cache-external-restore
+      - name: Restore and save Nix store
+        uses: nix-community/cache-nix-action@v7
         with:
-          path: ${{ env.CACHE_PATHS }}
-          key: ${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}
+          primary-key: nix-${{ runner.os }}-${{ hashFiles('**/*.nix', '**/flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-
+          gc-max-store-size-linux: 3G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-
+          purge-created: 0
+          purge-last-accessed: P1DT12H
+          purge-primary-key: never
 
-      ########################################################################
-      ## INSTALLATION STEPS
-      ########################################################################
-
-      - name: Download and install fix-whitespace
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        run: |
-          git clone https://github.com/agda/fix-whitespace --depth=1
-          cd fix-whitespace
-          ${{ env.CABAL_INSTALL }} fix-whitespace.cabal
-          cd ..
-
-      - name: Download and install Agda from github
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        run: |
-          git clone https://github.com/agda/agda --branch ${{ env.AGDA_BRANCH }} --depth=1
-          cd agda
-          mkdir -p doc
-          touch doc/user-manual.pdf
-          ${{ env.CABAL_INSTALL }}
-          cd ..
-          rm -rf agda
-
-      - name: Download Cubical from github
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        run : |
-          cd ~
-          git clone https://github.com/agda/cubical --branch master
-          cd cubical
-          git checkout ${{ env.CUBICAL_COMMIT }}
-          cd ..
-          echo "CUBICAL_DIR=$PWD/cubical" >> "$GITHUB_ENV"
-
-      - name: Set up Agda dependencies
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        run : |
-          mkdir ~/.agda
-          touch ~/.agda/libraries
-          echo "$CUBICAL_DIR/cubical.agda-lib" >> ~/.agda/libraries
-          echo "$GITHUB_WORKSPACE/cubical-categorical-logic.agda-lib" >> ~/.agda/libraries
-
-      - name: Save external dependencies cache
-        if: steps.cache-external-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        id: cache-external-save
-        with:
-          path: ${{ env.CACHE_PATHS }}
-          key: ${{ steps.cache-external-restore.outputs.cache-primary-key }}
-
-      ########################################################################
-      ## CHECKOUT
-      ########################################################################
-
-      # By default github actions do not pull the repo
-      - name: Checkout cubical-categorical-logic
-        uses: actions/checkout@v3
-
-      ########################################################################
-      ## TESTING
-      ########################################################################
-
-      - name: Restore Cubical Categorical Logic library cache
-        uses: actions/cache/restore@v3
-        id: cache-library-restore
+      - name: Cache library _build
+        uses: actions/cache@v5
         with:
           path: ./_build
-          key: CubicalCategoricalLogicLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-${{ hashFiles('Everythings.hs' , 'Cubical/**', 'cubical-categorical-logic.agda-lib') }}
+          key: ccl-build-${{ runner.os }}-${{ hashFiles('flake.lock') }}-${{ hashFiles('Cubical/**', 'Gluing/**', 'Syntax/**', 'Multicategory/**', 'Guarded/**', 'cubical-categorical-logic.agda-lib') }}
           restore-keys: |
-            CubicalCategoricalLogicLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-
+            ccl-build-${{ runner.os }}-${{ hashFiles('flake.lock') }}-
+            ccl-build-${{ runner.os }}-
 
-      - name: Restore Cubical library cache
-        uses: actions/cache/restore@v3
-        id: cache-cubical-library-restore
-        with:
-          path: ~/cubical/_build
-          key: CubicalLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-${{ hashFiles('~/cubical/cubical/**', '~/cubical/cubical.agda-lib') }}
-          restore-keys: |
-            CubicalLibrary-${{ runner.os }}-${{ env.GHC_VERSION }}-${{ env.CABAL_VERSION }}-${{ env.AGDA_BRANCH }}-${{ env.CUBICAL_COMMIT }}-
+      - name: Prime Nix shell
+        run: nix develop --profile .nix-dev-profile --command true
 
-      - name: Put cabal programs in PATH
-        run: echo "~/.cabal/bin" >> $GITHUB_PATH
+      - name: Check whitespace
+        run: nix develop --command fix-whitespace --check
 
-      - name: Test cubical-categorical-logic
-        run: |
-          make test \
-            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.cabal/bin/fix-whitespace'
+      - name: Typecheck Cubical Categorical Logic
+        run: nix develop --command make check AGDA_FLAGS="-j4"
 
-      - name: Save library cache
-        if: steps.cache-library-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        id: cache-library-save
-        with:
-          path: ./_build
-          key: ${{ steps.cache-library-restore.outputs.cache-primary-key }}
-
-      - name: Save Cubical library cache
-        if: steps.cache-cubical-library-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v3
-        id: cache-cubical-library-save
-        with:
-          path: ~/cubical/_build
-          key: ${{ steps.cache-cubical-library-restore.outputs.cache-primary-key }}
-
-      ########################################################################
-      ## HTML GENERATION
-      ########################################################################
-
-      - name: Htmlize cubical categorical logic
+      - name: Htmlize
         if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'workflow_dispatch'
-        run: |
-          make listings \
-            AGDA_EXEC='~/.cabal/bin/agda -WnoUnsupportedIndexedMatch -W error' \
-            FIX_WHITESPACE='~/.local/fix-whitespace/bin/fix-whitespace'
+        run: nix develop --command make listings
 
       - name: Deploy to GitHub Pages
         if: (github.event_name == 'push' && github.ref_name == 'main') || github.event_name == 'workflow_dispatch'

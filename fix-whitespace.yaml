@@ -46,3 +46,7 @@ included-files:
 excluded-dirs:
   - "agda"
   - "html"
+  - ".direnv"
+  - ".git"
+  - "_build"
+  - "result"

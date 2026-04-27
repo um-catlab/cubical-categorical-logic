@@ -22,38 +22,32 @@
     cubical,
     ...
   }:
-    flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs {
-          inherit system;
-          overlays = [
-            cubical.inputs.agda.overlays.default
-            cubical.overlays.default
-          ];
-        };
-
-      in
-      {
-        packages.default = pkgs.agdaPackages.mkDerivation {
+    let
+      overlay = final: prev: {
+        cubical-categorical-logic = final.agdaPackages.mkDerivation {
           pname = "cubical-categorical-logic";
           version = "0.1";
 
-          src = pkgs.lib.cleanSourceWith {
+          src = final.lib.cleanSourceWith {
             filter = name: _type:
-              !(pkgs.lib.hasSuffix ".nix" name)
-              && !(pkgs.lib.hasSuffix "flake.lock" name)
-              && !(pkgs.lib.hasSuffix ".envrc" name);
-            src = pkgs.lib.cleanSource ./.;
+              !(final.lib.hasSuffix ".nix" name)
+              && !(final.lib.hasSuffix "flake.lock" name)
+              && !(final.lib.hasSuffix ".envrc" name);
+            src = final.lib.cleanSource ./.;
           };
 
-          nativeBuildInputs = [ pkgs.ghc ];
-          buildInputs = [ pkgs.cubical ];
+          LC_ALL = "C.UTF-8";
+
+          # Use the cubical-overlay's agdaWithCubical wrapper. agda
+          # reads cubical's cached .agdai files straight out of the
+          # /nix/store read-only; as long as our flag set doesn't
+          # force a recheck of any cubical file, this works without
+          # copying cubical into the sandbox.
+          nativeBuildInputs = [ final.agdaWithCubical ];
 
           buildPhase = ''
             runHook preBuild
-            runhaskell ./Everythings.hs gen-except
-            agda -W error +RTS -M8G -RTS TestEverything.agda
+            make check
             runHook postBuild
           '';
 
@@ -62,7 +56,32 @@
           };
         };
 
-        # Development shell: pinned Agda + cubical library, GHC, and
+        agdaWithCubicalCategoricalLogic =
+          final.agdaPackages.agda.withPackages [
+            final.cubical
+            final.cubical-categorical-logic
+          ];
+      };
+
+      overlays = [
+        cubical.inputs.agda.overlays.default
+        cubical.overlays.default
+        overlay
+      ];
+    in
+    { overlays.default = overlay; } //
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = import nixpkgs { inherit system overlays; };
+      in
+      {
+        packages = {
+          inherit (pkgs) cubical-categorical-logic agdaWithCubicalCategoricalLogic;
+          default = pkgs.cubical-categorical-logic;
+        };
+
+        # Development shell: pinned Agda + cubical library and
         # fix-whitespace. Activate via `nix develop` or direnv.
         #
         # To use a local cubical checkout:
@@ -70,7 +89,6 @@
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = [
             pkgs.agdaWithCubical
-            pkgs.ghc
             pkgs.haskellPackages.fix-whitespace
           ];
         };

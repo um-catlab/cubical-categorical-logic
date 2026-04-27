@@ -1,12 +1,11 @@
 /_build/
+/Everything.agda
 *.auctex-auto
 *.aux
 *.log
 *.pdf
 *.synctex.gz
-Everything.agda
 /env/
-!/Everything.agda
 *.txt
 *.prof
 /.DS_Store

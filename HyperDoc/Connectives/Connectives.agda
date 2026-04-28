@@ -1,7 +1,7 @@
 -- TODO for later.. come up with a nice way to make this modular
 -- can this be a purely modular construction... 
 -- perhaps not when we think about laws ?
-
+{-# OPTIONS --type-in-type #-}
 module HyperDoc.Connectives.Connectives where
 
 open import Cubical.Data.Sigma hiding (_∧_;_∨_)
@@ -244,3 +244,116 @@ module L▷ where
     Σ[ has⊤ ∈ Has⊤ F ] 
     Σ[ logic ∈ ((c : ob C) → LaterStr (F .F-ob c) (has⊤ .fst c)) ] 
     ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
+
+module LBI where
+
+
+
+  -- A symmetric monoidal closed structure
+  record HA {ℓ ℓ'} (P : ob (POSET ℓ ℓ')) : Type (ℓ-max ℓ ℓ') where 
+    X : Type ℓ
+    X = P .fst .fst
+    open PreorderStr (P .fst .snd) renaming (_≤_ to _⊢_)
+    field 
+      𝐈 : X -- \BI
+      _＊_ : X → X → X --\*>
+      _-＊_ : X → X → X
+      assocl : {P Q R : X} → (P ＊ Q) ＊ R ⊢ (P ＊ (Q ＊ R))
+      assocr : {P Q R : X} → (P ＊ (Q ＊ R)) ⊢ (P ＊ Q) ＊ R
+      symtry : {P Q : X} → P ＊ Q ⊢ Q ＊ P
+      idl : {P : X} → P ⊢ 𝐈 ＊ P 
+      idinv : {P : X} → 𝐈 ＊ P ⊢ P 
+      ＊-intro : {P Q R S : X} → P ⊢ Q → R ⊢ S → (P ＊ R) ⊢ (Q ＊ S)
+      adj : {P Q R : X} → (P ＊ Q) ⊢ R → P ⊢ (Q -＊ R)
+      adjinv : {P Q R : X} → P ⊢ (Q -＊ R) → (P ＊ Q) ⊢ R
+
+  HasBI :  ∀{ℓC ℓC' ℓP ℓP'}{C : Category ℓC ℓC'} → Functor (C ^op) (POSET ℓP ℓP') → Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓP) ℓP')  
+  HasBI {C = C} F = 
+    Σ[ logic ∈ ((c : ob C) → HA (F .F-ob c)) ] {!   !}
+    -- ({c c' : ob C}(f : C [ c' , c ]) → HAHom (F .F-hom f) (logic c) (logic c'))
+
+  -- Typically, a Bialgebra (bunched implication algebra), 
+  -- is constructed given a partial commutative monoid (UCMRA in Iris)
+  -- The monoid abstacts some notion of resource, 
+  -- where operation ＊ says how to combine resources
+  open import Cubical.Data.Maybe
+  _>>=_ : {A B : Set} → Maybe A → (A → Maybe B) → Maybe B 
+  nothing >>= f = nothing
+  just x >>= f = f x
+
+  open import Cubical.Functions.Logic
+  isDef : {X : Set} → Maybe X → hProp _ 
+  isDef nothing = ⊥
+  isDef (just _) = ⊤
+
+  extract : {X : Set} → (m  : Maybe X) → {isDef m .fst} → X 
+  extract {X} (just x) = x 
+  open PreorderStr renaming(_≤_ to _≤P_)
+
+  record PCM : Type where 
+    field 
+        M : hSet _ 
+        _⊚_ : fst M → fst M → Maybe (fst M) 
+        𝟙 : fst M 
+        lunit : (x : fst M) → (𝟙 ⊚ x) ≡ just x
+        runit : (x : fst M) → (x ⊚ 𝟙) ≡ just x
+        comm : (x y : fst M) → (x ⊚ y) ≡ (y ⊚ x)
+        assoc : (x y z : fst M) → ((y ⊚ z) >>= (x ⊚_)) ≡ ((x ⊚ y) >>= (_⊚ z))
+
+    _#_ : (a b : fst M) → hProp _ 
+    a # b = isDef (a ⊚ b)
+
+    -- for any PCM, we have an ordering called the extension ordering
+    _≤ext_ : fst M → fst M → hProp _
+    _≤ext_ x y = 
+      ∃[ z ∶ fst M ] (((x ⊚ z) ≡ just y) , isOfHLevelMaybe 0 (M .snd) (x ⊚ z) (just y) )
+
+  -- Given a PCM, we can define the Poset of upward closed predicates
+  module _ (pcm : PCM) where 
+    open PCM pcm
+    ↑Closed : {P : POSET _ _ .ob} → (⟨ M ⟩  → ⟨ P .fst ⟩ ) → Type
+    ↑Closed {P} f = 
+      (∀ (m m' : ⟨ M ⟩ ) → 
+      ⟨ m ≤ext m' ⟩  → 
+      _≤P_ (P .fst .snd) (f m) (f m'))
+
+    isProp↑Closed :  {P : POSET _ _ .ob} → (f : ⟨ M ⟩  → ⟨ P .fst ⟩ ) → 
+      isProp (↑Closed {P} f)
+    isProp↑Closed {P} f = 
+      isPropΠ λ n → isPropΠ λ m → isProp→ 
+        (IsPreorder.is-prop-valued (isPreorder (P .fst .snd)) (f n) (f m))
+    
+    BIProp : POSET _ _ .ob → Type 
+    BIProp P = Σ[ f ∈ (⟨ M ⟩  → ⟨ P .fst ⟩ ) ] ↑Closed {P} f
+
+    BIProp≡ : {P : POSET _ _ .ob}{p q : BIProp P} → 
+      p .fst ≡ q .fst → p ≡ q
+    BIProp≡ {P}{p}{q} prf = ΣPathP (prf , toPathP (isProp↑Closed {P} (prf i1) _ _))
+
+    MonPo : POSET _ _ .ob → POSET _ _ .ob 
+    MonPo P .fst .fst = BIProp P
+    MonPo P .fst .snd .PreorderStr._≤_ p q  = (m : ⟨ M ⟩ ) → _≤P_ (P .fst .snd) (p .fst m) (q .fst m)
+    MonPo P .fst .snd .isPreorder .IsPreorder.is-prop-valued p q = isPropΠ λ x → IsPreorder.is-prop-valued (isPreorder (P .fst .snd)) (p .fst x)
+      (q .fst x)
+    MonPo P .fst .snd .isPreorder .IsPreorder.is-refl = λ a n → IsPreorder.is-refl (isPreorder (P .fst .snd)) (a .fst n)
+    MonPo P .fst .snd .isPreorder .IsPreorder.is-trans = λ a b c z z₁ n →
+        IsPreorder.is-trans (isPreorder (P .fst .snd)) (a .fst n)
+        (b .fst n) (c .fst n) (z n) (z₁ n)
+    MonPo P .snd = {!   !}
+
+    WithResourceLogic : Functor (POSET _ _ )(POSET _ _ )
+    WithResourceLogic .F-ob = MonPo
+    WithResourceLogic .F-hom f .fun = λ z →
+        (λ z₁ → fun f (z .fst z₁)) , (λ m m' z₁ → isMon f (z .snd m m' z₁))
+    WithResourceLogic .F-hom f .isMon = λ z m → isMon f (z m)
+    WithResourceLogic .F-id = eqMon _ _ refl
+    WithResourceLogic .F-seq _ _ = eqMon _ _ refl
+
+    -- Furthermore, given a logic L 
+    -- we can upgrade it to a BI or Resource logic
+    -- Not quite.. L needs a fair amount of structure to do this..
+    -- just start with Pred
+   -- module _ {C : Category _ _ }
+   --   (L : Functor (C ^op) (POSET _ _)) where 
+
+

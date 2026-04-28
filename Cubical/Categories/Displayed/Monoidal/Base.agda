@@ -127,6 +127,7 @@ module _ (M : MonoidalCategory ℓM ℓM') where
         module TP = MonoidalPropᴰ TP
   record MonoidalCategoryᴰ ℓMᴰ ℓMᴰ'
     : Type ((ℓ-suc (ℓ-max (ℓ-max ℓM ℓM') (ℓ-max ℓMᴰ ℓMᴰ')))) where
+    no-eta-equality
     field
       Cᴰ : Categoryᴰ M.C ℓMᴰ ℓMᴰ'
       monstrᴰ : MonoidalStrᴰ Cᴰ

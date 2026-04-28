@@ -25,8 +25,8 @@ import Cubical.Categories.Displayed.Instances.Weaken as Wk
 open import Cubical.Categories.Displayed.Instances.Arrow.Base
 open import Cubical.Categories.Displayed.Instances.Arrow.Monoidal
 open import Cubical.Categories.Displayed.Instances.IsoFiber.Base
-  hiding (IsoFiber)
 open import Cubical.Categories.Displayed.Instances.IsoFiber.Monoidal
+  as Monoidal hiding (IsoFiber)
 
 private
   variable
@@ -255,10 +255,14 @@ module _ (X : Type ℓ) where
 
       mkRetract : Σ[ G⁻ ∈ Functor |FreeMonoidalCategory| M.C ]
         G.F ∘F G⁻ ≅ᶜ Id
-      mkRetract = IsoFiberReflection (G.F) S
+      mkRetract = IsoFiberReflection {C = M.C} {D = |FreeMonoidalCategory|} G.F S
         where
-          Motive : MonoidalCategoryᴰ FreeMonoidalCategory _ _
-          Motive = IsoFiber G
+          -- This is very slow (without --lossy-unification) because
+          -- it needs to establish that the displayed category in this
+          -- MonoidalCategoryᴰ is definitionally the same as IsoFiber
+          -- G.F
+          Motive : MonoidalCategoryᴰ FreeMonoidalCategory (ℓ-max ℓD ℓ) (ℓ-max ℓD' ℓ)
+          Motive = Monoidal.IsoFiber G
           module Motive = MonoidalCategoryᴰ Motive
-          S : GlobalSection Motive.Cᴰ
+          S : GlobalSection (IsoFiber G.F)
           S = elim Motive (λ x → (ı x) , (invIso (ı≅ x)))

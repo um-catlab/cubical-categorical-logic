@@ -6,8 +6,6 @@
   This is also the extension part of a 2-monad structure on Psh
 
 -}
-
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Profunctor.Constructions.Extension where
 
 open import Cubical.Foundations.Prelude

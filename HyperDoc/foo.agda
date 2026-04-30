@@ -23,9 +23,18 @@ open import HyperDoc.Logics.SetPred
 open Category
 open Functor
 
+{- 
+   Γ ⊢ l : Ref
+  -------------------- 
+   Γ ⊢ get ℓ : F 𝟚  
+
+   UF (X) : Psh (W ^op) 
+   UF (X) n := plotkin pwoer   
+  -}
 mutual 
   data VTy : Type where 
-    𝟙 Ref : VTy 
+    𝟙 : VTy 
+    Ref : VTy 
     U  : CTy → VTy 
     _⊕_ : VTy → VTy → VTy 
 
@@ -52,6 +61,31 @@ mutual
     bind : ∀ {Γ A B} → Γ ⊢c F A → A ⊢c B → Γ ⊢c B
     isSet⊢c : ∀ {Γ B} → isSet (Γ ⊢c B)
 
+  -- get(M,N) 
+  -- set
+
+  -- 
+  -- O[A , B] : Psh (W ^op) 
+  data _◂_⊢c_ : ℕ → VTy → CTy → Type where 
+    dummy : ∀ {n A B} → n ◂ A ⊢c B
+    get : ∀{n A B} → Fin n → n ◂ A ⊢c B → n ◂ A ⊢c B → n ◂ A ⊢c B 
+    set0 : ∀{n A B} → Fin n → n ◂ A ⊢c B → n ◂ A ⊢c B 
+    set1 : ∀{n A B} → Fin n → n ◂ A ⊢c B → n ◂ A ⊢c B 
+    -- ^ have guards given by Fin n 
+    -- alloc does not have a guard
+    -- notice.. we don't need reference types..
+    alloc : ∀{n A B} → suc n ◂ A ⊢c B → n ◂ A ⊢c B
+
+  -- example, the first argument is which get/set operation to pick, we have 'n' many 
+  -- we cannot write get, set0, set1 without alloc first 
+  _ : 0 ◂ 𝟙 ⊢c F 𝟙 
+  _ = get {!   !} dummy dummy -- no element Fin 0 
+
+  -- do we assume alloc initializes with 0 ?
+  _ : 0 ◂ 𝟙 ⊢c F 𝟙
+  _ = alloc (get zero dummy dummy) 
+
+
 W : Category ℓ-zero ℓ-zero 
 W .ob = ℕ
 W .Hom[_,_] = _≤_
@@ -61,6 +95,71 @@ W .⋆IdL _ = isProp≤ _ _
 W .⋆IdR _ = isProp≤ _ _ 
 W .⋆Assoc _ _ _ = isProp≤ _ _
 W .isSetHom = isProp→isSet isProp≤
+
+open import Cubical.Categories.Monoidal.Instances.Presheaf 
+open import Cubical.Categories.Presheaf.Constructions.BinProduct
+open import Cubical.Categories.Presheaf.Constructions
+open import Cubical.Categories.NaturalTransformation
+open NatTrans
+open import Cubical.Data.Sum
+-- what is the signature on the presheaf category?
+
+Fresh : Presheaf (W ^op) _ → Presheaf (W ^op) _
+Fresh P .F-ob n = P .F-ob (suc n)
+Fresh P .F-hom {n}{m} n≤m Psn = P .F-hom (suc-≤-suc n≤m) Psn
+Fresh P .F-id {n} = funExt λ Psn → cong₂ (P .F-hom) (isProp≤ _ _) refl ∙ funExt⁻ (P .F-id {suc n}) Psn
+Fresh P .F-seq  = {!   !}
+
+_⊹_ : Presheaf (W ^op) _ → Presheaf (W ^op) _ → Presheaf (W ^op) _ 
+(P ⊹ Q) .F-ob n = ((P .F-ob  n .fst) ⊎ Q .F-ob n .fst ) , {!   !}
+(P ⊹ Q) .F-hom = {!   !}
+(P ⊹ Q) .F-id = {!   !}
+(P ⊹ Q) .F-seq = {!   !}
+
+Σalloc : Presheaf (W ^op) _ → Presheaf (W ^op) _ 
+Σalloc X = Fresh X ⊹ ((X ×Psh X) ⊹ (X ⊹ X))
+-- alloc , get, set0, set1 
+-- this needs to be an endofunctor on the category PRESHEAF (W ^op)
+open import Cubical.Categories.Instances.FunctorAlgebras
+
+Sig : Functor (PresheafCategory (W ^op) _) ((PresheafCategory (W ^op) _)) 
+Sig .F-ob = Σalloc
+Sig .F-hom = {!   !}
+Sig .F-id = {!   !}
+Sig .F-seq = {!   !}
+
+hmm : Algebra Sig
+hmm = {!   !}
+
+-- parameterized algegra?
+alg : VTy → CTy → Algebra Sig 
+alg A B .Algebra.carrier .F-ob n = ((n ◂ A ⊢c B)) , {!   !}
+alg A B .Algebra.carrier .F-hom = {!   !}
+alg A B .Algebra.carrier .F-id = {!   !}
+alg A B .Algebra.carrier .F-seq = {!   !}
+alg A B .Algebra.str .N-ob n (inl M) = alloc M
+alg A B .Algebra.str .N-ob n (inr (inl (M , N))) = get {!   !} M N
+alg A B .Algebra.str .N-ob n (inr (inr (inl M))) = {!   !}
+alg A B .Algebra.str .N-ob n (inr (inr (inr M))) = {!   !}
+alg A B .Algebra.str .N-hom = {!   !}
+-- Needs to be an algebra.. 
+SynPsh : VTy → CTy → Presheaf (W ^op) _ 
+SynPsh A B .F-ob n = (n ◂ A ⊢c B) , {!   !}
+SynPsh A B .F-hom n≤m M = {!   !}
+SynPsh A B .F-id = {!   !}
+SynPsh A B .F-seq = {!   !}
+-- F X -> X 
+
+ΣallocAlg : {P : Presheaf (W ^op) _} → NatTrans (Σalloc P) P 
+-- alloc
+ΣallocAlg {P} .N-ob n (inl x) = {!   !}
+-- get
+ΣallocAlg {P} .N-ob n (inr (inl x)) = {!   !}
+-- set0 
+ΣallocAlg {P} .N-ob n (inr (inr (inl x))) = {!   !}
+-- set1 
+ΣallocAlg {P} .N-ob n (inr (inr (inr x))) = {!   !}
+ΣallocAlg {P} .N-hom = {!   !}
 
 Clv : VTy → Presheaf W _
 Clv 𝟙 = {!   !}
@@ -133,8 +232,8 @@ module _ (Γ : hSet _) where
 
   -- for any n disjoint with m
   has-＊ : BIPred → BIPred → BIPred
-  has-＊ P Q .fst m γ = 
-    ∀[ n ∶ locs ] ∀[ m#n ∶ ⟨ m # n ⟩ ] P .fst m γ ⇒ Q .fst (extract (m ⊚ n) {m#n}) γ
+  has-＊ P Q .fst m γ = {!   !}
+  --   ∀[ n ∶ locs ] ∀[ m#n ∶ ⟨ m # n ⟩ ] P .fst m γ ⇒ Q .fst (extract (m ⊚ n) {m#n}) γ
   has-＊ P Q .snd = {!   !}
 
   biHA : HA (BILogic .F-ob Γ)

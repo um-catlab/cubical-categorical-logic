@@ -1,8 +1,8 @@
 {-# OPTIONS --type-in-type #-}
-module HyperDoc.Operational.Elim where
+module HyperDoc.Operational.Effects.Elim where
 
 
-open import Cubical.Data.Sum
+open import Cubical.Data.Sum hiding (map)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit 
 
@@ -25,11 +25,13 @@ open import Cubical.Categories.Instances.Preorders.Monotone
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.NaturalTransformation
 
-open import HyperDoc.Operational.Model 
-open import HyperDoc.Operational.Initial
-open import HyperDoc.Operational.Logic
-open import HyperDoc.Operational.Section
-open import HyperDoc.Operational.TypeStructure
+open import HyperDoc.Algebra.Algebra
+open import HyperDoc.Operational.Effects.Model 
+open import HyperDoc.Operational.Effects.Syntax
+open import HyperDoc.Operational.Effects.Logic
+open import HyperDoc.Operational.Effects.Section
+open import HyperDoc.Operational.Effects.TypeStructure
+open import HyperDoc.Operational.Effects.BiAlgebra
 
 open Category
 open Categoryᴰ
@@ -39,12 +41,18 @@ open NatTrans
 open NatTransᴰ
 open Bifunctor
 open BifunctorSepᴰ
+open Algᴰ
+open BiAlg 
+open BiAlgᴰ hiding (Edgeᴰ[_][_,_])
+open BiAlgHom
+open BiAlgHomᴰ
 
-module Elim 
-  { ℓVᴰ ℓVᴰ' ℓCᴰ ℓCᴰ' ℓGᴰ ℓGᴰ' : Level}
-  (Synᴰ : CBPVModelᴰ Syn ℓVᴰ ℓVᴰ' ℓCᴰ ℓCᴰ' ℓGᴰ ℓGᴰ' )
+module Elim
+  {Sig : Signature} 
+  (Synᴰ : CBPVModelᴰ (SynModel.Syn Sig)  )
   where
-
+  open SynModel Sig
+  open Syntax Sig
   open CBPVModelᴰSyntax Synᴰ
   open CBPVModelSyntax Syn hiding (V ; C ; O)
   open TypeStructureᴰ Synᴰ 
@@ -52,7 +60,7 @@ module Elim
   module _
    --  (hasAnsᴰ : HasAnsᴰ hasAns)
     (has𝟙ᴰ : Has𝟙ᴰ has𝟙)
-    (has×ᴰ : Has×ᴰ has×)
+    -- (has×ᴰ : Has×ᴰ has×)
     (has+ᴰ : Has+ᴰ has+)
     (hasUTyᴰ : HasUTyᴰ hasUTy)
     (hasFTyᴰ : HasFTyᴰ hasFTy)
@@ -69,7 +77,6 @@ module Elim
       vty 𝟙 = has𝟙ᴰ .fst
      --  vty Ans = hasAnsᴰ .fst
       vty (U B) = Uᴰ (cty B) 
-      vty (A ⊗ A₁) = has×ᴰ (vty A) (vty A₁)  .fst
       vty (A ⊕ A₁) = has+ᴰ (vty A) (vty A₁) .Aᴰ+A'ᴰ
 
       cty : (B : CTy) → ob[ Cᴰ ] B 
@@ -94,31 +101,31 @@ module Elim
       vtm (subtt {A}{A'}{V} i) = has𝟙ᴰ .snd .N-homᴰ (vtm V) i tt tt
       vtm (σ₁ {A}{A'})= has+ᴰ (vty A) (vty A') .σ₁ᴰ
       vtm (σ₂ {A}{A'}) = has+ᴰ (vty A) (vty A') .σ₂ᴰ
-      vtm (_,p_ {A}{A'}{A''} V V') = has×ᴰ (vty A') (vty A'') .snd .N-obᴰ {A} (vty A) (V , V') (vtm V , vtm V')
-      vtm (sub,p i) = {!   !}
 
       -- for goal readability
       ctm-subC : {A A' : VTy}{B : CTy} → (V : A' ⊢v A)(M : A ⊢c B) → Oᴰ'[ subC V M ][ vty A' , cty B ] 
-      ctm-subC {A}{A'}{B} V M = Oᴰ .Bif-homLᴰ (vtm V) (cty B) .fst M (ctm M)
+      ctm-subC {A}{A'}{B} V M = Oᴰ .Bif-homLᴰ (vtm V) (cty B) .mapᴰ M (ctm M)
 
       ctm-plug : {A : VTy}{B B' : CTy} → (S : B ⊢k B')(M : A ⊢c B) → Oᴰ'[ plug S M ][ vty A , cty B' ] 
-      ctm-plug {A}{B}{B'} S M = Oᴰ .Bif-homRᴰ (ktm S)(vty A) .fst M (ctm M)
+      ctm-plug {A}{B}{B'} S M = Oᴰ .Bif-homRᴰ (ktm S)(vty A) .mapᴰ M (ctm M)
 
       ctm : {A : VTy}{B : CTy} → (M : A ⊢c B) → Nodeᴰ[ M ][ vty A , cty B ]
       ctm (subC V M) = ctm-subC V M 
       ctm (plug S M) = ctm-plug S M
-      ctm (plugId {A}{B}{M} i) = Oᴰ .Bif-R-idᴰ i .fst M (ctm M)
-      ctm (subCId {A}{B}{M} i) = Oᴰ .Bif-L-idᴰ i .fst M (ctm M)
-      ctm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = 
-        Oᴰ .Bif-R-seqᴰ (ktm S) (ktm S') (~ i) .fst M (ctm M)
-      ctm (subDist {A}{A'}{A''}{B} {V}{V'}{M} i) = 
-        Oᴰ .Bif-L-seqᴰ (vtm V') (vtm V) (~ i) .fst M (ctm M)
-      ctm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = 
-        Oᴰ .SepBif-RL-commuteᴰ (vtm V) (ktm S) i .fst M (ctm M)
-      ctm (isSet⊢c {A}{B} M M₁ x y i i₁) = 
+      ctm (plugId {A}{B}{M} i) =  Oᴰ .Bif-R-idᴰ i .mapᴰ M (ctm M)
+      ctm (subCId {A}{B}{M} i) =  Oᴰ .Bif-L-idᴰ i .mapᴰ M (ctm M)
+      ctm (plugDist {A}{B}{B'}{B''}{S}{S'}{M} i) = Oᴰ .Bif-R-seqᴰ (ktm S) (ktm S') (~ i) .mapᴰ M (ctm M)
+      ctm (subDist {A}{A'}{A''}{B} {V}{V'}{M} i) = Oᴰ .Bif-L-seqᴰ (vtm V') (vtm V) (~ i) .mapᴰ M (ctm M)
+      ctm (plugSub {A}{A'}{B}{B'}{V}{M}{S} i) = Oᴰ .SepBif-RL-commuteᴰ (vtm V) (ktm S) i .mapᴰ M (ctm M)
+      ctm (ops {A}{B} op args) = interpᴰ (algᴰ (Oᴰ .Bif-obᴰ {A}{B} (vty A) (cty B))) op args λ x → ctm (args x)
+      ctm (opsSub V₁ op args i) = {!   !}
+      ctm (opsPlug S op args i) = {!   !}
+      ctm (isSet⊢c {A}{B} M M₁ x y i i₁) = {!   !}
+        {-}
         isOfHLevel→isOfHLevelDep 2 {Node[ A , B ]} {λ M → Nodeᴰ[ M ][ (vty A) , (cty B) ]}
         (λ M → Oᴰ .Bif-obᴰ {A}{B} (vty A)(cty B) .fst M .snd) 
         (ctm M) (ctm M₁) (cong ctm x) (cong ctm y) (isSet⊢c M M₁ x y) i i₁
+        -}
 
       ctm (ret S) = retᴰ (ktm S) 
       ctm (ret-sub {A}{B}{B'}{S}{S'} i) = 
@@ -141,7 +148,7 @@ module Elim
       open import HyperDoc.Operational.Graph
       ctmRel : {A : VTy}{B : CTy}{M M' : A ⊢c B}
         (M↦M' : M ↦ M') → Edgeᴰ[ M↦M' ][ ctm M , ctm M' ]
-      ctmRel (Fβ {A}{B}{M = M}) = {!   !} where 
+      ctmRel (Fβ {A}{B}{M = M}) = {! βᴰ (ctm M)   !} where 
         _ : hasFTyᴰ (vty A) .bkwdᴰ (ctm M) ≡  ktm (bind M) 
         _ = {!   !}
       -- hasFTyᴰ (vty A) .bkwdᴰ (ctm M) != ktm (bind M) 
@@ -165,11 +172,17 @@ module Elim
           (hasUTyᴰ (cty B) .bkwdᴰ (ctm (subC (thunk M) force))) , ctm (subC (thunk M) force) ]
         _ = hasUTyᴰ (cty B) .wkretractᴰ {A}{vty A}{subC (thunk M) force}(ctm (subC (thunk M) force))-}
       ctmRel (subC-cong {A}{A'}{B}{V}{M}{M'} M↦M') = 
-        Oᴰ .Bif-homLᴰ (vtm V) (cty B) .snd (ctm M) (ctm M') (ctmRel M↦M') 
-      ctmRel (plug-cong {A}{B}{B'}{S}{M}{M'} M↦M') = 
-        Oᴰ .Bif-homRᴰ (ktm S) (vty A) .snd (ctm M) (ctm M') (ctmRel M↦M')
+        (Oᴰ .Bif-homLᴰ (vtm V) (cty B)) .isRelatorᴰ .fst (ctm M) (ctm M') (ctmRel M↦M')
+      ctmRel (plug-cong {A}{B}{B'}{S}{M}{M'} M↦M') =
+         Oᴰ .Bif-homRᴰ (ktm S) (vty A) .isRelatorᴰ .fst (ctm M) (ctm M') (ctmRel M↦M')
       ctmRel (+β₁ {A}{A'}{B}{M}{M'})  = has+ᴰ (vty A) (vty A') .+β₁ᴰ {B}{cty B}{M}{M'}{+β₁} (ctm M) (ctm M')
       ctmRel (+β₂ {A}{A'}{B}{M}{M'})  = has+ᴰ (vty A) (vty A') .+β₂ᴰ {B}{cty B}{M}{M'}{+β₂} (ctm M) (ctm M')
+      ctmRel (βrefl {A}{B}{M}) = Oᴰ .Bif-obᴰ {A}{B} (vty A) (cty B) .isRGraphᴰ .snd (ctm M)
+      ctmRel (alg-cong {A}{B}{op}{args}{args'} edges) = 
+        Oᴰ .Bif-obᴰ {A}{B} (vty A) (cty B) .congruenceᴰ op args args' edges 
+        (λ x → ctm (args x)) 
+        (λ x → ctm (args' x)) 
+        λ x → ctmRel {A}{B}{args x}{args' x} (edges x)
       ctmRel (isProp↦ a b  i) = {!   !}
 
       ktm : {B B' : CTy} → (f : Hom[ C , B ] B') → Hom[ Cᴰ ][ f  , cty B ] (cty B')
@@ -198,96 +211,26 @@ module Elim
       SC .Section.F-idᴰ = refl
       SC .Section.F-seqᴰ _ _ = refl
 
+      -- TODO, need to fill our rest
+      SO : SectionNat {F = idModelMorphsim Syn}{Nᴰ = Synᴰ} SV SC
+      SO .SectionNat.F-Car = ctm
+      SO .SectionNat.F-Edge = ctmRel
+{-}
       SO : SectionNat {F = idModelMorphsim Syn}{Nᴰ = Synᴰ} SV SC
       SO .SectionNat.F-Node = ctm
       SO .SectionNat.F-Edge = ctmRel
       SO .SectionNat.F-Node-nat V S M = refl
       SO .SectionNat.F-Edge-nat V S M M' M↦M' = refl
-
+-}
       Elim : CBPVSection {F = idModelMorphsim Syn}{Synᴰ} 
       Elim .fst = SV
       Elim .snd .fst = SC
       Elim .snd .snd = SO
 
 
-module LocalElimLogic 
-  {N : CBPVModel _ _ _ _ _ _ }
-  (L : CBPVLogic N)
-  (LHas𝟙ᴸ : LogicStruct.Has𝟙ᴸ L)
-  (LHas+ᴸ : LogicStruct.Has+ᴸ L)
-  (LHasFTyᴸ : LogicStruct.HasFTyᴸ L) where 
-
-  open Elim
-  open HyperDoc.Operational.Initial
-  open TypeStructureᴰ
-  open import Cubical.Categories.Displayed.Constructions.Reindex.Base renaming (reindex to reindexᴰ)
-  open import HyperDoc.Syntax
-  -- open ConvertLogic L
-
-  module _ (F : CBPVMorphism Syn N) where
-
-    open Reindex F L 
-    L' : CBPVLogic Syn 
-    L' = reindex 
-
-    module LMHV = HDSyntax (CBPVLogic.LV L')
-    module LMHC = HDSyntax (CBPVLogic.LC L')
-    open LogicalToDisplayed L'
-
-    Synᴰ : CBPVModelᴰ Syn _ _ _ _ _ _ 
-    Synᴰ = ConvertLogic.Mᴰ L'
-
-    -- this is just UTyDep.hasUTyᴰ hasUTy, 
-    dumb : HasUTyᴰ Synᴰ hasUTy
-    dumb Bᴰ .WkRepresentationᴰ.repᴰ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.repᴰ
-    dumb Bᴰ .WkRepresentationᴰ.fwdᴰ .N-obᴰ xᴰ x x₁ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.fwdᴰ .N-obᴰ xᴰ x x₁
-    dumb Bᴰ .WkRepresentationᴰ.fwdᴰ .N-homᴰ fᴰ i x y = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.fwdᴰ .N-homᴰ fᴰ i x y
-    dumb Bᴰ .WkRepresentationᴰ.bkwdᴰ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.bkwdᴰ
-    dumb Bᴰ .WkRepresentationᴰ.wkretractᴰ = UTyDep.hasUTyᴰ hasUTy  Bᴰ .WkRepresentationᴰ.wkretractᴰ
-
-    GlobalElim : CBPVSection {F = idModelMorphsim Syn}{Synᴰ} 
-    GlobalElim = 
-      Elim 
-        Synᴰ 
-        (𝟙TyDep.has𝟙ᴰ has𝟙 (pres𝟙ᴸ LHas𝟙ᴸ)) 
-        (×TyDep.has×ᴰ has× {!   !}) 
-        (+TyDep.has+ᴰ has+ (pres+ᴸ LHas+ᴸ)) 
-        dumb --  (UTyDep.hasUTyᴰ hasUTy) -- jfc, good luck waiting for the type checker to finish
-        (FTyDep.hasFTyᴰ hasFTy (presFTyᴸ LHasFTyᴸ)) 
 
 
-    LocalElim : CBPVSection {F = F}{ConvertLogic.Mᴰ L}
-    LocalElim .fst = 
-      GlobalSectionReindex→Section 
-        (CBPVModelᴰSyntax.Vᴰ (ConvertLogic.Mᴰ L)) 
-        (CBPVMorphismSyntax.FV F) 
-        conv where 
 
-        conv : GlobalSection
-          (reindexᴰ (CBPVModelᴰSyntax.Vᴰ (ConvertLogic.Mᴰ L))
-          (CBPVMorphismSyntax.FV F))
-        conv  .Section.F-obᴰ = GlobalElim .fst .Section.F-obᴰ
-        conv  .Section.F-homᴰ = GlobalElim .fst .Section.F-homᴰ
-        conv  .Section.F-idᴰ = toPathP (LMHV.isProp≤  _ _)
-        conv  .Section.F-seqᴰ _ _ = toPathP (LMHV.isProp≤  _ _)
-
-    LocalElim .snd .fst = 
-      GlobalSectionReindex→Section 
-        (CBPVModelᴰSyntax.Cᴰ (ConvertLogic.Mᴰ L)) 
-        (CBPVMorphismSyntax.FC F) 
-        conv where 
-
-        conv : GlobalSection
-          (reindexᴰ (CBPVModelᴰSyntax.Cᴰ (ConvertLogic.Mᴰ L))
-          (CBPVMorphismSyntax.FC F))
-        conv  .Section.F-obᴰ = GlobalElim .snd .fst .Section.F-obᴰ
-        conv  .Section.F-homᴰ = GlobalElim .snd .fst .Section.F-homᴰ
-        conv  .Section.F-idᴰ = toPathP (LMHC.isProp≤ _ _)
-        conv  .Section.F-seqᴰ _ _ = toPathP (LMHC.isProp≤ _ _)
-    LocalElim .snd .snd .SectionNat.F-Node {A}{B} M = GlobalElim .snd .snd .SectionNat.F-Node M
-    LocalElim .snd .snd .SectionNat.F-Edge n↦n' = tt
-    LocalElim .snd .snd .SectionNat.F-Node-nat V S M = toPathP ((LMHV.isProp≤ _ _))
-    LocalElim .snd .snd .SectionNat.F-Edge-nat V S M M' e = toPathP (isPropUnit _ _) 
 {-
 module LocalElim 
   {N : CBPVModel _ _ _ _ _ _ }

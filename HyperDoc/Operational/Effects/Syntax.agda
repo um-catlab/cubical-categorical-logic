@@ -15,18 +15,16 @@ open import Cubical.Categories.Bifunctor
 
 open import HyperDoc.Algebra.Algebra
 open import HyperDoc.Operational.Effects.Model
-open import HyperDoc.Operational.Effects.AlgGraph
+open import HyperDoc.Operational.Effects.BiAlgebra
 
 open Category
 open Functor
 open Signature
-open AlgGraph
 
 module Syntax (Sig : Signature) where 
   mutual 
     data VTy : Type where 
       𝟙 : VTy
-      -- Ans : VTy
       U : CTy → VTy 
       _⊕_ : VTy → VTy → VTy 
 
@@ -98,9 +96,7 @@ module Syntax (Sig : Signature) where
       (args : Fin (Sig .arity op) → A ⊢c B) → 
       plug S (ops op args) ≡ ops op (λ x → plug S (args x))
     
-    -- nullary operation
-    --  error : ∀ {A B} → A ⊢c B
-    -- type structuref
+    -- type structure
     ret : ∀{A B} → F A ⊢k B → A ⊢c B
     ret-sub : ∀ {A B B'}{S : B ⊢k B'}{S' : F A ⊢k B} → 
       ret (kcomp S' S) ≡ plug S (ret S')
@@ -113,24 +109,6 @@ module Syntax (Sig : Signature) where
     match : ∀ {A A' B} → (A ⊢c B) → (A' ⊢c B) → (A ⊕ A') ⊢c B
     plugmatch : ∀ {A A' B B'}{S : B ⊢k B'}{M : A ⊢c B}{N : A' ⊢c B} → 
       match (plug S M) (plug S N) ≡ plug S (match M N)
-
-  {-
-
-      (x← (error {A}) ,, M) ↦ error
-      x←_,,_ M N = plug (bind N) M
-
-      so Plug S (error ()) ≡ error () 
-      is now a reduction rule?
-
-
-      plug S (get (M , N)) ≡ get (plug S M, plug S N) 
-      plug S (get (M , N)) ↦ ?
-
-
-      how is this any different from requesting 
-        force-sub : ∀{A A' B}{V : A' ⊢v A}{W : A ⊢v U B} → 
-          force (subV V W) ≡ subC V (force W)  
-    -}
 
   true : ∀ {Γ} → Γ ⊢v 𝟚 
   true = subV tt σ₁
@@ -153,6 +131,9 @@ module Syntax (Sig : Signature) where
   S [ M /•] = plug S M
 
   data _↦_ : {A : VTy}{B : CTy} → A ⊢c B → A ⊢c B → Type where 
+    βrefl : ∀{A B}{M : A ⊢c B} → 
+      --------
+      M ↦ M
     Fβ : ∀{A B}{M : A ⊢c B} → 
       -------------------
       ret (bind M) ↦ M
@@ -166,20 +147,13 @@ module Syntax (Sig : Signature) where
 
     +β₂ : ∀ {A A' B}{M : A ⊢c B}{N : A' ⊢c B} →  
       subC σ₂ (match M N) ↦ N
-{-
-    algβ : ∀ 
+
+    alg-cong : ∀ 
       {A B op}
-      {args  : Fin (Sig .arity op) → A ⊢c B}
-      (i : Fin (Sig .arity op)) → 
-      args i ↦ {!   !} → 
+      {args args'  : Fin (Sig .arity op) → A ⊢c B} → 
+      (∀ (i : Fin (Sig .arity op)) → args i ↦ args' i) → 
       ---------------------
-      ops op args ↦ ops op {!   !} -}
-
-   -- opsβ : ∀ {A B B'}{S : B ⊢k B'}{op : Sig .Op}{args : Fin (Sig .arity op) → A ⊢c B} → 
-    --  (S [ ops op args /•]) ↦ ops op λ x → S [ args x /•]
-
-  --  errorβ : ∀ {A B}{M : A ⊢c B} → 
-  --   (x← (error {A}) ,, M) ↦ error
+      ops op args ↦ ops op args'
     
     subC-cong : ∀ {A A' B}{V : A' ⊢v A}{M M' : A ⊢c B}  →  
       M ↦ M' → 
@@ -191,6 +165,107 @@ module Syntax (Sig : Signature) where
       --------- 
       (S [ M /•]) ↦ (S [ M' /•]) 
     isProp↦ : ∀ {A B} {M M' : A ⊢c B} → isProp (M ↦ M')
+
+module SynModel (Sig : Signature) where 
+  open Syntax Sig
+  open import HyperDoc.Operational.Graph
+
+  V : Category ℓ-zero ℓ-zero
+  V .ob = VTy
+  V .Hom[_,_] = _⊢v_
+  V .id = var
+  V ._⋆_ = subV
+  V .⋆IdL = subVIdl
+  V .⋆IdR = subVIdr
+  V .⋆Assoc = subVAssoc
+  V .isSetHom = isSet⊢v
+
+  C : Category ℓ-zero ℓ-zero 
+  C .ob = CTy
+  C .Hom[_,_] = _⊢k_
+  C .id = hole
+  C ._⋆_ = kcomp
+  C .⋆IdL = kcompIdl
+  C .⋆IdR = kcompIdr
+  C .⋆Assoc = kcompAssoc
+  C .isSetHom = isSet⊢k
+  open BifunctorSep
+
+  open Alg
+  open BiAlg
+  open BiAlgHom
+
+  bialg : VTy → CTy → BiAlg Sig
+  bialg A B .car = (A ⊢c B) , isSet⊢c
+  bialg A B .isAlg = ops
+  bialg A B .isRGraph .fst M M' = (M ↦ M') , isProp↦
+  bialg A B .isRGraph .snd M = βrefl
+  bialg A B .congruence op args args' = alg-cong
+
+  leftAction : ∀ {A A' B} → A' ⊢v A →  BIALG Sig [ bialg A B , bialg A' B ]
+  leftAction V .map M = subC V M
+  leftAction V .isAlgHom op args = opsSub V op args
+  leftAction V .isRelator .fst M↦M' = subC-cong M↦M'
+  leftAction V .isRelator .snd = isProp↦ _ _
+
+  rightAction : ∀ {A B B'} → B ⊢k B' → BIALG Sig [ bialg A B , bialg A B' ] 
+  rightAction S .map M = plug S M
+  rightAction S .isAlgHom op args = opsPlug S op args
+  rightAction S .isRelator .fst M↦M' = plug-cong M↦M'
+  rightAction S .isRelator .snd = isProp↦ _ _
+
+  O : BifunctorSep (V ^op) C  (BIALG Sig)
+  O .Bif-ob = bialg
+  O .Bif-homL V B = leftAction V
+  O .Bif-L-id = BiAlgHom≡ (funExt λ M → subCId)
+  O .Bif-L-seq _ _ = BiAlgHom≡ (funExt λ M → sym subDist)
+  O .Bif-homR B S = rightAction S
+  O .Bif-R-id = BiAlgHom≡  (funExt λ M → plugId)
+  O .Bif-R-seq _ _ = BiAlgHom≡ (funExt λ  M  → sym plugDist)
+  O .SepBif-RL-commute _ _ = BiAlgHom≡  (funExt λ M → plugSub) 
+  
+  Syn : CBPVModel Sig
+  Syn .fst = V
+  Syn .snd .fst = C
+  Syn .snd .snd = O
+
+  open import HyperDoc.Operational.Effects.TypeStructure  
+  open import Cubical.Categories.Presheaf.Morphism.Alt
+  open PshHom
+  open TypeStructure Syn
+
+  open WkRepresentation
+  open import Cubical.Categories.NaturalTransformation
+  open NatTrans
+  open import Cubical.Data.Unit
+
+  has𝟙 : Has𝟙 
+  has𝟙 .fst = 𝟙
+  has𝟙 .snd .N-ob A tt = tt
+  has𝟙 .snd .N-hom V = funExt λ {tt → subtt}
+
+  has+ : Has+ 
+  has+ A A' .TypeStructure.Has+'.A+A' = A ⊕ A'
+  has+ A A' .TypeStructure.Has+'.match .N-ob B (M , N) = match M N
+  has+ A A' .TypeStructure.Has+'.match .N-hom S = funExt λ (M , N) → plugmatch
+  has+ A A' .TypeStructure.Has+'.σ₁ = σ₁
+  has+ A A' .TypeStructure.Has+'.σ₂ = σ₂
+  has+ A A' .TypeStructure.Has+'.+β₁ M N = +β₁
+  has+ A A' .TypeStructure.Has+'.+β₂ M N = +β₂
+
+  hasUTy : HasUTy 
+  hasUTy B .rep = U B
+  hasUTy B .fwd .N-ob A = force
+  hasUTy B .fwd .N-hom V = funExt λ V' → force-sub
+  hasUTy B .bkwd = thunk
+  hasUTy B .wkretract M = Uβ
+
+  hasFTy : HasFTy 
+  hasFTy A .rep = F A
+  hasFTy A .fwd .N-ob B = ret
+  hasFTy A .fwd .N-hom {B}{B'}S = funExt λ S' → ret-sub
+  hasFTy A .bkwd = bind
+  hasFTy A .wkretract M = Fβ
 {-
 
 module uhg where 
@@ -253,34 +328,12 @@ module uhg where
   -}
 -}
 
-module SynModel (Sig : Signature) where 
-  open Syntax Sig
-  open import HyperDoc.Operational.Graph
 
-  V : Category ℓ-zero ℓ-zero
-  V .ob = VTy
-  V .Hom[_,_] = _⊢v_
-  V .id = var
-  V ._⋆_ = subV
-  V .⋆IdL = subVIdl
-  V .⋆IdR = subVIdr
-  V .⋆Assoc = subVAssoc
-  V .isSetHom = isSet⊢v
 
-  C : Category ℓ-zero ℓ-zero 
-  C .ob = CTy
-  C .Hom[_,_] = _⊢k_
-  C .id = hole
-  C ._⋆_ = kcomp
-  C .⋆IdL = kcompIdl
-  C .⋆IdR = kcompIdr
-  C .⋆Assoc = kcompAssoc
-  C .isSetHom = isSet⊢k
-
-  algGraph : VTy → CTy → ob (ALGGRAPH Sig)
-  algGraph A B .fst = (A ⊢c B) , isSet⊢c
-  algGraph A B .snd .fst M M' = (M ↦ M') , isProp→isSet isProp↦
-  algGraph A B .snd .snd = ops
+ -- algGraph : VTy → CTy → ob (ALGGRAPH Sig)
+ -- algGraph A B .fst = (A ⊢c B) , isSet⊢c
+ -- algGraph A B .snd .fst M M' = (M ↦ M') , isProp→isSet isProp↦
+ -- algGraph A B .snd .snd = ops
 
 {-
   O : Functor (V ^op ×C C) (ALG Σ) 
@@ -290,18 +343,7 @@ module SynModel (Sig : Signature) where
   O .F-id = AlgHom≡ (funExt λ M → plugId ∙ subCId)
   O .F-seq (V , S)(V' , S') = AlgHom≡ (funExt λ M → sym plugDist ∙ cong₂ plug refl (sym plugSub ∙ sym subDist ∙ cong₂ subC refl plugSub))
 -}
-  open BifunctorSep
-  O : BifunctorSep (V ^op) C (ALGGRAPH Sig)
-  O .Bif-ob = algGraph
-  O .Bif-homL V B .fst = subC V
-  O .Bif-homL V B .snd .fst = subC-cong
-  O .Bif-homL V B .snd .snd op args = opsSub _ _ _
-  O .Bif-L-id = {!   !}
-  O .Bif-L-seq = {!   !}
-  O .Bif-homR = {!   !}
-  O .Bif-R-id = {!   !}
-  O .Bif-R-seq = {!   !}
-  O .SepBif-RL-commute = {!   !}
+
   {-
   O : BifunctorSep (V ^op) C (GRAPH ℓ-zero ℓ-zero) 
   O .Bif-ob = compGraph
@@ -315,10 +357,7 @@ module SynModel (Sig : Signature) where
   O .Bif-R-seq S S' = Σ≡Prop (λ f → isPropImplicitΠ2 λ n n' → isProp→ isProp↦)  (funExt λ _ → sym plugDist)
   O .SepBif-RL-commute V S = Σ≡Prop (λ f → isPropImplicitΠ2 λ n n' → isProp→ isProp↦)  (funExt λ _ → plugSub)
 -}
-  Syn : CBPVModel Sig
-  Syn .fst = V
-  Syn .snd .fst = C
-  Syn .snd .snd = O
+
 
 {-
   open import HyperDoc.Operational.TypeStructure  

@@ -1,3 +1,4 @@
+{-# OPTIONS --type-in-type #-}
 module HyperDoc.Operational.Graph where
 
 open import Cubical.Foundations.HLevels
@@ -23,9 +24,31 @@ open Functor
   open import Cubical.Data.Graph
   open import Cubical.Data.Graph.Displayed
 -}
+BinRel : hSet _ → Type 
+BinRel S = ⟨ S ⟩ → ⟨ S ⟩ → hSet _
 
+PropBinRel : hSet _ → Type 
+PropBinRel S = ⟨ S ⟩ → ⟨ S ⟩ → hProp _
+
+PropBinRelᴰ : {X : hSet _} → (⟨ X ⟩ → hSet _ ) → (PropBinRel X) → Type 
+PropBinRelᴰ {X} P R = {x x' : ⟨ X ⟩} → ⟨ R x x' ⟩  → ⟨ P x ⟩ → ⟨ P x' ⟩ → hProp _
+
+{- 
+Graphᴰ : {ℓ ℓ' : Level}(ℓᴰ ℓᴰ' : Level) → Graph ℓ ℓ' → Type _ 
+Graphᴰ ℓᴰ ℓᴰ' (N , E) = 
+  Σ[ Nᴰ ∈ (⟨ N ⟩ → hSet ℓᴰ) ] 
+  ({n n' : ⟨ N ⟩ } → ⟨ E  n n' ⟩ → ⟨ Nᴰ n ⟩ → ⟨ Nᴰ n' ⟩ →  hSet ℓᴰ')
+-}
 Graph : (ℓ ℓ' : Level) → Type _
-Graph ℓ ℓ' = Σ[ S ∈ hSet ℓ ] (⟨ S ⟩ → ⟨ S ⟩ → hSet ℓ') 
+Graph ℓ ℓ' = Σ[ S ∈ hSet ℓ ] BinRel S
+
+ReflBinRel : hSet _ → Type 
+ReflBinRel S = Σ[ R ∈ PropBinRel S ] ((n : ⟨ S ⟩) → ⟨ R n n ⟩)
+
+ReflBinRelᴰ : {X : hSet _} → (⟨ X ⟩ → hSet _ ) → ReflBinRel X →  Type 
+ReflBinRelᴰ {X} Xᴰ R = 
+  Σ[ Rᴰ ∈ PropBinRelᴰ  {X} Xᴰ  (R .fst) ] 
+  ({x : ⟨ X ⟩}(xᴰ : ⟨ Xᴰ x ⟩) → ⟨ Rᴰ {x}{x} (R .snd x) xᴰ xᴰ ⟩)
 
 RGraph : (ℓ ℓ' : Level) → Type _
 RGraph  ℓ ℓ' = Σ[ G ∈ Graph ℓ ℓ' ] ((n : ⟨ G .fst ⟩) → ⟨ G .snd n n ⟩)
@@ -45,11 +68,15 @@ GraphHom (N , E) (N' , E') =
     -- this is the identity extension principle! 
     Fid : {x : G.Car} → Fe (G.Rid {x}) ≡ H.Rid{Fv x}
 -}
-Relator : {ℓ ℓ' : Level}→ (G H : RGraph ℓ ℓ') → Type _ 
-Relator G H = Σ[ h ∈ GraphHom (G .fst) (H .fst) ] ({n : ⟨ G .fst .fst ⟩} → h .snd (G .snd n) ≡ H .snd (h .fst  n))
+presId : {G H : RGraph _ _} → GraphHom (G .fst) (H .fst)  → Type 
+presId {G}{H} f = {n : ⟨ G .fst .fst ⟩} → f .snd (G .snd n) ≡ H .snd (f .fst  n)
 
-Relator≡ :{ℓ ℓ' : Level}{G H : RGraph ℓ ℓ'}(f g : Relator G H) → f .fst ≡ g .fst → f ≡ g 
-Relator≡ {G = G}{H} f g  prf = Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _) prf
+IsRelator : {G H : RGraph _ _} → (⟨ G .fst .fst ⟩ → ⟨ H .fst .fst ⟩) → Type 
+IsRelator {G}{H} f = Σ[ fhom ∈  isGraphHom {G = G .fst}{H .fst} f ] presId {G}{H}(f , fhom)
+
+Relator : {ℓ ℓ' : Level}→ (G H : RGraph ℓ ℓ') → Type _ 
+Relator G H  = 
+  Σ[ f ∈ (⟨ G .fst .fst ⟩ → ⟨ H .fst .fst ⟩) ]  IsRelator {G}{H} f
 
 GRAPH : (ℓ ℓ' : Level) → Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-max ℓ ℓ') 
 GRAPH ℓ ℓ' .ob = Graph ℓ ℓ'
@@ -64,35 +91,30 @@ GRAPH ℓ ℓ' .isSetHom {G}{H}=
   isSetΣ (isSet→ (H .fst .snd)) 
     λ f → isSetImplicitΠ2 λ n n' → isSet→ (H .snd (f n) (f n') .snd)
 
+
 idRelator : {ℓ ℓ' : Level}{G : RGraph ℓ ℓ'} → Relator G G 
-idRelator {G = G} .fst .fst n = n
-idRelator {G = G} .fst .snd e = e
-idRelator {G = G} .snd = refl
+idRelator {G = G} = {!   !}
 
 seqRelator : {ℓ ℓ' : Level}{G H J : RGraph ℓ ℓ'} → Relator G H → Relator H J → Relator G J 
-seqRelator f g .fst .fst n = g .fst .fst (f .fst .fst n)
-seqRelator f g .fst .snd e = g .fst .snd (f .fst .snd e)
-seqRelator {G = G}{H}{J} f g .snd {n} = goal where 
+seqRelator f g .fst n = g .fst (f .fst n)
+seqRelator f g .snd .fst e = g .snd .fst (f .snd .fst e)
+seqRelator f g .snd .snd {n} = cong (λ h → g .snd .fst h) (f .snd .snd {n}) ∙ g .snd .snd {f .fst n}
 
-  have : f .fst .snd (G .snd n) ≡ H .snd (f .fst .fst n)
-  have = f .snd {n}
-
-  have' : g .fst .snd (H .snd (f .fst .fst n)) ≡ J .snd (g .fst .fst (f .fst .fst n)) 
-  have' = g .snd {f .fst .fst n}
-  
-  goal : g .fst .snd (f .fst .snd (G .snd n)) ≡ J .snd (g .fst .fst (f .fst .fst n))
-  goal = cong (λ h → g .fst .snd h ) have ∙ have'
 
 RGRAPH : (ℓ ℓ' : Level) → Category (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) (ℓ-max ℓ ℓ') 
 RGRAPH ℓ ℓ' .ob = RGraph ℓ ℓ'
 RGRAPH ℓ ℓ' .Hom[_,_] = Relator
 RGRAPH ℓ ℓ' .id {G} = idRelator {G = G} 
 RGRAPH ℓ ℓ' ._⋆_ {G}{H}{J} f g = seqRelator {G = G}{H}{J} f g
-RGRAPH ℓ ℓ' .⋆IdL {G}{H} f = Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _)  refl
-RGRAPH ℓ ℓ' .⋆IdR {G}{H} f = Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _)  refl
-RGRAPH ℓ ℓ' .⋆Assoc {G}{H}{J}{K} f g h = Σ≡Prop (λ x → isPropImplicitΠ λ n → K .fst .snd _ _ .snd _ _)  refl
-RGRAPH ℓ ℓ' .isSetHom {G}{H} = isSetΣ (isSetΣ (isSet→ (H .fst .fst .snd)) λ f → isSetImplicitΠ2 λ n n' → isSet→  (H .fst .snd (f n) (f n') .snd)) 
-  λ _ → isSetImplicitΠ λ _ → isProp→isSet (H .fst .snd _ _ .snd _ _)
+RGRAPH ℓ ℓ' .⋆IdL {G}{H} f = {!   !}
+  -- Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _)  refl
+RGRAPH ℓ ℓ' .⋆IdR {G}{H} f = {!   !}
+   -- Σ≡Prop (λ x → isPropImplicitΠ λ n → H .fst .snd _ _ .snd _ _)  refl
+RGRAPH ℓ ℓ' .⋆Assoc {G}{H}{J}{K} f g h = {!   !}
+  -- Σ≡Prop (λ x → isPropImplicitΠ λ n → K .fst .snd _ _ .snd _ _)  refl
+RGRAPH ℓ ℓ' .isSetHom {G}{H} = {!   !}
+  {- isSetΣ (isSetΣ (isSet→ (H .fst .fst .snd)) λ f → isSetImplicitΠ2 λ n n' → isSet→  (H .fst .snd (f n) (f n') .snd)) 
+  λ _ → isSetImplicitΠ λ _ → isProp→isSet (H .fst .snd _ _ .snd _ _) -}
 
 FORGET : Functor (GRAPH _ _) (SET _) 
 FORGET .F-ob = fst
@@ -226,13 +248,30 @@ Graphᴰ ℓᴰ ℓᴰ' (N , E) =
   Σ[ Nᴰ ∈ (⟨ N ⟩ → hSet ℓᴰ) ] 
   ({n n' : ⟨ N ⟩ } → ⟨ E  n n' ⟩ → ⟨ Nᴰ n ⟩ → ⟨ Nᴰ n' ⟩ →  hSet ℓᴰ')
 
+RGraphᴰ : RGraph _ _ → Type _ 
+RGraphᴰ R = Σ[ Gᴰ ∈ Graphᴰ _ _ (R .fst) ] 
+  ({n : ⟨ R .fst .fst ⟩}(nᴰ : ⟨ Gᴰ .fst n ⟩) → ⟨ Gᴰ .snd {n}{n} (R .snd n) nᴰ nᴰ ⟩)
+{-
+isGraphHom : {ℓ ℓ' : Level}{G H : Graph ℓ ℓ'} → (⟨ G .fst ⟩ → ⟨ H .fst ⟩) → Type _ 
+isGraphHom {G = N , E} {N' , E'} f = {n n' : ⟨ N ⟩} → ⟨ E n n' ⟩ → ⟨ E' (f n) (f n') ⟩
+
+GraphHom : {ℓ ℓ' : Level}→ (G H : Graph ℓ ℓ') → Type _ 
+GraphHom (N , E) (N' , E') = 
+  Σ[ f ∈ (⟨ N ⟩ → ⟨ N' ⟩) ] 
+    isGraphHom {G = N , E} {N' , E'} f
+-}
+
+isGraphHomᴰ : {G H : Graph _ _ }{Gᴰ : Graphᴰ _ _ G }{Hᴰ : Graphᴰ _ _ H }{hom : GraphHom G H } → 
+  ((n : ⟨ G .fst ⟩) → ⟨ Gᴰ .fst n ⟩ → ⟨ Hᴰ .fst (hom .fst n) ⟩) → Type 
+isGraphHomᴰ {G}{H}{Gᴰ}{Hᴰ}{hom} homᴰ = ({n n' : ⟨ G .fst ⟩}{e : ⟨ G .snd n n' ⟩}
+  (nᴰ : ⟨ Gᴰ .fst  n ⟩ )(n'ᴰ : ⟨ Gᴰ .fst n' ⟩ ) → 
+  ⟨ Gᴰ .snd e nᴰ n'ᴰ ⟩  → ⟨ Hᴰ .snd (hom .snd e) (homᴰ n nᴰ) (homᴰ n' n'ᴰ) ⟩)
+
 GraphHomᴰ : {ℓ ℓ' ℓᴰ ℓᴰ' : Level}{G H : Graph ℓ ℓ'} → 
   GraphHom G H → Graphᴰ ℓᴰ ℓᴰ' G → Graphᴰ ℓᴰ ℓᴰ' H → Type _ 
 GraphHomᴰ {G = G}{H} f Gᴰ Hᴰ =
   Σ[ fᴰ ∈ ((n : ⟨ G .fst ⟩) → ⟨ Gᴰ .fst n ⟩ → ⟨ Hᴰ .fst (f .fst n) ⟩) ] 
-  ({n n' : ⟨ G .fst ⟩}{e : ⟨ G .snd n n' ⟩}
-  (nᴰ : ⟨ Gᴰ .fst  n ⟩ )(n'ᴰ : ⟨ Gᴰ .fst n' ⟩ ) → 
-  ⟨ Gᴰ .snd e nᴰ n'ᴰ ⟩  → ⟨ Hᴰ .snd (f .snd e) (fᴰ n nᴰ) (fᴰ n' n'ᴰ) ⟩)
+    isGraphHomᴰ {G}{H}{Gᴰ}{Hᴰ}{f} fᴰ
 
 GRAPHᴰ : (ℓ ℓ' ℓᴰ ℓᴰ' : Level) → 
   Categoryᴰ (GRAPH ℓ ℓ' ) 
@@ -253,6 +292,38 @@ GRAPHᴰ ℓ ℓ' ℓᴰ ℓᴰ' .isSetHomᴰ {G}{H}{f}{Gᴰ}{Hᴰ} =
   isSetΣ (isSetΠ (λ n → isSet→ (Hᴰ .fst (f .fst n) .snd))) 
   λ fᴰ → isSetImplicitΠ3 λ n n' e → isSetΠ2 λ nᴰ nᴰ' → isSet→ 
   (Hᴰ .snd (f .snd e) (fᴰ n nᴰ) (fᴰ n' nᴰ') .snd)
+
+presIdᴰ :  {G H : RGraph _ _}{Gᴰ : RGraphᴰ G}{Hᴰ : RGraphᴰ H}{h : GraphHom (G .fst) (H .fst) } → 
+  (prf : presId {G}{H} h) → 
+  GraphHomᴰ  {G = G .fst}{H .fst} h (Gᴰ .fst) (Hᴰ .fst) →  Type 
+presIdᴰ {G}{H}{Gᴰ}{Hᴰ}{h} prf hᴰ = 
+  {n : ⟨ G .fst .fst ⟩}{nᴰ : ⟨ Gᴰ .fst .fst n ⟩ } → 
+  PathP (λ i → ⟨ Hᴰ .fst .snd (prf {_} i) (hᴰ .fst n nᴰ) (hᴰ .fst n nᴰ) ⟩)
+   ((hᴰ .snd nᴰ nᴰ (Gᴰ .snd {n} nᴰ))) 
+   ((Hᴰ .snd (hᴰ .fst n nᴰ))) 
+
+
+IsRelatorᴰ : {G H : RGraph _ _}{Gᴰ : RGraphᴰ G}{Hᴰ : RGraphᴰ H} → 
+    (f : ⟨ G .fst .fst ⟩ → ⟨ H .fst .fst ⟩) → 
+    IsRelator {G}{H} f → 
+    ((n : ⟨ G .fst .fst ⟩) → ⟨ Gᴰ .fst .fst n ⟩ → ⟨ Hᴰ .fst .fst (f n) ⟩) → Type 
+IsRelatorᴰ {G}{H}{Gᴰ}{Hᴰ} f isrel fᴰ = 
+  Σ[ ishomᴰ ∈ isGraphHomᴰ {G .fst}{H .fst}{Gᴰ .fst}{Hᴰ .fst}{(f , isrel .fst)} fᴰ ] 
+  presIdᴰ {G}{H}{Gᴰ}{Hᴰ}{(f , isrel .fst)} (isrel .snd) (fᴰ , ishomᴰ)
+
+Relatorᴰ : {G H : RGraph _ _} → Relator G H → RGraphᴰ G → RGraphᴰ H → Type 
+Relatorᴰ {G}{H} r Gᴰ Hᴰ = 
+  Σ[ fᴰ ∈ ((n : ⟨ G .fst .fst ⟩) → ⟨ Gᴰ .fst .fst n ⟩ → ⟨ Hᴰ .fst .fst (r .fst n) ⟩) ] 
+  IsRelatorᴰ {G}{H}{Gᴰ}{Hᴰ} (r .fst) (r .snd) fᴰ
+
+{- 
+IsRelator : {G H : RGraph _ _} → (⟨ G .fst .fst ⟩ → ⟨ H .fst .fst ⟩) → Type 
+IsRelator {G}{H} f = Σ[ fhom ∈  isGraphHom {G = G .fst}{H .fst} f ] presId {G}{H}(f , fhom)
+
+Relator : {ℓ ℓ' : Level}→ (G H : RGraph ℓ ℓ') → Type _ 
+Relator G H  = 
+  Σ[ f ∈ (⟨ G .fst .fst ⟩ → ⟨ H .fst .fst ⟩) ]  IsRelator {G}{H} f
+-}
 
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets 

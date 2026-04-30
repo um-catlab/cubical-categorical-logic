@@ -1,3 +1,4 @@
+{-# OPTIONS --type-in-type #-}
 module  HyperDoc.Operational.RelGraph  where 
 
 open import Cubical.Foundations.Prelude
@@ -11,12 +12,87 @@ open import Cubical.Data.Unit
 open import Cubical.Data.Empty
 open import Cubical.Foundations.Powerset
 open import Cubical.Categories.Category
-
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.HITs.PropositionalTruncation renaming (rec to hrec)
+open import Cubical.Functions.Logic hiding(inl ; inr)
+open import Cubical.Categories.Constructions.BinProduct
 open Category
+open Functor
+open NatTrans
 import Cubical.Data.Equality as Eq
+-- Pred Lifting
+
+Pow : Functor (SET _) (SET _) 
+Pow .F-ob (X , isSetX) = (ℙ X) , isSetℙ
+Pow .F-hom {X}{Y} f P y = (∃[ x ∈ ⟨ X ⟩ ] (f x ≡ y) × (x ∈ P)) , squash₁
+Pow .F-id {X} = funExt λ PX → funExt λ x → 
+  ⇔toPath 
+    (hrec (∈-isProp PX x) λ (x , x≡ , Px) → subst (λ h → h ∈ PX) x≡ Px) 
+    λ Px → ∣ x , (refl , Px) ∣₁
+Pow .F-seq = {!   !}
+
+data Shape : Type where 
+  var 𝟙 : Shape
+  _⊗_ _⊕_ : Shape → Shape → Shape
+
+
+Const : hSet _ → Functor (SET _) (SET _) 
+Const X .F-ob _ = X
+Const X .F-hom = λ z z₁ → z₁
+Const X .F-id = refl
+Const X .F-seq _ _ = refl
+
+ToFunctor : Shape → Functor (SET _) (SET _) 
+ToFunctor var = Id
+ToFunctor 𝟙 = Const (Unit , isSetUnit)
+ToFunctor (s ⊗ s') .F-ob X .fst = ToFunctor s .F-ob X .fst × ToFunctor s' .F-ob X .fst
+ToFunctor (s ⊗ s') .F-ob X .snd = isSet× (ToFunctor s .F-ob X .snd) (ToFunctor s' .F-ob X .snd)
+ToFunctor (s ⊗ s') .F-hom f (x , y) = (ToFunctor s .F-hom f x) , ToFunctor s' .F-hom f y
+ToFunctor (s ⊗ s') .F-id i (x , y) = (ToFunctor s .F-id  i x) , (ToFunctor s' .F-id i y)
+ToFunctor (s ⊗ s') .F-seq f g i (x , y)= (ToFunctor s .F-seq f g i x) , (ToFunctor s' .F-seq f g i y)
+ToFunctor (s ⊕ s') .F-ob X .fst = ToFunctor s .F-ob X .fst ⊎ ToFunctor s' .F-ob X .fst
+ToFunctor (s ⊕ s') .F-ob X .snd = isSet⊎ (ToFunctor s .F-ob X .snd) (ToFunctor s' .F-ob X .snd)
+ToFunctor (s ⊕ s') .F-hom f (inl x) = inl (ToFunctor s .F-hom f x)
+ToFunctor (s ⊕ s') .F-hom f (inr x) = inr (ToFunctor s' .F-hom f x)
+ToFunctor (s ⊕ s') .F-id i (inl x) = inl (ToFunctor s .F-id i x)
+ToFunctor (s ⊕ s') .F-id i (inr x) = inr (ToFunctor s' .F-id i x)
+ToFunctor (s ⊕ s') .F-seq f g i (inl x) = inl (ToFunctor s .F-seq f g i x)
+ToFunctor (s ⊕ s') .F-seq f g i (inr x) = inr (ToFunctor s' .F-seq f g i x)
+
+dist : (s : Shape) → NatTrans (ToFunctor s ∘F Pow) (Pow ∘F ToFunctor s) 
+dist var .N-ob = λ x z → z
+dist var .N-hom f = refl
+dist 𝟙 .N-ob X tt tt = ⊤
+dist 𝟙 .N-hom f = {!   !}
+  -- yes, separate out to help agda w66
+  -- funExt λ {tt → funExt λ {tt → ⇔toPath {!   !} {!   !}}}
+dist (s ⊗ s') .N-ob X (a , b)(sa , sb) = dist s .N-ob  X a sa ⊓ dist s' .N-ob X b sb
+dist (s ⊗ s') .N-hom {X}{Y} f = funExt λ (P , Q) → funExt λ (y , y') → 
+  ⇔toPath (λ {(fst₁ , snd₁) → ∣ {!   !} ∣₁}) 
+  λ x → (hrec {!   !} {!   !} x) , {!   !}
+dist (s ⊕ s') .N-ob X (inl a) (inl x) = N-ob (dist s) X a x
+dist (s ⊕ s') .N-ob X (inl a) (inr x) = Cubical.Functions.Logic.⊥
+dist (s ⊕ s') .N-ob X (inr b) (inl x) = Cubical.Functions.Logic.⊥
+dist (s ⊕ s') .N-ob X (inr b) (inr x) = N-ob (dist s') X b x
+dist (s ⊕ s') .N-hom f = {!   !}
+
+{-}
+PolyToSet : {X : Type} → Poly X → Type 
+PolyToSet {X} var = X
+PolyToSet 𝟙 = Unit
+PolyToSet (p ⊗ p') = PolyToSet p × PolyToSet p'
+PolyToSet (p ⊕ p') = PolyToSet p ⊎ PolyToSet p'
+
+PolyToFunctor : Poly (hSet _) → Functor (SET _) (SET _) 
+PolyToFunctor p .F-ob X = PolyToSet {⟨ X ⟩ } {!   !} , {!   !}
+PolyToFunctor p .F-hom = {!   !}
+PolyToFunctor p .F-id = {!   !}
+PolyToFunctor p .F-seq = {!   !}
+-}
 
 -- Relational lifting of type operators
-
 
 Rel' : {ℓ : Level} → hSet ℓ → hSet ℓ → Type (ℓ-suc ℓ) 
 Rel' {ℓ} X Y = ⟨ X ⟩ → ⟨ Y ⟩ → hSet ℓ
@@ -99,10 +175,10 @@ GroupRel {ℓ} G G' R' = eRe × ⊗R⊗' × invRinv' where
 
   eRe = ⟨ R .snd  e e' ⟩
 
-  ⊗ = G .snd  .fst
+  ⊗g = G .snd  .fst
   ⊗' = G' .snd  .fst
 
-  ⊗R⊗' = ⟨ (R →R (R →R R)) .snd ⊗ ⊗' ⟩
+  ⊗R⊗' = ⟨ (R →R (R →R R)) .snd ⊗g ⊗' ⟩
 
   inv = G .snd .snd .fst 
   inv' = G' .snd .snd .fst 
@@ -173,7 +249,7 @@ Relator {ℓ} (|G| , R , idG) (|H| , R' , idH) =
   Σ[ rel-f ∈ ({x y : ⟨ |G| ⟩ } → ⟨ R x y ⟩  → ⟨ R' (f x) (f y) ⟩) ] 
   ({ x : ⟨ |G| ⟩} → rel-f (idG x) ≡ idH (f x))
 
-Param : {ℓ : Level}{G H : RGraph ℓ} → Relator G H → Relator G H → Type {!   !} 
+Param : {ℓ : Level}{G H : RGraph ℓ} → Relator G H → Relator G H → Type {! ℓ-zero !} 
 Param {ℓ}{|G| , R , idG} {|H| , R' , idH} (f , rel-f , idf) (g , rel-g , idg) =
    Σ[ α ∈ ((x : ⟨ |G| ⟩ ) → {! f x → ?  !}) ] {!   !}
 
@@ -230,7 +306,7 @@ module _ {ℓ : Level}(C : Category ℓ ℓ )(bp :  BinProducts C) where
 open import Cubical.Categories.Functor
 open Functor
 
-record RGCat : Type {!   !} where 
+record RGCat : Type {! ℓ-zero !} where 
   field 
     𝓖v : Category _ _ 
     𝓖e : Category _ _

@@ -1,6 +1,6 @@
 {-# OPTIONS --type-in-type #-}
 
-module HyperDoc.Operational.TypeStructure where 
+module HyperDoc.Operational.Effects.TypeStructure where 
   
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Prelude
@@ -23,11 +23,18 @@ open import Cubical.Categories.Displayed.Instances.Sets
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Bifunctor
 
-open import HyperDoc.Operational.Graph
-open import HyperDoc.Operational.Model
+open import HyperDoc.Algebra.Algebra hiding (FORGET)
+open import HyperDoc.Operational.Effects.BiAlgebra
+-- open import HyperDoc.Operational.Graph
+open import HyperDoc.Operational.Effects.Model
 open import HyperDoc.Lib
 
+open BiAlg renaming (Node to bNode ; Edge[_,_] to bEdge[_,_])
+open BiAlgᴰ renaming (Nodeᴰ to bNodeᴰ ; Edgeᴰ[_][_,_] to bEdgeᴰ[_][_,_])
+open BiAlgHom
+open BiAlgHomᴰ
 open Category
+open Functor
 open Categoryᴰ
 open BifunctorSep
 open BifunctorSepᴰ
@@ -45,15 +52,16 @@ open NatTransᴰ
   - For coproduct, we could instaniate with the Collage, but we DO NOT want value reductions
 -}
 record WkRepresentation
+  {Sig : Signature}
   (C : Category _ _ ) 
-  (P : Functor (C ^op) (GRAPH _ _)) : Type where 
+  (P : Functor (C ^op) (BIALG Sig)) : Type where 
 
   private 
     Node : (c : ob C) → Type 
-    Node c = ⟨ Functor.F-ob P c .fst ⟩ 
-
+    Node c = bNode (P .F-ob c)
+    
     Edge : {c : ob C} → Node c → Node c → Type 
-    Edge {c} n n' = ⟨ Functor.F-ob P c .snd n n'  ⟩
+    Edge {c} n n' = bEdge[_,_] (P .F-ob c) n n'
 
   field 
     rep : C .ob 
@@ -61,84 +69,68 @@ record WkRepresentation
     bkwd : {c : ob C} → Node c → C [ c , rep ]
     wkretract : {c : ob C}(n : Node c) → Edge (fwd .N-ob c (bkwd n)) n
 
-
 record WkRepresentationᴰ
+  {Sig : Signature}
   {C : Category _ _ }
-  {P : Functor (C ^op) (GRAPH _ _)}
+  {P : Functor (C ^op) (BIALG Sig)}
   (wkrep : WkRepresentation C P)
   (Cᴰ : Categoryᴰ C _ _ )
-  (Pᴰ : Functorᴰ P (Cᴰ ^opᴰ) (GRAPHᴰ _ _ _ _)) : Type where 
+  (Pᴰ : Functorᴰ P (Cᴰ ^opᴰ) (BIALGᴰ {Sig})) : Type where 
   open WkRepresentation wkrep
   
   private 
     Node : (c : ob C) → Type 
-    Node c = ⟨ Functor.F-ob P c .fst ⟩ 
+    Node c = bNode (P .F-ob c)
+    
+    Edge : {c : ob C} → Node c → Node c → Type 
+    Edge {c} n n' = bEdge[_,_] (P .F-ob c) n n'
 
     Nodeᴰ : {c : ob C}(cᴰ : Cᴰ .ob[_] c)(n : Node c) → Type 
-    Nodeᴰ {c} cᴰ n = ⟨ Pᴰ .F-obᴰ {c} cᴰ .fst n ⟩
-
-    Edge : {c : ob C} → Node c → Node c → Type 
-    Edge {c} n n' = ⟨ Functor.F-ob P c .snd n n' ⟩
+    Nodeᴰ {c} cᴰ n = bNodeᴰ (Pᴰ .F-obᴰ {c} cᴰ) n
 
     Edgeᴰ : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n n' : Node c}
       (e : Edge n n')→ (Nodeᴰ cᴰ n) → (Nodeᴰ cᴰ n')→ Type 
-    Edgeᴰ {c}{cᴰ}{n}{n'} e nᴰ n'ᴰ = ⟨ Pᴰ .F-obᴰ {c} cᴰ .snd {n}{n'} e nᴰ n'ᴰ ⟩
+    Edgeᴰ {c}{cᴰ}{n}{n'} e nᴰ n'ᴰ = bEdgeᴰ[_][_,_] (Pᴰ .F-obᴰ {c} cᴰ) e  nᴰ n'ᴰ
 
   field 
     repᴰ : Cᴰ .ob[_] rep
-    fwdᴰ : NatTransᴰ fwd (Cᴰ [-][-, repᴰ ]) (FORGETᴰ ∘Fᴰ Pᴰ)
+    fwdᴰ : NatTransᴰ fwd (Cᴰ [-][-, repᴰ ]) (FORGETᴰ {Sig} ∘Fᴰ Pᴰ)
     bkwdᴰ : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n : Node c} → Nodeᴰ cᴰ n → 
       Cᴰ [ bkwd {c} n ][ cᴰ , repᴰ ] 
     wkretractᴰ : {c : ob C}{cᴰ : Cᴰ .ob[_] c}{n : Node c}(nᴰ : Nodeᴰ cᴰ n) → 
       Edgeᴰ (wkretract {c} n) (fwdᴰ .N-obᴰ cᴰ (bkwd n) (bkwdᴰ nᴰ)) nᴰ
     
-module TypeStructure (M : CBPVModel _ _ _ _ _ _ )  where 
+module TypeStructure {Sig : Signature}(M : CBPVModel Sig)  where 
   open CBPVModelSyntax M
   open WkRepresentation
   open import Cubical.Categories.Functors.Constant
   open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
-  -- impossible to construct, no edge to choose
-  -- Has𝟙 : Type 
-  -- Has𝟙 = WkRepresentation V (FREE ∘F Constant _ _  (Unit , isSetUnit))
 
-  HasAns : Type 
-  HasAns = Σ[ Ans ∈ ob V ] ((A : ob V) → (V [ A , Ans ]) × (V [ A , Ans ]))
-  -- No elim, no reduction
   Has𝟙 : Type 
   Has𝟙 = Σ[ 𝟙 ∈ ob V ]  NatTrans ( Constant _ _  (Unit , isSetUnit)) (V [-, 𝟙 ]) 
 
-  -- derivable elim, derivable reduction
-  Has× : Type 
-  Has× = (A A' : ob V) → Σ[ A×A' ∈ ob V ] NatTrans ((V [-, A ]) ×Psh (V [-, A' ])) (V [-, A×A' ]) 
-
-
   record Has+' (A A' : ob V) : Type where
     private 
-      conv : Functor C (GRAPH _ _ ) → Functor (C ^op ^op) (SET _)
+      conv : Functor C (BIALG Sig) → Functor (C ^op ^op) (SET _)
       conv F = FORGET ∘F F ∘F from^op^op
     field 
       A+A' : ob V 
       match : NatTrans ((conv  O[ A ,-]) ×Psh (conv O[ A' ,-])) (conv O[ A+A' ,-])
       σ₁ : V [ A , A+A' ]
       σ₂ : V [ A' , A+A' ] 
-      +β₁ : {B : ob C} → (M : O'[ A , B ]) → (N : O'[ A' , B ]) → Edge[ O .Bif-homL σ₁ B .fst (match .N-ob B (M , N)) , M ]
-      +β₂ : {B : ob C} → (M : O'[ A , B ]) → (N : O'[ A' , B ]) → Edge[ O .Bif-homL σ₂ B .fst (match .N-ob B (M , N)) , N ]
+      +β₁ : {B : ob C} → (M : O'[ A , B ]) → (N : O'[ A' , B ]) → 
+        Edge[ O .Bif-homL σ₁ B .map ((match .N-ob B (M , N))) , M ]
+      +β₂ : {B : ob C} → (M : O'[ A , B ]) → (N : O'[ A' , B ]) →
+        Edge[ O .Bif-homL σ₂ B .map (match .N-ob B (M , N)) , N ]
 
   Has+ : Type 
   Has+ = (A A' : ob V) → Has+' A A' 
-  
+
   HasUTy : Type 
   HasUTy = (B : ob C) → WkRepresentation V O[-, B ]
 
   HasFTy : Type 
   HasFTy = (A : ob V) → WkRepresentation (C ^op) (O[ A ,-] ∘F from^op^op) 
-
-  module ×TySyntax (has× : Has×) where 
-    _⊗_ : ob V → ob V → ob V 
-    _⊗_ A A' = has× A A' .fst
-
-    _,p_ : ∀ {Γ A A'} → V [ Γ , A ] → V [ Γ , A' ] → V [ Γ , A ⊗ A' ] 
-    _,p_ {Γ}{A}{A'} f g = has×  A A' .snd .N-ob Γ (f , g)
 
   module UTySyntax (hasUTy : HasUTy) where  
     U : ob C → ob V 
@@ -152,8 +144,6 @@ module TypeStructure (M : CBPVModel _ _ _ _ _ _ )  where
 
     Uβ : {A : ob V}{B : ob C} → (M : O'[ A , B ]) → Edge[ force (thunk M) , M ]
     Uβ {A}{B} M = hasUTy B .wkretract {A} M 
-
-
 
   module FTySyntax (hasFTy : HasFTy) where 
     F : ob V → ob C 
@@ -169,8 +159,9 @@ module TypeStructure (M : CBPVModel _ _ _ _ _ _ )  where
     Fβ {A}{B} = hasFTy A .wkretract
 
 module TypeStructureᴰ
-  {M : CBPVModel _ _ _ _ _ _ }-----------
-  (Mᴰ : CBPVModelᴰ M _ _ _ _ _ _ ) where  
+  {Sig : Signature}
+  {M : CBPVModel Sig}
+  (Mᴰ : CBPVModelᴰ M ) where  
 
   open TypeStructure M
   open CBPVModelSyntax M 
@@ -179,6 +170,138 @@ module TypeStructureᴰ
   open WkRepresentationᴰ
   open import Cubical.Categories.Functors.Constant
   open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.Base 
+
+  Constantᴰ : Functorᴰ (Constant (V ^op) (SET _) (Unit , isSetUnit)) (Vᴰ ^opᴰ) (SETᴰ _ _)
+  Constantᴰ .F-obᴰ _ _ = Unit , isSetUnit
+  Constantᴰ .F-homᴰ = λ _ x₁ _ → tt
+  Constantᴰ .F-idᴰ = refl
+  Constantᴰ .F-seqᴰ _ _ = refl
+
+  Has𝟙ᴰ : Has𝟙 → Type 
+  Has𝟙ᴰ has𝟙 = Σ[ 𝟙ᴰ ∈ Vᴰ .ob[_] (has𝟙 .fst) ] NatTransᴰ (has𝟙 .snd) Constantᴰ (Vᴰ [-][-, 𝟙ᴰ ])
+
+  record Has+'ᴰ {A A' : ob V}(has+ : Has+' A A') (Aᴰ : Vᴰ .ob[_] A)(A'ᴰ : Vᴰ .ob[_] A') : Type where
+    open Has+' has+
+    private
+      convᴰ : {F : Functor C (BIALG Sig)} → Functorᴰ F (Cᴰ) ((BIALGᴰ {Sig})) → Functorᴰ (FORGET ∘F F ∘F from^op^op) (Cᴰ ^opᴰ ^opᴰ) ((SETᴰ _ _)) 
+      convᴰ {F} Fᴰ = FORGETᴰ ∘Fᴰ (Fᴰ ∘Fᴰ from^opᴰ^opᴰ)
+    field 
+      Aᴰ+A'ᴰ : Vᴰ .ob[_] A+A'
+      matchᴰ : NatTransᴰ match (convᴰ O[-][ Aᴰ  ,-] ×ᴰPsh convᴰ O[-][ A'ᴰ ,-]) (convᴰ O[-][ Aᴰ+A'ᴰ ,-]) 
+      σ₁ᴰ :  Vᴰ [ σ₁ ][ Aᴰ , Aᴰ+A'ᴰ ] 
+      σ₂ᴰ :  Vᴰ [ σ₂ ][ A'ᴰ , Aᴰ+A'ᴰ ] 
+      +β₁ᴰ : {B : ob C}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]}{N : O'[ A' , B ]}
+        {e : Edge[ O .Bif-homL σ₁ B .map (match .N-ob B (M , N)) , M ]}  → 
+        (nᴰ : Nodeᴰ[ M ][ Aᴰ , Bᴰ ])→ 
+        (n'ᴰ : Nodeᴰ[ N ][ A'ᴰ , Bᴰ ]) → 
+        Edgeᴰ[ e ][  Oᴰ .Bif-homLᴰ σ₁ᴰ Bᴰ .mapᴰ (N-ob match B (M , N)) (matchᴰ .N-obᴰ Bᴰ (M , N) (nᴰ , n'ᴰ)) , nᴰ  ]
+      +β₂ᴰ : {B : ob C}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]}{N : O'[ A' , B ]}
+        {e : Edge[ O .Bif-homL σ₂ B .map (match .N-ob B (M , N)) , N ]}  → 
+        (nᴰ : Nodeᴰ[ M ][ Aᴰ , Bᴰ ])→ 
+        (n'ᴰ : Nodeᴰ[ N ][ A'ᴰ , Bᴰ ]) → 
+        Edgeᴰ[ e ][  Oᴰ .Bif-homLᴰ σ₂ᴰ Bᴰ .mapᴰ (N-ob match B (M , N)) (matchᴰ .N-obᴰ Bᴰ (M , N) (nᴰ , n'ᴰ)) , n'ᴰ  ]
+
+  Has+ᴰ : Has+ → Type 
+  Has+ᴰ has+ = {A A' : ob V}(Aᴰ : Vᴰ .ob[_] A)(A'ᴰ : Vᴰ .ob[_] A') → Has+'ᴰ {A}{A'} (has+ A A') Aᴰ A'ᴰ
+
+  HasUTyᴰ : HasUTy → Type 
+  HasUTyᴰ hasUTy = {B : ob C}(Bᴰ : Cᴰ .ob[_] B) → 
+    WkRepresentationᴰ {C = V}{O[-, B ]} (hasUTy B) Vᴰ O[-][-, Bᴰ ]
+
+  HasFTyᴰ : HasFTy → Type 
+  HasFTyᴰ hasFTy = {A : ob V}(Aᴰ : Vᴰ .ob[_] A) →
+    WkRepresentationᴰ {C = C ^op} {O[ A ,-] ∘F from^op^op} 
+      (hasFTy A) (Cᴰ ^opᴰ) (O[-][ Aᴰ ,-] ∘Fᴰ from^opᴰ^opᴰ) 
+  module UTySyntaxᴰ 
+    {hasUTy : HasUTy}
+    (hasUTyᴰ : HasUTyᴰ hasUTy) where 
+
+    open UTySyntax hasUTy 
+
+    Uᴰ : {B : ob C} → Cᴰ .ob[_] B → Vᴰ .ob[_] (U B)
+    Uᴰ {B} Bᴰ = hasUTyᴰ Bᴰ .repᴰ
+
+    forceᴰ :{A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{V' : V [ A , U B ]} → 
+       Vᴰ [ V' ][ Aᴰ , Uᴰ Bᴰ ] → Oᴰ'[ force V' ][ Aᴰ , Bᴰ ]  
+    forceᴰ{A}{B}{Aᴰ}{Bᴰ}{f} fᴰ = hasUTyᴰ Bᴰ .fwdᴰ .N-obᴰ {A} Aᴰ f fᴰ
+
+    thunkᴰ :{A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]} → 
+      Oᴰ'[ M ][ Aᴰ , Bᴰ ] → Vᴰ [ thunk M ][ Aᴰ , Uᴰ Bᴰ ]  
+    thunkᴰ{A}{B}{Aᴰ}{Bᴰ}{M} Mᴰ = hasUTyᴰ Bᴰ .bkwdᴰ {A}{Aᴰ}{M} Mᴰ
+
+    Uβᴰ : {A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]} →  
+      (Mᴰ : Oᴰ'[ M ][ Aᴰ , Bᴰ ]) → Edgeᴰ[ Uβ M ][ forceᴰ (thunkᴰ Mᴰ) , Mᴰ ]
+    Uβᴰ {Bᴰ = Bᴰ} = hasUTyᴰ Bᴰ .wkretractᴰ
+
+  module FTySyntaxᴰ 
+    {hasFTy : HasFTy}
+    (hasFTyᴰ : HasFTyᴰ hasFTy) where
+
+    open FTySyntax hasFTy 
+
+    Fᴰ : {A : ob V} → Vᴰ .ob[_] A → Cᴰ .ob[_] (F A)
+    Fᴰ {A} Aᴰ = hasFTyᴰ Aᴰ .repᴰ
+
+    retᴰ :{A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{S : C [ F A , B ]} → 
+       Cᴰ [ S ][ Fᴰ Aᴰ , Bᴰ ] → Oᴰ'[ ret S ][ Aᴰ , Bᴰ ]  
+    retᴰ{A}{B}{Aᴰ}{Bᴰ}{f} fᴰ = hasFTyᴰ Aᴰ .fwdᴰ .N-obᴰ {B} Bᴰ f fᴰ
+
+    bindᴰ :{A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]} → 
+      Oᴰ'[ M ][ Aᴰ , Bᴰ ] → Cᴰ [ bind M ][ Fᴰ Aᴰ , Bᴰ ]  
+    bindᴰ{A}{B}{Aᴰ}{Bᴰ}{M} Mᴰ = hasFTyᴰ Aᴰ .bkwdᴰ {B}{Bᴰ}{M} Mᴰ
+
+    Fβᴰ : {A : ob V}{B : ob C}{Aᴰ : Vᴰ .ob[_] A}{Bᴰ : Cᴰ .ob[_] B}{M : O'[ A , B ]} →  
+      (Mᴰ : Oᴰ'[ M ][ Aᴰ , Bᴰ ]) → Edgeᴰ[ Fβ M ][ retᴰ (bindᴰ Mᴰ) , Mᴰ ]
+    Fβᴰ {Aᴰ = Aᴰ} = hasFTyᴰ Aᴰ .wkretractᴰ
+
+
+  {- }
+
+  -- impossible to construct, no edge to choose
+  -- Has𝟙 : Type 
+  -- Has𝟙 = WkRepresentation V (FREE ∘F Constant _ _  (Unit , isSetUnit))
+
+  HasAns : Type 
+  HasAns = Σ[ Ans ∈ ob V ] ((A : ob V) → (V [ A , Ans ]) × (V [ A , Ans ]))
+  -- No elim, no reduction
+  Has𝟙 : Type 
+  Has𝟙 = Σ[ 𝟙 ∈ ob V ]  NatTrans ( Constant _ _  (Unit , isSetUnit)) (V [-, 𝟙 ]) 
+
+  -- derivable elim, derivable reduction
+  Has× : Type 
+  Has× = (A A' : ob V) → Σ[ A×A' ∈ ob V ] NatTrans ((V [-, A ]) ×Psh (V [-, A' ])) (V [-, A×A' ]) 
+
+{-}
+  record Has+' (A A' : ob V) : Type where
+    private 
+      conv : Functor C ? → Functor (C ^op ^op) (SET _)
+      conv F = FORGET ∘F F ∘F from^op^op
+    field 
+      A+A' : ob V 
+      match : NatTrans ((conv  O[ A ,-]) ×Psh (conv O[ A' ,-])) (conv O[ A+A' ,-])
+      σ₁ : V [ A , A+A' ]
+      σ₂ : V [ A' , A+A' ] 
+      +β₁ : {B : ob C} → (M : O'[ A , B ]) → (N : O'[ A' , B ]) → Edge[ O .Bif-homL σ₁ B .fst (match .N-ob B (M , N)) , M ]
+      +β₂ : {B : ob C} → (M : O'[ A , B ]) → (N : O'[ A' , B ]) → Edge[ O .Bif-homL σ₂ B .fst (match .N-ob B (M , N)) , N ]
+
+  Has+ : Type 
+  Has+ = (A A' : ob V) → Has+' A A' 
+  -}
+  HasUTy : Type 
+  HasUTy = (B : ob C) → WkRepresentation V O[-, B ]
+
+  HasFTy : Type 
+  HasFTy = (A : ob V) → WkRepresentation (C ^op) (O[ A ,-] ∘F from^op^op) 
+
+  module ×TySyntax (has× : Has×) where 
+    _⊗_ : ob V → ob V → ob V 
+    _⊗_ A A' = has× A A' .fst
+
+    _,p_ : ∀ {Γ A A'} → V [ Γ , A ] → V [ Γ , A' ] → V [ Γ , A ⊗ A' ] 
+    _,p_ {Γ}{A}{A'} f g = has×  A A' .snd .N-ob Γ (f , g)
+
+
+
 
   Constantᴰ : Functorᴰ (Constant (V ^op) (SET _) (Unit , isSetUnit)) (Vᴰ ^opᴰ) (SETᴰ _ _)
   Constantᴰ .F-obᴰ _ _ = Unit , isSetUnit
@@ -199,7 +322,7 @@ module TypeStructureᴰ
   Has×ᴰ : Has× → Type 
   Has×ᴰ has× = {A A' : ob V}(Aᴰ : Vᴰ .ob[_] A)(A'ᴰ : Vᴰ .ob[_] A') → 
     Σ[ Aᴰ×A'ᴰ ∈ Vᴰ .ob[_] (has× A A' .fst) ] NatTransᴰ (has× A A' .snd) ((Vᴰ [-][-, Aᴰ ]) ×ᴰPsh (Vᴰ [-][-, A'ᴰ ])) (Vᴰ [-][-, Aᴰ×A'ᴰ  ])
-
+{-}
   record Has+'ᴰ {A A' : ob V}(has+ : Has+' A A') (Aᴰ : Vᴰ .ob[_] A)(A'ᴰ : Vᴰ .ob[_] A') : Type where
     open Has+' has+
     private
@@ -223,7 +346,7 @@ module TypeStructureᴰ
 
   Has+ᴰ : Has+ → Type 
   Has+ᴰ has+ = {A A' : ob V}(Aᴰ : Vᴰ .ob[_] A)(A'ᴰ : Vᴰ .ob[_] A') → Has+'ᴰ {A}{A'} (has+ A A') Aᴰ A'ᴰ
-
+-}
   HasUTyᴰ : HasUTy → Type 
   HasUTyᴰ hasUTy = {B : ob C}(Bᴰ : Cᴰ .ob[_] B) → 
     WkRepresentationᴰ {V}{O[-, B ]} (hasUTy B) Vᴰ O[-][-, Bᴰ ]
@@ -365,3 +488,4 @@ module DisplayedTypeStructure
         WkRepresentationᴰ (hasUTy .wkrep B) Vᴰ (FORGETᴰ ∘Fᴰ O[-][-, Bᴰ ])
     -}
   
+-}

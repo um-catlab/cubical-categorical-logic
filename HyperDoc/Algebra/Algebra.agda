@@ -99,13 +99,13 @@ record Theory : Set₁ where
 ------------------------------------------------------------------------
 -- 7. Algebras for a signature
 
+IsAlg : (Σ : Signature) → hSet _ →  Type 
+IsAlg Σ X = (o : Op Σ) → (Fin (arity Σ o) → ⟨ X ⟩) → ⟨ X ⟩
+
 record Alg (Σ : Signature) : Set₁ where
   field
     Carrier : hSet _
-    interp  :
-      (o : Op Σ) →
-      (Fin (arity Σ o) → ⟨ Carrier ⟩) →
-      ⟨ Carrier ⟩ 
+    interp  : IsAlg Σ Carrier
 
 open Alg
 
@@ -157,8 +157,8 @@ record AlgHom {Sig : Signature} (M N : Alg Sig) : Type where
 
 open AlgHom
 
-isAlgHom : {Sig : Signature}{M N : Alg Sig}→  (⟨ M .Carrier ⟩  → ⟨ N .Carrier ⟩)  → Type 
-isAlgHom {Sig} {M} {N} f = ∀ (op : Sig .Op)(args : Fin (Sig .arity op) → ⟨ M .Carrier ⟩ ) 
+IsAlgHom : {Sig : Signature}{M N : Alg Sig}→  (⟨ M .Carrier ⟩  → ⟨ N .Carrier ⟩)  → Type 
+IsAlgHom {Sig} {M} {N} f = ∀ (op : Sig .Op)(args : Fin (Sig .arity op) → ⟨ M .Carrier ⟩ ) 
       → f (interp M op args) ≡ interp N op λ x → f (args x)
 
 AlgHom≡ : {Sig : Signature}{M N : Alg Sig}{f g : AlgHom M N} → 
@@ -190,6 +190,9 @@ MOD T = FullSubcategory (ALG Sig)
     λ A → (e : Eq) → satisfies A (ax e) where 
   open Theory T
 
+{- 
+   M ∩n 
+-}
 Cong : {Σ : Signature}{A : Alg Σ} → ℙ ⟨ Carrier A ⟩  → Type 
 Cong {Σ}{A} P = (op : Op Σ)(args : Fin (arity Σ op) → Σ[ a ∈ ⟨ Carrier A ⟩ ] a ∈ P ) → 
   interp A op (λ i → args i .fst) ∈ P
@@ -301,14 +304,17 @@ FREE {Σ} .F-hom f = FreeAlgMorphism λ z → inc (f z)
 FREE {Σ} .F-id = FreeAlgMorphism! λ _ → refl
 FREE {Σ} .F-seq _ _  = FreeAlgMorphism! λ _ → refl
 
+IsAlgᴰ : {Σ : Signature}{A : Alg Σ} → (⟨ A .Carrier ⟩ → hSet _) → Type
+IsAlgᴰ {Σ}{A} carᴰ = 
+      (op : Op Σ)
+      (args : Fin (arity Σ op) → ⟨ A. Carrier ⟩)
+      (dargs : (x : Fin (arity Σ op)) → ⟨ carᴰ (args x) ⟩) → 
+      ⟨ carᴰ (A .interp op args) ⟩
+
 record Algᴰ {Σ : Signature}(A : Alg Σ) : Type where 
   field 
     Carrierᴰ : (X : ⟨ A .Carrier ⟩ ) → hSet _
-    interpᴰ : 
-      (op : Op Σ)
-      (args : Fin (arity Σ op) → ⟨ A. Carrier ⟩)
-      (dargs : (x : Fin (arity Σ op)) → ⟨ Carrierᴰ (args x) ⟩) → 
-      ⟨ Carrierᴰ (A .interp op args) ⟩
+    interpᴰ : IsAlgᴰ {Σ} {A} Carrierᴰ 
 open Algᴰ 
 
 module Modᴰ
@@ -357,17 +363,20 @@ record Model (T : Theory) : Set₁ where
 
 -}
 
+IsAlgHomᴰ : {Sig : Signature} {M N : Alg Sig}{hom : AlgHom M N }{Mᴰ : Algᴰ  M}{Nᴰ : Algᴰ  N} →  
+  ((m : ⟨ Carrier M ⟩) → ⟨ Mᴰ .Carrierᴰ m ⟩ →  ⟨ Nᴰ .Carrierᴰ (hom .carmap m) ⟩) → Type 
+IsAlgHomᴰ {Sig}{M}{N}{hom}{Mᴰ}{Nᴰ} homᴰ = (op : Sig .Op)
+      (args : Fin (Sig .arity op) → ⟨ M .Carrier ⟩)
+      (dargs : (x : Fin (Sig .arity op)) → ⟨ Mᴰ .Carrierᴰ (args x) ⟩ ) →
+        PathP (λ i → ⟨ Nᴰ .Carrierᴰ (hom .pres op args  i) ⟩) 
+          (homᴰ (M .interp op args) (Mᴰ .interpᴰ op args dargs)) 
+          (Nᴰ .interpᴰ op  (λ x → hom .carmap (args x)) (λ x → homᴰ (args x) (dargs x)))
+
 
 record AlgHomᴰ {Sig : Signature} {M N : Alg Sig}(hom : AlgHom M N )(Mᴰ : Algᴰ  M)(Nᴰ : Algᴰ  N) : Type where 
   field 
     carmapᴰ : (m : ⟨ Carrier M ⟩) → ⟨ Mᴰ .Carrierᴰ m ⟩ →  ⟨ Nᴰ .Carrierᴰ (hom .carmap m) ⟩
-    presᴰ : 
-      (op : Sig .Op)
-      (args : Fin (Sig .arity op) → ⟨ M .Carrier ⟩)
-      (dargs : (x : Fin (Sig .arity op)) → ⟨ Mᴰ .Carrierᴰ (args x) ⟩ ) →
-        PathP (λ i → ⟨ Nᴰ .Carrierᴰ (hom .pres op args  i) ⟩) 
-          (carmapᴰ (M .interp op args) (Mᴰ .interpᴰ op args dargs)) 
-          (Nᴰ .interpᴰ op  (λ x → hom .carmap (args x)) (λ x → carmapᴰ (args x) (dargs x))) 
+    presᴰ : IsAlgHomᴰ {Sig}{M}{N}{hom}{Mᴰ}{Nᴰ} carmapᴰ
 
 open AlgHomᴰ
 

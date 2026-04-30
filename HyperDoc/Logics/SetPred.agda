@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --allow-unsolved-metas  --type-in-type #-}
 module HyperDoc.Logics.SetPred where
 
 open import Agda.Builtin.Cubical.Equiv

@@ -1,7 +1,6 @@
 {-# OPTIONS --type-in-type #-}
+{-# OPTIONS --lossy-unification #-}
 
--- TYPE CHECKING SUCKS WTF
--- originally.. this was contained to one field.. now it is the whole module.. 
 module HyperDoc.Operational.Effects.LocalElim where 
 
 open import Cubical.Data.Sigma

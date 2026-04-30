@@ -122,7 +122,15 @@ module _ (Sig : Signature) where
       Edge[_,_] B X Y →  
       B ◂ Z ↦* X  → 
       B ◂ Z ↦* Y  
-    isProp↦* : {X Y : Node B} → isProp (B ◂ X ↦* Y)  
+    isProp↦* : {X Y : Node B} → isProp (B ◂ X ↦* Y) 
+
+  inc↦ : {B : BiAlg Sig}{n n' : Node B} → ⟨ rgraph B .fst .snd n n' ⟩ → B ◂ n ↦* n'
+  inc↦ {B}{n} e = tran e (ref (rgraph B .snd n))
+
+  seq↦* : {B : BiAlg Sig}{n n' n'' : Node B} → B ◂ n ↦* n' → B ◂ n' ↦* n'' → B ◂ n ↦* n'' 
+  seq↦* f (ref x) = f
+  seq↦* f (tran x g) = tran x (seq↦* f g)
+  seq↦* f (isProp↦* g g₁ i) = isProp↦* {!   !} {!   !}  i
 
   lemma : {B B' : BiAlg Sig }{b b' : ⟨ car B ⟩} → (h : BiAlgHom B B') → 
     B ◂ b ↦* b' →  B' ◂ map h b ↦* map h b' 
@@ -196,8 +204,14 @@ module _ (Sig : Signature) where
       Q .snd .snd op (λ z₁ → args z₁ x , dargs z₁ x z)
 
   open CBPVModelSyntax Sem hiding (interp)
+  open LogicStruct SemLog 
 
+  has𝟙ᴸ : Has𝟙ᴸ
+  has𝟙ᴸ = has⊤
 
+  has+ᴸ : Has+ᴸ
+  has+ᴸ = has∨ , has∃
+  
   data FreeBiPred' {A : hSet _}{B : BiAlg Sig}(M : O'[ A , B ])(P : ℙ ⟨ A ⟩) : ⟨ car B ⟩ → Type where 
     base : (a : ⟨ A ⟩)(b : ⟨ car B ⟩) → b ≡ M a → a ∈ P → FreeBiPred' {A}{B} M P b  
     algCl : 
@@ -257,7 +271,6 @@ module _ (Sig : Signature) where
       (λ {b = b₁} {b'} r d → antiCl r) 
       b
 
-  open LogicStruct SemLog 
   hasFTyᴸ : HasFTyᴸ 
   hasFTyᴸ {A}{B} M .fst = push {A}{B} M
   hasFTyᴸ {A}{B} M .snd ._⊣_.adjIff {P} {Q} .fun = goal where 

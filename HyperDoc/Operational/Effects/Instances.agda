@@ -88,6 +88,17 @@ module _ (Sig : Signature) where
   Sem .snd .snd .Bif-R-seq _ _ = BiAlgHom≡ refl
   Sem .snd .snd .SepBif-RL-commute _ _ = BiAlgHom≡ refl
 
+  open import HyperDoc.Operational.Effects.TypeStructure
+  open TypeStructure Sem 
+  open WkRepresentation
+
+  hasFTy : HasFTy 
+  hasFTy A .rep = FreeBiAlg {Sig} A
+  hasFTy A .fwd .N-ob B h = λ z → h .map (inc z)
+  hasFTy A .fwd .N-hom f = refl
+  hasFTy A .bkwd f = {!   !}
+  hasFTy A .wkretract = {!   !}
+
   module SynMod =  SynModel Sig
   module Syn =  Syntax Sig 
   CL : CBPVMorphism SynMod.Syn Sem 

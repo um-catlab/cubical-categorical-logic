@@ -17,8 +17,8 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Displayed.Instances.Sets
 
-open import HyperDoc.Algebra.Algebra hiding (FORGET)
-open import HyperDoc.Operational.Graph hiding (FORGET ; FORGETᴰ)
+open import HyperDoc.Algebra.Algebra hiding (FORGET ; FREE )
+open import HyperDoc.Operational.Graph hiding (FORGET ; FREE ; FORGETᴰ)
 
 open Alg
 open AlgHom
@@ -139,6 +139,29 @@ FORGET .Functor.F-ob B = car B
 FORGET .Functor.F-hom = λ z → z .map
 FORGET .Functor.F-id = refl
 FORGET .Functor.F-seq _ _ = refl 
+
+open import Cubical.Functions.Logic
+open import Cubical.HITs.PropositionalTruncation renaming (map to hmap)
+
+FreeBiAlg : {Sig : Signature} → hSet _ → BiAlg Sig 
+FreeBiAlg {Sig} X .car = FreeOn Sig ⟨ X ⟩ , {!   !}
+FreeBiAlg X .isAlg = ops
+FreeBiAlg X .isRGraph .fst = _≡ₚ_
+FreeBiAlg X .isRGraph .snd n = ∣ refl ∣₁
+FreeBiAlg X .congruence op args args' args≡ = recFin squash₁ (λ eqs → ∣ (cong₂ ops refl (funExt eqs)) ∣₁) args≡
+
+FreeBiAlgHom : {Sig : Signature}{X Y : hSet _} → (⟨ X ⟩ → ⟨ Y ⟩ ) →  BIALG Sig [ FreeBiAlg X , FreeBiAlg Y ] 
+FreeBiAlgHom {Sig}{X}{Y} f .map = FreeAlgMorphism {Sig}{⟨ X ⟩}{FreeAlg Sig ⟨ Y ⟩ } (λ z → inc (f z)) .carmap
+FreeBiAlgHom {Sig}{X}{Y} f .isAlgHom = FreeAlgMorphism {Sig}{⟨ X ⟩}{FreeAlg Sig ⟨ Y ⟩ } (λ z → inc (f z)) .pres
+FreeBiAlgHom f .isRelator .fst = hmap (cong₂ FreeAlgMorphism' refl)
+FreeBiAlgHom f .isRelator .snd = refl
+
+FREE : {Sig : Signature} → Functor (SET _) (BIALG Sig) 
+FREE {Sig} .Functor.F-ob = FreeBiAlg
+FREE {Sig} .Functor.F-hom {X}{Y} = FreeBiAlgHom {Sig}{X}{Y}
+FREE {Sig} .Functor.F-id = {!   !} -- FreeAlgMorphism! 
+FREE {Sig} .Functor.F-seq = {!   !}
+
 
 open Categoryᴰ
 open Algᴰ

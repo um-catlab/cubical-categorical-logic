@@ -97,7 +97,7 @@ boop-cong {M}{M'}(tran {X = M''} M''↦M' M↦*M'') = goal where
 
   goal : boop! M ↦* boop! M'
   goal = tran have have'
-boop-cong (isProp↦* d d₁ i) = {!   !}
+boop-cong (isProp↦* d d₁ i) = isProp↦* (boop-cong d) (boop-cong d₁) i
 
 theorem : ∀ (M : 𝟙 ⊢c F 𝟚) → ∥ (Σ[ n ∈ ℕ ](Σ[ V ∈ 𝟙 ⊢v 𝟚 ] (M ↦* boopⁿ n (ret' V)))) ∥₁
 theorem M = hmap (goal M) have where 
@@ -115,14 +115,14 @@ theorem M = hmap (goal M) have where
     have' : (subC var M) ∈ 𝓒[ F 𝟚 ] .fst
     have' = LR .snd .snd .F-Car {𝟙}{F 𝟚} M var tt*
 
-  _ :  M ∈ 𝓒[ F 𝟚 ] .fst ≡ ∥ FreeBiPred' boopSig (λ V → subC V (ret hole)) property+ M ∥₁
-  _ = refl
-
   free : (M : 𝟙 ⊢c F 𝟚) →  Type 
   free M = FreeBiPred' boopSig (λ V → subC V (ret hole)) property+ M 
 
+  _ :  M ∈ 𝓒[ F 𝟚 ] .fst ≡ ∥ free M ∥₁
+  _ = refl
+
   goal : (M : 𝟙 ⊢c F 𝟚) → free M → (Σ[ n ∈ ℕ ](Σ[ V ∈ 𝟙 ⊢v 𝟚 ] (M ↦* boopⁿ n (ret' V)))) 
-  goal M =
+  goal =
     FreeBiPred-Elim 
       boopSig  
       (λ V → subC V (ret hole)) 
@@ -137,4 +137,4 @@ theorem M = hmap (goal M) have where
               (funExt (λ {zero → refl})) 
               (boop-cong M'↦*boopⁿnretV)}) 
       (λ {M}{M'} M↦M' M'∈Free (n , V , prf) → n , (V , seq↦*' M↦M' prf))
-      M
+      

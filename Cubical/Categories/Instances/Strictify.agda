@@ -37,12 +37,8 @@ module _ (C : Category ℓC ℓC') where
   fromYonedaStrictify : Functor YonedaStrictify C
   fromYonedaStrictify = inv isFullyFaithfulYOStrict
 
-  private
-    Hom≃ : ∀ {x y} → C [ x , y ] ≃ PshHomStrict (C [-, x ]) (C [-, y ])
-    Hom≃ {x}{y} = YOStrict .F-hom , isFullyFaithfulYOStrict x y
-
   fromYonedaStrictify∘toYonedaStrictify≡Id : fromYonedaStrictify ∘F toYonedaStrictify ≡ Id
-  fromYonedaStrictify∘toYonedaStrictify≡Id = Functor≡ (λ _ → refl) (λ f → retEq Hom≃ f)
+  fromYonedaStrictify∘toYonedaStrictify≡Id = inv∘ToFullImage≡Id isFullyFaithfulYOStrict
 
   toYonedaStrictify∘fromYonedaStrictify≡Id : toYonedaStrictify ∘F fromYonedaStrictify ≡ Id
-  toYonedaStrictify∘fromYonedaStrictify≡Id = Functor≡ (λ _ → refl) (λ f → secEq Hom≃ f)
+  toYonedaStrictify∘fromYonedaStrictify≡Id = ToFullImage∘inv≡Id isFullyFaithfulYOStrict

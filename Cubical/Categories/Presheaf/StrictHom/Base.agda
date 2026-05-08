@@ -360,6 +360,16 @@ module _ {C : Category ℓ ℓ'} where
   isFaithfulYOStrict x y f g p =
     (sym $ C.⋆IdL f) ∙ (λ i → p i .N-ob x C.id)  ∙ C.⋆IdL g
 
+  isFullyFaithfulYOStrict : isFullyFaithful YOStrict
+  isFullyFaithfulYOStrict x y = isoToIsEquiv theIso
+    where
+      theIso : Iso (C [ x , y ]) (PshHomStrict (C [-, x ]) (C [-, y ]))
+      theIso .fun = YOStrict .F-hom
+      theIso .inv α = α .N-ob x C.id
+      theIso .sec α = makePshHomStrictPath (funExt₂ λ c g →
+        α .N-hom c x g C.id g (C.⋆IdR g))
+      theIso .ret f = C.⋆IdL f
+
   -- If YOStrict factors as G ∘F F, then F is faithful
   module _ {D : Category ℓD ℓD'}
     {F : Functor C D}{G : Functor D (PRESHEAF C ℓ')}

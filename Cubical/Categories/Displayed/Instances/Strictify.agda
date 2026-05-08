@@ -25,7 +25,7 @@ import      Cubical.Categories.Displayed.Instances.FullImage as FIᴰ
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
-open import Cubical.Categories.Displayed.Presheaf.StrictHom
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.StrictHom
 
 private
   variable

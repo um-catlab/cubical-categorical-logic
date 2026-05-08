@@ -1,11 +1,11 @@
 {-
-  Strict displayed presheaf homomorphisms, curried form.
+  Strict displayed presheaf homomorphisms.
 
   Defines PshHomStrictᴰ α Pᴰ Qᴰ as a displayed analogue of PshHomStrict P Q,
-  for curried displayed presheaves Pᴰ, Qᴰ.
+  for uncurried displayed presheaves Pᴰ, Qᴰ.
 -}
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Presheaf.StrictHom where
+module Cubical.Categories.Displayed.Presheaf.Uncurried.StrictHom where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -25,8 +25,7 @@ open import Cubical.Categories.Presheaf.StrictHom.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Presheaf.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
 
 private
   variable

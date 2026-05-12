@@ -190,6 +190,9 @@ MOD T = FullSubcategory (ALG Sig)
     λ A → (e : Eq) → satisfies A (ax e) where 
   open Theory T
 
+
+MOD→ALG : (T : Theory) → Functor (MOD T) (ALG (Theory.Sig T)) 
+MOD→ALG T = FullInclusion (ALG (Theory.Sig T)) λ A → (e : Theory.Eq T) → satisfies A (Theory.ax T e)
 {- 
    M ∩n 
 -}
@@ -317,51 +320,6 @@ record Algᴰ {Σ : Signature}(A : Alg Σ) : Type where
     interpᴰ : IsAlgᴰ {Σ} {A} Carrierᴰ 
 open Algᴰ 
 
-module Modᴰ
-  {Σ : Signature}
-  (A : Alg Σ)
-  (Aᴰ : Algᴰ A) where 
-
-  soundᴰ : Type 
-  soundᴰ = {!   !}
-
-{-
-eval :
-  {Σ : Signature} →
-  (A : Alg Σ) →
-  {n : ℕ} →
-  Term Σ n →
-  (Fin n → ⟨ Carrier A ⟩ ) →
-  ⟨ Carrier A ⟩ 
-eval A (var i) ρ = ρ i
-eval A (app o args) ρ =
-  interp A o (λ j → eval A (args j) ρ)
-
-------------------------------------------------------------------------
--- 9. Satisfaction of an equation
-open Equation
-satisfies :
-  {Σ : Signature} →
-  (A : Alg Σ) →
-  Equation Σ →
-  Set
-satisfies A e = 
-  ∀ (ρ : Fin (ctx e) → ⟨ Carrier A ⟩ ) →
-    eval A (lhs e) ρ
-      ≡
-    eval A (rhs e) ρ
-
-------------------------------------------------------------------------
--- 10. Model of a theory
-
-record Model (T : Theory) : Set₁ where
-  field
-    alg   : Alg (Theory.Sig T)
-    sound :
-      (e : Theory.Eq T) →
-      satisfies alg (Theory.ax T e)
-
--}
 
 IsAlgHomᴰ : {Sig : Signature} {M N : Alg Sig}{hom : AlgHom M N }{Mᴰ : Algᴰ  M}{Nᴰ : Algᴰ  N} →  
   ((m : ⟨ Carrier M ⟩) → ⟨ Mᴰ .Carrierᴰ m ⟩ →  ⟨ Nᴰ .Carrierᴰ (hom .carmap m) ⟩) → Type 

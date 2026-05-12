@@ -1,4 +1,4 @@
-module Cubical.Categories.Instances.Strictify where
+module Cubical.Categories.Instances.Strictification where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

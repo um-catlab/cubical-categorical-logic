@@ -7,6 +7,7 @@ open import Cubical.Data.FinData
 open import Cubical.Data.Nat 
 open import Cubical.Data.Bool 
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum renaming (rec to ⊎rec)
 
 open import Cubical.Foundations.Prelude 
 open import Cubical.Foundations.HLevels
@@ -15,6 +16,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Monad.ExtensionSystem hiding (F)
 
 open import Cubical.Categories.Constructions.FullSubcategory
 open import HyperDoc.Algebra.Algebra hiding (eval)
@@ -26,10 +28,77 @@ open Functor
 open Alg
 open AlgHom
 
-data FreeStAlg (X : Type) : Type where 
-  inc : X → FreeStAlg X 
-  get : FreeStAlg X → FreeStAlg X → FreeStAlg X  
-  set0 set1 : FreeStAlg X → FreeStAlg X 
+
+-- StSig : hSet _  → hSet _ 
+-- StSig (X , isSetX) = (X × X) ⊎ (X ⊎ X) , {!   !} 
+
+-- a monad supporting the operations (and equations) of state
+module hmm 
+  (St : ExtensionSystem (SET _ ))
+  (Tget : {X : hSet _} → ⟨ St .fst X ⟩ → ⟨ St .fst X ⟩ → ⟨ St .fst X ⟩)
+  (Tset0 Tset1 : {X : hSet _} →  ⟨ St .fst X ⟩ → ⟨ St .fst X ⟩)  where
+
+  open ExtensionSystemFor (St .snd)
+  
+  T = St .fst
+
+  mutual 
+    data VTy : Type where 
+      𝟙 : VTy 
+    data CTy : Type where  
+      F : VTy → CTy 
+  data _⊢c_ : VTy → CTy → Type where 
+    dummy : ∀{A B} → A ⊢c B
+    get : ∀ {A B} → A ⊢c B → A ⊢c B → A ⊢c B
+    set0 set1 : ∀ {A B} → A ⊢c B → A ⊢c B 
+
+  data _↦_  {A : VTy}{B : CTy} : A ⊢c B → A ⊢c B → Type where  
+
+  _⟨_⟩e : {X : Type } → ⟨ T ((X ⊎ Unit) , {!   !}) ⟩ → ⟨ T (X , {!   !}) ⟩ → ⟨ T (X , {!   !}) ⟩
+  _⟨_⟩e t e = bind (⊎rec η (λ _ → e)) t
+
+  _⟨_⟩m : {X : Type } → ⟨ T ((X ⊎ Unit) , {!   !}) ⟩ → X → ⟨ T (X , {!   !}) ⟩
+  _⟨_⟩m t x = t ⟨ η x ⟩e
+
+  data _↦alt_ {A : VTy} : ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩ → ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩ → Type  where 
+    set0-cong : {M N : ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩} → 
+      M ↦alt N → 
+      Tset0 M ↦alt Tset0 N 
+
+  data _↦sem_ {A : VTy} : ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩ → ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩ → Type  where 
+    pure : {M N : 𝟙 ⊢c F A}{t : ⟨ T ((𝟙 ⊢c F A) ⊎ Unit ,  {!   !}) ⟩ } → 
+      M ↦ N → 
+      (t ⟨ M ⟩m) ↦sem (t ⟨ N ⟩m)
+    -- all this is.. syntactic operation is replaced by semantic operation
+    get-step : {M N : 𝟙 ⊢c F A}{t : ⟨ T ((𝟙 ⊢c F A) ⊎ Unit , {!   !}) ⟩ } → 
+      (t ⟨ get M N ⟩m) ↦sem (t ⟨ Tget (η M) (η N) ⟩e )
+    set0-step : {M : 𝟙 ⊢c F A}{t : ⟨ T ((𝟙 ⊢c F A) ⊎ Unit , {!   !}) ⟩ } → 
+      (t ⟨ set0 M ⟩m) ↦sem (t ⟨ Tset0 (η M)⟩e )
+    set1-step : {M : 𝟙 ⊢c F A}{t : ⟨ T ((𝟙 ⊢c F A) ⊎ Unit , {!   !}) ⟩ } → 
+      (t ⟨ set1 M ⟩m) ↦sem (t ⟨ Tset1 (η M)⟩e )
+
+  {-
+    if we assume all pure reductions have been completed beforehand
+      think, we normalized to the free algebra first
+    then 
+      pure should never fire 
+      at that point, how is any derivation using  _↦sem_ 
+      any different from simply denoting the free algebra into a model?
+
+      simple effects like state 
+        may directly give you a normal form when you denote them into a nice model 
+        ex) State monad as the free model 
+
+      but what about effects like commutative monoid?
+      seemingly there is no normal form
+
+
+  -}
+
+  data _↦*sem_ {A : VTy} : ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩ → ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩ → Type  where 
+    ref : ∀ (M : ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩) → M ↦*sem M
+    tran : ∀ {M  N P  : ⟨ T (𝟙 ⊢c F A , {!   !}) ⟩} → 
+       M ↦*sem N → N ↦sem P → M ↦*sem P
 
 State : Type → Type 
 State X = Bool → Bool × X
@@ -47,11 +116,256 @@ stset1 f _ = f true
 return : {X : Type} → X → State X 
 return x s = s , x
 
+sext : ExtensionSystem (SET _ ) 
+sext .fst (X , isSetX) = State X , {!   open import Cubical.HITs.PropositionalTruncation
+  !}
+sext .snd .ExtensionSystemFor.η = return 
+sext .snd .ExtensionSystemFor.bind f s b = let (b' , a) = s b in f a b'
+sext .snd .ExtensionSystemFor.bind-r = refl
+sext .snd .ExtensionSystemFor.bind-l = refl
+sext .snd .ExtensionSystemFor.bind-comp = refl
+
+module Example where 
+  open hmm sext stget stset0 stset1
+  open ExtensionSystemFor (sext .snd)
+
+  t : {A : VTy} → State ((𝟙 ⊢c F A) ⊎ Unit)
+  t {A} b = b , (inr tt)
+
+  M : {A : VTy} → 𝟙 ⊢c F A 
+  M = {!   !}
+
+  N : {A : VTy} → 𝟙 ⊢c F A 
+  N = {!   !}
+
+  test : (t ⟨ set0 M ⟩m) ↦sem (t ⟨ stset0 (η M)⟩e)
+  test = set0-step {𝟙}{M}{t}
+
+  _ : (λ b → b , set0 M) ↦sem λ b → false , M
+  _ = set0-step {𝟙}{M}{t}
+
+  test' : (t ⟨ get M N ⟩m) ↦sem (t ⟨ stget (η M) (η N) ⟩e ) 
+  test' = get-step {𝟙}{M}{N}{t}
+
+  _ : (λ b → b , get M N) ↦sem λ b → stget (λ s → s , M) (λ s → s , N) b
+  _ = get-step {𝟙}{M}{N}{t}
+
+  test'' : (t ⟨ set0 (get M N) ⟩m) ↦*sem λ b → false , M 
+  test'' = tran (tran (ref _) set0-step) get-step
+
+
+
+module CBBB where 
+  open import HyperDoc.Operational.Effects.Model 
+  open import HyperDoc.Operational.Effects.Syntax
+  open import HyperDoc.Operational.Effects.BiAlgebra
+  open import HyperDoc.Operational.Graph
+  open import Cubical.Categories.Bifunctor
+  open BifunctorSep
+
+  data Ops : Type where 
+    get set0 set1 : Ops 
+
+  St : Signature
+  St .Op = Ops
+  St .arity get = 2
+  St .arity set0 = 1
+  St .arity set1 = 1
+
+  open SynModel St
+  open Syntax St
+  open BiAlg
+  open BiAlgHom
+  open import Cubical.Functions.Logic
+  open import Cubical.HITs.PropositionalTruncation renaming (rec to hrec)
+
+  data _↦sem_ {B : CTy} : State (𝟙 ⊢c B) → State (𝟙 ⊢c B) → Type where 
+    -- needs to be prop valued relation
+    -- needs to be reflexive
+    -- needs to be a congruence w.r.t. operations
+    -- stget (args zero) (args one) ↦sem stget (args' zero) (args' one)
+    -- n ↦ n' → yuck n ↦sem yuck n'
+
+
+  -- discrete bialgebra
+  -- the reduction relation is just equality
+  freeSt :  Type → BiAlg St
+  freeSt X .car = (State X) , {!   !}
+  freeSt X .isAlg get args = stget (args zero) (args one)
+  freeSt X .isAlg set0 args = stset0 (args zero)
+  freeSt X .isAlg set1 args = stset1 (args zero)
+  freeSt X .isRGraph .fst s s' = s ≡ₚ s'
+  freeSt X .isRGraph .snd s = ∣ refl ∣₁
+  freeSt X .congruence get args args' steps = {!   !}
+  freeSt X .congruence set0 args args' steps = 
+    hrec squash₁ (λ p → ∣ (cong stset0 p) ∣₁) (steps zero)
+  freeSt X .congruence set1 args args' steps = 
+    hrec squash₁ (λ p → ∣ (cong stset1 p) ∣₁) (steps zero)
+
+  module _ (Sig : Signature) where 
+    data _↦free_ {X : Type}: FreeOn Sig X → FreeOn Sig X → Type  where
+      ref : (x : FreeOn Sig X) → x ↦free x
+      alg-cong : ∀ 
+        {op}
+        {args args'  : Fin (Sig .arity op) → FreeOn Sig X} → 
+        (∀ (i : Fin (Sig .arity op)) → args i ↦free args' i) → 
+        ---------------------
+        ops op args ↦free ops op args'
+      isProp↦free : ∀ {x y} → isProp (x ↦free y)
+
+    freeBi : Type → BiAlg Sig
+    freeBi X .car = (FreeOn Sig X) , {!   !}
+    freeBi X .isAlg = ops
+    freeBi X .isRGraph .fst x y = (x ↦free y) , isProp↦free
+    freeBi X .isRGraph .snd = ref
+    freeBi X .congruence op args args' = alg-cong {op = op}{args}{args'}
+
+    freeBimap : (X : Type)(B : BiAlg Sig)→ (X → ⟨ B .car ⟩ ) → BIALG Sig [ freeBi X , B ]
+    freeBimap X B f .BiAlgHom.map = FreeAlgMorphism {Sig}{X}{alg B} f .carmap
+    freeBimap X B f .isAlgHom = FreeAlgMorphism {Sig}{X}{alg B} f .pres
+    freeBimap X B f .isRelator .fst {n} {n'} (ref x) = 
+      isRGraph B .snd (freeBimap X B f .BiAlgHom.map n)
+    freeBimap X B f .isRelator .fst {n} {n'} (alg-cong {op}{args}{args'} steps) = 
+      congruence B op 
+        (λ i → FreeAlgMorphism {Sig}{X}{alg B} f .carmap (args i)) 
+        (λ i → FreeAlgMorphism {Sig}{X}{alg B} f .carmap (args' i)) 
+        λ i → {! steps  i  !}
+    freeBimap X B f .isRelator .fst {n} {n'} (isProp↦free d d₁ i) = {!   !}
+    freeBimap X B f .isRelator .snd = refl
+
+
+  -- the NBE approach , an algebra hom 
+  -- should be the map out of the free (bi) algebra
+  Omap : BIALG St [ freeBi St (𝟙 ⊢v 𝟚) , freeSt (𝟙 ⊢v 𝟚) ]
+  Omap = freeBimap St (𝟙 ⊢v 𝟚) (freeSt (𝟙 ⊢v 𝟚)) return
+
+  t : FreeOn St (𝟙 ⊢v 𝟚) 
+  t = ops set0 λ _ → ops get λ {zero → ops set1 λ _ → inc σ₁
+                              ; one → inc σ₂}
+
+  _ : Omap  .BiAlgHom.map t  ≡ λ _ → Bool.true , σ₁
+  _ = refl
+
+  -- the coalgebraic approach , graph hom into graph with more reduction rules
+  -- take the equations of the theory as directed rewrites
+  data _↦T_ {X : Type }: FreeOn St X → FreeOn St X → Type where 
+    ref : (x : FreeOn St X) → x ↦T x
+    alg-cong : ∀ 
+      {op}
+      {args args'  : Fin (St .arity op) → FreeOn St X} → 
+      (∀ (i : Fin (St .arity op)) → args i ↦T args' i) → 
+      ---------------------
+      ops op args ↦T ops op args'
+
+    getMM : (x : FreeOn St X) → 
+      ops get (λ {zero → x ; one → x}) ↦T x
+    {- 
+      s0g : {M N : FreeStAlg X} → set0 (get M N)  ↦ set0 M  
+      s1g : {M N : FreeStAlg X} → set1 (get M N)  ↦ set1 N  
+      s0s0 : {M : FreeStAlg X} → set0 (set0 M)  ↦ set0 M 
+      s0s1 : {M : FreeStAlg X} → set0 (set1 M)  ↦ set1 M 
+      s1s0 : {M : FreeStAlg X} → set1 (set0 M)  ↦ set0 M 
+      s1s1 : {M : FreeStAlg X} → set1 (set1 M)  ↦  set1 M 
+      -- gg : {M N L P : FreeStAlg X} → get (get M N) (get L P)  ↦  get M P
+      ggl : {M N P : FreeStAlg X} → get (get M N) P  ↦  get M P
+      ggr : {M N P : FreeStAlg X} → get M (get N P)  ↦  get M P
+      gs : {M N : FreeStAlg X} → get (set0 M) (set1 N)  ↦  get M N
+      gid : {M : FreeStAlg X} → get M M ↦ M 
+    -}
+    isProp↦T : ∀ {x y} → isProp (x ↦T y)
+
+  co : Type → BiAlg St
+  co X .car = (FreeOn St X) , {!   !}
+  co X .isAlg = ops
+  co X .isRGraph .fst M N = (M ↦T N) , isProp↦T
+  co X .isRGraph .snd = ref
+  co X .congruence op args args' = alg-cong {op = op}{args}{args'}
+
+  expandGraph : (X : Type) → BIALG St [ freeBi St X , co X ]
+  expandGraph X = freeBimap St X (co X) inc
+
+  eval' : {X : Type} → FreeOn St X → State X 
+  eval' {X} = FreeAlgMorphism {St}{X} {alg (freeSt X)} return .carmap
+
+  triangle : (X : Type) → BIALG St [ co X , freeSt  X ]
+  triangle X .BiAlgHom.map = eval'
+  triangle X .isAlgHom = FreeAlgMorphism {St}{X} {alg (freeSt X)} return .pres
+  triangle X .isRelator .fst = {!   !} -- yes, this is soundness
+  {-
+    n ↦T n' ⇒ eval' n ≡ₚ eval' n'
+
+    see below
+
+    sound' : {X : Type}{M M' : FreeStAlg X} → M ↦ M' → eval M ≡ eval M'
+    sound' ref = refl
+    sound' (cong-get prf prf') i false = sound' prf i false
+    sound' (cong-get prf prf') i true = sound' prf' i true
+    sound' (cong-set0 prf) i b = sound' prf i false
+    sound' (cong-set1 prf) i b = sound' prf i true
+    sound' s0g = refl
+    sound' s1g = refl
+    sound' s0s0 = refl
+    sound' s0s1 = refl
+    sound' s1s0 = refl
+    sound' s1s1 = refl
+    sound' ggl = {!   !}
+    sound' ggr = {!   !}
+    -- sound' (gg {M}) i false = eval M false
+    -- sound' (gg {M}{N}{L}{P}) i true = eval P true
+    sound' (gs {M}{N}) i false = eval M false
+    sound' (gs {M}{N}) i true = eval N true
+    sound' (gid {M}) i false = eval M false
+    sound' (gid {M}) i true = eval M true
+  -}
+  triangle X .isRelator .snd = {!   !}
+
+  nbe :  {X : Type } → BIALG St [ freeBi St X , freeSt X ]
+  nbe {X} = freeBimap St X (freeSt X) return
+
+  -- yes these do commute
+  -- wait.. of course they should.. they are both maps out of the free bialgebra! 
+  -- as long as they agree on the carrier X
+  test : {X : Type} → expandGraph X ⋆⟨ BIALG St ⟩ triangle X ≡ nbe {X}
+  test {X} = BiAlgHom≡ (funExt λ {(inc x) → refl
+                                ; (ops o x) → {!   !}})
+  -- λ i x → FreeAlgMorphism! {St}{X}{alg (freeSt X)}{{!   !}}{{!   !}} {!   !} i .carmap x
+    -- BiAlgHom≡ {! FreeAlgMorphism! {St}{X}{alg (freeSt X)}{?}{?} ? !}
+
+
+  -- no, needs to be a model
+  freeStBimap : (X : Type)(B : BiAlg St)→ (X → ⟨ B .car ⟩ ) → BIALG St [ freeSt X , B ]
+  freeStBimap X B f .BiAlgHom.map s = 
+    alg B .interp get 
+      λ {zero → let (b , x) = s Bool.false in 
+          (if b then 
+            alg B .interp set1 (λ _ → f x) else 
+            alg B .interp set0 (λ _ → f x)) ; 
+         one → let (b , x) = s Bool.true in 
+          (if b then 
+            alg B .interp set1 (λ _ → f x) else 
+            alg B .interp set0 (λ _ → f x))}
+  freeStBimap X B f .isAlgHom get args = {!  !}
+  freeStBimap X B f .isAlgHom set0 args = {!   !}
+  freeStBimap X B f .isAlgHom set1 args = {!   !}
+  freeStBimap X B f .isRelator = {!   !}
+
+  -- no, remember this is a set map
+  norm : BIALG St [ freeBi St (𝟙 ⊢v 𝟚) , freeBi St (𝟙 ⊢v 𝟚) ]
+  norm = Omap ⋆⟨ BIALG St ⟩ {!   !}
+
+data FreeStAlg (X : Type) : Type where 
+  inc : X → FreeStAlg X 
+  get : FreeStAlg X → FreeStAlg X → FreeStAlg X  
+  set0 set1 : FreeStAlg X → FreeStAlg X 
+
+
 nf : {X : Type} → State X → FreeStAlg X 
 nf {X} s = 
   get 
     (let (b , x) = s false in (if b then set1 (inc x) else set0 (inc x))) 
     (let (b , x) = s true in (if b then set1 (inc x) else set0 (inc x))) 
+
+_ = {! nf (λ b → false , _)  !}
 
 eval : {X : Type} → FreeStAlg X → State X 
 eval {X} (inc x) = return x
@@ -70,6 +384,13 @@ isId {X} s i true with (s true)
 norm : {X : Type} → FreeStAlg X → FreeStAlg X 
 norm {X} x = nf (eval x)
 
+-- can't prove w/o equations
+statement : {X : Type} → (M : FreeStAlg X) → 
+  Σ[ s ∈ State X ] M ≡ nf s
+statement (inc x) = return x , {!   !}
+statement (get m m₁) = (stget (statement m .fst) (statement m₁ .fst)) , (cong₂ get {!   !} {!   !})
+statement (set0 m) = (stset0 (statement m .fst)) , (cong set0 (statement m .snd) ∙ {!   !})
+statement (set1 m) = {!   !}
 _ = {! nf (eval (inc 7))  !}
 
 exp : FreeStAlg ℕ
@@ -151,6 +472,16 @@ soundness' (tran {M}{N}{P} prf x) = soundness' prf ∙ sound' x
 
 soundness : {X : Type}{M M' : FreeStAlg X} → M ↦* M' → norm M ≡ norm M'
 soundness prf = cong nf (soundness' prf)
+
+complete : {X : Type} → (M N : FreeStAlg X) → eval M ≡ eval N → (M ↦* N) × (N ↦* M) 
+complete {X} (inc x) (inc x₁) prf .fst = {!   !}
+complete {X} (inc x) (get N N₁) prf .fst = {!   !}
+complete {X} (inc x) (set0 N) prf .fst = {!   !}
+complete {X} (inc x) (set1 N) prf .fst = {!   !}
+complete {X} (get M M₁) N prf .fst = {!   !}
+complete {X} (set0 M) N prf .fst = {!   !}
+complete {X} (set1 M) N prf .fst = {!   !}
+complete {X} M N prf .snd = {!   !} 
 
 -- no, they have different normal forms
 -- inc x vs get (set0 inc x)(set1 inc x)
@@ -276,52 +607,40 @@ adjust {X} (get (inc x) y) = get (set0 (inc x)) y
 adjust {X} (get x (inc y)) = get x (set1 (inc y))
 adjust {X} (set0 x) = {!   !}
 adjust {X} (set1 x) = {!   !}
-
+{-}
+{-}
 try : {X : Type} → (x : FreeStAlg X) → Σ[ n ∈ ℕ ] (adjust (run n x)) ≡ norm x 
 try {X} (inc x) = 0 , refl
-try {X} (get x x') = {!   !} where 
-  have : Σ[ n ∈ ℕ ] (adjust (run n x)) ≡ norm x 
-  have = try {X} x
-
-  have' : Σ[ n ∈ ℕ ] (adjust (run n x')) ≡ norm x' 
-  have' =  {!   !}
-try {X} (set0 x) = {!   !}
-try {X} (set1 (inc x)) = {!   !}
-try {X} (set1 (get x x₁)) = {!   !}
-try {X} (set1 (set0 x)) = {!   !}
-try {X} (set1 (set1 x)) = {!   !}
-
---init :  {X : Type} → ℕ → FreeStAlg X →  FreeStAlg X 
---init {X} n t = run {X} n (get (set0 t) (set1 t))
-
-_ : run 100 exp ≡ get (set0 (inc 1)) (inc 7) 
+try {X} (get x x') = {!   !}{{{{{!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}!   !}! {!   !} !}! {!   !} !}! {!   !} !}! {!   !} !}! {!   !}!   !} !}! {!   !}!   !} !}! {!   !}!  {!   !}!} !}! {!   !}!  {!   !}!} !}! {!   !}!{!   !} {!   !}!} !}! {!   !}!{!   !} {!   !}!} !}! {!   !}!{!   !} {!   !}!} !}{!{!   !}!{!   !} {!   !}!}  !}{{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!{!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !}!   !{!{!   !} {!   !}!}!   !}!   !{!{!   !} {!   !}!   !}!}!   !{!{!   !}  !}!  {!   !}!}!   !{!{!   !}  !}!{!   !}  !}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!  {!   !}!}!   !{!   !}!{!   !} {!   !}!{!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !{!   !}!{!   !} {!   !}!}!   !}!   !{!{!   !} {!   !}!}!   !}!   !{!{!   !} {!   !}!   !}!}!   !{!{!   !}  !}!  {!   !}!}!   !{!{!   !}  !}!{!   !}  {!   !}}!   !{!   !}!{!  {!   !}!} {!   !}{!   !}}!   !{!   !}!  {!{!   !}  !}!{!   {!   !}{!   !}!{!   !} {!{!   !}  !}!{!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}{!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}   {!   !}}! {! {!{!   !} {!{!   !}  !}!} !} {!   !}}!   !{!{!   !} {!{!   !}  !}!   !}{!   !}}! {!   {!   !}} !{!   !}{! {!   !}{!   !}!} {!   {!   !}!  {!   !}!}} !}! {{{!   !}   !}   !}!   {!  {!   !}!}} !}! {!{!   !}!   !}  !} !}!{!  {!   !}!}{!   !}!{!   !} {!   !}!} !}! {! {!   !} !}!   !}!{!   !}  !} !}! {!   !}!{{!   !}   !} {!  {!   !}!}!} !}! {!   !}! {!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}!   !}}! {!   !}!{{!   !}   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} !}! {!   !}!{!   !} {!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}!   !}}! {!   !}!{{!   !}   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} !}! {!   !}!{!   !} {!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}!   !}}! {!   !}!{{!   !}   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} {!   !}}! {!   !}!{!   !}{!   !}{!   !}!} !{!   !}! {!   !}!{!   !} {!   !}!   !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}! {!   !}!{!   !} {!   !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} {! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}} {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}{!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !} {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}{!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}}  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}{! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}   {!   !}{!   !}!{!   !} {!{!   !}  !}!}{!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !} {!   !} {!{!   !}  !}}{!   {!   !}{!   !} {!   !} {!{!   !}  !}}!   !{!   !}{!   !} {!   !} {!{!   !}  !}}!   !{!   !}{!   !} {!   !} {!{!   !}  !}}!   !{!   !}!   !}{!{!   !} {!{!   !}  !}!}   !{!   !}!   !{! {!   !} {!{!   !}  !}}!   !{!   !}!   !}! {!   !}{! {!   !} !}{!   !}{!   !}!   !{! {!   !} !}{!   !}   !}!   !{!   !}!   !}!{!   !}{!  {!   !}!}{!   !}!{!   !}!   !{!   !}!  {! {!   !} !}!}!   {{!   !}!   !} {!   !} {! {!   !} !}}}!   {{!   !}!   !} {!   !} {! {!   !} !}}}!   {{!   !}!   !} {!   !} {! {!   !} !}}}!   {{!   !}!   !} {!   !} {! {!   !} !}}}!   {{!   !}   !}! {!   !} {! {!   !} !}}}!   {{!   !}   !}! {!   !} {! {!   !} !}}}!   {{!   !}   !}! {!   !}{!  {!   !}!}!}}!   {{!   !}   !}! {!   !}{!  {!   !}!}!}}!   {{!   !}   !}!{!   !} {!  {!   !}!}!}}!   {{!   !}   !}}{!   !} {!  {!   !}!}{{!   !{{!   !}   !}!{!   !} {!  {!   !}!}!}   !}{{!   !}   !}}{!   !} {!  {!   !}!} !}!  {{{!   !}   !} {!   !} {!  {!   !}!}}!}!  {!{!   !}  !}{!{!   !} {!  {!   !}!}!}}!  {{{!   !}   !} {!   !} {!  {!   !}!}}!   !}!{!   !}!  {! {!   !} !}!}{!   !} {!   !}{!{!   !}  !}! {!   !}{{!  {!   !}!}   !}!}!{!   !}!  {!   !}! {!   !{!   !} !}!}! {{!{!   !}  !} {{!   !}   !}{!   !}{!   !}}{!{!   !}  !{!   !}!}!{!   {!   !}}  !}! {{!{!   !}  !} {!   !} {!   {!   !}}} !}! {{!{!   !}  !} {!   !} {!   {!   !}}} !}! {! {!   !} !}{!{!   !} {!   {!   !}}!}   !} !{!   !}! {! {!   !} {!   {!   !}}} !}! {! {!   !} !}! {!   !}{!   !{!   !}{!   !}} !{!   !}! {! {!   !} !}!  {!   !}!} !}! {! {!   !} !}!{!   !}{!   !}{!   !}!   !}!} !{!   !}! {!   !}!  {!   !{!   !}!} !}! {! {!   !} !}!{!   !} {!   !{!   !}!} !}! {! {!   !} !}!{!   !} {!   !{!   !}!} !}! {! {!   !} !}!{!   !} {!   !{!   !}!} !}! {! {!   !} !}!{!   !} {!   !{!   !}!} !}! {! {!   !} !}!{!   !} {!   !{!   !}!} !}! {!{!   !}{!   !} !}!{!   !} {!   {!   !}{!   !}!} !}! {!   !}!{!   !} {!   !}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {!   !}{!   !}{!   !} {!   !}!} !}! {{{!   !}   !}   !}!   !}!{!   !{!   !} {! {!   !} !}!} !}! {!   !}!{!   !} {!   !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}!{!   !}{!   !}!   !}!{!   !} {!{!   !}{!   !} !}!} !}! {!   !}!{!   !} {!   !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} {! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !} {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}{!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !} {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}{!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}{! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}! {!   !}{!   !}!{!   !} {!{!   !}  !}!}!}  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}}   {!   !}{!   !}!{!   !} {!{!   !}  !}!}{!  {!   !}{!   !}!{!   !} {!{!   !}  !}!}}   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}{{!   {!   !}{!   !}!{!   !} {!{!   !}  !}!}   !{!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !} {!   !} {!{!   !}  !}}}!   {!   !}!   !}{!{!   !} {!{!   !}  !}!}!   {!   !}{!   !} {!   !} {!{!   !}  !}}!   !{!   !}}!   {! {!   !} !}{!   !}!  {!   !}{!   !}!   !}}!{!   !}{{!{!   !}  !}   !}{{!   !}!   !{!   !}! {!  {!   !}!} !}   !}{!   !}!   !}}{{!   !}   {!   !}} {!   !} {!   !}}!  {{!   !}   {! {!   !} !}}!}!  {{!   !}   !}{!{!   !} {! {!   !} !}!}}!  {{!   !}!   !} {!   !} {! {!   !} !}}!   !}{!   !}}!  {! {!   !} !}!{!   !}! {!   !}{{!   !}   !}! {!   !}{{! {!   !} !}   !}!}{!   !}}!  {!   !}! {!   {!   !}} !}!}!  {{!   !}   !}!{{!   !}   !{!   !} {!   !}!}{!   !}}!  {!   !}!  {!  {!   !}!}!}!}!  {{!   !}   !}!{!   !} {!  {!   !}!}!}!}!  {{!   !}   !}!{!   !} {!  {!   !}!}!}!}! {{{!   !}   !} {!   !} {!  {!   !}!}}{!   !{{!   !}   !}!{!   !}!{!  {!   !}!}  !}! {{{!   !}   !} {!   !} {!  {!   !}!}} !}! {{{!   !}   !} {!   !} {!  {!   !}!}} !}! {!{!   !}  !}{!{!   !} {!  {!   !}!}!}   !} {!   !}}! {! {!   !} {!  {!   !}!}} !}! {!{!   !}  !}! {!   !}{!   {!   !}}{!   !}} {!   !}}! {! {!   !} !}! {!   !} !} !}! {!{!   !}  !}!{!   !}{!   !{!   !}{!   !}!} {!   !}}! {!   !}!  {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!{!   !}  !}!{!   !} {!   {!   !}}!} !}! {!   !}!{!   !}!   !} {!   !}!} !}! {{{{!   !}   !}   !}   !}!{!   !}{!   !}{!  {!   !}!}!} !}! {!   !}!{!   !} {!   !}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {{!   !}   !}!{!   !} {!  {!   !}!}!} !}! {!   !}{!   !}{!   !} {!   !}!} !}! {{{!   !}   !}   !}!   !}!{!   !{!   !} {! {!   !} !}!} !}! {!   !}!{!   !} {!   !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}! {!   !}!   !}!{!   !} {! {!   !} !}!} !}!{!   !}{!   !}!   !}!{!   !} {!{!   !}{!   !} !}!} !}! {!   !}!{!   !} {!   !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!}!   {!   !}{!   !}!{!   !} {!{!   !}  !}!} !}{{!   !}{!   !}!{!   !} {!{!   !}  !}!}  !}{!   !}{!   !}!{!   !} {!{!   !}  !}!}re 
+{!   !}{!   !}!{!   !} {!{!   !}  !}!}have{!   !}{!   !}!{!   !} {!{!   !}  !}!} Σ[ {!   !}{!   !}!{!   !} {!{!   !}  !}!}∈ ℕ {!   !}{!   !}!{!   !} {!{!   !}  !}!}(adj{!   !}{!   !}!{!   !} {!{!   !}  !}!}t (r{!   !}{!   !}!{!   !} {!{!   !}  !}!} n x{!   !}{!   !}!{!   !} {!{!   !}  !}!} ≡ n{!   !}{!   !}!{!   !} {!{!   !}  !}!}m x {!   !}{!   !}!{!   !} {!{!   !}  !}!} hav{!   !}{!   !}!{!   !} {!{!   !}  !}!}= tr{!   !}{!   !}!{!   !} {!{!   !}  !}!}{X} {!   !}{!   !}!{!   !} {!{!   !}  !}!}
+  h{!   !}{!   !}!{!   !} {!{!   !}  !}!}e' :{!   !}{!   !}!{!   !} {!{!   !}  !}!}[ n {!   !}{!   !}!{!   !} {!{!   !}  !}!}ℕ ] {!   !}{!   !}!{!   !} {!{!   !}  !}!}djus{!   !}{!   !}!{!   !} {!{!   !}  !}!}(run{!   !}{!   !}!{!   !} {!{!   !}  !}!} x'){!   !}{!   !}!{!   !} {!{!   !}  !}!}≡ no{!   !}{!   !}!{!   !} {!{!   !}  !}!} x' {!   !}{!   !}!{!   !} {!{!   !}  !}!} hav{!   !}{!   !}!{!   !} {!{!   !}  !}!} =  {!   !}{!   !}!{!   !} {!{!   !}  !}!}  {! {!   {!   !}}!{!   !} {!   !}!{!   !} !}!{!   !}{!   !}!{!   !} {!{!   !}  !}!}tr{!{!   !}{!   !}!{!   !} {!{!   !}  !}!} !} {!   !}{!   !}!{!   !} {!{!   !}  !}!}} {!{!   !}{!   !} {!   !}}{!{!   !}  !}e{!   {!   !}{!   !}0{!   !}{{!{!   !}  !}   !}){!   !}{!   !}!{!   !} {!{!   !}  !}!} {{!{!   !}{!   !} {!   !}}{!{!   !}  !} {!   {!   !}}!}{! {!{!   !} {!{!   !}  !}!} !}{{!   !}{!   !} {!   !}!{!{!   !}  !}r{!   {!   !}} {X} {!{!   !}  !{!   !}set{!   !}{!   !}{!   !}i{!   !}c x{!   !}!   !}) ={{!   !}   !}{{!   !} {!  {!   !}!} !}{!   {!   !}}{! {!   !} {!   !{!   !}}{!   !}y {!   !}X} (set1 ({!   !}e{!   !}!   !} {! {!   !} !} x₁)) = {!   {!{!   !}  !}}{!   {!   !}}{{!   !}   !}ry {{!   !}} ({!   !}{!   !}t1 (set0{!   !}x)){!   !}= {!   !}{{!   !}   !}{!   !}ry{!  {!   !}!}{X} (set{!   !} (set1 x)) = {!   {!   !}}{!   !}{!{!   !}  !}--init :  {X :{!   !}Type} → ℕ {!   !} FreeStAlg X →  Fr{!   !}eStAlg X 
+{!   !}-init {X} n t = ru{!   !} {X} n (ge{!   !} (set0 t) (set1 t){!   !}
+-}
+_ : run {!   !}00 exp ≡ get (set0{!   !}(inc 1)) ({!   !}nc 7) 
 _ = refl
 
-record SplitIdem {C : Category _ _ }(A B : ob C) : Type where  
-  field 
-    e : C [ A , A ] 
-    sec : C [ A , B ] 
-    ret : C [ B , A ] 
-    rs≡id : ret ⋆⟨ C ⟩ sec ≡ C .id {B}
-    e≡sr : sec ⋆⟨ C ⟩ ret ≡ e
+r{!   !}cord Split{!   !}dem {C : Category {!   !} _ }(A B :{!   !}ob C) : Type where{!   !} 
+  field {!   !}    e : C [ A , A {!   !} 
+    sec {!   !} C [ A , B ] 
+    {!   !}et : C [ B{!   !}, A ] 
+    rs≡id :{!   !}ret ⋆⟨ C ⟩{!   !}sec ≡ C .id {B}
+  {!   !} e≡sr : se{!   !} ⋆⟨ C ⟩ ret ≡ e
 
-open SplitIdem
+o{!   !}en SplitId{!   !}m
 
 module _ 
-  {C : Category _ _ }
-  {A B B' : ob C}
-  (s : SplitIdem {C} A B) 
-  (iso : CatIso C B B' ) where
+  {C {!   !} Category {!   !} _ }
+  {A B B' : o{!   !} C}
+  (s :{!   !}SplitIdem {C} A B){!   !}
+  (iso : {!   !}atIso C B B' ) whe{!   !}e
 
-  new : SplitIdem {C} A B'
-  new .e = e s
-  new .sec = sec s ⋆⟨ C ⟩ iso .fst
-  new .ret = isIso.inv (iso .snd) ⋆⟨ C ⟩ ret s
-  new .rs≡id = C .⋆Assoc _ _ _  ∙ cong (λ h → (C ⋆ isIso.inv (iso .snd)) h) (sym (C .⋆Assoc _ _ _) ∙ cong (λ h →  (C ⋆ h) (iso .fst)) (rs≡id s) ∙ C .⋆IdL _) ∙ isIso.sec (iso .snd)
-  new .e≡sr = (C .⋆Assoc _ _ _ ∙ cong (λ h → (C ⋆ sec s) h)  (sym (C .⋆Assoc _ _ _) ∙ cong (λ h → (C ⋆ h) (ret s)) (isIso.ret (iso .snd)) ∙ C .⋆IdL _)) ∙ e≡sr s
+  new :{!   !}SplitIdem {C} A B'{!   !}  new .e ={!   !}e s
+  new .sec = s{!   !}c s ⋆⟨ C ⟩{!   !}iso .fst
+  new .re{!   !} = isIso.i{!   !}v (iso .snd) ⋆⟨ C {!   !} ret s
+  n{!   !}w .rs≡id = C .⋆Ass{!   !}c _ _ _  ∙{!   !}cong (λ h → (C ⋆ i{!   !}Iso.inv (i{!   !}o .snd)) h) (sym ({!   !} .⋆Assoc _{!   !}_ _) ∙ cong (λ h →{!   !} (C ⋆ h) ({!   !}so .fst)) (rs≡id s{!   !} ∙ C .⋆IdL{!   !}_) ∙ isIso.sec (is{!   !} .snd)
+  new .e≡{!   !}r = (C .⋆Assoc _ _{!   !}_ ∙ cong (λ h → {!   !}C ⋆ sec s) h)  (sy{!   !} (C .⋆Assoc _ _ {!   !}) ∙ cong (λ h → (C{!   !}⋆ h) (ret s)) (i{!   !}Iso.ret (iso .snd){!   !} ∙ C .⋆IdL _)) ∙{!   !}e≡sr s
 
-example : (X : Type) → SplitIdem {SET _} (FreeStAlg X , {!   !})(State X , {!   !})
-example X .e = norm {X}
+example : {!   !}X : Type) → Spli{!   !}Idem {SET _} (Free{!   !}tAlg X , {!   !}{!   !}{!   !}State X , {!   !}{!   !}{!   !}example X .e = norm {X}
 example X .sec = eval
 example X .ret = nf
 example X .rs≡id = funExt isId
@@ -381,7 +700,7 @@ initIso .snd .isIso.ret = {!   !}
 si :  {X : Type} →  SplitIdem {SET _} (FreeStAlg X , {!   !}) (FreeStMod X , {!   !}) 
 si {X} = new {SET _}{B = State X , {!  !}} (example X) (initIso {X})
 
-
+-}
 
 {-
 data Ops : Type where 

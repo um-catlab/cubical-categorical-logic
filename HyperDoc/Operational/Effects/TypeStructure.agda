@@ -67,6 +67,7 @@ record WkRepresentation
     rep : C .ob 
     fwd : NatTrans (C [-, rep ]) (FORGET ∘F P) 
     bkwd : {c : ob C} → Node c → C [ c , rep ]
+    -- as stated.. isnt this a wksection.. not wkretract?
     wkretract : {c : ob C}(n : Node c) → Edge (fwd .N-ob c (bkwd n)) n
 
 record WkRepresentationᴰ

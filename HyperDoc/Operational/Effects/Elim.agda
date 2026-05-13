@@ -38,6 +38,7 @@ open Functorᴰ
 open NatTrans
 open NatTransᴰ
 open Bifunctor
+open BifunctorSep
 open BifunctorSepᴰ
 open Algᴰ
 open BiAlg 
@@ -224,3 +225,49 @@ module Elim
       Elim .fst = SV
       Elim .snd .fst = SC
       Elim .snd .snd = SO
+
+{-}
+
+module Recursor {Sig : Signature}(M : CBPVModel Sig) where 
+
+
+  huh : CBPVModelᴰ (SynModel.Syn Sig) 
+  ob[ huh .fst ] _ = M .fst .ob
+  huh .fst .Hom[_][_,_] _ = M .fst .Hom[_,_]
+  huh .fst .idᴰ = {!   !}
+  huh .fst ._⋆ᴰ_ = {!   !}
+  huh .fst .⋆IdLᴰ = {!   !}
+  huh .fst .⋆IdRᴰ = {!   !}
+  huh .fst .⋆Assocᴰ = {!   !}
+  huh .fst .isSetHomᴰ = {!   !}
+  ob[ huh .snd .fst ] _ = M .snd .fst .ob
+  huh .snd .fst .Hom[_][_,_] _ = M .snd .fst .Hom[_,_]
+  huh .snd .fst .idᴰ = {!   !}
+  huh .snd .fst ._⋆ᴰ_ = {!   !}
+  huh .snd .fst .⋆IdLᴰ = {!   !}
+  huh .snd .fst .⋆IdRᴰ = {!   !}
+  huh .snd .fst .⋆Assocᴰ = {!   !}
+  huh .snd .fst .isSetHomᴰ = {!   !}
+  huh .snd .snd .Bif-obᴰ A B .carᴰ _ = M .snd .snd .Bif-ob A B .car
+  huh .snd .snd .Bif-obᴰ A B .isAlgᴰ = {!   !}
+  huh .snd .snd .Bif-obᴰ A B .isRGraphᴰ = {!   !}
+  huh .snd .snd .Bif-obᴰ A B .congruenceᴰ = {!   !}
+  huh .snd .snd .Bif-homLᴰ = {!   !}
+  huh .snd .snd .Bif-L-idᴰ = {!   !}
+  huh .snd .snd .Bif-L-seqᴰ = {!   !}
+  huh .snd .snd .Bif-homRᴰ = {!   !}
+  huh .snd .snd .Bif-R-idᴰ = {!   !}
+  huh .snd .snd .Bif-R-seqᴰ = {!   !}
+  huh .snd .snd .SepBif-RL-commuteᴰ = {!   !}
+
+
+  open Elim {Sig} huh 
+
+
+  foo : CBPVSection {Sig} {F = idModelMorphsim {Sig} (SynModel.Syn Sig)}{huh}
+  foo = Elim {!   !} {!   !} {!   !} {!   !}
+
+  Rec : CBPVMorphism (SynModel.Syn Sig) M 
+  Rec .fst = {! Elim  !}
+  Rec .snd = {!   !}
+  -}

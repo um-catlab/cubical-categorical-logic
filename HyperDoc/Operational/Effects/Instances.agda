@@ -43,6 +43,99 @@ open AlgHom
 open Signature
 
 
+{-
+module State where 
+  open import Cubical.Data.Bool
+  open import Cubical.Categories.Monad.ExtensionSystem
+  open import Cubical.Categories.Monad.Algebra
+  open ExtensionSystemFor 
+
+  data OpST : Type where 
+    get set0 set1 : OpST 
+
+  STSig : Signature 
+  STSig .Op = OpST
+  STSig .arity get = 2
+  STSig .arity set0 = 1
+  STSig .arity set1 = 1
+
+  module SynMod =  SynModel STSig
+  module Syn =  Syntax STSig 
+
+ 
+
+
+  State : hSet _ → hSet _ 
+  State A = (Bool → ⟨ A ⟩ × Bool) , isSet→ (isSet× (A .snd) isSetBool)
+
+  get' : {A : hSet _} → ⟨ State A ⟩ → ⟨ State A ⟩ → ⟨ State A ⟩  
+  get' s s' false = s false
+  get' s s' true = s' true
+
+  set0' : {A : hSet _} → ⟨ State A ⟩ → ⟨ State A ⟩
+  set0' s b = s b .fst , false
+
+  set1' : {A : hSet _} → ⟨ State A ⟩ → ⟨ State A ⟩
+  set1' s b = s b .fst , true
+
+  _ : {A : hSet _}{M N : ⟨ State A ⟩} → set0' (get' M N) ≡ set0' M 
+  _ = funExt λ {false → refl
+              ; true → {!  refl !}}
+
+  ret : {A : hSet _ } → ⟨ A ⟩ → ⟨ State A ⟩ 
+  ret a s = a , s
+
+  ext : {A B : hSet _ } →  (⟨ A ⟩ → ⟨ State B ⟩) → ⟨ State A ⟩ → ⟨ State B ⟩ 
+  ext f s b = let (a , b') = s b in f a b'
+
+  ES : ExtensionSystem (SET _) 
+  ES .fst = State
+  ES .snd .η {A} = ret {A}
+  ES .snd .bind {A}{B} = ext {A}{B}
+  ES .snd .bind-r = refl
+  ES .snd .bind-l = refl
+  ES .snd .bind-comp = refl
+
+  O-ob : hSet ℓ-zero → Algebra ES → BiAlg STSig 
+  O-ob X A .car = ⟨ State ((⟨ X ⟩ → ⟨ A .fst ⟩) , {!   !}) ⟩ , {!   !}
+  O-ob X A .isAlg get args = get' (args zero) (args one)
+  O-ob X A .isAlg set0 args = set0' (args zero)
+  O-ob X A .isAlg set1 args = set1' (args zero)
+  O-ob X A .isRGraph .fst s s' = {!   !}
+  O-ob X A .isRGraph .snd = {!   !}
+  O-ob X A .congruence = {!   !}
+
+  ST : CBPVModel STSig
+  ST .fst = SynMod.V
+  ST .snd .fst = SynMod.C
+  ST .snd .snd .Bif-ob A B .car = ⟨ State ((A Syn.⊢c B) , Syn.isSet⊢c) ⟩ , {!   !}
+  ST .snd .snd .Bif-ob A B .isAlg get args = get' (args zero) (args one)
+  ST .snd .snd .Bif-ob A B .isAlg set0 args = set0' (args zero)
+  ST .snd .snd .Bif-ob A B .isAlg set1 args = set1' (args zero)
+  ST .snd .snd .Bif-ob A B .isRGraph = {!   !}
+  ST .snd .snd .Bif-ob A B .congruence = {!   !}
+  ST .snd .snd .Bif-homL = {!   !}
+  ST .snd .snd .Bif-L-id = {!   !}
+  ST .snd .snd .Bif-L-seq = {!   !}
+  ST .snd .snd .Bif-homR = {!   !}
+  ST .snd .snd .Bif-R-id = {!   !}
+  ST .snd .snd .Bif-R-seq = {!   !}
+  ST .snd .snd .SepBif-RL-commute = {!   !}
+
+
+  test : CBPVMorphism SynMod.Syn ST 
+  test .fst = Id
+  test .snd .fst = Id
+  test .snd .snd .N-ob (A , B) .map M = ret M
+  test .snd .snd .N-ob (A , B) .isAlgHom get args = funExt λ {false → {!   !}
+                                                            ; true → {!   !}}
+  test .snd .snd .N-ob (A , B) .isAlgHom set0 args = {!   !}
+  test .snd .snd .N-ob (A , B) .isAlgHom set1 args = {!   !}
+  test .snd .snd .N-ob (A , B) .isRelator = {!   !}
+  test .snd .snd .N-hom = {!   !}
+
+-}
+
 module _ (Sig : Signature) where 
 
   -- pointwise bialg

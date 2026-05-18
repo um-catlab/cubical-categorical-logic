@@ -70,3 +70,9 @@ module _
   inv .F-seq f g =
     sym (invEq (equivAdjointEquiv FF≃)
     (F .F-seq _ _ ∙ cong₂ (seq' D) (secEq FF≃ _) (secEq FF≃ _)))
+
+  inv∘ToFullImage≡Id : inv ∘F ToFullImage F ≡ Id
+  inv∘ToFullImage≡Id = Functor≡ (λ _ → refl) (λ f → retEq FF≃ f)
+
+  ToFullImage∘inv≡Id : ToFullImage F ∘F inv ≡ Id
+  ToFullImage∘inv≡Id = Functor≡ (λ _ → refl) (λ f → secEq FF≃ f)

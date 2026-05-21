@@ -260,41 +260,400 @@ CProdPsh A A' .snd .PshIso.nIso B .fst = {!   !}
 CProdPsh A A' .snd .PshIso.nIso B .snd = {!   !}
 
 
+ -- Slice
+_/_ : (C : Category _ _ ) → (X : ob C) → Category _ _ 
+_/_ C X .ob = Σ[ Y ∈ ob C ] (C [ Y , X ])
+_/_ C X .Hom[_,_] (Y , f)(Z , g) = Σ[ h ∈ C [ Y , Z ] ] f ≡ h ⋆⟨ C ⟩ g
+_/_ C X .id {Y , f} = (C .id {Y}) , (sym (C .⋆IdL f))
+_/_ C X ._⋆_ {Y , f}{Z , g}{W , h}(Y→Z , f≡yz⋆g )(Z→W , g≡zw⋆h) = 
+    (Y→Z ⋆⟨ C ⟩ Z→W) , 
+    f≡yz⋆g ∙ cong (λ h → (C ⋆ Y→Z) h) g≡zw⋆h ∙ sym (C .⋆Assoc _ _ _ )
+_/_ C X .⋆IdL _ = Σ≡Prop (λ _ → C .isSetHom _ _) (C .⋆IdL _)
+_/_ C X .⋆IdR _ = Σ≡Prop (λ _ → C .isSetHom _ _) (C .⋆IdR _)
+_/_ C X .⋆Assoc _ _ _ = Σ≡Prop (λ _ → C .isSetHom _ _) (C .⋆Assoc _ _ _)
+_/_ C X .isSetHom = isSetΣ (C .isSetHom) λ _ → isProp→isSet (C .isSetHom _ _)
+
+
+module test where 
+  open import Cubical.Foundations.Equiv
+
+  Fam : Type → Type 
+  Fam X = X → hSet _
+
+  -- indexed vs fibered perspective 
+  lem : (X : hSet _) → Iso (Fam ⟨ X ⟩ ) (ob (SET _ / X))
+  -- given f : X → Type 
+  -- we construct the total space Σ[ x ∈ X ] (f x)
+  -- and the map from the total space to X is just π₁
+  lem X .Iso.fun f = ((Σ[ x ∈ ⟨ X ⟩ ] ⟨ f x ⟩ ) , isSetΣ (X .snd) λ x → f x .snd) , fst
+  -- given f : Y → X 
+  -- we can form a family X → Set 
+  -- by taking the fibers of f
+  -- x ↦ {y | f (x) ≡ y}
+  lem X .inv (Y , f) = λ x → (fiber f x) , isSetΣ (Y .snd) λ y → isProp→isSet (X .snd _ _)
+  lem X .Iso.sec (Y , f) = ΣPathP ({!   !} , {!   !})
+  lem X .Iso.ret = {!   !}
+
+  -- ob (SET / B)
+  record FibPoly : Type where 
+    field 
+      {E B}: Type 
+      p : E → B 
+
+  -- Fam shapes
+  record IndPoly : Type where 
+    field 
+      shapes : Type 
+      pos : shapes → Type
+
+  open IndPoly
+
+  record WildCat : Type where
+    field 
+      ob : Type 
+      Hom : ob → ob → Type 
+      id : {X : ob} → Hom X X  
+      seq : {X Y Z : ob} → Hom X Y → Hom Y Z → Hom X Z
+      idl : {X Y : ob} → (f : Hom X Y) → seq id f ≡ f
+      idr : {X Y : ob} → (f : Hom X Y) → seq f id ≡ f
+      assoc : {X Y Z W : ob}→ (f : Hom X Y)(g : Hom Y Z)(h : Hom Z W) →  seq f (seq g h) ≡ seq (seq f g) h
+
+  record WildCatᴰ (C : WildCat) : Type where 
+    module C = WildCat C
+    field 
+      obᴰ : C.ob → Type 
+      Homᴰ : {c c' : C.ob} → C.Hom c c' → obᴰ c → obᴰ c' → Type
+
+  ∫W : (C : WildCat) → WildCatᴰ C → WildCat 
+  ∫W C Cᴰ .WildCat.ob = Σ[ c ∈ WildCat.ob C ] WildCatᴰ.obᴰ Cᴰ c
+  ∫W C Cᴰ .WildCat.Hom (c , cᴰ)(c' , c'ᴰ )= Σ[ f ∈ WildCat.Hom C c c' ] WildCatᴰ.Homᴰ Cᴰ f cᴰ c'ᴰ
+  ∫W C Cᴰ .WildCat.id = {!   !}
+  ∫W C Cᴰ .WildCat.seq = {!   !}
+  ∫W C Cᴰ .WildCat.idl = {!   !}
+  ∫W C Cᴰ .WildCat.idr = {!   !}
+  ∫W C Cᴰ .WildCat.assoc = {!   !}
+
+  record WildFun (C D : WildCat) : Type where 
+    module C = WildCat C 
+    module D = WildCat D 
+    field 
+      fob : C.ob → D.ob
+      fhom : {c c' : C.ob} → C.Hom c c' → D.Hom (fob c) (fob c')
+      fid : {c : C.ob} → fhom (C.id {c}) ≡ D.id {fob c}
+      fseq : {c c' c'' : C.ob}{f : C.Hom c c'}{g : C.Hom c' c''} → fhom (C.seq f g) ≡ D.seq (fhom f) (fhom g)
+
+  open WildCat
+  _^Wop : WildCat → WildCat 
+  (C ^Wop) .WildCat.ob = C .ob
+  (C ^Wop) .WildCat.Hom x y = C .Hom y x
+  (C ^Wop) .WildCat.id = C .id
+  (C ^Wop) .WildCat.seq f g = C .seq g f
+  (C ^Wop) .WildCat.idl f = C .idr f
+  (C ^Wop) .WildCat.idr f = C .idl f
+  (C ^Wop) .WildCat.assoc f g h = sym (C .assoc h g f)
+
+  idFun : (C : WildCat) → WildFun C C 
+  idFun C .WildFun.fob = λ z → z
+  idFun C .WildFun.fhom = λ z → z
+  idFun C .WildFun.fid = refl
+  idFun C .WildFun.fseq = refl
+
+  seqFun : {C D E : WildCat} → WildFun C D → WildFun D E → WildFun C E 
+  seqFun F G .WildFun.fob c = G .WildFun.fob (F .WildFun.fob c)
+  seqFun F G .WildFun.fhom f = G .WildFun.fhom (F .WildFun.fhom f)
+  seqFun F G .WildFun.fid = cong (G .WildFun.fhom) (F .WildFun.fid) ∙ G .WildFun.fid
+  seqFun F G .WildFun.fseq = 
+    cong (G .WildFun.fhom) (F .WildFun.fseq) ∙ G .WildFun.fseq
+  
+  CAT : WildCat 
+  CAT .ob = WildCat
+  CAT .Hom = WildFun
+  CAT .id {X} = idFun X
+  CAT .seq = seqFun
+  CAT .idl = {!   !}
+  CAT .idr = {!   !}
+  CAT .assoc = {!   !}
+
+
+  open WildFun 
+
+  -- internal fibration?
+  record GPoly : Type where 
+    field 
+      S : WildCat 
+      P : WildFun (S ^Wop) CAT
+
+  Fib : WildCat → Type 
+  Fib B = Σ[ E ∈ WildCat ] WildFun E B
+
+  lemma : (B : WildCat) → WildFun (B ^Wop) CAT → WildCatᴰ B
+  lemma B P .WildCatᴰ.obᴰ b = WildCat.ob (P .fob b)
+  lemma B P .WildCatᴰ.Homᴰ {c}{c'} f Pc Pc' = WildCat.Hom (P .fob c) Pc (P .fhom f .fob Pc')
+
+  Π₁ : (B : WildCat) → (P : WildFun (B ^Wop) CAT) → WildFun (∫W B (lemma B P)) B
+  Π₁ B P .fob = fst
+  Π₁ B P .fhom = fst
+  Π₁ B P .fid = {!   !}
+  Π₁ B P .fseq = {!   !}
+
+  yosh : (B : WildCat) → Fib B →  WildFun (B ^Wop) CAT 
+  yosh B fib .fob b = {!   !}
+  yosh B fib .fhom = {!   !}
+  yosh B fib .fid = {!   !}
+  yosh B fib .fseq = {!   !}
+  
+  
+  GPolyToFib : (G : GPoly) → Fib (GPoly.S G) 
+  GPolyToFib record { S = S ; P = P } .fst = ∫W S (lemma S P)
+  GPolyToFib record { S = S ; P = P } .snd = Π₁ S P
+
+  -- grothendieck
+  woah : (B : WildCat) → Iso (WildFun (B ^Wop) CAT) (Fib B) 
+  woah B .Iso.fun P = ∫W B (lemma B P) , Π₁ B P
+  woah B .inv = yosh B
+  woah B .Iso.sec = {!   !}
+  woah B .Iso.ret = {!   !}
+
+
+  what : GPoly 
+  what .GPoly.S = {!   !}
+  what .GPoly.P = {!   !}
+
+  Conv : IndPoly → FibPoly 
+  Conv P .FibPoly.E = Σ[ s ∈ shapes P ] pos P s
+  Conv P .FibPoly.B = shapes P
+  Conv P .FibPoly.p = fst
+
+  -- connectives are easy to define on the indexed version..
+  -- what about here..?
+  record Poly : Type where
+    field 
+      {- I : Input Sort , J : Output Sort , B : Shapes , E : Positions -}
+      I' E B J' : Set 
+      s : E → I'
+      p : E → B 
+      t : B → J'
+
+    Δs : Fam I' → Fam E
+    Δs f e = f(s e)
+
+    Πp : Fam E → Fam B 
+    Πp f b .fst = (e : fiber p b) → ⟨ f (fst e) ⟩
+    Πp f b .snd = isSetΠ λ e → f (fst e) .snd
+
+    Σt : Fam B → Fam J' 
+    Σt f j .fst = Σ[ b ∈ fiber t j ] ⟨ f (fst b) ⟩
+    Σt f j .snd = {!   !}
+
+    P : Fam I' → Fam J' 
+    P x = Σt (Πp (Δs x))
+    {-
+      X : (Unit → Set) ≅ Set
+
+      s : λ _ → tt 
+      t : λ _ → tt
+
+
+      so 
+        Δs (λ tt → X) = (λ _ → X)
+
+
+      P X = ΣT Πp (λ _ → X)
+
+      fiber t j := Σ[ b ∈ B ](t b ≡ j)
+      But when J := Unit and t := λ _ → tt 
+      fiber t j = B
+
+
+      Πp : Fam E → Fam B 
+      Πp f b = (e : fiber p b) → ⟨ f (fst e) ⟩
+
+      Πp (λ _ → X) s = (e : fiber fst s) → X
+                     = (e : Pos s) → X
+
+      This boils down to 
+      P X := Σ[s ∈ S]∀(p : Pos s) → X
+   
+
+    -}
+
+  -- when I' and J' are Unit,, we have IndPoly
+  
+  Conv' : IndPoly → Poly 
+  Conv' P .Poly.I' = Unit
+  Conv' P .Poly.E = Σ[ s ∈ shapes P ] pos P s
+  Conv' P .Poly.B = shapes P
+  Conv' P .Poly.J' = Unit
+  Conv' P .Poly.s = λ _ → tt
+  Conv' P .Poly.p = fst
+  Conv' P .Poly.t = λ _ → tt
+
+  module observe (poly : IndPoly) where 
+    open Poly (Conv' poly)
+
+    _ : Fam Unit → Fam Unit
+    _ = P -- λ X → Σt (Πp (λ e → X tt))
+
+    app : hSet _ → hSet _
+    app X = (P λ {tt → X}) tt
+
+    den' : hSet _ → hSet _
+    den' X .fst = Σ[ s ∈ shapes poly ] ((p : pos poly s) → ⟨ X ⟩)
+    den' X .snd = {!   !}
+
+    {- 
+    Σ (Σ (shapes poly) (λ x → tt ≡ tt)) 
+    (λ b → (e : Σ (Σ (shapes poly) (pos poly)) (λ x → fst x ≡ fst b)) → fst X)
+
+    = 
+          
+    Σ[ s ∈ shapes poly ]
+    (e : Σ (Σ (shapes poly) (pos poly)) (λ x → fst x ≡ fst s)) → fst X)
+
+    = 
+
+    Σ[ s ∈ shapes poly ] (e : pos poly s) → fst X)
+    -}
+    prf : (X : hSet _) → app X ≡ den' X
+    prf X = ΣPathP ({! ΣPathP ? !} , {!   !})
+    open import Cubical.Data.Bool
+
+    d : hSet _ → (shapes poly) → Fam B
+    d X s = Πp (λ {sp → X})  where 
+      _ = {! Πp (λ {(s , p') → X}) s  !} 
+
+  open import Cubical.Data.Bool
+  -- single sorted polynomials set I' and J' to Unit
+  open import Cubical.Data.Empty
+
+  BinTree' : IndPoly 
+  BinTree' .shapes = Bool
+  BinTree' .pos false = ⊥
+  BinTree' .pos true = Bool
+  
+  BinTree : Poly 
+  BinTree = Conv' BinTree'
+
+  open Poly BinTree
+  tree : hSet _ 
+  tree = P (λ { tt → ℕ , isSetℕ}) tt 
+
+  leaf : ⟨ tree ⟩  
+  leaf = (true , refl) , (λ e → 8)
+
+  node : ⟨ tree ⟩ 
+  node = (false , refl) , {!   !}
+   
+
+module wosh (C : Category _ _ ) where 
+  record Poly : Type _ where 
+    field 
+      A I' J' B : ob C
+      s : C [ I' , A ]
+      f : C [ I' , J' ]
+      t : C [ J' , B ]
+
+
+    s^* : Functor (C / A) (C / I') 
+    s^* .F-ob (X , f)= X , {! ? ⋆⟨ C ⟩ s  !}
+    s^* .F-hom = {!   !}
+    s^* .F-id = {!   !}
+    s^* .F-seq = {!   !}
+  
+
 module Generalized where 
   open import Cubical.Categories.Presheaf
   open import Cubical.Categories.Presheaf.KanExtension
 
-  record GPoly : Type _ where 
-    field 
+  {-
+      normal poly literature
+      I : Input Sort , J : Output Sort , B : Shapes , E : Positions 
+
+      s : E → I'
+      p : E → B 
+      t : B → J'
+
+      Fiores work
       A I' J' B : Category _ _ 
       s : Functor I' A 
       f : Functor I' J' 
       t : Functor J' B
+  -}
+  record GPoly : Type _ where 
+    field 
+      I' E B J' : Category _ _ 
+      s : Functor E I' 
+      f : Functor E B
+      t : Functor B J'
 
-    s^* : Functor (PresheafCategory A _) (PresheafCategory I' _) 
+    s^* : Functor (PresheafCategory I' _) (PresheafCategory E _) 
     s^* = precomposeF (SET _) (s ^opF)
 
     open Ran _ f
-    f_* : Functor (PresheafCategory I' _)  (PresheafCategory J' _) 
+    f_* : Functor (PresheafCategory E _)  (PresheafCategory B _) 
     f_* = Ran
 
     open Lan _ t 
-    t_!  : Functor ((PresheafCategory J' _)) ((PresheafCategory B _)) 
+    t_!  : Functor ((PresheafCategory B _)) ((PresheafCategory J' _)) 
     t_! = Lan
 
-    denGP : Functor (PresheafCategory A _) (PresheafCategory B _) 
+    denGP : Functor (PresheafCategory I' _) (PresheafCategory J' _) 
     denGP = (t_! ∘F f_*) ∘F s^*
 
   open GPoly
 
-  ex : GPoly 
-  ex .A = {!   !}
-  ex .I' = {!   !}
-  ex .J' = {!   !}
-  ex .B = {!   !}
-  ex .s = {!   !}
-  ex .f = {!   !}
-  ex .t = {!   !}
+  term : Category _ _ 
+  term .ob = Unit
+  term .Hom[_,_] tt tt = Unit
+  term .id = tt
+  term ._⋆_ tt tt = tt
+  term .⋆IdL _ = refl
+  term .⋆IdR _ = refl
+  term .⋆Assoc _ _ _ = refl
+  term .isSetHom = isSetUnit
+
+  !term : {C : Category _ _} → Functor C term 
+  !term .F-ob = λ _ → tt
+  !term .F-hom = λ _ → tt
+  !term .F-id = refl
+  !term .F-seq _ _ = refl
+
+  open test renaming (GPoly to GPoly')
+  -- total category?
+
+  module _ (G : GPoly') where 
+    asFib : Fib (GPoly'.S G) 
+    asFib = GPolyToFib G
+
+    NO : WildCat → Category _ _ 
+    NO W .ob = WildCat.ob W
+    NO W .Hom[_,_] = WildCat.Hom W
+    NO W .id = WildCat.id W
+    NO W ._⋆_ = WildCat.seq W
+    NO W .⋆IdL = WildCat.idl W
+    NO W .⋆IdR = WildCat.idr W
+    NO W .⋆Assoc f g h = sym (WildCat.assoc W f g h)
+    NO W .isSetHom = {!   !} -- HELL NAh brother
+
+    NOF : {C D : WildCat} → WildFun C D → Functor (NO C) (NO D) 
+    NOF F .F-ob = WildFun.fob F
+    NOF F .F-hom = WildFun.fhom F
+    NOF F .F-id = WildFun.fid F
+    NOF F .F-seq f g = WildFun.fseq F {f = f}{g}
+
+    GConv : GPoly 
+    GConv .I' = term
+    GConv .E = NO (asFib .fst)
+    GConv .B = NO (GPoly'.S G)
+    GConv .J' = term
+    GConv .s = !term
+    GConv .f = NOF (asFib .snd)
+    GConv .t = !term
+
+    bigboi : Functor (PresheafCategory term ℓ-zero) (PresheafCategory term ℓ-zero)
+    bigboi = denGP GConv
+
+
 
 module DiscreteGeneralized where 
   open import Cubical.Categories.Presheaf.KanExtension

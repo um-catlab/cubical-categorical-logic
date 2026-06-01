@@ -1,3 +1,11 @@
+{-# OPTIONS --cubical #-}
+-- DISABLED under Mikan (1lab's Agda fork): this module relies on
+-- --guarded and/or --rewriting, which Mikan does not support. The
+-- original contents are preserved in the block comment below.
+module Guarded.Later.Properties where
+
+{- ORIGINAL CONTENTS (disabled):
+
 {-# OPTIONS --cubical --rewriting --guarded #-}
 {-# OPTIONS --allow-unsolved-metas #-}
 
@@ -22,3 +30,5 @@ isSet▹ ▹isSetA x y x≡y x≡y' i j t = ▹isSetA t (x t) (y t) (λ i → x�
 -- ▹Π⁻ : {A : Type ℓ}{B : A → Type ℓ'} → ((a : A) → ▹ (B a)) → ▹ ((a : A) → B a)
 -- ▹Π⁻ = λ f t a → {!f a t!}
 
+
+-}

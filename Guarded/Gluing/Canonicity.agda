@@ -1,3 +1,11 @@
+{-# OPTIONS --cubical #-}
+-- DISABLED under Mikan (1lab's Agda fork): this module relies on
+-- --guarded and/or --rewriting, which Mikan does not support. The
+-- original contents are preserved in the block comment below.
+module Guarded.Gluing.Canonicity where
+
+{- ORIGINAL CONTENTS (disabled):
+
 {-
 
   A guarded canonicity theorem
@@ -220,3 +228,5 @@ GuardedCanonicity M =
   (EXP.⋆IdL M)
   (GuardedCanonicitySection .F-homᴰ M EXP.id _)
 
+
+-}

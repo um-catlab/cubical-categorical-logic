@@ -1,3 +1,11 @@
+{-# OPTIONS --cubical #-}
+-- DISABLED under Mikan (1lab's Agda fork): this module relies on
+-- --guarded and/or --rewriting, which Mikan does not support. The
+-- original contents are preserved in the block comment below.
+module Guarded.Later.Base where
+
+{- ORIGINAL CONTENTS (disabled):
+
 {-# OPTIONS --cubical --rewriting --guarded #-}
 {-# OPTIONS --allow-unsolved-metas #-}
 
@@ -90,3 +98,5 @@ postulate
 
 postulate
   force-beta : ∀ {A : Set l} (x : A) → force (λ k _ → x) ≣ λ k → x
+
+-}

@@ -41,13 +41,18 @@ module Normalization (Q : Quiver ℓC ℓC') where
   -- has a normal form, but there's no reason to bother truncating it.
   -- data NormalForm {o1 o2} (e : FQ [ o1 , o2 ]) : Type (ℓ-max ℓC ℓC') where
 
-  data NormalForm {o1 o2} (e : FQ [ o1 , o2 ]) : Type (ℓ-max ℓC' ℓC) where
-    cons : ∀ gen e'
+  -- `o2` and `e` are *indices*, not parameters: the recursive field `nfe'`
+  -- in `cons` lives at a different morphism, and Mikan's termination checker
+  -- only tracks structural descent across a changing index (not a changing
+  -- parameter). Cf. the same index-vs-parameter shape in `Cubical.Data.W.Indexed`.
+  data NormalForm {o1} : ∀ {o2} → FQ [ o1 , o2 ] → Type (ℓ-max ℓC' ℓC) where
+    cons : ∀ {o2} {e : FQ [ o1 , o2 ]} gen e'
          → (o2≡cod : o2 Eq.≡ Q .snd .cod gen)
          → (e≡e'⋆gen : Eq.HEq (Eq.ap (FQ [ o1 ,_]) o2≡cod) e (e' ⋆ₑ ⇑ Q gen))
          → (nfe' : NormalForm e')
          → NormalForm e
-    nil : (o1≡o2 : o1 Eq.≡ o2)
+    nil : ∀ {o2} {e : FQ [ o1 , o2 ]}
+      → (o1≡o2 : o1 Eq.≡ o2)
       → Eq.HEq (Eq.ap (FQ [ o1 ,_]) o1≡o2) (FQ.id {o1}) e
       → NormalForm e
 

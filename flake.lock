@@ -8,14 +8,18 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1780345926,
-        "narHash": "sha256-FPB6rW4GIBHcGnRkVI/xVUgW0N4e51fn4PovD+0TyMw=",
-        "path": "/Users/stevenschaefer/cubical",
-        "type": "path"
+        "lastModified": 1780347722,
+        "narHash": "sha256-SJxChw7N9/AiHMjnNQNngN9gZnvDI/khxEBeJWqQb8Q=",
+        "owner": "stschaef",
+        "repo": "cubical",
+        "rev": "ec74377cd176941e7b47cfb8a58398e9bfa5439f",
+        "type": "github"
       },
       "original": {
-        "path": "/Users/stevenschaefer/cubical",
-        "type": "path"
+        "owner": "stschaef",
+        "ref": "mikan-pinned",
+        "repo": "cubical",
+        "type": "github"
       }
     },
     "flake-compat": {

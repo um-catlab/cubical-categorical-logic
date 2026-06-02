@@ -18,14 +18,12 @@
     # because it is pinned it does NOT rebuild while you work on this library.
     # Re-snapshot it with `nix flake update cubical`.
     #
-    # (Repoint to a pushed Mikan-cubical fork once one exists; for now it tracks
-    # the local checkout's committed/snapshotted state.)
     # NB: deliberately NOT `follows`-ing nixpkgs/mikan here. Letting cubical use
     # its own pinned inputs means ccl consumes cubical's *already-built* store
     # output as-is, instead of re-deriving (and re-type-checking!) cubical under
     # ccl's nixpkgs. ccl's own `mikan` input tracks the same `main`, so the two
     # Mikans (and hence `.mki` interface formats) agree.
-    cubical.url = "path:/Users/stevenschaefer/cubical";
+    cubical.url = "github:stschaef/cubical/mikan-pinned";
   };
 
   outputs = {

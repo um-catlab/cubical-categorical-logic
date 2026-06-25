@@ -142,6 +142,30 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'} (dir : DirectStr {C = 
         fhom .N-hom c c' h (down c' (wf≺ c')) _ refl
         ∙ cong (f₀ c) (downNat (wf≺ c) (wf≺ c') h)
 
+      downValue : ∀ c (Ac : Acc _≺_ c) {y} (g : C [ y , c ]) (q : y ≺ c)
+                → down c Ac .N-ob y (g , q) ≡ f₀ y (down y (wf≺ y))
+      downValue c (acc r) {y} g q = cong (f₀ y) (downIrr y (r y q) (wf≺ y))
+
+      -- the guarded fixed-point equation:  löb = (löb ⋆ next) ⋆ f
+      löb-fix : löb ≡ (löb ⋆PshHomStrict next) ⋆PshHomStrict fhom
+      löb-fix = makePshHomStrictPath (funExt λ c → funExt λ _ →
+        cong (f₀ c) (makePshHomStrictPath (funExt λ y → funExt λ (g , q) →
+          downValue c (wf≺ c) g q ∙ sym (löb .N-hom y c g _ _ refl))))
+
+      -- and it is the unique fixed point
+      löb-uniq : (s : PshHomStrict UnitPsh P)
+               → s ≡ (s ⋆PshHomStrict next) ⋆PshHomStrict fhom
+               → s ≡ löb
+      löb-uniq s s-fix =
+        makePshHomStrictPath (funExt λ c → funExt λ _ → WFI.induction wf≺ step c)
+        where
+          step : ∀ c → (∀ y → y ≺ c → s .N-ob y tt ≡ löb .N-ob y tt)
+               → s .N-ob c tt ≡ löb .N-ob c tt
+          step c IH =
+            funExt⁻ (funExt⁻ (cong N-ob s-fix) c) tt
+            ∙ cong (f₀ c) (makePshHomStrictPath (funExt λ y → funExt λ (g , q) →
+                s .N-hom y c g _ _ refl ∙ IH y q ∙ sym (downValue c (wf≺ c) g q)))
+
   module _ {ℓF} (A : ob → hSet (ℓ-max ℓF (ℓ-max ℓ ℓ'))) where
     private
       U = FamBase.Psh→Fam {ℓ = ℓF} C
@@ -153,17 +177,49 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'} (dir : DirectStr {C = 
     ▷Fam : ob → hSet _
     ▷Fam = U .F-ob (Later (G .F-ob A))
 
+    toFam : PshHomStrict UnitPsh (G .F-ob A) → (∀ x → ⟨ A x ⟩)
+    toFam s x = εA A x (s .N-ob x _)
+
+    fromFam : (∀ x → ⟨ A x ⟩) → PshHomStrict UnitPsh (G .F-ob A)
+    fromFam t = pshhom (λ c _ y h → t y) (λ c c' f p' p e → refl)
+
+    toFam-fromFam : (t : ∀ x → ⟨ A x ⟩) → toFam (fromFam t) ≡ t
+    toFam-fromFam t = refl
+
+    fromFam-toFam : (s : PshHomStrict UnitPsh (G .F-ob A)) → fromFam (toFam s) ≡ s
+    fromFam-toFam s = makePshHomStrictPath (funExt λ c → funExt λ _ →
+      funExt λ y → funExt λ h →
+        sym (funExt⁻ (funExt⁻ (s .N-hom y c h _ _ refl) y) id)
+        ∙ cong (s .N-ob c _ y) (⋆IdL h))
+
     module _ (φ : ∀ x → ⟨ ▷Fam x ⟩ → ⟨ A x ⟩) where
       φ↑ : PshHomStrict (Later (G .F-ob A)) (G .F-ob A)
       φ↑ = ηP (Later (G .F-ob A)) ⋆PshHomStrict G .F-hom φ
 
       löbFam : ∀ x → ⟨ A x ⟩
-      löbFam x = εA A x (löb (G .F-ob A) φ↑ .N-ob x _)
+      löbFam = toFam (löb (G .F-ob A) φ↑)
 
-    -- strong recursion for an arbitrary direct category: to define `f x` it
-    -- suffices, for each NON-IDENTITY map `g : y → x` out of a strictly-lower
-    -- object, to use the recursive value `f y`.  In a *non-thin* direct
-    -- category the recursive data is indexed by the map `g`, not just by `y`.
+      stepFam : (∀ x → ⟨ A x ⟩) → (∀ x → ⟨ A x ⟩)
+      stepFam t =
+        toFam ((fromFam t ⋆PshHomStrict next (G .F-ob A)) ⋆PshHomStrict φ↑)
+
+      löbFam-fix : löbFam ≡ stepFam löbFam
+      löbFam-fix =
+        cong toFam (löb-fix (G .F-ob A) φ↑)
+        ∙ sym (cong (λ s →
+                 toFam ((s ⋆PshHomStrict next (G .F-ob A)) ⋆PshHomStrict φ↑))
+                 (fromFam-toFam (löb (G .F-ob A) φ↑)))
+
+      löbFam-uniq : (t : ∀ x → ⟨ A x ⟩) → t ≡ stepFam t → t ≡ löbFam
+      löbFam-uniq t t-fix =
+        sym (toFam-fromFam t)
+        ∙ cong toFam
+            (löb-uniq (G .F-ob A) φ↑ (fromFam t)
+              (cong fromFam t-fix
+               ∙ fromFam-toFam
+                   ((fromFam t ⋆PshHomStrict next (G .F-ob A)) ⋆PshHomStrict φ↑)))
+
+    -- strong recursion for an arbitrary direct category
     löbStr : (∀ x → (∀ y → C [ y , x ] → y ≺ x → ⟨ A y ⟩) → ⟨ A x ⟩)
            → ∀ x → ⟨ A x ⟩
     löbStr step = löbFam (λ x α → step x (λ y g q → α .N-ob y (g , q) y id))

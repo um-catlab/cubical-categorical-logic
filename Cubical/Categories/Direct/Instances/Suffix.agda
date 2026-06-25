@@ -1,3 +1,5 @@
+-- Minimal test of Löb for the poset of strings with suffix ordering
+-- More substantive use is left for grammars-and-semantic-actions
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 

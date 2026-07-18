@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.Representable.More where
 
 open import Cubical.Foundations.Prelude
@@ -186,7 +185,7 @@ module _ {C : Category ℓc ℓc'}{P : Presheaf C ℓp} (ue : UniversalElement C
   substUniversalElement elt ue≡elt = isPshIso→isUniversal P λ Γ → ue.intro
     , subst (λ e → section (P._⋆ e) ue.intro × retract (P._⋆ e) ue.intro)
        ue≡elt
-       (isUniversal→isPshIso _ ue.universal Γ .snd)
+       (isUniversal→isPshIso P ue.universal Γ .snd)
 
   private
     -- This doesn't hold definitionally if we implement substUniversalElement as a subst, instead there's a transport refl

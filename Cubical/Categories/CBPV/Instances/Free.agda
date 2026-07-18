@@ -1,7 +1,6 @@
 -- Judgemental model of CBPV
 -- no β/η laws for type connectives
 {-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.CBPV.Instances.Free where
 
 open import Cubical.Foundations.Prelude
@@ -217,7 +216,7 @@ Ehom B B' .F-hom γ k = k [ γ ]k
 Ehom B B' .F-id = funExt λ _ → subIdK
 Ehom B B' .F-seq γ δ = funExt λ k → subAssocK
 
-stacks : EnrichedCategory 𝓟Mon _
+stacks : EnrichedCategory 𝓟Mon ℓ-zero
 stacks .ob = CTy
 stacks .Hom[_,_] = Ehom
 stacks .id = natTrans (λ _ _ → ∙k) λ _ → funExt λ _ → sym plugDist
@@ -228,7 +227,7 @@ stacks .⋆IdR _ _ = makeNatTransPath (funExt λ _ → funExt λ _  → sym ∘k
 stacks .⋆Assoc _ _ _ _ =
   makeNatTransPath  (funExt λ _ → funExt λ _ →  ∘kAssoc)
 
-vTm : VTy → Functor (SCat ^op) (SET _)
+vTm : VTy → Functor (SCat ^op) (SET ℓ-zero)
 vTm A .F-ob Γ = (Γ ⊢v A) , isSetVal
 vTm A .F-hom γ v = v [ γ ]v
 vTm A .F-id = funExt λ _ → subIdV
@@ -301,7 +300,8 @@ scwf .snd .snd .snd = term , λ A Γ →
   ((A ∷ Γ) ,
   (PshIso→PshIsoLift _ _ (NatIso→PshIso _ _ (comprehension Γ A))))
 
-CBPVExpSubst : CBPVModel _ _ _ _ _ _
+-- This is what requires lossy unification, why?
+CBPVExpSubst : CBPVModel ℓ-zero ℓ-zero ℓ-zero ℓ-zero ℓ-zero ℓ-zero
 CBPVExpSubst .Scwf = scwf
 CBPVExpSubst .Stacks = stacks
 CBPVExpSubst .CTm = cTm

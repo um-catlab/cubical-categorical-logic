@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Profunctor.StrictHom.Constructions.Extension where
 
 open import Cubical.Foundations.Prelude

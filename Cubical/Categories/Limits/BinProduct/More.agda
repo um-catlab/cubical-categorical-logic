@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 {-
 
   This is one of several possible definitions of the binary product.
@@ -249,7 +248,7 @@ module _ (F : Functor C D) where
     private
       module -×c = BinProductsWithNotation -×c
       module -×Fc = BinProductsWithNotation -×Fc
-      module F⟪-×c⟫ {Γ} = BinProductNotation (isUniversal→UniversalElement _ (F⟨-×c⟩≅F⟨-⟩×Fc Γ))
+      module F⟪-×c⟫ {Γ} = BinProductNotation {C = D} (isUniversal→UniversalElement _ (F⟨-×c⟩≅F⟨-⟩×Fc Γ))
     preservesProvidedBinProductsWith→NatIso
       : NatIso (F ∘F -×c.×aF) (-×Fc.×aF ∘F F)
     preservesProvidedBinProductsWith→NatIso =

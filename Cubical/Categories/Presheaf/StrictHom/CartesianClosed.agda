@@ -230,19 +230,6 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} w
     ×PshIntroStrict (UnitPsh-introStrict ⋆PshHomStrict s) idPshHomStrict
       ⋆PshHomStrict appPshHomStrict P Q
 
-  -- β at a pairing: applying the transpose of γ to a pair (u , v)
-  module _ {R : Presheaf C ℓR} {W : Presheaf C ℓS}
-    (u : PshHomStrict W R) (v : PshHomStrict W P)
-    (γ : PshHomStrict (R ×Psh P) Q) where
-
-    applyλ :
-      ×PshIntroStrict (u ⋆PshHomStrict λPshHomStrict P Q γ) v
-        ⋆PshHomStrict appPshHomStrict P Q
-      ≡ ×PshIntroStrict u v ⋆PshHomStrict γ
-    applyλ = makePshHomStrictPath (funExt λ c → funExt λ x →
-      cong (λ z → γ .N-ob c (z , v .N-ob c x))
-        (funExt⁻ (R .F-id) (u .N-ob c x)))
-
 module _ (C : Category ℓC ℓC') (ℓP : Level) where
   Exp-PRESHEAF :
     AllExponentiable (PRESHEAF C (ℓP ⊔ℓ ℓC ⊔ℓ ℓC'))

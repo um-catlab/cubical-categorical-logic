@@ -105,7 +105,8 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
           ⋆PshHomStrict appPshHomStrict X B
 
     hyloTranspose-fix :
-      hyloTranspose ≡ (hyloTranspose ⋆PshHomStrict next dir (X ⇒ B)) ⋆PshHomStrict hyloStep
+      hyloTranspose
+      ≡ (hyloTranspose ⋆PshHomStrict next dir (X ⇒ B)) ⋆PshHomStrict hyloStep
     hyloTranspose-fix = löb-fix dir (X ⇒ B) hyloStep
 
     hyloTranspose-uniq :
@@ -197,6 +198,10 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
       ∙ cong (λ k → λ ξ → a x (k (c x ξ)))
           (sym (Hhom≡ {X} {B} hyloMap x))
 
+    hylo-unfold : ∀ x ξ
+      → hylo .fst x ξ ≡ a x (H .fst .F-hom {X} {B} (hylo .fst) x (c x ξ))
+    hylo-unfold x ξ = funExt⁻ (funExt⁻ (hylo .snd) x) ξ
+
     hylo-uniq : (h : Hylo (H .fst) (X , c) (B , a)) → h ≡ hylo
     hylo-uniq (h , he) = ΣPathP (mapEq , path2)
       where
@@ -215,6 +220,13 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
                    (mapEq i)
                    (λ x ξ → a x (H .fst .F-hom (mapEq i) x (c x ξ))))
           he (hylo .snd)
+
+    hylo-uniq-unfold : (h : Fam [ X , B ])
+      → (∀ x ξ → h x ξ ≡ a x (H .fst .F-hom {X} {B} h x (c x ξ)))
+      → ∀ x ξ → h x ξ ≡ hylo .fst x ξ
+    hylo-uniq-unfold h he x ξ =
+      funExt⁻
+        (funExt⁻ (cong fst (hylo-uniq (h , funExt λ y → funExt (he y)))) x) ξ
 
   -- local contractivity makes the hylomorphism profunctor trivial;
   -- recursiveness and corecursiveness are its curried readings, and

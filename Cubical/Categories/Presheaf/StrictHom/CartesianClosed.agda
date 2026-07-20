@@ -82,6 +82,11 @@ Unit*Psh-introStrict : ∀ {ℓA} {ℓ1} {C : Category ℓ ℓ'}{P : Presheaf C 
 Unit*Psh-introStrict .N-ob = λ x _ → tt*
 Unit*Psh-introStrict .N-hom c c' f p' p x = refl
 
+UnitPsh-introStrict : ∀ {ℓA} {C : Category ℓ ℓ'}{P : Presheaf C ℓA}
+  → PshHomStrict P UnitPsh
+UnitPsh-introStrict .N-ob = λ x _ → tt
+UnitPsh-introStrict .N-hom c c' f p' p x = refl
+
 module _
   {C : Category ℓc ℓc'}
   where
@@ -215,6 +220,28 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) w
         (funExt₂ λ d (f , p) →
           sym (cong (λ x → α .N-ob c r .N-ob d (x , p)) (sym (C.⋆IdL f))
           ∙ funExt⁻ (funExt⁻ (cong N-ob (α .N-hom d c f r (f R.⋆ r) refl)) d) (C.id , p))))
+
+module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} where
+
+  -- the external hom underlying a global element of the internal hom
+  eltPshHomStrict : PshHomStrict UnitPsh (P ⇒PshLargeStrict Q)
+                  → PshHomStrict P Q
+  eltPshHomStrict s =
+    ×PshIntroStrict (UnitPsh-introStrict ⋆PshHomStrict s) idPshHomStrict
+      ⋆PshHomStrict appPshHomStrict P Q
+
+  -- β at a pairing: applying the transpose of γ to a pair (u , v)
+  module _ {R : Presheaf C ℓR} {W : Presheaf C ℓS}
+    (u : PshHomStrict W R) (v : PshHomStrict W P)
+    (γ : PshHomStrict (R ×Psh P) Q) where
+
+    applyλ :
+      ×PshIntroStrict (u ⋆PshHomStrict λPshHomStrict P Q γ) v
+        ⋆PshHomStrict appPshHomStrict P Q
+      ≡ ×PshIntroStrict u v ⋆PshHomStrict γ
+    applyλ = makePshHomStrictPath (funExt λ c → funExt λ x →
+      cong (λ z → γ .N-ob c (z , v .N-ob c x))
+        (funExt⁻ (R .F-id) (u .N-ob c x)))
 
 module _ (C : Category ℓC ℓC') (ℓP : Level) where
   Exp-PRESHEAF :

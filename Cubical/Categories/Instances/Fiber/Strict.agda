@@ -15,7 +15,6 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 
 open import Cubical.Categories.Displayed.Base
-import Cubical.Categories.More as CatReasoning
 
 private
   variable
@@ -75,7 +74,6 @@ module _ {C' : Category ℓC ℓC'} where
 
     open R public
     open ∫Cᴰ public
-    open CatReasoning.Reasoning (∫C Cᴰ) public
 
     cong-reind : ∀ {a b : C.ob} {f f' g g' : C [ a , b ]}{aᴰ bᴰ}
         {fᴰ : Cᴰ [ f ][ aᴰ , bᴰ ]}

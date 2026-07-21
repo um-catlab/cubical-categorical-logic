@@ -21,7 +21,6 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 
 open import Cubical.Categories.Displayed.Base
-import Cubical.Categories.More as CatReasoning
 
 private
   variable
@@ -171,8 +170,6 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
 
   open R public
   open ∫Cᴰ public
-  open CatReasoning.Reasoning (∫C Cᴰ) public
-
 
   ⟨_⟩⋆ⱽᴰ⟨_⟩
     : Path Hom[ _ , _ ] (_ , fⱽ) (_ , fⱽ')

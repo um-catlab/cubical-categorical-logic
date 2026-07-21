@@ -28,31 +28,31 @@ module _ (C : Category ℓC ℓC') (ℓSET ℓSETᴰ : Level) where
     -- TODO: this is a name clash with the other Presheafᴰ, which is different
     -- (and not a displayed presheaf in the strictest sense of "displayed X")
     Presheafᴰ : Type _
-    Presheafᴰ = Presheaf (∫ᴾ P) ℓSETᴰ
+    Presheafᴰ = Presheaf (∫ P) ℓSETᴰ
 
   module _ {P Q : Presheaf C ℓSET} (α : P ⇒ Q) where
-    ∫ᴾ⇒ : Functor (∫ᴾ P) (∫ᴾ Q)
-    ∫ᴾ⇒ .F-ob (Γ , ϕ) = Γ , (α ⟦ Γ ⟧) ϕ
-    ∫ᴾ⇒ .F-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) .fst = f
+    ∫⇒ : Functor (∫ P) (∫ Q)
+    ∫⇒ .F-ob (Γ , ϕ) = Γ , (α ⟦ Γ ⟧) ϕ
+    ∫⇒ .F-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) .fst = f
     -- the paths don't matter-- we're in a hSet
     -- (but it can make goals look crazy)
-    ∫ᴾ⇒ .F-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) .snd =
+    ∫⇒ .F-hom {x = Γ , ϕ} {y = Δ , ψ} (f , p) .snd =
       funExt⁻ (sym (α .N-hom f)) ψ ∙ congS (α ⟦ Γ ⟧) p
-    ∫ᴾ⇒ .F-id {x = Γ , ϕ} = ΣPathP (refl , (Q ⟅ Γ ⟆) .snd _ _ _ _)
-    ∫ᴾ⇒ .F-seq {x = Γ , ϕ} _ _ = ΣPathP (refl , (Q ⟅ Γ ⟆) .snd _ _ _ _)
+    ∫⇒ .F-id {x = Γ , ϕ} = ΣPathP (refl , (Q ⟅ Γ ⟆) .snd _ _ _ _)
+    ∫⇒ .F-seq {x = Γ , ϕ} _ _ = ΣPathP (refl , (Q ⟅ Γ ⟆) .snd _ _ _ _)
 
     module _ (Pᴰ : Presheafᴰ P)(Qᴰ : Presheafᴰ Q) where
       -- data of (α-displayed natural transformations) of displayed presheaves
       NatTransᴰ : Type _
-      NatTransᴰ = Pᴰ ⇒ (Qᴰ ∘F (∫ᴾ⇒ ^opF))
+      NatTransᴰ = Pᴰ ⇒ (Qᴰ ∘F (∫⇒ ^opF))
       -- "tests", to verify this encoding is exactly the data we want
       module _ (αᴰ : NatTransᴰ) where
         _ : ((Γ , ϕ) : Σ[ Γ ∈ C .ob ] ⟨ P ⟅ Γ ⟆ ⟩) →
           ⟨ Pᴰ  ⟅ Γ , ϕ ⟆ ⟩ → ⟨ Qᴰ ⟅ (Γ , (α ⟦ Γ ⟧) ϕ) ⟆ ⟩
         _ = αᴰ .N-ob
 
-        _ : {(Γ , ϕ) (Δ , ψ) : (∫ᴾ P) .ob}
-          ((f , p) : (∫ᴾ P) [ (Γ , ϕ) , (Δ , ψ) ]) →
+        _ : {(Γ , ϕ) (Δ , ψ) : (∫ P) .ob}
+          ((f , p) : (∫ P) [ (Γ , ϕ) , (Δ , ψ) ]) →
           αᴰ ⟦ Γ , ϕ ⟧ ∘S Pᴰ ⟪ f , p ⟫
           ≡
           Qᴰ ⟪ f , _ ⟫ ∘S αᴰ ⟦ Δ , ψ ⟧
@@ -67,14 +67,14 @@ module _ (C : Category ℓC ℓC') (ℓSET ℓSETᴰ : Level) where
     (αᴰ : NatTransᴰ α Pᴰ Qᴰ)(βᴰ : NatTransᴰ β Qᴰ Rᴰ) where
     -- definition by pasting, st .N-ob has desirable definitional behavior
     seqTransᴰ : NatTransᴰ (seqTrans α β) Pᴰ Rᴰ
-    seqTransᴰ = seqTrans αᴰ (seqTrans (βᴰ ∘ˡ (∫ᴾ⇒ α ^opF)) fixup)
+    seqTransᴰ = seqTrans αᴰ (seqTrans (βᴰ ∘ˡ (∫⇒ α ^opF)) fixup)
       where
-      -- `((Rᴰ ∘F (∫ᴾ⇒ β ^opF)) ∘F (∫ᴾ⇒ α ^opF)) ≡
-      -- (Rᴰ ∘F (∫ᴾ⇒ (seqTrans α β) ^opF))` holds, but pathToNatTrans gives
+      -- `((Rᴰ ∘F (∫⇒ β ^opF)) ∘F (∫⇒ α ^opF)) ≡
+      -- (Rᴰ ∘F (∫⇒ (seqTrans α β) ^opF))` holds, but pathToNatTrans gives
       -- .N-ob bad definitional behavior
       fixup : NatTrans
-        ((Rᴰ ∘F (∫ᴾ⇒ β ^opF)) ∘F (∫ᴾ⇒ α ^opF))
-        (Rᴰ ∘F (∫ᴾ⇒ (seqTrans α β) ^opF))
+        ((Rᴰ ∘F (∫⇒ β ^opF)) ∘F (∫⇒ α ^opF))
+        (Rᴰ ∘F (∫⇒ (seqTrans α β) ^opF))
       fixup = natTrans (λ (Γ , ϕ) → idfun _)
         (λ (f , p) → funExt (λ βαϕᴰ →
           congS (λ x → (Rᴰ ⟪ f , x ⟫) βαϕᴰ) ((R ⟅ _ ⟆) .snd _ _ _ _)))
@@ -89,13 +89,13 @@ module _ (C : Category ℓC ℓC') (ℓSET ℓSETᴰ : Level) where
   PRESHEAFᴰ ._⋆ᴰ_ = seqTransᴰ
   PRESHEAFᴰ .⋆IdLᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ =
     makeNatTransPathP refl
-    (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdL _))
+    (congS (λ x → Qᴰ ∘F (∫⇒ x ^opF)) (PresheafCategory _ _ .⋆IdL _))
     refl
   PRESHEAFᴰ .⋆IdRᴰ {x = P} {y = Q} {f = α} {xᴰ = Pᴰ} {yᴰ = Qᴰ} αᴰ =
     makeNatTransPathP refl
-    (congS (λ x → Qᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆IdR _))
+    (congS (λ x → Qᴰ ∘F (∫⇒ x ^opF)) (PresheafCategory _ _ .⋆IdR _))
     refl
   PRESHEAFᴰ .⋆Assocᴰ {wᴰ = Sᴰ} αᴰ βᴰ γᴰ = makeNatTransPathP refl
-    (congS (λ x → Sᴰ ∘F (∫ᴾ⇒ x ^opF)) (PresheafCategory _ _ .⋆Assoc _ _ _))
+    (congS (λ x → Sᴰ ∘F (∫⇒ x ^opF)) (PresheafCategory _ _ .⋆Assoc _ _ _))
     refl
   PRESHEAFᴰ .isSetHomᴰ = isSetNatTrans

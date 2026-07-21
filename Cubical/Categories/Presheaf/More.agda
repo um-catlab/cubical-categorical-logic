@@ -51,37 +51,3 @@ module _ {ℓo}{ℓh}{ℓp} (C : Category ℓo ℓh) (P : Presheaf C ℓp) where
     (ue : UniversalElement C P) → UniversalElementOn (ue .vertex)
   UniversalElementToUniversalElementOn ue .fst = ue .element
   UniversalElementToUniversalElementOn ue .snd = ue .universal
-
-module PresheafNotation {ℓo}{ℓh}
-       {C : Category ℓo ℓh} {ℓp} (P : Presheaf C ℓp)
-       where
-  private
-    module C = Category C
-  p[_] : C.ob → Type ℓp
-  p[ x ] = ⟨ P ⟅ x ⟆ ⟩
-
-  infixr 9 _⋆_
-  _⋆_ : ∀ {x y} (f : C [ x , y ]) (g : p[ y ]) → p[ x ]
-  f ⋆ g = P .F-hom f g
-
-  ⋆IdL : ∀ {x} (g : p[ x ]) → C.id ⋆ g ≡ g
-  ⋆IdL = funExt⁻ (P .F-id)
-
-  ⋆Assoc : ∀ {x y z} (f : C [ x , y ])(g : C [ y , z ])(h : p[ z ]) →
-    (f C.⋆ g) ⋆ h ≡ f ⋆ (g ⋆ h)
-  ⋆Assoc f g = funExt⁻ (P .F-seq g f)
-
-  ⟨_⟩⋆⟨_⟩ : ∀ {x y} {f f' : C [ x , y ]} {g g' : p[ y ]}
-            → f ≡ f' → g ≡ g' → f ⋆ g ≡ f' ⋆ g'
-  ⟨ f≡f' ⟩⋆⟨ g≡g' ⟩ = cong₂ _⋆_ f≡f' g≡g'
-
-  ⟨⟩⋆⟨_⟩ : ∀ {x y} {f : C [ x , y ]} {g g' : p[ y ]}
-            → g ≡ g' → f ⋆ g ≡ f ⋆ g'
-  ⟨⟩⋆⟨_⟩ = ⟨ refl ⟩⋆⟨_⟩
-
-  ⟨_⟩⋆⟨⟩ : ∀ {x y} {f f' : C [ x , y ]} {g : p[ y ]}
-            → f ≡ f' → f ⋆ g ≡ f' ⋆ g
-  ⟨_⟩⋆⟨⟩ = ⟨_⟩⋆⟨ refl ⟩
-
-  isSetPsh : ∀ {x} → isSet (p[ x ])
-  isSetPsh {x} = (P ⟅ x ⟆) .snd

@@ -15,8 +15,8 @@ import Cubical.Categories.Instances.BinProduct as Separate
 open import Cubical.Categories.Functor
 open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions hiding (π₁; π₂)
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
@@ -209,7 +209,7 @@ module _ (F : Functor C D) {c : C .ob}
 
   becomesExponential : {c' : C.ob} →
     (v : C.ob) →
-    (e : PresheafNotation.p[ Functor.F-ob (ExponentiableProf C -×c) c' ] v) →
+    (e : PresheafNotation.p[_] (Functor.F-ob (ExponentiableProf C -×c) c') v) →
     Type _
   becomesExponential {c'} v e = becomesUniversal (preservesExpCone c') v e
 

@@ -15,17 +15,6 @@ isPropIso f = isPropRetract (f .Iso.fun) (Iso.inv f) (Iso.ret f)
 isSetIso : {A : Type ℓ}{B : Type ℓ'} → Iso A B → isSet B → isSet A
 isSetIso f = isSetRetract (f .Iso.fun) (Iso.inv f) (Iso.ret f)
 
-isSetDep : {A : Type ℓ} (B : A → Type ℓ') → Type (ℓ-max ℓ ℓ')
-isSetDep = isOfHLevelDep 2
-
-isSet→isSetDep :
- {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isSet (B a)) → isSetDep {A = A} B
-isSet→isSetDep = isOfHLevel→isOfHLevelDep 2
-
-isProp→isPropDep :
- {A : Type ℓ} {B : A → Type ℓ'} (h : (a : A) → isProp (B a)) → isPropDep {A = A} B
-isProp→isPropDep = isOfHLevel→isOfHLevelDep 1
-
 isPropLift :
   {ℓ ℓ' : Level} →
   {A : Type ℓ} →

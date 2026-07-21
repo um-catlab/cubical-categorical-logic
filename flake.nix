@@ -6,7 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
     agda.url = "github:agda/agda";
     cubical = {
-      url = "github:agda/cubical";
+      url = "github:agda/cubical/92166033326aa59800a580b428125f3c654b5e45";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";

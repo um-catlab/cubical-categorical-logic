@@ -15,7 +15,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
-open import Cubical.Categories.More
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
@@ -74,7 +73,6 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   private
     module C = Category C
     module D = Category D
-    module DR = Reasoning D
     module Dᴰ = Fibers Dᴰ
     module F*Dᴰ = Fibers (reindex Dᴰ F)
 

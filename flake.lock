@@ -34,16 +34,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1774856631,
-        "narHash": "sha256-1fWypSCapLL9pTpBPkoz6plpMcdYeS7QzuYGUraJyTo=",
+        "lastModified": 1782378843,
+        "narHash": "sha256-gfgDESQ/sKeok/LxN3ABHeEI/vAQfgO7UGiuK0/QO70=",
         "owner": "agda",
         "repo": "cubical",
-        "rev": "5c1bccf5d4868f854a78fdc11f68593c17f41aad",
+        "rev": "92166033326aa59800a580b428125f3c654b5e45",
         "type": "github"
       },
       "original": {
         "owner": "agda",
         "repo": "cubical",
+        "rev": "92166033326aa59800a580b428125f3c654b5e45",
         "type": "github"
       }
     },

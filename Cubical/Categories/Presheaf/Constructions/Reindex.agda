@@ -158,13 +158,13 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     preservesUniversalElement→UniversalElement ue preservesUE
       = becomesUniversal→UniversalElement preservesUE
 
-    ∫ᴾPshHet : Functor (∫ᴾ P) (∫ᴾ Q)
-    ∫ᴾPshHet .F-ob (x , e) = F ⟅ x ⟆ , α .N-ob x e
-    ∫ᴾPshHet .F-hom (f , fe≡e') = (F ⟪ f ⟫) ,
+    ∫PshHet : Functor (∫ P) (∫ Q)
+    ∫PshHet .F-ob (x , e) = F ⟅ x ⟆ , α .N-ob x e
+    ∫PshHet .F-hom (f , fe≡e') = (F ⟪ f ⟫) ,
       (sym $ α .N-hom _ _ _ _) ∙ cong (α .N-ob _) fe≡e'
-    ∫ᴾPshHet .F-id =
+    ∫PshHet .F-id =
       Σ≡Prop (λ _ → Q.isSetPsh _ _ ) (F .F-id)
-    ∫ᴾPshHet .F-seq (f , _) (g , _) =
+    ∫PshHet .F-seq (f , _) (g , _) =
       Σ≡Prop (λ _ → Q.isSetPsh _ _ ) (F .F-seq f g)
 
     -- If a presheaf preserves any universal element then it preserves
@@ -182,9 +182,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
     preservesUniversalElement→PreservesUniversalElements ue preservesUE ue' =
       isTerminalToIsUniversal D Q $
         preserveAnyTerminal→PreservesTerminals
-          (∫ᴾ P)
-          (∫ᴾ Q)
-          ∫ᴾPshHet
+          (∫ P)
+          (∫ Q)
+          ∫PshHet
           (universalElementToTerminalElement C P ue)
           (isUniversalToIsTerminal D Q _ _ preservesUE)
           (universalElementToTerminalElement C P ue')

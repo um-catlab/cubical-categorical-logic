@@ -1,6 +1,6 @@
 -- CBPV syntax as a category displayed over 𝓥 → 𝓒 ala the Fibrational Framework
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Base where
+module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Full where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -11,6 +11,7 @@ open import Cubical.Foundations.HLevels.More
 open import Cubical.Foundations.More
 
 import Cubical.Data.Equality as Eq
+open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sigma hiding (_×_)
 open import Cubical.Data.Unit
 
@@ -22,7 +23,6 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Fiber hiding (fiber)
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
-open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Exponentials.Small
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct
@@ -58,7 +58,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Expone
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
+    ℓ ℓ' ℓ'' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
 
 open Category
 open Categoryᴰ
@@ -68,70 +68,72 @@ open PshIso
 open PshHom
 open UniversalElement
 
-module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob k1 → Ob k2 → Type ℓ') where
-  VTy = Ob 𝓥
-  CTy = Ob 𝓒
+data VTy : Type ℓ-zero
+data CTy : Type ℓ-zero
 
-  variable
-    k k' k1 k2 : Kind
+data VTy where
+  [1] [Bool] : VTy
+  [U] : CTy → VTy
 
-  variable
-    Δ Γ Θ Ξ : Ob k
-    A A' A'' A1 A2 : VTy
-    B B' B'' B1 B2 : CTy
-    k≤ k≤' k≤'' : ≤Kind k1 k2
+data CTy where
+  [F] : VTy → CTy
+  _[&]_ : CTy → CTy → CTy
+  [⊤] : CTy
 
-  -- CBPV is a free *displayed category*, but since the base category is
-  -- *definitionally* thin, the displayed equalities are simply
-  -- equalities.
-  data Tm : (k≤ : ≤Kind k1 k2) → Ob k1 → Ob k2 → Type (ℓ-max ℓ ℓ') where
-    gen : Fun k≤ Γ Δ → Tm k≤ Γ Δ
+Ob : Kind → Type ℓ-zero
+Ob 𝓥 = VTy
+Ob 𝓒 = CTy
 
-    idS : ∀ {Γ : Ob k} → Tm (≤V-refl k) Γ Γ
-    seqS : (δ : Tm k≤ Γ Δ) (θ : Tm k≤' Δ Θ) → Tm (≤V-trans k≤ k≤') Γ Θ
-    IdLS : (γ : Tm k≤ Δ Γ) → seqS idS γ ≡ γ
-    IdRS : (γ : Tm k≤ Δ Γ) → seqS γ idS ≡ γ
-    IdAssocS : (δ : Tm k≤ Γ Δ) (θ : Tm k≤' Δ Θ) (ξ : Tm k≤'' Θ Ξ)
-      → seqS (seqS δ θ) ξ ≡ seqS δ (seqS θ ξ)
-    isSetTm : isSet (Tm k≤ Γ Δ)
+variable
+  k k' k1 k2 : Kind
 
-  CBPV : Categoryᴰ KIND ℓ (ℓ-max ℓ ℓ')
-  CBPV .ob[_] = Ob
-  CBPV .Hom[_][_,_] ≤ = Tm (≤ .Prop→Type.pf)
-  CBPV .idᴰ = idS
-  CBPV ._⋆ᴰ_ = seqS
-  CBPV .⋆IdLᴰ = IdLS
-  CBPV .⋆IdRᴰ = IdRS
-  CBPV .⋆Assocᴰ = IdAssocS
-  CBPV .isSetHomᴰ = isSetTm
+variable
+  Δ Γ Θ Ξ : Ob k
+  A A' A'' A1 A2 : VTy
+  B B' B'' B1 B2 : CTy
+  k≤ k≤' k≤'' : ≤Kind k1 k2
 
-  module Elim
-    (Cᴰ : Categoryᴰ (∫C CBPV) ℓᴰ ℓᴰ')
-    where
-    private
-      module Cᴰ = Categoryᴰ Cᴰ
-    module _
-      (ı-Ob : ∀ {k} → (Γ : Ob k) → Cᴰ.ob[ _ , Γ ])
-      (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ) → Cᴰ.Hom[ ı k≤ , gen M ][ ı-Ob Γ , ı-Ob Δ ])
-      where
-      elim-F-homᴰ : (M : Tm k≤ Γ Δ) → Cᴰ.Hom[ ı k≤ , M ][ ı-Ob Γ , ı-Ob Δ ]
-      elim-F-homᴰ (gen f) = ı-Fun f
-      elim-F-homᴰ idS = Cᴰ.idᴰ
-      elim-F-homᴰ (seqS M N) = elim-F-homᴰ M Cᴰ.⋆ᴰ elim-F-homᴰ N
-      elim-F-homᴰ (IdLS M i) = Cᴰ.⋆IdLᴰ (elim-F-homᴰ M) i
-      elim-F-homᴰ (IdRS M i) = Cᴰ.⋆IdRᴰ (elim-F-homᴰ M) i
-      elim-F-homᴰ (IdAssocS L M N i) = Cᴰ.⋆Assocᴰ (elim-F-homᴰ L) (elim-F-homᴰ M) (elim-F-homᴰ N) i
-      elim-F-homᴰ (isSetTm M N p q i j) = isSet→isSetDep
-        (λ _ → Cᴰ.isSetHomᴰ)
-        (elim-F-homᴰ M)
-        (elim-F-homᴰ N)
-        (cong elim-F-homᴰ p)
-        (cong elim-F-homᴰ q)
-        (isSetTm M N p q)
-        i j
+-- CBPV is a free *displayed category*, but since the base category is
+-- *definitionally* thin, the displayed equalities are simply
+-- equalities.
+data Tm : (k≤ : ≤Kind k1 k2) → Ob k1 → Ob k2 → Type ℓ-zero where
+  idS : ∀ {Γ : Ob k} → Tm (≤V-refl k) Γ Γ
+  seqS : (δ : Tm k≤ Γ Δ) (θ : Tm k≤' Δ Θ) → Tm (≤V-trans k≤ k≤') Γ Θ
+  IdLS : (γ : Tm k≤ Δ Γ) → seqS idS γ ≡ γ
+  IdRS : (γ : Tm k≤ Δ Γ) → seqS γ idS ≡ γ
+  IdAssocS : (δ : Tm k≤ Γ Δ) (θ : Tm k≤' Δ Θ) (ξ : Tm k≤'' Θ Ξ)
+    → seqS (seqS δ θ) ξ ≡ seqS δ (seqS θ ξ)
+  isSetTm : isSet (Tm k≤ Γ Δ)
 
-      elim : GlobalSection Cᴰ
-      elim .F-obᴰ d = ı-Ob (d .snd)
-      elim .F-homᴰ f = elim-F-homᴰ (f .snd)
-      elim .F-idᴰ = refl
-      elim .F-seqᴰ _ _ = refl
+  [ret] : Tm _ A ([F] A)
+  [bind] : Tm _ A B → Tm _ ([F] A) B
+  [Fβ] : (M : Tm _ A B) → seqS [ret] ([bind] M) ≡ M
+  [Fη] : (K : Tm _ ([F] A) B) → K ≡ [bind] (seqS [ret] K)
+
+  [force] : Tm _ ([U] B) B
+  [thunk] : Tm _ Γ B → Tm {k1 = 𝓥} _ Γ ([U] B)
+  [Uβ] : (M : Tm _ A B) → seqS ([thunk] M) [force] ≡ M
+  [Uη] : (V : Tm _ Γ ([U] B)) → V ≡ [thunk] (seqS V [force])
+
+  [⊤I] : Tm (≤V-r-⊤ k) Γ [⊤]
+  [⊤η] : (M : Tm (≤V-r-⊤ k) Γ [⊤]) → M ≡ [⊤I]
+
+  [&I] : Tm (≤V-r-⊤ k) Γ B1 → Tm (≤V-r-⊤ k) Γ B2 → Tm (≤V-r-⊤ k) Γ (B1 [&] B2)
+  [π1] : Tm _ (B1 [&] B2) B1
+  [π2] : Tm _ (B1 [&] B2) B2
+  [&β1] : ∀ (M1 : Tm (≤V-r-⊤ k) Γ B1) (M2 : Tm (≤V-r-⊤ k) Γ B2)
+    → seqS ([&I] M1 M2) [π1] ≡ M1
+  [&β2] : ∀ (M1 : Tm (≤V-r-⊤ k) Γ B1) (M2 : Tm (≤V-r-⊤ k) Γ B2)
+    → seqS ([&I] M1 M2) [π2] ≡ M2
+  [&η] : (M : Tm (≤V-r-⊤ k) Γ (B1 [&] B2)) →
+    M ≡ [&I] (seqS M [π1]) (seqS M [π2])
+
+CBPV : Categoryᴰ KIND ℓ-zero ℓ-zero
+CBPV .ob[_] = Ob
+CBPV .Hom[_][_,_] ≤ = Tm (≤ .Prop→Type.pf)
+CBPV .idᴰ = idS
+CBPV ._⋆ᴰ_ = seqS
+CBPV .⋆IdLᴰ = IdLS
+CBPV .⋆IdRᴰ = IdRS
+CBPV .⋆Assocᴰ = IdAssocS
+CBPV .isSetHomᴰ = isSetTm

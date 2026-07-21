@@ -72,6 +72,7 @@ module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob
   VTy = Ob 𝓥
   CTy = Ob 𝓒
 
+  -- WARNING: these are public
   variable
     k k' k1 k2 : Kind
 
@@ -91,7 +92,7 @@ module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob
     seqS : (δ : Tm k≤ Γ Δ) (θ : Tm k≤' Δ Θ) → Tm (≤V-trans k≤ k≤') Γ Θ
     IdLS : (γ : Tm k≤ Δ Γ) → seqS idS γ ≡ γ
     IdRS : (γ : Tm k≤ Δ Γ) → seqS γ idS ≡ γ
-    IdAssocS : (δ : Tm k≤ Γ Δ) (θ : Tm k≤' Δ Θ) (ξ : Tm k≤'' Θ Ξ)
+    AssocS : (δ : Tm k≤ Γ Δ) (θ : Tm k≤' Δ Θ) (ξ : Tm k≤'' Θ Ξ)
       → seqS (seqS δ θ) ξ ≡ seqS δ (seqS θ ξ)
     isSetTm : isSet (Tm k≤ Γ Δ)
 
@@ -102,8 +103,10 @@ module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob
   CBPV ._⋆ᴰ_ = seqS
   CBPV .⋆IdLᴰ = IdLS
   CBPV .⋆IdRᴰ = IdRS
-  CBPV .⋆Assocᴰ = IdAssocS
+  CBPV .⋆Assocᴰ = AssocS
   CBPV .isSetHomᴰ = isSetTm
+
+  module CBPV = Categoryᴰ CBPV
 
   module Elim
     (Cᴰ : Categoryᴰ (∫C CBPV) ℓᴰ ℓᴰ')
@@ -120,7 +123,7 @@ module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob
       elim-F-homᴰ (seqS M N) = elim-F-homᴰ M Cᴰ.⋆ᴰ elim-F-homᴰ N
       elim-F-homᴰ (IdLS M i) = Cᴰ.⋆IdLᴰ (elim-F-homᴰ M) i
       elim-F-homᴰ (IdRS M i) = Cᴰ.⋆IdRᴰ (elim-F-homᴰ M) i
-      elim-F-homᴰ (IdAssocS L M N i) = Cᴰ.⋆Assocᴰ (elim-F-homᴰ L) (elim-F-homᴰ M) (elim-F-homᴰ N) i
+      elim-F-homᴰ (AssocS L M N i) = Cᴰ.⋆Assocᴰ (elim-F-homᴰ L) (elim-F-homᴰ M) (elim-F-homᴰ N) i
       elim-F-homᴰ (isSetTm M N p q i j) = isSet→isSetDep
         (λ _ → Cᴰ.isSetHomᴰ)
         (elim-F-homᴰ M)

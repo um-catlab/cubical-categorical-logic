@@ -28,8 +28,6 @@ private
 Idᴰ : {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} → Functorᴰ Id Cᴰ Cᴰ
 Idᴰ = 𝟙ᴰ⟨ _ ⟩
 
-
-
 module _
   {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
@@ -124,11 +122,6 @@ module _
           → Functorᴰ F Cᴰ Dᴰ
           → Functorᴰ G Cᴰ Dᴰ
   reindF'' G ob≡ hom≡ = reindF' G ob≡ (Eq.pathToEq hom≡)
-
-Functorⱽ : {C : Category ℓC ℓC'}
-  → Categoryᴰ C ℓCᴰ ℓCᴰ' → Categoryᴰ C ℓDᴰ ℓDᴰ'
-  → Type _
-Functorⱽ = Functorᴰ Id
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'} {Eᴰ : Categoryᴰ C ℓEᴰ ℓEᴰ'}

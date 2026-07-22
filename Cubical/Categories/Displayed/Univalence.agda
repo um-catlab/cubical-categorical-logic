@@ -30,26 +30,3 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → CatIsoᴰ Cᴰ (pathToIso p) xᴰ yᴰ
   pathPToIsoᴰ {x}{xᴰ} = JDep (λ y p yᴰ pᴰ → CatIsoᴰ Cᴰ (pathToIso p) xᴰ yᴰ)
     (subst⁻ (λ f → CatIsoᴰ Cᴰ f xᴰ xᴰ) pathToIso-refl (idᴰCatIsoᴰ Cᴰ))
-
--- Univalent Displayed Categories
-record isUnivalentᴰ {C : Category ℓC ℓC'}(isUnivC : isUnivalent C) (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') : Type (ℓ-max (ℓ-max ℓC ℓC') (ℓ-max ℓCᴰ ℓCᴰ')) where
-  open isUnivalent isUnivC
-  open Categoryᴰ Cᴰ
-  field
-    -- TODO: port this to use HAEquivOver?
-    univᴰ : ∀ {x y} (xᴰ : ob[ x ])(yᴰ : ob[ y ])
-      → isEquivᴰ {P = λ x≡y → PathP (λ i → ob[ x≡y i ]) xᴰ yᴰ}
-                 {Q = λ f → CatIsoᴰ Cᴰ f xᴰ yᴰ}
-                 (univ x y)
-                 λ p pᴰ → pathPToIsoᴰ Cᴰ p pᴰ
-
-  univEquivᴰ : ∀ {x y}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
-    → (λ p → PathP (λ i → ob[ p i ]) xᴰ yᴰ)
-        ≃[ univEquiv x y ]
-      (λ f → CatIsoᴰ Cᴰ f xᴰ yᴰ)
-  univEquivᴰ = (λ p pᴰ → pathPToIsoᴰ Cᴰ p pᴰ) , λ q → univᴰ _ _ q
-
-  CatIsoᴰToPathP : ∀ {x y}{xᴰ yᴰ}{p : CatIso C x y}
-    → (pᴰ : CatIsoᴰ Cᴰ p xᴰ yᴰ)
-    → PathP (λ i → ob[ CatIsoToPath p i ]) xᴰ yᴰ
-  CatIsoᴰToPathP {x} {y} = invEqᴰ {eq = univEquiv x y} univEquivᴰ _

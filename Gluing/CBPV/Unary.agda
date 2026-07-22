@@ -4,25 +4,20 @@ module Gluing.CBPV.Unary where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Prop
 
 open import Cubical.Data.Bool
-open import Cubical.Data.Nat
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
-open import Cubical.Data.Quiver.Base
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
 

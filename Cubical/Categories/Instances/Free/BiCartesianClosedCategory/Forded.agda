@@ -332,6 +332,18 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
     rec : (ı : ElimInterpᴰ wkC) → Functor FreeBCCC.C BCCC'.C
     rec ı = introS⁻ (elim wkC ı)
 
+    open import Agda.Builtin.Cubical.Equiv
+    open import Cubical.Foundations.Isomorphism
+    open import Cubical.Categories.Limits.BinProduct.More
+    open isIso
+    module p = BinProductsNotation BCCC'.bp
+      
+    recCF : (ı : ElimInterpᴰ wkC) → CartesianFunctor FreeBCCC.CC BCCC'.C 
+    recCF ı = (rec ı) , λ c c' A → isIsoToIsEquiv 
+      ((λ {(f , g) → f p.,p g}) , 
+      ((λ (f , g) → ΣPathP (p.×β₁ , p.×β₂)) , 
+      λ f → p.,p≡ refl refl))
+
   -- -- -- BCCC functors out of the FreeBiCartesianClosedCategory
   -- -- -- are naturally isomorphic to each other
   -- -- -- TODO: uncomment once IsoCommaBinProductsᴰ etc. are defined

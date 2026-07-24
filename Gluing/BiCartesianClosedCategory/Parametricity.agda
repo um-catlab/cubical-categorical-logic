@@ -50,34 +50,23 @@ module _ where
   +×⇒QUIVER .+×⇒Quiver.Q .cod flip = ↑ X
   +×⇒QUIVER .+×⇒Quiver.Q .cod read = ⊤ + ⊤ 
 
-
   private
     module FREEBICCC = BiCartesianClosedCategory (FreeBiCartesianClosedCategory +×⇒QUIVER)
 
-  InterpBool : Functor FREEBICCC.C (SET ℓ-zero)
-  InterpBool = FreeBiCCC.rec +×⇒QUIVER SETBiCCC 
-    (mkElimInterpᴰ (λ{X → Bool , isSetBool}) λ {flip → not
-                                              ; read → if_then inl _ else inr _})
-
-  -- InterpBoolBICCC : CartesianFunctor InterpBool 
-  -- InterpBoolBICCC = ?
-  --InterpBoolCF : preservesProvidedBinProducts InterpBool FREEBICCC.bp
-
-  InterpBoolCF : CartesianFunctor FREEBICCC.CC (SET _) 
-  InterpBoolCF = InterpBool , {!   !}
+  InterpBool : CartesianFunctor FREEBICCC.CC (SET _) 
+  InterpBool = recCF +×⇒QUIVER SETBiCCC 
+      (mkElimInterpᴰ (λ{X → Bool , isSetBool}) 
+        λ {flip → not
+         ; read → if_then inl _ else inr _})
 
   even : ℕ → Lift ℓ-zero Unit  ⊎ Lift ℓ-zero Unit 
   even zero = inl _
   even (suc z) = Sum.rec inr inl (even z)
 
-  InterpNat : Functor FREEBICCC.C (SET ℓ-zero)
-  InterpNat = FreeBiCCC.rec +×⇒QUIVER SETBiCCC  
+  InterpNat : CartesianFunctor FREEBICCC.CC (SET _) 
+  InterpNat = recCF +×⇒QUIVER SETBiCCC  
     (mkElimInterpᴰ (λ {X  → ℕ , isSetℕ }) λ {flip → suc
                                            ; read → even})
-
-
-  InterpNatCF : CartesianFunctor FREEBICCC.CC (SET _) 
-  InterpNatCF = InterpNat , {!   !}
 
   --InterpBoolNat : CartesianFunctor FREEBICCC.CC ((SET _) ×C (SET _)) 
  -- InterpBoolNat = (InterpBool ,F InterpNat) , {!   !}
@@ -94,8 +83,12 @@ module _ where
   S = FreeBiCCC.elimLocal +×⇒QUIVER InterpBoolNat EqSETᴰBCCCⱽ 
     (mkElimInterpᴰ (λ {X → λ (b , n ) → {! even n ≡ b  !}}) 
       -- [[ read ∘ flip]]_bool b ≡ [[ read ∘ flip ]]_nat n
-      λ {flip → ?
-       ; read → ?})
+      λ {flip → {!   !}
+       ; read → {!   !}})
+
+    
+
+
 
   
 

@@ -13,7 +13,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 
 private
   variable
-    ℓ ℓ' ℓC ℓC' ℓD ℓD' : Level
+    ℓ ℓ' ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
 record CartesianCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   no-eta-equality
@@ -54,3 +54,23 @@ CartesianFunctor CC D =
   Σ[ F ∈ Functor (CC .C) D ]
   preservesProvidedBinProducts F (CC .bp)
   where open CartesianCategory
+
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Categories.Instances.BinProduct.More
+open import Cubical.Categories.Yoneda 
+open Functor
+
+module _ 
+  {C : CartesianCategory ℓC ℓC'}
+  {D : CartesianCategory ℓD ℓD'}
+  {E : Category ℓE ℓE'} where 
+  private 
+    module D = CartesianCategory D
+  _∘CF_ : CartesianFunctor D E → CartesianFunctor C D.C → CartesianFunctor C E 
+  _∘CF_ G F = G .fst ∘F F .fst , λ c c' e → 
+    isoToIsEquiv (
+      iso 
+        (λ f → {!   !} , {!   !}) 
+        (λ {(f , g) → {!   !} }) 
+        {!   !} 
+        {!   !}) 

@@ -1,5 +1,5 @@
 {-# OPTIONS --type-in-type #-}
-module HyperDoc.Operational.Effects.Syntax where
+module HyperDoc.Operational.Effects.SyntaxRaw where
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.FinData
@@ -222,44 +222,6 @@ module SynModel (Sig : Signature) where
   O .Bif-R-id = BiAlgHom≡  (funExt λ M → plugId)
   O .Bif-R-seq _ _ = BiAlgHom≡ (funExt λ  M  → sym plugDist)
   O .SepBif-RL-commute _ _ = BiAlgHom≡  (funExt λ M → plugSub) 
-{-
-  open import Cubical.Data.Bool using (Bool)
-
-  f : 𝟙 ⊢c F 𝟙 → Bool 
-  f (subC x M) = {!   !}
-  f (plug x M) = {!   !}
-  f (plugId i) = {!   !}
-  f (subCId i) = {!   !}
-  f (plugDist i) = {!   !}
-  f (subDist i) = {!   !}
-  f (plugSub i) = {!   !}
-  f (isSet⊢c M M₁ x y i i₁) = {!   !}
-  f (ops op x) = {!   !}
-  f (opsSub V₁ op args i) = {!   !}
-  f (opsPlug S op args i) = {!   !}
-  f (ret x) = {!   !}
-  f (ret-sub i) = {!   !}
-  f (force x) = {! x  !}
-  f (force-sub i) = {!   !}
-
-  d : {A : VTy} → 𝟙 ⊢c F A → Bool 
-  d (subC x M) = {!   !}
-  d (plug x M) = {!   !}
-  -- d (plugId i) = {!   !}
-  -- d (subCId i) = {!   !}
-  -- d (plugDist i) = {!   !}
-  -- d (subDist i) = {!   !}
-  -- d (plugSub i) = {!   !}
-  -- d (isSet⊢c M M₁ x y i i₁) = {!   !}
-  d (ops op x) = {!   !}
-  -- d (opsSub V₁ op args i) = {!   !}
-  -- d (opsPlug S op args i) = {!   !}
-  d (ret x) = {!   !}
-  -- d (ret-sub i) = {!   !}
-  d (force x) = {!   !}
-  -- d (force-sub i) = {!   !} 
-  d _ = {!   !}
-  -}
   
   Syn : CBPVModel Sig
   Syn .fst = V

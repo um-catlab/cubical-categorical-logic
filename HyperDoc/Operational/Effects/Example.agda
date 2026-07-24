@@ -109,7 +109,7 @@ module General (Sig : Signature) where
         (λ V M M≡ v∈P → inc V , subst (λ h → M ↦* h) M≡ (ref βrefl)) 
         -- yes, by congruence lifted to ↦*
         (λ op args dargs mots → (ops op (λ i → mots i .fst)) , {!   !}) 
-        λ {M}{M'} M↦M' M'∈Free (x , M↦*rx) → x , (seq↦*' M↦M'  M↦*rx)
+        λ {M}{M'} M↦M' M'∈Free (x , M'↦*rx) → x  , (seq↦*' M↦M'  M'↦*rx)
 
 module Concrete where 
   -- concrete for the moment 

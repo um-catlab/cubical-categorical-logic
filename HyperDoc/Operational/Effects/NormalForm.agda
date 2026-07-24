@@ -2,10 +2,9 @@
 module HyperDoc.Operational.Effects.NormalForm where 
 
 -- split epimorphism 
-
 open import Cubical.Data.FinData
 open import Cubical.Data.Nat 
-open import Cubical.Data.Bool 
+open import Cubical.Data.Bool hiding (_⊕_)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Sum renaming (rec to ⊎rec)
 
@@ -13,22 +12,926 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
 
+open import Cubical.Categories.Adjoint 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Monad.ExtensionSystem hiding (F)
 
+open import Cubical.Categories.NaturalTransformation 
+open NatTrans 
+
 open import Cubical.Categories.Constructions.FullSubcategory
 open import HyperDoc.Algebra.Algebra hiding (eval)
-open Signature
-open Theory
+--open Signature
+--open Theory
 
 open Category
 open Functor
 open Alg
 open AlgHom
+open NaturalBijection
+
+open import Cubical.Foundations.Powerset
+
+module _ (X : Type) where 
+  data FreeSt : Type where 
+    var : X → FreeSt 
+    get : FreeSt → FreeSt → FreeSt 
+    set0 set1  : FreeSt → FreeSt 
+    -- equations
+
+  State : Type 
+  State = (Bool → Bool) × (Bool → X)
+
+  State' : Type 
+  State' = Bool → X × Bool
+
+  s-get : State → State → State 
+  s-get m n .fst false = m .fst false
+  s-get m n .fst true = n .fst true
+  s-get m n .snd false = m .snd false
+  s-get m n .snd true = n .snd true
+
+  s-get' : State' → State' → State' 
+  s-get' m n false = m false
+  s-get' m n true = n true
+
+  s-set0 : State → State 
+  s-set0 m .fst b = m .fst false
+  s-set0 m .snd b = m .snd false
+
+  s-set1 : State → State 
+  s-set1 m .fst b = m .fst true 
+  s-set1 m .snd b = m .snd true 
+  
+  to : State → State' 
+  to (s , r) b = r b , s b
+
+  fro : State' → State 
+  fro s = (λ b → s b .snd) , (λ b → s b .fst)
+  open import Cubical.Foundations.Isomorphism
+  duh : Iso State State' 
+  duh .Iso.fun = to
+  duh .Iso.inv = fro
+  duh .Iso.sec s = funExt λ {false → refl
+                           ; true → refl}
+  duh .Iso.ret (s , r)= ΣPathP (refl , refl)
+
+  nf' : State' → FreeSt 
+  nf' s = 
+    get 
+      (let (x , b) = s false in (if b then set1 (var x) else set0 (var x))) 
+      (let (x , b) = s true in (if b then set1 (var x) else set0 (var x))) 
+
+  nf : State → FreeSt 
+  nf s = nf' (to s)
+
+  data StOp : Type where 
+    o-get o-set0 o-set1 : StOp 
+
+  Sig : Signature
+  Sig .Signature.Op = StOp
+  Sig .Signature.arity o-get = 2
+  Sig .Signature.arity o-set0 = 1
+  Sig .Signature.arity o-set1 = 1
+
+  A : Alg Sig 
+  A .Carrier = State , {!   !}
+  A .interp o-get args = s-get (args zero) (args one)
+  A .interp o-set0 args = {!   !}
+  A .interp o-set1 args = {!   !}
+
+  A' : Alg Sig 
+  A' .Carrier = State' , {!   !}
+  A' .interp o-get args = s-get' (args zero) (args one)
+  A' .interp o-set0 args = {!   !}
+  A' .interp o-set1 args = {!   !}
+
+  isod : CatIso (ALG {!   !}) A A' 
+  isod .fst .carmap = to
+  isod .fst .pres o-get args = funExt λ {false → refl
+                                       ; true → refl}
+  isod .fst .pres o-set0 args = {!   !}
+  isod .fst .pres o-set1 args = {!   !}
+  isod .snd .isIso.inv .carmap = fro
+  isod .snd .isIso.inv .pres o-get args = ΣPathP ((funExt (λ { false → refl
+                                                             ; true → refl})) , (funExt (λ { false → refl
+                                                             ; true → refl})))
+  isod .snd .isIso.inv .pres o-set0 args = {!   !}
+  isod .snd .isIso.inv .pres o-set1 args = {!   !}
+  isod .snd .isIso.sec = {!   !}
+  isod .snd .isIso.ret = {!   !}
+
+  test : State → {! CatIso  !}
+  test (s , r) = {! nf (s , r)  !}
+  {- 
+  get
+(if s false then set1 (var (r false)) else set0 (var (r false)))
+(if s true then set1 (var (r true)) else set0 (var (r true)))
+  -}
+  eval : FreeSt → State
+  eval (var x) = (λ b → b) , (λ _  → x)
+  eval (get x x₁) = s-get (eval x) (eval x₁)
+  eval (set0 x) = s-set0 (eval x)
+  eval (set1 x) = s-set1 (eval x)
+
+  {-isId : (s : State') → eval (nf s) ≡ s 
+  isId s i false with (s false) 
+  ... | false , x = false , x
+  ... | true , x = true , x
+  isId s i true with (s true) 
+  ... | false , x = false , x
+  ... | true , x = true , x
+
+  prf : (s : State) → eval (nf s) ≡ s 
+  prf (s , r) = ΣPathP ((funExt λ {false → {!   !}
+                                 ; true → {!   !}}) , {!   !})
+                                 -}
+
+{- 
+nf : {X : Type} → State X → FreeStAlg X 
+nf {X} s = 
+  get 
+    (let (b , x) = s false in (if b then set1 (inc x) else set0 (inc x))) 
+    (let (b , x) = s true in (if b then set1 (inc x) else set0 (inc x))) 
+
+-}
+
+{-}
+
+module raw where 
+  data VTy : Type where 
+  data CTy : Type where 
+
+  data _⊢c_ : VTy → CTy → Type where 
+    e : ∀ {A B} → A ⊢c B 
+    
+
+module properfst where 
+  State : hSet _ → hSet _ 
+  State X = (Bool → (X .fst × Bool) ⊎ Bool) , {!   !}
+
+  BSt : Functor (SET _) (SET _)
+  BSt .F-ob = State
+  BSt .F-hom f s b = ⊎rec (λ (x , b') → inl ((f x) , b')) inr (s b)
+  BSt .F-id = {!   !}
+  BSt .F-seq _ _ = {!   !}
+
+  ΣSt : Functor (SET _) (SET _)
+  ΣSt .F-ob X = (X .fst × X .fst) ⊎ (X .fst ⊎ X .fst) , {!   !}
+  ΣSt .F-hom f (inl x) = inl (f (x .fst) , f (x .snd))
+  ΣSt .F-hom f (inr (inl x)) = inr (inl (f x))
+  ΣSt .F-hom f (inr (inr x)) = inr (inr (f x))
+  ΣSt .F-id = funExt λ {(inl x) → refl
+                      ; (inr (inl x)) → refl
+                      ; (inr (inr x)) → refl}
+  ΣSt .F-seq _ _ = funExt λ {(inl x) → refl
+                      ; (inr (inl x)) → refl
+                      ; (inr (inr x)) → refl}
+  lam : NatTrans (ΣSt ∘F BSt) (BSt ∘F ΣSt) 
+  lam .N-ob X (inl (x , x')) = {!   !}
+  lam .N-ob X (inr (inl x)) = {!   !}
+  lam .N-ob X (inr (inr x)) = {!   !}
+  lam .N-hom = {!   !}
+module proper where 
+
+  State : hSet _ → hSet _ 
+  State X = (Bool → X .fst × Bool) , {!   !}
+
+  BSt : Functor (SET _) (SET _)
+  BSt .F-ob = State
+  BSt .F-hom f s b = let (x , b') = s b in f x , b'
+  BSt .F-id = refl
+  BSt .F-seq _ _ = refl
+
+  data StF  (X : Type) : Type where 
+    get : X → X → StF X
+    set0 set1 : X → StF X
+
+  ΣSt : Functor (SET _) (SET _)
+  ΣSt .F-ob X = StF ⟨ X ⟩  , {!   !}
+  ΣSt .F-hom f (get x x') = get (f x) (f x')
+  ΣSt .F-hom f (set0 x) = set0 (f x)
+  ΣSt .F-hom f (set1 x) = set1 (f x)
+  ΣSt .F-id = funExt λ {(get x x₁) → refl
+                      ; (set0 x) → refl
+                      ; (set1 x) → refl}
+  ΣSt .F-seq = {!   !} 
 
 
+  {-# NO_POSITIVITY_CHECK #-}
+  data FreeMonad (F : Type → Type) (X : hSet _) : Type where 
+    ret : ⟨ X ⟩  → FreeMonad F X
+    op : F (FreeMonad F X)  → FreeMonad F X
+
+  St = FreeMonad StF
+
+  FMmap : {X Y : hSet _} → (⟨ X ⟩ → ⟨ Y ⟩) → St X → St Y 
+  FMmap f (ret x) = ret (f x)
+  FMmap f (op (get x x')) = op (get (FMmap f x) (FMmap f x'))
+  FMmap f (op (set0 x)) = op (set0 (FMmap f x))
+  FMmap f (op (set1 x)) = op (set1 (FMmap f x))
+
+  Σ*St : Functor (SET _) (SET _) 
+  Σ*St .F-ob X = (St X) , {!   !}
+  Σ*St .F-hom = FMmap
+  Σ*St .F-id = funExt λ {(ret x) → refl
+                       ; (op (get x x₁)) → {!   !}
+                       ; (op (set0 x)) → {!   !}
+                       ; (op (set1 x)) → {!   !}}
+  Σ*St .F-seq = {!   !}
+
+  lam' : N-ob-Type (ΣSt ∘F BSt) (BSt ∘F Σ*St)
+  lam' X (get x x') false = (ret (x false .fst)) , (x false .snd)
+  lam' X (get x x') true = (ret (x' true .fst)) , (x' true .snd)
+  lam' X (set0 x) b = ret(x false .fst) , x false .snd
+  lam' X (set1 x) b = ret(x true .fst) , x true .snd
+
+  -- yes.. but.. this does not fit the mould of our 
+  lam : NatTrans (ΣSt ∘F BSt) (BSt ∘F Σ*St) 
+  lam .N-ob = lam'
+  lam .N-hom f = funExt λ { (get x x') → funExt λ {false → refl
+                                                 ; true → refl}
+                          ; (set0 x) → funExt  λ _ → refl
+                          ; (set1 x) → funExt  λ _ → refl}
+  data Empty : Type where 
+
+  muStF = St (Empty , {!   !})
+
+  {-# TERMINATING #-}
+  coalg : muStF → ⟨ State (muStF , {!   !}) ⟩ 
+  coalg t = rhs (lam .N-ob (muStF , {!   !}) (lhs (out t))) where 
+    out : muStF → StF muStF 
+    out (op (get x x')) = get x x'
+    out (op (set0 x)) = set0 x
+    out (op (set1 x)) = set1 x
+
+    lhs : StF muStF → StF ⟨ State (muStF , {!   !}) ⟩ 
+    lhs = ΣSt .F-hom coalg
+
+    rhs' : St (muStF , {!   !})  → muStF
+    rhs' (ret x) = x
+    rhs' (op (get x x')) = op (get (rhs' x) (rhs' x'))
+    rhs' (op (set0 x)) = op (set0 (rhs' x))
+    rhs' (op (set1 x)) = op (set1 (rhs' x))
+
+    rhs : ⟨ State (St (muStF , {!   !}) , {!   !}) ⟩ →  ⟨ State (muStF , {!   !}) ⟩ 
+    rhs = BSt .F-hom rhs'
+
+  t : muStF  
+  t = op (get (op (set1 (ret {!   !}))) {!   !})
+
+{-}
+  data Empty' : Type where 
+
+  Empty : hSet _ 
+  Empty = Empty' , {!   !} 
+  
+  out : St Empty → ⟨ ΣSt .F-ob (St Empty , {!   !}) ⟩
+  out (ret ()) 
+  out (get s s') = inl (s , s')
+  out (set0 s) = inr (inl s)
+  out (set1 s) = inr (inr s) 
+
+  coalg : St Empty → ⟨ State (St Empty , {!   !}) ⟩
+  coalg  s = {!   !}
+
+  -}
+module yuck (X : Type) where 
+  open Signature
+  open Theory
+  open Equation
+  open import Cubical.Data.List renaming (map to lmap)
+
+
+  data MonOps : Type where 
+    e ⊕ : MonOps 
+
+  data MonEqs : Type where 
+    lunit runit assoc : MonEqs
+
+  MonoidSig : Signature 
+  MonoidSig .Op = MonOps
+  MonoidSig .arity e = 0
+  MonoidSig .arity ⊕ = 2
+
+  Syn : Type 
+  Syn = FreeOn MonoidSig X
+
+  Car : Type 
+  Car = List (Syn)
+
+  alg : Alg MonoidSig 
+  alg .Carrier = Car , {!   !}
+  alg .interp e args = []
+  alg .interp ⊕ args = args zero ++ args one
+
+  data _↦_ : Car → Car → Type where
+    {- }
+      [..., e ,...] ↦ [...,...]
+
+      [..., M ⊕ N ,...] ↦ [..., M , N ,...] 
+
+    -}
+    isProp↦ : ∀ {M N } → isProp (M ↦ N)
+
+  coalg : Car → ℙ Car
+  coalg M N = (M ↦ N) , isProp↦
+
+  open import Cubical.HITs.PropositionalTruncation renaming (rec to hrec)
+
+  Sig' : Functor (SET _) (SET _)
+  Sig' .F-ob X = (Unit  ⊎ (⟨ X ⟩  × ⟨  X ⟩)) , {!   !}
+  Sig' .F-hom f (inl x) = inl x
+  Sig' .F-hom f (inr x) = inr (f (x .fst) , f (x .snd))
+  Sig' .F-id = {!   !}
+  Sig' .F-seq = {!   !}
+  
+  Pow : Functor (SET _) (SET _) 
+  Pow .F-ob (X , isSetX) = (ℙ X) , isSetℙ
+  Pow .F-hom {X}{Y} f P y = (∃[ x ∈ ⟨ X ⟩ ] (f x ≡ y) × (x ∈ P)) , squash₁
+  Pow .F-id = {!   !}
+  Pow .F-seq = {!   !}
+
+  opsem : NatTrans (Sig' ∘F Pow) (Pow ∘F Sig') 
+  opsem .N-ob X (inl x) = {!   !}
+  opsem .N-ob X (inr x) = {!   !}
+  opsem .N-hom = {!   !}
+
+
+
+
+-- if this works, we dont want it anyway?
+module what 
+  (Sig : Functor (SET _) (SET _)) 
+  (B : Functor (SET _) (SET _)) 
+  (lam : NatTrans (Sig ∘F B) (B ∘F Sig) )where 
+
+  {-# NO_POSITIVITY_CHECK #-}  
+  data FreeMonad (Sig : Type → Type) (X : Type) : Type where 
+    ret : X → FreeMonad Sig X  
+    bin : Sig (FreeMonad Sig X) → FreeMonad Sig X
+
+  FM : Functor (SET _ )(SET _ )
+  FM .F-ob X = (FreeMonad (λ Y → Sig .F-ob (Y , {!   !}) .fst) (X .fst)) , {!   !}
+  FM .F-hom f (ret x) = ret (f x)
+  FM .F-hom f (bin x) = {!   !}
+  FM .F-id = {!   !}
+  FM .F-seq = {!   !}
+
+  LAM : NatTrans (FM ∘F B) (B ∘F FM)
+  LAM .N-ob X (ret x) = {!  lam .N-ob X ? !}
+  LAM .N-ob X (bin x) = {! lam .N-ob X ?  !}
+  LAM .N-hom = {!   !}
+
+open Signature
+open Theory
+open Equation
+
+data MonOps : Type where 
+  e ⊕ : MonOps 
+
+data MonEqs : Type where 
+  lunit runit assoc : MonEqs
+
+MonoidSig : Signature 
+MonoidSig .Op = MonOps
+MonoidSig .arity e = 0
+MonoidSig .arity ⊕ = 2
+
+e' : {n : ℕ} → Term MonoidSig n
+e' = app e λ()
+
+_⊕'_ : {n : ℕ} → Term MonoidSig n → Term MonoidSig n → Term MonoidSig n 
+_⊕'_ t t' = app ⊕ λ {zero → t ; one →  t' } 
+
+MonoidThy : Theory 
+MonoidThy .Sig = MonoidSig
+MonoidThy .Eq = MonEqs
+MonoidThy .ax lunit .ctx = 1
+MonoidThy .ax lunit .lhs = e' ⊕' var zero
+MonoidThy .ax lunit .rhs = var zero
+MonoidThy .ax runit .ctx = 1
+MonoidThy .ax runit .lhs = var zero ⊕' e'
+MonoidThy .ax runit .rhs = var zero
+MonoidThy .ax assoc .ctx = 3
+MonoidThy .ax assoc .lhs = var zero ⊕' (var one ⊕' var two)
+MonoidThy .ax assoc .rhs = (var zero ⊕' var one) ⊕' var two
+
+open import Cubical.Data.List renaming (map to lmap)
+ListAlg : Type → Alg MonoidSig 
+ListAlg X .Carrier = (List X) , {!   !}
+ListAlg X .interp e args = []
+ListAlg X .interp ⊕ args = args zero ++ args one
+{-
+  data _↦T_ {A : VTy}{B : CTy}: List (A ⊢c B) → List (A ⊢c B) → Type where 
+      [..., e ,...] ↦T [...,...]
+
+      [..., M ⊕ N ,...] ↦T [..., M , N ,...] 
+
+                  M ↦ M'
+      ------------------------------- cong
+      [..., M ,...] ↦T [..., M' ,...]
+    
+-}
+
+ListMod : Type → ob (MOD MonoidThy)
+ListMod X .fst = ListAlg X
+ListMod X .snd lunit args = refl
+ListMod X .snd runit args = ++-unit-r (args zero)
+ListMod X .snd assoc args = sym  (++-assoc (args zero) (args one) (args two))
+
+ListF : Functor (SET _) (MOD MonoidThy) 
+ListF .F-ob X = ListMod ⟨ X ⟩
+ListF .F-hom {X} {Y} f .carmap = lmap f
+ListF .F-hom {X} {Y} f .pres e args = refl
+ListF .F-hom {X} {Y} f .pres ⊕ args = sym (map++ f (args zero) (args one))
+ListF .F-id = AlgHom≡ (funExt map-id)
+ListF .F-seq f g = AlgHom≡ (funExt λ xs → sym (map-∘ g f xs))
+
+Forget : (T : Theory) → Functor (MOD T) (SET _) 
+Forget T .F-ob M = M .fst .Carrier
+Forget T .F-hom f = f .carmap
+Forget T .F-id = refl
+Forget T .F-seq _ _ = refl
+
+open import Cubical.Foundations.Isomorphism
+open Iso 
+ladj : ListF  ⊣  Forget MonoidThy
+ladj ._⊣_.adjIso {A}{B} .fun f a = f .carmap [ a ]
+ladj ._⊣_.adjIso {A} {B} .inv f .carmap xs = foldl (λ b a → B .fst .interp ⊕ λ {zero → f a ; one → b}) (B .fst .interp e (λ ())) xs
+ladj ._⊣_.adjIso .inv f .pres e args = {!   !}
+ladj ._⊣_.adjIso .inv f .pres ⊕ args = {!   !}
+ladj ._⊣_.adjIso .sec = {!   !}
+ladj ._⊣_.adjIso .ret = {!   !}
+ladj ._⊣_.adjNatInD _ _ = refl
+ladj ._⊣_.adjNatInC = {!   !}
+
+open import HyperDoc.Operational.Effects.BiAlgebra
+open BiAlg 
+
+
+
+module _ 
+  (Thy : Theory) 
+  (F : Functor (SET _ )(MOD Thy)) 
+  (adj : F ⊣ Forget Thy )
+  where 
+
+
+  T' : Functor (SET _ ) (SET _)
+  T' = Forget Thy ∘F F
+
+  T : hSet _ → hSet _ 
+  T = T' .F-ob
+
+  mutual
+    data VTy : Type where 
+    data CTy : Type where 
+
+    data _⊢c_ : VTy → CTy → Type where
+      isSet⊢c : ∀ {A B} → isSet (A ⊢c B)
+
+
+  lam : NatTrans {!   !} {!   !} 
+  lam = {!   !}
+  
+  module _ (A : VTy)(B : CTy) where 
+
+    bialg : BiAlg MonoidSig 
+    bialg .car = List (A ⊢c B) , {!   !}
+    bialg .isAlg e args = []
+    bialg .isAlg ⊕ args = args zero ++ args one
+    bialg .isRGraph .fst = {!   !}
+    bialg .isRGraph .snd = {!   !}
+    bialg .congruence = {! 1  !}
+    --car : Type 
+    --car = ⟨ T ((A ⊢c B) , isSet⊢c) ⟩
+{-}
+module opS where 
+  open Signature
+  open Theory
+  open Equation
+
+  data MonOps : Type where 
+    e ⊕ : MonOps 
+
+  data MonEqs : Type where 
+    lunit runit assoc : MonEqs
+
+  MonoidSig : Signature 
+  MonoidSig .Op = MonOps
+  MonoidSig .arity e = 0
+  MonoidSig .arity ⊕ = 2
+{-}
+  e' : {n : ℕ} → Term MonoidSig n
+  e' = app e λ()
+
+  _⊕'_ : {n : ℕ} → Term MonoidSig n → Term MonoidSig n → Term MonoidSig n 
+  _⊕'_ t t' = app ⊕ λ {zero → t ; one →  t' } 
+-}
+
+  open import Cubical.Data.List renaming (map to lmap)
+  ListAlg : Type → Alg MonoidSig 
+  ListAlg X .Carrier = (List X) , {!   !}
+  ListAlg X .interp e args = []
+  ListAlg X .interp ⊕ args = args zero ++ args one
+
+  eval : (X : Type) → FreeOn MonoidSig X → List X
+  eval X = FreeAlgMorphism {MonoidSig} {X}{ListAlg X} [_] .carmap
+
+  {-# TERMINATING #-} --jfc
+  nf : (X : Type) → List X → FreeOn MonoidSig X
+  nf X [] = ops e (λ())
+  nf X (x ∷ []) = inc x
+  nf X (x ∷ y ∷ xs) = ops ⊕ λ { zero → inc x ; one → nf X (y ∷ xs)}
+
+  norm : {X : Type} → FreeOn MonoidSig X → FreeOn MonoidSig X 
+  norm {X} t = nf X (eval X t)
+
+  test : {X : Type} → (t :  FreeOn MonoidSig X ) → norm t ≡ t
+  test (inc x) = refl
+  test (ops e x) = {! refl  !}
+  test (ops ⊕ x) = {!   !}
+
+
+  data VTy : Type where 
+  data CTy : Type where 
+
+  data _⊢c_ : VTy → CTy → Type where 
+    e : ∀ {A}{B} → A ⊢c B 
+    _⊕_ : ∀ {A}{B} → A ⊢c B → A ⊢c B → A ⊢c B 
+
+  data _↦_ {A : VTy}{B : CTy}: A ⊢c B → A ⊢c B → Type where 
+  
+  data _↦T_ {A : VTy}{B : CTy}: List (A ⊢c B) → List (A ⊢c B) → Type where 
+    {-
+      [..., e ,...] ↦T [...,...]
+
+      [..., M ⊕ N ,...] ↦T [..., M , N ,...] 
+
+                  M ↦ M'
+      ------------------------------- cong
+      [..., M ,...] ↦T [..., M' ,...]
+    -}
+
+
+module again where 
+
+  module _ (C : Category _ _ ) where 
+
+    -- split mono / left inverse
+    inverse : {X Y : ob C} → C [ X , Y ] → Type 
+    inverse {X}{Y} f = Σ[ f⁻¹ ∈ C [ Y , X ] ] f ⋆⟨ C ⟩ f⁻¹ ≡ C .id {X}
+
+    -- right inverse
+    splitEpi : {X Y : ob C} → C [ X , Y ] → Type 
+    splitEpi {X}{Y} f = Σ[ f⁻¹ ∈ C [ Y , X ] ] f⁻¹ ⋆⟨ C ⟩ f ≡ C .id {Y}
+
+    -- split : ob C → ob C →  Type 
+    -- split X Y = Σ[ f ∈ C [ X , Y ] ] (Σ[ f⁻¹ ∈ C [ Y , X ] ] f ⋆⟨ C ⟩ f⁻¹ ≡ C .id)
+
+    open isIso
+    isInitial : ob C → Type 
+    isInitial I = ((X : ob C) → Σ[ ! ∈ C [ I , X ] ] ((f : C [ I , X ]) → ! ≡ f))
+
+    Initial : Type 
+    Initial = Σ[ I ∈ ob C ] isInitial I
+
+    lemma : (I X : ob C) → CatIso C I X → isInitial I → isInitial X 
+    lemma I X iso initI Y = g , uniq where 
+      f : C [ I , X ]
+      f = iso .fst 
+
+      f⁻¹ : C [ X , I ] 
+      f⁻¹ = iso .snd .inv
+
+      !Y : C [ I , Y ]
+      !Y = initI Y .fst
+
+      g : C [ X , Y ]
+      g = f⁻¹ ⋆⟨ C ⟩ !Y 
+      {-
+        using 
+          !Y  = (f ; g') by initiality
+
+        g = f⁻¹ ; !Y  
+          = f⁻¹ ; (f ; g')
+          = (f⁻¹ ; f) ; g'
+          = id ; g' 
+          = g'
+      -}
+      uniq : (g' : C [ X , Y ]) → g ≡ g'
+      uniq g' = 
+        cong (λ h → f⁻¹ ⋆⟨ C ⟩ h ) sub ∙ 
+        sym (C .⋆Assoc _ _ _ ) ∙ 
+        cong (λ h → h ⋆⟨ C ⟩ g' ) (iso .snd .sec) ∙ 
+        C .⋆IdL g' where 
+
+        sub : !Y ≡ f ⋆⟨ C ⟩ g' 
+        sub = initI Y .snd (f ⋆⟨ C ⟩ g')
+
+    isoInit : (I X : ob C) → (initI : isInitial I) → splitEpi (initI X .fst) → CatIso C I X 
+    isoInit I X initI se .fst = initI X .fst
+    isoInit I X initI se .snd .inv = se .fst
+    isoInit I X initI se .snd .sec = se .snd
+    isoInit I X initI se .snd .ret = 
+      sym (initI I .snd (seq' C (initI X .fst) (se .fst))) ∙ initI I .snd (C .id)
+
+
+    !X : {I : Initial} → (X : ob C) → C [ I .fst , X ]
+    !X {I} X = I .snd X .fst
+
+    presentation : {I : Initial}{X : ob C} → splitEpi (!X {I} X) → isInitial X
+    presentation {I}{X} se = lemma _ _  (isoInit _ _ (I .snd) se) (I .snd)
+
+    {- 
+      in particular, we know that for any theory we have an initial Model on set X
+      the tautalogical one given by a HIT
+      so given some model M  (on set X) and a right inverse to !M, 
+        we know that M is initial
+
+    Theorem : {X : Type}{T : Type → Type}{T X : isModel Thy}
+    -} 
+
+  module _ (T : Theory) where 
+    open Theory T
+    open Signature Sig
+    -- the initial model 
+    open import HyperDoc.Algebra.Algebra
+
+    open Equation 
+
+    data FreeTheory (X : Type) : Type     
+    evalT : {X : Type}{n : ℕ}→ Term Sig n → (Fin n → FreeTheory X) → FreeTheory X 
+
+    data FreeTheory X  where 
+      var : X → FreeTheory X 
+      ops : (op : Op) → (Fin (arity op) → FreeTheory X ) → FreeTheory X 
+      eqns : (eq : Eq)(env : Fin (ax eq .ctx) → FreeTheory X) → 
+        evalT {X}{ax eq .ctx} (ax eq .lhs) env 
+          ≡ 
+        evalT {X}{ax eq .ctx} (ax eq .rhs) env  
+
+    evalT {X} {n} (var x) env = env x
+    evalT {X} {n} (app o args) env = ops o λ i → evalT {X}{n} (args i) env
+
+    freeTheoryAlg : Type → Alg Sig 
+    freeTheoryAlg X .Carrier = FreeTheory X , {!   !}
+    freeTheoryAlg X .interp = ops
+
+    eval≡ : {X : Type}{eq : Eq}{ρ : Fin (ax eq .ctx) → FreeTheory X} → 
+      (t : Term Sig (ax eq .ctx)) → 
+      eval (freeTheoryAlg X) t ρ ≡ evalT {X} t ρ 
+    eval≡ {X}{eqn}{ρ} t with t 
+    ... | var x = refl
+    ... | app op args = λ i → ops op λ x → eval≡ {X}{eqn}{ρ} (args x) i
+
+    IM : Type → ob (MOD T) 
+    IM X .fst = freeTheoryAlg X
+    IM X .snd = λ eq ρ → 
+      eval≡ {X}{eq}{ρ} (lhs (ax eq)) ∙ 
+      eqns eq ρ ∙ 
+      sym (eval≡ {X}{eq}{ρ} (rhs (ax eq)))
+    
+
+    {-# TERMINATING #-}
+    !M' : {X : Type}{M : ob (MOD T)} → (X → ⟨ M .fst .Carrier ⟩) → FreeTheory X → fst (M .fst .Carrier) 
+    !M' {X} {M} f (var x) = f x
+    !M' {X} {M} f (ops op args) = interp (M .fst) op λ x → !M' {X}{M} f  (args x)
+    !M' {X} {M} f (eqns e env i) =  goal i where 
+        have : eval (M .fst) (lhs (ax e)) (λ x → (!M' {X}{M} f) (env x)) 
+             ≡ eval (M .fst) (rhs (ax e)) (λ x → (!M' {X}{M} f)(env x)) 
+        have = M .snd e λ x → (!M' {X}{M} f) (env x)
+
+        lem : (t : Term Sig (ax e .ctx)) → (!M' {X}{M} f) (evalT t env) ≡ eval (M .fst) t λ x → (!M' {X}{M} f) (env x) 
+        lem t with t 
+        ... | var x = refl
+        ... | app o args = λ i → interp (M .fst) o λ x → lem (args x) i
+
+        goal : (!M' {X}{M} f) (evalT (ax e .lhs) env) ≡ (!M' {X}{M} f) (evalT (ax e .rhs) env) 
+        goal  = lem (ax e .lhs) ∙ have ∙ sym (lem (ax e .rhs) )
+
+    {-# TERMINATING #-}
+    !M : {X : Type}{M : ob (MOD T)} → 
+      (X → ⟨ M .fst .Carrier ⟩) →  
+      (MOD T) [ IM X , M ] 
+    !M {X}{M} f .carmap = !M' {X}{M} f
+    !M f .pres op args = refl
+
+    !uniq :  {X : Type}{M : ob (MOD T)}{f g : (MOD T) [ IM X , M ]} → 
+      ((x : X) → f .carmap (var x) ≡ g .carmap (var x) ) → 
+      f ≡ g 
+    !uniq {X}{M}{f}{g} prf = AlgHom≡ (funExt goal) where 
+      goal : (x : FreeTheory X) → f .carmap x ≡ g .carmap x
+      goal (var x) = prf x
+      goal (ops op args) = f .pres op args ∙ (λ i → interp (M .fst) op λ x → goal (args x) i) ∙ sym (g .pres op args)
+      goal (eqns eq₁ env i) = M .fst .Carrier .snd _ _ _ _ i
+
+
+    -- fixed f : X → |M|
+    theorem : {X : Type}{M : ob (MOD T)} →
+      (f : X → ⟨ M .fst .Carrier ⟩) →  
+      (se : splitEpi (MOD T) {IM X}{M} (!M {X}{M} f)) → 
+      (prf : (x : X) → se .fst .carmap (f x) ≡ var x) → CatIso (MOD T) (IM X) M 
+    theorem {X} {M} f se prf .fst = !M {X}{M} f
+    theorem {X} {M} f se prf .snd .isIso.inv = se .fst
+    theorem {X} {M} f se prf .snd .isIso.sec = se .snd
+    theorem {X} {M} f se prf .snd .isIso.ret = !uniq prf
+
+
+    -- Id_{X} ↓ U
+    Comma : Type → Category _ _ 
+    Comma X .ob = Σ[ M ∈ ob (MOD T) ] (X → ⟨ M .fst .Carrier ⟩)
+    Comma X .Hom[_,_] (M , f) (N , g) = Σ[ h ∈ MOD T [ M , N ] ] (λ x → h .carmap (f x)) ≡ g
+    Comma X .id = ((MOD T) .id) , refl
+    Comma X ._⋆_ f g = ((MOD T) ._⋆_ (f .fst)  (g .fst)) , (funExt (λ x → cong (λ h → g .fst .carmap h ) (funExt⁻ (f .snd) x)) ∙ g .snd)
+    Comma X .⋆IdL {M}{N} f = Σ≡Prop (λ _ → {!   !}) ((MOD T) .⋆IdL (f .fst))
+      -- ΣPathP (((MOD T) .⋆IdL (f .fst)) , {!  N .fst .fst .Carrier .snd _ _ _ _   !})
+    Comma X .⋆IdR = {!   !}
+    Comma X .⋆Assoc = {!   !}
+    Comma X .isSetHom = {!   !}
+
+    Free : Functor (SET _) (MOD T) 
+    Free .F-ob X = IM (X .fst)
+    Free .F-hom {X}{Y} f = !M {X .fst}{IM (Y .fst)} λ x → var (f x)
+    Free .F-id {X} = !uniq {⟨ X ⟩}{IM ⟨ X ⟩} λ _ → refl
+    Free .F-seq {X}{Y}{Z} f g = !uniq {⟨ X ⟩}{IM ⟨ Z ⟩} λ _ → refl
+
+    Forget : Functor (MOD T) (SET _) 
+    Forget .F-ob M = M .fst .Carrier
+    Forget .F-hom f = f .carmap
+    Forget .F-id = refl
+    Forget .F-seq _ _ = refl
+
+    -- adjunciton -> monad
+    FreeModelMonad : Functor (SET _) (SET _)
+    FreeModelMonad = Forget ∘F Free
+{-}
+    Free : Functor (SET _) (SET _) 
+    Free .F-ob X = FreeTheory ⟨ X ⟩ , {!   !}
+    Free .F-hom {X}{Y} f = initMor {X .fst}{InitModel' (Y .fst)} (λ x → var (f x)) .carmap
+    Free .F-id = {!   !}
+    Free .F-seq = {!   !}
+    -}
+
+    initIdMor : {M : ob (MOD T)} → (MOD T) [ IM ⟨ M .fst .Carrier ⟩ , M ]  
+    initIdMor {M} = !M {⟨ M .fst .Carrier ⟩}{M} (λ x → x)
+
+    InitModel : (X : Type)→ Initial (Comma X)
+    InitModel X .fst = (IM X) , var
+    InitModel X .snd (M , f) .fst = !M {X}{M} f , refl
+    InitModel X .snd (M , f) .snd (g , e) = ΣPathP ((!uniq  λ x → sym (funExt⁻ e x)) , {!   !})
+
+    IMC : (X : Type) → ob (Comma X)
+    IMC X = (IM X) , var
+
+    !comma : {X : Type}{M : ob (Comma X)} → Comma X [ IMC X , M ] 
+    !comma {X}{M , f} = !M {X}{M} f , refl 
+
+    result : {X : Type}{M : ob (Comma X)} → splitEpi (Comma X) {IMC X}{M} (!comma {X}{M}) → isInitial (Comma X) M 
+    result {X}{M} se = presentation (Comma X) {InitModel X} {M} se
+    -- iso of functors next
+
+  open Signature
+  open Theory
+  open Equation
+
+  data MonOps : Type where 
+    e ⊕ : MonOps 
+
+  data MonEqs : Type where 
+    lunit runit assoc : MonEqs
+
+  MonoidSig : Signature 
+  MonoidSig .Op = MonOps
+  MonoidSig .arity e = 0
+  MonoidSig .arity ⊕ = 2
+
+  e' : {n : ℕ} → Term MonoidSig n
+  e' = app e λ()
+
+  _⊕'_ : {n : ℕ} → Term MonoidSig n → Term MonoidSig n → Term MonoidSig n 
+  _⊕'_ t t' = app ⊕ λ {zero → t ; one →  t' } 
+
+  MonoidThy : Theory 
+  MonoidThy .Sig = MonoidSig
+  MonoidThy .Eq = MonEqs
+  MonoidThy .ax lunit .ctx = 1
+  MonoidThy .ax lunit .lhs = e' ⊕' var zero
+  MonoidThy .ax lunit .rhs = var zero
+  MonoidThy .ax runit .ctx = 1
+  MonoidThy .ax runit .lhs = var zero ⊕' e'
+  MonoidThy .ax runit .rhs = var zero
+  MonoidThy .ax assoc .ctx = 3
+  MonoidThy .ax assoc .lhs = var zero ⊕' (var one ⊕' var two)
+  MonoidThy .ax assoc .rhs = (var zero ⊕' var one) ⊕' var two
+
+  open import Cubical.Data.List renaming (map to lmap)
+  ListAlg : Type → Alg MonoidSig 
+  ListAlg X .Carrier = (List X) , {!   !}
+  ListAlg X .interp e args = []
+  ListAlg X .interp ⊕ args = args zero ++ args one
+
+  ListMod : Type → ob (MOD MonoidThy)
+  ListMod X .fst = ListAlg X
+  ListMod X .snd lunit args = refl
+  ListMod X .snd runit args = ++-unit-r (args zero)
+  ListMod X .snd assoc args = sym  (++-assoc (args zero) (args one) (args two))
+
+  ListF : Functor (SET _) (MOD MonoidThy) 
+  ListF .F-ob X = ListMod ⟨ X ⟩
+  ListF .F-hom {X} {Y} f .carmap = lmap f
+  ListF .F-hom {X} {Y} f .pres e args = refl
+  ListF .F-hom {X} {Y} f .pres ⊕ args = sym (map++ f (args zero) (args one))
+  ListF .F-id = AlgHom≡ (funExt map-id)
+  ListF .F-seq f g = AlgHom≡ (funExt λ xs → sym (map-∘ g f xs))
+
+
+  -- right associative
+  nf' : (X : Type) → List X → FreeTheory MonoidThy X
+  nf' X [] = ops e λ()
+  nf' X (x ∷ xs) = ops ⊕ λ {zero → var x ; one → nf' X xs}
+
+  nf : (X : Type) → AlgHom (ListAlg X) (freeTheoryAlg MonoidThy X)
+  nf X .carmap = nf' X
+  nf X .pres e args i = ops e (funExt (λ ()) i)
+  nf X .pres ⊕ args with (args zero)
+  ... | [] = {!   !}
+  ... | x ∷ x₁ = {!   !}
+
+  se :  (X : Type) → splitEpi (Comma MonoidThy X) (!comma MonoidThy)
+  se X .fst = {!   !}
+  se X .snd = {!   !}
+
+  huh :  (X : Type) → isInitial (Comma MonoidThy X) ((ListMod X) , [_])
+  huh X = result MonoidThy {X} {((ListMod X) , [_])} (se X)
+
+
+  open import Cubical.Categories.NaturalTransformation
+  open NatTrans
+
+  hmm : NatTrans ListF (Free MonoidThy) 
+  hmm .N-ob X = huh (X .fst) ((IM MonoidThy (X .fst)) , var)  .fst .fst
+  hmm .N-hom {X}{Y} f = {!   !}
+    -- {! huh (X .fst) ((IM MonoidThy (Y .fst)) , ?) .snd ?  !}
+
+  yoy : NatIso (Free MonoidThy) ListF 
+  yoy .NatIso.trans .N-ob X = !M (MonoidThy) {⟨ X ⟩}{ListMod (X .fst)} [_]
+  yoy .NatIso.trans .N-hom {X}{Y} f = !uniq MonoidThy  {X .fst}{ListMod (Y .fst)} λ _ → refl
+  yoy .NatIso.nIso X .isIso.inv = huh (X .fst) ((IM MonoidThy (X .fst)) , var) .fst .fst
+  yoy .NatIso.nIso X .isIso.sec = {!   !}
+  yoy .NatIso.nIso X .isIso.ret = !uniq MonoidThy {X .fst}{{!   !}}{!  se (X .fst) .snd !}
+
+
+  {-# TERMINATING #-} --fucking duh
+  lnf' : (X : Type) → List X → FreeTheory MonoidThy X
+  lnf' X [] = ops e λ()
+  lnf' X (x ∷ []) = var x
+  lnf' X (x ∷ y ∷ xs) =
+    ops ⊕ λ {zero → var x ; one → lnf' X (y ∷ xs)}
+
+  lnf : (X : Type) → (MOD MonoidThy) .Hom[_,_] (ListMod X) (IM MonoidThy X) 
+  lnf X .carmap = lnf' X
+  lnf X .pres op args = {!   !}
+  {- 
+  lnf' X (interp (ListAlg X) op args) ≡ ops op (λ x → lnf' X (args x)) 
+  -}
+
+  direct : (X : Type) → CatIso (MOD MonoidThy) (IM MonoidThy X) (ListMod X) 
+  direct X .fst = !M MonoidThy {X} {ListMod X} [_]
+  direct X .snd .isIso.inv = lnf X
+  direct X .snd .isIso.sec = AlgHom≡ (funExt goal) where 
+    goal : (x : List X) → !M' MonoidThy ([_]) (lnf' X x) ≡ x 
+    goal [] = refl
+    goal (x ∷ []) = refl
+    goal (x ∷ y ∷ xs) = cong₂ _∷_ refl (goal (y ∷ xs))
+  direct X .snd .isIso.ret = !uniq MonoidThy {X}{IM MonoidThy X} λ x → refl
+
+  {- ((nf X , funExt λ x → {! eqns runit ? ∙   !}) , 
+    ΣPathP ((AlgHom≡ (funExt λ { [] → refl
+                               ; (x ∷ xs) → cong₂ _∷_ refl {!   !}})) , {!   !})) -}
+ 
+
+    
+{-}
+  data StateOps : Type where 
+    get set0 set1 : StateOps 
+
+  StateSig : Signature 
+  StateSig .Op = StateOps
+  StateSig .arity get = 2
+  StateSig .arity set0 = 1
+  StateSig .arity set1 = 1
+  
+  StateTheory : Theory 
+  StateTheory .Sig = StateSig
+  StateTheory .Eq = {!   !}
+  StateTheory .ax = {!   !}
+  -}
+
+{-}
 -- StSig : hSet _  → hSet _ 
 -- StSig (X , isSetX) = (X × X) ⊎ (X ⊎ X) , {!   !} 
 
@@ -209,7 +1112,7 @@ module CBBB where
         {op}
         {args args'  : Fin (Sig .arity op) → FreeOn Sig X} → 
         (∀ (i : Fin (Sig .arity op)) → args i ↦free args' i) → 
-        ---------------------
+        ---------------------z
         ops op args ↦free ops op args'
       isProp↦free : ∀ {x y} → isProp (x ↦free y)
 
@@ -319,6 +1222,7 @@ module CBBB where
   -}
   triangle X .isRelator .snd = {!   !}
 
+
   nbe :  {X : Type } → BIALG St [ freeBi St X , freeSt X ]
   nbe {X} = freeBimap St X (freeSt X) return
 
@@ -331,6 +1235,25 @@ module CBBB where
   -- λ i x → FreeAlgMorphism! {St}{X}{alg (freeSt X)}{{!   !}}{{!   !}} {!   !} i .carmap x
     -- BiAlgHom≡ {! FreeAlgMorphism! {St}{X}{alg (freeSt X)}{?}{?} ? !}
 
+
+  nf : {X : Type} → State X → FreeOn St X 
+  nf s = ops get 
+      λ {zero → let (b , x) = s Bool.false in 
+          (if b then 
+            ops set1 (λ _ → inc (s (Bool.true) .snd)) else 
+            ops set0 (λ _ → inc (s (Bool.false) .snd))) ; 
+         one → let (b , x) = s Bool.true in 
+          (if b then 
+            ops set1 (λ _ → inc (s (Bool.true) .snd)) else 
+            ops set0 (λ _ → inc (s (Bool.false) .snd) ))}
+  -- same reason as below
+  -- the operations only hold up to operational equivalence
+  ouch : (X : Type) → BIALG St [ freeSt  X , co X ]
+  ouch X .BiAlgHom.map = nf
+  ouch X .isAlgHom get args = {!   !}
+  ouch X .isAlgHom set0 args = {!   !}
+  ouch X .isAlgHom set1 args = {!   !}
+  ouch X .isRelator = {!   !}
 
   -- no, needs to be a model
   freeStBimap : (X : Type)(B : BiAlg St)→ (X → ⟨ B .car ⟩ ) → BIALG St [ freeSt X , B ]
@@ -373,6 +1296,9 @@ eval {X} (get x x') = stget (eval x) (eval x')
 eval {X} (set0 x) = stset0 (eval x)
 eval {X} (set1 x) = stset1 (eval x)
 
+t : (X : Type) → State X 
+t X = λ x → {!   !} , {!   !}
+_ = {! eval (nf (t _)) !}
 isId : {X : Type} → (s : State X) → eval (nf s) ≡ s 
 isId {X} s i false with (s false) 
 ... | false , x = false , x
@@ -607,6 +1533,11 @@ adjust {X} (get (inc x) y) = get (set0 (inc x)) y
 adjust {X} (get x (inc y)) = get x (set1 (inc y))
 adjust {X} (set0 x) = {!   !}
 adjust {X} (set1 x) = {!   !}
+-}
+
+
+
+
 {-}
 {-}
 try : {X : Type} → (x : FreeStAlg X) → Σ[ n ∈ ℕ ] (adjust (run n x)) ≡ norm x 
@@ -1480,5 +2411,7 @@ module EpiToCoeq {C : Category _ _ } {A B : ob C}(sec : C [ A , B ]){splitEpi : 
   splitCoeq .eq1 = {!   !} ∙ {! splitEpi .idem  !}
   splitCoeq .eq2 = splitEpi .idem ∙ sym (C .⋆IdL _)
   splitCoeq .eq3 = cong (λ h → (C ⋆ C .id) h) (splitEpi. idem) ∙ C .⋆IdL _
+  -}
+  -}
   -}
   -}

@@ -16,7 +16,7 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf hiding (PshIso ; Representation)
 --open import Cubical.Categories.Instances.Presheaf
 open import HyperDoc.Lib 
-open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.NaturalTransformation hiding(_⇒_)
 open NatTrans
 open PshHom
 
@@ -601,6 +601,355 @@ module Generalized where
     denGP = (t_! ∘F f_*) ∘F s^*
 
   open GPoly
+  open import Cubical.Data.Nat.Order
+  open import Cubical.Data.FinSet
+  open import Cubical.Data.Empty
+  open import Cubical.Categories.Constructions.BinProduct
+  import Cubical.Data.Equality as Eq
+
+
+  _L⋆_ : ℕ → Category _ _ → Category _ _
+  _L⋆_ n C .ob = Σ[ i ∈ Fin n ] C .ob
+  _L⋆_ n C .Hom[_,_] (i , c)(j , c') = (i Eq.≡ j) × (C [ c , c' ])
+  _L⋆_ n C .id = Eq.refl , (C .id)
+  _L⋆_ n C ._⋆_ (Eq.refl , f)(Eq.refl , g) = Eq.refl , ((C ⋆ f) g)
+  _L⋆_ n C .⋆IdL (Eq.refl , f) = ΣPathP (refl , C .⋆IdL f)
+  _L⋆_ n C .⋆IdR (Eq.refl , f) = ΣPathP (refl , C .⋆IdR f)
+  _L⋆_ n C .⋆Assoc (Eq.refl , f) (Eq.refl , g) (Eq.refl , h)=  
+    ΣPathP (refl , C .⋆Assoc f g h)
+  _L⋆_ n C .isSetHom = {!   !}
+
+  ∇ : {C : Category _ _ } → (n : ℕ) → Functor (n L⋆ C) C 
+  ∇ {C} n .F-ob = snd
+  ∇ {C} n .F-hom = snd
+  ∇ {C} n .F-id = refl
+  ∇ {C} n .F-seq (Eq.refl , f)(Eq.refl , g) = refl
+
+  !∇ : (C : Category _ _ ) → Functor (0 L⋆ C) C
+  !∇ C .F-ob ()
+  !∇ C .F-hom {()} 
+  !∇ C .F-id {()} 
+  !∇ C .F-seq {()}
+
+  record Uni (I J : Category _ _ ) : Type where 
+    field  
+      {C} : Category _ _
+      {n}  : ℕ
+      f : Functor (n L⋆ C) I
+      g : Functor C J
+
+  UniG : (I J : Category _ _ ) → Uni I J → GPoly 
+  UniG I J u .I' = I
+  UniG I J u .E = Uni.n u L⋆ Uni.C u
+  UniG I J u .B = Uni.C u
+  UniG I J u .J' = J
+  UniG I J u .s = Uni.f u
+  UniG I J u .f = ∇ (Uni.n u)
+  UniG I J u .t = Uni.g u
+
+  W : Category _ _ 
+  W .ob = ℕ
+  W .Hom[_,_] = _≤_
+  W .id = ≤-refl
+  W ._⋆_ = ≤-trans
+  W .⋆IdL _ = isProp≤ _ _
+  W .⋆IdR _ = isProp≤ _ _
+  W .⋆Assoc _ _ _ = isProp≤ _ _
+  W .isSetHom = isProp→isSet isProp≤
+
+
+
+  _+C_ : Category _ _ → Category _ _ → Category _ _ 
+  (C +C D) .ob = C .ob ⊎ D .ob
+  Hom[ C +C D , inl c ] (inl c') = C [ c , c' ]
+  Hom[ C +C D , inl _ ] (inr _) = ⊥
+  Hom[ C +C D , inr _ ] (inl _) = ⊥
+  Hom[ C +C D , inr d ] (inr d') = D [ d , d' ]
+  (C +C D) .id {inl x} = C .id
+  (C +C D) .id {inr x} = D .id
+  (C +C D) ._⋆_ = {!   !}
+  (C +C D) .⋆IdL = {!   !}
+  (C +C D) .⋆IdR = {!   !}
+  (C +C D) .⋆Assoc = {!   !}
+  (C +C D) .isSetHom = {!   !}
+
+  case : {C D E : Category _ _ } → Functor C E → Functor D E → Functor (C +C D) E 
+  case F G .F-ob (inl x) = F .F-ob x
+  case F G .F-ob (inr x) = G .F-ob x
+  case F G .F-hom = {!   !}
+  case F G .F-id = {!   !}
+  case F G .F-seq = {!   !}
+
+  _⨁_ : {A B : Category _ _ } → Uni A B → Uni A B → Uni A B 
+  (p ⨁ q) .Uni.C = Uni.C p +C Uni.C q
+  (p ⨁ q) .Uni.n = Uni.n p + Uni.n q
+  (p ⨁ q) .Uni.f .F-ob (n , t) with (match (Uni.n p) (Uni.n q) n )
+  (p ⨁ q) .Uni.f .F-ob (n , inl x₁) | inl x = Uni.f p .F-ob (x , x₁)
+  (p ⨁ q) .Uni.f .F-ob (n , inr x₁) | inl x = {!   !}
+  (p ⨁ q) .Uni.f .F-ob (n , inl x₁) | inr x = {!   !}
+  (p ⨁ q) .Uni.f .F-ob (n , inr x₁) | inr x = Uni.f q .F-ob (x , x₁)
+  (p ⨁ q) .Uni.f .F-hom = {!   !}
+  (p ⨁ q) .Uni.f .F-id = {!   !}
+  (p ⨁ q) .Uni.f .F-seq = {!   !}
+  (p ⨁ q) .Uni.g = case (Uni.g p) (Uni.g q)
+
+  -- actually iso
+  fact : (C : Category _ _ ) → 
+    Functor (PresheafCategory (C +C C) _) (PresheafCategory C _ ×C PresheafCategory C _) 
+  fact C .F-ob P .fst .F-ob c = P .F-ob (inl c)
+  fact C .F-ob P .fst .F-hom f = P .F-hom f
+  fact C .F-ob P .fst .F-id = P .F-id
+  fact C .F-ob P .fst .F-seq = P .F-seq
+  fact C .F-ob P .snd .F-ob c = {!   !}
+  fact C .F-ob P .snd .F-hom = {!   !}
+  fact C .F-ob P .snd .F-id = {!   !}
+  fact C .F-ob P .snd .F-seq = {!   !}
+  fact C .F-hom = {!   !}
+  fact C .F-id = {!   !}
+  fact C .F-seq = {!   !}
+
+  factInv :  (C : Category _ _ ) → 
+    Functor (PresheafCategory C _ ×C PresheafCategory C _) (PresheafCategory (C +C C) _)
+  factInv C .F-ob (P , Q) .F-ob (inl x) = P .F-ob x
+  factInv C .F-ob (P , Q) .F-ob (inr x) = Q .F-ob x
+  factInv C .F-ob (P , Q) .F-hom = {!   !}
+  factInv C .F-ob (P , Q) .F-id = {!   !}
+  factInv C .F-ob (P , Q) .F-seq = {!   !}
+  factInv C .F-hom = {!   !}
+  factInv C .F-id = {!   !}
+  factInv C .F-seq = {!   !}
+
+  open import Cubical.Categories.Monoidal
+  module DayConv (M : MonoidalCategory _ _) where 
+    open MonoidalCategory M
+
+    𝓟 = (PresheafCategory C ℓ-zero)
+
+    Day : Uni (C +C C) C 
+    Day .Uni.C = C ×C C
+    Day .Uni.n = 2
+    Day .Uni.f .F-ob (zero , p) = inl (fst p)
+    Day .Uni.f .F-ob (one , p) = inr (snd p)
+    Day .Uni.f .F-hom (Eq.refl , x) = {!   !}
+    Day .Uni.f .F-id = {!   !}
+    Day .Uni.f .F-seq = {!   !}
+    Day .Uni.g = ─⊗─
+
+    DayFun' : Functor (PresheafCategory (C +C C) ℓ-zero)  𝓟
+    DayFun' = GPoly.denGP (UniG (C +C C) C Day)
+
+    DayFun : Functor (𝓟 ×C 𝓟) 𝓟
+    DayFun = DayFun' ∘F factInv C
+    
+
+  data Ty : Type where  
+    bool nat : Ty  
+    _⇒_ : Ty → Ty → Ty
+
+
+  FINSET : Category _ _ 
+  FINSET .ob = ℕ
+  FINSET .Hom[_,_] n m = Fin n → Fin m
+  FINSET .id = λ z → z
+  FINSET ._⋆_ = λ f₁ g z₁ → g (f₁ z₁)
+  FINSET .⋆IdL _ = refl
+  FINSET .⋆IdR _ = refl
+  FINSET .⋆Assoc _ _ _ = refl
+  FINSET .isSetHom = isSet→ isSetFin
+
+  Disc : Type → Category _ _ 
+  Disc X .ob = X
+  Disc X .Hom[_,_] _ _ = Unit
+  Disc X .id = tt
+  Disc X ._⋆_ = λ f₁ g → tt
+  Disc X .⋆IdL _ = refl
+  Disc X .⋆IdR _ = refl
+  Disc X .⋆Assoc _ _ _ = refl
+  Disc X .isSetHom = isSetUnit
+
+  Typ = Disc Ty
+
+  -- maps not injective yet
+  -- category of typed contexts
+  Ctx : Category _ _
+  Ctx .ob = Σ[ n ∈ ℕ ] (Fin n → Ty)
+  Ctx .Hom[_,_] (n , f)(m , g)= Σ[ h ∈ (Fin n → Fin m) ] ((x : Fin n) → f x ≡ g (h x))
+  Ctx .id = {!   !}
+  Ctx ._⋆_ = {!   !}
+  Ctx .⋆IdL = {!   !}
+  Ctx .⋆IdR = {!   !}
+  Ctx .⋆Assoc = {!   !}
+  Ctx .isSetHom = {!   !}
+
+  ext : ob Ctx → Ty → ob Ctx 
+  ext Γ A = (suc (Γ .fst)) , (λ {zero → A
+                               ; (suc d) → Γ .snd d})
+
+
+  {-
+    Γ ⊢ A ⇒ A' 
+    Γ ⊢ A 
+    -----------
+    Γ ⊢ A'
+  -}
+  app : Uni (Ctx ×C Typ) (Ctx ×C Typ) 
+  app .Uni.C = Ctx ×C (Typ ×C Typ)
+  app .Uni.n = 2 -- two arguments to the rule
+  app .Uni.f .F-ob (zero , (Γ , A , A')) = Γ , (A ⇒ A') -- type of first arg
+  app .Uni.f .F-ob (one , (Γ , A , A' )) = Γ , A -- type of second arg
+  app .Uni.f .F-hom {x}{y} ( Eq.refl , d) = {!   !}
+  app .Uni.f .F-id = {!   !}
+  app .Uni.f .F-seq = {!   !}
+  -- type of result
+  app .Uni.g = Id ×F Cubical.Categories.Constructions.BinProduct.Snd _ _
+
+
+  {-
+    one arg rule
+    Γ , A ⊢ A'
+    ----------
+    Γ ⊢ A ⇒ A'
+  -}
+  abs : Uni (Ctx ×C Typ) (Ctx ×C Typ) 
+  abs .Uni.C = Ctx ×C (Typ ×C Typ)
+  abs .Uni.n = 1
+  abs .Uni.f .F-ob (zero , (Γ , A , A')) = ext Γ A , A'
+  abs .Uni.f .F-hom = {!   !}
+  abs .Uni.f .F-id = {!   !}
+  abs .Uni.f .F-seq = {!   !}
+  abs .Uni.g = Id ×F 
+    record { F-ob = λ (A , A') → A ⇒ A' ; F-hom = λ {x} {y} _ → tt ; F-id = refl ; F-seq = λ _ _ → refl }
+
+  Gapp : Functor (PresheafCategory (Ctx ×C Typ) _) (PresheafCategory (Ctx ×C Typ) _) 
+  Gapp = GPoly.denGP (UniG (Ctx ×C Typ)(Ctx ×C Typ) app)
+
+  open import Cubical.HITs.SetQuotients.Base 
+  Alg : (T : ob (PresheafCategory (Ctx ×C Typ) _)) → NatTrans (Gapp .F-ob T) T
+  Alg T .N-ob (Γ , A) [ (f , A' , A'') , (fst₁ , tt) , record { fun = fun₁ ; coh = coh } ] = 
+      fun₁ ({!   !} , {!   !}) {!   !} where 
+    _ : Hom[_,_] Ctx Γ ((f .fst) , {! Γ .snd  !})
+    _ = fst₁
+  Alg T .N-ob (Γ , A) (eq/ a b r i) = {!   !}
+  Alg T .N-ob (Γ , A) (squash/ d d₁ p q i i₁) = {!   !}
+  Alg T .N-hom = {!   !}
+
+  inc : Functor W W 
+  inc .F-ob = suc
+  inc .F-hom = suc-≤-suc
+  inc .F-id = isProp≤ _ _
+  inc .F-seq _ _ = isProp≤  _ _
+
+  Var' : Uni W W 
+  Var' .Uni.C = {!   !}
+  Var' .Uni.n = {!   !}
+  Var' .Uni.f = {!   !}
+  Var' .Uni.g = {!   !}
+  {- }.Uni.C = W
+  Var' .Uni.n = 0
+  Var' .Uni.f = !∇ W
+  Var' .Uni.g = inc -}
+
+  Get : Uni W W 
+  Get .Uni.C = W
+  Get .Uni.n = 2
+  Get .Uni.f = ∇ 2
+  Get .Uni.g = Id
+
+  Set0' : Uni W W 
+  Set0' .Uni.C = W
+  Set0' .Uni.n = 1
+  Set0' .Uni.f = ∇ 1
+  Set0' .Uni.g = Id
+
+  Set1' : Uni W W 
+  Set1' .Uni.C = W
+  Set1' .Uni.n = 1
+  Set1' .Uni.f = ∇ 1
+  Set1' .Uni.g = Id
+
+  Sig : Uni W W 
+  Sig = Var' ⨁ (Get ⨁ (Set0' ⨁ Set1'))
+
+  Sig' : GPoly 
+  Sig' = UniG W W Sig
+
+  huh : Functor (PresheafCategory W _) (PresheafCategory W _)
+  huh = GPoly.denGP Sig'
+
+
+  data Ops : Type where 
+    new get set0 set1 : Ops 
+  -- Σ(X) := New(X) + X^2 + X + X
+  
+  open test renaming (GPoly to GPoly')
+
+  hrm : GPoly' 
+  hrm .GPoly'.S = {!   !}
+  hrm .GPoly'.P = {!   !}
+
+  open import Cubical.Categories.Constructions.TotalCategory
+  open import Cubical.Categories.Displayed.Base
+  open import Cubical.Data.Bool
+  open import Cubical.Categories.Constructions.BinProduct
+
+  {-}
+  E' : Categoryᴰ (Disc Ops) _ _ 
+  Categoryᴰ.ob[ E' ] new = Unit
+  Categoryᴰ.ob[ E' ] get = Bool
+  Categoryᴰ.ob[ E' ] set0 = Unit
+  Categoryᴰ.ob[ E' ] set1 = Unit
+  E' .Categoryᴰ.Hom[_][_,_] tt _ _ = Unit
+  E' .Categoryᴰ.idᴰ = tt
+  E' .Categoryᴰ._⋆ᴰ_ = λ _ _ → tt
+  E' .Categoryᴰ.⋆IdLᴰ _ = refl
+  E' .Categoryᴰ.⋆IdRᴰ _ = refl
+  E' .Categoryᴰ.⋆Assocᴰ _ _ _ = refl
+  E' .Categoryᴰ.isSetHomᴰ = isSetUnit
+  
+
+  Π : Functor (∫C E') (Disc Ops) 
+  Π .F-ob = fst
+  Π .F-hom = fst
+  Π .F-id = refl
+  Π .F-seq _ _ = refl
+
+  huh : Functor (Disc Ops) W
+  huh .F-ob new = {!   !}
+  huh .F-ob get = {!   !}
+  huh .F-ob set0 = {!   !}
+  huh .F-ob set1 = {!   !}
+  huh .F-hom = {!   !}
+  huh .F-id = {!   !}
+  huh .F-seq = {!   !}
+
+  wat : Functor (∫C E') W
+  wat .F-ob = {!   !}
+  wat .F-hom = {!   !}
+  wat .F-id = {!   !}
+  wat .F-seq = {!   !}
+-}
+
+  E' : Categoryᴰ (Disc Ops ×C W) _ _ 
+  Categoryᴰ.ob[ E' ] (new , n) = {!   !}
+  Categoryᴰ.ob[ E' ] (get , n) = {!   !}
+  Categoryᴰ.ob[ E' ] (set0 , n) = {!   !}
+  Categoryᴰ.ob[ E' ] (set1 , n) = {!   !}
+  E' .Categoryᴰ.Hom[_][_,_] = {!   !}
+  E' .Categoryᴰ.idᴰ = {!   !}
+  E' .Categoryᴰ._⋆ᴰ_ = {!   !}
+  E' .Categoryᴰ.⋆IdLᴰ = {!   !}
+  E' .Categoryᴰ.⋆IdRᴰ = {!   !}
+  E' .Categoryᴰ.⋆Assocᴰ = {!   !}
+  E' .Categoryᴰ.isSetHomᴰ = {!   !} 
+  
+  {-Sig : GPoly 
+  Sig .I' = W
+  Sig .E = {!   !}
+  Sig .B = Disc Ops
+  Sig .J' = W
+  Sig .s = {!   !}
+  Sig .f = {!   !}
+  Sig .t = {!   !}-}
 
   term : Category _ _ 
   term .ob = Unit
@@ -618,7 +967,6 @@ module Generalized where
   !term .F-id = refl
   !term .F-seq _ _ = refl
 
-  open test renaming (GPoly to GPoly')
   -- total category?
 
   module _ (G : GPoly') where 
@@ -665,7 +1013,7 @@ module DiscreteGeneralized where
   ∇n {C = C} d = C .id
 
   LC : Category _ _ 
-  LC = {!   !}
+  LC = {! FinSet  !}
 
 
 {-}

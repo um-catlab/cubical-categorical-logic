@@ -185,6 +185,13 @@ ALG S .⋆IdR _ = AlgHom≡ refl
 ALG S .⋆Assoc _ _ _ = AlgHom≡ refl
 ALG S .isSetHom = {!   !}
 
+
+isModel : Theory → hSet _ → Type 
+isModel T X = 
+  Σ[ alg ∈ IsAlg (Theory.Sig T) X ] 
+  ((e : Theory.Eq T) → satisfies 
+  (record { Carrier = X ; interp = alg }) (Theory.ax T e))
+  
 MOD : Theory → Category _ _ 
 MOD T = FullSubcategory (ALG Sig) 
     λ A → (e : Eq) → satisfies A (ax e) where 

@@ -10,13 +10,16 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.More
 
 open import Cubical.Prop
 open import Cubical.Data.Sigma
+open import Cubical.Data.Bool as Bool hiding (elim)
 import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
@@ -44,6 +47,7 @@ open Functor
 open Section
 open PshHom
 open PshIso
+open UniversalElement
 
 module CBPV (BaseTy : Kind → Type ℓ)
   where
@@ -85,6 +89,28 @@ module CBPV (BaseTy : Kind → Type ℓ)
       [thunk] : Tm _ Γ B → Tm {k1 = 𝓥} _ Γ ([U] B)
       [Uβ] : (M : Tm _ A B) → seqS ([thunk] M) [force] ≡ M
       [Uη] : (V : Tm _ Γ ([U] B)) → V ≡ [thunk] (seqS V [force])
+
+      -- Effects: boolean state
+      [read] : Tm _ A B → Tm _ A B → Tm _ A B
+      [write] : Bool → Tm _ A B → Tm _ A B
+
+      -- laws
+      [rwβt] : (Mt Mf : Tm _ A B)
+        → [write] true ([read] Mt Mf) ≡ [write] true Mt
+      [rwβf] : (Mt Mf : Tm _ A B)
+        → [write] false ([read] Mt Mf) ≡ [write] false Mf
+      [rwη] : (M : Tm (≤V-r-⊤ _) Γ B)
+        → M ≡ [read] ([write] true M) ([write] false M)
+
+      -- homomorphism properties
+      [r-homL] : (f : Tm _ A A')(Mt Mf : Tm _ A' B)
+        → seqS f ([read] Mt Mf) ≡ [read] (seqS f Mt) (seqS f Mf)
+      [r-homR] : (Mt Mf : Tm _ A B) (S : Tm _ B B')
+        → seqS ([read] Mt Mf) S ≡ [read] (seqS Mt S) (seqS Mf S)
+      [w-homL] : ∀ (f : Tm _ A A') b (M : Tm _ A' B)
+        → seqS f ([write] b M) ≡ [write] b (seqS f M)
+      [w-homR] : ∀ b (M : Tm _ A B) (S : Tm _ B B')
+        → seqS ([write] b M) S ≡ [write] b (seqS M S)
 
     CBPV : Categoryᴰ KIND ℓ (ℓ-max ℓ ℓ')
     CBPV .ob[_] = Ob
@@ -145,103 +171,129 @@ module CBPV (BaseTy : Kind → Type ℓ)
       (EqPsh.UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) ([U]-UMP B))
 
     -- This is the base for the displayed Uᴰ UMP
-    ∫[U]-Spec : ∀ (B : Ob 𝓒) → Presheaf (∫C CBPV) _
+    ∫[U]-Spec ∫[U]-Spec' : ∀ (B : Ob 𝓒) → Presheaf (∫C CBPV) _
     ∫[U]-Spec B = PresheafᴰNotation.∫ CBPV (KIND [-, 𝓥 ]) (reindPshᴰNatTrans (yoRec (KIND [-, 𝓒 ]) _) (CBPV [-][-, B ]))
 
-    ∫[U]-UMP ∫[U]-UMP' : ∀ (B : Ob 𝓒) → UniversalElement (∫C CBPV) (∫[U]-Spec B)
+    ∫[U]-Spec' B = improveF-hom (∫[U]-Spec B)
+      λ { {𝓥 , Γ} {𝓥 , Γ'} (ı k'≤k , γ') .fst (ı pf , V) → _ , seqS γ' V
+        ; {𝓥 , Γ} {𝓥 , Γ'} (ı k'≤k , γ') .snd → funExt λ (k≤𝓥 , M) →
+          -- TODO: we should have a change-base for reindPshᴰNatTrans that we could use here
+          change-base⁻ _ (YoB.reind-filler⁻ refl)
+          -- change-base⁻ (λ _ → ı tt) (YoB.reind-filler⁻ refl)
+        ; {𝓒 , Γ} {k , Γ'} (ı k'≤k , γ') .snd → funExt λ ()
+        }
+      where
+        module YoB = PresheafᴰNotation CBPV _ (CBPV [-][-, B ])
+
+    -- -- Where are the reinds coming from?
+    -- -- do they go away if we use Path-based Element?
+    ∫[U]-UMP : ∀ (B : Ob 𝓒) → UniversalElement (∫C CBPV) (∫[U]-Spec B)
     ∫[U]-UMP B = UniversalElementᴰNotation.∫ue CBPV (KIND [-, 𝓥 ]) _ (Representableⱽ→UniversalElementᴰ _ _ _ (selfUnivElt _ _)
       (_ , [U]-UMP' B .snd
         ⋆PshIso (invPshIso $ reindPshᴰNatTrans-tri _ _ _ _ (yoInd _ _ _ refl))))
 
-    ∫[U]-UMP' B .UniversalElement.vertex = 𝓥 , [U] B
-    ∫[U]-UMP' B .UniversalElement.element = _ , [force]
-    ∫[U]-UMP' B .UniversalElement.universal (𝓥 , A) = isIsoToIsEquiv
-      ( (λ (_ , M) → ı tt , [thunk] M)
-      , (λ _ → ΣPathP (refl , {!!}))
-      , {!!}
+    -- TODO: can we get this reind-free definition compositionally from U-UMP ?
+    ∫[U]-UMP' : ∀ (B : Ob 𝓒) → UniversalElement (∫C CBPV) (∫[U]-Spec' B)
+    ∫[U]-UMP' B .vertex = 𝓥 , [U] B
+    ∫[U]-UMP' B .element = _ , [force]
+    ∫[U]-UMP' B .universal (𝓥 , A) = isIsoToIsEquiv
+      ( (λ (_ , M) → _ , [thunk] M)
+      , (λ (_ , M) → ΣPathP (refl , [Uβ] M))
+      , λ (_ , t) → ΣPathP (refl , (sym $ [Uη] t))
       )
+    ∫[U]-UMP' B .universal (𝓒 , B') = isIsoToIsEquiv ((λ ()) , ((λ ()) , (λ ())))
+    -- -- ∫[U]-UMP' B .UniversalElement.element = _ , [force]
+    -- -- ∫[U]-UMP' B .UniversalElement.universal (_ , A) = isIsoToIsEquiv
+    -- --   ( (λ (_ , M) → ? , ?)
+    -- --     -- TODO: can we get this part reind-free ?
+    -- --   , (λ _ → YoB.reind-filler⁻ refl ∙ (ΣPathP (refl , [Uβ] _)))
+    -- --   , λ _ → {!!} ∙ ΣPathP (refl , (sym ([Uη] _)))
+    -- --   )
+    -- --   where
+    -- --     module YoB = PresheafᴰNotation CBPV _ (CBPV [-][-, B ])
+    -- --     module YoUB = PresheafᴰNotation CBPV _ (CBPV [-][-, [U] B ])
 
-    [F]-UMP : ∀ (A : Ob 𝓥)
-      → EqPsh.CartesianLiftUE (CBPV ^opᴰ) (λ _ _ _ _ _ _ → Eq.refl) (λ {x} {y} f → Eq.refl) {x = 𝓒} _ A
-    [F]-UMP A .v = [F] A
-    [F]-UMP A .e = [ret]
-    [F]-UMP A .universal .isPshIsoEq.nIso (𝓒 , B , _) .fst = [bind]
-    [F]-UMP A .universal .isPshIsoEq.nIso (𝓒 , B , _) .snd .fst M = [Fβ] M
-    [F]-UMP A .universal .isPshIsoEq.nIso (𝓒 , B , _) .snd .snd S = sym $ [Fη] S
+    -- -- -- [F]-UMP : ∀ (A : Ob 𝓥)
+    -- -- --   → EqPsh.CartesianLiftUE (CBPV ^opᴰ) (λ _ _ _ _ _ _ → Eq.refl) (λ {x} {y} f → Eq.refl) {x = 𝓒} _ A
+    -- -- -- [F]-UMP A .v = [F] A
+    -- -- -- [F]-UMP A .e = [ret]
+    -- -- -- [F]-UMP A .universal .isPshIsoEq.nIso (𝓒 , B , _) .fst = [bind]
+    -- -- -- [F]-UMP A .universal .isPshIsoEq.nIso (𝓒 , B , _) .snd .fst M = [Fβ] M
+    -- -- -- [F]-UMP A .universal .isPshIsoEq.nIso (𝓒 , B , _) .snd .snd S = sym $ [Fη] S
 
-    -- So what is the *displayed* version of [U] and [F]?
-    --
-    -- Well the displayed version of [U] should be something such that
-    -- if we take the displayed total category we get a [U] and the
-    -- projection from ∫ᴰ Cᴰ → ∫ C preserves it strictly.
-    --
-    -- so I have some Bᴰ over (𝓒 , B) and I want a Uᴰ Bᴰ over (𝓥 , [U] B)
-    --
-    -- we should just take a cartesian lift of
-    --
-    --
-    -- (𝓥 , [U] B) -[ _ , [force] ]→ (𝓒 , B)
-    --
-    -- This means it should be a "cartesian lift over a cartesian lift"
-    -- and what is the *vertical* version?
-    --
-    -- The vertical version is certainly just a cartesian lift. It's
-    -- preserved by reindexing no problemo.
+    -- -- -- -- So what is the *displayed* version of [U] and [F]?
+    -- -- -- --
+    -- -- -- -- Well the displayed version of [U] should be something such that
+    -- -- -- -- if we take the displayed total category we get a [U] and the
+    -- -- -- -- projection from ∫ᴰ Cᴰ → ∫ C preserves it strictly.
+    -- -- -- --
+    -- -- -- -- so I have some Bᴰ over (𝓒 , B) and I want a Uᴰ Bᴰ over (𝓥 , [U] B)
+    -- -- -- --
+    -- -- -- -- we should just take a cartesian lift of
+    -- -- -- --
+    -- -- -- --
+    -- -- -- -- (𝓥 , [U] B) -[ _ , [force] ]→ (𝓒 , B)
+    -- -- -- --
+    -- -- -- -- This means it should be a "cartesian lift over a cartesian lift"
+    -- -- -- -- and what is the *vertical* version?
+    -- -- -- --
+    -- -- -- -- The vertical version is certainly just a cartesian lift. It's
+    -- -- -- -- preserved by reindexing no problemo.
 
-    -- is this just a cartesian lift , but of what? Maybe
-    --
-    -- (∫ (KIND [-, 𝓥 ]) ((yoRec ≤)* CBPV [-][-, B ]))
-    -- → (∫ (KIND [-, 𝓒 ]) (CBPV [-][-, B ]))
-    module Elim
-      (Cᴰ : Categoryᴰ (∫C CBPV) ℓᴰ ℓᴰ')
-      where
-      private
-        module Cᴰ = Categoryᴰ Cᴰ
+    -- -- -- -- is this just a cartesian lift , but of what? Maybe
+    -- -- -- --
+    -- -- -- -- (∫ (KIND [-, 𝓥 ]) ((yoRec ≤)* CBPV [-][-, B ]))
+    -- -- -- -- → (∫ (KIND [-, 𝓒 ]) (CBPV [-][-, B ]))
+    -- -- -- module Elim
+    -- -- --   (Cᴰ : Categoryᴰ (∫C CBPV) ℓᴰ ℓᴰ')
+    -- -- --   where
+    -- -- --   private
+    -- -- --     module Cᴰ = Categoryᴰ Cᴰ
 
-      Uᴰ-Spec : (B : Ob 𝓒)(Bᴰ : Cᴰ.ob[ _ , B ]) → Presheafᴰ (∫[U]-Spec B) Cᴰ ℓᴰ'
-      Uᴰ-Spec B Bᴰ = reindPshᴰNatTrans
-        (∫PshHomᴰ {α = yoRec _ _} idPshHom ⋆PshHom ∫Repr-iso CBPV .trans)
-        (Cᴰ [-][-, Bᴰ ])
+    -- -- --   Uᴰ-Spec : (B : Ob 𝓒)(Bᴰ : Cᴰ.ob[ _ , B ]) → Presheafᴰ (∫[U]-Spec B) Cᴰ ℓᴰ'
+    -- -- --   Uᴰ-Spec B Bᴰ = reindPshᴰNatTrans
+    -- -- --     (∫PshHomᴰ {α = yoRec _ _} idPshHom ⋆PshHom ∫Repr-iso CBPV .trans)
+    -- -- --     (Cᴰ [-][-, Bᴰ ])
 
-      module _
-        (ı-Ob : ∀ {k} → (X : BaseTy k) → Cᴰ.ob[ _ , gen X ])
-        (ı-U : ∀ (B : Ob 𝓒)(Bᴰ : Cᴰ.ob[ _ , B ])
-          → UniversalElementᴰ Cᴰ (∫[U]-Spec B) (Uᴰ-Spec B Bᴰ) (∫[U]-UMP B))
-        (ı-U' : ∀ (B : Ob 𝓒)(Bᴰ : Cᴰ.ob[ _ , B ])
-          → UniversalElementᴰ Cᴰ (∫[U]-Spec B) (Uᴰ-Spec B Bᴰ) (∫[U]-UMP' B))
-        where
+    -- -- --   module _
+    -- -- --     (ı-Ob : ∀ {k} → (X : BaseTy k) → Cᴰ.ob[ _ , gen X ])
+    -- -- --     (ı-U : ∀ (B : Ob 𝓒)(Bᴰ : Cᴰ.ob[ _ , B ])
+    -- -- --       → UniversalElementᴰ Cᴰ (∫[U]-Spec B) (Uᴰ-Spec B Bᴰ) (∫[U]-UMP B))
+    -- -- --     (ı-U' : ∀ (B : Ob 𝓒)(Bᴰ : Cᴰ.ob[ _ , B ])
+    -- -- --       → UniversalElementᴰ Cᴰ (∫[U]-Spec B) (Uᴰ-Spec B Bᴰ) (∫[U]-UMP' B))
+    -- -- --     where
 
-        elim-F-obᴰ : ∀ Γ → Cᴰ.ob[ k , Γ ]
-        elim-F-obᴰ (gen X) = ı-Ob X
-        elim-F-obᴰ ([F] A) = {!!}
-        elim-F-obᴰ ([U] B) = ı-U' B (elim-F-obᴰ B) .fst
+    -- -- --     elim-F-obᴰ : ∀ Γ → Cᴰ.ob[ k , Γ ]
+    -- -- --     elim-F-obᴰ (gen X) = ı-Ob X
+    -- -- --     elim-F-obᴰ ([F] A) = {!!}
+    -- -- --     elim-F-obᴰ ([U] B) = ı-U' B (elim-F-obᴰ B) .fst
 
-        module _
-          (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
-            → Cᴰ.Hom[ ı k≤ , gen M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ])
-          where
-          elim-F-homᴰ : (M : Tm k≤ Γ Δ) → Cᴰ.Hom[ ı k≤ , M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ]
-          elim-F-homᴰ (gen x) = ı-Fun x
-          elim-F-homᴰ idS = Cᴰ.idᴰ
-          elim-F-homᴰ (seqS M N) = elim-F-homᴰ M Cᴰ.⋆ᴰ elim-F-homᴰ N
-          elim-F-homᴰ (IdLS M i) = {!!}
-          elim-F-homᴰ (IdRS M i) = {!!}
-          elim-F-homᴰ (AssocS M M₁ M₂ i) = {!!}
-          elim-F-homᴰ (isSetTm M M₁ x y i i₁) = {!!}
-          elim-F-homᴰ [ret] = {!!}
-          elim-F-homᴰ ([bind] M) = {!!}
-          elim-F-homᴰ ([Fβ] M i) = {!!}
-          elim-F-homᴰ ([Fη] M i) = {!!}
-          -- It works!!!
-          elim-F-homᴰ ([force] {B}) = ı-U' B (elim-F-obᴰ B) .snd .fst
-          elim-F-homᴰ ([thunk] M) = ı-U' _ (elim-F-obᴰ _) .snd .snd (𝓥 , _) (elim-F-obᴰ _)
-                                     .isIsoOver.inv (ı tt , M) (elim-F-homᴰ M)
-          -- something nasty I'm sure but it'll do.
-          elim-F-homᴰ ([Uβ] M i) = {!!}
-          elim-F-homᴰ ([Uη] M i) = {!!}
+    -- -- --     module _
+    -- -- --       (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
+    -- -- --         → Cᴰ.Hom[ ı k≤ , gen M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ])
+    -- -- --       where
+    -- -- --       elim-F-homᴰ : (M : Tm k≤ Γ Δ) → Cᴰ.Hom[ ı k≤ , M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ]
+    -- -- --       elim-F-homᴰ (gen x) = ı-Fun x
+    -- -- --       elim-F-homᴰ idS = Cᴰ.idᴰ
+    -- -- --       elim-F-homᴰ (seqS M N) = elim-F-homᴰ M Cᴰ.⋆ᴰ elim-F-homᴰ N
+    -- -- --       elim-F-homᴰ (IdLS M i) = {!!}
+    -- -- --       elim-F-homᴰ (IdRS M i) = {!!}
+    -- -- --       elim-F-homᴰ (AssocS M M₁ M₂ i) = {!!}
+    -- -- --       elim-F-homᴰ (isSetTm M M₁ x y i i₁) = {!!}
+    -- -- --       elim-F-homᴰ [ret] = {!!}
+    -- -- --       elim-F-homᴰ ([bind] M) = {!!}
+    -- -- --       elim-F-homᴰ ([Fβ] M i) = {!!}
+    -- -- --       elim-F-homᴰ ([Fη] M i) = {!!}
+    -- -- --       -- It works!!!
+    -- -- --       elim-F-homᴰ ([force] {B}) = ı-U' B (elim-F-obᴰ B) .snd .fst
+    -- -- --       elim-F-homᴰ ([thunk] M) = ı-U' _ (elim-F-obᴰ _) .snd .snd (𝓥 , _) (elim-F-obᴰ _)
+    -- -- --                                  .isIsoOver.inv (ı tt , M) (elim-F-homᴰ M)
+    -- -- --       -- something nasty I'm sure but it'll do.
+    -- -- --       elim-F-homᴰ ([Uβ] M i) = {!!}
+    -- -- --       elim-F-homᴰ ([Uη] M i) = {!!}
 
-          elim : GlobalSection Cᴰ
-          elim .F-obᴰ d = elim-F-obᴰ (d .snd)
-          elim .F-homᴰ f = elim-F-homᴰ (f .snd)
-          elim .F-idᴰ = refl
-          elim .F-seqᴰ _ _ = refl
+    -- -- --       elim : GlobalSection Cᴰ
+    -- -- --       elim .F-obᴰ d = elim-F-obᴰ (d .snd)
+    -- -- --       elim .F-homᴰ f = elim-F-homᴰ (f .snd)
+    -- -- --       elim .F-idᴰ = refl
+    -- -- --       elim .F-seqᴰ _ _ = refl

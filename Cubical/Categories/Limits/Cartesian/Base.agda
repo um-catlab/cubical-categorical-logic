@@ -55,22 +55,28 @@ CartesianFunctor CC D =
   preservesProvidedBinProducts F (CC .bp)
   where open CartesianCategory
 
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Categories.Instances.BinProduct.More
-open import Cubical.Categories.Yoneda 
 open Functor
 
-module _ 
+module _
   {C : CartesianCategory ℓC ℓC'}
   {D : CartesianCategory ℓD ℓD'}
-  {E : Category ℓE ℓE'} where 
-  private 
+  {E : Category ℓE ℓE'} where
+  private
+    module C = CartesianCategory C
     module D = CartesianCategory D
-  _∘CF_ : CartesianFunctor D E → CartesianFunctor C D.C → CartesianFunctor C E 
-  _∘CF_ G F = G .fst ∘F F .fst , λ c c' e → 
-    isoToIsEquiv (
-      iso 
-        (λ f → {!   !} , {!   !}) 
-        (λ {(f , g) → {!   !} }) 
-        {!   !} 
-        {!   !}) 
+
+  _∘CF_ : CartesianFunctor D E → CartesianFunctor C D.C → CartesianFunctor C E
+  _∘CF_ G F = G .fst ∘F F .fst , goal
+    where
+    goal : preservesProvidedBinProducts (G .fst ∘F F .fst) C.bp
+    goal c c' =
+      preservesUniversalElements-⋆PshHet α β
+        (preservesUniversalElement→PreservesUniversalElements
+          α (C.bp (c , c')) (F .snd c c'))
+        (preservesUniversalElement→PreservesUniversalElements
+          β (D.bp (F .fst ⟅ c ⟆ , F .fst ⟅ c' ⟆))
+          (G .snd (F .fst ⟅ c ⟆) (F .fst ⟅ c' ⟆)))
+        (C.bp (c , c'))
+      where
+      α = preservesBinProdCones (F .fst) c c'
+      β = preservesBinProdCones (G .fst) (F .fst ⟅ c ⟆) (F .fst ⟅ c' ⟆)

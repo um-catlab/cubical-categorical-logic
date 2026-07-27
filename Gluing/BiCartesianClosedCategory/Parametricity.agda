@@ -142,20 +142,5 @@ module _ where
   S = FreeBiCCC.elimLocal +×⇒QUIVER InterpBoolNat EqSETᴰBCCCⱽ 
     (mkElimInterpᴰ (λ {X (b , n) → (evenb n ≡ b) ,
                                          isProp→isSet (isSetBool _ _)})
-      -- [[ read ∘ flip]]_bool b ≡ [[ read ∘ flip ]]_nat n
       λ {flip → λ (b , n) p → evenb-suc n ∙ cong not p
        ; read → readᴰ})
-
-    
-
-
-
-  
-
-
-
-
-
-
-
-  

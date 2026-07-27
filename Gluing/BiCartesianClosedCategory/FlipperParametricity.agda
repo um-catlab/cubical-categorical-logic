@@ -1,4 +1,4 @@
-module Gluing.BiCartesianClosedCategory.Parametricity where 
+module Gluing.BiCartesianClosedCategory.FlipperParametricity where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure hiding (⟨_⟩)
@@ -104,28 +104,6 @@ module _ where
     (mkElimInterpᴰ (λ {X  → ℕ , isSetℕ }) λ {flip → suc
                                            ; read → even})
                                            
-  InterpBoolNat' : CartesianFunctor FREEBICCC.CC ((SET _) ×C (SET _))
-  InterpBoolNat' .fst = InterpBool .fst ,F InterpNat .fst
-  InterpBoolNat' .snd c c' Γ =
-    compEquiv
-      (Σ-cong-equiv
-        (_ , InterpBool .snd c c' (Γ .fst))
-        (λ _ → _ , InterpNat .snd c c' (Γ .snd)))
-      (isoToEquiv
-        (iso
-          (λ z → (z .fst .fst , z .snd .fst) ,
-                 (z .fst .snd , z .snd .snd))
-          (λ z → (z .fst .fst , z .snd .fst) ,
-                 (z .fst .snd , z .snd .snd))
-          (λ _ → refl)
-          (λ _ → refl)))
-      .snd
-
-  InterpBoolNat :
-    CartesianFunctor FREEBICCC.CC (SET _)
-  InterpBoolNat = _∘CF_ {C = FREEBICCC.CC}
-    {(SETCC {ℓ-zero} ×CC SETCC {ℓ-zero})} ×SetsCF InterpBoolNat'
-
   BoolNatRelationGenerators :
     LogicalRelationGenerators +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
       ×SetsCF InterpBool InterpNat

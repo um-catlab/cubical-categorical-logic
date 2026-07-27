@@ -210,6 +210,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst)
       ∫ηᴰ fᴰ = Cᴰ.≡in $ ηᴰ fᴰ
 
+    ∫ue : UniversalElement (∫C Cᴰ) Pᴰ.∫
+    ∫ue .UniversalElement.vertex = ue.vertex , ueᴰ .fst
+    ∫ue .UniversalElement.element = ue.element , ueᴰ .snd .fst
+    ∫ue .UniversalElement.universal (Γ , Γᴰ) = isIsoToIsEquiv
+      ( (λ (p , pᴰ) → ue.intro p , introᴰ pᴰ)
+      , (λ (p , pᴰ) → ∫βᴰ pᴰ)
+      , (λ (p , pᴰ) → sym $ ∫ηᴰ pᴰ)
+      )
+    open UniversalElementNotation ∫ue
+
   -- Could be more compositional but too lazy
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)
     → Representableᴰ (ue .vertex , asPshIso ue)

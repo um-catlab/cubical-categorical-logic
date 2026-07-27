@@ -10,8 +10,6 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.Dependent
-open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
@@ -69,7 +67,6 @@ private
 open Category
 open Functor
 open Functorᴰ
-open isIsoOver
 open NatTrans
 open NatTransᴰ
 open NatIso
@@ -325,10 +322,19 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     BinProductsⱽUE = ∀ {x : C.ob} (xᴰ yᴰ : Cᴰ.ob[ x ]) → UEⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])) C⋆IdR
 
   module _ (C⋆Assoc : ReprEqAssoc C) where
+    CartesianLiftPshⱽ : ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Presheafⱽ x Cᴰ ℓCᴰ'
+    CartesianLiftPshⱽ {x}{y} f yᴰ = (yoRecEq (C [-, y ]) (C⋆Assoc y) f *Presheafᴰ (Cᴰ [-][-, yᴰ ]))
+
+    CartesianLift : ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Type _
+    CartesianLift f yᴰ = Reprⱽ (CartesianLiftPshⱽ f yᴰ)
+
+    module _ (C⋆IdR : EqIdR C) where
+      CartesianLiftUE : ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Type _
+      CartesianLiftUE f yᴰ = UEⱽ (CartesianLiftPshⱽ f yᴰ) C⋆IdR
+
     -- TODO: should be called isFibration
     Fibration : Type (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ')
-    Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ])
-      → Reprⱽ (yoRecEq (C [-, y ]) (C⋆Assoc y) f *Presheafᴰ (Cᴰ [-][-, yᴰ ]))
+    Fibration = ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → CartesianLift f yᴰ
 
     module FibrationNotation (cartLifts : Fibration) where
       _*_ : ∀ {x y} (f : C [ x , y ]) (yᴰ : Cᴰ.ob[ y ]) → Cᴰ.ob[ x ]

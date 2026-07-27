@@ -95,16 +95,22 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     λ Θ3 Δ3 morPath@(δ , δᴰ , δg≡h) → Hom/≡ $ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _)
 
 module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
+  private
+    module Cᴰ = Fibers Cᴰ
   EqTerminalsⱽ→Terminalsⱽ : Terminalsⱽ Cᴰ → Path.Terminalsⱽ Cᴰ
   EqTerminalsⱽ→Terminalsⱽ termsⱽ x =
     EqReprⱽ→PathReprⱽ UnitⱽPsh (termsⱽ x)
     Path.◁PshIsoⱽ EqUnitⱽ≅PathUnitⱽ Cᴰ
 
-  EqFibration→Fibration : Fibration Cᴰ ⋆AssocC → Path.isFibration Cᴰ
-  EqFibration→Fibration isFib {x} xᴰ Γ f = EqReprⱽ→PathReprⱽ _ (isFib f xᴰ)
+  EqCartesianLift→CartesianLift : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) Γ (f : C [ Γ , x ])
+    → CartesianLift Cᴰ ⋆AssocC f xᴰ
+    → Path.CartesianLift Cᴰ f xᴰ
+  EqCartesianLift→CartesianLift {x} xᴰ Γ f f*xᴰ = EqReprⱽ→PathReprⱽ _ f*xᴰ
     Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (C [-, Γ ]) Cᴰ) (Idᴰ /Fⱽ yoRecEq (C [-, x ]) (⋆AssocC x) f) (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) (Path/→Eq/ (C [-, x ]) Cᴰ) (Cᴰ [-][-, xᴰ ]) (fibrationNatIso Cᴰ ⋆AssocC f)
     Path.⋆PshIsoⱽ reindPshIso (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) Representable≅
 
+  EqFibration→Fibration : Fibration Cᴰ ⋆AssocC → Path.isFibration Cᴰ
+  EqFibration→Fibration isFib {x} xᴰ Γ f = EqCartesianLift→CartesianLift xᴰ Γ f (isFib f xᴰ)
 
   EqCCⱽ→CCⱽ : isCartesianⱽ ⋆AssocC Cᴰ → Path.CartesianCategoryⱽ C ℓCᴰ ℓCᴰ'
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.Cᴰ = Cᴰ

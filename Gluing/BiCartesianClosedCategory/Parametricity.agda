@@ -27,6 +27,7 @@ open import Cubical.Categories.Instances.BinProduct.Cartesian
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
+open import Cubical.Categories.Instances.Sets.Cartesian
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
@@ -36,6 +37,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded as FreeBiCCC
   renaming ([_,_] to [_,+_])
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
+open import Gluing.BiCartesianClosedCategory.BinaryLogicalRelation
 
 module _ where
   data OB : Type where
@@ -119,28 +121,29 @@ module _ where
           (λ _ → refl)))
       .snd
 
-  ×CF : CartesianFunctor (SETCC {ℓ-zero} ×CC SETCC {ℓ-zero}) (SET _)
-  ×CF .fst = ×Sets
-  ×CF .snd c c' Γ =
-    isoToIsEquiv
-      (iso
-        (λ h →
-          (λ z → h z .fst .fst , h z .snd .fst) ,
-          (λ z → h z .fst .snd , h z .snd .snd))
-        (λ h z →
-          (h .fst z .fst , h .snd z .fst) ,
-          (h .fst z .snd , h .snd z .snd))
-        (λ _ → refl)
-        (λ _ → refl))
-
   InterpBoolNat :
     CartesianFunctor FREEBICCC.CC (SET _)
   InterpBoolNat = _∘CF_ {C = FREEBICCC.CC}
-    {(SETCC {ℓ-zero} ×CC SETCC {ℓ-zero})} ×CF InterpBoolNat'
+    {(SETCC {ℓ-zero} ×CC SETCC {ℓ-zero})} ×SetsCF InterpBoolNat'
 
-  S : Section (InterpBoolNat .fst) (SETᴰ ℓ-zero ℓ-zero)
-  S = FreeBiCCC.elimLocal +×⇒QUIVER InterpBoolNat EqSETᴰBCCCⱽ 
-    (mkElimInterpᴰ (λ {X (b , n) → (evenb n ≡ b) ,
-                                         isProp→isSet (isSetBool _ _)})
-      λ {flip → λ (b , n) p → evenb-suc n ∙ cong not p
-       ; read → readᴰ})
+  BoolNatRelationGenerators :
+    LogicalRelationGenerators +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
+      ×SetsCF InterpBool InterpNat
+  BoolNatRelationGenerators =
+    mkElimInterpᴰ
+      (λ { X (b , n) →
+        (evenb n ≡ b) , isProp→isSet (isSetBool _ _)
+      })
+      λ
+        { flip → λ (b , n) p → evenb-suc n ∙ cong not p
+        ; read → readᴰ
+        }
+
+  S :
+    Section
+      (pointwise +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
+        ×SetsCF InterpBool InterpNat .fst)
+      (SETᴰ ℓ-zero ℓ-zero)
+  S =
+    logicalRelation +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
+      ×SetsCF InterpBool InterpNat BoolNatRelationGenerators

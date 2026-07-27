@@ -18,14 +18,14 @@ open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓQ ℓQ' ℓDᴰ ℓDᴰ' : Level
+    ℓC ℓC' ℓD ℓD' ℓQ ℓQ' ℓDⱽ ℓDⱽ' : Level
 
 module _
   (Q : +×⇒Quiver ℓQ ℓQ')
   (D : BiCartesianClosedCategory ℓD ℓD')
-  (Dᴰ : BiCartesianClosedCategoryⱽ
+  (Dⱽ : BiCartesianClosedCategoryⱽ
     (D .BiCartesianClosedCategory.CC)
-    ℓDᴰ ℓDᴰ')
+    ℓDⱽ ℓDⱽ')
   where
 
   private
@@ -34,7 +34,7 @@ module _
 
     module FREE = BiCartesianClosedCategory FREE
     module D = BiCartesianClosedCategory D
-    module Dᴰ = BiCartesianClosedCategoryⱽ Dᴰ
+    module Dⱽ = BiCartesianClosedCategoryⱽ Dⱽ
 
   module _
     (product : CartesianFunctor (D.CC ×CC D.CC) D.C)
@@ -54,12 +54,12 @@ module _
     LogicalRelationGenerators : Type _
     LogicalRelationGenerators =
       FreeBiCCC.ElimInterpᴰ Q
-        (FreeBiCCC.elimLocalMotive Q pointwise Dᴰ)
+        (FreeBiCCC.elimLocalMotive Q pointwise Dⱽ)
 
     -- The fundamental lemma: generator data extends to all freely
     -- generated bicartesian-closed objects and arrows.
     logicalRelation :
       LogicalRelationGenerators →
-      Section (pointwise .fst) Dᴰ.Cᴰ
+      Section (pointwise .fst) Dⱽ.Cᴰ
     logicalRelation =
-      FreeBiCCC.elimLocal Q pointwise Dᴰ
+      FreeBiCCC.elimLocal Q pointwise Dⱽ

@@ -22,6 +22,8 @@ open import HyperDoc.Algebra.Base
     ; IsAlg; Alg; Carrier; interp; IsAlgHom
     ; FreeOn; inc; ops
     )
+open import HyperDoc.Operational.Effects.DebugInsertAt
+  using (insertAt; plugAt; map-insertAt)
 open import HyperDoc.Operational.Effects.Reduction
   using (Polynomial; ⟦_⟧; mapP)
 
@@ -34,22 +36,6 @@ open Polynomial
 ∂ P .Shape = Σ[ s ∈ Shape P ] Fin (size P s)
 ∂ P .size (s , i) = predℕ (size P s)
 
--- Insert a distinguished element at position i.  The remaining n
--- elements are exactly the positions of the derivative polynomial.
-insertAt :
-  ∀ {n : ℕ}{X} →
-  Fin (suc n) → X → (Fin n → X) → Fin (suc n) → X
-insertAt zero x xs zero = x
-insertAt zero x xs (suc j) = xs j
-insertAt (suc i) x xs zero = xs zero
-insertAt (suc i) x xs (suc j) =
-  insertAt i x (λ k → xs (suc k)) j
-
-plugAt :
-  ∀ {n X} →
-  (i : Fin n) → X → (Fin (predℕ n) → X) → Fin n → X
-plugAt {suc n} i = insertAt i
-
 _[_] :
   ∀ {P : Polynomial} {X : Type} → ⟦ ∂ P ⟧ X → X → ⟦ P ⟧ X
 _[_] ((s , i) , xs) x = s , plugAt i x xs
@@ -58,18 +44,6 @@ map∂ :
   ∀ {P : Polynomial} {X Y : Type} →
   (X → Y) → ⟦ ∂ P ⟧ X → ⟦ ∂ P ⟧ Y
 map∂ = mapP
-
-map-insertAt :
-  ∀ {n X Y}
-    (f : X → Y) (i : Fin (suc n)) x xs →
-  (λ j → f (insertAt i x xs j))
-    ≡ insertAt i (f x) (λ j → f (xs j))
-map-insertAt f zero x xs = refl
-map-insertAt f (suc i) x xs =
-  funExt λ
-    { zero → refl
-    ; (suc j) → funExt⁻ (map-insertAt f i x (λ k → xs (suc k))) j
-    }
 
 map-plugAt :
   ∀ {n X Y} (f : X → Y) (i : Fin n) x xs →
@@ -220,13 +194,7 @@ module MonadicReduction
       eval† = bind {a = TermX} {b = X} eval
 
       sound : ∀ {t t′ : ⟨ T TermX ⟩} → t ↦E t′ → eval† t ≡ eval† t′
-      sound (effect C o args) =
-        bind-polynomial {X = TermX} {Y = X}
-          eval (C [ ops o args ])
-        ∙ cong (μ {X = X}) (sym inside)
-        ∙ sym (bind-μ {X = TermX} {Y = X} eval
-          ((map∂ (η {a = TermX}) C)
-            [ alg TermX o (λ i → η {a = TermX} (args i)) ]))
+      sound (effect C o args) = result
         where
         operation :
           bind {a = TermX} {b = X} eval
@@ -264,3 +232,15 @@ module MonadicReduction
           ∙ sym (map-plug (bind {a = TermX} {b = X} eval)
             (map∂ (η {a = TermX}) C)
             (alg TermX o (λ i → η {a = TermX} (args i))))
+
+        result :
+          bind {a = TermX} {b = X} eval (C [ ops o args ])
+            ≡
+          bind {a = TermX} {b = X} eval (effect-step C o args)
+        result =
+          bind-polynomial {X = TermX} {Y = X}
+            eval (C [ ops o args ])
+          ∙ cong (μ {X = X}) inside
+          ∙ sym (bind-μ {X = TermX} {Y = X} eval
+            ((map∂ (η {a = TermX}) C)
+              [ alg TermX o (λ i → η {a = TermX} (args i)) ]))

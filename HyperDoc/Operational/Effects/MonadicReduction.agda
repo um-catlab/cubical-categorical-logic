@@ -20,7 +20,7 @@ open import HyperDoc.Algebra.Base
   using
     ( Signature; Op; arity
     ; IsAlg; Alg; Carrier; interp; IsAlgHom
-    ; FreeOn; inc; ops
+    ; FreeOn; inc; ops; trunc
     )
 open import HyperDoc.Operational.Effects.DebugInsertAt
   using (insertAt; plugAt; map-insertAt)
@@ -161,13 +161,10 @@ module MonadicReduction
           (bind {a = X} {b = Y} f) t
 
 
-    module Terms
-      (X : hSet ℓ-zero)
-      (term-isSet : isSet (FreeOn Σ ⟨ X ⟩))
-      where
+    module Terms (X : hSet ℓ-zero) where
 
       TermX : hSet ℓ-zero
-      TermX = FreeOn Σ ⟨ X ⟩ , term-isSet
+      TermX = FreeOn Σ ⟨ X ⟩ , trunc
 
       -- Figure 7.
       effect-step :
@@ -189,6 +186,10 @@ module MonadicReduction
       eval : FreeOn Σ ⟨ X ⟩ → ⟨ T X ⟩
       eval (inc x)      = η {a = X} x
       eval (ops o args) = alg X o (λ i → eval (args i))
+      eval (trunc t t′ p q i j) =
+        T X .snd
+          (eval t) (eval t′)
+          (cong eval p) (cong eval q) i j
 
       eval† : ⟨ T TermX ⟩ → ⟨ T X ⟩
       eval† = bind {a = TermX} {b = X} eval

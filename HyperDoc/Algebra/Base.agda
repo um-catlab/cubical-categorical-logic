@@ -39,3 +39,4 @@ data FreeOn (Σ : Signature) (X : Type) : Type where
     (o : Op Σ) →
     (Fin (arity Σ o) → FreeOn Σ X) →
     FreeOn Σ X
+  trunc : isSet (FreeOn Σ X)

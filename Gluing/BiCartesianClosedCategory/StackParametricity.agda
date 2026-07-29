@@ -13,12 +13,16 @@ open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Sets.Cartesian
+open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded
   as FreeBiCCC
 open import Gluing.BiCartesianClosedCategory.BinaryLogicalRelation
+
+open Functor
+open Section
 
 data OB : Type where
   elem : OB
@@ -78,3 +82,16 @@ StackRelationGenerators =
 StackLogicalRelation =
   logicalRelation STACK-Q SETBiCCC EqSETᴰBCCCⱽ
     ×SetsCF HeadFirst ReverseStored StackRelationGenerators
+
+-- Every freely generated stack program maps equal elements to stacks that
+-- agree after reversing the representation used by ReverseStored.
+stack-parametricity :
+  (e : FreeBiCCC.Expr STACK-Q (↑ elem) (↑ stack))
+  (b c : Bool) →
+  b ≡ c →
+  HeadFirst .fst .F-hom e b ≡
+    rev (ReverseStored .fst .F-hom e c)
+stack-parametricity e b c p =
+  StackLogicalRelation .F-homᴰ e (b , c) p
+
+_ = {! StackLogicalRelation .F-obᴰ   !}

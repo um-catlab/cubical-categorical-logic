@@ -39,20 +39,25 @@ open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded a
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 open import Gluing.BiCartesianClosedCategory.BinaryLogicalRelation
 
+open Functor
+open Section
+
 module _ where
   data OB : Type where
     X : OB
 
   data MOR : Type ℓ-zero where
-    flip read : MOR
+    init flip read : MOR
 
   open QuiverOver
 
   +×⇒QUIVER : +×⇒Quiver ℓ-zero ℓ-zero
   +×⇒QUIVER .+×⇒Quiver.ob = OB
   +×⇒QUIVER .+×⇒Quiver.Q .mor = MOR
+  +×⇒QUIVER .+×⇒Quiver.Q .dom init = ⊤
   +×⇒QUIVER .+×⇒Quiver.Q .dom flip = ↑ X
   +×⇒QUIVER .+×⇒Quiver.Q .dom read = ↑ X
+  +×⇒QUIVER .+×⇒Quiver.Q .cod init = ↑ X
   +×⇒QUIVER .+×⇒Quiver.Q .cod flip = ↑ X
   +×⇒QUIVER .+×⇒Quiver.Q .cod read = ⊤ + ⊤ 
 
@@ -62,7 +67,8 @@ module _ where
   InterpBool : CartesianFunctor FREEBICCC.CC (SET _) 
   InterpBool = recCF +×⇒QUIVER SETBiCCC 
       (mkElimInterpᴰ (λ{X → Bool , isSetBool}) 
-        λ {flip → not
+        λ {init → λ _ → true
+         ; flip → not
          ; read → if_then inl _ else inr _})
 
   even : ℕ → Lift ℓ-zero Unit ⊎ Lift ℓ-zero Unit 
@@ -77,45 +83,31 @@ module _ where
   ... | inl _ = refl
   ... | inr _ = refl
 
-  ReadRel : Σ Bool (λ _ → ℕ) → Type
-  ReadRel (b , n) =
-    (Σ[ y ∈ Σ (Lift ℓ-zero Unit) (λ _ → Lift ℓ-zero Unit) ]
-      Σ[ _ ∈ ((inl (y .fst) , inl (y .snd)) ≡
-       ((if b then inl tt* else inr tt*) , even n))
-      ] Lift ℓ-zero Unit)
-    ⊎
-    (Σ[ y ∈ Σ (Lift ℓ-zero Unit) (λ _ → Lift ℓ-zero Unit) ]
-      Σ[ _ ∈ ((inr (y .fst) , inr (y .snd)) ≡
-       ((if b then inl tt* else inr tt*) , even n))
-      ] Lift ℓ-zero Unit)
-
-  readBase : ∀ n → ReadRel (evenb n , n)
-  readBase n with even n
-  ... | inl u = inl ((tt* , u) , refl , tt*)
-  ... | inr u = inr ((tt* , u) , refl , tt*)
-
-  readᴰ : ∀ x → evenb (x .snd) ≡ x .fst → ReadRel x
-  readᴰ (b , n) p =
-    subst (λ b' → ReadRel (b' , n)) p
-      (readBase n)
-
   InterpNat : CartesianFunctor FREEBICCC.CC (SET _) 
   InterpNat = recCF +×⇒QUIVER SETBiCCC  
-    (mkElimInterpᴰ (λ {X  → ℕ , isSetℕ }) λ {flip → suc
+    (mkElimInterpᴰ (λ {X  → ℕ , isSetℕ }) λ {init → λ _ → zero
+                                           ; flip → suc
                                            ; read → even})
                                            
   BoolNatRelationGenerators :
     LogicalRelationGenerators +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
       ×SetsCF InterpBool InterpNat
-  BoolNatRelationGenerators =
-    mkElimInterpᴰ
-      (λ { X (b , n) →
-        (evenb n ≡ b) , isProp→isSet (isSetBool _ _)
-      })
-      λ
-        { flip → λ (b , n) p → evenb-suc n ∙ cong not p
-        ; read → readᴰ
-        }
+  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-ob X (b , n) =
+    (evenb n ≡ b) , isProp→isSet (isSetBool _ _)
+  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-hom init _ _ =
+    refl
+  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-hom flip (b , n) p =
+    evenb-suc n ∙ cong not p
+  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-hom
+    read (b , n) p with even n
+  ... | inl u =
+    inl ((tt* , u) ,
+      cong (λ b' → (if b' then inl tt* else inr tt*) , inl u) p ,
+      tt*)
+  ... | inr u =
+    inr ((tt* , u) ,
+      cong (λ b' → (if b' then inl tt* else inr tt*) , inr u) p ,
+      tt*)
 
   S :
     Section
@@ -125,3 +117,18 @@ module _ where
   S =
     logicalRelation +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
       ×SetsCF InterpBool InterpNat BoolNatRelationGenerators
+
+  flipper-representation-independence :
+    (client : FREEBICCC.C [ ⊤ , ⊤ + ⊤ ]) →
+      InterpBool .fst .F-hom client tt* ≡
+      InterpNat .fst .F-hom client tt*
+  flipper-representation-independence client
+    with S .F-homᴰ client (tt* , tt*) tt*
+  ... | inl (y , p , _) =
+    cong fst (sym p) ∙
+    cong inl (isPropUnit* (y .fst) (y .snd)) ∙
+    cong snd p
+  ... | inr (y , p , _) =
+    cong fst (sym p) ∙
+    cong inr (isPropUnit* (y .fst) (y .snd)) ∙
+    cong snd p

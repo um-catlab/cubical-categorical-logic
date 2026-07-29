@@ -6,6 +6,8 @@ open import Cubical.Data.Bool
 open import Cubical.Data.List hiding ([_])
 open import Cubical.Data.List.Properties
 open import Cubical.Data.Quiver.Base
+open import Cubical.Data.Sigma as Sigma hiding (_×_)
+open import Cubical.Data.Sum
 open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category
@@ -32,6 +34,7 @@ data OB : Type where
 data MOR : Type where
   emptyStack : MOR
   push : MOR
+  pop : MOR
 
 open QuiverOver
 
@@ -40,13 +43,30 @@ StackQuiver .+×⇒Quiver.ob = OB
 StackQuiver .+×⇒Quiver.Q .mor = MOR
 StackQuiver .+×⇒Quiver.Q .dom emptyStack = ⊤
 StackQuiver .+×⇒Quiver.Q .dom push = (↑ elem) × (↑ stack)
+StackQuiver .+×⇒Quiver.Q .dom pop = ↑ stack
 StackQuiver .+×⇒Quiver.Q .cod emptyStack = ↑ stack
 StackQuiver .+×⇒Quiver.Q .cod push = ↑ stack
+StackQuiver .+×⇒Quiver.Q .cod pop = ⊤ + ((↑ elem) × (↑ stack))
 
 private
   module FREE =
     BiCartesianClosedCategory
       (FreeBiCartesianClosedCategory StackQuiver)
+
+headPop : List Bool →
+  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool)
+headPop [] = inl tt*
+headPop (b ∷ xs) = inr (b , xs)
+
+reversePoppedStack :
+  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool) →
+  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool)
+reversePoppedStack (inl u) = inl u
+reversePoppedStack (inr (b , xs)) = inr (b , rev xs)
+
+reversePop : List Bool →
+  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool)
+reversePop ys = reversePoppedStack (headPop (rev ys))
 
 HeadFirst : CartesianFunctor FREE.CC (SET ℓ-zero)
 HeadFirst = FreeBiCCC.recCF StackQuiver SETBiCCC
@@ -54,7 +74,8 @@ HeadFirst = FreeBiCCC.recCF StackQuiver SETBiCCC
     (λ { elem → Bool , isSetBool
        ; stack → List Bool , isOfHLevelList 0 isSetBool })
     λ { emptyStack → λ _ → []
-      ; push → λ (b , xs) → b ∷ xs })
+      ; push → λ (b , xs) → b ∷ xs
+      ; pop → headPop })
 
 ReverseStored : CartesianFunctor FREE.CC (SET ℓ-zero)
 ReverseStored = FreeBiCCC.recCF StackQuiver SETBiCCC
@@ -62,7 +83,8 @@ ReverseStored = FreeBiCCC.recCF StackQuiver SETBiCCC
     (λ { elem → Bool , isSetBool
        ; stack → List Bool , isOfHLevelList 0 isSetBool })
     λ { emptyStack → λ _ → []
-      ; push → λ (b , xs) → xs ++ (b ∷ []) })
+      ; push → λ (b , xs) → xs ++ (b ∷ [])
+      ; pop → reversePop })
 
 StackRelationGenerators :
   LogicalRelationGenerators StackQuiver SETBiCCC EqSETᴰBCCCⱽ
@@ -79,6 +101,18 @@ StackRelationGenerators =
       { emptyStack → λ _ _ → refl
       ; push → λ ((b , xs) , (c , ys)) (p , q) →
           cong₂ _∷_ p q ∙ sym (rev-snoc ys c)
+      ; pop → λ
+        { ([] , ys) q →
+            inl ((tt* , tt*) ,
+              ΣPathP (refl ,
+                cong (λ zs → reversePoppedStack (headPop zs)) q) ,
+              tt*)
+        ; ((b ∷ xs) , ys) q →
+            inr (((b , xs) , (b , rev xs)) ,
+              ΣPathP (refl ,
+                cong (λ zs → reversePoppedStack (headPop zs)) q) ,
+              refl , sym (rev-rev xs))
+        }
       }
 
 StackLogicalRelation =

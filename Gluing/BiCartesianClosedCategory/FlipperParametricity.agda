@@ -58,11 +58,11 @@ module _ where
          ; flip → not
          ; read → if_then inl _ else inr _})
 
-  even : ℕ → Lift ℓ-zero Unit ⊎ Lift ℓ-zero Unit 
+  even : ℕ → Lift ℓ-zero Unit ⊎ Lift ℓ-zero Unit
   even zero = inl _
   even (suc z) = Sum.rec inr inl (even z)
 
-  evenb : ℕ → Bool 
+  evenb : ℕ → Bool
   evenb n = Sum.rec (λ _ → true) (λ _ → false) (even n)
 
   evenb-suc : ∀ n → evenb (suc n) ≡ not (evenb n)
@@ -75,7 +75,7 @@ module _ where
     (FreeBiCCC.mkElimInterpᴰ (λ {X  → ℕ , isSetℕ }) λ {init → λ _ → zero
                                            ; flip → suc
                                            ; read → even})
-                                           
+
   BoolNatRelationGenerators :
     LogicalRelationGenerators FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
       ×SetsCF InterpBool InterpNat

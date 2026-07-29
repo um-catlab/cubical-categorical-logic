@@ -337,11 +337,11 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
     open import Cubical.Categories.Limits.BinProduct.More
     open isIso
     module p = BinProductsNotation BCCC'.bp
-      
-    recCF : (ı : ElimInterpᴰ wkC) → CartesianFunctor FreeBCCC.CC BCCC'.C 
-    recCF ı = (rec ı) , λ c c' A → isIsoToIsEquiv 
-      ((λ {(f , g) → f p.,p g}) , 
-      ((λ (f , g) → ΣPathP (p.×β₁ , p.×β₂)) , 
+
+    recCF : (ı : ElimInterpᴰ wkC) → CartesianFunctor FreeBCCC.CC BCCC'.C
+    recCF ı = (rec ı) , λ c c' A → isIsoToIsEquiv
+      ((λ {(f , g) → f p.,p g}) ,
+      ((λ (f , g) → ΣPathP (p.×β₁ , p.×β₂)) ,
       λ f → p.,p≡ refl refl))
 
   -- -- -- BCCC functors out of the FreeBiCartesianClosedCategory

@@ -6,7 +6,9 @@ open import Cubical.Data.Bool
 open import Cubical.Data.List hiding ([_])
 open import Cubical.Data.List.Properties
 open import Cubical.Data.Quiver.Base
+open import Cubical.Data.Unit
 
+open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
@@ -18,7 +20,7 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded
-  as FreeBiCCC
+  as FreeBiCCC renaming ([_,_] to [_,+_])
 open import Gluing.BiCartesianClosedCategory.BinaryLogicalRelation
 
 open Functor
@@ -83,15 +85,9 @@ StackLogicalRelation =
   logicalRelation STACK-Q SETBiCCC EqSETᴰBCCCⱽ
     ×SetsCF HeadFirst ReverseStored StackRelationGenerators
 
--- Every freely generated stack program maps equal elements to stacks that
--- agree after reversing the representation used by ReverseStored.
-stack-parametricity :
-  (e : FreeBiCCC.Expr STACK-Q (↑ elem) (↑ stack))
-  (b c : Bool) →
-  b ≡ c →
-  HeadFirst .fst .F-hom e b ≡
-    rev (ReverseStored .fst .F-hom e c)
-stack-parametricity e b c p =
-  StackLogicalRelation .F-homᴰ e (b , c) p
-
-_ = {! StackLogicalRelation .F-obᴰ   !}
+stack-representation-independence :
+  (client : FREE.C [ ⊤ , (↑ stack) ]) →
+  HeadFirst .fst .F-hom client tt* ≡
+    rev (ReverseStored .fst .F-hom client tt*)
+stack-representation-independence client =
+  StackLogicalRelation .F-homᴰ client (tt* , tt*) tt*

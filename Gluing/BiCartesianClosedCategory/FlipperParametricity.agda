@@ -6,7 +6,6 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
-
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_)
 open import Cubical.Data.Sum as Sum

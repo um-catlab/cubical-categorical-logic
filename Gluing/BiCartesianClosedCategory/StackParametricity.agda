@@ -16,7 +16,6 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Sets.Cartesian
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded

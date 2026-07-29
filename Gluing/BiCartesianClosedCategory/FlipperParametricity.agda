@@ -1,37 +1,23 @@
 module Gluing.BiCartesianClosedCategory.FlipperParametricity where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Structure hiding (⟨_⟩)
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_)
 open import Cubical.Data.Sum as Sum
-open import Cubical.Data.Sum.Properties
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma as Sigma hiding (_×_)
-open import Cubical.Data.Sigma.Properties
 open import Cubical.Data.Quiver.Base
-import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import  Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Instances.BinProduct
-open import Cubical.Categories.Instances.BinProduct.Cartesian
-  renaming (_×_ to _×CC_)
+open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Sets.Cartesian
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
-open import Cubical.Categories.Limits.BinProduct.More
-open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded as FreeBiCCC
   renaming ([_,_] to [_,+_])

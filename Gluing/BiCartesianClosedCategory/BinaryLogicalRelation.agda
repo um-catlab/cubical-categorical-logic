@@ -41,23 +41,16 @@ module _
     (F G : CartesianFunctor FREE.CC D.C)
     where
 
-    paired : CartesianFunctor FREE.CC (D.C ×C D.C)
-    paired = pairCF {B = FREE.CC} {C = D.CC} {D = D.CC} F G
-
     pointwise : CartesianFunctor FREE.CC D.C
     pointwise =
       _∘CF_ {C = FREE.CC} {D = D.CC ×CC D.CC}
-        product paired
+        product (pairCF {B = FREE.CC} {C = D.CC} {D = D.CC} F G)
 
-    -- Data for a relation on generating objects together with proofs
-    -- that every generating arrow preserves it.
     LogicalRelationGenerators : Type _
     LogicalRelationGenerators =
       FreeBiCCC.ElimInterpᴰ Q
         (FreeBiCCC.elimLocalMotive Q pointwise Dⱽ)
 
-    -- The fundamental lemma: generator data extends to all freely
-    -- generated bicartesian-closed objects and arrows.
     logicalRelation :
       LogicalRelationGenerators →
       Section (pointwise .fst) Dⱽ.Cᴰ

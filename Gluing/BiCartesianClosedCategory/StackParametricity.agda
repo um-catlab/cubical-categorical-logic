@@ -36,20 +36,21 @@ data MOR : Type where
 
 open QuiverOver
 
-STACK-Q : +×⇒Quiver ℓ-zero ℓ-zero
-STACK-Q .+×⇒Quiver.ob = OB
-STACK-Q .+×⇒Quiver.Q .mor = MOR
-STACK-Q .+×⇒Quiver.Q .dom emptyStack = ⊤
-STACK-Q .+×⇒Quiver.Q .dom push = (↑ elem) × (↑ stack)
-STACK-Q .+×⇒Quiver.Q .cod emptyStack = ↑ stack
-STACK-Q .+×⇒Quiver.Q .cod push = ↑ stack
+StackQuiver : +×⇒Quiver ℓ-zero ℓ-zero
+StackQuiver .+×⇒Quiver.ob = OB
+StackQuiver .+×⇒Quiver.Q .mor = MOR
+StackQuiver .+×⇒Quiver.Q .dom emptyStack = ⊤
+StackQuiver .+×⇒Quiver.Q .dom push = (↑ elem) × (↑ stack)
+StackQuiver .+×⇒Quiver.Q .cod emptyStack = ↑ stack
+StackQuiver .+×⇒Quiver.Q .cod push = ↑ stack
 
 private
   module FREE =
-    BiCartesianClosedCategory (FreeBiCartesianClosedCategory STACK-Q)
+    BiCartesianClosedCategory
+      (FreeBiCartesianClosedCategory StackQuiver)
 
 HeadFirst : CartesianFunctor FREE.CC (SET ℓ-zero)
-HeadFirst = FreeBiCCC.recCF STACK-Q SETBiCCC
+HeadFirst = FreeBiCCC.recCF StackQuiver SETBiCCC
   (FreeBiCCC.mkElimInterpᴰ
     (λ { elem → Bool , isSetBool
        ; stack → List Bool , isOfHLevelList 0 isSetBool })
@@ -57,7 +58,7 @@ HeadFirst = FreeBiCCC.recCF STACK-Q SETBiCCC
       ; push → λ (b , xs) → b ∷ xs })
 
 ReverseStored : CartesianFunctor FREE.CC (SET ℓ-zero)
-ReverseStored = FreeBiCCC.recCF STACK-Q SETBiCCC
+ReverseStored = FreeBiCCC.recCF StackQuiver SETBiCCC
   (FreeBiCCC.mkElimInterpᴰ
     (λ { elem → Bool , isSetBool
        ; stack → List Bool , isOfHLevelList 0 isSetBool })
@@ -65,7 +66,7 @@ ReverseStored = FreeBiCCC.recCF STACK-Q SETBiCCC
       ; push → λ (b , xs) → xs ++ (b ∷ []) })
 
 StackRelationGenerators :
-  LogicalRelationGenerators STACK-Q SETBiCCC EqSETᴰBCCCⱽ
+  LogicalRelationGenerators StackQuiver SETBiCCC EqSETᴰBCCCⱽ
     ×SetsCF HeadFirst ReverseStored
 StackRelationGenerators =
   FreeBiCCC.mkElimInterpᴰ
@@ -82,7 +83,7 @@ StackRelationGenerators =
       }
 
 StackLogicalRelation =
-  logicalRelation STACK-Q SETBiCCC EqSETᴰBCCCⱽ
+  logicalRelation StackQuiver SETBiCCC EqSETᴰBCCCⱽ
     ×SetsCF HeadFirst ReverseStored StackRelationGenerators
 
 stack-representation-independence :

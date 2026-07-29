@@ -50,22 +50,24 @@ module _ where
 
   open QuiverOver
 
-  +×⇒QUIVER : +×⇒Quiver ℓ-zero ℓ-zero
-  +×⇒QUIVER .+×⇒Quiver.ob = OB
-  +×⇒QUIVER .+×⇒Quiver.Q .mor = MOR
-  +×⇒QUIVER .+×⇒Quiver.Q .dom init = ⊤
-  +×⇒QUIVER .+×⇒Quiver.Q .dom flip = ↑ X
-  +×⇒QUIVER .+×⇒Quiver.Q .dom read = ↑ X
-  +×⇒QUIVER .+×⇒Quiver.Q .cod init = ↑ X
-  +×⇒QUIVER .+×⇒Quiver.Q .cod flip = ↑ X
-  +×⇒QUIVER .+×⇒Quiver.Q .cod read = ⊤ + ⊤ 
+  FlipperQuiver : +×⇒Quiver ℓ-zero ℓ-zero
+  FlipperQuiver .+×⇒Quiver.ob = OB
+  FlipperQuiver .+×⇒Quiver.Q .mor = MOR
+  FlipperQuiver .+×⇒Quiver.Q .dom init = ⊤
+  FlipperQuiver .+×⇒Quiver.Q .dom flip = ↑ X
+  FlipperQuiver .+×⇒Quiver.Q .dom read = ↑ X
+  FlipperQuiver .+×⇒Quiver.Q .cod init = ↑ X
+  FlipperQuiver .+×⇒Quiver.Q .cod flip = ↑ X
+  FlipperQuiver .+×⇒Quiver.Q .cod read = ⊤ + ⊤
 
   private
-    module FREEBICCC = BiCartesianClosedCategory (FreeBiCartesianClosedCategory +×⇒QUIVER)
+    module FREE =
+      BiCartesianClosedCategory
+        (FreeBiCartesianClosedCategory FlipperQuiver)
 
-  InterpBool : CartesianFunctor FREEBICCC.CC (SET _) 
-  InterpBool = recCF +×⇒QUIVER SETBiCCC 
-      (mkElimInterpᴰ (λ{X → Bool , isSetBool}) 
+  InterpBool : CartesianFunctor FREE.CC (SET _)
+  InterpBool = FreeBiCCC.recCF FlipperQuiver SETBiCCC
+      (FreeBiCCC.mkElimInterpᴰ (λ{X → Bool , isSetBool})
         λ {init → λ _ → true
          ; flip → not
          ; read → if_then inl _ else inr _})
@@ -82,14 +84,14 @@ module _ where
   ... | inl _ = refl
   ... | inr _ = refl
 
-  InterpNat : CartesianFunctor FREEBICCC.CC (SET _) 
-  InterpNat = recCF +×⇒QUIVER SETBiCCC  
-    (mkElimInterpᴰ (λ {X  → ℕ , isSetℕ }) λ {init → λ _ → zero
+  InterpNat : CartesianFunctor FREE.CC (SET _)
+  InterpNat = FreeBiCCC.recCF FlipperQuiver SETBiCCC
+    (FreeBiCCC.mkElimInterpᴰ (λ {X  → ℕ , isSetℕ }) λ {init → λ _ → zero
                                            ; flip → suc
                                            ; read → even})
                                            
   BoolNatRelationGenerators :
-    LogicalRelationGenerators +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
+    LogicalRelationGenerators FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
       ×SetsCF InterpBool InterpNat
   BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-ob X (b , n) =
     (evenb n ≡ b) , isProp→isSet (isSetBool _ _)
@@ -108,21 +110,16 @@ module _ where
       cong (λ b' → (if b' then inl tt* else inr tt*) , inr u) p ,
       tt*)
 
-  S :
-    Section
-      (pointwise +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
-        ×SetsCF InterpBool InterpNat .fst)
-      (SETᴰ ℓ-zero ℓ-zero)
-  S =
-    logicalRelation +×⇒QUIVER SETBiCCC EqSETᴰBCCCⱽ
+  FlipperLogicalRelation =
+    logicalRelation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
       ×SetsCF InterpBool InterpNat BoolNatRelationGenerators
 
   flipper-representation-independence :
-    (client : FREEBICCC.C [ ⊤ , ⊤ + ⊤ ]) →
+    (client : FREE.C [ ⊤ , ⊤ + ⊤ ]) →
       InterpBool .fst .F-hom client tt* ≡
       InterpNat .fst .F-hom client tt*
   flipper-representation-independence client
-    with S .F-homᴰ client (tt* , tt*) tt*
+    with FlipperLogicalRelation .F-homᴰ client (tt* , tt*) tt*
   ... | inl (y , p , _) =
     cong fst (sym p) ∙
     cong inl (isPropUnit* (y .fst) (y .snd)) ∙

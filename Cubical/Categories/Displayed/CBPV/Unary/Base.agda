@@ -1,18 +1,25 @@
+-- A (Unary) CBPVCat is a category displayed over KIND i.e., the free category 𝓥 → 𝓒
+-- U and F types are defined as (op)cartesian lifts of the morphism 𝓥 → 𝓒.
+-- A CBPVCat with U/F types is a MultCBPVCat i.e. "multiplicative"
+
+-- A CBPVCatᴰ over C is a cat displayed over ∫ C.
+
+-- A MultCBPVCatⱽ over a CBPVCat C has all (op)cartesian lifts of morphisms over 𝓥 → 𝓒
+
+-- A MultCBPVCatᴰ over a MultCBPVCat has displayed U/F as defined below
 {-# OPTIONS --prop --lossy-unification #-}
 module Cubical.Categories.Displayed.CBPV.Unary.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.More
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Prop
 
-open import Cubical.Data.Bool
-open import Cubical.Data.Sum as Sum
-open import Cubical.Data.Empty as Empty
-open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -53,9 +60,6 @@ module _ (C : CBPVCat ℓ ℓ') where
   private
     module C = Categoryᴰ C
 
-  CBPVCatᴰ : ∀ ℓᴰ ℓᴰ' → Type _
-  CBPVCatᴰ = Categoryᴰ (∫C C)
-
   U-Spec : (B : C.ob[ 𝓒 ]) → Presheafⱽ 𝓥 C ℓ'
   U-Spec B = reindPshᴰNatTrans (yoRec (KIND [-, 𝓒 ]) _) (C [-][-, B ])
 
@@ -80,6 +84,16 @@ module _ (C : CBPVCat ℓ ℓ') where
     {x = 𝓒}{y = 𝓥}
     _
     A
+
+  CBPVCatᴰ : ∀ ℓᴰ ℓᴰ' → Type _
+  CBPVCatᴰ = Categoryᴰ (∫C C)
+
+record MultCBPVCat ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
+  no-eta-equality
+  field
+    C : CBPVCat ℓ ℓ'
+    U : hasU C
+    F : hasF C
 
 module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   private
@@ -150,3 +164,10 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
 --   --   1. eq-based to non-eq based for vertical
 --   --   2. reindexing of vertical
 --   --   3. vertical to displayed
+
+record MultCBPVCatⱽ (C : CBPVCat ℓ ℓ') ℓᴰ ℓᴰ' : Type (ℓ-suc ((ℓ ⊔ℓ ℓ') ⊔ℓ (ℓᴰ ⊔ℓ ℓᴰ'))) where
+  no-eta-equality
+  field
+    Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ'
+    Uⱽ : hasUⱽ Cᴰ
+    Fⱽ : hasFⱽ Cᴰ

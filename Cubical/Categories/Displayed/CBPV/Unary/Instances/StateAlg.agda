@@ -8,6 +8,7 @@ module Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Structure
@@ -22,7 +23,7 @@ open import Cubical.Data.Empty as Empty
 open import Cubical.Data.Unit
 import Cubical.Data.Equality as Eq
 
-open import Cubical.Categories.Category
+open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.Sets
@@ -117,6 +118,15 @@ record StateAlgᴰ (B : StateAlg ℓ)(ℓᴰ : Level) : Type (ℓ-max ℓ (ℓ-s
     wt-wtᴰ : ∀ b b' x xᴰ
       → wtᴰ b (wtᴰ b' xᴰ) P≡[ wt-wt b b' x ] wtᴰ b' xᴰ
 
+  ∫ : StateAlg (ℓ-max ℓ ℓᴰ)
+  ∫ .StateAlg.X = Σ X Xᴰ
+  ∫ .StateAlg.rd (_ , xtᴰ) (_ , xfᴰ) = _ , rdᴰ xtᴰ xfᴰ
+  ∫ .StateAlg.wt b (_ , xᴰ) = _ , wtᴰ b xᴰ
+  ∫ .StateAlg.wt-rd false xt xf = ΣPathP (_ , wt-rdᴰ _ _ _ _ _)
+  ∫ .StateAlg.wt-rd true xt xf = ΣPathP (_ , wt-rdᴰ _ _ _ _ _)
+  ∫ .StateAlg.rd-wt (x , xᴰ) = ΣPathP (_ , rd-wtᴰ _ _)
+  ∫ .StateAlg.wt-wt b1 b2 (x , xᴰ) = ΣPathP (_ , wt-wtᴰ _ _ _ _)
+
 record Homoᴰ {B : StateAlg ℓ}{B' : StateAlg ℓ'}
   (ϕ : Homo B B') (Bᴰ : StateAlgᴰ B ℓᴰ)(Bᴰ' : StateAlgᴰ B' ℓᴰ')
   : Type (ℓᴰ' ⊔ℓ ℓᴰ ⊔ℓ ℓ) where
@@ -130,8 +140,13 @@ record Homoᴰ {B : StateAlg ℓ}{B' : StateAlg ℓ'}
     fᴰ : mapOver f Bᴰ.Xᴰ Bᴰ'.Xᴰ
     rd-homᴰ : ∀ xt xf xtᴰ xfᴰ
       → fᴰ _ (Bᴰ.rdᴰ xtᴰ xfᴰ) Bᴰ'.P≡[ rd-hom xt xf ] Bᴰ'.rdᴰ (fᴰ xt xtᴰ) (fᴰ xf xfᴰ)
-    wt-hom : ∀ b x xᴰ
+    wt-homᴰ : ∀ b x xᴰ
       → fᴰ _ (Bᴰ.wtᴰ b xᴰ) Bᴰ'.P≡[ wt-hom b x ] Bᴰ'.wtᴰ b (fᴰ x xᴰ)
+
+  ∫ : Homo Bᴰ.∫ Bᴰ'.∫
+  ∫ .Homo.f (b , bᴰ) = (f b) , (fᴰ b bᴰ)
+  ∫ .Homo.rd-hom xt xf = ΣPathP (_ , (rd-homᴰ (xt .fst) (xf .fst) (xt .snd) (xf .snd)))
+  ∫ .Homo.wt-hom b x = ΣPathP (_ , wt-homᴰ b (x .fst) (x .snd))
 
 Homoⱽ : {B : StateAlg ℓ} (Bᴰ : StateAlgᴰ B ℓᴰ)(Bᴰ' : StateAlgᴰ B ℓᴰ') → Type _
 Homoⱽ Bᴰ Bᴰ' = Homoᴰ idHomo Bᴰ Bᴰ'
@@ -176,6 +191,7 @@ module _ (X : Type ℓ) where
         cong₂ B.rd (sym $ ϕ.wt-hom _ _) (sym $ ϕ.wt-hom _ _)
         ∙ (sym $ ϕ.rd-hom _ _)
         ∙ cong ϕ.f (sym $ FreeStateAlg.rd-wt f)
+
   module _ (Xᴰ : X → Type ℓ') where
     FreeStateAlgᴰ : StateAlgᴰ FreeStateAlg ℓ'
     FreeStateAlgᴰ .StateAlgᴰ.Xᴰ f = ∀ b → Xᴰ (f b .snd)
@@ -191,19 +207,46 @@ module _ (X : Type ℓ) where
     ηᴰ : mapOver η Xᴰ (FreeStateAlgᴰ .StateAlgᴰ.Xᴰ)
     ηᴰ x xᴰ b = xᴰ
 
-    module _ {B : StateAlg ℓ'} (Bᴰ : StateAlgᴰ B ℓᴰ') where
-      private
-        module B = StateAlg B
-        module Bᴰ = StateAlgᴰ Bᴰ
-      recFSAᴰ
-        : (i : X → B.X)
-        → (∀ x → Xᴰ x → Bᴰ.Xᴰ (i x))
-        → Homoᴰ (recFSA B i) FreeStateAlgᴰ Bᴰ
-      recFSAᴰ i iᴰ .Homoᴰ.fᴰ = λ a z →
-                                  Bᴰ.rdᴰ (Bᴰ.wtᴰ (a true .fst) (iᴰ (a true .snd) (z true)))
-                                  (Bᴰ.wtᴰ (a false .fst) (iᴰ (a false .snd) (z false)))
-      recFSAᴰ i iᴰ .Homoᴰ.rd-homᴰ = {!!}
-      recFSAᴰ i iᴰ .Homoᴰ.wt-hom = {!!}
+module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
+  open StateAlgᴰ using (∫)
+
+  -- ∫ (FSAᴰ Xᴰ) ≅ FSA (∫ Xᴰ)
+  open Homo
+  -- this is equivalent to pack⁻ but pack⁻ has better definitional
+  -- behavior.
+  unpack : Homo (FreeStateAlg (Σ X Xᴰ)) (∫ (FreeStateAlgᴰ X Xᴰ))
+  unpack = recFSA (Σ X Xᴰ) (∫ (FreeStateAlgᴰ X Xᴰ)) (λ (x , xᴰ) → ((λ b → b , x) , λ b → xᴰ))
+
+  pack : Homo (∫ (FreeStateAlgᴰ X Xᴰ)) (FreeStateAlg (Σ X Xᴰ))
+  pack .f (f , fᴰ) b = f b .fst , f b .snd , fᴰ b
+  pack .rd-hom (ft , ftᴰ) (ff , ffᴰ) = funExt λ
+    { false → refl
+    ; true → refl }
+  pack .wt-hom b (ft , ftᴰ) = refl
+
+  pack⁻ : isIso (pack .f)
+  pack⁻ .fst ∫f .fst b .fst = ∫f b .fst
+  pack⁻ .fst ∫f .fst b .snd = ∫f b .snd .fst
+  pack⁻ .fst ∫f .snd b = ∫f b .snd .snd
+  pack⁻ .snd .fst _ = refl
+  pack⁻ .snd .snd _ = refl
+
+  module _ {B : StateAlg ℓ'} (Bᴰ : StateAlgᴰ B ℓᴰ') where
+    private
+      module B = StateAlg B
+      module Bᴰ = StateAlgᴰ Bᴰ
+
+    module _ (i : X → B.X) (iᴰ : ∀ x → Xᴰ x → Bᴰ.Xᴰ (i x)) (isSetB : isSet B.X) where
+      -- ∫ FSAᴰ → FSA (∫ X Xᴰ) → ∫ Bᴰ
+      ∫recFSAᴰ : Homo (∫ (FreeStateAlgᴰ X Xᴰ)) Bᴰ.∫
+      ∫recFSAᴰ = pack ⋆Homo recFSA (Σ X Xᴰ) Bᴰ.∫ (λ z → i (z .fst) , iᴰ (z .fst) (z .snd))
+
+      recFSAᴰ : Homoᴰ (recFSA X B i) (FreeStateAlgᴰ X Xᴰ) Bᴰ
+      recFSAᴰ .Homoᴰ.fᴰ s sᴰ = ∫recFSAᴰ .f (s , sᴰ) .snd
+      recFSAᴰ .Homoᴰ.rd-homᴰ st sf stᴰ sfᴰ = hSetReasoning.rectifyOut (_ , isSetB) Bᴰ.Xᴰ $
+        ∫recFSAᴰ .rd-hom (st , stᴰ) (sf , sfᴰ)
+      recFSAᴰ .Homoᴰ.wt-homᴰ b s sᴰ = hSetReasoning.rectifyOut (_ , isSetB) Bᴰ.Xᴰ $
+        ∫recFSAᴰ .wt-hom b (s , sᴰ)
 
 module _ {B : StateAlg ℓ}{B' : StateAlg ℓ'}
   (ϕ : Homo B B')
@@ -250,21 +293,44 @@ module _ {B : StateAlg ℓ}{B' : StateAlg ℓ'}
     σ : Homoᴰ ϕ Bᴰ push
     σ .Homoᴰ.fᴰ x xᴰ = (x , refl) , xᴰ
     σ .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ = ΣPathP ((ΣPathPProp (λ _ → isSetB' _ _) refl) , refl)
-    σ .Homoᴰ.wt-hom b x xᴰ = ΣPathP ((ΣPathPProp (λ _ → isSetB' _ _) refl) , refl)
+    σ .Homoᴰ.wt-homᴰ b x xᴰ = ΣPathP ((ΣPathPProp (λ _ → isSetB' _ _) refl) , refl)
 
     --
-    module _ {B'' : StateAlg ℓ''}(ψ : Homo B' B'')(Bᴰ'' : StateAlgᴰ B'' ℓᴰ'') where
+    module _ {B'' : StateAlg ℓ''}(isSetB'' : isSet (B'' .StateAlg.X))(ψ : Homo B' B'')(Bᴰ'' : StateAlgᴰ B'' ℓᴰ'') where
       private
         module ψ = Homo ψ
-        module Bᴰ'' = StateAlgᴰ Bᴰ''
+        module Bᴰ'' where
+          open StateAlgᴰ Bᴰ'' public
+          open hSetReasoning (_ , isSetB'') Xᴰ using (rectifyOut) public
       module _ (ϕψᴰ : Homoᴰ (ϕ ⋆Homo ψ) Bᴰ Bᴰ'') where
         private module ϕψᴰ = Homoᴰ ϕψᴰ
-        -- some transport nonsense
+        -- Maybe can avoid this using EqFiber but not sure that it's
+        -- ultimately helpful to do so?
         recPush : Homoᴰ ψ push Bᴰ''
         recPush .Homoᴰ.fᴰ b' x =
-          subst Bᴰ''.Xᴰ (cong ψ.f (x .fst .snd)) (ϕψᴰ.fᴰ (x .fst .fst) (x .snd))
-        recPush .Homoᴰ.rd-homᴰ = {!!}
-        recPush .Homoᴰ.wt-hom = {!!}
+          Bᴰ''.reind (cong ψ.f (x .fst .snd)) (ϕψᴰ.fᴰ (x .fst .fst) (x .snd))
+        recPush .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ = Bᴰ''.rectifyOut $
+          Bᴰ''.reind-filler⁻ _
+          ∙ ϕψᴰ.∫ .Homo.rd-hom _ _
+          ∙ cong₂ (Bᴰ''.∫ .StateAlg.rd)
+            (Bᴰ''.reind-filler _)
+            (Bᴰ''.reind-filler _)
+        recPush .Homoᴰ.wt-homᴰ b x xᴰ = Bᴰ''.rectifyOut $
+          Bᴰ''.reind-filler⁻ (λ i → ψ.f (StateAlgᴰ.wtᴰ push b xᴰ .fst .snd i))
+          ∙ ϕψᴰ.∫ .Homo.wt-hom _ _
+          ∙ cong (Bᴰ''.∫ .StateAlg.wt _) (Bᴰ''.reind-filler _)
+
+
+module _ {X : Type ℓ}(Xᴰ : X → Type ℓᴰ) (B : StateAlg ℓ')
+  (i : X → B .StateAlg.X) (isSetB : isSet (B .StateAlg.X))
+  where
+  private
+    module B = StateAlg B
+
+  -- Can we get the universal property for this as a combination of
+  -- the universal properties for the others?
+  FreeStateAlgⱽ : StateAlgᴰ B (ℓ-max (ℓ-max ℓ ℓᴰ) ℓ')
+  FreeStateAlgⱽ = push (recFSA X B i) (FreeStateAlgᴰ X Xᴰ) isSetB
 
 -- summarizing,
 -- - we have an opcartesian lift ηᴰ : C [ η ][ Aᴰ , FSAᴰ Aᴰ ] of Aᴰ

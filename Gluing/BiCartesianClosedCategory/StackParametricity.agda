@@ -28,7 +28,6 @@ open Functor
 open Section
 
 data OB : Type where
-  elem : OB
   stack : OB
 
 data MOR : Type where
@@ -38,15 +37,29 @@ data MOR : Type where
 
 open QuiverOver
 
+two : BiCCCExpr OB
+two = ⊤ + ⊤
+
+Two : Type 
+Two = Unit* {ℓ-zero} ⊎ Unit* {ℓ-zero}
+
+encodeBool : Bool → Two 
+encodeBool true = inl tt*
+encodeBool false = inr tt*
+
+decodeBool : Two → Bool
+decodeBool (inl _) = true
+decodeBool (inr _) = false
+
 StackQuiver : +×⇒Quiver ℓ-zero ℓ-zero
 StackQuiver .+×⇒Quiver.ob = OB
 StackQuiver .+×⇒Quiver.Q .mor = MOR
 StackQuiver .+×⇒Quiver.Q .dom emptyStack = ⊤
-StackQuiver .+×⇒Quiver.Q .dom push = (↑ elem) × (↑ stack)
-StackQuiver .+×⇒Quiver.Q .dom pop = ↑ stack
 StackQuiver .+×⇒Quiver.Q .cod emptyStack = ↑ stack
+StackQuiver .+×⇒Quiver.Q .dom push = two × (↑ stack)
 StackQuiver .+×⇒Quiver.Q .cod push = ↑ stack
-StackQuiver .+×⇒Quiver.Q .cod pop = ⊤ + ((↑ elem) × (↑ stack))
+StackQuiver .+×⇒Quiver.Q .dom pop = ↑ stack
+StackQuiver .+×⇒Quiver.Q .cod pop = ⊤ + (two × (↑ stack))
 
 private
   module FREE =
@@ -54,36 +67,34 @@ private
       (FreeBiCartesianClosedCategory StackQuiver)
 
 headPop : List Bool →
-  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool)
+  Unit* {ℓ-zero} ⊎ (Σ[ _ ∈ Two ] (List Bool))
 headPop [] = inl tt*
-headPop (b ∷ xs) = inr (b , xs)
+headPop (b ∷ xs) = inr (encodeBool b , xs)
 
 reversePoppedStack :
-  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool) →
-  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool)
+  Unit* {ℓ-zero} ⊎ (Σ[ _ ∈ Two ] (List Bool)) →
+  Unit* ⊎ (Σ[ _ ∈ Two ] (List Bool))
 reversePoppedStack (inl u) = inl u
 reversePoppedStack (inr (b , xs)) = inr (b , rev xs)
 
 reversePop : List Bool →
-  Lift ℓ-zero Unit ⊎ Σ Bool (λ _ → List Bool)
+  Unit* ⊎ (Σ[ _ ∈ Two ] (List Bool))
 reversePop ys = reversePoppedStack (headPop (rev ys))
 
 HeadFirst : CartesianFunctor FREE.CC (SET ℓ-zero)
 HeadFirst = FreeBiCCC.recCF StackQuiver SETBiCCC
   (FreeBiCCC.mkElimInterpᴰ
-    (λ { elem → Bool , isSetBool
-       ; stack → List Bool , isOfHLevelList 0 isSetBool })
+    (λ { stack → List Bool , isOfHLevelList 0 isSetBool })
     λ { emptyStack → λ _ → []
-      ; push → λ (b , xs) → b ∷ xs
+      ; push → λ (b , xs) → decodeBool b ∷ xs
       ; pop → headPop })
 
 ReverseStored : CartesianFunctor FREE.CC (SET ℓ-zero)
 ReverseStored = FreeBiCCC.recCF StackQuiver SETBiCCC
   (FreeBiCCC.mkElimInterpᴰ
-    (λ { elem → Bool , isSetBool
-       ; stack → List Bool , isOfHLevelList 0 isSetBool })
+    (λ { stack → List Bool , isOfHLevelList 0 isSetBool })
     λ { emptyStack → λ _ → []
-      ; push → λ (b , xs) → xs ++ (b ∷ [])
+      ; push → λ (b , xs) → xs ++ (decodeBool b ∷ [])
       ; pop → reversePop })
 
 StackRelationGenerators :
@@ -91,27 +102,48 @@ StackRelationGenerators :
     ×SetsCF HeadFirst ReverseStored
 StackRelationGenerators =
   FreeBiCCC.mkElimInterpᴰ
-    (λ { elem (b , c) →
-           (b ≡ c) , isProp→isSet (isSetBool _ _)
-       ; stack (xs , ys) →
+    (λ { stack (xs , ys) →
            (xs ≡ rev ys) ,
            isProp→isSet
              (isOfHLevelList 0 isSetBool _ _) })
     λ
       { emptyStack → λ _ _ → refl
-      ; push → λ ((b , xs) , (c , ys)) (p , q) →
-          cong₂ _∷_ p q ∙ sym (rev-snoc ys c)
+      ; push → λ
+        { ((b , xs) , (c , ys)) (inl (u , p , _) , q) →
+            cong₂ _∷_
+              (cong decodeBool
+                (cong fst (sym p) ∙
+                 cong inl (isPropUnit* (u .fst) (u .snd)) ∙
+                 cong snd p))
+              q ∙
+            sym (rev-snoc ys (decodeBool c))
+        ; ((b , xs) , (c , ys)) (inr (u , p , _) , q) →
+            cong₂ _∷_
+              (cong decodeBool
+                (cong fst (sym p) ∙
+                 cong inr (isPropUnit* (u .fst) (u .snd)) ∙
+                 cong snd p))
+              q ∙
+            sym (rev-snoc ys (decodeBool c))
+        }
       ; pop → λ
         { ([] , ys) q →
             inl ((tt* , tt*) ,
               ΣPathP (refl ,
                 cong (λ zs → reversePoppedStack (headPop zs)) q) ,
               tt*)
-        ; ((b ∷ xs) , ys) q →
-            inr (((b , xs) , (b , rev xs)) ,
+        ; ((true ∷ xs) , ys) q →
+            inr (((encodeBool true , xs) , (encodeBool true , rev xs)) ,
               ΣPathP (refl ,
                 cong (λ zs → reversePoppedStack (headPop zs)) q) ,
-              refl , sym (rev-rev xs))
+              inl ((tt* , tt*) , refl , tt*) ,
+              sym (rev-rev xs))
+        ; ((false ∷ xs) , ys) q →
+            inr (((encodeBool false , xs) , (encodeBool false , rev xs)) ,
+              ΣPathP (refl ,
+                cong (λ zs → reversePoppedStack (headPop zs)) q) ,
+              inr ((tt* , tt*) , refl , tt*) ,
+              sym (rev-rev xs))
         }
       }
 

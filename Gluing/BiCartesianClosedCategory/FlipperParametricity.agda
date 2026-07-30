@@ -40,10 +40,10 @@ module _ where
   FlipperQuiver .+×⇒Quiver.ob = OB
   FlipperQuiver .+×⇒Quiver.Q .mor = MOR
   FlipperQuiver .+×⇒Quiver.Q .dom init = ⊤
-  FlipperQuiver .+×⇒Quiver.Q .dom flip = ↑ X
-  FlipperQuiver .+×⇒Quiver.Q .dom read = ↑ X
   FlipperQuiver .+×⇒Quiver.Q .cod init = ↑ X
+  FlipperQuiver .+×⇒Quiver.Q .dom flip = ↑ X
   FlipperQuiver .+×⇒Quiver.Q .cod flip = ↑ X
+  FlipperQuiver .+×⇒Quiver.Q .dom read = ↑ X
   FlipperQuiver .+×⇒Quiver.Q .cod read = ⊤ + ⊤
 
   private

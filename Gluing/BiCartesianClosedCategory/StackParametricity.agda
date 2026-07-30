@@ -16,7 +16,6 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
-open import Cubical.Categories.Instances.Sets.Cartesian
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
@@ -99,7 +98,7 @@ ReverseStored = FreeBiCCC.recCF StackQuiver SETBiCCC
 
 StackRelationGenerators :
   LogicalRelationGenerators StackQuiver SETBiCCC EqSETᴰBCCCⱽ
-    ×SetsCF HeadFirst ReverseStored
+    HeadFirst ReverseStored
 StackRelationGenerators =
   FreeBiCCC.mkElimInterpᴰ
     (λ { stack (xs , ys) →
@@ -149,7 +148,7 @@ StackRelationGenerators =
 
 StackLogicalRelation =
   logicalRelation StackQuiver SETBiCCC EqSETᴰBCCCⱽ
-    ×SetsCF HeadFirst ReverseStored StackRelationGenerators
+    HeadFirst ReverseStored StackRelationGenerators
 
 stack-representation-independence :
   (client : FREE.C [ ⊤ , (↑ stack) ]) →

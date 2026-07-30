@@ -37,14 +37,13 @@ module _
     module Dⱽ = BiCartesianClosedCategoryⱽ Dⱽ
 
   module _
-    (product : CartesianFunctor (D.CC ×CC D.CC) D.C)
     (F G : CartesianFunctor FREE.CC D.C)
     where
 
     pointwise : CartesianFunctor FREE.CC D.C
     pointwise =
       _∘CF_ {C = FREE.CC} {D = D.CC ×CC D.CC}
-        product (pairCF {B = FREE.CC} {C = D.CC} {D = D.CC} F G)
+        (×CF D.CC) (pairCF {B = FREE.CC} {C = D.CC} {D = D.CC} F G)
 
     LogicalRelationGenerators : Type _
     LogicalRelationGenerators =

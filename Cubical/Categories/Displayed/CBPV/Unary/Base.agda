@@ -1,4 +1,4 @@
--- A (Unary) CBPVCat is a category displayed over KIND i.e., the free category 𝓥 → 𝓒
+-- A (Unary) CBPVCat is a category displayed over KIND, i.e., the free category 𝓥 → 𝓒
 -- U and F types are defined as (op)cartesian lifts of the morphism 𝓥 → 𝓒.
 -- A CBPVCat with U/F types is a MultCBPVCat i.e. "multiplicative"
 
@@ -33,12 +33,12 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable.More
 
-
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Reindex
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.Instances.Weaken
 open import Cubical.Categories.Displayed.Base
@@ -47,6 +47,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration.Displayed
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
 
 private
@@ -55,6 +56,14 @@ private
 
 CBPVCat : ∀ ℓ ℓ' → Type _
 CBPVCat = Categoryᴰ KIND
+
+KINDAssoc : EqPsh.ReprEqAssoc KIND
+KINDAssoc _ _ _ _ _ _ =
+  Eq.pathToEq (isProp-Prop→Type _ _)
+
+KIND^opAssoc : EqPsh.ReprEqAssoc (KIND ^op)
+KIND^opAssoc _ _ _ _ _ _ =
+  Eq.pathToEq (isProp-Prop→Type _ _)
 
 module _ (C : CBPVCat ℓ ℓ') where
   private
@@ -70,7 +79,7 @@ module _ (C : CBPVCat ℓ ℓ') where
 
   -- This is better because KIND is strict category
   hasUEq : Type _
-  hasUEq = ∀ (B : C.ob[ 𝓒 ]) → EqPsh.CartesianLift C (λ _ _ _ _ _ _ → Eq.refl)
+  hasUEq = ∀ (B : C.ob[ 𝓒 ]) → EqPsh.CartesianLift C KINDAssoc
     {x = 𝓥}{y = 𝓒}
     _
     B
@@ -80,7 +89,7 @@ module _ (C : CBPVCat ℓ ℓ') where
   hasF = Quadrable (C ^opᴰ) {x = 𝓒}{y = 𝓥} _
 
   hasFEq : Type _
-  hasFEq = ∀ (A : C.ob[ 𝓥 ]) → EqPsh.CartesianLift (C ^opᴰ) (λ _ _ _ _ _ _ → Eq.refl)
+  hasFEq = ∀ (A : C.ob[ 𝓥 ]) → EqPsh.CartesianLift (C ^opᴰ) KIND^opAssoc
     {x = 𝓒}{y = 𝓥}
     _
     A
@@ -88,86 +97,75 @@ module _ (C : CBPVCat ℓ ℓ') where
   CBPVCatᴰ : ∀ ℓᴰ ℓᴰ' → Type _
   CBPVCatᴰ = Categoryᴰ (∫C C)
 
-record MultCBPVCat ℓ ℓ' : Type (ℓ-suc (ℓ-max ℓ ℓ')) where
-  no-eta-equality
-  field
-    C : CBPVCat ℓ ℓ'
-    U : hasU C
-    F : hasF C
+MultCBPVCat : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
+MultCBPVCat ℓ ℓ' =
+  Σ[ C ∈ CBPVCat ℓ ℓ' ] hasU C × hasF C
+
+MultCBPVCatEq : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
+MultCBPVCatEq ℓ ℓ' =
+  Σ[ C ∈ CBPVCat ℓ ℓ' ] hasUEq C × hasFEq C
+
+forgetEq : MultCBPVCatEq ℓ ℓ' → MultCBPVCat ℓ ℓ'
+forgetEq C .fst = C .fst
+forgetEq C .snd .fst B =
+  EqCartesianLift→CartesianLift
+    KINDAssoc
+    (C .fst)
+    B
+    𝓥
+    _
+    (C .snd .fst B)
+forgetEq C .snd .snd A =
+  EqCartesianLift→CartesianLift
+    KIND^opAssoc
+    (C .fst ^opᴰ)
+    A
+    𝓒
+    _
+    (C .snd .snd A)
 
 module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   private
-    module C = Fibers C
-    module Cᴰ = Fibers Cᴰ
+    module C = Categoryᴰ C using (ob[_])
+    module Cᴰ = Categoryᴰ Cᴰ using (ob[_])
 
   hasUⱽ : Type _
   hasUⱽ = ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}(f : C [ _ ][ A , B ]) → Quadrable Cᴰ (_ , f)
 
   hasFⱽ : Type _
-  hasFⱽ = ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}(f : C [ _ ][ A , B ]) → Quadrable (Cᴰ ^opᴰ) (_ , f)
+  hasFⱽ = ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}(f : C [ _ ][ A , B ]) → Quadrable (Cᴰ ^opᴰᴰ) (_ , f)
 
-  -- TODO: hasUⱽ/hasFⱽ are closed under reindexing. Should be just an instantiation of something else in the library already.
+  hasUᴰ : hasU C → Type _
+  hasUᴰ = Liftsᴰ⁺ⱽ.Quadrableᴰ _ _ Cᴰ {k1 = 𝓥}{k2 = 𝓒} _
 
-  -- hasUⱽ : Type _
-  -- hasUⱽ = isFibration Cᴰ
---   π≤ : ∀ B → PshHom (PresheafᴰNotation.∫ C (KIND [-, 𝓥 ]) (U-Spec C B)) (∫C C [-, 𝓒 , B ])
---   π≤ B = ∫PshHomᴰ {α = yoRec (KIND [-, 𝓒 ]) _} idPshHom ⋆PshHom (∫Repr-iso C) .PshIso.trans
+  hasFᴰ : hasF C → Type _
+  hasFᴰ = Liftsᴰ⁺ⱽ.Quadrableᴰ _ _ (Cᴰ ^opᴰᴰ) {k1 = 𝓒}{k2 = 𝓥} _
 
---   Uᴰ-Specᴰ : ∀ {B}(Bᴰ : Cᴰ.ob[ 𝓒 , B ]) → Presheafᴰ (PresheafᴰNotation.∫ C (KIND [-, 𝓥 ]) (U-Spec C B)) Cᴰ ℓᴰ'
---   Uᴰ-Specᴰ {B} Bᴰ = reindPshᴰNatTrans (π≤ B) (Cᴰ [-][-, Bᴰ ])
+  module _ (hasUC : hasU C) where
+    hasUⱽ→ᴰ : hasUⱽ → hasUᴰ hasUC
+    hasUⱽ→ᴰ Uⱽ =
+      Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰ KIND C Cᴰ _ hasUC (Uⱽ _)
 
---   module _ {B} (UB : Representableⱽ C 𝓥 (U-Spec C B)) where
---     force : C [ _ ][ UB .fst , B ]
---     force = UB .snd .PshIso.trans .PshHom.N-ob (𝓥 , UB .fst , ı tt) C.idᴰ
+  module _ (hasFC : hasF C) where
+    hasFⱽ→ᴰ : hasFⱽ → hasFᴰ hasFC
+    hasFⱽ→ᴰ Fⱽ =
+      Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰ (KIND ^op) (C ^opᴰ) (Cᴰ ^opᴰᴰ) _ hasFC (Fⱽ _)
 
---     half-force* : PshHom (∫C C [-, 𝓥 , UB .fst ]) (PresheafᴰNotation.∫ C (KIND [-, 𝓥 ]) (U-Spec C B))
---     half-force* = invPshIso (∫Repr-iso C) .PshIso.trans ⋆PshHom ∫PshHomⱽ (UB .snd .PshIso.trans)
+MultCBPVCatⱽ : ∀ (C : CBPVCat ℓ ℓ') ℓᴰ ℓᴰ' → Type (ℓ-suc ((ℓ ⊔ℓ ℓ') ⊔ℓ (ℓᴰ ⊔ℓ ℓᴰ')))
+MultCBPVCatⱽ C ℓᴰ ℓᴰ' =
+  Σ[ Cᴰ ∈ CBPVCatᴰ C ℓᴰ ℓᴰ' ] hasUⱽ Cᴰ × hasFⱽ Cᴰ
 
---     force* force*' : PshHom (∫C C [-, 𝓥 , UB .fst ]) (∫C C [-, 𝓒 , B ])
---     force* = (yoRec ((∫C C) [-, 𝓒 , B ]) (_ , force)) -- i.e. _⋆ force ≡ _⋆ thunk⁻ id
---     force*' = half-force* ⋆PshHom π≤ B                -- i.e., thunk⁻
+MultCBPVCatᴰ : ∀ (C : MultCBPVCat ℓ ℓ') ℓᴰ ℓᴰ' → Type (ℓ-suc ((ℓ ⊔ℓ ℓ') ⊔ℓ (ℓᴰ ⊔ℓ ℓᴰ')))
+MultCBPVCatᴰ C ℓᴰ ℓᴰ' =
+  Σ[ Cᴰ ∈ CBPVCatᴰ (C .fst) ℓᴰ ℓᴰ' ]
+  hasUᴰ Cᴰ (C .snd .fst)
+  × hasFᴰ Cᴰ (C .snd .snd)
 
---     -- force*' is the one that actually has better behavior because it avoids using yoRec
---     -- if UB were constructed *using* yoRec, you get a double yoRec boo
---     force*≡force*' : force* ≡ force*'
---     force*≡force*' = yoInd (∫C C [-, 𝓒 , B ]) force* force*' (C.⋆IdL _)
-
---     module _ (Bᴰ : Cᴰ.ob[ 𝓒 , B ]) where
---       Uᴰ-Specⱽ : Presheafⱽ (𝓥 , UB .fst) Cᴰ _
---       Uᴰ-Specⱽ = reindPshᴰNatTrans force* (Cᴰ [-][-, Bᴰ ])
-
---       Uᴰ-Specⱽ' : Presheafⱽ (𝓥 , UB .fst) Cᴰ _
---       Uᴰ-Specⱽ' = reindPshᴰNatTrans force*' (Cᴰ [-][-, Bᴰ ])
-
---       -- takes long (possibly forever) without --lossy-unification
---       Uᴰ-Specⱽ'≅ᴰ : PshIso Uᴰ-Specⱽ' (reindPshᴰNatTrans half-force* (Uᴰ-Specᴰ Bᴰ))
---       Uᴰ-Specⱽ'≅ᴰ = invPshIso $ reindPshᴰNatTrans-tri half-force* (π≤ B) (half-force* ⋆PshHom (π≤ B)) (Cᴰ [-][-, Bᴰ ]) refl
-
---       Uᴰ-Specⱽ≅ᴰ : PshIso Uᴰ-Specⱽ (reindPshᴰNatTrans half-force* (Uᴰ-Specᴰ Bᴰ))
---       Uᴰ-Specⱽ≅ᴰ = reindPshᴰNatTrans-Path force* force*' force*≡force*' (Cᴰ [-][-, Bᴰ ]) ⋆PshIso Uᴰ-Specⱽ'≅ᴰ
-
---   module _ (U : hasU C) where
---     hasUᴰ : Type _
---     hasUᴰ = ∀ {B} (Bᴰ : Cᴰ.ob[ 𝓒 , B ])
---       → Representableᴰ Cᴰ _ (Uᴰ-Specᴰ Bᴰ) (∫Representableⱽ C 𝓥 (U-Spec C B) (U B))
-
---     hasUⱽ : Type _
---     hasUⱽ = ∀ {B} (Bᴰ : Cᴰ.ob[ 𝓒 , B ]) → Representableⱽ Cᴰ (𝓥 , U B .fst) (Uᴰ-Specⱽ (U B) Bᴰ)
-
---     hasUⱽ→ᴰ : hasUⱽ → hasUᴰ
---     hasUⱽ→ᴰ Uⱽ {B} Bᴰ .fst = Uⱽ Bᴰ .fst
---     hasUⱽ→ᴰ Uⱽ {B} Bᴰ .snd = FiberwisePshIsoᴰ→PshIsoᴰ $
---       Uⱽ Bᴰ .snd
---       ⋆PshIso Uᴰ-Specⱽ≅ᴰ (U B) Bᴰ
-
---   -- We now need three theorems:
---   --   1. eq-based to non-eq based for vertical
---   --   2. reindexing of vertical
---   --   3. vertical to displayed
-
-record MultCBPVCatⱽ (C : CBPVCat ℓ ℓ') ℓᴰ ℓᴰ' : Type (ℓ-suc ((ℓ ⊔ℓ ℓ') ⊔ℓ (ℓᴰ ⊔ℓ ℓᴰ'))) where
-  no-eta-equality
-  field
-    Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ'
-    Uⱽ : hasUⱽ Cᴰ
-    Fⱽ : hasFⱽ Cᴰ
+MultCBPVCatⱽ→ᴰ : {C : MultCBPVCat ℓ ℓ'}
+  → MultCBPVCatⱽ (C .fst) ℓᴰ ℓᴰ'
+  → MultCBPVCatᴰ C ℓᴰ ℓᴰ'
+MultCBPVCatⱽ→ᴰ Cⱽ .fst = Cⱽ .fst
+MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .fst =
+  hasUⱽ→ᴰ (Cⱽ .fst) (C .snd .fst) (Cⱽ .snd .fst)
+MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd =
+  hasFⱽ→ᴰ (Cⱽ .fst) (C .snd .snd) (Cⱽ .snd .snd)

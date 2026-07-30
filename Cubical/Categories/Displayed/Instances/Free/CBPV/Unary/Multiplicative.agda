@@ -1,7 +1,29 @@
 -- CBPV syntax as a category displayed over 𝓥 → 𝓒 ala the Fibrational Framework
 
 -- --lossy-unification here is a convenience for Tm to pick the most
--- general implicits automatically
+-- general implicits automatically. It's not totally necessary.
+
+-- Here's the plan.
+
+-- U/F are symmetric so without loss of generality let's pick U since
+-- it involves fewer `op`s.
+
+-- The universal property of U B is that it is the cartesian lift of B along 𝓥 ≤ 𝓒.
+-- This represents the displayed presheaf (yoRec ≤)*(CBPV [-][-, B ])
+
+-- The displayed universal property for Uᴰ Bᴰ over U B is then a
+-- presheaf displayed over ∫ (yoRec ≤)*(CBPV [-][-, B ]). There is a projection π : ∫ (yoRec ≤)*(CBPV [-][-, B ]) → ∫CBPV [-, (𝓒 , B)] and the displayed universal property is π * (Cᴰ [-][-, Bᴰ ]) over the representation of ∫ (yoRec ≤)*(CBPV [-][-, B ])
+--
+-- The vertical universal property for Uᴰ Bᴰ is a cartesian lift of
+-- (𝓥≤𝓒 , [force])* Bᴰ so it represents
+
+-- (yoRec (𝓥≤𝓒,[force]))*(Cᴰ [-][-, Bᴰ ])
+--
+-- which is a vertical presheaf over ∫CBPV [-, (𝓥 , [U] B) ]
+--
+-- so vertical implies displayed here bc we have
+-- the displayed universal property is to represent the vertical (yoRec (𝓥≤𝓒,[force]))*π*
+--
 {-# OPTIONS --lossy-unification --prop #-}
 module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Multiplicative where
 
@@ -36,6 +58,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
+open import Cubical.Categories.Displayed.CBPV.Unary.Base
 
 private
   variable
@@ -112,7 +135,7 @@ module CBPV (BaseTy : Kind → Type ℓ)
       [w-homR] : ∀ b (M : Tm _ A B) (S : Tm _ B B')
         → seqS ([write] b M) S ≡ [write] b (seqS M S)
 
-    CBPV : Categoryᴰ KIND ℓ (ℓ-max ℓ ℓ')
+    CBPV : CBPVCat ℓ (ℓ-max ℓ ℓ')
     CBPV .ob[_] = Ob
     CBPV .Hom[_][_,_] ≤ = Tm (≤ .Prop→Type.pf)
     CBPV .idᴰ = idS
@@ -126,38 +149,6 @@ module CBPV (BaseTy : Kind → Type ℓ)
 
     open EqPsh.UEⱽ
 
-    -- What is the universal property of [U]? It is that of a cartesian lift.
-    --
-    -- That is, there is a morphism ≤ : 𝓥 → 𝓒 and this is the cartesian lift ≤*B
-    --
-    -- The presheaf it represents is (yoRec ≤)* (CBPV [-][-, B ]) : Pshⱽ 𝓥 CBPV
-    -- which is of course the same as Pshᴰ (KIND [-, 𝓥 ]) CBPV
-    --
-    -- we express its UMP as a vertical UMP:
-    --   CBPV [-][-, UB ] ≅ (yoRec ≤)* (CBPV [-][-, B ])
-    --
-    -- Every vertical UMP is equivalent to a displayed one
-    --
-    --  CBPV [-][-, UB ] ≅[ id-iso(𝓥) ] (yoRec ≤)* (CBPV [-][-, B ])
-    --
-    -- *KEY STEP*
-    -- Given any displayed UMP we can make a total presheaf on the total category
-    --
-    -- (∫ P Pᴰ) (x , xᴰ) = Σ[ p ∈ P x ] Pᴰ p xᴰ
-    --
-    -- And if Pᴰ is displayed representable then so is ∫ P Pᴰ(!)
-    --
-    -- In this case that means
-    --    ∫ (KIND [-, 𝓥 ]) ((yoRec ≤)* CBPV [-][-, B])
-    -- is represented by
-    --    (𝓥 , UB)
-    -- with universal element (𝓥≤𝓥 , force : CBPV [ 𝓥≤𝓥 ⋆ 𝓥≤𝓒 ][ UB , B ])
-    --
-    -- So the real question is...what is the displayed universal property of Uᴰ Bᴰ?
-    --
-    -- presumably it's over ∫ (KIND [-, 𝓥 ]) ((yoRec ≤)* CBPV [-][-, B ])
-    -- Pᴰᴰ (𝓥≤𝓥 , M : CBPV [ _ ][ Γ , B ]) Γᴰ := Cᴰ [ _ , M ][ Γᴰ , Bᴰ ]
-    --
     -- TODO: make this ergonomic
     [U]-UMP : ∀ (B : Ob 𝓒) → EqPsh.CartesianLiftUE CBPV (λ _ _ _ _ _ _ → Eq.refl) (λ {x} {y} f → Eq.refl) {x = 𝓥} _ B
     [U]-UMP B .v = [U] B
@@ -169,6 +160,9 @@ module CBPV (BaseTy : Kind → Type ℓ)
     [U]-UMP' : ∀ (B : Ob 𝓒) → CartesianLift CBPV {x = 𝓥} _ B
     [U]-UMP' B = EqCartesianLift→CartesianLift _ CBPV B _ _
       (EqPsh.UEⱽ→Reprⱽ _ (λ {x} {y} f → Eq.refl) ([U]-UMP B))
+
+    CBPV-hasU : hasU CBPV
+    CBPV-hasU B = [U]-UMP' B
 
     -- This is the base for the displayed Uᴰ UMP
     ∫[U]-Spec ∫[U]-Spec' : ∀ (B : Ob 𝓒) → Presheaf (∫C CBPV) _
@@ -244,11 +238,12 @@ module CBPV (BaseTy : Kind → Type ℓ)
     -- -- -- --
     -- -- -- -- (∫ (KIND [-, 𝓥 ]) ((yoRec ≤)* CBPV [-][-, B ]))
     -- -- -- -- → (∫ (KIND [-, 𝓒 ]) (CBPV [-][-, B ]))
-    -- -- -- module Elim
-    -- -- --   (Cᴰ : Categoryᴰ (∫C CBPV) ℓᴰ ℓᴰ')
-    -- -- --   where
-    -- -- --   private
-    -- -- --     module Cᴰ = Categoryᴰ Cᴰ
+    module Elim
+      (Cᴰ : CBPVCatᴰ CBPV ℓᴰ ℓᴰ')
+      (CᴰhasUᴰ : hasUᴰ Cᴰ ChasU)
+      where
+      private
+        module Cᴰ = Categoryᴰ Cᴰ
 
     -- -- --   Uᴰ-Spec : (B : Ob 𝓒)(Bᴰ : Cᴰ.ob[ _ , B ]) → Presheafᴰ (∫[U]-Spec B) Cᴰ ℓᴰ'
     -- -- --   Uᴰ-Spec B Bᴰ = reindPshᴰNatTrans

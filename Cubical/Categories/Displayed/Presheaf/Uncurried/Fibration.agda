@@ -34,9 +34,12 @@ open UniversalElement
 module _ {C : Category ℓC ℓC'}(P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module P = PresheafNotation P
+  CartesianLiftPshSpec : ∀ {x} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (p : P.p[ x ]) → Presheafⱽ x Cᴰ ℓPᴰ
+  CartesianLiftPshSpec {x = x} Pᴰ p = reindPshᴰNatTrans (yoRec P p) Pᴰ
+
   CartesianLiftPsh : ∀ {x} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) (p : P.p[ x ])
     → Type _
-  CartesianLiftPsh {x = x} Pᴰ p = Representableⱽ Cᴰ x (reindPshᴰNatTrans (yoRec P p) Pᴰ)
+  CartesianLiftPsh {x = x} Pᴰ p = Representableⱽ Cᴰ x $ CartesianLiftPshSpec Pᴰ p
 
   isFibrationPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ → Type _
   isFibrationPshᴰ Pᴰ = ∀ x (p : P.p[ x ]) → CartesianLiftPsh Pᴰ p

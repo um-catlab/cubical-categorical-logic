@@ -72,11 +72,8 @@ module UnaryGluing
     CBPV-SETᴰ : Categoryᴰ (∫C CBPV-SET) (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓᴰ)) (ℓ-max (ℓ-max ℓ ℓ') ℓᴰ)
     CBPV-SETᴰ = EqReindex.reindex (SETᴰ _ ℓᴰ) (weakenΠ KIND (SET (ℓ-max ℓ ℓ'))) Eq.refl (λ _ _ → Eq.refl)
 
-    𝓖 : Categoryᴰ (∫C CBPV) (ℓ-max (ℓ-max ℓ ℓ') (ℓ-suc ℓᴰ)) (ℓ-max (ℓ-max ℓ ℓ') ℓᴰ)
-    𝓖 = reindex CBPV-SETᴰ (∫F closed)
-
-    fund-lemma : GlobalSection 𝓖
-    fund-lemma = Elim.elim 𝓖 ı-Ob (λ {k1} {k2} {Γ} {Δ} {k≤} → ı-Fun)
+    fund-lemma : Section _ CBPV-SETᴰ
+    fund-lemma = LocalElim.localElim closed CBPV-SETᴰ ı-Ob ı-Fun
 
     corollary : ∀ (M : Tm tt 𝟙 Γ) → ⟨ fund-lemma .F-obᴰ (_ , 𝟙) idS ⟩ → ⟨ ı-Ob _ M ⟩
     corollary M lem = subst (λ M → ⟨ ı-Ob _ M ⟩) (IdLS M) $ fund-lemma .F-homᴰ (_ , M) idS lem

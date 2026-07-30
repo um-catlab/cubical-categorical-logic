@@ -469,6 +469,22 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ} where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ P Qᴰ
+
+  ∫PshIsoⱽ : PshIsoⱽ Pᴰ Qᴰ → PshIso Pᴰ.∫ Qᴰ.∫
+  ∫PshIsoⱽ αⱽ .trans = ∫PshHomⱽ (αⱽ .trans)
+  ∫PshIsoⱽ αⱽ .nIso (x , xᴰ) .fst = ∫PshHomⱽ (invPshIso αⱽ .trans) .N-ob (x , xᴰ)
+  ∫PshIsoⱽ αⱽ .nIso (x , xᴰ) .snd .fst (p , qᴰ) = ΣPathP (refl , (αⱽ .nIso _ .snd .fst qᴰ))
+  ∫PshIsoⱽ αⱽ .nIso (x , xᴰ) .snd .snd (p , pᴰ) = ΣPathP (refl , (αⱽ .nIso _ .snd .snd pᴰ))
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
   {Q : Presheaf C ℓQ}
   (α : PshIso P Q)
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)

@@ -19,11 +19,13 @@ open import Cubical.Categories.Instances.WalkingArrow
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Instances.Reindex
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
+    ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
 
 open Category
 open Categoryᴰ
@@ -100,3 +102,22 @@ module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob
       elim .F-homᴰ f = elim-F-homᴰ (f .snd)
       elim .F-idᴰ = refl
       elim .F-seqᴰ _ _ = refl
+
+  -- I guess it's not totally necessary for F to be a Functorⱽ but
+  -- once we have UMPs it makes sense.
+  module LocalElim
+    {C : Categoryᴰ KIND ℓC ℓC'}
+    (F : Functorⱽ CBPV C)
+    (Cᴰ : Categoryᴰ (∫C C) ℓCᴰ ℓCᴰ')
+    where
+    private
+      module Cᴰ = Categoryᴰ Cᴰ
+
+    localElim :
+      (ı-ob : {k : Kind} (Γ : Ob k) → Cᴰ.ob[ k , Functorᴰ.F-obᴰ F Γ ])
+      (ı-hom : {k1 k2 : Kind} {Γ : Ob k1} {Δ : Ob k2} {k≤ : ≤Kind k1 k2}
+        (M : Fun k≤ Γ Δ) →
+        Cᴰ.Hom[ _ , Functorᴰ.F-homᴰ F (gen M) ][ ı-ob Γ , ı-ob Δ ])
+      → Section (∫F F) Cᴰ
+    localElim ı-ob ı-hom =
+      GlobalSectionReindex→Section Cᴰ (∫F F) (Elim.elim (reindex Cᴰ (∫F F)) ı-ob ı-hom)

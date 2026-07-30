@@ -133,6 +133,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableⱽ : Type _
   Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
 
+  ∫Representableⱽ : Representableⱽ → RepresentationPshIso (PresheafᴰNotation.∫ Cᴰ (C [-, x ]) Pⱽ)
+  ∫Representableⱽ (xᴰ , repr) .fst = x , xᴰ
+  ∫Representableⱽ (xᴰ , repr) .snd =
+    invPshIso (∫Repr-iso Cᴰ) ⋆PshIso ∫PshIsoⱽ repr
+
   record UniversalElementⱽ'
     : Type (ℓ-max ℓC $ ℓ-max ℓC' $ ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' $ ℓPᴰ) where
     field

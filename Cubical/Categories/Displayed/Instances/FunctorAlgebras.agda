@@ -1,4 +1,4 @@
-module Cubical.Categories.Displayed.Instances.Algebras where
+module Cubical.Categories.Displayed.Instances.FunctorAlgebras where
 
 open import Cubical.Foundations.Prelude
 

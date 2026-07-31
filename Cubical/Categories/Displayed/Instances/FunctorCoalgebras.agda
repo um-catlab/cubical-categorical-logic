@@ -1,4 +1,4 @@
-module Cubical.Categories.Displayed.Instances.Coalgebras where
+module Cubical.Categories.Displayed.Instances.FunctorCoalgebras where
 
 open import Cubical.Foundations.Prelude
 
@@ -6,7 +6,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Algebras
+open import Cubical.Categories.Displayed.Instances.FunctorAlgebras
 open import Cubical.Categories.Instances.TotalCategory
 
 private

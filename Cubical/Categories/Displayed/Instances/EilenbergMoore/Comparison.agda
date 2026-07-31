@@ -3,8 +3,6 @@ module Cubical.Categories.Displayed.Instances.EilenbergMoore.Comparison where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Unit
-
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
@@ -14,7 +12,9 @@ open import Cubical.Categories.Monad.Base
 
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Algebras
+open import Cubical.Categories.Displayed.Instances.FunctorAlgebras
+open import Cubical.Categories.Displayed.Instances.PropertyOver
+  using (hasContrHomsPropertyOver)
 open import Cubical.Categories.Displayed.Instances.StructureOver
 open import Cubical.Categories.Displayed.Instances.EilenbergMoore
 open import Cubical.Categories.Instances.TotalCategory
@@ -50,13 +50,12 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   ComparisonAlg = intro R AlgebraSection
 
   EMSection : Section ComparisonAlg (EMᴰ Mon)
-  EMSection = mkPropHomsSection
-    (hasPropHomsStructureOver (EMStructureOver Mon))
+  EMSection = mkContrHomsSection
+    (hasContrHomsPropertyOver (∫C (ALGᴰ T)) (isEMAlgebra Mon))
     (λ d → Δ₂ d
          , ( sym (R.F-seq _ _)
            ∙ cong (R ⟪_⟫) (sym (ε .N-hom (ε ⟦ d ⟧)))
            ∙ R.F-seq _ _ ))
-    (λ _ → tt)
 
   ComparisonEM : Functor D (EM Mon)
   ComparisonEM = intro ComparisonAlg EMSection

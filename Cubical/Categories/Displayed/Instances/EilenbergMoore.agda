@@ -3,7 +3,6 @@ module Cubical.Categories.Displayed.Instances.EilenbergMoore where
 
 open import Cubical.Foundations.Prelude
 
-open import Cubical.Data.Unit
 open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
@@ -12,7 +11,8 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Monad.Base
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Algebras
+open import Cubical.Categories.Displayed.Instances.FunctorAlgebras
+open import Cubical.Categories.Displayed.Instances.PropertyOver
 open import Cubical.Categories.Displayed.Instances.StructureOver
 open import Cubical.Categories.Instances.TotalCategory
 
@@ -31,23 +31,22 @@ module _ {C : Category ℓC ℓC'} (Mon : Monad C) where
   -- an algebra of a monad
   --   α ∘ η x ≡ id          (unit law)
   --   α ∘ μ x ≡ α ∘ T α     (multiplication law)
-  EMStructureOver : StructureOver (∫C (ALGᴰ (fst Mon))) ℓC' ℓ-zero
-  StructureOver.ob[_] EMStructureOver (x , α) =
+  isEMAlgebra : Category.ob (∫C (ALGᴰ (fst Mon))) → Type ℓC'
+  isEMAlgebra (x , α) =
     (M.η .N-ob x C.⋆ α ≡ C.id)
       × (M.μ .N-ob x C.⋆ α ≡ FT.F-hom α C.⋆ α)
-  StructureOver.Hom[_][_,_] EMStructureOver _ _ _ = Unit
-  StructureOver.idᴰ EMStructureOver = tt
-  StructureOver._⋆ᴰ_ EMStructureOver _ _ = tt
-  StructureOver.isPropHomᴰ EMStructureOver = isPropUnit
 
   EMᴰ : Categoryᴰ (∫C (ALGᴰ (fst Mon))) ℓC' ℓ-zero
-  EMᴰ = StructureOver→Catᴰ EMStructureOver
+  EMᴰ = PropertyOver (∫C (ALGᴰ (fst Mon))) isEMAlgebra
 
   -- The Eilenberg–Moore category.
   EM : Category (ℓ-max ℓC ℓC') (ℓ-max ℓC' ℓC')
   EM = ∫C EMᴰ
 
--- A morphism of algebras is determined by the carrier map
+  -- The forgetful functor to the base category
+  ForgetEM : Functor EM C
+  ForgetEM = Fst {Cᴰ = ALGᴰ (fst Mon)} ∘F Fst {Cᴰ = EMᴰ}
+
 module _ {C : Category ℓC ℓC'} {Mon : Monad C} where
 
   emHom≡ : {X Y : Category.ob (EM Mon)}

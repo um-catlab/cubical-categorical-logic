@@ -13,10 +13,11 @@ module Cubical.Categories.Displayed.Instances.CoEilenbergMoore where
 open import Cubical.Foundations.Prelude
 
 open import Cubical.Categories.Category
+open import Cubical.Categories.Functor
 open import Cubical.Categories.Monad.Base
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Algebras
+open import Cubical.Categories.Displayed.Instances.FunctorAlgebras
 open import Cubical.Categories.Displayed.Instances.EilenbergMoore
 open import Cubical.Categories.Instances.TotalCategory
 
@@ -37,6 +38,10 @@ module _ {C : Category ℓC ℓC'} (W : Comonad C) where
 
   coEM : Category (ℓ-max ℓC ℓC') (ℓ-max ℓC' ℓC')
   coEM = (EM W) ^op
+
+  -- The forgetful functor to the base category
+  ForgetCoEM : Functor coEM C
+  ForgetCoEM = fromOpOp ∘F (ForgetEM W ^opF)
 
 -- A morphism of comonad coalgebras is determined by the carrier map
 module _ {C : Category ℓC ℓC'} {W : Comonad C} where

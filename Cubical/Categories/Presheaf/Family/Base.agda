@@ -110,35 +110,37 @@ module _ {ℓ} (C : Category ℓC ℓC') where
   coEM→PSH .F-id = makePshHomStrictPath refl
   coEM→PSH .F-seq f g = makePshHomStrictPath refl
 
-  -- comonadicity
   PSH≃coEM : PSH ≃ᶜ coEM Wᶜ
   PSH≃coEM = equivᶜ PSH→coEM ∣ winv ∣₁
     where
+      open NT.NatIso
+      open isIso
+
+      co≡ = coEMHom≡ {W = Wᶜ}
+
       ηIso : NT.NatIso 𝟙⟨ PSH ⟩ (coEM→PSH ∘F PSH→coEM)
-      ηIso = record
-        { trans = NT.natTrans
-            (λ P → pshhom (λ c z → z) (λ c c' f p' p z → z))
-            (λ α → makePshHomStrictPath refl)
-        ; nIso = λ P → record
-            { inv = pshhom (λ c z → z) (λ c c' f p' p z → z)
-            ; sec = refl ; ret = refl } }
+      ηIso .trans = NT.natTrans
+        (λ P → pshhom (λ c z → z) (λ c c' f p' p z → z))
+        (λ α → makePshHomStrictPath refl)
+      ηIso .nIso P .inv = pshhom (λ c z → z) (λ c c' f p' p z → z)
+      ηIso .nIso P .sec = refl
+      ηIso .nIso P .ret = refl
 
       εIso : NT.NatIso (PSH→coEM ∘F coEM→PSH) 𝟙⟨ coEM Wᶜ ⟩
-      εIso = record
-        { trans = NT.natTrans
-            (λ X → ((λ a z → z) , refl) , _)
-            (λ {x = x} {y = y} α → co≡ {X = x} {Y = y} refl)
-        ; nIso = λ X → record
-            { inv = ((λ a z → z) , refl) , _
-            ; sec = co≡ {X = X} {Y = X} refl
-            ; ret = co≡ {X = X} {Y = X} refl } }
-        where
-          co≡ = coEMHom≡ {W = Wᶜ}
+      εIso .trans = NT.natTrans
+        (λ X → ((λ a z → z) , refl) , _)
+        (λ {x = x} {y = y} α → co≡ {X = x} {Y = y} refl)
+      εIso .nIso X .inv = ((λ a z → z) , refl) , _
+      εIso .nIso X .sec = co≡ {X = X} {Y = X} refl
+      εIso .nIso X .ret = co≡ {X = X} {Y = X} refl
 
       winv : WeakInverse PSH→coEM
       winv .WeakInverse.invFunc = coEM→PSH
       winv .WeakInverse.η = ηIso
       winv .WeakInverse.ε = εIso
+
+  PshFamComonadicity : ForgetCoEM Wᶜ ∘F PSH→coEM ≡ PSH→Fam
+  PshFamComonadicity = Functor≡ (λ _ → refl) (λ _ → refl)
 
   -- need a set of object to guarantee that the Σ-type below is a set
   module _ (isSetCob : isSet (C .ob)) where
@@ -200,32 +202,34 @@ module _ {ℓ} (C : Category ℓC ℓC') where
     EM→PSH .F-id = makePshHomStrictPath refl
     EM→PSH .F-seq f g = makePshHomStrictPath refl
 
-    -- monadicity
     PSH≃EM : PSH ≃ᶜ EM Tmonᵃ
     PSH≃EM = equivᶜ PSH→EM ∣ winv ∣₁
       where
+        open NT.NatIso
+        open isIso
+
+        em≡ = emHom≡ {Mon = Tmonᵃ}
+
         ηIso : NT.NatIso 𝟙⟨ PSH ⟩ (EM→PSH ∘F PSH→EM)
-        ηIso = record
-          { trans = NT.natTrans
-              (λ P → pshhom (λ c z → z) (λ c c' f p' p z → z))
-              (λ α → makePshHomStrictPath refl)
-          ; nIso = λ P → record
-              { inv = pshhom (λ c z → z) (λ c c' f p' p z → z)
-              ; sec = refl ; ret = refl } }
+        ηIso .trans = NT.natTrans
+          (λ P → pshhom (λ c z → z) (λ c c' f p' p z → z))
+          (λ α → makePshHomStrictPath refl)
+        ηIso .nIso P .inv = pshhom (λ c z → z) (λ c c' f p' p z → z)
+        ηIso .nIso P .sec = refl
+        ηIso .nIso P .ret = refl
 
         εIso : NT.NatIso (PSH→EM ∘F EM→PSH) 𝟙⟨ EM Tmonᵃ ⟩
-        εIso = record
-          { trans = NT.natTrans
-              (λ X → ((λ a z → z) , refl) , _)
-              (λ {x = x} {y = y} α → em≡ {X = x} {Y = y} refl)
-          ; nIso = λ X → record
-              { inv = ((λ a z → z) , refl) , _
-              ; sec = em≡ {X = X} {Y = X} refl
-              ; ret = em≡ {X = X} {Y = X} refl } }
-          where
-            em≡ = emHom≡ {Mon = Tmonᵃ}
+        εIso .trans = NT.natTrans
+          (λ X → ((λ a z → z) , refl) , _)
+          (λ {x = x} {y = y} α → em≡ {X = x} {Y = y} refl)
+        εIso .nIso X .inv = ((λ a z → z) , refl) , _
+        εIso .nIso X .sec = em≡ {X = X} {Y = X} refl
+        εIso .nIso X .ret = em≡ {X = X} {Y = X} refl
 
         winv : WeakInverse PSH→EM
         winv .WeakInverse.invFunc = EM→PSH
         winv .WeakInverse.η = ηIso
         winv .WeakInverse.ε = εIso
+
+    PshFamMonadicity : ForgetEM Tmonᵃ ∘F PSH→EM ≡ PSH→Fam
+    PshFamMonadicity = Functor≡ (λ _ → refl) (λ _ → refl)

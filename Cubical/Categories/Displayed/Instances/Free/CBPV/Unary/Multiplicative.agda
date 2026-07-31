@@ -53,8 +53,10 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Instances.Opposite
+open import Cubical.Categories.Displayed.Instances.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
@@ -349,3 +351,38 @@ module CBPV (BaseTy : Kind → Type ℓ)
           elim .F-homᴰ f = elim-F-homᴰ (f .snd)
           elim .F-idᴰ = refl
           elim .F-seqᴰ _ _ = refl
+
+    module LocalElim
+      {C : CBPVCat ℓD ℓD'}
+      (F : Functorⱽ CBPV C)
+      (Cⱽ : MultCBPVCatⱽ C ℓCᴰ ℓCᴰ')
+      where
+      private
+        module Cᴰ = Fibers (Cⱽ .fst)
+
+        reindexed : MultCBPVCatᴰ MultCBPV ℓCᴰ ℓCᴰ'
+        reindexed = MultCBPVCatⱽ→ᴰ (MultCBPVCatⱽReindex Cⱽ F)
+
+      module _
+        (ı-ob : ∀ {k} (X : BaseTy k)
+          → Cᴰ.ob[ k , F .Functorᴰ.F-obᴰ (gen X) ])
+        where
+        local-obᴰ : ∀ Γ → Cᴰ.ob[ k , F .Functorᴰ.F-obᴰ Γ ]
+        local-obᴰ = Elim.elim-F-obᴰ
+          (reindexed .fst)
+          (reindexed .snd .fst)
+          (reindexed .snd .snd)
+          ı-ob
+
+        localElim :
+          (ı-hom : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
+            → Cᴰ.Hom[ _ , F .Functorᴰ.F-homᴰ (gen M) ][ local-obᴰ Γ , local-obᴰ Δ ])
+          → Section (∫F F) (Cⱽ .fst)
+        localElim ı-hom =
+          GlobalSectionReindex→Section (Cⱽ .fst) (∫F F)
+            (Elim.elim
+              (reindexed .fst)
+              (reindexed .snd .fst)
+              (reindexed .snd .snd)
+              ı-ob
+              ı-hom)

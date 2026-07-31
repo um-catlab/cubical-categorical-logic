@@ -11,10 +11,8 @@
 module Cubical.Categories.Displayed.CBPV.Unary.Base where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.More
-open import Cubical.Foundations.Structure
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Equiv.Dependent
 
 open import Cubical.Prop
 
@@ -23,26 +21,21 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.Fiber
+open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
-open import Cubical.Categories.Presheaf.Base
-open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Reindex
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Opposite
-open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Base
-open import Cubical.Categories.Displayed.Instances.Weaken
-open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration.Displayed
@@ -58,12 +51,10 @@ CBPVCat : ∀ ℓ ℓ' → Type _
 CBPVCat = Categoryᴰ KIND
 
 KINDAssoc : EqPsh.ReprEqAssoc KIND
-KINDAssoc _ _ _ _ _ _ =
-  Eq.pathToEq (isProp-Prop→Type _ _)
+KINDAssoc _ _ _ _ _ _ = Eq.refl
 
 KIND^opAssoc : EqPsh.ReprEqAssoc (KIND ^op)
-KIND^opAssoc _ _ _ _ _ _ =
-  Eq.pathToEq (isProp-Prop→Type _ _)
+KIND^opAssoc _ _ _ _ _ _ = Eq.refl
 
 module _ (C : CBPVCat ℓ ℓ') where
   private
@@ -126,8 +117,8 @@ forgetEq C .snd .snd A =
 
 module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   private
-    module C = Categoryᴰ C using (ob[_])
-    module Cᴰ = Categoryᴰ Cᴰ using (ob[_])
+    module C = Categoryᴰ C
+    module Cᴰ = Fibers Cᴰ
 
   hasUⱽ : Type _
   hasUⱽ = ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}(f : C [ _ ][ A , B ]) → Quadrable Cᴰ (_ , f)
@@ -140,6 +131,66 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
 
   hasFᴰ : hasF C → Type _
   hasFᴰ = Liftsᴰ⁺ⱽ.Quadrableᴰ _ _ (Cᴰ ^opᴰᴰ) {k1 = 𝓒}{k2 = 𝓥} _
+
+  module _ (hasUC : hasU C) (hasUᴰC : hasUᴰ hasUC) where
+    forceᴰ : ∀ {B : C.ob[ 𝓒 ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      → Cᴰ.Hom[ _ , QuadrableNotation.πⱽ C hasUC ][ hasUᴰC Bᴰ .fst , Bᴰ ]
+    forceᴰ {Bᴰ = Bᴰ} =
+      hasUᴰC Bᴰ .snd .fst .PshHom.N-ob _ Cᴰ.idᴰ
+
+    thunkᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      (M : C [ ı tt ][ A , B ])
+      → Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]
+      → Cᴰ.Hom[ ı tt , QuadrableNotation.introᴰ C hasUC M ][ Aᴰ , hasUᴰC Bᴰ .fst ]
+    thunkᴰ {Bᴰ = Bᴰ} M Mᴰ =
+      hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.inv _ Mᴰ
+
+    cong-thunkᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {M N : C [ ı tt ][ A , B ]}
+      {Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]}
+      {Nᴰ : Cᴰ.Hom[ ı tt , N ][ Aᴰ , Bᴰ ]}
+      → Path Cᴰ.Hom[ _ , _ ] (_ , Mᴰ) (_ , Nᴰ)
+      → Path Cᴰ.Hom[ _ , _ ] (_ , thunkᴰ M Mᴰ) (_ , thunkᴰ N Nᴰ)
+    cong-thunkᴰ {Bᴰ = Bᴰ} =
+      cong (invPshIso (∫PshIsoᴰ (hasUᴰC Bᴰ .snd)) .PshIso.trans .PshHom.N-ob _)
+
+    force-naturalᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {V : C [ _ ][ A , hasUC B .fst ]}
+      (Vᴰ : Cᴰ.Hom[ _ , V ][ Aᴰ , hasUᴰC Bᴰ .fst ])
+      → Path Cᴰ.Hom[ _ , _ ]
+          (_ , Vᴰ Cᴰ.⋆ᴰ forceᴰ)
+          (_ , hasUᴰC Bᴰ .snd .fst .PshHom.N-ob _ Vᴰ)
+    force-naturalᴰ {Bᴰ = Bᴰ} Vᴰ =
+      Cᴰ.reind-filler {p = Vᴰ Cᴰ.⋆ᴰ forceᴰ} _
+      ∙ sym (∫PshHomᴰ (hasUᴰC Bᴰ .snd .fst) .PshHom.N-hom _ _ _ _)
+      ∙ cong (∫PshHomᴰ (hasUᴰC Bᴰ .snd .fst) .PshHom.N-ob _)
+          (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
+
+    Uβᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      (M : C [ ı tt ][ A , B ])
+      (Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ])
+      → Path Cᴰ.Hom[ _ , _ ]
+          (_ , thunkᴰ M Mᴰ Cᴰ.⋆ᴰ forceᴰ)
+          (_ , Mᴰ)
+    Uβᴰ {Bᴰ = Bᴰ} M Mᴰ =
+      force-naturalᴰ (thunkᴰ M Mᴰ)
+      ∙ Cᴰ.≡in (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)
+
+    Uηᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      (V : C [ Category.id KIND ][ A , hasUC B .fst ])
+      (Vᴰ : Cᴰ.Hom[ Category.id KIND , V ][ Aᴰ , hasUᴰC Bᴰ .fst ])
+      → Path Cᴰ.Hom[ _ , _ ]
+          (_ , Vᴰ)
+          (_ , thunkᴰ (V C.⋆ᴰ QuadrableNotation.πⱽ C hasUC)
+            (Vᴰ Cᴰ.⋆ᴰ forceᴰ))
+    Uηᴰ {Bᴰ = Bᴰ} V Vᴰ =
+      sym (Cᴰ.≡in (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.leftInv _ Vᴰ))
+      ∙ cong-thunkᴰ (sym (force-naturalᴰ Vᴰ))
 
   module _ (hasUC : hasU C) where
     hasUⱽ→ᴰ : hasUⱽ → hasUᴰ hasUC
@@ -169,3 +220,40 @@ MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .fst =
   hasUⱽ→ᴰ (Cⱽ .fst) (C .snd .fst) (Cⱽ .snd .fst)
 MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd =
   hasFⱽ→ᴰ (Cⱽ .fst) (C .snd .snd) (Cⱽ .snd .snd)
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
+  (Dⱽ : MultCBPVCatⱽ D ℓᴰᴰ ℓᴰᴰ')
+  (F : Functorⱽ C D)
+  where
+
+  hasUⱽReindex : hasUⱽ (reindex (Dⱽ .fst) (∫F F))
+  hasUⱽReindex f yᴰ =
+    reindexCartesianLift (Dⱽ .fst) (∫F F) (_ , f) yᴰ
+      (Dⱽ .snd .fst (F .Functorᴰ.F-homᴰ f) yᴰ)
+
+  hasFⱽReindex : hasFⱽ (reindex (Dⱽ .fst) (∫F F))
+  hasFⱽReindex f yᴰ =
+    f*yᴰ .fst ,
+    pshiso
+      (pshhom
+        (λ x → f*yᴰ .snd .PshIso.trans .PshHom.N-ob x)
+        (λ c c' g p →
+          f*yᴰ .snd .PshIso.trans .PshHom.N-hom c c' g p))
+      (f*yᴰ .snd .PshIso.nIso)
+    where
+    f*yᴰ =
+      reindexCartesianLift
+        (Dⱽ .fst ^opᴰᴰ)
+        (∫F (F ^opFⱽ))
+        (_ , f)
+        yᴰ
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+
+  MultCBPVCatⱽReindex : MultCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
+  MultCBPVCatⱽReindex .fst =
+    reindex (Dⱽ .fst) (∫F F)
+  MultCBPVCatⱽReindex .snd .fst =
+    hasUⱽReindex
+  MultCBPVCatⱽReindex .snd .snd =
+    hasFⱽReindex

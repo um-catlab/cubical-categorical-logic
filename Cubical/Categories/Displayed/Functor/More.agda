@@ -160,7 +160,10 @@ module _ {C : Category ℓC ℓC'}
   where
   open Functorᴰ
   _^opFⱽ : Functorⱽ (Cᴰ ^opᴰ) (Dᴰ ^opᴰ)
-  _^opFⱽ = reindF' _ Eq.refl Eq.refl (Fⱽ ^opFᴰ)
+  _^opFⱽ .F-obᴰ = Fⱽ .F-obᴰ
+  _^opFⱽ .F-homᴰ = Fⱽ .F-homᴰ
+  _^opFⱽ .F-idᴰ = Fⱽ .F-idᴰ
+  _^opFⱽ .F-seqᴰ f g = Fⱽ .F-seqᴰ g f
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {F : Functor C D}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

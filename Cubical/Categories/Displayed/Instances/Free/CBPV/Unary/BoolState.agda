@@ -1,31 +1,5 @@
--- CBPV syntax as a category displayed over 𝓥 → 𝓒 ala the Fibrational Framework
-
--- --lossy-unification here is a convenience for Tm to pick the most
--- general implicits automatically. It's not totally necessary.
-
--- Here's the plan.
-
--- U/F are symmetric so without loss of generality let's pick U since
--- it involves fewer `op`s.
-
--- The universal property of U B is that it is the cartesian lift of B along 𝓥 ≤ 𝓒.
--- This represents the displayed presheaf (yoRec ≤)*(CBPV [-][-, B ])
-
--- The displayed universal property for Uᴰ Bᴰ over U B is then a
--- presheaf displayed over ∫ (yoRec ≤)*(CBPV [-][-, B ]). There is a projection π : ∫ (yoRec ≤)*(CBPV [-][-, B ]) → ∫CBPV [-, (𝓒 , B)] and the displayed universal property is π * (Cᴰ [-][-, Bᴰ ]) over the representation of ∫ (yoRec ≤)*(CBPV [-][-, B ])
---
--- The vertical universal property for Uᴰ Bᴰ is a cartesian lift of
--- (𝓥≤𝓒 , [force])* Bᴰ so it represents
-
--- (yoRec (𝓥≤𝓒,[force]))*(Cᴰ [-][-, Bᴰ ])
---
--- which is a vertical presheaf over ∫CBPV [-, (𝓥 , [U] B) ]
---
--- so vertical implies displayed here bc we have
--- the displayed universal property is to represent the vertical (yoRec (𝓥≤𝓒,[force]))*π*
---
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Multiplicative where
+module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.BoolState where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -62,7 +36,10 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
+
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
+open import Cubical.Algebra.State
+open import Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment
 
 private
   variable
@@ -116,6 +93,27 @@ module CBPV (BaseTy : Kind → Type ℓ)
       [thunk] : Tm _ Γ B → Tm {k1 = 𝓥} _ Γ ([U] B)
       [Uβ] : (M : Tm _ A B) → seqS ([thunk] M) [force] ≡ M
       [Uη] : (V : Tm _ Γ ([U] B)) → V ≡ [thunk] (seqS V [force])
+
+      -- Effects: boolean state
+      [rd] : Tm _ A B → Tm _ A B → Tm _ A B
+      [wt] : Bool → Tm _ A B → Tm _ A B
+
+      -- -- laws
+      [wt-rd] : ∀ b (Mt Mf : Tm _ A B)
+        → [wt] b ([rd] Mt Mf) ≡ [wt] b (if b then Mt else Mf)
+      [rd-wt] : (M : Tm _ A B)
+        → M ≡ [rd] ([wt] true M) ([wt] false M)
+      [wt-wt] : ∀ b1 b2 (M : Tm _ A B) → ([wt] b1 $ [wt] b2 M) ≡ [wt] b2 M
+
+      -- -- homomorphism properties
+      [r-homL] : (f : Tm _ A A')(Mt Mf : Tm _ A' B)
+        → seqS f ([rd] Mt Mf) ≡ [rd] (seqS f Mt) (seqS f Mf)
+      [r-homR] : (Mt Mf : Tm _ A B) (S : Tm _ B B')
+        → seqS ([rd] Mt Mf) S ≡ [rd] (seqS Mt S) (seqS Mf S)
+      [w-homL] : ∀ (f : Tm _ A A') b (M : Tm _ A' B)
+        → seqS f ([wt] b M) ≡ [wt] b (seqS f M)
+      [w-homR] : ∀ b (M : Tm _ A B) (S : Tm _ B B')
+        → seqS ([wt] b M) S ≡ [wt] b (seqS M S)
 
     CBPV : CBPVCat ℓ (ℓ-max ℓ ℓ')
     CBPV .ob[_] = Ob
@@ -196,6 +194,29 @@ module CBPV (BaseTy : Kind → Type ℓ)
     MultCBPV : MultCBPVCat _ _
     MultCBPV = CBPV , [U]-UMPPath , [F]-UMPPath
 
+    open StateAlg
+    StateAlgEff : ∀ (A : Ob 𝓥)(B : Ob 𝓒) → StateAlg (CBPV [ _ ][ A , B ])
+    StateAlgEff A B .rd = [rd]
+    StateAlgEff A B .wt = [wt]
+    StateAlgEff A B .wt-rd = [wt-rd]
+    StateAlgEff A B .rd-wt = [rd-wt]
+    StateAlgEff A B .wt-wt = [wt-wt]
+
+    Subst-Homo : ∀ {A A'} (V : Tm _ A A') B
+      → Homo (seqS {k≤ = tt} V) (StateAlgEff A' B) (StateAlgEff A B)
+    Subst-Homo V B .Homo.rd-hom xt xf = [r-homL] V xt xf
+    Subst-Homo V B .Homo.wt-hom b x = [w-homL] V b x
+
+    Plug-Homo : ∀ {B B'} (S : Tm _ B B') A
+      → Homo (λ M → seqS {k≤' = tt} M S) (StateAlgEff A B) (StateAlgEff A B')
+    Plug-Homo S A .Homo.rd-hom xt xf = [r-homR] xt xf S
+    Plug-Homo S A .Homo.wt-hom b x = [w-homR] b x S
+
+    CBPVState : StateAlgEnrichment CBPV
+    CBPVState .fst = StateAlgEff
+    CBPVState .snd .fst = Subst-Homo
+    CBPVState .snd .snd = Plug-Homo
+
     module Elim
       (Cᴰ : CBPVCatᴰ CBPV ℓᴰ ℓᴰ')
       (CᴰhasUᴰ : hasUᴰ Cᴰ (MultCBPV .snd .fst))
@@ -275,6 +296,18 @@ module CBPV (BaseTy : Kind → Type ℓ)
         module _
           (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
             → Cᴰ.Hom[ ı k≤ , gen M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ])
+          (StateAlgEffᴰ : ∀ {A B}(Aᴰ : Cᴰ.ob[ _ , A ])(Bᴰ : Cᴰ.ob[ _ , B ])
+            → StateAlgᴰ (StateAlgEff A B) (λ M → Cᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ]))
+          (Subst-Homoᴰ : ∀ {A A' B}
+            {Aᴰ : Cᴰ.ob[ _ , A ]}{Aᴰ' : Cᴰ.ob[ _ , A' ]}{Bᴰ : Cᴰ.ob[ _ , B ]}
+            {V : Tm _ A A'}
+            (Vᴰ : Cᴰ.Hom[ _ , V ][ Aᴰ , Aᴰ' ])
+            → Homoᴰ (λ _ → Vᴰ Cᴰ.⋆ᴰ_) (Subst-Homo V B) (StateAlgEffᴰ Aᴰ' Bᴰ) (StateAlgEffᴰ Aᴰ Bᴰ))
+          (Plug-Homoᴰ : ∀ {A B B'}
+            {Aᴰ : Cᴰ.ob[ _ , A ]}{Bᴰ : Cᴰ.ob[ _ , B ]}{Bᴰ' : Cᴰ.ob[ _ , B' ]}
+            {S : Tm _ B B'}
+            (Sᴰ : Cᴰ.Hom[ _ , S ][ Bᴰ , Bᴰ' ])
+            → Homoᴰ (λ a → Cᴰ._⋆ᴰ Sᴰ) (Plug-Homo S A) (StateAlgEffᴰ Aᴰ Bᴰ) (StateAlgEffᴰ Aᴰ Bᴰ'))
           where
           elim-F-homᴰ : (M : Tm k≤ Γ Δ)
             → Cᴰ.Hom[ ı k≤ , M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ]
@@ -322,6 +355,42 @@ module CBPV (BaseTy : Kind → Type ℓ)
                     (Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler
                       (CBPV.reind-filler⁻ _
                       ∙ CBPV.≡in {pth = refl} (IdLS [force])) ⟩))) i
+          elim-F-homᴰ ([rd] Mt Mf) =
+            StateAlgᴰ.rdᴰ
+              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+              (elim-F-homᴰ Mt) (elim-F-homᴰ Mf)
+          elim-F-homᴰ ([wt] b M) =
+            StateAlgᴰ.wtᴰ
+              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+              b (elim-F-homᴰ M)
+          elim-F-homᴰ ([wt-rd] false Mt Mf i) =
+            StateAlgᴰ.wt-rdᴰ
+              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+              false Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
+          elim-F-homᴰ ([wt-rd] true Mt Mf i) =
+            StateAlgᴰ.wt-rdᴰ
+              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+              true Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
+          elim-F-homᴰ ([rd-wt] M i) =
+            StateAlgᴰ.rd-wtᴰ
+              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+              M (elim-F-homᴰ M) i
+          elim-F-homᴰ ([wt-wt] b1 b2 M i) =
+            StateAlgᴰ.wt-wtᴰ
+              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+              b1 b2 M (elim-F-homᴰ M) i
+          elim-F-homᴰ ([r-homL] V Mt Mf i) =
+            Homoᴰ.rd-homᴰ (Subst-Homoᴰ (elim-F-homᴰ V))
+              Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
+          elim-F-homᴰ ([r-homR] Mt Mf S i) =
+            Homoᴰ.rd-homᴰ (Plug-Homoᴰ (elim-F-homᴰ S))
+              Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
+          elim-F-homᴰ ([w-homL] V b M i) =
+            Homoᴰ.wt-homᴰ (Subst-Homoᴰ (elim-F-homᴰ V))
+              b M (elim-F-homᴰ M) i
+          elim-F-homᴰ ([w-homR] b M S i) =
+            Homoᴰ.wt-homᴰ (Plug-Homoᴰ (elim-F-homᴰ S))
+              b M (elim-F-homᴰ M) i
 
           elim : GlobalSection Cᴰ
           elim .F-obᴰ d = elim-F-obᴰ (d .snd)
@@ -333,12 +402,19 @@ module CBPV (BaseTy : Kind → Type ℓ)
       {C : CBPVCat ℓD ℓD'}
       (F : Functorⱽ CBPV C)
       (Cⱽ : MultCBPVCatⱽ C ℓCᴰ ℓCᴰ')
+      (CState : StateAlgEnrichment C)
+      (FState : PreservesStateAlgEnrichment F CBPVState CState)
+      (CᴰState : StateAlgEnrichmentᴰ CState (Cⱽ .fst))
       where
       private
         module Cᴰ = Fibers (Cⱽ .fst)
 
         reindexed : MultCBPVCatᴰ MultCBPV ℓCᴰ ℓCᴰ'
         reindexed = MultCBPVCatⱽ→ᴰ (MultCBPVCatⱽReindex Cⱽ F)
+
+        reindexedState : StateAlgEnrichmentᴰ CBPVState (reindexed .fst)
+        reindexedState = StateAlgEnrichmentᴰReindex
+          F CBPVState CState FState (Cⱽ .fst) CᴰState
 
       module _
         (ı-ob : ∀ {k} (X : BaseTy k)
@@ -352,8 +428,9 @@ module CBPV (BaseTy : Kind → Type ℓ)
           ı-ob
 
         localElim :
-          (ı-hom : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
-            → Cᴰ.Hom[ _ , F .Functorᴰ.F-homᴰ (gen M) ][ local-obᴰ Γ , local-obᴰ Δ ])
+          (ı-hom : ∀ {k1 k2 Γ Δ} {k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
+            → Cᴰ.Hom[ _ , F .Functorᴰ.F-homᴰ (gen M) ][
+                local-obᴰ Γ , local-obᴰ Δ ])
           → Section (∫F F) (Cⱽ .fst)
         localElim ı-hom =
           GlobalSectionReindex→Section (Cⱽ .fst) (∫F F)
@@ -362,4 +439,7 @@ module CBPV (BaseTy : Kind → Type ℓ)
               (reindexed .snd .fst)
               (reindexed .snd .snd)
               ı-ob
-              ı-hom)
+              ı-hom
+              (reindexedState .fst)
+              (reindexedState .snd .fst)
+              (reindexedState .snd .snd))

@@ -10,6 +10,7 @@ open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.Constructions.Reindex
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
@@ -205,6 +206,26 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 
   isFibration : Type _
   isFibration = ∀ {x} (xᴰ : Cᴰ.ob[ x ]) → isFibrationPshᴰ (C [-, x ]) Cᴰ (Cᴰ [-][-, xᴰ ])
+
+  transportCartesianLift :
+    ∀ {x y} {f g : C [ x , y ]} (f≡g : f ≡ g) {yᴰ : Cᴰ.ob[ y ]}
+    → CartesianLift f yᴰ → CartesianLift g yᴰ
+  transportCartesianLift f≡g f*yᴰ .fst = f*yᴰ .fst
+  transportCartesianLift {y = y} f≡g f*yᴰ .snd =
+    subst
+      (λ h → PshIsoⱽ (Cᴰ [-][-, f*yᴰ .fst ])
+        (CartesianLiftPshSpec (C [-, y ]) Cᴰ (Cᴰ [-][-, _ ]) h))
+      f≡g (f*yᴰ .snd)
+
+  composeCartesianLifts :
+    ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]} {zᴰ : Cᴰ.ob[ z ]}
+    (g*zᴰ : CartesianLift g zᴰ)
+    (f*g*zᴰ : CartesianLift f (g*zᴰ .fst))
+    → CartesianLift (f C.⋆ g) zᴰ
+  composeCartesianLifts {y = y} {z = z} {f = f} {g = g} {zᴰ = zᴰ}
+    g*zᴰ f*g*zᴰ = f*g*zᴰ
+      ◁PshIsoⱽ (reindPshIso _ (g*zᴰ .snd)
+      ⋆PshIsoⱽ reindPshᴰNatTrans-tri _ _ _ _ (yoRec-natural _ _ _))
 
   -- Given a commuting square like this in C
   --    f

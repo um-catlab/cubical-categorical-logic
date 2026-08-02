@@ -52,7 +52,7 @@ import Cubical.Categories.Displayed.Instances.Sets.Base as Setᴰ
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
 import Cubical.Categories.Displayed.Presheaf.Base as Curried
 
 private

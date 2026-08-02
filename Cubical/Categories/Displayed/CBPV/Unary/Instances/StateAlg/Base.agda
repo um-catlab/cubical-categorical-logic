@@ -3,7 +3,7 @@
 -- as CBPV and CBPVᴰ models.
 
 {-# OPTIONS --prop #-}
-module Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg where
+module Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Base where
 
 open import Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment
 
@@ -44,7 +44,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Reindex
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.StructureOver.Base
 open import Cubical.Categories.Displayed.Instances.TotalCategory
@@ -321,6 +321,38 @@ module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
       recFSAᴰ .Homoᴰ.wt-homᴰ b s sᴰ = hSetReasoning.rectifyOut (_ , isSetB) Yᴰ $
         ∫recFSAᴰ .wt-hom b (s , sᴰ)
 
+      recFSAᴰ-β : ∀ x xᴰ
+        → recFSAᴰ-f (η X x) (ηᴰ X Xᴰ x xᴰ)
+          Bᴰ.P≡[ recFSA-β X B i x ] iᴰ x xᴰ
+      recFSAᴰ-β x xᴰ = hSetReasoning.rectifyOut (_ , isSetB) Yᴰ $
+        recFSA-β (Σ X Xᴰ) Bᴰ.∫
+          (λ z → i (z .fst) , iᴰ (z .fst) (z .snd)) (x , xᴰ)
+
+
+recFSAᴰ-η :
+  ∀ {X : Type ℓ} (Xᴰ : X → Type ℓ')
+    {Y : Type ℓ'} {Yᴰ : Y → Type ℓᴰ'}
+    {B : StateAlg Y} (Bᴰ : StateAlgᴰ B Yᴰ)
+    {f : (Bool → Bool × X) → Y}
+    (fᴰ : ∀ s → (∀ b → Xᴰ (s b .snd)) → Yᴰ (f s))
+    (f-hom : Homo f (FreeStateAlg X) B)
+    (fᴰ-hom : Homoᴰ fᴰ f-hom (FreeStateAlgᴰ X Xᴰ) Bᴰ)
+    (isSetB : isSet Y) s sᴰ
+  → StateAlgᴰ._P≡[_]_ Bᴰ
+      (recFSAᴰ-f {Xᴰ = Xᴰ} Bᴰ (f ∘ η X)
+        (λ x xᴰ → fᴰ (η X x) (ηᴰ X Xᴰ x xᴰ)) isSetB s sᴰ)
+      (recFSA-η X B f-hom s) (fᴰ s sᴰ)
+recFSAᴰ-η Xᴰ {Y = Y} {Yᴰ = Yᴰ} Bᴰ {f = f}
+  fᴰ f-hom fᴰ-hom isSetB s sᴰ =
+  hSetReasoning.rectifyOut (_ , isSetB) _ $
+    cong₂ (StateAlg.rd (StateAlgᴰ.∫ Bᴰ))
+      (sym $ Homo.wt-hom (Homoᴰ.∫ fᴰ-hom) _ _)
+      (sym $ Homo.wt-hom (Homoᴰ.∫ fᴰ-hom) _ _)
+    ∙ (sym $ Homo.rd-hom (Homoᴰ.∫ fᴰ-hom) _ _)
+    ∙ cong {B = λ _ → Σ Y Yᴰ}
+        (λ q → f (q .fst) , fᴰ (q .fst) (q .snd))
+        (sym $ StateAlg.rd-wt (StateAlgᴰ.∫ (FreeStateAlgᴰ _ Xᴰ)) (s , sᴰ))
+
 module _ {X : Type ℓ} {X' : Type ℓ'}
   {B : StateAlg X} {B' : StateAlg X'} {f : X → X'}
   (ϕ : Homo f B B')
@@ -402,6 +434,11 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
           Bᴰ''.reind-filler⁻ (λ i → g (StateAlgᴰ.wtᴰ push b xᴰ .fst .snd i))
           ∙ ϕψᴰ.∫ .Homo.wt-hom _ _
           ∙ cong (Bᴰ''.∫ .StateAlg.wt _) (Bᴰ''.reind-filler _)
+
+        recPush-β : ∀ x xᴰ
+          → recPush-fᴰ (f x) (σ-fᴰ x xᴰ)
+            Bᴰ''.P≡[ refl ] fgᴰ x xᴰ
+        recPush-β x xᴰ = Bᴰ''.rectifyOut (Bᴰ''.reind-filler⁻ _)
 
 
 module _ {X : Type ℓ}(Xᴰ : X → Type ℓᴰ)

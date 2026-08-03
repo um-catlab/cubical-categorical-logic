@@ -1,6 +1,5 @@
 -- Algebras for the theory of a Boolean state.
 -- The free algebras are given by the state monad.
-{-# OPTIONS --prop #-}
 module Cubical.Algebra.State where
 
 open import Cubical.Foundations.Prelude
@@ -46,14 +45,20 @@ record Homo {X : Type ℓ} {X' : Type ℓ'}
     module B = StateAlg B
     module B' = StateAlg B'
   field
-    rd-hom : ∀ xt xf → f (B.rd xt xf) ≡ B'.rd (f xt) (f xf)
-    wt-hom : ∀ b x → f (B.wt b x) ≡ B'.wt b (f x)
+    rd-hom : ∀ xt xf y → y ≡ B.rd xt xf → f y ≡ B'.rd (f xt) (f xf)
+    wt-hom : ∀ b x y → y ≡ B.wt b x → f y ≡ B'.wt b (f x)
+
+  rd-hom' : ∀ xt xf → f (B.rd xt xf) ≡ B'.rd (f xt) (f xf)
+  rd-hom' xt xf = rd-hom xt xf _ refl
+
+  wt-hom' : ∀ b x → f (B.wt b x) ≡ B'.wt b (f x)
+  wt-hom' b x = wt-hom b x _ refl
 
 module _ {X : Type ℓ} {B : StateAlg X} where
   open StateAlg B
   idHomo : Homo (λ x → x) B B
-  idHomo .Homo.rd-hom _ _ = refl
-  idHomo .Homo.wt-hom _ _ = refl
+  idHomo .Homo.rd-hom _ _ _ eq = eq
+  idHomo .Homo.wt-hom _ _ _ eq = eq
 
 module _ {X : Type ℓ} {X' : Type ℓ'} {X'' : Type ℓ''}
   {B : StateAlg X} {B' : StateAlg X'} {B'' : StateAlg X''}
@@ -62,16 +67,33 @@ module _ {X : Type ℓ} {X' : Type ℓ'} {X'' : Type ℓ''}
   (ψ : Homo g B' B'')
   where
   _⋆Homo_ : Homo (g ∘ f) B B''
-  _⋆Homo_ .Homo.rd-hom xt xf = cong g (ϕ .Homo.rd-hom _ _) ∙ ψ .Homo.rd-hom _ _
-  _⋆Homo_ .Homo.wt-hom b x = cong g (ϕ .Homo.wt-hom _ _) ∙ ψ .Homo.wt-hom _ _
+  _⋆Homo_ .Homo.rd-hom xt xf y eq =
+    ψ .Homo.rd-hom (f xt) (f xf) (f y) (ϕ .Homo.rd-hom xt xf y eq)
+  _⋆Homo_ .Homo.wt-hom b x y eq =
+    ψ .Homo.wt-hom b (f x) (f y) (ϕ .Homo.wt-hom b x y eq)
+
+module _ {X : Type ℓ} {X' : Type ℓ'}
+  {B : StateAlg X} {B' : StateAlg X'} {f : X → X'}
+  (ϕ : Homo f B B') where
+  ⋆HomoIdL : idHomo ⋆Homo ϕ ≡ ϕ
+  ⋆HomoIdL = refl
+  ⋆HomoIdR : ϕ ⋆Homo idHomo ≡ ϕ
+  ⋆HomoIdR = refl
+
+module _ {X : Type ℓ} {X₁ : Type ℓ'} {X₂ : Type ℓ''} {X₃ : Type ℓᴰ}
+  {B : StateAlg X} {B₁ : StateAlg X₁} {B₂ : StateAlg X₂} {B₃ : StateAlg X₃}
+  {f : X → X₁} {g : X₁ → X₂} {h : X₂ → X₃}
+  (ϕ : Homo f B B₁) (ψ : Homo g B₁ B₂) (χ : Homo h B₂ B₃) where
+  ⋆HomoAssoc : (ϕ ⋆Homo ψ) ⋆Homo χ ≡ ϕ ⋆Homo (ψ ⋆Homo χ)
+  ⋆HomoAssoc = refl
 
 isPropHomo : {X : Type ℓ} {Y : Type ℓ'}
   {f : X → Y} {B : StateAlg X} {B' : StateAlg Y}
   → isSet Y → isProp (Homo f B B')
-isPropHomo isSetY ϕ ψ i .Homo.rd-hom xt xf =
-  isSetY _ _ (ϕ .Homo.rd-hom xt xf) (ψ .Homo.rd-hom xt xf) i
-isPropHomo isSetY ϕ ψ i .Homo.wt-hom b x =
-  isSetY _ _ (ϕ .Homo.wt-hom b x) (ψ .Homo.wt-hom b x) i
+isPropHomo isSetY ϕ ψ i .Homo.rd-hom xt xf y eq =
+  isSetY _ _ (ϕ .Homo.rd-hom xt xf y eq) (ψ .Homo.rd-hom xt xf y eq) i
+isPropHomo isSetY ϕ ψ i .Homo.wt-hom b x y eq =
+  isSetY _ _ (ϕ .Homo.wt-hom b x y eq) (ψ .Homo.wt-hom b x y eq) i
 
 record StateAlgᴰ {X : Type ℓ} (B : StateAlg X)
   (Xᴰ : X → Type ℓᴰ) : Type (ℓ-max ℓ ℓᴰ) where
@@ -111,24 +133,24 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
 
     rdᴰ : ∀ {xt xf} → Xᴰ' (f xt) → Xᴰ' (f xf) → Xᴰ' (f (B.rd xt xf))
     rdᴰ {xt} {xf} xtᴰ xfᴰ =
-      Bᴰ'.reind (sym (ϕ.rd-hom xt xf)) (Bᴰ'.rdᴰ xtᴰ xfᴰ)
+      Bᴰ'.reind (sym (ϕ.rd-hom' xt xf)) (Bᴰ'.rdᴰ xtᴰ xfᴰ)
 
     wtᴰ : ∀ {x} b → Xᴰ' (f x) → Xᴰ' (f (B.wt b x))
-    wtᴰ {x} b xᴰ = Bᴰ'.reind (sym (ϕ.wt-hom b x)) (Bᴰ'.wtᴰ b xᴰ)
+    wtᴰ {x} b xᴰ = Bᴰ'.reind (sym (ϕ.wt-hom' b x)) (Bᴰ'.wtᴰ b xᴰ)
 
     rdᴰ-filler : ∀ {xt xf} (xtᴰ : Xᴰ' (f xt)) (xfᴰ : Xᴰ' (f xf))
       → Path (Σ X' Xᴰ')
           (f (B.rd xt xf) , rdᴰ xtᴰ xfᴰ)
           (B'.rd (f xt) (f xf) , Bᴰ'.rdᴰ xtᴰ xfᴰ)
     rdᴰ-filler {xt} {xf} xtᴰ xfᴰ =
-      sym (Bᴰ'.reind-filler (sym (ϕ.rd-hom xt xf)))
+      sym (Bᴰ'.reind-filler (sym (ϕ.rd-hom' xt xf)))
 
     wtᴰ-filler : ∀ {x} b (xᴰ : Xᴰ' (f x))
       → Path (Σ X' Xᴰ')
           (f (B.wt b x) , wtᴰ b xᴰ)
           (B'.wt b (f x) , Bᴰ'.wtᴰ b xᴰ)
     wtᴰ-filler {x} b xᴰ =
-      sym (Bᴰ'.reind-filler (sym (ϕ.wt-hom b x)))
+      sym (Bᴰ'.reind-filler (sym (ϕ.wt-hom' b x)))
 
   reindexStateAlgᴰ : StateAlgᴰ B (Xᴰ' ∘ f)
   reindexStateAlgᴰ .StateAlgᴰ.rdᴰ = rdᴰ
@@ -179,17 +201,20 @@ record Homoᴰ {X : Type ℓ} {X' : Type ℓ'}
   private
     module B = StateAlg B
     module B' = StateAlg B'
+    module ϕ = Homo ϕ
     module Bᴰ = StateAlgᴰ Bᴰ
     module Bᴰ' = StateAlgᴰ Bᴰ'
   field
     rd-homᴰ : ∀ xt xf xtᴰ xfᴰ
-      → fᴰ _ (Bᴰ.rdᴰ xtᴰ xfᴰ) Bᴰ'.P≡[ ϕ .Homo.rd-hom xt xf ] Bᴰ'.rdᴰ (fᴰ xt xtᴰ) (fᴰ xf xfᴰ)
+      → fᴰ _ (Bᴰ.rdᴰ xtᴰ xfᴰ) Bᴰ'.P≡[ ϕ.rd-hom' xt xf ] Bᴰ'.rdᴰ (fᴰ xt xtᴰ) (fᴰ xf xfᴰ)
     wt-homᴰ : ∀ b x xᴰ
-      → fᴰ _ (Bᴰ.wtᴰ b xᴰ) Bᴰ'.P≡[ ϕ .Homo.wt-hom b x ] Bᴰ'.wtᴰ b (fᴰ x xᴰ)
+      → fᴰ _ (Bᴰ.wtᴰ b xᴰ) Bᴰ'.P≡[ ϕ.wt-hom' b x ] Bᴰ'.wtᴰ b (fᴰ x xᴰ)
 
   ∫ : Homo (λ (b , bᴰ) → f b , fᴰ b bᴰ) Bᴰ.∫ Bᴰ'.∫
-  ∫ .Homo.rd-hom xt xf = ΣPathP (_ , (rd-homᴰ (xt .fst) (xf .fst) (xt .snd) (xf .snd)))
-  ∫ .Homo.wt-hom b x = ΣPathP (_ , wt-homᴰ b (x .fst) (x .snd))
+  ∫ .Homo.rd-hom xt xf y eq = cong (λ p → f (p .fst) , fᴰ (p .fst) (p .snd)) eq
+    ∙ ΣPathP (_ , (rd-homᴰ (xt .fst) (xf .fst) (xt .snd) (xf .snd)))
+  ∫ .Homo.wt-hom b x y eq = cong (λ p → f (p .fst) , fᴰ (p .fst) (p .snd)) eq
+    ∙ ΣPathP (_ , wt-homᴰ b (x .fst) (x .snd))
 
 isPropHomoᴰ : {X : Type ℓ} {X' : Type ℓ'}
   {B : StateAlg X} {B' : StateAlg X'} {f : X → X'}
@@ -232,9 +257,9 @@ module _ {X : Type ℓ} {X' : Type ℓ'} {X'' : Type ℓ''}
   _⋆Homoᴰ_ : Homoᴰ (λ x xᴰ → gᴰ (f x) (fᴰ x xᴰ)) (ϕ ⋆Homo ψ) Bᴰ Bᴰ''
   _⋆Homoᴰ_ .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ = Bᴰ''.rectifyOut $
     (Homoᴰ.∫ ϕᴰ ⋆Homo Homoᴰ.∫ ψᴰ) .Homo.rd-hom
-      (xt , xtᴰ) (xf , xfᴰ)
+      (xt , xtᴰ) (xf , xfᴰ) _ refl
   _⋆Homoᴰ_ .Homoᴰ.wt-homᴰ b x xᴰ = Bᴰ''.rectifyOut $
-    (Homoᴰ.∫ ϕᴰ ⋆Homo Homoᴰ.∫ ψᴰ) .Homo.wt-hom b (x , xᴰ)
+    (Homoᴰ.∫ ϕᴰ ⋆Homo Homoᴰ.∫ ψᴰ) .Homo.wt-hom b (x , xᴰ) _ refl
 
 Homoⱽ : {X : Type ℓ} {B : StateAlg X}
   {Xᴰ : X → Type ℓᴰ} {Xᴰ' : X → Type ℓᴰ'}

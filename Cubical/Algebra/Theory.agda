@@ -9,37 +9,58 @@ open import Cubical.Foundations.More
 
 open import Cubical.Data.Bool as Bool
 open import Cubical.Data.Sigma
-open import Cubical.Data.W.W
 
 private
   variable
-    ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' ℓᴰ''' ℓX ℓY ℓZ ℓW : Level
+    ℓ ℓ' ℓ'' ℓv ℓᴰ ℓᴰ' ℓᴰ'' ℓᴰ''' ℓX ℓY ℓZ ℓW : Level
 
 record AlgTheorySig ℓ ℓ' : Type (ℓ-suc (ℓ ⊔ℓ ℓ')) where
   field
     ops : Type ℓ -- S from Cubical.Data.W
-    arities : ops → Type ℓ' -- P from Cubical.Data.W
+    arities : ops → Type ℓ' -- P from Cbuical.Data.W
 
 module _ (σ : AlgTheorySig ℓ ℓ') where
   open AlgTheorySig σ
-  Tm : Type (ℓ-max ℓ ℓ')
-  Tm = W ops arities
+  data Tm {ℓv} (V : Type ℓv) : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓv) where
+    var : V → Tm V
+    node : (op : ops) → (arities op → Tm V) → Tm V
 
-record AlgTheoryEqns {ℓ ℓ'} (σ : AlgTheorySig ℓ ℓ') ℓ'' : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓ-suc ℓ'') where
+record AlgTheoryEqns {ℓ ℓ'} (σ : AlgTheorySig ℓ ℓ') ℓ'' ℓv
+  : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓ-suc ℓ'' ⊔ℓ ℓ-suc ℓv) where
   open AlgTheorySig σ public
   field
     eqns : Type ℓ''
-    lhs rhs : eqns → Tm σ
+    vars : eqns → Type ℓv
+    lhs rhs : (eqn : eqns) → Tm σ (vars eqn)
 
-module _ {σ : AlgTheorySig ℓ ℓ'} (σeq : AlgTheoryEqns σ ℓ'') where
+module _ {σ : AlgTheorySig ℓ ℓ'} where
+  open AlgTheorySig σ
+
+  TmRec : {X : Type ℓX} (α : ∀ (op : ops) → (arities op → X) → X)
+    {V : Type ℓv} (ρ : V → X) → Tm σ V → X
+  TmRec α ρ (var v) = ρ v
+  TmRec α ρ (node op ts) = α op (λ a → TmRec α ρ (ts a))
+
+  TmRecᴰ : {X : Type ℓX} (α : ∀ (op : ops) → (arities op → X) → X)
+    (Xᴰ : X → Type ℓᴰ)
+    (αᴰ : ∀ (op : ops) {x : arities op → X}
+        → ((a : arities op) → Xᴰ (x a)) → Xᴰ (α op x))
+    {V : Type ℓv} {ρ : V → X} (ρᴰ : (v : V) → Xᴰ (ρ v))
+    (M : Tm σ V) → Xᴰ (TmRec α ρ M)
+  TmRecᴰ α Xᴰ αᴰ ρᴰ (var v) = ρᴰ v
+  TmRecᴰ α Xᴰ αᴰ ρᴰ (node op ts) =
+    αᴰ op (λ a → TmRecᴰ α Xᴰ αᴰ ρᴰ (ts a))
+
+module _ {σ : AlgTheorySig ℓ ℓ'} (σeq : AlgTheoryEqns σ ℓ'' ℓv) where
   open AlgTheoryEqns σeq
-  record Alg (X : Type ℓX) : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓ'' ⊔ℓ ℓX) where
+  record Alg (X : Type ℓX) : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓ'' ⊔ℓ ℓv ⊔ℓ ℓX) where
     field
       ⟨_⟩⟦_⟧op : ∀ (op : ops) → (arities op → X) → X
-    ⟦_⟧Tm : (M : Tm σ) → X
-    ⟦_⟧Tm = WInd ops arities (λ _ → X) (λ {op} → ⟨ op ⟩⟦_⟧op)
+    ⟦_⟧Tm : {V : Type ℓv} (ρ : V → X) → Tm σ V → X
+    ⟦_⟧Tm = TmRec ⟨_⟩⟦_⟧op
     field
-      ⟦_⟧eqn : ∀ (eqn : eqns) → ⟦ lhs eqn ⟧Tm ≡ ⟦ rhs eqn ⟧Tm
+      ⟦_⟧eqn : ∀ (eqn : eqns) (ρ : vars eqn → X)
+        → ⟦ ρ ⟧Tm (lhs eqn) ≡ ⟦ ρ ⟧Tm (rhs eqn)
 
   record Homo {X : Type ℓX} {Y : Type ℓY} (f : X → Y) (B : Alg X) (C : Alg Y)
     : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓX ⊔ℓ ℓY) where
@@ -98,35 +119,36 @@ module _ {σ : AlgTheorySig ℓ ℓ'} (σeq : AlgTheoryEqns σ ℓ'') where
       isSetY _ _ (ϕ .op-hom op x y eq) (ψ .op-hom op x y eq) i
 
   record Algᴰ {X : Type ℓX} (B : Alg X) (Xᴰ : X → Type ℓᴰ)
-    : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓ'' ⊔ℓ ℓX ⊔ℓ ℓᴰ) where
+    : Type (ℓ ⊔ℓ ℓ' ⊔ℓ ℓ'' ⊔ℓ ℓv ⊔ℓ ℓX ⊔ℓ ℓᴰ) where
     open Alg B
     open depReasoning Xᴰ public
     field
       ⟨_⟩⟦_⟧opᴰ : ∀ (op : ops) {x : arities op → X} →
         ((x' : arities op) → Xᴰ (x x')) →
         Xᴰ ⟨ op ⟩⟦ x ⟧op
-    ⟦_⟧Tmᴰ : (M : Tm σ) → Xᴰ ⟦ M ⟧Tm
-    ⟦_⟧Tmᴰ = WInd ops arities (λ M → Xᴰ ⟦ M ⟧Tm) (λ {op} {x} xᴰ → ⟨ op ⟩⟦ xᴰ ⟧opᴰ)
+    ⟦_⟧Tmᴰ : {V : Type ℓv} {ρ : V → X} (ρᴰ : (v : V) → Xᴰ (ρ v))
+      (M : Tm σ V) → Xᴰ (⟦ ρ ⟧Tm M)
+    ⟦_⟧Tmᴰ = TmRecᴰ ⟨_⟩⟦_⟧op Xᴰ ⟨_⟩⟦_⟧opᴰ
     field
-      ⟦_⟧eqnᴰ : ∀ (eqn : eqns) → ⟦ lhs eqn ⟧Tmᴰ P≡[ ⟦ eqn ⟧eqn ] ⟦ rhs eqn ⟧Tmᴰ
+      ⟦_⟧eqnᴰ : ∀ (eqn : eqns) {ρ : vars eqn → X}
+        (ρᴰ : (v : vars eqn) → Xᴰ (ρ v))
+        → ⟦ ρᴰ ⟧Tmᴰ (lhs eqn) P≡[ ⟦ eqn ⟧eqn ρ ] ⟦ ρᴰ ⟧Tmᴰ (rhs eqn)
 
     private
       ∫op : ∀ (op : ops) → (arities op → Σ X Xᴰ) → Σ X Xᴰ
       ∫op op x = _ , ⟨ op ⟩⟦ snd ∘ x ⟧opᴰ
 
-      ∫Tm : Tm σ → Σ X Xᴰ
-      ∫Tm = WInd ops arities (λ _ → Σ X Xᴰ) (λ {op} → ∫op op)
-
-      ∫Tm≡ : ∀ M → ∫Tm M ≡ (⟦ M ⟧Tm , ⟦ M ⟧Tmᴰ)
-      ∫Tm≡ = WInd ops arities (λ M → ∫Tm M ≡ (⟦ M ⟧Tm , ⟦ M ⟧Tmᴰ))
-        (λ {op} ih → cong (∫op op) (funExt ih))
+      ∫Tm≡ : {V : Type ℓv} (ρ : V → Σ X Xᴰ) (M : Tm σ V)
+        → TmRec ∫op ρ M ≡ (⟦ fst ∘ ρ ⟧Tm M , ⟦ snd ∘ ρ ⟧Tmᴰ M)
+      ∫Tm≡ ρ (var v) = refl
+      ∫Tm≡ ρ (node op ts) = cong (∫op op) (funExt (λ a → ∫Tm≡ ρ (ts a)))
 
     ∫ : Alg (Σ X Xᴰ)
     ∫ .Alg.⟨_⟩⟦_⟧op = ∫op
-    ∫ .Alg.⟦_⟧eqn eqn =
-      ∫Tm≡ (lhs eqn)
-      ∙ ΣPathP (⟦ eqn ⟧eqn , ⟦ eqn ⟧eqnᴰ)
-      ∙ sym (∫Tm≡ (rhs eqn))
+    ∫ .Alg.⟦_⟧eqn eqn ρ =
+      ∫Tm≡ ρ (lhs eqn)
+      ∙ ΣPathP (⟦ eqn ⟧eqn (fst ∘ ρ) , ⟦ eqn ⟧eqnᴰ (snd ∘ ρ))
+      ∙ sym (∫Tm≡ ρ (rhs eqn))
 
   module _ {X : Type ℓX} {Y : Type ℓY}
     {B : Alg X} {C : Alg Y} {f : X → Y}
@@ -154,22 +176,24 @@ module _ {σ : AlgTheorySig ℓ ℓ'} (σeq : AlgTheoryEqns σ ℓ'') where
             (C.⟨ op ⟩⟦ f ∘ x ⟧op , Cᴰ.⟨ op ⟩⟦ xᴰ ⟧opᴰ)
       opᴰ-filler op x xᴰ = sym (Cᴰ.reind-filler (sym (ϕ.op-hom' op x)))
 
-      Tmᴰ : (M : Tm σ) → Yᴰ (f B.⟦ M ⟧Tm)
-      Tmᴰ = WInd ops arities (λ M → Yᴰ (f B.⟦ M ⟧Tm)) (λ {op} xᴰ → opᴰ op xᴰ)
+      Tmᴰ : {V : Type ℓv} {ρ : V → X} (ρᴰ : (v : V) → Yᴰ (f (ρ v)))
+        (M : Tm σ V) → Yᴰ (f (B.⟦ ρ ⟧Tm M))
+      Tmᴰ = TmRecᴰ B.⟨_⟩⟦_⟧op (λ x → Yᴰ (f x)) opᴰ
 
-      Tmᴰ≡ : ∀ M → Path (Σ Y Yᴰ)
-        (f B.⟦ M ⟧Tm , Tmᴰ M) (C.⟦ M ⟧Tm , Cᴰ.⟦ M ⟧Tmᴰ)
-      Tmᴰ≡ = WInd ops arities
-        (λ M → Path (Σ Y Yᴰ) (f B.⟦ M ⟧Tm , Tmᴰ M) (C.⟦ M ⟧Tm , Cᴰ.⟦ M ⟧Tmᴰ))
-        (λ {op} ih →
-          opᴰ-filler op _ _ ∙ cong (Cᴰ.∫ .Alg.⟨_⟩⟦_⟧op op) (funExt ih))
+      Tmᴰ≡ : {V : Type ℓv} {ρ : V → X} (ρᴰ : (v : V) → Yᴰ (f (ρ v)))
+        (M : Tm σ V) → Path (Σ Y Yᴰ)
+          (f (B.⟦ ρ ⟧Tm M) , Tmᴰ ρᴰ M) (C.⟦ f ∘ ρ ⟧Tm M , Cᴰ.⟦ ρᴰ ⟧Tmᴰ M)
+      Tmᴰ≡ ρᴰ (var v) = refl
+      Tmᴰ≡ ρᴰ (node op ts) =
+        opᴰ-filler op _ _
+        ∙ cong (Cᴰ.∫ .Alg.⟨_⟩⟦_⟧op op) (funExt (λ a → Tmᴰ≡ ρᴰ (ts a)))
 
     reindexAlgᴰ : Algᴰ B (Yᴰ ∘ f)
     reindexAlgᴰ .Algᴰ.⟨_⟩⟦_⟧opᴰ = opᴰ
-    reindexAlgᴰ .Algᴰ.⟦_⟧eqnᴰ eqn = Cᴰ.rectifyOut $
-      Tmᴰ≡ (lhs eqn)
-      ∙ ΣPathP (C.⟦ eqn ⟧eqn , Cᴰ.⟦ eqn ⟧eqnᴰ)
-      ∙ sym (Tmᴰ≡ (rhs eqn))
+    reindexAlgᴰ .Algᴰ.⟦_⟧eqnᴰ eqn ρᴰ = Cᴰ.rectifyOut $
+      Tmᴰ≡ ρᴰ (lhs eqn)
+      ∙ ΣPathP (C.⟦ eqn ⟧eqn _ , Cᴰ.⟦ eqn ⟧eqnᴰ ρᴰ)
+      ∙ sym (Tmᴰ≡ ρᴰ (rhs eqn))
 
     reindexAlgᴰ-op-filler : ∀ (op : ops) (x : arities op → X)
       (xᴰ : (a : arities op) → Yᴰ (f (x a)))

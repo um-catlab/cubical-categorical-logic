@@ -52,3 +52,10 @@ IdRightAdj C c .UniversalElement.element = id C
 IdRightAdj C c .UniversalElement.universal c' =
   isoToIsEquiv (iso _ (λ z → z) (C .⋆IdR) (C .⋆IdR))
 
+IdLeftAdj : (C : Category ℓC ℓC')
+      → LeftAdjoint (Id {C = C})
+IdLeftAdj C c .UniversalElement.vertex = c
+IdLeftAdj C c .UniversalElement.element = id C
+IdLeftAdj C c .UniversalElement.universal c' =
+  isoToIsEquiv
+    (iso (λ f → _⋆_ C (id C) f) (λ z → z) (C .⋆IdL) (C .⋆IdL))

@@ -3,9 +3,18 @@
 module Cubical.Categories.Displayed.CBPV.Unary.Instances.Sets where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.HLevels
+
+open import Cubical.Data.Empty as Empty
+open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Unit
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
@@ -22,10 +31,12 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Weaken
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Sets as EqSET
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.CBPV.Unary.Additive
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.FromU
 
 open Category
 open Functor
@@ -37,6 +48,139 @@ private
 
 SetCBPV : ∀ ℓ → CBPVCat (ℓ-suc ℓ) ℓ
 SetCBPV ℓ = weaken KIND (SET ℓ)
+
+SetCBPVEq : ∀ ℓ → MultCBPVCatEq (ℓ-suc ℓ) ℓ
+SetCBPVEq ℓ =
+  U→MultCBPVEq (Id {C = SET ℓ}) (IdLeftAdj (SET ℓ))
+
+module _ (ℓ : Level) where
+  private
+    C = SetCBPVEq ℓ .fst
+    Cop = C ^opᴰ
+    KIND-idR : EqPsh.EqIdR KIND
+    KIND-idR _ = Eq.refl
+    KIND^op-idR : EqPsh.EqIdR (KIND ^op)
+    KIND^op-idR _ = Eq.refl
+
+  SetCBPVValueTerminalEqⱽ : EqTerminalⱽ C 𝓥
+  SetCBPVValueTerminalEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+    where
+    ue : EqPsh.UEⱽ
+      (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, 𝓥 ]}) KIND-idR
+    ue .EqPsh.UEⱽ.v = Unit* , isSetUnit*
+    ue .EqPsh.UEⱽ.e = tt
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .fst _ _ = tt*
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd h =
+      funExt λ _ → refl
+
+  SetCBPVValueProductEqⱽ : ∀ A₁ A₂ → EqBinProductⱽ C {k = 𝓥} A₁ A₂
+  SetCBPVValueProductEqⱽ A₁ A₂ = EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+    where
+    ue : EqPsh.UEⱽ
+      ((EqPsh._[-][-,_] C A₁) EqPsh.×ⱽPsh (EqPsh._[-][-,_] C A₂))
+      KIND-idR
+    ue .EqPsh.UEⱽ.v .fst = A₁ .fst × A₂ .fst
+    ue .EqPsh.UEⱽ.v .snd = isSet× (A₁ .snd) (A₂ .snd)
+    ue .EqPsh.UEⱽ.e = fst , snd
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .fst
+      (p , q) x = p x , q x
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd _ = refl
+
+  SetCBPVValueInitialEqⱽ : EqInitialⱽ C 𝓥
+  SetCBPVValueInitialEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KIND^op-idR ue
+    where
+    ue : EqPsh.UEⱽ
+      (EqPsh.UnitⱽPsh {Cᴰ = Cop} {P = (KIND ^op) [-, 𝓥 ]})
+      KIND^op-idR
+    ue .EqPsh.UEⱽ.v = ⊥* , isProp→isSet isProp⊥*
+    ue .EqPsh.UEⱽ.e = tt
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .fst _ = λ ()
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .fst _ = λ ()
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd h =
+      funExt λ ()
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .snd h =
+      funExt λ ()
+
+  SetCBPVValueCoProductEqⱽ : ∀ A₁ A₂ →
+    EqBinCoProductⱽ C {k = 𝓥} A₁ A₂
+  SetCBPVValueCoProductEqⱽ A₁ A₂ =
+    EqPsh.UEⱽ→Reprⱽ _ KIND^op-idR ue
+    where
+    case-η : ∀ {X : Type ℓ} (h : A₁ .fst ⊎ A₂ .fst → X) →
+      Sum.rec (λ x → h (inl x)) (λ x → h (inr x)) ≡ h
+    case-η h = funExt λ { (inl _) → refl ; (inr _) → refl }
+
+    ue : EqPsh.UEⱽ
+      ((EqPsh._[-][-,_] Cop A₁) EqPsh.×ⱽPsh
+       (EqPsh._[-][-,_] Cop A₂))
+      KIND^op-idR
+    ue .EqPsh.UEⱽ.v .fst = A₁ .fst ⊎ A₂ .fst
+    ue .EqPsh.UEⱽ.v .snd = isSet⊎ (A₁ .snd) (A₂ .snd)
+    ue .EqPsh.UEⱽ.e = inl , inr
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .fst
+      (p , q) = Sum.rec p q
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .fst
+      (p , q) = Sum.rec p q
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd h =
+      case-η h
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .snd h =
+      case-η h
+
+  SetCBPVComputationTerminalEqⱽ : EqTerminalⱽ C 𝓒
+  SetCBPVComputationTerminalEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+    where
+    ue : EqPsh.UEⱽ
+      (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, 𝓒 ]}) KIND-idR
+    ue .EqPsh.UEⱽ.v = Unit* , isSetUnit*
+    ue .EqPsh.UEⱽ.e = tt
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .fst _ _ = tt*
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .fst _ _ = tt*
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd h =
+      funExt λ _ → refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .snd h =
+      funExt λ _ → refl
+
+  SetCBPVComputationProductEqⱽ : ∀ B₁ B₂ →
+    EqBinProductⱽ C {k = 𝓒} B₁ B₂
+  SetCBPVComputationProductEqⱽ B₁ B₂ =
+    EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+    where
+    ue : EqPsh.UEⱽ
+      ((EqPsh._[-][-,_] C B₁) EqPsh.×ⱽPsh (EqPsh._[-][-,_] C B₂))
+      KIND-idR
+    ue .EqPsh.UEⱽ.v .fst = B₁ .fst × B₂ .fst
+    ue .EqPsh.UEⱽ.v .snd = isSet× (B₁ .snd) (B₂ .snd)
+    ue .EqPsh.UEⱽ.e = fst , snd
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .fst
+      (p , q) x = p x , q x
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .fst
+      (p , q) x = p x , q x
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .snd _ = refl
+
+  SetAddCBPVEq : AddCBPVCatEq (ℓ-suc ℓ) ℓ
+  SetAddCBPVEq .fst = SetCBPVEq ℓ
+  SetAddCBPVEq .snd .fst = SetCBPVValueTerminalEqⱽ
+  SetAddCBPVEq .snd .snd .fst = SetCBPVValueProductEqⱽ
+  SetAddCBPVEq .snd .snd .snd .fst = SetCBPVValueInitialEqⱽ
+  SetAddCBPVEq .snd .snd .snd .snd .fst = SetCBPVValueCoProductEqⱽ
+  SetAddCBPVEq .snd .snd .snd .snd .snd .fst =
+    SetCBPVComputationTerminalEqⱽ
+  SetAddCBPVEq .snd .snd .snd .snd .snd .snd =
+    SetCBPVComputationProductEqⱽ
+
+  SetAddCBPV : AddCBPVCat (ℓ-suc ℓ) ℓ
+  SetAddCBPV = forgetAddEq SetAddCBPVEq
 
 SetCBPVᴰ : ∀ ℓ → CBPVCatᴰ (SetCBPV ℓ) (ℓ-suc ℓ) ℓ
 SetCBPVᴰ ℓ = reindex (SETᴰ ℓ ℓ) (weakenΠ KIND (SET ℓ))

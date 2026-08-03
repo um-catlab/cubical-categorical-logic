@@ -8,6 +8,7 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.TotalCategory
+open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞)
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -19,14 +20,17 @@ open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 
 open Functor
+open Category
 
 private
   variable
     ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰᴰ ℓᴰᴰ' : Level
-  module KIND = Category KIND
+  module KindCat = Category KIND
 
 module _ (C : CBPVCat ℓ ℓ') where
   private
@@ -38,6 +42,23 @@ module _ (C : CBPVCat ℓ ℓ') where
   ComputationOb : Type ℓ
   ComputationOb = C.ob[ 𝒞 ]
 
+  EqTerminalⱽ : (k : Kind) → Type _
+  EqTerminalⱽ k = EqPsh.Reprⱽ
+    (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, k ]})
+
+  EqInitialⱽ : (k : Kind) → Type _
+  EqInitialⱽ k = EqPsh.Reprⱽ
+    (EqPsh.UnitⱽPsh {Cᴰ = C ^opᴰ} {P = (KIND ^op) [-, k ]})
+
+  EqBinProductⱽ : ∀ {k} (A₁ A₂ : C.ob[ k ]) → Type _
+  EqBinProductⱽ A₁ A₂ = EqPsh.Reprⱽ
+    ((EqPsh._[-][-,_] C A₁) EqPsh.×ⱽPsh (EqPsh._[-][-,_] C A₂))
+
+  EqBinCoProductⱽ : ∀ {k} (A₁ A₂ : C.ob[ k ]) → Type _
+  EqBinCoProductⱽ A₁ A₂ = EqPsh.Reprⱽ
+    ((EqPsh._[-][-,_] (C ^opᴰ) A₁) EqPsh.×ⱽPsh
+     (EqPsh._[-][-,_] (C ^opᴰ) A₂))
+
 AddCBPVCat : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 AddCBPVCat ℓ ℓ' =
   Σ[ C ∈ MultCBPVCat ℓ ℓ' ]
@@ -48,6 +69,38 @@ AddCBPVCat ℓ ℓ' =
   × Terminalⱽ (C .fst) 𝒞
   × (∀ (B₁ B₂ : ComputationOb (C .fst)) → BinProductⱽ (C .fst) B₁ B₂)
 
+AddCBPVCatEq : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
+AddCBPVCatEq ℓ ℓ' =
+  Σ[ C ∈ MultCBPVCatEq ℓ ℓ' ]
+    EqTerminalⱽ (C .fst) 𝒱
+  × (∀ (A₁ A₂ : ValueOb (C .fst)) → EqBinProductⱽ (C .fst) A₁ A₂)
+  × EqInitialⱽ (C .fst) 𝒱
+  × (∀ (A₁ A₂ : ValueOb (C .fst)) →
+      EqBinCoProductⱽ (C .fst) A₁ A₂)
+  × EqTerminalⱽ (C .fst) 𝒞
+  × (∀ (B₁ B₂ : ComputationOb (C .fst)) →
+      EqBinProductⱽ (C .fst) B₁ B₂)
+
+forgetAddEq : AddCBPVCatEq ℓ ℓ' → AddCBPVCat ℓ ℓ'
+forgetAddEq C .fst = forgetEq (C .fst)
+forgetAddEq C .snd .fst =
+  EqTerminalⱽ→Terminalⱽ KINDAssoc (C .fst .fst) (C .snd .fst)
+forgetAddEq C .snd .snd .fst A₁ A₂ =
+  EqBinProductⱽ→BinProductⱽ KINDAssoc (C .fst .fst)
+    (C .snd .snd .fst A₁ A₂)
+forgetAddEq C .snd .snd .snd .fst =
+  EqTerminalⱽ→Terminalⱽ KIND^opAssoc ((C .fst .fst) ^opᴰ)
+    (C .snd .snd .snd .fst)
+forgetAddEq C .snd .snd .snd .snd .fst A₁ A₂ =
+  EqBinProductⱽ→BinProductⱽ KIND^opAssoc ((C .fst .fst) ^opᴰ)
+    (C .snd .snd .snd .snd .fst A₁ A₂)
+forgetAddEq C .snd .snd .snd .snd .snd .fst =
+  EqTerminalⱽ→Terminalⱽ KINDAssoc (C .fst .fst)
+    (C .snd .snd .snd .snd .snd .fst)
+forgetAddEq C .snd .snd .snd .snd .snd .snd B₁ B₂ =
+  EqBinProductⱽ→BinProductⱽ KINDAssoc (C .fst .fst)
+    (C .snd .snd .snd .snd .snd .snd B₁ B₂)
+
 module _ {C : CBPVCat ℓ ℓ'} (Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   private
     module C = Categoryᴰ C
@@ -57,14 +110,14 @@ module _ {C : CBPVCat ℓ ℓ'} (Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   -- CBPV fiber.  These are the morphisms containing product projections.
   hasVerticalCartesianLiftsAt : (k : Kind) → Type _
   hasVerticalCartesianLiftsAt k =
-    ∀ {A B : C.ob[ k ]} (f : C.Hom[ KIND.id ][ A , B ])
+    ∀ {A B : C.ob[ k ]} (f : C.Hom[ KindCat.id ][ A , B ])
       (Bᴰ : Cᴰ.ob[ k , B ])
     → CartesianLift Cᴰ (_ , f) Bᴰ
 
   -- Dually, these are precisely the lifts needed for coproduct injections.
   hasVerticalOpcartesianLiftsAt : (k : Kind) → Type _
   hasVerticalOpcartesianLiftsAt k =
-    ∀ {A B : C.ob[ k ]} (f : C.Hom[ KIND.id ][ A , B ])
+    ∀ {A B : C.ob[ k ]} (f : C.Hom[ KindCat.id ][ A , B ])
       (Aᴰ : Cᴰ.ob[ k , A ])
     → CartesianLift (Cᴰ ^opᴰ) (_ , f) Aᴰ
 

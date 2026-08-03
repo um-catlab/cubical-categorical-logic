@@ -50,7 +50,6 @@ open import Cubical.Categories.Displayed.Instances.StructureOver.Base
 open import Cubical.Categories.Displayed.Instances.TotalCategory
 open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.Instances.Weaken
-open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration

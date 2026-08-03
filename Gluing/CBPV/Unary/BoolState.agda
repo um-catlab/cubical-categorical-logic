@@ -3,9 +3,10 @@ module Gluing.CBPV.Unary.BoolState where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
-import Cubical.Foundations.Equiv.Base as Equiv
+open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.More
 
 open import Cubical.Prop
 
@@ -162,16 +163,20 @@ module BoolStateSyntax where
       (CBPV^op.reind-filler⁻ _
       ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
 
-  -- This is what the logical relation spits out. (after futzing with the identity substitution)
+  -- This is what the logical relation spits out. (after futzing with
+  -- the identity substitution)
   --
-  -- It says that every M : ClosedComp (F Bool)
+  -- It says that for every M : ClosedComp (F Bool)
   -- we construct a term s : Bool → Bool × (ClosedVal Bool)
   -- such that
-  -- 1. M ≡ quote s so M ≡ rd (wt b1 (ret V1)) (wt b2 (ret V2)) (technicall [ret]' not [ret] b.c. of transport hell)
+  -- 1. M ≡ quote s, i.e. M ≡ rd (wt b1 (ret' V1)) (wt b2 (ret' V2))
   -- 2. and each V1 , V2 is a canonical boolean value.
+
+  -- Pretty good definitionally except for [ret]' ≠ [ret] because of a
+  -- transport.
   RawFBool : Tm tt (gen 𝟙) ([F] (gen BoolTy)) → Type ℓ-zero
   RawFBool M =
-    Σ[ (s , [ret]⟨s⟩≡M) ∈ Equiv.fiber
+    Σ[ (s , [ret]⟨s⟩≡M) ∈ fiber
       (recFSA-f
         (Tm tt (gen 𝟙) (gen BoolTy))
         (StateAlgEff (gen 𝟙) ([F] (gen BoolTy)))
@@ -199,11 +204,11 @@ module BoolStateSyntax where
     rawRelated raw = raw .snd
 
     realizeRaw : ∀ {M} (raw : RawFBool M)
-      → Equiv.fiber interpretFreeStateBool M
+      → fiber interpretFreeStateBool M
     realizeRaw raw .fst b .fst = rawState raw b .fst
     realizeRaw raw .fst b .snd = rawRelated raw b .fst
     realizeRaw raw .snd =
-      -- this is just to paper over a stuck reind id
+      -- this would be a one-liner if not for the reind in [ret]'.
       cong₂ [rd]
         (cong ([wt] (rawState raw true .fst))
           (cong₂ seqS
@@ -214,7 +219,25 @@ module BoolStateSyntax where
       ∙ raw .fst .snd
 
   closed-FBool-surjective : ∀ M →
-    Equiv.fiber interpretFreeStateBool M
+    fiber interpretFreeStateBool M
   closed-FBool-surjective M = realizeRaw (raw-FBool M)
+
+  unquote-FBool : Tm _ (gen 𝟙) ([F] (gen BoolTy)) → ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
+  unquote-FBool M = closed-FBool-surjective M .fst
+
+  -- opaque
+  --   unfolding depReasoning.reind
+  --   -- This should compute (at least up to opaque reind), but even
+  --   -- reducing it is terribly slow.
+  --   unquote-quote : ∀ s → unquote-FBool (interpretFreeStateBool s) ≡ s
+  --   unquote-quote s = funExt pointwise
+  --     where
+  --     pointwise : ∀ b → unquote-FBool (interpretFreeStateBool s) b ≡ s b
+  --     pointwise false with s false
+  --     ... | b , false = refl
+  --     ... | b , true = refl
+  --     pointwise true with s true
+  --     ... | b , false = refl
+  --     ... | b , true = refl
 
 open BoolStateSyntax public

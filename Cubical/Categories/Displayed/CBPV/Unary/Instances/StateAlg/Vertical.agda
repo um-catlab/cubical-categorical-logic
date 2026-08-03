@@ -1,4 +1,6 @@
 -- Vertical multiplicative structure for the displayed model of state algebras.
+--
+-- This currently
 {-# OPTIONS --prop --lossy-unification #-}
 module Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Vertical where
 

@@ -240,4 +240,3 @@ Homoⱽ : {X : Type ℓ} {B : StateAlg X}
   (fᴰ : ∀ x → Xᴰ x → Xᴰ' x)
   (Bᴰ : StateAlgᴰ B Xᴰ) (Bᴰ' : StateAlgᴰ B Xᴰ') → Type _
 Homoⱽ fᴰ Bᴰ Bᴰ' = Homoᴰ fᴰ idHomo Bᴰ Bᴰ'
-

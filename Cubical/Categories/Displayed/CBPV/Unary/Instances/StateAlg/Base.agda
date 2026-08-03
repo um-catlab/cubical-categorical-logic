@@ -31,6 +31,7 @@ open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
+open import Cubical.Categories.Instances.Fiber hiding (fiber)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
@@ -62,6 +63,8 @@ open import Cubical.Categories.Displayed.CBPV.Unary.Instances.FromU
 private
   variable
     ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' ℓᴰᴰ ℓᴰᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
+
+open Functorᴰ
 
 StateAlgebra : (l : Level) → Type (ℓ-suc l)
 StateAlgebra l = Σ[ X ∈ hSet l ] StateAlg ⟨ X ⟩
@@ -212,6 +215,35 @@ StateAlgCBPVEq = U→MultCBPVEq StateAlgForget StateAlgFree
 StateAlgCBPV : MultCBPVCat (ℓ-suc ℓ) ℓ
 StateAlgCBPV = forgetEq StateAlgCBPVEq
 
+module _ (C : CBPVCat ℓ ℓ') (CState : StateAlgEnrichment C) where
+  private
+    module C = Fibers C
+
+  points : C.ob[ 𝓥 ] → Functorⱽ C (StateAlgCBPV {ℓ = ℓ'} .fst)
+  points P .F-obᴰ {x = 𝓥} A =
+    C.Hom[ _ ][ P , A ] , C.isSetHomᴰ
+  points P .F-obᴰ {x = 𝓒} B =
+    ((C.Hom[ _ ][ P , B ] , C.isSetHomᴰ) , CState .fst P B)
+  points P .F-homᴰ {x = 𝓥} {y = 𝓥} f M = M C.⋆ᴰ f
+  points P .F-homᴰ {x = 𝓥} {y = 𝓒} f M = M C.⋆ᴰ f
+  points P .F-homᴰ {x = 𝓒} {y = 𝓒} f =
+    (λ M → M C.⋆ᴰ f) , CState .snd .snd f P
+  points P .F-idᴰ {x = 𝓥} = funExt C.⋆IdRᴰ
+  points P .F-idᴰ {x = 𝓒} {xᴰ = B} =
+    Σ≡Prop
+      (λ h → isPropHomo (points P .F-obᴰ B .fst .snd))
+      (funExt C.⋆IdRᴰ)
+  points P .F-seqᴰ {x = 𝓥} {y = 𝓥} {z = 𝓥} f g =
+    funExt (λ M → sym (C.⋆Assocᴰ M f g))
+  points P .F-seqᴰ {x = 𝓥} {y = 𝓥} {z = 𝓒} f g =
+    funExt (λ M → sym (C.⋆Assocᴰ M f g))
+  points P .F-seqᴰ {x = 𝓥} {y = 𝓒} {z = 𝓒} f g =
+    funExt (λ M → sym (C.⋆Assocᴰ M f g))
+  points P .F-seqᴰ {x = 𝓒} {y = 𝓒} {z = 𝓒} {zᴰ = B} f g =
+    Σ≡Prop
+      (λ h → isPropHomo (points P .F-obᴰ B .fst .snd))
+      (funExt (λ M → sym (C.⋆Assocᴰ M f g)))
+
 StateAlgCBPVᴰ : ∀ ℓ ℓᴰ → CBPVCatᴰ (StateAlgCBPV {ℓ = ℓ} .fst)
   (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
 StateAlgCBPVᴰ ℓ ℓᴰ = U→CBPVᴰ StateAlgForget (StateAlgForgetᴰ {ℓ = ℓ} {ℓᴰ = ℓᴰ})
@@ -235,6 +267,16 @@ StateAlgCBPVState .snd .snd S A .Homo.rd-hom Mt Mf =
   funExt λ x → S .snd .Homo.rd-hom (Mt x) (Mf x)
 StateAlgCBPVState .snd .snd S A .Homo.wt-hom b M =
   funExt λ x → S .snd .Homo.wt-hom b (M x)
+
+module _ (C : CBPVCat ℓ ℓ') (CState : StateAlgEnrichment C)
+  (P : Fibers.ob[_] C 𝓥) where
+  pointsPreservesState :
+    PreservesStateAlgEnrichment
+      (points C CState P) CState StateAlgCBPVState
+  pointsPreservesState A B .Homo.rd-hom Mt Mf =
+    funExt λ V → CState .snd .fst V B .Homo.rd-hom Mt Mf
+  pointsPreservesState A B .Homo.wt-hom b M =
+    funExt λ V → CState .snd .fst V B .Homo.wt-hom b M
 
 StateAlgCBPVStateᴰ : ∀ ℓ ℓᴰ →
   StateAlgEnrichmentᴰ (StateAlgCBPVState {ℓ = ℓ}) (StateAlgCBPVᴰ ℓ ℓᴰ)
@@ -449,4 +491,3 @@ module _ {X : Type ℓ}(Xᴰ : X → Type ℓᴰ)
 
   FreeStateAlgⱽ : StateAlgᴰ B FreeStateAlgⱽ-Xᴰ
   FreeStateAlgⱽ = push (recFSA X B i) (FreeStateAlgᴰ X Xᴰ) isSetB
-

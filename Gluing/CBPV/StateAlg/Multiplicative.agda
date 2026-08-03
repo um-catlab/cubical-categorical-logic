@@ -1,5 +1,5 @@
 {-# OPTIONS --prop --lossy-unification #-}
-module Gluing.CBPV.Unary.BoolState where
+module Gluing.CBPV.StateAlg.Multiplicative where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -53,33 +53,12 @@ module StateAlgGluing
   private
     L = ℓ-max ℓ ℓ'
 
-  globalSections : Functorⱽ CBPV (StateAlgCBPV { ℓ = L } .fst)
-  globalSections .F-obᴰ {x = 𝒱} A =
-    (Tm tt (gen 𝟙) A , isSetTm)
-  globalSections .F-obᴰ {x = 𝒞} B =
-    ((Tm tt (gen 𝟙) B , isSetTm) , StateAlgEff (gen 𝟙) B)
-  globalSections .F-homᴰ {x = 𝒱} {y = 𝒱} f M = seqS M f
-  globalSections .F-homᴰ {x = 𝒱} {y = 𝒞} f M = seqS M f
-  globalSections .F-homᴰ {x = 𝒞} {y = 𝒞} f =
-    (λ M → seqS M f) , Plug-Homo f (gen 𝟙)
-  globalSections .F-idᴰ {x = 𝒱} = funExt IdRS
-  globalSections .F-idᴰ {x = 𝒞} =
-    StateAlgHom≡ _ _ (funExt IdRS)
-  globalSections .F-seqᴰ {x = 𝒱} {y = 𝒱} {z = 𝒱} f g =
-    funExt (λ M → sym (AssocS M f g))
-  globalSections .F-seqᴰ {x = 𝒱} {y = 𝒱} {z = 𝒞} f g =
-    funExt (λ M → sym (AssocS M f g))
-  globalSections .F-seqᴰ {x = 𝒱} {y = 𝒞} {z = 𝒞} f g =
-    funExt (λ M → sym (AssocS M f g))
-  globalSections .F-seqᴰ {x = 𝒞} {y = 𝒞} {z = 𝒞} f g =
-    StateAlgHom≡ _ _ (funExt (λ M → sym (AssocS M f g)))
+  pts : Functorⱽ CBPV (StateAlgCBPV {ℓ = L} .fst)
+  pts = points CBPV CBPVState (gen 𝟙)
 
-  globalSectionsPreservesState :
-    PreservesStateAlgEnrichment globalSections CBPVState StateAlgCBPVState
-  globalSectionsPreservesState A B .Homo.rd-hom Mt Mf =
-    funExt λ M → [r-homL] M Mt Mf
-  globalSectionsPreservesState A B .Homo.wt-hom b M =
-    funExt λ V → [w-homL] V b M
+  ptsPreservesState :
+    PreservesStateAlgEnrichment pts CBPVState StateAlgCBPVState
+  ptsPreservesState = pointsPreservesState CBPV CBPVState (gen 𝟙)
 
 module BoolStateSyntax where
   data BaseTy : Kind → Type ℓ-zero where
@@ -116,20 +95,20 @@ module BoolStateSyntax where
   module G = StateAlgGluing BaseTy FUN 𝟙
 
   module Fundamental = LocalElim
-    G.globalSections
+    G.pts
     StateAlgCBPVⱽ
     StateAlgCBPVState
-    G.globalSectionsPreservesState
+    G.ptsPreservesState
     (StateAlgCBPVStateᴰ ℓ-zero ℓ-zero)
 
   baseObject : ∀ {k} (X : BaseTy k)
     → Categoryᴰ.ob[_] (StateAlgCBPVⱽ .fst)
-        (k , G.globalSections .F-obᴰ (gen X))
+        (k , G.pts .F-obᴰ (gen X))
   baseObject 𝟙 = hBaseRelation 𝟙
   baseObject BoolTy = hBaseRelation BoolTy
 
   fundamentalLemma :
-    Section (∫F G.globalSections) (StateAlgCBPVⱽ .fst)
+    Section (∫F G.pts) (StateAlgCBPVⱽ .fst)
   fundamentalLemma =
     Fundamental.localElim baseObject
       λ { true V V≡id → true , cong₂ seqS V≡id refl ∙ IdLS tru

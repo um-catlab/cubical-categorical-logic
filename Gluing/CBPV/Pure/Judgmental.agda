@@ -1,5 +1,5 @@
 {-# OPTIONS --prop #-}
-module Gluing.CBPV.Unary where
+module Gluing.CBPV.Pure.Judgmental where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

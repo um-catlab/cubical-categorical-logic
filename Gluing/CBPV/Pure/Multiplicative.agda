@@ -1,5 +1,5 @@
 {-# OPTIONS --prop --lossy-unification #-}
-module Gluing.CBPV.Unary.Multiplicative where
+module Gluing.CBPV.Pure.Multiplicative where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -17,20 +17,14 @@ open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
-open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Opposite
-open import Cubical.Categories.Displayed.Instances.Reindex
-open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
-open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Weaken
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
-import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Sets as EqSET
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Sets
 open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Multiplicative
 
 open Category
@@ -54,59 +48,8 @@ module MultiplicativeGluing
   private
     L = ℓ-max ℓ ℓ'
 
-  CBPV-SET : CBPVCat (ℓ-suc L) L
-  CBPV-SET = weaken KIND (SET L)
-
-  closed : Functorⱽ CBPV CBPV-SET
-  closed .F-obᴰ Γ = CBPV.Hom[ _ ][ gen 𝟙 , Γ ] , isSetTm
-  closed .F-homᴰ f g = seqS g f
-  closed .F-idᴰ i g = IdRS g i
-  closed .F-seqᴰ f g i h = AssocS h f g (~ i)
-
-  CBPV-SETᴰ : CBPVCatᴰ CBPV-SET (ℓ-suc L) L
-  CBPV-SETᴰ = reindex (SETᴰ L L) (weakenΠ KIND (SET L))
-
-  private
-    CBPV-SETΠ^op : Functor (∫C (CBPV-SET ^opᴰ)) (SET L ^op)
-    CBPV-SETΠ^op .F-ob = snd
-    CBPV-SETΠ^op .F-hom = snd
-    CBPV-SETΠ^op .F-id = refl
-    CBPV-SETΠ^op .F-seq _ _ = refl
-
-    SET-fib = EqFibration→Fibration EqSET.SetAssoc (SETᴰ L L) EqSET.SetᴰFibration
-    SET-opfib = EqFibration→Fibration EqSET.SetAssoc^op ((SETᴰ L L) ^opᴰ)
-      EqSET.SetᴰFibration^op
-
-  CBPV-SETⱽ : MultCBPVCatⱽ CBPV-SET (ℓ-suc L) L
-  CBPV-SETⱽ .fst = CBPV-SETᴰ
-  -- Uⱽ is just defined as a substitution
-  CBPV-SETⱽ .snd .fst f Bᴰ =
-    reindexCartesianLift (SETᴰ L L) (weakenΠ KIND (SET L)) (_ , f) Bᴰ
-      (SET-fib Bᴰ _ f)
-  -- Fⱽ is defined as the fiber of ret
-  CBPV-SETⱽ .snd .snd {A = A} {B = B} f Aᴰ .fst = f*Aᴰ .fst
-    where
-    f*Aᴰ : CartesianLift
-      (reindex ((SETᴰ L L) ^opᴰ) CBPV-SETΠ^op)
-      {x = 𝓒 , B} {y = 𝓥 , A} (_ , f) Aᴰ
-    f*Aᴰ =
-      reindexCartesianLift ((SETᴰ L L) ^opᴰ)
-        CBPV-SETΠ^op (_ , f) Aᴰ
-        (SET-opfib Aᴰ _ f)
-  CBPV-SETⱽ .snd .snd {A = A} {B = B} f Aᴰ .snd =
-    pshiso
-      (pshhom
-        (λ x → f*Aᴰ .snd .PshIso.trans .PshHom.N-ob x)
-        (λ c c' g p → f*Aᴰ .snd .PshIso.trans .PshHom.N-hom c c' g p))
-      (f*Aᴰ .snd .PshIso.nIso)
-    where
-    f*Aᴰ : CartesianLift
-      (reindex ((SETᴰ L L) ^opᴰ) CBPV-SETΠ^op)
-      {x = 𝓒 , B} {y = 𝓥 , A} (_ , f) Aᴰ
-    f*Aᴰ =
-      reindexCartesianLift ((SETᴰ L L) ^opᴰ)
-        CBPV-SETΠ^op (_ , f) Aᴰ
-        (SET-opfib Aᴰ _ f)
+  pts : Functorⱽ CBPV (SetCBPV L)
+  pts = points CBPV (gen 𝟙)
 
   module FundLem
     (ı-Ob : ∀ {k} (X : BaseTy k)
@@ -114,18 +57,18 @@ module MultiplicativeGluing
       → hSet L)
     (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (f : Fun k≤ Γ Δ)
       → ∀ (M : Tm tt (gen 𝟙) Γ)
-      → ⟨ LocalElim.local-obᴰ closed CBPV-SETⱽ ı-Ob Γ M ⟩
-      → ⟨ LocalElim.local-obᴰ closed CBPV-SETⱽ ı-Ob Δ
+      → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob Γ M ⟩
+      → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob Δ
           (seqS M (gen f)) ⟩)
     where
-    fund-lemma : Section (∫F closed) CBPV-SETᴰ
-    fund-lemma = LocalElim.localElim closed CBPV-SETⱽ ı-Ob ı-Fun
+    fund-lemma : Section (∫F pts) (SetCBPVᴰ L)
+    fund-lemma = LocalElim.localElim pts (SetCBPVⱽ L) ı-Ob ı-Fun
 
     corollary : ∀ (M : Tm tt (gen 𝟙) Γ)
       → ⟨ fund-lemma .F-obᴰ (_ , gen 𝟙) idS ⟩
-      → ⟨ LocalElim.local-obᴰ closed CBPV-SETⱽ ı-Ob Γ M ⟩
+      → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob Γ M ⟩
     corollary M lem = subst
-      (λ M → ⟨ LocalElim.local-obᴰ closed CBPV-SETⱽ ı-Ob _ M ⟩)
+      (λ M → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob _ M ⟩)
       (IdLS M) $
       fund-lemma .F-homᴰ (_ , M) idS lem
 

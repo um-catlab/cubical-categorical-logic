@@ -16,12 +16,15 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Weaken
+open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Sets as EqSET
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+open import Cubical.Categories.Displayed.CBPV.Unary.Additive
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 
 open Category
@@ -54,6 +57,12 @@ private
   SetCBPVΠ^op ℓ .F-hom = snd
   SetCBPVΠ^op ℓ .F-id = refl
   SetCBPVΠ^op ℓ .F-seq _ _ = refl
+
+  SetCBPVΠTotal^op : ∀ ℓ → Functor ((∫C (SetCBPV ℓ)) ^op) (SET ℓ ^op)
+  SetCBPVΠTotal^op ℓ .F-ob = snd
+  SetCBPVΠTotal^op ℓ .F-hom = snd
+  SetCBPVΠTotal^op ℓ .F-id = refl
+  SetCBPVΠTotal^op ℓ .F-seq _ _ = refl
 
   SET-fib : ∀ ℓ → isFibration (SETᴰ ℓ ℓ)
   SET-fib ℓ =
@@ -90,3 +99,77 @@ SetCBPVⱽ : ∀ ℓ → MultCBPVCatⱽ (SetCBPV ℓ) (ℓ-suc ℓ) ℓ
 SetCBPVⱽ ℓ .fst = SetCBPVᴰ ℓ
 SetCBPVⱽ ℓ .snd .fst = SetCBPV-Uⱽ ℓ
 SetCBPVⱽ ℓ .snd .snd = SetCBPV-Fⱽ ℓ
+
+private
+  SETᴰCartesianⱽ : ∀ ℓ → CartesianCategoryⱽ (SET ℓ) (ℓ-suc ℓ) ℓ
+  SETᴰCartesianⱽ ℓ =
+    EqCCⱽ→CCⱽ EqSET.SetAssoc (SETᴰ ℓ ℓ) EqSET.isCartesianⱽSETᴰ
+
+  SETᴰCartesianⱽ^op : ∀ ℓ → CartesianCategoryⱽ (SET ℓ ^op) (ℓ-suc ℓ) ℓ
+  SETᴰCartesianⱽ^op ℓ =
+    EqCCⱽ→CCⱽ EqSET.SetAssoc^op ((SETᴰ ℓ ℓ) ^opᴰ)
+      EqSET.isCartesianⱽSETᴰ^op
+
+  SetCBPVCartesianⱽ : ∀ ℓ → CartesianCategoryⱽ
+    (∫C (SetCBPV ℓ)) (ℓ-suc ℓ) ℓ
+  SetCBPVCartesianⱽ ℓ =
+    CartesianCategoryⱽReindex (SETᴰCartesianⱽ ℓ) (weakenΠ KIND (SET ℓ))
+
+  SetCBPVCartesianⱽ^op : ∀ ℓ → CartesianCategoryⱽ
+    ((∫C (SetCBPV ℓ)) ^op) (ℓ-suc ℓ) ℓ
+  SetCBPVCartesianⱽ^op ℓ =
+    CartesianCategoryⱽReindex (SETᴰCartesianⱽ^op ℓ) (SetCBPVΠTotal^op ℓ)
+
+module _ (ℓ : Level) where
+  private
+    module Cart = CartesianCategoryⱽ (SetCBPVCartesianⱽ ℓ)
+    module OpCart = CartesianCategoryⱽ (SetCBPVCartesianⱽ^op ℓ)
+
+  SetCBPV-Initialsⱽ : ValueInitialsⱽ (SetCBPVᴰ ℓ)
+  SetCBPV-Initialsⱽ A =
+    init' .fst ,
+    pshiso
+      (pshhom
+        (λ x → init' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ _ _ _ _ → refl))
+      (init' .snd .PshIso.nIso)
+    where
+    init' = OpCart.termⱽ (𝓥 , A)
+
+  SetCBPV-BinCoProductsⱽ : ValueBinCoProductsⱽ (SetCBPVᴰ ℓ)
+  SetCBPV-BinCoProductsⱽ A₁ᴰ A₂ᴰ =
+    bcp' .fst ,
+    pshiso
+      (pshhom
+        (λ x → bcp' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y f p → bcp' .snd .PshIso.trans .PshHom.N-hom x y f p))
+      (bcp' .snd .PshIso.nIso)
+    where
+    bcp' = OpCart.bpⱽ A₁ᴰ A₂ᴰ
+
+  SetCBPV-OpcartesianLifts :
+    hasVerticalOpcartesianLiftsAt (SetCBPVᴰ ℓ) 𝓥
+  SetCBPV-OpcartesianLifts f Aᴰ =
+    lift' .fst ,
+    pshiso
+      (pshhom
+        (λ x → lift' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y g p → lift' .snd .PshIso.trans .PshHom.N-hom x y g p))
+      (lift' .snd .PshIso.nIso)
+    where
+    lift' = OpCart.cartesianLifts Aᴰ _ (_ , f)
+
+  SetAddCBPVⱽ : AddCBPVCatⱽ (SetCBPV ℓ) (ℓ-suc ℓ) ℓ
+  SetAddCBPVⱽ .fst = SetCBPVⱽ ℓ
+  SetAddCBPVⱽ .snd .fst A = Cart.termⱽ (𝓥 , A)
+  SetAddCBPVⱽ .snd .snd .fst = Cart.bpⱽ
+  SetAddCBPVⱽ .snd .snd .snd .fst f Bᴰ =
+    Cart.cartesianLifts Bᴰ _ (_ , f)
+  SetAddCBPVⱽ .snd .snd .snd .snd .fst = SetCBPV-Initialsⱽ
+  SetAddCBPVⱽ .snd .snd .snd .snd .snd .fst = SetCBPV-BinCoProductsⱽ
+  SetAddCBPVⱽ .snd .snd .snd .snd .snd .snd .fst = SetCBPV-OpcartesianLifts
+  SetAddCBPVⱽ .snd .snd .snd .snd .snd .snd .snd .fst B =
+    Cart.termⱽ (𝓒 , B)
+  SetAddCBPVⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst = Cart.bpⱽ
+  SetAddCBPVⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd f Bᴰ =
+    Cart.cartesianLifts Bᴰ _ (_ , f)

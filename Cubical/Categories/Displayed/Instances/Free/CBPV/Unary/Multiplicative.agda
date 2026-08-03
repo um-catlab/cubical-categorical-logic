@@ -225,53 +225,6 @@ module CBPV (BaseTy : Kind → Type ℓ)
         bindᴰ {A = A} M Mᴰ =
           CᴰhasFᴰ (elim-F-obᴰ A) .snd .snd _ _ .isIsoOver.inv _ Mᴰ
 
-        Fβᴰ : ∀ {A : VTy}{B : CTy} (M : Tm tt A B)
-          (Mᴰ : Cᴰ.Hom[ ı tt , M ][ elim-F-obᴰ A , elim-F-obᴰ B ])
-          → Path Cᴰ.Hom[ _ , _ ] (_ , retᴰ Cᴰ.⋆ᴰ bindᴰ M Mᴰ) (_ , Mᴰ)
-        Fβᴰ {A = A} M Mᴰ =
-          Cᴰ.⟨ Cᴰ.reind-filler⁻
-              (CBPV^op.reind-filler⁻ _
-              ∙ CBPV^op.≡in {pth = refl} (IdRS [ret])) ⟩⋆⟨⟩
-          ∙ Cᴰ^op.reind-filler
-              {p = bindᴰ M Mᴰ Cᴰ^op.⋆ᴰ
-                (CᴰhasFᴰ (elim-F-obᴰ A) .snd .fst .PshHom.N-ob _ Cᴰ^op.idᴰ)} _
-          ∙ sym (∫PshHomᴰ
-              (CᴰhasFᴰ (elim-F-obᴰ A) .snd .fst) .PshHom.N-hom _ _ _ _)
-          ∙ cong (∫PshHomᴰ
-              (CᴰhasFᴰ (elim-F-obᴰ A) .snd .fst) .PshHom.N-ob _)
-              (sym (Cᴰ^op.reind-filler _) ∙ Cᴰ^op.⋆IdR _)
-          ∙ Cᴰ^op.≡in
-              (CᴰhasFᴰ (elim-F-obᴰ A) .snd .snd _ _
-                .isIsoOver.rightInv _ Mᴰ)
-
-        Fηᴰ : ∀ {A : VTy}{B : CTy} (K : Tm (≤V-refl 𝓒) ([F] A) B)
-          (Kᴰ : Cᴰ.Hom[ Category.id KIND , K ][ elim-F-obᴰ ([F] A) , elim-F-obᴰ B ])
-          → Path Cᴰ.Hom[ _ , _ ]
-              (_ , Kᴰ)
-              (_ , bindᴰ (seqS [ret] K) (retᴰ Cᴰ.⋆ᴰ Kᴰ))
-        Fηᴰ {A = A} K Kᴰ =
-          sym (Cᴰ^op.≡in
-            (CᴰhasFᴰ (elim-F-obᴰ A) .snd .snd _ _
-              .isIsoOver.leftInv _ Kᴰ))
-          ∙ cong
-              (invPshIso (∫PshIsoᴰ (CᴰhasFᴰ (elim-F-obᴰ A) .snd))
-                .PshIso.trans .PshHom.N-ob _)
-              (sym
-                (Cᴰ^op.reind-filler
-                  {p = Kᴰ Cᴰ^op.⋆ᴰ
-                    (CᴰhasFᴰ (elim-F-obᴰ A) .snd .fst
-                      .PshHom.N-ob _ Cᴰ^op.idᴰ)} _
-                ∙ sym (∫PshHomᴰ
-                    (CᴰhasFᴰ (elim-F-obᴰ A) .snd .fst)
-                    .PshHom.N-hom _ _ _ _)
-                ∙ cong (∫PshHomᴰ
-                    (CᴰhasFᴰ (elim-F-obᴰ A) .snd .fst)
-                    .PshHom.N-ob _)
-                    (sym (Cᴰ^op.reind-filler _) ∙ Cᴰ^op.⋆IdR _))
-              ∙ Cᴰ^op.⟨⟩⋆⟨ Cᴰ.reind-filler
-                  (CBPV^op.reind-filler⁻ _
-                  ∙ CBPV^op.≡in {pth = refl} (IdRS [ret])) ⟩)
-
         module _
           (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
             → Cᴰ.Hom[ ı k≤ , gen M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ])
@@ -296,32 +249,30 @@ module CBPV (BaseTy : Kind → Type ℓ)
           elim-F-homᴰ [ret] = retᴰ
           elim-F-homᴰ ([bind] M) = bindᴰ M (elim-F-homᴰ M)
           elim-F-homᴰ ([Fβ] M i) =
-            Cᴰ.rectify {e' = λ i → ı tt , [Fβ] M i}
-              (Cᴰ.≡out (Fβᴰ M (elim-F-homᴰ M))) i
+            Fβᴰ Cᴰ (MultCBPV .snd .snd) CᴰhasFᴰ
+              (CBPV^op.reind-filler⁻ _
+              ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
+              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M) i
           elim-F-homᴰ ([Fη] K i) =
-            Cᴰ.rectify {e' = λ i → Category.id KIND , [Fη] K i}
-              (Cᴰ.≡out (Fηᴰ K (elim-F-homᴰ K))) i
+            Fηᴰ Cᴰ (MultCBPV .snd .snd) CᴰhasFᴰ
+              (CBPV^op.reind-filler⁻ _
+              ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
+              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K) i
           elim-F-homᴰ [force] = Cᴰ.reind
             (CBPV.reind-filler⁻ _ ∙ CBPV.≡in {pth = refl} (IdLS [force]))
             (forceᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ)
           elim-F-homᴰ ([thunk] M) =
             thunkᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ M (elim-F-homᴰ M)
           elim-F-homᴰ ([Uβ] M i) =
-            Cᴰ.rectify {e' = λ i → ı tt , [Uβ] M i}
-              (Cᴰ.≡out
-                (Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻
-                    (CBPV.reind-filler⁻ _ ∙ CBPV.≡in {pth = refl} (IdLS [force])) ⟩
-                ∙ Uβᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
-                    M (elim-F-homᴰ M))) i
+            Uβᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
+              (CBPV.reind-filler⁻ _
+              ∙ CBPV.≡in {pth = refl} (IdLS [force]))
+              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M) i
           elim-F-homᴰ ([Uη] V i) =
-            Cᴰ.rectify {e' = λ i → Category.id KIND , [Uη] V i}
-              (Cᴰ.≡out
-                (Uηᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
-                    V (elim-F-homᴰ V)
-                ∙ cong-thunkᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
-                    (Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler
-                      (CBPV.reind-filler⁻ _
-                      ∙ CBPV.≡in {pth = refl} (IdLS [force])) ⟩))) i
+            Uηᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
+              (CBPV.reind-filler⁻ _
+              ∙ CBPV.≡in {pth = refl} (IdLS [force]))
+              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V) i
 
           elim : GlobalSection Cᴰ
           elim .F-obᴰ d = elim-F-obᴰ (d .snd)

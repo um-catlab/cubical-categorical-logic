@@ -1,3 +1,20 @@
+-- Enrichment of a CBPV in state algebras.
+
+-- All of these definitions and constructions should generalize to an
+-- arbitrary algebraic theory.
+
+-- A CBPV model is state-enriched when its Hom profunctor extends to a
+-- profunctor valued in StateAlg. For now at least we define this
+-- manually, but it could be stated in those terms if state algebras
+-- were defined as a displayed category over sets.
+
+-- We define a displayed version in the obvious way. The most
+-- important theorem is the reindexing theorem which says that a
+-- displayed state enriched model can be reindexed along an enriched
+-- functor. For now this theorem is very ugly and manual. Maybe we can
+-- make it easier if we leverage the fact that state algebras can be
+-- define as product-preserving functors (i.e., models of a Lawvere
+-- theory)?
 {-# OPTIONS --lossy-unification --prop #-}
 module Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment where
 

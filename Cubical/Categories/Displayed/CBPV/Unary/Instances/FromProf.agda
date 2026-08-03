@@ -1,6 +1,8 @@
--- Any profunctor 𝓞 : 𝓒 -/→ 𝓥 induces a CBPV model
+-- Any profunctor 𝓞 : 𝓒 -/→ 𝓥 induces a CBPV model as long as
+-- everything has the same universe level.
 
--- This is also known as the "collage" or "cograph" of the profunctor
+-- When viewed in terms of the total category, this is known as the
+-- "collage" or "cograph" of the profunctor
 {-# OPTIONS --prop --lossy-unification #-}
 module Cubical.Categories.Displayed.CBPV.Unary.Instances.FromProf where
 

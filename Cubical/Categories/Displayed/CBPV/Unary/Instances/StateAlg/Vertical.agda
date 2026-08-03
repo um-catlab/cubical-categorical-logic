@@ -1,6 +1,12 @@
 -- Vertical multiplicative structure for the displayed model of state algebras.
 --
--- This currently
+-- The most interesting observation here is that the Fⱽ universal
+-- property is naturally defined as a composition of Fⱽ for [ret] with
+-- a general pushforward for homomorphisms.
+--
+-- Unfortunately because of reindexing in the presheaves, the proofs
+-- here are quite ugly and manual. Hope to improve these in the
+-- future.
 {-# OPTIONS --prop --lossy-unification #-}
 module Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Vertical where
 
@@ -19,7 +25,7 @@ open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.WalkingArrow
-  renaming (l to 𝒱; r to 𝒸)
+  renaming (l to 𝒱; r to 𝓒)
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Opposite
@@ -62,25 +68,25 @@ StateAlgCBPV-Uⱽ {ℓ} {A = A} {B = B} f Bᴰ = UniversalElementⱽ'.REPRⱽ U-
 
   U-ue : UniversalElementⱽ' (StateAlgCBPVᴰ ℓ ℓ) (𝒱 , A)
     (CartesianLiftPshSpec
-      ((∫C (StateAlgCBPV { ℓ = ℓ } .fst)) [-, (𝒸 , B) ])
+      ((∫C (StateAlgCBPV { ℓ = ℓ } .fst)) [-, (𝓒 , B) ])
       (StateAlgCBPVᴰ ℓ ℓ)
       ((StateAlgCBPVᴰ ℓ ℓ) [-][-, Bᴰ ]) (_ , f))
   U-ue .UniversalElementⱽ'.vertexⱽ = StateAlgCBPV-U-obⱽ f Bᴰ
   U-ue .UniversalElementⱽ'.elementⱽ = StateAlgCBPV-forceⱽ f Bᴰ
   U-ue .UniversalElementⱽ'.universalⱽ ((𝒱 , Z) , Zᴰ , g) .fst = λ z → z
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ()) .fst
+  U-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ()) .fst
   U-ue .UniversalElementⱽ'.universalⱽ ((𝒱 , Z) , Zᴰ , g) .snd .fst γᴰ =
-    Cᴰ.rectifyOut {a = (𝒱 , Z)} {b = (𝒸 , B)} {aᴰ = Zᴰ} {bᴰ = Bᴰ}
+    Cᴰ.rectifyOut {a = (𝒱 , Z)} {b = (𝓒 , B)} {aᴰ = Zᴰ} {bᴰ = Bᴰ}
       {e' = refl} $
-      Cᴰ.reind-filler⁻ {a = (𝒱 , Z)} {b = (𝒸 , B)}
+      Cᴰ.reind-filler⁻ {a = (𝒱 , Z)} {b = (𝓒 , B)}
         {aᴰ = Zᴰ} {bᴰ = Bᴰ} _
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ()) .snd .fst
+  U-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ()) .snd .fst
   U-ue .UniversalElementⱽ'.universalⱽ ((𝒱 , Z) , Zᴰ , g) .snd .snd γᴰ =
-    Cᴰ.rectifyOut {a = (𝒱 , Z)} {b = (𝒸 , B)} {aᴰ = Zᴰ} {bᴰ = Bᴰ}
+    Cᴰ.rectifyOut {a = (𝒱 , Z)} {b = (𝓒 , B)} {aᴰ = Zᴰ} {bᴰ = Bᴰ}
       {e' = refl} $
-      Cᴰ.reind-filler⁻ {a = (𝒱 , Z)} {b = (𝒸 , B)}
+      Cᴰ.reind-filler⁻ {a = (𝒱 , Z)} {b = (𝓒 , B)}
         {aᴰ = Zᴰ} {bᴰ = Bᴰ} _
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ()) .snd .snd
+  U-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ()) .snd .snd
 
 module _ {A : hSet ℓ} (Aᴰ : ⟨ A ⟩ → hSet ℓ) where
   FreeStateAlgebraᴰ :
@@ -100,7 +106,7 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
   module Dᴰ = Fibers (STATEALGᴰ ℓ ℓ)
 
   η-ue : UniversalElementⱽ' ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
-    (𝒸 , FreeStateAlgebra A)
+    (𝓒 , FreeStateAlgebra A)
     (CartesianLiftPshSpec
       ((∫C (StateAlgCBPV { ℓ = ℓ } .fst ^opᴰ)) [-, (𝒱 , A) ])
       ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
@@ -115,13 +121,13 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
 
   η-ue .UniversalElementⱽ'.vertexⱽ = FreeStateAlgebraᴰ Aᴰ
   η-ue .UniversalElementⱽ'.elementⱽ = ηᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩)
-  η-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ϕ) .fst γᴰ =
+  η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .fst γᴰ =
     Dᴰ.reind (recHom≡ Z (ϕ .snd))
       ( recFSAᴰ-f {Xᴰ = λ x → ⟨ Aᴰ x ⟩} (Zᴰ .snd)
           (ϕ .snd .fst ∘ η ⟨ A ⟩) γᴰ (Z .fst .snd)
       , recFSAᴰ {Xᴰ = λ x → ⟨ Aᴰ x ⟩} (Zᴰ .snd)
           (ϕ .snd .fst ∘ η ⟨ A ⟩) γᴰ (Z .fst .snd))
-  η-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ϕ) .snd .fst γᴰ =
+  η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .snd .fst γᴰ =
     -- Yikes, all of this just to apply recFSAᴰ-β
     -- TODO: improve the Spec so this is just recFSAᴰ-β
     Cᴰ.rectifyOut {e' = refl} $
@@ -142,8 +148,8 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
           ∙ StateAlgᴰ.≡in (Zᴰ .snd)
               (recFSAᴰ-β {Xᴰ = λ x → ⟨ Aᴰ x ⟩} (Zᴰ .snd)
                 (ϕ .snd .fst ∘ η ⟨ A ⟩) γᴰ (Z .fst .snd) x xᴰ))
-  η-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ϕ) .snd .snd ψᴰ =
-    cong (η-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ϕ) .fst)
+  η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .snd .snd ψᴰ =
+    cong (η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .fst)
       (Cᴰ.rectifyOut {e' = refl} (Cᴰ.reind-filler⁻ _))
     ∙ (Dᴰ.rectify $ Dᴰ.≡out $
         Dᴰ.reind-filler⁻ (recHom≡ Z (ϕ .snd))
@@ -182,13 +188,13 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
   module Dᴰ = Fibers (STATEALGᴰ ℓ ℓ)
 
   pushBase : (∫C (StateAlgCBPV { ℓ = ℓ } .fst ^opᴰ))
-    [ (𝒸 , B') , (𝒸 , B) ]
+    [ (𝓒 , B') , (𝓒 , B) ]
   pushBase = _ , ϕ
 
   push-ue : UniversalElementⱽ' ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
-    (𝒸 , B')
+    (𝓒 , B')
     (CartesianLiftPshSpec
-      ((∫C (StateAlgCBPV { ℓ = ℓ } .fst ^opᴰ)) [-, (𝒸 , B) ])
+      ((∫C (StateAlgCBPV { ℓ = ℓ } .fst ^opᴰ)) [-, (𝓒 , B) ])
       ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
       (((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ) [-][-, Bᴰ ]) pushBase)
 
@@ -255,17 +261,17 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
       (λ h → Homoᴰ (σ-fᴰ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd)) h
         (Bᴰ .snd) (StateAlgCBPV-push-obᴰ ϕ Bᴰ .snd))
       (isPropHomo (B' .fst .snd) (ϕ .snd)
-        ((C.id {x = (𝒸 , B')} C.⋆ pushBase) .snd .snd))
+        ((C.id {x = (𝓒 , B')} C.⋆ pushBase) .snd .snd))
       (σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd))
-  push-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ψ) .fst γᴰ =
+  push-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ψ) .fst γᴰ =
     recPush-fᴰ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd)
       (Z .fst .snd) (ψ .snd .snd) (Zᴰ .snd) (γᴰ .fst) (γᴰ .snd) ,
     recPush (ϕ .snd) (Bᴰ .snd) (B' .fst .snd)
       (Z .fst .snd) (ψ .snd .snd) (Zᴰ .snd) (γᴰ .fst) (γᴰ .snd)
-  push-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ψ) .snd .fst γᴰ =
-    Cᴰ.rectifyOut {a = (𝒸 , Z)} {b = (𝒸 , B)}
+  push-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ψ) .snd .fst γᴰ =
+    Cᴰ.rectifyOut {a = (𝓒 , Z)} {b = (𝓒 , B)}
       {aᴰ = Zᴰ} {bᴰ = Bᴰ} {e' = refl} $
-      Cᴰ.reind-filler⁻ {a = (𝒸 , Z)} {b = (𝒸 , B)}
+      Cᴰ.reind-filler⁻ {a = (𝓒 , Z)} {b = (𝓒 , B)}
         {aᴰ = Zᴰ} {bᴰ = Bᴰ} _
       ∙ Cᴰ.≡in {pth = ΣPathP (refl , StateAlgHom≡ _ _ refl)}
         (ΣPathP
@@ -275,8 +281,8 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
                   (Z .fst .snd) (ψ .snd .snd) (Zᴰ .snd)
                   (γᴰ .fst) (γᴰ .snd) x xᴰ)
           , isProp→PathP (λ i → isPropHomoᴰ (λ z → Zᴰ .fst z .snd)) _ _ ))
-  push-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ψ) .snd .snd χᴰ =
-    cong (push-ue .UniversalElementⱽ'.universalⱽ ((𝒸 , Z) , Zᴰ , ψ) .fst)
+  push-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ψ) .snd .snd χᴰ =
+    cong (push-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ψ) .fst)
       (Cᴰ.rectifyOut {e' = refl} $
         Cᴰ.reind-filler⁻ _
         ∙ Cᴰ.≡in {pth = ΣPathP (refl , StateAlgHom≡ _ _ refl)}

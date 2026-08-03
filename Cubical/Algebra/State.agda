@@ -1,3 +1,5 @@
+-- Algebras for the theory of a Boolean state.
+-- The free algebras are given by the state monad.
 {-# OPTIONS --prop #-}
 module Cubical.Algebra.State where
 
@@ -14,7 +16,6 @@ private
   variable
     ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' : Level
 
--- Firstly what is a state algebra?
 record StateAlg (X : Type ℓ) : Type ℓ where
   field
     rd : X → X → X

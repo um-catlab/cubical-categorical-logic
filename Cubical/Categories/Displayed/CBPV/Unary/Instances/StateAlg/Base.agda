@@ -327,7 +327,6 @@ module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
         recFSA-β (Σ X Xᴰ) Bᴰ.∫
           (λ z → i (z .fst) , iᴰ (z .fst) (z .snd)) (x , xᴰ)
 
-
 recFSAᴰ-η :
   ∀ {X : Type ℓ} (Xᴰ : X → Type ℓ')
     {Y : Type ℓ'} {Yᴰ : Y → Type ℓᴰ'}
@@ -404,7 +403,6 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
     σ .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ = ΣPathP ((ΣPathPProp (λ _ → isSetB' _ _) refl) , refl)
     σ .Homoᴰ.wt-homᴰ b x xᴰ = ΣPathP ((ΣPathPProp (λ _ → isSetB' _ _) refl) , refl)
 
-    --
     module _ {X'' : Type ℓ''} {B'' : StateAlg X''}
       (isSetB'' : isSet X'') {g : X' → X''} (ψ : Homo g B' B'')
       {Xᴰ'' : X'' → Type ℓᴰ''} (Bᴰ'' : StateAlgᴰ B'' Xᴰ'') where
@@ -439,7 +437,6 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
             Bᴰ''.P≡[ refl ] fgᴰ x xᴰ
         recPush-β x xᴰ = Bᴰ''.rectifyOut (Bᴰ''.reind-filler⁻ _)
 
-
 module _ {X : Type ℓ}(Xᴰ : X → Type ℓᴰ)
   {Y : Type ℓ'} (B : StateAlg Y)
   (i : X → Y) (isSetB : isSet Y)
@@ -447,26 +444,9 @@ module _ {X : Type ℓ}(Xᴰ : X → Type ℓᴰ)
   private
     module B = StateAlg B
 
-  -- Can we get the universal property for this as a combination of
-  -- the universal properties for the others?
   FreeStateAlgⱽ-Xᴰ : Y → Type (ℓ-max (ℓ-max ℓ ℓᴰ) ℓ')
   FreeStateAlgⱽ-Xᴰ y = Σ[ s ∈ fiber (recFSA-f X B i) y ] (∀ b → Xᴰ (s .fst b .snd))
 
   FreeStateAlgⱽ : StateAlgᴰ B FreeStateAlgⱽ-Xᴰ
   FreeStateAlgⱽ = push (recFSA X B i) (FreeStateAlgᴰ X Xᴰ) isSetB
 
--- summarizing,
--- - we have an opcartesian lift ηᴰ : C [ η ][ Aᴰ , FSAᴰ Aᴰ ] of Aᴰ
--- - we have a opcartesian lifts σ : C [ ϕ ][ Bᴰ , push ϕ ] for any ϕ : B → B'
---
--- Given any M : C [ A , B ] we can construct a heterogeneous
--- opcartesian lift by composition:
--- - ηᴰ ⋆ᴰ σ[ rec M ] : C [ η ⋆ rec M ][ Aᴰ , Bᴰ ]
--- which we can then reind to be C [ M ][ Aᴰ , Bᴰ ]
---
--- - Second we have FSA Aᴰ ↦ F A
-
-
--- given M : C [ A , B ] and Aᴰ over A, we can construct push M Aᴰ as a composition:
--- - first, we get a homomorphism rec M : C [ F A , B ]
--- Given Xᴰ over X, we have η : C [ X , FSA X ]

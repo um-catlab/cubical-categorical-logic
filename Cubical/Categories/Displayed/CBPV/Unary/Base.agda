@@ -131,7 +131,23 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   hasFᴰ : hasF C → Type _
   hasFᴰ = Liftsᴰ⁺ⱽ.Quadrableᴰ _ _ (Cᴰ ^opᴰᴰ) {k1 = 𝓒}{k2 = 𝓥} _
 
+  -- Notation for getting rid of the reinds etc that arise from the
+  -- bad universal properties. These give a clean interface to the
+  -- eliminators for free CBPV models.
   module _ (hasUC : hasU C) (hasUᴰC : hasUᴰ hasUC) where
+    private
+      module ∫Ccat = Category (∫C C)
+
+      U-ob : C.ob[ 𝓒 ] → C.ob[ 𝓥 ]
+      U-ob B = hasUC B .fst
+
+      U-force : ∀ {B} → C [ ı tt ][ U-ob B , B ]
+      U-force = QuadrableNotation.πⱽ C hasUC
+
+      U-thunk : ∀ {A B} → C [ ı tt ][ A , B ]
+        → C [ Category.id KIND ][ A , U-ob B ]
+      U-thunk = QuadrableNotation.introᴰ C hasUC
+
     forceᴰ : ∀ {B : C.ob[ 𝓒 ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
       → Cᴰ.Hom[ _ , QuadrableNotation.πⱽ C hasUC ][ hasUᴰC Bᴰ .fst , Bᴰ ]
     forceᴰ {Bᴰ = Bᴰ} =
@@ -170,26 +186,136 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
 
     Uβᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {force : C [ ı tt ][ hasUC B .fst , B ]}
+      (U-force≡force : Path ∫Ccat.Hom[ _ , _ ] (_ , U-force) (_ , force))
       (M : C [ ı tt ][ A , B ])
+      (Uβ : Path ∫Ccat.Hom[ _ , _ ]
+        (ı tt , U-thunk M C.⋆ᴰ force) (ı tt , M))
       (Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ])
-      → Path Cᴰ.Hom[ _ , _ ]
-          (_ , thunkᴰ M Mᴰ Cᴰ.⋆ᴰ forceᴰ)
-          (_ , Mᴰ)
-    Uβᴰ {Bᴰ = Bᴰ} M Mᴰ =
-      force-naturalᴰ (thunkᴰ M Mᴰ)
-      ∙ Cᴰ.≡in (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)
+      → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Uβ i) Aᴰ Bᴰ)
+          (thunkᴰ M Mᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ)
+          Mᴰ
+    Uβᴰ {Bᴰ = Bᴰ} U-force≡force M Uβ Mᴰ =
+      Cᴰ.rectify {e' = Uβ} (Cᴰ.≡out
+        (Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ U-force≡force ⟩
+        ∙ force-naturalᴰ (thunkᴰ M Mᴰ)
+        ∙ Cᴰ.≡in
+            (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)))
 
     Uηᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {force : C [ ı tt ][ hasUC B .fst , B ]}
+      (U-force≡force : Path ∫Ccat.Hom[ _ , _ ] (_ , U-force) (_ , force))
       (V : C [ Category.id KIND ][ A , hasUC B .fst ])
+      (Uη : Path ∫Ccat.Hom[ _ , _ ]
+        (Category.id KIND , V)
+        (Category.id KIND , U-thunk (V C.⋆ᴰ force)))
       (Vᴰ : Cᴰ.Hom[ Category.id KIND , V ][ Aᴰ , hasUᴰC Bᴰ .fst ])
+      → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Uη i)
+          Aᴰ (hasUᴰC Bᴰ .fst))
+          Vᴰ
+          (thunkᴰ (V C.⋆ᴰ force)
+            (Vᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ))
+    Uηᴰ {Bᴰ = Bᴰ} U-force≡force V Uη Vᴰ =
+      Cᴰ.rectify {e' = Uη} (Cᴰ.≡out
+        (sym (Cᴰ.≡in
+          (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.leftInv _ Vᴰ))
+        ∙ cong-thunkᴰ
+            (sym (force-naturalᴰ Vᴰ)
+            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler U-force≡force ⟩)))
+
+  module _ (hasFC : hasF C) (hasFᴰC : hasFᴰ hasFC) where
+    private
+      module Cᴰ^op = Fibers (Cᴰ ^opᴰᴰ)
+      module ∫Ccat = Category (∫C C)
+
+      F-ob : C.ob[ 𝓥 ] → C.ob[ 𝓒 ]
+      F-ob A = hasFC A .fst
+
+      F-ret : ∀ {A} → C [ ı tt ][ A , F-ob A ]
+      F-ret = QuadrableNotation.πⱽ (C ^opᴰ) hasFC
+
+      F-bind : ∀ {A B} → C [ ı tt ][ A , B ]
+        → C [ Category.id KIND ][ F-ob A , B ]
+      F-bind = QuadrableNotation.introᴰ (C ^opᴰ) hasFC
+
+    F-retᴰ : ∀ {A : C.ob[ 𝓥 ]}{Aᴰ : Cᴰ.ob[ 𝓥 , A ]}
+      → Cᴰ.Hom[ ı tt , F-ret ][ Aᴰ , hasFᴰC Aᴰ .fst ]
+    F-retᴰ {Aᴰ = Aᴰ} =
+      hasFᴰC Aᴰ .snd .fst .PshHom.N-ob _ Cᴰ^op.idᴰ
+
+    F-bindᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      (M : C [ ı tt ][ A , B ])
+      → Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]
+      → (Cᴰ .Categoryᴰ.Hom[_][_,_])
+          (Category.id KIND , F-bind M)
+          (hasFᴰC Aᴰ .fst) Bᴰ
+    F-bindᴰ {Aᴰ = Aᴰ} M Mᴰ =
+      hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.inv _ Mᴰ
+
+    cong-F-bindᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {M N : C [ ı tt ][ A , B ]}
+      {Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]}
+      {Nᴰ : Cᴰ.Hom[ ı tt , N ][ Aᴰ , Bᴰ ]}
+      → Path Cᴰ.Hom[ _ , _ ] (_ , Mᴰ) (_ , Nᴰ)
+      → Path Cᴰ.Hom[ _ , _ ] (_ , F-bindᴰ M Mᴰ) (_ , F-bindᴰ N Nᴰ)
+    cong-F-bindᴰ {Aᴰ = Aᴰ} =
+      cong (invPshIso (∫PshIsoᴰ (hasFᴰC Aᴰ .snd)) .PshIso.trans .PshHom.N-ob _)
+
+    F-ret-naturalᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {K : C [ Category.id KIND ][ hasFC A .fst , B ]}
+      (Kᴰ : Cᴰ.Hom[ Category.id KIND , K ][ hasFᴰC Aᴰ .fst , Bᴰ ])
       → Path Cᴰ.Hom[ _ , _ ]
-          (_ , Vᴰ)
-          (_ , thunkᴰ (V C.⋆ᴰ QuadrableNotation.πⱽ C hasUC)
-            (Vᴰ Cᴰ.⋆ᴰ forceᴰ))
-    Uηᴰ {Bᴰ = Bᴰ} V Vᴰ =
-      sym (Cᴰ.≡in (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.leftInv _ Vᴰ))
-      ∙ cong-thunkᴰ (sym (force-naturalᴰ Vᴰ))
+          (_ , F-retᴰ Cᴰ.⋆ᴰ Kᴰ)
+          (_ , hasFᴰC Aᴰ .snd .fst .PshHom.N-ob _ Kᴰ)
+    F-ret-naturalᴰ {Aᴰ = Aᴰ} Kᴰ =
+      Cᴰ^op.reind-filler {p = Kᴰ Cᴰ^op.⋆ᴰ F-retᴰ} _
+      ∙ sym (∫PshHomᴰ (hasFᴰC Aᴰ .snd .fst) .PshHom.N-hom _ _ _ _)
+      ∙ cong (∫PshHomᴰ (hasFᴰC Aᴰ .snd .fst) .PshHom.N-ob _)
+          (sym (Cᴰ^op.reind-filler _) ∙ Cᴰ^op.⋆IdR _)
+
+    Fβᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {ret : C [ ı tt ][ A , hasFC A .fst ]}
+      (F-ret≡ret : Path ∫Ccat.Hom[ _ , _ ] (_ , F-ret) (_ , ret))
+      (M : C [ ı tt ][ A , B ])
+      (Fβ : Path ∫Ccat.Hom[ _ , _ ]
+        (ı tt , ret C.⋆ᴰ F-bind M) (ı tt , M))
+      (Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ])
+      → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Fβ i) Aᴰ Bᴰ)
+          (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ F-bindᴰ M Mᴰ)
+          Mᴰ
+    Fβᴰ {Aᴰ = Aᴰ} F-ret≡ret M Fβ Mᴰ =
+      Cᴰ.rectify {e' = Fβ} (Cᴰ.≡out
+        (Cᴰ.⟨ Cᴰ.reind-filler⁻ F-ret≡ret ⟩⋆⟨⟩
+        ∙ F-ret-naturalᴰ (F-bindᴰ M Mᴰ)
+        ∙ Cᴰ^op.≡in
+            (hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)))
+
+    Fηᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
+      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
+      {ret : C [ ı tt ][ A , hasFC A .fst ]}
+      (F-ret≡ret : Path ∫Ccat.Hom[ _ , _ ] (_ , F-ret) (_ , ret))
+      (K : C [ Category.id KIND ][ hasFC A .fst , B ])
+      (Fη : Path ∫Ccat.Hom[ _ , _ ]
+        (Category.id KIND , K)
+        (Category.id KIND , F-bind (ret C.⋆ᴰ K)))
+      (Kᴰ : Cᴰ.Hom[ Category.id KIND , K ][ hasFᴰC Aᴰ .fst , Bᴰ ])
+      → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Fη i)
+          (hasFᴰC Aᴰ .fst) Bᴰ)
+          Kᴰ
+          (F-bindᴰ (ret C.⋆ᴰ K)
+            (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ Kᴰ))
+    Fηᴰ {Aᴰ = Aᴰ} F-ret≡ret K Fη Kᴰ =
+      Cᴰ.rectify {e' = Fη} (Cᴰ.≡out
+        (sym (Cᴰ^op.≡in
+          (hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.leftInv _ Kᴰ))
+        ∙ cong-F-bindᴰ
+            (sym (F-ret-naturalᴰ Kᴰ)
+            ∙ Cᴰ^op.⟨⟩⋆⟨ Cᴰ.reind-filler F-ret≡ret ⟩)))
 
   module _ (hasUC : hasU C) where
     hasUⱽ→ᴰ : hasUⱽ → hasUᴰ hasUC

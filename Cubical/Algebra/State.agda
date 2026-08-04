@@ -48,6 +48,26 @@ record Homo {X : Type ℓ} {X' : Type ℓ'}
     rd-hom : ∀ xt xf → f (B.rd xt xf) ≡ B'.rd (f xt) (f xf)
     wt-hom : ∀ b x → f (B.wt b x) ≡ B'.wt b (f x)
 
+isPropHomo : {X : Type ℓ} {Y : Type ℓ'}
+  {f : X → Y} {B : StateAlg X} {B' : StateAlg Y}
+  → isSet Y → isProp (Homo f B B')
+isPropHomo isSetY ϕ ψ i .Homo.rd-hom xt xf =
+  isSetY _ _ (ϕ .Homo.rd-hom xt xf) (ψ .Homo.rd-hom xt xf) i
+isPropHomo isSetY ϕ ψ i .Homo.wt-hom b x =
+  isSetY _ _ (ϕ .Homo.wt-hom b x) (ψ .Homo.wt-hom b x) i
+
+module _ {X : Type ℓ} {X' : Type ℓ'}
+  {B : StateAlg X}{B' : StateAlg X'}
+  (ϕ : Σ (X → X') (λ f → Homo f B B'))
+  (ψ : Σ (X → X') (λ g → Homo g B B'))
+  (isSetX' : isSet X')
+  where
+  ∫Homo≡ : ϕ .fst ≡ ψ .fst → ϕ ≡ ψ
+  ∫Homo≡ ϕ≡ψ i .fst = ϕ≡ψ i
+  ∫Homo≡ ϕ≡ψ i .snd =
+    isProp→PathP {B = λ i → Homo (ϕ≡ψ i) B B'}
+      (λ i → isPropHomo isSetX') (ϕ .snd) (ψ .snd) i
+
 module _ {X : Type ℓ} {B : StateAlg X} where
   open StateAlg B
   idHomo : Homo (λ x → x) B B
@@ -63,14 +83,6 @@ module _ {X : Type ℓ} {X' : Type ℓ'} {X'' : Type ℓ''}
   _⋆Homo_ : Homo (g ∘ f) B B''
   _⋆Homo_ .Homo.rd-hom xt xf = cong g (ϕ .Homo.rd-hom _ _) ∙ ψ .Homo.rd-hom _ _
   _⋆Homo_ .Homo.wt-hom b x = cong g (ϕ .Homo.wt-hom _ _) ∙ ψ .Homo.wt-hom _ _
-
-isPropHomo : {X : Type ℓ} {Y : Type ℓ'}
-  {f : X → Y} {B : StateAlg X} {B' : StateAlg Y}
-  → isSet Y → isProp (Homo f B B')
-isPropHomo isSetY ϕ ψ i .Homo.rd-hom xt xf =
-  isSetY _ _ (ϕ .Homo.rd-hom xt xf) (ψ .Homo.rd-hom xt xf) i
-isPropHomo isSetY ϕ ψ i .Homo.wt-hom b x =
-  isSetY _ _ (ϕ .Homo.wt-hom b x) (ψ .Homo.wt-hom b x) i
 
 record StateAlgᴰ {X : Type ℓ} (B : StateAlg X)
   (Xᴰ : X → Type ℓᴰ) : Type (ℓ-max ℓ ℓᴰ) where

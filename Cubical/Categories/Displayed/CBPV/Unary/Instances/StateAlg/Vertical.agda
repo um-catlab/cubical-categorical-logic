@@ -116,7 +116,7 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
   recHom≡ : ∀ (Z : StateAlgebra ℓ) (ϕ : StateAlgHom (FreeStateAlgebra A) Z)
     → ( recFSA-f ⟨ A ⟩ (Z .snd) (ϕ .fst ∘ η ⟨ A ⟩)
       , recFSA ⟨ A ⟩ (Z .snd) (ϕ .fst ∘ η ⟨ A ⟩)) ≡ ϕ
-  recHom≡ Z ϕ = StateAlgHom≡ _ ϕ
+  recHom≡ Z ϕ = ∫Homo≡ _ ϕ (Z .fst .snd)
     (funExt (recFSA-η ⟨ A ⟩ (Z .snd) (ϕ .snd)))
 
   η-ue .UniversalElementⱽ'.vertexⱽ = FreeStateAlgebraᴰ Aᴰ
@@ -273,7 +273,8 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
       {aᴰ = Zᴰ} {bᴰ = Bᴰ} {e' = refl} $
       Cᴰ.reind-filler⁻ {a = (𝓒 , Z)} {b = (𝓒 , B)}
         {aᴰ = Zᴰ} {bᴰ = Bᴰ} _
-      ∙ Cᴰ.≡in {pth = ΣPathP (refl , StateAlgHom≡ _ _ refl)}
+      ∙ Cᴰ.≡in
+          {pth = ΣPathP (refl , ∫Homo≡ _ _ (Z .fst .snd) refl)}
         (ΣPathP
           ( (funExt λ x → funExt λ xᴰ →
               hSetReasoning.Prectify (Z .fst) (λ z → ⟨ Zᴰ .fst z ⟩) $
@@ -285,7 +286,8 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
     cong (push-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ψ) .fst)
       (Cᴰ.rectifyOut {e' = refl} $
         Cᴰ.reind-filler⁻ _
-        ∙ Cᴰ.≡in {pth = ΣPathP (refl , StateAlgHom≡ _ _ refl)}
+        ∙ Cᴰ.≡in
+            {pth = ΣPathP (refl , ∫Homo≡ _ _ (Z .fst .snd) refl)}
           (ΣPathP
             ( funExt (λ x → funExt (λ xᴰ → refl))
             , isProp→PathP
@@ -301,7 +303,7 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
                   ((σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd)
                     (Z .fst .snd))) )))
     ∙ (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.≡in
-      {pth = StateAlgHom≡ _ _ refl}
+      {pth = ∫Homo≡ _ _ (Z .fst .snd) refl}
       (ΣPathP
         ( (funExt λ b' → funExt λ x →
             recPush-η-fᴰ (ψ .snd) Zᴰ χᴰ b' x)

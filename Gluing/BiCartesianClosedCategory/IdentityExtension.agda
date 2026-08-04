@@ -170,7 +170,6 @@ module _
     backward r =
       inl ((x , y) , refl ,
         invEq (identityExtension {A = A} p x y) (PathP-inl-inj r))
-
   identityExtension {A = A + B} (p +-free q) (inr x) (inr y) =
     propBiimpl→Equiv
       sourceProp
@@ -224,7 +223,6 @@ module _
     backward r =
       inr ((x , y) , refl ,
         invEq (identityExtension {A = B} q x y) (PathP-inr-inj r))
-
   identityExtension {A = A + B} (p +-free q) (inl x) (inr y) =
     Empty.uninhabEquiv sourceEmpty PathP-inl≢inr
     where
@@ -233,7 +231,6 @@ module _
       lower (⊎Path.encode _ _ (cong snd e))
     sourceEmpty (inr ((_ , _) , e , _)) =
       lower (⊎Path.encode _ _ (cong fst e))
-
   identityExtension {A = A + B} (p +-free q) (inr x) (inl y) =
     Empty.uninhabEquiv sourceEmpty PathP-inr≢inl
     where

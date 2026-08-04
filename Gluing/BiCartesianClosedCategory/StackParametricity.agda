@@ -9,6 +9,7 @@ open import Cubical.Data.Quiver.Base
 open import Cubical.Data.Sigma as Sigma hiding (_×_)
 open import Cubical.Data.Sum
 open import Cubical.Data.Unit
+open import Cubical.Functions.FunExtEquiv using (funExtDep)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -180,20 +181,11 @@ x ≈[ free ] y =
 
 stack-representation-independence :
   ∀ {A B} (freeA : BaseFree A) (freeB : BaseFree B)
-    (client : FREE.C [ A , B ])
-    (x : HeadFirst .fst .F-ob A .fst)
-    (y : ReverseStored .fst .F-ob A .fst) →
-  x ≈[ freeA ] y →
-  HeadFirst .fst .F-hom client x ≈[ freeB ]
-    ReverseStored .fst .F-hom client y
-stack-representation-independence freeA freeB client x y =
-  identityExtensionHom StackQuiver
-    HeadFirstInterpretation ReverseStoredInterpretation StackRelationGenerators
-    freeA freeB client x y
-
-stack-state-representation-invariant :
-  (client : FREE.C [ ⊤ , (↑ stack) ]) →
-  HeadFirst .fst .F-hom client tt* ≡
-    rev (ReverseStored .fst .F-hom client tt*)
-stack-state-representation-invariant client =
-  StackLogicalRelation .F-homᴰ client (tt* , tt*) tt*
+    (client : FREE.C [ A , B ]) →
+  HeadFirst .fst .F-hom client ≈[ freeA ⇒-free freeB ]
+    (ReverseStored .fst .F-hom client)
+stack-representation-independence freeA freeB client =
+  funExtDep λ {x} {y} p →
+    identityExtensionHom StackQuiver
+      HeadFirstInterpretation ReverseStoredInterpretation
+      StackRelationGenerators freeA freeB client x y p

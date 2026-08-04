@@ -9,6 +9,7 @@ open import Cubical.Data.Sum as Sum renaming (rec to rec⊎)
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma as Sigma hiding (_×_)
 open import Cubical.Data.Quiver.Base
+open import Cubical.Functions.FunExtEquiv using (funExtDep)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
@@ -147,13 +148,11 @@ module _ where
 
   flipper-representation-independence :
     ∀ {A B} (freeA : BaseFree A) (freeB : BaseFree B)
-      (client : FREE.C [ A , B ])
-      (x : InterpBool .fst .F-ob A .fst)
-      (y : InterpNat .fst .F-ob A .fst) →
-    x ≈[ freeA ] y →
-    InterpBool .fst .F-hom client x ≈[ freeB ]
-      InterpNat .fst .F-hom client y
-  flipper-representation-independence freeA freeB client x y =
-    identityExtensionHom FlipperQuiver
-      InterpBoolData InterpNatData BoolNatRelationGenerators
-      freeA freeB client x y
+      (client : FREE.C [ A , B ]) →
+    InterpBool .fst .F-hom client ≈[ freeA ⇒-free freeB ]
+      (InterpNat .fst .F-hom client)
+  flipper-representation-independence freeA freeB client =
+    funExtDep λ {x} {y} p →
+      identityExtensionHom FlipperQuiver
+        InterpBoolData InterpNatData BoolNatRelationGenerators
+        freeA freeB client x y p

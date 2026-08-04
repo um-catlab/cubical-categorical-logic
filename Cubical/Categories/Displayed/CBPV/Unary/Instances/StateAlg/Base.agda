@@ -81,12 +81,9 @@ STATEALG l .Category.ob = StateAlgebra l
 STATEALG l .Category.Hom[_,_] = StateAlgHom
 STATEALG l .Category.id = (idfun _) , idHomo
 STATEALG l .Category._⋆_ f g = (g .fst ∘ f .fst) , (f .snd ⋆Homo g .snd)
-STATEALG l .Category.⋆IdL {y = B} f =
-  Σ≡Prop (λ h → isPropHomo (B .fst .snd)) refl
-STATEALG l .Category.⋆IdR {y = B} f =
-  Σ≡Prop (λ h → isPropHomo (B .fst .snd)) refl
-STATEALG l .Category.⋆Assoc {w} {x} {y} {z} f g h =
-  Σ≡Prop (λ k → isPropHomo (z .fst .snd)) refl
+STATEALG l .Category.⋆IdL f = refl
+STATEALG l .Category.⋆IdR f = refl
+STATEALG l .Category.⋆Assoc f g h = refl
 STATEALG l .Category.isSetHom {y = B} =
   isSetΣ (isSetΠ (λ _ → B .fst .snd))
     (λ _ → isProp→isSet (isPropHomo (B .fst .snd)))
@@ -120,7 +117,7 @@ StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.Hom[_][_,_] (f , fᴰ) Bᴰ Bᴰ'
   Homoᴰ fᴰ (f .snd) Bᴰ Bᴰ'
 StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.idᴰ = idHomoᴰ
 StateAlgStructureᴰ ℓ ℓᴰ .StructureOver._⋆ᴰ_ {z = (C , Cᴰ)} ϕᴰ ψᴰ =
-  (ϕᴰ ⋆Homoᴰ ψᴰ) (C .fst .snd)
+  ϕᴰ ⋆Homoᴰ ψᴰ
 StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.isPropHomᴰ {y = B , Bᴰ} =
   isPropHomoᴰ (λ x → Bᴰ x .snd)
 
@@ -129,6 +126,15 @@ STATEALGᴰ : ∀ ℓ ℓᴰ → Categoryᴰ (STATEALG ℓ)
 STATEALGᴰ ℓ ℓᴰ =
   ∫Cᴰ (StateAlgFamilyᴰ ℓ ℓᴰ)
     (StructureOver→Catᴰ (StateAlgStructureᴰ ℓ ℓᴰ))
+
+StateAlgHomᴰ≡ : ∀ {A B : StateAlgebra ℓ} {f : StateAlgHom A B}
+  {Aᴰ : Categoryᴰ.ob[_] (STATEALGᴰ ℓ ℓᴰ) A}
+  {Bᴰ : Categoryᴰ.ob[_] (STATEALGᴰ ℓ ℓᴰ) B}
+  (p q : Σ[ fᴰ ∈ (∀ x → ⟨ Aᴰ .fst x ⟩ → ⟨ Bᴰ .fst (f .fst x) ⟩) ]
+    Homoᴰ fᴰ (f .snd) (Aᴰ .snd) (Bᴰ .snd))
+  → p .fst ≡ q .fst → p ≡ q
+StateAlgHomᴰ≡ {Bᴰ = Bᴰ} p q =
+  Σ≡Prop (λ h → isPropHomoᴰ (λ x → Bᴰ .fst x .snd))
 
 StateAlgForgetᴰ : Functorᴰ StateAlgForget (STATEALGᴰ ℓ ℓᴰ) (SETᴰ ℓ ℓᴰ)
 StateAlgForgetᴰ .Functorᴰ.F-obᴰ Bᴰ = Bᴰ .fst
@@ -158,11 +164,14 @@ module _ (X : Type ℓ) where
                            (B.wt (f false .fst) (i (f false .snd)))
 
       recFSA : Homo recFSA-f FreeStateAlg B
-      recFSA .Homo.rd-hom ft ff = sym (B.rd-rd _ _ _ _)
-      recFSA .Homo.wt-hom false f =
-        B.rd-idempotent _ ∙ (sym $ B.wt-rd _ _ _ ∙ B.wt-wt _ _ _)
-      recFSA .Homo.wt-hom true f =
-        B.rd-idempotent _ ∙ (sym $ B.wt-rd _ _ _ ∙ B.wt-wt _ _ _)
+      recFSA .Homo.rd-hom ft ff rdftff p =
+        cong recFSA-f p ∙ sym (B.rd-rd _ _ _ _)
+      recFSA .Homo.wt-hom false f wtbf p =
+        cong recFSA-f p
+        ∙ B.rd-idempotent _ ∙ (sym $ B.wt-rd _ _ _ ∙ B.wt-wt _ _ _)
+      recFSA .Homo.wt-hom true f wtbf p =
+        cong recFSA-f p
+        ∙ B.rd-idempotent _ ∙ (sym $ B.wt-rd _ _ _ ∙ B.wt-wt _ _ _)
 
       private module recFSA = Homo recFSA
       recFSA-β : ∀ x → recFSA-f (η x) ≡ i x
@@ -174,8 +183,8 @@ module _ (X : Type ℓ) where
         module ϕ = Homo ϕ
       recFSA-η : ∀ x → recFSA-f (f ∘ η) x ≡ f x
       recFSA-η x =
-        cong₂ B.rd (sym $ ϕ.wt-hom _ _) (sym $ ϕ.wt-hom _ _)
-        ∙ (sym $ ϕ.rd-hom _ _)
+        cong₂ B.rd (sym $ ϕ.wt-hom' _ _) (sym $ ϕ.wt-hom' _ _)
+        ∙ (sym $ ϕ.rd-hom' _ _)
         ∙ cong f (sym $ FreeStateAlg.rd-wt x)
 
   module _ (Xᴰ : X → Type ℓ') where
@@ -261,22 +270,26 @@ StateAlgCBPVState .fst A B .StateAlg.rd-wt M =
   funExt λ x → B .snd .StateAlg.rd-wt (M x)
 StateAlgCBPVState .fst A B .StateAlg.wt-wt b b' M =
   funExt λ x → B .snd .StateAlg.wt-wt b b' (M x)
-StateAlgCBPVState .snd .fst V B .Homo.rd-hom Mt Mf = refl
-StateAlgCBPVState .snd .fst V B .Homo.wt-hom b M = refl
-StateAlgCBPVState .snd .snd S A .Homo.rd-hom Mt Mf =
-  funExt λ x → S .snd .Homo.rd-hom (Mt x) (Mf x)
-StateAlgCBPVState .snd .snd S A .Homo.wt-hom b M =
-  funExt λ x → S .snd .Homo.wt-hom b (M x)
+StateAlgCBPVState .snd .fst V B .Homo.rd-hom Mt Mf rdtf p =
+  λ i x → p i (V x)
+StateAlgCBPVState .snd .fst V B .Homo.wt-hom b M wtbx p =
+  λ i x → p i (V x)
+StateAlgCBPVState .snd .snd S A .Homo.rd-hom Mt Mf rdtf p =
+  λ i x → Homo.rd-hom (S .snd) (Mt x) (Mf x)
+    (rdtf x) (funExt⁻ p x) i
+StateAlgCBPVState .snd .snd S A .Homo.wt-hom b M wtbx p =
+  λ i x → Homo.wt-hom (S .snd) b (M x)
+    (wtbx x) (funExt⁻ p x) i
 
 module _ (C : CBPVCat ℓ ℓ') (CState : StateAlgEnrichment C)
   (P : Fibers.ob[_] C 𝓥) where
   pointsPreservesState :
     PreservesStateAlgEnrichment
       (points C CState P) CState StateAlgCBPVState
-  pointsPreservesState A B .Homo.rd-hom Mt Mf =
-    funExt λ V → CState .snd .fst V B .Homo.rd-hom Mt Mf
-  pointsPreservesState A B .Homo.wt-hom b M =
-    funExt λ V → CState .snd .fst V B .Homo.wt-hom b M
+  pointsPreservesState A B .Homo.rd-hom Mt Mf rdtf p =
+    λ i V → Homo.rd-hom (CState .snd .fst V B) Mt Mf rdtf p i
+  pointsPreservesState A B .Homo.wt-hom b M wtbx p =
+    λ i V → Homo.wt-hom (CState .snd .fst V B) b M wtbx p i
 
 StateAlgCBPVStateᴰ : ∀ ℓ ℓᴰ →
   StateAlgEnrichmentᴰ (StateAlgCBPVState {ℓ = ℓ}) (StateAlgCBPVᴰ ℓ ℓᴰ)
@@ -294,13 +307,19 @@ StateAlgCBPVStateᴰ ℓ ℓᴰ .fst Aᴰ Bᴰ .StateAlgᴰ.rd-wtᴰ M Mᴰ i x 
   Bᴰ .snd .StateAlgᴰ.rd-wtᴰ (M x) (Mᴰ x xᴰ) i
 StateAlgCBPVStateᴰ ℓ ℓᴰ .fst Aᴰ Bᴰ .StateAlgᴰ.wt-wtᴰ b b' M Mᴰ i x xᴰ =
   Bᴰ .snd .StateAlgᴰ.wt-wtᴰ b b' (M x) (Mᴰ x xᴰ) i
-StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .fst Vᴰ .Homoᴰ.rd-homᴰ Mt Mf Mtᴰ Mfᴰ = refl
-StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .fst Vᴰ .Homoᴰ.wt-homᴰ b M Mᴰ = refl
-StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .snd Sᴰ .Homoᴰ.rd-homᴰ Mt Mf Mtᴰ Mfᴰ i x xᴰ =
+StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .fst {V = V} Vᴰ .Homoᴰ.rd-homᴰ
+  Mt Mf Mtᴰ Mfᴰ rdtf rdtfᴰ p pᴰ i x xᴰ = pᴰ i (V x) (Vᴰ x xᴰ)
+StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .fst {V = V} Vᴰ .Homoᴰ.wt-homᴰ
+  b M Mᴰ wtbx wtbxᴰ p pᴰ i x xᴰ = pᴰ i (V x) (Vᴰ x xᴰ)
+StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .snd Sᴰ .Homoᴰ.rd-homᴰ
+  Mt Mf Mtᴰ Mfᴰ rdtf rdtfᴰ p pᴰ i x xᴰ =
   Sᴰ .snd .Homoᴰ.rd-homᴰ (Mt x) (Mf x)
-    (Mtᴰ x xᴰ) (Mfᴰ x xᴰ) i
-StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .snd Sᴰ .Homoᴰ.wt-homᴰ b M Mᴰ i x xᴰ =
-  Sᴰ .snd .Homoᴰ.wt-homᴰ b (M x) (Mᴰ x xᴰ) i
+    (Mtᴰ x xᴰ) (Mfᴰ x xᴰ) (rdtf x) (rdtfᴰ x xᴰ)
+    (funExt⁻ p x) (λ j → pᴰ j x xᴰ) i
+StateAlgCBPVStateᴰ ℓ ℓᴰ .snd .snd Sᴰ .Homoᴰ.wt-homᴰ
+  b M Mᴰ wtbx wtbxᴰ p pᴰ i x xᴰ =
+  Sᴰ .snd .Homoᴰ.wt-homᴰ b (M x) (Mᴰ x xᴰ)
+    (wtbx x) (wtbxᴰ x xᴰ) (funExt⁻ p x) (λ j → pᴰ j x xᴰ) i
 
 
 module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
@@ -324,10 +343,9 @@ module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
   pack-f (f , fᴰ) b = f b .fst , f b .snd , fᴰ b
 
   pack : Homo pack-f (∫ (FreeStateAlgᴰ X Xᴰ)) (FreeStateAlg (Σ X Xᴰ))
-  pack .rd-hom (ft , ftᴰ) (ff , ffᴰ) = funExt λ
-    { false → refl
-    ; true → refl }
-  pack .wt-hom b (ft , ftᴰ) = refl
+  pack .rd-hom (ft , ftᴰ) (ff , ffᴰ) rdtf p =
+    cong pack-f p ∙ funExt λ { false → refl ; true → refl }
+  pack .wt-hom b (ft , ftᴰ) wtbx p = cong pack-f p
 
   pack⁻ : isIso pack-f
   pack⁻ .fst ∫f .fst b .fst = ∫f b .fst
@@ -357,10 +375,14 @@ module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
       recFSAᴰ-f s sᴰ = ∫recFSAᴰ-f (s , sᴰ) .snd
 
       recFSAᴰ : Homoᴰ recFSAᴰ-f (recFSA X B i) (FreeStateAlgᴰ X Xᴰ) Bᴰ
-      recFSAᴰ .Homoᴰ.rd-homᴰ st sf stᴰ sfᴰ = hSetReasoning.rectifyOut (_ , isSetB) Yᴰ $
-        ∫recFSAᴰ .rd-hom (st , stᴰ) (sf , sfᴰ)
-      recFSAᴰ .Homoᴰ.wt-homᴰ b s sᴰ = hSetReasoning.rectifyOut (_ , isSetB) Yᴰ $
-        ∫recFSAᴰ .wt-hom b (s , sᴰ)
+      recFSAᴰ .Homoᴰ.rd-homᴰ st sf stᴰ sfᴰ rdtf rdtfᴰ p pᴰ =
+        hSetReasoning.rectifyOut (_ , isSetB) Yᴰ $
+          cong (λ q → ∫recFSAᴰ-f (q .fst , q .snd)) (ΣPathP (p , pᴰ))
+          ∙ Homo.rd-hom' ∫recFSAᴰ (st , stᴰ) (sf , sfᴰ)
+      recFSAᴰ .Homoᴰ.wt-homᴰ b s sᴰ wtbx wtbxᴰ p pᴰ =
+        hSetReasoning.rectifyOut (_ , isSetB) Yᴰ $
+          cong (λ q → ∫recFSAᴰ-f (q .fst , q .snd)) (ΣPathP (p , pᴰ))
+          ∙ Homo.wt-hom' ∫recFSAᴰ b (s , sᴰ)
 
       recFSAᴰ-β : ∀ x xᴰ
         → recFSAᴰ-f (η X x) (ηᴰ X Xᴰ x xᴰ)
@@ -386,9 +408,9 @@ recFSAᴰ-η Xᴰ {Y = Y} {Yᴰ = Yᴰ} Bᴰ {f = f}
   fᴰ f-hom fᴰ-hom isSetB s sᴰ =
   hSetReasoning.rectifyOut (_ , isSetB) _ $
     cong₂ (StateAlg.rd (StateAlgᴰ.∫ Bᴰ))
-      (sym $ Homo.wt-hom (Homoᴰ.∫ fᴰ-hom) _ _)
-      (sym $ Homo.wt-hom (Homoᴰ.∫ fᴰ-hom) _ _)
-    ∙ (sym $ Homo.rd-hom (Homoᴰ.∫ fᴰ-hom) _ _)
+      (sym $ Homo.wt-hom' (Homoᴰ.∫ fᴰ-hom) _ _)
+      (sym $ Homo.wt-hom' (Homoᴰ.∫ fᴰ-hom) _ _)
+    ∙ (sym $ Homo.rd-hom' (Homoᴰ.∫ fᴰ-hom) _ _)
     ∙ cong {B = λ _ → Σ Y Yᴰ}
         (λ q → f (q .fst) , fᴰ (q .fst) (q .snd))
         (sym $ StateAlg.rd-wt (StateAlgᴰ.∫ (FreeStateAlgᴰ _ Xᴰ)) (s , sᴰ))
@@ -414,12 +436,12 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
     push .StateAlgᴰ.rdᴰ b'ᴰ b'ᴰ' .fst .fst =
       B.rd (b'ᴰ .fst .fst) (b'ᴰ' .fst .fst)
     push .StateAlgᴰ.rdᴰ b'ᴰ b'ᴰ' .fst .snd =
-      ϕ.rd-hom _ _ ∙ cong₂ B'.rd (b'ᴰ .fst .snd) (b'ᴰ' .fst .snd)
+      ϕ.rd-hom' _ _ ∙ cong₂ B'.rd (b'ᴰ .fst .snd) (b'ᴰ' .fst .snd)
     push .StateAlgᴰ.rdᴰ b'ᴰ b'ᴰ' .snd =
       Bᴰ.rdᴰ (b'ᴰ .snd) (b'ᴰ' .snd)
     push .StateAlgᴰ.wtᴰ b x .fst .fst = B.wt b (x .fst .fst)
     push .StateAlgᴰ.wtᴰ b x .fst .snd =
-      ϕ.wt-hom _ _ ∙ cong (B'.wt b) (x .fst .snd)
+      ϕ.wt-hom' _ _ ∙ cong (B'.wt b) (x .fst .snd)
     push .StateAlgᴰ.wtᴰ b x .snd = Bᴰ.wtᴰ b (x .snd)
     push .StateAlgᴰ.wt-rdᴰ false xt xf xtᴰ xfᴰ = ΣPathP
       ( ΣPathPProp (λ _ → isSetB' _ _)
@@ -442,8 +464,10 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
     σ-fᴰ x xᴰ = (x , refl) , xᴰ
 
     σ : Homoᴰ σ-fᴰ ϕ Bᴰ push
-    σ .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ = ΣPathP ((ΣPathPProp (λ _ → isSetB' _ _) refl) , refl)
-    σ .Homoᴰ.wt-homᴰ b x xᴰ = ΣPathP ((ΣPathPProp (λ _ → isSetB' _ _) refl) , refl)
+    σ .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ rdtf rdtfᴰ p pᴰ =
+      ΣPathP (ΣPathPProp (λ _ → isSetB' _ _) p , pᴰ)
+    σ .Homoᴰ.wt-homᴰ b x xᴰ wtbx wtbxᴰ p pᴰ =
+      ΣPathP (ΣPathPProp (λ _ → isSetB' _ _) p , pᴰ)
 
     module _ {X'' : Type ℓ''} {B'' : StateAlg X''}
       (isSetB'' : isSet X'') {g : X' → X''} (ψ : Homo g B' B'')
@@ -463,15 +487,23 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
           Bᴰ''.reind (cong g (x .fst .snd)) (fgᴰ (x .fst .fst) (x .snd))
 
         recPush : Homoᴰ recPush-fᴰ ψ push Bᴰ''
-        recPush .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ = Bᴰ''.rectifyOut $
+        recPush .Homoᴰ.rd-homᴰ xt xf xtᴰ xfᴰ rdtf rdtfᴰ p pᴰ =
+          Bᴰ''.rectifyOut $
+          cong (λ q → g (q .fst) , recPush-fᴰ (q .fst) (q .snd))
+            (ΣPathP (p , pᴰ))
+          ∙
           Bᴰ''.reind-filler⁻ _
-          ∙ ϕψᴰ.∫ .Homo.rd-hom _ _
+          ∙ Homo.rd-hom' ϕψᴰ.∫ _ _
           ∙ cong₂ (Bᴰ''.∫ .StateAlg.rd)
             (Bᴰ''.reind-filler _)
             (Bᴰ''.reind-filler _)
-        recPush .Homoᴰ.wt-homᴰ b x xᴰ = Bᴰ''.rectifyOut $
+        recPush .Homoᴰ.wt-homᴰ b x xᴰ wtbx wtbxᴰ p pᴰ =
+          Bᴰ''.rectifyOut $
+          cong (λ q → g (q .fst) , recPush-fᴰ (q .fst) (q .snd))
+            (ΣPathP (p , pᴰ))
+          ∙
           Bᴰ''.reind-filler⁻ (λ i → g (StateAlgᴰ.wtᴰ push b xᴰ .fst .snd i))
-          ∙ ϕψᴰ.∫ .Homo.wt-hom _ _
+          ∙ Homo.wt-hom' ϕψᴰ.∫ _ _
           ∙ cong (Bᴰ''.∫ .StateAlg.wt _) (Bᴰ''.reind-filler _)
 
         recPush-β : ∀ x xᴰ

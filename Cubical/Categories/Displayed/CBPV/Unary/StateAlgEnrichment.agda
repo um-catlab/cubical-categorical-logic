@@ -211,23 +211,27 @@ module _
         total-gᴰ' (M , Mᴰ) = g' M , gᴰ' M Mᴰ
 
       reindexHomoᴰ : Homoᴰ gᴰ ψ C₀ᴰ C₁ᴰ
-      reindexHomoᴰ .Homoᴰ.rd-homᴰ Mt Mf Mtᴰ Mfᴰ = D₁ᴰ.rectifyOut $
-        gᴰ-filler (C₀.rd Mt Mf) (StateAlgᴰ.rdᴰ C₀ᴰ Mtᴰ Mfᴰ)
+      reindexHomoᴰ .Homoᴰ.rd-homᴰ Mt Mf Mtᴰ Mfᴰ
+        rdtf rdtfᴰ p pᴰ = D₁ᴰ.rectifyOut $
+        gᴰ-filler rdtf rdtfᴰ
+        ∙ cong total-gᴰ' (ΣPathP (cong F.F-homᴰ p , pᴰ))
         ∙ cong total-gᴰ'
             (reindexStateAlgᴰ-rd-filler (FState A₀ B₀)
               (DᴰState .fst A₀ᴰ B₀ᴰ) isSetDHom Mtᴰ Mfᴰ)
-        ∙ ψᴰ'.∫ .Homo.rd-hom (F.F-homᴰ Mt , Mtᴰ) (F.F-homᴰ Mf , Mfᴰ)
+        ∙ Homo.rd-hom' ψᴰ'.∫ (F.F-homᴰ Mt , Mtᴰ) (F.F-homᴰ Mf , Mfᴰ)
         ∙ cong₂ (D₁ᴰ.∫ .StateAlg.rd)
             (sym (gᴰ-filler Mt Mtᴰ)) (sym (gᴰ-filler Mf Mfᴰ))
         ∙ sym (reindexStateAlgᴰ-rd-filler (FState A₁ B₁)
             (DᴰState .fst A₁ᴰ B₁ᴰ) isSetDHom
             (gᴰ Mt Mtᴰ) (gᴰ Mf Mfᴰ))
-      reindexHomoᴰ .Homoᴰ.wt-homᴰ b M Mᴰ = D₁ᴰ.rectifyOut $
-        gᴰ-filler (C₀.wt b M) (StateAlgᴰ.wtᴰ C₀ᴰ b Mᴰ)
+      reindexHomoᴰ .Homoᴰ.wt-homᴰ b M Mᴰ
+        wtbx wtbxᴰ p pᴰ = D₁ᴰ.rectifyOut $
+        gᴰ-filler wtbx wtbxᴰ
+        ∙ cong total-gᴰ' (ΣPathP (cong F.F-homᴰ p , pᴰ))
         ∙ cong total-gᴰ'
             (reindexStateAlgᴰ-wt-filler (FState A₀ B₀)
               (DᴰState .fst A₀ᴰ B₀ᴰ) isSetDHom b Mᴰ)
-        ∙ ψᴰ'.∫ .Homo.wt-hom b (F.F-homᴰ M , Mᴰ)
+        ∙ Homo.wt-hom' ψᴰ'.∫ b (F.F-homᴰ M , Mᴰ)
         ∙ cong (D₁ᴰ.∫ .StateAlg.wt b) (sym (gᴰ-filler M Mᴰ))
         ∙ sym (reindexStateAlgᴰ-wt-filler (FState A₁ B₁)
             (DᴰState .fst A₁ᴰ B₁ᴰ) isSetDHom b (gᴰ M Mᴰ))

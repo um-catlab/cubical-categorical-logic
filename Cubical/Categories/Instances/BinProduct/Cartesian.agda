@@ -61,6 +61,16 @@ module _ (C : CartesianCategory ℓC ℓC') where
       C.C [ Γ , ((a C.× c) C.× (b C.× d)) ] →
       Σ (C.C [ Γ , (a C.× b) ]) (λ _ → C.C [ Γ , (c C.× d) ])
     shuffle {a = a} {b = b} {c = c} {d = d} h =
+      h C.⋆ (ac.π₁ C.×p bd.π₁) ,
+      h C.⋆ (ac.π₂ C.×p bd.π₂)
+      where
+      module ac = BinProductNotation (C.bp (a , c))
+      module bd = BinProductNotation (C.bp (b , d))
+
+    projectionShuffle : ∀ {Γ a b c d} →
+      C.C [ Γ , ((a C.× c) C.× (b C.× d)) ] →
+      Σ (C.C [ Γ , (a C.× b) ]) (λ _ → C.C [ Γ , (c C.× d) ])
+    projectionShuffle {a = a} {b = b} {c = c} {d = d} h =
       ab._,p_
         ((h C.⋆ outer.π₁) C.⋆ ac.π₁)
         ((h C.⋆ outer.π₂) C.⋆ bd.π₁) ,
@@ -74,6 +84,23 @@ module _ (C : CartesianCategory ℓC ℓC') where
       module cd = BinProductNotation (C.bp (c , d))
       module outer =
         BinProductNotation (C.bp ((a C.× c) , (b C.× d)))
+
+    shuffle≡projectionShuffle : ∀ {Γ a b c d}
+      (h : C.C [ Γ , ((a C.× c) C.× (b C.× d)) ]) →
+      shuffle h ≡ projectionShuffle h
+    shuffle≡projectionShuffle {a = a} {b = b} {c = c} {d = d} h =
+      ΣPathP
+        ( ab.×ue.intro-natural ∙
+          cong ab.×ue.intro
+            (ΣPathP
+              (sym (C.⋆Assoc _ _ _) , sym (C.⋆Assoc _ _ _)))
+        , cd.×ue.intro-natural ∙
+          cong cd.×ue.intro
+            (ΣPathP
+              (sym (C.⋆Assoc _ _ _) , sym (C.⋆Assoc _ _ _))))
+      where
+      module ab = BinProductNotation (C.bp (a , b))
+      module cd = BinProductNotation (C.bp (c , d))
 
     unshuffle : ∀ {Γ a b c d} →
       Σ (C.C [ Γ , (a C.× b) ]) (λ _ → C.C [ Γ , (c C.× d) ]) →
@@ -94,6 +121,7 @@ module _ (C : CartesianCategory ℓC ℓC') where
       (fg : Σ (C.C [ Γ , (a C.× b) ]) (λ _ → C.C [ Γ , (c C.× d) ])) →
       shuffle (unshuffle fg) ≡ fg
     shuffle-unshuffle {a = a} {b = b} {c = c} {d = d} (f , g) =
+      shuffle≡projectionShuffle (unshuffle (f , g)) ∙
       ΣPathP
         ( ab.,p-extensionality
             (ab.×β₁ ∙ C.⟨ outer.×β₁ ⟩⋆⟨ refl ⟩ ∙ ac.×β₁)
@@ -113,6 +141,7 @@ module _ (C : CartesianCategory ℓC ℓC') where
       (h : C.C [ Γ , ((a C.× c) C.× (b C.× d)) ]) →
       unshuffle (shuffle h) ≡ h
     unshuffle-shuffle {a = a} {b = b} {c = c} {d = d} h =
+      cong unshuffle (shuffle≡projectionShuffle h) ∙
       outer.,p-extensionality
         (outer.×β₁ ∙
          ac.,p-extensionality
@@ -133,23 +162,9 @@ module _ (C : CartesianCategory ℓC ℓC') where
   ×CF : CartesianFunctor (C × C) C.C
   ×CF .fst = C.×F
   ×CF .snd (a , b) (c , d) Γ =
-    subst isEquiv
-      (sym (funExt λ h →
-        ΣPathP
-          ( ab.×ue.intro-natural ∙
-            cong ab.×ue.intro
-              (ΣPathP
-                (sym (C.⋆Assoc _ _ _) , sym (C.⋆Assoc _ _ _)))
-          , cd.×ue.intro-natural ∙
-            cong cd.×ue.intro
-              (ΣPathP
-                (sym (C.⋆Assoc _ _ _) , sym (C.⋆Assoc _ _ _))))))
-      (isoToIsEquiv
-        (iso
-          shuffle
-          unshuffle
-          shuffle-unshuffle
-          unshuffle-shuffle))
-    where
-    module ab = BinProductNotation (C.bp (a , b))
-    module cd = BinProductNotation (C.bp (c , d))
+    isoToIsEquiv
+      (iso
+        shuffle
+        unshuffle
+        shuffle-unshuffle
+        unshuffle-shuffle)

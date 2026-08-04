@@ -292,4 +292,4 @@ module _
   identityExtensionHom freeA freeB e x y p =
     equivFun (identityExtension freeB _ _)
       (LR .F-homᴰ e (x , y) (invEq (identityExtension freeA x y) p))
-   
+

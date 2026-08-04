@@ -40,10 +40,10 @@ open QuiverOver
 two : BiCCCExpr OB
 two = ⊤ + ⊤
 
-Two : Type 
+Two : Type
 Two = Unit* {ℓ-zero} ⊎ Unit* {ℓ-zero}
 
-encodeBool : Bool → Two 
+encodeBool : Bool → Two
 encodeBool true = inl tt*
 encodeBool false = inr tt*
 

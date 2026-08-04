@@ -5,7 +5,7 @@ open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Nat hiding (_+_)
-open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Sum as Sum renaming (rec to rec⊎)
 open import Cubical.Data.Unit
 open import Cubical.Data.Sigma as Sigma hiding (_×_)
 open import Cubical.Data.Quiver.Base
@@ -66,15 +66,16 @@ module _ where
 
   even : ℕ → Lift ℓ-zero Unit ⊎ Lift ℓ-zero Unit
   even zero = inl _
-  even (suc z) = Sum.rec inr inl (even z)
+  even (suc zero) = inr _
+  even (suc (suc n)) = even n
 
   evenb : ℕ → Bool
   evenb n = Sum.rec (λ _ → true) (λ _ → false) (even n)
 
   evenb-suc : ∀ n → evenb (suc n) ≡ not (evenb n)
-  evenb-suc n with even n
-  ... | inl _ = refl
-  ... | inr _ = refl
+  evenb-suc zero = refl
+  evenb-suc (suc zero) = refl
+  evenb-suc (suc (suc n)) = evenb-suc n
 
   InterpNatData :
     Interpretation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
@@ -90,25 +91,42 @@ module _ where
     interpretation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
       InterpNatData
 
+  BoolNatRelationOb : ∀ o →
+    (pointwise FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+      InterpBoolData InterpNatData) .fst .F-ob (↑ o) .fst →
+    hSet ℓ-zero
+  BoolNatRelationOb X (b , n) =
+    (evenb n ≡ b) , isProp→isSet (isSetBool _ _)
+
+  readRelation : ∀ b n → evenb n ≡ b →
+    ((FreeBiCCC.elimOb FlipperQuiver
+        (FreeBiCCC.elimLocalMotive FlipperQuiver
+          (pointwise FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+            InterpBoolData InterpNatData)
+          EqSETᴰBCCCⱽ)
+        BoolNatRelationOb
+        (+×⇒Quiver.cod FlipperQuiver read))
+        ((pointwise FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+          InterpBoolData InterpNatData) .fst .F-hom
+          (↑ₑ FlipperQuiver read) (b , n))) .fst
+  readRelation b zero p =
+    inl ((tt* , lift tt) ,
+      cong (λ b' → (if b' then inl tt* else inr tt*) , inl (lift tt)) p ,
+      tt*)
+  readRelation b (suc zero) p =
+    inr ((tt* , lift tt) ,
+      cong (λ b' → (if b' then inl tt* else inr tt*) , inr (lift tt)) p ,
+      tt*)
+  readRelation b (suc (suc n)) p = readRelation b n p
+
   BoolNatRelationGenerators :
     LogicalRelationGenerators FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
       InterpBoolData InterpNatData
-  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-ob X (b , n) =
-    (evenb n ≡ b) , isProp→isSet (isSetBool _ _)
-  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-hom init _ _ =
-    refl
-  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-hom flip (b , n) p =
-    evenb-suc n ∙ cong not p
-  BoolNatRelationGenerators .FreeBiCCC.ElimInterpᴰ.ı-hom
-    read (b , n) p with even n
-  ... | inl u =
-    inl ((tt* , u) ,
-      cong (λ b' → (if b' then inl tt* else inr tt*) , inl u) p ,
-      tt*)
-  ... | inr u =
-    inr ((tt* , u) ,
-      cong (λ b' → (if b' then inl tt* else inr tt*) , inr u) p ,
-      tt*)
+  BoolNatRelationGenerators =
+    FreeBiCCC.mkElimInterpᴰ BoolNatRelationOb
+      λ { init _ _ → refl
+        ; flip (b , n) p → evenb-suc n ∙ cong not p
+        ; read (b , n) p → readRelation b n p }
 
   FlipperLogicalRelation =
     logicalRelation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ

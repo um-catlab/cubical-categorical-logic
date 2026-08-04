@@ -1,6 +1,5 @@
 -- Algebras for the theory of a Boolean state.
 -- The free algebras are given by the state monad.
-{-# OPTIONS --prop #-}
 module Cubical.Algebra.State where
 
 open import Cubical.Foundations.Prelude
@@ -56,6 +55,28 @@ record Homo {X : Type ℓ} {X' : Type ℓ'}
   wt-hom' : ∀ b x → f (B.wt b x) ≡ B'.wt b (f x)
   wt-hom' b x = wt-hom _ _ _ refl
 
+isPropHomo : {X : Type ℓ} {Y : Type ℓ'}
+  {f : X → Y} {B : StateAlg X} {B' : StateAlg Y}
+  → isSet Y → isProp (Homo f B B')
+isPropHomo isSetY ϕ ψ i .Homo.rd-hom xt xf rdxtxf p =
+  isSetY _ _ (ϕ .Homo.rd-hom xt xf rdxtxf p)
+    (ψ .Homo.rd-hom xt xf rdxtxf p) i
+isPropHomo isSetY ϕ ψ i .Homo.wt-hom b x wtbx p =
+  isSetY _ _ (ϕ .Homo.wt-hom b x wtbx p)
+    (ψ .Homo.wt-hom b x wtbx p) i
+
+module _ {X : Type ℓ} {X' : Type ℓ'}
+  {B : StateAlg X}{B' : StateAlg X'}
+  (ϕ : Σ (X → X') (λ f → Homo f B B'))
+  (ψ : Σ (X → X') (λ g → Homo g B B'))
+  (isSetX' : isSet X')
+  where
+  ∫Homo≡ : ϕ .fst ≡ ψ .fst → ϕ ≡ ψ
+  ∫Homo≡ ϕ≡ψ i .fst = ϕ≡ψ i
+  ∫Homo≡ ϕ≡ψ i .snd =
+    isProp→PathP {B = λ i → Homo (ϕ≡ψ i) B B'}
+      (λ i → isPropHomo isSetX') (ϕ .snd) (ψ .snd) i
+
 module _ {X : Type ℓ} {B : StateAlg X} where
   open StateAlg B
   idHomo : Homo (λ x → x) B B
@@ -74,16 +95,6 @@ module _ {X : Type ℓ} {X' : Type ℓ'} {X'' : Type ℓ''}
   _⋆Homo_ : Homo (g ∘ f) B B''
   _⋆Homo_ .Homo.rd-hom xt xf rdxtf p = ψ.rd-hom (f xt) (f xf) (f rdxtf) (ϕ.rd-hom xt xf rdxtf p)
   _⋆Homo_ .Homo.wt-hom b x wtbx p = ψ.wt-hom b (f x) (f wtbx) (ϕ.wt-hom b x wtbx p)
-
-isPropHomo : {X : Type ℓ} {Y : Type ℓ'}
-  {f : X → Y} {B : StateAlg X} {B' : StateAlg Y}
-  → isSet Y → isProp (Homo f B B')
-isPropHomo isSetY ϕ ψ i .Homo.rd-hom xt xf rdxtxf p =
-  isSetY _ _ (ϕ .Homo.rd-hom xt xf rdxtxf p)
-    (ψ .Homo.rd-hom xt xf rdxtxf p) i
-isPropHomo isSetY ϕ ψ i .Homo.wt-hom b x wtbx p =
-  isSetY _ _ (ϕ .Homo.wt-hom b x wtbx p)
-    (ψ .Homo.wt-hom b x wtbx p) i
 
 record StateAlgᴰ {X : Type ℓ} (B : StateAlg X)
   (Xᴰ : X → Type ℓᴰ) : Type (ℓ-max ℓ ℓᴰ) where

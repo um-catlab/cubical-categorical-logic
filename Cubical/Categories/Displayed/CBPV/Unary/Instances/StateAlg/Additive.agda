@@ -97,7 +97,7 @@ private
       (Z , Zᴰ , f) .snd .fst _ = refl
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
       (Z , Zᴰ , f) .snd .snd h =
-        StateAlgHomᴰ≡ _ h (funExt₂ λ _ _ → refl)
+        StateAlgHomᴰ≡ {f = f} _ h (funExt₂ λ _ _ → refl)
 
   StateAlgᴰBinProductsEqⱽ : ∀ ℓ → EqPsh.BinProductsⱽ (STATEALGᴰ ℓ ℓ)
   StateAlgᴰBinProductsEqⱽ ℓ {x = B} B₁ᴰ B₂ᴰ =
@@ -125,13 +125,16 @@ private
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
       (Z , Zᴰ , f , ϕ) .snd .fst (p , q) = refl
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
-      (Z , Zᴰ , f , ϕ) .snd .snd h = StateAlgHomᴰ≡ _ h refl
+      (Z , Zᴰ , f , ϕ) .snd .snd h =
+        StateAlgHomᴰ≡ {f = f , ϕ} {Aᴰ = Zᴰ}
+          {Bᴰ = ue .EqPsh.UEⱽ.v} _ h refl
 
   StateAlgᴰFibrationEq : ∀ ℓ →
     EqPsh.Fibration (STATEALGᴰ ℓ ℓ) (StateAlgAssoc ℓ)
   StateAlgᴰFibrationEq ℓ {x = Z} {y = B'} f Bᴰ' =
     EqPsh.UEⱽ→Reprⱽ _ (StateAlgIdR ℓ) ue
     where
+    module C = Category (STATEALG ℓ)
     pullᴰ : Fibers.ob[_] (STATEALGᴰ ℓ ℓ) Z
     pullᴰ .fst z = Bᴰ' .fst (f .fst z)
     pullᴰ .snd = pull (f .snd) (Bᴰ' .snd) (B' .fst .snd)
@@ -148,9 +151,10 @@ private
       (Y , Yᴰ , g) .fst h .snd =
         pull-intro (f .snd) (Bᴰ' .snd) (B' .fst .snd) (g .snd) (h .snd)
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
-      (Y , Yᴰ , g) .snd .fst h = StateAlgHomᴰ≡ _ h refl
+      (Y , Yᴰ , g) .snd .fst h =
+        StateAlgHomᴰ≡ {f = g C.⋆ f} _ h refl
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
-      (Y , Yᴰ , g) .snd .snd h = StateAlgHomᴰ≡ _ h refl
+      (Y , Yᴰ , g) .snd .snd h = StateAlgHomᴰ≡ {f = g} _ h refl
 
   StateAlgᴰTerminalsⱽ : ∀ ℓ → Terminalsⱽ (STATEALGᴰ ℓ ℓ)
   StateAlgᴰTerminalsⱽ ℓ =
@@ -360,7 +364,7 @@ module _ (ℓ : Level) where
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd h =
       funExt λ _ → refl
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .snd h =
-      StateAlgHom≡ _ h (funExt λ _ → refl)
+      ∫Homo≡ _ h isSetUnit* (funExt λ _ → refl)
 
   StateAlgComputationProductEqⱽ :
     ∀ B₁ B₂ → EqBinProductⱽ C {k = 𝓒} B₁ B₂
@@ -393,11 +397,14 @@ module _ (ℓ : Level) where
       (p , q) = pairC p q
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .fst _ = refl
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .fst (p , q) =
-      ΣPathP (StateAlgHom≡ _ p refl , StateAlgHom≡ _ q refl)
+      ΣPathP
+        ( ∫Homo≡ _ p (B₁ .fst .snd) refl
+        , ∫Homo≡ _ q (B₂ .fst .snd) refl)
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓥 , A , f) .snd .snd _ =
       refl
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝓒 , B , f) .snd .snd h =
-      StateAlgHom≡ _ h refl
+      ∫Homo≡ _ h
+        (isSet× (B₁ .fst .snd) (B₂ .fst .snd)) refl
 
   StateAlgAddCBPVEq : AddCBPVCatEq (ℓ-suc ℓ) ℓ
   StateAlgAddCBPVEq .fst = StateAlgCBPVEq

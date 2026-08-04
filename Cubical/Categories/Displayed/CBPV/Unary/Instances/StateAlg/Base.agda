@@ -64,49 +64,31 @@ private
   variable
     ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' ℓᴰᴰ ℓᴰᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
 
+open Category hiding (_∘_)
+open StructureOver
 open Functorᴰ
 
-StateAlgebra : (l : Level) → Type (ℓ-suc l)
-StateAlgebra l = Σ[ X ∈ hSet l ] StateAlg ⟨ X ⟩
+StateAlgStructure : StructureOver (SET ℓ) ℓ ℓ
+StateAlgStructure .StructureOver.ob[_] X = StateAlg ⟨ X ⟩
+StateAlgStructure .StructureOver.Hom[_][_,_] f B B' = Homo f B B'
+StateAlgStructure .StructureOver.idᴰ = idHomo
+StateAlgStructure .StructureOver._⋆ᴰ_ = _⋆Homo_
+StateAlgStructure .StructureOver.isPropHomᴰ {y = Y} = isPropHomo (Y .snd)
+
+STATEALG : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
+STATEALG ℓ = ∫C $ StructureOver→Catᴰ $ StateAlgStructure {ℓ}
+
+StateAlgebra : (ℓ : Level) → Type (ℓ-suc ℓ)
+StateAlgebra ℓ = Category.ob $ STATEALG ℓ
 
 StateAlgHom : StateAlgebra ℓ → StateAlgebra ℓ → Type ℓ
-StateAlgHom A B = Σ[ f ∈ (⟨ A .fst ⟩ → ⟨ B .fst ⟩) ] Homo f (A .snd) (B .snd)
-
-StateAlgHom≡ : ∀ {A B : StateAlgebra ℓ} (f g : StateAlgHom A B)
-  → f .fst ≡ g .fst → f ≡ g
-StateAlgHom≡ {B = B} f g = Σ≡Prop (λ h → isPropHomo (B .fst .snd))
-
-STATEALG : (l : Level) → Category (ℓ-suc l) l
-STATEALG l .Category.ob = StateAlgebra l
-STATEALG l .Category.Hom[_,_] = StateAlgHom
-STATEALG l .Category.id = (idfun _) , idHomo
-STATEALG l .Category._⋆_ f g = (g .fst ∘ f .fst) , (f .snd ⋆Homo g .snd)
-STATEALG l .Category.⋆IdL f = refl
-STATEALG l .Category.⋆IdR f = refl
-STATEALG l .Category.⋆Assoc f g h = refl
-STATEALG l .Category.isSetHom {y = B} =
-  isSetΣ (isSetΠ (λ _ → B .fst .snd))
-    (λ _ → isProp→isSet (isPropHomo (B .fst .snd)))
+StateAlgHom {ℓ} = Category.Hom[_,_] $ STATEALG ℓ
 
 StateAlgForget : Functor (STATEALG ℓ) (SET ℓ)
-StateAlgForget .Functor.F-ob A = A .fst
-StateAlgForget .Functor.F-hom f = f .fst
-StateAlgForget .Functor.F-id = refl
-StateAlgForget .Functor.F-seq f g = refl
+StateAlgForget = Fst
 
-StateAlgFamilyᴰ : ∀ ℓ ℓᴰ → Categoryᴰ (STATEALG ℓ)
-  (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ.ob[_] B = ⟨ B .fst ⟩ → hSet ℓᴰ
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ.Hom[_][_,_] f Xᴰ Yᴰ =
-  ∀ x → ⟨ Xᴰ x ⟩ → ⟨ Yᴰ (f .fst x) ⟩
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ.idᴰ x xᴰ = xᴰ
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ._⋆ᴰ_ {f = f} fᴰ gᴰ x xᴰ =
-  gᴰ (f .fst x) (fᴰ x xᴰ)
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ.⋆IdLᴰ fᴰ = refl
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ.⋆IdRᴰ fᴰ = refl
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ = refl
-StateAlgFamilyᴰ ℓ ℓᴰ .Categoryᴰ.isSetHomᴰ {yᴰ = Yᴰ} =
-  isSetΠ λ x → isSetΠ λ xᴰ → Yᴰ _ .snd
+StateAlgFamilyᴰ : ∀ ℓ ℓᴰ → Categoryᴰ (STATEALG ℓ) (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
+StateAlgFamilyᴰ ℓ ℓᴰ = EqReindex.reindex (SETᴰ ℓ ℓᴰ) StateAlgForget Eq.refl (λ _ _ → Eq.refl)
 
 StateAlgStructureᴰ : ∀ ℓ ℓᴰ →
   StructureOver (∫C (StateAlgFamilyᴰ ℓ ℓᴰ))
@@ -124,8 +106,7 @@ StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.isPropHomᴰ {y = B , Bᴰ} =
 STATEALGᴰ : ∀ ℓ ℓᴰ → Categoryᴰ (STATEALG ℓ)
   (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
 STATEALGᴰ ℓ ℓᴰ =
-  ∫Cᴰ (StateAlgFamilyᴰ ℓ ℓᴰ)
-    (StructureOver→Catᴰ (StateAlgStructureᴰ ℓ ℓᴰ))
+  ∫Cᴰ (StateAlgFamilyᴰ ℓ ℓᴰ) $ StructureOver→Catᴰ $ StateAlgStructureᴰ ℓ ℓᴰ
 
 StateAlgHomᴰ≡ : ∀ {A B : StateAlgebra ℓ} {f : StateAlgHom A B}
   {Aᴰ : Categoryᴰ.ob[_] (STATEALGᴰ ℓ ℓᴰ) A}
@@ -136,6 +117,7 @@ StateAlgHomᴰ≡ : ∀ {A B : StateAlgebra ℓ} {f : StateAlgHom A B}
 StateAlgHomᴰ≡ {Bᴰ = Bᴰ} p q =
   Σ≡Prop (λ h → isPropHomoᴰ (λ x → Bᴰ .fst x .snd))
 
+-- manual here is better than using Fstᴰ because it avoids a composition
 StateAlgForgetᴰ : Functorᴰ StateAlgForget (STATEALGᴰ ℓ ℓᴰ) (SETᴰ ℓ ℓᴰ)
 StateAlgForgetᴰ .Functorᴰ.F-obᴰ Bᴰ = Bᴰ .fst
 StateAlgForgetᴰ .Functorᴰ.F-homᴰ fᴰ = fᴰ .fst

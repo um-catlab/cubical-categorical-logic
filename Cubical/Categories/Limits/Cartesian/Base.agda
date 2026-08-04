@@ -65,8 +65,8 @@ module _
     module C = CartesianCategory C
     module D = CartesianCategory D
 
-  _∘CF_ : CartesianFunctor D E → CartesianFunctor C D.C → CartesianFunctor C E
-  _∘CF_ G F = G .fst ∘F F .fst , goal
+  compCF : CartesianFunctor D E → CartesianFunctor C D.C → CartesianFunctor C E
+  compCF G F = G .fst ∘F F .fst , goal
     where
     goal : preservesProvidedBinProducts (G .fst ∘F F .fst) C.bp
     goal c c' =

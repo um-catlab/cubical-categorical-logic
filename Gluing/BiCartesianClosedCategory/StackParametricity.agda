@@ -22,6 +22,7 @@ open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded
   as FreeBiCCC renaming ([_,_] to [_,+_])
 open import Gluing.BiCartesianClosedCategory.BinaryLogicalRelation
+open import Gluing.BiCartesianClosedCategory.IdentityExtension
 
 open Functor
 open Section
@@ -80,25 +81,37 @@ reversePop : List Bool →
   Unit* ⊎ (Σ[ _ ∈ Two ] (List Bool))
 reversePop ys = reversePoppedStack (headPop (rev ys))
 
-HeadFirst : CartesianFunctor FREE.CC (SET ℓ-zero)
-HeadFirst = FreeBiCCC.recCF StackQuiver SETBiCCC
-  (FreeBiCCC.mkElimInterpᴰ
+HeadFirstInterpretation :
+  Interpretation StackQuiver SETBiCCC EqSETᴰBCCCⱽ
+HeadFirstInterpretation =
+  FreeBiCCC.mkElimInterpᴰ
     (λ { stack → List Bool , isOfHLevelList 0 isSetBool })
     λ { emptyStack → λ _ → []
       ; push → λ (b , xs) → decodeBool b ∷ xs
-      ; pop → headPop })
+      ; pop → headPop }
 
-ReverseStored : CartesianFunctor FREE.CC (SET ℓ-zero)
-ReverseStored = FreeBiCCC.recCF StackQuiver SETBiCCC
-  (FreeBiCCC.mkElimInterpᴰ
+HeadFirst : CartesianFunctor FREE.CC (SET ℓ-zero)
+HeadFirst =
+  interpretation StackQuiver SETBiCCC EqSETᴰBCCCⱽ
+    HeadFirstInterpretation
+
+ReverseStoredInterpretation :
+  Interpretation StackQuiver SETBiCCC EqSETᴰBCCCⱽ
+ReverseStoredInterpretation =
+  FreeBiCCC.mkElimInterpᴰ
     (λ { stack → List Bool , isOfHLevelList 0 isSetBool })
     λ { emptyStack → λ _ → []
       ; push → λ (b , xs) → xs ++ (decodeBool b ∷ [])
-      ; pop → reversePop })
+      ; pop → reversePop }
+
+ReverseStored : CartesianFunctor FREE.CC (SET ℓ-zero)
+ReverseStored =
+  interpretation StackQuiver SETBiCCC EqSETᴰBCCCⱽ
+    ReverseStoredInterpretation
 
 StackRelationGenerators :
   LogicalRelationGenerators StackQuiver SETBiCCC EqSETᴰBCCCⱽ
-    HeadFirst ReverseStored
+    HeadFirstInterpretation ReverseStoredInterpretation
 StackRelationGenerators =
   FreeBiCCC.mkElimInterpᴰ
     (λ { stack (xs , ys) →
@@ -148,11 +161,39 @@ StackRelationGenerators =
 
 StackLogicalRelation =
   logicalRelation StackQuiver SETBiCCC EqSETᴰBCCCⱽ
-    HeadFirst ReverseStored StackRelationGenerators
+    HeadFirstInterpretation ReverseStoredInterpretation
+    StackRelationGenerators
+
+infix 4 _≈[_]_
+_≈[_]_ : ∀ {A} →
+  HeadFirst .fst .F-ob A .fst →
+  BaseFree A →
+  ReverseStored .fst .F-ob A .fst →
+  Type
+x ≈[ free ] y =
+  PathP
+    (λ i →
+      baseFreeInterpretation≡ StackQuiver
+        HeadFirstInterpretation ReverseStoredInterpretation
+        StackRelationGenerators free i)
+    x y
 
 stack-representation-independence :
+  ∀ {A B} (freeA : BaseFree A) (freeB : BaseFree B)
+    (client : FREE.C [ A , B ])
+    (x : HeadFirst .fst .F-ob A .fst)
+    (y : ReverseStored .fst .F-ob A .fst) →
+  x ≈[ freeA ] y →
+  HeadFirst .fst .F-hom client x ≈[ freeB ]
+    ReverseStored .fst .F-hom client y
+stack-representation-independence freeA freeB client x y =
+  identityExtensionHom StackQuiver
+    HeadFirstInterpretation ReverseStoredInterpretation StackRelationGenerators
+    freeA freeB client x y
+
+stack-state-representation-invariant :
   (client : FREE.C [ ⊤ , (↑ stack) ]) →
   HeadFirst .fst .F-hom client tt* ≡
     rev (ReverseStored .fst .F-hom client tt*)
-stack-representation-independence client =
+stack-state-representation-invariant client =
   StackLogicalRelation .F-homᴰ client (tt* , tt*) tt*

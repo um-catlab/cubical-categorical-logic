@@ -61,6 +61,43 @@ open PshIso
 open PshHom
 open UniversalElementⱽ'
 
+-- The elementwise form of the universal property of a cartesian lift in SETᴰ.
+-- Unlike unfolding a particular lift, this remains usable after reindexing and
+-- transport along product-preservation isomorphisms.
+cartesianLiftFiberEquivSETᴰ :
+  {X Y : hSet ℓ} {f : ⟨ X ⟩ → ⟨ Y ⟩}
+  {P : ⟨ Y ⟩ → hSet ℓ'}
+  (f*P : CartesianLift {C = SET ℓ} (SETᴰ ℓ ℓ') {x = X} {y = Y} f P)
+  (x : ⟨ X ⟩) →
+  ⟨ f*P .fst x ⟩ ≃ ⟨ P (f x) ⟩
+cartesianLiftFiberEquivSETᴰ {X = X} {Y = Y} {f = f} {P = P} f*P x =
+  isoToEquiv (iso to from sec ret)
+  where
+  Γ : hSet _
+  Γ = Unit* , isSetUnit*
+
+  Γᴰ : ⟨ Γ ⟩ → hSet _
+  Γᴰ _ = Unit* , isSetUnit*
+
+  g : ⟨ Γ ⟩ → ⟨ X ⟩
+  g _ = x
+
+  testOb = Γ , Γᴰ , g
+
+  to : ⟨ f*P .fst x ⟩ → ⟨ P (f x) ⟩
+  to z = f*P .snd .PshIso.trans .PshHom.N-ob testOb (λ _ _ → z) tt* tt*
+
+  from : ⟨ P (f x) ⟩ → ⟨ f*P .fst x ⟩
+  from q = f*P .snd .PshIso.nIso testOb .fst (λ _ _ → q) tt* tt*
+
+  sec : ∀ q → to (from q) ≡ q
+  sec q = cong (λ h → h tt* tt*)
+    (f*P .snd .PshIso.nIso testOb .snd .fst (λ _ _ → q))
+
+  ret : ∀ z → from (to z) ≡ z
+  ret z = cong (λ h → h tt* tt*)
+    (f*P .snd .PshIso.nIso testOb .snd .snd (λ _ _ → z))
+
 module _ {ℓ ℓ'} where
   private
     module SET = Category (SET ℓ)

@@ -12,6 +12,7 @@ open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Limits.BiCartesianClosedV
+open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded
   as FreeBiCCC
@@ -36,13 +37,25 @@ module _
     module D = BiCartesianClosedCategory D
     module Dⱽ = BiCartesianClosedCategoryⱽ Dⱽ
 
+  Interpretation : Type _
+  Interpretation =
+    FreeBiCCC.ElimInterpᴰ Q
+      (weakenBCCC (FreeBiCartesianClosedCategory Q) D)
+
+  interpretation : Interpretation → CartesianFunctor FREE.CC D.C
+  interpretation = FreeBiCCC.recCF Q D
+
   module _
-    (F G : CartesianFunctor FREE.CC D.C)
+    (I J : Interpretation)
     where
+
+    F G : CartesianFunctor FREE.CC D.C
+    F = interpretation I
+    G = interpretation J
 
     pointwise : CartesianFunctor FREE.CC D.C
     pointwise =
-      _∘CF_ {C = FREE.CC} {D = D.CC ×CC D.CC}
+      compCF {C = FREE.CC} {D = D.CC ×CC D.CC}
         (×CF D.CC) (pairCF {B = FREE.CC} {C = D.CC} {D = D.CC} F G)
 
     LogicalRelationGenerators : Type _

@@ -1,6 +1,5 @@
 -- Algebras for the theory of a Boolean state.
 -- The free algebras are given by the state monad.
-{-# OPTIONS --prop #-}
 module Cubical.Algebra.State where
 
 open import Cubical.Foundations.Prelude

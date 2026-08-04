@@ -108,15 +108,6 @@ STATEALGᴰ : ∀ ℓ ℓᴰ → Categoryᴰ (STATEALG ℓ)
 STATEALGᴰ ℓ ℓᴰ =
   ∫Cᴰ (StateAlgFamilyᴰ ℓ ℓᴰ) $ StructureOver→Catᴰ $ StateAlgStructureᴰ ℓ ℓᴰ
 
-StateAlgHomᴰ≡ : ∀ {A B : StateAlgebra ℓ} {f : StateAlgHom A B}
-  {Aᴰ : Categoryᴰ.ob[_] (STATEALGᴰ ℓ ℓᴰ) A}
-  {Bᴰ : Categoryᴰ.ob[_] (STATEALGᴰ ℓ ℓᴰ) B}
-  (p q : Σ[ fᴰ ∈ (∀ x → ⟨ Aᴰ .fst x ⟩ → ⟨ Bᴰ .fst (f .fst x) ⟩) ]
-    Homoᴰ fᴰ (f .snd) (Aᴰ .snd) (Bᴰ .snd))
-  → p .fst ≡ q .fst → p ≡ q
-StateAlgHomᴰ≡ {Bᴰ = Bᴰ} p q =
-  Σ≡Prop (λ h → isPropHomoᴰ (λ x → Bᴰ .fst x .snd))
-
 -- manual here is better than using Fstᴰ because it avoids a composition
 StateAlgForgetᴰ : Functorᴰ StateAlgForget (STATEALGᴰ ℓ ℓᴰ) (SETᴰ ℓ ℓᴰ)
 StateAlgForgetᴰ .Functorᴰ.F-obᴰ Bᴰ = Bᴰ .fst

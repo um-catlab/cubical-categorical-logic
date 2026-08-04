@@ -249,15 +249,21 @@ isPropHomoᴰ isSetXᴰ' ϕᴰ ψᴰ i .Homoᴰ.wt-homᴰ
     (ϕᴰ .Homoᴰ.wt-homᴰ b x xᴰ wtbx wtbxᴰ p pᴰ)
     (ψᴰ .Homoᴰ.wt-homᴰ b x xᴰ wtbx wtbxᴰ p pᴰ) i
 
-HomoᴰΣ≡ : {X : Type ℓ} {X' : Type ℓ'}
+module _ {X : Type ℓ} {X' : Type ℓ'}
   {B : StateAlg X} {B' : StateAlg X'} {f : X → X'}
   {ϕ : Homo f B B'}
   {Xᴰ : X → Type ℓᴰ} {Xᴰ' : X' → Type ℓᴰ'}
   {Bᴰ : StateAlgᴰ B Xᴰ} {Bᴰ' : StateAlgᴰ B' Xᴰ'}
+  (ϕᴰ : Σ[ fᴰ ∈ mapOver f Xᴰ Xᴰ' ] Homoᴰ fᴰ ϕ Bᴰ Bᴰ')
+  (ψᴰ : Σ[ gᴰ ∈ mapOver f Xᴰ Xᴰ' ] Homoᴰ gᴰ ϕ Bᴰ Bᴰ')
   (isSetXᴰ' : ∀ x → isSet (Xᴰ' x))
-  (p q : Σ[ fᴰ ∈ mapOver f Xᴰ Xᴰ' ] Homoᴰ fᴰ ϕ Bᴰ Bᴰ')
-  → p .fst ≡ q .fst → p ≡ q
-HomoᴰΣ≡ isSetXᴰ' p q = Σ≡Prop (λ fᴰ → isPropHomoᴰ isSetXᴰ')
+  where
+  ∫Homoᴰ≡ : ϕᴰ .fst ≡ ψᴰ .fst → ϕᴰ ≡ ψᴰ
+  ∫Homoᴰ≡ ϕᴰ≡ψᴰ i .fst = ϕᴰ≡ψᴰ i
+  ∫Homoᴰ≡ ϕᴰ≡ψᴰ i .snd =
+    isProp→PathP
+      {B = λ i → Homoᴰ (ϕᴰ≡ψᴰ i) ϕ Bᴰ Bᴰ'}
+      (λ i → isPropHomoᴰ isSetXᴰ') (ϕᴰ .snd) (ψᴰ .snd) i
 
 module _ {X : Type ℓ} {B : StateAlg X}
   {Xᴰ : X → Type ℓᴰ} {Bᴰ : StateAlgᴰ B Xᴰ} where

@@ -260,38 +260,32 @@ module _ {C : Category ℓC ℓC'} where
 
 {-
 
-  A note on the functorial form.
+  The functorial form: PROVED, in `Cubical.Algebra.Sketch.PresheafTranspose`.
 
-  The statement one would like next is
+    modelInPresheaves≃presheafOfModelsF :
+      Model S (PRESHEAF C ℓ) ≃ Functor (C ^op) (MODEL S (SET ℓ))
 
-    MODEL S (PRESHEAF C ℓ) ≃ Functor (C ^op) (MODEL S (SET ℓ)),
+  and further `modelTransposeFunctor`, which is fully faithful and
+  bijective on objects -- an isomorphism of categories, not merely a
+  bijection of the object types.
 
-  i.e. the equivalence above upgraded from types of models to
-  categories of models.  It is not proved here, and it is not a
-  corollary of `isModel-pointwise`: `isModel-pointwise` only reshuffles
-  the *property*, whereas the functorial form additionally needs the
-  transpose
+  It is not a corollary of `isModel-pointwise` alone: that only
+  reshuffles the *property*, and the functorial form additionally needs
+  the transpose
 
-    Functor ind (PRESHEAF C ℓ) ≃ Functor (C ^op) (Functor ind (SET ℓ)),
+    Functor ind (PRESHEAF C ℓ) ≃ Functor (C ^op) (Functor ind (SET ℓ)).
 
-  which is a separate construction.  Two obstacles, neither of them
-  addressed above:
+  An earlier note here predicted that transpose would be a project,
+  because it planned to route through `curryF`
+  (`Categories.Instances.Functors.More`) -- which would have needed a
+  product category, the symmetry of `_×C_`, and a transport along
+  `PshHom≅PshHomStrict`, since `PRESHEAF`'s morphisms are
+  `PshHomStrict` rather than `NatTrans`.
 
-  * `PRESHEAF C ℓ` has `PshHomStrict` for its morphisms, while the
-    currying machinery (`curryF` in `Categories.Instances.Functors.More`)
-    is stated for `FUNCTOR (C ^op) (SET ℓ)`, whose morphisms are
-    `NatTrans`.  These categories are isomorphic, not equal
-    (`PshHom≅PshHomStrict`), so the transpose has to be transported
-    along that isomorphism.
-
-  * `curryF` curries out of a product category, so it would first have
-    to be composed with the uncurrying
-    `Functor ind (FUNCTOR (C ^op) (SET ℓ)) ≃ Functor (ind ×C C ^op) (SET ℓ)`
-    and the symmetry of `_×C_`, and then the full subcategory `MODEL`
-    would have to be shown to correspond on both sides -- which is
-    where `isModel-pointwise` finally enters.
-
-  That is a project of its own, so it is left undone rather than
-  half-done.
+  That prediction was wrong.  Built directly the transpose is
+  straightforward: forward naturality is exactly the forded
+  `(M ⟪ f ⟫) .N-hom c' c g p _ refl`, and the backward direction is
+  exactly `funExt⁻ ((N ⟪ g ⟫) .N-hom f) p'`.  No currying, no product
+  category, no transport.  See `PresheafTranspose.agda`.
 
 -}

@@ -1,7 +1,7 @@
 -- Parameterized unary CBPV syntax with finite value (co)products and
 -- finite computation products.
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Pure.Additive where
+module Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Additive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

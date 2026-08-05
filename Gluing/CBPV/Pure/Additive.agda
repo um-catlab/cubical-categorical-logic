@@ -26,7 +26,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.CBPV.Unary.Additive
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Sets
-open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Pure.Additive
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Additive
 
 open Category
 open Functor

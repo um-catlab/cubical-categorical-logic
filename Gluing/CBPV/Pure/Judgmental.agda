@@ -26,7 +26,7 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Reindex
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq
-open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Pure.Base
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Weaken
 

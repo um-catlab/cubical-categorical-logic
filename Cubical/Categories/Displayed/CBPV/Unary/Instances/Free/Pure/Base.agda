@@ -3,7 +3,7 @@
 -- --lossy-unification here is a convenience for Tm to pick the most
 -- general implicits automatically
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Pure.Base where
+module Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

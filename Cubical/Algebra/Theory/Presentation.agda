@@ -93,7 +93,7 @@ module _ {σ : AlgTheorySig ℓ ℓ'} where
 
 -- A term over V becomes a *closed* term of σ[V], where each generator is
 -- its own constant.  `TmRec-closeTm` says the interpretation of the
--- closed term in a model of `σeq [ V ]` is the interpretation of the original
+-- closed term in a model of `σeq [ V ]adjoin` is the interpretation of the original
 -- at the model's points.
 module _ {σ : AlgTheorySig ℓ ℓv} {V : Type ℓv} where
 
@@ -131,7 +131,7 @@ open Presentation
 module _ {σ : AlgTheorySig ℓ ℓv} {V : Type ℓv} (P : Presentation σ V ℓR)
   where
 
-  -- the relations as equations of `σeq [ V ]` with no variables
+  -- the relations as equations of `σeq [ V ]adjoin` with no variables
   RelEqns : AlgTheoryEqns (σ ⊕Sig PointedSig V) ℓR ℓv
   RelEqns .eqns = P .rels
   RelEqns .vars _ = ⊥* {ℓv}
@@ -143,7 +143,7 @@ module _ {σ : AlgTheorySig ℓ ℓv} {V : Type ℓv} (P : Presentation σ V ℓ
     -- the presented theory: σ, a constant for each generator, and the
     -- relations
     PresEqns' : AlgTheoryEqns (σ ⊕Sig PointedSig V) (ℓ-max ℓ'' ℓR) ℓv
-    PresEqns' = σeq [ V ] ∪Eqns RelEqns
+    PresEqns' = σeq [ V ]adjoin ∪Eqns RelEqns
 
     -- the level the presented model lives at.  Models at this level are
     -- the stages of the Yoneda argument, so it is named rather than
@@ -169,7 +169,7 @@ module _ {σ : AlgTheorySig ℓ ℓv} {V : Type ℓv} (P : Presentation σ V ℓ
     -- relations
     PresentedσAlg : Alg σeq Presented
     PresentedσAlg = forgetPoints σeq V
-      (Presented , trunc) (Alg∪ (σeq [ V ]) RelEqns PresentedAlg)
+      (Presented , trunc) (Alg∪ (σeq [ V ]adjoin) RelEqns PresentedAlg)
 
     -- The relations hold between the generators.  This is the only
     -- place the added equations are used, and it is where "equation
@@ -206,7 +206,7 @@ module _ {σ : AlgTheorySig ℓ ℓv} {V : Type ℓv} (P : Presentation σ V ℓ
 
       private
         module _ ((ρ , sat) : Points) where
-          N[V] : Alg (σeq [ V ]) X
+          N[V] : Alg (σeq [ V ]adjoin) X
           N[V] = withPoints σeq V (X , isSetX) A ρ
 
           satRel : Sat RelEqns (Alg.⟨_⟩⟦_⟧op N[V])
@@ -216,7 +216,7 @@ module _ {σ : AlgTheorySig ℓ ℓv} {V : Type ℓv} (P : Presentation σ V ℓ
             ∙ sym (TmRec-closeTm (Alg.⟨_⟩⟦_⟧op N[V]) k (P .rr e))
 
           N : Alg PresEqns' X
-          N = mk∪ (σeq [ V ]) RelEqns N[V] satRel
+          N = mk∪ (σeq [ V ]adjoin) RelEqns N[V] satRel
 
           mor : Presented → X
           mor = rec PresEqns' isSetX N (λ ())

@@ -1,12 +1,12 @@
 -- Adjoining constants to a theory, in presheaf-valued models.
 --
 -- The presheaf counterpart of `Free.Constants`, whose theory
--- `σeq [ V ] = σeq ⊕Eqns Pointed V` is reused verbatim.  Unfolding
--- `PshAlg σeq [ V ] P` gives, at each `c`, an algebra together with a map
+-- `σeq [ V ]adjoin = σeq ⊕Eqns Pointed V` is reused verbatim.  Unfolding
+-- `PshAlg σeq [ V ]adjoin P` gives, at each `c`, an algebra together with a map
 -- `V → P ⟅ c ⟆`, and `restr` being a homomorphism is exactly
 -- naturality of that family.  So (`pshAlgConstIso`)
 --
---     PshAlg σeq [ V ] P  ≅  PshAlg σeq P × PshHomStrict (ΔPsh V) P
+--     PshAlg σeq [ V ]adjoin P  ≅  PshAlg σeq P × PshHomStrict (ΔPsh V) P
 --
 -- and the headline `isInitialFreePshOb[V]` follows: the free presheaf
 -- model on the CONSTANT presheaf at `V` is the initial model of the
@@ -88,11 +88,11 @@ module _ {C : Category ℓC ℓC'} {σ : AlgTheorySig ℓ ℓ'}
         (str (P ⟅ c ⟆)))
       (B .restr f) (D .restr f) i
 
--- THE UNFOLDING.  `σeq [ V ] = σeq ⊕Eqns Pointed V` is the theory of
+-- THE UNFOLDING.  `σeq [ V ]adjoin = σeq ⊕Eqns Pointed V` is the theory of
 -- `Free.Constants`: `σeq` together with a nullary operation for each
--- `v : V` and no new equations.  In a presheaf model of `σeq [ V ]` the
+-- `v : V` and no new equations.  In a presheaf model of `σeq [ V ]adjoin` the
 -- fibrewise algebra at `c` carries a map `V → P ⟅ c ⟆`, and `restr`
--- being a `σeq [ V ]`-homomorphism says exactly that those maps commute
+-- being a `σeq [ V ]adjoin`-homomorphism says exactly that those maps commute
 -- with restriction -- i.e. that they assemble into a strict presheaf
 -- morphism out of the CONSTANT presheaf on `V`.
 module _ {C : Category ℓC ℓC'} {σ : AlgTheorySig ℓ ℓv}
@@ -100,7 +100,7 @@ module _ {C : Category ℓC ℓC'} {σ : AlgTheorySig ℓ ℓv}
 
   private
     τ : AlgTheoryEqns (σ ⊕Sig PointedSig ⟨ V ⟩) (ℓ-max ℓ'' ℓ-zero) ℓv
-    τ = σeq [ ⟨ V ⟩ ]
+    τ = σeq [ ⟨ V ⟩ ]adjoin
 
     ΔV : Presheaf C ℓv
     ΔV = ΔPsh V
@@ -130,7 +130,7 @@ module _ {C : Category ℓC ℓC'} {σ : AlgTheorySig ℓ ℓv}
     withPointsPsh B α .restr {c} {c'} f .Homo.op-hom (inr v) x y eq =
       cong (P._⋆_ f) eq ∙ α .N-hom c c' f v v refl
 
-    -- DELIVERABLE 1.  A presheaf model of `σeq [ V ]` is a presheaf model of
+    -- DELIVERABLE 1.  A presheaf model of `σeq [ V ]adjoin` is a presheaf model of
     -- `σeq` equipped with a map out of the constant presheaf on `V`.
     pshAlgConstIso :
       Iso (PshAlg τ P) (PshAlg σeq P × PshHomStrict ΔV P)
@@ -163,7 +163,7 @@ module _ {C : Category ℓC ℓC'} {σ : AlgTheorySig ℓ ℓv}
 
   -- The free model on a CONSTANT presheaf has identity restrictions:
   -- `FreeF ⟪ id ⟫` is `rec var`, which is the identity by uniqueness.
-  freeΔRestrIsId : {c c' : Category.ob C} (f : Category.Hom[_,_] C c c')
+  freeΔRestrIsId : {c c' : Category.ob C} (f : C [ c , c' ])
     (x : Free[V].p[ c' ]) → f Free[V].⋆ x ≡ x
   freeΔRestrIsId f x =
     sym (recUniq σeq trunc (FreeAlg σeq ⟨ V ⟩) _ (λ y → y) (idHomo σeq)
@@ -192,7 +192,7 @@ module _ {C : Category ℓC ℓC'} {σ : AlgTheorySig ℓ ℓv}
     module _ (α : PshHomStrict (FreePshOb[V] .fst) (N .fst))
       (ϕ : PshAlgHomo τ α (FreePshOb[V] .snd) (N .snd)) where
       private
-        -- The `σeq`-part of an arbitrary `σeq [ V ]`-homomorphism.
+        -- The `σeq`-part of an arbitrary `σeq [ V ]adjoin`-homomorphism.
         ϕσ : PshAlgHomo σeq α (FreeΔ .snd) (Nσ .snd)
         ϕσ c .Homo.op-hom op x y eq = Homo.op-hom (ϕ c) (inl op) x y eq
 
@@ -252,7 +252,7 @@ module _ {C : Category ℓC ℓC'} {υ : AlgTheorySig ℓ ℓv}
 
     module Ini = PresheafNotation Ini
 
-  initialRestrIsId : {c c' : Category.ob C} (f : Category.Hom[_,_] C c c')
+  initialRestrIsId : {c c' : Category.ob C} (f : C [ c , c' ])
     (x : Ini.p[ c' ]) → f Ini.⋆ x ≡ x
   initialRestrIsId f x =
     sym (recUniq υeq trunc (FreeAlg υeq _) _ (λ y → y) (idHomo υeq)
@@ -298,7 +298,7 @@ module _ {σ : AlgTheorySig ℓ ℓv} (σeq : AlgTheoryEqns σ ℓ'' ℓv)
   (V : hSet ℓv) where
   private
     τ : AlgTheoryEqns (σ ⊕Sig PointedSig ⟨ V ⟩) (ℓ-max ℓ'' ℓ-zero) ℓv
-    τ = σeq [ ⟨ V ⟩ ]
+    τ = σeq [ ⟨ V ⟩ ]adjoin
 
     ℓF = ℓFree ℓ ℓ'' ℓv
 
@@ -314,10 +314,11 @@ module _ {σ : AlgTheorySig ℓ ℓv} (σeq : AlgTheoryEqns σ ℓ'' ℓv)
     -- underlying family of sets and the same fibrewise algebras; they
     -- differ only in their restriction maps, which agree by
     -- `freeΔRestrIsId`.  So they corepresent the same homs.
-    reIso : (M : Category.ob (PMOD {C = 𝟙} τ ℓF))
-      → Iso (Category.Hom[_,_] (PMOD {C = 𝟙} τ ℓF) Free𝟙 M)
-            (Category.Hom[_,_] (PMOD {C = 𝟙} τ ℓF)
-              (ConstMod τ ⟅ FreeOb[V] σeq ⟨ V ⟩ ⟆) M)
+    private module P = Category (PMOD {C = 𝟙} τ ℓF)
+
+    reIso : (M : P.ob)
+      → Iso P.Hom[ Free𝟙 , M ]
+            P.Hom[ ConstMod τ ⟅ FreeOb[V] σeq ⟨ V ⟩ ⟆ , M ]
     reIso M .Iso.fun ψ .fst .N-ob = ψ .fst .N-ob
     reIso M .Iso.fun ψ .fst .N-hom c c' f x' x eq =
       ψ .fst .N-hom c c' f x' x (freeΔRestrIsId {C = 𝟙} σeq V f x' ∙ eq)

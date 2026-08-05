@@ -71,10 +71,12 @@ module _ (ℓ ℓ'' ℓv : Level) where
   TH : Category _ _
   TH = THEORY ℓ ℓv ℓ'' ℓv ℓF
 
-  thy : (T : Category.ob TH) → AlgTheoryEqns (SetSig.sig (T .fst)) ℓ'' ℓv
+  private module TH = Category TH
+
+  thy : (T : TH.ob) → AlgTheoryEqns (SetSig.sig (T .fst)) ℓ'' ℓv
   thy T = T .snd
 
-  module _ {T U : Category.ob TH} (h : Category.Hom[_,_] TH T U) where
+  module _ {T U : TH.ob} (h : TH.Hom[ T , U ]) where
     ReindexMod : Functor (MOD (thy U) ℓF) (MOD (thy T) ℓF)
     ReindexMod = ∫F (MODReindexᴰ (h .snd))
 
@@ -105,7 +107,7 @@ module _ (ℓ ℓ'' ℓv : Level) where
 
   module _ (V : Type ℓv) where
     private
-      reOb : (T U : Category.ob TH) (h : Category.Hom[_,_] TH T U)
+      reOb : (T U : TH.ob) (h : TH.Hom[ T , U ])
         → Category.ob (MOD (thy U) ℓF) → Category.ob (MOD (thy T) ℓF)
       reOb T U h = Functor.F-ob (ReindexMod {T = T} {U = U} h)
 

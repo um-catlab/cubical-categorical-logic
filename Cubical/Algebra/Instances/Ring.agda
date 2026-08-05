@@ -248,7 +248,7 @@ module CommRingNotation {ℓ} {X : Type ℓX} (B : Alg (CommRingEqns ℓ) X) whe
     where ρ = sel2 x y
 
 -- Models are (commutative) ring structures.
-module _ {ℓ} {X : Type ℓ} (isSetX : isSet X) where
+module _ {ℓ} {X : Type ℓX} (isSetX : isSet X) where
 
   AlgRingStr : Alg (RingEqns ℓ) X → RingStr X
   AlgRingStr B .RingStr.0r = 0r where open RingNotation B

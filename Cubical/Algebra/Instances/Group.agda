@@ -178,7 +178,7 @@ module AbGroupNotation {ℓ} {X : Type ℓX} (B : Alg (AbGroupEqns ℓ) X) where
     where ρ = sel2 x y
 
 -- Models are group structures.
-module _ {ℓ} {X : Type ℓ} (isSetX : isSet X) where
+module _ {ℓ} {X : Type ℓX} (isSetX : isSet X) where
 
   AlgGroupStr : Alg (GroupEqns ℓ) X → GroupStr X
   AlgGroupStr B .GroupStr.1g = ε

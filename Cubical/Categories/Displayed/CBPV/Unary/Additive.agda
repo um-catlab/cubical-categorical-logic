@@ -36,12 +36,6 @@ module _ (C : CBPVCat ℓ ℓ') where
   private
     module C = Categoryᴰ C
 
-  ValueOb : Type ℓ
-  ValueOb = C.ob[ 𝒱 ]
-
-  ComputationOb : Type ℓ
-  ComputationOb = C.ob[ 𝒞 ]
-
   EqTerminalⱽ : (k : Kind) → Type _
   EqTerminalⱽ k = EqPsh.Reprⱽ
     (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, k ]})
@@ -68,6 +62,79 @@ AddCBPVCat ℓ ℓ' =
   × (∀ (A₁ A₂ : ValueOb (C .fst)) → BinCoProductⱽ (C .fst) A₁ A₂)
   × Terminalⱽ (C .fst) 𝒞
   × (∀ (B₁ B₂ : ComputationOb (C .fst)) → BinProductⱽ (C .fst) B₁ B₂)
+
+AddCBPVCatᴰ : ∀ (C : AddCBPVCat ℓ ℓ') ℓᴰ ℓᴰ' → Type _
+AddCBPVCatᴰ C ℓᴰ ℓᴰ' =
+  Σ[ Cᴰ ∈ MultCBPVCatᴰ (C .fst) ℓᴰ ℓᴰ' ]
+    Terminalⱽᴰ (Cᴰ .fst) (C .snd .fst)
+  × (∀ A₁ A₂
+      (A₁ᴰ : Categoryᴰ.ob[_] (Cᴰ .fst) (𝒱 , A₁))
+      (A₂ᴰ : Categoryᴰ.ob[_] (Cᴰ .fst) (𝒱 , A₂))
+      → BinProductⱽᴰ (Cᴰ .fst) (C .snd .snd .fst A₁ A₂) A₁ᴰ A₂ᴰ)
+  × Initialⱽᴰ (Cᴰ .fst) (C .snd .snd .snd .fst)
+  × (∀ A₁ A₂
+      (A₁ᴰ : Categoryᴰ.ob[_] (Cᴰ .fst) (𝒱 , A₁))
+      (A₂ᴰ : Categoryᴰ.ob[_] (Cᴰ .fst) (𝒱 , A₂))
+      → BinCoProductⱽᴰ (Cᴰ .fst) (C .snd .snd .snd .snd .fst A₁ A₂) A₁ᴰ A₂ᴰ)
+  × Terminalⱽᴰ (Cᴰ .fst) (C .snd .snd .snd .snd .snd .fst)
+  × (∀ B₁ B₂
+      (B₁ᴰ : Categoryᴰ.ob[_] (Cᴰ .fst) (𝒞 , B₁))
+      (B₂ᴰ : Categoryᴰ.ob[_] (Cᴰ .fst) (𝒞 , B₂))
+      → BinProductⱽᴰ (Cᴰ .fst) (C .snd .snd .snd .snd .snd .snd B₁ B₂) B₁ᴰ B₂ᴰ)
+
+module AddCBPVCatᴰNotation
+  (C : AddCBPVCat ℓ ℓ') (Cᴰ : AddCBPVCatᴰ C ℓᴰ ℓᴰ') where
+  private
+    Dᴰ = Cᴰ .fst .fst
+
+  open TerminalⱽᴰNotation Dᴰ (C .snd .fst) (Cᴰ .snd .fst) public renaming
+    (vertexᴰ to value-terminal-obᴰ ; !ⱽᴰ to value-terminal-introᴰ ;
+     !ηⱽᴰ to value-terminal-ηᴰ)
+
+  module _ {A₁ A₂}
+    (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
+    (A₂ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₂)) where
+    open BinProductⱽᴰNotation Dᴰ (C .snd .snd .fst A₁ A₂)
+      (Cᴰ .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ) public renaming
+      (vertexᴰ to value-product-obᴰ ; πᴰ₁ to value-πᴰ₁ ; πᴰ₂ to value-πᴰ₂ ;
+       _,ⱽᴰ_ to value-pairᴰ ; ×βⱽᴰ₁ to value-×βᴰ₁ ;
+       ×βⱽᴰ₂ to value-×βᴰ₂ ; ×ηⱽᴰ to value-×ηᴰ ;
+       ×βⱽᴰ₁-on to value-×βᴰ₁-on ; ×βⱽᴰ₂-on to value-×βᴰ₂-on ;
+       ×ηⱽᴰ-on to value-×ηᴰ-on)
+
+  open InitialⱽᴰNotation Dᴰ (C .snd .snd .snd .fst)
+    (Cᴰ .snd .snd .snd .fst) public renaming
+    (vertexᴰ to value-initial-obᴰ ; ¡ⱽᴰ to value-initial-elimᴰ ;
+     ¡ηⱽᴰ to value-initial-ηᴰ)
+
+  module _ {A₁ A₂}
+    (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
+    (A₂ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₂)) where
+    open BinCoProductⱽᴰNotation Dᴰ (C .snd .snd .snd .snd .fst A₁ A₂)
+      (Cᴰ .snd .snd .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ) public renaming
+      (vertexᴰ to value-coproduct-obᴰ ; σᴰ₁ to value-σᴰ₁ ; σᴰ₂ to value-σᴰ₂ ;
+       [_,ⱽᴰ_] to value-copairᴰ ; +βⱽᴰ₁ to value-+βᴰ₁ ;
+       +βⱽᴰ₂ to value-+βᴰ₂ ; +ηⱽᴰ to value-+ηᴰ ;
+       +βⱽᴰ₁-on to value-+βᴰ₁-on ; +βⱽᴰ₂-on to value-+βᴰ₂-on ;
+       +ηⱽᴰ-on to value-+ηᴰ-on)
+
+  open TerminalⱽᴰNotation Dᴰ (C .snd .snd .snd .snd .snd .fst)
+    (Cᴰ .snd .snd .snd .snd .snd .fst) public renaming
+    (vertexᴰ to computation-terminal-obᴰ ; !ⱽᴰ to computation-terminal-introᴰ ;
+     !ηⱽᴰ to computation-terminal-ηᴰ)
+
+  module _ {B₁ B₂}
+    (B₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒞 , B₁))
+    (B₂ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒞 , B₂)) where
+    open BinProductⱽᴰNotation Dᴰ (C .snd .snd .snd .snd .snd .snd B₁ B₂)
+      (Cᴰ .snd .snd .snd .snd .snd .snd B₁ B₂ B₁ᴰ B₂ᴰ) public renaming
+      (vertexᴰ to computation-product-obᴰ ; πᴰ₁ to computation-πᴰ₁ ;
+       πᴰ₂ to computation-πᴰ₂ ; _,ⱽᴰ_ to computation-pairᴰ ;
+       ×βⱽᴰ₁ to computation-×βᴰ₁ ; ×βⱽᴰ₂ to computation-×βᴰ₂ ;
+       ×ηⱽᴰ to computation-×ηᴰ ;
+       ×βⱽᴰ₁-on to computation-×βᴰ₁-on ;
+       ×βⱽᴰ₂-on to computation-×βᴰ₂-on ;
+       ×ηⱽᴰ-on to computation-×ηᴰ-on)
 
 AddCBPVCatEq : ∀ ℓ ℓ' → Type (ℓ-suc (ℓ-max ℓ ℓ'))
 AddCBPVCatEq ℓ ℓ' =
@@ -157,6 +224,97 @@ AddCBPVCatⱽ C ℓᴰ ℓᴰ' =
   × ComputationTerminalsⱽ (Cⱽ .fst)
   × ComputationBinProductsⱽ (Cⱽ .fst)
   × hasVerticalCartesianLiftsAt (Cⱽ .fst) 𝒞
+
+AddCBPVCatⱽ→ᴰ : {C : AddCBPVCat ℓ ℓ'}
+  → AddCBPVCatⱽ (C .fst .fst) ℓᴰ ℓᴰ'
+  → AddCBPVCatᴰ C ℓᴰ ℓᴰ'
+AddCBPVCatⱽ→ᴰ Cⱽ .fst = MultCBPVCatⱽ→ᴰ (Cⱽ .fst)
+AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .fst =
+  Terminalⱽ→ⱽᴰ D value-terminal
+    (Cⱽ .snd .fst (value-terminal .fst))
+  where
+  D = Cⱽ .fst .fst
+  value-terminal = C .snd .fst
+AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
+  BinProductⱽ+π*→ⱽᴰ D bp A₁ᴰ A₂ᴰ π₁*A₁ᴰ π₂*A₂ᴰ
+    (Cⱽ .snd .snd .fst (π₁*A₁ᴰ .fst) (π₂*A₂ᴰ .fst))
+  where
+  D = Cⱽ .fst .fst
+  bp = C .snd .snd .fst A₁ A₂
+  module bp = BinProductⱽNotation (C .fst .fst) bp
+  π₁*A₁ᴰ = Cⱽ .snd .snd .snd .fst bp.π₁ A₁ᴰ
+  π₂*A₂ᴰ = Cⱽ .snd .snd .snd .fst bp.π₂ A₂ᴰ
+AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .fst =
+  Terminalⱽ→ⱽᴰ (D ^opᴰᴰ) value-initial
+    value-initialⱽ
+  where
+  D = Cⱽ .fst .fst
+  value-initial = C .snd .snd .snd .fst
+  value-initial' = Cⱽ .snd .snd .snd .snd .fst (value-initial .fst)
+  value-initialⱽ : Terminalⱽ (D ^opᴰᴰ) (𝒱 , value-initial .fst)
+  value-initialⱽ .fst = value-initial' .fst
+  value-initialⱽ .snd =
+    pshiso
+      (pshhom
+        (λ x → value-initial' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ _ _ _ _ → refl))
+      (value-initial' .snd .PshIso.nIso)
+AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .fst
+  A₁ A₂ A₁ᴰ A₂ᴰ =
+  BinProductⱽ+π*→ⱽᴰ (D ^opᴰᴰ) bcp A₁ᴰ A₂ᴰ σ₁!A₁ᴰ σ₂!A₂ᴰ
+    bcpⱽ
+  where
+  D = Cⱽ .fst .fst
+  bcp = C .snd .snd .snd .snd .fst A₁ A₂
+  module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
+  σ₁!A₁ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ
+  σ₂!A₂ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ
+  σ₁!A₁ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₁) A₁ᴰ
+  σ₁!A₁ᴰ .fst = σ₁!A₁ᴰ' .fst
+  σ₁!A₁ᴰ .snd =
+    pshiso
+      (pshhom
+        (λ x → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y f p → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
+      (σ₁!A₁ᴰ' .snd .PshIso.nIso)
+  σ₂!A₂ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₂) A₂ᴰ
+  σ₂!A₂ᴰ .fst = σ₂!A₂ᴰ' .fst
+  σ₂!A₂ᴰ .snd =
+    pshiso
+      (pshhom
+        (λ x → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y f p → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
+      (σ₂!A₂ᴰ' .snd .PshIso.nIso)
+  bcpⱽ' = Cⱽ .snd .snd .snd .snd .snd .fst
+    (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
+  bcpⱽ : BinProductⱽ (D ^opᴰᴰ) (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
+  bcpⱽ .fst = bcpⱽ' .fst
+  bcpⱽ .snd =
+    pshiso
+      (pshhom
+        (λ x → bcpⱽ' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y f p → bcpⱽ' .snd .PshIso.trans .PshHom.N-hom x y f p))
+      (bcpⱽ' .snd .PshIso.nIso)
+AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .fst =
+  Terminalⱽ→ⱽᴰ D computation-terminal
+    (Cⱽ .snd .snd .snd .snd .snd .snd .snd .fst
+      (computation-terminal .fst))
+  where
+  D = Cⱽ .fst .fst
+  computation-terminal = C .snd .snd .snd .snd .snd .fst
+AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .snd
+  B₁ B₂ B₁ᴰ B₂ᴰ =
+  BinProductⱽ+π*→ⱽᴰ D bp B₁ᴰ B₂ᴰ π₁*B₁ᴰ π₂*B₂ᴰ
+    (Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst
+      (π₁*B₁ᴰ .fst) (π₂*B₂ᴰ .fst))
+  where
+  D = Cⱽ .fst .fst
+  bp = C .snd .snd .snd .snd .snd .snd B₁ B₂
+  module bp = BinProductⱽNotation (C .fst .fst) bp
+  π₁*B₁ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
+    bp.π₁ B₁ᴰ
+  π₂*B₂ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
+    bp.π₂ B₂ᴰ
 
 module _
   {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}

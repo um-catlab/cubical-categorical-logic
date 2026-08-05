@@ -5,6 +5,11 @@ module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Additive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.HLevels.More
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Function
+open import Cubical.Foundations.More
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.Prop
@@ -22,7 +27,9 @@ open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
@@ -39,6 +46,9 @@ private
 open Category
 open Categoryᴰ
 open UniversalElement
+open PshHom
+open isIsoOver
+open Section
 
 module CBPV (BaseTy : Kind → Type ℓ) where
   data Ob : Kind → Type ℓ where
@@ -264,18 +274,196 @@ module CBPV (BaseTy : Kind → Type ℓ) where
       , value-initialⱽ , value-coproductⱽ
       , computation-terminalⱽ , computation-productⱽ
 
--- Checkpoint for the subsequent displayed eliminator.  It must be supplied
--- with displayed universal elements over, respectively:
---
---   * D.snd.fst                         value terminal
---   * D.snd.snd.fst                    value binary products
---   * D.snd.snd.snd.fst                value initial
---   * D.snd.snd.snd.snd.fst            value binary coproducts
---   * D.snd.snd.snd.snd.snd.fst        computation terminal
---   * D.snd.snd.snd.snd.snd.snd        computation binary products
---
--- Each chosen displayed universal element must be stable under reindexing.
--- For coproduct elimination this stability is needed over both arrows out of
--- 𝒱; for computation-product introduction it is needed for sources in both
--- fibers.  No displayed-additive record is postulated here: its representation
--- and the formulation of these stability paths remain the user-owned API.
+    module Elim (D : AddCBPVCatᴰ AddCBPV ℓ ℓ') where
+      private
+        Dᴰ = D .fst .fst
+        module Dᴰ = Fibers Dᴰ
+        module Dᴰop = Fibers (Dᴰ ^opᴰᴰ)
+
+      module _ (ı-Ob : ∀ {k} (X : BaseTy k) → Dᴰ.ob[ k , gen X ]) where
+        elim-F-obᴰ : ∀ {k} (X : Ob k) → Dᴰ.ob[ k , X ]
+        elim-F-obᴰ (gen X) = ı-Ob X
+        elim-F-obᴰ ([F] A) = D .fst .snd .snd (elim-F-obᴰ A) .fst
+        elim-F-obᴰ ([U] B) = D .fst .snd .fst (elim-F-obᴰ B) .fst
+        elim-F-obᴰ [1] = D .snd .fst .fst
+        elim-F-obᴰ (A₁ [×] A₂) =
+          D .snd .snd .fst A₁ A₂ (elim-F-obᴰ A₁) (elim-F-obᴰ A₂) .fst
+        elim-F-obᴰ [0] = D .snd .snd .snd .fst .fst
+        elim-F-obᴰ (A₁ [+] A₂) =
+          D .snd .snd .snd .snd .fst A₁ A₂ (elim-F-obᴰ A₁) (elim-F-obᴰ A₂) .fst
+        elim-F-obᴰ [⊤] = D .snd .snd .snd .snd .snd .fst .fst
+        elim-F-obᴰ (B₁ [&] B₂) =
+          D .snd .snd .snd .snd .snd .snd B₁ B₂ (elim-F-obᴰ B₁) (elim-F-obᴰ B₂) .fst
+
+        private
+          module DA = AddCBPVCatᴰNotation AddCBPV D
+
+          value-π₁≡[×π1] : ∀ {A₁ A₂} →
+            BinProductⱽNotation.π₁ CBPV (value-productⱽ A₁ A₂) ≡ [×π1]
+          value-π₁≡[×π1] = C.rectifyOut {e' = refl}
+            (C.reind-filler⁻ (Category.⋆IdR KIND _) ∙ C.≡in {pth = refl} (IdLS [×π1]))
+
+          value-π₂≡[×π2] : ∀ {A₁ A₂} →
+            BinProductⱽNotation.π₂ CBPV (value-productⱽ A₁ A₂) ≡ [×π2]
+          value-π₂≡[×π2] = C.rectifyOut {e' = refl}
+            (C.reind-filler⁻ (Category.⋆IdR KIND _) ∙ C.≡in {pth = refl} (IdLS [×π2]))
+
+          value-σ₁≡[+I1] : ∀ {A₁ A₂} →
+            BinProductⱽNotation.π₁ (CBPV ^opᴰ) (value-coproductⱽ A₁ A₂) ≡ [+I1]
+          value-σ₁≡[+I1] = Cop.rectifyOut {e' = refl}
+            (Cop.reind-filler⁻ (Category.⋆IdR (KIND ^op) _) ∙ Cop.≡in {pth = refl} (IdRS [+I1]))
+
+          value-σ₂≡[+I2] : ∀ {A₁ A₂} →
+            BinProductⱽNotation.π₂ (CBPV ^opᴰ) (value-coproductⱽ A₁ A₂) ≡ [+I2]
+          value-σ₂≡[+I2] = Cop.rectifyOut {e' = refl}
+            (Cop.reind-filler⁻ (Category.⋆IdR (KIND ^op) _) ∙ Cop.≡in {pth = refl} (IdRS [+I2]))
+
+          computation-π₁≡[&π1] : ∀ {B₁ B₂} →
+            BinProductⱽNotation.π₁ CBPV (computation-productⱽ B₁ B₂) ≡ [&π1]
+          computation-π₁≡[&π1] = C.rectifyOut {e' = refl}
+            (C.reind-filler⁻ (Category.⋆IdR KIND _) ∙ C.≡in {pth = refl} (IdLS [&π1]))
+
+          computation-π₂≡[&π2] : ∀ {B₁ B₂} →
+            BinProductⱽNotation.π₂ CBPV (computation-productⱽ B₁ B₂) ≡ [&π2]
+          computation-π₂≡[&π2] = C.rectifyOut {e' = refl}
+            (C.reind-filler⁻ (Category.⋆IdR KIND _) ∙ C.≡in {pth = refl} (IdLS [&π2]))
+
+        retᴰ : ∀ {A} → Dᴰ.Hom[ ı tt , [ret] ][ elim-F-obᴰ A , elim-F-obᴰ ([F] A) ]
+        retᴰ = Dᴰ.reind
+          (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
+          (D .fst .snd .snd (elim-F-obᴰ _) .snd .fst .PshHom.N-ob _ Dᴰop.idᴰ)
+
+        bindᴰ : ∀ {A B} (M : Tm _ A B)
+          → Dᴰ.Hom[ ı tt , M ][ elim-F-obᴰ A , elim-F-obᴰ B ]
+          → Dᴰ.Hom[ Category.id KIND , [bind] M ][ elim-F-obᴰ ([F] A) , elim-F-obᴰ B ]
+        bindᴰ {A = A} M Mᴰ = D .fst .snd .snd (elim-F-obᴰ A)
+          .snd .snd _ _ .isIsoOver.inv _ Mᴰ
+
+        module _
+          (ı-Fun : ∀ {k₁ k₂ Γ Δ} {k≤ : ≤Kind k₁ k₂} (M : Fun k≤ Γ Δ)
+            → Dᴰ.Hom[ ı k≤ , gen M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ])
+          where
+          elim-F-homᴰ : (M : Tm k≤ Γ Δ)
+            → Dᴰ.Hom[ ı k≤ , M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ]
+          elim-F-homᴰ (gen f) = ı-Fun f
+          elim-F-homᴰ idS = Dᴰ.idᴰ
+          elim-F-homᴰ (seqS M N) = elim-F-homᴰ M Dᴰ.⋆ᴰ elim-F-homᴰ N
+          elim-F-homᴰ (IdLS M i) = Dᴰ.⋆IdLᴰ (elim-F-homᴰ M) i
+          elim-F-homᴰ (IdRS M i) = Dᴰ.⋆IdRᴰ (elim-F-homᴰ M) i
+          elim-F-homᴰ (AssocS L M N i) =
+            Dᴰ.⋆Assocᴰ (elim-F-homᴰ L) (elim-F-homᴰ M) (elim-F-homᴰ N) i
+          elim-F-homᴰ (isSetTm M N p q i j) = isSet→isSetDep
+            (λ _ → Dᴰ.isSetHomᴰ) (elim-F-homᴰ M) (elim-F-homᴰ N)
+            (cong elim-F-homᴰ p) (cong elim-F-homᴰ q) (isSetTm M N p q) i j
+          elim-F-homᴰ [ret] = retᴰ
+          elim-F-homᴰ ([bind] M) = bindᴰ M (elim-F-homᴰ M)
+          elim-F-homᴰ ([Fβ] M i) =
+            Fβᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
+              (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
+              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M) i
+          elim-F-homᴰ ([Fη] K i) =
+            Fηᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
+              (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
+              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K) i
+          elim-F-homᴰ [force] = Dᴰ.reind
+            (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
+            (forceᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst))
+          elim-F-homᴰ ([thunk] M) =
+            thunkᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst) M (elim-F-homᴰ M)
+          elim-F-homᴰ ([Uβ] M i) =
+            Uβᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+              (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
+              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M) i
+          elim-F-homᴰ ([Uη] V i) =
+            Uηᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+              (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
+              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V) i
+          elim-F-homᴰ [1I] = Dᴰ.reind (ΣPathP (refl , refl)) DA.value-terminal-introᴰ
+          elim-F-homᴰ ([1η] V i) =
+            DA.value-terminal-ηᴰ (ΣPathP (refl , refl))
+              (λ i → ı _ , [1η] V i)
+              (elim-F-homᴰ V) i
+          elim-F-homᴰ ([×I] V₁ V₂) = Dᴰ.reind (ΣPathP (refl , refl))
+            (DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂))
+          elim-F-homᴰ [×π1] = Dᴰ.reind
+            (ΣPathP (refl , value-π₁≡[×π1]))
+            (DA.value-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
+          elim-F-homᴰ [×π2] = Dᴰ.reind
+            (ΣPathP (refl , value-π₂≡[×π2]))
+            (DA.value-πᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
+          elim-F-homᴰ ([×β1] V₁ V₂ i) =
+            DA.value-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (ΣPathP (refl , value-π₁≡[×π1]))
+              (λ i → ı _ , [×β1] V₁ V₂ i)
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂) i
+          elim-F-homᴰ ([×β2] V₁ V₂ i) =
+            DA.value-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (ΣPathP (refl , value-π₂≡[×π2]))
+              (λ i → ı _ , [×β2] V₁ V₂ i)
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂) i
+          elim-F-homᴰ ([×η] M i) =
+            DA.value-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              value-π₁≡[×π1] value-π₂≡[×π2]
+              (λ i → ı _ , [×η] M i) (elim-F-homᴰ M) i
+          elim-F-homᴰ [0E] = Dᴰ.reind (ΣPathP (refl , refl)) DA.value-initial-elimᴰ
+          elim-F-homᴰ ([0η] M i) =
+            DA.value-initial-ηᴰ (ΣPathP (refl , refl))
+              (λ i → ı _ , [0η] M i) (elim-F-homᴰ M) i
+          elim-F-homᴰ [+I1] = Dᴰ.reind
+            (ΣPathP (refl , value-σ₁≡[+I1]))
+            (DA.value-σᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
+          elim-F-homᴰ [+I2] = Dᴰ.reind
+            (ΣPathP (refl , value-σ₂≡[+I2]))
+            (DA.value-σᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
+          elim-F-homᴰ ([+E] f g) = Dᴰ.reind (ΣPathP (refl , refl))
+            (DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ f) (elim-F-homᴰ g))
+          elim-F-homᴰ ([+β1] M₁ M₂ i) =
+            DA.value-+βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (ΣPathP (refl , value-σ₁≡[+I1]))
+              (λ i → ı _ , [+β1] M₁ M₂ i)
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+          elim-F-homᴰ ([+β2] M₁ M₂ i) =
+            DA.value-+βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (ΣPathP (refl , value-σ₂≡[+I2]))
+              (λ i → ı _ , [+β2] M₁ M₂ i)
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+          elim-F-homᴰ ([+η] M i) =
+            DA.value-+ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              value-σ₁≡[+I1] value-σ₂≡[+I2]
+              (λ i → ı _ , [+η] M i) (elim-F-homᴰ M) i
+          elim-F-homᴰ [⊤I] = Dᴰ.reind (ΣPathP (refl , refl)) DA.computation-terminal-introᴰ
+          elim-F-homᴰ ([⊤η] M i) =
+            DA.computation-terminal-ηᴰ (ΣPathP (refl , refl))
+              (λ i → ı _ , [⊤η] M i)
+              (elim-F-homᴰ M) i
+          elim-F-homᴰ ([&I] M₁ M₂) = Dᴰ.reind (ΣPathP (refl , refl))
+            (DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂))
+          elim-F-homᴰ [&π1] = Dᴰ.reind
+            (ΣPathP (refl , computation-π₁≡[&π1]))
+            (DA.computation-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
+          elim-F-homᴰ [&π2] = Dᴰ.reind
+            (ΣPathP (refl , computation-π₂≡[&π2]))
+            (DA.computation-πᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
+          elim-F-homᴰ ([&β1] M₁ M₂ i) =
+            DA.computation-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (ΣPathP (refl , computation-π₁≡[&π1]))
+              (λ i → ı _ , [&β1] M₁ M₂ i)
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+          elim-F-homᴰ ([&β2] M₁ M₂ i) =
+            DA.computation-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (ΣPathP (refl , computation-π₂≡[&π2]))
+              (λ i → ı _ , [&β2] M₁ M₂ i)
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+          elim-F-homᴰ ([&η] M i) =
+            DA.computation-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+              computation-π₁≡[&π1] computation-π₂≡[&π2]
+              (λ i → ı _ , [&η] M i) (elim-F-homᴰ M) i
+
+          elim : GlobalSection Dᴰ
+          elim .F-obᴰ d = elim-F-obᴰ (d .snd)
+          elim .F-homᴰ f = elim-F-homᴰ (f .snd)
+          elim .F-idᴰ = refl
+          elim .F-seqᴰ _ _ = refl

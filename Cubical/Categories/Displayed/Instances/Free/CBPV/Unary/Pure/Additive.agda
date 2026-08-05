@@ -1,7 +1,7 @@
 -- Parameterized unary CBPV syntax with finite value (co)products and
 -- finite computation products.
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Additive where
+module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Pure.Additive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -19,6 +19,7 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Functors.More
 open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞; ≤Vertex to ≤Kind)
 open import Cubical.Categories.Limits.Terminal.More
@@ -29,8 +30,10 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Instances.Opposite
+open import Cubical.Categories.Displayed.Instances.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
@@ -41,7 +44,7 @@ open import Cubical.Categories.Displayed.CBPV.Unary.Additive
 
 private
   variable
-    ℓ ℓ' : Level
+    ℓ ℓ' ℓᴰ ℓᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
 
 open Category
 open Categoryᴰ
@@ -274,7 +277,7 @@ module CBPV (BaseTy : Kind → Type ℓ) where
       , value-initialⱽ , value-coproductⱽ
       , computation-terminalⱽ , computation-productⱽ
 
-    module Elim (D : AddCBPVCatᴰ AddCBPV ℓ ℓ') where
+    module Elim (D : AddCBPVCatᴰ AddCBPV ℓᴰ ℓᴰ') where
       private
         Dᴰ = D .fst .fst
         module Dᴰ = Fibers Dᴰ
@@ -467,3 +470,30 @@ module CBPV (BaseTy : Kind → Type ℓ) where
           elim .F-homᴰ f = elim-F-homᴰ (f .snd)
           elim .F-idᴰ = refl
           elim .F-seqᴰ _ _ = refl
+
+    module LocalElim
+      {C : CBPVCat ℓD ℓD'}
+      (F : Functorⱽ (AddCBPV .fst .fst) C)
+      (Cⱽ : AddCBPVCatⱽ C ℓCᴰ ℓCᴰ')
+      where
+      private
+        module Cᴰ = Fibers (Cⱽ .fst .fst)
+
+        reindexed : AddCBPVCatᴰ AddCBPV ℓCᴰ ℓCᴰ'
+        reindexed = AddCBPVCatⱽ→ᴰ (AddCBPVCatⱽReindex Cⱽ F)
+
+      module _
+        (ı-ob : ∀ {k} (X : BaseTy k)
+          → Cᴰ.ob[ k , F .Functorᴰ.F-obᴰ (gen X) ])
+        where
+        local-obᴰ : ∀ Γ → Cᴰ.ob[ k , F .Functorᴰ.F-obᴰ Γ ]
+        local-obᴰ = Elim.elim-F-obᴰ reindexed ı-ob
+
+        localElim :
+          (ı-hom : ∀ {k1 k2 Γ Δ} {k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
+            → Cᴰ.Hom[ _ , F .Functorᴰ.F-homᴰ (gen M) ][
+                local-obᴰ Γ , local-obᴰ Δ ])
+          → Section (∫F F) (Cⱽ .fst .fst)
+        localElim ı-hom =
+          GlobalSectionReindex→Section (Cⱽ .fst .fst) (∫F F)
+            (Elim.elim reindexed ı-ob ı-hom)

@@ -30,7 +30,7 @@ open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Vertical
-open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.BoolState
+open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.BoolState.Multiplicative
 
 open Category
 open Functor

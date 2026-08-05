@@ -49,7 +49,7 @@ open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.StructureOver.Base
 open import Cubical.Categories.Displayed.Instances.TotalCategory
-open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Base
+open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Pure.Base
 open import Cubical.Categories.Displayed.Instances.Weaken
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base

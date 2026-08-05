@@ -25,27 +25,24 @@ module _ {σ : AlgTheorySig ℓ ℓ'} (σeq : AlgTheoryEqns σ ℓ'' ℓv) where
   FreeAlg V .Alg.⟨_⟩⟦_⟧op = node
   FreeAlg V .Alg.⟦_⟧eqn = eqn
 
--- The universal property is NOT available here: `rec` is not definable
--- by pattern matching.  The `eqn` clause needs the fusion lemma
+-- The algebra structure is immediate -- `node` and `eqn` are literally
+-- the two fields -- but there is no recursor, and hence no universal
+-- property and no initiality.
+--
+-- `rec` into an algebra `B` is not definable by pattern matching: its
+-- `eqn` clause needs the fusion lemma
 --
 --   rec (TmRec node ρ M) ≡ Alg.⟦ rec ∘ ρ ⟧Tm B M
 --
--- whose `node` case calls `rec` on `TmRec node ρ (ts a)`, not a subterm
--- of `eqn e ρ i`.  Generalising the lemma over an arbitrary `h` with
--- `rec`'s `node` computation rule does not help either: passing `rec ρ`
--- as an argument is still a call of unknown size.  Both are rejected by
--- the termination checker.
+-- whose `node` case calls `rec` at `TmRec node ρ (ts a)`, which is not a
+-- subterm of `eqn e ρ i`.  Generalising over an arbitrary `h` satisfying
+-- `rec`'s `node` computation rule only relocates the problem: passing
+-- `rec ρ` as an argument is still a call of unknown size.  The
+-- termination checker rejects both.
 --
--- So the two presentations trade off exactly against each other:
+-- Only the prop-valued eliminator survives, since a prop-valued motive
+-- discharges the `eqn` case outright.
 --
---   node as constructor  -- algebra structure free, eliminator blocked
---   [_] : Tm σ V → _     -- eliminator free, algebra structure needs
---                           choice to lift `arities op → Tm σ V / ~`
---
--- For finitary arities the second is the one that works, which is what
--- `Free/Signature` does with `Vec` arities.  For infinitary ones the
--- first needs a postulated QIIT with rewrite rules.
---
--- Neither horn is forced, though: `Cubical.Algebra.Theory.Free.Explicit`
--- carries the term in the constructor, which makes the recursion
--- structural and needs neither choice nor a quotient.
+-- `Cubical.Algebra.Theory.Free.Explicit` carries the substituted term in
+-- the constructor, which makes that recursion structural; it is the
+-- presentation everything downstream is built on.

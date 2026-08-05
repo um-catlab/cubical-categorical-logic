@@ -50,35 +50,40 @@ module _ {V : Type ℓv} {X : Type ℓX} where
   mkPoints ρ .Alg.⟨_⟩⟦_⟧op v _ = ρ v
   mkPoints ρ .Alg.⟦_⟧eqn ()
 
+-- Adjoining constants.  `T [ X ]` is `T` with a constant adjoined for
+-- every element of `X`: the coproduct of `T` with the pointed theory
+-- on `X`.
+infixl 30 _[_]
+_[_] : {σ : AlgTheorySig ℓ ℓv} (σeq : AlgTheoryEqns σ ℓ'' ℓv)
+  (V : Type ℓv) → AlgTheoryEqns (σ ⊕Sig PointedSig V) (ℓ-max ℓ'' ℓ-zero) ℓv
+σeq [ V ] = σeq ⊕Eqns Pointed V
+
 module _ {σ : AlgTheorySig ℓ ℓv} (σeq : AlgTheoryEqns σ ℓ'' ℓv)
   (V : Type ℓv) where
-
-  σ[V] : AlgTheoryEqns (σ ⊕Sig PointedSig V) (ℓ-max ℓ'' ℓ-zero) ℓv
-  σ[V] = σeq ⊕Eqns Pointed V
 
   private
     ℓF = ℓFree ℓ ℓ'' ℓv
 
   module _ (X : hSet ℓX) where
-    modelIso : Iso (Alg σ[V] ⟨ X ⟩) (Alg σeq ⟨ X ⟩ × Alg (Pointed V) ⟨ X ⟩)
+    modelIso : Iso (Alg (σeq [ V ]) ⟨ X ⟩) (Alg σeq ⟨ X ⟩ × Alg (Pointed V) ⟨ X ⟩)
     modelIso = ⊕AlgIso σeq (Pointed V) X
 
-    withPoints : Alg σeq ⟨ X ⟩ → (V → ⟨ X ⟩) → Alg σ[V] ⟨ X ⟩
+    withPoints : Alg σeq ⟨ X ⟩ → (V → ⟨ X ⟩) → Alg (σeq [ V ]) ⟨ X ⟩
     withPoints B ρ = Iso.inv modelIso (B , mkPoints ρ)
 
-    forgetPoints : Alg σ[V] ⟨ X ⟩ → Alg σeq ⟨ X ⟩
+    forgetPoints : Alg (σeq [ V ]) ⟨ X ⟩ → Alg σeq ⟨ X ⟩
     forgetPoints N = Iso.fun modelIso N .fst
 
-    pointsAt : Alg σ[V] ⟨ X ⟩ → V → ⟨ X ⟩
+    pointsAt : Alg (σeq [ V ]) ⟨ X ⟩ → V → ⟨ X ⟩
     pointsAt N = pointsOf (Iso.fun modelIso N .snd)
 
-  FreeAlg[V] : Alg σ[V] (FreeModel σeq V)
+  FreeAlg[V] : Alg (σeq [ V ]) (FreeModel σeq V)
   FreeAlg[V] = withPoints (FreeModel σeq V , trunc) (FreeAlg σeq V) var
 
-  FreeOb[V] : Category.ob (MOD σ[V] ℓF)
+  FreeOb[V] : Category.ob (MOD (σeq [ V ]) ℓF)
   FreeOb[V] = (FreeModel σeq V , trunc) , FreeAlg[V]
 
-  module _ (N : Category.ob (MOD σ[V] ℓF)) where
+  module _ (N : Category.ob (MOD (σeq [ V ]) ℓF)) where
     private
       Xh = N .fst
       isSetX = N .fst .snd
@@ -86,11 +91,11 @@ module _ {σ : AlgTheorySig ℓ ℓv} (σeq : AlgTheoryEqns σ ℓ'' ℓv)
       Nρ = pointsAt Xh (N .snd)
 
     restHomo : {f : FreeModel σeq V → ⟨ Xh ⟩}
-      → Homo σ[V] f FreeAlg[V] (N .snd) → Homo σeq f (FreeAlg σeq V) Nσ
+      → Homo (σeq [ V ]) f FreeAlg[V] (N .snd) → Homo σeq f (FreeAlg σeq V) Nσ
     restHomo ϕ .Homo.op-hom op x y eq = Homo.op-hom ϕ (inl op) x y eq
 
     genβ : {f : FreeModel σeq V → ⟨ Xh ⟩}
-      → Homo σ[V] f FreeAlg[V] (N .snd) → ∀ v → f (var v) ≡ Nρ v
+      → Homo (σeq [ V ]) f FreeAlg[V] (N .snd) → ∀ v → f (var v) ≡ Nρ v
     genβ ϕ v =
       Homo.op-hom ϕ (inr v) (λ ()) (var v) refl
       ∙ cong (Alg.⟨_⟩⟦_⟧op (N .snd) (inr v)) (funExt (λ ()))
@@ -98,21 +103,21 @@ module _ {σ : AlgTheorySig ℓ ℓv} (σeq : AlgTheoryEqns σ ℓ'' ℓv)
     recC : FreeModel σeq V → ⟨ Xh ⟩
     recC = rec σeq isSetX Nσ Nρ
 
-    recHomoC : Homo σ[V] recC FreeAlg[V] (N .snd)
+    recHomoC : Homo (σeq [ V ]) recC FreeAlg[V] (N .snd)
     recHomoC .Homo.op-hom (inl op) x y eq =
       Homo.op-hom (recHomo σeq isSetX Nσ Nρ) op x y eq
     recHomoC .Homo.op-hom (inr v) x y eq =
       cong recC eq ∙ cong (Alg.⟨_⟩⟦_⟧op (N .snd) (inr v)) (funExt (λ ()))
 
-    isContrHom[V] : isContr (ModHom σ[V] ℓF FreeOb[V] N)
+    isContrHom[V] : isContr (ModHom (σeq [ V ]) ℓF FreeOb[V] N)
     isContrHom[V] .fst = recC , recHomoC
     isContrHom[V] .snd (f , ϕ) =
-      Σ≡Prop (λ _ → isPropHomo σ[V] isSetX)
+      Σ≡Prop (λ _ → isPropHomo (σeq [ V ]) isSetX)
         (funExt (λ x →
           sym (recUniq σeq isSetX Nσ Nρ f (restHomo ϕ) (genβ ϕ) x)))
 
-  isInitialFreeOb[V] : isInitial (MOD σ[V] ℓF) FreeOb[V]
+  isInitialFreeOb[V] : isInitial (MOD (σeq [ V ]) ℓF) FreeOb[V]
   isInitialFreeOb[V] = isContrHom[V]
 
-  InitialMOD[V] : Initial (MOD σ[V] ℓF)
+  InitialMOD[V] : Initial (MOD (σeq [ V ]) ℓF)
   InitialMOD[V] = FreeOb[V] , isInitialFreeOb[V]

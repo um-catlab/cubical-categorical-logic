@@ -111,7 +111,7 @@ module _ {ℓ : Level} (V : Type ℓ) where
   -- together with a chosen element for each variable: the coproduct of
   -- the theory of commutative rings with `V`-many constants.
   CommRing[V] : AlgTheoryEqns (RingSig ℓ ⊕Sig PointedSig V) ℓ ℓ
-  CommRing[V] = σ[V] (CommRingEqns ℓ) V
+  CommRing[V] = CommRingEqns ℓ [ V ]
 
   PolyOb[V] : Category.ob (MOD CommRing[V] (ℓ-suc ℓ))
   PolyOb[V] = FreeOb[V] (CommRingEqns ℓ) V
@@ -272,16 +272,16 @@ module _ (R : CommRing ℓ) where
     varR : V → R[V]
     varR = gen CommAlgebra[R] V
 
-    R[V]Ob : Category.ob (MOD (σ[V] CommAlgebra[R] V) (ℓ-suc ℓ))
+    R[V]Ob : Category.ob (MOD (CommAlgebra[R] [ V ]) (ℓ-suc ℓ))
     R[V]Ob = FreeOb[V] CommAlgebra[R] V
 
     -- R[V] is the initial commutative R-algebra equipped with V-many
     -- chosen elements
     isInitialR[V]
-      : isInitial (MOD (σ[V] CommAlgebra[R] V) (ℓ-suc ℓ)) R[V]Ob
+      : isInitial (MOD (CommAlgebra[R] [ V ]) (ℓ-suc ℓ)) R[V]Ob
     isInitialR[V] = isInitialFreeOb[V] CommAlgebra[R] V
 
-    InitialR[V] : Initial (MOD (σ[V] CommAlgebra[R] V) (ℓ-suc ℓ))
+    InitialR[V] : Initial (MOD (CommAlgebra[R] [ V ]) (ℓ-suc ℓ))
     InitialR[V] = InitialMOD[V] CommAlgebra[R] V
 
   -- Every model of `CommAlgebra[R]` really is a commutative R-algebra:
@@ -294,7 +294,7 @@ module _ (R : CommRing ℓ) where
     -- the underlying commutative ring, forgetting the constants
     baseAlg : Alg (CommRingEqns ℓ) ⟨ X ⟩
     baseAlg = forgetPoints (CommRingEqns ℓ) ⟨ R ⟩ X
-      (Alg∪ (σ[V] (CommRingEqns ℓ) ⟨ R ⟩) (RelEqns Table) N)
+      (Alg∪ (CommRingEqns ℓ [ ⟨ R ⟩ ]) (RelEqns Table) N)
 
     open CommRingNotation baseAlg
 

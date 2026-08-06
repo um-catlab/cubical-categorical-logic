@@ -105,12 +105,12 @@ module _
                 , lower (⊎Path.encode _ _ (cong snd e))))
               r)
             i)
-      forward (inr ((_ , _) , e , _)) = 
+      forward (inr ((_ , _) , e , _)) =
         Empty.rec (lower (⊎Path.encode _ _ (cong fst e)))
     identityExtension (A + B) (inr x) (inr y) = forward
       where
       forward : ⟨ LR .F-obᴰ (embedClosed (A + B)) (inr x , inr y) ⟩ → _
-      forward (inl ((_ , _) , e , _)) = 
+      forward (inl ((_ , _) , e , _)) =
         Empty.rec (lower (⊎Path.encode _ _ (cong fst e)))
       forward (inr ((a , b) , e , r)) i =
         inr

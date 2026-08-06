@@ -4,6 +4,7 @@ module Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+import Cubical.Data.Empty as Empty
 open import Cubical.Data.Quiver.Base
 
 private variable ℓ ℓ' : Level
@@ -13,6 +14,14 @@ module _ (ob : Type ℓ) where
     ↑_ : ob → BiCCCExpr
     _×_ _+_ _⇒_ : BiCCCExpr → BiCCCExpr → BiCCCExpr
     ⊥ ⊤ : BiCCCExpr
+
+embedClosed : ∀ {O : Type ℓ} → BiCCCExpr Empty.⊥ → BiCCCExpr O
+embedClosed (↑ ())
+embedClosed (A × B) = embedClosed A × embedClosed B
+embedClosed (A + B) = embedClosed A + embedClosed B
+embedClosed (A ⇒ B) = embedClosed A ⇒ embedClosed B
+embedClosed ⊥ = ⊥
+embedClosed ⊤ = ⊤
 
 record +×⇒Quiver ℓ ℓ' : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   field

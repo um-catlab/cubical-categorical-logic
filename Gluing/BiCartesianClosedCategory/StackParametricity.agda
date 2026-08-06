@@ -3,6 +3,7 @@ module Gluing.BiCartesianClosedCategory.StackParametricity where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Data.Bool
+import Cubical.Data.Empty as Empty
 open import Cubical.Data.List hiding ([_])
 open import Cubical.Data.List.Properties
 open import Cubical.Data.Quiver.Base
@@ -165,27 +166,27 @@ StackLogicalRelation =
     HeadFirstInterpretation ReverseStoredInterpretation
     StackRelationGenerators
 
-infix 4 _≈[_]_
-_≈[_]_ : ∀ {A} →
-  HeadFirst .fst .F-ob A .fst →
-  BaseFree A →
-  ReverseStored .fst .F-ob A .fst →
+infix 4 _≈_
+_≈_ : ∀ {A : BiCCCExpr Empty.⊥} →
+  HeadFirst .fst .F-ob (embedClosed A) .fst →
+  ReverseStored .fst .F-ob (embedClosed A) .fst →
   Type
-x ≈[ free ] y =
+_≈_ {A = A} x y =
   PathP
     (λ i →
-      baseFreeInterpretation≡ StackQuiver
+      closedInterpretation≡ StackQuiver
         HeadFirstInterpretation ReverseStoredInterpretation
-        StackRelationGenerators free i)
+        StackRelationGenerators A i)
     x y
 
 stack-representation-independence :
-  ∀ {A B} (freeA : BaseFree A) (freeB : BaseFree B)
-    (client : FREE.C [ A , B ]) →
-  HeadFirst .fst .F-hom client ≈[ freeA ⇒-free freeB ]
+  (A B : BiCCCExpr Empty.⊥)
+    (client : FREE.C [ embedClosed A , embedClosed B ]) →
+  _≈_ {A = A ⇒ B}
+    (HeadFirst .fst .F-hom client)
     (ReverseStored .fst .F-hom client)
-stack-representation-independence freeA freeB client =
+stack-representation-independence A B client =
   funExtDep λ {x} {y} p →
     identityExtensionHom StackQuiver
       HeadFirstInterpretation ReverseStoredInterpretation
-      StackRelationGenerators freeA freeB client x y p
+      StackRelationGenerators A B client x y p

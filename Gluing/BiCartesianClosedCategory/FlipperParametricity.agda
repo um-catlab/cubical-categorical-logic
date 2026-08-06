@@ -4,6 +4,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 
 open import Cubical.Data.Bool
+import Cubical.Data.Empty as Empty
 open import Cubical.Data.Nat hiding (_+_)
 open import Cubical.Data.Sum as Sum renaming (rec to rec⊎)
 open import Cubical.Data.Unit
@@ -133,26 +134,26 @@ module _ where
     logicalRelation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
       InterpBoolData InterpNatData BoolNatRelationGenerators
 
-  infix 4 _≈[_]_
-  _≈[_]_ : ∀ {A} →
-    InterpBool .fst .F-ob A .fst →
-    BaseFree A →
-    InterpNat .fst .F-ob A .fst →
+  infix 4 _≈_
+  _≈_ : ∀ {A : BiCCCExpr Empty.⊥} →
+    InterpBool .fst .F-ob (embedClosed A) .fst →
+    InterpNat .fst .F-ob (embedClosed A) .fst →
     Type
-  x ≈[ free ] y =
+  _≈_ {A = A} x y =
     PathP
       (λ i →
-        baseFreeInterpretation≡ FlipperQuiver
-          InterpBoolData InterpNatData BoolNatRelationGenerators free i)
+        closedInterpretation≡ FlipperQuiver
+          InterpBoolData InterpNatData BoolNatRelationGenerators A i)
       x y
 
   flipper-representation-independence :
-    ∀ {A B} (freeA : BaseFree A) (freeB : BaseFree B)
-      (client : FREE.C [ A , B ]) →
-    InterpBool .fst .F-hom client ≈[ freeA ⇒-free freeB ]
+    (A B : BiCCCExpr Empty.⊥)
+      (client : FREE.C [ embedClosed A , embedClosed B ]) →
+    _≈_ {A = A ⇒ B}
+      (InterpBool .fst .F-hom client)
       (InterpNat .fst .F-hom client)
-  flipper-representation-independence freeA freeB client =
+  flipper-representation-independence A B client =
     funExtDep λ {x} {y} p →
       identityExtensionHom FlipperQuiver
         InterpBoolData InterpNatData BoolNatRelationGenerators
-        freeA freeB client x y p
+        A B client x y p

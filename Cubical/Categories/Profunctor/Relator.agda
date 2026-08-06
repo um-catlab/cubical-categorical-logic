@@ -57,7 +57,10 @@ module RelatorNotation
     module R = Bifunctor R
     -- ⋆IdLᶜᵖ
   Het[_,_] : (x : C.ob) (y : D.ob) → Type _
-  Het[ x , y ] = ⟨ R.Bif-ob x y  ⟩
+  Het[ x , y ] = ⟨ R.Bif-ob x y ⟩
+
+  isSetHet : {x : C.ob} {y : D.ob} → isSet Het[ x , y ]
+  isSetHet {x}{y} = R.Bif-ob x y .snd
 
   _⋆ʳᶜ_ : (h : Het[ x , y ])(g : D [ y , y' ]) → Het[ x , y' ]
   h ⋆ʳᶜ g = R.Bif-homR _ g h

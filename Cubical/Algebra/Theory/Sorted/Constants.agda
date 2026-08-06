@@ -1,9 +1,9 @@
 -- Adjoining constants to a many-sorted theory, and freeness as
 -- initiality.
 --
--- The free model on a sorted set (V , vs) is the initial model of
--- `σeq [ V , vs ]adjoin`, the theory σeq extended by one constant of
--- sort `vs v` for each `v : V`.  Coproduct rather than tensor is the
+-- The free model on an S-indexed family X is the initial model of
+-- `σeq [ X ]adjoin`, the theory σeq extended by one constant of sort s
+-- for each element of `X s`.  Coproduct rather than tensor is the
 -- point: the generators are subject to no interaction with σ's
 -- operations beyond σ's own equations.
 module Cubical.Algebra.Theory.Sorted.Constants where
@@ -26,7 +26,7 @@ open import Cubical.Algebra.Theory.Sorted.Constructions
 
 private
   variable
-    ℓS ℓ ℓ' ℓ'' ℓv ℓX ℓa ℓb : Level
+    ℓS ℓ ℓ' ℓ'' ℓv ℓw ℓX ℓa ℓb : Level
 
 open SortedSig
 open SortedEqns
@@ -45,130 +45,141 @@ private
 
 module _ {S : Type ℓS} where
 
-  -- one constant of sort `vs v` for each `v : V`, and no equations
-  PointedSigˢ : (V : Type ℓv) (vs : V → S) → SortedSig S ℓv ℓ'
-  PointedSigˢ V vs .ops = V
-  PointedSigˢ V vs .arities _ = ⊥*
-  PointedSigˢ V vs .sortOf _ ()
-  PointedSigˢ V vs .resultSort = vs
+  -- A sorted set -- a type V together with a sorting `vs : V → S` --
+  -- and an S-indexed family are the same data: (V , vs) is
+  -- `Σ[ s ∈ S ] X s` with `fst`, and X is the fibres of `vs`.  The
+  -- family form is the one used here because it states directly what
+  -- is being adjoined at each sort: at sort s, constants of type X s.
+  PointedSigᶠ : (X : S → Type ℓw) → SortedSig S (ℓ-max ℓS ℓw) ℓ'
+  PointedSigᶠ X .ops = Σ[ s ∈ S ] X s
+  PointedSigᶠ X .arities _ = ⊥*
+  PointedSigᶠ X .sortOf _ ()
+  PointedSigᶠ X .resultSort = fst
 
-  Pointedˢ : (V : Type ℓv) (vs : V → S)
-    → SortedEqns (PointedSigˢ {ℓ' = ℓ'} V vs) ℓ-zero ℓv
-  Pointedˢ V vs .eqns = ⊥
-  Pointedˢ V vs .eqnSort ()
-  Pointedˢ V vs .vars ()
-  Pointedˢ V vs .varSort ()
-  Pointedˢ V vs .lhs ()
-  Pointedˢ V vs .rhs ()
+  -- no equations, so the variable level is unconstrained and can be
+  -- taken to be whatever the theory being extended uses
+  Pointedᶠ : (X : S → Type ℓw)
+    → SortedEqns (PointedSigᶠ {ℓ' = ℓ'} X) ℓ-zero ℓv
+  Pointedᶠ X .eqns = ⊥
+  Pointedᶠ X .eqnSort ()
+  Pointedᶠ X .vars ()
+  Pointedᶠ X .varSort ()
+  Pointedᶠ X .lhs ()
+  Pointedᶠ X .rhs ()
 
--- Adjoining constants.  `σeq [ V , vs ]adjoin` is σeq with a constant
--- adjoined for every element of the sorted set (V , vs): the coproduct
--- of σeq with the pointed theory on (V , vs).
-infixl 30 _[_,_]adjoin
-_[_,_]adjoin : {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
-  (σeq : SortedEqns σ ℓ'' ℓv) (V : Type ℓv) (vs : V → S)
-  → SortedEqns (σ ⊕Sig PointedSigˢ V vs) ℓ'' ℓv
-σeq [ V , vs ]adjoin = σeq ⊕Eqns Pointedˢ V vs
+-- Adjoining constants.  `σeq [ X ]adjoin` is σeq with a constant of
+-- sort s adjoined for every element of X s: the coproduct of σeq with
+-- the pointed theory on X.  The suffix is needed because `σeq [ X ]`
+-- would clash with the hom notation `C [ c , c' ]`.
+infixl 30 _[_]adjoin
+_[_]adjoin : {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
+  (σeq : SortedEqns σ ℓ'' ℓv) (X : S → Type ℓw)
+  → SortedEqns (σ ⊕Sig PointedSigᶠ X) ℓ'' ℓv
+σeq [ X ]adjoin = σeq ⊕Eqns Pointedᶠ X
 
 -- A model on a fixed carrier family: exactly `MODᴰ σeq ℓX`'s objects
--- over X, spelled out.
+-- over Y, spelled out.
 module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} where
 
-  Sat : (σeq : SortedEqns σ ℓ'' ℓv) (X : S → Type ℓX)
-    → Ops {σ = σ} X → Type _
-  Sat σeq X α = (e : σeq .eqns)
-    (ρ : (v : σeq .vars e) → X (σeq .varSort e v))
-    → TmRec X α ρ (σeq .lhs e) ≡ TmRec X α ρ (σeq .rhs e)
+  Sat : (σeq : SortedEqns σ ℓ'' ℓv) (Y : S → Type ℓX)
+    → Ops {σ = σ} Y → Type _
+  Sat σeq Y α = (e : σeq .eqns)
+    (ρ : (v : σeq .vars e) → Y (σeq .varSort e v))
+    → TmRec Y α ρ (σeq .lhs e) ≡ TmRec Y α ρ (σeq .rhs e)
 
-  Model : (σeq : SortedEqns σ ℓ'' ℓv) (X : S → hSet ℓX) → Type _
-  Model σeq X =
-    Σ[ α ∈ Ops {σ = σ} (λ s → ⟨ X s ⟩) ] Sat σeq (λ s → ⟨ X s ⟩) α
+  Model : (σeq : SortedEqns σ ℓ'' ℓv) (Y : S → hSet ℓX) → Type _
+  Model σeq Y =
+    Σ[ α ∈ Ops {σ = σ} (λ s → ⟨ Y s ⟩) ] Sat σeq (λ s → ⟨ Y s ⟩) α
 
-  isPropSat : (σeq : SortedEqns σ ℓ'' ℓv) (X : S → hSet ℓX)
-    (α : Ops {σ = σ} (λ s → ⟨ X s ⟩))
-    → isProp (Sat σeq (λ s → ⟨ X s ⟩) α)
-  isPropSat σeq X α = isPropΠ2 (λ e ρ → X (σeq .eqnSort e) .snd _ _)
+  isPropSat : (σeq : SortedEqns σ ℓ'' ℓv) (Y : S → hSet ℓX)
+    (α : Ops {σ = σ} (λ s → ⟨ Y s ⟩))
+    → isProp (Sat σeq (λ s → ⟨ Y s ⟩) α)
+  isPropSat σeq Y α = isPropΠ2 (λ e ρ → Y (σeq .eqnSort e) .snd _ _)
 
 -- the points of a pointed algebra, and the pointed algebra on a family
 -- of chosen elements
-module _ {S : Type ℓS} (V : Type ℓv) (vs : V → S) (X : S → Type ℓX)
-  where
+module _ {S : Type ℓS} (X : S → Type ℓw) (Y : S → Type ℓX) where
 
-  pointsOfˢ : Ops {σ = PointedSigˢ {ℓ' = ℓ'} V vs} X → (v : V) → X (vs v)
-  pointsOfˢ α v = α v noArgs
+  pointsOfᶠ : Ops {σ = PointedSigᶠ {ℓ' = ℓ'} X} Y → (s : S) → X s → Y s
+  pointsOfᶠ α s x = α (s , x) noArgs
 
-  mkPointsˢ : ((v : V) → X (vs v)) → Ops {σ = PointedSigˢ {ℓ' = ℓ'} V vs} X
-  mkPointsˢ ρ v _ = ρ v
+  mkPointsᶠ : ((s : S) → X s → Y s) → Ops {σ = PointedSigᶠ {ℓ' = ℓ'} X} Y
+  mkPointsᶠ ρ v _ = ρ (v .fst) (v .snd)
 
--- A model of `σeq [ V , vs ]adjoin` is a model of σeq together with a
--- sorted family of chosen elements.
+-- A model of `σeq [ X ]adjoin` is a model of σeq together with, at
+-- each sort s, a map X s → carrier s.
 module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} (σeq : SortedEqns σ ℓ'' ℓv)
-  (V : Type ℓv) (vs : V → S) where
+  (X : S → Type ℓw) where
 
   private
-    P : SortedSig S ℓv ℓ'
-    P = PointedSigˢ V vs
+    P : SortedSig S (ℓ-max ℓS ℓw) ℓ'
+    P = PointedSigᶠ X
 
-  module _ (X : S → hSet ℓX) where
+  module _ (Y : S → hSet ℓX) where
 
     private
-      ⟨X⟩ : S → Type ℓX
-      ⟨X⟩ s = ⟨ X s ⟩
+      ⟨Y⟩ : S → Type ℓX
+      ⟨Y⟩ s = ⟨ Y s ⟩
 
-    ⊕Ops : Ops {σ = σ} ⟨X⟩ → ((v : V) → ⟨X⟩ (vs v))
-      → Ops {σ = σ ⊕Sig P} ⟨X⟩
+    ⊕Ops : Ops {σ = σ} ⟨Y⟩ → ((s : S) → X s → ⟨Y⟩ s)
+      → Ops {σ = σ ⊕Sig P} ⟨Y⟩
     ⊕Ops β ρ (inl o) = β o
-    ⊕Ops β ρ (inr v) = mkPointsˢ V vs ⟨X⟩ ρ v
+    ⊕Ops β ρ (inr v) = mkPointsᶠ X ⟨Y⟩ ρ v
 
-    ⊕Sat : (β : Ops {σ = σ} ⟨X⟩) (ρ : (v : V) → ⟨X⟩ (vs v))
-      → Sat σeq ⟨X⟩ β → Sat (σeq [ V , vs ]adjoin) ⟨X⟩ (⊕Ops β ρ)
+    ⊕Sat : (β : Ops {σ = σ} ⟨Y⟩) (ρ : (s : S) → X s → ⟨Y⟩ s)
+      → Sat σeq ⟨Y⟩ β → Sat (σeq [ X ]adjoin) ⟨Y⟩ (⊕Ops β ρ)
     ⊕Sat β ρ sat (inl e) ρ' =
-      TmRec-inl σ P ⟨X⟩ (⊕Ops β ρ) ρ' (σeq .lhs e)
+      TmRec-inl σ P ⟨Y⟩ (⊕Ops β ρ) ρ' (σeq .lhs e)
       ∙ sat e ρ'
-      ∙ sym (TmRec-inl σ P ⟨X⟩ (⊕Ops β ρ) ρ' (σeq .rhs e))
+      ∙ sym (TmRec-inl σ P ⟨Y⟩ (⊕Ops β ρ) ρ' (σeq .rhs e))
 
-    modelIso : Iso (Model (σeq [ V , vs ]adjoin) X)
-                   (Model σeq X × ((v : V) → ⟨X⟩ (vs v)))
+    modelIso : Iso (Model (σeq [ X ]adjoin) Y)
+                   (Model σeq Y × ((s : S) → X s → ⟨Y⟩ s))
     modelIso .Iso.fun (α , sat) =
-      ((λ o → α (inl o)) , satl σeq (Pointedˢ V vs) ⟨X⟩ α sat)
-      , pointsOfˢ V vs ⟨X⟩ (resr σ P ⟨X⟩ α)
+      ((λ o → α (inl o)) , satl σeq (Pointedᶠ X) ⟨Y⟩ α sat)
+      , pointsOfᶠ X ⟨Y⟩ (resr σ P ⟨Y⟩ α)
     modelIso .Iso.inv ((β , sat) , ρ) = ⊕Ops β ρ , ⊕Sat β ρ sat
     modelIso .Iso.sec ((β , sat) , ρ) =
-      ΣPathP (Σ≡Prop (isPropSat σeq X) refl , refl)
+      ΣPathP (Σ≡Prop (isPropSat σeq Y) refl , refl)
     modelIso .Iso.ret (α , sat) =
-      Σ≡Prop (isPropSat (σeq [ V , vs ]adjoin) X)
+      Σ≡Prop (isPropSat (σeq [ X ]adjoin) Y)
         (funExt (λ { (inl o) → refl
                    ; (inr v) → funExt (noArgsη (α (inr v))) }))
 
-    withPoints : Model σeq X → ((v : V) → ⟨X⟩ (vs v))
-      → Model (σeq [ V , vs ]adjoin) X
+    withPoints : Model σeq Y → ((s : S) → X s → ⟨Y⟩ s)
+      → Model (σeq [ X ]adjoin) Y
     withPoints M ρ = Iso.inv modelIso (M , ρ)
 
-    forgetPoints : Model (σeq [ V , vs ]adjoin) X → Model σeq X
+    forgetPoints : Model (σeq [ X ]adjoin) Y → Model σeq Y
     forgetPoints N = Iso.fun modelIso N .fst
 
-    pointsAt : Model (σeq [ V , vs ]adjoin) X → (v : V) → ⟨X⟩ (vs v)
+    pointsAt : Model (σeq [ X ]adjoin) Y → (s : S) → X s → ⟨Y⟩ s
     pointsAt N = Iso.fun modelIso N .snd
 
--- The free model on (V , vs), viewed as a model of the extended theory
--- by interpreting each adjoined constant as its generator.
-module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} (σeq : SortedEqns σ ℓ'' ℓv)
-  (V : Type ℓv) (vs : V → S) where
+-- The free model on X, viewed as a model of the extended theory by
+-- interpreting each adjoined constant as its generator.  The free
+-- model is built over the sorted set `Σ[ s ∈ S ] X s`, which lives at
+-- `ℓ-max ℓS ℓw`, so that is the variable level of the theory extended.
+module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
+  (σeq : SortedEqns σ ℓ'' (ℓ-max ℓS ℓw)) (X : S → Type ℓw) where
 
   private
-    ℓF = ℓFree ℓS ℓ ℓ' ℓ'' ℓv
+    V : Type (ℓ-max ℓS ℓw)
+    V = Σ[ s ∈ S ] X s
+
+    ℓF = ℓFree ℓS ℓ ℓ' ℓ'' (ℓ-max ℓS ℓw)
 
     FreeSet : S → hSet ℓF
-    FreeSet s = FreeModel σeq V vs s , trunc
+    FreeSet s = FreeModel σeq V fst s , trunc
 
-  FreeModelˢ[V] : Model (σeq [ V , vs ]adjoin) FreeSet
-  FreeModelˢ[V] =
-    withPoints σeq V vs FreeSet (opF , FreeEqns σeq) gen
+  FreeModelˢ[X] : Model (σeq [ X ]adjoin) FreeSet
+  FreeModelˢ[X] =
+    withPoints σeq X FreeSet (opF , FreeEqns σeq) (λ s x → gen (s , x))
 
-  FreeObˢ[V] : Category.ob (MOD (σeq [ V , vs ]adjoin) ℓF)
-  FreeObˢ[V] = FreeSet , FreeModelˢ[V]
+  FreeObˢ[X] : Category.ob (MOD (σeq [ X ]adjoin) ℓF)
+  FreeObˢ[X] = FreeSet , FreeModelˢ[X]
 
-  module _ (N : Category.ob (MOD (σeq [ V , vs ]adjoin) ℓF)) where
+  module _ (N : Category.ob (MOD (σeq [ X ]adjoin) ℓF)) where
     private
       Y : S → Type ℓF
       Y s = ⟨ N .fst s ⟩
@@ -178,31 +189,33 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} (σeq : SortedEqns σ ℓ''
 
       -- N as a model of σeq together with its chosen points
       α = N .snd .fst
-      β = forgetPoints σeq V vs (N .fst) (N .snd) .fst
-      sat = forgetPoints σeq V vs (N .fst) (N .snd) .snd
-      Nρ = pointsAt σeq V vs (N .fst) (N .snd)
+      β = forgetPoints σeq X (N .fst) (N .snd) .fst
+      sat = forgetPoints σeq X (N .fst) (N .snd) .snd
 
-    recC : (s : S) → FreeModel σeq V vs s → Y s
+      Nρ : (v : V) → Y (v .fst)
+      Nρ v = pointsAt σeq X (N .fst) (N .snd) (v .fst) (v .snd)
+
+    recC : (s : S) → FreeModel σeq V fst s → Y s
     recC _ = rec σeq isSetY β sat Nρ
 
     -- the operations of the extended theory: σ's are handled by `rec`
     -- definitionally, the constants by the η-bridge for `⊥*`
-    recHom : (o : (σ ⊕Sig PointedSigˢ V vs) .ops)
-      (x : (a : (σ ⊕Sig PointedSigˢ V vs) .arities o)
-         → FreeModel σeq V vs
-             ((σ ⊕Sig PointedSigˢ V vs) .sortOf o a))
-      (y : FreeModel σeq V vs
-             ((σ ⊕Sig PointedSigˢ V vs) .resultSort o))
-      → y ≡ FreeModelˢ[V] .fst o x
+    recHom : (o : (σ ⊕Sig PointedSigᶠ X) .ops)
+      (x : (a : (σ ⊕Sig PointedSigᶠ X) .arities o)
+         → FreeModel σeq V fst
+             ((σ ⊕Sig PointedSigᶠ X) .sortOf o a))
+      (y : FreeModel σeq V fst
+             ((σ ⊕Sig PointedSigᶠ X) .resultSort o))
+      → y ≡ FreeModelˢ[X] .fst o x
       → recC _ y ≡ α o (λ a → recC _ (x a))
     recHom (inl o) x y eq = cong (recC _) eq
     recHom (inr v) x y eq =
       cong (recC _) eq ∙ noArgsη (α (inr v)) (λ a → recC _ (x a))
 
-    isContrHomˢ[V] :
-      isContr (ModHom (σeq [ V , vs ]adjoin) ℓF FreeObˢ[V] N)
-    isContrHomˢ[V] .fst = recC , recHom , tt*
-    isContrHomˢ[V] .snd (f , ϕ , _) =
+    isContrHomˢ[X] :
+      isContr (ModHom (σeq [ X ]adjoin) ℓF FreeObˢ[X] N)
+    isContrHomˢ[X] .fst = recC , recHom , tt*
+    isContrHomˢ[X] .snd (f , ϕ , _) =
       Σ≡Prop
         (λ _ → isPropΣ (isPropΠ4 (λ _ _ _ _ → isSetY _ _ _))
                        (λ _ → isPropUnit*))
@@ -213,9 +226,9 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} (σeq : SortedEqns σ ℓ''
                         ∙ sym (noArgsη (α (inr v)) _))
                  x))))
 
-  isInitialFreeObˢ[V] :
-    isInitial (MOD (σeq [ V , vs ]adjoin) ℓF) FreeObˢ[V]
-  isInitialFreeObˢ[V] = isContrHomˢ[V]
+  isInitialFreeObˢ[X] :
+    isInitial (MOD (σeq [ X ]adjoin) ℓF) FreeObˢ[X]
+  isInitialFreeObˢ[X] = isContrHomˢ[X]
 
-  InitialMODˢ[V] : Initial (MOD (σeq [ V , vs ]adjoin) ℓF)
-  InitialMODˢ[V] = FreeObˢ[V] , isInitialFreeObˢ[V]
+  InitialMODˢ[X] : Initial (MOD (σeq [ X ]adjoin) ℓF)
+  InitialMODˢ[X] = FreeObˢ[X] , isInitialFreeObˢ[X]

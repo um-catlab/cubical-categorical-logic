@@ -7,6 +7,14 @@
 -- so nothing new has to be built: binary parametricity is the unary
 -- eliminator instantiated at `M ×Mod N`, reindexed along the pairing of
 -- the two interpretations.
+--
+-- There is deliberately NO record of "a binary logical relation".  A
+-- relation IS a `Modelᴰˢ` over the product, and the two relations one
+-- actually wants arise by reindexing rather than by construction: the
+-- graph of a homomorphism is equality on `N` reindexed along
+-- `⟨ π₁ ⋆ h , π₂ ⟩`, so its closure under the operations is not proved
+-- here at all -- it is `h`'s homomorphism condition, carried across by
+-- `reindexMod`.
 module Cubical.Algebra.Theory.Sorted.Displayed.Relation where
 
 open import Cubical.Foundations.Prelude
@@ -23,12 +31,14 @@ open import Cubical.Categories.Category
 open import Cubical.Algebra.Theory.Sorted
   using (SortedSig; SortedEqns; Tm; Ops; TmRec; MOD; ModHom)
 open import Cubical.Algebra.Theory.Sorted.Product
-  using (prodMod; pairMod)
+  using (prodMod; pairMod; π₁Mod; π₂Mod)
 open import Cubical.Algebra.Theory.Sorted.Displayed.Base
   using (SortedSigᴰ; Tmᴰ; Opsᶠᴰ; TmRecᴰ; Modelᴰˢ; UnitSigᴰ; UnitSection)
 open import Cubical.Algebra.Theory.Sorted.Displayed.Terminal
-  using (reindexMod; 1Mod; isTerminal1Mod)
-open import Cubical.Algebra.Theory.Sorted.Closing
+  using (1Mod; isTerminal1Mod)
+open import Cubical.Algebra.Theory.Sorted.Displayed.Reindex
+  using (reindexMod)
+open import Cubical.Algebra.Theory.Sorted.Free.Closing
   using (FreeModel; FreeOb; gen; UPMod; ℓClosing)
 open import Cubical.Algebra.Theory.Sorted.Displayed.Elim
   using (elim)
@@ -68,96 +78,50 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} (σeq : SortedEqns σ ℓ''
   relOf : Rel ℓR → (s : S) → X s → Y s → hSet ℓR
   relOf R s x y = R .carrierᴰ s tt (x , y)
 
-  -- ----------------------------------------------------------------
-  -- The same data, read as a relation
-  -- ----------------------------------------------------------------
-  --
-  -- `relOps` is the closure condition, forded in BOTH components; it is
-  -- the only field one ever writes by hand.  `relSat` says the relation
-  -- respects the equations; it is `satᴰ` verbatim and is automatic when
-  -- the relation is prop-valued (`propRel` below).
-  record LogicalRelation (ℓR : Level)
-    : Type (ℓ-max (ℓ-max (ℓ-max ℓS ℓ) (ℓ-max ℓ' ℓ''))
-            (ℓ-max ℓv (ℓ-max ℓX (ℓ-suc ℓR)))) where
-    field
-      rel : (s : S) → X s → Y s → hSet ℓR
-
-    relCarrier : (s : S) → Unit → ⟨ Prod .fst s ⟩ → hSet ℓR
-    relCarrier s _ p = rel s (p .fst) (p .snd)
-
-    relTy : (s : S) → Unit → ⟨ Prod .fst s ⟩ → Type ℓR
-    relTy s u p = ⟨ relCarrier s u p ⟩
-
-    field
-      relOps : (o : σ .ops)
-        (x : (a : σ .arities o) → X (σ .sortOf o a))
-        (y : (a : σ .arities o) → Y (σ .sortOf o a))
-        (xy : (a : σ .arities o) → ⟨ rel (σ .sortOf o a) (x a) (y a) ⟩)
-        (u : X (σ .resultSort o)) (v : Y (σ .resultSort o))
-        → u ≡ M .snd .fst o x → v ≡ N .snd .fst o y
-        → ⟨ rel (σ .resultSort o) u v ⟩
-
-    relOpsᶠ : Opsᶠᴰ UnitSigᴰ (λ s → ⟨ Prod .fst s ⟩) (Prod .snd .fst) relTy
-    relOpsᶠ o i x xᴰ y eq =
-      relOps o (λ a → x a .fst) (λ a → x a .snd) xᴰ
-        (y .fst) (y .snd) (cong fst eq) (cong snd eq)
-
-    field
-      relSat : (e : σeq .eqns)
-        (vsᴰ : (v : σeq .vars e) → Unit) (sᴰ : Unit)
-        (L : Tmᴰ UnitSigᴰ vsᴰ sᴰ (σeq .lhs e))
-        (R : Tmᴰ UnitSigᴰ vsᴰ sᴰ (σeq .rhs e))
-        (ρ : (v : σeq .vars e) → ⟨ Prod .fst (σeq .varSort e v) ⟩)
-        (ρᴰ : (v : σeq .vars e)
-            → relTy (σeq .varSort e v) (vsᴰ v) (ρ v))
-        → PathP (λ i → relTy (σeq .eqnSort e) sᴰ (Prod .snd .snd e ρ i))
-            (TmRecᴰ UnitSigᴰ (λ s → ⟨ Prod .fst s ⟩) (Prod .snd .fst)
-              relTy relOpsᶠ ρᴰ L)
-            (TmRecᴰ UnitSigᴰ (λ s → ⟨ Prod .fst s ⟩) (Prod .snd .fst)
-              relTy relOpsᶠ ρᴰ R)
-
-  open LogicalRelation
-
-  -- Currying and `Unit`/`Σ` eta only: BOTH round trips are `refl`.
-  LogicalRelationIso : Iso (LogicalRelation ℓR) (Rel ℓR)
-  LogicalRelationIso .Iso.fun R .carrierᴰ = relCarrier R
-  LogicalRelationIso .Iso.fun R .opsᴰ = relOpsᶠ R
-  LogicalRelationIso .Iso.fun R .satᴰ = relSat R
-  LogicalRelationIso .Iso.inv Rᴰ .rel s x y = Rᴰ .carrierᴰ s tt (x , y)
-  LogicalRelationIso .Iso.inv Rᴰ .relOps o x y xy u v p q =
-    Rᴰ .opsᴰ o tt (λ a → x a , y a) xy (u , v) (ΣPathP (p , q))
-  LogicalRelationIso .Iso.inv Rᴰ .relSat = Rᴰ .satᴰ
-  LogicalRelationIso .Iso.sec _ = refl
-  LogicalRelationIso .Iso.ret _ = refl
-
-  mkRel : LogicalRelation ℓR → Rel ℓR
-  mkRel = LogicalRelationIso .Iso.fun
-
-  -- For a PROP-valued relation the equations are automatic, so all that
-  -- is owed is closure under the operations -- and the fords can be
-  -- discharged by `subst2`, since there is nothing to cohere.
+  -- For a PROP-valued relation the equations are automatic, so all
+  -- that is owed is closure under the operations -- and the fords can
+  -- be discharged by `subst2`, since there is nothing to cohere.
   propRel : (P : (s : S) → X s → Y s → hProp ℓR)
     → ( (o : σ .ops)
         (x : (a : σ .arities o) → X (σ .sortOf o a))
         (y : (a : σ .arities o) → Y (σ .sortOf o a))
       → ((a : σ .arities o) → ⟨ P (σ .sortOf o a) (x a) (y a) ⟩)
       → ⟨ P (σ .resultSort o) (M .snd .fst o x) (N .snd .fst o y) ⟩ )
-    → LogicalRelation ℓR
-  propRel P clos .rel s x y = ⟨ P s x y ⟩ , isProp→isSet (P s x y .snd)
-  propRel P clos .relOps o x y xy u v p q =
-    subst2 (λ a b → ⟨ P (σ .resultSort o) a b ⟩) (sym p) (sym q)
-      (clos o x y xy)
-  propRel P clos .relSat e vsᴰ sᴰ L R ρ ρᴰ =
+    → Rel ℓR
+  propRel P clos .carrierᴰ s _ p =
+    ⟨ P s (p .fst) (p .snd) ⟩
+    , isProp→isSet (P s (p .fst) (p .snd) .snd)
+  propRel P clos .opsᴰ o _ x xᴰ y eq =
+    subst2 (λ u v → ⟨ P (σ .resultSort o) u v ⟩)
+      (sym (cong fst eq)) (sym (cong snd eq))
+      (clos o (λ a → x a .fst) (λ a → x a .snd) xᴰ)
+  propRel P clos .satᴰ e vsᴰ sᴰ L R ρ ρᴰ =
     isProp→PathP (λ i → P (σeq .eqnSort e) _ _ .snd) _ _
 
-  -- The graph of a homomorphism is a logical relation.  This is the
-  -- supply of relations that makes representation independence bite.
+  -- Equality on `N`: the ONE relation in this file written out by
+  -- hand.  It cannot go through `propRel`, which is fixed at the
+  -- ambient `M`, `N`; but it is three lines, and `cong` is all of it.
+  eqRel : Modelᴰˢ σeq (prodMod σeq N N) UnitSigᴰ ℓX
+  eqRel .carrierᴰ s _ p =
+    (p .fst ≡ p .snd) , isProp→isSet (N .fst s .snd _ _)
+  eqRel .opsᴰ o _ x xᴰ y eq =
+    cong fst eq ∙ cong (N .snd .fst o) (funExt xᴰ) ∙ sym (cong snd eq)
+  eqRel .satᴰ e vsᴰ sᴰ L R ρ ρᴰ =
+    isProp→PathP (λ i → N .fst (σeq .eqnSort e) .snd _ _) _ _
+
+  -- The graph of a homomorphism, as a REINDEXING of equality along
+  -- `⟨ π₁ ⋆ h , π₂ ⟩ : M × N → N × N`.  Nothing about the graph is
+  -- proved here.  That it is closed under the operations IS `h`'s
+  -- homomorphism condition, and `reindexMod` is what carries it
+  -- across -- transport-free, because `opsᴰ` is forded.
   graphRel : ModHom σeq ℓX M N → Rel ℓX
-  graphRel h = mkRel (propRel
-    (λ s x y → (h .fst s x ≡ y) , N .fst s .snd _ _)
-    (λ o x y xy →
-      h .snd .fst o x (M .snd .fst o x) refl
-      ∙ cong (N .snd .fst o) (funExt xy)))
+  graphRel h =
+    reindexMod σeq {ℓX = ℓX} UnitSigᴰ {ℓXᴰ = ℓX}
+      (pairMod σeq N N Prod
+        (Category._⋆_ (MOD σeq ℓX) {x = Prod} {y = M} {z = N}
+          (π₁Mod σeq M N) h)
+        (π₂Mod σeq M N))
+      eqRel
 
 -- ------------------------------------------------------------------
 -- THE ABSTRACTION THEOREM

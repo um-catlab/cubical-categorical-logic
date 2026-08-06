@@ -27,6 +27,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.StrictHom.Base
 
 open import Cubical.Algebra.Theory.Sorted
+open import Cubical.Algebra.Theory.Sorted.Free.Bind
 open import Cubical.Algebra.Theory.Sorted.Presheaf.Base
 
 private

@@ -1,14 +1,5 @@
--- The free model of a MANY-SORTED theory, presented with a closing
--- substitution for the equation endpoints only.
---
--- This is the sorted port of `Cubical.Algebra.Theory.Free.Closing`.
--- Contrast `Cubical.Algebra.Theory.Sorted`'s `FreeModel`, whose
--- substitution constructor quantifies over an arbitrary `W : Type ℓv`
--- and therefore lands in a universe `ℓ-suc ℓv`.  Here the only
--- substitutions in the syntax are the ones the equations need, so the
--- variable context is `σeq .vars e` -- determined by `e : eqns` -- and
--- there is no universe bump.
-module Cubical.Algebra.Theory.Sorted.Closing where
+-- The free model of a many-sorted theory
+module Cubical.Algebra.Theory.Sorted.Free.Closing where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -107,9 +98,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
            (ρ : (w : σeq .vars e) → X (σeq .varSort e w))
          → TmRec X α ρ (σeq .lhs e) ≡ TmRec X α ρ (σeq .rhs e)) where
 
-    -- No `TERMINATING` pragma: `clo`'s argument is a `Tm`, so the
-    -- boundary of the two path clauses is a term this very definition
-    -- already computes on structural subterms.
     rec : {V : Type ℓv} {vs : V → S} (ρ : (v : V) → X (vs v))
       {s : S} → FreeModel V vs s → X s
     rec ρ (var v) = ρ v
@@ -126,7 +114,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
       → rec ρ (var v) ≡ ρ v
     recβ ρ v = refl
 
-    -- the forded homomorphism condition of `ALGᴰ`
     recHomo : {V : Type ℓv} {vs : V → S} (ρ : (v : V) → X (vs v))
       (o : σ .ops)
       (x : (a : σ .arities o) → FreeModel V vs (σ .sortOf o a))

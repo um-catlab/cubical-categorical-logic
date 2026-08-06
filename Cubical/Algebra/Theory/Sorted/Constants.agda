@@ -1,11 +1,4 @@
--- Adjoining constants to a many-sorted theory, and freeness as
--- initiality.
---
--- The free model on an S-indexed family X is the initial model of
--- `σeq [ X ]adjoin`, the theory σeq extended by one constant of sort s
--- for each element of `X s`.  Coproduct rather than tensor is the
--- point: the generators are subject to no interaction with σ's
--- operations beyond σ's own equations.
+-- Adjoining constants to a many-sorted theory
 module Cubical.Algebra.Theory.Sorted.Constants where
 
 open import Cubical.Foundations.Prelude
@@ -23,6 +16,7 @@ open import Cubical.Categories.Limits.Initial
 
 open import Cubical.Algebra.Theory.Sorted
 open import Cubical.Algebra.Theory.Sorted.Constructions
+open import Cubical.Algebra.Theory.Sorted.Free.Bind
 
 private
   variable
@@ -31,9 +25,6 @@ private
 open SortedSig
 open SortedEqns
 
--- `⊥*` has no definitional η, so two separately elaborated absurd
--- lambdas are never definitionally equal.  Every argument tuple of a
--- constant is *this* one, and `noArgsη` is the bridge to any other.
 private
   noArgs : {A : ⊥* {ℓ'} → Type ℓa} (a : ⊥* {ℓ'}) → A a
   noArgs ()
@@ -45,11 +36,6 @@ private
 
 module _ {S : Type ℓS} where
 
-  -- A sorted set -- a type V together with a sorting `vs : V → S` --
-  -- and an S-indexed family are the same data: (V , vs) is
-  -- `Σ[ s ∈ S ] X s` with `fst`, and X is the fibres of `vs`.  The
-  -- family form is the one used here because it states directly what
-  -- is being adjoined at each sort: at sort s, constants of type X s.
   PointedSigᶠ : (X : S → Type ℓw) → SortedSig S (ℓ-max ℓS ℓw) ℓ'
   PointedSigᶠ X .ops = Σ[ s ∈ S ] X s
   PointedSigᶠ X .arities _ = ⊥*
@@ -156,10 +142,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} (σeq : SortedEqns σ ℓ''
     pointsAt : Model (σeq [ X ]adjoin) Y → (s : S) → X s → ⟨Y⟩ s
     pointsAt N = Iso.fun modelIso N .snd
 
--- The free model on X, viewed as a model of the extended theory by
--- interpreting each adjoined constant as its generator.  The free
--- model is built over the sorted set `Σ[ s ∈ S ] X s`, which lives at
--- `ℓ-max ℓS ℓw`, so that is the variable level of the theory extended.
 module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
   (σeq : SortedEqns σ ℓ'' (ℓ-max ℓS ℓw)) (X : S → Type ℓw) where
 
@@ -187,7 +169,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
       isSetY : (s : S) → isSet (Y s)
       isSetY s = N .fst s .snd
 
-      -- N as a model of σeq together with its chosen points
       α = N .snd .fst
       β = forgetPoints σeq X (N .fst) (N .snd) .fst
       sat = forgetPoints σeq X (N .fst) (N .snd) .snd
@@ -198,8 +179,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'}
     recC : (s : S) → FreeModel σeq V fst s → Y s
     recC _ = rec σeq isSetY β sat Nρ
 
-    -- the operations of the extended theory: σ's are handled by `rec`
-    -- definitionally, the constants by the η-bridge for `⊥*`
     recHom : (o : (σ ⊕Sig PointedSigᶠ X) .ops)
       (x : (a : (σ ⊕Sig PointedSigᶠ X) .arities o)
          → FreeModel σeq V fst

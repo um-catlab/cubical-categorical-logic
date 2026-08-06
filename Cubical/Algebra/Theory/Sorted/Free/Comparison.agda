@@ -5,7 +5,7 @@
 -- the one one writes first, and it does not work.
 --
 --                      naive           bind-based        closing
---                      (this file)     (Sorted.agda)     (Closing.agda)
+--                      (this file)     (Free/Bind)       (Free/Closing)
 -- ----------------------------------------------------------------------
 --  `node` primitive    yes (`nnode`)   yes (`opF`)       yes (`node`)
 --  subst primitive     no              yes (`⟦_⟧_`)      yes (`clo`)
@@ -35,11 +35,11 @@
 -- free of `ℓv` in all three.
 --
 -- Both working presentations are live, for a practical reason:
---   * `Cubical.Algebra.Theory.Sorted`'s `FreeModel` carries the `MOD`
+--   * `Cubical.Algebra.Theory.Sorted.Free.Bind`'s `FreeModel` carries the `MOD`
 --     tower's `FreeOb`/`UPMod`/`InitialMOD`, and is what
 --     `Sorted/Presheaf/Free.agda` builds its free presheaf of models
 --     on.
---   * `Cubical.Algebra.Theory.Sorted.Closing`'s `FreeModel` is what
+--   * `Cubical.Algebra.Theory.Sorted.Free.Closing`'s `FreeModel` is what
 --     `Sorted/Displayed/Elim.agda` eliminates over: the displayed
 --     eliminator needs the recursor at a carrier level that is not
 --     forced up by `ℓ-suc`.
@@ -87,7 +87,7 @@
 -- Note that `NaiveFree` sits at `ℓClosing`, the *same* level as the
 -- closing presentation.  The universe bump was never the naive
 -- presentation's problem; its problem is purely the recursor.
-module Cubical.Algebra.Theory.Sorted.FreeComparison where
+module Cubical.Algebra.Theory.Sorted.Free.Comparison where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -97,8 +97,8 @@ open import Cubical.Categories.Category using (Category)
 open import Cubical.Algebra.Theory.Sorted
   using (SortedSig; SortedEqns; Tm; Ops; TmRec; MOD; ModHom)
 
-import Cubical.Algebra.Theory.Sorted as Ex
-import Cubical.Algebra.Theory.Sorted.Closing as Clo
+import Cubical.Algebra.Theory.Sorted.Free.Bind as Ex
+import Cubical.Algebra.Theory.Sorted.Free.Closing as Clo
 
 private
   variable

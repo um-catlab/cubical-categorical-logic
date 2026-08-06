@@ -1,15 +1,4 @@
 -- Combining sorted theories.
---
--- `_⊕Sig_`/`_⊕Eqns_` is the coproduct of two theories over the *same*
--- sort set: this is how a structural theory (a category, a CBPV) is
--- combined with an effect theory.
---
--- `atSig`/`atEqns` is the other half: it takes a single-sorted theory
--- and installs a copy of its operations *homogeneously* at each of a
--- chosen family of sorts.  For CBPV the chosen family is the oblique
--- hom sorts, and this is exactly what a `StateAlgEnrichment` is --
--- except that the naturality conditions become equations rather than
--- side conditions, which is the point.
 module Cubical.Algebra.Theory.Sorted.Constructions where
 
 open import Cubical.Foundations.Prelude
@@ -39,8 +28,6 @@ module _ {S : Type ℓS} (σ : SortedSig S ℓ1 ℓ') (τ : SortedSig S ℓ2 ℓ
   _⊕Sig_ .resultSort (inl o) = σ .resultSort o
   _⊕Sig_ .resultSort (inr o) = τ .resultSort o
 
-  -- the two inclusions on terms; sorts are preserved on the nose, so
-  -- there is no transport
   inlTm : {V : Type ℓv} {vs : V → S} {s : S}
     → Tm σ V vs s → Tm _⊕Sig_ V vs s
   inlTm (var v) = var v
@@ -51,7 +38,6 @@ module _ {S : Type ℓS} (σ : SortedSig S ℓ1 ℓ') (τ : SortedSig S ℓ2 ℓ
   inrTm (var v) = var v
   inrTm (node o ts) = node (inr o) (λ a → inrTm (ts a))
 
-  -- an interpretation of the sum restricts to each summand, definitionally
   resl : (X : S → Type ℓX) → Ops {σ = _⊕Sig_} X → Ops {σ = σ} X
   resl X α o = α (inl o)
 
@@ -90,7 +76,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ'} {τ : SortedSig S ℓ2 ℓ
   _⊕Eqns_ .rhs (inl e) = inlTm σ τ (σeq .rhs e)
   _⊕Eqns_ .rhs (inr e) = inrTm σ τ (τeq .rhs e)
 
-  -- a model of the sum restricts to a model of each summand
   satl : (X : S → Type ℓX) (α : Ops {σ = σ ⊕Sig τ} X)
     → ((e : _⊕Eqns_ .eqns) (ρ : (v : _⊕Eqns_ .vars e) → X (_⊕Eqns_ .varSort e v))
        → TmRec X α ρ (_⊕Eqns_ .lhs e) ≡ TmRec X α ρ (_⊕Eqns_ .rhs e))
@@ -111,10 +96,7 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ'} {τ : SortedSig S ℓ2 ℓ
     ∙ sat (inr e) ρ
     ∙ TmRec-inr σ τ X α ρ (τeq .rhs e)
 
--- Installing a single-sorted theory at a chosen family of sorts.  Every
--- argument and the result sit at the *same* sort `at k`, so the
--- operations act on one hom set at a time -- which is precisely what it
--- means for that hom set to carry an algebra.
+-- Installing a single-sorted theory at a chosen family of sorts
 module _ {S : Type ℓS} (K : Type ℓK) (at : K → S)
   (σ0 : SortedSig Unit ℓ ℓ') where
 
@@ -137,8 +119,6 @@ module _ {S : Type ℓS} (K : Type ℓK) (at : K → S)
   atEqns E .lhs (e , k) = atTm k (E .lhs e)
   atEqns E .rhs (e , k) = atTm k (E .rhs e)
 
-  -- An interpretation of `atSig` is exactly a `K`-indexed family of
-  -- algebras for σ0, one on each `X (at k)`.
   atOps→Alg : (X : S → Type ℓX) → Ops {σ = atSig} X
     → (k : K) → Ops {σ = σ0} (λ _ → X (at k))
   atOps→Alg X α k o = α (o , k)
@@ -155,13 +135,7 @@ module _ {S : Type ℓS} (K : Type ℓK) (at : K → S)
   atTmRec X α k ρ (node o ts) =
     cong (α (o , k)) (funExt (λ a → atTmRec X α k ρ (ts a)))
 
--- `_⊕Eqns_` only covers equations that mention one summand's operations.
--- The general situation -- U/F laws that mention composition, effect
--- operations that commute with composition -- needs equations stated
--- over the *sum* signature.  So: inject the pure ones, then union with
--- whatever else is wanted, all over one signature.
 module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ'} (τ : SortedSig S ℓ2 ℓ') where
-
   injEqnsL : SortedEqns σ ℓ'' ℓv → SortedEqns (σ ⊕Sig τ) ℓ'' ℓv
   injEqnsL E .eqns = E .eqns
   injEqnsL E .eqnSort = E .eqnSort
@@ -171,7 +145,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ'} (τ : SortedSig S ℓ2 ℓ
   injEqnsL E .rhs e = inlTm σ τ (E .rhs e)
 
 module _ {S : Type ℓS} (σ : SortedSig S ℓ1 ℓ') {τ : SortedSig S ℓ2 ℓ'} where
-
   injEqnsR : SortedEqns τ ℓ'' ℓv → SortedEqns (σ ⊕Sig τ) ℓ'' ℓv
   injEqnsR E .eqns = E .eqns
   injEqnsR E .eqnSort = E .eqnSort
@@ -181,8 +154,6 @@ module _ {S : Type ℓS} (σ : SortedSig S ℓ1 ℓ') {τ : SortedSig S ℓ2 ℓ
   injEqnsR E .rhs e = inrTm σ τ (E .rhs e)
 
 module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} where
-
-  -- union of two sets of equations over the same signature
   _∪Eqns_ : SortedEqns σ ℓ1'' ℓv → SortedEqns σ ℓ2'' ℓv
     → SortedEqns σ (ℓ-max ℓ1'' ℓ2'') ℓv
   (E ∪Eqns E') .eqns = E .eqns ⊎ E' .eqns

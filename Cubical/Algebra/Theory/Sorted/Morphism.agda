@@ -1,43 +1,4 @@
 {-# OPTIONS --lossy-unification #-}
--- Morphisms of sorted signatures over a fixed sort set, and the
--- restriction of models along them.
---
--- This is the sorted analogue of `SigMap` in `Theory.Theories`, and it
--- is forded the same way: the action on arities is carried *backwards*
--- and as data,
---
---     unArity : (o : σ .ops) → τ .arities (onOps o) → σ .arities o
---
--- rather than as an equality `σ .arities o ≡ τ .arities (onOps o)`.
--- A signature map is a *substitution* of τ-operations for σ-operations,
--- so an argument of the image is an argument of the original; asking
--- for a path would put a transport at every argument position and make
--- composition associative only up to that transport.
---
--- Sorts cannot be forded away in the same manner: `σ .sortOf` and
--- `τ .sortOf` are given, and the two agreements
---
---     σ .sortOf o (unArity o a) ≡ τ .sortOf (onOps o) a
---     σ .resultSort o           ≡ τ .resultSort (onOps o)
---
--- are genuine conditions.  They are stated with `Eq.≡`, the inductive
--- identity type, so that in every instance -- where they hold by
--- computation and are given as `Eq.refl` -- the transports they induce
--- vanish definitionally: `resOps` of the inclusion of a summand into a
--- sum signature is *literally* `resl`, and nothing downstream sees a
--- coercion.  This is the one place the fording is weaker than
--- `SigMap`'s: `Eq.refl ∙ p` is `p` on the nose but `p ∙ Eq.refl` is
--- not, so composition of signature maps is strictly unital on the left
--- for all maps, and strictly unital and associative exactly for the
--- `Eq.refl`-forded ones -- which are all the maps that occur, every
--- signature *inclusion* having both fords by computation.
---
--- `PresEqns` is the second half: a σ-equation must hold in the
--- restriction of every τ-model.  It is a proposition, and it is what
--- makes restriction land in `MOD σeq` rather than only in `ALG σ`.
--- Note that the two theories' equation *sets* are unrelated -- the
--- bigger theory has more operations and more equations -- so this is
--- an inclusion of theories, not an isomorphism onto a sub-theory.
 module Cubical.Algebra.Theory.Sorted.Morphism where
 
 open import Cubical.Foundations.Prelude
@@ -64,10 +25,6 @@ private
 open SortedSig
 open SortedEqns
 open Functor
-
--- ------------------------------------------------------------------
--- Signature maps
--- ------------------------------------------------------------------
 
 record SortedSigMap {S : Type ℓS}
   (σ : SortedSig S ℓ1 ℓ1') (τ : SortedSig S ℓ2 ℓ2')
@@ -105,25 +62,18 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 �
 module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 ℓ2'}
   (F : SortedSigMap σ τ) where
 
-  -- `Eq.refl ∙ p ≡ p` holds by computation
   ⋆SigMapIdL : (idSortedSigMap ⋆SigMap F) ≡ F
   ⋆SigMapIdL = refl
-
--- ------------------------------------------------------------------
--- Restriction of interpretations
--- ------------------------------------------------------------------
 
 module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 ℓ2'}
   (F : SortedSigMap σ τ) where
 
-  -- a τ-interpretation restricts to a σ-interpretation
   resOps : (X : S → Type ℓX) → Ops {σ = τ} X → Ops {σ = σ} X
   resOps X α o x =
     Eq.transport X (Eq.sym (F .onResult o))
       (α (F .onOps o)
         (λ a → Eq.transport X (F .onSortOf o a) (x (F .unArity o a))))
 
-  -- the image of a σ-term
   mapTm : {V : Type ℓv} {vs : V → S} {s : S}
     → Tm σ V vs s → Tm τ V vs s
   mapTm (var v) = var v
@@ -142,7 +92,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 �
           ≡ Eq.transport X p (TmRec X α ρ t)
       TmRec-Eq Eq.refl t = refl
 
-    -- interpreting a term in the restriction is interpreting its image
     TmRec-mapTm : {s : S} (M : Tm σ V vs s)
       → TmRec X (resOps X α) ρ M ≡ TmRec X α ρ (mapTm M)
     TmRec-mapTm (var v) = refl
@@ -156,14 +105,12 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 �
                     (mapTm (ts (F .unArity o a)))))))
       ∙ sym (TmRec-Eq (Eq.sym (F .onResult o)) _)
 
-  -- a homomorphism commutes with the transports `resOps` inserts
   private
     natEq : {X Y : S → Type ℓX} (f : (s : S) → X s → Y s)
       {s s' : S} (p : s Eq.≡ s') (z : X s)
       → f s' (Eq.transport X p z) ≡ Eq.transport Y p (f s z)
     natEq f Eq.refl z = refl
 
-  -- the forded homomorphism condition restricts
   resHomCond : {X Y : S → Type ℓX}
     (f : (s : S) → X s → Y s)
     (α : Ops {σ = τ} X) (β : Ops {σ = τ} Y)
@@ -181,16 +128,10 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 �
          ∙ cong (β (F .onOps o))
              (funExt (λ a → natEq f (F .onSortOf o a) (x (F .unArity o a)))))
 
--- ------------------------------------------------------------------
--- Restriction of models
--- ------------------------------------------------------------------
-
 module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 ℓ2'}
   (σeq : SortedEqns σ ℓ1'' ℓv) (τeq : SortedEqns τ ℓ2'' ℓw)
   (ℓX : Level) (F : SortedSigMap σ τ) where
 
-  -- every σ-equation holds in the restriction of every τ-model.  This
-  -- is a proposition, being an equation in a set.
   PresEqns : Type _
   PresEqns = (M : Category.ob (MOD τeq ℓX))
     (e : σeq .eqns) (ρ : (v : σeq .vars e) → ⟨ M .fst (σeq .varSort e v) ⟩)
@@ -229,9 +170,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 �
         isPropΣ (isPropΠ4 (λ _ _ _ _ → Y _ .snd _ _))
                 (λ _ → isPropUnit*)
 
-    -- restriction is functorial: it is the identity on the underlying
-    -- family and on the underlying function, so only the propositional
-    -- components have to be compared
     resMod : Functor (MOD τeq ℓX) (MOD σeq ℓX)
     resMod .F-ob = resModOb
     resMod .F-hom {x = M} {y = N} = resModHom M N
@@ -240,11 +178,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 �
     resMod .F-seq {x = M} {y = N} {z = P} h k =
       Σ≡Prop (λ f → isPropHomᴰ f _ _) refl
 
--- ------------------------------------------------------------------
--- The motivating example: a summand of a sum signature
--- ------------------------------------------------------------------
---
--- All four fords are `Eq.refl`, so `resOps inlSigMap` *is* `resl`.
 module _ {S : Type ℓS} (σ : SortedSig S ℓ1 ℓ1') (τ : SortedSig S ℓ2 ℓ1')
   where
 
@@ -268,11 +201,6 @@ module _ {S : Type ℓS} (σ : SortedSig S ℓ1 ℓ1') (τ : SortedSig S ℓ2 �
     → resOps inrSigMap X α ≡ resr σ τ X α
   resOps-inr X α = refl
 
--- Extending a theory: the bigger signature is `σ ⊕Sig τ`, and the
--- bigger equation set consists of σ's equations, injected, together
--- with *any* further equations `E` over the sum -- equations that may
--- mention both summands' operations, which is the general case.  Then
--- σ's equations are preserved, with no work at the instance.
 module _ {S : Type ℓS} {σ : SortedSig S ℓ1 ℓ1'} {τ : SortedSig S ℓ2 ℓ1'}
   (σeq : SortedEqns σ ℓ1'' ℓv) (E : SortedEqns (σ ⊕Sig τ) ℓ2'' ℓv)
   (ℓX : Level) where

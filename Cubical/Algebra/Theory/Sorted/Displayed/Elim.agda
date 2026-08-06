@@ -1,14 +1,3 @@
--- The global elimination principle: every displayed model over the
--- free model has a global section.
---
--- The section is obtained by SPLITTING `∫π`.  Freeness gives a
--- homomorphism into the total model, and freeness *again* forces its
--- first component to be the identity.  No induction principle of
--- `FreeModel` is used anywhere, so this is available for every theory
--- and every displayed signature with no further work.
---
--- The free model used is `Sorted.Closing`'s: `node` is primitive, `rec`
--- is structural with no pragma, and its level has no `ℓ-suc`.
 module Cubical.Algebra.Theory.Sorted.Displayed.Elim where
 
 open import Cubical.Foundations.Prelude
@@ -22,7 +11,7 @@ open import Cubical.Categories.Category
 
 open import Cubical.Algebra.Theory.Sorted
   using (SortedSig; SortedEqns; Ops; MOD; ModHom)
-open import Cubical.Algebra.Theory.Sorted.Closing
+open import Cubical.Algebra.Theory.Sorted.Free.Closing
   using (FreeModel; FreeOps; FreeOb; gen; UPMod; ℓClosing)
 open import Cubical.Algebra.Theory.Sorted.Displayed.Base
 
@@ -87,9 +76,6 @@ module _ {S : Type ℓS} {σ : SortedSig S ℓ ℓ'} (σeq : SortedEqns σ ℓ''
             (base (vs v) (gen σeq V vs v)) refl)
         ∙ substRefl {B = Fibᴰ (vs v) (sec .secSort (vs v))} (ρᴰ v)
 
-  -- The propositional eliminator.  For a prop-valued property the
-  -- displayed equations are automatic, so all that is owed is closure
-  -- under the operations and the generator case.
   module _ (sec : Sectionᴰ σᴰ)
     (P : (s : S) → σᴰ .Sortᴰ s → FreeModel σeq V vs s → Type ℓC)
     (isPropP : (s : S) (sᴰ : σᴰ .Sortᴰ s) (x : FreeModel σeq V vs s)

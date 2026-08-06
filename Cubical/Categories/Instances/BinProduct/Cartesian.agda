@@ -71,9 +71,9 @@ module _ (C : CartesianCategory ℓC ℓC') where
       Σ (C.C [ Γ , (a C.× b) ]) (λ _ → C.C [ Γ , (c C.× d) ]) →
       C.C [ Γ , ((a C.× c) C.× (b C.× d)) ]
     unshuffle {a = a} {b = b} {c = c} {d = d} (f , g) =
-      outer._,p_
-        (ac._,p_ (f C.⋆ ab.π₁) (g C.⋆ cd.π₁))
-        (bd._,p_ (f C.⋆ ab.π₂) (g C.⋆ cd.π₂))
+        ((f C.⋆ ab.π₁) ac.,p (g C.⋆ cd.π₁))
+        outer.,p
+        ((f C.⋆ ab.π₂) bd.,p (g C.⋆ cd.π₂))
       where
       module ac = BinProductNotation (C.bp (a , c))
       module bd = BinProductNotation (C.bp (b , d))

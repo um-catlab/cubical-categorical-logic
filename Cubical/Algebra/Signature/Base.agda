@@ -129,6 +129,14 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
   _×Alg_ : (A : Algebra ℓ) (B : Algebra ℓ') → Algebra _
   A ×Alg B = ∫Algebra (wkAlg A B)
 
+  ×intro : {Γ : Algebra ℓ}{A : Algebra ℓ'}{B : Algebra ℓ''}
+    → (ϕ : Homo Γ A)
+    → (ψ : Homo Γ B)
+    → Homo Γ (A ×Alg B)
+  ×intro ϕ ψ .fst = λ z → ϕ .fst z , ψ .fst z
+  ×intro ϕ ψ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
+    ΣPathP ((ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩) , (ψ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩))
+
   idHomo : {A : Algebra ℓ} → Homo A A
   idHomo .fst = λ a → a
   idHomo .snd f γ op⟨γ⟩ pf = pf
@@ -165,8 +173,6 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
           (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i)
           (λ j → ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ (i ∧ j))))
       i1
-
-
 
   module _ {A : Algebra ℓ} {Aᴰ : Algebraᴰ A ℓᴰ} where
     Fst : Homo (∫Algebra Aᴰ) A
@@ -320,3 +326,87 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
           (_⋆Hᴰ_ {A = B} {B = C} {C = D}
             {Aᴰ = Bᴰ} {Bᴰ = Cᴰ} {Cᴰ = Dᴰ} ψᴰ χᴰ)
     ⋆HᴰAssoc ϕᴰ ψᴰ χᴰ = refl
+
+  -- Path Algebra
+  module _ (A : Algebra ℓ) where
+    PathAlg : Algebraᴰ (A ×Alg A) ℓ
+    PathAlg .fst (a , a') = a ≡ a'
+    PathAlg .snd op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
+      sym (cong fst op∘γ≡op⟨γ⟩)
+      ∙ cong (A .snd op) (funExt γᴰ)
+      ∙ cong snd op∘γ≡op⟨γ⟩
+
+    -- TODO: PathAlg Reflection and derive the uniqueness from the eliminator below
+    PathAlgReflection : {Γ : Algebra ℓ'} (ϕ ψ : Homo Γ A)
+      → Section (×intro {A = A}{B = A} ϕ ψ * PathAlg)
+      → ϕ .fst ≡ ψ .fst
+    PathAlgReflection ϕ ψ ϕ≡ψ i γ = ϕ≡ψ .fst γ i
+
+  -- Free Algebras
+  data |FreeAlgebra| (X : Type ℓ) : Type (ℓ-max ℓ (ℓ-max ℓA ℓO)) where
+    var : X → |FreeAlgebra| X
+    app : (op : Op) → (Arity op → |FreeAlgebra| X) → |FreeAlgebra| X
+
+  FreeAlgebra : (X : Type ℓ) → Algebra (ℓ-max ℓ (ℓ-max ℓA ℓO))
+  FreeAlgebra X = (|FreeAlgebra| X) , app
+
+  private
+    open import Cubical.Data.Empty
+    open import Cubical.Data.Sum
+    open import Cubical.Data.W.Indexed
+    FreeShape : Type ℓ → Type (ℓ-max ℓ ℓO)
+    FreeShape X = X ⊎ Op
+
+    FreePosition : {X : Type ℓ} → FreeShape X → Type ℓA
+    FreePosition (inl _) = Lift ℓA ⊥
+    FreePosition (inr op) = Arity op
+
+    FreeIW : Type ℓ → Type (ℓ-max ℓ (ℓ-max ℓA ℓO))
+    FreeIW X = IW (λ (_ : Unit) → FreeShape X)
+      (λ _ → FreePosition) (λ _ _ _ → tt) tt
+
+    FreeAlgebra→IW : {X : Type ℓ} → |FreeAlgebra| X → FreeIW X
+    FreeAlgebra→IW (var x) = node (inl x) λ { (lift ()) }
+    FreeAlgebra→IW (app op γ) =
+      node (inr op) (λ v → FreeAlgebra→IW (γ v))
+
+    IW→FreeAlgebra : {X : Type ℓ} → FreeIW X → |FreeAlgebra| X
+    IW→FreeAlgebra (node (inl x) γ) = var x
+    IW→FreeAlgebra (node (inr op) γ) =
+      app op (λ v → IW→FreeAlgebra (γ v))
+
+    IW→FreeAlgebra→IW : {X : Type ℓ} (t : |FreeAlgebra| X)
+      → IW→FreeAlgebra (FreeAlgebra→IW t) ≡ t
+    IW→FreeAlgebra→IW (var x) = refl
+    IW→FreeAlgebra→IW (app op γ) =
+      cong (app op) (funExt λ v → IW→FreeAlgebra→IW (γ v))
+
+  isSetFreeAlgebra : {X : Type ℓ} → (isSetOp : isSet Op) → isSet X → isSet (|FreeAlgebra| X)
+  isSetFreeAlgebra isSetOp isSetX =
+    isSetRetract FreeAlgebra→IW IW→FreeAlgebra IW→FreeAlgebra→IW
+      (isOfHLevelSuc-IW 1
+        (λ _ → isSet⊎ isSetX isSetOp) tt)
+
+  module _ {X : Type ℓ} (Aᴰ : Algebraᴰ (FreeAlgebra X) ℓ') (ıᴰ : (x : X) → Aᴰ .fst (var x)) where
+    |elimFA| : ∀ (t : |FreeAlgebra| X) → Aᴰ .fst t
+    -- β reduction is definitional
+    |elimFA| (var x) = ıᴰ x
+    |elimFA| (app op γ) = Aᴰ .snd op γ (|elimFA| ∘ γ) (app op γ) refl
+
+    elimFA : Section Aᴰ
+    elimFA .fst = |elimFA|
+    elimFA .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
+      J
+        (λ op⟨γ⟩ op∘γ≡op⟨γ⟩ →
+          Aᴰ .snd op γ (|elimFA| ∘ γ) op⟨γ⟩ op∘γ≡op⟨γ⟩
+            ≡ |elimFA| op⟨γ⟩)
+        refl
+        op∘γ≡op⟨γ⟩
+
+  module _ {X : Type ℓ} (A : Algebra ℓ')  where
+    recFA : (ı : X → A .fst) → Homo (FreeAlgebra X) A
+    recFA ı = elimFA (wkAlg (FreeAlgebra X) A) ı
+
+    recFA-uniq : ∀ (ϕ : Homo (FreeAlgebra X) A) → ϕ .fst ≡ recFA (ϕ .fst ∘ var) .fst
+    recFA-uniq ϕ = PathAlgReflection A ϕ (recFA (ϕ .fst ∘ var))
+      (elimFA (×intro {A = A}{B = A} ϕ (recFA (ϕ .fst ∘ var)) * PathAlg A) λ _ → refl)

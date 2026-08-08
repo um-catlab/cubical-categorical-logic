@@ -11,10 +11,12 @@
 
   The point of this file is that they are met by FIELDS, once: a
   displayed model is a displayed cartesian multicategory over the
-  syntax — whose three laws a reindexing supplies generically —
+  syntax — whose three clone laws a reindexing supplies generically —
   together with displayed structure for each former and a displayed
-  law for each path constructor.  elim then discharges all nineteen
-  against those fields, and no induction is re-run at a use site.
+  law for each remaining path constructor.  The syntax is cartesian
+  closed (⊤', _×'_, _⇒'_ and nothing else), so that is six point
+  fields and eleven law fields; elim discharges all fourteen path
+  constructors against them, and no induction is re-run at a use site.
 
   The object part S-ob is a field rather than a parameter so that the
   displayed context of a binder is `λ i → S-ob ((Γ ,, A) i)` on the
@@ -63,17 +65,9 @@ record DisplayedModel {ℓᴰ ℓᴰ' : Level}
     appᴰ : {I : Type} {Γ : Ctxt I} {A B : Ty}
       {t : Tm I Γ (A ⇒' B)} {u : Tm I Γ A} → ⟦ t ⟧ᴰ → ⟦ u ⟧ᴰ
       → ⟦ app t u ⟧ᴰ
-    inlᴰ : {I : Type} {Γ : Ctxt I} {A B : Ty} {a : Tm I Γ A}
-      → ⟦ a ⟧ᴰ → ⟦ inl' {B = B} a ⟧ᴰ
-    inrᴰ : {I : Type} {Γ : Ctxt I} {A B : Ty} {b : Tm I Γ B}
-      → ⟦ b ⟧ᴰ → ⟦ inr' {A = A} b ⟧ᴰ
-    caseᴰ : {I : Type} {Γ : Ctxt I} {A B C : Ty}
-      {t : Tm I Γ (A +' B)}
-      {l : Tm (I ⊎ Unit) (Γ ,, A) C} {r : Tm (I ⊎ Unit) (Γ ,, B) C}
-      → ⟦ t ⟧ᴰ → ⟦ l ⟧ᴰ → ⟦ r ⟧ᴰ → ⟦ case' t l r ⟧ᴰ
 
   -- the displayed laws.  The three clone laws are already ⋆Varᴰ /
-  -- ⋆Idᴰ / ⋆Assocᴰ of Mᴰ; these are the sixteen that remain.
+  -- ⋆Idᴰ / ⋆Assocᴰ of Mᴰ; these are the eleven that remain.
   --
   -- THE FORDED LAWS CARRY DISPLAYED FORDS.  A base rule like ⇒β does
   -- not mention the extended environment `Sum.elim var (λ _ → u)`; it
@@ -115,14 +109,6 @@ record DisplayedModel {ℓᴰ ℓᴰ' : Level}
       (tᴰ : ⟦ t ⟧ᴰ) (uᴰ : ⟦ u ⟧ᴰ) (fᴰ : (i : I) → ⟦ f i ⟧ᴰ)
       → (appᴰ tᴰ uᴰ ⋆ᴰ fᴰ)
         ≡[ app-nat t u f ] appᴰ (tᴰ ⋆ᴰ fᴰ) (uᴰ ⋆ᴰ fᴰ)
-    inl-natᴰ : {I J : Type} {Γ : Ctxt I} {Δ : Ctxt J} {A B : Ty}
-      {a : Tm I Γ A} {f : (i : I) → Tm J Δ (Γ i)}
-      (aᴰ : ⟦ a ⟧ᴰ) (fᴰ : (i : I) → ⟦ f i ⟧ᴰ)
-      → (inlᴰ {B = B} aᴰ ⋆ᴰ fᴰ) ≡[ inl-nat a f ] inlᴰ (aᴰ ⋆ᴰ fᴰ)
-    inr-natᴰ : {I J : Type} {Γ : Ctxt I} {Δ : Ctxt J} {A B : Ty}
-      {b : Tm I Γ B} {f : (i : I) → Tm J Δ (Γ i)}
-      (bᴰ : ⟦ b ⟧ᴰ) (fᴰ : (i : I) → ⟦ f i ⟧ᴰ)
-      → (inrᴰ {A = A} bᴰ ⋆ᴰ fᴰ) ≡[ inr-nat b f ] inrᴰ (bᴰ ⋆ᴰ fᴰ)
 
     -- the binder laws.  The base rules ford their extended
     -- environment, so these take the displayed environment over it.
@@ -152,72 +138,9 @@ record DisplayedModel {ℓᴰ ℓᴰ' : Level}
       → lamᴰ (appᴰ (tᴰ ⋆ᴰ (λ j → varᴰ {Γ = Γ ,, A} (inl j)))
                    (varᴰ (inr tt)))
         ≡[ ⇒η t ] tᴰ
-    case-natᴰ : {I J : Type} {Γ : Ctxt I} {Δ : Ctxt J} {A B C : Ty}
-      {t : Tm I Γ (A +' B)}
-      {l : Tm (I ⊎ Unit) (Γ ,, A) C} {r : Tm (I ⊎ Unit) (Γ ,, B) C}
-      {f : (i : I) → Tm J Δ (Γ i)}
-      {fᴬ : (i : I ⊎ Unit) → Tm (J ⊎ Unit) (Δ ,, A) ((Γ ,, A) i)}
-      {fᴬl : (i : I) → fᴬ (inl i) ≡ (f i ⟪ (λ j → var (inl j)) ⟫)}
-      {fᴬr : fᴬ (inr tt) ≡ var (inr tt)}
-      {fᴮ : (i : I ⊎ Unit) → Tm (J ⊎ Unit) (Δ ,, B) ((Γ ,, B) i)}
-      {fᴮl : (i : I) → fᴮ (inl i) ≡ (f i ⟪ (λ j → var (inl j)) ⟫)}
-      {fᴮr : fᴮ (inr tt) ≡ var (inr tt)}
-      (tᴰ : ⟦ t ⟧ᴰ) (lᴰ : ⟦ l ⟧ᴰ) (rᴰ : ⟦ r ⟧ᴰ)
-      (fᴰ : (i : I) → ⟦ f i ⟧ᴰ)
-      (fᴬᴰ : (i : I ⊎ Unit) → ⟦ fᴬ i ⟧ᴰ)
-      (fᴮᴰ : (i : I ⊎ Unit) → ⟦ fᴮ i ⟧ᴰ)
-      (fᴬlᴰ : (i : I)
-        → fᴬᴰ (inl i) ≡[ fᴬl i ] (fᴰ i ⋆ᴰ (λ j → varᴰ (inl j))))
-      (fᴬrᴰ : fᴬᴰ (inr tt) ≡[ fᴬr ] varᴰ (inr tt))
-      (fᴮlᴰ : (i : I)
-        → fᴮᴰ (inl i) ≡[ fᴮl i ] (fᴰ i ⋆ᴰ (λ j → varᴰ (inl j))))
-      (fᴮrᴰ : fᴮᴰ (inr tt) ≡[ fᴮr ] varᴰ (inr tt))
-      → (caseᴰ tᴰ lᴰ rᴰ ⋆ᴰ fᴰ)
-        ≡[ case-nat t l r f fᴬ fᴬl fᴬr fᴮ fᴮl fᴮr ]
-        caseᴰ (tᴰ ⋆ᴰ fᴰ) (lᴰ ⋆ᴰ fᴬᴰ) (rᴰ ⋆ᴰ fᴮᴰ)
-    +β₁ᴰ : {I : Type} {Γ : Ctxt I} {A B C : Ty} {a : Tm I Γ A}
-      {l : Tm (I ⊎ Unit) (Γ ,, A) C} {r : Tm (I ⊎ Unit) (Γ ,, B) C}
-      {f : (i : I ⊎ Unit) → Tm I Γ ((Γ ,, A) i)}
-      {fl : (i : I) → f (inl i) ≡ var i} {fr : f (inr tt) ≡ a}
-      (aᴰ : ⟦ a ⟧ᴰ) (lᴰ : ⟦ l ⟧ᴰ) (rᴰ : ⟦ r ⟧ᴰ)
-      (fᴰ : (i : I ⊎ Unit) → ⟦ f i ⟧ᴰ)
-      (flᴰ : (i : I) → fᴰ (inl i) ≡[ fl i ] varᴰ i)
-      (frᴰ : fᴰ (inr tt) ≡[ fr ] aᴰ)
-      → caseᴰ (inlᴰ aᴰ) lᴰ rᴰ ≡[ +β₁ a l r f fl fr ] (lᴰ ⋆ᴰ fᴰ)
-    +β₂ᴰ : {I : Type} {Γ : Ctxt I} {A B C : Ty} {b : Tm I Γ B}
-      {l : Tm (I ⊎ Unit) (Γ ,, A) C} {r : Tm (I ⊎ Unit) (Γ ,, B) C}
-      {f : (i : I ⊎ Unit) → Tm I Γ ((Γ ,, B) i)}
-      {fl : (i : I) → f (inl i) ≡ var i} {fr : f (inr tt) ≡ b}
-      (bᴰ : ⟦ b ⟧ᴰ) (lᴰ : ⟦ l ⟧ᴰ) (rᴰ : ⟦ r ⟧ᴰ)
-      (fᴰ : (i : I ⊎ Unit) → ⟦ f i ⟧ᴰ)
-      (flᴰ : (i : I) → fᴰ (inl i) ≡[ fl i ] varᴰ i)
-      (frᴰ : fᴰ (inr tt) ≡[ fr ] bᴰ)
-      → caseᴰ (inrᴰ bᴰ) lᴰ rᴰ ≡[ +β₂ b l r f fl fr ] (rᴰ ⋆ᴰ fᴰ)
-    +ηᴰ : {I : Type} {Γ : Ctxt I} {A B C : Ty}
-      {t : Tm I Γ (A +' B)} {h : Tm (I ⊎ Unit) (Γ ,, (A +' B)) C}
-      {f : (i : I ⊎ Unit) → Tm I Γ ((Γ ,, (A +' B)) i)}
-      {fl : (i : I) → f (inl i) ≡ var i} {fr : f (inr tt) ≡ t}
-      {gᴬ : (i : I ⊎ Unit) → Tm (I ⊎ Unit) (Γ ,, A) ((Γ ,, (A +' B)) i)}
-      {gᴬl : (i : I) → gᴬ (inl i) ≡ var (inl i)}
-      {gᴬr : gᴬ (inr tt) ≡ inl' (var (inr tt))}
-      {gᴮ : (i : I ⊎ Unit) → Tm (I ⊎ Unit) (Γ ,, B) ((Γ ,, (A +' B)) i)}
-      {gᴮl : (i : I) → gᴮ (inl i) ≡ var (inl i)}
-      {gᴮr : gᴮ (inr tt) ≡ inr' (var (inr tt))}
-      (tᴰ : ⟦ t ⟧ᴰ) (hᴰ : ⟦ h ⟧ᴰ)
-      (fᴰ : (i : I ⊎ Unit) → ⟦ f i ⟧ᴰ)
-      (gᴬᴰ : (i : I ⊎ Unit) → ⟦ gᴬ i ⟧ᴰ)
-      (gᴮᴰ : (i : I ⊎ Unit) → ⟦ gᴮ i ⟧ᴰ)
-      (flᴰ : (i : I) → fᴰ (inl i) ≡[ fl i ] varᴰ i)
-      (frᴰ : fᴰ (inr tt) ≡[ fr ] tᴰ)
-      (gᴬlᴰ : (i : I) → gᴬᴰ (inl i) ≡[ gᴬl i ] varᴰ (inl i))
-      (gᴬrᴰ : gᴬᴰ (inr tt) ≡[ gᴬr ] inlᴰ (varᴰ (inr tt)))
-      (gᴮlᴰ : (i : I) → gᴮᴰ (inl i) ≡[ gᴮl i ] varᴰ (inl i))
-      (gᴮrᴰ : gᴮᴰ (inr tt) ≡[ gᴮr ] inrᴰ (varᴰ (inr tt)))
-      → (hᴰ ⋆ᴰ fᴰ)
-        ≡[ +η t h f fl fr gᴬ gᴬl gᴬr gᴮ gᴮl gᴮr ]
-        caseᴰ tᴰ (hᴰ ⋆ᴰ gᴬᴰ) (hᴰ ⋆ᴰ gᴮᴰ)
 
--- THE ELIMINATOR.  Nineteen path constructors, nineteen fields.
+-- THE ELIMINATOR.  Fourteen path constructors: three clone laws from
+-- Mᴰ, eleven fields, and trunc.
 module _ {Mᴰ : CartesianMulticategoryᴰ Syn ℓᴰ ℓᴰ'} (M : DisplayedModel Mᴰ) where
   open DisplayedModel M
 
@@ -230,9 +153,6 @@ module _ {Mᴰ : CartesianMulticategoryᴰ Syn ℓᴰ ℓᴰ'} (M : DisplayedMod
   elim (snd' t) = sndᴰ (elim t)
   elim (lam t) = lamᴰ (elim t)
   elim (app t u) = appᴰ (elim t) (elim u)
-  elim (inl' a) = inlᴰ (elim a)
-  elim (inr' b) = inrᴰ (elim b)
-  elim (case' t l r) = caseᴰ (elim t) (elim l) (elim r)
   elim (⟪⟫var i f k) = ⋆Varᴰ i (λ i → elim (f i)) k
   elim (⟪⟫id t k) = ⋆Idᴰ (elim t) k
   elim (⟪⟫⟪⟫ t f g k) =
@@ -254,25 +174,6 @@ module _ {Mᴰ : CartesianMulticategoryᴰ Syn ℓᴰ ℓᴰ'} (M : DisplayedMod
     ⇒βᴰ (elim t) (elim u) (λ i → elim (f i))
       (λ i k' → elim (fl i k')) (λ k' → elim (fr k')) k
   elim (⇒η t k) = ⇒ηᴰ (elim t) k
-  elim (inl-nat a f k) = inl-natᴰ (elim a) (λ i → elim (f i)) k
-  elim (inr-nat b f k) = inr-natᴰ (elim b) (λ i → elim (f i)) k
-  elim (case-nat t l r f fᴬ fᴬl fᴬr fᴮ fᴮl fᴮr k) =
-    case-natᴰ (elim t) (elim l) (elim r) (λ i → elim (f i))
-      (λ i → elim (fᴬ i)) (λ i → elim (fᴮ i))
-      (λ i k' → elim (fᴬl i k')) (λ k' → elim (fᴬr k'))
-      (λ i k' → elim (fᴮl i k')) (λ k' → elim (fᴮr k')) k
-  elim (+β₁ a l r f fl fr k) =
-    +β₁ᴰ (elim a) (elim l) (elim r) (λ i → elim (f i))
-      (λ i k' → elim (fl i k')) (λ k' → elim (fr k')) k
-  elim (+β₂ b l r f fl fr k) =
-    +β₂ᴰ (elim b) (elim l) (elim r) (λ i → elim (f i))
-      (λ i k' → elim (fl i k')) (λ k' → elim (fr k')) k
-  elim (+η t h f fl fr gᴬ gᴬl gᴬr gᴮ gᴮl gᴮr k) =
-    +ηᴰ (elim t) (elim h) (λ i → elim (f i))
-      (λ i → elim (gᴬ i)) (λ i → elim (gᴮ i))
-      (λ i k' → elim (fl i k')) (λ k' → elim (fr k'))
-      (λ i k' → elim (gᴬl i k')) (λ k' → elim (gᴬr k'))
-      (λ i k' → elim (gᴮl i k')) (λ k' → elim (gᴮr k')) k
   elim (trunc t u p q k k') =
     isOfHLevel→isOfHLevelDep 2 (λ _ → isSetMHomᴰ)
       (elim t) (elim u) (cong elim p) (cong elim q) (trunc t u p q) k k'

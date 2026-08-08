@@ -1,7 +1,9 @@
 {-
 
-  The syntax: the free cartesian multicategory with unit, products,
-  functions and sums.
+  The syntax: the free CARTESIAN CLOSED cartesian multicategory, with
+  unit, products and functions.  There are no sums: every former here
+  has a fibrewise universal property, and every closed term of a former
+  is η-equal to an introduction, so no truncation is ever needed.
 
   Terms are an indexed HIT with substitution as a constructor, so the
   three clone laws are path constructors rather than substitution
@@ -26,10 +28,8 @@ data Ty : Type where
   ⊤'   : Ty
   _×'_ : Ty → Ty → Ty
   _⇒'_ : Ty → Ty → Ty
-  _+'_ : Ty → Ty → Ty
 
 infixr 5 _⇒'_
-infixr 6 _+'_
 infixr 7 _×'_
 
 Ctxt : Type → Type
@@ -115,61 +115,6 @@ data Tm : (I : Type) (Γ : Ctxt I) (A : Ty) → Type₁ where
   ⇒η : {I : Type} {Γ : Ctxt I} {A B : Ty} (t : Tm I Γ (A ⇒' B))
     → lam (app (t ⟪ (λ j → var (inl j)) ⟫) (var (inr tt))) ≡ t
 
-  -- sums
-  inl' : {I : Type} {Γ : Ctxt I} {A B : Ty}
-    → Tm I Γ A → Tm I Γ (A +' B)
-  inr' : {I : Type} {Γ : Ctxt I} {A B : Ty}
-    → Tm I Γ B → Tm I Γ (A +' B)
-  case' : {I : Type} {Γ : Ctxt I} {A B C : Ty}
-    → Tm I Γ (A +' B)
-    → Tm (I ⊎ Unit) (Γ ,, A) C → Tm (I ⊎ Unit) (Γ ,, B) C
-    → Tm I Γ C
-
-  inl-nat : {I J : Type} {Γ : Ctxt I} {Δ : Ctxt J} {A B : Ty}
-    (a : Tm I Γ A) (f : (i : I) → Tm J Δ (Γ i))
-    → (inl' {B = B} a ⟪ f ⟫) ≡ inl' (a ⟪ f ⟫)
-  inr-nat : {I J : Type} {Γ : Ctxt I} {Δ : Ctxt J} {A B : Ty}
-    (b : Tm I Γ B) (f : (i : I) → Tm J Δ (Γ i))
-    → (inr' {A = A} b ⟪ f ⟫) ≡ inr' (b ⟪ f ⟫)
-  case-nat : {I J : Type} {Γ : Ctxt I} {Δ : Ctxt J} {A B C : Ty}
-    (t : Tm I Γ (A +' B))
-    (l : Tm (I ⊎ Unit) (Γ ,, A) C) (r : Tm (I ⊎ Unit) (Γ ,, B) C)
-    (f : (i : I) → Tm J Δ (Γ i))
-    (fᴬ : (i : I ⊎ Unit) → Tm (J ⊎ Unit) (Δ ,, A) ((Γ ,, A) i))
-    (fᴬl : (i : I) → fᴬ (inl i) ≡ (f i ⟪ (λ j → var (inl j)) ⟫))
-    (fᴬr : fᴬ (inr tt) ≡ var (inr tt))
-    (fᴮ : (i : I ⊎ Unit) → Tm (J ⊎ Unit) (Δ ,, B) ((Γ ,, B) i))
-    (fᴮl : (i : I) → fᴮ (inl i) ≡ (f i ⟪ (λ j → var (inl j)) ⟫))
-    (fᴮr : fᴮ (inr tt) ≡ var (inr tt))
-    → (case' t l r ⟪ f ⟫) ≡ case' (t ⟪ f ⟫) (l ⟪ fᴬ ⟫) (r ⟪ fᴮ ⟫)
-
-  +β₁ : {I : Type} {Γ : Ctxt I} {A B C : Ty}
-    (a : Tm I Γ A)
-    (l : Tm (I ⊎ Unit) (Γ ,, A) C) (r : Tm (I ⊎ Unit) (Γ ,, B) C)
-    (f : (i : I ⊎ Unit) → Tm I Γ ((Γ ,, A) i))
-    (fl : (i : I) → f (inl i) ≡ var i) (fr : f (inr tt) ≡ a)
-    → case' (inl' a) l r ≡ (l ⟪ f ⟫)
-  +β₂ : {I : Type} {Γ : Ctxt I} {A B C : Ty}
-    (b : Tm I Γ B)
-    (l : Tm (I ⊎ Unit) (Γ ,, A) C) (r : Tm (I ⊎ Unit) (Γ ,, B) C)
-    (f : (i : I ⊎ Unit) → Tm I Γ ((Γ ,, B) i))
-    (fl : (i : I) → f (inl i) ≡ var i) (fr : f (inr tt) ≡ b)
-    → case' (inr' b) l r ≡ (r ⟪ f ⟫)
-
-  -- the uniqueness rule for sums: any h using the scrutinee is
-  -- determined by its two branches.  Environments forded as above.
-  +η : {I : Type} {Γ : Ctxt I} {A B C : Ty}
-    (t : Tm I Γ (A +' B)) (h : Tm (I ⊎ Unit) (Γ ,, (A +' B)) C)
-    (f : (i : I ⊎ Unit) → Tm I Γ ((Γ ,, (A +' B)) i))
-    (fl : (i : I) → f (inl i) ≡ var i) (fr : f (inr tt) ≡ t)
-    (gᴬ : (i : I ⊎ Unit) → Tm (I ⊎ Unit) (Γ ,, A) ((Γ ,, (A +' B)) i))
-    (gᴬl : (i : I) → gᴬ (inl i) ≡ var (inl i))
-    (gᴬr : gᴬ (inr tt) ≡ inl' (var (inr tt)))
-    (gᴮ : (i : I ⊎ Unit) → Tm (I ⊎ Unit) (Γ ,, B) ((Γ ,, (A +' B)) i))
-    (gᴮl : (i : I) → gᴮ (inl i) ≡ var (inl i))
-    (gᴮr : gᴮ (inr tt) ≡ inr' (var (inr tt)))
-    → (h ⟪ f ⟫) ≡ case' t (h ⟪ gᴬ ⟫) (h ⟪ gᴮ ⟫)
-
   trunc : {I : Type} {Γ : Ctxt I} {A : Ty} → isSet (Tm I Γ A)
 
 infixl 8 _⟪_⟫
@@ -195,14 +140,6 @@ module ElimProp {ℓ} {D : {I : Type} {Γ : Ctxt I} {A : Ty} → Tm I Γ A → T
     {t : Tm (I ⊎ Unit) (Γ ,, A) B} → D t → D (lam t))
   (dapp : {I : Type} {Γ : Ctxt I} {A B : Ty}
     {t : Tm I Γ (A ⇒' B)} {u : Tm I Γ A} → D t → D u → D (app t u))
-  (dinl : {I : Type} {Γ : Ctxt I} {A B : Ty}
-    {a : Tm I Γ A} → D a → D (inl' {B = B} a))
-  (dinr : {I : Type} {Γ : Ctxt I} {A B : Ty}
-    {b : Tm I Γ B} → D b → D (inr' {A = A} b))
-  (dcase : {I : Type} {Γ : Ctxt I} {A B C : Ty}
-    {t : Tm I Γ (A +' B)}
-    {l : Tm (I ⊎ Unit) (Γ ,, A) C} {r : Tm (I ⊎ Unit) (Γ ,, B) C}
-    → D t → D l → D r → D (case' t l r))
   where
 
   elimProp : {I : Type} {Γ : Ctxt I} {A : Ty} (t : Tm I Γ A) → D t
@@ -214,9 +151,6 @@ module ElimProp {ℓ} {D : {I : Type} {Γ : Ctxt I} {A : Ty} → Tm I Γ A → T
   elimProp (snd' t) = dsnd (elimProp t)
   elimProp (lam t) = dlam (elimProp t)
   elimProp (app t u) = dapp (elimProp t) (elimProp u)
-  elimProp (inl' a) = dinl (elimProp a)
-  elimProp (inr' b) = dinr (elimProp b)
-  elimProp (case' t l r) = dcase (elimProp t) (elimProp l) (elimProp r)
   -- every path constructor: the motive is a prop, so the only work is
   -- writing down the two endpoints
   elimProp (⟪⟫var i f k) =
@@ -272,36 +206,6 @@ module ElimProp {ℓ} {D : {I : Type} {Γ : Ctxt I} {A : Ty} → Tm I Γ A → T
     isProp→PathP (λ k → isPropD (⇒η t k))
       (dlam (dapp (d⟪⟫ (elimProp t) (λ j → dvar (inl j))) (dvar (inr tt))))
       (elimProp t) k
-  elimProp (inl-nat a f k) =
-    isProp→PathP (λ k → isPropD (inl-nat a f k))
-      (d⟪⟫ (dinl (elimProp a)) (λ i → elimProp (f i)))
-      (dinl (d⟪⟫ (elimProp a) (λ i → elimProp (f i)))) k
-  elimProp (inr-nat b f k) =
-    isProp→PathP (λ k → isPropD (inr-nat b f k))
-      (d⟪⟫ (dinr (elimProp b)) (λ i → elimProp (f i)))
-      (dinr (d⟪⟫ (elimProp b) (λ i → elimProp (f i)))) k
-  elimProp (case-nat t l r f fᴬ fᴬl fᴬr fᴮ fᴮl fᴮr k) =
-    isProp→PathP
-      (λ k → isPropD (case-nat t l r f fᴬ fᴬl fᴬr fᴮ fᴮl fᴮr k))
-      (d⟪⟫ (dcase (elimProp t) (elimProp l) (elimProp r))
-           (λ i → elimProp (f i)))
-      (dcase (d⟪⟫ (elimProp t) (λ i → elimProp (f i)))
-             (d⟪⟫ (elimProp l) (λ i → elimProp (fᴬ i)))
-             (d⟪⟫ (elimProp r) (λ i → elimProp (fᴮ i)))) k
-  elimProp (+β₁ a l r f fl fr k) =
-    isProp→PathP (λ k → isPropD (+β₁ a l r f fl fr k))
-      (dcase (dinl (elimProp a)) (elimProp l) (elimProp r))
-      (d⟪⟫ (elimProp l) (λ i → elimProp (f i))) k
-  elimProp (+β₂ b l r f fl fr k) =
-    isProp→PathP (λ k → isPropD (+β₂ b l r f fl fr k))
-      (dcase (dinr (elimProp b)) (elimProp l) (elimProp r))
-      (d⟪⟫ (elimProp r) (λ i → elimProp (f i))) k
-  elimProp (+η t h f fl fr gᴬ gᴬl gᴬr gᴮ gᴮl gᴮr k) =
-    isProp→PathP (λ k → isPropD (+η t h f fl fr gᴬ gᴬl gᴬr gᴮ gᴮl gᴮr k))
-      (d⟪⟫ (elimProp h) (λ i → elimProp (f i)))
-      (dcase (elimProp t)
-             (d⟪⟫ (elimProp h) (λ i → elimProp (gᴬ i)))
-             (d⟪⟫ (elimProp h) (λ i → elimProp (gᴮ i)))) k
   elimProp (trunc t u p q k k') =
     isOfHLevel→isOfHLevelDep 2 (λ t → isProp→isSet (isPropD t))
       (elimProp t) (elimProp u)

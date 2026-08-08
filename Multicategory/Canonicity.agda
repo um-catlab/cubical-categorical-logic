@@ -11,6 +11,12 @@
   The fundamental theorem is a Sectionᴰ of that displayed multicategory,
   and canonicity is read off from it at the empty arity.
 
+  The syntax is CARTESIAN CLOSED — ⊤', _×'_, _⇒'_ and nothing else — so
+  every canonicity statement below is UNTRUNCATED: each former has a
+  fibrewise universal property whose η rule exhibits a closed term as
+  an introduction outright, and there is no disjunction to truncate.
+  There is no propositional truncation anywhere in this file.
+
 -}
 module Multicategory.Canonicity where
 
@@ -23,7 +29,6 @@ open import Cubical.Data.Sigma
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Unit
 open import Cubical.Data.Empty as Empty
-open import Cubical.HITs.PropositionalTruncation as PT
 
 open import Multicategory.Cartesian
 open import Multicategory.Multifunctor
@@ -59,10 +64,6 @@ P (A ×' B) t =
 P (A ⇒' B) t =
   ((u : Cl A) → ⟨ P A u ⟩ → ⟨ P B (app t u) ⟩)
   , isPropΠ2 (λ u _ → str (P B (app t u)))
-P (A +' B) t =
-  ∥ (Σ[ a ∈ Cl A ] (t ≡ inl' a) × ⟨ P A a ⟩)
-  ⊎ (Σ[ b ∈ Cl B ] (t ≡ inr' b) × ⟨ P B b ⟩) ∥₁
-  , squash₁
 
 -- environments, their extension, and the extension of a lifted
 -- environment: the one computation the binder cases need
@@ -123,7 +124,7 @@ _ = λ t → refl
 
 -- THE FUNDAMENTAL THEOREM, as a DISPLAYED MODEL.  Note what is absent:
 -- there is no variable case and no substitution case, because varᴰ and
--- _⋆ᴰ_ come with the glue.  Nine operations and sixteen laws remain,
+-- _⋆ᴰ_ come with the glue.  Six operations and eleven laws remain,
 -- and the laws are one line each only because P is prop-valued — in a
 -- data-valued model they would be the real content.
 private
@@ -152,47 +153,18 @@ CanModel .DM.fstᴰ {A = A} {t = t} dt γ γᴰ =
 CanModel .DM.sndᴰ {B = B} {t = t} dt γ γᴰ =
   subst (λ s → ⟨ P B s ⟩) (sym (snd-nat t γ)) (dt γ γᴰ .snd)
 -- functions
-CanModel .DM.lamᴰ {B = B} {t = t} dt γ γᴰ u uᴰ =
+CanModel .DM.lamᴰ {I = I} {Γ = Γ} {A = A} {B = B} {t = t} dt γ γᴰ u uᴰ =
   subst (λ s → ⟨ P B s ⟩)
     (sym (cong (λ s → app s u)
             (lam-nat t γ (γ↑ γ) (λ i → refl) refl)
           ∙ ⇒β (t ⟪ γ↑ γ ⟫) u (Sum.elim var (λ _ → u)) (λ i → refl) refl
           ∙ ⟪⟫⟪⟫ t (γ↑ γ) (Sum.elim var (λ _ → u))
           ∙ cong (t ⟪_⟫) (funExt (γ↑-ext γ u))))
-    (dt (ext γ u) (extP γᴰ uᴰ))
+    (dt (ext γ u) (extP {I} {Γ} {A} {γ} {u} γᴰ uᴰ))
 CanModel .DM.appᴰ {B = B} {t = t} {u = u} dt du γ γᴰ =
   subst (λ s → ⟨ P B s ⟩) (sym (app-nat t u γ))
     (dt γ γᴰ (u ⟪ γ ⟫) (du γ γᴰ))
--- sums
-CanModel .DM.inlᴰ {a = a} da γ γᴰ =
-  ∣ inl (a ⟪ γ ⟫ , inl-nat a γ , da γ γᴰ) ∣₁
-CanModel .DM.inrᴰ {b = b} db γ γᴰ =
-  ∣ inr (b ⟪ γ ⟫ , inr-nat b γ , db γ γᴰ) ∣₁
-CanModel .DM.caseᴰ {C = C} {t = t} {l = l} {r = r} dt dl dr γ γᴰ =
-  PT.rec (str (P C (case' t l r ⟪ γ ⟫)))
-    (Sum.elim
-      (λ (a , p , aᴰ) →
-        subst (λ s → ⟨ P C s ⟩)
-          (sym (case-nat t l r γ (γ↑ γ) (λ i → refl) refl
-                                 (γ↑ γ) (λ i → refl) refl
-                ∙ cong (λ s → case' s (l ⟪ γ↑ γ ⟫) (r ⟪ γ↑ γ ⟫)) p
-                ∙ +β₁ a (l ⟪ γ↑ γ ⟫) (r ⟪ γ↑ γ ⟫)
-                    (Sum.elim var (λ _ → a)) (λ i → refl) refl
-                ∙ ⟪⟫⟪⟫ l (γ↑ γ) (Sum.elim var (λ _ → a))
-                ∙ cong (l ⟪_⟫) (funExt (γ↑-ext γ a))))
-          (dl (ext γ a) (extP γᴰ aᴰ)))
-      (λ (b , p , bᴰ) →
-        subst (λ s → ⟨ P C s ⟩)
-          (sym (case-nat t l r γ (γ↑ γ) (λ i → refl) refl
-                                 (γ↑ γ) (λ i → refl) refl
-                ∙ cong (λ s → case' s (l ⟪ γ↑ γ ⟫) (r ⟪ γ↑ γ ⟫)) p
-                ∙ +β₂ b (l ⟪ γ↑ γ ⟫) (r ⟪ γ↑ γ ⟫)
-                    (Sum.elim var (λ _ → b)) (λ i → refl) refl
-                ∙ ⟪⟫⟪⟫ r (γ↑ γ) (Sum.elim var (λ _ → b))
-                ∙ cong (r ⟪_⟫) (funExt (γ↑-ext γ b))))
-          (dr (ext γ b) (extP γᴰ bᴰ))))
-    (dt γ γᴰ)
--- the sixteen laws, all by prop-valuedness of P
+-- the eleven laws, all by prop-valuedness of P
 CanModel .DM.⊤ηᴰ {t = t} tᴰ = isProp→PathP (λ k → isPropD (⊤η t k)) _ _
 CanModel .DM.pair-natᴰ {a = a} {b = b} {f = f} aᴰ bᴰ fᴰ =
   isProp→PathP (λ k → isPropD (pair-nat a b f k)) _ _
@@ -207,30 +179,12 @@ CanModel .DM.×β₂ᴰ {a = a} {b = b} aᴰ bᴰ =
 CanModel .DM.×ηᴰ {t = t} tᴰ = isProp→PathP (λ k → isPropD (×η t k)) _ _
 CanModel .DM.app-natᴰ {t = t} {u = u} {f = f} tᴰ uᴰ fᴰ =
   isProp→PathP (λ k → isPropD (app-nat t u f k)) _ _
-CanModel .DM.inl-natᴰ {a = a} {f = f} aᴰ fᴰ =
-  isProp→PathP (λ k → isPropD (inl-nat a f k)) _ _
-CanModel .DM.inr-natᴰ {b = b} {f = f} bᴰ fᴰ =
-  isProp→PathP (λ k → isPropD (inr-nat b f k)) _ _
 CanModel .DM.lam-natᴰ {t = t} {f = f} {f↑ = f↑} {f↑l = f↑l} {f↑r = f↑r}
   tᴰ fᴰ f↑ᴰ _ _ =
   isProp→PathP (λ k → isPropD (lam-nat t f f↑ f↑l f↑r k)) _ _
 CanModel .DM.⇒βᴰ {t = t} {u = u} {f = f} {fl = fl} {fr = fr} tᴰ uᴰ fᴰ _ _ =
   isProp→PathP (λ k → isPropD (⇒β t u f fl fr k)) _ _
 CanModel .DM.⇒ηᴰ {t = t} tᴰ = isProp→PathP (λ k → isPropD (⇒η t k)) _ _
-CanModel .DM.case-natᴰ {t = t} {l = l} {r = r} {f = f}
-  {fᴬ = fᴬ} {fᴬl = fᴬl} {fᴬr = fᴬr} {fᴮ = fᴮ} {fᴮl = fᴮl} {fᴮr = fᴮr}
-  tᴰ lᴰ rᴰ fᴰ fᴬᴰ fᴮᴰ _ _ _ _ =
-  isProp→PathP
-    (λ k → isPropD (case-nat t l r f fᴬ fᴬl fᴬr fᴮ fᴮl fᴮr k)) _ _
-CanModel .DM.+β₁ᴰ {a = a} {l = l} {r = r} {f = f} {fl = fl} {fr = fr}
-  aᴰ lᴰ rᴰ fᴰ _ _ = isProp→PathP (λ k → isPropD (+β₁ a l r f fl fr k)) _ _
-CanModel .DM.+β₂ᴰ {b = b} {l = l} {r = r} {f = f} {fl = fl} {fr = fr}
-  bᴰ lᴰ rᴰ fᴰ _ _ = isProp→PathP (λ k → isPropD (+β₂ b l r f fl fr k)) _ _
-CanModel .DM.+ηᴰ {t = t} {h = h} {f = f} {fl = fl} {fr = fr}
-  {gᴬ = gᴬ} {gᴬl = gᴬl} {gᴬr = gᴬr} {gᴮ = gᴮ} {gᴮl = gᴮl} {gᴮr = gᴮr}
-  tᴰ hᴰ fᴰ gᴬᴰ gᴮᴰ _ _ _ _ _ _ =
-  isProp→PathP
-    (λ k → isPropD (+η t h f fl fr gᴬ gᴬl gᴬr gᴮ gᴮl gᴮr k)) _ _
 
 -- the fundamental theorem itself
 fund : {I : Type} {Γ : Ctxt I} {A : Ty} (t : Tm I Γ A) → D t
@@ -243,40 +197,19 @@ FTLR : Sectionᴰ Glue
 FTLR .S-ob = P
 FTLR .S-hom = fund
 FTLR .S-var {Γ = Γ} i =
-  isPropΠ2 (λ γ _ → str (P (Γ i) _)) _ _
+  isPropΠ2 (λ γ _ → str (P (Γ i) (var i ⟪ γ ⟫))) _ _
 FTLR .S-⋆ {A = A} f g =
-  isPropΠ2 (λ γ _ → str (P A _)) _ _
+  isPropΠ2 (λ γ _ → str (P A (f ⟪ g ⟫ ⟪ γ ⟫))) _ _
 
 -- every closed term satisfies the predicate
 closed-P : {A : Ty} (t : Cl A) → ⟨ P A t ⟩
 closed-P {A} t =
   subst (λ s → ⟨ P A s ⟩) (closed-id t (λ ())) (fund t (λ ()) (λ ()))
 
--- CANONICITY for sums: every closed term of a sum type is an injection
-canonicity+ : {A B : Ty} (t : Cl (A +' B))
-  → ∥ (Σ[ a ∈ Cl A ] t ≡ inl' a) ⊎ (Σ[ b ∈ Cl B ] t ≡ inr' b) ∥₁
-canonicity+ t =
-  PT.map (Sum.elim (λ (a , p , _) → inl (a , p))
-                   (λ (b , p , _) → inr (b , p)))
-         (closed-P t)
-
--- … so the booleans are exactly true and false
-Bool' : Ty
-Bool' = ⊤' +' ⊤'
-
-true' false' : Cl Bool'
-true' = inl' tt'
-false' = inr' tt'
-
-canonicityBool : (t : Cl Bool') → ∥ (t ≡ true') ⊎ (t ≡ false') ∥₁
-canonicityBool t =
-  PT.map (Sum.elim (λ (a , p) → inl (p ∙ cong inl' (⊤η a)))
-                   (λ (b , p) → inr (p ∙ cong inr' (⊤η b))))
-         (canonicity+ t)
-
--- CANONICAL FORMS for the other formers.  These need no gluing: they
--- are the η rules, which is exactly the sense in which sums are the
--- hard case.
+-- CANONICAL FORMS, one per former.  Each is UNTRUNCATED, and each is
+-- read straight off the corresponding η rule — which is why removing
+-- sums removes every truncation: sums are the one former whose closed
+-- terms are described by a DISJUNCTION rather than by an η rule.
 canonicity⊤ : (t : Cl ⊤') → t ≡ tt'
 canonicity⊤ = ⊤η
 

@@ -30,8 +30,9 @@ open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
-variable
-  ℓ ℓᴰ ℓᴰᴰ ℓ' ℓᴰ' ℓᴰᴰ' ℓ'' ℓᴰ'' ℓO ℓA ℓE : Level
+private
+  variable
+    ℓ ℓᴰ ℓᴰᴰ ℓ' ℓᴰ' ℓᴰᴰ' ℓ'' ℓᴰ'' ℓO ℓA ℓE : Level
 
 record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
   -- I don't see a reason we would need eta equality for Signatures,
@@ -410,3 +411,132 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
     recFA-uniq : ∀ (ϕ : Homo (FreeAlgebra X) A) → ϕ .fst ≡ recFA (ϕ .fst ∘ var) .fst
     recFA-uniq ϕ = PathAlgReflection A ϕ (recFA (ϕ .fst ∘ var))
       (elimFA (×intro {A = A}{B = A} ϕ (recFA (ϕ .fst ∘ var)) * PathAlg A) λ _ → refl)
+
+  -- Displayed structure
+  -- Vertical Products
+  module _ {A : Algebra ℓ}(B : Algebraᴰ A ℓᴰ)(B' : Algebraᴰ A ℓᴰ') where
+    _×ⱽ_ : Algebraᴰ A (ℓ-max ℓᴰ ℓᴰ')
+    _×ⱽ_ .fst = λ a → B .fst a × B' .fst a
+    _×ⱽ_ .snd = λ op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ →
+                   B .snd op γ (λ v → γᴰ v .fst) op⟨γ⟩ op∘γ≡op⟨γ⟩ ,
+                   B' .snd op γ (λ v → γᴰ v .snd) op⟨γ⟩ op∘γ≡op⟨γ⟩
+  module _ {A : Algebra ℓ} where
+    ⊤*ⱽ : Algebraᴰ A ℓᴰ
+    ⊤*ⱽ .fst a = Unit*
+    ⊤*ⱽ .snd = λ op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ → tt*
+
+  module _ {X : Type ℓ}(Xᴰ : X → Type ℓᴰ) where
+    data |FreeAlgebraᴰ| : |FreeAlgebra| X → Type (ℓ-max ℓ (ℓ-max ℓA (ℓ-max ℓO ℓᴰ))) where
+      var : ∀ {x} (xᴰ : Xᴰ x) → |FreeAlgebraᴰ| (var x)
+      app : ∀ op γ
+        (γᴰ : (v : Arity op) → |FreeAlgebraᴰ| (γ v))
+        op⟨γ⟩
+        (op∘γ≡op⟨γ⟩ : FreeAlgebra X .snd op γ ≡ op⟨γ⟩)
+        → |FreeAlgebraᴰ| op⟨γ⟩
+    -- TODO: prove isSet
+
+    FreeAlgebraᴰ : Algebraᴰ (FreeAlgebra X) (ℓ-max (ℓ-max (ℓ-max ℓO ℓA) ℓ) ℓᴰ)
+    FreeAlgebraᴰ .fst = |FreeAlgebraᴰ|
+    FreeAlgebraᴰ .snd = app
+
+    module _ (isSetOp : isSet Op) (isSetX : isSet X)
+      (isSetXᴰ : ∀ x → isSet (Xᴰ x)) where
+      private
+        isSetFree : isSet (|FreeAlgebra| X)
+        isSetFree = isSetFreeAlgebra isSetOp isSetX
+
+        FreeShapeᴰ : |FreeAlgebra| X → Type _
+        FreeShapeᴰ t =
+          (Σ[ x ∈ X ] Xᴰ x × (var x ≡ t))
+          ⊎ (Σ[ op ∈ Op ] Σ[ γ ∈ (Arity op → |FreeAlgebra| X) ] app op γ ≡ t)
+
+        FreePositionᴰ : ∀ {t} → FreeShapeᴰ t → Type ℓA
+        FreePositionᴰ (inl _) = Lift ℓA ⊥
+        FreePositionᴰ (inr (op , _)) = Arity op
+
+        FreeIndexᴰ : ∀ t (s : FreeShapeᴰ t) → FreePositionᴰ s → |FreeAlgebra| X
+        FreeIndexᴰ t (inl _) (lift ())
+        FreeIndexᴰ t (inr (op , γ , _)) v = γ v
+
+        FreeIWᴰ : |FreeAlgebra| X → Type _
+        FreeIWᴰ = IW FreeShapeᴰ (λ _ → FreePositionᴰ) FreeIndexᴰ
+
+        FreeAlgebraᴰ→IW : ∀ {t} → |FreeAlgebraᴰ| t → FreeIWᴰ t
+        FreeAlgebraᴰ→IW (var {x = x} xᴰ) =
+          node (inl (x , xᴰ , refl)) λ { (lift ()) }
+        FreeAlgebraᴰ→IW (app op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩) =
+          node (inr (op , γ , op∘γ≡op⟨γ⟩))
+            (λ v → FreeAlgebraᴰ→IW (γᴰ v))
+
+        IW→FreeAlgebraᴰ : ∀ {t} → FreeIWᴰ t → |FreeAlgebraᴰ| t
+        IW→FreeAlgebraᴰ (node (inl (x , xᴰ , p)) γ) =
+          subst |FreeAlgebraᴰ| p (var xᴰ)
+        IW→FreeAlgebraᴰ (node (inr (op , γ , p)) γᴰ) =
+          app op γ (λ v → IW→FreeAlgebraᴰ (γᴰ v)) _ p
+
+        IW→FreeAlgebraᴰ→IW : ∀ {t} (tᴰ : |FreeAlgebraᴰ| t)
+          → IW→FreeAlgebraᴰ (FreeAlgebraᴰ→IW tᴰ) ≡ tᴰ
+        IW→FreeAlgebraᴰ→IW (var xᴰ) =
+          substRefl {B = |FreeAlgebraᴰ|} (|FreeAlgebraᴰ|.var xᴰ)
+        IW→FreeAlgebraᴰ→IW (app op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩) =
+          cong
+            (λ γᴰ' → app op γ γᴰ' op⟨γ⟩ op∘γ≡op⟨γ⟩)
+            (funExt λ v → IW→FreeAlgebraᴰ→IW (γᴰ v))
+
+        isSetFreeShapeᴰ : ∀ t → isSet (FreeShapeᴰ t)
+        isSetFreeShapeᴰ t = isSet⊎
+          (isSetΣ isSetX λ x →
+            isSet× (isSetXᴰ x) (isProp→isSet (isSetFree _ _)))
+          (isSetΣ isSetOp λ op →
+            isSetΣ (isSetΠ λ _ → isSetFree) λ γ →
+              isProp→isSet (isSetFree _ _))
+
+      isSetFreeAlgebraᴰ : ∀ t → isSet (|FreeAlgebraᴰ| t)
+      isSetFreeAlgebraᴰ t =
+        isSetRetract FreeAlgebraᴰ→IW IW→FreeAlgebraᴰ IW→FreeAlgebraᴰ→IW
+          (isOfHLevelSuc-IW 1 isSetFreeShapeᴰ t)
+
+    module _ {A : Algebra ℓ'} (ϕ : Homo (FreeAlgebra X) A)
+      (Aᴰ : Algebraᴰ A ℓᴰ')
+      (ıᴰ : ∀ x → Xᴰ x → Aᴰ .fst (ϕ .fst (var x))) where
+      |recFAᴰ| : ∀ {t} → |FreeAlgebraᴰ| t → Aᴰ .fst (ϕ .fst t)
+      |recFAᴰ| (var {x = x} xᴰ) = ıᴰ x xᴰ
+      |recFAᴰ| (app op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩) =
+        Aᴰ .snd op (ϕ .fst ∘ γ) (λ v → |recFAᴰ| (γᴰ v))
+          (ϕ .fst op⟨γ⟩)
+          (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩)
+
+      recFAᴰ : Homoᴰ ϕ FreeAlgebraᴰ Aᴰ
+      recFAᴰ .fst _ = |recFAᴰ|
+      recFAᴰ .snd op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ =
+        J
+          (λ op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ →
+            Aᴰ .snd op (ϕ .fst ∘ γ) (λ v → |recFAᴰ| (γᴰ v))
+              (ϕ .fst op⟨γ⟩)
+              (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩)
+              ≡ |recFAᴰ| op⟨γᴰ⟩)
+          refl
+          op∘γᴰ≡op⟨γᴰ⟩
+
+    module _ {A : Algebra ℓ'} (ϕ : Homo (FreeAlgebra X) A)
+      (Aᴰ : Algebraᴰ A ℓᴰ')
+      (ϕᴰ : Homoᴰ ϕ FreeAlgebraᴰ Aᴰ) where
+      private
+        ıᴰ : ∀ x → Xᴰ x → Aᴰ .fst (ϕ .fst (var x))
+        ıᴰ x xᴰ = ϕᴰ .fst (var x) (var xᴰ)
+
+        |recFAᴰ|-η : ∀ {t} (tᴰ : |FreeAlgebraᴰ| t)
+          → ϕᴰ .fst t tᴰ ≡ |recFAᴰ| ϕ Aᴰ ıᴰ tᴰ
+        |recFAᴰ|-η (var xᴰ) = refl
+        |recFAᴰ|-η (app op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩) =
+          sym (ϕᴰ .snd op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩
+            (app op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩) refl)
+          ∙ cong
+              (λ γᴰ' →
+                Aᴰ .snd op (ϕ .fst ∘ γ) γᴰ'
+                  (ϕ .fst op⟨γ⟩)
+                  (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩))
+              (funExt λ v → |recFAᴰ|-η (γᴰ v))
+
+      recFAᴰ-η : ϕᴰ .fst ≡ recFAᴰ ϕ Aᴰ ıᴰ .fst
+      recFAᴰ-η = funExt λ t → funExt λ tᴰ → |recFAᴰ|-η tᴰ

@@ -25,7 +25,6 @@ open import Cubical.Categories.Profunctor.Relator
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Instances.StructureOver
 open import Cubical.Categories.Displayed.Limits.BinProduct
 open import Cubical.Categories.Displayed.Limits.Terminal
 open import Cubical.Categories.Displayed.Presheaf.Representable
@@ -34,11 +33,10 @@ open import Cubical.Algebra.Signature.Base
 
 private
   variable
-    ℓC ℓC' ℓD ℓD' ℓS : Level
+    ℓ ℓC ℓC' ℓD ℓD' ℓS : Level
 
 open Category
 open Categoryᴰ
-open StructureOver
 open Functor
 open UniversalElement
 open UniversalElementᴰ
@@ -60,13 +58,13 @@ module _ {ℓO ℓA}(Sig : Signature ℓO ℓA) where
   ALG : ∀ ℓ → Category _ _
   ALG ℓ = ∫C (ALGOver ℓ)
 
+  ALGForget : Functor (ALG ℓ) (SET ℓ)
+  ALGForget = TotalCat.Fst
+
   AlgebraLevel : Level
   AlgebraLevel = ℓ-max ℓO ℓA
 
   module _ (isSetOp : isSet Op) where
-    ALGForget : Functor (ALG AlgebraLevel) (SET AlgebraLevel)
-    ALGForget = TotalCat.Fst
-
     FreeALG : hSet AlgebraLevel → ALG AlgebraLevel .ob
     FreeALG X .fst = |FreeAlgebra| ⟨ X ⟩ , isSetFreeAlgebra isSetOp (X .snd)
     FreeALG X .snd = app

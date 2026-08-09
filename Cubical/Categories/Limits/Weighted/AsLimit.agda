@@ -47,6 +47,7 @@ module _ {J : Category ℓj ℓj'} (W : Presheaf J ℓw) (D : Presheaf J ℓd) w
   tautCone .coneOutCommutes {j' , w'} {j , w} (f , e) =
     funExt λ α → cong lift (α .N-hom j j' f w' w (Eq.eqToPath e))
 
+  -- TODO isLimCone should be redefined using UniversalElement
   isLimTautCone : isLimCone Diag ⟦ W , D ⟧ tautCone
   isLimTautCone V cc = (m , isCM) , uniq
     where

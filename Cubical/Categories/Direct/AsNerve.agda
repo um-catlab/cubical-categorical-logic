@@ -11,7 +11,9 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.StrictHom.Base
+open import Cubical.Categories.Limits.Limits
 open import Cubical.Categories.Limits.Weighted
+open import Cubical.Categories.Limits.Weighted.AsLimit
 open import Cubical.Categories.Direct.Base
 open import Cubical.Categories.Direct.StrictDownset
 
@@ -44,3 +46,9 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'} (dir : DirectStr C Wo)
         → next dir P .N-ob x p
           ≡ NerveMap ↡inclNT P .N-ob x (yoNerve P .N-ob x p)
   next≡ P x p = makePshHomStrictPath refl
+
+  -- ▷P x is the limit in SET of P over the strict downset of x
+  ▷isLimit : (P : Presheaf C ℓP) (x : ob)
+    → isLimCone (Diag (↡Psh dir x) P) (▷Psh dir P .F-ob x)
+                (tautCone (↡Psh dir x) P)
+  ▷isLimit P x = isLimTautCone (↡Psh dir x) P

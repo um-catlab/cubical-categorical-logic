@@ -96,15 +96,15 @@ module _ {J : Category ℓj ℓj'} (D : Presheaf J ℓd) where
   ConicalLim : hSet _
   ConicalLim = ⟦ UnitPsh {C = J} , D ⟧
 
-  Cone : Type (ℓ-max (ℓ-max ℓj ℓj') ℓd)
-  Cone = Σ[ t ∈ ((j : J.ob) → ⟨ D .F-ob j ⟩) ]
+  ConeΣ : Type (ℓ-max (ℓ-max ℓj ℓj') ℓd)
+  ConeΣ = Σ[ t ∈ ((j : J.ob) → ⟨ D .F-ob j ⟩) ]
            ((c c' : J.ob) (f : J [ c , c' ]) → D .F-hom f (t c') ≡ t c)
 
   isPropConeNat : (t : (j : J.ob) → ⟨ D .F-ob j ⟩)
     → isProp ((c c' : J.ob) (f : J [ c , c' ]) → D .F-hom f (t c') ≡ t c)
   isPropConeNat t = isPropΠ3 λ c _ _ → D .F-ob c .snd _ _
 
-  conicalIso : Iso ⟨ ConicalLim ⟩ Cone
+  conicalIso : Iso ⟨ ConicalLim ⟩ ConeΣ
   conicalIso .fun α = (λ j → α .N-ob j tt)
                     , (λ c c' f → α .N-hom c c' f tt tt refl)
   conicalIso .inv (t , nat) = pshhom (λ j _ → t j) (λ c c' f _ _ _ → nat c c' f)

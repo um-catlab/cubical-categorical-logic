@@ -39,6 +39,7 @@ module _ {M : MonoidalCategory ℓC ℓC'} {N : MonoidalCategory ℓD ℓD'}
       (isIsoFibrationIso (MonoidalCategory.C N)))
 
   private
+    -- this is true but takes a long time without lossy-unification
     test-defn :
       MonoidalCategoryᴰ.Cᴰ IsoFiber
       ≡ |IsoFiber|.IsoFiber (StrongMonoidalFunctor.F G)

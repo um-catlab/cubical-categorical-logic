@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.StrictHom.CartesianClosed where
 
 open import Cubical.Foundations.Prelude

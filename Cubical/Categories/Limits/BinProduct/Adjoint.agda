@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 {-
 
   These are some alternative definitions of CartesianProduct.

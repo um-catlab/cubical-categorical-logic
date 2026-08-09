@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.Constructions.RightAdjoint where
 
 open import Cubical.Foundations.Prelude

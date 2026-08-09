@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.CBPV.Base where
 
 open import Cubical.Foundations.Prelude
@@ -33,4 +32,4 @@ record CBPVModel (ℓC ℓC' ℓVTy ℓVTm ℓCTy ℓCTm : Level) :
   V = PshMon.𝓟Mon C ℓCTm
   field
     Stacks : EnrichedCategory V ℓCTy
-    CTm : EnrichedFunctor V Stacks (self C _)
+    CTm : EnrichedFunctor V Stacks (self C ℓCTm)

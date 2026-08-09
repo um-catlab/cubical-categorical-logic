@@ -64,3 +64,35 @@ module _ {J : Category ℓj ℓj'} (W : Presheaf J ℓw) (D : Presheaf J ℓd) w
       uniq (m' , p') = Σ≡Prop (λ g → isPropIsConeMor cc tautCone g)
         (funExt λ v → limPath (funExt λ j → funExt λ w →
           sym (cong lower (funExt⁻ (p' (j , w)) v))))
+
+-- At a single level there is no Lift: the diagram is D itself.
+module _ {ℓ : Level} {J : Category ℓ ℓ} (W D : Presheaf J ℓ) where
+
+  Elts₀ : Category ℓ ℓ
+  Elts₀ = ∫C (EqElement W)
+
+  Diag₀ : Functor (Elts₀ ^op) (SET ℓ)
+  Diag₀ = D ∘F (Fst ^opF)
+
+  tautCone₀ : Cone Diag₀ ⟦ W , D ⟧
+  tautCone₀ .coneOut (j , w) α = α .N-ob j w
+  tautCone₀ .coneOutCommutes {j' , w'} {j , w} (f , e) =
+    funExt λ α → α .N-hom j j' f w' w (Eq.eqToPath e)
+
+  isLimTautCone₀ : isLimCone Diag₀ ⟦ W , D ⟧ tautCone₀
+  isLimTautCone₀ V cc = (m , isCM) , uniq
+    where
+      m : ⟨ V ⟩ → PshHomStrict W D
+      m v = pshhom
+        (λ j w → cc .coneOut (j , w) v)
+        (λ c c' f p' p e →
+          funExt⁻ (cc .coneOutCommutes (f , Eq.pathToEq e)) v)
+
+      isCM : isConeMor cc tautCone₀ m
+      isCM (j , w) = refl
+
+      uniq : (y : Σ[ g ∈ (⟨ V ⟩ → PshHomStrict W D) ] isConeMor cc tautCone₀ g)
+           → (m , isCM) ≡ y
+      uniq (m' , p') = Σ≡Prop (λ g → isPropIsConeMor cc tautCone₀ g)
+        (funExt λ v → limPath (funExt λ j → funExt λ w →
+          sym (funExt⁻ (p' (j , w)) v)))

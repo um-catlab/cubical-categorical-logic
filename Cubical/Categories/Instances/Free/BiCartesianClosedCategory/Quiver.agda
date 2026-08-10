@@ -15,13 +15,15 @@ module _ (ob : Type ℓ) where
     _×_ _+_ _⇒_ : BiCCCExpr → BiCCCExpr → BiCCCExpr
     ⊥ ⊤ : BiCCCExpr
 
-embedClosed : ∀ {O : Type ℓ} → BiCCCExpr Empty.⊥ → BiCCCExpr O
-embedClosed (↑ ())
-embedClosed (A × B) = embedClosed A × embedClosed B
-embedClosed (A + B) = embedClosed A + embedClosed B
-embedClosed (A ⇒ B) = embedClosed A ⇒ embedClosed B
-embedClosed ⊥ = ⊥
-embedClosed ⊤ = ⊤
+recBiCCCExpr : ∀ {A : Type ℓ}{B : Type ℓ'} →
+  (f : A → B) →
+  BiCCCExpr A → BiCCCExpr B
+recBiCCCExpr f (↑ x) = ↑ f x
+recBiCCCExpr f (e × e') = recBiCCCExpr f e × recBiCCCExpr f e'
+recBiCCCExpr f (e + e') = recBiCCCExpr f e + recBiCCCExpr f e'
+recBiCCCExpr f (e ⇒ e') = recBiCCCExpr f e ⇒ recBiCCCExpr f e'
+recBiCCCExpr f ⊥ = ⊥
+recBiCCCExpr f ⊤ = ⊤
 
 record +×⇒Quiver ℓ ℓ' : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   field

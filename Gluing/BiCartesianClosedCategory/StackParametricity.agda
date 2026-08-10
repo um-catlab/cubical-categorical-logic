@@ -32,6 +32,10 @@ open Section
 data OB : Type where
   stack : OB
 
+private
+  embedClosed : BiCCCExpr Empty.⊥ → BiCCCExpr OB
+  embedClosed = recBiCCCExpr λ ()
+
 data MOR : Type where
   emptyStack : MOR
   push : MOR

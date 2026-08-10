@@ -33,6 +33,10 @@ module _ where
   data OB : Type where
     X : OB
 
+  private
+    embedClosed : BiCCCExpr Empty.⊥ → BiCCCExpr OB
+    embedClosed = recBiCCCExpr λ ()
+
   data MOR : Type ℓ-zero where
     init flip read : MOR
 

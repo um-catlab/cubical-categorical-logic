@@ -433,7 +433,6 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
         op⟨γ⟩
         (op∘γ≡op⟨γ⟩ : FreeAlgebra X .snd op γ ≡ op⟨γ⟩)
         → |FreeAlgebraᴰ| op⟨γ⟩
-    -- TODO: prove isSet
 
     FreeAlgebraᴰ : Algebraᴰ (FreeAlgebra X) (ℓ-max (ℓ-max (ℓ-max ℓO ℓA) ℓ) ℓᴰ)
     FreeAlgebraᴰ .fst = |FreeAlgebraᴰ|

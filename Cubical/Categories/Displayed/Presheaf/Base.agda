@@ -26,7 +26,7 @@ import Cubical.Categories.Instances.TotalCategory.More as TotalCat
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Functor
+open import Cubical.Categories.Displayed.Instances.Functor.Base
 
 private
   variable

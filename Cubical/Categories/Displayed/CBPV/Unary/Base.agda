@@ -24,10 +24,12 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable.More
+open import Cubical.Categories.Profunctor.General
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
@@ -58,6 +60,103 @@ module _ (C : CBPVCat ℓ ℓ') where
 
   ComputationOb : Type ℓ
   ComputationOb = C.ob[ 𝓒 ]
+
+private
+  module KIND = Category KIND
+
+KINDIdL : ∀ {x y} (f : KIND [ x , y ]) → KIND.id KIND.⋆ f Eq.≡ f
+KINDIdL _ = Eq.refl
+
+KINDIdR : ∀ {x y} (f : KIND [ x , y ]) → f KIND.⋆ KIND.id Eq.≡ f
+KINDIdR _ = Eq.refl
+
+module _ (C : CBPVCat ℓ ℓ') where
+  private
+    module C = Fibers.EqFibers C KINDIdL KINDIdR
+
+  ValueCat : Category ℓ ℓ'
+  ValueCat = C.v[ 𝓥 ]
+
+  ComputationCat : Category ℓ ℓ'
+  ComputationCat = C.v[ 𝓒 ]
+
+  VCProf : Profunctor ComputationCat ValueCat ℓ'
+  VCProf = C.HomᴰProf (ı tt)
+
+  ValueIncl : Functor ValueCat (∫C C)
+  ValueIncl .Functor.F-ob A = 𝓥 , A
+  ValueIncl .Functor.F-hom V = Category.id KIND , V
+  ValueIncl .Functor.F-id = refl
+  ValueIncl .Functor.F-seq _ _ = refl
+
+  ComputationIncl : Functor ComputationCat (∫C C)
+  ComputationIncl .Functor.F-ob B = 𝓒 , B
+  ComputationIncl .Functor.F-hom S = Category.id KIND , S
+  ComputationIncl .Functor.F-id = refl
+  ComputationIncl .Functor.F-seq _ _ = refl
+
+module _ {C : CBPVCat ℓ ℓ'}
+  (Cᴰ : Categoryᴰ (∫C C) ℓCᴰ ℓCᴰ') where
+  ValueCatᴰ : Categoryᴰ (ValueCat C) ℓCᴰ ℓCᴰ'
+  ValueCatᴰ = reindex Cᴰ (ValueIncl C)
+
+  ComputationCatᴰ : Categoryᴰ (ComputationCat C) ℓCᴰ ℓCᴰ'
+  ComputationCatᴰ = reindex Cᴰ (ComputationIncl C)
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓ'}
+  (F : Functorⱽ C D)
+  where
+  private
+    module F = Functorᴰ F
+
+  ValueF : Functor (ValueCat C) (ValueCat D)
+  ValueF = EqFiberFunctor KINDIdL KINDIdR F 𝓥
+
+  ComputationF : Functor (ComputationCat C) (ComputationCat D)
+  ComputationF = EqFiberFunctor KINDIdL KINDIdR F 𝓒
+
+  VCProfHom : ∀ B → PshHom
+    (VCProf C ⟅ B ⟆)
+    ((VCProf D ⟅ (ComputationF ⟅ B ⟆) ⟆) ∘F (ValueF ^opF))
+  VCProfHom B .PshHom.N-ob A = F.F-homᴰ
+  VCProfHom B .PshHom.N-hom A A' V M = F.F-seqᴰ V M
+
+  VCProfReindex : Profunctor (ComputationCat C) (ValueCat C) ℓ'
+  VCProfReindex =
+    precomposeF (SET ℓ') (ValueF ^opF)
+    ∘F VCProf D
+    ∘F ComputationF
+
+  VCProfNatTrans : NatTrans (VCProf C) VCProfReindex
+  VCProfNatTrans .NatTrans.N-ob B = PshHom→NatTrans (VCProfHom B)
+  VCProfNatTrans .NatTrans.N-hom S = makeNatTransPath
+    (funExt λ A → funExt λ M → F.F-seqᴰ M S)
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓ'}
+  (F : Functorⱽ C D)
+  (Dᴰ : Categoryᴰ (∫C D) ℓCᴰ ℓCᴰ')
+  where
+  private
+    F*Dᴰ : Categoryᴰ (∫C C) ℓCᴰ ℓCᴰ'
+    F*Dᴰ = reindex Dᴰ (∫F F)
+
+  ValueFᴰ : Functorᴰ
+    (ValueF F)
+    (ValueCatᴰ F*Dᴰ)
+    (ValueCatᴰ Dᴰ)
+  ValueFᴰ = introF (ValueF F)
+    (reindF' (ValueIncl D ∘F ValueF F) Eq.refl Eq.refl
+      (π Dᴰ (∫F F) ∘Fᴰ π F*Dᴰ (ValueIncl C)))
+
+  ComputationFᴰ : Functorᴰ
+    (ComputationF F)
+    (ComputationCatᴰ F*Dᴰ)
+    (ComputationCatᴰ Dᴰ)
+  ComputationFᴰ = introF (ComputationF F)
+    (reindF' (ComputationIncl D ∘F ComputationF F) Eq.refl Eq.refl
+      (π Dᴰ (∫F F) ∘Fᴰ π F*Dᴰ (ComputationIncl C)))
 
 KINDAssoc : EqPsh.ReprEqAssoc KIND
 KINDAssoc _ _ _ _ _ _ = Eq.refl

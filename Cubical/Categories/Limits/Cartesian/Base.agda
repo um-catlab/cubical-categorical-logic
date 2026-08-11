@@ -13,7 +13,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 
 private
   variable
-    ℓ ℓ' ℓC ℓC' ℓD ℓD' : Level
+    ℓ ℓ' ℓC ℓC' ℓD ℓD' ℓE ℓE' : Level
 
 record CartesianCategory (ℓ ℓ' : Level) : Type (ℓ-max (ℓ-suc ℓ) (ℓ-suc ℓ')) where
   no-eta-equality
@@ -54,3 +54,29 @@ CartesianFunctor CC D =
   Σ[ F ∈ Functor (CC .C) D ]
   preservesProvidedBinProducts F (CC .bp)
   where open CartesianCategory
+
+open Functor
+
+module _
+  {C : CartesianCategory ℓC ℓC'}
+  {D : CartesianCategory ℓD ℓD'}
+  {E : Category ℓE ℓE'} where
+  private
+    module C = CartesianCategory C
+    module D = CartesianCategory D
+
+  compCF : CartesianFunctor D E → CartesianFunctor C D.C → CartesianFunctor C E
+  compCF G F = G .fst ∘F F .fst , goal
+    where
+    goal : preservesProvidedBinProducts (G .fst ∘F F .fst) C.bp
+    goal c c' =
+      preservesUniversalElements-⋆PshHet α β
+        (preservesUniversalElement→PreservesUniversalElements
+          α (C.bp (c , c')) (F .snd c c'))
+        (preservesUniversalElement→PreservesUniversalElements
+          β (D.bp (F .fst ⟅ c ⟆ , F .fst ⟅ c' ⟆))
+          (G .snd (F .fst ⟅ c ⟆) (F .fst ⟅ c' ⟆)))
+        (C.bp (c , c'))
+      where
+      α = preservesBinProdCones (F .fst) c c'
+      β = preservesBinProdCones (G .fst) (F .fst ⟅ c ⟆) (F .fst ⟅ c' ⟆)

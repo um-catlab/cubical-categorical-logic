@@ -3,7 +3,11 @@ module Cubical.Data.Sum.More where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Transport
 open import Cubical.Data.Sum
+open import Cubical.Data.Sum.Properties
+import Cubical.Data.Empty as Empty
 
 private
   variable
@@ -45,3 +49,55 @@ open Iso
 ΣDistR⊎Iso .sec (inr (a , c)) = refl
 ΣDistR⊎Iso .ret (a , inl b) = refl
 ΣDistR⊎Iso .ret (a , inr c) = refl
+
+PathP-inl-inj :
+  ∀ {ℓ₁ ℓ₂} {A : I → Type ℓ₁} {B : I → Type ℓ₂}
+    {x : A i0} {y : A i1} →
+  PathP (λ i → A i ⊎ B i) (inl x) (inl y) →
+  PathP A x y
+PathP-inl-inj {A = A} {B = B} {x = x} {y = y} r =
+  toPathP
+    (lower
+      (⊎Path.encode
+        (inl (transport (λ i → A i) x)) (inl y)
+        (sym (substCommSlice fst (λ z → fst z ⊎ snd z)
+                (λ _ → inl) (λ i → A i , B i) x)
+         ∙ fromPathP r)))
+
+PathP-inr-inj :
+  ∀ {ℓ₁ ℓ₂} {A : I → Type ℓ₁} {B : I → Type ℓ₂}
+    {x : B i0} {y : B i1} →
+  PathP (λ i → A i ⊎ B i) (inr x) (inr y) →
+  PathP B x y
+PathP-inr-inj {A = A} {B = B} {x = x} {y = y} r =
+  toPathP
+    (lower
+      (⊎Path.encode
+        (inr (transport (λ i → B i) x)) (inr y)
+        (sym (substCommSlice snd (λ z → fst z ⊎ snd z)
+                (λ _ → inr) (λ i → A i , B i) x)
+         ∙ fromPathP r)))
+
+PathP-inl≢inr :
+  ∀ {ℓ₁ ℓ₂} {A : I → Type ℓ₁} {B : I → Type ℓ₂}
+    {x : A i0} {y : B i1} →
+  PathP (λ i → A i ⊎ B i) (inl x) (inr y) → Empty.⊥
+PathP-inl≢inr {A = A} {B = B} {x = x} {y = y} r =
+  lower
+    (⊎Path.encode
+      (inl (transport (λ i → A i) x)) (inr y)
+      (sym (substCommSlice fst (λ z → fst z ⊎ snd z)
+              (λ _ → inl) (λ i → A i , B i) x)
+       ∙ fromPathP r))
+
+PathP-inr≢inl :
+  ∀ {ℓ₁ ℓ₂} {A : I → Type ℓ₁} {B : I → Type ℓ₂}
+    {x : B i0} {y : A i1} →
+  PathP (λ i → A i ⊎ B i) (inr x) (inl y) → Empty.⊥
+PathP-inr≢inl {A = A} {B = B} {x = x} {y = y} r =
+  lower
+    (⊎Path.encode
+      (inr (transport (λ i → B i) x)) (inl y)
+      (sym (substCommSlice snd (λ z → fst z ⊎ snd z)
+              (λ _ → inr) (λ i → A i , B i) x)
+       ∙ fromPathP r))

@@ -117,16 +117,51 @@ imageComplementIso {n} {m} f = iso to from secProof retProof
   ... | no _ = cong inr
     (Σ≡Prop (λ _ → isPropΠ (λ _ → isProp⊥)) refl)
 
+imageComplementIso-image : {n m : ℕ} (f : Injection n m)
+  {y : Fin m} (xy : ImageFiber f y) →
+  Iso.inv (imageComplementIso f) y ≡ inl (xy .fst)
+imageComplementIso-image f {y} (x , fx≡y) with image? f y
+... | yes (x' , fx'≡y) = cong inl
+  (isEmbedding→Inj (f .snd) x' x (fx'≡y ∙ sym fx≡y))
+... | no not-image = ⊥.rec (not-image (x , fx≡y))
+
+imageComplementIso-complement : {n m : ℕ} (f : Injection n m)
+  (y : Fin m) (not-image : ¬ ImageFiber f y) →
+  Iso.inv (imageComplementIso f) y ≡ inr (y , not-image)
+imageComplementIso-complement f y not-image with image? f y
+... | yes in-image = ⊥.rec (not-image in-image)
+... | no _ = cong inr
+  (Σ≡Prop (λ _ → isPropΠ (λ _ → isProp⊥)) refl)
+
+complementEnumerationIso : {n m : ℕ} (f : Injection n m) →
+  Iso (Complement f) (Fin (complementSize f))
+complementEnumerationIso f = equivToIso
+  (complementFinOrd f .snd ∙ₑ invEquiv SumFin.FinData≃SumFin)
+
+complementIndex : {n m : ℕ} (f : Injection n m) →
+  Complement f → Fin (complementSize f)
+complementIndex f = Iso.fun (complementEnumerationIso f)
+
 finiteImageComplementIso : {n m : ℕ} → (f : Injection n m) →
   Iso (Fin n ⊎ Fin (complementSize f)) (Fin m)
 finiteImageComplementIso f =
   compIso
-    (⊎Iso idIso
-      (equivToIso
-        (compEquiv
-          SumFin.FinData≃SumFin
-          (invEquiv (complementFinOrd f .snd)))))
+    (⊎Iso idIso (invIso (complementEnumerationIso f)))
     (imageComplementIso f)
+
+finiteImageComplementIso-inv : {n m : ℕ} (f : Injection n m)
+  (y : Fin m) →
+  Iso.inv (finiteImageComplementIso f) y
+  ≡ Iso.fun (⊎Iso idIso (complementEnumerationIso f))
+      (Iso.inv (imageComplementIso f) y)
+finiteImageComplementIso-inv f y = inverse-sum
+  (Iso.inv (imageComplementIso f) y)
+  where
+  inverse-sum : (s : Fin _ ⊎ Complement f) →
+    Iso.inv (⊎Iso idIso (invIso (complementEnumerationIso f))) s
+    ≡ Iso.fun (⊎Iso idIso (complementEnumerationIso f)) s
+  inverse-sum (inl _) = refl
+  inverse-sum (inr _) = refl
 
 extendAlong : {n m p : ℕ} →
   (f : Injection n m) →
@@ -139,6 +174,106 @@ extendAlong {p = p} f g =
       (⊎Monotone↪ g (id↪ (Fin (complementSize f))))
       (Equiv→Embedding
         (isoToEquiv (invIso (finiteImageComplementIso f)))))
+
+extendAlong-commutes : {n m p : ℕ}
+  (f : Injection n m) (g : Injection n p) →
+  composeInjection f (extendAlong f g)
+  ≡ composeInjection g extendInjection
+extendAlong-commutes {p = p} f g = injection≡ (funExt lemma)
+  where
+  ext = complementSize f
+
+  lemma : ∀ x →
+    extendAlong f g .fst (f .fst x)
+    ≡ extendInjection {p} {ext} .fst (g .fst x)
+  lemma x with image? f (f .fst x)
+  ... | yes (x' , fx'≡fx) = cong (FinSumChar.fun p ext ∘ inl ∘ g .fst)
+    (isEmbedding→Inj (f .snd) x' x fx'≡fx)
+  ... | no not-in-image = ⊥.rec (not-in-image (x , refl))
+
+extendRight : {p q : ℕ} →
+  Injection p q →
+  (ext : ℕ) →
+  Injection (p + ext) (q + ext)
+extendRight {p} {q} h ext =
+  compEmbedding
+    (Equiv→Embedding (FinSumChar.Equiv q ext))
+    (compEmbedding
+      (⊎Monotone↪ h (id↪ (Fin ext)))
+      (Equiv→Embedding (invEquiv (FinSumChar.Equiv p ext))))
+
+extendRight-map : {p q : ℕ} (h : Injection p q) (ext : ℕ)
+  (z : Fin p ⊎ Fin ext) →
+  extendRight h ext .fst (FinSumChar.fun p ext z)
+  ≡ FinSumChar.fun q ext (Sum.map (h .fst) (idfun (Fin ext)) z)
+extendRight-map {p} {q} h ext z =
+  cong
+    (FinSumChar.fun q ext ∘ Sum.map (h .fst) (idfun (Fin ext)))
+    (FinSumChar.ret p ext z)
+
+extendRight-extendInjection : {p q ext : ℕ} (h : Injection p q) →
+  composeInjection (extendInjection {p} {ext}) (extendRight h ext)
+  ≡ composeInjection h (extendInjection {q} {ext})
+extendRight-extendInjection {p} {q} {ext} h = injection≡ (funExt λ x →
+  cong
+    (FinSumChar.fun q ext ∘ Sum.map (h .fst) (idfun (Fin ext)))
+    (FinSumChar.ret p ext (inl x)))
+
+extendAlong-natural : {n m p q : ℕ}
+  (f : Injection n m) (g : Injection n p) (h : Injection p q) →
+  composeInjection (extendAlong f g) (extendRight h (complementSize f))
+  ≡ extendAlong f (composeInjection g h)
+extendAlong-natural {p = p} {q = q} f g h = injection≡ (funExt lemma)
+  where
+  ext = complementSize f
+
+  lemma : (y : Fin _) →
+    extendRight h ext .fst (extendAlong f g .fst y)
+    ≡ extendAlong f (composeInjection g h) .fst y
+  lemma y =
+    extendRight-map h ext
+      (Sum.map (g .fst) (idfun (Fin ext))
+        (Iso.inv (finiteImageComplementIso f) y))
+    ∙ cong (FinSumChar.fun q ext)
+        (map-compose (Iso.inv (finiteImageComplementIso f) y))
+    where
+    map-compose : (z : Fin _ ⊎ Fin ext) →
+      Sum.map (h .fst) (idfun (Fin ext))
+        (Sum.map (g .fst) (idfun (Fin ext)) z)
+      ≡ Sum.map (composeInjection g h .fst) (idfun (Fin ext)) z
+    map-compose (inl _) = refl
+    map-compose (inr _) = refl
+
+-- The canonical complement square determined by an injection.
+module Extension {n m : ℕ} (f : Injection n m) where
+
+  size : ℕ
+  size = complementSize f
+
+  decomposition : Iso (Fin n ⊎ Fin size) (Fin m)
+  decomposition = finiteImageComplementIso f
+
+  along : {p : ℕ} → Injection n p → Injection m (p + size)
+  along = extendAlong f
+
+  square : {p : ℕ} (g : Injection n p) →
+    composeInjection f (along g)
+    ≡ composeInjection g extendInjection
+  square = extendAlong-commutes f
+
+  right : {p q : ℕ} → Injection p q → Injection (p + size) (q + size)
+  right h = extendRight h size
+
+  right-extend : {p q : ℕ} (h : Injection p q) →
+    composeInjection (extendInjection {p} {size}) (right h)
+    ≡ composeInjection h (extendInjection {q} {size})
+  right-extend = extendRight-extendInjection
+
+  along-natural : {p q : ℕ}
+    (g : Injection n p) (h : Injection p q) →
+    composeInjection (along g) (right h)
+    ≡ along (composeInjection g h)
+  along-natural = extendAlong-natural f
 
 
 Inj : Category ℓ-zero ℓ-zero

@@ -10,6 +10,7 @@ open import Cubical.Algebra.Monoid.Base
 import Cubical.Algebra.Theory.Instances.Reader as Reader
 import Cubical.Algebra.Theory.Instances.State as State
 import Cubical.Algebra.Theory.Instances.Writer as Writer
+import Cubical.Algebra.Theory.Instances.Monoid as FreeMonoid
 
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Model.Multiplicative
 import Cubical.Categories.Displayed.CBPV.Unary.Instances.Model.ConcreteFree as Concrete
@@ -108,3 +109,33 @@ module StateBoolModelSyntax {ℓS : Level} (Store : hSet ℓS) =
     (State.StateTheory (Store .fst))
     (StateFreeMODELConstruction Store)
     (StateBoolFreeMODELConstruction Store)
+
+MonoidFreeMODELConstruction :
+  FreeMODELConstruction FreeMonoid.MonoidTheory
+MonoidFreeMODELConstruction =
+  Concrete.ConcreteFreeMODELConstruction
+    FreeMonoid.MonoidTheory
+    (λ A → FreeMonoid.ListFreeModel A)
+    (λ A → FreeMonoid.ListFreeModelη A)
+    (λ A B → FreeMonoid.ListFreeModelUniversal A B)
+    (λ A Aᴰ → FreeMonoid.ListFreeModelᴰ A Aᴰ)
+    (λ A Aᴰ → FreeMonoid.ListFreeModelηᴰ A Aᴰ)
+    (λ A Aᴰ {B} ϕ Bᴰ →
+      FreeMonoid.ListFreeModelUniversalOverᴰ A Aᴰ ϕ Bᴰ)
+
+MonoidBoolFreeMODELConstruction :
+  BoolFreeMODELConstruction FreeMonoid.MonoidTheory
+MonoidBoolFreeMODELConstruction .fst =
+  Concrete.Model→MODEL FreeMonoid.MonoidTheory
+    (FreeMonoid.ListFreeModel (Bool , isSetBool))
+MonoidBoolFreeMODELConstruction .snd .fst =
+  FreeMonoid.ListFreeModelη (Bool , isSetBool)
+MonoidBoolFreeMODELConstruction .snd .snd B =
+  FreeMonoid.ListFreeModelUniversal (Bool , isSetBool)
+    (Concrete.MODEL→Model FreeMonoid.MonoidTheory B)
+
+module MonoidBoolModelSyntax =
+  Generic.BoolModelSyntaxWithFree
+    FreeMonoid.MonoidTheory
+    MonoidFreeMODELConstruction
+    MonoidBoolFreeMODELConstruction

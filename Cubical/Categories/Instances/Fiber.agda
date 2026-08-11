@@ -21,6 +21,7 @@ open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Profunctor.General
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
 
 private
   variable
@@ -52,6 +53,96 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reindEq-filler _ ⟩
       ∙ R.reindEq-filler _)
     Eqv[ x ] .Category.isSetHom = isSetHomᴰ
+
+  module EqFibers
+    (EqIdL : ∀ {x y} (f : C [ x , y ]) → C.id C.⋆ f Eq.≡ f)
+    (EqIdR : ∀ {x y} (f : C [ x , y ]) → f C.⋆ C.id Eq.≡ f)
+    where
+    v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
+    v[ x ] = Eqv[ EqIdL C.id ] x
+
+    private
+      variable
+        x y : C.ob
+        xᴰ xᴰ' xᴰ'' : ob[ x ]
+        yᴰ yᴰ' yᴰ'' : ob[ y ]
+        f : C [ x , y ]
+        fᴰ : Hom[ f ][ xᴰ , yᴰ ]
+        fⱽ gⱽ hⱽ : v[ x ] [ xᴰ , xᴰ' ]
+
+    _⋆Eqⱽᴰ_ : v[ x ] [ xᴰ , xᴰ' ]
+      → Hom[ f ][ xᴰ' , yᴰ ] → Hom[ f ][ xᴰ , yᴰ ]
+    _⋆Eqⱽᴰ_ {f = f} gⱽ fᴰ = R.reindEq (EqIdL f) (gⱽ ⋆ᴰ fᴰ)
+
+    _⋆ᴰEqⱽ_ : Hom[ f ][ xᴰ , yᴰ ]
+      → v[ y ] [ yᴰ , yᴰ' ] → Hom[ f ][ xᴰ , yᴰ' ]
+    _⋆ᴰEqⱽ_ {f = f} fᴰ gⱽ = R.reindEq (EqIdR f) (fᴰ ⋆ᴰ gⱽ)
+
+    ⋆IdLEqⱽᴰ : ∀ (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idᴰ ⋆Eqⱽᴰ fᴰ ≡ fᴰ
+    ⋆IdLEqⱽᴰ fᴰ = R.rectifyOut
+      (R.reindEq-filler⁻ _ ∙ ∫Cᴰ.⋆IdL _)
+
+    ⋆IdRᴰEqⱽ : ∀ (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → fᴰ ⋆ᴰEqⱽ idᴰ ≡ fᴰ
+    ⋆IdRᴰEqⱽ fᴰ = R.rectifyOut
+      (R.reindEq-filler⁻ _ ∙ ∫Cᴰ.⋆IdR _)
+
+    ⋆AssocEqⱽⱽᴰ :
+      ∀ {xᴰ₀ xᴰ₁ xᴰ₂ : ob[ x ]}
+      (fⱽ : v[ x ] [ xᴰ₀ , xᴰ₁ ])
+      (gⱽ : v[ x ] [ xᴰ₁ , xᴰ₂ ])
+      (hᴰ : Hom[ f ][ xᴰ₂ , yᴰ ])
+      → (v[ x ] .Category._⋆_ fⱽ gⱽ) ⋆Eqⱽᴰ hᴰ
+        ≡ fⱽ ⋆Eqⱽᴰ (gⱽ ⋆Eqⱽᴰ hᴰ)
+    ⋆AssocEqⱽⱽᴰ fⱽ gⱽ hᴰ = R.rectifyOut $
+      R.reindEq-filler⁻ _
+      ∙ ∫Cᴰ.⟨ R.reindEq-filler⁻ _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reindEq-filler _ ⟩
+      ∙ R.reindEq-filler _
+
+    ⋆AssocᴰEqⱽⱽ :
+      ∀ {yᴰ₀ yᴰ₁ yᴰ₂ : ob[ y ]}
+      (fᴰ : Hom[ f ][ xᴰ , yᴰ₀ ])
+      (gⱽ : v[ y ] [ yᴰ₀ , yᴰ₁ ])
+      (hⱽ : v[ y ] [ yᴰ₁ , yᴰ₂ ])
+      → (fᴰ ⋆ᴰEqⱽ gⱽ) ⋆ᴰEqⱽ hⱽ
+        ≡ fᴰ ⋆ᴰEqⱽ (v[ y ] .Category._⋆_ gⱽ hⱽ)
+    ⋆AssocᴰEqⱽⱽ fᴰ gⱽ hⱽ = R.rectifyOut $
+      R.reindEq-filler⁻ _
+      ∙ ∫Cᴰ.⟨ R.reindEq-filler⁻ _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reindEq-filler _ ⟩
+      ∙ R.reindEq-filler _
+
+    ⋆AssocEqⱽᴰEqⱽ :
+      ∀ {xᴰ₀ xᴰ₁ : ob[ x ]}{yᴰ₀ yᴰ₁ : ob[ y ]}
+      (fⱽ : v[ x ] [ xᴰ₀ , xᴰ₁ ])
+      (gᴰ : Hom[ f ][ xᴰ₁ , yᴰ₀ ])
+      (hⱽ : v[ y ] [ yᴰ₀ , yᴰ₁ ])
+      → (fⱽ ⋆Eqⱽᴰ gᴰ) ⋆ᴰEqⱽ hⱽ
+        ≡ fⱽ ⋆Eqⱽᴰ (gᴰ ⋆ᴰEqⱽ hⱽ)
+    ⋆AssocEqⱽᴰEqⱽ fⱽ gᴰ hⱽ = R.rectifyOut $
+      R.reindEq-filler⁻ _
+      ∙ ∫Cᴰ.⟨ R.reindEq-filler⁻ _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reindEq-filler _ ⟩
+      ∙ R.reindEq-filler _
+
+    open NatTrans
+    HomᴰProf : (f : C [ x , y ]) → Profunctor v[ y ] v[ x ] ℓCᴰ'
+    HomᴰProf f .Functor.F-ob yᴰ .Functor.F-ob xᴰ .fst = Hom[ f ][ xᴰ , yᴰ ]
+    HomᴰProf f .Functor.F-ob yᴰ .Functor.F-ob xᴰ .snd = isSetHomᴰ
+    HomᴰProf f .Functor.F-ob yᴰ .Functor.F-hom gⱽ fᴰ = gⱽ ⋆Eqⱽᴰ fᴰ
+    HomᴰProf f .Functor.F-ob yᴰ .Functor.F-id = funExt ⋆IdLEqⱽᴰ
+    HomᴰProf f .Functor.F-ob yᴰ .Functor.F-seq hⱽ gⱽ =
+      funExt λ fᴰ → ⋆AssocEqⱽⱽᴰ gⱽ hⱽ fᴰ
+    HomᴰProf f .Functor.F-hom gⱽ .N-ob xᴰ fᴰ = fᴰ ⋆ᴰEqⱽ gⱽ
+    HomᴰProf f .Functor.F-hom gⱽ .N-hom fⱽ =
+      funExt λ hᴰ → ⋆AssocEqⱽᴰEqⱽ fⱽ hᴰ gⱽ
+    HomᴰProf f .Functor.F-id = makeNatTransPath
+      (funExt (λ _ → funExt ⋆IdRᴰEqⱽ))
+    HomᴰProf f .Functor.F-seq gⱽ hⱽ = makeNatTransPath
+      (funExt λ _ → funExt λ fᴰ → sym $ ⋆AssocᴰEqⱽⱽ fᴰ gⱽ hⱽ)
 
   v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
   v[ x ] .Category.ob = ob[ x ]
@@ -207,3 +298,31 @@ module _ {C : Category ℓC ℓC'}
   open Category
   fiber : C .ob → Category ℓCᴰ ℓCᴰ'
   fiber x = Fibers.v[_] Cᴰ x
+
+module _ {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}
+  (EqIdL : ∀ {x y} (f : C [ x , y ])
+    → Category._⋆_ C (Category.id C) f Eq.≡ f)
+  (EqIdR : ∀ {x y} (f : C [ x , y ])
+    → Category._⋆_ C f (Category.id C) Eq.≡ f)
+  (F : Functorⱽ Cᴰ Dᴰ)
+  where
+  private
+    module Cᴰ = Fibers.EqFibers Cᴰ EqIdL EqIdR
+    module Dᴰ = Fibers.EqFibers Dᴰ EqIdL EqIdR
+    module CR = Fibers Cᴰ
+    module DR = Fibers Dᴰ
+    module F = Functorᴰ F
+
+  EqFiberFunctor : ∀ x → Functor Cᴰ.v[ x ] Dᴰ.v[ x ]
+  EqFiberFunctor x .Functor.F-ob = F.F-obᴰ
+  EqFiberFunctor x .Functor.F-hom = F.F-homᴰ
+  EqFiberFunctor x .Functor.F-id = DR.rectifyOut $
+    DR.reindEq-filler⁻ _
+    ∙ DR.≡in F.F-idᴰ
+    ∙ DR.reindEq-filler _
+  EqFiberFunctor x .Functor.F-seq f g = DR.rectifyOut $
+    cong (Functor.F-hom (∫F F)) (CR.reindEq-filler⁻ _)
+    ∙ DR.≡in (F.F-seqᴰ f g)
+    ∙ DR.reindEq-filler _

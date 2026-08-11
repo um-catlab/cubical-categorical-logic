@@ -14,7 +14,7 @@ open import Cubical.Categories.Yoneda
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 
-open import Cubical.Categories.Displayed.Instances.Functor
+open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor

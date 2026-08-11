@@ -28,7 +28,7 @@ open import Cubical.Categories.Displayed.Instances.TotalCategory
   as TotalCatᴰ hiding (introS; introF; Fstᴰ)
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
   hiding (introF)
-open import Cubical.Categories.Displayed.Instances.Functor
+open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Reasoning as Reasoning
 private
   variable

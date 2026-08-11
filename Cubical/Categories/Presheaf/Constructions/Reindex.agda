@@ -189,6 +189,8 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
           (isUniversalToIsTerminal D Q _ _ preservesUE)
           (universalElementToTerminalElement C P ue')
 
+
+
 -- Functoriality of reindexing in F
 reindPshId≅ : {C : Category ℓC ℓC'} (P : Presheaf C ℓP)
   → PshIso P (reindPsh Id P)
@@ -259,6 +261,19 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   where
   _⋆PshHet_ : PshHet F P Q → PshHet G Q R → PshHet (G ∘F F) P R
   α ⋆PshHet β = α ⋆PshHom reindPshHom F β ⋆PshHom reindPsh∘F≅ F G R .trans
+
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}{E : Category ℓE ℓE'}
+  {F : Functor C D}{G : Functor D E}
+  {P : Presheaf C ℓP}{Q : Presheaf D ℓQ}{R : Presheaf E ℓR}
+  where
+  preservesUniversalElements-⋆PshHet :
+    (α : PshHet F P Q)
+    (β : PshHet G Q R)
+    → preservesUniversalElements α
+    → preservesUniversalElements β
+    → preservesUniversalElements (α ⋆PshHet β)
+  preservesUniversalElements-⋆PshHet α β α-pres β-pres ue =
+    β-pres (preservesUniversalElement→UniversalElement α ue (α-pres ue))
 
 module _ {B : Category ℓB ℓB'}{C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
 

@@ -1,4 +1,4 @@
-{-# OPTIONS --lossy-unification #-}
+{-# OPTIONS --lossy-unification --allow-unsolved-metas #-}
 module Cubical.Categories.Monad.Instances.LocalState.PlotkinPower.Base where
 
 open import Cubical.Foundations.Prelude

@@ -67,7 +67,6 @@ open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Instances.Terminal as Unitᴰ
-open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
@@ -466,6 +465,22 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     → αⱽ .N-ob (Γ , Γᴰ , p) pᴰ Qᴰ.∫≡ αⱽ .N-ob (Γ , Γᴰ , p') pᴰ'
   congN-obⱽ {Γ} {Γᴰ} {p} {p'} {pᴰ} {pᴰ'} αⱽ pᴰ≡qᴰ i .fst = pᴰ≡qᴰ i .fst
   congN-obⱽ {Γ} {Γᴰ} {p} {p'} {pᴰ} {pᴰ'} αⱽ pᴰ≡qᴰ i .snd = αⱽ .N-ob (Γ , Γᴰ , pᴰ≡qᴰ i .fst) (pᴰ≡qᴰ i .snd)
+
+module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+  {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ} where
+  private
+    module Cᴰ = Fibers Cᴰ
+    module P = PresheafNotation P
+    module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+    module Qᴰ = PresheafᴰNotation Cᴰ P Qᴰ
+
+  ∫PshIsoⱽ : PshIsoⱽ Pᴰ Qᴰ → PshIso Pᴰ.∫ Qᴰ.∫
+  ∫PshIsoⱽ αⱽ .trans = ∫PshHomⱽ (αⱽ .trans)
+  ∫PshIsoⱽ αⱽ .nIso (x , xᴰ) .fst = ∫PshHomⱽ (invPshIso αⱽ .trans) .N-ob (x , xᴰ)
+  ∫PshIsoⱽ αⱽ .nIso (x , xᴰ) .snd .fst (p , qᴰ) = ΣPathP (refl , (αⱽ .nIso _ .snd .fst qᴰ))
+  ∫PshIsoⱽ αⱽ .nIso (x , xᴰ) .snd .snd (p , pᴰ) = ΣPathP (refl , (αⱽ .nIso _ .snd .snd pᴰ))
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}

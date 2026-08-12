@@ -133,6 +133,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableⱽ : Type _
   Representableⱽ = Σ[ xᴰ ∈ Cᴰ.ob[ x ] ] PshIsoⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ
 
+  ∫Representableⱽ : Representableⱽ → RepresentationPshIso (PresheafᴰNotation.∫ Cᴰ (C [-, x ]) Pⱽ)
+  ∫Representableⱽ (xᴰ , repr) .fst = x , xᴰ
+  ∫Representableⱽ (xᴰ , repr) .snd =
+    invPshIso (∫Repr-iso Cᴰ) ⋆PshIso ∫PshIsoⱽ repr
+
   record UniversalElementⱽ'
     : Type (ℓ-max ℓC $ ℓ-max ℓC' $ ℓ-max ℓCᴰ $ ℓ-max ℓCᴰ' $ ℓPᴰ) where
     field
@@ -209,6 +214,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
         → (fᴰ : Cᴰ [ f ][ Γᴰ , ueᴰ .fst ])
         → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ ueᴰ .snd .fst)
       ∫ηᴰ fᴰ = Cᴰ.≡in $ ηᴰ fᴰ
+
+    ∫ue : UniversalElement (∫C Cᴰ) Pᴰ.∫
+    ∫ue .UniversalElement.vertex = ue.vertex , ueᴰ .fst
+    ∫ue .UniversalElement.element = ue.element , ueᴰ .snd .fst
+    ∫ue .UniversalElement.universal (Γ , Γᴰ) = isIsoToIsEquiv
+      ( (λ (p , pᴰ) → ue.intro p , introᴰ pᴰ)
+      , (λ (p , pᴰ) → ∫βᴰ pᴰ)
+      , (λ (p , pᴰ) → sym $ ∫ηᴰ pᴰ)
+      )
+    open UniversalElementNotation ∫ue
 
   -- Could be more compositional but too lazy
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)

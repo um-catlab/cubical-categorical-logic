@@ -49,6 +49,16 @@ private
 CBPVCat : ∀ ℓ ℓ' → Type _
 CBPVCat = Categoryᴰ KIND
 
+module _ (C : CBPVCat ℓ ℓ') where
+  private
+    module C = Categoryᴰ C
+
+  ValueOb : Type ℓ
+  ValueOb = C.ob[ 𝓥 ]
+
+  ComputationOb : Type ℓ
+  ComputationOb = C.ob[ 𝓒 ]
+
 KINDAssoc : EqPsh.ReprEqAssoc KIND
 KINDAssoc _ _ _ _ _ _ = Eq.refl
 

@@ -96,10 +96,29 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C)(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   private
     module Cᴰ = Fibers Cᴰ
-  EqTerminalsⱽ→Terminalsⱽ : Terminalsⱽ Cᴰ → Path.Terminalsⱽ Cᴰ
-  EqTerminalsⱽ→Terminalsⱽ termsⱽ x =
-    EqReprⱽ→PathReprⱽ UnitⱽPsh (termsⱽ x)
+  EqTerminalⱽ→Terminalⱽ : ∀ {x} → Reprⱽ
+      (UnitⱽPsh {Cᴰ = Cᴰ} {P = C [-, x ]})
+    → Path.Terminalⱽ Cᴰ x
+  EqTerminalⱽ→Terminalⱽ termⱽ =
+    EqReprⱽ→PathReprⱽ UnitⱽPsh termⱽ
     Path.◁PshIsoⱽ EqUnitⱽ≅PathUnitⱽ Cᴰ
+
+  EqTerminalsⱽ→Terminalsⱽ : Terminalsⱽ Cᴰ → Path.Terminalsⱽ Cᴰ
+  EqTerminalsⱽ→Terminalsⱽ termsⱽ x = EqTerminalⱽ→Terminalⱽ (termsⱽ x)
+
+  EqBinProductⱽ→BinProductⱽ : ∀ {x} {xᴰ yᴰ : Cᴰ.ob[ x ]} → Reprⱽ
+      ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
+    → Path.BinProductⱽ Cᴰ xᴰ yᴰ
+  EqBinProductⱽ→BinProductⱽ {xᴰ = xᴰ} {yᴰ = yᴰ} bpⱽ =
+    EqReprⱽ→PathReprⱽ
+      ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ]))
+      bpⱽ
+    Path.◁PshIsoⱽ Eq×ⱽ≅Path×ⱽ Cᴰ
+    Path.⋆PshIsoⱽ ×PshIso Representable≅ Representable≅
+
+  EqBinProductsⱽ→BinProductsⱽ : BinProductsⱽ Cᴰ → Path.BinProductsⱽ Cᴰ
+  EqBinProductsⱽ→BinProductsⱽ bpⱽ xᴰ yᴰ =
+    EqBinProductⱽ→BinProductⱽ (bpⱽ xᴰ yᴰ)
 
   EqCartesianLift→CartesianLift : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) Γ (f : C [ Γ , x ])
     → CartesianLift Cᴰ ⋆AssocC f xᴰ
@@ -115,8 +134,6 @@ module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C)(Cᴰ : Category�
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.Cᴰ = Cᴰ
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.termⱽ = EqTerminalsⱽ→Terminalsⱽ (cartⱽCᴰ .fst)
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.bpⱽ xᴰ yᴰ =
-    EqReprⱽ→PathReprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])) (cartⱽCᴰ .snd .fst xᴰ yᴰ)
-    Path.◁PshIsoⱽ Eq×ⱽ≅Path×ⱽ Cᴰ
-    Path.⋆PshIsoⱽ ×PshIso Representable≅ Representable≅
+    EqBinProductsⱽ→BinProductsⱽ (cartⱽCᴰ .snd .fst) xᴰ yᴰ
   EqCCⱽ→CCⱽ cartⱽCᴰ .Path.CartesianCategoryⱽ.cartesianLifts {x = x} xᴰ Γ f =
     EqFibration→Fibration (cartⱽCᴰ .snd .snd) xᴰ Γ f

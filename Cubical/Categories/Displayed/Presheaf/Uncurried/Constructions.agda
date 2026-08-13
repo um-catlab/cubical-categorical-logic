@@ -70,9 +70,9 @@ private
   variable
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
     ℓA ℓB ℓAᴰ ℓBᴰ : Level
-    ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓCᴰᴰ ℓCᴰᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
-    ℓP ℓQ ℓR ℓS ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ ℓSᴰ : Level
+    ℓP ℓQ ℓR ℓS ℓPᴰ ℓPᴰ' ℓPᴰᴰ ℓQᴰ ℓQᴰ' ℓQᴰᴰ ℓRᴰ ℓSᴰ : Level
 
 open Category
 open Functor
@@ -81,7 +81,6 @@ open Iso
 open PshHom
 open PshIso
 
--- Products
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
   private
     module C = Category C
@@ -478,3 +477,59 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     -- ∀PshSmall-UMP : ∀ (Pᴰ : Presheafᴰ (P ×Psh Q) Cᴰ ℓPᴰ) {Rᴰ : Presheafᴰ P Cᴰ ℓRᴰ}
     --   → Iso (PshHom Rᴰ (∀PshSmall Pᴰ)) (PshHom (wkPshᴰ Q ⟅ Rᴰ ⟆) Pᴰ)
     -- ∀PshSmall-UMP Pᴰ = ∀PshSmall.P⇒Small-UMP Pᴰ _
+
+module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Cᴰᴰ : Categoryᴰ (∫C Cᴰ) ℓCᴰᴰ ℓCᴰᴰ'} where
+  private
+    module C = Category C
+    module Cᴰ = Fibers Cᴰ
+    module Cᴰᴰ = Fibers Cᴰᴰ
+  module _ {P : Presheaf C ℓP}
+    {Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}
+    {Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
+    (Pᴰᴰ : Presheafᴰᴰ Pᴰ Cᴰᴰ ℓPᴰᴰ)
+    (Qᴰᴰ : Presheafᴰᴰ Qᴰ Cᴰᴰ ℓQᴰᴰ)
+    where
+    private
+      module P = PresheafNotation P
+      module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+      module Qᴰ = PresheafᴰNotation Cᴰ P Qᴰ
+      module Pᴰ×Qᴰ = PresheafᴰNotation Cᴰ P (Pᴰ ×ⱽPsh Qᴰ)
+
+    -- Unfortunately ∫PshHomStrict does not have the required definitional
+    -- behavior here, so expose these projections for comparison lemmas too.
+    ∫×ⱽπ₁Strict : Strict.PshHomStrict Pᴰ×Qᴰ.∫ Pᴰ.∫
+    ∫×ⱽπ₁Strict .Strict.PshHomStrict.N-ob _ (p , pᴰ , qᴰ) = p , pᴰ
+    ∫×ⱽπ₁Strict .Strict.PshHomStrict.N-hom _ _ _ _ _ e =
+      cong (λ (p , pᴰ , qᴰ) → p , pᴰ) e
+
+    ∫×ⱽπ₂Strict : Strict.PshHomStrict Pᴰ×Qᴰ.∫ Qᴰ.∫
+    ∫×ⱽπ₂Strict .Strict.PshHomStrict.N-ob _ (p , pᴰ , qᴰ) = p , qᴰ
+    ∫×ⱽπ₂Strict .Strict.PshHomStrict.N-hom _ _ _ _ _ e =
+      cong (λ (p , pᴰ , qᴰ) → p , qᴰ) e
+
+    _×ⱽᴰPsh_ : Presheafᴰᴰ (Pᴰ ×ⱽPsh Qᴰ) Cᴰᴰ (ℓ-max ℓPᴰᴰ ℓQᴰᴰ)
+    _×ⱽᴰPsh_ =
+      reindPshᴰNatTransStrict ∫×ⱽπ₁Strict Pᴰᴰ
+      ×ⱽPsh
+      reindPshᴰNatTransStrict ∫×ⱽπ₂Strict Qᴰᴰ
+
+    private
+      module Pᴰᴰ = PresheafᴰNotation Cᴰᴰ Pᴰ.∫ Pᴰᴰ
+      module Qᴰᴰ = PresheafᴰNotation Cᴰᴰ Qᴰ.∫ Qᴰᴰ
+      module Pᴰᴰ×Qᴰᴰ = PresheafᴰNotation Cᴰᴰ Pᴰ×Qᴰ.∫
+        _×ⱽᴰPsh_
+
+      test×ⱽᴰPsh : ∀ {Γ x}
+        {Γᴰ : Cᴰ.ob[ Γ ]} {xᴰ : Cᴰ.ob[ x ]}
+        {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]} {xᴰᴰ : Cᴰᴰ.ob[ x , xᴰ ]}
+        (p : P.p[ x ])
+        (pᴰ : Pᴰ.p[ p ][ xᴰ ]) (qᴰ : Qᴰ.p[ p ][ xᴰ ])
+        (f : C [ Γ , x ])
+        (fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ])
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , xᴰᴰ ])
+        (pᴰᴰ : Pᴰᴰ.p[ p , pᴰ ][ xᴰᴰ ])
+        (qᴰᴰ : Qᴰᴰ.p[ p , qᴰ ][ xᴰᴰ ])
+        → fᴰᴰ Pᴰᴰ×Qᴰᴰ.⋆ᴰ (pᴰᴰ , qᴰᴰ)
+          ≡ (fᴰᴰ Pᴰᴰ.⋆ᴰ pᴰᴰ , fᴰᴰ Qᴰᴰ.⋆ᴰ qᴰᴰ)
+      test×ⱽᴰPsh p pᴰ qᴰ f fᴰ fᴰᴰ pᴰᴰ qᴰᴰ =
+        refl

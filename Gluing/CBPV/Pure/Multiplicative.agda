@@ -25,7 +25,7 @@ open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Sets
-open import Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Multiplicative
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Multiplicative
 
 open Category
 open Functor

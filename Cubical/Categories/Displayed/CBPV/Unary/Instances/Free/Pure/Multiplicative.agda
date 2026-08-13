@@ -25,7 +25,7 @@
 -- the displayed universal property is to represent the vertical (yoRec (𝓥≤𝓒,[force]))*π*
 --
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.Multiplicative where
+module Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Multiplicative where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism

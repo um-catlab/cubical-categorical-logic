@@ -75,10 +75,10 @@ private
   variable
     ℓ ℓ' ℓᴰ ℓᴰ' : Level
     ℓA ℓB ℓAᴰ ℓBᴰ : Level
-    ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
+    ℓC ℓC' ℓCᴰ ℓCᴰ' ℓCᴰᴰ ℓCᴰᴰ' : Level
     ℓD ℓD' ℓDᴰ ℓDᴰ' : Level
     ℓE ℓE' ℓEᴰ ℓEᴰ' : Level
-    ℓP ℓQ ℓR ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
+    ℓP ℓQ ℓR ℓS ℓPᴰ ℓPᴰ' ℓQᴰ ℓQᴰ' ℓRᴰ : Level
 
 open Category
 open Functor
@@ -284,12 +284,26 @@ module PresheafᴰNotation {C : Category ℓC ℓC'}
 
   open PresheafNotation ∫ public
 
+module _
+  {C : Category ℓC ℓC'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP}
+  (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
+  (Cᴰᴰ : Categoryᴰ (∫C Cᴰ) ℓCᴰᴰ ℓCᴰᴰ')
+  (ℓPᴰᴰ : Level) where
+  private module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
+  Presheafᴰᴰ : Type _
+  Presheafᴰᴰ = Presheafᴰ Pᴰ.∫ Cᴰᴰ ℓPᴰᴰ
+
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}
   (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)
   (Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ) where
   PshHomⱽ : Type _
   PshHomⱽ = PshHom Pᴰ Qᴰ
+
+  PshHomStrictⱽ : Type _
+  PshHomStrictⱽ = PshHomStrict Pᴰ Qᴰ
 
   PshIsoⱽ : Type _
   PshIsoⱽ = PshIso Pᴰ Qᴰ
@@ -371,6 +385,35 @@ module _
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ} (α : PshHomStrict P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
   reindPshᴰNatTransStrict : Presheafᴰ P Cᴰ ℓQᴰ
   reindPshᴰNatTransStrict = reindPsh (Idᴰ /FⱽStrict α) Qᴰ
+
+  reindPshᴰNatTrans≅Strict :
+    PshIso (reindPshᴰNatTrans (PshHomStrict→PshHom α) Qᴰ)
+      reindPshᴰNatTransStrict
+  reindPshᴰNatTrans≅Strict = reindNatIsoPsh
+    (pathToNatIso (Functor≡ (λ _ → refl) (λ _ → Hom/≡ refl))) Qᴰ
+
+module _
+  {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  {R : Presheaf C ℓR} {S : Presheaf C ℓS}
+  (α : PshHom S P) (π : PshHomStrict P Q)
+  (ρ : PshHom Q R) (σ : PshHom S R)
+  (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ)
+  (σ≡απρ : σ ≡ α ⋆PshHom (PshHomStrict→PshHom π ⋆PshHom ρ))
+  where
+  reindPshᴰNatTrans-factorStrict :
+    PshIso (reindPshᴰNatTrans σ Rᴰ)
+      (reindPshᴰNatTrans α
+        (reindPshᴰNatTransStrict π (reindPshᴰNatTrans ρ Rᴰ)))
+  reindPshᴰNatTrans-factorStrict =
+    reindPshᴰNatTrans-Path σ _ σ≡απρ Rᴰ
+    ⋆PshIso invPshIso
+      (reindPshᴰNatTrans-tri α _ _ Rᴰ refl)
+    ⋆PshIso reindPshIso (Idᴰ /Fⱽ α)
+      (invPshIso
+        (reindPshᴰNatTrans-tri (PshHomStrict→PshHom π) ρ _ Rᴰ refl)
+      ⋆PshIso reindPshᴰNatTrans≅Strict π
+        (reindPshᴰNatTrans ρ Rᴰ))
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -455,6 +498,16 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module P = PresheafNotation P
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
     module Qᴰ = PresheafᴰNotation Cᴰ P Qᴰ
+
+  open PshHomStrict
+  ∫PshHomStrictⱽ : PshHomStrictⱽ Pᴰ Qᴰ → PshHomStrict Pᴰ.∫ Qᴰ.∫
+  ∫PshHomStrictⱽ α .N-ob (Γ , Γᴰ) (p , pᴰ) = p , α .N-ob (Γ , Γᴰ , p) pᴰ
+  ∫PshHomStrictⱽ α .N-hom
+    (Δ , Δᴰ) (Γ , Γᴰ) (γ , γᴰ) (p , pᴰ) (q , qᴰ) γp≡q =
+      (sym $ Qᴰ.⋆ᴰ-reind _ (PathPΣ γp≡q .fst) _)
+      ∙ Qᴰ.≡in
+        (α .N-hom _ _ _ _ _
+          (Pᴰ.rectifyOut $ Pᴰ.⋆ᴰ-reind _ _ _ ∙ γp≡q))
 
   ∫PshHomⱽ : PshHomⱽ Pᴰ Qᴰ → PshHom Pᴰ.∫ Qᴰ.∫
   ∫PshHomⱽ αⱽ = ∫PshHomᴰ (αⱽ ⋆PshHom invPshIso (reindPshᴰNatTrans-id Qᴰ) .trans)

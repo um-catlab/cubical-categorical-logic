@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.Instances.Free.CBPV.Unary.BoolState where
+module Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.BoolState.Multiplicative where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -204,13 +204,23 @@ module CBPV (BaseTy : Kind → Type ℓ)
 
     Subst-Homo : ∀ {A A'} (V : Tm _ A A') B
       → Homo (seqS {k≤ = tt} V) (StateAlgEff A' B) (StateAlgEff A B)
-    Subst-Homo V B .Homo.rd-hom xt xf = [r-homL] V xt xf
-    Subst-Homo V B .Homo.wt-hom b x = [w-homL] V b x
+    Subst-Homo V B .Homo.rd-hom xt xf rdtf p =
+      J (λ rdtf p → seqS V rdtf ≡ rd (StateAlgEff _ B)
+          (seqS V xt) (seqS V xf))
+        ([r-homL] V xt xf) (sym p)
+    Subst-Homo V B .Homo.wt-hom b x wtbx p =
+      J (λ wtbx p → seqS V wtbx ≡ wt (StateAlgEff _ B) b (seqS V x))
+        ([w-homL] V b x) (sym p)
 
     Plug-Homo : ∀ {B B'} (S : Tm _ B B') A
       → Homo (λ M → seqS {k≤' = tt} M S) (StateAlgEff A B) (StateAlgEff A B')
-    Plug-Homo S A .Homo.rd-hom xt xf = [r-homR] xt xf S
-    Plug-Homo S A .Homo.wt-hom b x = [w-homR] b x S
+    Plug-Homo S A .Homo.rd-hom xt xf rdtf p =
+      J (λ rdtf p → seqS rdtf S ≡ rd (StateAlgEff A _)
+          (seqS xt S) (seqS xf S))
+        ([r-homR] xt xf S) (sym p)
+    Plug-Homo S A .Homo.wt-hom b x wtbx p =
+      J (λ wtbx p → seqS wtbx S ≡ wt (StateAlgEff A _) b (seqS x S))
+        ([w-homR] b x S) (sym p)
 
     CBPVState : StateAlgEnrichment CBPV
     CBPVState .fst = StateAlgEff
@@ -331,17 +341,29 @@ module CBPV (BaseTy : Kind → Type ℓ)
               (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
               b1 b2 M (elim-F-homᴰ M) i
           elim-F-homᴰ ([r-homL] V Mt Mf i) =
-            Homoᴰ.rd-homᴰ (Subst-Homoᴰ (elim-F-homᴰ V))
-              Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
+            hSetReasoning.Prectify (_ , isSetTm)
+              (λ N → Cᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
+              {e' = λ j → [r-homL] V Mt Mf j}
+              (Homoᴰ.rd-homᴰ' (Subst-Homoᴰ (elim-F-homᴰ V))
+                Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf)) i
           elim-F-homᴰ ([r-homR] Mt Mf S i) =
-            Homoᴰ.rd-homᴰ (Plug-Homoᴰ (elim-F-homᴰ S))
-              Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
+            hSetReasoning.Prectify (_ , isSetTm)
+              (λ N → Cᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
+              {e' = λ j → [r-homR] Mt Mf S j}
+              (Homoᴰ.rd-homᴰ' (Plug-Homoᴰ (elim-F-homᴰ S))
+                Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf)) i
           elim-F-homᴰ ([w-homL] V b M i) =
-            Homoᴰ.wt-homᴰ (Subst-Homoᴰ (elim-F-homᴰ V))
-              b M (elim-F-homᴰ M) i
+            hSetReasoning.Prectify (_ , isSetTm)
+              (λ N → Cᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
+              {e' = λ j → [w-homL] V b M j}
+              (Homoᴰ.wt-homᴰ' (Subst-Homoᴰ (elim-F-homᴰ V))
+                b M (elim-F-homᴰ M)) i
           elim-F-homᴰ ([w-homR] b M S i) =
-            Homoᴰ.wt-homᴰ (Plug-Homoᴰ (elim-F-homᴰ S))
-              b M (elim-F-homᴰ M) i
+            hSetReasoning.Prectify (_ , isSetTm)
+              (λ N → Cᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
+              {e' = λ j → [w-homR] b M S j}
+              (Homoᴰ.wt-homᴰ' (Plug-Homoᴰ (elim-F-homᴰ S))
+                b M (elim-F-homᴰ M)) i
 
           elim : GlobalSection Cᴰ
           elim .F-obᴰ d = elim-F-obᴰ (d .snd)

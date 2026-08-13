@@ -1,5 +1,5 @@
 {-# OPTIONS --prop --lossy-unification #-}
-module Gluing.CBPV.StateAlg.Multiplicative where
+module Gluing.CBPV.StateAlg.Additive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
@@ -12,6 +12,8 @@ open import Cubical.Prop
 
 open import Cubical.Data.Bool as Bool hiding (elim)
 open import Cubical.Data.Sigma
+open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Unit
 
 open import Cubical.Algebra.State
 open import Cubical.Categories.Category
@@ -25,12 +27,13 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Base
-open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Vertical
-open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.BoolState.Multiplicative
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Additive
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.BoolState.Additive
 
 open Category
 open Functor
@@ -45,7 +48,7 @@ module StateAlgGluing
   (BaseTy : Kind → Type ℓ)
   (Fun : ∀ {k1 k2} → ≤Kind k1 k2
     → CBPV.Ob BaseTy k1 → CBPV.Ob BaseTy k2 → Type ℓ')
-  (𝟙 : BaseTy 𝒱)
+  (I : CBPV.Ob BaseTy 𝒱)
   where
   open CBPV BaseTy
   open Terms Fun
@@ -53,129 +56,152 @@ module StateAlgGluing
   private
     L = ℓ-max ℓ ℓ'
 
-  pts : Functorⱽ CBPV (StateAlgCBPV {ℓ = L} .fst)
-  pts = points CBPV CBPVState (gen 𝟙)
+  pts : Functorⱽ (AddCBPV .fst .fst) (StateAlgAddCBPV L .fst .fst)
+  pts = points (AddCBPV .fst .fst) CBPVState I
 
   ptsPreservesState :
     PreservesStateAlgEnrichment pts CBPVState StateAlgCBPVState
-  ptsPreservesState = pointsPreservesState CBPV CBPVState (gen 𝟙)
+  ptsPreservesState = pointsPreservesState CBPV CBPVState I
 
 module BoolStateSyntax where
-  data BaseTy : Kind → Type ℓ-zero where
-    𝟙 BoolTy : BaseTy 𝒱
+  data BaseTy (k : Kind) : Type ℓ-zero where
 
   open CBPV BaseTy
 
   data FUN : ∀ {k1 k2} → ≤Kind k1 k2
     → Ob k1 → Ob k2 → Type ℓ-zero where
-    true false : FUN tt (gen 𝟙) (gen BoolTy)
 
   open Terms FUN public
 
-  tru fls : Tm tt (gen 𝟙) (gen BoolTy)
-  tru = gen true
-  fls = gen false
+  UnitTy BoolTy : VTy
+  UnitTy = [1]
+  BoolTy = UnitTy [+] UnitTy
 
-  quoteBool : Bool → Tm tt (gen 𝟙) (gen BoolTy)
+  private
+    inl' inr' : Tm tt UnitTy BoolTy
+    inl' = [+I1]
+    inr' = [+I2]
+
+  tru fls : Tm tt UnitTy BoolTy
+  tru = inl'
+  fls = inr'
+
+  quoteBool : Bool → Tm tt UnitTy BoolTy
   quoteBool false = fls
   quoteBool true = tru
 
-  BaseRelation : ∀ {k} (X : BaseTy k)
-    → Tm {k1 = 𝒱} tt (gen 𝟙) (gen X) → Type ℓ-zero
-  BaseRelation 𝟙 V = V ≡ idS
-  BaseRelation BoolTy V = Σ[ b ∈ Bool ] V ≡ quoteBool b
-
-  hBaseRelation : ∀ {k} (X : BaseTy k)
-    → Tm {k1 = 𝒱} tt (gen 𝟙) (gen X) → hSet ℓ-zero
-  hBaseRelation X V .fst = BaseRelation X V
-  hBaseRelation 𝟙 V .snd = isProp→isSet (isSetTm _ _)
-  hBaseRelation BoolTy V .snd =
-    isSetΣ isSetBool (λ _ → isProp→isSet (isSetTm _ _))
-
-  module G = StateAlgGluing BaseTy FUN 𝟙
+  module G = StateAlgGluing BaseTy FUN UnitTy
 
   module Fundamental = LocalElim
     G.pts
-    StateAlgCBPVⱽ
+    (StateAlgAddCBPVⱽ ℓ-zero)
     StateAlgCBPVState
     G.ptsPreservesState
     (StateAlgCBPVStateᴰ ℓ-zero ℓ-zero)
 
   baseObject : ∀ {k} (X : BaseTy k)
-    → Categoryᴰ.ob[_] (StateAlgCBPVⱽ .fst)
+    → Categoryᴰ.ob[_] (StateAlgAddCBPVⱽ ℓ-zero .fst .fst)
         (k , G.pts .F-obᴰ (gen X))
-  baseObject 𝟙 = hBaseRelation 𝟙
-  baseObject BoolTy = hBaseRelation BoolTy
+  baseObject ()
 
   fundamentalLemma :
-    Section (∫F G.pts) (StateAlgCBPVⱽ .fst)
+    Section (∫F G.pts) (StateAlgAddCBPVⱽ ℓ-zero .fst .fst)
   fundamentalLemma =
-    Fundamental.localElim baseObject
-      λ { true V V≡id → true , cong₂ seqS V≡id refl ∙ IdLS tru
-        ; false V V≡id → false , cong₂ seqS V≡id refl ∙ IdLS fls
-        }
+    Fundamental.localElim baseObject λ ()
 
   LogicalRelation : ∀ {k} (Γ : Ob k)
-    → Tm tt (gen 𝟙) Γ → hSet ℓ-zero
+    → Tm tt UnitTy Γ → hSet ℓ-zero
   LogicalRelation {k = 𝒱} Γ = Fundamental.local-obᴰ baseObject Γ
   LogicalRelation {k = 𝒞} Γ = Fundamental.local-obᴰ baseObject Γ .fst
 
   -- instantiate the open logical relation at the identity substitution.
-  fundamentalAt : ∀ {k} {Γ : Ob k} (M : Tm tt (gen 𝟙) Γ)
+  fundamentalAt : ∀ {k} {Γ : Ob k} (M : Tm tt UnitTy Γ)
     → ⟨ LogicalRelation Γ M ⟩
   fundamentalAt {k = 𝒱} {Γ = Γ} M = subst
     (λ N → ⟨ LogicalRelation Γ N ⟩)
     (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS refl
+    fundamentalLemma .F-homᴰ (_ , M) idS tt*
   fundamentalAt {k = 𝒞} {Γ = Γ} M = subst
     (λ N → ⟨ LogicalRelation Γ N ⟩)
     (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS refl
+    fundamentalLemma .F-homᴰ (_ , M) idS tt*
 
   private
-    [ret]' : Tm tt (gen BoolTy) ([F] (gen BoolTy))
+    [ret]' : Tm tt BoolTy ([F] BoolTy)
     [ret]' = CartesianLiftNotation.πⱽ (CBPV ^opᴰ)
-      (MultCBPV .snd .snd (gen BoolTy))
+      (MultCBPV .snd .snd BoolTy)
 
     [ret]'≡ret : [ret]' ≡ [ret]
     [ret]'≡ret = cong snd
-      (CBPV^op.reind-filler⁻ _
-      ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
+      (Cop.reind-filler⁻ _
+      ∙ Cop.≡in {pth = refl} (IdRS [ret]))
 
-  -- This is what the logical relation spits out. (after futzing with
-  -- the identity substitution)
-  --
-  -- It says that for every M : ClosedComp (F Bool)
-  -- we construct a term s : Bool → Bool × (ClosedVal Bool)
-  -- such that
-  -- 1. M ≡ quote s, i.e. M ≡ rd (wt b1 (ret' V1)) (wt b2 (ret' V2))
-  -- 2. and each V1 , V2 is a canonical boolean value.
+    value-σ₁≡[+I1] :
+      BinProductⱽNotation.π₁ (CBPV ^opᴰ)
+        (value-coproductⱽ UnitTy UnitTy) ≡ [+I1]
+    value-σ₁≡[+I1] = Cop.rectifyOut {e' = refl}
+      (Cop.reind-filler⁻ (Category.⋆IdR (KIND ^op) _)
+      ∙ Cop.≡in {pth = refl} (IdRS [+I1]))
 
-  -- Pretty good definitionally except for [ret]' ≠ [ret] because of a
-  -- transport.
-  RawFBool : Tm tt (gen 𝟙) ([F] (gen BoolTy)) → Type ℓ-zero
+    value-σ₂≡[+I2] :
+      BinProductⱽNotation.π₂ (CBPV ^opᴰ)
+        (value-coproductⱽ UnitTy UnitTy) ≡ [+I2]
+    value-σ₂≡[+I2] = Cop.rectifyOut {e' = refl}
+      (Cop.reind-filler⁻ (Category.⋆IdR (KIND ^op) _)
+      ∙ Cop.≡in {pth = refl} (IdRS [+I2]))
+
+    CanonicalBool : Tm tt UnitTy BoolTy → Type ℓ-zero
+    CanonicalBool V =
+      fiber (λ (V₁ : Tm tt UnitTy UnitTy) → seqS V₁ inl') V
+      ⊎ fiber (λ (V₂ : Tm tt UnitTy UnitTy) → seqS V₂ inr') V
+
+    inspect-Bool : ∀ V → ⟨ LogicalRelation BoolTy V ⟩ → CanonicalBool V
+    inspect-Bool V (inl (V₁ , p , _)) =
+      inl (V₁ , sym (cong (seqS V₁) value-σ₁≡[+I1]) ∙ p)
+    inspect-Bool V (inr (V₂ , p , _)) =
+      inr (V₂ , sym (cong (seqS V₂) value-σ₂≡[+I2]) ∙ p)
+
+    canonicalBool : ∀ V → ⟨ LogicalRelation BoolTy V ⟩
+      → Σ[ b ∈ Bool ] V ≡ quoteBool b
+    canonicalBool V related = Sum.rec
+      (λ (V₁ , V₁-inl≡V) → true ,
+        sym V₁-inl≡V
+        ∙ cong (λ W → seqS W inl') ([1η] V₁ ∙ sym ([1η] idS))
+        ∙ IdLS inl')
+      (λ (V₂ , V₂-inr≡V) → false ,
+        sym V₂-inr≡V
+        ∙ cong (λ W → seqS W inr') ([1η] V₂ ∙ sym ([1η] idS))
+        ∙ IdLS inr')
+      (inspect-Bool V related)
+
+  RawFBool : Tm tt UnitTy ([F] BoolTy) → Type ℓ-zero
   RawFBool M =
     Σ[ (s , [ret]⟨s⟩≡M) ∈ fiber
       (recFSA-f
-        (Tm tt (gen 𝟙) (gen BoolTy))
-        (StateAlgEff (gen 𝟙) ([F] (gen BoolTy)))
+        (Tm tt UnitTy BoolTy)
+        (StateAlgEff UnitTy ([F] BoolTy))
         (λ V → seqS V [ret]'))
       M ]
       (∀ b → Σ[ q ∈ Bool ] s b .snd ≡ quoteBool q)
 
   raw-FBool : ∀ M → RawFBool M
-  raw-FBool = fundamentalAt
+  raw-FBool M = canonicalize (fundamentalAt M)
+    where
+    canonicalize : ⟨ LogicalRelation ([F] BoolTy) M ⟩ → RawFBool M
+    canonicalize raw .fst = raw .fst
+    canonicalize raw .snd b =
+      canonicalBool (raw .fst .fst b .snd) (raw .snd b)
 
   interpretFreeStateBool :
     ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
-    → Tm tt (gen 𝟙) ([F] (gen BoolTy))
+    → Tm tt UnitTy ([F] BoolTy)
   interpretFreeStateBool = recFSA-f Bool
-    (StateAlgEff (gen 𝟙) ([F] (gen BoolTy)))
+    (StateAlgEff UnitTy ([F] BoolTy))
     (λ b → seqS (quoteBool b) [ret])
 
   private
     rawState : ∀ {M} → RawFBool M
-      → Bool → Bool × Tm tt (gen 𝟙) (gen BoolTy)
+      → Bool → Bool × Tm tt UnitTy BoolTy
     rawState raw = raw .fst .fst
 
     rawRelated : ∀ {M} (raw : RawFBool M) b
@@ -201,22 +227,10 @@ module BoolStateSyntax where
     fiber interpretFreeStateBool M
   closed-FBool-surjective M = realizeRaw (raw-FBool M)
 
-  unquote-FBool : Tm _ (gen 𝟙) ([F] (gen BoolTy)) → ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
+  -- This should be an inverse to interpretFreeStateBool but a proof
+  -- by computation doesn't terminate.
+  unquote-FBool : Tm _ UnitTy ([F] BoolTy)
+    → ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
   unquote-FBool M = closed-FBool-surjective M .fst
-
-  -- opaque
-  --   unfolding depReasoning.reind
-  --   -- This should compute (at least up to opaque reind), but even
-  --   -- reducing it is terribly slow.
-  --   unquote-quote : ∀ s → unquote-FBool (interpretFreeStateBool s) ≡ s
-  --   unquote-quote s = funExt pointwise
-  --     where
-  --     pointwise : ∀ b → unquote-FBool (interpretFreeStateBool s) b ≡ s b
-  --     pointwise false with s false
-  --     ... | b , false = refl
-  --     ... | b , true = refl
-  --     pointwise true with s true
-  --     ... | b , false = refl
-  --     ... | b , true = refl
 
 open BoolStateSyntax public

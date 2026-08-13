@@ -4,9 +4,9 @@
 -- property is naturally defined as a composition of Fⱽ for [ret] with
 -- a general pushforward for homomorphisms.
 --
--- Unfortunately because of reindexing in the presheaves, the proofs
--- here are quite ugly and manual. Hope to improve these in the
--- future.
+-- The two opcartesian lifts have a lot of reinds, despite the use of
+-- strictly unital and associative homomorphisms. TODO: experiment
+-- with Eq-Fiber version.
 {-# OPTIONS --prop --lossy-unification #-}
 module Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Vertical where
 
@@ -18,6 +18,7 @@ open import Cubical.Foundations.More
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Sigma
+import Cubical.Data.Equality as Eq
 
 open import Cubical.Algebra.State
 open import Cubical.Categories.Category
@@ -26,17 +27,40 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (l to 𝒱; r to 𝓒)
+open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
+import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Base
 
 private
   variable
     ℓ : Level
+
+  StateAlgCBPVIdR : ∀ ℓ → EqPsh.EqIdR
+    (∫C (StateAlgCBPV {ℓ = ℓ} .fst))
+  StateAlgCBPVIdR ℓ {x = 𝒱 , A} {y = 𝒱 , B} f = Eq.refl
+  StateAlgCBPVIdR ℓ {x = 𝒱 , A} {y = 𝓒 , B} f = Eq.pathToEq
+    (Category.⋆IdR (∫C (StateAlgCBPV {ℓ = ℓ} .fst)) f)
+  StateAlgCBPVIdR ℓ {x = 𝓒 , A} {y = 𝒱 , B} ()
+  StateAlgCBPVIdR ℓ {x = 𝓒 , A} {y = 𝓒 , B} f = Eq.refl
+
+  StateAlgCBPVAssoc : ∀ ℓ → EqPsh.ReprEqAssoc
+    (∫C (StateAlgCBPV {ℓ = ℓ} .fst))
+  StateAlgCBPVAssoc ℓ (𝒱 , A)
+    {c = 𝒱 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
+    _ _ _ _ Eq.refl = Eq.refl
+  StateAlgCBPVAssoc ℓ (𝓒 , B)
+    {c = 𝒱 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
+    _ _ _ _ Eq.refl = Eq.refl
+  StateAlgCBPVAssoc ℓ x f g p f⋆g e = Eq.pathToEq
+    (sym (C.⋆Assoc f g p) ∙ cong (λ fg → fg C.⋆ p) (Eq.eqToPath e))
+    where module C = Category (∫C (StateAlgCBPV {ℓ = ℓ} .fst))
 
 StateAlgCBPVHasUⱽ : (ℓ : Level) → Type _
 StateAlgCBPVHasUⱽ ℓ = hasUⱽ (StateAlgCBPVᴰ ℓ ℓ)
@@ -60,34 +84,45 @@ module _ {A : hSet ℓ} {B : StateAlgebra ℓ}
     ∀ x → ⟨ StateAlgCBPV-U-obⱽ x ⟩ → ⟨ Bᴰ .fst (f x) ⟩
   StateAlgCBPV-forceⱽ _ xᴰ = xᴰ
 
+private
+  StateAlgCBPV-U-base : ∀ {ℓ} {A : hSet ℓ} {B : StateAlgebra ℓ} →
+    (⟨ A ⟩ → ⟨ B .fst ⟩) →
+    (∫C (StateAlgCBPV {ℓ = ℓ} .fst)) [ (𝒱 , A) , (𝓒 , B) ]
+  StateAlgCBPV-U-base f = _ , f
+
+  StateAlgCBPV-U-EqLift : ∀ {ℓ} {A : hSet ℓ} {B : StateAlgebra ℓ}
+    (f : ⟨ A ⟩ → ⟨ B .fst ⟩)
+    (Bᴰ : Σ[ Xᴰ ∈ (⟨ B .fst ⟩ → hSet ℓ) ]
+      StateAlgᴰ (B .snd) (λ y → ⟨ Xᴰ y ⟩))
+    → EqPsh.CartesianLift (StateAlgCBPVᴰ ℓ ℓ)
+        (StateAlgCBPVAssoc ℓ) (StateAlgCBPV-U-base f) Bᴰ
+  StateAlgCBPV-U-EqLift {ℓ} {A} {B} f Bᴰ =
+    EqPsh.UEⱽ→Reprⱽ _ (StateAlgCBPVIdR ℓ) ue
+    where
+    ue : EqPsh.CartesianLiftUE (StateAlgCBPVᴰ ℓ ℓ)
+      (StateAlgCBPVAssoc ℓ) (StateAlgCBPVIdR ℓ)
+      (StateAlgCBPV-U-base f) Bᴰ
+    ue .EqPsh.UEⱽ.v = StateAlgCBPV-U-obⱽ f Bᴰ
+    ue .EqPsh.UEⱽ.e = StateAlgCBPV-forceⱽ f Bᴰ
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
+      ((𝒱 , Z) , Zᴰ , g) .fst = λ z → z
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
+      ((𝓒 , Z) , Zᴰ , ()) .fst
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
+      ((𝒱 , Z) , Zᴰ , g) .snd .fst _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
+      ((𝓒 , Z) , Zᴰ , ()) .snd .fst
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
+      ((𝒱 , Z) , Zᴰ , g) .snd .snd _ = refl
+    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
+      ((𝓒 , Z) , Zᴰ , ()) .snd .snd
+
 StateAlgCBPV-Uⱽ : {ℓ : Level} → StateAlgCBPVHasUⱽ ℓ
-StateAlgCBPV-Uⱽ {ℓ} {A = A} {B = B} f Bᴰ = UniversalElementⱽ'.REPRⱽ U-ue
-  where
-  module C = Category (∫C (StateAlgCBPV { ℓ = ℓ } .fst))
-  module Cᴰ = Fibers (StateAlgCBPVᴰ ℓ ℓ)
-
-  U-ue : UniversalElementⱽ' (StateAlgCBPVᴰ ℓ ℓ) (𝒱 , A)
-    (CartesianLiftPshSpec
-      ((∫C (StateAlgCBPV { ℓ = ℓ } .fst)) [-, (𝓒 , B) ])
-      (StateAlgCBPVᴰ ℓ ℓ)
-      ((StateAlgCBPVᴰ ℓ ℓ) [-][-, Bᴰ ]) (_ , f))
-  U-ue .UniversalElementⱽ'.vertexⱽ = StateAlgCBPV-U-obⱽ f Bᴰ
-  U-ue .UniversalElementⱽ'.elementⱽ = StateAlgCBPV-forceⱽ f Bᴰ
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝒱 , Z) , Zᴰ , g) .fst = λ z → z
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ()) .fst
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝒱 , Z) , Zᴰ , g) .snd .fst γᴰ =
-    Cᴰ.rectifyOut {a = (𝒱 , Z)} {b = (𝓒 , B)} {aᴰ = Zᴰ} {bᴰ = Bᴰ}
-      {e' = refl} $
-      Cᴰ.reind-filler⁻ {a = (𝒱 , Z)} {b = (𝓒 , B)}
-        {aᴰ = Zᴰ} {bᴰ = Bᴰ} _
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ()) .snd .fst
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝒱 , Z) , Zᴰ , g) .snd .snd γᴰ =
-    Cᴰ.rectifyOut {a = (𝒱 , Z)} {b = (𝓒 , B)} {aᴰ = Zᴰ} {bᴰ = Bᴰ}
-      {e' = refl} $
-      Cᴰ.reind-filler⁻ {a = (𝒱 , Z)} {b = (𝓒 , B)}
-        {aᴰ = Zᴰ} {bᴰ = Bᴰ} _
-  U-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ()) .snd .snd
-
+StateAlgCBPV-Uⱽ {ℓ} {A = A} {B = B} f Bᴰ =
+  EqCartesianLift→CartesianLift
+    (StateAlgCBPVAssoc ℓ) (StateAlgCBPVᴰ ℓ ℓ) Bᴰ (𝒱 , A)
+    (StateAlgCBPV-U-base f)
+    (StateAlgCBPV-U-EqLift f Bᴰ)
 module _ {A : hSet ℓ} (Aᴰ : ⟨ A ⟩ → hSet ℓ) where
   FreeStateAlgebraᴰ :
     Σ[ Xᴰ ∈ (⟨ FreeStateAlgebra A .fst ⟩ → hSet ℓ) ]
@@ -220,8 +255,7 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
     → Homoᴰ (canonical-fᴰ ψ Zᴰ χᴰ) ((ϕ .snd) ⋆Homo (ψ .snd))
         (Bᴰ .snd) (Zᴰ .snd)
   canonical-homᴰ {Z = Z} ψ Zᴰ χᴰ =
-    (σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd)
-      (Z .fst .snd)
+    σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd
 
   push-path : ∀ b bᴰ {b'} (p : ϕ .fst b ≡ b')
     → Path
@@ -300,8 +334,7 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
                   (isPropHomo (Z .fst .snd)
                     ((ϕ .snd) ⋆Homo (ψ .snd .snd))
                     _)
-                  ((σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd)
-                    (Z .fst .snd))) )))
+                  (σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd)))))
     ∙ (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.≡in
       {pth = ∫Homo≡ _ _ (Z .fst .snd) refl}
       (ΣPathP

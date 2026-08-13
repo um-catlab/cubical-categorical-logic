@@ -16,7 +16,7 @@ private
   variable
     ℓS ℓV ℓX ℓB ℓD ℓD' : Level
 
-data StateOp {s : Level} (Store : Type s) : Type s where
+data StateOp {ℓS : Level} (Store : Type ℓS) : Type ℓS where
   read : StateOp Store
   write : Store → StateOp Store
 
@@ -29,16 +29,15 @@ module StateSignature {s : Level} (Store : Type s) where
   open Signature (StateSignature Store) public
 
 module _ (Store : Type ℓS) where
-  private
-    module S = Signature (StateSignature Store)
+  open Signature (StateSignature Store)
 
   readTm : ∀ {V : Type ℓV}
-    → (Store → S.|FreeAlgebra| V) → S.|FreeAlgebra| V
-  readTm γ = S.app read γ
+    → (Store → |FreeAlgebra| V) → |FreeAlgebra| V
+  readTm γ = app read γ
 
   writeTm : ∀ {V : Type ℓV}
-    → Store → S.|FreeAlgebra| V → S.|FreeAlgebra| V
-  writeTm s t = S.app (write s) (λ _ → t)
+    → Store → |FreeAlgebra| V → |FreeAlgebra| V
+  writeTm s t = app (write s) (λ _ → t)
 
   data StateEq : Type ℓS where
     wt-rdEq : Store → StateEq
@@ -50,17 +49,17 @@ module _ (Store : Type ℓS) where
   StateEqArity rd-wtEq = Unit*
   StateEqArity (wt-wtEq _ _) = Unit*
 
-  StateLhs : (e : StateEq) → S.|FreeAlgebra| (StateEqArity e)
+  StateLhs : (e : StateEq) → |FreeAlgebra| (StateEqArity e)
   StateLhs (wt-rdEq s) =
-    writeTm s (readTm S.var)
-  StateLhs rd-wtEq = S.var tt*
+    writeTm s (readTm var)
+  StateLhs rd-wtEq = var tt*
   StateLhs (wt-wtEq s s') =
-    writeTm s (writeTm s' (S.var tt*))
+    writeTm s (writeTm s' (var tt*))
 
-  StateRhs : (e : StateEq) → S.|FreeAlgebra| (StateEqArity e)
-  StateRhs (wt-rdEq s) = writeTm s (S.var s)
-  StateRhs rd-wtEq = readTm (λ s → writeTm s (S.var tt*))
-  StateRhs (wt-wtEq _ s') = writeTm s' (S.var tt*)
+  StateRhs : (e : StateEq) → |FreeAlgebra| (StateEqArity e)
+  StateRhs (wt-rdEq s) = writeTm s (var s)
+  StateRhs rd-wtEq = readTm (λ s → writeTm s (var tt*))
+  StateRhs (wt-wtEq _ s') = writeTm s' (var tt*)
 
   StateTheory : Theory ℓS ℓS ℓS ℓS
   StateTheory .Theory.S = StateSignature Store
@@ -115,10 +114,9 @@ module _ (Store : Type ℓS) (B : Theory.Model (StateTheory Store) ℓB) where
     ∙ sym (StateModelReadWrite x)
 
 module _ (Store : hSet ℓS) (X : hSet ℓX) where
-  private
-    module T = Theory (StateTheory (Store .fst))
+  open Theory (StateTheory (Store .fst))
 
-  StateFreeModel : T.Model (ℓ-max ℓS ℓX)
+  StateFreeModel : Model (ℓ-max ℓS ℓX)
   StateFreeModel .fst .fst = Store .fst → Store .fst × X .fst
   StateFreeModel .fst .snd read γ s = γ s s
   StateFreeModel .fst .snd (write s) γ _ = γ tt* s
@@ -134,8 +132,8 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
   StateFreeModelη : X .fst → StateFreeModel .fst .fst
   StateFreeModelη x s = s , x
 
-  module _ (B : T.Model ℓB) (f : X .fst → B .fst .fst) where
-    StateFreeModelRec : T.Homo (StateFreeModel .fst) (B .fst)
+  module _ (B : Model ℓB) (f : X .fst → B .fst .fst) where
+    StateFreeModelRec : Homo (StateFreeModel .fst) (B .fst)
     StateFreeModelRec .fst q =
       StateModelRead (Store .fst) B λ s →
         StateModelWrite (Store .fst) B (q s .fst) (f (q s .snd))
@@ -164,28 +162,19 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
       sym (StateModelReadWrite (Store .fst) B (f x))
 
   StateFreeModelRec-uniq :
-    (B : T.Model ℓB)
-    (f : T.Homo (StateFreeModel .fst) (B .fst))
+    (B : Model ℓB)
+    (f : Homo (StateFreeModel .fst) (B .fst))
     → f .fst ≡
       StateFreeModelRec B (λ x → f .fst (StateFreeModelη x)) .fst
   StateFreeModelRec-uniq B f = funExt λ q →
     sym
       ( cong (StateModelRead (Store .fst) B)
-          (funExt λ s →
-            f .snd (write (q s .fst))
-              (λ _ → StateFreeModelη (q s .snd))
-              (branch q s) refl)
-      ∙ f .snd read (branch q) q refl)
-    where
-    branch : StateFreeModel .fst .fst →
-      Store .fst → StateFreeModel .fst .fst
-    branch q s =
-      StateFreeModel .fst .snd (write (q s .fst))
-        (λ _ → StateFreeModelη (q s .snd))
+          (funExt λ s → f .snd (write _) _ _ refl)
+      ∙ f .snd read _ _ refl)
 
-  StateFreeModelUniversal : (B : T.Model ℓB) →
+  StateFreeModelUniversal : (B : Model ℓB) →
     isEquiv
-      (λ (f : T.Homo (StateFreeModel .fst) (B .fst)) x →
+      (λ (f : Homo (StateFreeModel .fst) (B .fst)) x →
         f .fst (StateFreeModelη x))
   StateFreeModelUniversal B = isIsoToIsEquiv
     ( StateFreeModelRec B
@@ -202,7 +191,7 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
         (λ q → (s : Store .fst) → Xᴰ (q s .snd) .fst)
 
     StateFreeAlgebraᴰ :
-      T.Algebraᴰ (StateFreeModel .fst) (ℓ-max ℓS ℓD)
+      Algebraᴰ (StateFreeModel .fst) (ℓ-max ℓS ℓD)
     StateFreeAlgebraᴰ .fst q =
       (s : Store .fst) → Xᴰ (q s .snd) .fst
     StateFreeAlgebraᴰ .snd read γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
@@ -213,7 +202,7 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
     StateReadNormalize :
       (γ : Store .fst → StateFreeModel .fst .fst)
       (γᴰ : (s : Store .fst) → StateFreeAlgebraᴰ .fst (γ s))
-      → Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+      → Path (∫Algebra StateFreeAlgebraᴰ .fst)
           ( StateFreeModel .fst .snd read γ
           , StateFreeAlgebraᴰ .snd read γ γᴰ _ refl)
           ( StateFreeModel .fst .snd read γ
@@ -224,7 +213,7 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
       (s : Store .fst)
       (γ : Unit* → StateFreeModel .fst .fst)
       (γᴰ : (u : Unit*) → StateFreeAlgebraᴰ .fst (γ u))
-      → Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+      → Path (∫Algebra StateFreeAlgebraᴰ .fst)
           ( StateFreeModel .fst .snd (write s) γ
           , StateFreeAlgebraᴰ .snd (write s) γ γᴰ _ refl)
           ( StateFreeModel .fst .snd (write s) γ
@@ -234,76 +223,76 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
     StateReadAppFiller : {V : Type ℓV}
       (ρ : V → StateFreeModel .fst .fst)
       (ρᴰ : (v : V) → StateFreeAlgebraᴰ .fst (ρ v))
-      (γ : Store .fst → T.|FreeAlgebra| V)
-      → Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+      (γ : Store .fst → |FreeAlgebra| V)
+      → Path (∫Algebra StateFreeAlgebraᴰ .fst)
           ( StateFreeModel .fst .snd read
-              (λ s → T.interp (StateFreeModel .fst) ρ (γ s))
+              (λ s → interp (StateFreeModel .fst) ρ (γ s))
           , StateFreeAlgebraᴰ .snd read
-              (λ s → T.interp (StateFreeModel .fst) ρ (γ s))
-              (λ s → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ s))
+              (λ s → interp (StateFreeModel .fst) ρ (γ s))
+              (λ s → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ s))
               _ refl)
-          ( T.interp (StateFreeModel .fst) ρ (T.S.app read γ)
-          , T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (T.S.app read γ))
+          ( interp (StateFreeModel .fst) ρ (app read γ)
+          , interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (app read γ))
     StateReadAppFiller ρ ρᴰ γ =
-      T.Algebraᴰ-op-filler StateFreeAlgebraᴰ read
-        (λ s → T.interp (StateFreeModel .fst) ρ (γ s))
-        (λ s → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ s))
-        (T.interp (StateFreeModel .fst) ρ (T.S.app read γ))
-        (T.recFA (StateFreeModel .fst) ρ .snd read γ
-          (T.S.app read γ) refl)
+      Algebraᴰ-op-filler StateFreeAlgebraᴰ read
+        (λ s → interp (StateFreeModel .fst) ρ (γ s))
+        (λ s → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ s))
+        (interp (StateFreeModel .fst) ρ (app read γ))
+        (recFA (StateFreeModel .fst) ρ .snd read γ
+          (app read γ) refl)
 
     StateWriteAppFiller : {V : Type ℓV}
       (s : Store .fst)
       (ρ : V → StateFreeModel .fst .fst)
       (ρᴰ : (v : V) → StateFreeAlgebraᴰ .fst (ρ v))
-      (γ : Unit* → T.|FreeAlgebra| V)
-      → Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+      (γ : Unit* → |FreeAlgebra| V)
+      → Path (∫Algebra StateFreeAlgebraᴰ .fst)
           ( StateFreeModel .fst .snd (write s)
-              (λ u → T.interp (StateFreeModel .fst) ρ (γ u))
+              (λ u → interp (StateFreeModel .fst) ρ (γ u))
           , StateFreeAlgebraᴰ .snd (write s)
-              (λ u → T.interp (StateFreeModel .fst) ρ (γ u))
-              (λ u → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ u))
+              (λ u → interp (StateFreeModel .fst) ρ (γ u))
+              (λ u → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ u))
               _ refl)
-          ( T.interp (StateFreeModel .fst) ρ (T.S.app (write s) γ)
-          , T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-              (T.S.app (write s) γ))
+          ( interp (StateFreeModel .fst) ρ (app (write s) γ)
+          , interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+              (app (write s) γ))
     StateWriteAppFiller s ρ ρᴰ γ =
-      T.Algebraᴰ-op-filler StateFreeAlgebraᴰ (write s)
-        (λ u → T.interp (StateFreeModel .fst) ρ (γ u))
-        (λ u → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ u))
-        (T.interp (StateFreeModel .fst) ρ (T.S.app (write s) γ))
-        (T.recFA (StateFreeModel .fst) ρ .snd (write s) γ
-          (T.S.app (write s) γ) refl)
+      Algebraᴰ-op-filler StateFreeAlgebraᴰ (write s)
+        (λ u → interp (StateFreeModel .fst) ρ (γ u))
+        (λ u → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ (γ u))
+        (interp (StateFreeModel .fst) ρ (app (write s) γ))
+        (recFA (StateFreeModel .fst) ρ .snd (write s) γ
+          (app (write s) γ) refl)
 
     StateFreeModelᴰ :
-      T.Modelᴰ StateFreeModel (ℓ-max ℓS ℓD)
+      Modelᴰ StateFreeModel (ℓ-max ℓS ℓD)
     StateFreeModelᴰ .fst = StateFreeAlgebraᴰ
     StateFreeModelᴰ .snd .fst (wt-rdEq s) ρ ρᴰ =
       R.rectifyOut {e' = StateFreeModel .snd .fst (wt-rdEq s) ρ}
         ( sym (StateWriteAppFiller s ρ ρᴰ
-            (λ _ → T.S.app read T.S.var))
+            (λ _ → app read var))
         ∙ StateWriteNormalize s
-            (λ _ → T.interp (StateFreeModel .fst) ρ
-              (T.S.app read T.S.var))
-            (λ _ → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-              (T.S.app read T.S.var))
+            (λ _ → interp (StateFreeModel .fst) ρ
+              (app read var))
+            (λ _ → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+              (app read var))
         ∙ cong writeTotal innerPath
         ∙ sym (StateWriteNormalize s
             (λ _ → ρ s) (λ _ → ρᴰ s))
-        ∙ StateWriteAppFiller s ρ ρᴰ (λ _ → T.S.var s))
+        ∙ StateWriteAppFiller s ρ ρᴰ (λ _ → var s))
       where
-      innerPath : Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
-        ( T.interp (StateFreeModel .fst) ρ (T.S.app read T.S.var)
-        , T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-            (T.S.app read T.S.var))
+      innerPath : Path (∫Algebra StateFreeAlgebraᴰ .fst)
+        ( interp (StateFreeModel .fst) ρ (app read var)
+        , interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+            (app read var))
         ( StateFreeModel .fst .snd read ρ
         , λ s' → ρᴰ s' s')
       innerPath =
-        sym (StateReadAppFiller ρ ρᴰ T.S.var)
+        sym (StateReadAppFiller ρ ρᴰ var)
         ∙ StateReadNormalize ρ ρᴰ
 
-      writeTotal : T.∫Algebra StateFreeAlgebraᴰ .fst →
-        T.∫Algebra StateFreeAlgebraᴰ .fst
+      writeTotal : ∫Algebra StateFreeAlgebraᴰ .fst →
+        ∫Algebra StateFreeAlgebraᴰ .fst
       writeTotal z =
         (λ _ → z .fst s) , (λ _ → z .snd s)
     StateFreeModelᴰ .snd .fst rd-wtEq ρ ρᴰ =
@@ -311,71 +300,71 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
         (sym rhsToLhs)
       where
       innerPath : (s : Store .fst) →
-        Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
-          ( T.interp (StateFreeModel .fst) ρ
-              (T.S.app (write s) (λ _ → T.S.var tt*))
-          , T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-              (T.S.app (write s) (λ _ → T.S.var tt*)))
+        Path (∫Algebra StateFreeAlgebraᴰ .fst)
+          ( interp (StateFreeModel .fst) ρ
+              (app (write s) (λ _ → var tt*))
+          , interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+              (app (write s) (λ _ → var tt*)))
           ( StateFreeModel .fst .snd (write s) (λ _ → ρ tt*)
           , λ _ → ρᴰ tt* s)
       innerPath s =
-        sym (StateWriteAppFiller s ρ ρᴰ (λ _ → T.S.var tt*))
+        sym (StateWriteAppFiller s ρ ρᴰ (λ _ → var tt*))
         ∙ StateWriteNormalize s (λ _ → ρ tt*) (λ _ → ρᴰ tt*)
 
-      middlePath : Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+      middlePath : Path (∫Algebra StateFreeAlgebraᴰ .fst)
         ( StateFreeModel .fst .snd read
-            (λ s → T.interp (StateFreeModel .fst) ρ
-              (T.S.app (write s) (λ _ → T.S.var tt*)))
-        , λ s → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-            (T.S.app (write s) (λ _ → T.S.var tt*)) s)
+            (λ s → interp (StateFreeModel .fst) ρ
+              (app (write s) (λ _ → var tt*)))
+        , λ s → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+            (app (write s) (λ _ → var tt*)) s)
         (ρ tt* , ρᴰ tt*)
       middlePath i .fst s = innerPath s i .fst s
       middlePath i .snd s = innerPath s i .snd s
 
-      rhsToLhs : Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
-        ( T.interp (StateFreeModel .fst) ρ
-            (T.S.app read
-              (λ s → T.S.app (write s) (λ _ → T.S.var tt*)))
-        , T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-            (T.S.app read
-              (λ s → T.S.app (write s) (λ _ → T.S.var tt*))))
+      rhsToLhs : Path (∫Algebra StateFreeAlgebraᴰ .fst)
+        ( interp (StateFreeModel .fst) ρ
+            (app read
+              (λ s → app (write s) (λ _ → var tt*)))
+        , interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+            (app read
+              (λ s → app (write s) (λ _ → var tt*))))
         (ρ tt* , ρᴰ tt*)
       rhsToLhs =
         sym (StateReadAppFiller ρ ρᴰ
-          (λ s → T.S.app (write s) (λ _ → T.S.var tt*)))
+          (λ s → app (write s) (λ _ → var tt*)))
         ∙ StateReadNormalize
-            (λ s → T.interp (StateFreeModel .fst) ρ
-              (T.S.app (write s) (λ _ → T.S.var tt*)))
-            (λ s → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-              (T.S.app (write s) (λ _ → T.S.var tt*)))
+            (λ s → interp (StateFreeModel .fst) ρ
+              (app (write s) (λ _ → var tt*)))
+            (λ s → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+              (app (write s) (λ _ → var tt*)))
         ∙ middlePath
     StateFreeModelᴰ .snd .fst (wt-wtEq s s') ρ ρᴰ =
       R.rectifyOut {e' = StateFreeModel .snd .fst (wt-wtEq s s') ρ}
         ( sym (StateWriteAppFiller s ρ ρᴰ
-            (λ _ → T.S.app (write s') (λ _ → T.S.var tt*)))
+            (λ _ → app (write s') (λ _ → var tt*)))
         ∙ StateWriteNormalize s
-            (λ _ → T.interp (StateFreeModel .fst) ρ
-              (T.S.app (write s') (λ _ → T.S.var tt*)))
-            (λ _ → T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-              (T.S.app (write s') (λ _ → T.S.var tt*)))
+            (λ _ → interp (StateFreeModel .fst) ρ
+              (app (write s') (λ _ → var tt*)))
+            (λ _ → interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+              (app (write s') (λ _ → var tt*)))
         ∙ cong writeTotal innerPath
         ∙ sym (StateWriteNormalize s'
             (λ _ → ρ tt*) (λ _ → ρᴰ tt*))
-        ∙ StateWriteAppFiller s' ρ ρᴰ (λ _ → T.S.var tt*))
+        ∙ StateWriteAppFiller s' ρ ρᴰ (λ _ → var tt*))
       where
-      innerPath : Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
-        ( T.interp (StateFreeModel .fst) ρ
-            (T.S.app (write s') (λ _ → T.S.var tt*))
-        , T.interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
-            (T.S.app (write s') (λ _ → T.S.var tt*)))
+      innerPath : Path (∫Algebra StateFreeAlgebraᴰ .fst)
+        ( interp (StateFreeModel .fst) ρ
+            (app (write s') (λ _ → var tt*))
+        , interpᴰ StateFreeAlgebraᴰ ρ ρᴰ
+            (app (write s') (λ _ → var tt*)))
         ( StateFreeModel .fst .snd (write s') (λ _ → ρ tt*)
         , λ _ → ρᴰ tt* s')
       innerPath =
-        sym (StateWriteAppFiller s' ρ ρᴰ (λ _ → T.S.var tt*))
+        sym (StateWriteAppFiller s' ρ ρᴰ (λ _ → var tt*))
         ∙ StateWriteNormalize s' (λ _ → ρ tt*) (λ _ → ρᴰ tt*)
 
-      writeTotal : T.∫Algebra StateFreeAlgebraᴰ .fst →
-        T.∫Algebra StateFreeAlgebraᴰ .fst
+      writeTotal : ∫Algebra StateFreeAlgebraᴰ .fst →
+        ∫Algebra StateFreeAlgebraᴰ .fst
       writeTotal z =
         (λ _ → z .fst s) , (λ _ → z .snd s)
     StateFreeModelᴰ .snd .snd q =
@@ -386,13 +375,13 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
     StateFreeModelηᴰ x xᴰ _ = xᴰ
 
     module _
-      (Bᴰ : T.Modelᴰ StateFreeModel ℓD')
+      (Bᴰ : Modelᴰ StateFreeModel ℓD')
       (fᴰ : (x : X .fst) → Xᴰ x .fst →
         Bᴰ .fst .fst (StateFreeModelη x))
       where
       private
-        TargetModel : T.Model (ℓ-max (ℓ-max ℓS ℓX) ℓD')
-        TargetModel = T.∫Model {M = StateFreeModel} Bᴰ
+        TargetModel : Model (ℓ-max (ℓ-max ℓS ℓX) ℓD')
+        TargetModel = ∫Model {M = StateFreeModel} Bᴰ
 
         module BᴰR = hSetReasoning
           (StateFreeModel .fst .fst , StateFreeModel .snd .snd)
@@ -402,7 +391,7 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
           TargetModel .fst .fst
         generator x xᴰ = StateFreeModelη x , fᴰ x xᴰ
 
-        RecᴰTotal : T.∫Algebra StateFreeAlgebraᴰ .fst →
+        RecᴰTotal : ∫Algebra StateFreeAlgebraᴰ .fst →
           TargetModel .fst .fst
         RecᴰTotal z =
           StateModelRead (Store .fst) TargetModel λ s →
@@ -422,13 +411,13 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
           (generator x xᴰ)))
 
       StateFreeModelRecᴰ :
-        T.Homoᴰ (T.idHomo {A = StateFreeModel .fst})
+        Homoᴰ (idHomo {A = StateFreeModel .fst})
           StateFreeAlgebraᴰ (Bᴰ .fst)
       StateFreeModelRecᴰ .fst = StateFreeModelRecᴰ-fun
       StateFreeModelRecᴰ .snd read γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩
         op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ =
           BᴰR.rectifyOut {e' = refl}
-            ( sym (T.Algebraᴰ-op-filler (Bᴰ .fst) read γ
+            ( sym (Algebraᴰ-op-filler (Bᴰ .fst) read γ
                 (λ s → StateFreeModelRecᴰ-fun (γ s) (γᴰ s))
                 op⟨γ⟩ op∘γ≡op⟨γ⟩)
             ∙ StateModelReadRead (Store .fst) TargetModel matrix
@@ -439,7 +428,7 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
             StateModelWrite (Store .fst) TargetModel (γ s s' .fst)
               (generator (γ s s' .snd) (γᴰ s s'))
 
-          sourcePath : Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+          sourcePath : Path (∫Algebra StateFreeAlgebraᴰ .fst)
             ( StateFreeModel .fst .snd read γ
             , λ s → γᴰ s s)
             (op⟨γ⟩ , op⟨γᴰ⟩)
@@ -449,7 +438,7 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
       StateFreeModelRecᴰ .snd (write s) γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩
         op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ =
           BᴰR.rectifyOut {e' = refl}
-            ( sym (T.Algebraᴰ-op-filler (Bᴰ .fst) (write s) γ
+            ( sym (Algebraᴰ-op-filler (Bᴰ .fst) (write s) γ
                 (λ u → StateFreeModelRecᴰ-fun (γ u) (γᴰ u))
                 op⟨γ⟩ op∘γ≡op⟨γ⟩)
             ∙ StateModelWriteRead (Store .fst) TargetModel s matrix
@@ -475,7 +464,7 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
           valueᴰ : Xᴰ value .fst
           valueᴰ = γᴰ tt* s
 
-          sourcePath : Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+          sourcePath : Path (∫Algebra StateFreeAlgebraᴰ .fst)
             ( StateFreeModel .fst .snd (write s) γ
             , λ _ → γᴰ tt* s)
             (op⟨γ⟩ , op⟨γᴰ⟩)
@@ -484,8 +473,8 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
             ∙ R.≡in {pth = refl} op∘γᴰ≡op⟨γᴰ⟩
 
     StateFreeModelRecᴰ-uniq :
-      (Bᴰ : T.Modelᴰ StateFreeModel ℓD')
-      (hᴰ : T.Homoᴰ (T.idHomo {A = StateFreeModel .fst})
+      (Bᴰ : Modelᴰ StateFreeModel ℓD')
+      (hᴰ : Homoᴰ (idHomo {A = StateFreeModel .fst})
         StateFreeAlgebraᴰ (Bᴰ .fst))
       → hᴰ .fst ≡
         StateFreeModelRecᴰ Bᴰ
@@ -495,19 +484,19 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
       funExt λ q → funExt λ qᴰ →
         BᴰR.rectifyOut {e' = refl} (sym (totalPath q qᴰ))
       where
-      TargetModel : T.Model _
-      TargetModel = T.∫Model {M = StateFreeModel} Bᴰ
+      TargetModel : Model _
+      TargetModel = ∫Model {M = StateFreeModel} Bᴰ
 
       module BᴰR = hSetReasoning
         (StateFreeModel .fst .fst , StateFreeModel .snd .snd)
         (Bᴰ .fst .fst)
 
-      HomoᴰTotal : T.Homo
-        (T.∫Algebra StateFreeAlgebraᴰ)
+      HomoᴰTotal : Homo
+        (∫Algebra StateFreeAlgebraᴰ)
         (TargetModel .fst)
       HomoᴰTotal .fst z = z .fst , hᴰ .fst (z .fst) (z .snd)
       HomoᴰTotal .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
-        T.Algebraᴰ-op-filler (Bᴰ .fst) op
+        Algebraᴰ-op-filler (Bᴰ .fst) op
           (λ v → γ v .fst)
           (λ v → hᴰ .fst (γ v .fst) (γ v .snd))
           (op⟨γ⟩ .fst) basePath
@@ -526,25 +515,25 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
             (op⟨γ⟩ .fst) basePath
           ≡ op⟨γ⟩ .snd
         sourceᴰ≡ = R.rectifyOut {e' = refl}
-          ( sym (T.Algebraᴰ-op-filler StateFreeAlgebraᴰ op
+          ( sym (Algebraᴰ-op-filler StateFreeAlgebraᴰ op
               (λ v → γ v .fst) (λ v → γ v .snd)
               (op⟨γ⟩ .fst) basePath)
           ∙ op∘γ≡op⟨γ⟩)
 
       generator : (x : X .fst) (xᴰ : Xᴰ x .fst) →
-        T.∫Algebra StateFreeAlgebraᴰ .fst
+        ∫Algebra StateFreeAlgebraᴰ .fst
       generator x xᴰ = StateFreeModelη x , StateFreeModelηᴰ x xᴰ
 
       branch : (q : StateFreeModel .fst .fst)
         (qᴰ : StateFreeAlgebraᴰ .fst q) (s : Store .fst) →
-        T.∫Algebra StateFreeAlgebraᴰ .fst
+        ∫Algebra StateFreeAlgebraᴰ .fst
       branch q qᴰ s =
-        T.∫Algebra StateFreeAlgebraᴰ .snd (write (q s .fst))
+        ∫Algebra StateFreeAlgebraᴰ .snd (write (q s .fst))
           (λ _ → generator (q s .snd) (qᴰ s))
 
       branchNormalize : (q : StateFreeModel .fst .fst)
         (qᴰ : StateFreeAlgebraᴰ .fst q) (s : Store .fst) →
-        Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
+        Path (∫Algebra StateFreeAlgebraᴰ .fst)
           (branch q qᴰ s)
           ((λ _ → q s) , (λ _ → qᴰ s))
       branchNormalize q qᴰ s =
@@ -554,11 +543,11 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
 
       representationPath : (q : StateFreeModel .fst .fst)
         (qᴰ : StateFreeAlgebraᴰ .fst q) →
-        Path (T.∫Algebra StateFreeAlgebraᴰ .fst)
-          (T.∫Algebra StateFreeAlgebraᴰ .snd read (branch q qᴰ))
+        Path (∫Algebra StateFreeAlgebraᴰ .fst)
+          (∫Algebra StateFreeAlgebraᴰ .snd read (branch q qᴰ))
           (q , qᴰ)
       representationPath q qᴰ =
-        cong (T.∫Algebra StateFreeAlgebraᴰ .snd read)
+        cong (∫Algebra StateFreeAlgebraᴰ .snd read)
           (funExt (branchNormalize q qᴰ))
         ∙ StateReadNormalize (λ s → λ _ → q s) (λ s → λ _ → qᴰ s)
 
@@ -589,9 +578,9 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
             (representationPath q qᴰ)
 
     StateFreeModelUniversalᴰ :
-      (Bᴰ : T.Modelᴰ StateFreeModel ℓD') →
+      (Bᴰ : Modelᴰ StateFreeModel ℓD') →
       isEquiv
-        (λ (hᴰ : T.Homoᴰ (T.idHomo {A = StateFreeModel .fst})
+        (λ (hᴰ : Homoᴰ (idHomo {A = StateFreeModel .fst})
             StateFreeAlgebraᴰ (Bᴰ .fst)) x xᴰ →
           hᴰ .fst (StateFreeModelη x) (StateFreeModelηᴰ x xᴰ))
     StateFreeModelUniversalᴰ Bᴰ = isIsoToIsEquiv
@@ -604,17 +593,17 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
           (sym (StateFreeModelRecᴰ-uniq Bᴰ hᴰ)))
       )
 
-    module _ {B : T.Model ℓB}
-      (ϕ : T.Homo (StateFreeModel .fst) (B .fst))
-      (Bᴰ : T.Modelᴰ B ℓD')
+    module _ {B : Model ℓB}
+      (ϕ : Homo (StateFreeModel .fst) (B .fst))
+      (Bᴰ : Modelᴰ B ℓD')
       (fᴰ : (x : X .fst) → Xᴰ x .fst →
         Bᴰ .fst .fst (ϕ .fst (StateFreeModelη x)))
       where
       StateFreeModelRecOverᴰ :
-        T.Homoᴰ ϕ StateFreeAlgebraᴰ (Bᴰ .fst)
+        Homoᴰ ϕ StateFreeAlgebraᴰ (Bᴰ .fst)
       StateFreeModelRecOverᴰ =
         StateFreeModelRecᴰ
-          (T._*_ {M = StateFreeModel} {N = B} ϕ Bᴰ) fᴰ
+          (_*_ {M = StateFreeModel} {N = B} ϕ Bᴰ) fᴰ
 
       StateFreeModelRecOverᴰ-β :
         (x : X .fst) (xᴰ : Xᴰ x .fst) →
@@ -622,25 +611,25 @@ module _ (Store : hSet ℓS) (X : hSet ℓX) where
           (StateFreeModelη x) (StateFreeModelηᴰ x xᴰ) ≡ fᴰ x xᴰ
       StateFreeModelRecOverᴰ-β =
         StateFreeModelRecᴰ-β
-          (T._*_ {M = StateFreeModel} {N = B} ϕ Bᴰ) fᴰ
+          (_*_ {M = StateFreeModel} {N = B} ϕ Bᴰ) fᴰ
 
-    StateFreeModelRecOverᴰ-uniq : {B : T.Model ℓB}
-      (ϕ : T.Homo (StateFreeModel .fst) (B .fst))
-      (Bᴰ : T.Modelᴰ B ℓD')
-      (hᴰ : T.Homoᴰ ϕ StateFreeAlgebraᴰ (Bᴰ .fst))
+    StateFreeModelRecOverᴰ-uniq : {B : Model ℓB}
+      (ϕ : Homo (StateFreeModel .fst) (B .fst))
+      (Bᴰ : Modelᴰ B ℓD')
+      (hᴰ : Homoᴰ ϕ StateFreeAlgebraᴰ (Bᴰ .fst))
       → hᴰ .fst ≡ StateFreeModelRecOverᴰ {B = B} ϕ Bᴰ
           (λ x xᴰ → hᴰ .fst
             (StateFreeModelη x) (StateFreeModelηᴰ x xᴰ)) .fst
     StateFreeModelRecOverᴰ-uniq {B = B} ϕ Bᴰ =
       StateFreeModelRecᴰ-uniq
-        (T._*_ {M = StateFreeModel} {N = B} ϕ Bᴰ)
+        (_*_ {M = StateFreeModel} {N = B} ϕ Bᴰ)
 
-    StateFreeModelUniversalOverᴰ : {B : T.Model ℓB}
-      (ϕ : T.Homo (StateFreeModel .fst) (B .fst))
-      (Bᴰ : T.Modelᴰ B ℓD') →
+    StateFreeModelUniversalOverᴰ : {B : Model ℓB}
+      (ϕ : Homo (StateFreeModel .fst) (B .fst))
+      (Bᴰ : Modelᴰ B ℓD') →
       isEquiv
-        (λ (hᴰ : T.Homoᴰ ϕ StateFreeAlgebraᴰ (Bᴰ .fst)) x xᴰ →
+        (λ (hᴰ : Homoᴰ ϕ StateFreeAlgebraᴰ (Bᴰ .fst)) x xᴰ →
           hᴰ .fst (StateFreeModelη x) (StateFreeModelηᴰ x xᴰ))
     StateFreeModelUniversalOverᴰ {B = B} ϕ Bᴰ =
       StateFreeModelUniversalᴰ
-        (T._*_ {M = StateFreeModel} {N = B} ϕ Bᴰ)
+        (_*_ {M = StateFreeModel} {N = B} ϕ Bᴰ)

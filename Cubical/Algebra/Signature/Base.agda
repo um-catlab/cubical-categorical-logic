@@ -41,7 +41,6 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
     Op : Type ℓO
     Arity : Op → Type ℓA
 
-  -- This on the other hand we definitely want to have nice equality
   AlgebraWithCarrier : (X : Type ℓ) → Type (ℓ-max (ℓ-max ℓO ℓA) ℓ)
   AlgebraWithCarrier X = ∀ (f : Op) → (ρ : Arity f → X) → X
 
@@ -57,6 +56,8 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
   module _ (A : Algebra ℓ) where
     -- Twist on the more obvious definition of displayed Algebra: a
     -- "Yoneda expansion" of the more obvious definition
+
+    -- Should it be an Eq though?
     AlgebraᴰWithCarrier : (A .fst → Type ℓᴰ) → Type _
     AlgebraᴰWithCarrier Xᴰ =
       ∀ (op : Op) (γ : Arity op → A .fst)
@@ -64,26 +65,13 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
       → (op⟨γ⟩ : A .fst) (op∘γ≡op⟨γ⟩ : A .snd op γ ≡ op⟨γ⟩)
       → Xᴰ op⟨γ⟩
 
-    private
-      -- Equivalence with the more obvious definition
-      AlgebraᴰWithCarrier' : (A .fst → Type ℓᴰ) → Type _
-      AlgebraᴰWithCarrier' Xᴰ =
-        ∀ (f : Op) (γ : Arity f → A .fst)
-          (γᴰ : (v : Arity f) → Xᴰ (γ v))
-        → Xᴰ (A .snd f γ)
-
-      AlgebraᴰWithCarrier'≃AlgebraᴰWithCarrier :
-        (Xᴰ : A .fst → Type ℓᴰ)
-        → AlgebraᴰWithCarrier' Xᴰ ≃ AlgebraᴰWithCarrier Xᴰ
-      AlgebraᴰWithCarrier'≃AlgebraᴰWithCarrier Xᴰ =
-        equivΠCod λ f → equivΠCod λ γ → equivΠCod λ γᴰ →
-          compEquiv
-            (Jequiv (λ f⟨γ⟩ _ → Xᴰ f⟨γ⟩))
-            explicitΠEquiv
-
     Algebraᴰ : ∀ ℓᴰ → Type _
     Algebraᴰ ℓᴰ = Σ[ Xᴰ ∈ (A .fst → Type ℓᴰ) ] AlgebraᴰWithCarrier Xᴰ
 
+    -- This is the downside of the "Yoneda expanded" version of
+    -- displayed algebras: there's nothing analogous in the base so we
+    -- end up instantiating with refl. This leads to the inherent
+    -- nastiness of things like ∫intro below
   ∫Algebra : {A : Algebra ℓ} (Aᴰ : Algebraᴰ A ℓᴰ) → Algebra (ℓ-max ℓ ℓᴰ)
   ∫Algebra Aᴰ .fst = Σ[ a ∈ _ ] Aᴰ .fst a
   ∫Algebra {A = A} Aᴰ .snd f γ .fst =
@@ -95,7 +83,6 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
     Algebraᴰᴰ : ∀ (Aᴰ : Algebraᴰ A ℓᴰ) ℓᴰᴰ → Type _
     Algebraᴰᴰ Aᴰ ℓᴰᴰ = Algebraᴰ (∫Algebra Aᴰ) ℓᴰᴰ
 
-    -- Is this definition nice enough?
     ∫ᴰAlgebra : {Aᴰ : Algebraᴰ A ℓᴰ} (Aᴰᴰ : Algebraᴰᴰ Aᴰ ℓᴰᴰ) → Algebraᴰ A _
     ∫ᴰAlgebra Aᴰᴰ .fst a = Σ[ aᴰ ∈ _ ] Aᴰᴰ .fst (a , aᴰ)
     ∫ᴰAlgebra {Aᴰ = Aᴰ} Aᴰᴰ .snd op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ .fst =
@@ -115,6 +102,41 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
 
     Section : (Aᴰ : Algebraᴰ A ℓᴰ) → Type _
     Section Aᴰ = Σ[ f ∈ _ ] isHomo Aᴰ f
+
+  -- comparison to more obvious definition
+  private
+    module _ (A : Algebra ℓ) where
+      -- Equivalence with the more obvious definition
+      AlgebraᴰWithCarrier' : (A .fst → Type ℓᴰ) → Type _
+      AlgebraᴰWithCarrier' Xᴰ =
+        ∀ (f : Op) (γ : Arity f → A .fst)
+          (γᴰ : (v : Arity f) → Xᴰ (γ v))
+        → Xᴰ (A .snd f γ)
+
+      Algebraᴰ' : ∀ ℓᴰ → Type _
+      Algebraᴰ' ℓᴰ = Σ[ Xᴰ ∈ (A .fst → Type ℓᴰ) ] AlgebraᴰWithCarrier' Xᴰ
+
+      AlgebraᴰWithCarrier'≃AlgebraᴰWithCarrier :
+        (Xᴰ : A .fst → Type ℓᴰ)
+        → AlgebraᴰWithCarrier' Xᴰ ≃ AlgebraᴰWithCarrier A Xᴰ
+      AlgebraᴰWithCarrier'≃AlgebraᴰWithCarrier Xᴰ =
+        equivΠCod λ f → equivΠCod λ γ → equivΠCod λ γᴰ →
+          compEquiv
+            (Jequiv (λ f⟨γ⟩ _ → Xᴰ f⟨γ⟩))
+            explicitΠEquiv
+
+      ∫Algebra' : (Aᴰ : Algebraᴰ' ℓᴰ) → Algebra (ℓ-max ℓ ℓᴰ)
+      ∫Algebra' Aᴰ .fst = Σ _ (Aᴰ .fst)
+      ∫Algebra' Aᴰ .snd f ρ .fst = A .snd f (λ z → ρ z .fst)
+      ∫Algebra' Aᴰ .snd f ρ .snd = Aᴰ .snd f (λ z → ρ z .fst) (λ v → ρ v .snd)
+
+    module _ {A : Algebra ℓ} {Aᴰ : Algebraᴰ' A ℓᴰ} where
+      -- This is the advantage of the non-Yoneda expanded version: a
+      -- very nice definition of ∫/∫ᴰ
+      ∫ᴰAlgebra' : (Aᴰᴰ : Algebraᴰ' (∫Algebra' _ Aᴰ) ℓᴰᴰ) → Algebraᴰ' A _
+      ∫ᴰAlgebra' Aᴰᴰ .fst a = Σ[ aᴰ ∈ Aᴰ .fst a ] (Aᴰᴰ .fst (a , aᴰ))
+      ∫ᴰAlgebra' Aᴰᴰ .snd op γ γᴰ .fst = Aᴰ .snd op γ (fst ∘ γᴰ)
+      ∫ᴰAlgebra' Aᴰᴰ .snd op γ γᴰ .snd = Aᴰᴰ .snd op (λ z → γ z , fst (γᴰ z)) (λ v → γᴰ v .snd)
 
   wkAlg : (A : Algebra ℓ) (B : Algebra ℓ') → Algebraᴰ A ℓ'
   wkAlg A B .fst _ = B .fst
@@ -144,6 +166,9 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
 
   module _ {A : Algebra ℓ}{B : Algebra ℓ'} where
     -- Cartesian Lift, pulling back Algebraᴰ structure along a homomorphism
+
+    -- This turns out to be definitionally functorial (see *∘ and *Id
+    -- below) because of the Yoneda expansion
     _*_ : Homo A B → Algebraᴰ B ℓᴰ → Algebraᴰ A ℓᴰ
     (ϕ * Bᴰ) .fst a = Bᴰ .fst (ϕ .fst a)
     (ϕ * Bᴰ) .snd op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
@@ -438,6 +463,7 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
     FreeAlgebraᴰ .fst = |FreeAlgebraᴰ|
     FreeAlgebraᴰ .snd = app
 
+    -- would be really nice to have a macro for this...
     module _ (isSetOp : isSet Op) (isSetX : isSet X)
       (isSetXᴰ : ∀ x → isSet (Xᴰ x)) where
       private

@@ -28,6 +28,7 @@ open import Cubical.Categories.Displayed.Instances.Reindex
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Instances.Sets.Properties
 open import Cubical.Categories.Displayed.Instances.Weaken
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
@@ -244,30 +245,10 @@ SetCBPVⱽ ℓ .fst = SetCBPVᴰ ℓ
 SetCBPVⱽ ℓ .snd .fst = SetCBPV-Uⱽ ℓ
 SetCBPVⱽ ℓ .snd .snd = SetCBPV-Fⱽ ℓ
 
-private
-  SETᴰCartesianⱽ : ∀ ℓ → CartesianCategoryⱽ (SET ℓ) (ℓ-suc ℓ) ℓ
-  SETᴰCartesianⱽ ℓ =
-    EqCCⱽ→CCⱽ EqSET.SetAssoc (SETᴰ ℓ ℓ) EqSET.isCartesianⱽSETᴰ
-
-  SETᴰCartesianⱽ^op : ∀ ℓ → CartesianCategoryⱽ (SET ℓ ^op) (ℓ-suc ℓ) ℓ
-  SETᴰCartesianⱽ^op ℓ =
-    EqCCⱽ→CCⱽ EqSET.SetAssoc^op ((SETᴰ ℓ ℓ) ^opᴰ)
-      EqSET.isCartesianⱽSETᴰ^op
-
-  SetCBPVCartesianⱽ : ∀ ℓ → CartesianCategoryⱽ
-    (∫C (SetCBPV ℓ)) (ℓ-suc ℓ) ℓ
-  SetCBPVCartesianⱽ ℓ =
-    CartesianCategoryⱽReindex (SETᴰCartesianⱽ ℓ) (weakenΠ KIND (SET ℓ))
-
-  SetCBPVCartesianⱽ^op : ∀ ℓ → CartesianCategoryⱽ
-    ((∫C (SetCBPV ℓ)) ^op) (ℓ-suc ℓ) ℓ
-  SetCBPVCartesianⱽ^op ℓ =
-    CartesianCategoryⱽReindex (SETᴰCartesianⱽ^op ℓ) (SetCBPVΠTotal^op ℓ)
-
 module _ (ℓ : Level) where
   private
-    module Cart = CartesianCategoryⱽ (SetCBPVCartesianⱽ ℓ)
-    module OpCart = CartesianCategoryⱽ (SetCBPVCartesianⱽ^op ℓ)
+    module Cart = CartesianCategoryⱽ (CartesianCategoryⱽReindex (EqSETᴰCCⱽ {ℓ' = ℓ}) (weakenΠ KIND (SET ℓ)))
+    module OpCart = CartesianCategoryⱽ (CartesianCategoryⱽReindex (EqSETᴰCCⱽ^op) (SetCBPVΠTotal^op ℓ))
 
   SetCBPV-Initialsⱽ : ValueInitialsⱽ (SetCBPVᴰ ℓ)
   SetCBPV-Initialsⱽ A =

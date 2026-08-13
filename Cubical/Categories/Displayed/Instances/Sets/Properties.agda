@@ -245,13 +245,17 @@ open import Cubical.Categories.Displayed.Limits.BiCartesianClosedV
 EqSETᴰCCⱽ : CartesianCategoryⱽ (SET ℓ) (ℓ-max ℓ (ℓ-suc ℓ')) (ℓ-max ℓ ℓ')
 EqSETᴰCCⱽ = EqCCⱽ→CCⱽ EqSets.SetAssoc (SETᴰ _ _) EqSets.isCartesianⱽSETᴰ
 
-EqSETᴰCCCⱽ : CartesianClosedCategoryⱽ SETCC (ℓ-max ℓ (ℓ-suc ℓ)) (ℓ-max ℓ ℓ)
-EqSETᴰCCCⱽ {ℓ = ℓ} =
-  EqCCCⱽ→CCCⱽ SETCC EqSets.SetAssoc EqSets.SetIdL EqSets.Setπ₁NatEq
-    EqSets.Set×aF-seq (SETᴰ ℓ ℓ) EqSets.isCCCⱽSETᴰ
+EqSETᴰCCⱽ^op : CartesianCategoryⱽ (SET ℓ ^op) (ℓ-suc ℓ) ℓ
+EqSETᴰCCⱽ^op {ℓ = ℓ} = EqCCⱽ→CCⱽ EqSets.SetAssoc^op ((SETᴰ _ _) ^opᴰ)
+  EqSets.isCartesianⱽSETᴰ^op
 
-EqSETᴰBCCCⱽ : BiCartesianClosedCategoryⱽ SETCC (ℓ-max ℓ (ℓ-suc ℓ)) (ℓ-max ℓ ℓ)
-EqSETᴰBCCCⱽ {ℓ = ℓ} =
+EqSETᴰCCCⱽ : CartesianClosedCategoryⱽ SETCC (ℓ-suc ℓ) ℓ
+EqSETᴰCCCⱽ  =
+  EqCCCⱽ→CCCⱽ SETCC EqSets.SetAssoc EqSets.SetIdL EqSets.Setπ₁NatEq
+    EqSets.Set×aF-seq (SETᴰ _ _) EqSets.isCCCⱽSETᴰ
+
+EqSETᴰBCCCⱽ : BiCartesianClosedCategoryⱽ SETCC (ℓ-suc ℓ) ℓ
+EqSETᴰBCCCⱽ =
   EqBCCCⱽ→BCCCⱽ SETCC EqSets.SetAssoc EqSets.SetIdL EqSets.Setπ₁NatEq
-    EqSets.Set×aF-seq (SETᴰ ℓ ℓ) EqSets.SetAssoc^op
+    EqSets.Set×aF-seq (SETᴰ _ _) EqSets.SetAssoc^op
     EqSets.isCCCⱽSETᴰ EqSets.isCartesianⱽSETᴰ^op

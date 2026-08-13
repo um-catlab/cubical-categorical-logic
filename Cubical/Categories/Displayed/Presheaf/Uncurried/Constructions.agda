@@ -519,17 +519,17 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Cᴰ�
       module Pᴰᴰ×Qᴰᴰ = PresheafᴰNotation Cᴰᴰ Pᴰ×Qᴰ.∫
         _×ⱽᴰPsh_
 
-    test×ⱽᴰPsh : ∀ {Γ x}
-      {Γᴰ : Cᴰ.ob[ Γ ]} {xᴰ : Cᴰ.ob[ x ]}
-      {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]} {xᴰᴰ : Cᴰᴰ.ob[ x , xᴰ ]}
-      (p : P.p[ x ])
-      (pᴰ : Pᴰ.p[ p ][ xᴰ ]) (qᴰ : Qᴰ.p[ p ][ xᴰ ])
-      (f : C [ Γ , x ])
-      (fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ])
-      (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , xᴰᴰ ])
-      (pᴰᴰ : Pᴰᴰ.p[ p , pᴰ ][ xᴰᴰ ])
-      (qᴰᴰ : Qᴰᴰ.p[ p , qᴰ ][ xᴰᴰ ])
-      → fᴰᴰ Pᴰᴰ×Qᴰᴰ.⋆ᴰ (pᴰᴰ , qᴰᴰ)
-        ≡ (fᴰᴰ Pᴰᴰ.⋆ᴰ pᴰᴰ , fᴰᴰ Qᴰᴰ.⋆ᴰ qᴰᴰ)
-    test×ⱽᴰPsh p pᴰ qᴰ f fᴰ fᴰᴰ pᴰᴰ qᴰᴰ =
-      refl
+      test×ⱽᴰPsh : ∀ {Γ x}
+        {Γᴰ : Cᴰ.ob[ Γ ]} {xᴰ : Cᴰ.ob[ x ]}
+        {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]} {xᴰᴰ : Cᴰᴰ.ob[ x , xᴰ ]}
+        (p : P.p[ x ])
+        (pᴰ : Pᴰ.p[ p ][ xᴰ ]) (qᴰ : Qᴰ.p[ p ][ xᴰ ])
+        (f : C [ Γ , x ])
+        (fᴰ : Cᴰ [ f ][ Γᴰ , xᴰ ])
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , xᴰᴰ ])
+        (pᴰᴰ : Pᴰᴰ.p[ p , pᴰ ][ xᴰᴰ ])
+        (qᴰᴰ : Qᴰᴰ.p[ p , qᴰ ][ xᴰᴰ ])
+        → fᴰᴰ Pᴰᴰ×Qᴰᴰ.⋆ᴰ (pᴰᴰ , qᴰᴰ)
+          ≡ (fᴰᴰ Pᴰᴰ.⋆ᴰ pᴰᴰ , fᴰᴰ Qᴰᴰ.⋆ᴰ qᴰᴰ)
+      test×ⱽᴰPsh p pᴰ qᴰ f fᴰ fᴰᴰ pᴰᴰ qᴰᴰ =
+        refl

@@ -21,18 +21,21 @@ open import Cubical.HITs.SetQuotients
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Adjoint
-open import Cubical.Categories.Adjoint.Monad
+open import Cubical.Categories.Adjoint.Monad using (MonadFromAdjunction)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Functors.Constant
+open import Cubical.Categories.Functors.Constant using (Constant)
 open import Cubical.Categories.Instances.Discrete.More
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.Thin
-open import Cubical.Categories.Monad.Base
+  using (EqDiscreteCategory ; EqDiscFunc)
+open import Cubical.Categories.Instances.Sets using (SET)
+open import Cubical.Categories.Instances.Thin using (ThinCategory)
+open import Cubical.Categories.Monad.Base using (Monad)
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
+  using (_×Psh_ ; -×Psh_)
 open import Cubical.Categories.Presheaf.Constructions.Exponential
-open import Cubical.Categories.Presheaf.Constructions.Reindex
+  using (_⇒PshLarge_)
+open import Cubical.Categories.Presheaf.Constructions.Reindex using (reindPshF)
 open import Cubical.Categories.Presheaf.KanExtension
 import Cubical.Categories.Presheaf.KanExtension.Discrete as DiscreteKan
 open import Cubical.Categories.Presheaf.Morphism.Alt
@@ -407,8 +410,7 @@ module Discrete where
   alloc : NatTrans BoolVal (T .F-ob Ref)
   alloc .N-ob n b m n≤m σ =
     suc m , ≤-sucℕ , flast , freshStore b σ
-  alloc .N-hom f =
-    funExt λ b → funExt λ m → funExt λ q → funExt λ σ → refl
+  alloc .N-hom f = refl
 
   -- Unlike the global-state and get/set interaction laws proved above, the
   -- usual block laws do not all hold for this concrete world presentation.

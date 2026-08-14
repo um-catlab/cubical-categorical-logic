@@ -39,10 +39,10 @@ includeOp*⊣Ran-includeOp :
   includeOp* ℓ-zero ⊣ Ran.Ran ℓ-zero includeOp
 includeOp*⊣Ran-includeOp = Ran.adj ℓ-zero includeOp
 
-F : Functor (Values ℓ-zero) (Computations ℓ-zero)
+F : Functor (Val ℓ-zero) (Comp ℓ-zero)
 F = Lan.Lan ℓ-zero include ∘F (-×S ∘F includeOp* ℓ-zero)
 
-U : Functor (Computations ℓ-zero) (Values ℓ-zero)
+U : Functor (Comp ℓ-zero) (Val ℓ-zero)
 U = (Ran.Ran ℓ-zero includeOp ∘F S⇒-) ∘F include* ℓ-zero
 
 F⊣U : F ⊣ U
@@ -55,16 +55,16 @@ F⊣U = adj'→adj F U
     (adj→adj' (Lan.Lan ℓ-zero include) (include* ℓ-zero)
       Lan-include⊣include*))
 
-T : Functor (Values ℓ-zero) (Values ℓ-zero)
+T : Functor (Val ℓ-zero) (Val ℓ-zero)
 T = U ∘F F
 
-LS : Monad (Values ℓ-zero)
+LS : Monad (Val ℓ-zero)
 LS = T , MonadFromAdjunction F U F⊣U
 
 module Outer = Ran ℓ-zero includeOp
 module Inner = Lan ℓ-zero include
 
-now : (A : Values ℓ-zero .ob) (n : ℕ) →
+now : (A : Val ℓ-zero .ob) (n : ℕ) →
   A .F-ob n .fst → S .F-ob n .fst →
   Inner.Quo ((-×S ∘F includeOp* ℓ-zero) .F-ob A) n
 now A n a σ = [ (n , ≤-refl , (a , σ)) ]

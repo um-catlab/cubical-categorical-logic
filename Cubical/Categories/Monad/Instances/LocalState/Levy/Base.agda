@@ -51,19 +51,19 @@ includeOp = EqDiscFunc (λ n → n)
 -- Values vary covariantly with world extension, computations contravariantly.
 -- Writing both as presheaf categories makes the Kan-extension interface apply
 -- directly.
-Values : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
-Values ℓ = PresheafCategory (World ^op) ℓ
+Val : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
+Val ℓ = PresheafCategory (World ^op) ℓ
 
-Computations : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
-Computations ℓ = PresheafCategory World ℓ
+Comp : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
+Comp ℓ = PresheafCategory World ℓ
 
 WorldFam : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
 WorldFam ℓ = PresheafCategory |World| ℓ
 
-includeOp* : (ℓ : Level) → Functor (Values ℓ) (WorldFam ℓ)
+includeOp* : (ℓ : Level) → Functor (Val ℓ) (WorldFam ℓ)
 includeOp* ℓ = reindPshF includeOp
 
-include* : (ℓ : Level) → Functor (Computations ℓ) (WorldFam ℓ)
+include* : (ℓ : Level) → Functor (Comp ℓ) (WorldFam ℓ)
 include* ℓ = reindPshF include
 
 S : WorldFam ℓ-zero .ob
@@ -72,6 +72,50 @@ S .F-ob n .snd = isSet→ isSetBool
 S .F-hom Eq.refl = λ σ → σ
 S .F-id = refl
 S .F-seq Eq.refl Eq.refl = refl
+
+BoolVal : Val ℓ-zero .ob
+BoolVal = Constant ((World ^op) ^op) (SET ℓ-zero) (Bool , isSetBool)
+
+UnitVal : Val ℓ-zero .ob
+UnitVal = Constant ((World ^op) ^op) (SET ℓ-zero) (Unit , isSetUnit)
+
+weakenRef : ∀ {n m} → n ≤ m → Fin n → Fin m
+weakenRef n≤m (i , i<n) =
+  i , <→<ᵗ (<≤-trans (<ᵗ→< i<n) n≤m)
+
+Ref : Val ℓ-zero .ob
+Ref .F-ob n = Fin n , isSetFin
+Ref .F-hom f = weakenRef f
+Ref .F-id = funExt λ i → Σ≡Prop (λ _ → isProp<ᵗ) refl
+Ref .F-seq f g = funExt λ i → Σ≡Prop (λ _ → isProp<ᵗ) refl
+
+-×S : Functor (WorldFam ℓ-zero) (WorldFam ℓ-zero)
+-×S = -×Psh S
+
+S⇒- : Functor (WorldFam ℓ-zero) (WorldFam ℓ-zero)
+S⇒- .F-ob A .F-ob n .fst = S .F-ob n .fst → A .F-ob n .fst
+S⇒- .F-ob A .F-ob n .snd = isSet→ (A .F-ob n .snd)
+S⇒- .F-ob A .F-hom Eq.refl = λ k → k
+S⇒- .F-ob A .F-id = refl
+S⇒- .F-ob A .F-seq Eq.refl Eq.refl = refl
+S⇒- .F-hom α .N-ob n k = λ s → α .N-ob n (k s)
+S⇒- .F-hom α .N-hom Eq.refl = refl
+S⇒- .F-id = makeNatTransPath refl
+S⇒- .F-seq α β = makeNatTransPath refl
+
+-×S⊣S⇒- : -×S ⊣ S⇒-
+-×S⊣S⇒- ._⊣_.η .N-ob A .N-ob n a s = a , s
+-×S⊣S⇒- ._⊣_.η .N-ob A .N-hom Eq.refl =
+  funExt λ a → funExt λ s → ΣPathP (funExt⁻ (A .F-id) a , refl)
+-×S⊣S⇒- ._⊣_.η .N-hom α = makeNatTransPath refl
+-×S⊣S⇒- ._⊣_.ε .N-ob A .N-ob n (k , s) = k s
+-×S⊣S⇒- ._⊣_.ε .N-ob A .N-hom Eq.refl =
+  funExt λ (k , s) → sym (funExt⁻ (A .F-id) (k s))
+-×S⊣S⇒- ._⊣_.ε .N-hom α = makeNatTransPath refl
+-×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₁ A =
+  makeNatTransPath refl
+-×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₂ A =
+  makeNatTransPath refl
 
 lookupStore : ∀ {n} → Fin n → (Fin n → Bool) → Bool
 lookupStore i σ = σ i
@@ -182,51 +226,32 @@ extendStore-update i b c σ = funExt (elimFin fresh old)
     ∙ sym (lookup-update-diff i j i≢j c σ)
     ∙ sym (extendStore-old b (updateStore i c σ) j)
 
-weakenRef : ∀ {n m} → n ≤ m → Fin n → Fin m
-weakenRef n≤m (i , i<n) =
-  i , <→<ᵗ (<≤-trans (<ᵗ→< i<n) n≤m)
-
 weakenRef-comp :
   ∀ {n m p} (f : n ≤ m) (g : m ≤ p) (i : Fin n) →
   weakenRef g (weakenRef f i) ≡ weakenRef (≤-trans f g) i
 weakenRef-comp f g i = Σ≡Prop (λ _ → isProp<ᵗ) refl
 
-BoolVal : Values ℓ-zero .ob
-BoolVal = Constant ((World ^op) ^op) (SET ℓ-zero) (Bool , isSetBool)
+weakenRef-distinct : ∀ {n m} (f : n ≤ m) (i j : Fin n) →
+  ((i ≡ j) → ⊥.⊥) → (weakenRef f i ≡ weakenRef f j) → ⊥.⊥
+weakenRef-distinct f i j i≠j wi≡wj =
+  i≠j (Σ≡Prop (λ _ → isProp<ᵗ) (cong fst wi≡wj))
 
-UnitVal : Values ℓ-zero .ob
-UnitVal = Constant ((World ^op) ^op) (SET ℓ-zero) (Unit , isSetUnit)
+weakenRef-suc : ∀ {n} (i : Fin n) →
+  weakenRef ≤-sucℕ i ≡ injectSuc i
+weakenRef-suc i = Σ≡Prop (λ _ → isProp<ᵗ) refl
 
-Ref : Values ℓ-zero .ob
-Ref .F-ob n = Fin n , isSetFin
-Ref .F-hom f = weakenRef f
-Ref .F-id = funExt λ i → Σ≡Prop (λ _ → isProp<ᵗ) refl
-Ref .F-seq f g = funExt λ i → Σ≡Prop (λ _ → isProp<ᵗ) refl
+-- Allocation commutes with updating an existing cell.
+alloc-set-distinct : ∀ {n} (i : Fin n) b c (σ : Fin n → Bool) →
+  updateStore (weakenRef ≤-sucℕ i) c (extendStore b σ) ≡
+  extendStore b (updateStore i c σ)
+alloc-set-distinct i b c σ =
+  cong (λ j → updateStore j c (extendStore b σ)) (weakenRef-suc i)
+  ∙ extendStore-update i b c σ
 
--×S : Functor (WorldFam ℓ-zero) (WorldFam ℓ-zero)
--×S = -×Psh S
-
-S⇒- : Functor (WorldFam ℓ-zero) (WorldFam ℓ-zero)
-S⇒- .F-ob A .F-ob n .fst = S .F-ob n .fst → A .F-ob n .fst
-S⇒- .F-ob A .F-ob n .snd = isSet→ (A .F-ob n .snd)
-S⇒- .F-ob A .F-hom Eq.refl = λ k → k
-S⇒- .F-ob A .F-id = refl
-S⇒- .F-ob A .F-seq Eq.refl Eq.refl = refl
-S⇒- .F-hom α .N-ob n k = λ s → α .N-ob n (k s)
-S⇒- .F-hom α .N-hom Eq.refl = refl
-S⇒- .F-id = makeNatTransPath refl
-S⇒- .F-seq α β = makeNatTransPath refl
-
--×S⊣S⇒- : -×S ⊣ S⇒-
--×S⊣S⇒- ._⊣_.η .N-ob A .N-ob n a s = a , s
--×S⊣S⇒- ._⊣_.η .N-ob A .N-hom Eq.refl =
-  funExt λ a → funExt λ s → ΣPathP (funExt⁻ (A .F-id) a , refl)
--×S⊣S⇒- ._⊣_.η .N-hom α = makeNatTransPath refl
--×S⊣S⇒- ._⊣_.ε .N-ob A .N-ob n (k , s) = k s
--×S⊣S⇒- ._⊣_.ε .N-ob A .N-hom Eq.refl =
-  funExt λ (k , s) → sym (funExt⁻ (A .F-id) (k s))
--×S⊣S⇒- ._⊣_.ε .N-hom α = makeNatTransPath refl
--×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₁ A =
-  makeNatTransPath refl
--×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₂ A =
-  makeNatTransPath refl
+-- Allocation commutes with reading an existing cell.
+alloc-get-distinct : ∀ {n} (i : Fin n) b (σ : Fin n → Bool) →
+  lookupStore (weakenRef ≤-sucℕ i) (extendStore b σ) ≡
+  lookupStore i σ
+alloc-get-distinct i b σ =
+  cong (λ j → lookupStore j (extendStore b σ)) (weakenRef-suc i)
+  ∙ extendStore-old b σ i

@@ -352,28 +352,28 @@ module Discrete where
   weakenRef-suc i = Σ≡Prop (λ _ → isProp<ᵗ) refl
 
   -- Updating the newly allocated cell replaces its initial value.
-  LS1 : ∀ {n} b c (σ : Fin n → Bool) →
+  alloc-set-same : ∀ {n} b c (σ : Fin n → Bool) →
     updateStore flast c (freshStore b σ) ≡ freshStore c σ
-  LS1 = update-fresh
+  alloc-set-same = update-fresh
 
   -- Reading the newly allocated cell returns its initial value.
-  LS2 : ∀ {n} b (σ : Fin n → Bool) →
+  alloc-get-same : ∀ {n} b (σ : Fin n → Bool) →
     lookupStore flast (freshStore b σ) ≡ b
-  LS2 = freshStore-fresh
+  alloc-get-same = freshStore-fresh
 
   -- Allocation commutes with updating an existing cell.
-  LS3 : ∀ {n} (i : Fin n) b c (σ : Fin n → Bool) →
+  alloc-set-distinct : ∀ {n} (i : Fin n) b c (σ : Fin n → Bool) →
     updateStore (weakenRef ≤-sucℕ i) c (freshStore b σ) ≡
     freshStore b (updateStore i c σ)
-  LS3 i b c σ =
+  alloc-set-distinct i b c σ =
     cong (λ j → updateStore j c (freshStore b σ)) (weakenRef-suc i)
     ∙ freshStore-update i b c σ
 
   -- Allocation commutes with reading an existing cell.
-  LS4 : ∀ {n} (i : Fin n) b (σ : Fin n → Bool) →
+  alloc-get-distinct : ∀ {n} (i : Fin n) b (σ : Fin n → Bool) →
     lookupStore (weakenRef ≤-sucℕ i) (freshStore b σ) ≡
     lookupStore i σ
-  LS4 i b σ =
+  alloc-get-distinct i b σ =
     cong (λ j → lookupStore j (freshStore b σ)) (weakenRef-suc i)
     ∙ freshStore-old b σ i
 
@@ -409,6 +409,12 @@ module Discrete where
     suc m , ≤-sucℕ , flast , freshStore b σ
   alloc .N-hom f =
     funExt λ b → funExt λ m → funExt λ q → funExt λ σ → refl
+
+  -- Unlike the global-state and get/set interaction laws proved above, the
+  -- usual block laws do not all hold for this concrete world presentation.
+  -- Discarding a fresh cell is observable in the result world, and exchanging
+  -- two allocations is not an equality because worlds have no permutations.
+  -- The indexed block law is not expressible with this single-cell `alloc`.
 
   getOpNT : (A : Values ℓ-zero .ob) →
     NatTrans (Ref ×Psh (BoolVal ⇒PshLarge (T .F-ob A))) (T .F-ob A)

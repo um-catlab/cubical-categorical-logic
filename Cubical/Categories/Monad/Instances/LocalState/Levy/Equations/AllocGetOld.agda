@@ -32,16 +32,25 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
     let
       q : n ≤ suc m
       q = ≤-trans n≤m ≤-sucℕ
+      γₘ : Γ .F-ob m .fst
       γₘ = Γ .F-hom n≤m γ
+      γ⁺ : Γ .F-ob (suc m) .fst
       γ⁺ = Γ .F-hom q γ
       fresh : Fin (suc m)
       fresh = flast {k = m}
-      wj = weakenRef n≤m (j .N-ob n γ)
-      old = weakenRef ≤-sucℕ wj
+      wj : Fin m
+      wj = weakenRef {n = n} {m = m} n≤m (j .N-ob n γ)
+      old : Fin (suc m)
+      old = weakenRef {n = m} {m = suc m} ≤-sucℕ wj
+      j⁺ : Fin (suc m)
       j⁺ = j .N-ob (suc m) γ⁺
-      rj = weakenRef ≤-refl j⁺
+      rj : Fin (suc m)
+      rj = weakenRef {n = suc m} {m = suc m} ≤-refl j⁺
+      bₙ : Bool
       bₙ = b .N-ob n γ
+      τ : Fin (suc m) → Bool
       τ = extendStore {n = m} bₙ σ
+      vj : Bool
       vj = lookupStore {n = m} wj σ
       rj≡old =
         funExt⁻ (Ref .F-id {x = suc m}) j⁺
@@ -56,9 +65,13 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
       store-path = cong (λ v → extendStore {n = m} v σ) (sym b-path)
       rhs-step : m ≤ suc m
       rhs-step = ≤-trans ≤-refl ≤-sucℕ
+      lifted-b : (Γ V.× BoolVal) ⊢ BoolVal
+      lifted-b = V.π₁ V.⋆ b
+      rhs-context : (Γ V.× BoolVal) .F-ob (suc m) .fst
       rhs-context = (Γ V.× BoolVal) .F-hom rhs-step (γₘ , vj)
+      rhs-store : Fin (suc m) → Bool
       rhs-store = extendStore {n = m}
-        ((V.π₁ V.⋆ b) .N-ob m (γₘ , vj)) σ
+        (lifted-b .N-ob m (γₘ , vj)) σ
       rhs-γ-path = cong (λ e → Γ .F-hom e γₘ)
         (isProp≤ ≤-sucℕ rhs-step)
       alignment-path :
@@ -74,7 +87,7 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
             (suc m) ≤-refl υ)
           (γ-path ∙ rhs-γ-path) store-path)
     in
-    allocᵗ-run b (getᵗ (V.π₁ V.⋆ j) k) n γ m n≤m σ
+    allocᵗ-run {A = A} b (getᵗ (V.π₁ V.⋆ j) k) n γ m n≤m σ
     ∙ cong (extendResult A ≤-sucℕ)
         (getᵗ-run {A = A} (V.π₁ V.⋆ j) k
           (suc m) (γ⁺ , fresh) (suc m) ≤-refl τ)
@@ -86,10 +99,10 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
         (cong (λ v → k .N-ob (suc m) ((γ⁺ , fresh) , v)
           (suc m) ≤-refl τ) value-path)
     ∙ alignment-path
-    ∙ sym (allocᵗ-run (V.π₁ V.⋆ b) (swapLast V.⋆ k)
+    ∙ sym (allocᵗ-run {A = A} lifted-b (swapLast V.⋆ k)
         m (γₘ , vj) m ≤-refl σ)
-    ∙ sym (getᵗ-run j
-        (allocᵗ (V.π₁ V.⋆ b) (swapLast V.⋆ k))
+    ∙ sym (getᵗ-run {A = A} j
+        (allocᵗ lifted-b (swapLast V.⋆ k))
         n γ m n≤m σ))
 
 ------------------------------------------------------------------------

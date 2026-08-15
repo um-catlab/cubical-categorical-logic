@@ -31,15 +31,23 @@ alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
     let
       q : n ≤ suc m
       q = ≤-trans n≤m ≤-sucℕ
+      γ⁺ : Γ .F-ob (suc m) .fst
       γ⁺ = Γ .F-hom q γ
       fresh : Fin (suc m)
       fresh = flast {k = m}
-      wj = weakenRef n≤m (j .N-ob n γ)
-      old = weakenRef ≤-sucℕ wj
+      wj : Fin m
+      wj = weakenRef {n = n} {m = m} n≤m (j .N-ob n γ)
+      old : Fin (suc m)
+      old = weakenRef {n = m} {m = suc m} ≤-sucℕ wj
+      j⁺ : Fin (suc m)
       j⁺ = j .N-ob (suc m) γ⁺
-      rj = weakenRef ≤-refl j⁺
+      rj : Fin (suc m)
+      rj = weakenRef {n = suc m} {m = suc m} ≤-refl j⁺
+      cₙ : Bool
       cₙ = c .N-ob n γ
+      c⁺ : Bool
       c⁺ = c .N-ob (suc m) γ⁺
+      σc : Fin m → Bool
       σc = updateStore {n = m} wj cₙ σ
       rj≡old =
         funExt⁻ (Ref .F-id {x = suc m}) j⁺
@@ -53,7 +61,7 @@ alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
           rj≡old c⁺≡cₙ
         ∙ alloc-set-distinct {n = m} wj (b .N-ob n γ) cₙ σ
     in
-    allocᵗ-run b
+    allocᵗ-run {A = A} b
       (setᵗ (V.π₁ V.⋆ j) (V.π₁ V.⋆ c) k)
       n γ m n≤m σ
     ∙ cong (extendResult A ≤-sucℕ)
@@ -63,5 +71,5 @@ alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
     ∙ cong (extendResult A ≤-sucℕ)
         (cong (λ τ → k .N-ob (suc m) (γ⁺ , fresh)
           (suc m) ≤-refl τ) store-path)
-    ∙ sym (allocᵗ-run b k n γ m n≤m σc)
-    ∙ sym (setᵗ-run j c (allocᵗ b k) n γ m n≤m σ))
+    ∙ sym (allocᵗ-run {A = A} b k n γ m n≤m σc)
+    ∙ sym (setᵗ-run {A = A} j c (allocᵗ b k) n γ m n≤m σ))

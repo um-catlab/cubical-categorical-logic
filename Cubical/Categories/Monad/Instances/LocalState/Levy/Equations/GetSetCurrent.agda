@@ -25,20 +25,24 @@ get-set-currentᵗ : ∀ {Γ A}
 get-set-currentᵗ {Γ = Γ} {A = A} i t =
   makeNatTransPath (funExt λ n → funExt λ γ → T-ext {A = A} λ m n≤m σ →
     let
+      iₙ : Fin n
       iₙ = i .N-ob n γ
+      γₘ : Γ .F-ob m .fst
       γₘ = Γ .F-hom n≤m γ
+      iₘ : Fin m
       iₘ = i .N-ob m γₘ
-      wi = weakenRef n≤m iₙ
+      wi : Fin m
+      wi = weakenRef {n = n} {m = m} n≤m iₙ
       i-nat = funExt⁻ (i .N-hom n≤m) γ
-      write≡wi = funExt⁻ (Ref .F-id) iₘ ∙ i-nat
+      write≡wi = funExt⁻ (Ref .F-id {x = m}) iₘ ∙ i-nat
       store-path =
         cong (λ r → updateStore {n = m} r
           (lookupStore {n = m} wi σ) σ) write≡wi
         ∙ update-current {n = m} wi σ
     in
-    getᵗ-run i (setᵗ (V.π₁ V.⋆ i) V.π₂ (V.π₁ V.⋆ t))
+    getᵗ-run {A = A} i (setᵗ (V.π₁ V.⋆ i) V.π₂ (V.π₁ V.⋆ t))
       n γ m n≤m σ
-    ∙ setᵗ-run (V.π₁ V.⋆ i) V.π₂ (V.π₁ V.⋆ t)
+    ∙ setᵗ-run {A = A} (V.π₁ V.⋆ i) V.π₂ (V.π₁ V.⋆ t)
         m (γₘ , lookupStore {n = m} wi σ) m ≤-refl σ
     ∙ cong (λ τ → t .N-ob m γₘ m ≤-refl τ) store-path
     ∙ cong (λ u → u m ≤-refl σ)

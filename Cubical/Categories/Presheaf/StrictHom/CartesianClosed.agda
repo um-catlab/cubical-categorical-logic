@@ -51,6 +51,7 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.CartesianClosed.Base
 open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
+open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Yoneda
 
 open import Cubical.Categories.Instances.Sets.More
@@ -59,6 +60,7 @@ private
   variable
     ℓ ℓ' ℓs ℓr ℓc ℓc' ℓp ℓq ℓP ℓQ ℓR ℓS ℓS' ℓS'' : Level
     ℓC ℓC' ℓD ℓD' ℓCᴰ ℓCᴰ' ℓDᴰ ℓDᴰ' ℓPᴰ ℓQᴰ ℓRᴰ : Level
+    ℓA ℓB : Level
 
 open Functor
 open Iso
@@ -154,15 +156,27 @@ module _ (C : Category ℓC ℓC') (ℓP : Level) where
   Cartesian-PRESHEAF .CartesianCategory.term = PSH1
   Cartesian-PRESHEAF .CartesianCategory.bp = PSHBP
 
+module _ {C : Category ℓ ℓ'} where
+  private
+    module C = Category C
+  PshProd'Strict : Functor
+    (PRESHEAF C ℓA ×C PRESHEAF C ℓB)
+    (PRESHEAF C (ℓ-max ℓA ℓB))
+  PshProd'Strict .F-ob (l , r) = l ×Psh r
+  PshProd'Strict .F-hom (l , r) = ×PshIntroStrict (π₁ _ _ ⋆PshHomStrict l) (π₂ _ _ ⋆PshHomStrict r )
+  PshProd'Strict .F-id = makePshHomStrictPath refl
+  PshProd'Strict .F-seq _ _ = makePshHomStrictPath refl
+
+  PshProdStrict : Bifunctor (PRESHEAF C ℓA) (PRESHEAF C ℓB)
+                      (PRESHEAF C (ℓ-max ℓA ℓB))
+  PshProdStrict = ParFunctorToBifunctor PshProd'Strict
+
 module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
   _⇒PshLargeStrict_ : Presheaf C (ℓC ⊔ℓ ℓQ ⊔ℓ ℓC' ⊔ℓ ℓP)
   _⇒PshLargeStrict_ = PshHomStrictPsh Q ∘F ((-×P ∘F YOStrict) ^opF)
     where
     -×P : Functor (PRESHEAF C ℓC') (PRESHEAF C (ℓC' ⊔ℓ ℓP))
-    -×P .F-ob R = R ×Psh P
-    -×P .F-hom α = ×PshIntroStrict (π₁ _ _ ⋆PshHomStrict α) (π₂ _ _)
-    -×P .F-id = makePshHomStrictPath refl
-    -×P .F-seq _ _ = makePshHomStrictPath refl
+    -×P = appR PshProdStrict P
 
 module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP) (Q : Presheaf C ℓQ) where
   private

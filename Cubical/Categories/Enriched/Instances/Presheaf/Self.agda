@@ -42,7 +42,7 @@ module _ (C : Category ℓ ℓ')(ℓS : Level) where
   swap : {P Q : ob 𝓟} → 𝓟 [ P ×Psh Q , Q ×Psh P ]
   swap = dup ⋆⟨ 𝓟 ⟩  ⨂' .Bif-hom× π₂p π₁p
 
-  selfid : {P : ob 𝓟} → NatTrans 𝟙 (P ^ P)
+  selfid : {P : ob 𝓟} → 𝓟 [ 𝟙 , (P ^ P) ]
   selfid {P} .N-ob Γ tt* = π₂ _ _
   selfid {P} .N-hom γ = funExt λ tt* → makePshHomPath refl
 

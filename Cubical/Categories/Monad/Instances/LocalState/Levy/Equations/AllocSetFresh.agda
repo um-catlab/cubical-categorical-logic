@@ -24,9 +24,30 @@ open PshHom
   alloc b (λ i → set i c (k i))
     = alloc c (λ i → k i)
 -}
+opaque
+  set-fresh-contᵗ : ∀ {Γ A} →
+    (c : Γ ⊢ BoolVal) (k : Γ V.× Ref ⊢ T .F-ob A) →
+    Γ V.× Ref ⊢ T .F-ob A
+  set-fresh-contᵗ {Γ = Γ} c k =
+    setᵗ (V.π₂ {a = Γ} {b = Ref})
+      (V.π₁ {a = Γ} {b = Ref} V.⋆ c) k
+
+  set-fresh-contᵗ-run : ∀ {Γ A}
+    (c : Γ ⊢ BoolVal) (k : Γ V.× Ref ⊢ T .F-ob A)
+    n (δ : (Γ V.× Ref) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    set-fresh-contᵗ c k .N-ob n δ m n≤m σ ≡
+    k .N-ob n δ m n≤m
+      (updateStore {n = m}
+        (weakenRef n≤m ((V.π₂ {a = Γ} {b = Ref}) .N-ob n δ))
+        ((V.π₁ {a = Γ} {b = Ref} V.⋆ c) .N-ob n δ) σ)
+  set-fresh-contᵗ-run {Γ = Γ} {A = A} c k n δ m n≤m σ =
+    setᵗ-run {A = A} (V.π₂ {a = Γ} {b = Ref})
+      (V.π₁ {a = Γ} {b = Ref} V.⋆ c) k n δ m n≤m σ
+
 alloc-set-freshᵗ : ∀ {Γ A}
   (b c : Γ ⊢ BoolVal) (k : Γ V.× Ref ⊢ T .F-ob A) →
-  allocᵗ b (setᵗ V.π₂ (V.π₁ V.⋆ c) k) ≡ allocᵗ c k
+  allocᵗ b (set-fresh-contᵗ c k) ≡ allocᵗ c k
 alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
   makeNatTransPath (funExt λ n → funExt λ γ → T-ext {A = A} λ m n≤m σ →
     let
@@ -45,10 +66,10 @@ alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
         ∙ update-fresh {n = m} (b .N-ob n γ) c⁺ σ
         ∙ cong (λ v → extendStore {n = m} v σ) c-nat
     in
-    allocᵗ-run b (setᵗ V.π₂ (V.π₁ V.⋆ c) k)
+    allocᵗ-run b (set-fresh-contᵗ c k)
       n γ m n≤m σ
     ∙ cong (extendResult A ≤-sucℕ)
-        (setᵗ-run {A = A} V.π₂ (V.π₁ V.⋆ c) k
+        (set-fresh-contᵗ-run {Γ = Γ} {A = A} c k
           (suc m) (γ⁺ , fresh) (suc m) ≤-refl
           (extendStore {n = m} (b .N-ob n γ) σ))
     ∙ cong (extendResult A ≤-sucℕ)

@@ -148,33 +148,35 @@ alloc-run : ∀ (A : V.ob) n
 alloc-run A n (b , k) m n≤m σ =
   bindT-run Ref A (allocM .N-ob n b) k m n≤m σ
 
-getᵗ-run : ∀ {Γ A}
-  (i : Γ ⊢ Ref) (k : Γ V.× BoolVal ⊢ T .F-ob A)
-  n (γ : Γ .F-ob n .fst) m (n≤m : n ≤ m) (σ : Fin m → Bool) →
-  getᵗ i k .N-ob n γ m n≤m σ ≡
-  k .N-ob m
-    (Γ .F-hom n≤m γ ,
-     lookupStore {n = m} (weakenRef n≤m (i .N-ob n γ)) σ)
-    m ≤-refl σ
-getᵗ-run {Γ = Γ} {A = A} i k n γ m n≤m σ =
-  get-run A n (i .N-ob n γ , V.lda k .N-ob n γ) m n≤m σ
-  ∙ cong
-      (λ q → k .N-ob m
-        (Γ .F-hom q γ ,
-         lookupStore {n = m} (weakenRef n≤m (i .N-ob n γ)) σ)
-        m ≤-refl σ)
-      (isProp≤ _ _)
+opaque
+  getᵗ-run : ∀ {Γ A}
+    (i : Γ ⊢ Ref) (k : Γ V.× BoolVal ⊢ T .F-ob A)
+    n (γ : Γ .F-ob n .fst) m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    getᵗ i k .N-ob n γ m n≤m σ ≡
+    k .N-ob m
+      (Γ .F-hom n≤m γ ,
+       lookupStore {n = m} (weakenRef n≤m (i .N-ob n γ)) σ)
+      m ≤-refl σ
+  getᵗ-run {Γ = Γ} {A = A} i k n γ m n≤m σ =
+    get-run A n (i .N-ob n γ , V.lda k .N-ob n γ) m n≤m σ
+    ∙ cong
+        (λ q → k .N-ob m
+          (Γ .F-hom q γ ,
+           lookupStore {n = m} (weakenRef n≤m (i .N-ob n γ)) σ)
+          m ≤-refl σ)
+        (isProp≤ _ _)
 
-setᵗ-run : ∀ {Γ A}
-  (i : Γ ⊢ Ref) (b : Γ ⊢ BoolVal) (t : Γ ⊢ T .F-ob A)
-  n (γ : Γ .F-ob n .fst) m (n≤m : n ≤ m) (σ : Fin m → Bool) →
-  setᵗ i b t .N-ob n γ m n≤m σ ≡
-  t .N-ob n γ m n≤m
-    (updateStore {n = m} (weakenRef n≤m (i .N-ob n γ))
-      (b .N-ob n γ) σ)
-setᵗ-run {A = A} i b t n γ m n≤m σ =
-  set-run A n ((i .N-ob n γ , b .N-ob n γ) , t .N-ob n γ)
-    m n≤m σ
+opaque
+  setᵗ-run : ∀ {Γ A}
+    (i : Γ ⊢ Ref) (b : Γ ⊢ BoolVal) (t : Γ ⊢ T .F-ob A)
+    n (γ : Γ .F-ob n .fst) m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    setᵗ i b t .N-ob n γ m n≤m σ ≡
+    t .N-ob n γ m n≤m
+      (updateStore {n = m} (weakenRef n≤m (i .N-ob n γ))
+        (b .N-ob n γ) σ)
+  setᵗ-run {A = A} i b t n γ m n≤m σ =
+    set-run A n ((i .N-ob n γ , b .N-ob n γ) , t .N-ob n γ)
+      m n≤m σ
 
 allocᵗ-run : ∀ {Γ A}
   (b : Γ ⊢ BoolVal) (k : Γ V.× Ref ⊢ T .F-ob A)

@@ -22,11 +22,63 @@ open PshHom
   alloc b (λ i → get j (λ c → k i c))
     = get j (λ c → alloc b (λ i → k i c))
 -}
+opaque
+  get-old-contᵗ : ∀ {Γ A} →
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× Ref ⊢ T .F-ob A
+  get-old-contᵗ {Γ = Γ} j k =
+    getᵗ (V.π₁ {a = Γ} {b = Ref} V.⋆ j) k
+
+  get-old-contᵗ-run : ∀ {Γ A}
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× Ref) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    get-old-contᵗ j k .N-ob n δ m n≤m σ ≡
+    k .N-ob m
+      ((Γ V.× Ref) .F-hom n≤m δ ,
+       lookupStore {n = m}
+         (weakenRef n≤m
+           ((V.π₁ {a = Γ} {b = Ref} V.⋆ j) .N-ob n δ)) σ)
+      m ≤-refl σ
+  get-old-contᵗ-run {Γ = Γ} {A = A} j k n δ m n≤m σ =
+    getᵗ-run {A = A} (V.π₁ {a = Γ} {b = Ref} V.⋆ j) k
+      n δ m n≤m σ
+
+opaque
+  alloc-old-contᵗ : ∀ {Γ A} →
+    (b : Γ ⊢ BoolVal)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  alloc-old-contᵗ {Γ = Γ} b k =
+    allocᵗ (V.π₁ {a = Γ} {b = BoolVal} V.⋆ b)
+      (swapLast {Γ = Γ} {A = BoolVal} {B = Ref} V.⋆ k)
+
+  alloc-old-contᵗ-run : ∀ {Γ A}
+    (b : Γ ⊢ BoolVal)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    alloc-old-contᵗ b k .N-ob n δ m n≤m σ ≡
+    extendResult A ≤-sucℕ
+      ((swapLast {Γ = Γ} {A = BoolVal} {B = Ref} V.⋆ k)
+        .N-ob (suc m)
+        ((Γ V.× BoolVal) .F-hom (≤-trans n≤m ≤-sucℕ) δ ,
+         flast {k = m})
+        (suc m) ≤-refl
+        (extendStore {n = m}
+          ((V.π₁ {a = Γ} {b = BoolVal} V.⋆ b) .N-ob n δ) σ))
+  alloc-old-contᵗ-run {Γ = Γ} {A = A} b k n δ m n≤m σ =
+    allocᵗ-run {A = A} (V.π₁ {a = Γ} {b = BoolVal} V.⋆ b)
+      (swapLast {Γ = Γ} {A = BoolVal} {B = Ref} V.⋆ k)
+      n δ m n≤m σ
+
 alloc-get-oldᵗ : ∀ {Γ A}
   (j : Γ ⊢ Ref) (b : Γ ⊢ BoolVal)
   (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
-  allocᵗ b (getᵗ (V.π₁ V.⋆ j) k) ≡
-  getᵗ j (allocᵗ (V.π₁ V.⋆ b) (swapLast V.⋆ k))
+  allocᵗ b (get-old-contᵗ j k) ≡
+  getᵗ j (alloc-old-contᵗ b k)
 alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
   makeNatTransPath (funExt λ n → funExt λ γ → T-ext {A = A} λ m n≤m σ →
     let
@@ -87,9 +139,9 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
             (suc m) ≤-refl υ)
           (γ-path ∙ rhs-γ-path) store-path)
     in
-    allocᵗ-run {A = A} b (getᵗ (V.π₁ V.⋆ j) k) n γ m n≤m σ
+    allocᵗ-run {A = A} b (get-old-contᵗ j k) n γ m n≤m σ
     ∙ cong (extendResult A ≤-sucℕ)
-        (getᵗ-run {A = A} (V.π₁ V.⋆ j) k
+        (get-old-contᵗ-run {Γ = Γ} {A = A} j k
           (suc m) (γ⁺ , fresh) (suc m) ≤-refl τ)
     ∙ cong (extendResult A ≤-sucℕ)
         (cong (λ δ → k .N-ob (suc m)
@@ -99,10 +151,10 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
         (cong (λ v → k .N-ob (suc m) ((γ⁺ , fresh) , v)
           (suc m) ≤-refl τ) value-path)
     ∙ alignment-path
-    ∙ sym (allocᵗ-run {A = A} lifted-b (swapLast V.⋆ k)
+    ∙ sym (alloc-old-contᵗ-run {Γ = Γ} {A = A} b k
         m (γₘ , vj) m ≤-refl σ)
     ∙ sym (getᵗ-run {A = A} j
-        (allocᵗ lifted-b (swapLast V.⋆ k))
+        (alloc-old-contᵗ b k)
         n γ m n≤m σ))
 
 ------------------------------------------------------------------------

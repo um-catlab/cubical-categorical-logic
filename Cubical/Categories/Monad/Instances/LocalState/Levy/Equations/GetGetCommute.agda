@@ -15,16 +15,67 @@ open Functor
 open NatTrans
 open PshHom
 
-{- Reads commute.  No distinctness assumption is required.
+{- Reads commute. No distinctness assumption is required.
 
   get i (λ b → get j (λ c → k b c))
     = get j (λ c → get i (λ b → k b c))
 -}
+opaque
+  -- Keep the lifted inner read out of the exported equality endpoint's
+  -- conversion problem.
+  left-read-contᵗ : ∀ {Γ A} →
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  left-read-contᵗ {Γ = Γ} j k =
+    getᵗ (V.π₁ {a = Γ} {b = BoolVal} V.⋆ j) k
+
+  left-read-contᵗ-run : ∀ {Γ A}
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    left-read-contᵗ j k .N-ob n δ m n≤m σ ≡
+    k .N-ob m
+      ((Γ V.× BoolVal) .F-hom n≤m δ ,
+       lookupStore {n = m}
+         (weakenRef {n = n} {m = m} n≤m
+           ((V.π₁ {a = Γ} {b = BoolVal} V.⋆ j) .N-ob n δ)) σ)
+      m ≤-refl σ
+  left-read-contᵗ-run {Γ = Γ} {A = A} j k n δ m n≤m σ =
+    getᵗ-run {Γ = Γ V.× BoolVal} {A = A}
+      (V.π₁ {a = Γ} {b = BoolVal} V.⋆ j) k n δ m n≤m σ
+
+opaque
+  right-read-contᵗ : ∀ {Γ A} →
+    (i : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  right-read-contᵗ {Γ = Γ} i k =
+    getᵗ (V.π₁ {a = Γ} {b = BoolVal} V.⋆ i) (swapLast V.⋆ k)
+
+  right-read-contᵗ-run : ∀ {Γ A}
+    (i : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    right-read-contᵗ i k .N-ob n δ m n≤m σ ≡
+    (swapLast V.⋆ k) .N-ob m
+      ((Γ V.× BoolVal) .F-hom n≤m δ ,
+       lookupStore {n = m}
+         (weakenRef {n = n} {m = m} n≤m
+           ((V.π₁ {a = Γ} {b = BoolVal} V.⋆ i) .N-ob n δ)) σ)
+      m ≤-refl σ
+  right-read-contᵗ-run {Γ = Γ} {A = A} i k n δ m n≤m σ =
+    getᵗ-run {Γ = Γ V.× BoolVal} {A = A}
+      (V.π₁ {a = Γ} {b = BoolVal} V.⋆ i) (swapLast V.⋆ k)
+      n δ m n≤m σ
+
 get-get-commuteᵗ : ∀ {Γ A}
   (i j : Γ ⊢ Ref)
   (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A) →
-  getᵗ i (getᵗ (V.π₁ V.⋆ j) k) ≡
-  getᵗ j (getᵗ (V.π₁ V.⋆ i) (swapLast V.⋆ k))
+  getᵗ i (left-read-contᵗ j k) ≡
+  getᵗ j (right-read-contᵗ i k)
 get-get-commuteᵗ {Γ = Γ} {A = A} i j k =
   makeNatTransPath (funExt λ n → funExt λ γ → T-ext {A = A} λ m n≤m σ →
     let
@@ -51,8 +102,9 @@ get-get-commuteᵗ {Γ = Γ} {A = A} i j k =
       ri≡wi = funExt⁻ (Ref .F-id {x = m}) iₘ ∙ funExt⁻ (i .N-hom n≤m) γ
       rj≡wj = funExt⁻ (Ref .F-id {x = m}) jₘ ∙ funExt⁻ (j .N-hom n≤m) γ
     in
-    getᵗ-run {A = A} i (getᵗ (V.π₁ V.⋆ j) k) n γ m n≤m σ
-    ∙ getᵗ-run {A = A} (V.π₁ V.⋆ j) k m (γₘ , vi) m ≤-refl σ
+    getᵗ-run {A = A} i (left-read-contᵗ j k) n γ m n≤m σ
+    ∙ left-read-contᵗ-run {Γ = Γ} {A = A} j k
+        m (γₘ , vi) m ≤-refl σ
     ∙ cong (λ δ → k .N-ob m
         (δ , lookupStore {n = m} rj σ) m ≤-refl σ) context-i-id
     ∙ cong (λ c → k .N-ob m ((γₘ , vi) , c) m ≤-refl σ)
@@ -61,7 +113,7 @@ get-get-commuteᵗ {Γ = Γ} {A = A} i j k =
         (cong σ ri≡wi))
     ∙ sym (cong (λ δ → k .N-ob m
         ((δ , lookupStore {n = m} ri σ) , vj) m ≤-refl σ) γ-id)
-    ∙ sym (getᵗ-run {A = A} (V.π₁ V.⋆ i) (swapLast V.⋆ k)
+    ∙ sym (right-read-contᵗ-run {Γ = Γ} {A = A} i k
         m (γₘ , vj) m ≤-refl σ)
-    ∙ sym (getᵗ-run {A = A} j (getᵗ (V.π₁ V.⋆ i) (swapLast V.⋆ k))
+    ∙ sym (getᵗ-run {A = A} j (right-read-contᵗ i k)
         n γ m n≤m σ))

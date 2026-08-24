@@ -1,6 +1,4 @@
--- {-# OPTIONS --lossy-unification #-}
-
-module Cubical.Categories.Monad.Instances.LocalState.Levy.Discrete where
+module Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
@@ -25,6 +23,7 @@ open import Cubical.Categories.Presheaf.Constructions.Exponential
   using (_⇒PshLarge_ ; appPshHom ; λPshHom)
 import Cubical.Categories.Presheaf.KanExtension.Discrete as DiscreteKan
 open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base
 
 open Category
 open Functor
@@ -32,9 +31,12 @@ open NatTrans
 open PshHom
 open UnitCounit
 
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base
+------------------------------------------------------------------------
+-- Pi/Sigma presentation of the Kan extensions
+------------------------------------------------------------------------
 
--- Computational presentation using dependent sums and products.
+-- For discrete source categories, these Kan extensions compute definitionally
+-- to dependent sums and products.
 LanΣ : Functor (WorldFam ℓ-zero) (Comp ℓ-zero)
 LanΣ = DiscreteKan.Lan ℓ-zero isSetℕ include
 
@@ -60,6 +62,10 @@ F⊣U = adj'→adj F U
       (adj→adj' (includeOp* ℓ-zero) RanΠ includeOp*⊣RanΠ)
       (adj→adj' -×S S⇒- -×S⊣S⇒-))
     (adj→adj' LanΣ (include* ℓ-zero) LanΣ⊣include*))
+
+------------------------------------------------------------------------
+-- Local-state monad
+------------------------------------------------------------------------
 
 T : Functor (Val ℓ-zero) (Val ℓ-zero)
 T = U ∘F F
@@ -103,6 +109,10 @@ bindT {A} {B} =
         ((A ⇒PshLarge (T .F-ob B)) ×Psh A , B)
         (PshHom→NatTrans (appPshHom A (T .F-ob B)))))
 
+------------------------------------------------------------------------
+-- Algebraic operations
+------------------------------------------------------------------------
+
 getM : NatTrans Ref (T .F-ob BoolVal)
 getM .N-ob n i m n≤m σ =
   m , ≤-refl ,
@@ -134,7 +144,7 @@ setM .N-hom {x = n} {y = n'} f =
 allocM : NatTrans BoolVal (T .F-ob Ref)
 allocM .N-ob n b m n≤m σ =
   suc m , ≤-sucℕ , flast {k = m} , extendStore {n = m} b σ
-allocM .N-hom f = refl
+allocM .N-hom _ = refl
 
 get : (A : Val ℓ-zero .ob) →
   NatTrans (Ref ×Psh (BoolVal ⇒PshLarge (T .F-ob A))) (T .F-ob A)

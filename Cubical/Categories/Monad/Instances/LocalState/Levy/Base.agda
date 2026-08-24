@@ -34,6 +34,10 @@ open Functor
 open NatTrans
 open UnitCounit
 
+------------------------------------------------------------------------
+-- Worlds and presheaf categories
+------------------------------------------------------------------------
+
 World : Category ℓ-zero ℓ-zero
 World = ThinCategory ℕ _≤_ ≤-refl ≤-trans isProp≤
 
@@ -118,6 +122,10 @@ S⇒- .F-seq α β = makeNatTransPath refl
   makeNatTransPath refl
 -×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₂ A =
   makeNatTransPath refl
+
+------------------------------------------------------------------------
+-- Store operations and laws
+------------------------------------------------------------------------
 
 lookupStore : ∀ {n} → Fin n → (Fin n → Bool) → Bool
 lookupStore i σ = σ i
@@ -277,6 +285,11 @@ extendStore-update {n} i b c σ = funExt (elimFin {m = n} fresh old)
       ∙ extendStore-old {n} b σ j
       ∙ sym (lookup-update-diff {n} i j i≢j c σ)
       ∙ sym (extendStore-old {n} b (updateStore {n} i c σ) j)
+
+------------------------------------------------------------------------
+-- Reference weakening
+------------------------------------------------------------------------
+
 weakenRef-comp :
   ∀ {n m p} (f : n ≤ m) (g : m ≤ p) (i : Fin n) →
   weakenRef {n = m} {m = p} g (weakenRef {n = n} {m = m} f i) ≡
@@ -294,25 +307,33 @@ weakenRef-suc : ∀ {n} (i : Fin n) →
 weakenRef-suc {n} i =
   Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = suc n}) refl
 
+------------------------------------------------------------------------
+-- Allocation and existing cells
+------------------------------------------------------------------------
+
 -- Allocation commutes with updating an existing cell.
-alloc-set-distinct : ∀ {n} (i : Fin n) b c (σ : Fin n → Bool) →
+update-extendStore-old : ∀ {n} (i : Fin n) b c (σ : Fin n → Bool) →
   updateStore {n = suc n} (weakenRef ≤-sucℕ i) c
     (extendStore {n = n} b σ) ≡
   extendStore {n = n} b (updateStore {n = n} i c σ)
-alloc-set-distinct {n} i b c σ =
+update-extendStore-old {n} i b c σ =
   cong (λ j → updateStore {suc n} j c (extendStore {n} b σ))
     (weakenRef-suc {n} i)
   ∙ extendStore-update {n} i b c σ
 
 -- Allocation commutes with reading an existing cell.
-alloc-get-distinct : ∀ {n} (i : Fin n) b (σ : Fin n → Bool) →
+lookup-extendStore-old : ∀ {n} (i : Fin n) b (σ : Fin n → Bool) →
   lookupStore {n = suc n} (weakenRef ≤-sucℕ i)
     (extendStore {n = n} b σ) ≡
   lookupStore {n = n} i σ
-alloc-get-distinct {n} i b σ =
+lookup-extendStore-old {n} i b σ =
   cong (λ j → lookupStore {n = suc n} j (extendStore {n} b σ))
     (weakenRef-suc {n} i)
   ∙ extendStore-old {n} b σ i
+
+------------------------------------------------------------------------
+-- Limitation of the single-cell interface
+------------------------------------------------------------------------
 
 {- The indexed block law B3ₙ compares allocation of an n-cell block with n
    iterated single-cell allocations, modulo a permutation/renaming of the

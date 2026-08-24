@@ -8,7 +8,6 @@ open import Cubical.Data.Nat using (ℕ ; suc)
 open import Cubical.Data.Nat.Order
   using (_≤_ ; ≤-refl ; ≤-trans ; ≤-sucℕ ; isProp≤)
 open import Cubical.Foundations.Prelude
-open import Cubical.Functions.FunExtEquiv using (funExt₃)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
@@ -18,11 +17,15 @@ open import Cubical.Categories.Presheaf.Constructions.Exponential
   using (_⇒PshLarge_)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Discrete
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma
 
 open Functor
 open NatTrans
 open PshHom
+
+------------------------------------------------------------------------
+-- Contextual state operations
+------------------------------------------------------------------------
 
 Val-CCC : CartesianClosedCategory _ _
 Val-CCC = Cubical.Categories.Presheaf.CCC.𝓟-CCC (World ^op) ℓ-zero
@@ -54,6 +57,10 @@ allocᵗ : ∀ {Γ A} →
   Γ V.× Ref ⊢ T .F-ob A →
   Γ ⊢ T .F-ob A
 allocᵗ {A = A} b k = (b V.,p V.lda k) V.⋆ alloc A
+
+------------------------------------------------------------------------
+-- Pointwise computation semantics
+------------------------------------------------------------------------
 
 -- A computation started in world m may finish in a larger world p.  When the
 -- same result is viewed from an earlier world, only its lower-bound witness
@@ -148,6 +155,10 @@ alloc-run : ∀ (A : V.ob) n
 alloc-run A n (b , k) m n≤m σ =
   bindT-run Ref A (allocM .N-ob n b) k m n≤m σ
 
+------------------------------------------------------------------------
+-- Contextual operation runners
+------------------------------------------------------------------------
+
 opaque
   getᵗ-run : ∀ {Γ A}
     (i : Γ ⊢ Ref) (k : Γ V.× BoolVal ⊢ T .F-ob A)
@@ -195,23 +206,9 @@ allocᵗ-run {Γ = Γ} {A = A} b k n γ m n≤m σ =
           (suc m) ≤-refl (extendStore {n = m} (b .N-ob n γ) σ))
         (isProp≤ _ _))
 
--- Specialized form used when the allocation continuation pairs the extended
--- context with the value of b.  Naming this reduction avoids depending on
--- unfolding the cartesian structure in downstream equation modules.
-allocᵗ-current-run : ∀ {Γ A}
-  (b : Γ ⊢ BoolVal)
-  (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A)
-  n (γ : Γ .F-ob n .fst) m (n≤m : n ≤ m) (σ : Fin m → Bool) →
-  allocᵗ b ((V.id V.,p (V.π₁ V.⋆ b)) V.⋆ k)
-      .N-ob n γ m n≤m σ ≡
-  extendResult A ≤-sucℕ
-    (k .N-ob (suc m)
-      ((Γ .F-hom (≤-trans n≤m ≤-sucℕ) γ , flast {k = m}) ,
-       b .N-ob (suc m) (Γ .F-hom (≤-trans n≤m ≤-sucℕ) γ))
-      (suc m) ≤-refl (extendStore {n = m} (b .N-ob n γ) σ))
-allocᵗ-current-run b k n γ m n≤m σ =
-  allocᵗ-run b ((V.id V.,p (V.π₁ V.⋆ b)) V.⋆ k)
-    n γ m n≤m σ
+------------------------------------------------------------------------
+-- Specialized runners and context rearrangement
+------------------------------------------------------------------------
 
 setᵗ-current-run : ∀ {Γ A}
   (i : Γ ⊢ Ref) (b : Γ ⊢ BoolVal)
@@ -227,11 +224,293 @@ setᵗ-current-run i b k n γ m n≤m σ =
 swapLast : ∀ {Γ A B} → (Γ V.× A) V.× B ⊢ (Γ V.× B) V.× A
 swapLast = (((V.π₁ V.⋆ V.π₁) V.,p V.π₂) V.,p (V.π₁ V.⋆ V.π₂))
 
--- Equality of computations is pointwise equality in the future world, its
--- extension proof, and the input store.
-T-ext : ∀ {A n} {t u : T .F-ob A .F-ob n .fst} →
-  (∀ m n≤m σ → t m n≤m σ ≡ u m n≤m σ) → t ≡ u
-T-ext h = funExt₃ h
+------------------------------------------------------------------------
+-- Opaque get and set continuations
+------------------------------------------------------------------------
+
+opaque
+  -- Naming this CCC composite is a type-checking boundary.  Expanding it in
+  -- downstream runner endpoints otherwise normalizes the full product/lambda
+  -- term during conversion.
+  set-current-contᵗ : ∀ {Γ A} →
+    (i : Γ ⊢ Ref) (t : Γ ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  set-current-contᵗ i t =
+    setᵗ (V.π₁ V.⋆ i) V.π₂ (V.π₁ V.⋆ t)
+
+  set-current-contᵗ-run : ∀ {Γ A}
+    (i : Γ ⊢ Ref) (t : Γ ⊢ T .F-ob A)
+    n (γ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    set-current-contᵗ i t .N-ob n γ m n≤m σ ≡
+    t .N-ob n (γ .fst) m n≤m
+      (updateStore {n = m}
+        (weakenRef {n = n} {m = m} n≤m (i .N-ob n (γ .fst)))
+        (γ .snd) σ)
+  set-current-contᵗ-run {A = A} i t n γ m n≤m σ =
+    setᵗ-run {A = A} (V.π₁ V.⋆ i) V.π₂ (V.π₁ V.⋆ t)
+      n γ m n≤m σ
+
+opaque
+  get-set-current-store : ∀ {Γ n m}
+    (i : Γ ⊢ Ref) (γ : Γ .F-ob n .fst)
+    (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    updateStore {n = m}
+      (weakenRef {n = m} {m = m} ≤-refl
+        (i .N-ob m (Γ .F-hom n≤m γ)))
+      (lookupStore {n = m}
+        (weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)) σ)
+      σ ≡ σ
+  get-set-current-store {Γ = Γ} {n = n} {m = m} i γ n≤m σ =
+    let
+      wi = weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)
+      write≡wi =
+        funExt⁻ (Ref .F-id {x = m})
+          (i .N-ob m (Γ .F-hom n≤m γ))
+        ∙ funExt⁻ (i .N-hom n≤m) γ
+    in
+    cong (λ r → updateStore {n = m} r
+      (lookupStore {n = m} wi σ) σ) write≡wi
+    ∙ update-current {n = m} wi σ
+
+opaque
+  get-set-current-run : ∀ {Γ A}
+    (i : Γ ⊢ Ref) (t : Γ ⊢ T .F-ob A)
+    n (γ : Γ .F-ob n .fst) m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    getᵗ i (set-current-contᵗ i t) .N-ob n γ m n≤m σ ≡
+    t .N-ob n γ m n≤m σ
+  get-set-current-run {Γ = Γ} {A = A} i t n γ m n≤m σ =
+    let
+      γₘ = Γ .F-hom n≤m γ
+      wi = weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)
+    in
+    getᵗ-run {Γ = Γ} {A = A} i (set-current-contᵗ i t)
+      n γ m n≤m σ
+    ∙ set-current-contᵗ-run i t m
+        (γₘ , lookupStore {n = m} wi σ) m ≤-refl σ
+    ∙ cong (λ τ → t .N-ob m γₘ m ≤-refl τ)
+        (get-set-current-store i γ n≤m σ)
+    ∙ cong (λ u → u m ≤-refl σ)
+        (funExt⁻ (t .N-hom n≤m) γ)
+    ∙ cong (λ q → t .N-ob n γ m q σ) (isProp≤ _ _)
+
+opaque
+  set-read-contᵗ : ∀ {Γ A} →
+    (i : Γ ⊢ Ref) (b : Γ ⊢ BoolVal)
+    (k : Γ V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  set-read-contᵗ i b k =
+    setᵗ (V.π₁ V.⋆ i) (V.π₁ V.⋆ b) k
+
+  set-read-contᵗ-run : ∀ {Γ A}
+    (i : Γ ⊢ Ref) (b : Γ ⊢ BoolVal)
+    (k : Γ V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    set-read-contᵗ i b k .N-ob n δ m n≤m σ ≡
+    k .N-ob n δ m n≤m
+      (updateStore {n = m}
+        (weakenRef n≤m (i .N-ob n (δ .fst)))
+        (b .N-ob n (δ .fst)) σ)
+  set-read-contᵗ-run {A = A} i b k n δ m n≤m σ =
+    setᵗ-run {A = A} (V.π₁ V.⋆ i) (V.π₁ V.⋆ b) k
+      n δ m n≤m σ
+
+opaque
+  -- Keep the lifted inner read out of the exported equality endpoint's
+  -- conversion problem.
+  left-read-contᵗ : ∀ {Γ A} →
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  left-read-contᵗ {Γ = Γ} j k =
+    getᵗ (V.π₁ {a = Γ} {b = BoolVal} V.⋆ j) k
+
+  left-read-contᵗ-run : ∀ {Γ A}
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    left-read-contᵗ j k .N-ob n δ m n≤m σ ≡
+    k .N-ob m
+      ((Γ V.× BoolVal) .F-hom n≤m δ ,
+       lookupStore {n = m}
+         (weakenRef {n = n} {m = m} n≤m
+           ((V.π₁ {a = Γ} {b = BoolVal} V.⋆ j) .N-ob n δ)) σ)
+      m ≤-refl σ
+  left-read-contᵗ-run {Γ = Γ} {A = A} j k n δ m n≤m σ =
+    getᵗ-run {Γ = Γ V.× BoolVal} {A = A}
+      (V.π₁ {a = Γ} {b = BoolVal} V.⋆ j) k n δ m n≤m σ
+
+opaque
+  right-read-contᵗ : ∀ {Γ A} →
+    (i : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  right-read-contᵗ {Γ = Γ} i k =
+    getᵗ (V.π₁ {a = Γ} {b = BoolVal} V.⋆ i) (swapLast V.⋆ k)
+
+  right-read-contᵗ-run : ∀ {Γ A}
+    (i : Γ ⊢ Ref)
+    (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    right-read-contᵗ i k .N-ob n δ m n≤m σ ≡
+    (swapLast V.⋆ k) .N-ob m
+      ((Γ V.× BoolVal) .F-hom n≤m δ ,
+       lookupStore {n = m}
+         (weakenRef {n = n} {m = m} n≤m
+           ((V.π₁ {a = Γ} {b = BoolVal} V.⋆ i) .N-ob n δ)) σ)
+      m ≤-refl σ
+  right-read-contᵗ-run {Γ = Γ} {A = A} i k n δ m n≤m σ =
+    getᵗ-run {Γ = Γ V.× BoolVal} {A = A}
+      (V.π₁ {a = Γ} {b = BoolVal} V.⋆ i) (swapLast V.⋆ k)
+      n δ m n≤m σ
+
+------------------------------------------------------------------------
+-- Opaque allocation continuations
+------------------------------------------------------------------------
+
+opaque
+  set-fresh-contᵗ : ∀ {Γ A} →
+    (c : Γ ⊢ BoolVal) (k : Γ V.× Ref ⊢ T .F-ob A) →
+    Γ V.× Ref ⊢ T .F-ob A
+  set-fresh-contᵗ {Γ = Γ} c k =
+    setᵗ (V.π₂ {a = Γ} {b = Ref})
+      (V.π₁ {a = Γ} {b = Ref} V.⋆ c) k
+
+  set-fresh-contᵗ-run : ∀ {Γ A}
+    (c : Γ ⊢ BoolVal) (k : Γ V.× Ref ⊢ T .F-ob A)
+    n (δ : (Γ V.× Ref) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    set-fresh-contᵗ c k .N-ob n δ m n≤m σ ≡
+    k .N-ob n δ m n≤m
+      (updateStore {n = m}
+        (weakenRef n≤m ((V.π₂ {a = Γ} {b = Ref}) .N-ob n δ))
+        ((V.π₁ {a = Γ} {b = Ref} V.⋆ c) .N-ob n δ) σ)
+  set-fresh-contᵗ-run {Γ = Γ} {A = A} c k n δ m n≤m σ =
+    setᵗ-run {A = A} (V.π₂ {a = Γ} {b = Ref})
+      (V.π₁ {a = Γ} {b = Ref} V.⋆ c) k n δ m n≤m σ
+
+opaque
+  get-fresh-contᵗ : ∀ {Γ A} →
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× Ref ⊢ T .F-ob A
+  get-fresh-contᵗ {Γ = Γ} k =
+    getᵗ (V.π₂ {a = Γ} {b = Ref}) k
+
+  get-fresh-contᵗ-run : ∀ {Γ A}
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× Ref) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    get-fresh-contᵗ k .N-ob n δ m n≤m σ ≡
+    k .N-ob m
+      ((Γ V.× Ref) .F-hom n≤m δ ,
+       lookupStore {n = m}
+         (weakenRef n≤m ((V.π₂ {a = Γ} {b = Ref}) .N-ob n δ)) σ)
+      m ≤-refl σ
+  get-fresh-contᵗ-run {Γ = Γ} {A = A} k n δ m n≤m σ =
+    getᵗ-run {A = A} (V.π₂ {a = Γ} {b = Ref}) k n δ m n≤m σ
+
+opaque
+  alloc-currentᵗ : ∀ {Γ A} →
+    (b : Γ ⊢ BoolVal)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
+    Γ ⊢ T .F-ob A
+  alloc-currentᵗ b k =
+    allocᵗ b ((V.id V.,p (V.π₁ V.⋆ b)) V.⋆ k)
+
+  alloc-currentᵗ-run : ∀ {Γ A}
+    (b : Γ ⊢ BoolVal)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A)
+    n (γ : Γ .F-ob n .fst) m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    alloc-currentᵗ b k .N-ob n γ m n≤m σ ≡
+    extendResult A ≤-sucℕ
+      (k .N-ob (suc m)
+        ((Γ .F-hom (≤-trans n≤m ≤-sucℕ) γ , flast {k = m}) ,
+         b .N-ob (suc m) (Γ .F-hom (≤-trans n≤m ≤-sucℕ) γ))
+        (suc m) ≤-refl (extendStore {n = m} (b .N-ob n γ) σ))
+  alloc-currentᵗ-run b k n γ m n≤m σ =
+    allocᵗ-run b ((V.id V.,p (V.π₁ V.⋆ b)) V.⋆ k)
+      n γ m n≤m σ
+
+opaque
+  set-old-contᵗ : ∀ {Γ A} →
+    (j : Γ ⊢ Ref) (c : Γ ⊢ BoolVal)
+    (k : Γ V.× Ref ⊢ T .F-ob A) →
+    Γ V.× Ref ⊢ T .F-ob A
+  set-old-contᵗ j c k =
+    setᵗ (V.π₁ V.⋆ j) (V.π₁ V.⋆ c) k
+
+  set-old-contᵗ-run : ∀ {Γ A}
+    (j : Γ ⊢ Ref) (c : Γ ⊢ BoolVal)
+    (k : Γ V.× Ref ⊢ T .F-ob A)
+    n (δ : (Γ V.× Ref) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    set-old-contᵗ j c k .N-ob n δ m n≤m σ ≡
+    k .N-ob n δ m n≤m
+      (updateStore {n = m}
+        (weakenRef n≤m (j .N-ob n (δ .fst)))
+        (c .N-ob n (δ .fst)) σ)
+  set-old-contᵗ-run {A = A} j c k n δ m n≤m σ =
+    setᵗ-run {A = A} (V.π₁ V.⋆ j) (V.π₁ V.⋆ c) k
+      n δ m n≤m σ
+
+opaque
+  get-old-contᵗ : ∀ {Γ A} →
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× Ref ⊢ T .F-ob A
+  get-old-contᵗ {Γ = Γ} j k =
+    getᵗ (V.π₁ {a = Γ} {b = Ref} V.⋆ j) k
+
+  get-old-contᵗ-run : ∀ {Γ A}
+    (j : Γ ⊢ Ref)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× Ref) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    get-old-contᵗ j k .N-ob n δ m n≤m σ ≡
+    k .N-ob m
+      ((Γ V.× Ref) .F-hom n≤m δ ,
+       lookupStore {n = m}
+         (weakenRef n≤m
+           ((V.π₁ {a = Γ} {b = Ref} V.⋆ j) .N-ob n δ)) σ)
+      m ≤-refl σ
+  get-old-contᵗ-run {Γ = Γ} {A = A} j k n δ m n≤m σ =
+    getᵗ-run {A = A} (V.π₁ {a = Γ} {b = Ref} V.⋆ j) k
+      n δ m n≤m σ
+
+opaque
+  alloc-old-contᵗ : ∀ {Γ A} →
+    (b : Γ ⊢ BoolVal)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
+    Γ V.× BoolVal ⊢ T .F-ob A
+  alloc-old-contᵗ {Γ = Γ} b k =
+    allocᵗ (V.π₁ {a = Γ} {b = BoolVal} V.⋆ b)
+      (swapLast {Γ = Γ} {A = BoolVal} {B = Ref} V.⋆ k)
+
+  alloc-old-contᵗ-run : ∀ {Γ A}
+    (b : Γ ⊢ BoolVal)
+    (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A)
+    n (δ : (Γ V.× BoolVal) .F-ob n .fst)
+    m (n≤m : n ≤ m) (σ : Fin m → Bool) →
+    alloc-old-contᵗ b k .N-ob n δ m n≤m σ ≡
+    extendResult A ≤-sucℕ
+      ((swapLast {Γ = Γ} {A = BoolVal} {B = Ref} V.⋆ k)
+        .N-ob (suc m)
+        ((Γ V.× BoolVal) .F-hom (≤-trans n≤m ≤-sucℕ) δ ,
+         flast {k = m})
+        (suc m) ≤-refl
+        (extendStore {n = m}
+          ((V.π₁ {a = Γ} {b = BoolVal} V.⋆ b) .N-ob n δ) σ))
+  alloc-old-contᵗ-run {Γ = Γ} {A = A} b k n δ m n≤m σ =
+    allocᵗ-run {A = A} (V.π₁ {a = Γ} {b = BoolVal} V.⋆ b)
+      (swapLast {Γ = Γ} {A = BoolVal} {B = Ref} V.⋆ k)
+      n δ m n≤m σ
+
+------------------------------------------------------------------------
+-- Distinct references
+------------------------------------------------------------------------
 
 -- References must be distinct at every stage and environment.  Naturality of
 -- references then preserves this condition when the world is extended.

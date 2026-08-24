@@ -1,16 +1,18 @@
-module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.GetSet where
-
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma
 open import Cubical.Data.Fin
-open import Cubical.Data.Bool hiding (_≤_ ; isProp≤)
 open import Cubical.Data.Nat.Order using (_≤_ ; ≤-refl ; isProp≤)
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels using (hSet)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Morphism.Alt
+
+module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.GetSet
+  (V : hSet ℓ-zero) where
+
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base V
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma V
 
 open Functor
 open NatTrans
@@ -36,41 +38,24 @@ get-set-currentᵗ i t =
   set i b (get i k) = set i b (k b)
 -}
 set-get-sameᵗ : ∀ {Γ A}
-  (i : Γ ⊢ Ref) (b : Γ ⊢ BoolVal)
-  (k : Γ V.× BoolVal ⊢ T .F-ob A) →
-  setᵗ i b (getᵗ i k) ≡ setᵗ i b ((V.id V.,p b) V.⋆ k)
-set-get-sameᵗ {Γ = Γ} i b k =
+  (i : Γ ⊢ Ref) (b : Γ ⊢ VVal)
+  (k : Γ CC.× VVal ⊢ T .F-ob A) →
+  set-get-same-lhsᵗ i b k ≡ set-currentᵗ i b k
+set-get-sameᵗ i b k =
   makeNatTransPath (funExt λ n → funExt λ γ → funExt₃ λ m n≤m σ →
-    let
-      σ' : Fin m → Bool
-      σ' = updateStore {n = m}
-        (weakenRef n≤m (i .N-ob n γ)) (b .N-ob n γ) σ
-    in
-    setᵗ-run i b (getᵗ i k) n γ m n≤m σ
-    ∙ getᵗ-run i k n γ m n≤m σ'
-    ∙ cong (λ c → k .N-ob m (Γ .F-hom n≤m γ , c)
-        m ≤-refl σ')
-        (lookup-update-same {n = m}
-          (weakenRef n≤m (i .N-ob n γ)) (b .N-ob n γ) σ)
-    ∙ cong (λ u → u m ≤-refl σ')
-        (funExt⁻ (k .N-hom n≤m) (γ , b .N-ob n γ))
-    ∙ cong (λ q → k .N-ob n (γ , b .N-ob n γ) m q σ')
-        (isProp≤ _ _)
-    ∙ sym (setᵗ-current-run i b k n γ m n≤m σ))
+    set-get-same-lhsᵗ-run i b k n γ m n≤m σ
+    ∙ sym (set-currentᵗ-run i b k n γ m n≤m σ))
 
 {- A later write to the same location overwrites an earlier write.
 
   set i b (set i c t) = set i c t
 -}
 set-set-sameᵗ : ∀ {Γ A}
-  (i : Γ ⊢ Ref) (b c : Γ ⊢ BoolVal) (t : Γ ⊢ T .F-ob A) →
-  setᵗ i b (setᵗ i c t) ≡ setᵗ i c t
-set-set-sameᵗ {Γ = Γ} {A = A} i b c t =
+  (i : Γ ⊢ Ref) (b c : Γ ⊢ VVal) (t : Γ ⊢ T .F-ob A) →
+  set-set-same-lhsᵗ i b c t ≡ setᵗ i c t
+set-set-sameᵗ {A = A} i b c t =
   makeNatTransPath (funExt λ n → funExt λ γ → funExt₃ λ m n≤m σ →
-    setᵗ-run {A = A} i b (setᵗ i c t) n γ m n≤m σ
-    ∙ setᵗ-run {A = A} i c t n γ m n≤m
-        (updateStore {n = m}
-          (weakenRef n≤m (i .N-ob n γ)) (b .N-ob n γ) σ)
+    set-set-same-lhsᵗ-run i b c t n γ m n≤m σ
     ∙ cong (t .N-ob n γ m n≤m)
         (update-overwrite {n = m} (weakenRef n≤m (i .N-ob n γ))
           (b .N-ob n γ) (c .N-ob n γ) σ)
@@ -87,7 +72,7 @@ set-set-sameᵗ {Γ = Γ} {A = A} i b c t =
 -}
 get-get-commuteᵗ : ∀ {Γ A}
   (i j : Γ ⊢ Ref)
-  (k : (Γ V.× BoolVal) V.× BoolVal ⊢ T .F-ob A) →
+  (k : (Γ CC.× VVal) CC.× VVal ⊢ T .F-ob A) →
   getᵗ i (left-read-contᵗ j k) ≡
   getᵗ j (right-read-contᵗ i k)
 get-get-commuteᵗ {Γ = Γ} {A = A} i j k =
@@ -95,10 +80,10 @@ get-get-commuteᵗ {Γ = Γ} {A = A} i j k =
     let
       γₘ : Γ .F-ob m .fst
       γₘ = Γ .F-hom n≤m γ
-      vi : Bool
+      vi : V .fst
       vi = lookupStore {n = m}
         (weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)) σ
-      vj : Bool
+      vj : V .fst
       vj = lookupStore {n = m}
         (weakenRef {n = n} {m = m} n≤m (j .N-ob n γ)) σ
     in
@@ -109,7 +94,7 @@ get-get-commuteᵗ {Γ = Γ} {A = A} i j k =
         (δ , lookupStore {n = m}
           (weakenRef {n = m} {m = m} ≤-refl (j .N-ob m γₘ)) σ)
         m ≤-refl σ)
-        (funExt⁻ ((Γ V.× BoolVal) .F-id) (γₘ , vi))
+        (funExt⁻ ((Γ CC.× VVal) .F-id) (γₘ , vi))
     ∙ cong (λ c → k .N-ob m ((γₘ , vi) , c) m ≤-refl σ)
         (cong σ
           (funExt⁻ (Ref .F-id {x = m}) (j .N-ob m γₘ)
@@ -133,24 +118,18 @@ get-get-commuteᵗ {Γ = Γ} {A = A} i j k =
 -}
 set-set-commuteᵗ : ∀ {Γ A}
   (i j : Γ ⊢ Ref) → Distinctᵗ i j →
-  (b c : Γ ⊢ BoolVal) (t : Γ ⊢ T .F-ob A) →
-  setᵗ i b (setᵗ j c t) ≡ setᵗ j c (setᵗ i b t)
-set-set-commuteᵗ {Γ = Γ} {A = A} i j i≢j b c t =
+  (b c : Γ ⊢ VVal) (t : Γ ⊢ T .F-ob A) →
+  set-set-commute-lhsᵗ i j b c t ≡ set-set-commute-rhsᵗ i j b c t
+set-set-commuteᵗ i j i≢j b c t =
   makeNatTransPath (funExt λ n → funExt λ γ → funExt₃ λ m n≤m σ →
-    setᵗ-run {A = A} i b (setᵗ j c t) n γ m n≤m σ
-    ∙ setᵗ-run {A = A} j c t n γ m n≤m
-        (updateStore {n = m} (weakenRef n≤m (i .N-ob n γ))
-          (b .N-ob n γ) σ)
+    set-set-commute-lhsᵗ-run i j b c t n γ m n≤m σ
     ∙ cong (t .N-ob n γ m n≤m)
         (update-commute {n = m}
           (weakenRef n≤m (i .N-ob n γ))
           (weakenRef n≤m (j .N-ob n γ))
           (weakenRef-distinct n≤m _ _ (i≢j n γ))
           (b .N-ob n γ) (c .N-ob n γ) σ)
-    ∙ sym (setᵗ-run {A = A} i b t n γ m n≤m
-        (updateStore {n = m} (weakenRef n≤m (j .N-ob n γ))
-          (c .N-ob n γ) σ))
-    ∙ sym (setᵗ-run {A = A} j c (setᵗ i b t) n γ m n≤m σ))
+    ∙ sym (set-set-commute-rhsᵗ-run i j b c t n γ m n≤m σ))
 
 {- A write and a read at distinct locations commute.
 
@@ -159,9 +138,9 @@ set-set-commuteᵗ {Γ = Γ} {A = A} i j i≢j b c t =
 -}
 set-get-commuteᵗ : ∀ {Γ A}
   (i j : Γ ⊢ Ref) → Distinctᵗ i j →
-  (b : Γ ⊢ BoolVal) (k : Γ V.× BoolVal ⊢ T .F-ob A) →
-  setᵗ i b (getᵗ j k) ≡
-  getᵗ j (set-read-contᵗ i b k)
+  (b : Γ ⊢ VVal) (k : Γ CC.× VVal ⊢ T .F-ob A) →
+  set-get-commute-lhsᵗ i j b k ≡
+  set-get-commute-rhsᵗ i j b k
 set-get-commuteᵗ {Γ = Γ} {A = A} i j i≢j b k =
   makeNatTransPath (funExt λ n → funExt λ γ → funExt₃ λ m n≤m σ →
     let
@@ -171,9 +150,9 @@ set-get-commuteᵗ {Γ = Γ} {A = A} i j i≢j b k =
       wi = weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)
       wj : Fin m
       wj = weakenRef {n = n} {m = m} n≤m (j .N-ob n γ)
-      σi : Fin m → Bool
+      σi : Fin m → V .fst
       σi = updateStore {n = m} wi (b .N-ob n γ) σ
-      vj : Bool
+      vj : V .fst
       vj = lookupStore {n = m} wj σ
       store-right≡left = cong₂
         (λ r v → updateStore {n = m} r v σ)
@@ -181,16 +160,11 @@ set-get-commuteᵗ {Γ = Γ} {A = A} i j i≢j b k =
           ∙ funExt⁻ (i .N-hom n≤m) γ)
         (funExt⁻ (b .N-hom n≤m) γ)
     in
-    setᵗ-run {A = A} i b (getᵗ j k) n γ m n≤m σ
-    ∙ getᵗ-run {A = A} j k n γ m n≤m σi
+    set-get-commute-lhsᵗ-run i j b k n γ m n≤m σ
     ∙ cong (λ v → k .N-ob m (γₘ , v) m ≤-refl σi)
         (lookup-update-diff {n = m} wi wj
           (weakenRef-distinct n≤m _ _ (i≢j n γ))
           (b .N-ob n γ) σ)
     ∙ cong (λ τ → k .N-ob m (γₘ , vj) m ≤-refl τ)
         (sym store-right≡left)
-    ∙ sym (set-read-contᵗ-run i b k m (γₘ , vj) m ≤-refl σ)
-    ∙ sym (getᵗ-run {A = A} j (set-read-contᵗ i b k)
-        n γ m n≤m σ))
-
-------------------------------------------------------------------------
+    ∙ sym (set-get-commute-rhsᵗ-run i j b k n γ m n≤m σ))

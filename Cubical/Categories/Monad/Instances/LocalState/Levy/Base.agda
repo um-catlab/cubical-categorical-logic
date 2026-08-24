@@ -1,10 +1,7 @@
-module Cubical.Categories.Monad.Instances.LocalState.Levy.Base where
-
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.HLevels using (hSet ; isSet→)
 
 import Cubical.Data.Equality as Eq
-open import Cubical.Data.Bool hiding (_≤_ ; isProp≤)
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Fin
 open import Cubical.Data.Fin.Properties using (elimFinβ ; inject<-ne)
@@ -28,6 +25,9 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
   using (-×Psh_)
 open import Cubical.Categories.Presheaf.Constructions.Reindex using (reindPshF)
+
+module Cubical.Categories.Monad.Instances.LocalState.Levy.Base
+  (V : hSet ℓ-zero) where
 
 open Category
 open Functor
@@ -69,14 +69,14 @@ include* : (ℓ : Level) → Functor (Comp ℓ) (WorldFam ℓ)
 include* ℓ = reindPshF include
 
 S : WorldFam ℓ-zero .ob
-S .F-ob n .fst = Fin n → Bool
-S .F-ob n .snd = isSet→ isSetBool
+S .F-ob n .fst = Fin n → V .fst
+S .F-ob n .snd = isSet→ (V .snd)
 S .F-hom Eq.refl = λ σ → σ
 S .F-id = refl
 S .F-seq Eq.refl Eq.refl = refl
 
-BoolVal : Val ℓ-zero .ob
-BoolVal = Constant ((World ^op) ^op) (SET ℓ-zero) (Bool , isSetBool)
+VVal : Val ℓ-zero .ob
+VVal = Constant ((World ^op) ^op) (SET ℓ-zero) V
 
 UnitVal : Val ℓ-zero .ob
 UnitVal = Constant ((World ^op) ^op) (SET ℓ-zero) (Unit , isSetUnit)
@@ -127,14 +127,14 @@ S⇒- .F-seq α β = makeNatTransPath refl
 -- Store operations and laws
 ------------------------------------------------------------------------
 
-lookupStore : ∀ {n} → Fin n → (Fin n → Bool) → Bool
+lookupStore : ∀ {n} → Fin n → (Fin n → V .fst) → V .fst
 lookupStore i σ = σ i
 
-updateStore : ∀ {n} → Fin n → Bool → (Fin n → Bool) → Fin n → Bool
+updateStore : ∀ {n} → Fin n → V .fst → (Fin n → V .fst) → Fin n → V .fst
 updateStore {n} i b σ j =
   decRec (λ _ → b) (λ _ → σ j) (discreteFin {n = n} i j)
 
-lookup-update-same : ∀ {n} (i : Fin n) (b : Bool) (σ : Fin n → Bool) →
+lookup-update-same : ∀ {n} (i : Fin n) (b : V .fst) (σ : Fin n → V .fst) →
   lookupStore {n = n} i (updateStore {n = n} i b σ) ≡ b
 lookup-update-same {n} i b σ =
   helper (discreteFin {n = n} i i)
@@ -155,7 +155,7 @@ lookup-update-diff {n} i j i≢j b σ =
   helper (yes i≡j) = ⊥.rec (i≢j i≡j)
   helper (no _) = refl
 
-update-current : ∀ {n} (i : Fin n) (σ : Fin n → Bool) →
+update-current : ∀ {n} (i : Fin n) (σ : Fin n → V .fst) →
   updateStore {n = n} i (lookupStore {n = n} i σ) σ ≡ σ
 update-current {n} i σ = funExt helper
   where
@@ -167,7 +167,7 @@ update-current {n} i σ = funExt helper
   helper : (j : Fin n) → updateStore {n} i (σ i) σ j ≡ σ j
   helper j = helper-dec j (discreteFin {n = n} i j)
 
-update-overwrite : ∀ {n} (i : Fin n) (b c : Bool) (σ : Fin n → Bool) →
+update-overwrite : ∀ {n} (i : Fin n) (b c : V .fst) (σ : Fin n → V .fst) →
   updateStore {n = n} i c (updateStore {n = n} i b σ) ≡
   updateStore {n = n} i c σ
 update-overwrite {n} i b c σ = funExt helper
@@ -184,7 +184,7 @@ update-overwrite {n} i b c σ = funExt helper
     updateStore {n} i c σ j
   helper j = helper-dec j (discreteFin {n = n} i j)
 
-update-commute : ∀ {n} (i j : Fin n) → ((i ≡ j) → ⊥.⊥) → ∀ b c (σ : Fin n → Bool) →
+update-commute : ∀ {n} (i j : Fin n) → ((i ≡ j) → ⊥.⊥) → ∀ b c (σ : Fin n → V .fst) →
   updateStore {n = n} j c (updateStore {n = n} i b σ) ≡
   updateStore {n = n} i b (updateStore {n = n} j c σ)
 update-commute {n} i j i≢j b c σ = funExt helper
@@ -226,20 +226,21 @@ update-commute {n} i j i≢j b c σ = funExt helper
         sym (lookup-update-diff {n} i k i≢k b
           (updateStore {n} j c σ)))
       (discreteFin {n = n} j k)
+
 -- Extend a store by appending a new cell.  The fresh location is `flast`.
-extendStore : ∀ {n} → Bool → (Fin n → Bool) → Fin (suc n) → Bool
+extendStore : ∀ {n} → V .fst → (Fin n → V .fst) → Fin (suc n) → V .fst
 extendStore {n} b σ = elimFin {m = n} b σ
 
-extendStore-fresh : ∀ {n} b (σ : Fin n → Bool) →
+extendStore-fresh : ∀ {n} b (σ : Fin n → V .fst) →
   lookupStore {n = suc n} (flast {k = n}) (extendStore {n = n} b σ) ≡ b
 extendStore-fresh {n} b σ = elimFinβ {m = n} b σ .fst
 
-extendStore-old : ∀ {n} b (σ : Fin n → Bool) (i : Fin n) →
+extendStore-old : ∀ {n} b (σ : Fin n → V .fst) (i : Fin n) →
   lookupStore {n = suc n} (injectSuc i) (extendStore {n = n} b σ) ≡
   lookupStore {n = n} i σ
 extendStore-old {n} b σ i = elimFinβ {m = n} b σ .snd i
 
-update-fresh : ∀ {n} b c (σ : Fin n → Bool) →
+update-fresh : ∀ {n} b c (σ : Fin n → V .fst) →
   updateStore {n = suc n} (flast {k = n}) c (extendStore {n = n} b σ) ≡
   extendStore {n = n} c σ
 update-fresh {n} b c σ = funExt (elimFin {m = n} fresh old)
@@ -255,7 +256,7 @@ update-fresh {n} b c σ = funExt (elimFin {m = n} fresh old)
     ∙ extendStore-old {n} b σ i
     ∙ sym (extendStore-old {n} c σ i)
 
-extendStore-update : ∀ {n} (i : Fin n) b c (σ : Fin n → Bool) →
+extendStore-update : ∀ {n} (i : Fin n) b c (σ : Fin n → V .fst) →
   updateStore {n = suc n} (injectSuc i) c (extendStore {n = n} b σ) ≡
   extendStore {n = n} b (updateStore {n = n} i c σ)
 extendStore-update {n} i b c σ = funExt (elimFin {m = n} fresh old)
@@ -312,7 +313,7 @@ weakenRef-suc {n} i =
 ------------------------------------------------------------------------
 
 -- Allocation commutes with updating an existing cell.
-update-extendStore-old : ∀ {n} (i : Fin n) b c (σ : Fin n → Bool) →
+update-extendStore-old : ∀ {n} (i : Fin n) b c (σ : Fin n → V .fst) →
   updateStore {n = suc n} (weakenRef ≤-sucℕ i) c
     (extendStore {n = n} b σ) ≡
   extendStore {n = n} b (updateStore {n = n} i c σ)
@@ -322,7 +323,7 @@ update-extendStore-old {n} i b c σ =
   ∙ extendStore-update {n} i b c σ
 
 -- Allocation commutes with reading an existing cell.
-lookup-extendStore-old : ∀ {n} (i : Fin n) b (σ : Fin n → Bool) →
+lookup-extendStore-old : ∀ {n} (i : Fin n) b (σ : Fin n → V .fst) →
   lookupStore {n = suc n} (weakenRef ≤-sucℕ i)
     (extendStore {n = n} b σ) ≡
   lookupStore {n = n} i σ
@@ -339,7 +340,7 @@ lookup-extendStore-old {n} i b σ =
    iterated single-cell allocations, modulo a permutation/renaming of the
    fresh references.  The current signature only supplies
 
-     alloc : Bool × (Ref ⇒ T A) ⇒ T A,
+     alloc : V .fst × (Ref ⇒ T A) ⇒ T A,
 
    and has neither an n-ary reference object nor an explicit renaming action.
    Thus B3ₙ is not merely unproved: it cannot be stated faithfully using this

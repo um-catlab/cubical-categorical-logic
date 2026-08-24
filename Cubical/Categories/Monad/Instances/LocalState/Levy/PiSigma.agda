@@ -1,9 +1,7 @@
-module Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma where
-
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels using (hSet)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
 
-open import Cubical.Data.Bool hiding (_≤_ ; isProp≤)
 open import Cubical.Data.Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -23,7 +21,11 @@ open import Cubical.Categories.Presheaf.Constructions.Exponential
   using (_⇒PshLarge_ ; appPshHom ; λPshHom)
 import Cubical.Categories.Presheaf.KanExtension.Discrete as DiscreteKan
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base
+
+module Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma
+  (V : hSet ℓ-zero) where
+
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
 
 open Category
 open Functor
@@ -82,7 +84,7 @@ strength P A .N-hom {x = n} {y = n'} f =
   funExt λ (x , t) → funExt₃ λ m q σ → helper x t m q σ
   where
   helper : (x : P .F-ob n .fst) (t : T .F-ob A .F-ob n .fst)
-    (m : ℕ) (q : n' ≤ m) (σ : Fin m → Bool) →
+    (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
     strength P A .N-ob n'
       (P .F-hom f x , T .F-ob A .F-hom f t) m q σ ≡
     T .F-ob (P ×Psh A) .F-hom f
@@ -113,49 +115,49 @@ bindT {A} {B} =
 -- Algebraic operations
 ------------------------------------------------------------------------
 
-getM : NatTrans Ref (T .F-ob BoolVal)
+getM : NatTrans Ref (T .F-ob VVal)
 getM .N-ob n i m n≤m σ =
   m , ≤-refl ,
     lookupStore {n = m} (weakenRef {n = n} {m = m} n≤m i) σ , σ
 getM .N-hom {x = n} {y = n'} f =
   funExt λ (i : Fin n) →
-  funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → Bool) →
+  funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
     cong
       {B = λ _ →
         Σ[ p ∈ ℕ ] (m ≤ p) ×
-          (BoolVal .F-ob p .fst × (Fin p → Bool))}
+          (VVal .F-ob p .fst × (Fin p → V .fst))}
       (λ (j : Fin m) → m , ≤-refl , lookupStore {n = m} j σ , σ)
       (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
 
-setM : NatTrans (Ref ×Psh BoolVal) (T .F-ob UnitVal)
+setM : NatTrans (Ref ×Psh VVal) (T .F-ob UnitVal)
 setM .N-ob n (i , b) m n≤m σ =
   m , ≤-refl , tt ,
     updateStore {n = m} (weakenRef {n = n} {m = m} n≤m i) b σ
 setM .N-hom {x = n} {y = n'} f =
   funExt λ (i , b) →
-  funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → Bool) →
+  funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
     cong
       {B = λ _ →
         Σ[ p ∈ ℕ ] (m ≤ p) ×
-          (UnitVal .F-ob p .fst × (Fin p → Bool))}
+          (UnitVal .F-ob p .fst × (Fin p → V .fst))}
       (λ j → m , ≤-refl , tt , updateStore {n = m} j b σ)
       (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
 
-allocM : NatTrans BoolVal (T .F-ob Ref)
+allocM : NatTrans VVal (T .F-ob Ref)
 allocM .N-ob n b m n≤m σ =
   suc m , ≤-sucℕ , flast {k = m} , extendStore {n = m} b σ
 allocM .N-hom _ = refl
 
 get : (A : Val ℓ-zero .ob) →
-  NatTrans (Ref ×Psh (BoolVal ⇒PshLarge (T .F-ob A))) (T .F-ob A)
+  NatTrans (Ref ×Psh (VVal ⇒PshLarge (T .F-ob A))) (T .F-ob A)
 get A =
   seqTrans
     (PshHom→NatTrans
       (NatTrans→PshHom getM ×PshHom idPshHom))
-    (bindT {BoolVal} {A})
+    (bindT {VVal} {A})
 
 set : (A : Val ℓ-zero .ob) →
-  NatTrans ((Ref ×Psh BoolVal) ×Psh (T .F-ob A)) (T .F-ob A)
+  NatTrans ((Ref ×Psh VVal) ×Psh (T .F-ob A)) (T .F-ob A)
 set A =
   seqTrans
     (PshHom→NatTrans
@@ -164,7 +166,7 @@ set A =
     (bindT {UnitVal} {A})
 
 alloc : (A : Val ℓ-zero .ob) →
-  NatTrans (BoolVal ×Psh (Ref ⇒PshLarge (T .F-ob A))) (T .F-ob A)
+  NatTrans (VVal ×Psh (Ref ⇒PshLarge (T .F-ob A))) (T .F-ob A)
 alloc A =
   seqTrans
     (PshHom→NatTrans

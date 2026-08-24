@@ -1,25 +1,27 @@
-module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Alloc where
-
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma
 open import Cubical.Data.Fin
-open import Cubical.Data.Bool hiding (_≤_ ; isProp≤)
 open import Cubical.Data.Nat using (suc)
 open import Cubical.Data.Nat.Order
   using (_≤_ ; ≤-refl ; ≤-trans ; ≤-sucℕ ; isProp≤)
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels using (hSet)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Morphism.Alt
+
+module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Alloc
+  (V : hSet ℓ-zero) where
+
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base V
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma V
 
 open Functor
 open NatTrans
 open PshHom
 
 ------------------------------------------------------------------------
--- Block interaction laws
+-- Allocation laws
 ------------------------------------------------------------------------
 
 {- Writing the freshly allocated location replaces its initial value.
@@ -28,7 +30,7 @@ open PshHom
     = alloc c (λ i → k i)
 -}
 alloc-set-freshᵗ : ∀ {Γ A}
-  (b c : Γ ⊢ BoolVal) (k : Γ V.× Ref ⊢ T .F-ob A) →
+  (b c : Γ ⊢ VVal) (k : Γ CC.× Ref ⊢ T .F-ob A) →
   allocᵗ b (set-fresh-contᵗ c k) ≡ allocᵗ c k
 alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
   makeNatTransPath (funExt λ n → funExt λ γ → funExt₃ λ m n≤m σ →
@@ -64,40 +66,12 @@ alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
     = alloc b (λ i → k i b)
 -}
 alloc-get-freshᵗ : ∀ {Γ A}
-  (b : Γ ⊢ BoolVal)
-  (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
-  allocᵗ b (get-fresh-contᵗ k) ≡ alloc-currentᵗ b k
-alloc-get-freshᵗ {Γ = Γ} {A = A} b k =
-  makeNatTransPath (funExt λ n → funExt λ γ → funExt₃ λ m n≤m σ →
-    let
-      q : n ≤ suc m
-      q = ≤-trans n≤m ≤-sucℕ
-      γ⁺ = Γ .F-hom q γ
-      fresh : Fin (suc m)
-      fresh = flast {k = m}
-      bₙ = b .N-ob n γ
-      τ = extendStore {n = m} bₙ σ
-      value-path =
-        cong (λ r → lookupStore {n = suc m} r τ)
-          (funExt⁻ (Ref .F-id {x = suc m}) fresh)
-        ∙ extendStore-fresh {n = m} bₙ σ
-        ∙ sym (funExt⁻ (b .N-hom q) γ)
-    in
-    allocᵗ-run b (get-fresh-contᵗ k) n γ m n≤m σ
-    ∙ cong (extendResult A ≤-sucℕ)
-        (get-fresh-contᵗ-run {Γ = Γ} {A = A} k
-          (suc m) (γ⁺ , fresh)
-          (suc m) ≤-refl τ)
-    ∙ cong (extendResult A ≤-sucℕ)
-        (cong (λ δ → k .N-ob (suc m)
-          (δ , lookupStore {n = suc m}
-            (weakenRef {n = suc m} {m = suc m} ≤-refl fresh) τ)
-          (suc m) ≤-refl τ)
-          (funExt⁻ ((Γ V.× Ref) .F-id) (γ⁺ , fresh)))
-    ∙ cong (extendResult A ≤-sucℕ)
-        (cong (λ v → k .N-ob (suc m) ((γ⁺ , fresh) , v)
-          (suc m) ≤-refl τ) value-path)
-    ∙ sym (alloc-currentᵗ-run b k n γ m n≤m σ))
+  (b : Γ ⊢ VVal)
+  (k : (Γ CC.× Ref) CC.× VVal ⊢ T .F-ob A) →
+  alloc-get-fresh-lhsᵗ b k ≡ alloc-currentᵗ b k
+alloc-get-freshᵗ b k =
+  makeNatTransPath (funExt λ n → funExt λ γ →
+    funExt₃ (alloc-get-freshᵗ-run b k n γ))
 
 {- Allocation commutes with writing an already existing location j.
 
@@ -105,49 +79,12 @@ alloc-get-freshᵗ {Γ = Γ} {A = A} b k =
     = set j c (alloc b (λ i → k i))
 -}
 alloc-set-oldᵗ : ∀ {Γ A}
-  (j : Γ ⊢ Ref) (b c : Γ ⊢ BoolVal)
-  (k : Γ V.× Ref ⊢ T .F-ob A) →
-  allocᵗ b (set-old-contᵗ j c k) ≡
-  setᵗ j c (allocᵗ b k)
-alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
-  makeNatTransPath (funExt λ n → funExt λ γ → funExt₃ λ m n≤m σ →
-    let
-      q : n ≤ suc m
-      q = ≤-trans n≤m ≤-sucℕ
-      γ⁺ : Γ .F-ob (suc m) .fst
-      γ⁺ = Γ .F-hom q γ
-      fresh : Fin (suc m)
-      fresh = flast {k = m}
-      wj : Fin m
-      wj = weakenRef {n = n} {m = m} n≤m (j .N-ob n γ)
-      cₙ : Bool
-      cₙ = c .N-ob n γ
-      c⁺ : Bool
-      c⁺ = c .N-ob (suc m) γ⁺
-      σc : Fin m → Bool
-      σc = updateStore {n = m} wj cₙ σ
-      rj≡old =
-        funExt⁻ (Ref .F-id {x = suc m}) (j .N-ob (suc m) γ⁺)
-        ∙ funExt⁻ (j .N-hom q) γ
-        ∙ sym (weakenRef-comp n≤m ≤-sucℕ (j .N-ob n γ))
-      store-path =
-        cong₂
-          (λ r v → updateStore {n = suc m} r v
-            (extendStore {n = m} (b .N-ob n γ) σ))
-          rj≡old (funExt⁻ (c .N-hom q) γ)
-        ∙ update-extendStore-old {n = m} wj (b .N-ob n γ) cₙ σ
-    in
-    allocᵗ-run {A = A} b (set-old-contᵗ j c k)
-      n γ m n≤m σ
-    ∙ cong (extendResult A ≤-sucℕ)
-        (set-old-contᵗ-run {Γ = Γ} {A = A} j c k
-          (suc m) (γ⁺ , fresh) (suc m) ≤-refl
-          (extendStore {n = m} (b .N-ob n γ) σ))
-    ∙ cong (extendResult A ≤-sucℕ)
-        (cong (λ τ → k .N-ob (suc m) (γ⁺ , fresh)
-          (suc m) ≤-refl τ) store-path)
-    ∙ sym (allocᵗ-run {A = A} b k n γ m n≤m σc)
-    ∙ sym (setᵗ-run {A = A} j c (allocᵗ b k) n γ m n≤m σ))
+  (j : Γ ⊢ Ref) (b c : Γ ⊢ VVal)
+  (k : Γ CC.× Ref ⊢ T .F-ob A) →
+  alloc-set-old-lhsᵗ j b c k ≡ alloc-set-old-rhsᵗ j b c k
+alloc-set-oldᵗ j b c k =
+  makeNatTransPath (funExt λ n → funExt λ γ →
+    funExt₃ (alloc-set-oldᵗ-run j b c k n γ))
 
 {- Allocation commutes with reading an already existing location j.
 
@@ -155,8 +92,8 @@ alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
     = get j (λ c → alloc b (λ i → k i c))
 -}
 alloc-get-oldᵗ : ∀ {Γ A}
-  (j : Γ ⊢ Ref) (b : Γ ⊢ BoolVal)
-  (k : (Γ V.× Ref) V.× BoolVal ⊢ T .F-ob A) →
+  (j : Γ ⊢ Ref) (b : Γ ⊢ VVal)
+  (k : (Γ CC.× Ref) CC.× VVal ⊢ T .F-ob A) →
   allocᵗ b (get-old-contᵗ j k) ≡
   getᵗ j (alloc-old-contᵗ b k)
 alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
@@ -175,11 +112,11 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
       rj : Fin (suc m)
       rj = weakenRef {n = suc m} {m = suc m} ≤-refl
         (j .N-ob (suc m) γ⁺)
-      bₙ : Bool
+      bₙ : V .fst
       bₙ = b .N-ob n γ
-      τ : Fin (suc m) → Bool
+      τ : Fin (suc m) → V .fst
       τ = extendStore {n = m} bₙ σ
-      vj : Bool
+      vj : V .fst
       vj = lookupStore {n = m} wj σ
       value-path =
         cong (λ r → lookupStore {n = suc m} r τ)
@@ -189,11 +126,11 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
         ∙ lookup-extendStore-old {n = m} wj bₙ σ
       rhs-step : m ≤ suc m
       rhs-step = ≤-trans ≤-refl ≤-sucℕ
-      lifted-b : (Γ V.× BoolVal) ⊢ BoolVal
-      lifted-b = V.π₁ V.⋆ b
-      rhs-context : (Γ V.× BoolVal) .F-ob (suc m) .fst
-      rhs-context = (Γ V.× BoolVal) .F-hom rhs-step (γₘ , vj)
-      rhs-store : Fin (suc m) → Bool
+      lifted-b : (Γ CC.× VVal) ⊢ VVal
+      lifted-b = CC.π₁ CC.⋆ b
+      rhs-context : (Γ CC.× VVal) .F-ob (suc m) .fst
+      rhs-context = (Γ CC.× VVal) .F-hom rhs-step (γₘ , vj)
+      rhs-store : Fin (suc m) → V .fst
       rhs-store = extendStore {n = m}
         (lifted-b .N-ob m (γₘ , vj)) σ
       alignment-path :
@@ -201,7 +138,7 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
           (k .N-ob (suc m) ((γ⁺ , fresh) , vj)
             (suc m) ≤-refl τ) ≡
         extendResult A ≤-sucℕ
-          ((swapLast V.⋆ k) .N-ob (suc m)
+          ((swapLast CC.⋆ k) .N-ob (suc m)
             (rhs-context , fresh) (suc m) ≤-refl rhs-store)
       alignment-path = cong (extendResult A ≤-sucℕ)
         (cong₂
@@ -221,7 +158,7 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
         (cong (λ δ → k .N-ob (suc m)
           (δ , lookupStore {n = suc m} rj τ)
           (suc m) ≤-refl τ)
-          (funExt⁻ ((Γ V.× Ref) .F-id) (γ⁺ , fresh)))
+          (funExt⁻ ((Γ CC.× Ref) .F-id) (γ⁺ , fresh)))
     ∙ cong (extendResult A ≤-sucℕ)
         (cong (λ v → k .N-ob (suc m) ((γ⁺ , fresh) , v)
           (suc m) ≤-refl τ) value-path)

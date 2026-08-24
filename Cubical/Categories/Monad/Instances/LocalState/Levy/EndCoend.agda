@@ -1,9 +1,7 @@
-module Cubical.Categories.Monad.Instances.LocalState.Levy.EndCoend where
-
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels using (hSet)
 
 import Cubical.Data.Equality as Eq
-open import Cubical.Data.Bool hiding (_≤_ ; isProp≤)
 open import Cubical.Data.Fin
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Order
@@ -20,7 +18,11 @@ open import Cubical.Categories.Monad.Base using (Monad)
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base using (_×Psh_)
 open import Cubical.Categories.Presheaf.KanExtension
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base
+
+module Cubical.Categories.Monad.Instances.LocalState.Levy.EndCoend
+  (V : hSet ℓ-zero) where
+
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
 
 open Category
 open Functor
@@ -81,41 +83,41 @@ now A n a σ = [ (n , ≤-refl , (a , σ)) ]
 
 private
   get-now : (n : ℕ) → Fin n → (m : ℕ) → n ≤ m →
-    (Fin m → Bool) →
-    Inner.Quo ((-×S ∘F includeOp* ℓ-zero) .F-ob BoolVal) m
+    (Fin m → V .fst) →
+    Inner.Quo ((-×S ∘F includeOp* ℓ-zero) .F-ob VVal) m
   get-now n i m n≤m σ =
-    now BoolVal m
+    now VVal m
       (lookupStore {n = m} (weakenRef {n = n} {m = m} n≤m i) σ) σ
 
-  set-now : (n : ℕ) → Fin n × Bool → (m : ℕ) → n ≤ m →
-    (Fin m → Bool) →
+  set-now : (n : ℕ) → Fin n × V .fst → (m : ℕ) → n ≤ m →
+    (Fin m → V .fst) →
     Inner.Quo ((-×S ∘F includeOp* ℓ-zero) .F-ob UnitVal) m
   set-now n (i , b) m n≤m σ =
     now UnitVal m tt
       (updateStore {n = m} (weakenRef {n = n} {m = m} n≤m i) b σ)
 
-  alloc-now : (n : ℕ) → Bool → (m : ℕ) → n ≤ m →
-    (Fin m → Bool) →
+  alloc-now : (n : ℕ) → V .fst → (m : ℕ) → n ≤ m →
+    (Fin m → V .fst) →
     Inner.Quo ((-×S ∘F includeOp* ℓ-zero) .F-ob Ref) m
   alloc-now n b m n≤m σ =
     [ (suc m , ≤-sucℕ ,
         (flast {k = m} , extendStore {n = m} b σ)) ]
 
-get : NatTrans Ref (T .F-ob BoolVal)
+get : NatTrans Ref (T .F-ob VVal)
 get .N-ob n i .Outer.End.fun m n≤m σ = get-now n i m n≤m σ
 get .N-ob n i .Outer.End.coh {c = m} Eq.refl n≤m =
-  funExt λ (σ : Fin m → Bool) →
+  funExt λ (σ : Fin m → V .fst) →
     cong (λ (j : Fin m) →
-      now BoolVal m (lookupStore {n = m} j σ) σ)
+      now VVal m (lookupStore {n = m} j σ) σ)
       (Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = m}) refl)
 get .N-hom {x = n} {y = n'} f =
   funExt λ (i : Fin n) →
     Outer.end≡ _ λ (m : ℕ) (q : n' ≤ m) →
-      funExt λ (σ : Fin m → Bool) →
-        cong (λ j → now BoolVal m (lookupStore {n = m} j σ) σ)
+      funExt λ (σ : Fin m → V .fst) →
+        cong (λ j → now VVal m (lookupStore {n = m} j σ) σ)
           (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
 
-set : NatTrans (Ref ×Psh BoolVal) (T .F-ob UnitVal)
+set : NatTrans (Ref ×Psh VVal) (T .F-ob UnitVal)
 set .N-ob n x .Outer.End.fun m n≤m σ = set-now n x m n≤m σ
 set .N-ob n (i , b) .Outer.End.coh {c = m} Eq.refl n≤m =
   let
@@ -124,17 +126,17 @@ set .N-ob n (i , b) .Outer.End.coh {c = m} Eq.refl n≤m =
         (seq' (World ^op) (includeOp ⟪ Eq.refl ⟫) n≤m) i
       ≡ weakenRef n≤m i
     ref-coh = Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = m}) refl
-  in funExt λ (σ : Fin m → Bool) →
+  in funExt λ (σ : Fin m → V .fst) →
     cong (λ (j : Fin m) →
       now UnitVal m tt (updateStore {n = m} j b σ)) ref-coh
 set .N-hom {x = n} {y = n'} f =
-  funExt λ ((i , b) : Fin n × Bool) →
+  funExt λ ((i , b) : Fin n × V .fst) →
     Outer.end≡ _ λ (m : ℕ) (q : n' ≤ m) →
-      funExt λ (σ : Fin m → Bool) →
+      funExt λ (σ : Fin m → V .fst) →
         cong (λ j → now UnitVal m tt (updateStore {n = m} j b σ))
           (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
 
-alloc : NatTrans BoolVal (T .F-ob Ref)
+alloc : NatTrans VVal (T .F-ob Ref)
 alloc .N-ob n b .Outer.End.fun m n≤m σ = alloc-now n b m n≤m σ
 alloc .N-ob n b .Outer.End.coh Eq.refl n≤m = refl
 alloc .N-hom f =

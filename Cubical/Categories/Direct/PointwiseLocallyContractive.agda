@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Direct.LocallyContractive where
+module Cubical.Categories.Direct.PointwiseLocallyContractive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
@@ -59,23 +59,23 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
   ▷transpose h .N-hom x' x f _ _ _ = makePshHomStrictPath refl
 
   -- F's hom-action factors through next, via Fδ
-  isContractiveHomAction :
+  isPwContractiveHomAction :
     (F : Functor (PRESHEAF C ℓ▷) (PRESHEAF C ℓ▷))
     → ▷HomActionPsh (F .F-ob) → Type _
-  isContractiveHomAction F Fδ =
+  isPwContractiveHomAction F Fδ =
     {X Y : Presheaf C ℓ▷} (h : PshHomStrict X Y)
     → F .F-hom h ≡ eltPshHomStrict (▷transpose h ⋆PshHomStrict Fδ {X} {Y})
 
-  LocallyContractive : Type _
-  LocallyContractive =
+  PointwiseLocallyContractive : Type _
+  PointwiseLocallyContractive =
     Σ[ F ∈ Functor (PRESHEAF C ℓ▷) (PRESHEAF C ℓ▷) ]
     Σ[ Fδ ∈ ▷HomActionPsh (F .F-ob) ]
-      isContractiveHomAction F Fδ
+      isPwContractiveHomAction F Fδ
 
   Fam : Category _ _
   Fam = FamBase.Fam {ℓ = ℓ'} C
 
-  module HyloPsh (F : LocallyContractive)
+  module HyloPsh (F : PointwiseLocallyContractive)
                  (X B : Presheaf C ℓ▷)
                  (c : PshHomStrict X (F .fst .F-ob X))
                  (a : PshHomStrict (F .fst .F-ob B) B)
@@ -160,20 +160,20 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
     ∙ (λ i → ×PshIntroStrict (cong fst e i) (cong snd e i))
 
   -- H's hom-action factors through nextFam, via Hδ
-  isContractiveHomActionFam :
+  isPwContractiveHomActionFam :
     (H : Functor Fam Fam) → ▷HomActionFam H → Type _
-  isContractiveHomActionFam H Hδ =
+  isPwContractiveHomActionFam H Hδ =
     {A B : Category.ob Fam} (h : Fam [ A , B ]) (x : ob)
     → H .F-hom h x
       ≡ Hδ {A} {B} x (nextFam dir {ℓF = ℓ-zero} (A ⇒Fam B) h x)
 
-  LocallyContractiveFam : Type _
-  LocallyContractiveFam =
+  PointwiseLocallyContractiveFam : Type _
+  PointwiseLocallyContractiveFam =
     Σ[ H ∈ Functor Fam Fam ]
     Σ[ Hδ ∈ ▷HomActionFam H ]
-      isContractiveHomActionFam H Hδ
+      isPwContractiveHomActionFam H Hδ
 
-  module HyloFam (H : LocallyContractiveFam)
+  module HyloFam (H : PointwiseLocallyContractiveFam)
                  (X B : Category.ob Fam)
                  (c : Fam [ X , H .fst .F-ob X ])
                  (a : Fam [ H .fst .F-ob B , B ])
@@ -219,7 +219,7 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
   -- local contractivity makes the hylomorphism profunctor trivial;
   -- recursiveness and corecursiveness are its curried readings, and
   -- finality/initiality at a fixed point follow from FixpointRecursion
-  module Recursiveness (H : LocallyContractiveFam) where
+  module Recursiveness (H : PointwiseLocallyContractiveFam) where
     hyloTrivial : HYLOTrivial (H .fst)
     hyloTrivial (X , c) (B , a) = HF.hylo , λ h → sym (HF.hylo-uniq h)
       where module HF = HyloFam H X B c a

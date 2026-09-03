@@ -59,9 +59,6 @@ include = EqDiscFunc (λ n → n)
 includeOp : Functor |World| (World ^op)
 includeOp = EqDiscFunc (λ n → n)
 
--- Values vary covariantly with world extension; computations contravariantly.
--- Writing both as presheaf categories makes the Kan-extension interface apply
--- directly.
 Val : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
 Val ℓ = PresheafCategory (World ^op) ℓ
 

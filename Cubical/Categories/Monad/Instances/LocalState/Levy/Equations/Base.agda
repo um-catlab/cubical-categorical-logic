@@ -35,7 +35,7 @@ open PshHom
 -- expose their pointwise β-rules as the computational interface. Each body
 -- and β-rule is checked here, with explicit unfolding enabled only while the
 -- β-rules are proved. Opacity changes only definitional reduction outside
--- those proofs: it adds no axiom and does not change the denoted morphisms.
+-- those proofs.
 
 ------------------------------------------------------------------------
 -- Contextual terms

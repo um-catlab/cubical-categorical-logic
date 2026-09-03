@@ -1,4 +1,4 @@
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin using (Fin ; flast)
 open import Cubical.Data.Nat using (suc)
 open import Cubical.Data.Nat.Order
   using (_≤_ ; ≤-refl ; ≤-trans ; ≤-sucℕ ; isProp≤)
@@ -7,18 +7,15 @@ open import Cubical.Foundations.HLevels using (hSet)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Presheaf.Morphism.Alt
 
 module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Alloc
   (V : hSet ℓ-zero) where
 
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base V
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma V
 
 open Functor
 open NatTrans
-open PshHom
 
 ------------------------------------------------------------------------
 -- Allocation laws
@@ -73,7 +70,7 @@ alloc-get-freshᵗ b k =
   makeNatTransPath (funExt λ n → funExt λ γ →
     funExt₃ (alloc-get-freshᵗ-run b k n γ))
 
-{- Allocation commutes with writing an already existing location j.
+{- Allocation commutes with writing an existing location `j`.
 
   alloc b (λ i → set j c (k i))
     = set j c (alloc b (λ i → k i))
@@ -86,7 +83,7 @@ alloc-set-oldᵗ j b c k =
   makeNatTransPath (funExt λ n → funExt λ γ →
     funExt₃ (alloc-set-oldᵗ-run j b c k n γ))
 
-{- Allocation commutes with reading an already existing location j.
+{- Allocation commutes with reading an existing location `j`.
 
   alloc b (λ i → get j (λ c → k i c))
     = get j (λ c → alloc b (λ i → k i c))
@@ -170,15 +167,15 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
         n γ m n≤m σ))
 
 ------------------------------------------------------------------------
--- Why the block-commutative laws fail here
+-- Unsupported block laws
 ------------------------------------------------------------------------
 
 {- Garbage collection would assert
 
      alloc b (λ _ → t) = t.
 
-   This is not an equality in the present monad.  Allocation returns a
-   computation whose result world contains one additional cell.  The result
+   This is not an equality in the present monad. Allocation returns a
+   computation whose result world contains one additional cell. The result
    type records that world explicitly, so a computation returning world
    `suc m` cannot equal one returning world `m`, even when the fresh reference
    and its store cell are never subsequently observed.
@@ -190,8 +187,8 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
        = alloc c (λ j → alloc b (λ i → k i j)).
 
    Both sides return `suc (suc m)`, but they assign the two concrete final
-   positions in opposite orders.  `World` is the preorder of natural numbers
-   and extensions; it has no permutation morphisms.  Consequently there is
+   positions in opposite orders. `World` is the preorder of natural numbers
+   and extensions; it has no permutation morphisms. Consequently there is
    no renaming which exchanges the two fresh `Fin` positions and the matching
    store cells, so the two computations are not equal in general.
 -}

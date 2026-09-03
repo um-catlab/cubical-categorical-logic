@@ -1,11 +1,14 @@
 open import Cubical.Data.Sigma
-open import Cubical.Data.Fin
+open import Cubical.Data.Fin using (Fin ; discreteFin ; elimFin ; flast ; injectSuc)
+open import Cubical.Data.Fin.Properties using (elimFinβ ; inject<-ne)
 import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat using (ℕ ; suc)
 open import Cubical.Data.Nat.Order
   using (_≤_ ; ≤-refl ; ≤-trans ; ≤-sucℕ ; isProp≤)
+open import Cubical.Data.Nat.Order.Inductive using (isProp<ᵗ)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hSet)
+open import Cubical.Relation.Nullary using (Dec ; decRec ; yes ; no)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
@@ -19,11 +22,201 @@ module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base
   (V : hSet ℓ-zero) where
 
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma V
 
 open Functor
 open NatTrans
 open PshHom
+
+------------------------------------------------------------------------
+-- Store laws
+------------------------------------------------------------------------
+
+lookup-update-same : ∀ {n} (i : Fin n) (b : V .fst) (σ : Fin n → V .fst) →
+  lookupStore {n = n} i (updateStore {n = n} i b σ) ≡ b
+lookup-update-same {n} i b σ =
+  helper (discreteFin {n = n} i i)
+  where
+  helper : (d : Dec (i ≡ i)) →
+    decRec (λ _ → b) (λ _ → σ i) d ≡ b
+  helper (yes _) = refl
+  helper (no i≢i) = ⊥.rec (i≢i refl)
+
+lookup-update-diff : ∀ {n} (i j : Fin n) → ((i ≡ j) → ⊥.⊥) → ∀ b σ →
+  lookupStore {n = n} j (updateStore {n = n} i b σ) ≡
+  lookupStore {n = n} j σ
+lookup-update-diff {n} i j i≢j b σ =
+  helper (discreteFin {n = n} i j)
+  where
+  helper : (d : Dec (i ≡ j)) →
+    decRec (λ _ → b) (λ _ → σ j) d ≡ σ j
+  helper (yes i≡j) = ⊥.rec (i≢j i≡j)
+  helper (no _) = refl
+
+update-current : ∀ {n} (i : Fin n) (σ : Fin n → V .fst) →
+  updateStore {n = n} i (lookupStore {n = n} i σ) σ ≡ σ
+update-current {n} i σ = funExt helper
+  where
+  helper-dec : (j : Fin n) (d : Dec (i ≡ j)) →
+    decRec (λ _ → σ i) (λ _ → σ j) d ≡ σ j
+  helper-dec j (yes i≡j) = cong σ i≡j
+  helper-dec j (no _) = refl
+
+  helper : (j : Fin n) → updateStore {n} i (σ i) σ j ≡ σ j
+  helper j = helper-dec j (discreteFin {n = n} i j)
+
+update-overwrite : ∀ {n} (i : Fin n) (b c : V .fst) (σ : Fin n → V .fst) →
+  updateStore {n = n} i c (updateStore {n = n} i b σ) ≡
+  updateStore {n = n} i c σ
+update-overwrite {n} i b c σ = funExt helper
+  where
+  helper-dec : (j : Fin n) (d : Dec (i ≡ j)) →
+    decRec (λ _ → c)
+      (λ _ → decRec (λ _ → b) (λ _ → σ j) d) d ≡
+    decRec (λ _ → c) (λ _ → σ j) d
+  helper-dec j (yes _) = refl
+  helper-dec j (no _) = refl
+
+  helper : (j : Fin n) →
+    updateStore {n} i c (updateStore {n} i b σ) j ≡
+    updateStore {n} i c σ j
+  helper j = helper-dec j (discreteFin {n = n} i j)
+
+update-commute : ∀ {n} (i j : Fin n) → ((i ≡ j) → ⊥.⊥) → ∀ b c (σ : Fin n → V .fst) →
+  updateStore {n = n} j c (updateStore {n = n} i b σ) ≡
+  updateStore {n = n} i b (updateStore {n = n} j c σ)
+update-commute {n} i j i≢j b c σ = funExt helper
+  where
+  Goal : Fin n → Type
+  Goal k =
+    updateStore {n} j c (updateStore {n} i b σ) k ≡
+    updateStore {n} i b (updateStore {n} j c σ) k
+
+  helper : (k : Fin n) →
+    updateStore {n} j c (updateStore {n} i b σ) k ≡
+    updateStore {n} i b (updateStore {n} j c σ) k
+  helper k = decRec case-i case-not-i (discreteFin {n = n} i k)
+    where
+    case-i : i ≡ k → Goal k
+    case-i i≡k = decRec
+      (λ j≡k → ⊥.rec (i≢j (i≡k ∙ sym j≡k)))
+      (λ j≢k →
+        lookup-update-diff {n} j k j≢k c (updateStore {n} i b σ) ∙
+        sym (cong (updateStore {n} i b σ) i≡k) ∙
+        lookup-update-same {n} i b σ ∙
+        sym (lookup-update-same {n} i b (updateStore {n} j c σ)) ∙
+        cong (updateStore {n} i b (updateStore {n} j c σ)) i≡k)
+      (discreteFin {n = n} j k)
+
+    case-not-i : ((i ≡ k) → ⊥.⊥) → Goal k
+    case-not-i i≢k = decRec
+      (λ j≡k →
+        sym (cong (updateStore {n} j c (updateStore {n} i b σ)) j≡k) ∙
+        lookup-update-same {n} j c (updateStore {n} i b σ) ∙
+        sym (lookup-update-same {n} j c σ) ∙
+        cong (updateStore {n} j c σ) j≡k ∙
+        sym (lookup-update-diff {n} i k i≢k b
+          (updateStore {n} j c σ)))
+      (λ j≢k →
+        lookup-update-diff {n} j k j≢k c (updateStore {n} i b σ) ∙
+        lookup-update-diff {n} i k i≢k b σ ∙
+        sym (lookup-update-diff {n} j k j≢k c σ) ∙
+        sym (lookup-update-diff {n} i k i≢k b
+          (updateStore {n} j c σ)))
+      (discreteFin {n = n} j k)
+
+extendStore-fresh : ∀ {n} b (σ : Fin n → V .fst) →
+  lookupStore {n = suc n} (flast {k = n}) (extendStore {n = n} b σ) ≡ b
+extendStore-fresh {n} b σ = elimFinβ {m = n} b σ .fst
+
+extendStore-old : ∀ {n} b (σ : Fin n → V .fst) (i : Fin n) →
+  lookupStore {n = suc n} (injectSuc i) (extendStore {n = n} b σ) ≡
+  lookupStore {n = n} i σ
+extendStore-old {n} b σ i = elimFinβ {m = n} b σ .snd i
+
+update-fresh : ∀ {n} b c (σ : Fin n → V .fst) →
+  updateStore {n = suc n} (flast {k = n}) c (extendStore {n = n} b σ) ≡
+  extendStore {n = n} c σ
+update-fresh {n} b c σ = funExt (elimFin {m = n} fresh old)
+  where
+  fresh = lookup-update-same {suc n} (flast {k = n}) c (extendStore {n} b σ)
+    ∙ sym (extendStore-fresh {n} c σ)
+  old : (i : Fin n) →
+    updateStore {suc n} flast c (extendStore {n} b σ) (injectSuc i) ≡
+    extendStore {n = n} c σ (injectSuc i)
+  old i =
+    lookup-update-diff {suc n} (flast {k = n}) (injectSuc i)
+      (λ e → inject<-ne i (sym e)) c (extendStore {n} b σ)
+    ∙ extendStore-old {n} b σ i
+    ∙ sym (extendStore-old {n} c σ i)
+
+extendStore-update : ∀ {n} (i : Fin n) b c (σ : Fin n → V .fst) →
+  updateStore {n = suc n} (injectSuc i) c (extendStore {n = n} b σ) ≡
+  extendStore {n = n} b (updateStore {n = n} i c σ)
+extendStore-update {n} i b c σ = funExt (elimFin {m = n} fresh old)
+  where
+  fresh =
+    lookup-update-diff {suc n} (injectSuc i) (flast {k = n})
+      (inject<-ne i) c (extendStore {n} b σ)
+    ∙ extendStore-fresh {n} b σ
+    ∙ sym (extendStore-fresh {n} b (updateStore {n} i c σ))
+  old : (j : Fin n) →
+    updateStore {suc n} (injectSuc i) c (extendStore {n = n} b σ) (injectSuc j) ≡
+    extendStore {n = n} b (updateStore {n = n} i c σ) (injectSuc j)
+  old j = decRec yes-case no-case (discreteFin {n = n} i j)
+    where
+    yes-case = λ i≡j →
+      sym (cong (updateStore {suc n} (injectSuc i) c (extendStore {n} b σ))
+        (cong injectSuc i≡j))
+      ∙ lookup-update-same {suc n} (injectSuc i) c (extendStore {n} b σ)
+      ∙ sym (lookup-update-same {n} i c σ)
+      ∙ cong (updateStore {n} i c σ) i≡j
+      ∙ sym (extendStore-old {n} b (updateStore {n} i c σ) j)
+    no-case = λ i≢j →
+      lookup-update-diff {suc n} (injectSuc i) (injectSuc j)
+        (λ e → i≢j (Σ≡Prop
+          (λ a → isProp<ᵗ {n = a} {m = n}) (cong fst e))) c
+        (extendStore {n} b σ)
+      ∙ extendStore-old {n} b σ j
+      ∙ sym (lookup-update-diff {n} i j i≢j c σ)
+      ∙ sym (extendStore-old {n} b (updateStore {n} i c σ) j)
+
+------------------------------------------------------------------------
+-- Reference weakening laws
+------------------------------------------------------------------------
+
+weakenRef-distinct : ∀ {n m} (f : n ≤ m) (i j : Fin n) →
+  ((i ≡ j) → ⊥.⊥) → (weakenRef f i ≡ weakenRef f j) → ⊥.⊥
+weakenRef-distinct {n} {m} f i j i≠j wi≡wj =
+  i≠j (Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = n}) (cong fst wi≡wj))
+
+weakenRef-suc : ∀ {n} (i : Fin n) →
+  weakenRef ≤-sucℕ i ≡ injectSuc i
+weakenRef-suc {n} i =
+  Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = suc n}) refl
+
+------------------------------------------------------------------------
+-- Allocation laws
+------------------------------------------------------------------------
+
+-- Allocation commutes with updating an existing cell.
+update-extendStore-old : ∀ {n} (i : Fin n) b c (σ : Fin n → V .fst) →
+  updateStore {n = suc n} (weakenRef ≤-sucℕ i) c
+    (extendStore {n = n} b σ) ≡
+  extendStore {n = n} b (updateStore {n = n} i c σ)
+update-extendStore-old {n} i b c σ =
+  cong (λ j → updateStore {suc n} j c (extendStore {n} b σ))
+    (weakenRef-suc {n} i)
+  ∙ extendStore-update {n} i b c σ
+
+-- Allocation commutes with reading an existing cell.
+lookup-extendStore-old : ∀ {n} (i : Fin n) b (σ : Fin n → V .fst) →
+  lookupStore {n = suc n} (weakenRef ≤-sucℕ i)
+    (extendStore {n = n} b σ) ≡
+  lookupStore {n = n} i σ
+lookup-extendStore-old {n} i b σ =
+  cong (λ j → lookupStore {n = suc n} j (extendStore {n} b σ))
+    (weakenRef-suc {n} i)
+  ∙ extendStore-old {n} b σ i
 
 ------------------------------------------------------------------------
 -- Contextual state operations
@@ -34,7 +227,7 @@ Val-CCC = Cubical.Categories.Presheaf.CCC.𝓟-CCC (World ^op) ℓ-zero
 
 module CC = CartesianClosedCategory Val-CCC
 
--- Terms are natural transformations between value presheaves.  Keeping the
+-- Terms are natural transformations between value presheaves. Keeping the
 -- context explicit below lets the state operations be used under weakening.
 infix 1 _⊢_
 _⊢_ : CC.ob → CC.ob → Type _
@@ -64,7 +257,7 @@ allocᵗ {A = A} b k = (b CC.,p CC.lda k) CC.⋆ alloc A
 -- Pointwise computation semantics
 ------------------------------------------------------------------------
 
--- A computation started in world m may finish in a larger world p.  When the
+-- A computation started in world m may finish in a larger world p. When the
 -- same result is viewed from an earlier world, only its lower-bound witness
 -- changes; the final world, value, and store are unchanged.
 extendResult : (B : CC.ob) {m p : ℕ} →
@@ -101,8 +294,8 @@ bindT-run A B {n} t k m n≤m σ with t m n≤m σ
       (isProp≤ _ _))
 
 -- The following three lemmas expose the concrete store semantics hidden by
--- the definitions of the algebraic operations.  Subsequent equations reduce
--- to these rules plus the lookup/update laws from Levy.Base.
+-- the definitions of the algebraic operations. Subsequent equations reduce
+-- to these rules plus the store laws above.
 get-run : ∀ (A : CC.ob) n
   (x : (Ref CC.× (VVal CC.⇒ (T .F-ob A))) .F-ob n .fst)
   m (n≤m : n ≤ m) (σ : Fin m → V .fst) →
@@ -212,7 +405,7 @@ allocᵗ-run {Γ = Γ} {A = A} b k n γ m n≤m σ =
 -- Specialized runners and context rearrangement
 ------------------------------------------------------------------------
 
--- These small opaque terms are deliberate elaboration boundaries.  Expanding
+-- These small opaque terms are deliberate elaboration boundaries. Expanding
 -- their CCC pairings in law endpoints makes Agda normalize very large terms.
 opaque
   -- Substitution of a value into a continuation is kept opaque because the
@@ -351,7 +544,7 @@ swapLast = (((CC.π₁ CC.⋆ CC.π₁) CC.,p CC.π₂) CC.,p (CC.π₁ CC.⋆ C
 ------------------------------------------------------------------------
 
 opaque
-  -- Naming this CCC composite is a type-checking boundary.  Expanding it in
+  -- Naming this CCC composite is a type-checking boundary. Expanding it in
   -- downstream runner endpoints otherwise normalizes the full product/lambda
   -- term during conversion.
   set-current-contᵗ : ∀ {Γ A} →
@@ -789,7 +982,7 @@ opaque
 -- Distinct references
 ------------------------------------------------------------------------
 
--- References must be distinct at every stage and environment.  Naturality of
+-- References must be distinct at every stage and environment. Naturality of
 -- references then preserves this condition when the world is extended.
 Distinctᵗ : ∀ {Γ} → Γ ⊢ Ref → Γ ⊢ Ref → Type
 Distinctᵗ {Γ} i j = ∀ n (γ : Γ .F-ob n .fst) →

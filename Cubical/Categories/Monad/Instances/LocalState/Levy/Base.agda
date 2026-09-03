@@ -1,29 +1,37 @@
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hSet ; isSet→)
+open import Cubical.Functions.FunExtEquiv using (funExt₃)
 
 import Cubical.Data.Equality as Eq
-import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Fin
-open import Cubical.Data.Fin.Properties using (elimFinβ ; inject<-ne)
-open import Cubical.Data.Nat
+  using (Fin ; discreteFin ; elimFin ; flast ; isSetFin)
+open import Cubical.Data.Nat using (ℕ ; suc ; isSetℕ)
 open import Cubical.Data.Nat.Order
+  using (_≤_ ; ≤-refl ; ≤-trans ; <≤-trans ; ≤-sucℕ ; isProp≤)
 open import Cubical.Data.Nat.Order.Inductive using (<→<ᵗ ; <ᵗ→< ; isProp<ᵗ)
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
-open import Cubical.Relation.Nullary
+open import Cubical.Data.Unit using (Unit ; tt ; isSetUnit)
+open import Cubical.Relation.Nullary using (decRec)
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Adjoint
+open import Cubical.Categories.Adjoint.Monad using (MonadFromAdjunction)
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Monad.Base using (Monad ; IsMonad)
 open import Cubical.Categories.Functors.Constant using (Constant)
 open import Cubical.Categories.Instances.Discrete.More
   using (EqDiscreteCategory ; EqDiscFunc)
 open import Cubical.Categories.Instances.Sets using (SET)
 open import Cubical.Categories.Instances.Thin using (ThinCategory)
 open import Cubical.Categories.NaturalTransformation
+import Cubical.Categories.Enriched.Instances.Presheaf.Self as PshSelf
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
-  using (-×Psh_)
+  using (-×Psh_ ; _×Psh_ ; _×PshHom_ ; π₁)
+open import Cubical.Categories.Presheaf.Constructions.Exponential
+  using (_⇒PshLarge_ ; appPshHom ; λPshHom)
+import Cubical.Categories.Presheaf.KanExtension.Discrete as DiscreteKan
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Constructions.Reindex using (reindPshF)
 
 module Cubical.Categories.Monad.Instances.LocalState.Levy.Base
@@ -32,6 +40,7 @@ module Cubical.Categories.Monad.Instances.LocalState.Levy.Base
 open Category
 open Functor
 open NatTrans
+open PshHom
 open UnitCounit
 
 ------------------------------------------------------------------------
@@ -50,7 +59,7 @@ include = EqDiscFunc (λ n → n)
 includeOp : Functor |World| (World ^op)
 includeOp = EqDiscFunc (λ n → n)
 
--- Values vary covariantly with world extension, computations contravariantly.
+-- Values vary covariantly with world extension; computations contravariantly.
 -- Writing both as presheaf categories makes the Kan-extension interface apply
 -- directly.
 Val : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
@@ -124,7 +133,7 @@ S⇒- .F-seq α β = makeNatTransPath refl
   makeNatTransPath refl
 
 ------------------------------------------------------------------------
--- Store operations and laws
+-- Store operations
 ------------------------------------------------------------------------
 
 lookupStore : ∀ {n} → Fin n → (Fin n → V .fst) → V .fst
@@ -134,158 +143,9 @@ updateStore : ∀ {n} → Fin n → V .fst → (Fin n → V .fst) → Fin n → 
 updateStore {n} i b σ j =
   decRec (λ _ → b) (λ _ → σ j) (discreteFin {n = n} i j)
 
-lookup-update-same : ∀ {n} (i : Fin n) (b : V .fst) (σ : Fin n → V .fst) →
-  lookupStore {n = n} i (updateStore {n = n} i b σ) ≡ b
-lookup-update-same {n} i b σ =
-  helper (discreteFin {n = n} i i)
-  where
-  helper : (d : Dec (i ≡ i)) →
-    decRec (λ _ → b) (λ _ → σ i) d ≡ b
-  helper (yes _) = refl
-  helper (no i≢i) = ⊥.rec (i≢i refl)
-
-lookup-update-diff : ∀ {n} (i j : Fin n) → ((i ≡ j) → ⊥.⊥) → ∀ b σ →
-  lookupStore {n = n} j (updateStore {n = n} i b σ) ≡
-  lookupStore {n = n} j σ
-lookup-update-diff {n} i j i≢j b σ =
-  helper (discreteFin {n = n} i j)
-  where
-  helper : (d : Dec (i ≡ j)) →
-    decRec (λ _ → b) (λ _ → σ j) d ≡ σ j
-  helper (yes i≡j) = ⊥.rec (i≢j i≡j)
-  helper (no _) = refl
-
-update-current : ∀ {n} (i : Fin n) (σ : Fin n → V .fst) →
-  updateStore {n = n} i (lookupStore {n = n} i σ) σ ≡ σ
-update-current {n} i σ = funExt helper
-  where
-  helper-dec : (j : Fin n) (d : Dec (i ≡ j)) →
-    decRec (λ _ → σ i) (λ _ → σ j) d ≡ σ j
-  helper-dec j (yes i≡j) = cong σ i≡j
-  helper-dec j (no _) = refl
-
-  helper : (j : Fin n) → updateStore {n} i (σ i) σ j ≡ σ j
-  helper j = helper-dec j (discreteFin {n = n} i j)
-
-update-overwrite : ∀ {n} (i : Fin n) (b c : V .fst) (σ : Fin n → V .fst) →
-  updateStore {n = n} i c (updateStore {n = n} i b σ) ≡
-  updateStore {n = n} i c σ
-update-overwrite {n} i b c σ = funExt helper
-  where
-  helper-dec : (j : Fin n) (d : Dec (i ≡ j)) →
-    decRec (λ _ → c)
-      (λ _ → decRec (λ _ → b) (λ _ → σ j) d) d ≡
-    decRec (λ _ → c) (λ _ → σ j) d
-  helper-dec j (yes _) = refl
-  helper-dec j (no _) = refl
-
-  helper : (j : Fin n) →
-    updateStore {n} i c (updateStore {n} i b σ) j ≡
-    updateStore {n} i c σ j
-  helper j = helper-dec j (discreteFin {n = n} i j)
-
-update-commute : ∀ {n} (i j : Fin n) → ((i ≡ j) → ⊥.⊥) → ∀ b c (σ : Fin n → V .fst) →
-  updateStore {n = n} j c (updateStore {n = n} i b σ) ≡
-  updateStore {n = n} i b (updateStore {n = n} j c σ)
-update-commute {n} i j i≢j b c σ = funExt helper
-  where
-  Goal : Fin n → Type
-  Goal k =
-    updateStore {n} j c (updateStore {n} i b σ) k ≡
-    updateStore {n} i b (updateStore {n} j c σ) k
-
-  helper : (k : Fin n) →
-    updateStore {n} j c (updateStore {n} i b σ) k ≡
-    updateStore {n} i b (updateStore {n} j c σ) k
-  helper k = decRec case-i case-not-i (discreteFin {n = n} i k)
-    where
-    case-i : i ≡ k → Goal k
-    case-i i≡k = decRec
-      (λ j≡k → ⊥.rec (i≢j (i≡k ∙ sym j≡k)))
-      (λ j≢k →
-        lookup-update-diff {n} j k j≢k c (updateStore {n} i b σ) ∙
-        sym (cong (updateStore {n} i b σ) i≡k) ∙
-        lookup-update-same {n} i b σ ∙
-        sym (lookup-update-same {n} i b (updateStore {n} j c σ)) ∙
-        cong (updateStore {n} i b (updateStore {n} j c σ)) i≡k)
-      (discreteFin {n = n} j k)
-
-    case-not-i : ((i ≡ k) → ⊥.⊥) → Goal k
-    case-not-i i≢k = decRec
-      (λ j≡k →
-        sym (cong (updateStore {n} j c (updateStore {n} i b σ)) j≡k) ∙
-        lookup-update-same {n} j c (updateStore {n} i b σ) ∙
-        sym (lookup-update-same {n} j c σ) ∙
-        cong (updateStore {n} j c σ) j≡k ∙
-        sym (lookup-update-diff {n} i k i≢k b
-          (updateStore {n} j c σ)))
-      (λ j≢k →
-        lookup-update-diff {n} j k j≢k c (updateStore {n} i b σ) ∙
-        lookup-update-diff {n} i k i≢k b σ ∙
-        sym (lookup-update-diff {n} j k j≢k c σ) ∙
-        sym (lookup-update-diff {n} i k i≢k b
-          (updateStore {n} j c σ)))
-      (discreteFin {n = n} j k)
-
--- Extend a store by appending a new cell.  The fresh location is `flast`.
+-- Extend a store by appending a new cell. The fresh location is `flast`.
 extendStore : ∀ {n} → V .fst → (Fin n → V .fst) → Fin (suc n) → V .fst
 extendStore {n} b σ = elimFin {m = n} b σ
-
-extendStore-fresh : ∀ {n} b (σ : Fin n → V .fst) →
-  lookupStore {n = suc n} (flast {k = n}) (extendStore {n = n} b σ) ≡ b
-extendStore-fresh {n} b σ = elimFinβ {m = n} b σ .fst
-
-extendStore-old : ∀ {n} b (σ : Fin n → V .fst) (i : Fin n) →
-  lookupStore {n = suc n} (injectSuc i) (extendStore {n = n} b σ) ≡
-  lookupStore {n = n} i σ
-extendStore-old {n} b σ i = elimFinβ {m = n} b σ .snd i
-
-update-fresh : ∀ {n} b c (σ : Fin n → V .fst) →
-  updateStore {n = suc n} (flast {k = n}) c (extendStore {n = n} b σ) ≡
-  extendStore {n = n} c σ
-update-fresh {n} b c σ = funExt (elimFin {m = n} fresh old)
-  where
-  fresh = lookup-update-same {suc n} (flast {k = n}) c (extendStore {n} b σ)
-    ∙ sym (extendStore-fresh {n} c σ)
-  old : (i : Fin n) →
-    updateStore {suc n} flast c (extendStore {n} b σ) (injectSuc i) ≡
-    extendStore {n = n} c σ (injectSuc i)
-  old i =
-    lookup-update-diff {suc n} (flast {k = n}) (injectSuc i)
-      (λ e → inject<-ne i (sym e)) c (extendStore {n} b σ)
-    ∙ extendStore-old {n} b σ i
-    ∙ sym (extendStore-old {n} c σ i)
-
-extendStore-update : ∀ {n} (i : Fin n) b c (σ : Fin n → V .fst) →
-  updateStore {n = suc n} (injectSuc i) c (extendStore {n = n} b σ) ≡
-  extendStore {n = n} b (updateStore {n = n} i c σ)
-extendStore-update {n} i b c σ = funExt (elimFin {m = n} fresh old)
-  where
-  fresh =
-    lookup-update-diff {suc n} (injectSuc i) (flast {k = n})
-      (inject<-ne i) c (extendStore {n} b σ)
-    ∙ extendStore-fresh {n} b σ
-    ∙ sym (extendStore-fresh {n} b (updateStore {n} i c σ))
-  old : (j : Fin n) →
-    updateStore {suc n} (injectSuc i) c (extendStore {n = n} b σ) (injectSuc j) ≡
-    extendStore {n = n} b (updateStore {n = n} i c σ) (injectSuc j)
-  old j = decRec yes-case no-case (discreteFin {n = n} i j)
-    where
-    yes-case = λ i≡j →
-      sym (cong (updateStore {suc n} (injectSuc i) c (extendStore {n} b σ))
-        (cong injectSuc i≡j))
-      ∙ lookup-update-same {suc n} (injectSuc i) c (extendStore {n} b σ)
-      ∙ sym (lookup-update-same {n} i c σ)
-      ∙ cong (updateStore {n} i c σ) i≡j
-      ∙ sym (extendStore-old {n} b (updateStore {n} i c σ) j)
-    no-case = λ i≢j →
-      lookup-update-diff {suc n} (injectSuc i) (injectSuc j)
-        (λ e → i≢j (Σ≡Prop
-          (λ a → isProp<ᵗ {n = a} {m = n}) (cong fst e))) c
-        (extendStore {n} b σ)
-      ∙ extendStore-old {n} b σ j
-      ∙ sym (lookup-update-diff {n} i j i≢j c σ)
-      ∙ sym (extendStore-old {n} b (updateStore {n} i c σ) j)
 
 ------------------------------------------------------------------------
 -- Reference weakening
@@ -298,51 +158,142 @@ weakenRef-comp :
 weakenRef-comp {n} {m} {p} f g i =
   Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = p}) refl
 
-weakenRef-distinct : ∀ {n m} (f : n ≤ m) (i j : Fin n) →
-  ((i ≡ j) → ⊥.⊥) → (weakenRef f i ≡ weakenRef f j) → ⊥.⊥
-weakenRef-distinct {n} {m} f i j i≠j wi≡wj =
-  i≠j (Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = n}) (cong fst wi≡wj))
-
-weakenRef-suc : ∀ {n} (i : Fin n) →
-  weakenRef ≤-sucℕ i ≡ injectSuc i
-weakenRef-suc {n} i =
-  Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = suc n}) refl
-
 ------------------------------------------------------------------------
--- Allocation and existing cells
+-- Pi/Sigma Kan extensions
 ------------------------------------------------------------------------
 
--- Allocation commutes with updating an existing cell.
-update-extendStore-old : ∀ {n} (i : Fin n) b c (σ : Fin n → V .fst) →
-  updateStore {n = suc n} (weakenRef ≤-sucℕ i) c
-    (extendStore {n = n} b σ) ≡
-  extendStore {n = n} b (updateStore {n = n} i c σ)
-update-extendStore-old {n} i b c σ =
-  cong (λ j → updateStore {suc n} j c (extendStore {n} b σ))
-    (weakenRef-suc {n} i)
-  ∙ extendStore-update {n} i b c σ
+-- For discrete source categories, these Kan extensions compute definitionally
+-- to dependent sums and products.
+LanΣ : Functor (WorldFam ℓ-zero) (Comp ℓ-zero)
+LanΣ = DiscreteKan.Lan ℓ-zero isSetℕ include
 
--- Allocation commutes with reading an existing cell.
-lookup-extendStore-old : ∀ {n} (i : Fin n) b (σ : Fin n → V .fst) →
-  lookupStore {n = suc n} (weakenRef ≤-sucℕ i)
-    (extendStore {n = n} b σ) ≡
-  lookupStore {n = n} i σ
-lookup-extendStore-old {n} i b σ =
-  cong (λ j → lookupStore {n = suc n} j (extendStore {n} b σ))
-    (weakenRef-suc {n} i)
-  ∙ extendStore-old {n} b σ i
+RanΠ : Functor (WorldFam ℓ-zero) (Val ℓ-zero)
+RanΠ = DiscreteKan.Ran ℓ-zero isSetℕ includeOp
+
+LanΣ⊣include* : LanΣ ⊣ include* ℓ-zero
+LanΣ⊣include* = DiscreteKan.Lan⊣J* ℓ-zero isSetℕ include
+
+includeOp*⊣RanΠ : includeOp* ℓ-zero ⊣ RanΠ
+includeOp*⊣RanΠ = DiscreteKan.J*⊣Ran ℓ-zero isSetℕ includeOp
+
+F : Functor (Val ℓ-zero) (Comp ℓ-zero)
+F = LanΣ ∘F (-×S ∘F includeOp* ℓ-zero)
+
+U : Functor (Comp ℓ-zero) (Val ℓ-zero)
+U = (RanΠ ∘F S⇒-) ∘F include* ℓ-zero
+
+F⊣U : F ⊣ U
+F⊣U = adj'→adj F U
+  (Compose.LF⊣GR
+    (Compose.LF⊣GR
+      (adj→adj' (includeOp* ℓ-zero) RanΠ includeOp*⊣RanΠ)
+      (adj→adj' -×S S⇒- -×S⊣S⇒-))
+    (adj→adj' LanΣ (include* ℓ-zero) LanΣ⊣include*))
 
 ------------------------------------------------------------------------
--- Limitation of the single-cell interface
+-- Local-state monad
 ------------------------------------------------------------------------
 
-{- The indexed block law B3ₙ compares allocation of an n-cell block with n
-   iterated single-cell allocations, modulo a permutation/renaming of the
-   fresh references.  The current signature only supplies
+T : Functor (Val ℓ-zero) (Val ℓ-zero)
+T = U ∘F F
 
-     alloc : V .fst × (Ref ⇒ T A) ⇒ T A,
+LS : Monad (Val ℓ-zero)
+LS = T , MonadFromAdjunction F U F⊣U
 
-   and has neither an n-ary reference object nor an explicit renaming action.
-   Thus B3ₙ is not merely unproved: it cannot be stated faithfully using this
-   single-cell operation and this permutation-free world category.
--}
+strength : (P A : Val ℓ-zero .ob) →
+  NatTrans (P ×Psh (T .F-ob A)) (T .F-ob (P ×Psh A))
+strength P A .N-ob n (x , t) m n≤m σ with t m n≤m σ
+... | p , m≤p , a , τ =
+  p , m≤p , (P .F-hom (≤-trans n≤m m≤p) x , a) , τ
+strength P A .N-hom {x = n} {y = n'} f =
+  funExt λ (x , t) → funExt₃ λ m q σ → helper x t m q σ
+  where
+  helper : (x : P .F-ob n .fst) (t : T .F-ob A .F-ob n .fst)
+    (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
+    strength P A .N-ob n'
+      (P .F-hom f x , T .F-ob A .F-hom f t) m q σ ≡
+    T .F-ob (P ×Psh A) .F-hom f
+      (strength P A .N-ob n (x , t)) m q σ
+  helper x t m q σ with t m (≤-trans f q) σ
+  ... | p , m≤p , a , τ =
+    ΣPathP
+      (refl , ΣPathP
+        (isProp≤ _ _ , ΣPathP
+          (cong (λ z → z , a)
+            (sym
+              (cong (λ r → P .F-hom r x) (isProp≤ _ _)
+              ∙ funExt⁻ (P .F-seq f (≤-trans q m≤p)) x))
+          , refl)))
+
+bindT : {A B : Val ℓ-zero .ob} →
+  NatTrans
+    ((T .F-ob A) ×Psh (A ⇒PshLarge (T .F-ob B)))
+    (T .F-ob B)
+bindT {A} {B} =
+  seqTrans (PshSelf.swap (World ^op) ℓ-zero)
+    (seqTrans (strength (A ⇒PshLarge (T .F-ob B)) A)
+      (IsMonad.bind (LS .snd) .N-ob
+        ((A ⇒PshLarge (T .F-ob B)) ×Psh A , B)
+        (PshHom→NatTrans (appPshHom A (T .F-ob B)))))
+
+------------------------------------------------------------------------
+-- Algebraic operations
+------------------------------------------------------------------------
+
+getM : NatTrans Ref (T .F-ob VVal)
+getM .N-ob n i m n≤m σ =
+  m , ≤-refl ,
+    lookupStore {n = m} (weakenRef {n = n} {m = m} n≤m i) σ , σ
+getM .N-hom {x = n} {y = n'} f =
+  funExt λ (i : Fin n) →
+  funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
+    cong
+      {B = λ _ →
+        Σ[ p ∈ ℕ ] (m ≤ p) ×
+          (VVal .F-ob p .fst × (Fin p → V .fst))}
+      (λ (j : Fin m) → m , ≤-refl , lookupStore {n = m} j σ , σ)
+      (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
+
+setM : NatTrans (Ref ×Psh VVal) (T .F-ob UnitVal)
+setM .N-ob n (i , b) m n≤m σ =
+  m , ≤-refl , tt ,
+    updateStore {n = m} (weakenRef {n = n} {m = m} n≤m i) b σ
+setM .N-hom {x = n} {y = n'} f =
+  funExt λ (i , b) →
+  funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
+    cong
+      {B = λ _ →
+        Σ[ p ∈ ℕ ] (m ≤ p) ×
+          (UnitVal .F-ob p .fst × (Fin p → V .fst))}
+      (λ j → m , ≤-refl , tt , updateStore {n = m} j b σ)
+      (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
+
+allocM : NatTrans VVal (T .F-ob Ref)
+allocM .N-ob n b m n≤m σ =
+  suc m , ≤-sucℕ , flast {k = m} , extendStore {n = m} b σ
+allocM .N-hom _ = refl
+
+get : (A : Val ℓ-zero .ob) →
+  NatTrans (Ref ×Psh (VVal ⇒PshLarge (T .F-ob A))) (T .F-ob A)
+get A =
+  seqTrans
+    (PshHom→NatTrans
+      (NatTrans→PshHom getM ×PshHom idPshHom))
+    (bindT {VVal} {A})
+
+set : (A : Val ℓ-zero .ob) →
+  NatTrans ((Ref ×Psh VVal) ×Psh (T .F-ob A)) (T .F-ob A)
+set A =
+  seqTrans
+    (PshHom→NatTrans
+      (NatTrans→PshHom setM ×PshHom
+        λPshHom UnitVal (T .F-ob A) (π₁ (T .F-ob A) UnitVal)))
+    (bindT {UnitVal} {A})
+
+alloc : (A : Val ℓ-zero .ob) →
+  NatTrans (VVal ×Psh (Ref ⇒PshLarge (T .F-ob A))) (T .F-ob A)
+alloc A =
+  seqTrans
+    (PshHom→NatTrans
+      (NatTrans→PshHom allocM ×PshHom idPshHom))
+    (bindT {Ref} {A})

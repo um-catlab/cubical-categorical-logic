@@ -1,22 +1,19 @@
-open import Cubical.Data.Fin
-open import Cubical.Data.Nat.Order using (_≤_ ; ≤-refl ; isProp≤)
+open import Cubical.Data.Fin using (Fin)
+open import Cubical.Data.Nat.Order using (≤-refl)
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hSet)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.Presheaf.Morphism.Alt
 
 module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.GetSet
   (V : hSet ℓ-zero) where
 
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base V
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
-open import Cubical.Categories.Monad.Instances.LocalState.Levy.PiSigma V
 
 open Functor
 open NatTrans
-open PshHom
 
 ------------------------------------------------------------------------
 -- Interaction laws
@@ -65,7 +62,7 @@ set-set-sameᵗ {A = A} i b c t =
 -- Commutativity laws
 ------------------------------------------------------------------------
 
-{- Reads commute. No distinctness assumption is required.
+{- Two reads commute; no distinctness assumption is required.
 
   get i (λ b → get j (λ c → k b c))
     = get j (λ c → get i (λ b → k b c))

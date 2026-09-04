@@ -225,32 +225,91 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       )
     open UniversalElementNotation ∫ue
 
+  -- Notation for a displayed representable over an arbitrary base
+  -- representation. The displayed β/η laws are stated as paths in the
+  -- total spaces (Pᴰ.∫≡ / Cᴰ.∫≡) so that clients can rectify them
+  -- along whatever base path they are handed.
+  module RepresentableᴰNotation {x : C.ob} {yx≅P : PshIso (C [-, x ]) P}
+    (reprᴰ : Representableᴰ (x , yx≅P)) where
+    private
+      α = yx≅P .trans
+      ∫αᴰ = ∫PshHomᴰ {α = α} (reprᴰ .snd .fst)
+
+    vertexᴰ : Cᴰ.ob[ x ]
+    vertexᴰ = reprᴰ .fst
+
+    _⋆elementᴰ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]}
+      → Cᴰ [ f ][ Γᴰ , vertexᴰ ]
+      → Pᴰ.p[ α .N-ob Γ f ][ Γᴰ ]
+    fᴰ ⋆elementᴰ = reprᴰ .snd .fst .N-ob (_ , _ , _) fᴰ
+
+    elementᴰ : Pᴰ.p[ α .N-ob x C.id ][ vertexᴰ ]
+    elementᴰ = Cᴰ.idᴰ ⋆elementᴰ
+
+    introᴰ : ∀ {Γ Γᴰ} {p : P.p[ Γ ]}
+      → Pᴰ.p[ p ][ Γᴰ ]
+      → Cᴰ [ yx≅P .nIso Γ .fst p ][ Γᴰ , vertexᴰ ]
+    introᴰ = reprᴰ .snd .snd _ _ .inv _
+
+    opaque
+      cong-introᴰ : ∀ {Γ Γᴰ} {p p' : P.p[ Γ ]}
+        {pᴰ : Pᴰ.p[ p ][ Γᴰ ]} {p'ᴰ : Pᴰ.p[ p' ][ Γᴰ ]}
+        → pᴰ Pᴰ.∫≡ p'ᴰ
+        → introᴰ pᴰ Cᴰ.∫≡ introᴰ p'ᴰ
+      cong-introᴰ pᴰ≡p'ᴰ i =
+        yx≅P .nIso _ .fst (pᴰ≡p'ᴰ i .fst)
+        , introᴰ {p = pᴰ≡p'ᴰ i .fst} (pᴰ≡p'ᴰ i .snd)
+
+      ⟨_⟩⋆elementᴰ : ∀ {Γ Γᴰ} {f f' : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , vertexᴰ ]} {f'ᴰ : Cᴰ [ f' ][ Γᴰ , vertexᴰ ]}
+        → fᴰ Cᴰ.∫≡ f'ᴰ
+        → (fᴰ ⋆elementᴰ) Pᴰ.∫≡ (f'ᴰ ⋆elementᴰ)
+      ⟨ fᴰ≡f'ᴰ ⟩⋆elementᴰ i =
+        α .N-ob _ (fᴰ≡f'ᴰ i .fst) , (fᴰ≡f'ᴰ i .snd) ⋆elementᴰ
+
+      ⋆elementᴰ-natural : ∀ {Δ Γ Δᴰ Γᴰ} {γ : C [ Δ , Γ ]} {f : C [ Γ , x ]}
+        (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]) (fᴰ : Cᴰ [ f ][ Γᴰ , vertexᴰ ])
+        → ((γᴰ Cᴰ.⋆ᴰ fᴰ) ⋆elementᴰ) Pᴰ.∫≡ (γᴰ Pᴰ.⋆ᴰ (fᴰ ⋆elementᴰ))
+      ⋆elementᴰ-natural γᴰ fᴰ =
+        ⟨ Cᴰ.reind-filler _ ⟩⋆elementᴰ
+        ∙ ∫αᴰ .N-hom _ _ (_ , γᴰ) (_ , fᴰ)
+
+      ⋆elementᴰ≡⋆ᴰelementᴰ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]}
+        (fᴰ : Cᴰ [ f ][ Γᴰ , vertexᴰ ])
+        → (fᴰ ⋆elementᴰ) Pᴰ.∫≡ (fᴰ Pᴰ.⋆ᴰ elementᴰ)
+      ⋆elementᴰ≡⋆ᴰelementᴰ fᴰ =
+        ⟨ sym $ Cᴰ.⋆IdR _ ⟩⋆elementᴰ ∙ ⋆elementᴰ-natural fᴰ Cᴰ.idᴰ
+
+      ∫βᴰ : ∀ {Γ Γᴰ} {p : P.p[ Γ ]} (pᴰ : Pᴰ.p[ p ][ Γᴰ ])
+        → (introᴰ pᴰ ⋆elementᴰ) Pᴰ.∫≡ pᴰ
+      ∫βᴰ pᴰ = Pᴰ.≡in $ reprᴰ .snd .snd _ _ .rightInv _ pᴰ
+
+      ∫βᴰ' : ∀ {Γ Γᴰ} {p : P.p[ Γ ]} (pᴰ : Pᴰ.p[ p ][ Γᴰ ])
+        → (introᴰ pᴰ Pᴰ.⋆ᴰ elementᴰ) Pᴰ.∫≡ pᴰ
+      ∫βᴰ' pᴰ = sym (⋆elementᴰ≡⋆ᴰelementᴰ _) ∙ ∫βᴰ pᴰ
+
+      ∫ηᴰ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]} (fᴰ : Cᴰ [ f ][ Γᴰ , vertexᴰ ])
+        → fᴰ Cᴰ.∫≡ introᴰ (fᴰ ⋆elementᴰ)
+      ∫ηᴰ fᴰ = Cᴰ.≡in $ symP $ reprᴰ .snd .snd _ _ .leftInv _ fᴰ
+
+      ∫ηᴰ' : ∀ {Γ Γᴰ} {f : C [ Γ , x ]} (fᴰ : Cᴰ [ f ][ Γᴰ , vertexᴰ ])
+        → fᴰ Cᴰ.∫≡ introᴰ (fᴰ Pᴰ.⋆ᴰ elementᴰ)
+      ∫ηᴰ' fᴰ = ∫ηᴰ fᴰ ∙ cong-introᴰ (⋆elementᴰ≡⋆ᴰelementᴰ fᴰ)
+
   -- Could be more compositional but too lazy
   Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)
     → Representableᴰ (ue .vertex , asPshIso ue)
     → UniversalElementᴰ ue
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .fst = yᴰxᴰ≅Pᴰ .fst
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .fst =
-    Pᴰ.reind (P.⋆IdL (UniversalElement.element ue))
-             (yᴰxᴰ≅Pᴰ .snd .fst .N-ob
-               (UniversalElement.vertex ue , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ)
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv =
-    yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv =
-    λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
-        Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩
-        ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
-        ∙ cong (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _)
-                 ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
-        ∙ Pᴰ.≡in (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv _ _)
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv =
-      λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
-        cong (invPshIso (∫PshIsoᴰ {α = yoRecIso {P = P} ue} (yᴰxᴰ≅Pᴰ .snd)) .trans .N-ob _)
-          (Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
-                    ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
-          ∙ cong (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _)
-                   (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _))
-          ∙ (Cᴰ.≡in $ yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv _ _)
+  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ =
+    vertexᴰ , Pᴰ.reind (P.⋆IdL _) elementᴰ , univ
+    where
+    open RepresentableᴰNotation yᴰxᴰ≅Pᴰ
+    univ : isUniversalᴰ ue (Pᴰ.reind (P.⋆IdL _) elementᴰ)
+    univ Γ Γᴰ .inv = yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
+    univ Γ Γᴰ .rightInv p pᴰ = Pᴰ.rectify $ Pᴰ.≡out $
+      Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩ ∙ ∫βᴰ' pᴰ
+    univ Γ Γᴰ .leftInv f fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+      cong-introᴰ (Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩) ∙ sym (∫ηᴰ' fᴰ)
 
   Representableⱽ→UniversalElementᴰ : (ue : UniversalElement C P)
     → Representableⱽ Cᴰ (ue .vertex) (reindPshᴰNatTrans (yoRec P (ue .element)) Pᴰ)

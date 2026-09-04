@@ -325,36 +325,23 @@ module _ {C : Category ℓC ℓC'}
     ⋆PshIso invPshIso (reindPsh× _ _ _)
     where
     module bp = BinProductⱽNotation Cᴰ bpⱽ
+    module bpR = RepresentableⱽNotation Cᴰ x (BinProductⱽSpec Cᴰ Aᴰ Bᴰ) bpⱽ
     π₁-natural : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
       (hᴰ : Cᴰ [ f ][ Γᴰ , bp.vert ])
       → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ])
           (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bp.π₁)
           (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .fst)
-    π₁-natural {Γ = Γ} {Γᴰ = Γᴰ} {f = f} hᴰ =
+    π₁-natural hᴰ =
       Cᴰ.reind-filler _
-      ∙ cong (f ,_) (sym (cong fst natural))
-      ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .fst)
-          (Cᴰ.rectifyOut {e' = refl}
-            (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdR (f , hᴰ)))
-      where
-      natural = bpⱽ .snd .trans .N-hom
-        (Γ , Γᴰ , f) (x , bp.vert , C.id)
-        (f , hᴰ , C.⋆IdR f) Cᴰ.idᴰ
+      ∙ cong (λ (g , ab) → g , ab .fst) (sym (bpR.⋆elementⱽ≡⋆ᴰelementⱽ hᴰ))
     π₂-natural : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
       (hᴰ : Cᴰ [ f ][ Γᴰ , bp.vert ])
       → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Bᴰ ])
           (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bp.π₂)
           (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .snd)
-    π₂-natural {Γ = Γ} {Γᴰ = Γᴰ} {f = f} hᴰ =
+    π₂-natural hᴰ =
       Cᴰ.reind-filler _
-      ∙ cong (f ,_) (sym (cong snd natural))
-      ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .snd)
-          (Cᴰ.rectifyOut {e' = refl}
-            (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdR (f , hᴰ)))
-      where
-      natural = bpⱽ .snd .trans .N-hom
-        (Γ , Γᴰ , f) (x , bp.vert , C.id)
-        (f , hᴰ , C.⋆IdR f) Cᴰ.idᴰ
+      ∙ cong (λ (g , ab) → g , ab .snd) (sym (bpR.⋆elementⱽ≡⋆ᴰelementⱽ hᴰ))
 
   BinProductⱽ+π*→ⱽᴰ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
     (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)

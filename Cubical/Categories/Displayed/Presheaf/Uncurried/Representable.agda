@@ -153,6 +153,66 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     REPRⱽ .fst = vertexⱽ
     REPRⱽ .snd = toPshIsoⱽ
 
+  -- Notation for a vertical representable: the vertical analogue of
+  -- RepresentableᴰNotation below, with the laws stated as paths in
+  -- the total spaces (Pⱽ.∫≡ / Cᴰ.∫≡).
+  module RepresentableⱽNotation (reprⱽ : Representableⱽ) where
+    vertexⱽ : Cᴰ.ob[ x ]
+    vertexⱽ = reprⱽ .fst
+
+    _⋆elementⱽ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]}
+      → Cᴰ [ f ][ Γᴰ , vertexⱽ ] → Pⱽ.p[ f ][ Γᴰ ]
+    fᴰ ⋆elementⱽ = reprⱽ .snd .trans .N-ob (_ , _ , _) fᴰ
+
+    elementⱽ : Pⱽ.p[ C.id ][ vertexⱽ ]
+    elementⱽ = Cᴰ.idᴰ ⋆elementⱽ
+
+    introⱽ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]}
+      → Pⱽ.p[ f ][ Γᴰ ] → Cᴰ [ f ][ Γᴰ , vertexⱽ ]
+    introⱽ = reprⱽ .snd .nIso (_ , _ , _) .fst
+
+    opaque
+      cong-introⱽ : ∀ {Γ Γᴰ} {f f' : C [ Γ , x ]}
+        {pᴰ : Pⱽ.p[ f ][ Γᴰ ]} {p'ᴰ : Pⱽ.p[ f' ][ Γᴰ ]}
+        → pᴰ Pⱽ.∫≡ p'ᴰ
+        → introⱽ pᴰ Cᴰ.∫≡ introⱽ p'ᴰ
+      cong-introⱽ pᴰ≡p'ᴰ i = pᴰ≡p'ᴰ i .fst , introⱽ (pᴰ≡p'ᴰ i .snd)
+
+      ⟨_⟩⋆elementⱽ : ∀ {Γ Γᴰ} {f f' : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , vertexⱽ ]} {f'ᴰ : Cᴰ [ f' ][ Γᴰ , vertexⱽ ]}
+        → fᴰ Cᴰ.∫≡ f'ᴰ
+        → (fᴰ ⋆elementⱽ) Pⱽ.∫≡ (f'ᴰ ⋆elementⱽ)
+      ⟨ fᴰ≡f'ᴰ ⟩⋆elementⱽ i = fᴰ≡f'ᴰ i .fst , (fᴰ≡f'ᴰ i .snd) ⋆elementⱽ
+
+      ⋆elementⱽ-natural : ∀ {Δ Γ Δᴰ Γᴰ} {γ : C [ Δ , Γ ]} {f : C [ Γ , x ]}
+        (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]) (fᴰ : Cᴰ [ f ][ Γᴰ , vertexⱽ ])
+        → ((γᴰ Cᴰ.⋆ᴰ fᴰ) ⋆elementⱽ) Pⱽ.∫≡ (γᴰ Pⱽ.⋆ᴰ (fᴰ ⋆elementⱽ))
+      ⋆elementⱽ-natural γᴰ fᴰ =
+        ⟨ Cᴰ.reind-filler _ ⟩⋆elementⱽ
+        ∙ Pⱽ.≡in (reprⱽ .snd .trans .N-hom _ _ (_ , γᴰ , refl) fᴰ)
+
+      ⋆elementⱽ≡⋆ᴰelementⱽ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]}
+        (fᴰ : Cᴰ [ f ][ Γᴰ , vertexⱽ ])
+        → (fᴰ ⋆elementⱽ) Pⱽ.∫≡ (fᴰ Pⱽ.⋆ᴰ elementⱽ)
+      ⋆elementⱽ≡⋆ᴰelementⱽ fᴰ =
+        ⟨ sym $ Cᴰ.⋆IdR _ ⟩⋆elementⱽ ∙ ⋆elementⱽ-natural fᴰ Cᴰ.idᴰ
+
+      ∫βⱽ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]} (pᴰ : Pⱽ.p[ f ][ Γᴰ ])
+        → (introⱽ pᴰ ⋆elementⱽ) Pⱽ.∫≡ pᴰ
+      ∫βⱽ pᴰ = Pⱽ.≡in $ reprⱽ .snd .nIso (_ , _ , _) .snd .fst pᴰ
+
+      ∫βⱽ' : ∀ {Γ Γᴰ} {f : C [ Γ , x ]} (pᴰ : Pⱽ.p[ f ][ Γᴰ ])
+        → (introⱽ pᴰ Pⱽ.⋆ᴰ elementⱽ) Pⱽ.∫≡ pᴰ
+      ∫βⱽ' pᴰ = sym (⋆elementⱽ≡⋆ᴰelementⱽ _) ∙ ∫βⱽ pᴰ
+
+      ∫ηⱽ : ∀ {Γ Γᴰ} {f : C [ Γ , x ]} (fᴰ : Cᴰ [ f ][ Γᴰ , vertexⱽ ])
+        → fᴰ Cᴰ.∫≡ introⱽ (fᴰ ⋆elementⱽ)
+      ∫ηⱽ fᴰ = Cᴰ.≡in $ sym $ reprⱽ .snd .nIso (_ , _ , _) .snd .snd fᴰ
+
+      ∫ηⱽ' : ∀ {Γ Γᴰ} {f : C [ Γ , x ]} (fᴰ : Cᴰ [ f ][ Γᴰ , vertexⱽ ])
+        → fᴰ Cᴰ.∫≡ introⱽ (fᴰ Pⱽ.⋆ᴰ elementⱽ)
+      ∫ηⱽ' fᴰ = ∫ηⱽ fᴰ ∙ cong-introⱽ (⋆elementⱽ≡⋆ᴰelementⱽ fᴰ)
+
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
          (P : Presheaf C ℓP) (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
   private

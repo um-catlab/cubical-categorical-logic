@@ -11,7 +11,6 @@ open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞)
-open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Opposite
@@ -296,50 +295,20 @@ module _
     Dᴰ = Dⱽ .fst .fst
     G = ∫F F
 
-    -- The direct opposite avoids the toOpOp transports introduced by _^opF.
-    G-op : Functor ((∫C C) ^op) ((∫C D) ^op)
-    G-op .F-ob = G .F-ob
-    G-op .F-hom = G .F-hom
-    G-op .F-id = G .F-id
-    G-op .F-seq f g = G .F-seq g f
 
-  -- These cases are just eta expansions to get around the
-  -- no-eta-equality for Categoryᴰ, specifically more ∫ and ^op stuff.
   reindexValueInitialⱽ : ValueInitialsⱽ (reindex Dᴰ G)
   reindexValueInitialⱽ A =
-    init' .fst ,
-    pshiso
-      (pshhom
-        (λ x → init' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ _ _ _ _ → refl))
-      (init' .snd .PshIso.nIso)
-    where
-    init' = reindexTerminalⱽ G-op (𝒱 , A)
-      (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
+    reindexInitialⱽ G (𝒱 , A) (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
 
   reindexValueBinCoProductⱽ : ValueBinCoProductsⱽ (reindex Dᴰ G)
   reindexValueBinCoProductⱽ A₁ᴰ A₂ᴰ =
-    bcp' .fst ,
-    pshiso
-      (pshhom
-        (λ x → bcp' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → bcp' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (bcp' .snd .PshIso.nIso)
-    where
-    bcp' = reindexBinProductⱽ G-op A₁ᴰ A₂ᴰ
+    reindexBinCoProductⱽ G A₁ᴰ A₂ᴰ
       (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
 
   reindexValueOpcartesianLifts :
     hasVerticalOpcartesianLiftsAt (reindex Dᴰ G) 𝒱
   reindexValueOpcartesianLifts f Aᴰ =
-    lift' .fst ,
-    pshiso
-      (pshhom
-        (λ x → lift' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y g p → lift' .snd .PshIso.trans .PshHom.N-hom x y g p))
-      (lift' .snd .PshIso.nIso)
-    where
-    lift' = reindexCartesianLift (Dᴰ ^opᴰ) G-op (_ , f) Aᴰ
+    reindexOpcartesianLift G (_ , f) Aᴰ
       (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
 
   AddCBPVCatⱽReindex : AddCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'

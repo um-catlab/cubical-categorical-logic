@@ -1,6 +1,6 @@
--- Parameterized unary CBPV syntax with finite additives and boolean state.
+-- Parameterized unary CBPV syntax with finite additives and algebraic operations.
 {-# OPTIONS --lossy-unification --prop #-}
-module Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.BoolState.Additive where
+module Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.AlgEnriched.Additive where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
@@ -11,10 +11,9 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.More
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
-open import Cubical.Data.Bool as Bool hiding (elim)
 open import Cubical.Prop
 
-open import Cubical.Algebra.State
+open import Cubical.Algebra.Signature.Base
 
 open import Cubical.Categories.Category hiding (isIso)
 open import Cubical.Categories.Functor
@@ -33,7 +32,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Section
+open import Cubical.Categories.Displayed.Section renaming (Section to DisplayedSection)
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Instances.Reindex
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
@@ -43,20 +42,21 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Additive
-open import Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment
+open import Cubical.Categories.Displayed.CBPV.Unary.Enrichment.Algebra
 
 private
   variable
-    ℓ ℓ' ℓᴰ ℓᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
+    ℓ ℓ' ℓᴰ ℓᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' ℓO ℓA : Level
 
 open Category
 open Categoryᴰ
 open UniversalElement
 open PshHom
 open isIsoOver
-open Section
+open DisplayedSection
 
-module CBPV (BaseTy : Kind → Type ℓ) where
+module CBPV (Sig : Signature ℓO ℓA) (BaseTy : Kind → Type ℓ) where
+  open Signature Sig
   data Ob : Kind → Type ℓ where
     gen : ∀ {k} → BaseTy k → Ob k
     [F] : Ob 𝒱 → Ob 𝒞
@@ -78,7 +78,8 @@ module CBPV (BaseTy : Kind → Type ℓ) where
         B B₁ B₂ : CTy
         k≤ k≤' k≤'' : ≤Kind k₁ k₂
 
-    data Tm : (p : ≤Kind k₁ k₂) → Ob k₁ → Ob k₂ → Type (ℓ-max ℓ ℓ') where
+    data Tm : (p : ≤Kind k₁ k₂) → Ob k₁ → Ob k₂
+      → Type (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓO ℓA)) where
       gen : Fun k≤ Γ Δ → Tm k≤ Γ Δ
       idS : Tm (≤V-refl k) Γ Γ
       seqS : Tm k≤ Γ Δ → Tm k≤' Δ Θ → Tm (≤V-trans k≤ k≤') Γ Θ
@@ -139,27 +140,14 @@ module CBPV (BaseTy : Kind → Type ℓ) where
       [&η] : (M : Tm (≤V-r-⊤ k) Γ (B₁ [&] B₂)) →
         M ≡ [&I] (seqS M [&π1]) (seqS M [&π2])
 
-      -- Effects: boolean state
-      [rd] : Tm _ A B → Tm _ A B → Tm _ A B
-      [wt] : Bool → Tm _ A B → Tm _ A B
+      -- Algebraic operations
+      [op] : (op : Op) → (Arity op → Tm _ A B) → Tm _ A B
+      [op-homL] : (V : Tm _ A A₁) (op : Op) (γ : Arity op → Tm _ A₁ B)
+        → seqS V ([op] op γ) ≡ [op] op (λ v → seqS V (γ v))
+      [op-homR] : (op : Op) (γ : Arity op → Tm _ A B) (S : Tm _ B B₁)
+        → seqS ([op] op γ) S ≡ [op] op (λ v → seqS (γ v) S)
 
-      [wt-rd] : ∀ b (Mt Mf : Tm _ A B)
-        → [wt] b ([rd] Mt Mf) ≡ [wt] b (if b then Mt else Mf)
-      [rd-wt] : (M : Tm _ A B)
-        → M ≡ [rd] ([wt] true M) ([wt] false M)
-      [wt-wt] : ∀ b₁ b₂ (M : Tm _ A B)
-        → [wt] b₁ ([wt] b₂ M) ≡ [wt] b₂ M
-
-      [r-homL] : (V : Tm _ A A₁) (Mt Mf : Tm _ A₁ B)
-        → seqS V ([rd] Mt Mf) ≡ [rd] (seqS V Mt) (seqS V Mf)
-      [r-homR] : (Mt Mf : Tm _ A B) (S : Tm _ B B₁)
-        → seqS ([rd] Mt Mf) S ≡ [rd] (seqS Mt S) (seqS Mf S)
-      [w-homL] : ∀ (V : Tm _ A A₁) b (M : Tm _ A₁ B)
-        → seqS V ([wt] b M) ≡ [wt] b (seqS V M)
-      [w-homR] : ∀ b (M : Tm _ A B) (S : Tm _ B B₁)
-        → seqS ([wt] b M) S ≡ [wt] b (seqS M S)
-
-    CBPV : CBPVCat ℓ (ℓ-max ℓ ℓ')
+    CBPV : CBPVCat ℓ (ℓ-max (ℓ-max ℓ ℓ') (ℓ-max ℓO ℓA))
     CBPV .ob[_] = Ob
     CBPV .Hom[_][_,_] p = Tm (p .Prop→Type.pf)
     CBPV .idᴰ = idS
@@ -295,48 +283,36 @@ module CBPV (BaseTy : Kind → Type ℓ) where
     MultCBPV : MultCBPVCat _ _
     MultCBPV = CBPV , [U]-UMPPath , [F]-UMPPath
 
-    open StateAlg
-
-    StateAlgEff : ∀ (A : Ob 𝒱) (B : Ob 𝒞)
-      → StateAlg (CBPV [ _ ][ A , B ])
-    StateAlgEff A B .rd = [rd]
-    StateAlgEff A B .wt = [wt]
-    StateAlgEff A B .wt-rd = [wt-rd]
-    StateAlgEff A B .rd-wt = [rd-wt]
-    StateAlgEff A B .wt-wt = [wt-wt]
+    AlgebraEff : ∀ (A : Ob 𝒱) (B : Ob 𝒞)
+      → AlgebraWithCarrier (CBPV [ _ ][ A , B ])
+    AlgebraEff A B = [op]
 
     Subst-Homo : ∀ {A A'} (V : Tm _ A A') B
-      → Homo (seqS {k≤ = tt} V) (StateAlgEff A' B) (StateAlgEff A B)
-    Subst-Homo V B .Homo.rd-hom xt xf rdtf p =
-      J (λ rdtf p → seqS V rdtf ≡ rd (StateAlgEff _ B)
-          (seqS V xt) (seqS V xf))
-        ([r-homL] V xt xf) (sym p)
-    Subst-Homo V B .Homo.wt-hom b x wtbx p =
-      J (λ wtbx p → seqS V wtbx ≡ wt (StateAlgEff _ B) b (seqS V x))
-        ([w-homL] V b x) (sym p)
+      → isHomoSimpl (_ , AlgebraEff A' B) (_ , AlgebraEff A B)
+          (seqS {k≤ = tt} V)
+    Subst-Homo V B op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
+      sym ([op-homL] V op γ) ∙ cong (seqS V) op∘γ≡op⟨γ⟩
 
     Plug-Homo : ∀ {B B'} (S : Tm _ B B') A
-      → Homo (λ M → seqS {k≤' = tt} M S)
-          (StateAlgEff A B) (StateAlgEff A B')
-    Plug-Homo S A .Homo.rd-hom xt xf rdtf p =
-      J (λ rdtf p → seqS rdtf S ≡ rd (StateAlgEff A _)
-          (seqS xt S) (seqS xf S))
-        ([r-homR] xt xf S) (sym p)
-    Plug-Homo S A .Homo.wt-hom b x wtbx p =
-      J (λ wtbx p → seqS wtbx S ≡ wt (StateAlgEff A _) b (seqS x S))
-        ([w-homR] b x S) (sym p)
+      → isHomoSimpl (_ , AlgebraEff A B) (_ , AlgebraEff A B')
+          (λ M → seqS {k≤' = tt} M S)
+    Plug-Homo S A op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
+      sym ([op-homR] op γ S) ∙ cong (λ M → seqS M S) op∘γ≡op⟨γ⟩
 
-    CBPVState : StateAlgEnrichment CBPV
-    CBPVState .fst = StateAlgEff
-    CBPVState .snd .fst = Subst-Homo
-    CBPVState .snd .snd = Plug-Homo
+    CBPVAlg : AlgebraEnrichment CBPV Sig
+    CBPVAlg .fst = AlgebraEff
+    CBPVAlg .snd .fst = Subst-Homo
+    CBPVAlg .snd .snd = Plug-Homo
 
     AddCBPV : AddCBPVCat _ _
     AddCBPV = MultCBPV , value-terminalⱽ , value-productⱽ
       , value-initialⱽ , value-coproductⱽ
       , computation-terminalⱽ , computation-productⱽ
 
-    module Elim (D : AddCBPVCatᴰ AddCBPV ℓᴰ ℓᴰ') where
+    module Elim
+      (D : AddCBPVCatᴰ AddCBPV ℓᴰ ℓᴰ')
+      (DAlg : AlgebraEnrichmentᴰ Sig CBPVAlg (D .fst .fst))
+      where
       private
         Dᴰ = D .fst .fst
         module Dᴰ = Fibers Dᴰ
@@ -404,22 +380,6 @@ module CBPV (BaseTy : Kind → Type ℓ) where
         module _
           (ı-Fun : ∀ {k₁ k₂ Γ Δ} {k≤ : ≤Kind k₁ k₂} (M : Fun k≤ Γ Δ)
             → Dᴰ.Hom[ ı k≤ , gen M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ])
-          (StateAlgEffᴰ : ∀ {A B}
-            (Aᴰ : Dᴰ.ob[ _ , A ]) (Bᴰ : Dᴰ.ob[ _ , B ])
-            → StateAlgᴰ (StateAlgEff A B)
-                (λ M → Dᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ]))
-          (Subst-Homoᴰ : ∀ {A A' B}
-            {Aᴰ : Dᴰ.ob[ _ , A ]} {Aᴰ' : Dᴰ.ob[ _ , A' ]}
-            {Bᴰ : Dᴰ.ob[ _ , B ]} {V : Tm _ A A'}
-            (Vᴰ : Dᴰ.Hom[ _ , V ][ Aᴰ , Aᴰ' ])
-            → Homoᴰ (λ _ → Vᴰ Dᴰ.⋆ᴰ_) (Subst-Homo V B)
-                (StateAlgEffᴰ Aᴰ' Bᴰ) (StateAlgEffᴰ Aᴰ Bᴰ))
-          (Plug-Homoᴰ : ∀ {A B B'}
-            {Aᴰ : Dᴰ.ob[ _ , A ]} {Bᴰ : Dᴰ.ob[ _ , B ]}
-            {Bᴰ' : Dᴰ.ob[ _ , B' ]} {S : Tm _ B B'}
-            (Sᴰ : Dᴰ.Hom[ _ , S ][ Bᴰ , Bᴰ' ])
-            → Homoᴰ (λ _ → Dᴰ._⋆ᴰ Sᴰ) (Plug-Homo S A)
-                (StateAlgEffᴰ Aᴰ Bᴰ) (StateAlgEffᴰ Aᴰ Bᴰ'))
           where
           elim-F-homᴰ : (M : Tm k≤ Γ Δ)
             → Dᴰ.Hom[ ı k≤ , M ][ elim-F-obᴰ Γ , elim-F-obᴰ Δ ]
@@ -539,54 +499,81 @@ module CBPV (BaseTy : Kind → Type ℓ) where
             DA.computation-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               computation-π₁≡[&π1] computation-π₂≡[&π2]
               (λ i → ı _ , [&η] M i) (elim-F-homᴰ M) i
-          elim-F-homᴰ ([rd] Mt Mf) =
-            StateAlgᴰ.rdᴰ
-              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
-              (elim-F-homᴰ Mt) (elim-F-homᴰ Mf)
-          elim-F-homᴰ ([wt] b M) =
-            StateAlgᴰ.wtᴰ
-              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
-              b (elim-F-homᴰ M)
-          elim-F-homᴰ ([wt-rd] false Mt Mf i) =
-            StateAlgᴰ.wt-rdᴰ
-              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
-              false Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
-          elim-F-homᴰ ([wt-rd] true Mt Mf i) =
-            StateAlgᴰ.wt-rdᴰ
-              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
-              true Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf) i
-          elim-F-homᴰ ([rd-wt] M i) =
-            StateAlgᴰ.rd-wtᴰ
-              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
-              M (elim-F-homᴰ M) i
-          elim-F-homᴰ ([wt-wt] b₁ b₂ M i) =
-            StateAlgᴰ.wt-wtᴰ
-              (StateAlgEffᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
-              b₁ b₂ M (elim-F-homᴰ M) i
-          elim-F-homᴰ ([r-homL] V Mt Mf i) =
-            hSetReasoning.Prectify (_ , isSetTm)
+          elim-F-homᴰ ([op] op γ) =
+            DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+              op γ (λ v → elim-F-homᴰ (γ v)) ([op] op γ) refl
+          elim-F-homᴰ ([op-homL] V op γ i) =
+            hSetReasoning.rectifyOut (_ , isSetTm)
               (λ N → Dᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
-              {e' = λ j → [r-homL] V Mt Mf j}
-              (Homoᴰ.rd-homᴰ' (Subst-Homoᴰ (elim-F-homᴰ V))
-                Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf)) i
-          elim-F-homᴰ ([r-homR] Mt Mf S i) =
-            hSetReasoning.Prectify (_ , isSetTm)
+              {e' = [op-homL] V op γ}
+              ((λ j → seqS V ([op] op γ) , sym homo-law j)
+                ∙ (λ j → [op-homL] V op γ j , op-path j)) i
+            where
+            base-square : Square
+              (Subst-Homo V _ op γ ([op] op γ) refl)
+              refl refl ([op-homL] V op γ)
+            base-square = isSet→Square isSetTm refl ([op-homL] V op γ)
+              (Subst-Homo V _ op γ ([op] op γ) refl) refl
+
+            op-path : PathP
+              (λ i → Dᴰ.Hom[ ı _ , [op-homL] V op γ i ][
+                elim-F-obᴰ _ , elim-F-obᴰ _ ])
+              (DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+                op (λ v → seqS V (γ v))
+                (λ v → elim-F-homᴰ V Dᴰ.⋆ᴰ elim-F-homᴰ (γ v))
+                (seqS V ([op] op γ)) (base-square i0))
+              (DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+                op (λ v → seqS V (γ v))
+                (λ v → elim-F-homᴰ V Dᴰ.⋆ᴰ elim-F-homᴰ (γ v))
+                ([op] op (λ v → seqS V (γ v))) refl)
+            op-path i =
+              DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+                op (λ v → seqS V (γ v))
+                (λ v → elim-F-homᴰ V Dᴰ.⋆ᴰ elim-F-homᴰ (γ v))
+                ([op-homL] V op γ i) (λ j → base-square i j)
+
+            op-sourceᴰ = DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+              op γ (λ v → elim-F-homᴰ (γ v)) ([op] op γ) refl
+
+            homo-law = DAlg .snd .fst (elim-F-homᴰ V)
+              op γ (λ v → elim-F-homᴰ (γ v))
+              ([op] op γ) refl op-sourceᴰ refl
+          elim-F-homᴰ ([op-homR] op γ S i) =
+            hSetReasoning.rectifyOut (_ , isSetTm)
               (λ N → Dᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
-              {e' = λ j → [r-homR] Mt Mf S j}
-              (Homoᴰ.rd-homᴰ' (Plug-Homoᴰ (elim-F-homᴰ S))
-                Mt Mf (elim-F-homᴰ Mt) (elim-F-homᴰ Mf)) i
-          elim-F-homᴰ ([w-homL] V b M i) =
-            hSetReasoning.Prectify (_ , isSetTm)
-              (λ N → Dᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
-              {e' = λ j → [w-homL] V b M j}
-              (Homoᴰ.wt-homᴰ' (Subst-Homoᴰ (elim-F-homᴰ V))
-                b M (elim-F-homᴰ M)) i
-          elim-F-homᴰ ([w-homR] b M S i) =
-            hSetReasoning.Prectify (_ , isSetTm)
-              (λ N → Dᴰ.Hom[ ı _ , N ][ elim-F-obᴰ _ , elim-F-obᴰ _ ])
-              {e' = λ j → [w-homR] b M S j}
-              (Homoᴰ.wt-homᴰ' (Plug-Homoᴰ (elim-F-homᴰ S))
-                b M (elim-F-homᴰ M)) i
+              {e' = [op-homR] op γ S}
+              ((λ j → seqS ([op] op γ) S , sym homo-law j)
+                ∙ (λ j → [op-homR] op γ S j , op-path j)) i
+            where
+            base-square : Square
+              (Plug-Homo S _ op γ ([op] op γ) refl)
+              refl refl ([op-homR] op γ S)
+            base-square = isSet→Square isSetTm refl ([op-homR] op γ S)
+              (Plug-Homo S _ op γ ([op] op γ) refl) refl
+
+            op-path : PathP
+              (λ i → Dᴰ.Hom[ ı _ , [op-homR] op γ S i ][
+                elim-F-obᴰ _ , elim-F-obᴰ _ ])
+              (DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+                op (λ v → seqS (γ v) S)
+                (λ v → elim-F-homᴰ (γ v) Dᴰ.⋆ᴰ elim-F-homᴰ S)
+                (seqS ([op] op γ) S) (base-square i0))
+              (DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+                op (λ v → seqS (γ v) S)
+                (λ v → elim-F-homᴰ (γ v) Dᴰ.⋆ᴰ elim-F-homᴰ S)
+                ([op] op (λ v → seqS (γ v) S)) refl)
+            op-path i =
+              DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+                op (λ v → seqS (γ v) S)
+                (λ v → elim-F-homᴰ (γ v) Dᴰ.⋆ᴰ elim-F-homᴰ S)
+                ([op-homR] op γ S i) (λ j → base-square i j)
+
+            op-sourceᴰ = DAlg .fst (elim-F-obᴰ _) (elim-F-obᴰ _)
+              op γ (λ v → elim-F-homᴰ (γ v)) ([op] op γ) refl
+
+            homo-law = DAlg .snd .snd (elim-F-homᴰ S)
+              op γ (λ v → elim-F-homᴰ (γ v))
+              ([op] op γ) refl op-sourceᴰ refl
 
           elim : GlobalSection Dᴰ
           elim .F-obᴰ d = elim-F-obᴰ (d .snd)
@@ -598,9 +585,9 @@ module CBPV (BaseTy : Kind → Type ℓ) where
       {C : CBPVCat ℓD ℓD'}
       (F : Functorⱽ (AddCBPV .fst .fst) C)
       (Cⱽ : AddCBPVCatⱽ C ℓCᴰ ℓCᴰ')
-      (CState : StateAlgEnrichment C)
-      (FState : PreservesStateAlgEnrichment F CBPVState CState)
-      (CᴰState : StateAlgEnrichmentᴰ CState (Cⱽ .fst .fst))
+      (CAlg : AlgebraEnrichment C Sig)
+      (FAlg : PreservesAlgebraEnrichment Sig F CBPVAlg CAlg)
+      (CᴰAlg : AlgebraEnrichmentᴰ Sig CAlg (Cⱽ .fst .fst))
       where
       private
         module Cᴰ = Fibers (Cⱽ .fst .fst)
@@ -608,26 +595,23 @@ module CBPV (BaseTy : Kind → Type ℓ) where
         reindexed : AddCBPVCatᴰ AddCBPV ℓCᴰ ℓCᴰ'
         reindexed = AddCBPVCatⱽ→ᴰ (AddCBPVCatⱽReindex Cⱽ F)
 
-        reindexedState :
-          StateAlgEnrichmentᴰ CBPVState (reindexed .fst .fst)
-        reindexedState = StateAlgEnrichmentᴰReindex
-          F CBPVState CState FState (Cⱽ .fst .fst) CᴰState
+        reindexedAlg :
+          AlgebraEnrichmentᴰ Sig CBPVAlg (reindexed .fst .fst)
+        reindexedAlg = AlgebraEnrichmentᴰReindex
+          Sig F CBPVAlg CAlg FAlg (Cⱽ .fst .fst) CᴰAlg
 
       module _
         (ı-ob : ∀ {k} (X : BaseTy k)
           → Cᴰ.ob[ k , F .Functorᴰ.F-obᴰ (gen X) ])
         where
         local-obᴰ : ∀ Γ → Cᴰ.ob[ k , F .Functorᴰ.F-obᴰ Γ ]
-        local-obᴰ = Elim.elim-F-obᴰ reindexed ı-ob
+        local-obᴰ = Elim.elim-F-obᴰ reindexed reindexedAlg ı-ob
 
         localElim :
           (ı-hom : ∀ {k1 k2 Γ Δ} {k≤ : ≤Kind k1 k2} (M : Fun k≤ Γ Δ)
             → Cᴰ.Hom[ _ , F .Functorᴰ.F-homᴰ (gen M) ][
                 local-obᴰ Γ , local-obᴰ Δ ])
-          → Section (∫F F) (Cⱽ .fst .fst)
+          → DisplayedSection (∫F F) (Cⱽ .fst .fst)
         localElim ı-hom =
           GlobalSectionReindex→Section (Cⱽ .fst .fst) (∫F F)
-            (Elim.elim reindexed ı-ob ı-hom
-              (reindexedState .fst)
-              (reindexedState .snd .fst)
-              (reindexedState .snd .snd))
+            (Elim.elim reindexed reindexedAlg ı-ob ı-hom)

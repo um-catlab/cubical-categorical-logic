@@ -117,3 +117,65 @@ module Liftsᴰ⁺ⱽ (K : Category ℓ ℓ') (C : Categoryᴰ K ℓᴰ ℓᴰ')
     Quadrableⱽ→ᴰ ≤*ⱽ Bᴰ .fst = ≤*ⱽ Bᴰ .fst
     Quadrableⱽ→ᴰ ≤*ⱽ Bᴰ .snd = FiberwisePshIsoᴰ→PshIsoᴰ $
       ≤*ⱽ Bᴰ .snd ⋆PshIso ≤*ᴰ-Specⱽ≅ᴰ (≤* _) Bᴰ
+
+    -- Notation for a displayed cartesian lift, mirroring
+    -- CartesianLiftNotation. The generic laws of RepresentableᴰNotation
+    -- live in the total space of ≤*ᴰ-Specᴰ Bᴰ; here they are converted
+    -- to paths in Cᴰ.Hom[ _ , _ ] so clients can rectify them along a
+    -- base path.
+    module CartesianLiftᴰNotation {B : C.ob[ k2 ]} {Bᴰ : Cᴰ.ob[ _ , B ]}
+      (≤*ᴰBᴰ : Representableᴰ Cᴰ (∫≤*-Spec B) (≤*ᴰ-Specᴰ Bᴰ) (∫≤* B))
+      where
+      private
+        module Spec = PresheafNotation (∫≤*-Spec B)
+        module Specᴰ = PresheafᴰNotation Cᴰ (∫≤*-Spec B) (≤*ᴰ-Specᴰ Bᴰ)
+        module R = RepresentableᴰNotation Cᴰ (∫≤*-Spec B) (≤*ᴰ-Specᴰ Bᴰ) ≤*ᴰBᴰ
+
+        toHom : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
+          → Σ[ p ∈ Spec.p[ Γ ] ] Specᴰ.p[ p ][ Γᴰ ]
+          → Cᴰ.Hom[ (Γ , Γᴰ) , (_ , Bᴰ) ]
+        toHom (p , pᴰ) = π≤k B .N-ob _ p , pᴰ
+
+      open R public using (vertexᴰ ; introᴰ ; cong-introᴰ)
+        renaming (_⋆elementᴰ to _⋆πⱽ)
+
+      πⱽ : Cᴰ [ K.id K.⋆ ≤ , ≤*-π (≤* B) ][ vertexᴰ , Bᴰ ]
+      πⱽ = R.elementᴰ
+
+      opaque
+        ⟨_⟩⋆πⱽ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {g g'}
+          {gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ]} {gᴰ' : Cᴰ [ g' ][ Γᴰ , vertexᴰ ]}
+          → gᴰ Cᴰ.∫≡ gᴰ'
+          → (gᴰ ⋆πⱽ) Cᴰ.∫≡ (gᴰ' ⋆πⱽ)
+        ⟨ gᴰ≡gᴰ' ⟩⋆πⱽ = cong toHom R.⟨ gᴰ≡gᴰ' ⟩⋆elementᴰ
+
+        ⋆πⱽ-natural : ∀ {Δ Γ} {Δᴰ : Cᴰ.ob[ Δ ]} {Γᴰ : Cᴰ.ob[ Γ ]} {γ g}
+          (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]) (gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ])
+          → ((γᴰ Cᴰ.⋆ᴰ gᴰ) ⋆πⱽ) Cᴰ.∫≡ (γᴰ Cᴰ.⋆ᴰ (gᴰ ⋆πⱽ))
+        ⋆πⱽ-natural γᴰ gᴰ =
+          cong toHom (R.⋆elementᴰ-natural γᴰ gᴰ) ∙ Cᴰ.reind-filler⁻ _
+
+        ⋆πⱽ≡⋆ᴰπⱽ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {g}
+          (gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ])
+          → (gᴰ ⋆πⱽ) Cᴰ.∫≡ (gᴰ Cᴰ.⋆ᴰ πⱽ)
+        ⋆πⱽ≡⋆ᴰπⱽ gᴰ =
+          cong toHom (R.⋆elementᴰ≡⋆ᴰelementᴰ gᴰ) ∙ Cᴰ.reind-filler⁻ _
+
+        βᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {p : Spec.p[ Γ ]}
+          (gfᴰ : Specᴰ.p[ p ][ Γᴰ ])
+          → (introᴰ gfᴰ ⋆πⱽ) Cᴰ.∫≡ gfᴰ
+        βᴰ gfᴰ = cong toHom (R.∫βᴰ gfᴰ)
+
+        βᴰ' : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {p : Spec.p[ Γ ]}
+          (gfᴰ : Specᴰ.p[ p ][ Γᴰ ])
+          → (introᴰ gfᴰ Cᴰ.⋆ᴰ πⱽ) Cᴰ.∫≡ gfᴰ
+        βᴰ' gfᴰ = sym (⋆πⱽ≡⋆ᴰπⱽ _) ∙ βᴰ gfᴰ
+
+        ηᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {g}
+          (gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ])
+          → gᴰ Cᴰ.∫≡ introᴰ (gᴰ ⋆πⱽ)
+        ηᴰ = R.∫ηᴰ
+
+    module QuadrableᴰNotation (≤*ᴰ : Quadrableᴰ)
+      {B : C.ob[ k2 ]} {Bᴰ : Cᴰ.ob[ _ , B ]} =
+      CartesianLiftᴰNotation (≤*ᴰ Bᴰ)

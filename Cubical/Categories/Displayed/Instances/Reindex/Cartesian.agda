@@ -48,6 +48,7 @@ open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
@@ -175,3 +176,54 @@ module _
       (TerminalsⱽReindex F Dᴰ.termⱽ)
       (BinProductsⱽReindex F Dᴰ.bpⱽ)
       (isFibrationReindex Dᴰ.Cᴰ F Dᴰ.cartesianLifts)
+
+-- Reindexing the opposite Dᴰ ^opᴰ along the (transport-free) opposite of
+-- F gives, fiberwise, the opposite of reindex Dᴰ F. So vertical
+-- universal properties of Dᴰ ^opᴰ (initial objects, coproducts,
+-- opcartesian lifts) reindex to (reindex Dᴰ F) ^opᴰ by retyping.
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (F : Functor C D) where
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+
+    F^op : Functor (C ^op) (D ^op)
+    F^op .F-ob = F .F-ob
+    F^op .F-hom = F .F-hom
+    F^op .F-id = F .F-id
+    F^op .F-seq f g = F .F-seq g f
+
+  reindexInitialⱽ : ∀ x
+    → Terminalⱽ (Dᴰ ^opᴰ) (F ⟅ x ⟆)
+    → Terminalⱽ ((reindex Dᴰ F) ^opᴰ) x
+  reindexInitialⱽ x init =
+    init' .fst ,
+    pshiso
+      (pshhom (λ c → init' .snd .trans .N-ob c) (λ _ _ _ _ → refl))
+      (init' .snd .nIso)
+    where
+    init' = reindexTerminalⱽ {Dᴰ = Dᴰ ^opᴰ} F^op x init
+
+  reindexBinCoProductⱽ : ∀ {x} (Fxᴰ Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → BinProductⱽ (Dᴰ ^opᴰ) Fxᴰ Fyᴰ
+    → BinProductⱽ ((reindex Dᴰ F) ^opᴰ) Fxᴰ Fyᴰ
+  reindexBinCoProductⱽ Fxᴰ Fyᴰ bcp =
+    bcp' .fst ,
+    pshiso
+      (pshhom (λ c → bcp' .snd .trans .N-ob c)
+        (λ c c' g p → bcp' .snd .trans .N-hom c c' g p))
+      (bcp' .snd .nIso)
+    where
+    bcp' = reindexBinProductⱽ {Dᴰ = Dᴰ ^opᴰ} F^op Fxᴰ Fyᴰ bcp
+
+  reindexOpcartesianLift : ∀ {x y} (f : C [ y , x ]) (Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    → CartesianLift (Dᴰ ^opᴰ) (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift ((reindex Dᴰ F) ^opᴰ) f Fyᴰ
+  reindexOpcartesianLift f Fyᴰ f*Fyᴰ =
+    lift' .fst ,
+    pshiso
+      (pshhom (λ c → lift' .snd .trans .N-ob c)
+        (λ c c' g p → lift' .snd .trans .N-hom c c' g p))
+      (lift' .snd .nIso)
+    where
+    lift' = reindexCartesianLift (Dᴰ ^opᴰ) F^op f Fyᴰ f*Fyᴰ

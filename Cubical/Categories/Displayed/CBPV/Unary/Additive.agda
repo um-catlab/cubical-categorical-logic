@@ -89,7 +89,7 @@ module AddCBPVCatᴰNotation
 
   open TerminalⱽᴰNotation Dᴰ (C .snd .fst) (Cᴰ .snd .fst) public renaming
     (vertexᴰ to value-terminal-obᴰ ; !ⱽᴰ to value-terminal-introᴰ ;
-     !ηⱽᴰ to value-terminal-ηᴰ)
+     !ηⱽᴰ to value-terminal-ηᴰ ; !ηⱽᴰ-on to value-terminal-ηᴰ-on)
 
   module _ {A₁ A₂}
     (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
@@ -105,7 +105,7 @@ module AddCBPVCatᴰNotation
   open InitialⱽᴰNotation Dᴰ (C .snd .snd .snd .fst)
     (Cᴰ .snd .snd .snd .fst) public renaming
     (vertexᴰ to value-initial-obᴰ ; ¡ⱽᴰ to value-initial-elimᴰ ;
-     ¡ηⱽᴰ to value-initial-ηᴰ)
+     ¡ηⱽᴰ to value-initial-ηᴰ ; ¡ηⱽᴰ-on to value-initial-ηᴰ-on)
 
   module _ {A₁ A₂}
     (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
@@ -121,7 +121,8 @@ module AddCBPVCatᴰNotation
   open TerminalⱽᴰNotation Dᴰ (C .snd .snd .snd .snd .snd .fst)
     (Cᴰ .snd .snd .snd .snd .snd .fst) public renaming
     (vertexᴰ to computation-terminal-obᴰ ; !ⱽᴰ to computation-terminal-introᴰ ;
-     !ηⱽᴰ to computation-terminal-ηᴰ)
+     !ηⱽᴰ to computation-terminal-ηᴰ ;
+     !ηⱽᴰ-on to computation-terminal-ηᴰ-on)
 
   module _ {B₁ B₂}
     (B₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒞 , B₁))

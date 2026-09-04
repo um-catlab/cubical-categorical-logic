@@ -416,14 +416,14 @@ module CBPV (Sig : Signature ℓO ℓA) (BaseTy : Kind → Type ℓ) where
             Uηᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
               (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
               V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V) i
-          elim-F-homᴰ [1I] = Dᴰ.reind (ΣPathP (refl , refl)) DA.value-terminal-introᴰ
+          elim-F-homᴰ [1I] = DA.value-terminal-introᴰ
           elim-F-homᴰ ([1η] V i) =
-            DA.value-terminal-ηᴰ (ΣPathP (refl , refl))
+            DA.value-terminal-ηᴰ-on
               (λ i → ı _ , [1η] V i)
               (elim-F-homᴰ V) i
-          elim-F-homᴰ ([×I] V₁ V₂) = Dᴰ.reind (ΣPathP (refl , refl))
-            (DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
-              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂))
+          elim-F-homᴰ ([×I] V₁ V₂) =
+            DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂)
           elim-F-homᴰ [×π1] = Dᴰ.reind
             (ΣPathP (refl , value-π₁≡[×π1]))
             (DA.value-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
@@ -444,9 +444,9 @@ module CBPV (Sig : Signature ℓO ℓA) (BaseTy : Kind → Type ℓ) where
             DA.value-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               value-π₁≡[×π1] value-π₂≡[×π2]
               (λ i → ı _ , [×η] M i) (elim-F-homᴰ M) i
-          elim-F-homᴰ [0E] = Dᴰ.reind (ΣPathP (refl , refl)) DA.value-initial-elimᴰ
+          elim-F-homᴰ [0E] = DA.value-initial-elimᴰ
           elim-F-homᴰ ([0η] M i) =
-            DA.value-initial-ηᴰ (ΣPathP (refl , refl))
+            DA.value-initial-ηᴰ-on
               (λ i → ı _ , [0η] M i) (elim-F-homᴰ M) i
           elim-F-homᴰ [+I1] = Dᴰ.reind
             (ΣPathP (refl , value-σ₁≡[+I1]))
@@ -454,9 +454,9 @@ module CBPV (Sig : Signature ℓO ℓA) (BaseTy : Kind → Type ℓ) where
           elim-F-homᴰ [+I2] = Dᴰ.reind
             (ΣPathP (refl , value-σ₂≡[+I2]))
             (DA.value-σᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ ([+E] f g) = Dᴰ.reind (ΣPathP (refl , refl))
-            (DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
-              (elim-F-homᴰ f) (elim-F-homᴰ g))
+          elim-F-homᴰ ([+E] f g) =
+            DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ f) (elim-F-homᴰ g)
           elim-F-homᴰ ([+β1] M₁ M₂ i) =
             DA.value-+βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , value-σ₁≡[+I1]))
@@ -471,14 +471,14 @@ module CBPV (Sig : Signature ℓO ℓA) (BaseTy : Kind → Type ℓ) where
             DA.value-+ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               value-σ₁≡[+I1] value-σ₂≡[+I2]
               (λ i → ı _ , [+η] M i) (elim-F-homᴰ M) i
-          elim-F-homᴰ [⊤I] = Dᴰ.reind (ΣPathP (refl , refl)) DA.computation-terminal-introᴰ
+          elim-F-homᴰ [⊤I] = DA.computation-terminal-introᴰ
           elim-F-homᴰ ([⊤η] M i) =
-            DA.computation-terminal-ηᴰ (ΣPathP (refl , refl))
+            DA.computation-terminal-ηᴰ-on
               (λ i → ı _ , [⊤η] M i)
               (elim-F-homᴰ M) i
-          elim-F-homᴰ ([&I] M₁ M₂) = Dᴰ.reind (ΣPathP (refl , refl))
-            (DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂))
+          elim-F-homᴰ ([&I] M₁ M₂) =
+            DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)
           elim-F-homᴰ [&π1] = Dᴰ.reind
             (ΣPathP (refl , computation-π₁≡[&π1]))
             (DA.computation-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))

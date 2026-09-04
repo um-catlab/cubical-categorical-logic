@@ -12,7 +12,7 @@ module Cubical.Categories.Displayed.CBPV.Unary.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
-open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Function
 
 open import Cubical.Prop
 
@@ -141,12 +141,16 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   hasFᴰ : hasF C → Type _
   hasFᴰ = Liftsᴰ⁺ⱽ.Quadrableᴰ _ _ (Cᴰ ^opᴰᴰ) {k1 = 𝓒}{k2 = 𝓥} _
 
-  -- Notation for getting rid of the reinds etc that arise from the
-  -- bad universal properties. These give a clean interface to the
-  -- eliminators for free CBPV models.
+  -- Notation for the displayed U/F types. The displayed β/η laws are
+  -- instances of the generic cartesian-lift laws in
+  -- Liftsᴰ⁺ⱽ.CartesianLiftᴰNotation, rectified along caller-supplied
+  -- paths for the base force/ret and β/η. These give a clean interface
+  -- to the eliminators for free CBPV models.
   module _ (hasUC : hasU C) (hasUᴰC : hasUᴰ hasUC) where
     private
       module ∫Ccat = Category (∫C C)
+      module Uᴰ {B} {Bᴰ : Cᴰ.ob[ 𝓒 , B ]} =
+        Liftsᴰ⁺ⱽ.QuadrableᴰNotation KIND C Cᴰ _ hasUC hasUᴰC {Bᴰ = Bᴰ}
 
       U-ob : C.ob[ 𝓒 ] → C.ob[ 𝓥 ]
       U-ob B = hasUC B .fst
@@ -160,39 +164,14 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
 
     forceᴰ : ∀ {B : C.ob[ 𝓒 ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
       → Cᴰ.Hom[ _ , QuadrableNotation.πⱽ C hasUC ][ hasUᴰC Bᴰ .fst , Bᴰ ]
-    forceᴰ {Bᴰ = Bᴰ} =
-      hasUᴰC Bᴰ .snd .fst .PshHom.N-ob _ Cᴰ.idᴰ
+    forceᴰ = Uᴰ.πⱽ
 
     thunkᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
       (M : C [ ı tt ][ A , B ])
       → Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]
       → Cᴰ.Hom[ ı tt , QuadrableNotation.introᴰ C hasUC M ][ Aᴰ , hasUᴰC Bᴰ .fst ]
-    thunkᴰ {Bᴰ = Bᴰ} M Mᴰ =
-      hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.inv _ Mᴰ
-
-    cong-thunkᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {M N : C [ ı tt ][ A , B ]}
-      {Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]}
-      {Nᴰ : Cᴰ.Hom[ ı tt , N ][ Aᴰ , Bᴰ ]}
-      → Path Cᴰ.Hom[ _ , _ ] (_ , Mᴰ) (_ , Nᴰ)
-      → Path Cᴰ.Hom[ _ , _ ] (_ , thunkᴰ M Mᴰ) (_ , thunkᴰ N Nᴰ)
-    cong-thunkᴰ {Bᴰ = Bᴰ} =
-      cong (invPshIso (∫PshIsoᴰ (hasUᴰC Bᴰ .snd)) .PshIso.trans .PshHom.N-ob _)
-
-    force-naturalᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {V : C [ _ ][ A , hasUC B .fst ]}
-      (Vᴰ : Cᴰ.Hom[ _ , V ][ Aᴰ , hasUᴰC Bᴰ .fst ])
-      → Path Cᴰ.Hom[ _ , _ ]
-          (_ , Vᴰ Cᴰ.⋆ᴰ forceᴰ)
-          (_ , hasUᴰC Bᴰ .snd .fst .PshHom.N-ob _ Vᴰ)
-    force-naturalᴰ {Bᴰ = Bᴰ} Vᴰ =
-      Cᴰ.reind-filler {p = Vᴰ Cᴰ.⋆ᴰ forceᴰ} _
-      ∙ sym (∫PshHomᴰ (hasUᴰC Bᴰ .snd .fst) .PshHom.N-hom _ _ _ _)
-      ∙ cong (∫PshHomᴰ (hasUᴰC Bᴰ .snd .fst) .PshHom.N-ob _)
-          (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
+    thunkᴰ M Mᴰ = Uᴰ.introᴰ Mᴰ
 
     Uβᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -205,12 +184,8 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
       → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Uβ i) Aᴰ Bᴰ)
           (thunkᴰ M Mᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ)
           Mᴰ
-    Uβᴰ {Bᴰ = Bᴰ} U-force≡force M Uβ Mᴰ =
-      Cᴰ.rectify {e' = Uβ} (Cᴰ.≡out
-        (Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ U-force≡force ⟩
-        ∙ force-naturalᴰ (thunkᴰ M Mᴰ)
-        ∙ Cᴰ.≡in
-            (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)))
+    Uβᴰ U-force≡force M Uβ Mᴰ = Cᴰ.rectify {e' = Uβ} $ Cᴰ.≡out $
+      Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ U-force≡force ⟩ ∙ Uᴰ.βᴰ' Mᴰ
 
     Uηᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -226,18 +201,17 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           Vᴰ
           (thunkᴰ (V C.⋆ᴰ force)
             (Vᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ))
-    Uηᴰ {Bᴰ = Bᴰ} U-force≡force V Uη Vᴰ =
-      Cᴰ.rectify {e' = Uη} (Cᴰ.≡out
-        (sym (Cᴰ.≡in
-          (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.leftInv _ Vᴰ))
-        ∙ cong-thunkᴰ
-            (sym (force-naturalᴰ Vᴰ)
-            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler U-force≡force ⟩)))
+    Uηᴰ U-force≡force V Uη Vᴰ = Cᴰ.rectify {e' = Uη} $ Cᴰ.≡out $
+      Uᴰ.ηᴰ Vᴰ
+      ∙ Uᴰ.cong-introᴰ
+          (Uᴰ.⋆πⱽ≡⋆ᴰπⱽ Vᴰ ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler U-force≡force ⟩)
 
   module _ (hasFC : hasF C) (hasFᴰC : hasFᴰ hasFC) where
     private
-      module Cᴰ^op = Fibers (Cᴰ ^opᴰᴰ)
       module ∫Ccat = Category (∫C C)
+      module Fᴰ {A} {Aᴰ : Cᴰ.ob[ 𝓥 , A ]} =
+        Liftsᴰ⁺ⱽ.QuadrableᴰNotation (KIND ^op) (C ^opᴰ) (Cᴰ ^opᴰᴰ) _
+          hasFC hasFᴰC {Bᴰ = Aᴰ}
 
       F-ob : C.ob[ 𝓥 ] → C.ob[ 𝓒 ]
       F-ob A = hasFC A .fst
@@ -251,8 +225,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
 
     F-retᴰ : ∀ {A : C.ob[ 𝓥 ]}{Aᴰ : Cᴰ.ob[ 𝓥 , A ]}
       → Cᴰ.Hom[ ı tt , F-ret ][ Aᴰ , hasFᴰC Aᴰ .fst ]
-    F-retᴰ {Aᴰ = Aᴰ} =
-      hasFᴰC Aᴰ .snd .fst .PshHom.N-ob _ Cᴰ^op.idᴰ
+    F-retᴰ = Fᴰ.πⱽ
 
     F-bindᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -261,31 +234,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
       → (Cᴰ .Categoryᴰ.Hom[_][_,_])
           (Category.id KIND , F-bind M)
           (hasFᴰC Aᴰ .fst) Bᴰ
-    F-bindᴰ {Aᴰ = Aᴰ} M Mᴰ =
-      hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.inv _ Mᴰ
-
-    cong-F-bindᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {M N : C [ ı tt ][ A , B ]}
-      {Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]}
-      {Nᴰ : Cᴰ.Hom[ ı tt , N ][ Aᴰ , Bᴰ ]}
-      → Path Cᴰ.Hom[ _ , _ ] (_ , Mᴰ) (_ , Nᴰ)
-      → Path Cᴰ.Hom[ _ , _ ] (_ , F-bindᴰ M Mᴰ) (_ , F-bindᴰ N Nᴰ)
-    cong-F-bindᴰ {Aᴰ = Aᴰ} =
-      cong (invPshIso (∫PshIsoᴰ (hasFᴰC Aᴰ .snd)) .PshIso.trans .PshHom.N-ob _)
-
-    F-ret-naturalᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {K : C [ Category.id KIND ][ hasFC A .fst , B ]}
-      (Kᴰ : Cᴰ.Hom[ Category.id KIND , K ][ hasFᴰC Aᴰ .fst , Bᴰ ])
-      → Path Cᴰ.Hom[ _ , _ ]
-          (_ , F-retᴰ Cᴰ.⋆ᴰ Kᴰ)
-          (_ , hasFᴰC Aᴰ .snd .fst .PshHom.N-ob _ Kᴰ)
-    F-ret-naturalᴰ {Aᴰ = Aᴰ} Kᴰ =
-      Cᴰ^op.reind-filler {p = Kᴰ Cᴰ^op.⋆ᴰ F-retᴰ} _
-      ∙ sym (∫PshHomᴰ (hasFᴰC Aᴰ .snd .fst) .PshHom.N-hom _ _ _ _)
-      ∙ cong (∫PshHomᴰ (hasFᴰC Aᴰ .snd .fst) .PshHom.N-ob _)
-          (sym (Cᴰ^op.reind-filler _) ∙ Cᴰ^op.⋆IdR _)
+    F-bindᴰ M Mᴰ = Fᴰ.introᴰ Mᴰ
 
     Fβᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -298,12 +247,8 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
       → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Fβ i) Aᴰ Bᴰ)
           (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ F-bindᴰ M Mᴰ)
           Mᴰ
-    Fβᴰ {Aᴰ = Aᴰ} F-ret≡ret M Fβ Mᴰ =
-      Cᴰ.rectify {e' = Fβ} (Cᴰ.≡out
-        (Cᴰ.⟨ Cᴰ.reind-filler⁻ F-ret≡ret ⟩⋆⟨⟩
-        ∙ F-ret-naturalᴰ (F-bindᴰ M Mᴰ)
-        ∙ Cᴰ^op.≡in
-            (hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)))
+    Fβᴰ F-ret≡ret M Fβ Mᴰ = Cᴰ.rectify {e' = Fβ} $ Cᴰ.≡out $
+      Cᴰ.⟨ Cᴰ.reind-filler⁻ F-ret≡ret ⟩⋆⟨⟩ ∙ Fᴰ.βᴰ' Mᴰ
 
     Fηᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -319,13 +264,10 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           Kᴰ
           (F-bindᴰ (ret C.⋆ᴰ K)
             (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ Kᴰ))
-    Fηᴰ {Aᴰ = Aᴰ} F-ret≡ret K Fη Kᴰ =
-      Cᴰ.rectify {e' = Fη} (Cᴰ.≡out
-        (sym (Cᴰ^op.≡in
-          (hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.leftInv _ Kᴰ))
-        ∙ cong-F-bindᴰ
-            (sym (F-ret-naturalᴰ Kᴰ)
-            ∙ Cᴰ^op.⟨⟩⋆⟨ Cᴰ.reind-filler F-ret≡ret ⟩)))
+    Fηᴰ F-ret≡ret K Fη Kᴰ = Cᴰ.rectify {e' = Fη} $ Cᴰ.≡out $
+      Fᴰ.ηᴰ Kᴰ
+      ∙ Fᴰ.cong-introᴰ
+          (Fᴰ.⋆πⱽ≡⋆ᴰπⱽ Kᴰ ∙ Cᴰ.⟨ Cᴰ.reind-filler F-ret≡ret ⟩⋆⟨⟩)
 
   module _ (hasUC : hasU C) where
     hasUⱽ→ᴰ : hasUⱽ → hasUᴰ hasUC

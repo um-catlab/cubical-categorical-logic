@@ -499,6 +499,46 @@ module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Cᴰᴰ : Categoryᴰ (∫C Cᴰ) ℓCᴰᴰ ℓCᴰᴰ') where
 
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Cᴰᴰ = Fibers Cᴰᴰ
+    module ∫Cᴰ = Category (∫C Cᴰ)
+
+  -- The doubly displayed opposite Cᴰᴰ ^opᴰᴰ is the direct opposite
+  -- Cᴰᴰ ^opᴰ reindexed along the strict isomorphism of base categories
+  -- ∫C (Cᴰ ^opᴰ) ≅ (∫C Cᴰ) ^op, so the fibers agree definitionally and
+  -- vertical universal properties transfer by retyping their data.
+  Terminalⱽ^opᴰ→^opᴰᴰ : ∀ {x} {xᴰ : Cᴰ.ob[ x ]}
+    → Terminalⱽ (Cᴰᴰ ^opᴰ) (x , xᴰ)
+    → Terminalⱽ (Cᴰᴰ ^opᴰᴰ) (x , xᴰ)
+  Terminalⱽ^opᴰ→^opᴰᴰ term .fst = term .fst
+  Terminalⱽ^opᴰ→^opᴰᴰ term .snd =
+    pshiso
+      (pshhom (λ c → term .snd .trans .N-ob c) (λ _ _ _ _ → refl))
+      (term .snd .nIso)
+
+  CartesianLift^opᴰ→^opᴰᴰ : ∀ {x y : ∫Cᴰ.ob} {f : ∫Cᴰ.Hom[ y , x ]}
+    {yᴰᴰ : Cᴰᴰ.ob[ y ]}
+    → CartesianLift (Cᴰᴰ ^opᴰ) f yᴰᴰ
+    → CartesianLift (Cᴰᴰ ^opᴰᴰ) f yᴰᴰ
+  CartesianLift^opᴰ→^opᴰᴰ f*yᴰᴰ .fst = f*yᴰᴰ .fst
+  CartesianLift^opᴰ→^opᴰᴰ f*yᴰᴰ .snd =
+    pshiso
+      (pshhom (λ c → f*yᴰᴰ .snd .trans .N-ob c)
+        (λ c c' g p → f*yᴰᴰ .snd .trans .N-hom c c' g p))
+      (f*yᴰᴰ .snd .nIso)
+
+  BinProductⱽ^opᴰ→^opᴰᴰ : ∀ {x} {xᴰ : Cᴰ.ob[ x ]}
+    {Aᴰᴰ Bᴰᴰ : Cᴰᴰ.ob[ x , xᴰ ]}
+    → BinProductⱽ (Cᴰᴰ ^opᴰ) Aᴰᴰ Bᴰᴰ
+    → BinProductⱽ (Cᴰᴰ ^opᴰᴰ) Aᴰᴰ Bᴰᴰ
+  BinProductⱽ^opᴰ→^opᴰᴰ bp .fst = bp .fst
+  BinProductⱽ^opᴰ→^opᴰᴰ bp .snd =
+    pshiso
+      (pshhom (λ c → bp .snd .trans .N-ob c)
+        (λ c c' g p → bp .snd .trans .N-hom c c' g p))
+      (bp .snd .nIso)
+
   Initialⱽᴰ : ∀ {x} → (initⱽ : Terminalⱽ (Cᴰ ^opᴰ) x) → Type _
   Initialⱽᴰ = Terminalⱽᴰ (Cᴰᴰ ^opᴰᴰ)
 

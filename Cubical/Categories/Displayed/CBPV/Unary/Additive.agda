@@ -247,55 +247,24 @@ AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
   π₂*A₂ᴰ = Cⱽ .snd .snd .snd .fst bp.π₂ A₂ᴰ
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .fst =
   Terminalⱽ→ⱽᴰ (D ^opᴰᴰ) value-initial
-    value-initialⱽ
+    (Terminalⱽ^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .fst (value-initial .fst)))
   where
   D = Cⱽ .fst .fst
   value-initial = C .snd .snd .snd .fst
-  value-initial' = Cⱽ .snd .snd .snd .snd .fst (value-initial .fst)
-  value-initialⱽ : Terminalⱽ (D ^opᴰᴰ) (𝒱 , value-initial .fst)
-  value-initialⱽ .fst = value-initial' .fst
-  value-initialⱽ .snd =
-    pshiso
-      (pshhom
-        (λ x → value-initial' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ _ _ _ _ → refl))
-      (value-initial' .snd .PshIso.nIso)
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .fst
   A₁ A₂ A₁ᴰ A₂ᴰ =
   BinProductⱽ+π*→ⱽᴰ (D ^opᴰᴰ) bcp A₁ᴰ A₂ᴰ σ₁!A₁ᴰ σ₂!A₂ᴰ
-    bcpⱽ
+    (BinProductⱽ^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)))
   where
   D = Cⱽ .fst .fst
   bcp = C .snd .snd .snd .snd .fst A₁ A₂
   module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
-  σ₁!A₁ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ
-  σ₂!A₂ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ
-  σ₁!A₁ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₁) A₁ᴰ
-  σ₁!A₁ᴰ .fst = σ₁!A₁ᴰ' .fst
-  σ₁!A₁ᴰ .snd =
-    pshiso
-      (pshhom
-        (λ x → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (σ₁!A₁ᴰ' .snd .PshIso.nIso)
-  σ₂!A₂ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₂) A₂ᴰ
-  σ₂!A₂ᴰ .fst = σ₂!A₂ᴰ' .fst
-  σ₂!A₂ᴰ .snd =
-    pshiso
-      (pshhom
-        (λ x → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (σ₂!A₂ᴰ' .snd .PshIso.nIso)
-  bcpⱽ' = Cⱽ .snd .snd .snd .snd .snd .fst
-    (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
-  bcpⱽ : BinProductⱽ (D ^opᴰᴰ) (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
-  bcpⱽ .fst = bcpⱽ' .fst
-  bcpⱽ .snd =
-    pshiso
-      (pshhom
-        (λ x → bcpⱽ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → bcpⱽ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (bcpⱽ' .snd .PshIso.nIso)
+  σ₁!A₁ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+    (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+  σ₂!A₂ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+    (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .fst =
   Terminalⱽ→ⱽᴰ D computation-terminal
     (Cⱽ .snd .snd .snd .snd .snd .snd .snd .fst

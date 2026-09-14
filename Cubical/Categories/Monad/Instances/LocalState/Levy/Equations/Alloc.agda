@@ -6,7 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hSet)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Presheaf.StrictHom.Base
 
 module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Alloc
   (V : hSet ℓ-zero) where
@@ -15,7 +15,7 @@ open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base V
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
 
 open Functor
-open NatTrans
+open PshHomStrict
 
 ------------------------------------------------------------------------
 -- Allocation laws
@@ -28,9 +28,9 @@ open NatTrans
 -}
 alloc-set-freshᵗ : ∀ {Γ A}
   (b c : Γ ⊢ VVal) (k : Γ CC.× Ref ⊢ T ⟅ A ⟆) →
-  allocᵗ b (setᵗ varᵗ (wkᵗ c) k) ≡ allocᵗ c k
+  allocᵗ {A = A} b (setᵗ {A = A} varᵗ (wkᵗ c) k) ≡ allocᵗ {A = A} c k
 alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
-  makeNatTransPath (funExt λ n → funExt λ γ →
+  makePshHomStrictPath (funExt λ n → funExt λ γ →
     funExt₃ λ m n≤m σ →
       let
         q : n ≤ suc m
@@ -48,10 +48,10 @@ alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
           ∙ update-fresh {n = m}
               (b .N-ob n γ) (c .N-ob (suc m) γ⁺) σ
           ∙ cong (λ v → extendStore {n = m} v σ)
-              (funExt⁻ (c .N-hom q) γ)
+              (sym (c .N-hom (suc m) n q γ _ refl))
       in
       allocᵗ-β {Γ = Γ} {A = A} b
-        (setᵗ varᵗ (wkᵗ c) k) n γ m n≤m σ
+        (setᵗ {A = A} varᵗ (wkᵗ c) k) n γ m n≤m σ
       ∙ cong (extendResult A ≤-sucℕ)
           (setᵗ-β {Γ = Γ CC.× Ref} {A = A}
             varᵗ (wkᵗ c) k
@@ -69,9 +69,9 @@ alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
 alloc-get-freshᵗ : ∀ {Γ A}
   (b : Γ ⊢ VVal)
   (k : (Γ CC.× Ref) CC.× VVal ⊢ T ⟅ A ⟆) →
-  allocᵗ b (getᵗ varᵗ k) ≡ allocᵗ b (k [ wkᵗ b ]ᵗ)
+  allocᵗ {A = A} b (getᵗ {A = A} varᵗ k) ≡ allocᵗ {A = A} b (k [ wkᵗ b ]ᵗ)
 alloc-get-freshᵗ {Γ = Γ} {A = A} b k =
-  makeNatTransPath (funExt λ n → funExt λ γ →
+  makePshHomStrictPath (funExt λ n → funExt λ γ →
     funExt₃ λ m n≤m σ →
       let
         q : n ≤ suc m
@@ -88,9 +88,9 @@ alloc-get-freshᵗ {Γ = Γ} {A = A} b k =
           cong (λ r → lookupStore {n = suc m} r τ)
             (funExt⁻ (Ref .F-id {x = suc m}) fresh)
           ∙ extendStore-fresh {n = m} bₙ σ
-          ∙ sym (funExt⁻ (b .N-hom q) γ)
+          ∙ b .N-hom (suc m) n q γ _ refl
       in
-      allocᵗ-β {Γ = Γ} {A = A} b (getᵗ varᵗ k)
+      allocᵗ-β {Γ = Γ} {A = A} b (getᵗ {A = A} varᵗ k)
         n γ m n≤m σ
       ∙ cong (extendResult A ≤-sucℕ)
           (getᵗ-β {Γ = Γ CC.× Ref} {A = A} varᵗ k
@@ -115,10 +115,10 @@ alloc-get-freshᵗ {Γ = Γ} {A = A} b k =
 alloc-set-oldᵗ : ∀ {Γ A}
   (j : Γ ⊢ Ref) (b c : Γ ⊢ VVal)
   (k : Γ CC.× Ref ⊢ T ⟅ A ⟆) →
-  allocᵗ b (setᵗ (wkᵗ j) (wkᵗ c) k) ≡
-  setᵗ j c (allocᵗ b k)
+  allocᵗ {A = A} b (setᵗ {A = A} (wkᵗ j) (wkᵗ c) k) ≡
+  setᵗ {A = A} j c (allocᵗ {A = A} b k)
 alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
-  makeNatTransPath (funExt λ n → funExt λ γ →
+  makePshHomStrictPath (funExt λ n → funExt λ γ →
     funExt₃ λ m n≤m σ →
       let
         q : n ≤ suc m
@@ -131,18 +131,18 @@ alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
         wj = weakenRef {n = n} {m = m} n≤m (j .N-ob n γ)
         rj≡old =
           funExt⁻ (Ref .F-id {x = suc m}) (j .N-ob (suc m) γ⁺)
-          ∙ funExt⁻ (j .N-hom q) γ
+          ∙ sym (j .N-hom (suc m) n q γ _ refl)
           ∙ sym (weakenRef-comp n≤m ≤-sucℕ (j .N-ob n γ))
         store-path =
           cong₂
             (λ r v → updateStore {n = suc m} r v
               (extendStore {n = m} (b .N-ob n γ) σ))
-            rj≡old (funExt⁻ (c .N-hom q) γ)
+            rj≡old (sym (c .N-hom (suc m) n q γ _ refl))
           ∙ update-extendStore-old {n = m}
               wj (b .N-ob n γ) (c .N-ob n γ) σ
       in
       allocᵗ-β {Γ = Γ} {A = A}
-        b (setᵗ (wkᵗ j) (wkᵗ c) k) n γ m n≤m σ
+        b (setᵗ {A = A} (wkᵗ j) (wkᵗ c) k) n γ m n≤m σ
       ∙ cong (extendResult A ≤-sucℕ)
           (setᵗ-β {Γ = Γ CC.× Ref} {A = A}
             (wkᵗ j) (wkᵗ c) k
@@ -154,7 +154,7 @@ alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
       ∙ sym (allocᵗ-β {Γ = Γ} {A = A} b k n γ m n≤m
           (updateStore {n = m} wj (c .N-ob n γ) σ))
       ∙ sym (setᵗ-β {Γ = Γ} {A = A}
-          j c (allocᵗ b k) n γ m n≤m σ))
+          j c (allocᵗ {A = A} b k) n γ m n≤m σ))
 
 {- Allocation commutes with reading an existing location `j`.
 
@@ -164,10 +164,10 @@ alloc-set-oldᵗ {Γ = Γ} {A = A} j b c k =
 alloc-get-oldᵗ : ∀ {Γ A}
   (j : Γ ⊢ Ref) (b : Γ ⊢ VVal)
   (k : (Γ CC.× Ref) CC.× VVal ⊢ T ⟅ A ⟆) →
-  allocᵗ b (getᵗ (wkᵗ j) k) ≡
-  getᵗ j (allocᵗ (wkᵗ b) (exchangeᵗ k))
+  allocᵗ {A = A} b (getᵗ {A = A} (wkᵗ j) k) ≡
+  getᵗ {A = A} j (allocᵗ {A = A} (wkᵗ b) (exchangeᵗ k))
 alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
-  makeNatTransPath (funExt λ n → funExt λ γ →
+  makePshHomStrictPath (funExt λ n → funExt λ γ →
     funExt₃ λ m n≤m σ →
       let
         q : n ≤ suc m
@@ -190,7 +190,7 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
           cong (λ r → lookupStore {n = suc m} r τ)
             (funExt⁻ (Ref .F-id {x = suc m})
                 (j .N-ob (suc m) γ⁺)
-            ∙ funExt⁻ (j .N-hom q) γ
+            ∙ sym (j .N-hom (suc m) n q γ _ refl)
             ∙ sym (weakenRef-comp n≤m ≤-sucℕ
                 (j .N-ob n γ)))
           ∙ lookup-extendStore-old {n = m} wj bₙ σ
@@ -220,9 +220,9 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
                 ∙ cong (λ e → Γ .F-hom e γₘ)
                     (isProp≤ ≤-sucℕ rhs-step))
               (cong (λ v → extendStore {n = m} v σ)
-                (sym (funExt⁻ (b .N-hom n≤m) γ))))
+                (b .N-hom m n n≤m γ _ refl)))
       in
-      allocᵗ-β {Γ = Γ} {A = A} b (getᵗ (wkᵗ j) k)
+      allocᵗ-β {Γ = Γ} {A = A} b (getᵗ {A = A} (wkᵗ j) k)
         n γ m n≤m σ
       ∙ cong (extendResult A ≤-sucℕ)
           (getᵗ-β {Γ = Γ CC.× Ref} {A = A}
@@ -245,7 +245,7 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
       ∙ sym (allocᵗ-β {Γ = Γ CC.× VVal} {A = A}
           (wkᵗ b) (exchangeᵗ k) m (γₘ , vj) m ≤-refl σ)
       ∙ sym (getᵗ-β {Γ = Γ} {A = A} j
-          (allocᵗ (wkᵗ b) (exchangeᵗ k)) n γ m n≤m σ))
+          (allocᵗ {A = A} (wkᵗ b) (exchangeᵗ k)) n γ m n≤m σ))
 
 ------------------------------------------------------------------------
 -- Unsupported block laws

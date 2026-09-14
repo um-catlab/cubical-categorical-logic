@@ -1,8 +1,7 @@
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.HLevels using (hSet ; isSet→)
+open import Cubical.Foundations.HLevels using (hSet ; isSet→ ; isSet×)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)
 
-import Cubical.Data.Equality as Eq
 open import Cubical.Data.Fin
   using (Fin ; discreteFin ; elimFin ; flast ; isSetFin)
 open import Cubical.Data.Nat using (ℕ ; suc ; isSetℕ)
@@ -19,28 +18,23 @@ open import Cubical.Categories.Adjoint.Monad using (MonadFromAdjunction)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Monad.Base using (Monad ; IsMonad)
 open import Cubical.Categories.Functors.Constant using (Constant)
-open import Cubical.Categories.Instances.Discrete.More
-  using (EqDiscreteCategory ; EqDiscFunc)
 open import Cubical.Categories.Instances.Sets using (SET)
 open import Cubical.Categories.Instances.Thin using (ThinCategory)
-open import Cubical.Categories.NaturalTransformation
-import Cubical.Categories.Enriched.Instances.Presheaf.Self as PshSelf
-open import Cubical.Categories.Presheaf.Base
+import Cubical.Categories.NaturalTransformation as NT
 open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base
-  using (-×Psh_ ; _×Psh_ ; _×PshHom_ ; π₁)
-open import Cubical.Categories.Presheaf.Constructions.Exponential
-  using (_⇒PshLarge_ ; appPshHom ; λPshHom)
-import Cubical.Categories.Presheaf.KanExtension.Discrete as DiscreteKan
-open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Constructions.Reindex using (reindPshF)
+  using (_×Psh_)
+import Cubical.Categories.Presheaf.Family.Base as Family
+open import Cubical.Categories.Presheaf.StrictHom.Base
+open import Cubical.Categories.Presheaf.StrictHom.CartesianClosed
+  using (_⇒PshLargeStrict_ ; appPshHomStrict ; λPshHomStrict ;
+    _×PshHomStrict_ ; ×PshIntroStrict ; π₁ ; π₂)
 
 module Cubical.Categories.Monad.Instances.LocalState.Levy.Base
   (V : hSet ℓ-zero) where
 
 open Category
 open Functor
-open NatTrans
-open PshHom
+open PshHomStrict
 open UnitCounit
 
 ------------------------------------------------------------------------
@@ -50,48 +44,29 @@ open UnitCounit
 World : Category ℓ-zero ℓ-zero
 World = ThinCategory ℕ _≤_ ≤-refl ≤-trans isProp≤
 
-|World| : Category ℓ-zero ℓ-zero
-|World| = EqDiscreteCategory ℕ isSetℕ
+Val : Category (ℓ-suc ℓ-zero) ℓ-zero
+Val = PRESHEAF (World ^op) ℓ-zero
 
-include : Functor |World| World
-include = EqDiscFunc (λ n → n)
+Comp : Category (ℓ-suc ℓ-zero) ℓ-zero
+Comp = PRESHEAF World ℓ-zero
 
-includeOp : Functor |World| (World ^op)
-includeOp = EqDiscFunc (λ n → n)
+WorldFam : Category (ℓ-suc ℓ-zero) ℓ-zero
+WorldFam = Family.Families World ℓ-zero
 
-Val : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
-Val ℓ = PresheafCategory (World ^op) ℓ
+S : WorldFam .ob
+S n = (Fin n → V .fst) , isSet→ (V .snd)
 
-Comp : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
-Comp ℓ = PresheafCategory World ℓ
-
-WorldFam : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
-WorldFam ℓ = PresheafCategory |World| ℓ
-
-includeOp* : (ℓ : Level) → Functor (Val ℓ) (WorldFam ℓ)
-includeOp* ℓ = reindPshF includeOp
-
-include* : (ℓ : Level) → Functor (Comp ℓ) (WorldFam ℓ)
-include* ℓ = reindPshF include
-
-S : WorldFam ℓ-zero .ob
-S .F-ob n .fst = Fin n → V .fst
-S .F-ob n .snd = isSet→ (V .snd)
-S .F-hom Eq.refl = λ σ → σ
-S .F-id = refl
-S .F-seq Eq.refl Eq.refl = refl
-
-VVal : Val ℓ-zero .ob
+VVal : Val .ob
 VVal = Constant ((World ^op) ^op) (SET ℓ-zero) V
 
-UnitVal : Val ℓ-zero .ob
+UnitVal : Val .ob
 UnitVal = Constant ((World ^op) ^op) (SET ℓ-zero) (Unit , isSetUnit)
 
 weakenRef : ∀ {n m} → n ≤ m → Fin n → Fin m
 weakenRef {n} {m} n≤m (i , i<n) =
   i , <→<ᵗ (<≤-trans (<ᵗ→< i<n) n≤m)
 
-Ref : Val ℓ-zero .ob
+Ref : Val .ob
 Ref .F-ob n = Fin n , isSetFin {k = n}
 Ref .F-hom {x = n} {y = m} f = weakenRef {n = n} {m = m} f
 Ref .F-id {x = n} =
@@ -101,33 +76,25 @@ Ref .F-seq {x = n} {y = m} {z = p} f g =
   funExt λ (_ : Fin n) →
     Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = p}) refl
 
--×S : Functor (WorldFam ℓ-zero) (WorldFam ℓ-zero)
--×S = -×Psh S
+-×S : Functor WorldFam WorldFam
+-×S .F-ob A n = (A n .fst × S n .fst) , isSet× (A n .snd) (S n .snd)
+-×S .F-hom α n (a , σ) = α n a , σ
+-×S .F-id = refl
+-×S .F-seq α β = refl
 
-S⇒- : Functor (WorldFam ℓ-zero) (WorldFam ℓ-zero)
-S⇒- .F-ob A .F-ob n .fst = S .F-ob n .fst → A .F-ob n .fst
-S⇒- .F-ob A .F-ob n .snd = isSet→ (A .F-ob n .snd)
-S⇒- .F-ob A .F-hom Eq.refl = λ k → k
-S⇒- .F-ob A .F-id = refl
-S⇒- .F-ob A .F-seq Eq.refl Eq.refl = refl
-S⇒- .F-hom α .N-ob n k = λ s → α .N-ob n (k s)
-S⇒- .F-hom α .N-hom Eq.refl = refl
-S⇒- .F-id = makeNatTransPath refl
-S⇒- .F-seq α β = makeNatTransPath refl
+S⇒- : Functor WorldFam WorldFam
+S⇒- .F-ob A n = (S n .fst → A n .fst) , isSet→ (A n .snd)
+S⇒- .F-hom α n k σ = α n (k σ)
+S⇒- .F-id = refl
+S⇒- .F-seq α β = refl
 
 -×S⊣S⇒- : -×S ⊣ S⇒-
--×S⊣S⇒- ._⊣_.η .N-ob A .N-ob n a s = a , s
--×S⊣S⇒- ._⊣_.η .N-ob A .N-hom Eq.refl =
-  funExt λ a → funExt λ s → ΣPathP (funExt⁻ (A .F-id) a , refl)
--×S⊣S⇒- ._⊣_.η .N-hom α = makeNatTransPath refl
--×S⊣S⇒- ._⊣_.ε .N-ob A .N-ob n (k , s) = k s
--×S⊣S⇒- ._⊣_.ε .N-ob A .N-hom Eq.refl =
-  funExt λ (k , s) → sym (funExt⁻ (A .F-id) (k s))
--×S⊣S⇒- ._⊣_.ε .N-hom α = makeNatTransPath refl
--×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₁ A =
-  makeNatTransPath refl
--×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₂ A =
-  makeNatTransPath refl
+-×S⊣S⇒- ._⊣_.η .NT.NatTrans.N-ob A n a σ = a , σ
+-×S⊣S⇒- ._⊣_.η .NT.NatTrans.N-hom α = refl
+-×S⊣S⇒- ._⊣_.ε .NT.NatTrans.N-ob A n (k , σ) = k σ
+-×S⊣S⇒- ._⊣_.ε .NT.NatTrans.N-hom α = refl
+-×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₁ A = refl
+-×S⊣S⇒- ._⊣_.triangleIdentities .TriangleIdentities.Δ₂ A = refl
 
 ------------------------------------------------------------------------
 -- Store operations
@@ -156,54 +123,45 @@ weakenRef-comp {n} {m} {p} f g i =
   Σ≡Prop (λ a → isProp<ᵗ {n = a} {m = p}) refl
 
 ------------------------------------------------------------------------
--- Pi/Sigma Kan extensions
+-- Presheaves and families adjunctions
 ------------------------------------------------------------------------
 
--- For discrete source categories, these Kan extensions compute definitionally
--- to dependent sums and products.
-LanΣ : Functor (WorldFam ℓ-zero) (Comp ℓ-zero)
-LanΣ = DiscreteKan.Lan ℓ-zero isSetℕ include
+-- Free World X n = Σ[ m ∈ ℕ ] (n ≤ m) × X m.
+-- Cofree (World ^op) X n = (m : ℕ) → n ≤ m → X m.
 
-RanΠ : Functor (WorldFam ℓ-zero) (Val ℓ-zero)
-RanΠ = DiscreteKan.Ran ℓ-zero isSetℕ includeOp
+F : Functor Val Comp
+F = Family.Free World isSetℕ ∘F (-×S ∘F Family.PSH→Fam (World ^op))
 
-LanΣ⊣include* : LanΣ ⊣ include* ℓ-zero
-LanΣ⊣include* = DiscreteKan.Lan⊣J* ℓ-zero isSetℕ include
-
-includeOp*⊣RanΠ : includeOp* ℓ-zero ⊣ RanΠ
-includeOp*⊣RanΠ = DiscreteKan.J*⊣Ran ℓ-zero isSetℕ includeOp
-
-F : Functor (Val ℓ-zero) (Comp ℓ-zero)
-F = LanΣ ∘F (-×S ∘F includeOp* ℓ-zero)
-
-U : Functor (Comp ℓ-zero) (Val ℓ-zero)
-U = (RanΠ ∘F S⇒-) ∘F include* ℓ-zero
+U : Functor Comp Val
+U = (Family.Cofree (World ^op) ∘F S⇒-) ∘F Family.PSH→Fam World
 
 F⊣U : F ⊣ U
 F⊣U = adj'→adj F U
   (Compose.LF⊣GR
     (Compose.LF⊣GR
-      (adj→adj' (includeOp* ℓ-zero) RanΠ includeOp*⊣RanΠ)
+      (adj→adj' (Family.PSH→Fam (World ^op)) (Family.Cofree (World ^op))
+        (Family.CofreeFamAdj (World ^op)))
       (adj→adj' -×S S⇒- -×S⊣S⇒-))
-    (adj→adj' LanΣ (include* ℓ-zero) LanΣ⊣include*))
+    (adj→adj' (Family.Free World isSetℕ) (Family.PSH→Fam World)
+      (Family.FreeFamAdj World isSetℕ)))
 
 ------------------------------------------------------------------------
 -- Local-state monad
 ------------------------------------------------------------------------
 
-T : Functor (Val ℓ-zero) (Val ℓ-zero)
+T : Functor Val Val
 T = U ∘F F
 
-LS : Monad (Val ℓ-zero)
+LS : Monad Val
 LS = T , MonadFromAdjunction F U F⊣U
 
-strength : (P A : Val ℓ-zero .ob) →
-  NatTrans (P ×Psh (T .F-ob A)) (T .F-ob (P ×Psh A))
+strength : (P A : Val .ob) →
+  Val [ P ×Psh (T .F-ob A) , T .F-ob (P ×Psh A) ]
 strength P A .N-ob n (x , t) m n≤m σ with t m n≤m σ
 ... | p , m≤p , a , τ =
   p , m≤p , (P .F-hom (≤-trans n≤m m≤p) x , a) , τ
-strength P A .N-hom {x = n} {y = n'} f =
-  funExt λ (x , t) → funExt₃ λ m q σ → helper x t m q σ
+strength P A .N-hom n' n f (x , t) z e =
+  sym (funExt₃ (helper x t)) ∙ cong (strength P A .N-ob n') e
   where
   helper : (x : P .F-ob n .fst) (t : T .F-ob A .F-ob n .fst)
     (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
@@ -222,75 +180,92 @@ strength P A .N-hom {x = n} {y = n'} f =
               ∙ funExt⁻ (P .F-seq f (≤-trans q m≤p)) x))
           , refl)))
 
-bindT : {A B : Val ℓ-zero .ob} →
-  NatTrans
-    ((T .F-ob A) ×Psh (A ⇒PshLarge (T .F-ob B)))
-    (T .F-ob B)
+private
+  -- Elaborate the component projection with an abstract functor. Projecting
+  -- directly at T makes Agda normalize the large presheaf monad interface.
+  μ-at : (M : Functor Val Val) → IsMonad M →
+    (B : Val .ob) →
+    Val [ M .F-ob (M .F-ob B) , M .F-ob B ]
+  μ-at M mon B = IsMonad.μ mon .NT.NatTrans.N-ob B
+
+bindT : {A B : Val .ob} →
+  Val [
+    (T .F-ob A) ×Psh (A ⇒PshLargeStrict (T .F-ob B)) ,
+    T .F-ob B ]
 bindT {A} {B} =
-  seqTrans (PshSelf.swap (World ^op) ℓ-zero)
-    (seqTrans (strength (A ⇒PshLarge (T .F-ob B)) A)
-      (IsMonad.bind (LS .snd) .N-ob
-        ((A ⇒PshLarge (T .F-ob B)) ×Psh A , B)
-        (PshHom→NatTrans (appPshHom A (T .F-ob B)))))
+  swap ⋆PshHomStrict strength K A ⋆PshHomStrict applyK
+  where
+  K : Val .ob
+  K = A ⇒PshLargeStrict (T .F-ob B)
+
+  swap : Val [ (T .F-ob A) ×Psh K , K ×Psh (T .F-ob A) ]
+  swap = ×PshIntroStrict (π₂ (T .F-ob A) K) (π₁ (T .F-ob A) K)
+
+  ev : Val [ K ×Psh A , T .F-ob B ]
+  ev = appPshHomStrict A (T .F-ob B)
+
+  liftEv : Val [ T .F-ob (K ×Psh A) , T .F-ob (T .F-ob B) ]
+  liftEv = T .F-hom ev
+
+  μB : Val [ T .F-ob (T .F-ob B) , T .F-ob B ]
+  μB = μ-at T (LS .snd) B
+
+  applyK : Val [ T .F-ob (K ×Psh A) , T .F-ob B ]
+  applyK = liftEv ⋆PshHomStrict μB
 
 ------------------------------------------------------------------------
 -- Algebraic operations
 ------------------------------------------------------------------------
 
-getM : NatTrans Ref (T .F-ob VVal)
+getM : Val [ Ref , T .F-ob VVal ]
 getM .N-ob n i m n≤m σ =
   m , ≤-refl ,
     lookupStore {n = m} (weakenRef {n = n} {m = m} n≤m i) σ , σ
-getM .N-hom {x = n} {y = n'} f =
-  funExt λ (i : Fin n) →
+getM .N-hom n' n f i j e =
   funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
     cong
       {B = λ _ →
         Σ[ p ∈ ℕ ] (m ≤ p) ×
           (VVal .F-ob p .fst × (Fin p → V .fst))}
       (λ (j : Fin m) → m , ≤-refl , lookupStore {n = m} j σ , σ)
-      (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
+      (sym (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
+        ∙ cong (weakenRef {n = n'} {m = m} q) e)
 
-setM : NatTrans (Ref ×Psh VVal) (T .F-ob UnitVal)
+setM : Val [ Ref ×Psh VVal , T .F-ob UnitVal ]
 setM .N-ob n (i , b) m n≤m σ =
   m , ≤-refl , tt ,
     updateStore {n = m} (weakenRef {n = n} {m = m} n≤m i) b σ
-setM .N-hom {x = n} {y = n'} f =
-  funExt λ (i , b) →
+setM .N-hom n' n f (i , b) (j , c) e =
   funExt₃ λ (m : ℕ) (q : n' ≤ m) (σ : Fin m → V .fst) →
-    cong
-      {B = λ _ →
+    cong₂
+      {C = λ _ _ →
         Σ[ p ∈ ℕ ] (m ≤ p) ×
           (UnitVal .F-ob p .fst × (Fin p → V .fst))}
-      (λ j → m , ≤-refl , tt , updateStore {n = m} j b σ)
-      (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
+      (λ j c → m , ≤-refl , tt , updateStore {n = m} j c σ)
+      (sym (weakenRef-comp {n = n} {m = n'} {p = m} f q i)
+        ∙ cong (weakenRef {n = n'} {m = m} q) (cong fst e))
+      (cong snd e)
 
-allocM : NatTrans VVal (T .F-ob Ref)
+allocM : Val [ VVal , T .F-ob Ref ]
 allocM .N-ob n b m n≤m σ =
   suc m , ≤-sucℕ , flast {k = m} , extendStore {n = m} b σ
-allocM .N-hom _ = refl
+allocM .N-hom n' n f b c e =
+  funExt₃ λ m q σ →
+    cong (λ d → suc m , ≤-sucℕ , flast {k = m} , extendStore {n = m} d σ) e
 
-get : (A : Val ℓ-zero .ob) →
-  NatTrans (Ref ×Psh (VVal ⇒PshLarge (T .F-ob A))) (T .F-ob A)
+get : (A : Val .ob) →
+  Val [ Ref ×Psh (VVal ⇒PshLargeStrict (T .F-ob A)) , T .F-ob A ]
 get A =
-  seqTrans
-    (PshHom→NatTrans
-      (NatTrans→PshHom getM ×PshHom idPshHom))
-    (bindT {VVal} {A})
+  (getM ×PshHomStrict idPshHomStrict) ⋆PshHomStrict bindT {VVal} {A}
 
-set : (A : Val ℓ-zero .ob) →
-  NatTrans ((Ref ×Psh VVal) ×Psh (T .F-ob A)) (T .F-ob A)
+set : (A : Val .ob) →
+  Val [ (Ref ×Psh VVal) ×Psh (T .F-ob A) , T .F-ob A ]
 set A =
-  seqTrans
-    (PshHom→NatTrans
-      (NatTrans→PshHom setM ×PshHom
-        λPshHom UnitVal (T .F-ob A) (π₁ (T .F-ob A) UnitVal)))
-    (bindT {UnitVal} {A})
+  (setM ×PshHomStrict
+    λPshHomStrict UnitVal (T .F-ob A) (π₁ (T .F-ob A) UnitVal))
+  ⋆PshHomStrict bindT {UnitVal} {A}
 
-alloc : (A : Val ℓ-zero .ob) →
-  NatTrans (VVal ×Psh (Ref ⇒PshLarge (T .F-ob A))) (T .F-ob A)
+alloc : (A : Val .ob) →
+  Val [ VVal ×Psh (Ref ⇒PshLargeStrict (T .F-ob A)) , T .F-ob A ]
 alloc A =
-  seqTrans
-    (PshHom→NatTrans
-      (NatTrans→PshHom allocM ×PshHom idPshHom))
-    (bindT {Ref} {A})
+  (allocM ×PshHomStrict idPshHomStrict) ⋆PshHomStrict bindT {Ref} {A}

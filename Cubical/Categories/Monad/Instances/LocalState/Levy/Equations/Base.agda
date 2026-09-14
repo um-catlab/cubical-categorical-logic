@@ -12,12 +12,10 @@ open import Cubical.Foundations.HLevels using (hSet)
 open import Cubical.Relation.Nullary using (Dec ; decRec ; yes ; no)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Limits.CartesianClosed.Base
-import Cubical.Categories.Presheaf.CCC
-open import Cubical.Categories.Presheaf.Constructions.Exponential
-  using (_⇒PshLarge_)
-open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Presheaf.StrictHom.Base
+open import Cubical.Categories.Presheaf.StrictHom.CartesianClosed
+  using (CCC-PRESHEAF ; _⇒PshLargeStrict_)
 
 module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base
   (V : hSet ℓ-zero) where
@@ -25,8 +23,7 @@ module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
 
 open Functor
-open NatTrans
-open PshHom
+open PshHomStrict
 
 -- The categorical definitions of getᵗ, setᵗ, and allocᵗ expand through
 -- products, exponentials, and the presheaf local-state monad. If downstream
@@ -42,7 +39,7 @@ open PshHom
 ------------------------------------------------------------------------
 
 Val-CCC : CartesianClosedCategory _ _
-Val-CCC = Cubical.Categories.Presheaf.CCC.𝓟-CCC (World ^op) ℓ-zero
+Val-CCC = CCC-PRESHEAF (World ^op) ℓ-zero
 
 module CC = CartesianClosedCategory Val-CCC
 
@@ -109,7 +106,7 @@ extendResult B m≤p (q , p≤q , b , υ) =
 
 runBindT : (A B : CC.ob) {n : ℕ} →
   ((T ⟅ A ⟆) ⟅ n ⟆) .fst →
-  ((A ⇒PshLarge (T ⟅ B ⟆)) ⟅ n ⟆) .fst →
+  ((A ⇒PshLargeStrict (T ⟅ B ⟆)) ⟅ n ⟆) .fst →
   ((T ⟅ B ⟆) ⟅ n ⟆) .fst
 runBindT A B {n} t k m n≤m σ with t m n≤m σ
 ... | p , m≤p , a , τ =
@@ -175,7 +172,7 @@ opaque
       same-reference =
         funExt⁻ (Ref .F-id {x = m})
           (i .N-ob m (Γ .F-hom n≤m γ))
-        ∙ funExt⁻ (i .N-hom n≤m) γ
+        ∙ sym (i .N-hom m n n≤m γ _ refl)
     in
     cong (λ r′ → updateStore {n = m} r′
       (lookupStore {n = m} r σ) σ)
@@ -345,21 +342,24 @@ extendResult-refl B (q , m≤q , b , υ) =
 
 bindT-β : ∀ (A B : CC.ob) {n : ℕ}
   (t : ((T ⟅ A ⟆) ⟅ n ⟆) .fst)
-  (k : ((A ⇒PshLarge (T ⟅ B ⟆)) ⟅ n ⟆) .fst)
+  (k : ((A ⇒PshLargeStrict (T ⟅ B ⟆)) ⟅ n ⟆) .fst)
   (m : ℕ) (n≤m : n ≤ m) (σ : Fin m → V .fst) →
-  bindT .N-ob n (t , k) m n≤m σ ≡ runBindT A B t k m n≤m σ
+  bindT {A = A} {B = B} .N-ob n (t , k) m n≤m σ ≡
+  runBindT A B t k m n≤m σ
 bindT-β A B {n} t k m n≤m σ with t m n≤m σ
 ... | p , m≤p , a , τ =
   cong (extendResult B m≤p)
     (cong (λ h → k .N-ob p (h , a) p ≤-refl τ) (isProp≤ _ _))
 
+-- Explicit contexts and result objects in these statements avoid expensive
+-- inference through the unfolded state operations and monad action.
 opaque
   unfolding getᵗ setᵗ allocᵗ
 
   getᵗ-β : ∀ {Γ A}
     (i : Γ ⊢ Ref) (k : Γ CC.× VVal ⊢ T ⟅ A ⟆)
     n (γ : (Γ ⟅ n ⟆) .fst) m (n≤m : n ≤ m) (σ : Fin m → V .fst) →
-    getᵗ i k .N-ob n γ m n≤m σ ≡
+    getᵗ {Γ = Γ} {A = A} i k .N-ob n γ m n≤m σ ≡
     k .N-ob m
       (Γ .F-hom n≤m γ ,
        lookupStore {n = m} (weakenRef n≤m (i .N-ob n γ)) σ)
@@ -390,7 +390,7 @@ opaque
   setᵗ-β : ∀ {Γ A}
     (i : Γ ⊢ Ref) (b : Γ ⊢ VVal) (t : Γ ⊢ T ⟅ A ⟆)
     n (γ : (Γ ⟅ n ⟆) .fst) m (n≤m : n ≤ m) (σ : Fin m → V .fst) →
-    setᵗ i b t .N-ob n γ m n≤m σ ≡
+    setᵗ {Γ = Γ} {A = A} i b t .N-ob n γ m n≤m σ ≡
     t .N-ob n γ m n≤m
       (updateStore {n = m} (weakenRef n≤m (i .N-ob n γ))
         (b .N-ob n γ) σ)
@@ -415,7 +415,7 @@ opaque
   allocᵗ-β : ∀ {Γ A}
     (b : Γ ⊢ VVal) (k : Γ CC.× Ref ⊢ T ⟅ A ⟆)
     n (γ : (Γ ⟅ n ⟆) .fst) m (n≤m : n ≤ m) (σ : Fin m → V .fst) →
-    allocᵗ b k .N-ob n γ m n≤m σ ≡
+    allocᵗ {Γ = Γ} {A = A} b k .N-ob n γ m n≤m σ ≡
     extendResult A ≤-sucℕ
       (k .N-ob (suc m)
         (Γ .F-hom (≤-trans n≤m ≤-sucℕ) γ , flast {k = m})

@@ -1,3 +1,51 @@
+{-
+Levy's local-state monad
+
+The composing adjunctions:
+
+       Free World                -×S              PSH→Fam (World ^op)
+     ←──────────────          ←────────          ←─────────────────────
+Comp        ⊥        WorldFam     ⊥     WorldFam           ⊥            Val
+     ──────────────→          ────────→          ─────────────────────→
+      PSH→Fam World              S⇒-               Cofree (World ^op)
+
+The upper, leftward adjoints compose to F : Val → Comp; the lower,
+rightward adjoints compose to U : Comp → Val. Thus F ⊣ U and T = U ∘F F.
+Here World = (ℕ, ≤), Val = [World, Set], Comp = [Worldᵒᵖ, Set],
+and WorldFam is the category of ℕ-indexed families of sets.
+
+Writing S n = Fin n → |V| and A n for the underlying set at n:
+
+  T A n = (m : ℕ) → n ≤ m → S m →
+            Σ[ p ∈ ℕ ] (m ≤ p) × (A p × S p).
+
+A computation at n accepts a store in any future world m ≥ n, then
+returns a value and store in a possibly larger world p ≥ m.
+At world n : ℕ, the primitive operations are the following functions:
+
+  getMₙ : Fin n → T VVal n
+  getMₙ (i : Fin n) (m : ℕ) (q : n ≤ m) (σ : S m) =
+    (m , ≤-refl , σ (weakenRef q i) , σ)
+
+  setMₙ : Fin n × |V| → T UnitVal n
+  setMₙ ((i , b) : Fin n × |V|) (m : ℕ) (q : n ≤ m) (σ : S m) =
+    (m , ≤-refl , tt , updateStore (weakenRef q i) b σ)
+
+  allocMₙ : |V| → T Ref n
+  allocMₙ (b : |V|) (m : ℕ) (q : n ≤ m) (σ : S m) =
+    (suc m , ≤-sucℕ , flast , extendStore b σ)
+
+updateStore changes one cell; extendStore appends a
+cell initialized with b, whose fresh reference is flast.
+
+Based on Paul Blain Levy's possible-world model for cell generation:
+Call-By-Push-Value, PhD thesis (2001), Chapter 7; see also Section 6.6
+onwards of the book Call-By-Push-Value: A Functional/Imperative Synthesis.
+https://pblevy.github.io/papers/thesisqmwphd.pdf
+https://doi.org/10.1007/978-94-007-0954-6_6
+Here worlds are natural numbers and every cell stores an element of V.
+-}
+
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels using (hSet ; isSet→ ; isSet×)
 open import Cubical.Functions.FunExtEquiv using (funExt₃)

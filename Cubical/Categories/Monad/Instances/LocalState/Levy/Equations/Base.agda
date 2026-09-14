@@ -154,30 +154,29 @@ update-current {n} i σ = funExt helper
   helper : (j : Fin n) → updateStore {n} i (σ i) σ j ≡ σ j
   helper j = helper-dec j (discreteFin {n = n} i j)
 
-opaque
-  get-set-current-store : ∀ {Γ n m}
-    (i : Γ ⊢ Ref) (γ : (Γ ⟅ n ⟆) .fst)
-    (n≤m : n ≤ m) (σ : Fin m → V .fst) →
-    updateStore {n = m}
-      (weakenRef {n = m} {m = m} ≤-refl
-        (i .N-ob m (Γ .F-hom n≤m γ)))
-      (lookupStore {n = m}
-        (weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)) σ)
-      σ
-    ≡ σ
-  get-set-current-store {Γ = Γ} {n = n} {m = m} i γ n≤m σ =
-    let
-      r : Fin m
-      r = weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)
-      same-reference =
-        funExt⁻ (Ref .F-id {x = m})
-          (i .N-ob m (Γ .F-hom n≤m γ))
-        ∙ sym (i .N-hom m n n≤m γ _ refl)
-    in
-    cong (λ r′ → updateStore {n = m} r′
-      (lookupStore {n = m} r σ) σ)
-      same-reference
-    ∙ update-current {n = m} r σ
+get-set-current-store : ∀ {Γ n m}
+  (i : Γ ⊢ Ref) (γ : (Γ ⟅ n ⟆) .fst)
+  (n≤m : n ≤ m) (σ : Fin m → V .fst) →
+  updateStore {n = m}
+    (weakenRef {n = m} {m = m} ≤-refl
+      (i .N-ob m (Γ .F-hom n≤m γ)))
+    (lookupStore {n = m}
+      (weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)) σ)
+    σ
+  ≡ σ
+get-set-current-store {Γ = Γ} {n = n} {m = m} i γ n≤m σ =
+  let
+    r : Fin m
+    r = weakenRef {n = n} {m = m} n≤m (i .N-ob n γ)
+    same-reference =
+      funExt⁻ (Ref .F-id {x = m})
+        (i .N-ob m (Γ .F-hom n≤m γ))
+      ∙ sym (i .N-hom m n n≤m γ _ refl)
+  in
+  cong (λ r′ → updateStore {n = m} r′
+    (lookupStore {n = m} r σ) σ)
+    same-reference
+  ∙ update-current {n = m} r σ
 
 update-overwrite : ∀ {n} (i : Fin n) (b c : V .fst)
   (σ : Fin n → V .fst) →

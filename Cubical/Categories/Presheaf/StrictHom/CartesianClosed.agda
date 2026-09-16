@@ -244,6 +244,10 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP} {Q : Presheaf C ℓQ} w
     ×PshIntroStrict (UnitPsh-introStrict ⋆PshHomStrict s) idPshHomStrict
       ⋆PshHomStrict appPshHomStrict P Q
 
+  eltPshHomStrict⁻¹ : PshHomStrict P Q
+                    → PshHomStrict UnitPsh (P ⇒PshLargeStrict Q)
+  eltPshHomStrict⁻¹ s = λPshHomStrict P Q (π₂ UnitPsh P ⋆PshHomStrict s)
+
   -- β at a pairing: applying the transpose of γ to a pair (u , v)
   module _ {R : Presheaf C ℓR} {W : Presheaf C ℓS}
     (u : PshHomStrict W R) (v : PshHomStrict W P)

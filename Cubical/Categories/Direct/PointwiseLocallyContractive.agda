@@ -1,5 +1,6 @@
 {-# OPTIONS --lossy-unification #-}
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Function using (_∘_)
 open import Cubical.Categories.Category
 open import Cubical.Categories.Direct.Base
 module Cubical.Categories.Direct.PointwiseLocallyContractive {ℓ ℓ' ℓD : Level} {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'} (dir : DirectStr C Wo) where
@@ -23,6 +24,8 @@ open import Cubical.Categories.Monoidal.Instances.Presheaf.StrictHom
 open import Cubical.Categories.Enriched.Functors.Base
 open import Cubical.Categories.Enriched.Instances.Presheaf.StrictHom.Self
 
+open import Cubical.Categories.Direct.LocallyContractive dir using (▷HomActionPsh)
+
 open Functor
 open PshHomStrict
 
@@ -37,31 +40,21 @@ private
   _⇒_ : Presheaf C ℓ▷ → Presheaf C ℓ▷ → Presheaf C ℓ▷
   X ⇒ Y = X ⇒PshLargeStrict Y
 
-▷HomActionPsh : (Presheaf C ℓ▷ → Presheaf C ℓ▷) → Type _
-▷HomActionPsh F₀ =
-  {X Y : Presheaf C ℓ▷} → PshHomStrict (▷ .F-ob (X ⇒ Y)) (F₀ X ⇒ F₀ Y)
-
-private
-  nm : {X Y : Presheaf C ℓ▷} (h : PshHomStrict X Y) (y : ob)
-     → ⟨ (X ⇒ Y) .F-ob y ⟩
-  nm h y .N-ob d (f , ξ) = h .N-ob d ξ
-  nm h y .N-hom d' d g (f' , ξ') (f , ξ) e =
-    h .N-hom d' d g ξ' ξ (cong snd e)
-
 -- the transpose of h as a global element of ▷ (X ⇒ Y)
 ▷transpose : {X Y : Presheaf C ℓ▷} (h : PshHomStrict X Y)
       → PshHomStrict UnitPsh (▷ .F-ob (X ⇒ Y))
-▷transpose h .N-ob x _ =
-  pshhom (λ y _ → nm h y) (λ y' y g p' p e → makePshHomStrictPath refl)
-▷transpose h .N-hom x' x f _ _ _ = makePshHomStrictPath refl
+▷transpose {X} {Y} = (_⋆PshHomStrict (next (X ⇒ Y))) ∘ eltPshHomStrict⁻¹
 
 -- F's hom-action factors through next, via Fδ
 isPwContractiveHomAction :
   (F : Functor (PRESHEAF C ℓ▷) (PRESHEAF C ℓ▷))
   → ▷HomActionPsh (F .F-ob) → Type _
 isPwContractiveHomAction F Fδ =
-  {X Y : Presheaf C ℓ▷} (h : PshHomStrict X Y)
-  → F .F-hom h ≡ eltPshHomStrict (▷transpose h ⋆PshHomStrict Fδ {X} {Y})
+  {X Y : Presheaf C ℓ▷}
+  → F .F-hom {X}{Y}
+    ≡ (eltPshHomStrict
+        ∘ _⋆PshHomStrict (next (X ⇒ Y) ⋆PshHomStrict Fδ {X}{Y}))
+      ∘ eltPshHomStrict⁻¹
 
 PointwiseLocallyContractive : Type _
 PointwiseLocallyContractive =
@@ -120,7 +113,7 @@ module HyloPsh (F : PointwiseLocallyContractive)
            (next (X ⇒ B) .N-ob x (hyloTranspose .N-ob x tt))
          ∙ nextT≡▷transpose x)
     ∙ cong (λ φ → a .N-ob x (φ .N-ob x (c .N-ob x p)))
-        (sym (Fhom≡ hyloMap)))
+        (sym (funExt⁻ Fhom≡ hyloMap)))
     where
     nextT≡▷transpose : ∀ x →
       next (X ⇒ B) .N-ob x (hyloTranspose .N-ob x tt)

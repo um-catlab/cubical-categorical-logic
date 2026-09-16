@@ -42,13 +42,6 @@ private
 ▷HomActionPsh F₀ =
   {X Y : Presheaf C ℓ▷} → PshHomStrict (▷ .F-ob (X ⇒ Y)) (F₀ X ⇒ F₀ Y)
 
-private
-  nm : {X Y : Presheaf C ℓ▷} (h : PshHomStrict X Y) (y : ob)
-     → ⟨ (X ⇒ Y) .F-ob y ⟩
-  nm h y .N-ob d (f , ξ) = h .N-ob d ξ
-  nm h y .N-hom d' d g (f' , ξ') (f , ξ) e =
-    h .N-hom d' d g ξ' ξ (cong snd e)
-
 open EnrichedFunctor renaming (F-hom to FE-hom; F-ob to FE-ob)
 
 private

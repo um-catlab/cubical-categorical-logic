@@ -47,6 +47,14 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     F*Dᴰ = Base.reindex Dᴰ F
     module F*Dᴰ = Categoryᴰ F*Dᴰ
     module Dᴰ = Fibers Dᴰ
+    -- A pair of nested reind crossings, undone. Stated once with the
+    -- indices variable, so that the chains below match it first-order
+    -- instead of inverting two subst-filler metas out of a large goal.
+    reind-filler⁻² : ∀ {a b : D.ob}{f g h : D [ a , b ]}
+      {aᴰ : Dᴰ.ob[ a ]}{bᴰ : Dᴰ.ob[ b ]}{fᴰ : Dᴰ [ f ][ aᴰ , bᴰ ]}
+      → (e : f ≡ g)(e' : g ≡ h)
+      → Dᴰ.reind e' (Dᴰ.reind e fᴰ) Dᴰ.∫≡ fᴰ
+    reind-filler⁻² e e' = sym (Dᴰ.reind-filler e') ∙ sym (Dᴰ.reind-filler e)
   -- this definition cannot be η-contracted
     preservesTerminalⱽ :
       ∀ c → Terminalⱽ Dᴰ (F ⟅ c ⟆)
@@ -83,25 +91,21 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
         preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
         preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
           ( (Dᴰ.rectifyOut $
-            (sym $ Dᴰ.reind-filler _)
-            ∙ (sym $ Dᴰ.reind-filler _)
+            reind-filler⁻² _ _
             ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
             ∙ Dᴰ.reind-filler _
             ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₁)
           , (Dᴰ.rectifyOut $
-            (sym $ Dᴰ.reind-filler _)
-            ∙ (sym $ Dᴰ.reind-filler _)
+            reind-filler⁻² _ _
             ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
             ∙ Dᴰ.reind-filler _
             ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₂))
         preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = Dᴰ.rectifyOut $
           Fcᴰ∧Fcᴰ'.,ⱽ≡
-            (sym (Dᴰ.reind-filler _)
-            ∙ sym (Dᴰ.reind-filler _)
+            (reind-filler⁻² _ _
             ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
             ∙ Dᴰ.reind-filler _)
-            (sym (Dᴰ.reind-filler _)
-            ∙ sym (Dᴰ.reind-filler _)
+            (reind-filler⁻² _ _
             ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
             ∙ Dᴰ.reind-filler _)
 

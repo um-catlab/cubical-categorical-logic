@@ -472,23 +472,52 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     module _ (C⋆IdL : EqIdL C) {x : C.ob} (xᴰ : Cᴰ.ob[ x ]) (_×ⱽ_*xᴰ : LRⱽ xᴰ) where
       private
         module LRⱽxᴰ = LRⱽNotation _×ⱽ_*xᴰ
+
+        LRⱽ-homᴰ : ∀ {Δ Γ}{γ : C [ Δ , Γ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{g : C [ Δ , x ]}
+          {Γᴰ : Cᴰ.ob[ Γ ]}{f : C [ Γ , x ]}
+          (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]) (tri : (γ C.⋆ f) Eq.≡ g)
+          → Cᴰ [ γ ][ (Δᴰ ×ⱽ g *xᴰ) .fst , (Γᴰ ×ⱽ f *xᴰ) .fst ]
+        LRⱽ-homᴰ {γ = γ}{g = g} γᴰ tri =
+          Cᴰ.reindEq (C⋆IdL γ) (LRⱽxᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ) LRⱽxᴰ.,pⱽ
+            (Cᴰ.reindEq (Eq.sym tri) $ Cᴰ.reindEq (C⋆IdL g) LRⱽxᴰ.π₂ⱽ)
+
+        -- β for LRⱽFⱽ .F-homᴰ on each projection, in total-space (∫≡) form.
+        -- β₁ⱽ and β₂ⱽ each carry the LRⱽ presheaf iso's whole PshIsoEq.nat
+        -- instance, so the chains below should cross a reindEq without
+        -- re-elaborating them.
+        LRⱽ-β₁ : ∀ {Δ Γ}{γ : C [ Δ , Γ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{g : C [ Δ , x ]}
+          {Γᴰ : Cᴰ.ob[ Γ ]}{f : C [ Γ , x ]}
+          (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]) (tri : (γ C.⋆ f) Eq.≡ g)
+          → (LRⱽ-homᴰ γᴰ tri Cᴰ.⋆ᴰ LRⱽxᴰ.π₁ⱽ {Γ} {Γᴰ} {f})
+            Cᴰ.∫≡ (LRⱽxᴰ.π₁ⱽ {Δ} {Δᴰ} {g} Cᴰ.⋆ᴰ γᴰ)
+        LRⱽ-β₁ γᴰ tri = LRⱽxᴰ.β₁ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _
+
+        LRⱽ-β₂ : ∀ {Δ Γ}{γ : C [ Δ , Γ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{g : C [ Δ , x ]}
+          {Γᴰ : Cᴰ.ob[ Γ ]}{f : C [ Γ , x ]}
+          (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]) (tri : (γ C.⋆ f) Eq.≡ g)
+          → (LRⱽ-homᴰ γᴰ tri Cᴰ.⋆ᴰ LRⱽxᴰ.π₂ⱽ {Γ} {Γᴰ} {f})
+            Cᴰ.∫≡ LRⱽxᴰ.π₂ⱽ {Δ} {Δᴰ} {g}
+        LRⱽ-β₂ γᴰ tri =
+          LRⱽxᴰ.β₂ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ Cᴰ.reindEq-filler⁻ _
+
       LRⱽFⱽ : Functorⱽ (Cᴰ ×ᴰ EqElement (C [-, x ])) Cᴰ
       LRⱽFⱽ .F-obᴰ ob/@(Γᴰ , f) = (Γᴰ ×ⱽ f *xᴰ) .fst
-      LRⱽFⱽ .F-homᴰ {Δ} {Γ} {γ} {(Δᴰ , g)} {Γᴰ , f} (γᴰ , tri) =
-        Cᴰ.reindEq (C⋆IdL γ) (LRⱽxᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ) LRⱽxᴰ.,pⱽ (Cᴰ.reindEq (Eq.sym tri) $ Cᴰ.reindEq (C⋆IdL g) LRⱽxᴰ.π₂ⱽ)
+      LRⱽFⱽ .F-homᴰ (γᴰ , tri) = LRⱽ-homᴰ γᴰ tri
       LRⱽFⱽ .F-idᴰ = Cᴰ.rectifyOut $ LRⱽxᴰ.extensionalityᴰ
-        (LRⱽxᴰ.β₁ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _))
-        (LRⱽxᴰ.β₂ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ sym (Cᴰ.⋆IdL _))
-      LRⱽFⱽ .F-seqᴰ {f = δ}{g = γ}{xᴰ = Θᴰ , h}{yᴰ = Δᴰ , g}{zᴰ = Γᴰ , f} (γᴰ₁ , tri₁) (γᴰ₂ , tri₂) = Cᴰ.rectifyOut $ LRⱽxᴰ.extensionalityᴰ
-        (LRⱽxᴰ.β₁ⱽ _ _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ sym (Cᴰ.⋆Assoc _ _ _)
-         ∙ Cᴰ.⟨ Cᴰ.reindEq-filler _ ∙ sym (LRⱽxᴰ.β₁ⱽ _ _) ⟩⋆⟨⟩
+        (LRⱽ-β₁ _ _ ∙ Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _))
+        (LRⱽ-β₂ _ _ ∙ sym (Cᴰ.⋆IdL _))
+      LRⱽFⱽ .F-seqᴰ (γᴰ₁ , tri₁) (γᴰ₂ , tri₂) =
+        Cᴰ.rectifyOut $ LRⱽxᴰ.extensionalityᴰ
+        (LRⱽ-β₁ _ _
+         ∙ sym (Cᴰ.⋆Assoc _ _ _)
+         ∙ Cᴰ.⟨ sym (LRⱽ-β₁ γᴰ₁ tri₁) ⟩⋆⟨⟩
          ∙ Cᴰ.⋆Assoc _ _ _
-         ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reindEq-filler (C⋆IdL γ) ∙ sym (LRⱽxᴰ.β₁ⱽ _ _) ⟩
+         ∙ Cᴰ.⟨⟩⋆⟨ sym (LRⱽ-β₁ γᴰ₂ tri₂) ⟩
          ∙ sym (Cᴰ.⋆Assoc _ _ _)
          )
-        (LRⱽxᴰ.β₂ⱽ _ _ ∙ (Cᴰ.reindEq-filler⁻ _) ∙ Cᴰ.reindEq-filler _
-         ∙ sym (LRⱽxᴰ.β₂ⱽ _ _)
-         ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reindEq-filler (C⋆IdL g) ∙ Cᴰ.reindEq-filler (Eq.sym tri₂) ∙ sym (LRⱽxᴰ.β₂ⱽ _ _) ⟩
+        (LRⱽ-β₂ _ _
+         ∙ sym (LRⱽ-β₂ γᴰ₁ tri₁)
+         ∙ Cᴰ.⟨⟩⋆⟨ sym (LRⱽ-β₂ γᴰ₂ tri₂) ⟩
          ∙ sym (Cᴰ.⋆Assoc _ _ _))
 
       -- Technically this could be implemented as bp.×aF but I'm not sure if it would be as nice definitionally.
@@ -509,6 +538,23 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       module fib = FibrationNotation C⋆Assoc isFib
 
     module _ (π₁NatEqC : π₁NatEq bp) where
+      private
+        π1*-homᴰ : ∀ {Δ Γ}{γ : C [ Δ , Γ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+          → Cᴰ [ γ ][ Δᴰ , Γᴰ ]
+          → Cᴰ [ bp.×aF ⟪ γ ⟫ ][ isFib bp.π₁ Δᴰ .fst , isFib bp.π₁ Γᴰ .fst ]
+        π1*-homᴰ {γ = γ} γᴰ =
+          fib.introᴰ (Cᴰ.reindEq (Eq.sym $ π₁NatEqC γ) $
+            (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) fib.πⱽ Cᴰ.⋆ᴰ γᴰ))
+
+        -- β for π1*F .F-homᴰ, in total-space (∫≡) form. The proof term of
+        -- fib.βᴰ carries the cartesian lift's whole PshIsoEq.nat instance,
+        -- so the chains below cross a reindEq without re-elaborating it.
+        π1*-β : ∀ {Δ Γ}{γ : C [ Δ , Γ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+          (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+          → (π1*-homᴰ γᴰ Cᴰ.⋆ᴰ fib.πⱽ)
+            Cᴰ.∫≡ (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) fib.πⱽ Cᴰ.⋆ᴰ γᴰ)
+        π1*-β γᴰ = fib.βᴰ ∙ Cᴰ.reindEq-filler⁻ (Eq.sym (π₁NatEqC _))
+
       π1*F : Functorᴰ bp.×aF Cᴰ Cᴰ
       π1*F .F-obᴰ {Γ} Γᴰ = isFib bp.π₁ Γᴰ .fst
 --       -- γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]
@@ -516,17 +562,15 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
 --       -- π1*.π ⋆ γᴰ : Cᴰ [ (π₁ ⋆ γ , π₂) ⋆ π₁ ][ π₁* Δᴰ , Γᴰ ]
 --       -- -----------------------
 --       -- π₁*-intro : Cᴰ [ (π₁ ⋆ γ , π₂) ][ π₁* Δᴰ , π₁* Γᴰ ]
-      π1*F .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ =
-        fib.introᴰ (Cᴰ.reindEq (Eq.sym $ π₁NatEqC γ) $ (Cᴰ.reindEq (C⋆IdL (bp.×ue.element .fst)) fib.πⱽ Cᴰ.⋆ᴰ γᴰ))
+      π1*F .F-homᴰ γᴰ = π1*-homᴰ γᴰ
       π1*F .F-idᴰ = Cᴰ.rectifyOut $ fib.extensionalityᴰ (bp.×aF .F-id)
-        (fib.βᴰ ∙ Cᴰ.reindEq-filler⁻ _ ∙ Cᴰ.⋆IdR _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ sym (Cᴰ.⋆IdL _))
+        (π1*-β _ ∙ Cᴰ.⋆IdR _ ∙ Cᴰ.reindEq-filler⁻ _ ∙ sym (Cᴰ.⋆IdL _))
       π1*F .F-seqᴰ _ _ = Cᴰ.rectifyOut $ fib.extensionalityᴰ (bp.×aF .F-seq _ _)
-        (fib.βᴰ
-         ∙ Cᴰ.reindEq-filler⁻ (Eq.sym (π₁NatEqC _))
+        (π1*-β _
          ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
-         ∙ Cᴰ.⟨ Cᴰ.reindEq-filler (Eq.sym (π₁NatEqC _)) ∙ sym fib.βᴰ ⟩⋆⟨⟩
+         ∙ Cᴰ.⟨ sym (π1*-β _) ⟩⋆⟨⟩
          ∙ Cᴰ.⋆Assoc _ _ _
-         ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.⟨ Cᴰ.reindEq-filler (C⋆IdL _) ⟩⋆⟨⟩ ∙ Cᴰ.reindEq-filler (Eq.sym (π₁NatEqC _)) ∙ sym fib.βᴰ ⟩
+         ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.⟨ Cᴰ.reindEq-filler (C⋆IdL _) ⟩⋆⟨⟩ ∙ sym (π1*-β _) ⟩
          ∙ sym (Cᴰ.⋆Assoc _ _ _))
       module _ (×aF-seqC : ×aF-seq bp) where
         module _ Γ where

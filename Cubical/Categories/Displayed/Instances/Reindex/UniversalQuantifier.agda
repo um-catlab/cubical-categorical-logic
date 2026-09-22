@@ -92,6 +92,15 @@ module _
     π'≡swap⁻Gπ : ∀ Δ → π' ⟦ G ⟅ Δ ⟆ ⟧ ≡ swap .nIso Δ .inv D.⋆ G ⟪ π ⟦ Δ ⟧ ⟫
     π'≡swap⁻Gπ Δ = invMoveL {C = D} (isIso→areInv (swap .nIso Δ)) (swapπ'≡Gπ Δ)
 
+    -- A two-step reind crossing. Stated once with the shape
+    -- reind e' (reind e p) fixed up front, so the chains below need not
+    -- invert both fillers' metas out of the surrounding goal.
+    reind-filler² : ∀ {a b : D.ob}{f g h : D [ a , b ]}
+      {aᴰ : Dᴰ.ob[ a ]}{bᴰ : Dᴰ.ob[ b ]}{fᴰ : Dᴰ [ f ][ aᴰ , bᴰ ]}
+      → (e : f ≡ g)(e' : g ≡ h)
+      → fᴰ Dᴰ.∫≡ Dᴰ.reind e' (Dᴰ.reind e fᴰ)
+    reind-filler² e e' = Dᴰ.reind-filler e ∙ Dᴰ.reind-filler e'
+
   module _ {Γ : C.ob} where
     private
       LHS-F = ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
@@ -124,11 +133,11 @@ module _
             {x = (Θ , Θᴰ , _)}{y = (Δ , Δᴰ , _)}{f = (δ , δᴰ , _)} _ =
             Dᴰ.rectifyOut $
               _ , (cartLifts.sq-filler δᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ _)
-                ≡⟨ cartLifts.sq-collapse _ _
+                ≡⟨ cartLifts.sq-collapse δᴰ Dᴰ.idᴰ
                   ∙ cartLifts.cong-introᴰ (symNatIso swap .trans .N-hom δ)
                        (Dᴰ.cong-reind _ _ Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdR (_ , δᴰ)
                                                   ∙ sym (Dᴰ.⋆IdL (_ , δᴰ)) ⟩)
-                  ∙ sym (cartLifts.sq-collapse _ _) ⟩
+                  ∙ sym (cartLifts.sq-collapse Dᴰ.idᴰ δᴰ) ⟩
               _ ,
               cartLifts.sq-filler Dᴰ.idᴰ _
               Dᴰ.⋆ᴰ cartLifts.sq-filler δᴰ (sym $ (G ∘ʳ π) .N-hom δ)
@@ -136,18 +145,18 @@ module _
                             (Dᴰ.cong-reind _ _
                             (Dᴰ.⟨ cartLifts.⟨ Dᴰ.reind-filler _ ⟩⋆πⱽ
                              ∙ Dᴰ.reind-filler _ ⟩⋆⟨⟩
-                             ∙ Dᴰ.reind-filler _
-                             ∙ Dᴰ.reind-filler _)) ⟩ ⟩
+                             ∙ reind-filler² _ _)) ⟩ ⟩
               _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ _)
               ∎
         the-niᴰ .NatIsoᴰ.nIsoᴰ {x = Δ , Δᴰ , γ} _ =
           isisoᴰ (cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ sym (swapπ'≡Gπ Δ)))
             (Dᴰ.rectifyOut $
-              _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ cartLifts.sq-filler _ _) ≡⟨ cartLifts.sq-collapse _ _
+              _ , (cartLifts.sq-filler Dᴰ.idᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ _)
+                ≡⟨ cartLifts.sq-collapse Dᴰ.idᴰ Dᴰ.idᴰ
                 ∙ cartLifts.cong-introᴰ (swap .nIso Δ .ret) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
                 ∙ cartLifts.sq-id refl ⟩ D.id , Dᴰ.idᴰ ∎)
             (Dᴰ.rectifyOut $
-              cartLifts.sq-collapse _ _
+              cartLifts.sq-collapse Dᴰ.idᴰ Dᴰ.idᴰ
               ∙ cartLifts.cong-introᴰ (swap .nIso Δ .sec) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
               ∙ cartLifts.sq-id refl)
 

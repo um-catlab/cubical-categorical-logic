@@ -81,6 +81,35 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
     private
       module LRⱽPath = Path.LRⱽPresheafᴰNotation Cᴰ ((Cᴰ Path.[-][-, xᴰ ]) , xᴰLRⱽPath)
       module LRⱽEq = LRⱽNotation Cᴰ ⋆AssocC xᴰLRⱽEq
+
+      -- `⋆πᵢⱽ-natural` immediately followed by `βᵢⱽ'` is the shape that
+      -- every chain in this module opens with (three times for π₁, three for
+      -- π₂).  Both `⋆πᵢⱽ-natural` and `βᵢⱽ'` carry the LRⱽ presheaf iso's
+      -- whole `N-hom`/`nIso` instance, so each open-coded occurrence
+      -- re-elaborates it.  Stated once, in total-space (∫≡) form.
+      natβ₁ : ∀ {Θ Δ Γ}{Θᴰ : Cᴰ.ob[ Θ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+        {δ : C [ Θ , Δ ]}{γ : C [ Δ , Γ ]}{q : C [ Γ , x ]}
+        (δᴰ : Cᴰ [ δ ][ Θᴰ , Δᴰ ])
+        (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+        (γqᴰ : Cᴰ [ γ C.⋆ q ][ Δᴰ , xᴰ ])
+        → Path Cᴰ.Hom[ _ , _ ]
+            (_ , (δᴰ Cᴰ.⋆ᴰ LRⱽPath.introᴰ γᴰ γqᴰ) LRⱽPath.⋆π₁ⱽ)
+            (_ , δᴰ Cᴰ.⋆ᴰ γᴰ)
+      natβ₁ δᴰ γᴰ γqᴰ =
+        LRⱽPath.⋆π₁ⱽ-natural _ _ ∙ Cᴰ.⟨ refl ⟩⋆⟨ LRⱽPath.β₁ⱽ' _ _ ⟩
+
+      natβ₂ : ∀ {Θ Δ Γ}{Θᴰ : Cᴰ.ob[ Θ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
+        {δ : C [ Θ , Δ ]}{γ : C [ Δ , Γ ]}{q : C [ Γ , x ]}
+        (δᴰ : Cᴰ [ δ ][ Θᴰ , Δᴰ ])
+        (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+        (γqᴰ : Cᴰ [ γ C.⋆ q ][ Δᴰ , xᴰ ])
+        → Path Cᴰ.Hom[ _ , _ ]
+            (_ , (δᴰ Cᴰ.⋆ᴰ LRⱽPath.introᴰ γᴰ γqᴰ) LRⱽPath.⋆π₂ⱽ)
+            (_ , δᴰ Cᴰ.⋆ᴰ γqᴰ)
+      natβ₂ δᴰ γᴰ γqᴰ =
+        LRⱽPath.⋆π₂ⱽ-natural _ _
+        ∙ Cᴰ.reind-filler⁻ _
+        ∙ Cᴰ.⟨ refl ⟩⋆⟨ LRⱽPath.β₂ⱽ' _ _ ⟩
     -- (Γ , Γᴰ , p) → (Γ , Γᴰ ×ⱽ p* x , p)
     ×LRⱽ-Path/→Eq/-square-Iso : ∀ Γ3 → CatIso (Cᴰ / (C [-, x ]))
       ((LRⱽF Cᴰ ⋆AssocC ⋆IdLC xᴰ xᴰLRⱽEq ∘F Path/→Eq/ (C [-, x ]) Cᴰ) ⟅ Γ3 ⟆)
@@ -99,13 +128,8 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .snd .isIso.inv .snd .snd = ⋆IdLC f
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .snd .isIso.sec = Hom/≡ $
       LRⱽPath.extensionalityᴰ
-        (LRⱽPath.⋆π₁ⱽ-natural _ _
-        ∙ Cᴰ.⟨⟩⋆⟨ LRⱽPath.β₁ⱽ' _ _ ⟩
-        ∙ LRⱽEq.β₁ⱽ _ _)
-        (LRⱽPath.⋆π₂ⱽ-natural _ _
-        ∙ Cᴰ.reind-filler⁻ _
-        ∙ Cᴰ.⟨⟩⋆⟨ LRⱽPath.β₂ⱽ' _ _ ⟩
-        ∙ LRⱽEq.β₂ⱽ _ _)
+        (natβ₁ _ _ _ ∙ LRⱽEq.β₁ⱽ _ _)
+        (natβ₂ _ _ _ ∙ LRⱽEq.β₂ⱽ _ _)
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .snd .isIso.ret = Hom/≡ $
       LRⱽEq.extensionalityᴰ
         (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ LRⱽEq.β₁ⱽ _ _ ⟩ ∙ LRⱽPath.β₁ⱽ _ _ ∙ sym (Cᴰ.⋆IdL _))
@@ -118,23 +142,18 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
       ×LRⱽ-Path/→Eq/-square-Iso
       λ Δ3 Γ3 f3@(γ , γᴰ , tri) → Hom/≡
         (LRⱽPath.extensionalityᴰ
-          (LRⱽPath.⋆π₁ⱽ-natural _ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ LRⱽPath.β₁ⱽ' _ _ ⟩
+          (natβ₁ _ _ _
           ∙ LRⱽEq.β₁ⱽ _ _ ∙ sym (Cᴰ.reindEq-filler (⋆IdLC γ))
           -- Eq.π₁ⱽ Cᴰ.⋆ᴰ γᴰ
-          ∙ sym (LRⱽPath.⋆π₁ⱽ-natural _ _
-            ∙ Cᴰ.⟨ refl ⟩⋆⟨ LRⱽPath.β₁ⱽ' _ _ ⟩
+          ∙ sym (natβ₁ _ _ _
             ∙ sym (Cᴰ.⋆Assoc _ _ _)
             ∙ Cᴰ.⟨ LRⱽPath.β₁ⱽ _ _ ⟩⋆⟨⟩))
-          (LRⱽPath.⋆π₂ⱽ-natural _ _
-          ∙ Cᴰ.reind-filler⁻ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ LRⱽPath.β₂ⱽ' _ _ ⟩
+          (natβ₂ _ _ _
           ∙ LRⱽEq.β₂ⱽ _ _
           ∙ sym (Cᴰ.reindEq-filler (Eq.sym (Eq.pathToEq tri)))
           ∙ sym (Cᴰ.reindEq-filler (⋆IdLC (Δ3 .snd .snd)))
-          ∙ sym (LRⱽPath.⋆π₂ⱽ-natural _ _
-          ∙ Cᴰ.reind-filler⁻ _
-          ∙ Cᴰ.⟨ refl ⟩⋆⟨ LRⱽPath.β₂ⱽ' _ _ ∙ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reind-filler⁻ _ ⟩
+          ∙ sym (natβ₂ _ _ _
+          ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reind-filler⁻ _ ⟩
           ∙ Cᴰ.reind-filler _ -- scary
           ∙ LRⱽPath.β₂ⱽ _ _)))
   module _

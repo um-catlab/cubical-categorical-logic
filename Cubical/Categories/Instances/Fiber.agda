@@ -10,6 +10,7 @@ module Cubical.Categories.Instances.Fiber where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
+open import Cubical.Foundations.ReindNormalForm
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Equality as Eq
@@ -37,6 +38,17 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
     module ∫Cᴰ = Category (∫C Cᴰ)
   open Cᴰ public
 
+  -- The reind normal form at the displayed hom family -- the same family
+  -- that R above instantiates hSetReasoning at. It stores the index equation
+  -- as data rather than transporting along it, so RNFᴴ.∫ is invariant under
+  -- RNFᴴ.reind definitionally and a reind-filler chain step becomes refl.
+  -- Not opened here; clients pick the names they want.  The `using` list is
+  -- load-bearing: Fibers is applied all over the library, and a bare module
+  -- application would copy every definition of RNFSet into each one.
+  module RNFᴴ {a b : C.ob} {aᴰ : Cᴰ.ob[ a ]}{bᴰ : Cᴰ.ob[ b ]} =
+    RNFSet (C.isSetHom {a}{b}) Cᴰ.Hom[_][ aᴰ , bᴰ ]
+      using (ReindNormalForm; rnf; idx; pth; val; ∫; reind; nf)
+
   module _ (EqId⋆ : ∀ {x} → C.id {x} C.⋆ C.id {x} Eq.≡ C.id) where
     Eqv[_] : C.ob → Category ℓCᴰ ℓCᴰ'
     Eqv[ x ] .Category.ob = ob[ x ]
@@ -53,22 +65,53 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       ∙ R.reindEq-filler _)
     Eqv[ x ] .Category.isSetHom = isSetHomᴰ
 
+  -- One proof for each of the four vertical/displayed associativity and
+  -- unit laws below: they differ only in which base-level law indexes each
+  -- reind, and the chain itself is the same.
+  private
+    reind⋆Assoc :
+      ∀ {w x y z : C.ob}{wᴰ : ob[ w ]}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}{zᴰ : ob[ z ]}
+        {f : C [ w , x ]}{g : C [ x , y ]}{h : C [ y , z ]}
+        {fg : C [ w , y ]}{gh : C [ x , z ]}{u v : C [ w , z ]}
+        (fᴰ : Hom[ f ][ wᴰ , xᴰ ])
+        (gᴰ : Hom[ g ][ xᴰ , yᴰ ])
+        (hᴰ : Hom[ h ][ yᴰ , zᴰ ])
+        (p : f C.⋆ g ≡ fg)(q : fg C.⋆ h ≡ u)
+        (r : g C.⋆ h ≡ gh)(s : f C.⋆ gh ≡ v)
+      → (R.reind q (R.reind p (fᴰ ⋆ᴰ gᴰ) ⋆ᴰ hᴰ))
+        R.∫≡ (R.reind s (fᴰ ⋆ᴰ R.reind r (gᴰ ⋆ᴰ hᴰ)))
+    reind⋆Assoc fᴰ gᴰ hᴰ p q r s =
+      (sym $ R.reind-filler _)
+      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
+      ∙ ∫Cᴰ.⋆Assoc _ _ _
+      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
+      ∙ R.reind-filler _
+
+    reind⋆IdL :
+      ∀ {x y : C.ob}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        {f : C [ x , y ]}{u : C [ x , y ]}
+        (fᴰ : Hom[ f ][ xᴰ , yᴰ ])(q : C.id C.⋆ f ≡ u)
+      → R.reind q (idᴰ ⋆ᴰ fᴰ) R.∫≡ fᴰ
+    reind⋆IdL fᴰ q = (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+
+    reind⋆IdR :
+      ∀ {x y : C.ob}{xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        {f : C [ x , y ]}{u : C [ x , y ]}
+        (fᴰ : Hom[ f ][ xᴰ , yᴰ ])(q : f C.⋆ C.id ≡ u)
+      → R.reind q (fᴰ ⋆ᴰ idᴰ) R.∫≡ fᴰ
+    reind⋆IdR fᴰ q = (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+
   v[_] : C.ob → Category ℓCᴰ ℓCᴰ'
   v[ x ] .Category.ob = ob[ x ]
   v[ x ] .Category.Hom[_,_] = Hom[ C.id ][_,_]
   v[ x ] .Category.id = idᴰ
   v[ x ] .Category._⋆_ fⱽ gⱽ = R.reind (C.⋆IdL _) (fⱽ ⋆ᴰ gⱽ)
   v[ x ] .Category.⋆IdL fⱽ =
-    R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+    R.rectifyOut $ reind⋆IdL _ _
   v[ x ] .Category.⋆IdR fⱽ =
-    R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+    R.rectifyOut $ reind⋆IdR _ _
   v[ x ] .Category.⋆Assoc fⱽ gⱽ hⱽ =
-    R.rectifyOut $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
-      ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+    R.rectifyOut $ reind⋆Assoc _ _ _ _ _ _ _
   v[ x ] .Category.isSetHom = isSetHomᴰ
 
   idⱽ : ∀ {x xᴰ} → v[ x ] [ xᴰ , xᴰ ]
@@ -101,43 +144,28 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   _⋆ᴰⱽ_ : Hom[ f ][ xᴰ , yᴰ ] → v[ y ] [ yᴰ , yᴰ' ] → Hom[ f ][ xᴰ , yᴰ' ]
   _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = R.reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
   ⋆IdLᴰⱽ : idᴰ ⋆ᴰⱽ fⱽ ≡ fⱽ
-  ⋆IdLᴰⱽ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+  ⋆IdLᴰⱽ = R.rectifyOut $ reind⋆IdL _ _
 
   ⋆IdRᴰⱽ : fᴰ ⋆ᴰⱽ idⱽ ≡ fᴰ
-  ⋆IdRᴰⱽ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+  ⋆IdRᴰⱽ = R.rectifyOut $ reind⋆IdR _ _
 
   ⋆Assocᴰⱽⱽ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰⱽ hⱽ ≡ (fᴰ ⋆ᴰⱽ (gⱽ ⋆ⱽ hⱽ))
-  ⋆Assocᴰⱽⱽ = R.rectifyOut $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
-      ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+  ⋆Assocᴰⱽⱽ = R.rectifyOut $ reind⋆Assoc _ _ _ _ _ _ _
 
   _⋆ⱽᴰ_ : v[ x ] [ xᴰ , xᴰ' ] → Hom[ f ][ xᴰ' , yᴰ ] → Hom[ f ][ xᴰ , yᴰ ]
   _⋆ⱽᴰ_ {f = f} gⱽ fᴰ = R.reind (C.⋆IdL _) (gⱽ ⋆ᴰ fᴰ)
 
   ⋆IdLⱽᴰ : ∀ (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idⱽ ⋆ⱽᴰ fᴰ ≡ fᴰ
-  ⋆IdLⱽᴰ fᴰ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+  ⋆IdLⱽᴰ fᴰ = R.rectifyOut $ reind⋆IdL _ _
 
   ⋆IdRⱽᴰ : ∀ (fⱽ : v[ x ] [ xᴰ , xᴰ' ]) → fⱽ ⋆ⱽᴰ idᴰ ≡ fⱽ
-  ⋆IdRⱽᴰ fⱽ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+  ⋆IdRⱽᴰ fⱽ = R.rectifyOut $ reind⋆IdR _ _
 
   ⋆Assocⱽⱽᴰ : (fⱽ ⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ ≡ (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ))
-  ⋆Assocⱽⱽᴰ = R.rectifyOut $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
-      ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+  ⋆Assocⱽⱽᴰ = R.rectifyOut $ reind⋆Assoc _ _ _ _ _ _ _
 
   ⋆Assocⱽᴰⱽ : (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰⱽ hⱽ ≡ (fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰⱽ hⱽ))
-  ⋆Assocⱽᴰⱽ = R.rectifyOut $
-      (sym $ R.reind-filler _)
-      ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
-      ∙ ∫Cᴰ.⋆Assoc _ _ _
-      ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩
-      ∙ R.reind-filler _
+  ⋆Assocⱽᴰⱽ = R.rectifyOut $ reind⋆Assoc _ _ _ _ _ _ _
 
   ⋆Assocᴰⱽᴰ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ ≡ (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
   ⋆Assocᴰⱽᴰ = R.rectifyOut $

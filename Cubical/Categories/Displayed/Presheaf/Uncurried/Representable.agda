@@ -226,31 +226,40 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     open UniversalElementNotation ∫ue
 
   -- Could be more compositional but too lazy
-  Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)
-    → Representableᴰ (ue .vertex , asPshIso ue)
-    → UniversalElementᴰ ue
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .fst = yᴰxᴰ≅Pᴰ .fst
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .fst =
-    Pᴰ.reind (P.⋆IdL (UniversalElement.element ue))
-             (yᴰxᴰ≅Pᴰ .snd .fst .N-ob
-               (UniversalElement.vertex ue , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ)
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv =
-    yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv =
-    λ p pᴰ → Pᴰ.rectifyOut $
+  module _ (ue : UniversalElement C P)
+           (yᴰxᴰ≅Pᴰ : Representableᴰ (ue .vertex , asPshIso ue)) where
+    private
+      elᴰ : Pᴰ.p[ ue .element ][ yᴰxᴰ≅Pᴰ .fst ]
+      elᴰ = Pᴰ.reind (P.⋆IdL (UniversalElement.element ue))
+              (yᴰxᴰ≅Pᴰ .snd .fst .N-ob
+                (UniversalElement.vertex ue , yᴰxᴰ≅Pᴰ .fst , C.id) Cᴰ.idᴰ)
+
+      -- β for the transferred element, in total-space (∫≡) form: the reind
+      -- crossing, the PshHom's naturality, and the ⋆IdR realignment. Both
+      -- rightInv and leftInv below need exactly this chain.
+      βelᴰ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{f : C [ Γ , ue .vertex ]}
+        (fᴰ : Cᴰ [ f ][ Γᴰ , yᴰxᴰ≅Pᴰ .fst ])
+        → (fᴰ Pᴰ.⋆ᴰ elᴰ) Pᴰ.∫≡ (yᴰxᴰ≅Pᴰ .snd .fst .N-ob (_ , Γᴰ , f) fᴰ)
+      βelᴰ fᴰ =
         Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩
         ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
         ∙ cong (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _)
                  ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
+
+    Representableᴰ→UniversalElementᴰOverUE : UniversalElementᴰ ue
+    Representableᴰ→UniversalElementᴰOverUE .fst = yᴰxᴰ≅Pᴰ .fst
+    Representableᴰ→UniversalElementᴰOverUE .snd .fst = elᴰ
+    Representableᴰ→UniversalElementᴰOverUE .snd .snd Γ Γᴰ .inv =
+      yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
+    Representableᴰ→UniversalElementᴰOverUE .snd .snd Γ Γᴰ .rightInv =
+      λ p pᴰ → Pᴰ.rectifyOut $
+        βelᴰ _
         ∙ Pᴰ.≡in (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv _ _)
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv =
+    Representableᴰ→UniversalElementᴰOverUE .snd .snd Γ Γᴰ .leftInv =
       λ f fᴰ → Cᴰ.rectifyOut $
         cong (invPshIso (∫PshIsoᴰ {α = yoRecIso {P = P} ue} (yᴰxᴰ≅Pᴰ .snd)) .trans .N-ob _)
-          (Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
-                    ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
-          ∙ cong (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _)
-                   (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _))
-          ∙ (Cᴰ.≡in $ yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv _ _)
+          (βelᴰ fᴰ)
+        ∙ (Cᴰ.≡in $ yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv _ _)
 
   Representableⱽ→UniversalElementᴰ : (ue : UniversalElement C P)
     → Representableⱽ Cᴰ (ue .vertex) (reindPshᴰNatTrans (yoRec P (ue .element)) Pᴰ)

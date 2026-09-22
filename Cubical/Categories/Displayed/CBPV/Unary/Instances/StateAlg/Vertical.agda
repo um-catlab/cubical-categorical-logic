@@ -343,12 +343,17 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
                     ((ϕ .snd) ⋆Homo (ψ .snd .snd))
                     _)
                   (σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd)))))
-    ∙ (Dᴰ.rectifyOut $ Dᴰ.≡in
-      {pth = ∫Homo≡ _ _ (Z .fst .snd) refl}
+    -- NOTE (perf): `rectify (≡out (≡in {pth = P} X))` is the identity on the
+    -- payload -- `≡in` builds a `Σ`-path only for `≡out` to take it apart
+    -- again -- but the roundtrip is *not* definitional, so the elaborated
+    -- term carries a full `ΣPathP`/`PathPΣ` pair over a very large type.
+    -- Handing the index path to `rectify` directly is the same proof with
+    -- that roundtrip deleted.
+    ∙ Dᴰ.rectify {e = ∫Homo≡ _ _ (Z .fst .snd) refl}
       (ΣPathP
         ( (funExt λ b' → funExt λ x →
             recPush-η-fᴰ (ψ .snd) Zᴰ χᴰ b' x)
-        , isProp→PathP (λ i → isPropHomoᴰ (λ z → Zᴰ .fst z .snd)) _ _ )))
+        , isProp→PathP (λ i → isPropHomoᴰ (λ z → Zᴰ .fst z .snd)) _ _ ))
 
 -- The F lift has FreeStateAlgⱽ as its intended vertex; its unit is the
 -- heterogeneous composite described at the end of Instances.StateAlg.Base.

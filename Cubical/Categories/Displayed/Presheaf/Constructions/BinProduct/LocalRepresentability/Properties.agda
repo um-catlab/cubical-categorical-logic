@@ -103,6 +103,24 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       β₂LR γᴰ pᴰ =
         Pᴰ.reind-filler _ ∙ change-base⁻ (P._⋆ p) (≡×Snd (βᴰ Γᴰ×ⱽp*Pᴰ) .snd)
 
+      -- β with a reind crossing absorbed into the argument of introLR, so
+      -- that the naturality proofs below do not restate the crossing.
+      β₁LR-reind : ∀ {Δ}{Δᴰ}{γ γ' : C [ Δ , Γ ]}{q : γ ≡ γ'}
+        → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+        → (pᴰ : Pᴰ.p[ γ' P.⋆ p ][ Δᴰ ])
+        → Path Cᴰ.Hom[ _ , _ ]
+            (_ , introLR (Cᴰ.reind q γᴰ) pᴰ Cᴰ.⋆ᴰ π₁LR)
+            (_ , γᴰ)
+      β₁LR-reind γᴰ pᴰ = β₁LR _ _ ∙ sym (Cᴰ.reind-filler _)
+
+      β₂LR-reind : ∀ {Δ}{Δᴰ}{γ : C [ Δ , Γ ]}{q : P.p[ Δ ]}{r : q ≡ γ P.⋆ p}
+        → (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])
+        → (pᴰ : Pᴰ.p[ q ][ Δᴰ ])
+        → Path Pᴰ.p[ _ , _ ]
+            (_ , introLR γᴰ (Pᴰ.reind r pᴰ) Pᴰ.⋆ᴰ π₂LR)
+            (_ , pᴰ)
+      β₂LR-reind γᴰ pᴰ = β₂LR _ _ ∙ sym (Pᴰ.reind-filler _)
+
       introLR≡ : ∀ {Δ}{Δᴰ}{γ γ' : C [ Δ , Γ ]}
         {γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]}
         {pᴰ : Pᴰ.p[ γ P.⋆ p ][ Δᴰ ]}
@@ -183,13 +201,19 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
               (introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) (γᴰ Pᴰ.⋆ᴰ pᴰ)) Cᴰ.⋆ᴰ funcLR γᴰ))
             (γ C.⋆ C.id ,
               (γᴰ Cᴰ.⋆ᴰ introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL p) pᴰ)))
-      app-naturality-lemma = extensionalityLR
+      app-naturality-lemma {Δᴰ = Δᴰ}{Γᴰ = Γᴰ}{γ = γ}{p = p} =
+        extensionalityLR {Γᴰ = Γᴰ}{p = p}
         (Cᴰ.⋆Assoc _ _ _
-        ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ∙ (sym $ Cᴰ.reind-filler _) ⟩
-        ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ β₁LR _ _ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
-        ∙ (sym $ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ⟩ ∙ Cᴰ.⋆IdR _ ) )
-        (Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _) ⟩ ∙ β₂LR _ _ ∙ sym (Pᴰ.reind-filler _)
-        ∙ (sym $ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _) ⟩))
+        ∙ Cᴰ.⟨⟩⋆⟨ β₁LR-reind {Γᴰ = Γᴰ}{p = p} _ _ ⟩
+        ∙ sym (Cᴰ.⋆Assoc _ _ _)
+        ∙ Cᴰ.⟨ β₁LR {Γᴰ = Δᴰ}{p = γ P.⋆ p} _ _ ⟩⋆⟨⟩ ∙ Cᴰ.⋆IdL _
+        ∙ (sym $ Cᴰ.⋆Assoc _ _ _
+          ∙ Cᴰ.⟨⟩⋆⟨ β₁LR {Γᴰ = Γᴰ}{p = p} _ _ ⟩ ∙ Cᴰ.⋆IdR _ ) )
+        (Pᴰ.⋆Assoc _ _ _
+        ∙ Pᴰ.⟨⟩⋆⟨ β₂LR-reind {Γᴰ = Γᴰ}{p = p} _ _ ⟩
+        ∙ β₂LR-reind {Γᴰ = Δᴰ}{p = γ P.⋆ p} _ _
+        ∙ (sym $ Pᴰ.⋆Assoc _ _ _
+          ∙ Pᴰ.⟨⟩⋆⟨ β₂LR-reind {Γᴰ = Γᴰ}{p = p} _ _ ⟩))
 
 module _
   {C : Category ℓC ℓC'}
@@ -267,6 +291,23 @@ module _
     F⟨_×ⱽ_*FᴰPᴰ⟩ : ∀ {Γ}(Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ F ⟅ Γ ⟆ ]) → UniversalElementⱽ Dᴰ (F ⟅ Γ ⟆) ((Dᴰ [-][-, Fᴰ .F-obᴰ Γᴰ ]) ×ⱽPsh reindYo p Pᴰ)
     F⟨_×ⱽ_*FᴰPᴰ⟩ = preservesLocalReprⱽ→UEⱽ Fᴰ (reindPshᴰFunctor Fᴰ Pᴰ) Pᴰ idPshHomᴰ _×ⱽ_*FᴰPᴰ presLRⱽ
 
+    -- Runs of reind crossings, stated over a bare indexed family rather than
+    -- inline in the naturality proof below, where each step would be
+    -- re-elaborated against the whole ambient telescope.
+    module _ {ℓ ℓ'}{A : Type ℓ}{B : A → Type ℓ'} where
+      private module dR = depReasoning B
+
+      reind-filler⁻² : ∀ {a a2 a3}{x : B a}(r : a ≡ a2)(s : a2 ≡ a3)
+        → dR.reind s (dR.reind r x) dR.∫≡ x
+      reind-filler⁻² r s = sym (dR.reind-filler r ∙ dR.reind-filler s)
+
+      -- one crossing undone, then two made
+      reind-split : ∀ {a a2 a3 a4}{x : B a}
+        (q : a ≡ a2)(r : a ≡ a3)(s : a3 ≡ a4)
+        → dR.reind q x dR.∫≡ dR.reind s (dR.reind r x)
+      reind-split q r s =
+        sym (dR.reind-filler q) ∙ dR.reind-filler r ∙ dR.reind-filler s
+
   presLRⱽ-Isoⱽ : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ F ⟅ Γ ⟆ ])
     → CatIsoⱽ Dᴰ (UniversalElementⱽ.vertexⱽ (Fᴰ .F-obᴰ Γᴰ ×ⱽ p *Pᴰ))
                 (Fᴰ .F-obᴰ $ UniversalElementⱽ.vertexⱽ (Γᴰ ×ⱽ p *FᴰPᴰ) )
@@ -287,30 +328,28 @@ module _
         : Path (∫C Dᴰ [ _ , _ ])
             (_ , (presLRⱽ-Isoⱽ Δᴰ (F ⟪ γ ⟫ P.⋆ p) .fst Dᴰ.⋆ᴰ Fᴰ .F-homᴰ (LRFᴰPᴰ.funcLR γᴰ)))
             (_ , (LRPᴰ.funcLR (Fᴰ .F-homᴰ γᴰ) Dᴰ.⋆ᴰ presLRⱽ-Isoⱽ Γᴰ p .fst))
-      presLRⱽ-Isoⱽ-natural = F⟨LR⟩.extensionalityLR _ _
+      presLRⱽ-Isoⱽ-natural = F⟨LR⟩.extensionalityLR Γᴰ p
         (Dᴰ.⋆Assoc _ _ _
         ∙ Dᴰ.⟨ refl ⟩⋆⟨
             Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
             ∙ sym ((∫F Fᴰ) .F-seq _ _)
-            ∙ cong (∫F Fᴰ .F-hom) (LRFᴰPᴰ.β₁LR _ _ ∙ sym (Cᴰ.reind-filler _))
+            ∙ cong (∫F Fᴰ .F-hom) (LRFᴰPᴰ.β₁LR-reind {Γᴰ = Γᴰ}{p = p} _ _)
             ∙ ((∫F Fᴰ) .F-seq _ _)
         ⟩ ∙ sym (Dᴰ.⋆Assoc _ _ _)
-        ∙ Dᴰ.⟨ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.reind-filler _ ⟩ ∙ F⟨LR⟩.β₁LR _ _ _ _ ⟩⋆⟨⟩
+        ∙ Dᴰ.⟨ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.reind-filler _ ⟩ ∙ F⟨LR⟩.β₁LR Δᴰ (F ⟪ γ ⟫ P.⋆ p) _ _ ⟩⋆⟨⟩
         ∙ sym (Dᴰ.⋆Assoc _ _ _
-          ∙ Dᴰ.⟨ refl ⟩⋆⟨ F⟨LR⟩.β₁LR _ _ _ _ ⟩
-          ∙ LRPᴰ.β₁LR _ _
-          ∙ sym (Dᴰ.reind-filler _)))
+          ∙ Dᴰ.⟨ refl ⟩⋆⟨ F⟨LR⟩.β₁LR Γᴰ p _ _ ⟩
+          ∙ LRPᴰ.β₁LR-reind {Γᴰ = Fᴰ .F-obᴰ Γᴰ}{p = p} _ _))
         (Pᴰ.⋆Assoc _ _ _
         ∙ Pᴰ.⟨⟩⋆⟨
           Pᴰ.⟨⟩⋆⟨
-            sym (Pᴰ.reind-filler _ ∙ Pᴰ.reind-filler _)
-          ⟩ ∙ LRFᴰPᴰ.β₂LR _ _
-        ⟩ ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ∙ Pᴰ.reind-filler _ ∙ Pᴰ.reind-filler _
-        ⟩ ∙ F⟨LR⟩.β₂LR _ _ _ _
+            reind-filler⁻² _ _
+          ⟩ ∙ LRFᴰPᴰ.β₂LR {Γᴰ = Γᴰ}{p = p} _ _
+        ⟩ ∙ Pᴰ.⟨⟩⋆⟨ reind-split _ _ _
+        ⟩ ∙ F⟨LR⟩.β₂LR Δᴰ (F ⟪ γ ⟫ P.⋆ p) _ _
         ∙ (sym $
-        Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ F⟨LR⟩.β₂LR _ _ _ _ ⟩
-        ∙ LRPᴰ.β₂LR _ _
-        ∙ (sym $ Pᴰ.reind-filler _)))
+        Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ F⟨LR⟩.β₂LR Γᴰ p _ _ ⟩
+        ∙ LRPᴰ.β₂LR-reind {Γᴰ = Fᴰ .F-obᴰ Γᴰ}{p = p} _ _))
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {F : GlobalSection Cᴰ} where
   module _

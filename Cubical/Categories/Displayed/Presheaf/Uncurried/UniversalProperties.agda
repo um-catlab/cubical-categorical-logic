@@ -111,17 +111,30 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       → Cᴰ [ f ][ Γᴰ , vert ]
     _,ⱽ_ {f = f} fᴰ gᴰ = ue.intro (f , fᴰ , gᴰ) .snd
 
+    -- Both projections' β laws in total-space (∫≡) form, sharing a single
+    -- elaboration of `ue.β`.  See the note on ×βⱽᴰ∫ below: the universal
+    -- element's β is the expensive term, and it was previously elaborated
+    -- once per projection.
+    private
+      ×βⱽ∫ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
+        → (((fᴰ ,ⱽ gᴰ) Cᴰ.⋆ᴰ π₁) Cᴰ.∫≡ fᴰ)
+        × (((fᴰ ,ⱽ gᴰ) Cᴰ.⋆ᴰ π₂) Cᴰ.∫≡ gᴰ)
+      ×βⱽ∫ =
+        (Cᴰ.reind-filler _ ∙ Cᴰ.≡in (βs .fst))
+        , (Cᴰ.reind-filler _ ∙ Cᴰ.≡in (βs .snd))
+        where
+        βs = PathPΣ (PathPΣ ue.β .snd)
+
     ×βⱽ₁ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
       {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
       → ((fᴰ ,ⱽ gᴰ) Cᴰ.⋆ᴰ π₁) Cᴰ.≡[ C.⋆IdR f ] fᴰ
-    ×βⱽ₁ = Cᴰ.rectifyOut $
-      Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (PathPΣ ue.β .snd) .fst)
+    ×βⱽ₁ = Cᴰ.rectifyOut $ ×βⱽ∫ .fst
 
     ×βⱽ₂ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
       {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
       → ((fᴰ ,ⱽ gᴰ) Cᴰ.⋆ᴰ π₂) Cᴰ.≡[ C.⋆IdR f ] gᴰ
-    ×βⱽ₂ = Cᴰ.rectifyOut $
-      Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (PathPΣ ue.β .snd) .snd)
+    ×βⱽ₂ = Cᴰ.rectifyOut $ ×βⱽ∫ .snd
 
     ×ηⱽ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
       {hᴰ : Cᴰ [ f ][ Γᴰ , vert ]}
@@ -188,14 +201,28 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     πᴰ₂ : Cᴰ [ ue.element .snd ][ Aᴰ×ᴰBᴰ .fst , Bᴰ ]
     πᴰ₂ = Aᴰ×ᴰBᴰ .snd .fst .snd
 
+    -- as ×βⱽ∫: one elaboration of `βᴰ` for both projections
+    private
+      ×βᴰ∫ : ∀ {Γ Γᴰ}
+        {f : C [ Γ , A ]}
+        {g : C [ Γ , B ]}
+        (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
+        (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
+        → ((introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁) Cᴰ.∫≡ fᴰ)
+        × ((introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.∫≡ gᴰ)
+      ×βᴰ∫ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ =
+        (Cᴰ.reind-filler _ ∙ Cᴰ.≡in (βs .fst))
+        , (Cᴰ.reind-filler _ ∙ Cᴰ.≡in (βs .snd))
+        where
+        βs = PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ))
+
     ×βᴰ₁ : ∀ {Γ Γᴰ}
       {f : C [ Γ , A ]}
       {g : C [ Γ , B ]}
       (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
       (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
       → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .fst ] fᴰ
-    ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectifyOut $
-      Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
+    ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectifyOut $ ×βᴰ∫ fᴰ gᴰ .fst
 
     ×βᴰ₂ : ∀ {Γ Γᴰ}
       {f : C [ Γ , A ]}
@@ -203,8 +230,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
       (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
       → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .snd ] gᴰ
-    ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectifyOut $
-      Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
+    ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectifyOut $ ×βᴰ∫ fᴰ gᴰ .snd
 
     ×ηᴰ : ∀ {Γ Γᴰ}
       → {f : C [ Γ , A×B .vertex ]}
@@ -423,16 +449,32 @@ module _ {C : Category ℓC ℓC'}
     _,ⱽᴰ_ {f = f} {fᴰ = fᴰ} {gᴰ = gᴰ} fᴰᴰ gᴰᴰ =
       bpᴰ.intro ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ) .snd
 
+    -- Both projections' β laws, stated ONCE against `∫≡` (the total-space
+    -- view).  `bpᴰ.β` -- the universal-element β at the ∫-presheaf of the
+    -- BinProductⱽᴰ spec, and by a wide margin the most expensive term in
+    -- this file -- is now elaborated once for the pair instead of once per
+    -- projection, and the `reind` crossing the spec presheaf's action
+    -- introduces is paid here rather than restated at each use site.
+    private
+      ×βⱽᴰ∫ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
+        → (((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₁) Cᴰᴰ.∫≡ fᴰᴰ)
+        × (((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₂) Cᴰᴰ.∫≡ gᴰᴰ)
+      ×βⱽᴰ∫ fᴰᴰ gᴰᴰ =
+        (Cᴰᴰ.reind-filler _ ∙ Cᴰᴰ.≡in (βs .fst))
+        , (Cᴰᴰ.reind-filler _ ∙ Cᴰᴰ.≡in (βs .snd))
+        where
+        βs = PathPΣ (PathPΣ bpᴰ.β .snd)
+
     ×βⱽᴰ₁ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]}
       {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
       (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
       → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₁)
         Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×βⱽ₁ ] fᴰᴰ
-    ×βⱽᴰ₁ {f = f} {fᴰ = fᴰ} {gᴰ = gᴰ} fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut $
-      Cᴰᴰ.reind-filler _ ∙
-      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ
-        (bpᴰ.β {p = ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ)}) .snd) .fst)
+    ×βⱽᴰ₁ fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut $ ×βⱽᴰ∫ fᴰᴰ gᴰᴰ .fst
 
     ×βⱽᴰ₂ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]}
@@ -440,10 +482,7 @@ module _ {C : Category ℓC ℓC'}
       (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
       → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₂)
         Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×βⱽ₂ ] gᴰᴰ
-    ×βⱽᴰ₂ {f = f} {fᴰ = fᴰ} {gᴰ = gᴰ} fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut $
-      Cᴰᴰ.reind-filler _ ∙
-      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ
-        (bpᴰ.β {p = ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ)}) .snd) .snd)
+    ×βⱽᴰ₂ fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut $ ×βⱽᴰ∫ fᴰᴰ gᴰᴰ .snd
 
     ×βⱽᴰ₁-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]}
@@ -494,6 +533,41 @@ module _ {C : Category ℓC ℓC'}
       where
       η' = bpᴰ.η {f = ((f , hᴰ) , hᴰᴰ)}
 
+    -- `normalize-ηᴰ` and `align-ηᴰ` in `×ηⱽᴰ-on` below were the SAME
+    -- construction: assemble a path in the doubly-nested Σ that `bpᴰ.intro`
+    -- consumes out of its two component paths, rectifying the second
+    -- component's index along the first.  Stated once here so that its type
+    -- and the rectification square inside it are elaborated once for the
+    -- pair instead of once per component -- same idea as `×βⱽᴰ∫` above.
+    -- NB the implicits are the COMPONENTS, not the Σs: stating it with
+    -- `{z z' : Σ …}` and projecting makes the use sites solve `w .fst`,
+    -- which is not a pattern, and measured 4.5 GB WORSE than no sharing.
+    private
+      pairΣᴰᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {g g' : C [ Γ , x ]}
+        {a : Cᴰ [ g ][ Γᴰ , Aᴰ ]} {b : Cᴰ [ g ][ Γᴰ , Bᴰ ]}
+        {a' : Cᴰ [ g' ][ Γᴰ , Aᴰ ]} {b' : Cᴰ [ g' ][ Γᴰ , Bᴰ ]}
+        {u : Cᴰᴰ [ g , a ][ Γᴰᴰ , Aᴰᴰ ]} {v : Cᴰᴰ [ g , b ][ Γᴰᴰ , Bᴰᴰ ]}
+        {u' : Cᴰᴰ [ g' , a' ][ Γᴰᴰ , Aᴰᴰ ]} {v' : Cᴰᴰ [ g' , b' ][ Γᴰᴰ , Bᴰᴰ ]}
+        → Path (Σ[ ga ∈ (Σ[ h ∈ C [ Γ , x ] ] Cᴰ [ h ][ Γᴰ , Aᴰ ]) ]
+                 Cᴰᴰ [ ga .fst , ga .snd ][ Γᴰᴰ , Aᴰᴰ ])
+            ((g , a) , u) ((g' , a') , u')
+        → Path (Σ[ gb ∈ (Σ[ h ∈ C [ Γ , x ] ] Cᴰ [ h ][ Γᴰ , Bᴰ ]) ]
+                 Cᴰᴰ [ gb .fst , gb .snd ][ Γᴰᴰ , Bᴰᴰ ])
+            ((g , b) , v) ((g' , b') , v')
+        → Path (Σ[ y ∈ (Σ[ h ∈ C [ Γ , x ] ]
+                 (Cᴰ [ h ][ Γᴰ , Aᴰ ] × Cᴰ [ h ][ Γᴰ , Bᴰ ])) ]
+                 (Cᴰᴰ [ y .fst , y .snd .fst ][ Γᴰᴰ , Aᴰᴰ ] ×
+                  Cᴰᴰ [ y .fst , y .snd .snd ][ Γᴰᴰ , Bᴰᴰ ]))
+            ((g , a , b) , u , v) ((g' , a' , b') , u' , v')
+      pairΣᴰᴰ c₁ c₂ i =
+        let e₁ = cong fst c₁
+            e₂ = cong fst c₂
+            e₂' = λ j → e₁ j .fst , Cᴰ.rectifyOut {e' = cong fst e₁} e₂ j
+            p₁ = Cᴰᴰ.rectifyOut {e' = e₁} c₁
+            p₂ = Cᴰᴰ.rectifyOut {e' = e₂'} c₂
+        in ((e₁ i .fst , e₁ i .snd , e₂' i .snd) , p₁ i , p₂ i)
+
     ×ηⱽᴰ-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
       {π₁' : Cᴰ [ C.id ][ bpⱽ.vert , Aᴰ ]}
@@ -511,17 +585,9 @@ module _ {C : Category ℓC ℓC'}
     ×ηⱽᴰ-on {Γ = Γ} {Γᴰ = Γᴰ} {Γᴰᴰ = Γᴰᴰ} {f = f} {hᴰ = hᴰ}
       {π₁' = π₁'} {π₂' = π₂'} π₁≡π₁' π₂≡π₂' η' hᴰᴰ = Cᴰᴰ.rectifyOut {e' = η'} $
       Cᴰᴰ.≡in (×ηⱽᴰ hᴰᴰ)
-      ∙ cong bpᴰ.intro (normalize-ηᴰ ∙ align-ηᴰ)
+      ∙ cong bpᴰ.intro (pairΣᴰᴰ q₁ q₂ ∙ pairΣᴰᴰ r₁ r₂)
       ∙ Cᴰᴰ.reind-filler (ΣPathP (refl , refl))
       where
-      normalize-ηᴰ :
-        Path (Σ[ z ∈ (Σ[ g ∈ C [ Γ , x ] ]
-          (Cᴰ [ g ][ Γᴰ , Aᴰ ] × Cᴰ [ g ][ Γᴰ , Bᴰ ])) ]
-          (Cᴰᴰ [ z .fst , z .snd .fst ][ Γᴰᴰ , Aᴰᴰ ] ×
-           Cᴰᴰ [ z .fst , z .snd .snd ][ Γᴰᴰ , Bᴰᴰ ]))
-          ((((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element))
-          ((f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₁) , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₂)) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₁) , (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂))
       q₁ :
         let s = (((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element)
         in Path (Σ[ ga ∈ (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ]) ]
@@ -536,23 +602,6 @@ module _ {C : Category ℓC ℓC'}
              ((s .fst .fst , s .fst .snd .snd) , s .snd .snd)
              ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bpⱽ.π₂) , hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂)
       q₂ = sym (Cᴰᴰ.reind-filler _)
-      normalize-ηᴰ i =
-        let e₁ = cong fst q₁
-            e₂ = cong fst q₂
-            e₂' = λ j → e₁ j .fst , Cᴰ.rectifyOut {e' = cong fst e₁} e₂ j
-            p₁ = Cᴰᴰ.rectifyOut {e' = e₁} q₁
-            p₂ = Cᴰᴰ.rectifyOut {e' = e₂'} q₂
-        in ((e₁ i .fst , e₁ i .snd , e₂' i .snd) , p₁ i , p₂ i)
-      align-ηᴰ :
-        Path (Σ[ z ∈ (Σ[ g ∈ C [ Γ , x ] ]
-          (Cᴰ [ g ][ Γᴰ , Aᴰ ] × Cᴰ [ g ][ Γᴰ , Bᴰ ])) ]
-          (Cᴰᴰ [ z .fst , z .snd .fst ][ Γᴰᴰ , Aᴰᴰ ] ×
-           Cᴰᴰ [ z .fst , z .snd .snd ][ Γᴰᴰ , Bᴰᴰ ]))
-          ((f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₁) , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₂)) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₁) , (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂))
-          ((f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ π₁') , (hᴰ Cᴰ.⋆ᴰ π₂')) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₁≡π₁')) πᴰ₁) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂))
       r₁ : Path
         (Σ[ ga ∈ (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ]) ]
           Cᴰᴰ [ ga .fst , ga .snd ][ Γᴰᴰ , Aᴰᴰ ])
@@ -567,13 +616,6 @@ module _ {C : Category ℓC ℓC'}
         ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ π₂') ,
           hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂)
       r₂ = Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler (ΣPathP (refl , π₂≡π₂')) ⟩
-      align-ηᴰ i =
-            let e₁ = cong fst r₁
-                e₂ = cong fst r₂
-                e₂' = λ j → e₁ j .fst , Cᴰ.rectifyOut {e' = cong fst e₁} e₂ j
-                p₁ = Cᴰᴰ.rectifyOut {e' = e₁} r₁
-                p₂ = Cᴰᴰ.rectifyOut {e' = e₂'} r₂
-            in ((e₁ i .fst , e₁ i .snd , e₂' i .snd) , p₁ i , p₂ i)
 
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

@@ -206,27 +206,34 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) (D
     module F*Dᴰ = Fibers (reindex Dᴰ.Cᴰ F)
   open GuardedLogic
   reindexGuardedLogic : GuardedLogic C ℓDᴰ ℓDᴰ'
-  reindexGuardedLogic .Cᴰ = reindex Dᴰ.Cᴰ F
-  reindexGuardedLogic .▷ⱽ =
-    introFⱽ (Dᴰ.▷ⱽ ∘Fⱽᴰ π Dᴰ.Cᴰ F)
-  -- TODO: generalize?
-  reindexGuardedLogic .next .N-obᴰ xᴰ = Dᴰ.Cᴰ.reind (sym (F .F-id)) $ Dᴰ.next .N-obᴰ xᴰ
-  reindexGuardedLogic .next .N-homᴰ fᴰ =
-    Dᴰ.Cᴰ.rectifyOut (Dᴰ.Cᴰ.reind-revealed-filler⁻ _ ∙ Dᴰ.Cᴰ.⟨⟩⋆⟨ Dᴰ.Cᴰ.reind-filler⁻ _ ⟩
-      ∙ ∫NT Dᴰ.next .N-hom _ ∙ Dᴰ.Cᴰ.⟨ Dᴰ.Cᴰ.reind-filler _ ⟩⋆⟨⟩
-      ∙ Dᴰ.Cᴰ.reind-revealed-filler _)
-  reindexGuardedLogic .isFibCᴰ =
-    -- TODO: Why is this so slow
-    isFibrationReindex {ℓC = ℓC}{ℓC' = ℓC'}{ℓD = ℓD}{ℓD' = ℓD'}{C = C}{D = D} Dᴰ.Cᴰ F Dᴰ.isFibCᴰ
-  reindexGuardedLogic .termⱽ = TerminalsⱽReindex F Dᴰ.termⱽ
-  reindexGuardedLogic .gfpⱽ {A} {Aᴰ} f = reindexFixed-pointⱽ Dᴰ.Cᴰ F
-    (subst
-      (fixed-pointⱽ Dᴰ.Cᴰ (F ⟅ A ⟆)
-       (TerminalsⱽReindex F Dᴰ.termⱽ A .fst))
-      (Dᴰ.Cᴰ.rectifyOut (Dᴰ.Cᴰ.reind-filler⁻ _
-        ∙ Dᴰ.Cᴰ.⟨⟩⋆⟨ Dᴰ.Cᴰ.reind-filler⁻ _ ⟩
-        ∙ Dᴰ.Cᴰ.⟨ Dᴰ.Cᴰ.reind-filler _ ⟩⋆⟨⟩
-        ∙ Dᴰ.Cᴰ.reind-revealed-filler _
-        ∙ change-base⁻ {C = Dᴰ.Cᴰ.Hom[_][ Aᴰ , Aᴰ ]} (F .F-hom) (F*Dᴰ.reind-filler _)
-        ∙ Dᴰ.Cᴰ.reind-filler _))
-      (Dᴰ.gfpⱽ (Dᴰ.Cᴰ.reind (F .F-id) f)))
+  -- A record expression rather than copattern clauses: as a clause, isFibCᴰ
+  -- would be checked against isFibration (reindexGuardedLogic .Cᴰ) instead of
+  -- against the Cᴰ written here, and conversion has to unfold both spellings.
+  reindexGuardedLogic = record
+    { Cᴰ = reindex Dᴰ.Cᴰ F
+    ; ▷ⱽ = introFⱽ (Dᴰ.▷ⱽ ∘Fⱽᴰ π Dᴰ.Cᴰ F)
+    -- TODO: generalize?
+    ; next = record
+      { N-obᴰ = λ xᴰ → Dᴰ.Cᴰ.reind (sym (F .F-id)) $ Dᴰ.next .N-obᴰ xᴰ
+      ; N-homᴰ = λ fᴰ →
+        Dᴰ.Cᴰ.rectifyOut (Dᴰ.Cᴰ.reind-revealed-filler⁻ _
+          ∙ Dᴰ.Cᴰ.⟨⟩⋆⟨ Dᴰ.Cᴰ.reind-filler⁻ _ ⟩
+          ∙ ∫NT Dᴰ.next .N-hom _ ∙ Dᴰ.Cᴰ.⟨ Dᴰ.Cᴰ.reind-filler _ ⟩⋆⟨⟩
+          ∙ Dᴰ.Cᴰ.reind-revealed-filler _)
+      }
+    ; isFibCᴰ =
+      isFibrationReindex {ℓC = ℓC}{ℓC' = ℓC'}{ℓD = ℓD}{ℓD' = ℓD'}{C = C}{D = D}
+        Dᴰ.Cᴰ F Dᴰ.isFibCᴰ
+    ; termⱽ = TerminalsⱽReindex F Dᴰ.termⱽ
+    ; gfpⱽ = λ {A} {Aᴰ} f → reindexFixed-pointⱽ Dᴰ.Cᴰ F
+      (subst
+        (fixed-pointⱽ Dᴰ.Cᴰ (F ⟅ A ⟆)
+         (TerminalsⱽReindex F Dᴰ.termⱽ A .fst))
+        (Dᴰ.Cᴰ.rectifyOut (Dᴰ.Cᴰ.reind-filler⁻ _
+          ∙ Dᴰ.Cᴰ.⟨⟩⋆⟨ Dᴰ.Cᴰ.reind-filler⁻ _ ⟩
+          ∙ Dᴰ.Cᴰ.⟨ Dᴰ.Cᴰ.reind-filler _ ⟩⋆⟨⟩
+          ∙ Dᴰ.Cᴰ.reind-revealed-filler _
+          ∙ change-base⁻ {C = Dᴰ.Cᴰ.Hom[_][ Aᴰ , Aᴰ ]} (F .F-hom) (F*Dᴰ.reind-filler _)
+          ∙ Dᴰ.Cᴰ.reind-filler _))
+        (Dᴰ.gfpⱽ (Dᴰ.Cᴰ.reind (F .F-id) f)))
+    }

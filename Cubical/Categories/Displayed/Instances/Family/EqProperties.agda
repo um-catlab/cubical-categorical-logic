@@ -204,7 +204,7 @@ module _ {ℓ} (C : Category ℓC ℓC') where
       ueⱽ .UEⱽ.universal .isPshIsoEq.nIso ΓΓᴰf .fst f γ = Π.lda _ (λ x → f (γ , x))
       ueⱽ .UEⱽ.universal .isPshIsoEq.nIso ΓΓᴰf .snd .fst b = funExt λ x →
         C.⟨ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ C.⋆IdL _ ⟩⋆⟨ refl ⟩
-        ∙ Π.Πβ _ _ _
+        ∙ Π.Πβ _ (λ j → b (x .fst , j)) (x .snd)
       ueⱽ .UEⱽ.universal .isPshIsoEq.nIso ΓΓᴰf .snd .snd a = funExt (λ γ →
         Π.intro≡ _ (funExt λ x →
           C.⟨ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ C.⋆IdL _ ⟩⋆⟨ refl ⟩))

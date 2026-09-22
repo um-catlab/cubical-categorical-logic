@@ -130,7 +130,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       private
         module R = PresheafNotation R
         module Rᴰ = PresheafᴰNotation Rᴰ
-      open LocallyRepresentableⱽNotation _ _×ⱽ_*Pᴰ
+      open LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
       ⇒PshSmallⱽ-introᴰ⁻ :
         PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ
         → PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ
@@ -162,7 +162,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
           lem1 = Rᴰ.toPathPPshᴰ (λ i → vertexⱽ (Δᴰ ×ⱽ α .N-hom _ _ γ r i *Pᴰ))
             (sym $
               sym (Rᴰ.⋆Assocᴰⱽᴰ _ _ _)
-              ∙ Rᴰ.⟨ sym (Cᴰ.reind-filler _) ∙ β₁LR _ _ ⟩⋆⟨⟩
+              ∙ Rᴰ.⟨ sym (Cᴰ.reind-filler _) ∙ β₁LR {Γᴰ = Γᴰ}{p = α .N-ob Γ r} _ _ ⟩⋆⟨⟩
               ∙ Rᴰ.⋆Assocⱽᴰᴰ _ _ _
               ∙ sym (Rᴰ.reind-filler _)
               ∙ Rᴰ.⟨ symP (PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ]) (λ i → vertexⱽ (Δᴰ ×ⱽ α .N-hom _ _ γ r i *Pᴰ)) (cong (π₁LR Δᴰ) (α .N-hom Δ Γ γ r)))
@@ -178,7 +178,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
                 (cong (π₂LR Δᴰ) (α .N-hom Δ Γ γ r))
             ∙ (sym $ sym (Pᴰ.reind-filler _)
             ∙ Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
-            ∙ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _)))
+            ∙ β₂LR {Γᴰ = Γᴰ}{p = α .N-ob Γ r} _ _ ∙ (sym $ Pᴰ.reind-filler _)))
 
       -- opaque
       --   ⇒PshSmallⱽ-β : ∀ (αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ)

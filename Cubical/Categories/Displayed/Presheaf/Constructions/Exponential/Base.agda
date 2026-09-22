@@ -101,25 +101,38 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     _⇒PshSmallⱽ_ .F-homᴰ {Γ} {Δ} {γ} {Γᴰ} {Δᴰ} γᴰ p qᴰ = funcLR γᴰ Qᴰ.⋆ᴰ qᴰ
     _⇒PshSmallⱽ_ .F-idᴰ {Γ}{Γᴰ} =
       funExt λ p → funExt λ qᴰ →
-      symP $ PresheafᴰNotation.toPathPPshᴰ Qᴰ ((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _)) $
+      symP $ PresheafᴰNotation.toPathPPshᴰ Qᴰ ((cong ⌈ Γᴰ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL p)) $
         Qᴰ.⟨ sym $ introLR≡
           ((sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
-          ∙ (sym $ PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ])
-              (((cong ⌈ _ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL _)))
-              (cong (π₁LR _) $ sym $ P.⋆IdL _)))
-          (sym (PresheafᴰNotation.fromPathPPshᴰ Pᴰ (cong ⌈ _ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆IdL _)
-            (cong (π₂LR _) (sym $ P.⋆IdL _)) ∙ Pᴰ.reind-filler _))
+          ∙ (sym $ PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, Γᴰ ])
+              (((cong ⌈ Γᴰ ×ⱽ_*Pᴰ⌉) (sym $ P.⋆IdL p)))
+              (cong (π₁LR Γᴰ) $ sym $ P.⋆IdL p)))
+          (sym (PresheafᴰNotation.fromPathPPshᴰ Pᴰ (cong ⌈ Γᴰ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆IdL p)
+            (cong (π₂LR Γᴰ) (sym $ P.⋆IdL p)) ∙ Pᴰ.reind-filler _))
           ⟩⋆⟨⟩
     _⇒PshSmallⱽ_ .F-seqᴰ {Γ} {Δ} {Θ} {γ} {δ} {Γᴰ} {Δᴰ} {Θᴰ} γᴰ δᴰ = funExt λ p → funExt λ qᴰ →
-      symP $ PresheafᴰNotation.toPathPPshᴰ Qᴰ (cong ⌈ Θᴰ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc _ _ _) $ sym $
+      symP $ PresheafᴰNotation.toPathPPshᴰ Qᴰ (cong ⌈ Θᴰ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc δ γ p) $ sym $
         Qᴰ.⟨ introLR≡ (((sym $ Cᴰ.reind-filler _)
-              ∙ Cᴰ.⟨ sym $ PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, _ ]) (cong ⌈ Θᴰ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc _ _ _)
-                (cong (π₁LR Θᴰ) (sym $ P.⋆Assoc _ _ _))
+              ∙ Cᴰ.⟨ sym $ PresheafᴰNotation.fromPathPPshᴰ (Cᴰ [-][-, Θᴰ ]) (cong ⌈ Θᴰ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc δ γ p)
+                (cong (π₁LR Θᴰ) (sym $ P.⋆Assoc δ γ p))
                 ⟩⋆⟨⟩
               ∙ (sym $
-                Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ∙ sym (Cᴰ.reind-filler _) ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ β₁LR _ _ ∙ (sym $ Cᴰ.reind-filler _) ⟩ ∙ (sym $ Cᴰ.⋆Assoc _ _ _) ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _ )))
-                ((sym $ Pᴰ.reind-filler _) ∙ (sym $ PresheafᴰNotation.fromPathPPshᴰ Pᴰ ((cong ⌈ Θᴰ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc _ _ _)) (cong (π₂LR _) (sym $ P.⋆Assoc _ _ _)))
+                Cᴰ.⋆Assoc _ _ _
+                ∙ Cᴰ.⟨⟩⋆⟨ β₁LR {Γᴰ = Γᴰ}{p = p} _ _
+                          ∙ sym (Cᴰ.reind-filler _) ⟩
+                ∙ sym (Cᴰ.⋆Assoc _ _ _)
+                ∙ Cᴰ.⟨ Cᴰ.⋆Assoc _ _ _
+                     ∙ Cᴰ.⟨⟩⋆⟨ β₁LR {Γᴰ = Δᴰ}{p = γ P.⋆ p} _ _
+                               ∙ (sym $ Cᴰ.reind-filler _) ⟩
+                     ∙ (sym $ Cᴰ.⋆Assoc _ _ _) ⟩⋆⟨⟩
+                ∙ Cᴰ.⋆Assoc _ _ _ )))
+                ((sym $ Pᴰ.reind-filler _) ∙ (sym $ PresheafᴰNotation.fromPathPPshᴰ Pᴰ ((cong ⌈ Θᴰ ×ⱽ_*Pᴰ⌉ $ sym $ P.⋆Assoc δ γ p)) (cong (π₂LR Θᴰ) (sym $ P.⋆Assoc δ γ p)))
                 ∙ (sym $
-                Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _) ⟩ ∙ Pᴰ.⋆Assoc _ _ _ ∙ Pᴰ.⟨⟩⋆⟨ β₂LR _ _ ∙ (sym $ Pᴰ.reind-filler _) ⟩ ))
+                Pᴰ.⋆Assoc _ _ _
+                ∙ Pᴰ.⟨⟩⋆⟨ β₂LR {Γᴰ = Γᴰ}{p = p} _ _
+                          ∙ (sym $ Pᴰ.reind-filler _) ⟩
+                ∙ Pᴰ.⋆Assoc _ _ _
+                ∙ Pᴰ.⟨⟩⋆⟨ β₂LR {Γᴰ = Δᴰ}{p = γ P.⋆ p} _ _
+                          ∙ (sym $ Pᴰ.reind-filler _) ⟩ ))
         ⟩⋆⟨⟩
         ∙ Qᴰ.⋆Assoc _ _ _ ∙ Qᴰ.⋆Assoc _ _ _

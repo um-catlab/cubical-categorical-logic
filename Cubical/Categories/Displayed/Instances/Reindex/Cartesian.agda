@@ -123,8 +123,9 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
        reindexRepresentableIsoⱽ Dᴰ F x xᴰ))
     ((λ (Δ , Δᴰ , γ) γᴰ → (γᴰ ×ⱽ*xᴰ.⋆π₁ⱽ) -- making this explicit is negligible
       , Dᴰ.reind (sym $ F .F-seq γ f) (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
-    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectifyOut -- removing the second `ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out` is a big speedup
-
+    -- removing the second `ΣPathP (refl , (Dᴰ.rectifyOut` is a big speedup
+    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl ,
+      (Dᴰ.rectifyOut {a = F ⟅ Δ ⟆} {b = F ⟅ x ⟆} {aᴰ = Δᴰ} {bᴰ = xᴰ}
       $ Dᴰ.cong-reind _ _ -- making the first two args to cong-reind implicit is a noticable but smaller speedup
                       (Dᴰ.⋆IdL _))))
     ((λ (Δ , Δᴰ , γ) (γᴰ , γfᴰ) →

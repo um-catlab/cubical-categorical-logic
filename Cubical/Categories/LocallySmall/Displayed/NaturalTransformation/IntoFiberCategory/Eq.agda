@@ -46,8 +46,8 @@ module FunctorEqᴰDefs
   (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Eᴰ Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
   private
-    -- PERF: bare module applications copy & serialise every definition of
-    -- the section; restrict them to the names actually used here.
+    -- Bare module applications copy every definition of the section, so
+    -- these are restricted to the names actually used here.
     module Cᴰ = SmallCategoryᴰ Cᴰ using (catᴰ)
     module D = CategoryNotation D using (id; _⋆_)
     module Dᴰᴰ = SmallFibersᴰNotation Dᴰᴰ
@@ -85,8 +85,8 @@ module FunctorEqᴰDefs
       F-idᴰ Fᴰ
       ∙ ΣPathP (fib→fibEq Eᴰ D-⋆ _ .F-id ,
         (Dᴰᴰ.rectifyOut $ sym $ Dᴰᴰ.reind-filler _ _))
-    Functorᴰ→FunctorEqᴰ Fᴰ .F-seqᴰ _ _ =
-      F-seqᴰ Fᴰ _ _
+    Functorᴰ→FunctorEqᴰ Fᴰ .F-seqᴰ fᴰ gᴰ =
+      F-seqᴰ Fᴰ fᴰ gᴰ
       ∙ ΣPathP (fib→fibEq Eᴰ D-⋆ _ .F-seq _ _ ,
         (Dᴰᴰ.rectifyOut $
           (sym $ Dᴰᴰ.reind-filler _ _)
@@ -102,8 +102,8 @@ module FunctorEqᴰDefs
       F-idᴰ Fᴰ
       ∙ ΣPathP (fibEq→fib Eᴰ D-⋆ _ .F-id ,
         (Dᴰᴰ.rectifyOut $ Dᴰᴰ.reind-filler _ _))
-    FunctorEqᴰ→Functorᴰ Fᴰ .F-seqᴰ _ _ =
-      F-seqᴰ Fᴰ _ _
+    FunctorEqᴰ→Functorᴰ Fᴰ .F-seqᴰ fᴰ gᴰ =
+      F-seqᴰ Fᴰ fᴰ gᴰ
       ∙ ΣPathP (fibEq→fib Eᴰ D-⋆ _ .F-seq _ _ ,
         (Dᴰᴰ.rectifyOut $
           (sym $ Dᴰᴰ.reindEq-pathFiller _ _)

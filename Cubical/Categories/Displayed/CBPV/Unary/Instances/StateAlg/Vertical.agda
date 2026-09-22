@@ -165,8 +165,10 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
   η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .snd .fst γᴰ =
     -- Yikes, all of this just to apply recFSAᴰ-β
     -- TODO: improve the Spec so this is just recFSAᴰ-β
-    Cᴰ.rectifyOut {e' = refl} $
-      Cᴰ.reind-filler⁻ _
+    Cᴰ.rectifyOut {a = (𝓒 , Z)} {b = (𝒱 , A)}
+      {aᴰ = Zᴰ} {bᴰ = Aᴰ} {e' = refl} $
+      Cᴰ.reind-filler⁻ {a = (𝓒 , Z)} {b = (𝒱 , A)}
+        {aᴰ = Zᴰ} {bᴰ = Aᴰ} _
       ∙ Cᴰ.≡in {pth = refl} (funExt λ x → funExt λ xᴰ →
         hSetReasoning.rectifyOut (Z .fst) (λ z → ⟨ Zᴰ .fst z ⟩) $
           cong
@@ -185,7 +187,10 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
                 (ϕ .snd .fst ∘ η ⟨ A ⟩) γᴰ (Z .fst .snd) x xᴰ))
   η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .snd .snd ψᴰ =
     cong (η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .fst)
-      (Cᴰ.rectifyOut {e' = refl} (Cᴰ.reind-filler⁻ _))
+      (Cᴰ.rectifyOut {a = (𝓒 , Z)} {b = (𝒱 , A)}
+        {aᴰ = Zᴰ} {bᴰ = Aᴰ} {e' = refl}
+        (Cᴰ.reind-filler⁻ {a = (𝓒 , Z)} {b = (𝒱 , A)}
+          {aᴰ = Zᴰ} {bᴰ = Aᴰ} _))
     ∙ (Dᴰ.rectifyOut $
         Dᴰ.reind-filler⁻ (recHom≡ Z (ϕ .snd))
         ∙ Dᴰ.≡in {pth = recHom≡ Z (ϕ .snd)}
@@ -319,8 +324,10 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
           , isProp→PathP (λ i → isPropHomoᴰ (λ z → Zᴰ .fst z .snd)) _ _ ))
   push-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ψ) .snd .snd χᴰ =
     cong (push-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ψ) .fst)
-      (Cᴰ.rectifyOut {e' = refl} $
-        Cᴰ.reind-filler⁻ _
+      (Cᴰ.rectifyOut {a = (𝓒 , Z)} {b = (𝓒 , B)}
+        {aᴰ = Zᴰ} {bᴰ = Bᴰ} {e' = refl} $
+        Cᴰ.reind-filler⁻ {a = (𝓒 , Z)} {b = (𝓒 , B)}
+          {aᴰ = Zᴰ} {bᴰ = Bᴰ} _
         ∙ Cᴰ.≡in
             {pth = ΣPathP (refl , ∫Homo≡ _ _ (Z .fst .snd) refl)}
           (ΣPathP

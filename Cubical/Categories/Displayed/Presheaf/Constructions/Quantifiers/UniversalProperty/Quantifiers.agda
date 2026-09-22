@@ -96,31 +96,32 @@ module _
           (αᴰ : PshHomᴰ α Qᴰ (∀ⱽPsh Pⱽ))
           where
 
-          ∀ⱽPsh-ηᴰ : ∀ⱽPsh-introᴰ Pⱽ (∀ⱽPsh-introᴰ⁻ Pⱽ αᴰ) ≡ αᴰ
-          ∀ⱽPsh-ηᴰ =
-            cong reind-introᴰ (∀ⱽPsh-ηᴰ' (αᴰ ⋆PshHomᴰ reind-π))
-            ∙ reind-ηᴰ αᴰ
+        -- TODO update to handle opaque reind
+        --   ∀ⱽPsh-ηᴰ : ∀ⱽPsh-introᴰ Pⱽ (∀ⱽPsh-introᴰ⁻ Pⱽ αᴰ) ≡ αᴰ
+        --   ∀ⱽPsh-ηᴰ =
+        --     cong reind-introᴰ (∀ⱽPsh-ηᴰ' (αᴰ ⋆PshHomᴰ reind-π))
+        --     ∙ reind-ηᴰ αᴰ
 
-        module _
-          {α : PshHom Q (C [-, Γ ])}
-          (αᴰ : PshHomᴰ (mkProdPshHom Pⱽ α)
-                 (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
-          where
+        -- module _
+        --   {α : PshHom Q (C [-, Γ ])}
+        --   (αᴰ : PshHomᴰ (mkProdPshHom Pⱽ α)
+        --          (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
+        --   where
 
-          ∀ⱽPsh-βᴰ : ∀ⱽPsh-introᴰ⁻ Pⱽ (∀ⱽPsh-introᴰ Pⱽ αᴰ) ≡ αᴰ
-          ∀ⱽPsh-βᴰ =
-            cong (∀ⱽPsh-introᴰ⁻' Pⱽ) (reind-βᴰ (∀ⱽPsh-introᴰ' Pⱽ αᴰ))
-            ∙ ∀ⱽPsh-βᴰ' αᴰ
+        --   ∀ⱽPsh-βᴰ : ∀ⱽPsh-introᴰ⁻ Pⱽ (∀ⱽPsh-introᴰ Pⱽ αᴰ) ≡ αᴰ
+        --   ∀ⱽPsh-βᴰ =
+        --     cong (∀ⱽPsh-introᴰ⁻' Pⱽ) (reind-βᴰ (∀ⱽPsh-introᴰ' Pⱽ αᴰ))
+        --     ∙ ∀ⱽPsh-βᴰ' αᴰ
 
-        module _ {α : PshHom Q (C [-, Γ ])} where
-          ∀Psh-UMPᴰ :
-            Iso
-              (PshHomᴰ (mkProdPshHom Pⱽ α)
-                (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
-              (PshHomᴰ α Qᴰ (∀ⱽPsh Pⱽ))
-          ∀Psh-UMPᴰ =
-            iso
-              (∀ⱽPsh-introᴰ Pⱽ)
-              (∀ⱽPsh-introᴰ⁻ Pⱽ)
-              ∀ⱽPsh-ηᴰ
-              ∀ⱽPsh-βᴰ
+        -- module _ {α : PshHom Q (C [-, Γ ])} where
+        --   ∀Psh-UMPᴰ :
+        --     Iso
+        --       (PshHomᴰ (mkProdPshHom Pⱽ α)
+        --         (reind (π₁ Q (C [-, a ])) Qᴰ) Pⱽ)
+        --       (PshHomᴰ α Qᴰ (∀ⱽPsh Pⱽ))
+        --   ∀Psh-UMPᴰ =
+        --     iso
+        --       (∀ⱽPsh-introᴰ Pⱽ)
+        --       (∀ⱽPsh-introᴰ⁻ Pⱽ)
+        --       ∀ⱽPsh-ηᴰ
+        --       ∀ⱽPsh-βᴰ

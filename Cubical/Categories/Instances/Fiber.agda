@@ -10,7 +10,6 @@ module Cubical.Categories.Instances.Fiber where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
-open import Cubical.Foundations.ReindNormalForm
 open import Cubical.Foundations.Function
 
 import Cubical.Data.Equality as Eq
@@ -37,17 +36,6 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
         (Prectify to rectify) hiding (_P≡[_]_)
     module ∫Cᴰ = Category (∫C Cᴰ)
   open Cᴰ public
-
-  -- The reind normal form at the displayed hom family -- the same family
-  -- that R above instantiates hSetReasoning at. It stores the index equation
-  -- as data rather than transporting along it, so RNFᴴ.∫ is invariant under
-  -- RNFᴴ.reind definitionally and a reind-filler chain step becomes refl.
-  -- Not opened here; clients pick the names they want.  The `using` list is
-  -- load-bearing: Fibers is applied all over the library, and a bare module
-  -- application would copy every definition of RNFSet into each one.
-  module RNFᴴ {a b : C.ob} {aᴰ : Cᴰ.ob[ a ]}{bᴰ : Cᴰ.ob[ b ]} =
-    RNFSet (C.isSetHom {a}{b}) Cᴰ.Hom[_][ aᴰ , bᴰ ]
-      using (ReindNormalForm; rnf; idx; pth; val; ∫; reind; nf)
 
   module _ (EqId⋆ : ∀ {x} → C.id {x} C.⋆ C.id {x} Eq.≡ C.id) where
     Eqv[_] : C.ob → Category ℓCᴰ ℓCᴰ'

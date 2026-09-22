@@ -136,66 +136,14 @@ module _
         (Aᴰ[π₂].introᴰ (Cᴰ.reind (sym $ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ ×A.×β₂)
                                  ×ᴰAᴰ.π₂ᴰ))
 
-      -- ⇒ⱽᴰ-square-to is Cᴰ.reind e (introᴰ …), so every use of it in a
-      -- chain has to cross that reind. Its two β laws are stated here once,
-      -- against ∫, so that the chains below do not restate the crossing.
-      to-β₁ :
-        Path Cᴰ.Hom[ _ , _ ]
-          (_ , ⇒ⱽᴰ-square-to Cᴰ.⋆ᴰ ×ᴰAᴰ.π₁ᴰ)
-          (_ , ×ⱽπ₂*Aᴰ.π₁ⱽ Cᴰ.⋆ᴰ π₁*.πⱽ)
-      to-β₁ = Cᴰ.⟨ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩ ∙ ×ᴰAᴰ.×β₁ᴰ ∙ π₁*.⋆πⱽ≡⋆ᴰπⱽ _
-
-      to-β₂ :
-        Path Cᴰ.Hom[ _ , _ ]
-          (_ , ⇒ⱽᴰ-square-to Cᴰ.⋆ᴰ ×ᴰAᴰ.π₂ᴰ)
-          (_ , ×ⱽπ₂*Aᴰ.π₂ⱽ Cᴰ.⋆ᴰ Aᴰ[π₂].πⱽ)
-      to-β₂ = Cᴰ.⟨ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩
-        ∙ Cᴰ.reind-filler _ ∙ ×ᴰAᴰ.×β₂ᴰ ∙ Aᴰ[π₂].⋆πⱽ≡⋆ᴰπⱽ _
-
-      -- The two legs of the naturality square, with the functor terms
-      -- abstracted into a variable, so that each is proved once against
-      -- variable endpoints rather than against elaborated F-homᴰ terms.
-      ⋆to-β₁ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{h}
-        (hᴰ : Cᴰ [ h ][ Δᴰ , (π₁* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((×A.π₁ C.⋆ f) ×A.,p ×A.π₂) * ])
-        → Path Cᴰ.Hom[ _ , _ ]
-            (_ , (hᴰ Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to) Cᴰ.⋆ᴰ ×ᴰAᴰ.π₁ᴰ)
-            (_ , (hᴰ Cᴰ.⋆ᴰ ×ⱽπ₂*Aᴰ.π₁ⱽ) Cᴰ.⋆ᴰ π₁*.πⱽ)
-      ⋆to-β₁ hᴰ = Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ to-β₁ ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _)
-
-      ⋆to-β₂ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{h}
-        (hᴰ : Cᴰ [ h ][ Δᴰ , (π₁* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((×A.π₁ C.⋆ f) ×A.,p ×A.π₂) * ])
-        → Path Cᴰ.Hom[ _ , _ ]
-            (_ , (hᴰ Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to) ×ᴰAᴰ.⋆ᴰ ×ᴰAᴰ.π₂ᴰ)
-            (_ , (hᴰ Cᴰ.⋆ᴰ ×ⱽπ₂*Aᴰ.π₂ⱽ) Cᴰ.⋆ᴰ Aᴰ[π₂].πⱽ)
-      ⋆to-β₂ hᴰ =
-        Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ to-β₂ ⟩
-        ∙ sym (Cᴰ.⋆Assoc _ _ _)
-
-      -- The mirror-image legs, with ⇒ⱽᴰ-square-to on the left of the
-      -- composite and the ×ᴰPᴰ functor's action introᴰ (π₁ᴰ ⋆ᴰ wᴰ , π₂ᴰ)
-      -- on the right.
-      to⋆-β₁ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{w}(wᴰ : Cᴰ [ w ][ Γᴰ , Δᴰ ])
-        → Path Cᴰ.Hom[ _ , _ ]
-            (_ , (⇒ⱽᴰ-square-to Cᴰ.⋆ᴰ ×ᴰAᴰ.introᴰ ((×ᴰAᴰ.π₁ᴰ Cᴰ.⋆ᴰ wᴰ) , ×ᴰAᴰ.π₂ᴰ))
-                   Cᴰ.⋆ᴰ ×ᴰAᴰ.π₁ᴰ)
-            (_ , ×ⱽπ₂*Aᴰ.π₁ⱽ Cᴰ.⋆ᴰ (π₁*.πⱽ Cᴰ.⋆ᴰ wᴰ))
-      to⋆-β₁ wᴰ = Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ ⟩
-        ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ to-β₁ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _
-
-      to⋆-β₂ : ∀ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{w}(wᴰ : Cᴰ [ w ][ Γᴰ , Δᴰ ])
-        → Path Cᴰ.Hom[ _ , _ ]
-            (_ , (⇒ⱽᴰ-square-to Cᴰ.⋆ᴰ ×ᴰAᴰ.introᴰ ((×ᴰAᴰ.π₁ᴰ Cᴰ.⋆ᴰ wᴰ) , ×ᴰAᴰ.π₂ᴰ))
-                   ×ᴰAᴰ.⋆ᴰ ×ᴰAᴰ.π₂ᴰ)
-            (_ , ×ⱽπ₂*Aᴰ.π₂ⱽ Cᴰ.⋆ᴰ Aᴰ[π₂].πⱽ)
-      to⋆-β₂ wᴰ = Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆Assoc _ _ _
-        ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ∙ ×ᴰAᴰ.×β₂ᴰ ⟩ ∙ to-β₂
-
       ⇒ⱽᴰ-square-sec : (⇒ⱽᴰ-square-from Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to) Cᴰ.∫≡ Cᴰ.idᴰ
-      ⇒ⱽᴰ-square-sec = ×ᴰAᴰ.×-extensionalityᴰ
-        (⋆to-β₁ _ ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ _ ⟩⋆⟨⟩
+      ⇒ⱽᴰ-square-sec = Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ _ ⟩ ∙ ×ᴰAᴰ.×-extensionalityᴰ
+        (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ ∙ π₁*.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
+        ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ _ ⟩⋆⟨⟩
         ∙ π₁*.βᴰ' _
         ∙ Cᴰ.reind-filler⁻ _ ∙ sym (Cᴰ.⋆IdL _))
-        (⋆to-β₂ _ ∙ Cᴰ.⟨ Cᴰ.reind-filler _ ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ _ _ ⟩⋆⟨⟩
+        (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ∙ ×ᴰAᴰ.×β₂ᴰ ∙ Aᴰ[π₂].⋆πⱽ≡⋆ᴰπⱽ _ ⟩
+        ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.reind-filler _ ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ _ _ ⟩⋆⟨⟩
         ∙ Aᴰ[π₂].βᴰ' _
         ∙ Cᴰ.reind-filler⁻ _ ∙ (sym $ Cᴰ.⋆IdL _) ∙ Cᴰ.reind-filler _)
 
@@ -227,13 +175,22 @@ module _
        ((Fstⱽ Cᴰ (Element (C [-, B ])) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd LHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _ Cᴰ.⋆ᴰ ⇒ⱽᴰ-square-to Γ Γᴰ g)
         Cᴰ.∫≡
        (⇒ⱽᴰ-square-isoᴰ Δ Δᴰ f .fst Cᴰ.⋆ᴰ (Fstⱽ Cᴰ (Element (C [-, B ])) ∘Fⱽᴰ Unitᴰ.recᴰ (compSectionFunctor Snd RHS-F)) .F-homᴰ {f = (γ , γᴰ , γg≡f)} _)
-      ⇒ⱽᴰ-square-nat = ×ᴰAᴰ.×-extensionalityᴰ
-        (⋆to-β₁ Γ Γᴰ g _ ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ _ ⟩⋆⟨⟩
+      ⇒ⱽᴰ-square-nat = Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ _ ⟩ ∙ ×ᴰAᴰ.×-extensionalityᴰ
+        (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ ∙ π₁*.⋆πⱽ≡⋆ᴰπⱽ _ ⟩
+        ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×ⱽπ₂*Aᴰ.β₁ⱽ _ _ ⟩⋆⟨⟩
         ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ' _ ∙ Cᴰ.reind-filler⁻ _ ⟩
-        ∙ sym (to⋆-β₁ Δ Δᴰ f γᴰ))
-        (⋆to-β₂ Γ Γᴰ g _
-        ∙ Cᴰ.⟨ Cᴰ.reind-filler _ ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ _ _ ∙ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩
-        ∙ sym (to⋆-β₂ Δ Δᴰ f γᴰ))
+        ∙ sym (Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×ᴰAᴰ.×β₁ᴰ ⟩
+          ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨
+            Cᴰ.⟨ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩
+            ∙ ×ᴰAᴰ.×β₁ᴰ
+            ∙ π₁*.⋆πⱽ≡⋆ᴰπⱽ _
+            ⟩⋆⟨⟩
+          ∙ Cᴰ.⋆Assoc _ _ _))
+        (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ∙ ×ᴰAᴰ.×β₂ᴰ ∙ Aᴰ[π₂].⋆πⱽ≡⋆ᴰπⱽ _ ⟩
+        ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ Cᴰ.reind-filler _ ∙ ×ⱽπ₂*Aᴰ.β₂ⱽ _ _ ∙ Cᴰ.reind-filler⁻ _ ∙ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩
+        ∙ sym (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆Assoc _ _ _
+          ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ∙ ×ᴰAᴰ.×β₂ᴰ  ⟩
+          ∙ Cᴰ.⟨ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩ ∙ Cᴰ.reind-filler _ ∙ ×ᴰAᴰ.×β₂ᴰ ∙ Aᴰ[π₂].⋆πⱽ≡⋆ᴰπⱽ _))
 
     ⇒ⱽᴰ-square :
       NatIso {C = Cᴰ / (C [-, A⇒B .vertex ])}

@@ -92,15 +92,6 @@ module _
     π'≡swap⁻Gπ : ∀ Δ → π' ⟦ G ⟅ Δ ⟆ ⟧ ≡ swap .nIso Δ .inv D.⋆ G ⟪ π ⟦ Δ ⟧ ⟫
     π'≡swap⁻Gπ Δ = invMoveL {C = D} (isIso→areInv (swap .nIso Δ)) (swapπ'≡Gπ Δ)
 
-    -- A two-step reind crossing. Stated once with the shape
-    -- reind e' (reind e p) fixed up front, so the chains below need not
-    -- invert both fillers' metas out of the surrounding goal.
-    reind-filler² : ∀ {a b : D.ob}{f g h : D [ a , b ]}
-      {aᴰ : Dᴰ.ob[ a ]}{bᴰ : Dᴰ.ob[ b ]}{fᴰ : Dᴰ [ f ][ aᴰ , bᴰ ]}
-      → (e : f ≡ g)(e' : g ≡ h)
-      → fᴰ Dᴰ.∫≡ Dᴰ.reind e' (Dᴰ.reind e fᴰ)
-    reind-filler² e e' = Dᴰ.reind-filler e ∙ Dᴰ.reind-filler e'
-
     -- Both halves of the isomorphism below cancel two square fillers against
     -- each other; stated once, over an arbitrary pair of inverse base maps.
     sq-cancel : ∀ {w x y}{f : D [ w , x ]}{f' : D [ x , w ]}
@@ -148,11 +139,11 @@ module _
             {x = (Θ , Θᴰ , _)}{y = (Δ , Δᴰ , _)}{f = (δ , δᴰ , _)} _ =
             Dᴰ.rectifyOut $
               _ , (cartLifts.sq-filler δᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ _)
-                ≡⟨ cartLifts.sq-collapse δᴰ Dᴰ.idᴰ
+                ≡⟨ cartLifts.sq-collapse _ _
                   ∙ cartLifts.cong-introᴰ (symNatIso swap .trans .N-hom δ)
                        (Dᴰ.cong-reind _ _ Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdR (_ , δᴰ)
                                                   ∙ sym (Dᴰ.⋆IdL (_ , δᴰ)) ⟩)
-                  ∙ sym (cartLifts.sq-collapse Dᴰ.idᴰ δᴰ) ⟩
+                  ∙ sym (cartLifts.sq-collapse _ _) ⟩
               _ ,
               cartLifts.sq-filler Dᴰ.idᴰ _
               Dᴰ.⋆ᴰ cartLifts.sq-filler δᴰ (sym $ (G ∘ʳ π) .N-hom δ)
@@ -160,7 +151,8 @@ module _
                             (Dᴰ.cong-reind _ _
                             (Dᴰ.⟨ cartLifts.⟨ Dᴰ.reind-filler _ ⟩⋆πⱽ
                              ∙ Dᴰ.reind-filler _ ⟩⋆⟨⟩
-                             ∙ reind-filler² _ _)) ⟩ ⟩
+                             ∙ Dᴰ.reind-filler _
+                             ∙ Dᴰ.reind-filler _)) ⟩ ⟩
               _ ∎
         the-niᴰ .NatIsoᴰ.nIsoᴰ {x = Δ , Δᴰ , γ} _ =
           isisoᴰ (cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ sym (swapπ'≡Gπ Δ)))

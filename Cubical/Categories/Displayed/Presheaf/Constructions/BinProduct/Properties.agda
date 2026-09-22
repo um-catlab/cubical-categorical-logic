@@ -73,8 +73,8 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
         ×ᴰ-UMPᴰ .IsoOver.fun α×β α×βᴰ = (α×βᴰ ⋆PshHomᴰ ×ᴰ-π₁) , (α×βᴰ ⋆PshHomᴰ ×ᴰ-π₂)
         ×ᴰ-UMPᴰ .IsoOver.inv (α , β) (αᴰ , βᴰ) = ×ᴰ-introᴰ αᴰ βᴰ
         ×ᴰ-UMPᴰ .IsoOver.rightInv (α , β) (αᴰ , βᴰ) =
-          ΣPathP ((makePshHomᴰPathP _ _ _ (funExt (λ rᴰ → Pᴰ.rectify $ Pᴰ.≡out $ refl))) , (makePshHomᴰPathP _ _ _ (funExt (λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl))))
-        ×ᴰ-UMPᴰ .IsoOver.leftInv α×β α×βᴰ = makePshHomᴰPathP _ _ _ (funExt λ rᴰ → ΣPathP ((Pᴰ.rectify $ Pᴰ.≡out $ refl) , (Qᴰ.rectify $ Qᴰ.≡out $ refl)))
+          ΣPathP ((makePshHomᴰPathP _ _ _ (funExt (λ rᴰ → Pᴰ.rectifyOut refl))) , (makePshHomᴰPathP _ _ _ (funExt (λ rᴰ → Qᴰ.rectifyOut refl))))
+        ×ᴰ-UMPᴰ .IsoOver.leftInv α×β α×βᴰ = makePshHomᴰPathP _ _ _ (funExt λ rᴰ → ΣPathP ((Pᴰ.rectifyOut refl) , (Qᴰ.rectifyOut refl)))
 
   module _ {P : Presheaf C ℓP}{Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ}{Qᴰ : Presheafᴰ P Cᴰ ℓQᴰ}
     where
@@ -182,16 +182,16 @@ module _ {C : Category ℓ ℓ'} {Cᴰ : Categoryᴰ C ℓᴰ ℓᴰ'}
   PshProdⱽ≡ᴰ = Functorᴰ≡
     (λ Aᴰ → funExt λ (p , q) → ΣPathPProp (λ _ → isPropIsSet) refl)
     λ fᴰ → funExt λ (p , q) → funExt λ (pᴰ , qᴰ) → ΣPathP $
-      (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
-      , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _)
+      (Pᴰ.rectifyOut $ Pᴰ.reind-filler _)
+      , (Qᴰ.rectifyOut $ Qᴰ.reind-filler _)
 
   -- This one is only Eq.refl on objects, would need a corresponding eqToPshIsoⱽ' like reindF''
   PshProdⱽ≅ᴰ :
     PshIsoⱽ (Pᴰ ×ᴰPsh Qᴰ) (reind (π₁ P Q) Pᴰ ×ⱽPsh reind (π₂ P Q) Qᴰ)
   PshProdⱽ≅ᴰ .fst .N-obᴰ x = x
   PshProdⱽ≅ᴰ .fst .N-homᴰ =
-    ΣPathP ( (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
-           , (Qᴰ.rectify $ Qᴰ.≡out $ Qᴰ.reind-filler _))
+    ΣPathP ( (Pᴰ.rectifyOut $ Pᴰ.reind-filler _)
+           , (Qᴰ.rectifyOut $ Qᴰ.reind-filler _))
   PshProdⱽ≅ᴰ .snd .inv _ x = x
   PshProdⱽ≅ᴰ .snd .rightInv _ _ = refl
   PshProdⱽ≅ᴰ .snd .leftInv _ _ = refl

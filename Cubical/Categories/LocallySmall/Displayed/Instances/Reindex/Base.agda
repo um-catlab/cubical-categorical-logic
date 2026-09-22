@@ -52,14 +52,14 @@ module _
         subst (λ gᴰ → gᴰ Cᴰ.≡[ C.⋆IdL _ ] fᴰ)
           (⋆ᴰ' Cᴰ.idᴰ fᴰ .snd
           ∙ cong₂ (λ u v → ⋆ᴰ' u v .fst) (idᴰ' .snd) refl)
-          (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ _))
+          (Cᴰ.rectifyOut $ Cᴰ.⋆IdLᴰ _))
     redefine-idᴰ-⋆ᴰ .⋆IdRᴰ fᴰ =
       ΣPathP (
         (C.⋆IdR _) ,
         subst (λ gᴰ → gᴰ Cᴰ.≡[ C.⋆IdR _ ] fᴰ)
           (⋆ᴰ' fᴰ Cᴰ.idᴰ .snd
           ∙ cong₂ (λ u v → ⋆ᴰ' u v .fst) refl (idᴰ' .snd))
-          (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ _))
+          (Cᴰ.rectifyOut $ Cᴰ.⋆IdRᴰ _))
     redefine-idᴰ-⋆ᴰ .⋆Assocᴰ fᴰ gᴰ hᴰ =
       ΣPathP (
         (C.⋆Assoc _ _ _) ,
@@ -69,7 +69,7 @@ module _
           ∙ cong (λ z → ⋆ᴰ' z hᴰ .fst) (⋆ᴰ' fᴰ gᴰ .snd))
           (⋆ᴰ' fᴰ (gᴰ Cᴰ.⋆ᴰ hᴰ) .snd
           ∙ cong (λ z → ⋆ᴰ' fᴰ z .fst) (⋆ᴰ' gᴰ hᴰ .snd))
-          (Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _)
+          (Cᴰ.rectifyOut $ Cᴰ.⋆Assocᴰ _ _ _)
         )
     redefine-idᴰ-⋆ᴰ .isSetHomᴰ = Cᴰ.isSetHomᴰ
 
@@ -101,21 +101,21 @@ module _
     reindex .⋆IdLᴰ fᴰ =
       ΣPathP (
         (C.⋆IdL _) ,
-        (Dᴰ.rectify $ Dᴰ.≡out $
+        (Dᴰ.rectifyOut $
           (sym $ Dᴰ.reind-filler _ _)
           ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
           ∙ Dᴰ.⋆IdLᴰ _))
     reindex .⋆IdRᴰ fᴰ =
       ΣPathP (
         (C.⋆IdR _) ,
-        (Dᴰ.rectify $ Dᴰ.≡out $
+        (Dᴰ.rectifyOut $
           (sym $ Dᴰ.reind-filler _ _)
           ∙ Dᴰ.⟨⟩⋆⟨ sym $ Dᴰ.reind-filler _ _ ⟩
           ∙ Dᴰ.⋆IdRᴰ _))
     reindex .⋆Assocᴰ fᴰ gᴰ hᴰ =
       ΣPathP (
         (C.⋆Assoc _ _ _) ,
-        (Dᴰ.rectify $ Dᴰ.≡out $
+        (Dᴰ.rectifyOut $
           (sym $ Dᴰ.reind-filler _ _)
           ∙ Dᴰ.⟨ sym $ Dᴰ.reind-filler _ _ ⟩⋆⟨⟩
           ∙ Dᴰ.⋆Assocᴰ _ _ _
@@ -131,11 +131,11 @@ module _
     π .F-idᴰ =
       ΣPathP (
         F.F-id ,
-        (Dᴰ.rectify $ Dᴰ.≡out $ sym $ Dᴰ.reind-filler _ _))
+        (Dᴰ.rectifyOut $ sym $ Dᴰ.reind-filler _ _))
     π .F-seqᴰ _ _ =
       ΣPathP (
         F.F-seq _ _ ,
-        (Dᴰ.rectify $ Dᴰ.≡out $ sym $ Dᴰ.reind-filler _ _))
+        (Dᴰ.rectifyOut $ sym $ Dᴰ.reind-filler _ _))
 
     module _
       (F-id' : {x : Cob} → D .id {x = F.F-ob x} Eq.≡ F.F-hom (C .id))
@@ -215,17 +215,17 @@ module _
       ΣPathP ((C.⋆IdL _) ,
         ΣPathP ((D.⋆IdL Ff) ,
           ΣPathP ((isSet→SquareP (λ _ _ → D.isSetHom) _ _ _ _) ,
-            (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdLᴰ fᴰ))))
+            (Dᴰ.rectifyOut $ Dᴰ.⋆IdLᴰ fᴰ))))
     reindex' .⋆IdRᴰ (Ff , p , fᴰ) =
       ΣPathP ((C.⋆IdR _) ,
         ΣPathP ((D.⋆IdR Ff) ,
           ΣPathP ((isSet→SquareP (λ _ _ → D.isSetHom) _ _ _ _) ,
-            (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdRᴰ fᴰ))))
+            (Dᴰ.rectifyOut $ Dᴰ.⋆IdRᴰ fᴰ))))
     reindex' .⋆Assocᴰ (Ff , p , fᴰ) (Fg , q , gᴰ) (Fh , r , hᴰ) =
       ΣPathP ((C.⋆Assoc _ _ _) ,
         ΣPathP ((D.⋆Assoc Ff Fg Fh) ,
           ΣPathP ((isSet→SquareP (λ _ _ → D.isSetHom) _ _ _ _) ,
-            (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ))))
+            (Dᴰ.rectifyOut $ Dᴰ.⋆Assocᴰ fᴰ gᴰ hᴰ))))
     reindex' .isSetHomᴰ =
       isSetΣ D.isSetHom (λ _ → isSetΣ (isProp→isSet (D.isSetHom _ _))
         (λ _ → Dᴰ.isSetHomᴰ))
@@ -267,12 +267,12 @@ module _
       reindex→reindexEq .F-homᴰ = λ fᴰ → fᴰ
       reindex→reindexEq .F-idᴰ =
         ΣPathP (refl ,
-          (Dᴰ.rectify $ Dᴰ.≡out $
+          (Dᴰ.rectifyOut $
             (sym $ Dᴰ.reind-filler _ _)
             ∙ Dᴰ.reindEq-pathFiller F-id' Dᴰ.idᴰ))
       reindex→reindexEq .F-seqᴰ {f = f}{g = g} fᴰ gᴰ =
         ΣPathP (refl ,
-          (Dᴰ.rectify $ Dᴰ.≡out $
+          (Dᴰ.rectifyOut $
             (sym $ Dᴰ.reind-filler _ _)
             ∙ Dᴰ.reindEq-pathFiller _ _))
 
@@ -282,12 +282,12 @@ module _
       reindexEq→reindex .F-homᴰ = λ fᴰ → fᴰ
       reindexEq→reindex .F-idᴰ =
         ΣPathP (refl ,
-          (Dᴰ.rectify $ Dᴰ.≡out $
+          (Dᴰ.rectifyOut $
            (sym $ Dᴰ.reindEq-pathFiller _ _)
             ∙ Dᴰ.reind-filler _ _))
       reindexEq→reindex .F-seqᴰ {f = f}{g = g} fᴰ gᴰ =
         ΣPathP (refl ,
-          (Dᴰ.rectify $ Dᴰ.≡out $
+          (Dᴰ.rectifyOut $
            (sym $ Dᴰ.reindEq-pathFiller _ _)
             ∙ Dᴰ.reind-filler _ _))
 

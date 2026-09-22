@@ -63,7 +63,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
         Dᴰ.⋆ᴰ Gᴰ .F-homᴰ fᴰ)
         Dᴰ.⋆ᴰ nIsoᴰ yᴰ .isIsoᴰ.invᴰ)
     sqRLᴰ =
-      Dᴰ.rectify $ Dᴰ.≡out $
+      Dᴰ.rectifyOut $
         (sym $ Dᴰ.⋆IdR _)
         ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.≡in (symP (nIsoᴰ _ .isIsoᴰ.retᴰ)) ⟩
         ∙ (sym $ Dᴰ.⋆Assoc _ _ _)
@@ -78,7 +78,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
         (Gᴰ .F-homᴰ fᴰ Dᴰ.⋆ᴰ nIsoᴰ yᴰ .isIsoᴰ.invᴰ)
         (nIsoᴰ xᴰ .isIsoᴰ.invᴰ Dᴰ.⋆ᴰ Fᴰ .F-homᴰ fᴰ)
     sqLLᴰ =
-      Dᴰ.rectify $ Dᴰ.≡out $
+      Dᴰ.rectifyOut $
         (sym $ Dᴰ.⋆IdL _)
         ∙ Dᴰ.⟨ sym $ Dᴰ.≡in $ nIsoᴰ _ .isIsoᴰ.secᴰ ⟩⋆⟨ refl ⟩
         ∙ Dᴰ.⋆Assoc _ _ _
@@ -95,7 +95,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
         Dᴰ.⋆ᴰ Fᴰ .F-homᴰ fᴰ)
         Dᴰ.⋆ᴰ transᴰ .N-obᴰ yᴰ)
     sqLRᴰ =
-      Dᴰ.rectify $ Dᴰ.≡out $
+      Dᴰ.rectifyOut $
         (sym $ Dᴰ.⋆IdR _)
         ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.≡in (symP (nIsoᴰ _ .isIsoᴰ.secᴰ)) ⟩
         ∙ (sym $ Dᴰ.⋆Assoc _ _ _)
@@ -116,7 +116,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} where
           → (Fᴰ .F-homᴰ fᴰ Dᴰ.⋆ᴰ isoᴰs yᴰ .fst) Dᴰ.∫≡ (isoᴰs xᴰ .fst Dᴰ.⋆ᴰ Gᴰ .F-homᴰ fᴰ))
       → NatIsoᴰ α Fᴰ Gᴰ
     isosToNatIsoᴰ isoᴰs homᴰ .transᴰ .N-obᴰ = λ xᴰ → isoᴰs xᴰ .fst
-    isosToNatIsoᴰ isoᴰs homᴰ .transᴰ .N-homᴰ fᴰ = Dᴰ.rectify $ Dᴰ.≡out $ homᴰ fᴰ
+    isosToNatIsoᴰ isoᴰs homᴰ .transᴰ .N-homᴰ fᴰ = Dᴰ.rectifyOut $ homᴰ fᴰ
     isosToNatIsoᴰ isoᴰs homᴰ .nIsoᴰ xᴰ .invᴰ = isoᴰs xᴰ .snd .invᴰ
     isosToNatIsoᴰ isoᴰs homᴰ .nIsoᴰ xᴰ .secᴰ = isoᴰs xᴰ .snd .secᴰ
     isosToNatIsoᴰ isoᴰs homᴰ .nIsoᴰ xᴰ .retᴰ = isoᴰs xᴰ .snd .retᴰ
@@ -160,7 +160,7 @@ module _
     _∘ʳᴰ_ : NatTransᴰ (F ∘ʳ α) (Fᴰ ∘Fᴰ Gᴰ) (Fᴰ ∘Fᴰ Hᴰ)
     _∘ʳᴰ_ .N-obᴰ bᴰ = Fᴰ .F-homᴰ (αᴰ .N-obᴰ bᴰ)
     _∘ʳᴰ_ .N-homᴰ {f = f} {xᴰ = xᴰ} {yᴰ = yᴰ} fᴰ =
-      Dᴰ.rectify $ Dᴰ.≡out $
+      Dᴰ.rectifyOut $
         Dᴰ.≡in (symP (Fᴰ .F-seqᴰ _ _))
         ∙ Dᴰ.≡in (congP (λ _ → Fᴰ .F-homᴰ) (αᴰ .N-homᴰ fᴰ))
         ∙ Dᴰ.≡in (Fᴰ .F-seqᴰ _ _)
@@ -175,12 +175,12 @@ module _
     _∘ʳᴰⁱ_ .NatIsoᴰ.nIsoᴰ bᴰ .isIsoᴰ.invᴰ =
       F-homᴰ Fᴰ (αᴰ .NatIsoᴰ.nIsoᴰ bᴰ .isIsoᴰ.invᴰ)
     _∘ʳᴰⁱ_ .NatIsoᴰ.nIsoᴰ bᴰ .isIsoᴰ.secᴰ =
-      Dᴰ.rectify $ Dᴰ.≡out $
+      Dᴰ.rectifyOut $
         Dᴰ.≡in (symP $ Fᴰ .F-seqᴰ _ _)
         ∙ (Dᴰ.≡in $ congP (λ _ → Fᴰ .F-homᴰ) (αᴰ .NatIsoᴰ.nIsoᴰ bᴰ .isIsoᴰ.secᴰ))
         ∙ (Dᴰ.≡in $ Fᴰ .F-idᴰ)
     _∘ʳᴰⁱ_ .NatIsoᴰ.nIsoᴰ bᴰ .isIsoᴰ.retᴰ =
-      Dᴰ.rectify $ Dᴰ.≡out $
+      Dᴰ.rectifyOut $
         Dᴰ.≡in (symP $ Fᴰ .F-seqᴰ _ _)
         ∙ (Dᴰ.≡in $ congP (λ _ → Fᴰ .F-homᴰ) (αᴰ .NatIsoᴰ.nIsoᴰ bᴰ .isIsoᴰ.retᴰ))
         ∙ (Dᴰ.≡in $ Fᴰ .F-idᴰ)
@@ -200,7 +200,7 @@ module _
   idTransᴰ : NatTransᴰ (idTrans F) Fᴰ Fᴰ
   idTransᴰ .N-obᴰ _ =  Dᴰ.idᴰ
   idTransᴰ .N-homᴰ fᴰ =
-    Dᴰ.rectify $ Dᴰ.≡out $
+    Dᴰ.rectifyOut $
       Dᴰ.⋆IdR _
       ∙ (sym $ Dᴰ.⋆IdL _)
 
@@ -305,14 +305,14 @@ module _
   (αᴰ ⋆NatIsoᴰ βᴰ) .nIsoᴰ xᴰ .invᴰ =
     (Dᴰ Categoryᴰ.⋆ᴰ βᴰ .nIsoᴰ xᴰ .invᴰ) (αᴰ .nIsoᴰ xᴰ .invᴰ)
   (αᴰ ⋆NatIsoᴰ βᴰ) .nIsoᴰ xᴰ .secᴰ =
-   Dᴰ.rectify $ Dᴰ.≡out $
+   Dᴰ.rectifyOut $
      Dᴰ.⋆Assoc _ _ _
      ∙ Dᴰ.⟨ refl ⟩⋆⟨ (sym $ Dᴰ.⋆Assoc _ _ _)
                       ∙ Dᴰ.⟨ Dᴰ.≡in $ αᴰ .nIsoᴰ xᴰ .secᴰ ⟩⋆⟨ refl ⟩
                       ∙ Dᴰ.⋆IdL _ ⟩
      ∙ (Dᴰ.≡in $ βᴰ .nIsoᴰ xᴰ .secᴰ)
   (αᴰ ⋆NatIsoᴰ βᴰ) .nIsoᴰ xᴰ .retᴰ =
-   Dᴰ.rectify $ Dᴰ.≡out $
+   Dᴰ.rectifyOut $
      (sym $ Dᴰ.⋆Assoc _ _ _)
      ∙ Dᴰ.⟨ Dᴰ.⋆Assoc _ _ _
             ∙ Dᴰ.⟨ refl ⟩⋆⟨ Dᴰ.≡in (βᴰ .nIsoᴰ xᴰ .retᴰ) ⟩
@@ -341,7 +341,7 @@ module _
       ((Gᴰ ∘Fᴰ Fᴰ) ^opFᴰ)
   ∘Fᴰ-^opFᴰ-NatIsoᴰ .transᴰ .N-obᴰ xᴰ = Eᴰ.idᴰ
   ∘Fᴰ-^opFᴰ-NatIsoᴰ .transᴰ .N-homᴰ fᴰ =
-    Eᴰ.rectify $ Eᴰ.≡out $
+    Eᴰ.rectifyOut $
       Eᴰ.⋆IdL _ ∙ (sym $ Eᴰ.⋆IdR _)
   ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .invᴰ = Eᴰ.idᴰ
   ∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .secᴰ = Eᴰ.⋆IdLᴰ (∘Fᴰ-^opFᴰ-NatIsoᴰ .nIsoᴰ xᴰ .invᴰ)

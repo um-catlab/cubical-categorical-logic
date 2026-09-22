@@ -196,8 +196,8 @@ module Lambda⇒
         elimTm (,x=η M i) = Cᴰ.rectify {e' = ,x=η M} (bpᴰ.×ηᴰ (elimCtx _) (elimOb _) (elimTm M)) i
         elimTm [app] = ⇒ᴰ.appᴰ (elimOb _) (elimOb _)
         elimTm ([λ] M) = ⇒ᴰ.λᴰ _ _ (elimTm M)
-        elimTm (⇒β M i) = Cᴰ.rectify {e' = ⇒β M} (Cᴰ.≡out $ ⇒ᴰ.⇒βᴰ _ _ (elimTm M)) i
-        elimTm (⇒η M i) = Cᴰ.rectify {e' = ⇒η M} (Cᴰ.≡out $ ⇒ᴰ.⇒ηᴰ _ _ (elimTm M)) i
+        elimTm (⇒β M i) = Cᴰ.rectifyOut {e' = ⇒β M} (⇒ᴰ.⇒βᴰ _ _ (elimTm M)) i
+        elimTm (⇒η M i) = Cᴰ.rectifyOut {e' = ⇒η M} (⇒ᴰ.⇒ηᴰ _ _ (elimTm M)) i
         elimTm (gen f) = ı-const f
 
         elim : GlobalSection Cᴰ

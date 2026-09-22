@@ -106,7 +106,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{P : Pr
     {f g : (Cᴰ / P) [ Δ3 , Γ3 ]}
     → (p2 : f .snd .fst Cᴰ.∫≡ g .snd .fst)
     → f ≡ g
-  Hom/≡ p2 = ΣPathP (PathPΣ p2 .fst , ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) (Cᴰ.rectify $ Cᴰ.≡out $ p2))
+  Hom/≡ p2 = ΣPathP (PathPΣ p2 .fst , ΣPathPProp (λ _ → PresheafNotation.isSetPsh P _ _) (Cᴰ.rectifyOut $ p2))
 
 -- The Beck-Chevalley stuff in the universal quantifier lemmas have to
 -- do some annoying shuffling that wouldn't be necessary if we use
@@ -322,7 +322,7 @@ module _
     module Rᴰ = PresheafᴰNotation Cᴰ R Rᴰ
   reindPshᴰNatTrans-seq : PshIso (reindPshᴰNatTrans (α ⋆PshHom β) Rᴰ) (reindPshᴰNatTrans α $ reindPshᴰNatTrans β Rᴰ)
   reindPshᴰNatTrans-seq = Isos→PshIso (λ _ → idIso) λ _ _ →
-    λ _ _ → Rᴰ.rectify $ Rᴰ.≡out $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
+    λ _ _ → Rᴰ.rectifyOut $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -330,7 +330,7 @@ module _
   private
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
   reindPshᴰNatTrans-id : PshIso (reindPshᴰNatTrans idPshHom Pᴰ) Pᴰ
-  reindPshᴰNatTrans-id = Isos→PshIso (λ _ → idIso) λ _ _ _ _ → Pᴰ.rectify $ Pᴰ.≡out $
+  reindPshᴰNatTrans-id = Isos→PshIso (λ _ → idIso) λ _ _ _ _ → Pᴰ.rectifyOut $
     Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
 
 module _
@@ -424,7 +424,7 @@ module _
   reindPshᴰNatTransStrict-seq : PshIso (reindPshᴰNatTransStrict (α ⋆PshHomStrict β) Rᴰ)
                                  (reindPshᴰNatTransStrict α $ reindPshᴰNatTransStrict β Rᴰ)
   reindPshᴰNatTransStrict-seq = Isos→PshIso (λ _ → idIso) λ _ _ →
-      λ _ _ → Rᴰ.rectify $ Rᴰ.≡out $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
+      λ _ _ → Rᴰ.rectifyOut $ Rᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Rᴰ.⋆ᴰ-reind _ _ _)
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
@@ -432,7 +432,7 @@ module _
   private
     module Pᴰ = PresheafᴰNotation Cᴰ P Pᴰ
   reindPshᴰNatTransStrict-id : PshIso (reindPshᴰNatTransStrict idPshHomStrict Pᴰ) Pᴰ
-  reindPshᴰNatTransStrict-id = Isos→PshIso (λ _ → idIso) λ _ _ _ _ → Pᴰ.rectify $ Pᴰ.≡out $
+  reindPshᴰNatTransStrict-id = Isos→PshIso (λ _ → idIso) λ _ _ _ _ → Pᴰ.rectifyOut $
     Pᴰ.⋆ᴰ-reind _ _ _ ∙ (sym $ Pᴰ.⋆ᴰ-reind _ _ _)
 
 module _

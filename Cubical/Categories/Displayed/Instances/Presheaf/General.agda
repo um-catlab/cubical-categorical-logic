@@ -50,11 +50,11 @@ PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .ob[_] P = Presheafᴰ P Cᴰ ℓPᴰ
 PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .Hom[_][_,_] α Pᴰ Qᴰ = PshHomᴰ α Pᴰ Qᴰ
 PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .idᴰ = idPshHomᴰ
 PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ ._⋆ᴰ_ = _⋆PshHomᴰ_
-PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .⋆IdLᴰ {P}{Q}{α}{Pᴰ}{Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ (funExt (λ p → Qᴰ.rectify (Qᴰ.≡out refl)))
+PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .⋆IdLᴰ {P}{Q}{α}{Pᴰ}{Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ (funExt (λ p → Qᴰ.rectifyOut refl))
   where module Qᴰ = PresheafᴰNotation Qᴰ
-PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .⋆IdRᴰ {P}{Q}{α}{Pᴰ}{Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ (funExt (λ p → Qᴰ.rectify (Qᴰ.≡out refl)))
+PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .⋆IdRᴰ {P}{Q}{α}{Pᴰ}{Qᴰ} αᴰ = makePshHomᴰPathP _ _ _ (funExt (λ p → Qᴰ.rectifyOut refl))
   where module Qᴰ = PresheafᴰNotation Qᴰ
-PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .⋆Assocᴰ {wᴰ = Sᴰ} αᴰ βᴰ γᴰ = makePshHomᴰPathP _ _ _ (funExt (λ p → Sᴰ.rectify (Sᴰ.≡out refl)))
+PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .⋆Assocᴰ {wᴰ = Sᴰ} αᴰ βᴰ γᴰ = makePshHomᴰPathP _ _ _ (funExt (λ p → Sᴰ.rectifyOut refl))
   where module Sᴰ = PresheafᴰNotation Sᴰ
 PRESHEAFᴰ' Cᴰ ℓP ℓPᴰ .isSetHomᴰ = isSetPshHomᴰ _ _ _
 
@@ -113,7 +113,7 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓP
         ⋆PshHomᴰⱽ≡ : (αᴰ : PshHomᴰ α Pᴰ Qᴰ)(βᴰ : PshHomⱽ Qᴰ Rᴰ)
           → αᴰ ⋆PshHomᴰⱽ βᴰ ≡ (αᴰ PSHᴰ.⋆ᴰⱽ βᴰ)
         ⋆PshHomᴰⱽ≡ αᴰ βᴰ = sym (fromPathP (makePshHomᴰPathP (αᴰ PSHᴰ.⋆ᴰ βᴰ) (αᴰ ⋆PshHomᴰⱽ βᴰ) _
-          (funExt λ pᴰ → Rᴰ.rectify $ Rᴰ.≡out refl)))
+          (funExt λ pᴰ → Rᴰ.rectifyOut refl)))
   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓP}{R : Presheaf C ℓP}
     (α : PshHom Q P)(β : PshHom R Q)(Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ)(Rᴰ : Presheafᴰ R Cᴰ ℓPᴰ)(βᴰ : PshHomᴰ β Rᴰ (reind α Pᴰ))
     where
@@ -125,10 +125,10 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓP
     opaque
       unfolding hSetReasoning.reind
       reind⋆ᴰ≡⋆PshHomᴰ : βᴰ α*Pᴰ.⋆ᴰ (idPshHomᴰ ⋆PshHomᴰ reind-π) ≡ (βᴰ ⋆PshHomᴰ idPshHomᴰ) ⋆PshHomᴰ reind-π
-      reind⋆ᴰ≡⋆PshHomᴰ = fromPathP (makePshHomᴰPathP _ _ _ (funExt λ rᴰ → Pᴰ.rectify $ Pᴰ.≡out $ refl ))
+      reind⋆ᴰ≡⋆PshHomᴰ = fromPathP (makePshHomᴰPathP _ _ _ (funExt λ rᴰ → Pᴰ.rectifyOut refl))
 
       reind⋆ᴰⱽ≡⋆PshHomᴰ : βᴰ α*Pᴰ.⋆ᴰⱽ (idPshHomᴰ ⋆PshHomᴰ reind-π) ≡ (βᴰ ⋆PshHomᴰⱽ idPshHomᴰ) ⋆PshHomᴰ reind-π
-      reind⋆ᴰⱽ≡⋆PshHomᴰ = fromPathP (reind⋆ᴰ≡⋆PshHomᴰ ◁ (makePshHomᴰPathP _ _ _ (funExt λ rᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+      reind⋆ᴰⱽ≡⋆PshHomᴰ = fromPathP (reind⋆ᴰ≡⋆PshHomᴰ ◁ (makePshHomᴰPathP _ _ _ (funExt λ rᴰ → Pᴰ.rectifyOut $
         refl)))
 
   module _ {P : Presheaf C ℓP}{R : Presheaf C ℓP}
@@ -144,7 +144,7 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') (ℓP
         ⋆PshHomⱽᴰ≡ : (αⱽ : PshHomⱽ Pᴰ Qᴰ)(βᴰ : PshHomᴰ β Qᴰ Rᴰ)
           → αⱽ ⋆PshHomⱽᴰ βᴰ ≡ (αⱽ PSHᴰ.⋆ⱽᴰ βᴰ)
         ⋆PshHomⱽᴰ≡ αⱽ βᴰ = sym (fromPathP (makePshHomᴰPathP (αⱽ PSHᴰ.⋆ᴰ βᴰ) (αⱽ ⋆PshHomⱽᴰ βᴰ) _
-          (funExt λ pᴰ → Rᴰ.rectify $ Rᴰ.≡out refl)))
+          (funExt λ pᴰ → Rᴰ.rectifyOut refl)))
 
 
   -- TODO only use opacity for the proofs

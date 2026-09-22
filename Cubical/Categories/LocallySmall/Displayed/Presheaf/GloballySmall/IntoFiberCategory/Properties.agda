@@ -127,9 +127,9 @@ module _
   Presheafᴰ→SmallPresheafᴰ Pᴰ .SmallFunctorᴰ.Functorᴰ.F-obᴰ = λ z → F-obᴰ Pᴰ (liftω z) .lowerω
   Presheafᴰ→SmallPresheafᴰ Pᴰ .SmallFunctorᴰ.Functorᴰ.F-homᴰ = F-homᴰ Pᴰ
   Presheafᴰ→SmallPresheafᴰ Pᴰ .SmallFunctorᴰ.Functorᴰ.F-idᴰ =
-    SETⱽᴰ'.rectify $ SETⱽᴰ'.≡out $ F-idᴰ Pᴰ
+    SETⱽᴰ'.rectifyOut $ F-idᴰ Pᴰ
   Presheafᴰ→SmallPresheafᴰ Pᴰ .SmallFunctorᴰ.Functorᴰ.F-seqᴰ fᴰ gᴰ =
-    SETⱽᴰ'.rectify $ SETⱽᴰ'.≡out $ F-seqᴰ Pᴰ fᴰ gᴰ
+    SETⱽᴰ'.rectifyOut $ F-seqᴰ Pᴰ fᴰ gᴰ
 
 module _
   {C : SmallCategory ℓC ℓC'}
@@ -178,9 +178,9 @@ module _
   _[-][-,_]' .F-obᴰ cᴰ' = liftω λ f → Cᴰ.Hom[ f ][ cᴰ' , liftω cᴰ ] , Cᴰ.isSetHomᴰ
   _[-][-,_]' .F-homᴰ fᴰ = λ _ gᴰ → fᴰ Cᴰ.⋆ᴰ gᴰ
   _[-][-,_]' .F-idᴰ  =
-    ΣPathP ((funExt λ _ → C.⋆IdL _) , (funExt₂ λ _ _ → Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ _))
+    ΣPathP ((funExt λ _ → C.⋆IdL _) , (funExt₂ λ _ _ → Cᴰ.rectifyOut $ Cᴰ.⋆IdLᴰ _))
   _[-][-,_]' .F-seqᴰ fᴰ gᴰ =
-    ΣPathP ((funExt λ _ → C.⋆Assoc _ _ _) , funExt₂ λ _ _ → Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _)
+    ΣPathP ((funExt λ _ → C.⋆Assoc _ _ _) , funExt₂ λ _ _ → Cᴰ.rectifyOut $ Cᴰ.⋆Assocᴰ _ _ _)
 
   private
     -- The manual definition and the compositional definition

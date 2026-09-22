@@ -148,4 +148,4 @@ module NatTransDefs
     makeNatTransPath =
       ΣPathP
         (g≡g' ,
-        makeNatTransPathP g≡g' (funExt λ x → Dᴰ.rectify (Dᴰ.≡out (p x))))
+        makeNatTransPathP g≡g' (funExt λ x → Dᴰ.rectifyOut (p x)))

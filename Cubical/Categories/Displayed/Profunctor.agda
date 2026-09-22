@@ -109,25 +109,25 @@ module _ (C : Category ℓC ℓC') (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
                                                       (ℓ-max (ℓ-max (ℓ-max (ℓ-max (ℓ-max ℓC ℓC') ℓCᴰ) ℓCᴰ') ℓQᴰ) ℓP) ℓPᴰ)
   PshHomᴰPshᴰ Qᴰ .F-obᴰ Pᴰ α = (PshHomᴰ α Pᴰ Qᴰ) , (isSetPshHomᴰ _ _ _)
   PshHomᴰPshᴰ Qᴰ .F-homᴰ αᴰ _ βᴰ = NatTransᴰ→PshHomᴰ αᴰ ⋆PshHomᴰ βᴰ
-  PshHomᴰPshᴰ Qᴰ .F-idᴰ = funExt (λ q → funExt λ qᴰ → makePshHomᴰPathP _ _ _ (funExt (λ αᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl))) where
+  PshHomᴰPshᴰ Qᴰ .F-idᴰ = funExt (λ q → funExt λ qᴰ → makePshHomᴰPathP _ _ _ (funExt (λ αᴰ → Qᴰ.rectifyOut refl))) where
     module Qᴰ = PresheafᴰNotation Qᴰ
   PshHomᴰPshᴰ Qᴰ .F-seqᴰ αᴰ βᴰ = funExt (λ q → funExt λ qᴰ → makePshHomᴰPathP _ _ _ (funExt λ γᴰ →
-    Qᴰ.rectify $ Qᴰ.≡out $ refl)) where
+    Qᴰ.rectifyOut refl)) where
     module Qᴰ = PresheafᴰNotation Qᴰ
 
   PshHomᴰProfᴰ : Profunctorᴰ PshHomProf (PRESHEAFᴰ Cᴰ ℓP ℓPᴰ) (PRESHEAFᴰ Cᴰ ℓQ ℓQᴰ) _
   PshHomᴰProfᴰ .F-obᴰ Qᴰ = PshHomᴰPshᴰ Qᴰ
   PshHomᴰProfᴰ .F-homᴰ αᴰ .N-obᴰ Qᴰ β βᴰ = βᴰ ⋆PshHomᴰ NatTransᴰ→PshHomᴰ αᴰ
   PshHomᴰProfᴰ .F-homᴰ {P}{Q}{α}{Pᴰ}{Qᴰ} αᴰ .N-homᴰ {R}{S}{β}{Rᴰ}{Sᴰ} βᴰ = funExt λ γ → funExt λ γᴰ →
-    makePshHomᴰPathP _ _ _ (funExt λ sᴰ → Qᴰ.rectify $ Qᴰ.≡out $ refl)
+    makePshHomᴰPathP _ _ _ (funExt λ sᴰ → Qᴰ.rectifyOut refl)
     where
       module Qᴰ = PresheafᴰNotation Qᴰ
   -- funExt (λ γ → funExt λ γᴰ → makePshHomᴰPathP _ _ _ (funExt (λ qᴰ → {!!})))
   PshHomᴰProfᴰ .F-idᴰ {P} {Pᴰ} = makeNatTransPathᴰ _ _ _ (implicitFunExt (funExt (λ Qᴰ → funExt (λ β → funExt λ βᴰ →
-    makePshHomᴰPathP _ _ _ (funExt (λ qᴰ → Pᴰ.rectify $ Pᴰ.≡out $ refl)))))) where
+    makePshHomᴰPathP _ _ _ (funExt (λ qᴰ → Pᴰ.rectifyOut refl)))))) where
       module Pᴰ = PresheafᴰNotation Pᴰ
   PshHomᴰProfᴰ .F-seqᴰ {P} {P'} {P''} {α} {α'} {Pᴰ} {Pᴰ'} {Pᴰ''} αᴰ αᴰ' = makeNatTransPathᴰ _ _ _ (implicitFunExt (funExt (λ Qᴰ → funExt (λ β → funExt λ βᴰ →
-    makePshHomᴰPathP _ _ _ (funExt λ qᴰ → Pᴰ''.rectify $ Pᴰ''.≡out $ refl))))) where
+    makePshHomᴰPathP _ _ _ (funExt λ qᴰ → Pᴰ''.rectifyOut refl))))) where
       module Pᴰ'' = PresheafᴰNotation Pᴰ''
 
 -- Neologism?

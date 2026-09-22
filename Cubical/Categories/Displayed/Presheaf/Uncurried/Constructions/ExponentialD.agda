@@ -127,10 +127,10 @@ module _ {C : Category ℓC ℓC'} (P : LRPresheaf C ℓP) (Cᴰ : Categoryᴰ C
     ×ᴰPᴰ-Fᴰ : Functorᴰ (LRPsh→Functor P) Cᴰ Cᴰ
     ×ᴰPᴰ-Fᴰ .F-obᴰ {Γ} Γᴰ = Γᴰ ×ᴰPᴰ
     ×ᴰPᴰ-Fᴰ .F-homᴰ {Δ} {Γ} {γ} {Δᴰ} {Γᴰ} γᴰ = ueᴰ.introᴰ ((π₁ᴰ Cᴰ.⋆ᴰ γᴰ) , π₂ᴰ)
-    ×ᴰPᴰ-Fᴰ .F-idᴰ {x} {xᴰ} = Cᴰ.rectify $ Cᴰ.≡out $ ×-introᴰ≡
+    ×ᴰPᴰ-Fᴰ .F-idᴰ {x} {xᴰ} = Cᴰ.rectifyOut $ ×-introᴰ≡
       (Cᴰ.⋆IdR _ ∙ sym (Cᴰ.⋆IdL _))
       (sym $ formal-reind-filler _ _)
-    ×ᴰPᴰ-Fᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $ ×-introᴰ≡
+    ×ᴰPᴰ-Fᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ = Cᴰ.rectifyOut $ ×-introᴰ≡
       (sym $ Cᴰ.⋆Assoc _ _ _ ∙ Cᴰ.⟨⟩⋆⟨ ×β₁ᴰ ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ ×β₁ᴰ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _)
       (sym $ ⋆Assoc _ _ _ ∙ ⟨⟩⋆⟨ ×β₂ᴰ ⟩ ∙ ×β₂ᴰ)
 

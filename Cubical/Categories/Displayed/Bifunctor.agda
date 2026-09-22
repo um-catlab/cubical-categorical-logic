@@ -14,6 +14,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.BinProduct
 import Cubical.Categories.Displayed.Reasoning as Reasoning
+open import Cubical.Categories.Displayed.Reasoning.More
 
 
 private
@@ -37,7 +38,7 @@ module _ {C : Category ℓC ℓC'}
       module Cᴰ = Categoryᴰ Cᴰ
       module Dᴰ = Categoryᴰ Dᴰ
       module Eᴰ = Categoryᴰ Eᴰ
-      module R = Reasoning Eᴰ
+      module R = ReasoningMore Eᴰ
       module F = Bifunctor F
 
     field
@@ -80,7 +81,7 @@ module _ {C : Category ℓC ℓC'}
       → Bif-homRᴰ cᴰ (Dᴰ.idᴰ {d}{dᴰ})
           Eᴰ.≡[ F.Bif-R-id {c} ]
         Eᴰ.idᴰ
-    Bif-R-idᴰ = R.rectify (R.≡out (R.≡in (Bif-R×-agreeᴰ _) ∙ R.≡in Bif-×-idᴰ))
+    Bif-R-idᴰ = R.rectifyOut (R.≡in (Bif-R×-agreeᴰ _) ∙ R.≡in Bif-×-idᴰ)
 
     Bif-R-seqᴰ : ∀ {c d d' d''}{g : D [ d , d' ]}{g' : D [ d' , d'' ]}
                   {cᴰ : Cᴰ.ob[ c ]}{dᴰ dᴰ' dᴰ''}
@@ -88,7 +89,7 @@ module _ {C : Category ℓC ℓC'}
               → Bif-homRᴰ cᴰ (gᴰ Dᴰ.⋆ᴰ gᴰ')
                   Eᴰ.≡[ F.Bif-R-seq g g' ]
                 Bif-homRᴰ cᴰ gᴰ Eᴰ.⋆ᴰ Bif-homRᴰ cᴰ gᴰ'
-    Bif-R-seqᴰ gᴰ gᴰ' = R.rectify $ R.≡out $
+    Bif-R-seqᴰ gᴰ gᴰ' = R.rectifyOut $
       (R.≡in $ Bif-R×-agreeᴰ _)
       ∙ (R.≡in $ (λ i → Bif-hom×ᴰ (Cᴰ.⋆IdRᴰ Cᴰ.idᴰ (~ i)) (gᴰ Dᴰ.⋆ᴰ gᴰ')))
       ∙ (R.≡in $ Bif-×-seqᴰ _ _ _ _)
@@ -148,20 +149,20 @@ module _ {F : Bifunctor C' D E} {G : Functor C C'}
   (Fᴰ : Bifunctorᴰ F Cᴰ' Dᴰ Eᴰ) (Gᴰ : Functorᴰ G Cᴰ Cᴰ') where
   private
     module Dᴰ = Categoryᴰ Dᴰ
-    module Eᴰ = Reasoning Eᴰ
+    module Eᴰ = ReasoningMore Eᴰ
   compLᴰ : Bifunctorᴰ (compL F G) Cᴰ Dᴰ Eᴰ
   compLᴰ .Bif-obᴰ x = Fᴰ .Bif-obᴰ (F-obᴰ Gᴰ x)
   compLᴰ .Bif-homLᴰ fᴰ dᴰ = Fᴰ .Bif-homLᴰ (F-homᴰ Gᴰ fᴰ) dᴰ
   compLᴰ .Bif-homRᴰ cᴰ gᴰ = Fᴰ .Bif-homRᴰ (F-obᴰ Gᴰ cᴰ) gᴰ
   compLᴰ .Bif-hom×ᴰ fᴰ gᴰ = Fᴰ .Bif-hom×ᴰ (F-homᴰ Gᴰ fᴰ) gᴰ
-  compLᴰ .Bif-×-idᴰ = Eᴰ.rectify $ Eᴰ.≡out $
+  compLᴰ .Bif-×-idᴰ = Eᴰ.rectifyOut $
     (Eᴰ.≡in $ λ i → Fᴰ .Bif-hom×ᴰ (Gᴰ .F-idᴰ i) Dᴰ.idᴰ)
     ∙ (Eᴰ.≡in $ Fᴰ .Bif-×-idᴰ)
-  compLᴰ .Bif-×-seqᴰ fᴰ fᴰ' gᴰ gᴰ' = Eᴰ.rectify $ Eᴰ.≡out $
+  compLᴰ .Bif-×-seqᴰ fᴰ fᴰ' gᴰ gᴰ' = Eᴰ.rectifyOut $
     (Eᴰ.≡in $ (λ i → Fᴰ .Bif-hom×ᴰ (Gᴰ .F-seqᴰ fᴰ fᴰ' i) (gᴰ Dᴰ.⋆ᴰ gᴰ')))
     ∙ (Eᴰ.≡in $ Fᴰ .Bif-×-seqᴰ _ _ _ _)
   compLᴰ .Bif-L×-agreeᴰ fᴰ = Eᴰ.rectify $ Fᴰ .Bif-L×-agreeᴰ _
-  compLᴰ .Bif-R×-agreeᴰ gᴰ = Eᴰ.rectify $ Eᴰ.≡out $
+  compLᴰ .Bif-R×-agreeᴰ gᴰ = Eᴰ.rectifyOut $
     (Eᴰ.≡in $ Fᴰ .Bif-R×-agreeᴰ _)
     ∙ (Eᴰ.≡in $ λ i → Fᴰ .Bif-hom×ᴰ (Gᴰ .F-idᴰ (~ i)) gᴰ)
 

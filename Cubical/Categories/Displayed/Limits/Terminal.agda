@@ -43,6 +43,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.Reasoning.More
 open import Cubical.Categories.Displayed.Presheaf.Constructions.Unit
 open import Cubical.Categories.Displayed.Presheaf.Representable
 open import Cubical.Categories.Displayed.Presheaf.Section
@@ -117,7 +118,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     open TerminalNotation term
     open UniversalElement
     open UniversalElementᴰ
-    private module R = HomᴰReasoning Cᴰ
+    private module R = ReasoningMore Cᴰ
     module _ (termⱽ : Terminalⱽ 𝟙) where
       private module termⱽ = TerminalⱽNotation _ termⱽ
       Terminalⱽ→Terminalᴰ : Terminalᴰ term
@@ -129,7 +130,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         Terminalⱽ→Terminalᴰ' .elementᴰ = tt
         Terminalⱽ→Terminalᴰ' .universalᴰ .inv _ _ = termⱽ.!tⱽ _ _
         Terminalⱽ→Terminalᴰ' .universalᴰ .rightInv _ _ = refl
-        Terminalⱽ→Terminalᴰ' .universalᴰ .leftInv _ _ = R.rectify $ R.≡out $
+        Terminalⱽ→Terminalᴰ' .universalᴰ .leftInv _ _ = R.rectifyOut $
           termⱽ.∫ue.extensionality (ΣPathP (𝟙extensionality , refl))
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} (Fᴰ : GlobalSection Cᴰ) (term : Terminal' C) where
   private

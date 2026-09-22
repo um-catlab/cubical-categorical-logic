@@ -231,7 +231,7 @@ record Bifunctorⱽ {C : Category Cob CHom-ℓ}{E : Category Eob EHom-ℓ}
       , (λ i → Bif-hom×ᴰ (fᴰ≡fᴰ' i .snd) (rectified-gᴰ≡gᴰ' i)))
       where
       rectified-gᴰ≡gᴰ' : gᴰ Dᴰ.≡[ PathPΣ fᴰ≡fᴰ' .fst ] gᴰ'
-      rectified-gᴰ≡gᴰ' = Dᴰ.rectify $ Dᴰ.≡out $ gᴰ≡gᴰ'
+      rectified-gᴰ≡gᴰ' = Dᴰ.rectifyOut $ gᴰ≡gᴰ'
 
   Bif-iso×ᴰ : ∀ {c c'}{cᴰ cᴰ' dᴰ dᴰ'}
       {f : C.ISOC.Hom[ c , c' ]}

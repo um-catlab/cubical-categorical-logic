@@ -22,6 +22,7 @@ open import Cubical.Categories.Displayed.Instances.Weaken as Wk
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
 open import Cubical.Categories.Displayed.Instances.Reindex.Limits as Reindex
 import Cubical.Categories.Displayed.Reasoning as Reasoning
+open import Cubical.Categories.Displayed.Reasoning.More
 
 private
   variable
@@ -87,7 +88,7 @@ module _ (Ob : Type ℓg) where
       private
         module FC = Category (FreeCatw/Terminal .fst)
         module Cᴰ = Categoryᴰ Cᴰ
-        module R = Reasoning Cᴰ
+        module R = ReasoningMore Cᴰ
 
       -- given an interpretation of atomic objects
       module _ (ϕ : (v : Ob) → Cᴰ.ob[ inl v ]) where
@@ -116,9 +117,9 @@ module _ (Ob : Type ℓg) where
             i j
           elim-F-homᴰ {d = d} !ₑ = !tᴰ (ϕ* d)
           elim-F-homᴰ {d = d} (isProp!ₑ f g i) =
-            (R.rectify {p' = isProp!ₑ f g}
-              $ R.≡out
-              $ 𝟙extensionalityᴰ {f = _ , elim-F-homᴰ f}{g = _ , elim-F-homᴰ g})
+            (R.rectifyOut {p' = isProp!ₑ f g}
+              $ 𝟙extensionalityᴰ
+                {f = _ , elim-F-homᴰ f}{g = _ , elim-F-homᴰ g})
             i
 
           elim : GlobalSection Cᴰ

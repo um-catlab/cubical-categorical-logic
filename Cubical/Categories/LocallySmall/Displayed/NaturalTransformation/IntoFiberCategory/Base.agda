@@ -289,4 +289,4 @@ module NatTransᴰDefs
         (gᴰα≡gᴰ'β ,
         makeNatTransᴰPathP αᴰ βᴰ
           (λ i → (gᴰα≡gᴰ'β i .fst) , (gᴰα≡gᴰ'β i .snd .fst)) (λ i → gᴰα≡gᴰ'β i .snd .snd)
-          (implicitFunExt λ {x} → funExt λ xᴰ → Dᴰᴰ.rectify $ Dᴰᴰ.≡out $ p xᴰ))
+          (implicitFunExt λ {x} → funExt λ xᴰ → Dᴰᴰ.rectifyOut $ p xᴰ))

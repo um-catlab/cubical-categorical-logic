@@ -108,7 +108,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     yoRecⱽ pⱽ .N-hom (Γ , Γᴰ , f) (Δ , Δᴰ , g) (h , hᴰ , h⋆g≡f) gᴰ =
       congS (λ z → Pⱽ .F-hom z pⱽ)
         (ΣPathP ((sym h⋆g≡f) ,
-                 (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.reind-filler _) ,
+                 (ΣPathP ((Cᴰ.rectifyOut $ sym $ Cᴰ.reind-filler _) ,
                  isProp→PathP (λ _ → C.isSetHom _ _) _ _))))
       ∙ funExt⁻ (Pⱽ .F-seq (g , gᴰ , C.⋆IdR g) (h , hᴰ , h⋆g≡f)) pⱽ
 
@@ -237,14 +237,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
   Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv =
     yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
   Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv =
-    λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+    λ p pᴰ → Pᴰ.rectifyOut $
         Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩
         ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
         ∙ cong (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-ob _)
                  ((sym $ Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
         ∙ Pᴰ.≡in (yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .rightInv _ _)
   Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .leftInv =
-      λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+      λ f fᴰ → Cᴰ.rectifyOut $
         cong (invPshIso (∫PshIsoᴰ {α = yoRecIso {P = P} ue} (yᴰxᴰ≅Pᴰ .snd)) .trans .N-ob _)
           (Pᴰ.⟨⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
                     ∙ sym (∫PshHomᴰ {α = yoRec P (UniversalElement.element ue)} (yᴰxᴰ≅Pᴰ .snd .fst) .N-hom _ _ _ _)
@@ -277,7 +277,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   Functorᴰ→PshHetᴰ : ∀ {x} (xᴰ : Cᴰ.ob[ x ])
     → PshHomⱽ (Cᴰ [-][-, xᴰ ]) (reindPsh (Fᴰ /FᴰYo x) (Dᴰ [-][-, Fᴰ .F-obᴰ xᴰ ]))
   Functorᴰ→PshHetᴰ xᴰ .N-ob (Γ , Γᴰ , f) fᴰ = Fᴰ .F-homᴰ fᴰ
-  Functorᴰ→PshHetᴰ xᴰ .N-hom (Δ , Δᴰ , f) (Γ , Γᴰ , f') (γ , γᴰ , γf≡f') f'ᴰ = Dᴰ.rectify $ Dᴰ.≡out $
+  Functorᴰ→PshHetᴰ xᴰ .N-hom (Δ , Δᴰ , f) (Γ , Γᴰ , f') (γ , γᴰ , γf≡f') f'ᴰ = Dᴰ.rectifyOut $
     cong (∫F Fᴰ .F-hom) (sym $ Cᴰ.reind-filler _)
     ∙ ∫F Fᴰ .F-seq _ _
     ∙ Dᴰ.reind-filler _
@@ -300,7 +300,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   reindexRepresentable-seq = /NatIso
     -- TODO: eqToNatIso didn't type check even though it did interactively
     (record { trans = natTrans (λ _ → D .id) (λ _ → idTrans Id .N-hom _) ; nIso = λ _ → idNatIso Id .nIso _ })
-    (record { transᴰ = record { N-obᴰ = λ _ → Dᴰ.idᴰ ; N-homᴰ = λ _ → Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdR _ ∙ sym (Dᴰ.⋆IdL _) } ; nIsoᴰ = λ _ → idᴰCatIsoᴰ Dᴰ .snd })
+    (record { transᴰ = record { N-obᴰ = λ _ → Dᴰ.idᴰ ; N-homᴰ = λ _ → Dᴰ.rectifyOut $ Dᴰ.⋆IdR _ ∙ sym (Dᴰ.⋆IdL _) } ; nIsoᴰ = λ _ → idᴰCatIsoᴰ Dᴰ .snd })
     λ _ → D .⋆IdL _ ∙ F .F-seq _ _
 
 module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

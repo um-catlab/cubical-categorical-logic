@@ -254,13 +254,13 @@ module _ (Σ₀ : hGroupoid ℓ) where
       elimSection : GlobalSection (M .fst)
       elimSection .F-obᴰ = elimS-F-ob
       elimSection .F-homᴰ = elimRen
-      elimSection .F-idᴰ = M.Cᴰ.rectify $ M.Cᴰ.≡out $ elimRen-Id _
-      elimSection .F-seqᴰ δ γ = M.Cᴰ.rectify $ M.Cᴰ.≡out $ elimRen-Seq γ
+      elimSection .F-idᴰ = M.Cᴰ.rectifyOut $ elimRen-Id _
+      elimSection .F-seqᴰ δ γ = M.Cᴰ.rectifyOut $ elimRen-Seq γ
 
       elimPshSection : ∀ {A} → PshSection elimSection (M.Tmᴰ $ ı A)
       elimPshSection .N-ob x = elimVar x
       elimPshSection .N-hom γ x =
-        M.Tmᴰ.rectify $ M.Tmᴰ.≡out $ elimRen-Var _ _
+        M.Tmᴰ.rectifyOut $ elimRen-Var _ _
 
       elim : StrictSection FreeSCwF M
       elim .fst = elimSection
@@ -269,7 +269,7 @@ module _ (Σ₀ : hGroupoid ℓ) where
       elim .snd .snd .snd .fst = refl
       elim .snd .snd .snd .snd A Γ =
         ΣPathP (refl , (ΣPathP
-          ((M.Cᴰ.rectify $ M.Cᴰ.≡out $
+          ((M.Cᴰ.rectifyOut $
             elimRenWkRen _
             ∙ M.Cᴰ.⟨ refl ⟩⋆⟨ elimRen-Id _ ⟩
             ∙ M.Cᴰ.⋆IdR _)

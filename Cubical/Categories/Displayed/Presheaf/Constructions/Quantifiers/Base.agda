@@ -108,7 +108,7 @@ module _
         → (γᴰ : Cᴰ [ γ C.⋆ πF ⟦ Γ ⟧ ][ Δᴰ , Γᴰ ])
         → introπF* γᴰ Cᴰ.⋆ᴰ π-πF* Γᴰ ≡ γᴰ
       β-πF* {Γᴰ = Γᴰ} γᴰ =
-        Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.rectifyOut $
           Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ ⟩
           ∙ Cᴰ.reind-filler _
           ∙ Cᴰ.reind-filler _
@@ -135,7 +135,7 @@ module _
       introπF* (Cᴰ.reind (sym $ πF .N-hom γ) $ (π-πF* Γᴰ Cᴰ.⋆ᴰ γᴰ))
     weakenπFᴰ .F-idᴰ {xᴰ = Γᴰ} =
         introπF*⟨ F .F-id  ⟩⟨
-          Cᴰ.rectify $ Cᴰ.≡out $
+          Cᴰ.rectifyOut $
             (sym $ Cᴰ.reind-filler _)
             ∙ Cᴰ.⋆IdR _
             ∙ (sym $ Cᴰ.reind-filler _)
@@ -143,7 +143,7 @@ module _
           ▷ (sym $ weak-ηⱽ (πF* Γᴰ))
     weakenπFᴰ .F-seqᴰ γᴰ δᴰ =
       introπF*⟨ F .F-seq _ _ ⟩⟨
-        Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.rectifyOut $
           (sym $ Cᴰ.reind-filler _)
           ∙ Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
           ∙ (sym $ Cᴰ.⋆Assoc _ _ _)
@@ -154,7 +154,7 @@ module _
           ∙ (Cᴰ.⋆Assoc _ _ _)
           ∙ Cᴰ.⟨ refl ⟩⋆⟨ Cᴰ.reind-filler _ ⟩
           ∙ Cᴰ.reind-filler _
-      ⟩ ▷ (Cᴰ.rectify $ Cᴰ.≡out $ sym $ introᴰ-natural (πF* _))
+      ⟩ ▷ (Cᴰ.rectifyOut $ sym $ introᴰ-natural (πF* _))
 
     opaque
       unfolding hSetReasoning.reind
@@ -162,7 +162,7 @@ module _
       weakenπFNatTransᴰ .NatTransᴰ.N-obᴰ Γᴰ =
         Cᴰ.reind (C.⋆IdL _) $ πF* Γᴰ .elementⱽ
       weakenπFNatTransᴰ .NatTransᴰ.N-homᴰ fᴰ =
-        Cᴰ.rectify $ Cᴰ.≡out $
+        Cᴰ.rectifyOut $
           Cᴰ.⟨ refl ⟩⋆⟨ sym $ Cᴰ.reind-filler _ ⟩
           ∙ Cᴰ.reind-filler _
           ∙ Cᴰ.reind-filler _
@@ -285,7 +285,7 @@ module _
 --                 ∙ (sym $ C.⋆Assoc _ _ _))) $
 --               (introπF* (Cᴰ.reind (sym bp.×β₁) $ Cᴰ.idᴰ) Pⱽ.⋆ᴰ αᴰ.N-obᴰ qᴰ)
 --           ∀ⱽPsh-introᴰ⁻' .N-homᴰ =
---             Pⱽ.rectify $ Pⱽ.≡out $
+--             Pⱽ.rectifyOut $
 --               (sym $ Pⱽ.reind-filler _)
 --               ∙ Pⱽ.⟨⟩⋆⟨ αᴰ.N-obᴰ⟨(sym $ Qᴰ.reind-filler _)⟩ ⟩
 --               ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.≡in αᴰ.N-homᴰ ⟩
@@ -372,7 +372,7 @@ module _
 -- --             αᴰ .N-obᴰ {p = _ , bp.π₂} $
 -- --               elementⱽ (π₁* _) Qᴰ.⋆ᴰ qᴰ
 -- --         ∀ⱽPsh-introᴰ' .N-homᴰ =
--- --           Pⱽ.rectify $ Pⱽ.≡out $
+-- --           Pⱽ.rectifyOut $
 -- --             (sym $ Pⱽ.reind-filler _)
 -- --             ∙ αᴰ.N-obᴰ⟨
 -- --                 change-base _ Q.isSetPsh

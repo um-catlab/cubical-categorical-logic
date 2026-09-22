@@ -144,8 +144,8 @@ module _ {C : Category ℓC ℓC'} {F : Functor C C} {Cᴰ : Categoryᴰ C ℓC�
   wkFᴰ : Functorᴰ F Cᴰ Cᴰ
   wkFᴰ = record { F-obᴰ = λ {Γ} Γᴰ → π* Γ Γᴰ .fst
     ; F-homᴰ = wkFᴰ-homᴰ
-    ; F-idᴰ = λ {x}{xᴰ} → Cᴰ.rectify $ Cᴰ.≡out $ cartLift-sq-id Cᴰ (π* _ _) (F .F-id)
-    ; F-seqᴰ = λ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+    ; F-idᴰ = λ {x}{xᴰ} → Cᴰ.rectifyOut $ cartLift-sq-id Cᴰ (π* _ _) (F .F-id)
+    ; F-seqᴰ = λ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ → Cᴰ.rectifyOut $
       cartLift-sq-seq Cᴰ (π* _ xᴰ) (π* _ _) (π* _ _) fᴰ gᴰ (F .F-seq f g)
     }
 
@@ -219,10 +219,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       π*Fᴰ .F-obᴰ {Γ} Γᴰ = π* Γ Γᴰ .fst
       π*Fᴰ .F-homᴰ {f = γ} γᴰ = cartLift-sq-filler Cᴰ (π* _ _) (π* _ _) γᴰ
         (sym $ fst $ PathPΣ $ β $ P .snd _)
-      π*Fᴰ .F-idᴰ {x} {xᴰ} = Cᴰ.rectify $ Cᴰ.≡out $
+      π*Fᴰ .F-idᴰ {x} {xᴰ} = Cᴰ.rectifyOut $
         cartLift-sq-id Cᴰ (π* _ _) $
         intro≡ (P .snd x) (ΣPathP ((C.⋆IdR _ ∙ sym (C.⋆IdL _)) , (sym $ P.⋆IdL _)))
-      π*Fᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+      π*Fᴰ .F-seqᴰ {x} {y} {z} {f} {g} {xᴰ} {yᴰ} {zᴰ} fᴰ gᴰ = Cᴰ.rectifyOut $
         cartLift-sq-seq Cᴰ (π* _ _) (π* _ _) (π* _ _) fᴰ gᴰ $
         (intro≡ (P .snd z) (sym $ ΣPathP
           ( C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ fst $ PathPΣ $ β $ P .snd z ⟩

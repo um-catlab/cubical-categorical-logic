@@ -59,10 +59,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
         fibration→HomᴰRepr .UniversalElement.element =
           Cⱽ.reind (C.⋆IdL f) f*yᴰ.elementⱽ
         fibration→HomᴰRepr .UniversalElement.universal xᴰ = isIsoToIsEquiv ((λ fᴰ → f*yᴰ.introᴰ (Cⱽ.idᴰ Cⱽ.⋆ᴰ fᴰ))
-          , (λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _  ⟩)
+          , (λ fᴰ → Cᴰ.rectifyOut $ (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⟨⟩⋆⟨ sym $ Cᴰ.reind-filler _  ⟩)
             ∙ Cᴰ.reind-filler _ ∙ Cᴰ.reind-filler _ ∙ Cᴰ.≡in f*yᴰ.βⱽ
             ∙ Cᴰ.⋆IdL _)
-          , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $ f*yᴰ.∫ue.intro≡ $ change-base {C = Cᴰ [_][ xᴰ , yᴰ ]} (C._⋆ f)
+          , λ fⱽ → Cᴰ.rectifyOut $ f*yᴰ.∫ue.intro≡ $ change-base {C = Cᴰ [_][ xᴰ , yᴰ ]} (C._⋆ f)
             C.isSetHom ((sym $ C.⋆IdL (f*yᴰ.∫ue.element .fst)))
             (Cⱽ.⋆IdL _ ∙ sym (Cᴰ.reind-filler _) ∙ Cⱽ.⟨⟩⋆⟨ sym $ Cⱽ.reind-filler _ ⟩ ∙ Cᴰ.reind-filler _)
           )

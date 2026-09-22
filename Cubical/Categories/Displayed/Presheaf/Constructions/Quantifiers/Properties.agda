@@ -173,7 +173,7 @@ open UniversalElementⱽ
 --           Dᴰ.reind (cong (F .F-hom) (C.⋆IdL _) ∙ (sym -×Fc.×β₁)) $
 --             Fᴰ .F-homᴰ (elementⱽ (π₁*C xᴰ))
 --       Fᴰ-weakening-NatTransᴰ .NatTransᴰ.N-homᴰ fᴰ =
---         Dᴰ.rectify $ Dᴰ.≡out $
+--         Dᴰ.rectifyOut $
 --           introᴰ-natural (π₁*D _)
 --           ∙ introᴰ≡ (π₁*D _)
 --               (change-base (D._⋆ -×Fc.π₁) D.isSetHom

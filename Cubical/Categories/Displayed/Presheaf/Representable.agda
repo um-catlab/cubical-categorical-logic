@@ -113,7 +113,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
     fromPshIsoᴰ .vertexᴰ = vᴰ
     fromPshIsoᴰ .elementᴰ = Pᴰ.reind (P.⋆IdL _) (αᴰ.N-obᴰ D.idᴰ)
     fromPshIsoᴰ .universalᴰ .inv = αᴰ .snd .inv
-    fromPshIsoᴰ .universalᴰ {x}{xᴰ} .rightInv p pᴰ = Pᴰ.rectify $ Pᴰ.≡out $
+    fromPshIsoᴰ .universalᴰ {x}{xᴰ} .rightInv p pᴰ = Pᴰ.rectifyOut $
       _ , αᴰ .snd .inv p pᴰ Pᴰ.⋆ᴰ Pᴰ.reind (P.⋆IdL element) (αᴰ.N-obᴰ D.idᴰ)
         ≡⟨ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩ ⟩
       _ , αᴰ .snd .inv p pᴰ Pᴰ.⋆ᴰ (αᴰ.N-obᴰ D.idᴰ)
@@ -123,7 +123,7 @@ module _ {C : Category ℓC ℓC'} (D : Categoryᴰ C ℓD ℓD')
       _ , αᴰ.N-obᴰ (αᴰ .snd .inv p pᴰ)
         ≡⟨ Pᴰ.≡in $ αᴰ .snd .rightInv p pᴰ ⟩
       _ , pᴰ ∎
-    fromPshIsoᴰ .universalᴰ {x}{xᴰ} .leftInv f fᴰ = D.rectify $ D.≡out $
+    fromPshIsoᴰ .universalᴰ {x}{xᴰ} .leftInv f fᴰ = D.rectifyOut $
       _ , αᴰ .snd .inv _ (fᴰ Pᴰ.⋆ᴰ Pᴰ.reind (P.⋆IdL _) (αᴰ.N-obᴰ D.idᴰ))
         ≡⟨ αᴰ⁻.N-obᴰ⟨ Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩ ∙ sym (αᴰ.N-hom _ _ _ _) ∙ αᴰ.N-obᴰ⟨ D.⋆IdR _ ⟩ ⟩ ⟩
       _ , αᴰ .snd .inv _ (αᴰ.N-obᴰ fᴰ)
@@ -175,10 +175,10 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       ∫repr→ue.intro (p , pᴰ) .snd
     RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ
       {Γ} {Γᴰ} .rightInv p pᴰ =
-      Pᴰ.rectify $ Pᴰ.≡out $ ∫repr→ue.β
+      Pᴰ.rectifyOut $ ∫repr→ue.β
     RepresentationPshIsoᴰ→UniversalElementᴰ .universalᴰ
       {Γ} {Γᴰ} .leftInv f fᴰ =
-      Cᴰ.rectify $ Cᴰ.≡out $ sym $ ∫repr→ue.η
+      Cᴰ.rectifyOut $ sym $ ∫repr→ue.η
 
 module _
   {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
@@ -213,8 +213,8 @@ module _
     ( yoRecᴰ Pᴰ ueᴰ.elementᴰ
     , (isisoover
          (λ _ → ueᴰ.introᴰ)
-         (λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $ ueᴰ.βᴰ)
-         λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueᴰ.ηᴰ))
+         (λ p pᴰ → Pᴰ.rectifyOut $ ueᴰ.βᴰ)
+         λ f fᴰ → Cᴰ.rectifyOut $ sym $ ueᴰ.ηᴰ))
     where
       module ueᴰ = UniversalElementᴰ ueᴰ
 
@@ -231,13 +231,13 @@ module _
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .fst .N-obᴰ pᴰ =
       ∫reprpshiso .snd .trans .N-ob _ (_ , pᴰ) .snd
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .fst .N-homᴰ =
-      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .trans .N-hom _ _ _ _
+      Pᴰ.rectifyOut $ ∫reprpshiso .snd .trans .N-hom _ _ _ _
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .inv p pᴰ =
       ∫reprpshiso .snd .nIso _ .fst (p , pᴰ) .snd
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .rightInv p pᴰ =
-      Pᴰ.rectify $ Pᴰ.≡out $ ∫reprpshiso .snd .nIso _ .snd .fst (p , pᴰ)
+      Pᴰ.rectifyOut $ ∫reprpshiso .snd .nIso _ .snd .fst (p , pᴰ)
     Representationᵁᴰ→RepresentationPshIsoᴰ .snd .snd .leftInv f fᴰ =
-      Cᴰ.rectify $ Cᴰ.≡out $ ∫reprpshiso .snd .nIso _ .snd .snd (f , fᴰ)
+      Cᴰ.rectifyOut $ ∫reprpshiso .snd .nIso _ .snd .snd (f , fᴰ)
 
     Representationᵁᴰ→UniversalElementᴰ :
       UniversalElementᴰ Cᴰ (Representationᵁ→UniversalElement C P repr) Pᴰ
@@ -316,9 +316,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
   yoRecⱽ-UMP : ∀ {xᴰ} → Iso (PshHomⱽ (Cᴰ [-][-, xᴰ ]) Pⱽ) Pⱽ.pⱽ[ xᴰ ]
   yoRecⱽ-UMP = iso (λ αⱽ → αⱽ .N-obᴰ Cᴰ.idᴰ) yoRecⱽ
-    (λ pⱽ → Pⱽ.rectify $ Pⱽ.≡out $ sym (Pⱽ.reind-filler _) ∙ Pⱽ.⋆IdL _)
+    (λ pⱽ → Pⱽ.rectifyOut $ sym (Pⱽ.reind-filler _) ∙ Pⱽ.⋆IdL _)
     λ αⱽ → makePshHomᴰPathP (yoRecⱽ (αⱽ .N-obᴰ Cᴰ.idᴰ)) αⱽ refl
-      (funExt (λ fᴰ → Pⱽ.rectify $ Pⱽ.≡out $
+      (funExt (λ fᴰ → Pⱽ.rectifyOut $
         sym (Pⱽ.reind-filler _) ∙ sym ((∫PshHom αⱽ) .N-hom _ _ _ _)
         ∙ cong (∫PshHom αⱽ .N-ob _) (Cᴰ.⋆IdR _)))
 
@@ -349,11 +349,11 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     toUniversalᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.inv f fᴰ =
       universalⱽ .fst fᴰ
     toUniversalᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.rightInv f fᴰ =
-      Pⱽ.rectify $ Pⱽ.≡out $
+      Pⱽ.rectifyOut $
         (Pⱽ.≡in $ Pⱽ.⋆ᴰid≡⋆ᴰⱽ _ _)
         ∙ (Pⱽ.≡in $ universalⱽ .snd .fst fᴰ)
     toUniversalᴰ .UniversalElementᴰ.universalᴰ .isIsoOver.leftInv f fᴰ =
-      Cᴰ.rectify $ Cᴰ.≡out $
+      Cᴰ.rectifyOut $
         (Cᴰ.≡in $ (λ i → universalⱽ .fst (Pⱽ.⋆ᴰid≡⋆ᴰⱽ fᴰ elementⱽ i)))
         ∙ (Cᴰ.≡in $ universalⱽ .snd .snd fᴰ)
 
@@ -372,7 +372,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
     ηⱽ = sym (universalⱽ .snd .snd _)
 
     weak-ηⱽ : Cᴰ.idᴰ ≡ introᴰ (elementⱽ)
-    weak-ηⱽ = ηⱽ ∙ (Cᴰ.rectify $ Cᴰ.≡out $ introᴰ≡ ((sym (Pⱽ.reind-filler _) ∙ Pⱽ.⋆IdL _) ∙ sym βᴰ))
+    weak-ηⱽ = ηⱽ ∙ (Cᴰ.rectifyOut $ introᴰ≡ ((sym (Pⱽ.reind-filler _) ∙ Pⱽ.⋆IdL _) ∙ sym βᴰ))
 
 module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
          {x : C .Category.ob} {Pⱽ : Presheafⱽ x Cᴰ ℓPᴰ} where
@@ -387,8 +387,8 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     { vertexⱽ = ueᴰ.vertexᴰ
     ; elementⱽ = ueᴰ.elementᴰ
     ; universalⱽ = (ueᴰ.universalᴰ .inv _)
-      , (λ pᴰ → Pⱽ.rectify $ Pⱽ.≡out $ (sym $ Pⱽ.reind-filler _) ∙ ueᴰ.βᴰ)
-      , λ fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ ueᴰ.∫ue.intro⟨ sym $ Pⱽ.reind-filler _ ⟩ ∙ sym ueᴰ.ηᴰ
+      , (λ pᴰ → Pⱽ.rectifyOut $ (sym $ Pⱽ.reind-filler _) ∙ ueᴰ.βᴰ)
+      , λ fᴰ → Cᴰ.rectifyOut $ ueᴰ.∫ue.intro⟨ sym $ Pⱽ.reind-filler _ ⟩ ∙ sym ueᴰ.ηᴰ
     } where module ueᴰ = UniversalElementᴰ ueᴰ
 
   module _ (ueⱽ : UniversalElementⱽ Cᴰ x Pⱽ) where
@@ -414,13 +414,13 @@ module _
   UEⱽ-essUniq : (ueⱽ ueⱽ' : UniversalElementⱽ Cᴰ c Pⱽ) → CatIsoⱽ Cᴰ (ueⱽ .vertexⱽ) (ueⱽ' .vertexⱽ)
   UEⱽ-essUniq ueⱽ ueⱽ' .fst = introⱽ ueⱽ' (elementⱽ ueⱽ)
   UEⱽ-essUniq ueⱽ ueⱽ' .snd .invᴰ = introⱽ ueⱽ (elementⱽ ueⱽ')
-  UEⱽ-essUniq ueⱽ ueⱽ' .snd .secᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+  UEⱽ-essUniq ueⱽ ueⱽ' .snd .secᴰ = Cᴰ.rectifyOut $
     UniversalElementᴰ.extensionalityᴰ (toUniversalᴰ ueⱽ') $
     Pⱽ.⋆Assoc _ _ _
     ∙ Pⱽ.⟨⟩⋆⟨ UniversalElementᴰ.βᴰ (toUniversalᴰ ueⱽ') ⟩
     ∙ UniversalElementᴰ.βᴰ (toUniversalᴰ ueⱽ)
     ∙ (sym $ Pⱽ.⋆IdL _)
-  UEⱽ-essUniq ueⱽ ueⱽ' .snd .retᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+  UEⱽ-essUniq ueⱽ ueⱽ' .snd .retᴰ = Cᴰ.rectifyOut $
     UniversalElementᴰ.extensionalityᴰ (toUniversalᴰ ueⱽ) $
     Pⱽ.⋆Assoc _ _ _
     ∙ Pⱽ.⟨⟩⋆⟨ UniversalElementᴰ.βᴰ (toUniversalᴰ ueⱽ) ⟩
@@ -446,8 +446,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ; elementᴰ = ∫◁ .element .snd
     ; universalᴰ = isisoover
       (λ q qᴰ → ∫◁.intro (q , qᴰ) .snd)
-      (λ q qᴰ → Qᴰ.rectify $ Qᴰ.≡out $ ∫◁.β)
-      λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ∫◁.η
+      (λ q qᴰ → Qᴰ.rectifyOut $ ∫◁.β)
+      λ f fᴰ → Cᴰ.rectifyOut $ sym $ ∫◁.η
     } where
       open UniversalElement
       module Cᴰ = Fibers Cᴰ
@@ -466,8 +466,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ; elementᴰ = ueⱽ◁αⱽ.elementᴰ -- ueᴰ◁αⱽ.elementᴰ
     ; universalᴰ = isisoover
       (λ _ → ueⱽ◁αⱽ.introᴰ)
-      (λ _ _ → Qⱽ.rectify $ Qⱽ.≡out $ ueⱽ◁αⱽ.βᴰ)
-      (λ _ _ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueⱽ◁αⱽ.ηᴰ)
+      (λ _ _ → Qⱽ.rectifyOut $ ueⱽ◁αⱽ.βᴰ)
+      (λ _ _ → Cᴰ.rectifyOut $ sym $ ueⱽ◁αⱽ.ηᴰ)
     } where
       module ueⱽ = UniversalElementⱽ ueⱽ
       ueᴰ◁αⱽ = ueⱽ.toUniversalᴰ ◁PshIsoᴰ αⱽ
@@ -487,8 +487,8 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ; elementᴰ = ueᴰ◁αⱽ.elementᴰ
     ; universalᴰ = isisoover
       (λ p qᴰ → ueᴰ◁αⱽ.introᴰ qᴰ)
-      (λ p qᴰ → Qᴰ.rectify $ Qᴰ.≡out $ ueᴰ◁αⱽ.βᴰ)
-      (λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $ sym $ ueᴰ◁αⱽ.ηᴰ)
+      (λ p qᴰ → Qᴰ.rectifyOut $ ueᴰ◁αⱽ.βᴰ)
+      (λ f fᴰ → Cᴰ.rectifyOut $ sym $ ueᴰ◁αⱽ.ηᴰ)
     } where
       ueᴰ◁αⱽ = ueᴰ ◁PshIsoᴰ αⱽ
       module Cᴰ = Fibers Cᴰ
@@ -510,12 +510,12 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     ; elementᴰ = Qᴰ.reind (Q.⋆IdL _) (αᴰ .fst .N-obᴰ ueⱽ.elementⱽ)
     ; universalᴰ = isisoover
       (λ q qᴰ → ueⱽ.introᴰ (αᴰ .snd .inv q qᴰ))
-      (λ q qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      (λ q qᴰ → Qᴰ.rectifyOut $
         Qᴰ.⟨⟩⋆⟨ (sym $ Qᴰ.reind-filler _) ∙ refl ⟩
         ∙ (sym $ ∫α .trans .N-hom _ _ _ _)
         ∙ cong (∫α .trans .N-ob _) ueⱽ.βᴰ
         ∙ ∫α .nIso _ .snd .fst _)
-      (λ f fᴰ → Cᴰ.rectify $ Cᴰ.≡out $
+      (λ f fᴰ → Cᴰ.rectifyOut $
         ueⱽ.∫ue.intro≡ $
           invPshIso ∫α .trans .N-hom _ _ _ _
           ∙ Pⱽ.⟨⟩⋆⟨ cong (∫α .nIso _ .fst) (sym $ Qᴰ.reind-filler _)

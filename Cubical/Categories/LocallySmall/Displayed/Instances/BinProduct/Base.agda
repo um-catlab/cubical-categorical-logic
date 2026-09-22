@@ -51,18 +51,18 @@ module _
   _×Cᴰ_ .⋆IdLᴰ _ =
     ΣPathP (
       ΣPathP ((C.⋆IdL _) , (D.⋆IdL _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdLᴰ _)))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdLᴰ _) ,
+              (Dᴰ.rectifyOut $ Dᴰ.⋆IdLᴰ _)))
   _×Cᴰ_ .⋆IdRᴰ _ =
     ΣPathP (
       ΣPathP ((C.⋆IdR _) , (D.⋆IdR _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdRᴰ _)))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdRᴰ _) ,
+              (Dᴰ.rectifyOut $ Dᴰ.⋆IdRᴰ _)))
   _×Cᴰ_ .⋆Assocᴰ _ _ _ =
     ΣPathP (
       ΣPathP ((C.⋆Assoc _ _ _) , (D.⋆Assoc _ _ _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆Assocᴰ _ _ _)))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆Assocᴰ _ _ _) ,
+              (Dᴰ.rectifyOut $ Dᴰ.⋆Assocᴰ _ _ _)))
   _×Cᴰ_ .isSetHomᴰ = isSet× Cᴰ.isSetHomᴰ Dᴰ.isSetHomᴰ
 
   π₁ᴰ : Functorᴰ (π₁ C D) _×Cᴰ_ Cᴰ
@@ -136,12 +136,12 @@ module _
   introS-×Cᴰ .F-homᴰ = λ f → F-homᴰ Fᴰ f , F-homᴰ Gᴰ f
   introS-×Cᴰ .F-idᴰ =
     ΣPathP (ΣPathP ((Functor.F-id F) , (Functor.F-id G)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Fᴰ .F-idᴰ) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Gᴰ .F-idᴰ)))
+      ΣPathP ((Cᴰ.rectifyOut $ Fᴰ .F-idᴰ) ,
+              (Dᴰ.rectifyOut $ Gᴰ .F-idᴰ)))
   introS-×Cᴰ .F-seqᴰ fᴰ gᴰ =
     ΣPathP (ΣPathP ((Functor.F-seq F fᴰ gᴰ) , (Functor.F-seq G fᴰ gᴰ)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Fᴰ .F-seqᴰ fᴰ gᴰ) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Gᴰ .F-seqᴰ fᴰ gᴰ)))
+      ΣPathP ((Cᴰ.rectifyOut $ Fᴰ .F-seqᴰ fᴰ gᴰ) ,
+              (Dᴰ.rectifyOut $ Gᴰ .F-seqᴰ fᴰ gᴰ)))
 
 module _
   {C : Category Cob CHom-ℓ}
@@ -164,12 +164,12 @@ module _
   introF-×Cᴰ .Functorᴰ.F-homᴰ = λ fᴰ → Functorᴰ.F-homᴰ Fᴰ fᴰ , Functorᴰ.F-homᴰ Gᴰ fᴰ
   introF-×Cᴰ .Functorᴰ.F-idᴰ =
     ΣPathP (ΣPathP ((Functor.F-id F) , (Functor.F-id G)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Fᴰ .F-idᴰ) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Gᴰ .F-idᴰ)))
+      ΣPathP ((Cᴰ.rectifyOut $ Fᴰ .F-idᴰ) ,
+              (Dᴰ.rectifyOut $ Gᴰ .F-idᴰ)))
   introF-×Cᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ =
     ΣPathP (ΣPathP ((Functor.F-seq F _ _) , (Functor.F-seq G _ _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Fᴰ .F-seqᴰ fᴰ gᴰ) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Gᴰ .F-seqᴰ fᴰ gᴰ)))
+      ΣPathP ((Cᴰ.rectifyOut $ Fᴰ .F-seqᴰ fᴰ gᴰ) ,
+              (Dᴰ.rectifyOut $ Gᴰ .F-seqᴰ fᴰ gᴰ)))
 
 module _
   {C : Category Cob CHom-ℓ}
@@ -189,12 +189,12 @@ module _
   introS .F-homᴰ = λ f → F-homᴰ Fᴰ f , F-homᴰ Gᴰ f
   introS .F-idᴰ =
     ΣPathP (Functor.F-id F ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Fᴰ .F-idᴰ) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Gᴰ .F-idᴰ)))
+      ΣPathP ((Cᴰ.rectifyOut $ Fᴰ .F-idᴰ) ,
+              (Dᴰ.rectifyOut $ Gᴰ .F-idᴰ)))
   introS .F-seqᴰ fᴰ gᴰ =
     ΣPathP (Functor.F-seq F _ _ ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Fᴰ .F-seqᴰ fᴰ gᴰ) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Gᴰ .F-seqᴰ fᴰ gᴰ)))
+      ΣPathP ((Cᴰ.rectifyOut $ Fᴰ .F-seqᴰ fᴰ gᴰ) ,
+              (Dᴰ.rectifyOut $ Gᴰ .F-seqᴰ fᴰ gᴰ)))
 
 module _
   {C : Category Cob CHom-ℓ}
@@ -290,18 +290,18 @@ module _
   _×CᴰSF_ .⋆IdLᴰ _ =
     ΣPathP (
       ΣPathP ((C.⋆IdL _) , (D.⋆IdL _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdLᴰ _)))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdLᴰ _) ,
+              (Dᴰ.rectifyOut $ Dᴰ.⋆IdLᴰ _)))
   _×CᴰSF_ .⋆IdRᴰ _ =
     ΣPathP (
       ΣPathP ((C.⋆IdR _) , (D.⋆IdR _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆IdRᴰ _)))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdRᴰ _) ,
+              (Dᴰ.rectifyOut $ Dᴰ.⋆IdRᴰ _)))
   _×CᴰSF_ .⋆Assocᴰ _ _ _ =
     ΣPathP (
       ΣPathP ((C.⋆Assoc _ _ _) , (D.⋆Assoc _ _ _)) ,
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assocᴰ _ _ _) ,
-              (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.⋆Assocᴰ _ _ _)))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆Assocᴰ _ _ _) ,
+              (Dᴰ.rectifyOut $ Dᴰ.⋆Assocᴰ _ _ _)))
   _×CᴰSF_ .isSetHomᴰ = isSet× Cᴰ.isSetHomᴰ Dᴰ.isSetHomᴰ
 
 module _
@@ -369,8 +369,8 @@ module _
   ,Fⱽ .F-homᴰ {xᴰ = xᴰ}{yᴰ = yᴰ} (α , β) .NatTransDᴰ×Eᴰ.N-hom g =
        (ΣPathP (D×E.⋆IdL _ ∙ (sym $ D×E.⋆IdR _) ,
                ΣPathP (
-                 (Dᴰ.rectify (Dᴰ.≡out $ NatTransDᴰ.N-hom α g)) ,
-                 (Eᴰ.rectify (Eᴰ.≡out $ NatTransEᴰ.N-hom β g)))))
+                 (Dᴰ.rectifyOut (NatTransDᴰ.N-hom α g)) ,
+                 (Eᴰ.rectifyOut (NatTransEᴰ.N-hom β g)))))
   ,Fⱽ .F-idᴰ =
     FuncDᴰ×Eᴰ.makeNatTransPath refl (λ _ → refl)
   ,Fⱽ .F-seqᴰ _ _ =

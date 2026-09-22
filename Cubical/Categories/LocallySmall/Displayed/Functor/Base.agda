@@ -228,6 +228,6 @@ module _ {C : SmallCategory ℓC ℓC'} {D : SmallCategory ℓD ℓD'} where
       SmallLocallySmallFunctorᴰ→SmallFunctorᴰ .SmallFᴰ.Functorᴰ.F-obᴰ = λ z → F-obᴰ Fᴰ (liftω z) .Liftω.lowerω
       SmallLocallySmallFunctorᴰ→SmallFunctorᴰ .SmallFᴰ.Functorᴰ.F-homᴰ = F-homᴰ Fᴰ
       SmallLocallySmallFunctorᴰ→SmallFunctorᴰ .SmallFᴰ.Functorᴰ.F-idᴰ =
-        Dᴰ'.rectify $ Dᴰ'.≡out (F-idᴰ Fᴰ)
+        Dᴰ'.rectifyOut (F-idᴰ Fᴰ)
       SmallLocallySmallFunctorᴰ→SmallFunctorᴰ .SmallFᴰ.Functorᴰ.F-seqᴰ _ _ =
-        Dᴰ'.rectify $ Dᴰ'.≡out (F-seqᴰ Fᴰ _ _)
+        Dᴰ'.rectifyOut (F-seqᴰ Fᴰ _ _)

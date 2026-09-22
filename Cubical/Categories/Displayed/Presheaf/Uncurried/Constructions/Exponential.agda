@@ -106,7 +106,7 @@ LRⱽPresheafᴰ P Cᴰ ℓPᴰ = Σ (Presheafᴰ P Cᴰ ℓPᴰ) LocallyReprese
 module LRⱽPresheafᴰNotation {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') {P : Presheaf C ℓP} (Pᴰ : LRⱽPresheafᴰ P Cᴰ ℓPᴰ) where
   private
     module C = Category C using (id; _⋆_; ob; ⋆IdL)
-    module Cᴰ = Fibers Cᴰ using (ob[_]; Hom[_][_,_]; ⋆IdR; Hom[_,_]; idᴰ; _≡[_]_; _∫≡_; ≡in; ≡out; rectify; _⋆ᴰ_; reind; reind-filler)
+    module Cᴰ = Fibers Cᴰ using (ob[_]; Hom[_][_,_]; ⋆IdR; Hom[_,_]; idᴰ; _≡[_]_; _∫≡_; ≡in; ≡out; rectify; rectifyOut; _⋆ᴰ_; reind; reind-filler)
     module P = PresheafNotation P using (p[_]; _⋆_)
   open PresheafᴰNotation Cᴰ P (Pᴰ .fst)
   _×ⱽ_* : ∀ {Γ} (Γᴰ : Cᴰ.ob[ Γ ])(p : P.p[ Γ ]) → Cᴰ.ob[ Γ ]
@@ -275,7 +275,7 @@ module _
   --   (λ {(Δ , Δᴰ , f) (Γ , Γᴰ , f')} (γ , γᴰ , γf'≡f) →
   --     (γ , (×ⱽPᴰ.introᴰ (Cᴰ.reind (C.⋆IdL γ) (×ⱽPᴰ.π₁ⱽ Cᴰ.⋆ᴰ γᴰ)) (Pᴰ.reind (P.⋆IdL _ ∙ sym γf'≡f) ×ⱽPᴰ.π₂ⱽ) , γf'≡f)) ,
   --     (ΣPathP ((C.⋆IdL _) , ΣPathPProp (λ _ → P.isSetPsh _ _)
-  --       (Cᴰ.rectify $ Cᴰ.≡out $
+  --       (Cᴰ.rectifyOut $
   --         ×ⱽPᴰ.cong-introᴰ (sym (Cᴰ.reind-filler _) ∙ Cᴰ.cong-reind _ _ refl)
   --         (sym (Pᴰ.reind-filler _) ∙ sym (Pᴰ.reind-filler _) ∙ sym (Pᴰ.reind-filler _) ∙ (sym (Pᴰ.reind-filler _))
   --         ∙ Pᴰ.reind-filler _)))))
@@ -284,7 +284,7 @@ module _
   -- ×LRⱽPshᴰ≅⇒ⱽPshSmallP-F = record { trans = natTrans (λ x → (Cᴰ / P) .id)
   --   λ f → (Cᴰ / P) .⋆IdR _
   --   ∙ ΣPathP ((sym $ C.⋆IdL _ ∙ C.⋆IdL _) , (ΣPathPProp (λ _ → P.isSetPsh _ _)
-  --   (Cᴰ.rectify $ Cᴰ.≡out $
+  --   (Cᴰ.rectifyOut $
   --   sym $ Cᴰ.⋆IdL _ ∙ Cᴰ.⋆IdL _)))
   --   ∙ (Cᴰ / P) .⋆IdL _
   --   ; nIso = λ x → idCatIso {C = Cᴰ / P} .snd }

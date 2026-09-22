@@ -98,7 +98,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
               (g , introᴰ gfᴰ)
               (g' , introᴰ g'fᴰ)
       cong-introᴰ g≡g' gfᴰ≡g'fᴰ =
-        ΣPathP (g≡g' , (congP-introᴰ (Cᴰ.rectify $ Cᴰ.≡out gfᴰ≡g'fᴰ)))
+        ΣPathP (g≡g' , (congP-introᴰ (Cᴰ.rectifyOut gfᴰ≡g'fᴰ)))
 
       ⟨_⟩⋆πⱽ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g g'}
         → {gᴰ : Cᴰ [ g ][ Γᴰ , f*yᴰ .fst ]}
@@ -169,7 +169,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
             (g C.⋆ f , gᴰ ⋆πⱽ)
             (g' C.⋆ f , g'ᴰ ⋆πⱽ)
         → gᴰ Cᴰ.≡[ g≡g' ] g'ᴰ
-      extensionalityᴰin g≡g' gᴰπⱽ≡g'ᴰπⱽ = Cᴰ.rectify $ Cᴰ.≡out $ extensionalityᴰ g≡g' gᴰπⱽ≡g'ᴰπⱽ
+      extensionalityᴰin g≡g' gᴰπⱽ≡g'ᴰπⱽ = Cᴰ.rectifyOut $ extensionalityᴰ g≡g' gᴰπⱽ≡g'ᴰπⱽ
 
       introᴰ≡ : ∀ {Γ}{Γᴰ : Cᴰ.ob[ Γ ]}{g}
         → {gfᴰ : Cᴰ [ g C.⋆ f ][ Γᴰ , yᴰ ]}

@@ -114,13 +114,13 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     ×βⱽ₁ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
       {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
       → ((fᴰ ,ⱽ gᴰ) Cᴰ.⋆ᴰ π₁) Cᴰ.≡[ C.⋆IdR f ] fᴰ
-    ×βⱽ₁ = Cᴰ.rectify $ Cᴰ.≡out $
+    ×βⱽ₁ = Cᴰ.rectifyOut $
       Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (PathPΣ ue.β .snd) .fst)
 
     ×βⱽ₂ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
       {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
       → ((fᴰ ,ⱽ gᴰ) Cᴰ.⋆ᴰ π₂) Cᴰ.≡[ C.⋆IdR f ] gᴰ
-    ×βⱽ₂ = Cᴰ.rectify $ Cᴰ.≡out $
+    ×βⱽ₂ = Cᴰ.rectifyOut $
       Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (PathPΣ ue.β .snd) .snd)
 
     ×ηⱽ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
@@ -194,7 +194,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
       (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
       → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₁) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .fst ] fᴰ
-    ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+    ×βᴰ₁ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectifyOut $
       Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .fst)
 
     ×βᴰ₂ : ∀ {Γ Γᴰ}
@@ -203,14 +203,14 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ])
       (gᴰ : Cᴰ [ g ][ Γᴰ , Bᴰ ])
       → (introᴰ (fᴰ , gᴰ) Cᴰ.⋆ᴰ πᴰ₂) Cᴰ.≡[ PathPΣ (A×B.β {p = (f , g)}) .snd ] gᴰ
-    ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+    ×βᴰ₂ {Γ}{Γᴰ}{f}{g} fᴰ gᴰ = Cᴰ.rectifyOut $
       Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ PathPΣ (βᴰ {p = (f , g)} (fᴰ , gᴰ)) .snd)
 
     ×ηᴰ : ∀ {Γ Γᴰ}
       → {f : C [ Γ , A×B .vertex ]}
       → (fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ×ᴰBᴰ .fst ])
       → fᴰ Cᴰ.≡[ A×B.η {f = f} ] introᴰ ((fᴰ Cᴰ.⋆ᴰ πᴰ₁) , (fᴰ Cᴰ.⋆ᴰ πᴰ₂))
-    ×ηᴰ {Γ} {Γᴰ} {f} fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
+    ×ηᴰ {Γ} {Γᴰ} {f} fᴰ = Cᴰ.rectifyOut $
       Cᴰ.≡in (ηᴰ {f = f} fᴰ)
       ∙ cong (∫PshIsoᴰ (asReprᴰ .snd) .nIso _ .fst)
           (ΣPathPᴰ
@@ -293,10 +293,9 @@ module _ {C : Category ℓC ℓC'}
       → PathP (λ i → Cᴰᴰ [ η i ][ Γᴰᴰ , vertexᴰ ])
           fᴰᴰ (Cᴰᴰ.reind intro≡g !ⱽᴰ)
     !ηⱽᴰ {Γ = Γ} {Γᴰ = Γᴰ} {f = f} {fᴰ = fᴰ} intro≡g η fᴰᴰ =
-      Cᴰᴰ.rectify {e' = η}
-        (Cᴰᴰ.≡out
-          ((Cᴰᴰ.≡in (!η-genericᴰ (η ∙ sym intro≡g) fᴰᴰ))
-          ∙ Cᴰᴰ.reind-filler {p = !ⱽᴰ} intro≡g))
+      Cᴰᴰ.rectifyOut {e' = η}
+        ((Cᴰᴰ.≡in (!η-genericᴰ (η ∙ sym intro≡g) fᴰᴰ))
+        ∙ Cᴰᴰ.reind-filler {p = !ⱽᴰ} intro≡g)
 
   BinProductⱽᴰSpec : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
     (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
@@ -430,9 +429,10 @@ module _ {C : Category ℓC ℓC'}
       (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
       → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₁)
         Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×βⱽ₁ ] fᴰᴰ
-    ×βⱽᴰ₁ fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+    ×βⱽᴰ₁ {f = f} {fᴰ = fᴰ} {gᴰ = gᴰ} fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut $
       Cᴰᴰ.reind-filler _ ∙
-      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ bpᴰ.β .snd) .fst)
+      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ
+        (bpᴰ.β {p = ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ)}) .snd) .fst)
 
     ×βⱽᴰ₂ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]}
@@ -440,9 +440,10 @@ module _ {C : Category ℓC ℓC'}
       (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
       → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₂)
         Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×βⱽ₂ ] gᴰᴰ
-    ×βⱽᴰ₂ fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
+    ×βⱽᴰ₂ {f = f} {fᴰ = fᴰ} {gᴰ = gᴰ} fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut $
       Cᴰᴰ.reind-filler _ ∙
-      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ bpᴰ.β .snd) .snd)
+      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ
+        (bpᴰ.β {p = ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ)}) .snd) .snd)
 
     ×βⱽᴰ₁-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]}
@@ -457,7 +458,7 @@ module _ {C : Category ℓC ℓC'}
       → PathP (λ i → Cᴰᴰ [ β' i ][ Γᴰᴰ , Aᴰᴰ ])
           ((Cᴰᴰ.reind (ΣPathP (refl , refl)) (fᴰᴰ ,ⱽᴰ gᴰᴰ))
             Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind π≡π' πᴰ₁) fᴰᴰ
-    ×βⱽᴰ₁-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify {e' = β'} $ Cᴰᴰ.≡out $
+    ×βⱽᴰ₁-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut {e' = β'} $
       Cᴰᴰ.⟨ Cᴰᴰ.reind-filler⁻ (ΣPathP (refl , refl)) ⟩⋆⟨⟩
       ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩
       ∙ Cᴰᴰ.≡in (×βⱽᴰ₁ fᴰᴰ gᴰᴰ)
@@ -475,7 +476,7 @@ module _ {C : Category ℓC ℓC'}
       → PathP (λ i → Cᴰᴰ [ β' i ][ Γᴰᴰ , Bᴰᴰ ])
           ((Cᴰᴰ.reind (ΣPathP (refl , refl)) (fᴰᴰ ,ⱽᴰ gᴰᴰ))
             Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind π≡π' πᴰ₂) gᴰᴰ
-    ×βⱽᴰ₂-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify {e' = β'} $ Cᴰᴰ.≡out $
+    ×βⱽᴰ₂-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut {e' = β'} $
       Cᴰᴰ.⟨ Cᴰᴰ.reind-filler⁻ (ΣPathP (refl , refl)) ⟩⋆⟨⟩
       ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩
       ∙ Cᴰᴰ.≡in (×βⱽᴰ₂ fᴰᴰ gᴰᴰ)
@@ -485,11 +486,13 @@ module _ {C : Category ℓC ℓC'}
       (hᴰᴰ : Cᴰᴰ [ f , hᴰ ][ Γᴰᴰ , vertexᴰ ])
       → hᴰᴰ Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×ηⱽ ]
           (bpᴰ.intro (((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element) .snd)
-    ×ηⱽᴰ hᴰᴰ = subst
+    ×ηⱽᴰ {f = f} {hᴰ = hᴰ} hᴰᴰ = subst
       (λ p → hᴰᴰ Cᴰᴰ.≡[ p ]
         (bpᴰ.intro ((_ , hᴰᴰ) specᴰ.⋆ bpᴰ.element) .snd))
-      (Cᴰ.isSetHom _ _ (cong fst bpᴰ.η) (Cᴰ.≡in bpⱽ.×ηⱽ))
-      (PathPΣ bpᴰ.η .snd)
+      (Cᴰ.isSetHom _ _ (cong fst η') (Cᴰ.≡in bpⱽ.×ηⱽ))
+      (PathPΣ η' .snd)
+      where
+      η' = bpᴰ.η {f = ((f , hᴰ) , hᴰᴰ)}
 
     ×ηⱽᴰ-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
@@ -506,7 +509,7 @@ module _ {C : Category ℓC ℓC'}
             ((hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₁≡π₁')) πᴰ₁) ,ⱽᴰ
              (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂)))
     ×ηⱽᴰ-on {Γ = Γ} {Γᴰ = Γᴰ} {Γᴰᴰ = Γᴰᴰ} {f = f} {hᴰ = hᴰ}
-      {π₁' = π₁'} {π₂' = π₂'} π₁≡π₁' π₂≡π₂' η' hᴰᴰ = Cᴰᴰ.rectify {e' = η'} $ Cᴰᴰ.≡out $
+      {π₁' = π₁'} {π₂' = π₂'} π₁≡π₁' π₂≡π₂' η' hᴰᴰ = Cᴰᴰ.rectifyOut {e' = η'} $
       Cᴰᴰ.≡in (×ηⱽᴰ hᴰᴰ)
       ∙ cong bpᴰ.intro (normalize-ηᴰ ∙ align-ηᴰ)
       ∙ Cᴰᴰ.reind-filler (ΣPathP (refl , refl))

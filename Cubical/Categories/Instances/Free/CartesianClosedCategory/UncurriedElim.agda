@@ -80,8 +80,8 @@ module _ (Q : ×⇒Quiver ℓQ ℓQ') where
       elimHom (×η {Γ}{A}{B}{f} i) = Cᴰ.rectify {e' = ×η} (bpᴰ.×ηᴰ (elimHom f)) i
       elimHom eval = appᴰ
       elimHom (λ- e) = λᴰ (elimHom e)
-      elimHom (λβ e i) = Cᴰ.rectify {e' = λβ e} (Cᴰ.≡out $ ⇒βᴰ (elimHom e)) i
-      elimHom (λη e i) = Cᴰ.rectify {e' = λη e} (Cᴰ.≡out $ ⇒ηᴰ (elimHom e)) i
+      elimHom (λβ e i) = Cᴰ.rectifyOut {e' = λβ e} (⇒βᴰ (elimHom e)) i
+      elimHom (λη e i) = Cᴰ.rectifyOut {e' = λη e} (⇒ηᴰ (elimHom e)) i
 
       elim : GlobalSection Cᴰ
       elim .F-obᴰ = elimOb ı-ob

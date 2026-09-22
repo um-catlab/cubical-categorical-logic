@@ -70,7 +70,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         → Path Pᴰ.p[ _ ] (_ , gpᴰ) (_ , gpᴰ')
         → Path Cᴰ.Hom[ _ , _ ] (_ , intro gpᴰ) (_ , intro gpᴰ')
       intro⟨ g≡g' ⟩⟨ gpᴰ≡gpᴰ' ⟩ =
-        intro⟨ ΣPathP (g≡g' , (Pᴰ.rectify $ Pᴰ.≡out $ gpᴰ≡gpᴰ')) ⟩
+        intro⟨ ΣPathP (g≡g' , (Pᴰ.rectifyOut $ gpᴰ≡gpᴰ')) ⟩
 
       β :
         ∀ {z zᴰ}{g : C [ z , x ]}
@@ -125,12 +125,12 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   isFibrationReind p .isCartesian .fst qᴰ =
     isFibQᴰ.intro $ Qᴰ.reind (α .N-hom _ _ _ p) qᴰ
   isFibrationReind p .isCartesian .snd .fst qᴰ =
-    Qᴰ.rectify $ Qᴰ.≡out $
+    Qᴰ.rectifyOut $
       sym (Qᴰ.reind-filler _)
       ∙ isFibQᴰ.β
       ∙ (sym $ Qᴰ.reind-filler _)
   isFibrationReind p .isCartesian .snd .snd gᴰ =
-    Cᴰ.rectify $ Cᴰ.≡out $ isFibQᴰ.intro≡ $ sym $
+    Cᴰ.rectifyOut $ isFibQᴰ.intro≡ $ sym $
       Qᴰ.reind-filler _ ∙ Qᴰ.reind-filler _
 
 module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}

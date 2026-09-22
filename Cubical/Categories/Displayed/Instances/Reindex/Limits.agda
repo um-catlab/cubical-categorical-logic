@@ -82,19 +82,19 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
           Dᴰ.reind (sym $ F .F-id) $ vbp .elementⱽ .snd
         preservesBinProductⱽ .universalⱽ .fst (fᴰ₁ , fᴰ₂) = fᴰ₁ Fcᴰ∧Fcᴰ'.,ⱽ fᴰ₂
         preservesBinProductⱽ .universalⱽ .snd .fst (fᴰ₁ , fᴰ₂) = ΣPathP
-          ( (Dᴰ.rectify $ Dᴰ.≡out $
+          ( (Dᴰ.rectifyOut $
             (sym $ Dᴰ.reind-filler _)
             ∙ (sym $ Dᴰ.reind-filler _)
             ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
             ∙ Dᴰ.reind-filler _
             ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₁)
-          , (Dᴰ.rectify $ Dᴰ.≡out $
+          , (Dᴰ.rectifyOut $
             (sym $ Dᴰ.reind-filler _)
             ∙ (sym $ Dᴰ.reind-filler _)
             ∙ Dᴰ.⟨ refl ⟩⋆⟨ sym $ Dᴰ.reind-filler _ ⟩
             ∙ Dᴰ.reind-filler _
             ∙ Fcᴰ∧Fcᴰ'.∫×βⱽ₂))
-        preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = Dᴰ.rectify $ Dᴰ.≡out $
+        preservesBinProductⱽ .universalⱽ .snd .snd fᴰ = Dᴰ.rectifyOut $
           Fcᴰ∧Fcᴰ'.,ⱽ≡
             (sym (Dᴰ.reind-filler _)
             ∙ sym (Dᴰ.reind-filler _)

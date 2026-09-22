@@ -59,11 +59,11 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   v[ x ] .Category.id = idᴰ
   v[ x ] .Category._⋆_ fⱽ gⱽ = R.reind (C.⋆IdL _) (fⱽ ⋆ᴰ gⱽ)
   v[ x ] .Category.⋆IdL fⱽ =
-    R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+    R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
   v[ x ] .Category.⋆IdR fⱽ =
-    R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+    R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
   v[ x ] .Category.⋆Assoc fⱽ gⱽ hⱽ =
-    R.rectify $ R.≡out $
+    R.rectifyOut $
       (sym $ R.reind-filler _)
       ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
@@ -101,13 +101,13 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   _⋆ᴰⱽ_ : Hom[ f ][ xᴰ , yᴰ ] → v[ y ] [ yᴰ , yᴰ' ] → Hom[ f ][ xᴰ , yᴰ' ]
   _⋆ᴰⱽ_ {f = f} fᴰ gⱽ = R.reind (C.⋆IdR _) (fᴰ ⋆ᴰ gⱽ)
   ⋆IdLᴰⱽ : idᴰ ⋆ᴰⱽ fⱽ ≡ fⱽ
-  ⋆IdLᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+  ⋆IdLᴰⱽ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
 
   ⋆IdRᴰⱽ : fᴰ ⋆ᴰⱽ idⱽ ≡ fᴰ
-  ⋆IdRᴰⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+  ⋆IdRᴰⱽ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
 
   ⋆Assocᴰⱽⱽ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰⱽ hⱽ ≡ (fᴰ ⋆ᴰⱽ (gⱽ ⋆ⱽ hⱽ))
-  ⋆Assocᴰⱽⱽ = R.rectify $ R.≡out $
+  ⋆Assocᴰⱽⱽ = R.rectifyOut $
       (sym $ R.reind-filler _)
       ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
@@ -118,13 +118,13 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
   _⋆ⱽᴰ_ {f = f} gⱽ fᴰ = R.reind (C.⋆IdL _) (gⱽ ⋆ᴰ fᴰ)
 
   ⋆IdLⱽᴰ : ∀ (fᴰ : Hom[ f ][ xᴰ , yᴰ ]) → idⱽ ⋆ⱽᴰ fᴰ ≡ fᴰ
-  ⋆IdLⱽᴰ fᴰ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
+  ⋆IdLⱽᴰ fᴰ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdL _
 
   ⋆IdRⱽᴰ : ∀ (fⱽ : v[ x ] [ xᴰ , xᴰ' ]) → fⱽ ⋆ⱽᴰ idᴰ ≡ fⱽ
-  ⋆IdRⱽᴰ fⱽ = R.rectify $ R.≡out $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
+  ⋆IdRⱽᴰ fⱽ = R.rectifyOut $ (sym $ R.reind-filler _) ∙ ∫Cᴰ.⋆IdR _
 
   ⋆Assocⱽⱽᴰ : (fⱽ ⋆ⱽ gⱽ) ⋆ⱽᴰ hᴰ ≡ (fⱽ ⋆ⱽᴰ (gⱽ ⋆ⱽᴰ hᴰ))
-  ⋆Assocⱽⱽᴰ = R.rectify $ R.≡out $
+  ⋆Assocⱽⱽᴰ = R.rectifyOut $
       (sym $ R.reind-filler _)
       ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
@@ -132,7 +132,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       ∙ R.reind-filler _
 
   ⋆Assocⱽᴰⱽ : (fⱽ ⋆ⱽᴰ gᴰ) ⋆ᴰⱽ hⱽ ≡ (fⱽ ⋆ⱽᴰ (gᴰ ⋆ᴰⱽ hⱽ))
-  ⋆Assocⱽᴰⱽ = R.rectify $ R.≡out $
+  ⋆Assocⱽᴰⱽ = R.rectifyOut $
       (sym $ R.reind-filler _)
       ∙ ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
       ∙ ∫Cᴰ.⋆Assoc _ _ _
@@ -140,7 +140,7 @@ module Fibers {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') 
       ∙ R.reind-filler _
 
   ⋆Assocᴰⱽᴰ : (fᴰ ⋆ᴰⱽ gⱽ) ⋆ᴰ hᴰ ≡ (fᴰ ⋆ᴰ (gⱽ ⋆ⱽᴰ hᴰ))
-  ⋆Assocᴰⱽᴰ = R.rectify $ R.≡out $
+  ⋆Assocᴰⱽᴰ = R.rectifyOut $
     ∫Cᴰ.⟨ sym $ R.reind-filler _ ⟩⋆⟨ refl ⟩
     ∙ ∫Cᴰ.⋆Assoc _ _ _
     ∙ ∫Cᴰ.⟨ refl ⟩⋆⟨ R.reind-filler _ ⟩

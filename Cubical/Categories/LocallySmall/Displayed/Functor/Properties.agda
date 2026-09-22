@@ -88,13 +88,13 @@ module _ {C : Category Cob CHom-ℓ}{D : Category Dob DHom-ℓ}
   Fv .F-ob = Fᴰ.F-obᴰ
   Fv .F-hom fᴰ = Dᴰ.reind F.F-id $ Fᴰ.F-homᴰ fᴰ
   Fv .F-id =
-    Dᴰ.rectify $ Dᴰ.≡out $
+    Dᴰ.rectifyOut $
       (sym $ Dᴰ.reind-filler _ _)
       ∙ Fᴰ.F-hom⟨ sym $ Cᴰ.reind-filler _ _ ⟩
       ∙ Fᴰ.F-idᴰ
       ∙ Dᴰ.reind-filler _ _
   Fv .F-seq fᴰ gᴰ =
-    Dᴰ.rectify $ Dᴰ.≡out $
+    Dᴰ.rectifyOut $
       (sym $ Dᴰ.reind-filler _ _)
       ∙ Fᴰ.F-homᴰ⟨ (sym $ Cᴰ.reind-filler _ _) ⟩
       ∙ Fᴰ.F-seqᴰ _ _

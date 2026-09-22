@@ -33,16 +33,16 @@ module _ {C : Category Cob CHom-ℓ}(Cᴰ : Categoryᴰ C Cobᴰ CHom-ℓᴰ) wh
     ∫Cᴰ ._⋆ᴰ_ ffᴰ ggᴰ = (ffᴰ .fst Cᴰ.⋆ᴰ ggᴰ .fst) , (ffᴰ .snd Cᴰᴰ.⋆ᴰ ggᴰ .snd)
     ∫Cᴰ .⋆IdLᴰ ffᴰ =
       ΣPathP ((C.⋆IdL _) , (
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ (ffᴰ .fst)) ,
-      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdLᴰ (ffᴰ .snd)))))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdLᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectifyOut $ Cᴰᴰ.⋆IdLᴰ (ffᴰ .snd)))))
     ∫Cᴰ .⋆IdRᴰ ffᴰ =
       ΣPathP ((C.⋆IdR _) , (
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ (ffᴰ .fst)) ,
-      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdRᴰ (ffᴰ .snd)))))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdRᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectifyOut $ Cᴰᴰ.⋆IdRᴰ (ffᴰ .snd)))))
     ∫Cᴰ .⋆Assocᴰ ffᴰ ggᴰ hhᴰ =
       ΣPathP (C.⋆Assoc _ _ _ ,
-      (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assoc _ _ _) ,
-      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
+      (ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆Assoc _ _ _) ,
+      (Cᴰᴰ.rectifyOut $ Cᴰᴰ.⋆Assoc _ _ _))))
     ∫Cᴰ .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)
 
 module _
@@ -86,14 +86,14 @@ module _
       (fᴰ .snd Cᴰᴰ.⋆ᴰ gᴰ .snd)
     ∫CᴰSF .⋆IdLᴰ ffᴰ =
       ΣPathP ((C.⋆IdL _) , (
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdLᴰ (ffᴰ .fst)) ,
-      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdLᴰ (ffᴰ .snd)))))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdLᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectifyOut $ Cᴰᴰ.⋆IdLᴰ (ffᴰ .snd)))))
     ∫CᴰSF .⋆IdRᴰ ffᴰ =
       ΣPathP ((C.⋆IdR _) , (
-      ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdRᴰ (ffᴰ .fst)) ,
-      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆IdRᴰ (ffᴰ .snd)))))
+      ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆IdRᴰ (ffᴰ .fst)) ,
+      (Cᴰᴰ.rectifyOut $ Cᴰᴰ.⋆IdRᴰ (ffᴰ .snd)))))
     ∫CᴰSF .⋆Assocᴰ ffᴰ ggᴰ hhᴰ =
       ΣPathP (C.⋆Assoc _ _ _ ,
-      (ΣPathP ((Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆Assoc _ _ _) ,
-      (Cᴰᴰ.rectify $ Cᴰᴰ.≡out $ Cᴰᴰ.⋆Assoc _ _ _))))
+      (ΣPathP ((Cᴰ.rectifyOut $ Cᴰ.⋆Assoc _ _ _) ,
+      (Cᴰᴰ.rectifyOut $ Cᴰᴰ.⋆Assoc _ _ _))))
     ∫CᴰSF .isSetHomᴰ = isSetΣ Cᴰ.isSetHomᴰ (λ _ → Cᴰᴰ.isSetHomᴰ)

@@ -191,7 +191,7 @@ module _ (Q : Quiver ℓg ℓg') where
 
     elim-F-homᴰ-ı : ∀ g →
       elim-F-homᴰ (ı <$g> g) ≡ (ıᴰ <$g>ᴰ g)
-    elim-F-homᴰ-ı g = Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.⋆IdR _
+    elim-F-homᴰ-ı g = Cᴰ.rectifyOut $ Cᴰ.⋆IdR _
 
     -- Why doesn't this hold definitionally?
     elim-F-homᴰ∷ :
@@ -226,12 +226,12 @@ module _ (Q : Quiver ℓg ℓg') where
     elimFreeCat .F-homᴰ = elim-F-homᴰ
     elimFreeCat .F-idᴰ = refl
     elimFreeCat .F-seqᴰ f g =
-      Cᴰ.rectify $ Cᴰ.≡out $ elim-F-seqᴰ f g
+      Cᴰ.rectifyOut $ elim-F-seqᴰ f g
 
     extends-ıᴰ-hom : (g : Q .snd .mor) →
       (ıᴰ <$g>ᴰ g) ≡
       ((ıᴰ <$g>ᴰ g) Cᴰ.⋆ᴰ Cᴰ.idᴰ)
-    extends-ıᴰ-hom g = Cᴰ.rectify $ Cᴰ.≡out $ sym $ Cᴰ.⋆IdR _
+    extends-ıᴰ-hom g = Cᴰ.rectifyOut $ sym $ Cᴰ.⋆IdR _
 
   isFreeCat : isFreeCategory Q FreeCategory ı
   isFreeCat Cᴰ ıᴰ .fst = elimFreeCat Cᴰ ıᴰ

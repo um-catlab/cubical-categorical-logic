@@ -21,6 +21,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.Reasoning.More
 open import Cubical.Categories.Displayed.Limits.CartesianD
 open import Cubical.Categories.Displayed.Limits.CartesianV
 open import Cubical.Categories.Displayed.Limits.Terminal
@@ -72,7 +73,7 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
         open Section
         open Interpᴰ ı
         private
-          module R = HomᴰReasoning Cᴰ
+          module R = ReasoningMore Cᴰ
 
         elim-F-hom : ∀ {c c'} (f : |FreeCartesianCategory| Q [ c , c' ]) →
           Cᴰ [ f ][ elim-F-ob ı-ob c , elim-F-ob ı-ob c' ]
@@ -90,16 +91,16 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
           i j
         elim-F-hom !ₑ = !tᴰ _
         elim-F-hom (⊤η f i) =
-          (R.rectify {p' = ⊤η f}{fᴰ = elim-F-hom f} $ R.≡out $ 𝟙ueᴰ.ηᴰ) i
+          (R.rectifyOut {p' = ⊤η f}{fᴰ = elim-F-hom f} $ 𝟙ueᴰ.ηᴰ) i
         elim-F-hom π₁ = π₁ᴰ
         elim-F-hom π₂ = π₂ᴰ
         elim-F-hom ⟨ f₁ , f₂ ⟩ = elim-F-hom f₁ ,pᴰ elim-F-hom f₂
         elim-F-hom (×β₁ {t = f₁}{t' = f₂} i) =
-          (R.rectify {p' = ×β₁} $ R.≡out $ ×βᴰ₁ {f₁ᴰ = elim-F-hom f₁}{f₂ᴰ = elim-F-hom f₂}) i
+          (R.rectifyOut {p' = ×β₁} $ ×βᴰ₁ {f₁ᴰ = elim-F-hom f₁}{f₂ᴰ = elim-F-hom f₂}) i
         elim-F-hom (×β₂ {t = f₁}{t' = f₂} i) =
-          (R.rectify {p' = ×β₂} $ R.≡out $ ×βᴰ₂ {f₁ᴰ = elim-F-hom f₁}{f₂ᴰ = elim-F-hom f₂}) i
+          (R.rectifyOut {p' = ×β₂} $ ×βᴰ₂ {f₁ᴰ = elim-F-hom f₁}{f₂ᴰ = elim-F-hom f₂}) i
         elim-F-hom (×η {t = f} i) =
-          (R.rectify {p' = ×η {t = f}} $ R.≡out $ ×ueᴰ.ηᴰ _ _ {f = _ , elim-F-hom f}) i
+          (R.rectifyOut {p' = ×η {t = f}} $ ×ueᴰ.ηᴰ _ _ {f = _ , elim-F-hom f}) i
 
         elim : GlobalSection Cᴰ
         elim .F-obᴰ = elim-F-ob ı-ob

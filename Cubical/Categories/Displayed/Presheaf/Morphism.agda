@@ -358,7 +358,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
 
     _⋆PshHomᴰ_ : PshHomᴰ (α ⋆PshHom β) Pᴰ Rᴰ
     _⋆PshHomᴰ_ .N-obᴰ = λ pᴰ → ∫⋆ .N-ob _ (_ , pᴰ) .snd
-    _⋆PshHomᴰ_ .N-homᴰ = Rᴰ.rectify $ Rᴰ.≡out $ ∫⋆ .N-hom _ _ _ _
+    _⋆PshHomᴰ_ .N-homᴰ = Rᴰ.rectifyOut $ ∫⋆ .N-hom _ _ _ _
 
     infixr 9 _⋆PshHomᴰ_
 
@@ -374,9 +374,9 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     _⋆PshIsoᴰ_ .fst = αᴰ .fst ⋆PshHomᴰ βᴰ .fst
     _⋆PshIsoᴰ_ .snd .inv = λ r rᴰ → ∫⋆ .nIso _ .fst (r , rᴰ) .snd
     _⋆PshIsoᴰ_ .snd .rightInv =
-      λ r rᴰ → Rᴰ.rectify $ Rᴰ.≡out $ ∫⋆ .nIso _ .snd .fst (r , rᴰ)
+      λ r rᴰ → Rᴰ.rectifyOut $ ∫⋆ .nIso _ .snd .fst (r , rᴰ)
     _⋆PshIsoᴰ_ .snd .leftInv =
-      λ p pᴰ → Pᴰ.rectify $ Pᴰ.≡out $ ∫⋆ .nIso _ .snd .snd (p , pᴰ)
+      λ p pᴰ → Pᴰ.rectifyOut $ ∫⋆ .nIso _ .snd .snd (p , pᴰ)
 
     infixr 9 _⋆PshIsoᴰ_
 
@@ -395,7 +395,7 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     invPshIsoᴰ : PshIsoᴰ (invPshIso α) Qᴰ Pᴰ
     invPshIsoᴰ .fst .N-obᴰ = αᴰ .snd .inv _
     invPshIsoᴰ .fst .N-homᴰ =
-      Pᴰ.rectify $ Pᴰ.≡out $ ∫αᴰ⁻ .trans .N-hom _ _ _ _
+      Pᴰ.rectifyOut $ ∫αᴰ⁻ .trans .N-hom _ _ _ _
     invPshIsoᴰ .snd .inv = λ a → αᴰ .fst .N-obᴰ
     invPshIsoᴰ .snd .rightInv = αᴰ .snd .leftInv
     invPshIsoᴰ .snd .leftInv = αᴰ .snd .rightInv
@@ -604,7 +604,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
         Functorᴰ≡
         (λ xᴰ → CatIsoᴰ→P≡Q (PshIso→SETIso P Q α _) (PshIsoᴰ→SETᴰIsoᴰ αᴰ xᴰ))
         λ {x = x}{xᴰ = xᴰ} fᴰ →
-            toPathP (funExt (λ q → funExt (λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+            toPathP (funExt (λ q → funExt (λ qᴰ → Qᴰ.rectifyOut $
             sym (Qᴰ.reind-filler _)
             ∙ cong (∫αᴰ .trans .N-ob _) Pᴰ.⟨ refl ⟩⋆⟨ (sym $ Pᴰ.reind-filler _) ⟩
             ∙ ∫αᴰ .trans .N-hom _ _ _ _
@@ -707,7 +707,7 @@ module _ {C : Category ℓC ℓC'}
           Qᴰ.reind (funExt₂⁻ (λ i → α≡β i .N-ob) x p) $
             αᴰ .N-obᴰ pᴰ
         PshHomPathPshHomᴰ .N-homᴰ =
-          Qᴰ.rectify $ Qᴰ.≡out $
+          Qᴰ.rectifyOut $
             (sym $ Qᴰ.reind-filler _)
             ∙ Qᴰ.≡in (αᴰ .N-homᴰ)
             ∙ Qᴰ.⟨⟩⋆⟨ Qᴰ.reind-filler _ ⟩

@@ -122,7 +122,7 @@ module _
           cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ π'≡swap⁻Gπ Δ)
         the-niᴰ .NatIsoᴰ.transᴰ .NatTransᴰ.N-homᴰ
             {x = (Θ , Θᴰ , _)}{y = (Δ , Δᴰ , _)}{f = (δ , δᴰ , _)} _ =
-            Dᴰ.rectify $ Dᴰ.≡out $
+            Dᴰ.rectifyOut $
               _ , (cartLifts.sq-filler δᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ _)
                 ≡⟨ cartLifts.sq-collapse _ _
                   ∙ cartLifts.cong-introᴰ (symNatIso swap .trans .N-hom δ)
@@ -142,11 +142,11 @@ module _
               ∎
         the-niᴰ .NatIsoᴰ.nIsoᴰ {x = Δ , Δᴰ , γ} _ =
           isisoᴰ (cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ sym (swapπ'≡Gπ Δ)))
-            (Dᴰ.rectify $ Dᴰ.≡out $
+            (Dᴰ.rectifyOut $
               _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ cartLifts.sq-filler _ _) ≡⟨ cartLifts.sq-collapse _ _
                 ∙ cartLifts.cong-introᴰ (swap .nIso Δ .ret) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
                 ∙ cartLifts.sq-id refl ⟩ D.id , Dᴰ.idᴰ ∎)
-            (Dᴰ.rectify $ Dᴰ.≡out $
+            (Dᴰ.rectifyOut $
               cartLifts.sq-collapse _ _
               ∙ cartLifts.cong-introᴰ (swap .nIso Δ .sec) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
               ∙ cartLifts.sq-id refl)

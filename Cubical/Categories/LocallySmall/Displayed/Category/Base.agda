@@ -186,6 +186,14 @@ module _ (C : Category Cob CHom-ℓ) where
         → fᴰ ≡[ p ] gᴰ → fᴰ ≡[ p' ] gᴰ
       rectify {fᴰ = fᴰ}{gᴰ} pᴰ = subst (fᴰ ≡[_] gᴰ) (C.isSetHom _ _ _ _) pᴰ
 
+      rectifyOut : {x y : Cob}{f g : C.Hom[ x , y ]}{p' : f ≡ g}
+        {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
+        {fᴰ : Hom[ f ][ xᴰ , yᴰ ]}
+        {gᴰ : Hom[ g ][ xᴰ , yᴰ ]}
+        → (ppᴰ : Path ∫Hom[ _ , _ ] (_ , fᴰ) (_ , gᴰ))
+        → fᴰ ≡[ p' ] gᴰ
+      rectifyOut e = rectify (≡out e)
+
       reind-filler : {x y : Cob}{f g : C.Hom[ x , y ]}
         {xᴰ : ob[ x ]}{yᴰ : ob[ y ]}
         (p : f ≡ g)

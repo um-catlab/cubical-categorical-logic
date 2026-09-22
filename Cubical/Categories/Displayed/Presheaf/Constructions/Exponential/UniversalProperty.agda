@@ -120,7 +120,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       ⇒PshSmallⱽ-app .N-obᴰ (α , pᴰ) =
         Qᴰ.reind (P.⋆IdL _) $
           introLR Cᴰ.idᴰ (Pᴰ.reind (sym $ P.⋆IdL _) pᴰ) Qᴰ.⋆ᴰ α
-      ⇒PshSmallⱽ-app .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} {γᴰ} {α , pᴰ} = Qᴰ.rectify $ Qᴰ.≡out $
+      ⇒PshSmallⱽ-app .N-homᴰ {Δ} {Γ} {Δᴰ} {Γᴰ} {γ} {p} {γᴰ} {α , pᴰ} = Qᴰ.rectifyOut $
         sym (Qᴰ.reind-filler _)
         ∙ sym (Qᴰ.⋆Assoc _ _ _)
         ∙ Qᴰ.⟨ app-naturality-lemma ⟩⋆⟨⟩
@@ -183,7 +183,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
       -- opaque
       --   ⇒PshSmallⱽ-β : ∀ (αᴰ : PshHomᴰ α (Rᴰ ×ⱽPsh reind α Pᴰ) Qᴰ)
       --     → (⇒PshSmallⱽ-introᴰ αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app ≡ αᴰ
-      --   ⇒PshSmallⱽ-β αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰpᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      --   ⇒PshSmallⱽ-β αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰpᴰ → Qᴰ.rectifyOut $
       --     {!!}
       --     --  sym (Qᴰ.reind-filler _)
       --     -- ∙ sym (∫PshHom αᴰ .N-hom _ _ ? ?)
@@ -195,7 +195,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
 
       --   ⇒PshSmallⱽ-η : ∀ (αᴰ : PshHomᴰ α Rᴰ Pᴰ⇒Qᴰ)
       --     → αᴰ ≡ ⇒PshSmallⱽ-introᴰ ((αᴰ ×ⱽHom reind-π) ⋆PshHomᴰⱽ ⇒PshSmallⱽ-app)
-      --   ⇒PshSmallⱽ-η αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+      --   ⇒PshSmallⱽ-η αᴰ = makePshHomᴰPath λ {Γ} {Γᴰ} {r} → funExt λ rᴰ → Qᴰ.rectifyOut $
       --     sym (Qᴰ.⋆IdL _)
       --     ∙ Qᴰ.⟨
       --         extensionalityLR

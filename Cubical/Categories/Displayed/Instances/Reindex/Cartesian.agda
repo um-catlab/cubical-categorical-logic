@@ -68,7 +68,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (F : Functor C D) where
   private
     module D = Category D
-    module Dᴰ = Fibers Dᴰ using (ob[_]; reind; reind-filler; rectify; ≡out; cong-reind; ⋆IdL)
+    module Dᴰ = Fibers Dᴰ using (ob[_]; reind; reind-filler; rectify; rectifyOut; ≡out; cong-reind; ⋆IdL)
 
   reindexTerminalⱽ : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆) → Terminalⱽ (reindex Dᴰ F) x
   reindexTerminalⱽ x 𝟙ⱽ =
@@ -123,13 +123,13 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
        reindexRepresentableIsoⱽ Dᴰ F x xᴰ))
     ((λ (Δ , Δᴰ , γ) γᴰ → (γᴰ ×ⱽ*xᴰ.⋆π₁ⱽ) -- making this explicit is negligible
       , Dᴰ.reind (sym $ F .F-seq γ f) (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
-    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out -- removing the second `ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out` is a big speedup
+    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , (Dᴰ.rectifyOut -- removing the second `ΣPathP (refl , (Dᴰ.rectify $ Dᴰ.≡out` is a big speedup
 
       $ Dᴰ.cong-reind _ _ -- making the first two args to cong-reind implicit is a noticable but smaller speedup
                       (Dᴰ.⋆IdL _))))
     ((λ (Δ , Δᴰ , γ) (γᴰ , γfᴰ) →
       ×ⱽ*xᴰ.introᴰ γᴰ (Dᴰ.reind (F .F-seq γ f) γfᴰ)) , funExt λ (Δ , Δᴰ , γ) → funExt λ (γᴰ , γfᴰ) →
-      Dᴰ.rectify $ Dᴰ.≡out $ ×ⱽ*xᴰ.cong-introᴰ refl (Dᴰ.cong-reind _ _ (Dᴰ.⋆IdL _)))
+      Dᴰ.rectifyOut $ ×ⱽ*xᴰ.cong-introᴰ refl (Dᴰ.cong-reind _ _ (Dᴰ.⋆IdL _)))
     where
       module ×ⱽ*xᴰ = LRⱽPresheafᴰNotation Dᴰ (_ , _×ⱽ_*xᴰ)
 
@@ -142,7 +142,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   module _ {x} (Pᴰ : LRⱽPresheafᴰ (D [-, F ⟅ x ⟆ ]) Dᴰ ℓPᴰ) where
     private
       module ×ⱽ*Pᴰ = LRⱽPresheafᴰNotation Dᴰ Pᴰ using (⟨_⟩⋆π₁ⱽ; ⟨_⟩⋆π₂ⱽ)
-      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; reind-filler; formal-reind-filler)
+      module Pᴰ = PresheafᴰNotation Dᴰ (D [-, F ⟅ _ ⟆ ]) (Pᴰ .fst) using (≡out; rectify; rectifyOut; reind-filler; formal-reind-filler)
 
     opaque
       unfolding hSetReasoning.reind
@@ -155,7 +155,7 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
           (λ _ → Eq.refl)
         (λ (Γ , Γᴰ , f ) →
           ΣPathP ((Hom/≡ ×ⱽ*Pᴰ.⟨ sym $ Dᴰ.reind-filler _ ⟩⋆π₁ⱽ)
-          , (Pᴰ.rectify $ Pᴰ.≡out $
+          , (Pᴰ.rectifyOut $
             sym (Pᴰ.reind-filler _)
             -- this formal reind filler took a long time without the explicit argument. Why?
             ∙ Pᴰ.formal-reind-filler (reindexRepresentable-seq (π Dᴰ F) .nIso (Γ , Pᴰ .snd Γᴰ (F-hom F f) .fst , id C) .isIso.inv .snd .snd) _

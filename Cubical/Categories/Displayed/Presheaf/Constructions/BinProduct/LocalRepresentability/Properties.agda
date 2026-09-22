@@ -169,7 +169,7 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
         → LR-cong p≡q ≡ pathToCatIsoⱽ Cᴰ (cong ⌈ Γᴰ ×ⱽ_*Pᴰ⌉ p≡q) .fst
       LR-cong≡pathToPshHom =
         J (λ q p≡q → LR-cong p≡q ≡ pathToCatIsoⱽ Cᴰ (cong ⌈ _ ×ⱽ_*Pᴰ⌉ p≡q) .fst)
-         (Cᴰ.rectify $ Cᴰ.≡out $
+         (Cᴰ.rectifyOut $
            (introLR≡ (sym $ Cᴰ.⋆IdL _)
              (sym (Pᴰ.reind-filler _)
              ∙ (sym $ Pᴰ.⋆IdL _)))

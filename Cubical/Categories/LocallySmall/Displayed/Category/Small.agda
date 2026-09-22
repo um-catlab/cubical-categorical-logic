@@ -156,9 +156,9 @@ module _
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .idᴰ = Cᴰ.idᴰ
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ ._⋆ᴰ_ = Cᴰ._⋆ᴰ_
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .⋆IdLᴰ _ =
-    Cᴰ.rectify $ Cᴰ.≡out (Cᴰ.⋆IdLᴰ _)
+    Cᴰ.rectifyOut (Cᴰ.⋆IdLᴰ _)
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .⋆IdRᴰ _ =
-    Cᴰ.rectify $ Cᴰ.≡out (Cᴰ.⋆IdRᴰ _)
+    Cᴰ.rectifyOut (Cᴰ.⋆IdRᴰ _)
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .⋆Assocᴰ _ _ _ =
-    Cᴰ.rectify $ Cᴰ.≡out (Cᴰ.⋆Assocᴰ _ _ _)
+    Cᴰ.rectifyOut (Cᴰ.⋆Assocᴰ _ _ _)
   SmallLocallySmallCategoryᴰ→SmallCategoryᴰ .isSetHomᴰ = Cᴰ.isSetHomᴰ

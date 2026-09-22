@@ -70,8 +70,8 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
     CurryPshᴰ : Presheafᴰ P Cᴰ ℓPᴰ
     CurryPshᴰ .F-obᴰ {x} xᴰ p = Pᴰ' .F-ob (x , xᴰ , p)
     CurryPshᴰ .F-homᴰ {f = f} fᴰ p pᴰ = fᴰ Pᴰ'.⋆ᴰ pᴰ
-    CurryPshᴰ .F-idᴰ = funExt (λ p → funExt λ pᴰ → Pᴰ'.rectify $ Pᴰ'.≡out $ Pᴰ'.⋆IdLᴰ pᴰ)
-    CurryPshᴰ .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ pᴰ → Pᴰ'.rectify $ Pᴰ'.≡out $ Pᴰ'.⋆Assocᴰ gᴰ fᴰ pᴰ
+    CurryPshᴰ .F-idᴰ = funExt (λ p → funExt λ pᴰ → Pᴰ'.rectifyOut $ Pᴰ'.⋆IdLᴰ pᴰ)
+    CurryPshᴰ .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ pᴰ → Pᴰ'.rectifyOut $ Pᴰ'.⋆Assocᴰ gᴰ fᴰ pᴰ
 
   module _ (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
     private
@@ -81,9 +81,9 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
     UncurryPshᴰ .F-hom {x = (x , xᴰ , p)}{y = (y , yᴰ , q)} (f , fᴰ , f⋆p≡q) pᴰ =
       Pᴰ.reind f⋆p≡q (fᴰ Pᴰ.⋆ᴰ pᴰ)
 
-    UncurryPshᴰ .F-id = funExt (λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+    UncurryPshᴰ .F-id = funExt (λ pᴰ → Pᴰ.rectifyOut $
       sym (Pᴰ.reind-filler _) ∙ Pᴰ.⋆IdL _)
-    UncurryPshᴰ .F-seq (f , fᴰ , f⋆p≡q) (g , gᴰ , g⋆q≡r) = funExt λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+    UncurryPshᴰ .F-seq (f , fᴰ , f⋆p≡q) (g , gᴰ , g⋆q≡r) = funExt λ pᴰ → Pᴰ.rectifyOut $
       sym (Pᴰ.reind-filler _)
       ∙ Pᴰ.⋆Assoc _ _ _
       ∙ Pᴰ.⟨⟩⋆⟨ Pᴰ.reind-filler _ ⟩
@@ -93,11 +93,11 @@ module _ {C : Category ℓC ℓC'} (P : Presheaf C ℓP)(Cᴰ : Categoryᴰ C �
   CurryPshᴰIso .fun = CurryPshᴰ
   CurryPshᴰIso .inv = UncurryPshᴰ
   CurryPshᴰIso .sec Pᴰ = Functorᴰ≡ (λ _ → refl)
-    λ fᴰ → funExt λ p → funExt λ pᴰ → Pᴰ.rectify $ Pᴰ.≡out $
+    λ fᴰ → funExt λ p → funExt λ pᴰ → Pᴰ.rectifyOut $
       sym $ Pᴰ.reind-filler _
     where module Pᴰ = PresheafᴰNotation Pᴰ
   CurryPshᴰIso .ret Pᴰ' = Functor≡ (λ _ → refl) λ (f , fᴰ , f⋆p≡q) → funExt λ pᴰ →
-    Pᴰ'.rectify $ Pᴰ'.≡out $
+    Pᴰ'.rectifyOut $
       sym (Pᴰ.reind-filler _)
       ∙ (Pᴰ'.≡in $ λ i → Pᴰ' .F-hom (f , fᴰ , λ j → f⋆p≡q (i ∧ j)) pᴰ)
     where module Pᴰ = PresheafᴰNotation (CurryPshᴰ Pᴰ')
@@ -117,7 +117,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{C�
 
   Uncurry-recᴰ : {α : PshHom P Q} → PshHomᴰ α Pᴰ (CurryPshᴰ Q Cᴰ Qᴰ') → Uncurried.PshHomᴰ α (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ'
   Uncurry-recᴰ αᴰ .N-ob = λ c → N-obᴰ αᴰ
-  Uncurry-recᴰ αᴰ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , p) (γ , γᴰ , γ⋆p≡q) pᴰ = Qᴰ'.rectify $ Qᴰ'.≡out $
+  Uncurry-recᴰ αᴰ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , p) (γ , γᴰ , γ⋆p≡q) pᴰ = Qᴰ'.rectifyOut $
     αᴰ.N-obᴰ⟨ sym $ Pᴰ.reind-filler _ ⟩
     ∙ αᴰ.N-hom _ _ _ _
     ∙ (sym $ Qᴰ'.⋆ᴰ-reind _ _ _)
@@ -133,7 +133,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
     module Qᴰ' = Uncurried.PresheafᴰNotation Cᴰ P Qᴰ'
   Uncurry-recⱽ : PshHomⱽ Pᴰ (CurryPshᴰ P Cᴰ Qᴰ') → Uncurried.PshHomⱽ (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ'
   Uncurry-recⱽ αⱽ .N-ob = λ c → N-obᴰ αⱽ
-  Uncurry-recⱽ αⱽ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , p) (γ , γᴰ , γ⋆p≡q) pᴰ = Qᴰ'.rectify $ Qᴰ'.≡out $
+  Uncurry-recⱽ αⱽ .N-hom (Δ , Δᴰ , q) (Γ , Γᴰ , p) (γ , γᴰ , γ⋆p≡q) pᴰ = Qᴰ'.rectifyOut $
     cong (αⱽ.N-ob _) (sym $ Pᴰ.reind-filler _)
     ∙ αⱽ.N-hom (Δ , Δᴰ) (Γ , Γᴰ) (γ , γᴰ) (p , pᴰ)
     ∙ (sym $ Qᴰ'.⋆ᴰ-reind _ _ _)
@@ -142,14 +142,14 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
   Curry-introⱽ : Uncurried.PshHomⱽ (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ' → PshHomⱽ Pᴰ (CurryPshᴰ P Cᴰ Qᴰ')
   Curry-introⱽ αⱽ .N-obᴰ {x} {xᴰ} {p} pᴰ = αⱽ .N-ob (x , xᴰ , p) pᴰ
   Curry-introⱽ αⱽ .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
-    cong (αⱽ .N-ob (x , xᴰ , (f P.⋆ p))) (Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
+    cong (αⱽ .N-ob (x , xᴰ , (f P.⋆ p))) (Pᴰ.rectifyOut $ Pᴰ.reind-filler _)
     ∙ αⱽ .N-hom (x , xᴰ , f P.⋆ p) (y , yᴰ , p) (f , fᴰ , refl) pᴰ
 
   Curry-recⱽ : PshHom Qᴰ' (UncurryPshᴰ P Cᴰ Pᴰ) → PshHomⱽ (CurryPshᴰ P Cᴰ Qᴰ') Pᴰ
   Curry-recⱽ α .N-obᴰ x = α .N-ob _ x
   Curry-recⱽ α .N-homᴰ {x} {y} {xᴰ} {yᴰ} {f} {p} {fᴰ} {pᴰ} =
     α .N-hom (x , xᴰ , f P.⋆ p) (y , yᴰ , p) (f , fᴰ , refl) pᴰ
-    ∙ (sym $ Pᴰ.rectify $ Pᴰ.≡out $ Pᴰ.reind-filler _)
+    ∙ (sym $ Pᴰ.rectifyOut $ Pᴰ.reind-filler _)
 
   Uncurry-recⱽ-Iso :
     Iso (Uncurried.PshHomⱽ (UncurryPshᴰ P Cᴰ Pᴰ) Qᴰ') (PshHomⱽ Pᴰ (CurryPshᴰ P Cᴰ Qᴰ'))
@@ -171,7 +171,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
 
   CurryPshHom⁻ : PshHomⱽ (CurryPshᴰ P Cᴰ Pᴰ') (CurryPshᴰ P Cᴰ Qᴰ') → PshHom Pᴰ' Qᴰ'
   CurryPshHom⁻ α .PshHom.N-ob = λ c → α .PshHomᴰ.N-obᴰ
-  CurryPshHom⁻ α .PshHom.N-hom c c' (f , fᴰ , f⋆p≡q) pᴰ = Qᴰ'.rectify $ Qᴰ'.≡out $
+  CurryPshHom⁻ α .PshHom.N-hom c c' (f , fᴰ , f⋆p≡q) pᴰ = Qᴰ'.rectifyOut $
     α.N-obᴰ⟨ Pᴰ'.⋆ᴰ-reind _ _ _ ⟩
     ∙ (Qᴰ'.≡in $ α .N-homᴰ {fᴰ = fᴰ}{pᴰ = pᴰ})
     ∙ (sym $ Qᴰ'.⋆ᴰ-reind _ _ _)
@@ -194,7 +194,7 @@ module _ {C : Category ℓC ℓC'} {P : Presheaf C ℓP}{Cᴰ : Categoryᴰ C �
 
   UncurryPshHomⱽ : PshHomⱽ Pᴰ Qᴰ → PshHom (UncurryPshᴰ P Cᴰ Pᴰ) (UncurryPshᴰ P Cᴰ Qᴰ)
   UncurryPshHomⱽ α .N-ob _ = α .N-obᴰ
-  UncurryPshHomⱽ α .N-hom (x , xᴰ , f) (y , yᴰ , g) (h , hᴰ , h⋆g≡f) pᴰ = Qᴰ.rectify $ Qᴰ.≡out $
+  UncurryPshHomⱽ α .N-hom (x , xᴰ , f) (y , yᴰ , g) (h , hᴰ , h⋆g≡f) pᴰ = Qᴰ.rectifyOut $
     N-obᴰ⟨ α ⟩ (sym $ Pᴰ.reind-filler _)
     ∙ Qᴰ.≡in (α .N-homᴰ)
     ∙ Qᴰ.reind-filler _

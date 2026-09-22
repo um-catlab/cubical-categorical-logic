@@ -23,6 +23,7 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Profunctor
 open import Cubical.Categories.Displayed.Presheaf
 import Cubical.Categories.Displayed.Reasoning as Reasoning
+open import Cubical.Categories.Displayed.Reasoning.More
 
 private
   variable
@@ -40,7 +41,7 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     ∫FunctorComprehension : Functor (TotalCat.∫C Cᴰ) (TotalCat.∫C Dᴰ)
     ∫FunctorComprehension =
       FunctorComprehension (∫Prof Pᴰ) (∫ues Pᴰ uesᴰ)
-    module Dᴰ = Reasoning Dᴰ
+    module Dᴰ = ReasoningMore Dᴰ
 
   open Functor
   open Functorᴰ
@@ -48,9 +49,9 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   FunctorᴰComprehension .F-obᴰ xᴰ = (∫FunctorComprehension ⟅ _ , xᴰ ⟆) .snd
   FunctorᴰComprehension .F-homᴰ fᴰ = (∫FunctorComprehension ⟪ _ , fᴰ ⟫) .snd
   FunctorᴰComprehension .Functorᴰ.F-idᴰ =
-    Dᴰ.rectify $ Dᴰ.≡out (∫FunctorComprehension .F-id)
+    Dᴰ.rectifyOut (∫FunctorComprehension .F-id)
   FunctorᴰComprehension .Functorᴰ.F-seqᴰ fᴰ gᴰ =
-    Dᴰ.rectify $ Dᴰ.≡out $ ∫FunctorComprehension .F-seq (_ , fᴰ) (_ , gᴰ)
+    Dᴰ.rectifyOut $ ∫FunctorComprehension .F-seq (_ , fᴰ) (_ , gᴰ)
 
 module _ {C : Category ℓC ℓC'}
          {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} {Dᴰ : Categoryᴰ C ℓDᴰ ℓDᴰ'}

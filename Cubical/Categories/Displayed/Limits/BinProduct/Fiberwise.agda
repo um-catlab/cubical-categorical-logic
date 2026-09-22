@@ -44,11 +44,11 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       BinProductⱽ→BinProductFiber .universal Γᴰ =
         isIsoToIsEquiv
             ( a₁×ⱽa₂.×ueⱽ.introⱽ
-            , (λ f → a₁×ⱽa₂.×ueⱽ.Pshⱽ.rectify $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.≡out $
+            , (λ f → a₁×ⱽa₂.×ueⱽ.Pshⱽ.rectifyOut $
                 (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _)
                 ∙ a₁×ⱽa₂.×ueⱽ.βᴰ
                 )
-            , λ f → Cᴰ.rectify $ Cᴰ.≡out $
+            , λ f → Cᴰ.rectifyOut $
                 a₁×ⱽa₂.×ueⱽ.introᴰ≡ (sym $ a₁×ⱽa₂.×ueⱽ.Pshⱽ.reind-filler _)
                 )
 
@@ -64,7 +64,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   --   ( (λ (fⱽ₁ , fⱽ₂) → f*×.intro (bpⱽ.×ueⱽ.introᴰ ((fⱽ₁ Cᴰ.⋆ᴰ f*aᴰ₁.π) , (fⱽ₂ Cᴰ.⋆ᴰ f*aᴰ₂.π))))
   --   , (λ (fⱽ₁ , fⱽ₂) → ΣPathP
   --       -- This part of the proof can probably be simplified
-  --       ((Cᴰ.rectify $ Cᴰ.≡out $
+  --       ((Cᴰ.rectifyOut $
   --         (sym $ Cᴰ.reind-filler _)
   --         ∙ f*aᴰ₁.introL-natural
   --         ∙ f*aᴰ₁.introCL≡' (C.⋆IdL _)
@@ -74,7 +74,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   --           ∙ Cᴰ.⟨ f*×.βCL ⟩⋆⟨ refl ⟩
   --           ∙ Cᴰ.reind-filler _
   --           ∙ bpⱽ.∫×βⱽ₁))
-  --       , (Cᴰ.rectify $ Cᴰ.≡out $
+  --       , (Cᴰ.rectifyOut $
   --         (sym $ Cᴰ.reind-filler _)
   --         ∙ f*aᴰ₂.introCL-natural
   --         ∙ f*aᴰ₂.introCL≡' (C.⋆IdL _)
@@ -85,7 +85,7 @@ module _ {C : Category ℓC ℓC'}(Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   --           ∙ Cᴰ.reind-filler _
   --           ∙ bpⱽ.∫×βⱽ₂))
   --       ))
-  --   , λ fⱽ → Cᴰ.rectify $ Cᴰ.≡out $
+  --   , λ fⱽ → Cᴰ.rectifyOut $
   --         f*×.introCL≡ (bpⱽ.,ⱽ≡
   --           (Cᴰ.⟨ sym $ Cᴰ.reind-filler _ ⟩⋆⟨ refl ⟩
   --             ∙ Cᴰ.⋆Assoc _ _ _

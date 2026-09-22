@@ -129,8 +129,8 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
           → Path Cⱽ.Hom[ _ , _ ] (f , (fᴰ ,ⱽ fᴰ')) (g , gᴰ)
         ,ⱽ≡ fᴰ≡ fᴰ'≡ = ∫ue.intro≡ (ΣPathP (cong fst fᴰ≡ ∙ (sym $ C.⋆IdR _)
           , (ΣPathP
-          ( (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ≡ ∙ (sym $ Cⱽ.reind-filler _))
-          , (Cⱽ.rectify $ Cⱽ.≡out $ fᴰ'≡ ∙ (sym $ Cⱽ.reind-filler _))))))
+          ( (Cⱽ.rectifyOut $ fᴰ≡ ∙ (sym $ Cⱽ.reind-filler _))
+          , (Cⱽ.rectifyOut $ fᴰ'≡ ∙ (sym $ Cⱽ.reind-filler _))))))
 
         ×βⱽ₁ : {fᴰ : Cᴰ.Hom[ f ][ xᴰ , cᴰ ]}
            → {fᴰ' : Cᴰ.Hom[ f ][ xᴰ , cᴰ' ]}
@@ -173,7 +173,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
         ⟨ p ⟩,ⱽ⟨ p' ⟩ = ∫ue.intro⟨ ΣPathP (cong fst p
           , ΣPathP
           ( (Cⱽ.≡out $ p)
-          , (Cⱽ.rectify $ Cⱽ.≡out $ p'))) ⟩
+          , (Cⱽ.rectifyOut $ p'))) ⟩
 
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓD ℓD') where
   private

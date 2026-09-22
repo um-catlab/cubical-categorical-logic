@@ -103,7 +103,7 @@ module _
        -- TODO update to handle opaque paths
        --   ∀ⱽPsh-ηᴰ' : ∀ⱽPsh-introᴰ' Pⱽ (∀ⱽPsh-introᴰ⁻' Pⱽ αᴰ) ≡ αᴰ
        --   ∀ⱽPsh-ηᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
-       --     Pⱽ.rectify $ Pⱽ.≡out $
+       --     Pⱽ.rectifyOut $
        --       (sym $ Pⱽ.reind-filler _ _)
        --       ∙ (sym $ Pⱽ.reind-filler _ _)
        --       ∙ Pⱽ.⟨⟩⋆⟨ Pⱽ.≡in αᴰ.N-homᴰ ⟩
@@ -148,7 +148,7 @@ module _
 
        --   ∀ⱽPsh-βᴰ' : ∀ⱽPsh-introᴰ⁻' Pⱽ (∀ⱽPsh-introᴰ' Pⱽ αᴰ) ≡ αᴰ
        --   ∀ⱽPsh-βᴰ' = makePshHomᴰPath λ {c}{cᴰ}{q} → funExt λ qᴰ →
-       --     Pⱽ.rectify $ Pⱽ.≡out $
+       --     Pⱽ.rectifyOut $
        --       (sym $ Pⱽ.reind-filler _ _)
        --       ∙ Pⱽ.⟨⟩⋆⟨ sym $ Pⱽ.reind-filler _ _ ⟩
        --       ∙ (sym $ Pⱽ.≡in αᴰ.N-homᴰ)

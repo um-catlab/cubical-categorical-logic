@@ -12,6 +12,7 @@ open import Cubical.Categories.NaturalTransformation.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
+open import Cubical.Categories.Displayed.Reasoning.More
 open import Cubical.Categories.Displayed.NaturalTransformation
 
 private
@@ -33,13 +34,13 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
     module Dᴰ = Categoryᴰ Dᴰ
     module C = Category C
     module D = Category D
-    import Cubical.Categories.Displayed.Reasoning Dᴰ as R
+    module R = ReasoningMore Dᴰ
 
   idTransᴰ : (F : Functor C D)(Fᴰ : Functorᴰ F Cᴰ Dᴰ) →
     NatTransᴰ (idTrans F) Fᴰ Fᴰ
   idTransᴰ F Fᴰ .N-obᴰ {x = c} cᴰ = Dᴰ .idᴰ
   idTransᴰ F Fᴰ .N-homᴰ {x = c} {y = c'} {f = f} {xᴰ = cᴰ} {yᴰ = c'ᴰ} fᴰ =
-    R.rectify (R.≡out (R.⋆IdR _ ∙ (sym (R.⋆IdL _))))
+    R.rectifyOut (R.⋆IdR _ ∙ (sym (R.⋆IdL _)))
 
   makeNatTransPathᴰ : {F G : Functor C D}{α β : NatTrans F G}
       {Fᴰ : Functorᴰ F Cᴰ Dᴰ}{Gᴰ : Functorᴰ G Cᴰ Dᴰ}
@@ -156,7 +157,7 @@ module _
   where
   open Functorᴰ
   open NatTransᴰ
-  import Cubical.Categories.Displayed.Reasoning Dᴰ as R
+  private module R = ReasoningMore Dᴰ
   precomposeFᴰ : Functorᴰ (precomposeF E F) (FUNCTORᴰ Dᴰ Eᴰ) (FUNCTORᴰ Cᴰ Eᴰ)
   precomposeFᴰ .F-obᴰ Gᴰ = Gᴰ ∘Fᴰ Fᴰ
   precomposeFᴰ .F-homᴰ αᴰ .N-obᴰ xᴰ = αᴰ .N-obᴰ (Fᴰ .F-obᴰ xᴰ)
@@ -167,7 +168,7 @@ module _
   postcomposeFᴰ : Functorᴰ (postcomposeF E F) (FUNCTORᴰ Eᴰ Cᴰ) (FUNCTORᴰ Eᴰ Dᴰ)
   postcomposeFᴰ .F-obᴰ Gᴰ = Fᴰ ∘Fᴰ Gᴰ
   postcomposeFᴰ .F-homᴰ αᴰ .N-obᴰ xᴰ = F-homᴰ Fᴰ (αᴰ .N-obᴰ xᴰ)
-  postcomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = R.rectify $ R.≡out $
+  postcomposeFᴰ .F-homᴰ αᴰ .N-homᴰ fᴰ = R.rectifyOut $
     (sym $ R.≡in $ Fᴰ .F-seqᴰ _ _)
     ∙ (R.≡in $ (λ i → Fᴰ .F-homᴰ (αᴰ .N-homᴰ fᴰ i)))
     ∙ (R.≡in $ Fᴰ .F-seqᴰ _ _)
@@ -189,14 +190,14 @@ module _
   precomposeFⱽ .F-idᴰ = makeNatTransPathᴰ Cᴰ Eᴰ refl refl
   precomposeFⱽ .F-seqᴰ _ _ = makeNatTransPathᴰ Cᴰ Eᴰ refl refl
 
-  import Cubical.Categories.Displayed.Reasoning Dᴰ as R
+  private module Rⱽ = ReasoningMore Dᴰ
   postcomposeFⱽ : Functorⱽ (FUNCTORᴰ Eᴰ Cᴰ) (FUNCTORᴰ Eᴰ Dᴰ)
   postcomposeFⱽ .F-obᴰ Gᴰ = Fⱽ ∘Fⱽᴰ Gᴰ
   postcomposeFⱽ .F-homᴰ αᴰ .N-obᴰ xᴰ = F-homᴰ Fⱽ (αᴰ .N-obᴰ xᴰ)
-  postcomposeFⱽ .F-homᴰ αᴰ .N-homᴰ fᴰ = R.rectify $ R.≡out $
-    (sym $ R.≡in $ Fⱽ .F-seqᴰ _ _)
-    ∙ (R.≡in $ (λ i → Fⱽ .F-homᴰ (αᴰ .N-homᴰ fᴰ i)))
-    ∙ (R.≡in $ Fⱽ .F-seqᴰ _ _)
+  postcomposeFⱽ .F-homᴰ αᴰ .N-homᴰ fᴰ = Rⱽ.rectifyOut $
+    (sym $ Rⱽ.≡in $ Fⱽ .F-seqᴰ _ _)
+    ∙ (Rⱽ.≡in $ (λ i → Fⱽ .F-homᴰ (αᴰ .N-homᴰ fᴰ i)))
+    ∙ (Rⱽ.≡in $ Fⱽ .F-seqᴰ _ _)
   postcomposeFⱽ .F-idᴰ = makeNatTransPathᴰ _ _ _ (λ i _ → Fⱽ .F-idᴰ i)
   postcomposeFⱽ .F-seqᴰ fᴰ gᴰ = makeNatTransPathᴰ _ _ _ λ i _ →
     Fⱽ .F-seqᴰ (fᴰ .N-obᴰ _) (gᴰ .N-obᴰ _) i

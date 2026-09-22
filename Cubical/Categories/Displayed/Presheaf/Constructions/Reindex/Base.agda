@@ -55,10 +55,10 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'} where
     reind .F-obᴰ {x} xᴰ p = Qᴰ .F-obᴰ xᴰ (α .N-ob x p)
     reind .F-homᴰ {y} {x} {f} {yᴰ} {xᴰ} fᴰ p qᴰ =
       Qᴰ.reind (sym $ α .N-hom _ _ _ _) (fᴰ Qᴰ.⋆ᴰ qᴰ)
-    reind .F-idᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+    reind .F-idᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectifyOut $
       (sym $ Qᴰ.reind-filler _)
       ∙ Qᴰ.⋆IdL _
-    reind .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectify $ Qᴰ.≡out $
+    reind .F-seqᴰ fᴰ gᴰ = funExt λ p → funExt λ qᴰ → Qᴰ.rectifyOut $
       (sym $ Qᴰ.reind-filler _)
       ∙ Qᴰ.⋆Assoc _ _ _
       ∙ Qᴰ.⟨ refl ⟩⋆⟨ Qᴰ.reind-filler _ ⟩

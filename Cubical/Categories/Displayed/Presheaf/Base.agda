@@ -128,7 +128,7 @@ module PresheafᴰNotation {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓD 
     → Path p[ _ ] (_ , fⱽ ⋆ⱽᴰ gᴰ) (_ , fⱽ' ⋆ⱽᴰ gᴰ')
   ⟨_⟩⋆ⱽᴰ⟨_⟩ {fⱽ = fⱽ}{fⱽ'} p q = ≡in (λ i → p' i ⋆ⱽᴰ q i .snd) where
     p' : fⱽ ≡ fⱽ'
-    p' = Cᴰ.rectify $ Cᴰ.≡out p
+    p' = Cᴰ.rectifyOut p
   opaque
     ⋆Assocᴰⱽᴰ : ∀ {x y} {f : C [ x , y ]} {h : P.p[ y ]} {xᴰ yᴰ yᴰ'}
         (fᴰ : Cᴰ [ f ][ xᴰ , yᴰ ]) (gⱽ : Cᴰ.v[ y ] [ yᴰ , yᴰ' ]) (hᴰ : p[ h ][ yᴰ' ])

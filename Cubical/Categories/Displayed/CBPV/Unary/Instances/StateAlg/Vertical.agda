@@ -140,6 +140,12 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
   module Cᴰ = Fibers ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
   module Dᴰ = Fibers (STATEALGᴰ ℓ ℓ)
 
+  recHom≡ : ∀ (Z : StateAlgebra ℓ) (ϕ : StateAlgHom (FreeStateAlgebra A) Z)
+    → ( recFSA-f ⟨ A ⟩ (Z .snd) (ϕ .fst ∘ η ⟨ A ⟩)
+      , recFSA ⟨ A ⟩ (Z .snd) (ϕ .fst ∘ η ⟨ A ⟩)) ≡ ϕ
+  recHom≡ Z ϕ = ∫Homo≡ _ ϕ (Z .fst .snd)
+    (funExt (recFSA-η ⟨ A ⟩ (Z .snd) (ϕ .snd)))
+
   η-ue : UniversalElementⱽ' ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
     (𝓒 , FreeStateAlgebra A)
     (CartesianLiftPshSpec
@@ -147,12 +153,6 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
       ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
       (((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ) [-][-, Aᴰ ])
       (_ , η ⟨ A ⟩))
-
-  recHom≡ : ∀ (Z : StateAlgebra ℓ) (ϕ : StateAlgHom (FreeStateAlgebra A) Z)
-    → ( recFSA-f ⟨ A ⟩ (Z .snd) (ϕ .fst ∘ η ⟨ A ⟩)
-      , recFSA ⟨ A ⟩ (Z .snd) (ϕ .fst ∘ η ⟨ A ⟩)) ≡ ϕ
-  recHom≡ Z ϕ = ∫Homo≡ _ ϕ (Z .fst .snd)
-    (funExt (recFSA-η ⟨ A ⟩ (Z .snd) (ϕ .snd)))
 
   η-ue .UniversalElementⱽ'.vertexⱽ = FreeStateAlgebraᴰ Aᴰ
   η-ue .UniversalElementⱽ'.elementⱽ = ηᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩)
@@ -186,7 +186,7 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
   η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .snd .snd ψᴰ =
     cong (η-ue .UniversalElementⱽ'.universalⱽ ((𝓒 , Z) , Zᴰ , ϕ) .fst)
       (Cᴰ.rectifyOut {e' = refl} (Cᴰ.reind-filler⁻ _))
-    ∙ (Dᴰ.rectify $ Dᴰ.≡out $
+    ∙ (Dᴰ.rectifyOut $
         Dᴰ.reind-filler⁻ (recHom≡ Z (ϕ .snd))
         ∙ Dᴰ.≡in {pth = recHom≡ Z (ϕ .snd)}
           (ΣPathPProp
@@ -225,13 +225,6 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
   pushBase : (∫C (StateAlgCBPV { ℓ = ℓ } .fst ^opᴰ))
     [ (𝓒 , B') , (𝓒 , B) ]
   pushBase = _ , ϕ
-
-  push-ue : UniversalElementⱽ' ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
-    (𝓒 , B')
-    (CartesianLiftPshSpec
-      ((∫C (StateAlgCBPV { ℓ = ℓ } .fst ^opᴰ)) [-, (𝓒 , B) ])
-      ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
-      (((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ) [-][-, Bᴰ ]) pushBase)
 
   canonical-fᴰ : ∀ {Z : StateAlgebra ℓ}
     (ψ : StateAlgHom B' Z)
@@ -287,6 +280,14 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
       ∙ cong {B = λ _ → Σ ⟨ Z .fst ⟩ (λ z → ⟨ Zᴰ .fst z ⟩)}
           (λ q → ψ .fst (q .fst) , χᴰ .fst (q .fst) (q .snd))
           (push-path b bᴰ p)
+
+  push-ue : UniversalElementⱽ' ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
+    (𝓒 , B')
+    (CartesianLiftPshSpec
+      ((∫C (StateAlgCBPV { ℓ = ℓ } .fst ^opᴰ)) [-, (𝓒 , B) ])
+      ((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ)
+      (((StateAlgCBPVᴰ ℓ ℓ) ^opᴰᴰ) [-][-, Bᴰ ]) pushBase)
+
   push-ue .UniversalElementⱽ'.vertexⱽ = StateAlgCBPV-push-obᴰ ϕ Bᴰ
   push-ue .UniversalElementⱽ'.elementⱽ .fst =
     σ-fᴰ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd)
@@ -335,7 +336,7 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
                     ((ϕ .snd) ⋆Homo (ψ .snd .snd))
                     _)
                   (σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd)))))
-    ∙ (Dᴰ.rectify $ Dᴰ.≡out $ Dᴰ.≡in
+    ∙ (Dᴰ.rectifyOut $ Dᴰ.≡in
       {pth = ∫Homo≡ _ _ (Z .fst .snd) refl}
       (ΣPathP
         ( (funExt λ b' → funExt λ x →

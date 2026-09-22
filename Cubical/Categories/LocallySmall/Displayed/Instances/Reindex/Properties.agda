@@ -34,10 +34,10 @@ module _
     fib→fibEq .Functor.F-ob = λ z → z
     fib→fibEq .Functor.F-hom = λ z → z
     fib→fibEq .Functor.F-id =
-      Cᴰ.rectify $ Cᴰ.≡out $
+      Cᴰ.rectifyOut $
         sym $ Cᴰ.reind-filler _ _
     fib→fibEq .Functor.F-seq {x = x}{y = y}{z = z} f g =
-      Cᴰ.rectify $ Cᴰ.≡out $
+      Cᴰ.rectifyOut $
         (sym $ Cᴰ.reind-filler _ _)
         ∙ Cᴰ.reindEq-pathFiller _ _
 
@@ -56,9 +56,9 @@ module _
     fibEq→fib .Functor.F-ob = λ z → z
     fibEq→fib .Functor.F-hom = λ z → z
     fibEq→fib .Functor.F-id =
-      Cᴰ.rectify $ Cᴰ.≡out $ Cᴰ.reind-filler _ _
+      Cᴰ.rectifyOut $ Cᴰ.reind-filler _ _
     fibEq→fib .Functor.F-seq f g =
-      Cᴰ.rectify $ Cᴰ.≡out $
+      Cᴰ.rectifyOut $
         (sym $ Cᴰ.reindEq-pathFiller _ _)
         ∙ Cᴰ.reind-filler _ _
 

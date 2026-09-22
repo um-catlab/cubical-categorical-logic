@@ -206,7 +206,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           (thunkᴰ M Mᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ)
           Mᴰ
     Uβᴰ {Bᴰ = Bᴰ} U-force≡force M Uβ Mᴰ =
-      Cᴰ.rectify {e' = Uβ} (Cᴰ.≡out
+      Cᴰ.rectifyOut {e' = Uβ} (
         (Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ U-force≡force ⟩
         ∙ force-naturalᴰ (thunkᴰ M Mᴰ)
         ∙ Cᴰ.≡in
@@ -227,7 +227,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           (thunkᴰ (V C.⋆ᴰ force)
             (Vᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ))
     Uηᴰ {Bᴰ = Bᴰ} U-force≡force V Uη Vᴰ =
-      Cᴰ.rectify {e' = Uη} (Cᴰ.≡out
+      Cᴰ.rectifyOut {e' = Uη} (
         (sym (Cᴰ.≡in
           (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.leftInv _ Vᴰ))
         ∙ cong-thunkᴰ
@@ -299,7 +299,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ F-bindᴰ M Mᴰ)
           Mᴰ
     Fβᴰ {Aᴰ = Aᴰ} F-ret≡ret M Fβ Mᴰ =
-      Cᴰ.rectify {e' = Fβ} (Cᴰ.≡out
+      Cᴰ.rectifyOut {e' = Fβ} (
         (Cᴰ.⟨ Cᴰ.reind-filler⁻ F-ret≡ret ⟩⋆⟨⟩
         ∙ F-ret-naturalᴰ (F-bindᴰ M Mᴰ)
         ∙ Cᴰ^op.≡in
@@ -320,7 +320,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           (F-bindᴰ (ret C.⋆ᴰ K)
             (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ Kᴰ))
     Fηᴰ {Aᴰ = Aᴰ} F-ret≡ret K Fη Kᴰ =
-      Cᴰ.rectify {e' = Fη} (Cᴰ.≡out
+      Cᴰ.rectifyOut {e' = Fη} (
         (sym (Cᴰ^op.≡in
           (hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.leftInv _ Kᴰ))
         ∙ cong-F-bindᴰ

@@ -246,8 +246,8 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
       -- Exponentials
       elimHom (eval Eq.refl Eq.refl) = appᴰ
       elimHom (lam e Eq.refl) = λᴰ (elimHom e)
-      elimHom (λβ Eq.refl t i) = Cᴰ.rectify {e' = λβ Eq.refl t} (Cᴰ.≡out $ ⇒βᴰ (elimHom t)) i
-      elimHom (λη Eq.refl t i) = Cᴰ.rectify {e' = λη Eq.refl t} (Cᴰ.≡out $ ⇒ηᴰ (elimHom t)) i
+      elimHom (λβ Eq.refl t i) = Cᴰ.rectifyOut {e' = λβ Eq.refl t} (⇒βᴰ (elimHom t)) i
+      elimHom (λη Eq.refl t i) = Cᴰ.rectifyOut {e' = λη Eq.refl t} (⇒ηᴰ (elimHom t)) i
 
       elim : GlobalSection Cᴰ
       elim .F-obᴰ = elimOb ı-ob

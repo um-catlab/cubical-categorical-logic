@@ -227,16 +227,22 @@ module _ {ℓC ℓC'} (C : Category ℓC ℓC') (pb : Pullbacks C)  where
       module pbgf {r : C.ob} {α : C [ r , x ]} =
         PullbackNotation {r = r} {f = g C.⋆ f} {g = α} (pb (g C.⋆ f) α)
 
+      opaque
+        commutes : ∀ {a : C.ob} {α : C [ a , x ]} →
+          pbg.pbπ₁ {α = pbf.pbπ₁ {α = α}} C.⋆ (g C.⋆ f)
+            ≡ (pbg.pbπ₂ {α = pbf.pbπ₁ {α = α}} C.⋆ pbf.pbπ₂ {α = α}) C.⋆ α
+        commutes =
+          sym (C.⋆Assoc _ _ _)
+          ∙ C.⟨ pbg.pbCommutes ⟩⋆⟨ refl ⟩
+          ∙ C.⋆Assoc _ _ _
+          ∙ C.⟨ refl ⟩⋆⟨ pbf.pbCommutes ⟩
+          ∙ sym (C.⋆Assoc _ _ _)
+
     ChangeBaseComp :
       NatTrans (ChangeBase C pb g ∘F ChangeBase C pb f)
                (ChangeBase C pb (g C.⋆ f))
     ChangeBaseComp .N-ob (a , α) =
-      pbgf.pbIntro pbg.pbπ₁ (pbg.pbπ₂ C.⋆ pbf.pbπ₂)
-        ( sym (C.⋆Assoc _ _ _)
-        ∙ C.⟨ pbg.pbCommutes ⟩⋆⟨ refl ⟩
-        ∙ C.⋆Assoc _ _ _
-        ∙ C.⟨ refl ⟩⋆⟨ pbf.pbCommutes ⟩
-        ∙ sym (C.⋆Assoc _ _ _))
+      pbgf.pbIntro pbg.pbπ₁ (pbg.pbπ₂ C.⋆ pbf.pbπ₂) commutes
       , pbgf.pbβ₁
     ChangeBaseComp .N-hom {x = a , α} {y = b , β} (h , h≡) = ΣPathP
       ( pbgf.pbExtensionality

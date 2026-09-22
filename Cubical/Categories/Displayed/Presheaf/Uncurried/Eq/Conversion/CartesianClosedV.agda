@@ -82,11 +82,10 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
       module LRⱽPath = Path.LRⱽPresheafᴰNotation Cᴰ ((Cᴰ Path.[-][-, xᴰ ]) , xᴰLRⱽPath)
       module LRⱽEq = LRⱽNotation Cᴰ ⋆AssocC xᴰLRⱽEq
 
-      -- `⋆πᵢⱽ-natural` immediately followed by `βᵢⱽ'` is the shape that
-      -- every chain in this module opens with (three times for π₁, three for
-      -- π₂).  Both `⋆πᵢⱽ-natural` and `βᵢⱽ'` carry the LRⱽ presheaf iso's
-      -- whole `N-hom`/`nIso` instance, so each open-coded occurrence
-      -- re-elaborates it.  Stated once, in total-space (∫≡) form.
+      -- ⋆πᵢⱽ-natural immediately followed by βᵢⱽ' is the shape every chain
+      -- in this module opens with, three times for π₁ and three for π₂. Both
+      -- carry the LRⱽ presheaf iso's whole N-hom/nIso instance, so the shape
+      -- is stated once here in total-space (∫≡) form.
       natβ₁ : ∀ {Θ Δ Γ}{Θᴰ : Cᴰ.ob[ Θ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{Γᴰ : Cᴰ.ob[ Γ ]}
         {δ : C [ Θ , Δ ]}{γ : C [ Δ , Γ ]}{q : C [ Γ , x ]}
         (δᴰ : Cᴰ [ δ ][ Θᴰ , Δᴰ ])
@@ -118,13 +117,11 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
        ⟅ Γ3 ⟆)
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .fst .fst = C.id
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .fst .snd .fst =
-      LRⱽPath.introᴰ
-        (Iso.fun (xᴰLRⱽEq Γᴰ f .snd .PshIsoEq.isos (Γ , xᴰLRⱽEq Γᴰ f .fst , C.id)) Cᴰ.idᴰ .fst)
-        (Iso.fun (xᴰLRⱽEq Γᴰ f .snd .PshIsoEq.isos (Γ , xᴰLRⱽEq Γᴰ f .fst , C.id)) Cᴰ.idᴰ .snd)
+      LRⱽPath.introᴰ LRⱽEq.π₁ⱽ LRⱽEq.π₂ⱽ
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .fst .snd .snd = ⋆IdLC f
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .snd .isIso.inv .fst = C.id
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .snd .isIso.inv .snd .fst =
-      Iso.inv (xᴰLRⱽEq Γᴰ f .snd .PshIsoEq.isos (Γ , xᴰLRⱽPath Γᴰ f .fst , C.id)) (LRⱽPath.π₁ⱽ , LRⱽPath.π₂ⱽ)
+      LRⱽPath.π₁ⱽ LRⱽEq.,pⱽ LRⱽPath.π₂ⱽ
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .snd .isIso.inv .snd .snd = ⋆IdLC f
     ×LRⱽ-Path/→Eq/-square-Iso Γ3@(Γ , Γᴰ , f) .snd .isIso.sec = Hom/≡ $
       LRⱽPath.extensionalityᴰ

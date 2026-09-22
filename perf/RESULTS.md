@@ -2,12 +2,12 @@
 
 What this branch is, what it cost to get here, and how to re-measure it.
 
-All figures are **GHC bytes allocated**, read from the RTS's own `-s` report on a
-from-scratch `agda --build-library`. Allocation is deterministic to eight
+All figures are **GHC bytes allocated**, read from the RTS's own `-s` report,
+from a from-scratch `agda --build-library`. Allocation is deterministic to eight
 significant figures within a worktree and immune to machine load, which is why
 differences of a few hundred MB are reported as real. Wall time is given
-alongside but is not a result: on the reference machine it varied by up to 17%
-between a quiet and a contended run of identical source.
+alongside but is not a result: on the reference machine it varied by up to
+17% between a quiet and a contended run of identical source.
 
 Reference machine: 12 cores, 31 GiB, `-j1 +RTS -N1 -A1G -H4G -M24G -RTS`,
 one shared pre-built cubical, every build serialised under an exclusive lock.
@@ -29,9 +29,9 @@ Corner to corner -- agda on the baseline against mikan on this work -- 3.19x.
 
 ## Read the agda figure carefully
 
-This branch proves strictly more than the baseline: it carries the displayed-sets
-exponentials and quantifiers, two path-based canonicity clients, and three
-Eq-free displayed-presheaf modules. Those cost allocation.
+This branch proves strictly more than the baseline: it carries the
+displayed-sets exponentials and quantifiers, two path-based canonicity
+clients, and three Eq-free displayed-presheaf modules. Those cost allocation.
 
     baseline                                847.8 GB
     performance work only                   514.9        1.65x
@@ -43,8 +43,9 @@ should be quoted alone.
 
 ## Where the saving came from
 
-Twelve edits, each measured by reverting it from the finished tree and rebuilding
-the whole library, so every figure is that edit's cost in the context it ships in.
+Twelve edits, each measured by reverting it from the finished tree and
+rebuilding the whole library, so every figure is that edit's cost in the
+context it ships in.
 
     technique                                     GB saved   GB/100 lines
     rectifyOut fusion (333 sites)                   146.21           27.8
@@ -60,8 +61,9 @@ the whole library, so every figure is that edit's cost in the context it ships i
     UniversalQuantifiers as a record                  1.07            5.6
     named projections                                 0.03            0.4
 
-Individual contributions sum to within 0.14%-2.2% of the measured endpoint gap,
-depending on the group, so these defects are file-local and do not overlap.
+Individual contributions sum to within 0.14%-2.2% of the measured endpoint
+gap, depending on the group, so these defects are file-local and do not
+overlap.
 
 Two readings dominate. **The biggest lever is also the least clever**: rewriting
 `rectify (≡out X)` to `rectifyOut X` at 333 sites, justified by the observation
@@ -74,12 +76,12 @@ written twice.
 ## What is deliberately not here
 
 The reind-normal-form framework. It was built, applied four separate ways, and
-measured at **~0 GB library-wide** every time: 1,487 lines of churn for −0.31 GB.
-It produced one genuine 6.0x win on a single quantifier proof and made 437 lines
-of previously-abandoned mathematics affordable, but as a library-wide performance
-technique it does not pay. `perf/06-RESULTS.md` §11 on the `perf/harness` branch
-carries the full account, including the three obstructions that stop it
-generalising.
+measured at **~0 GB library-wide** every time: 1,487 lines of churn for
+−0.31 GB. It produced one genuine 6.0x win on a single quantifier proof and
+made 437 lines of previously-abandoned mathematics affordable, but as a
+library-wide performance technique it does not pay. `perf/06-RESULTS.md` §11 on
+the `perf/harness` branch carries the full account, including the three
+obstructions that stop it generalising.
 
 Excluding it costs this branch those 437 lines of quantifier mathematics, which
 only exist because the technique made them affordable. That is a deliberate

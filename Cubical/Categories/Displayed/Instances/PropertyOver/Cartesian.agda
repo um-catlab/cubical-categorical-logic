@@ -6,6 +6,7 @@
   proofs are trivial.
   The full UniversalElementᴰ is built from just the vertex data.
 -}
+{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Instances.PropertyOver.Cartesian where
 
 open import Cubical.Foundations.Prelude

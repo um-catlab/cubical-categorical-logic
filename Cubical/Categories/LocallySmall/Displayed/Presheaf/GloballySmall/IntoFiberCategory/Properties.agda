@@ -49,8 +49,7 @@ open Σω
 open Liftω
 
 private
-  module SET = CategoryᴰNotation SET
-  module SETᴰ = SmallFibersᴰNotation SETᴰ
+  module SETᴰ = SmallFibersᴰNotation SETᴰ using (vᴰ[_][_])
 
 module _
   {C : SmallCategory ℓC ℓC'}
@@ -84,8 +83,6 @@ module _
   open Functorᴰ
   private
     Cᴰ' = SmallLocallySmallCategoryᴰ→SmallCategoryᴰ Cᴰ
-    module SFunctor = SmallFunctor.Functor
-    module SFunctorᴰ = SmallFunctorᴰ.Functorᴰ
   SmallPresheafᴰOverSmallPresheaf→SmallPresheafᴰ :
     SmallPresheafᴰOverSmallPresheaf P Cᴰ ℓPᴰ →
     SmallPresheafᴰ (SmallPresheaf→Presheaf C ℓP P) Cᴰ ℓPᴰ
@@ -105,12 +102,12 @@ module _
   {ℓPᴰ : Level}
   where
   open Functorᴰ
-  open NatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
   private
-    module SETⱽᴰ = CategoryᴰNotation (SETᴰ.vᴰ[ liftω ℓP ][ liftω ℓPᴰ ])
-    module SETⱽᴰ' = SmallCatFiber.Fibers (SmallCatᴰSetsᴰ.SETᴰ ℓP ℓPᴰ)
-    module SFunctor = SmallFunctor.Functor
-    module SFunctorᴰ = SmallFunctorᴰ.Functorᴰ
+    module SETⱽᴰ =
+      CategoryᴰNotation (SETᴰ.vᴰ[ liftω ℓP ][ liftω ℓPᴰ ]) using (≡in)
+    module SETⱽᴰ' =
+      SmallCatFiber.Fibers (SmallCatᴰSetsᴰ.SETᴰ ℓP ℓPᴰ)
+        using (≡out; rectify; rectifyOut)
 
   SmallPresheafᴰ→Presheafᴰ : SmallPresheafᴰ P Cᴰ ℓPᴰ → Presheafᴰ P Cᴰ ℓPᴰ
   SmallPresheafᴰ→Presheafᴰ Pᴰ .F-obᴰ =
@@ -140,8 +137,6 @@ module _
   open Functorᴰ
   private
     Cᴰ' = SmallLocallySmallCategoryᴰ→SmallCategoryᴰ Cᴰ
-    module SFunctor = SmallFunctor.Functor
-    module SFunctorᴰ = SmallFunctorᴰ.Functorᴰ
   SmallPresheafᴰOverSmallPresheaf→Presheafᴰ :
     SmallPresheafᴰOverSmallPresheaf P Cᴰ ℓPᴰ → Presheafᴰ (SmallPresheaf→Presheaf C ℓP P) Cᴰ ℓPᴰ
   SmallPresheafᴰOverSmallPresheaf→Presheafᴰ Pᴰ =
@@ -150,11 +145,6 @@ module _
 open Functor
 module PresheafᴰNotation {C : SmallCategory ℓC ℓC'} {Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ}
    {P : Presheaf C ℓP} (Pᴰ : Presheafᴰ P Cᴰ ℓPᴰ) where
-  private
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module P = PresheafNotation P
-
   open SmallPshᴰ.PresheafᴰNotation (Presheafᴰ→SmallPresheafᴰ Pᴰ) public
 
 open Functorᴰ
@@ -165,11 +155,11 @@ module _
   (cᴰ : Cᴰ .SmallCategoryᴰ.obᴰ c)
   where
   private
-    module C = SmallCategory C
+    module C = SmallCategory C using (⋆IdL; ⋆Assoc)
     module Cᴰ = SmallCategoryᴰ Cᴰ
+      using ( Hom[_][_,_]; _⋆ᴰ_; ⋆IdLᴰ; ⋆Assocᴰ; isSetHomᴰ
+            ; ≡out; rectify; rectifyOut)
     Cᴰ' = SmallLocallySmallCategoryᴰ→SmallCategoryᴰ Cᴰ
-
-  open NatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
 
   _[-][-,_] : Presheafᴰ (C [-, c ]) Cᴰ ℓCᴰ'
   _[-][-,_] = SmallPresheafᴰOverSmallPresheaf→Presheafᴰ _ Cᴰ ℓCᴰ' (Cᴰ' SmallCatᴰSetsᴰ.[-][-, cᴰ ])

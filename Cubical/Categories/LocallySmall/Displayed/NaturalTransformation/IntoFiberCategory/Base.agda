@@ -49,12 +49,11 @@ module FunctorᴰDefs
   (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Eᴰ Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
   private
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module D = CategoryNotation D
-    module Dᴰ = CategoryᴰNotation Dᴰ
-    module Eᴰ = CategoryᴰNotation Eᴰ
-    module Dᴰᴰ = SmallFibersᴰNotation Dᴰᴰ
+    -- PERF: these `using` restrictions are load-bearing. A bare module
+    -- application copies (and serialises) every definition of the section,
+    -- which for these notation modules dominates the cost of the file.
+    module Cᴰ = SmallCategoryᴰ Cᴰ using (catᴰ)
+    module Dᴰᴰ = SmallFibersᴰNotation Dᴰᴰ using (vᴰ[_][_])
 
   open NatTransDefs C Eᴰ public
   open SmallCategoryᴰ
@@ -80,12 +79,14 @@ module NatTransᴰDefs
   (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Eᴰ Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
   private
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module D = CategoryNotation D
-    module Dᴰ = CategoryᴰNotation Dᴰ
-    module Eᴰ = CategoryᴰNotation Eᴰ
+    -- PERF: see the note in FunctorᴰDefs above.
+    module C = SmallCategory C using (ob; Hom[_,_])
+    module Cᴰ = SmallCategoryᴰ Cᴰ using (obᴰ; Hom[_][_,_])
+    module D = CategoryNotation D using (Hom[_,_])
+    module Dᴰ = CategoryᴰNotation Dᴰ using (Hom[_][_,_]; idᴰ; _⋆ᴰ_; _∫≡_)
     module Dᴰᴰ = SmallFibersᴰNotation Dᴰᴰ
+      using ( Hom[_][_,_]; idᴰ; _⋆ᴰ_; ⋆IdLᴰ; ⋆IdRᴰ; ⋆Assocᴰ; isSetHomᴰ
+            ; ⟨_⟩⋆⟨⟩; ⟨⟩⋆⟨_⟩; _∫≡_; ≡out; rectify; rectifyOut; vᴰ[_][_])
   open FunctorᴰDefs Cᴰ Dᴰ Eᴰ Dᴰᴰ public
   open NatTrans
 
@@ -102,10 +103,8 @@ module NatTransᴰDefs
     (Gᴰ : Functorᴰ G dᴰ')
     where
     private
-      module F = FunctorNotation F
-      module G = FunctorNotation G
-      module Fᴰ = FunctorᴰNotation Fᴰ
-      module Gᴰ = FunctorᴰNotation Gᴰ
+      module Fᴰ = FunctorᴰNotation Fᴰ using (F-obᴰ; F-homᴰ)
+      module Gᴰ = FunctorᴰNotation Gᴰ using (F-obᴰ; F-homᴰ)
 
     N-homᴰTy :
      (N-obᴰ :
@@ -222,11 +221,9 @@ module NatTransᴰDefs
     (βᴰ : NatTransᴰ gᴰ' β Fᴰ Gᴰ)
     where
     private
-      module F = FunctorNotation F
-      module G = FunctorNotation G
-      module Fᴰ = FunctorᴰNotation Fᴰ
-      module Gᴰ = FunctorᴰNotation Gᴰ
-      module ∫Dᴰᴰ = CategoryNotation (∫C Dᴰᴰ)
+      module Fᴰ = FunctorᴰNotation Fᴰ using (F-obᴰ; F-homᴰ)
+      module Gᴰ = FunctorᴰNotation Gᴰ using (F-obᴰ; F-homᴰ)
+      module ∫Dᴰᴰ = CategoryNotation (∫C Dᴰᴰ) using (_⋆_; isSetHom)
 
     makeNatTransᴰPathP :
       (gᴰ≡ : gᴰ Dᴰ.∫≡ gᴰ') →
@@ -250,7 +247,7 @@ module NatTransᴰDefs
     C⇒Eᴰ = FUNCTOR C Eᴰ
 
     Dᴰ×C⇒Eᴰ = Dᴰ ×ᴰ C⇒Eᴰ
-    module Dᴰ×C⇒Eᴰ = CategoryᴰNotation Dᴰ×C⇒Eᴰ
+    module Dᴰ×C⇒Eᴰ = CategoryᴰNotation Dᴰ×C⇒Eᴰ using (_∫≡_; ∫Hom[_,_])
 
   module _
     {d d' : Dob}
@@ -271,13 +268,6 @@ module NatTransᴰDefs
     (p : ∀ {x} (xᴰ : Cᴰ.obᴰ x) →
       αᴰ .N-obᴰ xᴰ Dᴰᴰ.∫≡ βᴰ .N-obᴰ xᴰ)
     where
-    private
-      module F = FunctorNotation F
-      module G = FunctorNotation G
-      module Fᴰ = FunctorᴰNotation Fᴰ
-      module Gᴰ = FunctorᴰNotation Gᴰ
-      module ∫Dᴰᴰ = CategoryNotation (∫C Dᴰᴰ)
-
     makeNatTransᴰPath :
       Path
         (Σ[ (g , gᴰ , γ) ∈

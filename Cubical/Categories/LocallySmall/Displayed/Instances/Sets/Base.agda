@@ -53,7 +53,7 @@ open Bifunctorᴰ
 ×SET = BifunctorᴰToParFunctorᴰSF ×SETBif
 
 private
-  module SET = CategoryᴰNotation SET
+  module SET = CategoryᴰNotation SET using (v[_])
 
 SETᴰ : SmallFibersᴰCategoryᴰ (weaken LEVEL LEVEL) SET _
   (λ (liftω ℓ , (liftω ℓ' , liftω A)) → ⟨ A ⟩ → hSet ℓ')
@@ -68,9 +68,7 @@ SETᴰ .⋆Assocᴰ = λ _ _ _ → refl
 SETᴰ .isSetHomᴰ {yᴰ = liftω Bᴰ} = isSetΠ2 λ _ _ → Bᴰ _ .snd
 
 private
-  module SETᴰ = SmallFibersᴰNotation SETᴰ
-  module SETⱽ {ℓ} = Category SET.v[ liftω ℓ ]
-  module SETⱽᴰ {ℓ}{ℓ'} = CategoryᴰNotation SETᴰ.vᴰ[ liftω ℓ ][ liftω ℓ' ]
+  module SETᴰ = SmallFibersᴰNotation SETᴰ using (vᴰ[_][_])
 
 SETAt : (ℓ : Level) → SmallCategory _ _
 SETAt ℓ = smallcat _ SET.v[ liftω ℓ ]

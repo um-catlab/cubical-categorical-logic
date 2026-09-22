@@ -46,14 +46,15 @@ module FunctorEqᴰDefs
   (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Eᴰ Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
   private
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module D = CategoryNotation D
-    module Dᴰ = CategoryᴰNotation Dᴰ
-    module Eᴰ = CategoryᴰNotation Eᴰ
+    -- PERF: bare module applications copy & serialise every definition of
+    -- the section; restrict them to the names actually used here.
+    module Cᴰ = SmallCategoryᴰ Cᴰ using (catᴰ)
+    module D = CategoryNotation D using (id; _⋆_)
     module Dᴰᴰ = SmallFibersᴰNotation Dᴰᴰ
+      using (≡out; rectify; rectifyOut; reind-filler; reindEq-pathFiller)
 
   open FunctorᴰDefs Cᴰ Dᴰ Eᴰ Dᴰᴰ
+    using (Functorᴰ; Functor; FunctorEq; Functor→FunctorEq; FunctorEq→Functor)
 
   module _
     (D-⋆ : ∀ {x} → D.id D.⋆ D.id Eq.≡ D.id {x = x})

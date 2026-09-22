@@ -46,20 +46,15 @@ module _
   open FunctorEqᴰDefs Cᴰ Dᴰ Eᴰ Dᴰᴰ
   open NatTransᴰ
   private
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module D = CategoryNotation D
-    module Dᴰ = CategoryᴰNotation Dᴰ
-    module Eᴰ = CategoryᴰNotation Eᴰ
-    module Dᴰᴰ = CategoryᴰNotation Dᴰᴰ
+    module D = CategoryNotation D using (id; _⋆_)
+    module Dᴰᴰ = CategoryᴰNotation Dᴰᴰ using (⋆IdLᴰ; ⋆IdRᴰ; ⋆Assocᴰ)
 
     C⇒Eᴰ : Categoryᴰ D Functor _
     C⇒Eᴰ = FUNCTOR C Eᴰ
 
     Dᴰ×C⇒Eᴰ = Dᴰ ×ᴰ C⇒Eᴰ
     Dᴰ×Eᴰ = Dᴰ ×ᴰ Eᴰ
-    module Dᴰ×C⇒Eᴰ = CategoryᴰNotation Dᴰ×C⇒Eᴰ
-    module Dᴰ×Eᴰ = CategoryᴰNotation Dᴰ×Eᴰ
+    module Dᴰ×C⇒Eᴰ = CategoryᴰNotation Dᴰ×C⇒Eᴰ using (∫C; ⋆IdLᴰ; ⋆IdRᴰ; ⋆Assocᴰ)
 
   FUNCTORᴰ :
     Categoryᴰ Dᴰ×C⇒Eᴰ.∫C (λ (d , dᴰ , F) → Functorᴰ F dᴰ) _
@@ -95,7 +90,7 @@ module _
       C⇒EqEᴰ = FUNCTOR-EQ C Eᴰ D-⋆
 
       Dᴰ×C⇒EqEᴰ = Dᴰ ×ᴰ C⇒EqEᴰ
-      module Dᴰ×C⇒EqEᴰ = CategoryᴰNotation Dᴰ×C⇒EqEᴰ
+      module Dᴰ×C⇒EqEᴰ = CategoryᴰNotation Dᴰ×C⇒EqEᴰ using (∫C)
 
     FUNCTOR-EQᴰ :
       Categoryᴰ Dᴰ×C⇒EqEᴰ.∫C (λ (d , dᴰ , F) → FunctorEqᴰ D-⋆ (F-seq' _ _) F dᴰ) _

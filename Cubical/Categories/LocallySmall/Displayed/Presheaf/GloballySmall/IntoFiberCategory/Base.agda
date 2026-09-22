@@ -30,18 +30,13 @@ open Liftω
 open LocallySmallF.Functor
 open LocallySmallFᴰ.Functorᴰ
 
-private
-  module SET = CategoryᴰNotation SET
-  module SETᴰ = SmallFibersᴰNotation SETᴰ
-
 module _ {C : SmallCategory ℓC ℓC'} (P : Presheaf C ℓP) (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓCᴰ') where
   private
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module CᴰNotation = CategoryᴰNotation (Cᴰ.catᴰ)
+    module C = SmallCategory C using (cat)
+    module Cᴰ = SmallCategoryᴰ Cᴰ using (catᴰ; ∫Csmall)
 
-  open NatTransᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
   open FunctorEqᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+    using (FunctorEqᴰ)
 
   Presheafᴰ : Level → Typeω
   Presheafᴰ ℓPᴰ = FunctorEqᴰ Eq.refl (λ _ _ → Eq.refl) P (liftω ℓPᴰ)
@@ -62,11 +57,12 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
   private
     PSH = PRESHEAF C
     LEVEL×PSH = weaken LEVEL LEVEL ×ᴰ PRESHEAF C
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH
+    module C = SmallCategory C using (cat)
+    module Cᴰ = SmallCategoryᴰ Cᴰ using (catᴰ; ∫Csmall)
+    module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH using (∫C)
 
   open FunctorEqᴰDefs (Cᴰ ^opsmallᴰ) (weaken LEVEL LEVEL) SET SETᴰ
+    using (FunctorEqᴰ)
 
   -- PRESHEAFᴰ is displayed over LEVEL×PSH
   -- where
@@ -89,13 +85,12 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
   private
     PSH = PRESHEAF C
     LEVEL×PSH = weaken LEVEL LEVEL ×ᴰ PRESHEAF C
-    module C = SmallCategory C
-    module Cᴰ = SmallCategoryᴰ Cᴰ
-    module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH
+    module C = SmallCategory C using (cat)
+    module Cᴰ = SmallCategoryᴰ Cᴰ using (catᴰ; ∫Csmall)
+    module LEVEL×PSH = CategoryᴰNotation LEVEL×PSH using (∫C)
 
   private
-    module PSHᴰ = CategoryᴰNotation (PRESHEAFᴰ Cᴰ)
-    module PSHISOᴰ = CategoryᴰNotation PSHᴰ.ISOCᴰ
+    module PSHᴰ = CategoryᴰNotation (PRESHEAFᴰ Cᴰ) using (Hom[_][_,_])
 
   module _ {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}
     (α : PshHom P Q)
@@ -107,8 +102,8 @@ module _ {C : SmallCategory ℓC ℓC'} (Cᴰ : SmallCategoryᴰ C ℓCᴰ ℓC�
   module _ {D : SmallCategory ℓD ℓDᴰ'} {Dᴰ : SmallCategoryᴰ D ℓDᴰ ℓDᴰ'}
     where
     private
-      module D = SmallCategory D
-      module Dᴰ = SmallCategoryᴰ Dᴰ
+      module D = SmallCategory D using (cat)
+      module Dᴰ = SmallCategoryᴰ Dᴰ using (catᴰ)
 
     module _ {F : LocallySmallF.Functor (C.cat) (D.cat)}
       {P : Presheaf C ℓP} {Q : Presheaf D ℓQ}

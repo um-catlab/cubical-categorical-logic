@@ -401,31 +401,37 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
           _,pⱽ_ : Cᴰ [ γ ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]
           _,pⱽ_ = xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos _ .Iso.inv (γᴰ , fᴰ)
 
+          -- β₁ⱽ and β₂ⱽ differ only in which component they project, so the
+          -- naturality square and the strip of the two revealed reinds are
+          -- shared rather than elaborated once per component.
+          private
+            isoΔ = xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)
+
+            ,pⱽ-nat =
+              Eq.eqToPath (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.nat (Δ , Δᴰ , γ)
+                (Γ , xᴰLRⱽ Γᴰ f .fst , C.id)
+                (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR _))
+                       Cᴰ.idᴰ (((Cᴰ [-][-, xᴰLRⱽ Γᴰ f .fst ]) PresheafNotation.⋆
+                                 (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR γ)))
+                                Cᴰ.idᴰ) Eq.refl)
+
+            ,pⱽ-sec = Iso.sec isoΔ (γᴰ , fᴰ)
+
           β₁ⱽ : _,pⱽ_ Cᴰ.⋆ᴰ π₁ⱽ Cᴰ.∫≡ γᴰ
           β₁ⱽ =
             Cᴰ.reindEq-filler (Eq.pathToEq _)
-            ∙ Cᴰ.≡in (cong fst (Eq.eqToPath (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.nat (Δ , Δᴰ , γ)
-              (Γ , xᴰLRⱽ Γᴰ f .fst , C.id)
-              (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR _))
-                     Cᴰ.idᴰ (((Cᴰ [-][-, xᴰLRⱽ Γᴰ f .fst ]) PresheafNotation.⋆
-                               (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR γ)))
-                              Cᴰ.idᴰ) Eq.refl)))
-            ∙ Cᴰ.≡in (cong (λ z → Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) z .fst)
+            ∙ Cᴰ.≡in (cong fst ,pⱽ-nat)
+            ∙ Cᴰ.≡in (cong (λ z → Iso.fun isoΔ z .fst)
                  (Cᴰ.rectifyOut $ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.⋆IdR _))
-            ∙ Cᴰ.≡in (cong fst (Iso.sec (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) (γᴰ , fᴰ)))
+            ∙ Cᴰ.≡in (cong fst ,pⱽ-sec)
 
           β₂ⱽ : _,pⱽ_ Cᴰ.⋆ᴰ π₂ⱽ Cᴰ.∫≡ fᴰ
           β₂ⱽ =
             Cᴰ.reindEq-filler _
-            ∙ Cᴰ.≡in (cong snd (Eq.eqToPath (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.nat (Δ , Δᴰ , γ)
-              (Γ , xᴰLRⱽ Γᴰ f .fst , C.id)
-              (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR _))
-                     Cᴰ.idᴰ (((Cᴰ [-][-, xᴰLRⱽ Γᴰ f .fst ]) PresheafNotation.⋆
-                               (γ , _,pⱽ_ , Eq.pathToEq (C.⋆IdR γ)))
-                              Cᴰ.idᴰ) Eq.refl)))
-            ∙ Cᴰ.≡in (cong (λ z → Iso.fun (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) z .snd)
+            ∙ Cᴰ.≡in (cong snd ,pⱽ-nat)
+            ∙ Cᴰ.≡in (cong (λ z → Iso.fun isoΔ z .snd)
                  (Cᴰ.rectifyOut $ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.reind-revealed-filler⁻ _ ∙ Cᴰ.⋆IdR _))
-            ∙ Cᴰ.≡in (cong snd (Iso.sec (xᴰLRⱽ Γᴰ f .snd .PshIsoEq.isos (Δ , Δᴰ , γ)) (γᴰ , fᴰ)))
+            ∙ Cᴰ.≡in (cong snd ,pⱽ-sec)
 
         module _ {Δ}{Δᴰ : Cᴰ.ob[ Δ ]}{γ γ' : C [ Δ , Γ ]}
           {pᴰ : Cᴰ [ γ ][ Δᴰ , xᴰLRⱽ Γᴰ f .fst ]}

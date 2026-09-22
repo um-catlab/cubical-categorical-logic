@@ -335,20 +335,15 @@ StateAlgCBPV-push-lift {ℓ = ℓ} {B = B} {B' = B'} ϕ Bᴰ =
             , isProp→PathP
                 (λ i → isPropHomoᴰ (λ z → Zᴰ .fst z .snd)) _
                 (subst
-                  (λ h → Homoᴰ
-                    (λ x xᴰ → χᴰ .fst (ϕ .fst x)
-                      (σ-fᴰ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) x xᴰ))
+                  (λ h → Homoᴰ (canonical-fᴰ (ψ .snd) Zᴰ χᴰ)
                     h (Bᴰ .snd) (Zᴰ .snd))
                   (isPropHomo (Z .fst .snd)
                     ((ϕ .snd) ⋆Homo (ψ .snd .snd))
                     _)
-                  (σ (ϕ .snd) (Bᴰ .snd) (B' .fst .snd) ⋆Homoᴰ χᴰ .snd)))))
-    -- NOTE (perf): `rectify (≡out (≡in {pth = P} X))` is the identity on the
-    -- payload -- `≡in` builds a `Σ`-path only for `≡out` to take it apart
-    -- again -- but the roundtrip is *not* definitional, so the elaborated
-    -- term carries a full `ΣPathP`/`PathPΣ` pair over a very large type.
-    -- Handing the index path to `rectify` directly is the same proof with
-    -- that roundtrip deleted.
+                  (canonical-homᴰ (ψ .snd) Zᴰ χᴰ)))))
+    -- The index path is handed to `rectify` directly rather than routed
+    -- through `≡in`/`≡out`, which would only build a Σ-path and take it
+    -- apart again.
     ∙ Dᴰ.rectify {e = ∫Homo≡ _ _ (Z .fst .snd) refl}
       (ΣPathP
         ( (funExt λ b' → funExt λ x →

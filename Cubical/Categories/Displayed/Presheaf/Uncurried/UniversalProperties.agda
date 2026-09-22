@@ -112,9 +112,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     _,ⱽ_ {f = f} fᴰ gᴰ = ue.intro (f , fᴰ , gᴰ) .snd
 
     -- Both projections' β laws in total-space (∫≡) form, sharing a single
-    -- elaboration of `ue.β`.  See the note on ×βⱽᴰ∫ below: the universal
-    -- element's β is the expensive term, and it was previously elaborated
-    -- once per projection.
+    -- occurrence of the universal element's β, which is the expensive term.
     private
       ×βⱽ∫ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
         {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
@@ -201,7 +199,7 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     πᴰ₂ : Cᴰ [ ue.element .snd ][ Aᴰ×ᴰBᴰ .fst , Bᴰ ]
     πᴰ₂ = Aᴰ×ᴰBᴰ .snd .fst .snd
 
-    -- as ×βⱽ∫: one elaboration of `βᴰ` for both projections
+    -- as ×βⱽ∫ above: one occurrence of `βᴰ` serves both projections
     private
       ×βᴰ∫ : ∀ {Γ Γᴰ}
         {f : C [ Γ , A ]}
@@ -367,36 +365,31 @@ module _ {C : Category ℓC ℓC'}
     ⋆PshIso invPshIso (reindPsh× _ _ _)
     where
     module bp = BinProductⱽNotation Cᴰ bpⱽ
-    π₁-natural : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
-      (hᴰ : Cᴰ [ f ][ Γᴰ , bp.vert ])
-      → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ])
+    -- Both projections read off the same naturality square of bpⱽ's
+    -- representation iso, applied to the same identity coercion, so the
+    -- pair of them is stated once here.
+    module _ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
+      (hᴰ : Cᴰ [ f ][ Γᴰ , bp.vert ]) where
+      private
+        natural = bpⱽ .snd .trans .N-hom
+          (Γ , Γᴰ , f) (x , bp.vert , C.id)
+          (f , hᴰ , C.⋆IdR f) Cᴰ.idᴰ
+        ⋆id = Cᴰ.rectifyOut {e' = refl}
+          (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdR (f , hᴰ))
+      π₁-natural : Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ])
           (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bp.π₁)
           (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .fst)
-    π₁-natural {Γ = Γ} {Γᴰ = Γᴰ} {f = f} hᴰ =
-      Cᴰ.reind-filler _
-      ∙ cong (f ,_) (sym (cong fst natural))
-      ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .fst)
-          (Cᴰ.rectifyOut {e' = refl}
-            (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdR (f , hᴰ)))
-      where
-      natural = bpⱽ .snd .trans .N-hom
-        (Γ , Γᴰ , f) (x , bp.vert , C.id)
-        (f , hᴰ , C.⋆IdR f) Cᴰ.idᴰ
-    π₂-natural : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
-      (hᴰ : Cᴰ [ f ][ Γᴰ , bp.vert ])
-      → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Bᴰ ])
+      π₁-natural =
+        Cᴰ.reind-filler _
+        ∙ cong (f ,_) (sym (cong fst natural))
+        ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .fst) ⋆id
+      π₂-natural : Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Bᴰ ])
           (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bp.π₂)
           (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .snd)
-    π₂-natural {Γ = Γ} {Γᴰ = Γᴰ} {f = f} hᴰ =
-      Cᴰ.reind-filler _
-      ∙ cong (f ,_) (sym (cong snd natural))
-      ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .snd)
-          (Cᴰ.rectifyOut {e' = refl}
-            (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdR (f , hᴰ)))
-      where
-      natural = bpⱽ .snd .trans .N-hom
-        (Γ , Γᴰ , f) (x , bp.vert , C.id)
-        (f , hᴰ , C.⋆IdR f) Cᴰ.idᴰ
+      π₂-natural =
+        Cᴰ.reind-filler _
+        ∙ cong (f ,_) (sym (cong snd natural))
+        ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .snd) ⋆id
 
   BinProductⱽ+π*→ⱽᴰ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
     (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
@@ -449,12 +442,11 @@ module _ {C : Category ℓC ℓC'}
     _,ⱽᴰ_ {f = f} {fᴰ = fᴰ} {gᴰ = gᴰ} fᴰᴰ gᴰᴰ =
       bpᴰ.intro ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ) .snd
 
-    -- Both projections' β laws, stated ONCE against `∫≡` (the total-space
-    -- view).  `bpᴰ.β` -- the universal-element β at the ∫-presheaf of the
-    -- BinProductⱽᴰ spec, and by a wide margin the most expensive term in
-    -- this file -- is now elaborated once for the pair instead of once per
-    -- projection, and the `reind` crossing the spec presheaf's action
-    -- introduces is paid here rather than restated at each use site.
+    -- Both projections' β laws, stated once against ∫≡ (the total-space
+    -- view). bpᴰ.β -- the universal-element β at the ∫-presheaf of the
+    -- BinProductⱽᴰ spec -- is by a wide margin the most expensive term in
+    -- this file, so it is shared by the pair, and the reind crossing that
+    -- the spec presheaf's action introduces is paid here once.
     private
       ×βⱽᴰ∫ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
         {f : C [ Γ , x ]}
@@ -500,7 +492,7 @@ module _ {C : Category ℓC ℓC'}
     ×βⱽᴰ₁-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut {e' = β'} $
       Cᴰᴰ.⟨ Cᴰᴰ.reind-filler⁻ (ΣPathP (refl , refl)) ⟩⋆⟨⟩
       ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩
-      ∙ Cᴰᴰ.≡in (×βⱽᴰ₁ fᴰᴰ gᴰᴰ)
+      ∙ ×βⱽᴰ∫ fᴰᴰ gᴰᴰ .fst
 
     ×βⱽᴰ₂-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]}
@@ -518,30 +510,31 @@ module _ {C : Category ℓC ℓC'}
     ×βⱽᴰ₂-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectifyOut {e' = β'} $
       Cᴰᴰ.⟨ Cᴰᴰ.reind-filler⁻ (ΣPathP (refl , refl)) ⟩⋆⟨⟩
       ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩
-      ∙ Cᴰᴰ.≡in (×βⱽᴰ₂ fᴰᴰ gᴰᴰ)
+      ∙ ×βⱽᴰ∫ fᴰᴰ gᴰᴰ .snd
+
+    -- as ×βⱽᴰ∫ above: bpᴰ.η is stated once in total-space (∫≡) form and
+    -- rectified at whichever index each consumer below needs.
+    private
+      ×ηⱽᴰ∫ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
+        (hᴰᴰ : Cᴰᴰ [ f , hᴰ ][ Γᴰᴰ , vertexᴰ ])
+        → hᴰᴰ Cᴰᴰ.∫≡
+            (bpᴰ.intro (((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element) .snd)
+      ×ηⱽᴰ∫ {f = f} {hᴰ = hᴰ} hᴰᴰ = bpᴰ.η {f = ((f , hᴰ) , hᴰᴰ)}
 
     ×ηⱽᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
       (hᴰᴰ : Cᴰᴰ [ f , hᴰ ][ Γᴰᴰ , vertexᴰ ])
       → hᴰᴰ Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×ηⱽ ]
           (bpᴰ.intro (((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element) .snd)
-    ×ηⱽᴰ {f = f} {hᴰ = hᴰ} hᴰᴰ = subst
-      (λ p → hᴰᴰ Cᴰᴰ.≡[ p ]
-        (bpᴰ.intro ((_ , hᴰᴰ) specᴰ.⋆ bpᴰ.element) .snd))
-      (Cᴰ.isSetHom _ _ (cong fst η') (Cᴰ.≡in bpⱽ.×ηⱽ))
-      (PathPΣ η' .snd)
-      where
-      η' = bpᴰ.η {f = ((f , hᴰ) , hᴰᴰ)}
+    ×ηⱽᴰ hᴰᴰ = Cᴰᴰ.rectifyOut $ ×ηⱽᴰ∫ hᴰᴰ
 
-    -- `normalize-ηᴰ` and `align-ηᴰ` in `×ηⱽᴰ-on` below were the SAME
-    -- construction: assemble a path in the doubly-nested Σ that `bpᴰ.intro`
-    -- consumes out of its two component paths, rectifying the second
-    -- component's index along the first.  Stated once here so that its type
-    -- and the rectification square inside it are elaborated once for the
-    -- pair instead of once per component -- same idea as `×βⱽᴰ∫` above.
-    -- NB the implicits are the COMPONENTS, not the Σs: stating it with
-    -- `{z z' : Σ …}` and projecting makes the use sites solve `w .fst`,
-    -- which is not a pattern, and measured 4.5 GB WORSE than no sharing.
+    -- Assemble the path in the doubly-nested Σ that bpᴰ.intro consumes out
+    -- of its two component paths, rectifying the second component's index
+    -- along the first.
+    -- The implicits are the components rather than the Σs on purpose:
+    -- stating it with {z z' : Σ …} and projecting makes the use sites solve
+    -- w .fst, which is not a pattern.
     private
       pairΣᴰᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
         {g g' : C [ Γ , x ]}
@@ -584,8 +577,8 @@ module _ {C : Category ℓC ℓC'}
              (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂)))
     ×ηⱽᴰ-on {Γ = Γ} {Γᴰ = Γᴰ} {Γᴰᴰ = Γᴰᴰ} {f = f} {hᴰ = hᴰ}
       {π₁' = π₁'} {π₂' = π₂'} π₁≡π₁' π₂≡π₂' η' hᴰᴰ = Cᴰᴰ.rectifyOut {e' = η'} $
-      Cᴰᴰ.≡in (×ηⱽᴰ hᴰᴰ)
-      ∙ cong bpᴰ.intro (pairΣᴰᴰ q₁ q₂ ∙ pairΣᴰᴰ r₁ r₂)
+      ×ηⱽᴰ∫ hᴰᴰ
+      ∙ cong bpᴰ.intro (pairΣᴰᴰ (q₁ ∙ r₁) (q₂ ∙ r₂))
       ∙ Cᴰᴰ.reind-filler (ΣPathP (refl , refl))
       where
       q₁ :

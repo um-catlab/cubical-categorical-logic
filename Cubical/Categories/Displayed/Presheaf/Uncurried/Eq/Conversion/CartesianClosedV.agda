@@ -170,6 +170,19 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
         module fibEq = FibrationNotation Cᴰ ⋆AssocC cartLifts
         module π₁* {Γ} = Path.QuadrableNotation Cᴰ (π₁Quadrable Γ)
 
+        -- ⋆πⱽ-natural immediately followed by βᴰ is the shape every chain
+        -- below opens with, three times in all. Both steps carry the
+        -- cartesian lift's whole iso instance, so the shape is stated once
+        -- here in total-space (∫≡) form.
+        natβ : ∀ {Θ Δ b}{Θᴰ : Cᴰ.ob[ Θ ]}{Δᴰ : Cᴰ.ob[ Δ ]}{bᴰ : Cᴰ.ob[ b ]}
+          {δ : C [ Θ , Δ ]}{g : C [ Δ , b bp.× A ]}
+          (δᴰ : Cᴰ [ δ ][ Θᴰ , Δᴰ ])
+          (gπᴰ : Cᴰ [ g C.⋆ _ ][ Δᴰ , bᴰ ])
+          → Path Cᴰ.Hom[ _ , _ ]
+              (_ , (δᴰ Cᴰ.⋆ᴰ π₁*.introᴰ {Γ = b} gπᴰ) π₁*.⋆πⱽ)
+              (_ , δᴰ Cᴰ.⋆ᴰ gπᴰ)
+        natβ δᴰ gπᴰ = π₁*.⋆πⱽ-natural ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ⟩
+
       wkF-Path/→Eq/-square-iso : ∀ Δ3 → CatIso
         (Cᴰ /
          (C [-, ((λ Γ₁ → bp (Γ₁ , A)) BinProductsWithNotation.×a) Γ ]))
@@ -187,8 +200,7 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
       wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.inv .snd .fst = fibEq.introᴰ π₁*.πⱽ
       wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.inv .snd .snd = ⋆IdLC _
       wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.sec = Hom/≡ (π₁*.extensionalityᴰ (C.⋆IdL _) $
-        π₁*.⋆πⱽ-natural
-        ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ⟩
+        natβ _ _
         ∙ fibEq.βᴰ)
       wkF-Path/→Eq/-square-iso Δ3@(Δ , Δᴰ , γ) .snd .isIso.ret = Hom/≡ (fibEq.extensionalityᴰ (C.⋆IdL _) $
         Cᴰ.⋆Assoc _ _ _
@@ -202,13 +214,12 @@ module _ {C : Category ℓC ℓC'}(⋆AssocC : ReprEqAssoc C)(⋆IdLC : EqIdL C)
       wkF-Path/→Eq/-square = isosToNatIso wkF-Path/→Eq/-square-iso
         λ Θ3 Δ3 δ3@(δ , δᴰ , tri) →
           Hom/≡ (π₁*.extensionalityᴰ (C.⋆IdR _ ∙ sym (C.⋆IdL _))
-            (π₁*.⋆πⱽ-natural
-            ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ⟩
+            (natβ _ _
             ∙ fibEq.βᴰ
             ∙ Cᴰ.reindEq-filler⁻ ((Eq.sym $ π₁NatEqC A δ))
             ∙ Cᴰ.⟨ Cᴰ.reindEq-filler⁻ (⋆IdLC _) ⟩⋆⟨⟩
-            ∙ sym (π₁*.⋆πⱽ-natural
-            ∙ Cᴰ.⟨⟩⋆⟨ π₁*.βᴰ _ ∙ Cᴰ.reind-filler⁻ _ ⟩
+            ∙ sym (natβ _ _
+            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ _ ⟩
             ∙ sym (Cᴰ.⋆Assoc _ _ _) ∙ Cᴰ.⟨ π₁*.βᴰ' _ ⟩⋆⟨⟩)))
 
 module _ (CC : CartesianCategory ℓC ℓC') where

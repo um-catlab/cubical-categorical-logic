@@ -101,6 +101,21 @@ module _
       → fᴰ Dᴰ.∫≡ Dᴰ.reind e' (Dᴰ.reind e fᴰ)
     reind-filler² e e' = Dᴰ.reind-filler e ∙ Dᴰ.reind-filler e'
 
+    -- Both halves of the isomorphism below cancel two square fillers against
+    -- each other; stated once, over an arbitrary pair of inverse base maps.
+    sq-cancel : ∀ {w x y}{f : D [ w , x ]}{f' : D [ x , w ]}
+      {g : D [ w , y ]}{h : D [ x , y ]}{yᴰ : Dᴰ.ob[ y ]}
+      {c : g D.⋆ D.id ≡ f D.⋆ h}{c' : h D.⋆ D.id ≡ f' D.⋆ g}
+      → f D.⋆ f' ≡ D.id
+      → Path Dᴰ.Hom[ _ , _ ]
+          (_ , (cartLifts.sq-filler {yᴰ = yᴰ} Dᴰ.idᴰ c
+                Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ c'))
+          (D.id , Dᴰ.idᴰ)
+    sq-cancel e =
+      cartLifts.sq-collapse Dᴰ.idᴰ Dᴰ.idᴰ
+      ∙ cartLifts.cong-introᴰ e (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
+      ∙ cartLifts.sq-id refl
+
   module _ {Γ : C.ob} where
     private
       LHS-F = ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
@@ -146,19 +161,11 @@ module _
                             (Dᴰ.⟨ cartLifts.⟨ Dᴰ.reind-filler _ ⟩⋆πⱽ
                              ∙ Dᴰ.reind-filler _ ⟩⋆⟨⟩
                              ∙ reind-filler² _ _)) ⟩ ⟩
-              _ , (cartLifts.sq-filler _ _ Dᴰ.⋆ᴰ _)
-              ∎
+              _ ∎
         the-niᴰ .NatIsoᴰ.nIsoᴰ {x = Δ , Δᴰ , γ} _ =
           isisoᴰ (cartLifts.sq-filler Dᴰ.idᴰ (D.⋆IdR _ ∙ sym (swapπ'≡Gπ Δ)))
-            (Dᴰ.rectifyOut $
-              _ , (cartLifts.sq-filler Dᴰ.idᴰ _ Dᴰ.⋆ᴰ cartLifts.sq-filler Dᴰ.idᴰ _)
-                ≡⟨ cartLifts.sq-collapse Dᴰ.idᴰ Dᴰ.idᴰ
-                ∙ cartLifts.cong-introᴰ (swap .nIso Δ .ret) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
-                ∙ cartLifts.sq-id refl ⟩ D.id , Dᴰ.idᴰ ∎)
-            (Dᴰ.rectifyOut $
-              cartLifts.sq-collapse Dᴰ.idᴰ Dᴰ.idᴰ
-              ∙ cartLifts.cong-introᴰ (swap .nIso Δ .sec) (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
-              ∙ cartLifts.sq-id refl)
+            (Dᴰ.rectifyOut $ sq-cancel (swap .nIso Δ .ret))
+            (Dᴰ.rectifyOut $ sq-cancel (swap .nIso Δ .sec))
 
   module _ {Γ : C.ob}(Aᴰ : Dᴰ.ob[ G ⟅ F ⟅ Γ ⟆ ⟆ ])
     (∀Aᴰ : ∀FOb {F = F'}{Cᴰ = Dᴰ} π'-Quad (swap .nIso Γ .inv cartLifts.* Aᴰ))

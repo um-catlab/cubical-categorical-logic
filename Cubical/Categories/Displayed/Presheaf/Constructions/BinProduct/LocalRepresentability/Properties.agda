@@ -315,15 +315,19 @@ module _
     (F-obᴰ Fᴰ Γᴰ ×ⱽ p *Pᴰ)
     F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩
 
+  private
+    module LRPᴰ =
+      LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
+      using (funcLR; β₁LR-reind; β₂LR-reind)
+    module LRFᴰPᴰ =
+      LocallyRepresentableⱽNotation (reindPshᴰFunctor Fᴰ Pᴰ) _×ⱽ_*FᴰPᴰ
+      using (funcLR; β₁LR-reind; β₂LR)
+    module F⟨LR⟩ {Γ}(Γᴰ : Cᴰ.ob[ Γ ]) p =
+      LocallyRepresentableⱽAtNotation Pᴰ (Fᴰ .F-obᴰ Γᴰ) p (F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩)
+      using (β₁LR; β₂LR; extensionalityLR)
+
   module _ {Δ}{Γ}{γ : C [ Δ , Γ ]}{Δᴰ}{Γᴰ : Cᴰ.ob[ Γ ]}(γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ])(p : P.p[ F ⟅ Γ ⟆ ]) where
     open UniversalElementⱽ
-    private
-      module LRPᴰ = LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
-        using (funcLR; β₁LR-reind; β₂LR-reind)
-      module LRFᴰPᴰ = LocallyRepresentableⱽNotation (reindPshᴰFunctor Fᴰ Pᴰ) _×ⱽ_*FᴰPᴰ
-        using (funcLR; β₁LR-reind; β₂LR)
-      module F⟨LR⟩ {Γ}(Γᴰ : Cᴰ.ob[ Γ ]) p = LocallyRepresentableⱽAtNotation Pᴰ (Fᴰ .F-obᴰ Γᴰ) p (F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩)
-        using (β₁LR; β₂LR; extensionalityLR)
 
     opaque
       unfolding hSetReasoning.reind

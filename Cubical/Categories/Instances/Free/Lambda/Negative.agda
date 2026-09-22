@@ -47,6 +47,7 @@ open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Reindex.UniversalQuantifier
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
+import      Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier as UQuant
 open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
@@ -275,7 +276,7 @@ module Lambda1×⇒
         (reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
         (reindexExponentialⱽ _ _ _ (CCCⱽ.expⱽ _ _))
         (λ _ _ → reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
-        (reflectsUniversalQuantifiers _ _ CCCⱽ.cartesianLifts (EXTENSION A) (λ c → D .CartesianCategory.bp (c , F-ob F (x: A))) (F-× A) _ (CCCⱽ.forallⱽ _))
+        (reflectsUniversalQuantifiers _ _ CCCⱽ.cartesianLifts (EXTENSION A) (λ c → D .CartesianCategory.bp (c , F-ob F (x: A))) (F-× A) _ (CCCⱽ.forallⱽ .UQuant.UniversalQuantifiers.∀Ob _))
 
     elimLocal :
       (ıOb : (A : Base) → CCCⱽ.Cᴰ.ob[ F  .F-ob (x: (↑ A)) ])

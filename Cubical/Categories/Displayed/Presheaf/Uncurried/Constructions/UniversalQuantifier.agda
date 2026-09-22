@@ -194,10 +194,17 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
   module _ (bp : BinProducts C) (isFib : isFibration Cᴰ) where
     private
       module bp = BinProductsNotation bp
-    UniversalQuantifiers : Type _
-    UniversalQuantifiers = ∀ {Γ A} (Aᴰ : Cᴰ.ob[ Γ bp.× A ])
-      → UniversalQuantifier A (λ c → bp (c , A))
-          (λ Δ yᴰ → isFib yᴰ (Δ bp.× A) bp.π₁) Aᴰ
+    -- A record rather than a type synonym: conversion checking two
+    -- UniversalQuantifiers types then compares the three small arguments
+    -- instead of unfolding both sides into the underlying Pi-type.
+    record UniversalQuantifiers
+      : Type (ℓ-max ℓC (ℓ-max ℓC' (ℓ-max ℓCᴰ ℓCᴰ'))) where
+      constructor mkUniversalQuantifiers
+      field
+        ∀Ob : ∀ {Γ A} (Aᴰ : Cᴰ.ob[ Γ bp.× A ])
+          → UniversalQuantifier A (λ c → bp (c , A))
+              (λ Δ yᴰ → isFib yᴰ (Δ bp.× A) bp.π₁) Aᴰ
+    open UniversalQuantifiers public
 
 -- The UniversalQuantifier quantifying over a locally representable presheaf
 module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where

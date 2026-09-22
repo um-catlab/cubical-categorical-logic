@@ -247,7 +247,7 @@ module _ (CC : CartesianCategory ℓC ℓC') where
                                    (Path.CartesianCategoryⱽ.Cᴰ
                                     (Path.CartesianClosedCategoryⱽ.CCⱽ (EqCCCⱽ→CCCⱽ isCCCⱽ)))
                                    (xᴰ , Path.CartesianClosedCategoryⱽ.lrⱽ (EqCCCⱽ→CCCⱽ isCCCⱽ) xᴰ))) Representable≅
-    EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.forallⱽ {Γ} {A} Aᴰ =
+    EqCCCⱽ→CCCⱽ isCCCⱽ .Path.CartesianClosedCategoryⱽ.forallⱽ .Path.UniversalQuantifiers.∀Ob {Γ} {A} Aᴰ =
       EqReprⱽ→PathReprⱽ _ (isCCCⱽ .snd .snd A Aᴰ)
       Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (CC.C [-, Γ ]) Cᴰ) _ _ (Path/→Eq/ (CC.C [-, Γ CC.× A ]) Cᴰ) _
         (wkF-Path/→Eq/-square ⋆AssocC ⋆IdLC Cᴰ CC.bp (isCCCⱽ .fst .snd .snd) π₁NatEqC ×aF-seqC _ (isCCCⱽ .fst .fst (Γ CC.× A) .fst))

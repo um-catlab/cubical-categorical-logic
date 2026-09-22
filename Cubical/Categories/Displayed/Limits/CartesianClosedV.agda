@@ -72,4 +72,4 @@ module _ (CCC : CartesianClosedCategory ℓC ℓC') (CCCⱽ : CartesianClosedCat
       (cartesianLifts Bᴰ ((A ⇒ B) × A) app)
       (expⱽ _ _)
       (λ _ _ → cartesianLifts _ _ _)
-      (forallⱽ _)
+      (forallⱽ .∀Ob _)

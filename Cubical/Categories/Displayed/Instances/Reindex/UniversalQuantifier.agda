@@ -226,13 +226,13 @@ module _
     hasUniversalQuantifiersReindex :
       UniversalQuantifiers Dᴰ bpD cartLifts
       → UniversalQuantifiers (reindex Dᴰ G) bpC (isFibrationReindex Dᴰ G cartLifts)
-    hasUniversalQuantifiersReindex ∀s {Γ}{A} Aᴰ =
+    hasUniversalQuantifiersReindex ∀s .∀Ob {Γ}{A} Aᴰ =
       reflectsUniversalQuantifiers
         (λ c → bpC (c , A))
         (λ d → bpD (d , G ⟅ A ⟆ ))
         (λ c' → G⟪×⟫≅G×G c' A)
         Aᴰ
-        (∀s ((GΓ×GA.π₁ G⟪Γ×A⟫.,p GΓ×GA.π₂) cartLifts.* Aᴰ))
+        (∀s .∀Ob ((GΓ×GA.π₁ G⟪Γ×A⟫.,p GΓ×GA.π₂) cartLifts.* Aᴰ))
       where
         G⟪Γ×A⟫ : BinProduct D (G ⟅ Γ ⟆ , G ⟅ A ⟆)
         G⟪Γ×A⟫ = isUniversal→UniversalElement _ (G⟪×⟫≅G×G Γ A)

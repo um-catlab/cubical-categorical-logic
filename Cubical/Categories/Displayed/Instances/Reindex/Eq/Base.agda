@@ -85,25 +85,46 @@ module EqReindex
     module Dᴰ = Categoryᴰ Dᴰ
     F*Dᴰ = Reindex.reindex Dᴰ F
 
-    singId : singl {A = {x : C .ob} {p : Dᴰ .Categoryᴰ.ob[_] (F .F-ob x)} →
+    IdTy : Type _
+    IdTy = {x : C .ob} {p : Dᴰ .Categoryᴰ.ob[_] (F .F-ob x)} →
        Dᴰ .Categoryᴰ.Hom[_][_,_] {F .F-ob x} {F .F-ob x}
-       (F .F-hom {x} {x} (C .id {x})) p p}
-       (R.reind (λ i → F .F-id (~ i)) (Dᴰ.idᴰ))
-    singId = (reind' Dᴰ F-id' Dᴰ.idᴰ ,
-      implicitFunExt (λ {x} → implicitFunExt (λ {xᴰ} →
-      reind≡reind' Dᴰ Dᴰ.idᴰ)))
+       (F .F-hom {x} {x} (C .id {x})) p p
 
-    singSeq : singl
-      {A = ∀ {x y z} {f : C .Hom[_,_] x y} {g : C .Hom[_,_] y z}{xᴰ}{yᴰ}{zᴰ}
+    SeqTy : Type _
+    SeqTy = ∀ {x y z} {f : C .Hom[_,_] x y} {g : C .Hom[_,_] y z}{xᴰ}{yᴰ}{zᴰ}
        → Dᴰ.Hom[ F .F-hom f ][ xᴰ , yᴰ ]
        → Dᴰ.Hom[ F .F-hom g ][ yᴰ , zᴰ ]
-       → Dᴰ.Hom[ F .F-hom (f C.⋆ g)][ xᴰ , zᴰ ]}
+       → Dᴰ.Hom[ F .F-hom (f C.⋆ g)][ xᴰ , zᴰ ]
+
+    idᴰ' : IdTy
+    idᴰ' = reind' Dᴰ F-id' Dᴰ.idᴰ
+
+    ⋆ᴰ' : SeqTy
+    ⋆ᴰ' fᴰ gᴰ = reind' Dᴰ (F-seq' _ _) (Dᴰ._⋆ᴰ_ fᴰ gᴰ)
+
+    -- The paths witnessing agreement with the subst-based reindexing are
+    -- only ever needed inside the category laws, so they are opaque: no use
+    -- site of `reindex` should have to unfold the funExt nest below.
+    opaque
+      idᴰ'≡ : Path IdTy (R.reind (λ i → F .F-id (~ i)) (Dᴰ.idᴰ)) idᴰ'
+      idᴰ'≡ = implicitFunExt (λ {x} → implicitFunExt (λ {xᴰ} →
+        reind≡reind' Dᴰ Dᴰ.idᴰ))
+
+      ⋆ᴰ'≡ : Path SeqTy
+        (λ {x}{y}{z}{f}{g} fᴰ gᴰ → R.reind (sym (F .F-seq f g)) (fᴰ Dᴰ.⋆ᴰ gᴰ))
+        ⋆ᴰ'
+      ⋆ᴰ'≡ =
+        implicitFunExt (λ {x} → implicitFunExt (λ {y} → implicitFunExt (λ {z} →
+        implicitFunExt (λ {f} → implicitFunExt (λ {g} → implicitFunExt (λ {xᴰ} →
+        implicitFunExt (λ {yᴰ} → implicitFunExt (λ {zᴰ} →
+        funExt (λ fᴰ → funExt λ gᴰ → reind≡reind' Dᴰ (fᴰ Dᴰ.⋆ᴰ gᴰ))))))))))
+
+    singId : singl {A = IdTy} (R.reind (λ i → F .F-id (~ i)) (Dᴰ.idᴰ))
+    singId = idᴰ' , idᴰ'≡
+
+    singSeq : singl {A = SeqTy}
       (λ {x}{y}{z}{f}{g} fᴰ gᴰ → R.reind (sym (F .F-seq f g)) (fᴰ Dᴰ.⋆ᴰ gᴰ))
-    singSeq = (λ fᴰ gᴰ → reind' Dᴰ (F-seq' _ _) (Dᴰ._⋆ᴰ_ fᴰ gᴰ)) ,
-      implicitFunExt (λ {x} → implicitFunExt (λ {y} → implicitFunExt (λ {z} →
-      implicitFunExt (λ {f} → implicitFunExt (λ {g} → implicitFunExt (λ {xᴰ} →
-      implicitFunExt (λ {yᴰ} → implicitFunExt (λ {zᴰ} →
-      funExt (λ fᴰ → funExt λ gᴰ → reind≡reind' Dᴰ (fᴰ Dᴰ.⋆ᴰ gᴰ))))))))))
+    singSeq = ⋆ᴰ' , ⋆ᴰ'≡
 
   -- This definition is preferable to reindex when F-id' and F-seq'
   -- are given by Eq.refl.

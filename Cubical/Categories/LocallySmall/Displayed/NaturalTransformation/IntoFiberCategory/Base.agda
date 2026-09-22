@@ -49,9 +49,9 @@ module FunctorᴰDefs
   (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Eᴰ Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
   private
-    -- PERF: these `using` restrictions are load-bearing. A bare module
-    -- application copies (and serialises) every definition of the section,
-    -- which for these notation modules dominates the cost of the file.
+    -- The `using` lists are load-bearing: a bare module application copies
+    -- every definition of the section, which for these notation modules
+    -- dominates the cost of the file.
     module Cᴰ = SmallCategoryᴰ Cᴰ using (catᴰ)
     module Dᴰᴰ = SmallFibersᴰNotation Dᴰᴰ using (vᴰ[_][_])
 
@@ -64,7 +64,7 @@ module FunctorᴰDefs
   module FunctorᴰNotation
     {d : Dob} {dᴰ : Dobᴰ d} {F : Functor d}
     (Fᴰ : Functorᴰ F dᴰ) where
-    open LocallySmallFᴰ.FunctorᴰNotation Fᴰ public
+    open LocallySmallFᴰ.FunctorᴰNotation Fᴰ using (F-obᴰ; F-homᴰ) public
 
 module NatTransᴰDefs
   {C : SmallCategory ℓC ℓC'}
@@ -79,7 +79,7 @@ module NatTransᴰDefs
   (Dᴰᴰ : SmallFibersᴰCategoryᴰ Dᴰ Eᴰ Dᴰᴰ-ℓ Dobᴰᴰ DHom-ℓᴰᴰ)
   where
   private
-    -- PERF: see the note in FunctorᴰDefs above.
+    -- The `using` lists are load-bearing; see FunctorᴰDefs above.
     module C = SmallCategory C using (ob; Hom[_,_])
     module Cᴰ = SmallCategoryᴰ Cᴰ using (obᴰ; Hom[_][_,_])
     module D = CategoryNotation D using (Hom[_,_])

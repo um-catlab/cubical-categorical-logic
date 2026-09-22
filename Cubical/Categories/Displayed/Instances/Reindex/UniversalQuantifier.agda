@@ -230,5 +230,5 @@ module _
         G⟪Γ×A⟫ : BinProduct D (G ⟅ Γ ⟆ , G ⟅ A ⟆)
         G⟪Γ×A⟫ = isUniversal→UniversalElement _ (G⟪×⟫≅G×G Γ A)
 
-        module GΓ×GA = BinProductNotation (bpD (G ⟅ Γ ⟆ , G ⟅ A ⟆))
-        module G⟪Γ×A⟫ = BinProductNotation G⟪Γ×A⟫
+        module GΓ×GA = BinProductNotation (bpD (G ⟅ Γ ⟆ , G ⟅ A ⟆)) using (π₁; π₂)
+        module G⟪Γ×A⟫ = BinProductNotation G⟪Γ×A⟫ using (_,p_)

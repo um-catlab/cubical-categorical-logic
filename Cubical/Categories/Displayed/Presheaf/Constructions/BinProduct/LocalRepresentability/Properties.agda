@@ -319,8 +319,11 @@ module _
     open UniversalElementⱽ
     private
       module LRPᴰ = LocallyRepresentableⱽNotation Pᴰ _×ⱽ_*Pᴰ
+        using (funcLR; β₁LR-reind; β₂LR-reind)
       module LRFᴰPᴰ = LocallyRepresentableⱽNotation (reindPshᴰFunctor Fᴰ Pᴰ) _×ⱽ_*FᴰPᴰ
+        using (funcLR; β₁LR-reind; β₂LR)
       module F⟨LR⟩ {Γ}(Γᴰ : Cᴰ.ob[ Γ ]) p = LocallyRepresentableⱽAtNotation Pᴰ (Fᴰ .F-obᴰ Γᴰ) p (F⟨ Γᴰ ×ⱽ p *FᴰPᴰ⟩)
+        using (β₁LR; β₂LR; extensionalityLR)
 
     opaque
       unfolding hSetReasoning.reind

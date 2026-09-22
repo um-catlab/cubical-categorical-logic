@@ -137,14 +137,9 @@ module _ {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}where
     PshHom (π₁ R _ *Strict Rᴰ)
            (×PshIntroStrict (π₁ R _ ⋆PshHomStrict α) (π₂ R _) *Strict Qᴰ)
       ∎Iso
-    where
-    module Γ = PresheafNotation Γ
-    module α*Rᴰ = PresheafᴰNotation (PshHomStrict→Eq α Push Rᴰ)
-    module Rᴰ = PresheafᴰNotation Rᴰ
   PSHᴰ∀ P Qᴰ .snd .PshIsoEq.nat
     S3@(S , Sᴰ , γ) R3@(R , Rᴰ , β) α3@(α , αᴰ , Eq.refl) p _ Eq.refl =
       Eq.pathToEq $ makePshHomPath refl
-    where module Qᴰ = PresheafᴰNotation Qᴰ
 
   isCartesianClosedⱽPSHᴰ : isCartesianClosedⱽ PSHAssoc (PRESHEAFᴰ Cᴰ ℓPSHᴰ ℓPSHᴰ) PSHIdL
     (PSHBP C ℓPSHᴰ) PSHπ₁NatEq PSH×aF-seq

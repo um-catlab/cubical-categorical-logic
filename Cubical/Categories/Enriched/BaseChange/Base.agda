@@ -108,7 +108,7 @@ module _
         μae  = μ⟨ A , E ⟩
 
         -- *left parallelogram*: μ-naturality at (f, V.id),
-        -- with F(V.id) absorbed into U.id.
+        -- with Ff• id -> Ff • Fid -> F(f⊗id) (this part is elided by Cruttwell)
         nat-f : (F-hom f U.⊗ₕ U.id) U.⋆ μdc
                 ≡ μab-c U.⋆ F-hom (f V.⊗ₕ V.id)
         nat-f = cong (λ z → (F-hom f U.⊗ₕ z) U.⋆ μdc) (sym F-id)

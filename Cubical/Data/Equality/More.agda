@@ -15,6 +15,7 @@ open import Cubical.Foundations.Prelude
            ; isContr   to isContrPath
            ; isProp    to isPropPath
            ; isSet    to isSetPath
+           ; isGroupoid to isGroupoidPath
            )
 open import Cubical.Foundations.Equiv
   renaming ( fiber     to fiberPath
@@ -53,6 +54,10 @@ Eq A a b = a ≡ b
 isSet→isSetEq : isSetPath A → {a a' : A} → isPropPath (a ≡ a')
 isSet→isSetEq isSetA {a = a} {a' = a'} =
   substPath isPropPath PathPathEq (isSetA a a')
+
+isGrpd→isGpdEq : isGroupoidPath A → {a a' : A} → isSetPath (a ≡ a')
+isGrpd→isGpdEq isGpdA {a = a}{a' = a'} =
+  substPath isSetPath PathPathEq (isGpdA a a')
 
 isSet→isSetEqFiber : ∀ {f : A → B}{x}
   → isSetPath A

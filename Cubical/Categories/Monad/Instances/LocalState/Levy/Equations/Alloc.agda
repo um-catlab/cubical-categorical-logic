@@ -1,5 +1,8 @@
 open import Cubical.Data.Fin using (Fin ; flast)
 open import Cubical.Data.Nat using (suc)
+open import Cubical.Data.Nat.Properties using (snotz ; znots)
+open import Cubical.Data.Unit using (tt)
+import Cubical.Data.Empty as ⊥
 open import Cubical.Data.Nat.Order
   using (_≤_ ; ≤-refl ; ≤-trans ; ≤-sucℕ ; isProp≤)
 open import Cubical.Foundations.Prelude
@@ -12,6 +15,8 @@ module Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Alloc
   (V : hSet ℓ-zero) where
 
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.Base V
+open import Cubical.Categories.Monad.Instances.LocalState.Levy.Equations.GetSet V
+  using (set-get-sameᵗ)
 open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
 
 open Functor
@@ -65,47 +70,24 @@ alloc-set-freshᵗ {Γ = Γ} {A = A} b c k =
 
   alloc b (λ i → get i (λ c → k i c))
     = alloc b (λ i → k i b)
+
+  Derived from alloc-set-fresh (backwards), set-get-same, and
+  alloc-set-fresh (forwards):
+
+  alloc b (λ i → get i (λ c → k i c))
+    = alloc b (λ i → set i b (get i (λ c → k i c)))
+    = alloc b (λ i → set i b (k i b))
+    = alloc b (λ i → k i b)
 -}
 alloc-get-freshᵗ : ∀ {Γ A}
   (b : Γ ⊢ VVal)
   (k : (Γ CC.× Ref) CC.× VVal ⊢ T ⟅ A ⟆) →
   allocᵗ {A = A} b (getᵗ {A = A} varᵗ k) ≡ allocᵗ {A = A} b (k [ wkᵗ b ]ᵗ)
 alloc-get-freshᵗ {Γ = Γ} {A = A} b k =
-  makePshHomStrictPath (funExt λ n → funExt λ γ →
-    funExt₃ λ m n≤m σ →
-      let
-        q : n ≤ suc m
-        q = ≤-trans n≤m ≤-sucℕ
-        γ⁺ : (Γ ⟅ suc m ⟆) .fst
-        γ⁺ = Γ .F-hom q γ
-        fresh : Fin (suc m)
-        fresh = flast {k = m}
-        bₙ : V .fst
-        bₙ = b .N-ob n γ
-        τ : Fin (suc m) → V .fst
-        τ = extendStore {n = m} bₙ σ
-        value-path =
-          cong (λ r → lookupStore {n = suc m} r τ)
-            (funExt⁻ (Ref .F-id {x = suc m}) fresh)
-          ∙ extendStore-fresh {n = m} bₙ σ
-          ∙ b .N-hom (suc m) n q γ _ refl
-      in
-      allocᵗ-β {Γ = Γ} {A = A} b (getᵗ {A = A} varᵗ k)
-        n γ m n≤m σ
-      ∙ cong (extendResult A ≤-sucℕ)
-          (getᵗ-β {Γ = Γ CC.× Ref} {A = A} varᵗ k
-            (suc m) (γ⁺ , fresh) (suc m) ≤-refl τ)
-      ∙ cong (extendResult A ≤-sucℕ)
-          (cong (λ δ → k .N-ob (suc m)
-            (δ , lookupStore {n = suc m}
-              (weakenRef {n = suc m} {m = suc m} ≤-refl fresh) τ)
-            (suc m) ≤-refl τ)
-            (funExt⁻ ((Γ CC.× Ref) .F-id) (γ⁺ , fresh)))
-      ∙ cong (extendResult A ≤-sucℕ)
-          (cong (λ v → k .N-ob (suc m) ((γ⁺ , fresh) , v)
-            (suc m) ≤-refl τ) value-path)
-      ∙ sym (allocᵗ-β {Γ = Γ} {A = A} b (k [ wkᵗ b ]ᵗ)
-          n γ m n≤m σ))
+  sym (alloc-set-freshᵗ {Γ = Γ} {A = A} b b (getᵗ {A = A} varᵗ k))
+  ∙ cong (allocᵗ {Γ = Γ} {A = A} b)
+      (set-get-sameᵗ {Γ = Γ CC.× Ref} {A = A} varᵗ (wkᵗ b) k)
+  ∙ alloc-set-freshᵗ {Γ = Γ} {A = A} b b (k [ wkᵗ b ]ᵗ)
 
 {- Allocation commutes with writing an existing location `j`.
 
@@ -260,6 +242,10 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
    type records that world explicitly, so a computation returning world
    `suc m` cannot equal one returning world `m`, even when the fresh reference
    and its store cell are never subsequently observed.
+
+   Explicit counterexample: take any b : |V| and t = return tt. Running
+   at world 0 with the empty store gives (1, tt, [b]) on the left and
+   (0, tt, []) on the right (omitting extension proofs).
 -}
 
 {- Exchange of two fresh allocations would assert
@@ -267,9 +253,60 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
      alloc b (λ i → alloc c (λ j → k i j))
        = alloc c (λ j → alloc b (λ i → k i j)).
 
-   Both sides return `suc (suc m)`, but they assign the two concrete final
-   positions in opposite orders. `World` is the preorder of natural numbers
+   Both sides run k at `suc (suc m)`, but they assign the two freshly
+   allocated positions in opposite orders. `World` is the preorder of natural numbers
    and extensions; it has no permutation morphisms. Consequently there is
    no renaming which exchanges the two fresh `Fin` positions and the matching
    store cells, so the two computations are not equal in general.
+
+   Explicit counterexample: use the same initial value b for both cells
+   and k i j = return i. Running at world 0 with the empty store gives
+   (2, 0, [b, b]) on the left and (2, 1, [b, b]) on the right. The stores
+   agree, but the returned references differ. This only requires an
+   inhabitant of V, not two distinct stored values.
 -}
+
+-- The following are the concrete results of these runs, obtained from
+-- allocᵗ-β and pure return. Their unequal projections refute the equations.
+-- The parameter b is explicit: an allocation needs an inhabitant of V.
+module Counterexamples (b : V .fst) where
+  private
+    emptyStore : Fin 0 → V .fst
+    emptyStore _ = b
+
+    oneCell : Fin 1 → V .fst
+    oneCell = extendStore b emptyStore
+
+    twoCells : Fin 2 → V .fst
+    twoCells = extendStore b oneCell
+
+  -- alloc b (λ _ → return tt), run at world 0 with the empty store.
+  unused-allocation-result : ((F ⟅ UnitVal ⟆) ⟅ 0 ⟆) .fst
+  unused-allocation-result =
+    extendResult UnitVal ≤-sucℕ (1 , ≤-refl , tt , oneCell)
+
+  -- return tt, run at the same world and store.
+  no-allocation-result : ((F ⟅ UnitVal ⟆) ⟅ 0 ⟆) .fst
+  no-allocation-result = 0 , ≤-refl , tt , emptyStore
+
+  garbage-collection-fails :
+    unused-allocation-result ≡ no-allocation-result → ⊥.⊥
+  garbage-collection-fails eq = snotz (cong fst eq)
+
+  -- alloc b (λ i → alloc b (λ j → return i)).
+  first-order-result : ((F ⟅ Ref ⟆) ⟅ 0 ⟆) .fst
+  first-order-result =
+    extendResult Ref ≤-sucℕ (extendResult Ref ≤-sucℕ
+      (2 , ≤-refl , weakenRef ≤-sucℕ (flast {k = 0}) , twoCells))
+
+  -- alloc b (λ j → alloc b (λ i → return i)).
+  exchanged-order-result : ((F ⟅ Ref ⟆) ⟅ 0 ⟆) .fst
+  exchanged-order-result =
+    extendResult Ref ≤-sucℕ (extendResult Ref ≤-sucℕ
+      (2 , ≤-refl , flast {k = 1} , twoCells))
+
+  -- Both result worlds and stores agree, but the returned indices are 0 and 1.
+  allocation-exchange-fails :
+    first-order-result ≡ exchanged-order-result → ⊥.⊥
+  allocation-exchange-fails eq =
+    znots (cong (λ r → r .snd .snd .fst .fst) eq)

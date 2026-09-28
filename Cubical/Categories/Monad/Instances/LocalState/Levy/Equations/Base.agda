@@ -108,9 +108,9 @@ runBindT : (A B : CC.ob) {n : ℕ} →
   ((T ⟅ A ⟆) ⟅ n ⟆) .fst →
   ((A ⇒PshLargeStrict (T ⟅ B ⟆)) ⟅ n ⟆) .fst →
   ((T ⟅ B ⟆) ⟅ n ⟆) .fst
-runBindT A B {n} t k m n≤m σ with t m n≤m σ
-... | p , m≤p , a , τ =
-  extendResult B m≤p
+runBindT A B {n} t k m n≤m σ =
+  let p , m≤p , a , τ = t m n≤m σ
+  in extendResult B m≤p
     (k .N-ob p (≤-trans n≤m m≤p , a) p ≤-refl τ)
 
 ignoreUnit : (A : CC.ob) → T ⟅ A ⟆ ⊢ (UnitVal CC.⇒ T ⟅ A ⟆)
@@ -345,9 +345,9 @@ bindT-β : ∀ (A B : CC.ob) {n : ℕ}
   (m : ℕ) (n≤m : n ≤ m) (σ : Fin m → V .fst) →
   bindT {A = A} {B = B} .N-ob n (t , k) m n≤m σ ≡
   runBindT A B t k m n≤m σ
-bindT-β A B {n} t k m n≤m σ with t m n≤m σ
-... | p , m≤p , a , τ =
-  cong (extendResult B m≤p)
+bindT-β A B {n} t k m n≤m σ =
+  let p , m≤p , a , τ = t m n≤m σ
+  in cong (extendResult B m≤p)
     (cong (λ h → k .N-ob p (h , a) p ≤-refl τ) (isProp≤ _ _))
 
 -- Explicit contexts and result objects in these statements avoid expensive

@@ -3,14 +3,14 @@ Levy's local-state monad
 
 The composing adjunctions:
 
-       Free World                -×S              PSH→Fam (World ^op)
-     ←──────────────          ←────────          ←─────────────────────
-Comp        ⊥        WorldFam     ⊥     WorldFam           ⊥            Val
-     ──────────────→          ────────→          ─────────────────────→
-      PSH→Fam World              S⇒-               Cofree (World ^op)
+      PSH→Fam (World ^op)              -×S                Free World
+     ─────────────────────→          ────────→          ──────────────→
+Val            ⊥            WorldFam     ⊥     WorldFam        ⊥        Comp
+     ←─────────────────────          ←────────          ←──────────────
+       Cofree (World ^op)              S⇒-              PSH→Fam World
 
-The upper, leftward adjoints compose to F : Val → Comp; the lower,
-rightward adjoints compose to U : Comp → Val. Thus F ⊣ U and T = U ∘F F.
+The upper, rightward adjoints compose to F : Val → Comp; the lower,
+leftward adjoints compose to U : Comp → Val. Thus F ⊣ U and T = U ∘F F.
 Here World = (ℕ, ≤), Val = [World, Set], Comp = [Worldᵒᵖ, Set],
 and WorldFam is the category of ℕ-indexed families of sets.
 
@@ -205,9 +205,9 @@ LS = T , MonadFromAdjunction F U F⊣U
 
 strength : (P A : Val .ob) →
   Val [ P ×Psh (T .F-ob A) , T .F-ob (P ×Psh A) ]
-strength P A .N-ob n (x , t) m n≤m σ with t m n≤m σ
-... | p , m≤p , a , τ =
-  p , m≤p , (P .F-hom (≤-trans n≤m m≤p) x , a) , τ
+strength P A .N-ob n (x , t) m n≤m σ =
+  let p , m≤p , a , τ = t m n≤m σ
+  in p , m≤p , (P .F-hom (≤-trans n≤m m≤p) x , a) , τ
 strength P A .N-hom n' n f (x , t) z e =
   sym (funExt₃ (helper x t)) ∙ cong (strength P A .N-ob n') e
   where
@@ -217,9 +217,9 @@ strength P A .N-hom n' n f (x , t) z e =
       (P .F-hom f x , T .F-ob A .F-hom f t) m q σ ≡
     T .F-ob (P ×Psh A) .F-hom f
       (strength P A .N-ob n (x , t)) m q σ
-  helper x t m q σ with t m (≤-trans f q) σ
-  ... | p , m≤p , a , τ =
-    ΣPathP
+  helper x t m q σ =
+    let p , m≤p , a , τ = t m (≤-trans f q) σ
+    in ΣPathP
       (refl , ΣPathP
         (isProp≤ _ _ , ΣPathP
           (cong (λ z → z , a)

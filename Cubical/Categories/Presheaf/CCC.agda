@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.CCC where
 
 open import Cubical.Categories.Bifunctor

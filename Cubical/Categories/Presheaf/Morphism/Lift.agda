@@ -1,9 +1,6 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Presheaf.Morphism.Lift where
 
 open import Cubical.Foundations.Prelude
-
-
 
 open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Instances.Elements

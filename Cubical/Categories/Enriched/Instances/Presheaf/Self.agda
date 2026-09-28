@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Enriched.Instances.Presheaf.Self where
 
 open import Cubical.Foundations.Prelude

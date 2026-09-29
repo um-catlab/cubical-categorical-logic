@@ -207,6 +207,19 @@ module _ (F : Functor C D) where
   preservesBinProdCones c c' .N-ob Γ (f , f') = F ⟪ f ⟫ , F ⟪ f' ⟫
   preservesBinProdCones c c' .N-hom Δ Γ γ (f , f') = ΣPathP ((F .F-seq γ f) , (F .F-seq γ f'))
 
+  -- The canonical comparison map F(a×b) → Fa × Fb, defined as ⟨F(π₁), F(π₂)⟩.
+  -- Exists for any functor F, given source & target BinProduct instances.
+  -- F is a product-preserving functor iff this map is an iso.
+  module _ {a b}
+      (bp : BinProduct C (a , b))
+      (bpF : BinProduct D (F ⟅ a ⟆ , F ⟅ b ⟆))
+      where
+    private
+      module bp = BinProductNotation bp
+      module bpF = BinProductNotation bpF
+    binProdComparison : D [ F ⟅ bp.vert ⟆ , bpF.vert ]
+    binProdComparison = F ⟪ bp.π₁ ⟫ bpF.,p F ⟪ bp.π₂ ⟫
+
   preservesBinProdWithCones : ∀ c
     → ProfunctorHom (ProdWithAProf C c)
       (reindPshF F ∘F ProdWithAProf D (F ⟅ c ⟆) ∘F F)

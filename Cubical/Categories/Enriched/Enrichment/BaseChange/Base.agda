@@ -24,9 +24,7 @@ private
 open import Cubical.Categories.Enriched.BaseChange.Base Fl hiding (BaseChange)
 
 module _ {ℓC ℓC' : Level} {C : Category ℓC ℓC'}
-  -- (v d Weide 2026) calls this "F preserves underlying Categories"
-  -- Using Cruttwell's terminology one could say "F's unit monoidal action" is an isomorphism
-  (isIsoε̂  : ∀ (x : V.ob) → isIso (ε̂  {x}))
+  (isIsoε̂  : preservesUnderlyingCategories)
   (ℰC : Enrichment C V) where
   private
     module ℰC = Enrichment ℰC

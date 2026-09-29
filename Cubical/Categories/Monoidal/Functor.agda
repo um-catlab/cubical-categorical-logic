@@ -9,6 +9,7 @@ open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.NaturalTransformation.More
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism using () renaming (isIso to isTypeIso)
 open import Cubical.Categories.Monoidal.Base
 
 private
@@ -32,6 +33,28 @@ module _ (M : MonoidalCategory ℓC ℓC') (N : MonoidalCategory ℓD ℓD') whe
 
       μ⟨_,_⟩ : ∀ x y → N.C [ (F ⟅ x ⟆) N.⊗ (F ⟅ y ⟆) , F ⟅ x M.⊗ y ⟆ ]
       μ⟨ x , y ⟩ = μ ⟦ x , y ⟧
+
+      {-
+       Cruttwell (2008):
+       "Normed Spaces and the Change of Base for Enriched Categories"
+       §4.1: applying the lax monoidal F "monoidally".
+       F: (M,⊗,I) → (N,•,J)
+       For f : I → A,    ε̂ f  := ε ⋆ F(f)      : J → F(A)
+       For h : A⊗B → C,  μ̂ h  := μ⟨A,B⟩ ⋆ F(h) : F(A)•F(B) → F(C)
+      -}
+      ε̂ : ∀ {A : M.ob} → M.C [ M.unit , A ] → N.C [ N.unit , F .F-ob A ]
+      ε̂ f = ε N.⋆ F .F-hom f
+
+      μ̂ : ∀ {A B C : M.ob}
+        → M.C [ A M.⊗ B , C ]
+        → N.C [ F .F-ob A N.⊗ F .F-ob B , F .F-ob C ]
+      μ̂ {A}{B} h = μ⟨ A , B ⟩ N.⋆ F .F-hom h
+
+      -- v.d. Weide (2026):
+      -- "Univalent Enriched Categories and the Enriched Rezk Completion"
+      -- Definition 3.6
+      preservesUnderlyingCategories : Type (ℓ-max (ℓ-max ℓC ℓC') ℓD')
+      preservesUnderlyingCategories = ∀ (x : M.ob) → isTypeIso (ε̂  {x})
 
       field
         αμ-law : ∀ (x y z : M.C .ob) →

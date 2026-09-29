@@ -28,21 +28,6 @@ open Reasoning U.C
 open MonRes U
 
 {-
- Cruttwell §4.1: applying the lax monoidal F "monoidally".
- F: (V,⊗,I) → (U,•,J)
- For f : I → A,    ε̂ f  := ε ⋆ F(f)      : J → F(A)
- For h : A⊗B → C,  μ̂ h  := μ⟨A,B⟩ ⋆ F(h) : F(A)•F(B) → F(C)
--}
-ε̂ : ∀ {A : V.ob} → V.C [ V.unit , A ] → U.C [ U.unit , F-ob A ]
-ε̂ f = ε U.⋆ F-hom f
-
-μ̂ : ∀ {A B C : V.ob}
-  → V.C [ A V.⊗ B , C ]
-  → U.C [ F-ob A U.⊗ F-ob B , F-ob C ]
-μ̂ {A}{B} h = μ⟨ A , B ⟩ U.⋆ F-hom h
-
-
-{-
  Cruttwell Lemma 4.1.1, left unitality
  Given a commuting triangle in V witnessing that some composite
  realises the left unitor of A, applying F monoidally yields the

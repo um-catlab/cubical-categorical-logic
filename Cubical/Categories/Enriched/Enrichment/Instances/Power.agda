@@ -1,0 +1,161 @@
+{-# OPTIONS --lossy-unification #-}
+-- For any category C, the power category `Cᴬ = C^A = PowerCategory A C`
+-- is naturally enriched over `Setᴬ = Set^A = PowerCategory A (SET _)` with
+-- its cartesian monoidal structure.  Hom-object at (F, G) is the pointwise
+-- family of hom-sets: `VE[F, G] a = Hom_C (F a, G a)`.
+module Cubical.Categories.Enriched.Enrichment.Instances.Power where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function
+open import Cubical.Data.Sigma
+open import Cubical.Data.Unit
+
+open import Cubical.Categories.Category
+open import Cubical.Categories.Functor.Base
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Power
+open import Cubical.Categories.Instances.Product
+open import Cubical.Categories.Monoidal.Base hiding (MonoidalStr)
+open import Cubical.Categories.Monoidal.Cartesian using (cartesianMonoidalStr)
+open import Cubical.Categories.Limits.Terminal
+  using (Terminal; isTerminal)
+open import Cubical.Categories.Limits.BinProduct
+  using (BinProducts; BinProduct; isBinProduct)
+open import Cubical.Categories.Enriched.Enrichment.Base
+  renaming (Enrichment to VE)
+open import Cubical.Categories.Enriched.Enrichment.BaseChange.Base
+
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Monoidal.Functor
+open import Cubical.Categories.Monoidal.Instances.Presheaf.StrictHom
+open import Cubical.Categories.Presheaf.Base
+open import Cubical.Categories.Presheaf.StrictHom.Base
+open import Cubical.Categories.Presheaf.StrictHom.CartesianClosed
+open import Cubical.Categories.Presheaf.Constructions.Unit
+open import Cubical.Categories.Presheaf.Constructions.Lift
+open import Cubical.Categories.Presheaf.Constructions.BinProduct using (_×Psh_)
+open import Cubical.Categories.Presheaf.Family.Base
+
+private variable ℓ ℓ' ℓA ℓC ℓC' : Level
+
+module _ (A : Type ℓA) where
+
+  -- Setᴬ as a monoidal category (cartesian).
+  Setᴬ : (ℓ : Level) → Category (ℓ-max ℓA (ℓ-suc ℓ)) (ℓ-max ℓA ℓ)
+  Setᴬ ℓ = PowerCategory A (SET ℓ)
+
+  Setᴬ-term : (ℓ : Level) → Terminal (Setᴬ ℓ)
+  Setᴬ-term ℓ .fst = λ _ → Unit* , isSetUnit*
+  Setᴬ-term ℓ .snd Y = (λ _ _ → tt*) , (λ ! → funExt λ _ → funExt λ _ → refl)
+
+  Setᴬ-bp : (ℓ : Level) → BinProducts (Setᴬ ℓ)
+  Setᴬ-bp ℓ F G .BinProduct.binProdOb a =
+    F a .fst × G a .fst , isSet× (F a .snd) (G a .snd)
+  Setᴬ-bp ℓ F G .BinProduct.binProdPr₁ a x = x .fst
+  Setᴬ-bp ℓ F G .BinProduct.binProdPr₂ a x = x .snd
+  Setᴬ-bp ℓ F G .BinProduct.univProp {z = Z} f g =
+    ((λ a z → f a z , g a z) , refl , refl) ,
+    λ (h , h⋆π₁≡f , h⋆π₂≡g) →
+      Σ≡Prop (λ _ → isProp× (isSetΠ (λ a → isSet→ (F a .snd)) _ _)
+                            (isSetΠ (λ a → isSet→ (G a .snd)) _ _))
+        (funExt λ a → funExt λ z i →
+          h⋆π₁≡f (~ i) a z , h⋆π₂≡g (~ i) a z)
+
+  Setᴬ-Mon : (ℓ : Level) → MonoidalCategory (ℓ-max ℓA (ℓ-suc ℓ)) (ℓ-max ℓA ℓ)
+  Setᴬ-Mon ℓ .MonoidalCategory.C = Setᴬ ℓ
+  Setᴬ-Mon ℓ .MonoidalCategory.monstr =
+    cartesianMonoidalStr (Setᴬ ℓ) (Setᴬ-bp ℓ) (Setᴬ-term ℓ)
+
+  -- The Set^A-enrichment of C^A
+  --   VE[F, G] a = Hom_C (F a, G a)
+  --   id, seq inherited pointwise from C
+  --   ⇄-agree : Hom_{Cᴬ}(F,G) = ∀ a, Hom_C(F a, G a) ↔ ∀ a, Unit → Hom_C(F a, G a)
+
+  module _ (C : Category ℓC ℓC') (ℓ⁺ : Level) where
+    private
+      module C = Category C
+      -- Level of hom-sets of Set^A into which we enrich.  The `ℓ⁺` is an
+      -- extra Lift level so consumers can adjust the ambient Set^A level.
+      ℓSetᴬ = ℓ-max ℓC' ℓ⁺
+
+    Cᴬ-Enrichment : VE (PowerCategory A C) (Setᴬ-Mon ℓSetᴬ)
+    Cᴬ-Enrichment .VE.VE[_,_] F G a =
+      Lift ℓ⁺ C.Hom[ F a , G a ] , isOfHLevelLift 2 C.isSetHom
+    Cᴬ-Enrichment .VE.id {F} a _ = lift C.id
+    Cᴬ-Enrichment .VE.seq F G H a fg = lift (fg .fst .lower C.⋆ fg .snd .lower)
+    Cᴬ-Enrichment .VE.⇄-agree {F}{G} .Iso.fun h a _ = lift (h a)
+    Cᴬ-Enrichment .VE.⇄-agree .Iso.inv k a = k a _ .lower
+    Cᴬ-Enrichment .VE.⇄-agree .Iso.sec k = funExt λ _ → funExt λ _ → refl
+    Cᴬ-Enrichment .VE.⇄-agree .Iso.ret _ = refl
+    Cᴬ-Enrichment .VE.⋆IdL F G =
+      funExt λ a → funExt λ _ → cong lift (sym (C.⋆IdL _))
+    Cᴬ-Enrichment .VE.⋆IdR F G =
+      funExt λ a → funExt λ _ → cong lift (sym (C.⋆IdR _))
+    Cᴬ-Enrichment .VE.⋆Assoc F G H K =
+      funExt λ a → funExt λ _ → cong lift (C.⋆Assoc _ _ _)
+
+
+-- When A is (the object-type of) a Category, we can further change base
+-- along `Cofree : Fam A → PSH A` to obtain the presheaf-enrichment of
+-- Cᴬ, whose hom-object at (F, G) is the presheaf
+--     `c ↦ ∀ y, A[y, c] → C.Hom(F y, G y)`.
+
+open Category
+open Functor
+open PshHomStrict
+open LaxMonoidalFunctor
+open LaxMonoidalStr
+open NatTrans
+
+module _ (A : Category ℓ ℓ') (C : Category ℓC ℓC') where
+  private
+    module A = Category A
+    module C = Category C
+    ell = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓC ℓC'))
+
+  -- PshMon.𝓟Mon on A at level `ell` (the level on which Cofree lands).
+  private
+    Psh-Mon = PshMon.𝓟Mon A ell
+
+  -- `Cofree : Fam A → PSH A`, packaged as a lax monoidal functor from
+  -- the cartesian-monoidal Fam-Mon to the cartesian-monoidal Psh-Mon.
+  -- TODO: this follows from U ⊣ Cofree being a monoidal adjunction
+  Cofree-lax : LaxMonoidalFunctor (Setᴬ-Mon A.ob ell) Psh-Mon
+  Cofree-lax .F = Cofree {ℓ = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓC ℓC'))} A
+  Cofree-lax .laxmonstr .ε .N-ob x _ y h = tt*
+  Cofree-lax .laxmonstr .ε .N-hom _ _ _ _ _ _ =
+    funExt λ _ → funExt λ _ → refl
+  Cofree-lax .laxmonstr .μ .N-ob (P , Q) .N-ob x fpfq y h =
+    fpfq .fst y h , fpfq .snd y h
+  Cofree-lax .laxmonstr .μ .N-ob (P , Q) .N-hom _ _ _ _ _ e =
+    funExt λ y → funExt λ h i → e i .fst y h , e i .snd y h
+  Cofree-lax .laxmonstr .μ .N-hom (φ , ψ) =
+    makePshHomStrictPath refl
+  Cofree-lax .laxmonstr .αμ-law _ _ _ = makePshHomStrictPath refl
+  Cofree-lax .laxmonstr .ηε-law _ = makePshHomStrictPath refl
+  Cofree-lax .laxmonstr .ρε-law _ = makePshHomStrictPath refl
+
+  -- Cofree preserves the underlying category: `ε̂ : Fam(unit, X) → Psh(𝟙, Cofree X)`
+  -- This _also_ follows from U ⊣ Cofree:
+  -- Set^A(unit, X) ≅ Set^A(U 𝟙, X) ≅ PSh(𝟙, Cofree X)
+  Cofree-pres : LaxMonoidalFunctor.preservesUnderlyingCategories Cofree-lax
+  Cofree-pres X .fst β y _ = β .PshHomStrict.N-ob y _ y (A.id {y})
+  Cofree-pres X .snd .fst β =
+    makePshHomStrictPath (funExt λ c → funExt λ _ →
+      funExt λ y → funExt λ h →
+        -- Chain: β y y A.id ≡[β-nat at (y, A.id)] β c y (A.id ⋆ h) ≡[⋆IdL] β c y h.
+          sym (funExt⁻ (funExt⁻ (β .PshHomStrict.N-hom y c h _ _ refl) y)
+                       (A.id {y}))
+        ∙ cong (β .PshHomStrict.N-ob c _ y) (A.⋆IdL h))
+  Cofree-pres X .snd .snd α =
+    funExt λ y → funExt λ _ → refl
+
+  -- The presheaf-enrichment of Cᴬ via BaseChange along Cofree.
+  -- We use the Lift-parametric `Cᴬ-Enrichment` at level `ℓ-max ℓ ℓ'` so
+  -- that its hom-set level matches Cofree's `ell`.
+  Cᴬ-Psh-Enrichment : VE (PowerCategory A.ob C) Psh-Mon
+  Cᴬ-Psh-Enrichment =
+    BaseChange Cofree-lax Cofree-pres
+      (Cᴬ-Enrichment A.ob C (ℓ-max ℓ (ℓ-max ℓ' ℓC)))

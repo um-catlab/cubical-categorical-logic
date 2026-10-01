@@ -37,6 +37,8 @@ open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.Constructions.Lift
 open import Cubical.Categories.Presheaf.Constructions.BinProduct using (_×Psh_)
 open import Cubical.Categories.Presheaf.Family.Base
+open import Cubical.Categories.Adjoint
+  using (module UnitCounit; module NaturalBijection; adj→adj')
 
 private variable ℓ ℓ' ℓA ℓC ℓC' : Level
 
@@ -46,10 +48,15 @@ module _ (A : Type ℓA) where
   Setᴬ : (ℓ : Level) → Category (ℓ-max ℓA (ℓ-suc ℓ)) (ℓ-max ℓA ℓ)
   Setᴬ ℓ = PowerCategory A (SET ℓ)
 
+  -- `Setᴬ-term` uses `(Lift Unit, isOfHLevelLift 2 isSetUnit)` so that it
+  -- matches `PSH→Fam 𝟙` definitionally (`PSH→Fam 𝟙 .F-ob = LiftF ∘ UnitPsh`
+  -- unfolds to the same hSet).  This lets us read off `Cofree-pres` from
+  -- the hom-adjunction `adj→adj' CofreeFamAdj` without transport.
   Setᴬ-term : (ℓ : Level) → Terminal (Setᴬ ℓ)
-  Setᴬ-term ℓ .fst = λ _ → Unit* , isSetUnit*
-  Setᴬ-term ℓ .snd Y = (λ _ _ → tt*) , (λ ! → funExt λ _ → funExt λ _ → refl)
+  Setᴬ-term ℓ .fst = λ _ → Lift ℓ Unit , isOfHLevelLift 2 isSetUnit
+  Setᴬ-term ℓ .snd Y = (λ _ _ → lift tt) , (λ ! → funExt λ _ → funExt λ _ → refl)
 
+  -- TODO this should follow from abstract nonsense
   Setᴬ-bp : (ℓ : Level) → BinProducts (Setᴬ ℓ)
   Setᴬ-bp ℓ F G .BinProduct.binProdOb a =
     F a .fst × G a .fst , isSet× (F a .snd) (G a .snd)
@@ -121,12 +128,15 @@ module _ (A : Category ℓ ℓ') (C : Category ℓC ℓC') where
 
   -- `Cofree : Fam A → PSH A`, packaged as a lax monoidal functor from
   -- the cartesian-monoidal Fam-Mon to the cartesian-monoidal Psh-Mon.
-  -- TODO: this follows from U ⊣ Cofree being a monoidal adjunction
+  -- TODO: this follows from U ⊣ Cofree being a monoidal adjunction.
+  private
+    open UnitCounit using (_⊣_)
+    Adj : PSH→Fam A ⊣ Cofree A
+    Adj = CofreeFamAdj {ℓ = ell} A
+
   Cofree-lax : LaxMonoidalFunctor (Setᴬ-Mon A.ob ell) Psh-Mon
-  Cofree-lax .F = Cofree {ℓ = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓC ℓC'))} A
-  Cofree-lax .laxmonstr .ε .N-ob x _ y h = tt*
-  Cofree-lax .laxmonstr .ε .N-hom _ _ _ _ _ _ =
-    funExt λ _ → funExt λ _ → refl
+  Cofree-lax .F = Cofree {ℓ = ell} A
+  Cofree-lax .laxmonstr .ε = _⊣_.η Adj .N-ob (PshMon.𝟙 A ell)
   Cofree-lax .laxmonstr .μ .N-ob (P , Q) .N-ob x fpfq y h =
     fpfq .fst y h , fpfq .snd y h
   Cofree-lax .laxmonstr .μ .N-ob (P , Q) .N-hom _ _ _ _ _ e =
@@ -137,20 +147,18 @@ module _ (A : Category ℓ ℓ') (C : Category ℓC ℓC') where
   Cofree-lax .laxmonstr .ηε-law _ = makePshHomStrictPath refl
   Cofree-lax .laxmonstr .ρε-law _ = makePshHomStrictPath refl
 
-  -- Cofree preserves the underlying category: `ε̂ : Fam(unit, X) → Psh(𝟙, Cofree X)`
-  -- This _also_ follows from U ⊣ Cofree:
-  -- Set^A(unit, X) ≅ Set^A(U 𝟙, X) ≅ PSh(𝟙, Cofree X)
+  -- Cofree preserves the underlying category.  Because:
+  --   (a) `Fam-Mon.unit = PSH→Fam 𝟙` definitionally (by our `Setᴬ-term` choice);
+  --   (b) `Cofree-lax.ε = Adj.η .N-ob 𝟙` definitionally (by construction);
+  -- the map `ε̂ = ε ⋆ Cofree⟪_⟫` is *definitionally* the forward hom-adjunction
+  -- `adj→adj' CofreeFamAdj .adjIso .fun` at `(c = 𝟙, d = X)`.  So the
+  -- preservation witness is just that `adjIso`'s inverse data.
+  private
+    open NaturalBijection using (module _⊣_)
+    Adj² = adj→adj' (PSH→Fam A) (Cofree {ℓ = ell} A) Adj
+
   Cofree-pres : LaxMonoidalFunctor.preservesUnderlyingCategories Cofree-lax
-  Cofree-pres X .fst β y _ = β .PshHomStrict.N-ob y _ y (A.id {y})
-  Cofree-pres X .snd .fst β =
-    makePshHomStrictPath (funExt λ c → funExt λ _ →
-      funExt λ y → funExt λ h →
-        -- Chain: β y y A.id ≡[β-nat at (y, A.id)] β c y (A.id ⋆ h) ≡[⋆IdL] β c y h.
-          sym (funExt⁻ (funExt⁻ (β .PshHomStrict.N-hom y c h _ _ refl) y)
-                       (A.id {y}))
-        ∙ cong (β .PshHomStrict.N-ob c _ y) (A.⋆IdL h))
-  Cofree-pres X .snd .snd α =
-    funExt λ y → funExt λ _ → refl
+  Cofree-pres X = IsoToIsIso (_⊣_.adjIso Adj² {c = PshMon.𝟙 A ell} {d = X})
 
   -- The presheaf-enrichment of Cᴬ via BaseChange along Cofree.
   -- We use the Lift-parametric `Cᴬ-Enrichment` at level `ℓ-max ℓ ℓ'` so

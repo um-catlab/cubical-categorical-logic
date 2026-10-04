@@ -1,6 +1,7 @@
 open import Cubical.Foundations.Prelude
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Enriched
 
 -- Enrichment, following "Univalent Enriched Categories and the Enriched Rezk Completion" (v.d. Weide 2026)
 -- Notation for homset bijection taken from "First steps …" (Birkedal et al 2012)
@@ -27,6 +28,11 @@ record Enrichment : Type (ℓ-max (ℓ-max ℓV ℓV') (ℓ-max ℓC ℓC')) whe
       ⋆Assoc : ∀ x y z w →
           α⟨ _ , _ , _ ⟩  ⋆V  ((seq x y z) ⊗ₕ idV)  ⋆V  (seq x z w)
                           ≡  (idV ⊗ₕ (seq y z w))  ⋆V  (seq x y w)
+      ⌜id⌝ : ∀ {x} →
+          Iso.fun (⇄-agree {x} {x}) (Category.id C) ≡ id {x}
+      ⌜⋆⌝ : ∀ {x y z} (f : Hom[ x , y ]) (g : Hom[ y , z ]) →
+          Iso.fun (⇄-agree {x} {z}) ((C Category.⋆ f) g)
+          ≡ η⁻¹⟨ _ ⟩ ⋆V (Iso.fun ⇄-agree f ⊗ₕ Iso.fun ⇄-agree g) ⋆V seq x y z
 
    module _ {x y : ob} where
      open Iso (⇄-agree {x = x} {y = y})
@@ -39,3 +45,16 @@ record Enrichment : Type (ℓ-max (ℓ-max ℓV ℓV') (ℓ-max ℓC ℓC')) whe
      ⇄-agree→ = ret
      ⇄-agree← : ∀ (f : V[ unit , VE[ x , y ] ]) → ⌜ ⌞ f ⌟ ⌝ ≡ f
      ⇄-agree← = sec
+
+-- Forget the plain-category structure (and `⇄-agree`) to get the
+-- underlying V-enriched category.
+toEnrichedCategory : Enrichment → EnrichedCategory V ℓC
+toEnrichedCategory E = record
+  { ob       = Category.ob C
+  ; Hom[_,_] = E.VE[_,_]
+  ; id       = E.id
+  ; seq      = E.seq
+  ; ⋆IdL     = E.⋆IdL
+  ; ⋆IdR     = E.⋆IdR
+  ; ⋆Assoc   = E.⋆Assoc
+  } where module E = Enrichment E

@@ -50,7 +50,10 @@ module _
         sym (U.⋆Assoc _ _ _)
       ∙ lem-413 (ℰC.seq x y z) (ℰC.seq y z w) (ℰC.seq x z w) (ℰC.seq x y w)
         (V.⋆Assoc _ _ _ ∙ ℰC.⋆Assoc x y z w)
-
+    BaseChange .⌜id⌝ = cong ε̂ ℰC.⌜id⌝
+    BaseChange .⌜⋆⌝ {X} {Y} {Z} f g =
+        cong ε̂ (ℰC.⌜⋆⌝ f g)
+      ∙ lem-⌜⋆⌝ ℰC.⌜ f ⌝ ℰC.⌜ g ⌝ (ℰC.seq X Y Z)
 
 -- Prop 4.3.1 (Cruttwell 2008): a monoidal natural transformation
 -- α : N ⇒ M induces, for each V-enrichment X on C, a W-functor

@@ -134,6 +134,109 @@ lem-413 {A}{B}{C}{D}{E}{F'} f g h k eq =
     (U.id U.⊗ₕ μ̂ g) U.⋆ (μae U.⋆ F-hom k)
       ∎
 
+-- Compatibility of ε̂ with the "pairing-then-H" shape used by the
+-- underlying ordinary category.  The structure mirrors UniMath's
+-- `change_of_base_enrichment_laws` for `enriched_from_arr`
+-- (`UniMath/CategoryTheory/EnrichedCats/Examples/ChangeOfBase.v`):
+-- use `η⁻ε-law` (= `mon_functor_linvunitor`), `sqLL` of U.η
+-- (= `tensor_linvunitor`), μ-naturality (= `tensor_mon_functor_tensor`),
+-- and ⊗-F-seq.
+lem-⌜⋆⌝ : ∀ {X Y Z : V.ob}
+          (A : V.C [ V.unit , X ]) (B : V.C [ V.unit , Y ])
+          (H : V.C [ X V.⊗ Y , Z ])
+        → ε̂ (V.η⁻¹⟨ V.unit ⟩ V.⋆ (A V.⊗ₕ B) V.⋆ H)
+          ≡ U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε̂ A U.⊗ₕ ε̂ B) U.⋆ μ̂ H
+lem-⌜⋆⌝ {X}{Y}{Z} A B H =
+    -- Target reshape: convert RHS to canonical form via μ-nat + ⊗-F-seq, then
+    -- apply F to the equation `(ε ⋆ F(η⁻¹) ⋆ F(A⊗B)) ⋆ F H ≡ ...`.
+    front ∙ cong (U._⋆ F-hom H) rearrange ∙ U.⋆Assoc _ _ _
+    ∙ cong (U.η⁻¹⟨ U.unit ⟩ U.⋆_) (U.⋆Assoc _ _ _)
+  where
+    -- `ε̂ (η⁻¹ ⋆ (A ⊗ B) ⋆ H) = (ε ⋆ F η⁻¹ ⋆ F (A ⊗ B)) ⋆ F H`.
+    front :
+        ε U.⋆ F-hom (V.η⁻¹⟨ V.unit ⟩ V.⋆ (A V.⊗ₕ B) V.⋆ H)
+      ≡ (ε U.⋆ F-hom V.η⁻¹⟨ V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B)) U.⋆ F-hom H
+    front =
+        cong (ε U.⋆_) (F-seq _ _)
+      ∙ cong (λ q → ε U.⋆ (F-hom V.η⁻¹⟨ V.unit ⟩ U.⋆ q)) (F-seq _ _)
+      ∙ cong (ε U.⋆_) (sym (U.⋆Assoc _ _ _))
+      ∙ sym (U.⋆Assoc _ _ _)
+
+    -- `ε ⋆ F η⁻¹ ⋆ F (A ⊗ B) ≡ η⁻¹⟨U⟩ ⋆ (ε̂ A ⊗ ε̂ B) ⋆ μ⟨X, Y⟩`.
+    rearrange :
+        ε U.⋆ F-hom V.η⁻¹⟨ V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B)
+      ≡ U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε̂ A U.⊗ₕ ε̂ B) U.⋆ μ⟨ X , Y ⟩
+    rearrange =
+        cong (λ q → ε U.⋆ q U.⋆ F-hom (A V.⊗ₕ B)) (sym (η⁻ε-law V.unit))
+      ∙ step-sqLL
+      ∙ step-merge
+      ∙ step-μ-nat
+      ∙ step-collect
+      where
+        sqLL-ε : ε U.⋆ U.η⁻¹⟨ F-ob V.unit ⟩
+               ≡ U.η⁻¹⟨ U.unit ⟩ U.⋆ (U.id U.⊗ₕ ε)
+        sqLL-ε = NatIso.sqLL U.η {f = ε}
+
+        step-sqLL :
+            ε U.⋆ ((U.η⁻¹⟨ F-ob V.unit ⟩ U.⋆ (ε U.⊗ₕ U.id)) U.⋆ μ⟨ V.unit , V.unit ⟩)
+              U.⋆ F-hom (A V.⊗ₕ B)
+          ≡ U.η⁻¹⟨ U.unit ⟩ U.⋆ (U.id U.⊗ₕ ε) U.⋆ ((ε U.⊗ₕ U.id)
+              U.⋆ μ⟨ V.unit , V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B))
+        step-sqLL =
+            ε U.⋆ ((U.η⁻¹⟨ F-ob V.unit ⟩ U.⋆ (ε U.⊗ₕ U.id)) U.⋆ μ⟨ V.unit , V.unit ⟩)
+              U.⋆ F-hom (A V.⊗ₕ B)
+          ≡⟨ cong (λ q → ε U.⋆ q U.⋆ F-hom (A V.⊗ₕ B)) (U.⋆Assoc _ _ _) ⟩
+            ε U.⋆ (U.η⁻¹⟨ F-ob V.unit ⟩ U.⋆ ((ε U.⊗ₕ U.id) U.⋆ μ⟨ V.unit , V.unit ⟩))
+              U.⋆ F-hom (A V.⊗ₕ B)
+          ≡⟨ cong (ε U.⋆_) (U.⋆Assoc _ _ _) ⟩
+            ε U.⋆ (U.η⁻¹⟨ F-ob V.unit ⟩
+              U.⋆ ((ε U.⊗ₕ U.id) U.⋆ μ⟨ V.unit , V.unit ⟩) U.⋆ F-hom (A V.⊗ₕ B))
+          ≡⟨ sym (U.⋆Assoc _ _ _) ⟩
+            (ε U.⋆ U.η⁻¹⟨ F-ob V.unit ⟩)
+              U.⋆ ((ε U.⊗ₕ U.id) U.⋆ μ⟨ V.unit , V.unit ⟩) U.⋆ F-hom (A V.⊗ₕ B)
+          ≡⟨ cong (U._⋆ (((ε U.⊗ₕ U.id) U.⋆ μ⟨ V.unit , V.unit ⟩)
+                           U.⋆ F-hom (A V.⊗ₕ B)))
+                  sqLL-ε ⟩
+            (U.η⁻¹⟨ U.unit ⟩ U.⋆ (U.id U.⊗ₕ ε))
+              U.⋆ ((ε U.⊗ₕ U.id) U.⋆ μ⟨ V.unit , V.unit ⟩) U.⋆ F-hom (A V.⊗ₕ B)
+          ≡⟨ U.⋆Assoc _ _ _ ⟩
+            U.η⁻¹⟨ U.unit ⟩ U.⋆ ((U.id U.⊗ₕ ε)
+              U.⋆ ((ε U.⊗ₕ U.id) U.⋆ μ⟨ V.unit , V.unit ⟩) U.⋆ F-hom (A V.⊗ₕ B))
+          ≡⟨ cong (λ q → U.η⁻¹⟨ U.unit ⟩ U.⋆ ((U.id U.⊗ₕ ε) U.⋆ q))
+                  (U.⋆Assoc _ _ _) ⟩
+            U.η⁻¹⟨ U.unit ⟩ U.⋆ (U.id U.⊗ₕ ε) U.⋆ ((ε U.⊗ₕ U.id)
+              U.⋆ μ⟨ V.unit , V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B)) ∎
+
+        step-merge :
+            U.η⁻¹⟨ U.unit ⟩ U.⋆ (U.id U.⊗ₕ ε) U.⋆ ((ε U.⊗ₕ U.id)
+              U.⋆ μ⟨ V.unit , V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B))
+          ≡ U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε U.⊗ₕ ε) U.⋆
+              (μ⟨ V.unit , V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B))
+        step-merge =
+            cong (U.η⁻¹⟨ U.unit ⟩ U.⋆_)
+              (  sym (U.⋆Assoc _ _ _)
+              ∙ cong (U._⋆ (μ⟨ V.unit , V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B)))
+                  (  sym (U.─⊗─ .Functor.F-seq (U.id , ε) (ε , U.id))
+                  ∙ cong₂ U._⊗ₕ_ (U.⋆IdL _) (U.⋆IdR _)))
+
+        step-μ-nat :
+            U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε U.⊗ₕ ε) U.⋆
+              (μ⟨ V.unit , V.unit ⟩ U.⋆ F-hom (A V.⊗ₕ B))
+          ≡ U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε U.⊗ₕ ε) U.⋆
+              ((F-hom A U.⊗ₕ F-hom B) U.⋆ μ⟨ X , Y ⟩)
+        step-μ-nat =
+          cong (λ q → U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε U.⊗ₕ ε) U.⋆ q) (sym (μ .N-hom (A , B)))
+
+        step-collect :
+            U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε U.⊗ₕ ε) U.⋆
+              ((F-hom A U.⊗ₕ F-hom B) U.⋆ μ⟨ X , Y ⟩)
+          ≡ U.η⁻¹⟨ U.unit ⟩ U.⋆ (ε̂ A U.⊗ₕ ε̂ B) U.⋆ μ⟨ X , Y ⟩
+        step-collect =
+            cong (U.η⁻¹⟨ U.unit ⟩ U.⋆_)
+              (  sym (U.⋆Assoc _ _ _)
+              ∙ cong (U._⋆ μ⟨ X , Y ⟩)
+                  (sym (U.─⊗─ .Functor.F-seq (ε , ε) (F-hom A , F-hom B))))
+
 module _ {ℓC : Level} (C : EnrichedCategory V ℓC) where
   private module C = EnrichedCategory C
   open EnrichedCategory

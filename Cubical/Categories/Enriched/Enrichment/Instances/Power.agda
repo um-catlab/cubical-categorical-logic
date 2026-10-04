@@ -8,7 +8,6 @@ module Cubical.Categories.Enriched.Enrichment.Instances.Power where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Function
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -16,11 +15,10 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Power
-open import Cubical.Categories.Instances.Product
 open import Cubical.Categories.Monoidal.Base hiding (MonoidalStr)
 open import Cubical.Categories.Monoidal.Cartesian using (cartesianMonoidalStr)
 open import Cubical.Categories.Limits.Terminal
-  using (Terminal; isTerminal)
+  using (Terminal)
 open import Cubical.Categories.Limits.BinProduct
   using (BinProducts; BinProduct; isBinProduct)
 open import Cubical.Categories.Enriched.Enrichment.Base
@@ -30,12 +28,7 @@ open import Cubical.Categories.Enriched.Enrichment.BaseChange.Base
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Monoidal.Functor
 open import Cubical.Categories.Monoidal.Instances.Presheaf.StrictHom
-open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.StrictHom.Base
-open import Cubical.Categories.Presheaf.StrictHom.CartesianClosed
-open import Cubical.Categories.Presheaf.Constructions.Unit
-open import Cubical.Categories.Presheaf.Constructions.Lift
-open import Cubical.Categories.Presheaf.Constructions.BinProduct using (_×Psh_)
 open import Cubical.Categories.Presheaf.Family.Base
 open import Cubical.Categories.Adjoint
   using (module UnitCounit; module NaturalBijection; adj→adj')
@@ -57,6 +50,7 @@ module _ (A : Type ℓA) where
   Setᴬ-term ℓ .snd Y = (λ _ _ → lift tt) , (λ ! → funExt λ _ → funExt λ _ → refl)
 
   -- TODO this should follow from abstract nonsense
+  -- In _particular_ it should follow from Sets being cartesianmonoidal.
   Setᴬ-bp : (ℓ : Level) → BinProducts (Setᴬ ℓ)
   Setᴬ-bp ℓ F G .BinProduct.binProdOb a =
     F a .fst × G a .fst , isSet× (F a .snd) (G a .snd)
@@ -102,6 +96,8 @@ module _ (A : Type ℓA) where
       funExt λ a → funExt λ _ → cong lift (sym (C.⋆IdR _))
     Cᴬ-Enrichment .VE.⋆Assoc F G H K =
       funExt λ a → funExt λ _ → cong lift (C.⋆Assoc _ _ _)
+    Cᴬ-Enrichment .VE.⌜id⌝ = refl
+    Cᴬ-Enrichment .VE.⌜⋆⌝ f g = refl
 
 
 -- When A is (the object-type of) a Category, we can further change base
@@ -152,7 +148,11 @@ module _ (A : Category ℓ ℓ') (C : Category ℓC ℓC') where
   --   (b) `Cofree-lax.ε = Adj.η .N-ob 𝟙` definitionally (by construction);
   -- the map `ε̂ = ε ⋆ Cofree⟪_⟫` is *definitionally* the forward hom-adjunction
   -- `adj→adj' CofreeFamAdj .adjIso .fun` at `(c = 𝟙, d = X)`.  So the
-  -- preservation witness is just that `adjIso`'s inverse data.
+  -- preservation witness is just that `adjIso`'s inverse data.`
+  -- TODO: we're relying on ``Fam-Mon.unit = PSH→Fam 𝟙` definitionally.
+  -- We should instead define the iso by precomposition with the congruence under the representable functor `Set^A(_ , X)` of `unit ≅ U 𝟙`,
+  -- which should hold from U (i.e. PSH→Fam) being RA and preserving limits so in particular `𝟙`.
+  -- i.e. the chain Fam(unit, X) ≅⟨ representable Set^A(_, X) preserves iso (unit ≅ U 𝟙) ⟩ Set^A(U 𝟙, X) ≅⟨ U ⊣ G ⟩ PSh(𝟙, G₀ X)
   private
     open NaturalBijection using (module _⊣_)
     Adj² = adj→adj' (PSH→Fam A) (Cofree {ℓ = ell} A) Adj

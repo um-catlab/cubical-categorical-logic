@@ -12,6 +12,9 @@ open import Cubical.Categories.Instances.BinProduct
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Limits.BinProduct
 open import Cubical.Categories.Monoidal.Base
+open import Cubical.Categories.Monoidal.Closed
+open import Cubical.Categories.Presheaf.Representable using (UniversalElement)
+open import Cubical.Functions.FunExtEquiv using (funExt₂)
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.StrictHom.Base
@@ -104,3 +107,46 @@ module PshMon (C : Category ℓ ℓ')(ℓS : Level) where
   𝓟Mon : MonoidalCategory (ℓ-suc ℓm) (ℓm)
   𝓟Mon .Cat = 𝓟
   𝓟Mon .monstr = 𝓟Mon'
+
+  private
+    swap : {P Q : ob 𝓟} → 𝓟 [ P ×Psh Q , Q ×Psh P ]
+    swap = ×PshIntroStrict π₂p π₁p
+
+    module _ {P Q R : ob 𝓟} where
+      private
+        module R = PresheafNotation R
+
+      λ-η : (α : PshHomStrict R (Q ^ P)) (γ : PshHomStrict (R ×Psh P) Q)
+        → (∀ c r → γ .PshHomStrict.N-ob c r ≡ α .PshHomStrict.N-ob (c) (r .fst) .PshHomStrict.N-ob c (C .id , r .snd))
+        → λPshHomStrict P Q γ ≡ α
+      λ-η α γ p = makePshHomStrictPath (funExt₂ λ c r → makePshHomStrictPath
+        (funExt₂ λ d (f , q) →
+          p d (f R.⋆ r , q)
+          ∙ sym (cong (λ x → α .PshHomStrict.N-ob c r .PshHomStrict.N-ob d (x , q)) (sym (⋆IdL C f))
+          ∙ funExt⁻ (funExt⁻ (cong PshHomStrict.N-ob (α .PshHomStrict.N-hom d c f r (f R.⋆ r) refl)) d) (C .id , q))))
+
+  𝓟LeftClosed : LeftClosed 𝓟Mon
+  𝓟LeftClosed P Q .UniversalElement.vertex = Q ^ P
+  𝓟LeftClosed P Q .UniversalElement.element = swap ⋆PshHomStrict eval
+  𝓟LeftClosed P Q .UniversalElement.universal R = isoToIsEquiv transpose
+    where
+    module R = PresheafNotation R
+    transpose : Iso (PshHomStrict R (Q ^ P)) (PshHomStrict (P ×Psh R) Q)
+    transpose .Iso.fun α = ⨂ .F-hom (idPshHomStrict , α) ⋆PshHomStrict (swap ⋆PshHomStrict eval)
+    transpose .Iso.inv γ = λPshHomStrict P Q (swap ⋆PshHomStrict γ)
+    transpose .Iso.sec γ = makePshHomStrictPath
+      (funExt₂ λ c (p , r) → cong (λ x → γ .PshHomStrict.N-ob c (p , x)) (R.⋆IdL r))
+    transpose .Iso.ret α = λ-η α (swap ⋆PshHomStrict transpose .Iso.fun α) (λ c r → refl)
+
+  𝓟RightClosed : RightClosed 𝓟Mon
+  𝓟RightClosed P Q .UniversalElement.vertex = Q ^ P
+  𝓟RightClosed P Q .UniversalElement.element = eval
+  𝓟RightClosed P Q .UniversalElement.universal R = isoToIsEquiv transpose
+    where
+    module R = PresheafNotation R
+    transpose : Iso (PshHomStrict R (Q ^ P)) (PshHomStrict (R ×Psh P) Q)
+    transpose .Iso.fun α = ⨂ .F-hom (α , idPshHomStrict) ⋆PshHomStrict eval
+    transpose .Iso.inv = λPshHomStrict P Q
+    transpose .Iso.sec γ = makePshHomStrictPath
+      (funExt₂ λ c (r , p) → cong (λ x → γ .PshHomStrict.N-ob c (x , p)) (R.⋆IdL r))
+    transpose .Iso.ret α = λ-η α (transpose .Iso.fun α) (λ c r → refl)

@@ -100,6 +100,20 @@ module _ (A : Type ℓA) where
     Cᴬ-Enrichment .VE.⌜⋆⌝ f g = refl
 
 
+  Setᴬ-self : (ℓ : Level) → VE (Setᴬ ℓ) (Setᴬ-Mon ℓ)
+  Setᴬ-self ℓ .VE.VE[_,_] F G a = (F a .fst → G a .fst) , isSet→ (G a .snd)
+  Setᴬ-self ℓ .VE.id a _ x = x
+  Setᴬ-self ℓ .VE.seq F G H a fg x = fg .snd (fg .fst x)
+  Setᴬ-self ℓ .VE.⇄-agree .Iso.fun h a _ = h a
+  Setᴬ-self ℓ .VE.⇄-agree .Iso.inv k a = k a (lift tt)
+  Setᴬ-self ℓ .VE.⇄-agree .Iso.sec k = funExt λ _ → funExt λ _ → refl
+  Setᴬ-self ℓ .VE.⇄-agree .Iso.ret _ = refl
+  Setᴬ-self ℓ .VE.⋆IdL F G = refl
+  Setᴬ-self ℓ .VE.⋆IdR F G = refl
+  Setᴬ-self ℓ .VE.⋆Assoc F G H K = refl
+  Setᴬ-self ℓ .VE.⌜id⌝ = refl
+  Setᴬ-self ℓ .VE.⌜⋆⌝ f g = refl
+
 -- When A is (the object-type of) a Category, we can further change base
 -- along `Cofree : Fam A → PSH A` to obtain the presheaf-enrichment of
 -- Cᴬ, whose hom-object at (F, G) is the presheaf
@@ -112,11 +126,10 @@ open LaxMonoidalFunctor
 open LaxMonoidalStr
 open NatTrans
 
-module _ (A : Category ℓ ℓ') (C : Category ℓC ℓC') where
+module _ (A : Category ℓ ℓ') (ℓS : Level) where
   private
     module A = Category A
-    module C = Category C
-    ell = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓC ℓC'))
+    ell = ℓ-max ℓ (ℓ-max ℓ' ℓS)
 
   -- PshMon.𝓟Mon on A at level `ell` (the level on which Cofree lands).
   private
@@ -160,10 +173,20 @@ module _ (A : Category ℓ ℓ') (C : Category ℓC ℓC') where
   Cofree-pres : LaxMonoidalFunctor.preservesUnderlyingCategories Cofree-lax
   Cofree-pres X = IsoToIsIso (_⊣_.adjIso Adj² {c = PshMon.𝟙 A ell} {d = X})
 
+  Fam-Psh-Enrichment : VE (Setᴬ A.ob ell) Psh-Mon
+  Fam-Psh-Enrichment = BaseChange Cofree-lax Cofree-pres (Setᴬ-self A.ob ell)
+
+module _ (A : Category ℓ ℓ') (C : Category ℓC ℓC') where
+  private
+    module A = Category A
+    module C = Category C
+    ell = ℓ-max ℓ (ℓ-max ℓ' (ℓ-max ℓC ℓC'))
+    Psh-Mon = PshMon.𝓟Mon A ell
+
   -- The presheaf-enrichment of Cᴬ via BaseChange along Cofree.
   -- We use the Lift-parametric `Cᴬ-Enrichment` at level `ℓ-max ℓ ℓ'` so
   -- that its hom-set level matches Cofree's `ell`.
   Cᴬ-Psh-Enrichment : VE (PowerCategory A.ob C) Psh-Mon
   Cᴬ-Psh-Enrichment =
-    BaseChange Cofree-lax Cofree-pres
+    BaseChange (Cofree-lax A (ℓ-max ℓC ℓC')) (Cofree-pres A (ℓ-max ℓC ℓC'))
       (Cᴬ-Enrichment A.ob C (ℓ-max ℓ (ℓ-max ℓ' ℓC)))

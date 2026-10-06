@@ -3,6 +3,7 @@ module Cubical.Categories.Presheaf.Family.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 
@@ -17,6 +18,7 @@ open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Power
 open import Cubical.Categories.Presheaf.StrictHom.Base
+open import Cubical.Categories.Presheaf.StrictHom.CartesianClosed
 open import Cubical.Categories.Monad.Base
 open import Cubical.Categories.Adjoint.Monad
 open import Cubical.Categories.Displayed.Instances.EilenbergMoore
@@ -35,6 +37,9 @@ open PshHomStrict
 -- families of sets over the objects of C (`ob` is `C.ob → hSet ℓ`)
 Families : (C : Category ℓC ℓC') (ℓ : Level) → Category _ _
 Families C ℓ = PowerCategory (C .ob) (SET ℓ)
+
+_⇒Fam_ : {X : Type ℓC} {ℓ : Level} → (X → hSet ℓ) → (X → hSet ℓ) → X → hSet ℓ
+(A ⇒Fam B) x = (⟨ A x ⟩ → ⟨ B x ⟩) , isSet→ (B x .snd)
 
 module _ {ℓ} (C : Category ℓC ℓC') where
   private
@@ -87,6 +92,10 @@ module _ {ℓ} (C : Category ℓC ℓC') where
           cong (t y) (C.⋆IdL h)) }
 
   module COFREE = _⊣_ CofreeFamAdj
+
+  □ : Functor Fam Fam
+  □ = PSH→Fam ∘F Cofree
+
 
   private
     -- the comonad PSH→Fam ∘F Cofree on Fam

@@ -2,6 +2,7 @@
 module Cubical.Categories.Enriched.Instances.Presheaf.StrictHom.Self where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Bifunctor
 open import Cubical.Categories.Category
@@ -49,14 +50,14 @@ module _ (C : Category ℓ ℓ')(ℓS : Level) where
   selfid .PshHomStrict.N-hom γ = λ _ _ _ _ _ → refl
 
   expseq : {P Q R : ob 𝓟} → 𝓟 [ (Q ^ P) ×Psh (R ^ Q) ,  (R ^ P) ]
-  expseq {P}{Q}{R} =
-    adjL (
-      swap ⋆⟨ 𝓟 ⟩
-      assoc ⋆⟨ 𝓟 ⟩
-      ⨂' .Bif-hom× swap idPshHomStrict ⋆⟨ 𝓟 ⟩
-      ⨂' .Bif-hom× eval idPshHomStrict ⋆⟨ 𝓟 ⟩
-      swap ⋆⟨ 𝓟 ⟩
-      eval )
+  expseq .PshHomStrict.N-ob c (α , β) .PshHomStrict.N-ob d (g , p) =
+    β .PshHomStrict.N-ob d (g , α .PshHomStrict.N-ob d (g , p))
+  expseq .PshHomStrict.N-ob c (α , β) .PshHomStrict.N-hom d' d k (g , p) (g' , p') e =
+    β .PshHomStrict.N-hom d' d k (g , _) (g' , _)
+      (ΣPathP (cong fst e , α .PshHomStrict.N-hom d' d k (g , p) (g' , p') e))
+  expseq .PshHomStrict.N-hom c' c k (α' , β') (α , β) e =
+    makePshHomStrictPath (funExt λ d → funExt λ (g , p) i →
+      e i .snd .PshHomStrict.N-ob d (g , e i .fst .PshHomStrict.N-ob d (g , p)))
 
   self : EnrichedCategory 𝓟Mon (ℓ-suc ℓm)
   self .ob = ob 𝓟
@@ -64,19 +65,8 @@ module _ (C : Category ℓ ℓ')(ℓS : Level) where
   self .id = selfid
   self .seq P Q R = expseq
   self .⋆IdL P Q =
-    makePshHomStrictPath (funExt λ c → funExt λ{(tt* , f) →
-      makePshHomStrictPath (funExt λ c' → funExt λ {(g , Pc') →
-        cong (λ h → f .PshHomStrict.N-ob c' (h , Pc')) (sym (C .⋆IdL _ ))})})
+    makePshHomStrictPath (funExt λ c → funExt λ _ → makePshHomStrictPath refl)
   self .⋆IdR P Q =
-    makePshHomStrictPath (funExt λ c → funExt λ{(f , tt*) →
-      makePshHomStrictPath (funExt λ c' → funExt λ {(g , Pc') →
-        cong (λ h → f .PshHomStrict.N-ob c' (h , Pc')) (sym (C .⋆IdL _ ))})})
+    makePshHomStrictPath (funExt λ c → funExt λ _ → makePshHomStrictPath refl)
   self .⋆Assoc P Q R S =
-    makePshHomStrictPath (funExt λ c → funExt λ{ (f , g , h) →
-      makePshHomStrictPath (funExt λ c' → funExt λ{ (j , Pc') →
-        cong (h .PshHomStrict.N-ob c') ((cong₂ _,_ (sym (C .⋆IdL _)) refl))
-        ∙ cong (λ e →
-          h .PshHomStrict.N-ob c' ((C ⋆ id C) ((C ⋆ id C) j),
-          g .PshHomStrict.N-ob c' ((C ⋆ id C) ((C ⋆ id C) j) ,
-          f .PshHomStrict.N-ob c' (e , Pc'))))
-        (cong (C ⋆ id C)  (C .⋆IdL _))})})
+    makePshHomStrictPath (funExt λ c → funExt λ _ → makePshHomStrictPath refl)

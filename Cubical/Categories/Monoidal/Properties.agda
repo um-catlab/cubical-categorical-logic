@@ -156,3 +156,16 @@ module _ (M : MonoidalCategory ℓC ℓC') where
   η⟨⊗⟩ x y = sym (⋆InvLMove (invIso (NatIsoAt M.α _))
     (ρ⟨⊗⟩ (M ^co)))
 
+
+module _ (M : MonoidalCategory ℓC ℓC') where
+  private
+    module M = MonoidalCategory M
+
+  ρ⁻¹⟨unit⟩≡η⁻¹⟨unit⟩ : M.ρ⁻¹⟨ M.unit ⟩ ≡ M.η⁻¹⟨ M.unit ⟩
+  ρ⁻¹⟨unit⟩≡η⁻¹⟨unit⟩ =
+    sym (M.⋆IdR _)
+    ∙ cong (M.ρ⁻¹⟨ M.unit ⟩ M.⋆_) (sym (M.η .nIso M.unit .isIso.ret))
+    ∙ sym (M.⋆Assoc _ _ _)
+    ∙ cong (λ m → (M.ρ⁻¹⟨ M.unit ⟩ M.⋆ m) M.⋆ M.η⁻¹⟨ M.unit ⟩) (sym (ρ⟨unit⟩≡η⟨unit⟩ M))
+    ∙ cong (M._⋆ M.η⁻¹⟨ M.unit ⟩) (M.ρ .nIso M.unit .isIso.sec)
+    ∙ M.⋆IdL _

@@ -18,6 +18,11 @@ open import Cubical.Categories.Yoneda using (yo)
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Presheaf.StrictHom.Base
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Representable
+open import Cubical.Categories.UniversalConstructions.WeightedLimit
+open import Cubical.Categories.Enriched.Enrichment.HomFunctor
+open import Cubical.Categories.Enriched.Enrichment.Instances.Sets
 
 private
   variable
@@ -146,3 +151,24 @@ module _ {C : Category ℓc ℓc'} {J : Category ℓj ℓj'} where
   NerveMap {K' = K'} u D .N-hom c c' f α' α e =
     cong (_⋆PshHomStrict α') (u .N-hom f)
     ∙ cong (u .N-ob c ⋆PshHomStrict_) e
+
+module _ {J : Category ℓj ℓj'} {ℓ : Level} where
+  private
+    L = ℓ-max (ℓ-max ℓj ℓj') ℓ
+
+  module _ (W D : Presheaf J L) where
+    open UniversalElement
+
+    ⟦⟧-WeightedLimit : WeightedLimit {C = SET L} D W
+    ⟦⟧-WeightedLimit .vertex = ⟦ W , D ⟧
+    ⟦⟧-WeightedLimit .element .N-ob j w α = α .N-ob j w
+    ⟦⟧-WeightedLimit .element .N-hom k = funExt λ w → funExt λ α →
+      sym (α .N-hom _ _ k w _ refl)
+    ⟦⟧-WeightedLimit .universal X = isoToIsEquiv (iso _ glue
+      (λ t → makeNatTransPath refl)
+      (λ f → funExt λ x → limPath refl))
+      where
+      glue : NatTrans W (Hom[_,-] (SET-Enrichment (SET L)) X ∘F D) → ⟨ X ⟩ → PshHomStrict W D
+      glue t x = pshhom (λ j w → t .N-ob j w x)
+        (λ c c' g p' p e → sym (funExt⁻ (funExt⁻ (t .N-hom g) p') x)
+          ∙ cong (λ q → t .N-ob c q x) e)

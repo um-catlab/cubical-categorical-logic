@@ -11,7 +11,9 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.StrictHom.Base
-open import Cubical.Categories.Limits.Limits
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Limits.Conical
+open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Limits.Weighted
 open import Cubical.Categories.Limits.Weighted.AsLimit
 open import Cubical.Categories.Direct.Base
@@ -49,6 +51,6 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'} (dir : DirectStr C Wo)
 
   -- ▷P x is the limit in SET of P over the strict downset of x
   ▷isLimit : (P : Presheaf C ℓP) (x : ob)
-    → isLimCone (Diag (↡Psh dir x) P) (▷Psh dir P .F-ob x)
-                (tautCone (↡Psh dir x) P)
-  ▷isLimit P x = isLimTautCone (↡Psh dir x) P
+    → isUniversal (SET _) (Cones (Diag (↡Psh dir x) P)) (▷Psh dir P .F-ob x)
+                  (tautCone (↡Psh dir x) P)
+  ▷isLimit P x = tautLimit (↡Psh dir x) P .UniversalElement.universal

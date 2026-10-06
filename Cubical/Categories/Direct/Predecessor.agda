@@ -10,7 +10,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit using (Unit* ; tt*)
+open import Cubical.Data.Unit using (Unit* ; tt* ; tt)
 open import Cubical.Data.Empty as ⊥ using ()
 open import Cubical.Relation.Nullary using (¬_)
 
@@ -19,10 +19,15 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.StrictHom.Base
+open import Cubical.Categories.Presheaf.Constructions.Unit
 open import Cubical.Categories.Direct.Base
 open import Cubical.Categories.Direct.StrictDownset
   using ( ↡Psh ; ▷Psh ; next
-        ; ▷Fam ; nextFam ; löbFam ; löbFam-unfold ; löbFam-uniq-unfold )
+        ; ▷Fam ; nextFam )
+open import Cubical.Categories.Direct.Guarded.Family
+  using (module FamFix)
+open import Cubical.Categories.Monoidal.Instances.Presheaf.StrictHom
+  using (module PshMon)
 import Cubical.Categories.Presheaf.Family.Base as FamBase
 
 private
@@ -35,6 +40,7 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
   open Functor
   open PshHomStrict
   open DirectNotation dir
+  open PshMon C ℓ using (𝟙)
 
   -- p is a predecessor of x when it represents the strict downset ↡x
   record isPredOf (x p : ob) : Type (ℓ-max ℓ ℓ') where
@@ -99,21 +105,21 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
   module _ {ℓF} (A : ob → hSet (ℓ-max ℓF (ℓ-max ℓ ℓ'))) where
     private
       GA = FamBase.Cofree {ℓ = ℓF} C .F-ob A
+      □ = FamBase.□ {ℓ = ℓF} C
 
     ▷FamPred : {x p : ob} → isPredOf x p
-      → Iso ⟨ ▷Fam dir {ℓF = ℓF} A x ⟩ ((z : ob) → C [ z , p ] → ⟨ A z ⟩)
+      → Iso ⟨ ▷Fam dir {ℓF = ℓF} A x ⟩ ⟨ (□ ⟅ A ⟆) p ⟩
     ▷FamPred = ▷pred GA
 
     ▷FamMin : {x : ob} → (∀ y → ¬ (y ≺ x))
       → isContr ⟨ ▷Fam dir {ℓF = ℓF} A x ⟩
     ▷FamMin = ▷min GA
 
-    -- under ▷FamPred, nextFam is the constant closure, so
-    -- löbFam-unfold computes in predecessor form
-    ▷FamPred-next : {x p : ob} (pr : isPredOf x p) (t : ∀ z → ⟨ A z ⟩)
-      → ▷FamPred pr .Iso.fun (nextFam dir {ℓF = ℓF} A t x)
-        ≡ (λ z _ → t z)
-    ▷FamPred-next pr t = refl
+    ▷FamPred-next : {x p : ob} (pr : isPredOf x p)
+      (u : ⟨ (□ ⟅ A ⟆) x ⟩)
+      → ▷FamPred pr .Iso.fun (nextFam dir {ℓF = ℓF} A x u)
+        ≡ (λ z k → u z (k ⋆ isPredOf.ρ pr))
+    ▷FamPred-next pr u = refl
 
   -- every object is minimal or has a predecessor
   data ▷View (x : ob) : Type (ℓ-max ℓ ℓ') where
@@ -126,10 +132,12 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
   -- Löb induction through the predecessor presentation of ▷Fam
   module _ (pv : Predecessors) {ℓF}
            (A : ob → hSet (ℓ-max ℓF (ℓ-max ℓ ℓ'))) where
+    private
+      □ = FamBase.□ {ℓ = ℓF} C
 
     LaterPredAt : {x : ob} → ▷View x → Type (ℓ-max ℓF (ℓ-max ℓ ℓ'))
     LaterPredAt (minimal _)   = Unit*
-    LaterPredAt (hasPred p _) = (z : ob) → C [ z , p ] → ⟨ A z ⟩
+    LaterPredAt (hasPred p _) = ⟨ (□ ⟅ A ⟆) p ⟩
 
     LaterPred : ob → Type (ℓ-max ℓF (ℓ-max ℓ ℓ'))
     LaterPred x = LaterPredAt (pv x)
@@ -145,21 +153,24 @@ module _ {C : Category ℓ ℓ'} {Wo : WFOrder ℓD ℓ'}
     LaterPredIso : ∀ x → Iso ⟨ ▷Fam dir {ℓF = ℓF} A x ⟩ (LaterPred x)
     LaterPredIso x = LaterPredIsoAt (pv x)
 
-    module LöbPred (φ : ∀ x → LaterPred x → ⟨ A x ⟩) where
-      private
-        φ▷ : ∀ x → ⟨ ▷Fam dir {ℓF = ℓF} A x ⟩ → ⟨ A x ⟩
-        φ▷ x β = φ x (LaterPredIso x .Iso.fun β)
+  module LöbPred (pv : Predecessors) (A : ob → hSet (ℓ-max ℓ ℓ'))
+    (φ : ∀ x → LaterPred pv {ℓF = ℓ-zero} A x → ⟨ A x ⟩) where
+    private
+      φ▷ : FamBase.Fam {ℓ = ℓ-zero} C [ ▷Fam dir {ℓF = ℓ-zero} A , A ]
+      φ▷ x β = φ x (LaterPredIso pv A x .Iso.fun β)
 
-      nextPred : (∀ z → ⟨ A z ⟩) → ∀ x → LaterPred x
-      nextPred t x = LaterPredIso x .Iso.fun (nextFam dir {ℓF = ℓF} A t x)
+    nextPred : (∀ z → ⟨ A z ⟩) → ∀ x → LaterPred pv {ℓF = ℓ-zero} A x
+    nextPred t x =
+      LaterPredIso pv A x .Iso.fun (nextFam dir {ℓF = ℓ-zero} A x (λ y _ → t y))
 
-      fix : ∀ x → ⟨ A x ⟩
-      fix = löbFam dir {ℓF = ℓF} A φ▷
+    fix : ∀ x → ⟨ A x ⟩
+    fix x = FamFix.fix dir A 𝟙 (λ y _ → φ▷ y) x tt*
 
-      unfold : ∀ x → fix x ≡ φ x (nextPred fix x)
-      unfold = löbFam-unfold dir {ℓF = ℓF} A φ▷
+    unfold : ∀ x → fix x ≡ φ x (nextPred fix x)
+    unfold x = FamFix.fix-fix dir A 𝟙 (λ y _ → φ▷ y) x tt*
 
-      uniq : (t : ∀ x → ⟨ A x ⟩)
-        → (∀ x → t x ≡ φ x (nextPred t x))
-        → t ≡ fix
-      uniq = löbFam-uniq-unfold dir {ℓF = ℓF} A φ▷
+    uniq : (t : ∀ x → ⟨ A x ⟩)
+      → (∀ x → t x ≡ φ x (nextPred t x))
+      → t ≡ fix
+    uniq t teq = funExt λ x → funExt⁻ (funExt⁻
+      (FamFix.fix-uniq dir A 𝟙 (λ y _ → φ▷ y) (λ y _ → t y) (λ y _ → teq y)) x) tt*

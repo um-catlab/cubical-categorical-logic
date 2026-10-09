@@ -11,6 +11,7 @@ import Cubical.Categories.Instances.TotalCategory as ∫
 
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.Instances.Functor.Base
 
@@ -38,3 +39,29 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   --
   -- ∫F-Functor = CurryBifunctor
   --   (ParFunctorToBifunctor (∫.intro (appF _ _ ∘F (∫.Fst ×F ∫.Fst)) {!!}))
+
+-- When the target has propositional displayed homs, displayed natural
+-- transformations are determined by their components and the
+-- displayed functor category again has propositional homs.
+module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
+  {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (propHoms : hasPropHoms Dᴰ) where
+  open NatTrans
+  open NatTransᴰ
+  private
+    module Cᴰ = Categoryᴰ Cᴰ
+    module Dᴰ = Categoryᴰ Dᴰ
+
+  mkPropHomsNatTransᴰ : {F G : Functor C D} {α : NatTrans F G}
+    {Fᴰ : Functorᴰ F Cᴰ Dᴰ} {Gᴰ : Functorᴰ G Cᴰ Dᴰ}
+    → (∀ {x} (xᴰ : Cᴰ.ob[ x ])
+      → Dᴰ.Hom[ α .N-ob x ][ Fᴰ .Functorᴰ.F-obᴰ xᴰ , Gᴰ .Functorᴰ.F-obᴰ xᴰ ])
+    → NatTransᴰ α Fᴰ Gᴰ
+  mkPropHomsNatTransᴰ αᴰ .N-obᴰ = αᴰ
+  mkPropHomsNatTransᴰ αᴰ .N-homᴰ _ =
+    isProp→PathP (λ i → propHoms _ _ _) _ _
+
+  hasPropHomsFUNCTORᴰ : hasPropHoms (FUNCTORᴰ Cᴰ Dᴰ)
+  hasPropHomsFUNCTORᴰ α Fᴰ Gᴰ αᴰ βᴰ =
+    makeNatTransPathᴰ Cᴰ Dᴰ refl
+      (λ i xᴰ → propHoms _ _ _ (αᴰ .N-obᴰ xᴰ) (βᴰ .N-obᴰ xᴰ) i)

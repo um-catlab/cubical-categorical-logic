@@ -72,12 +72,6 @@ StateAlgProduct B₁ B₂ .snd .StateAlg.wt-wt b b' x i =
   B₂ .snd .StateAlg.wt-wt b b' (x .snd) i
 
 private
-  StateAlgIdR : ∀ ℓ → EqPsh.EqIdR (STATEALG ℓ)
-  StateAlgIdR ℓ _ = Eq.refl
-
-  StateAlgAssoc : ∀ ℓ → EqPsh.ReprEqAssoc (STATEALG ℓ)
-  StateAlgAssoc ℓ _ _ _ _ _ Eq.refl = Eq.refl
-
   StateAlgᴰTerminalsEqⱽ : ∀ ℓ → EqPsh.Terminalsⱽ (STATEALGᴰ ℓ ℓ)
   StateAlgᴰTerminalsEqⱽ ℓ B =
     EqPsh.UEⱽ→Reprⱽ _ (StateAlgIdR ℓ) ue
@@ -128,33 +122,6 @@ private
       (Z , Zᴰ , f , ϕ) .snd .snd h =
         ∫Homoᴰ≡ _ h
           (λ x → isSet× (B₁ᴰ .fst x .snd) (B₂ᴰ .fst x .snd)) refl
-
-  StateAlgᴰFibrationEq : ∀ ℓ →
-    EqPsh.Fibration (STATEALGᴰ ℓ ℓ) (StateAlgAssoc ℓ)
-  StateAlgᴰFibrationEq ℓ {x = Z} {y = B'} f Bᴰ' =
-    EqPsh.UEⱽ→Reprⱽ _ (StateAlgIdR ℓ) ue
-    where
-    pullᴰ : Fibers.ob[_] (STATEALGᴰ ℓ ℓ) Z
-    pullᴰ .fst z = Bᴰ' .fst (f .fst z)
-    pullᴰ .snd = pull (f .snd) (Bᴰ' .snd) (B' .fst .snd)
-
-    ue : EqPsh.CartesianLiftUE (STATEALGᴰ ℓ ℓ)
-      (StateAlgAssoc ℓ) (StateAlgIdR ℓ) f Bᴰ'
-    ue .EqPsh.UEⱽ.v = pullᴰ
-    ue .EqPsh.UEⱽ.e .fst _ zᴰ = zᴰ
-    ue .EqPsh.UEⱽ.e .snd =
-      π-pull (f .snd) (Bᴰ' .snd) (B' .fst .snd)
-    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
-      (Y , Yᴰ , g) .fst h .fst = h .fst
-    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
-      (Y , Yᴰ , g) .fst h .snd =
-        pull-intro (f .snd) (Bᴰ' .snd) (B' .fst .snd) (g .snd) (h .snd)
-    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
-      (Y , Yᴰ , g) .snd .fst h =
-        ∫Homoᴰ≡ _ h (λ x → Bᴰ' .fst x .snd) refl
-    ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso
-      (Y , Yᴰ , g) .snd .snd h =
-        ∫Homoᴰ≡ _ h (λ y → Bᴰ' .fst (f .fst y) .snd) refl
 
   StateAlgᴰTerminalsⱽ : ∀ ℓ → Terminalsⱽ (STATEALGᴰ ℓ ℓ)
   StateAlgᴰTerminalsⱽ ℓ =

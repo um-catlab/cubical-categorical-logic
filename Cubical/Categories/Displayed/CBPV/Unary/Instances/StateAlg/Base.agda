@@ -45,10 +45,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Reindex
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.StructureOver.Base
-open import Cubical.Categories.Displayed.Instances.TotalCategory
+open import Cubical.Categories.Displayed.Instances.StateAlg public
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Base
 open import Cubical.Categories.Displayed.Instances.Weaken
 open import Cubical.Categories.Displayed.Section
@@ -65,55 +62,7 @@ private
     ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' ℓᴰᴰ ℓᴰᴰ' ℓD ℓD' ℓCᴰ ℓCᴰ' : Level
 
 open Category hiding (_∘_)
-open StructureOver
 open Functorᴰ
-
-StateAlgStructure : StructureOver (SET ℓ) ℓ ℓ
-StateAlgStructure .StructureOver.ob[_] X = StateAlg ⟨ X ⟩
-StateAlgStructure .StructureOver.Hom[_][_,_] f B B' = Homo f B B'
-StateAlgStructure .StructureOver.idᴰ = idHomo
-StateAlgStructure .StructureOver._⋆ᴰ_ = _⋆Homo_
-StateAlgStructure .StructureOver.isPropHomᴰ {y = Y} = isPropHomo (Y .snd)
-
-STATEALG : (ℓ : Level) → Category (ℓ-suc ℓ) ℓ
-STATEALG ℓ = ∫C $ StructureOver→Catᴰ $ StateAlgStructure {ℓ}
-
-StateAlgebra : (ℓ : Level) → Type (ℓ-suc ℓ)
-StateAlgebra ℓ = Category.ob $ STATEALG ℓ
-
-StateAlgHom : StateAlgebra ℓ → StateAlgebra ℓ → Type ℓ
-StateAlgHom {ℓ} = Category.Hom[_,_] $ STATEALG ℓ
-
-StateAlgForget : Functor (STATEALG ℓ) (SET ℓ)
-StateAlgForget = Fst
-
-StateAlgFamilyᴰ : ∀ ℓ ℓᴰ → Categoryᴰ (STATEALG ℓ) (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
-StateAlgFamilyᴰ ℓ ℓᴰ = EqReindex.reindex (SETᴰ ℓ ℓᴰ) StateAlgForget Eq.refl (λ _ _ → Eq.refl)
-
-StateAlgStructureᴰ : ∀ ℓ ℓᴰ →
-  StructureOver (∫C (StateAlgFamilyᴰ ℓ ℓᴰ))
-    (ℓ-max ℓ ℓᴰ) (ℓ-max ℓ ℓᴰ)
-StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.ob[_] (B , Xᴰ) =
-  StateAlgᴰ (B .snd) (λ x → ⟨ Xᴰ x ⟩)
-StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.Hom[_][_,_] (f , fᴰ) Bᴰ Bᴰ' =
-  Homoᴰ fᴰ (f .snd) Bᴰ Bᴰ'
-StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.idᴰ = idHomoᴰ
-StateAlgStructureᴰ ℓ ℓᴰ .StructureOver._⋆ᴰ_ {z = (C , Cᴰ)} ϕᴰ ψᴰ =
-  ϕᴰ ⋆Homoᴰ ψᴰ
-StateAlgStructureᴰ ℓ ℓᴰ .StructureOver.isPropHomᴰ {y = B , Bᴰ} =
-  isPropHomoᴰ (λ x → Bᴰ x .snd)
-
-STATEALGᴰ : ∀ ℓ ℓᴰ → Categoryᴰ (STATEALG ℓ)
-  (ℓ-max ℓ (ℓ-suc ℓᴰ)) (ℓ-max ℓ ℓᴰ)
-STATEALGᴰ ℓ ℓᴰ =
-  ∫Cᴰ (StateAlgFamilyᴰ ℓ ℓᴰ) $ StructureOver→Catᴰ $ StateAlgStructureᴰ ℓ ℓᴰ
-
--- manual here is better than using Fstᴰ because it avoids a composition
-StateAlgForgetᴰ : Functorᴰ StateAlgForget (STATEALGᴰ ℓ ℓᴰ) (SETᴰ ℓ ℓᴰ)
-StateAlgForgetᴰ .Functorᴰ.F-obᴰ Bᴰ = Bᴰ .fst
-StateAlgForgetᴰ .Functorᴰ.F-homᴰ fᴰ = fᴰ .fst
-StateAlgForgetᴰ .Functorᴰ.F-idᴰ = refl
-StateAlgForgetᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ = refl
 
 module _ (X : Type ℓ) where
   FreeStateAlg : StateAlg (Bool → Bool × X)

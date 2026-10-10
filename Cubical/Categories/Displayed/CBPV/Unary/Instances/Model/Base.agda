@@ -89,9 +89,10 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
       ∙ interpHomo (evalHomo A B x) γ (rhs e)
 
     HomModel : (A : hSet L) (B : MODEL T L .ob) → Model L
-    HomModel A B .fst = HomAlgebra A B
-    HomModel A B .snd .fst = HomIsModel A B
-    HomModel A B .snd .snd = isSetΠ λ _ → B .fst .snd
+    HomModel A B .fst =
+      (⟨ A ⟩ → ⟨ B .fst ⟩) , isSetΠ (λ _ → B .fst .snd)
+    HomModel A B .snd .fst = HomAlgebra A B .snd
+    HomModel A B .snd .snd = HomIsModel A B
 
     HomAlgebraᴰ : (A : hSet L) (B : MODEL T L .ob)
       (Aᴰ : ⟨ A ⟩ → hSet L)
@@ -126,8 +127,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
         (funExt λ v → interpHomᴰAt A B Aᴰ Bᴰ ρ ρᴰ (γ v) x xᴰ)
 
   ModelCBPVModel : ModelEnrichment (ModelCBPV .fst) T
-  ModelCBPVModel .fst A B .fst = HomModel A B .fst .snd
-  ModelCBPVModel .fst A B .snd = HomModel A B .snd .fst
+  ModelCBPVModel .fst A B = HomModel A B .snd
   ModelCBPVModel .snd .fst V B op γ op⟨γ⟩ p =
     λ i x → p i (V x)
   ModelCBPVModel .snd .snd S A op γ op⟨γ⟩ p =

@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.More
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Bool
 open import Cubical.Data.Empty
@@ -89,48 +90,48 @@ module _ (B : Theory.Model MonoidTheory ℓB) where
   private
     module T = Theory MonoidTheory
 
-  MonoidModelUnit : B .fst .fst
-  MonoidModelUnit = B .fst .snd unitOp emptyBranches
+  MonoidModelUnit : ⟨ B .fst ⟩
+  MonoidModelUnit = B .snd .fst unitOp emptyBranches
 
-  MonoidModelMult : B .fst .fst → B .fst .fst → B .fst .fst
-  MonoidModelMult x y = B .fst .snd multOp (boolBranches x y)
+  MonoidModelMult : ⟨ B .fst ⟩ → ⟨ B .fst ⟩ → ⟨ B .fst ⟩
+  MonoidModelMult x y = B .snd .fst multOp (boolBranches x y)
 
-  MonoidInterpUnit : {V : Type ℓV} (ρ : V → B .fst .fst) →
-    T.interp (B .fst) ρ unitTm ≡ MonoidModelUnit
+  MonoidInterpUnit : {V : Type ℓV} (ρ : V → ⟨ B .fst ⟩) →
+    T.interp (T.Model→Algebra B) ρ unitTm ≡ MonoidModelUnit
   MonoidInterpUnit ρ =
     sym
-      (T.recFA (B .fst) ρ .snd unitOp emptyBranches unitTm refl)
-    ∙ cong (B .fst .snd unitOp) (funExt λ ())
+      (T.recFA (T.Model→Algebra B) ρ .snd unitOp emptyBranches unitTm refl)
+    ∙ cong (B .snd .fst unitOp) (funExt λ ())
 
-  MonoidInterpMult : {V : Type ℓV} (ρ : V → B .fst .fst)
+  MonoidInterpMult : {V : Type ℓV} (ρ : V → ⟨ B .fst ⟩)
     (x y : T.|FreeAlgebra| V) →
-    T.interp (B .fst) ρ (multTm x y) ≡
+    T.interp (T.Model→Algebra B) ρ (multTm x y) ≡
       MonoidModelMult
-        (T.interp (B .fst) ρ x) (T.interp (B .fst) ρ y)
+        (T.interp (T.Model→Algebra B) ρ x) (T.interp (T.Model→Algebra B) ρ y)
   MonoidInterpMult ρ x y =
     sym
-      (T.recFA (B .fst) ρ .snd multOp
+      (T.recFA (T.Model→Algebra B) ρ .snd multOp
         (boolBranches x y) (multTm x y) refl)
-    ∙ cong (B .fst .snd multOp)
+    ∙ cong (B .snd .fst multOp)
         (funExt λ { false → refl ; true → refl })
 
-  MonoidModelUnitL : (x : B .fst .fst) →
+  MonoidModelUnitL : (x : ⟨ B .fst ⟩) →
     MonoidModelMult MonoidModelUnit x ≡ x
   MonoidModelUnitL x =
     cong (λ u → MonoidModelMult u x)
       (sym (MonoidInterpUnit (λ _ → x)))
     ∙ sym (MonoidInterpMult (λ _ → x) unitTm (S.var tt))
-    ∙ B .snd .fst unit-lEq (λ _ → x)
+    ∙ B .snd .snd unit-lEq (λ _ → x)
 
-  MonoidModelUnitR : (x : B .fst .fst) →
+  MonoidModelUnitR : (x : ⟨ B .fst ⟩) →
     MonoidModelMult x MonoidModelUnit ≡ x
   MonoidModelUnitR x =
     cong (MonoidModelMult x)
       (sym (MonoidInterpUnit (λ _ → x)))
     ∙ sym (MonoidInterpMult (λ _ → x) (S.var tt) unitTm)
-    ∙ B .snd .fst unit-rEq (λ _ → x)
+    ∙ B .snd .snd unit-rEq (λ _ → x)
 
-  MonoidModelAssoc : (x y z : B .fst .fst) →
+  MonoidModelAssoc : (x y z : ⟨ B .fst ⟩) →
     MonoidModelMult x (MonoidModelMult y z) ≡
       MonoidModelMult (MonoidModelMult x y) z
   MonoidModelAssoc x y z =
@@ -140,7 +141,7 @@ module _ (B : Theory.Model MonoidTheory ℓB) where
     ∙ sym (MonoidInterpMult valuation
         (S.var leftVar)
         (multTm (S.var middleVar) (S.var rightVar)))
-    ∙ B .snd .fst assocEq valuation
+    ∙ B .snd .snd assocEq valuation
     ∙ MonoidInterpMult valuation
         (multTm (S.var leftVar) (S.var middleVar))
         (S.var rightVar)
@@ -148,7 +149,7 @@ module _ (B : Theory.Model MonoidTheory ℓB) where
         (MonoidInterpMult valuation
           (S.var leftVar) (S.var middleVar))
     where
-    valuation : AssocVar → B .fst .fst
+    valuation : AssocVar → ⟨ B .fst ⟩
     valuation leftVar = x
     valuation middleVar = y
     valuation rightVar = z
@@ -158,20 +159,19 @@ module _ (X : hSet ℓX) where
     module T = Theory MonoidTheory
 
   ListFreeModel : T.Model ℓX
-  ListFreeModel .fst .fst = List (X .fst)
-  ListFreeModel .fst .snd unitOp γ = []
-  ListFreeModel .fst .snd multOp γ = γ false ++ γ true
-  ListFreeModel .snd .fst unit-lEq ρ = refl
-  ListFreeModel .snd .fst unit-rEq ρ = ++-unit-r (ρ tt)
-  ListFreeModel .snd .fst assocEq ρ =
+  ListFreeModel .fst = List (X .fst) , isOfHLevelList 0 (X .snd)
+  ListFreeModel .snd .fst unitOp γ = []
+  ListFreeModel .snd .fst multOp γ = γ false ++ γ true
+  ListFreeModel .snd .snd unit-lEq ρ = refl
+  ListFreeModel .snd .snd unit-rEq ρ = ++-unit-r (ρ tt)
+  ListFreeModel .snd .snd assocEq ρ =
     sym (++-assoc (ρ leftVar) (ρ middleVar) (ρ rightVar))
-  ListFreeModel .snd .snd = isOfHLevelList 0 (X .snd)
 
-  ListFreeModelη : X .fst → ListFreeModel .fst .fst
+  ListFreeModelη : X .fst → ⟨ ListFreeModel .fst ⟩
   ListFreeModelη x = [ x ]
 
-  module _ (B : T.Model ℓB) (f : X .fst → B .fst .fst) where
-    ListFreeModelRec-fun : List (X .fst) → B .fst .fst
+  module _ (B : T.Model ℓB) (f : X .fst → ⟨ B .fst ⟩) where
+    ListFreeModelRec-fun : List (X .fst) → ⟨ B .fst ⟩
     ListFreeModelRec-fun =
       foldr (λ x b → MonoidModelMult B (f x) b) (MonoidModelUnit B)
 
@@ -186,13 +186,14 @@ module _ (X : hSet ℓX) where
       ∙ MonoidModelAssoc B (f x)
           (ListFreeModelRec-fun xs) (ListFreeModelRec-fun ys)
 
-    ListFreeModelRec : T.Homo (ListFreeModel .fst) (B .fst)
+    ListFreeModelRec :
+      T.Homo (T.Model→Algebra ListFreeModel) (T.Model→Algebra B)
     ListFreeModelRec .fst = ListFreeModelRec-fun
     ListFreeModelRec .snd unitOp γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
-      cong (B .fst .snd unitOp) (funExt λ ())
+      cong (B .snd .fst unitOp) (funExt λ ())
       ∙ cong ListFreeModelRec-fun op∘γ≡op⟨γ⟩
     ListFreeModelRec .snd multOp γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
-      cong (B .fst .snd multOp)
+      cong (B .snd .fst multOp)
         (funExt λ { false → refl ; true → refl })
       ∙ sym (ListFreeModelRec-++ (γ false) (γ true))
       ∙ cong ListFreeModelRec-fun op∘γ≡op⟨γ⟩
@@ -203,7 +204,7 @@ module _ (X : hSet ℓX) where
 
   ListFreeModelRec-uniq :
     (B : T.Model ℓB)
-    (h : T.Homo (ListFreeModel .fst) (B .fst))
+    (h : T.Homo (T.Model→Algebra ListFreeModel) (T.Model→Algebra B))
     → h .fst ≡
       ListFreeModelRec B (λ x → h .fst (ListFreeModelη x)) .fst
   ListFreeModelRec-uniq B h = funExt go
@@ -214,32 +215,32 @@ module _ (X : hSet ℓX) where
           (λ x → h .fst (ListFreeModelη x)) .fst xs
     go [] =
       sym (h .snd unitOp (λ ()) [] refl)
-      ∙ cong (B .fst .snd unitOp) (funExt λ ())
+      ∙ cong (B .snd .fst unitOp) (funExt λ ())
     go (x ∷ xs) =
       sym
         (h .snd multOp
           (λ { false → ListFreeModelη x ; true → xs })
           (x ∷ xs) refl)
-      ∙ cong (B .fst .snd multOp)
+      ∙ cong (B .snd .fst multOp)
           (funExt λ { false → refl ; true → refl })
       ∙ cong (MonoidModelMult B (h .fst (ListFreeModelη x))) (go xs)
 
   ListFreeModelUniversal : (B : T.Model ℓB) →
     isEquiv
-      (λ (h : T.Homo (ListFreeModel .fst) (B .fst)) x →
+      (λ (h : T.Homo (T.Model→Algebra ListFreeModel) (T.Model→Algebra B)) x →
         h .fst (ListFreeModelη x))
   ListFreeModelUniversal B = isIsoToIsEquiv
     ( ListFreeModelRec B
     , (λ f → funExt (ListFreeModelRec-β B f))
     , (λ h → Σ≡Prop
-        (λ _ → isPropΠ4 λ _ _ _ _ → B .snd .snd _ _)
+        (λ _ → isPropΠ4 λ _ _ _ _ → B .fst .snd _ _)
         (sym (ListFreeModelRec-uniq B h)))
     )
 
   module _ (Xᴰ : X .fst → hSet ℓD) where
     private
       module R = hSetReasoning
-        (ListFreeModel .fst .fst , ListFreeModel .snd .snd)
+        (ListFreeModel .fst)
         (λ xs → ListP (λ x → Xᴰ x .fst) xs)
 
     appendListP : {xs ys : List (X .fst)} →
@@ -251,7 +252,7 @@ module _ (X : hSet ℓX) where
       ListP._∷_ xᴰ (appendListP xsᴰ ysᴰ)
 
     ListFreeAlgebraᴰ :
-      T.Algebraᴰ (ListFreeModel .fst) (ℓ-max ℓX ℓD)
+      T.Algebraᴰ (T.Model→Algebra ListFreeModel) (ℓ-max ℓX ℓD)
     ListFreeAlgebraᴰ .fst xs = ListP (λ x → Xᴰ x .fst) xs
     ListFreeAlgebraᴰ .snd unitOp γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
       R.reind op∘γ≡op⟨γ⟩ ListP.[]
@@ -260,19 +261,19 @@ module _ (X : hSet ℓX) where
         (appendListP (γᴰ false) (γᴰ true))
 
     ListUnitNormalize :
-      (γ : ⊥ → ListFreeModel .fst .fst)
+      (γ : ⊥ → ⟨ ListFreeModel .fst ⟩)
       (γᴰ : (v : ⊥) → ListFreeAlgebraᴰ .fst (γ v)) →
       Path (T.∫Algebra ListFreeAlgebraᴰ .fst)
-        ( ListFreeModel .fst .snd unitOp γ
+        ( ListFreeModel .snd .fst unitOp γ
         , ListFreeAlgebraᴰ .snd unitOp γ γᴰ _ refl)
         ([] , ListP.[])
     ListUnitNormalize γ γᴰ = R.reind-filler⁻ refl
 
     ListMultNormalize :
-      (γ : Bool → ListFreeModel .fst .fst)
+      (γ : Bool → ⟨ ListFreeModel .fst ⟩)
       (γᴰ : (v : Bool) → ListFreeAlgebraᴰ .fst (γ v)) →
       Path (T.∫Algebra ListFreeAlgebraᴰ .fst)
-        ( ListFreeModel .fst .snd multOp γ
+        ( ListFreeModel .snd .fst multOp γ
         , ListFreeAlgebraᴰ .snd multOp γ γᴰ _ refl)
         ( γ false ++ γ true
         , appendListP (γᴰ false) (γᴰ true))
@@ -280,56 +281,56 @@ module _ (X : hSet ℓX) where
 
     ListAppFiller : {V : Type ℓV}
       (op : MonoidOp)
-      (ρ : V → ListFreeModel .fst .fst)
+      (ρ : V → ⟨ ListFreeModel .fst ⟩)
       (ρᴰ : (v : V) → ListFreeAlgebraᴰ .fst (ρ v))
       (γ : T.Arity op → T.|FreeAlgebra| V) →
       Path (T.∫Algebra ListFreeAlgebraᴰ .fst)
-        ( ListFreeModel .fst .snd op
-            (λ v → T.interp (ListFreeModel .fst) ρ (γ v))
+        ( ListFreeModel .snd .fst op
+            (λ v → T.interp (T.Model→Algebra ListFreeModel) ρ (γ v))
         , ListFreeAlgebraᴰ .snd op
-            (λ v → T.interp (ListFreeModel .fst) ρ (γ v))
+            (λ v → T.interp (T.Model→Algebra ListFreeModel) ρ (γ v))
             (λ v → T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ (γ v))
             _ refl)
-        ( T.interp (ListFreeModel .fst) ρ (T.S.app op γ)
+        ( T.interp (T.Model→Algebra ListFreeModel) ρ (T.S.app op γ)
         , T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ (T.S.app op γ))
     ListAppFiller op ρ ρᴰ γ =
       T.Algebraᴰ-op-filler ListFreeAlgebraᴰ op
-        (λ v → T.interp (ListFreeModel .fst) ρ (γ v))
+        (λ v → T.interp (T.Model→Algebra ListFreeModel) ρ (γ v))
         (λ v → T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ (γ v))
-        (T.interp (ListFreeModel .fst) ρ (T.S.app op γ))
-        (T.recFA (ListFreeModel .fst) ρ .snd op γ
+        (T.interp (T.Model→Algebra ListFreeModel) ρ (T.S.app op γ))
+        (T.recFA (T.Model→Algebra ListFreeModel) ρ .snd op γ
           (T.S.app op γ) refl)
 
     ListUnitInterpPath : {V : Type ℓV}
-      (ρ : V → ListFreeModel .fst .fst)
+      (ρ : V → ⟨ ListFreeModel .fst ⟩)
       (ρᴰ : (v : V) → ListFreeAlgebraᴰ .fst (ρ v)) →
       Path (T.∫Algebra ListFreeAlgebraᴰ .fst)
-        ( T.interp (ListFreeModel .fst) ρ unitTm
+        ( T.interp (T.Model→Algebra ListFreeModel) ρ unitTm
         , T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ unitTm)
         ([] , ListP.[])
     ListUnitInterpPath ρ ρᴰ =
       sym (ListAppFiller unitOp ρ ρᴰ emptyBranches)
       ∙ ListUnitNormalize
-          (λ v → T.interp (ListFreeModel .fst) ρ (emptyBranches v))
+          (λ v → T.interp (T.Model→Algebra ListFreeModel) ρ (emptyBranches v))
           (λ v → T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ
             (emptyBranches v))
 
     ListMultInterpPath : {V : Type ℓV}
-      (ρ : V → ListFreeModel .fst .fst)
+      (ρ : V → ⟨ ListFreeModel .fst ⟩)
       (ρᴰ : (v : V) → ListFreeAlgebraᴰ .fst (ρ v))
       (x y : T.|FreeAlgebra| V) →
       Path (T.∫Algebra ListFreeAlgebraᴰ .fst)
-        ( T.interp (ListFreeModel .fst) ρ (multTm x y)
+        ( T.interp (T.Model→Algebra ListFreeModel) ρ (multTm x y)
         , T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ (multTm x y))
-        ( T.interp (ListFreeModel .fst) ρ x ++
-            T.interp (ListFreeModel .fst) ρ y
+        ( T.interp (T.Model→Algebra ListFreeModel) ρ x ++
+            T.interp (T.Model→Algebra ListFreeModel) ρ y
         , appendListP
             (T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ x)
             (T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ y))
     ListMultInterpPath ρ ρᴰ x y =
       sym (ListAppFiller multOp ρ ρᴰ (boolBranches x y))
       ∙ ListMultNormalize
-          (λ v → T.interp (ListFreeModel .fst) ρ
+          (λ v → T.interp (T.Model→Algebra ListFreeModel) ρ
             (boolBranches x y v))
           (λ v → T.interpᴰ ListFreeAlgebraᴰ ρ ρᴰ
             (boolBranches x y v))
@@ -368,20 +369,22 @@ module _ (X : hSet ℓX) where
 
     ListFreeModelᴰ :
       T.Modelᴰ ListFreeModel (ℓ-max ℓX ℓD)
-    ListFreeModelᴰ .fst = ListFreeAlgebraᴰ
-    ListFreeModelᴰ .snd .fst unit-lEq ρ ρᴰ =
-      R.rectifyOut {e' = ListFreeModel .snd .fst unit-lEq ρ}
+    ListFreeModelᴰ .fst xs =
+      ListFreeAlgebraᴰ .fst xs , isOfHLevelSucSuc-ListP 0 (λ x → Xᴰ x .snd)
+    ListFreeModelᴰ .snd .fst = ListFreeAlgebraᴰ .snd
+    ListFreeModelᴰ .snd .snd unit-lEq ρ ρᴰ =
+      R.rectifyOut {e' = ListFreeModel .snd .snd unit-lEq ρ}
         ( ListMultInterpPath ρ ρᴰ unitTm (T.S.var tt)
         ∙ cong (λ z → ListPAppendTotal z (ρ tt , ρᴰ tt))
             (ListUnitInterpPath ρ ρᴰ))
-    ListFreeModelᴰ .snd .fst unit-rEq ρ ρᴰ =
-      R.rectifyOut {e' = ListFreeModel .snd .fst unit-rEq ρ}
+    ListFreeModelᴰ .snd .snd unit-rEq ρ ρᴰ =
+      R.rectifyOut {e' = ListFreeModel .snd .snd unit-rEq ρ}
         ( ListMultInterpPath ρ ρᴰ (T.S.var tt) unitTm
         ∙ cong (ListPAppendTotal (ρ tt , ρᴰ tt))
             (ListUnitInterpPath ρ ρᴰ)
         ∙ ListPAppendUnitR (ρᴰ tt))
-    ListFreeModelᴰ .snd .fst assocEq ρ ρᴰ =
-      R.rectifyOut {e' = ListFreeModel .snd .fst assocEq ρ}
+    ListFreeModelᴰ .snd .snd assocEq ρ ρᴰ =
+      R.rectifyOut {e' = ListFreeModel .snd .snd assocEq ρ}
         ( ListMultInterpPath ρ ρᴰ (T.S.var leftVar)
             (multTm (T.S.var middleVar) (T.S.var rightVar))
         ∙ cong (ListPAppendTotal (ρ leftVar , ρᴰ leftVar))
@@ -395,29 +398,27 @@ module _ (X : hSet ℓX) where
         ∙ sym (ListMultInterpPath ρ ρᴰ
             (multTm (T.S.var leftVar) (T.S.var middleVar))
             (T.S.var rightVar)))
-    ListFreeModelᴰ .snd .snd xs =
-      isOfHLevelSucSuc-ListP 0 (λ x → Xᴰ x .snd)
 
     ListFreeModelηᴰ : (x : X .fst) → Xᴰ x .fst →
-      ListFreeModelᴰ .fst .fst (ListFreeModelη x)
+      ⟨ ListFreeModelᴰ .fst (ListFreeModelη x) ⟩
     ListFreeModelηᴰ x xᴰ = ListP._∷_ xᴰ ListP.[]
 
     module _
       (Bᴰ : T.Modelᴰ ListFreeModel ℓD')
       (fᴰ : (x : X .fst) → Xᴰ x .fst →
-        Bᴰ .fst .fst (ListFreeModelη x))
+        ⟨ Bᴰ .fst (ListFreeModelη x) ⟩)
       where
       private
         TargetModel : T.Model (ℓ-max ℓX ℓD')
         TargetModel = T.∫Model {M = ListFreeModel} Bᴰ
 
         module BᴰR = hSetReasoning
-          (ListFreeModel .fst .fst , ListFreeModel .snd .snd)
-          (Bᴰ .fst .fst)
+          (ListFreeModel .fst)
+          (λ xs → ⟨ Bᴰ .fst xs ⟩)
 
       ListFreeModelRecᴰ-fun :
-        (xs : ListFreeModel .fst .fst) →
-        ListFreeAlgebraᴰ .fst xs → Bᴰ .fst .fst xs
+        (xs : ⟨ ListFreeModel .fst ⟩) →
+        ListFreeAlgebraᴰ .fst xs → ⟨ Bᴰ .fst xs ⟩
       ListFreeModelRecᴰ-fun [] ListP.[] =
         MonoidModelUnit TargetModel .snd
       ListFreeModelRecᴰ-fun (x ∷ xs) (ListP._∷_ xᴰ xsᴰ) =
@@ -427,13 +428,13 @@ module _ (X : hSet ℓX) where
 
       private
         RecᴰTotal : T.∫Algebra ListFreeAlgebraᴰ .fst →
-          TargetModel .fst .fst
+          ⟨ TargetModel .fst ⟩
         RecᴰTotal (xs , xsᴰ) = xs , ListFreeModelRecᴰ-fun xs xsᴰ
 
       ListFreeModelRecᴰ-++ : {xs ys : List (X .fst)}
         (xsᴰ : ListP (λ x → Xᴰ x .fst) xs)
         (ysᴰ : ListP (λ x → Xᴰ x .fst) ys) →
-        Path (TargetModel .fst .fst)
+        Path (⟨ TargetModel .fst ⟩)
           ( RecᴰTotal
               (xs ++ ys , appendListP xsᴰ ysᴰ))
           ( MonoidModelMult TargetModel
@@ -457,52 +458,54 @@ module _ (X : hSet ℓX) where
 
       private
         ListFreeModelRecᴰ-pres-unit :
-          (γ : ⊥ → ListFreeModel .fst .fst)
+          (γ : ⊥ → ⟨ ListFreeModel .fst ⟩)
           (γᴰ : (v : ⊥) → ListFreeAlgebraᴰ .fst (γ v)) →
-          Path (TargetModel .fst .fst)
-            ( ListFreeModel .fst .snd unitOp γ
-            , Bᴰ .fst .snd unitOp γ
+          Path (⟨ TargetModel .fst ⟩)
+            ( ListFreeModel .snd .fst unitOp γ
+            , Bᴰ .snd .fst unitOp γ
                 (λ v → ListFreeModelRecᴰ-fun (γ v) (γᴰ v))
                 _ refl)
             (RecᴰTotal
-              ( ListFreeModel .fst .snd unitOp γ
+              ( ListFreeModel .snd .fst unitOp γ
               , ListFreeAlgebraᴰ .snd unitOp γ γᴰ _ refl))
         ListFreeModelRecᴰ-pres-unit γ γᴰ =
-          cong (T.∫Algebra (Bᴰ .fst) .snd unitOp) (funExt λ ())
+          cong (T.∫Algebra (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ) .snd unitOp)
+            (funExt λ ())
           ∙ cong RecᴰTotal (sym (ListUnitNormalize γ γᴰ))
 
         ListFreeModelRecᴰ-pres-mult :
-          (γ : Bool → ListFreeModel .fst .fst)
+          (γ : Bool → ⟨ ListFreeModel .fst ⟩)
           (γᴰ : (v : Bool) → ListFreeAlgebraᴰ .fst (γ v)) →
-          Path (TargetModel .fst .fst)
-            ( ListFreeModel .fst .snd multOp γ
-            , Bᴰ .fst .snd multOp γ
+          Path (⟨ TargetModel .fst ⟩)
+            ( ListFreeModel .snd .fst multOp γ
+            , Bᴰ .snd .fst multOp γ
                 (λ v → ListFreeModelRecᴰ-fun (γ v) (γᴰ v))
                 _ refl)
             (RecᴰTotal
-              ( ListFreeModel .fst .snd multOp γ
+              ( ListFreeModel .snd .fst multOp γ
               , ListFreeAlgebraᴰ .snd multOp γ γᴰ _ refl))
         ListFreeModelRecᴰ-pres-mult γ γᴰ =
-          cong (T.∫Algebra (Bᴰ .fst) .snd multOp)
+          cong (T.∫Algebra (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ) .snd multOp)
             (funExt λ { false → refl ; true → refl })
           ∙ sym (ListFreeModelRecᴰ-++ (γᴰ false) (γᴰ true))
           ∙ cong RecᴰTotal (sym (ListMultNormalize γ γᴰ))
 
       ListFreeModelRecᴰ :
-        T.Homoᴰ (T.idHomo {A = ListFreeModel .fst})
-          ListFreeAlgebraᴰ (Bᴰ .fst)
+        T.Homoᴰ (T.idHomo {A = T.Model→Algebra ListFreeModel})
+          ListFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ)
       ListFreeModelRecᴰ .fst = ListFreeModelRecᴰ-fun
       ListFreeModelRecᴰ .snd unitOp γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩
         op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ =
           BᴰR.rectifyOut {e' = refl}
-            ( sym (T.Algebraᴰ-op-filler (Bᴰ .fst) unitOp γ
+            ( sym (T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ)
+                unitOp γ
                 (λ v → ListFreeModelRecᴰ-fun (γ v) (γᴰ v))
                 op⟨γ⟩ op∘γ≡op⟨γ⟩)
             ∙ ListFreeModelRecᴰ-pres-unit γ γᴰ
             ∙ cong RecᴰTotal sourcePath)
         where
         sourcePath : Path (T.∫Algebra ListFreeAlgebraᴰ .fst)
-          ( ListFreeModel .fst .snd unitOp γ
+          ( ListFreeModel .snd .fst unitOp γ
           , ListFreeAlgebraᴰ .snd unitOp γ γᴰ _ refl)
           (op⟨γ⟩ , op⟨γᴰ⟩)
         sourcePath =
@@ -512,14 +515,15 @@ module _ (X : hSet ℓX) where
       ListFreeModelRecᴰ .snd multOp γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩
         op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ =
           BᴰR.rectifyOut {e' = refl}
-            ( sym (T.Algebraᴰ-op-filler (Bᴰ .fst) multOp γ
+            ( sym (T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ)
+                multOp γ
                 (λ v → ListFreeModelRecᴰ-fun (γ v) (γᴰ v))
                 op⟨γ⟩ op∘γ≡op⟨γ⟩)
             ∙ ListFreeModelRecᴰ-pres-mult γ γᴰ
             ∙ cong RecᴰTotal sourcePath)
         where
         sourcePath : Path (T.∫Algebra ListFreeAlgebraᴰ .fst)
-          ( ListFreeModel .fst .snd multOp γ
+          ( ListFreeModel .snd .fst multOp γ
           , ListFreeAlgebraᴰ .snd multOp γ γᴰ _ refl)
           (op⟨γ⟩ , op⟨γᴰ⟩)
         sourcePath =
@@ -529,8 +533,8 @@ module _ (X : hSet ℓX) where
 
     ListFreeModelRecᴰ-uniq :
       (Bᴰ : T.Modelᴰ ListFreeModel ℓD')
-      (hᴰ : T.Homoᴰ (T.idHomo {A = ListFreeModel .fst})
-        ListFreeAlgebraᴰ (Bᴰ .fst)) →
+      (hᴰ : T.Homoᴰ (T.idHomo {A = T.Model→Algebra ListFreeModel})
+        ListFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ)) →
       hᴰ .fst ≡
         ListFreeModelRecᴰ Bᴰ
           (λ x xᴰ → hᴰ .fst
@@ -543,15 +547,15 @@ module _ (X : hSet ℓX) where
       TargetModel = T.∫Model {M = ListFreeModel} Bᴰ
 
       module BᴰR = hSetReasoning
-        (ListFreeModel .fst .fst , ListFreeModel .snd .snd)
-        (Bᴰ .fst .fst)
+        (ListFreeModel .fst)
+        (λ xs → ⟨ Bᴰ .fst xs ⟩)
 
       HomoᴰTotal : T.Homo
         (T.∫Algebra ListFreeAlgebraᴰ)
-        (TargetModel .fst)
+        (T.Model→Algebra TargetModel)
       HomoᴰTotal .fst z = z .fst , hᴰ .fst (z .fst) (z .snd)
       HomoᴰTotal .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
-        T.Algebraᴰ-op-filler (Bᴰ .fst) op
+        T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ) op
           (λ v → γ v .fst)
           (λ v → hᴰ .fst (γ v .fst) (γ v .snd))
           (op⟨γ⟩ .fst) basePath
@@ -560,7 +564,7 @@ module _ (X : hSet ℓX) where
               (λ v → γ v .fst) (λ v → γ v .snd)
               (op⟨γ⟩ .fst) basePath (op⟨γ⟩ .snd) sourceᴰ≡)
         where
-        basePath : ListFreeModel .fst .snd op (λ v → γ v .fst) ≡
+        basePath : ListFreeModel .snd .fst op (λ v → γ v .fst) ≡
           op⟨γ⟩ .fst
         basePath i = op∘γ≡op⟨γ⟩ i .fst
 
@@ -581,7 +585,7 @@ module _ (X : hSet ℓX) where
 
       totalPath : (xs : List (X .fst))
         (xsᴰ : ListFreeAlgebraᴰ .fst xs) →
-        Path (TargetModel .fst .fst)
+        Path (⟨ TargetModel .fst ⟩)
           (xs , hᴰ .fst xs xsᴰ)
           ( xs
           , ListFreeModelRecᴰ Bᴰ
@@ -591,7 +595,7 @@ module _ (X : hSet ℓX) where
       totalPath [] ListP.[] =
         sym (HomoᴰTotal .snd unitOp emptySource
           ([] , ListP.[]) unitSourcePath)
-        ∙ cong (TargetModel .fst .snd unitOp) (funExt λ ())
+        ∙ cong (TargetModel .snd .fst unitOp) (funExt λ ())
         where
         emptySource : ⊥ → T.∫Algebra ListFreeAlgebraᴰ .fst
         emptySource = emptyBranches
@@ -604,7 +608,7 @@ module _ (X : hSet ℓX) where
       totalPath (x ∷ xs) (ListP._∷_ xᴰ xsᴰ) =
         sym (HomoᴰTotal .snd multOp sourceBranches
           (x ∷ xs , ListP._∷_ xᴰ xsᴰ) sourceNormalize)
-        ∙ cong (TargetModel .fst .snd multOp)
+        ∙ cong (TargetModel .snd .fst multOp)
             (funExt λ { false → refl ; true → refl })
         ∙ cong (MonoidModelMult TargetModel
             (ListFreeModelη x , hᴰ .fst
@@ -624,8 +628,8 @@ module _ (X : hSet ℓX) where
     ListFreeModelUniversalᴰ :
       (Bᴰ : T.Modelᴰ ListFreeModel ℓD') →
       isEquiv
-        (λ (hᴰ : T.Homoᴰ (T.idHomo {A = ListFreeModel .fst})
-            ListFreeAlgebraᴰ (Bᴰ .fst)) x xᴰ →
+        (λ (hᴰ : T.Homoᴰ (T.idHomo {A = T.Model→Algebra ListFreeModel})
+            ListFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ ListFreeModel Bᴰ)) x xᴰ →
           hᴰ .fst (ListFreeModelη x) (ListFreeModelηᴰ x xᴰ))
     ListFreeModelUniversalᴰ Bᴰ = isIsoToIsEquiv
       ( ListFreeModelRecᴰ Bᴰ
@@ -633,18 +637,18 @@ module _ (X : hSet ℓX) where
           ListFreeModelRecᴰ-β Bᴰ fᴰ x xᴰ)
       , (λ hᴰ → Σ≡Prop
           (λ _ → isPropΠ6 λ _ _ _ _ _ _ →
-            isPropΠ λ _ → Bᴰ .snd .snd _ _ _)
+            isPropΠ λ _ → Bᴰ .fst _ .snd _ _)
           (sym (ListFreeModelRecᴰ-uniq Bᴰ hᴰ)))
       )
 
     module _ {B : T.Model ℓB}
-      (ϕ : T.Homo (ListFreeModel .fst) (B .fst))
+      (ϕ : T.Homo (T.Model→Algebra ListFreeModel) (T.Model→Algebra B))
       (Bᴰ : T.Modelᴰ B ℓD')
       (fᴰ : (x : X .fst) → Xᴰ x .fst →
-        Bᴰ .fst .fst (ϕ .fst (ListFreeModelη x)))
+        ⟨ Bᴰ .fst (ϕ .fst (ListFreeModelη x)) ⟩)
       where
       ListFreeModelRecOverᴰ :
-        T.Homoᴰ ϕ ListFreeAlgebraᴰ (Bᴰ .fst)
+        T.Homoᴰ ϕ ListFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ B Bᴰ)
       ListFreeModelRecOverᴰ =
         ListFreeModelRecᴰ
           (T._*_ {M = ListFreeModel} {N = B} ϕ Bᴰ) fᴰ
@@ -658,9 +662,9 @@ module _ (X : hSet ℓX) where
           (T._*_ {M = ListFreeModel} {N = B} ϕ Bᴰ) fᴰ
 
     ListFreeModelRecOverᴰ-uniq : {B : T.Model ℓB}
-      (ϕ : T.Homo (ListFreeModel .fst) (B .fst))
+      (ϕ : T.Homo (T.Model→Algebra ListFreeModel) (T.Model→Algebra B))
       (Bᴰ : T.Modelᴰ B ℓD')
-      (hᴰ : T.Homoᴰ ϕ ListFreeAlgebraᴰ (Bᴰ .fst)) →
+      (hᴰ : T.Homoᴰ ϕ ListFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ B Bᴰ)) →
       hᴰ .fst ≡ ListFreeModelRecOverᴰ {B = B} ϕ Bᴰ
         (λ x xᴰ → hᴰ .fst
           (ListFreeModelη x) (ListFreeModelηᴰ x xᴰ)) .fst
@@ -669,10 +673,10 @@ module _ (X : hSet ℓX) where
         (T._*_ {M = ListFreeModel} {N = B} ϕ Bᴰ)
 
     ListFreeModelUniversalOverᴰ : {B : T.Model ℓB}
-      (ϕ : T.Homo (ListFreeModel .fst) (B .fst))
+      (ϕ : T.Homo (T.Model→Algebra ListFreeModel) (T.Model→Algebra B))
       (Bᴰ : T.Modelᴰ B ℓD') →
       isEquiv
-        (λ (hᴰ : T.Homoᴰ ϕ ListFreeAlgebraᴰ (Bᴰ .fst)) x xᴰ →
+        (λ (hᴰ : T.Homoᴰ ϕ ListFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ B Bᴰ)) x xᴰ →
           hᴰ .fst (ListFreeModelη x) (ListFreeModelηᴰ x xᴰ))
     ListFreeModelUniversalOverᴰ {B = B} ϕ Bᴰ =
       ListFreeModelUniversalᴰ

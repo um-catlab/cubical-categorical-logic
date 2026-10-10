@@ -3,7 +3,6 @@ module Cubical.Categories.Displayed.Instances.Algebra.DisplayedModel where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 
 import Cubical.Data.Equality as Eq
@@ -28,12 +27,6 @@ open import Cubical.Algebra.Theory.Base
 module _ {ℓO ℓA ℓE ℓEA} (T : Theory ℓO ℓA ℓE ℓEA) where
   open Theory T
 
-  private
-    MODELOb→Model : ∀ {ℓ} → MODEL T ℓ .Category.ob → Model ℓ
-    MODELOb→Model M .fst = ⟨ M .fst ⟩ , M .snd .fst
-    MODELOb→Model M .snd .fst = M .snd .snd
-    MODELOb→Model M .snd .snd = M .fst .snd
-
   SETᴰOverMODEL : ∀ ℓ ℓᴰ → Categoryᴰ (MODEL T ℓ) _ _
   SETᴰOverMODEL ℓ ℓᴰ = EqReindexWithLaws.reindex
     (SETᴰ ℓ ℓᴰ)
@@ -49,9 +42,7 @@ module _ {ℓO ℓA ℓE ℓEA} (T : Theory ℓO ℓA ℓE ℓEA) where
 
   MODELᴰOver : ∀ ℓ ℓᴰ → Categoryᴰ (MODEL×SETᴰ ℓ ℓᴰ) _ _
   MODELᴰOver ℓ ℓᴰ .Categoryᴰ.ob[_] XMXᴰ =
-    ModelᴰWithCarrier
-      (MODELOb→Model (XMXᴰ .fst))
-      (⟨_⟩ ∘ XMXᴰ .snd)
+    ModelᴰWithCarrier (XMXᴰ .fst) (λ a → ⟨ XMXᴰ .snd a ⟩)
   MODELᴰOver ℓ ℓᴰ .Categoryᴰ.Hom[_][_,_] (ϕ , fᴰ) Aᴰ Bᴰ =
     isHomoᴰSimpl ϕ (_ , Aᴰ .fst) (_ , Bᴰ .fst) fᴰ
   MODELᴰOver ℓ ℓᴰ .Categoryᴰ.idᴰ = idHomoᴰ .snd
@@ -126,17 +117,17 @@ module _ {ℓO ℓA ℓE ℓEA} (T : Theory ℓO ℓA ℓE ℓEA) where
       cong₂ _,_
         (cong
           (λ γᴰ → Mᴰ .snd .fst op
-            (λ v → interp (MODELOb→Model M .fst) ρ (γ v)) γᴰ
-            (interp (MODELOb→Model M .fst) ρ (app op γ))
-            (recFA (MODELOb→Model M .fst) ρ .snd
+            (λ v → interp (Model→Algebra M) ρ (γ v)) γᴰ
+            (interp (Model→Algebra M) ρ (app op γ))
+            (recFA (Model→Algebra M) ρ .snd
               op γ (app op γ) refl))
           (funExt λ v →
             cong fst (interpProductᴰ Mᴰ Nᴰ ρ ρᴰ (γ v))))
         (cong
           (λ γᴰ → Nᴰ .snd .fst op
-            (λ v → interp (MODELOb→Model M .fst) ρ (γ v)) γᴰ
-            (interp (MODELOb→Model M .fst) ρ (app op γ))
-            (recFA (MODELOb→Model M .fst) ρ .snd
+            (λ v → interp (Model→Algebra M) ρ (γ v)) γᴰ
+            (interp (Model→Algebra M) ρ (app op γ))
+            (recFA (Model→Algebra M) ρ .snd
               op γ (app op γ) refl))
           (funExt λ v →
             cong snd (interpProductᴰ Mᴰ Nᴰ ρ ρᴰ (γ v))))

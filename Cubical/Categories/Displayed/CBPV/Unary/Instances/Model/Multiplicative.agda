@@ -52,19 +52,6 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
     C = ModelCBPV T .fst
     Cᴰ = ModelCBPVᴰ T
 
-    MODELOb→Model : Category.ob (MODEL T L) → Model L
-    MODELOb→Model B .fst = ⟨ B .fst ⟩ , B .snd .fst
-    MODELOb→Model B .snd .fst = B .snd .snd
-    MODELOb→Model B .snd .snd = B .fst .snd
-
-    MODELᴰOb→Modelᴰ : ∀ {B : Category.ob (MODEL T L)}
-      → Categoryᴰ.ob[_] (MODELᴰ T L L) B
-      → Modelᴰ (MODELOb→Model B) L
-    MODELᴰOb→Modelᴰ Bᴰ .fst .fst b = ⟨ Bᴰ .fst b ⟩
-    MODELᴰOb→Modelᴰ Bᴰ .fst .snd = Bᴰ .snd .fst
-    MODELᴰOb→Modelᴰ Bᴰ .snd .fst = Bᴰ .snd .snd
-    MODELᴰOb→Modelᴰ Bᴰ .snd .snd b = Bᴰ .fst b .snd
-
     open U→CBPVEqLaws (MODELForget T {ℓ = L})
       (λ _ → Eq.refl) (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
       (λ _ → Eq.refl) (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
@@ -134,13 +121,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
   private
     FreeMODELᴰ : (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L)
       → Categoryᴰ.ob[_] (MODELᴰ T L L) (FreeMODEL T A)
-    FreeMODELᴰ A Aᴰ .fst t =
-      |FreeModelᴰ| ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩) t ,
-      isSetFreeModelᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩) t
-    FreeMODELᴰ A Aᴰ .snd .fst =
-      FreeModelᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩) .fst .snd
-    FreeMODELᴰ A Aᴰ .snd .snd =
-      FreeModelᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩) .snd .fst
+    FreeMODELᴰ A Aᴰ = FreeModelᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩)
 
     η-base : (A : hSet L) → (∫C C) [ (𝒱 , A) , (𝒞 , FreeMODEL T A) ]
     η-base A = _ , var
@@ -165,8 +146,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
         ((𝒱 , Z) , Zᴰ , ()) .fst
       ue .UniversalElementⱽ'.universalⱽ
         ((𝒞 , Z) , Zᴰ , ϕ) .fst ıᴰ =
-          recFMᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩) (ϕ .snd)
-            (MODELᴰOb→Modelᴰ Zᴰ) ıᴰ
+          recFMᴰ ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩) (ϕ .snd) Zᴰ ıᴰ
       ue .UniversalElementⱽ'.universalⱽ
         ((𝒱 , Z) , Zᴰ , ()) .snd .fst
       ue .UniversalElementⱽ'.universalⱽ
@@ -187,17 +167,13 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
               Dᴰ.≡in {pth = refl}
                 (MODELᴰHomo≡ T _ _
                   (sym (recFMᴰ-η ⟨ A ⟩ (λ x → ⟨ Aᴰ x ⟩)
-                    (ϕ .snd) (MODELᴰOb→Modelᴰ Zᴰ)
-                    (_ , ϕᴰ .snd)))))
+                    (ϕ .snd) Zᴰ (_ , ϕᴰ .snd)))))
 
     module _ {B B' : Category.ob (MODEL T L)}
-      (ϕ : Homo (MODELOb→Model B .fst) (MODELOb→Model B' .fst))
+      (ϕ : Homo (Model→Algebra B) (Model→Algebra B'))
       (Bᴰ : Categoryᴰ.ob[_] (MODELᴰ T L L) B) where
 
-      private
-        BModelᴰ = MODELᴰOb→Modelᴰ Bᴰ
-
-      PushAlgebraᴰ : Algebraᴰ (MODELOb→Model B' .fst) L
+      PushAlgebraᴰ : Algebraᴰ (Model→Algebra B') L
       PushAlgebraᴰ .fst b' =
         Σ[ b ∈ ⟨ B .fst ⟩ ] (ϕ .fst b ≡ b') × ⟨ Bᴰ .fst b ⟩
       PushAlgebraᴰ .snd op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
@@ -213,12 +189,12 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
         PushTotal = ∫Algebra PushAlgebraᴰ
 
         SourceTotal : Model L
-        SourceTotal = ∫Model BModelᴰ
+        SourceTotal = ∫Model {M = B} Bᴰ
 
-        forgetPush : PushTotal .fst → SourceTotal .fst .fst
+        forgetPush : PushTotal .fst → ⟨ SourceTotal .fst ⟩
         forgetPush z = z .snd .fst , z .snd .snd .snd
 
-        forgetPushHomo : Homo PushTotal (SourceTotal .fst)
+        forgetPushHomo : Homo PushTotal (Model→Algebra SourceTotal)
         forgetPushHomo .fst = forgetPush
         forgetPushHomo .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i .fst =
           op∘γ≡op⟨γ⟩ i .snd .fst
@@ -228,12 +204,12 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
         sourceEquation : ∀ e
           (ρ : EqArity e → ⟨ B' .fst ⟩)
           (ρᴰ : (v : EqArity e) → PushAlgebraᴰ .fst (ρ v))
-          → Path (SourceTotal .fst .fst)
+          → Path ⟨ SourceTotal .fst ⟩
               ( forgetPush
-                ( interp (MODELOb→Model B' .fst) ρ (lhs e)
+                ( interp (Model→Algebra B') ρ (lhs e)
                 , interpᴰ PushAlgebraᴰ ρ ρᴰ (lhs e)))
               ( forgetPush
-                ( interp (MODELOb→Model B' .fst) ρ (rhs e)
+                ( interp (Model→Algebra B') ρ (rhs e)
                 , interpᴰ PushAlgebraᴰ ρ ρᴰ (rhs e)))
         sourceEquation e ρ ρᴰ =
           cong forgetPush
@@ -241,7 +217,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
               (λ v → ρ v , ρᴰ v) (lhs e)))
           ∙ sym (interpHomo forgetPushHomo
               (λ v → ρ v , ρᴰ v) (lhs e))
-          ∙ SourceTotal .snd .fst e
+          ∙ SourceTotal .snd .snd e
               (λ v → ρᴰ v .fst , ρᴰ v .snd .snd)
           ∙ interpHomo forgetPushHomo
               (λ v → ρ v , ρᴰ v) (rhs e)
@@ -291,7 +267,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
                         op∘γᴰ≡op⟨γᴰ⟩)))
 
       module _ {Z : Category.ob (MODEL T L)}
-        (ψ : Homo (MODELOb→Model B' .fst) (MODELOb→Model Z .fst))
+        (ψ : Homo (Model→Algebra B') (Model→Algebra Z))
         (Zᴰ : Categoryᴰ.ob[_] (MODELᴰ T L L) Z)
         (γᴰ : Categoryᴰ.Hom[_][_,_] (MODELᴰ T L L)
           (ϕ ⋆H ψ) Bᴰ Zᴰ) where
@@ -363,22 +339,22 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
                 , refl)))
 
       canonical-homᴰ : ∀ {Z : Category.ob (MODEL T L)}
-        (ψ : Homo (MODELOb→Model B' .fst) (MODELOb→Model Z .fst))
+        (ψ : Homo (Model→Algebra B') (Model→Algebra Z))
         (Zᴰ : Categoryᴰ.ob[_] (MODELᴰ T L L) Z)
         (χᴰ : Categoryᴰ.Hom[_][_,_] (MODELᴰ T L L) ψ PushMODELInternalᴰ Zᴰ)
         → Categoryᴰ.Hom[_][_,_] (MODELᴰ T L L) (ϕ ⋆H ψ) Bᴰ Zᴰ
       canonical-homᴰ {Z = Z} ψ Zᴰ χᴰ =
         _⋆Hᴰ_
-          {A = MODELOb→Model B .fst}
-          {B = MODELOb→Model B' .fst}
-          {C = MODELOb→Model Z .fst}
-          {Aᴰ = MODELᴰOb→Modelᴰ Bᴰ .fst}
-          {Bᴰ = MODELᴰOb→Modelᴰ PushMODELInternalᴰ .fst}
-          {Cᴰ = MODELᴰOb→Modelᴰ Zᴰ .fst}
+          {A = Model→Algebra B}
+          {B = Model→Algebra B'}
+          {C = Model→Algebra Z}
+          {Aᴰ = Modelᴰ→Algebraᴰ B Bᴰ}
+          {Bᴰ = Modelᴰ→Algebraᴰ B' PushMODELInternalᴰ}
+          {Cᴰ = Modelᴰ→Algebraᴰ Z Zᴰ}
           {ϕ = ϕ} {ψ = ψ} (_ , push-inᴰ .snd) (_ , χᴰ .snd)
 
       recPush-η-fᴰ : ∀ {Z : Category.ob (MODEL T L)}
-        (ψ : Homo (MODELOb→Model B' .fst) (MODELOb→Model Z .fst))
+        (ψ : Homo (Model→Algebra B') (Model→Algebra Z))
         (Zᴰ : Categoryᴰ.ob[_] (MODELᴰ T L L) Z)
         (χᴰ : Categoryᴰ.Hom[_][_,_] (MODELᴰ T L L) ψ PushMODELInternalᴰ Zᴰ)
         b' (x : ⟨ PushMODELInternalᴰ .fst b' ⟩)
@@ -405,7 +381,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
         module Dᴰ = Fibers (MODELᴰ T L L)
 
         Homo≡ : ∀ {X Z : Category.ob (MODEL T L)}
-          (f g : Homo (MODELOb→Model X .fst) (MODELOb→Model Z .fst))
+          (f g : Homo (Model→Algebra X) (Model→Algebra Z))
           → f .fst ≡ g .fst → f ≡ g
         Homo≡ {Z = Z} f g p i .fst = p i
         Homo≡ {Z = Z} f g p i .snd =
@@ -424,7 +400,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
         MODELᴰHomoP≡ : ∀ {X Z : Category.ob (MODEL T L)}
           {Xᴰ : Categoryᴰ.ob[_] (MODELᴰ T L L) X}
           {Zᴰ : Categoryᴰ.ob[_] (MODELᴰ T L L) Z}
-          {f g : Homo (MODELOb→Model X .fst) (MODELOb→Model Z .fst)}
+          {f g : Homo (Model→Algebra X) (Model→Algebra Z)}
           (p : f ≡ g)
           (fᴰ : Categoryᴰ.Hom[_][_,_] (MODELᴰ T L L) f Xᴰ Zᴰ)
           (gᴰ : Categoryᴰ.Hom[_][_,_] (MODELᴰ T L L) g Xᴰ Zᴰ)
@@ -509,19 +485,14 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
   CanonicalFreeMODELConstruction .snd = η-lift
 
   CanonicalBoolFreeMODELConstruction : BoolFreeMODELConstruction
-  CanonicalBoolFreeMODELConstruction .fst .fst =
-    FreeModel Bool .fst .fst , FreeModel Bool .snd .snd
-  CanonicalBoolFreeMODELConstruction .fst .snd .fst =
-    FreeModel Bool .fst .snd
-  CanonicalBoolFreeMODELConstruction .fst .snd .snd =
-    FreeModel Bool .snd .fst
+  CanonicalBoolFreeMODELConstruction .fst = FreeModel Bool
   CanonicalBoolFreeMODELConstruction .snd .fst = var
   CanonicalBoolFreeMODELConstruction .snd .snd B = isIsoToIsEquiv
-    ( recFM Bool (MODELOb→Model B)
+    ( recFM Bool B
     , (λ _ → refl)
     , (λ ϕ → Σ≡Prop
         (λ _ → isPropΠ4 λ _ _ _ _ → B .fst .snd _ _)
-        (sym (recFM-uniq Bool (MODELOb→Model B) ϕ)))
+        (sym (recFM-uniq Bool B ϕ)))
     )
 
   ModelCBPV-FⱽWithFree : (Free : FreeMODELConstruction) → hasFⱽ Cᴰ

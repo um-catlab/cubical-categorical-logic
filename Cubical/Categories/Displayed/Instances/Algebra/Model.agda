@@ -53,8 +53,7 @@ module _ {ℓO ℓA ℓE ℓEA} (T : Theory ℓO ℓA ℓE ℓEA) where
     Categoryᴰ (SET ℓ)
       (ℓ-max ModelLevel ℓ)
       (ℓ-max (ℓ-max ℓO ℓA) ℓ)
-  MODELOver ℓ .ob[_] X =
-    Σ[ A ∈ AlgebraWithCarrier ⟨ X ⟩ ] IsModel (⟨ X ⟩ , A)
+  MODELOver ℓ .ob[_] = ModelStructure
   MODELOver ℓ .Hom[_][_,_] f A B =
     isHomoSimpl (_ , A .fst) (_ , B .fst) f
   MODELOver ℓ .idᴰ =
@@ -74,33 +73,23 @@ module _ {ℓO ℓA ℓE ℓEA} (T : Theory ℓO ℓA ℓE ℓEA) where
   MODELForget : Functor (MODEL ℓ) (SET ℓ)
   MODELForget = TotalCat.Fst
 
-  private
-    MODELOb→Model : (X : hSet ℓ) → Categoryᴰ.ob[_] (MODELOver ℓ) X → Model ℓ
-    MODELOb→Model X A .fst = ⟨ X ⟩ , A .fst
-    MODELOb→Model X A .snd .fst = A .snd
-    MODELOb→Model X A .snd .snd = X .snd
-
   FreeMODEL : hSet ModelLevel → MODEL ModelLevel .ob
-  FreeMODEL X .fst =
-    FreeModel ⟨ X ⟩ .fst .fst , FreeModel ⟨ X ⟩ .snd .snd
-  FreeMODEL X .snd .fst = FreeModel ⟨ X ⟩ .fst .snd
-  FreeMODEL X .snd .snd = FreeModel ⟨ X ⟩ .snd .fst
+  FreeMODEL X = FreeModel ⟨ X ⟩
 
   MODELFree : LeftAdjoint (MODELForget {ℓ = ModelLevel})
   MODELFree X .UniversalElement.vertex = FreeMODEL X
   MODELFree X .UniversalElement.element = var
   MODELFree X .UniversalElement.universal B = isIsoToIsEquiv
-    ( recFM ⟨ X ⟩ (MODELOb→Model (B .fst) (B .snd))
+    ( recFM ⟨ X ⟩ B
     , (λ _ → refl)
     , (λ ϕ → Σ≡Prop
         (λ _ → isPropΠ4 λ _ _ _ _ → B .fst .snd _ _)
-        (sym (recFM-uniq ⟨ X ⟩ (MODELOb→Model (B .fst) (B .snd)) ϕ)))
+        (sym (recFM-uniq ⟨ X ⟩ B ϕ)))
     )
 
   module _ {ℓSET : Level} where
     TerminalMODELOver : Terminalᴰ (MODELOver ℓSET) TerminalSET
-    TerminalMODELOver .vertexᴰ =
-      ⊤*Model .fst .snd , ⊤*Model .snd .fst
+    TerminalMODELOver .vertexᴰ = ⊤*Model .snd
     TerminalMODELOver .elementᴰ = tt
     TerminalMODELOver .universalᴰ .inv _ _ _ _ _ _ = refl
     TerminalMODELOver .universalᴰ .rightInv _ _ = refl
@@ -115,9 +104,7 @@ module _ {ℓO ℓA ℓE ℓEA} (T : Theory ℓO ℓA ℓE ℓEA) where
 
     BinProductsMODELOver : BinProductsᴰ (MODELOver ℓSET) BinProductsSET
     BinProductsMODELOver {c12 = X , Y} (A , B) .vertexᴰ =
-      let M = MODELOb→Model X A
-          N = MODELOb→Model Y B
-      in (M ×Model N) .fst .snd , (M ×Model N) .snd .fst
+      ((X , A) ×Model (Y , B)) .snd
     BinProductsMODELOver {c12 = X , Y} (A , B) .elementᴰ .fst
       op γ op⟨γ⟩ p = cong fst p
     BinProductsMODELOver {c12 = X , Y} (A , B) .elementᴰ .snd

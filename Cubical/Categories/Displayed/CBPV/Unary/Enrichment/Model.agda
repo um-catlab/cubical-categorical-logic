@@ -47,9 +47,8 @@ module _ (C : CBPVCat ℓ ℓ') (T : Theory ℓO ℓA ℓE ℓEA) where
   ModelEnrichmentModel : ModelEnrichment →
     ∀ (A : C.ob[ 𝒱 ]) (B : C.ob[ 𝒞 ]) → Model ℓ'
   ModelEnrichmentModel CModel A B .fst =
-    C.Hom[ _ ][ A , B ] , CModel .fst A B .fst
-  ModelEnrichmentModel CModel A B .snd .fst = CModel .fst A B .snd
-  ModelEnrichmentModel CModel A B .snd .snd = Categoryᴰ.isSetHomᴰ C
+    C.Hom[ _ ][ A , B ] , Categoryᴰ.isSetHomᴰ C
+  ModelEnrichmentModel CModel A B .snd = CModel .fst A B
 
 module _ {C : CBPVCat ℓ ℓ'} (T : Theory ℓO ℓA ℓE ℓEA)
   (CModel : ModelEnrichment C T)
@@ -131,18 +130,18 @@ module _
     module F*Cᴰ = Fibers F*Cᴰ
 
     FModelHomo : ∀ A B → Homo
-      (ModelEnrichmentModel C T CModel A B .fst)
-      (ModelEnrichmentModel D T DModel (F.F-obᴰ A) (F.F-obᴰ B) .fst)
+      (Model→Algebra (ModelEnrichmentModel C T CModel A B))
+      (Model→Algebra
+        (ModelEnrichmentModel D T DModel (F.F-obᴰ A) (F.F-obᴰ B)))
     FModelHomo A B .fst = F.F-homᴰ
     FModelHomo A B .snd = FModel A B
 
     DᴰModelAt : ∀ {A : D.ob[ 𝒱 ]} {B : D.ob[ 𝒞 ]}
       (Aᴰ : Dᴰ.ob[ _ , A ]) (Bᴰ : Dᴰ.ob[ _ , B ])
       → Modelᴰ (ModelEnrichmentModel D T DModel A B) ℓCᴰ'
-    DᴰModelAt Aᴰ Bᴰ .fst .fst M = Dᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ]
-    DᴰModelAt Aᴰ Bᴰ .fst .snd = DᴰModel .fst Aᴰ Bᴰ .fst
-    DᴰModelAt Aᴰ Bᴰ .snd .fst = DᴰModel .fst Aᴰ Bᴰ .snd
-    DᴰModelAt Aᴰ Bᴰ .snd .snd _ = Categoryᴰ.isSetHomᴰ Dᴰ
+    DᴰModelAt Aᴰ Bᴰ .fst M =
+      Dᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ] , Categoryᴰ.isSetHomᴰ Dᴰ
+    DᴰModelAt Aᴰ Bᴰ .snd = DᴰModel .fst Aᴰ Bᴰ
 
     PulledModel : ∀ {A : C.ob[ 𝒱 ]} {B : C.ob[ 𝒞 ]}
       (Aᴰ : Dᴰ.ob[ _ , F.F-obᴰ A ]) (Bᴰ : Dᴰ.ob[ _ , F.F-obᴰ B ])
@@ -154,8 +153,7 @@ module _
       (Aᴰ : Dᴰ.ob[ _ , F.F-obᴰ A ]) (Bᴰ : Dᴰ.ob[ _ , F.F-obᴰ B ])
       → ModelᴰWithCarrier (ModelEnrichmentModel C T CModel A B)
           (λ M → F*Cᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ])
-    ModelEffᴰReindex Aᴰ Bᴰ .fst = PulledModel Aᴰ Bᴰ .fst .snd
-    ModelEffᴰReindex Aᴰ Bᴰ .snd = PulledModel Aᴰ Bᴰ .snd .fst
+    ModelEffᴰReindex Aᴰ Bᴰ = PulledModel Aᴰ Bᴰ .snd
 
     AlgebraEnrichmentᴰReindexed : AlgebraEnrichmentᴰ S CAlg F*Cᴰ
     AlgebraEnrichmentᴰReindexed =

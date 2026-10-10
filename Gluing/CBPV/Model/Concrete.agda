@@ -36,13 +36,11 @@ ReaderFreeMODELConstruction Env =
 ReaderBoolFreeMODELConstruction : (Env : Type ℓR) →
   BoolFreeMODELConstruction (Reader.ReaderTheory Env)
 ReaderBoolFreeMODELConstruction Env .fst =
-  Concrete.Model→MODEL (Reader.ReaderTheory Env)
-    (Reader.ReaderFreeModel Env (Bool , isSetBool))
+  (Reader.ReaderFreeModel Env (Bool , isSetBool))
 ReaderBoolFreeMODELConstruction Env .snd .fst =
   Reader.ReaderFreeModelη Env (Bool , isSetBool)
 ReaderBoolFreeMODELConstruction Env .snd .snd B =
-  Reader.ReaderFreeModelUniversal Env (Bool , isSetBool)
-    (Concrete.MODEL→Model (Reader.ReaderTheory Env) B)
+  Reader.ReaderFreeModelUniversal Env (Bool , isSetBool) B
 
 module ReaderBoolModelSyntax {ℓR : Level} (Env : Type ℓR) =
   Generic.BoolModelSyntaxWithFree
@@ -66,13 +64,11 @@ WriterFreeMODELConstruction W =
 WriterBoolFreeMODELConstruction : (W : Monoid ℓW) →
   BoolFreeMODELConstruction (Writer.WriterTheory W)
 WriterBoolFreeMODELConstruction W .fst =
-  Concrete.Model→MODEL (Writer.WriterTheory W)
-    (Writer.WriterFreeModel W (Bool , isSetBool))
+  (Writer.WriterFreeModel W (Bool , isSetBool))
 WriterBoolFreeMODELConstruction W .snd .fst =
   Writer.WriterFreeModelη W (Bool , isSetBool)
 WriterBoolFreeMODELConstruction W .snd .snd B =
-  Writer.WriterFreeModelUniversal W (Bool , isSetBool)
-    (Concrete.MODEL→Model (Writer.WriterTheory W) B)
+  Writer.WriterFreeModelUniversal W (Bool , isSetBool) B
 
 module WriterBoolModelSyntax {ℓW : Level} (W : Monoid ℓW) =
   Generic.BoolModelSyntaxWithFree
@@ -96,13 +92,11 @@ StateFreeMODELConstruction Store =
 StateBoolFreeMODELConstruction : (Store : hSet ℓS) →
   BoolFreeMODELConstruction (State.StateTheory (Store .fst))
 StateBoolFreeMODELConstruction Store .fst =
-  Concrete.Model→MODEL (State.StateTheory (Store .fst))
-    (State.StateFreeModel Store (Bool , isSetBool))
+  (State.StateFreeModel Store (Bool , isSetBool))
 StateBoolFreeMODELConstruction Store .snd .fst =
   State.StateFreeModelη Store (Bool , isSetBool)
 StateBoolFreeMODELConstruction Store .snd .snd B =
-  State.StateFreeModelUniversal Store (Bool , isSetBool)
-    (Concrete.MODEL→Model (State.StateTheory (Store .fst)) B)
+  State.StateFreeModelUniversal Store (Bool , isSetBool) B
 
 module StateBoolModelSyntax {ℓS : Level} (Store : hSet ℓS) =
   Generic.BoolModelSyntaxWithFree
@@ -126,13 +120,11 @@ MonoidFreeMODELConstruction =
 MonoidBoolFreeMODELConstruction :
   BoolFreeMODELConstruction FreeMonoid.MonoidTheory
 MonoidBoolFreeMODELConstruction .fst =
-  Concrete.Model→MODEL FreeMonoid.MonoidTheory
-    (FreeMonoid.ListFreeModel (Bool , isSetBool))
+  (FreeMonoid.ListFreeModel (Bool , isSetBool))
 MonoidBoolFreeMODELConstruction .snd .fst =
   FreeMonoid.ListFreeModelη (Bool , isSetBool)
 MonoidBoolFreeMODELConstruction .snd .snd B =
-  FreeMonoid.ListFreeModelUniversal (Bool , isSetBool)
-    (Concrete.MODEL→Model FreeMonoid.MonoidTheory B)
+  FreeMonoid.ListFreeModelUniversal (Bool , isSetBool) B
 
 module MonoidBoolModelSyntax =
   Generic.BoolModelSyntaxWithFree

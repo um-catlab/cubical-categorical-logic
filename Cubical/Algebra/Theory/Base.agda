@@ -5,6 +5,7 @@ open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.More
 open import Cubical.Foundations.HLevels.More
+open import Cubical.Foundations.Structure
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -30,19 +31,30 @@ record Theory ℓO ℓA ℓO' ℓA' :
   IsModel A = ∀ e (γ : EqArity e → A .fst)
     → recFA A γ .fst (lhs e) ≡ recFA A γ .fst (rhs e)
 
+  -- A model is a set with a model structure. ModelStructure is
+  -- literally the object type of the displayed category MODELOver
+  -- (Cubical.Categories.Displayed.Instances.Algebra.Model), so that a
+  -- Model is literally an object of the category MODEL of models and
+  -- no conversion is needed between the two.
+  ModelStructure : hSet ℓ → Type _
+  ModelStructure X =
+    Σ[ A ∈ AlgebraWithCarrier ⟨ X ⟩ ] IsModel (⟨ X ⟩ , A)
+
   Model : ∀ ℓ → Type _
-  Model ℓ = Σ[ A ∈ Algebra ℓ ]
-    Σ[ _ ∈ IsModel A ] isSet (A .fst)
+  Model ℓ = Σ[ X ∈ hSet ℓ ] ModelStructure X
+
+  Model→Algebra : Model ℓ → Algebra ℓ
+  Model→Algebra M = ⟨ M .fst ⟩ , M .snd .fst
 
   ⊤Model : Model ℓ-zero
-  ⊤Model .fst = Unit , ⊤Algebra
-  ⊤Model .snd .fst e ρ = refl
-  ⊤Model .snd .snd = isSetUnit
+  ⊤Model .fst = Unit , isSetUnit
+  ⊤Model .snd .fst = ⊤Algebra
+  ⊤Model .snd .snd e ρ = refl
 
   ⊤*Model : Model ℓ
-  ⊤*Model .fst = Unit* , ⊤*Algebra
-  ⊤*Model .snd .fst e ρ = refl
-  ⊤*Model .snd .snd = isSetUnit*
+  ⊤*Model .fst = Unit* , isSetUnit*
+  ⊤*Model .snd .fst = ⊤*Algebra
+  ⊤*Model .snd .snd e ρ = refl
 
   interp : (A : Algebra ℓ) {V : Type ℓ'}
     → (V → A .fst) → |FreeAlgebra| V → A .fst
@@ -119,37 +131,49 @@ record Theory ℓO ℓA ℓO' ℓA' :
         (interp A ρ (app f γ))
         (recFA A ρ .snd f γ (app f γ) refl)
 
-  IsModelᴰ : (M : Model ℓ) → Algebraᴰ (M .fst) ℓᴰ → Type _
+  IsModelᴰ : (M : Model ℓ) → Algebraᴰ (Model→Algebra M) ℓᴰ → Type _
   IsModelᴰ M Aᴰ =
-    ∀ e (ρ : EqArity e → M .fst .fst)
+    ∀ e (ρ : EqArity e → ⟨ M .fst ⟩)
       (ρᴰ : (v : EqArity e) → Aᴰ .fst (ρ v))
-    → PathP (λ i → Aᴰ .fst (M .snd .fst e ρ i))
+    → PathP (λ i → Aᴰ .fst (M .snd .snd e ρ i))
         (interpᴰ Aᴰ ρ ρᴰ (lhs e))
         (interpᴰ Aᴰ ρ ρᴰ (rhs e))
 
   ModelᴰWithCarrier : (M : Model ℓ)
-    → (M .fst .fst → Type ℓᴰ) → Type _
+    → (⟨ M .fst ⟩ → Type ℓᴰ) → Type _
   ModelᴰWithCarrier M Xᴰ =
-    Σ[ αᴰ ∈ AlgebraᴰWithCarrier (M .fst) Xᴰ ]
+    Σ[ αᴰ ∈ AlgebraᴰWithCarrier (Model→Algebra M) Xᴰ ]
       IsModelᴰ M (Xᴰ , αᴰ)
 
+  -- As with Model, a displayed model is literally an object of the
+  -- displayed category MODELᴰ of displayed models.
   Modelᴰ : Model ℓ → ∀ ℓᴰ → Type _
-  Modelᴰ M ℓᴰ = Σ[ Aᴰ ∈ Algebraᴰ (M .fst) ℓᴰ ]
-    Σ[ _ ∈ IsModelᴰ M Aᴰ ]
-      ((a : M .fst .fst) → isSet (Aᴰ .fst a))
+  Modelᴰ M ℓᴰ = Σ[ Xᴰ ∈ (⟨ M .fst ⟩ → hSet ℓᴰ) ]
+    ModelᴰWithCarrier M (λ a → ⟨ Xᴰ a ⟩)
 
-  isPropModelᴰStructure : (M : Model ℓ) (Aᴰ : Algebraᴰ (M .fst) ℓᴰ)
-    → isProp
-        (Σ[ _ ∈ IsModelᴰ M Aᴰ ]
-          ((a : M .fst .fst) → isSet (Aᴰ .fst a)))
-  isPropModelᴰStructure M Aᴰ (p , pSet) (q , qSet) i .fst e ρ ρᴰ =
-    isOfHLevelPathP' 1 (pSet _) _ _ (p e ρ ρᴰ) (q e ρ ρᴰ) i
-  isPropModelᴰStructure M Aᴰ (p , pSet) (q , qSet) i .snd =
-    isPropΠ (λ _ → isPropIsSet) pSet qSet i
+  Modelᴰ→Algebraᴰ : (M : Model ℓ)
+    → Modelᴰ M ℓᴰ → Algebraᴰ (Model→Algebra M) ℓᴰ
+  Modelᴰ→Algebraᴰ M Mᴰ = (λ a → ⟨ Mᴰ .fst a ⟩) , Mᴰ .snd .fst
+
+  isPropIsModelᴰ : (M : Model ℓ) (Xᴰ : ⟨ M .fst ⟩ → hSet ℓᴰ)
+    (αᴰ : AlgebraᴰWithCarrier (Model→Algebra M) (λ a → ⟨ Xᴰ a ⟩))
+    → isProp (IsModelᴰ M (_ , αᴰ))
+  isPropIsModelᴰ M Xᴰ αᴰ p q i e ρ ρᴰ =
+    isOfHLevelPathP' 1 (Xᴰ _ .snd) _ _ (p e ρ ρᴰ) (q e ρ ρᴰ) i
 
   Modelᴰ≡ : {M : Model ℓ} {Mᴰ Nᴰ : Modelᴰ M ℓᴰ}
-    → Mᴰ .fst ≡ Nᴰ .fst → Mᴰ ≡ Nᴰ
-  Modelᴰ≡ {M = M} = Σ≡Prop (isPropModelᴰStructure M)
+    → Modelᴰ→Algebraᴰ M Mᴰ ≡ Modelᴰ→Algebraᴰ M Nᴰ → Mᴰ ≡ Nᴰ
+  Modelᴰ≡ {M = M} {Mᴰ = Mᴰ} {Nᴰ = Nᴰ} p =
+    ΣPathP
+      ( Xᴰ≡
+      , ΣPathPProp (λ αᴰ → isPropIsModelᴰ M (Nᴰ .fst) αᴰ)
+          (λ i → p i .snd))
+    where
+    Xᴰ≡ : Mᴰ .fst ≡ Nᴰ .fst
+    Xᴰ≡ i a .fst = p i .fst a
+    Xᴰ≡ i a .snd =
+      isProp→PathP (λ j → isPropIsSet {A = p j .fst a})
+        (Mᴰ .fst a .snd) (Nᴰ .fst a .snd) i
 
   interp∫ : {A : Algebra ℓ} {Aᴰ : Algebraᴰ A ℓᴰ}
     {V : Type ℓ'} (ρ : V → ∫Algebra Aᴰ .fst) (t : |FreeAlgebra| V)
@@ -171,25 +195,34 @@ record Theory ℓO ℓA ℓO' ℓA' :
           (app f γ) refl)
 
   ∫Model : {M : Model ℓ} → Modelᴰ M ℓᴰ → Model (ℓ-max ℓ ℓᴰ)
-  ∫Model Mᴰ .fst = ∫Algebra (Mᴰ .fst)
-  ∫Model {M = M} Mᴰ .snd .fst e ρ =
-    interp∫ {A = M .fst} {Aᴰ = Mᴰ .fst} ρ (lhs e)
+  ∫Model {M = M} Mᴰ .fst .fst = Σ[ a ∈ ⟨ M .fst ⟩ ] ⟨ Mᴰ .fst a ⟩
+  ∫Model {M = M} Mᴰ .fst .snd =
+    isSetΣ (M .fst .snd) (λ a → Mᴰ .fst a .snd)
+  ∫Model {M = M} Mᴰ .snd .fst = ∫Algebra (Modelᴰ→Algebraᴰ M Mᴰ) .snd
+  ∫Model {M = M} Mᴰ .snd .snd e ρ =
+    interp∫ {A = Model→Algebra M} {Aᴰ = Modelᴰ→Algebraᴰ M Mᴰ} ρ (lhs e)
     ∙ ΣPathP
-        ( M .snd .fst e (λ v → ρ v .fst)
-        , Mᴰ .snd .fst e (λ v → ρ v .fst) (λ v → ρ v .snd))
-    ∙ sym (interp∫ {A = M .fst} {Aᴰ = Mᴰ .fst} ρ (rhs e))
-  ∫Model {M = M} Mᴰ .snd .snd =
-    isSetΣ (M .snd .snd) (Mᴰ .snd .snd)
+        ( M .snd .snd e (λ v → ρ v .fst)
+        , Mᴰ .snd .snd e (λ v → ρ v .fst) (λ v → ρ v .snd))
+    ∙ sym
+        (interp∫ {A = Model→Algebra M} {Aᴰ = Modelᴰ→Algebraᴰ M Mᴰ}
+          ρ (rhs e))
 
   module _ {M : Model ℓ} where
     Modelᴰᴰ : (Mᴰ : Modelᴰ M ℓᴰ) → ∀ ℓᴰᴰ → Type _
     Modelᴰᴰ Mᴰ ℓᴰᴰ = Modelᴰ (∫Model {M = M} Mᴰ) ℓᴰᴰ
 
+    private
+      ∫ᴰAlg : {Mᴰ : Modelᴰ M ℓᴰ} (Mᴰᴰ : Modelᴰᴰ Mᴰ ℓᴰᴰ)
+        → Algebraᴰ (Model→Algebra M) _
+      ∫ᴰAlg {Mᴰ = Mᴰ} Mᴰᴰ =
+        S.∫ᴰAlgebra {A = Model→Algebra M} {Aᴰ = Modelᴰ→Algebraᴰ M Mᴰ}
+          (Modelᴰ→Algebraᴰ (∫Model {M = M} Mᴰ) Mᴰᴰ)
+
     ∫ᴰModel-assoc : {Mᴰ : Modelᴰ M ℓᴰ}
       (Mᴰᴰ : Modelᴰᴰ Mᴰ ℓᴰᴰ)
-      → ∫Algebra (Mᴰᴰ .fst) .fst
-      → ∫Algebra
-          (S.∫ᴰAlgebra {A = M .fst} {Aᴰ = Mᴰ .fst} (Mᴰᴰ .fst)) .fst
+      → ∫Algebra (Modelᴰ→Algebraᴰ (∫Model {M = M} Mᴰ) Mᴰᴰ) .fst
+      → ∫Algebra (∫ᴰAlg {Mᴰ = Mᴰ} Mᴰᴰ) .fst
     ∫ᴰModel-assoc {Mᴰ = Mᴰ} Mᴰᴰ z .fst = z .fst .fst
     ∫ᴰModel-assoc {Mᴰ = Mᴰ} Mᴰᴰ z .snd .fst = z .fst .snd
     ∫ᴰModel-assoc {Mᴰ = Mᴰ} Mᴰᴰ z .snd .snd = z .snd
@@ -197,9 +230,8 @@ record Theory ℓO ℓA ℓO' ℓA' :
     ∫ᴰModel-assocHomo : {Mᴰ : Modelᴰ M ℓᴰ}
       (Mᴰᴰ : Modelᴰᴰ Mᴰ ℓᴰᴰ)
       → S.Homo
-          (∫Algebra (Mᴰᴰ .fst))
-          (∫Algebra
-            (S.∫ᴰAlgebra {A = M .fst} {Aᴰ = Mᴰ .fst} (Mᴰᴰ .fst)))
+          (∫Algebra (Modelᴰ→Algebraᴰ (∫Model {M = M} Mᴰ) Mᴰᴰ))
+          (∫Algebra (∫ᴰAlg {Mᴰ = Mᴰ} Mᴰᴰ))
     ∫ᴰModel-assocHomo {Mᴰ = Mᴰ} Mᴰᴰ .fst =
       ∫ᴰModel-assoc {Mᴰ = Mᴰ} Mᴰᴰ
     ∫ᴰModel-assocHomo {Mᴰ = Mᴰ} Mᴰᴰ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i .fst =
@@ -211,17 +243,19 @@ record Theory ℓO ℓA ℓO' ℓA' :
 
     ∫ᴰModel : {Mᴰ : Modelᴰ M ℓᴰ}
       → Modelᴰᴰ Mᴰ ℓᴰᴰ → Modelᴰ M (ℓ-max ℓᴰ ℓᴰᴰ)
-    ∫ᴰModel {Mᴰ = Mᴰ} Mᴰᴰ .fst =
-      S.∫ᴰAlgebra {A = M .fst} {Aᴰ = Mᴰ .fst} (Mᴰᴰ .fst)
-    ∫ᴰModel {Mᴰ = Mᴰ} Mᴰᴰ .snd .fst e ρ ρᴰ =
+    ∫ᴰModel {Mᴰ = Mᴰ} Mᴰᴰ .fst a .fst =
+      Σ[ aᴰ ∈ ⟨ Mᴰ .fst a ⟩ ] ⟨ Mᴰᴰ .fst (a , aᴰ) ⟩
+    ∫ᴰModel {Mᴰ = Mᴰ} Mᴰᴰ .fst a .snd =
+      isSetΣ (Mᴰ .fst a .snd) (λ aᴰ → Mᴰᴰ .fst (a , aᴰ) .snd)
+    ∫ᴰModel {Mᴰ = Mᴰ} Mᴰᴰ .snd .fst = ∫ᴰAlg {Mᴰ = Mᴰ} Mᴰᴰ .snd
+    ∫ᴰModel {Mᴰ = Mᴰ} Mᴰᴰ .snd .snd e ρ ρᴰ =
       hSetReasoning.rectifyOut
-        (M .fst .fst , M .snd .snd)
-        (S.∫ᴰAlgebra {A = M .fst} {Aᴰ = Mᴰ .fst} (Mᴰᴰ .fst) .fst)
+        (M .fst)
+        (∫ᴰAlg {Mᴰ = Mᴰ} Mᴰᴰ .fst)
         ( sym
             (interp∫
-              {A = M .fst}
-              {Aᴰ = S.∫ᴰAlgebra
-                {A = M .fst} {Aᴰ = Mᴰ .fst} (Mᴰᴰ .fst)}
+              {A = Model→Algebra M}
+              {Aᴰ = ∫ᴰAlg {Mᴰ = Mᴰ} Mᴰᴰ}
               (λ v → ρ v , ρᴰ v) (lhs e))
         ∙ interpHomo
             (∫ᴰModel-assocHomo {Mᴰ = Mᴰ} Mᴰᴰ)
@@ -229,7 +263,7 @@ record Theory ℓO ℓA ℓO' ℓA' :
             (lhs e)
         ∙ cong (∫ᴰModel-assoc {Mᴰ = Mᴰ} Mᴰᴰ)
             (∫Model
-              {M = ∫Model {M = M} Mᴰ} Mᴰᴰ .snd .fst e
+              {M = ∫Model {M = M} Mᴰ} Mᴰᴰ .snd .snd e
               (λ v → (ρ v , ρᴰ v .fst) , ρᴰ v .snd))
         ∙ sym
             (interpHomo
@@ -237,84 +271,87 @@ record Theory ℓO ℓA ℓO' ℓA' :
               (λ v → (ρ v , ρᴰ v .fst) , ρᴰ v .snd)
               (rhs e))
         ∙ interp∫
-            {A = M .fst}
-            {Aᴰ = S.∫ᴰAlgebra {A = M .fst} {Aᴰ = Mᴰ .fst} (Mᴰᴰ .fst)}
+            {A = Model→Algebra M}
+            {Aᴰ = ∫ᴰAlg {Mᴰ = Mᴰ} Mᴰᴰ}
             (λ v → ρ v , ρᴰ v) (rhs e))
-    ∫ᴰModel {Mᴰ = Mᴰ} Mᴰᴰ .snd .snd a =
-      isSetΣ (Mᴰ .snd .snd a) (λ aᴰ → Mᴰᴰ .snd .snd (a , aᴰ))
 
   interpᴰwk : (M : Model ℓ) (N : Model ℓ') {V : Type ℓ''}
-    (ρ : V → M .fst .fst) (ρᴰ : V → N .fst .fst) (t : |FreeAlgebra| V)
-    → interpᴰ (wkAlg (M .fst) (N .fst)) ρ ρᴰ t ≡ interp (N .fst) ρᴰ t
+    (ρ : V → ⟨ M .fst ⟩) (ρᴰ : V → ⟨ N .fst ⟩) (t : |FreeAlgebra| V)
+    → interpᴰ (wkAlg (Model→Algebra M) (Model→Algebra N)) ρ ρᴰ t
+      ≡ interp (Model→Algebra N) ρᴰ t
   interpᴰwk M N ρ ρᴰ (var v) = refl
   interpᴰwk M N ρ ρᴰ (app f γ) =
-    cong (N .fst .snd f) (funExt λ v → interpᴰwk M N ρ ρᴰ (γ v))
-    ∙ recFA (N .fst) ρᴰ .snd f γ (app f γ) refl
+    cong (N .snd .fst f) (funExt λ v → interpᴰwk M N ρ ρᴰ (γ v))
+    ∙ recFA (Model→Algebra N) ρᴰ .snd f γ (app f γ) refl
 
   wkModel : (M : Model ℓ) (N : Model ℓ') → Modelᴰ M ℓ'
-  wkModel M N .fst = wkAlg (M .fst) (N .fst)
-  wkModel M N .snd .fst e ρ ρᴰ =
+  wkModel M N .fst _ = N .fst
+  wkModel M N .snd .fst =
+    wkAlg (Model→Algebra M) (Model→Algebra N) .snd
+  wkModel M N .snd .snd e ρ ρᴰ =
     interpᴰwk M N ρ ρᴰ (lhs e)
-    ∙ N .snd .fst e ρᴰ
+    ∙ N .snd .snd e ρᴰ
     ∙ sym (interpᴰwk M N ρ ρᴰ (rhs e))
-  wkModel M N .snd .snd _ = N .snd .snd
 
   _×Model_ : (M : Model ℓ) (N : Model ℓ') → Model _
   M ×Model N = ∫Model {M = M} (wkModel M N)
 
   module _ {M : Model ℓ} {N : Model ℓ'} where
-    _*_ : S.Homo (M .fst) (N .fst) → Modelᴰ N ℓᴰ → Modelᴰ M ℓᴰ
-    (ϕ * Nᴰ) .fst = ϕ S.* (Nᴰ .fst)
-    (ϕ * Nᴰ) .snd .fst e ρ ρᴰ =
+    _*_ : S.Homo (Model→Algebra M) (Model→Algebra N)
+      → Modelᴰ N ℓᴰ → Modelᴰ M ℓᴰ
+    (ϕ * Nᴰ) .fst a = Nᴰ .fst (ϕ .fst a)
+    (ϕ * Nᴰ) .snd .fst = (ϕ S.* Modelᴰ→Algebraᴰ N Nᴰ) .snd
+    (ϕ * Nᴰ) .snd .snd e ρ ρᴰ =
       hSetReasoning.rectifyOut
-        (N .fst .fst , N .snd .snd) (Nᴰ .fst .fst)
-        ( sym (interpPullback ϕ (Nᴰ .fst) ρ ρᴰ (lhs e))
+        (N .fst) (λ a → ⟨ Nᴰ .fst a ⟩)
+        ( sym (interpPullback ϕ (Modelᴰ→Algebraᴰ N Nᴰ) ρ ρᴰ (lhs e))
         ∙ ΣPathP
-            ( N .snd .fst e (λ v → ϕ .fst (ρ v))
-            , Nᴰ .snd .fst e (λ v → ϕ .fst (ρ v)) ρᴰ)
-        ∙ interpPullback ϕ (Nᴰ .fst) ρ ρᴰ (rhs e))
-    (ϕ * Nᴰ) .snd .snd a = Nᴰ .snd .snd (ϕ .fst a)
+            ( N .snd .snd e (λ v → ϕ .fst (ρ v))
+            , Nᴰ .snd .snd e (λ v → ϕ .fst (ρ v)) ρᴰ)
+        ∙ interpPullback ϕ (Modelᴰ→Algebraᴰ N Nᴰ) ρ ρᴰ (rhs e))
 
   module _ {M : Model ℓ} {Mᴰ : Modelᴰ M ℓᴰ} where
-    *Id : _*_ {M = M} {N = M} (S.idHomo {A = M .fst}) Mᴰ ≡ Mᴰ
+    *Id : _*_ {M = M} {N = M} (S.idHomo {A = Model→Algebra M}) Mᴰ ≡ Mᴰ
     *Id = Modelᴰ≡ {M = M}
-      (S.*Id {A = M .fst} {Aᴰ = Mᴰ .fst})
+      (S.*Id {A = Model→Algebra M} {Aᴰ = Modelᴰ→Algebraᴰ M Mᴰ})
 
   module _ {M : Model ℓ} {N : Model ℓ'} {P : Model ℓ''}
     {Pᴰ : Modelᴰ P ℓᴰ''}
-    (ϕ : S.Homo (M .fst) (N .fst))
-    (ψ : S.Homo (N .fst) (P .fst)) where
+    (ϕ : S.Homo (Model→Algebra M) (Model→Algebra N))
+    (ψ : S.Homo (Model→Algebra N) (Model→Algebra P)) where
     *∘ : _*_ {M = M} {N = P}
-          (S._⋆H_ {A = M .fst} {B = N .fst} {C = P .fst} ϕ ψ) Pᴰ
+          (S._⋆H_ {A = Model→Algebra M} {B = Model→Algebra N}
+            {C = Model→Algebra P} ϕ ψ) Pᴰ
         ≡ _*_ {M = M} {N = N} ϕ
             (_*_ {M = N} {N = P} ψ Pᴰ)
     *∘ = Modelᴰ≡ {M = M}
       (S.*∘
-        {A = M .fst} {B = N .fst} {C = P .fst} {Cᴰ = Pᴰ .fst}
+        {A = Model→Algebra M} {B = Model→Algebra N}
+        {C = Model→Algebra P} {Cᴰ = Modelᴰ→Algebraᴰ P Pᴰ}
         ϕ ψ)
 
   module _ (M : Model ℓ) where
     PathModel : Modelᴰ (M ×Model M) ℓ
-    PathModel .fst = S.PathAlg (M .fst)
-    PathModel .snd .fst e ρ ρᴰ =
-      isProp→PathP (λ _ → M .snd .snd _ _)
-        (interpᴰ (S.PathAlg (M .fst)) ρ ρᴰ (lhs e))
-        (interpᴰ (S.PathAlg (M .fst)) ρ ρᴰ (rhs e))
-    PathModel .snd .snd (m , n) =
-      isProp→isSet (M .snd .snd m n)
+    PathModel .fst (m , n) = (m ≡ n) , isProp→isSet (M .fst .snd m n)
+    PathModel .snd .fst = S.PathAlg (Model→Algebra M) .snd
+    PathModel .snd .snd e ρ ρᴰ =
+      isProp→PathP (λ _ → M .fst .snd _ _)
+        (interpᴰ (S.PathAlg (Model→Algebra M)) ρ ρᴰ (lhs e))
+        (interpᴰ (S.PathAlg (Model→Algebra M)) ρ ρᴰ (rhs e))
 
     PathModelReflection : {Γ : Model ℓ'}
-      (ϕ ψ : S.Homo (Γ .fst) (M .fst))
+      (ϕ ψ : S.Homo (Model→Algebra Γ) (Model→Algebra M))
       → S.Section
           (S._*_
-            {A = Γ .fst} {B = (M ×Model M) .fst}
+            {A = Model→Algebra Γ} {B = Model→Algebra (M ×Model M)}
             (S.×intro
-              {Γ = Γ .fst} {A = M .fst} {B = M .fst} ϕ ψ)
-            (PathModel .fst))
+              {Γ = Model→Algebra Γ} {A = Model→Algebra M}
+              {B = Model→Algebra M} ϕ ψ)
+            (Modelᴰ→Algebraᴰ (M ×Model M) PathModel))
       → ϕ .fst ≡ ψ .fst
     PathModelReflection {Γ = Γ} ϕ ψ ϕ≡ψ =
-      S.PathAlgReflection (M .fst)
-        {Γ = Γ .fst} ϕ ψ ϕ≡ψ
+      S.PathAlgReflection (Model→Algebra M)
+        {Γ = Model→Algebra Γ} ϕ ψ ϕ≡ψ
 
   -- Free Models
   module _ (X : Type ℓ) where
@@ -343,41 +380,41 @@ record Theory ℓO ℓA ℓO' ℓA' :
 
     FreeModel :
       Model (ℓ-max (ℓ-max (ℓ-max ℓ ℓO) ℓA) (ℓ-max ℓO' ℓA'))
-    FreeModel .fst = FreeModelAlgebra
-    FreeModel .snd .fst e γ =
+    FreeModel .fst = |FreeModel| , isSetFreeModel
+    FreeModel .snd .fst = app
+    FreeModel .snd .snd e γ =
       freeAlg≡recFA e (lhs e) γ
       ∙ freeAlgEqn e γ
       ∙ (sym $ freeAlg≡recFA e (rhs e) γ)
-    FreeModel .snd .snd = isSetFreeModel
 
     module _ (Bᴰ : Modelᴰ FreeModel ℓᴰ) where
       private
         module BᴰReasoning =
-          hSetReasoning (|FreeModel| , isSetFreeModel) (Bᴰ .fst .fst)
+          hSetReasoning (FreeModel .fst) (λ t → ⟨ Bᴰ .fst t ⟩)
 
       freeAlgᴰ : ∀ e (t : |FreeAlgebra| (EqArity e))
         (ρ : EqArity e → |FreeModel|)
-        (ρᴰ : (v : EqArity e) → Bᴰ .fst .fst (ρ v))
-        → Bᴰ .fst .fst (freeAlg e t ρ)
+        (ρᴰ : (v : EqArity e) → ⟨ Bᴰ .fst (ρ v) ⟩)
+        → ⟨ Bᴰ .fst (freeAlg e t ρ) ⟩
       freeAlgᴰ e t ρ ρᴰ =
         BᴰReasoning.reind (freeAlg≡recFA e t ρ)
-          (interpᴰ (Bᴰ .fst) ρ ρᴰ t)
+          (interpᴰ (Modelᴰ→Algebraᴰ FreeModel Bᴰ) ρ ρᴰ t)
 
       freeAlgᴰ-filler : ∀ e (t : |FreeAlgebra| (EqArity e))
         (ρ : EqArity e → |FreeModel|)
-        (ρᴰ : (v : EqArity e) → Bᴰ .fst .fst (ρ v))
-        → Path (∫Algebra (Bᴰ .fst) .fst)
-            ( interp (FreeModel .fst) ρ t
-            , interpᴰ (Bᴰ .fst) ρ ρᴰ t)
+        (ρᴰ : (v : EqArity e) → ⟨ Bᴰ .fst (ρ v) ⟩)
+        → Path (∫Algebra (Modelᴰ→Algebraᴰ FreeModel Bᴰ) .fst)
+            ( interp FreeModelAlgebra ρ t
+            , interpᴰ (Modelᴰ→Algebraᴰ FreeModel Bᴰ) ρ ρᴰ t)
             (freeAlg e t ρ , freeAlgᴰ e t ρ ρᴰ)
       freeAlgᴰ-filler e t ρ ρᴰ =
         BᴰReasoning.reind-filler (freeAlg≡recFA e t ρ)
 
-      module _ (ı : (x : X) → Bᴰ .fst .fst (|FreeModel|.var x)) where
-        elimFreeModelfun : (t : |FreeModel|) → Bᴰ .fst .fst t
+      module _ (ı : (x : X) → ⟨ Bᴰ .fst (|FreeModel|.var x) ⟩) where
+        elimFreeModelfun : (t : |FreeModel|) → ⟨ Bᴰ .fst t ⟩
         elimFreeModelfun (var x) = ı x
         elimFreeModelfun (app op γ) =
-          Bᴰ .fst .snd op γ (λ v → elimFreeModelfun (γ v))
+          Bᴰ .snd .fst op γ (λ v → elimFreeModelfun (γ v))
             (app op γ) refl
         elimFreeModelfun (freeAlg e t ρ) =
           freeAlgᴰ e t ρ (λ v → elimFreeModelfun (ρ v))
@@ -387,7 +424,7 @@ record Theory ℓO ℓA ℓO' ℓA' :
                 (freeAlgᴰ-filler e (lhs e) ρ
                   (λ v → elimFreeModelfun (ρ v)))
             ∙ BᴰReasoning.≡in
-                (Bᴰ .snd .fst e ρ (λ v → elimFreeModelfun (ρ v)))
+                (Bᴰ .snd .snd e ρ (λ v → elimFreeModelfun (ρ v)))
             ∙ freeAlgᴰ-filler e (rhs e) ρ
                 (λ v → elimFreeModelfun (ρ v))) i
         elimFreeModelfun (freeAlg-var e v ρ i) =
@@ -397,50 +434,52 @@ record Theory ℓO ℓA ℓO' ℓA' :
         elimFreeModelfun (freeAlg-op e op γ ρ i) =
           BᴰReasoning.rectifyOut {e' = freeAlg-op e op γ ρ}
             ( sym
-                (cong (∫Algebra (Bᴰ .fst) .snd op)
+                (cong (∫Algebra (Modelᴰ→Algebraᴰ FreeModel Bᴰ) .snd op)
                   (funExt λ v →
                     freeAlgᴰ-filler e (γ v) ρ
                       (λ x → elimFreeModelfun (ρ x))))
-            ∙ Algebraᴰ-op-filler (Bᴰ .fst) op
-                (λ v → interp (FreeModel .fst) ρ (γ v))
+            ∙ Algebraᴰ-op-filler (Modelᴰ→Algebraᴰ FreeModel Bᴰ) op
+                (λ v → interp FreeModelAlgebra ρ (γ v))
                 (λ v →
-                  interpᴰ (Bᴰ .fst) ρ
+                  interpᴰ (Modelᴰ→Algebraᴰ FreeModel Bᴰ) ρ
                     (λ x → elimFreeModelfun (ρ x)) (γ v))
-                (interp (FreeModel .fst) ρ (app op γ))
-                (recFA (FreeModel .fst) ρ .snd op γ (app op γ) refl)
+                (interp FreeModelAlgebra ρ (app op γ))
+                (recFA FreeModelAlgebra ρ .snd op γ (app op γ) refl)
             ∙ freeAlgᴰ-filler e (app op γ) ρ
                 (λ x → elimFreeModelfun (ρ x))) i
         elimFreeModelfun (isSetFreeModel x y p q i j) =
-          isSet→isSetDep (Bᴰ .snd .snd)
+          isSet→isSetDep (λ t → Bᴰ .fst t .snd)
             (elimFreeModelfun x) (elimFreeModelfun y)
             (cong elimFreeModelfun p) (cong elimFreeModelfun q)
             (isSetFreeModel x y p q) i j
 
-        elimFreeModel : S.Section (Bᴰ .fst)
+        elimFreeModel : S.Section (Modelᴰ→Algebraᴰ FreeModel Bᴰ)
         elimFreeModel .fst = elimFreeModelfun
         elimFreeModel .snd f γ f⟨γ⟩ f∘γ≡f⟨γ⟩ =
           J (λ f⟨γ⟩ f∘γ≡f⟨γ⟩ →
-              Bᴰ .fst .snd f γ (λ v → elimFreeModelfun (γ v))
+              Bᴰ .snd .fst f γ (λ v → elimFreeModelfun (γ v))
                   f⟨γ⟩ f∘γ≡f⟨γ⟩
                 ≡ elimFreeModelfun f⟨γ⟩)
             refl f∘γ≡f⟨γ⟩
 
     module _ (B : Model ℓ') where
-      recFM : (X → B .fst .fst) → S.Homo (FreeModel .fst) (B .fst)
+      recFM : (X → ⟨ B .fst ⟩)
+        → S.Homo FreeModelAlgebra (Model→Algebra B)
       recFM ı = elimFreeModel (wkModel FreeModel B) ı
 
-      recFM-uniq : (f : S.Homo (FreeModel .fst) (B .fst))
+      recFM-uniq : (f : S.Homo FreeModelAlgebra (Model→Algebra B))
         → f .fst ≡ recFM (f .fst ∘ var) .fst
       recFM-uniq f =
         PathModelReflection B {Γ = FreeModel} f g
           (elimFreeModel
             (_*_ {M = FreeModel} {N = B ×Model B}
               (S.×intro
-                {Γ = FreeModel .fst} {A = B .fst} {B = B .fst} f g)
+                {Γ = FreeModelAlgebra} {A = Model→Algebra B}
+                {B = Model→Algebra B} f g)
               (PathModel B))
             (λ _ → refl))
         where
-        g : S.Homo (FreeModel .fst) (B .fst)
+        g : S.Homo FreeModelAlgebra (Model→Algebra B)
         g = recFM (f .fst ∘ var)
 
     module _ (Xᴰ : X → Type ℓᴰ) where
@@ -452,7 +491,7 @@ record Theory ℓO ℓA ℓO' ℓA' :
         app : ∀ op γ
           (γᴰ : (v : Arity op) → |FreeModelᴰ| (γ v))
           op⟨γ⟩
-          (op∘γ≡op⟨γ⟩ : FreeModel .fst .snd op γ ≡ op⟨γ⟩)
+          (op∘γ≡op⟨γ⟩ : FreeModelAlgebra .snd op γ ≡ op⟨γ⟩)
           → |FreeModelᴰ| op⟨γ⟩
         freeAlg : ∀ e t ρ
           (ρᴰ : (v : EqArity e) → |FreeModelᴰ| (ρ v))
@@ -487,7 +526,7 @@ record Theory ℓO ℓA ℓO' ℓA' :
         isOfHLevelᴰ→isOfHLevel 2
           |FreeModel|.isSetFreeModel |FreeModelᴰ|.isSetFreeModel
 
-      FreeModelAlgebraᴰ : Algebraᴰ (FreeModel .fst) _
+      FreeModelAlgebraᴰ : Algebraᴰ FreeModelAlgebra _
       FreeModelAlgebraᴰ .fst = |FreeModelᴰ|
       FreeModelAlgebraᴰ .snd = |FreeModelᴰ|.app
 
@@ -500,7 +539,7 @@ record Theory ℓO ℓA ℓO' ℓA' :
         (ρ : EqArity e → |FreeModel|)
         (ρᴰ : (v : EqArity e) → |FreeModelᴰ| (ρ v))
         → Path (∫Algebra FreeModelAlgebraᴰ .fst)
-            ( interp (FreeModel .fst) ρ t
+            ( interp FreeModelAlgebra ρ t
             , interpᴰ FreeModelAlgebraᴰ ρ ρᴰ t)
             ( |FreeModel|.freeAlg e t ρ
             , |FreeModelᴰ|.freeAlg e t ρ ρᴰ)
@@ -510,10 +549,10 @@ record Theory ℓO ℓA ℓO' ℓA' :
       freeAlgᴰ≡interpᴰ e (S.app op γ) ρ ρᴰ =
         sym
           (Algebraᴰ-op-filler FreeModelAlgebraᴰ op
-            (λ v → interp (FreeModel .fst) ρ (γ v))
+            (λ v → interp FreeModelAlgebra ρ (γ v))
             (λ v → interpᴰ FreeModelAlgebraᴰ ρ ρᴰ (γ v))
-            (interp (FreeModel .fst) ρ (S.app op γ))
-            (recFA (FreeModel .fst) ρ .snd op γ (S.app op γ) refl))
+            (interp FreeModelAlgebra ρ (S.app op γ))
+            (recFA FreeModelAlgebra ρ .snd op γ (S.app op γ) refl))
         ∙ cong (∫Algebra FreeModelAlgebraᴰ .snd op)
           (funExt λ v → freeAlgᴰ≡interpᴰ e (γ v) ρ ρᴰ)
         ∙ (λ i →
@@ -521,21 +560,21 @@ record Theory ℓO ℓA ℓO' ℓA' :
           , |FreeModelᴰ|.freeAlg-op e op γ ρ ρᴰ i)
 
       FreeModelᴰ : Modelᴰ FreeModel _
-      FreeModelᴰ .fst = FreeModelAlgebraᴰ
-      FreeModelᴰ .snd .fst e ρ ρᴰ =
+      FreeModelᴰ .fst t = |FreeModelᴰ| t , isSetFreeModelᴰ t
+      FreeModelᴰ .snd .fst = |FreeModelᴰ|.app
+      FreeModelᴰ .snd .snd e ρ ρᴰ =
         FreeModelᴰReasoning.rectifyOut
-          {e' = FreeModel .snd .fst e ρ}
+          {e' = FreeModel .snd .snd e ρ}
           ( freeAlgᴰ≡interpᴰ e (lhs e) ρ ρᴰ
           ∙ (λ i →
               |FreeModel|.freeAlgEqn e ρ i
               , |FreeModelᴰ|.freeAlgEqn e ρ ρᴰ i)
           ∙ sym (freeAlgᴰ≡interpᴰ e (rhs e) ρ ρᴰ))
-      FreeModelᴰ .snd .snd = isSetFreeModelᴰ
 
       module _ {A : Model ℓ'}
-        (ϕ : S.Homo (FreeModel .fst) (A .fst))
+        (ϕ : S.Homo FreeModelAlgebra (Model→Algebra A))
         (Aᴰ : Modelᴰ A ℓᴰ')
-        (ıᴰ : ∀ x → Xᴰ x → Aᴰ .fst .fst (ϕ .fst (|FreeModel|.var x)))
+        (ıᴰ : ∀ x → Xᴰ x → ⟨ Aᴰ .fst (ϕ .fst (|FreeModel|.var x)) ⟩)
         where
         private
           Aᴰ' : Modelᴰ FreeModel ℓᴰ'
@@ -543,13 +582,13 @@ record Theory ℓO ℓA ℓO' ℓA' :
 
           module Aᴰ'Reasoning =
             hSetReasoning (|FreeModel| , |FreeModel|.isSetFreeModel)
-              (Aᴰ' .fst .fst)
+              (λ t → ⟨ Aᴰ' .fst t ⟩)
 
-        |recFMᴰ| : ∀ {t} → |FreeModelᴰ| t → Aᴰ' .fst .fst t
+        |recFMᴰ| : ∀ {t} → |FreeModelᴰ| t → ⟨ Aᴰ' .fst t ⟩
         |recFMᴰ| (|FreeModelᴰ|.var {x = x} xᴰ) = ıᴰ x xᴰ
         |recFMᴰ| (|FreeModelᴰ|.app
           op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩) =
-          Aᴰ' .fst .snd op γ (λ v → |recFMᴰ| (γᴰ v))
+          Aᴰ' .snd .fst op γ (λ v → |recFMᴰ| (γᴰ v))
             op⟨γ⟩ op∘γ≡op⟨γ⟩
         |recFMᴰ| (|FreeModelᴰ|.freeAlg e t ρ ρᴰ) =
           freeAlgᴰ Aᴰ' e t ρ (λ v → |recFMᴰ| (ρᴰ v))
@@ -560,7 +599,7 @@ record Theory ℓO ℓA ℓO' ℓA' :
                 (freeAlgᴰ-filler Aᴰ' e (lhs e) ρ
                   (λ v → |recFMᴰ| (ρᴰ v)))
             ∙ Aᴰ'Reasoning.≡in
-                (Aᴰ' .snd .fst e ρ (λ v → |recFMᴰ| (ρᴰ v)))
+                (Aᴰ' .snd .snd e ρ (λ v → |recFMᴰ| (ρᴰ v)))
             ∙ freeAlgᴰ-filler Aᴰ' e (rhs e) ρ
                 (λ v → |recFMᴰ| (ρᴰ v))) i
         |recFMᴰ| (|FreeModelᴰ|.freeAlg-var e v ρ ρᴰ i) =
@@ -572,34 +611,34 @@ record Theory ℓO ℓA ℓO' ℓA' :
           Aᴰ'Reasoning.rectifyOut
             {e' = |FreeModel|.freeAlg-op e op γ ρ}
             ( sym
-                (cong (∫Algebra (Aᴰ' .fst) .snd op)
+                (cong (∫Algebra (Modelᴰ→Algebraᴰ FreeModel Aᴰ') .snd op)
                   (funExt λ v →
                     freeAlgᴰ-filler Aᴰ' e (γ v) ρ
                       (λ x → |recFMᴰ| (ρᴰ x))))
-            ∙ Algebraᴰ-op-filler (Aᴰ' .fst) op
-                (λ v → interp (FreeModel .fst) ρ (γ v))
+            ∙ Algebraᴰ-op-filler (Modelᴰ→Algebraᴰ FreeModel Aᴰ') op
+                (λ v → interp FreeModelAlgebra ρ (γ v))
                 (λ v →
-                  interpᴰ (Aᴰ' .fst) ρ
+                  interpᴰ (Modelᴰ→Algebraᴰ FreeModel Aᴰ') ρ
                     (λ x → |recFMᴰ| (ρᴰ x)) (γ v))
-                (interp (FreeModel .fst) ρ (S.app op γ))
-                (recFA (FreeModel .fst) ρ .snd op γ
+                (interp FreeModelAlgebra ρ (S.app op γ))
+                (recFA FreeModelAlgebra ρ .snd op γ
                   (S.app op γ) refl)
             ∙ freeAlgᴰ-filler Aᴰ' e (S.app op γ) ρ
                 (λ x → |recFMᴰ| (ρᴰ x))) i
         |recFMᴰ| (|FreeModelᴰ|.isSetFreeModel
           xᴰ yᴰ pᴰ qᴰ i j) =
-          isSet→isSetDep (Aᴰ' .snd .snd)
+          isSet→isSetDep (λ t → Aᴰ' .fst t .snd)
             (|recFMᴰ| xᴰ) (|recFMᴰ| yᴰ)
             (λ k → |recFMᴰ| (pᴰ k)) (λ k → |recFMᴰ| (qᴰ k))
             (|FreeModel|.isSetFreeModel _ _ _ _) i j
 
-        recFMᴰ : S.Homoᴰ ϕ (FreeModelᴰ .fst) (Aᴰ .fst)
+        recFMᴰ : S.Homoᴰ ϕ FreeModelAlgebraᴰ (Modelᴰ→Algebraᴰ A Aᴰ)
         recFMᴰ .fst _ = |recFMᴰ|
         recFMᴰ .snd op γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩
           op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ =
           J
             (λ op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ →
-              Aᴰ .fst .snd op (ϕ .fst ∘ γ)
+              Aᴰ .snd .fst op (ϕ .fst ∘ γ)
                   (λ v → |recFMᴰ| (γᴰ v))
                   (ϕ .fst op⟨γ⟩)
                   (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩)
@@ -608,89 +647,89 @@ record Theory ℓO ℓA ℓO' ℓA' :
             op∘γᴰ≡op⟨γᴰ⟩
 
       module _ {A : Model ℓ'}
-        (ϕ : S.Homo (FreeModel .fst) (A .fst))
+        (ϕ : S.Homo FreeModelAlgebra (Model→Algebra A))
         (Aᴰ : Modelᴰ A ℓᴰ')
-        (ϕᴰ : S.Homoᴰ ϕ (FreeModelᴰ .fst) (Aᴰ .fst))
+        (ϕᴰ : S.Homoᴰ ϕ FreeModelAlgebraᴰ (Modelᴰ→Algebraᴰ A Aᴰ))
         where
         private
-          ıᴰ : ∀ x → Xᴰ x → Aᴰ .fst .fst (ϕ .fst (|FreeModel|.var x))
+          ıᴰ : ∀ x → Xᴰ x → ⟨ Aᴰ .fst (ϕ .fst (|FreeModel|.var x)) ⟩
           ıᴰ x xᴰ = ϕᴰ .fst _ (|FreeModelᴰ|.var xᴰ)
 
           baseϕ : S.Homo
-            (∫Algebra (FreeModelᴰ .fst))
-            (A .fst)
+            (∫Algebra FreeModelAlgebraᴰ)
+            (Model→Algebra A)
           baseϕ =
             S._⋆H_
-              {A = ∫Algebra (FreeModelᴰ .fst)}
-              {B = FreeModel .fst} {C = A .fst}
-              (S.Fst {Aᴰ = FreeModelᴰ .fst}) ϕ
+              {A = ∫Algebra FreeModelAlgebraᴰ}
+              {B = FreeModelAlgebra} {C = Model→Algebra A}
+              (S.Fst {Aᴰ = FreeModelAlgebraᴰ}) ϕ
 
-          ϕᴰSection : S.Section (baseϕ S.* (Aᴰ .fst))
+          ϕᴰSection : S.Section (baseϕ S.* Modelᴰ→Algebraᴰ A Aᴰ)
           ϕᴰSection .fst z = ϕᴰ .fst (z .fst) (z .snd)
           ϕᴰSection .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
             ϕᴰ .snd op (fst ∘ γ) (snd ∘ γ)
               (op⟨γ⟩ .fst) (cong fst op∘γ≡op⟨γ⟩)
               (op⟨γ⟩ .snd)
-              (S.Snd {Aᴰ = FreeModelᴰ .fst} .snd
+              (S.Snd {Aᴰ = FreeModelAlgebraᴰ} .snd
                 op γ op⟨γ⟩ op∘γ≡op⟨γ⟩)
 
           ϕ∫ᴰ : S.Homo
-            (∫Algebra (FreeModelᴰ .fst))
-            (∫Algebra (Aᴰ .fst))
+            (∫Algebra FreeModelAlgebraᴰ)
+            (∫Algebra (Modelᴰ→Algebraᴰ A Aᴰ))
           ϕ∫ᴰ =
             S.∫intro
-              {Γ = ∫Algebra (FreeModelᴰ .fst)}
-              {A = A .fst} {B = Aᴰ .fst}
+              {Γ = ∫Algebra FreeModelAlgebraᴰ}
+              {A = Model→Algebra A} {B = Modelᴰ→Algebraᴰ A Aᴰ}
               baseϕ ϕᴰSection
 
           interpHomoFMᴰ : {V : Type ℓ''}
             (ρ : V → |FreeModel|)
             (ρᴰ : (v : V) → |FreeModelᴰ| (ρ v))
             (t : |FreeAlgebra| V)
-            → Path (∫Algebra (Aᴰ .fst) .fst)
-                ( interp (A .fst) (ϕ .fst ∘ ρ) t
-                , interpᴰ (Aᴰ .fst) (ϕ .fst ∘ ρ)
+            → Path (∫Algebra (Modelᴰ→Algebraᴰ A Aᴰ) .fst)
+                ( interp (Model→Algebra A) (ϕ .fst ∘ ρ) t
+                , interpᴰ (Modelᴰ→Algebraᴰ A Aᴰ) (ϕ .fst ∘ ρ)
                     (λ v → ϕᴰ .fst (ρ v) (ρᴰ v)) t)
-                ( ϕ .fst (interp (FreeModel .fst) ρ t)
-                , ϕᴰ .fst (interp (FreeModel .fst) ρ t)
-                    (interpᴰ (FreeModelᴰ .fst) ρ ρᴰ t))
+                ( ϕ .fst (interp FreeModelAlgebra ρ t)
+                , ϕᴰ .fst (interp FreeModelAlgebra ρ t)
+                    (interpᴰ FreeModelAlgebraᴰ ρ ρᴰ t))
           interpHomoFMᴰ ρ ρᴰ t =
             sym
               (interp∫
-                {A = A .fst} {Aᴰ = Aᴰ .fst}
+                {A = Model→Algebra A} {Aᴰ = Modelᴰ→Algebraᴰ A Aᴰ}
                 (λ v → ϕ .fst (ρ v) , ϕᴰ .fst (ρ v) (ρᴰ v)) t)
             ∙ interpHomo ϕ∫ᴰ (λ v → ρ v , ρᴰ v) t
             ∙ cong (ϕ∫ᴰ .fst)
                 (interp∫
-                  {A = FreeModel .fst} {Aᴰ = FreeModelᴰ .fst}
+                  {A = FreeModelAlgebra} {Aᴰ = FreeModelAlgebraᴰ}
                   (λ v → ρ v , ρᴰ v) t)
 
           Aᴰ' : Modelᴰ FreeModel ℓᴰ'
           Aᴰ' = _*_ {M = FreeModel} {N = A} ϕ Aᴰ
 
           module AᴰReasoning =
-            hSetReasoning (A .fst .fst , A .snd .snd) (Aᴰ .fst .fst)
+            hSetReasoning (A .fst) (λ a → ⟨ Aᴰ .fst a ⟩)
 
-          recᴰ : ∀ {t} → |FreeModelᴰ| t → Aᴰ .fst .fst (ϕ .fst t)
+          recᴰ : ∀ {t} → |FreeModelᴰ| t → ⟨ Aᴰ .fst (ϕ .fst t) ⟩
           recᴰ tᴰ = |recFMᴰ| {A = A} ϕ Aᴰ ıᴰ tᴰ
 
-          pullbackTotal : ∫Algebra (Aᴰ' .fst) .fst
-            → ∫Algebra (Aᴰ .fst) .fst
+          pullbackTotal : ∫Algebra (Modelᴰ→Algebraᴰ FreeModel Aᴰ') .fst
+            → ∫Algebra (Modelᴰ→Algebraᴰ A Aᴰ) .fst
           pullbackTotal z .fst = ϕ .fst (z .fst)
           pullbackTotal z .snd = z .snd
 
-          ηType : ∫Algebra (FreeModelᴰ .fst) .fst → Type _
+          ηType : ∫Algebra FreeModelAlgebraᴰ .fst → Type _
           ηType z = ϕᴰ .fst (z .fst) (z .snd) ≡ recᴰ (z .snd)
 
-          ηIsProp : (z : ∫Algebra (FreeModelᴰ .fst) .fst)
+          ηIsProp : (z : ∫Algebra FreeModelAlgebraᴰ .fst)
             → isProp (ηType z)
           ηIsProp z =
-            Aᴰ .snd .snd (ϕ .fst (z .fst))
+            Aᴰ .fst (ϕ .fst (z .fst)) .snd
               (ϕᴰ .fst (z .fst) (z .snd)) (recᴰ (z .snd))
 
           app-η : ∀ op γ
             (γᴰ : (v : Arity op) → |FreeModelᴰ| (γ v))
-            op⟨γ⟩ (op∘γ≡op⟨γ⟩ : FreeModel .fst .snd op γ ≡ op⟨γ⟩)
+            op⟨γ⟩ (op∘γ≡op⟨γ⟩ : FreeModelAlgebra .snd op γ ≡ op⟨γ⟩)
             → ((v : Arity op) →
                 ϕᴰ .fst (γ v) (γᴰ v) ≡ recᴰ (γᴰ v))
             → ϕᴰ .fst op⟨γ⟩
@@ -707,7 +746,7 @@ record Theory ℓO ℓA ℓO' ℓA' :
                 refl)
             ∙ cong
                 (λ γᴰ' →
-                  Aᴰ .fst .snd op (ϕ .fst ∘ γ) γᴰ'
+                  Aᴰ .snd .fst op (ϕ .fst ∘ γ) γᴰ'
                     (ϕ .fst op⟨γ⟩)
                     (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩))
                 (funExt γᴰ-η)
@@ -727,10 +766,11 @@ record Theory ℓO ℓA ℓO' ℓA' :
               ∙ sym (interpHomoFMᴰ ρ ρᴰ t)
               ∙ cong
                   (λ ρᴰ' →
-                    interp (A .fst) (ϕ .fst ∘ ρ) t
-                    , interpᴰ (Aᴰ .fst) (ϕ .fst ∘ ρ) ρᴰ' t)
+                    interp (Model→Algebra A) (ϕ .fst ∘ ρ) t
+                    , interpᴰ (Modelᴰ→Algebraᴰ A Aᴰ) (ϕ .fst ∘ ρ) ρᴰ' t)
                   (funExt ρᴰ-η)
-              ∙ interpPullback ϕ (Aᴰ .fst) ρ (λ v → recᴰ (ρᴰ v)) t
+              ∙ interpPullback ϕ (Modelᴰ→Algebraᴰ A Aᴰ) ρ
+                  (λ v → recᴰ (ρᴰ v)) t
               ∙ cong pullbackTotal
                   (freeAlgᴰ-filler Aᴰ' e t ρ
                     (λ v → recᴰ (ρᴰ v))))

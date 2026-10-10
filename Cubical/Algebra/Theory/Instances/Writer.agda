@@ -6,6 +6,7 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.More
+open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
@@ -76,35 +77,35 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
     module T = Theory (WriterTheory W)
 
   WriterFreeModel : T.Model (ℓ-max ℓW ℓX)
-  WriterFreeModel .fst .fst = W .fst × X .fst
-  WriterFreeModel .fst .snd (tell w) γ =
+  WriterFreeModel .fst = (W .fst × X .fst) , isSet× W.is-set (X .snd)
+  WriterFreeModel .snd .fst (tell w) γ =
     W._·_ w (γ tt .fst) , γ tt .snd
-  WriterFreeModel .snd .fst tell-idEq ρ =
+  WriterFreeModel .snd .snd tell-idEq ρ =
     ΣPathP (W.·IdL (ρ tt .fst) , refl)
-  WriterFreeModel .snd .fst (tell-tellEq w w') ρ =
+  WriterFreeModel .snd .snd (tell-tellEq w w') ρ =
     ΣPathP (W.·Assoc w w' (ρ tt .fst) , refl)
-  WriterFreeModel .snd .snd = isSet× W.is-set (X .snd)
 
-  WriterFreeModelη : X .fst → WriterFreeModel .fst .fst
+  WriterFreeModelη : X .fst → ⟨ WriterFreeModel .fst ⟩
   WriterFreeModelη x = W.ε , x
 
-  module _ (B : T.Model ℓB) (f : X .fst → B .fst .fst) where
-    WriterFreeModelRec : T.Homo (WriterFreeModel .fst) (B .fst)
+  module _ (B : T.Model ℓB) (f : X .fst → ⟨ B .fst ⟩) where
+    WriterFreeModelRec :
+      T.Homo (T.Model→Algebra WriterFreeModel) (T.Model→Algebra B)
     WriterFreeModelRec .fst (w , x) =
-      B .fst .snd (tell w) (λ _ → f x)
+      B .snd .fst (tell w) (λ _ → f x)
     WriterFreeModelRec .snd (tell w) γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
-      B .snd .fst (tell-tellEq w (γ tt .fst))
+      B .snd .snd (tell-tellEq w (γ tt .fst))
         (λ _ → f (γ tt .snd))
       ∙ cong (WriterFreeModelRec .fst) op∘γ≡op⟨γ⟩
 
     WriterFreeModelRec-β : (x : X .fst) →
       WriterFreeModelRec .fst (WriterFreeModelη x) ≡ f x
     WriterFreeModelRec-β x =
-      B .snd .fst tell-idEq (λ _ → f x)
+      B .snd .snd tell-idEq (λ _ → f x)
 
   WriterFreeModelRec-uniq :
     (B : T.Model ℓB)
-    (f : T.Homo (WriterFreeModel .fst) (B .fst))
+    (f : T.Homo (T.Model→Algebra WriterFreeModel) (T.Model→Algebra B))
     → f .fst ≡
       WriterFreeModelRec B (λ x → f .fst (WriterFreeModelη x)) .fst
   WriterFreeModelRec-uniq B f = funExt λ { (w , x) →
@@ -114,67 +115,69 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
 
   WriterFreeModelUniversal : (B : T.Model ℓB) →
     isEquiv
-      (λ (f : T.Homo (WriterFreeModel .fst) (B .fst)) x →
+      (λ (f : T.Homo (T.Model→Algebra WriterFreeModel) (T.Model→Algebra B)) x →
         f .fst (WriterFreeModelη x))
   WriterFreeModelUniversal B = isIsoToIsEquiv
     ( WriterFreeModelRec B
     , (λ f → funExt (WriterFreeModelRec-β B f))
     , (λ f → Σ≡Prop
-        (λ _ → isPropΠ4 λ _ _ _ _ → B .snd .snd _ _)
+        (λ _ → isPropΠ4 λ _ _ _ _ → B .fst .snd _ _)
         (sym (WriterFreeModelRec-uniq B f)))
     )
 
   module _ (Xᴰ : X .fst → hSet ℓD) where
     private
       module R = hSetReasoning
-        (WriterFreeModel .fst .fst , WriterFreeModel .snd .snd)
+        (WriterFreeModel .fst)
         (λ wx → Xᴰ (wx .snd) .fst)
 
     WriterFreeAlgebraᴰ :
-      T.Algebraᴰ (WriterFreeModel .fst) ℓD
+      T.Algebraᴰ (T.Model→Algebra WriterFreeModel) ℓD
     WriterFreeAlgebraᴰ .fst wx = Xᴰ (wx .snd) .fst
     WriterFreeAlgebraᴰ .snd (tell w) γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
       R.reind op∘γ≡op⟨γ⟩ (γᴰ tt)
 
     WriterOpNormalize :
       (w : W .fst)
-      (γ : Unit → WriterFreeModel .fst .fst)
+      (γ : Unit → ⟨ WriterFreeModel .fst ⟩)
       (γᴰ : (u : Unit) → WriterFreeAlgebraᴰ .fst (γ u))
       → Path (T.∫Algebra WriterFreeAlgebraᴰ .fst)
-          ( WriterFreeModel .fst .snd (tell w) γ
+          ( WriterFreeModel .snd .fst (tell w) γ
           , WriterFreeAlgebraᴰ .snd (tell w) γ γᴰ _ refl)
-          ( WriterFreeModel .fst .snd (tell w) γ
+          ( WriterFreeModel .snd .fst (tell w) γ
           , γᴰ tt)
     WriterOpNormalize w γ γᴰ = R.reind-filler⁻ refl
 
     WriterAppFiller : {V : Type ℓV}
       (w : W .fst)
-      (ρ : V → WriterFreeModel .fst .fst)
+      (ρ : V → ⟨ WriterFreeModel .fst ⟩)
       (ρᴰ : (v : V) → WriterFreeAlgebraᴰ .fst (ρ v))
       (γ : Unit → T.|FreeAlgebra| V)
       → Path (T.∫Algebra WriterFreeAlgebraᴰ .fst)
-          ( WriterFreeModel .fst .snd (tell w)
-              (λ u → T.interp (WriterFreeModel .fst) ρ (γ u))
+          ( WriterFreeModel .snd .fst (tell w)
+              (λ u → T.interp (T.Model→Algebra WriterFreeModel) ρ (γ u))
           , WriterFreeAlgebraᴰ .snd (tell w)
-              (λ u → T.interp (WriterFreeModel .fst) ρ (γ u))
+              (λ u → T.interp (T.Model→Algebra WriterFreeModel) ρ (γ u))
               (λ u → T.interpᴰ WriterFreeAlgebraᴰ ρ ρᴰ (γ u))
               _ refl)
-          ( T.interp (WriterFreeModel .fst) ρ (T.S.app (tell w) γ)
+          ( T.interp (T.Model→Algebra WriterFreeModel) ρ (T.S.app (tell w) γ)
           , T.interpᴰ WriterFreeAlgebraᴰ ρ ρᴰ
               (T.S.app (tell w) γ))
     WriterAppFiller w ρ ρᴰ γ =
       T.Algebraᴰ-op-filler WriterFreeAlgebraᴰ (tell w)
-        (λ u → T.interp (WriterFreeModel .fst) ρ (γ u))
+        (λ u → T.interp (T.Model→Algebra WriterFreeModel) ρ (γ u))
         (λ u → T.interpᴰ WriterFreeAlgebraᴰ ρ ρᴰ (γ u))
-        (T.interp (WriterFreeModel .fst) ρ (T.S.app (tell w) γ))
-        (T.recFA (WriterFreeModel .fst) ρ .snd (tell w) γ
+        (T.interp (T.Model→Algebra WriterFreeModel) ρ (T.S.app (tell w) γ))
+        (T.recFA (T.Model→Algebra WriterFreeModel) ρ .snd (tell w) γ
           (T.S.app (tell w) γ) refl)
 
     WriterFreeModelᴰ : T.Modelᴰ WriterFreeModel ℓD
-    WriterFreeModelᴰ .fst = WriterFreeAlgebraᴰ
-    WriterFreeModelᴰ .snd .fst tell-idEq ρ ρᴰ =
+    WriterFreeModelᴰ .fst wx =
+      WriterFreeAlgebraᴰ .fst wx , Xᴰ (wx .snd) .snd
+    WriterFreeModelᴰ .snd .fst = WriterFreeAlgebraᴰ .snd
+    WriterFreeModelᴰ .snd .snd tell-idEq ρ ρᴰ =
       R.rectifyOut
-        {e' = WriterFreeModel .snd .fst tell-idEq ρ}
+        {e' = WriterFreeModel .snd .snd tell-idEq ρ}
         ( sym (WriterAppFiller W.ε ρ ρᴰ (λ _ → T.S.var tt))
         ∙ WriterOpNormalize W.ε (λ _ → ρ tt) (λ _ → ρᴰ tt)
         ∙ unitPath)
@@ -185,13 +188,13 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
       unitPath i .fst .fst = W.·IdL (ρ tt .fst) i
       unitPath i .fst .snd = ρ tt .snd
       unitPath i .snd = ρᴰ tt
-    WriterFreeModelᴰ .snd .fst (tell-tellEq w w') ρ ρᴰ =
+    WriterFreeModelᴰ .snd .snd (tell-tellEq w w') ρ ρᴰ =
       R.rectifyOut
-        {e' = WriterFreeModel .snd .fst (tell-tellEq w w') ρ}
+        {e' = WriterFreeModel .snd .snd (tell-tellEq w w') ρ}
         ( sym (WriterAppFiller w ρ ρᴰ
             (λ _ → T.S.app (tell w') (λ _ → T.S.var tt)))
         ∙ WriterOpNormalize w
-            (λ _ → T.interp (WriterFreeModel .fst) ρ
+            (λ _ → T.interp (T.Model→Algebra WriterFreeModel) ρ
               (T.S.app (tell w') (λ _ → T.S.var tt)))
             (λ _ → T.interpᴰ WriterFreeAlgebraᴰ ρ ρᴰ
               (T.S.app (tell w') (λ _ → T.S.var tt)))
@@ -203,7 +206,7 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
             (λ _ → T.S.var tt))
       where
       innerPath : Path (T.∫Algebra WriterFreeAlgebraᴰ .fst)
-        ( T.interp (WriterFreeModel .fst) ρ
+        ( T.interp (T.Model→Algebra WriterFreeModel) ρ
             (T.S.app (tell w') (λ _ → T.S.var tt))
         , T.interpᴰ WriterFreeAlgebraᴰ ρ ρᴰ
             (T.S.app (tell w') (λ _ → T.S.var tt)))
@@ -223,59 +226,61 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
       assocPath i .fst .fst = W.·Assoc w w' (ρ tt .fst) i
       assocPath i .fst .snd = ρ tt .snd
       assocPath i .snd = ρᴰ tt
-    WriterFreeModelᴰ .snd .snd wx = Xᴰ (wx .snd) .snd
 
     WriterFreeModelηᴰ : (x : X .fst) → Xᴰ x .fst →
-      WriterFreeModelᴰ .fst .fst (WriterFreeModelη x)
+      ⟨ WriterFreeModelᴰ .fst (WriterFreeModelη x) ⟩
     WriterFreeModelηᴰ x xᴰ = xᴰ
 
     module _
       (Bᴰ : T.Modelᴰ WriterFreeModel ℓD')
       (fᴰ : (x : X .fst) → Xᴰ x .fst →
-        Bᴰ .fst .fst (WriterFreeModelη x))
+        ⟨ Bᴰ .fst (WriterFreeModelη x) ⟩)
       where
       private
         module BᴰR = hSetReasoning
-          (WriterFreeModel .fst .fst , WriterFreeModel .snd .snd)
-          (Bᴰ .fst .fst)
+          (WriterFreeModel .fst)
+          (λ wx → ⟨ Bᴰ .fst wx ⟩)
 
       WriterFreeModelRecᴰ-fun :
-        (wx : WriterFreeModel .fst .fst) →
-        WriterFreeAlgebraᴰ .fst wx → Bᴰ .fst .fst wx
+        (wx : ⟨ WriterFreeModel .fst ⟩) →
+        WriterFreeAlgebraᴰ .fst wx → ⟨ Bᴰ .fst wx ⟩
       WriterFreeModelRecᴰ-fun (w , x) xᴰ =
-        Bᴰ .fst .snd (tell w)
+        Bᴰ .snd .fst (tell w)
           (λ _ → WriterFreeModelη x)
           (λ _ → fᴰ x xᴰ)
           (w , x) (ΣPathP (W.·IdR w , refl))
 
       TargetAppFiller : {V : Type ℓV}
         (w : W .fst)
-        (ρ : V → WriterFreeModel .fst .fst)
-        (ρᴰ : (v : V) → Bᴰ .fst .fst (ρ v))
+        (ρ : V → ⟨ WriterFreeModel .fst ⟩)
+        (ρᴰ : (v : V) → ⟨ Bᴰ .fst (ρ v) ⟩)
         (γ : Unit → T.|FreeAlgebra| V)
-        → Path (T.∫Algebra (Bᴰ .fst) .fst)
-            ( WriterFreeModel .fst .snd (tell w)
-                (λ u → T.interp (WriterFreeModel .fst) ρ (γ u))
-            , Bᴰ .fst .snd (tell w)
-                (λ u → T.interp (WriterFreeModel .fst) ρ (γ u))
-                (λ u → T.interpᴰ (Bᴰ .fst) ρ ρᴰ (γ u))
+        → Path (T.∫Algebra (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ) .fst)
+            ( WriterFreeModel .snd .fst (tell w)
+                (λ u → T.interp (T.Model→Algebra WriterFreeModel) ρ (γ u))
+            , Bᴰ .snd .fst (tell w)
+                (λ u → T.interp (T.Model→Algebra WriterFreeModel) ρ (γ u))
+                (λ u → T.interpᴰ (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
+                  ρ ρᴰ (γ u))
                 _ refl)
-            ( T.interp (WriterFreeModel .fst) ρ
+            ( T.interp (T.Model→Algebra WriterFreeModel) ρ
                 (T.S.app (tell w) γ)
-            , T.interpᴰ (Bᴰ .fst) ρ ρᴰ (T.S.app (tell w) γ))
+            , T.interpᴰ (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
+                ρ ρᴰ (T.S.app (tell w) γ))
       TargetAppFiller w ρ ρᴰ γ =
-        T.Algebraᴰ-op-filler (Bᴰ .fst) (tell w)
-          (λ u → T.interp (WriterFreeModel .fst) ρ (γ u))
-          (λ u → T.interpᴰ (Bᴰ .fst) ρ ρᴰ (γ u))
-          (T.interp (WriterFreeModel .fst) ρ (T.S.app (tell w) γ))
-          (T.recFA (WriterFreeModel .fst) ρ .snd (tell w) γ
+        T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ) (tell w)
+          (λ u → T.interp (T.Model→Algebra WriterFreeModel) ρ (γ u))
+          (λ u → T.interpᴰ (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ) ρ ρᴰ (γ u))
+          (T.interp (T.Model→Algebra WriterFreeModel) ρ (T.S.app (tell w) γ))
+          (T.recFA (T.Model→Algebra WriterFreeModel) ρ .snd (tell w) γ
             (T.S.app (tell w) γ) refl)
 
       WriterFreeModelRecᴰ-β : (x : X .fst) (xᴰ : Xᴰ x .fst) →
         WriterFreeModelRecᴰ-fun
           (WriterFreeModelη x) (WriterFreeModelηᴰ x xᴰ) ≡ fᴰ x xᴰ
       WriterFreeModelRecᴰ-β x xᴰ = BᴰR.rectifyOut {e' = refl}
-        ( sym (T.Algebraᴰ-op-filler (Bᴰ .fst) (tell W.ε)
+        ( sym (T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
+            (tell W.ε)
             (λ _ → WriterFreeModelη x) (λ _ → fᴰ x xᴰ)
             (WriterFreeModelη x) (ΣPathP (W.·IdR W.ε , refl)))
         ∙ TargetAppFiller W.ε
@@ -283,37 +288,41 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
             (λ (_ : Unit) → fᴰ x xᴰ)
             (λ _ → T.S.var tt)
         ∙ ΣPathP
-            ( WriterFreeModel .snd .fst tell-idEq
+            ( WriterFreeModel .snd .snd tell-idEq
                 (λ _ → WriterFreeModelη x)
-            , Bᴰ .snd .fst tell-idEq
+            , Bᴰ .snd .snd tell-idEq
                 (λ _ → WriterFreeModelη x) (λ _ → fᴰ x xᴰ)))
 
       private
         RecᴰTotal : T.∫Algebra WriterFreeAlgebraᴰ .fst →
-          T.∫Algebra (Bᴰ .fst) .fst
+          T.∫Algebra (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ) .fst
         RecᴰTotal z =
           z .fst , WriterFreeModelRecᴰ-fun (z .fst) (z .snd)
 
       WriterFreeModelRecᴰ :
-        T.Homoᴰ (T.idHomo {A = WriterFreeModel .fst})
-          WriterFreeAlgebraᴰ (Bᴰ .fst)
+        T.Homoᴰ (T.idHomo {A = T.Model→Algebra WriterFreeModel})
+          WriterFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
       WriterFreeModelRecᴰ .fst = WriterFreeModelRecᴰ-fun
       WriterFreeModelRecᴰ .snd (tell w) γ γᴰ op⟨γ⟩ op∘γ≡op⟨γ⟩
         op⟨γᴰ⟩ op∘γᴰ≡op⟨γᴰ⟩ =
           BᴰR.rectifyOut {e' = refl}
-            ( sym (T.Algebraᴰ-op-filler (Bᴰ .fst) (tell w) γ
+            ( sym (T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
+                (tell w) γ
                 (λ u → WriterFreeModelRecᴰ-fun (γ u) (γᴰ u))
                 op⟨γ⟩ op∘γ≡op⟨γ⟩)
-            ∙ cong (T.∫Algebra (Bᴰ .fst) .snd (tell w))
+            ∙ cong
+                (T.∫Algebra (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ) .snd
+                  (tell w))
                 (funExt λ { tt → branchPath })
             ∙ TargetAppFiller w valuation valuationᴰ
                 (λ _ → T.S.app (tell w') (λ _ → T.S.var tt))
             ∙ ΣPathP
-                ( WriterFreeModel .snd .fst (tell-tellEq w w') valuation
-                , Bᴰ .snd .fst (tell-tellEq w w') valuation valuationᴰ)
+                ( WriterFreeModel .snd .snd (tell-tellEq w w') valuation
+                , Bᴰ .snd .snd (tell-tellEq w w') valuation valuationᴰ)
             ∙ sym (TargetAppFiller (W._·_ w w') valuation valuationᴰ
                 (λ _ → T.S.var tt))
-            ∙ T.Algebraᴰ-op-filler (Bᴰ .fst) (tell (W._·_ w w'))
+            ∙ T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
+                (tell (W._·_ w w'))
                 (λ _ → WriterFreeModelη x) (λ _ → fᴰ x xᴰ)
                 (W._·_ w w' , x)
                 (ΣPathP (W.·IdR (W._·_ w w') , refl))
@@ -328,20 +337,23 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
           xᴰ : Xᴰ x .fst
           xᴰ = γᴰ tt
 
-          valuation : Unit → WriterFreeModel .fst .fst
+          valuation : Unit → ⟨ WriterFreeModel .fst ⟩
           valuation _ = WriterFreeModelη x
 
-          valuationᴰ : (u : Unit) → Bᴰ .fst .fst (valuation u)
+          valuationᴰ : (u : Unit) → ⟨ Bᴰ .fst (valuation u) ⟩
           valuationᴰ _ = fᴰ x xᴰ
 
-          branchPath : Path (T.∫Algebra (Bᴰ .fst) .fst)
+          branchPath :
+            Path (T.∫Algebra (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ) .fst)
             (γ tt , WriterFreeModelRecᴰ-fun (γ tt) (γᴰ tt))
-            ( T.interp (WriterFreeModel .fst) valuation
+            ( T.interp (T.Model→Algebra WriterFreeModel) valuation
                 (T.S.app (tell w') (λ _ → T.S.var tt))
-            , T.interpᴰ (Bᴰ .fst) valuation valuationᴰ
+            , T.interpᴰ (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
+                valuation valuationᴰ
                 (T.S.app (tell w') (λ _ → T.S.var tt)))
           branchPath =
-            sym (T.Algebraᴰ-op-filler (Bᴰ .fst) (tell w')
+            sym (T.Algebraᴰ-op-filler (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)
+              (tell w')
               (λ _ → WriterFreeModelη x) (λ _ → fᴰ x xᴰ)
               (w' , x) (ΣPathP (W.·IdR w' , refl)))
             ∙ TargetAppFiller w' valuation valuationᴰ
@@ -356,8 +368,8 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
 
     WriterFreeModelRecᴰ-uniq :
       (Bᴰ : T.Modelᴰ WriterFreeModel ℓD')
-      (hᴰ : T.Homoᴰ (T.idHomo {A = WriterFreeModel .fst})
-        WriterFreeAlgebraᴰ (Bᴰ .fst))
+      (hᴰ : T.Homoᴰ (T.idHomo {A = T.Model→Algebra WriterFreeModel})
+        WriterFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ))
       → hᴰ .fst ≡
         WriterFreeModelRecᴰ Bᴰ
           (λ x xᴰ → hᴰ .fst
@@ -371,7 +383,7 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
             (w , x) basePath xᴰ (sourceᴰ≡ w x xᴰ)) }
       where
       basePath : {w : W .fst} {x : X .fst} →
-        WriterFreeModel .fst .snd (tell w)
+        WriterFreeModel .snd .fst (tell w)
           (λ _ → WriterFreeModelη x) ≡ (w , x)
       basePath {w = w} = ΣPathP (W.·IdR w , refl)
 
@@ -393,8 +405,8 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
     WriterFreeModelUniversalᴰ :
       (Bᴰ : T.Modelᴰ WriterFreeModel ℓD') →
       isEquiv
-        (λ (hᴰ : T.Homoᴰ (T.idHomo {A = WriterFreeModel .fst})
-            WriterFreeAlgebraᴰ (Bᴰ .fst)) x xᴰ →
+        (λ (hᴰ : T.Homoᴰ (T.idHomo {A = T.Model→Algebra WriterFreeModel})
+            WriterFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ WriterFreeModel Bᴰ)) x xᴰ →
           hᴰ .fst (WriterFreeModelη x) (WriterFreeModelηᴰ x xᴰ))
     WriterFreeModelUniversalᴰ Bᴰ = isIsoToIsEquiv
       ( WriterFreeModelRecᴰ Bᴰ
@@ -402,18 +414,18 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
           WriterFreeModelRecᴰ-β Bᴰ fᴰ x xᴰ)
       , (λ hᴰ → Σ≡Prop
           (λ _ → isPropΠ6 λ _ _ _ _ _ _ →
-            isPropΠ λ _ → Bᴰ .snd .snd _ _ _)
+            isPropΠ λ _ → Bᴰ .fst _ .snd _ _)
           (sym (WriterFreeModelRecᴰ-uniq Bᴰ hᴰ)))
       )
 
     module _ {B : T.Model ℓB}
-      (ϕ : T.Homo (WriterFreeModel .fst) (B .fst))
+      (ϕ : T.Homo (T.Model→Algebra WriterFreeModel) (T.Model→Algebra B))
       (Bᴰ : T.Modelᴰ B ℓD')
       (fᴰ : (x : X .fst) → Xᴰ x .fst →
-        Bᴰ .fst .fst (ϕ .fst (WriterFreeModelη x)))
+        ⟨ Bᴰ .fst (ϕ .fst (WriterFreeModelη x)) ⟩)
       where
       WriterFreeModelRecOverᴰ :
-        T.Homoᴰ ϕ WriterFreeAlgebraᴰ (Bᴰ .fst)
+        T.Homoᴰ ϕ WriterFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ B Bᴰ)
       WriterFreeModelRecOverᴰ =
         WriterFreeModelRecᴰ
           (T._*_ {M = WriterFreeModel} {N = B} ϕ Bᴰ) fᴰ
@@ -427,9 +439,9 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
           (T._*_ {M = WriterFreeModel} {N = B} ϕ Bᴰ) fᴰ
 
     WriterFreeModelRecOverᴰ-uniq : {B : T.Model ℓB}
-      (ϕ : T.Homo (WriterFreeModel .fst) (B .fst))
+      (ϕ : T.Homo (T.Model→Algebra WriterFreeModel) (T.Model→Algebra B))
       (Bᴰ : T.Modelᴰ B ℓD')
-      (hᴰ : T.Homoᴰ ϕ WriterFreeAlgebraᴰ (Bᴰ .fst))
+      (hᴰ : T.Homoᴰ ϕ WriterFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ B Bᴰ))
       → hᴰ .fst ≡ WriterFreeModelRecOverᴰ {B = B} ϕ Bᴰ
           (λ x xᴰ → hᴰ .fst
             (WriterFreeModelη x) (WriterFreeModelηᴰ x xᴰ)) .fst
@@ -438,10 +450,10 @@ module _ (W : Monoid ℓW) (X : hSet ℓX) where
         (T._*_ {M = WriterFreeModel} {N = B} ϕ Bᴰ)
 
     WriterFreeModelUniversalOverᴰ : {B : T.Model ℓB}
-      (ϕ : T.Homo (WriterFreeModel .fst) (B .fst))
+      (ϕ : T.Homo (T.Model→Algebra WriterFreeModel) (T.Model→Algebra B))
       (Bᴰ : T.Modelᴰ B ℓD') →
       isEquiv
-        (λ (hᴰ : T.Homoᴰ ϕ WriterFreeAlgebraᴰ (Bᴰ .fst)) x xᴰ →
+        (λ (hᴰ : T.Homoᴰ ϕ WriterFreeAlgebraᴰ (T.Modelᴰ→Algebraᴰ B Bᴰ)) x xᴰ →
           hᴰ .fst (WriterFreeModelη x) (WriterFreeModelηᴰ x xᴰ))
     WriterFreeModelUniversalOverᴰ {B = B} ϕ Bᴰ =
       WriterFreeModelUniversalᴰ

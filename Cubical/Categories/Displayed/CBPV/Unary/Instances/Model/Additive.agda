@@ -58,20 +58,6 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
     C = ModelCBPVEq T .fst
     Cop = C ^opᴰ
 
-    MODELOb→Model : Category.ob (MODEL T L) → Model L
-    MODELOb→Model B .fst .fst = ⟨ B .fst ⟩
-    MODELOb→Model B .fst .snd = B .snd .fst
-    MODELOb→Model B .snd .fst = B .snd .snd
-    MODELOb→Model B .snd .snd = B .fst .snd
-
-    MODELᴰOb→Modelᴰ : ∀ {B : Category.ob (MODEL T L)}
-      → Categoryᴰ.ob[_] (MODELᴰ T L L) B
-      → Modelᴰ (MODELOb→Model B) L
-    MODELᴰOb→Modelᴰ Bᴰ .fst .fst b = ⟨ Bᴰ .fst b ⟩
-    MODELᴰOb→Modelᴰ Bᴰ .fst .snd = Bᴰ .snd .fst
-    MODELᴰOb→Modelᴰ Bᴰ .snd .fst = Bᴰ .snd .snd
-    MODELᴰOb→Modelᴰ Bᴰ .snd .snd b = Bᴰ .fst b .snd
-
   ModelValueTerminalEqⱽ : EqTerminalⱽ C 𝒱
   ModelValueTerminalEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KINDIdR ue
     where
@@ -448,13 +434,8 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
     EqCartesianLift→CartesianLift CBPVAssoc Cᴰ Bᴰ (𝒞 , A) (_ , f)
       (EqPsh.UEⱽ→Reprⱽ _ CBPVIdR ue)
     where
-    pullModelᴰ : Modelᴰ (MODELOb→Model A) L
-    pullModelᴰ = Theory._*_ T f (MODELᴰOb→Modelᴰ Bᴰ)
-
     pullᴰ : Fibers.ob[_] Cᴰ (𝒞 , A)
-    pullᴰ .fst a = Bᴰ .fst (f .fst a)
-    pullᴰ .snd .fst = pullModelᴰ .fst .snd
-    pullᴰ .snd .snd = pullModelᴰ .snd .fst
+    pullᴰ = Theory._*_ T {M = A} {N = B} f Bᴰ
 
     ue : EqPsh.CartesianLiftUE Cᴰ CBPVAssoc CBPVIdR (_ , f) Bᴰ
     ue .EqPsh.UEⱽ.v = pullᴰ

@@ -208,9 +208,7 @@ module BoolModelSyntaxWithFree
       ModelEnrichmentModel CBPV T CBPVModel UnitTy ([F] BoolTy)
 
     SyntaxMODEL : Category.ob (MODEL T L)
-    SyntaxMODEL .fst = SyntaxModel .fst .fst , SyntaxModel .snd .snd
-    SyntaxMODEL .snd .fst = SyntaxModel .fst .snd
-    SyntaxMODEL .snd .snd = SyntaxModel .snd .fst
+    SyntaxMODEL = SyntaxModel
 
     SyntaxBoolSET : hSet L
     SyntaxBoolSET = G.pts .F-obᴰ BoolTy
@@ -285,15 +283,12 @@ module BoolModelSyntaxWithFree
       PushMODELᴰ T interpretFreeBoolHomo UnitFreeBoolMODELᴰ
 
     RealizerModelᴰ : Modelᴰ SyntaxModel L
-    RealizerModelᴰ .fst .fst M = ⟨ RealizerMODELᴰ .fst M ⟩
-    RealizerModelᴰ .fst .snd = RealizerMODELᴰ .snd .fst
-    RealizerModelᴰ .snd .fst = RealizerMODELᴰ .snd .snd
-    RealizerModelᴰ .snd .snd M = RealizerMODELᴰ .fst M .snd
+    RealizerModelᴰ = RealizerMODELᴰ
 
     realizeVar : ∀ V → ⟨ LogicalRelation BoolTy V ⟩
-      → RealizerModelᴰ .fst .fst
+      → ⟨ RealizerModelᴰ .fst
           (rawRec .fst
-            (Free .fst SyntaxBoolSET .UniversalElement.element V))
+            (Free .fst SyntaxBoolSET .UniversalElement.element V)) ⟩
     realizeVar V Vᴰ .fst =
       ηBool (canonicalBool V Vᴰ .fst)
     realizeVar V Vᴰ .snd .fst =
@@ -337,7 +332,7 @@ module BoolModelSyntaxWithFree
         realizeGenerator
 
     realizeTreeᴰ : ∀ {t} → ⟨ RawFreeMODELᴰ .fst t ⟩
-      → RealizerModelᴰ .fst .fst (rawRec .fst t)
+      → ⟨ RealizerModelᴰ .fst (rawRec .fst t) ⟩
     realizeTreeᴰ {t = t} tᴰ = realizeFreeᴰᵒᵖ .fst t tᴰ
 
     realizeTree : ∀ {t}

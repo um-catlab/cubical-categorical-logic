@@ -10,7 +10,6 @@ open import Cubical.Foundations.Isomorphism.More
 open import Cubical.Foundations.More
 open import Cubical.Foundations.Structure
 
-open import Cubical.Data.Sigma
 
 open import Cubical.Algebra.Theory.Base
   hiding (ℓ; ℓᴰ; ℓᴰᴰ; ℓ'; ℓᴰ'; ℓᴰᴰ'; ℓ''; ℓᴰ''; ℓO; ℓA; ℓE)
@@ -46,86 +45,61 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
   private
     L = ModelLevel T
 
-  Model→MODEL : Model L → Category.ob (MODEL T L)
-  Model→MODEL M .fst = M .fst .fst , M .snd .snd
-  Model→MODEL M .snd .fst = M .fst .snd
-  Model→MODEL M .snd .snd = M .snd .fst
-
-  MODEL→Model : Category.ob (MODEL T L) → Model L
-  MODEL→Model M .fst = ⟨ M .fst ⟩ , M .snd .fst
-  MODEL→Model M .snd .fst = M .snd .snd
-  MODEL→Model M .snd .snd = M .fst .snd
-
-  private
-    Modelᴰ→MODELᴰ : (M : Model L) (Mᴰ : Modelᴰ M L) →
-      Categoryᴰ.ob[_] (MODELᴰ T L L) (Model→MODEL M)
-    Modelᴰ→MODELᴰ M Mᴰ .fst x =
-      Mᴰ .fst .fst x , Mᴰ .snd .snd x
-    Modelᴰ→MODELᴰ M Mᴰ .snd .fst = Mᴰ .fst .snd
-    Modelᴰ→MODELᴰ M Mᴰ .snd .snd = Mᴰ .snd .fst
-
-    MODELᴰ→Modelᴰ : {M : Category.ob (MODEL T L)} →
-      Categoryᴰ.ob[_] (MODELᴰ T L L) M → Modelᴰ (MODEL→Model M) L
-    MODELᴰ→Modelᴰ Mᴰ .fst .fst x = ⟨ Mᴰ .fst x ⟩
-    MODELᴰ→Modelᴰ Mᴰ .fst .snd = Mᴰ .snd .fst
-    MODELᴰ→Modelᴰ Mᴰ .snd .fst = Mᴰ .snd .snd
-    MODELᴰ→Modelᴰ Mᴰ .snd .snd x = Mᴰ .fst x .snd
-
   FreeRestriction :
     (FreeModel : hSet L → Model L)
-    (η : (A : hSet L) → ⟨ A ⟩ → FreeModel A .fst .fst)
+    (η : (A : hSet L) → ⟨ A ⟩ → ⟨ FreeModel A .fst ⟩)
     (A : hSet L) (B : Model L) →
-    Homo (FreeModel A .fst) (B .fst) → ⟨ A ⟩ → B .fst .fst
+    Homo (Model→Algebra (FreeModel A)) (Model→Algebra B) → ⟨ A ⟩ → ⟨ B .fst ⟩
   FreeRestriction FreeModel η A B ϕ x = ϕ .fst (η A x)
 
   FreeRestrictionᴰ :
     (FreeModel : hSet L → Model L)
-    (η : (A : hSet L) → ⟨ A ⟩ → FreeModel A .fst .fst)
+    (η : (A : hSet L) → ⟨ A ⟩ → ⟨ FreeModel A .fst ⟩)
     (FreeModelᴰ : (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L) →
       Modelᴰ (FreeModel A) L)
     (ηᴰ : (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L)
       (x : ⟨ A ⟩) → ⟨ Aᴰ x ⟩ →
-      FreeModelᴰ A Aᴰ .fst .fst (η A x))
+      ⟨ FreeModelᴰ A Aᴰ .fst (η A x) ⟩)
     (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L)
-    {B : Model L} (ϕ : Homo (FreeModel A .fst) (B .fst))
+    {B : Model L} (ϕ : Homo (Model→Algebra (FreeModel A)) (Model→Algebra B))
     (Bᴰ : Modelᴰ B L) →
-    Homoᴰ ϕ (FreeModelᴰ A Aᴰ .fst) (Bᴰ .fst) →
+    Homoᴰ ϕ (Modelᴰ→Algebraᴰ (FreeModel A) (FreeModelᴰ A Aᴰ))
+      (Modelᴰ→Algebraᴰ B Bᴰ) →
     (x : ⟨ A ⟩) → ⟨ Aᴰ x ⟩ →
-      Bᴰ .fst .fst (ϕ .fst (η A x))
+      ⟨ Bᴰ .fst (ϕ .fst (η A x)) ⟩
   FreeRestrictionᴰ FreeModel η FreeModelᴰ ηᴰ A Aᴰ ϕ Bᴰ ϕᴰ x xᴰ =
     ϕᴰ .fst (η A x) (ηᴰ A Aᴰ x xᴰ)
 
   module _
     (FreeModel : hSet L → Model L)
-    (η : (A : hSet L) → ⟨ A ⟩ → FreeModel A .fst .fst)
+    (η : (A : hSet L) → ⟨ A ⟩ → ⟨ FreeModel A .fst ⟩)
     (FreeUniversal : (A : hSet L) (B : Model L) →
       isEquiv (FreeRestriction FreeModel η A B))
     (FreeModelᴰ : (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L) →
       Modelᴰ (FreeModel A) L)
     (ηᴰ : (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L)
       (x : ⟨ A ⟩) → ⟨ Aᴰ x ⟩ →
-      FreeModelᴰ A Aᴰ .fst .fst (η A x))
+      ⟨ FreeModelᴰ A Aᴰ .fst (η A x) ⟩)
     (FreeUniversalᴰ : (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L)
-      {B : Model L} (ϕ : Homo (FreeModel A .fst) (B .fst))
+      {B : Model L} (ϕ : Homo (Model→Algebra (FreeModel A)) (Model→Algebra B))
       (Bᴰ : Modelᴰ B L) →
       isEquiv
         (FreeRestrictionᴰ FreeModel η FreeModelᴰ ηᴰ A Aᴰ ϕ Bᴰ))
     where
 
     ConcreteFreeMODEL : hSet L → Category.ob (MODEL T L)
-    ConcreteFreeMODEL A = Model→MODEL (FreeModel A)
+    ConcreteFreeMODEL A = FreeModel A
 
     ConcreteMODELFree : LeftAdjoint (MODELForget T)
     ConcreteMODELFree A .vertex = ConcreteFreeMODEL A
     ConcreteMODELFree A .element = η A
     ConcreteMODELFree A .universal B =
-      FreeUniversal A (MODEL→Model B)
+      FreeUniversal A B
 
     private
       ConcreteFreeMODELᴰ : (A : hSet L) (Aᴰ : ⟨ A ⟩ → hSet L) →
         Categoryᴰ.ob[_] (MODELᴰ T L L) (ConcreteFreeMODEL A)
-      ConcreteFreeMODELᴰ A Aᴰ =
-        Modelᴰ→MODELᴰ (FreeModel A) (FreeModelᴰ A Aᴰ)
+      ConcreteFreeMODELᴰ A Aᴰ = FreeModelᴰ A Aᴰ
 
       C = ModelCBPVWithFree T ConcreteMODELFree .fst
       Cᴰ = ModelCBPVᴰWithFree T ConcreteMODELFree
@@ -152,7 +126,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
         ue .UniversalElementⱽ'.universalⱽ
           ((𝒞 , Z) , Zᴰ , ϕ) .fst ıᴰ =
             isEquivToIsIso _
-              (FreeUniversalᴰ A Aᴰ (ϕ .snd) (MODELᴰ→Modelᴰ Zᴰ))
+              (FreeUniversalᴰ A Aᴰ (ϕ .snd) Zᴰ)
               .fst ıᴰ
         ue .UniversalElementⱽ'.universalⱽ
           ((𝒱 , Z) , Zᴰ , ()) .snd .fst
@@ -163,7 +137,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
               ∙ Cᴰᶠ.≡in {pth = refl}
                   (isEquivToIsIso _
                     (FreeUniversalᴰ A Aᴰ
-                      (ϕ .snd) (MODELᴰ→Modelᴰ Zᴰ))
+                      (ϕ .snd) Zᴰ)
                     .snd .fst ıᴰ))
         ue .UniversalElementⱽ'.universalⱽ
           ((𝒱 , Z) , Zᴰ , ()) .snd .snd
@@ -176,7 +150,7 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
                 Dᴰ.≡in {pth = refl}
                   (isEquivToIsIso _
                     (FreeUniversalᴰ A Aᴰ
-                      (ϕ .snd) (MODELᴰ→Modelᴰ Zᴰ))
+                      (ϕ .snd) Zᴰ)
                     .snd .snd ϕᴰ))
 
     ConcreteFreeMODELConstruction : FreeMODELConstruction T

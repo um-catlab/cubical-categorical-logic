@@ -33,7 +33,9 @@ open import Cubical.Categories.Displayed.Instances.Sets.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
+open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Additive
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.FromU
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Algebra.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Algebra.Multiplicative
 
@@ -51,17 +53,11 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
     C = AlgebraCBPVEq Sig isSetOp .fst
     Cop = C ^opᴰ
 
-    KIND-idR : EqPsh.EqIdR KIND
-    KIND-idR _ = Eq.refl
-
-    KIND^op-idR : EqPsh.EqIdR (KIND ^op)
-    KIND^op-idR _ = Eq.refl
-
   AlgebraValueTerminalEqⱽ : EqTerminalⱽ C 𝒱
-  AlgebraValueTerminalEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+  AlgebraValueTerminalEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KINDIdR ue
     where
     ue : EqPsh.UEⱽ
-      (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, 𝒱 ]}) KIND-idR
+      (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, 𝒱 ]}) KINDIdR
     ue .EqPsh.UEⱽ.v = Unit* , isSetUnit*
     ue .EqPsh.UEⱽ.e = tt
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝒱 , A , f) .fst _ _ = tt*
@@ -70,11 +66,11 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
       funExt λ _ → refl
 
   AlgebraValueProductEqⱽ : ∀ A₁ A₂ → EqBinProductⱽ C {k = 𝒱} A₁ A₂
-  AlgebraValueProductEqⱽ A₁ A₂ = EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+  AlgebraValueProductEqⱽ A₁ A₂ = EqPsh.UEⱽ→Reprⱽ _ KINDIdR ue
     where
     ue : EqPsh.UEⱽ
       ((EqPsh._[-][-,_] C A₁) EqPsh.×ⱽPsh (EqPsh._[-][-,_] C A₂))
-      KIND-idR
+      KINDIdR
     ue .EqPsh.UEⱽ.v .fst = A₁ .fst × A₂ .fst
     ue .EqPsh.UEⱽ.v .snd = isSet× (A₁ .snd) (A₂ .snd)
     ue .EqPsh.UEⱽ.e = fst , snd
@@ -84,11 +80,11 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝒱 , A , f) .snd .snd _ = refl
 
   AlgebraValueInitialEqⱽ : EqInitialⱽ C 𝒱
-  AlgebraValueInitialEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KIND^op-idR ue
+  AlgebraValueInitialEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KIND^opIdR ue
     where
     ue : EqPsh.UEⱽ
       (EqPsh.UnitⱽPsh {Cᴰ = Cop} {P = (KIND ^op) [-, 𝒱 ]})
-      KIND^op-idR
+      KIND^opIdR
     ue .EqPsh.UEⱽ.v = ⊥* , isProp→isSet isProp⊥*
     ue .EqPsh.UEⱽ.e = tt
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝒱 , A , f) .fst _ = λ ()
@@ -103,7 +99,7 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
   AlgebraValueCoProductEqⱽ : ∀ A₁ A₂ →
     EqBinCoProductⱽ C {k = 𝒱} A₁ A₂
   AlgebraValueCoProductEqⱽ A₁ A₂ =
-    EqPsh.UEⱽ→Reprⱽ _ KIND^op-idR ue
+    EqPsh.UEⱽ→Reprⱽ _ KIND^opIdR ue
     where
     case-η : ∀ {X : Type L} (h : A₁ .fst ⊎ A₂ .fst → X) →
       Sum.rec (λ x → h (inl x)) (λ x → h (inr x)) ≡ h
@@ -112,7 +108,7 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
     ue : EqPsh.UEⱽ
       ((EqPsh._[-][-,_] Cop A₁) EqPsh.×ⱽPsh
        (EqPsh._[-][-,_] Cop A₂))
-      KIND^op-idR
+      KIND^opIdR
     ue .EqPsh.UEⱽ.v .fst = A₁ .fst ⊎ A₂ .fst
     ue .EqPsh.UEⱽ.v .snd = isSet⊎ (A₁ .snd) (A₂ .snd)
     ue .EqPsh.UEⱽ.e = inl , inr
@@ -128,10 +124,10 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
       case-η h
 
   AlgebraComputationTerminalEqⱽ : EqTerminalⱽ C 𝒞
-  AlgebraComputationTerminalEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+  AlgebraComputationTerminalEqⱽ = EqPsh.UEⱽ→Reprⱽ _ KINDIdR ue
     where
     ue : EqPsh.UEⱽ
-      (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, 𝒞 ]}) KIND-idR
+      (EqPsh.UnitⱽPsh {Cᴰ = C} {P = KIND [-, 𝒞 ]}) KINDIdR
     ue .EqPsh.UEⱽ.v = (Unit* , isSetUnit*) , ⊤*Algebra
     ue .EqPsh.UEⱽ.e = tt
     ue .EqPsh.UEⱽ.universal .isPshIsoEq.nIso (𝒱 , A , f) .fst _ _ = tt*
@@ -149,7 +145,7 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
   AlgebraComputationProductEqⱽ : ∀ B₁ B₂ →
     EqBinProductⱽ C {k = 𝒞} B₁ B₂
   AlgebraComputationProductEqⱽ B₁ B₂ =
-    EqPsh.UEⱽ→Reprⱽ _ KIND-idR ue
+    EqPsh.UEⱽ→Reprⱽ _ KINDIdR ue
     where
     product : Algebra L
     product = (_ , B₁ .snd) ×Alg (_ , B₂ .snd)
@@ -157,7 +153,7 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
     ue : EqPsh.UEⱽ
       ((EqPsh._[-][-,_] C B₁) EqPsh.×ⱽPsh
        (EqPsh._[-][-,_] C B₂))
-      KIND-idR
+      KINDIdR
     ue .EqPsh.UEⱽ.v =
       (_ , isSet× (B₁ .fst .snd) (B₂ .fst .snd)) , product .snd
     ue .EqPsh.UEⱽ.e .fst .fst = fst
@@ -194,45 +190,13 @@ module _ (Sig : Signature ℓO ℓA) (isSetOp : isSet (Signature.Op Sig)) where
   private
     Cᴰ = AlgebraCBPVᴰ Sig isSetOp
 
-    CBPVIdR : EqPsh.EqIdR (∫C C)
-    CBPVIdR {x = 𝒱 , A} {y = 𝒱 , B} f = Eq.refl
-    CBPVIdR {x = 𝒱 , A} {y = 𝒞 , B} f = Eq.refl
-    CBPVIdR {x = 𝒞 , A} {y = 𝒱 , B} ()
-    CBPVIdR {x = 𝒞 , A} {y = 𝒞 , B} f = Eq.refl
-
-    CBPVAssoc : EqPsh.ReprEqAssoc (∫C C)
-    CBPVAssoc (𝒱 , A)
-      {c = 𝒱 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc (𝒞 , B)
-      {c = 𝒱 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc (𝒞 , B)
-      {c = 𝒱 , W} {c' = 𝒞 , X} {c'' = 𝒞 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc (𝒞 , B)
-      {c = 𝒞 , W} {c' = 𝒞 , X} {c'' = 𝒞 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc x f g p f⋆g e = Eq.pathToEq
-      (sym (D.⋆Assoc f g p) ∙ cong (λ fg → fg D.⋆ p) (Eq.eqToPath e))
-      where module D = Category (∫C C)
-
-    CBPVAssoc^op : EqPsh.ReprEqAssoc ((∫C C) ^op)
-    CBPVAssoc^op (𝒱 , A)
-      {c = 𝒱 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc^op (𝒱 , A)
-      {c = 𝒞 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc^op x f g p f⋆g e = Eq.pathToEq
-      (sym (D.⋆Assoc f g p) ∙ cong (λ fg → fg D.⋆ p) (Eq.eqToPath e))
-      where module D = Category ((∫C C) ^op)
-
-    CBPVIdR^op : EqPsh.EqIdR ((∫C C) ^op)
-    CBPVIdR^op {x = 𝒱 , X} {y = 𝒱 , Y} f = Eq.refl
-    CBPVIdR^op {x = 𝒞 , X} {y = 𝒱 , Y} f = Eq.refl
-    CBPVIdR^op {x = 𝒱 , X} {y = 𝒞 , Y} ()
-    CBPVIdR^op {x = 𝒞 , X} {y = 𝒞 , Y} f = Eq.refl
+    open U→CBPVEqLaws (ALGForget Sig {ℓ = L})
+      (λ _ → Eq.refl) (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
+      (λ _ → Eq.refl) (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
+      (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
+      using () renaming
+        (idR to CBPVIdR; assoc to CBPVAssoc;
+         idR^op to CBPVIdR^op; assoc^op to CBPVAssoc^op)
 
   AlgebraCBPVValueTerminalsⱽ : ValueTerminalsⱽ Cᴰ
   AlgebraCBPVValueTerminalsⱽ A =

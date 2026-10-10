@@ -65,6 +65,12 @@ KINDAssoc _ _ _ _ _ _ = Eq.refl
 KIND^opAssoc : EqPsh.ReprEqAssoc (KIND ^op)
 KIND^opAssoc _ _ _ _ _ _ = Eq.refl
 
+KINDIdR : EqPsh.EqIdR KIND
+KINDIdR _ = Eq.refl
+
+KIND^opIdR : EqPsh.EqIdR (KIND ^op)
+KIND^opIdR _ = Eq.refl
+
 module _ (C : CBPVCat ℓ ℓ') where
   private
     module C = Categoryᴰ C

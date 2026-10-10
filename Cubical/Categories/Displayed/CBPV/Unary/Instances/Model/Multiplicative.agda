@@ -37,6 +37,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
 import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base as EqPsh
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.FromU
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Model.Base
 
 private
@@ -64,23 +65,11 @@ module _ (T : Theory ℓO ℓA ℓE ℓEA) where
     MODELᴰOb→Modelᴰ Bᴰ .snd .fst = Bᴰ .snd .snd
     MODELᴰOb→Modelᴰ Bᴰ .snd .snd b = Bᴰ .fst b .snd
 
-    CBPVIdR : EqPsh.EqIdR (∫C C)
-    CBPVIdR {x = 𝒱 , A} {y = 𝒱 , B} f = Eq.refl
-    CBPVIdR {x = 𝒱 , A} {y = 𝒞 , B} f =
-      Eq.pathToEq (Category.⋆IdR (∫C C) f)
-    CBPVIdR {x = 𝒞 , A} {y = 𝒱 , B} ()
-    CBPVIdR {x = 𝒞 , A} {y = 𝒞 , B} f = Eq.refl
-
-    CBPVAssoc : EqPsh.ReprEqAssoc (∫C C)
-    CBPVAssoc (𝒱 , A)
-      {c = 𝒱 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc (𝒞 , B)
-      {c = 𝒱 , W} {c' = 𝒱 , X} {c'' = 𝒱 , Y}
-      _ _ _ _ Eq.refl = Eq.refl
-    CBPVAssoc x f g p f⋆g e = Eq.pathToEq
-      (sym (D.⋆Assoc f g p) ∙ cong (λ fg → fg D.⋆ p) (Eq.eqToPath e))
-      where module D = Category (∫C C)
+    open U→CBPVEqLaws (MODELForget T {ℓ = L})
+      (λ _ → Eq.refl) (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
+      (λ _ → Eq.refl) (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
+      (λ _ → Eq.refl) (λ _ _ _ → Eq.refl)
+      using () renaming (idR to CBPVIdR; assoc to CBPVAssoc)
 
   FreeMODELη : (Free : LeftAdjoint (MODELForget T)) (A : hSet L)
     → ∫C (C ^opᴰ)

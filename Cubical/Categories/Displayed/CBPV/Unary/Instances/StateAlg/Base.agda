@@ -116,6 +116,7 @@ StateAlgForgetᴰ .Functorᴰ.F-idᴰ = refl
 StateAlgForgetᴰ .Functorᴰ.F-seqᴰ fᴰ gᴰ = refl
 
 module _ (X : Type ℓ) where
+  -- The Free State Algebra can be constructed as the state monad
   FreeStateAlg : StateAlg (Bool → Bool × X)
   FreeStateAlg .StateAlg.rd ft ff = if_then ft true else ff false
   FreeStateAlg .StateAlg.wt b f _ = f b
@@ -327,6 +328,12 @@ module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
   pack⁻ .snd .fst _ = refl
   pack⁻ .snd .snd _ = refl
 
+  pack⁻Homo :
+    Homo (pack⁻ .fst)
+      (FreeStateAlg (Σ X Xᴰ))
+      (StateAlgᴰ.∫ (FreeStateAlgᴰ X Xᴰ))
+  pack⁻Homo = invHomo pack pack⁻
+
   module _ {Y : Type ℓ'} {Yᴰ : Y → Type ℓᴰ'}
     {B : StateAlg Y} (Bᴰ : StateAlgᴰ B Yᴰ) where
     private
@@ -364,29 +371,20 @@ module _ {X : Type ℓ}{Xᴰ : X → Type ℓ'} where
         recFSA-β (Σ X Xᴰ) Bᴰ.∫
           (λ z → i (z .fst) , iᴰ (z .fst) (z .snd)) (x , xᴰ)
 
-recFSAᴰ-η :
-  ∀ {X : Type ℓ} (Xᴰ : X → Type ℓ')
-    {Y : Type ℓ'} {Yᴰ : Y → Type ℓᴰ'}
-    {B : StateAlg Y} (Bᴰ : StateAlgᴰ B Yᴰ)
-    {f : (Bool → Bool × X) → Y}
-    (fᴰ : ∀ s → (∀ b → Xᴰ (s b .snd)) → Yᴰ (f s))
-    (f-hom : Homo f (FreeStateAlg X) B)
-    (fᴰ-hom : Homoᴰ fᴰ f-hom (FreeStateAlgᴰ X Xᴰ) Bᴰ)
-    (isSetB : isSet Y) s sᴰ
-  → StateAlgᴰ._P≡[_]_ Bᴰ
-      (recFSAᴰ-f {Xᴰ = Xᴰ} Bᴰ (f ∘ η X)
-        (λ x xᴰ → fᴰ (η X x) (ηᴰ X Xᴰ x xᴰ)) isSetB s sᴰ)
-      (recFSA-η X B f-hom s) (fᴰ s sᴰ)
-recFSAᴰ-η Xᴰ {Y = Y} {Yᴰ = Yᴰ} Bᴰ {f = f}
-  fᴰ f-hom fᴰ-hom isSetB s sᴰ =
-  hSetReasoning.rectifyOut (_ , isSetB) _ $
-    cong₂ (StateAlg.rd (StateAlgᴰ.∫ Bᴰ))
-      (sym $ Homo.wt-hom' (Homoᴰ.∫ fᴰ-hom) _ _)
-      (sym $ Homo.wt-hom' (Homoᴰ.∫ fᴰ-hom) _ _)
-    ∙ (sym $ Homo.rd-hom' (Homoᴰ.∫ fᴰ-hom) _ _)
-    ∙ cong {B = λ _ → Σ Y Yᴰ}
-        (λ q → f (q .fst) , fᴰ (q .fst) (q .snd))
-        (sym $ StateAlg.rd-wt (StateAlgᴰ.∫ (FreeStateAlgᴰ _ Xᴰ)) (s , sᴰ))
+    module _ (isSetB : isSet Y) where
+      recFSAᴰ-η :
+          ∀ {f : (Bool → Bool × X) → Y}
+          (fᴰ : ∀ s → (∀ b → Xᴰ (s b .snd)) → Yᴰ (f s))
+          (f-hom : Homo f (FreeStateAlg X) B)
+          (fᴰ-hom : Homoᴰ fᴰ f-hom (FreeStateAlgᴰ X Xᴰ) Bᴰ)
+          s sᴰ
+        → recFSAᴰ-f (f ∘ η X) (λ x xᴰ → fᴰ _ (ηᴰ X Xᴰ x xᴰ)) isSetB s sᴰ
+            Bᴰ.P≡[ recFSA-η X B f-hom s ]
+          fᴰ s sᴰ
+      recFSAᴰ-η fᴰ f-hom fᴰ-hom s sᴰ =
+        hSetReasoning.rectifyOut (_ , isSetB) _ $
+        recFSA-η (Σ X Xᴰ) Bᴰ.∫
+          (pack⁻Homo ⋆Homo Homoᴰ.∫ fᴰ-hom) (pack-f (s , sᴰ))
 
 module _ {X : Type ℓ} {X' : Type ℓ'}
   {B : StateAlg X} {B' : StateAlg X'} {f : X → X'}
@@ -496,3 +494,9 @@ module _ {X : Type ℓ}(Xᴰ : X → Type ℓᴰ)
 
   FreeStateAlgⱽ : StateAlgᴰ B FreeStateAlgⱽ-Xᴰ
   FreeStateAlgⱽ = push (recFSA X B i) (FreeStateAlgᴰ X Xᴰ) isSetB
+
+  -- Q: it is technically unnecessary to provide an explicit
+  -- definition of FreeStateAlgᴰ, since we can define it using ⊤ⱽ and
+  -- push, in which case we could simplify this definition to just
+  --
+  -- FreeStateAlgⱽ = push (recFSA (Σ X Xᴰ) B (i ∘ fst)) ⊤ⱽ isSetB

@@ -533,3 +533,28 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}{Cᴰ�
           ≡ (fᴰᴰ Pᴰᴰ.⋆ᴰ pᴰᴰ , fᴰᴰ Qᴰᴰ.⋆ᴰ qᴰᴰ)
       test×ⱽᴰPsh p pᴰ qᴰ f fᴰ fᴰᴰ pᴰᴰ qᴰᴰ =
         refl
+
+    -- Pairing total-space paths componentwise. The two paths only agree
+    -- on the shared P-component up to isSetPsh, so the second is
+    -- rectified onto the first.
+    ×ⱽᴰPsh-∫≡ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+      {p p' : P.p[ Γ ]}
+      {pᴰ : Pᴰ.p[ p ][ Γᴰ ]} {pᴰ' : Pᴰ.p[ p' ][ Γᴰ ]}
+      {qᴰ : Qᴰ.p[ p ][ Γᴰ ]} {qᴰ' : Qᴰ.p[ p' ][ Γᴰ ]}
+      {pᴰᴰ : Pᴰᴰ.p[ p , pᴰ ][ Γᴰᴰ ]} {pᴰᴰ' : Pᴰᴰ.p[ p' , pᴰ' ][ Γᴰᴰ ]}
+      {qᴰᴰ : Qᴰᴰ.p[ p , qᴰ ][ Γᴰᴰ ]} {qᴰᴰ' : Qᴰᴰ.p[ p' , qᴰ' ][ Γᴰᴰ ]}
+      → pᴰᴰ Pᴰᴰ.∫≡ pᴰᴰ'
+      → qᴰᴰ Qᴰᴰ.∫≡ qᴰᴰ'
+      → Path (Σ[ s ∈ Pᴰ×Qᴰ.p[ Γ , Γᴰ ] ] Pᴰᴰ×Qᴰᴰ.p[ s ][ Γᴰᴰ ])
+          ((p , pᴰ , qᴰ) , pᴰᴰ , qᴰᴰ)
+          ((p' , pᴰ' , qᴰ') , pᴰᴰ' , qᴰᴰ')
+    ×ⱽᴰPsh-∫≡ {p = p} {p' = p'} {qᴰ = qᴰ} {qᴰ' = qᴰ'}
+      {qᴰᴰ = qᴰᴰ} {qᴰᴰ' = qᴰᴰ'} e₁ e₂ i =
+      (e₁ i .fst .fst , e₁ i .fst .snd , e₂' i .snd) , e₁ i .snd , e₂'' i
+      where
+      e₂' : Path (Σ[ q ∈ P.p[ _ ] ] Qᴰ.p[ q ][ _ ]) (p , qᴰ) (p' , qᴰ')
+      e₂' j =
+        e₁ j .fst .fst
+        , Qᴰ.rectifyOut {e' = λ k → e₁ k .fst .fst} (λ k → e₂ k .fst) j
+      e₂'' : PathP (λ j → Qᴰᴰ.p[ e₂' j ][ _ ]) qᴰᴰ qᴰᴰ'
+      e₂'' = Qᴰᴰ.rectifyOut {e' = e₂'} e₂

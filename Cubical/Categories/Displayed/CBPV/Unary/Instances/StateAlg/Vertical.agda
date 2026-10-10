@@ -192,9 +192,9 @@ StateAlgCBPV-η-lift {ℓ = ℓ} {A = A} Aᴰ = UniversalElementⱽ'.REPRⱽ η-
           (ΣPathPProp
             (λ fᴰ → isPropHomoᴰ (λ z → Zᴰ .fst z .snd))
             (funExt λ s → funExt λ sᴰ →
-              recFSAᴰ-η (λ x → ⟨ Aᴰ x ⟩) (Zᴰ .snd)
-                (ψᴰ .fst) (ϕ .snd .snd) (ψᴰ .snd)
-                (Z .fst .snd) s sᴰ)))
+              recFSAᴰ-η {Xᴰ = λ x → ⟨ Aᴰ x ⟩} (Zᴰ .snd)
+                (Z .fst .snd) (ψᴰ .fst) (ϕ .snd .snd)
+                (ψᴰ .snd) s sᴰ)))
 
 module _ {B B' : StateAlgebra ℓ} (ϕ : StateAlgHom B B')
   (Bᴰ : Σ[ Xᴰ ∈ (⟨ B .fst ⟩ → hSet ℓ) ]

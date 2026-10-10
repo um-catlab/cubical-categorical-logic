@@ -11,7 +11,6 @@ open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞)
-open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Opposite
@@ -89,7 +88,7 @@ module AddCBPVCatᴰNotation
 
   open TerminalⱽᴰNotation Dᴰ (C .snd .fst) (Cᴰ .snd .fst) public renaming
     (vertexᴰ to value-terminal-obᴰ ; !ⱽᴰ to value-terminal-introᴰ ;
-     !ηⱽᴰ to value-terminal-ηᴰ)
+     !ηⱽᴰ to value-terminal-ηᴰ ; !ηⱽᴰ-on to value-terminal-ηᴰ-on)
 
   module _ {A₁ A₂}
     (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
@@ -105,7 +104,7 @@ module AddCBPVCatᴰNotation
   open InitialⱽᴰNotation Dᴰ (C .snd .snd .snd .fst)
     (Cᴰ .snd .snd .snd .fst) public renaming
     (vertexᴰ to value-initial-obᴰ ; ¡ⱽᴰ to value-initial-elimᴰ ;
-     ¡ηⱽᴰ to value-initial-ηᴰ)
+     ¡ηⱽᴰ to value-initial-ηᴰ ; ¡ηⱽᴰ-on to value-initial-ηᴰ-on)
 
   module _ {A₁ A₂}
     (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
@@ -121,7 +120,8 @@ module AddCBPVCatᴰNotation
   open TerminalⱽᴰNotation Dᴰ (C .snd .snd .snd .snd .snd .fst)
     (Cᴰ .snd .snd .snd .snd .snd .fst) public renaming
     (vertexᴰ to computation-terminal-obᴰ ; !ⱽᴰ to computation-terminal-introᴰ ;
-     !ηⱽᴰ to computation-terminal-ηᴰ)
+     !ηⱽᴰ to computation-terminal-ηᴰ ;
+     !ηⱽᴰ-on to computation-terminal-ηᴰ-on)
 
   module _ {B₁ B₂}
     (B₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒞 , B₁))
@@ -246,55 +246,24 @@ AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
   π₂*A₂ᴰ = Cⱽ .snd .snd .snd .fst bp.π₂ A₂ᴰ
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .fst =
   Terminalⱽ→ⱽᴰ (D ^opᴰᴰ) value-initial
-    value-initialⱽ
+    (Terminalⱽ^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .fst (value-initial .fst)))
   where
   D = Cⱽ .fst .fst
   value-initial = C .snd .snd .snd .fst
-  value-initial' = Cⱽ .snd .snd .snd .snd .fst (value-initial .fst)
-  value-initialⱽ : Terminalⱽ (D ^opᴰᴰ) (𝒱 , value-initial .fst)
-  value-initialⱽ .fst = value-initial' .fst
-  value-initialⱽ .snd =
-    pshiso
-      (pshhom
-        (λ x → value-initial' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ _ _ _ _ → refl))
-      (value-initial' .snd .PshIso.nIso)
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .fst
   A₁ A₂ A₁ᴰ A₂ᴰ =
   BinProductⱽ+π*→ⱽᴰ (D ^opᴰᴰ) bcp A₁ᴰ A₂ᴰ σ₁!A₁ᴰ σ₂!A₂ᴰ
-    bcpⱽ
+    (BinProductⱽ^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)))
   where
   D = Cⱽ .fst .fst
   bcp = C .snd .snd .snd .snd .fst A₁ A₂
   module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
-  σ₁!A₁ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ
-  σ₂!A₂ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ
-  σ₁!A₁ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₁) A₁ᴰ
-  σ₁!A₁ᴰ .fst = σ₁!A₁ᴰ' .fst
-  σ₁!A₁ᴰ .snd =
-    pshiso
-      (pshhom
-        (λ x → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (σ₁!A₁ᴰ' .snd .PshIso.nIso)
-  σ₂!A₂ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₂) A₂ᴰ
-  σ₂!A₂ᴰ .fst = σ₂!A₂ᴰ' .fst
-  σ₂!A₂ᴰ .snd =
-    pshiso
-      (pshhom
-        (λ x → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (σ₂!A₂ᴰ' .snd .PshIso.nIso)
-  bcpⱽ' = Cⱽ .snd .snd .snd .snd .snd .fst
-    (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
-  bcpⱽ : BinProductⱽ (D ^opᴰᴰ) (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
-  bcpⱽ .fst = bcpⱽ' .fst
-  bcpⱽ .snd =
-    pshiso
-      (pshhom
-        (λ x → bcpⱽ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → bcpⱽ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (bcpⱽ' .snd .PshIso.nIso)
+  σ₁!A₁ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+    (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+  σ₂!A₂ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+    (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .fst =
   Terminalⱽ→ⱽᴰ D computation-terminal
     (Cⱽ .snd .snd .snd .snd .snd .snd .snd .fst
@@ -326,50 +295,20 @@ module _
     Dᴰ = Dⱽ .fst .fst
     G = ∫F F
 
-    -- The direct opposite avoids the toOpOp transports introduced by _^opF.
-    G-op : Functor ((∫C C) ^op) ((∫C D) ^op)
-    G-op .F-ob = G .F-ob
-    G-op .F-hom = G .F-hom
-    G-op .F-id = G .F-id
-    G-op .F-seq f g = G .F-seq g f
 
-  -- These cases are just eta expansions to get around the
-  -- no-eta-equality for Categoryᴰ, specifically more ∫ and ^op stuff.
   reindexValueInitialⱽ : ValueInitialsⱽ (reindex Dᴰ G)
   reindexValueInitialⱽ A =
-    init' .fst ,
-    pshiso
-      (pshhom
-        (λ x → init' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ _ _ _ _ → refl))
-      (init' .snd .PshIso.nIso)
-    where
-    init' = reindexTerminalⱽ G-op (𝒱 , A)
-      (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
+    reindexInitialⱽ G (𝒱 , A) (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
 
   reindexValueBinCoProductⱽ : ValueBinCoProductsⱽ (reindex Dᴰ G)
   reindexValueBinCoProductⱽ A₁ᴰ A₂ᴰ =
-    bcp' .fst ,
-    pshiso
-      (pshhom
-        (λ x → bcp' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → bcp' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (bcp' .snd .PshIso.nIso)
-    where
-    bcp' = reindexBinProductⱽ G-op A₁ᴰ A₂ᴰ
+    reindexBinCoProductⱽ G A₁ᴰ A₂ᴰ
       (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
 
   reindexValueOpcartesianLifts :
     hasVerticalOpcartesianLiftsAt (reindex Dᴰ G) 𝒱
   reindexValueOpcartesianLifts f Aᴰ =
-    lift' .fst ,
-    pshiso
-      (pshhom
-        (λ x → lift' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y g p → lift' .snd .PshIso.trans .PshHom.N-hom x y g p))
-      (lift' .snd .PshIso.nIso)
-    where
-    lift' = reindexCartesianLift (Dᴰ ^opᴰ) G-op (_ , f) Aᴰ
+    reindexOpcartesianLift G (_ , f) Aᴰ
       (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
 
   AddCBPVCatⱽReindex : AddCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'

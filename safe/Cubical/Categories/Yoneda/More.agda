@@ -1,0 +1,49 @@
+module Cubical.Categories.Yoneda.More where
+
+open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Function renaming (_∘_ to _◍_)
+
+open import Cubical.Categories.Category
+open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Instances.Functors
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Functor
+
+private
+  variable
+    ℓ ℓ' ℓ'' : Level
+
+-- THE YONEDA LEMMA
+
+open NatTrans
+open NatTransP
+open Functor
+open Iso
+
+-- But this one is nice because its action on functors is
+-- *definitionally* equal to the definition used in
+-- the formulation of the Yoneda lemma
+-- TODO: redefine C [-, a ] and C [ a ,-] to be definitionally what
+-- you get out from currying HomBif
+open Category
+YONEDA : {C : Category ℓ ℓ'} → Functor C (FUNCTOR (C ^op) (SET ℓ'))
+YONEDA {C = C} .F-ob a = C [-, a ]
+YONEDA {C = C} .F-hom f .N-ob b g  = g ⋆⟨ C ⟩ f
+YONEDA {C = C} .F-hom f .N-hom g = funExt (λ h → C .⋆Assoc g h f)
+YONEDA {C = C} .F-id =
+  makeNatTransPath (funExt (λ a → funExt (λ f → C .⋆IdR f)))
+YONEDA {C = C} .F-seq f g =
+  makeNatTransPath (funExt (λ a → funExt (λ h → sym (C .⋆Assoc h f g))))
+
+YONEDA' : {C : Category ℓ ℓ'} → Functor (C ^op) (FUNCTOR C (SET ℓ'))
+YONEDA' {C = C} .F-ob = C [_,-]
+YONEDA' {C = C} .F-hom f .N-ob b g = f ⋆⟨ C ⟩ g
+YONEDA' {C = C} .F-hom f .N-hom g = funExt (λ h → sym $ C .⋆Assoc f h g)
+YONEDA' {C = C} .F-id = makeNatTransPath $ funExt λ a → funExt λ f → C .⋆IdL f
+YONEDA' {C = C} .F-seq f g = makeNatTransPath $ funExt λ a → funExt $ C .⋆Assoc g f
+
+isFaithfulYoneda : {C : Category ℓ ℓ'} → isFaithful (YONEDA {C = C})
+isFaithfulYoneda {C = C} A B f g p =
+  sym (C .⋆IdL f) ∙ (λ i → p i .N-ob A (C .id)) ∙ C .⋆IdL g
+-- Should prove (in another module) YONEDA ≡ λFl (C ^op) (SET _) (HomFunctor C)

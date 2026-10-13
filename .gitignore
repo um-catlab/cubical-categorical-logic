@@ -1,0 +1,16 @@
+_build/
+/Everything.agda
+*.auctex-auto
+*.aux
+*.log
+*.pdf
+*.synctex.gz
+/env/
+*.txt
+*.prof
+/.DS_Store
+/output/
+
+# Nix
+result
+.direnv/

@@ -1,0 +1,4 @@
+module Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.LocalRepresentability where
+
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.LocalRepresentability.Base public
+open import Cubical.Categories.Displayed.Presheaf.Constructions.BinProduct.LocalRepresentability.Properties public

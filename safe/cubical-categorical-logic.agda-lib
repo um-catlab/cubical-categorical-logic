@@ -1,0 +1,4 @@
+name: cubical-categorical-logic
+include: .
+depend: cubical
+flags: --safe --cubical --postfix-projections --guardedness -WnoUnsupportedIndexedMatch

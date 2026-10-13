@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "Logical Relations on Display: Agda Artifact"
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Steven
+    family-names: Schaefer
+    email: stschaef@umich.edu
+    affiliation: University of Michigan
+    orcid: 'https://orcid.org/0009-0007-1258-9501'
+  - given-names: Johnson
+    family-names: He
+    email: hejo@iu.edu
+    affiliation: Indiana University
+    orcid: 'https://orcid.org/0009-0004-3358-0643'
+  - given-names: Max S.
+    family-names: New
+    email: maxsnew@umich.edu
+    affiliation: University of Michigan
+    orcid: 'https://orcid.org/0000-0001-8141-195X'
+abstract: >-
+  The Cubical Agda development accompanying the POPL 2027 paper
+  Logical Relations on Display.
+license: MIT

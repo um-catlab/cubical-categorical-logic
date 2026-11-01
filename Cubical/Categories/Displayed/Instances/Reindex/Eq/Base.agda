@@ -69,6 +69,67 @@ module _
     lem = sym (Eq.eqToPath
       ((Eq.transportPathToEq→transportPath Hom[_][ _ , _ ]) p fᴰ))
 
+module EqReindexWithLaws
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+  (F : Functor C D)
+  (F-id'  : {x : C .ob} → D .id {x = F .F-ob x} Eq.≡ F .F-hom (C .id))
+  (F-seq' : {x y z : C .ob} (f : C [ x , y ]) (g : C [ y , z ])
+          → (F .F-hom f) ⋆⟨ D ⟩ (F .F-hom g) Eq.≡ F .F-hom (f ⋆⟨ C ⟩ g))
+  where
+
+  private
+    module C = Category C
+    module Dᴰ = Categoryᴰ Dᴰ
+
+  idᴰ' : ∀ {x} {xᴰ : Dᴰ.ob[ F .F-ob x ]}
+    → Dᴰ.Hom[ F .F-hom C.id ][ xᴰ , xᴰ ]
+  idᴰ' = reind' Dᴰ F-id' Dᴰ.idᴰ
+
+  _⋆ᴰ'_ : ∀ {x y z} {f : C [ x , y ]} {g : C [ y , z ]}
+    {xᴰ : Dᴰ.ob[ F .F-ob x ]} {yᴰ : Dᴰ.ob[ F .F-ob y ]}
+    {zᴰ : Dᴰ.ob[ F .F-ob z ]}
+    → Dᴰ.Hom[ F .F-hom f ][ xᴰ , yᴰ ]
+    → Dᴰ.Hom[ F .F-hom g ][ yᴰ , zᴰ ]
+    → Dᴰ.Hom[ F .F-hom (f C.⋆ g) ][ xᴰ , zᴰ ]
+  _⋆ᴰ'_ {f = f} {g = g} fᴰ gᴰ =
+    reind' Dᴰ (F-seq' f g) (fᴰ Dᴰ.⋆ᴰ gᴰ)
+
+  reindex :
+    (⋆IdLᴰ' : ∀ {x y} {f : C [ x , y ]}
+      {xᴰ : Dᴰ.ob[ F .F-ob x ]} {yᴰ : Dᴰ.ob[ F .F-ob y ]}
+      (fᴰ : Dᴰ.Hom[ F .F-hom f ][ xᴰ , yᴰ ])
+      → PathP
+          (λ i → Dᴰ.Hom[ F .F-hom (C.⋆IdL f i) ][ xᴰ , yᴰ ])
+          (idᴰ' ⋆ᴰ' fᴰ) fᴰ)
+    (⋆IdRᴰ' : ∀ {x y} {f : C [ x , y ]}
+      {xᴰ : Dᴰ.ob[ F .F-ob x ]} {yᴰ : Dᴰ.ob[ F .F-ob y ]}
+      (fᴰ : Dᴰ.Hom[ F .F-hom f ][ xᴰ , yᴰ ])
+      → PathP
+          (λ i → Dᴰ.Hom[ F .F-hom (C.⋆IdR f i) ][ xᴰ , yᴰ ])
+          (fᴰ ⋆ᴰ' idᴰ') fᴰ)
+    (⋆Assocᴰ' : ∀ {w x y z}
+      {f : C [ w , x ]} {g : C [ x , y ]} {h : C [ y , z ]}
+      {wᴰ : Dᴰ.ob[ F .F-ob w ]} {xᴰ : Dᴰ.ob[ F .F-ob x ]}
+      {yᴰ : Dᴰ.ob[ F .F-ob y ]} {zᴰ : Dᴰ.ob[ F .F-ob z ]}
+      (fᴰ : Dᴰ.Hom[ F .F-hom f ][ wᴰ , xᴰ ])
+      (gᴰ : Dᴰ.Hom[ F .F-hom g ][ xᴰ , yᴰ ])
+      (hᴰ : Dᴰ.Hom[ F .F-hom h ][ yᴰ , zᴰ ])
+      → PathP
+          (λ i → Dᴰ.Hom[ F .F-hom (C.⋆Assoc f g h i) ][ wᴰ , zᴰ ])
+          ((fᴰ ⋆ᴰ' gᴰ) ⋆ᴰ' hᴰ) (fᴰ ⋆ᴰ' (gᴰ ⋆ᴰ' hᴰ)))
+    → Categoryᴰ C ℓDᴰ ℓDᴰ'
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ.ob[_] x =
+    Dᴰ.ob[ F .F-ob x ]
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ.Hom[_][_,_] f =
+    Dᴰ.Hom[ F .F-hom f ][_,_]
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ.idᴰ = idᴰ'
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ._⋆ᴰ_ = _⋆ᴰ'_
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ.⋆IdLᴰ = ⋆IdLᴰ'
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ.⋆IdRᴰ = ⋆IdRᴰ'
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ.⋆Assocᴰ = ⋆Assocᴰ'
+  reindex ⋆IdLᴰ' ⋆IdRᴰ' ⋆Assocᴰ' .Categoryᴰ.isSetHomᴰ = Dᴰ.isSetHomᴰ
+
 module EqReindex
   {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')

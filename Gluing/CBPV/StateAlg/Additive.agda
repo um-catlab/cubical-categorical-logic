@@ -1,3 +1,4 @@
+-- Canonicity for Full Multiplicative Additive Unary CBPV with a state effect
 {-# OPTIONS --prop --lossy-unification #-}
 module Gluing.CBPV.StateAlg.Additive where
 

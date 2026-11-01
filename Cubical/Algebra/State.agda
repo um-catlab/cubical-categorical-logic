@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.More
 
 open import Cubical.Data.Bool as Bool
@@ -95,6 +96,29 @@ module _ {X : Type ℓ} {X' : Type ℓ'} {X'' : Type ℓ''}
   _⋆Homo_ : Homo (g ∘ f) B B''
   _⋆Homo_ .Homo.rd-hom xt xf rdxtf p = ψ.rd-hom (f xt) (f xf) (f rdxtf) (ϕ.rd-hom xt xf rdxtf p)
   _⋆Homo_ .Homo.wt-hom b x wtbx p = ψ.wt-hom b (f x) (f wtbx) (ϕ.wt-hom b x wtbx p)
+
+module _ {X : Type ℓ} {X' : Type ℓ'}
+  {B : StateAlg X} {B' : StateAlg X'} {f : X → X'} where
+  private
+    module B' = StateAlg B'
+
+  invHomo :
+    (ϕ : Homo f B B') (f⁻ : isIso f) →
+    Homo (f⁻ .fst) B' B
+  invHomo ϕ f⁻ .Homo.rd-hom xt xf rdxtxf p =
+    isoFunInjective (isIsoToIso f⁻) _ _ $
+      f⁻ .snd .fst rdxtxf
+      ∙ p
+      ∙ cong₂ B'.rd
+          (sym $ f⁻ .snd .fst xt)
+          (sym $ f⁻ .snd .fst xf)
+      ∙ sym (Homo.rd-hom' ϕ _ _)
+  invHomo ϕ f⁻ .Homo.wt-hom b x wtbx p =
+    isoFunInjective (isIsoToIso f⁻) _ _ $
+      f⁻ .snd .fst wtbx
+      ∙ p
+      ∙ cong (B'.wt b) (sym $ f⁻ .snd .fst x)
+      ∙ sym (Homo.wt-hom' ϕ _ _)
 
 record StateAlgᴰ {X : Type ℓ} (B : StateAlg X)
   (Xᴰ : X → Type ℓᴰ) : Type (ℓ-max ℓ ℓᴰ) where

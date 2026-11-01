@@ -48,6 +48,7 @@ open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
@@ -175,3 +176,66 @@ module _
       (TerminalsⱽReindex F Dᴰ.termⱽ)
       (BinProductsⱽReindex F Dᴰ.bpⱽ)
       (isFibrationReindex Dᴰ.Cᴰ F Dᴰ.cartesianLifts)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (F : Functor C D) where
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+    module Dop = Fibers (Dᴰ ^opᴰ)
+
+
+  reindexInitialⱽ : ∀ x
+    → Terminalⱽ (Dᴰ ^opᴰ) (F ⟅ x ⟆)
+    → Terminalⱽ ((reindex Dᴰ F) ^opᴰ) x
+  reindexInitialⱽ x init =
+    init' .fst ,
+    pshiso
+      (pshhom (λ c → init' .snd .trans .N-ob c) (λ _ _ _ _ → refl))
+      (init' .snd .nIso)
+    where
+    init' = reindexTerminalⱽ {Dᴰ = Dᴰ ^opᴰ} (F ^opFStrict) x init
+
+  reindexBinCoProductⱽ : ∀ {x} (Fxᴰ Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → BinProductⱽ (Dᴰ ^opᴰ) Fxᴰ Fyᴰ
+    → BinProductⱽ ((reindex Dᴰ F) ^opᴰ) Fxᴰ Fyᴰ
+  reindexBinCoProductⱽ Fxᴰ Fyᴰ bcp =
+    bcp' .fst ,
+    pshiso
+      (pshhom (λ c → bcp' .snd .trans .N-ob c)
+        (λ c c' g p → bcp' .snd .trans .N-hom c c' g p))
+      (bcp' .snd .nIso)
+    where
+    bcp' = reindexBinProductⱽ {Dᴰ = Dᴰ ^opᴰ} (F ^opFStrict) Fxᴰ Fyᴰ bcp
+
+  reindexBinCoProductⱽ-σ₁ : ∀ {x}
+    (Fxᴰ Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    (bcp : BinProductⱽ (Dᴰ ^opᴰ) Fxᴰ Fyᴰ)
+    → BinProductⱽNotation.π₁ ((reindex Dᴰ F) ^opᴰ)
+        (reindexBinCoProductⱽ Fxᴰ Fyᴰ bcp)
+      Dop.∫≡ BinProductⱽNotation.π₁ (Dᴰ ^opᴰ) bcp
+  reindexBinCoProductⱽ-σ₁ {x} Fxᴰ Fyᴰ bcp =
+    cong toσ₁
+      (congN-obⱽ {Γᴰ = bcp .fst} (bcp .snd .trans)
+        (Dop.reind-revealed-filler⁻ {p = Dop.idᴰ} (sym (F .F-id))))
+    where
+    toσ₁ : (Σ[ f ∈ D [ F ⟅ x ⟆ , F ⟅ x ⟆ ] ]
+      (Dᴰ [ f ][ Fxᴰ , bcp .fst ]) × (Dᴰ [ f ][ Fyᴰ , bcp .fst ]))
+      → Dop.Hom[ (F ⟅ x ⟆ , bcp .fst) , (F ⟅ x ⟆ , Fxᴰ) ]
+    toσ₁ (f , a , b) = f , a
+
+  reindexBinCoProductⱽ-σ₂ : ∀ {x}
+    (Fxᴰ Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    (bcp : BinProductⱽ (Dᴰ ^opᴰ) Fxᴰ Fyᴰ)
+    → BinProductⱽNotation.π₂ ((reindex Dᴰ F) ^opᴰ)
+        (reindexBinCoProductⱽ Fxᴰ Fyᴰ bcp)
+      Dop.∫≡ BinProductⱽNotation.π₂ (Dᴰ ^opᴰ) bcp
+  reindexBinCoProductⱽ-σ₂ {x} Fxᴰ Fyᴰ bcp =
+    cong toσ₂
+      (congN-obⱽ {Γᴰ = bcp .fst} (bcp .snd .trans)
+        (Dop.reind-revealed-filler⁻ {p = Dop.idᴰ} (sym (F .F-id))))
+    where
+    toσ₂ : (Σ[ f ∈ D [ F ⟅ x ⟆ , F ⟅ x ⟆ ] ]
+      (Dᴰ [ f ][ Fxᴰ , bcp .fst ]) × (Dᴰ [ f ][ Fyᴰ , bcp .fst ]))
+      → Dop.Hom[ (F ⟅ x ⟆ , bcp .fst) , (F ⟅ x ⟆ , Fyᴰ) ]
+    toσ₂ (f , a , b) = f , b

@@ -29,6 +29,7 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Path
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
@@ -344,6 +345,36 @@ module _
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
+  {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
+  (α : PshHom P Q) (Qᴰ : Presheafᴰ Q Cᴰ ℓQᴰ) where
+  private
+    module Qᴰ = PresheafNotation Qᴰ
+
+  reindPshᴰNatTrans-Path-refl-N-ob : ∀ c x
+    → reindPshᴰNatTrans-Path α α refl Qᴰ .trans .N-ob c x ≡ x
+  reindPshᴰNatTrans-Path-refl-N-ob c x =
+    cong (λ (iso : CatIso (Cᴰ / Q) _ _) → iso .snd .isIso.inv Qᴰ.⋆ x)
+      (pathToIso-refl {C = Cᴰ / Q} {x = (Idᴰ /Fⱽ α) .F-ob c})
+    ∙ Qᴰ.⋆IdL x
+
+  reindPshᴰNatTrans-Path-refl-inv : ∀ c x
+    → reindPshᴰNatTrans-Path α α refl Qᴰ .nIso c .fst x ≡ x
+  reindPshᴰNatTrans-Path-refl-inv c x =
+    cong (λ (iso : CatIso (Cᴰ / Q) _ _) → iso .fst Qᴰ.⋆ x)
+      (pathToIso-refl {C = Cᴰ / Q} {x = (Idᴰ /Fⱽ α) .F-ob c})
+    ∙ Qᴰ.⋆IdL x
+
+  reindPshᴰNatTrans-Path-N-ob : ∀ {β : PshHom P Q} (α≡β : α ≡ β) c x
+    → PathP (λ i → ⟨ reindPshᴰNatTrans (α≡β i) Qᴰ .F-ob c ⟩)
+        x (reindPshᴰNatTrans-Path α β α≡β Qᴰ .trans .N-ob c x)
+  reindPshᴰNatTrans-Path-N-ob {β = β} α≡β c x =
+    J (λ β α≡β → PathP (λ i → ⟨ reindPshᴰNatTrans (α≡β i) Qᴰ .F-ob c ⟩)
+          x (reindPshᴰNatTrans-Path α β α≡β Qᴰ .trans .N-ob c x))
+      (sym (reindPshᴰNatTrans-Path-refl-N-ob c x))
+      α≡β
+
+module _
+  {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP}{Q : Presheaf C ℓQ}{R : Presheaf C ℓR}
   (α : PshHom P Q)(β : PshHom Q R) (γ : PshHom P R) (Rᴰ : Presheafᴰ R Cᴰ ℓRᴰ) where
   private
@@ -392,6 +423,15 @@ module _
   reindPshᴰNatTrans≅Strict = reindNatIsoPsh
     (pathToNatIso (Functor≡ (λ _ → refl) (λ _ → Hom/≡ refl))) Qᴰ
 
+  reindPshᴰNatTrans≅Strict-N-ob : ∀ c x
+    → reindPshᴰNatTrans≅Strict .trans .N-ob c x ≡ x
+  reindPshᴰNatTrans≅Strict-N-ob c x =
+    cong (λ (iso : CatIso (Cᴰ / Q) _ _) → iso .snd .isIso.inv Qᴰ'.⋆ x)
+      (pathToIso-refl {C = Cᴰ / Q}
+        {x = (Idᴰ /Fⱽ PshHomStrict→PshHom α) .F-ob c})
+    ∙ Qᴰ'.⋆IdL x
+    where module Qᴰ' = PresheafNotation Qᴰ
+
 module _
   {C : Category ℓC ℓC'} {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   {P : Presheaf C ℓP} {Q : Presheaf C ℓQ}
@@ -414,6 +454,15 @@ module _
         (reindPshᴰNatTrans-tri (PshHomStrict→PshHom π) ρ _ Rᴰ refl)
       ⋆PshIso reindPshᴰNatTrans≅Strict π
         (reindPshᴰNatTrans ρ Rᴰ))
+
+  reindPshᴰNatTrans-factorStrict-N-ob : ∀ c x
+    → PathP (λ i → ⟨ reindPshᴰNatTrans (σ≡απρ i) Rᴰ .F-ob c ⟩)
+        x (reindPshᴰNatTrans-factorStrict .trans .N-ob c x)
+  reindPshᴰNatTrans-factorStrict-N-ob c x =
+    reindPshᴰNatTrans-Path-N-ob σ Rᴰ σ≡απρ c x
+    ▷ ( sym (reindPshᴰNatTrans-Path-refl-inv _ Rᴰ _ _)
+      ∙ sym (reindPshᴰNatTrans-Path-refl-inv _ Rᴰ _ _)
+      ∙ sym (reindPshᴰNatTrans≅Strict-N-ob π (reindPshᴰNatTrans ρ Rᴰ) _ _))
 
 module _
   {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}

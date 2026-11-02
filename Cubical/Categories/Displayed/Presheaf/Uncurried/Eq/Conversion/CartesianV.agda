@@ -116,6 +116,22 @@ module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C)(Cᴰ : Category�
     Path.◁PshIsoⱽ Eq×ⱽ≅Path×ⱽ Cᴰ
     Path.⋆PshIsoⱽ ×PshIso Representable≅ Representable≅
 
+  EqBinProductⱽ→BinProductⱽ-π₁ : ∀ {x} {xᴰ yᴰ : Cᴰ.ob[ x ]}
+    (bpⱽ : Reprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])))
+    → Path.BinProductⱽNotation.π₁ Cᴰ
+        (EqBinProductⱽ→BinProductⱽ bpⱽ)
+      ≡ bpⱽ .snd .PshIsoEq.isos (x , bpⱽ .fst , Category.id C)
+          .Iso.fun Cᴰ.idᴰ .fst
+  EqBinProductⱽ→BinProductⱽ-π₁ bpⱽ = refl
+
+  EqBinProductⱽ→BinProductⱽ-π₂ : ∀ {x} {xᴰ yᴰ : Cᴰ.ob[ x ]}
+    (bpⱽ : Reprⱽ ((Cᴰ [-][-, xᴰ ]) ×ⱽPsh (Cᴰ [-][-, yᴰ ])))
+    → Path.BinProductⱽNotation.π₂ Cᴰ
+        (EqBinProductⱽ→BinProductⱽ bpⱽ)
+      ≡ bpⱽ .snd .PshIsoEq.isos (x , bpⱽ .fst , Category.id C)
+          .Iso.fun Cᴰ.idᴰ .snd
+  EqBinProductⱽ→BinProductⱽ-π₂ bpⱽ = refl
+
   EqBinProductsⱽ→BinProductsⱽ : BinProductsⱽ Cᴰ → Path.BinProductsⱽ Cᴰ
   EqBinProductsⱽ→BinProductsⱽ bpⱽ xᴰ yᴰ =
     EqBinProductⱽ→BinProductⱽ (bpⱽ xᴰ yᴰ)
@@ -126,6 +142,15 @@ module _ {C : Category ℓC ℓC'} (⋆AssocC : ReprEqAssoc C)(Cᴰ : Category�
   EqCartesianLift→CartesianLift {x} xᴰ Γ f f*xᴰ = EqReprⱽ→PathReprⱽ _ f*xᴰ
     Path.◁PshIsoⱽ reindPsh-square (Path/→Eq/ (C [-, Γ ]) Cᴰ) (Idᴰ /Fⱽ yoRecEq (C [-, x ]) (⋆AssocC x) f) (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) (Path/→Eq/ (C [-, x ]) Cᴰ) (Cᴰ [-][-, xᴰ ]) (fibrationNatIso Cᴰ ⋆AssocC f)
     Path.⋆PshIsoⱽ reindPshIso (Idᴰ Path./Fⱽ yoRec (C [-, x ]) f) Representable≅
+
+  EqCartesianLift→CartesianLift-πⱽ : ∀ {x} (xᴰ : Cᴰ.ob[ x ]) Γ
+    (f : C [ Γ , x ]) (f*xᴰ : CartesianLift Cᴰ ⋆AssocC f xᴰ)
+    → Path.CartesianLiftNotation.πⱽ Cᴰ
+        (EqCartesianLift→CartesianLift xᴰ Γ f f*xᴰ)
+      ≡ f*xᴰ .snd .PshIsoEq.isos (Γ , f*xᴰ .fst , Category.id C)
+          .Iso.fun Cᴰ.idᴰ
+  EqCartesianLift→CartesianLift-πⱽ {x} xᴰ Γ f f*xᴰ = P.⋆IdL _
+    where module P = PresheafNotation (Cᴰ [-][-, xᴰ ])
 
   EqFibration→Fibration : Fibration Cᴰ ⋆AssocC → Path.isFibration Cᴰ
   EqFibration→Fibration isFib {x} xᴰ Γ f = EqCartesianLift→CartesianLift xᴰ Γ f (isFib f xᴰ)

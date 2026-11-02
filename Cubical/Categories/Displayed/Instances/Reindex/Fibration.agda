@@ -104,3 +104,44 @@ module _
 
   isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
   isFibrationReindex isFibDᴰ {y} Fyᴰ x f = reindexCartesianLift f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))
+
+-- The opposite of a functor, with its composition law swapped on the
+-- nose.  Upstream's _^opF goes through recOp and toOpOp, so reindexing
+-- along it introduces transports.
+_^opFStrict : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  → Functor C D → Functor (C ^op) (D ^op)
+(F ^opFStrict) .F-ob = F .F-ob
+(F ^opFStrict) .F-hom = F .F-hom
+(F ^opFStrict) .F-id = F .F-id
+(F ^opFStrict) .F-seq f g = F .F-seq g f
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (F : Functor C D) where
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+    module Dop = Fibers (Dᴰ ^opᴰ)
+
+  reindexOpcartesianLift : ∀ {x y} (f : C [ y , x ]) (Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    → CartesianLift (Dᴰ ^opᴰ) (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift ((reindex Dᴰ F) ^opᴰ) f Fyᴰ
+  reindexOpcartesianLift f Fyᴰ f*Fyᴰ =
+    lift' .fst ,
+    pshiso
+      (pshhom (λ c → lift' .snd .trans .N-ob c)
+        (λ c c' g p → lift' .snd .trans .N-hom c c' g p))
+      (lift' .snd .nIso)
+    where
+    lift' = reindexCartesianLift (Dᴰ ^opᴰ) (F ^opFStrict) f Fyᴰ f*Fyᴰ
+
+  reindexOpcartesianLift-πⱽ : ∀ {x y}
+    (f : C [ y , x ]) (Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    (f*Fyᴰ : CartesianLift (Dᴰ ^opᴰ) (F ⟪ f ⟫) Fyᴰ)
+    → CartesianLiftNotation.πⱽ ((reindex Dᴰ F) ^opᴰ)
+        (reindexOpcartesianLift f Fyᴰ f*Fyᴰ)
+      Dop.∫≡ CartesianLiftNotation.πⱽ (Dᴰ ^opᴰ) f*Fyᴰ
+  reindexOpcartesianLift-πⱽ f Fyᴰ f*Fyᴰ =
+    Dop.reind-filler⁻ _
+    ∙ CartesianLiftNotation.⟨_⟩⋆πⱽ (Dᴰ ^opᴰ) f*Fyᴰ
+        (Dop.reind-revealed-filler⁻ {p = Dop.idᴰ}
+          (sym (F .F-id)))

@@ -233,42 +233,21 @@ alloc-get-oldᵗ {Γ = Γ} {A = A} j b k =
 -- Unsupported block laws
 ------------------------------------------------------------------------
 
-{- Garbage collection would assert
+{- Garbage collection would require
 
      alloc b (λ _ → t) = t.
 
-   This is not an equality in the present monad. Allocation returns a
-   computation whose result world contains one additional cell. The result
-   type records that world explicitly, so a computation returning world
-   `suc m` cannot equal one returning world `m`, even when the fresh reference
-   and its store cell are never subsequently observed.
-
-   Explicit counterexample: take any b : |V| and t = return tt. Running
-   at world 0 with the empty store gives (1, tt, [b]) on the left and
-   (0, tt, []) on the right (omitting extension proofs).
+   but allocation increments the result world.
 -}
 
-{- Exchange of two fresh allocations would assert
+{- Allocation exchange would require
 
      alloc b (λ i → alloc c (λ j → k i j))
        = alloc c (λ j → alloc b (λ i → k i j)).
 
-   Both sides run k at `suc (suc m)`, but they assign the two freshly
-   allocated positions in opposite orders. `World` is the preorder of natural numbers
-   and extensions; it has no permutation morphisms. Consequently there is
-   no renaming which exchanges the two fresh `Fin` positions and the matching
-   store cells, so the two computations are not equal in general.
-
-   Explicit counterexample: use the same initial value b for both cells
-   and k i j = return i. Running at world 0 with the empty store gives
-   (2, 0, [b, b]) on the left and (2, 1, [b, b]) on the right. The stores
-   agree, but the returned references differ. This only requires an
-   inhabitant of V, not two distinct stored values.
+   but worlds have no morphisms that exchange the two fresh locations.
 -}
 
--- The following are the concrete results of these runs, obtained from
--- allocᵗ-β and pure return. Their unequal projections refute the equations.
--- The parameter b is explicit: an allocation needs an inhabitant of V.
 module Counterexamples (b : V .fst) where
   private
     emptyStore : Fin 0 → V .fst

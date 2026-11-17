@@ -25,14 +25,10 @@ open import Cubical.Categories.Monad.Instances.LocalState.Levy.Base V
 open Functor
 open PshHomStrict
 
--- The categorical definitions of getᵗ, setᵗ, and allocᵗ expand through
--- products, exponentials, and the presheaf local-state monad. If downstream
--- equation proofs unfold them, Agda repeatedly normalizes these large terms
--- during conversion checking. We therefore make the operations opaque and
--- expose their pointwise β-rules as the computational interface. Each body
--- and β-rule is checked here, with explicit unfolding enabled only while the
--- β-rules are proved. Opacity changes only definitional reduction outside
--- those proofs.
+-- Definitions of getᵗ, setᵗ, and allocᵗ.
+-- If downstream equation proofs unfold them, 
+-- Agda repeatedly normalizes these large terms.
+-- The operations are opaque and expose their pointwise β-rules.
 
 ------------------------------------------------------------------------
 -- Contextual terms
@@ -350,8 +346,6 @@ bindT-β A B {n} t k m n≤m σ =
   in cong (extendResult B m≤p)
     (cong (λ h → k .N-ob p (h , a) p ≤-refl τ) (isProp≤ _ _))
 
--- Explicit contexts and result objects in these statements avoid expensive
--- inference through the unfolded state operations and monad action.
 opaque
   unfolding getᵗ setᵗ allocᵗ
 

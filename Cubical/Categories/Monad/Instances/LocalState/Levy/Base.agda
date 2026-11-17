@@ -9,10 +9,8 @@ Val            ⊥            WorldFam     ⊥     WorldFam        ⊥        Co
      ←─────────────────────          ←────────          ←──────────────
        Cofree (World ^op)              S⇒-              PSH→Fam World
 
-The upper, rightward adjoints compose to F : Val → Comp; the lower,
-leftward adjoints compose to U : Comp → Val. Thus F ⊣ U and T = U ∘F F.
-Here World = (ℕ, ≤), Val = [World, Set], Comp = [Worldᵒᵖ, Set],
-and WorldFam is the category of ℕ-indexed families of sets.
+
+World = (ℕ, ≤), Val = [World, Set], Comp = [Worldᵒᵖ, Set],
 
 Writing S n = Fin n → |V| and A n for the underlying set at n:
 
@@ -35,15 +33,10 @@ At world n : ℕ, the primitive operations are the following functions:
   allocMₙ (b : |V|) (m : ℕ) (q : n ≤ m) (σ : S m) =
     (suc m , ≤-sucℕ , flast , extendStore b σ)
 
-updateStore changes one cell; extendStore appends a
-cell initialized with b, whose fresh reference is flast.
-
-Based on Paul Blain Levy's possible-world model for cell generation:
-Call-By-Push-Value, PhD thesis (2001), Chapter 7; see also Section 6.6
-onwards of the book Call-By-Push-Value: A Functional/Imperative Synthesis.
+Call-By-Push-Value, PhD thesis (2001), Chapter 7.
+see also Section 6.6 of the book Call-By-Push-Value
 https://pblevy.github.io/papers/thesisqmwphd.pdf
 https://doi.org/10.1007/978-94-007-0954-6_6
-Here worlds are natural numbers and every cell stores an element of V.
 -}
 
 open import Cubical.Foundations.Prelude
@@ -229,8 +222,6 @@ strength P A .N-hom n' n f (x , t) z e =
           , refl)))
 
 private
-  -- Elaborate the component projection with an abstract functor. Projecting
-  -- directly at T makes Agda normalize the large presheaf monad interface.
   μ-at : (M : Functor Val Val) → IsMonad M →
     (B : Val .ob) →
     Val [ M .F-ob (M .F-ob B) , M .F-ob B ]

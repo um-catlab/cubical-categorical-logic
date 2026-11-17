@@ -180,23 +180,10 @@ record Signature ℓO ℓA : Type (ℓ-max (ℓ-suc ℓO) (ℓ-suc ℓA)) where
     → Homo Γ (∫Algebra B)
   ∫intro ϕ ψ .fst γ .fst = ϕ .fst γ
   ∫intro ϕ ψ .fst γ .snd = ψ .fst γ
-  ∫intro ϕ ψ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i .fst =
-    -- To make this definition nice...
-    ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i
-  ∫intro {B = B} ϕ ψ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i .snd =
-    -- ...it seems this definition must be nasty
-    hfill
-      (λ j → λ
-        { (i = i0) →
-          B .snd op (λ v → ϕ .fst (γ v)) (λ v → ψ .fst (γ v))
-            (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i0) refl
-        ; (i = i1) → ψ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ j
-        })
-      (inS (
-        B .snd op (λ v → ϕ .fst (γ v)) (λ v → ψ .fst (γ v))
-          (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ i)
-          (λ j → ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ (i ∧ j))))
-      i1
+  ∫intro {B = B} ϕ ψ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ = ΣPathP
+    (ϕ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ ,
+    (cong (uncurry (B .snd op _ _)) (isContrSingl _ .snd _)
+     ▷ ψ .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩))
 
   module _ {A : Algebra ℓ} {Aᴰ : Algebraᴰ A ℓᴰ} where
     Fst : Homo (∫Algebra Aᴰ) A

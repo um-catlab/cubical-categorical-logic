@@ -26,7 +26,7 @@ open Functor
 open PshHomStrict
 
 -- Definitions of getᵗ, setᵗ, and allocᵗ.
--- If downstream equation proofs unfold them, 
+-- If downstream equation proofs unfold them,
 -- Agda repeatedly normalizes these large terms.
 -- The operations are opaque and expose their pointwise β-rules.
 

@@ -1,3 +1,4 @@
+-- Canonicity for Full Multiplicative Additive Unary Pure CBPV
 {-# OPTIONS --prop --lossy-unification #-}
 module Gluing.CBPV.Pure.Additive where
 

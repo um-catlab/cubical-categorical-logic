@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 -- TODO: re-org this and upstream it
 module Cubical.Categories.Presheaf.More where
 
@@ -32,7 +31,7 @@ private
 module _ (C : Category ℓ ℓ') (c : C .Category.ob) where
   open Category
   open UniversalElement
-
+  -- This is a great argument against using universal elements(!)
   selfUnivElt :  UniversalElement C (C [-, c ])
   selfUnivElt .vertex = c
   selfUnivElt .element = C .id

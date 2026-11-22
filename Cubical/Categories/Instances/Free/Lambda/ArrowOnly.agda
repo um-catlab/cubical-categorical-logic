@@ -60,6 +60,7 @@ open import Cubical.Categories.Displayed.More
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
 
@@ -164,6 +165,7 @@ module Lambda⇒
         → Exponentialᴰ Cᴰ (x: A , EXTENSION A) (Aᴰ , bpᴰ Aᴰ) Bᴰ (EXPONENTIALS A B))
       (ı : (A : Base) → Cᴰ.ob[ x: (↑ A) ]) where
       private
+        -- --lossy-unification is needed here for this to type check without filling in implicits
         module termᴰ = UniversalElementᴰNotation Cᴰ _ _ termᴰ
         module bpᴰ {Γ A}(Γᴰ : Cᴰ.ob[ Γ ])(Aᴰ : Cᴰ.ob[ x: A ]) = BinProductᴰNotation Cᴰ (EXTENSION A Γ) (bpᴰ Aᴰ Γᴰ)
         module ⇒ᴰ {A B} (Aᴰ : Cᴰ.ob[ x: A ])(Bᴰ : Cᴰ.ob[ x: B ]) = ExponentialᴰNotation (EXPONENTIALS A B) (⇒ᴰ Aᴰ Bᴰ)

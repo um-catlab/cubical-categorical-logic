@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Enriched.Instances.Presheaf.ChangeBase where
 
 open import Cubical.Foundations.Prelude
@@ -111,7 +110,7 @@ module _
 
   BaseChangeSelf : EnrichedFunctor PMD.𝓟Mon (BaseChange F (self C _)) (self D _)
   BaseChangeSelf .F-ob = reindPsh F
-  BaseChangeSelf .F-hom = distrib^ F (self C _)
+  BaseChangeSelf .F-hom = distrib^ {ℓS = ℓS} F (self C _)
   BaseChangeSelf .F-id =
     makeNatTransPath (funExt λ m → funExt λ {tt* →
     makePshHomPath (funExt λ n → funExt λ {(f , XFn) → refl})})

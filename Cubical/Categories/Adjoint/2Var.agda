@@ -1,5 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
-
 module Cubical.Categories.Adjoint.2Var where
 
 open import Cubical.Foundations.Prelude

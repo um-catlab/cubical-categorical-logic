@@ -1,4 +1,3 @@
-{-# OPTIONS --lossy-unification #-}
 -- Reindexing a Presheaf by a Functor.
 
 -- given presheaf Q on D and functor F : C → D we can reindex Q to be

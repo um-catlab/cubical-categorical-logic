@@ -1,60 +1,25 @@
 {-# OPTIONS --lossy-unification #-}
 module Cubical.Categories.Displayed.Instances.Reindex.CartesianClosed where
 
-open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Function
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.HLevels.More
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Transport
 
-import Cubical.Data.Equality as Eq
 open import Cubical.Data.Sigma
-open import Cubical.Data.Unit
 
 open import Cubical.Categories.Category.Base
 open import Cubical.Categories.Functor
 open import Cubical.Categories.NaturalTransformation
-open import Cubical.Categories.NaturalTransformation.More
-open import Cubical.Categories.NaturalTransformation.Reind
-open import Cubical.Categories.Instances.Fiber
-open import Cubical.Categories.Instances.TotalCategory
-open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Limits.Terminal.More
-open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.Base
-open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Presheaf.Morphism.Alt
-open import Cubical.Categories.Presheaf.Constructions.BinProduct
-open import Cubical.Categories.Presheaf.Constructions.Reindex
-open import Cubical.Categories.Presheaf.Constructions.Unit
-open import Cubical.Categories.Presheaf.Representable.More
-open import Cubical.Categories.FunctorComprehension.Base
 
-open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.BinProduct
-open import Cubical.Categories.Displayed.Instances.BinProduct.More
-open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Exponential
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
-open import Cubical.Categories.Displayed.Instances.Reindex.Properties
-open import Cubical.Categories.Displayed.Instances.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.Instances.Reindex.UniversalQuantifier
-open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.ClosedV
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
-import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
 
 private
   variable
@@ -93,3 +58,4 @@ module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
   CCCⱽReindex .CartesianClosedCategoryⱽ.lrⱽ = AllLRⱽReindex (F .fst) Dᴰ.lrⱽ
   CCCⱽReindex .CartesianClosedCategoryⱽ.expⱽ = ExponentialsⱽReindex (F .fst) Dᴰ.lrⱽ Dᴰ.expⱽ
   CCCⱽReindex .CartesianClosedCategoryⱽ.forallⱽ = hasUniversalQuantifiersReindex (F .fst) Dᴰ.Cᴰ Dᴰ.cartesianLifts (CC .bp) (CD .bp) (F .snd) Dᴰ.forallⱽ
+    :> UniversalQuantifiers (CartesianClosedCategoryⱽ.Cᴰ CCCⱽReindex) (CC .bp) (CartesianClosedCategoryⱽ.cartesianLifts CCCⱽReindex)

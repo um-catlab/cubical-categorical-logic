@@ -53,6 +53,7 @@ open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 import      Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
@@ -93,3 +94,4 @@ module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
   CCCⱽReindex .CartesianClosedCategoryⱽ.lrⱽ = AllLRⱽReindex (F .fst) Dᴰ.lrⱽ
   CCCⱽReindex .CartesianClosedCategoryⱽ.expⱽ = ExponentialsⱽReindex (F .fst) Dᴰ.lrⱽ Dᴰ.expⱽ
   CCCⱽReindex .CartesianClosedCategoryⱽ.forallⱽ = hasUniversalQuantifiersReindex (F .fst) Dᴰ.Cᴰ Dᴰ.cartesianLifts (CC .bp) (CD .bp) (F .snd) Dᴰ.forallⱽ
+    :> UniversalQuantifiers (CartesianClosedCategoryⱽ.Cᴰ CCCⱽReindex) (CC .bp) (CartesianClosedCategoryⱽ.cartesianLifts CCCⱽReindex)

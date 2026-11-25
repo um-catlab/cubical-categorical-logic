@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 -- Gluing for categories with a terminal object
 module Gluing.Terminal where
 
@@ -8,6 +9,8 @@ open import Cubical.Data.Quiver.Base as Quiver
 open import Cubical.Data.Nat as Nat
 open import Cubical.Data.Bool as Bool
 open import Cubical.Data.Sum as Sum
+open import Cubical.Data.Sum.Properties using (isProp⊎)
+open import Cubical.Data.Unit
 open import Cubical.Data.Empty as Empty
 open import Cubical.Relation.Nullary hiding (⟪_⟫)
 
@@ -17,11 +20,13 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Free.CategoryWithTerminal as Free
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Properties as SETᴰ
+open import Cubical.Categories.Displayed.Limits.Terminal
+open import Cubical.Categories.Displayed.Presheaf.Representable
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
+
+open import Gluing.Canonicity
 
 open Category
 open Section
@@ -105,40 +110,54 @@ isSetCanonicalForm : ∀ {e} → isSet (CanonicalForm e)
 isSetCanonicalForm =
   isSet⊎ (isProp→isSet (isSetHom FQ _ _)) (isProp→isSet (isSetHom FQ _ _))
 
--- TODO fix
--- canonicity : ∀ e → CanonicalForm e
--- canonicity = λ exp → fixup (Canonicalize .F-homᴰ exp _ _)
---   where
---   pts = FQ [ 𝟙 ,-]
+private
+  Pts : Functor FQ (SET ℓ-zero)
+  Pts = FQ [ 𝟙 ,-]
 
---   Canonicalize : Section pts (SETᴰ _ _)
---   Canonicalize = elimLocal _ _ _ _
---     (TerminalsⱽSETᴰ _)
---     (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
---        ; b exp → CanonicalForm exp , isSetCanonicalForm
---        })
---     λ { f → λ ⟨⟩ _ → inr (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
---       ; t → λ ⟨⟩ _ → inl (sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl)
---       ; d → λ x _ → tt* }
+  open UniversalElementⱽ
 
---   fixup : ∀ {e}
---         → ([t] ≡ (FQ .id ⋆⟨ FQ ⟩ e)) ⊎ ([f] ≡ (FQ .id ⋆⟨ FQ ⟩ e))
---         → CanonicalForm e
---   fixup =
---     Sum.elim (λ p → inl (p ∙ FQ .⋆IdL _))
---              (λ p → inr (p ∙ FQ .⋆IdL _))
+  TerminalⱽSETCod' : Terminalⱽ (SETCod ℓ-zero) (Pts ⟅ 𝟙 ⟆)
+  TerminalⱽSETCod' .vertexⱽ = 𝟙Cod
+  TerminalⱽSETCod' .elementⱽ = tt
+  TerminalⱽSETCod' .universalⱽ .fst _ = !Cod
+  TerminalⱽSETCod' .universalⱽ .snd .fst _ = refl
+  TerminalⱽSETCod' .universalⱽ .snd .snd = !Cod-η
 
--- canonicalFormUniq : ∀ e → isContr (CanonicalForm e)
--- canonicalFormUniq exp = canonicity exp , Sum.elim canonical[t] canonical[f]
---   where
---   canonical[t] : ∀ {exp} p → canonicity exp ≡ inl p
---   canonical[t] p =
---     J (λ exp p → canonicity exp ≡ inl p)
---       (cong inl (FQ .isSetHom _ _ _ _))
---       p
+  CF : FQ [ 𝟙 , [b] ] → hSet ℓ-zero
+  CF exp = CanonicalForm exp , isSetCanonicalForm
 
---   canonical[f] : ∀ {exp} p → canonicity exp ≡ inr p
---   canonical[f] p =
---     J (λ exp p → canonicity exp ≡ inr p)
---       (cong inr (FQ .isSetHom _ _ _ _))
---       p
+  const : (g : FQ [ 𝟙 , [b] ]) (x : FQ [ 𝟙 , 𝟙 ]) → g ≡ x ⋆⟨ FQ ⟩ g
+  const g x = sym (FQ .⋆IdL _) ∙ cong₂ (seq' FQ) 𝟙extensionality refl
+
+Canonicalize : Section Pts (SETCod ℓ-zero)
+Canonicalize = elimLocal _ _ _ _ TerminalⱽSETCod'
+  (λ { e _ → Empty.⊥* , isProp→isSet isProp⊥*
+     ; b → CF })
+  λ { t → mk ℓ-zero λ z → (_ , inl (const [t] (z .fst))) , refl
+    ; f → mk ℓ-zero λ z → (_ , inr (const [f] (z .fst))) , refl
+    ; d → !Cod }
+
+canonicityCod : ∀ exp → Fib ℓ-zero {Y = Pts ⟅ [b] ⟆} CF exp
+canonicityCod = canonicalize 𝟙 Canonicalize tt*
+
+canonicity : ∀ exp → CanonicalForm exp
+canonicity exp = Sum.map (λ p → p ∙ canonicityCod exp .snd)
+  (λ p → p ∙ canonicityCod exp .snd) (canonicityCod exp .fst .snd)
+
+decide : FQ [ 𝟙 , [b] ] → Bool
+decide exp = Sum.rec (λ _ → true) (λ _ → false) (canonicityCod exp .fst .snd)
+
+canonicalFormUniq : ∀ exp → isContr (CanonicalForm exp)
+canonicalFormUniq exp = canonicity exp , isProp⊎
+  (FQ .isSetHom _ _) (FQ .isSetHom _ _) (λ p q → [t]≠[f] (p ∙ sym q)) _
+
+private
+  module Examples where
+    _ : decide (((↑ d) ⋆ₑ (↑ d)) ⋆ₑ (idₑ ⋆ₑ (↑ t))) ≡ true
+    _ = refl
+
+    _ : decide (!ₑ ⋆ₑ (↑ f)) ≡ false
+    _ = refl
+
+    _ : canonicityCod (!ₑ ⋆ₑ (↑ f)) .fst .fst ≡ (idₑ ⋆ₑ !ₑ) ⋆ₑ (↑ f)
+    _ = refl

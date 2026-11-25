@@ -2,6 +2,7 @@
 module Gluing.CartesianCategory where
 
 open import Cubical.Foundations.Prelude
+open import Cubical.Foundations.HLevels
 open import Cubical.Relation.Nullary hiding (⟪_⟫)
 open import Cubical.Data.Nat
 open import Cubical.Data.Nat.Properties
@@ -23,9 +24,8 @@ open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Sets.Properties
 
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Properties
-open import Cubical.Categories.Displayed.Instances.Reindex.Properties
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
+open import Gluing.Canonicity
 
 open import Cubical.Tactics.CategorySolver.Reflection
 
@@ -107,26 +107,45 @@ module _ where
     (isProp→isSet (FREECC.C .isSetHom [t] e))
     (isProp→isSet (FREECC.C .isSetHom [f] e))
 
+  pts : Functor FREECC.C (SET ℓ-zero)
+  pts = FREECC.C [ 𝟙 ,-]
+
+  private
+    CF : FREECC.C [ 𝟙 , [ans] ] → hSet ℓ-zero
+    CF e = CanonicalForm e , isSetCanonicalForm {e = e}
+
+    const : ∀ {o} (g : FREECC.C [ 𝟙 , o ]) (e : FREECC.C [ 𝟙 , 𝟙 ])
+      → g ≡ e ⋆⟨ FREECC.C ⟩ g
+    const g e =
+      sym (FREECC.C .⋆IdL _) ∙ cong₂ (seq' FREECC.C) 𝟙extensionality refl
+
+  Canonicalize : Section pts (SETCod ℓ-zero)
+  Canonicalize = elimLocal QUIVER pts (SETCodCCⱽ {ℓ-zero}) (mkInterpᴰ
+    (λ { ans → CF })
+    (λ { t,f → mk ℓ-zero λ z →
+      let p = z .fst ⋆⟨ FREECC.C ⟩ ↑ₑ t,f in
+      (p , ((p , ((p ⋆⟨ FREECC.C ⟩ Exp.π₁
+                  , inl (const [t] (z .fst) ∙ sym (FREECC.C .⋆Assoc _ _ _)))
+                  , refl)) , refl)
+         , ((p , ((p ⋆⟨ FREECC.C ⟩ Exp.π₂
+                  , inr (const [f] (z .fst) ∙ sym (FREECC.C .⋆Assoc _ _ _)))
+                  , refl)) , refl))
+      , refl }))
+
+  canonicityCod : ∀ e → Fib ℓ-zero {Y = pts ⟅ [ans] ⟆} CF e
+  canonicityCod = canonicalize 𝟙 Canonicalize tt*
+
   canonicity : ∀ e → CanonicalForm e
-  canonicity e = fixup (Canonicalize .F-homᴰ e _ _)
-    where
-    pts = FREECC.C [ 𝟙 ,-]
-    Canonicalize : Section pts (SETᴰ _ _)
-    Canonicalize = elimLocal QUIVER pts EqSETᴰCCⱽ
-      (mkInterpᴰ
-        (λ { ans global-ans → CanonicalForm global-ans , isSetCanonicalForm })
-        (λ { t,f ⟨⟩ (lift tt) →
-          (inl (sym (FREECC.C .⋆IdL _)
-               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
-               ∙ sym (FREECC.C .⋆Assoc _ _ _)))
-          , inr (sym (FREECC.C .⋆IdL _)
-               ∙ cong₂ (seq' (FREECC.C)) 𝟙extensionality refl
-               ∙ sym (FREECC.C .⋆Assoc _ _ _))
-        }))
-    fixup : ∀{e'} →
-      ([t] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') ⊎
-      ([f] ≡ FREECC.C .id ⋆⟨ FREECC.C ⟩ e') →
-      CanonicalForm e'
-    fixup {e'} = Sum.elim
-      (λ p → inl (p ∙ FREECC.C .⋆IdL e'))
-      (λ p → inr (p ∙ FREECC.C .⋆IdL e'))
+  canonicity e = Sum.map (λ p → p ∙ canonicityCod e .snd)
+    (λ p → p ∙ canonicityCod e .snd) (canonicityCod e .fst .snd)
+
+  decide : FREECC.C [ 𝟙 , [ans] ] → Bool
+  decide e = Sum.rec (λ _ → true) (λ _ → false) (canonicityCod e .fst .snd)
+
+  private
+    module Examples where
+      _ : decide ((⟨ [f] , [t] ⟩ ⋆ₑ Exp.π₂) ⋆ₑ idₑ) ≡ true
+      _ = refl
+
+      _ : decide (⟨ [f] , [t] ⟩ ⋆ₑ Exp.π₁) ≡ false
+      _ = refl

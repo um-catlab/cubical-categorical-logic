@@ -17,7 +17,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Limits.Terminal.More
 
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Limits.Cartesian.More public
 
 open Category
@@ -29,12 +29,32 @@ private
 module _
   {C : Category ℓC ℓC'}
   (base : C .ob)
-  (S : Section (C [ base ,-]) (SETᴰ ℓC' ℓS))
+  (S : Section (C [ base ,-]) (SETCod ℓC'))
   (seed : ⟨ S .F-obᴰ base (C .id) ⟩)
   where
 
-  canonicalize : ∀ {o} (e : C [ base , o ]) → ⟨ S .F-obᴰ o e ⟩
-  canonicalize e = subst (λ e → ⟨ S .F-obᴰ _ e ⟩) (C .⋆IdL e) (S .F-homᴰ e (C .id) seed)
+  canonicalize : ∀ {o} (e : C [ base , o ])
+    → Fib ℓC' {Y = (C [ base ,-]) ⟅ o ⟆} (S .F-obᴰ o) e
+  canonicalize e .fst =
+    pt ℓC' {X = (C [ base ,-]) ⟅ base ⟆} {Y = (C [ base ,-]) ⟅ _ ⟆}
+      {h = (C [ base ,-]) ⟪ e ⟫} {P = S .F-obᴰ base} {Q = S .F-obᴰ _}
+      (S .F-homᴰ e) (C .id , seed) .fst
+  canonicalize e .snd =
+    pt ℓC' {X = (C [ base ,-]) ⟅ base ⟆} {Y = (C [ base ,-]) ⟅ _ ⟆}
+      {h = (C [ base ,-]) ⟪ e ⟫} {P = S .F-obᴰ base} {Q = S .F-obᴰ _}
+      (S .F-homᴰ e) (C .id , seed) .snd
+    ∙ C .⋆IdL e
+
+module _ {ℓ ℓ'} {[A] : Type ℓ} {A : Type ℓ'} (g : A → [A]) where
+  Fib→fiber : ∀ {e} (c : Σ[ w ∈ Σ [A] (fiber g) ] (w .fst ≡ e)) → fiber g e
+  Fib→fiber c .fst = c .fst .snd .fst
+  Fib→fiber c .snd = c .fst .snd .snd ∙ c .snd
+
+module _ {ℓ} {[A] : Type ℓ} {t f : [A]} where
+  Fib→⊎ : ∀ {e} (c : Σ[ w ∈ Σ [A] (λ e' → (e' ≡ t) ⊎ (e' ≡ f)) ] (w .fst ≡ e))
+    → (e ≡ t) ⊎ (e ≡ f)
+  Fib→⊎ c = Sum.map (λ p → sym (c .snd) ∙ p) (λ p → sym (c .snd) ∙ p)
+    (c .fst .snd)
 
 module _
   {C : Category ℓC ℓC'}

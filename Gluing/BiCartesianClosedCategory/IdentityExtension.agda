@@ -151,7 +151,7 @@ module _
     funExtDep λ {x}{y} q →
       identityExtensionFib B
         (adjust
-          (pt ℓ (LR .F-homᴰ (FreeBiCCC.eval' Q))
+          (pt ℓ (LR .F-homᴰ (FreeBiCCC.eval' {Q = Q}))
             (((w .fst , x) , (w .snd , y))
             , toPull ((_ , rel) , refl)
             , toPull ((_ , identityExtension⁻ A x y q) , refl)))
@@ -193,7 +193,7 @@ module _
       (Syntax.bp (embedClosed (A ⇒ B) , embedClosed A))
       (LRMotive.bpᴰ Point (LR .F-obᴰ (embedClosed A)))
 
-    body : Categoryᴰ.Hom[_][_,_] LRMotive.Cᴰ (FreeBiCCC.eval' Q)
+    body : Categoryᴰ.Hom[_][_,_] LRMotive.Cᴰ (FreeBiCCC.eval' {Q = Q})
       (LRMotive.bpᴰ Point (LR .F-obᴰ (embedClosed A)) .fst)
       (LR .F-obᴰ (embedClosed B))
     body = mk ℓ λ (((h , x) , (k , y)) , zr) →
@@ -204,7 +204,8 @@ module _
                 (pt ℓ Point×A.πᴰ₂ (((h , x) , (k , y)) , zr)))))
          , cong (λ hk → hk .fst x , hk .snd y) (sym e ∙ q)
 
-    lamPt = pt ℓ (LRMotive.λᴰ {f = FreeBiCCC.eval' Q} body) ((f , g) , refl)
+    lamPt = pt ℓ (LRMotive.λᴰ {f = FreeBiCCC.eval' {Q = Q}} body)
+      ((f , g) , refl)
 
   identityExtensionHom :
     (A B : BiCCCExpr Empty.⊥)

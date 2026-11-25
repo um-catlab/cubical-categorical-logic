@@ -115,45 +115,54 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
                   , π₂ Eq.refl Eq.refl ⟩ Eq.refl
                ⋆ₑ eval Eq.refl Eq.refl) pB
 
-  ↑ₑ : ∀ t → Expr (Q.dom t) (Q.cod t)
-  ↑ₑ t = genₑ t Eq.refl Eq.refl
+  infixl 20 _⋆ₑ_
 
-  π₁' : ∀ {Γ Δ} → Expr (Γ × Δ) Γ
+module _ {Q : +×⇒Quiver ℓQ ℓQ'} where
+  idₑ' : ∀ {Γ} → Expr Q Γ Γ
+  idₑ' = idₑ Eq.refl
+
+  π₁' : ∀ {Γ Δ} → Expr Q (Γ × Δ) Γ
   π₁' = π₁ Eq.refl Eq.refl
 
-  π₂' : ∀ {Γ Δ} → Expr (Γ × Δ) Δ
+  π₂' : ∀ {Γ Δ} → Expr Q (Γ × Δ) Δ
   π₂' = π₂ Eq.refl Eq.refl
 
-  σ₁' : ∀ {Γ Δ} → Expr Γ (Γ + Δ)
+  σ₁' : ∀ {Γ Δ} → Expr Q Γ (Γ + Δ)
   σ₁' = σ₁ Eq.refl Eq.refl
 
-  σ₂' : ∀ {Γ Δ} → Expr Δ (Γ + Δ)
+  σ₂' : ∀ {Γ Δ} → Expr Q Δ (Γ + Δ)
   σ₂' = σ₂ Eq.refl Eq.refl
 
-  ⟨_,_⟩' : ∀ {Γ Δ Δ'} → Expr Γ Δ → Expr Γ Δ' → Expr Γ (Δ × Δ')
+  ⟨_,_⟩' : ∀ {Γ Δ Δ'} → Expr Q Γ Δ → Expr Q Γ Δ' → Expr Q Γ (Δ × Δ')
   ⟨ t , t' ⟩' = ⟨ t , t' ⟩ Eq.refl
 
-  [_,_]' : ∀ {Γ Δ Δ'} → Expr Δ Γ → Expr Δ' Γ → Expr (Δ + Δ') Γ
+  [_,_]' : ∀ {Γ Δ Δ'} → Expr Q Δ Γ → Expr Q Δ' Γ → Expr Q (Δ + Δ') Γ
   [ t , t' ]' = [ t , t' ] Eq.refl
 
-  !ₑ' : ∀ {Γ} → Expr Γ ⊤
+  !ₑ' : ∀ {Γ} → Expr Q Γ ⊤
   !ₑ' = !ₑ Eq.refl
 
-  absurd' : ∀ {B} → Expr ⊥ B
+  absurd' : ∀ {B} → Expr Q ⊥ B
   absurd' = absurd Eq.refl
 
-  eval' : ∀ {Δ Θ} → Expr ((Δ ⇒ Θ) × Δ) Θ
+  eval' : ∀ {Δ Θ} → Expr Q ((Δ ⇒ Θ) × Δ) Θ
   eval' = eval Eq.refl Eq.refl
 
-  lam' : ∀ {Γ Δ Θ} → Expr (Γ × Δ) Θ → Expr Γ (Δ ⇒ Θ)
+  lam' : ∀ {Γ Δ Θ} → Expr Q (Γ × Δ) Θ → Expr Q Γ (Δ ⇒ Θ)
   lam' t = lam t Eq.refl
+
+module _ (Q : +×⇒Quiver ℓQ ℓQ') where
+  private module Q = +×⇒Quiver Q
+
+  ↑ₑ : ∀ t → Expr Q (Q.dom t) (Q.cod t)
+  ↑ₑ t = genₑ t Eq.refl Eq.refl
 
   open CartesianCategory using (C; term; bp)
   open CartesianClosedCategory using (CC; exps)
 
   |FreeBiCartesianClosedCategory| : Category _ _
   |FreeBiCartesianClosedCategory| .ob = Q.obExpr
-  |FreeBiCartesianClosedCategory| .Hom[_,_] = Expr
+  |FreeBiCartesianClosedCategory| .Hom[_,_] = Expr Q
   |FreeBiCartesianClosedCategory| .id = idₑ Eq.refl
   |FreeBiCartesianClosedCategory| ._⋆_ = _⋆ₑ_
   |FreeBiCartesianClosedCategory| .⋆IdL = ⋆ₑIdL
@@ -217,7 +226,7 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
     module _ (ı : ElimInterpᴰ) where
       open ElimInterpᴰ ı
 
-      elimHom : ∀ {A B} (e : Expr A B)
+      elimHom : ∀ {A B} (e : Expr Q A B)
         → Cᴰ.Hom[ e ][ elimOb ı-ob A , elimOb ı-ob B ]
       elimHom (genₑ t Eq.refl Eq.refl) = ı-hom t
       elimHom (idₑ Eq.refl) = Cᴰ.idᴰ

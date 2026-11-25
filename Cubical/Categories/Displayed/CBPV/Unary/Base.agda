@@ -425,6 +425,25 @@ module _
   MultCBPVCatⱽReindexChosenReind .snd .fst = hasUⱽReindexChosenReind
   MultCBPVCatⱽReindexChosenReind .snd .snd = hasFⱽReindexChosenReind
 
+  private
+    module Dᵒᵖ = Fibers (Dⱽ .fst ^opᴰᴰ)
+    module CRᵒᵖ = ChosenReindNotation (Dⱽ .fst ^opᴰᴰ)
+      ⦃ ChosenReind^opᴰᴰ (Dⱽ .fst) ⦄
+
+  hasFⱽReindexChosenReind-πⱽ : ∀ {A B} (f : C [ _ ][ A , B ])
+    (yᴰ : Categoryᴰ.ob[_] (Dⱽ .fst) (𝓥 , F .Functorᴰ.F-obᴰ A))
+    → CartesianLiftNotation.πⱽ
+        (reindexChosenReind (Dⱽ .fst) (∫F F) ^opᴰᴰ)
+        (hasFⱽReindexChosenReind f yᴰ)
+      Dᵒᵖ.∫≡
+      CartesianLiftNotation.πⱽ (Dⱽ .fst ^opᴰᴰ)
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+  hasFⱽReindexChosenReind-πⱽ f yᴰ =
+    CRᵒᵖ.reind-∫≡ _ _
+    ∙ CartesianLiftNotation.⟨_⟩⋆πⱽ (Dⱽ .fst ^opᴰᴰ)
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+        (CRᵒᵖ.reind-∫≡ (sym (Functor.F-id (∫F (F ^opFⱽ)))) _)
+
 module _
   {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
   (F : Functorⱽ C D)

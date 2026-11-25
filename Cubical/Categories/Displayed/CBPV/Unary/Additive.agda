@@ -417,6 +417,38 @@ module _ {C : AddCBPVCat ℓ ℓ'}
     π₂*B₂ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
       bp.π₂ B₂ᴰ
 
+  module _ {A₁ A₂ : ValueOb (C .fst .fst)}
+    (A₁ᴰ : Categoryᴰ.ob[_] D (𝒱 , A₁))
+    (A₂ᴰ : Categoryᴰ.ob[_] D (𝒱 , A₂)) where
+    private
+      module Dop = Fibers (D ^opᴰᴰ)
+      module DA = AddCBPVCatᴰNotation C AddCBPVCatⱽ→ᴰChosenReind
+      bcp = C .snd .snd .snd .snd .fst A₁ A₂
+      module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
+      σ₁! = CartesianLift^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+      σ₂! = CartesianLift^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
+      sumⱽ = BinProductⱽ^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁! .fst) (σ₂! .fst))
+
+    opaque
+      AddCBPVCatⱽ→ᴰChosenReind-σ₁ : DA.value-σᴰ₁ A₁ᴰ A₂ᴰ Dop.∫≡
+        (BinProductⱽNotation.π₁ (D ^opᴰᴰ) sumⱽ Dop.⋆ᴰ
+          CartesianLiftNotation.πⱽ (D ^opᴰᴰ) σ₁!)
+      AddCBPVCatⱽ→ᴰChosenReind-σ₁ = sym (BinProductⱽ+π*→ⱽᴰChosenReind-π₁
+        {C = KIND ^op} {Cᴰ = (C .fst .fst) ^opᴰ} (D ^opᴰᴰ)
+        ⦃ ChosenReind^opᴰᴰ D ⦄
+        {x = 𝒱} {Aᴰ = A₁} {Bᴰ = A₂} bcp A₁ᴰ A₂ᴰ σ₁! σ₂! sumⱽ)
+
+      AddCBPVCatⱽ→ᴰChosenReind-σ₂ : DA.value-σᴰ₂ A₁ᴰ A₂ᴰ Dop.∫≡
+        (BinProductⱽNotation.π₂ (D ^opᴰᴰ) sumⱽ Dop.⋆ᴰ
+          CartesianLiftNotation.πⱽ (D ^opᴰᴰ) σ₂!)
+      AddCBPVCatⱽ→ᴰChosenReind-σ₂ = sym (BinProductⱽ+π*→ⱽᴰChosenReind-π₂
+        {C = KIND ^op} {Cᴰ = (C .fst .fst) ^opᴰ} (D ^opᴰᴰ)
+        ⦃ ChosenReind^opᴰᴰ D ⦄
+        {x = 𝒱} {Aᴰ = A₁} {Bᴰ = A₂} bcp A₁ᴰ A₂ᴰ σ₁! σ₂! sumⱽ)
+
 module _
   {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
   (Dⱽ : AddCBPVCatⱽ D ℓᴰᴰ ℓᴰᴰ')
@@ -472,6 +504,53 @@ module _
     where
     lift' = reindexCartesianLiftChosenReind (Dᴰ ^opᴰ) G-op (_ , f) Aᴰ
       (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
+
+  private
+    module Dop = Fibers (Dᴰ ^opᴰ)
+    module CRop = ChosenReindNotation (Dᴰ ^opᴰ)
+
+  reindexValueBinCoProductⱽChosenReind-σ₁ : ∀ {A}
+    (A₁ᴰ A₂ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , F.F-obᴰ A))
+    → BinProductⱽNotation.π₁ (reindexChosenReind Dᴰ G ^opᴰ)
+        (reindexValueBinCoProductⱽChosenReind A₁ᴰ A₂ᴰ)
+      Dop.∫≡ BinProductⱽNotation.π₁ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
+  reindexValueBinCoProductⱽChosenReind-σ₁ {A} A₁ᴰ A₂ᴰ =
+    cong toσ₁ (congN-obⱽ (bcp .snd .PshIso.trans) (CRop.reind-∫≡ _ _))
+    where
+    bcp = Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ
+    toσ₁ : (Σ[ f ∈ ∫C D [ G ⟅ 𝒱 , A ⟆ , G ⟅ 𝒱 , A ⟆ ] ]
+      (Dᴰ [ f ][ A₁ᴰ , bcp .fst ]) × (Dᴰ [ f ][ A₂ᴰ , bcp .fst ]))
+      → Dop.Hom[ (G ⟅ 𝒱 , A ⟆ , bcp .fst) , (G ⟅ 𝒱 , A ⟆ , A₁ᴰ) ]
+    toσ₁ (f , a , b) = f , a
+
+  reindexValueBinCoProductⱽChosenReind-σ₂ : ∀ {A}
+    (A₁ᴰ A₂ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , F.F-obᴰ A))
+    → BinProductⱽNotation.π₂ (reindexChosenReind Dᴰ G ^opᴰ)
+        (reindexValueBinCoProductⱽChosenReind A₁ᴰ A₂ᴰ)
+      Dop.∫≡ BinProductⱽNotation.π₂ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
+  reindexValueBinCoProductⱽChosenReind-σ₂ {A} A₁ᴰ A₂ᴰ =
+    cong toσ₂ (congN-obⱽ (bcp .snd .PshIso.trans) (CRop.reind-∫≡ _ _))
+    where
+    bcp = Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ
+    toσ₂ : (Σ[ f ∈ ∫C D [ G ⟅ 𝒱 , A ⟆ , G ⟅ 𝒱 , A ⟆ ] ]
+      (Dᴰ [ f ][ A₁ᴰ , bcp .fst ]) × (Dᴰ [ f ][ A₂ᴰ , bcp .fst ]))
+      → Dop.Hom[ (G ⟅ 𝒱 , A ⟆ , bcp .fst) , (G ⟅ 𝒱 , A ⟆ , A₂ᴰ) ]
+    toσ₂ (f , a , b) = f , b
+
+  reindexValueOpcartesianLiftsChosenReind-πⱽ : ∀ {A A'}
+    (f : C [ Category.id KIND ][ A , A' ])
+    (Aᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , F.F-obᴰ A))
+    → CartesianLiftNotation.πⱽ (reindexChosenReind Dᴰ G ^opᴰ)
+        (reindexValueOpcartesianLiftsChosenReind f Aᴰ)
+      Dop.∫≡ CartesianLiftNotation.πⱽ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
+  reindexValueOpcartesianLiftsChosenReind-πⱽ f Aᴰ =
+    CRop.reind-∫≡ _ _
+    ∙ CartesianLiftNotation.⟨_⟩⋆πⱽ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
+        (CRop.reind-∫≡ _ _)
 
   AddCBPVCatⱽReindexChosenReind : AddCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
   AddCBPVCatⱽReindexChosenReind .fst = MultCBPVCatⱽReindexChosenReind (Dⱽ .fst)

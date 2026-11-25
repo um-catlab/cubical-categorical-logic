@@ -35,10 +35,10 @@ open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section renaming (Section to DisplayedSection)
 open import Cubical.Categories.Displayed.Instances.Opposite
-open import Cubical.Categories.Displayed.Instances.Reindex
-open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
-open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
-import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind public
+  using (TransportReindInst)
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
@@ -376,11 +376,17 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
     module Elim
       (D : AddCBPVCatᴰ AddCBPV ℓᴰ ℓᴰ')
       (DModel : ModelEnrichmentᴰ T CBPVModel (D .fst .fst))
+      ⦃ cr : ChosenReind (D .fst .fst) ⦄
       where
       private
         Dᴰ = D .fst .fst
         module Dᴰ = Fibers Dᴰ
         module Dᴰop = Fibers (Dᴰ ^opᴰᴰ)
+        module CR = ChosenReindNotation Dᴰ
+
+        reind≡ : ∀ {x y} {f g : (∫C CBPV) [ x , y ]} {a b} (e : f ≡ g)
+          (fᴰ : Dᴰ.Hom[ f ][ a , b ]) → CR.reind⟨ e ⟩ fᴰ ≡ Dᴰ.reind e fᴰ
+        reind≡ e fᴰ = Dᴰ.rectifyOut (CR.reind-∫≡ e fᴰ ∙ Dᴰ.reind-filler e)
 
       module _ (ı-Ob : ∀ {k} (X : BaseTy k) → Dᴰ.ob[ k , gen X ]) where
         elim-F-obᴰ : ∀ {k} (X : Ob k) → Dᴰ.ob[ k , X ]
@@ -421,7 +427,7 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
             (C.reind-filler⁻ (Category.⋆IdR KIND _) ∙ C.≡in {pth = refl} (IdLS [&π2]))
 
         retᴰ : ∀ {A} → Dᴰ.Hom[ ı tt , [ret] ][ elim-F-obᴰ A , elim-F-obᴰ ([F] A) ]
-        retᴰ = Dᴰ.reind
+        retᴰ = CR.reind⟨_⟩
           (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
           (D .fst .snd .snd (elim-F-obᴰ _) .snd .fst .PshHom.N-ob _ Dᴰop.idᴰ)
 
@@ -429,7 +435,7 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
           Liftsᴰ⁺ⱽ.CartesianLiftᴰNotation.πⱽ (KIND ^op) (CBPV ^opᴰ)
             (Dᴰ ^opᴰᴰ) (ı tt) (MultCBPV .snd .snd)
             (D .fst .snd .snd (elim-F-obᴰ A))
-        elim-ret = sym (Dᴰ.reind-filler _)
+        elim-ret = CR.reind-∫≡ _ _
 
         bindᴰ : ∀ {A B} (M : Tm _ A B)
           → Dᴰ.Hom[ ı tt , M ][ elim-F-obᴰ A , elim-F-obᴰ B ]
@@ -490,26 +496,33 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
           elim-F-homᴰ [ret] = retᴰ
           elim-F-homᴰ ([bind] M) = bindᴰ M (elim-F-homᴰ M)
           elim-F-homᴰ ([Fβ] M i) =
-            Fβᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
+            (cong (Dᴰ._⋆ᴰ bindᴰ M (elim-F-homᴰ M)) (reind≡ _ _)
+            ◁ Fβᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
               (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
-              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M) i
+              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M)) i
           elim-F-homᴰ ([Fη] K i) =
-            Fηᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
+            (Fηᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
               (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
-              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K) i
-          elim-F-homᴰ [force] = Dᴰ.reind
+              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K)
+            ▷ cong (λ r → bindᴰ (seqS [ret] K) (r Dᴰ.⋆ᴰ elim-F-homᴰ K))
+                (sym (reind≡ _ _))) i
+          elim-F-homᴰ [force] = CR.reind⟨_⟩
             (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
             (forceᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst))
           elim-F-homᴰ ([thunk] M) =
             thunkᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst) M (elim-F-homᴰ M)
           elim-F-homᴰ ([Uβ] M i) =
-            Uβᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+            (cong (thunkᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst) M
+                (elim-F-homᴰ M) Dᴰ.⋆ᴰ_) (reind≡ _ _)
+            ◁ Uβᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
               (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
-              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M) i
+              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M)) i
           elim-F-homᴰ ([Uη] V i) =
-            Uηᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+            (Uηᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
               (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
-              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V) i
+              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V)
+            ▷ cong (λ r → thunkᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+                (seqS V [force]) (elim-F-homᴰ V Dᴰ.⋆ᴰ r)) (sym (reind≡ _ _))) i
           elim-F-homᴰ [1I] = DA.value-terminal-introᴰ
           elim-F-homᴰ ([1η] V i) =
             DA.value-terminal-ηᴰ-on
@@ -518,53 +531,63 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
           elim-F-homᴰ ([×I] V₁ V₂) =
             DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
               (elim-F-homᴰ V₁) (elim-F-homᴰ V₂)
-          elim-F-homᴰ [×π1] = Dᴰ.reind
+          elim-F-homᴰ [×π1] = CR.reind⟨_⟩
             (ΣPathP (refl , value-π₁≡[×π1]))
             (DA.value-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ [×π2] = Dᴰ.reind
+          elim-F-homᴰ [×π2] = CR.reind⟨_⟩
             (ΣPathP (refl , value-π₂≡[×π2]))
             (DA.value-πᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
           elim-F-homᴰ ([×β1] V₁ V₂ i) =
-            DA.value-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.value-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , value-π₁≡[×π1]))
               (λ i → ı _ , [×β1] V₁ V₂ i)
-              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂) i
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂)) i
           elim-F-homᴰ ([×β2] V₁ V₂ i) =
-            DA.value-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.value-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , value-π₂≡[×π2]))
               (λ i → ı _ , [×β2] V₁ V₂ i)
-              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂) i
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂)) i
           elim-F-homᴰ ([×η] M i) =
-            DA.value-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (DA.value-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               value-π₁≡[×π1] value-π₂≡[×π2]
-              (λ i → ı _ , [×η] M i) (elim-F-homᴰ M) i
+              (λ i → ı _ , [×η] M i) (elim-F-homᴰ M)
+            ▷ sym (cong₂ (DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _)))) i
           elim-F-homᴰ [0E] = DA.value-initial-elimᴰ
           elim-F-homᴰ ([0η] M i) =
             DA.value-initial-ηᴰ-on
               (λ i → ı _ , [0η] M i) (elim-F-homᴰ M) i
-          elim-F-homᴰ [+I1] = Dᴰ.reind
+          elim-F-homᴰ [+I1] = CR.reind⟨_⟩
             (ΣPathP (refl , σ₁ⱽ≡[+I1]))
             (DA.value-σᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ [+I2] = Dᴰ.reind
+          elim-F-homᴰ [+I2] = CR.reind⟨_⟩
             (ΣPathP (refl , σ₂ⱽ≡[+I2]))
             (DA.value-σᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
           elim-F-homᴰ ([+E] f g) =
             DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
               (elim-F-homᴰ f) (elim-F-homᴰ g)
           elim-F-homᴰ ([+β1] M₁ M₂ i) =
-            DA.value-+βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ (reind≡ _ _) refl
+            ◁ DA.value-+βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , σ₁ⱽ≡[+I1]))
               (λ i → ı _ , [+β1] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([+β2] M₁ M₂ i) =
-            DA.value-+βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ (reind≡ _ _) refl
+            ◁ DA.value-+βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , σ₂ⱽ≡[+I2]))
               (λ i → ı _ , [+β2] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([+η] M i) =
-            DA.value-+ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (DA.value-+ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               σ₁ⱽ≡[+I1] σ₂ⱽ≡[+I2]
-              (λ i → ı _ , [+η] M i) (elim-F-homᴰ M) i
+              (λ i → ı _ , [+η] M i) (elim-F-homᴰ M)
+            ▷ sym (cong₂ (DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+                (cong (Dᴰ._⋆ᴰ elim-F-homᴰ M) (reind≡ _ _))
+                (cong (Dᴰ._⋆ᴰ elim-F-homᴰ M) (reind≡ _ _)))) i
           elim-F-homᴰ [⊤I] = DA.computation-terminal-introᴰ
           elim-F-homᴰ ([⊤η] M i) =
             DA.computation-terminal-ηᴰ-on
@@ -573,26 +596,31 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
           elim-F-homᴰ ([&I] M₁ M₂) =
             DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
               (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)
-          elim-F-homᴰ [&π1] = Dᴰ.reind
+          elim-F-homᴰ [&π1] = CR.reind⟨_⟩
             (ΣPathP (refl , computation-π₁≡[&π1]))
             (DA.computation-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ [&π2] = Dᴰ.reind
+          elim-F-homᴰ [&π2] = CR.reind⟨_⟩
             (ΣPathP (refl , computation-π₂≡[&π2]))
             (DA.computation-πᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
           elim-F-homᴰ ([&β1] M₁ M₂ i) =
-            DA.computation-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.computation-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , computation-π₁≡[&π1]))
               (λ i → ı _ , [&β1] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([&β2] M₁ M₂ i) =
-            DA.computation-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.computation-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , computation-π₂≡[&π2]))
               (λ i → ı _ , [&β2] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([&η] M i) =
-            DA.computation-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (DA.computation-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               computation-π₁≡[&π1] computation-π₂≡[&π2]
-              (λ i → ı _ , [&η] M i) (elim-F-homᴰ M) i
+              (λ i → ı _ , [&η] M i) (elim-F-homᴰ M)
+            ▷ sym (cong₂ (DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _)))) i
           elim-F-homᴰ ([op] op γ) =
             DModel .fst (elim-F-obᴰ _) (elim-F-obᴰ _) .fst
               op γ (λ v → elim-F-homᴰ (γ v)) ([op] op γ) refl
@@ -718,12 +746,12 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
             elim-σ₁ : ∀ {A₁ A₂}
               → elim-F-homᴰ ([+I1] {A₁ = A₁} {A₂ = A₂}) Dᴰ.∫≡
                   DA.value-σᴰ₁ (elim-F-obᴰ A₁) (elim-F-obᴰ A₂)
-            elim-σ₁ = sym (Dᴰ.reind-filler _)
+            elim-σ₁ = CR.reind-∫≡ _ _
 
             elim-σ₂ : ∀ {A₁ A₂}
               → elim-F-homᴰ ([+I2] {A₂ = A₂} {A₁ = A₁}) Dᴰ.∫≡
                   DA.value-σᴰ₂ (elim-F-obᴰ A₁) (elim-F-obᴰ A₂)
-            elim-σ₂ = sym (Dᴰ.reind-filler _)
+            elim-σ₂ = CR.reind-∫≡ _ _
 
     module LocalElim
       {C : CBPVCat ℓD ℓD'}
@@ -732,16 +760,23 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
       (CModel : ModelEnrichment C T)
       (FModel : PreservesModelEnrichment T F CBPVModel CModel)
       (CᴰModel : ModelEnrichmentᴰ T CModel (Cⱽ .fst .fst))
+      ⦃ cr : ChosenReind (Cⱽ .fst .fst) ⦄
       where
       private
         module Cᴰ = Fibers (Cⱽ .fst .fst)
 
+        instance
+          reindexedReind : ChosenReind (reindexChosenReind (Cⱽ .fst .fst) (∫F
+            F))
+          reindexedReind = reindexReind (Cⱽ .fst .fst) (∫F F)
+
         reindexed : AddCBPVCatᴰ AddCBPV ℓCᴰ ℓCᴰ'
-        reindexed = AddCBPVCatⱽ→ᴰ (AddCBPVCatⱽReindex Cⱽ F)
+        reindexed = AddCBPVCatⱽ→ᴰChosenReind (AddCBPVCatⱽReindexChosenReind Cⱽ
+          F)
 
         reindexedModel :
           ModelEnrichmentᴰ T CBPVModel (reindexed .fst .fst)
-        reindexedModel = ModelEnrichmentᴰReindex
+        reindexedModel = ModelEnrichmentᴰReindexChosenReind
           T F CBPVModel CModel FModel (Cⱽ .fst .fst) CᴰModel
 
       module _
@@ -757,7 +792,7 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
                 local-obᴰ Γ , local-obᴰ Δ ])
           → DisplayedSection (∫F F) (Cⱽ .fst .fst)
         localElim ı-hom =
-          GlobalSectionReindex→Section (Cⱽ .fst .fst) (∫F F)
+          GlobalSectionReindex→SectionChosenReind (Cⱽ .fst .fst) (∫F F)
             (Elim.elim reindexed reindexedModel ı-ob ı-hom)
 
         module _ {A : VTy}
@@ -782,7 +817,7 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
             pushF : SynTotal → TgtTotal
             pushF q = ∫F (F ^opFⱽ) ⟪ q .fst ⟫ , q .snd
 
-            reindexedFⱽ = AddCBPVCatⱽReindex Cⱽ F .fst .snd .snd
+            reindexedFⱽ = AddCBPVCatⱽReindexChosenReind Cⱽ F .fst .snd .snd
 
             localElim-ret-syn : Path SynTotal
               (_ , localElim ı-hom .F-homᴰ (ı tt , [ret]))
@@ -790,9 +825,10 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
                 (reindexedFⱽ retⱽ (local-obᴰ A)))
             localElim-ret-syn =
               Elim.elim-ret reindexed reindexedModel ı-ob
-              ∙ sym (Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰ-πⱽ (KIND ^op) (CBPV ^opᴰ)
-                  (reindexed .fst .fst ^opᴰᴰ) (ı tt) (MultCBPV .snd .snd)
-                  (reindexedFⱽ retⱽ) (local-obᴰ A))
+              ∙ sym (Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰChosenReind-πⱽ (KIND ^op) (CBPV ^opᴰ)
+                  (reindexed .fst .fst ^opᴰᴰ) (ı tt)
+                  ⦃ ChosenReind^opᴰᴰ (reindexed .fst .fst) ⦃ reindexedReind ⦄ ⦄
+                  (MultCBPV .snd .snd) (reindexedFⱽ retⱽ) (local-obᴰ A))
 
           localElim-ret : Path TgtTotal
             (_ , localElim ı-hom .F-homᴰ (ı tt , [ret]))
@@ -800,7 +836,7 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
               (Cⱽ .fst .snd .snd (F .Functorᴰ.F-homᴰ retⱽ) (local-obᴰ A)))
           localElim-ret =
             cong pushF localElim-ret-syn
-            ∙ hasFⱽReindex-πⱽ (Cⱽ .fst) F retⱽ (local-obᴰ A)
+            ∙ hasFⱽReindexChosenReind-πⱽ (Cⱽ .fst) F retⱽ (local-obᴰ A)
 
           localElim-retⱽ : Path TgtTotal
             (_ , localElim ı-hom .F-homᴰ (ı tt , retⱽ))
@@ -818,14 +854,14 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
           where
           private
             Rⱽ : AddCBPVCatⱽ CBPV ℓCᴰ ℓCᴰ'
-            Rⱽ = AddCBPVCatⱽReindex Cⱽ F
+            Rⱽ = AddCBPVCatⱽReindexChosenReind Cⱽ F
             Rᴰ : CBPVCatᴰ CBPV ℓCᴰ ℓCᴰ'
             Rᴰ = reindexed .fst .fst
             Dᴰ : CBPVCatᴰ C ℓCᴰ ℓCᴰ'
             Dᴰ = Cⱽ .fst .fst
             module RO = Fibers (Rᴰ ^opᴰᴰ)
             module DO = Fibers (Dᴰ ^opᴰᴰ)
-            module DR = HomᴰReasoning Dᴰ
+            module CR = ChosenReindNotation Dᴰ
 
             σ₁! : CartesianLift (Dᴰ ^opᴰ)
               (ı tt , F .Functorᴰ.F-homᴰ (σ₁ⱽ {A₁} {A₂}))
@@ -903,18 +939,15 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
               (_ , localElim ı-hom .F-homᴰ
                 (ı tt , [+I1] {A₁ = A₁} {A₂ = A₂}))
               (_ , displayedInj₁)
-            elim-injection₁ = sym (Fibers.reind-filler Rᴰ
-              {a = 𝒱 , A₁} {b = 𝒱 , A₁ [+] A₂}
-              {aᴰ = local-obᴰ A₁} {bᴰ = local-obᴰ (A₁ [+] A₂)}
-              {p = displayedInj₁}
-              (ΣPathP (refl , σ₁ⱽ≡[+I1] {A₁} {A₂})))
+            elim-injection₁ =
+              Elim.elim-σ₁ reindexed reindexedModel ı-ob ı-hom
 
             assemble-injection₁ : Path (SynSumTotal A₁)
               (_ , BinProductⱽNotation.π₁ (Rᴰ ^opᴰᴰ) sumⱽR RO.⋆ᴰ
                 CartesianLiftNotation.πⱽ (Rᴰ ^opᴰᴰ) σ₁!R)
               (_ , displayedInj₁)
             assemble-injection₁ = sym
-              (AddCBPVCatⱽ→ᴰ-σ₁ {C = AddCBPV} Rⱽ
+              (AddCBPVCatⱽ→ᴰChosenReind-σ₁ {C = AddCBPV} Rⱽ
                 {A₁ = A₁} {A₂ = A₂} (local-obᴰ A₁) (local-obᴰ A₂))
 
             localElim-σ₁-syn : Path (SynSumTotal A₁)
@@ -930,11 +963,10 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
                 CartesianLiftNotation.πⱽ (Rᴰ ^opᴰᴰ) σ₁!R)
               (_ , BinProductⱽNotation.π₁ (Rᴰ ^opᴰᴰ) sumⱽR DO.⋆ᴰ
                 CartesianLiftNotation.πⱽ (Rᴰ ^opᴰᴰ) σ₁!R)
-            unreindex-σ₁ =
-              sym (DR.reind-filler
-                (sym (Functor.F-seq (∫F F)
-                  (ı tt , seqS (σ₁ⱽ {A₁} {A₂}) idS)
-                  (ı tt , idS))) _)
+            unreindex-σ₁ = CR.reind-∫≡
+              (sym (Functor.F-seq (∫F F)
+                (ı tt , seqS (σ₁ⱽ {A₁} {A₂}) idS)
+                (ı tt , idS))) _
 
             displayedInj₂ : RO.Hom[ ı tt , σ₂ⱽ {A₁} {A₂} ][
               local-obᴰ (A₁ [+] A₂) , local-obᴰ A₂ ]
@@ -945,18 +977,15 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
               (_ , localElim ı-hom .F-homᴰ
                 (ı tt , [+I2] {A₂ = A₂} {A₁ = A₁}))
               (_ , displayedInj₂)
-            elim-injection₂ = sym (Fibers.reind-filler Rᴰ
-              {a = 𝒱 , A₂} {b = 𝒱 , A₁ [+] A₂}
-              {aᴰ = local-obᴰ A₂} {bᴰ = local-obᴰ (A₁ [+] A₂)}
-              {p = displayedInj₂}
-              (ΣPathP (refl , σ₂ⱽ≡[+I2] {A₁} {A₂})))
+            elim-injection₂ =
+              Elim.elim-σ₂ reindexed reindexedModel ı-ob ı-hom
 
             assemble-injection₂ : Path (SynSumTotal A₂)
               (_ , BinProductⱽNotation.π₂ (Rᴰ ^opᴰᴰ) sumⱽR RO.⋆ᴰ
                 CartesianLiftNotation.πⱽ (Rᴰ ^opᴰᴰ) σ₂!R)
               (_ , displayedInj₂)
             assemble-injection₂ = sym
-              (AddCBPVCatⱽ→ᴰ-σ₂ {C = AddCBPV} Rⱽ
+              (AddCBPVCatⱽ→ᴰChosenReind-σ₂ {C = AddCBPV} Rⱽ
                 {A₁ = A₁} {A₂ = A₂} (local-obᴰ A₁) (local-obᴰ A₂))
 
             localElim-σ₂-syn : Path (SynSumTotal A₂)
@@ -972,11 +1001,10 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
                 CartesianLiftNotation.πⱽ (Rᴰ ^opᴰᴰ) σ₂!R)
               (_ , BinProductⱽNotation.π₂ (Rᴰ ^opᴰᴰ) sumⱽR DO.⋆ᴰ
                 CartesianLiftNotation.πⱽ (Rᴰ ^opᴰᴰ) σ₂!R)
-            unreindex-σ₂ =
-              sym (DR.reind-filler
-                (sym (Functor.F-seq (∫F F)
-                  (ı tt , seqS (σ₂ⱽ {A₁} {A₂}) idS)
-                  (ı tt , idS))) _)
+            unreindex-σ₂ = CR.reind-∫≡
+              (sym (Functor.F-seq (∫F F)
+                (ı tt , seqS (σ₂ⱽ {A₁} {A₂}) idS)
+                (ı tt , idS))) _
 
           opaque
             localElim-σ₁ : Path (TgtSumTotal A₁)
@@ -985,10 +1013,10 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
               (_ , inj₁ DO.⋆ᴰ lift₁)
             localElim-σ₁ =
               (cong (pushSum {A = A₁}) localElim-σ₁-syn ∙ unreindex-σ₁)
-              ∙ DO.⟨ reindexBinCoProductⱽ-σ₁ {Dᴰ = Dᴰ} (∫F F)
-                      (σ₁! .fst) (σ₂! .fst) sumⱽ ⟩⋆⟨
-                  reindexOpcartesianLift-πⱽ {Dᴰ = Dᴰ} (∫F F)
-                    (ı tt , σ₁ⱽ {A₁} {A₂}) (local-obᴰ A₁) σ₁! ⟩
+              ∙ DO.⟨ reindexValueBinCoProductⱽChosenReind-σ₁ Cⱽ F
+                      (σ₁! .fst) (σ₂! .fst) ⟩⋆⟨
+                  reindexValueOpcartesianLiftsChosenReind-πⱽ Cⱽ F
+                    (σ₁ⱽ {A₁} {A₂}) (local-obᴰ A₁) ⟩
 
             localElim-σ₂ : Path (TgtSumTotal A₂)
               (_ , localElim ı-hom .F-homᴰ
@@ -996,10 +1024,10 @@ module CBPV (T : Theory ℓO ℓA ℓE ℓEA) (BaseTy : Kind → Type ℓ) where
               (_ , inj₂ DO.⋆ᴰ lift₂)
             localElim-σ₂ =
               (cong (pushSum {A = A₂}) localElim-σ₂-syn ∙ unreindex-σ₂)
-              ∙ DO.⟨ reindexBinCoProductⱽ-σ₂ {Dᴰ = Dᴰ} (∫F F)
-                      (σ₁! .fst) (σ₂! .fst) sumⱽ ⟩⋆⟨
-                  reindexOpcartesianLift-πⱽ {Dᴰ = Dᴰ} (∫F F)
-                    (ı tt , σ₂ⱽ {A₁} {A₂}) (local-obᴰ A₂) σ₂! ⟩
+              ∙ DO.⟨ reindexValueBinCoProductⱽChosenReind-σ₂ Cⱽ F
+                      (σ₁! .fst) (σ₂! .fst) ⟩⋆⟨
+                  reindexValueOpcartesianLiftsChosenReind-πⱽ Cⱽ F
+                    (σ₂ⱽ {A₁} {A₂}) (local-obᴰ A₂) ⟩
 
             localElim-σ₁ⱽ : Path (TgtSumTotal A₁)
               (_ , localElim ı-hom .F-homᴰ (ı tt , σ₁ⱽ {A₁} {A₂}))

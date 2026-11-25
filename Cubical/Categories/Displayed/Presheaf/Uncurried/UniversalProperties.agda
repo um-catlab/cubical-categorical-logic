@@ -664,6 +664,44 @@ module _ {C : Category ℓC ℓC'}
       π₂-factor = makePshHomPath $ funExt λ (Γ , Γᴰ) →
         funExt λ (f , hᴰ) → BinProductⱽ-π₂-natural bpⱽ hᴰ
 
+  module _ ⦃ cr : ChosenReind Cᴰᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Cᴰᴰ
+
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₁ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      (bpⱽⱽ : BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst))
+      → (BinProductⱽNotation.π₁ Cᴰᴰ bpⱽⱽ Cᴰᴰ.⋆ᴰ
+          CartesianLiftNotation.πⱽ Cᴰᴰ π₁*Aᴰᴰ)
+        Cᴰᴰ.∫≡ BinProductⱽᴰNotation.πᴰ₁ bpⱽ
+          (BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ)
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₁ bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ =
+      sym (CartesianLiftNotation.⋆πⱽ≡⋆ᴰπⱽ Cᴰᴰ π₁*Aᴰᴰ
+        (BinProductⱽNotation.π₁ Cᴰᴰ bpⱽⱽ))
+      ∙ sym (CR.reind-∫≡ _ _)
+
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₂ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      (bpⱽⱽ : BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst))
+      → (BinProductⱽNotation.π₂ Cᴰᴰ bpⱽⱽ Cᴰᴰ.⋆ᴰ
+          CartesianLiftNotation.πⱽ Cᴰᴰ π₂*Bᴰᴰ)
+        Cᴰᴰ.∫≡ BinProductⱽᴰNotation.πᴰ₂ bpⱽ
+          (BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ)
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₂ bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ =
+      sym (CartesianLiftNotation.⋆πⱽ≡⋆ᴰπⱽ Cᴰᴰ π₂*Bᴰᴰ
+        (BinProductⱽNotation.π₂ Cᴰᴰ bpⱽⱽ))
+      ∙ sym (CR.reind-∫≡ _ _)
+
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Cᴰᴰ : Categoryᴰ (∫C Cᴰ) ℓCᴰᴰ ℓCᴰᴰ') where

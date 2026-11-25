@@ -222,3 +222,9 @@ module Liftsᴰ⁺ⱽ (K : Category ℓ ℓ') (C : Categoryᴰ K ℓᴰ ℓᴰ')
           ; reind-filler = λ e q →
               ΣPathP (e , CR.reind-filler (cong (π≤k B .N-ob _) e) q) } ⦄
         (≤*ⱽ Bᴰ .snd ⋆PshIso ≤*ᴰ-Specⱽ≅ᴰChosenReind (≤* _) Bᴰ)
+
+      Quadrableⱽ→ᴰChosenReind-πⱽ : (≤*ⱽ : Quadrableⱽ ≤*) {B : C.ob[ k2 ]}
+        (Bᴰ : Cᴰ.ob[ _ , B ])
+        → CartesianLiftNotation.πⱽ Cᴰ (≤*ⱽ Bᴰ)
+          Cᴰ.∫≡ CartesianLiftᴰNotation.πⱽ ≤* (Quadrableⱽ→ᴰChosenReind ≤*ⱽ Bᴰ)
+      Quadrableⱽ→ᴰChosenReind-πⱽ ≤*ⱽ Bᴰ = sym (CR.reind-∫≡ _ _)

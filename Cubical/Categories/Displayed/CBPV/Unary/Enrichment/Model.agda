@@ -19,10 +19,12 @@ open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞; ≤Vertex to ≤Kind)
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.Instances.Algebra.Model
 open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 
 open import Cubical.Algebra.Theory.Base
 
@@ -277,3 +279,22 @@ module _
           DModel .snd .snd (F.F-homᴰ S) (F.F-obᴰ A)}
         ((λ _ Mᴰ → Mᴰ Dᴰ.⋆ᴰ Sᴰ) , DᴰModel .snd .snd Sᴰ)
         (λ _ Mᴰ → reindex-plug-filler Mᴰ Sᴰ) .snd
+
+  module _ ⦃ cr : ChosenReind Dᴰ ⦄ where
+    ModelEnrichmentᴰReindexChosenReind :
+      ModelEnrichmentᴰ T CModel (reindexChosenReind Dᴰ (∫F F))
+    ModelEnrichmentᴰReindexChosenReind .fst = ModelEffᴰReindex
+    ModelEnrichmentᴰReindexChosenReind .snd .fst {B = B} {V = V} Vᴰ =
+      reindexHomoᴰ
+        {ψ = (λ M → V C.⋆ᴰ M) , CModel .snd .fst V B}
+        {ψ' = (λ M → F.F-homᴰ V D.⋆ᴰ M) ,
+          DModel .snd .fst (F.F-homᴰ V) (F.F-obᴰ B)}
+        ((λ _ Mᴰ → Vᴰ Dᴰ.⋆ᴰ Mᴰ) , DᴰModel .snd .fst Vᴰ)
+        (λ _ Mᴰ → reindexChosenReind-seq-filler F Dᴰ Vᴰ Mᴰ) .snd
+    ModelEnrichmentᴰReindexChosenReind .snd .snd {A = A} {S = S} Sᴰ =
+      reindexHomoᴰ
+        {ψ = (λ M → M C.⋆ᴰ S) , CModel .snd .snd S A}
+        {ψ' = (λ M → M D.⋆ᴰ F.F-homᴰ S) ,
+          DModel .snd .snd (F.F-homᴰ S) (F.F-obᴰ A)}
+        ((λ _ Mᴰ → Mᴰ Dᴰ.⋆ᴰ Sᴰ) , DᴰModel .snd .snd Sᴰ)
+        (λ _ Mᴰ → reindexChosenReind-seq-filler F Dᴰ Mᴰ Sᴰ) .snd

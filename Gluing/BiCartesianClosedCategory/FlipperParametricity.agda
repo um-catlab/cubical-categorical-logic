@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Gluing.BiCartesianClosedCategory.FlipperParametricity where
 
 open import Cubical.Foundations.Prelude
@@ -19,7 +20,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.Properties
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Properties
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded as FreeBiCCC
   renaming ([_,_] to [_,+_])
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
@@ -58,7 +59,7 @@ module _ where
         (FreeBiCartesianClosedCategory FlipperQuiver)
 
   InterpBoolData :
-    Interpretation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+    Interpretation FlipperQuiver SETBiCCC SETCodBCCCⱽ
   InterpBoolData =
     FreeBiCCC.mkElimInterpᴰ (λ{X → Bool , isSetBool})
         λ {init → λ _ → true
@@ -67,7 +68,7 @@ module _ where
 
   InterpBool : CartesianFunctor FREE.CC (SET _)
   InterpBool =
-    interpretation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+    interpretation FlipperQuiver SETBiCCC SETCodBCCCⱽ
       InterpBoolData
 
   even : ℕ → Lift ℓ-zero Unit ⊎ Lift ℓ-zero Unit
@@ -84,7 +85,7 @@ module _ where
   evenb-suc (suc (suc n)) = evenb-suc n
 
   InterpNatData :
-    Interpretation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+    Interpretation FlipperQuiver SETBiCCC SETCodBCCCⱽ
   InterpNatData =
     FreeBiCCC.mkElimInterpᴰ
       (λ {X  → ℕ , isSetℕ })
@@ -94,48 +95,51 @@ module _ where
 
   InterpNat : CartesianFunctor FREE.CC (SET _)
   InterpNat =
-    interpretation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+    interpretation FlipperQuiver SETBiCCC SETCodBCCCⱽ
       InterpNatData
 
   BoolNatRelationOb : ∀ o →
-    (pointwise FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+    (pointwise FlipperQuiver SETBiCCC SETCodBCCCⱽ
       InterpBoolData InterpNatData) .fst .F-ob (↑ o) .fst →
     hSet ℓ-zero
   BoolNatRelationOb X (b , n) =
     (evenb n ≡ b) , isProp→isSet (isSetBool _ _)
 
   readRelation : ∀ b n → evenb n ≡ b →
-    ((FreeBiCCC.elimOb FlipperQuiver
+    Fib ℓ-zero
+      (FreeBiCCC.elimOb FlipperQuiver
         (FreeBiCCC.elimLocalMotive FlipperQuiver
-          (pointwise FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+          (pointwise FlipperQuiver SETBiCCC SETCodBCCCⱽ
             InterpBoolData InterpNatData)
-          EqSETᴰBCCCⱽ)
+          SETCodBCCCⱽ)
         BoolNatRelationOb
         (+×⇒Quiver.cod FlipperQuiver read))
-        ((pointwise FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
-          InterpBoolData InterpNatData) .fst .F-hom
-          (↑ₑ FlipperQuiver read) (b , n))) .fst
+      ((pointwise FlipperQuiver SETBiCCC SETCodBCCCⱽ
+        InterpBoolData InterpNatData) .fst .F-hom
+        (↑ₑ FlipperQuiver read) (b , n))
   readRelation b zero p =
-    inl ((tt* , lift tt) ,
-      cong (λ b' → (if b' then inl tt* else inr tt*) , inl (lift tt)) p ,
-      tt*)
+    (_ , inl (((tt* , lift tt) , _) ,
+      cong (λ b' → (if b' then inl tt* else inr tt*) , inl (lift tt)) p))
+    , refl
   readRelation b (suc zero) p =
-    inr ((tt* , lift tt) ,
-      cong (λ b' → (if b' then inl tt* else inr tt*) , inr (lift tt)) p ,
-      tt*)
+    (_ , inr (((tt* , lift tt) , _) ,
+      cong (λ b' → (if b' then inl tt* else inr tt*) , inr (lift tt)) p))
+    , refl
   readRelation b (suc (suc n)) p = readRelation b n p
 
   BoolNatRelationGenerators :
-    LogicalRelationGenerators FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+    LogicalRelationGenerators FlipperQuiver SETBiCCC SETCodBCCCⱽ
       InterpBoolData InterpNatData
   BoolNatRelationGenerators =
     FreeBiCCC.mkElimInterpᴰ BoolNatRelationOb
-      λ { init _ _ → refl
-        ; flip (b , n) p → evenb-suc n ∙ cong not p
-        ; read (b , n) p → readRelation b n p }
+      λ { init → mk ℓ-zero λ z → (_ , refl) , refl
+        ; flip → mk ℓ-zero λ z →
+            (_ , evenb-suc (z .fst .snd) ∙ cong not (z .snd)) , refl
+        ; read → mk ℓ-zero λ z →
+            readRelation (z .fst .fst) (z .fst .snd) (z .snd) }
 
   FlipperLogicalRelation =
-    logicalRelation FlipperQuiver SETBiCCC EqSETᴰBCCCⱽ
+    logicalRelation FlipperQuiver SETBiCCC SETCodBCCCⱽ
       InterpBoolData InterpNatData BoolNatRelationGenerators
 
   infix 4 _≈_
@@ -161,3 +165,22 @@ module _ where
       identityExtensionHom FlipperQuiver
         InterpBoolData InterpNatData BoolNatRelationGenerators
         A B client x y p
+
+  private
+    module Examples where
+      isInl : ∀ {ℓa ℓb} {X : Type ℓa} {Y : Type ℓb} → X ⊎ Y → Bool
+      isInl (inl _) = true
+      isInl (inr _) = false
+
+      client : Expr FlipperQuiver ⊤ (⊤ + ⊤)
+      client = (↑ₑ FlipperQuiver init ⋆ₑ ↑ₑ FlipperQuiver flip)
+        ⋆ₑ ↑ₑ FlipperQuiver read
+
+      _ : isInl
+        (pt ℓ-zero (FlipperLogicalRelation .F-homᴰ client) ((tt* , tt*) , tt*)
+          .fst .snd) ≡ false
+      _ = refl
+
+      _ : (i : I) → isInl
+        (flipper-representation-independence ⊤ (⊤ + ⊤) client i tt*) ≡ false
+      _ = λ i → refl

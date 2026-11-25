@@ -32,6 +32,10 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+  public using (TransportReindInst)
 open import Cubical.Categories.Displayed.Instances.Weaken.Base
 open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
 
@@ -103,12 +107,16 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     where
     open CartesianCategoryⱽ CCⱽ
 
-    elimLocalMotive : CartesianCategoryᴰ (FreeCartesianCategory Q) ℓCᴰ ℓCᴰ'
-    elimLocalMotive = CartesianCategoryⱽ→CartesianCategoryᴰ (FreeCartesianCategory Q)
-      (CartesianCategoryⱽReindex CCⱽ F)
+    module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+      elimLocalMotive : CartesianCategoryᴰ (FreeCartesianCategory Q) ℓCᴰ ℓCᴰ'
+      elimLocalMotive =
+        CartesianCategoryⱽ→CartesianCategoryᴰChosenReind
+          (FreeCartesianCategory Q) (CartesianCategoryⱽReindexChosenReind CCⱽ F)
+          ⦃ reindexReind Cᴰ F ⦄
 
-    elimLocal : (ı : Interpᴰ elimLocalMotive) → Section F Cᴰ
-    elimLocal ı = GlobalSectionReindex→Section Cᴰ F (elim elimLocalMotive ı)
+      elimLocal : (ı : Interpᴰ elimLocalMotive) → Section F Cᴰ
+      elimLocal ı =
+        GlobalSectionReindex→SectionChosenReind Cᴰ F (elim elimLocalMotive ı)
 
   module _ (CC : CartesianCategory ℓC ℓC') where
     private

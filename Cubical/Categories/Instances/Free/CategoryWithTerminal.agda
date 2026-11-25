@@ -19,8 +19,10 @@ open import Cubical.Foundations.Equiv
 open import Cubical.Data.Sigma.Properties
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Weaken as Wk
-open import Cubical.Categories.Displayed.Instances.Reindex.Base
-open import Cubical.Categories.Displayed.Instances.Reindex.Limits as Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+  public using (TransportReindInst)
 import Cubical.Categories.Displayed.Reasoning as Reasoning
 
 private
@@ -131,19 +133,26 @@ module _ (Ob : Type ℓg) where
       {D : Category ℓD ℓD'}
       (F : Functor FC D)
       (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+      ⦃ cr : ChosenReind Dᴰ ⦄
       (term'ᴰ : Terminalⱽ Dᴰ (F ⟅ inr _ ⟆))
       where
       private
         module Dᴰ = Categoryᴰ Dᴰ
         open TerminalⱽNotation _ _ term'ᴰ
+        open UniversalElementⱽ
+
+        F*term'ᴰ : Terminalⱽ (reindexChosenReind Dᴰ F) (inr _)
+        F*term'ᴰ .vertexⱽ = term'ᴰ .vertexⱽ
+        F*term'ᴰ .elementⱽ = term'ᴰ .elementⱽ
+        F*term'ᴰ .universalⱽ = term'ᴰ .universalⱽ
       module _ (ϕ : ∀ o → Dᴰ.ob[ F ⟅ inl o ⟆ ]) where
         private
           ϕ* : ∀ v → Dᴰ.ob[ F ⟅ v ⟆ ]
           ϕ* = Sum.elim ϕ λ _ → 𝟙ⱽ
         module _ (ψ : ∀ e → Dᴰ.Hom[ F ⟪ ↑ e ⟫ ][ ϕ* _ , ϕ* _ ]) where
           elimLocal : Section F Dᴰ
-          elimLocal = GlobalSectionReindex→Section _ _
-            (elim _ (Terminalⱽ→Terminalᴰ _ (TerminalⱽReindex term'ᴰ)) ϕ ψ)
+          elimLocal = GlobalSectionReindex→SectionChosenReind _ _
+            (elim _ (Terminalⱽ→Terminalᴰ _ F*term'ᴰ) ϕ ψ)
 
     module _ (D : Category ℓD ℓD')
              (term' : Terminal' D)

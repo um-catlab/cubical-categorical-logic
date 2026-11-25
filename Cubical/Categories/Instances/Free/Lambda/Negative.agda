@@ -38,13 +38,15 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.CartesianClosed.Base
 
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Reindex.Base
-open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
-open import Cubical.Categories.Displayed.Instances.Reindex.CartesianClosed
-open import Cubical.Categories.Displayed.Instances.Reindex.Exponential
 open import Cubical.Categories.Displayed.Instances.Reindex.Eq
+open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.Instances.Reindex.Exponential
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Reindex.UniversalQuantifier
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+  public using (TransportReindInst)
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.More
@@ -244,44 +246,62 @@ module Lambda1×⇒
     (F : Functor LAMBDA (D .CartesianCategory.C))
     (F-× : ∀ A → preservesProvidedBinProductsWith F (EXTENSION A))
     (CCCⱽ : CartesianClosedCategoryⱽ D ℓCᴰ ℓCᴰ')
+    ⦃ cr : ChosenReind (CartesianClosedCategoryⱽ.Cᴰ CCCⱽ) ⦄
     where
     private
       module CCCⱽ = CartesianClosedCategoryⱽ CCCⱽ
-      F*Termᴰ : Terminalᴰ (reindex CCCⱽ.Cᴰ F) TERMINALCTX
-      F*Termᴰ = (Terminalⱽ→ᴰ (reindex CCCⱽ.Cᴰ F) _ (TerminalsⱽReindex F CCCⱽ.termⱽ []))
+    F*Cᴰ = reindexChosenReind CCCⱽ.Cᴰ F
+    F*cr = reindexReind CCCⱽ.Cᴰ F
 
-      F*BPᴰ : {A : Ty} (Aᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: A) ]) → BinProductsWithᴰ (reindex CCCⱽ.Cᴰ F) (EXTENSION A) Aᴰ
-      F*BPᴰ {A = A} Aᴰ Bᴰ = BinProductⱽ+π*→ᴰ (reindex CCCⱽ.Cᴰ F) _ Bᴰ Aᴰ
-        (reindexCartesianLift CCCⱽ.Cᴰ F wk  Bᴰ (CCCⱽ.cartesianLifts Bᴰ _ (F-hom F wk)))
-        (reindexCartesianLift CCCⱽ.Cᴰ F var Aᴰ (CCCⱽ.cartesianLifts Aᴰ _ (F-hom F var)))
-        (reindexBinProductⱽ F _ _ (CCCⱽ.bpⱽ _ _))
+    F*Termᴰ : Terminalᴰ F*Cᴰ TERMINALCTX
+    F*Termᴰ = Terminalⱽ→ᴰChosenReind F*Cᴰ _
+      (TerminalsⱽReindexChosenReind CCCⱽ.Cᴰ F CCCⱽ.termⱽ [])
 
-      F*1ᴰ : Terminalᴰ (reindex CCCⱽ.Cᴰ F) TERMINALTY
-      F*1ᴰ = (Terminalⱽ→ᴰ (reindex CCCⱽ.Cᴰ F) _ (TerminalsⱽReindex F CCCⱽ.termⱽ (x: [1])))
+    F*BPᴰ : {A : Ty} (Aᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: A) ])
+      → BinProductsWithᴰ F*Cᴰ (EXTENSION A) Aᴰ
+    F*BPᴰ {A = A} Aᴰ Bᴰ = BinProductⱽ+π*→ᴰChosenReind F*Cᴰ ⦃ F*cr ⦄ _ Bᴰ Aᴰ
+      (reindexCartesianLiftChosenReind CCCⱽ.Cᴰ F wk  Bᴰ
+        (CCCⱽ.cartesianLifts Bᴰ _ (F-hom F wk)))
+      (reindexCartesianLiftChosenReind CCCⱽ.Cᴰ F var Aᴰ
+        (CCCⱽ.cartesianLifts Aᴰ _ (F-hom F var)))
+      (BinProductsⱽReindexChosenReind CCCⱽ.Cᴰ F CCCⱽ.bpⱽ _ _)
 
-      F*×ᴰ : ∀ {A B} Aᴰ Bᴰ → BinProductᴰ (reindex CCCⱽ.Cᴰ F) (PRODTY A B) Aᴰ Bᴰ
-      F*×ᴰ {A} {B} Aᴰ Bᴰ = BinProductⱽ+π*→ᴰ (reindex CCCⱽ.Cᴰ F) _ Aᴰ Bᴰ
-        (reindexCartesianLift CCCⱽ.Cᴰ F [π₁] Aᴰ (CCCⱽ.cartesianLifts Aᴰ (F-ob F (x: (A [×] B))) (F-hom F [π₁])))
-        (reindexCartesianLift CCCⱽ.Cᴰ F [π₂] Bᴰ (CCCⱽ.cartesianLifts Bᴰ (F-ob F (x: (A [×] B))) (F-hom F [π₂])))
-        (reindexBinProductⱽ F _ _ (CCCⱽ.bpⱽ _ _))
+    F*1ᴰ : Terminalᴰ F*Cᴰ TERMINALTY
+    F*1ᴰ = Terminalⱽ→ᴰChosenReind F*Cᴰ _
+      (TerminalsⱽReindexChosenReind CCCⱽ.Cᴰ F CCCⱽ.termⱽ (x: [1]))
 
-      F*Expᴰ : {A B : Ty} (Aᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: A) ])
-        (Bᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: B) ]) →
-        Exponentialᴰ (reindex CCCⱽ.Cᴰ F) (x: A , EXTENSION A)
-        (Aᴰ , F*BPᴰ Aᴰ) Bᴰ (EXPONENTIALS A B)
-      F*Expᴰ {A}{B} Aᴰ Bᴰ = ∀+Expⱽ+lifts⇒Expᴰ
-        (reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
-        (isLRⱽObᴰReindex _ _ (CCCⱽ.lrⱽ _))
-        (reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
-        (reindexExponentialⱽ _ _ _ (CCCⱽ.expⱽ _ _))
-        (λ _ _ → reindexCartesianLift CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _ _))
-        (reflectsUniversalQuantifiers _ _ CCCⱽ.cartesianLifts (EXTENSION A) (λ c → D .CartesianCategory.bp (c , F-ob F (x: A))) (F-× A) _ (CCCⱽ.forallⱽ _))
+    F*×ᴰ : ∀ {A B} Aᴰ Bᴰ → BinProductᴰ F*Cᴰ (PRODTY A B) Aᴰ Bᴰ
+    F*×ᴰ {A} {B} Aᴰ Bᴰ = BinProductⱽ+π*→ᴰChosenReind F*Cᴰ ⦃ F*cr ⦄ _ Aᴰ Bᴰ
+      (reindexCartesianLiftChosenReind CCCⱽ.Cᴰ F [π₁] Aᴰ
+        (CCCⱽ.cartesianLifts Aᴰ (F-ob F (x: (A [×] B))) (F-hom F [π₁])))
+      (reindexCartesianLiftChosenReind CCCⱽ.Cᴰ F [π₂] Bᴰ
+        (CCCⱽ.cartesianLifts Bᴰ (F-ob F (x: (A [×] B))) (F-hom F [π₂])))
+      (BinProductsⱽReindexChosenReind CCCⱽ.Cᴰ F CCCⱽ.bpⱽ _ _)
+
+    F*Expᴰ : {A B : Ty} (Aᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: A) ])
+      (Bᴰ : CCCⱽ.Cᴰ.ob[ F-ob F (x: B) ]) →
+      Exponentialᴰ F*Cᴰ (x: A , EXTENSION A)
+      (Aᴰ , F*BPᴰ Aᴰ) Bᴰ (EXPONENTIALS A B)
+    F*Expᴰ {A}{B} Aᴰ Bᴰ = ∀+Expⱽ+lifts⇒ExpᴰChosenReind
+      (reindexCartesianLiftChosenReind CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _
+        _))
+      (isLRⱽObᴰReindexChosenReind CCCⱽ.Cᴰ F _ (CCCⱽ.lrⱽ _))
+      (reindexCartesianLiftChosenReind CCCⱽ.Cᴰ _ _ _ (CCCⱽ.cartesianLifts _ _
+        _))
+      (reindexExponentialⱽChosenReind CCCⱽ.Cᴰ F _ _ (CCCⱽ.expⱽ _ _))
+      (λ _ _ → reindexCartesianLiftChosenReind CCCⱽ.Cᴰ _ _ _
+        (CCCⱽ.cartesianLifts _ _ _))
+      (reflectsUniversalQuantifiersChosenReind _ _ CCCⱽ.cartesianLifts
+        (EXTENSION A)
+        (λ c → D .CartesianCategory.bp (c , F-ob F (x: A))) (F-× A) _
+        (CCCⱽ.forallⱽ _))
+      ⦃ F*cr ⦄
 
     elimLocal :
       (ıOb : (A : Base) → CCCⱽ.Cᴰ.ob[ F  .F-ob (x: (↑ A)) ])
       → ({A : Ty} (f : Constant A) →
         CCCⱽ.Cᴰ.Hom[ F-hom F (gen f) ][ F*Termᴰ .fst ,
-        elimOb (reindex CCCⱽ.Cᴰ F) F*Termᴰ F*BPᴰ F*Expᴰ F*1ᴰ F*×ᴰ ıOb A ])
+        elimOb F*Cᴰ F*Termᴰ F*BPᴰ F*Expᴰ F*1ᴰ F*×ᴰ ıOb A ])
       → Section F CCCⱽ.Cᴰ
-    elimLocal ıOb ıHom = GlobalSectionReindex→Section _ _
-      (elim (reindex CCCⱽ.Cᴰ F) F*Termᴰ F*BPᴰ F*Expᴰ F*1ᴰ F*×ᴰ ıOb ıHom)
+    elimLocal ıOb ıHom = GlobalSectionReindex→SectionChosenReind _ _
+      (elim F*Cᴰ F*Termᴰ F*BPᴰ F*Expᴰ F*1ᴰ F*×ᴰ ıOb ıHom)

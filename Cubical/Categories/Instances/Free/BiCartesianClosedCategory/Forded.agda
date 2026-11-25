@@ -41,6 +41,10 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Instances.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.CartesianClosed
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+  public using (TransportReindInst)
 open import Cubical.Categories.Displayed.Instances.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
 
@@ -274,6 +278,7 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
     {D : CartesianCategory ℓD ℓD'}
     (F : CartesianFunctor (FreeBiCartesianClosedCategory .CCC .CC) (D .CartesianCategory.C))
     (BCCCⱽ : BiCartesianClosedCategoryⱽ D ℓCᴰ ℓCᴰ')
+    ⦃ cr : ChosenReind (BiCartesianClosedCategoryⱽ.Cᴰ BCCCⱽ) ⦄
     where
     private
       module BCCCⱽ' = BiCartesianClosedCategoryⱽ BCCCⱽ
@@ -292,10 +297,12 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
       opDⱽ .CartesianCategoryⱽ.bpⱽ = BCCCⱽ'.bcpⱽ
       opDⱽ .CartesianCategoryⱽ.cartesianLifts = BCCCⱽ'.opcartesianLifts
 
-      reindexedOpⱽ = CartesianCategoryⱽReindex opDⱽ F-op
+      reindexedOpⱽ =
+        CartesianCategoryⱽReindexChosenReind opDⱽ F-op ⦃ ChosenReind^op ⦄
 
       reindexedBCCCⱽ : BiCartesianClosedCategoryⱽ FreeBCCC.CC _ _
-      reindexedBCCCⱽ .BiCartesianClosedCategoryⱽ.CCCⱽ = CCCⱽReindex BCCCⱽ'.CCCⱽ F
+      reindexedBCCCⱽ .BiCartesianClosedCategoryⱽ.CCCⱽ =
+        CCCⱽReindexChosenReind BCCCⱽ'.CCCⱽ F
       reindexedBCCCⱽ .BiCartesianClosedCategoryⱽ.initⱽ x =
         initⱽ' .fst ,
         pshiso (pshhom (λ y → initⱽ' .snd .PshIso.trans .PshHom.N-ob y)
@@ -316,12 +323,15 @@ module _ (Q : +×⇒Quiver ℓQ ℓQ') where
         where opcartlift' = reindexedOpⱽ .CartesianCategoryⱽ.cartesianLifts x y z
 
     elimLocalMotive : BiCartesianClosedCategoryᴰ FreeBiCartesianClosedCategory _ _
-    elimLocalMotive = BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ
+    elimLocalMotive =
+      BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰChosenReind
       FreeBiCartesianClosedCategory reindexedBCCCⱽ
+      ⦃ reindexReind BCCCⱽ'.Cᴰ (F .fst) ⦄
 
     elimLocal : (ı : ElimInterpᴰ elimLocalMotive)
       → Section (F .fst) (BCCCⱽ'.Cᴰ)
-    elimLocal ı = GlobalSectionReindex→Section _ _ (elim elimLocalMotive ı)
+    elimLocal ı =
+      GlobalSectionReindex→SectionChosenReind _ _ (elim elimLocalMotive ı)
 
   -- Recursion (non-dependent functors)
   module _ (BCCC : BiCartesianClosedCategory ℓC ℓC') where

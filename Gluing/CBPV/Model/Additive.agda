@@ -28,6 +28,7 @@ open import Cubical.Algebra.Theory.Base
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.Isomorphism.More
 import Cubical.Categories.Isomorphism as CatIso
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Instances.WalkingArrow
@@ -39,16 +40,12 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
   renaming (Section to DisplayedSection)
-open import Cubical.Categories.Displayed.Instances.Opposite
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Enrichment.Model
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Model.Base
-open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Model.Multiplicative
-open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Model.Additive
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Codomain.Model
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.ModelEnriched.Additive
 open import Cubical.Categories.Displayed.Instances.Algebra.Model
-open import Cubical.Categories.Displayed.Instances.Algebra.DisplayedModel
 
 open Category
 open Functor
@@ -72,8 +69,7 @@ module ModelGluing
   open CBPV T BaseTy
   open Terms Fun
 
-  pts : Functorⱽ (AddCBPV .fst .fst)
-    (ModelAddCBPV T .fst .fst)
+  pts : Functorⱽ (AddCBPV .fst .fst) (ModelCBPV T .fst)
   pts = points T (AddCBPV .fst .fst) CBPVModel I
 
   ptsPreservesModel : PreservesModelEnrichment T pts
@@ -120,19 +116,17 @@ module BoolModelSyntax
 
   module Fundamental = LocalElim
     G.pts
-    (ModelAddCBPVⱽ T)
+    (ModelCodAddⱽ T)
     (ModelCBPVModel T)
     G.ptsPreservesModel
-    (ModelCBPVModelᴰ T)
+    (ModelCodModel T)
+    ⦃ ModelCodReind T ⦄
 
   baseObject : ∀ {k} (X : BaseTy k)
-    → Categoryᴰ.ob[_] (ModelAddCBPVⱽ T .fst .fst)
-        (k , G.pts .F-obᴰ (gen X))
+    → Categoryᴰ.ob[_] (ModelCod T) (k , G.pts .F-obᴰ (gen X))
   baseObject ()
 
-  fundamentalLemma :
-    DisplayedSection (∫F G.pts)
-      (ModelAddCBPVⱽ T .fst .fst)
+  fundamentalLemma : DisplayedSection (∫F G.pts) (ModelCod T)
   fundamentalLemma = Fundamental.localElim baseObject λ ()
 
   LogicalRelation : ∀ {k} (Γ : Ob k)
@@ -140,16 +134,19 @@ module BoolModelSyntax
   LogicalRelation {k = 𝒱} Γ = Fundamental.local-obᴰ baseObject Γ
   LogicalRelation {k = 𝒞} Γ = Fundamental.local-obᴰ baseObject Γ .fst
 
+  canonical : ∀ {k} {Γ : Ob k} (M : Tm tt UnitTy Γ)
+    → Σ[ w ∈ Σ _ (λ N → ⟨ LogicalRelation Γ N ⟩) ] w .fst ≡ M
+  canonical {k = 𝒱} M =
+    run .fst .snd (idS , tt*) , (λ i → run .snd i .snd (idS , tt*)) ∙ IdLS M
+    where run = fundamentalLemma .F-homᴰ (_ , M)
+  canonical {k = 𝒞} M =
+    run .fst .snd (idS , tt*) , (λ i → run .snd i .snd (idS , tt*)) ∙ IdLS M
+    where run = fundamentalLemma .F-homᴰ (_ , M)
+
   fundamentalAt : ∀ {k} {Γ : Ob k} (M : Tm tt UnitTy Γ)
     → ⟨ LogicalRelation Γ M ⟩
-  fundamentalAt {k = 𝒱} {Γ = Γ} M = subst
-    (λ N → ⟨ LogicalRelation Γ N ⟩)
-    (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS tt*
-  fundamentalAt {k = 𝒞} {Γ = Γ} M = subst
-    (λ N → ⟨ LogicalRelation Γ N ⟩)
-    (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS tt*
+  fundamentalAt {Γ = Γ} M = subst (λ N → ⟨ LogicalRelation Γ N ⟩)
+    (canonical M .snd) (canonical M .fst .snd)
 
   Val : VTy → hSet L
   Val A = G.pts .F-obᴰ A
@@ -167,88 +164,36 @@ module BoolModelSyntax
 
   module PointsPreserve+ (A B : VTy) where
     join : ⟨ Val A ⟩ ⊎ ⟨ Val B ⟩ → ⟨ Val (A [+] B) ⟩
-    join = Sum.rec (λ V → seqS V σ₁ⱽ) (λ V → seqS V σ₂ⱽ)
+    join = Sum.rec (λ V → seqS V [+I1]) (λ V → seqS V [+I2])
 
     splitRelated : ∀ {V} → ⟨ LogicalRelation (A [+] B) V ⟩
       → ⟨ Val A ⟩ ⊎ ⟨ Val B ⟩
-    splitRelated (inl (V , _)) = inl V
-    splitRelated (inr (V , _)) = inr V
+    splitRelated (inl ((V , _) , _)) = inl V
+    splitRelated (inr ((V , _) , _)) = inr V
 
     join-splitRelated : ∀ {V} (Vᴰ : ⟨ LogicalRelation (A [+] B) V ⟩)
       → join (splitRelated Vᴰ) ≡ V
-    join-splitRelated (inl (V , p , Vᴰ)) = p
-    join-splitRelated (inr (V , p , Vᴰ)) = p
+    join-splitRelated (inl ((V , _) , p)) =
+      sym (cong (seqS V) σ₁ⱽ≡[+I1]) ∙ p
+    join-splitRelated (inr ((V , _) , p)) =
+      sym (cong (seqS V) σ₂ⱽ≡[+I2]) ∙ p
 
     split : ⟨ Val (A [+] B) ⟩ → ⟨ Val A ⟩ ⊎ ⟨ Val B ⟩
-    split V = splitRelated
-      (fundamentalLemma .F-homᴰ (_ , V) idS tt*)
+    split V = splitRelated (canonical V .fst .snd)
 
     join-split : ∀ V → join (split V) ≡ V
-    join-split V = join-splitRelated
-      (fundamentalLemma .F-homᴰ (_ , V) idS tt*) ∙ IdLS V
-
-    private
-      σ₁! = ModelCBPVValueOpcartesianLifts T
-        {A = Val A} {B = Val (A [+] B)}
-        (λ W → seqS W (σ₁ⱽ {A} {B})) (LogicalRelation A)
-      σ₂! = ModelCBPVValueOpcartesianLifts T
-        {A = Val B} {B = Val (A [+] B)}
-        (λ W → seqS W (σ₂ⱽ {A} {B})) (LogicalRelation B)
-      lift₁ = CartesianLiftNotation.πⱽ (ModelCBPVᴰ T ^opᴰ) σ₁!
-      lift₂ = CartesianLiftNotation.πⱽ (ModelCBPVᴰ T ^opᴰ) σ₂!
-
-      split-σ₁ : ∀ W (Wᴰ : ⟨ LogicalRelation A W ⟩)
-        → splitRelated (fundamentalLemma .F-homᴰ (_ , σ₁ⱽ) W Wᴰ)
-          ≡ inl W
-      split-σ₁ W Wᴰ =
-        (λ i → splitRelated
-          (Fundamental.localElim-σ₁ⱽ baseObject
-            {A₁ = A} {A₂ = B} (λ ()) i .snd W Wᴰ))
-        ∙ (λ i → splitRelated
-          (ModelCBPVValueBinCoProductsⱽ-σ₁ T {A = Val (A [+] B)}
-            (σ₁! .fst) (σ₂! .fst)
-            i _ (lift₁ W Wᴰ)))
-        ∙ (λ i → inl
-          (ModelCBPVValueOpcartesianLifts-πⱽ T
-            {A = Val A} {B = Val (A [+] B)}
-            (λ W → seqS W (σ₁ⱽ {A} {B})) (LogicalRelation A)
-            i W Wᴰ .fst))
-
-      split-σ₂ : ∀ W (Wᴰ : ⟨ LogicalRelation B W ⟩)
-        → splitRelated (fundamentalLemma .F-homᴰ (_ , σ₂ⱽ) W Wᴰ)
-          ≡ inr W
-      split-σ₂ W Wᴰ =
-        (λ i → splitRelated
-          (Fundamental.localElim-σ₂ⱽ baseObject
-            {A₁ = A} {A₂ = B} (λ ()) i .snd W Wᴰ))
-        ∙ (λ i → splitRelated
-          (ModelCBPVValueBinCoProductsⱽ-σ₂ T {A = Val (A [+] B)}
-            (σ₁! .fst) (σ₂! .fst)
-            i _ (lift₂ W Wᴰ)))
-        ∙ (λ i → inr
-          (ModelCBPVValueOpcartesianLifts-πⱽ T
-            {A = Val B} {B = Val (A [+] B)}
-            (λ W → seqS W (σ₂ⱽ {A} {B})) (LogicalRelation B)
-            i W Wᴰ .fst))
+    join-split V =
+      join-splitRelated (canonical V .fst .snd) ∙ canonical V .snd
 
     split-join : ∀ V → split (join V) ≡ V
-    split-join (inl V) =
-      (λ i → splitRelated
-        (fundamentalLemma .F-seqᴰ (ı tt , V) (ı tt , σ₁ⱽ) i idS tt*))
-      ∙ split-σ₁ (seqS idS V) (fundamentalLemma .F-homᴰ (_ , V) idS tt*)
-      ∙ cong inl (IdLS V)
-    split-join (inr V) =
-      (λ i → splitRelated
-        (fundamentalLemma .F-seqᴰ (ı tt , V) (ı tt , σ₂ⱽ) i idS tt*))
-      ∙ split-σ₂ (seqS idS V) (fundamentalLemma .F-homᴰ (_ , V) idS tt*)
-      ∙ cong inr (IdLS V)
+    split-join (inl V) = cong inl (canonical V .snd)
+    split-join (inr V) = cong inr (canonical V .snd)
 
     pointsPreserve+ : Iso (⟨ Val A ⟩ ⊎ ⟨ Val B ⟩) ⟨ Val (A [+] B) ⟩
     pointsPreserve+ .Iso.fun = join
     pointsPreserve+ .Iso.inv = split
     pointsPreserve+ .Iso.sec = join-split
     pointsPreserve+ .Iso.ret = split-join
-
 
   -- The points functor preserves F: for every value type A the
   -- homomorphism Free (Val A) → Comp (F A) induced by V ↦ V ⋆ ret is an
@@ -266,35 +211,31 @@ module BoolModelSyntax
     ηA : ⟨ ValA ⟩ → ⟨ FreeValA .fst ⟩
     ηA = var
 
-    module OF = ModelCBPV-F T {A = ValA} {B = CompFA}
-      (G.pts .F-homᴰ retⱽ) (LogicalRelation A)
+    retA : Tm tt A ([F] A)
+    retA = [ret]
+
+    module OF = PushᶠNotation T {A = ValA} {B = CompFA}
+      (λ V → seqS V retⱽ) (LogicalRelation A)
 
     module FreeA = UniversalElementNotation (MODELFree T ValA)
     module Free∫ = UniversalElementNotation (MODELFree T OF.∫Aᴰ)
 
     -- The homomorphism induced by V ↦ V ⋆ ret.
     recA : MODEL T L [ FreeValA , CompFA ]
-    recA = FreeA.intro (λ V → seqS V retⱽ)
+    recA = FreeA.intro (λ V → seqS V retA)
 
-    recAβ : ∀ V → recA .fst (ηA V) ≡ seqS V retⱽ
-    recAβ = funExt⁻ (FreeA.β {c = CompFA} {p = λ V → seqS V retⱽ})
+    recAβ : ∀ V → recA .fst (ηA V) ≡ seqS V retA
+    recAβ = funExt⁻ (FreeA.β {c = CompFA} {p = λ V → seqS V retA})
 
     section∫ : ⟨ CompFA .fst ⟩ → ⟨ OF.Free∫ .fst ⟩
-    section∫ M = fundamentalLemma .F-homᴰ (_ , M) idS tt* .fst
+    section∫ M = canonical M .fst .snd .fst
 
     h-section∫ : ∀ M → OF.h .fst (section∫ M) ≡ M
-    h-section∫ M =
-      fundamentalLemma .F-homᴰ (_ , M) idS tt* .snd ∙ IdLS M
-
-    section∫-op : ∀ op (γ : Arity op → ⟨ CompFA .fst ⟩)
-      → OF.Free∫ .snd .fst op (λ v → section∫ (γ v))
-      ≡ section∫ (CompFA .snd .fst op γ)
-    section∫-op op γ = refl
+    h-section∫ M = canonical M .fst .snd .snd ∙ canonical M .snd
 
     section∫Homo : MODEL T L [ CompFA , OF.Free∫ ]
     section∫Homo .fst = section∫
-    section∫Homo .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ =
-      section∫-op op γ ∙ cong section∫ op∘γ≡op⟨γ⟩
+    section∫Homo .snd op γ op⟨γ⟩ op∘γ≡op⟨γ⟩ = cong section∫ op∘γ≡op⟨γ⟩
 
     Freeπ₁ : MODEL T L [ OF.Free∫ , FreeValA ]
     Freeπ₁ = Free∫.intro (λ x → ηA (x .fst))
@@ -304,7 +245,8 @@ module BoolModelSyntax
 
     Freeπ₁-recA : (Freeπ₁ ⋆⟨ MODEL T L ⟩ recA) ≡ OF.h
     Freeπ₁-recA = Free∫.extensionality (funExt λ x →
-      cong (recA .fst) (Freeπ₁β x) ∙ recAβ (x .fst))
+      cong (recA .fst) (Freeπ₁β x) ∙ recAβ (x .fst)
+      ∙ cong (seqS (x .fst)) (sym retⱽ≡[ret]))
 
     sectionA : ⟨ CompFA .fst ⟩ → ⟨ FreeValA .fst ⟩
     sectionA M = Freeπ₁ .fst (section∫ M)
@@ -316,23 +258,11 @@ module BoolModelSyntax
     recA-sectionA M =
       funExt⁻ (cong fst Freeπ₁-recA) (section∫ M) ∙ h-section∫ M
 
-    ret-fst : ∀ W (Wᴰ : ⟨ LogicalRelation A W ⟩)
-      → fundamentalLemma .F-homᴰ (_ , retⱽ) W Wᴰ .fst ≡ var (W , Wᴰ)
-    ret-fst W Wᴰ =
-      (λ i → Fundamental.localElim-retⱽ baseObject (λ ()) i .snd W Wᴰ .fst)
-      ∙ (λ i → OF.πⱽ≡elem i W Wᴰ .fst)
+    sectionA-ret : ∀ V → sectionA (seqS V retA) ≡ ηA V
+    sectionA-ret V = Freeπ₁β (canonical V .fst) ∙ cong ηA (canonical V .snd)
 
-    section∫-ret : ∀ V → section∫ (seqS V retⱽ)
-      ≡ var (seqS idS V , fundamentalLemma .F-homᴰ (_ , V) idS tt*)
-    section∫-ret V =
-      (λ i → fundamentalLemma .F-seqᴰ (ı tt , V) (ı tt , retⱽ) i idS tt* .fst)
-      ∙ ret-fst (seqS idS V) (fundamentalLemma .F-homᴰ (_ , V) idS tt*)
-
-    sectionA-ret : ∀ V → sectionA (seqS V retⱽ) ≡ ηA V
-    sectionA-ret V =
-      cong (Freeπ₁ .fst) (section∫-ret V) ∙ Freeπ₁β _ ∙ cong ηA (IdLS V)
-
-    sectionA-recA : (recA ⋆⟨ MODEL T L ⟩ sectionAHomo) ≡ Category.id (MODEL T L)
+    sectionA-recA :
+      (recA ⋆⟨ MODEL T L ⟩ sectionAHomo) ≡ Category.id (MODEL T L)
     sectionA-recA = FreeA.extensionality (funExt λ V →
       cong sectionA (recAβ V) ∙ sectionA-ret V)
 
@@ -368,11 +298,9 @@ module BoolModelSyntax
     Bool≅ValBool-quote : ∀ b
       → Bool≅ValBool .Iso.fun b ≡ quoteBool (lower b)
     Bool≅ValBool-quote (lift false) =
-      cong (λ V → seqS V (σ₂ⱽ {UnitTy} {UnitTy})) (sym ([1η] idS))
-      ∙ IdLS σ₂ⱽ ∙ σ₂ⱽ≡[+I2]
+      cong (λ V → seqS V fls) (sym ([1η] idS)) ∙ IdLS fls
     Bool≅ValBool-quote (lift true) =
-      cong (λ V → seqS V (σ₁ⱽ {UnitTy} {UnitTy})) (sym ([1η] idS))
-      ∙ IdLS σ₁ⱽ ∙ σ₁ⱽ≡[+I1]
+      cong (λ V → seqS V tru) (sym ([1η] idS)) ∙ IdLS tru
 
   SyntaxMODEL : Category.ob (MODEL T L)
   SyntaxMODEL = PF.CompFA
@@ -380,10 +308,33 @@ module BoolModelSyntax
   FreeBoolMODEL : Category.ob (MODEL T L)
   FreeBoolMODEL = FreeModel ⟨ LiftBool ⟩
 
+  private
+    module P+ = PointsPreserve+ UnitTy UnitTy
+    module Free∫ = UniversalElementNotation (MODELFree T PF.OF.∫Aᴰ)
+
+    freeBool≅Val : CatIso (MODEL T L) FreeBoolMODEL PF.FreeValA
+    freeBool≅Val = FreeMODELIso T {X = LiftBool} {Y = Val BoolTy} Bool≅ValBool
+
+    decodeGen : ⟨ PF.OF.∫Aᴰ ⟩ → ⟨ FreeBoolMODEL .fst ⟩
+    decodeGen x =
+      var (Bool≅ValBool .Iso.inv (P+.join (P+.splitRelated (x .snd))))
+
+    decodeBool : MODEL T L [ PF.OF.Free∫ , FreeBoolMODEL ]
+    decodeBool = Free∫.intro decodeGen
+
+    decodeBool≡ : decodeBool
+      ≡ PF.Freeπ₁ ⋆⟨ MODEL T L ⟩ freeBool≅Val .snd .isIso.inv
+    decodeBool≡ = Free∫.extensionality (funExt λ x →
+      funExt⁻ (Free∫.β {c = FreeBoolMODEL} {p = decodeGen}) x
+      ∙ cong (λ V → var (Bool≅ValBool .Iso.inv V))
+          (P+.join-splitRelated (x .snd))
+      ∙ sym (cong (freeBool≅Val .snd .isIso.inv .fst) (PF.Freeπ₁β x)))
+
   freeBool≅Syntax : CatIso (MODEL T L) FreeBoolMODEL SyntaxMODEL
-  freeBool≅Syntax = CatIso.⋆Iso
-    (FreeMODELIso T {X = LiftBool} {Y = Val BoolTy} Bool≅ValBool)
-    PF.pointsPreserveF
+  freeBool≅Syntax = improveCatIso (CatIso.⋆Iso freeBool≅Val PF.pointsPreserveF)
+    (_ , refl)
+    (_ , sym (cong (λ g → PF.section∫Homo ⋆⟨ MODEL T L ⟩ g) decodeBool≡
+      ∙ sym (MODEL T L .⋆Assoc _ _ _)))
 
   private
     ηBool : Lift L Bool → ⟨ FreeBoolMODEL .fst ⟩
@@ -398,7 +349,7 @@ module BoolModelSyntax
     interpretβ : (λ b → interpretFreeBoolHomo .fst (ηBool b)) ≡ interpretGen
     interpretβ = funExt λ b →
       PF.recAβ (Bool≅ValBool .Iso.fun b)
-      ∙ cong₂ seqS (Bool≅ValBool-quote b) retⱽ≡[ret]
+      ∙ cong (λ V → seqS V [ret]) (Bool≅ValBool-quote b)
 
   interpretFreeBool :
     ⟨ FreeBoolMODEL .fst ⟩ → Tm tt UnitTy ([F] BoolTy)

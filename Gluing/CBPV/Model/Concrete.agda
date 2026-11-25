@@ -13,6 +13,8 @@ open import Cubical.Data.Sigma
 open import Cubical.Prop
 
 open import Cubical.Algebra.Monoid.Base
+open import Cubical.Algebra.Monoid.Instances.Nat
+open import Cubical.Algebra.Theory.Base
 import Cubical.Algebra.Theory.Instances.Reader as Reader
 import Cubical.Algebra.Theory.Instances.State as State
 import Cubical.Algebra.Theory.Instances.Writer as Writer
@@ -97,3 +99,75 @@ module MonoidBoolModelSyntax where
   MonoidCanonicity =
     CatIso→Iso (preserveIsosF {F = MODELForget T}
       (⋆Iso (invIso ListFreeBool≅) freeBool≅Syntax))
+
+private
+  module Examples where
+    module _ where
+      open StateBoolModelSyntax (Bool , isSetBool)
+      open Theory (State.StateTheory Bool) using (var; app)
+
+      _ : StateCanonicity .Iso.inv (seqS tru [ret]) ≡ λ s → s , lift true
+      _ = refl
+
+      _ : StateCanonicity .Iso.inv
+        ([op] State.read λ s → if s then seqS fls [ret] else seqS tru [ret])
+        true ≡ (true , lift false)
+      _ = refl
+
+      _ : StateCanonicity .Iso.inv
+        ([op] (State.write true) λ _ → seqS fls [ret])
+        ≡ λ _ → true , lift false
+      _ = refl
+
+      _ : unquote-FBool ([op] (State.write true) λ _ → seqS fls [ret])
+        ≡ app (State.write true) λ _ → var (lift false)
+      _ = refl
+
+    module _ where
+      open ReaderBoolModelSyntax Bool
+      open Theory (Reader.ReaderTheory Bool) using (var; app)
+
+      _ : ReaderCanonicity .Iso.inv (seqS tru [ret]) ≡ λ _ → lift true
+      _ = refl
+
+      _ : ReaderCanonicity .Iso.inv
+        ([op] Reader.ask λ e → if e then seqS tru [ret] else seqS fls [ret])
+        false ≡ lift false
+      _ = refl
+
+      _ : unquote-FBool ([op] Reader.ask λ _ → seqS tru [ret])
+        ≡ app Reader.ask λ _ → var (lift true)
+      _ = refl
+
+    module _ where
+      open WriterBoolModelSyntax NatMonoid
+      open Theory (Writer.WriterTheory NatMonoid) using (var; app)
+
+      _ : WriterCanonicity .Iso.inv (seqS tru [ret]) ≡ (0 , lift true)
+      _ = refl
+
+      _ : WriterCanonicity .Iso.inv
+        ([op] (Writer.tell 2) λ _ → [op] (Writer.tell 3) λ _ → seqS fls [ret])
+        ≡ (5 , lift false)
+      _ = refl
+
+      _ : unquote-FBool ([op] (Writer.tell 2) λ _ → seqS fls [ret])
+        ≡ app (Writer.tell 2) λ _ → var (lift false)
+      _ = refl
+
+    module _ where
+      open MonoidBoolModelSyntax
+      open Theory FreeMonoid.MonoidTheory using (var; app)
+
+      _ : MonoidCanonicity .Iso.inv (seqS tru [ret]) ≡ lift true ∷ []
+      _ = refl
+
+      _ : MonoidCanonicity .Iso.inv
+        ([op] FreeMonoid.multOp λ b →
+          if b then seqS tru [ret] else seqS fls [ret])
+        ≡ lift false ∷ lift true ∷ []
+      _ = refl
+
+      _ : unquote-FBool ([op] FreeMonoid.multOp λ _ → seqS tru [ret])
+        ≡ app FreeMonoid.multOp λ _ → var (lift true)
+      _ = refl

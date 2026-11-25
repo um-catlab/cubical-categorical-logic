@@ -1,8 +1,10 @@
+{-# OPTIONS --lossy-unification #-}
 module Gluing.Category where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Structure
+open import Cubical.Foundations.Equiv using (fiber)
 
 open import Cubical.Data.Quiver.Base as Quiver
 open import Cubical.Data.List as List hiding ([_])
@@ -18,8 +20,11 @@ open import Cubical.Categories.Category renaming (isIso to isIsoC)
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Free.Category.Quiver as Free
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Instances.Sets
+
+open import Gluing.Canonicity
 
 private
   variable
@@ -62,17 +67,24 @@ module Normalization (Q : Quiver ℓC ℓC') where
 
   hasNormalForm' : ∀ {o1 o2} → (e : FQ [ o1 , o2 ])
     → Σ[ nf ∈ _ ] readBack nf ≡ e
-  hasNormalForm' = λ e → let nf' , isnf = normalize .F-homᴰ e FQ.id (nil , refl)
-    in nf' , isnf ∙ FQ .⋆IdL e
+  hasNormalForm' {o1} e =
+    Fib→fiber readBack (canonicalize o1 normalize (nil , refl) e)
     where
-    hasNF : ∀ {o1 o2} → FQ [ o1 , o2 ] → Type _
-    hasNF = λ e → Σ[ nf ∈ _ ] readBack nf ≡ e
-    normalize : ∀ {o1} → Section (FQ [ o1 ,-]) (SETᴰ _ _)
-    normalize {o1} = elimLocal Q _ _ (record
-      { _$gᴰ_   = λ o2 e → hasNF e
-        , isSetΣ isSetNF' (λ _ → isProp→isSet (FQ .isSetHom _ _))
-      ; _<$g>ᴰ_ = λ g e (nf , r-nf≡e) → (cons g nf) , (cong (comp' FQ _) r-nf≡e)
-      })
+    Pts : Functor FQ (SET _)
+    Pts = FQ [ o1 ,-]
+    hasNF : ∀ {o2} → FQ [ o1 , o2 ] → hSet _
+    hasNF e = fiber readBack e
+      , isSetΣ isSetNF' (λ _ → isProp→isSet (FQ .isSetHom _ _))
+    normalize : Section Pts (SETCod _)
+    normalize = GlobalSectionReindex→SectionChosenReind (SETCod _) Pts
+      (Free.elim Q (reindexChosenReind (SETCod _) Pts) (record
+        { _$gᴰ_ = λ o2 → hasNF
+        ; _<$g>ᴰ_ = λ g → mk _ {X = Pts ⟅ Q .snd .dom g ⟆}
+            {Y = Pts ⟅ Q .snd .cod g ⟆} {h = Pts ⟪ ↑ g ⟫}
+            {P = hasNF} {Q = hasNF}
+            λ z → (_ , cons g (z .snd .fst) , cong (comp' FQ _) (z .snd .snd))
+              , refl
+        }))
 
   -- hasUniqNormalForm' : ∀ {o1 o2} → isEquiv (readBack {o1}{o2})
   -- hasUniqNormalForm' = isoToIsEquiv (iso _ (λ e → hasNormalForm' e .fst)
@@ -152,18 +164,25 @@ module Normalization (Q : Quiver ℓC ℓC') where
 
     -- The main theorem/construction
     normalize : ∀ {o1}{o2} → (e : FQ [ o1 , o2 ]) → NormalForm e
-    normalize {o1} = λ e → subst NormalForm (FQ.⋆IdL e) (S.F-homᴰ e FQ.id nil)
+    normalize {o1} = λ e → subst NormalForm (can e .snd) (can e .fst .snd)
       where
       o1-pts : Functor FQ (SET _)
       o1-pts = FQ [ o1 ,-]
 
-      S : Section o1-pts (SETᴰ _ _)
-      -- TODO: should be able to use elim' directly once the definition of
-      -- compFunctorᴰGlobalSection in Section.Base is fixed
-      S = Free.elimLocal Q _ _ (record
-        { _$gᴰ_ = λ o e → (NormalForm e) , isSetNormalForm
-        ; _<$g>ᴰ_ = λ m e l → cons m l })
-      module S = Section S
+      NF : ∀ {o2} → FQ [ o1 , o2 ] → hSet _
+      NF e = NormalForm e , isSetNormalForm
+
+      S : Section o1-pts (SETCod _)
+      S = GlobalSectionReindex→SectionChosenReind (SETCod _) o1-pts
+        (Free.elim Q (reindexChosenReind (SETCod _) o1-pts) (record
+          { _$gᴰ_ = λ o → NF
+          ; _<$g>ᴰ_ = λ m → mk _ {X = o1-pts ⟅ Q .snd .dom m ⟆}
+              {Y = o1-pts ⟅ Q .snd .cod m ⟆} {h = o1-pts ⟪ ↑ m ⟫}
+              {P = NF} {Q = NF}
+              λ z → (_ , cons m (z .snd)) , refl }))
+
+      can : ∀ {o2} (e : FQ [ o1 , o2 ]) → Fib _ {Y = o1-pts ⟅ o2 ⟆} NF e
+      can = canonicalize o1 S nil
 
     -- uniqNF : ∀ {o1 o2} → (e : FQ [ o1 , o2 ]) → isContr (NormalForm e)
     -- uniqNF = λ e → (normalize e) , lem where
@@ -309,9 +328,8 @@ module Example2 where
 
     motive = λ (e : FQ [ ⊤ , b ]) →  (e ≡ [t]) ⊎ (e ≡ [f])
 
-    canonicalize : ∀ (e : FQ [ ⊤ , b ]) → (e ≡ [t]) ⊎ (e ≡ [f])
-    canonicalize = λ e →
-      subst motive (FQ .⋆IdL _) (Canonicalize .F-homᴰ e (FQ .id) refl)
+    canonicalize-b : ∀ (e : FQ [ ⊤ , b ]) → (e ≡ [t]) ⊎ (e ≡ [f])
+    canonicalize-b e = Fib→⊎ (canonicalize ⊤ Canonicalize refl e)
       where
       ⊤-pts : Functor FQ (SET _)
       ⊤-pts = FQ [ ⊤ ,-]
@@ -327,7 +345,20 @@ module Example2 where
       ıe t e e≡id = inl (cong (comp' FQ [t]) e≡id ∙ FQ .⋆IdL _)
       ıe f e e≡id = inr (cong (comp' FQ [f]) e≡id ∙ FQ .⋆IdL _)
 
-      Canonicalize : Section ⊤-pts (SETᴰ _ _)
-      Canonicalize = Free.elimLocal QUIVER _ _ (record
-        { _$gᴰ_ = ıo
-        ; _<$g>ᴰ_ = ıe })
+      Canonicalize : Section ⊤-pts (SETCod _)
+      Canonicalize = GlobalSectionReindex→SectionChosenReind (SETCod _) ⊤-pts
+        (Free.elim QUIVER (reindexChosenReind (SETCod _) ⊤-pts) (record
+          { _$gᴰ_ = ıo
+          ; _<$g>ᴰ_ = λ m → mk _ {X = ⊤-pts ⟅ DOM m ⟆} {Y = ⊤-pts ⟅ COD m ⟆}
+              {h = ⊤-pts ⟪ ↑ m ⟫} {P = ıo (DOM m)} {Q = ıo (COD m)}
+              λ z → (_ , ıe m (z .fst) (z .snd)) , refl }))
+
+    decide : FQ [ ⊤ , b ] → Bool
+    decide e = Sum.rec (λ _ → true) (λ _ → false) (canonicalize-b e)
+
+    module Examples where
+      _ : decide ((FQ .id ⋆⟨ FQ ⟩ [t]) ⋆⟨ FQ ⟩ FQ .id) ≡ true
+      _ = refl
+
+      _ : decide (FQ .id ⋆⟨ FQ ⟩ (FQ .id ⋆⟨ FQ ⟩ [f])) ≡ false
+      _ = refl

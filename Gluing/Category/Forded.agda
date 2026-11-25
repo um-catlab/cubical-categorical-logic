@@ -21,9 +21,11 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Free.Category.Forded as Free
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
+
+open import Gluing.Canonicity
 
 private
   variable
@@ -115,18 +117,33 @@ module Normalization (Q : Quiver ℓC ℓC') where
                 FQ.isSetHom
                 (λ _ → isProp→isSet (Eq.isSet→isSetEq isSetX))))
 
-    -- The main theorem/construction
-    normalize : ∀ {o1}{o2} → (e : FQ [ o1 , o2 ]) → NormalForm e
-    normalize {o1} = λ e → subst NormalForm (FQ.⋆IdL e) (S.F-homᴰ e FQ.id (nil Eq.refl Eq.refl))
-      where
-      o1-pts : Functor FQ (SET _)
-      o1-pts = FQ [ o1 ,-]
+    module _ {o1} where
+      private
+        o1-pts : Functor FQ (SET _)
+        o1-pts = FQ [ o1 ,-]
 
-      S : Section o1-pts (SETᴰ _ _)
-      S = Free.elimLocal Q _ _ (record
-        { _$gᴰ_ = λ o e → (NormalForm e) , isSetNormalForm
-        ; _<$g>ᴰ_ = λ m e l → cons m e Eq.refl Eq.refl l })
-      module S = Section S
+        NF : ∀ {o2} → FQ [ o1 , o2 ] → hSet _
+        NF e = NormalForm e , isSetNormalForm
+
+        S : Section o1-pts (SETCod _)
+        S = Free.elimLocal Q _ _ (record
+          { _$gᴰ_ = λ o → NF
+          ; _<$g>ᴰ_ = λ m → mk _ {X = o1-pts ⟅ Q .snd .dom m ⟆}
+              {Y = o1-pts ⟅ Q .snd .cod m ⟆} {h = o1-pts ⟪ ⇑ Q m ⟫}
+              {P = NF} {Q = NF} λ z →
+              (_ , cons m (z .fst) Eq.refl Eq.refl (z .snd)) , refl })
+
+      normalizeCod : ∀ {o2} (e : FQ [ o1 , o2 ])
+        → Fib _ {Y = o1-pts ⟅ o2 ⟆} NF e
+      normalizeCod = canonicalize o1 S (nil Eq.refl Eq.refl)
+
+      normalForm : ∀ {o2} (e : FQ [ o1 , o2 ]) → List (Q .snd .mor)
+      normalForm e = forget (normalizeCod e .fst .snd)
+
+      -- The main theorem/construction
+      normalize : ∀ {o2} → (e : FQ [ o1 , o2 ]) → NormalForm e
+      normalize e =
+        subst NormalForm (normalizeCod e .snd) (normalizeCod e .fst .snd)
 
 -- Consider the free category generated from a graph.
 
@@ -195,6 +212,11 @@ module Example1 where
     _ : (forget (norm
                ((⇑ QUIVER h ∘⟨ FQ ⟩ (⇑ QUIVER g ∘⟨ FQ ⟩ FQ.id)) ∘⟨ FQ ⟩ ⇑ QUIVER f)))
         ≡ (h ∷ g ∷ f ∷ [])
+    _ = refl
+
+    _ : normalForm isSetOB isSetMOR
+          ((⇑ QUIVER h ∘⟨ FQ ⟩ (⇑ QUIVER g ∘⟨ FQ ⟩ FQ.id)) ∘⟨ FQ ⟩ ⇑ QUIVER f)
+        ≡ h ∷ g ∷ f ∷ []
     _ = refl
 
     non-triviality : ¬ (FQ.id ≡ ⇑ QUIVER h)
@@ -268,9 +290,8 @@ module Example2 where
 
     motive = λ (e : FQ [ ⊤ , b ]) →  (e ≡ [t]) ⊎ (e ≡ [f])
 
-    canonicalize : ∀ (e : FQ [ ⊤ , b ]) → (e ≡ [t]) ⊎ (e ≡ [f])
-    canonicalize = λ e →
-      subst motive (FQ .⋆IdL _) (Canonicalize .F-homᴰ e (FQ .id) refl)
+    canonicalize-b : ∀ (e : FQ [ ⊤ , b ]) → (e ≡ [t]) ⊎ (e ≡ [f])
+    canonicalize-b e = Fib→⊎ (canonicalize ⊤ Canonicalize refl e)
       where
       ⊤-pts : Functor FQ (SET _)
       ⊤-pts = FQ [ ⊤ ,-]
@@ -286,7 +307,19 @@ module Example2 where
       ıe t e e≡id = inl (cong (comp' FQ [t]) e≡id ∙ FQ .⋆IdL _)
       ıe f e e≡id = inr (cong (comp' FQ [f]) e≡id ∙ FQ .⋆IdL _)
 
-      Canonicalize : Section ⊤-pts (SETᴰ _ _)
+      Canonicalize : Section ⊤-pts (SETCod _)
       Canonicalize = Free.elimLocal QUIVER _ _ (record
         { _$gᴰ_ = ıo
-        ; _<$g>ᴰ_ = ıe })
+        ; _<$g>ᴰ_ = λ m → mk _ {X = ⊤-pts ⟅ DOM m ⟆} {Y = ⊤-pts ⟅ COD m ⟆}
+            {h = ⊤-pts ⟪ ⇑ QUIVER m ⟫} {P = ıo (DOM m)} {Q = ıo (COD m)}
+            λ z → (_ , ıe m (z .fst) (z .snd)) , refl })
+
+    decide : FQ [ ⊤ , b ] → Bool
+    decide e = Sum.rec (λ _ → true) (λ _ → false) (canonicalize-b e)
+
+    module Examples where
+      _ : decide ((FQ .id ⋆⟨ FQ ⟩ [t]) ⋆⟨ FQ ⟩ FQ .id) ≡ true
+      _ = refl
+
+      _ : decide (FQ .id ⋆⟨ FQ ⟩ (FQ .id ⋆⟨ FQ ⟩ [f])) ≡ false
+      _ = refl

@@ -41,6 +41,10 @@ open import Cubical.Categories.Displayed.Limits.CartesianSection
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Instances.Reindex.Base as Reindex
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+  public using (TransportReindInst)
 open import Cubical.Categories.Displayed.Instances.Weaken.Base as Wk
 open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
 open import Cubical.Categories.Displayed.Instances.Path as PathCat
@@ -191,12 +195,15 @@ module _ (Q : ×Quiver ℓQ ℓQ') where
     where
     open CartesianCategoryⱽ CCⱽ
 
-    elimLocalMotive : CartesianCategoryᴰ FreeCartesianCategory ℓCᴰ ℓCᴰ'
-    elimLocalMotive = CartesianCategoryⱽ→CartesianCategoryᴰ FreeCartesianCategory
-      (CartesianCategoryⱽReindex CCⱽ F)
+    module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+      elimLocalMotive : CartesianCategoryᴰ FreeCartesianCategory ℓCᴰ ℓCᴰ'
+      elimLocalMotive =
+        CartesianCategoryⱽ→CartesianCategoryᴰChosenReind FreeCartesianCategory
+          (CartesianCategoryⱽReindexChosenReind CCⱽ F) ⦃ reindexReind Cᴰ F ⦄
 
-    elimLocal : (ı : ElimInterpᴰ elimLocalMotive) → Section F Cᴰ
-    elimLocal ı = GlobalSectionReindex→Section Cᴰ F (elim elimLocalMotive ı)
+      elimLocal : (ı : ElimInterpᴰ elimLocalMotive) → Section F Cᴰ
+      elimLocal ı =
+        GlobalSectionReindex→SectionChosenReind Cᴰ F (elim elimLocalMotive ı)
 
   -- Recursion (non-dependent functors)
   module _ (CC : CartesianCategory ℓC ℓC') where

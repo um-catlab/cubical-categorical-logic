@@ -12,7 +12,7 @@ module Cubical.Categories.Displayed.CBPV.Unary.Base where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.More
-open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Function
 
 open import Cubical.Prop
 
@@ -23,6 +23,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
+open import Cubical.Categories.Instances.TotalCategory.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
@@ -30,9 +31,12 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
@@ -64,6 +68,12 @@ KINDAssoc _ _ _ _ _ _ = Eq.refl
 
 KIND^opAssoc : EqPsh.ReprEqAssoc (KIND ^op)
 KIND^opAssoc _ _ _ _ _ _ = Eq.refl
+
+KINDIdR : EqPsh.EqIdR KIND
+KINDIdR _ = Eq.refl
+
+KIND^opIdR : EqPsh.EqIdR (KIND ^op)
+KIND^opIdR _ = Eq.refl
 
 module _ (C : CBPVCat ℓ ℓ') where
   private
@@ -141,12 +151,12 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
   hasFᴰ : hasF C → Type _
   hasFᴰ = Liftsᴰ⁺ⱽ.Quadrableᴰ _ _ (Cᴰ ^opᴰᴰ) {k1 = 𝓒}{k2 = 𝓥} _
 
-  -- Notation for getting rid of the reinds etc that arise from the
-  -- bad universal properties. These give a clean interface to the
-  -- eliminators for free CBPV models.
+  -- Notation for the displayed U/F types.
   module _ (hasUC : hasU C) (hasUᴰC : hasUᴰ hasUC) where
     private
       module ∫Ccat = Category (∫C C)
+      module Uᴰ {B} {Bᴰ : Cᴰ.ob[ 𝓒 , B ]} =
+        Liftsᴰ⁺ⱽ.QuadrableᴰNotation KIND C Cᴰ _ hasUC hasUᴰC {Bᴰ = Bᴰ}
 
       U-ob : C.ob[ 𝓒 ] → C.ob[ 𝓥 ]
       U-ob B = hasUC B .fst
@@ -160,39 +170,14 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
 
     forceᴰ : ∀ {B : C.ob[ 𝓒 ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
       → Cᴰ.Hom[ _ , QuadrableNotation.πⱽ C hasUC ][ hasUᴰC Bᴰ .fst , Bᴰ ]
-    forceᴰ {Bᴰ = Bᴰ} =
-      hasUᴰC Bᴰ .snd .fst .PshHom.N-ob _ Cᴰ.idᴰ
+    forceᴰ = Uᴰ.πⱽ
 
     thunkᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
       (M : C [ ı tt ][ A , B ])
       → Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]
       → Cᴰ.Hom[ ı tt , QuadrableNotation.introᴰ C hasUC M ][ Aᴰ , hasUᴰC Bᴰ .fst ]
-    thunkᴰ {Bᴰ = Bᴰ} M Mᴰ =
-      hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.inv _ Mᴰ
-
-    cong-thunkᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {M N : C [ ı tt ][ A , B ]}
-      {Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]}
-      {Nᴰ : Cᴰ.Hom[ ı tt , N ][ Aᴰ , Bᴰ ]}
-      → Path Cᴰ.Hom[ _ , _ ] (_ , Mᴰ) (_ , Nᴰ)
-      → Path Cᴰ.Hom[ _ , _ ] (_ , thunkᴰ M Mᴰ) (_ , thunkᴰ N Nᴰ)
-    cong-thunkᴰ {Bᴰ = Bᴰ} =
-      cong (invPshIso (∫PshIsoᴰ (hasUᴰC Bᴰ .snd)) .PshIso.trans .PshHom.N-ob _)
-
-    force-naturalᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {V : C [ _ ][ A , hasUC B .fst ]}
-      (Vᴰ : Cᴰ.Hom[ _ , V ][ Aᴰ , hasUᴰC Bᴰ .fst ])
-      → Path Cᴰ.Hom[ _ , _ ]
-          (_ , Vᴰ Cᴰ.⋆ᴰ forceᴰ)
-          (_ , hasUᴰC Bᴰ .snd .fst .PshHom.N-ob _ Vᴰ)
-    force-naturalᴰ {Bᴰ = Bᴰ} Vᴰ =
-      Cᴰ.reind-filler {p = Vᴰ Cᴰ.⋆ᴰ forceᴰ} _
-      ∙ sym (∫PshHomᴰ (hasUᴰC Bᴰ .snd .fst) .PshHom.N-hom _ _ _ _)
-      ∙ cong (∫PshHomᴰ (hasUᴰC Bᴰ .snd .fst) .PshHom.N-ob _)
-          (sym (Cᴰ.reind-filler _) ∙ Cᴰ.⋆IdR _)
+    thunkᴰ M Mᴰ = Uᴰ.introᴰ Mᴰ
 
     Uβᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -205,12 +190,8 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
       → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Uβ i) Aᴰ Bᴰ)
           (thunkᴰ M Mᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ)
           Mᴰ
-    Uβᴰ {Bᴰ = Bᴰ} U-force≡force M Uβ Mᴰ =
-      Cᴰ.rectify {e' = Uβ} (Cᴰ.≡out
-        (Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ U-force≡force ⟩
-        ∙ force-naturalᴰ (thunkᴰ M Mᴰ)
-        ∙ Cᴰ.≡in
-            (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)))
+    Uβᴰ U-force≡force M Uβ Mᴰ = Cᴰ.rectify {e' = Uβ} $ Cᴰ.≡out $
+      Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler⁻ U-force≡force ⟩ ∙ Uᴰ.βᴰ' Mᴰ
 
     Uηᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -226,18 +207,17 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           Vᴰ
           (thunkᴰ (V C.⋆ᴰ force)
             (Vᴰ Cᴰ.⋆ᴰ Cᴰ.reind U-force≡force forceᴰ))
-    Uηᴰ {Bᴰ = Bᴰ} U-force≡force V Uη Vᴰ =
-      Cᴰ.rectify {e' = Uη} (Cᴰ.≡out
-        (sym (Cᴰ.≡in
-          (hasUᴰC Bᴰ .snd .snd _ _ .isIsoOver.leftInv _ Vᴰ))
-        ∙ cong-thunkᴰ
-            (sym (force-naturalᴰ Vᴰ)
-            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler U-force≡force ⟩)))
+    Uηᴰ U-force≡force V Uη Vᴰ = Cᴰ.rectify {e' = Uη} $ Cᴰ.≡out $
+      Uᴰ.ηᴰ Vᴰ
+      ∙ Uᴰ.cong-introᴰ
+          (Uᴰ.⋆πⱽ≡⋆ᴰπⱽ Vᴰ ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler U-force≡force ⟩)
 
   module _ (hasFC : hasF C) (hasFᴰC : hasFᴰ hasFC) where
     private
-      module Cᴰ^op = Fibers (Cᴰ ^opᴰᴰ)
       module ∫Ccat = Category (∫C C)
+      module Fᴰ {A} {Aᴰ : Cᴰ.ob[ 𝓥 , A ]} =
+        Liftsᴰ⁺ⱽ.QuadrableᴰNotation (KIND ^op) (C ^opᴰ) (Cᴰ ^opᴰᴰ) _
+          hasFC hasFᴰC {Bᴰ = Aᴰ}
 
       F-ob : C.ob[ 𝓥 ] → C.ob[ 𝓒 ]
       F-ob A = hasFC A .fst
@@ -251,8 +231,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
 
     F-retᴰ : ∀ {A : C.ob[ 𝓥 ]}{Aᴰ : Cᴰ.ob[ 𝓥 , A ]}
       → Cᴰ.Hom[ ı tt , F-ret ][ Aᴰ , hasFᴰC Aᴰ .fst ]
-    F-retᴰ {Aᴰ = Aᴰ} =
-      hasFᴰC Aᴰ .snd .fst .PshHom.N-ob _ Cᴰ^op.idᴰ
+    F-retᴰ = Fᴰ.πⱽ
 
     F-bindᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -261,31 +240,7 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
       → (Cᴰ .Categoryᴰ.Hom[_][_,_])
           (Category.id KIND , F-bind M)
           (hasFᴰC Aᴰ .fst) Bᴰ
-    F-bindᴰ {Aᴰ = Aᴰ} M Mᴰ =
-      hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.inv _ Mᴰ
-
-    cong-F-bindᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {M N : C [ ı tt ][ A , B ]}
-      {Mᴰ : Cᴰ.Hom[ ı tt , M ][ Aᴰ , Bᴰ ]}
-      {Nᴰ : Cᴰ.Hom[ ı tt , N ][ Aᴰ , Bᴰ ]}
-      → Path Cᴰ.Hom[ _ , _ ] (_ , Mᴰ) (_ , Nᴰ)
-      → Path Cᴰ.Hom[ _ , _ ] (_ , F-bindᴰ M Mᴰ) (_ , F-bindᴰ N Nᴰ)
-    cong-F-bindᴰ {Aᴰ = Aᴰ} =
-      cong (invPshIso (∫PshIsoᴰ (hasFᴰC Aᴰ .snd)) .PshIso.trans .PshHom.N-ob _)
-
-    F-ret-naturalᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
-      {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
-      {K : C [ Category.id KIND ][ hasFC A .fst , B ]}
-      (Kᴰ : Cᴰ.Hom[ Category.id KIND , K ][ hasFᴰC Aᴰ .fst , Bᴰ ])
-      → Path Cᴰ.Hom[ _ , _ ]
-          (_ , F-retᴰ Cᴰ.⋆ᴰ Kᴰ)
-          (_ , hasFᴰC Aᴰ .snd .fst .PshHom.N-ob _ Kᴰ)
-    F-ret-naturalᴰ {Aᴰ = Aᴰ} Kᴰ =
-      Cᴰ^op.reind-filler {p = Kᴰ Cᴰ^op.⋆ᴰ F-retᴰ} _
-      ∙ sym (∫PshHomᴰ (hasFᴰC Aᴰ .snd .fst) .PshHom.N-hom _ _ _ _)
-      ∙ cong (∫PshHomᴰ (hasFᴰC Aᴰ .snd .fst) .PshHom.N-ob _)
-          (sym (Cᴰ^op.reind-filler _) ∙ Cᴰ^op.⋆IdR _)
+    F-bindᴰ M Mᴰ = Fᴰ.introᴰ Mᴰ
 
     Fβᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -298,12 +253,8 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
       → PathP (λ i → (Cᴰ .Categoryᴰ.Hom[_][_,_]) (Fβ i) Aᴰ Bᴰ)
           (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ F-bindᴰ M Mᴰ)
           Mᴰ
-    Fβᴰ {Aᴰ = Aᴰ} F-ret≡ret M Fβ Mᴰ =
-      Cᴰ.rectify {e' = Fβ} (Cᴰ.≡out
-        (Cᴰ.⟨ Cᴰ.reind-filler⁻ F-ret≡ret ⟩⋆⟨⟩
-        ∙ F-ret-naturalᴰ (F-bindᴰ M Mᴰ)
-        ∙ Cᴰ^op.≡in
-            (hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.rightInv _ Mᴰ)))
+    Fβᴰ F-ret≡ret M Fβ Mᴰ = Cᴰ.rectify {e' = Fβ} $ Cᴰ.≡out $
+      Cᴰ.⟨ Cᴰ.reind-filler⁻ F-ret≡ret ⟩⋆⟨⟩ ∙ Fᴰ.βᴰ' Mᴰ
 
     Fηᴰ : ∀ {A : C.ob[ 𝓥 ]}{B : C.ob[ 𝓒 ]}
       {Aᴰ : Cᴰ.ob[ 𝓥 , A ]}{Bᴰ : Cᴰ.ob[ 𝓒 , B ]}
@@ -319,13 +270,10 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
           Kᴰ
           (F-bindᴰ (ret C.⋆ᴰ K)
             (Cᴰ.reind F-ret≡ret F-retᴰ Cᴰ.⋆ᴰ Kᴰ))
-    Fηᴰ {Aᴰ = Aᴰ} F-ret≡ret K Fη Kᴰ =
-      Cᴰ.rectify {e' = Fη} (Cᴰ.≡out
-        (sym (Cᴰ^op.≡in
-          (hasFᴰC Aᴰ .snd .snd _ _ .isIsoOver.leftInv _ Kᴰ))
-        ∙ cong-F-bindᴰ
-            (sym (F-ret-naturalᴰ Kᴰ)
-            ∙ Cᴰ^op.⟨⟩⋆⟨ Cᴰ.reind-filler F-ret≡ret ⟩)))
+    Fηᴰ F-ret≡ret K Fη Kᴰ = Cᴰ.rectify {e' = Fη} $ Cᴰ.≡out $
+      Fᴰ.ηᴰ Kᴰ
+      ∙ Fᴰ.cong-introᴰ
+          (Fᴰ.⋆πⱽ≡⋆ᴰπⱽ Kᴰ ∙ Cᴰ.⟨ Cᴰ.reind-filler F-ret≡ret ⟩⋆⟨⟩)
 
   module _ (hasUC : hasU C) where
     hasUⱽ→ᴰ : hasUⱽ → hasUᴰ hasUC
@@ -336,6 +284,24 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
     hasFⱽ→ᴰ : hasFⱽ → hasFᴰ hasFC
     hasFⱽ→ᴰ Fⱽ =
       Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰ (KIND ^op) (C ^opᴰ) (Cᴰ ^opᴰᴰ) _ hasFC (Fⱽ _)
+
+  ChosenReind^opᴰᴰ : ⦃ cr : ChosenReind Cᴰ ⦄ → ChosenReind (Cᴰ ^opᴰᴰ)
+  ChosenReind^opᴰᴰ ⦃ cr ⦄ .ChosenReind.reind⟨_⟩ e =
+    cr .ChosenReind.reind⟨_⟩ (cong (∫C-op-commute⁻ .Functor.F-hom) e)
+  ChosenReind^opᴰᴰ ⦃ cr ⦄ .ChosenReind.reind-filler e =
+    cr .ChosenReind.reind-filler (cong (∫C-op-commute⁻ .Functor.F-hom) e)
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    module _ (hasUC : hasU C) where
+      hasUⱽ→ᴰChosenReind : hasUⱽ → hasUᴰ hasUC
+      hasUⱽ→ᴰChosenReind Uⱽ =
+        Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰChosenReind KIND C Cᴰ _ hasUC (Uⱽ _)
+
+    module _ (hasFC : hasF C) where
+      hasFⱽ→ᴰChosenReind : hasFⱽ → hasFᴰ hasFC
+      hasFⱽ→ᴰChosenReind Fⱽ =
+        Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰChosenReind (KIND ^op) (C ^opᴰ) (Cᴰ ^opᴰᴰ) _
+          ⦃ ChosenReind^opᴰᴰ ⦄ hasFC (Fⱽ _)
 
 MultCBPVCatⱽ : ∀ (C : CBPVCat ℓ ℓ') ℓᴰ ℓᴰ' → Type (ℓ-suc ((ℓ ⊔ℓ ℓ') ⊔ℓ (ℓᴰ ⊔ℓ ℓᴰ')))
 MultCBPVCatⱽ C ℓᴰ ℓᴰ' =
@@ -355,6 +321,15 @@ MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .fst =
   hasUⱽ→ᴰ (Cⱽ .fst) (C .snd .fst) (Cⱽ .snd .fst)
 MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd =
   hasFⱽ→ᴰ (Cⱽ .fst) (C .snd .snd) (Cⱽ .snd .snd)
+
+MultCBPVCatⱽ→ᴰChosenReind : {C : MultCBPVCat ℓ ℓ'}
+  → (Cⱽ : MultCBPVCatⱽ (C .fst) ℓᴰ ℓᴰ') ⦃ cr : ChosenReind (Cⱽ .fst) ⦄
+  → MultCBPVCatᴰ C ℓᴰ ℓᴰ'
+MultCBPVCatⱽ→ᴰChosenReind Cⱽ .fst = Cⱽ .fst
+MultCBPVCatⱽ→ᴰChosenReind {C = C} Cⱽ .snd .fst =
+  hasUⱽ→ᴰChosenReind (Cⱽ .fst) (C .snd .fst) (Cⱽ .snd .fst)
+MultCBPVCatⱽ→ᴰChosenReind {C = C} Cⱽ .snd .snd =
+  hasFⱽ→ᴰChosenReind (Cⱽ .fst) (C .snd .snd) (Cⱽ .snd .snd)
 
 module _
   {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
@@ -385,6 +360,27 @@ module _
         yᴰ
         (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
 
+  private
+    module Dᵒᵖ = Fibers (Dⱽ .fst ^opᴰᴰ)
+    module RD = HomᴰReasoning (Dⱽ .fst)
+
+  hasFⱽReindex-πⱽ : ∀ {A B} (f : C [ _ ][ A , B ])
+    (yᴰ : Categoryᴰ.ob[_] (Dⱽ .fst) (𝓥 , F .Functorᴰ.F-obᴰ A))
+    → CartesianLiftNotation.πⱽ (reindex (Dⱽ .fst) (∫F F) ^opᴰᴰ)
+        (hasFⱽReindex f yᴰ)
+      Dᵒᵖ.∫≡
+      CartesianLiftNotation.πⱽ (Dⱽ .fst ^opᴰᴰ)
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+  hasFⱽReindex-πⱽ f yᴰ =
+    sym (Dᵒᵖ.reind-filler _)
+    ∙ L.⋆πⱽ≡⋆ᴰπⱽ _
+    ∙ Dᵒᵖ.⟨ sym (RD.reind-filler (sym (Functor.F-id (∫F F)))
+        (Categoryᴰ.idᴰ (Dⱽ .fst))) ⟩⋆⟨ refl ⟩
+    ∙ Dᵒᵖ.⋆IdL _
+    where
+    module L = CartesianLiftNotation (Dⱽ .fst ^opᴰᴰ)
+      (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+
   MultCBPVCatⱽReindex : MultCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
   MultCBPVCatⱽReindex .fst =
     reindex (Dⱽ .fst) (∫F F)
@@ -392,3 +388,89 @@ module _
     hasUⱽReindex
   MultCBPVCatⱽReindex .snd .snd =
     hasFⱽReindex
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
+  (Dⱽ : MultCBPVCatⱽ D ℓᴰᴰ ℓᴰᴰ')
+  (F : Functorⱽ C D)
+  ⦃ cr : ChosenReind (Dⱽ .fst) ⦄
+  where
+
+  hasUⱽReindexChosenReind : hasUⱽ (reindexChosenReind (Dⱽ .fst) (∫F F))
+  hasUⱽReindexChosenReind f yᴰ =
+    reindexCartesianLiftChosenReind (Dⱽ .fst) (∫F F) (_ , f) yᴰ
+      (Dⱽ .snd .fst (F .Functorᴰ.F-homᴰ f) yᴰ)
+
+  hasFⱽReindexChosenReind : hasFⱽ (reindexChosenReind (Dⱽ .fst) (∫F F))
+  hasFⱽReindexChosenReind f yᴰ =
+    f*yᴰ .fst ,
+    pshiso
+      (pshhom
+        (λ x → f*yᴰ .snd .PshIso.trans .PshHom.N-ob x)
+        (λ c c' g p →
+          f*yᴰ .snd .PshIso.trans .PshHom.N-hom c c' g p))
+      (f*yᴰ .snd .PshIso.nIso)
+    where
+    f*yᴰ =
+      reindexCartesianLiftChosenReind
+        (Dⱽ .fst ^opᴰᴰ)
+        (∫F (F ^opFⱽ))
+        ⦃ ChosenReind^opᴰᴰ (Dⱽ .fst) ⦄
+        (_ , f)
+        yᴰ
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+
+  MultCBPVCatⱽReindexChosenReind : MultCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
+  MultCBPVCatⱽReindexChosenReind .fst = reindexChosenReind (Dⱽ .fst) (∫F F)
+  MultCBPVCatⱽReindexChosenReind .snd .fst = hasUⱽReindexChosenReind
+  MultCBPVCatⱽReindexChosenReind .snd .snd = hasFⱽReindexChosenReind
+
+  private
+    module Dᵒᵖ = Fibers (Dⱽ .fst ^opᴰᴰ)
+    module CRᵒᵖ = ChosenReindNotation (Dⱽ .fst ^opᴰᴰ)
+      ⦃ ChosenReind^opᴰᴰ (Dⱽ .fst) ⦄
+
+  hasFⱽReindexChosenReind-πⱽ : ∀ {A B} (f : C [ _ ][ A , B ])
+    (yᴰ : Categoryᴰ.ob[_] (Dⱽ .fst) (𝓥 , F .Functorᴰ.F-obᴰ A))
+    → CartesianLiftNotation.πⱽ
+        (reindexChosenReind (Dⱽ .fst) (∫F F) ^opᴰᴰ)
+        (hasFⱽReindexChosenReind f yᴰ)
+      Dᵒᵖ.∫≡
+      CartesianLiftNotation.πⱽ (Dⱽ .fst ^opᴰᴰ)
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+  hasFⱽReindexChosenReind-πⱽ f yᴰ =
+    CRᵒᵖ.reind-∫≡ _ _
+    ∙ CartesianLiftNotation.⟨_⟩⋆πⱽ (Dⱽ .fst ^opᴰᴰ)
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+        (CRᵒᵖ.reind-∫≡ (sym (Functor.F-id (∫F (F ^opFⱽ)))) _)
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
+  (F : Functorⱽ C D)
+  (Dᴰ : CBPVCatᴰ D ℓᴰᴰ ℓᴰᴰ')
+  ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Fibers C
+    module D = Fibers D
+    module Dᴰ = Fibers Dᴰ
+    module CR = ChosenReindNotation Dᴰ
+    module F = Functorᴰ F
+
+  reindexChosenReind-seq-filler : ∀ {k₁ k₂ k₃}
+    {X : C.ob[ k₁ ]} {Y : C.ob[ k₂ ]} {Z : C.ob[ k₃ ]}
+    {Xᴰ Yᴰ Zᴰ} {k≤ k≤'}
+    {V : C.Hom[ k≤ ][ X , Y ]} {M : C.Hom[ k≤' ][ Y , Z ]}
+    (Vᴰ : Dᴰ.Hom[ k≤ , F.F-homᴰ V ][ Xᴰ , Yᴰ ])
+    (Mᴰ : Dᴰ.Hom[ k≤' , F.F-homᴰ M ][ Yᴰ , Zᴰ ])
+    → Path
+        (Σ[ N ∈ D.Hom[ _ ][ F.F-obᴰ X , F.F-obᴰ Z ] ]
+          Dᴰ.Hom[ _ , N ][ Xᴰ , Zᴰ ])
+        (F.F-homᴰ (V C.⋆ᴰ M)
+        , (reindexChosenReind Dᴰ (∫F F) Categoryᴰ.⋆ᴰ Vᴰ) Mᴰ)
+        (F.F-homᴰ V D.⋆ᴰ F.F-homᴰ M , Vᴰ Dᴰ.⋆ᴰ Mᴰ)
+  reindexChosenReind-seq-filler {V = V} {M = M} Vᴰ Mᴰ i .fst =
+    Functor.F-seq (∫F F) (_ , V) (_ , M) i .snd
+  reindexChosenReind-seq-filler {V = V} {M = M} Vᴰ Mᴰ i .snd =
+    CR.reind-filler (sym (Functor.F-seq (∫F F) (_ , V) (_ , M)))
+      (Vᴰ Dᴰ.⋆ᴰ Mᴰ) (~ i)

@@ -36,12 +36,14 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.FunctorComprehension.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Properties
 open import Cubical.Categories.Displayed.HLevels
 open import Cubical.Categories.Displayed.Limits.CartesianV'
@@ -157,3 +159,30 @@ module _
     F-1 UnitPshᴰ
     (Termᴰ (preservesUniversalElement→UniversalElement
       (pshhom (λ _ _ → _) (λ _ _ _ _ → refl)) termC F-1))
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D) ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Category C
+    module D = Category D
+    module Dᴰ = ChosenReindNotation Dᴰ
+
+  reindex-π-/ChosenReind : (x : C.ob)
+    → Functor (reindexChosenReind Dᴰ F / (C [-, x ])) (Dᴰ / (D [-, F ⟅ x ⟆ ]))
+  reindex-π-/ChosenReind x = πChosenReind Dᴰ F /Fᴰ Functor→PshHet F x
+
+  reindexRepresentableIsoⱽChosenReind : ∀ (x : C.ob) (Fxᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → PshIsoⱽ (reindexChosenReind Dᴰ F [-][-, Fxᴰ ])
+        (reindPsh (reindex-π-/ChosenReind x) (Dᴰ [-][-, Fxᴰ ]))
+  reindexRepresentableIsoⱽChosenReind x Fxᴰ = FFFunctorᴰ→PshIsoᴰ (πChosenReind
+    Dᴰ F) Fxᴰ (π-FFᴰChosenReind Dᴰ F)
+
+  reindexReflectsUMPⱽChosenReind : (x : C.ob) (Qᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ)
+    → Representableⱽ Dᴰ (F ⟅ x ⟆) Qᴰ
+    → Representableⱽ (reindexChosenReind Dᴰ F) x (reindPsh
+      (reindex-π-/ChosenReind x) Qᴰ)
+  reindexReflectsUMPⱽChosenReind x Qᴰ ueⱽ .fst = ueⱽ .fst
+  reindexReflectsUMPⱽChosenReind x Qᴰ ueⱽ .snd =
+    reindexRepresentableIsoⱽChosenReind x (ueⱽ .fst)
+    ⋆PshIso reindPshIso (reindex-π-/ChosenReind x) (ueⱽ .snd)

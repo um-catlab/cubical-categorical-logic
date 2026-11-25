@@ -20,6 +20,7 @@ module Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.More
@@ -34,8 +35,10 @@ open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞; ≤Vertex to ≤Kind)
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Algebra.State
 
@@ -119,13 +122,6 @@ module _
       → isSet (D.Hom[ _ ][ A , B ])
     isSetDHom = Categoryᴰ.isSetHomᴰ D
 
-    StateAlgEffᴰReindex : ∀ {A : C.ob[ 𝒱 ]} {B : C.ob[ 𝒞 ]}
-      (Aᴰ : Dᴰ.ob[ _ , F.F-obᴰ A ]) (Bᴰ : Dᴰ.ob[ _ , F.F-obᴰ B ])
-      → StateAlgᴰ (CState .fst A B)
-          (λ M → F*Cᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ])
-    StateAlgEffᴰReindex {A} {B} Aᴰ Bᴰ =
-      reindexStateAlgᴰ (FState A B) (DᴰState .fst Aᴰ Bᴰ) isSetDHom
-
     state-subst-filler : ∀
       {A A' : C.ob[ 𝒱 ]} {B : C.ob[ 𝒞 ]}
       {Aᴰ : Dᴰ.ob[ _ , F.F-obᴰ A ]} {Aᴰ' : Dᴰ.ob[ _ , F.F-obᴰ A' ]}
@@ -163,6 +159,15 @@ module _
     state-plug-filler {M = M} {S = S} Mᴰ Sᴰ i .snd =
       sym (Dᴰ.reind-revealed-filler {p = Mᴰ Dᴰ.⋆ᴰ Sᴰ}
         (sym (Functor.F-seq (∫F F) (_ , M) (_ , S)))) i .snd
+
+  module _ ⦃ rD : ∀ {A B} {Aᴰ : Dᴰ.ob[ 𝒱 , A ]} {Bᴰ : Dᴰ.ob[ 𝒞 , B ]}
+    → ReindOver (λ M → Dᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ]) ⦄ where
+    StateAlgEffᴰReindex : ∀ {A : C.ob[ 𝒱 ]} {B : C.ob[ 𝒞 ]}
+      (Aᴰ : Dᴰ.ob[ _ , F.F-obᴰ A ]) (Bᴰ : Dᴰ.ob[ _ , F.F-obᴰ B ])
+      → StateAlgᴰ (CState .fst A B)
+          (λ M → Dᴰ.Hom[ _ , F.F-homᴰ M ][ Aᴰ , Bᴰ ])
+    StateAlgEffᴰReindex {A} {B} Aᴰ Bᴰ =
+      reindexStateAlgᴰ (FState A B) (DᴰState .fst Aᴰ Bᴰ) isSetDHom
 
     -- Can this be simplified?
     module _
@@ -246,3 +251,26 @@ module _
     reindexHomoᴰ
       (DᴰState .snd .snd Sᴰ)
       (λ _ Mᴰ → state-plug-filler Mᴰ Sᴰ)
+
+  module _ ⦃ cr : ChosenReind Dᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Dᴰ
+
+      instance
+        homReindOver : ∀ {A B} {Aᴰ : Dᴰ.ob[ 𝒱 , A ]} {Bᴰ : Dᴰ.ob[ 𝒞 , B ]}
+          → ReindOver (λ M → Dᴰ.Hom[ _ , M ][ Aᴰ , Bᴰ ])
+        homReindOver .ReindOver.reind⟨_⟩ e = CR.reind⟨ (λ i → _ , e i) ⟩
+        homReindOver .ReindOver.reind-filler e Mᴰ i =
+          e i , CR.reind-filler (λ j → _ , e j) Mᴰ i
+
+    StateAlgEnrichmentᴰReindexChosenReind :
+      StateAlgEnrichmentᴰ CState (reindexChosenReind Dᴰ (∫F F))
+    StateAlgEnrichmentᴰReindexChosenReind .fst = StateAlgEffᴰReindex
+    StateAlgEnrichmentᴰReindexChosenReind .snd .fst Vᴰ =
+      reindexHomoᴰ
+        (DᴰState .snd .fst Vᴰ)
+        (λ _ Mᴰ → reindexChosenReind-seq-filler F Dᴰ Vᴰ Mᴰ)
+    StateAlgEnrichmentᴰReindexChosenReind .snd .snd Sᴰ =
+      reindexHomoᴰ
+        (DᴰState .snd .snd Sᴰ)
+        (λ _ Mᴰ → reindexChosenReind-seq-filler F Dᴰ Mᴰ Sᴰ)

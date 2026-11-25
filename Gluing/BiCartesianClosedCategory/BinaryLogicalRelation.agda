@@ -11,6 +11,7 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.BiCartesianClosed.Base
 open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Limits.BiCartesianClosedV
 open import Cubical.Categories.Displayed.Instances.Weaken.UncurriedProperties
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
@@ -47,6 +48,7 @@ module _
 
   module _
     (I J : Interpretation)
+    ⦃ cr : ChosenReind (BiCartesianClosedCategoryⱽ.Cᴰ Dⱽ) ⦄
     where
 
     F G : CartesianFunctor FREE.CC D.C

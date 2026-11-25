@@ -196,19 +196,19 @@ module _ (C : CBPVCat ℓ ℓ') where
   points A .F-idᴰ i g = C.⋆IdRᴰ g i
   points A .F-seqᴰ f g i h = C.⋆Assocᴰ h f g (~ i)
 
+SetCBPVΠ^op : ∀ ℓ → Functor (∫C (SetCBPV ℓ ^opᴰ)) (SET ℓ ^op)
+SetCBPVΠ^op ℓ .F-ob = snd
+SetCBPVΠ^op ℓ .F-hom = snd
+SetCBPVΠ^op ℓ .F-id = refl
+SetCBPVΠ^op ℓ .F-seq _ _ = refl
+
+SetCBPVΠTotal^op : ∀ ℓ → Functor ((∫C (SetCBPV ℓ)) ^op) (SET ℓ ^op)
+SetCBPVΠTotal^op ℓ .F-ob = snd
+SetCBPVΠTotal^op ℓ .F-hom = snd
+SetCBPVΠTotal^op ℓ .F-id = refl
+SetCBPVΠTotal^op ℓ .F-seq _ _ = refl
+
 private
-  SetCBPVΠ^op : ∀ ℓ → Functor (∫C (SetCBPV ℓ ^opᴰ)) (SET ℓ ^op)
-  SetCBPVΠ^op ℓ .F-ob = snd
-  SetCBPVΠ^op ℓ .F-hom = snd
-  SetCBPVΠ^op ℓ .F-id = refl
-  SetCBPVΠ^op ℓ .F-seq _ _ = refl
-
-  SetCBPVΠTotal^op : ∀ ℓ → Functor ((∫C (SetCBPV ℓ)) ^op) (SET ℓ ^op)
-  SetCBPVΠTotal^op ℓ .F-ob = snd
-  SetCBPVΠTotal^op ℓ .F-hom = snd
-  SetCBPVΠTotal^op ℓ .F-id = refl
-  SetCBPVΠTotal^op ℓ .F-seq _ _ = refl
-
   SET-fib : ∀ ℓ → isFibration (SETᴰ ℓ ℓ)
   SET-fib ℓ =
     EqFibration→Fibration EqSET.SetAssoc (SETᴰ ℓ ℓ) EqSET.SetᴰFibration

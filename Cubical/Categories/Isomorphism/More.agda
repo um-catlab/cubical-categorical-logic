@@ -76,3 +76,13 @@ module _ {C : Category ℓC ℓC'} where
   c ∎CatIso = idCatIso
 
   infix   3 _∎CatIso
+
+module _ {C : Category ℓC ℓC'} {x y : C .ob} (f : CatIso C x y)
+  (f' : singl (f .fst)) (f⁻ : singl (f .snd .inv)) where
+  improveCatIso : CatIso C x y
+  improveCatIso .fst = f' .fst
+  improveCatIso .snd .inv = f⁻ .fst
+  improveCatIso .snd .sec =
+    subst2 (λ g g⁻ → g⁻ ⋆⟨ C ⟩ g ≡ C .id) (f' .snd) (f⁻ .snd) (f .snd .sec)
+  improveCatIso .snd .ret =
+    subst2 (λ g g⁻ → g ⋆⟨ C ⟩ g⁻ ≡ C .id) (f' .snd) (f⁻ .snd) (f .snd .ret)

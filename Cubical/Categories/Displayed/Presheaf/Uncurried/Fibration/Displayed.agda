@@ -29,6 +29,8 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration.Displayed where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent.More
 
 open import Cubical.Data.Sigma
 
@@ -43,6 +45,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Reindex
@@ -117,3 +120,111 @@ module Liftsᴰ⁺ⱽ (K : Category ℓ ℓ') (C : Categoryᴰ K ℓᴰ ℓᴰ')
     Quadrableⱽ→ᴰ ≤*ⱽ Bᴰ .fst = ≤*ⱽ Bᴰ .fst
     Quadrableⱽ→ᴰ ≤*ⱽ Bᴰ .snd = FiberwisePshIsoᴰ→PshIsoᴰ $
       ≤*ⱽ Bᴰ .snd ⋆PshIso ≤*ᴰ-Specⱽ≅ᴰ (≤* _) Bᴰ
+
+    -- Notation for a displayed cartesian lift
+    module CartesianLiftᴰNotation {B : C.ob[ k2 ]} {Bᴰ : Cᴰ.ob[ _ , B ]}
+      (≤*ᴰBᴰ : Representableᴰ Cᴰ (∫≤*-Spec B) (≤*ᴰ-Specᴰ Bᴰ) (∫≤* B))
+      where
+      private
+        module Spec = PresheafNotation (∫≤*-Spec B)
+        module Specᴰ = PresheafᴰNotation Cᴰ (∫≤*-Spec B) (≤*ᴰ-Specᴰ Bᴰ)
+        module R = RepresentableᴰNotation Cᴰ (∫≤*-Spec B) (≤*ᴰ-Specᴰ Bᴰ) ≤*ᴰBᴰ
+
+        toHom : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]}
+          → Σ[ p ∈ Spec.p[ Γ ] ] Specᴰ.p[ p ][ Γᴰ ]
+          → Cᴰ.Hom[ (Γ , Γᴰ) , (_ , Bᴰ) ]
+        toHom (p , pᴰ) = π≤k B .N-ob _ p , pᴰ
+
+      open R public using (vertexᴰ ; introᴰ ; cong-introᴰ)
+        renaming (_⋆elementᴰ to _⋆πⱽ)
+
+      πⱽ : Cᴰ [ K.id K.⋆ ≤ , ≤*-π (≤* B) ][ vertexᴰ , Bᴰ ]
+      πⱽ = R.elementᴰ
+
+      opaque
+        ⟨_⟩⋆πⱽ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {g g'}
+          {gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ]} {gᴰ' : Cᴰ [ g' ][ Γᴰ , vertexᴰ ]}
+          → gᴰ Cᴰ.∫≡ gᴰ'
+          → (gᴰ ⋆πⱽ) Cᴰ.∫≡ (gᴰ' ⋆πⱽ)
+        ⟨ gᴰ≡gᴰ' ⟩⋆πⱽ = cong toHom R.⟨ gᴰ≡gᴰ' ⟩⋆elementᴰ
+
+        ⋆πⱽ-natural : ∀ {Δ Γ} {Δᴰ : Cᴰ.ob[ Δ ]} {Γᴰ : Cᴰ.ob[ Γ ]} {γ g}
+          (γᴰ : Cᴰ [ γ ][ Δᴰ , Γᴰ ]) (gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ])
+          → ((γᴰ Cᴰ.⋆ᴰ gᴰ) ⋆πⱽ) Cᴰ.∫≡ (γᴰ Cᴰ.⋆ᴰ (gᴰ ⋆πⱽ))
+        ⋆πⱽ-natural γᴰ gᴰ =
+          cong toHom (R.⋆elementᴰ-natural γᴰ gᴰ) ∙ Cᴰ.reind-filler⁻ _
+
+        ⋆πⱽ≡⋆ᴰπⱽ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {g}
+          (gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ])
+          → (gᴰ ⋆πⱽ) Cᴰ.∫≡ (gᴰ Cᴰ.⋆ᴰ πⱽ)
+        ⋆πⱽ≡⋆ᴰπⱽ gᴰ =
+          cong toHom (R.⋆elementᴰ≡⋆ᴰelementᴰ gᴰ) ∙ Cᴰ.reind-filler⁻ _
+
+        βᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {p : Spec.p[ Γ ]}
+          (gfᴰ : Specᴰ.p[ p ][ Γᴰ ])
+          → (introᴰ gfᴰ ⋆πⱽ) Cᴰ.∫≡ gfᴰ
+        βᴰ gfᴰ = cong toHom (R.∫βᴰ gfᴰ)
+
+        βᴰ' : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {p : Spec.p[ Γ ]}
+          (gfᴰ : Specᴰ.p[ p ][ Γᴰ ])
+          → (introᴰ gfᴰ Cᴰ.⋆ᴰ πⱽ) Cᴰ.∫≡ gfᴰ
+        βᴰ' gfᴰ = sym (⋆πⱽ≡⋆ᴰπⱽ _) ∙ βᴰ gfᴰ
+
+        ηᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {g}
+          (gᴰ : Cᴰ [ g ][ Γᴰ , vertexᴰ ])
+          → gᴰ Cᴰ.∫≡ introᴰ (gᴰ ⋆πⱽ)
+        ηᴰ = R.∫ηᴰ
+
+    module QuadrableᴰNotation (≤*ᴰ : Quadrableᴰ)
+      {B : C.ob[ k2 ]} {Bᴰ : Cᴰ.ob[ _ , B ]} =
+      CartesianLiftᴰNotation (≤*ᴰ Bᴰ)
+
+    Quadrableⱽ→ᴰ-πⱽ : (≤*ⱽ : Quadrableⱽ) {B : C.ob[ k2 ]} (Bᴰ : Cᴰ.ob[ _ , B ])
+      → CartesianLiftNotation.πⱽ Cᴰ (≤*ⱽ Bᴰ)
+        Cᴰ.∫≡ CartesianLiftᴰNotation.πⱽ (Quadrableⱽ→ᴰ ≤*ⱽ Bᴰ)
+    Quadrableⱽ→ᴰ-πⱽ ≤*ⱽ {B} Bᴰ =
+      (λ i → _ ,
+        reindPshᴰNatTrans-Path-N-ob (≤*-π* (≤* B)) (Cᴰ [-][-, Bᴰ ])
+          (≤*-π*≡≤*-π*' (≤* B)) _
+          (CartesianLiftNotation.πⱽ Cᴰ (≤*ⱽ Bᴰ)) i)
+      ∙ ΣPathP (refl ,
+          sym (reindPshᴰNatTrans-Path-refl-inv _ (Cᴰ [-][-, Bᴰ ]) _ _))
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Cᴰ
+
+    module _ {B} (≤*B : Representableⱽ C k1 (≤*-Spec B))
+      (Bᴰ : Cᴰ.ob[ _ , B ]) where
+      ≤*ᴰ-Specⱽ≅ᴰChosenReind :
+        PshIso (≤*ᴰ-Specⱽ ≤*B Bᴰ)
+          (reindPshᴰNatTrans (half-≤*-π' ≤*B) (≤*ᴰ-Specᴰ Bᴰ))
+      ≤*ᴰ-Specⱽ≅ᴰChosenReind = Isos→PshIso
+        (λ (Γ , Γᴰ , f) → iso
+          (CR.reind⟨ e f ⟩)
+          (CR.reind⟨ sym (e f) ⟩)
+          (λ _ → Cᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _))
+          (λ _ → Cᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)))
+        λ _ _ _ _ → Cᴰ.rectifyOut
+          (CR.reind-∫≡ _ _ ∙ Cᴰ.reind-filler⁻ _
+          ∙ Cᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ⟩ ∙ Cᴰ.reind-filler _)
+        where
+        e : ∀ {Γ} f
+          → ≤*-π* ≤*B .N-ob Γ f ≡ π≤k B .N-ob Γ (half-≤*-π' ≤*B .N-ob Γ f)
+        e {Γ} f i = ≤*-π*≡≤*-π*' ≤*B i .N-ob Γ f
+
+    module _ (≤* : Quadrable C ≤) where
+      Quadrableⱽ→ᴰChosenReind : Quadrableⱽ ≤* → Quadrableᴰ ≤*
+      Quadrableⱽ→ᴰChosenReind ≤*ⱽ Bᴰ .fst = ≤*ⱽ Bᴰ .fst
+      Quadrableⱽ→ᴰChosenReind ≤*ⱽ {B} Bᴰ .snd = FiberwisePshIsoᴰ→PshIsoᴰ
+        ⦃ record
+          { reind⟨_⟩ = λ e → CR.reind⟨ cong (π≤k B .N-ob _) e ⟩
+          ; reind-filler = λ e q →
+              ΣPathP (e , CR.reind-filler (cong (π≤k B .N-ob _) e) q) } ⦄
+        (≤*ⱽ Bᴰ .snd ⋆PshIso ≤*ᴰ-Specⱽ≅ᴰChosenReind (≤* _) Bᴰ)
+
+      Quadrableⱽ→ᴰChosenReind-πⱽ : (≤*ⱽ : Quadrableⱽ ≤*) {B : C.ob[ k2 ]}
+        (Bᴰ : Cᴰ.ob[ _ , B ])
+        → CartesianLiftNotation.πⱽ Cᴰ (≤*ⱽ Bᴰ)
+          Cᴰ.∫≡ CartesianLiftᴰNotation.πⱽ ≤* (Quadrableⱽ→ᴰChosenReind ≤*ⱽ Bᴰ)
+      Quadrableⱽ→ᴰChosenReind-πⱽ ≤*ⱽ Bᴰ = sym (CR.reind-∫≡ _ _)

@@ -33,7 +33,10 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Instances.Opposite
-open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind public
+  using (TransportReindInst)
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
@@ -277,11 +280,17 @@ module CBPV (BaseTy : Kind → Type ℓ) where
       , value-initialⱽ , value-coproductⱽ
       , computation-terminalⱽ , computation-productⱽ
 
-    module Elim (D : AddCBPVCatᴰ AddCBPV ℓᴰ ℓᴰ') where
+    module Elim (D : AddCBPVCatᴰ AddCBPV ℓᴰ ℓᴰ')
+      ⦃ cr : ChosenReind (D .fst .fst) ⦄ where
       private
         Dᴰ = D .fst .fst
         module Dᴰ = Fibers Dᴰ
         module Dᴰop = Fibers (Dᴰ ^opᴰᴰ)
+        module CR = ChosenReindNotation Dᴰ
+
+        reind≡ : ∀ {x y} {f g : (∫C CBPV) [ x , y ]} {a b} (e : f ≡ g)
+          (fᴰ : Dᴰ.Hom[ f ][ a , b ]) → CR.reind⟨ e ⟩ fᴰ ≡ Dᴰ.reind e fᴰ
+        reind≡ e fᴰ = Dᴰ.rectifyOut (CR.reind-∫≡ e fᴰ ∙ Dᴰ.reind-filler e)
 
       module _ (ı-Ob : ∀ {k} (X : BaseTy k) → Dᴰ.ob[ k , gen X ]) where
         elim-F-obᴰ : ∀ {k} (X : Ob k) → Dᴰ.ob[ k , X ]
@@ -332,7 +341,7 @@ module CBPV (BaseTy : Kind → Type ℓ) where
             (C.reind-filler⁻ (Category.⋆IdR KIND _) ∙ C.≡in {pth = refl} (IdLS [&π2]))
 
         retᴰ : ∀ {A} → Dᴰ.Hom[ ı tt , [ret] ][ elim-F-obᴰ A , elim-F-obᴰ ([F] A) ]
-        retᴰ = Dᴰ.reind
+        retᴰ = CR.reind⟨_⟩
           (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
           (D .fst .snd .snd (elim-F-obᴰ _) .snd .fst .PshHom.N-ob _ Dᴰop.idᴰ)
 
@@ -361,109 +370,131 @@ module CBPV (BaseTy : Kind → Type ℓ) where
           elim-F-homᴰ [ret] = retᴰ
           elim-F-homᴰ ([bind] M) = bindᴰ M (elim-F-homᴰ M)
           elim-F-homᴰ ([Fβ] M i) =
-            Fβᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
+            (cong (Dᴰ._⋆ᴰ bindᴰ M (elim-F-homᴰ M)) (reind≡ _ _)
+            ◁ Fβᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
               (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
-              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M) i
+              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M)) i
           elim-F-homᴰ ([Fη] K i) =
-            Fηᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
+            (Fηᴰ Dᴰ (MultCBPV .snd .snd) (D .fst .snd .snd)
               (Cop.reind-filler⁻ _ ∙ Cop.≡in {pth = refl} (IdRS [ret]))
-              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K) i
-          elim-F-homᴰ [force] = Dᴰ.reind
+              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K)
+            ▷ cong (λ r → bindᴰ (seqS [ret] K) (r Dᴰ.⋆ᴰ elim-F-homᴰ K))
+                (sym (reind≡ _ _))) i
+          elim-F-homᴰ [force] = CR.reind⟨_⟩
             (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
             (forceᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst))
           elim-F-homᴰ ([thunk] M) =
             thunkᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst) M (elim-F-homᴰ M)
           elim-F-homᴰ ([Uβ] M i) =
-            Uβᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+            (cong (thunkᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst) M
+                (elim-F-homᴰ M) Dᴰ.⋆ᴰ_) (reind≡ _ _)
+            ◁ Uβᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
               (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
-              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M) i
+              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M)) i
           elim-F-homᴰ ([Uη] V i) =
-            Uηᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+            (Uηᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
               (C.reind-filler⁻ _ ∙ C.≡in {pth = refl} (IdLS [force]))
-              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V) i
-          elim-F-homᴰ [1I] = Dᴰ.reind (ΣPathP (refl , refl)) DA.value-terminal-introᴰ
+              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V)
+            ▷ cong (λ r → thunkᴰ Dᴰ (MultCBPV .snd .fst) (D .fst .snd .fst)
+                (seqS V [force]) (elim-F-homᴰ V Dᴰ.⋆ᴰ r)) (sym (reind≡ _ _))) i
+          elim-F-homᴰ [1I] = DA.value-terminal-introᴰ
           elim-F-homᴰ ([1η] V i) =
-            DA.value-terminal-ηᴰ (ΣPathP (refl , refl))
+            DA.value-terminal-ηᴰ-on
               (λ i → ı _ , [1η] V i)
               (elim-F-homᴰ V) i
-          elim-F-homᴰ ([×I] V₁ V₂) = Dᴰ.reind (ΣPathP (refl , refl))
-            (DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
-              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂))
-          elim-F-homᴰ [×π1] = Dᴰ.reind
+          elim-F-homᴰ ([×I] V₁ V₂) =
+            DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂)
+          elim-F-homᴰ [×π1] = CR.reind⟨_⟩
             (ΣPathP (refl , value-π₁≡[×π1]))
             (DA.value-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ [×π2] = Dᴰ.reind
+          elim-F-homᴰ [×π2] = CR.reind⟨_⟩
             (ΣPathP (refl , value-π₂≡[×π2]))
             (DA.value-πᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
           elim-F-homᴰ ([×β1] V₁ V₂ i) =
-            DA.value-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.value-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , value-π₁≡[×π1]))
               (λ i → ı _ , [×β1] V₁ V₂ i)
-              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂) i
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂)) i
           elim-F-homᴰ ([×β2] V₁ V₂ i) =
-            DA.value-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.value-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , value-π₂≡[×π2]))
               (λ i → ı _ , [×β2] V₁ V₂ i)
-              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂) i
+              (elim-F-homᴰ V₁) (elim-F-homᴰ V₂)) i
           elim-F-homᴰ ([×η] M i) =
-            DA.value-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (DA.value-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               value-π₁≡[×π1] value-π₂≡[×π2]
-              (λ i → ı _ , [×η] M i) (elim-F-homᴰ M) i
-          elim-F-homᴰ [0E] = Dᴰ.reind (ΣPathP (refl , refl)) DA.value-initial-elimᴰ
+              (λ i → ı _ , [×η] M i) (elim-F-homᴰ M)
+            ▷ sym (cong₂ (DA.value-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _)))) i
+          elim-F-homᴰ [0E] = DA.value-initial-elimᴰ
           elim-F-homᴰ ([0η] M i) =
-            DA.value-initial-ηᴰ (ΣPathP (refl , refl))
+            DA.value-initial-ηᴰ-on
               (λ i → ı _ , [0η] M i) (elim-F-homᴰ M) i
-          elim-F-homᴰ [+I1] = Dᴰ.reind
+          elim-F-homᴰ [+I1] = CR.reind⟨_⟩
             (ΣPathP (refl , value-σ₁≡[+I1]))
             (DA.value-σᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ [+I2] = Dᴰ.reind
+          elim-F-homᴰ [+I2] = CR.reind⟨_⟩
             (ΣPathP (refl , value-σ₂≡[+I2]))
             (DA.value-σᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ ([+E] f g) = Dᴰ.reind (ΣPathP (refl , refl))
-            (DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
-              (elim-F-homᴰ f) (elim-F-homᴰ g))
+          elim-F-homᴰ ([+E] f g) =
+            DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ f) (elim-F-homᴰ g)
           elim-F-homᴰ ([+β1] M₁ M₂ i) =
-            DA.value-+βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ (reind≡ _ _) refl
+            ◁ DA.value-+βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , value-σ₁≡[+I1]))
               (λ i → ı _ , [+β1] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([+β2] M₁ M₂ i) =
-            DA.value-+βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ (reind≡ _ _) refl
+            ◁ DA.value-+βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , value-σ₂≡[+I2]))
               (λ i → ı _ , [+β2] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([+η] M i) =
-            DA.value-+ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (DA.value-+ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               value-σ₁≡[+I1] value-σ₂≡[+I2]
-              (λ i → ı _ , [+η] M i) (elim-F-homᴰ M) i
-          elim-F-homᴰ [⊤I] = Dᴰ.reind (ΣPathP (refl , refl)) DA.computation-terminal-introᴰ
+              (λ i → ı _ , [+η] M i) (elim-F-homᴰ M)
+            ▷ sym (cong₂ (DA.value-copairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+                (cong (Dᴰ._⋆ᴰ elim-F-homᴰ M) (reind≡ _ _))
+                (cong (Dᴰ._⋆ᴰ elim-F-homᴰ M) (reind≡ _ _)))) i
+          elim-F-homᴰ [⊤I] = DA.computation-terminal-introᴰ
           elim-F-homᴰ ([⊤η] M i) =
-            DA.computation-terminal-ηᴰ (ΣPathP (refl , refl))
+            DA.computation-terminal-ηᴰ-on
               (λ i → ı _ , [⊤η] M i)
               (elim-F-homᴰ M) i
-          elim-F-homᴰ ([&I] M₁ M₂) = Dᴰ.reind (ΣPathP (refl , refl))
-            (DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂))
-          elim-F-homᴰ [&π1] = Dᴰ.reind
+          elim-F-homᴰ ([&I] M₁ M₂) =
+            DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _)
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)
+          elim-F-homᴰ [&π1] = CR.reind⟨_⟩
             (ΣPathP (refl , computation-π₁≡[&π1]))
             (DA.computation-πᴰ₁ (elim-F-obᴰ _) (elim-F-obᴰ _))
-          elim-F-homᴰ [&π2] = Dᴰ.reind
+          elim-F-homᴰ [&π2] = CR.reind⟨_⟩
             (ΣPathP (refl , computation-π₂≡[&π2]))
             (DA.computation-πᴰ₂ (elim-F-obᴰ _) (elim-F-obᴰ _))
           elim-F-homᴰ ([&β1] M₁ M₂ i) =
-            DA.computation-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.computation-×βᴰ₁-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , computation-π₁≡[&π1]))
               (λ i → ı _ , [&β1] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([&β2] M₁ M₂ i) =
-            DA.computation-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (cong₂ Dᴰ._⋆ᴰ_ refl (reind≡ _ _)
+            ◁ DA.computation-×βᴰ₂-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               (ΣPathP (refl , computation-π₂≡[&π2]))
               (λ i → ı _ , [&β2] M₁ M₂ i)
-              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂) i
+              (elim-F-homᴰ M₁) (elim-F-homᴰ M₂)) i
           elim-F-homᴰ ([&η] M i) =
-            DA.computation-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
+            (DA.computation-×ηᴰ-on (elim-F-obᴰ _) (elim-F-obᴰ _)
               computation-π₁≡[&π1] computation-π₂≡[&π2]
-              (λ i → ı _ , [&η] M i) (elim-F-homᴰ M) i
+              (λ i → ı _ , [&η] M i) (elim-F-homᴰ M)
+            ▷ sym (cong₂ (DA.computation-pairᴰ (elim-F-obᴰ _) (elim-F-obᴰ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _))
+                (cong (elim-F-homᴰ M Dᴰ.⋆ᴰ_) (reind≡ _ _)))) i
 
           elim : GlobalSection Dᴰ
           elim .F-obᴰ d = elim-F-obᴰ (d .snd)
@@ -475,12 +506,19 @@ module CBPV (BaseTy : Kind → Type ℓ) where
       {C : CBPVCat ℓD ℓD'}
       (F : Functorⱽ (AddCBPV .fst .fst) C)
       (Cⱽ : AddCBPVCatⱽ C ℓCᴰ ℓCᴰ')
+      ⦃ cr : ChosenReind (Cⱽ .fst .fst) ⦄
       where
       private
         module Cᴰ = Fibers (Cⱽ .fst .fst)
 
+        instance
+          reindexedReind : ChosenReind (reindexChosenReind (Cⱽ .fst .fst) (∫F
+            F))
+          reindexedReind = reindexReind (Cⱽ .fst .fst) (∫F F)
+
         reindexed : AddCBPVCatᴰ AddCBPV ℓCᴰ ℓCᴰ'
-        reindexed = AddCBPVCatⱽ→ᴰ (AddCBPVCatⱽReindex Cⱽ F)
+        reindexed = AddCBPVCatⱽ→ᴰChosenReind (AddCBPVCatⱽReindexChosenReind Cⱽ
+          F)
 
       module _
         (ı-ob : ∀ {k} (X : BaseTy k)
@@ -495,5 +533,5 @@ module CBPV (BaseTy : Kind → Type ℓ) where
                 local-obᴰ Γ , local-obᴰ Δ ])
           → Section (∫F F) (Cⱽ .fst .fst)
         localElim ı-hom =
-          GlobalSectionReindex→Section (Cⱽ .fst .fst) (∫F F)
+          GlobalSectionReindex→SectionChosenReind (Cⱽ .fst .fst) (∫F F)
             (Elim.elim reindexed ı-ob ı-hom)

@@ -2,19 +2,14 @@
 module Gluing.CartesianCategory.Conservativity.OverCategories.Forded where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
-open import Cubical.Functions.FunExtEquiv
 open import Cubical.Data.Quiver.Base
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 open import Cubical.HITs.PropositionalTruncation
-import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
-open import Cubical.Categories.Presheaf
 open import Cubical.Categories.Limits.Cartesian.Base
 
 open import Cubical.Categories.Instances.Free.Category.Forded as FC
@@ -23,18 +18,14 @@ open import
   Cubical.Categories.Instances.Free.CartesianCategory.ProductQuiver
   hiding (_×_)
 
+open import Cubical.Categories.Displayed.Instances.Terminal.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Limits.CartesianV' as V'
-import Cubical.Categories.Displayed.Instances.Terminal.Base as Unitᴰ
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
-open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Base as PshBase
-  using (PRESHEAFᴰ; PSHAssoc)
-open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Cartesian
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
-open import Cubical.Categories.Presheaf.Morphism.Alt
+open import Cubical.Categories.Displayed.Instances.Codomain.Presheaves
 open import Cubical.Categories.Presheaf.StrictHom
-open import Cubical.Categories.Presheaf.Nerve using (Nerve)
+open import Cubical.Categories.Presheaf.Constructions.Reindex using (reindPshF)
+open import Cubical.Categories.Yoneda using (YO)
 
 private
   variable ℓQ ℓQ' : Level
@@ -43,8 +34,6 @@ open Category
 open Functor
 open Categoryᴰ
 open Section
-open PshHomStrict
-open PshHom
 
 module _ (Q : Quiver ℓQ ℓQ') where
   private module Q = QuiverOver (Q .snd)
@@ -79,63 +68,48 @@ module _ (Q : Quiver ℓQ ℓQ') where
   ⊆-Faithful : isFaithful ⊆
   ⊆-Faithful = isFaithful-YOStrict-factor commutes
 
-  nerve : Functor FREE-1,×.C (PRESHEAF FREE ℓ)
-  nerve = Nerve ⊆
+  nerve : Functor FREE-1,×.C (PSH {C = FREE} ℓ)
+  nerve = reindPshF ⊆ ∘F YO
 
-  private
-    FREEᴰ : Categoryᴰ FREE ℓ-zero ℓ-zero
-    FREEᴰ = Unitᴰ.Unitᴰ FREE
+  OB : (o : Q .fst) → Presheafᴰ (nerve ⟅ ⊆ ⟅ o ⟆ ⟆) (Unitᴰ FREE) ℓ
+  OB o .F-ob (o' , _ , f) =
+    (Σ[ g ∈ FREE [ o' , o ] ] ⊆ ⟪ g ⟫ ≡ f) ,
+    isSetΣ (FREE .isSetHom)
+      (λ _ → isSet→isGroupoid (FREE-1,×.C .isSetHom) _ _)
+  OB o .F-hom (h , _ , e) (g , p) =
+    h FREE.⋆ g ,
+    ⊆ .F-seq h g ∙ cong (λ x → ⊆ ⟪ h ⟫ ⋆⟨ FREE-1,×.C ⟩ x) p ∙ e
+  OB o .F-id = funExt λ _ → ΣPathPProp
+    (λ _ → FREE-1,×.C .isSetHom _ _) (FREE .⋆IdL _)
+  OB o .F-seq _ _ = funExt λ _ → ΣPathPProp
+    (λ _ → FREE-1,×.C .isSetHom _ _) (FREE .⋆Assoc _ _ _)
 
-    PSHᴰ = PRESHEAFᴰ FREEᴰ ℓ ℓ
+  HOM : (e : Q.mor) →
+    Categoryᴰ.Hom[_][_,_] (PSHCod ℓ) (nerve ⟪ ⊆ ⟪ FC.⇑ Q e ⟫ ⟫)
+      (OB (Q.dom e)) (OB (Q.cod e))
+  HOM e = mkPsh ℓ
+    ( (λ Γ z →
+        ( (z .fst ⋆⟨ FREE-1,×.C ⟩ ⊆ ⟪ FC.⇑ Q e ⟫)
+        , (z .snd .fst FREE.⋆ FC.⇑ Q e
+          , ⊆ .F-seq (z .snd .fst) (FC.⇑ Q e)
+            ∙ cong (λ x → x ⋆⟨ FREE-1,×.C ⟩ ⊆ ⟪ FC.⇑ Q e ⟫) (z .snd .snd)))
+        , refl)
+    , λ ρ → funExt λ z → ΣPathP
+        ( FREE-1,×.C .⋆Assoc _ _ _
+        , ΣPathPProp (λ _ → FREE-1,×.C .isSetHom _ _)
+            (FREE .⋆Assoc _ _ _)))
 
-    module PSHᴰ = Categoryᴰ PSHᴰ
+  S : Section nerve (PSHCod {C = FREE} ℓ)
+  S = FCC.elimLocal (Quiver→×Quiver Q) nerve PSHCodCCⱽ (mkElimInterpᴰ OB HOM)
 
-    PSHᴰCartesianⱽEq : isCartesianⱽ PSHAssoc PSHᴰ
-    PSHᴰCartesianⱽEq = isCartesianⱽPSHᴰ
-
-    PSHᴰCartesianⱽ : V'.CartesianCategoryⱽ (PRESHEAF FREE ℓ) _ _
-    PSHᴰCartesianⱽ = EqCCⱽ→CCⱽ PSHAssoc PSHᴰ PSHᴰCartesianⱽEq
-
-    PSHᴰCᴰ : Categoryᴰ (PRESHEAF FREE ℓ) _ _
-    PSHᴰCᴰ = V'.CartesianCategoryⱽ.Cᴰ PSHᴰCartesianⱽ
-
-  S : Section nerve PSHᴰCᴰ
-  S = FCC.elimLocal (Quiver→×Quiver Q) nerve PSHᴰCartesianⱽ
-       (mkElimInterpᴰ OB HOM)
-    where
-    OB : (o : Q .fst) → PSHᴰ.ob[ nerve ⟅ ⊆ ⟅ o ⟆ ⟆ ]
-    OB o .F-ob (o' , _ , f) =
-      (Σ[ g ∈ FREE [ o' , o ] ] ⊆ ⟪ g ⟫ ≡ f) ,
-      isSetΣ (FREE .isSetHom)
-        (λ _ → isSet→isGroupoid (FREE-1,×.C .isSetHom) _ _)
-    OB o .F-hom {x = o' , _ , f} {y = o'' , _ , f'} (h , _ , eq) (g , p) =
-      h FREE.⋆ g ,
-      ⊆ .F-seq h g ∙ cong (λ x → ⊆ ⟪ h ⟫ ⋆⟨ FREE-1,×.C ⟩ x) p ∙ Eq.eqToPath eq
-    OB o .F-id = funExt λ (g , p) → ΣPathP (FREE .⋆IdL _ ,
-      isSet→SquareP (λ _ _ → FREE-1,×.C .isSetHom) _ _ _ _)
-    OB o .F-seq _ _ = funExt λ _ → ΣPathP (FREE .⋆Assoc _ _ _ ,
-      isSet→SquareP (λ _ _ → FREE-1,×.C .isSetHom) _ _ _ _)
-
-    HOM : (e : Q.mor) →
-      PSHᴰ.Hom[ nerve ⟪ ⊆ ⟪ FC.⇑ Q e ⟫ ⟫ ][ OB (Q.dom e) , OB (Q.cod e) ]
-    HOM e .N-ob (o , _ , f) (g , p) =
-      FC.⇑ Q e ∘⟨ FREE ⟩ g ,
-      ⊆ .F-seq g (FC.⇑ Q e) ∙ cong (λ x → x ⋆⟨ FREE-1,×.C ⟩ ⊆ ⟪ FC.⇑ Q e ⟫) p
-    HOM e .N-hom (o , _ , f) (o' , _ , f') (h , _ , eq) (g , p) =
-      ΣPathP (FREE .⋆Assoc _ _ _ ,
-        isSet→SquareP (λ _ _ → FREE-1,×.C .isSetHom) _ _ _ _)
+  preimage : ∀ {o o'} (f : FREE-1,×.C [ ⊆ ⟅ o ⟆ , ⊆ ⟅ o' ⟆ ])
+    → Σ[ g ∈ FREE [ o , o' ] ] ⊆ ⟪ g ⟫ ≡ FREE-1,×.C .id ⋆⟨ FREE-1,×.C ⟩ f
+  preimage {o} f =
+    let w = ptPsh ℓ (S .F-homᴰ f) .fst o (FREE-1,×.C .id , FREE .id , refl)
+    in w .fst .snd .fst , w .fst .snd .snd ∙ w .snd
 
   ⊆-Full : isFull ⊆
-  ⊆-Full o o' f[o→o'] = ∣ g , q ∙ FREE-1,×.C .⋆IdL _ ∣₁
-    where
-    witness : Σ[ g ∈ FREE [ o , o' ] ] ⊆ ⟪ g ⟫ ≡ FREE-1,×.C .id ⋆⟨ FREE-1,×.C ⟩ f[o→o']
-    witness = (S .F-homᴰ f[o→o'] .N-ob (o , tt , FREE-1,×.C .id)) (FREE .id , refl)
-
-    g : FREE [ o , o' ]
-    g = witness .fst
-
-    q : ⊆ ⟪ g ⟫ ≡ FREE-1,×.C .id ⋆⟨ FREE-1,×.C ⟩ f[o→o']
-    q = witness .snd
+  ⊆-Full o o' f = ∣ preimage f .fst , preimage f .snd ∙ FREE-1,×.C .⋆IdL f ∣₁
 
   ⊆-FullyFaithful : isFullyFaithful ⊆
   ⊆-FullyFaithful = isFull+Faithful→isFullyFaithful {F = ⊆} ⊆-Full ⊆-Faithful

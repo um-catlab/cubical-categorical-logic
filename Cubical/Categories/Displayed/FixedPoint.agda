@@ -19,6 +19,8 @@ open import Cubical.Categories.FixedPoint
 open import Cubical.Categories.NaturalTransformation
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
+open Cubical.Categories.Displayed.ChosenReind public using (TransportReindInst)
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.NaturalTransformation
@@ -26,6 +28,7 @@ open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Reindex.Properties
@@ -96,22 +99,24 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       (fᴰ : Cᴰ.Hom[ f ][ xᴰ , xᴰ ])
       (fix⟨f⟩*xᴰ : CartesianLift Cᴰ (fix⟨f⟩ .fst) xᴰ) where
     private module fix⟨f⟩*xᴰ = CartesianLiftNotation Cᴰ fix⟨f⟩*xᴰ
-    fixed-pointⱽ→ᴰ :
-      fixed-pointⱽ 𝟙 𝟙ᴰ {xⱽ = fix⟨f⟩*xᴰ .fst}
-        (fix⟨f⟩*xᴰ.introᴰ (Cᴰ.reind (C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ fix⟨f⟩ .snd ∙ sym (C.⋆IdL _))
-          (fix⟨f⟩*xᴰ.πⱽ Cᴰ.⋆ᴰ fᴰ)))
-      → fixed-pointᴰ fix⟨f⟩ 𝟙ᴰ fᴰ
-    fixed-pointⱽ→ᴰ fixⱽ⟨f⟩ .fst = Cᴰ.reind (C.⋆IdL _) $ fixⱽ⟨f⟩ .fst fix⟨f⟩*xᴰ.⋆πⱽ
-    fixed-pointⱽ→ᴰ fixⱽ⟨f⟩ .snd = Cᴰ.rectifyOut
-      (Cᴰ.⟨ Cᴰ.reind-filler⁻ _ ∙ refl ⟩⋆⟨⟩
-      -- (fixⱽ⟨f⟩ ⋆πⱽ) ⋆ᴰ fᴰ
-      ∙ (Cᴰ.⟨ fix⟨f⟩*xᴰ.⋆πⱽ≡⋆ᴰπⱽ _ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _)
-      -- fixⱽ⟨f⟩ ⋆ᴰ introᴰ _ ⋆πⱽ
-      ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ∙ (sym $ fix⟨f⟩*xᴰ.βᴰ _) ⟩
-      ∙ sym fix⟨f⟩*xᴰ.⋆πⱽ-natural
-      ∙ fix⟨f⟩*xᴰ.⟨ Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ fixⱽ⟨f⟩ .snd) ⟩⋆πⱽ
-      -- fixⱽ⟨f⟩ ⋆πⱽ
-      ∙ Cᴰ.reind-filler _)
+    module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+      private
+        module CR = ChosenReindNotation Cᴰ
+      fixed-pointⱽ→ᴰ :
+        fixed-pointⱽ 𝟙 𝟙ᴰ {xⱽ = fix⟨f⟩*xᴰ .fst}
+          (fix⟨f⟩*xᴰ.introᴰ (CR.reind⟨ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩
+              ∙ fix⟨f⟩ .snd ∙ sym (C.⋆IdL _) ⟩
+            (fix⟨f⟩*xᴰ.πⱽ Cᴰ.⋆ᴰ fᴰ)))
+        → fixed-pointᴰ fix⟨f⟩ 𝟙ᴰ fᴰ
+      fixed-pointⱽ→ᴰ fixⱽ⟨f⟩ .fst =
+        CR.reind⟨ C.⋆IdL _ ⟩ $ fixⱽ⟨f⟩ .fst fix⟨f⟩*xᴰ.⋆πⱽ
+      fixed-pointⱽ→ᴰ fixⱽ⟨f⟩ .snd = Cᴰ.rectifyOut
+        (Cᴰ.⟨ CR.reind-∫≡ _ _ ⟩⋆⟨⟩
+        ∙ (Cᴰ.⟨ fix⟨f⟩*xᴰ.⋆πⱽ≡⋆ᴰπⱽ _ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _)
+        ∙ Cᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ∙ (sym $ fix⟨f⟩*xᴰ.βᴰ _) ⟩
+        ∙ sym fix⟨f⟩*xᴰ.⋆πⱽ-natural
+        ∙ fix⟨f⟩*xᴰ.⟨ Cᴰ.reind-filler _ ∙ (Cᴰ.≡in $ fixⱽ⟨f⟩ .snd) ⟩⋆πⱽ
+        ∙ sym (CR.reind-∫≡ _ _))
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'}
   (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D)
@@ -180,25 +185,31 @@ record GuardedLogic (C : Category ℓC ℓC') (ℓCᴰ ℓCᴰ' : Level) : Type 
     where
     private
       module isFibCᴰ = FibrationNotation Cᴰ isFibCᴰ
-    gfixⱽ→ᴰ : fixed-pointᴰ Cᴰ gfix⟨M⟩ (termⱽ 𝟙 .fst)
-      ((next .N-obᴰ Aᴰ Cᴰ.⋆ⱽᴰ θᴰ) Cᴰ.⋆ᴰ Mᴰ)
-    gfixⱽ→ᴰ = fixed-pointⱽ→ᴰ Cᴰ gfix⟨M⟩ (termⱽ 𝟙 .fst)
-      ((next .N-obᴰ Aᴰ Cᴰ.⋆ⱽᴰ θᴰ) Cᴰ.⋆ᴰ Mᴰ)
-      (isFibCᴰ Aᴰ 𝟙 (gfix⟨M⟩ .fst))
-      (subst (fixed-pointⱽ Cᴰ 𝟙 (termⱽ 𝟙 .fst))
-        (Cᴰ.rectifyOut
-          (Cᴰ.reind-filler⁻ _
-          ∙ sym (isFibCᴰ.introᴰ≡' (sym (C.⋆IdL C.id))
-            (Cᴰ.reind-filler⁻ _
-            -- πⱽ ⋆ᴰ (next ⋆ⱽᴰ θᴰ) ⋆ᴰ Mᴰ
-            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.⟨ Cᴰ.reind-filler⁻ _ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _ ⟩ ∙ sym (Cᴰ.⋆Assoc _ _ _)
-            ∙ Cᴰ.⟨ ∫NT next .N-hom _ ⟩⋆⟨⟩ -- naturality of next
-            ∙ Cᴰ.⋆Assoc _ _ _
-            -- next ⋆ᴰ ▷ⱽ πⱽ ⋆ᴰ θᴰ ⋆ᴰ Mᴰ
-            ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ∙ sym (Cᴰ.⋆IdL _) ∙ sym (isFibCᴰ.βᴰ _) ⟩ ∙ sym isFibCᴰ.⋆πⱽ-natural
-            -- (next ⋆ᴰ introⱽ _) ⋆πⱽ
-            ))))
-        (gfpⱽ ((isFibCᴰ.introⱽ (Cᴰ.reind (C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ gfix⟨M⟩ .snd) (▷ⱽ .F-homᴰ isFibCᴰ.πⱽ Cᴰ.⋆ᴰ (θᴰ Cᴰ.⋆ᴰ Mᴰ)))))))
+    module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+      private
+        module CR = ChosenReindNotation Cᴰ
+        fixᴹ = gfpⱽ (isFibCᴰ.introⱽ
+          (CR.reind⟨ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ gfix⟨M⟩ .snd ⟩
+          (▷ⱽ .F-homᴰ isFibCᴰ.πⱽ Cᴰ.⋆ᴰ (θᴰ Cᴰ.⋆ᴰ Mᴰ))))
+      gfixⱽ→ᴰ : fixed-pointᴰ Cᴰ gfix⟨M⟩ (termⱽ 𝟙 .fst)
+        ((next .N-obᴰ Aᴰ CR.⋆ⱽᴰ θᴰ) Cᴰ.⋆ᴰ Mᴰ)
+      gfixⱽ→ᴰ = fixed-pointⱽ→ᴰ Cᴰ gfix⟨M⟩ (termⱽ 𝟙 .fst)
+        ((next .N-obᴰ Aᴰ CR.⋆ⱽᴰ θᴰ) Cᴰ.⋆ᴰ Mᴰ)
+        (isFibCᴰ Aᴰ 𝟙 (gfix⟨M⟩ .fst))
+        ( fixᴹ .fst
+        , cong (fixᴹ .fst Cᴰ.⋆ⱽ_)
+            (Cᴰ.rectifyOut
+              (isFibCᴰ.introᴰ≡' (sym (C.⋆IdL C.id))
+                (CR.reind-∫≡ _ _
+                ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.⟨ CR.reind-∫≡ _ _ ⟩⋆⟨⟩ ∙ Cᴰ.⋆Assoc _ _ _ ⟩
+                ∙ sym (Cᴰ.⋆Assoc _ _ _)
+                ∙ Cᴰ.⟨ ∫NT next .N-hom _ ⟩⋆⟨⟩
+                ∙ Cᴰ.⋆Assoc _ _ _
+                ∙ Cᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ∙ sym (Cᴰ.⋆IdL _)
+                    ∙ sym (isFibCᴰ.βᴰ _) ⟩
+                ∙ sym isFibCᴰ.⋆πⱽ-natural)
+              ∙ sym (Cᴰ.reind-filler⁻ _)))
+          ∙ fixᴹ .snd)
 
 module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) (Dᴰ : GuardedLogic D ℓDᴰ ℓDᴰ') where
   private
@@ -230,3 +241,79 @@ module _ {C : Category ℓC ℓC'}{D : Category ℓD ℓD'} (F : Functor C D) (D
         ∙ change-base⁻ {C = Dᴰ.Cᴰ.Hom[_][ Aᴰ , Aᴰ ]} (F .F-hom) (F*Dᴰ.reind-filler _)
         ∙ Dᴰ.Cᴰ.reind-filler _))
       (Dᴰ.gfpⱽ (Dᴰ.Cᴰ.reind (F .F-id) f)))
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D) ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Category C
+    module CR = ChosenReindNotation Dᴰ
+    module R = Fibers (reindexChosenReind Dᴰ F)
+
+  toReindexChosenReind∫ : ∀ {x y} {f g : C [ x , y ]} {a b}
+    {fᴰ : CR.Hom[ F ⟪ f ⟫ ][ a , b ]} {gᴰ : CR.Hom[ F ⟪ g ⟫ ][ a , b ]}
+    → (_ , fᴰ) ≡ (_ , gᴰ) → fᴰ CR.∫≡ gᴰ
+  toReindexChosenReind∫ = cong (λ u → F ⟪ u .fst ⟫ , u .snd)
+
+  reindexFixed-pointⱽChosenReind : ∀ {x} {𝟙ⱽ xⱽ : CR.ob[ F ⟅ x ⟆ ]}
+    {fⱽ : CR.Hom[ F ⟪ C.id ⟫ ][ xⱽ , xⱽ ]}
+    → fixed-pointⱽ Dᴰ (F ⟅ x ⟆) 𝟙ⱽ (CR.reind⟨ F .F-id ⟩ fⱽ)
+    → fixed-pointⱽ (reindexChosenReind Dᴰ F) x 𝟙ⱽ fⱽ
+  reindexFixed-pointⱽChosenReind fix .fst = CR.reind⟨ sym (F .F-id) ⟩ (fix .fst)
+  reindexFixed-pointⱽChosenReind {fⱽ = fⱽ} fix .snd = CR.rectifyOut
+    (toReindexChosenReind∫ (R.reind-filler⁻ _)
+    ∙ CR.reind-∫≡ _ _
+    ∙ CR.⟨ CR.reind-∫≡ _ _ ⟩⋆⟨ sym (CR.reind-∫≡ _ fⱽ) ⟩
+    ∙ sym (CR.F.reind-filler⁻ _)
+    ∙ cong (_ ,_) (fix .snd)
+    ∙ sym (CR.reind-∫≡ _ _))
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D)
+  (L : GuardedLogic D ℓDᴰ ℓDᴰ') ⦃ cr : ChosenReind (GuardedLogic.Cᴰ L) ⦄
+  where
+  private
+    module L = GuardedLogic L
+    module CR = ChosenReindNotation L.Cᴰ
+    module R = Fibers (reindexChosenReind L.Cᴰ F)
+
+    ▷∫ : ∀ {x y} {a b} → Σ (D [ x , y ]) (λ h → CR.Hom[ h ][ a , b ])
+      → Σ (D [ x , y ]) (λ h → CR.Hom[ h ][ L.▷ⱽ .F-obᴰ a , L.▷ⱽ .F-obᴰ b ])
+    ▷∫ u = u .fst , L.▷ⱽ .F-homᴰ (u .snd)
+
+  open GuardedLogic
+  open NatTransᴰ
+
+  reindexGuardedLogicChosenReind : GuardedLogic C ℓDᴰ ℓDᴰ'
+  reindexGuardedLogicChosenReind .Cᴰ = reindexChosenReind L.Cᴰ F
+  reindexGuardedLogicChosenReind .▷ⱽ .F-obᴰ = L.▷ⱽ .F-obᴰ
+  reindexGuardedLogicChosenReind .▷ⱽ .F-homᴰ = L.▷ⱽ .F-homᴰ
+  reindexGuardedLogicChosenReind .▷ⱽ .F-idᴰ = CR.rectifyOut
+    (cong ▷∫ (CR.reind-∫≡ _ _) ∙ L.Cᴰ.≡in (L.▷ⱽ .F-idᴰ)
+    ∙ sym (CR.reind-∫≡ _ _))
+  reindexGuardedLogicChosenReind .▷ⱽ .F-seqᴰ fᴰ gᴰ = CR.rectifyOut
+    (cong ▷∫ (CR.reind-∫≡ _ _) ∙ L.Cᴰ.≡in (L.▷ⱽ .F-seqᴰ fᴰ gᴰ)
+    ∙ sym (CR.reind-∫≡ _ _))
+  reindexGuardedLogicChosenReind .next .N-obᴰ xᴰ =
+    CR.reind⟨ sym (F .F-id) ⟩ (L.next .N-obᴰ xᴰ)
+  reindexGuardedLogicChosenReind .next .N-homᴰ {f = f} fᴰ =
+    CR.rectifyOut {e' = cong (F ⟪_⟫) (idTrans (Id {C = C}) .N-hom f)}
+      (CR.reind-∫≡ _ _ ∙ CR.⟨ refl ⟩⋆⟨ CR.reind-∫≡ _ _ ⟩
+      ∙ L.Cᴰ.≡in (L.next .N-homᴰ fᴰ)
+      ∙ sym (CR.reind-∫≡ _ _ ∙ CR.⟨ CR.reind-∫≡ _ _ ⟩⋆⟨ refl ⟩))
+  reindexGuardedLogicChosenReind .isFibCᴰ = isFibrationReindexChosenReind L.Cᴰ F
+    L.isFibCᴰ
+  reindexGuardedLogicChosenReind .termⱽ = TerminalsⱽReindexChosenReind L.Cᴰ F
+    L.termⱽ
+  reindexGuardedLogicChosenReind .gfpⱽ {A} {Aᴰ} f =
+    reindexFixed-pointⱽChosenReind L.Cᴰ F
+    ( fp .fst
+    , cong (fp .fst L.Cᴰ.⋆ⱽ_)
+        (CR.rectifyOut
+          (CR.reind-∫≡ _ _
+          ∙ toReindexChosenReind∫ L.Cᴰ F (R.reind-filler⁻ _)
+          ∙ CR.reind-∫≡ _ _
+          ∙ CR.⟨ CR.reind-∫≡ _ _ ⟩⋆⟨ sym (CR.reind-∫≡ _ f) ⟩
+          ∙ sym (CR.F.reind-filler⁻ _)))
+      ∙ fp .snd)
+    where
+    fp = L.gfpⱽ (CR.reind⟨ F .F-id ⟩ f)

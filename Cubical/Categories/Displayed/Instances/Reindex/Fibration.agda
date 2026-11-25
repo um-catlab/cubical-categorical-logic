@@ -34,12 +34,14 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.FunctorComprehension.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Properties
 open import Cubical.Categories.Displayed.Instances.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.HLevels
@@ -104,3 +106,84 @@ module _
 
   isFibrationReindex : isFibration Dᴰ → isFibration (reindex Dᴰ F)
   isFibrationReindex isFibDᴰ {y} Fyᴰ x f = reindexCartesianLift f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))
+
+-- The opposite of a functor, with its composition law swapped on the
+-- nose.  Upstream's _^opF goes through recOp and toOpOp, so reindexing
+-- along it introduces transports.
+_^opFStrict : {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  → Functor C D → Functor (C ^op) (D ^op)
+(F ^opFStrict) .F-ob = F .F-ob
+(F ^opFStrict) .F-hom = F .F-hom
+(F ^opFStrict) .F-id = F .F-id
+(F ^opFStrict) .F-seq f g = F .F-seq g f
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  {Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ'}
+  (F : Functor C D) where
+  private
+    module Dᴰ = Categoryᴰ Dᴰ
+    module Dop = Fibers (Dᴰ ^opᴰ)
+
+  reindexOpcartesianLift : ∀ {x y} (f : C [ y , x ]) (Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    → CartesianLift (Dᴰ ^opᴰ) (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift ((reindex Dᴰ F) ^opᴰ) f Fyᴰ
+  reindexOpcartesianLift f Fyᴰ f*Fyᴰ =
+    lift' .fst ,
+    pshiso
+      (pshhom (λ c → lift' .snd .trans .N-ob c)
+        (λ c c' g p → lift' .snd .trans .N-hom c c' g p))
+      (lift' .snd .nIso)
+    where
+    lift' = reindexCartesianLift (Dᴰ ^opᴰ) (F ^opFStrict) f Fyᴰ f*Fyᴰ
+
+  reindexOpcartesianLift-πⱽ : ∀ {x y}
+    (f : C [ y , x ]) (Fyᴰ : Dᴰ.ob[ F ⟅ y ⟆ ])
+    (f*Fyᴰ : CartesianLift (Dᴰ ^opᴰ) (F ⟪ f ⟫) Fyᴰ)
+    → CartesianLiftNotation.πⱽ ((reindex Dᴰ F) ^opᴰ)
+        (reindexOpcartesianLift f Fyᴰ f*Fyᴰ)
+      Dop.∫≡ CartesianLiftNotation.πⱽ (Dᴰ ^opᴰ) f*Fyᴰ
+  reindexOpcartesianLift-πⱽ f Fyᴰ f*Fyᴰ =
+    Dop.reind-filler⁻ _
+    ∙ CartesianLiftNotation.⟨_⟩⋆πⱽ (Dᴰ ^opᴰ) f*Fyᴰ
+        (Dop.reind-revealed-filler⁻ {p = Dop.idᴰ}
+          (sym (F .F-id)))
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D) ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Category C
+    module D = Category D
+    module Dᴰ = ChosenReindNotation Dᴰ
+
+  reindexCartesianLiftChosenReind : ∀ {x y} (f : C [ x , y ]) (Fyᴰ : Dᴰ.ob[ F ⟅
+    y ⟆ ])
+    → CartesianLift Dᴰ (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift (reindexChosenReind Dᴰ F) f Fyᴰ
+  reindexCartesianLiftChosenReind {x} {y} f Fyᴰ L = L .fst ,
+    improvePshIso
+      (reindexRepresentableIsoⱽChosenReind Dᴰ F _ _
+      ⋆PshIsoⱽ reindPshIso (reindex-π-/ChosenReind Dᴰ F x) (L .snd)
+      ⋆PshIsoⱽ reindPsh-square (reindex-π-/ChosenReind Dᴰ F x)
+        (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f))
+        (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ChosenReind Dᴰ F y) (Dᴰ [-][-,
+          Fyᴰ ])
+        (reindexRepresentable-seq (πChosenReind Dᴰ F))
+      ⋆PshIsoⱽ reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f)
+        (invPshIsoⱽ (reindexRepresentableIsoⱽChosenReind Dᴰ F y Fyᴰ)))
+      ((λ (Γ , Γᴰ , g) gᴰ →
+        Dᴰ.reind⟨ sym (F .F-seq g f) ⟩ (gᴰ L.⋆πⱽ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ gᴰ →
+        Dᴰ.rectifyOut (sym (Dᴰ.F.reind-filler _) ∙ Dᴰ.⋆IdL _
+          ∙ sym (Dᴰ.reind-∫≡ _ _)))
+      ((λ (Γ , Γᴰ , g) gfᴰ → L.introᴰ (Dᴰ.reind⟨ F .F-seq g f ⟩ gfᴰ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ gfᴰ → Dᴰ.rectifyOut
+        (L.cong-introᴰ refl
+          (sym (Dᴰ.F.reind-filler _) ∙ Dᴰ.⋆IdL _ ∙ sym (Dᴰ.reind-∫≡ _ _))))
+    where
+      module L = CartesianLiftNotation Dᴰ L
+
+  isFibrationReindexChosenReind : isFibration Dᴰ → isFibration
+    (reindexChosenReind Dᴰ F)
+  isFibrationReindexChosenReind isFibDᴰ {y} Fyᴰ x f =
+    reindexCartesianLiftChosenReind f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))

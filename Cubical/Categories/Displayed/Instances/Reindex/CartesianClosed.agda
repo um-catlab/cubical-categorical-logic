@@ -34,12 +34,14 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.FunctorComprehension.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Exponential
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
@@ -93,3 +95,22 @@ module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
   CCCⱽReindex .CartesianClosedCategoryⱽ.lrⱽ = AllLRⱽReindex (F .fst) Dᴰ.lrⱽ
   CCCⱽReindex .CartesianClosedCategoryⱽ.expⱽ = ExponentialsⱽReindex (F .fst) Dᴰ.lrⱽ Dᴰ.expⱽ
   CCCⱽReindex .CartesianClosedCategoryⱽ.forallⱽ = hasUniversalQuantifiersReindex (F .fst) Dᴰ.Cᴰ Dᴰ.cartesianLifts (CC .bp) (CD .bp) (F .snd) Dᴰ.forallⱽ
+
+module _ {CC : CartesianCategory ℓC ℓC'} {CD : CartesianCategory ℓD ℓD'}
+  (Dᴰ : CartesianClosedCategoryⱽ CD ℓDᴰ ℓDᴰ')
+  (F : CartesianFunctor CC (CartesianCategory.C CD))
+  ⦃ cr : ChosenReind (CartesianClosedCategoryⱽ.Cᴰ Dᴰ) ⦄
+  where
+  private
+    module Dᴰ = CartesianClosedCategoryⱽ Dᴰ
+
+  CCCⱽReindexChosenReind : CartesianClosedCategoryⱽ CC ℓDᴰ ℓDᴰ'
+  CCCⱽReindexChosenReind .CartesianClosedCategoryⱽ.CCⱽ =
+    CartesianCategoryⱽReindexChosenReind Dᴰ.CCⱽ (F .fst)
+  CCCⱽReindexChosenReind .CartesianClosedCategoryⱽ.lrⱽ =
+    AllLRⱽReindexChosenReind Dᴰ.Cᴰ (F .fst) Dᴰ.lrⱽ
+  CCCⱽReindexChosenReind .CartesianClosedCategoryⱽ.expⱽ =
+    ExponentialsⱽReindexChosenReind Dᴰ.Cᴰ (F .fst) Dᴰ.lrⱽ Dᴰ.expⱽ
+  CCCⱽReindexChosenReind .CartesianClosedCategoryⱽ.forallⱽ =
+    hasUniversalQuantifiersReindexChosenReind (F .fst) Dᴰ.Cᴰ Dᴰ.cartesianLifts
+      (CartesianCategory.bp CC) (CartesianCategory.bp CD) (F .snd) Dᴰ.forallⱽ

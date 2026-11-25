@@ -22,7 +22,10 @@ open import Cubical.Categories.Instances.BinProduct as BP
 open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Instances.Path
-open import Cubical.Categories.Displayed.Instances.Reindex.Base as Reindex
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind
+  public using (TransportReindInst)
 open import Cubical.Categories.Displayed.Instances.Weaken.Base as Wk
 
 open import Cubical.Categories.Displayed.Section.Base as Cat
@@ -109,18 +112,19 @@ module _ (Q : Quiver ℓg ℓg') where
   -- so caveat utilitor
   module _ {C : Category ℓC ℓC'}
            (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
+           ⦃ cr : ChosenReind Cᴰ ⦄
            (F : Functor FreeCat C)
            (ıᴰ : Interpᴰ (compGrHomHetQG (Functor→GraphHom F) η) Cᴰ)
            where
     private
       open HetSection
-      F*Cᴰ = Reindex.reindex Cᴰ F
+      F*Cᴰ = reindexChosenReind Cᴰ F
       ıᴰ' : Interpᴰ η F*Cᴰ
       ıᴰ' ._$gᴰ_ = ıᴰ $gᴰ_
       ıᴰ' ._<$g>ᴰ_ = ıᴰ <$g>ᴰ_
 
     elimLocal : Section F Cᴰ
-    elimLocal = GlobalSectionReindex→Section Cᴰ F (elim F*Cᴰ ıᴰ')
+    elimLocal = GlobalSectionReindex→SectionChosenReind Cᴰ F (elim F*Cᴰ ıᴰ')
 
   -- Elimination principle implies the recursion principle, which
   -- allows for non-dependent functors to be defined

@@ -39,6 +39,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Section.Base
@@ -209,3 +210,72 @@ module _
         ∀⟨Aᴰ[π₂]⇒Bᴰ[app]⟩ ◁PshIsoⱽ
         reindPshIso _ (Aᴰ[π₂]⇒Bᴰ[app] .snd ⋆PshIso reindPshIso _ (Bᴰ[app] .snd) ⋆PshIso (reindPsh∘F≅ _ _ _))
         ⋆PshIso reindPsh-square _ _ _ _ _ ⇒ⱽᴰ-square
+
+    module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+      private
+        module CR = ChosenReindNotation Cᴰ
+
+        reind≡ : ∀ {x y} {g h : C [ x , y ]} {a b} (e : g ≡ h)
+          (gᴰ : Cᴰ.Hom[ g ][ a , b ]) → CR.reind⟨ e ⟩ gᴰ ≡ Cᴰ.reind e gᴰ
+        reind≡ e gᴰ = Cᴰ.rectifyOut (CR.reind-∫≡ e gᴰ ∙ Cᴰ.reind-filler e)
+
+      module _ Γ (Γᴰ : Cᴰ.ob[ Γ ]) (f : C [ Γ , A⇒B .vertex ]) where
+        ⇒ⱽᴰ-square-toChosenReind : Cᴰ.Hom[ C.id ][ π₁* Γᴰ ×ⱽπ₂*Aᴰ.×ⱽ
+            ((×A.π₁ C.⋆ f) ×A.,p ×A.π₂) * , Γᴰ ×ᴰAᴰ.×ᴰPᴰ ]
+        ⇒ⱽᴰ-square-toChosenReind =
+          CR.reind⟨ ×A.,p≡ refl (C.⋆Assoc _ _ _ ∙ C.⟨ refl ⟩⋆⟨ ×A.×β₂ ⟩) ⟩
+            (×ᴰAᴰ.introᴰ ((×ⱽπ₂*Aᴰ.π₁ⱽ π₁*.⋆πⱽ) , (×ⱽπ₂*Aᴰ.π₂ⱽ Aᴰ[π₂].⋆πⱽ)))
+
+        ⇒ⱽᴰ-square-fromChosenReind : Cᴰ.Hom[ C.id ][ Γᴰ ×ᴰAᴰ.×ᴰPᴰ ,
+            (π₁* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((×A.π₁ C.⋆ f) ×A.,p ×A.π₂) * ]
+        ⇒ⱽᴰ-square-fromChosenReind = ×ⱽπ₂*Aᴰ.introᴰ
+          (π₁*.introᴰ (CR.reind⟨ sym $ C.⋆IdL _ ⟩ ×ᴰAᴰ.π₁ᴰ))
+          (Aᴰ[π₂].introᴰ
+            (CR.reind⟨ sym $ C.⟨ C.⋆IdL _ ⟩⋆⟨ refl ⟩ ∙ ×A.×β₂ ⟩ ×ᴰAᴰ.π₂ᴰ))
+
+        toChosenReind≡ : ⇒ⱽᴰ-square-toChosenReind ≡ ⇒ⱽᴰ-square-to Γ Γᴰ f
+        toChosenReind≡ = reind≡ _ _
+
+        fromChosenReind≡ : ⇒ⱽᴰ-square-fromChosenReind ≡ ⇒ⱽᴰ-square-from Γ Γᴰ f
+        fromChosenReind≡ = cong₂
+          (λ a b → ×ⱽπ₂*Aᴰ.introᴰ (π₁*.introᴰ a) (Aᴰ[π₂].introᴰ b))
+          (reind≡ _ _) (reind≡ _ _)
+
+        ⇒ⱽᴰ-square-isoᴰChosenReind : CatIsoᴰ Cᴰ idCatIso
+          ((π₁* Γᴰ) ×ⱽπ₂*Aᴰ.×ⱽ ((×A.π₁ C.⋆ f) ×A.,p ×A.π₂) *)
+          (Γᴰ ×ᴰAᴰ.×ᴰPᴰ)
+        ⇒ⱽᴰ-square-isoᴰChosenReind .fst = ⇒ⱽᴰ-square-toChosenReind
+        ⇒ⱽᴰ-square-isoᴰChosenReind .snd .invᴰ = ⇒ⱽᴰ-square-fromChosenReind
+        ⇒ⱽᴰ-square-isoᴰChosenReind .snd .secᴰ =
+          cong₂ Cᴰ._⋆ᴰ_ fromChosenReind≡ toChosenReind≡
+          ◁ ⇒ⱽᴰ-square-isoᴰ Γ Γᴰ f .snd .secᴰ
+        ⇒ⱽᴰ-square-isoᴰChosenReind .snd .retᴰ =
+          cong₂ Cᴰ._⋆ᴰ_ toChosenReind≡ fromChosenReind≡
+          ◁ ⇒ⱽᴰ-square-isoᴰ Γ Γᴰ f .snd .retᴰ
+
+      ⇒ⱽᴰ-squareChosenReind :
+        NatIso {C = Cᴰ / (C [-, A⇒B .vertex ])}
+               {D = Cᴰ / (C [-, B ])}
+               LHS-F
+               RHS-F
+      ⇒ⱽᴰ-squareChosenReind = /NatIso
+        (record { trans = natTrans (λ x → C.id) λ f → C.⋆IdR _
+                ; nIso = λ _ → idCatIso .snd })
+        (isosToNatIsoᴰ _ _ _
+          (λ {(Γ , Γᴰ , f)} _ → ⇒ⱽᴰ-square-isoᴰChosenReind Γ Γᴰ f)
+          λ {(Δ , Δᴰ , f) (Γ , Γᴰ , g) _ _ (γ , γᴰ , γg≡f)} _ →
+            Cᴰ.⟨⟩⋆⟨ cong (_ ,_) (toChosenReind≡ Γ Γᴰ g) ⟩
+            ∙ ⇒ⱽᴰ-square-nat (Δ , Δᴰ , f) (Γ , Γᴰ , g) (γ , γᴰ , γg≡f)
+            ∙ Cᴰ.⟨ cong (_ ,_) (sym (toChosenReind≡ Δ Δᴰ f)) ⟩⋆⟨⟩)
+        λ (Γ , Γᴰ , f) → C.⋆IdL _
+
+      ∀+Expⱽ+lifts⇒ExpᴰChosenReind : Exponentialᴰ Cᴰ (A , ×A) (Aᴰ , ×Aᴰ) Bᴰ A⇒B
+      ∀+Expⱽ+lifts⇒ExpᴰChosenReind =
+        Representableⱽ→UniversalElementᴰ Cᴰ _ _
+          ⦃ record { reind⟨_⟩ = CR.reind⟨_⟩
+                   ; reind-filler = λ e q → ΣPathP (e , CR.reind-filler e q) } ⦄
+          _ $
+          ∀⟨Aᴰ[π₂]⇒Bᴰ[app]⟩ ◁PshIsoⱽ
+          reindPshIso _ (Aᴰ[π₂]⇒Bᴰ[app] .snd
+            ⋆PshIso reindPshIso _ (Bᴰ[app] .snd) ⋆PshIso (reindPsh∘F≅ _ _ _))
+          ⋆PshIso reindPsh-squareChosenReind Cᴰ _ _ _ _ Bᴰ ⇒ⱽᴰ-squareChosenReind

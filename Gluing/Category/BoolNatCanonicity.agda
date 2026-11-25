@@ -1,3 +1,4 @@
+{-# OPTIONS --lossy-unification #-}
 module Gluing.Category.BoolNatCanonicity where
 
 open import Cubical.Foundations.Prelude
@@ -15,12 +16,13 @@ import Cubical.Data.Equality as Eq
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.UnderlyingGraph hiding (Interp)
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.Sets.More
 open import Cubical.Categories.Instances.Free.Category.Forded as Free
 
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 
 open import Gluing.Canonicity
 
@@ -99,10 +101,24 @@ module _ where
     ıe ze e e≡id = 0 , sym (cong (FQ ∘ [ze]) e≡id ∙ FQ.⋆IdL _)
     ıe su e (n , fib) = suc n , cong (FQ ∘ [su]) fib
 
-    S : Section Pts (SETᴰ _ _)
-    S = Free.elimLocal QUIVER _ _ (record
-      { _$gᴰ_ = ıo
-      ; _<$g>ᴰ_ = ıe })
+    ıh : ∀ (m : MOR) → Pointwise ℓ-zero {X = Pts ⟅ QUIVER .snd .dom m ⟆}
+      {Y = Pts ⟅ QUIVER .snd .cod m ⟆} (Pts ⟪ ⇑ QUIVER m ⟫)
+      (ıo (QUIVER .snd .dom m)) (ıo (QUIVER .snd .cod m))
+    ıh m z = (z .fst ⋆⟨ FQ ⟩ ⇑ QUIVER m , ıe m (z .fst) (z .snd)) , refl
+
+  S : Section Pts (SETCod ℓ-zero)
+  S = Free.elimLocal QUIVER _ _ (record
+    { _$gᴰ_ = ıo
+    ; _<$g>ᴰ_ = λ m → mk ℓ-zero {X = Pts ⟅ QUIVER .snd .dom m ⟆}
+        {Y = Pts ⟅ QUIVER .snd .cod m ⟆} {h = Pts ⟪ ⇑ QUIVER m ⟫}
+        {P = ıo (QUIVER .snd .dom m)} {Q = ıo (QUIVER .snd .cod m)}
+        (ıh m) })
+
+  can : ∀ {o} (e : FQ [ ⊤ , o ]) → Fib ℓ-zero {Y = Pts ⟅ o ⟆} (ıo o) e
+  can = canonicalize ⊤ S refl
+
+  canonNat : [nat] → ℕ
+  canonNat e = can e .fst .snd .fst
 
   ⟦-⟧SET : Functor FQ (SET ℓ-zero)
   ⟦-⟧SET = Free.rec QUIVER (record
@@ -123,21 +139,18 @@ module _ where
   evalNat-＂_＂ (suc n) = cong suc (evalNat-＂_＂ n)
 
   canonicity-bool : Iso [bool] Bool
-  canonicity-bool .Iso.fun = evalBool
-  canonicity-bool .Iso.inv = λ { true → [t] ; false → [f] }
-  canonicity-bool .Iso.sec = λ { true → refl ; false → refl }
-  canonicity-bool .Iso.ret e =
-    Sum.elim {C = λ _ → canonicity-bool .Iso.inv (evalBool e) ≡ e}
-      (λ p → cong (λ x → canonicity-bool .Iso.inv (evalBool x)) p ∙ sym p)
-      (λ q → cong (λ x → canonicity-bool .Iso.inv (evalBool x)) q ∙ sym q)
-      (canonicalize ⊤ S refl e)
+  canonicity-bool = BoolIso.canonicity-bool [t] [f] evalBool refl refl
+    (λ e → Fib→⊎ (can e))
 
   canonicity-nat : Iso [nat] ℕ
-  canonicity-nat .Iso.fun = evalNat
-  canonicity-nat .Iso.inv n = ＂ n ＂
-  canonicity-nat .Iso.sec n = evalNat-＂ n ＂
-  canonicity-nat .Iso.ret [n] =
-    cong ＂_＂ (cong evalNat (sym p) ∙ evalNat-＂ m ＂) ∙ p
-    where
-    m = canonicalize ⊤ S refl [n] .fst
-    p = canonicalize ⊤ S refl [n] .snd
+  canonicity-nat = NatIso.canonicity-nat ＂_＂ evalNat evalNat-＂_＂
+    (λ e → Fib→fiber ＂_＂ (can e))
+
+  private
+    module Examples where
+      _ : canonNat ((FQ.id ⋆⟨ FQ ⟩ ＂ 2 ＂) ⋆⟨ FQ ⟩ (FQ.id ⋆⟨ FQ ⟩ [su])) ≡ 3
+      _ = refl
+
+      _ : Sum.rec (λ _ → true) (λ _ → false) (Fib→⊎ (can (FQ.id ⋆⟨ FQ ⟩ [f])))
+        ≡ false
+      _ = refl

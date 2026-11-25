@@ -21,8 +21,7 @@ open import Cubical.Categories.Limits.Cartesian.Base
 open import Cubical.Categories.Limits.Terminal.More
 
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Properties
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 
 open import Cubical.Categories.Instances.Free.CartesianCategory.ProductQuiver
 open import Cubical.Categories.Instances.Free.CartesianCategory.Base as FreeCC
@@ -89,21 +88,33 @@ module _ where
     fiber ＂_＂ e ,
     isSetΣ isSetℕ (λ _ → isProp→isSet (FREECC.isSetHom _ _))
 
-  private
-    Pts : Functor FREECC.C (SET ℓ-zero)
-    Pts = FREECC.C [ ⊤ ,-]
+  Pts : Functor FREECC.C (SET ℓ-zero)
+  Pts = FREECC.C [ ⊤ ,-]
 
-    S : Section Pts (SETᴰ ℓ-zero ℓ-zero)
-    S = FreeCC.elimLocal ×QUIVER Pts EqSETᴰCCⱽ (mkInterpᴰ
-      (λ { bool e → CanonicalFormBool e ; nat e → CanonicalFormNat e })
-      λ { tr e _ → inl (cong₂ _⋆ₑ_ (⊤→⊤IsId FREECC.term e) refl
-                        ∙ FREECC.⋆IdL _)
-        ; fl e _ → inr (cong₂ _⋆ₑ_ (⊤→⊤IsId FREECC.term e) refl
-                        ∙ FREECC.⋆IdL _)
-        ; ze e _ → 0 , (sym (cong₂ _⋆ₑ_ (⊤→⊤IsId FREECC.term e) refl
-                             ∙ FREECC.⋆IdL _))
-        ; su e (n , fib) → (suc n) , cong₂ _⋆ₑ_ fib refl
-        })
+  private
+
+    constOnTop : ∀ {o} (e : FREECC.Hom[ ⊤ , ⊤ ]) (g : FREECC.Hom[ ⊤ , o ])
+      → e ⋆ₑ g ≡ g
+    constOnTop e g =
+      cong₂ _⋆ₑ_ (⊤→⊤IsId FREECC.term e) refl ∙ FREECC.⋆IdL _
+
+  S : Section Pts (SETCod ℓ-zero)
+  S = FreeCC.elimLocal ×QUIVER Pts SETCodCCⱽ (mkInterpᴰ
+    (λ { bool → CanonicalFormBool ; nat → CanonicalFormNat })
+    λ { tr → mk ℓ-zero λ z → (_ , inl (constOnTop (z .fst) [t])) , refl
+      ; fl → mk ℓ-zero λ z → (_ , inr (constOnTop (z .fst) [f])) , refl
+      ; ze → mk ℓ-zero λ z →
+          (_ , 0 , sym (constOnTop (z .fst) [ze])) , refl
+      ; su → mk ℓ-zero λ z →
+          (_ , suc (z .snd .fst) , cong₂ _⋆ₑ_ (z .snd .snd) refl) , refl
+      })
+
+  can : ∀ {o} (e : FREECC.Hom[ ⊤ , o ])
+    → Fib ℓ-zero {Y = Pts ⟅ o ⟆} (S .F-obᴰ o) e
+  can = canonicalize ⊤ S tt*
+
+  canonNat : [nat] → ℕ
+  canonNat e = can e .fst .snd .fst
 
   ⟦-⟧SET : Functor FREECC.C (SET ℓ-zero)
   ⟦-⟧SET = FreeCC.rec ×QUIVER SETCC (mkInterpᴰ
@@ -123,8 +134,18 @@ module _ where
 
   canonicity-bool : Iso [bool] Bool
   canonicity-bool = BoolIso.canonicity-bool [t] [f] evalBool refl refl
-    (λ e → canonicalize ⊤ S _ e)
+    (λ e → Fib→⊎ (can e))
 
   canonicity-nat : Iso [nat] ℕ
   canonicity-nat = NatIso.canonicity-nat ＂_＂ evalNat evalNat-＂_＂
-    (λ e → canonicalize ⊤ S _ e)
+    (λ e → Fib→fiber ＂_＂ (can e))
+
+  private
+    module Examples where
+      _ : canonNat (((＂ 1 ＂ FREECC.,p [t]) ⋆ₑ FREECC.π₁) ⋆ₑ [su]) ≡ 2
+      _ = refl
+
+      _ : Sum.rec (λ _ → true) (λ _ → false)
+            (Fib→⊎ (can (([f] FREECC.,p ＂ 0 ＂) ⋆ₑ FREECC.π₁)))
+        ≡ false
+      _ = refl

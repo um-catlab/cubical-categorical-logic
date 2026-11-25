@@ -1,3 +1,4 @@
+-- Canonicity for Full Multiplicative Additive Unary Pure CBPV
 {-# OPTIONS --prop --lossy-unification #-}
 module Gluing.CBPV.Pure.Additive where
 
@@ -9,6 +10,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Prop
 
+open import Cubical.Data.Bool using (Bool ; true ; false)
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Unit
 
@@ -28,6 +30,8 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.CBPV.Unary.Additive
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Sets
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Codomain.Sets
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Additive
 
 open Category
@@ -58,22 +62,31 @@ module AdditiveGluing
     (ı-Ob : ∀ {k} (X : BaseTy k)
       → Tm {k₁ = 𝒱} {k₂ = k} tt I (gen {k = k} X)
       → hSet L)
-    (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (f : Fun k≤ Γ Δ)
-      → ∀ (M : Tm tt I Γ)
-      → ⟨ LocalElim.local-obᴰ pts (SetAddCBPVⱽ L) ı-Ob Γ M ⟩
-      → ⟨ LocalElim.local-obᴰ pts (SetAddCBPVⱽ L) ı-Ob Δ
-          (seqS M (gen f)) ⟩)
     where
-    fund-lemma : Section (∫F pts) (SetCBPVᴰ L)
-    fund-lemma = LocalElim.localElim pts (SetAddCBPVⱽ L) ı-Ob ı-Fun
+    LR : ∀ {k} (Γ : Ob k) → Tm tt I Γ → hSet L
+    LR = LocalElim.local-obᴰ pts (SetAddCBPVCodⱽ L) ⦃ SetCBPVCodReind L ⦄ ı-Ob
 
-    corollary : ∀ {k} {Γ : Ob k} (M : Tm tt I Γ)
-      → ⟨ fund-lemma .F-obᴰ (_ , I) idS ⟩
-      → ⟨ LocalElim.local-obᴰ pts (SetAddCBPVⱽ L) ı-Ob Γ M ⟩
-    corollary M lem = subst
-      (λ M → ⟨ LocalElim.local-obᴰ pts (SetAddCBPVⱽ L) ı-Ob _ M ⟩)
-      (IdLS M) $
-      fund-lemma .F-homᴰ (_ , M) idS lem
+    module _
+      (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (f : Fun k≤ Γ Δ)
+        → ∀ (M : Tm tt I Γ)
+        → ⟨ LR Γ M ⟩ → ⟨ LR Δ (seqS M (gen f)) ⟩)
+      where
+      fund-lemma : Section (∫F pts) (SetCBPVCod L)
+      fund-lemma =
+        LocalElim.localElim pts (SetAddCBPVCodⱽ L) ⦃ SetCBPVCodReind L ⦄ ı-Ob
+          λ f → mk L λ z → (_ , ı-Fun f (z .fst) (z .snd)) , refl
+
+      canonical : ∀ {k} {Γ : Ob k} (M : Tm tt I Γ)
+        → ⟨ LR I idS ⟩ → Fib L {Y = _ , isSetTm} (LR Γ) M
+      canonical M lem .fst =
+        pt L (fund-lemma .F-homᴰ (_ , M)) (idS , lem) .fst
+      canonical M lem .snd =
+        pt L (fund-lemma .F-homᴰ (_ , M)) (idS , lem) .snd ∙ IdLS M
+
+      corollary : ∀ {k} {Γ : Ob k} (M : Tm tt I Γ)
+        → ⟨ LR I idS ⟩ → ⟨ LR Γ M ⟩
+      corollary M lem = subst (λ M → ⟨ LR _ M ⟩) (c .snd) (c .fst .snd)
+        where c = canonical M lem
 
 module EZ-Can where
   data BaseTy (k : Kind) : Type ℓ-zero where
@@ -102,8 +115,7 @@ module EZ-Can where
   open G.FundLem (λ ())
 
   LogicalRelation : ∀ {k} (Γ : Ob k) → Tm tt [1] Γ → hSet ℓ-zero
-  LogicalRelation =
-    LocalElim.local-obᴰ G.pts (SetAddCBPVⱽ ℓ-zero) (λ ())
+  LogicalRelation = LR
 
   fundamentalAt : ∀ {k} {Γ : Ob k} (M : Tm tt [1] Γ)
     → ⟨ LogicalRelation Γ M ⟩
@@ -120,10 +132,10 @@ module EZ-Can where
       ∙ Cop.≡in {pth = refl} (IdRS [ret]))
 
   RawFBool : Tm tt [1] ([F] BoolTy) → Type ℓ-zero
-  RawFBool M = ⟨ LogicalRelation ([F] BoolTy) M ⟩
+  RawFBool M = Fib ℓ-zero {Y = _ , isSetTm} (LogicalRelation ([F] BoolTy)) M
 
   raw-FBool : ∀ M → RawFBool M
-  raw-FBool = fundamentalAt
+  raw-FBool M = canonical (λ ()) M tt*
 
   private
     value-σ₁≡[+I1] :
@@ -146,23 +158,23 @@ module EZ-Can where
       ⊎ fiber (λ (V₂ : Tm tt [1] [1]) → seqS V₂ inr') V
 
     inspect-Bool : ∀ V → ⟨ LogicalRelation BoolTy V ⟩ → CanonicalBool V
-    inspect-Bool V (inl (V₁ , p , _)) =
+    inspect-Bool V (inl ((V₁ , _) , p)) =
       inl (V₁ , sym (cong (seqS V₁) value-σ₁≡[+I1]) ∙ p)
-    inspect-Bool V (inr (V₂ , p , _)) =
+    inspect-Bool V (inr ((V₂ , _) , p)) =
       inr (V₂ , sym (cong (seqS V₂) value-σ₂≡[+I2]) ∙ p)
 
   FCanonical→Canonical : ∀ {M} → RawFBool M
     → (M ≡ seqS tru [ret]) ⊎ (M ≡ seqS fls [ret])
-  FCanonical→Canonical (V , retV≡M , related) = Sum.rec
+  FCanonical→Canonical ((_ , ((V , related) , retV≡e)) , e≡M) = Sum.rec
     (λ (V₁ , V₁-inl≡V) → inl
-      ( sym retV≡M
+      ( sym (retV≡e ∙ e≡M)
       ∙ cong₂ seqS
           ( sym V₁-inl≡V
           ∙ cong (λ W → seqS W inl') ([1η] V₁ ∙ sym ([1η] idS))
           ∙ IdLS inl')
           [ret]'≡ret))
     (λ (V₂ , V₂-inr≡V) → inr
-      ( sym retV≡M
+      ( sym (retV≡e ∙ e≡M)
       ∙ cong₂ seqS
           ( sym V₂-inr≡V
           ∙ cong (λ W → seqS W inr') ([1η] V₂ ∙ sym ([1η] idS))
@@ -174,3 +186,25 @@ module EZ-Can where
     (∫C (AddCBPV .fst .fst)) [ (𝒱 , [1]) , (𝒞 , [F] BoolTy) ])
     → (M ≡ seqS tru [ret]) ⊎ (M ≡ seqS fls [ret])
   AllCanonical (_ , M) = FCanonical→Canonical (raw-FBool M)
+
+private
+  module Examples where
+    open EZ-Can
+    open CBPV BaseTy
+    open Terms FUN
+
+    isInl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A ⊎ B → Bool
+    isInl (inl _) = true
+    isInl (inr _) = false
+
+    _ : isInl (AllCanonical
+      (_ , seqS fls ([+E] (seqS fls [ret]) (seqS tru [ret])))) ≡ true
+    _ = refl
+
+    _ : isInl (AllCanonical (_ , seqS ([×I] fls tru) (seqS [×π2] [ret])))
+      ≡ true
+    _ = refl
+
+    _ : isInl (AllCanonical
+      (_ , seqS ([&I] (seqS tru [ret]) (seqS fls [ret])) [&π2])) ≡ false
+    _ = refl

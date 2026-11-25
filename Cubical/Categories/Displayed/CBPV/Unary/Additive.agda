@@ -8,16 +8,20 @@ open import Cubical.Data.Sigma
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.TotalCategory
+open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞)
-open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
@@ -89,7 +93,7 @@ module AddCBPVCatᴰNotation
 
   open TerminalⱽᴰNotation Dᴰ (C .snd .fst) (Cᴰ .snd .fst) public renaming
     (vertexᴰ to value-terminal-obᴰ ; !ⱽᴰ to value-terminal-introᴰ ;
-     !ηⱽᴰ to value-terminal-ηᴰ)
+     !ηⱽᴰ to value-terminal-ηᴰ ; !ηⱽᴰ-on to value-terminal-ηᴰ-on)
 
   module _ {A₁ A₂}
     (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
@@ -105,7 +109,7 @@ module AddCBPVCatᴰNotation
   open InitialⱽᴰNotation Dᴰ (C .snd .snd .snd .fst)
     (Cᴰ .snd .snd .snd .fst) public renaming
     (vertexᴰ to value-initial-obᴰ ; ¡ⱽᴰ to value-initial-elimᴰ ;
-     ¡ηⱽᴰ to value-initial-ηᴰ)
+     ¡ηⱽᴰ to value-initial-ηᴰ ; ¡ηⱽᴰ-on to value-initial-ηᴰ-on)
 
   module _ {A₁ A₂}
     (A₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , A₁))
@@ -121,7 +125,8 @@ module AddCBPVCatᴰNotation
   open TerminalⱽᴰNotation Dᴰ (C .snd .snd .snd .snd .snd .fst)
     (Cᴰ .snd .snd .snd .snd .snd .fst) public renaming
     (vertexᴰ to computation-terminal-obᴰ ; !ⱽᴰ to computation-terminal-introᴰ ;
-     !ηⱽᴰ to computation-terminal-ηᴰ)
+     !ηⱽᴰ to computation-terminal-ηᴰ ;
+     !ηⱽᴰ-on to computation-terminal-ηᴰ-on)
 
   module _ {B₁ B₂}
     (B₁ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒞 , B₁))
@@ -246,55 +251,24 @@ AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
   π₂*A₂ᴰ = Cⱽ .snd .snd .snd .fst bp.π₂ A₂ᴰ
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .fst =
   Terminalⱽ→ⱽᴰ (D ^opᴰᴰ) value-initial
-    value-initialⱽ
+    (Terminalⱽ^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .fst (value-initial .fst)))
   where
   D = Cⱽ .fst .fst
   value-initial = C .snd .snd .snd .fst
-  value-initial' = Cⱽ .snd .snd .snd .snd .fst (value-initial .fst)
-  value-initialⱽ : Terminalⱽ (D ^opᴰᴰ) (𝒱 , value-initial .fst)
-  value-initialⱽ .fst = value-initial' .fst
-  value-initialⱽ .snd =
-    pshiso
-      (pshhom
-        (λ x → value-initial' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ _ _ _ _ → refl))
-      (value-initial' .snd .PshIso.nIso)
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .fst
   A₁ A₂ A₁ᴰ A₂ᴰ =
   BinProductⱽ+π*→ⱽᴰ (D ^opᴰᴰ) bcp A₁ᴰ A₂ᴰ σ₁!A₁ᴰ σ₂!A₂ᴰ
-    bcpⱽ
+    (BinProductⱽ^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)))
   where
   D = Cⱽ .fst .fst
   bcp = C .snd .snd .snd .snd .fst A₁ A₂
   module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
-  σ₁!A₁ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ
-  σ₂!A₂ᴰ' = Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ
-  σ₁!A₁ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₁) A₁ᴰ
-  σ₁!A₁ᴰ .fst = σ₁!A₁ᴰ' .fst
-  σ₁!A₁ᴰ .snd =
-    pshiso
-      (pshhom
-        (λ x → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → σ₁!A₁ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (σ₁!A₁ᴰ' .snd .PshIso.nIso)
-  σ₂!A₂ᴰ : CartesianLift (D ^opᴰᴰ) (_ , bcp.π₂) A₂ᴰ
-  σ₂!A₂ᴰ .fst = σ₂!A₂ᴰ' .fst
-  σ₂!A₂ᴰ .snd =
-    pshiso
-      (pshhom
-        (λ x → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → σ₂!A₂ᴰ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (σ₂!A₂ᴰ' .snd .PshIso.nIso)
-  bcpⱽ' = Cⱽ .snd .snd .snd .snd .snd .fst
-    (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
-  bcpⱽ : BinProductⱽ (D ^opᴰᴰ) (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)
-  bcpⱽ .fst = bcpⱽ' .fst
-  bcpⱽ .snd =
-    pshiso
-      (pshhom
-        (λ x → bcpⱽ' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → bcpⱽ' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (bcpⱽ' .snd .PshIso.nIso)
+  σ₁!A₁ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+    (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+  σ₂!A₂ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+    (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
 AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .fst =
   Terminalⱽ→ⱽᴰ D computation-terminal
     (Cⱽ .snd .snd .snd .snd .snd .snd .snd .fst
@@ -316,6 +290,39 @@ AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .snd
   π₂*B₂ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
     bp.π₂ B₂ᴰ
 
+module _ {C : AddCBPVCat ℓ ℓ'}
+  (Cⱽ : AddCBPVCatⱽ (C .fst .fst) ℓᴰ ℓᴰ')
+  {A₁ A₂ : ValueOb (C .fst .fst)}
+  (A₁ᴰ : Categoryᴰ.ob[_] (Cⱽ .fst .fst) (𝒱 , A₁))
+  (A₂ᴰ : Categoryᴰ.ob[_] (Cⱽ .fst .fst) (𝒱 , A₂)) where
+  private
+    D = Cⱽ .fst .fst
+    module Dop = Fibers (D ^opᴰᴰ)
+    module DA = AddCBPVCatᴰNotation C (AddCBPVCatⱽ→ᴰ Cⱽ)
+    bcp = C .snd .snd .snd .snd .fst A₁ A₂
+    module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
+    σ₁! = CartesianLift^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+    σ₂! = CartesianLift^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
+    sumⱽ = BinProductⱽ^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁! .fst) (σ₂! .fst))
+
+  opaque
+    AddCBPVCatⱽ→ᴰ-σ₁ : DA.value-σᴰ₁ A₁ᴰ A₂ᴰ Dop.∫≡
+      (BinProductⱽNotation.π₁ (D ^opᴰᴰ) sumⱽ Dop.⋆ᴰ
+        CartesianLiftNotation.πⱽ (D ^opᴰᴰ) σ₁!)
+    AddCBPVCatⱽ→ᴰ-σ₁ = sym (BinProductⱽ+π*→ⱽᴰ-π₁
+      {C = KIND ^op} {Cᴰ = (C .fst .fst) ^opᴰ} (D ^opᴰᴰ)
+      {x = 𝒱} {Aᴰ = A₁} {Bᴰ = A₂} bcp A₁ᴰ A₂ᴰ σ₁! σ₂! sumⱽ)
+
+    AddCBPVCatⱽ→ᴰ-σ₂ : DA.value-σᴰ₂ A₁ᴰ A₂ᴰ Dop.∫≡
+      (BinProductⱽNotation.π₂ (D ^opᴰᴰ) sumⱽ Dop.⋆ᴰ
+        CartesianLiftNotation.πⱽ (D ^opᴰᴰ) σ₂!)
+    AddCBPVCatⱽ→ᴰ-σ₂ = sym (BinProductⱽ+π*→ⱽᴰ-π₂
+      {C = KIND ^op} {Cᴰ = (C .fst .fst) ^opᴰ} (D ^opᴰᴰ)
+      {x = 𝒱} {Aᴰ = A₁} {Bᴰ = A₂} bcp A₁ᴰ A₂ᴰ σ₁! σ₂! sumⱽ)
+
 module _
   {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
   (Dⱽ : AddCBPVCatⱽ D ℓᴰᴰ ℓᴰᴰ')
@@ -326,50 +333,19 @@ module _
     Dᴰ = Dⱽ .fst .fst
     G = ∫F F
 
-    -- The direct opposite avoids the toOpOp transports introduced by _^opF.
-    G-op : Functor ((∫C C) ^op) ((∫C D) ^op)
-    G-op .F-ob = G .F-ob
-    G-op .F-hom = G .F-hom
-    G-op .F-id = G .F-id
-    G-op .F-seq f g = G .F-seq g f
-
-  -- These cases are just eta expansions to get around the
-  -- no-eta-equality for Categoryᴰ, specifically more ∫ and ^op stuff.
   reindexValueInitialⱽ : ValueInitialsⱽ (reindex Dᴰ G)
   reindexValueInitialⱽ A =
-    init' .fst ,
-    pshiso
-      (pshhom
-        (λ x → init' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ _ _ _ _ → refl))
-      (init' .snd .PshIso.nIso)
-    where
-    init' = reindexTerminalⱽ G-op (𝒱 , A)
-      (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
+    reindexInitialⱽ G (𝒱 , A) (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
 
   reindexValueBinCoProductⱽ : ValueBinCoProductsⱽ (reindex Dᴰ G)
   reindexValueBinCoProductⱽ A₁ᴰ A₂ᴰ =
-    bcp' .fst ,
-    pshiso
-      (pshhom
-        (λ x → bcp' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y f p → bcp' .snd .PshIso.trans .PshHom.N-hom x y f p))
-      (bcp' .snd .PshIso.nIso)
-    where
-    bcp' = reindexBinProductⱽ G-op A₁ᴰ A₂ᴰ
+    reindexBinCoProductⱽ G A₁ᴰ A₂ᴰ
       (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
 
   reindexValueOpcartesianLifts :
     hasVerticalOpcartesianLiftsAt (reindex Dᴰ G) 𝒱
   reindexValueOpcartesianLifts f Aᴰ =
-    lift' .fst ,
-    pshiso
-      (pshhom
-        (λ x → lift' .snd .PshIso.trans .PshHom.N-ob x)
-        (λ x y g p → lift' .snd .PshIso.trans .PshHom.N-hom x y g p))
-      (lift' .snd .PshIso.nIso)
-    where
-    lift' = reindexCartesianLift (Dᴰ ^opᴰ) G-op (_ , f) Aᴰ
+    reindexOpcartesianLift G (_ , f) Aᴰ
       (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
 
   AddCBPVCatⱽReindex : AddCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
@@ -393,4 +369,213 @@ module _
       (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst B₁ᴰ B₂ᴰ)
   AddCBPVCatⱽReindex .snd .snd .snd .snd .snd .snd .snd .snd .snd f Bᴰ =
     reindexCartesianLift Dᴰ G (_ , f) Bᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd (F.F-homᴰ f) Bᴰ)
+
+module _ {C : AddCBPVCat ℓ ℓ'}
+  (Cⱽ : AddCBPVCatⱽ (C .fst .fst) ℓᴰ ℓᴰ')
+  ⦃ cr : ChosenReind (Cⱽ .fst .fst) ⦄
+  where
+  private
+    D = Cⱽ .fst .fst
+
+  AddCBPVCatⱽ→ᴰChosenReind : AddCBPVCatᴰ C ℓᴰ ℓᴰ'
+  AddCBPVCatⱽ→ᴰChosenReind .fst = MultCBPVCatⱽ→ᴰChosenReind (Cⱽ .fst)
+  AddCBPVCatⱽ→ᴰChosenReind .snd .fst = AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .fst
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
+    BinProductⱽ+π*→ⱽᴰChosenReind D bp A₁ᴰ A₂ᴰ π₁*A₁ᴰ π₂*A₂ᴰ
+      (Cⱽ .snd .snd .fst (π₁*A₁ᴰ .fst) (π₂*A₂ᴰ .fst))
+    where
+    bp = C .snd .snd .fst A₁ A₂
+    module bp = BinProductⱽNotation (C .fst .fst) bp
+    π₁*A₁ᴰ = Cⱽ .snd .snd .snd .fst bp.π₁ A₁ᴰ
+    π₂*A₂ᴰ = Cⱽ .snd .snd .snd .fst bp.π₂ A₂ᴰ
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .fst =
+    AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .fst
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
+    BinProductⱽ+π*→ⱽᴰChosenReind (D ^opᴰᴰ) ⦃ ChosenReind^opᴰᴰ D ⦄
+      bcp A₁ᴰ A₂ᴰ σ₁!A₁ᴰ σ₂!A₂ᴰ
+      (BinProductⱽ^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)))
+    where
+    bcp = C .snd .snd .snd .snd .fst A₁ A₂
+    module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
+    σ₁!A₁ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+    σ₂!A₂ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .snd .snd .fst =
+    AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .fst
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .snd .snd .snd B₁ B₂ B₁ᴰ B₂ᴰ =
+    BinProductⱽ+π*→ⱽᴰChosenReind D bp B₁ᴰ B₂ᴰ π₁*B₁ᴰ π₂*B₂ᴰ
+      (Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst
+        (π₁*B₁ᴰ .fst) (π₂*B₂ᴰ .fst))
+    where
+    bp = C .snd .snd .snd .snd .snd .snd B₁ B₂
+    module bp = BinProductⱽNotation (C .fst .fst) bp
+    π₁*B₁ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
+      bp.π₁ B₁ᴰ
+    π₂*B₂ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
+      bp.π₂ B₂ᴰ
+
+  module _ {A₁ A₂ : ValueOb (C .fst .fst)}
+    (A₁ᴰ : Categoryᴰ.ob[_] D (𝒱 , A₁))
+    (A₂ᴰ : Categoryᴰ.ob[_] D (𝒱 , A₂)) where
+    private
+      module Dop = Fibers (D ^opᴰᴰ)
+      module DA = AddCBPVCatᴰNotation C AddCBPVCatⱽ→ᴰChosenReind
+      bcp = C .snd .snd .snd .snd .fst A₁ A₂
+      module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
+      σ₁! = CartesianLift^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+      σ₂! = CartesianLift^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
+      sumⱽ = BinProductⱽ^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁! .fst) (σ₂! .fst))
+
+    opaque
+      AddCBPVCatⱽ→ᴰChosenReind-σ₁ : DA.value-σᴰ₁ A₁ᴰ A₂ᴰ Dop.∫≡
+        (BinProductⱽNotation.π₁ (D ^opᴰᴰ) sumⱽ Dop.⋆ᴰ
+          CartesianLiftNotation.πⱽ (D ^opᴰᴰ) σ₁!)
+      AddCBPVCatⱽ→ᴰChosenReind-σ₁ = sym (BinProductⱽ+π*→ⱽᴰChosenReind-π₁
+        {C = KIND ^op} {Cᴰ = (C .fst .fst) ^opᴰ} (D ^opᴰᴰ)
+        ⦃ ChosenReind^opᴰᴰ D ⦄
+        {x = 𝒱} {Aᴰ = A₁} {Bᴰ = A₂} bcp A₁ᴰ A₂ᴰ σ₁! σ₂! sumⱽ)
+
+      AddCBPVCatⱽ→ᴰChosenReind-σ₂ : DA.value-σᴰ₂ A₁ᴰ A₂ᴰ Dop.∫≡
+        (BinProductⱽNotation.π₂ (D ^opᴰᴰ) sumⱽ Dop.⋆ᴰ
+          CartesianLiftNotation.πⱽ (D ^opᴰᴰ) σ₂!)
+      AddCBPVCatⱽ→ᴰChosenReind-σ₂ = sym (BinProductⱽ+π*→ⱽᴰChosenReind-π₂
+        {C = KIND ^op} {Cᴰ = (C .fst .fst) ^opᴰ} (D ^opᴰᴰ)
+        ⦃ ChosenReind^opᴰᴰ D ⦄
+        {x = 𝒱} {Aᴰ = A₁} {Bᴰ = A₂} bcp A₁ᴰ A₂ᴰ σ₁! σ₂! sumⱽ)
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
+  (Dⱽ : AddCBPVCatⱽ D ℓᴰᴰ ℓᴰᴰ')
+  (F : Functorⱽ C D)
+  ⦃ cr : ChosenReind (Dⱽ .fst .fst) ⦄
+  where
+  private
+    module F = Functorᴰ F
+    Dᴰ = Dⱽ .fst .fst
+    G = ∫F F
+
+    G-op : Functor ((∫C C) ^op) ((∫C D) ^op)
+    G-op .F-ob = G .F-ob
+    G-op .F-hom = G .F-hom
+    G-op .F-id = G .F-id
+    G-op .F-seq f g = G .F-seq g f
+
+  reindexValueInitialⱽChosenReind :
+    ValueInitialsⱽ (reindexChosenReind Dᴰ G)
+  reindexValueInitialⱽChosenReind A =
+    init' .fst ,
+    pshiso
+      (pshhom
+        (λ x → init' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ _ _ _ _ → refl))
+      (init' .snd .PshIso.nIso)
+    where
+    init' = reindexTerminalⱽChosenReind (Dᴰ ^opᴰ) G-op (𝒱 , A)
+      (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
+
+  reindexValueBinCoProductⱽChosenReind :
+    ValueBinCoProductsⱽ (reindexChosenReind Dᴰ G)
+  reindexValueBinCoProductⱽChosenReind A₁ᴰ A₂ᴰ =
+    bcp' .fst ,
+    pshiso
+      (pshhom
+        (λ x → bcp' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y f p → bcp' .snd .PshIso.trans .PshHom.N-hom x y f p))
+      (bcp' .snd .PshIso.nIso)
+    where
+    bcp' = reindexBinProductⱽChosenReind (Dᴰ ^opᴰ) G-op A₁ᴰ A₂ᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
+
+  reindexValueOpcartesianLiftsChosenReind :
+    hasVerticalOpcartesianLiftsAt (reindexChosenReind Dᴰ G) 𝒱
+  reindexValueOpcartesianLiftsChosenReind f Aᴰ =
+    lift' .fst ,
+    pshiso
+      (pshhom
+        (λ x → lift' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y g p → lift' .snd .PshIso.trans .PshHom.N-hom x y g p))
+      (lift' .snd .PshIso.nIso)
+    where
+    lift' = reindexCartesianLiftChosenReind (Dᴰ ^opᴰ) G-op (_ , f) Aᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
+
+  private
+    module Dop = Fibers (Dᴰ ^opᴰ)
+    module CRop = ChosenReindNotation (Dᴰ ^opᴰ)
+
+  reindexValueBinCoProductⱽChosenReind-σ₁ : ∀ {A}
+    (A₁ᴰ A₂ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , F.F-obᴰ A))
+    → BinProductⱽNotation.π₁ (reindexChosenReind Dᴰ G ^opᴰ)
+        (reindexValueBinCoProductⱽChosenReind A₁ᴰ A₂ᴰ)
+      Dop.∫≡ BinProductⱽNotation.π₁ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
+  reindexValueBinCoProductⱽChosenReind-σ₁ {A} A₁ᴰ A₂ᴰ =
+    cong toσ₁ (congN-obⱽ (bcp .snd .PshIso.trans) (CRop.reind-∫≡ _ _))
+    where
+    bcp = Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ
+    toσ₁ : (Σ[ f ∈ ∫C D [ G ⟅ 𝒱 , A ⟆ , G ⟅ 𝒱 , A ⟆ ] ]
+      (Dᴰ [ f ][ A₁ᴰ , bcp .fst ]) × (Dᴰ [ f ][ A₂ᴰ , bcp .fst ]))
+      → Dop.Hom[ (G ⟅ 𝒱 , A ⟆ , bcp .fst) , (G ⟅ 𝒱 , A ⟆ , A₁ᴰ) ]
+    toσ₁ (f , a , b) = f , a
+
+  reindexValueBinCoProductⱽChosenReind-σ₂ : ∀ {A}
+    (A₁ᴰ A₂ᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , F.F-obᴰ A))
+    → BinProductⱽNotation.π₂ (reindexChosenReind Dᴰ G ^opᴰ)
+        (reindexValueBinCoProductⱽChosenReind A₁ᴰ A₂ᴰ)
+      Dop.∫≡ BinProductⱽNotation.π₂ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
+  reindexValueBinCoProductⱽChosenReind-σ₂ {A} A₁ᴰ A₂ᴰ =
+    cong toσ₂ (congN-obⱽ (bcp .snd .PshIso.trans) (CRop.reind-∫≡ _ _))
+    where
+    bcp = Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ
+    toσ₂ : (Σ[ f ∈ ∫C D [ G ⟅ 𝒱 , A ⟆ , G ⟅ 𝒱 , A ⟆ ] ]
+      (Dᴰ [ f ][ A₁ᴰ , bcp .fst ]) × (Dᴰ [ f ][ A₂ᴰ , bcp .fst ]))
+      → Dop.Hom[ (G ⟅ 𝒱 , A ⟆ , bcp .fst) , (G ⟅ 𝒱 , A ⟆ , A₂ᴰ) ]
+    toσ₂ (f , a , b) = f , b
+
+  reindexValueOpcartesianLiftsChosenReind-πⱽ : ∀ {A A'}
+    (f : C [ Category.id KIND ][ A , A' ])
+    (Aᴰ : Categoryᴰ.ob[_] Dᴰ (𝒱 , F.F-obᴰ A))
+    → CartesianLiftNotation.πⱽ (reindexChosenReind Dᴰ G ^opᴰ)
+        (reindexValueOpcartesianLiftsChosenReind f Aᴰ)
+      Dop.∫≡ CartesianLiftNotation.πⱽ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
+  reindexValueOpcartesianLiftsChosenReind-πⱽ f Aᴰ =
+    CRop.reind-∫≡ _ _
+    ∙ CartesianLiftNotation.⟨_⟩⋆πⱽ (Dᴰ ^opᴰ)
+        (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
+        (CRop.reind-∫≡ _ _)
+
+  AddCBPVCatⱽReindexChosenReind : AddCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
+  AddCBPVCatⱽReindexChosenReind .fst = MultCBPVCatⱽReindexChosenReind (Dⱽ .fst)
+    F
+  AddCBPVCatⱽReindexChosenReind .snd .fst A =
+    reindexTerminalⱽChosenReind Dᴰ G (𝒱 , A) (Dⱽ .snd .fst (F.F-obᴰ A))
+  AddCBPVCatⱽReindexChosenReind .snd .snd .fst A₁ᴰ A₂ᴰ =
+    reindexBinProductⱽChosenReind Dᴰ G A₁ᴰ A₂ᴰ (Dⱽ .snd .snd .fst A₁ᴰ A₂ᴰ)
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .fst f Bᴰ =
+    reindexCartesianLiftChosenReind Dᴰ G (_ , f) Bᴰ
+      (Dⱽ .snd .snd .snd .fst (F.F-homᴰ f) Bᴰ)
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .fst =
+    reindexValueInitialⱽChosenReind
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .snd .fst =
+    reindexValueBinCoProductⱽChosenReind
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .snd .snd .fst =
+    reindexValueOpcartesianLiftsChosenReind
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .snd .snd .snd .fst B =
+    reindexTerminalⱽChosenReind Dᴰ G (𝒞 , B)
+      (Dⱽ .snd .snd .snd .snd .snd .snd .snd .fst (F.F-obᴰ B))
+  AddCBPVCatⱽReindexChosenReind
+    .snd .snd .snd .snd .snd .snd .snd .snd .fst B₁ᴰ B₂ᴰ =
+    reindexBinProductⱽChosenReind Dᴰ G B₁ᴰ B₂ᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst B₁ᴰ B₂ᴰ)
+  AddCBPVCatⱽReindexChosenReind
+    .snd .snd .snd .snd .snd .snd .snd .snd .snd f Bᴰ =
+    reindexCartesianLiftChosenReind Dᴰ G (_ , f) Bᴰ
       (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd (F.F-homᴰ f) Bᴰ)

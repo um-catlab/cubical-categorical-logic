@@ -4,8 +4,11 @@ module Cubical.Algebra.State where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
+open Cubical.Foundations.Equiv.Dependent.More public using (substReindOver)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.More
 
 open import Cubical.Data.Bool as Bool
@@ -96,6 +99,29 @@ module _ {X : Type ℓ} {X' : Type ℓ'} {X'' : Type ℓ''}
   _⋆Homo_ .Homo.rd-hom xt xf rdxtf p = ψ.rd-hom (f xt) (f xf) (f rdxtf) (ϕ.rd-hom xt xf rdxtf p)
   _⋆Homo_ .Homo.wt-hom b x wtbx p = ψ.wt-hom b (f x) (f wtbx) (ϕ.wt-hom b x wtbx p)
 
+module _ {X : Type ℓ} {X' : Type ℓ'}
+  {B : StateAlg X} {B' : StateAlg X'} {f : X → X'} where
+  private
+    module B' = StateAlg B'
+
+  invHomo :
+    (ϕ : Homo f B B') (f⁻ : isIso f) →
+    Homo (f⁻ .fst) B' B
+  invHomo ϕ f⁻ .Homo.rd-hom xt xf rdxtxf p =
+    isoFunInjective (isIsoToIso f⁻) _ _ $
+      f⁻ .snd .fst rdxtxf
+      ∙ p
+      ∙ cong₂ B'.rd
+          (sym $ f⁻ .snd .fst xt)
+          (sym $ f⁻ .snd .fst xf)
+      ∙ sym (Homo.rd-hom' ϕ _ _)
+  invHomo ϕ f⁻ .Homo.wt-hom b x wtbx p =
+    isoFunInjective (isIsoToIso f⁻) _ _ $
+      f⁻ .snd .fst wtbx
+      ∙ p
+      ∙ cong (B'.wt b) (sym $ f⁻ .snd .fst x)
+      ∙ sym (Homo.wt-hom' ϕ _ _)
+
 record StateAlgᴰ {X : Type ℓ} (B : StateAlg X)
   (Xᴰ : X → Type ℓᴰ) : Type (ℓ-max ℓ ℓᴰ) where
   open StateAlg B
@@ -123,34 +149,36 @@ module _ {X : Type ℓ} {X' : Type ℓ'}
   (ϕ : Homo f B B')
   {Xᴰ' : X' → Type ℓᴰ'} (Bᴰ' : StateAlgᴰ B' Xᴰ')
   (isSetX' : isSet X')
+  ⦃ rX : ReindOver Xᴰ' ⦄
   where
   private
     module B = StateAlg B
     module B' = StateAlg B'
     module ϕ = Homo ϕ
+    module rX = ReindOver rX
     module Bᴰ' where
       open StateAlgᴰ Bᴰ' public
       open hSetReasoning (_ , isSetX') Xᴰ' using (rectifyOut) public
 
     rdᴰ : ∀ {xt xf} → Xᴰ' (f xt) → Xᴰ' (f xf) → Xᴰ' (f (B.rd xt xf))
-    rdᴰ {xt} {xf} xtᴰ xfᴰ = Bᴰ'.reind (sym (ϕ.rd-hom' xt xf)) (Bᴰ'.rdᴰ xtᴰ xfᴰ)
+    rdᴰ {xt} {xf} xtᴰ xfᴰ = rX.reind⟨ sym (ϕ.rd-hom' xt xf) ⟩ (Bᴰ'.rdᴰ xtᴰ xfᴰ)
 
     wtᴰ : ∀ {x} b → Xᴰ' (f x) → Xᴰ' (f (B.wt b x))
-    wtᴰ {x} b xᴰ = Bᴰ'.reind (sym (ϕ.wt-hom' b x)) (Bᴰ'.wtᴰ b xᴰ)
+    wtᴰ {x} b xᴰ = rX.reind⟨ sym (ϕ.wt-hom' b x) ⟩ (Bᴰ'.wtᴰ b xᴰ)
 
     rdᴰ-filler : ∀ {xt xf} (xtᴰ : Xᴰ' (f xt)) (xfᴰ : Xᴰ' (f xf))
       → Path (Σ X' Xᴰ')
           (f (B.rd xt xf) , rdᴰ xtᴰ xfᴰ)
           (B'.rd (f xt) (f xf) , Bᴰ'.rdᴰ xtᴰ xfᴰ)
     rdᴰ-filler {xt} {xf} xtᴰ xfᴰ =
-      sym (Bᴰ'.reind-filler (sym (ϕ.rd-hom' xt xf)))
+      sym (rX.reind-filler (sym (ϕ.rd-hom' xt xf)) _)
 
     wtᴰ-filler : ∀ {x} b (xᴰ : Xᴰ' (f x))
       → Path (Σ X' Xᴰ')
           (f (B.wt b x) , wtᴰ b xᴰ)
           (B'.wt b (f x) , Bᴰ'.wtᴰ b xᴰ)
     wtᴰ-filler {x} b xᴰ =
-      sym (Bᴰ'.reind-filler (sym (ϕ.wt-hom' b x)))
+      sym (rX.reind-filler (sym (ϕ.wt-hom' b x)) _)
 
   reindexStateAlgᴰ : StateAlgᴰ B (Xᴰ' ∘ f)
   reindexStateAlgᴰ .StateAlgᴰ.rdᴰ = rdᴰ

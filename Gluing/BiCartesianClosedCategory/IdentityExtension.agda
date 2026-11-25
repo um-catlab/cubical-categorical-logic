@@ -4,16 +4,11 @@ module Gluing.BiCartesianClosedCategory.IdentityExtension where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Path
 open import Cubical.Foundations.Structure
-open import Cubical.Foundations.Transport
-open import Cubical.Functions.Embedding
 open import Cubical.Functions.FunExtEquiv
 
-
 open import Cubical.Data.Sigma hiding (_×_)
-open import Cubical.Data.Sigma.Properties
+open import Cubical.Data.Sigma using () renaming (_×_ to _Σ×_)
 import Cubical.Data.Empty as Empty
 open import Cubical.Data.Sum
 open import Cubical.Data.Sum.Properties
@@ -28,7 +23,7 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Limits.BiCartesianClosedV
 import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties as UUP
-open import Cubical.Categories.Displayed.Instances.Sets.Properties
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Quiver
 open import Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded
   as FreeBiCCC
@@ -43,24 +38,54 @@ private
 
 module _
   (Q : +×⇒Quiver ℓQ ℓQ')
-  (I J : Interpretation Q (SETBiCCC {ℓ}) (EqSETᴰBCCCⱽ {ℓ}))
+  (I J : Interpretation Q (SETBiCCC {ℓ}) (SETCodBCCCⱽ {ℓ}))
   (generators :
-    LogicalRelationGenerators Q (SETBiCCC {ℓ}) (EqSETᴰBCCCⱽ {ℓ}) I J)
+    LogicalRelationGenerators Q (SETBiCCC {ℓ}) (SETCodBCCCⱽ {ℓ}) I J)
   where
 
   private
-    Left = interpretation Q (SETBiCCC {ℓ}) (EqSETᴰBCCCⱽ {ℓ}) I
-    Right = interpretation Q (SETBiCCC {ℓ}) (EqSETᴰBCCCⱽ {ℓ}) J
+    Left = interpretation Q (SETBiCCC {ℓ}) (SETCodBCCCⱽ {ℓ}) I
+    Right = interpretation Q (SETBiCCC {ℓ}) (SETCodBCCCⱽ {ℓ}) J
     LR =
-      logicalRelation Q (SETBiCCC {ℓ}) (EqSETᴰBCCCⱽ {ℓ})
+      logicalRelation Q (SETBiCCC {ℓ}) (SETCodBCCCⱽ {ℓ})
         I J generators
+
+    fromPull : ∀ {X Y : hSet ℓ} {f : ⟨ X ⟩ → ⟨ Y ⟩} {R} {z}
+      → Fib ℓ (Pull f R) z → Fib ℓ R (f z)
+    fromPull {f = f} ((_ , w , q') , q) = w , q' ∙ cong f q
+
+    toPull : ∀ {X Y : hSet ℓ} {f : ⟨ X ⟩ → ⟨ Y ⟩} {R} {z}
+      → Fib ℓ R (f z) → Fib ℓ (Pull f R) z
+    toPull {z = z} u = (z , u) , refl
+
+    adjust : ∀ {Y : hSet ℓ} {R} {y y' : ⟨ Y ⟩}
+      → Fib ℓ {Y = Y} R y → y ≡ y' → Fib ℓ R y'
+    adjust (u , p) q = u , p ∙ q
+
+    fromPullAt : ∀ {X Y : hSet ℓ} {f : ⟨ X ⟩ → ⟨ Y ⟩} {R} {w z}
+      → Fib ℓ (Pull f R) w → w ≡ z → Fib ℓ R (f z)
+    fromPullAt {f = f} r p = adjust (fromPull r) (cong f p)
+
+    inlPath : ∀ {ℓa ℓb} {X X' : Type ℓa} {Y Y' : Type ℓb} {a x b y}
+      → Path ((X ⊎ Y) Σ× (X' ⊎ Y')) (inl a , inl b) (inl x , inl y)
+      → (a , b) ≡ (x , y)
+    inlPath e = ΣPathP
+      ( lower (⊎Path.encode _ _ (cong fst e))
+      , lower (⊎Path.encode _ _ (cong snd e)))
+
+    inrPath : ∀ {ℓa ℓb} {X X' : Type ℓa} {Y Y' : Type ℓb} {a x b y}
+      → Path ((X ⊎ Y) Σ× (X' ⊎ Y')) (inr a , inr b) (inr x , inr y)
+      → (a , b) ≡ (x , y)
+    inrPath e = ΣPathP
+      ( lower (⊎Path.encode _ _ (cong fst e))
+      , lower (⊎Path.encode _ _ (cong snd e)))
+
     LRMotive =
       FreeBiCCC.elimLocalMotive Q
-        (pointwise Q (SETBiCCC {ℓ}) (EqSETᴰBCCCⱽ {ℓ}) I J)
-        (EqSETᴰBCCCⱽ {ℓ})
+        (pointwise Q (SETBiCCC {ℓ}) (SETCodBCCCⱽ {ℓ}) I J)
+        (SETCodBCCCⱽ {ℓ})
 
     module LRMotive = BiCartesianClosedCategoryᴰ LRMotive
-    module RelCat = Categoryᴰ LRMotive.Cᴰ
     module Syntax = BiCartesianClosedCategory
       (FreeBiCCC.FreeBiCartesianClosedCategory Q)
 
@@ -83,11 +108,11 @@ module _
   closedInterpretation≡ ⊥ = refl
   closedInterpretation≡ ⊤ = refl
 
-  identityExtension :
+  identityExtensionFib :
     (A : BiCCCExpr Empty.⊥) →
-    (x : ⟨ Left .fst .F-ob (embedClosed A) ⟩)
-    (y : ⟨ Right .fst .F-ob (embedClosed A) ⟩) →
-    ⟨ LR .F-obᴰ (embedClosed A) (x , y) ⟩ →
+    {x : ⟨ Left .fst .F-ob (embedClosed A) ⟩}
+    {y : ⟨ Right .fst .F-ob (embedClosed A) ⟩} →
+    Fib ℓ (LR .F-obᴰ (embedClosed A)) (x , y) →
     PathP (λ i → closedInterpretation≡ A i) x y
 
   identityExtension⁻ :
@@ -97,107 +122,90 @@ module _
     PathP (λ i → closedInterpretation≡ A i) x y →
     ⟨ LR .F-obᴰ (embedClosed A) (x , y) ⟩
 
-  identityExtension (↑ ())
-  identityExtension ⊤ tt* tt* _ = refl
-  identityExtension ⊥ ()
-  identityExtension (A × B) (x , y) (x' , y') (rx , ry) =
+  identityExtensionFib (↑ ())
+  identityExtensionFib ⊤ {tt*} {tt*} _ = refl
+  identityExtensionFib ⊥ {()}
+  identityExtensionFib (A × B) ((_ , rx , ry) , p) =
     ΣPathP
-      ( identityExtension A x x' rx
-      , identityExtension B y y' ry)
-  identityExtension (A + B) (inl x) (inl y) = forward
-    where
-    forward : ⟨ LR .F-obᴰ (embedClosed (A + B)) (inl x , inl y) ⟩ → _
-    forward (inl ((a , b) , e , r)) i =
-      inl
-        (identityExtension A x y
-          (subst (λ z → ⟨ LR .F-obᴰ (embedClosed A) z ⟩)
-            (ΣPathP
-              ( lower (⊎Path.encode _ _ (cong fst e))
-              , lower (⊎Path.encode _ _ (cong snd e))))
-            r)
-          i)
-    forward (inr ((_ , _) , e , _)) =
-      Empty.rec (lower (⊎Path.encode _ _ (cong fst e)))
-  identityExtension (A + B) (inr x) (inr y) = forward
-    where
-    forward : ⟨ LR .F-obᴰ (embedClosed (A + B)) (inr x , inr y) ⟩ → _
-    forward (inl ((_ , _) , e , _)) =
-      Empty.rec (lower (⊎Path.encode _ _ (cong fst e)))
-    forward (inr ((a , b) , e , r)) i =
-      inr
-        (identityExtension B x y
-          (subst (λ z → ⟨ LR .F-obᴰ (embedClosed B) z ⟩)
-            (ΣPathP
-              ( lower (⊎Path.encode _ _ (cong fst e))
-              , lower (⊎Path.encode _ _ (cong snd e))))
-            r)
-          i)
-  identityExtension (A + B) (inl x) (inr y) r =
-    Empty.rec (sourceEmpty r)
-    where
-    sourceEmpty :
-      ⟨ LR .F-obᴰ (embedClosed (A + B)) (inl x , inr y) ⟩ → Empty.⊥
-    sourceEmpty (inl ((_ , _) , e , _)) =
-      lower (⊎Path.encode _ _ (cong snd e))
-    sourceEmpty (inr ((_ , _) , e , _)) =
-      lower (⊎Path.encode _ _ (cong fst e))
-  identityExtension (A + B) (inr x) (inl y) r =
-    Empty.rec (sourceEmpty r)
-    where
-    sourceEmpty :
-      ⟨ LR .F-obᴰ (embedClosed (A + B)) (inr x , inl y) ⟩ → Empty.⊥
-    sourceEmpty (inl ((_ , _) , e , _)) =
-      lower (⊎Path.encode _ _ (cong fst e))
-    sourceEmpty (inr ((_ , _) , e , _)) =
-      lower (⊎Path.encode _ _ (cong snd e))
-  identityExtension (A ⇒ B) f g rel =
-    funExtDep λ {x}{y} p →
-      identityExtension B (f x) (g y)
-        (LR .F-homᴰ (FreeBiCCC.eval' Q)
-          ((f , x) , (g , y))
-          (rel , identityExtension⁻ A x y p))
+      ( identityExtensionFib A (fromPullAt rx p)
+      , identityExtensionFib B (fromPullAt ry p))
+  identityExtensionFib (A + B) {inl x} {inl y}
+    ((_ , inl (((a , b) , r) , e)) , p) i =
+    inl (identityExtensionFib A (((a , b) , r) , inlPath (e ∙ p)) i)
+  identityExtensionFib (A + B) {inl x} {inl y} ((_ , inr (_ , e)) , p) =
+    Empty.rec (lower (⊎Path.encode _ _ (cong fst (e ∙ p))))
+  identityExtensionFib (A + B) {inr x} {inr y} ((_ , inl (_ , e)) , p) =
+    Empty.rec (lower (⊎Path.encode _ _ (cong fst (e ∙ p))))
+  identityExtensionFib (A + B) {inr x} {inr y}
+    ((_ , inr (((a , b) , r) , e)) , p) i =
+    inr (identityExtensionFib B (((a , b) , r) , inrPath (e ∙ p)) i)
+  identityExtensionFib (A + B) {inl x} {inr y} ((_ , inl (_ , e)) , p) =
+    Empty.rec (lower (⊎Path.encode _ _ (cong snd (e ∙ p))))
+  identityExtensionFib (A + B) {inl x} {inr y} ((_ , inr (_ , e)) , p) =
+    Empty.rec (lower (⊎Path.encode _ _ (cong fst (e ∙ p))))
+  identityExtensionFib (A + B) {inr x} {inl y} ((_ , inl (_ , e)) , p) =
+    Empty.rec (lower (⊎Path.encode _ _ (cong fst (e ∙ p))))
+  identityExtensionFib (A + B) {inr x} {inl y} ((_ , inr (_ , e)) , p) =
+    Empty.rec (lower (⊎Path.encode _ _ (cong snd (e ∙ p))))
+  identityExtensionFib (A ⇒ B) ((w , rel) , p) =
+    funExtDep λ {x}{y} q →
+      identityExtensionFib B
+        (adjust
+          (pt ℓ (LR .F-homᴰ (FreeBiCCC.eval' {Q = Q}))
+            (((w .fst , x) , (w .snd , y))
+            , toPull ((_ , rel) , refl)
+            , toPull ((_ , identityExtension⁻ A x y q) , refl)))
+          (cong (λ h → h .fst x , h .snd y) p))
+
+  identityExtension :
+    (A : BiCCCExpr Empty.⊥) →
+    (x : ⟨ Left .fst .F-ob (embedClosed A) ⟩)
+    (y : ⟨ Right .fst .F-ob (embedClosed A) ⟩) →
+    ⟨ LR .F-obᴰ (embedClosed A) (x , y) ⟩ →
+    PathP (λ i → closedInterpretation≡ A i) x y
+  identityExtension A x y r = identityExtensionFib A ((_ , r) , refl)
 
   identityExtension⁻ (↑ ())
   identityExtension⁻ ⊤ tt* tt* _ = tt*
   identityExtension⁻ ⊥ ()
   identityExtension⁻ (A × B) (x , y) (x' , y') r =
-    identityExtension⁻ A x x' (PathPΣ.fst r) ,
-    identityExtension⁻ B y y' (λ i → r i .snd)
+    toPull ((_ , identityExtension⁻ A x x' (PathPΣ.fst r)) , refl) ,
+    toPull ((_ , identityExtension⁻ B y y' (λ i → r i .snd)) , refl)
   identityExtension⁻ (A + B) (inl x) (inl y) r =
-    inl ((x , y) , refl ,
-      identityExtension⁻ A x y (PathP-inl-inj r))
+    inl (((x , y) , identityExtension⁻ A x y (PathP-inl-inj r)) , refl)
   identityExtension⁻ (A + B) (inr x) (inr y) r =
-    inr ((x , y) , refl ,
-      identityExtension⁻ B x y (PathP-inr-inj r))
+    inr (((x , y) , identityExtension⁻ B x y (PathP-inr-inj r)) , refl)
   identityExtension⁻ (A + B) (inl x) (inr y) r =
     Empty.rec (PathP-inl≢inr r)
   identityExtension⁻ (A + B) (inr x) (inl y) r =
     Empty.rec (PathP-inr≢inl r)
   identityExtension⁻ (A ⇒ B) f g r =
-    LRMotive.λᴰ (body r) (f , g) refl
+    subst (λ hk → ⟨ LR .F-obᴰ (embedClosed (A ⇒ B)) hk ⟩) (lamPt .snd)
+      (lamPt .fst .snd)
     where
     Point : LRMotive.Cᴰ.ob[ embedClosed (A ⇒ B) ]
     Point hk =
       (hk ≡ (f , g)) ,
-      isProp→isSet (pointwise Q (SETBiCCC {ℓ}) (EqSETᴰBCCCⱽ {ℓ}) I J
+      isProp→isSet (pointwise Q (SETBiCCC {ℓ}) (SETCodBCCCⱽ {ℓ}) I J
         .fst .F-ob (embedClosed (A ⇒ B)) .snd hk (f , g))
 
     module Point×A = UUP.BinProductᴰNotation LRMotive.Cᴰ
       (Syntax.bp (embedClosed (A ⇒ B) , embedClosed A))
       (LRMotive.bpᴰ Point (LR .F-obᴰ (embedClosed A)))
 
-    body : PathP (λ i → closedInterpretation≡ (A ⇒ B) i) f g →
-      Categoryᴰ.Hom[_][_,_] LRMotive.Cᴰ (FreeBiCCC.eval' Q)
+    body : Categoryᴰ.Hom[_][_,_] LRMotive.Cᴰ (FreeBiCCC.eval' {Q = Q})
       (LRMotive.bpᴰ Point (LR .F-obᴰ (embedClosed A)) .fst)
       (LR .F-obᴰ (embedClosed B))
-    body r ((h , x) , (k , y)) zr =
-      subst
-        (λ hk → ⟨ LR .F-obᴰ (embedClosed B) (hk .fst x , hk .snd y) ⟩)
-        (sym (Point×A.πᴰ₁ ((h , x) , (k , y)) zr))
-        (identityExtension⁻ B (f x) (g y)
-          (invEq funExtDepEquiv r
-            (identityExtension A x y
-              (Point×A.πᴰ₂ ((h , x) , (k , y)) zr))))
+    body = mk ℓ λ (((h , x) , (k , y)) , zr) →
+      let ((_ , e) , q) = pt ℓ Point×A.πᴰ₁ (((h , x) , (k , y)) , zr)
+      in (_ , identityExtension⁻ B (f x) (g y)
+            (invEq funExtDepEquiv r
+              (identityExtensionFib A
+                (pt ℓ Point×A.πᴰ₂ (((h , x) , (k , y)) , zr)))))
+         , cong (λ hk → hk .fst x , hk .snd y) (sym e ∙ q)
+
+    lamPt = pt ℓ (LRMotive.λᴰ {f = FreeBiCCC.eval' {Q = Q}} body)
+      ((f , g) , refl)
 
   identityExtensionHom :
     (A B : BiCCCExpr Empty.⊥)
@@ -208,5 +216,5 @@ module _
     PathP (λ i → closedInterpretation≡ B i)
       (Left .fst .F-hom e x) (Right .fst .F-hom e y)
   identityExtensionHom A B e x y p =
-    identityExtension B _ _
-      (LR .F-homᴰ e (x , y) (identityExtension⁻ A x y p))
+    identityExtensionFib B
+      (pt ℓ (LR .F-homᴰ e) ((x , y) , identityExtension⁻ A x y p))

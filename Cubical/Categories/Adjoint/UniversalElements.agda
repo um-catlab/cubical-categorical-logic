@@ -6,6 +6,7 @@ open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.FunctorComprehension
 open import Cubical.Categories.Profunctor.General
 open import Cubical.Categories.Presheaf.Base
 open import Cubical.Categories.Presheaf.Representable
@@ -44,6 +45,10 @@ module _ {C : Category ℓC ℓC'}
 
   LeftAdjointAt : (d : D .ob) → Type _
   LeftAdjointAt = RightAdjointAt (F ^opF)
+
+  LeftAdjoint→Functor : LeftAdjoint → Functor D C
+  LeftAdjoint→Functor L =
+    FunctorComprehension (RightAdjointProf (F ^opF)) L ^opF⁻
 
 IdRightAdj : (C : Category ℓC ℓC')
       → RightAdjoint (Id {C = C})

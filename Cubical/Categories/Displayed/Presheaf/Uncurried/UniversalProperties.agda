@@ -4,7 +4,7 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.More
 
 open import Cubical.Data.Sigma
@@ -30,6 +30,7 @@ open import Cubical.Categories.Presheaf.StrictHom hiding (π₁; π₂)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Opposite
@@ -169,6 +170,36 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       ((Cᴰ [-][-, Aᴰ ]) ×ᴰPshStrict (Cᴰ [-][-, Bᴰ ])) bp
       (Aᴰ×ᴰBᴰ , repr ⋆PshIsoⱽ BinProductᴰ'Spec≅BinProductᴰSpec bp Aᴰ Bᴰ)
 
+  Terminalⱽ→ᴰChosenReind : ∀ (term : Terminal' C) → Terminalⱽ (term .vertex)
+    → Terminalᴰ term
+  Terminalⱽ→ᴰChosenReind term termⱽ =
+    Representableⱽ→UniversalElementᴰ Cᴰ UnitPsh UnitPshᴰ
+      ⦃ record { reind⟨_⟩ = λ _ x → x
+               ; reind-filler = λ e _ → ΣPathP (e , refl) } ⦄
+      term
+      (termⱽ .fst , termⱽ .snd ⋆PshIso (invPshIso $ reindPsh-Unit _))
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    private
+      module cr = ChosenReind cr
+
+    BinProductⱽ→ᴰChosenReind : ∀ {A B} (bp : BinProduct C (A , B))
+      (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
+      → BinProductᴰ' bp Aᴰ Bᴰ
+      → BinProductᴰ bp Aᴰ Bᴰ
+    BinProductⱽ→ᴰChosenReind bp Aᴰ Bᴰ (Aᴰ×ᴰBᴰ , repr) =
+      Representableⱽ→UniversalElementᴰ Cᴰ ((C [-, _ ]) ×Psh (C [-, _ ]))
+        ((Cᴰ [-][-, Aᴰ ]) ×ᴰPshStrict (Cᴰ [-][-, Bᴰ ]))
+        ⦃ record
+          { reind⟨_⟩ = λ e ab →
+              cr.reind⟨ cong fst e ⟩ (ab .fst)
+              , cr.reind⟨ cong snd e ⟩ (ab .snd)
+          ; reind-filler = λ e ab → ΣPathP (e , λ i →
+              cr.reind-filler (cong fst e) (ab .fst) i
+              , cr.reind-filler (cong snd e) (ab .snd) i) } ⦄
+        bp
+        (Aᴰ×ᴰBᴰ , repr ⋆PshIsoⱽ BinProductᴰ'Spec≅BinProductᴰSpec bp Aᴰ Bᴰ)
+
   BinProductⱽ+π*→ᴰ : ∀ {A B} (bp : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
     → (π₁*Aᴰ : CartesianLift Cᴰ (BinProductNotation.π₁ bp) Aᴰ)
     → (π₂*Bᴰ : CartesianLift Cᴰ (BinProductNotation.π₂ bp) Bᴰ)
@@ -176,6 +207,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → BinProductᴰ bp Aᴰ Bᴰ
   BinProductⱽ+π*→ᴰ bp Aᴰ Bᴰ π₁*Aᴰ π₂*Bᴰ bpᴰ = BinProductⱽ→ᴰ _ Aᴰ Bᴰ
     (bpᴰ ◁PshIsoⱽ ×PshIso (π₁*Aᴰ .snd) (π₂*Bᴰ .snd))
+
+  BinProductⱽ+π*→ᴰChosenReind : ⦃ cr : ChosenReind Cᴰ ⦄
+    → ∀ {A B} (bp : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
+    → (π₁*Aᴰ : CartesianLift Cᴰ (BinProductNotation.π₁ bp) Aᴰ)
+    → (π₂*Bᴰ : CartesianLift Cᴰ (BinProductNotation.π₂ bp) Bᴰ)
+    → BinProductⱽ (π₁*Aᴰ .fst) (π₂*Bᴰ .fst)
+    → BinProductᴰ bp Aᴰ Bᴰ
+  BinProductⱽ+π*→ᴰChosenReind bp Aᴰ Bᴰ π₁*Aᴰ π₂*Bᴰ bpᴰ =
+    BinProductⱽ→ᴰChosenReind _ Aᴰ Bᴰ
+      (bpᴰ ◁PshIsoⱽ ×PshIso (π₁*Aᴰ .snd) (π₂*Bᴰ .snd))
 
   module BinProductᴰNotation {A B Aᴰ Bᴰ} (A×B : BinProduct C (A , B)) (Aᴰ×ᴰBᴰ : BinProductᴰ A×B Aᴰ Bᴰ) where
     private
@@ -253,50 +294,33 @@ module _ {C : Category ℓC ℓC'}
   module TerminalⱽᴰNotation {x} (termⱽ : Terminalⱽ Cᴰ x)
     (termⱽᴰ : Terminalⱽᴰ termⱽ) where
     private
-      term-reprᴰ : RepresentationPshIso
-        (PresheafᴰNotation.∫ Cᴰᴰ _ UnitPshᴰ)
-      term-reprᴰ =
-        ((x , termⱽ .fst) , termⱽᴰ .fst) ,
-        (invPshIso (∫Repr-iso Cᴰᴰ) ⋆PshIso ∫PshIsoᴰ (termⱽᴰ .snd))
-      term-ueᴰ = RepresentationPshIso→UniversalElement _ term-reprᴰ
-      module termᴰ = UniversalElementNotation term-ueᴰ
+      module R = RepresentableᴰNotation Cᴰᴰ _ UnitPshᴰ termⱽᴰ
 
-    vertexᴰ : Cᴰᴰ.ob[ x , termⱽ .fst ]
-    vertexᴰ = termⱽᴰ .fst
+      !ⱽ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} (f : C [ Γ , x ])
+        → Cᴰ [ f ][ Γᴰ , termⱽ .fst ]
+      !ⱽ f = termⱽ .snd .nIso (_ , _ , f) .fst tt
+
+    open R public using (vertexᴰ)
 
     !ⱽᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
       {f : C [ Γ , x ]}
-      → Cᴰᴰ [ f , termᴰ.intro {c = ( (Γ , Γᴰ) , Γᴰᴰ )}
-          ((f , tt) , tt) .fst .snd ][ Γᴰᴰ , vertexᴰ ]
-    !ⱽᴰ {Γ = Γ} {Γᴰ = Γᴰ} {Γᴰᴰ = Γᴰᴰ} {f = f} =
-      termᴰ.intro {c = ( (Γ , Γᴰ) , Γᴰᴰ )} ((f , tt) , tt) .snd
+      → Cᴰᴰ [ f , !ⱽ f ][ Γᴰᴰ , vertexᴰ ]
+    !ⱽᴰ = R.introᴰ tt
 
-    private
-      !η-genericᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+    opaque
+      !ηⱽᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]} {fᴰ : Cᴰ [ f ][ Γᴰ , termⱽ .fst ]}
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , vertexᴰ ])
+        → fᴰᴰ Cᴰᴰ.∫≡ !ⱽᴰ {f = f}
+      !ηⱽᴰ fᴰᴰ = R.∫ηᴰ fᴰᴰ
+
+      !ηⱽᴰ-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
         {f : C [ Γ , x ]} {fᴰ : Cᴰ [ f ][ Γᴰ , termⱽ .fst ]}
         (η : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , termⱽ .fst) ]
-          (f , fᴰ)
-          (termᴰ.intro {c = ((Γ , Γᴰ) , Γᴰᴰ)} ((f , tt) , tt) .fst))
+          (f , fᴰ) (f , !ⱽ f))
         (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , vertexᴰ ])
-        → PathP (λ i → Cᴰᴰ [ η i ][ Γᴰᴰ , vertexᴰ ]) fᴰᴰ !ⱽᴰ
-      !η-genericᴰ {Γ = Γ} {Γᴰ = Γᴰ} {f = f} {fᴰ = fᴰ} η fᴰᴰ =
-        symP $ Cᴰᴰ.rectify {e' = sym η} $
-          termⱽᴰ .snd .snd (Γ , Γᴰ) _ .isIsoOver.leftInv (f , fᴰ) fᴰᴰ
-
-    !ηⱽᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
-      {f : C [ Γ , x ]} {fᴰ : Cᴰ [ f ][ Γᴰ , termⱽ .fst ]}
-      {g : ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , termⱽ .fst) ]}
-      (intro≡g : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , termⱽ .fst) ]
-        (termᴰ.intro {c = ((Γ , Γᴰ) , Γᴰᴰ)} ((f , tt) , tt) .fst) g)
-      (η : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , termⱽ .fst) ] (f , fᴰ) g)
-      (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , vertexᴰ ])
-      → PathP (λ i → Cᴰᴰ [ η i ][ Γᴰᴰ , vertexᴰ ])
-          fᴰᴰ (Cᴰᴰ.reind intro≡g !ⱽᴰ)
-    !ηⱽᴰ {Γ = Γ} {Γᴰ = Γᴰ} {f = f} {fᴰ = fᴰ} intro≡g η fᴰᴰ =
-      Cᴰᴰ.rectify {e' = η}
-        (Cᴰᴰ.≡out
-          ((Cᴰᴰ.≡in (!η-genericᴰ (η ∙ sym intro≡g) fᴰᴰ))
-          ∙ Cᴰᴰ.reind-filler {p = !ⱽᴰ} intro≡g))
+        → PathP (λ i → Cᴰᴰ [ η i ][ Γᴰᴰ , vertexᴰ ]) fᴰᴰ (!ⱽᴰ {f = f})
+      !ηⱽᴰ-on η fᴰᴰ = Cᴰᴰ.rectify {e' = η} $ Cᴰᴰ.≡out $ !ηⱽᴰ fᴰᴰ
 
   BinProductⱽᴰSpec : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
     (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
@@ -325,6 +349,28 @@ module _ {C : Category ℓC ℓC'}
     CartesianLiftPshSpec ((∫C Cᴰ) [-, _ , _ ]) Cᴰᴰ
       (Cᴰᴰ [-][-, Bᴰᴰ ]) (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ)
 
+  BinProductⱽ-π₁-natural : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+    (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ) → ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
+      (hᴰ : Cᴰ [ f ][ Γᴰ , (BinProductⱽNotation.vert Cᴰ bpⱽ) ])
+      → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ])
+          (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ (BinProductⱽNotation.π₁ Cᴰ bpⱽ))
+          (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .fst)
+  BinProductⱽ-π₁-natural {x} {Aᴰ} {Bᴰ} bpⱽ hᴰ =
+      Cᴰ.reind-filler _
+      ∙ cong (λ (g , ab) → g , ab .fst)
+          (sym (RepresentableⱽNotation.⋆elementⱽ≡⋆ᴰelementⱽ
+            Cᴰ x (BinProductⱽSpec Cᴰ Aᴰ Bᴰ) bpⱽ hᴰ))
+  BinProductⱽ-π₂-natural : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+    (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ) → ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
+      (hᴰ : Cᴰ [ f ][ Γᴰ , (BinProductⱽNotation.vert Cᴰ bpⱽ) ])
+      → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Bᴰ ])
+          (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ (BinProductⱽNotation.π₂ Cᴰ bpⱽ))
+          (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .snd)
+  BinProductⱽ-π₂-natural {x} {Aᴰ} {Bᴰ} bpⱽ hᴰ =
+      Cᴰ.reind-filler _
+      ∙ cong (λ (g , ab) → g , ab .snd)
+          (sym (RepresentableⱽNotation.⋆elementⱽ≡⋆ᴰelementⱽ
+            Cᴰ x (BinProductⱽSpec Cᴰ Aᴰ Bᴰ) bpⱽ hᴰ))
   BinProductⱽᴰ'Spec≅BinProductⱽᴰSpec : ∀ {x}
     {Aᴰ Bᴰ : Cᴰ.ob[ x ]} (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
     (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
@@ -336,42 +382,12 @@ module _ {C : Category ℓC ℓC'}
     bpⱽ Aᴰᴰ Bᴰᴰ =
     ×PshIso
       (reindPshᴰNatTrans-factorStrict _ _ _ _ _
-        (makePshHomPath $ funExt λ (Γ , Γᴰ) → funExt λ (f , hᴰ) → π₁-natural hᴰ))
+        (makePshHomPath $ funExt λ (Γ , Γᴰ) →
+          funExt λ (f , hᴰ) → BinProductⱽ-π₁-natural bpⱽ hᴰ))
       (reindPshᴰNatTrans-factorStrict _ _ _ _ _
-        (makePshHomPath $ funExt λ (Γ , Γᴰ) → funExt λ (f , hᴰ) → π₂-natural hᴰ))
+        (makePshHomPath $ funExt λ (Γ , Γᴰ) →
+          funExt λ (f , hᴰ) → BinProductⱽ-π₂-natural bpⱽ hᴰ))
     ⋆PshIso invPshIso (reindPsh× _ _ _)
-    where
-    module bp = BinProductⱽNotation Cᴰ bpⱽ
-    π₁-natural : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
-      (hᴰ : Cᴰ [ f ][ Γᴰ , bp.vert ])
-      → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ])
-          (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bp.π₁)
-          (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .fst)
-    π₁-natural {Γ = Γ} {Γᴰ = Γᴰ} {f = f} hᴰ =
-      Cᴰ.reind-filler _
-      ∙ cong (f ,_) (sym (cong fst natural))
-      ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .fst)
-          (Cᴰ.rectifyOut {e' = refl}
-            (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdR (f , hᴰ)))
-      where
-      natural = bpⱽ .snd .trans .N-hom
-        (Γ , Γᴰ , f) (x , bp.vert , C.id)
-        (f , hᴰ , C.⋆IdR f) Cᴰ.idᴰ
-    π₂-natural : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {f : C [ Γ , x ]}
-      (hᴰ : Cᴰ [ f ][ Γᴰ , bp.vert ])
-      → Path (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Bᴰ ])
-          (f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bp.π₂)
-          (f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) hᴰ .snd)
-    π₂-natural {Γ = Γ} {Γᴰ = Γᴰ} {f = f} hᴰ =
-      Cᴰ.reind-filler _
-      ∙ cong (f ,_) (sym (cong snd natural))
-      ∙ cong (λ z → f , bpⱽ .snd .trans .N-ob (Γ , Γᴰ , f) z .snd)
-          (Cᴰ.rectifyOut {e' = refl}
-            (Cᴰ.reind-filler⁻ _ ∙ Cᴰ.⋆IdR (f , hᴰ)))
-      where
-      natural = bpⱽ .snd .trans .N-hom
-        (Γ , Γᴰ , f) (x , bp.vert , C.id)
-        (f , hᴰ , C.⋆IdR f) Cᴰ.idᴰ
 
   BinProductⱽ+π*→ⱽᴰ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
     (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
@@ -390,30 +406,93 @@ module _ {C : Category ℓC ℓC'}
         ×PshIso (π₁*Aᴰᴰ .snd) (π₂*Bᴰᴰ .snd)
       ⋆PshIso BinProductⱽᴰ'Spec≅BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ)
 
+  module _ ⦃ cr : ChosenReind Cᴰᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Cᴰᴰ
+
+    BinProductⱽᴰ'Spec≅BinProductⱽᴰSpecChosenReind : ∀ {x}
+      {Aᴰ Bᴰ : Cᴰ.ob[ x ]} (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      → PshIsoⱽ (BinProductⱽᴰ'Spec bpⱽ Aᴰᴰ Bᴰᴰ)
+          (reindPshᴰNatTrans
+            (∫Representableⱽ Cᴰ _ _ bpⱽ .snd .trans)
+            (BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ))
+    BinProductⱽᴰ'Spec≅BinProductⱽᴰSpecChosenReind bpⱽ Aᴰᴰ Bᴰᴰ = Isos→PshIso
+      (λ (_ , _ , (f , hᴰ)) → iso
+        (λ ab → CR.reind⟨ BinProductⱽ-π₁-natural bpⱽ hᴰ ⟩ (ab .fst)
+          , CR.reind⟨ BinProductⱽ-π₂-natural bpⱽ hᴰ ⟩ (ab .snd))
+        (λ ab → CR.reind⟨ sym (BinProductⱽ-π₁-natural bpⱽ hᴰ) ⟩ (ab .fst)
+          , CR.reind⟨ sym (BinProductⱽ-π₂-natural bpⱽ hᴰ) ⟩ (ab .snd))
+        (λ _ → ΣPathP
+          ( Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)
+          , Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)))
+        (λ _ → ΣPathP
+          ( Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)
+          , Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _))))
+      λ _ _ _ _ → ΣPathP
+        ( Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ Cᴰᴰ.reind-filler⁻ _
+            ∙ Cᴰᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ⟩ ∙ Cᴰᴰ.reind-filler _)
+        , Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ Cᴰᴰ.reind-filler⁻ _
+            ∙ Cᴰᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ⟩ ∙ Cᴰᴰ.reind-filler _))
+
+    BinProductⱽ+π*→ⱽᴰChosenReind : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      → (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+          (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      → (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+          (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      → BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst)
+      → BinProductⱽᴰ bpⱽ Aᴰᴰ Bᴰᴰ
+    BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ .fst =
+      bpⱽⱽ .fst
+    BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ .snd =
+      FiberwisePshIsoᴰ→PshIsoᴰ
+        ⦃ record
+          { reind⟨_⟩ = λ e ab →
+              CR.reind⟨ (λ i → e i .fst , e i .snd .fst) ⟩ (ab .fst)
+              , CR.reind⟨ (λ i → e i .fst , e i .snd .snd) ⟩ (ab .snd)
+          ; reind-filler = λ e ab → ΣPathP (e , λ i →
+              CR.reind-filler (λ i → e i .fst , e i .snd .fst) (ab .fst) i
+              , CR.reind-filler (λ i → e i .fst , e i .snd .snd) (ab .snd) i)
+          } ⦄
+        (bpⱽⱽ .snd ⋆PshIso
+          ×PshIso (π₁*Aᴰᴰ .snd) (π₂*Bᴰᴰ .snd)
+        ⋆PshIso BinProductⱽᴰ'Spec≅BinProductⱽᴰSpecChosenReind bpⱽ Aᴰᴰ Bᴰᴰ)
+
   module BinProductⱽᴰNotation {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
     (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
     {Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]} {Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ]}
     (bpⱽᴰ : BinProductⱽᴰ bpⱽ Aᴰᴰ Bᴰᴰ) where
     private
       module bpⱽ = BinProductⱽNotation Cᴰ bpⱽ
-      bp-reprᴰ : RepresentationPshIso
-        (PresheafᴰNotation.∫ Cᴰᴰ _ (BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ))
-      bp-reprᴰ =
-        ((x , bpⱽ.vert) , bpⱽᴰ .fst) ,
-        (invPshIso (∫Repr-iso Cᴰᴰ) ⋆PshIso ∫PshIsoᴰ (bpⱽᴰ .snd))
-      bp-ueᴰ = RepresentationPshIso→UniversalElement _ bp-reprᴰ
-      module bpᴰ = UniversalElementNotation bp-ueᴰ
-      module specᴰ = PresheafNotation
-        (PresheafᴰNotation.∫ Cᴰᴰ _ (BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ))
+      module R = RepresentableᴰNotation Cᴰᴰ _
+        (BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ) bpⱽᴰ
+      module Spec = PresheafNotation
+        (PresheafᴰNotation.∫ Cᴰ (C [-, x ]) (BinProductⱽSpec Cᴰ Aᴰ Bᴰ))
+      module Specᴰ = PresheafᴰNotation Cᴰᴰ _
+        (BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ)
 
-    vertexᴰ : Cᴰᴰ.ob[ x , bpⱽ.vert ]
-    vertexᴰ = bpⱽᴰ .fst
+      Aᴰᴰ-spec = reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans) (Cᴰᴰ [-][-, Aᴰᴰ ])
+      Bᴰᴰ-spec = reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans) (Cᴰᴰ [-][-, Bᴰᴰ ])
+
+      ∫π₁ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        → Σ[ s ∈ Spec.p[ Γ , Γᴰ ] ] Specᴰ.p[ s ][ Γᴰᴰ ]
+        → Cᴰᴰ.Hom[ ((Γ , Γᴰ) , Γᴰᴰ) , ((x , Aᴰ) , Aᴰᴰ) ]
+      ∫π₁ ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ) = (f , fᴰ) , fᴰᴰ
+
+      ∫π₂ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        → Σ[ s ∈ Spec.p[ Γ , Γᴰ ] ] Specᴰ.p[ s ][ Γᴰᴰ ]
+        → Cᴰᴰ.Hom[ ((Γ , Γᴰ) , Γᴰᴰ) , ((x , Bᴰ) , Bᴰᴰ) ]
+      ∫π₂ ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ) = (f , gᴰ) , gᴰᴰ
+
+    open R public using (vertexᴰ)
 
     πᴰ₁ : Cᴰᴰ [ C.id , bpⱽ.π₁ ][ vertexᴰ , Aᴰᴰ ]
-    πᴰ₁ = bpᴰ.element .snd .fst
+    πᴰ₁ = R.elementᴰ .fst
 
     πᴰ₂ : Cᴰᴰ [ C.id , bpⱽ.π₂ ][ vertexᴰ , Bᴰᴰ ]
-    πᴰ₂ = bpᴰ.element .snd .snd
+    πᴰ₂ = R.elementᴰ .snd
 
     infixr 4 _,ⱽᴰ_
     _,ⱽᴰ_ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
@@ -421,160 +500,247 @@ module _ {C : Category ℓC ℓC'}
       {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
       → Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ] → Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ]
       → Cᴰᴰ [ f , (fᴰ bpⱽ.,ⱽ gᴰ) ][ Γᴰᴰ , vertexᴰ ]
-    _,ⱽᴰ_ {f = f} {fᴰ = fᴰ} {gᴰ = gᴰ} fᴰᴰ gᴰᴰ =
-      bpᴰ.intro ((f , fᴰ , gᴰ) , fᴰᴰ , gᴰᴰ) .snd
+    fᴰᴰ ,ⱽᴰ gᴰᴰ = R.introᴰ (fᴰᴰ , gᴰᴰ)
 
-    ×βⱽᴰ₁ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
-      {f : C [ Γ , x ]}
-      {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
-      (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
-      → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₁)
-        Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×βⱽ₁ ] fᴰᴰ
-    ×βⱽᴰ₁ fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-      Cᴰᴰ.reind-filler _ ∙
-      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ bpᴰ.β .snd) .fst)
+    opaque
+      ×βⱽᴰ₁ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
+        → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₁) Cᴰᴰ.∫≡ fᴰᴰ
+      ×βⱽᴰ₁ fᴰᴰ gᴰᴰ =
+        Cᴰᴰ.reind-filler _ ∙ cong ∫π₁ (R.∫βᴰ' (fᴰᴰ , gᴰᴰ))
 
-    ×βⱽᴰ₂ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
-      {f : C [ Γ , x ]}
-      {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
-      (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
-      → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₂)
-        Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×βⱽ₂ ] gᴰᴰ
-    ×βⱽᴰ₂ fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify $ Cᴰᴰ.≡out $
-      Cᴰᴰ.reind-filler _ ∙
-      (Cᴰᴰ.≡in $ PathPΣ (PathPΣ bpᴰ.β .snd) .snd)
+      ×βⱽᴰ₂ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ]) (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
+        → ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ πᴰ₂) Cᴰᴰ.∫≡ gᴰᴰ
+      ×βⱽᴰ₂ fᴰᴰ gᴰᴰ =
+        Cᴰᴰ.reind-filler _ ∙ cong ∫π₂ (R.∫βᴰ' (fᴰᴰ , gᴰᴰ))
 
-    ×βⱽᴰ₁-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
-      {f : C [ Γ , x ]}
-      {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
-      {π' : ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Aᴰ) ]}
-      (π≡π' : Path ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Aᴰ) ]
-        (C.id , bpⱽ.π₁) π')
-      (β' : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , Aᴰ) ]
-        ((f , fᴰ bpⱽ.,ⱽ gᴰ) ∫Cᴰ.⋆ π') (f , fᴰ))
-      (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ])
-      (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
-      → PathP (λ i → Cᴰᴰ [ β' i ][ Γᴰᴰ , Aᴰᴰ ])
-          ((Cᴰᴰ.reind (ΣPathP (refl , refl)) (fᴰᴰ ,ⱽᴰ gᴰᴰ))
-            Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind π≡π' πᴰ₁) fᴰᴰ
-    ×βⱽᴰ₁-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify {e' = β'} $ Cᴰᴰ.≡out $
-      Cᴰᴰ.⟨ Cᴰᴰ.reind-filler⁻ (ΣPathP (refl , refl)) ⟩⋆⟨⟩
-      ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩
-      ∙ Cᴰᴰ.≡in (×βⱽᴰ₁ fᴰᴰ gᴰᴰ)
+      ×ηⱽᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
+        (hᴰᴰ : Cᴰᴰ [ f , hᴰ ][ Γᴰᴰ , vertexᴰ ])
+        → hᴰᴰ Cᴰᴰ.∫≡ ((hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₁) ,ⱽᴰ (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂))
+      ×ηⱽᴰ hᴰᴰ =
+        R.∫ηᴰ hᴰᴰ
+        ∙ R.cong-introᴰ
+            (R.⋆elementᴰ≡⋆ᴰelementᴰ hᴰᴰ
+            ∙ ×ⱽᴰPsh-∫≡ Aᴰᴰ-spec Bᴰᴰ-spec
+                (Cᴰᴰ.reind-filler⁻ _) (Cᴰᴰ.reind-filler⁻ _))
 
-    ×βⱽᴰ₂-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
-      {f : C [ Γ , x ]}
-      {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
-      {π' : ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Bᴰ) ]}
-      (π≡π' : Path ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Bᴰ) ]
-        (C.id , bpⱽ.π₂) π')
-      (β' : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , Bᴰ) ]
-        ((f , fᴰ bpⱽ.,ⱽ gᴰ) ∫Cᴰ.⋆ π') (f , gᴰ))
-      (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ])
-      (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
-      → PathP (λ i → Cᴰᴰ [ β' i ][ Γᴰᴰ , Bᴰᴰ ])
-          ((Cᴰᴰ.reind (ΣPathP (refl , refl)) (fᴰᴰ ,ⱽᴰ gᴰᴰ))
-            Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind π≡π' πᴰ₂) gᴰᴰ
-    ×βⱽᴰ₂-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify {e' = β'} $ Cᴰᴰ.≡out $
-      Cᴰᴰ.⟨ Cᴰᴰ.reind-filler⁻ (ΣPathP (refl , refl)) ⟩⋆⟨⟩
-      ∙ Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩
-      ∙ Cᴰᴰ.≡in (×βⱽᴰ₂ fᴰᴰ gᴰᴰ)
+      ×βⱽᴰ₁-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
+        {π' : ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Aᴰ) ]}
+        (π≡π' : Path ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Aᴰ) ]
+          (C.id , bpⱽ.π₁) π')
+        (β' : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , Aᴰ) ]
+          ((f , fᴰ bpⱽ.,ⱽ gᴰ) ∫Cᴰ.⋆ π') (f , fᴰ))
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ])
+        (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
+        → PathP (λ i → Cᴰᴰ [ β' i ][ Γᴰᴰ , Aᴰᴰ ])
+            ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind π≡π' πᴰ₁) fᴰᴰ
+      ×βⱽᴰ₁-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify {e' = β'} $ Cᴰᴰ.≡out $
+        Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩ ∙ ×βⱽᴰ₁ fᴰᴰ gᴰᴰ
 
-    ×ηⱽᴰ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
-      {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
-      (hᴰᴰ : Cᴰᴰ [ f , hᴰ ][ Γᴰᴰ , vertexᴰ ])
-      → hᴰᴰ Cᴰᴰ.≡[ Cᴰ.≡in bpⱽ.×ηⱽ ]
-          (bpᴰ.intro (((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element) .snd)
-    ×ηⱽᴰ hᴰᴰ = subst
-      (λ p → hᴰᴰ Cᴰᴰ.≡[ p ]
-        (bpᴰ.intro ((_ , hᴰᴰ) specᴰ.⋆ bpᴰ.element) .snd))
-      (Cᴰ.isSetHom _ _ (cong fst bpᴰ.η) (Cᴰ.≡in bpⱽ.×ηⱽ))
-      (PathPΣ bpᴰ.η .snd)
+      ×βⱽᴰ₂-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]}
+        {fᴰ : Cᴰ [ f ][ Γᴰ , Aᴰ ]} {gᴰ : Cᴰ [ f ][ Γᴰ , Bᴰ ]}
+        {π' : ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Bᴰ) ]}
+        (π≡π' : Path ∫Cᴰ.Hom[ (x , bpⱽ.vert) , (x , Bᴰ) ]
+          (C.id , bpⱽ.π₂) π')
+        (β' : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , Bᴰ) ]
+          ((f , fᴰ bpⱽ.,ⱽ gᴰ) ∫Cᴰ.⋆ π') (f , gᴰ))
+        (fᴰᴰ : Cᴰᴰ [ f , fᴰ ][ Γᴰᴰ , Aᴰᴰ ])
+        (gᴰᴰ : Cᴰᴰ [ f , gᴰ ][ Γᴰᴰ , Bᴰᴰ ])
+        → PathP (λ i → Cᴰᴰ [ β' i ][ Γᴰᴰ , Bᴰᴰ ])
+            ((fᴰᴰ ,ⱽᴰ gᴰᴰ) Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind π≡π' πᴰ₂) gᴰᴰ
+      ×βⱽᴰ₂-on π≡π' β' fᴰᴰ gᴰᴰ = Cᴰᴰ.rectify {e' = β'} $ Cᴰᴰ.≡out $
+        Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler⁻ π≡π' ⟩ ∙ ×βⱽᴰ₂ fᴰᴰ gᴰᴰ
 
-    ×ηⱽᴰ-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
-      {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
-      {π₁' : Cᴰ [ C.id ][ bpⱽ.vert , Aᴰ ]}
-      {π₂' : Cᴰ [ C.id ][ bpⱽ.vert , Bᴰ ]}
-      (π₁≡π₁' : bpⱽ.π₁ ≡ π₁')
-      (π₂≡π₂' : bpⱽ.π₂ ≡ π₂')
-      (η' : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , bpⱽ.vert) ]
-        (f , hᴰ)
-        (f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ π₁') bpⱽ.,ⱽ (hᴰ Cᴰ.⋆ᴰ π₂')))
-      (hᴰᴰ : Cᴰᴰ [ f , hᴰ ][ Γᴰᴰ , vertexᴰ ])
-      → PathP (λ i → Cᴰᴰ [ η' i ][ Γᴰᴰ , vertexᴰ ]) hᴰᴰ
-          (Cᴰᴰ.reind (ΣPathP (refl , refl))
+      ×ηⱽᴰ-on : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} {Γᴰᴰ : Cᴰᴰ.ob[ Γ , Γᴰ ]}
+        {f : C [ Γ , x ]} {hᴰ : Cᴰ [ f ][ Γᴰ , bpⱽ.vert ]}
+        {π₁' : Cᴰ [ C.id ][ bpⱽ.vert , Aᴰ ]}
+        {π₂' : Cᴰ [ C.id ][ bpⱽ.vert , Bᴰ ]}
+        (π₁≡π₁' : bpⱽ.π₁ ≡ π₁')
+        (π₂≡π₂' : bpⱽ.π₂ ≡ π₂')
+        (η' : Path ∫Cᴰ.Hom[ (Γ , Γᴰ) , (x , bpⱽ.vert) ]
+          (f , hᴰ)
+          (f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ π₁') bpⱽ.,ⱽ (hᴰ Cᴰ.⋆ᴰ π₂')))
+        (hᴰᴰ : Cᴰᴰ [ f , hᴰ ][ Γᴰᴰ , vertexᴰ ])
+        → PathP (λ i → Cᴰᴰ [ η' i ][ Γᴰᴰ , vertexᴰ ]) hᴰᴰ
             ((hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₁≡π₁')) πᴰ₁) ,ⱽᴰ
-             (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂)))
-    ×ηⱽᴰ-on {Γ = Γ} {Γᴰ = Γᴰ} {Γᴰᴰ = Γᴰᴰ} {f = f} {hᴰ = hᴰ}
-      {π₁' = π₁'} {π₂' = π₂'} π₁≡π₁' π₂≡π₂' η' hᴰᴰ = Cᴰᴰ.rectify {e' = η'} $ Cᴰᴰ.≡out $
-      Cᴰᴰ.≡in (×ηⱽᴰ hᴰᴰ)
-      ∙ cong bpᴰ.intro (normalize-ηᴰ ∙ align-ηᴰ)
-      ∙ Cᴰᴰ.reind-filler (ΣPathP (refl , refl))
+             (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂))
+      ×ηⱽᴰ-on π₁≡π₁' π₂≡π₂' η' hᴰᴰ = Cᴰᴰ.rectify {e' = η'} $ Cᴰᴰ.≡out $
+        ×ηⱽᴰ hᴰᴰ
+        ∙ R.cong-introᴰ (×ⱽᴰPsh-∫≡ Aᴰᴰ-spec Bᴰᴰ-spec
+            Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler (ΣPathP (refl , π₁≡π₁')) ⟩
+            Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler (ΣPathP (refl , π₂≡π₂')) ⟩)
+
+  opaque
+    BinProductⱽ+π*→ⱽᴰ-π₁ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      (bpⱽⱽ : BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst))
+      → (BinProductⱽNotation.π₁ Cᴰᴰ bpⱽⱽ Cᴰᴰ.⋆ᴰ
+          CartesianLiftNotation.πⱽ Cᴰᴰ π₁*Aᴰᴰ)
+        Cᴰᴰ.∫≡ BinProductⱽᴰNotation.πᴰ₁ bpⱽ
+          (BinProductⱽ+π*→ⱽᴰ bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ)
+    BinProductⱽ+π*→ⱽᴰ-π₁ {x} {Aᴰ} {Bᴰ} bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ =
+      sym (CartesianLiftNotation.⋆πⱽ≡⋆ᴰπⱽ Cᴰᴰ π₁*Aᴰᴰ
+        (BinProductⱽNotation.π₁ Cᴰᴰ bpⱽⱽ))
+      ∙ (λ i → π₁-factor i .N-ob (x , bpⱽ .fst) ∫Cᴰ.id ,
+          reindPshᴰNatTrans-factorStrict-N-ob
+            (∫Representableⱽ Cᴰ _ _ bpⱽ .snd .trans)
+            (∫×ⱽπ₁Strict
+              (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+                (Cᴰᴰ [-][-, Aᴰᴰ ]))
+              (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+                (Cᴰᴰ [-][-, Bᴰᴰ ])))
+            (∫Repr-iso Cᴰ .trans)
+            (yoRec _ (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ))
+            (Cᴰᴰ [-][-, Aᴰᴰ ])
+            π₁-factor
+            ((x , bpⱽ .fst) , bpⱽⱽ .fst , ∫Cᴰ.id)
+            (π₁*Aᴰᴰ .snd .trans .N-ob _
+              (BinProductⱽNotation.π₁ Cᴰᴰ bpⱽⱽ)) i)
       where
-      normalize-ηᴰ :
-        Path (Σ[ z ∈ (Σ[ g ∈ C [ Γ , x ] ]
-          (Cᴰ [ g ][ Γᴰ , Aᴰ ] × Cᴰ [ g ][ Γᴰ , Bᴰ ])) ]
-          (Cᴰᴰ [ z .fst , z .snd .fst ][ Γᴰᴰ , Aᴰᴰ ] ×
-           Cᴰᴰ [ z .fst , z .snd .snd ][ Γᴰᴰ , Bᴰᴰ ]))
-          ((((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element))
-          ((f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₁) , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₂)) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₁) , (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂))
-      q₁ :
-        let s = (((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element)
-        in Path (Σ[ ga ∈ (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ]) ]
-             Cᴰᴰ [ ga .fst , ga .snd ][ Γᴰᴰ , Aᴰᴰ ])
-             ((s .fst .fst , s .fst .snd .fst) , s .snd .fst)
-             ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bpⱽ.π₁) , hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₁)
-      q₁ = sym (Cᴰᴰ.reind-filler _)
-      q₂ :
-        let s = (((f , hᴰ) , hᴰᴰ) specᴰ.⋆ bpᴰ.element)
-        in Path (Σ[ gb ∈ (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Bᴰ ]) ]
-             Cᴰᴰ [ gb .fst , gb .snd ][ Γᴰᴰ , Bᴰᴰ ])
-             ((s .fst .fst , s .fst .snd .snd) , s .snd .snd)
-             ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bpⱽ.π₂) , hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂)
-      q₂ = sym (Cᴰᴰ.reind-filler _)
-      normalize-ηᴰ i =
-        let e₁ = cong fst q₁
-            e₂ = cong fst q₂
-            e₂' = λ j → e₁ j .fst , Cᴰ.rectifyOut {e' = cong fst e₁} e₂ j
-            p₁ = Cᴰᴰ.rectifyOut {e' = e₁} q₁
-            p₂ = Cᴰᴰ.rectifyOut {e' = e₂'} q₂
-        in ((e₁ i .fst , e₁ i .snd , e₂' i .snd) , p₁ i , p₂ i)
-      align-ηᴰ :
-        Path (Σ[ z ∈ (Σ[ g ∈ C [ Γ , x ] ]
-          (Cᴰ [ g ][ Γᴰ , Aᴰ ] × Cᴰ [ g ][ Γᴰ , Bᴰ ])) ]
-          (Cᴰᴰ [ z .fst , z .snd .fst ][ Γᴰᴰ , Aᴰᴰ ] ×
-           Cᴰᴰ [ z .fst , z .snd .snd ][ Γᴰᴰ , Bᴰᴰ ]))
-          ((f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₁) , (hᴰ Cᴰ.⋆ᴰ bpⱽ.π₂)) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₁) , (hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂))
-          ((f C.⋆ C.id , (hᴰ Cᴰ.⋆ᴰ π₁') , (hᴰ Cᴰ.⋆ᴰ π₂')) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₁≡π₁')) πᴰ₁) ,
-           (hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂))
-      r₁ : Path
-        (Σ[ ga ∈ (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Aᴰ ]) ]
-          Cᴰᴰ [ ga .fst , ga .snd ][ Γᴰᴰ , Aᴰᴰ ])
-        ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bpⱽ.π₁) , hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₁)
-        ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ π₁') ,
-          hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₁≡π₁')) πᴰ₁)
-      r₁ = Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler (ΣPathP (refl , π₁≡π₁')) ⟩
-      r₂ : Path
-        (Σ[ gb ∈ (Σ[ g ∈ C [ Γ , x ] ] Cᴰ [ g ][ Γᴰ , Bᴰ ]) ]
-          Cᴰᴰ [ gb .fst , gb .snd ][ Γᴰᴰ , Bᴰᴰ ])
-        ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ bpⱽ.π₂) , hᴰᴰ Cᴰᴰ.⋆ᴰ πᴰ₂)
-        ((f C.⋆ C.id , hᴰ Cᴰ.⋆ᴰ π₂') ,
-          hᴰᴰ Cᴰᴰ.⋆ᴰ Cᴰᴰ.reind (ΣPathP (refl , π₂≡π₂')) πᴰ₂)
-      r₂ = Cᴰᴰ.⟨⟩⋆⟨ Cᴰᴰ.reind-filler (ΣPathP (refl , π₂≡π₂')) ⟩
-      align-ηᴰ i =
-            let e₁ = cong fst r₁
-                e₂ = cong fst r₂
-                e₂' = λ j → e₁ j .fst , Cᴰ.rectifyOut {e' = cong fst e₁} e₂ j
-                p₁ = Cᴰᴰ.rectifyOut {e' = e₁} r₁
-                p₂ = Cᴰᴰ.rectifyOut {e' = e₂'} r₂
-            in ((e₁ i .fst , e₁ i .snd , e₂' i .snd) , p₁ i , p₂ i)
+      π₁-factor : yoRec (∫C Cᴰ [-, x , Aᴰ ])
+        (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) ≡
+        (∫Representableⱽ Cᴰ _ _ bpⱽ .snd .trans) ⋆PshHom
+          (PshHomStrict→PshHom (∫×ⱽπ₁Strict
+            (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+              (Cᴰᴰ [-][-, Aᴰᴰ ]))
+            (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+              (Cᴰᴰ [-][-, Bᴰᴰ ]))) ⋆PshHom ∫Repr-iso Cᴰ .trans)
+      π₁-factor = makePshHomPath $ funExt λ (Γ , Γᴰ) →
+        funExt λ (f , hᴰ) → BinProductⱽ-π₁-natural bpⱽ hᴰ
+
+    BinProductⱽ+π*→ⱽᴰ-π₂ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      (bpⱽⱽ : BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst))
+      → (BinProductⱽNotation.π₂ Cᴰᴰ bpⱽⱽ Cᴰᴰ.⋆ᴰ
+          CartesianLiftNotation.πⱽ Cᴰᴰ π₂*Bᴰᴰ)
+        Cᴰᴰ.∫≡ BinProductⱽᴰNotation.πᴰ₂ bpⱽ
+          (BinProductⱽ+π*→ⱽᴰ bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ)
+    BinProductⱽ+π*→ⱽᴰ-π₂ {x} {Aᴰ} {Bᴰ} bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ =
+      sym (CartesianLiftNotation.⋆πⱽ≡⋆ᴰπⱽ Cᴰᴰ π₂*Bᴰᴰ
+        (BinProductⱽNotation.π₂ Cᴰᴰ bpⱽⱽ))
+      ∙ (λ i → π₂-factor i .N-ob (x , bpⱽ .fst) ∫Cᴰ.id ,
+          reindPshᴰNatTrans-factorStrict-N-ob
+            (∫Representableⱽ Cᴰ _ _ bpⱽ .snd .trans)
+            (∫×ⱽπ₂Strict
+              (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+                (Cᴰᴰ [-][-, Aᴰᴰ ]))
+              (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+                (Cᴰᴰ [-][-, Bᴰᴰ ])))
+            (∫Repr-iso Cᴰ .trans)
+            (yoRec _ (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ))
+            (Cᴰᴰ [-][-, Bᴰᴰ ])
+            π₂-factor
+            ((x , bpⱽ .fst) , bpⱽⱽ .fst , ∫Cᴰ.id)
+            (π₂*Bᴰᴰ .snd .trans .N-ob _
+              (BinProductⱽNotation.π₂ Cᴰᴰ bpⱽⱽ)) i)
+      where
+      π₂-factor : yoRec (∫C Cᴰ [-, x , Bᴰ ])
+        (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) ≡
+        (∫Representableⱽ Cᴰ _ _ bpⱽ .snd .trans) ⋆PshHom
+          (PshHomStrict→PshHom (∫×ⱽπ₂Strict
+            (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+              (Cᴰᴰ [-][-, Aᴰᴰ ]))
+            (reindPshᴰNatTrans (∫Repr-iso Cᴰ .trans)
+              (Cᴰᴰ [-][-, Bᴰᴰ ]))) ⋆PshHom ∫Repr-iso Cᴰ .trans)
+      π₂-factor = makePshHomPath $ funExt λ (Γ , Γᴰ) →
+        funExt λ (f , hᴰ) → BinProductⱽ-π₂-natural bpⱽ hᴰ
+
+  module _ ⦃ cr : ChosenReind Cᴰᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Cᴰᴰ
+
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₁ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      (bpⱽⱽ : BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst))
+      → (BinProductⱽNotation.π₁ Cᴰᴰ bpⱽⱽ Cᴰᴰ.⋆ᴰ
+          CartesianLiftNotation.πⱽ Cᴰᴰ π₁*Aᴰᴰ)
+        Cᴰᴰ.∫≡ BinProductⱽᴰNotation.πᴰ₁ bpⱽ
+          (BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ)
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₁ bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ =
+      sym (CartesianLiftNotation.⋆πⱽ≡⋆ᴰπⱽ Cᴰᴰ π₁*Aᴰᴰ
+        (BinProductⱽNotation.π₁ Cᴰᴰ bpⱽⱽ))
+      ∙ sym (CR.reind-∫≡ _ _)
+
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₂ : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+        (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      (bpⱽⱽ : BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst))
+      → (BinProductⱽNotation.π₂ Cᴰᴰ bpⱽⱽ Cᴰᴰ.⋆ᴰ
+          CartesianLiftNotation.πⱽ Cᴰᴰ π₂*Bᴰᴰ)
+        Cᴰᴰ.∫≡ BinProductⱽᴰNotation.πᴰ₂ bpⱽ
+          (BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ)
+    BinProductⱽ+π*→ⱽᴰChosenReind-π₂ bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ =
+      sym (CartesianLiftNotation.⋆πⱽ≡⋆ᴰπⱽ Cᴰᴰ π₂*Bᴰᴰ
+        (BinProductⱽNotation.π₂ Cᴰᴰ bpⱽⱽ))
+      ∙ sym (CR.reind-∫≡ _ _)
 
 module _ {C : Category ℓC ℓC'}
   {Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
   (Cᴰᴰ : Categoryᴰ (∫C Cᴰ) ℓCᴰᴰ ℓCᴰᴰ') where
+
+  private
+    module Cᴰ = Fibers Cᴰ
+    module Cᴰᴰ = Fibers Cᴰᴰ
+    module ∫Cᴰ = Category (∫C Cᴰ)
+
+  Terminalⱽ^opᴰ→^opᴰᴰ : ∀ {x} {xᴰ : Cᴰ.ob[ x ]}
+    → Terminalⱽ (Cᴰᴰ ^opᴰ) (x , xᴰ)
+    → Terminalⱽ (Cᴰᴰ ^opᴰᴰ) (x , xᴰ)
+  Terminalⱽ^opᴰ→^opᴰᴰ term .fst = term .fst
+  Terminalⱽ^opᴰ→^opᴰᴰ term .snd =
+    pshiso
+      (pshhom (λ c → term .snd .trans .N-ob c) (λ _ _ _ _ → refl))
+      (term .snd .nIso)
+
+  CartesianLift^opᴰ→^opᴰᴰ : ∀ {x y : ∫Cᴰ.ob} {f : ∫Cᴰ.Hom[ y , x ]}
+    {yᴰᴰ : Cᴰᴰ.ob[ y ]}
+    → CartesianLift (Cᴰᴰ ^opᴰ) f yᴰᴰ
+    → CartesianLift (Cᴰᴰ ^opᴰᴰ) f yᴰᴰ
+  CartesianLift^opᴰ→^opᴰᴰ f*yᴰᴰ .fst = f*yᴰᴰ .fst
+  CartesianLift^opᴰ→^opᴰᴰ f*yᴰᴰ .snd =
+    pshiso
+      (pshhom (λ c → f*yᴰᴰ .snd .trans .N-ob c)
+        (λ c c' g p → f*yᴰᴰ .snd .trans .N-hom c c' g p))
+      (f*yᴰᴰ .snd .nIso)
+
+  BinProductⱽ^opᴰ→^opᴰᴰ : ∀ {x} {xᴰ : Cᴰ.ob[ x ]}
+    {Aᴰᴰ Bᴰᴰ : Cᴰᴰ.ob[ x , xᴰ ]}
+    → BinProductⱽ (Cᴰᴰ ^opᴰ) Aᴰᴰ Bᴰᴰ
+    → BinProductⱽ (Cᴰᴰ ^opᴰᴰ) Aᴰᴰ Bᴰᴰ
+  BinProductⱽ^opᴰ→^opᴰᴰ bp .fst = bp .fst
+  BinProductⱽ^opᴰ→^opᴰᴰ bp .snd =
+    pshiso
+      (pshhom (λ c → bp .snd .trans .N-ob c)
+        (λ c c' g p → bp .snd .trans .N-hom c c' g p))
+      (bp .snd .nIso)
 
   Initialⱽᴰ : ∀ {x} → (initⱽ : Terminalⱽ (Cᴰ ^opᴰ) x) → Type _
   Initialⱽᴰ = Terminalⱽᴰ (Cᴰᴰ ^opᴰᴰ)
@@ -582,7 +748,7 @@ module _ {C : Category ℓC ℓC'}
   module InitialⱽᴰNotation {x} (initⱽ : Terminalⱽ (Cᴰ ^opᴰ) x)
     (initⱽᴰ : Initialⱽᴰ initⱽ) =
     TerminalⱽᴰNotation (Cᴰᴰ ^opᴰᴰ) initⱽ initⱽᴰ renaming
-      (!ⱽᴰ to ¡ⱽᴰ ; !ηⱽᴰ to ¡ηⱽᴰ)
+      (!ⱽᴰ to ¡ⱽᴰ ; !ηⱽᴰ to ¡ηⱽᴰ ; !ηⱽᴰ-on to ¡ηⱽᴰ-on)
 
   BinCoProductⱽᴰ : ∀ {x} {Aᴰ Bᴰ : Categoryᴰ.ob[_] Cᴰ x}
     (bcpⱽ : BinProductⱽ (Cᴰ ^opᴰ) Aᴰ Bᴰ)

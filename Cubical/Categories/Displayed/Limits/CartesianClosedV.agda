@@ -17,6 +17,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
@@ -73,3 +74,19 @@ module _ (CCC : CartesianClosedCategory ℓC ℓC') (CCCⱽ : CartesianClosedCat
       (expⱽ _ _)
       (λ _ _ → cartesianLifts _ _ _)
       (forallⱽ _)
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰChosenReind :
+      CartesianClosedCategoryᴰ CCC ℓCᴰ ℓCᴰ'
+    CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰChosenReind .CCᴰ =
+      CartesianCategoryⱽ→CartesianCategoryᴰChosenReind
+        (CartesianClosedCategory.CC CCC) CCⱽ
+    CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰChosenReind .expᴰ {A} Aᴰ
+      {B} Bᴰ =
+      ∀+Expⱽ+lifts⇒ExpᴰChosenReind
+        (cartesianLifts Aᴰ ((A ⇒ B) × A) π₂)
+        (lrⱽ _)
+        (cartesianLifts Bᴰ ((A ⇒ B) × A) app)
+        (expⱽ _ _)
+        (λ _ _ → cartesianLifts _ _ _)
+        (forallⱽ _)

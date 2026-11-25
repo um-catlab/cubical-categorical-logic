@@ -78,3 +78,19 @@ mapω f a = liftω (f (a .lowerω))
 
 mapω' : {A : Type ℓ}{β : A → Level} (f : (a : A) → Type (β a)) (a : Liftω A) → Typeω
 mapω' f a = Liftω (f (a .lowerω))
+
+-- The Σ-type version of fiber-map-× from Cubical.Data.Prod.Properties.
+-- TODO: Upstream
+fiber-map-idfun× : {A : Type ℓ} {B : Type ℓ'} {C : Type ℓ''}
+  (f : B → C) (a : A) (c : C)
+  → Iso (fiber f c) (fiber (map-× (idfun A) f) (a , c))
+fiber-map-idfun× f a c .fun z .fst = a , z .fst
+fiber-map-idfun× f a c .fun z .snd i = a , z .snd i
+fiber-map-idfun× f a c .inv z .fst = z .fst .snd
+fiber-map-idfun× f a c .inv z .snd = cong snd (z .snd)
+fiber-map-idfun× f a c .sec ((az , bz) , e) j .fst .fst = cong fst e (~ j)
+fiber-map-idfun× f a c .sec ((az , bz) , e) j .fst .snd = bz
+fiber-map-idfun× f a c .sec ((az , bz) , e) j .snd k .fst =
+  cong fst e (k ∨ ~ j)
+fiber-map-idfun× f a c .sec ((az , bz) , e) j .snd k .snd = cong snd e k
+fiber-map-idfun× f a c .ret z = refl

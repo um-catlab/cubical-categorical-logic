@@ -27,12 +27,17 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Limits.BinProduct.More
 open import Cubical.Categories.Limits.Cartesian.More
 
+open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Base
-open import Cubical.Categories.Displayed.Instances.Sets.Properties
-open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.ChosenReind
+open import
+  Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
+  using (module ExponentialᴰNotation)
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 
 open import Cubical.Categories.Instances.Free.Lambda.ArrowOnly
+
+open import Gluing.Canonicity
 
 open Category
 open Functor
@@ -84,35 +89,88 @@ module _ where
   canLem : ∀ {A} {γ⊤ : Tm [] []} {f : Tm [] A} → f ≡ seqS γ⊤ f
   canLem = sym (LAMBDA.⋆IdL _) ∙ LAMBDA.⟨ sym ([]η _ ∙ sym ([]η LAMBDA.id) ) ⟩⋆⟨ refl ⟩
 
-  CAN : Section (LAMBDA [ Ctx.[] ,-]) (SETᴰ ℓ-zero ℓ-zero)
-  CAN = elimLocal SETCC ((LAMBDA [ Ctx.[] ,-]))
-    (λ A Γ → CorepCartesian-at LAMBDA (EXTENSION A Γ))
-    EqSETᴰCCCⱽ
-    (λ A M → fiber quoteCan M , isSetΣ (isSetCanonicalForm A) (λ _ → isProp→isSet (isSetTm _ _)))
-    λ { (tr Eq.refl) _ _ → true , canLem
-      ; (fl Eq.refl) _ _ → false , canLem
-      ; (ze Eq.refl) _ _ → zero , canLem
-      ; (su Eq.refl) γ⊤ _ M canM → (suc (canM .fst)) ,
-        ([APP] [su] (iter (canM .fst) (λ N → seqS ([su] ,x= N) [app]) [ze])
-          ≡⟨ cong₂ [APP] canLem (canM .snd ∙ varβ) ⟩
-        [APP] (seqS γ⊤ [su]) M  ∎)
-      }
+  seq,x= : ∀ {Θ Δ Γ A} (γ : Tm Θ Δ) (δ : Tm Δ Γ) (M : Tm Δ (x: A))
+    → seqS γ (δ ,x= M) ≡ (seqS γ δ ,x= seqS γ M)
+  seq,x= γ δ M = ,x=η _
+    ∙ cong₂ _,x=_ (seqAssoc _ _ _ ∙ cong (seqS γ) wkβ)
+      (seqAssoc _ _ _ ∙ cong (seqS γ) varβ)
 
-  can-bool : Iso Bool (Tm [] (x: (↑ bool)))
+  Pts : Functor LAMBDA (SET ℓ-zero)
+  Pts = LAMBDA [ [] ,-]
+
+  private
+    F-× : ∀ A → preservesProvidedBinProductsWith Pts (EXTENSION A)
+    F-× A Γ = CorepCartesian-at LAMBDA (EXTENSION A Γ)
+
+  CF : ∀ A → Tm [] (x: (↑ A)) → hSet ℓ-zero
+  CF A M = fiber quoteCan M
+    , isSetΣ (isSetCanonicalForm A) (λ _ → isProp→isSet (isSetTm _ _))
+
+  GLUE = F*Cᴰ SETCC Pts F-× SETCodCCCⱽ
+
+  ⟦_⟧ : ∀ Γ → Categoryᴰ.ob[ GLUE ] Γ
+  ⟦_⟧ = elimCtx GLUE (F*Termᴰ SETCC Pts F-× SETCodCCCⱽ)
+    (F*BPᴰ SETCC Pts F-× SETCodCCCⱽ) (F*Expᴰ SETCC Pts F-× SETCodCCCⱽ) CF
+
+  module ⇒ᴰ {A B} (Aᴰ : Categoryᴰ.ob[ GLUE ] (x: A))
+    (Bᴰ : Categoryᴰ.ob[ GLUE ] (x: B)) =
+    ExponentialᴰNotation (EXPONENTIALS A B)
+      (F*Expᴰ SETCC Pts F-× SETCodCCCⱽ Aᴰ Bᴰ)
+
+  sucBody : GLUE [ seqS (seqS wk [su] ,x= var) [app] ][
+    ⟦ [] ,x: (↑ nat) ⟧ , ⟦ x: (↑ nat) ⟧ ]
+  sucBody = mk ℓ-zero λ z →
+    let n = z .snd .snd .fst .snd .fst .snd .fst
+        q = z .snd .snd .fst .snd .fst .snd .snd
+          ∙ z .snd .snd .fst .snd .snd
+          ∙ cong (λ p → seqS p var) (z .snd .snd .snd)
+    in (_ , suc n ,
+      cong₂ (λ a b → seqS (a ,x= b) [app])
+        (canLem {γ⊤ = seqS (z .fst) wk} ∙ seqAssoc _ _ _) q
+      ∙ cong (λ a → seqS a [app]) (sym (seq,x= (z .fst) _ var))
+      ∙ seqAssoc _ _ _) , refl
+
+  ıc : ∀ {A} (f : FunSym A) → GLUE [ gen f ][ ⟦ [] ⟧ , ⟦ x: A ⟧ ]
+  ıc (tr Eq.refl) = mk ℓ-zero λ z → (_ , true , canLem) , refl
+  ıc (fl Eq.refl) = mk ℓ-zero λ z → (_ , false , canLem) , refl
+  ıc (ze Eq.refl) = mk ℓ-zero λ z → (_ , zero , canLem) , refl
+  ıc (su Eq.refl) =
+    ChosenReind.reind⟨_⟩ (F*cr SETCC Pts F-× SETCodCCCⱽ) (sym (⇒η [su]))
+      (⇒ᴰ.λᴰ ⟦ x: (↑ nat) ⟧ ⟦ x: (↑ nat) ⟧ sucBody)
+
+  CAN : Section Pts (SETCod ℓ-zero)
+  CAN = elimLocal SETCC Pts F-× SETCodCCCⱽ CF ıc
+
+  can : ∀ {A} (M : Tm [] (x: (↑ A)))
+    → Fib ℓ-zero {Y = Pts ⟅ x: (↑ A) ⟆} (CF A) M
+  can = canonicalize [] CAN tt*
+
+  eval : ∀ {A} → Tm [] (x: (↑ A)) → CanonicalForm A
+  eval M = can M .fst .snd .fst
+
+  can-bool : Iso Bool [bool]
   can-bool .Iso.fun = quoteCan
-  can-bool .Iso.inv M = CAN .F-homᴰ M  LAMBDA.id _ .fst
-  can-bool .Iso.sec M =
-    CAN .F-homᴰ M  LAMBDA.id _ .snd ∙ LAMBDA.⋆IdL _
+  can-bool .Iso.inv = eval
+  can-bool .Iso.sec M = can M .fst .snd .snd ∙ can M .snd
   can-bool .Iso.ret = Bool.elim refl refl
 
-  -- -- This doesn't currently work, and it is quite slow
-  -- can-nat-suc : ∀ n →
-  --   CAN .F-homᴰ ＂ suc n ＂ℕ idS tt* .fst ≡ suc (CAN .F-homᴰ ＂ n ＂ℕ idS tt* .fst)
-  -- can-nat-suc n = {!refl!}
+  can-nat-suc : ∀ n → eval ＂ suc n ＂ℕ ≡ suc (eval ＂ n ＂ℕ)
+  can-nat-suc n = refl
 
-  -- can-nat : Iso ℕ (Tm [] (x: (↑ nat)))
-  -- can-nat .Iso.fun = quoteCan
-  -- can-nat .Iso.inv M = CAN .F-homᴰ M  LAMBDA.id _ .fst
-  -- can-nat .Iso.sec M = CAN .F-homᴰ M  LAMBDA.id _ .snd ∙ LAMBDA.⋆IdL _
-  -- can-nat .Iso.ret = Nat.elim refl
-  --   (λ n ret-n → {!!} ∙ cong suc ret-n)
+  can-nat-ret : ∀ n → eval ＂ n ＂ℕ ≡ n
+  can-nat-ret zero = refl
+  can-nat-ret (suc n) = can-nat-suc n ∙ cong suc (can-nat-ret n)
+
+  can-nat : Iso ℕ [nat]
+  can-nat .Iso.fun = quoteCan
+  can-nat .Iso.inv = eval
+  can-nat .Iso.sec M = can M .fst .snd .snd ∙ can M .snd
+  can-nat .Iso.ret = can-nat-ret
+
+  private
+    module Examples where
+      sucF : Tm [] (x: (↑ nat [⇒] ↑ nat))
+      sucF = [λ] ([APP] (seqS wk [su]) var)
+
+      _ : eval ([APP] sucF ＂ 2 ＂ℕ) ≡ 3
+      _ = refl

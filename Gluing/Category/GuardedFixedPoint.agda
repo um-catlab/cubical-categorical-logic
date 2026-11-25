@@ -7,106 +7,40 @@
 module Gluing.Category.GuardedFixedPoint where
 
 open import Cubical.Foundations.Prelude
-open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Equiv
-open import Cubical.Foundations.More
 open import Cubical.Foundations.Structure
 
 open import Cubical.Data.Bool as Bool hiding (elim)
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
-open import Cubical.Data.Quiver.Base as Quiver
-open import Cubical.Data.Graph.Base as Graph
-open import Cubical.HITs.SetTruncation using (∥_∥₂; ∣_∣₂)
-import Cubical.HITs.SetTruncation as Trunc
-
-open import Cubical.Categories.Category.Base
-open import Cubical.Categories.FixedPoint
-open import Cubical.Categories.Functor.Base
-open import Cubical.Categories.NaturalTransformation hiding (_⟦_⟧)
-open import Cubical.Categories.Instances.Fiber hiding (fiber)
-open import Cubical.Categories.Instances.ωSet as ωSet
-open import Cubical.Categories.Instances.Free.Category.GuardedFixedPoint as Syn
-open import Cubical.Categories.Limits.Terminal as Term
-open import Cubical.Categories.Limits.Terminal.More as Term
-open import Cubical.Categories.Presheaf.Representable
-open import Cubical.Categories.Presheaf.Representable.More
-open import Cubical.Categories.Presheaf.Morphism.Alt
-
-open import Cubical.Categories.Displayed.Base
-open import Cubical.Categories.Displayed.Functor
-open import Cubical.Categories.Displayed.Functor.More
-open import Cubical.Categories.Displayed.FixedPoint
-open import Cubical.Categories.Displayed.More
-open import Cubical.Categories.Displayed.NaturalTransformation
-open import Cubical.Categories.Displayed.Section.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
-
+open import Cubical.Data.Maybe using (Maybe ; just ; nothing)
 open import Cubical.Data.Nat as Nat hiding (elim)
 import Cubical.Data.Equality as Eq
 import Cubical.Data.Equality.More as Eq
+
+open import Cubical.Categories.Category.Base
+open import Cubical.Categories.Functor.Base
 open import Cubical.Categories.Instances.Sets
-open import Cubical.Categories.Instances.TotalCategory as TotalCat hiding (elim; recᴰ)
-open import Cubical.Categories.Displayed.Instances.Family.Base
-open import Cubical.Categories.Displayed.Instances.Family.Properties
-open import Cubical.Categories.Displayed.Instances.Family.EqProperties
-open import Cubical.Categories.Displayed.Instances.PropertyOver as PropertyOver
-open import Cubical.Categories.Displayed.Instances.TotalCategory
-open import Cubical.Categories.Displayed.Instances.Reindex.Eq
-open import Cubical.Categories.Displayed.Instances.Reindex
-open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
-open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
-open import Cubical.Categories.Displayed.HLevels
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Sets
+open import Cubical.Categories.Instances.ωSet hiding (next)
+open import Cubical.Categories.Instances.Free.Category.GuardedFixedPoint as Syn
+
+open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.Functor
+open import Cubical.Categories.Displayed.NaturalTransformation
+open import Cubical.Categories.Displayed.FixedPoint
+open import Cubical.Categories.Displayed.Section.Base
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
+open import Cubical.Categories.Displayed.Instances.Codomain.ωSets
+
 private
   variable
-    ℓc ℓc' ℓd ℓd' ℓg ℓg' ℓh ℓh' ℓj ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' : Level
-    ℓC ℓC' ℓCᴰ ℓCᴰ' : Level
+    ℓ ℓ' ℓ'' ℓᴰ ℓᴰ' ℓᴰ'' : Level
 
-open Category
-open Categoryᴰ
-open Functor
 open Functorᴰ
-open NatTrans
 open NatTransᴰ
-open PshIso
 open Section
-open UniversalElement
-
-ωSETᴰ0 : Categoryᴰ (SET ℓ-zero) (ℓ-suc ℓ-zero) ℓ-zero
-ωSETᴰ0 = Fam (ωSET ℓ-zero)
-
-module ωSETᴰ0 = Fibers ωSETᴰ0
-
-ωSETᴰ-Terminalsⱽ : Terminalsⱽ ωSETᴰ0
-ωSETᴰ-Terminalsⱽ = EqTerminalsⱽ→Terminalsⱽ SetAssoc ωSETᴰ0
-  (FamTerminalsⱽ {ℓ = ℓ-zero} (ωSET ℓ-zero) ωUnit*-Terminal)
-
-ωSETᴰ-fibration : isFibration ωSETᴰ0
-ωSETᴰ-fibration = EqFibration→Fibration {C = SET ℓ-zero}
-  SetAssoc
-  ωSETᴰ0
-  -- this is insanely slow without lossy-unification. Why?
-  (isFibrationFam {ℓ = ℓ-zero} (ωSET ℓ-zero))
-
-ωSETᴰ-Guarded : GuardedLogic (SET ℓ-zero) _ _
-ωSETᴰ-Guarded .GuardedLogic.Cᴰ = ωSETᴰ0
-ωSETᴰ-Guarded .GuardedLogic.▷ⱽ = FamF ▷F
-ωSETᴰ-Guarded .GuardedLogic.next = Fam-PtNT nextNT
-ωSETᴰ-Guarded .GuardedLogic.isFibCᴰ = ωSETᴰ-fibration
-ωSETᴰ-Guarded .GuardedLogic.termⱽ = ωSETᴰ-Terminalsⱽ
-ωSETᴰ-Guarded .GuardedLogic.gfpⱽ {A = X}{Aᴰ = Xᴰ} fⱽ =
-  fixed-pointⱽ'→ⱽ _ _ _ _ (subst (fixed-pointⱽ' ωSETᴰ0 X (ωSETᴰ-Terminalsⱽ X .fst))
-    (ωSETᴰ0.rectifyOut {a = X}{b = X}{aᴰ = Xᴰ}{bᴰ = Xᴰ}{e' = refl}
-     (ωSETᴰ0.reind-filler _))
-    ((λ x → gfix (fⱽ x)) , (funExt (λ x → ωSet.guarded-fixed-points {X = Xᴰ x} (fⱽ x) .snd))))
 
 module Delayᴰ {V : Type ℓ}{X : Type ℓ'} (ret : V → X) (δ : X → X) (Vᴰ : V → ωType ℓᴰ) where
   -- Universal property:
@@ -210,33 +144,30 @@ module Delayᴰ {V : Type ℓ}{X : Type ℓ'} (ret : V → X) (δ : X → X) (V�
     recᴰ d .fst n = recᴰ-fst n d
     recᴰ d .snd n = recᴰ-snd n d
 
--- Gluing
 Γ : Functor EXP (SET ℓ-zero)
 Γ = EXP [ [1] ,-]
 
-𝓖 = reindex ωSETᴰ0 Γ
-
 𝓖-guardedLogic : GuardedLogic EXP _ _
-𝓖-guardedLogic = reindexGuardedLogic Γ ωSETᴰ-Guarded
+𝓖-guardedLogic = reindexGuardedLogicChosenReind Γ ωSETCod-Guarded
+
+𝓖 : Categoryᴰ EXP _ _
+𝓖 = reindexChosenReind (ωSETCod ℓ-zero) Γ
 
 private
+  𝓖Reind : ChosenReind 𝓖
+  𝓖Reind = reindexReind (ωSETCod ℓ-zero) Γ
+
   module 𝓖 where
     open GuardedLogic 𝓖-guardedLogic hiding (module Cᴰ) public
-    open Fibers Cᴰ public
+    open ChosenReindNotation 𝓖 ⦃ 𝓖Reind ⦄ public
 
 1ᴰ𝓖 : Terminalᴰ 𝓖 [1]-TERMINAL
-1ᴰ𝓖 = Terminalⱽ→ᴰ 𝓖 [1]-TERMINAL (𝓖.termⱽ (vertex [1]-TERMINAL))
+1ᴰ𝓖 = Terminalⱽ→ᴰChosenReind 𝓖 [1]-TERMINAL (𝓖.termⱽ [1])
 
 can-lem : ∀ {B} (γ : Exp [1] [1]) (M : Exp [1] B) → M ≡ γ ⋆ₑ M
 can-lem γ M = sym (EXP.⋆IdL _) ∙ EXP.⟨ 1ηₑ ∙ sym 1ηₑ ⟩⋆⟨ refl ⟩
 
---TODO: cleanup
 open Delayᴰ {V = Bool} quoteBool (_⋆ₑ [δ]) (λ M → ωUnit* {ℓ = ℓ-zero})
-
-bool-gen : ∀ b e → ωHom (ωUnit* {ℓ = ℓ-zero}) (Delayᴰ (e ⋆ₑ quoteBool b))
-bool-gen b e = subst (λ M → ωHom ωUnit* (Delayᴰ M))
-  (can-lem e (quoteBool b))
-  (retᴰ b)
 
 [RetBoolᴰ] : 𝓖.ob[ [RetBool] ]
 [RetBoolᴰ] = λ x → (Delayᴰ x)
@@ -245,24 +176,67 @@ bool-gen b e = subst (λ M → ωHom ωUnit* (Delayᴰ M))
 ⟦_⟧ : ∀ B → 𝓖.ob[ B ]
 ⟦_⟧ = elimOb 𝓖 1ᴰ𝓖 [RetBoolᴰ]
 
+bool-gen : ∀ b → 𝓖.Hom[ quoteBool b ][ 1ᴰ𝓖 .fst , [RetBoolᴰ] ]
+bool-gen b = mkω ℓ-zero
+  ( (λ n z → (quoteBool b , terminates tt*) , can-lem (z .fst) (quoteBool b))
+  , λ _ _ _ _ → refl)
+
+θ-pt : ∀ n (z : ∫ωT ℓ-zero (▷ω [RetBoolᴰ]) .fst n)
+  → FibωT ℓ-zero [RetBoolᴰ] (z .fst ⋆ₑ [δ]) .fst n
+θ-pt zero z = (z .fst ⋆ₑ [δ] , timeout) , refl
+θ-pt (suc n) (N , (N' , d) , e) = (N' ⋆ₑ [δ] , steps d) , cong (_⋆ₑ [δ]) e
+
+θ-nat : ∀ n z z' → ∫ωT ℓ-zero (▷ω [RetBoolᴰ]) .snd n z ≡ z'
+  → ∫ωT ℓ-zero [RetBoolᴰ] .snd n (θ-pt (suc n) z .fst) ≡ θ-pt n z' .fst
+θ-nat zero (N , (N' , d) , e) z' p i =
+  (e ∙ cong fst p) i ⋆ₑ [δ] , timeout
+θ-nat (suc n) z z' p i =
+  p i .snd .fst .fst ⋆ₑ [δ] , steps (p i .snd .fst .snd)
+
 [θᴰ] : ∀ B → 𝓖.Hom[ [δ] ][ 𝓖.▷ⱽ .F-obᴰ ⟦ B ⟧ , ⟦ B ⟧ ]
-[θᴰ] [1] = λ _ → UniversalElementNotation.intro ωUnit*-Terminal {c = ▷ωSet (⟦ [1] ⟧ idₑ)} tt
-[θᴰ] [RetBool] = θᴰ
+[θᴰ] [1] = !ω
+[θᴰ] [RetBool] = mkω ℓ-zero (θ-pt , θ-nat)
 
 [δᴰ] : ∀ B → 𝓖.Hom[ [δ] ][ ⟦ B ⟧ , ⟦ B ⟧ ]
-[δᴰ] B = 𝓖._⋆ⱽᴰ_ {xᴰ = ⟦ B ⟧} {xᴰ' = 𝓖.▷ⱽ .F-obᴰ ⟦ B ⟧} {yᴰ = ⟦ B ⟧}
-  (𝓖.next .N-obᴰ ⟦ B ⟧)
-  ([θᴰ] B)
+[δᴰ] B = 𝓖.next .N-obᴰ ⟦ B ⟧ 𝓖.⋆ⱽᴰ [θᴰ] B
 
 GuardedCanonicitySection : GlobalSection 𝓖
 GuardedCanonicitySection = elim 𝓖 1ᴰ𝓖
   [RetBoolᴰ]
-  (λ e → bool-gen true e)
-  (λ e → bool-gen false e)
+  (bool-gen true)
+  (bool-gen false)
   (λ {B} → [δᴰ] B)
-  λ {B} {M} Mᴰ → 𝓖.gfixⱽ→ᴰ [1] B ⟦ B ⟧ [δ] M ([θᴰ] B) Mᴰ (Syn.guarded-fixed-points M)
+  λ {B} {M} Mᴰ → 𝓖.gfixⱽ→ᴰ [1] B ⟦ B ⟧ [δ] M ([θᴰ] B) Mᴰ
+    (Syn.guarded-fixed-points M) ⦃ 𝓖Reind ⦄
+
+GuardedCanonicityFib : ∀ (M : Exp [1] [RetBool]) n
+  → FibωT ℓ-zero [RetBoolᴰ] (idₑ ⋆ₑ M) .fst n
+GuardedCanonicityFib M n =
+  ptω ℓ-zero (GuardedCanonicitySection .F-homᴰ M) .fst n (idₑ , tt*)
 
 GuardedCanonicity : ∀ (M : Exp [1] [RetBool]) n → |Delayᴰ| M n
 GuardedCanonicity M n = subst (λ M → |Delayᴰ| M n)
-  (EXP.⋆IdL M)
-  (GuardedCanonicitySection .F-homᴰ M EXP.id .fst n _)
+  (GuardedCanonicityFib M n .snd ∙ EXP.⋆IdL M)
+  (GuardedCanonicityFib M n .fst .snd)
+
+private
+  module Examples where
+    obs : ∀ {x n} → |Delayᴰ| x n → ℕ × Maybe Bool
+    obs (terminates {v = v} _) = 0 , just v
+    obs timeout = 0 , nothing
+    obs (steps d) = suc (obs d .fst) , obs d .snd
+
+    run : Exp [1] [RetBool] → ℕ → ℕ × Maybe Bool
+    run M n = obs (GuardedCanonicityFib M n .fst .snd)
+
+    _ : run [tru] 3 ≡ (0 , just true)
+    _ = refl
+
+    _ : run ([fls] ⋆ₑ [δ]) 3 ≡ (1 , just false)
+    _ = refl
+
+    _ : run ([fix] ([]ₑ ⋆ₑ ([tru] ⋆ₑ [δ]))) 3 ≡ (1 , just true)
+    _ = refl
+
+    _ : run ([fix] idₑ) 3 ≡ (3 , nothing)
+    _ = refl

@@ -8,6 +8,7 @@ open import Cubical.Foundations.Structure
 
 open import Cubical.Prop
 
+open import Cubical.Data.Bool using (Bool ; true ; false)
 open import Cubical.Data.Sum as Sum
 open import Cubical.Data.Sigma
 
@@ -25,6 +26,8 @@ open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Sets
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Codomain.Sets
+open import Cubical.Categories.Displayed.Instances.Codomain.Sets
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.Pure.Multiplicative
 
 open Category
@@ -55,22 +58,31 @@ module MultiplicativeGluing
     (ı-Ob : ∀ {k} (X : BaseTy k)
       → Tm {k1 = 𝓥} {k2 = k} tt (gen {k = 𝓥} 𝟙) (gen {k = k} X)
       → hSet L)
-    (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (f : Fun k≤ Γ Δ)
-      → ∀ (M : Tm tt (gen 𝟙) Γ)
-      → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob Γ M ⟩
-      → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob Δ
-          (seqS M (gen f)) ⟩)
     where
-    fund-lemma : Section (∫F pts) (SetCBPVᴰ L)
-    fund-lemma = LocalElim.localElim pts (SetCBPVⱽ L) ı-Ob ı-Fun
+    LR : ∀ {k} (Γ : Ob k) → Tm tt (gen 𝟙) Γ → hSet L
+    LR = LocalElim.local-obᴰ pts (SetCBPVCodⱽ L) ⦃ SetCBPVCodReind L ⦄ ı-Ob
 
-    corollary : ∀ (M : Tm tt (gen 𝟙) Γ)
-      → ⟨ fund-lemma .F-obᴰ (_ , gen 𝟙) idS ⟩
-      → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob Γ M ⟩
-    corollary M lem = subst
-      (λ M → ⟨ LocalElim.local-obᴰ pts (SetCBPVⱽ L) ı-Ob _ M ⟩)
-      (IdLS M) $
-      fund-lemma .F-homᴰ (_ , M) idS lem
+    module _
+      (ı-Fun : ∀ {k1 k2 Γ Δ}{k≤ : ≤Kind k1 k2} (f : Fun k≤ Γ Δ)
+        → ∀ (M : Tm tt (gen 𝟙) Γ)
+        → ⟨ LR Γ M ⟩ → ⟨ LR Δ (seqS M (gen f)) ⟩)
+      where
+      fund-lemma : Section (∫F pts) (SetCBPVCod L)
+      fund-lemma =
+        LocalElim.localElim pts (SetCBPVCodⱽ L) ⦃ SetCBPVCodReind L ⦄ ı-Ob
+          λ f → mk L λ z → (_ , ı-Fun f (z .fst) (z .snd)) , refl
+
+      canonical : ∀ (M : Tm tt (gen 𝟙) Γ)
+        → ⟨ LR (gen 𝟙) idS ⟩ → Fib L {Y = _ , isSetTm} (LR Γ) M
+      canonical M lem .fst =
+        pt L (fund-lemma .F-homᴰ (_ , M)) (idS , lem) .fst
+      canonical M lem .snd =
+        pt L (fund-lemma .F-homᴰ (_ , M)) (idS , lem) .snd ∙ IdLS M
+
+      corollary : ∀ (M : Tm tt (gen 𝟙) Γ)
+        → ⟨ LR (gen 𝟙) idS ⟩ → ⟨ LR Γ M ⟩
+      corollary M lem = subst (λ M → ⟨ LR _ M ⟩) (c .snd) (c .fst .snd)
+        where c = canonical M lem
 
 module EZ-Can where
   data BaseTy : Kind → Type ℓ-zero where
@@ -121,25 +133,42 @@ module EZ-Can where
       (CBPV^op.reind-filler⁻ _
       ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
 
-  -- the input here is what the logical relation reduces to.
-  --
-  -- It's actually surprisingly good only problems are the definition
-  -- of [ret]' having the reind and the identity.
   FCanonical→Canonical :
     ∀ {M : Tm tt (gen 𝟙) ([F] (gen Ans))}
-    → (Σ[ V ∈ Tm tt (gen 𝟙) (gen Ans) ] (seqS V [ret]' ≡ M) × ((V ≡ tru) ⊎ (V ≡ fls)))
+    → Fib ℓ-zero {Y = _ , isSetTm} (LR ([F] (gen Ans))) M
     → (M ≡ seqS tru [ret]) ⊎ (M ≡ seqS fls [ret])
-  FCanonical→Canonical (V , retV≡M , inl V≡tru) =
-    inl (sym retV≡M ∙ cong₂ seqS V≡tru [ret]'≡ret)
-  FCanonical→Canonical (V , retV≡M , inr V≡fls) =
-    inr (sym retV≡M ∙ cong₂ seqS V≡fls [ret]'≡ret)
+  FCanonical→Canonical ((_ , ((V , inl V≡tru) , retV≡e)) , e≡M) =
+    inl (sym (retV≡e ∙ e≡M) ∙ cong₂ seqS V≡tru [ret]'≡ret)
+  FCanonical→Canonical ((_ , ((V , inr V≡fls) , retV≡e)) , e≡M) =
+    inr (sym (retV≡e ∙ e≡M) ∙ cong₂ seqS V≡fls [ret]'≡ret)
 
   AllCanonical : ∀ ((_ , M) :
     (∫C (MultCBPV .fst)) [ (𝓥 , gen 𝟙) , (𝓒 , [F] (gen Ans)) ])
     → (M ≡ seqS tru [ret]) ⊎ (M ≡ seqS fls [ret])
-  AllCanonical (_ , M) = FCanonical→Canonical $ corollary
+  AllCanonical (_ , M) = FCanonical→Canonical $ canonical
     (λ { true V V≡id → inl (cong₂ seqS V≡id refl ∙ IdLS tru)
        ; false V V≡id → inr (cong₂ seqS V≡id refl ∙ IdLS fls)
        })
     M
     refl
+
+private
+  module Examples where
+    open EZ-Can
+    open CBPV BaseTy
+    open Terms FUN
+
+    isInl : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} → A ⊎ B → Bool
+    isInl (inl _) = true
+    isInl (inr _) = false
+
+    _ : isInl (AllCanonical (_ , seqS tru [ret])) ≡ true
+    _ = refl
+
+    _ : isInl (AllCanonical (_ , seqS fls (seqS [ret] ([bind] [ret]))))
+      ≡ false
+    _ = refl
+
+    _ : isInl (AllCanonical (_ , seqS ([thunk] (seqS tru [ret])) [force]))
+      ≡ true
+    _ = refl

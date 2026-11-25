@@ -23,6 +23,7 @@ open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.TotalCategory hiding (elim)
+open import Cubical.Categories.Instances.TotalCategory.More
 open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝓥; r to 𝓒; ≤Vertex to ≤Kind)
@@ -30,9 +31,11 @@ open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.Representable.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 import Cubical.Categories.Displayed.Reasoning as HomᴰReasoning
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Opposite
@@ -282,6 +285,24 @@ module _ {C : CBPVCat ℓ ℓ'}(Cᴰ : CBPVCatᴰ C ℓᴰ ℓᴰ') where
     hasFⱽ→ᴰ Fⱽ =
       Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰ (KIND ^op) (C ^opᴰ) (Cᴰ ^opᴰᴰ) _ hasFC (Fⱽ _)
 
+  ChosenReind^opᴰᴰ : ⦃ cr : ChosenReind Cᴰ ⦄ → ChosenReind (Cᴰ ^opᴰᴰ)
+  ChosenReind^opᴰᴰ ⦃ cr ⦄ .ChosenReind.reind⟨_⟩ e =
+    cr .ChosenReind.reind⟨_⟩ (cong (∫C-op-commute⁻ .Functor.F-hom) e)
+  ChosenReind^opᴰᴰ ⦃ cr ⦄ .ChosenReind.reind-filler e =
+    cr .ChosenReind.reind-filler (cong (∫C-op-commute⁻ .Functor.F-hom) e)
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    module _ (hasUC : hasU C) where
+      hasUⱽ→ᴰChosenReind : hasUⱽ → hasUᴰ hasUC
+      hasUⱽ→ᴰChosenReind Uⱽ =
+        Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰChosenReind KIND C Cᴰ _ hasUC (Uⱽ _)
+
+    module _ (hasFC : hasF C) where
+      hasFⱽ→ᴰChosenReind : hasFⱽ → hasFᴰ hasFC
+      hasFⱽ→ᴰChosenReind Fⱽ =
+        Liftsᴰ⁺ⱽ.Quadrableⱽ→ᴰChosenReind (KIND ^op) (C ^opᴰ) (Cᴰ ^opᴰᴰ) _
+          ⦃ ChosenReind^opᴰᴰ ⦄ hasFC (Fⱽ _)
+
 MultCBPVCatⱽ : ∀ (C : CBPVCat ℓ ℓ') ℓᴰ ℓᴰ' → Type (ℓ-suc ((ℓ ⊔ℓ ℓ') ⊔ℓ (ℓᴰ ⊔ℓ ℓᴰ')))
 MultCBPVCatⱽ C ℓᴰ ℓᴰ' =
   Σ[ Cᴰ ∈ CBPVCatᴰ C ℓᴰ ℓᴰ' ] hasUⱽ Cᴰ × hasFⱽ Cᴰ
@@ -300,6 +321,15 @@ MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .fst =
   hasUⱽ→ᴰ (Cⱽ .fst) (C .snd .fst) (Cⱽ .snd .fst)
 MultCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd =
   hasFⱽ→ᴰ (Cⱽ .fst) (C .snd .snd) (Cⱽ .snd .snd)
+
+MultCBPVCatⱽ→ᴰChosenReind : {C : MultCBPVCat ℓ ℓ'}
+  → (Cⱽ : MultCBPVCatⱽ (C .fst) ℓᴰ ℓᴰ') ⦃ cr : ChosenReind (Cⱽ .fst) ⦄
+  → MultCBPVCatᴰ C ℓᴰ ℓᴰ'
+MultCBPVCatⱽ→ᴰChosenReind Cⱽ .fst = Cⱽ .fst
+MultCBPVCatⱽ→ᴰChosenReind {C = C} Cⱽ .snd .fst =
+  hasUⱽ→ᴰChosenReind (Cⱽ .fst) (C .snd .fst) (Cⱽ .snd .fst)
+MultCBPVCatⱽ→ᴰChosenReind {C = C} Cⱽ .snd .snd =
+  hasFⱽ→ᴰChosenReind (Cⱽ .fst) (C .snd .snd) (Cⱽ .snd .snd)
 
 module _
   {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
@@ -358,3 +388,70 @@ module _
     hasUⱽReindex
   MultCBPVCatⱽReindex .snd .snd =
     hasFⱽReindex
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
+  (Dⱽ : MultCBPVCatⱽ D ℓᴰᴰ ℓᴰᴰ')
+  (F : Functorⱽ C D)
+  ⦃ cr : ChosenReind (Dⱽ .fst) ⦄
+  where
+
+  hasUⱽReindexChosenReind : hasUⱽ (reindexChosenReind (Dⱽ .fst) (∫F F))
+  hasUⱽReindexChosenReind f yᴰ =
+    reindexCartesianLiftChosenReind (Dⱽ .fst) (∫F F) (_ , f) yᴰ
+      (Dⱽ .snd .fst (F .Functorᴰ.F-homᴰ f) yᴰ)
+
+  hasFⱽReindexChosenReind : hasFⱽ (reindexChosenReind (Dⱽ .fst) (∫F F))
+  hasFⱽReindexChosenReind f yᴰ =
+    f*yᴰ .fst ,
+    pshiso
+      (pshhom
+        (λ x → f*yᴰ .snd .PshIso.trans .PshHom.N-ob x)
+        (λ c c' g p →
+          f*yᴰ .snd .PshIso.trans .PshHom.N-hom c c' g p))
+      (f*yᴰ .snd .PshIso.nIso)
+    where
+    f*yᴰ =
+      reindexCartesianLiftChosenReind
+        (Dⱽ .fst ^opᴰᴰ)
+        (∫F (F ^opFⱽ))
+        ⦃ ChosenReind^opᴰᴰ (Dⱽ .fst) ⦄
+        (_ , f)
+        yᴰ
+        (Dⱽ .snd .snd (F .Functorᴰ.F-homᴰ f) yᴰ)
+
+  MultCBPVCatⱽReindexChosenReind : MultCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
+  MultCBPVCatⱽReindexChosenReind .fst = reindexChosenReind (Dⱽ .fst) (∫F F)
+  MultCBPVCatⱽReindexChosenReind .snd .fst = hasUⱽReindexChosenReind
+  MultCBPVCatⱽReindexChosenReind .snd .snd = hasFⱽReindexChosenReind
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
+  (F : Functorⱽ C D)
+  (Dᴰ : CBPVCatᴰ D ℓᴰᴰ ℓᴰᴰ')
+  ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Fibers C
+    module D = Fibers D
+    module Dᴰ = Fibers Dᴰ
+    module CR = ChosenReindNotation Dᴰ
+    module F = Functorᴰ F
+
+  reindexChosenReind-seq-filler : ∀ {k₁ k₂ k₃}
+    {X : C.ob[ k₁ ]} {Y : C.ob[ k₂ ]} {Z : C.ob[ k₃ ]}
+    {Xᴰ Yᴰ Zᴰ} {k≤ k≤'}
+    {V : C.Hom[ k≤ ][ X , Y ]} {M : C.Hom[ k≤' ][ Y , Z ]}
+    (Vᴰ : Dᴰ.Hom[ k≤ , F.F-homᴰ V ][ Xᴰ , Yᴰ ])
+    (Mᴰ : Dᴰ.Hom[ k≤' , F.F-homᴰ M ][ Yᴰ , Zᴰ ])
+    → Path
+        (Σ[ N ∈ D.Hom[ _ ][ F.F-obᴰ X , F.F-obᴰ Z ] ]
+          Dᴰ.Hom[ _ , N ][ Xᴰ , Zᴰ ])
+        (F.F-homᴰ (V C.⋆ᴰ M)
+        , (reindexChosenReind Dᴰ (∫F F) Categoryᴰ.⋆ᴰ Vᴰ) Mᴰ)
+        (F.F-homᴰ V D.⋆ᴰ F.F-homᴰ M , Vᴰ Dᴰ.⋆ᴰ Mᴰ)
+  reindexChosenReind-seq-filler {V = V} {M = M} Vᴰ Mᴰ i .fst =
+    Functor.F-seq (∫F F) (_ , V) (_ , M) i .snd
+  reindexChosenReind-seq-filler {V = V} {M = M} Vᴰ Mᴰ i .snd =
+    CR.reind-filler (sym (Functor.F-seq (∫F F) (_ , V) (_ , M)))
+      (Vᴰ Dᴰ.⋆ᴰ Mᴰ) (~ i)

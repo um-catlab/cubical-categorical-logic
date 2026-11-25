@@ -56,7 +56,10 @@ open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Instances.Opposite
-open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind public
+  using (TransportReindInst)
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
@@ -200,10 +203,16 @@ module CBPV (BaseTy : Kind → Type ℓ)
       (Cᴰ : CBPVCatᴰ CBPV ℓᴰ ℓᴰ')
       (CᴰhasUᴰ : hasUᴰ Cᴰ (MultCBPV .snd .fst))
       (CᴰhasFᴰ : hasFᴰ Cᴰ (MultCBPV .snd .snd))
+      ⦃ cr : ChosenReind Cᴰ ⦄
       where
       private
         module Cᴰ = Fibers Cᴰ
         module Cᴰ^op = Fibers (Cᴰ ^opᴰᴰ)
+        module CR = ChosenReindNotation Cᴰ
+
+        reind≡ : ∀ {x y} {f g : (∫C CBPV) [ x , y ]} {a b} (e : f ≡ g)
+          (fᴰ : Cᴰ.Hom[ f ][ a , b ]) → CR.reind⟨ e ⟩ fᴰ ≡ Cᴰ.reind e fᴰ
+        reind≡ e fᴰ = Cᴰ.rectifyOut (CR.reind-∫≡ e fᴰ ∙ Cᴰ.reind-filler e)
 
       module _
         (ı-Ob : ∀ {k} (X : BaseTy k) → Cᴰ.ob[ k , gen X ])
@@ -214,7 +223,7 @@ module CBPV (BaseTy : Kind → Type ℓ)
         elim-F-obᴰ ([U] B) = CᴰhasUᴰ (elim-F-obᴰ B) .fst
 
         retᴰ : ∀ {A : VTy} → Cᴰ.Hom[ ı tt , [ret] ][ elim-F-obᴰ A , elim-F-obᴰ ([F] A) ]
-        retᴰ = Cᴰ.reind
+        retᴰ = CR.reind⟨_⟩
           (CBPV^op.reind-filler⁻ _
           ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
           (CᴰhasFᴰ (elim-F-obᴰ _) .snd .fst .PshHom.N-ob _ Cᴰ^op.idᴰ)
@@ -249,30 +258,37 @@ module CBPV (BaseTy : Kind → Type ℓ)
           elim-F-homᴰ [ret] = retᴰ
           elim-F-homᴰ ([bind] M) = bindᴰ M (elim-F-homᴰ M)
           elim-F-homᴰ ([Fβ] M i) =
-            Fβᴰ Cᴰ (MultCBPV .snd .snd) CᴰhasFᴰ
+            (cong (Cᴰ._⋆ᴰ bindᴰ M (elim-F-homᴰ M)) (reind≡ _ _)
+            ◁ Fβᴰ Cᴰ (MultCBPV .snd .snd) CᴰhasFᴰ
               (CBPV^op.reind-filler⁻ _
               ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
-              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M) i
+              M (λ i → ı tt , [Fβ] M i) (elim-F-homᴰ M)) i
           elim-F-homᴰ ([Fη] K i) =
-            Fηᴰ Cᴰ (MultCBPV .snd .snd) CᴰhasFᴰ
+            (Fηᴰ Cᴰ (MultCBPV .snd .snd) CᴰhasFᴰ
               (CBPV^op.reind-filler⁻ _
               ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
-              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K) i
-          elim-F-homᴰ [force] = Cᴰ.reind
+              K (λ i → Category.id KIND , [Fη] K i) (elim-F-homᴰ K)
+            ▷ cong (λ r → bindᴰ (seqS [ret] K) (r Cᴰ.⋆ᴰ elim-F-homᴰ K))
+                (sym (reind≡ _ _))) i
+          elim-F-homᴰ [force] = CR.reind⟨_⟩
             (CBPV.reind-filler⁻ _ ∙ CBPV.≡in {pth = refl} (IdLS [force]))
             (forceᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ)
           elim-F-homᴰ ([thunk] M) =
             thunkᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ M (elim-F-homᴰ M)
           elim-F-homᴰ ([Uβ] M i) =
-            Uβᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
+            (cong (thunkᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ M (elim-F-homᴰ M)
+                Cᴰ.⋆ᴰ_) (reind≡ _ _)
+            ◁ Uβᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
               (CBPV.reind-filler⁻ _
               ∙ CBPV.≡in {pth = refl} (IdLS [force]))
-              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M) i
+              M (λ i → ı tt , [Uβ] M i) (elim-F-homᴰ M)) i
           elim-F-homᴰ ([Uη] V i) =
-            Uηᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
+            (Uηᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
               (CBPV.reind-filler⁻ _
               ∙ CBPV.≡in {pth = refl} (IdLS [force]))
-              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V) i
+              V (λ i → Category.id KIND , [Uη] V i) (elim-F-homᴰ V)
+            ▷ cong (λ r → thunkᴰ Cᴰ (MultCBPV .snd .fst) CᴰhasUᴰ
+                (seqS V [force]) (elim-F-homᴰ V Cᴰ.⋆ᴰ r)) (sym (reind≡ _ _))) i
 
           elim : GlobalSection Cᴰ
           elim .F-obᴰ d = elim-F-obᴰ (d .snd)
@@ -284,12 +300,18 @@ module CBPV (BaseTy : Kind → Type ℓ)
       {C : CBPVCat ℓD ℓD'}
       (F : Functorⱽ CBPV C)
       (Cⱽ : MultCBPVCatⱽ C ℓCᴰ ℓCᴰ')
+      ⦃ cr : ChosenReind (Cⱽ .fst) ⦄
       where
       private
         module Cᴰ = Fibers (Cⱽ .fst)
 
+        instance
+          reindexedReind : ChosenReind (reindexChosenReind (Cⱽ .fst) (∫F F))
+          reindexedReind = reindexReind (Cⱽ .fst) (∫F F)
+
         reindexed : MultCBPVCatᴰ MultCBPV ℓCᴰ ℓCᴰ'
-        reindexed = MultCBPVCatⱽ→ᴰ (MultCBPVCatⱽReindex Cⱽ F)
+        reindexed = MultCBPVCatⱽ→ᴰChosenReind (MultCBPVCatⱽReindexChosenReind Cⱽ
+          F)
 
       module _
         (ı-ob : ∀ {k} (X : BaseTy k)
@@ -307,7 +329,7 @@ module CBPV (BaseTy : Kind → Type ℓ)
             → Cᴰ.Hom[ _ , F .Functorᴰ.F-homᴰ (gen M) ][ local-obᴰ Γ , local-obᴰ Δ ])
           → Section (∫F F) (Cⱽ .fst)
         localElim ı-hom =
-          GlobalSectionReindex→Section (Cⱽ .fst) (∫F F)
+          GlobalSectionReindex→SectionChosenReind (Cⱽ .fst) (∫F F)
             (Elim.elim
               (reindexed .fst)
               (reindexed .snd .fst)

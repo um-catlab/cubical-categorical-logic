@@ -33,7 +33,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Cartes
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Base
-open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Additive
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Codomain.StateAlg
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.BoolState.Additive
 
 open Category
@@ -57,7 +57,7 @@ module StateAlgGluing
   private
     L = ℓ-max ℓ ℓ'
 
-  pts : Functorⱽ (AddCBPV .fst .fst) (StateAlgAddCBPV L .fst .fst)
+  pts : Functorⱽ (AddCBPV .fst .fst) (StateAlgCBPV {ℓ = L} .fst)
   pts = points (AddCBPV .fst .fst) CBPVState I
 
   ptsPreservesState :
@@ -95,18 +95,19 @@ module BoolStateSyntax where
 
   module Fundamental = LocalElim
     G.pts
-    (StateAlgAddCBPVⱽ ℓ-zero)
+    (StateAlgCodAddⱽ ℓ-zero)
     StateAlgCBPVState
     G.ptsPreservesState
-    (StateAlgCBPVStateᴰ ℓ-zero ℓ-zero)
+    (StateAlgCodState ℓ-zero)
+    ⦃ StateAlgCodReind ℓ-zero ⦄
 
   baseObject : ∀ {k} (X : BaseTy k)
-    → Categoryᴰ.ob[_] (StateAlgAddCBPVⱽ ℓ-zero .fst .fst)
+    → Categoryᴰ.ob[_] (StateAlgCod ℓ-zero)
         (k , G.pts .F-obᴰ (gen X))
   baseObject ()
 
   fundamentalLemma :
-    Section (∫F G.pts) (StateAlgAddCBPVⱽ ℓ-zero .fst .fst)
+    Section (∫F G.pts) (StateAlgCod ℓ-zero)
   fundamentalLemma =
     Fundamental.localElim baseObject λ ()
 
@@ -115,17 +116,19 @@ module BoolStateSyntax where
   LogicalRelation {k = 𝒱} Γ = Fundamental.local-obᴰ baseObject Γ
   LogicalRelation {k = 𝒞} Γ = Fundamental.local-obᴰ baseObject Γ .fst
 
-  -- instantiate the open logical relation at the identity substitution.
+  canonical : ∀ {k} {Γ : Ob k} (M : Tm tt UnitTy Γ)
+    → Σ[ w ∈ Σ _ (λ N → ⟨ LogicalRelation Γ N ⟩) ] w .fst ≡ M
+  canonical {k = 𝒱} M =
+    run .fst .snd (idS , tt*) , (λ i → run .snd i .snd (idS , tt*)) ∙ IdLS M
+    where run = fundamentalLemma .F-homᴰ (_ , M)
+  canonical {k = 𝒞} M =
+    run .fst .snd (idS , tt*) , (λ i → run .snd i .snd (idS , tt*)) ∙ IdLS M
+    where run = fundamentalLemma .F-homᴰ (_ , M)
+
   fundamentalAt : ∀ {k} {Γ : Ob k} (M : Tm tt UnitTy Γ)
     → ⟨ LogicalRelation Γ M ⟩
-  fundamentalAt {k = 𝒱} {Γ = Γ} M = subst
-    (λ N → ⟨ LogicalRelation Γ N ⟩)
-    (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS tt*
-  fundamentalAt {k = 𝒞} {Γ = Γ} M = subst
-    (λ N → ⟨ LogicalRelation Γ N ⟩)
-    (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS tt*
+  fundamentalAt {Γ = Γ} M = subst (λ N → ⟨ LogicalRelation Γ N ⟩)
+    (canonical M .snd) (canonical M .fst .snd)
 
   private
     [ret]' : Tm tt BoolTy ([F] BoolTy)
@@ -157,9 +160,9 @@ module BoolStateSyntax where
       ⊎ fiber (λ (V₂ : Tm tt UnitTy UnitTy) → seqS V₂ inr') V
 
     inspect-Bool : ∀ V → ⟨ LogicalRelation BoolTy V ⟩ → CanonicalBool V
-    inspect-Bool V (inl (V₁ , p , _)) =
+    inspect-Bool V (inl ((V₁ , _) , p)) =
       inl (V₁ , sym (cong (seqS V₁) value-σ₁≡[+I1]) ∙ p)
-    inspect-Bool V (inr (V₂ , p , _)) =
+    inspect-Bool V (inr ((V₂ , _) , p)) =
       inr (V₂ , sym (cong (seqS V₂) value-σ₂≡[+I2]) ∙ p)
 
     canonicalBool : ∀ V → ⟨ LogicalRelation BoolTy V ⟩
@@ -186,12 +189,9 @@ module BoolStateSyntax where
       (∀ b → Σ[ q ∈ Bool ] s b .snd ≡ quoteBool q)
 
   raw-FBool : ∀ M → RawFBool M
-  raw-FBool M = canonicalize (fundamentalAt M)
-    where
-    canonicalize : ⟨ LogicalRelation ([F] BoolTy) M ⟩ → RawFBool M
-    canonicalize raw .fst = raw .fst
-    canonicalize raw .snd b =
-      canonicalBool (raw .fst .fst b .snd) (raw .snd b)
+  raw-FBool M .fst .fst = canonical M .fst .snd .fst .fst
+  raw-FBool M .fst .snd = canonical M .fst .snd .fst .snd ∙ canonical M .snd
+  raw-FBool M .snd b = canonicalBool _ (canonical M .fst .snd .snd b)
 
   interpretFreeStateBool :
     ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
@@ -228,10 +228,21 @@ module BoolStateSyntax where
     fiber interpretFreeStateBool M
   closed-FBool-surjective M = realizeRaw (raw-FBool M)
 
-  -- This should be an inverse to interpretFreeStateBool but a proof
-  -- by computation doesn't terminate.
   unquote-FBool : Tm _ UnitTy ([F] BoolTy)
     → ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
   unquote-FBool M = closed-FBool-surjective M .fst
 
 open BoolStateSyntax public
+
+private
+  module Examples where
+    _ : unquote-FBool (seqS tru [ret]) true ≡ (true , true)
+    _ = refl
+
+    _ : unquote-FBool
+      ([rd] ([wt] false (seqS tru [ret])) ([wt] true (seqS fls [ret]))) true
+      ≡ (false , true)
+    _ = refl
+
+    _ : unquote-FBool ([wt] true (seqS fls [ret])) false ≡ (true , false)
+    _ = refl

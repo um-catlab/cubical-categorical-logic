@@ -10,14 +10,18 @@ open import Cubical.Categories.Functor
 open import Cubical.Categories.Instances.TotalCategory
 open import Cubical.Categories.Instances.Fiber
 open import Cubical.Categories.Instances.Sets
+open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Instances.WalkingArrow
   renaming (WalkingArrow to KIND; Vertex to Kind; l to 𝒱; r to 𝒞)
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Instances.Opposite
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
@@ -365,4 +369,134 @@ module _
       (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst B₁ᴰ B₂ᴰ)
   AddCBPVCatⱽReindex .snd .snd .snd .snd .snd .snd .snd .snd .snd f Bᴰ =
     reindexCartesianLift Dᴰ G (_ , f) Bᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd (F.F-homᴰ f) Bᴰ)
+
+module _ {C : AddCBPVCat ℓ ℓ'}
+  (Cⱽ : AddCBPVCatⱽ (C .fst .fst) ℓᴰ ℓᴰ')
+  ⦃ cr : ChosenReind (Cⱽ .fst .fst) ⦄
+  where
+  private
+    D = Cⱽ .fst .fst
+
+  AddCBPVCatⱽ→ᴰChosenReind : AddCBPVCatᴰ C ℓᴰ ℓᴰ'
+  AddCBPVCatⱽ→ᴰChosenReind .fst = MultCBPVCatⱽ→ᴰChosenReind (Cⱽ .fst)
+  AddCBPVCatⱽ→ᴰChosenReind .snd .fst = AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .fst
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
+    BinProductⱽ+π*→ⱽᴰChosenReind D bp A₁ᴰ A₂ᴰ π₁*A₁ᴰ π₂*A₂ᴰ
+      (Cⱽ .snd .snd .fst (π₁*A₁ᴰ .fst) (π₂*A₂ᴰ .fst))
+    where
+    bp = C .snd .snd .fst A₁ A₂
+    module bp = BinProductⱽNotation (C .fst .fst) bp
+    π₁*A₁ᴰ = Cⱽ .snd .snd .snd .fst bp.π₁ A₁ᴰ
+    π₂*A₂ᴰ = Cⱽ .snd .snd .snd .fst bp.π₂ A₂ᴰ
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .fst =
+    AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .fst
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .snd .fst A₁ A₂ A₁ᴰ A₂ᴰ =
+    BinProductⱽ+π*→ⱽᴰChosenReind (D ^opᴰᴰ) ⦃ ChosenReind^opᴰᴰ D ⦄
+      bcp A₁ᴰ A₂ᴰ σ₁!A₁ᴰ σ₂!A₂ᴰ
+      (BinProductⱽ^opᴰ→^opᴰᴰ D
+        (Cⱽ .snd .snd .snd .snd .snd .fst (σ₁!A₁ᴰ .fst) (σ₂!A₂ᴰ .fst)))
+    where
+    bcp = C .snd .snd .snd .snd .fst A₁ A₂
+    module bcp = BinProductⱽNotation ((C .fst .fst) ^opᴰ) bcp
+    σ₁!A₁ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₁ A₁ᴰ)
+    σ₂!A₂ᴰ = CartesianLift^opᴰ→^opᴰᴰ D
+      (Cⱽ .snd .snd .snd .snd .snd .snd .fst bcp.π₂ A₂ᴰ)
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .snd .snd .fst =
+    AddCBPVCatⱽ→ᴰ {C = C} Cⱽ .snd .snd .snd .snd .snd .fst
+  AddCBPVCatⱽ→ᴰChosenReind .snd .snd .snd .snd .snd .snd B₁ B₂ B₁ᴰ B₂ᴰ =
+    BinProductⱽ+π*→ⱽᴰChosenReind D bp B₁ᴰ B₂ᴰ π₁*B₁ᴰ π₂*B₂ᴰ
+      (Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst
+        (π₁*B₁ᴰ .fst) (π₂*B₂ᴰ .fst))
+    where
+    bp = C .snd .snd .snd .snd .snd .snd B₁ B₂
+    module bp = BinProductⱽNotation (C .fst .fst) bp
+    π₁*B₁ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
+      bp.π₁ B₁ᴰ
+    π₂*B₂ᴰ = Cⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd
+      bp.π₂ B₂ᴰ
+
+module _
+  {C : CBPVCat ℓ ℓ'} {D : CBPVCat ℓ'' ℓᴰ}
+  (Dⱽ : AddCBPVCatⱽ D ℓᴰᴰ ℓᴰᴰ')
+  (F : Functorⱽ C D)
+  ⦃ cr : ChosenReind (Dⱽ .fst .fst) ⦄
+  where
+  private
+    module F = Functorᴰ F
+    Dᴰ = Dⱽ .fst .fst
+    G = ∫F F
+
+    G-op : Functor ((∫C C) ^op) ((∫C D) ^op)
+    G-op .F-ob = G .F-ob
+    G-op .F-hom = G .F-hom
+    G-op .F-id = G .F-id
+    G-op .F-seq f g = G .F-seq g f
+
+  reindexValueInitialⱽChosenReind :
+    ValueInitialsⱽ (reindexChosenReind Dᴰ G)
+  reindexValueInitialⱽChosenReind A =
+    init' .fst ,
+    pshiso
+      (pshhom
+        (λ x → init' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ _ _ _ _ → refl))
+      (init' .snd .PshIso.nIso)
+    where
+    init' = reindexTerminalⱽChosenReind (Dᴰ ^opᴰ) G-op (𝒱 , A)
+      (Dⱽ .snd .snd .snd .snd .fst (F.F-obᴰ A))
+
+  reindexValueBinCoProductⱽChosenReind :
+    ValueBinCoProductsⱽ (reindexChosenReind Dᴰ G)
+  reindexValueBinCoProductⱽChosenReind A₁ᴰ A₂ᴰ =
+    bcp' .fst ,
+    pshiso
+      (pshhom
+        (λ x → bcp' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y f p → bcp' .snd .PshIso.trans .PshHom.N-hom x y f p))
+      (bcp' .snd .PshIso.nIso)
+    where
+    bcp' = reindexBinProductⱽChosenReind (Dᴰ ^opᴰ) G-op A₁ᴰ A₂ᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .fst A₁ᴰ A₂ᴰ)
+
+  reindexValueOpcartesianLiftsChosenReind :
+    hasVerticalOpcartesianLiftsAt (reindexChosenReind Dᴰ G) 𝒱
+  reindexValueOpcartesianLiftsChosenReind f Aᴰ =
+    lift' .fst ,
+    pshiso
+      (pshhom
+        (λ x → lift' .snd .PshIso.trans .PshHom.N-ob x)
+        (λ x y g p → lift' .snd .PshIso.trans .PshHom.N-hom x y g p))
+      (lift' .snd .PshIso.nIso)
+    where
+    lift' = reindexCartesianLiftChosenReind (Dᴰ ^opᴰ) G-op (_ , f) Aᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .snd .fst (F.F-homᴰ f) Aᴰ)
+
+  AddCBPVCatⱽReindexChosenReind : AddCBPVCatⱽ C ℓᴰᴰ ℓᴰᴰ'
+  AddCBPVCatⱽReindexChosenReind .fst = MultCBPVCatⱽReindexChosenReind (Dⱽ .fst)
+    F
+  AddCBPVCatⱽReindexChosenReind .snd .fst A =
+    reindexTerminalⱽChosenReind Dᴰ G (𝒱 , A) (Dⱽ .snd .fst (F.F-obᴰ A))
+  AddCBPVCatⱽReindexChosenReind .snd .snd .fst A₁ᴰ A₂ᴰ =
+    reindexBinProductⱽChosenReind Dᴰ G A₁ᴰ A₂ᴰ (Dⱽ .snd .snd .fst A₁ᴰ A₂ᴰ)
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .fst f Bᴰ =
+    reindexCartesianLiftChosenReind Dᴰ G (_ , f) Bᴰ
+      (Dⱽ .snd .snd .snd .fst (F.F-homᴰ f) Bᴰ)
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .fst =
+    reindexValueInitialⱽChosenReind
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .snd .fst =
+    reindexValueBinCoProductⱽChosenReind
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .snd .snd .fst =
+    reindexValueOpcartesianLiftsChosenReind
+  AddCBPVCatⱽReindexChosenReind .snd .snd .snd .snd .snd .snd .snd .fst B =
+    reindexTerminalⱽChosenReind Dᴰ G (𝒞 , B)
+      (Dⱽ .snd .snd .snd .snd .snd .snd .snd .fst (F.F-obᴰ B))
+  AddCBPVCatⱽReindexChosenReind
+    .snd .snd .snd .snd .snd .snd .snd .snd .fst B₁ᴰ B₂ᴰ =
+    reindexBinProductⱽChosenReind Dᴰ G B₁ᴰ B₂ᴰ
+      (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .fst B₁ᴰ B₂ᴰ)
+  AddCBPVCatⱽReindexChosenReind
+    .snd .snd .snd .snd .snd .snd .snd .snd .snd f Bᴰ =
+    reindexCartesianLiftChosenReind Dᴰ G (_ , f) Bᴰ
       (Dⱽ .snd .snd .snd .snd .snd .snd .snd .snd .snd (F.F-homᴰ f) Bᴰ)

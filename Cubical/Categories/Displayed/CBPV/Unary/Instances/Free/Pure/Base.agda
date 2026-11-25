@@ -21,7 +21,10 @@ open import Cubical.Categories.Instances.TotalCategory hiding (elim)
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section
-open import Cubical.Categories.Displayed.Instances.Reindex
+open import Cubical.Categories.Displayed.ChosenReind
+open import Cubical.Categories.Displayed.ChosenReind public
+  using (TransportReindInst)
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 
 private
   variable
@@ -109,6 +112,7 @@ module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob
     {C : Categoryᴰ KIND ℓC ℓC'}
     (F : Functorⱽ CBPV C)
     (Cᴰ : Categoryᴰ (∫C C) ℓCᴰ ℓCᴰ')
+    ⦃ cr : ChosenReind Cᴰ ⦄
     where
     private
       module Cᴰ = Categoryᴰ Cᴰ
@@ -120,4 +124,5 @@ module CBPV (Ob : Kind → Type ℓ) (Fun : ∀ {k1 k2} → ≤Kind k1 k2 → Ob
         Cᴰ.Hom[ _ , Functorᴰ.F-homᴰ F (gen M) ][ ı-ob Γ , ı-ob Δ ])
       → Section (∫F F) Cᴰ
     localElim ı-ob ı-hom =
-      GlobalSectionReindex→Section Cᴰ (∫F F) (Elim.elim (reindex Cᴰ (∫F F)) ı-ob ı-hom)
+      GlobalSectionReindex→SectionChosenReind Cᴰ (∫F F)
+        (Elim.elim (reindexChosenReind Cᴰ (∫F F)) ı-ob ı-hom)

@@ -29,7 +29,7 @@ open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.Cartes
 open import Cubical.Categories.Displayed.CBPV.Unary.Base
 open import Cubical.Categories.Displayed.CBPV.Unary.StateAlgEnrichment
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Base
-open import Cubical.Categories.Displayed.CBPV.Unary.Instances.StateAlg.Vertical
+open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Codomain.StateAlg
 open import Cubical.Categories.Displayed.CBPV.Unary.Instances.Free.BoolState.Multiplicative
 
 open Category
@@ -96,41 +96,46 @@ module BoolStateSyntax where
 
   module Fundamental = LocalElim
     G.pts
-    StateAlgCBPVⱽ
+    (StateAlgCodⱽ ℓ-zero)
     StateAlgCBPVState
     G.ptsPreservesState
-    (StateAlgCBPVStateᴰ ℓ-zero ℓ-zero)
+    (StateAlgCodState ℓ-zero)
+    ⦃ StateAlgCodReind ℓ-zero ⦄
 
   baseObject : ∀ {k} (X : BaseTy k)
-    → Categoryᴰ.ob[_] (StateAlgCBPVⱽ .fst)
+    → Categoryᴰ.ob[_] (StateAlgCod ℓ-zero)
         (k , G.pts .F-obᴰ (gen X))
   baseObject 𝟙 = hBaseRelation 𝟙
   baseObject BoolTy = hBaseRelation BoolTy
 
   fundamentalLemma :
-    Section (∫F G.pts) (StateAlgCBPVⱽ .fst)
+    Section (∫F G.pts) (StateAlgCod ℓ-zero)
   fundamentalLemma =
-    Fundamental.localElim baseObject
-      λ { true V V≡id → true , cong₂ seqS V≡id refl ∙ IdLS tru
-        ; false V V≡id → false , cong₂ seqS V≡id refl ∙ IdLS fls
-        }
+    Fundamental.localElim baseObject λ where
+      true → (ı tt , λ z → seqS (z .fst) tru , true
+        , cong₂ seqS (z .snd) refl ∙ IdLS tru) , refl
+      false → (ı tt , λ z → seqS (z .fst) fls , false
+        , cong₂ seqS (z .snd) refl ∙ IdLS fls) , refl
 
   LogicalRelation : ∀ {k} (Γ : Ob k)
     → Tm tt (gen 𝟙) Γ → hSet ℓ-zero
   LogicalRelation {k = 𝒱} Γ = Fundamental.local-obᴰ baseObject Γ
   LogicalRelation {k = 𝒞} Γ = Fundamental.local-obᴰ baseObject Γ .fst
 
-  -- instantiate the open logical relation at the identity substitution.
+  canonical : ∀ {k} {Γ : Ob k} (M : Tm tt (gen 𝟙) Γ)
+    → Σ[ w ∈ Σ _ (λ N → ⟨ LogicalRelation Γ N ⟩) ] w .fst ≡ M
+  canonical {k = 𝒱} M =
+    run .fst .snd (idS , refl) , (λ i → run .snd i .snd (idS , refl)) ∙ IdLS M
+    where run = fundamentalLemma .F-homᴰ (_ , M)
+  canonical {k = 𝒞} M =
+    run .fst .snd (idS , refl) , (λ i → run .snd i .snd (idS , refl)) ∙ IdLS M
+    where run = fundamentalLemma .F-homᴰ (_ , M)
+
   fundamentalAt : ∀ {k} {Γ : Ob k} (M : Tm tt (gen 𝟙) Γ)
     → ⟨ LogicalRelation Γ M ⟩
-  fundamentalAt {k = 𝒱} {Γ = Γ} M = subst
-    (λ N → ⟨ LogicalRelation Γ N ⟩)
-    (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS refl
-  fundamentalAt {k = 𝒞} {Γ = Γ} M = subst
-    (λ N → ⟨ LogicalRelation Γ N ⟩)
-    (IdLS M) $
-    fundamentalLemma .F-homᴰ (_ , M) idS refl
+  fundamentalAt {Γ = Γ} M =
+    subst (λ N → ⟨ LogicalRelation Γ N ⟩) (canonical M .snd)
+      (canonical M .fst .snd)
 
   private
     [ret]' : Tm tt (gen BoolTy) ([F] (gen BoolTy))
@@ -142,17 +147,6 @@ module BoolStateSyntax where
       (CBPV^op.reind-filler⁻ _
       ∙ CBPV^op.≡in {pth = refl} (IdRS [ret]))
 
-  -- This is what the logical relation spits out. (after futzing with
-  -- the identity substitution)
-  --
-  -- It says that for every M : ClosedComp (F Bool)
-  -- we construct a term s : Bool → Bool × (ClosedVal Bool)
-  -- such that
-  -- 1. M ≡ quote s, i.e. M ≡ rd (wt b1 (ret' V1)) (wt b2 (ret' V2))
-  -- 2. and each V1 , V2 is a canonical boolean value.
-
-  -- Pretty good definitionally except for [ret]' ≠ [ret] because of a
-  -- transport.
   RawFBool : Tm tt (gen 𝟙) ([F] (gen BoolTy)) → Type ℓ-zero
   RawFBool M =
     Σ[ (s , [ret]⟨s⟩≡M) ∈ fiber
@@ -164,7 +158,9 @@ module BoolStateSyntax where
       (∀ b → Σ[ q ∈ Bool ] s b .snd ≡ quoteBool q)
 
   raw-FBool : ∀ M → RawFBool M
-  raw-FBool = fundamentalAt
+  raw-FBool M .fst .fst = canonical M .fst .snd .fst .fst
+  raw-FBool M .fst .snd = canonical M .fst .snd .fst .snd ∙ canonical M .snd
+  raw-FBool M .snd = canonical M .fst .snd .snd
 
   interpretFreeStateBool :
     ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
@@ -204,19 +200,17 @@ module BoolStateSyntax where
   unquote-FBool : Tm _ (gen 𝟙) ([F] (gen BoolTy)) → ⟨ FreeStateAlgebra (Bool , isSetBool) .fst ⟩
   unquote-FBool M = closed-FBool-surjective M .fst
 
-  -- opaque
-  --   unfolding depReasoning.reind
-  --   -- This should compute (at least up to opaque reind), but even
-  --   -- reducing it is terribly slow.
-  --   unquote-quote : ∀ s → unquote-FBool (interpretFreeStateBool s) ≡ s
-  --   unquote-quote s = funExt pointwise
-  --     where
-  --     pointwise : ∀ b → unquote-FBool (interpretFreeStateBool s) b ≡ s b
-  --     pointwise false with s false
-  --     ... | b , false = refl
-  --     ... | b , true = refl
-  --     pointwise true with s true
-  --     ... | b , false = refl
-  --     ... | b , true = refl
-
 open BoolStateSyntax public
+
+private
+  module Examples where
+    _ : unquote-FBool (seqS tru [ret]) true ≡ (true , true)
+    _ = refl
+
+    _ : unquote-FBool
+      ([rd] ([wt] false (seqS tru [ret])) ([wt] true (seqS fls [ret]))) true
+      ≡ (false , true)
+    _ = refl
+
+    _ : unquote-FBool ([wt] true (seqS fls [ret])) false ≡ (true , false)
+    _ = refl

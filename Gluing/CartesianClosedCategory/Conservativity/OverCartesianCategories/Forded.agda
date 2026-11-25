@@ -34,27 +34,19 @@ open import
   Cubical.Categories.Instances.Free.CartesianClosedCategory.Quiver
   hiding (_×_)
 
+open import Cubical.Categories.Displayed.Instances.Terminal.Base
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Base
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Limits.CartesianV' as V'
-open import Cubical.Categories.Displayed.Limits.CartesianClosedV
-import Cubical.Categories.Displayed.Instances.Terminal.Base as Unitᴰ
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Base
-open import Cubical.Categories.Displayed.Instances.Arrow.Base
-open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Base as PshBase
-  using (PRESHEAFᴰ; PSHAssoc; PSHIdL; PSHπ₁NatEq; PSH×aF-seq)
-open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.Cartesian
-open import Cubical.Categories.Displayed.Instances.Presheaf.Eq.CartesianClosed
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianV
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Eq.Conversion.CartesianClosedV
-  using (EqCCCⱽ→CCCⱽ)
 open import Cubical.Categories.Displayed.Instances.PropertyOver
 open import Cubical.Categories.Displayed.Instances.PropertyOver.Cartesian
-open import Cubical.Categories.Displayed.HLevels
+open import Cubical.Categories.Displayed.Instances.Codomain.Presheaves
+open import Cubical.Categories.Presheaf.CCC
 open import Cubical.Categories.Presheaf.Morphism.Alt
 open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Presheaf.Nerve
-open import Cubical.Categories.Presheaf.Constructions.BinProduct.Base using (_×Psh_)
+open import Cubical.Categories.Adjoint.UniversalElements
 open import Cubical.Categories.Limits.BinProduct.More
 
 private
@@ -66,6 +58,7 @@ open Categoryᴰ
 open Section
 open PshHomStrict
 open PshHom
+open NatTrans
 
 module _ (Q : Quiver ℓQ ℓQ') where
   private
@@ -140,66 +133,66 @@ module _ (Q : Quiver ℓQ ℓQ') where
   ⊆-Faithful =
     isFaithful-GF→isFaithful-F ⊆ extension (isFaithful≅ (symNatIso YO≅ext⊆) isFaithfulYOStrict)
 
-  nerve : Functor FREE-1,×,⇒.C (PRESHEAF FREE-1,×.C ℓ)
-  nerve = Nerve ⊆
+  nerve : Functor FREE-1,×,⇒.C (PresheafCategory FREE-1,×.C ℓ)
+  nerve = RightAdjointProf ⊆
 
   private
-    FREE-1,×ᴰ : Categoryᴰ FREE-1,×.C ℓ-zero ℓ-zero
-    FREE-1,×ᴰ = Unitᴰ.Unitᴰ FREE-1,×.C
+    nerve-pres-bp :
+      preservesProvidedBinProducts nerve (FREE-1,×,⇒.CC .CartesianCategory.bp)
+    nerve-pres-bp =
+      RightAdjointProf-pres-bp ⊆ (FREE-1,×,⇒.CC .CartesianCategory.bp)
 
-    PSHᴰ = PRESHEAFᴰ FREE-1,×ᴰ ℓ ℓ
-
-    module PSHᴰ = Categoryᴰ PSHᴰ
-
-    PSH-CC : CartesianCategory (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)
-    PSH-CC = Cartesian-PRESHEAF FREE-1,×.C ℓ
-
-    PSHᴰCᴰ : Categoryᴰ (PRESHEAF FREE-1,×.C ℓ) _ _
-    PSHᴰCᴰ = V'.CartesianCategoryⱽ.Cᴰ (EqCCⱽ→CCⱽ PSHAssoc PSHᴰ isCartesianⱽPSHᴰ)
-
-    PSHᴰCartesianClosedⱽ : CartesianClosedCategoryⱽ PSH-CC
-      (ℓ-max (ℓ-max ℓQ ℓQ') (ℓ-suc ℓ)) (ℓ-max (ℓ-max ℓQ ℓQ') ℓ)
-    PSHᴰCartesianClosedⱽ = CCCⱽPSHᴰ {Cᴰ = FREE-1,×ᴰ}
-
-    nerve-pres-bp : preservesProvidedBinProducts nerve (FREE-1,×,⇒.CC .CartesianCategory.bp)
-    nerve-pres-bp = Nerve-pres-bp ⊆ (FREE-1,×,⇒.CC .CartesianCategory.bp)
-
-  -- Displayed presheaf tracking fullness witnesses for base objects
-  OB : (o : Q .fst) → PSHᴰ.ob[ nerve ⟅ ⊆ ⟅ ProdExpr.↑ o ⟆ ⟆ ]
+  OB : (o : Q .fst) → Presheafᴰ (nerve ⟅ ⊆ ⟅ ProdExpr.↑ o ⟆ ⟆) (Unitᴰ
+    FREE-1,×.C) ℓ
   OB o .F-ob (o' , _ , f) =
     (Σ[ g ∈ FREE-1,×.C [ o' , ProdExpr.↑ o ] ] ⊆ ⟪ g ⟫ ≡ f) ,
     isSetΣ (FREE-1,×.C .isSetHom)
       (λ _ → isSet→isGroupoid (FREE-1,×,⇒.C .isSetHom) _ _)
-  OB o .F-hom {x = o' , _ , f} {y = o'' , _ , f'} (h , _ , eq) (g , p) =
+  OB o .F-hom (h , _ , e) (g , p) =
     h FREE-1,×.⋆ g ,
-    ⊆ .F-seq h g ∙ cong (λ x → ⊆ ⟪ h ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ x) p ∙ Eq.eqToPath eq
-  OB o .F-id = funExt λ (g , p) → ΣPathP (FREE-1,×.⋆IdL _ ,
-    isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
-  OB o .F-seq _ _ = funExt λ _ → ΣPathP (FREE-1,×.⋆Assoc _ _ _ ,
-    isSet→SquareP (λ _ _ → FREE-1,×,⇒.C .isSetHom) _ _ _ _)
+    ⊆ .F-seq h g ∙ cong (λ x → ⊆ ⟪ h ⟫ ⋆⟨ FREE-1,×,⇒.C ⟩ x) p ∙ e
+  OB o .F-id = funExt λ _ → ΣPathPProp
+    (λ _ → FREE-1,×,⇒.C .isSetHom _ _) (FREE-1,×.⋆IdL _)
+  OB o .F-seq _ _ = funExt λ _ → ΣPathPProp
+    (λ _ → FREE-1,×,⇒.C .isSetHom _ _) (FREE-1,×.⋆Assoc _ _ _)
 
   HOM : (e : Q.mor) →
-    PSHᴰ.Hom[ nerve ⟪ ⊆ ⟪ FCC.↑ₑ ×Q e ⟫ ⟫ ][ OB (Q.dom e) , OB (Q.cod e) ]
-  HOM e .N-ob (o , _ , f) (g , p) =
-    (g FREE-1,×.⋆ genₑ e Eq.refl Eq.refl) ,
-    ⊆ .F-seq g (genₑ e Eq.refl Eq.refl)
-    ∙ cong (λ x → x FREE-1,×,⇒.⋆ ⊆ ⟪ genₑ e Eq.refl Eq.refl ⟫) p
-  HOM e .N-hom (o , _ , f) (o' , _ , f') (h , _ , eq) (g , p) =
-    ΣPathP (FREE-1,×.⋆Assoc _ _ _ ,
-      isSet→SquareP (λ _ _ → FREE-1,×,⇒.isSetHom) _ _ _ _)
+    Categoryᴰ.Hom[_][_,_] (PSHCod ℓ) (nerve ⟪ ⊆ ⟪ FCC.↑ₑ ×Q e ⟫ ⟫)
+      (OB (Q.dom e)) (OB (Q.cod e))
+  HOM e = mkPsh ℓ
+    ( (λ Γ z →
+        ( (z .fst FREE-1,×,⇒.⋆ ⊆ ⟪ FCC.↑ₑ ×Q e ⟫)
+        , (z .snd .fst FREE-1,×.⋆ FCC.↑ₑ ×Q e
+          , ⊆ .F-seq (z .snd .fst) (FCC.↑ₑ ×Q e)
+            ∙ cong (λ x → x FREE-1,×,⇒.⋆ ⊆ ⟪ FCC.↑ₑ ×Q e ⟫) (z .snd .snd)))
+        , refl)
+    , λ ρ → funExt λ z → ΣPathP
+        ( FREE-1,×,⇒.⋆Assoc _ _ _
+        , ΣPathPProp (λ _ → FREE-1,×,⇒.isSetHom _ _)
+            (FREE-1,×.⋆Assoc _ _ _)))
 
-  S : Section nerve PSHᴰCᴰ
-  S = FCCC.elimLocal ×⇒Q (nerve , nerve-pres-bp) PSHᴰCartesianClosedⱽ
-       (mkElimInterpᴰ OB HOM)
+  S : Section nerve (PSHCod ℓ)
+  S = FCCC.elimLocal ×⇒Q (nerve , nerve-pres-bp) (PSHCodCCCⱽ ℓ-zero)
+    (mkElimInterpᴰ OB HOM)
 
-  -- Helper: construct element of S .F-obᴰ for any expression at a point given by a CC morphism
-  -- This is needed to handle product domains
   mkElem : (o Γ : ×Q.Expr) (g : FREE-1,×.C [ Γ , o ])
          → ⟨ S .F-obᴰ (⊆ ⟅ o ⟆) .F-ob (Γ , tt , ⊆ ⟪ g ⟫) ⟩
   mkElem (ProdExpr.↑ x) Γ g = g , refl
   mkElem ProdExpr.⊤ Γ g = tt*
   mkElem (l ProdExpr.× r) Γ g =
-    mkElem l Γ (g FREE-1,×.⋆ FCC.π₁' ×Q) , mkElem r Γ (g FREE-1,×.⋆ FCC.π₂' ×Q)
+    ((⊆ ⟪ g ⟫ , (⊆ ⟪ g₁ ⟫ , mkElem l Γ g₁) , refl) , refl)
+    , ((⊆ ⟪ g ⟫ , (⊆ ⟪ g₂ ⟫ , mkElem r Γ g₂) , refl) , refl)
+    where
+    g₁ = g FREE-1,×.⋆ FCC.π₁' ×Q
+    g₂ = g FREE-1,×.⋆ FCC.π₂' ×Q
+
+  preimage : ∀ x y (f : FREE-1,×,⇒.C [ ⊆ ⟅ x ⟆ , ⊆ ⟅ ProdExpr.↑ y ⟆ ])
+    → Σ[ g ∈ FREE-1,×.C [ x , ProdExpr.↑ y ] ]
+        ⊆ ⟪ g ⟫ ≡ FREE-1,×,⇒.id FREE-1,×,⇒.⋆ f
+  preimage x y f =
+    let w = ptPsh ℓ (S .F-homᴰ f) .fst x
+              (FREE-1,×,⇒.id , mkElem x x FREE-1,×.id)
+    in w .fst .snd .fst , w .fst .snd .snd ∙ w .snd
 
   private
     RetrTy : ×Q.Expr → Type _
@@ -227,10 +220,8 @@ module _ (Q : Quiver ℓQ ℓQ') where
       (mkElimInterpᴰ baseFullness (λ _ → tt))
       where
       baseFullness : ∀ y → RetrTy (ProdExpr.↑ y)
-      baseFullness y o f = (witness .fst) , (witness .snd ∙ FREE-1,×,⇒.⋆IdL _)
-        where
-        elem = mkElem o o FREE-1,×.id
-        witness = S .F-homᴰ f .N-ob (o , tt , FREE-1,×,⇒.id) elem
+      baseFullness y o f =
+        preimage o y f .fst , preimage o y f .snd ∙ FREE-1,×,⇒.⋆IdL _
 
   ⊆-Full : isFull ⊆
   ⊆-Full x y f = ∣ (fullSection .F-obᴰ y x f) ∣₁

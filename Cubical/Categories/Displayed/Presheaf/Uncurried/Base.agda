@@ -34,6 +34,7 @@ open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Equiv.Dependent
 open import Cubical.Foundations.Equiv.Dependent.More
+open Cubical.Foundations.Equiv.Dependent.More public using (substReindOver)
 open import Cubical.Foundations.Structure
 open import Cubical.Foundations.More hiding (_≡[_]_; rectify)
 open import Cubical.Foundations.HLevels.More
@@ -697,15 +698,17 @@ module _ {C : Category ℓC ℓC'}{Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ'}
     module Qᴰ = PresheafᴰNotation Cᴰ Q Qᴰ
 
   FiberwisePshIsoᴰ→PshIsoᴰ :
-    FiberwisePshIsoᴰ (α .trans) Pᴰ Qᴰ
+    ⦃ rQ : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} → ReindOver (λ q → Qᴰ.p[ q ][ Γᴰ ]) ⦄
+    → FiberwisePshIsoᴰ (α .trans) Pᴰ Qᴰ
     → PshIsoᴰ α Pᴰ Qᴰ
   FiberwisePshIsoᴰ→PshIsoᴰ αᴰ .fst = αᴰ .trans
-  FiberwisePshIsoᴰ→PshIsoᴰ αᴰ .snd Γ Γᴰ =
+  FiberwisePshIsoᴰ→PshIsoᴰ ⦃ rQ ⦄ αᴰ .snd Γ Γᴰ =
     fiberwiseIsoOver→IsoOver
       (λ p → αᴰ .trans .N-ob (Γ , Γᴰ , p))
       (λ a → αᴰ .nIso (Γ , Γᴰ , a))
       P.isSetPsh
       Q.isSetPsh
+      ⦃ rQ ⦄
 
   PshIsoᴰ→FiberwisePshIsoᴰ :
     PshIsoᴰ α Pᴰ Qᴰ

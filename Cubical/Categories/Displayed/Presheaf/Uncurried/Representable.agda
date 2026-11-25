@@ -4,6 +4,8 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.Representable where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Equiv.Dependent
+open import Cubical.Foundations.Equiv.Dependent.More
+open Cubical.Foundations.Equiv.Dependent.More public using (substReindOver)
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.HLevels
 open import Cubical.Foundations.Isomorphism
@@ -29,6 +31,7 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.Presheaf.More
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
@@ -73,6 +76,38 @@ module _ {C : Category ℓC ℓC'}{x : C .ob} (Cᴰ : Categoryᴰ C ℓCᴰ ℓC
       ∙ Cᴰ.⋆Assoc _ _ _
       ∙ Cᴰ.⟨⟩⋆⟨ Cᴰ.reind-filler _ ⟩
       ∙ Cᴰ.reind-filler _
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Cᴰ
+
+    ChosenRepr : Cᴰ.ob[ x ] → Presheafⱽ x Cᴰ ℓCᴰ'
+    ChosenRepr xᴰ .F-ob (Γ , Γᴰ , f) = ( Cᴰ [ f ][ Γᴰ , xᴰ ]) , Cᴰ.isSetHomᴰ
+    ChosenRepr xᴰ .F-hom (γ , γᴰ , γ⋆f≡g) fᴰ = CR.reind⟨ γ⋆f≡g ⟩ (γᴰ Cᴰ.⋆ᴰ fᴰ)
+    ChosenRepr xᴰ .F-id =
+      funExt λ fᴰ → Cᴰ.rectifyOut $ CR.reind-∫≡ _ _ ∙ Cᴰ.⋆IdL _
+    ChosenRepr xᴰ .F-seq (γ , γᴰ , _) (σ , σᴰ , _) =
+      funExt λ fᴰ → Cᴰ.rectifyOut $
+        CR.reind-∫≡ _ _
+        ∙ Cᴰ.⋆Assoc _ _ _
+        ∙ Cᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ⟩
+        ∙ sym (CR.reind-∫≡ _ _)
+
+    Repr≅ChosenRepr : ∀ xᴰ → PshIsoⱽ (_[-][-,_] xᴰ) (ChosenRepr xᴰ)
+    Repr≅ChosenRepr xᴰ = Isos→PshIso (λ _ → idIso) λ _ _ _ fᴰ →
+      Cᴰ.rectifyOut (Cᴰ.reind-filler⁻ _ ∙ sym (CR.reind-∫≡ _ _))
+
+    reindPsh-squareChosenReind : ∀ {ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₅ ℓ₆}
+      {B : Category ℓ₁ ℓ₂} {C' : Category ℓ₃ ℓ₄} {D' : Category ℓ₅ ℓ₆}
+      (F : Functor B C') (G : Functor C' (Cᴰ / (C [-, x ])))
+      (H : Functor B D') (K : Functor D' (Cᴰ / (C [-, x ])))
+      (xᴰ : Cᴰ.ob[ x ]) (α : NatIso (G ∘F F) (K ∘F H))
+      → PshIso (reindPsh F (reindPsh G (_[-][-,_] xᴰ)))
+          (reindPsh H (reindPsh K (_[-][-,_] xᴰ)))
+    reindPsh-squareChosenReind F G H K xᴰ α =
+      reindPshIso F (reindPshIso G (Repr≅ChosenRepr xᴰ))
+      ⋆PshIso reindPsh-square F G H K (ChosenRepr xᴰ) α
+      ⋆PshIso reindPshIso H (reindPshIso K (invPshIso (Repr≅ChosenRepr xᴰ)))
 
   ∫Repr-iso : ∀ {xᴰ}
     → PshIso (PresheafᴰNotation.∫ Cᴰ (C [-, x ]) (_[-][-,_] xᴰ))
@@ -350,25 +385,31 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ')
       ∫ηᴰ' fᴰ = ∫ηᴰ fᴰ ∙ cong-introᴰ (⋆elementᴰ≡⋆ᴰelementᴰ fᴰ)
 
   -- Could be more compositional but too lazy
-  Representableᴰ→UniversalElementᴰOverUE : (ue : UniversalElement C P)
+  Representableᴰ→UniversalElementᴰOverUE :
+    ⦃ rP : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} → ReindOver (λ p → Pᴰ.p[ p ][ Γᴰ ]) ⦄
+    → (ue : UniversalElement C P)
     → Representableᴰ (ue .vertex , asPshIso ue)
     → UniversalElementᴰ ue
-  Representableᴰ→UniversalElementᴰOverUE ue yᴰxᴰ≅Pᴰ =
-    vertexᴰ , Pᴰ.reind (P.⋆IdL _) elementᴰ , univ
+  Representableᴰ→UniversalElementᴰOverUE ⦃ rP ⦄ ue yᴰxᴰ≅Pᴰ =
+    vertexᴰ , rP.reind⟨ P.⋆IdL _ ⟩ elementᴰ , univ
     where
+    module rP {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} = ReindOver (rP {Γ} {Γᴰ})
     open RepresentableᴰNotation yᴰxᴰ≅Pᴰ
-    univ : isUniversalᴰ ue (Pᴰ.reind (P.⋆IdL _) elementᴰ)
+    univ : isUniversalᴰ ue (rP.reind⟨ P.⋆IdL _ ⟩ elementᴰ)
     univ Γ Γᴰ .inv = yᴰxᴰ≅Pᴰ .snd .snd Γ Γᴰ .inv
     univ Γ Γᴰ .rightInv p pᴰ = Pᴰ.rectify $ Pᴰ.≡out $
-      Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩ ∙ ∫βᴰ' pᴰ
+      Pᴰ.⟨⟩⋆⟨ sym $ rP.reind-filler _ _ ⟩ ∙ ∫βᴰ' pᴰ
     univ Γ Γᴰ .leftInv f fᴰ = Cᴰ.rectify $ Cᴰ.≡out $
-      cong-introᴰ (Pᴰ.⟨⟩⋆⟨ sym $ Pᴰ.reind-filler _ ⟩) ∙ sym (∫ηᴰ' fᴰ)
+      cong-introᴰ (Pᴰ.⟨⟩⋆⟨ sym $ rP.reind-filler _ _ ⟩) ∙ sym (∫ηᴰ' fᴰ)
 
-  Representableⱽ→UniversalElementᴰ : (ue : UniversalElement C P)
+  Representableⱽ→UniversalElementᴰ :
+    ⦃ rP : ∀ {Γ} {Γᴰ : Cᴰ.ob[ Γ ]} → ReindOver (λ p → Pᴰ.p[ p ][ Γᴰ ]) ⦄
+    → (ue : UniversalElement C P)
     → Representableⱽ Cᴰ (ue .vertex) (reindPshᴰNatTrans (yoRec P (ue .element)) Pᴰ)
     → UniversalElementᴰ ue
-  Representableⱽ→UniversalElementᴰ ue reprⱽ =
-    Representableᴰ→UniversalElementᴰOverUE ue (reprⱽ .fst , FiberwisePshIsoᴰ→PshIsoᴰ (reprⱽ .snd))
+  Representableⱽ→UniversalElementᴰ ⦃ rP ⦄ ue reprⱽ =
+    Representableᴰ→UniversalElementᴰOverUE ⦃ rP ⦄ ue
+      (reprⱽ .fst , FiberwisePshIsoᴰ→PshIsoᴰ ⦃ rP ⦄ (reprⱽ .snd))
 
   UniversalElementᴰ→PshIsoᴰ :
     (ue : UniversalElement C P) (ueᴰ : UniversalElementᴰ ue)

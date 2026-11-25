@@ -11,6 +11,7 @@ open import Cubical.Categories.Presheaf.Representable
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
@@ -62,3 +63,24 @@ module _ (CC : CartesianCategory ℓC ℓC') where
         (CCⱽ .cartesianLifts Aᴰ (CC.bp (A , B) .vertex) (CC.bp (A , B) .element .fst) .snd)
         (CCⱽ .cartesianLifts Bᴰ (CC.bp (A , B) .vertex) (CC.bp (A , B) .element .snd) .snd)
       )
+
+  module _ (CCⱽ : CartesianCategoryⱽ CC.C ℓCᴰ ℓCᴰ')
+    ⦃ cr : ChosenReind (CCⱽ .Cᴰ) ⦄ where
+    CartesianCategoryⱽ→CartesianCategoryᴰChosenReind : CartesianCategoryᴰ CC ℓCᴰ
+      ℓCᴰ'
+    CartesianCategoryⱽ→CartesianCategoryᴰChosenReind .Cᴰ = CCⱽ .Cᴰ
+    CartesianCategoryⱽ→CartesianCategoryᴰChosenReind .termᴰ =
+      Terminalⱽ→ᴰChosenReind (CCⱽ .Cᴰ) CC.term (CCⱽ .termⱽ _)
+    CartesianCategoryⱽ→CartesianCategoryᴰChosenReind .bpᴰ {A}{B} Aᴰ Bᴰ =
+      BinProductⱽ→ᴰChosenReind (CCⱽ .Cᴰ) (CC.bp _) Aᴰ Bᴰ
+        (CCⱽ .bpⱽ (CCⱽ .cartesianLifts Aᴰ (CC.bp (A , B) .vertex)
+                    (CC.bp (A , B) .element .fst) .fst)
+                  (CCⱽ .cartesianLifts Bᴰ (CC.bp (A , B) .vertex)
+                    (CC.bp (A , B) .element .snd) .fst)
+          .fst
+        , CCⱽ .bpⱽ _ _ .snd
+          ⋆PshIso ×PshIso
+            (CCⱽ .cartesianLifts Aᴰ (CC.bp (A , B) .vertex)
+              (CC.bp (A , B) .element .fst) .snd)
+            (CCⱽ .cartesianLifts Bᴰ (CC.bp (A , B) .vertex)
+              (CC.bp (A , B) .element .snd) .snd))

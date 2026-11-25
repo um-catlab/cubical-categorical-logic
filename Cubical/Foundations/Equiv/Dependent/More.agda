@@ -71,19 +71,40 @@ P ≃[ (f , ∃!f⁻b ) ] Q = Σ (mapOver f P Q) (isEquivᴰ {Q = Q} ∃!f⁻b)
 invEqᴰ : ∀ {eq} → P ≃[ eq ] Q → mapOver (invEq eq) Q P
 invEqᴰ eqᴰ = λ a z → eqᴰ .snd z .fst .fst
 
-module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso (f a)) (isSetA : isSet A) (isSetB : isSet B) where
+record ReindOver {B : Type ℓB} (Q : B → Type ℓQ) : Type (ℓ-max ℓB ℓQ) where
+  field
+    reind⟨_⟩ : ∀ {b b'} → b ≡ b' → Q b → Q b'
+    reind-filler : ∀ {b b'} (e : b ≡ b') (q : Q b)
+      → Path (Σ B Q) (b , q) (b' , reind⟨ e ⟩ q)
+
+module _ {Q : B → Type ℓQ} where
+  private
+    module Q = depReasoning Q
+  open ReindOver
+
+  instance
+    substReindOver : ReindOver Q
+    substReindOver .reind⟨_⟩ = Q.reind
+    substReindOver .reind-filler e q = Q.reind-filler {p = q} e
+  {-# INCOHERENT substReindOver #-}
+
+module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso (f a))
+  (isSetA : isSet A) (isSetB : isSet B)
+  ⦃ rQ : ReindOver Q ⦄ where
   private
     isoover' : IsoOver (equivToIso (isoToEquiv isom)) P Q
     isoover' = equivOver→IsoOver (isoToEquiv isom) f λ a → isIsoToIsEquiv (f⁻ a)
 
     module P = hSetReasoning (A , isSetA) P
     module Q = hSetReasoning (B , isSetB) Q
+    module rQ = ReindOver rQ
 
   fiberwiseIsoOver→IsoOver : isIsoOver isom P Q f
-  fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (Q.reind (sym $ sec isom b) q)
+  fiberwiseIsoOver→IsoOver .inv b q =  f⁻ (inv isom b) .fst (rQ.reind⟨ sym $ sec
+    isom b ⟩ q)
   fiberwiseIsoOver→IsoOver .rightInv = λ b q →
-    f⁻ (inv isom b) .snd .fst (Q.reind _ q)
-    ◁ symP (Q.Prectify $ Q.≡out $ Q.reind-filler _)
+    f⁻ (inv isom b) .snd .fst (rQ.reind⟨ _ ⟩ q)
+    ◁ symP (Q.Prectify $ Q.≡out $ rQ.reind-filler _ q)
   fiberwiseIsoOver→IsoOver .leftInv a p = opq
     where
       f⁻cong : ∀ {a a'}{q : Q (isom .fun a)}{q' : Q (isom .fun a')}
@@ -105,12 +126,13 @@ module _ {isom : Iso A B} (f : mapOver (isom .fun) P Q) (f⁻ : ∀ a → isIso 
         unfolding hSetReasoning.reind
         opq : PathP (λ i → P (ret isom a i))
            (f⁻ (inv isom (fun isom a))
-             .fst (Q.reind (λ i → sec isom (fun isom a) (~ i)) (f a p)))
+             .fst (rQ.reind⟨ (λ i → sec isom (fun isom a) (~ i)) ⟩ (f a p)))
              p
         opq =
             P.Prectify $ P.≡out $
             f⁻cong∫~
-                (sym (Q.reind-filler _) ∙ Q.reind-filler _ ∙ Q.reind-filler _ )
+                (sym (rQ.reind-filler _ _) ∙ Q.reind-filler _ ∙ Q.reind-filler _
+                  )
             ∙ P.reind-filler _
             ∙ P.≡in (isoover' .leftInv a p)
 

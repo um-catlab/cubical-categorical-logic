@@ -34,12 +34,14 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.FunctorComprehension.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Cartesian
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Reindex.Properties
@@ -98,3 +100,37 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     → Exponentialsⱽ Dᴰ allLRⱽ
     → Exponentialsⱽ (reindex Dᴰ F) (AllLRⱽReindex F allLRⱽ)
   ExponentialsⱽReindex allLRⱽ expsⱽ xᴰ yᴰ = reindexExponentialⱽ (xᴰ , allLRⱽ xᴰ) yᴰ (expsⱽ xᴰ yᴰ)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D) ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Category C
+    module D = Category D
+    module Dᴰ = ChosenReindNotation Dᴰ
+
+  reindexExponentialⱽChosenReind : ∀ {x} (Fxᴰ : LRⱽObᴰ Dᴰ (F ⟅ x ⟆))
+    (Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → Exponentialⱽ Dᴰ Fxᴰ Fyᴰ
+    → Exponentialⱽ (reindexChosenReind Dᴰ F) (Fxᴰ .fst ,
+      isLRⱽObᴰReindexChosenReind Dᴰ F (Fxᴰ .fst) (Fxᴰ .snd))
+        Fyᴰ
+  reindexExponentialⱽChosenReind {x} Fxᴰ Fyᴰ Fxᴰ⇒ⱽFyᴰ = Fxᴰ⇒ⱽFyᴰ .fst
+    , reindexRepresentableIsoⱽChosenReind Dᴰ F x (Fxᴰ⇒ⱽFyᴰ .fst)
+    ⋆PshIsoⱽ reindPshIso (reindex-π-/ChosenReind Dᴰ F x) (Fxᴰ⇒ⱽFyᴰ .snd)
+    ⋆PshIsoⱽ reindPsh-squareChosenReind Dᴰ (reindex-π-/ChosenReind Dᴰ F x)
+      (×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ Dᴰ Fxᴰ))
+      (×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ (reindexChosenReind Dᴰ F)
+        (Fxᴰ .fst , isLRⱽObᴰReindexChosenReind Dᴰ F (Fxᴰ .fst) (Fxᴰ .snd))))
+      (reindex-π-/ChosenReind Dᴰ F x) Fyᴰ (reindex-×LRⱽObᴰ-commuteChosenReind Dᴰ
+        F Fxᴰ)
+    ⋆PshIsoⱽ reindPshIso (×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ (reindexChosenReind Dᴰ F)
+        (Fxᴰ .fst , isLRⱽObᴰReindexChosenReind Dᴰ F (Fxᴰ .fst) (Fxᴰ .snd))))
+      (invPshIso (reindexRepresentableIsoⱽChosenReind Dᴰ F x Fyᴰ))
+
+  ExponentialsⱽReindexChosenReind : ∀ (allLRⱽ : AllLRⱽ Dᴰ)
+    → Exponentialsⱽ Dᴰ allLRⱽ
+    → Exponentialsⱽ (reindexChosenReind Dᴰ F) (AllLRⱽReindexChosenReind Dᴰ F
+      allLRⱽ)
+  ExponentialsⱽReindexChosenReind allLRⱽ expsⱽ xᴰ yᴰ =
+    reindexExponentialⱽChosenReind (xᴰ , allLRⱽ xᴰ) yᴰ (expsⱽ xᴰ yᴰ)

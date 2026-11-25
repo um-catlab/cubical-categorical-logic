@@ -12,6 +12,7 @@ open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
 
 import Cubical.Data.Equality as Eq
+import Cubical.Data.Equality.More as Eq
 open import Cubical.Data.Sigma
 open import Cubical.Data.Unit
 
@@ -34,11 +35,13 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.FunctorComprehension.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
 open import Cubical.Categories.Displayed.Instances.Reindex.Properties
 open import Cubical.Categories.Displayed.Instances.Reindex.UniversalProperties
@@ -239,3 +242,182 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
       (Dᴰ [ f ][ Fxᴰ , bcp .fst ]) × (Dᴰ [ f ][ Fyᴰ , bcp .fst ]))
       → Dop.Hom[ (F ⟅ x ⟆ , bcp .fst) , (F ⟅ x ⟆ , Fyᴰ) ]
     toσ₂ (f , a , b) = f , b
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D) ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Category C
+    module D = Category D
+    module Dᴰ = ChosenReindNotation Dᴰ
+
+  reindexTerminalⱽChosenReind : ∀ x → Terminalⱽ Dᴰ (F ⟅ x ⟆)
+    → Terminalⱽ (reindexChosenReind Dᴰ F) x
+  reindexTerminalⱽChosenReind x 𝟙ⱽ =
+    reindexReflectsUMPⱽChosenReind Dᴰ F x UnitPshᴰ 𝟙ⱽ
+    ◁PshIsoⱽ reindPsh-Unit (reindex-π-/ChosenReind Dᴰ F x)
+
+  TerminalsⱽReindexChosenReind : Terminalsⱽ Dᴰ
+    → Terminalsⱽ (reindexChosenReind Dᴰ F)
+  TerminalsⱽReindexChosenReind 𝟙ⱽs x =
+    reindexTerminalⱽChosenReind x (𝟙ⱽs (F ⟅ x ⟆))
+
+  reindexBinProductⱽChosenReind : ∀ {x} (Fxᴰ Fyᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → BinProductⱽ Dᴰ Fxᴰ Fyᴰ
+    → BinProductⱽ (reindexChosenReind Dᴰ F) Fxᴰ Fyᴰ
+  reindexBinProductⱽChosenReind {x} Fxᴰ Fyᴰ Fxᴰ∧Fyᴰ =
+    reindexReflectsUMPⱽChosenReind Dᴰ F x
+      ((Dᴰ [-][-, Fxᴰ ]) ×ⱽPsh (Dᴰ [-][-, Fyᴰ ])) Fxᴰ∧Fyᴰ
+    ◁PshIsoⱽ (reindPsh× (reindex-π-/ChosenReind Dᴰ F x)
+        (Dᴰ [-][-, Fxᴰ ]) (Dᴰ [-][-, Fyᴰ ])
+      ⋆PshIsoⱽ ×PshIso
+        (invPshIso (reindexRepresentableIsoⱽChosenReind Dᴰ F x Fxᴰ))
+        (invPshIso (reindexRepresentableIsoⱽChosenReind Dᴰ F x Fyᴰ)))
+
+  BinProductsⱽReindexChosenReind : BinProductsⱽ Dᴰ
+    → BinProductsⱽ (reindexChosenReind Dᴰ F)
+  BinProductsⱽReindexChosenReind bpⱽs Fxᴰ Fyᴰ =
+    reindexBinProductⱽChosenReind Fxᴰ Fyᴰ (bpⱽs Fxᴰ Fyᴰ)
+
+  isLRⱽReindexChosenReind : ∀ {x} (Pᴰ : Presheafⱽ (F ⟅ x ⟆) Dᴰ ℓQᴰ)
+    → LocallyRepresentableⱽ Pᴰ
+    → LocallyRepresentableⱽ (reindPsh (reindex-π-/ChosenReind Dᴰ F x) Pᴰ)
+  isLRⱽReindexChosenReind Pᴰ _×ⱽ_*Pᴰ Γᴰ f .fst = (Γᴰ ×ⱽ (F ⟪ f ⟫) *Pᴰ) .fst
+  isLRⱽReindexChosenReind {x = x} Pᴰ _×ⱽ_*Pᴰ {Γ} Γᴰ f .snd =
+    (reindexRepresentableIsoⱽChosenReind Dᴰ F Γ ((Γᴰ ×ⱽ (F ⟪ f ⟫) *Pᴰ) .fst)
+    ⋆PshIsoⱽ reindPshIso (reindex-π-/ChosenReind Dᴰ F Γ) ((Γᴰ ×ⱽ F-hom F f *Pᴰ)
+      .snd)
+    ⋆PshIsoⱽ reindPsh× (reindex-π-/ChosenReind Dᴰ F Γ) (Dᴰ [-][-, Γᴰ ])
+      (reindPshᴰNatTrans (yoRec (D [-, F-ob F x ]) (F-hom F f)) Pᴰ)
+    ⋆PshIsoⱽ
+      ×PshIso (invPshIsoⱽ (reindexRepresentableIsoⱽChosenReind Dᴰ F Γ Γᴰ))
+        (reindPsh-square (reindex-π-/ChosenReind Dᴰ F Γ)
+          (Idᴰ /Fⱽ yoRec (D [-, F-ob F x ]) (F-hom F f))
+          (Idᴰ /Fⱽ yoRec (C [-, x ]) f) (reindex-π-/ChosenReind Dᴰ F x) Pᴰ
+          (reindexRepresentable-seq (πChosenReind Dᴰ F))))
+
+  isLRⱽObᴰReindexChosenReind : ∀ {x} (xᴰ : Dᴰ.ob[ F ⟅ x ⟆ ])
+    → isLRⱽObᴰ Dᴰ xᴰ
+    → isLRⱽObᴰ (reindexChosenReind Dᴰ F) xᴰ
+  isLRⱽObᴰReindexChosenReind {x} xᴰ _×ⱽ_*xᴰ {Γ} Γᴰ f =
+    (Γᴰ ×ⱽ (F ⟪ f ⟫) *xᴰ) .fst
+    ,
+    improvePshIso
+    (isLRⱽReindexChosenReind (Dᴰ [-][-, xᴰ ]) _×ⱽ_*xᴰ Γᴰ f .snd
+    ⋆PshIsoⱽ ×PshIso idPshIso
+      (reindPshIso (Idᴰ /Fⱽ yoRec (C [-, x ]) f) $
+       invPshIso $
+       reindexRepresentableIsoⱽChosenReind Dᴰ F x xᴰ))
+    ((λ (Δ , Δᴰ , γ) γᴰ → (γᴰ ×ⱽ*xᴰ.⋆π₁ⱽ)
+      , Dᴰ.reind⟨ sym $ F .F-seq γ f ⟩ (γᴰ ×ⱽ*xᴰ.⋆π₂ⱽ)) ,
+    funExt λ (Δ , Δᴰ , γ) → funExt λ fᴰ → ΣPathP (refl , Dᴰ.rectifyOut
+      (sym (Dᴰ.F.reind-filler _) ∙ Dᴰ.⋆IdL _ ∙ sym (Dᴰ.reind-∫≡ _ _))))
+    ((λ (Δ , Δᴰ , γ) (γᴰ , γfᴰ) →
+      ×ⱽ*xᴰ.introᴰ γᴰ (Dᴰ.reind⟨ F .F-seq γ f ⟩ γfᴰ))
+    , funExt λ (Δ , Δᴰ , γ) → funExt λ (γᴰ , γfᴰ) →
+      Dᴰ.rectifyOut $ ×ⱽ*xᴰ.cong-introᴰ refl
+        (sym (Dᴰ.F.reind-filler _) ∙ Dᴰ.⋆IdL _ ∙ sym (Dᴰ.reind-∫≡ _ _)))
+    where
+      module ×ⱽ*xᴰ = LRⱽPresheafᴰNotation Dᴰ (_ , _×ⱽ_*xᴰ)
+
+  AllLRⱽReindexChosenReind : AllLRⱽ Dᴰ → AllLRⱽ (reindexChosenReind Dᴰ F)
+  AllLRⱽReindexChosenReind allLRⱽ {x} xᴰ = isLRⱽObᴰReindexChosenReind xᴰ (allLRⱽ
+    xᴰ)
+
+  module _ {x} (Fxᴰ : LRⱽObᴰ Dᴰ (F ⟅ x ⟆)) where
+    private
+      Fxᴰᴿ : LRⱽObᴰ (reindexChosenReind Dᴰ F) x
+      Fxᴰᴿ = Fxᴰ .fst , isLRⱽObᴰReindexChosenReind (Fxᴰ .fst) (Fxᴰ .snd)
+      module ×ⱽ*Fxᴰ = LRⱽPresheafᴰNotation Dᴰ (LRⱽObᴰ→LRⱽ Dᴰ Fxᴰ)
+
+    opaque
+      unfolding hSetReasoning.reind
+      reindex-×LRⱽObᴰ-commuteChosenReind-π :
+        (c : Category.ob (reindexChosenReind Dᴰ F / (C [-, x ]))) →
+        Eq.mixedHEq
+          (Eq.ap
+            (λ Fc×Q → ((Dᴰ / (D [-, F-ob F x ])) [ Fc×Q , reindex-π-/ChosenReind
+              Dᴰ F x ⟅ c ⟆ ])
+              × PresheafNotation.p[ Dᴰ [-][-, Fxᴰ .fst ] ] Fc×Q)
+            Eq.refl)
+          (reindex-π-/ChosenReind Dᴰ F x ⟪
+            LocallyRepresentableⱽ→LocallyRepresentable (Fxᴰᴿ .snd) c
+              .UniversalElement.element .fst ⟫
+          , reindexRepresentableIsoⱽChosenReind Dᴰ F x (Fxᴰ .fst) .trans .N-ob
+            (LocallyRepresentableⱽ→LocallyRepresentable (Fxᴰᴿ .snd) c
+              .UniversalElement.vertex)
+            (LocallyRepresentableⱽ→LocallyRepresentable (Fxᴰᴿ .snd) c
+              .UniversalElement.element .snd))
+          (LocallyRepresentableⱽ→LocallyRepresentable (Fxᴰ .snd)
+            (reindex-π-/ChosenReind Dᴰ F x ⟅ c ⟆) .UniversalElement.element)
+      reindex-×LRⱽObᴰ-commuteChosenReind-π = λ (Γ , Γᴰ , f) →
+        ΣPathP ((Hom/≡ ×ⱽ*Fxᴰ.⟨ Dᴰ.reind-∫≡ _ _ ⟩⋆π₁ⱽ) ,
+          (Dᴰ.rectifyOut $
+            sym (Dᴰ.F.reind-filler _)
+            ∙ Dᴰ.reind-∫≡ _ _
+            ∙ ×ⱽ*Fxᴰ.⟨ Dᴰ.reind-∫≡ _ _ ⟩⋆π₂ⱽ
+            ∙ Dᴰ.F.reind-filler _))
+
+    private
+      LHS-F RHS-F : Functor (reindexChosenReind Dᴰ F / (C [-, x ])) (Dᴰ / (D [-,
+        F ⟅ x ⟆ ]))
+      LHS-F = ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ Dᴰ Fxᴰ) ∘F (reindex-π-/ChosenReind Dᴰ F) x
+      RHS-F = reindex-π-/ChosenReind Dᴰ F x ∘F ×LRⱽPshᴰ (LRⱽObᴰ→LRⱽ
+        (reindexChosenReind Dᴰ F) Fxᴰᴿ)
+
+      commute-strict : NatIso LHS-F RHS-F
+      commute-strict =
+        strictPresLRⱽ→NatIso {Cᴰ = reindexChosenReind Dᴰ F} {Dᴰ = Dᴰ} {P = C [-,
+          x ]}
+          {Q = D [-, F-ob F x ]}
+          (reindex-π-/ChosenReind Dᴰ F x) (LRⱽObᴰ→LRⱽ (reindexChosenReind Dᴰ F)
+            Fxᴰᴿ) (LRⱽObᴰ→LRⱽ Dᴰ Fxᴰ)
+          (reindexRepresentableIsoⱽChosenReind Dᴰ F x (Fxᴰ .fst) .trans)
+          (λ _ → Eq.refl)
+          reindex-×LRⱽObᴰ-commuteChosenReind-π
+
+      id/ : ∀ c → (Dᴰ / (D [-, F ⟅ x ⟆ ])) [ LHS-F ⟅ c ⟆ , RHS-F ⟅ c ⟆ ]
+      id/ c = Category.id (Dᴰ / (D [-, F ⟅ x ⟆ ]))
+
+      id/⁻ : ∀ c → (Dᴰ / (D [-, F ⟅ x ⟆ ])) [ RHS-F ⟅ c ⟆ , LHS-F ⟅ c ⟆ ]
+      id/⁻ c = Category.id (Dᴰ / (D [-, F ⟅ x ⟆ ]))
+
+    opaque
+      commute-strict⁻≡id : (λ c → commute-strict .nIso c .isIso.inv) ≡ id/⁻
+      commute-strict⁻≡id = funExt lem
+        where
+        lem : ∀ c → commute-strict .nIso c .isIso.inv ≡ id/⁻ c
+        lem c = Category.⋆IdR (Dᴰ / (D [-, F ⟅ x ⟆ ])) _
+          ∙ UQ.intro⟨ reindex-×LRⱽObᴰ-commuteChosenReind-π c ⟩
+          ∙ sym UQ.weak-η
+          where
+          module UQ = UniversalElementNotation
+            (LocallyRepresentableⱽ→LocallyRepresentable (Fxᴰ .snd)
+              (reindex-π-/ChosenReind Dᴰ F x ⟅ c ⟆))
+
+      commute-strict≡id : commute-strict .trans .N-ob ≡ id/
+      commute-strict≡id = funExt λ c →
+        sym (Category.⋆IdL (Dᴰ / (D [-, F ⟅ x ⟆ ])) _)
+        ∙ cong (λ g → (Dᴰ / (D [-, F ⟅ x ⟆ ])) .Category._⋆_ g
+                 (commute-strict .trans .N-ob c))
+            (funExt⁻ (sym commute-strict⁻≡id) c)
+        ∙ commute-strict .nIso c .isIso.sec
+
+    reindex-×LRⱽObᴰ-commuteChosenReind : NatIso LHS-F RHS-F
+    reindex-×LRⱽObᴰ-commuteChosenReind = improveNatIso commute-strict
+      (_ , commute-strict≡id) (_ , commute-strict⁻≡id)
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : CartesianCategoryⱽ D ℓDᴰ ℓDᴰ') (F : Functor C D)
+  ⦃ cr : ChosenReind (CartesianCategoryⱽ.Cᴰ Dᴰ) ⦄
+  where
+  private
+    module Dᴰ = CartesianCategoryⱽ Dᴰ
+
+  CartesianCategoryⱽReindexChosenReind : CartesianCategoryⱽ C ℓDᴰ ℓDᴰ'
+  CartesianCategoryⱽReindexChosenReind =
+    cartesiancategoryⱽ
+      (reindexChosenReind Dᴰ.Cᴰ F)
+      (TerminalsⱽReindexChosenReind Dᴰ.Cᴰ F Dᴰ.termⱽ)
+      (BinProductsⱽReindexChosenReind Dᴰ.Cᴰ F Dᴰ.bpⱽ)
+      (isFibrationReindexChosenReind Dᴰ.Cᴰ F Dᴰ.cartesianLifts)

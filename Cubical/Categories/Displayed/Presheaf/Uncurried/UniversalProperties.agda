@@ -4,6 +4,7 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties where
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
 open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent.More
 open import Cubical.Foundations.More
 
 open import Cubical.Data.Sigma
@@ -29,6 +30,7 @@ open import Cubical.Categories.Presheaf.StrictHom hiding (π₁; π₂)
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Instances.Opposite
@@ -168,6 +170,36 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
       ((Cᴰ [-][-, Aᴰ ]) ×ᴰPshStrict (Cᴰ [-][-, Bᴰ ])) bp
       (Aᴰ×ᴰBᴰ , repr ⋆PshIsoⱽ BinProductᴰ'Spec≅BinProductᴰSpec bp Aᴰ Bᴰ)
 
+  Terminalⱽ→ᴰChosenReind : ∀ (term : Terminal' C) → Terminalⱽ (term .vertex)
+    → Terminalᴰ term
+  Terminalⱽ→ᴰChosenReind term termⱽ =
+    Representableⱽ→UniversalElementᴰ Cᴰ UnitPsh UnitPshᴰ
+      ⦃ record { reind⟨_⟩ = λ _ x → x
+               ; reind-filler = λ e _ → ΣPathP (e , refl) } ⦄
+      term
+      (termⱽ .fst , termⱽ .snd ⋆PshIso (invPshIso $ reindPsh-Unit _))
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    private
+      module cr = ChosenReind cr
+
+    BinProductⱽ→ᴰChosenReind : ∀ {A B} (bp : BinProduct C (A , B))
+      (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
+      → BinProductᴰ' bp Aᴰ Bᴰ
+      → BinProductᴰ bp Aᴰ Bᴰ
+    BinProductⱽ→ᴰChosenReind bp Aᴰ Bᴰ (Aᴰ×ᴰBᴰ , repr) =
+      Representableⱽ→UniversalElementᴰ Cᴰ ((C [-, _ ]) ×Psh (C [-, _ ]))
+        ((Cᴰ [-][-, Aᴰ ]) ×ᴰPshStrict (Cᴰ [-][-, Bᴰ ]))
+        ⦃ record
+          { reind⟨_⟩ = λ e ab →
+              cr.reind⟨ cong fst e ⟩ (ab .fst)
+              , cr.reind⟨ cong snd e ⟩ (ab .snd)
+          ; reind-filler = λ e ab → ΣPathP (e , λ i →
+              cr.reind-filler (cong fst e) (ab .fst) i
+              , cr.reind-filler (cong snd e) (ab .snd) i) } ⦄
+        bp
+        (Aᴰ×ᴰBᴰ , repr ⋆PshIsoⱽ BinProductᴰ'Spec≅BinProductᴰSpec bp Aᴰ Bᴰ)
+
   BinProductⱽ+π*→ᴰ : ∀ {A B} (bp : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
     → (π₁*Aᴰ : CartesianLift Cᴰ (BinProductNotation.π₁ bp) Aᴰ)
     → (π₂*Bᴰ : CartesianLift Cᴰ (BinProductNotation.π₂ bp) Bᴰ)
@@ -175,6 +207,16 @@ module _ {C : Category ℓC ℓC'} (Cᴰ : Categoryᴰ C ℓCᴰ ℓCᴰ') where
     → BinProductᴰ bp Aᴰ Bᴰ
   BinProductⱽ+π*→ᴰ bp Aᴰ Bᴰ π₁*Aᴰ π₂*Bᴰ bpᴰ = BinProductⱽ→ᴰ _ Aᴰ Bᴰ
     (bpᴰ ◁PshIsoⱽ ×PshIso (π₁*Aᴰ .snd) (π₂*Bᴰ .snd))
+
+  BinProductⱽ+π*→ᴰChosenReind : ⦃ cr : ChosenReind Cᴰ ⦄
+    → ∀ {A B} (bp : BinProduct C (A , B)) (Aᴰ : Cᴰ.ob[ A ]) (Bᴰ : Cᴰ.ob[ B ])
+    → (π₁*Aᴰ : CartesianLift Cᴰ (BinProductNotation.π₁ bp) Aᴰ)
+    → (π₂*Bᴰ : CartesianLift Cᴰ (BinProductNotation.π₂ bp) Bᴰ)
+    → BinProductⱽ (π₁*Aᴰ .fst) (π₂*Bᴰ .fst)
+    → BinProductᴰ bp Aᴰ Bᴰ
+  BinProductⱽ+π*→ᴰChosenReind bp Aᴰ Bᴰ π₁*Aᴰ π₂*Bᴰ bpᴰ =
+    BinProductⱽ→ᴰChosenReind _ Aᴰ Bᴰ
+      (bpᴰ ◁PshIsoⱽ ×PshIso (π₁*Aᴰ .snd) (π₂*Bᴰ .snd))
 
   module BinProductᴰNotation {A B Aᴰ Bᴰ} (A×B : BinProduct C (A , B)) (Aᴰ×ᴰBᴰ : BinProductᴰ A×B Aᴰ Bᴰ) where
     private
@@ -329,7 +371,6 @@ module _ {C : Category ℓC ℓC'}
       ∙ cong (λ (g , ab) → g , ab .snd)
           (sym (RepresentableⱽNotation.⋆elementⱽ≡⋆ᴰelementⱽ
             Cᴰ x (BinProductⱽSpec Cᴰ Aᴰ Bᴰ) bpⱽ hᴰ))
-
   BinProductⱽᴰ'Spec≅BinProductⱽᴰSpec : ∀ {x}
     {Aᴰ Bᴰ : Cᴰ.ob[ x ]} (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
     (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
@@ -364,6 +405,60 @@ module _ {C : Category ℓC ℓC'}
       (bpⱽⱽ .snd ⋆PshIso
         ×PshIso (π₁*Aᴰᴰ .snd) (π₂*Bᴰᴰ .snd)
       ⋆PshIso BinProductⱽᴰ'Spec≅BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ)
+
+  module _ ⦃ cr : ChosenReind Cᴰᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Cᴰᴰ
+
+    BinProductⱽᴰ'Spec≅BinProductⱽᴰSpecChosenReind : ∀ {x}
+      {Aᴰ Bᴰ : Cᴰ.ob[ x ]} (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      → PshIsoⱽ (BinProductⱽᴰ'Spec bpⱽ Aᴰᴰ Bᴰᴰ)
+          (reindPshᴰNatTrans
+            (∫Representableⱽ Cᴰ _ _ bpⱽ .snd .trans)
+            (BinProductⱽᴰSpec bpⱽ Aᴰᴰ Bᴰᴰ))
+    BinProductⱽᴰ'Spec≅BinProductⱽᴰSpecChosenReind bpⱽ Aᴰᴰ Bᴰᴰ = Isos→PshIso
+      (λ (_ , _ , (f , hᴰ)) → iso
+        (λ ab → CR.reind⟨ BinProductⱽ-π₁-natural bpⱽ hᴰ ⟩ (ab .fst)
+          , CR.reind⟨ BinProductⱽ-π₂-natural bpⱽ hᴰ ⟩ (ab .snd))
+        (λ ab → CR.reind⟨ sym (BinProductⱽ-π₁-natural bpⱽ hᴰ) ⟩ (ab .fst)
+          , CR.reind⟨ sym (BinProductⱽ-π₂-natural bpⱽ hᴰ) ⟩ (ab .snd))
+        (λ _ → ΣPathP
+          ( Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)
+          , Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)))
+        (λ _ → ΣPathP
+          ( Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)
+          , Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _))))
+      λ _ _ _ _ → ΣPathP
+        ( Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ Cᴰᴰ.reind-filler⁻ _
+            ∙ Cᴰᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ⟩ ∙ Cᴰᴰ.reind-filler _)
+        , Cᴰᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ Cᴰᴰ.reind-filler⁻ _
+            ∙ Cᴰᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ⟩ ∙ Cᴰᴰ.reind-filler _))
+
+    BinProductⱽ+π*→ⱽᴰChosenReind : ∀ {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
+      (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)
+      (Aᴰᴰ : Cᴰᴰ.ob[ x , Aᴰ ]) (Bᴰᴰ : Cᴰᴰ.ob[ x , Bᴰ ])
+      → (π₁*Aᴰᴰ : CartesianLift Cᴰᴰ
+          (C.id , BinProductⱽNotation.π₁ Cᴰ bpⱽ) Aᴰᴰ)
+      → (π₂*Bᴰᴰ : CartesianLift Cᴰᴰ
+          (C.id , BinProductⱽNotation.π₂ Cᴰ bpⱽ) Bᴰᴰ)
+      → BinProductⱽ Cᴰᴰ (π₁*Aᴰᴰ .fst) (π₂*Bᴰᴰ .fst)
+      → BinProductⱽᴰ bpⱽ Aᴰᴰ Bᴰᴰ
+    BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ .fst =
+      bpⱽⱽ .fst
+    BinProductⱽ+π*→ⱽᴰChosenReind bpⱽ Aᴰᴰ Bᴰᴰ π₁*Aᴰᴰ π₂*Bᴰᴰ bpⱽⱽ .snd =
+      FiberwisePshIsoᴰ→PshIsoᴰ
+        ⦃ record
+          { reind⟨_⟩ = λ e ab →
+              CR.reind⟨ (λ i → e i .fst , e i .snd .fst) ⟩ (ab .fst)
+              , CR.reind⟨ (λ i → e i .fst , e i .snd .snd) ⟩ (ab .snd)
+          ; reind-filler = λ e ab → ΣPathP (e , λ i →
+              CR.reind-filler (λ i → e i .fst , e i .snd .fst) (ab .fst) i
+              , CR.reind-filler (λ i → e i .fst , e i .snd .snd) (ab .snd) i)
+          } ⦄
+        (bpⱽⱽ .snd ⋆PshIso
+          ×PshIso (π₁*Aᴰᴰ .snd) (π₂*Bᴰᴰ .snd)
+        ⋆PshIso BinProductⱽᴰ'Spec≅BinProductⱽᴰSpecChosenReind bpⱽ Aᴰᴰ Bᴰᴰ)
 
   module BinProductⱽᴰNotation {x} {Aᴰ Bᴰ : Cᴰ.ob[ x ]}
     (bpⱽ : BinProductⱽ Cᴰ Aᴰ Bᴰ)

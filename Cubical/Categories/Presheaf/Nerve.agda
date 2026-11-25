@@ -10,6 +10,8 @@ open import Cubical.Data.Sigma
 
 open import Cubical.Categories.Category
 open import Cubical.Categories.Functor
+open import Cubical.Categories.NaturalTransformation
+open import Cubical.Categories.Adjoint.UniversalElements
 
 open import Cubical.Categories.Presheaf.StrictHom
 open import Cubical.Categories.Limits.BinProduct.More
@@ -100,3 +102,36 @@ module _ {C : Category ℓC ℓC'} {D : CartesianCategory ℓD ℓD'} (F : Funct
 
   CartesianNerve : CartesianFunctor D (PRESHEAF C ℓD')
   CartesianNerve = Nerve F , Nerve-pres-bp F D.bp
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'} (F : Functor C D)
+  (bps : BinProducts D) where
+  RightAdjointProf-pres-bp :
+    preservesProvidedBinProducts (RightAdjointProf F) bps
+  RightAdjointProf-pres-bp A B Γ = isoToIsEquiv the-iso
+    where
+    open Iso
+    module bp = BinProductNotation (bps (A , B))
+    N = RightAdjointProf F
+
+    pairHom : NatTrans Γ (N ⟅ A ⟆) → NatTrans Γ (N ⟅ B ⟆)
+            → NatTrans Γ (N ⟅ bp.vert ⟆)
+    pairHom α β .NatTrans.N-ob c x =
+      α .NatTrans.N-ob c x bp.,p β .NatTrans.N-ob c x
+    pairHom α β .NatTrans.N-hom f = funExt λ x →
+      bp.,p≡
+        (funExt⁻ (α .NatTrans.N-hom f) x
+         ∙ cong (λ g → F ⟪ f ⟫ ⋆⟨ D ⟩ g) (sym bp.×β₁)
+         ∙ sym (D .⋆Assoc _ _ _))
+        (funExt⁻ (β .NatTrans.N-hom f) x
+         ∙ cong (λ g → F ⟪ f ⟫ ⋆⟨ D ⟩ g) (sym bp.×β₂)
+         ∙ sym (D .⋆Assoc _ _ _))
+
+    the-iso : Iso (NatTrans Γ (N ⟅ bp.vert ⟆))
+                  (NatTrans Γ (N ⟅ A ⟆) × NatTrans Γ (N ⟅ B ⟆))
+    the-iso .fun f = f ●ᵛ N ⟪ bp.π₁ ⟫ , f ●ᵛ N ⟪ bp.π₂ ⟫
+    the-iso .inv (α , β) = pairHom α β
+    the-iso .sec (α , β) = ΣPathP
+      ( makeNatTransPath (funExt₂ λ c x → bp.×β₁)
+      , makeNatTransPath (funExt₂ λ c x → bp.×β₂))
+    the-iso .ret f = makeNatTransPath (funExt₂ λ c x →
+      bp.,p-extensionality bp.×β₁ bp.×β₂)

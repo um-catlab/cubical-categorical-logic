@@ -27,6 +27,7 @@ open import Cubical.Categories.Instances.Sets
 open import Cubical.Categories.Morphism
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Sets.Base hiding (_[-][-,_])
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
@@ -35,6 +36,7 @@ open import Cubical.Categories.Displayed.Instances.Terminal as 𝟙ᴰ
 open import Cubical.Categories.Displayed.NaturalTransformation
 open import Cubical.Categories.Displayed.NaturalTransformation.More
 open import Cubical.Categories.Displayed.Instances.Reindex.Base as Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Properties
 open import Cubical.Categories.Displayed.Instances.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.Instances.Reindex.Fibration
@@ -214,6 +216,192 @@ module _
       reflectsUniversalQuantifiers
         (λ c → bpC (c , A))
         (λ d → bpD (d , G ⟅ A ⟆ ))
+        (λ c' → G⟪×⟫≅G×G c' A)
+        Aᴰ
+        (∀s ((GΓ×GA.π₁ G⟪Γ×A⟫.,p GΓ×GA.π₂) cartLifts.* Aᴰ))
+      where
+        G⟪Γ×A⟫ : BinProduct D (G ⟅ Γ ⟆ , G ⟅ A ⟆)
+        G⟪Γ×A⟫ = isUniversal→UniversalElement _ (G⟪×⟫≅G×G Γ A)
+
+        module GΓ×GA = BinProductNotation (bpD (G ⟅ Γ ⟆ , G ⟅ A ⟆))
+        module G⟪Γ×A⟫ = BinProductNotation G⟪Γ×A⟫
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (F : Functor C C)
+  (πF : NatTrans F Id)
+  (F' : Functor D D)
+  (π' : NatTrans F' Id)
+  (G : Functor C D)
+  (swap : NatIso (G ∘F F) (F' ∘F G))
+  (swapπ'≡Gπ : (∀ Γ → (swap .trans ⟦ Γ ⟧ ⋆⟨ D ⟩ π' ⟦ G ⟅ Γ ⟆ ⟧)
+    ≡ G ⟪ πF ⟦ Γ ⟧ ⟫))
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+  (cartLifts : isFibration Dᴰ)
+  ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+
+  private
+    module C = Category C
+    module D = Category D
+    module Dᴰ = Fibers Dᴰ
+    module CR = ChosenReindNotation Dᴰ
+    module cartLifts = FibrationNotation Dᴰ cartLifts
+    module R = Fibers (reindexChosenReind Dᴰ G)
+    π-Quad : QuadrableTrans F Id (reindexChosenReind Dᴰ G)
+    π-Quad = πF , (λ x yᴰ → reindexCartesianLiftChosenReind Dᴰ G (πF ⟦ x ⟧) yᴰ
+                          (cartLifts yᴰ (G ⟅ F ⟅ x ⟆ ⟆) (G ⟪ πF ⟦ x ⟧ ⟫)))
+    π'-Quad : QuadrableTrans F' Id Dᴰ
+    π'-Quad = (π' , λ x yᴰ → cartLifts yᴰ (F' ⟅ x ⟆) (π' ⟦ x ⟧))
+
+    module _ {w x y z} {f : D [ w , x ]} {g : D [ w , y ]} {h : D [ x , z ]}
+      {k : D [ y , z ]} {yᴰ : Dᴰ.ob[ y ]} {zᴰ : Dᴰ.ob[ z ]}
+      (kᴰ : Dᴰ [ k ][ yᴰ , zᴰ ]) (commutes : g D.⋆ k ≡ f D.⋆ h) where
+      private
+        module g*yᴰ = CartesianLiftNotation Dᴰ (cartLifts yᴰ w g)
+        module h*zᴰ = CartesianLiftNotation Dᴰ (cartLifts zᴰ x h)
+        e = D.⟨ D.⋆IdL g ⟩⋆⟨ refl ⟩ ∙ commutes
+
+      sq-fillerᶜ : Dᴰ [ f ][ cartLifts yᴰ w g .fst , cartLifts zᴰ x h .fst ]
+      sq-fillerᶜ = h*zᴰ.introᴰ (CR.reind⟨ e ⟩ (g*yᴰ.πⱽ Dᴰ.⋆ᴰ kᴰ))
+
+      sq-fillerᶜ≡ : sq-fillerᶜ ≡ cartLifts.sq-filler kᴰ commutes
+      sq-fillerᶜ≡ = cong h*zᴰ.introᴰ
+        (Dᴰ.rectifyOut (CR.reind-∫≡ e _ ∙ Dᴰ.reind-filler e))
+
+  module _ {Γ : C.ob} where
+    private
+      LHS-F = ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
+              ∘F wkF π'-Quad (G ⟅ Γ ⟆))
+              ∘F reindex-π-/ChosenReind Dᴰ G Γ
+      RHS-F = reindex-π-/ChosenReind Dᴰ G (F ⟅ Γ ⟆) ∘F wkF π-Quad Γ
+
+    ∀F-commute-lemmaChosenReind : NatIso LHS-F RHS-F
+    ∀F-commute-lemmaChosenReind =
+      /NatIso the-ni the-niᴰ
+        (λ (_ , _ , γ) → sym $ symNatIso swap .trans .N-hom γ)
+      where
+      the-ni : NatIso (Fst ∘F LHS-F) (Fst ∘F RHS-F)
+      the-ni .trans .N-ob (Δ , _ , _) = symNatIso swap .trans ⟦ Δ ⟧
+      the-ni .trans .N-hom _ = symNatIso swap .trans .N-hom _
+      the-ni .nIso _ = symNatIso swap .nIso _
+
+      the-niᴰ :
+        NatIsoᴰ the-ni
+          (Fstⱽ Dᴰ (Element (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]))
+          ∘Fⱽᴰ 𝟙ᴰ.recᴰ (compSectionFunctor Snd LHS-F))
+          (Fstⱽ Dᴰ (Element (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]))
+          ∘Fⱽᴰ 𝟙ᴰ.recᴰ (compSectionFunctor Snd RHS-F))
+      the-niᴰ .NatIsoᴰ.transᴰ .NatTransᴰ.N-obᴰ {Δ , Δᴰ , _} _ =
+        sq-fillerᶜ Dᴰ.idᴰ (D.⋆IdR _ ∙ π'≡swap⁻Gπ F πF F' π' G swap swapπ'≡Gπ Dᴰ
+          cartLifts Δ)
+      the-niᴰ .NatIsoᴰ.transᴰ .NatTransᴰ.N-homᴰ
+          {x = (Θ , Θᴰ , _)}{y = (Δ , Δᴰ , _)}{f = (δ , δᴰ , _)} _ =
+          Dᴰ.rectify $ Dᴰ.≡out $
+            Dᴰ.⟨⟩⋆⟨ ΣPathP $ refl ,
+              (sq-fillerᶜ≡ Dᴰ.idᴰ (D.⋆IdR _ ∙ π'≡swap⁻Gπ F πF F' π' G swap
+                swapπ'≡Gπ Dᴰ cartLifts Δ)) ⟩
+            ∙ cartLifts.sq-collapse _ _
+            ∙ cartLifts.cong-introᴰ (symNatIso swap .trans .N-hom δ)
+                (Dᴰ.cong-reind _ _ Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdR (_ , δᴰ)
+                                           ∙ sym (Dᴰ.⋆IdL (_ , δᴰ)) ⟩)
+            ∙ sym (cartLifts.sq-collapse Dᴰ.idᴰ δᴰ)
+            ∙ Dᴰ.⟨ sym (ΣPathP $ refl ,
+                (sq-fillerᶜ≡ Dᴰ.idᴰ (D.⋆IdR _ ∙ π'≡swap⁻Gπ F πF F' π' G swap
+                  swapπ'≡Gπ Dᴰ cartLifts Θ))) ⟩⋆⟨
+                cartLifts.cong-introᴰ refl
+                  (sym (Dᴰ.reind-filler (D.⟨ D.⋆IdL _ ⟩⋆⟨ refl ⟩
+                    ∙ sym ((G ∘ʳ πF) .N-hom δ)))
+                  ∙ Dᴰ.⟨ sym cartLifts.⟨ CR.reind-∫≡ _ _ ⟩⋆πⱽ
+                       ∙ sym (CR.reind-∫≡ _ _) ⟩⋆⟨⟩
+                  ∙ sym (CR.reind-∫≡ _ _)
+                  ∙ cong (λ p → G ⟪ p .fst ⟫ , p .snd) (R.reind-filler _)
+                  ∙ sym (CR.reind-∫≡ _ _)) ⟩
+      the-niᴰ .NatIsoᴰ.nIsoᴰ {x = Δ , Δᴰ , γ} _ =
+        isisoᴰ (sq-fillerᶜ Dᴰ.idᴰ (D.⋆IdR _ ∙ sym (swapπ'≡Gπ Δ)))
+          (Dᴰ.rectify $ Dᴰ.≡out $
+            cong (_ ,_) (cong₂ Dᴰ._⋆ᴰ_ (sq-fillerᶜ≡ _ _) (sq-fillerᶜ≡ _ _))
+            ∙ cartLifts.sq-collapse _ _
+            ∙ cartLifts.cong-introᴰ (swap .nIso Δ .ret)
+                (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
+            ∙ cartLifts.sq-id refl)
+          (Dᴰ.rectify $ Dᴰ.≡out $
+            cong (_ ,_) (cong₂ Dᴰ._⋆ᴰ_ (sq-fillerᶜ≡ _ _) (sq-fillerᶜ≡ _ _))
+            ∙ cartLifts.sq-collapse _ _
+            ∙ cartLifts.cong-introᴰ (swap .nIso Δ .sec)
+                (Dᴰ.cong-reind _ (D.⋆IdR _) Dᴰ.⟨⟩⋆⟨ Dᴰ.⋆IdL _ ⟩)
+            ∙ cartLifts.sq-id refl)
+
+  module _ {Γ : C.ob} (Aᴰ : Dᴰ.ob[ G ⟅ F ⟅ Γ ⟆ ⟆ ])
+    (∀Aᴰ : ∀FOb {F = F'} {Cᴰ = Dᴰ} π'-Quad (swap .nIso Γ .inv cartLifts.* Aᴰ))
+    where
+    reflects∀FsChosenReind : ∀FOb π-Quad Aᴰ
+    reflects∀FsChosenReind .fst = ∀Aᴰ .fst
+    reflects∀FsChosenReind .snd =
+      reindexRepresentableIsoⱽChosenReind Dᴰ G Γ (∀Aᴰ .fst)
+      ⋆PshIsoⱽ reindPshIso (reindex-π-/ChosenReind Dᴰ G Γ)
+        (∀Aᴰ .snd
+        ⋆PshIsoⱽ (reindPshIso _ $
+          cartLifts Aᴰ (F' ⟅ G ⟅ Γ ⟆ ⟆) (swap .nIso Γ .inv) .snd)
+        ⋆PshIsoⱽ reindPsh∘F≅ (wkF π'-Quad (G ⟅ Γ ⟆))
+          (Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
+          (Dᴰ [-][-, Aᴰ ]))
+      ⋆PshIsoⱽ reindPsh-squareChosenReind Dᴰ
+        (reindex-π-/ChosenReind Dᴰ G Γ)
+        ((Idᴰ /Fⱽ yoRec (D [-, G ⟅ F ⟅ Γ ⟆ ⟆ ]) (swap .nIso Γ .inv))
+          ∘F wkF π'-Quad (G ⟅ Γ ⟆))
+        (wkF π-Quad Γ) (reindex-π-/ChosenReind Dᴰ G (Functor.F-ob F Γ)) Aᴰ
+        ∀F-commute-lemmaChosenReind
+      ⋆PshIsoⱽ reindPshIso (wkF π-Quad Γ)
+        (invPshIsoⱽ (reindexRepresentableIsoⱽChosenReind Dᴰ G (F ⟅ Γ ⟆) Aᴰ))
+
+module _
+  {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (G : Functor C D)
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ')
+  (cartLifts : isFibration Dᴰ)
+  ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module Dᴰ = Fibers Dᴰ
+    module cartLifts = FibrationNotation Dᴰ cartLifts
+  module _
+    {A : Category.ob C}
+    (-×A : BinProductsWith C A)
+    (-×GA : BinProductsWith D (G ⟅ A ⟆))
+    (G⟪-×A⟫≅G⟪-⟫×A : preservesProvidedBinProductsWith G -×A)
+    where
+    private
+      module -×A = BinProductsWithNotation -×A
+      module -×GA = BinProductsWithNotation -×GA
+      swap = preservesProvidedBinProductsWith→preservesCartNatTrans G -×A -×GA
+        G⟪-×A⟫≅G⟪-⟫×A
+    reflectsUniversalQuantifiersChosenReind : ∀ {Γ} (Aᴰ : Dᴰ.ob[ G ⟅ Γ -×A.×a ⟆
+      ])
+      (∀Aᴰ : UniversalQuantifier Dᴰ (G ⟅ A ⟆) -×GA
+        (λ Δ γ → cartLifts γ (Δ -×GA.×a) -×GA.π₁)
+        (swap .fst .nIso Γ .inv cartLifts.* Aᴰ))
+      → UniversalQuantifier (reindexChosenReind Dᴰ G) A -×A
+          (λ Δ Δᴰ → reindexCartesianLiftChosenReind Dᴰ G -×A.π₁ Δᴰ
+            (cartLifts Δᴰ (F-ob G -×A.×ue.vertex) (F-hom G -×A.π₁)))
+          Aᴰ
+    reflectsUniversalQuantifiersChosenReind =
+      reflects∀FsChosenReind -×A.×aF -×A.π₁Nat -×GA.×aF -×GA.π₁Nat G (swap .fst)
+        (swap .snd) Dᴰ cartLifts
+
+  module _
+    (bpC : BinProducts C)
+    (bpD : BinProducts D)
+    (G⟪×⟫≅G×G : preservesProvidedBinProducts G bpC)
+    where
+    hasUniversalQuantifiersReindexChosenReind :
+      UniversalQuantifiers Dᴰ bpD cartLifts
+      → UniversalQuantifiers (reindexChosenReind Dᴰ G) bpC
+          (isFibrationReindexChosenReind Dᴰ G cartLifts)
+    hasUniversalQuantifiersReindexChosenReind ∀s {Γ} {A} Aᴰ =
+      reflectsUniversalQuantifiersChosenReind
+        (λ c → bpC (c , A))
+        (λ d → bpD (d , G ⟅ A ⟆))
         (λ c' → G⟪×⟫≅G×G c' A)
         Aᴰ
         (∀s ((GΓ×GA.π₁ G⟪Γ×A⟫.,p GΓ×GA.π₂) cartLifts.* Aᴰ))

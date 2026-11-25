@@ -34,12 +34,14 @@ open import Cubical.Categories.Presheaf.Representable.More
 open import Cubical.Categories.FunctorComprehension.Base
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.BinProduct
 open import Cubical.Categories.Displayed.Instances.BinProduct.More
 open import Cubical.Categories.Displayed.Instances.Graph.Presheaf
 open import Cubical.Categories.Displayed.Instances.Reindex.Base
+open import Cubical.Categories.Displayed.Instances.Reindex.ChosenReind
 open import Cubical.Categories.Displayed.Instances.Reindex.Properties
 open import Cubical.Categories.Displayed.Instances.Reindex.UniversalProperties
 open import Cubical.Categories.Displayed.HLevels
@@ -145,3 +147,43 @@ module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
     ∙ CartesianLiftNotation.⟨_⟩⋆πⱽ (Dᴰ ^opᴰ) f*Fyᴰ
         (Dop.reind-revealed-filler⁻ {p = Dop.idᴰ}
           (sym (F .F-id)))
+
+module _ {C : Category ℓC ℓC'} {D : Category ℓD ℓD'}
+  (Dᴰ : Categoryᴰ D ℓDᴰ ℓDᴰ') (F : Functor C D) ⦃ cr : ChosenReind Dᴰ ⦄
+  where
+  private
+    module C = Category C
+    module D = Category D
+    module Dᴰ = ChosenReindNotation Dᴰ
+
+  reindexCartesianLiftChosenReind : ∀ {x y} (f : C [ x , y ]) (Fyᴰ : Dᴰ.ob[ F ⟅
+    y ⟆ ])
+    → CartesianLift Dᴰ (F ⟪ f ⟫) Fyᴰ
+    → CartesianLift (reindexChosenReind Dᴰ F) f Fyᴰ
+  reindexCartesianLiftChosenReind {x} {y} f Fyᴰ L = L .fst ,
+    improvePshIso
+      (reindexRepresentableIsoⱽChosenReind Dᴰ F _ _
+      ⋆PshIsoⱽ reindPshIso (reindex-π-/ChosenReind Dᴰ F x) (L .snd)
+      ⋆PshIsoⱽ reindPsh-square (reindex-π-/ChosenReind Dᴰ F x)
+        (Idᴰ /Fⱽ yoRec (D [-, F-ob F y ]) (F-hom F f))
+        (Idᴰ /Fⱽ yoRec (C [-, y ]) f) (reindex-π-/ChosenReind Dᴰ F y) (Dᴰ [-][-,
+          Fyᴰ ])
+        (reindexRepresentable-seq (πChosenReind Dᴰ F))
+      ⋆PshIsoⱽ reindPshIso (Idᴰ /Fⱽ yoRec (C [-, y ]) f)
+        (invPshIsoⱽ (reindexRepresentableIsoⱽChosenReind Dᴰ F y Fyᴰ)))
+      ((λ (Γ , Γᴰ , g) gᴰ →
+        Dᴰ.reind⟨ sym (F .F-seq g f) ⟩ (gᴰ L.⋆πⱽ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ gᴰ →
+        Dᴰ.rectifyOut (sym (Dᴰ.F.reind-filler _) ∙ Dᴰ.⋆IdL _
+          ∙ sym (Dᴰ.reind-∫≡ _ _)))
+      ((λ (Γ , Γᴰ , g) gfᴰ → L.introᴰ (Dᴰ.reind⟨ F .F-seq g f ⟩ gfᴰ))
+      , funExt λ (Γ , Γᴰ , g) → funExt λ gfᴰ → Dᴰ.rectifyOut
+        (L.cong-introᴰ refl
+          (sym (Dᴰ.F.reind-filler _) ∙ Dᴰ.⋆IdL _ ∙ sym (Dᴰ.reind-∫≡ _ _))))
+    where
+      module L = CartesianLiftNotation Dᴰ L
+
+  isFibrationReindexChosenReind : isFibration Dᴰ → isFibration
+    (reindexChosenReind Dᴰ F)
+  isFibrationReindexChosenReind isFibDᴰ {y} Fyᴰ x f =
+    reindexCartesianLiftChosenReind f Fyᴰ (isFibDᴰ Fyᴰ (F ⟅ x ⟆) (F ⟪ f ⟫))

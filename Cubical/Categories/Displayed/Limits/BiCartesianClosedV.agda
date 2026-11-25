@@ -12,6 +12,7 @@ open import Cubical.Categories.Limits.Terminal.More
 open import Cubical.Categories.Presheaf.Representable
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Limits.CartesianV'
 open import Cubical.Categories.Displayed.Limits.CartesianClosedV
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration
@@ -83,3 +84,15 @@ module _ (BCCC : BiCartesianClosedCategory ℓC ℓC')
     CCᴰ^op .CartesianCategoryᴰ.termᴰ
   BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ .bcpᴰ =
     CCᴰ^op .CartesianCategoryᴰ.bpᴰ
+
+  module _ ⦃ cr : ChosenReind (BiCartesianClosedCategoryⱽ.Cᴰ BCCCⱽ) ⦄ where
+    BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰChosenReind :
+      BiCartesianClosedCategoryᴰ BCCC ℓCᴰ ℓCᴰ'
+    BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰChosenReind .CCCᴰ =
+      CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰChosenReind CCC CCCⱽ
+    BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰChosenReind .initᴰ =
+      CartesianCategoryⱽ→CartesianCategoryᴰChosenReind CC^op CCⱽ^op
+        ⦃ ChosenReind^op ⦄ .CartesianCategoryᴰ.termᴰ
+    BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰChosenReind .bcpᴰ =
+      CartesianCategoryⱽ→CartesianCategoryᴰChosenReind CC^op CCⱽ^op
+        ⦃ ChosenReind^op ⦄ .CartesianCategoryᴰ.bpᴰ

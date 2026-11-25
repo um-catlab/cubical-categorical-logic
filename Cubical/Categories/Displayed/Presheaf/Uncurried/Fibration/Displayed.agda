@@ -29,6 +29,8 @@ module Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration.Displayed where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function
+open import Cubical.Foundations.Isomorphism
+open import Cubical.Foundations.Equiv.Dependent.More
 
 open import Cubical.Data.Sigma
 
@@ -43,6 +45,7 @@ open import Cubical.Categories.Presheaf.More
 open import Cubical.Categories.Presheaf.Morphism.Alt
 
 open import Cubical.Categories.Displayed.Base
+open import Cubical.Categories.Displayed.ChosenReind
 open import Cubical.Categories.Displayed.Functor
 open import Cubical.Categories.Displayed.Section.Base
 open import Cubical.Categories.Displayed.Instances.Reindex
@@ -186,3 +189,36 @@ module Liftsᴰ⁺ⱽ (K : Category ℓ ℓ') (C : Categoryᴰ K ℓᴰ ℓᴰ')
           (CartesianLiftNotation.πⱽ Cᴰ (≤*ⱽ Bᴰ)) i)
       ∙ ΣPathP (refl ,
           sym (reindPshᴰNatTrans-Path-refl-inv _ (Cᴰ [-][-, Bᴰ ]) _ _))
+
+  module _ ⦃ cr : ChosenReind Cᴰ ⦄ where
+    private
+      module CR = ChosenReindNotation Cᴰ
+
+    module _ {B} (≤*B : Representableⱽ C k1 (≤*-Spec B))
+      (Bᴰ : Cᴰ.ob[ _ , B ]) where
+      ≤*ᴰ-Specⱽ≅ᴰChosenReind :
+        PshIso (≤*ᴰ-Specⱽ ≤*B Bᴰ)
+          (reindPshᴰNatTrans (half-≤*-π' ≤*B) (≤*ᴰ-Specᴰ Bᴰ))
+      ≤*ᴰ-Specⱽ≅ᴰChosenReind = Isos→PshIso
+        (λ (Γ , Γᴰ , f) → iso
+          (CR.reind⟨ e f ⟩)
+          (CR.reind⟨ sym (e f) ⟩)
+          (λ _ → Cᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _))
+          (λ _ → Cᴰ.rectifyOut (CR.reind-∫≡ _ _ ∙ CR.reind-∫≡ _ _)))
+        λ _ _ _ _ → Cᴰ.rectifyOut
+          (CR.reind-∫≡ _ _ ∙ Cᴰ.reind-filler⁻ _
+          ∙ Cᴰ.⟨⟩⋆⟨ sym (CR.reind-∫≡ _ _) ⟩ ∙ Cᴰ.reind-filler _)
+        where
+        e : ∀ {Γ} f
+          → ≤*-π* ≤*B .N-ob Γ f ≡ π≤k B .N-ob Γ (half-≤*-π' ≤*B .N-ob Γ f)
+        e {Γ} f i = ≤*-π*≡≤*-π*' ≤*B i .N-ob Γ f
+
+    module _ (≤* : Quadrable C ≤) where
+      Quadrableⱽ→ᴰChosenReind : Quadrableⱽ ≤* → Quadrableᴰ ≤*
+      Quadrableⱽ→ᴰChosenReind ≤*ⱽ Bᴰ .fst = ≤*ⱽ Bᴰ .fst
+      Quadrableⱽ→ᴰChosenReind ≤*ⱽ {B} Bᴰ .snd = FiberwisePshIsoᴰ→PshIsoᴰ
+        ⦃ record
+          { reind⟨_⟩ = λ e → CR.reind⟨ cong (π≤k B .N-ob _) e ⟩
+          ; reind-filler = λ e q →
+              ΣPathP (e , CR.reind-filler (cong (π≤k B .N-ob _) e) q) } ⦄
+        (≤*ⱽ Bᴰ .snd ⋆PshIso ≤*ᴰ-Specⱽ≅ᴰChosenReind (≤* _) Bᴰ)

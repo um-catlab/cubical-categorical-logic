@@ -1,4 +1,7 @@
 {-# OPTIONS --lossy-unification #-}
+-- "Forded" refers to McBride's fording trick.
+-- The constructors of Expr take in identities on their indices
+-- rather than fixing them.
 module Cubical.Categories.Instances.Free.BiCartesianClosedCategory.Forded where
 
 open import Cubical.Foundations.Prelude

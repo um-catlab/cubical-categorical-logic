@@ -123,7 +123,7 @@ section.
 | Definition 2.3 | `Categoryᴰ` | [`Cubical/Categories/Displayed/Base.agda`](https://github.com/agda/cubical/blob/92166033326aa59800a580b428125f3c654b5e45/Cubical/Categories/Displayed/Base.agda#L20) *(agda/cubical)* |
 | Definition 2.4 | `SETᴰ` | [`safe/Cubical/Categories/Displayed/Instances/Sets/Base.agda`](safe/Cubical/Categories/Displayed/Instances/Sets/Base.agda#L31) |
 | Definition 2.5 | `GlobalSection` | [`Cubical/Categories/Displayed/Section/Base.agda`](https://github.com/agda/cubical/blob/92166033326aa59800a580b428125f3c654b5e45/Cubical/Categories/Displayed/Section/Base.agda#L152) *(agda/cubical)* |
-| Theorem 2.7 | `elimBiCartesianClosed` | [`safe/Cubical/Categories/Instances/Free/BiCartesianClosedCategory/Forded.agda`](safe/Cubical/Categories/Instances/Free/BiCartesianClosedCategory/Forded.agda#L258) |
+| Theorem 2.7 | `elimBiCartesianClosed` | [`safe/Cubical/Categories/Instances/Free/BiCartesianClosedCategory/Forded.agda`](safe/Cubical/Categories/Instances/Free/BiCartesianClosedCategory/Forded.agda#L261) |
 | Theorem 2.8 | `canonicity-bool`, `canonicity-nat` | [`safe/Gluing/BiCartesianClosedCategory/BoolNatCanonicity/Forded.agda`](safe/Gluing/BiCartesianClosedCategory/BoolNatCanonicity/Forded.agda#L124-L128) |
 
 ### §3 Logical Relations via Displayed Category Theory
@@ -151,16 +151,16 @@ section.
 | Theorem 3.24 | `EqSETᴰCCCⱽ` | [`safe/Cubical/Categories/Displayed/Instances/Sets/Properties.agda`](safe/Cubical/Categories/Displayed/Instances/Sets/Properties.agda#L204) |
 | Theorem 3.26 | `CartesianCategoryⱽ→CartesianCategoryᴰ` | [`safe/Cubical/Categories/Displayed/Limits/CartesianV'.agda`](safe/Cubical/Categories/Displayed/Limits/CartesianV'.agda#L53) |
 | Theorem 3.27 | `CartesianClosedCategoryⱽ→CartesianClosedCategoryᴰ` | [`safe/Cubical/Categories/Displayed/Limits/CartesianClosedV.agda`](safe/Cubical/Categories/Displayed/Limits/CartesianClosedV.agda#L66) |
-| Corollary 3.28 | `EqSETᴰBCCCⱽ` | [`safe/Cubical/Categories/Displayed/Instances/Sets/Properties.agda`](safe/Cubical/Categories/Displayed/Instances/Sets/Properties.agda#L209) |
+| Corollary 3.28 | `SETᴰBCCCᴰ` | [`safe/Cubical/Categories/Displayed/Instances/Sets/Properties.agda`](safe/Cubical/Categories/Displayed/Instances/Sets/Properties.agda#L215) |
 
 ### §4 Concrete Semantic Domains
 
 | Paper | Agda | Location |
 |---|---|---|
-| Definition 4.1 | `Fam` | [`safe/Cubical/Categories/Displayed/Instances/Family/Base.agda`](safe/Cubical/Categories/Displayed/Instances/Family/Base.agda#L20) |
+| Definition 4.1 | `PROPᴰ` | [`safe/Cubical/Categories/Displayed/Instances/Family/Prop.agda`](safe/Cubical/Categories/Displayed/Instances/Family/Prop.agda#L10) |
 | Definition 4.2 | `PRESHEAFᴰ` | [`safe/Cubical/Categories/Displayed/Instances/Presheaf/Eq/Base.agda`](safe/Cubical/Categories/Displayed/Instances/Presheaf/Eq/Base.agda#L273) |
 | Theorem 4.3 | `CCCⱽPSHᴰ` | [`safe/Cubical/Categories/Displayed/Instances/Presheaf/Eq/CartesianClosed.agda`](safe/Cubical/Categories/Displayed/Instances/Presheaf/Eq/CartesianClosed.agda#L155) |
-| Theorem 4.4 | `P⇒Large-UMP` | [`safe/Cubical/Categories/Presheaf/StrictHom/RightAdjoint.agda`](safe/Cubical/Categories/Presheaf/StrictHom/RightAdjoint.agda#L107) |
+| Theorem 4.4 | `P⇒Large-UMP` | [`safe/Cubical/Categories/Presheaf/StrictHom/RightAdjoint.agda`](safe/Cubical/Categories/Presheaf/StrictHom/RightAdjoint.agda#L109) |
 | Definition 4.6 | `Iso` | [`safe/Cubical/Categories/Displayed/Instances/Arrow/Base.agda`](safe/Cubical/Categories/Displayed/Instances/Arrow/Base.agda#L61) |
 | Definition 4.7 | `IsoFiber` | [`safe/Cubical/Categories/Displayed/Instances/IsoFiber/Base.agda`](safe/Cubical/Categories/Displayed/Instances/IsoFiber/Base.agda#L43) |
 | Theorem 4.8 | `IsoFiberReflection` | [`safe/Cubical/Categories/Displayed/Instances/IsoFiber/Base.agda`](safe/Cubical/Categories/Displayed/Instances/IsoFiber/Base.agda#L47) |

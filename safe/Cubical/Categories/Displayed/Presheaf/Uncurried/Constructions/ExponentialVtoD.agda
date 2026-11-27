@@ -3,7 +3,7 @@
 -}
 
 {-# OPTIONS --lossy-unification #-}
-module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D where
+module Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialVtoD where
 
 open import Cubical.Foundations.Prelude
 open import Cubical.Foundations.Function

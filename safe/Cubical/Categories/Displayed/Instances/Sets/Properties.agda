@@ -211,3 +211,7 @@ EqSETᴰBCCCⱽ =
   EqBCCCⱽ→BCCCⱽ SETCC EqSets.SetAssoc EqSets.SetIdL EqSets.Setπ₁NatEq
     EqSets.Set×aF-seq (SETᴰ _ _) EqSets.SetAssoc^op
     EqSets.isCCCⱽSETᴰ EqSets.isCartesianⱽSETᴰ^op
+
+SETᴰBCCCᴰ : BiCartesianClosedCategoryᴰ (SETBiCCC {ℓ}) (ℓ-suc ℓ) ℓ
+SETᴰBCCCᴰ {ℓ = ℓ} =
+  BiCartesianClosedCategoryⱽ→BiCartesianClosedCategoryᴰ SETBiCCC EqSETᴰBCCCⱽ

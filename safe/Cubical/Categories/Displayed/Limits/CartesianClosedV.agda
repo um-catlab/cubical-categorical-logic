@@ -21,7 +21,7 @@ open import Cubical.Categories.Displayed.Functor.More
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Base
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.Exponential
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialVtoD
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.UniversalQuantifier
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Fibration

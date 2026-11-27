@@ -104,6 +104,8 @@ module P⇒LargeStrict-cocontinuous
   P⇒Large Q = P-bif F⇒LargeStrict Q
 
   module _ (Q : Presheaf E ℓQ) (R : Presheaf D ℓR) where
+    -- Naturality in Q and R is not proven here.
+    -- Each application establishes naturality directly.
     P⇒Large-UMP : Iso (PshHomStrict R (P⇒Large Q)) (PshHomStrict (P ⟅ R ⟆) Q)
     P⇒Large-UMP =
         PshHomStrict R (P⇒Large Q)

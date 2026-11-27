@@ -61,7 +61,7 @@ open import Cubical.Categories.Displayed.Section
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.UniversalProperties
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Representable
 open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialD
-open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialV->D
+open import Cubical.Categories.Displayed.Presheaf.Uncurried.Constructions.ExponentialVtoD
 
 private
   variable

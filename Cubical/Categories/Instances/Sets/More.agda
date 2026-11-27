@@ -1,4 +1,3 @@
-
 module Cubical.Categories.Instances.Sets.More where
 
 open import Cubical.Foundations.Prelude
@@ -108,3 +107,7 @@ opaque
     → ∀ b
     → transport (λ i → ⟨ CatIsoToPath isUnivalentSET' f (~ i) ⟩) b ≡ f .snd .isIso.inv b
   ~univSet'β f b = cong (f .snd .isIso.inv) (transportRefl _)
+
+open import Cubical.Categories.Instances.ExtraId
+_[-,_]Thick : ∀ {ℓC}{ℓC'} (C : Category ℓC ℓC') (x : C .Category.ob) → Presheaf C (ℓ-max ℓC ℓC')
+C [-, x ]Thick = (ExtraId C [-, x ]) ∘F (σ C ^opF)
